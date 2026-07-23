@@ -13,9 +13,10 @@
 | DEC-009 | 2026-07-23 | Schulungsthemen werden zuerst fachlich aufbereitet und möglichst mit T-SQL in isolierten synthetischen Testdatenbanken demonstriert. Zusätzliche Infrastruktur wird erst eingesetzt, wenn der Effekt mit T-SQL allein nicht glaubwürdig reproduzierbar ist. | Das Projekt ist eine Performance-Schulung und kein Infrastruktur- oder allgemeines Analyseframework-Lab. |
 | DEC-010 | 2026-07-23 | Ein kompaktes Testumgebungs-How-to wird als unterstützender Einstieg für Personen ohne verfügbaren SQL Server vorgesehen. | Die Beispiele sollen reproduzierbar bleiben, ohne den Labaufbau zum eigentlichen Projektziel zu machen. |
 | DEC-011 | 2026-07-23 | Die vorhandenen Präsentationen werden nicht unverändert übernommen, sondern fachlich und didaktisch anhand eines dokumentierten Baseline-Reviews überarbeitet. | Mehrere Bestandsaussagen sind zu pauschal, veraltet oder nicht ausreichend versionsbezogen. |
-| DEC-012 | 2026-07-23 | `Gerhard Pisch` und `BI-Automation` sind als ausdrücklich freigegebene Angaben zulässig. | Vom Auftraggeber erteilte Datenschutz- und Veröffentlichungsfreigabe. |
+| DEC-012 | 2026-07-23 | Nur `Gerhard Pisch` ist als reale Namensangabe ausdrücklich freigegeben. | Vom Auftraggeber erteilte Datenschutz- und Veröffentlichungsfreigabe. |
 | DEC-013 | 2026-07-23 | Das bezeichnete Firmenlogo und die zugehörigen Firmen- und Markenkennzeichen werden aus allen Repository-Artefakten entfernt. | Firmenneutrale, wiederverwendbare Schulungsunterlagen. |
 | DEC-014 | 2026-07-23 | Branding-Prüfungen umfassen Text, Office-Metadaten und eine visuelle Kontrolle von Bildern, Masterfolien, Layouts und Exporten. | Bildbasierte Logos werden durch reine Textsuche nicht zuverlässig erkannt. |
+| DEC-015 | 2026-07-23 | Interne Bildschirmaufnahmen werden entfernt; fehlende Demonstrationen werden ausschließlich mit synthetischen Labordaten neu aufgebaut. | Interne Benutzer-, Host- und Datenbankangaben dürfen nicht in Schulungsartefakten verbleiben. |
 | DEC-015 | 2026-07-23 | Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz erhalten getrennte Rollen. | Reduktion überladener Folien bei gleichzeitiger technischer Vertiefung. |
 
 Neue Entscheidungen werden fortlaufend ergänzt. Bestehende Einträge werden nicht stillschweigend umgedeutet; fachlich überholte Entscheidungen erhalten einen expliziten Nachfolgeeintrag.
