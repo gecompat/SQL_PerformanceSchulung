@@ -9,6 +9,11 @@
 - [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework entwerfen.
 - [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten definieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
+- [ ] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
+- [ ] Sanitizing-Regeln für Bestandsunterlagen und zulässige Namensausnahmen anwenden.
+- [ ] Sämtliche veralteten Verweise auf externe Vorlage-Repositories entfernen.
+- [ ] Das bezeichnete Firmenlogo und die dazugehörigen Firmen- und Markenkennzeichen aus allen Repository-Artefakten entfernen.
+- [ ] Bildbasierte Branding-Prüfung zusätzlich zur Text- und Metadatensuche definieren.
 
 ## P1 - Erste Umsetzung
 
@@ -17,6 +22,9 @@
 - [ ] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen.
 - [ ] Query Store und Extended Events als zentrale Diagnosepfade integrieren.
 - [ ] Vorhandene Beispiele nach weiterverwendbar, zu ergänzen oder neu aufzubauen klassifizieren.
+- [ ] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
+- [ ] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
+- [ ] Kritische Bestandsaussagen zu CTE, Table Variables, Heaps, Filegroups, Plan Cache, Adaptive Join, Columnstore, Partitionierung, Linked Server und Hash-Eindeutigkeit korrigieren.
 
 ## P2 - Reproduktion und Testmatrix
 
@@ -27,6 +35,8 @@
 - [ ] Hyper-V nur für nachweislich Windows-, Storage- oder OS-nahe Demos planen.
 - [ ] Wiederholbare Concurrency-Workloads ohne proprietäre Abhängigkeiten erstellen.
 - [ ] Hardwareabhängige Erwartungswerte als Bereiche statt Fixwerte definieren.
+- [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister und Lernzielen synchronisieren.
+- [ ] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
 
 ## Erledigungsregel
 
