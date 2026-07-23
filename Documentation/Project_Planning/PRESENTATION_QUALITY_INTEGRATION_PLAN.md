@@ -4,7 +4,7 @@
 |---|---|
 | Status | `PLANNED` |
 | Geltung | verbindliche Ergänzung des Master-Umsetzungsplans |
-| Stand | 2026-07-23 |
+| Stand | 2026-07-24 |
 | Baseline | [`PRESENTATION_BASELINE_REVIEW_2024.md`](../Reviews/PRESENTATION_BASELINE_REVIEW_2024.md) |
 
 ## 1. Zweck und Geltung
@@ -21,6 +21,16 @@ Diese Planergänzung integriert die Ergebnisse der Bestandsprüfung in den beste
 | `W0-012` | M | Visuelle Branding-Prüfung definieren | Masterfolien, Layouts, Bilder, Notes, Exporte und eingebettete Medien werden zusätzlich zur Textsuche visuell geprüft |
 
 Besonders zu prüfen sind CTE, Table Variables, Heaps, RID Lookup, Forwarded Records, Filegroups, physische I/O-Trennung, Plan Cache, Recompilation, Adaptive Join, Batch Mode on Rowstore, Columnstore-Maintenance, Remote Pushdown, Linked Server, Partitionierung, Worker/Tasks/Threads sowie Hash-basierte Eindeutigkeitsmuster.
+
+### Umsetzungsnachweis W0-011
+
+`W0-011` ist für den aktiven 84-Folien-Satz als `VALIDATED` nachgewiesen:
+
+- [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md): jede Folie mit stabiler ID, Kernaussage, Evidenzklasse, Versionsgrenze, Quelle, Entscheidung und vorläufiger Demo-ID;
+- [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md): alle verpflichtenden und ergänzenden Risikofelder mit Schweregrad und Folgeentscheidung;
+- [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md): begrenzte offizielle Quellenbasis für `W0-003`, `W0-004` und `W0-011`.
+
+Vier gezielte `REFINE`-Punkte bleiben als kontrollierte Folgearbeit für `W2-007` offen. Das ist eine fachliche Präzisierung, kein unaufgelöster Inventarisierungsbefund.
 
 ## 3. Ergänzungen zum Curriculum-Workstream
 
