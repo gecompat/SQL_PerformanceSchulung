@@ -268,7 +268,7 @@ Die vier Demos für Gate B werden erst im Detail ausgewählt, wenn Welle 0 abges
 
 ## 12. Wellen 3 bis 9 – Geplanter Demo-Bestand
 
-Die folgende Liste definiert 69 geplante Demo-Bündel. Ein Bündel darf während des Designs in mehrere Demos geteilt werden, wenn Sicherheitsstufe, Version oder didaktischer Ablauf sonst unklar werden. Zusammenlegungen benötigen eine dokumentierte Begründung, damit keine Kernaussage verloren geht.
+Die folgende Liste definiert 68 geplante fachliche Demo-Bündel. Zusammen mit den sechs Infrastruktur-Bündeln aus Welle 10 umfasst der Plan 74 Bündel. Ein Bündel darf während des Designs in mehrere Demos geteilt werden, wenn Sicherheitsstufe, Version oder didaktischer Ablauf sonst unklar werden. Zusammenlegungen benötigen eine dokumentierte Begründung, damit keine Kernaussage verloren geht.
 
 ### Welle 3 – Storage, Pages und Transaction Log
 
