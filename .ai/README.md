@@ -7,7 +7,8 @@ Dieser Ordner enthält den verbindlichen, maschinenlesbaren Arbeitskontext für 
 3. `DECISIONS.md`
 4. `DEMO_CONTRACT.md`
 5. `ROADMAP.md`
-6. `BACKLOG.md`
+6. [`../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md`](../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
+7. `BACKLOG.md`
 
 ## Geltungsbereich
 
@@ -17,5 +18,6 @@ Diese Dateien steuern ausschließlich das Repository `gecompat/SQL_PerformanceSc
 
 - Neue verbindliche Entscheidungen mit Datum und stabiler ID in `DECISIONS.md` ergänzen.
 - Den Backlog nicht als Erledigt markieren, solange keine überprüfbare Evidenz vorliegt.
+- Den Master-Umsetzungsplan aktualisieren, wenn sich Arbeitspakete, Abhängigkeiten, Gates, Demo-Bestand oder Wiederaufnahmeverfahren ändern.
 - Änderungen an Projektzielen, Versionen oder Sicherheitsregeln gleichzeitig in allen betroffenen Steuerungsdateien nachziehen.
 - Freitext sachlich, präzise und vollständig formulieren; weder ausschmückend noch stichwortartig.
