@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `PLANNED` |
-| Planversion | 1.0 |
+| Planversion | 1.1 |
 | Stand | 2026-07-23 |
 | Primäre Zielplattform | SQL Server 2025 |
 | Kompatibilitätsmatrix | SQL Server 2019, 2022 und 2025 |
@@ -38,17 +38,31 @@ Das Projekt ist abgeschlossen, wenn folgende Artefaktgruppen konsistent vorliege
 - eine bereinigte, firmenneutrale Präsentation mit Quellen, Sprecherhinweisen und Demo-Zuordnung,
 - ein vollständiger Demo-Katalog mit stabilen IDs,
 - reproduzierbare T-SQL-Demos mit Setup, Evidenz, Gegenmaßnahme, Vergleich und Cleanup,
-- automatisierbare Docker-/Podman-Labs für portable Standardszenarien,
-- automatisierbare Hyper-V-Labs für Windows-, Storage- und OS-nahe Szenarien,
+- reproduzierbare T-SQL-Demos, die ihre isolierten synthetischen Testdatenbanken selbst aufbauen und bereinigen,
+- ein kompaktes Testumgebungs-How-to für Personen ohne verfügbaren SQL Server,
+- zusätzliche Container- oder Hyper-V-Szenarien ausschließlich für fachlich begründete Sonderfälle,
 - statische und dynamische Tests für Datenschutz, Struktur, Syntax, Wiederholbarkeit und Versionsverhalten,
 - Trainer- und Teilnehmerhinweise für Durchführung, Interpretation und Fehlerbehebung,
 - ein Releasepaket mit nachvollziehbarer Versions- und Quellenbasis.
+
+## 3.1 Verbindliche Umsetzungsreihenfolge
+
+Die Schulungsinhalte bestimmen die technische Umsetzung, nicht umgekehrt:
+
+1. Das Thema wird fachlich erklärt und einem überprüfbaren Lernziel zugeordnet.
+2. Die Vorführung wird als T-SQL-Demo in einer isolierten synthetischen Testdatenbank entworfen.
+3. Die Testdatenbank wird durch Setup und Cleanup reproduzierbar aufgebaut und entfernt.
+4. Erst wenn die Kernaussage damit nicht glaubwürdig, sicher oder messbar gezeigt werden kann, wird zusätzliche Infrastruktur vorgesehen.
+5. Ein Testumgebungs-How-to bleibt ein unterstützender Bereitstellungspfad und ist kein eigener fachlicher Schwerpunkt.
+
+Zusätzliche Infrastruktur benötigt im Demo-Katalog eine Begründung: welcher Effekt ohne sie fehlt, welche minimale Topologie erforderlich ist und warum eine reine T-SQL-Variante nicht genügt.
 
 ## 4. Nichtziele
 
 - Kein Bestandteil dieses Projekts darf ein anderes Repository verändern.
 - Es werden keine realen Diagnoseausgaben, Screenshots, Namen, Logos, Hostnamen, Datenbanknamen, Pfade oder Organisationsinformationen versioniert.
-- Das Lab ist kein Produktions-Monitoring-Framework.
+- Dieses Projekt baut kein Lab für `SQL_Server_Analyze` oder ein anderes Analyseframework auf.
+- Infrastruktur wird nicht vorsorglich aufgebaut, wenn eine T-SQL-Demo mit Testdatenbank ausreicht.
 - Ein gemessener Effekt auf einer Labormaschine wird nicht als universeller Schwellenwert dargestellt.
 - Rot eingestufte Demos werden nicht für Produktionssysteme freigegeben.
 - Drittanbieter-Werkzeuge werden nicht ungeprüft eingebettet oder stillschweigend vorausgesetzt.
@@ -106,15 +120,17 @@ Ein Arbeitspaket gilt als erledigt, wenn:
 
 ```mermaid
 graph TD
-    A["Welle 0: Inventar und Fachprüfung"] --> B["Gate A: freigegebener Themenbestand"]
-    B --> C["Welle 1: Demo-Framework"]
-    C --> D["Gate B: vier validierte Pilotdemos"]
-    D --> E["Welle 2: vorhandene Beispiele"]
-    D --> F["Wellen 3–9: Fachdemos"]
-    E --> G["Gate C: vollständiger Demo-Katalog"]
-    F --> G
-    G --> H["Welle 10: Infrastrukturabnahme"]
-    H --> I["Gate D: Präsentation und Release"]
+    A["Welle 0: Inhalte prüfen"] --> B["Gate A: Themenbestand"]
+    B --> C["Welle 1: T-SQL-Demobasis"]
+    C --> D["Gate B: Pilotdemos"]
+    D --> E["Wellen 2–9: Schulungsdemos"]
+    D --> F["Testumgebungs-How-to"]
+    E --> G{"Zusätzliche Infrastruktur nötig?"}
+    G -->|Nein| H["Gate C: Inhaltsabdeckung"]
+    G -->|Ja| I["Minimales Sonderlab"]
+    I --> H
+    F --> J["Gate D: Präsentation und Release"]
+    H --> J
 ```
 
 ### Gate A – Fachlicher Bestand freigegeben
@@ -141,13 +157,16 @@ Erst danach werden größere Mengen fachlicher Demos umgesetzt.
 - Jeder freigegebene Schulungsabschnitt besitzt mindestens eine Erklärung oder Demo.
 - Jede Demo ist einem Curriculum- und Präsentationsabschnitt zugeordnet.
 - Überschneidungen wurden bewusst zusammengeführt oder begründet getrennt.
-- Alle Demos besitzen Version, Risiko, Laufzeitklasse und Infrastrukturprofil.
+- Alle Demos besitzen Version, Risiko, Laufzeitklasse und Ausführungsvoraussetzung; Standard ist T-SQL mit isolierter Testdatenbank.
+- Jede zusätzliche Infrastrukturabhängigkeit ist fachlich begründet.
 
 ### Gate D – Releasefähig
 
 - Statische Prüfungen vollständig grün.
 - Alle grünen Demos in der zutreffenden Versionsmatrix validiert.
-- Gelbe und rote Demos in den vorgesehenen isolierten Profilen validiert.
+- Gelbe und rote Demos in den tatsächlich benötigten isolierten Profilen validiert.
+- Das Testumgebungs-How-to ermöglicht die Ausführung der normalen T-SQL-Beispiele ohne bereits vorhandenen SQL Server.
+- Nicht benötigte Sonderinfrastruktur ist ausdrücklich `DEFERRED` und blockiert den Release nicht.
 - Präsentation, Sprecherhinweise, Teilnehmeranleitung und Demo-Katalog stimmen überein.
 - Release- und Wiederherstellungsanleitung geprüft.
 
@@ -214,7 +233,7 @@ Dieser Workstream beginnt nach `W0-003` und läuft bis zum Release.
 | `CON` | Concurrency, Isolation und TempDB |
 | `RES` | CPU, Memory, I/O und Waits |
 | `DGN` | Diagnosewerkzeuge |
-| `INF` | Infrastruktur-Labs |
+| `INF` | Testumgebungs-How-to und notwendige Sonderinfrastruktur |
 
 IDs werden nach Veröffentlichung nicht neu nummeriert. Entfernte Kandidaten bleiben im Katalog als `DEFERRED` oder `RETIRED` sichtbar.
 
@@ -224,7 +243,7 @@ IDs werden nach Veröffentlichung nicht neu nummeriert. Entfernte Kandidaten ble
 - Lernziel und fachliche Kernaussage,
 - Curriculum- und Präsentationsbezug,
 - Version, Compatibility Level, Edition und Betriebssystem,
-- Sicherheitsstufe und erforderliches Labprofil,
+- Sicherheitsstufe und Ausführungspfad (`TSQL_TESTDB`, `CONTAINER`, `HYPERV` oder begründete Alternative),
 - Zahl der Sessions, Laufzeitklasse und erwarteter Speicherbedarf,
 - Setup-, Evidenz-, Mitigation- und Cleanup-Pfad,
 - automatisierbare und manuelle Tests,
@@ -238,8 +257,8 @@ Wiederverwendbare Bausteine verhindern, dass jede Demo eigene Sicherheits-, Mess
 
 | ID | Größe | Arbeit | Abschlusskriterium |
 |---|---:|---|---|
-| `FWK-001` | M | Preflight-Vertrag | Version, Edition, Compatibility Level, Rechte, Konfiguration, freier Speicher und Labfreigabe werden geprüft |
-| `FWK-002` | M | Lab-Datenbank-Lifecycle | idempotente Anlage, eindeutige Kennzeichnung, Schutz vor falscher Zieldatenbank und vollständiges Entfernen |
+| `FWK-001` | M | Preflight-Vertrag | Version, Edition, Compatibility Level, Rechte, Konfiguration, freier Speicher und Eignung der Testinstanz werden geprüft |
+| `FWK-002` | M | Testdatenbank-Lifecycle | idempotente Anlage, eindeutige Kennzeichnung, Schutz vor falscher Zieldatenbank und vollständiges Entfernen |
 | `FWK-003` | L | synthetischer Datengenerator | deterministische Seeds, skalierbare Zeilenzahl, Skew-, Korrelations- und Breitenprofile |
 | `FWK-004` | L | Messrahmen | CPU, Duration, Reads, Writes, Rows, Grants, Wait-Deltas und Dateilatenzen themengerecht erfassbar |
 | `FWK-005` | M | Plan- und Statistik-Evidenz | Estimated/Actual Plan, relevante XML-Warnings, Statistikheader und Histogramme versionsbewusst dokumentierbar |
@@ -268,7 +287,7 @@ Die vier Demos für Gate B werden erst im Detail ausgewählt, wenn Welle 0 abges
 
 ## 12. Wellen 3 bis 9 – Geplanter Demo-Bestand
 
-Die folgende Liste definiert 68 geplante fachliche Demo-Bündel. Zusammen mit den sechs Infrastruktur-Bündeln aus Welle 10 umfasst der Plan 74 Bündel. Ein Bündel darf während des Designs in mehrere Demos geteilt werden, wenn Sicherheitsstufe, Version oder didaktischer Ablauf sonst unklar werden. Zusammenlegungen benötigen eine dokumentierte Begründung, damit keine Kernaussage verloren geht.
+Die folgende Liste definiert 68 geplante fachliche Demo-Bündel. Welle 10 ergänzt sechs unterstützende oder bedarfsabhängige Infrastruktur-Bündel; diese zählen nicht als eigenständige Schulungsthemen. Ein Bündel darf während des Designs in mehrere Demos geteilt werden, wenn Sicherheitsstufe, Version oder didaktischer Ablauf sonst unklar werden. Zusammenlegungen benötigen eine dokumentierte Begründung, damit keine Kernaussage verloren geht.
 
 ### Welle 3 – Storage, Pages und Transaction Log
 
@@ -373,61 +392,95 @@ Die folgende Liste definiert 68 geplante fachliche Demo-Bündel. Zusammen mit de
 | `DGN-005` | Extended Events für Deadlocks, Blocking, Spills, Recompiles und Fehler | Gelb |
 | `DGN-006` | Workload-Treiber, hohe Sessionzahl, OS-Metriken und reproduzierbare Baselines | Gelb |
 
-## 13. Welle 10 – Infrastruktur-Labs
+## 13. Welle 10 – Testumgebungs-How-to und notwendige Sonderinfrastruktur
 
-### 13.1 Architekturprinzip
+### 13.1 Rolle dieser Welle
 
-Die Standardumgebung wird containerbasiert und versionsweise nacheinander gestartet. Dadurch müssen die Images und Datenvolumes nicht gleichzeitig RAM und Storage belegen. Hyper-V wird nur verwendet, wenn Windows-Verhalten, echte virtuelle Datenträger, OS-nahe Messung oder stärkere Isolation fachlich erforderlich sind.
+Welle 10 ist kein eigenständiger fachlicher Schwerpunkt und kein Lab für ein Analyseframework. Sie unterstützt die Ausführung der Schulungsbeispiele in zwei klar getrennten Fällen:
 
-### 13.2 Geplante Infrastruktur-Bündel
+1. Es steht kein SQL Server zur Verfügung. Dann wird ein kompakter, ressourcenschonender Bereitstellungspfad angeboten.
+2. Eine konkrete Schulungsdemo benötigt nachweislich CPU-/RAM-Limits, gedrosseltes I/O, Netzwerkbedingungen, mehrere Instanzen oder Windows-nahe Messung. Dann wird nur die dafür notwendige minimale Topologie umgesetzt.
 
-| ID | Infrastruktur-Bündel | Bevorzugte Plattform |
+### 13.2 Verbindlicher Entscheidungspfad je Demo
+
+| Stufe | Ausführungspfad | Verwendung |
+|---:|---|---|
+| 1 | vorhandene Testinstanz plus eigene synthetische Testdatenbank | Standard, wenn ein geeigneter SQL Server verfügbar ist |
+| 2 | reine T-SQL-Steuerung innerhalb der isolierten Testinstanz | bevorzugt für Pläne, Statistiken, Indizes, Blocking, Deadlocks, Query Store und Extended Events |
+| 3 | containerisierte Einzelinstanz | Bereitstellung, wenn kein SQL Server vorhanden ist, oder reproduzierbare CPU-/RAM-Grenzen benötigt werden |
+| 4 | Hyper-V-VM | nur für Windows-, OS-, Storage- oder Isolationsanforderungen, die Stufe 1 bis 3 nicht abdecken |
+| 5 | Mehrinstanz-/Netzwerktopologie | nur bei fachlich notwendiger verteilter oder netzwerkabhängiger Kernaussage |
+
+Für jede Stufe oberhalb von 2 wird im Demo-Katalog dokumentiert, warum die niedrigere Stufe nicht genügt.
+
+### 13.3 Unterstützende Bündel
+
+| ID | Bündel | Rolle |
 |---|---|---|
-| `INF-001` | portables Eininstanz-Basislab mit Gesundheitsprüfung und Datenpersistenz | Docker und Podman |
-| `INF-002` | CPU- und RAM-Begrenzung mit dokumentiertem Ressourcenbudget | Docker, Podman; Hyper-V als Vergleich |
-| `INF-003` | gedrosseltes Daten- und Log-I/O mit getrennten Pfaden | Hyper-V primär; Container nur nach nachgewiesener Hostunterstützung |
-| `INF-004` | Netzwerk-Latenz, Bandbreite und langsamer Client | Container-Netzwerk oder Hyper-V-QoS |
-| `INF-005` | Multi-Instanz-, Failover- und Secondary-Topologie | Container für portable Varianten; Hyper-V für Windows-spezifische Varianten |
-| `INF-006` | Windows-Lab mit OS-Metriken und Windows-spezifischen Funktionen | Hyper-V |
+| `INF-001` | How-to für vorhandene Instanz und isolierte synthetische Testdatenbank | primärer Ausführungspfad |
+| `INF-002` | kompakter Docker-Bereitstellungspfad, wenn kein SQL Server vorhanden ist | optionaler Quickstart |
+| `INF-003` | geprüfte Podman-Desktop-Variante desselben Quickstarts | wichtigste Alternative |
+| `INF-004` | Hyper-V-Bereitstellungspfad für notwendige Windows-/OS-Szenarien | bedarfsabhängig |
+| `INF-005` | CPU-/RAM-Limits für konkret zugeordnete Ressourcen-Demos | bedarfsabhängig |
+| `INF-006` | I/O-, Log-, Netzwerk- oder Mehrinstanz-Topologie | ausschließlich nach fachlicher Begründung |
 
-### 13.3 Container-Arbeitspakete
+### 13.4 Inhalt des Testumgebungs-How-tos
+
+Das How-to beschreibt mindestens:
+
+- Auswahl zwischen vorhandener Instanz, Docker, Podman und Hyper-V,
+- Mindestvoraussetzungen und erwartete Ressourcenbelegung,
+- sichere lokale Credential-Bereitstellung ohne Repository-Secrets,
+- Start, Healthcheck, Verbindung und Versionserkennung,
+- Anlage und Entfernung der synthetischen Schulungsdatenbank,
+- Ausführung der Demo-Preflights,
+- Stop, Reset, Cleanup und Recovery,
+- Unterschiede zwischen SQL Server 2019, 2022 und 2025,
+- klare Kennzeichnung, welche Schulungsdemos zusätzliche Infrastruktur benötigen.
+
+### 13.5 Container-Arbeitspakete
 
 | ID | Größe | Arbeit | Abschlusskriterium |
 |---|---:|---|---|
-| `INF-C01` | M | gemeinsame Compose-Spezifikation | neutrale Variablen, Healthcheck, persistente Volumes und Profile ohne Secrets |
-| `INF-C02` | M | Docker-Kompatibilität | Setup, Start, Stop, Reset, Ressourcenlimits und Netzwerk geprüft |
-| `INF-C03` | M | Podman-Desktop-Kompatibilität | gleiche Funktionsprüfung; Abweichungen als Override statt Fork dokumentiert |
-| `INF-C04` | M | Versionsprofile | 2019, 2022 und 2025 einzeln startbar; Feature-Skips nachvollziehbar |
-| `INF-C05` | M | Ressourcenkalibrierung | kleinstes stabiles Profil und erweitertes Lastprofil empirisch ermittelt |
-| `INF-C06` | M | Storage-Lifecycle | sparse/persistente Volumes, definierter Reset und maximale Belegung dokumentiert |
-| `INF-C07` | M | Netzwerk- und I/O-Fähigkeiten | tatsächlich wirksame Limits gemessen; wirkungslose Einstellungen werden nicht dokumentiert |
-| `INF-C08` | S | Secrets-Vertrag | lokale `.env`-Vorlage ohne Werte, keine Credentials im Repository, klare Rotation |
+| `INF-C01` | M | minimaler Quickstart | eine Einzelinstanz ist ohne proprietäre Daten mit Healthcheck start- und entfernbar |
+| `INF-C02` | M | gemeinsame Compose-Basis | Docker und Podman verwenden soweit möglich dieselbe neutrale Spezifikation |
+| `INF-C03` | M | Versionsprofile | 2019, 2022 und 2025 werden nacheinander statt gleichzeitig betrieben |
+| `INF-C04` | M | Testdatenbank-Integration | T-SQL-Setup und Cleanup funktionieren identisch auf vorhandener und containerisierter Instanz |
+| `INF-C05` | M | optionale Ressourcenprofile | CPU-/RAM-Limits werden nur implementiert, wenn eine zugeordnete Demo sie benötigt |
+| `INF-C06` | M | wirksame Sonderlimits | I/O- oder Netzwerkbegrenzungen gelten nur nach gemessener Wirksamkeit als unterstützt |
 
-### 13.4 Hyper-V-Arbeitspakete
+### 13.6 Hyper-V-Arbeitspakete
 
 | ID | Größe | Arbeit | Abschlusskriterium |
 |---|---:|---|---|
-| `INF-H01` | M | Host-Preflight per PowerShell | Edition, Featurestatus, Virtualization, freier RAM/Storage und Administratorrechte geprüft |
-| `INF-H02` | L | reproduzierbares Basisimage | dokumentierter Ursprung, Patchstand, Lizenzstatus und Privacy-bereinigte Vorlage |
-| `INF-H03` | L | automatisierter VM-Lifecycle | Create, Start, Stop, Reset und Remove mit Schutz gegen falsche Ziel-VM |
-| `INF-H04` | M | differenzierende VHDX-/Checkpoint-Strategie | minimaler Storageverbrauch und reproduzierbarer Rücksetzpunkt |
-| `INF-H05` | M | feste Messprofile | CPU und RAM bleiben während einer Messung stabil; dynamische Zuweisung nur außerhalb belastbarer Benchmarks |
-| `INF-H06` | L | virtuelle Storage-Topologien | getrennte Daten-/Log-/TempDB-Datenträger und gezielte Drosselung messbar |
-| `INF-H07` | M | Netzwerkprofile | internes Netz, NAT/Hostzugriff und optionales QoS ohne reale Umgebungswerte |
-| `INF-H08` | M | Windows-Metrikpfad | OS-Zähler, Zeitstempel und SQL-Evidenz zeitlich korrelierbar |
-| `INF-H09` | M | Cleanup und Recovery | alle Änderungen rücksetzbar; Notfallpfad und erwartete Restarteffekte dokumentiert |
+| `INF-H01` | M | Entscheidung und Host-Preflight | Hyper-V-Einsatz ist durch mindestens eine konkrete Demo begründet |
+| `INF-H02` | L | ressourcenschonender VM-Lifecycle | Create, Start, Stop, Reset und Remove sind reproduzierbar |
+| `INF-H03` | M | differenzierende Diskstrategie | Basisimage und Testzustände verbrauchen möglichst wenig zusätzlichen Storage |
+| `INF-H04` | L | benötigte Storage-/OS-Topologie | nur die von zugeordneten Demos benötigten Datenträger und Messpfade werden gebaut |
+| `INF-H05` | M | Recovery | jede Änderung besitzt Rücksetzpunkt, Cleanup und Notfallpfad |
 
-### 13.5 Ressourcenziel
+### 13.7 Entscheidungsmatrix nach Themenart
 
-Die endgültigen Zahlen werden in `INF-C05` und `INF-H05` empirisch bestimmt. Bis dahin gelten folgende Planungsregeln:
+| Themenart | T-SQL/Testdatenbank ausreichend? | Zusätzliche Infrastruktur |
+|---|---|---|
+| SARGability, Pläne, Statistiken, Joins, Indizes, Kompression | normalerweise ja | nein |
+| Blocking, Isolation und Deadlocks | ja, mit mehreren Sessions | nein |
+| Query Store und Extended Events | normalerweise ja | nein |
+| Spills und Memory Grants | meist ja | nur wenn ein stabiler Engpass sonst nicht entsteht |
+| CPU- oder gesamter Instanz-Memory-Druck | teilweise | Container- oder VM-Limit kann erforderlich sein |
+| echter physischer Daten-/Log-I/O-Engpass | nein | gedrosselter Datenträger oder geeignete VM-Topologie |
+| Netzwerk-Latenz oder Bandbreite | nein | begrenzter Netzwerkpfad |
+| Windows-spezifische OS-Metriken | nein | Hyper-V-VM |
+| Failover oder Secondary Workload | nein | begründete Mehrinstanztopologie |
 
-- nur eine SQL-Server-Version gleichzeitig für normale Entwicklung starten,
-- Mehrinstanzprofile ausschließlich bei einer Demo mit nachgewiesener Abhängigkeit verwenden,
-- synthetische Daten bevorzugt reproduzierbar generieren statt große Datenbanken einzuchecken,
-- sparse Volumes, differenzierende Disks und kontrollierte Cleanup-Skripte nutzen,
-- Basis-, Standard- und Stressprofil getrennt dokumentieren,
-- Messwerte nur innerhalb desselben Profils vergleichen,
-- bei Storage- und Netzwerkdemos die tatsächlich erreichte Begrenzung messen.
+### 13.8 Ressourcenziel
+
+- Für normale Entwicklung wird nur eine SQL-Server-Version gleichzeitig gestartet.
+- Synthetische Testdaten werden reproduzierbar generiert und nicht als große Datenbankdateien eingecheckt.
+- Container-Volumes und virtuelle Disks besitzen einen dokumentierten Reset- und Cleanup-Pfad.
+- Mehrinstanz-, Netzwerk- und Storageprofile werden erst bei einer konkreten fachlichen Abhängigkeit gebaut.
+- Messwerte werden nur innerhalb desselben Ressourcenprofils verglichen.
+- Eine nicht benötigte Sondertopologie darf `DEFERRED` bleiben und blockiert die übrige Schulung nicht.
 
 ## 14. Querschnitt C – Präsentation und Lehrmaterial
 
@@ -488,7 +541,7 @@ Dieser Workstream beginnt erst nach Gate A; finale Folien werden nach Gate C fer
 
 | ID | Größe | Arbeit | Abschlusskriterium |
 |---|---:|---|---|
-| `DOC-001` | M | zentrale Installationsanleitung | Voraussetzungen für Container und Hyper-V, ohne Secrets oder reale Pfade |
+| `DOC-001` | M | Testumgebungs-How-to | vorhandene Instanz und isolierte Testdatenbank zuerst; Docker/Podman als Quickstart, Hyper-V nur bedarfsabhängig |
 | `DOC-002` | M | Trainer-Runbook | Startreihenfolge, Zeitplan, Abbruch, Reset und bekannte Abweichungen |
 | `DOC-003` | M | Teilnehmer-Runbook | sichere Ausführung grüner Demos und Beobachtungsaufträge |
 | `DOC-004` | M | Troubleshooting | Symptom, Ursache, Prüfung und Recovery für erwartbare Labfehler |
@@ -505,7 +558,7 @@ Nach Gate B können folgende Stränge unabhängig bearbeitet werden:
 - Welle 4 und Welle 5 können parallel laufen, verwenden aber gemeinsam `FWK-003` bis `FWK-005`.
 - Welle 7 benötigt `FWK-006` und sollte vor ressourcenintensiven Multi-Session-Demos aus Welle 8 stabil sein.
 - Welle 9 beginnt früh mit Pilotwerkzeugen, wird aber erst nach den Fachdemos vollständig abgeschlossen.
-- Welle 10 kann nach Gate B parallel entwickelt werden; ihre endgültige Abnahme benötigt konkrete gelbe und rote Demos.
+- Das Basis-How-to aus Welle 10 kann nach Gate B erstellt werden. Sonderinfrastruktur wird erst bearbeitet, wenn eine konkrete Demo ihre Notwendigkeit nachweist.
 - Präsentationsarbeit kann nach Gate A beginnen, die finale Demo-Integration wartet auf Gate C.
 
 Empfohlene Änderungseinheit ist ein klar begrenztes Framework-Modul oder eine vollständige Demo einschließlich Dokumentation und Tests. Große Themenwellen werden nicht als einzelner unprüfbarer Commit umgesetzt.
@@ -520,7 +573,7 @@ Empfohlene Änderungseinheit ist ein klar begrenztes Framework-Modul oder eine v
 6. Welle 2: vorhandene Beispiele klassifizieren und migrieren.
 7. Wellen 3–6: Storage, Optimizer, Query Patterns und Indizes.
 8. Wellen 7–9: Concurrency, Ressourcen und Diagnose.
-9. Welle 10: vollständige Infrastrukturprofile und rote Demos.
+9. Kompaktes Testumgebungs-How-to bereitstellen; nur fachlich notwendige Sonderinfrastruktur ergänzen.
 10. Präsentationsintegration, Generalprobe und Releaseabnahme.
 
 ## 19. Wiederaufnahmeprotokoll
@@ -557,7 +610,8 @@ Jede Arbeitsübergabe enthält mindestens:
 |---|---|
 | Repository-Struktur | abgeschlossen |
 | Fachliche Demos | noch nicht implementiert |
-| Infrastruktur-Labs | noch nicht implementiert |
+| Testumgebungs-How-to | noch nicht implementiert; unterstützt später die Ausführung ohne vorhandenen SQL Server |
+| Sonderinfrastruktur | nicht begonnen; nur bei konkreter fachlicher Notwendigkeit |
 | Präsentationsbereinigung | noch nicht begonnen |
 | Nächstes Arbeitspaket | `W0-001` – datenschutzsicheres Quellenmanifest |
 | Danach | `W0-002`, `W0-003`, `W0-004` |
@@ -571,7 +625,8 @@ Jede Arbeitsübergabe enthält mindestens:
 - [ ] Alle Demos erfüllen den Demo-Vertrag oder dokumentieren begründete Ausnahmen.
 - [ ] Alle Beispieldaten und sichtbaren Bezeichnungen sind synthetisch.
 - [ ] Präsentationen enthalten keine Firmeninformationen, Logos oder realen Metadaten.
-- [ ] Container- und Hyper-V-Labs besitzen Preflight, Setup, Reset, Cleanup und Recovery.
+- [ ] Das Testumgebungs-How-to besitzt Preflight, Setup, Reset, Cleanup und Recovery.
+- [ ] Jede umgesetzte Sonderinfrastruktur ist einer Demo zugeordnet und ihre Notwendigkeit begründet.
 - [ ] Die zutreffende SQL-Server-Matrix ist erfolgreich oder besitzt begründete Feature-Skips.
 - [ ] Grüne, gelbe und rote Demos sind sicher getrennt.
 - [ ] Trainer- und Teilnehmermaterial stimmen mit den ausführbaren Demos überein.
