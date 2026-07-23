@@ -50,7 +50,7 @@ Besonders zu prüfen sind CTE, Table Variables, Heaps, RID Lookup, Forwarded Rec
 | `W2-007` | M | Präsentationsmodule fachlich überarbeiten | falsche, veraltete oder zu absolute Aussagen korrigiert oder ersetzt; Quellen und Versionsgrenzen dokumentiert |
 | `W2-008` | M | Unterlagenrollen trennen | Projektionsfolien reduziert, Sprecherhinweise vertieft, Teilnehmerunterlagen ergänzt und Demo-Zuordnungen hergestellt |
 | `W2-009` | M | moderne Diagnose- und Optimierungsfunktionen ergänzen | relevante Funktionen von SQL Server 2019, 2022 und 2025 sind versionsbewusst integriert |
-| `W2-010` | S | freigegebene Namensausnahmen anwenden | `Gerhard Pisch` und `BI-Automation` dürfen im vorgesehenen Kontext vorkommen; nicht freigegebenes Branding ist entfernt |
+| `W2-010` | S | freigegebene Namensausnahme anwenden | Nur `Gerhard Pisch` darf im vorgesehenen Kontext vorkommen; nicht freigegebenes Branding ist entfernt |
 | `W2-011` | M | Bestandsbeispiele fachlich neu messen | jede übernommene Kernaussage besitzt reproduzierbare Evidenz und dokumentierte Messgrenzen |
 
 ## 6. Pilotdemos als Qualitätsgate
@@ -67,7 +67,6 @@ Jede Pilotdemo erfüllt den vollständigen Demo-Vertrag einschließlich Setup, B
 ## 7. Sanitizing- und Branding-Vertrag
 
 - `Gerhard Pisch` ist als Namensangabe freigegeben.
-- `BI-Automation` ist als Bezeichnung freigegeben.
 - Das vom Auftraggeber bezeichnete Firmenlogo sowie die dazugehörigen Firmen- und Markenkennzeichen werden aus allen Präsentationen, Masterfolien, Layouts, Bildern, Notes, Begleitdokumenten und Exporten entfernt.
 - Weitere nicht freigegebene Firmeninformationen, Kontaktdaten, interne Pfade und interne Systembezeichnungen werden entfernt oder neutralisiert.
 - Office-Metadaten und eingebettete Medien werden vor der Übernahme geprüft.
