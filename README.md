@@ -20,7 +20,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - Infrastruktur wird nur eingesetzt, wenn T-SQL den Effekt nicht realistisch erzeugen kann.
 - Alle Beispiele verwenden ausschließlich synthetische Labordaten.
 - Präsentationen und weitere Schulungsartefakte enthalten keine nicht freigegebenen Firmeninformationen, Logos, Kontaktdaten oder internen Systembezeichnungen.
-- `Gerhard Pisch` und `BI-Automation` sind als ausdrücklich freigegebene Angaben zulässig.
+- Nur `Gerhard Pisch` ist als ausdrücklich freigegebene reale Namensangabe zulässig.
 - Bildbasierte Logos und Markenkennzeichen werden zusätzlich zur Text- und Metadatensuche visuell geprüft.
 - Risikoreiche Eingriffe sind eindeutig gekennzeichnet und ausschließlich für isolierte Laborsysteme vorgesehen.
 - Aussagen werden gegen aktuelle Primärdokumentation geprüft; versionsabhängige Aussagen werden nicht pauschalisiert.
