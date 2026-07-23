@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `PLANNED` |
-| Planversion | 1.1 |
+| Planversion | 1.2 |
 | Stand | 2026-07-24 |
 | Primäre Zielplattform | SQL Server 2025 |
 | Kompatibilitätsmatrix | SQL Server 2019, 2022 und 2025 |
@@ -615,9 +615,11 @@ Jede Arbeitsübergabe enthält mindestens:
 | Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`; finale Demo-Integration nach Gate C offen |
 | Welle 0 – abgeschlossen | `W0-001` Quellenmanifest; `W0-002` Privacy- und Metadaten-Prüfverfahren; `W0-003` Themen-/Aussagenregister; `W0-004` kritische Fachprüfung |
 | Aussagenstatus | 84/84 Folien erfasst; 80 `KEEP`, 4 `REFINE`; 26 kritische Themen vertieft geprüft |
-| Nächstes Arbeitspaket | `CUR-001` bis `CUR-005` – Lernziele, Module, Rollen, Demo-Zuordnung und Traceability |
-| Danach | Demo-ID-Namensstandard und Framework-Arbeitspakete `FWK-001` bis `FWK-012` |
-| Aktueller Blocker | keiner für den Curriculum-Workstream; vier dokumentierte Folienpräzisierungen folgen kontrolliert in `W2-007`; Altbeispiele bleiben bis `W2-001` inaktiv |
+| Curriculumstatus | `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` validiert; 8 Module, 43 Lernziele, 84 Traceability-Zeilen und 36 kanonische Demo-Bündel |
+| Demo-ID-Status | Präfixe und curriculare Zuordnung validiert; Namensschema der synthetischen Testdatenbanken bleibt offen |
+| Nächstes Arbeitspaket | `W0-005` bis `W0-008` – Gap-Liste, Quellenpflegefelder, Terminologiestandard und Konfliktlog als verbleibende Gate-A-Nachweise |
+| Danach | Namensschema der synthetischen Testdatenbanken sowie Framework-Arbeitspakete `FWK-001` bis `FWK-012` |
+| Aktueller Blocker | keiner; vier dokumentierte Folienpräzisierungen folgen kontrolliert in `W2-007`; Altbeispiele bleiben bis `W2-001` inaktiv |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
 
