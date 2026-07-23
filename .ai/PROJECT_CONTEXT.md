@@ -4,6 +4,8 @@
 
 Aufbau einer modularen SQL-Server-Performance-Schulung, die technische Zusammenhänge für Einsteiger nachvollziehbar erklärt und zugleich für erfahrene Datenbankfachleute belastbar bleibt.
 
+Das Projekt bereitet Schulungsthemen auf. Es baut kein Lab für ein SQL-Server-Analyseframework auf.
+
 ## Zielgruppe
 
 - Einsteiger mit T-SQL-Grundkenntnissen
@@ -32,7 +34,14 @@ Edition, Betriebssystem, Compatibility Level und Feature-Voraussetzungen sind pr
 - Concurrency, Isolation und TempDB
 - CPU, Memory, I/O, Scheduler und Waits
 - Query Store, Extended Events und Diagnosemethodik
-- Reproduzierbare Infrastruktur-Labs
+- reproduzierbare Testumgebung als unterstützende Ausführungsbasis
+
+## Umsetzungspriorität
+
+1. Schulungsaussage und Lernziel fachlich aufbereiten.
+2. Effekt möglichst mit T-SQL und einer isolierten synthetischen Testdatenbank demonstrieren.
+3. Zusätzliche Infrastruktur nur verwenden, wenn der Effekt sonst nicht glaubwürdig oder sicher reproduzierbar ist.
+4. Für Personen ohne verfügbaren SQL Server ein kompaktes How-to zur Bereitstellung einer Testumgebung anbieten.
 
 ## Didaktik
 
