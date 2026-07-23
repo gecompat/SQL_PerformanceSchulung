@@ -6,7 +6,7 @@ Bestehende Schulungsaussagen inventarisieren und als beibehalten, präzisieren, 
 
 ## Welle 1 - Gemeinsames Demo-Framework
 
-Demo-Vertrag, Sicherheitsstufen, Preflight, synthetische Datengeneratoren, Messhelfer, Benennung und Cleanup-Konventionen implementieren.
+Demo-Vertrag, Sicherheitsstufen, Preflight, synthetische Testdatenbanken und Datengeneratoren, Messhelfer, Benennung und Cleanup-Konventionen implementieren. T-SQL bleibt der Standardpfad.
 
 ## Welle 2 - Vorhandene Beispiele modernisieren
 
@@ -40,9 +40,9 @@ Scheduler, Parallelism Overhead, Parallel Skew, SOS_SCHEDULER_YIELD, RESOURCE_SE
 
 STATISTICS IO/TIME, Execution Plans, Live Query Statistics, Plan XML, DMVs, Query Store, Extended Events, Betriebssystemmetriken und reproduzierbare Workload-Treiber.
 
-## Welle 10 - Infrastruktur-Labs
+## Welle 10 - Testumgebungs-How-to und notwendige Sonderinfrastruktur
 
-RAM- und CPU-Limits, gedrosselte I/O- und Log-Volumes, Netzwerkbegrenzung, Mehrinstanz-Topologien, Failover, Windows-spezifische Szenarien und hohe Sessionzahlen mit Docker, Podman oder Hyper-V.
+Ein kompakter Bereitstellungspfad ermöglicht die Ausführung der T-SQL-Beispiele, wenn kein SQL Server verfügbar ist. CPU-/RAM-Limits, gedrosseltes I/O, Netzwerkbegrenzung, Mehrinstanz- oder Windows-Szenarien werden nur für Demos umgesetzt, deren Kernaussage mit T-SQL und einer normalen Testdatenbank nicht belastbar gezeigt werden kann.
 
 ## Abschlusskriterien
 
@@ -51,3 +51,4 @@ RAM- und CPU-Limits, gedrosselte I/O- und Log-Volumes, Netzwerkbegrenzung, Mehri
 - Statische Vertragsprüfung.
 - Laufzeittest in der zutreffenden Matrix SQL Server 2019/2022/2025.
 - Fachliches Review der Erklärung und der erwarteten Evidenz.
+- T-SQL/Testdatenbank als Standardpfad; jede zusätzliche Infrastrukturabhängigkeit ist begründet.
