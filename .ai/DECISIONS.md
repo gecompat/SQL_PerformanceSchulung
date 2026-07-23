@@ -17,6 +17,10 @@
 | DEC-013 | 2026-07-23 | Das bezeichnete Firmenlogo und die zugehörigen Firmen- und Markenkennzeichen werden aus allen Repository-Artefakten entfernt. | Firmenneutrale, wiederverwendbare Schulungsunterlagen. |
 | DEC-014 | 2026-07-23 | Branding-Prüfungen umfassen Text, Office-Metadaten und eine visuelle Kontrolle von Bildern, Masterfolien, Layouts und Exporten. | Bildbasierte Logos werden durch reine Textsuche nicht zuverlässig erkannt. |
 | DEC-015 | 2026-07-23 | Interne Bildschirmaufnahmen werden entfernt; fehlende Demonstrationen werden ausschließlich mit synthetischen Labordaten neu aufgebaut. | Interne Benutzer-, Host- und Datenbankangaben dürfen nicht in Schulungsartefakten verbleiben. |
-| DEC-015 | 2026-07-23 | Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz erhalten getrennte Rollen. | Reduktion überladener Folien bei gleichzeitiger technischer Vertiefung. |
+| DEC-016 | 2026-07-23 | Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz erhalten getrennte Rollen. | Reduktion überladener Folien bei gleichzeitiger technischer Vertiefung. |
+
+| DEC-017 | 2026-07-24 | Das Curriculum verwendet einen gemeinsamen Kernpfad mit optionalen Vertiefungen statt getrennter, fachlich divergierender Lehrgänge. | Begriffe und Diagnosemethode bleiben über alle Zielgruppen konsistent; Internals und Versionsdetails können ohne Abhängigkeitsbruch ergänzt oder ausgelassen werden. |
+| DEC-018 | 2026-07-24 | Nur die Präfixe und IDs des Master-Umsetzungsplans sind kanonische Demo-IDs; vorläufige `DEM-*`-Kennungen werden nicht veröffentlicht. | Stabile Traceability und Vermeidung paralleler Benennungssysteme. |
+| DEC-019 | 2026-07-24 | Die Modulfolge des aktiven Foliensatzes bleibt erhalten: Einordnung, Storage, Query Processing, Query Patterns, Indizes, Concurrency, Diagnose und Transfer. | Query Patterns verwenden Zugriffspfade zunächst als beobachtbares Plankonzept; die physische Indexvertiefung folgt anschließend ohne fehlende Voraussetzung. |
 
 Neue Entscheidungen werden fortlaufend ergänzt. Bestehende Einträge werden nicht stillschweigend umgedeutet; fachlich überholte Entscheidungen erhalten einen expliziten Nachfolgeeintrag.
