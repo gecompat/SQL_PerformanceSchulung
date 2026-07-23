@@ -3,17 +3,20 @@
 ## Repository-Grenze
 
 - Schreibziel ist ausschließlich `gecompat/SQL_PerformanceSchulung`.
-- `gecompat/SQL_Server_Analyze` darf durch Arbeiten an diesem Projekt nicht verändert werden.
+- Andere Repositories dürfen durch Arbeiten an diesem Projekt nicht verändert werden.
 - Eine lesende Nutzung anderer Quellen ist nur zur fachlichen oder lizenzbezogenen Referenz zulässig.
 
-## Datenschutz
+## Datenschutz und Neutralisierung
 
 - Repository-Inhalte verwenden ausschließlich synthetische Labordaten.
-- Keine realen Personen-, Kunden-, Firmen-, Organisations-, Umgebungs- oder proprietären Informationen.
-- Keine Firmeninformationen, Logos, Kontaktdaten oder internen Systembezeichnungen in Präsentationen.
+- Keine realen Personen-, Kunden-, Firmen-, Organisations-, Umgebungs- oder proprietären Informationen, sofern sie nicht ausdrücklich freigegeben sind.
+- `Gerhard Pisch` ist als Namensangabe freigegeben.
+- `BI-Automation` ist als Bezeichnung freigegeben.
+- Das vom Auftraggeber bezeichnete Firmenlogo sowie die dazugehörigen Firmen- und Markenkennzeichen sind aus allen Repository-Artefakten zu entfernen.
+- Weitere Firmeninformationen, Logos, Kontaktdaten oder interne Systembezeichnungen dürfen in Präsentationen und Begleitmaterialien nicht enthalten sein.
 - Office-Metadaten, Bilder, Screenshots, Logs und Diagnoseausgaben sind vor jeder Übernahme ausdrücklich zu prüfen.
+- Bildbasierte Logos und Markenkennzeichen sind zusätzlich visuell zu prüfen; eine reine Textsuche ist nicht ausreichend.
 - Bei Unsicherheit ist die Dateierstellung oder Git-Operation anzuhalten und eine ausdrückliche Freigabe einzuholen.
-- Die genehmigte Urheberangabe in `LICENCE.md` ist die einzige derzeit freigegebene reale Personenangabe.
 
 ## Fachliche Qualität
 
