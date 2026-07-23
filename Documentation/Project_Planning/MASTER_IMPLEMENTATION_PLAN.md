@@ -4,7 +4,7 @@
 |---|---|
 | Status | `PLANNED` |
 | Planversion | 1.1 |
-| Stand | 2026-07-23 |
+| Stand | 2026-07-24 |
 | Primäre Zielplattform | SQL Server 2025 |
 | Kompatibilitätsmatrix | SQL Server 2019, 2022 und 2025 |
 | Bevorzugtes Demonstrationsmittel | T-SQL |
@@ -613,10 +613,11 @@ Jede Arbeitsübergabe enthält mindestens:
 | Testumgebungs-How-to | noch nicht implementiert; unterstützt später die Ausführung ohne vorhandenen SQL Server |
 | Sonderinfrastruktur | nicht begonnen; nur bei konkreter fachlicher Notwendigkeit |
 | Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`; finale Demo-Integration nach Gate C offen |
-| Welle 0 – abgeschlossen | `W0-001` Quellenmanifest; `W0-002` Privacy- und Metadaten-Prüfverfahren |
-| Nächstes Arbeitspaket | `W0-003` – Themen- und Aussagenregister |
-| Danach | `W0-004`; anschließend `CUR-001` bis `CUR-005` und Demo-ID-Vergabe |
-| Aktueller Blocker | keiner für `W0-003` und `W0-004`; Altbeispiele bleiben bis `W2-001` inaktiv |
+| Welle 0 – abgeschlossen | `W0-001` Quellenmanifest; `W0-002` Privacy- und Metadaten-Prüfverfahren; `W0-003` Themen-/Aussagenregister; `W0-004` kritische Fachprüfung |
+| Aussagenstatus | 84/84 Folien erfasst; 80 `KEEP`, 4 `REFINE`; 26 kritische Themen vertieft geprüft |
+| Nächstes Arbeitspaket | `CUR-001` bis `CUR-005` – Lernziele, Module, Rollen, Demo-Zuordnung und Traceability |
+| Danach | Demo-ID-Namensstandard und Framework-Arbeitspakete `FWK-001` bis `FWK-012` |
+| Aktueller Blocker | keiner für den Curriculum-Workstream; vier dokumentierte Folienpräzisierungen folgen kontrolliert in `W2-007`; Altbeispiele bleiben bis `W2-001` inaktiv |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
 
