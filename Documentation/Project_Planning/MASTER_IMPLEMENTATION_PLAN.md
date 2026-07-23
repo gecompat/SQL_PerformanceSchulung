@@ -612,10 +612,11 @@ Jede Arbeitsübergabe enthält mindestens:
 | Fachliche Demos | noch nicht implementiert |
 | Testumgebungs-How-to | noch nicht implementiert; unterstützt später die Ausführung ohne vorhandenen SQL Server |
 | Sonderinfrastruktur | nicht begonnen; nur bei konkreter fachlicher Notwendigkeit |
-| Präsentationsbereinigung | noch nicht begonnen |
-| Nächstes Arbeitspaket | `W0-001` – datenschutzsicheres Quellenmanifest |
-| Danach | `W0-002`, `W0-003`, `W0-004` |
-| Aktueller Blocker | Originalquellen dürfen erst nach Privacy-Prüfung als Arbeitsmaterial übernommen oder neu gespeichert werden |
+| Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`; finale Demo-Integration nach Gate C offen |
+| Welle 0 – abgeschlossen | `W0-001` Quellenmanifest; `W0-002` Privacy- und Metadaten-Prüfverfahren |
+| Nächstes Arbeitspaket | `W0-003` – Themen- und Aussagenregister |
+| Danach | `W0-004`; anschließend `CUR-001` bis `CUR-005` und Demo-ID-Vergabe |
+| Aktueller Blocker | keiner für `W0-003` und `W0-004`; Altbeispiele bleiben bis `W2-001` inaktiv |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
 

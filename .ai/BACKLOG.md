@@ -2,7 +2,7 @@
 
 ## P0 - Voraussetzung
 
-- [ ] Folien, Dokumente und vorhandene Demo-Artefakte vollständig inventarisieren.
+- [x] Folien, Dokumente und vorhandene Demo-Artefakte vollständig inventarisieren.
 - [ ] Jede fachliche Aussage der Welle 0 gegen aktuelle Primärquellen prüfen.
 - [ ] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
 - [ ] Namensschema für Demo-IDs und synthetische Testdatenbanken festlegen.
@@ -36,7 +36,7 @@
 - [ ] Wiederholbare Concurrency-Workloads ohne proprietäre Abhängigkeiten erstellen.
 - [ ] Hardwareabhängige Erwartungswerte als Bereiche statt Fixwerte definieren.
 - [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister und Lernzielen synchronisieren.
-- [ ] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
+- [x] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
 
 ## Erledigungsregel
 
