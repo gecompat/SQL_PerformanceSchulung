@@ -32,6 +32,8 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
 - [Quellenmanifest der Schulungsartefakte](Documentation/Inventories/SOURCE_MANIFEST.md)
 - [Folien- und Aussagenregister](Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md)
+- [Curriculumarchitektur und Lernzielmodell](Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md)
+- [Traceability-Matrix](Documentation/Curriculum/TRACEABILITY_MATRIX.md)
 - [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
 - [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
 - [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
@@ -59,7 +61,7 @@ Details zur Ausführung und zu Voraussetzungen werden mit den jeweiligen Demos e
 
 ## Status
 
-Das Repository befindet sich im strukturellen Aufbau. Die vorhandenen Schulungsinhalte werden zunächst fachlich konsolidiert; anschließend entstehen die Demos modular nach der dokumentierten Roadmap.
+Quellen-, Privacy-, Aussagen- und Curriculumgrundlage sind validiert. Die geplanten Demo-Bündel sind den Lernzielen und Folien zugeordnet; Implementierung und Runtime-Validierung der Demos folgen modular nach der dokumentierten Roadmap.
 
 ## Lizenz
 

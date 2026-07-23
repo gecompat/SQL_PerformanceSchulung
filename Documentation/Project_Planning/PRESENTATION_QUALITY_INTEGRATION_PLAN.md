@@ -41,6 +41,16 @@ Vier gezielte `REFINE`-Punkte bleiben als kontrollierte Folgearbeit für `W2-007
 | `CUR-011` | M | Zusammenfassungen und Wissenskontrollen integrieren | jedes Kernmodul enthält Zusammenfassung, typische Fehlinterpretationen und mindestens eine überprüfbare Transferaufgabe |
 | `CUR-012` | M | Folienlast und Informationsdichte begrenzen | technische Tiefendetails werden in Notes oder Teilnehmerunterlagen verschoben; die Projektionsfolie bleibt auf Kernaussage und Evidenz fokussiert |
 
+### Umsetzungsnachweis Curriculum
+
+Die Curriculumgrundlage ist für den aktiven 84-Folien-Satz als `VALIDATED` nachgewiesen:
+
+- [Curriculumarchitektur und Lernzielmodell](../Curriculum/CURRICULUM_ARCHITECTURE.md): vier Zielgruppenprofile, acht Module, 43 beobachtbare Lernziele sowie gemeinsamer Kern- und Vertiefungspfad;
+- [Traceability-Matrix](../Curriculum/TRACEABILITY_MATRIX.md): 84 Claims mit Quelle, Lernziel, Folie, kanonischer Demo-ID und geplantem Testprofil;
+- [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md): 47 Folien auf 36 bestehende Demo-Bündel des Masterplans konsolidiert.
+
+Damit sind `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` abgeschlossen. Übungen, Erfolgskriterien und die tatsächliche Inhaltsreduktion der Projektionsfolien bleiben Gegenstand von `CUR-007`, `CUR-008`, `CUR-011` und `CUR-012`.
+
 ## 4. Verbindlicher Diagnoseleitfaden
 
 1. Symptom, Bezugszeitraum und betroffene Workload bestimmen.

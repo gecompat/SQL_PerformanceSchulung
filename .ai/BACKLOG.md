@@ -4,8 +4,9 @@
 
 - [x] Folien, Dokumente und vorhandene Demo-Artefakte vollständig inventarisieren.
 - [x] Jede fachliche Aussage der Welle 0 gegen aktuelle Primärquellen prüfen.
-- [ ] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
-- [ ] Namensschema für Demo-IDs und synthetische Testdatenbanken festlegen.
+- [x] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
+- [x] Kanonisches Namensschema der Demo-IDs festlegen.
+- [ ] Namensschema für synthetische Testdatenbanken festlegen.
 - [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework entwerfen.
 - [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten definieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
@@ -22,8 +23,8 @@
 - [ ] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen.
 - [ ] Query Store und Extended Events als zentrale Diagnosepfade integrieren.
 - [ ] Vorhandene Beispiele nach weiterverwendbar, zu ergänzen oder neu aufzubauen klassifizieren.
-- [ ] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
-- [ ] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
+- [x] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
+- [x] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
 - [ ] Kritische Bestandsaussagen zu CTE, Table Variables, Heaps, Filegroups, Plan Cache, Adaptive Join, Columnstore, Partitionierung, Linked Server und Hash-Eindeutigkeit korrigieren.
 
 ## P2 - Reproduktion und Testmatrix
