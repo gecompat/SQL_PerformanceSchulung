@@ -19,7 +19,7 @@ Die ursprünglichen, nicht neutralisierten Uploads sind keine Repository-Quellen
 | ID | Repository-Pfad | Typ | Umfang | SHA-256 | Git-Blob | Herkunftsklasse | Privacy-Status | Importentscheidung |
 |---|---|---|---:|---|---|---|---|---|
 | `SRC-ARCHIVE-001` | `Presentations/old/Performance Grundlagen V-2024.zip` | ZIP | 16.742.690 Byte; 30 Dateien | `78e3d1d708758d1115a066eca1df2c66d6f26ba57903b764c98e901506892041` | `f38de84504679595ef2068d21a42f62aa78f7727` | neutralisierter Altbestand | `PASS` | nur als Referenzarchiv; keine direkte Ausführung |
-| `SRC-DECK-001` | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` | PPTX | 315.666 Byte; 84 Folien | `ae375c1b5fe3b67e939efbd6c20c6128eb9685e51b21c7c452198a4a2aef6d23` | `f268e04509b013b2eea136eb80fccc9ea19fc79b` | neutraler Neuaufbau | `PASS` | aktive Präsentationsbasis; fachliche Traceability folgt in `W0-003`/`W0-011` |
+| `SRC-DECK-001` | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` | PPTX | 315.666 Byte; 84 Folien | `ae375c1b5fe3b67e939efbd6c20c6128eb9685e51b21c7c452198a4a2aef6d23` | `f268e04509b013b2eea136eb80fccc9ea19fc79b` | neutraler Neuaufbau | `PASS` | aktive Präsentationsbasis; Traceability in [`W0-003`/`W0-011`](SLIDE_STATEMENT_REGISTER.md) validiert |
 
 ## 3. Inhaltsübersicht des Referenzarchivs
 

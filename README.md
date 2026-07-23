@@ -31,6 +31,9 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Planergänzung zur Qualität der Schulungsunterlagen](Documentation/Project_Planning/PRESENTATION_QUALITY_INTEGRATION_PLAN.md)
 - [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
 - [Quellenmanifest der Schulungsartefakte](Documentation/Inventories/SOURCE_MANIFEST.md)
+- [Folien- und Aussagenregister](Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md)
+- [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
+- [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
 - [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
 
 ## Repository-Struktur
