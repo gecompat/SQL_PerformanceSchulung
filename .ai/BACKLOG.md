@@ -3,7 +3,7 @@
 ## P0 - Voraussetzung
 
 - [x] Folien, Dokumente und vorhandene Demo-Artefakte vollständig inventarisieren.
-- [ ] Jede fachliche Aussage der Welle 0 gegen aktuelle Primärquellen prüfen.
+- [x] Jede fachliche Aussage der Welle 0 gegen aktuelle Primärquellen prüfen.
 - [ ] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
 - [ ] Namensschema für Demo-IDs und synthetische Testdatenbanken festlegen.
 - [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework entwerfen.
