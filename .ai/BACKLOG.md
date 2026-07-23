@@ -10,10 +10,10 @@
 - [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten definieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
 - [ ] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
-- [ ] Sanitizing-Regeln für Bestandsunterlagen und zulässige Namensausnahmen anwenden.
+- [x] Sanitizing-Regeln für Bestandsunterlagen anwenden; nur `Gerhard Pisch` bleibt als reale Namensangabe zulässig.
 - [ ] Sämtliche veralteten Verweise auf externe Vorlage-Repositories entfernen.
-- [ ] Das bezeichnete Firmenlogo und die dazugehörigen Firmen- und Markenkennzeichen aus allen Repository-Artefakten entfernen.
-- [ ] Bildbasierte Branding-Prüfung zusätzlich zur Text- und Metadatensuche definieren.
+- [x] Das bezeichnete Firmenlogo und die dazugehörigen Firmen- und Markenkennzeichen aus den geprüften Schulungsartefakten entfernen.
+- [x] Bildbasierte Branding-Prüfung zusätzlich zur Text- und Metadatensuche definieren.
 
 ## P1 - Erste Umsetzung
 
