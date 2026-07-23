@@ -61,7 +61,7 @@ Zusätzliche Infrastruktur benötigt im Demo-Katalog eine Begründung: welcher E
 
 - Kein Bestandteil dieses Projekts darf ein anderes Repository verändern.
 - Es werden keine realen Diagnoseausgaben, Screenshots, Namen, Logos, Hostnamen, Datenbanknamen, Pfade oder Organisationsinformationen versioniert.
-- Dieses Projekt baut kein Lab für `SQL_Server_Analyze` oder ein anderes Analyseframework auf.
+- Dieses Projekt baut kein Lab für ein anderes Analyseframework auf.
 - Infrastruktur wird nicht vorsorglich aufgebaut, wenn eine T-SQL-Demo mit Testdatenbank ausreicht.
 - Ein gemessener Effekt auf einer Labormaschine wird nicht als universeller Schwellenwert dargestellt.
 - Rot eingestufte Demos werden nicht für Produktionssysteme freigegeben.
