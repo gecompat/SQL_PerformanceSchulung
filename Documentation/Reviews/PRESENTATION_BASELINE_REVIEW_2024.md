@@ -6,7 +6,7 @@
 | Stand | 2026-07-23 |
 | Quelle | vorhandene ZIP mit Präsentationen, Beispielen und Begleitdokumenten |
 | Review-Typ | anonymisierte fachliche und didaktische Ausgangsbewertung |
-| Zulässige Eigennamen | `Gerhard Pisch`, `BI-Automation` |
+| Zulässige Eigennamen | `Gerhard Pisch` |
 | Zu entfernende Kennzeichen | das vom Auftraggeber bezeichnete Firmenlogo sowie zugehörige Firmen- und Markenkennzeichen |
 
 ## 1. Zweck
@@ -114,7 +114,6 @@ Die überarbeitete Schulung folgt modulübergreifend demselben Diagnoseablauf:
 ## 8. Sanitizing- und Branding-Regeln
 
 - `Gerhard Pisch` darf im fachlich oder urheberrechtlich erforderlichen Kontext genannt werden.
-- `BI-Automation` darf als Bezeichnung verwendet werden.
 - Das vom Auftraggeber bezeichnete Firmenlogo sowie die dazugehörigen Firmen- und Markenkennzeichen sind aus Präsentationen, Bildern, Notes, Masterfolien, Begleitdokumenten und Repository-Metadaten zu entfernen.
 - Weitere nicht freigegebene Firmeninformationen, Kontaktdaten, interne Pfade, interne Tabellen-, Server- oder Umgebungsnamen sind zu entfernen oder zu neutralisieren.
 - Office-Metadaten und eingebettete Medien sind vor der Übernahme zu prüfen.
