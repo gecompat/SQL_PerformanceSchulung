@@ -19,9 +19,17 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - T-SQL ist das bevorzugte Demonstrationsmittel.
 - Infrastruktur wird nur eingesetzt, wenn T-SQL den Effekt nicht realistisch erzeugen kann.
 - Alle Beispiele verwenden ausschließlich synthetische Labordaten.
-- Präsentationen und weitere Schulungsartefakte enthalten keine Firmeninformationen, Logos, Kontaktdaten oder internen Systembezeichnungen.
+- Präsentationen und weitere Schulungsartefakte enthalten keine nicht freigegebenen Firmeninformationen, Logos, Kontaktdaten oder internen Systembezeichnungen.
+- `Gerhard Pisch` und `BI-Automation` sind als ausdrücklich freigegebene Angaben zulässig.
+- Bildbasierte Logos und Markenkennzeichen werden zusätzlich zur Text- und Metadatensuche visuell geprüft.
 - Risikoreiche Eingriffe sind eindeutig gekennzeichnet und ausschließlich für isolierte Laborsysteme vorgesehen.
 - Aussagen werden gegen aktuelle Primärdokumentation geprüft; versionsabhängige Aussagen werden nicht pauschalisiert.
+
+## Verbindliche Planung
+
+- [Master-Umsetzungsplan](Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
+- [Planergänzung zur Qualität der Schulungsunterlagen](Documentation/Project_Planning/PRESENTATION_QUALITY_INTEGRATION_PLAN.md)
+- [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
 
 ## Repository-Struktur
 
@@ -29,7 +37,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 |---|---|
 | `.ai/` | Verbindlicher Projektkontext, Entscheidungen, Roadmap und AI-Arbeitsregeln |
 | `Assets/` | Firmenneutrale, wiederverwendbare Abbildungen und Quelldateien |
-| `Documentation/` | Curriculum, fachliche Vertiefungen, Demo-Katalog und Recherche |
+| `Documentation/` | Curriculum, fachliche Vertiefungen, Demo-Katalog, Reviews und Recherche |
 | `Demos/` | Modulare, bevorzugt T-SQL-basierte Demonstrationen |
 | `Infrastructure/` | Reproduzierbare Docker-, Podman- und Hyper-V-Laborszenarien |
 | `Presentations/` | Firmenneutrale Präsentationsquellen und Exporte |
