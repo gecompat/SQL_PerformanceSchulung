@@ -28,6 +28,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 | Pfad | Zweck |
 |---|---|
 | `.ai/` | Verbindlicher Projektkontext, Entscheidungen, Roadmap und AI-Arbeitsregeln |
+| `Assets/` | Firmenneutrale, wiederverwendbare Abbildungen und Quelldateien |
 | `Documentation/` | Curriculum, fachliche Vertiefungen, Demo-Katalog und Recherche |
 | `Demos/` | Modulare, bevorzugt T-SQL-basierte Demonstrationen |
 | `Infrastructure/` | Reproduzierbare Docker-, Podman- und Hyper-V-Laborszenarien |
