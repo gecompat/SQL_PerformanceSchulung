@@ -1,4 +1,4 @@
-name: Export active deck
+name: Export W2-007 working set
 
 on:
   pull_request:
@@ -17,10 +17,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Upload active presentation
+      - name: Upload W2-007 working set
         uses: actions/upload-artifact@v4
         with:
-          name: active-performance-deck
-          path: Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx
+          name: w2-007-working-set
+          path: |
+            .ai/BACKLOG.md
+            README.md
+            Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md
+            Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md
+            Documentation/Curriculum/TRACEABILITY_MATRIX.md
+            Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx
           if-no-files-found: error
           retention-days: 1
