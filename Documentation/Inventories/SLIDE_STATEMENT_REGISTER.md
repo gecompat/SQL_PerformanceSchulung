@@ -1,6 +1,6 @@
 # Folien- und Aussagenregister
 
-**Arbeitspakete:** W0-003, W0-011, CUR-005  
+**Arbeitspakete:** W0-003, CUR-005  
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
