@@ -98,12 +98,23 @@ jobs:
       - name: Run framework runtime matrix
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
           python Tests/Runtime/run_framework_sql_matrix.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
-            --compatibility-level '${{ matrix.compatibility }}'
+            --compatibility-level '${{ matrix.compatibility }}' \
+            2>&1 | tee "${RUNNER_TEMP}/framework-sql-${{ matrix.major }}.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload matrix diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: framework-sql-${{ matrix.year }}-diagnostic
+          path: ${{ runner.temp }}/framework-sql-${{ matrix.major }}.log
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Show SQL Server logs on failure
         if: failure()
