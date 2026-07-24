@@ -10,7 +10,7 @@
 
 Dieses Dokument ist der validierte Welle-0-Snapshot für:
 
-- das folienbezogene Aussagenregister aus `W0-003` beziehungsweise `W0-011`;
+- das folienbezogene Aussagenregister aus `W0-003`;
 - die vertiefte Prüfung kritischer Aussagen aus `W0-004`;
 - die Trennung dokumentierter Produkteigenschaften von empirischen Empfehlungen.
 
