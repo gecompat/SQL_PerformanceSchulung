@@ -97,6 +97,7 @@ def run_pilot(
         "sa",
         "--sqlcmd",
         str(proxy),
+        "--show-output",
     ]
     if yellow:
         command.append("--confirm-isolated-lab")
@@ -116,7 +117,7 @@ def run_pilot(
     final_summary = summaries[-1] if summaries else None
 
     if result.returncode != 0 or final_summary != ("PASS", "OK"):
-        diagnostic = combined[-4000:].replace(os.environ.get("SQLCMDPASSWORD", ""), "***")
+        diagnostic = combined[-12000:].replace(os.environ.get("SQLCMDPASSWORD", ""), "***")
         raise GateBFailure(
             f"{demo_id} repetition {repetition}: harness failed; "
             f"returncode={result.returncode}; summary={final_summary}; diagnostic={diagnostic}"
