@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `GREEN` |
 | Primäre Zielversion | SQL Server 2025 |
 | Unterstützte Versionen | SQL Server 2019, 2022 und 2025 |
@@ -20,7 +20,7 @@ Nach Abschluss kann die lernende Person erklären, warum eine Funktion auf einer
 
 **Evidenzklasse:** `DOKUMENTIERT` und `EMPIRISCH`
 
-Ein Prädikat ist nicht aufgrund seiner Schreibweise allein schnell oder langsam. Entscheidend ist, ob der Optimierer aus der Bedingung einen geeigneten Suchbereich für den vorhandenen Zugriffspfad ableiten kann. Die Demo hält Ergebnismenge und Datenbestand konstant und vergleicht Planform sowie sessionbezogene Logical Reads.
+Ein Prädikat ist nicht aufgrund seiner Schreibweise allein schnell oder langsam. Entscheidend ist, ob der Optimierer aus der Bedingung einen geeigneten Suchbereich für den vorhandenen Zugriffspfad ableiten kann. Die Demo hält Ergebnismenge und Datenbestand konstant und vergleicht Planform sowie statementbezogene Logical Reads.
 
 ## 3. Nichtziel
 
@@ -75,7 +75,7 @@ Die Funktion `CONVERT(char(10), EventDateTime, 120)` muss für Indexwerte ausgew
 
 ## 11. Tests
 
-Die statische Prüfung kontrolliert Manifest, Pflichtphasen, Marker und unerlaubte Hochrisikomuster. Die Runtime-Matrix führt die Demo je Version zweimal aus und prüft Ergebnisequivalenz, Seek/Scan-Evidenz, relationale Logical-Read-Erwartung und vollständiges Cleanup.
+Die statische Prüfung kontrolliert Manifest, Pflichtphasen, Marker und unerlaubte Hochrisikomuster. Die Runtime-Matrix führte die Demo im Lauf `30108023315` je Version zweimal aus und prüfte Ergebnisequivalenz, Seek/Scan-Evidenz, relationale statementbezogene Logical-Read-Erwartung und vollständiges Cleanup.
 
 ## 12. Bekannte Grenzen
 
