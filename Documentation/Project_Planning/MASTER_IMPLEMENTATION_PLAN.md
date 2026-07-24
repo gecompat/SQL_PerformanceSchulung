@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `PLANNED` |
-| Planversion | 1.2 |
+| Planversion | 1.3 |
 | Stand | 2026-07-24 |
 | Primäre Zielplattform | SQL Server 2025 |
 | Kompatibilitätsmatrix | SQL Server 2019, 2022 und 2025 |
@@ -141,6 +141,8 @@ graph TD
 - Fehlende Themen priorisiert.
 - Vorläufige Demo-IDs und Curriculum-Zuordnung vorhanden.
 
+Gate A wurde am 24. Juli 2026 validiert. Maßgeblich ist der [Gate-A-Review](GATE_A_REVIEW.md).
+
 ### Gate B – Demo-Framework belastbar
 
 Vier Pilotdemos müssen den vollständigen Vertrag erfüllen:
@@ -188,6 +190,8 @@ Alle vorhandenen Schulungsunterlagen und Beispiele werden nachvollziehbar erfass
 | `W0-006` | M | Quellenregister strukturieren | Primärquelle, Aktualisierungsdatum, Abrufdatum, Aussagebezug und Gültigkeitsbereich je Eintrag |
 | `W0-007` | S | Begriffs- und Schreibstandard festlegen | Einheitliche Terminologie, deutsche Erklärung und unveränderte etablierte Fachbegriffe |
 | `W0-008` | M | Konflikt- und Entscheidungslog einführen | Offene fachliche Widersprüche werden nicht stillschweigend aufgelöst |
+
+Abnahmeevidenz für `W0-005` bis `W0-008` bilden die [Gap-Analyse](../Reviews/CONTENT_GAP_ANALYSIS.md), das [projektweite Quellenregister](../Research/SOURCE_REGISTER.md), der [Terminologie- und Schreibstandard](../Standards/TERMINOLOGY_AND_STYLE_STANDARD.md) sowie das [Konflikt- und Entscheidungslog](CONFLICT_AND_DECISION_LOG.md).
 
 ### Besonders zu prüfende Themen
 
@@ -568,13 +572,16 @@ Empfohlene Änderungseinheit ist ein klar begrenztes Framework-Modul oder eine v
 1. `W0-001` Quellenmanifest und `W0-002` Privacy-Verfahren.
 2. `W0-003` Aussagenregister und `W0-004` kritische Fachprüfung.
 3. `CUR-001` bis `CUR-005` sowie Demo-ID-Vergabe.
-4. `FWK-001` bis `FWK-012` als kleine, abhängige Pakete.
-5. Vier Pilotdemos und Gate B.
-6. Welle 2: vorhandene Beispiele klassifizieren und migrieren.
-7. Wellen 3–6: Storage, Optimizer, Query Patterns und Indizes.
-8. Wellen 7–9: Concurrency, Ressourcen und Diagnose.
-9. Kompaktes Testumgebungs-How-to bereitstellen; nur fachlich notwendige Sonderinfrastruktur ergänzen.
-10. Präsentationsintegration, Generalprobe und Releaseabnahme.
+4. `W0-005` bis `W0-008` und Gate-A-Abnahme.
+5. `FWK-001` bis `FWK-012` als kleine, abhängige Pakete.
+6. Vier Pilotdemos und Gate B.
+7. Welle 2: vorhandene Beispiele klassifizieren und migrieren.
+8. Wellen 3–6: Storage, Optimizer, Query Patterns und Indizes.
+9. Wellen 7–9: Concurrency, Ressourcen und Diagnose.
+10. Kompaktes Testumgebungs-How-to bereitstellen; nur fachlich notwendige Sonderinfrastruktur ergänzen.
+11. Präsentationsintegration, Generalprobe und Releaseabnahme.
+
+Die Schritte 1 bis 4 sind abgeschlossen. Der aktuelle Einstiegspunkt ist Schritt 5.
 
 ## 19. Wiederaufnahmeprotokoll
 
@@ -613,13 +620,17 @@ Jede Arbeitsübergabe enthält mindestens:
 | Testumgebungs-How-to | noch nicht implementiert; unterstützt später die Ausführung ohne vorhandenen SQL Server |
 | Sonderinfrastruktur | nicht begonnen; nur bei konkreter fachlicher Notwendigkeit |
 | Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`; finale Demo-Integration nach Gate C offen |
-| Welle 0 – abgeschlossen | `W0-001` Quellenmanifest; `W0-002` Privacy- und Metadaten-Prüfverfahren; `W0-003` Themen-/Aussagenregister; `W0-004` kritische Fachprüfung |
+| Welle 0 | `W0-001` bis `W0-008` validiert |
+| Gate A | validiert; Abnahmeevidenz in `GATE_A_REVIEW.md` |
 | Aussagenstatus | 84/84 Folien erfasst; 80 `KEEP`, 4 `REFINE`; 26 kritische Themen vertieft geprüft |
 | Curriculumstatus | `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` validiert; 8 Module, 43 Lernziele, 84 Traceability-Zeilen und 36 kanonische Demo-Bündel |
+| Quellenstatus | 36 aktive Primärquellen mit Aussagebezug, Gültigkeitsbereich, Pflegefeldern und Review-Triggern |
+| Terminologie und Konflikte | verbindlicher Terminologiestandard aktiv; Konfliktlog enthält offene, gelöste und zurückgestellte Punkte mit Blockerwirkung |
 | Demo-ID-Status | Präfixe und curriculare Zuordnung validiert; Namensschema der synthetischen Testdatenbanken bleibt offen |
-| Nächstes Arbeitspaket | `W0-005` bis `W0-008` – Gap-Liste, Quellenpflegefelder, Terminologiestandard und Konfliktlog als verbleibende Gate-A-Nachweise |
-| Danach | Namensschema der synthetischen Testdatenbanken sowie Framework-Arbeitspakete `FWK-001` bis `FWK-012` |
-| Aktueller Blocker | keiner; vier dokumentierte Folienpräzisierungen folgen kontrolliert in `W2-007`; Altbeispiele bleiben bis `W2-001` inaktiv |
+| Nächstes Arbeitspaket | Welle 1: zunächst `FWK-001`, `FWK-002`, `FWK-008`, `FWK-009` und `FWK-012` als Sicherheits- und Vertragsbasis |
+| Danach | `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011`; anschließend vier Pilotdemos für Gate B |
+| Aktuelle Blocker | kein globaler Blocker; `CFL-007` muss vor wiederverwendbaren Setup-/Cleanup-Skripten in `FWK-002` gelöst werden; vier `REFINE`-Claims blockieren erst die spätere Präsentationsfreigabe |
+| Teststatus | Dokumentations-, Quellen-, Privacy- und Traceability-Review vorhanden; keine Demo-Runtime- oder Versionsmatrix ausgeführt, weil noch keine fachliche Demo implementiert ist |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
 
