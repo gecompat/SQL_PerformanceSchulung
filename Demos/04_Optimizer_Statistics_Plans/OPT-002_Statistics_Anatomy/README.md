@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `GREEN` |
 | Primäre Zielversion | SQL Server 2025 |
 | Unterstützte Versionen | SQL Server 2019, 2022 und 2025 |
@@ -65,7 +65,7 @@ Der Cleanup entfernt nur die Datenbank, deren Projekt-, Vertrags-, Demo- und Run
 
 ## 11. Tests
 
-Die Runtime-Matrix führt die Demo pro Version zweimal aus. Sie prüft 100.000 tatsächliche Zeilen, 50.000 Hot-Key-Zeilen, `rows_sampled < rows` vor `FULLSCAN`, `rows_sampled = rows` danach, die erste Statistikschlüsselspalte, höchstens 200 Histogrammschritte sowie die exakte `equal_rows`-Frequenz der Kategorie 1.
+Die Runtime-Matrix führte die Demo im Lauf `30108023315` pro Version zweimal aus. Sie prüfte 100.000 tatsächliche Zeilen, 50.000 Hot-Key-Zeilen, `rows_sampled < rows` vor `FULLSCAN`, `rows_sampled = rows` danach, die erste Statistikschlüsselspalte, höchstens 200 Histogrammschritte sowie die exakte `equal_rows`-Frequenz der Kategorie 1.
 
 ## 12. Bekannte Grenzen
 
