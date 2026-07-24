@@ -29,6 +29,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 
 - [Master-Umsetzungsplan](Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
 - [Gate-A-Review](Documentation/Project_Planning/GATE_A_REVIEW.md)
+- [Gate-B-Review](Documentation/Project_Planning/GATE_B_REVIEW.md)
 - [Review der Welle-1-Framework-Basis](Documentation/Project_Planning/WAVE_1_FRAMEWORK_FOUNDATION_REVIEW.md)
 - [Review der Welle-1-Daten-, Mess- und Ergebnisbasis](Documentation/Project_Planning/WAVE_1_DATA_MEASUREMENT_REVIEW.md)
 - [Review der Welle-1-Orchestrierungs-, Telemetrie- und Runtimebasis](Documentation/Project_Planning/WAVE_1_ORCHESTRATION_RUNTIME_REVIEW.md)
@@ -41,11 +42,13 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Folien- und Aussagenregister](Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md)
 - [Curriculumarchitektur und Lernzielmodell](Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md)
 - [Traceability-Matrix](Documentation/Curriculum/TRACEABILITY_MATRIX.md)
+- [Gate-B-Ausführungs-Traceability](Documentation/Curriculum/GATE_B_TRACEABILITY.md)
 - [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
 - [Projektweites Quellenregister](Documentation/Research/SOURCE_REGISTER.md)
 - [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
 - [Primärquellen für die Welle-1-Framework-Basis](Documentation/Research/FRAMEWORK_SOURCES_W1.md)
 - [Quellenbasis der SQL-Server-Runtime-Matrix](Documentation/Research/SQL_SERVER_RUNTIME_MATRIX_SOURCES.md)
+- [Primärquellen der Gate-B-Pilotdemos](Documentation/Research/GATE_B_PILOT_SOURCES.md)
 - [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md)
 - [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
 
@@ -70,9 +73,11 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 
 ## Status
 
-Welle 0 und Gate A sind fachlich validiert. Die Framework-Arbeitspakete `FWK-001` bis `FWK-012` sind implementiert und in offiziellen Microsoft-Linux-Containern auf SQL Server 2019, 2022 und 2025 mit Compatibility Levels 150, 160 und 170 runtime-validiert.
+Welle 0, Gate A und Gate B sind validiert. Die Framework-Arbeitspakete `FWK-001` bis `FWK-012` sind in offiziellen Microsoft-Linux-Containern auf SQL Server 2019, 2022 und 2025 mit Compatibility Levels 150, 160 und 170 runtime-validiert.
 
-Die Matrix umfasst Testdatenbank-Lifecycle, Preflight, deterministische Daten, sessionbezogene Messung, Plan-/Statistikevidenz, reale parallele Sessions, Query Store, Extended Events, Runtime-Harness und Cleanup. Der nächste kritische Pfad sind die vier Pilotdemos für Gate B. Der Gesamtstatus des Projekts bleibt `PLANNED`, bis diese Pilotdemos implementiert und abgenommen sind.
+Gate B umfasst die validierten Piloten `QRY-001`, `OPT-002`, `CON-004` und `OPT-013`. Der Workflowlauf `30108023315` führte jede Demo je Version zweimal vollständig aus und bestätigte 24 erfolgreiche Demoläufe einschließlich markergeprüftem Cleanup nach jedem Lauf.
+
+Der nächste kritische Pfad ist Welle 2: fachliche Umsetzung und Synchronisierung der Curriculum-Artefakte, Korrektur der vier aktiven `REFINE`-Claims in `W2-007`, Ausbau der Teilnehmerunterlagen und weitere Demos auf Basis des validierten Frameworks. Der Gesamtstatus des Projekts bleibt bis zur vollständigen Inhalts- und Releaseabnahme `PLANNED`.
 
 ## Lizenz
 
