@@ -19,7 +19,7 @@
 - [x] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
 - [x] Kanonisches Namensschema der Demo-IDs festlegen.
 - [x] Namens-, Eigentums- und Schutzschema für synthetische Testdatenbanken festlegen.
-- [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework vollständig implementieren; Sicherheits-, Lifecycle- und Statusbasis ist vorhanden, Messrahmen und Test-Harness fehlen noch.
+- [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework vollständig implementieren; Daten-, Mess-, Evidenz-, Sicherheits-, Lifecycle-, Status- und Ergebnisbasis ist vorhanden, Orchestrierung und Runtime-Harness fehlen noch.
 - [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten implementieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
 - [x] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
@@ -33,10 +33,16 @@
 
 - [x] `FWK-001` Preflight-Vertrag entwerfen und als eigenständige Vorlage implementieren.
 - [x] `FWK-002` Namens-, Schutz- und Lifecycle-Vertrag für synthetische Testdatenbanken implementieren.
+- [x] `FWK-003` deterministischen synthetischen Datengenerator implementieren.
+- [x] `FWK-004` sessionbezogenen Messrahmen implementieren.
+- [x] `FWK-005` Plan- und Statistikevidenz implementieren.
+- [ ] `FWK-006` deterministische Multi-Session-Orchestrierung implementieren.
+- [ ] `FWK-007` Query-Store- und Extended-Events-Helfer implementieren.
 - [x] `FWK-008` Sicherheits- und Abbruchvertrag implementieren.
 - [x] `FWK-009` vollständige Demo-Dokumentvorlage implementieren.
+- [ ] `FWK-010` vollständigen SQL-Runtime-Harness implementieren.
+- [x] `FWK-011` Ergebnisnormalisierung und maschinenunabhängige Erwartungsverträge implementieren.
 - [x] `FWK-012` Status-, Fehler- und Skip-Vertrag implementieren.
-- [ ] `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011` als Daten-, Mess-, Evidenz-, Orchestrierungs- und Testbasis implementieren.
 - [ ] Framework-SQL auf SQL Server 2019, 2022 und 2025 parsen, deployen und im Lifecycle testen.
 - [ ] Zwei grüne T-SQL-Pilotdemos nach vollständigem Demo-Vertrag umsetzen.
 - [ ] Eine Multi-Session-Pilotdemo mit kontrolliertem Blocking in einer Testdatenbank umsetzen.
@@ -55,7 +61,7 @@
 - [ ] Docker-/Podman-Ressourcen- oder Netzwerkfunktionen nur für konkret abhängige Demos prüfen.
 - [ ] Hyper-V nur für nachweislich Windows-, Storage- oder OS-nahe Demos planen.
 - [ ] Wiederholbare Concurrency-Workloads ohne proprietäre Abhängigkeiten erstellen.
-- [ ] Hardwareabhängige Erwartungswerte als Bereiche statt Fixwerte definieren.
+- [x] Hardwareabhängige Erwartungswerte als Invarianten, Richtungen, Verhältnisse oder begründete Bandbreiten statt Fixwerte definieren.
 - [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister und Lernzielen synchronisieren.
 - [x] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
 
