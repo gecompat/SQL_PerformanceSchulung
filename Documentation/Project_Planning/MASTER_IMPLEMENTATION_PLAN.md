@@ -222,6 +222,8 @@ Dieser Workstream beginnt nach `W0-003` und läuft bis zum Release.
 | `CUR-006` | M | Zeit- und Durchführungsvarianten entwerfen | Kurz-, Standard- und Vertiefungsformat mit auslassbaren Blöcken |
 | `CUR-007` | M | Übungen und Verständnisfragen planen | Aufgabe, erwartete Beobachtung, Fehlannahmen und Musterlösung je Kernmodul |
 | `CUR-008` | S | Erfolgskriterien definieren | praktische und theoretische Lernkontrolle dokumentiert |
+| `CUR-009` | M | Modulübergreifenden Diagnoseleitfaden integrieren | Symptom → Messung → Hypothese → Änderung → Vergleich ist in allen Modulen konsistent anwendbar |
+| `CUR-010` | M | Rollenmodell der Lehrartefakte festlegen | Projektionsfolie, Speaker Notes, Teilnehmerunterlage und Demo-Evidenz besitzen getrennte, konsistente Aufgaben |
 
 ## 9. Querschnitt B – Demo-Katalog und Benennung
 
@@ -288,6 +290,7 @@ Die vier Demos für Gate B werden erst im Detail ausgewählt, wenn Welle 0 abges
 | `W2-004` | M | Diagnoseabfragen modernisieren | Version, Rechte, Scope, Delta-Methodik und Messgrenzen dokumentiert |
 | `W2-005` | M | bestehende Kernaussagen neu messen | Effekt reproduzierbar; veraltete oder zufällige Effekte werden ersetzt |
 | `W2-006` | M | Mapping zu neuen IDs | kein Beispiel bleibt außerhalb von Katalog und Curriculum |
+| `W2-007` | M | Vier aktive `REFINE`-Claims präzisieren | Folien 32, 34, 42 und 43 einschließlich Notes, Quellen, Versionsgrenzen und Traceability korrigiert |
 
 ## 12. Wellen 3 bis 9 – Geplanter Demo-Bestand
 
