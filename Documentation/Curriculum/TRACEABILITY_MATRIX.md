@@ -13,7 +13,7 @@
 
 ## 1. Zweck
 
-Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → aktive Folie → geplantes Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die fachliche Begründung der vier `REFINE`-Entscheidungen steht in der [kritischen Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md).
+Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → aktive Folie → geplantes Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die vier früheren `REFINE`-Entscheidungen sind durch `W2-007` abgeschlossen; fachliche Änderung und Abnahme stehen im [W2-007-Review](../Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md).
 
 Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ein Gedankenmodell, eine Navigation oder eine methodische Folie benötigt nicht künstlich eine Runtime-Demo; in diesem Fall prüfen Quellenreview, Struktur- und Präsentationstest die Nachverfolgbarkeit.
 
@@ -25,7 +25,7 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ei
 | `TP-RUN` | `TST-003`, `TST-004`, `TST-005`, `TST-006`, `TST-010` | Demo-Vertrag, Runtime, Wiederholung, Cleanup, Versionsmatrix und Präsentationsabgleich |
 | `TP-PERF` | `TP-RUN`, `TST-008` | zusätzlich relationale Performanceerwartung, Bandbreiten und Abbruchbedingungen |
 | `TP-CON` | `TP-RUN`, `TST-007`, `TST-008` | zusätzlich deterministische Multi-Session-Steuerung und Concurrency-Cleanup |
-| `TP-REFINE` | `W2-007`, `TST-001`, `TST-010` | sichtbare Aussage, Notes, Quellen und Versionsgrenze vor Runtime-Freigabe korrigieren |
+| `TP-REFINE` | `W2-007`, `TST-001`, `TST-010` | historisches Abschlussprofil für sichtbare Aussage, Notes, Quellen, Versionsgrenze und Renderprüfung |
 
 ## 3. Vollständige Zuordnung
 
@@ -62,9 +62,9 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ei
 | `CLM-029` | 29 | Grants koppeln Plan und Concurrency | `LO-M02-05` | VERTIEFUNG | `SRC-009`, `SRC-010` | `OPT-014` | `TP-PERF` | KEEP |
 | `CLM-030` | 30 | Spill belegt unzureichenden nutzbaren Workspace | `LO-M02-05` | VERTIEFUNG | `SRC-009`, `SRC-029`, `SRC-031` | `OPT-013` | `TP-PERF` | KEEP |
 | `CLM-031` | 31 | Parallelität garantiert keine gleichmäßige Arbeit | `LO-M02-06` | VERTIEFUNG | `SRC-001` | `RES-002` | `TP-PERF` | KEEP |
-| `CLM-032` | 32 | Plan Reuse hängt von Cachekontext und Ereignissen ab | `LO-M02-07` | VERTIEFUNG | `SRC-001` | `OPT-007` | `TP-REFINE` + `TP-PERF` | REFINE |
+| `CLM-032` | 32 | Cache-Schlüssel, zusätzliche Einträge und Planinvalidierung getrennt diagnostizieren | `LO-M02-07` | VERTIEFUNG | `SRC-001`, `SRC-027` | `OPT-007` | `TP-PERF` | KEEP |
 | `CLM-033` | 33 | Parameter Sensitivity folgt Datenverteilung | `LO-M02-07` | VERTIEFUNG | `SRC-007` | `OPT-008` | `TP-RUN` | KEEP |
-| `CLM-034` | 34 | IQP-Funktionen besitzen verschiedene Voraussetzungen | `LO-M02-07` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-009` | – | `TP-REFINE` | REFINE |
+| `CLM-034` | 34 | IQP-Version, CL, Konfiguration, Query Store und Eligibility gemeinsam prüfen | `LO-M02-07` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-009`, `SRC-026` | – | `TP-DOC` | KEEP |
 | `CLM-035` | 35 | Query-Processing-Evidenz konsolidieren | `LO-M02-01..07` | KERN + VERTIEFUNG | – | – | `TP-DOC` | KEEP |
 | `CLM-036` | 36 | Query-Patterns-Modul einordnen | `LO-M03-01..06` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-037` | 37 | SARGability hält Suchargument verfügbar | `LO-M03-01` | KERN | `SRC-012` | `QRY-001` | `TP-RUN` | KEEP |
@@ -72,8 +72,8 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ei
 | `CLM-039` | 39 | halboffene Zeitintervalle vermeiden Randfehler | `LO-M03-02` | KERN | `SRC-012` | `QRY-003` | `TP-RUN` | KEEP |
 | `CLM-040` | 40 | optionale Parameter benötigen Verteilungsstrategie | `LO-M03-03` | VERTIEFUNG | `SRC-026` | `QRY-004` | `TP-RUN` | KEEP |
 | `CLM-041` | 41 | CTE garantiert keine Materialisierung | `LO-M03-04` | KERN | `SRC-011`, `SRC-001` | `QRY-008` | `TP-RUN` | KEEP |
-| `CLM-042` | 42 | Temp Table und Table Variable unterscheiden sich | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-008` | `TP-REFINE` + `TP-RUN` | REFINE |
-| `CLM-043` | 43 | UDF-/TVF-Form beeinflusst Optimierersichtbarkeit | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-009` | `TP-REFINE` + `TP-RUN` | REFINE |
+| `CLM-042` | 42 | Temp Table, Table Variable Deferred Compilation, Statistiken und Planwiederverwendung differenziert bewerten | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-008` | `TP-RUN` | KEEP |
+| `CLM-043` | 43 | Inline TVF, MSTVF Interleaved Execution und Scalar UDF Inlining nach Eligibility und Plan unterscheiden | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | KEEP |
 | `CLM-044` | 44 | Partition Elimination muss ableitbar sein | `LO-M03-05` | VERTIEFUNG | `SRC-018` | `QRY-012` | `TP-PERF` | KEEP |
 | `CLM-045` | 45 | Remote Pushdown ist provider- und planabhängig | `LO-M03-05` | VERTIEFUNG | `SRC-020`, `SRC-021`, `SRC-022` | `QRY-012` | `TP-PERF` | KEEP |
 | `CLM-046` | 46 | Datenmodell und Datentyp begrenzen Optimierung | `LO-M03-02` | KERN | `SRC-002`, `SRC-005`, `SRC-030` | – | `TP-DOC` | KEEP |
@@ -128,5 +128,5 @@ Die frühere Sammelkennung `DEM-STO-01` deckte sowohl Files/Log als auch Pages/E
 - Alle referenzierten Quellen-IDs stammen aus dem Primärquellenregister.
 - Alle 47 Demo-Zuordnungen verwenden bestehende IDs des Masterplans.
 - Alle Claims besitzen ein Testprofil; Runtime-Profile bleiben bis zur Implementierung der Demos `PLANNED`.
-- Die vier `REFINE`-Claims besitzen zusätzlich `TP-REFINE` und können nicht versehentlich als präsentationsseitig abgeschlossen gelten.
-- Die Matrix enthält keine Aussage über bestandene Runtime- oder Versionsprüfungen.
+- Die vier früheren `REFINE`-Claims sind durch `W2-007` abgeschlossen und besitzen die Entscheidung `KEEP`; das historische Profil `TP-REFINE` bleibt als Abnahmenachweis dokumentiert.
+- Runtime- oder Versionsprüfungen werden nur dort als bestanden bezeichnet, wo ein separates Review oder ein validierter Workflowlauf dies belegt; `W2-007` ist eine Präsentations- und Quellenabnahme.

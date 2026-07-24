@@ -4,7 +4,7 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `ae375c1b5fe3b67e939efbd6c20c6128eb9685e51b21c7c452198a4a2aef6d23`  
+**SHA-256:** `3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18`  
 **Folienumfang:** 84  
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
@@ -54,9 +54,9 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-029 | 29 | sl/mbhe9f | Query Processing | DOCUMENTED | Sort/Hash können Memory Grants anfordern; Schätzung beeinflusst Warten, Reserve und Spill-Risiko | 2019–2025 | SRC-009, SRC-010 | KEEP | OPT-014 |
 | CLM-030 | 30 | sl/illpzu | Query Processing | DOCUMENTED | Spills sind Laufzeitfolgen unzureichender Arbeitsfläche und im Plan/Monitoring nachzuweisen | 2019–2025 | SRC-009, SRC-029, SRC-031 | KEEP | OPT-013 |
 | CLM-031 | 31 | sl/hzgydc | Query Processing | DOCUMENTED | Parallelität besteht aus Tasks/Workern; Skew kann ein paralleles Gesamtergebnis dominieren | 2019–2025 | SRC-001 | KEEP | RES-002 |
-| CLM-032 | 32 | sl/vhqglr | Query Processing | DOCUMENTED | Planwiederverwendung hängt von Cachekontext und Recompile-/Invalidierungsereignissen ab | 2019–2025 | SRC-001 | REFINE | OPT-007 |
+| CLM-032 | 32 | sl/vhqglr | Query Processing | DOCUMENTED | Cache-Schlüssel, zusätzliche Cacheeinträge, Eviction, Invalidierung und Recompile sind getrennte Zustände der Planwiederverwendung | 2019–2025; Query Store nur bei aktiver Konfiguration | SRC-001, SRC-027 | KEEP | OPT-007 |
 | CLM-033 | 33 | sl/7j9iwe | Query Processing | DOCUMENTED | Ein einzelner gecachter Plan kann bei ungleich verteilten Parameterwerten ungeeignet sein | 2019–2025; PSP ab 2022/CL 160 | SRC-007 | KEEP | OPT-008 |
-| CLM-034 | 34 | sl/ju46sf | Query Processing | DOCUMENTED | IQP-Funktionen haben unterschiedliche Versions-, Stufen- und Query-Store-Voraussetzungen | 2019–2025; CL 140–170 | SRC-007, SRC-008, SRC-009 | REFINE | – |
+| CLM-034 | 34 | sl/ju46sf | Query Processing | DOCUMENTED | IQP-Funktionen besitzen getrennte Voraussetzungen aus Engine-Version, Compatibility Level, Datenbankkonfiguration, Query Store und Query-Eligibility | 2019–2025; MGF-Persistenz/Perzentil: 2022+, CL 140, Query Store READ_WRITE; OPPO: 2025, CL 170 | SRC-007, SRC-008, SRC-009, SRC-026 | KEEP | – |
 | CLM-035 | 35 | sl/kczsyg | Query Processing | DIDACTIC | Wissenssicherung zu Optimierung und Ausführung | – | – | KEEP | – |
 | CLM-036 | 36 | sl/cll1q5 | Query Patterns | DIDACTIC | Modulnavigation zu Abfragemustern | – | – | KEEP | – |
 | CLM-037 | 37 | sl/balkx4 | Query Patterns | DOCUMENTED | SARGable Prädikate erleichtern passende Suchzugriffe; Funktionen auf Suchspalten können sie verhindern | 2019–2025 | SRC-012 | KEEP | QRY-001 |
@@ -64,8 +64,8 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-039 | 39 | sl/e1wq25 | Query Patterns | DOCUMENTED | Halb offene Datumsintervalle vermeiden Zeitanteilsfehler und bleiben suchbar | 2019–2025 | SRC-012 | KEEP | QRY-003 |
 | CLM-040 | 40 | sl/2th1fh | Query Patterns | DOCUMENTED | Optionale Prädikate können planempfindlich sein; OPPO erzeugt ab SQL Server 2025 geeignete Varianten unter Voraussetzungen | 2025/CL 170 für OPPO | SRC-026 | KEEP | QRY-004 |
 | CLM-041 | 41 | sl/n34ud6 | Query Patterns | DOCUMENTED | Eine CTE ist eine logische Abfrageform ohne Materialisierungsgarantie | 2019–2025 | SRC-011, SRC-001 | KEEP | QRY-008 |
-| CLM-042 | 42 | sl/hv65ke | Query Patterns | DOCUMENTED / EMPIRICAL | Temporäre Tabellen besitzen andere Statistik-/Kompilierungseigenschaften als Tabellenvariablen; Deferred Compilation verbessert nur bestimmte Fälle | 2019+, TVDC CL 150 | SRC-007, SRC-008 | REFINE | QRY-008 |
-| CLM-043 | 43 | sl/240x87 | Query Patterns | DOCUMENTED | UDF-/TVF-Form beeinflusst Sichtbarkeit und Schätzung; moderne IQP-Funktionen können geeignete Fälle verbessern | 2017+, CL 140/150 je Funktion | SRC-007, SRC-008 | REFINE | QRY-009 |
+| CLM-042 | 42 | sl/hv65ke | Query Patterns | DOCUMENTED / EMPIRICAL | Temp Tables können Spaltenstatistiken besitzen; Table Variable Deferred Compilation nutzt bei CL 150 die erste Zeilenzahl, ersetzt aber keine Verteilungsstatistiken oder workloadbezogene Eignungsprüfung | 2019+, TVDC CL 150; empirische Wahl ohne feste Zeilengrenze | SRC-007, SRC-008 | KEEP | QRY-008 |
+| CLM-043 | 43 | sl/240x87 | Query Patterns | DOCUMENTED | Inline TVFs sind relational integrierbar; Interleaved Execution kann geeignete MSTVFs ab CL 140 mit erster Ist-Kardinalität optimieren; Scalar UDF Inlining bleibt eligibility- und planabhängig | 2017+, CL 140 für Interleaved Execution; 2019+, CL 150 für Scalar UDF Inlining | SRC-007, SRC-008 | KEEP | QRY-009 |
 | CLM-044 | 44 | sl/thzv62 | Query Patterns | DOCUMENTED | Partition Elimination folgt passenden Prädikaten und Grenzen; Partitionierung ersetzt keinen selektiven Index | 2019–2025 | SRC-018 | KEEP | QRY-012 |
 | CLM-045 | 45 | sl/kiz4xp | Query Patterns | DOCUMENTED | Remote Pushdown hängt von Provider, Collation, Ausdruck und Plan ab; SQL Server 2025 ändert Treibervoraussetzungen | 2019–2025; Providerabhängigkeit | SRC-020, SRC-021, SRC-022 | KEEP | QRY-012 |
 | CLM-046 | 46 | sl/hsj9bd | Query Patterns | DOCUMENTED | Datentypen und Modellierung beeinflussen Zeilenbreite, Konvertierungen, Schätzungen und Indizierbarkeit | 2019–2025 | SRC-002, SRC-005, SRC-030 | KEEP | – |
@@ -115,11 +115,11 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | Folien im aktiven Deck | 84 |
 | Registerzeilen | 84 |
 | Eindeutige stabile Folien-IDs | 84 |
-| `KEEP` | 80 |
-| `REFINE` | 4 |
+| `KEEP` | 84 |
+| `REFINE` | 0 |
 | `REPLACE` | 0 |
 | `REMOVE` | 0 |
 | Folien mit kanonischer Demo-ID | 47 |
 | Eindeutige kanonische Demo-IDs | 36 |
 
-Die vier `REFINE`-Entscheidungen sind in der [kritischen Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md) mit Abnahmekriterien dokumentiert. Die kanonischen Demo-IDs sind eine curriculare Zuordnung, keine Aussage über Implementierungs- oder Validierungsstatus.
+Die vier früheren `REFINE`-Entscheidungen wurden in `W2-007` abgeschlossen. Sichtbarer Folientext, Speaker Notes, Quellen, Versionsgrenzen und Traceability sind im [W2-007-Review](../Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md) dokumentiert. Die kanonischen Demo-IDs sind eine curriculare Zuordnung; ihr Implementierungs- oder Validierungsstatus wird getrennt geführt.

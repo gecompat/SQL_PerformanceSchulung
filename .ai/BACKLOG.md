@@ -52,7 +52,7 @@
 - [ ] Vorhandene Beispiele nach weiterverwendbar, zu ergänzen oder neu aufzubauen klassifizieren.
 - [x] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
 - [x] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
-- [ ] Die vier aktiven `REFINE`-Claims in `W2-007` korrigieren und mit Runtime-Evidenz absichern.
+- [x] Die vier aktiven `REFINE`-Claims in `W2-007` fachlich korrigieren, mit Notes/Quellen synchronisieren und gegen den aktiven Foliensatz validieren.
 
 ## P2 - Reproduktion und Testmatrix
 

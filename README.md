@@ -30,6 +30,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Master-Umsetzungsplan](Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
 - [Gate-A-Review](Documentation/Project_Planning/GATE_A_REVIEW.md)
 - [Gate-B-Review](Documentation/Project_Planning/GATE_B_REVIEW.md)
+- [W2-007-Review der vier präzisierten Claims](Documentation/Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md)
 - [Review der Welle-1-Framework-Basis](Documentation/Project_Planning/WAVE_1_FRAMEWORK_FOUNDATION_REVIEW.md)
 - [Review der Welle-1-Daten-, Mess- und Ergebnisbasis](Documentation/Project_Planning/WAVE_1_DATA_MEASUREMENT_REVIEW.md)
 - [Review der Welle-1-Orchestrierungs-, Telemetrie- und Runtimebasis](Documentation/Project_Planning/WAVE_1_ORCHESTRATION_RUNTIME_REVIEW.md)
@@ -77,7 +78,9 @@ Welle 0, Gate A und Gate B sind validiert. Die Framework-Arbeitspakete `FWK-001`
 
 Gate B umfasst die validierten Piloten `QRY-001`, `OPT-002`, `CON-004` und `OPT-013`. Der Workflowlauf `30108023315` führte jede Demo je Version zweimal vollständig aus und bestätigte 24 erfolgreiche Demoläufe einschließlich markergeprüftem Cleanup nach jedem Lauf.
 
-Der nächste kritische Pfad ist Welle 2: fachliche Umsetzung und Synchronisierung der Curriculum-Artefakte, Korrektur der vier aktiven `REFINE`-Claims in `W2-007`, Ausbau der Teilnehmerunterlagen und weitere Demos auf Basis des validierten Frameworks. Der Gesamtstatus des Projekts bleibt bis zur vollständigen Inhalts- und Releaseabnahme `PLANNED`.
+`W2-007` ist validiert: Die Folien 32, 34, 42 und 43 unterscheiden Cache-Schlüssel von Invalidierung, führen IQP-Voraussetzungen versions- und konfigurationsbezogen, vermeiden eine feste Table-Variable-Größenheuristik und berücksichtigen Interleaved Execution sowie Scalar UDF Inlining. Sichtbarer Text, Speaker Notes, Quellen und Traceability sind synchronisiert.
+
+Der nächste kritische Pfad ist die weitere Welle-2-Umsetzung: vorhandene Beispiele klassifizieren, Query Store und Extended Events in konkreten Diagnosepfaden validieren, Teilnehmerunterlagen ausbauen und zusätzliche Curriculum-Demos auf Basis des validierten Frameworks erstellen. Der Gesamtstatus des Projekts bleibt bis zur vollständigen Inhalts- und Releaseabnahme `PLANNED`.
 
 ## Lizenz
 
