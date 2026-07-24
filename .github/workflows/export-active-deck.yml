@@ -26,10 +26,12 @@ jobs:
       - name: Apply and validate W2-007 payload
         shell: bash
         run: |
+          exec > >(tee /tmp/w2-007-apply.log) 2>&1
           set -euo pipefail
           test -f .tmp/w2-007/payload-complete.txt
           cat .tmp/w2-007/part*.b64 > /tmp/w2-007-payload.b64
           base64 --decode /tmp/w2-007-payload.b64 > /tmp/w2-007-payload.zip
+          unzip -t /tmp/w2-007-payload.zip
           rm -rf /tmp/w2-007-payload
           mkdir -p /tmp/w2-007-payload
           unzip -q /tmp/w2-007-payload.zip -d /tmp/w2-007-payload
@@ -45,6 +47,7 @@ jobs:
               path.relative_to(replacements_root).as_posix(): path.read_bytes()
               for path in replacements_root.rglob('*.xml')
           }
+          print(f'OOXML replacements: {len(replacements)}')
           temporary = deck.with_suffix('.w2-007.tmp.pptx')
           with zipfile.ZipFile(deck, 'r') as source, zipfile.ZipFile(temporary, 'w') as target:
               for info in source.infolist():
@@ -52,6 +55,7 @@ jobs:
                   target.writestr(info, data)
           os.replace(temporary, deck)
           PY
+          sha256sum Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx
           python Tests/Static/validate_w2_007_presentation.py
           rm -rf .tmp/w2-007
           rm -f .github/workflows/apply-w2-007.yml
@@ -61,3 +65,11 @@ jobs:
           git add -A
           git commit -m 'W2-007: REFINE-Claims fachlich korrigieren und validieren'
           git push origin HEAD:agent/w2-007-refine-claims
+      - name: Upload W2-007 apply diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w2-007-apply-diagnostic
+          path: /tmp/w2-007-apply.log
+          if-no-files-found: warn
+          retention-days: 1
