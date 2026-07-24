@@ -185,7 +185,7 @@ BEGIN
         interval_length_minutes,
         stale_query_threshold_days,
         size_based_cleanup_mode_desc,
-        data_flush_interval_seconds,
+        flush_interval_seconds,
         wait_stats_capture_mode_desc,
         max_plans_per_query
     FROM sys.database_query_store_options;
