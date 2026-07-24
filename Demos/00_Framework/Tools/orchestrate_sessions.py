@@ -19,13 +19,7 @@ import sys
 import time
 from typing import Any
 
-from sqlcmd_process import (
-    build_sqlcmd_command,
-    collect_process,
-    resolve_sqlcmd,
-    start_sqlcmd,
-)
-
+from sqlcmd_process import build_sqlcmd_command, collect_process, resolve_sqlcmd, start_sqlcmd
 
 SESSION_ID_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,31}")
 DEMO_ID_PATTERN = re.compile(r"(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}")
@@ -51,54 +45,49 @@ class OrchestrationResult:
     def exit_code(self) -> int:
         if self.outcome in {"PASS", "WARN", "SKIP"}:
             return 0
-        if self.code == "FAIL_TIMEOUT":
-            return 3
-        return 2
+        return 3 if self.code == "FAIL_TIMEOUT" else 2
 
 
 def _load_json_object(path: Path) -> dict[str, Any]:
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError(f"invalid manifest: {exc}") from exc
-    if not isinstance(payload, dict):
+    if not isinstance(value, dict):
         raise ValueError("manifest root must be a JSON object")
-    return payload
+    return value
 
 
-def _resolve_relative_sql(base: Path, relative_value: str) -> Path:
-    candidate = (base / relative_value).resolve()
+def _resolve_relative_sql(base: Path, value: str) -> Path:
+    candidate = (base / value).resolve()
     try:
         candidate.relative_to(base.resolve())
     except ValueError as exc:
         raise ValueError("session script escapes the manifest directory") from exc
     if not candidate.is_file() or candidate.suffix.lower() != ".sql":
-        raise ValueError(f"session script missing or not .sql: {relative_value}")
+        raise ValueError(f"session script missing or not .sql: {value}")
     return candidate
 
 
 def load_manifest(path: Path) -> tuple[str, str, int, bool, list[SessionSpec]]:
     payload = _load_json_object(path)
-
     if payload.get("contract_version") != "1.0":
         raise ValueError("contract_version must be 1.0")
 
     demo_id = payload.get("demo_id")
     run_token = payload.get("run_token")
+    timeout_seconds = payload.get("timeout_seconds")
+    abort_on_first_failure = payload.get("abort_on_first_failure", True)
+    raw_sessions = payload.get("sessions")
+
     if not isinstance(demo_id, str) or not DEMO_ID_PATTERN.fullmatch(demo_id):
         raise ValueError("invalid demo_id")
     if not isinstance(run_token, str) or not RUN_TOKEN_PATTERN.fullmatch(run_token):
         raise ValueError("invalid run_token")
-
-    timeout_seconds = payload.get("timeout_seconds")
     if not isinstance(timeout_seconds, int) or not 1 <= timeout_seconds <= 3600:
         raise ValueError("timeout_seconds must be an integer from 1 through 3600")
-
-    abort_on_first_failure = payload.get("abort_on_first_failure", True)
     if not isinstance(abort_on_first_failure, bool):
         raise ValueError("abort_on_first_failure must be boolean")
-
-    raw_sessions = payload.get("sessions")
     if not isinstance(raw_sessions, list) or not 1 <= len(raw_sessions) <= 32:
         raise ValueError("sessions must contain 1 through 32 entries")
 
@@ -114,11 +103,11 @@ def load_manifest(path: Path) -> tuple[str, str, int, bool, list[SessionSpec]]:
             raise ValueError(f"invalid session id: {session_id!r}")
         if session_id in seen:
             raise ValueError(f"duplicate session id: {session_id}")
-        seen.add(session_id)
         if not isinstance(script, str):
             raise ValueError(f"session {session_id} requires a script")
         if not isinstance(delay, int) or not 0 <= delay <= 60000:
             raise ValueError(f"session {session_id} launch_delay_ms must be 0 through 60000")
+        seen.add(session_id)
         sessions.append(SessionSpec(session_id, _resolve_relative_sql(path.parent, script), delay))
 
     sessions.sort(key=lambda item: (item.launch_delay_ms, item.session_id))
@@ -137,7 +126,6 @@ def run_manifest(
     timeout_override_seconds: int | None = None,
 ) -> OrchestrationResult:
     demo_id, run_token, timeout_seconds, abort_on_first_failure, sessions = load_manifest(manifest_path.resolve())
-
     if timeout_override_seconds is not None:
         if timeout_override_seconds < 1:
             raise ValueError("timeout_override_seconds must be positive")
@@ -147,15 +135,14 @@ def run_manifest(
     variables = {"DemoId": demo_id, "RunToken": run_token}
     started_at = time.monotonic()
     deadline = started_at + timeout_seconds
-
     pending = list(sessions)
     running: dict[str, tuple[Any, list[str]]] = {}
     completed: dict[str, tuple[int, str, str, bool]] = {}
     failure_detected = False
+    global_timeout = False
 
     while pending or running:
         now = time.monotonic()
-
         while pending and now - started_at >= pending[0].launch_delay_ms / 1000:
             spec = pending.pop(0)
             command = build_sqlcmd_command(
@@ -167,15 +154,13 @@ def run_manifest(
                 username=username,
                 variables=variables,
             )
-            process = start_sqlcmd(command, environment=os.environ)
-            running[spec.session_id] = (process, command)
+            running[spec.session_id] = (start_sqlcmd(command, environment=os.environ), command)
 
         for session_id, (process, command) in list(running.items()):
-            returncode = process.poll()
-            if returncode is None:
+            if process.poll() is None:
                 continue
             result = collect_process(process, command, timeout_seconds=0.1)
-            completed[session_id] = (result.returncode, result.stdout, result.stderr, result.timed_out)
+            completed[session_id] = (result.returncode, result.stdout, result.stderr, False)
             del running[session_id]
             if result.returncode != 0:
                 failure_detected = True
@@ -183,38 +168,40 @@ def run_manifest(
         if failure_detected and abort_on_first_failure:
             break
         if time.monotonic() >= deadline:
+            global_timeout = True
             break
         time.sleep(0.05)
 
-    timed_out = time.monotonic() >= deadline
-    if failure_detected and abort_on_first_failure or timed_out:
+    if global_timeout:
         for session_id, (process, command) in list(running.items()):
-            remaining = max(0.01, deadline - time.monotonic()) if timed_out else 0.01
-            result = collect_process(process, command, timeout_seconds=remaining)
-            completed[session_id] = (result.returncode, result.stdout, result.stderr, timed_out)
+            result = collect_process(process, command, timeout_seconds=0.01)
+            completed[session_id] = (result.returncode, result.stdout, result.stderr, True)
             del running[session_id]
-
-    for spec in pending:
-        completed[spec.session_id] = (-1, "", "", timed_out)
+        for spec in pending:
+            completed[spec.session_id] = (-1, "", "", True)
+    elif failure_detected and abort_on_first_failure:
+        for session_id, (process, command) in list(running.items()):
+            result = collect_process(process, command, timeout_seconds=0.01)
+            completed[session_id] = (result.returncode, result.stdout, result.stderr, False)
+            del running[session_id]
+        for spec in pending:
+            completed[spec.session_id] = (-1, "", "", False)
     pending.clear()
 
     if show_output:
         for session_id in sorted(completed):
             _, stdout, stderr, _ = completed[session_id]
-            if stdout:
-                for line in stdout.rstrip().splitlines():
-                    print(f"[{session_id}:stdout] {line}")
-            if stderr:
-                for line in stderr.rstrip().splitlines():
-                    print(f"[{session_id}:stderr] {line}", file=sys.stderr)
+            for line in stdout.rstrip().splitlines() if stdout else ():
+                print(f"[{session_id}:stdout] {line}")
+            for line in stderr.rstrip().splitlines() if stderr else ():
+                print(f"[{session_id}:stderr] {line}", file=sys.stderr)
 
-    timeout_ids = tuple(sorted(session_id for session_id, (_, _, _, session_timed_out) in completed.items() if session_timed_out))
-    returncodes = {session_id: values[0] for session_id, values in sorted(completed.items())}
-
-    if timed_out or timeout_ids:
+    timeout_ids = tuple(sorted(key for key, value in completed.items() if value[3]))
+    returncodes = {key: value[0] for key, value in sorted(completed.items())}
+    if global_timeout:
         return OrchestrationResult("FAIL", "FAIL_TIMEOUT", "Die Multi-Session-Ausführung überschritt das Zeitbudget.", returncodes, timeout_ids)
     if any(returncode != 0 for returncode in returncodes.values()):
-        return OrchestrationResult("FAIL", "FAIL_EXECUTION", "Mindestens eine Session ist fehlgeschlagen oder wurde abgebrochen.", returncodes, ())
+        return OrchestrationResult("FAIL", "FAIL_EXECUTION", "Mindestens eine Session ist fehlgeschlagen oder wurde nach Fail-fast beendet.", returncodes, ())
     return OrchestrationResult("PASS", "OK", "Alle Sessions wurden innerhalb des Zeitbudgets abgeschlossen.", returncodes, ())
 
 
@@ -235,7 +222,6 @@ def main() -> int:
     if not args.server or not args.database:
         print("SQLPERF_SUMMARY|FAIL|FAIL_CONTRACT\nserver and database are required by argument or environment", file=sys.stderr)
         return 1
-
     try:
         result = run_manifest(
             manifest_path=args.manifest,
@@ -245,7 +231,6 @@ def main() -> int:
             username=args.username,
             sqlcmd_path=args.sqlcmd_path,
             show_output=args.show_output,
-            timeout_override_seconds=None,
         )
     except FileNotFoundError as exc:
         print(f"SQLPERF_SUMMARY|SKIP|SKIP_TOOL_MISSING\n{exc}")
