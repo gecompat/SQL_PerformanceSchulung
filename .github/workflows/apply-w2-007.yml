@@ -5,7 +5,7 @@ on:
     branches:
       - agent/w2-007-refine-claims
     paths:
-      - '.tmp/w2-007/READY'
+      - '.tmp/w2-007/payload-complete.txt'
 
 permissions:
   contents: write
