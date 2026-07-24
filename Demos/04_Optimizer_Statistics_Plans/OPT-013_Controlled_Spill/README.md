@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `YELLOW` |
 | Primäre Zielversion | SQL Server 2025 |
 | Unterstützte Versionen | SQL Server 2019, 2022 und 2025 |
@@ -65,7 +65,7 @@ Table Variable, Staging-Tabelle, Basistabelle und Evidenzobjekte sind vollständ
 
 ## 11. Tests
 
-Die Runtime-Matrix führt die Demo je Version zweimal aus und prüft identische Checksums, 300.000 tatsächliche Zeilen, Baseline mit Sort und Spill 0, Problemzustand mit kleinerem Grant und positivem `last_spills`, Vergleich über die Staging-Tabelle mit Spill 0 sowie vollständiges Cleanup. Es werden keine festen Laufzeit- oder TempDB-Größenverhältnisse verlangt.
+Die Runtime-Matrix führte die Demo im Lauf `30108023315` je Version zweimal aus und prüfte identische Checksums, 300.000 tatsächliche Zeilen, Baseline mit Sort und Spill 0, Problemzustand mit kleinerem Grant und positivem `last_spills`, Vergleich über die Staging-Tabelle mit Spill 0 sowie vollständiges Cleanup. Es werden keine festen Laufzeit- oder TempDB-Größenverhältnisse verlangt.
 
 ## 12. Bekannte Grenzen
 
