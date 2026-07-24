@@ -42,6 +42,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Folien- und Aussagenregister](Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md)
 - [Curriculumarchitektur und Lernzielmodell](Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md)
 - [Traceability-Matrix](Documentation/Curriculum/TRACEABILITY_MATRIX.md)
+- [Gate-B-Ausführungs-Traceability](Documentation/Curriculum/GATE_B_TRACEABILITY.md)
 - [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
 - [Projektweites Quellenregister](Documentation/Research/SOURCE_REGISTER.md)
 - [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
