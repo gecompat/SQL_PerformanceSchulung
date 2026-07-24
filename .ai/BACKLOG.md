@@ -1,5 +1,17 @@
 # Initialer Backlog
 
+## Welle 0 - Fachliche Konsolidierung
+
+- [x] `W0-001` Quellenmanifest für Folien, Dokumente und vorhandene Demo-Artefakte erstellen.
+- [x] `W0-002` Privacy- und Metadaten-Prüfverfahren definieren.
+- [x] `W0-003` Folien- und Aussagenregister erstellen.
+- [x] `W0-004` Kritische Bestandsaussagen gegen aktuelle Primärquellen prüfen.
+- [x] `W0-005` Fehlende Themen nach Lernwert, Demo-Eignung, Aufwand, Risiko und Versionsbezug priorisieren.
+- [x] `W0-006` Projektweites Quellenregister mit Pflege- und Gültigkeitsfeldern strukturieren.
+- [x] `W0-007` Verbindlichen Terminologie- und Schreibstandard festlegen.
+- [x] `W0-008` Konflikt- und Entscheidungslog mit Blockerwirkung und Folgearbeit einführen.
+- [x] Gate A fachlich abnehmen.
+
 ## P0 - Voraussetzung
 
 - [x] Folien, Dokumente und vorhandene Demo-Artefakte vollständig inventarisieren.
@@ -8,16 +20,21 @@
 - [x] Kanonisches Namensschema der Demo-IDs festlegen.
 - [ ] Namensschema für synthetische Testdatenbanken festlegen.
 - [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework entwerfen.
-- [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten definieren.
+- [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten implementieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
-- [ ] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
+- [x] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
 - [x] Sanitizing-Regeln für Bestandsunterlagen anwenden; nur `Gerhard Pisch` bleibt als reale Namensangabe zulässig.
-- [ ] Sämtliche veralteten Verweise auf externe Vorlage-Repositories entfernen.
+- [x] Sämtliche veralteten Verweise auf externe Vorlage-Repositories entfernen.
 - [x] Das bezeichnete Firmenlogo und die dazugehörigen Firmen- und Markenkennzeichen aus den geprüften Schulungsartefakten entfernen.
 - [x] Bildbasierte Branding-Prüfung zusätzlich zur Text- und Metadatensuche definieren.
+- [x] Projektweites Quellenregister, Terminologiestandard und Konfliktlog bereitstellen.
 
 ## P1 - Erste Umsetzung
 
+- [ ] `FWK-001` Preflight-Vertrag entwerfen und implementieren.
+- [ ] `FWK-002` Namens-, Schutz- und Lifecycle-Vertrag für synthetische Testdatenbanken entwerfen und implementieren.
+- [ ] `FWK-008`, `FWK-009` und `FWK-012` als Sicherheits-, Dokument- und Fehlergrundlage implementieren.
+- [ ] Mess-, Daten-, Orchestrierungs-, Query-Store-/XE- und Test-Helfer aus `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011` implementieren.
 - [ ] Zwei grüne T-SQL-Pilotdemos nach vollständigem Demo-Vertrag umsetzen.
 - [ ] Eine Multi-Session-Pilotdemo mit kontrolliertem Blocking in einer Testdatenbank umsetzen.
 - [ ] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen.
@@ -25,7 +42,7 @@
 - [ ] Vorhandene Beispiele nach weiterverwendbar, zu ergänzen oder neu aufzubauen klassifizieren.
 - [x] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
 - [x] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
-- [ ] Kritische Bestandsaussagen zu CTE, Table Variables, Heaps, Filegroups, Plan Cache, Adaptive Join, Columnstore, Partitionierung, Linked Server und Hash-Eindeutigkeit korrigieren.
+- [ ] Die vier aktiven `REFINE`-Claims in `W2-007` korrigieren und mit Runtime-Evidenz absichern.
 
 ## P2 - Reproduktion und Testmatrix
 
@@ -41,4 +58,4 @@
 
 ## Erledigungsregel
 
-Ein Punkt gilt nur dann als erledigt, wenn Artefakt, Quellenprüfung und zutreffende Validierung im Repository nachvollziehbar vorhanden sind.
+Ein Punkt gilt nur dann als erledigt, wenn Artefakt, Quellenprüfung und zutreffende Validierung im Repository nachvollziehbar vorhanden sind. Ein Planungs- oder Gate-Status ersetzt keine Runtime-Validierung ausführbarer Demos.
