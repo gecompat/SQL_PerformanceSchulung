@@ -38,3 +38,9 @@ jobs:
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py
+
+      - name: Validate orchestration and runtime contracts
+        run: python Tests/Static/validate_orchestration_runtime.py
+
+      - name: Test orchestration and runtime harness
+        run: python Tests/Static/test_orchestration_runtime.py

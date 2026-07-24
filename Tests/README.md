@@ -1,37 +1,44 @@
 # Tests
 
-## Aktive statische Prüfungen
+## Aktive SQL-Server-unabhängige Prüfungen
 
-`Tests/Static/validate_framework_contracts.py` prüft die implementierte Framework-Basis aus `FWK-001` bis `FWK-005`, `FWK-008`, `FWK-009`, `FWK-011` und `FWK-012`. Der Test verwendet ausschließlich die Python-Standardbibliothek und kontrolliert Pflichtdateien, Outcomes, Statuscodes, Eigentumsmarker, README-Abschnitte, Generator-Determinismus, T-SQL-Lexik, Python-Syntax, JSON-Metadaten und unzulässige Hochrisikomuster.
-
-`Tests/Static/test_result_contract_evaluator.py` prüft den `FWK-011`-Evaluator mit positivem und negativem synthetischem Beispiel. Zusätzlich werden nicht endliche JSON-Werte und eine ungültige Nullbasis für Verhältnisassertionen abgewiesen.
-
-Der Workflow `.github/workflows/framework-contracts.yml` ist auf Framework-, Demo-Vertrags- und statische Testpfade begrenzt. Änderungen an fachfremder Dokumentation lösen diesen Check nicht aus.
-
-Lokaler Aufruf:
+Der Workflow `.github/workflows/framework-contracts.yml` ist auf Framework-, Demo-Vertrags- und statische Testpfade begrenzt. Er führt aus:
 
 ```bash
 python Tests/Static/validate_framework_contracts.py
 python Tests/Static/test_result_contract_evaluator.py
+python Tests/Static/validate_orchestration_runtime.py
+python Tests/Static/test_orchestration_runtime.py
 ```
 
-Beispiel für die Ergebnisprüfung:
+Die Prüfungen kontrollieren unter anderem:
 
-```bash
-python Demos/00_Framework/Tools/evaluate_result_contract.py \
-  Demos/00_Framework/Examples/FWK-011_ResultContract.example.json \
-  Demos/00_Framework/Examples/FWK-011_Evidence.pass.example.json
-```
+- Pflichtdateien, Statuscodes, Eigentumsmarker und README-Struktur,
+- deterministische Generatorregeln,
+- T-SQL-Lexik, Python-Syntax und JSON-Metadaten,
+- positive und negative Ergebnisverträge,
+- Multi-Session-Erfolg, Fail-fast und Timeout,
+- Runtime-Harness mit Preflight-Skip, optionalem Evidenz-Skip und Safety-Gates,
+- Cleanup-Ausführung und Priorität von `FAIL_CLEANUP`,
+- Query-Store-Status ohne Zustandsänderung,
+- Extended Events ohne `event_file` und ohne Autostart,
+- fehlende Verbindung- oder Secretfelder in Manifesten.
 
-## Geplante Prüfbereiche
+Die Prozess-Selbsttests verwenden ein synthetisches `sqlcmd`-Ersatzprogramm. Sie benötigen weder Netzwerk noch SQL Server und persistieren keinen Prozessoutput.
 
-- T-SQL-Parse-, Installations- und Lifecycle-Test auf SQL Server 2019, 2022 und 2025,
-- vollständiger Runtime-Harness aus `FWK-010`,
-- deterministische Multi-Session-Steuerung aus `FWK-006`,
-- Query-Store- und Extended-Events-Lifecycle aus `FWK-007`,
-- Privacy- und Metadatenprüfung,
-- versions- und featureabhängige Skip-Regeln,
-- idempotentes Setup und vollständiges Cleanup,
+## Toolklassifikation
+
+- Die Python-Prüfungen sind User-defined Tools des Projekts.
+- Das produktive Runtime-Framework verwendet das externe Microsoft-Tool `sqlcmd`.
+- Fehlt `sqlcmd`, wird dies als `SKIP_TOOL_MISSING` und nicht als SQL-Server-Fehler behandelt.
+
+## Offene Runtime-Prüfungen
+
+- Parse, Installation und Cleanup aller Framework-SQL-Dateien auf SQL Server 2019, 2022 und 2025,
+- tatsächliche Signalsteuerung über parallele SQL-Sessions,
+- Query-Store-Baseline, Enable, Clear und Restore,
+- XE-Create, Start, Status, Stop und Drop,
+- kompletter Runtime-Harness mit realen Demo-Skripten,
 - vier Gate-B-Pilotdemos.
 
-Tests dürfen keine realen Zugangsdaten oder Umgebungsinformationen ausgeben oder persistieren. Interaktiv notwendige reale Resultsets werden nicht als Testartefakt gespeichert.
+Tests und Reports dürfen keine realen Zugangsdaten oder Umgebungsinformationen persistieren. Interaktiv notwendige reale Resultsets sind keine Repository-Artefakte.
