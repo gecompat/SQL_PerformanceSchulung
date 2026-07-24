@@ -2,19 +2,18 @@
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
-DECLARE @Before bigint;
-DECLARE @After bigint;
 DECLARE @Result bigint;
+DECLARE @LogicalReads bigint;
 DECLARE @Plan nvarchar(max);
 DECLARE @AccessMethod varchar(32);
 
-SELECT @Before=logical_reads FROM sys.dm_exec_sessions WHERE session_id=@@SPID;
 SELECT @Result=SUM(CONVERT(bigint,MeasureValue))
 FROM lab.SearchData /*SQLPERF_QRY001_NONSARGABLE*/
 WHERE CONVERT(char(10),EventDateTime,120)='2024-03-15';
-SELECT @After=logical_reads FROM sys.dm_exec_sessions WHERE session_id=@@SPID;
 
-SELECT TOP(1) @Plan=qp.query_plan
+SELECT TOP(1)
+    @LogicalReads=qs.last_logical_reads,
+    @Plan=qp.query_plan
 FROM sys.dm_exec_query_stats qs
 CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
 CROSS APPLY sys.dm_exec_text_query_plan(qs.plan_handle,qs.statement_start_offset,qs.statement_end_offset) qp
@@ -32,14 +31,14 @@ SET @AccessMethod=CASE
 
 DELETE lab.Qry001Evidence WHERE Phase='PROBLEM';
 INSERT lab.Qry001Evidence(Phase,ResultValue,LogicalReads,AccessMethod)
-VALUES('PROBLEM',COALESCE(@Result,0),@After-@Before,@AccessMethod);
+VALUES('PROBLEM',COALESCE(@Result,0),COALESCE(@LogicalReads,-1),@AccessMethod);
 
-IF @Result IS NULL OR @AccessMethod<>'INDEX_SCAN'
-    THROW 51003, 'FAIL_EXECUTION: Der kontrollierte QRY-001-Problemzustand zeigt keinen Index Scan.', 1;
+IF @Result IS NULL OR @LogicalReads IS NULL OR @LogicalReads<0 OR @AccessMethod<>'INDEX_SCAN'
+    THROW 51003, 'FAIL_EXECUTION: Der kontrollierte QRY-001-Problemzustand zeigt keine belastbare statementbezogene Scan-/Read-Evidenz.', 1;
 
 SELECT 1 AS Sequence,'DEMONSTRATION' AS Phase,'SUMMARY' AS CheckId,
        'PASS' AS Outcome,'OK' AS Code,
-       CONCAT(N'Result=',@Result,N'; LogicalReads=',@After-@Before,N'; Access=',@AccessMethod) AS ObservedValue,
-       N'fachlich gleiche Ergebnismenge mit Scan-Evidenz' AS RequiredValue,
+       CONCAT(N'Result=',@Result,N'; LogicalReads=',@LogicalReads,N'; Access=',@AccessMethod) AS ObservedValue,
+       N'fachlich gleiche Ergebnismenge mit statementbezogener Scan-Evidenz' AS RequiredValue,
        N'Die Funktion auf der Indexspalte erzeugt den kontrollierten Problemzustand.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
