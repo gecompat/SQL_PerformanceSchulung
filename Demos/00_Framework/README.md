@@ -2,24 +2,34 @@
 
 ## Zweck
 
-Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Sicherheits-, Lifecycle-, Status- und Dokumentverträge für alle ausführbaren Schulungsdemos. Die Grundlage wird als transparente Vorlage, eigenständige SQL-Referenzen und plattformneutrales Ergebniswerkzeug bereitgestellt. Es werden keine dauerhaft installierten Steuerobjekte in `master` oder einer versteckten Framework-Datenbank angelegt.
+Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Orchestrierungs-, Telemetrie-, Sicherheits-, Lifecycle-, Runtime-, Status- und Dokumentverträge für ausführbare Schulungsdemos. Es werden keine dauerhaft installierten Steuerobjekte in `master` oder einer versteckten Framework-Datenbank angelegt.
 
 ## Implementierungsstand
 
-| Arbeitspaket | Status | Artefakt |
+| Arbeitspaket | Status | Kernartefakt |
 |---|---|---|
-| `FWK-001` | `IMPLEMENTED` | `Contracts/FWK-001_Preflight_Contract.md`, `Templates/00_Preflight.sql` |
-| `FWK-002` | `IMPLEMENTED` | `Contracts/FWK-002_TestDatabase_Lifecycle_Contract.md`, `Sql/FWK_TestDatabaseLifecycle.sql` |
-| `FWK-003` | `IMPLEMENTED` | `Contracts/FWK-003_Synthetic_Data_Contract.md`, `Sql/FWK_SyntheticDataGenerator.sql` |
-| `FWK-004` | `IMPLEMENTED` | `Contracts/FWK-004_Measurement_Contract.md`, `Sql/FWK_Measurement.sql` |
-| `FWK-005` | `IMPLEMENTED` | `Contracts/FWK-005_Plan_Statistics_Evidence_Contract.md`, `Templates/40_Plan_Statistics_Evidence.sql` |
-| `FWK-008` | `IMPLEMENTED` | `Contracts/FWK-008_Safety_Abort_Contract.md`, Sicherheitsgate im Preflight |
-| `FWK-009` | `IMPLEMENTED` | `Templates/README_TEMPLATE.md` |
-| `FWK-011` | `IMPLEMENTED` | `Contracts/FWK-011_Result_Normalization_Contract.md`, `Tools/evaluate_result_contract.py`, synthetische Beispiele |
-| `FWK-012` | `IMPLEMENTED` | `Contracts/FWK-012_Status_Error_Skip_Contract.md`, einheitliche Codes in SQL und Evaluator |
-| `FWK-006`, `FWK-007`, `FWK-010` | `PLANNED` | Multi-Session-Orchestrierung, Query-Store-/XE-Helfer und vollständiger Runtime-Harness |
+| `FWK-001` | `IMPLEMENTED` | Preflight-Vertrag und `Templates/00_Preflight.sql` |
+| `FWK-002` | `IMPLEMENTED` | markergeprüfter Testdatenbank-Lifecycle |
+| `FWK-003` | `IMPLEMENTED` | deterministischer Datengenerator |
+| `FWK-004` | `IMPLEMENTED` | sessionbezogener Messrahmen |
+| `FWK-005` | `IMPLEMENTED` | Plan- und Statistikevidenz |
+| `FWK-006` | `IMPLEMENTED` | Datenbanksignale und `Tools/orchestrate_sessions.py` |
+| `FWK-007` | `IMPLEMENTED` | Query-Store- und XE-Lifecycle |
+| `FWK-008` | `IMPLEMENTED` | Sicherheits- und Abbruchvertrag |
+| `FWK-009` | `IMPLEMENTED` | vollständige Demo-Dokumentvorlage |
+| `FWK-010` | `IMPLEMENTED` | `Tools/run_demo.py` |
+| `FWK-011` | `IMPLEMENTED` | Ergebnisnormalisierung und Evaluator |
+| `FWK-012` | `IMPLEMENTED` | Status-, Fehler- und Skip-Vertrag 1.2 |
 
-`IMPLEMENTED` bestätigt die vorhandene Vertrags- und Referenzimplementierung sowie statische Tests. Eine Runtime-Validierung gegen SQL Server 2019, 2022 und 2025 erfolgt erst mit `FWK-010` und den Gate-B-Pilotdemos.
+`IMPLEMENTED` bestätigt Vertrags- und Referenzimplementierung sowie SQL-Server-unabhängige statische und Prozess-Selbsttests. Runtime-Validierung auf SQL Server 2019, 2022 und 2025 bleibt offen.
+
+## Toolklassen
+
+| Klasse | Bestandteile |
+|---|---|
+| Systemobjekte | SQL-Server-Kataloge, DMVs, Query Store und Extended Events |
+| User-defined Tools | SQL-Vorlagen, `fwk`-Objekte und Python-Module dieses Repositories |
+| Externes Microsoft-Tool | `sqlcmd`; wird nicht installiert und bei Fehlen kontrolliert übersprungen |
 
 ## Verzeichnisstruktur
 
@@ -28,28 +38,31 @@ Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Sicherheits-,
 | `Contracts/` | normative technische Verträge |
 | `Templates/` | kopierbare Demo-, Preflight- und Evidenzvorlagen |
 | `Sql/` | eigenständig ausführbare Framework-Skripte |
-| `Tools/` | plattformneutrale Standardbibliothekswerkzeuge |
-| `Examples/` | ausschließlich synthetische Verträge und Erwartungsdaten |
+| `Tools/` | plattformneutrale Prozess- und Ergebniswerkzeuge |
+| `Examples/` | ausschließlich synthetische Manifeste, Skripte und Erwartungsdaten |
 
 ## Verwendungsmodell
 
-Eine neue Demo übernimmt `Templates/README_TEMPLATE.md` und `Templates/00_Preflight.sql` in ihr eigenes Verzeichnis. Platzhalter und deaktivierte Checks werden fachlich konkretisiert. Setup und Cleanup verwenden das Namens- und Markerschema aus `FWK-002`.
+Eine Demo übernimmt Dokument- und SQL-Vorlagen in ihr eigenes Verzeichnis. `FWK-002` schützt den Datenbank-Lifecycle, `FWK-003` erzeugt Daten, `FWK-004` misst, `FWK-005` liefert Plan-/Statistikevidenz, `FWK-006` koordiniert Sessions, `FWK-007` verwaltet temporäre Telemetrie, `FWK-010` steuert den Phasenlauf und `FWK-011` prüft das Ergebnis.
 
-`FWK-003` erzeugt reproduzierbare Uniform-, Skew-, Korrelations-, Zeit- und Breitenprofile. `FWK-004` koppelt Messungsstart und -ende an dieselbe Session. `FWK-005` gibt Statistikmetadaten, Histogramm und optional Actual Showplan XML interaktiv aus. `FWK-011` prüft synthetische Ergebnisdateien gegen Invarianten, Bereiche, Richtungen und Verhältnisse.
-
-Die Vorlagen werden kopiert, damit jede Demo eigenständig lesbar und ausführbar bleibt. Abweichungen vom Vertrag müssen im Demo-README begründet und durch Tests abgedeckt sein.
+Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über Baseline und Restore zurückgesetzt. Die XE-Referenzsession verwendet ausschließlich einen begrenzten `ring_buffer` und keinen Autostart. Der Runtime-Harness führt Cleanup nach gestarteter Setup-Phase unabhängig vom vorherigen Ergebnis aus.
 
 ## Sicherheitsgrundsätze
 
 - Keine Datenbank wird aufgrund ihres Namens allein gelöscht.
 - Framework-SQL verändert ausschließlich vollständig markierte Testdatenbanken.
 - Gelbe und rote Demos benötigen technisch erzwungene Bestätigungen.
+- Passwörter stehen weder in Manifesten noch in Kommandozeilen; SQL-Authentifizierung verwendet `SQLCMDPASSWORD`.
 - Kontrollierte Nichtanwendbarkeit ist `SKIP`, kein technischer Fehler.
-- Cleanup adressiert ausschließlich demo-eigene Objekte, Sessions oder vollständig markierte Testdatenbanken.
-- Umgebungsdetails, Querytexte und Pläne werden standardmäßig nicht persistiert.
-- Generatorwerte sind deterministisch; Prüfsummen sind kein Kollisions- oder Integritätsbeweis.
+- Prozess-Timeouts beenden verbleibende Kindprozesse.
+- Umgebungsdetails, Querytexte, Pläne, Event-Daten und Rohoutput werden standardmäßig nicht persistiert.
 - Absolute Performancegrenzen benötigen ein technisch kontrolliertes Ressourcenprofil.
 
 ## Statische Prüfung
 
-`Tests/Static/validate_framework_contracts.py` prüft Pflichtdateien, Vertragsmarker, Statuscodes, Determinismusregeln, T-SQL-Lexik, Python-Syntax, JSON-Metadaten und verbotene Hochrisikomuster. `Tests/Static/test_result_contract_evaluator.py` führt positive und negative `FWK-011`-Selbsttests aus. Der GitHub-Actions-Workflow läuft nur bei Änderungen an Framework-, Vertrag- oder Testpfaden.
+Der pfadbegrenzte GitHub-Actions-Workflow führt vier Prüfungen aus:
+
+1. allgemeine Framework-Vertragsprüfung,
+2. Selbsttest des Ergebnis-Evaluators,
+3. Orchestrierungs-/Runtime-Vertragsprüfung,
+4. Prozess-Selbsttest für Erfolg, Fehler, Skip, Timeout, Safety und Cleanup.
