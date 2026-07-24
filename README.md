@@ -32,6 +32,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Review der Welle-1-Framework-Basis](Documentation/Project_Planning/WAVE_1_FRAMEWORK_FOUNDATION_REVIEW.md)
 - [Review der Welle-1-Daten-, Mess- und Ergebnisbasis](Documentation/Project_Planning/WAVE_1_DATA_MEASUREMENT_REVIEW.md)
 - [Review der Welle-1-Orchestrierungs-, Telemetrie- und Runtimebasis](Documentation/Project_Planning/WAVE_1_ORCHESTRATION_RUNTIME_REVIEW.md)
+- [Review der SQL-Server-Runtime-Matrix](Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md)
 - [Konflikt- und Entscheidungslog](Documentation/Project_Planning/CONFLICT_AND_DECISION_LOG.md)
 - [Planergänzung zur Qualität der Schulungsunterlagen](Documentation/Project_Planning/PRESENTATION_QUALITY_INTEGRATION_PLAN.md)
 - [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
@@ -44,6 +45,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Projektweites Quellenregister](Documentation/Research/SOURCE_REGISTER.md)
 - [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
 - [Primärquellen für die Welle-1-Framework-Basis](Documentation/Research/FRAMEWORK_SOURCES_W1.md)
+- [Quellenbasis der SQL-Server-Runtime-Matrix](Documentation/Research/SQL_SERVER_RUNTIME_MATRIX_SOURCES.md)
 - [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md)
 - [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
 
@@ -68,9 +70,9 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 
 ## Status
 
-Welle 0 und Gate A sind fachlich validiert. Die Framework-Arbeitspakete `FWK-001` bis `FWK-012` sind implementiert und statisch beziehungsweise prozessseitig prüfbar. Die Basis umfasst Preflight, geschützten Testdatenbank-Lifecycle, synthetische Daten, Messung, Plan-/Statistikevidenz, Multi-Session-Orchestrierung, Query Store, Extended Events, Safety-Gates, Demo-Dokumentation, Runtime-Harness und Ergebnisnormalisierung.
+Welle 0 und Gate A sind fachlich validiert. Die Framework-Arbeitspakete `FWK-001` bis `FWK-012` sind implementiert und in offiziellen Microsoft-Linux-Containern auf SQL Server 2019, 2022 und 2025 mit Compatibility Levels 150, 160 und 170 runtime-validiert.
 
-Die SQL-Runtime-Validierung gegen SQL Server 2019, 2022 und 2025 ist noch offen, da derzeit kein SQL-Server-Host zur Verfügung steht. Der nächste kritische Pfad sind die Versionsmatrix und vier Pilotdemos für Gate B. Der Gesamtstatus des Projekts bleibt `PLANNED`; die Framework-SQL-Artefakte sind `IMPLEMENTED`, nicht `VALIDATED`.
+Die Matrix umfasst Testdatenbank-Lifecycle, Preflight, deterministische Daten, sessionbezogene Messung, Plan-/Statistikevidenz, reale parallele Sessions, Query Store, Extended Events, Runtime-Harness und Cleanup. Der nächste kritische Pfad sind die vier Pilotdemos für Gate B. Der Gesamtstatus des Projekts bleibt `PLANNED`, bis diese Pilotdemos implementiert und abgenommen sind.
 
 ## Lizenz
 
