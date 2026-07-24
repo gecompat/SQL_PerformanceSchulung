@@ -30,6 +30,7 @@ DECLARE @RecoveryPlanConfirmed bit = 0;
 DECLARE @MaximumRuntimeSeconds int = NULL;
 DECLARE @MinimumFreeSpaceMB bigint = NULL;
 DECLARE @EmitEnvironmentDetails bit = 0;
+DECLARE @EnvironmentDetailsRequired bit = 0;
 
 DECLARE @Results table
 (
@@ -298,10 +299,20 @@ BEGIN
     END CATCH;
 END;
 
-IF @EmitEnvironmentDetails = 0
+IF @EmitEnvironmentDetails = 0 AND @EnvironmentDetailsRequired = 1
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-    VALUES ('PRIVACY', 'ENVIRONMENT_DETAILS', 'WARN', 'WARN_ENVIRONMENT_DETAIL_SUPPRESSED', N'unterdrückt', N'keine Persistenz realer Umgebungswerte', N'Host-, Instanz-, Pfad- und Benutzerangaben werden standardmäßig nicht ausgegeben.');
+    VALUES ('PRIVACY', 'ENVIRONMENT_DETAILS', 'WARN', 'WARN_ENVIRONMENT_DETAIL_SUPPRESSED', N'unterdrückt', N'für diese Diagnose ausdrücklich benötigt', N'Die Demo bleibt ausführbar, aber die ausdrücklich benötigten Umgebungsdetails sind unterdrückt.');
+END
+ELSE IF @EmitEnvironmentDetails = 0
+BEGIN
+    INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
+    VALUES ('PRIVACY', 'ENVIRONMENT_DETAILS', 'PASS', 'OK', N'unterdrückt', N'Standard: keine Ausgabe realer Umgebungswerte', N'Host-, Instanz-, Pfad- und Benutzerangaben werden vertragsgemäß nicht ausgegeben.');
+END
+ELSE
+BEGIN
+    INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
+    VALUES ('PRIVACY', 'ENVIRONMENT_DETAILS', 'PASS', 'OK', N'interaktive Ausgabe aktiviert', N'keine Persistenz als Repository-Artefakt', N'Die Detailausgabe ist für die interaktive Diagnose aktiviert und darf nicht persistiert werden.');
 END;
 
 SET @SummaryOutcome = CASE
