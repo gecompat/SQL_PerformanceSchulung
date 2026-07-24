@@ -8,20 +8,70 @@ import os
 import subprocess
 import sys
 
-from run_framework_sql_matrix import (
-    FRAMEWORK,
-    ROOT,
-    MatrixFailure,
-    _container_sqlcmd,
-    _create_database,
-    _drop_database,
-    _test_extended_events,
-    _test_orchestration,
-    _test_qry_database,
-    _test_query_store,
-    _test_runtime_harness,
-    _verify_engine,
-)
+import run_framework_sql_matrix as matrix
+
+
+def _run_sql_with_messages(
+    *,
+    container: str,
+    sqlcmd_path: str,
+    database: str,
+    sql_text: str,
+    timeout_seconds: int = 120,
+) -> str:
+    """Run sqlcmd and retain informational messages from stdout and stderr."""
+
+    command = [
+        "docker",
+        "exec",
+        "-i",
+        "-e",
+        "SQLCMDPASSWORD",
+        container,
+        sqlcmd_path,
+        "-S",
+        "localhost",
+        "-d",
+        database,
+        "-U",
+        "sa",
+        "-C",
+        "-b",
+        "-r",
+        "1",
+        "-W",
+        "-s",
+        "|",
+        "-h",
+        "-1",
+        "-w",
+        "65535",
+    ]
+    result = subprocess.run(
+        command,
+        input=sql_text,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=timeout_seconds,
+        env=os.environ.copy(),
+    )
+    combined = "\n".join(
+        part for part in (result.stdout, result.stderr) if part
+    )
+    if result.returncode != 0:
+        raise matrix.MatrixFailure(
+            f"sqlcmd failed in database {database}: {combined.strip()[-2000:]}"
+        )
+    return combined
+
+
+# sqlcmd -r 1 can route PRINT and other informational messages to stderr.
+# Matrix assertions therefore evaluate both captured streams while the process
+# return code remains the authoritative execution-failure signal.
+matrix._run_sql = _run_sql_with_messages
 
 
 def _announce(stage: str) -> None:
@@ -45,8 +95,10 @@ def main() -> int:
         print("matrix: FAIL - SQLCMDPASSWORD missing", file=sys.stderr)
         return 1
 
-    sqlcmd_path = _container_sqlcmd(args.container)
-    proxy_path = (ROOT / "Tests" / "Runtime" / "docker_sqlcmd_proxy.py").resolve()
+    sqlcmd_path = matrix._container_sqlcmd(args.container)
+    proxy_path = (
+        matrix.ROOT / "Tests" / "Runtime" / "docker_sqlcmd_proxy.py"
+    ).resolve()
     databases: list[tuple[str, str, str]] = []
     stage = "INITIALIZE"
     exit_code = 0
@@ -54,7 +106,7 @@ def main() -> int:
     try:
         stage = "ENGINE_IDENTITY"
         _announce(stage)
-        _verify_engine(
+        matrix._verify_engine(
             container=args.container,
             sqlcmd_path=sqlcmd_path,
             expected_major=args.expected_major,
@@ -63,7 +115,7 @@ def main() -> int:
         for demo_id in ("QRY-001", "CON-004", "DGN-003", "DGN-005"):
             stage = f"LIFECYCLE_CREATE_{demo_id.replace('-', '')}"
             _announce(stage)
-            database = _create_database(
+            database = matrix._create_database(
                 container=args.container,
                 sqlcmd_path=sqlcmd_path,
                 demo_id=demo_id,
@@ -78,7 +130,7 @@ def main() -> int:
 
         stage = "QRY_FRAMEWORK"
         _announce(stage)
-        _test_qry_database(
+        matrix._test_qry_database(
             container=args.container,
             sqlcmd_path=sqlcmd_path,
             database=database_by_demo["QRY-001"],
@@ -88,7 +140,7 @@ def main() -> int:
 
         stage = "MULTI_SESSION"
         _announce(stage)
-        _test_orchestration(
+        matrix._test_orchestration(
             container=args.container,
             sqlcmd_path=sqlcmd_path,
             database=database_by_demo["CON-004"],
@@ -97,7 +149,7 @@ def main() -> int:
 
         stage = "QUERY_STORE"
         _announce(stage)
-        _test_query_store(
+        matrix._test_query_store(
             container=args.container,
             sqlcmd_path=sqlcmd_path,
             database=database_by_demo["DGN-003"],
@@ -105,7 +157,7 @@ def main() -> int:
 
         stage = "EXTENDED_EVENTS"
         _announce(stage)
-        _test_extended_events(
+        matrix._test_extended_events(
             container=args.container,
             sqlcmd_path=sqlcmd_path,
             database=database_by_demo["DGN-005"],
@@ -113,7 +165,7 @@ def main() -> int:
 
         stage = "RUNTIME_HARNESS"
         _announce(stage)
-        _test_runtime_harness(
+        matrix._test_runtime_harness(
             container=args.container,
             proxy_path=proxy_path,
         )
@@ -123,7 +175,7 @@ def main() -> int:
             f"CL{args.compatibility_level}",
             flush=True,
         )
-    except (MatrixFailure, subprocess.TimeoutExpired) as exc:
+    except (matrix.MatrixFailure, subprocess.TimeoutExpired) as exc:
         exit_code = 1
         print(
             f"SQLPERF_MATRIX_SUMMARY|FAIL|SQL{args.expected_major}|"
@@ -137,7 +189,7 @@ def main() -> int:
             cleanup_stage = f"LIFECYCLE_DROP_{demo_id.replace('-', '')}"
             _announce(cleanup_stage)
             try:
-                _drop_database(
+                matrix._drop_database(
                     container=args.container,
                     sqlcmd_path=sqlcmd_path,
                     demo_id=demo_id,
