@@ -7,6 +7,7 @@ DECLARE @LastSpills bigint;
 DECLARE @Plan nvarchar(max);
 DECLARE @PlanHasSort bit;
 DECLARE @ProblemChecksum int;
+DECLARE @Tag varchar(64)=CONCAT('SQLPERF_OPT013_','COMPARISON');
 
 SELECT @ProblemChecksum=ResultChecksum FROM lab.SpillEvidence WHERE Phase='PROBLEM';
 
@@ -25,11 +26,17 @@ SELECT TOP(1)
 FROM sys.dm_exec_query_stats qs
 CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
 CROSS APPLY sys.dm_exec_text_query_plan(qs.plan_handle,qs.statement_start_offset,qs.statement_end_offset) qp
-WHERE SUBSTRING(st.text,(qs.statement_start_offset/2)+1,
-      CASE WHEN qs.statement_end_offset=-1
-           THEN (DATALENGTH(st.text)-qs.statement_start_offset)/2+1
-           ELSE (qs.statement_end_offset-qs.statement_start_offset)/2+1 END)
-      LIKE '%SQLPERF_OPT013_COMPARISON%'
+CROSS APPLY
+(
+    VALUES
+    (
+        SUBSTRING(st.text,(qs.statement_start_offset/2)+1,
+        CASE WHEN qs.statement_end_offset=-1
+             THEN (DATALENGTH(st.text)-qs.statement_start_offset)/2+1
+             ELSE (qs.statement_end_offset-qs.statement_start_offset)/2+1 END)
+    )
+) statement_text(value)
+WHERE statement_text.value LIKE '%'+@Tag+'%'
 ORDER BY qs.last_execution_time DESC;
 
 SET @PlanHasSort=CASE WHEN @Plan LIKE '%PhysicalOp="Sort"%' THEN 1 ELSE 0 END;
