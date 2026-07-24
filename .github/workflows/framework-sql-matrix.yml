@@ -100,7 +100,7 @@ jobs:
         run: |
           set -uo pipefail
           chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
-          python Tests/Runtime/run_framework_sql_matrix.py \
+          python Tests/Runtime/run_framework_sql_matrix_staged.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
             --compatibility-level '${{ matrix.compatibility }}' \
