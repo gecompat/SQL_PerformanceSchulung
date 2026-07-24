@@ -3,12 +3,12 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `IMPLEMENTED` |
-| Vertragsversion | 1.0 |
-| Geltungsbereich | Preflight, Setup, Demo, Beobachtung, Gegenmaßnahme, Vergleich und Cleanup |
+| Vertragsversion | 1.1 |
+| Geltungsbereich | Preflight, Setup, Demo, Beobachtung, Gegenmaßnahme, Vergleich, Ergebnisabnahme und Cleanup |
 
 ## 1. Zweck
 
-Der Vertrag trennt erwartete Nichtanwendbarkeit von technischen Fehlern. Eine ältere Version, fehlende optionale Funktion oder nicht erteilte Diagnoseberechtigung darf nicht als gescheiterte Produkteigenschaft protokolliert werden. Umgekehrt darf ein Sicherheits- oder Cleanup-Fehler nicht als `SKIP` kaschiert werden.
+Der Vertrag trennt erwartete Nichtanwendbarkeit von technischen Fehlern. Eine ältere Version, fehlende optionale Funktion oder nicht erteilte Diagnoseberechtigung darf nicht als gescheiterte Produkteigenschaft protokolliert werden. Umgekehrt darf ein Sicherheits-, Ergebnisvertrags- oder Cleanup-Fehler nicht als `SKIP` kaschiert werden.
 
 ## 2. Outcomes
 
@@ -16,8 +16,8 @@ Der Vertrag trennt erwartete Nichtanwendbarkeit von technischen Fehlern. Eine ä
 |---|---|---|
 | `PASS` | Prüfung oder Phase erfolgreich | Fortsetzung |
 | `WARN` | ausführbar, aber Interpretation oder Messqualität eingeschränkt | Fortsetzung mit sichtbarer Meldung |
-| `SKIP` | erwartete Voraussetzung nicht erfüllt; Demo ist nicht anwendbar | keine zustandsverändernde Folgephase |
-| `FAIL` | Vertrags-, Sicherheits-, Zustands-, Ausführungs- oder Cleanup-Fehler | vollständige Evidenzausgabe, danach `THROW` |
+| `SKIP` | erwartete Voraussetzung oder ausdrücklich optionale Evidenz nicht erfüllt | keine zustandsverändernde Folgephase beziehungsweise Assertion nicht bewertbar |
+| `FAIL` | Vertrags-, Sicherheits-, Zustands-, Ausführungs-, Ergebnis- oder Cleanup-Fehler | vollständige Evidenzausgabe, danach Fehlerstatus |
 
 ## 3. Verbindliche Codes
 
@@ -38,6 +38,7 @@ Der Vertrag trennt erwartete Nichtanwendbarkeit von technischen Fehlern. Eine ä
 - `SKIP_CONFIGURATION`
 - `SKIP_RESOURCE_PROFILE`
 - `SKIP_MANUAL_APPROVAL`
+- `SKIP_EVIDENCE_MISSING`
 
 ### 3.3 Fehler
 
@@ -46,6 +47,7 @@ Der Vertrag trennt erwartete Nichtanwendbarkeit von technischen Fehlern. Eine ä
 - `FAIL_STATE`
 - `FAIL_EXECUTION`
 - `FAIL_CLEANUP`
+- `FAIL_RESULT_CONTRACT`
 
 Neue Codes benötigen eine Änderung dieses Vertrags. Freitext darf einen Code erläutern, aber nicht ersetzen.
 
@@ -64,11 +66,11 @@ RequiredValue   nvarchar(4000) NULL
 Message         nvarchar(4000)
 ```
 
-Die letzte Zeile eines Preflights ist `CheckId = SUMMARY`. Sie enthält genau ein Gesamtergebnis. Priorität: `FAIL` vor `SKIP` vor `WARN` vor `PASS`.
+Die letzte Zeile eines Preflights, Test-Harness-Laufs oder Ergebnisvertrags ist `CheckId = SUMMARY`. Sie enthält genau ein Gesamtergebnis. Priorität: `FAIL` vor `SKIP` vor `WARN` vor `PASS`.
 
 ## 5. Fehlernummern
 
-Die Referenzskripte verwenden den reservierten Projektbereich:
+Die T-SQL-Referenzskripte verwenden den reservierten Projektbereich:
 
 | Fehlernummer | Kategorie |
 |---:|---|
@@ -78,11 +80,13 @@ Die Referenzskripte verwenden den reservierten Projektbereich:
 | 51003 | `FAIL_EXECUTION` |
 | 51004 | `FAIL_CLEANUP` |
 
-Ein kontrollierter `SKIP` löst standardmäßig keinen SQL-Fehler aus. Der Test-Harness muss den Summary-Datensatz auswerten. Dadurch bleibt ein erwarteter Feature-Skip von einem fehlgeschlagenen Job unterscheidbar.
+`FAIL_RESULT_CONTRACT` wird vom plattformneutralen Ergebnis-Evaluator als Prozess-Exitcode und strukturierter Code ausgegeben. Eine spätere T-SQL-Implementierung verwendet dafür ebenfalls den Bereich ab 51000, ohne die bestehenden Kategorien umzudeuten.
+
+Ein kontrollierter `SKIP` löst standardmäßig keinen SQL-Fehler aus. Der Test-Harness muss den Summary-Datensatz auswerten. Dadurch bleibt ein erwarteter Feature- oder Evidenz-Skip von einem fehlgeschlagenen Job unterscheidbar.
 
 ## 6. Catch- und Cleanup-Regel
 
-Ein `CATCH`-Block darf die ursprüngliche Fehlernummer und -meldung nicht durch eine allgemeine Erfolgsmeldung ersetzen. Cleanup-Fehler werden separat erfasst. Wenn Ausführung und Cleanup fehlschlagen, ist der Gesamtausgang `FAIL_CLEANUP`, während die ursprüngliche Ausführungsmeldung als Kontext erhalten bleibt.
+Ein `CATCH`-Block darf ursprüngliche Fehlernummer und -meldung nicht durch eine allgemeine Erfolgsmeldung ersetzen. Cleanup-Fehler werden separat erfasst. Wenn Ausführung und Cleanup fehlschlagen, ist der Gesamtausgang `FAIL_CLEANUP`, während die ursprüngliche Ausführungsmeldung als Kontext erhalten bleibt.
 
 ## 7. Datenschutz
 
@@ -90,4 +94,4 @@ Ein `CATCH`-Block darf die ursprüngliche Fehlernummer und -meldung nicht durch 
 
 ## 8. Abnahmekriterien
 
-`FWK-012` ist implementiert, wenn Preflight und Lifecycle ausschließlich diese Outcomes und Codes verwenden, eine Summary-Zeile erzeugen und `FAIL` von `SKIP` technisch unterscheidbar bleibt.
+`FWK-012` ist implementiert, wenn Preflight, Lifecycle, Messung und Ergebnisnormalisierung ausschließlich diese Outcomes und Codes verwenden, eine Summary-Zeile erzeugen und `FAIL` von `SKIP` technisch unterscheidbar bleibt.
