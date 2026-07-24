@@ -28,14 +28,19 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 ## Verbindliche Planung
 
 - [Master-Umsetzungsplan](Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
+- [Gate-A-Review](Documentation/Project_Planning/GATE_A_REVIEW.md)
+- [Konflikt- und Entscheidungslog](Documentation/Project_Planning/CONFLICT_AND_DECISION_LOG.md)
 - [Planergänzung zur Qualität der Schulungsunterlagen](Documentation/Project_Planning/PRESENTATION_QUALITY_INTEGRATION_PLAN.md)
 - [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
+- [Priorisierte Inhalts- und Evidenzlücken](Documentation/Reviews/CONTENT_GAP_ANALYSIS.md)
 - [Quellenmanifest der Schulungsartefakte](Documentation/Inventories/SOURCE_MANIFEST.md)
 - [Folien- und Aussagenregister](Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md)
 - [Curriculumarchitektur und Lernzielmodell](Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md)
 - [Traceability-Matrix](Documentation/Curriculum/TRACEABILITY_MATRIX.md)
 - [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
+- [Projektweites Quellenregister](Documentation/Research/SOURCE_REGISTER.md)
 - [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
+- [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md)
 - [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
 
 ## Repository-Struktur
@@ -61,7 +66,9 @@ Details zur Ausführung und zu Voraussetzungen werden mit den jeweiligen Demos e
 
 ## Status
 
-Quellen-, Privacy-, Aussagen- und Curriculumgrundlage sind validiert. Die geplanten Demo-Bündel sind den Lernzielen und Folien zugeordnet; Implementierung und Runtime-Validierung der Demos folgen modular nach der dokumentierten Roadmap.
+Welle 0 und Gate A sind fachlich validiert. 84 Claims, 43 Lernziele, 36 folienbezogene Demo-Bündel und 36 Primärquellen sind nachvollziehbar zugeordnet. Vier Claims bleiben als kontrollierte Präzisierungen für `W2-007` offen.
+
+Der nächste Workstream ist Welle 1: Preflight-, Testdatenbank-, Sicherheits-, Mess-, Orchestrierungs- und Testverträge für die reproduzierbaren Demos. Fachliche Demos und Runtime-Validierung sind noch nicht implementiert; der Gesamtstatus des Projekts bleibt deshalb `PLANNED`.
 
 ## Lizenz
 
