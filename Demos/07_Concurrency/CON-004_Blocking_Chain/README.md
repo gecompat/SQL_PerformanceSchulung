@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `YELLOW` |
 | Primäre Zielversion | SQL Server 2025 |
 | Unterstützte Versionen | SQL Server 2019, 2022 und 2025 |
@@ -68,7 +68,7 @@ Der Orchestrator besitzt Fail-fast und Timeout. Danach entfernt `90_Cleanup.sql`
 
 ## 11. Tests
 
-Die Runtime-Matrix führt Problem- und Vergleichsszenario je Version zweimal aus. Sie prüft Chain Depth 2, exakte unmittelbare Blockerbeziehungen, `LCK_M_%`-Waits, positive Wartezeit, identische Endwerte, erfolgreichen Prozessabschluss und vollständiges Cleanup.
+Die Runtime-Matrix führte Problem- und Vergleichsszenario im Lauf `30108023315` je Version zweimal aus. Sie prüfte Chain Depth 2, exakte unmittelbare Blockerbeziehungen, `LCK_M_%`-Waits, positive Wartezeit, identische Endwerte, erfolgreichen Prozessabschluss und vollständiges Cleanup.
 
 ## 12. Bekannte Grenzen
 
