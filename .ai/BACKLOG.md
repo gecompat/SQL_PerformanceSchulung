@@ -19,7 +19,7 @@
 - [x] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
 - [x] Kanonisches Namensschema der Demo-IDs festlegen.
 - [x] Namens-, Eigentums- und Schutzschema für synthetische Testdatenbanken festlegen.
-- [x] Wiederverwendbares Preflight-, Mess-, Cleanup-, Orchestrierungs- und Runtime-Framework implementieren; Runtime-Validierung bleibt separat offen.
+- [x] Wiederverwendbares Preflight-, Mess-, Cleanup-, Orchestrierungs- und Runtime-Framework implementieren und auf SQL Server 2019, 2022 und 2025 validieren.
 - [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten implementieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
 - [x] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
@@ -43,7 +43,7 @@
 - [x] `FWK-010` vollständigen Runtime-Harness implementieren.
 - [x] `FWK-011` Ergebnisnormalisierung und maschinenunabhängige Erwartungsverträge implementieren.
 - [x] `FWK-012` Status-, Fehler- und Skip-Vertrag implementieren.
-- [ ] Framework-SQL auf SQL Server 2019, 2022 und 2025 parsen, deployen und im Lifecycle testen.
+- [x] Framework-SQL auf SQL Server 2019, 2022 und 2025 parsen, deployen und im Lifecycle testen.
 - [ ] Zwei grüne T-SQL-Pilotdemos nach vollständigem Demo-Vertrag umsetzen.
 - [ ] Eine Multi-Session-Pilotdemo mit kontrolliertem Blocking in einer Testdatenbank umsetzen.
 - [ ] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen.
@@ -55,12 +55,12 @@
 
 ## P2 - Reproduktion und Testmatrix
 
-- [ ] SQL-Server-2019/2022/2025-Testmatrix definieren und ausführen.
+- [x] SQL-Server-2019/2022/2025-Testmatrix definieren und erfolgreich ausführen.
 - [ ] How-to für vorhandene SQL-Server-Instanz plus isolierte synthetische Testdatenbank erstellen.
 - [ ] Kompakten Docker-/Podman-Bereitstellungspfad für Personen ohne verfügbaren SQL Server planen.
 - [ ] Docker-/Podman-Ressourcen- oder Netzwerkfunktionen nur für konkret abhängige Demos prüfen.
 - [ ] Hyper-V nur für nachweislich Windows-, Storage- oder OS-nahe Demos planen.
-- [x] Wiederholbare Concurrency-Prozesssteuerung ohne proprietäre Abhängigkeiten implementieren; SQL-Runtime-Nachweis bleibt offen.
+- [x] Wiederholbare Concurrency-Prozesssteuerung ohne proprietäre Abhängigkeiten implementieren und mit realen parallelen SQL-Sessions validieren.
 - [x] Hardwareabhängige Erwartungswerte als Invarianten, Richtungen, Verhältnisse oder begründete Bandbreiten statt Fixwerte definieren.
 - [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister und Lernzielen synchronisieren.
 - [x] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
