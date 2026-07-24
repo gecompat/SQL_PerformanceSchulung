@@ -18,8 +18,8 @@
 - [x] Jede fachliche Aussage der Welle 0 gegen aktuelle Primärquellen prüfen.
 - [x] Curriculum-Themen, Folien und geplante Demo-IDs eindeutig zuordnen.
 - [x] Kanonisches Namensschema der Demo-IDs festlegen.
-- [ ] Namensschema für synthetische Testdatenbanken festlegen.
-- [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework entwerfen.
+- [x] Namens-, Eigentums- und Schutzschema für synthetische Testdatenbanken festlegen.
+- [ ] Wiederverwendbares Preflight-, Mess- und Cleanup-Framework vollständig implementieren; Sicherheits-, Lifecycle- und Statusbasis ist vorhanden, Messrahmen und Test-Harness fehlen noch.
 - [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten implementieren.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
 - [x] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
@@ -31,10 +31,13 @@
 
 ## P1 - Erste Umsetzung
 
-- [ ] `FWK-001` Preflight-Vertrag entwerfen und implementieren.
-- [ ] `FWK-002` Namens-, Schutz- und Lifecycle-Vertrag für synthetische Testdatenbanken entwerfen und implementieren.
-- [ ] `FWK-008`, `FWK-009` und `FWK-012` als Sicherheits-, Dokument- und Fehlergrundlage implementieren.
-- [ ] Mess-, Daten-, Orchestrierungs-, Query-Store-/XE- und Test-Helfer aus `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011` implementieren.
+- [x] `FWK-001` Preflight-Vertrag entwerfen und als eigenständige Vorlage implementieren.
+- [x] `FWK-002` Namens-, Schutz- und Lifecycle-Vertrag für synthetische Testdatenbanken implementieren.
+- [x] `FWK-008` Sicherheits- und Abbruchvertrag implementieren.
+- [x] `FWK-009` vollständige Demo-Dokumentvorlage implementieren.
+- [x] `FWK-012` Status-, Fehler- und Skip-Vertrag implementieren.
+- [ ] `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011` als Daten-, Mess-, Evidenz-, Orchestrierungs- und Testbasis implementieren.
+- [ ] Framework-SQL auf SQL Server 2019, 2022 und 2025 parsen, deployen und im Lifecycle testen.
 - [ ] Zwei grüne T-SQL-Pilotdemos nach vollständigem Demo-Vertrag umsetzen.
 - [ ] Eine Multi-Session-Pilotdemo mit kontrolliertem Blocking in einer Testdatenbank umsetzen.
 - [ ] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen.
