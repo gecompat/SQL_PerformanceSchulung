@@ -1,4 +1,4 @@
-/* OPT-013 baseline: sort with an adequate bounded grant. */
+/* OPT-013 baseline: correct filter statistics and an adequate sort grant. */
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
@@ -7,6 +7,13 @@ DECLARE @LastSpills bigint;
 DECLARE @Plan nvarchar(max);
 DECLARE @PlanHasSort bit;
 DECLARE @Tag varchar(64)=CONCAT('SQLPERF_OPT013_','BASELINE');
+DECLARE @ObjectId int=OBJECT_ID(N'lab.SpillData');
+DECLARE @StatsId int=(SELECT stats_id FROM sys.stats WHERE object_id=OBJECT_ID(N'lab.SpillData') AND name=N'ST_SpillData_FilterKey');
+DECLARE @StatisticsRows bigint,@RowsSampled bigint,@ModificationCounter bigint,@ActualRows bigint;
+
+SELECT @ActualRows=COUNT_BIG(*) FROM lab.SpillData WHERE FilterKey=1;
+SELECT @StatisticsRows=rows,@RowsSampled=rows_sampled,@ModificationCounter=modification_counter
+FROM sys.dm_db_stats_properties(@ObjectId,@StatsId);
 
 SELECT @Checksum=CHECKSUM_AGG(BINARY_CHECKSUM(d.SortKey,d.RowNumber))
 FROM
@@ -14,8 +21,9 @@ FROM
     SELECT SortKey,
            RowNumber=ROW_NUMBER() OVER(ORDER BY Payload,SortKey)
     FROM lab.SpillData /*SQLPERF_OPT013_BASELINE*/
+    WHERE FilterKey=1
 ) d
-OPTION(MAXDOP 1,MAX_GRANT_PERCENT=25);
+OPTION(MAXDOP 1);
 
 SELECT TOP(1)
     @LastSpills=qs.last_spills,
@@ -38,14 +46,23 @@ ORDER BY qs.last_execution_time DESC;
 
 SET @PlanHasSort=CASE WHEN @Plan LIKE '%PhysicalOp="Sort"%' THEN 1 ELSE 0 END;
 DELETE lab.SpillEvidence WHERE Phase='BASELINE';
-INSERT lab.SpillEvidence(Phase,ResultChecksum,LastSpills,PlanHasSort)
-VALUES('BASELINE',@Checksum,COALESCE(@LastSpills,-1),@PlanHasSort);
+INSERT lab.SpillEvidence
+(
+    Phase,ResultChecksum,LastSpills,PlanHasSort,StatisticsRows,StatisticsRowsSampled,
+    ModificationCounter,ActualFilteredRows
+)
+VALUES
+(
+    'BASELINE',@Checksum,COALESCE(@LastSpills,-1),@PlanHasSort,@StatisticsRows,@RowsSampled,
+    @ModificationCounter,@ActualRows
+);
 
-IF @Checksum IS NULL OR @LastSpills IS NULL OR @LastSpills<>0 OR @PlanHasSort<>1
-    THROW 51006,'FAIL_RESULT_CONTRACT: Die OPT-013-Baseline zeigt nicht den erwarteten nicht verschütteten Sort.',1;
+IF @Checksum IS NULL OR @ActualRows<>299000 OR @StatisticsRows<>300000
+   OR @ModificationCounter<>0 OR @LastSpills IS NULL OR @LastSpills<>0 OR @PlanHasSort<>1
+    THROW 51006,'FAIL_RESULT_CONTRACT: Die OPT-013-Baseline besitzt nicht die erwartete aktuelle Statistik und den nicht verschütteten Sort.',1;
 
 SELECT 1 Sequence,'BASELINE' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,
-       CONCAT(N'Checksum=',@Checksum,N'; LastSpills=',@LastSpills,N'; Sort=',@PlanHasSort) ObservedValue,
-       N'Sortoperator vorhanden; last_spills=0' RequiredValue,
-       N'Die Baseline wurde mit begrenztem, aber ausreichendem Grant erfasst.' Message;
+       CONCAT(N'ActualRows=',@ActualRows,N'; StatsRows=',@StatisticsRows,N'; Modifications=',@ModificationCounter,N'; LastSpills=',@LastSpills) ObservedValue,
+       N'aktuelle Statistik; Sortoperator; last_spills=0' RequiredValue,
+       N'Die Baseline mit korrekter Kardinalitätsgrundlage ist erfasst.' Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
