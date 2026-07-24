@@ -36,7 +36,7 @@ Die Demo ist grün. Sie erzeugt 100.000 synthetische Zeilen und verändert aussc
 
 ## 6. Synthetisches Datenmodell
 
-`lab.StatisticsData` enthält 101 Kategorien. Kategorie 1 besitzt 50.000 Zeilen; die Kategorien 2 bis 101 besitzen jeweils 500 Zeilen. `RegionId` verteilt sich deterministisch auf zehn Werte. Das mehrspaltige Statistikobjekt `ST_StatisticsData_Category_Region` wird zunächst mit einer 1-Prozent-Stichprobe und später mit `FULLSCAN` aufgebaut.
+`lab.StatisticsData` enthält 101 Kategorien. Kategorie 1 besitzt 50.000 Zeilen; die Kategorien 2 bis 101 besitzen jeweils 500 Zeilen. `RegionId` verteilt sich deterministisch auf zehn Werte. Die Zeilenbreite sorgt dafür, dass eine explizite Stichprobe von 1.000 Zeilen vom vollständigen Tabellenumfang unterscheidbar bleibt. Das mehrspaltige Statistikobjekt `ST_StatisticsData_Category_Region` wird zunächst mit `SAMPLE 1000 ROWS` und später mit `FULLSCAN` aufgebaut.
 
 ## 7. Ablauf
 
