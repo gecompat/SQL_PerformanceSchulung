@@ -32,7 +32,6 @@ REQUIRED_FILES = {
     FRAMEWORK / "Examples" / "FWK-010" / "90_Cleanup.sql",
     ROOT / "Tests" / "Static" / "test_orchestration_runtime.py",
 }
-
 REQUIRED_CODES = {
     "WARN_OPTIONAL_EVIDENCE_SKIPPED",
     "SKIP_TOOL_MISSING",
@@ -41,9 +40,8 @@ REQUIRED_CODES = {
     "FAIL_CLEANUP",
     "FAIL_SAFETY",
 }
-
 SECRET_FIELD_PATTERN = re.compile(
-    r"password|secret|token_value|connection_string|server|username|database",
+    r"password|secret|token_value|connection_string|server|username|login|credential",
     flags=re.IGNORECASE,
 )
 
@@ -61,11 +59,9 @@ def sql_lexical_error(text: str) -> str | None:
     state = "normal"
     block_depth = 0
     parenthesis_depth = 0
-
     while index < len(text):
         char = text[index]
         nxt = text[index + 1] if index + 1 < len(text) else ""
-
         if state == "normal":
             if char == "'":
                 state = "string"
@@ -97,7 +93,7 @@ def sql_lexical_error(text: str) -> str | None:
         elif state == "line_comment":
             if char in "\r\n":
                 state = "normal"
-        elif state == "block_comment":
+        else:
             if char == "/" and nxt == "*":
                 block_depth += 1
                 index += 1
@@ -107,7 +103,6 @@ def sql_lexical_error(text: str) -> str | None:
                 if block_depth == 0:
                     state = "normal"
         index += 1
-
     if state in {"string", "bracket", "block_comment"}:
         return f"unterminated lexical state: {state}"
     if parenthesis_depth != 0:
@@ -121,6 +116,8 @@ def walk_json_fields(value: object, path: str = "$") -> list[str]:
         for key, child in value.items():
             if SECRET_FIELD_PATTERN.search(str(key)):
                 findings.append(f"forbidden connection/secret field {path}.{key}")
+            if key == "database" and child not in {"master", "target"}:
+                findings.append(f"database selector must be master or target at {path}.{key}")
             findings.extend(walk_json_fields(child, f"{path}.{key}"))
     elif isinstance(value, list):
         for index, child in enumerate(value):
@@ -128,23 +125,22 @@ def walk_json_fields(value: object, path: str = "$") -> list[str]:
     return findings
 
 
+def require_tokens(findings: list[str], label: str, text: str, tokens: tuple[str, ...]) -> None:
+    for token in tokens:
+        if token not in text:
+            findings.append(f"{label} missing token: {token}")
+
+
 def main() -> int:
     findings: list[str] = []
-
     for path in sorted(REQUIRED_FILES):
         if not path.is_file():
             findings.append(f"missing required file: {relative(path)}")
-
     if findings:
-        print(f"orchestration-runtime-contracts: FAIL ({len(findings)} finding(s))")
-        for finding in findings:
-            print(f"- {finding}")
-        return 1
+        return report(findings)
 
     status_contract = read_text(FRAMEWORK / "Contracts" / "FWK-012_Status_Error_Skip_Contract.md")
-    for code in sorted(REQUIRED_CODES):
-        if code not in status_contract:
-            findings.append(f"status contract missing code: {code}")
+    require_tokens(findings, "status contract", status_contract, tuple(sorted(REQUIRED_CODES)))
 
     for python_path in sorted((FRAMEWORK / "Tools").glob("*.py")):
         try:
@@ -158,69 +154,45 @@ def main() -> int:
             findings.append(f"T-SQL lexical error {relative(sql_path)}: {error}")
 
     multi = read_text(FRAMEWORK / "Sql" / "FWK_MultiSessionControl.sql")
-    for token in (
-        "fwk.SessionSignal",
-        "fwk.USP_Signal",
-        "fwk.USP_WaitForSignal",
-        "fwk.USP_ClearSignals",
-        "WAITFOR DELAY '00:00:00.100'",
-        "FAIL_TIMEOUT",
-    ):
-        if token not in multi:
-            findings.append(f"FWK-006 implementation missing token: {token}")
+    require_tokens(findings, "FWK-006 implementation", multi, (
+        "fwk.SessionSignal", "fwk.USP_Signal", "fwk.USP_WaitForSignal",
+        "fwk.USP_ClearSignals", "WAITFOR DELAY '00:00:00.100'", "FAIL_TIMEOUT",
+    ))
 
     query_store = read_text(FRAMEWORK / "Sql" / "FWK_QueryStoreLifecycle.sql")
-    for token in (
-        "sys.database_query_store_options",
-        "fwk.QueryStoreBaseline",
-        "SET QUERY_STORE = ON",
-        "SET QUERY_STORE CLEAR ALL",
-        "QUERY_CAPTURE_MODE = AUTO",
-        "WAIT_STATS_CAPTURE_MODE = ON",
-    ):
-        if token not in query_store:
-            findings.append(f"Query Store implementation missing token: {token}")
-
+    require_tokens(findings, "Query Store implementation", query_store, (
+        "sys.database_query_store_options", "fwk.QueryStoreBaseline",
+        "SET QUERY_STORE = ON", "SET QUERY_STORE CLEAR ALL",
+        "QUERY_CAPTURE_MODE = AUTO", "WAIT_STATS_CAPTURE_MODE = ON",
+    ))
     status_position = query_store.find("IF @Action = 'STATUS'")
-    enable_position = query_store.find("ELSE IF @Action = 'ENABLE'")
+    enable_position = query_store.find("IF @Action = 'ENABLE'")
     create_schema_position = query_store.find("CREATE SCHEMA fwk")
-    if create_schema_position != -1 and (status_position == -1 or enable_position == -1 or create_schema_position < enable_position):
-        findings.append("Query Store STATUS path is not read-only: baseline schema/table creation precedes ENABLE")
+    if min(status_position, enable_position, create_schema_position) == -1 or create_schema_position < enable_position:
+        findings.append("Query Store STATUS path is not read-only: baseline creation must start inside ENABLE")
 
     xe = read_text(FRAMEWORK / "Sql" / "FWK_ExtendedEventsLifecycle.sql")
-    for token in (
-        "CREATE EVENT SESSION",
-        "ON SERVER",
-        "package0.ring_buffer",
-        "MAX_MEMORY = (1024)",
-        "STARTUP_STATE = OFF",
-        "CREATE ANY EVENT SESSION",
-        "DROP ANY EVENT SESSION",
-        "ALTER ANY EVENT SESSION",
-    ):
-        if token not in xe:
-            findings.append(f"Extended Events implementation missing token: {token}")
+    require_tokens(findings, "Extended Events implementation", xe, (
+        "CREATE EVENT SESSION", "ON SERVER", "package0.ring_buffer",
+        "MAX_MEMORY = (1024)", "STARTUP_STATE = OFF",
+        "CREATE ANY EVENT SESSION", "DROP ANY EVENT SESSION", "ALTER ANY EVENT SESSION",
+    ))
     if re.search(r"event_file", xe, flags=re.IGNORECASE):
         findings.append("Extended Events reference must not use event_file")
     if re.search(r"STARTUP_STATE\s*=\s*ON", xe, flags=re.IGNORECASE):
         findings.append("Extended Events reference must not auto-start")
 
     wrapper = read_text(FRAMEWORK / "Tools" / "sqlcmd_process.py")
-    for token in ("SQLCMDPASSWORD", "shell=False", "start_new_session", "SQLPERF_SUMMARY"):
-        if token not in wrapper:
-            findings.append(f"sqlcmd wrapper missing token: {token}")
+    require_tokens(findings, "sqlcmd wrapper", wrapper, ("SQLCMDPASSWORD", "shell=False", "start_new_session", "SQLPERF_SUMMARY"))
     if re.search(r"(?:-P|--password)", wrapper):
         findings.append("sqlcmd password must not be placed on the command line")
 
-    orchestrator = read_text(FRAMEWORK / "Tools" / "orchestrate_sessions.py")
-    for token in ("abort_on_first_failure", "launch_delay_ms", "FAIL_TIMEOUT", "SKIP_TOOL_MISSING"):
-        if token not in orchestrator:
-            findings.append(f"orchestrator missing token: {token}")
-
-    harness = read_text(FRAMEWORK / "Tools" / "run_demo.py")
-    for token in ("cleanup_timeout_seconds", "WARN_OPTIONAL_EVIDENCE_SKIPPED", "FAIL_CLEANUP", "target_database_name"):
-        if token not in harness:
-            findings.append(f"runtime harness missing token: {token}")
+    require_tokens(findings, "orchestrator", read_text(FRAMEWORK / "Tools" / "orchestrate_sessions.py"), (
+        "abort_on_first_failure", "launch_delay_ms", "FAIL_TIMEOUT", "SKIP_TOOL_MISSING",
+    ))
+    require_tokens(findings, "runtime harness", read_text(FRAMEWORK / "Tools" / "run_demo.py"), (
+        "cleanup_timeout_seconds", "WARN_OPTIONAL_EVIDENCE_SKIPPED", "FAIL_CLEANUP", "target_database_name",
+    ))
 
     for manifest_path in sorted((FRAMEWORK / "Examples").rglob("manifest.json")):
         try:
@@ -228,19 +200,18 @@ def main() -> int:
         except json.JSONDecodeError as exc:
             findings.append(f"invalid JSON {relative(manifest_path)}: {exc}")
             continue
-        for finding in walk_json_fields(payload):
-            findings.append(f"{relative(manifest_path)}: {finding}")
+        findings.extend(f"{relative(manifest_path)}: {item}" for item in walk_json_fields(payload))
 
+    return report(findings)
+
+
+def report(findings: list[str]) -> int:
     if findings:
         print(f"orchestration-runtime-contracts: FAIL ({len(findings)} finding(s))")
         for finding in findings:
             print(f"- {finding}")
         return 1
-
-    print(
-        "orchestration-runtime-contracts: PASS "
-        f"({len(REQUIRED_FILES)} required files, {len(REQUIRED_CODES)} required status codes)"
-    )
+    print(f"orchestration-runtime-contracts: PASS ({len(REQUIRED_FILES)} required files, {len(REQUIRED_CODES)} required status codes)")
     return 0
 
 
