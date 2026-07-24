@@ -4,9 +4,8 @@ SET XACT_ABORT ON;
 
 DECLARE @Start datetime2(0)='20240315';
 DECLARE @End datetime2(0)=DATEADD(day,1,@Start);
-DECLARE @Before bigint;
-DECLARE @After bigint;
 DECLARE @Result bigint;
+DECLARE @LogicalReads bigint;
 DECLARE @Plan nvarchar(max);
 DECLARE @AccessMethod varchar(32);
 DECLARE @ProblemResult bigint;
@@ -15,13 +14,13 @@ DECLARE @ProblemReads bigint;
 SELECT @ProblemResult=ResultValue,@ProblemReads=LogicalReads
 FROM lab.Qry001Evidence WHERE Phase='PROBLEM';
 
-SELECT @Before=logical_reads FROM sys.dm_exec_sessions WHERE session_id=@@SPID;
 SELECT @Result=SUM(CONVERT(bigint,MeasureValue))
 FROM lab.SearchData /*SQLPERF_QRY001_COMPARISON*/
 WHERE EventDateTime>=@Start AND EventDateTime<@End;
-SELECT @After=logical_reads FROM sys.dm_exec_sessions WHERE session_id=@@SPID;
 
-SELECT TOP(1) @Plan=qp.query_plan
+SELECT TOP(1)
+    @LogicalReads=qs.last_logical_reads,
+    @Plan=qp.query_plan
 FROM sys.dm_exec_query_stats qs
 CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
 CROSS APPLY sys.dm_exec_text_query_plan(qs.plan_handle,qs.statement_start_offset,qs.statement_end_offset) qp
@@ -39,12 +38,12 @@ SET @AccessMethod=CASE
 
 DELETE lab.Qry001Evidence WHERE Phase='COMPARISON';
 INSERT lab.Qry001Evidence(Phase,ResultValue,LogicalReads,AccessMethod)
-VALUES('COMPARISON',COALESCE(@Result,0),@After-@Before,@AccessMethod);
+VALUES('COMPARISON',COALESCE(@Result,0),COALESCE(@LogicalReads,-1),@AccessMethod);
 
 IF @ProblemResult IS NULL OR @Result<>@ProblemResult
     THROW 51006, 'FAIL_RESULT_CONTRACT: Die Vergleichsabfrage ist nicht fachlich äquivalent.', 1;
-IF @AccessMethod<>'INDEX_SEEK' OR @After-@Before>=@ProblemReads
-    THROW 51006, 'FAIL_RESULT_CONTRACT: Die SARGable Vergleichsabfrage erfüllt die relationale Plan-/Read-Erwartung nicht.', 1;
+IF @LogicalReads IS NULL OR @AccessMethod<>'INDEX_SEEK' OR @LogicalReads>=@ProblemReads
+    THROW 51006, 'FAIL_RESULT_CONTRACT: Die SARGable Vergleichsabfrage erfüllt die relationale statementbezogene Plan-/Read-Erwartung nicht.', 1;
 
 SELECT Phase,ResultValue,LogicalReads,AccessMethod
 FROM lab.Qry001Evidence
@@ -52,7 +51,7 @@ ORDER BY CASE Phase WHEN 'BASELINE' THEN 1 WHEN 'PROBLEM' THEN 2 ELSE 3 END;
 
 SELECT 1 AS Sequence,'COMPARISON' AS Phase,'SUMMARY' AS CheckId,
        'PASS' AS Outcome,'OK' AS Code,
-       CONCAT(N'Result=',@Result,N'; LogicalReads=',@After-@Before,N'; Access=',@AccessMethod) AS ObservedValue,
-       N'gleiches Ergebnis; Seek; weniger Reads als Problemzustand' AS RequiredValue,
+       CONCAT(N'Result=',@Result,N'; LogicalReads=',@LogicalReads,N'; Access=',@AccessMethod) AS ObservedValue,
+       N'gleiches Ergebnis; Seek; weniger statementbezogene Reads als Problemzustand' AS RequiredValue,
        N'Die Gegenmaßnahme ist unter vergleichbaren Bedingungen bestätigt.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
