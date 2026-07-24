@@ -21,7 +21,7 @@ DECLARE @RequireWritableDatabase bit = 1;
 DECLARE @RequireShowplan bit = 1;
 DECLARE @RequireViewServerState bit = 0;
 DECLARE @RequireViewServerPerformanceState bit = 0;
-DECLARE @RequireCreateAnyDatabase bit = 0;
+DECLARE @RequireCreateDatabasePermission bit = 0;
 DECLARE @RequireAlterDatabase bit = 0;
 DECLARE @ConfirmIsolatedLab bit = 0;
 DECLARE @HighImpactConfirmed bit = 0;
@@ -211,11 +211,15 @@ BEGIN
     END;
 END;
 
-IF @RequireCreateAnyDatabase = 1
+IF @RequireCreateDatabasePermission = 1
 BEGIN
-    SET @PermissionValue = CASE WHEN HAS_PERMS_BY_NAME(NULL, NULL, 'CREATE ANY DATABASE') = 1 OR HAS_PERMS_BY_NAME(NULL, NULL, 'ALTER ANY DATABASE') = 1 THEN 1 ELSE 0 END;
+    SET @PermissionValue = CASE
+        WHEN HAS_PERMS_BY_NAME(NULL, NULL, 'CREATE ANY DATABASE') = 1
+          OR HAS_PERMS_BY_NAME(NULL, NULL, 'ALTER ANY DATABASE') = 1
+          OR HAS_PERMS_BY_NAME(N'master', 'DATABASE', 'CREATE DATABASE') = 1
+        THEN 1 ELSE 0 END;
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-    VALUES ('PREFLIGHT', 'PERMISSION_CREATE_DATABASE', CASE WHEN @PermissionValue = 1 THEN 'PASS' ELSE 'SKIP' END, CASE WHEN @PermissionValue = 1 THEN 'OK' ELSE 'SKIP_PERMISSION' END, CONVERT(nvarchar(20), @PermissionValue), N'CREATE ANY DATABASE oder ALTER ANY DATABASE', CASE WHEN @PermissionValue = 1 THEN N'Die Datenbankerstellung ist berechtigt.' ELSE N'Die Berechtigung zur Datenbankerstellung fehlt.' END);
+    VALUES ('PREFLIGHT', 'PERMISSION_CREATE_DATABASE', CASE WHEN @PermissionValue = 1 THEN 'PASS' ELSE 'SKIP' END, CASE WHEN @PermissionValue = 1 THEN 'OK' ELSE 'SKIP_PERMISSION' END, CONVERT(nvarchar(20), @PermissionValue), N'CREATE DATABASE in master, CREATE ANY DATABASE oder ALTER ANY DATABASE', CASE WHEN @PermissionValue = 1 THEN N'Die Datenbankerstellung ist berechtigt.' ELSE N'Die Berechtigung zur Datenbankerstellung fehlt.' END);
 END;
 
 IF @RequireAlterDatabase = 1 AND @DatabaseId IS NOT NULL
