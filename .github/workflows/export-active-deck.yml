@@ -1,0 +1,26 @@
+name: Export active deck
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/export-active-deck.yml'
+      - 'Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Upload active presentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-performance-deck
+          path: Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx
+          if-no-files-found: error
+          retention-days: 1
