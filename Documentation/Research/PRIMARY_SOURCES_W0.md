@@ -3,17 +3,20 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Geltungsbereich:** SQL Server 2019 (15.x), 2022 (16.x), 2025 (17.x); Datenbank-Kompatibilitätsstufen 140 bis 170, soweit in der jeweiligen Quelle ausgewiesen  
-**Quellengrundsatz:** ausschließlich offizielle, öffentlich erreichbare Produktdokumentation
+**Quellengrundsatz:** ausschließlich offizielle, öffentlich erreichbare Produktdokumentation  
+**Projektweite Pflege:** [Projektweites Quellenregister](SOURCE_REGISTER.md)
 
 ## Zweck und Abgrenzung
 
-Dieses Register ist der belastbare Quellenunterbau für:
+Dieses Dokument ist der validierte Welle-0-Snapshot für:
 
-- das folienbezogene Aussagenregister aus `W0-003` beziehungsweise `W0-011`;
+- das folienbezogene Aussagenregister aus `W0-003`;
 - die vertiefte Prüfung kritischer Aussagen aus `W0-004`;
 - die Trennung dokumentierter Produkteigenschaften von empirischen Empfehlungen.
 
-Es ersetzt noch nicht das projektweite Literatur- und Quellenkonzept aus `W0-006`. Abrufdatum aller nachfolgenden Quellen ist der 24. Juli 2026. Der Parameter `view=sql-server-ver17` bezeichnet die aktuelle Dokumentationssicht; abweichende Versions- und Kompatibilitätsgrenzen werden im Aussagenregister ausdrücklich erfasst.
+Das projektweite Literatur- und Quellenkonzept aus `W0-006` ist inzwischen in `SOURCE_REGISTER.md` umgesetzt. Dort werden zusätzlich Aktualisierungsdatum, Abrufdatum, Aussagebezug, Gültigkeitsbereich, Status und Review-Trigger je Quelle gepflegt. Bei widersprüchlichen Pflegeinformationen ist das projektweite Register maßgeblich; die nachfolgende Liste bleibt als nachvollziehbarer Quellenstand der Welle 0 erhalten.
+
+Abrufdatum aller nachfolgenden Quellen ist der 24. Juli 2026. Der Parameter `view=sql-server-ver17` bezeichnet die Dokumentationssicht für SQL Server 2025; abweichende Versions- und Kompatibilitätsgrenzen werden im Aussagenregister ausdrücklich erfasst.
 
 ## Quellen
 
