@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Static contract validation for the four Gate-B pilot demos."""
+"""Static contract validation for the four Gate-B pilot demos.
+
+The validator is standard-library-only so the final contract check remains independent of a SQL Server runtime.
+"""
 
 from __future__ import annotations
 
@@ -142,7 +145,7 @@ def walk_keys(value: object, path: str = "$") -> list[str]:
             findings.extend(walk_keys(child, f"{path}.{key}"))
     elif isinstance(value, list):
         for index, child in enumerate(value):
-            findings.extend(walk_keys(child, f"{path}[{index}]") )
+            findings.extend(walk_keys(child, f"{path}[{index}]"))
     return findings
 
 
