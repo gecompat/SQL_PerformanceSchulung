@@ -4,24 +4,24 @@
 
 Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Orchestrierungs-, Telemetrie-, Sicherheits-, Lifecycle-, Runtime-, Status- und Dokumentverträge für ausführbare Schulungsdemos. Es werden keine dauerhaft installierten Steuerobjekte in `master` oder einer versteckten Framework-Datenbank angelegt.
 
-## Implementierungsstand
+## Validierungsstand
 
 | Arbeitspaket | Status | Kernartefakt |
 |---|---|---|
-| `FWK-001` | `IMPLEMENTED` | Preflight-Vertrag und `Templates/00_Preflight.sql` |
-| `FWK-002` | `IMPLEMENTED` | markergeprüfter Testdatenbank-Lifecycle |
-| `FWK-003` | `IMPLEMENTED` | deterministischer Datengenerator |
-| `FWK-004` | `IMPLEMENTED` | sessionbezogener Messrahmen |
-| `FWK-005` | `IMPLEMENTED` | Plan- und Statistikevidenz |
-| `FWK-006` | `IMPLEMENTED` | Datenbanksignale und `Tools/orchestrate_sessions.py` |
-| `FWK-007` | `IMPLEMENTED` | Query-Store- und XE-Lifecycle |
-| `FWK-008` | `IMPLEMENTED` | Sicherheits- und Abbruchvertrag |
-| `FWK-009` | `IMPLEMENTED` | vollständige Demo-Dokumentvorlage |
-| `FWK-010` | `IMPLEMENTED` | `Tools/run_demo.py` |
-| `FWK-011` | `IMPLEMENTED` | Ergebnisnormalisierung und Evaluator |
-| `FWK-012` | `IMPLEMENTED` | Status-, Fehler- und Skip-Vertrag 1.2 |
+| `FWK-001` | `VALIDATED` | Preflight-Vertrag und `Templates/00_Preflight.sql` |
+| `FWK-002` | `VALIDATED` | markergeprüfter Testdatenbank-Lifecycle |
+| `FWK-003` | `VALIDATED` | deterministischer Datengenerator |
+| `FWK-004` | `VALIDATED` | sessionbezogener Messrahmen |
+| `FWK-005` | `VALIDATED` | Plan- und Statistikevidenz |
+| `FWK-006` | `VALIDATED` | Datenbanksignale und `Tools/orchestrate_sessions.py` |
+| `FWK-007` | `VALIDATED` | Query-Store- und XE-Lifecycle |
+| `FWK-008` | `VALIDATED` | Sicherheits- und Abbruchvertrag |
+| `FWK-009` | `VALIDATED` | vollständige Demo-Dokumentvorlage |
+| `FWK-010` | `VALIDATED` | `Tools/run_demo.py` |
+| `FWK-011` | `VALIDATED` | Ergebnisnormalisierung und Evaluator |
+| `FWK-012` | `VALIDATED` | Status-, Fehler- und Skip-Vertrag 1.2 |
 
-`IMPLEMENTED` bestätigt Vertrags- und Referenzimplementierung sowie SQL-Server-unabhängige statische und Prozess-Selbsttests. Runtime-Validierung auf SQL Server 2019, 2022 und 2025 bleibt offen.
+`VALIDATED` umfasst die SQL-Server-unabhängigen Vertrags- und Prozess-Selbsttests sowie den erfolgreichen Runtime-Lauf `30099942191` auf SQL Server 2019, 2022 und 2025 in offiziellen Microsoft-Linux-Containern mit Compatibility Levels 150, 160 und 170. Betriebssystem- oder editionsspezifische Erweiterungen benötigen weiterhin eigene Testprofile.
 
 ## Toolklassen
 
@@ -58,11 +58,8 @@ Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über
 - Umgebungsdetails, Querytexte, Pläne, Event-Daten und Rohoutput werden standardmäßig nicht persistiert.
 - Absolute Performancegrenzen benötigen ein technisch kontrolliertes Ressourcenprofil.
 
-## Statische Prüfung
+## Prüfpfade
 
-Der pfadbegrenzte GitHub-Actions-Workflow führt vier Prüfungen aus:
+Der pfadbegrenzte Workflow `Framework contracts` führt vier SQL-Server-unabhängige Prüfungen aus. Der Workflow `Framework SQL matrix` startet getrennte ephemere Container für SQL Server 2019, 2022 und 2025 und validiert Installation, Laufzeitverträge sowie markergeprüftes Cleanup.
 
-1. allgemeine Framework-Vertragsprüfung,
-2. Selbsttest des Ergebnis-Evaluators,
-3. Orchestrierungs-/Runtime-Vertragsprüfung,
-4. Prozess-Selbsttest für Erfolg, Fehler, Skip, Timeout, Safety und Cleanup.
+Der nächste fachliche Abnahmeschritt sind die vier Gate-B-Pilotdemos. Das validierte Framework allein erfüllt Gate B noch nicht.
