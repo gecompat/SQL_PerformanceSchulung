@@ -55,7 +55,24 @@ jobs:
                   target.writestr(info, data)
           os.replace(temporary, deck)
           PY
-          sha256sum Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx
+          DECK_SHA=$(sha256sum Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx | awk '{print $1}')
+          python - "$DECK_SHA" <<'PY'
+          from pathlib import Path
+          import sys
+
+          old = '38d91cb92b4e38de8a3878c0f4c9669f0fa65405abdc486a323b278c7ff3cd88'
+          new = sys.argv[1]
+          for filename in (
+              'Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md',
+              'Documentation/Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md',
+          ):
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'expected source hash missing in {filename}')
+              path.write_text(text.replace(old, new), encoding='utf-8')
+          print(f'Deck SHA-256 synchronized: {new}')
+          PY
           python Tests/Static/validate_w2_007_presentation.py
           rm -rf .tmp/w2-007
           rm -f .github/workflows/apply-w2-007.yml
