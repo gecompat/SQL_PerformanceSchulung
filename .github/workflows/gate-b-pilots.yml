@@ -1,3 +1,4 @@
+# Each runtime job executes four complete pilots twice and verifies cleanup after every run.
 name: Gate B pilot demos
 
 on:
