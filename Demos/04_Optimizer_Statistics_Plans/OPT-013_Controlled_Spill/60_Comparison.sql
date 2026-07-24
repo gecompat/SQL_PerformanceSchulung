@@ -1,34 +1,32 @@
-/* OPT-013 comparison: identical sort after the filter statistic was refreshed. */
+/* OPT-013 comparison: identical sort over the statistics-visible staging table. */
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
 DECLARE @Checksum int;
 DECLARE @LastSpills bigint;
+DECLARE @LastGrantKb bigint;
+DECLARE @LastUsedGrantKb bigint;
 DECLARE @Plan nvarchar(max);
 DECLARE @PlanHasSort bit;
 DECLARE @ProblemChecksum int;
 DECLARE @Tag varchar(64)=CONCAT('SQLPERF_OPT013_','COMPARISON');
-DECLARE @ObjectId int=OBJECT_ID(N'lab.SpillData');
-DECLARE @StatsId int=(SELECT stats_id FROM sys.stats WHERE object_id=@ObjectId AND name=N'ST_SpillData_FilterKey');
-DECLARE @StatisticsRows bigint,@RowsSampled bigint,@ModificationCounter bigint,@ActualRows bigint;
+DECLARE @ActualRows bigint=(SELECT COUNT_BIG(*) FROM lab.SpillStage);
 
 SELECT @ProblemChecksum=ResultChecksum FROM lab.SpillEvidence WHERE Phase='PROBLEM';
-SELECT @ActualRows=COUNT_BIG(*) FROM lab.SpillData WHERE FilterKey=1;
-SELECT @StatisticsRows=rows,@RowsSampled=rows_sampled,@ModificationCounter=modification_counter
-FROM sys.dm_db_stats_properties(@ObjectId,@StatsId);
 
 SELECT @Checksum=CHECKSUM_AGG(BINARY_CHECKSUM(d.SortKey,d.RowNumber))
 FROM
 (
     SELECT SortKey,
            RowNumber=ROW_NUMBER() OVER(ORDER BY Payload,SortKey)
-    FROM lab.SpillData /*SQLPERF_OPT013_COMPARISON*/
-    WHERE FilterKey=1
+    FROM lab.SpillStage /*SQLPERF_OPT013_COMPARISON*/
 ) d
 OPTION(MAXDOP 1);
 
 SELECT TOP(1)
     @LastSpills=qs.last_spills,
+    @LastGrantKb=qs.last_grant_kb,
+    @LastUsedGrantKb=qs.last_used_grant_kb,
     @Plan=qp.query_plan
 FROM sys.dm_exec_query_stats qs
 CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
@@ -50,31 +48,28 @@ SET @PlanHasSort=CASE WHEN @Plan LIKE '%PhysicalOp="Sort"%' THEN 1 ELSE 0 END;
 DELETE lab.SpillEvidence WHERE Phase='COMPARISON';
 INSERT lab.SpillEvidence
 (
-    Phase,ResultChecksum,LastSpills,PlanHasSort,StatisticsRows,StatisticsRowsSampled,
-    ModificationCounter,ActualFilteredRows
+    Phase,ResultChecksum,LastSpills,PlanHasSort,LastGrantKb,LastUsedGrantKb,ActualRows,InputKind
 )
 VALUES
 (
-    'COMPARISON',@Checksum,COALESCE(@LastSpills,-1),@PlanHasSort,@StatisticsRows,@RowsSampled,
-    @ModificationCounter,@ActualRows
+    'COMPARISON',@Checksum,COALESCE(@LastSpills,-1),@PlanHasSort,
+    COALESCE(@LastGrantKb,-1),COALESCE(@LastUsedGrantKb,-1),@ActualRows,'STAGING_TABLE'
 );
 
-IF @ProblemChecksum IS NULL OR @Checksum<>@ProblemChecksum OR @ActualRows<>299000
+IF @ProblemChecksum IS NULL OR @Checksum<>@ProblemChecksum OR @ActualRows<>300000
     THROW 51006,'FAIL_RESULT_CONTRACT: Die Vergleichsabfrage ist fachlich nicht äquivalent.',1;
-IF @StatisticsRows<>300000 OR @RowsSampled<>300000 OR @ModificationCounter<>0
-    THROW 51006,'FAIL_RESULT_CONTRACT: Die Vergleichsabfrage verwendet keinen vollständig aktuellen Statistikzustand.',1;
-IF @LastSpills IS NULL OR @LastSpills<>0 OR @PlanHasSort<>1
-    THROW 51006,'FAIL_RESULT_CONTRACT: Der Sort verschüttet trotz aktualisierter Statistik weiterhin oder die Planform ist unerwartet.',1;
+IF @LastSpills IS NULL OR @LastSpills<>0 OR @PlanHasSort<>1 OR @LastGrantKb<=0
+    THROW 51006,'FAIL_RESULT_CONTRACT: Der Sort über die Staging-Tabelle besitzt weiterhin einen Spill oder eine unerwartete Planform.',1;
 
 SELECT
-    Phase,ResultChecksum,LastSpills,PlanHasSort,StatisticsRows,StatisticsRowsSampled,
-    ModificationCounter,ActualFilteredRows
+    Phase,ResultChecksum,LastSpills,PlanHasSort,LastGrantKb,LastUsedGrantKb,
+    ActualRows,InputKind
 FROM lab.SpillEvidence
 ORDER BY CASE Phase WHEN 'BASELINE' THEN 1 WHEN 'PROBLEM' THEN 2 ELSE 3 END;
 
 SELECT 1 Sequence,'COMPARISON' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,
-       CONCAT(N'Checksum=',@Checksum,N'; StatsRows=',@StatisticsRows,
-              N'; Modifications=',@ModificationCounter,N'; LastSpills=',@LastSpills) ObservedValue,
-       N'gleiches Ergebnis; aktuelle Fullscan-Statistik; Sortoperator; last_spills=0' RequiredValue,
-       N'Die Statistikaktualisierung beseitigt den kontrollierten Undergrant und Spill.' Message;
+       CONCAT(N'Rows=',@ActualRows,N'; GrantKb=',@LastGrantKb,
+              N'; UsedGrantKb=',@LastUsedGrantKb,N'; LastSpills=',@LastSpills) ObservedValue,
+       N'gleiches Ergebnis; statistisch sichtbare Staging-Tabelle; Sortoperator; last_spills=0' RequiredValue,
+       N'Die Materialisierung mit sichtbarer Kardinalität beseitigt den kontrollierten Undergrant und Spill.' Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
