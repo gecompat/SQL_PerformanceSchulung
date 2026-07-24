@@ -36,7 +36,7 @@ CREATE TABLE lab.StatisticsData
  CategoryId int NOT NULL,
  RegionId int NOT NULL,
  Amount decimal(12,2) NOT NULL,
- Payload char(30) NOT NULL
+ Payload char(400) NOT NULL
 );
 CREATE TABLE lab.Opt002Evidence
 (
@@ -55,10 +55,10 @@ CREATE TABLE lab.Opt002Evidence
  FROM D d0 CROSS JOIN D d1 CROSS JOIN D d2 CROSS JOIN D d3 CROSS JOIN D d4 CROSS JOIN D d5 ORDER BY 1
 )
 INSERT lab.StatisticsData(StatisticsDataId,CategoryId,RegionId,Amount,Payload)
-SELECT n,CASE WHEN n<=50000 THEN 1 ELSE 2+((n-50001)%100) END,1+(n%10),CONVERT(decimal(12,2),(n%10000)/10.0),REPLICATE(CHAR(65+n%26),30)
+SELECT n,CASE WHEN n<=50000 THEN 1 ELSE 2+((n-50001)%100) END,1+(n%10),CONVERT(decimal(12,2),(n%10000)/10.0),REPLICATE(CHAR(65+n%26),400)
 FROM N OPTION(MAXDOP 1);
-CREATE STATISTICS ST_StatisticsData_Category_Region ON lab.StatisticsData(CategoryId,RegionId) WITH SAMPLE 1 PERCENT,NORECOMPUTE;
+CREATE STATISTICS ST_StatisticsData_Category_Region ON lab.StatisticsData(CategoryId,RegionId) WITH SAMPLE 1000 ROWS,NORECOMPUTE;
 IF (SELECT COUNT_BIG(*) FROM lab.StatisticsData)<>100000 THROW 51003,'FAIL_EXECUTION: OPT-002-Datenmenge ist unvollständig.',1;
-SELECT 1 Sequence,'SETUP' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,N'100000 Zeilen; 101 Kategorien; Statistik mit 1 Prozent Sample' ObservedValue,N'deterministische Verteilung' RequiredValue,N'OPT-002 wurde aufgebaut.' Message;
+SELECT 1 Sequence,'SETUP' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,N'100000 breite Zeilen; 101 Kategorien; explizites Sample von 1000 Zeilen' ObservedValue,N'deterministische Verteilung mit echter Stichprobe' RequiredValue,N'OPT-002 wurde aufgebaut.' Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
 GO
