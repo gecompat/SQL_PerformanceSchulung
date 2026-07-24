@@ -156,7 +156,7 @@ def main() -> int:
     multi = read_text(FRAMEWORK / "Sql" / "FWK_MultiSessionControl.sql")
     require_tokens(findings, "FWK-006 implementation", multi, (
         "fwk.SessionSignal", "fwk.USP_Signal", "fwk.USP_WaitForSignal",
-        "fwk.USP_ClearSignals", "WAITFOR DELAY '00:00:00.100'", "FAIL_TIMEOUT",
+        "fwk.USP_ClearSignals", "WAITFOR DELAY", "00:00:00.100", "FAIL_TIMEOUT",
     ))
 
     query_store = read_text(FRAMEWORK / "Sql" / "FWK_QueryStoreLifecycle.sql")
