@@ -1,6 +1,6 @@
 # Kritische Aussagenprüfung
 
-**Arbeitspakete:** W0-004, fachlicher Kern von W0-011  
+**Arbeitspaket:** W0-004  
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
@@ -62,4 +62,3 @@ Diese vier Punkte werden als kontrollierte Folgearbeit geführt; sie verhindern 
 ## Abdeckung von W0-004
 
 Vollständig bewertet sind CTEs, Tabellenvariablen, Fill Factor, Partition-Metadaten, Isolation, Columnstore, Cardinality Estimation, Filegroups, Memory Grants sowie die zusätzlichen Risikofelder Heaps, RID Lookup, Forwarded Records, Plan-Cache/Recompile, Adaptive Join, Batch Mode on Rowstore, Columnstore-Wartung, Remote Pushdown, Linked Servers, Partitionierung, Worker/Tasks/Threads und Hash-Eindeutigkeit.
-
