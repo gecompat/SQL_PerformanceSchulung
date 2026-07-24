@@ -4,6 +4,9 @@ SET XACT_ABORT ON;
 
 DECLARE @Checksum int;
 DECLARE @LastSpills bigint;
+DECLARE @LastGrantKb bigint;
+DECLARE @LastUsedGrantKb bigint;
+DECLARE @LastRows bigint;
 DECLARE @Plan nvarchar(max);
 DECLARE @PlanHasSort bit;
 DECLARE @Tag varchar(64)=CONCAT('SQLPERF_OPT013_','PROBLEM');
@@ -51,6 +54,9 @@ OPTION(MAXDOP 1);
 
 SELECT TOP(1)
     @LastSpills=qs.last_spills,
+    @LastGrantKb=qs.last_grant_kb,
+    @LastUsedGrantKb=qs.last_used_grant_kb,
+    @LastRows=qs.last_rows,
     @Plan=qp.query_plan
 FROM sys.dm_exec_query_stats qs
 CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
@@ -80,6 +86,18 @@ VALUES
     'PROBLEM',@Checksum,COALESCE(@LastSpills,-1),@PlanHasSort,@StatisticsRows,@RowsSampled,
     @ModificationCounter,@ActualRows
 );
+
+SELECT
+    Diagnostic=N'OPT013_PROBLEM_STATE',
+    ActualFilteredRows=@ActualRows,
+    StatisticsRows=@StatisticsRows,
+    StatisticsRowsSampled=@RowsSampled,
+    ModificationCounter=@ModificationCounter,
+    LastRows=@LastRows,
+    LastGrantKb=@LastGrantKb,
+    LastUsedGrantKb=@LastUsedGrantKb,
+    LastSpills=@LastSpills,
+    PlanHasSort=@PlanHasSort;
 
 IF @Checksum IS NULL OR @ActualRows<>299000 OR @StatisticsRows<>1000
    OR @ModificationCounter<299000 OR @LastSpills IS NULL OR @LastSpills<=0 OR @PlanHasSort<>1
