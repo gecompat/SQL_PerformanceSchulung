@@ -63,13 +63,13 @@ SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
 IF SCHEMA_ID(N'lab') IS NULL EXEC(N'CREATE SCHEMA lab AUTHORIZATION dbo;');
+DROP TABLE IF EXISTS lab.SpillStage;
 DROP TABLE IF EXISTS lab.SpillEvidence;
 DROP TABLE IF EXISTS lab.SpillData;
 
 CREATE TABLE lab.SpillData
 (
     SpillDataId int NOT NULL CONSTRAINT PK_SpillData PRIMARY KEY CLUSTERED,
-    FilterKey tinyint NOT NULL,
     SortKey int NOT NULL,
     Payload char(200) NOT NULL,
     MeasureValue int NOT NULL
@@ -81,10 +81,10 @@ CREATE TABLE lab.SpillEvidence
     ResultChecksum int NULL,
     LastSpills bigint NOT NULL,
     PlanHasSort bit NOT NULL,
-    StatisticsRows bigint NULL,
-    StatisticsRowsSampled bigint NULL,
-    ModificationCounter bigint NULL,
-    ActualFilteredRows bigint NOT NULL,
+    LastGrantKb bigint NOT NULL,
+    LastUsedGrantKb bigint NOT NULL,
+    ActualRows bigint NOT NULL,
+    InputKind varchar(32) NOT NULL,
     CapturedAtUtc datetime2(3) NOT NULL CONSTRAINT DF_SpillEvidence_Captured DEFAULT SYSUTCDATETIME()
 );
 
@@ -99,26 +99,20 @@ CREATE TABLE lab.SpillEvidence
     CROSS JOIN Digits d3 CROSS JOIN Digits d4 CROSS JOIN Digits d5
     ORDER BY 1
 )
-INSERT lab.SpillData(SpillDataId,FilterKey,SortKey,Payload,MeasureValue)
+INSERT lab.SpillData(SpillDataId,SortKey,Payload,MeasureValue)
 SELECT n,
-       CASE WHEN n<=1000 THEN 0 ELSE 1 END,
        CONVERT(int,(CONVERT(bigint,n)*7919)%300000),
        CONVERT(char(200),REPLICATE(CHAR(65+(n%26)),180)+RIGHT(REPLICATE('0',20)+CONVERT(varchar(20),n),20)),
        n%10000
 FROM Numbers
 OPTION(MAXDOP 1);
 
-CREATE STATISTICS ST_SpillData_FilterKey
-ON lab.SpillData(FilterKey)
-WITH FULLSCAN,NORECOMPUTE;
-
 IF (SELECT COUNT_BIG(*) FROM lab.SpillData)<>300000
-   OR (SELECT COUNT_BIG(*) FROM lab.SpillData WHERE FilterKey=1)<>299000
-    THROW 51003,'FAIL_EXECUTION: OPT-013-Datenmenge oder Filterverteilung ist unvollständig.',1;
+    THROW 51003,'FAIL_EXECUTION: OPT-013-Datenmenge ist unvollständig.',1;
 
 SELECT 1 Sequence,'SETUP' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,
-       N'300000 breite Zeilen; 299000 Zielzeilen; aktuelle Filterstatistik' ObservedValue,
-       N'isolierte markierte Testdatenbank mit deterministischer Verteilung' RequiredValue,
+       N'300000 deterministische Zeilen mit 200-Byte-Sortiernutzlast' ObservedValue,
+       N'isolierte markierte Testdatenbank; Basistabelle mit sichtbarer Kardinalität' RequiredValue,
        N'OPT-013 wurde reproduzierbar aufgebaut.' Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
 GO
