@@ -30,6 +30,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Master-Umsetzungsplan](Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
 - [Gate-A-Review](Documentation/Project_Planning/GATE_A_REVIEW.md)
 - [Review der Welle-1-Framework-Basis](Documentation/Project_Planning/WAVE_1_FRAMEWORK_FOUNDATION_REVIEW.md)
+- [Review der Welle-1-Daten-, Mess- und Ergebnisbasis](Documentation/Project_Planning/WAVE_1_DATA_MEASUREMENT_REVIEW.md)
 - [Konflikt- und Entscheidungslog](Documentation/Project_Planning/CONFLICT_AND_DECISION_LOG.md)
 - [Planergänzung zur Qualität der Schulungsunterlagen](Documentation/Project_Planning/PRESENTATION_QUALITY_INTEGRATION_PLAN.md)
 - [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
@@ -41,6 +42,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
 - [Projektweites Quellenregister](Documentation/Research/SOURCE_REGISTER.md)
 - [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
+- [Primärquellen für die Welle-1-Framework-Basis](Documentation/Research/FRAMEWORK_SOURCES_W1.md)
 - [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md)
 - [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
 
@@ -67,9 +69,9 @@ Details zur Ausführung und zu Voraussetzungen werden mit den jeweiligen Demos e
 
 ## Status
 
-Welle 0 und Gate A sind fachlich validiert. Die erste Welle-1-Basis aus `FWK-001`, `FWK-002`, `FWK-008`, `FWK-009` und `FWK-012` ist implementiert und statisch prüfbar. Sie umfasst Preflight, markergeprüften Testdatenbank-Lifecycle, Safety-Gates, Demo-Dokumentvorlage sowie einheitliche Status-, Fehler- und Skip-Codes.
+Welle 0 und Gate A sind fachlich validiert. In Welle 1 sind `FWK-001` bis `FWK-005`, `FWK-008`, `FWK-009`, `FWK-011` und `FWK-012` implementiert und statisch prüfbar. Die Basis umfasst Preflight, markergeprüften Testdatenbank-Lifecycle, deterministische synthetische Daten, sessionbezogene Messung, Plan-/Statistikevidenz, Safety-Gates, Demo-Dokumentation sowie einheitliche Status-, Fehler-, Skip- und Ergebnisverträge.
 
-Die SQL-Runtime-Validierung gegen SQL Server 2019, 2022 und 2025 ist noch offen. Als Nächstes folgen Datengenerator, Messrahmen, Plan-/Statistik-Evidenz, Multi-Session-Orchestrierung, Query-Store-/XE-Helfer, Test-Harness und Ergebnisnormalisierung aus `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011`. Der Gesamtstatus des Projekts bleibt `PLANNED`.
+Die SQL-Runtime-Validierung gegen SQL Server 2019, 2022 und 2025 ist noch offen, da derzeit kein SQL-Server-Host zur Verfügung steht. Als Nächstes folgen `FWK-006`, `FWK-007` und `FWK-010` für Multi-Session-Orchestrierung, Query-Store-/Extended-Events-Helfer und den vollständigen Runtime-Harness. Danach folgen Versionsmatrix und vier Gate-B-Pilotdemos. Der Gesamtstatus des Projekts bleibt `PLANNED`.
 
 ## Lizenz
 

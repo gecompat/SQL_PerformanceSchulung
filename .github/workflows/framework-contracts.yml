@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'Demos/00_Framework/**'
-      - 'Tests/Static/validate_framework_contracts.py'
+      - 'Tests/Static/**'
       - '.github/workflows/framework-contracts.yml'
       - '.ai/DEMO_CONTRACT.md'
   push:
@@ -12,7 +12,7 @@ on:
       - main
     paths:
       - 'Demos/00_Framework/**'
-      - 'Tests/Static/validate_framework_contracts.py'
+      - 'Tests/Static/**'
       - '.github/workflows/framework-contracts.yml'
       - '.ai/DEMO_CONTRACT.md'
   workflow_dispatch:
@@ -35,3 +35,6 @@ jobs:
 
       - name: Validate framework contracts
         run: python Tests/Static/validate_framework_contracts.py
+
+      - name: Test result contract evaluator
+        run: python Tests/Static/test_result_contract_evaluator.py
