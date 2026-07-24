@@ -6,11 +6,15 @@ Jede ausführbare Demo verwendet die Verträge aus `Demos/00_Framework/`:
 
 - `FWK-001` für den read-only Preflight,
 - `FWK-002` für Name, Eigentumsmarker und Lifecycle der synthetischen Testdatenbank,
+- `FWK-003` für deterministische synthetische Datenprofile,
+- `FWK-004` für sessionbezogene Baseline-, Demonstrations- und Vergleichsmessungen,
+- `FWK-005` für Plan- und Statistikevidenz,
 - `FWK-008` für Sicherheitsstufe, Bestätigung, Abbruch und Recovery,
 - `FWK-009` als Dokumentstruktur,
+- `FWK-011` für maschinenunabhängige Ergebnisassertionen,
 - `FWK-012` für `PASS`, `WARN`, `SKIP`, `FAIL` und die zugehörigen Codes.
 
-Eine Abweichung ist im Demo-README fachlich zu begründen und durch einen gleichwertigen oder strengeren Test nachzuweisen.
+`FWK-006`, `FWK-007` und `FWK-010` ergänzen diese Basis später um Multi-Session-Orchestrierung, Query-Store-/Extended-Events-Helfer und den vollständigen Runtime-Harness. Eine Abweichung von einem bereits implementierten Vertrag ist im Demo-README fachlich zu begründen und durch einen gleichwertigen oder strengeren Test nachzuweisen.
 
 ## Pflichtangaben
 
@@ -49,7 +53,7 @@ Jede Demo dokumentiert:
 | `60_Comparison.sql` | identische Messung nach der Gegenmaßnahme |
 | `90_Cleanup.sql` | vollständige, wiederholbare Bereinigung und Recovery |
 | `Sessions/` | nummerierte Batches für Multi-Session-Szenarien |
-| `Expected/` | datenschutzgeprüfte, synthetische Erwartungsresultate |
+| `Expected/` | datenschutzgeprüfte, synthetische Erwartungsresultate und `FWK-011`-Verträge |
 
 Nicht jede Demo benötigt jede Datei. Fehlende Phasen sind im README zu begründen. Setup und Cleanup dürfen keine versteckte Abhängigkeit von SQLCMD, einer Steuerdatenbank oder nicht mitgelieferten Objekten besitzen, sofern diese Abhängigkeit nicht ausdrücklich Teil des Demo-Vertrags ist.
 
@@ -62,6 +66,8 @@ SQLPERF_LAB_<DEMO-ID OHNE BINDESTRICH>_<RUN-TOKEN>
 ```
 
 Der Name wird aus kanonischer Demo-ID und synthetischem Run-Token abgeleitet. Vor einer Entfernung müssen die Marker `SQLPERF.Project`, `SQLPERF.ContractVersion`, `SQLPERF.DemoId` und `SQLPERF.RunToken` vollständig und exakt übereinstimmen. Ein passender Name allein genügt nicht.
+
+Der Datenaufbau verwendet keine realen Daten oder nicht deterministischen Zufallsquellen. Derselbe Seed und dieselben Generatorparameter müssen dieselbe fachliche Verteilung erzeugen; physische Page-Verteilung und Laufzeit sind davon ausdrücklich ausgenommen.
 
 ## Sicherheitsstufen
 
@@ -85,16 +91,26 @@ Verändert Instanz- oder Betriebssystemkonfiguration, leert globale Caches, star
 - Einzelläufe nicht als allgemeingültigen Benchmark darstellen.
 - Hardwareabhängige Resultate als empirisch kennzeichnen.
 - Instanzweite DMV-Summen nur als Delta eines definierten Zeitfensters interpretieren.
+- Sessionbezogene Messungen müssen Start und Ende in derselben Session ausführen.
+- Actual Execution Plan und Statistikmetadaten sind Evidenzquellen, aber kein alleiniger Ursachenbeweis.
 - `Wait Type`, Planoperator oder Estimated-/Actual-Abweichung allein ist kein Ursachenbeweis.
+
+## Ergebnisregeln
+
+- Fachliche Invarianten werden als `EXACT` oder `RANGE` geprüft.
+- Performancewirkungen werden bevorzugt als `RATIO_MAX`, `RATIO_MIN` oder `DIRECTION` beschrieben.
+- Absolute Zeitgrenzen sind nur bei technisch kontrolliertem und dokumentiertem Ressourcenprofil zulässig.
+- Fehlende optionale Evidenz kann `SKIP_EVIDENCE_MISSING` ergeben; fehlende verpflichtende Evidenz ist `FAIL_RESULT_CONTRACT`.
+- Die Gesamtergebnispriorität lautet `FAIL > SKIP > WARN > PASS`.
 
 ## Status- und Fehlerregeln
 
 - `PASS`: Prüfung oder Phase erfolgreich.
 - `WARN`: ausführbar, aber Interpretation eingeschränkt.
 - `SKIP`: erwartete Voraussetzung nicht erfüllt; keine zustandsverändernde Folgephase.
-- `FAIL`: Vertrags-, Sicherheits-, Zustands-, Ausführungs- oder Cleanup-Fehler.
+- `FAIL`: Vertrags-, Sicherheits-, Zustands-, Ausführungs-, Ergebnis- oder Cleanup-Fehler.
 
-Ein `SKIP` wird nicht als Engine-Fehler dargestellt. Ein Cleanup-Fehler darf nicht als `SKIP` oder Erfolg kaschiert werden.
+Ein `SKIP` wird nicht als Engine-Fehler dargestellt. Ein Cleanup- oder Ergebnisvertragsfehler darf nicht als `SKIP` oder Erfolg kaschiert werden.
 
 ## Verbote
 
@@ -105,3 +121,4 @@ Ein `SKIP` wird nicht als Engine-Fehler dargestellt. Ein Cleanup-Fehler darf nic
 - Kein `DROP DATABASE` aufgrund eines Namens allein.
 - Keine Beendigung fremder Sessions allein nach Loginname, Application Name oder Hostname.
 - Keine festen, maschinenunabhängig behaupteten Laufzeit- oder Ressourcenschwellen.
+- Keine automatische Persistierung von Plan-XML oder Querytexten als Repository-Artefakt.
