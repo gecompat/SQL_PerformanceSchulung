@@ -49,7 +49,8 @@
 - [x] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen und validieren (`OPT-013`).
 - [x] Gate B mit statischer Prüfung und 24 vollständigen Pilotläufen abnehmen.
 - [ ] Query Store und Extended Events als zentrale Diagnosepfade in Pilotdemos validieren.
-- [ ] Vorhandene Beispiele nach weiterverwendbar, zu ergänzen oder neu aufzubauen klassifizieren.
+- [x] `W2-001` Bestandsbeispiele vollständig als `REUSE`, `REFACTOR`, `REBUILD`, `DIAGNOSTIC_ONLY` oder `REMOVE` klassifizieren und kanonischen Demo-IDs zuordnen.
+- [ ] `W2-002` interne und externe Datenabhängigkeiten der priorisierten Migrationskandidaten entfernen.
 - [x] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
 - [x] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
 - [x] Die vier aktiven `REFINE`-Claims in `W2-007` fachlich korrigieren, mit Notes/Quellen synchronisieren und gegen den aktiven Foliensatz validieren.
