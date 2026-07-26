@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `GREEN` |
 | Zielversionen | SQL Server 2019, 2022 und 2025 |
 | Compatibility Level | 150, 160 und 170 |
@@ -10,6 +10,7 @@
 | Sessions | 1 |
 | Laufzeitklasse | M |
 | Testprofil | `TP-ADV-PLAN` |
+| Runtime-Abnahme | SQL Server 2019, 2022 und 2025; je Version zwei vollständige Läufe |
 
 ## 1. Lernziel
 
@@ -64,7 +65,7 @@ Alle Daten, Prozeduren und Evidenzzeilen liegen in der markergebundenen Testdate
 
 ## 11. Tests
 
-Die statische Prüfung kontrolliert Phasenvertrag, Marker, Quellen, Plan-Evidenz, verbotene globale Aktionen und die Nichtpersistenz von Plan XML. Die Runtime-Matrix führt die Demo auf SQL Server 2019, 2022 und 2025 wiederholt aus und prüft Kardinalitätsrichtung, Statistics Usage, Query Hash, Ergebnisequivalenz und vollständiges Cleanup.
+Die statische Prüfung kontrolliert Phasenvertrag, Marker, Quellen, Plan-Evidenz, verbotene globale Aktionen und die Nichtpersistenz von Plan XML. Die Runtime-Matrix führte die Demo auf SQL Server 2019, 2022 und 2025 jeweils zweimal aus und bestätigte Kardinalitätsrichtung, Statistics Usage, Query Hash, Ergebnisequivalenz und vollständiges Cleanup.
 
 ## 12. Bekannte Grenzen
 
