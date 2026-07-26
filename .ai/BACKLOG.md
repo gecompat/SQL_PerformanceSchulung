@@ -65,8 +65,19 @@
 - [ ] `ADV-006` LAB-VP3 und LAB-VP4 einschließlich Versions-, Compatibility-Level- und Skip-Matrix entwerfen.
 - [ ] `ADV-007` LAB-VP5 und `DGN-007` als vollständigen Diagnosefall entwerfen.
 - [ ] `ADV-008` freigegebene Vertiefungsdemos in kleinen, unabhängigen PRs implementieren und validieren.
-- [ ] `ADV-009` Präsentation, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren.
+- [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
 - [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
+
+## P1 - Masterdeck und Präsentationsvarianten
+
+- [x] `DEC-043` Kanonisches Masterdeck und reproduzierbar abgeleitete Tiefenprofile verbindlich entscheiden.
+- [x] Architekturplan für `BASIS`, `STANDARD` und `VERTIEFUNG` einschließlich Custom Shows, eigenständiger `.pptx`-Ableitung und Qualitätsgates erstellen.
+- [ ] `PRS-011` SlideKey- und JSON-Variantenmanifest-Vertrag definieren.
+- [ ] `PRS-012` Masterdeck mit stabilen SlideKeys und den Custom Shows `BASIS`, `STANDARD` und `VERTIEFUNG` ausstatten.
+- [ ] `PRS-013` kontrollierten interaktiven Build eigenständiger `.pptx`-Varianten aus einer Kopie des Masterdecks implementieren.
+- [ ] `TST-011` statischen Validator für Manifest, SlideKeys, Custom Shows, Abhängigkeiten, Links, Quellen und Demo-IDs implementieren.
+- [ ] `TST-012` Render-, Notes-, Metadaten-, Privacy- und Branding-Abnahme für jede freigegebene Variante implementieren.
+- [ ] Trainer-Runbook um Auswahl und Start der Custom Shows sowie Erzeugung eigenständiger Varianten ergänzen.
 
 ## P2 - Reproduktion und Testmatrix
 
@@ -77,7 +88,7 @@
 - [ ] Hyper-V nur für nachweislich Windows-, Storage- oder OS-nahe Demos planen.
 - [x] Wiederholbare Concurrency-Prozesssteuerung ohne proprietäre Abhängigkeiten implementieren und mit realen parallelen SQL-Sessions validieren.
 - [x] Hardwareabhängige Erwartungswerte als Invarianten, Richtungen, Verhältnisse oder begründete Bandbreiten statt Fixwerte definieren.
-- [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister und Lernzielen synchronisieren.
+- [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister, Lernzielen und Tiefenprofilen synchronisieren.
 - [x] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
 
 ## Erledigungsregel
