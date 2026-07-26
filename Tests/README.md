@@ -75,11 +75,37 @@ Der validierte Lauf `30108023315` führte folgende Piloten je Version zweimal vo
 
 Damit wurden insgesamt 24 vollständige Demoläufe ausgeführt. Nach jedem Lauf prüft der Testtreiber unabhängig über `master`, dass die markierte Testdatenbank nicht mehr vorhanden ist. Statische Verträge, alle Runtimejobs und alle Containerentfernungen waren erfolgreich.
 
+## ADV-008 – Runtime-Matrix für OPT-015 und OPT-016
+
+Der Workflow `.github/workflows/adv008-opt015-opt016.yml` prüft zuerst:
+
+```bash
+python Tests/Static/validate_adv008_opt015_opt016.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
+
+```bash
+python Tests/Runtime/run_adv008_opt015_opt016.py \
+  --container <ephemerer-container> \
+  --expected-major <15|16|17>
+```
+
+Der validierte Lauf `30218788526` führte `OPT-015` und `OPT-016` je Version zweimal vollständig aus. Damit wurden zwölf Demoläufe validiert. Nach jedem Lauf prüft der Treiber über `master`, dass die markergebundene Testdatenbank entfernt wurde.
+
+| Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
+|---|---|---|---:|
+| `OPT-015` | `GREEN` | Estimated/Actual Rows, Actual Rows Read, Statistics Usage, identische Ergebnismenge und verbesserte Schätzrichtung | 2 |
+| `OPT-016` | `GREEN` | Outer References, hintfreie Spool-Planform, Rebind-/Rewind-Richtung, kontrollierte No-Spool-Gegenprobe und Ergebnisequivalenz | 2 |
+
+`OPT-016` wurde während der Abnahme an die beobachtete Optimizerentscheidung angepasst. Der passende Index verhinderte die Performance Spool nicht zuverlässig. Baseline und Vergleich verwenden deshalb `NO_PERFORMANCE_SPOOL` ausschließlich als explizite Gegenprobe; die untersuchte Problemabfrage bleibt hintfrei.
+
 ## Datenschutz und Laufzeitumgebung
 
 Die Matrizen verwenden pro Job eine ephemere Developer-Instanz ohne Host-Port und ohne persistentes Volume. Das Kennwort wird zur Laufzeit erzeugt, maskiert und nicht in Dateien oder Prozessargumenten gespeichert. Kurzlebige Diagnoseartefakte besitzen eine begrenzte Aufbewahrungsdauer und enthalten ausschließlich synthetische Phasen-, Kategorien- und Fehlerausgaben.
 
-Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixreview](../Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md), im [Gate-B-Review](../Documentation/Project_Planning/GATE_B_REVIEW.md) und im [Privacy-Prüfverfahren](../Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md).
+Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixreview](../Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md), im [Gate-B-Review](../Documentation/Project_Planning/GATE_B_REVIEW.md), im [ADV-008-Review](../Documentation/Project_Planning/ADV_008_OPT_015_016_REVIEW.md) und im [Privacy-Prüfverfahren](../Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md).
 
 ## Toolklassifikation
 
@@ -90,8 +116,8 @@ Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixr
 
 ## Nächste Prüfbereiche
 
+- `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` auf SQL Server 2019, 2022 und 2025,
 - Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden,
-- erste `ADV-008`-Runtime-Schnitte auf SQL Server 2019, 2022 und 2025,
 - statische Variantenprüfung für SlideKeys, Custom Shows und Präsentationsmanifest,
 - Windows- oder OS-spezifische Profile nur bei konkreter Demoabhängigkeit,
 - Releasevalidierung mit dokumentierten Containerdigests oder CU-Ständen,
