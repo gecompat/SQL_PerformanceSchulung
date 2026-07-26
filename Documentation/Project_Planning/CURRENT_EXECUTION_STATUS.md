@@ -4,70 +4,64 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-07-26 |
-| Geprüfter Ausgangs-`main` | `cbe6ca52229fe57f5043595d68fbdcbb36c00045` |
-| Abnahmewelle | `ADV-003`, `TST-002` |
-| Zweck | kanonischer operativer Einstiegspunkt und Korrektur historischer Statusmarker im Masterplan |
+| Geprüfter Ausgangscommit auf `origin/main` | `1849e2207c67a062cd33e91b184cdc192a784a37` |
+| Aktuelle Verarbeitungswelle | `ADV-004`, `ADV-005` |
+| Zweck | kanonischer operativer Einstiegspunkt für die nächste Verarbeitung |
 
-## 1. Geltung
+## 1. Verifizierter Repository-Stand
 
-Dieses Dokument ist der kanonische operative Status für die Wiederaufnahme der Arbeiten. Die langfristige Struktur und die fachlichen Arbeitspakete bleiben im [Master-Umsetzungsplan](MASTER_IMPLEMENTATION_PLAN.md) verbindlich. Widersprechen dessen historische Abschnitte 18 oder 20 diesem Status, gilt für Fortschritt, nächsten Einstiegspunkt und Blocker dieses Dokument, bis der Masterplan vollständig konsolidiert wird.
+Der Commit `1849e2207c67a062cd33e91b184cdc192a784a37` ist auf `origin/main` vorhanden. Er enthält `ADV-003`, `TST-002`, 52 beobachtbare Lernziele, die Zuordnung der 39 Vertiefungsclaims sowie den aktiven Privacy- und Metadaten-Workflow.
 
-## 2. Abgeschlossener Stand
+Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die SQL-Server-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `ADV-001` bis `ADV-003`, `PRS-009`, `PRS-011` und `TST-002` sind validiert.
 
-- Welle 0 und Gate A sind validiert.
-- `FWK-001` bis `FWK-012` sind implementiert und auf SQL Server 2019, 2022 und 2025 runtime-validiert.
-- Gate B ist mit `QRY-001`, `OPT-002`, `CON-004` und `OPT-013` sowie 24 vollständigen Demoläufen validiert.
-- Die SQL-Server-Matrix 2019/2022/2025 ist aktiv und erfolgreich ausgeführt.
-- `W2-001` hat alle historischen Beispiele klassifiziert; kein historisches Skript ist dadurch zur direkten Ausführung freigegeben.
-- `W2-007` ist abgeschlossen. Der aktive Foliensatz besitzt 84 `KEEP`-Entscheidungen und keine offenen `REFINE`-Claims.
-- `ADV-001` und `ADV-002` haben Vertiefungsstrang, fünf LAB-Serien und 39 quellenklassifizierte Claims festgelegt.
-- `ADV-003` hat neun beobachtbare Vertiefungslernziele ergänzt und alle 39 Claims eindeutig in Curriculum und Traceability eingeordnet. Gate V0 und Gate V1 sind validiert.
-- `DEC-043`, `PRS-009` und `PRS-011` haben Masterdeck, Tiefenprofile, SlideKey- sowie Variantenmanifest-Vertrag festgelegt.
-- `TST-002` stellt eine SQL-Server-unabhängige Privacy- und Metadatenprüfung mit synthetischen Selbsttests und GitHub-Actions-Gate bereit.
-
-## 3. Validierte zweite Prioritätswelle
+## 2. Abgeschlossene Designwelle
 
 | Arbeitspaket | Ergebnis | Status |
 |---|---|---|
-| `ADV-003` | 52 gesamte Lernziele; davon neun neue Vertiefungslernziele für M02, M03, M06 und M07 | `VALIDATED` |
-| Traceability | 84 aktive Claims unverändert; 39 geplante Vertiefungsclaims mit Lernziel, Quelle, Demo/LAB und Testprofil | `VALIDATED` |
-| `TST-002` | Text-, Office-, Archiv-, Metadata-, Secret- und Medien-Gate ohne Ausgabe gefundener Schutzwerte | `VALIDATED` |
-| Qualitätsworkflow | Curriculum-, Scanner-Selbsttest-, Repository-Privacy-, Framework- und Präsentationsprüfung | `PASS` |
+| `ADV-004` | LAB-VP1 sowie `OPT-015`, `OPT-016` und `OPT-017` vollständig entworfen | `VALIDATED` |
+| `ADV-005` | LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entworfen | `VALIDATED` |
 
-Der Privacy-Scanner ersetzt keine visuelle Einzelprüfung, kein OCR für texttragende Medien und keinen Rendervergleich. Neue oder geänderte Medien bleiben bis zum manuellen Nachweis blockiert.
+Die Designwelle erzeugt keine ausführbaren SQL-Demos. Sie legt verbindlich fest:
 
-## 4. Unmittelbar nächste ausführbare Arbeiten
+- synthetische Datenmodelle und Skalierungsprofile,
+- Preflight, Setup, Baseline, Problem- beziehungsweise Kontrastzustand, Evidenz, Gegenprobe, Vergleich und Cleanup,
+- Sicherheitsstufen und Mindestressourcen,
+- Quellen-, Claim- und Lernzielzuordnung,
+- versionsabhängige `PASS`- und `SKIP`-Verträge,
+- kleine spätere Implementierungsschnitte für `ADV-008`.
 
-Die folgenden Stränge können nach dieser Welle parallel begonnen werden:
+## 3. Freigegebene fachliche Folgearbeit
 
-1. `ADV-004`: LAB-VP1 sowie `OPT-015` bis `OPT-017` vollständig entwerfen.
-2. `ADV-005`: LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entwerfen.
-3. `PRS-012` und `TST-011`: Masterdeck mit stabilen SlideKeys und Custom Shows ausstatten und statisch validieren.
-4. `W2-002`: die neun priorisierten W2-A-Migrationen in fachlich getrennte, validierbare Teilpakete schneiden und neutralisieren.
-5. Query Store und Extended Events als zentrale Diagnosepfade in repräsentativen Demos validieren.
-6. Entscheidungspfad `TSQL_TESTDB` vor `CONTAINER` beziehungsweise `HYPERV` im Demo-Katalog verbindlich abbilden.
+Nach dieser Welle sind folgende Pakete ausführbar:
+
+1. `ADV-006`: LAB-VP3 und LAB-VP4 zu Workspace Memory, Spills und Intelligent Query Processing entwerfen.
+2. `ADV-007`: LAB-VP5 und `DGN-007` als vollständigen Incident- und Capstone-Fall entwerfen.
+3. Erste Implementierungsschnitte aus `ADV-008` dürfen erst begonnen werden, wenn der jeweilige Designvertrag Gate V2 erfüllt und die zugehörige Testmatrix feststeht.
+
+`OPT-015`, `OPT-016`, `OPT-017`, `QRY-013` und die neue `QRY-004`-Struktur sind damit entworfen, aber ausdrücklich noch nicht `IMPLEMENTED` oder runtime-validiert.
+
+## 4. Parallel ausführbare Querschnittsarbeit
+
+Unabhängig von `ADV-006` und `ADV-007` bleiben ausführbar:
+
+- `PRS-012` und `TST-011`: SlideKeys, Custom Shows und statische Präsentationsvariantenprüfung,
+- fachlich getrennte `W2-002`-Teilpakete,
+- Query-Store-/Extended-Events-Pilotvalidierung,
+- Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog,
+- Testumgebungs-How-to für vorhandene Instanz sowie Docker/Podman.
 
 ## 5. Abhängigkeiten
 
-- `ADV-004` und `ADV-005` verwenden die validierten Claims und Lernziele; beide können parallel entworfen werden.
-- `ADV-006` setzt die Feature- und Evidenzentscheidungen aus den vorangehenden Designpaketen sowie den Query-Store-/XE-Nachweis voraus.
-- `ADV-007` setzt mindestens die Designs von `QRY-013`, `DGN-003` und `DGN-005` voraus.
-- `ADV-008` setzt Gate V2 des jeweils umzusetzenden LABs voraus.
-- `ADV-009` setzt belastbare Demo-Evidenz sowie `PRS-012` voraus.
+- `ADV-008` setzt den jeweils zutreffenden Designvertrag aus `ADV-004` bis `ADV-007` und Gate V2 voraus.
+- `ADV-009` setzt belastbare Runtime-Evidenz und die Präsentationsvariantenverträge voraus.
 - `PRS-013` setzt `PRS-012` und den statischen Kern von `TST-011` voraus.
-- `TST-012` setzt erzeugte Varianten aus `PRS-013` voraus.
-- `W2-003` bis `W2-006` setzen die jeweils betroffene Neutralisierung aus `W2-002` voraus.
-- Ressourcengrenzen, Hyper-V- oder Netzwerkprofile werden nur nach einer konkreten Demo-Abhängigkeit bearbeitet.
+- `W2-003` bis `W2-006` setzen die jeweils zugehörige Neutralisierung aus `W2-002` voraus.
+- Rote Ressourcen- und I/O-Demos benötigen eine konkret zugeordnete isolierte Testumgebung.
 
 ## 6. Aktuelle Blocker
 
-Es besteht kein globaler technischer Blocker. Die folgenden Abhängigkeiten begrenzen einzelne Stränge:
+Es besteht kein globaler technischer Blocker. Planformabhängige Demos besitzen kontrollierte Skip-Verträge, wenn eine bestimmte Optimizerentscheidung trotz geeignetem Datenprofil nicht erzeugt wird. PSP- und OPPO-Demos dürfen fehlende Eligibility nicht als Produktfehler behandeln.
 
-- Vertiefungsdemos dürfen erst nach dem jeweiligen Design und Gate V2 implementiert werden.
-- Eigenständige Präsentationsvarianten dürfen erst nach stabiler Folienidentität und Manifestvalidierung erzeugt werden.
-- Rote Ressourcen- und I/O-Demos benötigen eine ausdrücklich zugeordnete isolierte Testumgebung.
-- Medien- und Office-Releases benötigen zusätzlich zum automatischen Scanner visuelle, OCR- und Renderabnahme.
+## 7. Datenschutz- und Quellenstatus
 
-## 7. Datenschutzstatus
-
-Die in dieser Welle erzeugten Repository-Artefakte enthalten ausschließlich öffentliche technische Quellen-IDs, neutrale Projekt-, Claim-, Lernziel- und Demo-IDs sowie synthetische Scannerfälle. Findings werden nur nach Pfad, Kategorie und Anzahl ausgegeben. Reale Diagnosewerte, Hostnamen, Zugangsdaten, Kundeninformationen, interne Pfade oder proprietäre Umgebungsinformationen werden nicht persistiert.
+Die Designartefakte enthalten ausschließlich synthetische Objektmodelle, öffentliche Quellen-IDs, neutrale Demo- und Claim-IDs sowie generische Ressourcenprofile. Reale Anwendungs-, Host-, Benutzer-, Kunden-, Zugangs- oder Diagnosedaten sind ausgeschlossen. Jede spätere technische Aussage bleibt an die in `ADV-002` festgelegte Evidenzklasse und Quellenzuordnung gebunden.
