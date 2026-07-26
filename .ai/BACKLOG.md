@@ -66,8 +66,8 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] `ADV-003` Curriculum um neun Vertiefungslernziele erweitern und alle 39 Claims in der Traceability-Matrix zuordnen.
 - [x] `ADV-004` LAB-VP1 sowie `OPT-015` bis `OPT-017` vollständig entwerfen und den Designvertrag statisch validieren.
 - [x] `ADV-005` LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entwerfen und den Designvertrag statisch validieren.
-- [ ] `ADV-006` LAB-VP3 und LAB-VP4 einschließlich Versions-, Compatibility-Level- und Skip-Matrix entwerfen.
-- [ ] `ADV-007` LAB-VP5 und `DGN-007` als vollständigen Diagnosefall entwerfen.
+- [x] `ADV-006` LAB-VP3 und LAB-VP4 einschließlich Ressourcen-, Versions-, Compatibility-Level-, Query-Store- und Skip-Matrix vollständig entwerfen und statisch validieren.
+- [x] `ADV-007` LAB-VP5 und `DGN-007` als vollständigen Diagnose- und Capstone-Fall mit Hypothesen-, Evidenz-, Vergleichs- und Rückfallvertrag entwerfen und statisch validieren.
 - [ ] `ADV-008` freigegebene Vertiefungsdemos in kleinen, unabhängigen PRs implementieren und validieren.
 - [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
 - [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
