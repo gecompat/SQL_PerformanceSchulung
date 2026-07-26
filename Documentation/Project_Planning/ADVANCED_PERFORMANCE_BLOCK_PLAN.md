@@ -2,14 +2,15 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `ADV-001` |
-| Status | `PLANNED` |
-| Planversion | 1.0 |
+| Arbeitspakete | `ADV-001` bis `ADV-010` |
+| Status | `IN_PROGRESS` |
+| Planversion | 1.1 |
 | Stand | 2026-07-26 |
 | Zielplattform | SQL Server 2019, 2022 und 2025 |
 | Curriculumbezug | M02, M03, M06 und M07 |
 | Standard-Ausführungspfad | T-SQL in einer isolierten synthetischen Testdatenbank |
 | Quellenbasis | Microsoft Learn, SQLServerFast, Paul White, Erland Sommarskog, Brent Ozar und Erik Darling |
+| Claim- und Quellenmatrix | [`ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md`](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
 
 ## 1. Zweck und Entscheidung
 
@@ -32,6 +33,8 @@ Für den Vertiefungsstrang gelten folgende Regeln:
 5. Ein Effekt aus einem Einzeltest wird nicht als allgemeine Regel formuliert. Erwartet werden Invarianten, Richtungen, Verhältnisse oder begründete Bandbreiten.
 6. Bei Widerspruch zwischen Primärquelle, Community-Quelle und Runtime-Evidenz wird der Widerspruch im Konflikt- und Entscheidungslog dokumentiert. Eine stillschweigende Auflösung ist unzulässig.
 7. Versionsabhängige Aussagen nennen Engine-Version, Compatibility Level, Datenbankkonfiguration und gegebenenfalls Query-Store-Voraussetzungen getrennt.
+
+Die konkrete Einstufung der 39 geplanten Vertiefungsclaims ist seit `ADV-002` in der [Claim- und Quellenmatrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) verbindlich.
 
 ## 3. Fachliche Vertiefungsabschnitte
 
@@ -172,15 +175,15 @@ Die Curriculumarchitektur wird um folgende Lernziele ergänzt. Die endgültige N
 
 | ID | Größe | Status | Arbeit | Abschlusskriterium |
 |---|---:|---|---|---|
-| `ADV-001` | M | `PLANNED` | quellenbasierten Integrationsplan erstellen und im Repository verankern | Plan, Quellenregister und Backlog sind konsistent verknüpft |
-| `ADV-002` | M | `PROPOSED` | Aussagen- und Quellenmatrix für alle Vertiefungsabschnitte erstellen | jede geplante Kernaussage besitzt Primärquelle oder klar gekennzeichnete ergänzende Evidenz |
+| `ADV-001` | M | `VALIDATED` | quellenbasierten Integrationsplan erstellen und im Repository verankern | Plan, Quellenregister und Backlog sind konsistent verknüpft |
+| `ADV-002` | M | `VALIDATED` | Aussagen- und Quellenmatrix für alle Vertiefungsabschnitte erstellen | 39 Claims besitzen Evidenzklasse, Quellen, Versionsgrenze und Abnahmebedingung |
 | `ADV-003` | M | `PROPOSED` | Curriculum, Lernziele und Traceability-Matrix erweitern | M02/M03/M06/M07 enthalten die neuen Lernziele ohne Bruch des Kernpfads |
 | `ADV-004` | L | `PROPOSED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Setup, Baseline, Evidenz, Mitigation, Comparison, Cleanup und Tests sind festgelegt |
 | `ADV-005` | L | `PROPOSED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Anwendungskontext und alle Strategien sind reproduzierbar und sicher vergleichbar |
 | `ADV-006` | L | `PROPOSED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Featurematrix, erwartete Skips und Messgrößen sind vollständig |
 | `ADV-007` | L | `PROPOSED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Recovery ist vollständig |
 | `ADV-008` | XL | `PROPOSED` | Demos in kleinen unabhängigen PRs implementieren und testen | jede Demo erreicht mindestens `IMPLEMENTED`; grüne Demos bestehen die Zielmatrix |
-| `ADV-009` | L | `PROPOSED` | Präsentation, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug und Versionsgrenze |
+| `ADV-009` | L | `PROPOSED` | Masterdeck, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug, Versionsgrenze und Tiefenprofil |
 | `ADV-010` | M | `PROPOSED` | Vertiefungsstrang fachlich und didaktisch abnehmen | Quellenreview, Runtime-Evidenz, Generalprobe und Traceability sind vollständig |
 
 ## 7. Gates
@@ -191,6 +194,8 @@ Die Curriculumarchitektur wird um folgende Lernziele ergänzt. Die endgültige N
 - Copyright- und Wiederverwendungsgrenzen sind dokumentiert.
 - Jede undokumentierte Internalaussage besitzt die Evidenzklasse `EMPIRICAL` oder `INFERENCE`.
 - Veraltete versionsbezogene Beiträge sind gegen aktuelle Microsoft-Dokumentation geprüft.
+
+Die Quellenklassifikation ist durch `ADV-002` vorbereitet. Gate V0 wird formal gemeinsam mit `ADV-003` abgenommen, sobald jeder Claim einem Lernziel und Traceability-Eintrag zugeordnet ist.
 
 ### Gate V1 – Curriculumfreigabe
 
@@ -222,7 +227,7 @@ Die Curriculumarchitektur wird um folgende Lernziele ergänzt. Die endgültige N
 
 ## 8. Priorisierung
 
-P0 umfasst `ADV-002` bis `ADV-005`. Ohne belastbare Planmechanik und anwendungsnahe Parameterdiagnose bleibt der Vertiefungsstrang fragmentiert. P1 umfasst Workspace Memory, IQP-Vergleich und den Capstone-Fall. P2 umfasst Spezialfälle wie detaillierte Sortimplementierungen, seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna. P2-Inhalte werden nur umgesetzt, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
+`ADV-002` ist abgeschlossen. Die verbleibende höchste Priorität bilden `ADV-003`, `ADV-004` und `ADV-005`. Ohne Curriculumfreigabe, belastbare Planmechanik und anwendungsnahe Parameterdiagnose bleibt der Vertiefungsstrang fragmentiert. P1 umfasst anschließend Workspace Memory, IQP-Vergleich und den Capstone-Fall. P2 umfasst Spezialfälle wie detaillierte Sortimplementierungen, seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna. P2-Inhalte werden nur umgesetzt, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
 
 ## 9. Mindestanforderungen an die Testumgebung
 
@@ -244,4 +249,4 @@ Die verbindlichen projektweiten Quellen-IDs werden in `Documentation/Research/SO
 
 ## 11. Nächster ausführbarer Schritt
 
-Nach Merge dieses Plans ist `ADV-002` der nächste Schritt. Dabei wird keine Präsentation geändert und noch kein neues SQL-Skript implementiert. Zuerst entsteht eine Claim- und Quellenmatrix, die für jeden Vertiefungsabschnitt festlegt, welche Aussagen dokumentiert, empirisch oder inferiert sind, welche bestehenden Demo-IDs erweitert werden und welche neuen IDs nach Gate V1 tatsächlich erforderlich bleiben.
+Der nächste fachliche Schritt ist `ADV-003`. Die 39 Claims aus `ADV-002` werden in beobachtbare Lernziele, Curriculumabschnitte und Traceability-Zeilen überführt. Danach können `ADV-004` und `ADV-005` parallel beginnen. Es werden weiterhin keine neuen Folien oder SQL-Demos implementiert, bevor Gate V1 und der jeweilige Demo-Designvertrag vorliegen.
