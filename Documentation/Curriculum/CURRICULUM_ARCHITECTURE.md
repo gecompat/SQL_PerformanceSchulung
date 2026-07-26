@@ -2,12 +2,14 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspakete | `CUR-001`, `CUR-002`, `CUR-003`, `CUR-004`, `CUR-009`, `CUR-010` |
+| Arbeitspakete | `CUR-001`, `CUR-002`, `CUR-003`, `CUR-004`, `CUR-009`, `CUR-010`, `ADV-003` |
 | Status | `VALIDATED` |
-| Stand | 2026-07-24 |
+| Stand | 2026-07-26 |
 | Aktiver Foliensatz | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
-| Folienumfang | 84 |
-| Aussagenbasis | [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md) |
+| Aktive Folien | 84 |
+| Beobachtbare Lernziele | 52 |
+| Geplante Vertiefungsclaims | 39 |
+| Aussagenbasis | [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md) und [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
 | Nachverfolgbarkeit | [Traceability-Matrix](TRACEABILITY_MATRIX.md) |
 
 ## 1. Kommunikations- und Kompetenzziel
@@ -32,6 +34,8 @@ Nicht vorausgesetzt werden Kenntnisse der Storage Engine, des Cardinality Estima
 `KERN` bezeichnet Inhalte, die für alle Zielgruppen erforderlich sind. `VERTIEFUNG` erweitert denselben Lernpfad um Internals, Versionsgrenzen oder betrieblich anspruchsvollere Evidenz. Die Vertiefung ist kein getrenntes Curriculum und darf keine Begriffe voraussetzen, die im Kernpfad noch nicht eingeführt wurden.
 
 Ein Modul darf gekürzt werden, wenn alle als `KERN` markierten Lernziele erhalten bleiben und spätere Module keine ausgelassene Vertiefung voraussetzen. Demo-IDs kennzeichnen geplante Evidenz, nicht automatisch eine Pflichtvorführung in jeder Durchführungsvariante.
+
+Die neun durch `ADV-003` ergänzten Lernziele sind ausschließlich `VERTIEFUNG`. Sie präzisieren M02, M03, M06 und M07 und verändern weder Reihenfolge noch Vollständigkeit des Kernpfads.
 
 ## 4. Modulfolge und Abhängigkeiten
 
@@ -80,6 +84,10 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | `LO-M02-05` | VERTIEFUNG | Requested, Granted und Used Memory sowie Spill-Evidenz für Sort/Hash unterscheiden | Undergrant, Overgrant und Server-Memory-Pressure nicht miteinander verwechseln |
 | `LO-M02-06` | VERTIEFUNG | Tasks, Workers, Exchanges und Parallel Skew in einem parallelen Plan untersuchen | ungleich verteilte Arbeit anhand operatorbezogener Laufzeitevidenz nachweisen |
 | `LO-M02-07` | VERTIEFUNG | Plan Reuse, Parameter Sensitivity und IQP-Funktionen einschließlich Versionsvoraussetzungen trennen | eine geeignete Strategie auswählen, ohne Recompile, PSP oder Feedback pauschal zu empfehlen |
+| `LO-M02-08` | VERTIEFUNG | planweite und operatorbezogene Eigenschaften sowie Kostenmodell und Runtime-Evidenz voneinander unterscheiden | einen unbekannten Actual Plan entlang Datenfluss, Kardinalitäten, Ausführungsanzahl und Warnungen untersuchen, ohne den grafisch teuersten Operator als Beweis zu verwenden |
+| `LO-M02-09` | VERTIEFUNG | Rebinds, Rewinds, Outer References, Spools und parallele Planbereiche als zusammenhängende Planmechanik erklären | Wiederverwendung, Aufbaukosten, Threads und Operatorzeiten anhand eines reproduzierten Plans belegen und pauschale Fehlerurteile verwerfen |
+| `LO-M02-10` | VERTIEFUNG | Row Goals sowie logische Semi-/Anti-Join-Formen von der physischen Planform trennen | ein Row Goal erkennen, seine frühe Trefferannahme mit tatsächlicher Arbeit vergleichen und einen deaktivierenden Hint nur als kontrollierte Gegenprobe verwenden |
+| `LO-M02-11` | VERTIEFUNG | IQP-Verfügbarkeit und -Wirkung nach Engine-Version, Compatibility Level, Konfiguration, Query Store und Eligibility prüfen | für Deferred Compilation, Interleaved Execution, UDF Inlining, Batch Mode und Feedbackmechanismen Voraussetzungen, Planbeleg und erwarteten `SKIP` dokumentieren |
 
 ### M03 – Query Patterns
 
@@ -91,6 +99,8 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | `LO-M03-04` | KERN | CTE, Temp Table, Table Variable, Inline TVF, MSTVF und Scalar UDF nach Optimierersichtbarkeit unterscheiden | Materialisierung, Statistiken und Inlining nicht als ausnahmslose Produkteigenschaft behaupten |
 | `LO-M03-05` | VERTIEFUNG | Partition Elimination und Remote Pushdown als im tatsächlichen Plan nachzuweisende Eigenschaften prüfen | lokale Restarbeit und tatsächlich reduzierte Remote-/Partitionsarbeit unterscheiden |
 | `LO-M03-06` | KERN | einen Query-Rewrite als einzelne Hypothese mit identischer Baseline und Vergleichsmessung durchführen | Korrektheit, Arbeit pro Ergebnis und Nebenwirkungen gemeinsam bewerten |
+| `LO-M03-07` | VERTIEFUNG | Unterschiede zwischen Anwendung und SSMS über Cachekontext, SET-Optionen, Parameterwerte, Datenbankkontext und Datenzustand untersuchen | mindestens vier Kontextdimensionen vergleichen und eine voreilige Ein-Ursachen-Hypothese anhand widersprechender Evidenz verwerfen |
+| `LO-M03-08` | VERTIEFUNG | Parameter, lokale Variablen, Literale, Recompile, sicher parameterisiertes dynamisches SQL, PSP und OPPO nach Information, Sicherheit und Wiederverwendung vergleichen | für dieselbe Ergebnismenge eine sichere Strategie auswählen und Compilekosten, Planvarianten sowie Versionsvoraussetzungen nachweisen |
 
 ### M04 – Rowstore- und Columnstore-Indizes
 
@@ -124,6 +134,8 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | `LO-M06-04` | KERN | Query Store, Extended Events und DMVs nach Historie, Ereignis und Livezustand auswählen | für Regression, Deadlock und aktuelle Blockierung jeweils den geeigneten Pfad wählen |
 | `LO-M06-05` | KERN | eine Outside-in-Diagnose von Nutzerzeit über Systemsignal und Query bis zur Operatorursache durchführen | lokales Query-Tuning bei systemfremder Ursache begründet verwerfen |
 | `LO-M06-06` | KERN | einen Vorher-/Nachher-Vergleich mit identischem Workload-, Cache-, Daten- und Messzustand entwerfen | Ergebnis als dokumentiert oder empirisch kennzeichnen und Messgrenzen angeben |
+| `LO-M06-07` | VERTIEFUNG | Required, Desired, Requested, Granted und Used Memory sowie Spill, Undergrant, Overgrant und Grant-Warten als getrennte Zustände korrelieren | Plan, Grant-DMV, Wait-Scope, konkurrierenden Workload und TempDB-Folge derselben Untersuchung zuordnen |
+| `LO-M06-08` | VERTIEFUNG | DMV-Livezustand, kumulative Waits, Query-Store-Historie und Extended-Events-Ereignisse nach Zeit- und Aussageebene kombinieren | für einen Incident Zeitraum, Scope, Capture-Zustand und bestätigende Gegenprobe dokumentieren, ohne fehlende Ereignisse als Nichtauftreten zu interpretieren |
 
 ### M07 – Synthese und Transfer
 
@@ -132,6 +144,7 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | `LO-M07-01` | KERN | die Diagnoseprinzipien auf einen unbekannten Fall anwenden | eine vollständige Evidenzkette mit genau einer überprüfbaren Änderung erstellen |
 | `LO-M07-02` | KERN | den nächsten Untersuchungsschritt aus fehlender Evidenz ableiten | Beobachtung, Hypothese, Messung, Abbruch und Rückfallplan dokumentieren |
 | `LO-M07-03` | KERN | Quelle, Produktversion, Aussage, empirisches Ergebnis und Entscheidung nachverfolgbar halten | eine Aussage bis Quelle, Folie, Demo und Testziel zurückverfolgen |
+| `LO-M07-04` | VERTIEFUNG | einen Performance-Incident mit mehreren plausiblen Hypothesen untersuchen und genau eine begründete Variable verändern | mindestens zwei Alternativhypothesen durch fehlende oder widersprechende Evidenz verwerfen und Baseline, Vergleich, Nebenwirkung sowie Rückfallplan vollständig dokumentieren |
 
 ## 6. Modulübergreifender Diagnoseleitfaden
 
@@ -146,6 +159,7 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | 7. genau eine begründete Änderung durchführen | M03, M04 | M05–M07 |
 | 8. unter vergleichbaren Bedingungen erneut messen | M00 | alle Demos und M07 |
 | 9. Nebenwirkungen, Betriebskosten und Versionsgrenzen bewerten | M00 | M01–M07 |
+| 10. zeitliche Evidenz aus Livezustand, Historie und Ereignissen abgleichen | M06 | M07 und Capstone-LABs |
 
 ## 7. Rollenmodell der Unterlagen
 
@@ -160,6 +174,8 @@ Eine fachliche Kernaussage muss auf der Projektionsfolie korrekt sein. Notes und
 
 ## 8. Abnahme und Grenzen
 
-Die 84 Folien sind genau einem Primärmodul und mindestens einem Lernziel zugeordnet. Die vier Aussagen mit Status `REFINE` bleiben in der Traceability-Matrix sichtbar und benötigen vor einer Präsentationsfreigabe die dokumentierte Korrektur in `W2-007`. Die curriculare Zuordnung bewertet weder die noch nicht implementierten Demos noch deren Runtime-Verhalten als bestanden.
+Die 84 aktiven Folien sind genau einem Primärmodul und mindestens einem der bisher verwendeten Lernziele zugeordnet. `W2-007` hat alle früheren `REFINE`-Entscheidungen abgeschlossen; der aktive Bestand besitzt 84 `KEEP`-Claims.
 
-`CUR-001` bis `CUR-004`, `CUR-009` und `CUR-010` sind für die Planungsbasis `VALIDATED`. Eine empirische Wirksamkeitsprüfung mit Teilnehmenden ist nicht Bestandteil dieses Status und folgt über `CUR-007`, `CUR-008` sowie die Generalprobe.
+`ADV-003` ergänzt neun beobachtbare Vertiefungslernziele und ordnet ihnen alle 39 `ADV-CLM-*`-Claims zu. Diese Claims besitzen noch keine aktive Folie. Ihre Folien-, SlideKey- und Variantenprofilzuordnung erfolgt erst durch `ADV-009` und `PRS-012`. Eine curriculare oder geplante Demo-Zuordnung bewertet weder Demo-Implementierung noch Runtime-Verhalten als bestanden.
+
+`CUR-001` bis `CUR-005`, `CUR-009`, `CUR-010` und `ADV-003` sind für die Planungsbasis `VALIDATED`. Eine empirische Wirksamkeitsprüfung mit Teilnehmenden folgt über `CUR-007`, `CUR-008`, `ADV-010` und die Generalprobe.
