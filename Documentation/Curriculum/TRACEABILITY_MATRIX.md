@@ -2,20 +2,22 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `CUR-005` |
+| Arbeitspakete | `CUR-005`, `ADV-003` |
 | Status | `VALIDATED` |
-| Stand | 2026-07-24 |
-| Aussagen | 84 |
-| Lernziele | 43 |
-| Primärquellen | 36 |
-| Folien mit Demo-Zuordnung | 47 |
-| Eindeutige kanonische Demo-Bündel | 36 |
+| Stand | 2026-07-26 |
+| Aktive Claims/Folien | 84 |
+| Geplante Vertiefungsclaims | 39 |
+| Beobachtbare Lernziele | 52 |
+| Aktive Quellen-IDs | 57 |
+| Aktive Folien mit Demo-Zuordnung | 47 |
+| Bestehende kanonische Demo-Bündel | 36 |
+| Neue geplante Demo-IDs | `OPT-015`, `OPT-016`, `OPT-017`, `QRY-013`, `DGN-007` |
 
 ## 1. Zweck
 
-Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → aktive Folie → geplantes Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die vier früheren `REFINE`-Entscheidungen sind durch `W2-007` abgeschlossen; fachliche Änderung und Abnahme stehen im [W2-007-Review](../Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md).
+Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → Folie beziehungsweise geplante Lehrposition → Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung des aktiven 84-Folien-Satzes stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die fachliche Basis der geplanten Vertiefung steht in der [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md).
 
-Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ein Gedankenmodell, eine Navigation oder eine methodische Folie benötigt nicht künstlich eine Runtime-Demo; in diesem Fall prüfen Quellenreview, Struktur- und Präsentationstest die Nachverfolgbarkeit.
+Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Die 39 `ADV-CLM-*`-Claims besitzen noch keine aktive Folie. Ihre SlideKeys, Folienpositionen und Variantenprofile werden erst durch `ADV-009` und `PRS-012` festgelegt.
 
 ## 2. Testprofile
 
@@ -25,9 +27,10 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ei
 | `TP-RUN` | `TST-003`, `TST-004`, `TST-005`, `TST-006`, `TST-010` | Demo-Vertrag, Runtime, Wiederholung, Cleanup, Versionsmatrix und Präsentationsabgleich |
 | `TP-PERF` | `TP-RUN`, `TST-008` | zusätzlich relationale Performanceerwartung, Bandbreiten und Abbruchbedingungen |
 | `TP-CON` | `TP-RUN`, `TST-007`, `TST-008` | zusätzlich deterministische Multi-Session-Steuerung und Concurrency-Cleanup |
+| `TP-CAPSTONE` | `TP-RUN`, `TP-PERF`, Query-Store-/XE-Evidenz, `CUR-007`, `CUR-008` | vollständiger Incident-Fall mit Alternativhypothesen, Recovery und Transferabnahme |
 | `TP-REFINE` | `W2-007`, `TST-001`, `TST-010` | historisches Abschlussprofil für sichtbare Aussage, Notes, Quellen, Versionsgrenze und Renderprüfung |
 
-## 3. Vollständige Zuordnung
+## 3. Aktiver 84-Folien-Satz
 
 | Claim | Folie | Aussagekern | Curriculum | Pfad | Quellen | Kanonische Demo | Testprofil | Entscheidung |
 |---|---:|---|---|---|---|---|---|---|
@@ -116,17 +119,62 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Ei
 | `CLM-083` | 83 | Quelle, Version und Empirie getrennt verfolgen | `LO-M07-03` | KERN | `SRC-007`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-084` | 84 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
 
-## 4. Konsolidierung der Demo-IDs
+## 4. Geplante Vertiefung nach ADV-003
+
+| Claim | Aktive Folie | Aussagekern | Curriculum | Pfad | Quellen | Kanonische Demo/LAB | Testprofil | Status |
+|---|---|---|---|---|---|---|---|---|
+| `ADV-CLM-001` | – | Actual Plan ergänzt Runtime-Evidenz, ersetzt aber keine Workload-Zeitreihe | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-038` | `OPT-001`, `DGN-001` | `TP-RUN` | PLANNED |
+| `ADV-CLM-002` | – | Estimated Cost ist keine gemessene Laufzeit | `LO-M02-08` | VERTIEFUNG | `SRC-001`, `SRC-037`, `SRC-038` | `OPT-015` | `TP-PERF` | PLANNED |
+| `ADV-CLM-003` | – | Plan entlang Datenfluss und Evidenz statt Kostenprozent lesen | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-037`–`SRC-040` | `OPT-015`, `LAB-VP1` | `TP-RUN` | PLANNED |
+| `ADV-CLM-004` | – | Estimated/Actual Rows im Ausführungs- und Operator-Kontext lesen | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-039` | `OPT-001`, `OPT-015` | `TP-RUN` | PLANNED |
+| `ADV-CLM-005` | – | Rebind, Rewind und Outer References sind Mechanik, keine Fehlerkennzeichnung | `LO-M02-09` | VERTIEFUNG | `SRC-039`, `SRC-042` | `OPT-016` | `TP-RUN` | PLANNED |
+| `ADV-CLM-006` | – | Spool-Wirkung aus Aufbau, Wiederverwendung und Zeilenarbeit bewerten | `LO-M02-09` | VERTIEFUNG | `SRC-042` | `OPT-016` | `TP-RUN` | PLANNED |
+| `ADV-CLM-007` | – | Exchanges verbinden parallele Producer und Consumer ohne Gleichverteilungsgarantie | `LO-M02-09` | VERTIEFUNG | `SRC-001`, `SRC-043` | `OPT-017`, `RES-002` | `TP-PERF` | PLANNED |
+| `ADV-CLM-008` | – | Operatorzeiten besitzen in parallelen und Batch-Mode-Plänen Grenzen | `LO-M02-09` | VERTIEFUNG | `SRC-031`, `SRC-044` | `OPT-017`, `DGN-001` | `TP-PERF` | PLANNED |
+| `ADV-CLM-009` | – | TOP, FAST und EXISTS können frühe Zeilenfindung priorisieren | `LO-M02-10` | VERTIEFUNG | `SRC-041` | `OPT-011` | `TP-RUN` | PLANNED |
+| `ADV-CLM-010` | – | Row Goal kann Planentscheidungen beeinflussen, ist aber kein Ursachenbeweis | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041`, `SRC-042` | `OPT-011`, `OPT-012`, `OPT-016` | `TP-PERF` | PLANNED |
+| `ADV-CLM-011` | – | Semi-/Anti-Joins sind logische Existenzformen mit variabler physischer Umsetzung | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041` | `QRY-006`, `OPT-012` | `TP-RUN` | PLANNED |
+| `ADV-CLM-012` | – | Row-Goal-Deaktivierung ist nur kontrollierte Gegenprobe | `LO-M02-10` | VERTIEFUNG | `SRC-041` | `OPT-011` | `TP-RUN` | PLANNED |
+| `ADV-CLM-013` | – | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge erzeugen | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-040`, `SRC-046` | `OPT-007`, `QRY-013` | `TP-RUN` | PLANNED |
+| `ADV-CLM-014` | – | Anwendung/SSMS-Differenz erfordert mehrdimensionale Kontextdiagnose | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-027`, `SRC-046` | `QRY-013` | `TP-RUN` | PLANNED |
+| `ADV-CLM-015` | – | Parameter Sensitivity folgt Planwiederverwendung bei unterschiedlicher Verteilung | `LO-M03-07` | VERTIEFUNG | `SRC-007`, `SRC-047` | `OPT-008` | `TP-RUN` | PLANNED |
+| `ADV-CLM-016` | – | Parameter, Variablen, Literale und Recompile liefern unterschiedliche Optimiererinformation | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-007`, `SRC-045`, `SRC-046` | `QRY-004`, `OPT-008` | `TP-RUN` | PLANNED |
+| `ADV-CLM-017` | – | Recompile tauscht Wiederverwendung gegen Compilearbeit und laufzeitnahe Information | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-018` | – | Dynamisches SQL muss sicher parameterisiert und auf Wiederverwendung geprüft werden | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-RUN` | PLANNED |
+| `ADV-CLM-019` | – | PSP benötigt Eligibility und nachgewiesene Query Variants | `LO-M03-08` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-048` | `OPT-009` | `TP-RUN` | PLANNED |
+| `ADV-CLM-020` | – | OPPO benötigt SQL Server 2025, CL 170 und geeignete optionale Prädikate | `LO-M03-08` | VERTIEFUNG | `SRC-026`, `SRC-049` | `OPT-010`, `QRY-004` | `TP-RUN` | PLANNED |
+| `ADV-CLM-021` | – | Query Execution Memory besitzt getrennte Anforderungs- und Nutzungsstufen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-022` | – | Spill belegt Operator-Workspace-Mangel, nicht automatisch Instanzdruck | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-029`, `SRC-031`, `SRC-050` | `OPT-013`, `RES-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-023` | – | Undergrant und Overgrant besitzen unterschiedliche Folgen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-024` | – | RESOURCE_SEMAPHORE ist Grant-Warten und nicht Buffer-Pool-Druck | `LO-M06-07` | VERTIEFUNG | `SRC-010`, `SRC-035`, `SRC-036` | `RES-003`, `RES-007` | `TP-PERF` | PLANNED |
+| `ADV-CLM-025` | – | Memory Grant Feedback ist wiederholungs- und versionsabhängig | `LO-M06-07` | VERTIEFUNG | `SRC-009` | `OPT-014`, `LAB-VP4` | `TP-PERF` | PLANNED |
+| `ADV-CLM-026` | – | Parallelität beeinflusst Grant und Aufteilung, DOP erklärt sie nicht allein | `LO-M06-07` | VERTIEFUNG | `SRC-001`, `SRC-009`, `SRC-043`, `SRC-050` | `OPT-017`, `RES-002`, `RES-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-027` | – | TempDB-Arbeit bei Spills ist Folge einer Plan-/Grant-Situation | `LO-M06-07` | VERTIEFUNG | `SRC-029`, `SRC-031`, `SRC-050` | `OPT-013`, `CON-009` | `TP-PERF` | PLANNED |
+| `ADV-CLM-028` | – | IQP benötigt getrennte Prüfung aller Featurevoraussetzungen | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-009`, `SRC-026` | `LAB-VP4` | `TP-RUN` | PLANNED |
+| `ADV-CLM-029` | – | Deferred Compilation nutzt erste Kardinalität ohne Spaltenhistogramme | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `QRY-008`, `OPT-013` | `TP-RUN` | PLANNED |
+| `ADV-CLM-030` | – | Interleaved Execution stellt geeigneten MSTVFs tatsächliche Kardinalität bereit | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | PLANNED |
+| `ADV-CLM-031` | – | Scalar UDF Inlining ist Eligibility- und Planentscheidung | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | PLANNED |
+| `ADV-CLM-032` | – | Batch Mode on Rowstore benötigt nachgewiesene Eligibility und Operatorausführung | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `OPT-006`, `RES-002` | `TP-PERF` | PLANNED |
+| `ADV-CLM-033` | – | CE Feedback und DOP Feedback sind getrennte Mechanismen | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `OPT-006`, `RES-002`, `DGN-003` | `TP-RUN` | PLANNED |
+| `ADV-CLM-034` | – | DMVs, Query Store und XE besitzen unterschiedliche zeitliche und semantische Sichten | `LO-M06-08` | VERTIEFUNG | `SRC-027`, `SRC-028`, `SRC-035`, `SRC-036`, `SRC-051` | `DGN-002`, `DGN-003`, `DGN-005` | `TP-RUN` | PLANNED |
+| `ADV-CLM-035` | – | Query Store-Historie wird durch Konfiguration und Erfassungszustand begrenzt | `LO-M06-08` | VERTIEFUNG | `SRC-027` | `DGN-003`, `DGN-007` | `TP-RUN` | PLANNED |
+| `ADV-CLM-036` | – | XE-Aussage und Kosten hängen von Event, Action, Predicate und Target ab | `LO-M06-08` | VERTIEFUNG | `SRC-028`, `SRC-051` | `DGN-005`, `DGN-007` | `TP-CON` | PLANNED |
+| `ADV-CLM-037` | – | Waits benötigen Scope, Delta/Zeitbezug und Gegenprobe | `LO-M06-08` | VERTIEFUNG | `SRC-035`, `SRC-036`, `SRC-051` | `RES-007`, `DGN-007` | `TP-PERF` | PLANNED |
+| `ADV-CLM-038` | – | Incident-Analyse verändert eine Variable unter vergleichbaren Bedingungen | `LO-M07-04` | VERTIEFUNG | `SRC-028` | `DGN-001`, `DGN-007` | `TP-CAPSTONE` | PLANNED |
+| `ADV-CLM-039` | – | Capstone verwirft mindestens zwei plausible Alternativhypothesen | `LO-M07-04` | VERTIEFUNG | `SRC-046`, `SRC-047`, `SRC-051` | `DGN-007` | `TP-CAPSTONE` | PLANNED |
+
+## 5. Konsolidierung der Demo-IDs
 
 Die bisherigen 35 vorläufigen Kennungen `DEM-*` werden nicht zu stabilen IDs. Die Zuordnung verwendet ausschließlich die im Master-Umsetzungsplan festgelegten Präfixe `STL`, `OPT`, `QRY`, `IDX`, `CON`, `RES` und `DGN`.
 
-Die frühere Sammelkennung `DEM-STO-01` deckte sowohl Files/Log als auch Pages/Extents ab. Sie wird deshalb fachlich in `STL-005` für Files/Filegroups und `STL-004` für Allocation/Extents getrennt. Dadurch entstehen aus 35 vorläufigen Kennungen 36 eindeutige kanonische Demo-Bündel. Die Zahl der Folien mit Demo-Zuordnung bleibt 47.
+Die frühere Sammelkennung `DEM-STO-01` deckte sowohl Files/Log als auch Pages/Extents ab. Sie wurde fachlich in `STL-005` für Files/Filegroups und `STL-004` für Allocation/Extents getrennt. Dadurch entstanden aus 35 vorläufigen Kennungen 36 eindeutige kanonische Demo-Bündel. `ADV-003` ergänzt fünf neue geplante IDs, ohne bestehende IDs umzunummerieren.
 
-## 5. Abnahme
+## 6. Abnahme
 
-- Alle 84 Claims sind genau einer aktiven Folie und mindestens einem Lernziel zugeordnet.
-- Alle referenzierten Quellen-IDs stammen aus dem Primärquellenregister.
-- Alle 47 Demo-Zuordnungen verwenden bestehende IDs des Masterplans.
+- Alle 84 aktiven Claims sind genau einer aktiven Folie und mindestens einem Lernziel zugeordnet.
+- Alle 39 geplanten `ADV-CLM-*`-Claims sind genau einem der neun neuen Vertiefungslernziele zugeordnet.
+- Alle referenzierten Quellen-IDs stammen aus dem projektweiten Quellenregister.
+- Alle aktiven und geplanten Demo-Zuordnungen verwenden kanonische IDs oder eine benannte LAB-Serie.
 - Alle Claims besitzen ein Testprofil; Runtime-Profile bleiben bis zur Implementierung der Demos `PLANNED`.
-- Die vier früheren `REFINE`-Claims sind durch `W2-007` abgeschlossen und besitzen die Entscheidung `KEEP`; das historische Profil `TP-REFINE` bleibt als Abnahmenachweis dokumentiert.
-- Runtime- oder Versionsprüfungen werden nur dort als bestanden bezeichnet, wo ein separates Review oder ein validierter Workflowlauf dies belegt; `W2-007` ist eine Präsentations- und Quellenabnahme.
+- Die früheren `REFINE`-Claims sind durch `W2-007` abgeschlossen und besitzen die Entscheidung `KEEP`; `TP-REFINE` bleibt nur als historischer Abnahmenachweis bestehen.
+- Die geplanten Vertiefungsclaims erhalten erst durch `ADV-009` und `PRS-012` aktive Foliennummern, SlideKeys und Variantenprofile.
