@@ -27,6 +27,15 @@ SELECT @Loops = NestedLoopsCount, @OuterRefs = OuterReferenceCount,
 FROM lab.Opt016Evidence
 WHERE Phase = 'BASELINE';
 
+SELECT N'OPT016_BASELINE_DIAGNOSTIC' AS Diagnostic,
+       @Rows AS ResultRows,
+       @Checksum AS ResultChecksum,
+       @Loops AS NestedLoopsCount,
+       @OuterRefs AS OuterReferenceCount,
+       @Spools AS SpoolCount,
+       @Access AS InnerAccessPhysicalOp,
+       CONVERT(varchar(18), @QueryHash, 1) AS QueryHashHex;
+
 IF @Rows <> 5000 OR @Checksum IS NULL OR @Loops < 1 OR @OuterRefs < 1
    OR @Spools <> 0 OR @Access NOT LIKE N'%Seek%' OR @QueryHash IS NULL
     THROW 51006, 'FAIL_RESULT_CONTRACT: Die OPT-016-Baseline besitzt nicht den erwarteten korrelierten Seek-Pfad ohne Spool.', 1;
