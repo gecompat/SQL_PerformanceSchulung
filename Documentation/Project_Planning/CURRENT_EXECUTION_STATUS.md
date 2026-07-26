@@ -4,68 +4,64 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-07-26 |
-| Geprüfter Ausgangscommit auf `origin/main` | `b3597d3c53c98ebf78d1fcf3ee5425f0af3cb5ad` |
-| Aktuelle Verarbeitungswelle | `ADV-006`, `ADV-007` |
-| Zweck | kanonischer operativer Einstiegspunkt für Implementierung und Runtime-Validierung |
+| Geprüfter Ausgangscommit auf `origin/main` | `6e914da6ab87e4ba17a354bc6e8c4d1c06446396` |
+| Aktuelle Verarbeitungswelle | `ADV-008` – Runtime-Schnitte `OPT-015` und `OPT-016` |
+| Zweck | kanonischer operativer Einstiegspunkt für die weitere Implementierung und Runtime-Validierung |
 
 ## 1. Verifizierter Repository-Stand
 
-Der Commit `b3597d3c53c98ebf78d1fcf3ee5425f0af3cb5ad` ist auf `origin/main` vorhanden. Er enthält die validierten Designverträge für LAB-VP1 und LAB-VP2 sowie `ADV-001` bis `ADV-005`.
+Der Commit `6e914da6ab87e4ba17a354bc6e8c4d1c06446396` ist auf `origin/main` vorhanden. Er enthält `ADV-001` bis `ADV-007`, die vollständige Designfreigabe Gate V2 sowie die Designverträge für LAB-VP1 bis LAB-VP5.
 
-Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die SQL-Server-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `ADV-001` bis `ADV-005`, `PRS-009`, `PRS-011` und `TST-002` sind validiert.
+Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die Framework-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `ADV-001` bis `ADV-007`, `PRS-009`, `PRS-011` und `TST-002` sind validiert. `ADV-006` und `ADV-007` bleiben als einzeln nachverfolgbare, vollständig validierte Designgrundlagen unverändert.
 
-## 2. Abgeschlossene Designwelle
+## 2. Abgeschlossener ADV-008-Teilstand
 
-| Arbeitspaket | Ergebnis | Status |
+| Demo | Ergebnis | Status |
 |---|---|---|
-| `ADV-006` | LAB-VP3 und LAB-VP4 einschließlich Ressourcen-, Versions-, Compatibility-Level-, Query-Store-, Eligibility- und Skip-Matrix vollständig entworfen | `VALIDATED` nach CI-Abnahme |
-| `ADV-007` | LAB-VP5 und `DGN-007` einschließlich Incident-, Hypothesen-, Evidenzfreigabe-, Vergleichs- und Rückfallvertrag vollständig entworfen | `VALIDATED` nach CI-Abnahme |
+| `OPT-015` | planweite und operatorbezogene Planevidenz mit synthetischem Out-of-range-Statistikfall, gezielter Statistikaktualisierung und normalisiertem Actual-Plan-Vertrag | `VALIDATED` |
+| `OPT-016` | Outer References, Rebinds, Rewinds und optimizergewählte Performance Spool mit kontrollierter `NO_PERFORMANCE_SPOOL`-Gegenprobe | `VALIDATED` |
 
-Die Designwelle erzeugt keine ausführbaren SQL-Demos. Sie legt verbindlich fest:
+Beide Demos besitzen den vollständigen Phasenvertrag Preflight, Setup, Baseline, Demonstration, Observation, Mitigation, Comparison und Cleanup. Sie verwenden markergebundene synthetische Testdatenbanken, aktivieren `LAST_QUERY_PLAN_STATS` ausschließlich datenbankbezogen und persistieren kein Plan XML.
 
-- regulären gelben LAB-VP3-Pfad und optionalen roten `RES-003`-Pfad,
-- harte Laufzeit-, Bestätigungs-, Kill-Switch- und Infrastrukturgrenzen für rote Speicherlast,
-- Featurematrix für SQL Server 2019, 2022 und 2025,
-- getrennte Voraussetzungen für Engine-Version, Compatibility Level, Datenbankkonfiguration, Query Store und Eligibility,
-- Query-Store-Zeitfenster, XE-Grenzen und Evidence-Ladder für `DGN-007`,
-- mindestens zwei zu verwerfende Alternativhypothesen,
-- genau eine reversible Referenzänderung,
-- kleine spätere Implementierungsschnitte für `ADV-008`.
+Die Runtime-Matrix führte jede Demo auf SQL Server 2019, 2022 und 2025 zweimal aus. Damit wurden zwölf vollständige Demo-Läufe einschließlich unabhängig geprüftem Cleanup erfolgreich abgeschlossen.
 
-## 3. Gate-Status
+## 3. Fachliche Ergebnisse
+
+`OPT-015` trennt Estimated Cost, Estimated Rows und Actual Runtime Evidence. Der Problemzustand ergänzt 60.000 Zeilen für einen zuvor nicht vorhandenen Schlüssel, ohne die relevante Indexstatistik zu aktualisieren. Die Gegenmaßnahme aktualisiert ausschließlich diese Statistik. Problem und Vergleich liefern dieselbe Ergebnismenge; der absolute Schätzfehler wird nachweisbar kleiner.
+
+`OPT-016` zeigte während der ersten Runtimeabnahme, dass SQL Server auch mit passendem Index bereits eine Performance Spool erzeugen kann. Der Vertrag wurde deshalb nicht gegen die reale Optimizerentscheidung durchgesetzt. Baseline und Vergleich verwenden `NO_PERFORMANCE_SPOOL` als explizite A/B-Gegenprobe; der Problemzustand bleibt hintfrei. Auf allen drei Zielversionen wurden Outer References, Spool, Rebind-/Rewind-Richtung und Ergebnisequivalenz nachgewiesen.
+
+## 4. Gate-Status
 
 - Gate V0 – Quellenfreigabe: `VALIDATED`.
 - Gate V1 – Curriculumfreigabe: `VALIDATED`.
-- Gate V2 – Designfreigabe: `VALIDATED` nach erfolgreicher statischer Prüfung dieser Welle.
-- Gate V3 – Runtimefreigabe: offen.
+- Gate V2 – Designfreigabe: `VALIDATED`.
+- Gate V3 – Runtimefreigabe: `PARTIAL`; `OPT-015` und `OPT-016` sind freigegeben, weitere Vertiefungsdemos bleiben offen.
 - Gate V4 – Lehrmittelfreigabe: offen.
 
-`OPT-015`, `OPT-016`, `OPT-017`, `QRY-013`, die erweiterte Struktur von `QRY-004`, die LAB-VP3-/VP4-Schritte und `DGN-007` sind entworfen, aber ausdrücklich noch nicht `IMPLEMENTED` oder runtime-validiert.
+`OPT-015` und `OPT-016` sind vollständig `VALIDATED`. `OPT-017`, `QRY-013`, die erweiterte Struktur von `QRY-004`, die LAB-VP3-/VP4-Schritte und `DGN-007` bleiben `DESIGNED` beziehungsweise `PLANNED`.
 
-## 4. Nächste fachliche Verarbeitung
+## 5. Nächste fachliche Verarbeitung
 
-Der nächste abhängige Schritt ist `ADV-008`. Die Umsetzung erfolgt nicht als Sammel-PR. Empfohlene Reihenfolge:
+Der nächste abhängige ADV-008-Schnitt umfasst:
 
-1. `OPT-015` – Planweite und operatorbezogene Eigenschaften.
-2. `OPT-016` – Rebind, Rewind, Outer References und Spools.
-3. `QRY-013` – neutraler Client-/Sessionkontext.
-4. `QRY-004_CLASSIC_AND_DYNAMIC` – Catch-all, Recompile und sicher parameterisiertes dynamisches SQL.
-5. Query-Store-/XE-Pilotvalidierung als Voraussetzung für diagnoseabhängige Schnitte.
-6. LAB-VP3-/VP4-Implementierungen in getrennten Feature- und Ressourcenpaketen.
-7. `DGN-007` erst nach stabiler Query-Store-/XE- und Runtime-Evidenz.
-8. `RES-003` zuletzt, separat und ausschließlich auf dedizierter Infrastruktur.
+1. `QRY-013` – neutraler Client- und Sessionkontext mit getrennten SET-, Cache-, Parameter- und Datenbankdimensionen.
+2. `QRY-004_CLASSIC_AND_DYNAMIC` – Catch-all, `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL.
+3. Query-Store-/XE-Pilotvalidierung vor diagnoseabhängigen Schnitten.
+4. `OPT-017` und LAB-VP3-/VP4-Implementierungen anschließend in getrennten Ressourcen- und Featurepaketen.
+5. `DGN-007` erst nach stabiler Query-Store-/XE-Evidenz.
+6. `RES-003` zuletzt, separat und ausschließlich auf dedizierter Infrastruktur.
 
-## 5. Parallel ausführbare Querschnittsarbeit
+## 6. Parallel ausführbare Querschnittsarbeit
 
-Unabhängig von `ADV-008` bleiben ausführbar:
+Unabhängig vom nächsten ADV-008-Schnitt bleiben ausführbar:
 
 - `PRS-012` und `TST-011`: SlideKeys, Custom Shows und statische Präsentationsvariantenprüfung,
 - fachlich getrennte `W2-002`-Teilpakete,
-- Query-Store-/Extended-Events-Pilotvalidierung,
 - Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog,
 - Testumgebungs-How-to für vorhandene Instanz sowie Docker/Podman.
 
-## 6. Abhängigkeiten und Sicherheitsgrenzen
+## 7. Abhängigkeiten und Sicherheitsgrenzen
 
 - `ADV-008` verwendet ausschließlich die validierten Designverträge aus `ADV-004` bis `ADV-007`.
 - `ADV-009` setzt belastbare Runtime-Evidenz und die Präsentationsvariantenverträge voraus.
@@ -74,10 +70,10 @@ Unabhängig von `ADV-008` bleiben ausführbar:
 - `PRS-013` setzt `PRS-012` und den statischen Kern von `TST-011` voraus.
 - `W2-003` bis `W2-006` setzen die jeweils zugehörige Neutralisierung aus `W2-002` voraus.
 
-## 7. Aktuelle Blocker
+## 8. Aktuelle Blocker
 
-Es besteht kein globaler technischer Blocker. Einzelne Implementierungsschnitte besitzen jedoch harte Voraussetzungen. Planform- und featureabhängige Demos liefern kontrollierte Skips, wenn eine Optimizerentscheidung, Eligibility oder Query-Store-Voraussetzung nicht erfüllt ist. Rote Ressourcenlast wird nicht auf gemeinsam genutzten Systemen ausgeführt.
+Es besteht kein globaler technischer Blocker. Der nächste Runtime-Schnitt kann beginnen. Planform- und featureabhängige Demos liefern kontrollierte Skips, wenn eine Optimizerentscheidung, Eligibility oder Query-Store-Voraussetzung nicht erfüllt ist. Rote Ressourcenlast wird nicht auf gemeinsam genutzten Systemen ausgeführt.
 
-## 8. Datenschutz- und Quellenstatus
+## 9. Datenschutz- und Quellenstatus
 
-Die Designartefakte enthalten ausschließlich synthetische Objektmodelle, öffentliche Quellen-IDs, neutrale Demo- und Claim-IDs sowie generische Ressourcenprofile. Reale Anwendungs-, Host-, Benutzer-, Kunden-, Zugangs- oder Diagnosedaten sind ausgeschlossen. Query- und Parameterwerte in späteren Repository-Artefakten bleiben auf bekannte synthetische Testwerte begrenzt.
+Die implementierten Demos enthalten ausschließlich deterministische synthetische Daten, öffentliche Quellen-IDs, neutrale Demo- und Claim-IDs sowie generische Ressourcenprofile. Reale Anwendungs-, Host-, Benutzer-, Kunden-, Zugangs- oder Diagnosedaten sind ausgeschlossen. Plan XML wird nur flüchtig ausgewertet; Repository und Diagnoseartefakte enthalten ausschließlich normalisierte, synthetische Evidenz.
