@@ -1,0 +1,47 @@
+name: Advanced lab design contracts VP3-VP5
+
+on:
+  pull_request:
+    paths:
+      - 'Documentation/Project_Planning/ADV_006_LAB_VP3_VP4_DESIGN.md'
+      - 'Documentation/Project_Planning/ADV_007_LAB_VP5_DESIGN.md'
+      - 'Documentation/Project_Planning/advanced_vp3_vp5_design.json'
+      - 'Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/ADV_006_007_REVIEW.md'
+      - '.ai/BACKLOG.md'
+      - 'Tests/Static/validate_adv_006_007_designs.py'
+      - '.github/workflows/advanced-lab-designs-vp3-vp5.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Documentation/Project_Planning/ADV_006_LAB_VP3_VP4_DESIGN.md'
+      - 'Documentation/Project_Planning/ADV_007_LAB_VP5_DESIGN.md'
+      - 'Documentation/Project_Planning/advanced_vp3_vp5_design.json'
+      - 'Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/ADV_006_007_REVIEW.md'
+      - '.ai/BACKLOG.md'
+      - 'Tests/Static/validate_adv_006_007_designs.py'
+      - '.github/workflows/advanced-lab-designs-vp3-vp5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: advanced-lab-designs-vp3-vp5-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate ADV-006 and ADV-007
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Validate design contracts
+        run: python3 Tests/Static/validate_adv_006_007_designs.py
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .

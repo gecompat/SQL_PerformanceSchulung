@@ -27,6 +27,21 @@ python3 Tests/Static/validate_privacy_metadata.py .
 
 `validate_privacy_metadata.py` ist ein User-defined Tool auf Basis der Python-Standardbibliothek. Es prüft Textdateien, Office-Pakete, ZIP-Archive und Medien-Gates. Findings werden ausschließlich als Repository-Pfad, Kategorie und Anzahl ausgegeben; der gefundene Wert erscheint weder im Log noch im kurzlebigen Diagnoseartefakt. Medien, PDFs und andere visuell zu prüfende Binärartefakte werden blockierend gekennzeichnet, sofern kein unveränderter hashgebundener Freigabenachweis vorliegt. Der Scanner ersetzt keine visuelle Einzelprüfung, kein OCR und keinen Rendervergleich.
 
+## Vertiefungs-LAB-Designverträge
+
+Die Designverträge werden durch zwei SQL-Server-unabhängige Workflows geprüft:
+
+```bash
+python3 Tests/Static/validate_adv_004_005_designs.py
+python3 Tests/Static/validate_adv_006_007_designs.py
+```
+
+`validate_adv_004_005_designs.py` prüft LAB-VP1 und LAB-VP2 einschließlich Claimabdeckung, Planmechanik, Clientkontext, sichere Parametrisierung sowie PSP-/OPPO-Skip-Verträge.
+
+`validate_adv_006_007_designs.py` prüft LAB-VP3 bis LAB-VP5 einschließlich Memory-Risikotrennung, Featurematrix 2019/2022/2025, Query-Store-Anforderungen, roten `RES-003`-Sicherheitsvertrag, Capstone-Hypothesen, neutrale Fallbezeichnung und Rückfallvertrag. Die Prüfungen bestätigen ausschließlich die Designkonsistenz. Sie ersetzen weder SQL-Server-Runtime-Tests noch die tatsächliche Feature- oder Planformvalidierung.
+
+Beide Workflows führen zusätzlich den vollständigen Repository-Privacy-Scan aus.
+
 ## Aktive Framework-Runtime-Matrix
 
 Der Workflow `.github/workflows/framework-sql-matrix.yml` validiert das gemeinsame Framework gegen:
@@ -76,6 +91,7 @@ Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixr
 ## Nächste Prüfbereiche
 
 - Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden,
+- erste `ADV-008`-Runtime-Schnitte auf SQL Server 2019, 2022 und 2025,
 - statische Variantenprüfung für SlideKeys, Custom Shows und Präsentationsmanifest,
 - Windows- oder OS-spezifische Profile nur bei konkreter Demoabhängigkeit,
 - Releasevalidierung mit dokumentierten Containerdigests oder CU-Ständen,

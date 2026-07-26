@@ -4,7 +4,7 @@
 |---|---|
 | Arbeitspakete | `ADV-001` bis `ADV-010` |
 | Status | `IN_PROGRESS` |
-| Planversion | 1.3 |
+| Planversion | 1.4 |
 | Stand | 2026-07-26 |
 | Zielplattform | SQL Server 2019, 2022 und 2025 |
 | Curriculumbezug | M02, M03, M06 und M07 |
@@ -14,6 +14,8 @@
 | Curriculum und Traceability | [`CURRICULUM_ARCHITECTURE.md`](../Curriculum/CURRICULUM_ARCHITECTURE.md), [`TRACEABILITY_MATRIX.md`](../Curriculum/TRACEABILITY_MATRIX.md) |
 | Design LAB-VP1 | [`ADV_004_LAB_VP1_DESIGN.md`](ADV_004_LAB_VP1_DESIGN.md) |
 | Design LAB-VP2 | [`ADV_005_LAB_VP2_DESIGN.md`](ADV_005_LAB_VP2_DESIGN.md) |
+| Design LAB-VP3/VP4 | [`ADV_006_LAB_VP3_VP4_DESIGN.md`](ADV_006_LAB_VP3_VP4_DESIGN.md) |
+| Design LAB-VP5 | [`ADV_007_LAB_VP5_DESIGN.md`](ADV_007_LAB_VP5_DESIGN.md) |
 
 ## 1. Zweck und Entscheidung
 
@@ -94,7 +96,7 @@ Dieser Abschnitt verbindet `OPT-013`, `OPT-014`, `RES-002`, `RES-003`, `RES-004`
 - Parallelität, Exchanges und Speicheraufteilung,
 - TempDB-Auswirkung als Folge, nicht als alleinige Ursachenklassifikation.
 
-Die vorhandenen IDs reichen für die technische Abdeckung aus. Neue Unterdemos dürfen innerhalb dieser Bündel entstehen, erhalten aber erst nach dem Design-Gate eine eigene stabile ID. Besonders komplexe Memory-Fraction- oder Batch-Mode-Spezialfälle bleiben `DEFERRED`, solange sie keine beobachtbare Diagnoseentscheidung für die Zielgruppe verbessern.
+Die vorhandenen IDs reichen für die technische Abdeckung aus. `RES-003` bleibt eine optionale rote Erweiterung auf einer dedizierten Wegwerfinstanz. Der normale LAB-VP3-Pfad darf ohne rote Speicherlast vollständig durchgeführt werden. Das vollständige Ressourcen-, Evidenz-, Timeout-, Kill-Switch- und Skip-Design steht in [`ADV_006_LAB_VP3_VP4_DESIGN.md`](ADV_006_LAB_VP3_VP4_DESIGN.md).
 
 ### 3.5 V-IQP-E – Versionsabhängige adaptive Verarbeitung
 
@@ -111,11 +113,11 @@ Dieser Abschnitt fasst die bereits verteilten IQP-Themen zu einem reproduzierbar
 - Degree of Parallelism Feedback,
 - Optional Parameter Plan Optimization.
 
-Für jedes Feature werden Engine-Version, Compatibility Level, Datenbankkonfiguration und Query-Store-Anforderung als getrennte Vorbedingungen erfasst. Die Demo zeigt zuerst das Verhalten ohne das Feature und danach das Verhalten mit der zutreffenden Voraussetzung. Ein neueres Feature wird nicht automatisch als bessere Lösung bewertet; maßgeblich sind Eignung, beobachtete Planänderung, Stabilität und Nebenwirkungen.
+Für jedes Feature werden Engine-Version, Compatibility Level, Datenbankkonfiguration, Query-Store-Anforderung und Eligibility als getrennte Vorbedingungen erfasst. Ein neueres Feature wird nicht automatisch als bessere Lösung bewertet; maßgeblich sind Eignung, beobachtete Planänderung, Stabilität und Nebenwirkungen.
 
 Primäre Zuordnung: `OPT-006`, `OPT-009`, `OPT-010`, `OPT-014`, `QRY-004`, `QRY-008`, `QRY-009`, `RES-002` und `DGN-003`.
 
-Es wird keine zusätzliche Demo-ID vergeben, bevor die Featurematrix geprüft hat, welche Aussagen in einer gemeinsamen Demo belastbar vergleichbar sind und welche getrennte Testdatenmodelle benötigen.
+Die verbindliche Feature- und Skip-Matrix steht in [`ADV_006_LAB_VP3_VP4_DESIGN.md`](ADV_006_LAB_VP3_VP4_DESIGN.md). Unterschiedliche Featurefamilien erhalten getrennte Datenmodelle, wenn ein gemeinsamer Vergleich Eligibility oder Ursache-Wirkung verfälschen würde.
 
 ### 3.6 V-DGN-F – Performance-Incident-Diagnose
 
@@ -125,9 +127,9 @@ Neues Demo-Bündel:
 
 | ID | Titel | Zweck | Risiko |
 |---|---|---|---|
-| `DGN-007` | Planregression und parameterabhängiger Incident | Query Store, Plan Cache, Plan-XML, Runtime-/Wait-Historie und Parameterkontext zu einer vollständigen Ursachenhypothese verbinden | Gelb |
+| `DGN-007` | Zeitabhängige Regression eines Suchworkloads | Query Store, Plan Cache, Plan-XML, Runtime-/Wait-Historie und Parameterkontext zu einer vollständigen Ursachenhypothese verbinden | Gelb |
 
-`DGN-007` wird als Capstone-LAB ausgeführt. Der Fall darf nicht durch eine im Titel vorweggenommene Lösung trivialisiert werden. Mindestens zwei plausible, aber falsche Hypothesen müssen anhand fehlender oder widersprechender Evidenz verworfen werden.
+`DGN-007` wird als Capstone-LAB ausgeführt. Der sichtbare Teilnehmerfall darf die Lösung nicht im Titel, Dateinamen, Querykommentar oder Marker vorwegnehmen. Mindestens zwei plausible, aber falsche Hypothesen müssen anhand fehlender oder widersprechender Evidenz verworfen werden. Das vollständige Incident-, Evidenzfreigabe-, Vergleichs- und Rückfalldesign steht in [`ADV_007_LAB_VP5_DESIGN.md`](ADV_007_LAB_VP5_DESIGN.md).
 
 ## 4. LAB-Serien
 
@@ -149,19 +151,19 @@ Ergebnis: Die Teilnehmer können Parameter Sensitivity nachweisen, Anwendungskon
 
 Reihenfolge: `OPT-014` → `OPT-013` → `RES-004` → `RES-003` → `RES-007` → `DGN-005`.
 
-Ergebnis: Spill, Undergrant, Overgrant, wartender Grant, Query Execution Memory und allgemeiner Memory Pressure werden nicht miteinander verwechselt.
+Ergebnis: Spill, Undergrant, Overgrant, wartender Grant, Query Execution Memory und allgemeiner Memory Pressure werden nicht miteinander verwechselt. `RES-003` bleibt optional und rot.
 
 ### LAB-VP4 – Intelligent Query Processing 2019–2025
 
 Reihenfolge: `QRY-008` → `QRY-009` → `OPT-014` → `OPT-009` → `OPT-006` → `RES-002` → `OPT-010`.
 
-Ergebnis: Featurewirkung und Featurevoraussetzung werden getrennt. Ein kontrollierter `SKIP` auf einer älteren Version ist ein erwartetes Testergebnis und kein Fehler.
+Ergebnis: Featurewirkung und Featurevoraussetzung werden getrennt. Ein kontrollierter `SKIP` auf einer älteren Version oder bei fehlender Eligibility ist ein erwartetes Testergebnis und kein Fehler.
 
 ### LAB-VP5 – Diagnosefall und Transfer
 
 Reihenfolge: `DGN-001` → `DGN-003` → `QRY-013` → `DGN-007` → M07-Transferaufgabe.
 
-Ergebnis: Eine vollständige Diagnosekette führt von einem zeitlichen Symptom zu einer messbaren, quellengebundenen und reversiblen Änderung.
+Ergebnis: Eine vollständige Diagnosekette führt von einem zeitlichen Symptom zu einer messbaren, quellengebundenen und reversiblen Änderung. Mindestens zwei Alternativhypothesen werden begründet verworfen.
 
 ## 5. Lernziele der Vertiefung
 
@@ -190,8 +192,8 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 | `ADV-003` | M | `VALIDATED` | Curriculum, Lernziele und Traceability-Matrix erweitern | 39 Claims sind neun beobachtbaren Vertiefungslernzielen zugeordnet; Kernpfad und 84 aktive Claims bleiben unverändert |
 | `ADV-004` | L | `VALIDATED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Datenmodell, Phasen, Evidenz, Sicherheitsgrenzen, Skips und Tests sind festgelegt |
 | `ADV-005` | L | `VALIDATED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Clientkontext, Strategievarianten, Sicherheit, Versionsmatrix und Tests sind festgelegt |
-| `ADV-006` | L | `PROPOSED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Featurematrix, erwartete Skips und Messgrößen sind vollständig |
-| `ADV-007` | L | `PROPOSED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Recovery ist vollständig |
+| `ADV-006` | L | `VALIDATED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Ressourcen-, Feature-, Query-Store-, Eligibility- und Skip-Matrix sind vollständig |
+| `ADV-007` | L | `VALIDATED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Vergleich und Recovery sind vollständig |
 | `ADV-008` | XL | `PROPOSED` | Demos in kleinen unabhängigen PRs implementieren und testen | jede Demo erreicht mindestens `IMPLEMENTED`; grüne Demos bestehen die Zielmatrix |
 | `ADV-009` | L | `PROPOSED` | Masterdeck, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug, Versionsgrenze und Tiefenprofil |
 | `ADV-010` | M | `PROPOSED` | Vertiefungsstrang fachlich und didaktisch abnehmen | Quellenreview, Runtime-Evidenz, Generalprobe und Traceability sind vollständig |
@@ -214,13 +216,14 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 - Jede LAB-Serie besitzt einen klaren Transfer in eine Diagnoseentscheidung.
 - Die 39 geplanten Claims erhalten erst durch `ADV-009` und `PRS-012` aktive Folien und SlideKeys.
 
-### Gate V2 – Designfreigabe: `PARTIAL`
+### Gate V2 – Designfreigabe: `VALIDATED`
 
-- LAB-VP1 und LAB-VP2 besitzen validierte Designverträge.
+- LAB-VP1 bis LAB-VP5 besitzen vollständige und statisch prüfbare Designverträge.
 - Synthetische Datenprofile, erwartete Evidenz, Abbruch, Cleanup und Wiederholung sind festgelegt.
-- Planform- und Featureabhängigkeiten besitzen kontrollierte Skip-Codes.
+- Planform-, Feature-, Versions-, Compatibility-Level-, Query-Store- und Eligibility-Abhängigkeiten besitzen kontrollierte Skip-Codes.
 - Erwartete Resultate werden als Richtung, Verhältnis, Eigenschaft oder begründeter Skip beschrieben.
-- Gate V2 bleibt für LAB-VP3 bis LAB-VP5 offen und wird durch `ADV-006` und `ADV-007` vervollständigt.
+- Rote Schritte sind von grünen und gelben Pfaden getrennt und benötigen dedizierte Infrastruktur sowie ausdrückliche Bestätigung.
+- Der Capstone besitzt eine gestufte Evidenzfreigabe, mindestens zwei falsifizierbare Alternativhypothesen und genau eine reversible Referenzänderung.
 
 ### Gate V3 – Runtimefreigabe
 
@@ -228,6 +231,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 - Featuregebundene Demos liefern auf nicht unterstützten Kombinationen einen begründeten `SKIP`.
 - Gelbe Demos wurden im tatsächlich benötigten Ressourcenprofil validiert.
 - Query Store, Extended Events und Plan-XML liefern die im Design erwartete Evidenz.
+- Rote Demos wurden ausschließlich auf der dafür vorgesehenen isolierten Infrastruktur geprüft.
 
 ### Gate V4 – Lehrmittelfreigabe
 
@@ -238,15 +242,15 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 
 ## 8. Priorisierung
 
-`ADV-001` bis `ADV-005`, Gate V0 und Gate V1 sind abgeschlossen. Die nächste fachliche Priorität bilden `ADV-006` für Workspace Memory und IQP sowie `ADV-007` für den Capstone-Fall. Erste Implementierungen unter `ADV-008` werden anschließend nach dem jeweiligen Design- und Testvertrag in kleinen Schnitten umgesetzt. P2-Spezialfälle wie seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna werden nur aufgenommen, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
+`ADV-001` bis `ADV-007` sowie Gate V0 bis Gate V2 sind abgeschlossen. Die nächste fachliche Priorität ist `ADV-008`: Die freigegebenen Demos werden in kleinen, voneinander unabhängigen Implementierungs- und Runtime-Schnitten umgesetzt. Als erste risikoarme Schnitte sind `OPT-015`, `OPT-016`, `QRY-013` sowie die klassischen und dynamischen Teile von `QRY-004` geeignet. Query-Store-/XE-Piloten müssen vor dem Capstone und vor den diagnoseabhängigen Memory-Schnitten runtime-validiert werden. Der rote Schnitt `RES-003` wird zuletzt und separat bearbeitet.
 
 ## 9. Mindestanforderungen an die Testumgebung
 
 Normale Demos aus LAB-VP1, LAB-VP2 und große Teile von LAB-VP4 verwenden eine einzelne SQL-Server-Instanz und eine isolierte synthetische Testdatenbank. Als Mindestprofil werden zwei logische CPU-Kerne, 4 GB für die SQL-Server-Instanz und ausreichend freier Speicher für Testdatenbank und TempDB vorgesehen. Die konkrete Datenmenge wird skalierbar erzeugt.
 
-LAB-VP3 und `OPT-017` benötigen für stabile Effekte gegebenenfalls vier logische CPU-Kerne und 8 GB für die Instanz. Ein künstlich begrenztes Container- oder VM-Profil ist nur zulässig, wenn ein Memory- oder Parallelitätsengpass mit einer normalen Testdatenbank nicht reproduzierbar ist. `RES-003` bleibt wegen instanzweiter Speicherwirkung Rot und darf nicht auf einer gemeinsam genutzten Instanz ausgeführt werden.
+LAB-VP3, LAB-VP5 und `OPT-017` benötigen für stabile Effekte gegebenenfalls vier logische CPU-Kerne und 8 GB für die Instanz. Ein künstlich begrenztes Container- oder VM-Profil ist nur zulässig, wenn ein Memory- oder Parallelitätsengpass mit einer normalen Testdatenbank nicht reproduzierbar ist. `RES-003` bleibt wegen instanzweiter Speicherwirkung Rot und darf nicht auf einer gemeinsam genutzten Instanz ausgeführt werden.
 
-Die Werte sind Planungsuntergrenzen und keine Zusage bestimmter Laufzeiten. Jede Demo enthält einen Preflight, der Datenmenge, DOP, verfügbaren Speicher und TempDB-Platz prüft und bei ungeeigneter Umgebung kontrolliert abbricht oder ein kleineres Profil wählt.
+Die Werte sind Planungsuntergrenzen und keine Zusage bestimmter Laufzeiten. Jede Demo enthält einen Preflight, der Datenmenge, DOP, verfügbaren Speicher, Query-Store-Zustand und TempDB-Platz prüft und bei ungeeigneter Umgebung kontrolliert abbricht oder einen begründeten Skip liefert.
 
 ## 10. Quellenbasis des Plans
 
@@ -260,4 +264,4 @@ Die verbindlichen projektweiten Quellen-IDs werden in `Documentation/Research/SO
 
 ## 11. Nächster ausführbarer Schritt
 
-`ADV-006` und `ADV-007` sind die nächsten fachlichen Designpakete und können parallel beginnen. Danach werden die freigegebenen Demos unter `ADV-008` in kleinen, voneinander unabhängigen Implementierungsschnitten umgesetzt. Parallel können die unabhängigen Querschnitte `PRS-012`/`TST-011`, fachlich geschnittene `W2-002`-Pakete sowie die Query-Store-/XE-Pilotvalidierung bearbeitet werden.
+Mit Gate V2 ist die Designphase des Vertiefungsstrangs abgeschlossen. Der nächste fachliche Schritt ist `ADV-008`. Die Umsetzung beginnt mit kleinen grünen beziehungsweise begrenzten gelben Schnitten und den dazugehörigen statischen sowie Runtime-Tests. Parallel können `PRS-012`/`TST-011`, fachlich geschnittene `W2-002`-Pakete, die Query-Store-/XE-Pilotvalidierung und das Testumgebungs-How-to bearbeitet werden.
