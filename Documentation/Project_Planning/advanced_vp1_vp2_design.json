@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "status": "DESIGNED",
+  "work_packages": ["ADV-004", "ADV-005"],
+  "target_versions": [2019, 2022, 2025],
+  "required_phases": [
+    "PREFLIGHT",
+    "SETUP",
+    "BASELINE",
+    "PROBLEM_OR_CONTRAST",
+    "EVIDENCE",
+    "MITIGATION_OR_COUNTERPROBE",
+    "COMPARISON",
+    "CLEANUP"
+  ],
+  "labs": {
+    "LAB-VP1": {
+      "work_package": "ADV-004",
+      "learning_objectives": ["LO-M02-08", "LO-M02-09", "LO-M02-10"],
+      "claims": [
+        "ADV-CLM-001", "ADV-CLM-002", "ADV-CLM-003", "ADV-CLM-004",
+        "ADV-CLM-005", "ADV-CLM-006", "ADV-CLM-007", "ADV-CLM-008",
+        "ADV-CLM-009", "ADV-CLM-010", "ADV-CLM-011", "ADV-CLM-012"
+      ],
+      "sequence": ["OPT-001", "OPT-015", "OPT-012", "OPT-016", "OPT-011", "QRY-006", "OPT-013", "OPT-017"],
+      "duration_minutes": {"minimum": 80, "maximum": 110},
+      "new_demos": ["OPT-015", "OPT-016", "OPT-017"]
+    },
+    "LAB-VP2": {
+      "work_package": "ADV-005",
+      "learning_objectives": ["LO-M03-07", "LO-M03-08", "LO-M02-07"],
+      "claims": [
+        "ADV-CLM-013", "ADV-CLM-014", "ADV-CLM-015", "ADV-CLM-016",
+        "ADV-CLM-017", "ADV-CLM-018", "ADV-CLM-019", "ADV-CLM-020"
+      ],
+      "sequence": ["OPT-007", "OPT-008", "QRY-013", "QRY-004", "OPT-009", "OPT-010"],
+      "duration_minutes": {"minimum": 90, "maximum": 125},
+      "new_demos": ["QRY-013"],
+      "extended_demos": ["QRY-004"]
+    }
+  },
+  "demos": {
+    "OPT-015": {
+      "title": "Planweite und operatorbezogene Eigenschaften",
+      "risk": "GREEN",
+      "execution_path": "TSQL_TESTDB",
+      "sessions": 1,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-001", "ADV-CLM-002", "ADV-CLM-003", "ADV-CLM-004"],
+      "sources": ["SRC-001", "SRC-031", "SRC-037", "SRC-038", "SRC-039", "SRC-040"],
+      "evidence": ["actual_plan_xml", "estimated_rows", "actual_rows", "actual_rows_read", "number_of_executions", "statistics_usage", "logical_reads", "cpu", "duration", "result_checksum"],
+      "skip_codes": ["SKIP_PERMISSION_MISSING", "SKIP_STORAGE_PROFILE_INSUFFICIENT"]
+    },
+    "OPT-016": {
+      "title": "Rebind, Rewind, Outer References und Spools",
+      "risk": "GREEN",
+      "execution_path": "TSQL_TESTDB",
+      "sessions": 1,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-005", "ADV-CLM-006", "ADV-CLM-010"],
+      "sources": ["SRC-001", "SRC-039", "SRC-042"],
+      "evidence": ["outer_references", "number_of_executions", "actual_rebinds", "actual_rewinds", "spool_attributes", "logical_reads", "cpu", "duration", "result_checksum"],
+      "skip_codes": ["SKIP_PLAN_SHAPE_NOT_PRODUCED", "SKIP_PERMISSION_MISSING"]
+    },
+    "OPT-017": {
+      "title": "Parallele Planbereiche, Exchanges und Operatorzeiten",
+      "risk": "YELLOW",
+      "execution_path": "TSQL_TESTDB_RESOURCE_PROFILE",
+      "sessions": 1,
+      "minimum_cpu": 4,
+      "minimum_memory_gb": 8,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-007", "ADV-CLM-008", "ADV-CLM-026"],
+      "sources": ["SRC-001", "SRC-031", "SRC-043", "SRC-044"],
+      "evidence": ["actual_dop", "exchanges", "thread_rows", "thread_executions", "logical_reads", "cpu", "duration", "result_checksum"],
+      "skip_codes": ["SKIP_CPU_PROFILE_INSUFFICIENT", "SKIP_PARALLELISM_UNAVAILABLE", "SKIP_PLAN_SHAPE_NOT_PRODUCED", "SKIP_STORAGE_PROFILE_INSUFFICIENT"]
+    },
+    "QRY-013": {
+      "title": "Anwendung langsam, SSMS schnell",
+      "risk": "GREEN",
+      "execution_path": "TSQL_TESTDB_MULTI_SESSION",
+      "sessions": 2,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-013", "ADV-CLM-014", "ADV-CLM-015"],
+      "sources": ["SRC-001", "SRC-027", "SRC-040", "SRC-046", "SRC-047"],
+      "evidence": ["session_options", "database_context", "plan_attributes", "compiled_parameter", "actual_parameter", "estimated_rows", "actual_rows", "logical_reads", "cpu", "duration", "result_checksum"],
+      "skip_codes": ["SKIP_CACHE_DMV_PERMISSION_MISSING", "SKIP_TOOL_MISSING"]
+    },
+    "QRY-004": {
+      "title": "Optionale Parameter: Catch-all, Recompile, dynamisches SQL, PSP und OPPO",
+      "risk": "GREEN",
+      "execution_path": "TSQL_TESTDB",
+      "sessions": 1,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-016", "ADV-CLM-017", "ADV-CLM-018", "ADV-CLM-019", "ADV-CLM-020"],
+      "sources": ["SRC-001", "SRC-007", "SRC-008", "SRC-026", "SRC-045", "SRC-048", "SRC-049"],
+      "strategies": ["CATCH_ALL", "OPTION_RECOMPILE", "PARAMETERIZED_DYNAMIC_SQL", "PSP_EQUALITY", "OPPO_OPTIONAL_PREDICATE"],
+      "evidence": ["result_checksum", "estimated_rows", "actual_rows", "logical_reads", "cpu", "duration", "compile_indicators", "plan_variants", "feature_prerequisites"],
+      "skip_codes": ["SKIP_FEATURE_UNAVAILABLE", "SKIP_FEATURE_NOT_ELIGIBLE", "SKIP_QUERY_STORE_UNAVAILABLE", "SKIP_PERMISSION_MISSING"]
+    }
+  },
+  "prohibited_actions": [
+    "GLOBAL_PLAN_CACHE_CLEAR",
+    "INSTANCE_WIDE_CONFIGURATION_CHANGE",
+    "REAL_APPLICATION_DATA",
+    "PROPRIETARY_DRIVER_REQUIRED",
+    "UNPARAMETERIZED_VALUE_CONCATENATION",
+    "FIXED_PLAN_ICON_AS_UNIVERSAL_ASSERTION",
+    "UNIVERSAL_ELAPSED_TIME_THRESHOLD"
+  ],
+  "implementation_slices": [
+    "OPT-015",
+    "OPT-016",
+    "OPT-017",
+    "QRY-013",
+    "QRY-004_CLASSIC_AND_DYNAMIC",
+    "OPT-009_PSP",
+    "OPT-010_OPPO",
+    "LAB-VP1_ORCHESTRATION",
+    "LAB-VP2_ORCHESTRATION"
+  ]
+}

@@ -4,7 +4,7 @@
 |---|---|
 | Arbeitspakete | `ADV-001` bis `ADV-010` |
 | Status | `IN_PROGRESS` |
-| Planversion | 1.2 |
+| Planversion | 1.3 |
 | Stand | 2026-07-26 |
 | Zielplattform | SQL Server 2019, 2022 und 2025 |
 | Curriculumbezug | M02, M03, M06 und M07 |
@@ -12,6 +12,8 @@
 | Quellenbasis | Microsoft Learn, SQLServerFast, Paul White, Erland Sommarskog, Brent Ozar und Erik Darling |
 | Claim- und Quellenmatrix | [`ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md`](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
 | Curriculum und Traceability | [`CURRICULUM_ARCHITECTURE.md`](../Curriculum/CURRICULUM_ARCHITECTURE.md), [`TRACEABILITY_MATRIX.md`](../Curriculum/TRACEABILITY_MATRIX.md) |
+| Design LAB-VP1 | [`ADV_004_LAB_VP1_DESIGN.md`](ADV_004_LAB_VP1_DESIGN.md) |
+| Design LAB-VP2 | [`ADV_005_LAB_VP2_DESIGN.md`](ADV_005_LAB_VP2_DESIGN.md) |
 
 ## 1. Zweck und Entscheidung
 
@@ -55,6 +57,8 @@ Neue Demo-Bündel:
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | wiederholte innere Ausführung, Wiederverwendung und Worktable-Verhalten in Nested-Loops-/Apply-Plänen erklären | Grün |
 | `OPT-017` | Parallele Planbereiche, Exchanges und Operatorzeiten | Branches, Threads, Exchanges, Parallel Skew und Grenzen operatorbezogener Zeitangaben untersuchen | Gelb |
 
+Das vollständige Design einschließlich Datenmodell, Evidenz, Ressourcenprofil und Skip-Verträgen steht in [`ADV_004_LAB_VP1_DESIGN.md`](ADV_004_LAB_VP1_DESIGN.md).
+
 ### 3.2 V-OPT-B – Row Goals, APPLY sowie Semi- und Anti-Joins
 
 Dieser Abschnitt verbindet die vorhandenen Themen `OPT-011`, `OPT-012`, `QRY-006` und `QRY-010`. Er erklärt, dass `TOP`, `FAST n`, `EXISTS` sowie bestimmte Semi-/Anti-Join-Transformationen die Optimierung auf eine erwartete Teilmenge ausrichten können. Untersucht werden sichtbare und indirekte Row Goals, Apply mit Outer References, der Unterschied zwischen logischer Form und physischer Planform sowie die mögliche Wechselwirkung mit Nested Loops, Scans und Spools.
@@ -74,6 +78,8 @@ Die vorhandenen Demo-Bündel `OPT-007` bis `OPT-010`, `QRY-004`, `QRY-008` und `
 | `QRY-013` | Anwendung langsam, SSMS schnell | SET-Optionen, Cache Keys, kompilierte Parameterwerte, Datenbankkontext und Planvergleich als Evidenzkette untersuchen | Grün |
 
 `QRY-004` wird so erweitert, dass mindestens folgende Varianten unter identischer Datenverteilung verglichen werden: Catch-all-Prädikat, statisches SQL mit `OPTION (RECOMPILE)`, sicher parameterisiertes dynamisches SQL, PSP-fähige Gleichheitssuche und OPPO-fähiges optionales Prädikat. SQL-Injection-Sicherheit und Plan-Cache-Wiederverwendung sind eigenständige Abnahmekriterien.
+
+Das vollständige Design einschließlich neutraler Clientprofile, Plan-Cache-Grenzen, PSP-/OPPO-Matrix und Sicherheitsvertrag steht in [`ADV_005_LAB_VP2_DESIGN.md`](ADV_005_LAB_VP2_DESIGN.md).
 
 ### 3.4 V-MEM-D – Workspace Memory, Spills und Parallelität
 
@@ -182,8 +188,8 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 | `ADV-001` | M | `VALIDATED` | quellenbasierten Integrationsplan erstellen und im Repository verankern | Plan, Quellenregister und Backlog sind konsistent verknüpft |
 | `ADV-002` | M | `VALIDATED` | Aussagen- und Quellenmatrix für alle Vertiefungsabschnitte erstellen | 39 Claims besitzen Evidenzklasse, Quellen, Versionsgrenze und Abnahmebedingung |
 | `ADV-003` | M | `VALIDATED` | Curriculum, Lernziele und Traceability-Matrix erweitern | 39 Claims sind neun beobachtbaren Vertiefungslernzielen zugeordnet; Kernpfad und 84 aktive Claims bleiben unverändert |
-| `ADV-004` | L | `PROPOSED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Setup, Baseline, Evidenz, Mitigation, Comparison, Cleanup und Tests sind festgelegt |
-| `ADV-005` | L | `PROPOSED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Anwendungskontext und alle Strategien sind reproduzierbar und sicher vergleichbar |
+| `ADV-004` | L | `VALIDATED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Datenmodell, Phasen, Evidenz, Sicherheitsgrenzen, Skips und Tests sind festgelegt |
+| `ADV-005` | L | `VALIDATED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Clientkontext, Strategievarianten, Sicherheit, Versionsmatrix und Tests sind festgelegt |
 | `ADV-006` | L | `PROPOSED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Featurematrix, erwartete Skips und Messgrößen sind vollständig |
 | `ADV-007` | L | `PROPOSED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Recovery ist vollständig |
 | `ADV-008` | XL | `PROPOSED` | Demos in kleinen unabhängigen PRs implementieren und testen | jede Demo erreicht mindestens `IMPLEMENTED`; grüne Demos bestehen die Zielmatrix |
@@ -208,12 +214,13 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 - Jede LAB-Serie besitzt einen klaren Transfer in eine Diagnoseentscheidung.
 - Die 39 geplanten Claims erhalten erst durch `ADV-009` und `PRS-012` aktive Folien und SlideKeys.
 
-### Gate V2 – Designfreigabe
+### Gate V2 – Designfreigabe: `PARTIAL`
 
-- Synthetische Daten erzeugen Schätzfehler, Skew, Planvarianten und Spills deterministisch genug für den Unterricht.
-- Erwartete Resultate sind als Richtung, Verhältnis oder Bandbreite beschrieben.
-- Abbruch, Cleanup und Wiederholung sind definiert.
-- Feature-Skips sind nach Engine-Version und Compatibility Level spezifiziert.
+- LAB-VP1 und LAB-VP2 besitzen validierte Designverträge.
+- Synthetische Datenprofile, erwartete Evidenz, Abbruch, Cleanup und Wiederholung sind festgelegt.
+- Planform- und Featureabhängigkeiten besitzen kontrollierte Skip-Codes.
+- Erwartete Resultate werden als Richtung, Verhältnis, Eigenschaft oder begründeter Skip beschrieben.
+- Gate V2 bleibt für LAB-VP3 bis LAB-VP5 offen und wird durch `ADV-006` und `ADV-007` vervollständigt.
 
 ### Gate V3 – Runtimefreigabe
 
@@ -231,7 +238,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 
 ## 8. Priorisierung
 
-`ADV-001` bis `ADV-003` sowie Gate V0 und Gate V1 sind abgeschlossen. Die höchste fachliche Priorität bilden nun `ADV-004` und `ADV-005`; beide können auf der gemeinsamen Claim- und Curriculumgrundlage parallel entworfen werden. Danach folgen Workspace Memory/IQP (`ADV-006`) und der Capstone-Fall (`ADV-007`). P2-Spezialfälle wie seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna werden nur aufgenommen, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
+`ADV-001` bis `ADV-005`, Gate V0 und Gate V1 sind abgeschlossen. Die nächste fachliche Priorität bilden `ADV-006` für Workspace Memory und IQP sowie `ADV-007` für den Capstone-Fall. Erste Implementierungen unter `ADV-008` werden anschließend nach dem jeweiligen Design- und Testvertrag in kleinen Schnitten umgesetzt. P2-Spezialfälle wie seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna werden nur aufgenommen, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
 
 ## 9. Mindestanforderungen an die Testumgebung
 
@@ -253,4 +260,4 @@ Die verbindlichen projektweiten Quellen-IDs werden in `Documentation/Research/SO
 
 ## 11. Nächster ausführbarer Schritt
 
-`ADV-004` und `ADV-005` sind die nächsten fachlichen Designpakete und können parallel beginnen. Sie dürfen keine Runtime- oder Präsentationsfreigabe behaupten, bevor Gate V2 für das jeweilige LAB erfüllt ist. Parallel können die unabhängigen Querschnitte `PRS-012`/`TST-011`, `W2-002` sowie die Query-Store-/XE-Pilotvalidierung bearbeitet werden.
+`ADV-006` und `ADV-007` sind die nächsten fachlichen Designpakete und können parallel beginnen. Danach werden die freigegebenen Demos unter `ADV-008` in kleinen, voneinander unabhängigen Implementierungsschnitten umgesetzt. Parallel können die unabhängigen Querschnitte `PRS-012`/`TST-011`, fachlich geschnittene `W2-002`-Pakete sowie die Query-Store-/XE-Pilotvalidierung bearbeitet werden.
