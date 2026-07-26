@@ -55,6 +55,19 @@
 - [x] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
 - [x] Die vier aktiven `REFINE`-Claims in `W2-007` fachlich korrigieren, mit Notes/Quellen synchronisieren und gegen den aktiven Foliensatz validieren.
 
+## P1 - Vertiefungsstrang Query Processing und Diagnose
+
+- [x] `ADV-001` Quellenbasierten Integrationsplan mit fachlichen Blöcken, LAB-Serien, Gates und Mindestanforderungen erstellen.
+- [ ] `ADV-002` Claim- und Quellenmatrix für Planmechanik, Parameter Sensitivity, Workspace Memory, IQP und Incident-Diagnose erstellen.
+- [ ] `ADV-003` Curriculum-Lernziele und Traceability-Matrix für M02, M03, M06 und M07 erweitern.
+- [ ] `ADV-004` LAB-VP1 sowie `OPT-015` bis `OPT-017` vollständig entwerfen.
+- [ ] `ADV-005` LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entwerfen.
+- [ ] `ADV-006` LAB-VP3 und LAB-VP4 einschließlich Versions-, Compatibility-Level- und Skip-Matrix entwerfen.
+- [ ] `ADV-007` LAB-VP5 und `DGN-007` als vollständigen Diagnosefall entwerfen.
+- [ ] `ADV-008` freigegebene Vertiefungsdemos in kleinen, unabhängigen PRs implementieren und validieren.
+- [ ] `ADV-009` Präsentation, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren.
+- [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
+
 ## P2 - Reproduktion und Testmatrix
 
 - [x] SQL-Server-2019/2022/2025-Testmatrix definieren und erfolgreich ausführen.
