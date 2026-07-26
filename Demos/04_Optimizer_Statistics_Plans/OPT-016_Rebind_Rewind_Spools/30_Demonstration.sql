@@ -13,6 +13,30 @@ IF NOT EXISTS
     THROW 51003, 'FAIL_STATE: Der OPT-016-Baseline-Index ist vor der Demonstration nicht vorhanden.', 1;
 
 DROP INDEX IX_WorkItemDetail_Group_Sequence ON lab.WorkItemDetail;
+
+EXEC(N'
+ALTER PROCEDURE lab.usp_Opt016Workload
+    @ProfileCode char(1),
+    @ResultRowCount bigint OUTPUT,
+    @ResultChecksum int OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT
+        @ResultRowCount = COUNT_BIG(*),
+        @ResultChecksum = CHECKSUM_AGG(BINARY_CHECKSUM(pr.ProbeRequestId, detail.WorkItemDetailId, detail.MeasureValue))
+    FROM lab.ProbeRequest AS pr
+    CROSS APPLY
+    (
+        SELECT TOP (1) wd.WorkItemDetailId, wd.MeasureValue
+        FROM lab.WorkItemDetail AS wd
+        WHERE wd.EntityGroupId = pr.EntityGroupId
+        ORDER BY wd.SequenceNumber DESC, wd.WorkItemDetailId DESC
+    ) AS detail /*SQLPERF_OPT016_WORKLOAD*/
+    WHERE pr.ProfileCode = @ProfileCode
+    OPTION (MAXDOP 1, FORCE ORDER, LOOP JOIN);
+END;
+');
 EXEC sys.sp_recompile N'lab.usp_Opt016Workload';
 
 DECLARE @Rows bigint;
@@ -56,6 +80,6 @@ SELECT 1 AS Sequence, 'DEMONSTRATION' AS Phase, 'SUMMARY' AS CheckId,
        'PASS' AS Outcome, 'OK' AS Code,
        CONCAT(N'Rows=', @Rows, N'; Spool=', @SpoolKind, N'; Rebinds=', @Rebinds,
               N'; Rewinds=', @Rewinds, N'; Executions=', @Executions) AS ObservedValue,
-       N'5000 Ergebnisse; Spool mit Outer References und Runtime-Reuse-Zählern' AS RequiredValue,
+       N'5000 Ergebnisse; hintfreier Spool mit Outer References und Runtime-Reuse-Zählern' AS RequiredValue,
        N'Der optimizergewählte Wiederverwendungsplan ist erfasst.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
