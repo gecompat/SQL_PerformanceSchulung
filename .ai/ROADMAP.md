@@ -20,6 +20,8 @@ Pages, Row Layout, Row Overflow, LOB, Heaps, Forwarded Records, Allocation, File
 
 Estimated/Actual Plans, Histogramme, Density, Sampling, Skew, Korrelation, Ascending Key, Statistikpflege, Cardinality Estimation, Compile/Recompile, Plan Reuse, Parameter Sniffing, PSP, OPPO, Row Goals, Joins, Spills und Memory Grants.
 
+Der quellenbasierte Vertiefungsstrang erweitert diese Welle modulübergreifend um Planmechanik, Operatorinteraktion, Rebind/Rewind, Spools, parallele Planbereiche, anwendungsabhängige Parameterdiagnose, Workspace Memory, versionsabhängige IQP-Funktionen und vollständige Incident-LABs. Verbindlicher Detailplan ist [`Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md`](../Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md).
+
 ## Welle 5 - Query Patterns
 
 SARGability, Implicit Conversion, Datumsintervalle, optionale Parameter, dynamisches SQL, UNION ALL, NULL-Semantik, Semi/Anti Joins, DISTINCT, CTE/Temp Table/Table Variable, TVFs, Scalar UDFs, APPLY, Window Functions, set-based Verarbeitung und Partition Elimination.

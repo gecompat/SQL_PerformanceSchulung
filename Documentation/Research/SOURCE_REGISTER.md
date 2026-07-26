@@ -2,10 +2,10 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `W0-006` |
+| Arbeitspaket | `W0-006`, `ADV-001` |
 | Status | `VALIDATED` |
-| Registerversion | 1.0 |
-| Stand | 2026-07-24 |
+| Registerversion | 1.1 |
+| Stand | 2026-07-26 |
 | Primärer Geltungsbereich | SQL Server 2019, 2022 und 2025 |
 | Kanonische Quellenklasse | öffentlich erreichbare Primärdokumentation des Produktherstellers |
 
@@ -86,7 +86,29 @@ Alle nachfolgenden Einträge wurden am 24. Juli 2026 abgerufen und fachlich gepr
 | `SRC-035` | PRIMARY | [sys.dm_os_wait_stats](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-wait-stats-transact-sql?view=sql-server-ver17) | instanzweite kumulative Wait Stats und Delta-Bildung; `RES-007` | SQL Server 2019–2025; Rechte versionsabhängig | 2026-07-24 | 2026-07-24 | ACTIVE | DMV-Spalten-, Scope- oder Rechteänderung |
 | `SRC-036` | PRIMARY | [sys.dm_os_waiting_tasks](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-waiting-tasks-transact-sql?view=sql-server-ver17) | aktuelle wartende Tasks, Ressourcen und Blocking-Evidenz; `CON-004`, `RES-007` | SQL Server 2019–2025; Rechte versionsabhängig | 2026-07-24 | 2026-07-24 | ACTIVE | DMV-Spalten-, Scope- oder Rechteänderung |
 
-## 5. Pflegeprozess
+## 5. Aktive ergänzende Fach- und Methodenquellen
+
+Die folgenden Quellen vertiefen Operatorverhalten, Optimizer-Interna, Diagnosemethodik und reproduzierbare Fallgestaltung. Sie dürfen eine Microsoft-Primärquelle nicht ersetzen. Undokumentierte Interna werden nur als `EMPIRICAL` oder `INFERENCE` verwendet und benötigen Runtime-Evidenz in der zutreffenden Zielversion. Inhalte, Diagramme und Beispiele werden nicht übernommen; zulässig sind Verweise, eigenständige Erklärungen und eigene synthetische Reproduktionen.
+
+| ID | Klasse | Quelle | Aussagebezug | Gültigkeitsbereich | Aktualisiert | Abgerufen | Status | Review-Trigger |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-037` | SUPPORTING | [SQL Server Execution Plan Reference](https://sqlserverfast.com/epr/) | Operatorreferenz, Planleselogik und Vertiefungsstrang `V-OPT-A` | Referenz deckt viele Versionen ab; jede konkrete Aussage gegen Zielversion und Primärquelle prüfen | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Operatorseite, neue Engine-/SSMS-Version oder Lizenz-/Nutzungshinweis |
+| `SRC-038` | SUPPORTING | [Generic information – Execution Plans](https://sqlserverfast.com/epr/generic_information/) | Estimated/Actual Plan, Planquellen, Datenfluss und grundlegende Fehlannahmen; `OPT-001`, `OPT-015` | SQL Server 2019–2025; Clientdarstellung versionsabhängig | 2026-07-26 | 2026-07-26 | ACTIVE | neue Planart oder geänderte Clientdarstellung |
+| `SRC-039` | SUPPORTING | [Common properties](https://sqlserverfast.com/epr/common-properties/) | gemeinsame Operatorattribute, Estimated/Actual Rows, Number of Executions, Rebind/Rewind; `OPT-015`, `OPT-016` | konkrete Attribute versionsabhängig; Runtime-Evidenz erforderlich | 2026-07-26 | 2026-07-26 | ACTIVE | neue oder geänderte Planattribute |
+| `SRC-040` | SUPPORTING | [Plan properties](https://sqlserverfast.com/epr/plan-properties/) | planweite Eigenschaften, Set Options, MemoryGrantInfo, ThreadStat, Warnings, Dispatcher; `OPT-015`, `QRY-013`, `OPT-017` | SQL Server und SSMS/VS-Code-Version getrennt beachten | 2026-07-26 | 2026-07-26 | ACTIVE | neue Engine-, CU- oder Clientversion |
+| `SRC-041` | SUPPORTING | [Setting and Identifying Row Goals in Execution Plans](https://sqlperformance.com/2018/02/sql-plan/setting-and-identifying-row-goals) | Ursachen, Identifikation und kontrollierte Gegenprobe für Row Goals; `OPT-011` | Optimizer-Interna; SQL Server 2019–2025 empirisch revalidieren | 2026-07-26 | 2026-07-26 | ACTIVE | abweichende Planform oder geänderte Hint-/Trace-Flag-Dokumentation |
+| `SRC-042` | SUPPORTING | [Nested Loops Joins and Performance Spools](https://sqlperformance.com/2019/09/sql-performance/nested-loops-joins-performance-spools) | Apply/Nested Loops, Performance Spools, Outer References; `OPT-016`, `OPT-012` | undokumentierte Optimizerdetails; eigene Reproduktion erforderlich | 2026-07-26 | 2026-07-26 | ACTIVE | abweichendes Verhalten in einer Zielversion |
+| `SRC-043` | SUPPORTING | [Parallel Execution Plans – Branches and Threads](https://sqlperformance.com/2013/10/sql-plan/parallel-plans-branches-threads) | Branches, Threads und ThreadStat; `OPT-017`, `RES-002` | Planattribute und Engine-Verhalten versionsabhängig | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Parallelitäts- oder Planattributsemantik |
+| `SRC-044` | SUPPORTING | [Understanding Execution Plan Operator Timings](https://sqlperformance.com/2021/03/sql-performance/execution-plan-timings) | Grenzen operatorbezogener CPU-/Elapsed-Zeiten in Row/Batch Mode und Parallelität; `OPT-017`, `DGN-001` | SQL Server 2019–2025; tatsächliche Client-/CU-Ausgabe prüfen | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Runtime-Plan-Timing-Semantik |
+| `SRC-045` | SUPPORTING | [Dynamic Search Conditions in T-SQL](https://www.sommarskog.se/dyn-search.html) | statisches SQL mit Recompile, parameterisiertes dynamisches SQL, optionale und mehrwertige Suchbedingungen; `QRY-004` | Grundmuster versionsübergreifend; PSP/OPPO separat über Primärquellen bewerten | 2026-07-26 | 2026-07-26 | ACTIVE | neue Revision oder geänderte Produktfunktion |
+| `SRC-046` | SUPPORTING | [Slow in the Application, Fast in SSMS?](https://www.sommarskog.se/query-plan-mysteries.html) | Plan Cache, SET-Optionen, Cache Keys, Parameterwerte, Anwendung-/SSMS-Differenzen; `QRY-013`, `OPT-007`, `OPT-008` | Revision 2026; einzelne Cache-/Clientdetails gegen Zielversion prüfen | 2026-07-26 | 2026-07-26 | ACTIVE | neue Revision, Treiberänderung oder abweichende Runtime-Evidenz |
+| `SRC-047` | EMPIRICAL_METHOD | [What is Parameter Sniffing in SQL Server?](https://www.brentozar.com/archive/2013/06/the-elephant-and-the-mouse-or-parameter-sniffing-in-sql-server/) | didaktische Skew-Reproduktion, Planvergleich und kompilierte Parameterwerte; `OPT-008` | Fallmethode; keine universelle Plan- oder Indexempfehlung | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Produktfunktion oder nicht reproduzierbarer Effekt |
+| `SRC-048` | EMPIRICAL_METHOD | [PSPO: How SQL Server 2022 Tries to Fix Parameter Sniffing](https://www.brentozar.com/archive/2022/08/pspo-how-sql-server-2022-tries-to-fix-parameter-sniffing/) | empirische Grenzfälle von PSP, Query Variants und verbleibender Parameter Sensitivity; `OPT-009` | SQL Server 2022-Beispiel; aktuelle Primärdokumentation und Ziel-CU maßgeblich | 2026-07-26 | 2026-07-26 | ACTIVE | PSP-Verhaltensänderung oder neue CU-Evidenz |
+| `SRC-049` | EMPIRICAL_METHOD | [Handling Optional Parameters](https://erikdarling.com/software-vendor-mistakes-with-sql-server-handling-optional-parameters/) | Catch-all-Prädikate, Schätzfehler und dynamische Suchbedingungen; `QRY-004` | Fallmethode; Sicherheit und Version separat prüfen | 2026-07-26 | 2026-07-26 | ACTIVE | OPPO-/CE-Änderung oder abweichendes Testresultat |
+| `SRC-050` | EMPIRICAL_METHOD | [A Little About Memory Grants in SQL Server Query Plans](https://erikdarling.com/a-little-about-memory-grants-in-sql-server-query-plans/) | speicherverbrauchende Operatoren, Zeilenbreite, Sort/Hash und Parallelität; `OPT-014`, `RES-004` | empirische Erklärung; Formeln und Schwellen nicht als dokumentiert behandeln | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Planattribute oder abweichendes Runtime-Verhalten |
+| `SRC-051` | EMPIRICAL_METHOD | [Capturing Query Wait Stats with sp_HumanEvents](https://erikdarling.com/sql-server-community-tools-capturing-query-wait-stats-with-sp_humanevents/) | zeitlicher und querybezogener Wait-Scope als Diagnoseprinzip; `RES-007`, `DGN-005`, `DGN-007` | Methode; Schulung implementiert eigene T-SQL-/XE-Evidenz und setzt kein Drittanbieter-Tool voraus | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte XE-/Wait-Daten oder Werkzeugabhängigkeit |
+
+## 6. Pflegeprozess
 
 Eine Quelle wird erneut geprüft, wenn mindestens eines der folgenden Ereignisse eintritt:
 
@@ -99,8 +121,8 @@ Eine Quelle wird erneut geprüft, wenn mindestens eines der folgenden Ereignisse
 
 Bei einer inhaltlichen Änderung wird `Aktualisiert` gesetzt und der betroffene Aussagebezug geprüft. Ein nicht erreichbarer Link wird nicht stillschweigend ersetzt. Der Eintrag erhält zunächst `REVIEW_REQUIRED`; Ersatzquelle, geänderte Interpretation und betroffene Claims werden im Konflikt- und Entscheidungslog dokumentiert.
 
-## 6. Abnahme von W0-006
+## 7. Abnahme von W0-006 und ADV-001
 
-Alle in Welle 0 verwendeten 36 Primärquellen besitzen eine stabile ID, einen Aussagebezug, einen Gültigkeitsbereich, ein Aktualisierungs- und Abrufdatum, einen Status und einen Review-Trigger. Die Traceability-Matrix referenziert ausschließlich IDs dieses Registers. Damit ist `W0-006` abgeschlossen.
+Alle in Welle 0 verwendeten 36 Primärquellen besitzen eine stabile ID, einen Aussagebezug, einen Gültigkeitsbereich, ein Aktualisierungs- und Abrufdatum, einen Status und einen Review-Trigger. Die für den Vertiefungsplan ausgewerteten 15 ergänzenden Fach- und Methodenquellen sind getrennt klassifiziert und dürfen Primärquellen nicht ersetzen. Damit bleibt `W0-006` abgeschlossen und die Quellenregistrierung für `ADV-001` ist erfüllt.
 
 Weitere Quellen werden fortlaufend in diesem Register ergänzt. Das frühere Dokument `PRIMARY_SOURCES_W0.md` bleibt als validierter Welle-0-Snapshot erhalten; bei widersprüchlichen Pflegeinformationen ist dieses projektweite Register maßgeblich.
