@@ -28,12 +28,17 @@ class PrivacyScannerTests(unittest.TestCase):
     def categories(self, scanner) -> set[str]:
         return {finding.category for finding in scanner.findings}
 
-    def test_clean_text_and_placeholders_pass(self) -> None:
+    def test_clean_text_placeholders_versions_and_environment_reads_pass(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "clean.md").write_text(
                 "Öffentliche Dokumentation unter https://learn.microsoft.com/ und "
-                "Password=<LOCAL_SECRET> sowie person@example.com.",
+                "Password=<LOCAL_SECRET> sowie person@example.com. "
+                "Zielversionen 2019/2022/2025.",
+                encoding="utf-8",
+            )
+            (root / "environment.py").write_text(
+                'password = os.environ.get("SQLCMDPASSWORD")\n',
                 encoding="utf-8",
             )
             scanner = self.scan(root)
@@ -45,8 +50,9 @@ class PrivacyScannerTests(unittest.TestCase):
             email = "real.user" + "@" + "private.invalid-domain.at"
             token = "ghp_" + "A" * 36
             private_ip = "10." + "12.34.56"
+            phone = "+43 " + "1 234 56 78"
             (root / "finding.txt").write_text(
-                f"Kontakt {email}; Token {token}; Server {private_ip}",
+                f"Kontakt {email}; Token {token}; Server {private_ip}; Telefon {phone}",
                 encoding="utf-8",
             )
             scanner = self.scan(root)
@@ -54,6 +60,7 @@ class PrivacyScannerTests(unittest.TestCase):
             self.assertIn("email_address", categories)
             self.assertIn("github_token", categories)
             self.assertIn("private_ip_address", categories)
+            self.assertIn("phone_number", categories)
 
             output = io.StringIO()
             with redirect_stdout(output):
@@ -63,7 +70,23 @@ class PrivacyScannerTests(unittest.TestCase):
             self.assertNotIn(email, report)
             self.assertNotIn(token, report)
             self.assertNotIn(private_ip, report)
+            self.assertNotIn(phone, report)
             self.assertIn("Matched values are intentionally omitted", report)
+
+    def test_literal_connection_password_is_detected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            secret = "SyntheticSecret123"
+            (root / "connection.txt").write_text(
+                f"Server=localhost;Password={secret};Encrypt=True",
+                encoding="utf-8",
+            )
+            scanner = self.scan(root)
+            self.assertIn("literal_secret_or_password", self.categories(scanner))
+            output = io.StringIO()
+            with redirect_stdout(output):
+                scanner.report()
+            self.assertNotIn(secret, output.getvalue())
 
     def test_office_metadata_macro_and_media_are_detected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
