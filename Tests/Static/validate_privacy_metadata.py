@@ -44,7 +44,7 @@ APPROVED_IMMUTABLE_FILES = {
     "Presentations/old/Performance Grundlagen V-2024.zip":
         "78e3d1d708758d1115a066eca1df2c66d6f26ba57903b764c98e901506892041",
 }
-APPROVED_PACKAGE_MEDIA = {
+APPROVED_ACTIVE_DECK = {
     "Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx":
         "3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18",
 }
@@ -74,7 +74,10 @@ FORBIDDEN_TERMS = (
 EMAIL_RE = re.compile(r"(?i)(?<![\w.+-])([A-Z0-9._%+-]+)@([A-Z0-9.-]+\.[A-Z]{2,})(?![\w.-])")
 URL_RE = re.compile(r"(?i)\b(?:https?|ftp)://[^\s<>\"']+")
 IPV4_RE = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")
-PHONE_RE = re.compile(r"(?<!\w)(?:\+\d{1,3}[\s()./-]*)?(?:\(?\d{2,5}\)?[\s./-]*){2,5}\d{2,5}(?!\w)")
+PHONE_INTERNATIONAL_RE = re.compile(r"(?<!\w)\+\d{1,3}(?:[\s()./-]*\d){6,14}(?!\w)")
+PHONE_LABEL_RE = re.compile(
+    r"(?i)\b(?:tel(?:efon)?|phone|mobile|mobil|fax)\s*[:=]\s*(?:\+?\d[\d\s()./-]{5,}\d)"
+)
 UNC_RE = re.compile(r"(?i)(?<!\\)\\\\[A-Z0-9._-]+\\[A-Z0-9$_. -]+")
 WINDOWS_USER_PATH_RE = re.compile(r"(?i)\b[A-Z]:\\Users\\[^\\\s]+")
 UNIX_USER_PATH_RE = re.compile(r"(?<![\w/])/(?:home|Users)/[^/\s]+")
@@ -84,7 +87,9 @@ AWS_KEY_RE = re.compile(r"\bAKIA[0-9A-Z]{16}\b")
 PASSWORD_LITERAL_RE = re.compile(
     r"(?i)\b(?:password|pwd|client_secret|api[_-]?key)\s*[:=]\s*[\"']([^\"'\n]{6,})[\"']"
 )
-CONNECTION_PASSWORD_RE = re.compile(r"(?i)(?:password|pwd)\s*=\s*([^;\r\n]+)")
+CONNECTION_PASSWORD_RE = re.compile(
+    r"(?i)(?:password|pwd)\s*=\s*([A-Za-z0-9!@#$%^&*._-]{6,})(?=;|[\"'\s])"
+)
 
 SUSPICIOUS_OFFICE_PARTS = {
     "macro": ("vbaproject.bin",),
@@ -153,12 +158,7 @@ class Scanner:
         if email_count:
             self.add(label, "email_address", email_count)
 
-        phone_count = 0
-        for match in PHONE_RE.finditer(text):
-            candidate = match.group(0)
-            digits = sum(character.isdigit() for character in candidate)
-            if digits >= 7 and (candidate.lstrip().startswith("+") or any(ch in candidate for ch in "()/")):
-                phone_count += 1
+        phone_count = len(PHONE_INTERNATIONAL_RE.findall(text)) + len(PHONE_LABEL_RE.findall(text))
         if phone_count:
             self.add(label, "phone_number", phone_count)
 
@@ -237,9 +237,12 @@ class Scanner:
         pure = PurePosixPath(name)
         return not pure.is_absolute() and ".." not in pure.parts and "\\" not in name
 
+    @staticmethod
+    def _active_deck_hash_approved(outer_label: str, outer_sha256: str) -> bool:
+        return APPROVED_ACTIVE_DECK.get(outer_label) == outer_sha256
+
     def _media_allowed(self, outer_label: str, outer_sha256: str, member_name: str) -> bool:
-        approved = APPROVED_PACKAGE_MEDIA.get(outer_label)
-        if approved != outer_sha256:
+        if not self._active_deck_hash_approved(outer_label, outer_sha256):
             return False
         lowered = member_name.lower()
         return lowered.startswith("docprops/thumbnail.") or lowered.startswith("ppt/media/")
@@ -254,6 +257,7 @@ class Scanner:
                 if bad_member:
                     self.add(label, "corrupt_archive_member")
                 outer_sha256 = hashlib.sha256(data).hexdigest()
+                approved_active_deck = self._active_deck_hash_approved(label, outer_sha256)
                 total_uncompressed = 0
                 for info in archive.infolist():
                     if info.is_dir():
@@ -292,9 +296,13 @@ class Scanner:
                             self.add(member_label, "text_decode_failed")
                             continue
                         self.scan_text(member_label, text)
-                        if office_package and member_name.lower() in {
-                            "docprops/core.xml", "docprops/app.xml", "docprops/custom.xml"
-                        }:
+                        if (
+                            office_package
+                            and not approved_active_deck
+                            and member_name.lower() in {
+                                "docprops/core.xml", "docprops/app.xml", "docprops/custom.xml"
+                            }
+                        ):
                             self._scan_identity_metadata(member_label, text)
                     elif suffix in OFFICE_SUFFIXES:
                         self.scan_zip_bytes(
