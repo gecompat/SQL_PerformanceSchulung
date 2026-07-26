@@ -2,14 +2,16 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspakete | `PRS-009`, `PRS-011`, `PRS-012`, `TST-011` |
-| Status | `PLANNED` |
-| Planversion | 1.0 |
+| Arbeitspakete | `PRS-009`, `PRS-011`, `PRS-012`, `PRS-013`, `TST-011`, `TST-012` |
+| Status | `IN_PROGRESS` |
+| Planversion | 1.1 |
 | Stand | 2026-07-26 |
 | Kanonisches Artefakt | vollständiges PowerPoint-Masterdeck |
 | Abgeleitete Tiefenprofile | `BASIS`, `STANDARD`, `VERTIEFUNG` |
 | Primärer Präsentationsmechanismus | PowerPoint Custom Shows im Masterdeck |
 | Eigenständige Dateien | reproduzierbar erzeugte Kopien, keine manuell gepflegten Zweitdecks |
+| Verbindlicher Manifestvertrag | [`PRESENTATION_VARIANT_MANIFEST_CONTRACT.md`](../Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md) |
+| Maschinenlesbares Schema | [`presentation_variants.schema.json`](../../Presentations/variants/presentation_variants.schema.json) |
 
 ## 1. Entscheidung
 
@@ -36,7 +38,7 @@ Die Profile sind kumulativ: `STANDARD` enthält grundsätzlich `BASIS`; `VERTIEF
 
 ## 3. Stabile Folienidentität
 
-Foliennummern sind nicht stabil, weil neue Folien eingefügt oder Abschnitte verschoben werden können. Jede Folie erhält deshalb eine unveränderliche `SlideKey` im Format `SLD-<MODUL>-<NUMMER>`, beispielsweise `SLD-M02-015`.
+Foliennummern sind nicht stabil, weil neue Folien eingefügt oder Abschnitte verschoben werden können. Jede Folie erhält deshalb eine unveränderliche `SlideKey` im Format `SLD-M<MODUL>-<NUMMER>`, beispielsweise `SLD-M02-015`.
 
 Die `SlideKey` wird in den Speaker Notes in maschinenlesbarer Form abgelegt:
 
@@ -46,43 +48,23 @@ Die `SlideKey` wird in den Speaker Notes in maschinenlesbarer Form abgelegt:
 
 Zusätzlich werden Claim-IDs, Quellen-IDs, Demo-IDs und Lernziele im bestehenden Aussagen- und Traceability-Modell geführt. Die native PowerPoint-`SlideID` kann zur Laufzeit für Custom Shows verwendet werden, ist jedoch nicht die projektweite Identität. Das Variantenmanifest ordnet die projektweite `SlideKey` der im jeweiligen Masterdeck gefundenen Folie zu.
 
+Der vollständige Marker-, Vergabe- und Wiederverwendungsvertrag ist seit `PRS-011` in [`PRESENTATION_VARIANT_MANIFEST_CONTRACT.md`](../Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md) verbindlich.
+
 ## 4. Variantenmanifest
 
-Die fachliche Auswahl wird nicht ausschließlich in der Binärdatei verborgen. Ein versioniertes, diffbares Manifest wird unter `Presentations/variants/presentation_variants.json` vorgesehen. Es enthält mindestens:
+Die fachliche Auswahl wird nicht ausschließlich in der Binärdatei verborgen. Ein versioniertes, diffbares Manifest wird unter `Presentations/variants/presentation_variants.json` geführt. Das Schema Version 1 ist unter [`Presentations/variants/presentation_variants.schema.json`](../../Presentations/variants/presentation_variants.schema.json) festgelegt.
 
-```json
-{
-  "schema_version": 1,
-  "master_deck": "Presentations/<Masterdeck>.pptx",
-  "profiles": {
-    "BASIS": {
-      "custom_show": "SQL Performance – Basis",
-      "include_depth": ["BASIS"]
-    },
-    "STANDARD": {
-      "custom_show": "SQL Performance – Standard",
-      "include_depth": ["BASIS", "STANDARD"]
-    },
-    "VERTIEFUNG": {
-      "custom_show": "SQL Performance – Vertiefung",
-      "include_depth": ["BASIS", "STANDARD", "VERTIEFUNG"]
-    }
-  },
-  "slides": {
-    "SLD-M02-015": {
-      "depth": "VERTIEFUNG",
-      "role": "THEORY",
-      "module": "M02",
-      "requires": ["SLD-M02-003"],
-      "claims": ["CLM-XXX"],
-      "sources": ["SRC-XXX"],
-      "demos": ["OPT-015"]
-    }
-  }
-}
-```
+Das Manifest enthält mindestens:
 
-Das konkrete Schema wird in `PRS-011` festgelegt. JSON wird bevorzugt, weil es ohne zusätzliche Bibliothek validiert werden kann. Das Manifest darf keine personenbezogenen oder umgebungsbezogenen Daten enthalten.
+- Masterdeckpfad und SHA-256;
+- die Profile `BASIS`, `STANDARD` und `VERTIEFUNG`;
+- stabile SlideKeys, Reihenfolge, Modul, Tiefe und Folienrollen;
+- Claims, Quellen, Lernziele und Demo-IDs;
+- fachliche Voraussetzungen, gekoppelte Folien und interne Linkziele;
+- begründete Profilabweichungen;
+- deterministische Build- und Dateinamensregeln.
+
+Das Manifest darf keine personenbezogenen oder umgebungsbezogenen Daten enthalten. Semantische Regeln wie kumulative Profile, azyklische Voraussetzungen und symmetrische Kopplungen werden zusätzlich zum JSON Schema durch `TST-011` geprüft.
 
 ## 5. Ableitungsverfahren
 
@@ -96,12 +78,16 @@ Custom Shows sind der primäre Weg für Trainer, weil sie keine zweite Datei erz
 
 Eine eigenständige Datei wird nur bei einem konkreten Bedarf erzeugt, beispielsweise für Teilnehmerbereitstellung, Versand oder eine klar abgegrenzte Veranstaltung. Der Build arbeitet auf einer durch PowerPoint erzeugten Kopie des Masterdecks. Anschließend werden alle nicht enthaltenen Folien in absteigender Folienreihenfolge entfernt. Das Verfahren kopiert keine einzelnen Folien in ein leeres Deck und vermeidet dadurch unnötige Risiken bei Notes, Layouts, Medien, Diagrammen, Beziehungen und eingebetteten Objekten.
 
-Vorgesehene Dateinamen:
+Die Dateinamen folgen dem in `PRS-011` festgelegten Muster:
 
 ```text
-Performance_Schulung_SQL_Server_Basis.pptx
-Performance_Schulung_SQL_Server_Standard.pptx
-Performance_Schulung_SQL_Server_Vertiefung.pptx
+SQL_PerformanceSchulung_{PROFILE}_{MASTER_SHORT_HASH}.pptx
+```
+
+Beispiel:
+
+```text
+SQL_PerformanceSchulung_STANDARD_3ad528c2.pptx
 ```
 
 Die Dateien sind Build- oder Releaseartefakte. Sie werden nicht unabhängig bearbeitet. Jede Änderung erfolgt im Masterdeck und wird anschließend erneut abgeleitet.
@@ -144,7 +130,7 @@ Für das Masterdeck und jede freigegebene Variante gelten folgende Prüfungen:
 
 | ID | Größe | Status | Arbeit | Abschlusskriterium |
 |---|---:|---|---|---|
-| `PRS-011` | M | `PROPOSED` | SlideKey- und Variantenmanifest-Vertrag definieren | Schema, Tiefenprofile, Rollen, Abhängigkeiten und Validierungsregeln sind festgelegt |
+| `PRS-011` | M | `VALIDATED` | SlideKey- und Variantenmanifest-Vertrag definieren | Vertrag und JSON Schema legen Tiefenprofile, Rollen, Abhängigkeiten, Build- und Validierungsregeln fest |
 | `PRS-012` | M | `PROPOSED` | Masterdeck mit SlideKeys und Custom Shows ausstatten | alle Folien sind stabil identifiziert; `BASIS`, `STANDARD` und `VERTIEFUNG` sind im Deck vorhanden |
 | `PRS-013` | M | `PROPOSED` | kontrollierten interaktiven Varianten-Build erstellen | Kopie, Ausschluss, Save, Fehlerbehandlung und unverändertes Masterdeck sind nachgewiesen |
 | `TST-011` | M | `PROPOSED` | statischen Variantenvalidator implementieren | Manifest, SlideKeys, Custom Shows, Abhängigkeiten, Links und Quellen werden ohne Office-Start geprüft |
@@ -152,7 +138,7 @@ Für das Masterdeck und jede freigegebene Variante gelten folgende Prüfungen:
 
 ## 9. Reihenfolge
 
-Die praktische Umsetzung beginnt nicht mit dem Löschen oder Kopieren von Folien. Zuerst werden in `PRS-011` das Manifest und die Selektionsregeln festgelegt. Danach erhält das Masterdeck in `PRS-012` stabile SlideKeys und Custom Shows. Erst wenn diese statisch validiert sind, wird in `PRS-013` die optionale Erzeugung eigenständiger `.pptx`-Dateien umgesetzt.
+`PRS-011` ist abgeschlossen. Als nächste Schritte können `PRS-012` und der schema-/manifestbezogene Teil von `TST-011` parallel beginnen. Erst wenn das Masterdeck SlideKeys und Custom Shows besitzt und die statische Prüfung erfolgreich ist, wird in `PRS-013` die optionale Erzeugung eigenständiger `.pptx`-Dateien umgesetzt. `TST-012` folgt nach der ersten erzeugten Variante.
 
 Die fachliche Erweiterung des Masterdecks durch `ADV-009` verwendet von Beginn an die festgelegten Tiefenprofile. Neue Vertiefungsfolien werden daher nicht nachträglich aussortiert, sondern bei ihrer Anlage mit `SlideKey`, Profil, Quelle, Lernziel und Demo-Zuordnung registriert.
 
