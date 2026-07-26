@@ -2,8 +2,9 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IN_PROGRESS` |
+| Status | `VALIDATED` |
 | Stand | 2026-07-26 |
+| Pull Request | `#19` |
 | Ausgangscommit auf `origin/main` | `b3597d3c53c98ebf78d1fcf3ee5425f0af3cb5ad` |
 | Arbeitspakete | `ADV-006`, `ADV-007` |
 | PowerPoint geändert | nein |
@@ -66,14 +67,22 @@ Die statische Prüfung validiert:
 - Backlog- und Statuskonsistenz,
 - vollständigen Repository-Privacy-Scan.
 
+Final erfolgreich:
+
+- `Advanced lab design contracts VP3-VP5`, Lauf `30215707347`,
+- `Advanced lab design contracts`, Lauf `30215707315`,
+- `Curriculum and privacy validation`, Lauf `30215707317`,
+- `Framework contracts`, Lauf `30215707333`,
+- `W2-001 legacy example classification`, Lauf `30215707325`.
+
 ## 6. Nicht durchgeführte Prüfungen
 
-Eine SQL-Server-Runtime-Matrix wird in dieser Welle nicht ausgeführt, weil keine SQL-Datei und keine ausführbare Demo implementiert wird. Ein PowerPoint-Render ist nicht erforderlich, weil das Masterdeck unverändert bleibt. Runtime-, Feature-, Planform- und Ressourcenvalidierung folgen unter `ADV-008`.
+Eine SQL-Server-Runtime-Matrix wurde in dieser Welle nicht ausgeführt, weil keine SQL-Datei und keine ausführbare Demo implementiert wurde. Ein PowerPoint-Render war nicht erforderlich, weil das Masterdeck unverändert blieb. Runtime-, Feature-, Planform- und Ressourcenvalidierung folgen unter `ADV-008`.
 
 ## 7. Statusgrenze
 
-`ADV-006` und `ADV-007` können nach erfolgreicher CI fachlich und statisch `VALIDATED` werden. Sämtliche zugehörigen Demos bleiben bis zur Implementierung und Runtimeprüfung `PLANNED` beziehungsweise `DESIGNED`.
+`ADV-006` und `ADV-007` sind fachlich und statisch `VALIDATED`. Sämtliche zugehörigen Demos bleiben bis zur Implementierung und Runtimeprüfung `PLANNED` beziehungsweise `DESIGNED`. Gate V2 ist damit vollständig `VALIDATED`; Gate V3 bleibt offen.
 
 ## 8. Nächster fachlicher Schritt
 
-Nach der Abnahme beginnt `ADV-008` mit kleinen, unabhängigen Implementierungsschnitten. Als erste Schnitte sind `OPT-015`, `OPT-016`, `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` vorgesehen. Query-Store-/XE-Pilotvalidierung erfolgt vor `DGN-007`. `RES-003` bleibt der letzte und separat freizugebende rote Schnitt.
+Der nächste abhängige Schritt ist `ADV-008` mit kleinen, unabhängigen Implementierungsschnitten. Als erste Schnitte sind `OPT-015`, `OPT-016`, `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` vorgesehen. Query-Store-/XE-Pilotvalidierung erfolgt vor `DGN-007`. `RES-003` bleibt der letzte und separat freizugebende rote Schnitt.
