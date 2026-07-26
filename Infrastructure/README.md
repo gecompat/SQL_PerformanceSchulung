@@ -1,12 +1,19 @@
 # Infrastructure
 
-Dieser Bereich enthält reproduzierbare Labortopologien und Konfigurationen, nicht die fachlichen T-SQL-Demos selbst.
+Die allgemeine Erzeugung und Verwaltung von SQL-Server-Laborumgebungen (Docker, Hyper-V, Podman) liegt im zentralen Repository:
 
-Geplante Unterbereiche:
+**https://github.com/gecompat/SQL_Server_Lab**
 
-- `Docker/` für portable Linux-Container-Labs,
-- `Podman/` für geprüfte Podman-Desktop-Varianten,
-- `Hyper-V/` für Windows-spezifische, OS-nahe und stark isolierte Szenarien,
-- `Shared/` für neutrale Konfigurationsvorlagen.
+Dieses Repository (`SQL_PerformanceSchulung`) enthaelt keine eigene Lab-Provisionierung. Die Schulungsumgebung wird ueber `SQL_Server_Lab` bereitgestellt.
 
-Secrets, reale Hostnamen, Benutzerkonten, Pfade und interne Netzwerkdaten dürfen nicht eingecheckt werden. Beispielwerte müssen eindeutig synthetisch sein. Ressourcen- und I/O-Limits werden zusammen mit Rücksetz- und Abbruchanweisungen dokumentiert.
+## Workflow
+
+1. SQL-Server-Umgebung mit `SQL_Server_Lab` bereitstellen
+2. Schulungs-Package installieren (Demos, synthetische Testdaten)
+3. Demo ausfuehren (`Demos/`)
+4. Demo bereinigen
+5. Labumgebung ueber `SQL_Server_Lab` entfernen
+
+## Lokale Geheimnisse
+
+Secrets, reale Hostnamen, Benutzerkonten, Pfade und interne Netzwerkdaten duerfen nicht eingecheckt werden. Beispielwerte muessen eindeutig synthetisch sein.
