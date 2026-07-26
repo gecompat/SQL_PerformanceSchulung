@@ -1,5 +1,9 @@
 # Initialer Backlog
 
+## Aktueller operativer Einstiegspunkt
+
+Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausführbare Schritt stehen in [`Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md`](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md). Historische Fortschrittsmarker im Masterplan dürfen diesem Status nicht widersprechen.
+
 ## Welle 0 - Fachliche Konsolidierung
 
 - [x] `W0-001` Quellenmanifest für Folien, Dokumente und vorhandene Demo-Artefakte erstellen.
@@ -58,7 +62,7 @@
 ## P1 - Vertiefungsstrang Query Processing und Diagnose
 
 - [x] `ADV-001` Quellenbasierten Integrationsplan mit fachlichen Blöcken, LAB-Serien, Gates und Mindestanforderungen erstellen.
-- [ ] `ADV-002` Claim- und Quellenmatrix für Planmechanik, Parameter Sensitivity, Workspace Memory, IQP und Incident-Diagnose erstellen.
+- [x] `ADV-002` Claim- und Quellenmatrix für Planmechanik, Parameter Sensitivity, Workspace Memory, IQP und Incident-Diagnose erstellen.
 - [ ] `ADV-003` Curriculum-Lernziele und Traceability-Matrix für M02, M03, M06 und M07 erweitern.
 - [ ] `ADV-004` LAB-VP1 sowie `OPT-015` bis `OPT-017` vollständig entwerfen.
 - [ ] `ADV-005` LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entwerfen.
@@ -72,7 +76,7 @@
 
 - [x] `DEC-043` Kanonisches Masterdeck und reproduzierbar abgeleitete Tiefenprofile verbindlich entscheiden.
 - [x] Architekturplan für `BASIS`, `STANDARD` und `VERTIEFUNG` einschließlich Custom Shows, eigenständiger `.pptx`-Ableitung und Qualitätsgates erstellen.
-- [ ] `PRS-011` SlideKey- und JSON-Variantenmanifest-Vertrag definieren.
+- [x] `PRS-011` SlideKey- und JSON-Variantenmanifest-Vertrag definieren.
 - [ ] `PRS-012` Masterdeck mit stabilen SlideKeys und den Custom Shows `BASIS`, `STANDARD` und `VERTIEFUNG` ausstatten.
 - [ ] `PRS-013` kontrollierten interaktiven Build eigenständiger `.pptx`-Varianten aus einer Kopie des Masterdecks implementieren.
 - [ ] `TST-011` statischen Validator für Manifest, SlideKeys, Custom Shows, Abhängigkeiten, Links, Quellen und Demo-IDs implementieren.
