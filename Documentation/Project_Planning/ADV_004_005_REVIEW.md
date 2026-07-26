@@ -2,8 +2,9 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IN_PROGRESS` |
+| Status | `VALIDATED` |
 | Stand | 2026-07-26 |
+| Pull Request | `#18` |
 | Ausgangscommit auf `origin/main` | `1849e2207c67a062cd33e91b184cdc192a784a37` |
 | Arbeitspakete | `ADV-004`, `ADV-005` |
 | PowerPoint geändert | nein |
@@ -52,12 +53,21 @@ Die statische Prüfung validiert:
 - verbotene globale oder datenschutzkritische Aktionen,
 - Backlog- und Dokumentationskonsistenz.
 
-Der Workflow führt zusätzlich den vollständigen Repository-Privacy-Scan aus.
+Final erfolgreich:
+
+- `Advanced lab design contracts`, Lauf `30214930385`,
+- `Curriculum and privacy validation`, Lauf `30214930363`,
+- `Framework contracts`, Lauf `30214930319`,
+- `W2-001 legacy example classification`, Lauf `30214930361`.
 
 ## 6. Nicht durchgeführte Prüfungen
 
-Eine SQL-Server-Runtime-Matrix wird nicht ausgeführt, weil keine SQL-Datei und keine ausführbare Demo implementiert wird. Ein PowerPoint-Render ist nicht erforderlich, weil das Masterdeck unverändert bleibt. Runtime-, Planform- und Ressourcenvalidierung folgen erst während `ADV-008`.
+Eine SQL-Server-Runtime-Matrix wurde nicht ausgeführt, weil keine SQL-Datei und keine ausführbare Demo implementiert wurde. Ein PowerPoint-Render war nicht erforderlich, weil das Masterdeck unverändert blieb. Runtime-, Planform- und Ressourcenvalidierung folgen erst während `ADV-008`.
 
-## 7. Nächste fachliche Schritte
+## 7. Statusgrenze
 
-Nach erfolgreicher Abnahme können `ADV-006` und `ADV-007` beginnen. Erste SQL-Implementierungen werden anschließend in kleinen, voneinander unabhängigen Schnitten unter `ADV-008` umgesetzt. Parallel bleiben `PRS-012`/`TST-011`, W2-002-Teilpakete und die Query-Store-/XE-Pilotvalidierung offen.
+`ADV-004` und `ADV-005` sind fachlich und statisch `VALIDATED`. `OPT-015`, `OPT-016`, `OPT-017`, `QRY-013` sowie die Erweiterung von `QRY-004` bleiben bis zur Umsetzung und Runtimeprüfung ausdrücklich `PLANNED` beziehungsweise `DESIGNED`; sie sind nicht `IMPLEMENTED`.
+
+## 8. Nächste fachliche Schritte
+
+`ADV-006` und `ADV-007` können beginnen. Erste SQL-Implementierungen werden anschließend in kleinen, voneinander unabhängigen Schnitten unter `ADV-008` umgesetzt. Parallel bleiben `PRS-012`/`TST-011`, W2-002-Teilpakete und die Query-Store-/XE-Pilotvalidierung offen.
