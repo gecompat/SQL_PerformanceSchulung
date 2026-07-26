@@ -4,13 +4,14 @@
 |---|---|
 | Arbeitspakete | `ADV-001` bis `ADV-010` |
 | Status | `IN_PROGRESS` |
-| Planversion | 1.1 |
+| Planversion | 1.2 |
 | Stand | 2026-07-26 |
 | Zielplattform | SQL Server 2019, 2022 und 2025 |
 | Curriculumbezug | M02, M03, M06 und M07 |
 | Standard-Ausführungspfad | T-SQL in einer isolierten synthetischen Testdatenbank |
 | Quellenbasis | Microsoft Learn, SQLServerFast, Paul White, Erland Sommarskog, Brent Ozar und Erik Darling |
 | Claim- und Quellenmatrix | [`ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md`](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
+| Curriculum und Traceability | [`CURRICULUM_ARCHITECTURE.md`](../Curriculum/CURRICULUM_ARCHITECTURE.md), [`TRACEABILITY_MATRIX.md`](../Curriculum/TRACEABILITY_MATRIX.md) |
 
 ## 1. Zweck und Entscheidung
 
@@ -158,18 +159,21 @@ Ergebnis: Eine vollständige Diagnosekette führt von einem zeitlichen Symptom z
 
 ## 5. Lernziele der Vertiefung
 
-Die Curriculumarchitektur wird um folgende Lernziele ergänzt. Die endgültige Nummerierung erfolgt in `ADV-003`, nachdem die Traceability-Matrix auf Konflikte geprüft wurde.
+`ADV-003` hat neun zusätzliche Lernziele festgelegt. Sie sind ausschließlich `VERTIEFUNG` und verändern den gemeinsamen Kernpfad nicht.
 
-| Zielbereich | Beobachtbares Lernziel |
-|---|---|
-| Planmechanik | planweite und operatorbezogene Eigenschaften unterscheiden und die erste relevante Abweichung entlang des Datenflusses begründen |
-| Operatorinteraktion | Rebind, Rewind, Outer References und Spools als Folge einer Planform erklären und mit Ausführungsanzahlen überprüfen |
-| Row Goals | ein Row Goal anhand Planattributen und Planform erkennen und seine Kostenannahme mit tatsächlicher Zeilenfindung vergleichen |
-| Anwendungskontext | unterschiedliche Pläne zwischen Anwendung und SSMS über Cache Keys, SET-Optionen, Parameterwerte und Datenbankkontext untersuchen |
-| Parametrisierung | Catch-all, Recompile, parameterisiertes dynamisches SQL, PSP und OPPO nach Sicherheit, Wiederverwendung und Datenverteilung vergleichen |
-| Workspace Memory | Undergrant, Overgrant, Spill, wartenden Grant und Memory Pressure mit Plan-, DMV- und Wait-Evidenz trennen |
-| IQP | Engine-Version, Compatibility Level, Query Store und Datenbankkonfiguration als unabhängige Featurevoraussetzungen prüfen |
-| Incident-Diagnose | mehrere plausible Ursachen anhand einer Evidenzkette priorisieren und mindestens eine falsche Hypothese begründet verwerfen |
+| ID | Zielbereich | Beobachtbares Lernziel |
+|---|---|---|
+| `LO-M02-08` | Planmechanik | planweite und operatorbezogene Eigenschaften sowie Kostenmodell und Runtime-Evidenz unterscheiden |
+| `LO-M02-09` | Operatorinteraktion | Rebinds, Rewinds, Outer References, Spools und parallele Planbereiche anhand tatsächlicher Ausführung erklären |
+| `LO-M02-10` | Row Goals | Row Goals und logische Semi-/Anti-Join-Formen von ihrer physischen Planumsetzung trennen |
+| `LO-M02-11` | IQP | Engine-Version, Compatibility Level, Konfiguration, Query Store und Eligibility als getrennte Featurevoraussetzungen prüfen |
+| `LO-M03-07` | Anwendungskontext | Anwendung-/SSMS-Unterschiede über Cache-, Parameter-, Datenbank- und Datenkontext untersuchen |
+| `LO-M03-08` | Parametrisierung | Recompile, sicher parameterisiertes dynamisches SQL, PSP und OPPO nach Information, Sicherheit und Wiederverwendung vergleichen |
+| `LO-M06-07` | Workspace Memory | Grantstufen, Spills, Under-/Overgrant und Grant-Warten mit Plan-, DMV-, Wait- und TempDB-Evidenz trennen |
+| `LO-M06-08` | Evidenz-Scope | Livezustand, kumulative Werte, Query-Store-Historie und XE-Ereignisse nach Zeitraum und Aussageebene kombinieren |
+| `LO-M07-04` | Incident-Diagnose | mehrere plausible Ursachen priorisieren, Alternativhypothesen verwerfen und genau eine reversible Änderung vergleichen |
+
+Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Curriculum/CURRICULUM_ARCHITECTURE.md); alle 39 Claims sind in der [Traceability-Matrix](../Curriculum/TRACEABILITY_MATRIX.md) genau einem dieser Lernziele zugeordnet.
 
 ## 6. Arbeitspakete und Reihenfolge
 
@@ -177,7 +181,7 @@ Die Curriculumarchitektur wird um folgende Lernziele ergänzt. Die endgültige N
 |---|---:|---|---|---|
 | `ADV-001` | M | `VALIDATED` | quellenbasierten Integrationsplan erstellen und im Repository verankern | Plan, Quellenregister und Backlog sind konsistent verknüpft |
 | `ADV-002` | M | `VALIDATED` | Aussagen- und Quellenmatrix für alle Vertiefungsabschnitte erstellen | 39 Claims besitzen Evidenzklasse, Quellen, Versionsgrenze und Abnahmebedingung |
-| `ADV-003` | M | `PROPOSED` | Curriculum, Lernziele und Traceability-Matrix erweitern | M02/M03/M06/M07 enthalten die neuen Lernziele ohne Bruch des Kernpfads |
+| `ADV-003` | M | `VALIDATED` | Curriculum, Lernziele und Traceability-Matrix erweitern | 39 Claims sind neun beobachtbaren Vertiefungslernzielen zugeordnet; Kernpfad und 84 aktive Claims bleiben unverändert |
 | `ADV-004` | L | `PROPOSED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Setup, Baseline, Evidenz, Mitigation, Comparison, Cleanup und Tests sind festgelegt |
 | `ADV-005` | L | `PROPOSED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Anwendungskontext und alle Strategien sind reproduzierbar und sicher vergleichbar |
 | `ADV-006` | L | `PROPOSED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Featurematrix, erwartete Skips und Messgrößen sind vollständig |
@@ -188,21 +192,21 @@ Die Curriculumarchitektur wird um folgende Lernziele ergänzt. Die endgültige N
 
 ## 7. Gates
 
-### Gate V0 – Quellenfreigabe
+### Gate V0 – Quellenfreigabe: `VALIDATED`
 
 - Primär- und Ergänzungsquellen sind getrennt.
 - Copyright- und Wiederverwendungsgrenzen sind dokumentiert.
 - Jede undokumentierte Internalaussage besitzt die Evidenzklasse `EMPIRICAL` oder `INFERENCE`.
 - Veraltete versionsbezogene Beiträge sind gegen aktuelle Microsoft-Dokumentation geprüft.
+- Jeder Claim besitzt seit `ADV-003` Lernziel und Traceability-Eintrag.
 
-Die Quellenklassifikation ist durch `ADV-002` vorbereitet. Gate V0 wird formal gemeinsam mit `ADV-003` abgenommen, sobald jeder Claim einem Lernziel und Traceability-Eintrag zugeordnet ist.
-
-### Gate V1 – Curriculumfreigabe
+### Gate V1 – Curriculumfreigabe: `VALIDATED`
 
 - Der Kernpfad bleibt ohne Vertiefung vollständig verständlich.
 - Die neuen Lernziele setzen nur im Kern eingeführte Begriffe voraus.
 - Bestehende Demo-Bündel werden erweitert, bevor neue IDs entstehen.
 - Jede LAB-Serie besitzt einen klaren Transfer in eine Diagnoseentscheidung.
+- Die 39 geplanten Claims erhalten erst durch `ADV-009` und `PRS-012` aktive Folien und SlideKeys.
 
 ### Gate V2 – Designfreigabe
 
@@ -227,7 +231,7 @@ Die Quellenklassifikation ist durch `ADV-002` vorbereitet. Gate V0 wird formal g
 
 ## 8. Priorisierung
 
-`ADV-002` ist abgeschlossen. Die verbleibende höchste Priorität bilden `ADV-003`, `ADV-004` und `ADV-005`. Ohne Curriculumfreigabe, belastbare Planmechanik und anwendungsnahe Parameterdiagnose bleibt der Vertiefungsstrang fragmentiert. P1 umfasst anschließend Workspace Memory, IQP-Vergleich und den Capstone-Fall. P2 umfasst Spezialfälle wie detaillierte Sortimplementierungen, seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna. P2-Inhalte werden nur umgesetzt, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
+`ADV-001` bis `ADV-003` sowie Gate V0 und Gate V1 sind abgeschlossen. Die höchste fachliche Priorität bilden nun `ADV-004` und `ADV-005`; beide können auf der gemeinsamen Claim- und Curriculumgrundlage parallel entworfen werden. Danach folgen Workspace Memory/IQP (`ADV-006`) und der Capstone-Fall (`ADV-007`). P2-Spezialfälle wie seltene Spoolvarianten, Batch-Mode-Memory-Fractions oder tiefe Parallel-Startup-Interna werden nur aufgenommen, wenn ein konkretes Lernziel und eine reproduzierbare Diagnoseentscheidung nachgewiesen werden.
 
 ## 9. Mindestanforderungen an die Testumgebung
 
@@ -249,4 +253,4 @@ Die verbindlichen projektweiten Quellen-IDs werden in `Documentation/Research/SO
 
 ## 11. Nächster ausführbarer Schritt
 
-Der nächste fachliche Schritt ist `ADV-003`. Die 39 Claims aus `ADV-002` werden in beobachtbare Lernziele, Curriculumabschnitte und Traceability-Zeilen überführt. Danach können `ADV-004` und `ADV-005` parallel beginnen. Es werden weiterhin keine neuen Folien oder SQL-Demos implementiert, bevor Gate V1 und der jeweilige Demo-Designvertrag vorliegen.
+`ADV-004` und `ADV-005` sind die nächsten fachlichen Designpakete und können parallel beginnen. Sie dürfen keine Runtime- oder Präsentationsfreigabe behaupten, bevor Gate V2 für das jeweilige LAB erfüllt ist. Parallel können die unabhängigen Querschnitte `PRS-012`/`TST-011`, `W2-002` sowie die Query-Store-/XE-Pilotvalidierung bearbeitet werden.

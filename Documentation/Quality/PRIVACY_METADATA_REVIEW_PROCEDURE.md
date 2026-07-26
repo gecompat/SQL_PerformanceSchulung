@@ -2,11 +2,12 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `W0-002` |
+| Arbeitspakete | `W0-002`, `TST-002` |
 | Status | `VALIDATED` |
-| Stand | 2026-07-24 |
+| Stand | 2026-07-26 |
 | Geltung | alle neu erstellten, geänderten, importierten, exportierten oder versionierten Artefakte |
 | Zulässige reale Namensangabe | `Gerhard Pisch` |
+| Automatisiertes Werkzeug | `Tests/Static/validate_privacy_metadata.py` |
 
 ## 1. Ziel
 
@@ -114,11 +115,38 @@ Nach jeder Korrektur werden alle betroffenen Prüfschichten erneut ausgeführt. 
 | Artefakt | Ergebnis | Evidenz |
 |---|---|---|
 | neutralisiertes Referenzarchiv unter `Presentations/old` | `PASS` | Hash und Umfang im Quellenmanifest; Firmen-, Kontakt-, interne System- und Brandingangaben entfernt |
-| aktiver 84-Folien-Satz unter `Presentations` | `PASS` mit zulässiger Namensangabe | 84/84 Folien gerendert; keine eingebetteten Medien; Office-Metadaten normalisiert; nur `Gerhard Pisch` als reale Angabe |
+| aktiver 84-Folien-Satz unter `Presentations` | `PASS` mit zulässiger Namensangabe | 84/84 Folien gerendert; Office-Paket und Metadaten geprüft; nur `Gerhard Pisch` als reale Angabe |
 
 Die fachliche Freigabe eines Artefakts ist von der Privacy-Freigabe getrennt. `PASS` bestätigt ausschließlich die hier definierten Datenschutz- und Metadatenanforderungen.
 
-## 8. Abnahmekriterien für `W0-002`
+## 8. Automatisierte Prüfung durch TST-002
+
+`Tests/Static/validate_privacy_metadata.py` ist ein User-defined Tool des Projekts und verwendet ausschließlich die Python-Standardbibliothek. Der Workflow `.github/workflows/privacy-metadata.yml` führt Curriculumprüfung, Scanner-Selbsttests und Repositoryscan ohne SQL-Server-Start aus.
+
+Der Scanner prüft automatisiert:
+
+- Textdateien auf hochsignifikante Kontakt-, Pfad-, interne URL-, private IP-, Secret- und Legacy-Identifier-Muster,
+- Office-Pakete und ZIP-Archive auf Integrität, Pfadtraversal, Verschlüsselung, Größenbegrenzungen und verschachtelte Inhalte,
+- Office-Eigenschaften auf nicht freigegebene Identitätsmetadaten,
+- Pakete auf Makros, ActiveX, OLE-/Embedding-Inhalte, digitale Signaturen und Custom XML,
+- eigenständige oder eingebettete Medien auf die Notwendigkeit manueller Sichtprüfung,
+- unveränderte, bereits freigegebene Altartefakte ausschließlich über ihren dokumentierten SHA-256-Hash.
+
+Der Scanner meldet ausschließlich Repository-Pfad, Finding-Kategorie und Anzahl. Der konkrete Fundwert wird weder auf Standard Output noch in das kurzlebige Diagnoseartefakt geschrieben. Ein Scannerfehler erzeugt `FAIL`; nicht automatisierbare Medien- oder Binary-Prüfungen werden als blockierende Kategorie ausgegeben.
+
+### 8.1 Grenzen
+
+TST-002 ersetzt keine visuelle Einzelprüfung, kein OCR für texttragende Bilder und keinen Rendervergleich. Medieninhalte werden automatisiert erkannt und blockiert, sofern sie nicht durch einen unveränderten hashgebundenen Nachweis gedeckt sind. Neue oder geänderte Medien benötigen weiterhin die Prüfschichten 4.4 und 4.6.
+
+Heuristische Muster können weder jede proprietäre Bezeichnung erkennen noch jeden zufälligen Zeichenwert zuverlässig als Secret klassifizieren. Der Scanner ist deshalb ein verpflichtendes technisches Gate, aber kein alleiniger Datenschutzfreigabenachweis.
+
+### 8.2 Diagnoseartefakt
+
+Bei einem fehlgeschlagenen Workflow wird für höchstens einen Tag ein Artefakt `privacy-categories` erzeugt. Es enthält nur kategorisierte Findings ohne Fundwerte. Nach Korrektur und erfolgreicher Wiederholung ist dieses Artefakt nicht Bestandteil des Releasepakets.
+
+## 9. Abnahmekriterien
+
+### 9.1 W0-002
 
 - Prüfanlass, Statusmodell und Abbruchregel sind eindeutig.
 - Text, Office-Paket, Metadaten, Bilder, Medien, Code und Exporte sind abgedeckt.
@@ -127,3 +155,10 @@ Die fachliche Freigabe eines Artefakts ist von der Privacy-Freigabe getrennt. `P
 - Hashbasierte Wiederverwendung vorhandener Nachweise ist geregelt.
 - Referenzarchiv und aktiver Foliensatz besitzen einen nachvollziehbaren aktuellen Nachweis.
 
+### 9.2 TST-002
+
+- Scanner und Selbsttests sind ohne Drittanbieterbibliothek ausführbar.
+- Positive synthetische Findings werden kategorisiert, aber ihre Werte nicht ausgegeben.
+- Office-Metadaten, Makros, eingebettete Objekte, Archive und Medien-Gates werden geprüft.
+- Der vollständige Repositoryscan ist im Pull Request erfolgreich.
+- Manuelle Sicht-, OCR- und Renderprüfungen bleiben als getrennte Pflichtschichten dokumentiert.

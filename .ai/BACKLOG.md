@@ -24,7 +24,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] Kanonisches Namensschema der Demo-IDs festlegen.
 - [x] Namens-, Eigentums- und Schutzschema für synthetische Testdatenbanken festlegen.
 - [x] Wiederverwendbares Preflight-, Mess-, Cleanup-, Orchestrierungs- und Runtime-Framework implementieren und auf SQL Server 2019, 2022 und 2025 validieren.
-- [ ] Automatisierte Privacy-Prüfung für Text-, Office- und Bildmetadaten implementieren.
+- [x] `TST-002` automatisierte Privacy-Prüfung für Text-, Office-, Archiv- und Medienmetadaten implementieren; visuelle/OCR-/Renderprüfung bleibt getrennt verpflichtend.
 - [ ] Entscheidungspfad T-SQL/Testdatenbank vor zusätzlicher Infrastruktur im Demo-Katalog abbilden.
 - [x] Baseline-Review der vorhandenen Präsentationen als Review-Artefakt pflegen.
 - [x] Sanitizing-Regeln für Bestandsunterlagen anwenden; nur `Gerhard Pisch` bleibt als reale Namensangabe zulässig.
@@ -63,7 +63,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 - [x] `ADV-001` Quellenbasierten Integrationsplan mit fachlichen Blöcken, LAB-Serien, Gates und Mindestanforderungen erstellen.
 - [x] `ADV-002` Claim- und Quellenmatrix für Planmechanik, Parameter Sensitivity, Workspace Memory, IQP und Incident-Diagnose erstellen.
-- [ ] `ADV-003` Curriculum-Lernziele und Traceability-Matrix für M02, M03, M06 und M07 erweitern.
+- [x] `ADV-003` Curriculum um neun Vertiefungslernziele erweitern und alle 39 Claims in der Traceability-Matrix zuordnen.
 - [ ] `ADV-004` LAB-VP1 sowie `OPT-015` bis `OPT-017` vollständig entwerfen.
 - [ ] `ADV-005` LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entwerfen.
 - [ ] `ADV-006` LAB-VP3 und LAB-VP4 einschließlich Versions-, Compatibility-Level- und Skip-Matrix entwerfen.

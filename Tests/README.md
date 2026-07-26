@@ -13,6 +13,20 @@ python Tests/Static/test_orchestration_runtime.py
 
 Die Prüfungen kontrollieren Pflichtdateien, Statuscodes, Eigentumsmarker, deterministische Generatorregeln, T-SQL-Lexik, Python-Syntax, JSON-Metadaten, Ergebnisverträge, Prozesssteuerung, Safety-Gates, Query-Store- und XE-Verträge sowie Cleanup-Priorität. Die Prozess-Selbsttests verwenden ein synthetisches `sqlcmd`-Ersatzprogramm und benötigen weder Netzwerk noch SQL Server.
 
+## Curriculum- und Privacy-Prüfung
+
+Der Workflow `.github/workflows/privacy-metadata.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python3 Tests/Static/validate_adv_003_curriculum.py
+python3 Tests/Static/test_privacy_metadata_scanner.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Eine geplante Claim-Zuordnung gilt nicht als Runtime- oder Folienfreigabe.
+
+`validate_privacy_metadata.py` ist ein User-defined Tool auf Basis der Python-Standardbibliothek. Es prüft Textdateien, Office-Pakete, ZIP-Archive und Medien-Gates. Findings werden ausschließlich als Repository-Pfad, Kategorie und Anzahl ausgegeben; der gefundene Wert erscheint weder im Log noch im kurzlebigen Diagnoseartefakt. Medien, PDFs und andere visuell zu prüfende Binärartefakte werden blockierend gekennzeichnet, sofern kein unveränderter hashgebundener Freigabenachweis vorliegt. Der Scanner ersetzt keine visuelle Einzelprüfung, kein OCR und keinen Rendervergleich.
+
 ## Aktive Framework-Runtime-Matrix
 
 Der Workflow `.github/workflows/framework-sql-matrix.yml` validiert das gemeinsame Framework gegen:
@@ -48,20 +62,21 @@ Damit wurden insgesamt 24 vollständige Demoläufe ausgeführt. Nach jedem Lauf 
 
 ## Datenschutz und Laufzeitumgebung
 
-Die Matrizen verwenden pro Job eine ephemere Developer-Instanz ohne Host-Port und ohne persistentes Volume. Das Kennwort wird zur Laufzeit erzeugt, maskiert und nicht in Dateien oder Prozessargumenten gespeichert. Kurzlebige Diagnoseartefakte besitzen eine Aufbewahrungsdauer von drei Tagen und enthalten ausschließlich synthetische Phasen- und Fehlerausgaben.
+Die Matrizen verwenden pro Job eine ephemere Developer-Instanz ohne Host-Port und ohne persistentes Volume. Das Kennwort wird zur Laufzeit erzeugt, maskiert und nicht in Dateien oder Prozessargumenten gespeichert. Kurzlebige Diagnoseartefakte besitzen eine begrenzte Aufbewahrungsdauer und enthalten ausschließlich synthetische Phasen-, Kategorien- und Fehlerausgaben.
 
-Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixreview](../Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md) und im [Gate-B-Review](../Documentation/Project_Planning/GATE_B_REVIEW.md).
+Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixreview](../Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md), im [Gate-B-Review](../Documentation/Project_Planning/GATE_B_REVIEW.md) und im [Privacy-Prüfverfahren](../Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md).
 
 ## Toolklassifikation
 
 - Die Python-Prüfungen und Frameworkskripte sind User-defined Tools des Projekts.
 - Das produktive Runtime-Framework verwendet das externe Microsoft-Tool `sqlcmd`.
+- GitHub Actions und `actions/checkout` beziehungsweise `actions/upload-artifact` sind Drittanbieter-/Plattformtools der GitHub-Plattform.
 - Fehlt `sqlcmd`, wird dies als `SKIP_TOOL_MISSING` und nicht als SQL-Server-Fehler behandelt.
 
 ## Nächste Prüfbereiche
 
 - Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden,
-- automatisierte Privacy- und Metadatenprüfung,
+- statische Variantenprüfung für SlideKeys, Custom Shows und Präsentationsmanifest,
 - Windows- oder OS-spezifische Profile nur bei konkreter Demoabhängigkeit,
 - Releasevalidierung mit dokumentierten Containerdigests oder CU-Ständen,
 - weitere Demos und Inhaltsartefakte der Welle 2.
