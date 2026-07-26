@@ -61,6 +61,7 @@ def run_demo(*, demo_id: str, manifest: Path, container: str, proxy: Path,
         "--auth", "sql",
         "--username", "sa",
         "--sqlcmd", str(proxy),
+        "--show-output",
     ]
     result = subprocess.run(
         command,
@@ -77,7 +78,7 @@ def run_demo(*, demo_id: str, manifest: Path, container: str, proxy: Path,
     final_summary = summaries[-1] if summaries else None
 
     if result.returncode != 0 or final_summary != ("PASS", "OK"):
-        diagnostic = combined[-7000:].replace(os.environ.get("SQLCMDPASSWORD", ""), "***")
+        diagnostic = combined[-12000:].replace(os.environ.get("SQLCMDPASSWORD", ""), "***")
         raise Adv008Failure(
             f"{demo_id} repetition {repetition}: harness failed; "
             f"returncode={result.returncode}; summary={final_summary}; diagnostic={diagnostic}"
