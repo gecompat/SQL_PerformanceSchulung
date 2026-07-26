@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "status": "DESIGNED",
+  "work_packages": ["ADV-006", "ADV-007"],
+  "target_versions": [2019, 2022, 2025],
+  "required_phases": [
+    "PREFLIGHT",
+    "SETUP",
+    "BASELINE",
+    "PROBLEM_OR_CONTRAST",
+    "EVIDENCE",
+    "MITIGATION_OR_COUNTERPROBE",
+    "COMPARISON",
+    "CLEANUP"
+  ],
+  "labs": {
+    "LAB-VP3": {
+      "work_package": "ADV-006",
+      "learning_objectives": ["LO-M06-07", "LO-M06-08", "LO-M02-05"],
+      "claims": [
+        "ADV-CLM-021", "ADV-CLM-022", "ADV-CLM-023", "ADV-CLM-024",
+        "ADV-CLM-025", "ADV-CLM-026", "ADV-CLM-027", "ADV-CLM-037"
+      ],
+      "sequence": ["OPT-014", "OPT-013", "RES-004", "RES-003", "RES-007", "DGN-005"],
+      "standard_sequence": ["OPT-014", "OPT-013", "RES-004", "RES-007", "DGN-005"],
+      "optional_red_step": "RES-003",
+      "duration_minutes": {"minimum": 75, "maximum": 145}
+    },
+    "LAB-VP4": {
+      "work_package": "ADV-006",
+      "learning_objectives": ["LO-M02-11", "LO-M02-07", "LO-M06-07"],
+      "claims": [
+        "ADV-CLM-019", "ADV-CLM-020", "ADV-CLM-025", "ADV-CLM-028",
+        "ADV-CLM-029", "ADV-CLM-030", "ADV-CLM-031", "ADV-CLM-032", "ADV-CLM-033"
+      ],
+      "sequence": ["QRY-008", "QRY-009", "OPT-014", "OPT-009", "OPT-006", "RES-002", "OPT-010"],
+      "duration_minutes": {"minimum": 95, "maximum": 140},
+      "feature_matrix_required": true
+    },
+    "LAB-VP5": {
+      "work_package": "ADV-007",
+      "learning_objectives": ["LO-M07-04", "LO-M06-08", "LO-M03-07"],
+      "claims": [
+        "ADV-CLM-013", "ADV-CLM-014", "ADV-CLM-015", "ADV-CLM-034",
+        "ADV-CLM-035", "ADV-CLM-036", "ADV-CLM-037", "ADV-CLM-038", "ADV-CLM-039"
+      ],
+      "sequence": ["DGN-001", "DGN-003", "QRY-013", "DGN-007", "M07-TRANSFER"],
+      "duration_minutes": {"minimum": 90, "maximum": 135},
+      "new_demos": ["DGN-007"],
+      "minimum_false_hypotheses": 2
+    }
+  },
+  "feature_matrix": {
+    "INTERLEAVED_EXECUTION_MSTVF": {
+      "minimum_engine": 2019,
+      "minimum_compatibility_level": 140,
+      "query_store": "NOT_FEATURE_PREREQUISITE",
+      "demos": ["QRY-009"],
+      "versions": {"2019": "TEST", "2022": "TEST", "2025": "TEST"}
+    },
+    "TABLE_VARIABLE_DEFERRED_COMPILATION": {
+      "minimum_engine": 2019,
+      "minimum_compatibility_level": 150,
+      "query_store": "NOT_FEATURE_PREREQUISITE",
+      "demos": ["QRY-008", "OPT-013"],
+      "versions": {"2019": "TEST", "2022": "TEST", "2025": "TEST"}
+    },
+    "SCALAR_UDF_INLINING": {
+      "minimum_engine": 2019,
+      "minimum_compatibility_level": 150,
+      "query_store": "NOT_FEATURE_PREREQUISITE",
+      "demos": ["QRY-009"],
+      "versions": {"2019": "TEST", "2022": "TEST", "2025": "TEST"}
+    },
+    "BATCH_MODE_ON_ROWSTORE": {
+      "minimum_engine": 2019,
+      "minimum_compatibility_level": 150,
+      "query_store": "NOT_FEATURE_PREREQUISITE",
+      "demos": ["OPT-006", "RES-002"],
+      "versions": {"2019": "TEST", "2022": "TEST", "2025": "TEST"}
+    },
+    "ROW_MODE_MEMORY_GRANT_FEEDBACK": {
+      "minimum_engine": 2019,
+      "minimum_compatibility_level": 150,
+      "query_store": "NOT_REQUIRED_FOR_BASE_MODE",
+      "demos": ["OPT-014"],
+      "versions": {"2019": "TEST", "2022": "TEST", "2025": "TEST"}
+    },
+    "PERSISTED_PERCENTILE_MEMORY_GRANT_FEEDBACK": {
+      "minimum_engine": 2022,
+      "minimum_compatibility_level": 160,
+      "query_store": "READ_WRITE_REQUIRED",
+      "demos": ["OPT-014"],
+      "versions": {"2019": "SKIP_FEATURE_UNAVAILABLE", "2022": "TEST", "2025": "TEST"}
+    },
+    "PARAMETER_SENSITIVE_PLAN_OPTIMIZATION": {
+      "minimum_engine": 2022,
+      "minimum_compatibility_level": 160,
+      "query_store": "ENABLED_FOR_EVIDENCE",
+      "demos": ["OPT-009"],
+      "versions": {"2019": "SKIP_FEATURE_UNAVAILABLE", "2022": "TEST", "2025": "TEST"}
+    },
+    "CARDINALITY_ESTIMATION_FEEDBACK": {
+      "minimum_engine": 2022,
+      "minimum_compatibility_level": 160,
+      "query_store": "READ_WRITE_REQUIRED",
+      "demos": ["OPT-006", "DGN-003"],
+      "versions": {"2019": "SKIP_FEATURE_UNAVAILABLE", "2022": "TEST", "2025": "TEST"}
+    },
+    "DEGREE_OF_PARALLELISM_FEEDBACK": {
+      "minimum_engine": 2022,
+      "minimum_compatibility_level": 160,
+      "query_store": "READ_WRITE_REQUIRED",
+      "demos": ["RES-002", "DGN-003"],
+      "versions": {"2019": "SKIP_FEATURE_UNAVAILABLE", "2022": "TEST", "2025": "TEST"}
+    },
+    "OPTIONAL_PARAMETER_PLAN_OPTIMIZATION": {
+      "minimum_engine": 2025,
+      "minimum_compatibility_level": 170,
+      "query_store": "ENABLED_FOR_EVIDENCE",
+      "demos": ["OPT-010", "QRY-004"],
+      "versions": {"2019": "SKIP_FEATURE_UNAVAILABLE", "2022": "SKIP_FEATURE_UNAVAILABLE", "2025": "TEST"}
+    }
+  },
+  "demos": {
+    "OPT-014": {
+      "title": "Grantstufen und Memory Grant Feedback",
+      "risk": "YELLOW",
+      "execution_path": "TSQL_TESTDB",
+      "sessions": 1,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-021", "ADV-CLM-023", "ADV-CLM-025"],
+      "sources": ["SRC-009", "SRC-010", "SRC-050"],
+      "evidence": ["plan_grant_attributes", "active_grant_dmv", "requested_memory", "granted_memory", "max_used_memory", "spill_warnings", "logical_reads", "cpu", "duration", "result_checksum"],
+      "skip_codes": ["SKIP_FEATURE_NOT_ELIGIBLE", "SKIP_PERMISSION_MISSING", "SKIP_QUERY_STORE_REQUIRED"]
+    },
+    "RES-004": {
+      "title": "Overgrant, Undergrant und konkurrierende Grants",
+      "risk": "YELLOW",
+      "execution_path": "TSQL_TESTDB_MULTI_SESSION_RESOURCE_PROFILE",
+      "sessions": 6,
+      "minimum_cpu": 4,
+      "minimum_memory_gb": 8,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-022", "ADV-CLM-023", "ADV-CLM-026", "ADV-CLM-027"],
+      "sources": ["SRC-009", "SRC-010", "SRC-029", "SRC-031", "SRC-050"],
+      "evidence": ["active_grants", "waiting_grants", "requested_memory", "granted_memory", "max_used_memory", "batch_throughput", "session_result_checksums", "cleanup_confirmation"],
+      "skip_codes": ["SKIP_CONCURRENCY_PROFILE_INSUFFICIENT", "SKIP_MEMORY_PROFILE_INSUFFICIENT", "SKIP_TOOL_MISSING"]
+    },
+    "RES-003": {
+      "title": "Memory Pressure und RESOURCE_SEMAPHORE",
+      "risk": "RED",
+      "execution_path": "DEDICATED_RESOURCE_INSTANCE",
+      "sessions": 6,
+      "minimum_cpu": 4,
+      "minimum_memory_gb": 8,
+      "versions": [2019, 2022, 2025],
+      "requires_high_impact_confirmation": true,
+      "maximum_runtime_seconds": 180,
+      "external_kill_switch": true,
+      "claims": ["ADV-CLM-024"],
+      "sources": ["SRC-010", "SRC-035", "SRC-036"],
+      "evidence": ["waiting_query_grant", "resource_semaphore_wait", "simultaneous_grants", "memory_scope_contrast", "recovery_confirmation"],
+      "skip_codes": ["SKIP_DEDICATED_INSTANCE_REQUIRED", "SKIP_HIGH_IMPACT_CONFIRMATION_REQUIRED", "SKIP_MEMORY_PRESSURE_NOT_PRODUCED", "SKIP_RESOURCE_PROFILE_INSUFFICIENT"]
+    },
+    "RES-007": {
+      "title": "Wait-Scope und zeitbezogene Deltas",
+      "risk": "YELLOW",
+      "execution_path": "TSQL_TESTDB",
+      "sessions": 2,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-024", "ADV-CLM-037"],
+      "sources": ["SRC-035", "SRC-036", "SRC-051"],
+      "evidence": ["task_waits", "request_waits", "session_deltas", "instance_deltas", "time_window", "counter_evidence"],
+      "skip_codes": ["SKIP_PERMISSION_MISSING", "SKIP_WAIT_SCOPE_UNAVAILABLE"]
+    },
+    "DGN-005": {
+      "title": "Begrenzte Extended-Events-Evidenz",
+      "risk": "YELLOW",
+      "execution_path": "TSQL_TESTDB_XE",
+      "sessions": 2,
+      "minimum_cpu": 2,
+      "minimum_memory_gb": 4,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-036"],
+      "sources": ["SRC-028", "SRC-051"],
+      "evidence": ["xe_session_definition", "event_availability", "predicate", "target_bounds", "captured_event_categories", "cleanup_confirmation"],
+      "skip_codes": ["SKIP_XE_EVENT_UNAVAILABLE", "SKIP_XE_PERMISSION_MISSING"]
+    },
+    "DGN-007": {
+      "title": "Zeitabhängige Regression eines Suchworkloads",
+      "risk": "YELLOW",
+      "execution_path": "TSQL_TESTDB_QUERY_STORE_XE",
+      "sessions": 3,
+      "minimum_cpu": 4,
+      "minimum_memory_gb": 8,
+      "versions": [2019, 2022, 2025],
+      "claims": ["ADV-CLM-013", "ADV-CLM-014", "ADV-CLM-015", "ADV-CLM-034", "ADV-CLM-035", "ADV-CLM-036", "ADV-CLM-037", "ADV-CLM-038", "ADV-CLM-039"],
+      "sources": ["SRC-001", "SRC-007", "SRC-027", "SRC-028", "SRC-031", "SRC-035", "SRC-036", "SRC-040", "SRC-046", "SRC-047", "SRC-051"],
+      "evidence": ["query_store_state", "query_store_plans", "runtime_intervals", "wait_intervals", "plan_xml", "compiled_parameter", "actual_parameters", "statistics_usage", "histogram", "session_context", "request_waits", "xe_categories", "result_checksum", "rollback_confirmation"],
+      "false_hypotheses": ["GENERAL_MEMORY_PRESSURE", "IO_BOTTLENECK", "CLIENT_SET_OPTIONS"],
+      "reference_change": "QUERY_LOCAL_OPTION_RECOMPILE",
+      "skip_codes": ["SKIP_QUERY_STORE_REQUIRED", "SKIP_INCIDENT_NOT_REPRODUCED", "SKIP_XE_EVENT_UNAVAILABLE", "SKIP_PERMISSION_MISSING", "SKIP_RESOURCE_PROFILE_INSUFFICIENT"]
+    }
+  },
+  "prohibited_actions": [
+    "GLOBAL_PLAN_CACHE_CLEAR",
+    "INSTANCE_WIDE_MEMORY_CONFIGURATION_CHANGE",
+    "UNBOUNDED_MEMORY_PRESSURE_ON_SHARED_INSTANCE",
+    "REAL_APPLICATION_DATA",
+    "RAW_PARAMETER_VALUE_LOGGING",
+    "UNBOUNDED_XE_SESSION",
+    "HIDDEN_SOLUTION_MARKERS",
+    "UNDISCLOSED_PLAN_FORCING",
+    "UNIVERSAL_WAIT_THRESHOLD",
+    "FIXED_ELAPSED_TIME_GOLDEN_VALUE"
+  ],
+  "implementation_slices": [
+    "OPT-014_GRANT_AND_MGF",
+    "OPT-013_SPILL_EXTENSION",
+    "RES-004_CONCURRENT_GRANTS",
+    "RES-007_WAIT_SCOPE",
+    "DGN-005_MEMORY_XE",
+    "LAB-VP3_ORCHESTRATION",
+    "QRY-008_TVDC",
+    "QRY-009_MSTVF_UDF",
+    "OPT-006_CE_AND_BATCH_MODE",
+    "RES-002_DOP_FEEDBACK_EXTENSION",
+    "OPT-009_PSP_RUNTIME",
+    "OPT-010_OPPO_RUNTIME",
+    "OPT-014_PERSISTED_MGF",
+    "LAB-VP4_ORCHESTRATION",
+    "RES-003_DEDICATED_MEMORY_PRESSURE",
+    "DGN-007_DATA_MODEL",
+    "DGN-007_QUERY_STORE_WINDOWS",
+    "DGN-007_INCIDENT_GENERATION",
+    "DGN-007_CONTEXT_AND_PLAN_EVIDENCE",
+    "DGN-007_WAIT_AND_XE_EVIDENCE",
+    "DGN-007_HYPOTHESIS_WORKSHEET",
+    "DGN-007_REFERENCE_MITIGATION",
+    "DGN-007_RUNTIME_MATRIX",
+    "LAB-VP5_ORCHESTRATION",
+    "M07_TRANSFER_VARIANT"
+  ]
+}
