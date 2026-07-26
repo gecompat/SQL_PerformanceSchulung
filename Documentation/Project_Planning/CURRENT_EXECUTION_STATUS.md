@@ -12,7 +12,7 @@
 
 Der Commit `6e914da6ab87e4ba17a354bc6e8c4d1c06446396` ist auf `origin/main` vorhanden. Er enthält `ADV-001` bis `ADV-007`, die vollständige Designfreigabe Gate V2 sowie die Designverträge für LAB-VP1 bis LAB-VP5.
 
-Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die Framework-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `ADV-001` bis `ADV-007`, `PRS-009`, `PRS-011` und `TST-002` sind validiert.
+Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die Framework-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `ADV-001` bis `ADV-007`, `PRS-009`, `PRS-011` und `TST-002` sind validiert. `ADV-006` und `ADV-007` bleiben als einzeln nachverfolgbare, vollständig validierte Designgrundlagen unverändert.
 
 ## 2. Abgeschlossener ADV-008-Teilstand
 
