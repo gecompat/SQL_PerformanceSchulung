@@ -58,8 +58,8 @@ FROM ' + QUOTENAME(@TargetDatabase) + N'.sys.extended_properties WHERE class=0 A
         THROW 51002, 'FAIL_STATE: Eine gleichnamige Datenbank besitzt nicht die erwarteten Eigentumsmarker.', 1;
 END;
 
-SET @Sql = N'ALTER DATABASE SCOPED CONFIGURATION SET LAST_QUERY_PLAN_STATS = ON;';
-EXEC (N'USE ' + QUOTENAME(@TargetDatabase) + N'; ' + @Sql);
+SET @Sql = N'USE ' + QUOTENAME(@TargetDatabase) + N'; ALTER DATABASE SCOPED CONFIGURATION SET LAST_QUERY_PLAN_STATS = ON;';
+EXEC sys.sp_executesql @Sql;
 GO
 
 USE [$(TargetDatabase)];
