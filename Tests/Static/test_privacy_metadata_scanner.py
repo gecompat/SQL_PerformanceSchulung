@@ -6,6 +6,7 @@ from contextlib import redirect_stdout
 import importlib.util
 import io
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -14,6 +15,7 @@ MODULE_PATH = Path(__file__).with_name("validate_privacy_metadata.py")
 SPEC = importlib.util.spec_from_file_location("privacy_scanner", MODULE_PATH)
 assert SPEC is not None and SPEC.loader is not None
 privacy_scanner = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = privacy_scanner
 SPEC.loader.exec_module(privacy_scanner)
 
 
