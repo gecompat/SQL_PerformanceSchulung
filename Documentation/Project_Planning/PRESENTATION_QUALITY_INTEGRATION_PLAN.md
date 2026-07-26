@@ -4,8 +4,9 @@
 |---|---|
 | Status | `PLANNED` |
 | Geltung | verbindliche Ergänzung des Master-Umsetzungsplans |
-| Stand | 2026-07-24 |
+| Stand | 2026-07-26 |
 | Baseline | [`PRESENTATION_BASELINE_REVIEW_2024.md`](../Reviews/PRESENTATION_BASELINE_REVIEW_2024.md) |
+| Variantenarchitektur | [`MASTER_DECK_VARIANT_ARCHITECTURE.md`](MASTER_DECK_VARIANT_ARCHITECTURE.md) |
 
 ## 1. Zweck und Geltung
 
@@ -41,6 +42,28 @@ Vier gezielte `REFINE`-Punkte bleiben als kontrollierte Folgearbeit für `W2-007
 | `CUR-011` | M | Zusammenfassungen und Wissenskontrollen integrieren | jedes Kernmodul enthält Zusammenfassung, typische Fehlinterpretationen und mindestens eine überprüfbare Transferaufgabe |
 | `CUR-012` | M | Folienlast und Informationsdichte begrenzen | technische Tiefendetails werden in Notes oder Teilnehmerunterlagen verschoben; die Projektionsfolie bleibt auf Kernaussage und Evidenz fokussiert |
 
+### 3.1 Masterdeck- und Variantenarchitektur
+
+Das bestehende Masterdeck wird zur einzigen fachlich bearbeiteten Präsentationsquelle. Die Profile `BASIS`, `STANDARD` und `VERTIEFUNG` werden kumulativ aus demselben Foliensatz gebildet. Die direkte Durchführung verwendet native PowerPoint Custom Shows; eigenständige `.pptx`-Dateien sind reproduzierbare Build- oder Releaseartefakte und werden nicht separat bearbeitet.
+
+Die verbindlichen technischen Regeln stehen im [Architekturplan für Masterdeck-Varianten](MASTER_DECK_VARIANT_ARCHITECTURE.md). Insbesondere gelten folgende Anforderungen:
+
+- jede Folie erhält eine stabile, von der Foliennummer unabhängige `SlideKey`;
+- ein versioniertes JSON-Manifest ordnet Tiefenprofil, Rolle, Modul, Voraussetzungen, Claims, Quellen und Demos zu;
+- fachliche Tiefe und konkrete Veranstaltungsdauer werden getrennt modelliert;
+- ausgelassene Vertiefungsfolien dürfen keine unverständlichen Übergänge oder gebrochenen Links erzeugen;
+- das Masterdeck bleibt bei jeder Ableitung unverändert;
+- PowerPoint Desktop ist ein externes Microsoft-Tool; die Erzeugung separater Dateien erfolgt kontrolliert auf einem interaktiven Windows-Client und nicht als unbeaufsichtigter Office-Dienst;
+- CI-fähige user-defined Validatoren prüfen Open XML, Manifest, Custom Shows, Notes, Quellen und Profilmitgliedschaften ohne PowerPoint-Start.
+
+| ID | Größe | Arbeit | Abschlusskriterium |
+|---|---:|---|---|
+| `PRS-011` | M | SlideKey- und Variantenmanifest-Vertrag definieren | Tiefenprofile, Folienrollen, Abhängigkeiten und Validierungsregeln sind diffbar festgelegt |
+| `PRS-012` | M | Masterdeck mit SlideKeys und Custom Shows ausstatten | alle Folien sind stabil identifiziert; drei Tiefenprofile sind im Masterdeck vorhanden |
+| `PRS-013` | M | eigenständige Präsentationsvarianten kontrolliert ableiten | Kopie, Folienausschluss, Speicherung und Unverändertheit des Masterdecks sind nachgewiesen |
+| `TST-011` | M | statischen Variantenvalidator implementieren | Manifest, SlideKeys, Custom Shows, Links, Quellen und Abhängigkeiten werden ohne Office-Automation geprüft |
+| `TST-012` | M | Varianten rendern und visuell abnehmen | jede Releasevariante besteht Layout-, Notes-, Metadaten-, Privacy- und Branding-Prüfung |
+
 ### Umsetzungsnachweis Curriculum
 
 Die Curriculumgrundlage ist für den aktiven 84-Folien-Satz als `VALIDATED` nachgewiesen:
@@ -49,7 +72,7 @@ Die Curriculumgrundlage ist für den aktiven 84-Folien-Satz als `VALIDATED` nach
 - [Traceability-Matrix](../Curriculum/TRACEABILITY_MATRIX.md): 84 Claims mit Quelle, Lernziel, Folie, kanonischer Demo-ID und geplantem Testprofil;
 - [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md): 47 Folien auf 36 bestehende Demo-Bündel des Masterplans konsolidiert.
 
-Damit sind `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` abgeschlossen. Übungen, Erfolgskriterien und die tatsächliche Inhaltsreduktion der Projektionsfolien bleiben Gegenstand von `CUR-007`, `CUR-008`, `CUR-011` und `CUR-012`.
+Damit sind `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` abgeschlossen. Übungen, Erfolgskriterien, die tatsächliche Inhaltsreduktion der Projektionsfolien sowie die Variantenarchitektur bleiben Gegenstand von `CUR-007`, `CUR-008`, `CUR-011`, `CUR-012` und `PRS-011` bis `PRS-013`.
 
 ## 4. Verbindlicher Diagnoseleitfaden
 
@@ -100,6 +123,9 @@ Die Planergänzung gilt als umgesetzt, wenn:
 - alle Findings des Baseline-Reviews einer Maßnahme zugeordnet sind,
 - die vier Pilotdemos validiert sind,
 - die Präsentationsmodule fachlich und didaktisch überarbeitet wurden,
+- das Masterdeck die einzige bearbeitete Präsentationsquelle ist,
+- die Profile `BASIS`, `STANDARD` und `VERTIEFUNG` aus einem geprüften Variantenmanifest und entsprechenden Custom Shows reproduzierbar abgeleitet werden können,
+- eigenständige `.pptx`-Varianten auf einen dokumentierten Masterdeck-Hash zurückführbar sind und keine unabhängigen Änderungen enthalten,
 - Quellen, Sprecherhinweise, Teilnehmerunterlagen und Demo-Katalog konsistent sind,
 - die visuelle und technische Branding-Prüfung keine unzulässigen Kennzeichen findet,
 - die SQL-Server-Versionen 2019, 2022 und 2025 entsprechend den jeweiligen Featuregrenzen geprüft wurden.

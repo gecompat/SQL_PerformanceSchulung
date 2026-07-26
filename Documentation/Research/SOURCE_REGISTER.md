@@ -2,11 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `W0-006`, `ADV-001` |
+| Arbeitspaket | `W0-006`, `ADV-001`, `PRS-009` |
 | Status | `VALIDATED` |
-| Registerversion | 1.1 |
+| Registerversion | 1.2 |
 | Stand | 2026-07-26 |
-| Primärer Geltungsbereich | SQL Server 2019, 2022 und 2025 |
+| Primärer Geltungsbereich | SQL Server 2019, 2022 und 2025 sowie die Präsentationsarchitektur des Schulungsprojekts |
 | Kanonische Quellenklasse | öffentlich erreichbare Primärdokumentation des Produktherstellers |
 
 ## 1. Zweck
@@ -108,7 +108,20 @@ Die folgenden Quellen vertiefen Operatorverhalten, Optimizer-Interna, Diagnoseme
 | `SRC-050` | EMPIRICAL_METHOD | [A Little About Memory Grants in SQL Server Query Plans](https://erikdarling.com/a-little-about-memory-grants-in-sql-server-query-plans/) | speicherverbrauchende Operatoren, Zeilenbreite, Sort/Hash und Parallelität; `OPT-014`, `RES-004` | empirische Erklärung; Formeln und Schwellen nicht als dokumentiert behandeln | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Planattribute oder abweichendes Runtime-Verhalten |
 | `SRC-051` | EMPIRICAL_METHOD | [Capturing Query Wait Stats with sp_HumanEvents](https://erikdarling.com/sql-server-community-tools-capturing-query-wait-stats-with-sp_humanevents/) | zeitlicher und querybezogener Wait-Scope als Diagnoseprinzip; `RES-007`, `DGN-005`, `DGN-007` | Methode; Schulung implementiert eigene T-SQL-/XE-Evidenz und setzt kein Drittanbieter-Tool voraus | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte XE-/Wait-Daten oder Werkzeugabhängigkeit |
 
-## 6. Pflegeprozess
+## 6. Aktive Präsentations- und Automatisierungsquellen
+
+Diese Microsoft-Primärquellen tragen ausschließlich Aussagen zur PowerPoint-Variantenarchitektur und zum unterstützten Ausführungsmodell. Sie begründen keine SQL-Server-Produkteigenschaft.
+
+| ID | Klasse | Quelle | Aussagebezug | Gültigkeitsbereich | Aktualisiert | Abgerufen | Status | Review-Trigger |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-052` | PRIMARY | [Create and present a custom show](https://support.microsoft.com/en-us/powerpoint/create-and-present-a-custom-show) | Custom Shows als benannte Teilmengen einer Präsentation für unterschiedliche Zielgruppen; `PRS-009`, `PRS-012` | PowerPoint Desktop; PowerPoint für das Web kann Custom Shows nicht erstellen | 2026-07-26 | 2026-07-26 | ACTIVE | geänderte Custom-Show-Unterstützung oder neue PowerPoint-Hauptversion |
+| `SRC-053` | PRIMARY | [SlideShowSettings.NamedSlideShows property](https://learn.microsoft.com/en-us/office/vba/api/powerpoint.slideshowsettings.namedslideshows) | programmgesteuerte Anlage und Verwaltung benannter Custom Shows; `PRS-012` | PowerPoint-Objektmodell; konkrete Office-Version prüfen | 2026-07-26 | 2026-07-26 | ACTIVE | Änderung des PowerPoint-Objektmodells |
+| `SRC-054` | PRIMARY | [NamedSlideShow.SlideIDs property](https://learn.microsoft.com/en-us/office/vba/api/powerpoint.namedslideshow.slideids) | Zuordnung einer Custom Show über native Slide-IDs; `PRS-012`, `TST-011` | PowerPoint-Objektmodell; native SlideID ist keine projektweite Identität | 2026-07-26 | 2026-07-26 | ACTIVE | Änderung der SlideID- oder Custom-Show-Semantik |
+| `SRC-055` | PRIMARY | [Presentation.SaveCopyAs method](https://learn.microsoft.com/en-us/office/vba/api/powerpoint.presentation.savecopyas) | Speichern einer Präsentationskopie ohne Änderung des Originals; `PRS-013` | PowerPoint Desktop und Objektmodell | 2026-07-26 | 2026-07-26 | ACTIVE | Änderung der SaveCopyAs-Semantik oder Dateiformate |
+| `SRC-056` | PRIMARY | [SlideRange.Delete method](https://learn.microsoft.com/en-us/office/vba/api/powerpoint.sliderange.delete) | Entfernen ausgeschlossener Folien aus einer erzeugten Kopie; `PRS-013` | PowerPoint-Objektmodell | 2026-07-26 | 2026-07-26 | ACTIVE | Änderung der SlideRange-Semantik |
+| `SRC-057` | PRIMARY | [Considerations for server-side Automation of Office](https://support.microsoft.com/en-us/visio/considerations-for-server-side-automation-of-office) | Abgrenzung interaktiver Clientautomation von unbeaufsichtigter serverseitiger Office-Automation; `PRS-013`, `TST-011` | Office-Anwendungen; unbeaufsichtigte nicht-interaktive Automation wird nicht empfohlen oder unterstützt | 2026-07-26 | 2026-07-26 | ACTIVE | neue offizielle Automatisierungs- oder Lizenzierungsrichtlinie |
+
+## 7. Pflegeprozess
 
 Eine Quelle wird erneut geprüft, wenn mindestens eines der folgenden Ereignisse eintritt:
 
@@ -116,13 +129,14 @@ Eine Quelle wird erneut geprüft, wenn mindestens eines der folgenden Ereignisse
 - Änderung eines aktiven Claims, Lernziels oder Demo-Vertrags,
 - Änderung der referenzierten Herstellerdokumentation,
 - neue oder geänderte Feature-Voraussetzung,
+- Änderung des PowerPoint-Objektmodells oder des unterstützten Automatisierungsmodells,
 - Runtime-Ergebnis, das der dokumentierten Erwartung widerspricht,
 - nicht mehr erreichbarer, umgeleiteter oder als veraltet gekennzeichneter Verweis.
 
 Bei einer inhaltlichen Änderung wird `Aktualisiert` gesetzt und der betroffene Aussagebezug geprüft. Ein nicht erreichbarer Link wird nicht stillschweigend ersetzt. Der Eintrag erhält zunächst `REVIEW_REQUIRED`; Ersatzquelle, geänderte Interpretation und betroffene Claims werden im Konflikt- und Entscheidungslog dokumentiert.
 
-## 7. Abnahme von W0-006 und ADV-001
+## 8. Abnahme von W0-006, ADV-001 und PRS-009
 
-Alle in Welle 0 verwendeten 36 Primärquellen besitzen eine stabile ID, einen Aussagebezug, einen Gültigkeitsbereich, ein Aktualisierungs- und Abrufdatum, einen Status und einen Review-Trigger. Die für den Vertiefungsplan ausgewerteten 15 ergänzenden Fach- und Methodenquellen sind getrennt klassifiziert und dürfen Primärquellen nicht ersetzen. Damit bleibt `W0-006` abgeschlossen und die Quellenregistrierung für `ADV-001` ist erfüllt.
+Alle in Welle 0 verwendeten 36 SQL-Server-Primärquellen besitzen eine stabile ID, einen Aussagebezug, einen Gültigkeitsbereich, ein Aktualisierungs- und Abrufdatum, einen Status und einen Review-Trigger. Die für den Vertiefungsplan ausgewerteten 15 ergänzenden Fach- und Methodenquellen sind getrennt klassifiziert und dürfen Primärquellen nicht ersetzen. Die sechs PowerPoint-Primärquellen tragen die Entscheidung zu Custom Shows, reproduzierbaren Präsentationskopien und der Abgrenzung nicht-interaktiver Office-Automation. Damit bleibt `W0-006` abgeschlossen; die Quellenregistrierung für `ADV-001` und `PRS-009` ist erfüllt.
 
 Weitere Quellen werden fortlaufend in diesem Register ergänzt. Das frühere Dokument `PRIMARY_SOURCES_W0.md` bleibt als validierter Welle-0-Snapshot erhalten; bei widersprüchlichen Pflegeinformationen ist dieses projektweite Register maßgeblich.

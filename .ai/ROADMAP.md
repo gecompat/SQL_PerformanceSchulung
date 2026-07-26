@@ -42,6 +42,10 @@ Scheduler, Parallelism Overhead, Parallel Skew, SOS_SCHEDULER_YIELD, RESOURCE_SE
 
 STATISTICS IO/TIME, Execution Plans, Live Query Statistics, Plan XML, DMVs, Query Store, Extended Events, Betriebssystemmetriken und reproduzierbare Workload-Treiber.
 
+## Querschnitt - Masterdeck und Präsentationsvarianten
+
+Das bestehende PowerPoint-Masterdeck wird als einzige fachlich bearbeitete Präsentationsquelle erweitert. Die Profile `BASIS`, `STANDARD` und `VERTIEFUNG` werden über stabile SlideKeys, ein versioniertes Variantenmanifest und native PowerPoint Custom Shows definiert. Eigenständige `.pptx`-Dateien werden nur als reproduzierbare Kopien aus dem Masterdeck abgeleitet und niemals separat gepflegt. Verbindlicher Detailplan ist [`Documentation/Project_Planning/MASTER_DECK_VARIANT_ARCHITECTURE.md`](../Documentation/Project_Planning/MASTER_DECK_VARIANT_ARCHITECTURE.md).
+
 ## Welle 10 - Testumgebungs-How-to und notwendige Sonderinfrastruktur
 
 Ein kompakter Bereitstellungspfad ermöglicht die Ausführung der T-SQL-Beispiele, wenn kein SQL Server verfügbar ist. CPU-/RAM-Limits, gedrosseltes I/O, Netzwerkbegrenzung, Mehrinstanz- oder Windows-Szenarien werden nur für Demos umgesetzt, deren Kernaussage mit T-SQL und einer normalen Testdatenbank nicht belastbar gezeigt werden kann.
@@ -53,4 +57,5 @@ Ein kompakter Bereitstellungspfad ermöglicht die Ausführung der T-SQL-Beispiel
 - Statische Vertragsprüfung.
 - Laufzeittest in der zutreffenden Matrix SQL Server 2019/2022/2025.
 - Fachliches Review der Erklärung und der erwarteten Evidenz.
+- Das Masterdeck ist die einzige bearbeitete Präsentationsquelle; `BASIS`, `STANDARD` und `VERTIEFUNG` sind daraus reproduzierbar ableitbar.
 - T-SQL/Testdatenbank als Standardpfad; jede zusätzliche Infrastrukturabhängigkeit ist begründet.
