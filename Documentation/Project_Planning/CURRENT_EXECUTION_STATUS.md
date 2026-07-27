@@ -37,7 +37,7 @@ Beide Demos besitzen den vollständigen Phasenvertrag. Die Runtime-Matrix führt
 - die Lanes `SMOKE`, `CORE`, `PROVIDER_PARITY`, `FULL_CONTAINER_MATRIX` und `RED_DISPOSABLE`;
 - die explizite Trennung zwischen vorläufig externem Project Adapter und späterer nativer Lab-Package-Ausführung.
 
-Der aktuelle Katalog enthält sechs produktive Demos. Die vollständige Docker-/Podman-/Versionsmatrix umfasst gegenwärtig 72 Demoläufe.
+Der aktuelle Katalog enthält sechs produktive Demos. Die vollständige Docker-/Podman-/Versionsmatrix umfasst gegenwärtig 72 Demoläufe. `LABINT-001` ist als Architektur-, Katalog- und statischer Prüfvertrag `VALIDATED`.
 
 ## 4. Festgestellte Grenze von SQL_Server_Lab
 
@@ -61,7 +61,7 @@ An `SQL_Server_Lab` wurde in dieser Welle nichts geändert.
 - Gate V2 – Designfreigabe: `VALIDATED`.
 - Gate V3 – Runtimefreigabe: `PARTIAL`; `OPT-015` und `OPT-016` sind freigegeben.
 - Gate V4 – Lehrmittelfreigabe: offen.
-- `LABINT-001`: Architektur- und Katalogfreigabe nach statischer CI-Abnahme.
+- `LABINT-001`: `VALIDATED`.
 - `LABINT-002`: noch nicht implementiert.
 
 ## 6. Nächste fachliche Verarbeitung
