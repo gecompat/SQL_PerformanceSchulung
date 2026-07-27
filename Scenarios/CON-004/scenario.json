@@ -20,7 +20,7 @@
       }
     ],
     "sessionModel": "MULTI_SESSION",
-    "sessionRoles": ["HEAD_BLOCKER", "MIDDLE_BLOCKER", "OBSERVER", "FIRST_WRITER", "FOLLOWER"],
+    "sessionRoles": ["HEAD", "MIDDLE", "LEAF", "OBSERVER", "FIRST_WRITER", "FOLLOWER"],
     "freshInstanceRequired": true
   },
   "hostMinimum": {
@@ -97,6 +97,7 @@
     "removeLab": true
   },
   "knownLimits": [
+    "Der Problemzustand verwendet vier parallele Sessions: HEAD, MIDDLE, LEAF und OBSERVER. Der Vergleichslauf verwendet FIRST_WRITER und FOLLOWER.",
     "Die konkrete Session-ID wird nicht fest vorgegeben und darf nicht Bestandteil der fachlichen Assertion sein.",
     "Lock-Ressourcenbeschreibungen koennen sich zwischen SQL-Server-Versionen unterscheiden; verifiziert wird die logische Blocking-Beziehung.",
     "Die interaktive Benutzeruebergabe und das SQL_Server_Lab-Manifest sind in der folgenden Implementierungswelle zu erstellen."
