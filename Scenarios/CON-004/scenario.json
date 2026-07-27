@@ -1,0 +1,139 @@
+{
+  "$schema": "../../Documentation/Architecture/performance-training-scenario.schema.json",
+  "contractVersion": "1.1",
+  "scenarioId": "PTS-CON-004",
+  "demoId": "CON-004",
+  "title": "Deterministische Blocking Chain",
+  "status": "DESIGNED",
+  "classification": "A",
+  "safetyLevel": "YELLOW",
+  "platforms": ["docker", "podman"],
+  "sqlVersions": ["2019", "2022", "2025"],
+  "compatibilityLevels": [150, 160, 170],
+  "runtimeManifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json",
+  "topology": {
+    "instances": [{
+      "id": "primary",
+      "role": "SQL Server database engine and all scenario sessions",
+      "resourceProfile": "standard"
+    }],
+    "sessionModel": "MULTI_SESSION",
+    "sessionRoles": ["HEAD", "MIDDLE", "LEAF", "OBSERVER", "FIRST_WRITER", "FOLLOWER"],
+    "freshInstanceRequired": true
+  },
+  "orchestration": {
+    "primaryMode": "MANUAL",
+    "supportedModes": ["MANUAL", "AUTOMATED_VERIFY"],
+    "manual": {
+      "sessionScripts": [
+        {
+          "role": "HEAD",
+          "script": "Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/10_Head.sql",
+          "startOrder": 1,
+          "instruction": "In SQL-Fenster A starten und bis zum bestaetigten HEAD_LOCKED-Signal laufen lassen."
+        },
+        {
+          "role": "MIDDLE",
+          "script": "Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/20_Middle.sql",
+          "startOrder": 2,
+          "instruction": "In SQL-Fenster B starten; die Session haelt die zweite Zeile und wartet anschliessend auf HEAD."
+        },
+        {
+          "role": "LEAF",
+          "script": "Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/30_Leaf.sql",
+          "startOrder": 3,
+          "instruction": "In SQL-Fenster C starten; die Session wartet auf die von MIDDLE gehaltene Ressource."
+        },
+        {
+          "role": "OBSERVER",
+          "script": "Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/40_Observer.sql",
+          "startOrder": 4,
+          "instruction": "In SQL-Fenster D ausfuehren, die unmittelbaren Blockerbeziehungen und den Head Blocker untersuchen und danach die kontrollierte Freigabe ausloesen."
+        }
+      ]
+    },
+    "automatedVerify": {
+      "runtimeManifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json"
+    }
+  },
+  "hostMinimum": {
+    "cpu": 2,
+    "memoryMB": 4096,
+    "storageGB": 5,
+    "notes": "Eine einzelne Docker- oder Podman-Instanz ist ausreichend. Die fachliche Parallelitaet entsteht durch getrennte SQL-Client-Sessions."
+  },
+  "preparation": {
+    "scripts": [
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/00_Preflight.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/10_Setup.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/20_Baseline.sql"
+    ],
+    "assertions": [
+      "Die markierte Testdatenbank wurde neu erzeugt.",
+      "Die FWK-006-Signalobjekte sind installiert und fuer DemoId und RunToken bereinigt.",
+      "Die fuer die Blocking Chain verwendeten Tabellen und Schluesselwerte existieren.",
+      "Es bestehen keine offenen Transaktionen aus einem vorangegangenen Szenariolauf."
+    ],
+    "forcedCondition": "Die manuell gestarteten Blocker-Sessions erwerben definierte Sperren in offenen Transaktionen. Die T-SQL-Skripte koordinieren die fachliche Reihenfolge durch benannte Signale; der Teilnehmer bleibt fuer den sichtbaren Sessionstart verantwortlich.",
+    "determinismControls": [
+      "Keine fachliche Synchronisation durch feste Sleep-Zeiten.",
+      "Benannte Signale sind an DemoId, RunToken und SignalName gebunden.",
+      "Der Observer bestaetigt die Blocking-Beziehung anhand der SQL-Server-DMVs, bevor die Sperren freigegeben werden.",
+      "Jeder Wait besitzt ein begrenztes Timeout und erzeugt bei Nichterreichen einen strukturierten Fehler."
+    ]
+  },
+  "interactive": {
+    "entryDocument": "Demos/07_Concurrency/CON-004_Blocking_Chain/README.md",
+    "steps": [
+      "Die vorbereitete Umgebung im Zustand READY_FOR_USER uebernehmen.",
+      "Vier SQL-Fenster mit derselben markierten Testdatenbank oeffnen.",
+      "HEAD, MIDDLE und LEAF in der dokumentierten Reihenfolge starten.",
+      "OBSERVER ausfuehren und die unmittelbaren Blockerbeziehungen bis zum Head Blocker verfolgen.",
+      "Die kontrollierte Freigabe beobachten und anschliessend Mitigation und Vergleichslauf ausfuehren.",
+      "Das Szenario durch Reset erneut in den Baseline-Zustand versetzen."
+    ],
+    "readyState": "READY_FOR_USER",
+    "variationPoints": [
+      "Transaktionsdauer variieren.",
+      "Eigene Lock-, Request- und Transaktionsabfragen im Observer-Fenster ergaenzen.",
+      "Die Mitigation zuruecknehmen und den Ausgangszustand durch Reset reproduzieren.",
+      "Den automatisierten Verifikationspfad getrennt vom manuellen Schulungsablauf ausfuehren."
+    ]
+  },
+  "verification": {
+    "script": "Demos/07_Concurrency/CON-004_Blocking_Chain/70_Comparison.sql",
+    "requiredEvidence": [
+      "MIDDLE wartet mit einem LCK_M-Wait unmittelbar auf HEAD.",
+      "LEAF wartet mit einem LCK_M-Wait unmittelbar auf MIDDLE.",
+      "HEAD ist als nicht selbst blockierter Head Blocker eindeutig bestimmbar.",
+      "Nach der signalgesteuerten Freigabe koennen alle Sessions kontrolliert abschliessen."
+    ],
+    "timeoutSeconds": 120,
+    "controlledSkipCodes": ["SKIP_TOOL_MISSING", "SKIP_HOST_CAPABILITY"]
+  },
+  "reset": {
+    "strategy": "DATABASE_RECREATE",
+    "scripts": [
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/90_Cleanup.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/10_Setup.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/20_Baseline.sql"
+    ],
+    "postconditions": [
+      "Keine Szenario-Session haelt eine offene Transaktion.",
+      "Alle Signale fuer die exakte DemoId- und RunToken-Kombination sind entfernt.",
+      "Die Testdatenbank befindet sich wieder im dokumentierten Baseline-Zustand.",
+      "Das Szenario kann ohne Infrastruktur-Neuprovisionierung erneut manuell gestartet werden."
+    ]
+  },
+  "remove": {
+    "cleanupScripts": ["Demos/07_Concurrency/CON-004_Blocking_Chain/90_Cleanup.sql"],
+    "removeLab": true
+  },
+  "knownLimits": [
+    "Der primaere Schulungsablauf ist MANUAL; das bestehende Runtime-Manifest dient ausschliesslich AUTOMATED_VERIFY.",
+    "Der Problemzustand verwendet vier parallele Sessions: HEAD, MIDDLE, LEAF und OBSERVER. Der Vergleichslauf verwendet FIRST_WRITER und FOLLOWER.",
+    "Konkrete Session-IDs und Lock-Ressourcenbeschreibungen sind keine stabilen fachlichen Assertions.",
+    "Ein RUNNER_ASSISTED-Modus ist nur bei einem spaeteren Bedarf an dauerhaft oder wiederholt aufrechterhaltener Blocking-Aktivitaet vorgesehen.",
+    "Die konkrete SQL_Server_Lab-Manifestdatei und die kompakte Benutzeruebergabe werden im folgenden Implementierungsschritt erstellt."
+  ]
+}
