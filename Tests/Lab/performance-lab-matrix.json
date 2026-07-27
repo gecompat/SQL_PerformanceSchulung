@@ -81,7 +81,7 @@
       "manifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json",
       "implementationStatus": "VALIDATED",
       "safetyLevel": "YELLOW",
-      "sessions": 3,
+      "sessions": 4,
       "providers": ["docker", "podman"],
       "versions": ["2019", "2022", "2025"],
       "resourceProfile": "standard",
