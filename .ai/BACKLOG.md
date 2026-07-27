@@ -75,13 +75,23 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
 - [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
 
-## P1 - SQL_Server_Lab-Testautomation
+## P1 - Interaktive Schulungsszenarien mit SQL_Server_Lab
 
-- [x] `LABINT-001` Verantwortungsgrenze, Docker-/Podman-Lanes, Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen und überzogene Lab-Anforderungen ausschließen.
-- [ ] `LABINT-002` einfachen PowerShell-Runner für `SMOKE` und `CORE` implementieren; `New-SqlServerLab` aufrufen, grüne Demos ausführen und mit `Remove-SqlServerLab` vollständig abbauen.
-- [ ] `LABINT-003` Docker-/Podman-Parität praktisch validieren; eine notwendige Lab-Erweiterung nur bei reproduzierbar nachgewiesener Lücke benennen.
-- [ ] `LABINT-004` gelbe Lane und `FULL_CONTAINER_MATRIX` mit ausdrücklichen Safety-Gates implementieren und validieren.
-- [ ] Keine Lab-Funktion ohne konkreten Testbefund und ausdrückliche Freigabe im Repository `SQL_Server_Lab` ändern.
+- [x] `LABSCN-001` Ziel, Verantwortungsgrenze und Lifecycle interaktiver Schulungsszenarien verbindlich festlegen.
+- [ ] `LABSCN-002` vorhandene und geplante Beispiele inventarisieren und als interaktiv geeignet, nur automatisiert prüfbar oder nicht anwendbar klassifizieren; Schema für Szenariodefinitionen erstellen.
+- [ ] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: Beispiel auswählen, über `SQL_Server_Lab` provisionieren, fachlich vorbereiten, als `READY_FOR_USER` übergeben, zurücksetzen und entfernen.
+- [ ] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
+- [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen.
+- [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
+- [ ] Für jedes Szenario Mindestanforderungen an Hosthardware, Providergrenzen, Versionen und Resetstrategie dokumentieren.
+- [ ] Zusätzliche Funktionalität in `SQL_Server_Lab` nur nach konkretem Szenariobefund benennen und erst nach ausdrücklicher Freigabe dort umsetzen.
+
+## P1 - Nachgeordnete SQL_Server_Lab-Qualitätssicherung
+
+- [x] `LABINT-001` automatisierten Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen.
+- [ ] `LABINT-002` Smoke-/Core-Test für Aufbau, Vorbereitung, Reset und Abbau des ersten interaktiven Vertical Slice implementieren.
+- [ ] `LABINT-003` Docker-/Podman-Parität für geeignete Szenarien praktisch prüfen.
+- [ ] `LABINT-004` gelbe und vollständige Container-Matrix nach Safety- und Szenariofreigabe aktivieren.
 
 ## P1 - Masterdeck und Präsentationsvarianten
 
@@ -108,4 +118,4 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 ## Erledigungsregel
 
-Ein Punkt gilt nur dann als erledigt, wenn Artefakt, Quellenprüfung und zutreffende Validierung im Repository nachvollziehbar vorhanden sind. `IMPLEMENTED` ersetzt keine Runtime-Validierung ausführbarer SQL-Artefakte.
+Ein Punkt gilt nur dann als erledigt, wenn Artefakt, Quellenprüfung und zutreffende Validierung im Repository nachvollziehbar vorhanden sind. `IMPLEMENTED` ersetzt keine Runtime-Validierung ausführbarer SQL-Artefakte. Ein interaktives Szenario gilt erst als vollständig, wenn Aufbau, Vorbereitung, Benutzerübergabe, Reset und Abbau praktisch nutzbar sind.
