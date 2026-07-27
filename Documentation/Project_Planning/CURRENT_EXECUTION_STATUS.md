@@ -13,7 +13,7 @@
 
 Der Commit `091fa8606491d6f5fff2f3cd483d11868ce7d5e7` ist auf `origin/main` vorhanden. Er enthält `ADV-001` bis `ADV-007`, Gate V2 sowie die unter `ADV-008` implementierten und runtimevalidierten Demos `OPT-015` und `OPT-016`.
 
-Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die Framework-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `ADV-001` bis `ADV-007`, `PRS-009`, `PRS-011` und `TST-002` sind validiert.
+Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die Framework-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `PRS-009`, `PRS-011` und `TST-002` sind validiert. Die Designpakete `ADV-006` und `ADV-007` bleiben ausdrücklich vollständig `VALIDATED`.
 
 ## 2. Abgeschlossener ADV-008-Teilstand
 
