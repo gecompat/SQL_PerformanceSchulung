@@ -30,7 +30,7 @@
       "supportedProviders": ["docker", "podman"],
       "sqlVersions": ["2019", "2022", "2025"],
       "sessionModel": "MULTI_SESSION",
-      "sessionCount": 3,
+      "sessionCount": 4,
       "environmentIsolation": "FRESH_INSTANCE",
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "MULTI_SESSION_SQLCMD"],
       "forcedCondition": "Open transactions acquire deterministic locks and named database signals order the dependent sessions until an observable blocking chain exists.",
@@ -39,7 +39,8 @@
       "resetStrategy": "DATABASE_RECREATE",
       "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
       "verticalSliceCandidate": true,
-      "evidence": ["runtime matrix marks Docker and Podman, SQL Server 2019/2022/2025, two repetitions", "manifest contains multi-session problem and comparison phases"]
+      "evidence": ["runtime matrix marks Docker and Podman, SQL Server 2019/2022/2025, two repetitions", "problem manifest executes HEAD, MIDDLE, LEAF and OBSERVER concurrently", "comparison manifest is a separate two-session phase"],
+      "knownLimits": ["Tests/Lab/performance-lab-matrix.json currently declares sessions=3 although Sessions/problem.json contains four concurrent sessions; the executable manifest is authoritative for scenario design"]
     },
     {
       "demoId": "QRY-001",
@@ -184,11 +185,12 @@
     "validatedContainerSet": ["CON-004", "QRY-001", "OPT-002", "OPT-013", "OPT-015", "OPT-016"],
     "preferredVerticalSlice": "CON-004",
     "singleSessionAlternative": "QRY-001",
-    "scenarioSchema": "Documentation/Architecture/performance-training-scenario.schema.json"
+    "scenarioSchema": "Documentation/Architecture/performance-training-scenario.schema.json",
+    "catalogCorrectionRequired": "CON-004 sessions must be reconciled with the four-session problem manifest"
   },
   "nextActions": [
-    "create the CON-004 scenario definition and lab manifest",
-    "validate the scenario definition statically",
+    "correct the CON-004 session count in the automated lab catalog after checking validator implications",
+    "create the CON-004 SQL_Server_Lab manifest",
     "implement READY_FOR_USER handoff and reset orchestration",
     "run Docker and Podman vertical-slice smoke tests"
   ]
