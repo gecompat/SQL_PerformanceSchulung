@@ -2,8 +2,9 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IN_PROGRESS` bis CI-Abnahme |
+| Status | `VALIDATED` |
 | Stand | 2026-07-27 |
+| Pull Request | `#21` |
 | Schulungs-Ausgangscommit | `091fa8606491d6f5fff2f3cd483d11868ce7d5e7` |
 | geprüfter Lab-Commit | `08fcc9525b9bbc29a5dd9a2ef08de23bd7ef650e` |
 | Änderungen in SQL_Server_Lab | keine |
@@ -59,6 +60,15 @@ Die neue Prüfung validiert:
 - Dokumentations- und Backlogkonsistenz;
 - vollständigen Repository-Privacy-Scan.
 
+Erfolgreich abgeschlossen wurden:
+
+- `SQL Server Lab integration contract`, Lauf `30241515448`;
+- `Framework contracts`, Lauf `30241515399`;
+- `Curriculum and privacy validation`, Lauf `30241515405`;
+- `Advanced lab design contracts`, Lauf `30241515387`;
+- `Advanced lab design contracts VP3-VP5`, Lauf `30241515443`;
+- `W2-001 legacy example classification`, Lauf `30241515410`.
+
 ## 6. Keine Lab-Änderung in dieser Welle
 
 Im Repository `gecompat/SQL_Server_Lab` wurden weder Dateien noch Issues, Branches oder Pull Requests angelegt oder verändert.
@@ -80,6 +90,10 @@ Diese Punkte werden nur nach ausdrücklicher Freigabe im Lab-Repository umgesetz
 
 Es wurde keine Docker- oder Podman-Umgebung über `SQL_Server_Lab` provisioniert. Der Grund ist die bewusst begrenzte Welle `LABINT-001`: Zunächst werden Discovery, Katalog, Sicherheitsgrenzen und Abhängigkeiten verbindlich gemacht. Der reale Runner und seine Runtime-Abnahme folgen unter `LABINT-002`.
 
-## 9. Nächster Schritt
+## 9. Statusgrenze
+
+`LABINT-001` ist als Architektur-, Katalog- und statischer Prüfvertrag `VALIDATED`. Diese Freigabe bestätigt keine reale Provider-, Provisionierungs- oder Demolaufprüfung über `SQL_Server_Lab`.
+
+## 10. Nächster Schritt
 
 `LABINT-002` implementiert die grünen Lanes `SMOKE` und `CORE`. Erst nach erfolgreichem End-to-End-Cleanup folgen `PROVIDER_PARITY`, gelbe Demos und die vollständige Container-Matrix.
