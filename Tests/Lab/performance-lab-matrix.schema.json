@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gecompat/SQL_PerformanceSchulung/raw/main/Tests/Lab/performance-lab-matrix.schema.json",
+  "title": "SQL Performance Schulung Lab Test Matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "status",
+    "labRepository",
+    "minimumLabModuleVersion",
+    "targetVersions",
+    "providers",
+    "discovery",
+    "lanes",
+    "demos"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "contractVersion": {"const": "1.0"},
+    "status": {"enum": ["PLANNED", "IMPLEMENTED", "VALIDATED"]},
+    "labRepository": {"const": "gecompat/SQL_Server_Lab"},
+    "minimumLabModuleVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "targetVersions": {
+      "type": "array",
+      "items": {"enum": ["2019", "2022", "2025"]},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "providers": {
+      "type": "array",
+      "items": {"enum": ["docker", "podman"]},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["include", "excludePrefixes", "missingCatalogEntry", "unknownCatalogEntry"],
+      "properties": {
+        "include": {"const": "Demos/**/manifest.json"},
+        "excludePrefixes": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^Demos/"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "missingCatalogEntry": {"const": "FAIL"},
+        "unknownCatalogEntry": {"const": "FAIL"}
+      }
+    },
+    "lanes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["SMOKE", "CORE", "PROVIDER_PARITY", "FULL_CONTAINER_MATRIX", "RED_DISPOSABLE"],
+      "properties": {
+        "SMOKE": {"$ref": "#/$defs/lane"},
+        "CORE": {"$ref": "#/$defs/lane"},
+        "PROVIDER_PARITY": {"$ref": "#/$defs/lane"},
+        "FULL_CONTAINER_MATRIX": {"$ref": "#/$defs/lane"},
+        "RED_DISPOSABLE": {"$ref": "#/$defs/lane"}
+      }
+    },
+    "demos": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/demo"},
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "lane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerMode", "versions", "safetyLevels", "repetitions"],
+      "properties": {
+        "providerMode": {"enum": ["FIRST_AVAILABLE", "SELECTED", "ALL"]},
+        "versions": {
+          "type": "array",
+          "items": {"enum": ["2019", "2022", "2025"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "safetyLevels": {
+          "type": "array",
+          "items": {"enum": ["GREEN", "YELLOW", "RED"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "repetitions": {"type": "integer", "minimum": 1, "maximum": 5},
+        "requiresYellowConfirmation": {"type": "boolean"},
+        "requiresRedConfirmation": {"type": "boolean"}
+      }
+    },
+    "demo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "demoId",
+        "manifest",
+        "implementationStatus",
+        "safetyLevel",
+        "sessions",
+        "providers",
+        "versions",
+        "resourceProfile",
+        "environmentIsolation",
+        "requiredCapabilities",
+        "expectedOutcomes",
+        "defaultRepetitions"
+      ],
+      "properties": {
+        "demoId": {"type": "string", "pattern": "^(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}$"},
+        "manifest": {"type": "string", "pattern": "^Demos/.+/manifest\\.json$"},
+        "implementationStatus": {"enum": ["IMPLEMENTED", "VALIDATED"]},
+        "safetyLevel": {"enum": ["GREEN", "YELLOW", "RED"]},
+        "sessions": {"type": "integer", "minimum": 1, "maximum": 200},
+        "providers": {
+          "type": "array",
+          "items": {"enum": ["docker", "podman"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "versions": {
+          "type": "array",
+          "items": {"enum": ["2019", "2022", "2025"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "resourceProfile": {"enum": ["compact", "standard", "performance"]},
+        "environmentIsolation": {"enum": ["SHARED_PROVIDER_VERSION", "FRESH_INSTANCE", "DEDICATED_DISPOSABLE"]},
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "expectedOutcomes": {
+          "type": "array",
+          "items": {"enum": ["PASS", "WARN", "SKIP"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "defaultRepetitions": {"type": "integer", "minimum": 1, "maximum": 5}
+      }
+    }
+  }
+}
