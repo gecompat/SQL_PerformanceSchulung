@@ -1,2 +1,53 @@
-# SQL Server backup files (all directories)
+# SQL Server backup files
 *.backup
+*.bak
+*.trn
+
+# Python runtime and test caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local virtual environments
+.venv/
+venv/
+env/
+
+# Editor and operating-system artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Local secrets and environment configuration
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+
+# Generic local runtime output outside the canonical Runtime tree
+*.log
+*.tmp
+*.temp
+*.pid
+*.lock
+
+# Generated Office and presentation working files
+~$*.pptx
+~$*.docx
+~$*.xlsx
+*.pptx.pdf
+
+# Canonical repository-local runtime tree
+# The directory structure, README files and nested .gitignore files are tracked.
+# Generated content below Runtime is ignored by the nested rules.

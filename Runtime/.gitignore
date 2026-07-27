@@ -1,0 +1,9 @@
+# Runtime contains only the documented directory skeleton.
+*
+!.gitignore
+!README.md
+!Artifacts/
+!Logs/
+!Results/
+!State/
+!Temp/
