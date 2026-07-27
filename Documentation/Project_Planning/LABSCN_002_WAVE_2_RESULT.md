@@ -31,7 +31,11 @@ Der Problemzustand verwendet vier parallele Sessions: `HEAD`, `MIDDLE`, `LEAF` u
 
 Im bisherigen Lab-Testkatalog war für `CON-004` der Wert `sessions: 3` eingetragen. Das tatsächlich ausgeführte Manifest `Sessions/problem.json` startet vier Sessions. Der Katalog wurde auf vier Sessions korrigiert. Diese Korrektur verändert keinen fachlichen Ablauf, sondern bringt Metadaten und ausführbare Quelle in Übereinstimmung.
 
-## 5. Nicht Bestandteil dieser Welle
+## 5. Validierungsstand
+
+Die Artefakte wurden über Repositorypfade und ausführbare Manifeste gegengeprüft. Ein tatsächlicher Lauf von `Tests/Static/validate_performance_scenarios.py` wurde in dieser Welle noch nicht über einen Runner ausgeführt. Der Status bleibt daher `IMPLEMENTED_FOR_REVIEW` und nicht `VALIDATED`.
+
+## 6. Nicht Bestandteil dieser Welle
 
 Noch nicht implementiert sind:
 
@@ -42,6 +46,6 @@ Noch nicht implementiert sind:
 
 Diese Punkte bilden `LABSCN-003`.
 
-## 6. Abnahmekriterien für den Übergang zu LABSCN-003
+## 7. Abnahmekriterien für den Übergang zu LABSCN-003
 
 Der Übergang ist fachlich möglich, wenn die beiden JSON-Schemas, das Inventar, die `CON-004`-Szenariodefinition und der statische Validator konsistent sind. Die Runtime-Abnahme erfolgt erst in `LABSCN-003`, weil dort erstmals Provisionierung, Vorbereitung, READY_FOR_USER, Reset und Remove als zusammenhängender Ablauf implementiert werden.
