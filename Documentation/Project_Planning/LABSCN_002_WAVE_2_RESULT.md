@@ -1,51 +1,79 @@
-# LABSCN-002 – Ergebnis Welle 2
+# LABSCN-002 – Ergebnis Wellen 2 und 3
 
 | Merkmal | Wert |
 |---|---|
 | Status | `IMPLEMENTED_FOR_REVIEW` |
 | Branch | `agent/labscn-wave1-inventory` |
 | Arbeitspaket | `LABSCN-002` |
-| Folgeschritt | `LABSCN-003` – erster vollständiger Vertical Slice |
+| Verbindliche Ergänzung | `Documentation/Architecture/TSQL_SCENARIO_ORCHESTRATION.md` |
+| Folgeschritt | `LABSCN-003` – manueller CON-004-Vertical-Slice mit automatisierter Verifikation |
 
 ## 1. Ergebnis
 
-Welle 2 überführt das vorläufige Szenarioinventar in einen maschinenprüfbaren Vertragsstand. Die sechs im bestehenden Lab-Testkatalog runtimevalidierten Container-Demos wurden als belastbare Ausgangsmenge übernommen: `QRY-001`, `OPT-002`, `CON-004`, `OPT-013`, `OPT-015` und `OPT-016`.
+Das Szenarioinventar, die Szenarioschemata und der erste Szenarioentwurf berücksichtigen nun zwei voneinander unabhängige Klassifikationsachsen. Die Klassen `A` bis `D` beschreiben die technische Reproduzierbarkeit. Die Modi `MANUAL`, `RUNNER_ASSISTED` und `AUTOMATED_VERIFY` beschreiben die fachlich erforderliche Orchestrierungsstufe.
 
-Für diese Demos sind Provider, SQL-Server-Versionen, Safety Level, Sessionmodell, Isolationsbedarf, Erzwingungsmechanismus, Verifikation, Resetstrategie und Mindestressourcen erfasst. Geplante Demos bleiben ausdrücklich als `PLANNED` gekennzeichnet.
+Es gilt verbindlich die kleinste ausreichende Orchestrierungsstufe. Ein vorhandener Runner begründet daher nicht automatisch einen runnergestützten Teilnehmerablauf.
 
-## 2. Neue Vertragsartefakte
+## 2. Source of Truth
 
-`Documentation/Architecture/performance-training-scenario.schema.json` definiert den fachlichen Vertrag eines interaktiven Schulungsszenarios. Er umfasst Topologie, Vorbereitung, READY_FOR_USER-Übergabe, Verifikation, Reset und Abbau. Der Vertrag enthält keine Providerimplementierung; diese verbleibt in `SQL_Server_Lab`.
+Die eigenständigen T-SQL-Dateien und die Teilnehmeranleitung bleiben die fachliche Source of Truth. Python, PowerShell, CI und ein späteres Notebook dürfen diese Artefakte ausführen oder darstellen, aber keine exklusive fachliche SQL-Logik enthalten.
 
-`Documentation/Architecture/performance-training-scenario-inventory.schema.json` definiert die Struktur des Szenarioinventars.
+`SQL_Server_Lab` bleibt auf Infrastruktur-Orchestrierung begrenzt. SQL-Sessions, fachliche Reihenfolge, Schleifen, Beobachtungsbereitschaft, Reset und Cleanup werden durch `SQL_PerformanceSchulung` beschrieben.
 
-`Tests/Static/validate_performance_scenarios.py` prüft zusätzlich repositoryweite Beziehungen, die mit JSON Schema allein nicht abgesichert werden können. Dazu gehören eindeutige IDs, existierende Pfade, Übereinstimmung zwischen Inventar und Szenariodefinition sowie die Pflicht zur READY_FOR_USER-Übergabe.
+## 3. Angepasste Vertragsartefakte
 
-## 3. Erster Szenarioentwurf
+`Documentation/Architecture/performance-training-scenario.schema.json` verwendet Vertragsversion `1.1` und verlangt nun einen Orchestrierungsvertrag. Dieser enthält einen Primärmodus, unterstützte Modi und die jeweils erforderlichen Artefakte:
 
-`Scenarios/CON-004/scenario.json` beschreibt den ersten Vertical-Slice-Kandidaten. Das Szenario verwendet eine einzelne SQL-Server-Instanz, aber mehrere unabhängige SQL-Sessions. Die fachliche Reihenfolge wird durch FWK-006-Signale gesteuert. Feste Prozessverzögerungen dürfen ausschließlich den Start entzerren und nicht als fachliche Synchronisation dienen.
+- `MANUAL`: kanonische T-SQL-Skripte je Sessionrolle und eindeutige Startreihenfolge;
+- `RUNNER_ASSISTED`: Runnervertrag, Timeout, Stopverhalten und `READY_FOR_OBSERVATION`;
+- `AUTOMATED_VERIFY`: vorhandenes Runtime-Manifest für Smoke- und Regressionstests.
 
-Der Problemzustand verwendet vier parallele Sessions: `HEAD`, `MIDDLE`, `LEAF` und `OBSERVER`. Der getrennte Vergleichslauf verwendet `FIRST_WRITER` und `FOLLOWER`.
+`Documentation/Architecture/performance-training-scenario-inventory.schema.json` und `Documentation/Inventories/performance_scenario_inventory.json` führen dieselbe Orchestrierungsachse. Der statische Validator prüft die Konsistenz zwischen Inventar, Szenariodefinition und referenzierten Artefakten.
 
-## 4. Gefundene Inkonsistenz
+## 4. Geänderte Einordnung von CON-004
 
-Im bisherigen Lab-Testkatalog war für `CON-004` der Wert `sessions: 3` eingetragen. Das tatsächlich ausgeführte Manifest `Sessions/problem.json` startet vier Sessions. Der Katalog wurde auf vier Sessions korrigiert. Diese Korrektur verändert keinen fachlichen Ablauf, sondern bringt Metadaten und ausführbare Quelle in Übereinstimmung.
+`CON-004` bleibt der bevorzugte erste Vertical Slice. Die primäre Orchestrierungsstufe wurde jedoch von einem implizit runnerzentrierten Ablauf auf `MANUAL` korrigiert.
 
-## 5. Validierungsstand
+Der Teilnehmer öffnet vier SQL-Fenster und startet nacheinander:
 
-Die Artefakte wurden über Repositorypfade und ausführbare Manifeste gegengeprüft. Ein tatsächlicher Lauf von `Tests/Static/validate_performance_scenarios.py` wurde in dieser Welle noch nicht über einen Runner ausgeführt. Der Status bleibt daher `IMPLEMENTED_FOR_REVIEW` und nicht `VALIDATED`.
+1. `HEAD`;
+2. `MIDDLE`;
+3. `LEAF`;
+4. `OBSERVER`.
 
-## 6. Nicht Bestandteil dieser Welle
+Das bewusste Starten und Beobachten der Sessions ist Bestandteil des Lernziels. Die T-SQL-Signale bleiben erhalten und verhindern zufällige Sleep-basierte Abläufe.
 
-Noch nicht implementiert sind:
+Das vorhandene Runtime-Manifest bleibt unverändert als `AUTOMATED_VERIFY`. Es prüft den fachlichen Zustand automatisiert, ersetzt aber nicht den manuellen Schulungsablauf.
 
-1. das konkrete `SQL_Server_Lab`-Manifest für `CON-004`;
-2. die PowerShell- oder Command-Schnittstelle für Start, Reset und Remove;
-3. die kompakte READY_FOR_USER-Verbindungsübergabe;
-4. Docker- und Podman-Runtimeprüfungen des vollständigen interaktiven Lifecycles.
+Ein `RUNNER_ASSISTED`-Modus wird für `CON-004` erst implementiert, wenn ein konkreter Bedarf an dauerhaft oder wiederholt erzeugten Blocking-Zuständen besteht.
 
-Diese Punkte bilden `LABSCN-003`.
+## 5. Statusmodell
 
-## 7. Abnahmekriterien für den Übergang zu LABSCN-003
+Für manuelle Szenarien ist `READY_FOR_USER` der Übergabestatus: Infrastruktur, Datenbank und Baseline sind vorbereitet; die fachlichen Sessions werden durch den Teilnehmer gestartet.
 
-Der Übergang ist fachlich möglich, wenn die beiden JSON-Schemas, das Inventar, die `CON-004`-Szenariodefinition und der statische Validator konsistent sind. Die Runtime-Abnahme erfolgt erst in `LABSCN-003`, weil dort erstmals Provisionierung, Vorbereitung, READY_FOR_USER, Reset und Remove als zusammenhängender Ablauf implementiert werden.
+Für runnergestützte Szenarien ist `READY_FOR_OBSERVATION` der Übergabestatus: Der Runner hat den zu beobachtenden Laufzeitzustand bereits hergestellt und hält ihn innerhalb definierter Grenzen aufrecht.
+
+Nicht jedes Szenario durchläuft beide Zustände.
+
+## 6. Korrigierte Metadaten
+
+Der Lab-Testkatalog führte `CON-004` ursprünglich mit drei Sessions. Das tatsächlich ausgeführte Problemmanifest verwendet vier parallele Sessions: `HEAD`, `MIDDLE`, `LEAF` und `OBSERVER`. Der Katalog wurde auf vier Sessions korrigiert. Der getrennte Vergleichslauf verwendet `FIRST_WRITER` und `FOLLOWER`.
+
+## 7. Validierungsstand
+
+Die JSON-Verträge und Repositorybeziehungen wurden strukturell angepasst. Der aktualisierte statische Validator ist implementiert, aber noch nicht auf einem Runner ausgeführt. Der Status bleibt deshalb `IMPLEMENTED_FOR_REVIEW`.
+
+## 8. Geänderte Reihenfolge für LABSCN-003
+
+1. manuelle Teilnehmeranleitung für `CON-004` auf vier SQL-Fenster ausrichten;
+2. konkretes `SQL_Server_Lab`-Manifest erstellen;
+3. Provisionierung und fachliche Vorbereitung bis `READY_FOR_USER` implementieren;
+4. Verbindungs- und Rollenübergabe bereitstellen;
+5. manuellen Ablauf und Reset prüfen;
+6. vorhandenen FWK-006-/FWK-010-Pfad als `AUTOMATED_VERIFY` ausführen;
+7. Docker- und Podman-Lifecycle validieren;
+8. anschließend ein eigenständiges, fachlich tatsächlich `RUNNER_ASSISTED` benötigendes Szenario auswählen.
+
+## 9. Nicht Bestandteil dieser Integration
+
+Noch nicht implementiert sind das konkrete Lab-Manifest, die Bedienkommandos für Start, Reset und Remove, die fertige Teilnehmerübergabe sowie die Docker- und Podman-Runtimeabnahme. Diese Arbeiten bleiben Bestandteil von `LABSCN-003`.
