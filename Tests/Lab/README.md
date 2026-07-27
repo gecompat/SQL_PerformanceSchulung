@@ -1,57 +1,65 @@
-# Tests/Lab – Integration mit SQL_Server_Lab
+# Tests/Lab – Qualitätssicherung für SQL_Server_Lab-Szenarien
 
-Dieses Verzeichnis enthält die projektinterne Steuerung für automatisierte Testläufe auf Umgebungen aus `gecompat/SQL_Server_Lab`.
+Dieses Verzeichnis enthält die projektinterne Steuerung automatisierter Prüfungen für Umgebungen aus `gecompat/SQL_Server_Lab`.
+
+Der primäre Benutzervertrag steht unter [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](../../Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md). Dort wird festgelegt, wie ein einzelnes Schulungsbeispiel ausgewählt, technisch vorbereitet, als `READY_FOR_USER` übergeben, interaktiv durchgeführt, zurückgesetzt und entfernt wird.
 
 ## Dateien
 
 | Datei | Zweck |
 |---|---|
-| `performance-lab-matrix.json` | katalogisiert alle produktiven Demo-Manifeste und ihre Infrastruktur-, Safety- und Versionsanforderungen |
-| `performance-lab-matrix.schema.json` | formaler JSON-Schema-Vertrag für den schulungsinternen Katalog |
+| `performance-lab-matrix.json` | ordnet produktive Demo-Manifeste automatisierten Provider-, Safety- und Versionsprüfungen zu |
+| `performance-lab-matrix.schema.json` | formaler JSON-Schema-Vertrag für den schulungsinternen Testkatalog |
 
-Der vollständige Architektur- und Ablaufvertrag steht unter [`Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md`](../../Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md).
+Der Testkatalog ist kein Benutzerszenariokatalog. Interaktive Szenariodefinitionen werden unter `LABSCN-002` separat modelliert.
+
+## Rolle der Testautomation
+
+Automatisierte Prüfungen sollen nachweisen, dass:
+
+- die benötigte Umgebung über `SQL_Server_Lab` aufgebaut werden kann;
+- die fachliche Vorbereitung reproduzierbar ist;
+- zentrale Kernbeobachtungen eintreten;
+- der Reset funktioniert;
+- die Umgebung vollständig entfernt werden kann.
+
+Ein automatisierter Lauf darf seine kurzlebige Umgebung am Ende entfernen. Das Zielverhalten eines interaktiven Szenarios ist dagegen:
+
+```text
+Provisionieren
+-> Vorbereiten
+-> READY_FOR_USER
+-> Benutzer arbeitet mit dem Beispiel
+-> Reset oder ausdrücklicher Abbau
+```
 
 ## Verantwortungsgrenze
 
-`SQL_Server_Lab` erstellt und entfernt die Docker- oder Podman-Umgebung und liefert Host, Port, Provider und Run-ID zurück.
+`SQL_Server_Lab` wird für Docker, Podman, Hyper-V oder gemischte Topologien verwendet und verwaltet deren Infrastruktur-Lifecycle.
 
-Dieses Repository:
-
-- wählt die Demos aus;
-- führt den vorhandenen Demo-Harness aus;
-- bewertet fachliche Ergebnisse;
-- prüft den Demo-Cleanup;
-- bildet die Versions- und Providermatrix.
-
-Der JSON-Katalog in diesem Verzeichnis wird nicht von `SQL_Server_Lab` verarbeitet. Eine Project-Adapter-/Lab-Package-Engine oder generische JSON-/Event-Schnittstelle ist keine Voraussetzung der Schulungsautomation.
+`SQL_PerformanceSchulung` verantwortet Szenarioauswahl, Demo-Harness, synthetische Daten, fachliche Assertions, Benutzeranleitung, Beobachtungsaufträge und Reset.
 
 ## Discovery-Regel
 
 Der statische Validator entdeckt alle produktiven Dateien `Demos/**/manifest.json`. Manifeste unter `Demos/00_Framework/` gelten als Frameworkbeispiele und werden ausgeschlossen. Jedes andere Manifest muss genau einmal im Testkatalog vorkommen.
 
-## Geplante Commands
+Diese Regel stellt sicher, dass neue Demos in die Qualitätssicherung aufgenommen werden. Sie sagt noch nicht aus, ob die Demo als interaktives Szenario geeignet ist. Diese Klassifikation erfolgt unter `LABSCN-002`.
 
-`LABINT-002` implementiert einen lokalen PowerShell-Runner mit folgenden Zielaufrufen:
+## Geplante Testcommands
+
+`LABINT-002` implementiert nach dem ersten interaktiven Vertical Slice technische Prüfaufrufe, beispielsweise:
 
 ```powershell
-# schneller grüner Test auf dem ersten verfügbaren Provider
 ./Tests/Lab/Invoke-PerformanceLabMatrix.ps1 -Lane SMOKE
-
-# grüne Versionsmatrix auf Docker
 ./Tests/Lab/Invoke-PerformanceLabMatrix.ps1 -Lane CORE -Provider docker
-
-# Providerparität einschließlich freigegebener gelber Demos
-./Tests/Lab/Invoke-PerformanceLabMatrix.ps1 `
-    -Lane PROVIDER_PARITY `
-    -ConfirmIsolatedLab
 ```
 
-Der Runner verwendet ausschließlich die öffentlichen Lab-Commands `New-SqlServerLab`, `Get-SqlServerLab` und `Remove-SqlServerLab`. Zusätzliche Lab-Funktionalität wird erst verlangt, wenn ein realer Lauf eine konkrete Lücke nachweist.
+Die spätere Benutzerbedienung für interaktive Szenarien wird getrennt unter `LABSCN-004` standardisiert.
 
 ## Sicherheitsregeln
 
 - Rot wird niemals implizit eingeschlossen.
 - Gelb benötigt eine ausdrückliche Isolationsbestätigung.
-- Das SA-Kennwort wird nicht in Katalog, Manifest oder Report persistiert.
+- Secrets werden nicht in Katalog, Szenariodefinition oder Report persistiert.
 - Lokaler Lab-State und technische Diagnosen verbleiben außerhalb versionierter Projektpfade.
-- Nach jeder Demo wird ihr fachlicher Cleanup geprüft; danach entfernt `SQL_Server_Lab` die Infrastruktur.
+- Änderungen in `SQL_Server_Lab` erfolgen nur nach konkretem Szenariobefund und ausdrücklicher Freigabe.

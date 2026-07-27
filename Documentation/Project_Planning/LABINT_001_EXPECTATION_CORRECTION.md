@@ -1,49 +1,47 @@
-# Korrektur – Erwartung von SQL_PerformanceSchulung an SQL_Server_Lab
+# Historische Korrektur – Erwartung an SQL_Server_Lab
 
 | Merkmal | Wert |
 |---|---|
-| Status | `VALIDATED` |
+| Status | `SUPERSEDED_BY_DEC-044` |
 | Stand | 2026-07-27 |
-| Pull Request | `#22` |
-| Anlass | zu weitgehende Ableitung aus dem langfristigen Architekturentwurf von `SQL_Server_Lab` |
+| Ursprünglicher Pull Request | `#22` |
+| Aktueller Zielvertrag | [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](../Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) |
 | Änderungen in SQL_Server_Lab | keine |
 
-## Festgestellte Fehlinterpretation
+## 1. Historischer Zweck
 
-Die vorherige Planung behandelte eine native Project-Adapter-/Lab-Package-Engine, eine generische JSON-/Event-Schnittstelle sowie weitere Control-Plane-Funktionen als spätere Anforderungen des Schulungsprojekts.
+Dieses Dokument korrigierte eine frühere Überinterpretation, nach der `SQL_PerformanceSchulung` eine generische Project-Adapter-/Lab-Package-Engine, eine JSON-/Event-Schnittstelle und weitere Control-Plane-Funktionen von `SQL_Server_Lab` verlangen würde.
 
-Diese Anforderungen folgen nicht aus dem tatsächlichen Integrationsziel. Sie wurden aus einem allgemeinen Architekturentwurf des Lab-Repositories übernommen, obwohl die Schulungsautomation sie nicht benötigt.
+Diese generischen Anforderungen bleiben verworfen.
 
-## Korrigierte Erwartung
+## 2. Warum die damalige Kurzfassung nicht der endgültige Zielzustand ist
 
-`SQL_Server_Lab` muss für dieses Projekt:
+Die damalige Korrektur reduzierte die Integration anschließend zu stark auf:
 
-1. eine angeforderte SQL-Server-Version über Docker oder Podman bereitstellen;
-2. SQL-Readiness prüfen;
-3. Run-ID, Provider, Host und Port zurückgeben;
-4. die bereitgestellte Umgebung sicher entfernen.
+```text
+SQL-Server-Instanz erstellen
+-> automatisierte Demos ausführen
+-> Umgebung entfernen
+```
 
-`SQL_PerformanceSchulung` übernimmt selbst:
+Diese Kurzfassung beschreibt nur einen technischen Testlauf. Sie bildet nicht das inzwischen verbindlich präzisierte Lernziel ab, nach dem Benutzer einzelne Beispiele selbst erleben, verändern, zurücksetzen und erneut ausführen können sollen.
 
-1. Demo-Discovery und Testkatalog;
-2. Demoauswahl und Matrixbildung;
-3. Ausführung des vorhandenen Demo-Harness;
-4. fachliche Assertions und Skip-Verträge;
-5. Demo-Cleanup und Testzusammenfassung.
+## 3. Aktueller verbindlicher Zielzustand
 
-## Konsequenz
+`DEC-044` und `LABSCN-001` legen fest:
 
-`LABINT-005` und die Migration auf eine native Lab-Package-Ausführung wurden aus dem Backlog entfernt. Der nächste Schritt bleibt ein einfacher PowerShell-Runner über die bereits vorhandenen öffentlichen Lab-Commands.
+- `SQL_Server_Lab` ist das verbindliche Provisionierungsframework;
+- Zielplattformen können Docker, Podman, Hyper-V oder gemischte Topologien sein;
+- `SQL_PerformanceSchulung` beschreibt je Beispiel die benötigte Topologie, Vorbereitung und Benutzeraktionen;
+- die Umgebung wird nach der Vorbereitung als `READY_FOR_USER` übergeben;
+- sie bleibt für interaktive Versuche bestehen;
+- der Benutzer kann Reset oder vollständigen Abbau anfordern;
+- automatisierte Testmatrizen dienen ausschließlich der Qualitätssicherung.
 
-Zusätzliche Funktionalität in `SQL_Server_Lab` wird nur dann verlangt, wenn ein realer Docker- oder Podman-Lauf eine konkrete und reproduzierbare Lücke nachweist. Eine solche Änderung wird vorab benannt und nicht ohne ausdrückliche Freigabe umgesetzt.
+## 4. Weiterhin gültige Abgrenzung
 
-## Abnahme
+Weiterhin nicht verlangt werden pauschale generische Plattformfunktionen ohne konkreten Szenariobedarf. Eine zusätzliche Fähigkeit in `SQL_Server_Lab` wird nur anhand eines tatsächlich zu realisierenden Schulungsszenarios benannt und erst nach ausdrücklicher Freigabe umgesetzt.
 
-Der korrigierte Branchstand bestand:
+## 5. Nachfolgearbeit
 
-- `SQL Server Lab integration contract`, Lauf `30242868365`;
-- `Framework contracts`, Lauf `30242868248`;
-- `Curriculum and privacy validation`, Lauf `30242868268`;
-- `Advanced lab design contracts`, Lauf `30242868260`;
-- `Advanced lab design contracts VP3-VP5`, Lauf `30242868256`;
-- `W2-001 legacy example classification`, Lauf `30242868303`.
+Die weitere Verarbeitung erfolgt unter `LABSCN-002` bis `LABSCN-006`. `LABINT-002` bis `LABINT-004` bleiben nachgeordnete technische Prüfungen für Aufbau, Vorbereitung, Reset und Abbau.
