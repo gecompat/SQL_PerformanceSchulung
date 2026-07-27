@@ -2,9 +2,10 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IN_PROGRESS` bis CI-Abnahme |
+| Status | `VALIDATED` |
 | Stand | 2026-07-27 |
 | Entscheidung | `DEC-044` |
+| Pull Request | `#23` |
 | Änderungen in SQL_Server_Lab | keine |
 
 ## 1. Anlass
@@ -36,10 +37,21 @@ Die bisherige Lab-Planung konzentrierte sich zu stark auf automatisierte Testmat
 
 In `SQL_Server_Lab` wurde nichts geändert. Zusätzliche Lab-Funktionalität wird erst anhand einer konkreten Szenariodefinition benannt und nicht ohne ausdrückliche Freigabe implementiert.
 
-## 5. Statusgrenze
+## 5. Abnahme
+
+Der Branchstand bestand:
+
+- `SQL Server Lab scenario contract`, Lauf `30244511832`;
+- `Framework contracts`, Lauf `30244511860`;
+- `Curriculum and privacy validation`, Lauf `30244511870`;
+- `Advanced lab design contracts`, Lauf `30244511868`;
+- `Advanced lab design contracts VP3-VP5`, Lauf `30244511867`;
+- `W2-001 legacy example classification`, Lauf `30244511815`.
+
+## 6. Statusgrenze
 
 Diese Welle verankert Ziel, Verantwortungsgrenze, Lifecycle und Folgearbeit. Sie implementiert noch kein konkretes interaktives Szenario.
 
-## 6. Nächster Schritt
+## 7. Nächster Schritt
 
 `LABSCN-002` inventarisiert alle vorhandenen und geplanten Beispiele, klassifiziert ihre interaktive Eignung und definiert das Szenarioschema. Danach wird unter `LABSCN-003` ein erster vollständiger Vertical Slice umgesetzt.
