@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/gecompat/SQL_PerformanceSchulung/raw/main/Documentation/Architecture/performance-training-scenario.schema.json",
+  "title": "Performance Training Scenario",
+  "description": "Fachlicher Vertrag fuer ein interaktiv bereitstellbares SQL-Server-Performance-Szenario. Die Infrastruktur wird durch SQL_Server_Lab provisioniert; fachliche Vorbereitung, Benutzerablauf, Verifikation und Reset verbleiben in SQL_PerformanceSchulung.",
+  "type": "object",
+  "required": [
+    "contractVersion",
+    "scenarioId",
+    "demoId",
+    "title",
+    "status",
+    "classification",
+    "safetyLevel",
+    "platforms",
+    "sqlVersions",
+    "topology",
+    "preparation",
+    "interactive",
+    "verification",
+    "reset",
+    "remove"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "contractVersion": { "const": "1.0" },
+    "scenarioId": {
+      "type": "string",
+      "pattern": "^PTS-[A-Z0-9][A-Z0-9_-]*$"
+    },
+    "demoId": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-[0-9]{3}(?:_[A-Z0-9_]+)?$"
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["PLANNED", "DESIGNED", "IMPLEMENTED", "VALIDATED", "RETIRED"]
+    },
+    "classification": {
+      "enum": ["A", "B", "C", "D"],
+      "description": "A: logisch deterministisch und containergeeignet; B: containergeeignet mit Ressourcen- und Toleranzvertrag; C: nur bedingt reproduzierbar; D: kein technisches Runtime-Szenario."
+    },
+    "safetyLevel": { "enum": ["GREEN", "YELLOW", "RED"] },
+    "platforms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["docker", "podman", "hyperv", "mixed"] }
+    },
+    "sqlVersions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["2019", "2022", "2025"] }
+    },
+    "compatibilityLevels": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": [150, 160, 170] }
+    },
+    "labManifest": {
+      "type": "string",
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\.\.(?:[/\\\\]|$)).+\\.json$"
+    },
+    "runtimeManifest": {
+      "type": "string",
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\.\.(?:[/\\\\]|$)).+manifest\\.json$"
+    },
+    "topology": {
+      "type": "object",
+      "required": ["instances", "sessionModel"],
+      "properties": {
+        "instances": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "role"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+              "role": { "type": "string", "minLength": 1 },
+              "resourceProfile": { "enum": ["compact", "standard", "performance", "custom"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "sessionModel": { "enum": ["SINGLE_SESSION", "MULTI_SESSION", "SINGLE_OR_MULTI_SESSION"] },
+        "sessionRoles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+        },
+        "freshInstanceRequired": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "hostMinimum": {
+      "type": "object",
+      "required": ["cpu", "memoryMB", "storageGB"],
+      "properties": {
+        "cpu": { "type": "integer", "minimum": 1 },
+        "memoryMB": { "type": "integer", "minimum": 2048 },
+        "storageGB": { "type": "integer", "minimum": 1 },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "preparation": {
+      "type": "object",
+      "required": ["scripts", "assertions"],
+      "properties": {
+        "scripts": { "$ref": "#/definitions/relativeSqlPaths" },
+        "assertions": { "$ref": "#/definitions/nonEmptyStrings" },
+        "forcedCondition": { "type": "string", "minLength": 1 },
+        "determinismControls": { "$ref": "#/definitions/nonEmptyStrings" }
+      },
+      "additionalProperties": false
+    },
+    "interactive": {
+      "type": "object",
+      "required": ["entryDocument", "steps", "readyState"],
+      "properties": {
+        "entryDocument": { "$ref": "#/definitions/relativePath" },
+        "sessionManifest": { "$ref": "#/definitions/relativeJsonPath" },
+        "steps": { "$ref": "#/definitions/nonEmptyStrings" },
+        "readyState": { "const": "READY_FOR_USER" },
+        "variationPoints": { "$ref": "#/definitions/nonEmptyStrings" }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "required": ["script", "requiredEvidence", "timeoutSeconds"],
+      "properties": {
+        "script": { "$ref": "#/definitions/relativeSqlPath" },
+        "requiredEvidence": { "$ref": "#/definitions/nonEmptyStrings" },
+        "timeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 900 },
+        "controlledSkipCodes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^SKIP_[A-Z0-9_]+$" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "reset": {
+      "type": "object",
+      "required": ["strategy", "scripts", "postconditions"],
+      "properties": {
+        "strategy": { "enum": ["DATABASE_RECREATE", "BASELINE_RESTORE", "IDEMPOTENT_RESET", "FULL_REPROVISION"] },
+        "scripts": { "$ref": "#/definitions/relativeSqlPaths" },
+        "postconditions": { "$ref": "#/definitions/nonEmptyStrings" }
+      },
+      "additionalProperties": false
+    },
+    "remove": {
+      "type": "object",
+      "required": ["cleanupScripts", "removeLab"],
+      "properties": {
+        "cleanupScripts": { "$ref": "#/definitions/relativeSqlPaths" },
+        "removeLab": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "knownLimits": { "$ref": "#/definitions/nonEmptyStrings" }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "relativePath": {
+      "type": "string",
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\.\.(?:[/\\\\]|$)).+$"
+    },
+    "relativeSqlPath": {
+      "type": "string",
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\.\.(?:[/\\\\]|$)).+\\.sql$"
+    },
+    "relativeJsonPath": {
+      "type": "string",
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\.\.(?:[/\\\\]|$)).+\\.json$"
+    },
+    "relativeSqlPaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/definitions/relativeSqlPath" }
+    }
+  }
+}
