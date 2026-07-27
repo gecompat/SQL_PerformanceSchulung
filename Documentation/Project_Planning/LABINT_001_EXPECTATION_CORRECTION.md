@@ -2,8 +2,9 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `VALIDATED` nach CI-Abnahme |
+| Status | `VALIDATED` |
 | Stand | 2026-07-27 |
+| Pull Request | `#22` |
 | Anlass | zu weitgehende Ableitung aus dem langfristigen Architekturentwurf von `SQL_Server_Lab` |
 | Änderungen in SQL_Server_Lab | keine |
 
@@ -35,3 +36,14 @@ Diese Anforderungen folgen nicht aus dem tatsächlichen Integrationsziel. Sie wu
 `LABINT-005` und die Migration auf eine native Lab-Package-Ausführung wurden aus dem Backlog entfernt. Der nächste Schritt bleibt ein einfacher PowerShell-Runner über die bereits vorhandenen öffentlichen Lab-Commands.
 
 Zusätzliche Funktionalität in `SQL_Server_Lab` wird nur dann verlangt, wenn ein realer Docker- oder Podman-Lauf eine konkrete und reproduzierbare Lücke nachweist. Eine solche Änderung wird vorab benannt und nicht ohne ausdrückliche Freigabe umgesetzt.
+
+## Abnahme
+
+Der korrigierte Branchstand bestand:
+
+- `SQL Server Lab integration contract`, Lauf `30242868365`;
+- `Framework contracts`, Lauf `30242868248`;
+- `Curriculum and privacy validation`, Lauf `30242868268`;
+- `Advanced lab design contracts`, Lauf `30242868260`;
+- `Advanced lab design contracts VP3-VP5`, Lauf `30242868256`;
+- `W2-001 legacy example classification`, Lauf `30242868303`.
