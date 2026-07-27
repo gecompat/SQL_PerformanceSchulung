@@ -42,6 +42,31 @@ python3 Tests/Static/validate_adv_006_007_designs.py
 
 Beide Workflows führen zusätzlich den vollständigen Repository-Privacy-Scan aus.
 
+## SQL_Server_Lab-Integrationsvertrag
+
+Der Workflow `.github/workflows/sql-server-lab-test-catalog.yml` startet keinen Container und führt aus:
+
+```bash
+python3 Tests/Static/validate_sql_server_lab_test_catalog.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Der Validator entdeckt alle produktiven Dateien `Demos/**/manifest.json`, schließt nur Frameworkbeispiele unter `Demos/00_Framework/` aus und verlangt für jedes produktive Manifest genau einen Eintrag in `Tests/Lab/performance-lab-matrix.json`.
+
+Geprüft werden:
+
+- Demo-ID, Manifestpfad und Sicherheitsstufe;
+- Docker-/Podman-Zuordnung;
+- SQL-Server-Versionen 2019, 2022 und 2025;
+- Ressourcenprofil und Environment-Isolation;
+- Sessionzahl und erforderliche Capabilities;
+- explizite Safety-Bestätigung für gelbe und rote Lanes;
+- vollständiger Cleanup-Vertrag im Demo-Manifest;
+- Vollständigkeit der aktuellen 72 Läufe umfassenden Container-Gesamtmatrix;
+- Verbot von Secrets, realen Hostfeldern und absoluten Pfaden im Katalog.
+
+`LABINT-001` validiert nur Architektur und Katalog. Ein realer Docker-/Podman-Lauf über `SQL_Server_Lab` folgt erst mit `LABINT-002`.
+
 ## Aktive Framework-Runtime-Matrix
 
 Der Workflow `.github/workflows/framework-sql-matrix.yml` validiert das gemeinsame Framework gegen:
@@ -103,24 +128,28 @@ Der validierte Lauf `30218788526` führte `OPT-015` und `OPT-016` je Version zwe
 
 ## Datenschutz und Laufzeitumgebung
 
-Die Matrizen verwenden pro Job eine ephemere Developer-Instanz ohne Host-Port und ohne persistentes Volume. Das Kennwort wird zur Laufzeit erzeugt, maskiert und nicht in Dateien oder Prozessargumenten gespeichert. Kurzlebige Diagnoseartefakte besitzen eine begrenzte Aufbewahrungsdauer und enthalten ausschließlich synthetische Phasen-, Kategorien- und Fehlerausgaben.
+Die bestehenden GitHub-Matrizen verwenden pro Job eine ephemere Developer-Instanz ohne Host-Port und ohne persistentes Volume. Der geplante lokale Lab-Runner verwendet stattdessen die von `SQL_Server_Lab` erzeugte, scopegebundene Docker- oder Podman-Umgebung. In beiden Fällen wird das Kennwort zur Laufzeit erzeugt und nicht versioniert.
 
-Details stehen unter [`Tests/Runtime`](Runtime/README.md), im [Framework-Matrixreview](../Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md), im [Gate-B-Review](../Documentation/Project_Planning/GATE_B_REVIEW.md), im [ADV-008-Review](../Documentation/Project_Planning/ADV_008_OPT_015_016_REVIEW.md) und im [Privacy-Prüfverfahren](../Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md).
+Kurzlebige Diagnoseartefakte besitzen eine begrenzte Aufbewahrungsdauer und enthalten ausschließlich synthetische Phasen-, Kategorien- und Fehlerausgaben.
+
+Details stehen unter [`Tests/Runtime`](Runtime/README.md), [`Tests/Lab`](Lab/README.md), im [Framework-Matrixreview](../Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md), im [Gate-B-Review](../Documentation/Project_Planning/GATE_B_REVIEW.md), im [ADV-008-Review](../Documentation/Project_Planning/ADV_008_OPT_015_016_REVIEW.md) und im [Privacy-Prüfverfahren](../Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md).
 
 ## Toolklassifikation
 
 - Die Python-Prüfungen und Frameworkskripte sind User-defined Tools des Projekts.
 - Das produktive Runtime-Framework verwendet das externe Microsoft-Tool `sqlcmd`.
+- `SQL_Server_Lab` ist die zentrale, projektexterne Provider- und Lifecycle-Komponente für lokale Docker-/Podman-Läufe.
 - GitHub Actions und `actions/checkout` beziehungsweise `actions/upload-artifact` sind Drittanbieter-/Plattformtools der GitHub-Plattform.
 - Fehlt `sqlcmd`, wird dies als `SKIP_TOOL_MISSING` und nicht als SQL-Server-Fehler behandelt.
 
 ## Nächste Prüfbereiche
 
-- `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` auf SQL Server 2019, 2022 und 2025,
-- Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden,
-- statische Variantenprüfung für SlideKeys, Custom Shows und Präsentationsmanifest,
-- Windows- oder OS-spezifische Profile nur bei konkreter Demoabhängigkeit,
-- Releasevalidierung mit dokumentierten Containerdigests oder CU-Ständen,
+- `LABINT-002`: grüner lokaler Runner über `SQL_Server_Lab`;
+- `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` auf SQL Server 2019, 2022 und 2025;
+- Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden;
+- statische Variantenprüfung für SlideKeys, Custom Shows und Präsentationsmanifest;
+- Windows- oder OS-spezifische Profile nur bei konkreter Demoabhängigkeit;
+- Releasevalidierung mit dokumentierten Containerdigests oder CU-Ständen;
 - weitere Demos und Inhaltsartefakte der Welle 2.
 
 Tests und Reports dürfen keine realen Zugangsdaten oder Umgebungsinformationen persistieren. Interaktiv notwendige reale Resultsets sind keine Repository-Artefakte.

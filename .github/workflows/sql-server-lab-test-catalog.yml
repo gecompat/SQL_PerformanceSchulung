@@ -1,0 +1,51 @@
+name: SQL Server Lab integration contract
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/**/manifest.json'
+      - 'Tests/Lab/**'
+      - 'Tests/Static/validate_sql_server_lab_test_catalog.py'
+      - 'Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/LABINT_001_SQL_SERVER_LAB_INTEGRATION_REVIEW.md'
+      - 'Infrastructure/README.md'
+      - '.ai/BACKLOG.md'
+      - '.github/workflows/sql-server-lab-test-catalog.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/**/manifest.json'
+      - 'Tests/Lab/**'
+      - 'Tests/Static/validate_sql_server_lab_test_catalog.py'
+      - 'Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/LABINT_001_SQL_SERVER_LAB_INTEGRATION_REVIEW.md'
+      - 'Infrastructure/README.md'
+      - '.ai/BACKLOG.md'
+      - '.github/workflows/sql-server-lab-test-catalog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sql-server-lab-integration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Lab integration catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate SQL_Server_Lab test catalog
+        run: python3 Tests/Static/validate_sql_server_lab_test_catalog.py
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .
