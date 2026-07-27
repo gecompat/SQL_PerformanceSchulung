@@ -1,32 +1,43 @@
 # Infrastructure
 
-Die allgemeine Erzeugung und Verwaltung von SQL-Server-Laborumgebungen mit Docker, Podman oder Hyper-V liegt im zentralen Repository:
+Die Erzeugung und Verwaltung der für Schulungsbeispiele benötigten SQL-Server-Laborumgebungen liegt im zentralen Repository:
 
 **https://github.com/gecompat/SQL_Server_Lab**
 
-Dieses Repository (`SQL_PerformanceSchulung`) enthält keine eigene Provider- oder Lab-Provisionierung. Die Schulungsumgebung wird über `SQL_Server_Lab` bereitgestellt. Demo-Manifeste, synthetische Inhalte, Demoausführung und fachliche Assertions verbleiben im Schulungsrepository.
+`SQL_PerformanceSchulung` enthält keine eigene Docker-, Podman- oder Hyper-V-Provisionierung. Dieses Repository beschreibt je Beispiel die fachlichen und technischen Anforderungen; `SQL_Server_Lab` wird verwendet, um die passende Umgebung tatsächlich zu erzeugen.
 
-## Workflow
+## Primärer Benutzerworkflow
 
-1. SQL-Server-Umgebung mit `SQL_Server_Lab` bereitstellen.
-2. Host und Port aus dem zurückgegebenen Lab-Objekt übernehmen.
-3. Demo mit dem vorhandenen Harness unter `Demos/00_Framework/Tools/run_demo.py` ausführen.
-4. Demo-Cleanup unabhängig verifizieren.
-5. Labumgebung über `Remove-SqlServerLab` entfernen.
-6. Infrastruktur-Cleanup prüfen.
+1. Ein einzelnes Schulungsbeispiel oder eine LAB-Serie auswählen.
+2. SQL-Server-Versionen, Provider, Topologie, Ressourcen und Zusatzkomponenten aus der Szenariodefinition auflösen.
+3. Umgebung über `SQL_Server_Lab` auf Docker, Podman, Hyper-V oder gemischten Providern bereitstellen.
+4. Datenbanken, synthetische Daten, Konfigurationen und Ausgangssituation vorbereiten.
+5. Umgebung im Status `READY_FOR_USER` mit Verbindungs- und Rollenbeschreibung übergeben.
+6. Benutzer führt die vorgesehenen Schritte selbst aus, verändert Abfragen und wiederholt Beobachtungen.
+7. Fachlichen Ausgangszustand zurücksetzen oder die gesamte Umgebung ausdrücklich entfernen.
 
-`SQL_Server_Lab` muss die Schulungsdemos nicht kennen und führt deren fachliche Phasen nicht aus.
+Die Umgebung wird nach der Vorbereitung nicht automatisch abgebaut.
 
-## Automatisierte Testmatrix
+## Verbindliche Architektur
 
-Die verbindliche Architektur für Docker-/Podman-Testaufbau, Versionsmatrix, Safety-Lanes, Discovery und Cleanup steht unter:
+Der kanonische Zielvertrag steht unter:
+
+- [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](../Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md)
+
+Die nachgeordnete technische Qualitätssicherung steht unter:
 
 - [`SQL_SERVER_LAB_TEST_AUTOMATION.md`](../Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md)
 - [`Tests/Lab/performance-lab-matrix.json`](../Tests/Lab/performance-lab-matrix.json)
 
-`LABINT-001` stellt Verantwortungsgrenze, Katalog, Schema und statische Vollständigkeitsprüfung bereit. `LABINT-002` implementiert den einfachen lokalen Runner über `New-SqlServerLab`, den bestehenden Demo-Harness und `Remove-SqlServerLab`.
+Die Testmatrix prüft Reproduzierbarkeit, Reset und Abbau. Sie ersetzt nicht die interaktive Szenarioauswahl, Benutzerübergabe und Schritt-für-Schritt-Anleitung.
 
-Eine Project-Adapter-/Lab-Package-Engine oder generische JSON-/Event-Schnittstelle ist keine Voraussetzung dieses Projekts.
+## Verantwortungsgrenze
+
+`SQL_PerformanceSchulung` verantwortet Lernziel, Topologieanforderung, Setup, synthetische Daten, Benutzeraktionen, Beobachtungsabfragen und fachlichen Reset.
+
+`SQL_Server_Lab` wird für Provisionierung und Lifecycle der benötigten Infrastruktur verwendet. Dazu können Docker, Podman, Hyper-V und gemischte Topologien gehören.
+
+Fehlt eine konkret benötigte Fähigkeit, wird die Lücke mit dem betroffenen Szenario dokumentiert. Änderungen in `SQL_Server_Lab` erfolgen erst nach ausdrücklicher Freigabe.
 
 ## Lokale Geheimnisse
 
