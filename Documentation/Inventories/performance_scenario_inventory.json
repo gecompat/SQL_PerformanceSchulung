@@ -1,0 +1,259 @@
+{
+  "contractVersion": "0.1",
+  "status": "IN_PROGRESS",
+  "generatedFrom": "repository evidence",
+  "scope": "LABSCN-002 wave 1",
+  "repository": "gecompat/SQL_PerformanceSchulung",
+  "provisioningFramework": "gecompat/SQL_Server_Lab",
+  "defaultProviders": [
+    "docker",
+    "podman"
+  ],
+  "classificationModel": {
+    "A": "logically deterministic and container suitable",
+    "B": "container suitable with resource and tolerance contract",
+    "C": "only conditionally reproducible in containers",
+    "D": "not a technical runtime scenario"
+  },
+  "scenarios": [
+    {
+      "demoId": "CON-004",
+      "path": "Demos/07_Concurrency/CON-004_Blocking_Chain",
+      "title": "Blocking Chain",
+      "inventoryStatus": "ASSESSED",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "MULTI_SESSION",
+      "requiredRoles": [
+        "HEAD_BLOCKER",
+        "MIDDLE_BLOCKER",
+        "OBSERVER",
+        "FIRST_WRITER",
+        "FOLLOWER"
+      ],
+      "forcedCondition": "A transaction holds a deterministic row or key lock while dependent sessions form an observable blocking chain.",
+      "synchronization": "Named database signals through FWK-006; process launch delays are not sufficient as functional synchronization.",
+      "verification": [
+        "sys.dm_exec_requests.blocking_session_id",
+        "lock ownership and waiter relationship",
+        "expected head blocker and chain depth"
+      ],
+      "resetStrategy": "Terminate scenario sessions, clear signals and recreate the marked test database.",
+      "hostMinimum": {
+        "cpu": 2,
+        "memoryMB": 4096,
+        "storageGB": 5
+      },
+      "verticalSliceCandidate": true,
+      "notes": "Preferred LABSCN-003 candidate because the state is logically enforceable and existing session scripts are present."
+    },
+    {
+      "demoId": "QRY-001",
+      "path": "Demos/05_Query_Patterns/QRY-001_SARGability",
+      "title": "SARGability",
+      "inventoryStatus": "ASSESSED",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_SESSION",
+      "requiredRoles": [
+        "WORKLOAD"
+      ],
+      "forcedCondition": "Equivalent predicates are executed against a deterministic indexed data set, once in seek-compatible and once in non-SARGable form.",
+      "synchronization": "Not required beyond sequential phases.",
+      "verification": [
+        "actual execution plan access method",
+        "logical reads",
+        "returned row equivalence"
+      ],
+      "resetStrategy": "Recreate the marked test database or rerun idempotent setup after plan-specific cleanup.",
+      "hostMinimum": {
+        "cpu": 2,
+        "memoryMB": 4096,
+        "storageGB": 5
+      },
+      "verticalSliceCandidate": true,
+      "notes": "Primary single-session alternative; simpler than CON-004 but does not exercise FWK-006."
+    },
+    {
+      "demoId": "OPT-002",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy",
+      "title": "Statistics Anatomy",
+      "inventoryStatus": "PRELIMINARY",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_SESSION",
+      "forcedCondition": "A fixed data distribution and explicitly generated statistics produce a known histogram and density state.",
+      "verification": [
+        "sys.dm_db_stats_properties",
+        "DBCC SHOW_STATISTICS result characteristics",
+        "estimated versus actual cardinality"
+      ],
+      "resetStrategy": "Recreate data and statistics from deterministic setup.",
+      "verticalSliceCandidate": false
+    },
+    {
+      "demoId": "OPT-013",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill",
+      "title": "Controlled Spill",
+      "inventoryStatus": "PRELIMINARY",
+      "classification": "B",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_SESSION",
+      "forcedCondition": "A deterministic cardinality or memory-grant mismatch causes a sort or hash operator to spill.",
+      "verification": [
+        "actual execution plan spill properties",
+        "spill-related Extended Events where used",
+        "memory grant evidence"
+      ],
+      "resetStrategy": "Recreate data and clear scenario-specific plan state.",
+      "capabilityRequirements": [
+        "defined container memory profile",
+        "version-specific adaptive-feature settings",
+        "controlled SKIP_HOST_CAPABILITY path"
+      ],
+      "verticalSliceCandidate": false
+    },
+    {
+      "demoId": "OPT-015",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties",
+      "title": "Plan Properties",
+      "inventoryStatus": "PRELIMINARY",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_SESSION",
+      "forcedCondition": "A synthetic out-of-range statistics case produces plan-wide and operator-level evidence before and after targeted statistics maintenance.",
+      "verification": [
+        "normalized actual-plan evidence",
+        "estimated and actual rows",
+        "statistics timestamp and correction effect"
+      ],
+      "resetStrategy": "Recreate marked database and deterministic out-of-range state.",
+      "verticalSliceCandidate": false,
+      "notes": "Repository status reports successful repeated runtime validation on SQL Server 2019, 2022 and 2025."
+    },
+    {
+      "demoId": "OPT-016",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-016_Outer_References_Rebinds_Rewinds",
+      "title": "Outer References, Rebinds, Rewinds and Performance Spool",
+      "inventoryStatus": "PRELIMINARY",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_SESSION",
+      "forcedCondition": "A deterministic correlated access pattern produces observable outer references, rebinds, rewinds and an optimizer-selected performance spool, with a controlled contrast run.",
+      "verification": [
+        "actual execution plan operator properties",
+        "rebind and rewind counts",
+        "presence or controlled absence of performance spool"
+      ],
+      "resetStrategy": "Recreate deterministic source data and clear scenario-specific plan state.",
+      "verticalSliceCandidate": false,
+      "notes": "Repository status reports successful repeated runtime validation on SQL Server 2019, 2022 and 2025."
+    },
+    {
+      "demoId": "QRY-004_CLASSIC_AND_DYNAMIC",
+      "path": null,
+      "title": "Catch-all, OPTION RECOMPILE and parameterized dynamic SQL",
+      "inventoryStatus": "PLANNED",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_SESSION",
+      "forcedCondition": "A deterministic skewed data set and controlled compilation order contrast catch-all predicates, recompilation and safely parameterized dynamic SQL.",
+      "verification": [
+        "plan shape per variant",
+        "estimated and actual rows",
+        "logical reads",
+        "result equivalence"
+      ],
+      "resetStrategy": "Recreate data and invalidate only scenario-owned plans.",
+      "verticalSliceCandidate": false
+    },
+    {
+      "demoId": "QRY-013",
+      "path": null,
+      "title": "Neutral client and session context",
+      "inventoryStatus": "PLANNED",
+      "classification": "A",
+      "supportedProviders": [
+        "docker",
+        "podman"
+      ],
+      "sqlVersions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "sessionModel": "SINGLE_OR_MULTI_SESSION",
+      "forcedCondition": "Equivalent query text is executed under explicitly controlled session SET options and client-independent connection settings.",
+      "verification": [
+        "session SET-option evidence",
+        "plan-cache separation where applicable",
+        "result equivalence"
+      ],
+      "resetStrategy": "End scenario sessions and clear scenario-owned plan state.",
+      "verticalSliceCandidate": false
+    }
+  ],
+  "nextActions": [
+    "enumerate remaining demo directories and manifests",
+    "replace preliminary classifications with evidence-backed assessments",
+    "capture safety class, compatibility level and exact session scripts",
+    "define scenario-definition JSON schema",
+    "prepare CON-004 vertical-slice design"
+  ]
+}
