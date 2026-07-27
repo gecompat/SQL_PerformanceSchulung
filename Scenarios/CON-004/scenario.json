@@ -1,0 +1,104 @@
+{
+  "$schema": "../../Documentation/Architecture/performance-training-scenario.schema.json",
+  "contractVersion": "1.0",
+  "scenarioId": "PTS-CON-004",
+  "demoId": "CON-004",
+  "title": "Deterministische Blocking Chain",
+  "status": "DESIGNED",
+  "classification": "A",
+  "safetyLevel": "YELLOW",
+  "platforms": ["docker", "podman"],
+  "sqlVersions": ["2019", "2022", "2025"],
+  "compatibilityLevels": [150, 160, 170],
+  "runtimeManifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json",
+  "topology": {
+    "instances": [
+      {
+        "id": "primary",
+        "role": "SQL Server database engine and all scenario sessions",
+        "resourceProfile": "standard"
+      }
+    ],
+    "sessionModel": "MULTI_SESSION",
+    "sessionRoles": ["HEAD_BLOCKER", "MIDDLE_BLOCKER", "OBSERVER", "FIRST_WRITER", "FOLLOWER"],
+    "freshInstanceRequired": true
+  },
+  "hostMinimum": {
+    "cpu": 2,
+    "memoryMB": 4096,
+    "storageGB": 5,
+    "notes": "Eine einzelne Docker- oder Podman-Instanz ist ausreichend. Die fachliche Parallelitaet entsteht durch getrennte sqlcmd-Sessions."
+  },
+  "preparation": {
+    "scripts": [
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/00_Preflight.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/10_Setup.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/20_Baseline.sql"
+    ],
+    "assertions": [
+      "Die markierte Testdatenbank wurde neu erzeugt.",
+      "Die FWK-006-Signalobjekte sind installiert und fuer DemoId und RunToken bereinigt.",
+      "Die fuer die Blocking Chain verwendeten Tabellen und Schluesselwerte existieren.",
+      "Es bestehen keine offenen Transaktionen aus einem vorangegangenen Szenariolauf."
+    ],
+    "forcedCondition": "Die Blocker-Sessions erwerben definierte Sperren in offenen Transaktionen. Abhaengige Sessions werden erst nach bestaetigten FWK-006-Signalen gestartet beziehungsweise fortgesetzt.",
+    "determinismControls": [
+      "Keine fachliche Synchronisation durch feste Sleep-Zeiten.",
+      "Benannte Signale sind an DemoId, RunToken und SignalName gebunden.",
+      "Der Observer bestaetigt die Blocking-Beziehung anhand der SQL-Server-DMVs, bevor die Sperren freigegeben werden.",
+      "Jeder Wait besitzt ein begrenztes Timeout und erzeugt bei Nichterreichen einen strukturierten Fehler."
+    ]
+  },
+  "interactive": {
+    "entryDocument": "Demos/07_Concurrency/CON-004_Blocking_Chain/README.md",
+    "sessionManifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/problem.json",
+    "steps": [
+      "Verbindungsinformationen und Rollen der vorbereiteten Instanz anzeigen.",
+      "Die Problem-Sessions starten und auf den nachgewiesenen Blocking-Zustand warten.",
+      "Die Blocking Chain mit dem Observer-Skript untersuchen.",
+      "Die Mitigation anwenden und den Kontrastlauf starten.",
+      "Beobachtungen dokumentieren oder die Abfragen und Reihenfolge kontrolliert variieren."
+    ],
+    "readyState": "READY_FOR_USER",
+    "variationPoints": [
+      "Transaktionsdauer variieren.",
+      "Reihenfolge der Schreiber innerhalb der dokumentierten Sicherheitsgrenzen veraendern.",
+      "Lock- und Request-DMVs durch eigene Beobachtungsabfragen ergaenzen.",
+      "Mitigation zuruecknehmen und den Ausgangszustand durch Reset reproduzieren."
+    ]
+  },
+  "verification": {
+    "script": "Demos/07_Concurrency/CON-004_Blocking_Chain/70_Comparison.sql",
+    "requiredEvidence": [
+      "Mindestens eine Session besitzt einen von null verschiedenen blocking_session_id.",
+      "Der erwartete Head Blocker kann eindeutig bestimmt werden.",
+      "Die dokumentierte Abhaengigkeitskette ist vor Freigabe der Sperren sichtbar.",
+      "Nach der Mitigation beziehungsweise Freigabe koennen die beteiligten Sessions kontrolliert abschliessen."
+    ],
+    "timeoutSeconds": 120,
+    "controlledSkipCodes": ["SKIP_TOOL_MISSING", "SKIP_HOST_CAPABILITY"]
+  },
+  "reset": {
+    "strategy": "DATABASE_RECREATE",
+    "scripts": [
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/90_Cleanup.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/10_Setup.sql",
+      "Demos/07_Concurrency/CON-004_Blocking_Chain/20_Baseline.sql"
+    ],
+    "postconditions": [
+      "Keine Szenario-Session haelt eine offene Transaktion.",
+      "Alle Signale fuer die exakte DemoId- und RunToken-Kombination sind entfernt.",
+      "Die Testdatenbank befindet sich wieder im dokumentierten Baseline-Zustand.",
+      "Das Szenario kann ohne Infrastruktur-Neuprovisionierung erneut gestartet werden."
+    ]
+  },
+  "remove": {
+    "cleanupScripts": ["Demos/07_Concurrency/CON-004_Blocking_Chain/90_Cleanup.sql"],
+    "removeLab": true
+  },
+  "knownLimits": [
+    "Die konkrete Session-ID wird nicht fest vorgegeben und darf nicht Bestandteil der fachlichen Assertion sein.",
+    "Lock-Ressourcenbeschreibungen koennen sich zwischen SQL-Server-Versionen unterscheiden; verifiziert wird die logische Blocking-Beziehung.",
+    "Die interaktive Benutzeruebergabe und das SQL_Server_Lab-Manifest sind in der folgenden Implementierungswelle zu erstellen."
+  ]
+}
