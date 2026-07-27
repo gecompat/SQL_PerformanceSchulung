@@ -1,115 +1,77 @@
-# Review – LABINT-001 SQL_Server_Lab-Testautomation
+# Review – SQL_Server_Lab-Integration für Schulungsszenarien
 
 | Merkmal | Wert |
 |---|---|
-| Status | `VALIDATED` |
+| Status | `SUPERSEDED_BY_LABSCN-001` |
 | Stand | 2026-07-27 |
-| Ursprünglicher Pull Request | `#21` |
-| Korrekturgrund | langfristige Lab-Architektur wurde fälschlich als Schulungsanforderung interpretiert |
-| geprüfter Lab-Commit | `08fcc9525b9bbc29a5dd9a2ef08de23bd7ef650e` |
+| Ursprünglicher Testumfang | `LABINT-001` |
+| Aktueller Zielvertrag | `LABSCN-001`, `DEC-044` |
 | Änderungen in SQL_Server_Lab | keine |
-| Runtime-Provisionierung ausgeführt | nein |
 
-## 1. Korrektur
+## 1. Einordnung
 
-Die erste Fassung des Integrationsreviews leitete aus dem langfristigen Architekturentwurf von `SQL_Server_Lab` zusätzliche Anforderungen ab, die für `SQL_PerformanceSchulung` nicht notwendig sind. Dazu gehörten insbesondere eine Project-Adapter-/Lab-Package-Engine, eine generische JSON-/Event-Schnittstelle sowie weitere allgemeine Control-Plane-Funktionen.
+Das ursprüngliche Review konzentrierte sich auf automatisierte Docker-/Podman-Testläufe. Dieser Umfang bleibt als technische Qualitätssicherung gültig, ist aber nicht der primäre Zweck der Integration.
 
-Diese Ableitung war zu weitgehend. Das Schulungsprojekt erwartet keine generische Plattformintegration, sondern eine konkrete Arbeitsteilung:
+Der verbindliche Zielzustand ist nun die Bereitstellung interaktiver Schulungsszenarien. Der Benutzer wählt ein Beispiel aus, erhält eine vollständig vorbereitete Umgebung und kann die Situation selbst untersuchen, verändern, zurücksetzen und erneut ausführen.
+
+## 2. Primärer Ablauf
 
 ```text
-SQL_Server_Lab erstellt und entfernt die SQL-Server-Umgebung.
-SQL_PerformanceSchulung führt seine eigenen Demos aus und bewertet sie.
+Beispiel auswählen
+-> Anforderungen und Topologie auflösen
+-> Umgebung mit SQL_Server_Lab erzeugen
+-> fachlichen Ausgangszustand vorbereiten
+-> READY_FOR_USER
+-> Benutzer führt das Beispiel interaktiv durch
+-> Reset oder vollständiger Abbau
 ```
 
-## 2. Tatsächliche Erwartung an SQL_Server_Lab
+Die Umgebung wird nach der Vorbereitung nicht automatisch entfernt.
 
-Für den automatisierten Testlauf reichen folgende öffentliche Fähigkeiten:
+## 3. Unterstützte Zielsysteme
 
-- `New-SqlServerLab` für Docker oder Podman;
-- Auswahl der SQL-Server-Version und eines Ressourcenprofils;
-- SQL-Readiness;
-- Rückgabe von Run-ID, Provider, Host und Port;
-- `Get-SqlServerLab` zur Zustandsprüfung;
-- `Remove-SqlServerLab -Force` zum sicheren Abbau.
+Abhängig vom Beispiel können verwendet werden:
 
-Eine zusätzliche Lab-Funktion ist für den ersten Runner gegenwärtig nicht erforderlich.
+- Docker;
+- Podman;
+- Hyper-V mit Windows oder Linux;
+- mehrere SQL-Server-Instanzen;
+- zusätzliche Workload- oder Clientkomponenten;
+- gemischte Topologien.
 
-## 3. Verantwortung des Schulungsrepositories
+Die Providerwahl folgt dem technischen Reproduktionsbedarf des Beispiels.
 
-`SQL_PerformanceSchulung` bleibt Eigentümer von:
+## 4. Verantwortungsgrenze
 
-- Demo-Discovery und Testkatalog;
-- Demo-Manifests;
-- synthetischen Daten;
-- Preflight, Setup, Baseline, Demonstration, Observation, Mitigation, Comparison und Cleanup;
-- fachlichen Assertions und Skip-Verträgen;
-- Versions- und Provider-Matrix;
-- zusammengefasster Testausgabe.
+`SQL_PerformanceSchulung` definiert Lernziel, Topologiebedarf, Setup, synthetische Daten, Benutzeraktionen, Beobachtungsabfragen, Reset und fachlichen Cleanup.
 
-Der JSON-Katalog unter `Tests/Lab` ist eine interne Steuerungsdatei des Schulungsprojekts. Er ist keine Schnittstellenanforderung an das Lab-Repository.
+`SQL_Server_Lab` wird verwendet, um die dafür benötigte technische Umgebung zu provisionieren und deren Lifecycle zu verwalten.
 
-## 4. Nicht erforderliche Lab-Funktionen
+Das Schulungsrepository implementiert keine eigene Docker-, Podman- oder Hyper-V-Provisionierung.
 
-Für dieses Projekt werden nicht vorausgesetzt:
+## 5. Rolle des vorhandenen Testkatalogs
 
-- eine Project-Adapter- oder Lab-Package-Engine;
-- eine generische JSON-/Event-Schnittstelle;
-- ein allgemeiner Operationsbus;
-- die Ausführung der Demo-Phasen durch `SQL_Server_Lab`;
-- ein eigener Schulungs-Package-Katalog im Lab;
-- eine Migration des bestehenden Demo-Harness in das Lab-Repository.
+Der Katalog unter `Tests/Lab/performance-lab-matrix.json` bleibt bestehen. Er dient der automatisierten Prüfung von:
 
-Diese Funktionen können für andere Ziele des Lab-Repositories sinnvoll sein, gehören jedoch nicht zum Abnahmeumfang der Schulungstestautomation.
+- Provisionierung;
+- Vorbereitung;
+- Kernbeobachtungen;
+- Reset;
+- Abbau.
 
-## 5. Aktueller Testkatalog
+Er ist nicht der spätere Benutzerszenariokatalog. Interaktive Szenariodefinitionen werden unter `LABSCN-002` separat modelliert.
 
-Der Katalog umfasst weiterhin:
+## 6. Zusätzliche Lab-Funktionalität
 
-- `QRY-001`;
-- `OPT-002`;
-- `CON-004`;
-- `OPT-013`;
-- `OPT-015`;
-- `OPT-016`.
+Es wird nicht pauschal eine generische Package-, Event- oder Control-Plane-Architektur verlangt.
 
-Die vollständige Container-Matrix umfasst zwei Provider, drei SQL-Server-Versionen, sechs Demos und zwei Wiederholungen. Daraus entstehen aktuell 72 vollständige Demoläufe.
+Zusätzliche Funktionalität in `SQL_Server_Lab` wird nur dann angefordert, wenn ein konkretes Schulungsszenario mit den vorhandenen Fähigkeiten nicht realisierbar ist. Die Lücke wird mit Szenario-ID, benötigter Topologie und technischem Grund dokumentiert. Eine Umsetzung im Lab-Repository erfolgt erst nach ausdrücklicher Freigabe.
 
-## 6. Mögliche konkrete Lab-Lücke
+## 7. Nachfolgearbeit
 
-Im öffentlichen `Remove-SqlServerLab` ist nach dem allgemeinen Cleanup-Plan ein zusätzliches Docker-spezifisches Orphan-Sicherheitsnetz vorhanden. Ein entsprechender Podman-Pfad ist dort nicht sichtbar.
-
-Der normale Cleanup-Plan wird bereits providerbezogen mit `docker rm` oder `podman rm` aufgebaut. Deshalb ist die Docker-spezifische Orphan-Prüfung zunächst nur eine mögliche Robustheitslücke. Sie gilt nicht als nachgewiesener Blocker.
-
-Erst wenn `LABINT-003` einen verbliebenen Podman-Container oder einen unvollständigen Cleanup reproduziert, ist ein providerneutraler Orphan-Cleanup als konkrete Lab-Erweiterung zu verlangen. Eine solche Änderung wird vorab benannt und nicht ohne ausdrückliche Freigabe umgesetzt.
-
-## 7. Statische Abnahme
-
-Der korrigierte Validator prüft weiterhin:
-
-- exakte Übereinstimmung zwischen produktiven Demo-Manifests und Testkatalog;
-- Demo-ID, Pfad und Sicherheitsstufe;
-- Docker-/Podman- und Versionszuordnung;
-- Ressourcenprofil und Environment-Isolation;
-- Multi-Session-Capability;
-- Safety-Bestätigungen für gelbe und rote Lanes;
-- Demo-Cleanup-Vertrag;
-- Verbot von Secret-, Host- und absoluten Pfadangaben.
-
-Zusätzlich verhindert er, dass `LABINT-005` oder die zuvor überzogene Pflicht zur nativen Lab-Package-Ausführung erneut in den Backlog aufgenommen wird.
-
-## 8. Statusgrenze
-
-`LABINT-001` ist als Verantwortungs-, Katalog- und statischer Prüfvertrag `VALIDATED`. Die Runtime-Provisionierung über `SQL_Server_Lab` ist noch nicht ausgeführt.
-
-## 9. Nächster Schritt
-
-`LABINT-002` implementiert einen einfachen PowerShell-Runner:
-
-1. Lab-Modul importieren.
-2. Umgebung mit `New-SqlServerLab` erstellen.
-3. Host und Port übernehmen.
-4. grüne Demos mit dem vorhandenen Harness ausführen.
-5. Demo-Cleanup prüfen.
-6. Umgebung mit `Remove-SqlServerLab` entfernen.
-
-Erst reale Docker-/Podman-Läufe entscheiden, ob im Lab-Repository zusätzliche Funktionalität benötigt wird.
+1. `LABSCN-002`: Szenarioinventar und Definitionsschema.
+2. `LABSCN-003`: erster vollständiger interaktiver Vertical Slice.
+3. `LABSCN-004`: standardisierte Benutzerbedienung und Anleitung.
+4. `LABSCN-005`: weitere Container- und Hyper-V-Szenarien.
+5. `LABSCN-006`: gemischte Topologien bei nachgewiesenem Bedarf.
+6. `LABINT-002` bis `LABINT-004`: nachgeordnete automatisierte Qualitätssicherung.

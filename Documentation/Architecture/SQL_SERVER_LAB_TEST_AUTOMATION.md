@@ -1,190 +1,98 @@
-# Automatisierter Testsystemaufbau mit SQL_Server_Lab
+# Qualitätssicherung für Schulungsszenarien mit SQL_Server_Lab
 
 | Merkmal | Wert |
 |---|---|
 | Arbeitspakete | `LABINT-001` bis `LABINT-004` |
-| Status | `VALIDATED` |
+| Status | `VALIDATED`, nachgeordnet zu `LABSCN-001` |
 | Stand | 2026-07-27 |
+| Primärer Szenariovertrag | [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](./SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
-| Lab-Repository | `gecompat/SQL_Server_Lab` |
-| geprüfter Lab-Stand | `08fcc9525b9bbc29a5dd9a2ef08de23bd7ef650e` |
-| geprüfter Schulungsstand | `37bc7d6896603eb614dfdeb41f8a77ff947abe68` |
-| Zielprovider | Docker und Podman |
-| Zielversionen | SQL Server 2019, 2022 und 2025 |
+| Provisionierungsframework | `gecompat/SQL_Server_Lab` |
 
-## 1. Zweck
+## 1. Einordnung
 
-`SQL_Server_Lab` soll für dieses Projekt die benötigten SQL-Server-Testumgebungen bereitstellen. `SQL_PerformanceSchulung` soll anschließend alle vorhandenen und künftig entstehenden Demo-Manifeste auf diesen Umgebungen ausführen und auswerten.
+Der primäre Zweck der Integration ist die Bereitstellung interaktiv nutzbarer Schulungsszenarien. Der Benutzer soll ein einzelnes Beispiel auswählen, eine vollständig vorbereitete Umgebung erhalten, das Verhalten selbst untersuchen, Änderungen ausprobieren und den Ausgangszustand wiederherstellen können.
 
-Die Erwartung ist bewusst einfach:
+Die in diesem Dokument beschriebene Testautomation ist ausschließlich ein Qualitätssicherungsinstrument. Sie prüft, ob Aufbau, Vorbereitung, Kernbeobachtung, Reset und Abbau reproduzierbar funktionieren. Sie ersetzt weder die Benutzerübergabe noch die interaktive Schritt-für-Schritt-Anleitung.
+
+## 2. Verantwortungsgrenze
+
+`SQL_Server_Lab` wird zur Erzeugung und Verwaltung der angeforderten Docker-, Podman-, Hyper-V- oder gemischten Umgebung verwendet.
+
+`SQL_PerformanceSchulung` verantwortet:
+
+- Szenarioauswahl;
+- technische Anforderungen des Beispiels;
+- Setup und synthetische Daten;
+- Demo-Harness und Assertions;
+- Benutzeranleitung und Beobachtungsaufträge;
+- fachlichen Reset;
+- Testzusammenfassung.
+
+Das Lab-Repository muss Lernziele, Demo-Phasen oder fachliche Assertions nicht kennen.
+
+## 3. Automatisierte Prüfmodi
+
+### `SMOKE`
+
+Prüft einen kleinen, geeigneten Szenarioausschnitt auf einem verfügbaren Provider. Ziel ist der Nachweis, dass Umgebung, Vorbereitung, Reset und Abbau grundsätzlich funktionieren.
+
+### `CORE`
+
+Prüft die freigegebenen grünen Szenarien auf SQL Server 2019, 2022 und 2025. Der Modus dient der Versionskompatibilität und nicht der interaktiven Durchführung.
+
+### `PROVIDER_PARITY`
+
+Prüft, ob dasselbe fachliche Szenario über Docker und Podman reproduzierbar bereitgestellt werden kann. Hyper-V wird nur für Szenarien geprüft, die diese Plattform fachlich benötigen.
+
+### `FULL_CONTAINER_MATRIX`
+
+Prüft alle freigegebenen Container-Szenarien über die vorgesehenen Versionen und Provider. Diese Matrix ist ein technischer Abnahmepfad und kein Benutzerworkflow.
+
+## 4. Discovery- und Testkatalog
+
+Produktive Demo-Manifeste unter `Demos/**/manifest.json` werden automatisch entdeckt. Der Katalog `Tests/Lab/performance-lab-matrix.json` ordnet sie den automatisierten Qualitätsprüfungen zu.
+
+Dieser Katalog ist nicht der spätere Benutzerszenariokatalog. Interaktive Szenariodefinitionen werden unter `LABSCN-002` separat modelliert und enthalten zusätzlich Topologie, Vorbereitung, Übergabe, Benutzeraktionen und Reset.
+
+## 5. Lebenszyklus der Qualitätssicherung
+
+Eine automatisierte Prüfung darf eine kurzlebige Umgebung verwenden und sie nach dem Test entfernen. Für die interaktive Nutzung gilt dagegen:
 
 ```text
-SQL_Server_Lab
-    -> SQL-Server-Umgebung erstellen
-    -> Verbindungsdaten zurückgeben
-
-SQL_PerformanceSchulung
-    -> Demos auswählen
-    -> Demos ausführen und prüfen
-    -> Demo-Cleanup prüfen
-
-SQL_Server_Lab
-    -> Umgebung entfernen
+Provisionieren
+-> Vorbereiten
+-> READY_FOR_USER
+-> Benutzer arbeitet mit dem Szenario
+-> Reset oder ausdrücklicher Abbau
 ```
 
-Das Lab-Repository muss die Schulungsdemos, deren Lernziele, Phasen oder fachliche Assertions nicht kennen.
+Der automatische Abbau eines Testlaufs darf daher nicht als Zielverhalten des interaktiven Szenarios dokumentiert werden.
 
-## 2. Verbindliche Verantwortungsgrenze
+## 6. Aktuelle Lab-Anforderungen
 
-### 2.1 Erwartung an SQL_Server_Lab
+Für die bestehende Container-Testautomation reichen grundsätzlich die öffentlichen Commands von `SQL_Server_Lab` zur Erstellung, Statusabfrage und Entfernung einer Umgebung.
 
-Für die Testautomation werden nur folgende Fähigkeiten erwartet:
+Für interaktive Szenarien können abhängig vom konkreten Beispiel weitere Fähigkeiten erforderlich sein, beispielsweise:
 
-- Docker- oder Podman-Umgebung für eine angeforderte SQL-Server-Version erstellen;
-- ein geeignetes CPU-/RAM-Profil anwenden;
-- SQL-Readiness prüfen;
-- ein PowerShell-Objekt mit mindestens Run-ID, Provider, Host und Port zurückgeben;
-- die zugehörige Umgebung anhand der Run-ID sicher entfernen;
-- Fehler beim Aufbau oder Abbau als PowerShell-Fehler beziehungsweise im Rückgabeobjekt erkennbar machen.
+- Hyper-V-VMs;
+- mehrere Instanzen;
+- gemischte Provider;
+- getrennte Storage- oder Netzwerkprofile;
+- zusätzliche Workload-Clients;
+- persistierbarer Szenariostatus für Start, Reset und Remove.
 
-Die vorhandenen Commands `New-SqlServerLab`, `Get-SqlServerLab` und `Remove-SqlServerLab` bilden diese Erwartung grundsätzlich bereits ab.
+Eine fehlende Fähigkeit wird erst anhand eines konkreten Szenarios als Anforderung an `SQL_Server_Lab` formuliert. Änderungen im Lab-Repository erfolgen nicht ohne ausdrückliche Freigabe.
 
-### 2.2 Verantwortung von SQL_PerformanceSchulung
+## 7. Arbeitspakete
 
-Dieses Repository verantwortet vollständig:
+| ID | Arbeit | Einordnung |
+|---|---|---|
+| `LABINT-001` | Testkatalog und statische Vollständigkeitsprüfung | abgeschlossen |
+| `LABINT-002` | automatisierten Smoke-/Core-Test für Aufbau und Abbau implementieren | Qualitätssicherung für `LABSCN-003` |
+| `LABINT-003` | Docker-/Podman-Parität prüfen | Qualitätssicherung geeigneter Container-Szenarien |
+| `LABINT-004` | gelbe und vollständige Container-Matrix aktivieren | nach Safety- und Szenariofreigabe |
 
-- Discovery aller produktiven Dateien `Demos/**/manifest.json`;
-- Zuordnung zu SQL-Server-Versionen, Providern, Ressourcenprofilen und Sicherheitsstufen;
-- Aufruf des bestehenden Harness `Demos/00_Framework/Tools/run_demo.py`;
-- Demo-Phasen, synthetische Daten und fachliche Assertions;
-- erlaubte `PASS`-, `WARN`- und `SKIP`-Ergebnisse;
-- Wiederholungen und Matrixbildung;
-- Prüfung, dass die jeweilige Demo-Testdatenbank entfernt wurde;
-- zusammengefasste Testausgabe und Fehlerklassifikation.
+## 8. Nächster Schritt
 
-## 3. Nicht erwartete Funktionalität von SQL_Server_Lab
-
-Für die Schulungsautomation ist **keine Project-Adapter- oder Lab-Package-Engine erforderlich**. Der in `SQL_Server_Lab` dokumentierte langfristige Architekturentwurf darf nicht als Voraussetzung dieses Projekts interpretiert werden.
-
-Ebenso ist **keine generische JSON-/Event-Schnittstelle erforderlich**. Der Runner wird in PowerShell implementiert und kann die vorhandenen PowerShell-Rückgabeobjekte und Fehler direkt verarbeiten. Der JSON-Katalog in `Tests/Lab` gehört ausschließlich zur schulungsinternen Demo- und Testmatrix; daraus entsteht keine Ausgabeforderung an `SQL_Server_Lab`.
-
-Für die erste und dauerhaft zulässige Integration sind außerdem nicht erforderlich:
-
-- Migration der Demo-Manifeste in das Lab-Repository;
-- Kenntnis der Demo-Phasen durch das Lab;
-- zentrale Ausführung der fachlichen Assertions im Lab;
-- ein allgemeiner Operations- oder Event-Bus;
-- ein eigener Package-Katalog im Lab für dieses Projekt;
-- ein Image-Digest als Voraussetzung jedes lokalen Testlaufs;
-- ein besonderer JSON-Exitcode-Vertrag.
-
-Solche Funktionen können für andere Ziele des Lab-Repositories sinnvoll sein, sind aber keine Anforderung von `SQL_PerformanceSchulung`.
-
-## 4. Ausführungsmodell
-
-Der geplante Runner `Tests/Lab/Invoke-PerformanceLabMatrix.ps1` führt pro Provider-/Versionszelle folgenden Ablauf aus:
-
-1. `SQL_Server_Lab/SqlServerLab.psd1` importieren.
-2. PowerShell, Python und Microsoft `sqlcmd` prüfen.
-3. Katalog und Demo-Manifeste validieren.
-4. `New-SqlServerLab` mit Version, Provider, Profil und einem zur Laufzeit erzeugten `SecureString` aufrufen.
-5. Host und Port aus dem zurückgegebenen Lab-Objekt übernehmen.
-6. Für jede ausgewählte Demo `run_demo.py` mit dem gebundenen SQL-Endpunkt aufrufen.
-7. Nach jedem Demolauf die Abwesenheit der erwarteten Demo-Datenbank prüfen.
-8. Im `finally`-Pfad `Remove-SqlServerLab -RunId ... -Force` aufrufen.
-9. Prüfen, dass die Lab-Ressource nicht mehr vorhanden ist.
-
-Der Runner verwendet keine eigenen Docker- oder Podman-Befehle zum Erstellen der Umgebung. Die Infrastruktur bleibt vollständig Eigentum von `SQL_Server_Lab`.
-
-## 5. Testlanes
-
-### 5.1 `SMOKE`
-
-Ein verfügbarer Provider, SQL Server 2025, alle grünen Demos, eine Wiederholung.
-
-### 5.2 `CORE`
-
-Ein ausgewählter Provider, SQL Server 2019, 2022 und 2025, alle grünen Demos, zwei Wiederholungen.
-
-### 5.3 `PROVIDER_PARITY`
-
-Docker und Podman auf SQL Server 2025. Zunächst grüne Demos; gelbe Demos nur nach ausdrücklicher Isolationsbestätigung.
-
-### 5.4 `FULL_CONTAINER_MATRIX`
-
-Docker und Podman, SQL Server 2019, 2022 und 2025 sowie alle freigegebenen grünen und gelben Demos. Beim aktuellen Bestand entstehen 72 vollständige Demoläufe.
-
-### 5.5 `RED_DISPOSABLE`
-
-Rote Demos werden ausschließlich separat und nach dem jeweiligen Demo-Sicherheitsvertrag ausgeführt. Sie sind kein impliziter Bestandteil der normalen Container-Matrix.
-
-## 6. Discovery- und Katalogvertrag
-
-Alle produktiven Demo-Manifeste werden automatisch entdeckt. Inhalte unter `Demos/00_Framework/` bleiben ausgeschlossen.
-
-Jedes entdeckte produktive Manifest muss genau einmal in `Tests/Lab/performance-lab-matrix.json` vorkommen. Der Katalog ergänzt nur projektseitige Informationen:
-
-- Provider;
-- SQL-Server-Versionen;
-- Ressourcenprofil;
-- Sicherheitsstufe;
-- Sessionzahl;
-- Wiederholungen;
-- notwendige Isolation;
-- erwartete Ergebnisarten.
-
-Der Katalog stellt keine Erweiterung des Lab-Manifestschemas dar und wird nicht von `SQL_Server_Lab` verarbeitet.
-
-## 7. Aktuell erforderliche Änderungen in SQL_Server_Lab
-
-Für `LABINT-002` ist nach dem gegenwärtigen Stand **keine zusätzliche Lab-Funktion erforderlich**.
-
-Der erste reale Runner muss jedoch zwei Dinge praktisch verifizieren:
-
-1. Docker-Aufbau und -Abbau funktionieren vollständig über `New-SqlServerLab` und `Remove-SqlServerLab`.
-2. Podman-Aufbau und -Abbau funktionieren vollständig über dieselben öffentlichen Commands.
-
-Eine konkrete Erweiterung im Lab-Repository wird erst dann verlangt, wenn ein realer Lauf eine fehlende oder fehlerhafte Funktion nachweist.
-
-### Beobachtung zum Providerneutralen Orphan-Cleanup
-
-`Remove-SqlServerLab` führt nach dem allgemeinen Cleanup-Plan zusätzlich eine Docker-spezifische Suche nach verbliebenen Containern aus. Für Podman ist in diesem zusätzlichen Sicherheitsnetz derzeit kein entsprechender Pfad sichtbar. Der normale Cleanup-Plan enthält bereits providerbezogene `docker rm`- beziehungsweise `podman rm`-Compensation. Daher ist dies zunächst eine zu prüfende Robustheitslücke und kein nachgewiesener Blocker.
-
-Erst wenn ein Podman-Test einen verbliebenen Container oder einen unvollständigen Cleanup nachweist, muss im Lab-Repository ein **providerneutraler Orphan-Cleanup** ergänzt werden. Diese Änderung wird vorher benannt und nicht ohne ausdrückliche Freigabe umgesetzt.
-
-## 8. Umgang mit Testergebnissen
-
-Eine strukturierte interne Testausgabe ist sinnvoll, damit der Runner mehrere Demos zusammenfassen kann. Diese Struktur gehört jedoch zum Schulungsrunner und nicht zur geforderten öffentlichen Schnittstelle von `SQL_Server_Lab`.
-
-Ausreichend sind beispielsweise PowerShell-Objekte mit:
-
-- Provider;
-- SQL-Server-Version;
-- Demo-ID;
-- Wiederholung;
-- Ergebnis `PASS`, `WARN`, `SKIP` oder `FAIL`;
-- Fehlerkategorie;
-- Cleanup-Ergebnis.
-
-Ein JSON-Export kann optional aus diesen Objekten erzeugt werden. Er ist keine Voraussetzung des Lab-Repositories.
-
-## 9. Datenschutz und Secrets
-
-- Das SA-Kennwort wird ausschließlich zur Laufzeit gehalten.
-- Es wird weder im Testkatalog noch in Reports persistiert.
-- Lokaler Lab-State verbleibt außerhalb versionierter Projektpfade.
-- Reports enthalten keine Plan-XML-Dokumente, vollständigen Querytexte oder Containerlogs.
-- Reale Hostnamen und lokale Pfade werden nicht in Repository-Artefakte übernommen.
-
-## 10. Arbeitspakete und Abhängigkeiten
-
-| ID | Priorität | Arbeit | Voraussetzung | Abschlusskriterium |
-|---|---:|---|---|---|
-| `LABINT-001` | P0 | Verantwortungsgrenze, Testkatalog und statische Vollständigkeitsprüfung | vorhandene Demo-Manifeste und öffentliche Lab-Commands | jede produktive Demo ist katalogisiert; keine überzogene Lab-Anforderung bleibt dokumentiert |
-| `LABINT-002` | P0 | PowerShell-Runner für `SMOKE` und `CORE` implementieren | `LABINT-001` | ein Provider kann die grünen Demos auf 2019/2022/2025 ausführen und vollständig abbauen |
-| `LABINT-003` | P1 | Docker-/Podman-Parität praktisch prüfen | `LABINT-002` | beide Provider funktionieren oder eine konkrete Lab-Lücke ist reproduzierbar benannt |
-| `LABINT-004` | P1 | gelbe Lane und vollständige Container-Matrix aktivieren | `LABINT-002`, Safety-Gates | alle freigegebenen grünen und gelben Demos werden gemäß Katalog ausgeführt |
-
-## 11. Nächster Schritt
-
-`LABINT-002` implementiert den einfachen PowerShell-Runner gegen die bereits vorhandenen öffentlichen Commands von `SQL_Server_Lab`. Es wird keine zusätzliche Lab-Architektur vorausgesetzt. Falls ein realer Lauf eine fehlende Lab-Funktion zeigt, wird diese konkrete Funktion mit reproduzierbarem Befund benannt, bevor irgendeine Änderung im Lab-Repository erfolgt.
+Der nächste fachliche Schritt ist `LABSCN-002`: vorhandene und geplante Beispiele klassifizieren und den interaktiven Szenariovertrag pro Beispiel definieren. Die Testautomation wird danach so erweitert, dass sie die technische Reproduzierbarkeit dieser Szenarien prüft.

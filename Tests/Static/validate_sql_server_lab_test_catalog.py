@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Validate the SQL_Server_Lab test catalog and the project boundary.
+"""Validate the SQL_Server_Lab test catalog and scenario boundary.
 
-The validator starts neither SQL Server nor a container runtime. It verifies
-that every productive demo manifest is represented exactly once and that the
-repository does not turn optional SQL_Server_Lab architecture ideas into
-requirements of SQL_PerformanceSchulung.
+The validator starts neither SQL Server nor a provider. It verifies that every
+productive demo manifest is represented exactly once in the automated test
+catalog and that interactive training scenarios remain the primary goal.
 """
 from __future__ import annotations
 
@@ -17,9 +16,11 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = ROOT / "Tests" / "Lab" / "performance-lab-matrix.json"
 SCHEMA_PATH = ROOT / "Tests" / "Lab" / "performance-lab-matrix.schema.json"
-ARCHITECTURE_PATH = ROOT / "Documentation" / "Architecture" / "SQL_SERVER_LAB_TEST_AUTOMATION.md"
+AUTOMATION_PATH = ROOT / "Documentation" / "Architecture" / "SQL_SERVER_LAB_TEST_AUTOMATION.md"
+SCENARIO_PATH = ROOT / "Documentation" / "Architecture" / "SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md"
 INFRASTRUCTURE_README = ROOT / "Infrastructure" / "README.md"
 BACKLOG = ROOT / ".ai" / "BACKLOG.md"
+DECISIONS = ROOT / ".ai" / "DECISIONS.md"
 
 DEMO_ID = re.compile(r"^(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}$")
 CAPABILITY = re.compile(r"^[A-Z][A-Z0-9_]+$")
@@ -106,9 +107,8 @@ def validate_demo(entry: Any, manifests: dict[str, Path]) -> None:
     if demo_id not in manifests:
         raise ContractError(f"unknown catalog demo {demo_id}")
 
-    manifest_path = entry.get("manifest")
     expected_path = relative(manifests[demo_id])
-    if manifest_path != expected_path:
+    if entry.get("manifest") != expected_path:
         raise ContractError(f"{demo_id}: manifest path must be {expected_path}")
 
     manifest = read_json(manifests[demo_id])
@@ -173,28 +173,42 @@ def validate_demo(entry: Any, manifests: dict[str, Path]) -> None:
 
 
 def validate_project_boundary() -> None:
-    architecture = ARCHITECTURE_PATH.read_text(encoding="utf-8")
-    required = (
-        "keine Project-Adapter- oder Lab-Package-Engine erforderlich",
-        "keine generische JSON-/Event-Schnittstelle erforderlich",
-        "keine zusätzliche Lab-Funktion erforderlich",
-        "providerneutraler Orphan-Cleanup",
-        "`New-SqlServerLab`",
-        "`Remove-SqlServerLab`",
+    scenario = SCENARIO_PATH.read_text(encoding="utf-8")
+    scenario_markers = (
+        "`READY_FOR_USER`",
+        "Docker, Podman, Hyper-V und gemischte Topologien",
+        "Benutzer führt das Beispiel interaktiv durch",
+        "Jedes interaktive Szenario benötigt einen definierten Reset",
+        "Die Umgebung darf nach erfolgreicher Vorbereitung nicht automatisch entfernt werden",
+        "`LABSCN-002`",
+        "`LABSCN-003`",
     )
-    for marker in required:
-        if marker not in architecture:
-            raise ContractError(f"architecture document missing marker {marker}")
+    for marker in scenario_markers:
+        if marker not in scenario:
+            raise ContractError(f"interactive scenario document missing marker {marker}")
+
+    automation = AUTOMATION_PATH.read_text(encoding="utf-8")
+    for marker in (
+        "ausschließlich ein Qualitätssicherungsinstrument",
+        "ist nicht der spätere Benutzerszenariokatalog",
+        "Der automatische Abbau eines Testlaufs darf daher nicht als Zielverhalten",
+    ):
+        if marker not in automation:
+            raise ContractError(f"automation document missing subordinate-role marker {marker}")
 
     backlog = BACKLOG.read_text(encoding="utf-8")
-    if "`LABINT-001`" not in backlog or "`LABINT-002`" not in backlog:
-        raise ContractError("backlog lacks LABINT-001 or LABINT-002")
-    if "`LABINT-005`" in backlog:
-        raise ContractError("backlog still requires migration to a Lab package engine")
+    for marker in ("`LABSCN-001`", "`LABSCN-002`", "`LABSCN-003`", "`LABINT-001`"):
+        if marker not in backlog:
+            raise ContractError(f"backlog lacks {marker}")
+
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    if "DEC-044" not in decisions or "READY_FOR_USER" not in decisions:
+        raise ContractError("DEC-044 interactive scenario decision is missing")
 
     infrastructure = INFRASTRUCTURE_README.read_text(encoding="utf-8")
-    if "SQL_SERVER_LAB_TEST_AUTOMATION.md" not in infrastructure:
-        raise ContractError("Infrastructure/README.md lacks automation link")
+    for marker in ("SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md", "READY_FOR_USER", "Docker, Podman, Hyper-V"):
+        if marker not in infrastructure:
+            raise ContractError(f"Infrastructure/README.md missing marker {marker}")
 
 
 def main() -> int:
@@ -208,7 +222,7 @@ def main() -> int:
         if catalog.get("labRepository") != "gecompat/SQL_Server_Lab":
             raise ContractError("unexpected labRepository")
         if set(catalog.get("providers", [])) != PROVIDERS:
-            raise ContractError("providers must be docker and podman")
+            raise ContractError("automated provider matrix must contain docker and podman")
         if set(catalog.get("targetVersions", [])) != VERSIONS:
             raise ContractError("versions must be 2019, 2022 and 2025")
 
@@ -251,13 +265,12 @@ def main() -> int:
             raise ContractError(f"current full matrix must contain 72 runs, got {runs}")
 
         print(
-            "sql-server-lab-test-catalog: PASS "
-            f"({len(entries)} demos, {len(PROVIDERS)} providers, "
-            f"{len(VERSIONS)} versions, full_runs={runs})"
+            "sql-server-lab-scenario-contract: PASS "
+            f"({len(entries)} automated demos, interactive scenario goal anchored, full_runs={runs})"
         )
         return 0
     except (ContractError, KeyError, TypeError) as exc:
-        print(f"sql-server-lab-test-catalog: FAIL: {exc}", file=sys.stderr)
+        print(f"sql-server-lab-scenario-contract: FAIL: {exc}", file=sys.stderr)
         return 1
 
 
