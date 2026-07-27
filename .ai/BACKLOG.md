@@ -75,6 +75,15 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
 - [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
 
+## P1 - SQL_Server_Lab-Testautomation
+
+- [x] `LABINT-001` Integrationsarchitektur, Docker-/Podman-Lanes, maschinenlesbaren Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen.
+- [ ] `LABINT-002` lokalen PowerShell-Runner für `SMOKE` und `CORE` implementieren; Lab-Umgebung provisionieren, grüne Demos ausführen und Infrastruktur vollständig entfernen.
+- [ ] `LABINT-003` `PROVIDER_PARITY` auf Docker und Podman gegen denselben fachlichen Demo-Vertrag validieren.
+- [ ] `LABINT-004` gelbe Lane und `FULL_CONTAINER_MATRIX` mit ausdrücklichen Safety-Gates implementieren und validieren.
+- [ ] `LABINT-005` nach Implementierung des Project-Adapter-/Lab-Package-Vertrags auf die native Package-Ausführung von `SQL_Server_Lab` migrieren.
+- [ ] Erforderliche Erweiterungen im Lab-Repository separat abstimmen; keine Lab-Funktion ohne ausdrückliche Freigabe implementieren.
+
 ## P1 - Masterdeck und Präsentationsvarianten
 
 - [x] `DEC-043` Kanonisches Masterdeck und reproduzierbar abgeleitete Tiefenprofile verbindlich entscheiden.
