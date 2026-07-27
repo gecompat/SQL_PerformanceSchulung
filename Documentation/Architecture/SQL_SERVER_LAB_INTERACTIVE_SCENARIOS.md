@@ -250,7 +250,7 @@ Ein Schulungsszenario gilt erst als vollständig, wenn folgende Artefakte vorhan
 | ID | Priorität | Arbeit | Voraussetzung | Abschlusskriterium |
 |---|---:|---|---|---|
 | `LABSCN-001` | P0 | Ziel, Verantwortungsgrenze und Lebenszyklus interaktiver Schulungsszenarien festlegen | bestehende Demo- und Lab-Verträge | diese Architekturentscheidung ist im Repository verankert |
-| `LABSCN-002` | P0 | Szenarioinventar und Schema für Szenariodefinitionen erstellen | `LABSCN-001` | jedes bestehende und geplante Beispiel ist als interaktiv geeignet, automatisiert בלבד oder nicht anwendbar klassifiziert |
+| `LABSCN-002` | P0 | Szenarioinventar und Schema für Szenariodefinitionen erstellen | `LABSCN-001` | jedes bestehende und geplante Beispiel ist als interaktiv geeignet, nur automatisiert prüfbar oder nicht anwendbar klassifiziert |
 | `LABSCN-003` | P0 | ersten vollständigen Vertical Slice umsetzen | `LABSCN-002` | ein grünes Beispiel kann über `SQL_Server_Lab` aufgebaut, vorbereitet, interaktiv genutzt, zurückgesetzt und entfernt werden |
 | `LABSCN-004` | P1 | Benutzerbedienung und How-to standardisieren | `LABSCN-003` | Auswahl, Start, Übergabe, Reset und Remove sind dokumentiert und praktisch geprüft |
 | `LABSCN-005` | P1 | weitere Container- und Hyper-V-Szenarien umsetzen | `LABSCN-003` | geeignete Beispiele besitzen reproduzierbare Providerprofile |
