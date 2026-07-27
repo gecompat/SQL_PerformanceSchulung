@@ -77,12 +77,11 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 ## P1 - SQL_Server_Lab-Testautomation
 
-- [x] `LABINT-001` Integrationsarchitektur, Docker-/Podman-Lanes, maschinenlesbaren Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen.
-- [ ] `LABINT-002` lokalen PowerShell-Runner für `SMOKE` und `CORE` implementieren; Lab-Umgebung provisionieren, grüne Demos ausführen und Infrastruktur vollständig entfernen.
-- [ ] `LABINT-003` `PROVIDER_PARITY` auf Docker und Podman gegen denselben fachlichen Demo-Vertrag validieren.
+- [x] `LABINT-001` Verantwortungsgrenze, Docker-/Podman-Lanes, Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen und überzogene Lab-Anforderungen ausschließen.
+- [ ] `LABINT-002` einfachen PowerShell-Runner für `SMOKE` und `CORE` implementieren; `New-SqlServerLab` aufrufen, grüne Demos ausführen und mit `Remove-SqlServerLab` vollständig abbauen.
+- [ ] `LABINT-003` Docker-/Podman-Parität praktisch validieren; eine notwendige Lab-Erweiterung nur bei reproduzierbar nachgewiesener Lücke benennen.
 - [ ] `LABINT-004` gelbe Lane und `FULL_CONTAINER_MATRIX` mit ausdrücklichen Safety-Gates implementieren und validieren.
-- [ ] `LABINT-005` nach Implementierung des Project-Adapter-/Lab-Package-Vertrags auf die native Package-Ausführung von `SQL_Server_Lab` migrieren.
-- [ ] Erforderliche Erweiterungen im Lab-Repository separat abstimmen; keine Lab-Funktion ohne ausdrückliche Freigabe implementieren.
+- [ ] Keine Lab-Funktion ohne konkreten Testbefund und ausdrückliche Freigabe im Repository `SQL_Server_Lab` ändern.
 
 ## P1 - Masterdeck und Präsentationsvarianten
 
