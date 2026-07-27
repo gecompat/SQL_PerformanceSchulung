@@ -1,0 +1,136 @@
+{
+  "$schema": "./performance-lab-matrix.schema.json",
+  "contractVersion": "1.0",
+  "status": "PLANNED",
+  "labRepository": "gecompat/SQL_Server_Lab",
+  "minimumLabModuleVersion": "0.1.0",
+  "targetVersions": ["2019", "2022", "2025"],
+  "providers": ["docker", "podman"],
+  "discovery": {
+    "include": "Demos/**/manifest.json",
+    "excludePrefixes": ["Demos/00_Framework/"],
+    "missingCatalogEntry": "FAIL",
+    "unknownCatalogEntry": "FAIL"
+  },
+  "lanes": {
+    "SMOKE": {
+      "providerMode": "FIRST_AVAILABLE",
+      "versions": ["2025"],
+      "safetyLevels": ["GREEN"],
+      "repetitions": 1
+    },
+    "CORE": {
+      "providerMode": "SELECTED",
+      "versions": ["2019", "2022", "2025"],
+      "safetyLevels": ["GREEN"],
+      "repetitions": 2
+    },
+    "PROVIDER_PARITY": {
+      "providerMode": "ALL",
+      "versions": ["2025"],
+      "safetyLevels": ["GREEN", "YELLOW"],
+      "repetitions": 1,
+      "requiresYellowConfirmation": true
+    },
+    "FULL_CONTAINER_MATRIX": {
+      "providerMode": "ALL",
+      "versions": ["2019", "2022", "2025"],
+      "safetyLevels": ["GREEN", "YELLOW"],
+      "repetitions": 2,
+      "requiresYellowConfirmation": true
+    },
+    "RED_DISPOSABLE": {
+      "providerMode": "SELECTED",
+      "versions": ["2019", "2022", "2025"],
+      "safetyLevels": ["RED"],
+      "repetitions": 1,
+      "requiresRedConfirmation": true
+    }
+  },
+  "demos": [
+    {
+      "demoId": "QRY-001",
+      "manifest": "Demos/05_Query_Patterns/QRY-001_SARGability/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-002",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "CON-004",
+      "manifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 3,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "MULTI_SESSION_SQLCMD"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-013",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "TEMPDB_WORKSPACE"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-015",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LAST_QUERY_PLAN_STATS"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-016",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LAST_QUERY_PLAN_STATS"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    }
+  ]
+}
