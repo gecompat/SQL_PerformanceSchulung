@@ -2,282 +2,189 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspakete | `LABINT-001` bis `LABINT-005` |
-| Status | `PLANNED` |
+| Arbeitspakete | `LABINT-001` bis `LABINT-004` |
+| Status | `VALIDATED` |
 | Stand | 2026-07-27 |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Lab-Repository | `gecompat/SQL_Server_Lab` |
 | geprüfter Lab-Stand | `08fcc9525b9bbc29a5dd9a2ef08de23bd7ef650e` |
-| geprüfter Schulungsstand | `091fa8606491d6f5fff2f3cd483d11868ce7d5e7` |
+| geprüfter Schulungsstand | `37bc7d6896603eb614dfdeb41f8a77ff947abe68` |
 | Zielprovider | Docker und Podman |
-| Zielversionen | SQL Server 2019, 2022 und 2025; später kataloggesteuert erweiterbar |
+| Zielversionen | SQL Server 2019, 2022 und 2025 |
 
 ## 1. Zweck
 
-Diese Architektur beschreibt, wie sämtliche ausführbaren Schulungsdemos automatisiert auf durch `SQL_Server_Lab` bereitgestellten SQL-Server-Umgebungen geprüft werden. Das Schulungsrepository bleibt Eigentümer der fachlichen Demo-Phasen, synthetischen Daten, Assertions und Ergebnisverträge. `SQL_Server_Lab` stellt Provider-, Ressourcen-, Port-, Secret-, State- und Infrastruktur-Lifecycle bereit.
+`SQL_Server_Lab` soll für dieses Projekt die benötigten SQL-Server-Testumgebungen bereitstellen. `SQL_PerformanceSchulung` soll anschließend alle vorhandenen und künftig entstehenden Demo-Manifeste auf diesen Umgebungen ausführen und auswerten.
 
-Die Integration darf keine Providerimplementierung in dieses Repository kopieren. Docker-, Podman- oder spätere Hyper-V-Befehle werden ausschließlich durch `SQL_Server_Lab` ausgeführt. Änderungen am Lab-Repository sind nicht Bestandteil dieser Welle.
-
-## 2. Festgestellter Ausgangsstand
-
-`SQL_Server_Lab` besitzt bereits eine reale PowerShell-Implementierung für Docker und Podman. `New-SqlServerLab` führt Resource Assessment, State-Anlage, Providerstart, SQL-Readiness, optionale Server- und Datenbankkonfiguration sowie Post-Provision-Skripte aus. Das Cmdlet liefert Run-ID, Scope-ID, Provider, Host und Port zurück. `Remove-SqlServerLab` führt den scopegebundenen Cleanup-Plan aus und entfernt lokale Secrets.
-
-Die aktuelle Root-README des Lab-Repositories bezeichnet den Status noch als reine Planungsgrundlage. Diese Statusaussage ist durch die inzwischen vorhandenen Provider-, Manifest-, Datenbank-, Lifecycle- und Integrationstestimplementierungen überholt und wird für diese Integrationsentscheidung nicht als maßgeblich behandelt.
-
-Das Schulungsrepository besitzt derzeit sechs produktive Demo-Manifeste:
-
-| Demo-ID | Sicherheitsstufe | Sessions | Runtimevalidierung |
-|---|---|---:|---|
-| `QRY-001` | Grün | 1 | SQL Server 2019, 2022 und 2025 |
-| `OPT-002` | Grün | 1 | SQL Server 2019, 2022 und 2025 |
-| `CON-004` | Gelb | 3 | SQL Server 2019, 2022 und 2025 |
-| `OPT-013` | Gelb | 1 | SQL Server 2019, 2022 und 2025 |
-| `OPT-015` | Grün | 1 | SQL Server 2019, 2022 und 2025 |
-| `OPT-016` | Grün | 1 | SQL Server 2019, 2022 und 2025 |
-
-Jede dieser Demos verwendet bereits den gemeinsamen Schulungs-Harness mit Preflight, Setup, Baseline, Demonstration, Observation, Mitigation, Comparison und markergeprüftem Cleanup. Die Lab-Integration ersetzt diesen Harness nicht. Sie stellt die Instanz bereit, bindet den Endpunkt und entfernt die Umgebung nach Abschluss.
-
-## 3. Verantwortungsgrenze
-
-### 3.1 SQL_Server_Lab
-
-Das Lab verantwortet im ersten Integrationsstand:
-
-- Auswahl und Prüfung von Docker oder Podman;
-- Auflösung von SQL-Server-Version und Containerimage;
-- CPU- und RAM-Profil;
-- Portvergabe;
-- sichere Übergabe des SA-Kennworts an den Container;
-- Containerlabels, Run-ID und Scope-ID;
-- SQL-Readiness;
-- lokalen Run State und Infrastruktur-Cleanup;
-- Stop, Start, Restart und Remove der Umgebung.
-
-### 3.2 SQL_PerformanceSchulung
-
-Das Schulungsrepository verantwortet:
-
-- Erkennung ausführbarer Demo-Manifeste;
-- Zuordnung zu Versionen, Providern, Ressourcen- und Sicherheitsprofilen;
-- Aufruf von `Demos/00_Framework/Tools/run_demo.py`;
-- fachliche Assertions und Skip-Verträge;
-- Wiederholungszahl;
-- unabhängige Prüfung, dass die Demo-Testdatenbank nach jedem Lauf entfernt wurde;
-- sanitisierten Testreport;
-- Auswahl der zulässigen Testlane;
-- projektspezifische Fehlerklassifikation.
-
-## 4. Zielarchitektur der ersten Ausbaustufe
+Die Erwartung ist bewusst einfach:
 
 ```text
-Invoke-PerformanceLabMatrix.ps1
-    |
-    +-- liest performance-lab-matrix.json
-    +-- entdeckt Demos/**/manifest.json
-    +-- validiert Katalogvollständigkeit
-    +-- erzeugt Provider-/Versions-/Sicherheitsmatrix
-    |
-    +-- Import-Module <SQL_Server_Lab>/SqlServerLab.psd1
-    +-- New-SqlServerLab
-    |       +-- Docker oder Podman
-    |       +-- SQL Server 2019, 2022 oder 2025
-    |       +-- compact, standard oder performance
-    |
-    +-- pro Demo und Wiederholung
-    |       +-- run_demo.py
-    |       +-- SQLPERF_SUMMARY auswerten
-    |       +-- Demo-Cleanup unabhängig verifizieren
-    |
-    +-- Remove-SqlServerLab -Force
-    +-- Infrastruktur-Cleanup verifizieren
-    +-- sanitisierten Matrixreport schreiben
+SQL_Server_Lab
+    -> SQL-Server-Umgebung erstellen
+    -> Verbindungsdaten zurückgeben
+
+SQL_PerformanceSchulung
+    -> Demos auswählen
+    -> Demos ausführen und prüfen
+    -> Demo-Cleanup prüfen
+
+SQL_Server_Lab
+    -> Umgebung entfernen
 ```
 
-Die Ausführung erfolgt standardmäßig sequenziell. Mehrere SQL-Server-Container werden nicht parallel gestartet, solange keine ausdrückliche Ressourcenplanung vorliegt. Dadurch bleiben CPU-, RAM-, TempDB- und Laufzeiteffekte besser interpretierbar.
+Das Lab-Repository muss die Schulungsdemos, deren Lernziele, Phasen oder fachliche Assertions nicht kennen.
+
+## 2. Verbindliche Verantwortungsgrenze
+
+### 2.1 Erwartung an SQL_Server_Lab
+
+Für die Testautomation werden nur folgende Fähigkeiten erwartet:
+
+- Docker- oder Podman-Umgebung für eine angeforderte SQL-Server-Version erstellen;
+- ein geeignetes CPU-/RAM-Profil anwenden;
+- SQL-Readiness prüfen;
+- ein PowerShell-Objekt mit mindestens Run-ID, Provider, Host und Port zurückgeben;
+- die zugehörige Umgebung anhand der Run-ID sicher entfernen;
+- Fehler beim Aufbau oder Abbau als PowerShell-Fehler beziehungsweise im Rückgabeobjekt erkennbar machen.
+
+Die vorhandenen Commands `New-SqlServerLab`, `Get-SqlServerLab` und `Remove-SqlServerLab` bilden diese Erwartung grundsätzlich bereits ab.
+
+### 2.2 Verantwortung von SQL_PerformanceSchulung
+
+Dieses Repository verantwortet vollständig:
+
+- Discovery aller produktiven Dateien `Demos/**/manifest.json`;
+- Zuordnung zu SQL-Server-Versionen, Providern, Ressourcenprofilen und Sicherheitsstufen;
+- Aufruf des bestehenden Harness `Demos/00_Framework/Tools/run_demo.py`;
+- Demo-Phasen, synthetische Daten und fachliche Assertions;
+- erlaubte `PASS`-, `WARN`- und `SKIP`-Ergebnisse;
+- Wiederholungen und Matrixbildung;
+- Prüfung, dass die jeweilige Demo-Testdatenbank entfernt wurde;
+- zusammengefasste Testausgabe und Fehlerklassifikation.
+
+## 3. Nicht erwartete Funktionalität von SQL_Server_Lab
+
+Für die Schulungsautomation ist **keine Project-Adapter- oder Lab-Package-Engine erforderlich**. Der in `SQL_Server_Lab` dokumentierte langfristige Architekturentwurf darf nicht als Voraussetzung dieses Projekts interpretiert werden.
+
+Ebenso ist **keine generische JSON-/Event-Schnittstelle erforderlich**. Der Runner wird in PowerShell implementiert und kann die vorhandenen PowerShell-Rückgabeobjekte und Fehler direkt verarbeiten. Der JSON-Katalog in `Tests/Lab` gehört ausschließlich zur schulungsinternen Demo- und Testmatrix; daraus entsteht keine Ausgabeforderung an `SQL_Server_Lab`.
+
+Für die erste und dauerhaft zulässige Integration sind außerdem nicht erforderlich:
+
+- Migration der Demo-Manifeste in das Lab-Repository;
+- Kenntnis der Demo-Phasen durch das Lab;
+- zentrale Ausführung der fachlichen Assertions im Lab;
+- ein allgemeiner Operations- oder Event-Bus;
+- ein eigener Package-Katalog im Lab für dieses Projekt;
+- ein Image-Digest als Voraussetzung jedes lokalen Testlaufs;
+- ein besonderer JSON-Exitcode-Vertrag.
+
+Solche Funktionen können für andere Ziele des Lab-Repositories sinnvoll sein, sind aber keine Anforderung von `SQL_PerformanceSchulung`.
+
+## 4. Ausführungsmodell
+
+Der geplante Runner `Tests/Lab/Invoke-PerformanceLabMatrix.ps1` führt pro Provider-/Versionszelle folgenden Ablauf aus:
+
+1. `SQL_Server_Lab/SqlServerLab.psd1` importieren.
+2. PowerShell, Python und Microsoft `sqlcmd` prüfen.
+3. Katalog und Demo-Manifeste validieren.
+4. `New-SqlServerLab` mit Version, Provider, Profil und einem zur Laufzeit erzeugten `SecureString` aufrufen.
+5. Host und Port aus dem zurückgegebenen Lab-Objekt übernehmen.
+6. Für jede ausgewählte Demo `run_demo.py` mit dem gebundenen SQL-Endpunkt aufrufen.
+7. Nach jedem Demolauf die Abwesenheit der erwarteten Demo-Datenbank prüfen.
+8. Im `finally`-Pfad `Remove-SqlServerLab -RunId ... -Force` aufrufen.
+9. Prüfen, dass die Lab-Ressource nicht mehr vorhanden ist.
+
+Der Runner verwendet keine eigenen Docker- oder Podman-Befehle zum Erstellen der Umgebung. Die Infrastruktur bleibt vollständig Eigentum von `SQL_Server_Lab`.
 
 ## 5. Testlanes
 
 ### 5.1 `SMOKE`
 
-`SMOKE` prüft einen verfügbaren Provider, SQL Server 2025, alle grünen Demos und eine Wiederholung. Diese Lane dient der schnellen lokalen Funktionsprüfung nach Änderungen an Demo- oder Harnesscode.
+Ein verfügbarer Provider, SQL Server 2025, alle grünen Demos, eine Wiederholung.
 
 ### 5.2 `CORE`
 
-`CORE` prüft einen ausgewählten Provider, SQL Server 2019, 2022 und 2025, alle grünen Demos und zwei Wiederholungen. Sie bildet die primäre fachliche Versionsmatrix.
+Ein ausgewählter Provider, SQL Server 2019, 2022 und 2025, alle grünen Demos, zwei Wiederholungen.
 
 ### 5.3 `PROVIDER_PARITY`
 
-`PROVIDER_PARITY` prüft Docker und Podman auf SQL Server 2025. Grüne Demos laufen automatisch. Gelbe Demos benötigen eine ausdrückliche Isolationsbestätigung. Zweck ist der Nachweis, dass Providerunterschiede den fachlichen Demo-Vertrag nicht verändern.
+Docker und Podman auf SQL Server 2025. Zunächst grüne Demos; gelbe Demos nur nach ausdrücklicher Isolationsbestätigung.
 
 ### 5.4 `FULL_CONTAINER_MATRIX`
 
-`FULL_CONTAINER_MATRIX` umfasst Docker und Podman, SQL Server 2019, 2022 und 2025 sowie alle freigegebenen grünen und gelben Demos. Bei sechs aktuellen Demos, zwei Wiederholungen, drei Versionen und zwei Providern entstehen 72 vollständige Demoläufe. Die Lane wird daher nicht als Standard-Schnelltest verwendet.
+Docker und Podman, SQL Server 2019, 2022 und 2025 sowie alle freigegebenen grünen und gelben Demos. Beim aktuellen Bestand entstehen 72 vollständige Demoläufe.
 
 ### 5.5 `RED_DISPOSABLE`
 
-Rote Demos werden niemals durch `FULL_CONTAINER_MATRIX` eingeschlossen. Sie benötigen eine eigene Lane, eine dedizierte Wegwerfumgebung, explizite High-Impact-Bestätigung, ein Laufzeitbudget, einen externen Kill-Switch und eine separate Recovery-Prüfung. `RES-003` bleibt bis zur Erfüllung dieser Bedingungen ausgeschlossen.
+Rote Demos werden ausschließlich separat und nach dem jeweiligen Demo-Sicherheitsvertrag ausgeführt. Sie sind kein impliziter Bestandteil der normalen Container-Matrix.
 
-## 6. Umgebungswiederverwendung
+## 6. Discovery- und Katalogvertrag
 
-Eine einzelne Provider-/Versionsumgebung darf mehrere grüne Demos sequenziell ausführen, wenn jede Demo:
+Alle produktiven Demo-Manifeste werden automatisch entdeckt. Inhalte unter `Demos/00_Framework/` bleiben ausgeschlossen.
 
-- ausschließlich eine eigene markergebundene Testdatenbank verändert;
-- keine instanzweite Konfiguration verändert;
-- keine globalen Caches leert;
-- keine persistente XE-Session, Agent-Definition oder Serverrolle hinterlässt;
-- ihr Cleanup vollständig nachweist.
+Jedes entdeckte produktive Manifest muss genau einmal in `Tests/Lab/performance-lab-matrix.json` vorkommen. Der Katalog ergänzt nur projektseitige Informationen:
 
-Gelbe Demos werden in einer getrennten Umgebungslane ausgeführt. Demos mit instanzweiter Konfiguration, Ressourcenlimitierung, Fault Injection oder roten Sicherheitsmerkmalen erhalten grundsätzlich eine frische dedizierte Umgebung.
-
-Der Katalog führt hierfür das Feld `environmentIsolation` mit den Werten:
-
-- `SHARED_PROVIDER_VERSION`;
-- `FRESH_INSTANCE`;
-- `DEDICATED_DISPOSABLE`.
-
-## 7. Discovery- und Katalogvertrag
-
-Alle produktiven Manifeste unter `Demos/**/manifest.json` werden automatisch entdeckt. Inhalte unter `Demos/00_Framework/Examples` sind keine produktiven Demos und bleiben ausgeschlossen.
-
-Jedes entdeckte produktive Manifest muss genau einen Eintrag in `Tests/Lab/performance-lab-matrix.json` besitzen. Ein neues Manifest ohne Katalogeintrag ist ein statischer Fehler. Damit kann keine neue Demo unbemerkt außerhalb der automatisierten Matrix entstehen.
-
-Der Katalog wiederholt nicht den Phasenvertrag des Demo-Manifests. Er ergänzt ausschließlich infrastrukturelle und orchestrierende Felder:
-
-- zulässige Provider;
-- Zielversionen;
+- Provider;
+- SQL-Server-Versionen;
 - Ressourcenprofil;
 - Sicherheitsstufe;
-- Sessions;
+- Sessionzahl;
 - Wiederholungen;
-- Environment-Isolation;
-- erforderliche Lab- und SQL-Capabilities;
-- erwartete Ergebnisarten `PASS`, `WARN` oder begründeter `SKIP`;
-- manuelle oder rote Freigabebedingungen.
+- notwendige Isolation;
+- erwartete Ergebnisarten.
 
-Sicherheitsstufe und Demo-ID müssen mit dem jeweiligen Demo-Manifest übereinstimmen.
+Der Katalog stellt keine Erweiterung des Lab-Manifestschemas dar und wird nicht von `SQL_Server_Lab` verarbeitet.
 
-## 8. Ausführungsalgorithmus
+## 7. Aktuell erforderliche Änderungen in SQL_Server_Lab
 
-Der spätere Runner verarbeitet eine Lane in folgender Reihenfolge:
+Für `LABINT-002` ist nach dem gegenwärtigen Stand **keine zusätzliche Lab-Funktion erforderlich**.
 
-1. Projektroot, Lab-Repository und Modulversion prüfen.
-2. PowerShell 7.2+, Python und Microsoft `sqlcmd` prüfen.
-3. Katalog und alle produktiven Demo-Manifeste validieren.
-4. Verfügbare Provider feststellen.
-5. Matrixzellen nach Lane, Provider, Version, Safety und Capability auflösen.
-6. Ein kurzlebiges Lab-Manifest ohne Secrets erzeugen.
-7. `New-SqlServerLab` mit `SecureString`, explizitem `StateRoot` und gewähltem Profil aufrufen.
-8. Host und Port ausschließlich aus dem zurückgegebenen Lab-Objekt übernehmen.
-9. Das Kennwort nur im Prozesskontext als `SQLCMDPASSWORD` bereitstellen.
-10. Für jede Demo den vorhandenen Python-Harness aufrufen.
-11. Nach jedem Lauf die Abwesenheit der erwarteten Demo-Datenbank über `master` prüfen.
-12. Bei Demo-Fehlern keine weiteren regulären Demos derselben Matrixzelle starten.
-13. Im `finally`-Pfad `Remove-SqlServerLab -RunId ... -Force` ausführen.
-14. Container- und State-Cleanup prüfen.
-15. Einen sanitisierten Report ohne Kennwort, reale Hostpfade, Plan XML oder vollständige SQL-Ausgaben erzeugen.
+Der erste reale Runner muss jedoch zwei Dinge praktisch verifizieren:
 
-## 9. Ergebnis- und Fehlervertrag
+1. Docker-Aufbau und -Abbau funktionieren vollständig über `New-SqlServerLab` und `Remove-SqlServerLab`.
+2. Podman-Aufbau und -Abbau funktionieren vollständig über dieselben öffentlichen Commands.
 
-Eine Matrixzelle liefert genau einen der folgenden Statuswerte:
+Eine konkrete Erweiterung im Lab-Repository wird erst dann verlangt, wenn ein realer Lauf eine fehlende oder fehlerhafte Funktion nachweist.
 
-- `PASS` – alle erforderlichen Demos und Cleanup-Prüfungen bestanden;
-- `WARN` – ausschließlich optionale Evidenz wurde kontrolliert übersprungen;
-- `SKIP_PROVIDER_UNAVAILABLE`;
-- `SKIP_VERSION_UNAVAILABLE`;
-- `SKIP_CAPABILITY_UNAVAILABLE`;
-- `SKIP_SAFETY_CONFIRMATION_REQUIRED`;
-- `FAIL_LAB_PROVISION`;
-- `FAIL_DEMO_CONTRACT`;
-- `FAIL_DEMO_EXECUTION`;
-- `FAIL_DEMO_CLEANUP`;
-- `FAIL_LAB_CLEANUP`;
-- `RECOVERY_REQUIRED`.
+### Beobachtung zum Providerneutralen Orphan-Cleanup
 
-Ein Demo-`SKIP` ist nur erfolgreich, wenn der Demo-Vertrag diesen Code für die konkrete Version oder Capability zulässt. Ein unerwarteter Skip wird als Fehler behandelt.
+`Remove-SqlServerLab` führt nach dem allgemeinen Cleanup-Plan zusätzlich eine Docker-spezifische Suche nach verbliebenen Containern aus. Für Podman ist in diesem zusätzlichen Sicherheitsnetz derzeit kein entsprechender Pfad sichtbar. Der normale Cleanup-Plan enthält bereits providerbezogene `docker rm`- beziehungsweise `podman rm`-Compensation. Daher ist dies zunächst eine zu prüfende Robustheitslücke und kein nachgewiesener Blocker.
 
-## 10. Datenschutz und Secrets
+Erst wenn ein Podman-Test einen verbliebenen Container oder einen unvollständigen Cleanup nachweist, muss im Lab-Repository ein **providerneutraler Orphan-Cleanup** ergänzt werden. Diese Änderung wird vorher benannt und nicht ohne ausdrückliche Freigabe umgesetzt.
 
-- Das SA-Kennwort wird nicht in einem Manifest, Report oder Kommandozeilenargument des Schulungsrunners gespeichert.
-- Lokaler Lab-State liegt außerhalb des Repositorys oder in einem ignorierten Pfad.
-- Runtime-Reports enthalten nur Demo-ID, Provider, Version, Engine-Build, Laufnummer, Statuscode, Dauerklasse und normalisierte Assertions.
-- Plan XML, vollständige Querytexte, Containerlogs und lokale Pfade werden nicht automatisch exportiert.
-- Diagnoseartefakte bleiben lokal und benötigen vor einer Weitergabe die bestehende Privacy-Prüfung.
+## 8. Umgang mit Testergebnissen
 
-## 11. Vorläufig ohne Änderung am Lab-Repository umsetzbar
+Eine strukturierte interne Testausgabe ist sinnvoll, damit der Runner mehrere Demos zusammenfassen kann. Diese Struktur gehört jedoch zum Schulungsrunner und nicht zur geforderten öffentlichen Schnittstelle von `SQL_Server_Lab`.
 
-Die erste lauffähige Integration benötigt keine Änderung an `SQL_Server_Lab`. Folgende bestehende Schnittstellen reichen aus:
+Ausreichend sind beispielsweise PowerShell-Objekte mit:
 
-- `Import-Module SqlServerLab.psd1`;
-- `Test-LabResources`;
-- `New-SqlServerLab` mit Docker oder Podman;
-- Rückgabe von Run-ID, Host, Port und Provider;
-- `Get-SqlServerLab`;
-- `Remove-SqlServerLab -Force`;
-- bestehender Schulungs-Harness für Demoablauf und fachlichen Cleanup.
+- Provider;
+- SQL-Server-Version;
+- Demo-ID;
+- Wiederholung;
+- Ergebnis `PASS`, `WARN`, `SKIP` oder `FAIL`;
+- Fehlerkategorie;
+- Cleanup-Ergebnis.
 
-Der Runner bleibt deshalb zunächst ein Project Adapter im Schulungsrepository und verwendet das Lab ausschließlich als Infrastrukturprovider.
+Ein JSON-Export kann optional aus diesen Objekten erzeugt werden. Er ist keine Voraussetzung des Lab-Repositories.
 
-## 12. Erforderliche spätere Erweiterungen in SQL_Server_Lab
+## 9. Datenschutz und Secrets
 
-Für die endgültige, im Lab-Architekturvertrag vorgesehene Package-Ausführung sind zusätzliche Lab-Funktionen erforderlich. Diese Welle implementiert sie ausdrücklich nicht.
+- Das SA-Kennwort wird ausschließlich zur Laufzeit gehalten.
+- Es wird weder im Testkatalog noch in Reports persistiert.
+- Lokaler Lab-State verbleibt außerhalb versionierter Projektpfade.
+- Reports enthalten keine Plan-XML-Dokumente, vollständigen Querytexte oder Containerlogs.
+- Reale Hostnamen und lokale Pfade werden nicht in Repository-Artefakte übernommen.
 
-### 12.1 Project Adapter und Lab Package Engine
-
-Der dokumentierte `Project Adapter` mit Package-Katalog, `SqlPurpose`, Deployment Units, DataSets, Workflows, Probes, Assertions und Project Cleanup ist derzeit Architekturentwurf. Das implementierte Lab-Manifest beschreibt hauptsächlich Instanzen, Datenbanken, Serverkonfiguration und `postProvision`. Für die spätere native Ausführung der Schulungspakete muss der Project-Adapter-/Package-Vertrag implementiert werden.
-
-### 12.2 Öffentliche Recovery- und Cleanup-Commands
-
-`Invoke-LabCleanup` und `Invoke-LabRecovery` sind im Modulmanifest exportiert, in der öffentlichen Modulübersicht jedoch als nicht implementiert ausgewiesen. Für wiederaufnehmbare automatisierte Läufe müssen beide Commands implementiert und mit stabilen Rückgabeobjekten versehen werden.
-
-### 12.3 Providerneutraler Orphan-Cleanup
-
-`Remove-SqlServerLab` führt nach dem Cleanup-Plan ein zusätzliches Docker-Orphan-Sicherheitsnetz aus. Ein entsprechender Podman-Orphan-Pfad ist im öffentlichen Remove-Cmdlet nicht vorhanden. Für belastbare Providerparität muss die Orphan-Prüfung anhand des im Run State gespeicherten Providers providerneutral erfolgen.
-
-### 12.4 Maschinenlesbarer Capability- und Build-Nachweis
-
-Die spätere Package Engine benötigt einen öffentlichen, providerneutralen Capability-Record mit mindestens:
-
-- Provider und Runtimeversion;
-- angeforderter Bildreferenz;
-- tatsächlich verwendeter Image-ID beziehungsweise Digest;
-- SQL `ProductVersion`, `ProductMajorVersion`, Edition und Plattform;
-- wirksamem Compatibility Level;
-- CPU-, RAM- und Storageprofil;
-- verfügbaren Capabilities wie Query Store, XE, Agent, CLR, Parallelität und Multi-Session.
-
-Die aktuellen Rückgabeobjekte enthalten Host, Port, Version-ID und Imagebezug, aber keinen vollständigen reproduzierbaren Build- und Capability-Nachweis.
-
-### 12.5 Ressourcen-Override mit sichtbarem Defizit
-
-Die Projektvorgabe erlaubt eine bewusste Übersteuerung vorhergesagter Unterversorgung, wobei das Defizit sichtbar bleiben muss. Der aktuelle öffentliche Aufruf bietet `-SkipAssessment`. Für den endgültigen Vertrag wird stattdessen ein explizites `-AllowResourceDeficit` mit persistiertem Assessment und Bestätigung benötigt. Ein vollständiges Überspringen der Prüfung erfüllt diese Anforderung nicht.
-
-### 12.6 Strukturierter nichtinteraktiver Ausgabemodus
-
-Für eine spätere sprach- und prozessunabhängige Control Plane wird ein stabiler JSON-/Objektmodus mit definierten Exitcodes, Operations und Events benötigt. Die aktuelle PowerShell-Nutzung ist für den ersten Runner ausreichend, die im Architekturvertrag vorgesehene generische Control Plane ist jedoch noch nicht implementiert.
-
-## 13. Nicht erforderliche Lab-Erweiterungen für die erste Runner-Version
-
-Nicht erforderlich sind:
-
-- Kopieren der Schulungsdemos in das Lab-Repository;
-- ein eigener Docker- oder Podman-Compose-Stack im Schulungsrepository;
-- Post-Provision-Unterstützung für alle Demo-Phasen;
-- Persistieren von Demo-Plan XML im Lab-State;
-- parallele Provisionierung aller Versionen;
-- Hyper-V für die derzeit grünen und gelben Containerdemos.
-
-## 14. Arbeitspakete und Abhängigkeiten
+## 10. Arbeitspakete und Abhängigkeiten
 
 | ID | Priorität | Arbeit | Voraussetzung | Abschlusskriterium |
 |---|---:|---|---|---|
-| `LABINT-001` | P0 | Architektur, Testkatalog und statische Vollständigkeitsprüfung | vorhandene Demo-Manifeste und Lab-Lifecycle | jedes produktive Manifest ist katalogisiert; Lab-Grenzen sind dokumentiert |
-| `LABINT-002` | P0 | lokalen PowerShell-Runner für `SMOKE` und `CORE` implementieren | `LABINT-001` | Docker oder Podman kann eine Instanz provisionieren, alle grünen Demos ausführen und vollständig entfernen |
-| `LABINT-003` | P1 | `PROVIDER_PARITY` für Docker und Podman validieren | `LABINT-002` | identische fachliche Verträge auf beiden Providern oder begründete Capability-Skips |
-| `LABINT-004` | P1 | gelbe Lane und `FULL_CONTAINER_MATRIX` implementieren | `LABINT-002`, Safety-Gates | gelbe Demos laufen nur mit Bestätigung und getrenntem Ressourcenprofil |
-| `LABINT-005` | P2 | auf native Lab-Package-Ausführung migrieren | erforderliche Lab-Erweiterungen 12.1 bis 12.6 | Schulungsrunner enthält keine eigene Infrastrukturorchestrierung mehr |
+| `LABINT-001` | P0 | Verantwortungsgrenze, Testkatalog und statische Vollständigkeitsprüfung | vorhandene Demo-Manifeste und öffentliche Lab-Commands | jede produktive Demo ist katalogisiert; keine überzogene Lab-Anforderung bleibt dokumentiert |
+| `LABINT-002` | P0 | PowerShell-Runner für `SMOKE` und `CORE` implementieren | `LABINT-001` | ein Provider kann die grünen Demos auf 2019/2022/2025 ausführen und vollständig abbauen |
+| `LABINT-003` | P1 | Docker-/Podman-Parität praktisch prüfen | `LABINT-002` | beide Provider funktionieren oder eine konkrete Lab-Lücke ist reproduzierbar benannt |
+| `LABINT-004` | P1 | gelbe Lane und vollständige Container-Matrix aktivieren | `LABINT-002`, Safety-Gates | alle freigegebenen grünen und gelben Demos werden gemäß Katalog ausgeführt |
 
-## 15. Reihenfolge der nächsten Umsetzung
+## 11. Nächster Schritt
 
-Die nächste sinnvolle Umsetzung ist `LABINT-002` mit ausschließlich grünen Demos. Der Runner verwendet zunächst einen ausgewählten Provider und die drei SQL-Server-Versionen. Erst nach erfolgreicher Cleanup- und Providerbindung werden Podman-Parität und gelbe Demos aktiviert.
-
-Parallel kann `ADV-008` weitere fachliche Demos implementieren. Der statische Katalogvalidator verhindert, dass neue Demo-Manifeste ohne Testmatrixzuordnung integriert werden.
+`LABINT-002` implementiert den einfachen PowerShell-Runner gegen die bereits vorhandenen öffentlichen Commands von `SQL_Server_Lab`. Es wird keine zusätzliche Lab-Architektur vorausgesetzt. Falls ein realer Lauf eine fehlende Lab-Funktion zeigt, wird diese konkrete Funktion mit reproduzierbarem Befund benannt, bevor irgendeine Änderung im Lab-Repository erfolgt.

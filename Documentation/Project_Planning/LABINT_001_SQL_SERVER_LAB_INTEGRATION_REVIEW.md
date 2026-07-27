@@ -4,37 +4,66 @@
 |---|---|
 | Status | `VALIDATED` |
 | Stand | 2026-07-27 |
-| Pull Request | `#21` |
-| Schulungs-Ausgangscommit | `091fa8606491d6f5fff2f3cd483d11868ce7d5e7` |
+| Ursprünglicher Pull Request | `#21` |
+| Korrekturgrund | langfristige Lab-Architektur wurde fälschlich als Schulungsanforderung interpretiert |
 | geprüfter Lab-Commit | `08fcc9525b9bbc29a5dd9a2ef08de23bd7ef650e` |
 | Änderungen in SQL_Server_Lab | keine |
 | Runtime-Provisionierung ausgeführt | nein |
 
-## 1. Prüfumfang
+## 1. Korrektur
 
-Geprüft wurden die exportierten Lab-Commands, Docker- und Podman-Provider, das aktuelle Lab-Manifestschema, Versionen- und Ressourcenprofile, State- und Cleanup-Lifecycle, der Integrationstest des Lab-Repositories sowie der dokumentierte Project-Adapter-/Lab-Package-Vertrag.
+Die erste Fassung des Integrationsreviews leitete aus dem langfristigen Architekturentwurf von `SQL_Server_Lab` zusätzliche Anforderungen ab, die für `SQL_PerformanceSchulung` nicht notwendig sind. Dazu gehörten insbesondere eine Project-Adapter-/Lab-Package-Engine, eine generische JSON-/Event-Schnittstelle sowie weitere allgemeine Control-Plane-Funktionen.
 
-Im Schulungsrepository wurden die sechs aktuell produktiven Demo-Manifeste, der gemeinsame Demo-Harness, die vorhandenen Runtime-Matrizen und die Safety-Verträge ausgewertet.
+Diese Ableitung war zu weitgehend. Das Schulungsprojekt erwartet keine generische Plattformintegration, sondern eine konkrete Arbeitsteilung:
 
-## 2. Technische Bewertung
+```text
+SQL_Server_Lab erstellt und entfernt die SQL-Server-Umgebung.
+SQL_PerformanceSchulung führt seine eigenen Demos aus und bewertet sie.
+```
 
-Die bestehende Lab-Implementierung ist für einen ersten externen Schulungsrunner ausreichend. `New-SqlServerLab` kann Docker oder Podman provisionieren und liefert den gebundenen SQL-Endpunkt zurück. Der vorhandene Schulungs-Harness bleibt für Demo-Phasen, Assertions und fachlichen Cleanup verantwortlich. `Remove-SqlServerLab -Force` entfernt anschließend die scopegebundene Infrastruktur.
+## 2. Tatsächliche Erwartung an SQL_Server_Lab
 
-Eine native Package-Ausführung im Lab ist noch nicht möglich. Der Project-Adapter-/Lab-Package-Vertrag ist dokumentiert, aber die aktuelle Runtime verarbeitet nur das einfachere Instanz-/Datenbank-/Post-Provision-Manifest.
+Für den automatisierten Testlauf reichen folgende öffentliche Fähigkeiten:
 
-## 3. Erzeugte Artefakte
+- `New-SqlServerLab` für Docker oder Podman;
+- Auswahl der SQL-Server-Version und eines Ressourcenprofils;
+- SQL-Readiness;
+- Rückgabe von Run-ID, Provider, Host und Port;
+- `Get-SqlServerLab` zur Zustandsprüfung;
+- `Remove-SqlServerLab -Force` zum sicheren Abbau.
 
-- `Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md`;
-- `Tests/Lab/performance-lab-matrix.json`;
-- `Tests/Lab/performance-lab-matrix.schema.json`;
-- `Tests/Lab/README.md`;
-- `Tests/Static/validate_sql_server_lab_test_catalog.py`;
-- `.github/workflows/sql-server-lab-test-catalog.yml`;
-- synchronisierte Infrastruktur-, Test-, Backlog- und Statusdokumentation.
+Eine zusätzliche Lab-Funktion ist für den ersten Runner gegenwärtig nicht erforderlich.
 
-## 4. Aktueller Katalog
+## 3. Verantwortung des Schulungsrepositories
 
-Der Katalog umfasst:
+`SQL_PerformanceSchulung` bleibt Eigentümer von:
+
+- Demo-Discovery und Testkatalog;
+- Demo-Manifests;
+- synthetischen Daten;
+- Preflight, Setup, Baseline, Demonstration, Observation, Mitigation, Comparison und Cleanup;
+- fachlichen Assertions und Skip-Verträgen;
+- Versions- und Provider-Matrix;
+- zusammengefasster Testausgabe.
+
+Der JSON-Katalog unter `Tests/Lab` ist eine interne Steuerungsdatei des Schulungsprojekts. Er ist keine Schnittstellenanforderung an das Lab-Repository.
+
+## 4. Nicht erforderliche Lab-Funktionen
+
+Für dieses Projekt werden nicht vorausgesetzt:
+
+- eine Project-Adapter- oder Lab-Package-Engine;
+- eine generische JSON-/Event-Schnittstelle;
+- ein allgemeiner Operationsbus;
+- die Ausführung der Demo-Phasen durch `SQL_Server_Lab`;
+- ein eigener Schulungs-Package-Katalog im Lab;
+- eine Migration des bestehenden Demo-Harness in das Lab-Repository.
+
+Diese Funktionen können für andere Ziele des Lab-Repositories sinnvoll sein, gehören jedoch nicht zum Abnahmeumfang der Schulungstestautomation.
+
+## 5. Aktueller Testkatalog
+
+Der Katalog umfasst weiterhin:
 
 - `QRY-001`;
 - `OPT-002`;
@@ -45,55 +74,42 @@ Der Katalog umfasst:
 
 Die vollständige Container-Matrix umfasst zwei Provider, drei SQL-Server-Versionen, sechs Demos und zwei Wiederholungen. Daraus entstehen aktuell 72 vollständige Demoläufe.
 
-## 5. Statische Abnahme
+## 6. Mögliche konkrete Lab-Lücke
 
-Die neue Prüfung validiert:
+Im öffentlichen `Remove-SqlServerLab` ist nach dem allgemeinen Cleanup-Plan ein zusätzliches Docker-spezifisches Orphan-Sicherheitsnetz vorhanden. Ein entsprechender Podman-Pfad ist dort nicht sichtbar.
 
-- exakte Übereinstimmung zwischen produktiven Demo-Manifests und Katalog;
+Der normale Cleanup-Plan wird bereits providerbezogen mit `docker rm` oder `podman rm` aufgebaut. Deshalb ist die Docker-spezifische Orphan-Prüfung zunächst nur eine mögliche Robustheitslücke. Sie gilt nicht als nachgewiesener Blocker.
+
+Erst wenn `LABINT-003` einen verbliebenen Podman-Container oder einen unvollständigen Cleanup reproduziert, ist ein providerneutraler Orphan-Cleanup als konkrete Lab-Erweiterung zu verlangen. Eine solche Änderung wird vorab benannt und nicht ohne ausdrückliche Freigabe umgesetzt.
+
+## 7. Statische Abnahme
+
+Der korrigierte Validator prüft weiterhin:
+
+- exakte Übereinstimmung zwischen produktiven Demo-Manifests und Testkatalog;
 - Demo-ID, Pfad und Sicherheitsstufe;
 - Docker-/Podman- und Versionszuordnung;
 - Ressourcenprofil und Environment-Isolation;
 - Multi-Session-Capability;
 - Safety-Bestätigungen für gelbe und rote Lanes;
 - Demo-Cleanup-Vertrag;
-- Verbot von Secret-, Host- und absoluten Pfadangaben;
-- Dokumentations- und Backlogkonsistenz;
-- vollständigen Repository-Privacy-Scan.
+- Verbot von Secret-, Host- und absoluten Pfadangaben.
 
-Erfolgreich abgeschlossen wurden:
+Zusätzlich verhindert er, dass `LABINT-005` oder die zuvor überzogene Pflicht zur nativen Lab-Package-Ausführung erneut in den Backlog aufgenommen wird.
 
-- `SQL Server Lab integration contract`, Lauf `30241515448`;
-- `Framework contracts`, Lauf `30241515399`;
-- `Curriculum and privacy validation`, Lauf `30241515405`;
-- `Advanced lab design contracts`, Lauf `30241515387`;
-- `Advanced lab design contracts VP3-VP5`, Lauf `30241515443`;
-- `W2-001 legacy example classification`, Lauf `30241515410`.
+## 8. Statusgrenze
 
-## 6. Keine Lab-Änderung in dieser Welle
+`LABINT-001` ist als Verantwortungs-, Katalog- und statischer Prüfvertrag `VALIDATED`. Die Runtime-Provisionierung über `SQL_Server_Lab` ist noch nicht ausgeführt.
 
-Im Repository `gecompat/SQL_Server_Lab` wurden weder Dateien noch Issues, Branches oder Pull Requests angelegt oder verändert.
+## 9. Nächster Schritt
 
-## 7. Separat abzustimmende Lab-Erweiterungen
+`LABINT-002` implementiert einen einfachen PowerShell-Runner:
 
-Für die endgültige native Integration werden im Lab-Repository benötigt:
+1. Lab-Modul importieren.
+2. Umgebung mit `New-SqlServerLab` erstellen.
+3. Host und Port übernehmen.
+4. grüne Demos mit dem vorhandenen Harness ausführen.
+5. Demo-Cleanup prüfen.
+6. Umgebung mit `Remove-SqlServerLab` entfernen.
 
-1. implementierte Project-Adapter-/Lab-Package-Engine;
-2. implementierte öffentliche Commands `Invoke-LabCleanup` und `Invoke-LabRecovery`;
-3. providerneutraler Orphan-Cleanup für Docker und Podman;
-4. öffentlicher Capability-, Build- und Image-Digest-Nachweis;
-5. Ressourcenübersteuerung mit sichtbarem Defizit statt vollständigem `SkipAssessment`;
-6. strukturierter nichtinteraktiver Event-, Result- und Exitcode-Vertrag.
-
-Diese Punkte werden nur nach ausdrücklicher Freigabe im Lab-Repository umgesetzt.
-
-## 8. Nicht durchgeführte Prüfungen
-
-Es wurde keine Docker- oder Podman-Umgebung über `SQL_Server_Lab` provisioniert. Der Grund ist die bewusst begrenzte Welle `LABINT-001`: Zunächst werden Discovery, Katalog, Sicherheitsgrenzen und Abhängigkeiten verbindlich gemacht. Der reale Runner und seine Runtime-Abnahme folgen unter `LABINT-002`.
-
-## 9. Statusgrenze
-
-`LABINT-001` ist als Architektur-, Katalog- und statischer Prüfvertrag `VALIDATED`. Diese Freigabe bestätigt keine reale Provider-, Provisionierungs- oder Demolaufprüfung über `SQL_Server_Lab`.
-
-## 10. Nächster Schritt
-
-`LABINT-002` implementiert die grünen Lanes `SMOKE` und `CORE`. Erst nach erfolgreichem End-to-End-Cleanup folgen `PROVIDER_PARITY`, gelbe Demos und die vollständige Container-Matrix.
+Erst reale Docker-/Podman-Läufe entscheiden, ob im Lab-Repository zusätzliche Funktionalität benötigt wird.
