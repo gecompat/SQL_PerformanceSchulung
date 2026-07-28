@@ -26,6 +26,14 @@ Globale oder destruktive Befehle sind nur in klar gekennzeichneten, isolierten L
 
 Fachliche Aussagen sollen möglichst auf Microsoft Learn, offizielle Produktdokumentation, dokumentierte DMVs oder andere belastbare Primärquellen gestützt werden. Quellen und Abrufdatum gehören in die jeweilige Fach- oder Demo-Dokumentation.
 
+## Sprachstil und Übersetzungen
+
+Für Dokumentation, Kommentare, Commit Messages, Pull Requests, AI-Metadaten und sonstige Projekttexte gelten die verbindlichen [Sprachstil- und Übersetzungsregeln](Documentation/Standards/LANGUAGE_AND_TRANSLATION_RULES.md) sowie der fachlich spezifischere [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md).
+
+Projekt- und Dokumentationssprache ist grundsätzlich Deutsch. Ein Dokument verwendet nur eine Hauptsprache. Technische Originalbegriffe, Produktnamen, Codebezeichner, Befehle, Dateinamen und etablierte englische IT-Begriffe werden nicht künstlich übersetzt. Beispiele und Befehle müssen der tatsächlichen Implementierung exakt entsprechen.
+
+Neue Texte sind sachlich, eindeutig, technisch präzise, gut lesbar und möglichst zeitlos zu formulieren. Marketing-Sprache, unnötige Füllwörter, emotionale Formulierungen, Spekulationen und unbegründete Wertungen sind nicht zulässig. Vorhandene Dokumentation wird nicht ohne ausdrücklichen oder fachlich begründeten Anlass übersetzt.
+
 ## Änderungen
 
 Änderungen sollen thematisch klein, nachvollziehbar und prüfbar bleiben. Dokumentation, Demo und Test werden gemeinsam aktualisiert, wenn sie denselben Vertrag betreffen.
