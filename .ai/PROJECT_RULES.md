@@ -34,6 +34,15 @@
 - Globale Cache-, Konfigurations- und Neustart-Eingriffe ausschließlich in isolierten Laborinstanzen.
 - Keine produktiven Zugangsdaten oder Secrets im Repository.
 
+## KI-generierte Commit Messages
+
+- Jede vollständig oder überwiegend von einer KI erstellte Commit Message beginnt mit dem Namen der tatsächlich verwendeten KI und einem Doppelpunkt, beispielsweise `ChatGPT:`, `Codex:`, `Gemini:`, `Claude:` oder `Genie:`.
+- Das KI-Präfix kennzeichnet ausschließlich den Ursprung der Commit Message. Es ersetzt keine bestehenden Anforderungen an Kürze, Eindeutigkeit, fachliche Korrektheit oder gegebenenfalls Conventional Commits.
+- Führt die KI den Commit direkt aus, ist keine zusätzliche kopierbare Commit Message auszugeben.
+- Ohne direkten Repositoryzugriff muss die KI neben ZIP, Patch, Download oder Dateiliste eine separat kopierbare, einzeilige Commit Message bereitstellen.
+- Menschlich erstellte Commits benötigen kein KI-Präfix.
+- Die Regel gilt für automatisierte Commits auf allen Versionsverwaltungs- und Hostingplattformen, insbesondere GitHub, GitLab und Azure DevOps.
+
 ## Validierung
 
 - Statische Sicherheits- und Datenschutzprüfung.
