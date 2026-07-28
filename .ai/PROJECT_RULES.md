@@ -25,6 +25,20 @@
 - Keine pauschalen Tuning-Regeln ohne Voraussetzungen, Messmethode und Trade-offs.
 - Veraltete Aussagen korrigieren, nicht aus Kompatibilitätsgründen konservieren.
 
+## Sprachstil und Übersetzungen
+
+- Verbindlich gelten [`Documentation/Standards/LANGUAGE_AND_TRANSLATION_RULES.md`](../Documentation/Standards/LANGUAGE_AND_TRANSLATION_RULES.md) und der fachlich spezifischere [`Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md`](../Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md).
+- Projekt- und Dokumentationssprache ist grundsätzlich Deutsch; ein Dokument verwendet nur eine Hauptsprache.
+- Technische Fachbegriffe, Produktnamen, Programmiersprachen, SQL-Befehle, API-Namen, Dateinamen, Parameter sowie Klassen-, Methoden- und Funktionsnamen werden nicht übersetzt.
+- Etablierte englische IT-Begriffe bleiben erhalten, wenn eine Übersetzung ungebräuchlich, künstlich oder missverständlich wäre. Insbesondere werden `Pull Request`, `Repository`, `Branch`, `Commit`, `Workflow`, `Provider`, `Runtime`, `Setup` und `Cleanup` konsistent verwendet.
+- Texte sind sachlich, eindeutig, technisch präzise, gut lesbar und möglichst zeitlos. Marketing-Sprache, unnötige Füllwörter, emotionale Formulierungen, Spekulationen und unbegründete Wertungen sind unzulässig.
+- Nach Möglichkeit aktiv formulieren, sofern dadurch Verantwortlichkeit und Ablauf klarer werden.
+- Keine neuen Fachbegriffe erfinden. Ohne etablierte Übersetzung bleibt der Originalbegriff erhalten.
+- Code, Befehle, Konfigurationswerte und Beispiele müssen der tatsächlichen Implementierung exakt entsprechen und dürfen nicht sinngemäß übersetzt werden.
+- Vorhandene Dokumentation nicht allein zur sprachlichen Vereinheitlichung übersetzen. Übersetzungen erfolgen nur auf ausdrücklichen Auftrag, zur nachweisbaren Konsistenzverbesserung oder bei offiziell gepflegten Sprachversionen.
+- Gleiche Konzepte werden projektweit gleich bezeichnet. Wechselnde Paare wie `Provider`/„Anbieter“, `Branch`/„Zweig“ oder `Commit`/„Einspielung“ sind zu vermeiden.
+- KI-gestützte Änderungen passen sich automatisch an Sprache, Terminologie und Stil der betroffenen hochwertigen Projektdokumentation an. Bestehende spezifische Regeln haben Vorrang.
+
 ## Umsetzung
 
 - T-SQL bevorzugen.
