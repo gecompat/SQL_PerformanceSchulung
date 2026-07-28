@@ -29,3 +29,27 @@ Fachliche Aussagen sollen möglichst auf Microsoft Learn, offizielle Produktdoku
 ## Änderungen
 
 Änderungen sollen thematisch klein, nachvollziehbar und prüfbar bleiben. Dokumentation, Demo und Test werden gemeinsam aktualisiert, wenn sie denselben Vertrag betreffen.
+
+## KI-generierte Commit Messages
+
+Jede Commit Message, die vollständig oder überwiegend von einer KI erstellt wird, muss mit dem Namen der tatsächlich verwendeten KI und einem Doppelpunkt beginnen. Beispiele sind:
+
+```text
+ChatGPT: Add Docker smoke test
+Codex: Fix provider detection
+Gemini: Update documentation
+Claude: Refactor runtime provider
+Genie: Improve validation
+```
+
+Es ist stets der Name der tatsächlich verwendeten KI anzugeben. Das Präfix kennzeichnet ausschließlich den Ursprung der Commit Message.
+
+Bestehende Anforderungen an Commit Messages bleiben verbindlich. Insbesondere müssen Commit Messages kurz, eindeutig und fachlich korrekt bleiben. Soweit für einen Teil des Projekts Conventional Commits oder andere zusätzliche Konventionen festgelegt sind, ergänzt das KI-Präfix diese Vorgaben und ersetzt sie nicht.
+
+Schreibt die KI den Commit direkt in das Repository, genügt die Commit Message des ausgeführten Commits. Eine zusätzliche kopierbare Ausgabe derselben Commit Message ist nicht erforderlich.
+
+Besitzt die KI keinen direkten Repositoryzugriff und stellt Änderungen stattdessen beispielsweise als ZIP-Datei, Patch, Download oder Dateiliste bereit, muss sie zusätzlich eine separat kopierbare, einzeilige Commit Message ausgeben. Diese Ausgabe dient ausschließlich dazu, die Commit Message unverändert für den manuellen Commit zu übernehmen.
+
+Menschlich erstellte Commit Messages benötigen kein KI-Präfix.
+
+Die Regel gilt für alle automatisiert erstellten Commits unabhängig von der verwendeten Versionsverwaltungs- oder Hostingplattform, insbesondere GitHub, GitLab und Azure DevOps.
