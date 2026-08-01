@@ -109,6 +109,20 @@
       "escalation": null
     },
     {
+      "demoId": "QRY-004",
+      "title": "Classic and Dynamic Search Conditions",
+      "path": "Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic",
+      "manifest": "Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "The three strategies run sequentially in one session, and plan reuse evidence is read object-scoped inside the marker-owned demo database.",
+      "escalation": null
+    },
+    {
       "demoId": "OPT-013",
       "title": "Controlled Spill",
       "path": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill",

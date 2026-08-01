@@ -62,7 +62,7 @@ Geprüft werden:
 - Sessionzahl und erforderliche Capabilities;
 - explizite Safety-Bestätigung für gelbe und rote Lanes;
 - vollständiger Cleanup-Vertrag im Demo-Manifest;
-- Vollständigkeit der aktuellen 84 Läufe umfassenden Container-Gesamtmatrix;
+- Vollständigkeit der aktuellen 96 Läufe umfassenden Container-Gesamtmatrix;
 - Verbot von Secrets, realen Hostfeldern und absoluten Pfaden im Katalog.
 
 `LABINT-001` validiert nur Architektur und Katalog. Ein realer Docker-/Podman-Lauf über `SQL_Server_Lab` folgt erst mit `LABINT-002`.
@@ -180,6 +180,32 @@ Der statische Vertrag `validate_adv008_qry013.py` prüft Bündelaufbau, Phasenre
 
 Der Status ist `IMPLEMENTED`, nicht `VALIDATED`: Die Runtime-Abnahme über die drei Zielversionen steht aus. Fehlt die Plancache-Evidenz auf der Zielinstanz, endet die betroffene Phase kontrolliert mit `SKIP|SKIP_EVIDENCE_MISSING`; bleibt der Anstieg der logischen Lesevorgänge aus, endet die Beobachtungsphase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
 
+## ADV-008 – Runtime-Matrix für QRY-004
+
+Der Workflow `.github/workflows/adv008-qry004.yml` prüft zuerst:
+
+```bash
+python Tests/Static/validate_adv008_qry004.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
+
+```bash
+python Tests/Runtime/run_adv008_qry004.py \
+  --target docker \
+  --container <ephemerer-container> \
+  --expected-major <15|16|17>
+```
+
+Der statische Vertrag `validate_adv008_qry004.py` prüft zusätzlich zu Bündelaufbau, Phasenreihenfolge und lexikalischer Konsistenz zwei sicherheitsrelevante Eigenschaften des dynamischen SQL: Es darf keine direkte Stringausführung über `EXEC(...)` geben, und Filterwerte dürfen nicht in den Statementtext konkateniert werden. Geprüft werden ferner die Trennung der drei Strategien, die normalisierte Prädikatsreihenfolge, der markergebundene und idempotente Cleanup sowie die Folienspezifikation `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md`.
+
+| Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
+|---|---|---|---:|
+| `QRY-004` | `GREEN` | eine Catch-all-Planform über drei Selektivitäten, Ergebnis- und Prüfsummenequivalenz aller drei Strategien, zwei Statementformen für drei dynamische Ausführungen, abgewiesene Positivlistenverletzung, literalfreier Statementtext | 2 |
+
+Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`; lässt sich der Nutzen der Neuoptimierung oder deren Compilepreis nicht von der Messstreuung trennen, endet die betroffene Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
+
 ## Ausführungsziele der Runtime-Runner
 
 `Tests/Runtime/execution_target.py` trennt die Prüflogik von der Frage, wo der SQL Server läuft. Die Demo-Runner wählen das Ziel über `--target`:
@@ -233,7 +259,7 @@ Details stehen unter [`Tests/Runtime`](Runtime/README.md), [`Tests/Lab`](Lab/REA
 ## Nächste Prüfbereiche
 
 - `LABINT-002`: grüner lokaler Runner über `SQL_Server_Lab`;
-- `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` auf SQL Server 2019, 2022 und 2025;
+- `QRY-013` und `QRY-004` auf SQL Server 2019, 2022 und 2025;
 - Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden;
 - statische Variantenprüfung für SlideKeys, Custom Shows und Präsentationsmanifest;
 - Windows- oder OS-spezifische Profile nur bei konkreter Demoabhängigkeit;
