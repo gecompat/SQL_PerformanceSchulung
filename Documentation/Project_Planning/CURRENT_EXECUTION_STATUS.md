@@ -110,11 +110,12 @@ Der nächste abhängige ADV-008-Schnitt umfasst:
 1. `QRY-013` – neutraler Client- und Sessionkontext. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_qry013.py`, Runtime-Runner `Tests/Runtime/run_adv008_qry013.py` und Workflow `.github/workflows/adv008-qry013.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus. Die zugehörigen Folien sind unter `ADV-009` als Anzeigepositionen 84 bis 88 in das aktive Deck übernommen.
 2. `QRY-004` – Catch-all, `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_qry004.py`, Runtime-Runner `Tests/Runtime/run_adv008_qry004.py` und Workflow `.github/workflows/adv008-qry004.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus. Die zugehörigen Folien sind unter `ADV-009` als Anzeigepositionen 89 bis 93 in das aktive Deck übernommen.
 3. `ADV-009` – Folienübernahme. Status `IMPLEMENTED_FOR_REVIEW`: Das aktive Deck umfasst 94 Folien, die Prüfsummenfreigabe wurde nach `DEC-057` kontrolliert erneuert, `ADV-CLM-013` bis `ADV-CLM-018` stehen auf `KEEP`. Erzeugung über `Tools/build_adv009_slides.py`, Prüfung über `Tests/Static/validate_adv009_deck_integration.py`, Abnahmestand in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md`. Die fachliche Endabnahme hängt an der Runtime-Abnahme von `QRY-013` und `QRY-004`.
-4. `OPT-009` und `OPT-010` – Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization, bewusst getrennt von `QRY-004`. Beide Schnitte liefern Demo, Folienspezifikation und Deckübernahme gemeinsam; Folienzahl, `SLIDE_COUNT` und die Liste integrierter Claims sind dabei jeweils fortzuschreiben.
-5. Query-Store-/XE-Pilotvalidierung vor diagnoseabhängigen Schnitten.
-6. `OPT-017` und LAB-VP3-/VP4-Implementierungen anschließend in getrennten Paketen.
-7. `DGN-007` erst nach stabiler Query-Store-/XE-Evidenz.
-8. `RES-003` zuletzt und ausschließlich auf dedizierter Infrastruktur.
+4. `OPT-009` – Parameter Sensitive Plan Optimization. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_opt009.py`, Runtime-Runner `Tests/Runtime/run_adv008_opt009.py` und Workflow `.github/workflows/adv008-opt009.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus, wobei 2019 planmäßig mit `SKIP_VERSION` endet. Die zugehörigen Folien sind unter `ADV-010` als Anzeigepositionen 94 bis 97 in das aktive Deck übernommen; `ADV-CLM-019` steht auf `KEEP`. Abnahmestand in `Documentation/Project_Planning/ADV_008_OPT_009_REVIEW.md`.
+5. `OPT-010` – Optional Parameter Plan Optimization, bewusst getrennt von `QRY-004` und `OPT-009`. Der Schnitt liefert Demo, Folienspezifikation und Deckübernahme gemeinsam; Folienzahl, `SLIDE_COUNT` und die Liste integrierter Claims sind dabei fortzuschreiben.
+6. Query-Store-/XE-Pilotvalidierung vor diagnoseabhängigen Schnitten.
+7. `OPT-017` und LAB-VP3-/VP4-Implementierungen anschließend in getrennten Paketen.
+8. `DGN-007` erst nach stabiler Query-Store-/XE-Evidenz.
+9. `RES-003` zuletzt und ausschließlich auf dedizierter Infrastruktur.
 
 ## 9. Parallel ausführbare Querschnittsarbeit
 

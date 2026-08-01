@@ -102,3 +102,5 @@ Dispatcher- und Variantenevidenz stammt aus `sys.dm_exec_cached_plans`, `sys.dm_
 | Demo-ID | `OPT-009` |
 | Testprofil | `TP-RUN`, `TP-PERF` |
 | Folienspezifikation | `Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md` |
+| Folien im aktiven Deck | Anzeigepositionen 94 bis 97 (`SLD-M03-121` bis `SLD-M03-124`) |
+| Abnahmestand | `Documentation/Project_Planning/ADV_008_OPT_009_REVIEW.md` |

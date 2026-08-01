@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Paket | `ADV-010` |
-| Status | `SPECIFIED` |
+| Status | `INTEGRATED` |
 | Deckpositionen | 94 bis 97 (Folienteile `slide95.xml` bis `slide98.xml`) |
 | Modul | M03 – Optimizer, Statistiken und Pläne |
 | Lernziel | `LO-M03-08` |
@@ -38,7 +38,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich d
 - Ein Querytext besitzt ohne Parametersensitivität genau eine zwischengespeicherte Planform.
 - Der zuerst kompilierte Wert prägt diese Planform für alle weiteren Werte.
 - Ein selektiver Erstwert benachteiligt den dominanten Wert; ein dominanter Erstwert benachteiligt den selektiven.
-- Die Wahl des „richtigen" Erstwerts verschiebt den Schaden, sie behebt ihn nicht.
+- Die Wahl des „richtigen“ Erstwerts verschiebt den Schaden, sie behebt ihn nicht.
 
 **Sprechernotiz**
 
@@ -99,11 +99,13 @@ Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich d
 
 ## 7. Abnahmekriterien für die Deckübernahme
 
-1. Jede Folie trägt im Notizfeld den unveränderten Marker `[SLIDE-ID: SLD-M03-12x]`.
-2. Der Claim `ADV-CLM-019` ist in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` von `PLANNED` auf `KEEP` gesetzt und trägt aktive Foliennummern.
-3. Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wird im selben Schnitt kontrolliert erneuert.
-4. `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID und Evidenzklasse.
-5. Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `OPT-009` auf SQL Server 2019, 2022 und 2025 voraus.
+1. **Erfüllt.** Jede Folie trägt im Notizfeld den unveränderten Marker `[SLIDE-ID: SLD-M03-12x]`; geprüft durch `Tests/Static/validate_adv010_deck_integration.py`.
+2. **Erfüllt.** Der Claim `ADV-CLM-019` steht in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` auf `KEEP` und trägt die aktiven Foliennummern 95, 96 und 97.
+3. **Erfüllt.** Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wurde im selben Schnitt kontrolliert auf `651d533596f30f77db2fdd04c9dd3296306884c5a721ecf3de2f2b6fd536b2b4` erneuert.
+4. **Erfüllt.** `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID, Anzeigeposition, Folienteil und Evidenzklasse.
+5. **Offen.** Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `OPT-009` auf SQL Server 2019, 2022 und 2025 voraus. Ebenfalls offen ist die visuelle Renderprüfung der vier Folien in PowerPoint.
+
+Die Übernahme erfolgte additiv über `Tools/build_adv010_slides.py`. Bestehende Folienteile, Anzeigepositionen und Foliennummern der Basisfolien und des Blocks `ADV-009` bleiben unverändert; geändert wurde ausschließlich der Nenner der Fussnotenpaginierung von 94 auf 98.
 
 ## 8. Quellenübersicht
 
