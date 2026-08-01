@@ -118,6 +118,7 @@ jobs:
           set -uo pipefail
           chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
           python Tests/Runtime/run_gate_b_pilots.py \
+            --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
             2>&1 | tee "${RUNNER_TEMP}/gate-b-${{ matrix.major }}.log"
