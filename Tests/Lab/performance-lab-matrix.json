@@ -173,6 +173,20 @@
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
       "expectedOutcomes": ["PASS", "WARN", "SKIP"],
       "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-010",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"],
+      "defaultRepetitions": 2
     }
   ]
 }

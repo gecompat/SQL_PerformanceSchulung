@@ -6,13 +6,13 @@
 | Status | `VALIDATED` |
 | Prüfdatum | 2026-07-24 |
 | Aktiver Foliensatz | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
-| SHA-256 | `651d533596f30f77db2fdd04c9dd3296306884c5a721ecf3de2f2b6fd536b2b4` |
-| Folienumfang | 94 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`) |
+| SHA-256 | `e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141` |
+| Folienumfang | 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 aus `ADV-010` und `ADV-011`) |
 | Betroffene Claims | `CLM-032`, `CLM-034`, `CLM-042`, `CLM-043` |
 
 ## 0. Nachtrag zur Hashfortschreibung
 
-Der oben eingetragene SHA-256-Wert ist nicht mehr der Wert des Prüfstands vom 2026-07-24 (`3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18`). Unter `ADV-009` wurden dem Deck zehn additive Vertiefungsfolien hinzugefügt; dabei wurde der freigegebene Hashwert kontrolliert erneuert. Die vier hier abgenommenen Präzisierungen auf den Folien 32, 34, 42 und 43 sind davon unberührt: Ihre Folienteile, Texte und Notes sind unverändert und werden weiterhin durch `Tests/Static/validate_w2_007_presentation.py` geprüft. Die einzige Änderung an bestehenden Folien ist der Nenner der Fußzeilenpaginierung (`n / 84` wird zu `n / 94`). Einzelheiten stehen im [ADV-009-Review](ADV_009_DECK_INTEGRATION_REVIEW.md).
+Der oben eingetragene SHA-256-Wert ist nicht mehr der Wert des Prüfstands vom 2026-07-24 (`3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18`). Unter `ADV-009`, `ADV-010` und `ADV-011` wurden dem Deck nacheinander zehn, vier und nochmals vier additive Vertiefungsfolien hinzugefügt; dabei wurde der freigegebene Hashwert jedes Mal kontrolliert erneuert. Die vier hier abgenommenen Präzisierungen auf den Folien 32, 34, 42 und 43 sind davon unberührt: Ihre Folienteile, Texte und Notes sind unverändert und werden weiterhin durch `Tests/Static/validate_w2_007_presentation.py` geprüft. Die einzige Änderung an bestehenden Folien ist der Nenner der Fußzeilenpaginierung (`n / 84` wurde über `n / 94` und `n / 98` zu `n / 102`). Einzelheiten stehen im [ADV-009-Review](ADV_009_DECK_INTEGRATION_REVIEW.md), im [ADV-008/OPT-009-Review](ADV_008_OPT_009_REVIEW.md) und im [ADV-008/OPT-010-Review](ADV_008_OPT_010_REVIEW.md).
 
 ## 1. Ziel und Abgrenzung
 
