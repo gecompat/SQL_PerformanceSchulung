@@ -31,7 +31,7 @@ Der Aufbau nennt bewusst kein Produkt und keinen Treiber. Er zeigt, dass ein abw
 
 ## 3. Warum die Präsentation nicht direkt geändert wurde
 
-Das aktive Deck ist in `Tests/Static/validate_privacy_metadata.py` über `APPROVED_ACTIVE_DECK` per SHA-256 freigegeben. Jede Bearbeitung der `.pptx` entwertet diese Freigabe und schaltet den Datenschutzprüfer rot. Die Erweiterung wird deshalb als Spezifikationsschicht geliefert (`DEC-053`). Die Ansprüche `ADV-CLM-013` bis `ADV-CLM-016` bleiben bis zur Deckübernahme auf `PLANNED`; die Zählwerte in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` bleiben unverändert.
+Das aktive Deck ist in `Tests/Static/validate_privacy_metadata.py` über `APPROVED_ACTIVE_DECK` per SHA-256 freigegeben. Die Erweiterung entstand deshalb zuerst als Spezifikationsschicht (`DEC-053`). Nach der ausdrücklichen Freigabe des Auftraggebers wurden die Folien unter `DEC-057` additiv in das Deck übernommen; der freigegebene Prüfsummenwert wurde im selben Schnitt kontrolliert erneuert. Die Ansprüche `ADV-CLM-013` bis `ADV-CLM-016` stehen seither auf `KEEP` und tragen die Anzeigepositionen 84 bis 88; die Zählwerte in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` sind entsprechend fortgeschrieben. Der Vorgang ist in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md` dokumentiert.
 
 ## 4. Umgesetzte Artefakte
 
@@ -65,12 +65,12 @@ Die Demo setzt keinen instanzweiten Cache zurück. Die Planentwertung erfolgt ob
 | Negativprüfung des neuen Prüfers | erfüllt für abweichendes Sessionprofil, nicht idempotenten Cleanup und fehlende Foliensprechnotiz-Marke |
 | Katalog-, Inventar- und Labmatrixeintrag | erfüllt |
 | Runtime-Abnahme 2019/2022/2025, je zwei Läufe | offen |
-| Deckübernahme der fünf Folien und Erneuerung der Freigabeprüfsumme | offen, freigabepflichtig |
+| Deckübernahme der fünf Folien und Erneuerung der Freigabeprüfsumme | erfüllt unter `ADV-009` und `DEC-057` |
 
 Der Status bleibt `IMPLEMENTED`, bis der Runtime-Nachweis auf `github-hosted` vorliegt. Nach `DEC-047` entsteht Gate-Evidenz ausschließlich dort.
 
 ## 7. Offene Punkte
 
 1. Runtime-Abnahme von `QRY-013` über den Workflow `adv008-qry013.yml`; danach Statuswechsel auf `VALIDATED` in Demo-Katalog, Labmatrix und Inventar.
-2. Deckübernahme der Folien `SLD-M03-101` bis `SLD-M03-105` nach den fünf Abnahmekriterien in Abschnitt 8 der Folienspezifikation; erst danach wechseln die vier Ansprüche von `PLANNED` auf einen aktiven Folienbezug.
+2. Die Deckübernahme der Folien `SLD-M03-101` bis `SLD-M03-105` ist erfolgt; die vier Ansprüche `ADV-CLM-013` bis `ADV-CLM-016` tragen die Anzeigepositionen 84 bis 88 und die Entscheidung `KEEP`. Der Vorgang ist in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md` dokumentiert; die fachliche Endabnahme der Folien hängt an der Runtime-Abnahme aus Punkt 1.
 3. Der nächste ADV-008-Schnitt bleibt `QRY-004_CLASSIC_AND_DYNAMIC`.

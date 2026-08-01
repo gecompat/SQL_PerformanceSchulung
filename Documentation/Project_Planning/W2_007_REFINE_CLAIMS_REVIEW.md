@@ -6,13 +6,17 @@
 | Status | `VALIDATED` |
 | Prüfdatum | 2026-07-24 |
 | Aktiver Foliensatz | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
-| SHA-256 | `3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18` |
-| Folienumfang | 84 |
+| SHA-256 | `8f8ccd9ffce73cf4c09220de27e74303644642c31a4204f1921648cba86ac4e6` |
+| Folienumfang | 94 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`) |
 | Betroffene Claims | `CLM-032`, `CLM-034`, `CLM-042`, `CLM-043` |
+
+## 0. Nachtrag zur Hashfortschreibung
+
+Der oben eingetragene SHA-256-Wert ist nicht mehr der Wert des Prüfstands vom 2026-07-24 (`3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18`). Unter `ADV-009` wurden dem Deck zehn additive Vertiefungsfolien hinzugefügt; dabei wurde der freigegebene Hashwert kontrolliert erneuert. Die vier hier abgenommenen Präzisierungen auf den Folien 32, 34, 42 und 43 sind davon unberührt: Ihre Folienteile, Texte und Notes sind unverändert und werden weiterhin durch `Tests/Static/validate_w2_007_presentation.py` geprüft. Die einzige Änderung an bestehenden Folien ist der Nenner der Fußzeilenpaginierung (`n / 84` wird zu `n / 94`). Einzelheiten stehen im [ADV-009-Review](ADV_009_DECK_INTEGRATION_REVIEW.md).
 
 ## 1. Ziel und Abgrenzung
 
-`W2-007` schließt die vier in der kritischen Aussagenprüfung verbliebenen `REFINE`-Entscheidungen. Geändert wurden ausschließlich sichtbarer Text, Tabelleninhalte und Speaker Notes der Folien 32, 34, 42 und 43 sowie die dazugehörigen Steuerungsdokumente. Layoutsystem, Folienreihenfolge, Brandingstatus und die übrigen 80 Claims bleiben unverändert.
+`W2-007` schließt die vier in der kritischen Aussagenprüfung verbliebenen `REFINE`-Entscheidungen. Geändert wurden ausschließlich sichtbarer Text, Tabelleninhalte und Speaker Notes der Folien 32, 34, 42 und 43 sowie die dazugehörigen Steuerungsdokumente. Layoutsystem, Folienreihenfolge, Brandingstatus und die übrigen 80 Claims blieben in diesem Arbeitspaket unverändert; die spätere additive Erweiterung erfolgt getrennt unter `ADV-009`.
 
 Die Abnahme bestätigt fachliche Präzision und Präsentationskonsistenz. Sie ersetzt keine noch nicht implementierte Runtime-Demo für `OPT-007`, `QRY-008` oder `QRY-009`. Die Notes der Folie 42 dürfen auf die bereits validierte `OPT-013`-Evidenz verweisen, ohne daraus eine allgemeine Produktgarantie abzuleiten.
 
