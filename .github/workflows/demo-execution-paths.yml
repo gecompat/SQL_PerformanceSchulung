@@ -1,0 +1,49 @@
+name: Demo execution paths
+
+on:
+  pull_request:
+    paths:
+      - 'Documentation/Demo_Catalog/**'
+      - 'Documentation/Inventories/performance_scenario_inventory.json'
+      - 'Demos/**/manifest.json'
+      - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Tests/Static/validate_demo_execution_paths.py'
+      - '.github/workflows/demo-execution-paths.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'Documentation/Demo_Catalog/**'
+      - 'Documentation/Inventories/performance_scenario_inventory.json'
+      - 'Demos/**/manifest.json'
+      - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Tests/Static/validate_demo_execution_paths.py'
+      - '.github/workflows/demo-execution-paths.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-execution-paths-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static execution path catalogue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Validate demo execution paths
+        run: python Tests/Static/validate_demo_execution_paths.py
+
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .
