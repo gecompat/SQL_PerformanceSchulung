@@ -38,6 +38,7 @@ DEMO_RUNNERS = {
     "run_adv008_opt015_opt016.py": "ADV008_SUMMARY",
     "run_adv008_qry013.py": "QRY013_SUMMARY",
     "run_adv008_qry004.py": "QRY004_SUMMARY",
+    "run_adv008_opt009.py": "OPT009_SUMMARY",
 }
 
 REQUIRED_RUNNER_OPTIONS = (
@@ -87,6 +88,7 @@ RUNTIME_WORKFLOWS = (
     "adv008-opt015-opt016.yml",
     "adv008-qry013.yml",
     "adv008-qry004.yml",
+    "adv008-opt009.yml",
 )
 
 PASSWORD_ARGUMENT = re.compile(r"[\"']-P[\"']|--password")

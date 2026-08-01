@@ -7,10 +7,10 @@
 | Stand | 2026-07-26 |
 | Aktiver Foliensatz | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
 | Aktive Folien | 84 |
-| Vertiefungsfolien im Deck | 10 |
+| Vertiefungsfolien im Deck | 14 |
 | Beobachtbare Lernziele | 52 |
 | Geplante Vertiefungsclaims | 39 |
-| Davon aktiv im Deck | 6 |
+| Davon aktiv im Deck | 7 |
 | Aussagenbasis | [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md) und [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
 | Nachverfolgbarkeit | [Traceability-Matrix](TRACEABILITY_MATRIX.md) |
 
