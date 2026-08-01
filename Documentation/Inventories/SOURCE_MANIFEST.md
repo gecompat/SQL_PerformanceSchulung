@@ -19,7 +19,7 @@ Die ursprünglichen, nicht neutralisierten Uploads sind keine Repository-Quellen
 | ID | Repository-Pfad | Typ | Umfang | SHA-256 | Git-Blob | Herkunftsklasse | Privacy-Status | Importentscheidung |
 |---|---|---|---:|---|---|---|---|---|
 | `SRC-ARCHIVE-001` | `Presentations/old/Performance Grundlagen V-2024.zip` | ZIP | 16.742.690 Byte; 30 Dateien | `78e3d1d708758d1115a066eca1df2c66d6f26ba57903b764c98e901506892041` | `f38de84504679595ef2068d21a42f62aa78f7727` | neutralisierter Altbestand | `PASS` | nur als Referenzarchiv; keine direkte Ausführung |
-| `SRC-DECK-001` | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` | PPTX | 84 Folien | `3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18` | `48e479c56691c6fb5b91818e59ab7c05bb18dbed` | neutraler Neuaufbau | `PASS` | aktive Präsentationsbasis; 84 Claims durch `W2-007` als `KEEP` validiert |
+| `SRC-DECK-001` | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` | PPTX | 94 Folien | `8f8ccd9ffce73cf4c09220de27e74303644642c31a4204f1921648cba86ac4e6` | `994eba18625605a491f1082b297d13d55e4410a2` | neutraler Neuaufbau | `PASS` | aktive Präsentationsbasis; 84 Claims durch `W2-007` als `KEEP` validiert, 10 Vertiefungsfolien durch `ADV-009` ergänzt |
 
 ## 3. Inhaltsübersicht des Referenzarchivs
 
@@ -81,5 +81,5 @@ Die W2-001-Entscheidungen sind Migrationsentscheidungen, keine Runtime-Freigabe 
 - Die 23 SQL-/TXT-Einträge wurden durch `W2-001` inhaltlich geprüft und maschinenlesbar klassifiziert.
 - Der Validator liest das verschachtelte ZIP direkt und gleicht jeden Archivpfad, Byteumfang und SHA-256-Wert ab.
 - Das Referenzarchiv enthält 30 Dateien: 5 PPTX, 2 DOCX, 19 SQL und 4 TXT.
-- Der aktive Foliensatz enthält 84 Folien und keine eingebetteten Medien.
+- Der aktive Foliensatz enthält 94 Folien und keine eingebetteten Medien: 84 Basisfolien aus `W2-007` und 10 additive Vertiefungsfolien aus `ADV-009`.
 - Nicht neutralisierte Originaluploads sind nicht als zulässige Projektquelle eingetragen.

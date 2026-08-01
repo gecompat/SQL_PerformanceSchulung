@@ -35,6 +35,17 @@ CLAIM_TO_LO = {
     **{f"ADV-CLM-{number:03d}": "LO-M07-04" for number in range(38, 40)},
 }
 
+# Durch ADV-009 in das aktive Deck uebernommene Vertiefungsclaims mit ihren
+# Anzeigepositionen. Alle uebrigen ADV-Claims bleiben ohne aktive Folie.
+INTEGRATED_CLAIMS = {
+    "ADV-CLM-013": "85, 88",
+    "ADV-CLM-014": "84, 88",
+    "ADV-CLM-015": "86, 88",
+    "ADV-CLM-016": "87, 88",
+    "ADV-CLM-017": "90, 93",
+    "ADV-CLM-018": "91, 92, 93",
+}
+
 
 def read(path: Path) -> str:
     if not path.is_file():
@@ -56,6 +67,8 @@ def main() -> int:
         "| Arbeitspakete | `CUR-001`, `CUR-002`, `CUR-003`, `CUR-004`, `CUR-009`, `CUR-010`, `ADV-003` |",
         "| Beobachtbare Lernziele | 52 |",
         "| Geplante Vertiefungsclaims | 39 |",
+        "| Davon aktiv im Deck | 6 |",
+        "| Vertiefungsfolien im Deck | 10 |",
         "`ADV-003` ergänzt neun beobachtbare Vertiefungslernziele",
     ):
         if fragment not in curriculum:
@@ -97,14 +110,23 @@ def main() -> int:
         cells = trace_rows.get(claim)
         if not cells:
             continue
-        if cells[1] != "–":
-            findings.append(f"{claim} must not claim an active slide before ADV-009/PRS-012")
+        expected_slides = INTEGRATED_CLAIMS.get(claim)
+        if expected_slides is None:
+            if cells[1] != "–":
+                findings.append(f"{claim} must not claim an active slide before ADV-009/PRS-012")
+            if cells[8] != "PLANNED":
+                findings.append(f"{claim} must remain PLANNED before implementation")
+        else:
+            if cells[1] != expected_slides:
+                findings.append(
+                    f"{claim} must reference deck slides {expected_slides}, found {cells[1]}"
+                )
+            if cells[8] != "KEEP":
+                findings.append(f"{claim} must be KEEP after deck integration")
         if cells[3] != f"`{expected_lo}`":
             findings.append(f"{claim} maps to {cells[3]} instead of {expected_lo}")
         if cells[4] != "VERTIEFUNG":
             findings.append(f"{claim} must remain VERTIEFUNG")
-        if cells[8] != "PLANNED":
-            findings.append(f"{claim} must remain PLANNED before implementation")
 
     active_claims = re.findall(r"^\| `(CLM-\d{3})` \|", traceability, flags=re.MULTILINE)
     if active_claims != [f"CLM-{number:03d}" for number in range(1, 85)]:
@@ -114,6 +136,8 @@ def main() -> int:
         "| Arbeitspakete | `CUR-005`, `ADV-003` |",
         "| Aktive Claims/Folien | 84 |",
         "| Geplante Vertiefungsclaims | 39 |",
+        "| Davon aktiv im Deck | 6 |",
+        "| Vertiefungsfolien im Deck | 10 |",
         "| Beobachtbare Lernziele | 52 |",
         "| `TP-CAPSTONE` |",
     ):
@@ -126,7 +150,10 @@ def main() -> int:
             print(f"- {finding}")
         return 1
 
-    print("adv-003-curriculum: PASS (84 active claims; 39 planned claims; 52 learning objectives)")
+    print(
+        "adv-003-curriculum: PASS (84 active claims; 39 planned claims, "
+        f"{len(INTEGRATED_CLAIMS)} integrated; 52 learning objectives)"
+    )
     return 0
 
 

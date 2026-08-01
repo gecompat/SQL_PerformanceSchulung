@@ -7,6 +7,8 @@
 | Stand | 2026-07-26 |
 | Aktive Claims/Folien | 84 |
 | Geplante Vertiefungsclaims | 39 |
+| Davon aktiv im Deck | 6 |
+| Vertiefungsfolien im Deck | 10 |
 | Beobachtbare Lernziele | 52 |
 | Aktive Quellen-IDs | 57 |
 | Aktive Folien mit Demo-Zuordnung | 47 |
@@ -17,7 +19,7 @@
 
 Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → Folie beziehungsweise geplante Lehrposition → Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung des aktiven 84-Folien-Satzes stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die fachliche Basis der geplanten Vertiefung steht in der [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md).
 
-Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Die 39 `ADV-CLM-*`-Claims besitzen noch keine aktive Folie. Ihre SlideKeys, Folienpositionen und Variantenprofile werden erst durch `ADV-009` und `PRS-012` festgelegt.
+Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Von den 39 `ADV-CLM-*`-Claims sind sechs (`ADV-CLM-013` bis `ADV-CLM-018`) durch `ADV-009` als Vertiefungsfolien 84 bis 93 in das aktive Deck übernommen und tragen deshalb eine Foliennummer sowie die Entscheidung `KEEP`. Die übrigen 33 Claims besitzen weiterhin keine aktive Folie; ihre SlideKeys, Folienpositionen und Variantenprofile werden durch die folgenden `ADV-009`- und `PRS-012`-Schnitte festgelegt.
 
 ## 2. Testprofile
 
@@ -117,7 +119,7 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Di
 | `CLM-081` | 81 | Diagnoseprinzipien zu Arbeitsmethode verdichten | `LO-M07-01` | KERN | `SRC-027`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-082` | 82 | nächste Messung aus fehlender Evidenz ableiten | `LO-M07-02` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-083` | 83 | Quelle, Version und Empirie getrennt verfolgen | `LO-M07-03` | KERN | `SRC-007`, `SRC-028` | – | `TP-DOC` | KEEP |
-| `CLM-084` | 84 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
+| `CLM-084` | 94 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
 
 ## 4. Geplante Vertiefung nach ADV-003
 
@@ -135,12 +137,12 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Di
 | `ADV-CLM-010` | – | Row Goal kann Planentscheidungen beeinflussen, ist aber kein Ursachenbeweis | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041`, `SRC-042` | `OPT-011`, `OPT-012`, `OPT-016` | `TP-PERF` | PLANNED |
 | `ADV-CLM-011` | – | Semi-/Anti-Joins sind logische Existenzformen mit variabler physischer Umsetzung | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041` | `QRY-006`, `OPT-012` | `TP-RUN` | PLANNED |
 | `ADV-CLM-012` | – | Row-Goal-Deaktivierung ist nur kontrollierte Gegenprobe | `LO-M02-10` | VERTIEFUNG | `SRC-041` | `OPT-011` | `TP-RUN` | PLANNED |
-| `ADV-CLM-013` | – | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge erzeugen | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-040`, `SRC-046` | `OPT-007`, `QRY-013` | `TP-RUN` | PLANNED |
-| `ADV-CLM-014` | – | Anwendung/SSMS-Differenz erfordert mehrdimensionale Kontextdiagnose | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-027`, `SRC-046` | `QRY-013` | `TP-RUN` | PLANNED |
-| `ADV-CLM-015` | – | Parameter Sensitivity folgt Planwiederverwendung bei unterschiedlicher Verteilung | `LO-M03-07` | VERTIEFUNG | `SRC-007`, `SRC-047` | `OPT-008` | `TP-RUN` | PLANNED |
-| `ADV-CLM-016` | – | Parameter, Variablen, Literale und Recompile liefern unterschiedliche Optimiererinformation | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-007`, `SRC-045`, `SRC-046` | `QRY-004`, `OPT-008` | `TP-RUN` | PLANNED |
-| `ADV-CLM-017` | – | Recompile tauscht Wiederverwendung gegen Compilearbeit und laufzeitnahe Information | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-PERF` | PLANNED |
-| `ADV-CLM-018` | – | Dynamisches SQL muss sicher parameterisiert und auf Wiederverwendung geprüft werden | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-RUN` | PLANNED |
+| `ADV-CLM-013` | 85, 88 | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge erzeugen | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-040`, `SRC-046` | `OPT-007`, `QRY-013` | `TP-RUN` | KEEP |
+| `ADV-CLM-014` | 84, 88 | Anwendung/SSMS-Differenz erfordert mehrdimensionale Kontextdiagnose | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-027`, `SRC-046` | `QRY-013` | `TP-RUN` | KEEP |
+| `ADV-CLM-015` | 86, 88 | Parameter Sensitivity folgt Planwiederverwendung bei unterschiedlicher Verteilung | `LO-M03-07` | VERTIEFUNG | `SRC-007`, `SRC-047` | `OPT-008` | `TP-RUN` | KEEP |
+| `ADV-CLM-016` | 87, 88 | Parameter, Variablen, Literale und Recompile liefern unterschiedliche Optimiererinformation | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-007`, `SRC-045`, `SRC-046` | `QRY-004`, `OPT-008` | `TP-RUN` | KEEP |
+| `ADV-CLM-017` | 90, 93 | Recompile tauscht Wiederverwendung gegen Compilearbeit und laufzeitnahe Information | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-PERF` | KEEP |
+| `ADV-CLM-018` | 91, 92, 93 | Dynamisches SQL muss sicher parameterisiert und auf Wiederverwendung geprüft werden | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-RUN` | KEEP |
 | `ADV-CLM-019` | – | PSP benötigt Eligibility und nachgewiesene Query Variants | `LO-M03-08` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-048` | `OPT-009` | `TP-RUN` | PLANNED |
 | `ADV-CLM-020` | – | OPPO benötigt SQL Server 2025, CL 170 und geeignete optionale Prädikate | `LO-M03-08` | VERTIEFUNG | `SRC-026`, `SRC-049` | `OPT-010`, `QRY-004` | `TP-RUN` | PLANNED |
 | `ADV-CLM-021` | – | Query Execution Memory besitzt getrennte Anforderungs- und Nutzungsstufen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
