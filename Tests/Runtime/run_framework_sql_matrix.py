@@ -13,6 +13,14 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 FRAMEWORK = ROOT / "Demos" / "00_Framework"
+RUNTIME = ROOT / "Tests" / "Runtime"
+
+if str(RUNTIME) not in sys.path:
+    sys.path.insert(0, str(RUNTIME))
+
+import execution_target  # noqa: E402
+from execution_target import ExecutionTargetError  # noqa: E402
+
 SUMMARY_PATTERN = re.compile(
     r"(?:^SQLPERF_SUMMARY|(?:^|\n)\s*\d+\|[^|\r\n]*\|SUMMARY)\|"
     r"(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)",
@@ -20,35 +28,12 @@ SUMMARY_PATTERN = re.compile(
 )
 
 
-class MatrixFailure(RuntimeError):
+class MatrixFailure(ExecutionTargetError):
     pass
 
 
 def _container_sqlcmd(container: str) -> str:
-    result = subprocess.run(
-        [
-            "docker",
-            "exec",
-            container,
-            "sh",
-            "-lc",
-            (
-                "if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then "
-                "printf /opt/mssql-tools18/bin/sqlcmd; "
-                "elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then "
-                "printf /opt/mssql-tools/bin/sqlcmd; "
-                "else exit 127; fi"
-            ),
-        ],
-        check=False,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
-    if result.returncode != 0:
-        raise MatrixFailure("sqlcmd not found inside container")
-    return result.stdout.strip()
+    return execution_target.container_sqlcmd(container)
 
 
 def _run_sql(
@@ -59,49 +44,15 @@ def _run_sql(
     sql_text: str,
     timeout_seconds: int = 120,
 ) -> str:
-    command = [
-        "docker",
-        "exec",
-        "-i",
-        "-e",
-        "SQLCMDPASSWORD",
-        container,
-        sqlcmd_path,
-        "-S",
-        "localhost",
-        "-d",
-        database,
-        "-U",
-        "sa",
-        "-C",
-        "-b",
-        "-r",
-        "1",
-        "-W",
-        "-s",
-        "|",
-        "-h",
-        "-1",
-        "-w",
-        "65535",
-    ]
-    result = subprocess.run(
-        command,
-        input=sql_text,
-        check=False,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=timeout_seconds,
-        env=os.environ.copy(),
+    return execution_target.run_sql(
+        execution_target.docker_target(
+            container=container,
+            sqlcmd_path=sqlcmd_path,
+        ),
+        database=database,
+        sql_text=sql_text,
+        timeout_seconds=timeout_seconds,
     )
-    if result.returncode != 0:
-        diagnostic = (result.stderr or result.stdout).strip()
-        raise MatrixFailure(
-            f"sqlcmd failed in database {database}: {diagnostic[-2000:]}"
-        )
-    return result.stdout
 
 
 def _replace_declarations(text: str, replacements: dict[str, str]) -> str:
@@ -219,19 +170,13 @@ def _verify_engine(
     sqlcmd_path: str,
     expected_major: int,
 ) -> None:
-    output = _run_sql(
-        container=container,
-        sqlcmd_path=sqlcmd_path,
-        database="master",
-        sql_text=(
-            "SELECT CONVERT(int, SERVERPROPERTY('ProductMajorVersion')), "
-            "CONVERT(int, SERVERPROPERTY('EngineEdition'));"
+    execution_target.verify_engine(
+        execution_target.docker_target(
+            container=container,
+            sqlcmd_path=sqlcmd_path,
         ),
+        expected_major=expected_major,
     )
-    if not re.search(rf"(?m)^{expected_major}\|[234]\s*$", output):
-        raise MatrixFailure(
-            f"engine identity mismatch; expected major {expected_major}"
-        )
 
 
 def _test_qry_database(
@@ -646,7 +591,7 @@ def main() -> int:
             f"SQLPERF_MATRIX_SUMMARY|PASS|SQL{args.expected_major}|"
             f"CL{args.compatibility_level}"
         )
-    except (MatrixFailure, subprocess.TimeoutExpired) as exc:
+    except (ExecutionTargetError, subprocess.TimeoutExpired) as exc:
         exit_code = 1
         print(
             f"SQLPERF_MATRIX_SUMMARY|FAIL|SQL{args.expected_major}|"

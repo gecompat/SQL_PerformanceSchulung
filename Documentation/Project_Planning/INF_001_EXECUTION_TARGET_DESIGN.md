@@ -71,10 +71,30 @@ Die Anforderungen an den Runner werden getrennt in `Documentation/Architecture/R
 
 Nicht Bestandteil von `INF-001` sind die Bündel `INF-002` bis `INF-006`, Änderungen an `SQL_Server_Lab`, die Umsetzung von `LABSCN-003` sowie die fachlichen `ADV-008`-Schnitte.
 
-## 8. Folgearbeiten
+Die Framework-Matrix `Tests/Runtime/run_framework_sql_matrix.py` bleibt an das Ziel `docker` gebunden (DEC-050). Sie schaltet Query Store und Extended Events auf Serverebene und setzt drei Hauptversionen nebeneinander voraus. Beides ist auf einer vorhandenen Instanz kein zumutbarer Eingriff. Die Matrix nutzt jedoch dieselben Primitive wie die Demo-Runner, sodass es nur eine Implementierung des Containerpfads gibt.
 
-1. Ausführungsziel in den Runtime-Runnern auswählbar machen und die Containerbindung in ein eigenes Modul ziehen.
-2. Python-Shims plattformunabhängig starten.
+## 8. Schnittstelle der Runtime-Runner
+
+`Tests/Runtime/execution_target.py` beschreibt ein Ausführungsziel und liefert die Bausteine, mit denen ein Runner es anspricht:
+
+| Bestandteil | Bedeutung |
+| --- | --- |
+| `docker_target(container=…)` | Wegwerfbare Container-Instanz; Shim ist `docker_sqlcmd_proxy.py`. |
+| `host_target(server=…, username=…)` | Vorhandene Instanz; Shim ist `host_sqlcmd_target.py`. Ohne Anmeldenamen wird Windows-Authentifizierung verwendet. |
+| `run_sql(target, database=…, sql_text=…)` | Führt T-SQL gegen das Ziel aus. |
+| `verify_engine(target, expected_major=…)` | Prüft die Engine-Identität und liefert die erkannte Hauptversion. Ohne Erwartungswert wird sie ausgelesen. |
+| `require_disposable_instance(target, confirmed)` | Erzwingt beim Ziel `host` die ausdrückliche Bestätigung einer Wegwerfinstanz (DEC-051). |
+| `redact(text)` | Entfernt das Kennwort aus Diagnosetext. |
+
+Die Demo-Runner `run_gate_b_pilots.py` und `run_adv008_opt015_opt016.py` wählen das Ziel über `--target {docker,host}`. Für `docker` ist `--container` erforderlich, für `host` `--server`, `--username` und `--confirm-disposable-instance`. Die Zusammenfassungszeilen behalten Präfix und Feldfolge und führen das Ziel als zusätzliches Feld `target=` mit.
+
+Kennwörter werden ausschließlich über `SQLCMDPASSWORD` übergeben. Das Vertrauen in ein selbstsigniertes Serverzertifikat ist beim Ziel `host` nicht voreingestellt und wird über `SQLPERF_HOST_TRUST_SERVER_CERTIFICATE=1` einzeln freigegeben.
+
+## 9. Folgearbeiten
+
+1. ~~Ausführungsziel in den Runtime-Runnern auswählbar machen und die Containerbindung in ein eigenes Modul ziehen.~~ Erledigt.
+2. ~~Python-Shims plattformunabhängig starten.~~ Erledigt.
 3. Testumgebungs-How-to nach dem Pflichtinhalt aus Abschnitt 13.4 des Masterplans erstellen.
 4. Runner-Topologie und Anforderungen an `Key18_Perf` dokumentieren.
 5. Statische Prüfung des Ausführungspfads ergänzen.
+6. Nachweis eines vollständigen Laufs gegen das Ziel `host` erbringen. Dafür wird eine Wegwerfinstanz mit Anmeldedaten benötigt.
