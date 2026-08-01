@@ -23,9 +23,26 @@ python3 Tests/Static/test_privacy_metadata_scanner.py
 python3 Tests/Static/validate_privacy_metadata.py .
 ```
 
-`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Eine geplante Claim-Zuordnung gilt nicht als Runtime- oder Folienfreigabe.
+`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sechs Claims sind durch `ADV-009` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 33 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
 
 `validate_privacy_metadata.py` ist ein User-defined Tool auf Basis der Python-Standardbibliothek. Es prüft Textdateien, Office-Pakete, ZIP-Archive und Medien-Gates. Findings werden ausschließlich als Repository-Pfad, Kategorie und Anzahl ausgegeben; der gefundene Wert erscheint weder im Log noch im kurzlebigen Diagnoseartefakt. Medien, PDFs und andere visuell zu prüfende Binärartefakte werden blockierend gekennzeichnet, sofern kein unveränderter hashgebundener Freigabenachweis vorliegt. Der Scanner ersetzt keine visuelle Einzelprüfung, kein OCR und keinen Rendervergleich.
+
+## ADV-009 – Vertiefungsfolien im aktiven Deck
+
+Der Workflow `.github/workflows/adv009-deck-integration.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python3 Tests/Static/validate_adv009_deck_integration.py
+python3 Tests/Static/validate_adv_003_curriculum.py
+python3 Tests/Static/validate_privacy_metadata.py .
+python3 Tools/build_adv009_slides.py --check
+```
+
+`validate_adv009_deck_integration.py` prüft das Deckarchiv auf Lesbarkeit, die Anzeigereihenfolge gegen `p:sldIdLst`, je Vertiefungsfolie das Modullabel, genau einen Leitabsatz, genau vier Aufzählungsabsätze und die zutreffende Fußzeilenpaginierung, je Notizfolie den unveränderten Folienmarker samt Kennzeichnungs- und Tiefenzeile, die unveränderte Position der 83 Basisfolien und der Schlussfolie sowie die Übereinstimmung von Folien- und Aussagenregister, Traceability-Matrix, Quellenmanifest, Datenschutzfreigabe und beiden Folienspezifikationen.
+
+Die Prüfung bestätigt Zuordnung und Struktur, nicht Layoutqualität, Lesbarkeit im Vortrag oder fachliche Richtigkeit der Aussagen. Die fachliche Abnahme der Folien 84 bis 93 setzt zusätzlich die Runtime-Abnahme von `QRY-013` und `QRY-004` voraus.
+
+`build_adv009_slides.py --check` bestätigt, dass das Deck bereits erweitert ist und ein erneuter Lauf keine zweite Einfügung erzeugt.
 
 ## Vertiefungs-LAB-Designverträge
 

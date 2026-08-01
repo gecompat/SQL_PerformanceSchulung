@@ -61,5 +61,5 @@ Der neue Prüfer wurde negativ getestet. Fünf gezielte Mutationen wurden jeweil
 ## 6. Offene Punkte
 
 1. Die Runtime-Abnahme über SQL Server 2019, 2022 und 2025 steht aus; sie läuft ausschließlich auf GitHub-gehosteten Runnern. Der Status bleibt bis dahin `IMPLEMENTED`, nicht `VALIDATED`.
-2. Die Übernahme der fünf Folien in das freigabegebundene Deck ist ein getrennter Schritt nach `DEC-053`. Bis dahin bleiben `ADV-CLM-017` und `ADV-CLM-018` auf `PLANNED` und ohne aktive Folie.
+2. Die Übernahme der fünf Folien in das Deck ist nach `DEC-057` erfolgt und in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md` dokumentiert. `ADV-CLM-017` und `ADV-CLM-018` stehen auf `KEEP` und tragen die Anzeigepositionen 90 bis 93.
 3. `OPT-009` und `OPT-010` schließen den Bogen fachlich ab und sind noch nicht implementiert.

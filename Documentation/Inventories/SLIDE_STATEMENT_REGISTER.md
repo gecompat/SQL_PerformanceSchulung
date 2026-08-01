@@ -4,8 +4,8 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `3ad528c2eb6ad531c1bbf5a26bee17e35004f764357b5061c9fc15bc04807a18`  
-**Folienumfang:** 84  
+**SHA-256:** `8f8ccd9ffce73cf4c09220de27e74303644642c31a4204f1921648cba86ac4e6`  
+**Folienumfang:** 94 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`)  
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
 
@@ -106,9 +106,32 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-081 | 81 | sl/67icwm | Abschluss | METHOD | Messung, Reproduzierbarkeit, Versionsgrenzen und Rückfallplan bilden die Leitprinzipien | versionsneutral | SRC-027, SRC-028 | KEEP | – |
 | CLM-082 | 82 | sl/vx6txt | Abschluss | DIDACTIC | Transfer vom Symptom zur prüfbaren nächsten Maßnahme | – | – | KEEP | – |
 | CLM-083 | 83 | sl/nfagg6 | Abschluss | METHOD | Quellen, Versionsgrenzen und empirische Ergebnisse müssen getrennt und nachverfolgbar bleiben | versionsneutral | SRC-007, SRC-028 | KEEP | – |
-| CLM-084 | 84 | sl/okdptu | Abschluss | DIDACTIC | Abschluss und weiterführender Arbeitsauftrag | – | – | KEEP | – |
+| CLM-084 | 94 | sl/okdptu | Abschluss | DIDACTIC | Abschluss und weiterführender Arbeitsauftrag | – | – | KEEP | – |
+
+Die Schlussfolie `CLM-084` liegt weiterhin im Folienteil `slide84.xml`, rückt durch den additiven Vertiefungsblock aber auf Anzeigeposition 94. Die übrigen 83 Basisfolien behalten Teilnamen und Anzeigeposition.
+
+## Vertiefungsblock `ADV-009` (Anzeigepositionen 84 bis 93)
+
+Der Block ist additiv und schließt unmittelbar vor der Schlussfolie an. Er setzt die Folienspezifikationen [`LO-M03-07`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md) und [`LO-M03-08`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md) um. Stabile ID ist hier die Folien-ID der Spezifikation; sie steht unverändert als Marker `[SLIDE-ID: …]` in der jeweiligen Sprechernotiz.
+
+| Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
+|---|---:|---|---|---|---|---|---|---|---|---|
+| SLD-M03-101 | 84 | `slide85.xml` | `ADV-CLM-014` | Query Patterns | METHOD | Die Differenz zwischen zwei Clients ist ein Evidenzproblem und erfordert eine mehrdimensionale Kontextdiagnose | 2019–2025 | SRC-001, SRC-027, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-102 | 85 | `slide86.xml` | `ADV-CLM-013` | Query Patterns | DOCUMENTED | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge für dasselbe Objekt erzeugen | 2019–2025 | SRC-001, SRC-040, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-103 | 86 | `slide87.xml` | `ADV-CLM-015` | Query Patterns | DOCUMENTED | Parameter Sensitivity folgt der Planwiederverwendung bei unterschiedlicher Verteilung | 2019–2025 | SRC-007, SRC-047 | KEEP | `QRY-013` |
+| SLD-M03-104 | 87 | `slide88.xml` | `ADV-CLM-016` | Query Patterns | DOCUMENTED | Parameter, Variablen, Literale und `OPTION (RECOMPILE)` liefern dem Optimierer unterschiedliche Information | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-046 | KEEP | `QRY-004` |
+| SLD-M03-105 | 88 | `slide89.xml` | `ADV-CLM-013`, `ADV-CLM-014`, `ADV-CLM-015`, `ADV-CLM-016` | Query Patterns | METHOD | Die Diagnose ist erst abgeschlossen, wenn jede Dimension belegt oder ausgeschlossen ist | versionsneutral | SRC-001, SRC-027, SRC-040, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-111 | 89 | `slide90.xml` | – | Query Patterns | DOCUMENTED | Ein statischer Querytext mit optionalen Prädikaten bindet sich an eine einzige Planform | 2019–2025 | SRC-001, SRC-045, SRC-049 | KEEP | `QRY-004` |
+| SLD-M03-112 | 90 | `slide91.xml` | `ADV-CLM-017` | Query Patterns | DOCUMENTED | `OPTION (RECOMPILE)` ermöglicht laufzeitnahe Optimierung und gibt dafür die Planwiederverwendung auf | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
+| SLD-M03-113 | 91 | `slide92.xml` | `ADV-CLM-018` | Query Patterns | METHOD | Dynamische Suchbedingungen werden aus einer Positivliste zusammengesetzt; Werte werden gebunden | versionsneutral | SRC-001, SRC-045 | KEEP | `QRY-004` |
+| SLD-M03-114 | 92 | `slide93.xml` | `ADV-CLM-018` | Query Patterns | EMPIRICAL | Sicher parameterisiertes dynamisches SQL erzeugt je Filterform genau eine Statementform | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
+| SLD-M03-115 | 93 | `slide94.xml` | `ADV-CLM-017`, `ADV-CLM-018` | Query Patterns | METHOD | Die Auswahl folgt Verteilung, Ausführungsfrequenz, Sicherheit und Wartbarkeit; alle Strategien müssen ergebnisgleich sein | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-049 | KEEP | `QRY-004` |
+
+`SLD-M03-111` stellt keine eigenständige Produktbehauptung auf, die über `ADV-CLM-017` und `ADV-CLM-018` hinausgeht; die Folie führt die Problemform ein und erhält deshalb keinen eigenen Claim.
 
 ## Abdeckungs- und Entscheidungsbilanz
+
+Die Bilanz beschreibt den durch `W2-007` abgenommenen Basissatz. Der Vertiefungsblock aus `ADV-009` wird getrennt geführt und verändert die Bilanz des Basissatzes nicht.
 
 | Kennzahl | Wert |
 |---|---:|
@@ -121,5 +144,15 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | `REMOVE` | 0 |
 | Folien mit kanonischer Demo-ID | 47 |
 | Eindeutige kanonische Demo-IDs | 36 |
+
+| Kennzahl Vertiefungsblock `ADV-009` | Wert |
+|---|---:|
+| Vertiefungsfolien im aktiven Deck | 10 |
+| Registerzeilen Vertiefungsblock | 10 |
+| Aktivierte Vertiefungsclaims | 6 |
+| Folien mit kanonischer Demo-ID | 10 |
+| Eindeutige kanonische Demo-IDs | 2 |
+
+Damit umfasst das aktive Deck 94 Folien: 84 Basisfolien und 10 additive Vertiefungsfolien.
 
 Die vier früheren `REFINE`-Entscheidungen wurden in `W2-007` abgeschlossen. Sichtbarer Folientext, Speaker Notes, Quellen, Versionsgrenzen und Traceability sind im [W2-007-Review](../Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md) dokumentiert. Die kanonischen Demo-IDs sind eine curriculare Zuordnung; ihr Implementierungs- oder Validierungsstatus wird getrennt geführt.

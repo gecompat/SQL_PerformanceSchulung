@@ -3,7 +3,8 @@
 | Merkmal | Wert |
 |---|---|
 | Paket | `ADV-009` |
-| Status | `SPECIFIED` |
+| Status | `INTEGRATED` |
+| Deckpositionen | 89 bis 93 (Folienteile `slide90.xml` bis `slide94.xml`) |
 | Modul | M03 – Optimizer, Statistiken und Pläne |
 | Lernziel | `LO-M03-08` |
 | Claims | `ADV-CLM-017`, `ADV-CLM-018` |
@@ -13,21 +14,21 @@
 
 ## 1. Zweck und Lieferform
 
-Das aktive Foliendeck `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` ist als `SRC-DECK-001` registriert und in `Tests/Static/validate_privacy_metadata.py` über einen freigegebenen SHA-256-Wert gebunden. Jede Binäränderung entzieht dieser Freigabe die Grundlage und macht die Datenschutzprüfung rot.
+Das aktive Foliendeck `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` ist als `SRC-DECK-001` registriert und in `Tests/Static/validate_privacy_metadata.py` über einen freigegebenen SHA-256-Wert gebunden. Die Erstfassung dieses Dokuments lieferte die Inhalte deshalb ausschließlich auf Spezifikationsebene.
 
-Die Erweiterung wird deshalb bewusst auf der Spezifikationsebene geliefert: Dieses Dokument enthält folienfertige Inhalte einschließlich Sprechernotizen und Folienmarkern. Die Übernahme in das Deck ist ein eigener, freigabepflichtiger Schritt unter `ADV-009` und `PRS-012`; dabei wird der freigegebene Hashwert kontrolliert erneuert. Bis dahin bleiben die Claims in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` auf `PLANNED` und ohne aktive Folie.
+Die Übernahme in das Deck ist inzwischen erfolgt. Die fünf Folien schließen den Vertiefungsblock auf den Anzeigepositionen 89 bis 93 unmittelbar vor der Schlussfolie ab; der freigegebene Hashwert wurde im selben Schnitt kontrolliert erneuert. Erzeugt wurden die Folien reproduzierbar durch `Tools/build_adv009_slides.py`; dieses Dokument bleibt die fachliche Quelle des Folieninhalts, der sichtbare Folientext ist auf das Folienformat verdichtet. Die Sprechernotizen tragen den unveränderten Marker `[SLIDE-ID: …]`.
 
 ## 2. Didaktische Einordnung
 
 Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Parameter, Variablen, Literale und `OPTION (RECOMPILE)` dem Optimierer unterschiedliche Information liefern. Hier wird daraus eine Auswahlentscheidung für optionale Suchbedingungen. Der Bogen setzt `OPT-007` und `OPT-008` voraus und endet vor `OPT-009` und `OPT-010`; Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization werden ausdrücklich nicht in diesem Bogen bewertet.
 
-| Reihenfolge | Folien-ID | Claim | Rolle im Bogen |
-|---|---|---|---|
-| 1 | `SLD-M03-111` | – | Problemform: optionale Suchbedingungen |
-| 2 | `SLD-M03-112` | `ADV-CLM-017` | Recompile als Tauschgeschäft |
-| 3 | `SLD-M03-113` | `ADV-CLM-018` | Sicheres parameterisiertes dynamisches SQL |
-| 4 | `SLD-M03-114` | `ADV-CLM-018` | Wiederverwendung und Zahl der Statementformen |
-| 5 | `SLD-M03-115` | `ADV-CLM-017`, `ADV-CLM-018` | Auswahlkriterien und Übergang in `QRY-004` |
+| Reihenfolge | Folien-ID | Claim | Deckposition | Rolle im Bogen |
+|---|---|---|---:|---|
+| 1 | `SLD-M03-111` | – | 89 | Problemform: optionale Suchbedingungen |
+| 2 | `SLD-M03-112` | `ADV-CLM-017` | 90 | Recompile als Tauschgeschäft |
+| 3 | `SLD-M03-113` | `ADV-CLM-018` | 91 | Sicheres parameterisiertes dynamisches SQL |
+| 4 | `SLD-M03-114` | `ADV-CLM-018` | 92 | Wiederverwendung und Zahl der Statementformen |
+| 5 | `SLD-M03-115` | `ADV-CLM-017`, `ADV-CLM-018` | 93 | Auswahlkriterien und Übergang in `QRY-004` |
 
 ## 3. Folie `SLD-M03-111` – Eine Abfrage für viele Filterkombinationen
 
@@ -116,11 +117,11 @@ Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Pa
 
 ## 8. Abnahmekriterien für die Deckübernahme
 
-1. Jede Folie erhält im Notizfeld den unveränderten Marker `[SLIDE-ID: SLD-M03-11x]`.
-2. Die Claims `ADV-CLM-017` und `ADV-CLM-018` werden in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` von `PLANNED` auf `KEEP` gesetzt und erhalten eine aktive Foliennummer.
-3. Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wird im selben Schnitt kontrolliert erneuert.
-4. `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` erhält je Folie eine Zeile mit stabiler ID und Evidenzklasse.
-5. Die Abnahme setzt eine erfolgreiche Runtime-Abnahme von `QRY-004` auf SQL Server 2019, 2022 und 2025 voraus.
+1. Jede Folie trägt im Notizfeld den unveränderten Marker `[SLIDE-ID: SLD-M03-11x]`. **Erfüllt.**
+2. Die Claims `ADV-CLM-017` und `ADV-CLM-018` sind in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` von `PLANNED` auf `KEEP` gesetzt und tragen eine aktive Foliennummer. **Erfüllt.**
+3. Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wurde im selben Schnitt kontrolliert erneuert. **Erfüllt.**
+4. `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID und Evidenzklasse. **Erfüllt.**
+5. Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `QRY-004` auf SQL Server 2019, 2022 und 2025 voraus. **Offen**, da die Runtime-Matrix ausschließlich auf GitHub-Runnern läuft.
 
 ## 9. Quellenübersicht
 

@@ -624,7 +624,7 @@ Jede Arbeitsübergabe enthält mindestens:
 | Fachliche Demos | noch nicht implementiert |
 | Testumgebungs-How-to | noch nicht implementiert; unterstützt später die Ausführung ohne vorhandenen SQL Server |
 | Sonderinfrastruktur | nicht begonnen; nur bei konkreter fachlicher Notwendigkeit |
-| Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`; finale Demo-Integration nach Gate C offen |
+| Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`, seit `ADV-009` additiv auf 94 Folien erweitert; finale Demo-Integration nach Gate C offen |
 | Welle 0 | `W0-001` bis `W0-008` validiert |
 | Gate A | validiert; Abnahmeevidenz in `GATE_A_REVIEW.md` |
 | Aussagenstatus | 84/84 Folien erfasst; 80 `KEEP`, 4 `REFINE`; 26 kritische Themen vertieft geprüft |
