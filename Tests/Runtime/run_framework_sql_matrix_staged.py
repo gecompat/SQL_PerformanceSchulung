@@ -175,7 +175,7 @@ def main() -> int:
             f"CL{args.compatibility_level}",
             flush=True,
         )
-    except (matrix.MatrixFailure, subprocess.TimeoutExpired) as exc:
+    except (matrix.ExecutionTargetError, subprocess.TimeoutExpired) as exc:
         exit_code = 1
         print(
             f"SQLPERF_MATRIX_SUMMARY|FAIL|SQL{args.expected_major}|"

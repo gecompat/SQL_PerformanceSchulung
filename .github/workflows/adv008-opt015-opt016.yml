@@ -113,6 +113,7 @@ jobs:
           set -uo pipefail
           chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
           python Tests/Runtime/run_adv008_opt015_opt016.py \
+            --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
             2>&1 | tee "${RUNNER_TEMP}/adv008-${{ matrix.major }}.log"
