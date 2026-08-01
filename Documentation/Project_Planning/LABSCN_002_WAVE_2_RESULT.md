@@ -61,7 +61,9 @@ Der Lab-Testkatalog führte `CON-004` ursprünglich mit drei Sessions. Das tats�
 
 ## 7. Validierungsstand
 
-Die JSON-Verträge und Repositorybeziehungen wurden strukturell angepasst. Der aktualisierte statische Validator ist implementiert, aber noch nicht auf einem Runner ausgeführt. Der Status bleibt deshalb `IMPLEMENTED_FOR_REVIEW`.
+Die JSON-Verträge und Repositorybeziehungen wurden strukturell angepasst. Der statische Validator `Tests/Static/validate_performance_scenarios.py` läuft seit `.github/workflows/performance-scenarios.yml` auf einem GitHub-gehosteten Runner; zuvor war er nur lokal ausführbar.
+
+Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und referenzierten Repository-Pfaden dauerhaft abgesichert. Der Status bleibt `IMPLEMENTED_FOR_REVIEW`, weil noch kein Szenario über `SQL_Server_Lab` aufgebaut und bedient wurde. Diesen Nachweis führt erst `LABSCN-003`.
 
 ## 8. Geänderte Reihenfolge für LABSCN-003
 
