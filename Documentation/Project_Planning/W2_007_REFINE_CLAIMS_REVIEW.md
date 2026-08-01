@@ -6,7 +6,7 @@
 | Status | `VALIDATED` |
 | Prüfdatum | 2026-07-24 |
 | Aktiver Foliensatz | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
-| SHA-256 | `8f8ccd9ffce73cf4c09220de27e74303644642c31a4204f1921648cba86ac4e6` |
+| SHA-256 | `651d533596f30f77db2fdd04c9dd3296306884c5a721ecf3de2f2b6fd536b2b4` |
 | Folienumfang | 94 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`) |
 | Betroffene Claims | `CLM-032`, `CLM-034`, `CLM-042`, `CLM-043` |
 

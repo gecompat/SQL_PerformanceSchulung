@@ -4,8 +4,8 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `8f8ccd9ffce73cf4c09220de27e74303644642c31a4204f1921648cba86ac4e6`  
-**Folienumfang:** 94 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`)  
+**SHA-256:** `651d533596f30f77db2fdd04c9dd3296306884c5a721ecf3de2f2b6fd536b2b4`  
+**Folienumfang:** 98 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, 4 Vertiefungsfolien aus `ADV-010`)  
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
 
@@ -129,9 +129,22 @@ Der Block ist additiv und schließt unmittelbar vor der Schlussfolie an. Er setz
 
 `SLD-M03-111` stellt keine eigenständige Produktbehauptung auf, die über `ADV-CLM-017` und `ADV-CLM-018` hinausgeht; die Folie führt die Problemform ein und erhält deshalb keinen eigenen Claim.
 
+## Vertiefungsblock `ADV-010` (Anzeigepositionen 94 bis 97)
+
+Der Block ist additiv und schließt unmittelbar an den Block `ADV-009` an; die Schlussfolie bleibt letzte Anzeigeposition. Er setzt die Folienspezifikation [`LO-M03-08` / parametersensitive Planoptimierung](../Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md) um.
+
+| Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
+|---|---:|---|---|---|---|---|---|---|---|---|
+| SLD-M03-121 | 94 | `slide95.xml` | – | Query Patterns | DOCUMENTED | Ohne Parametersensitivität besitzt ein Querytext genau eine Planform; die Kompilierungsreihenfolge entscheidet, welcher Wert benachteiligt wird | 2019–2025 | SRC-001, SRC-007 | KEEP | `OPT-009` |
+| SLD-M03-122 | 95 | `slide96.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Parameter Sensitive Plan Optimization ersetzt die eine Planform durch einen Dispatcherplan und mehrere Query Variants | 2022–2025 | SRC-007, SRC-008 | KEEP | `OPT-009` |
+| SLD-M03-123 | 96 | `slide97.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Das Verfahren ist auf höchstens drei Gleichheitsprädikate begrenzt; die Eignung ist im Plan zu belegen | 2022–2025 | SRC-007, SRC-008, SRC-048 | KEEP | `OPT-009` |
+| SLD-M03-124 | 97 | `slide98.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Die Optimierung ist auf Datenbank- und Abfrageebene steuerbar und ersetzt keine der klassischen Strategien | 2022–2025 | SRC-007, SRC-008 | KEEP | `OPT-009` |
+
+`SLD-M03-121` führt die Problemform ein und stellt keine über `ADV-CLM-019` hinausgehende Produktbehauptung auf; die Folie erhält deshalb keinen eigenen Claim.
+
 ## Abdeckungs- und Entscheidungsbilanz
 
-Die Bilanz beschreibt den durch `W2-007` abgenommenen Basissatz. Der Vertiefungsblock aus `ADV-009` wird getrennt geführt und verändert die Bilanz des Basissatzes nicht.
+Die Bilanz beschreibt den durch `W2-007` abgenommenen Basissatz. Die Vertiefungsblöcke aus `ADV-009` und `ADV-010` werden getrennt geführt und verändern die Bilanz des Basissatzes nicht.
 
 | Kennzahl | Wert |
 |---|---:|

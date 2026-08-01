@@ -1,0 +1,60 @@
+name: ADV-010 deck integration
+
+on:
+  pull_request:
+    paths:
+      - 'Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx'
+      - 'Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md'
+      - 'Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md'
+      - 'Documentation/Curriculum/TRACEABILITY_MATRIX.md'
+      - 'Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md'
+      - 'Documentation/Inventories/SOURCE_MANIFEST.md'
+      - 'Tests/Static/validate_adv010_deck_integration.py'
+      - 'Tests/Static/validate_adv_003_curriculum.py'
+      - 'Tests/Static/validate_privacy_metadata.py'
+      - 'Tests/Static/validate_w2_007_presentation.py'
+      - 'Tools/build_adv010_slides.py'
+      - '.github/workflows/adv010-deck-integration.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx'
+      - 'Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md'
+      - 'Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md'
+      - 'Documentation/Curriculum/TRACEABILITY_MATRIX.md'
+      - 'Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md'
+      - 'Documentation/Inventories/SOURCE_MANIFEST.md'
+      - 'Tests/Static/validate_adv010_deck_integration.py'
+      - 'Tests/Static/validate_adv_003_curriculum.py'
+      - 'Tests/Static/validate_privacy_metadata.py'
+      - 'Tests/Static/validate_w2_007_presentation.py'
+      - 'Tools/build_adv010_slides.py'
+      - '.github/workflows/adv010-deck-integration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate ADV-010 deck integration
+        run: python Tests/Static/validate_adv010_deck_integration.py
+      - name: Validate ADV-009 deck integration
+        run: python Tests/Static/validate_adv009_deck_integration.py
+      - name: Validate ADV-003 curriculum traceability
+        run: python Tests/Static/validate_adv_003_curriculum.py
+      - name: Validate the presentation baseline
+        run: python Tests/Static/validate_w2_007_presentation.py
+      - name: Validate privacy and metadata
+        run: python Tests/Static/validate_privacy_metadata.py
+      - name: Confirm the deck builder is idempotent
+        run: python Tools/build_adv010_slides.py --check

@@ -23,7 +23,7 @@ python3 Tests/Static/test_privacy_metadata_scanner.py
 python3 Tests/Static/validate_privacy_metadata.py .
 ```
 
-`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sechs Claims sind durch `ADV-009` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 33 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
+`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sieben Claims sind durch `ADV-009` und `ADV-010` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 32 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
 
 `validate_privacy_metadata.py` ist ein User-defined Tool auf Basis der Python-Standardbibliothek. Es prüft Textdateien, Office-Pakete, ZIP-Archive und Medien-Gates. Findings werden ausschließlich als Repository-Pfad, Kategorie und Anzahl ausgegeben; der gefundene Wert erscheint weder im Log noch im kurzlebigen Diagnoseartefakt. Medien, PDFs und andere visuell zu prüfende Binärartefakte werden blockierend gekennzeichnet, sofern kein unveränderter hashgebundener Freigabenachweis vorliegt. Der Scanner ersetzt keine visuelle Einzelprüfung, kein OCR und keinen Rendervergleich.
 
@@ -43,6 +43,23 @@ python3 Tools/build_adv009_slides.py --check
 Die Prüfung bestätigt Zuordnung und Struktur, nicht Layoutqualität, Lesbarkeit im Vortrag oder fachliche Richtigkeit der Aussagen. Die fachliche Abnahme der Folien 84 bis 93 setzt zusätzlich die Runtime-Abnahme von `QRY-013` und `QRY-004` voraus.
 
 `build_adv009_slides.py --check` bestätigt, dass das Deck bereits erweitert ist und ein erneuter Lauf keine zweite Einfügung erzeugt.
+
+## ADV-010 – Vertiefungsfolien zur parametersensitiven Planoptimierung
+
+Der Workflow `.github/workflows/adv010-deck-integration.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python3 Tests/Static/validate_adv010_deck_integration.py
+python3 Tests/Static/validate_adv009_deck_integration.py
+python3 Tests/Static/validate_adv_003_curriculum.py
+python3 Tests/Static/validate_w2_007_presentation.py
+python3 Tests/Static/validate_privacy_metadata.py .
+python3 Tools/build_adv010_slides.py --check
+```
+
+`validate_adv010_deck_integration.py` prüft dieselben Struktur- und Zuordnungseigenschaften wie der Prüfer des Blocks `ADV-009`, zusätzlich die unveränderten Anzeigepositionen des Blocks `ADV-009`, die kanonische Demo `OPT-009` in jeder Sprechernotiz und den Ausgangsfolienumfang im Erzeugungswerkzeug. Das aktive Deck umfasst damit 98 Folien: 84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009` und 4 Vertiefungsfolien aus `ADV-010`.
+
+Die fachliche Abnahme der Folien 94 bis 97 setzt zusätzlich die Runtime-Abnahme von `OPT-009` voraus. Die visuelle Renderprüfung ist nicht Teil der automatisierten Strecke.
 
 ## Vertiefungs-LAB-Designverträge
 
@@ -222,6 +239,32 @@ Der statische Vertrag `validate_adv008_qry004.py` prüft zusätzlich zu Bündela
 | `QRY-004` | `GREEN` | eine Catch-all-Planform über drei Selektivitäten, Ergebnis- und Prüfsummenequivalenz aller drei Strategien, zwei Statementformen für drei dynamische Ausführungen, abgewiesene Positivlistenverletzung, literalfreier Statementtext | 2 |
 
 Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`; lässt sich der Nutzen der Neuoptimierung oder deren Compilepreis nicht von der Messstreuung trennen, endet die betroffene Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
+
+## ADV-008 – Runtime-Matrix für OPT-009
+
+Der Workflow `.github/workflows/adv008-opt009.yml` prüft zuerst:
+
+```bash
+python Tests/Static/validate_adv008_opt009.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
+
+```bash
+python Tests/Runtime/run_adv008_opt009.py \
+  --target docker \
+  --container <ephemerer-container> \
+  --expected-major <15|16|17>
+```
+
+Der statische Vertrag `validate_adv008_opt009.py` prüft neben Bündelaufbau, Phasenreihenfolge und lexikalischer Konsistenz drei Besonderheiten dieser Demo: Erstens dürfen ausschließlich die Statuscodes aus `FWK-012` in den Zusammenfassungszeilen stehen, damit funktionsspezifische Eigenerfindungen ausgeschlossen sind. Zweitens muss jede Phase genau ein Vergleichsobjekt ausführen, damit Marker und Evidenz eindeutig zugeordnet bleiben. Drittens sind die Query-Store-Sichten `sys.query_store_plan` und `sys.query_store_query_variant` in den SQL-Dateien verboten, solange deren Pilotabnahme offen ist. Geprüft werden ferner der abgeschaltete Ausgangszustand, die Abwahl auf Abfrageebene, der markergebundene und idempotente Cleanup sowie die Folienspezifikation `Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md`.
+
+| Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
+|---|---|---|---:|
+| `OPT-009` | `GREEN` | genau eine Planform je Kompilierungsreihenfolge ohne Parametersensitivität, beidseitige Mehrkosten bei identischen Prüfsummen, mindestens ein Dispatcherplan und mindestens zwei Query Variants bei eingeschalteter Optimierung, kein Dispatcherplan bei ausdrücklicher Abwahl | 2 |
+
+Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Auf SQL Server 2019 endet die Demo planmäßig mit `SKIP|SKIP_VERSION`; der Runner wertet diesen Ausgang als bestanden. Stuft der Optimierer die Abfrage trotz passender Version nicht als parametersensitiv ein oder fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`. Lässt sich der Nutzen der Varianten nicht von der Messstreuung trennen, endet die Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
 
 ## Ausführungsziele der Runtime-Runner
 
