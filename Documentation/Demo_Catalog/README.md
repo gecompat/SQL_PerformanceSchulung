@@ -47,6 +47,7 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `QRY-013` | Anwendung langsam, SSMS schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
 | `QRY-004` | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
+| `OPT-009` | Parametersensitive Planoptimierung | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
 | `OPT-013` | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `CON-004` | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 
@@ -69,6 +70,9 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 |---|---|---|---|---|---|---|
 | `QRY-013` | Anwendung langsam, SSMS schnell | M03 / `LO-M03-07` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
 | `QRY-004` | Catch-all, Recompile und dynamisches SQL | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
+| `OPT-009` | Parametersensitive Planoptimierung | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2022/CL160 und 2025/CL170; 2019 kontrollierter `SKIP_VERSION`; je zwei Läufe | `IMPLEMENTED` |
+
+`OPT-009` zeigt zuerst, dass ohne Parametersensitivität genau eine Planform je Querytext entsteht und allein die Kompilierungsreihenfolge entscheidet, welcher Parameterwert benachteiligt wird. Danach weist die Demo Dispatcherplan, Query Variants und die ausgewiesenen Kardinalitätsgrenzen marker- und objektbezogen im Plancache nach und belegt die Abwahl auf Abfrageebene. Bleibt die Variantenbildung trotz passender Version aus, endet die Phase kontrolliert mit `SKIP_EVIDENCE_MISSING`. Die zugehörigen Folieninhalte stehen als Spezifikation in [`ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md`](../Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md).
 
 `QRY-004` vergleicht drei Implementierungsstrategien für optionale Suchbedingungen unter identischer Datenverteilung: den statischen Catch-all-Querytext, denselben Text mit `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL aus einer Positivliste. Die Demo stellt keine Rangfolge auf; sie belegt Wiederverwendung, Compilepreis und Injektionssicherheit getrennt. Die zugehörigen Folieninhalte stehen als Spezifikation in [`ADV_009_SLIDE_SPECIFICATION_M03_LO08.md`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md) und sind als Anzeigepositionen 89 bis 93 in das aktive Deck übernommen.
 
