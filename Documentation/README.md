@@ -8,6 +8,7 @@ Dieser Bereich enthält die lehrgangsweite fachliche Dokumentation.
 | `Project_Planning/` | Master-Umsetzungsplan, aktueller Ausführungsstatus, quellenbasierte Vertiefungspläne, Masterdeck-Variantenarchitektur, Arbeitspakete, Abhängigkeiten, Gates und Wiederaufnahmeverfahren |
 | `Curriculum/` | Lernpfade, Zielgruppen, Voraussetzungen und Reihenfolge |
 | `Demo_Catalog/` | Zuordnung von Themen, Folien, Demos, Versionen und Sicherheitsstufen |
+| `HowTo/` | Bedienanleitungen für die Ausführung der Schulungsdemos, insbesondere die lokale Testumgebung |
 | `Research/` | Quellenbasierte Fachprüfung, Claim-/Quellenmatrizen und dokumentierte Recherche |
 | `Standards/` | verbindliche Terminologie-, Schreib-, Präsentations- und Manifestverträge |
 
