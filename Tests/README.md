@@ -62,7 +62,7 @@ Geprüft werden:
 - Sessionzahl und erforderliche Capabilities;
 - explizite Safety-Bestätigung für gelbe und rote Lanes;
 - vollständiger Cleanup-Vertrag im Demo-Manifest;
-- Vollständigkeit der aktuellen 72 Läufe umfassenden Container-Gesamtmatrix;
+- Vollständigkeit der aktuellen 84 Läufe umfassenden Container-Gesamtmatrix;
 - Verbot von Secrets, realen Hostfeldern und absoluten Pfaden im Katalog.
 
 `LABINT-001` validiert nur Architektur und Katalog. Ein realer Docker-/Podman-Lauf über `SQL_Server_Lab` folgt erst mit `LABINT-002`.
@@ -153,6 +153,32 @@ Der validierte Lauf `30218788526` führte `OPT-015` und `OPT-016` je Version zwe
 | `OPT-016` | `GREEN` | Outer References, hintfreie Spool-Planform, Rebind-/Rewind-Richtung, kontrollierte No-Spool-Gegenprobe und Ergebnisequivalenz | 2 |
 
 `OPT-016` wurde während der Abnahme an die beobachtete Optimizerentscheidung angepasst. Der passende Index verhinderte die Performance Spool nicht zuverlässig. Baseline und Vergleich verwenden deshalb `NO_PERFORMANCE_SPOOL` ausschließlich als explizite Gegenprobe; die untersuchte Problemabfrage bleibt hintfrei.
+
+## ADV-008 – Runtime-Matrix für QRY-013
+
+Der Workflow `.github/workflows/adv008-qry013.yml` prüft zuerst:
+
+```bash
+python Tests/Static/validate_adv008_qry013.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
+
+```bash
+python Tests/Runtime/run_adv008_qry013.py \
+  --target docker \
+  --container <ephemerer-container> \
+  --expected-major <15|16|17>
+```
+
+Der statische Vertrag `validate_adv008_qry013.py` prüft Bündelaufbau, Phasenreihenfolge, verbotene T-SQL-Konstrukte, die lexikalische Konsistenz aller Phasen, die beiden explizit gesetzten Sessionprofile, den Parameterwechsel in der Beobachtungsphase, den markergebundenen und idempotenten Cleanup sowie die Folienspezifikation `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md`.
+
+| Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
+|---|---|---|---:|
+| `QRY-013` | `GREEN` | getrennte Cacheeinträge bei abweichendem Sessionkontext, Ergebnis- und Prüfsummenequivalenz, Planwiederverwendung bei Parameterwechsel, ausgerichteter Kontext mit einem Cacheeintrag | 2 |
+
+Der Status ist `IMPLEMENTED`, nicht `VALIDATED`: Die Runtime-Abnahme über die drei Zielversionen steht aus. Fehlt die Plancache-Evidenz auf der Zielinstanz, endet die betroffene Phase kontrolliert mit `SKIP|SKIP_EVIDENCE_MISSING`; bleibt der Anstieg der logischen Lesevorgänge aus, endet die Beobachtungsphase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
 
 ## Ausführungsziele der Runtime-Runner
 

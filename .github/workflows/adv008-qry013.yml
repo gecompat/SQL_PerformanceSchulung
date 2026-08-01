@@ -1,0 +1,140 @@
+# Each runtime job executes QRY-013 twice and verifies cleanup after every run.
+name: ADV-008 QRY-013 runtime
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md'
+      - 'Tests/Static/validate_adv008_qry013.py'
+      - 'Tests/Runtime/run_adv008_qry013.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - '.github/workflows/adv008-qry013.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md'
+      - 'Tests/Static/validate_adv008_qry013.py'
+      - 'Tests/Runtime/run_adv008_qry013.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - '.github/workflows/adv008-qry013.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adv008-qry013-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Static QRY-013 contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate QRY-013 contracts
+        run: python Tests/Static/validate_adv008_qry013.py
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .
+
+  runtime:
+    name: SQL Server ${{ matrix.year }}
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - year: 2019
+            major: 15
+            image: mcr.microsoft.com/mssql/server:2019-latest
+          - year: 2022
+            major: 16
+            image: mcr.microsoft.com/mssql/server:2022-latest
+          - year: 2025
+            major: 17
+            image: mcr.microsoft.com/mssql/server:2025-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Start SQL Server container
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Qry"
+          container="sqlperf-qry013-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          docker pull '${{ matrix.image }}'
+          docker run \
+            --name "${container}" \
+            --hostname "${container}" \
+            -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer \
+            -e "MSSQL_SA_PASSWORD=${password}" \
+            -d \
+            '${{ matrix.image }}'
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then
+              ready=1
+              break
+            fi
+            if [ "$(docker inspect -f '{{.State.Running}}' "${container}")" != 'true' ]; then
+              docker logs "${container}" 2>&1 || true
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "${ready}" != '1' ]; then
+            docker logs "${container}" 2>&1 || true
+            exit 1
+          fi
+      - name: Run QRY-013 twice
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
+          python Tests/Runtime/run_adv008_qry013.py \
+            --target docker \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            2>&1 | tee "${RUNNER_TEMP}/qry013-${{ matrix.major }}.log"
+          exit "${PIPESTATUS[0]}"
+      - name: Upload QRY-013 diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: adv008-qry013-${{ matrix.year }}-diagnostic
+          path: ${{ runner.temp }}/qry013-${{ matrix.major }}.log
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Show SQL Server logs on failure
+        if: failure()
+        shell: bash
+        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+      - name: Remove SQL Server container
+        if: always()
+        shell: bash
+        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true
