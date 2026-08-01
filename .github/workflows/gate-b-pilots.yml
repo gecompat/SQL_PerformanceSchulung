@@ -11,6 +11,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_gate_b_pilots.py'
       - 'Tests/Runtime/run_gate_b_pilots.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/gate-b-pilots.yml'
   push:
@@ -24,6 +26,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_gate_b_pilots.py'
       - 'Tests/Runtime/run_gate_b_pilots.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/gate-b-pilots.yml'
   workflow_dispatch:
