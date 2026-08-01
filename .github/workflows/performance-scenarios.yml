@@ -1,0 +1,51 @@
+name: Performance scenarios
+
+on:
+  pull_request:
+    paths:
+      - 'Scenarios/**'
+      - 'Demos/**'
+      - 'Documentation/Inventories/performance_scenario_inventory.json'
+      - 'Documentation/Architecture/performance-training-scenario.schema.json'
+      - 'Documentation/Architecture/performance-training-scenario-inventory.schema.json'
+      - 'Tests/Static/validate_performance_scenarios.py'
+      - '.github/workflows/performance-scenarios.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'Scenarios/**'
+      - 'Demos/**'
+      - 'Documentation/Inventories/performance_scenario_inventory.json'
+      - 'Documentation/Architecture/performance-training-scenario.schema.json'
+      - 'Documentation/Architecture/performance-training-scenario-inventory.schema.json'
+      - 'Tests/Static/validate_performance_scenarios.py'
+      - '.github/workflows/performance-scenarios.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: performance-scenarios-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static scenario contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Validate performance scenarios
+        run: python Tests/Static/validate_performance_scenarios.py
+
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .
