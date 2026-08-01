@@ -153,6 +153,15 @@ Die Bestätigung ist verbindlich, weil der Lauf `SQLPERF`-Datenbanken anlegt und
 
 Die Framework-Matrix bleibt an das Ziel `docker` gebunden, weil sie Query Store und Extended Events auf Serverebene schaltet. Grundlage ist `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md`. Die Bedienanleitung für eine vorhandene Instanz steht in `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`.
 
+Der Workflow `.github/workflows/inf-001-execution-path.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python Tests/Static/validate_inf_001_execution_path.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+`validate_inf_001_execution_path.py` prüft die öffentliche Schnittstelle des Zielmoduls, die Zieloptionen und Zusammenfassungszeilen der Demo-Runner, die Bindung der Containerlogik an das Zielmodul, den Pflichtinhalt des How-tos, die Runner-Topologie sowie die Pfadfilter und die Runner-Auswahl der Runtime-Workflows.
+
 ## Datenschutz und Laufzeitumgebung
 
 Die bestehenden GitHub-Matrizen verwenden pro Job eine ephemere Developer-Instanz ohne Host-Port und ohne persistentes Volume. Der geplante lokale Lab-Runner verwendet stattdessen die von `SQL_Server_Lab` erzeugte, scopegebundene Docker- oder Podman-Umgebung. In beiden Fällen wird das Kennwort zur Laufzeit erzeugt und nicht versioniert.
