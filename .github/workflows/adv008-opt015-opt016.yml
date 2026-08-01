@@ -54,7 +54,7 @@ jobs:
   runtime:
     name: SQL Server ${{ matrix.year }}
     needs: static
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 55
     strategy:
       fail-fast: false
