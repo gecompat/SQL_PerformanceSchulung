@@ -47,6 +47,8 @@ Eine Demo übernimmt Dokument- und SQL-Vorlagen in ihr eigenes Verzeichnis. `FWK
 
 Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über Baseline und Restore zurückgesetzt. Die XE-Referenzsession verwendet ausschließlich einen begrenzten `ring_buffer` und keinen Autostart. Der Runtime-Harness führt Cleanup nach gestarteter Setup-Phase unabhängig vom vorherigen Ergebnis aus.
 
+`Tools/run_demo.py` verbindet sich über `--server`, `--auth` und `--username`. Gegen eine vorhandene SQL-Server-Instanz beschreibt `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md` den vollständigen Ablauf einschließlich Anmeldedaten, Preflight, Cleanup und Recovery. Trägt die Instanz ein selbstsigniertes Zertifikat, wird `Tests/Runtime/host_sqlcmd_target.py` als `--sqlcmd` zwischengeschaltet, weil `build_sqlcmd_command()` selbst kein `-C` setzt.
+
 ## Sicherheitsgrundsätze
 
 - Keine Datenbank wird aufgrund ihres Namens allein gelöscht.

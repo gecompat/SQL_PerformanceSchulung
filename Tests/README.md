@@ -151,7 +151,7 @@ Ohne `--username` wird Windows-Authentifizierung verwendet. Ohne `--expected-maj
 
 Die Bestätigung ist verbindlich, weil der Lauf `SQLPERF`-Datenbanken anlegt und wieder löscht. Die Zielinstanz muss eine Wegwerfinstanz sein. Trägt sie ein selbstsigniertes Zertifikat, wird `SQLPERF_HOST_TRUST_SERVER_CERTIFICATE=1` zusätzlich benötigt; ohne diese Freigabe bleibt die Zertifikatsprüfung aktiv.
 
-Die Framework-Matrix bleibt an das Ziel `docker` gebunden, weil sie Query Store und Extended Events auf Serverebene schaltet. Grundlage ist `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md`.
+Die Framework-Matrix bleibt an das Ziel `docker` gebunden, weil sie Query Store und Extended Events auf Serverebene schaltet. Grundlage ist `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md`. Die Bedienanleitung für eine vorhandene Instanz steht in `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`.
 
 ## Datenschutz und Laufzeitumgebung
 
