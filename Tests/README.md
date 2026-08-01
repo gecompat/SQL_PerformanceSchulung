@@ -223,6 +223,32 @@ Der statische Vertrag `validate_adv008_qry004.py` prüft zusätzlich zu Bündela
 
 Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`; lässt sich der Nutzen der Neuoptimierung oder deren Compilepreis nicht von der Messstreuung trennen, endet die betroffene Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
 
+## ADV-008 – Runtime-Matrix für OPT-009
+
+Der Workflow `.github/workflows/adv008-opt009.yml` prüft zuerst:
+
+```bash
+python Tests/Static/validate_adv008_opt009.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
+
+```bash
+python Tests/Runtime/run_adv008_opt009.py \
+  --target docker \
+  --container <ephemerer-container> \
+  --expected-major <15|16|17>
+```
+
+Der statische Vertrag `validate_adv008_opt009.py` prüft neben Bündelaufbau, Phasenreihenfolge und lexikalischer Konsistenz drei Besonderheiten dieser Demo: Erstens dürfen ausschließlich die Statuscodes aus `FWK-012` in den Zusammenfassungszeilen stehen, damit funktionsspezifische Eigenerfindungen ausgeschlossen sind. Zweitens muss jede Phase genau ein Vergleichsobjekt ausführen, damit Marker und Evidenz eindeutig zugeordnet bleiben. Drittens sind die Query-Store-Sichten `sys.query_store_plan` und `sys.query_store_query_variant` in den SQL-Dateien verboten, solange deren Pilotabnahme offen ist. Geprüft werden ferner der abgeschaltete Ausgangszustand, die Abwahl auf Abfrageebene, der markergebundene und idempotente Cleanup sowie die Folienspezifikation `Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md`.
+
+| Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
+|---|---|---|---:|
+| `OPT-009` | `GREEN` | genau eine Planform je Kompilierungsreihenfolge ohne Parametersensitivität, beidseitige Mehrkosten bei identischen Prüfsummen, mindestens ein Dispatcherplan und mindestens zwei Query Variants bei eingeschalteter Optimierung, kein Dispatcherplan bei ausdrücklicher Abwahl | 2 |
+
+Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Auf SQL Server 2019 endet die Demo planmäßig mit `SKIP|SKIP_VERSION`; der Runner wertet diesen Ausgang als bestanden. Stuft der Optimierer die Abfrage trotz passender Version nicht als parametersensitiv ein oder fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`. Lässt sich der Nutzen der Varianten nicht von der Messstreuung trennen, endet die Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
+
 ## Ausführungsziele der Runtime-Runner
 
 `Tests/Runtime/execution_target.py` trennt die Prüflogik von der Frage, wo der SQL Server läuft. Die Demo-Runner wählen das Ziel über `--target`:
