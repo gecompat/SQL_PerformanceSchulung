@@ -23,7 +23,7 @@ python3 Tests/Static/test_privacy_metadata_scanner.py
 python3 Tests/Static/validate_privacy_metadata.py .
 ```
 
-`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sechs Claims sind durch `ADV-009` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 33 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
+`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sieben Claims sind durch `ADV-009` und `ADV-010` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 32 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
 
 `validate_privacy_metadata.py` ist ein User-defined Tool auf Basis der Python-Standardbibliothek. Es prüft Textdateien, Office-Pakete, ZIP-Archive und Medien-Gates. Findings werden ausschließlich als Repository-Pfad, Kategorie und Anzahl ausgegeben; der gefundene Wert erscheint weder im Log noch im kurzlebigen Diagnoseartefakt. Medien, PDFs und andere visuell zu prüfende Binärartefakte werden blockierend gekennzeichnet, sofern kein unveränderter hashgebundener Freigabenachweis vorliegt. Der Scanner ersetzt keine visuelle Einzelprüfung, kein OCR und keinen Rendervergleich.
 
@@ -43,6 +43,23 @@ python3 Tools/build_adv009_slides.py --check
 Die Prüfung bestätigt Zuordnung und Struktur, nicht Layoutqualität, Lesbarkeit im Vortrag oder fachliche Richtigkeit der Aussagen. Die fachliche Abnahme der Folien 84 bis 93 setzt zusätzlich die Runtime-Abnahme von `QRY-013` und `QRY-004` voraus.
 
 `build_adv009_slides.py --check` bestätigt, dass das Deck bereits erweitert ist und ein erneuter Lauf keine zweite Einfügung erzeugt.
+
+## ADV-010 – Vertiefungsfolien zur parametersensitiven Planoptimierung
+
+Der Workflow `.github/workflows/adv010-deck-integration.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python3 Tests/Static/validate_adv010_deck_integration.py
+python3 Tests/Static/validate_adv009_deck_integration.py
+python3 Tests/Static/validate_adv_003_curriculum.py
+python3 Tests/Static/validate_w2_007_presentation.py
+python3 Tests/Static/validate_privacy_metadata.py .
+python3 Tools/build_adv010_slides.py --check
+```
+
+`validate_adv010_deck_integration.py` prüft dieselben Struktur- und Zuordnungseigenschaften wie der Prüfer des Blocks `ADV-009`, zusätzlich die unveränderten Anzeigepositionen des Blocks `ADV-009`, die kanonische Demo `OPT-009` in jeder Sprechernotiz und den Ausgangsfolienumfang im Erzeugungswerkzeug. Das aktive Deck umfasst damit 98 Folien: 84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009` und 4 Vertiefungsfolien aus `ADV-010`.
+
+Die fachliche Abnahme der Folien 94 bis 97 setzt zusätzlich die Runtime-Abnahme von `OPT-009` voraus. Die visuelle Renderprüfung ist nicht Teil der automatisierten Strecke.
 
 ## Vertiefungs-LAB-Designverträge
 
