@@ -80,6 +80,19 @@ Der Validator prüft `Documentation/Inventories/performance_scenario_inventory.j
 
 Weil Szenariendefinitionen auf Demo-Skripte und Manifeste verweisen, löst der Workflow auch bei Änderungen unterhalb von `Demos/` aus. Er bestätigt ausschließlich die Vertragskonsistenz und ersetzt keinen Lauf der Mehrsitzungsorchestrierung.
 
+## Ausführungspfad je Demo
+
+Der Workflow `.github/workflows/demo-execution-paths.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python Tests/Static/validate_demo_execution_paths.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Der Validator prüft `Documentation/Demo_Catalog/demo_execution_paths.json` gegen die Stufenleiter aus Abschnitt 13.2 des Masterplans. Geprüft werden die beidseitige Vollständigkeit gegenüber den produktiven Demo-Manifesten, die Zuordnung von Stufe und Ausführungspfad, die Pflicht zur Begründung oberhalb von Stufe 2, der Instanzbedarf gelber und roter Demos sowie die Übereinstimmung von Sicherheitsstufe, Sitzungszahl, Status und Manifestpfad mit `Tests/Lab/performance-lab-matrix.json` und dem Szenarioinventar.
+
+Der Katalog beschreibt den erforderlichen Ausführungspfad. Er provisioniert keine Umgebung.
+
 ## Aktive Framework-Runtime-Matrix
 
 Der Workflow `.github/workflows/framework-sql-matrix.yml` validiert das gemeinsame Framework gegen:

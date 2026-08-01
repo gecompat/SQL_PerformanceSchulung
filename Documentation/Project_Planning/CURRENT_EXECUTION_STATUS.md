@@ -122,6 +122,7 @@ Unabhängig von ADV-008 und LABSCN bleiben ausführbar:
 - fachlich getrennte `W2-002`-Teilpakete;
 - Query-Store-/Extended-Events-Pilotvalidierung;
 - `INF-001` – `IMPLEMENTED_FOR_REVIEW`. Ausführungsziele und Testumgebungs-How-to für eine vorhandene SQL-Server-Instanz. Die Ausführungsziele sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen und in `Tests/Runtime/execution_target.py` umgesetzt; die Demo-Runner wählen das Ziel über `--target`. Das How-to liegt in `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`, die Runner-Anforderungen in `Documentation/Architecture/RUNNER_TOPOLOGY.md`. Der Abnahmestand steht in `Documentation/Project_Planning/INF_001_EXECUTION_PATH_REVIEW.md`. Offen bleiben der Regressionsnachweis der Runtime-Workflows und der Laufnachweis gegen eine vorhandene Instanz.
+- Entscheidungspfad je Demo – erledigt. `Documentation/Demo_Catalog/demo_execution_paths.json` führt Stufe, Ausführungspfad und Instanzbedarf je implementierter Demo; `Tests/Static/validate_demo_execution_paths.py` erzwingt die Vollständigkeit und die Begründungspflicht oberhalb von Stufe 2. Keine implementierte Demo benötigt derzeit eine Stufe über 2. Der Katalog provisioniert keine Umgebung; die automatisierte Erstellung von Demoumgebungen bleibt bewusst zurückgestellt.
 
 ## 10. Abhängigkeiten und Sicherheitsgrenzen
 
