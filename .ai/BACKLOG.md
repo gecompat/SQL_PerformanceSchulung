@@ -107,7 +107,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 ## P2 - Reproduktion und Testmatrix
 
 - [x] SQL-Server-2019/2022/2025-Testmatrix definieren und erfolgreich ausführen.
-- [ ] How-to für vorhandene SQL-Server-Instanz plus isolierte synthetische Testdatenbank erstellen.
+- [x] How-to für vorhandene SQL-Server-Instanz plus isolierte synthetische Testdatenbank erstellen. Der Laufnachweis gegen eine vorhandene Instanz steht noch aus.
 - [ ] Kompakten Docker-/Podman-Bereitstellungspfad für Personen ohne verfügbaren SQL Server planen.
 - [ ] Docker-/Podman-Ressourcen- oder Netzwerkfunktionen nur für konkret abhängige Demos prüfen.
 - [ ] Hyper-V nur für nachweislich Windows-, Storage- oder OS-nahe Demos planen.

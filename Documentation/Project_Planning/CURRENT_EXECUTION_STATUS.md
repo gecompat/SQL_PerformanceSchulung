@@ -121,7 +121,7 @@ Unabhängig von ADV-008 und LABSCN bleiben ausführbar:
 - `PRS-012` und `TST-011`;
 - fachlich getrennte `W2-002`-Teilpakete;
 - Query-Store-/Extended-Events-Pilotvalidierung;
-- `INF-001` – Ausführungsziele und Testumgebungs-How-to für eine vorhandene SQL-Server-Instanz. Die Ausführungsziele sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen; die Entkopplung der Runtime-Runner und das How-to stehen aus.
+- `INF-001` – Ausführungsziele und Testumgebungs-How-to für eine vorhandene SQL-Server-Instanz. Die Ausführungsziele sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen und in `Tests/Runtime/execution_target.py` umgesetzt; die Demo-Runner wählen das Ziel über `--target`. Das How-to liegt in `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`. Offen bleibt der Laufnachweis gegen eine vorhandene Instanz.
 
 ## 10. Abhängigkeiten und Sicherheitsgrenzen
 
