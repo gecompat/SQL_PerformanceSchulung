@@ -46,6 +46,7 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 | `OPT-015` | Planweite und operatorbezogene Eigenschaften | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `QRY-013` | Anwendung langsam, SSMS schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
+| `QRY-004` | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
 | `OPT-013` | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `CON-004` | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 
@@ -67,6 +68,9 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 | Demo-ID | Titel | Modul / Lernziel | Sicherheit | Ausführungspfad | Zielmatrix | Status |
 |---|---|---|---|---|---|---|
 | `QRY-013` | Anwendung langsam, SSMS schnell | M03 / `LO-M03-07` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
+| `QRY-004` | Catch-all, Recompile und dynamisches SQL | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
+
+`QRY-004` vergleicht drei Implementierungsstrategien für optionale Suchbedingungen unter identischer Datenverteilung: den statischen Catch-all-Querytext, denselben Text mit `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL aus einer Positivliste. Die Demo stellt keine Rangfolge auf; sie belegt Wiederverwendung, Compilepreis und Injektionssicherheit getrennt. Die zugehörigen Folieninhalte liegen als Spezifikation in [`ADV_009_SLIDE_SPECIFICATION_M03_LO08.md`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md).
 
 `QRY-013` trennt Kontext- und Parameterdimension: Zwei explizit gesetzte, neutrale Sessionprofile erzeugen bei identischem Ergebnis getrennte Cacheeinträge, während ein unveränderter Kontext mit anderem Parameterwert eine abweichende Arbeitsmenge zeigt. Die Demo benennt keinen Client und keinen Treiber als Ursache. Die zugehörigen Folieninhalte liegen als Spezifikation in [`ADV_009_SLIDE_SPECIFICATION_M03.md`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md); die Übernahme in das freigabegebundene Deck ist ein eigener Schritt.
 

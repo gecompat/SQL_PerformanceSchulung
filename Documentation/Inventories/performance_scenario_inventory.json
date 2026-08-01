@@ -167,11 +167,11 @@
       "evidence": ["runtime matrix and current status report repeated validation on SQL Server 2019, 2022 and 2025"]
     },
     {
-      "demoId": "QRY-004_CLASSIC_AND_DYNAMIC",
-      "path": null,
+      "demoId": "QRY-004",
+      "path": "Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic",
       "title": "Catch-all, OPTION RECOMPILE and parameterized dynamic SQL",
-      "inventoryStatus": "PLANNED",
-      "implementationStatus": "PLANNED",
+      "inventoryStatus": "IMPLEMENTED",
+      "implementationStatus": "IMPLEMENTED",
       "classification": "A",
       "safetyLevel": "GREEN",
       "supportedProviders": ["docker", "podman"],
