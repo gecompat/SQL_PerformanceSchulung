@@ -5,7 +5,7 @@
 | Status | `ACTIVE` |
 | Stand | 2026-07-27 |
 | Geprüfter Ausgangscommit auf `origin/main` | `0a16896f484575fb6d76bff13ad19db5e9e96e44` |
-| Fachliche Hauptwelle | `ADV-008` – `QRY-013` implementiert, nächster Runtime-Schnitt `QRY-004_CLASSIC_AND_DYNAMIC` |
+| Fachliche Hauptwelle | `ADV-008` – `QRY-013` und `QRY-004` implementiert, nächster Runtime-Schnitt `OPT-009` |
 | Szenariowelle | `LABSCN-002` – Szenarioinventar und Definitionsschema |
 | Zweck | kanonischer operativer Einstiegspunkt für Demoimplementierung, interaktive Schulungsszenarien und nachgeordnete Runtimevalidierung |
 
@@ -108,11 +108,12 @@ Auswahl
 Der nächste abhängige ADV-008-Schnitt umfasst:
 
 1. `QRY-013` – neutraler Client- und Sessionkontext. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_qry013.py`, Runtime-Runner `Tests/Runtime/run_adv008_qry013.py` und Workflow `.github/workflows/adv008-qry013.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus. Die zugehörigen Folieninhalte liegen als Spezifikation in `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md`.
-2. `QRY-004_CLASSIC_AND_DYNAMIC` – Catch-all, `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL.
-3. Query-Store-/XE-Pilotvalidierung vor diagnoseabhängigen Schnitten.
-4. `OPT-017` und LAB-VP3-/VP4-Implementierungen anschließend in getrennten Paketen.
-5. `DGN-007` erst nach stabiler Query-Store-/XE-Evidenz.
-6. `RES-003` zuletzt und ausschließlich auf dedizierter Infrastruktur.
+2. `QRY-004` – Catch-all, `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_qry004.py`, Runtime-Runner `Tests/Runtime/run_adv008_qry004.py` und Workflow `.github/workflows/adv008-qry004.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus. Die zugehörigen Folieninhalte liegen als Spezifikation in `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md`.
+3. `OPT-009` und `OPT-010` – Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization, bewusst getrennt von `QRY-004`.
+4. Query-Store-/XE-Pilotvalidierung vor diagnoseabhängigen Schnitten.
+5. `OPT-017` und LAB-VP3-/VP4-Implementierungen anschließend in getrennten Paketen.
+6. `DGN-007` erst nach stabiler Query-Store-/XE-Evidenz.
+7. `RES-003` zuletzt und ausschließlich auf dedizierter Infrastruktur.
 
 ## 9. Parallel ausführbare Querschnittsarbeit
 
