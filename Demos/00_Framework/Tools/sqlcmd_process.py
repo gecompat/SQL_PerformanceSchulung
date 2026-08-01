@@ -15,6 +15,7 @@ import re
 import shutil
 import signal
 import subprocess
+import sys
 import time
 from typing import Mapping, Sequence
 
@@ -58,6 +59,15 @@ def resolve_sqlcmd(explicit_path: str | None = None) -> str:
     return discovered
 
 
+def _launcher(executable: str) -> list[str]:
+    """Resolve the argument prefix that starts the resolved sqlcmd endpoint."""
+
+    # Ein Python-Shim ist unter Windows nicht direkt als Prozess startbar.
+    if Path(executable).suffix.lower() == ".py":
+        return [sys.executable, executable]
+    return [executable]
+
+
 def _validate_connection_text(value: str, field_name: str) -> str:
     value = value.strip()
     if not value or any(ch in value for ch in "\r\n\x00"):
@@ -85,7 +95,7 @@ def build_sqlcmd_command(
         raise ValueError(f"SQL script does not exist or is not .sql: {script}")
 
     command = [
-        executable,
+        *_launcher(executable),
         "-b",
         "-r",
         "1",
