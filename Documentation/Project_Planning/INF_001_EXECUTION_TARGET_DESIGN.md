@@ -96,5 +96,7 @@ Kennwörter werden ausschließlich über `SQLCMDPASSWORD` übergeben. Das Vertra
 2. ~~Python-Shims plattformunabhängig starten.~~ Erledigt.
 3. ~~Testumgebungs-How-to nach dem Pflichtinhalt aus Abschnitt 13.4 des Masterplans erstellen.~~ Erledigt: `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`.
 4. ~~Runner-Topologie und Anforderungen an `Key18_Perf` dokumentieren.~~ Erledigt: `Documentation/Architecture/RUNNER_TOPOLOGY.md`.
-5. Statische Prüfung des Ausführungspfads ergänzen.
+5. ~~Statische Prüfung des Ausführungspfads ergänzen.~~ Erledigt: `Tests/Static/validate_inf_001_execution_path.py`.
 6. Nachweis eines vollständigen Laufs gegen das Ziel `host` erbringen. Dafür wird eine Wegwerfinstanz mit Anmeldedaten benötigt.
+
+Der Abnahmestand ist in `Documentation/Project_Planning/INF_001_EXECUTION_PATH_REVIEW.md` festgehalten.
