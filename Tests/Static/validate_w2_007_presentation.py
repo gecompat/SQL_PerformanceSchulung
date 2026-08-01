@@ -14,6 +14,9 @@ REGISTER = ROOT / "Documentation" / "Inventories" / "SLIDE_STATEMENT_REGISTER.md
 REVIEW = ROOT / "Documentation" / "Project_Planning" / "W2_007_REFINE_CLAIMS_REVIEW.md"
 A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 
+# 84 Basisfolien (W2-007) zuzueglich 10 Vertiefungsfolien (ADV-009).
+SLIDE_COUNT = 94
+
 REQUIRED = {
     32: ["Cache-Schlüssel und Invalidierung sind zu trennen", "zusätzliche Cacheeinträge", "ohne einen vorhandenen Plan zu invalidieren"],
     34: ["2022 / CL 140–160", "MGF-Persistenz/Perzentil", "Query Store READ_WRITE", "2025 / CL 160–170", "OPPO"],
@@ -53,8 +56,8 @@ def main() -> int:
                 findings.append(f"corrupt ZIP member: {bad}")
             names = set(zf.namelist())
             slides = [n for n in names if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)]
-            if len(slides) != 84:
-                findings.append(f"expected 84 slides, found {len(slides)}")
+            if len(slides) != SLIDE_COUNT:
+                findings.append(f"expected {SLIDE_COUNT} slides, found {len(slides)}")
             if "ppt/vbaProject.bin" in names:
                 findings.append("VBA project is not allowed")
             all_text: list[str] = []
@@ -102,7 +105,7 @@ def main() -> int:
         for finding in findings:
             print(f"- {finding}")
         return 1
-    print(f"w2-007-presentation: PASS (84 slides; SHA-256 {digest})")
+    print(f"w2-007-presentation: PASS ({SLIDE_COUNT} slides; SHA-256 {digest})")
     return 0
 
 if __name__ == "__main__":

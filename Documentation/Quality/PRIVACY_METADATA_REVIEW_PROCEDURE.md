@@ -116,6 +116,9 @@ Nach jeder Korrektur werden alle betroffenen Prüfschichten erneut ausgeführt. 
 |---|---|---|
 | neutralisiertes Referenzarchiv unter `Presentations/old` | `PASS` | Hash und Umfang im Quellenmanifest; Firmen-, Kontakt-, interne System- und Brandingangaben entfernt |
 | aktiver 84-Folien-Satz unter `Presentations` | `PASS` mit zulässiger Namensangabe | 84/84 Folien gerendert; Office-Paket und Metadaten geprüft; nur `Gerhard Pisch` als reale Angabe |
+| Vertiefungsblock `ADV-009`, Anzeigepositionen 84 bis 93 | `PASS` textuell und paketseitig; visuelle Einzelprüfung offen | Folien deterministisch aus der bestehenden Vorlage erzeugt; keine neuen Medien, Beziehungen oder Metadatenfelder; Notizen führen Quellen ausschließlich als `SRC-`-IDs ohne URL |
+
+Die visuelle Einzelprüfung der zehn Vertiefungsfolien steht aus. Sie ist keine Datenschutzfrage, sondern eine Renderprüfung: Der Scanner bestätigt, dass keine personenbezogenen oder kundenbezogenen Angaben hinzugekommen sind, nicht jedoch Umbruch und Lesbarkeit im Vortrag.
 
 Die fachliche Freigabe eines Artefakts ist von der Privacy-Freigabe getrennt. `PASS` bestätigt ausschließlich die hier definierten Datenschutz- und Metadatenanforderungen.
 
