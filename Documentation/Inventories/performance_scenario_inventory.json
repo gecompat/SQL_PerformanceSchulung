@@ -186,10 +186,10 @@
     },
     {
       "demoId": "QRY-013",
-      "path": null,
+      "path": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context",
       "title": "Neutral client and session context",
-      "inventoryStatus": "PLANNED",
-      "implementationStatus": "PLANNED",
+      "inventoryStatus": "IMPLEMENTED",
+      "implementationStatus": "IMPLEMENTED",
       "classification": "A",
       "safetyLevel": "GREEN",
       "supportedProviders": ["docker", "podman"],

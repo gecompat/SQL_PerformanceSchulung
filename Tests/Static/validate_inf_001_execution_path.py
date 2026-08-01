@@ -36,6 +36,7 @@ DESIGN = (
 DEMO_RUNNERS = {
     "run_gate_b_pilots.py": "GATE_B_SUMMARY",
     "run_adv008_opt015_opt016.py": "ADV008_SUMMARY",
+    "run_adv008_qry013.py": "QRY013_SUMMARY",
 }
 
 REQUIRED_RUNNER_OPTIONS = (
@@ -83,6 +84,7 @@ RUNTIME_WORKFLOWS = (
     "framework-sql-matrix.yml",
     "gate-b-pilots.yml",
     "adv008-opt015-opt016.yml",
+    "adv008-qry013.yml",
 )
 
 PASSWORD_ARGUMENT = re.compile(r"[\"']-P[\"']|--password")
