@@ -94,7 +94,7 @@ Kennwörter werden ausschließlich über `SQLCMDPASSWORD` übergeben. Das Vertra
 
 1. ~~Ausführungsziel in den Runtime-Runnern auswählbar machen und die Containerbindung in ein eigenes Modul ziehen.~~ Erledigt.
 2. ~~Python-Shims plattformunabhängig starten.~~ Erledigt.
-3. Testumgebungs-How-to nach dem Pflichtinhalt aus Abschnitt 13.4 des Masterplans erstellen.
+3. ~~Testumgebungs-How-to nach dem Pflichtinhalt aus Abschnitt 13.4 des Masterplans erstellen.~~ Erledigt: `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`.
 4. Runner-Topologie und Anforderungen an `Key18_Perf` dokumentieren.
 5. Statische Prüfung des Ausführungspfads ergänzen.
 6. Nachweis eines vollständigen Laufs gegen das Ziel `host` erbringen. Dafür wird eine Wegwerfinstanz mit Anmeldedaten benötigt.

@@ -445,6 +445,8 @@ Das How-to beschreibt mindestens:
 - Unterschiede zwischen SQL Server 2019, 2022 und 2025,
 - klare Kennzeichnung, welche Schulungsdemos zusätzliche Infrastruktur benötigen.
 
+Umsetzungsstand: `INF-001` liegt als `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md` vor. Die Ausführungsziele der Stufenleiter sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen und in `Tests/Runtime/execution_target.py` umgesetzt. Offen bleibt der Laufnachweis gegen eine vorhandene Instanz. `INF-002` bis `INF-006` sind unverändert offen.
+
 ### 13.5 Container-Arbeitspakete
 
 | ID | Größe | Arbeit | Abschlusskriterium |
