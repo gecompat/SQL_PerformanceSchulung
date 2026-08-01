@@ -1,0 +1,126 @@
+{
+  "contractVersion": "1.0",
+  "status": "ACTIVE",
+  "scope": "execution path decision per implemented demo",
+  "source": "Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md section 13.2",
+  "discovery": {
+    "include": "Demos/**/manifest.json",
+    "excludePrefixes": ["Demos/00_Framework/"],
+    "missingCatalogEntry": "FAIL",
+    "unknownCatalogEntry": "FAIL"
+  },
+  "stageModel": {
+    "1": {
+      "executionPath": "TSQL_TESTDB",
+      "description": "Existing test instance plus an own synthetic training database."
+    },
+    "2": {
+      "executionPath": "TSQL_TESTDB",
+      "description": "Pure T-SQL control inside an isolated test instance."
+    },
+    "3": {
+      "executionPath": "CONTAINER",
+      "description": "Containerised single instance for provisioning or reproducible CPU and memory limits."
+    },
+    "4": {
+      "executionPath": "HYPERV",
+      "description": "Hyper-V virtual machine for Windows, operating system, storage or isolation requirements."
+    },
+    "5": {
+      "executionPath": "MULTI_INSTANCE",
+      "description": "Multi-instance or network topology for a distributed core statement."
+    }
+  },
+  "escalationRule": "The smallest sufficient stage applies. Every entry above stage 2 must name the rejected lower stage and the technical reason why it is insufficient.",
+  "instanceRequirementModel": {
+    "SHARED_TEST_INSTANCE": "The demo may run on a test instance that is shared with other green demos.",
+    "DISPOSABLE_INSTANCE": "The demo requires an instance that may be reset or discarded."
+  },
+  "provisioningNote": "This catalogue records the required execution path. It does not provision an environment and is not an input to automated environment creation.",
+  "demos": [
+    {
+      "demoId": "QRY-001",
+      "title": "SARGability",
+      "path": "Demos/05_Query_Patterns/QRY-001_SARGability",
+      "manifest": "Demos/05_Query_Patterns/QRY-001_SARGability/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Predicate forms, access methods and logical reads are observable in a single session against an own synthetic database.",
+      "escalation": null
+    },
+    {
+      "demoId": "OPT-002",
+      "title": "Statistics Anatomy",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Statistics header, density vector and histogram are read from the own synthetic database without changing server state.",
+      "escalation": null
+    },
+    {
+      "demoId": "OPT-015",
+      "title": "Plan Properties",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Plan-wide and operator-level properties are read through session-scoped plan access; no server-level feature is switched.",
+      "escalation": null
+    },
+    {
+      "demoId": "OPT-016",
+      "title": "Rebind, Rewind, Outer References and Spools",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Rebinds, rewinds and the optimizer-chosen performance spool are visible in the actual plan of a single session.",
+      "escalation": null
+    },
+    {
+      "demoId": "OPT-013",
+      "title": "Controlled Spill",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "stage": 2,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "The spill is forced through memory grant control in T-SQL, but it loads tempdb of the whole instance and therefore must not run next to unrelated work.",
+      "escalation": null
+    },
+    {
+      "demoId": "CON-004",
+      "title": "Blocking Chain",
+      "path": "Demos/07_Concurrency/CON-004_Blocking_Chain",
+      "manifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 4,
+      "stage": 2,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Four client sessions against one isolated instance produce the blocking chain; the participant can start them manually in four windows. Held locks make the instance unusable for unrelated work during the run.",
+      "escalation": null
+    }
+  ]
+}
