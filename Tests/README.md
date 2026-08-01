@@ -85,6 +85,7 @@ Der Workflow `.github/workflows/gate-b-pilots.yml` prüft zunächst `Tests/Stati
 
 ```bash
 python Tests/Runtime/run_gate_b_pilots.py \
+  --target docker \
   --container <ephemerer-container> \
   --expected-major <15|16|17>
 ```
@@ -113,6 +114,7 @@ Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
 
 ```bash
 python Tests/Runtime/run_adv008_opt015_opt016.py \
+  --target docker \
   --container <ephemerer-container> \
   --expected-major <15|16|17>
 ```
@@ -125,6 +127,31 @@ Der validierte Lauf `30218788526` führte `OPT-015` und `OPT-016` je Version zwe
 | `OPT-016` | `GREEN` | Outer References, hintfreie Spool-Planform, Rebind-/Rewind-Richtung, kontrollierte No-Spool-Gegenprobe und Ergebnisequivalenz | 2 |
 
 `OPT-016` wurde während der Abnahme an die beobachtete Optimizerentscheidung angepasst. Der passende Index verhinderte die Performance Spool nicht zuverlässig. Baseline und Vergleich verwenden deshalb `NO_PERFORMANCE_SPOOL` ausschließlich als explizite Gegenprobe; die untersuchte Problemabfrage bleibt hintfrei.
+
+## Ausführungsziele der Runtime-Runner
+
+`Tests/Runtime/execution_target.py` trennt die Prüflogik von der Frage, wo der SQL Server läuft. Die Demo-Runner wählen das Ziel über `--target`:
+
+| Ziel | Verwendung | Pflichtangaben | Evidenzwert |
+|---|---|---|---|
+| `docker` | wegwerfbare Container-Instanz | `--container` | Gate-Evidenz, sofern auf `github-hosted` ausgeführt |
+| `host` | vorhandene SQL-Server-Instanz | `--server`, `--confirm-disposable-instance` | Entwicklungs- und Fehlersuchevidenz |
+
+Ein Lauf gegen eine vorhandene Instanz sieht so aus:
+
+```bash
+python Tests/Runtime/run_gate_b_pilots.py \
+  --target host \
+  --server <instanz> \
+  --username <anmeldename> \
+  --confirm-disposable-instance
+```
+
+Ohne `--username` wird Windows-Authentifizierung verwendet. Ohne `--expected-major` liest der Runner die Hauptversion aus der Instanz. Kennwörter werden ausschließlich über `SQLCMDPASSWORD` übergeben.
+
+Die Bestätigung ist verbindlich, weil der Lauf `SQLPERF`-Datenbanken anlegt und wieder löscht. Die Zielinstanz muss eine Wegwerfinstanz sein. Trägt sie ein selbstsigniertes Zertifikat, wird `SQLPERF_HOST_TRUST_SERVER_CERTIFICATE=1` zusätzlich benötigt; ohne diese Freigabe bleibt die Zertifikatsprüfung aktiv.
+
+Die Framework-Matrix bleibt an das Ziel `docker` gebunden, weil sie Query Store und Extended Events auf Serverebene schaltet. Grundlage ist `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md`.
 
 ## Datenschutz und Laufzeitumgebung
 
