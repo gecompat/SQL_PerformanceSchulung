@@ -95,6 +95,20 @@
       "escalation": null
     },
     {
+      "demoId": "QRY-013",
+      "title": "Slow in Application, Fast in Tooling",
+      "path": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context",
+      "manifest": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "The two client profiles are executed one after another as separate sqlcmd phases, and cache evidence is read object-scoped for a single demo procedure.",
+      "escalation": null
+    },
+    {
       "demoId": "OPT-013",
       "title": "Controlled Spill",
       "path": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill",

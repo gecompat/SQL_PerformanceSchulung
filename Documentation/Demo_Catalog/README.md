@@ -45,6 +45,7 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 | `OPT-002` | Statistics Anatomy | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-015` | Planweite und operatorbezogene Eigenschaften | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
+| `QRY-013` | Anwendung langsam, SSMS schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
 | `OPT-013` | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `CON-004` | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 
@@ -60,5 +61,13 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | M02 / `LO-M02-09` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `VALIDATED` |
 
 `OPT-015` verwendet einen synthetischen Out-of-range-Statistikfall und wertet Actual-Plan-Eigenschaften normalisiert aus. `OPT-016` untersucht eine hintfreie optimizergewählte Performance Spool; `NO_PERFORMANCE_SPOOL` wird ausschließlich als kontrollierte Gegenprobe verwendet.
+
+## Implementierte Vertiefungsdemos ohne Runtime-Abnahme
+
+| Demo-ID | Titel | Modul / Lernziel | Sicherheit | Ausführungspfad | Zielmatrix | Status |
+|---|---|---|---|---|---|---|
+| `QRY-013` | Anwendung langsam, SSMS schnell | M03 / `LO-M03-07` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
+
+`QRY-013` trennt Kontext- und Parameterdimension: Zwei explizit gesetzte, neutrale Sessionprofile erzeugen bei identischem Ergebnis getrennte Cacheeinträge, während ein unveränderter Kontext mit anderem Parameterwert eine abweichende Arbeitsmenge zeigt. Die Demo benennt keinen Client und keinen Treiber als Ursache. Die zugehörigen Folieninhalte liegen als Spezifikation in [`ADV_009_SLIDE_SPECIFICATION_M03.md`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md); die Übernahme in das freigabegebundene Deck ist ein eigener Schritt.
 
 Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträge stehen in den jeweiligen Demo-README-Dateien. Der formale Abnahmenachweis steht in [`ADV_008_OPT_015_016_REVIEW.md`](../Project_Planning/ADV_008_OPT_015_016_REVIEW.md).
