@@ -7,8 +7,8 @@
 | Stand | 2026-07-26 |
 | Aktive Claims/Folien | 84 |
 | Geplante Vertiefungsclaims | 39 |
-| Davon aktiv im Deck | 7 |
-| Vertiefungsfolien im Deck | 14 |
+| Davon aktiv im Deck | 8 |
+| Vertiefungsfolien im Deck | 18 |
 | Beobachtbare Lernziele | 52 |
 | Aktive Quellen-IDs | 57 |
 | Aktive Folien mit Demo-Zuordnung | 47 |
@@ -144,7 +144,7 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `ADV-CLM-017` | 90, 93 | Recompile tauscht Wiederverwendung gegen Compilearbeit und laufzeitnahe Information | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-PERF` | KEEP |
 | `ADV-CLM-018` | 91, 92, 93 | Dynamisches SQL muss sicher parameterisiert und auf Wiederverwendung geprüft werden | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-RUN` | KEEP |
 | `ADV-CLM-019` | 95, 96, 97 | PSP benötigt Eligibility und nachgewiesene Query Variants | `LO-M03-08` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-048` | `OPT-009` | `TP-RUN` | KEEP |
-| `ADV-CLM-020` | – | OPPO benötigt SQL Server 2025, CL 170 und geeignete optionale Prädikate | `LO-M03-08` | VERTIEFUNG | `SRC-026`, `SRC-049` | `OPT-010`, `QRY-004` | `TP-RUN` | PLANNED |
+| `ADV-CLM-020` | 99, 100, 101 | OPPO benötigt SQL Server 2025, CL 170 und geeignete optionale Prädikate | `LO-M03-08` | VERTIEFUNG | `SRC-026`, `SRC-049` | `OPT-010`, `QRY-004` | `TP-RUN` | KEEP |
 | `ADV-CLM-021` | – | Query Execution Memory besitzt getrennte Anforderungs- und Nutzungsstufen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
 | `ADV-CLM-022` | – | Spill belegt Operator-Workspace-Mangel, nicht automatisch Instanzdruck | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-029`, `SRC-031`, `SRC-050` | `OPT-013`, `RES-004` | `TP-PERF` | PLANNED |
 | `ADV-CLM-023` | – | Undergrant und Overgrant besitzen unterschiedliche Folgen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |

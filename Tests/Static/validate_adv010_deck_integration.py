@@ -37,7 +37,7 @@ P_NS = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
 A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 R_ID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
 
-TOTAL_SLIDES = 98
+TOTAL_SLIDES = 102
 BASE_SLIDES = 94
 MODULE_LABEL = "3 · QUERY PATTERNS · VERTIEFUNG"
 
