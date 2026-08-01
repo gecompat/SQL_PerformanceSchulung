@@ -11,6 +11,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_gate_b_pilots.py'
       - 'Tests/Runtime/run_gate_b_pilots.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/gate-b-pilots.yml'
   push:
@@ -24,6 +26,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_gate_b_pilots.py'
       - 'Tests/Runtime/run_gate_b_pilots.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/gate-b-pilots.yml'
   workflow_dispatch:
@@ -118,6 +122,7 @@ jobs:
           set -uo pipefail
           chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
           python Tests/Runtime/run_gate_b_pilots.py \
+            --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
             2>&1 | tee "${RUNNER_TEMP}/gate-b-${{ matrix.major }}.log"
