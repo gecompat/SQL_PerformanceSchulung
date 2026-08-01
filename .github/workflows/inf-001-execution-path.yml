@@ -1,0 +1,63 @@
+name: INF-001 execution path
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Runtime/run_gate_b_pilots.py'
+      - 'Tests/Runtime/run_adv008_opt015_opt016.py'
+      - 'Tests/Static/validate_inf_001_execution_path.py'
+      - 'Documentation/HowTo/**'
+      - 'Documentation/Architecture/RUNNER_TOPOLOGY.md'
+      - 'Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md'
+      - '.github/workflows/inf-001-execution-path.yml'
+      - '.github/workflows/framework-sql-matrix.yml'
+      - '.github/workflows/gate-b-pilots.yml'
+      - '.github/workflows/adv008-opt015-opt016.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Runtime/run_gate_b_pilots.py'
+      - 'Tests/Runtime/run_adv008_opt015_opt016.py'
+      - 'Tests/Static/validate_inf_001_execution_path.py'
+      - 'Documentation/HowTo/**'
+      - 'Documentation/Architecture/RUNNER_TOPOLOGY.md'
+      - 'Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md'
+      - '.github/workflows/inf-001-execution-path.yml'
+      - '.github/workflows/framework-sql-matrix.yml'
+      - '.github/workflows/gate-b-pilots.yml'
+      - '.github/workflows/adv008-opt015-opt016.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: inf-001-execution-path-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static execution path contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Validate INF-001 execution path
+        run: python Tests/Static/validate_inf_001_execution_path.py
+
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .
