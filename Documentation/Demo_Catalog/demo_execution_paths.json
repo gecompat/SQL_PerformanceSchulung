@@ -137,6 +137,20 @@
       "escalation": null
     },
     {
+      "demoId": "OPT-010",
+      "title": "Optional Parameter Plan Optimization",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "The database scoped configuration is switched inside the marker-owned demo database only, and dispatcher, optional predicate and variant evidence is read marker-scoped from the plan cache of a single session.",
+      "escalation": null
+    },
+    {
       "demoId": "OPT-013",
       "title": "Controlled Spill",
       "path": "Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill",

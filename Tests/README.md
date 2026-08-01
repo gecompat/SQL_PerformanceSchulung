@@ -266,6 +266,32 @@ Der statische Vertrag `validate_adv008_opt009.py` prüft neben Bündelaufbau, Ph
 
 Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Auf SQL Server 2019 endet die Demo planmäßig mit `SKIP|SKIP_VERSION`; der Runner wertet diesen Ausgang als bestanden. Stuft der Optimierer die Abfrage trotz passender Version nicht als parametersensitiv ein oder fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`. Lässt sich der Nutzen der Varianten nicht von der Messstreuung trennen, endet die Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
 
+## ADV-008 – Runtime-Matrix für OPT-010
+
+Der Workflow `.github/workflows/adv008-opt010.yml` prüft zuerst:
+
+```bash
+python Tests/Static/validate_adv008_opt010.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Danach startet er dieselbe SQL-Server-2019/2022/2025-Matrix und führt aus:
+
+```bash
+python Tests/Runtime/run_adv008_opt010.py \
+  --target docker \
+  --container <ephemerer-container> \
+  --expected-major <15|16|17>
+```
+
+Der statische Vertrag `validate_adv008_opt010.py` übernimmt die Prüfachsen des OPT-009-Vertrags und ergänzt vier Besonderheiten dieser Demo: Erstens muss der Preflight bereits ab Hauptversion 17 unterscheiden, weil Optional Parameter Plan Optimization vor SQL Server 2025 nicht existiert. Zweitens müssen alle vier Vergleichsobjekte denselben optionalen Prädikatausdruck tragen, damit der Unterschied allein in Konfiguration und Hinweis liegt. Drittens muss die Gegenmaßnahme das optionale Parameterprädikat ausdrücklich nachweisen und ein gleichzeitig auftretendes parametersensitives Prädikat als `WARN_EMPIRICAL_VARIANCE` melden, damit die Wirkung eindeutig zugeordnet bleibt. Viertens ist `PARAMETER_SENSITIVE_PLAN_OPTIMIZATION` in den SQL-Dateien verboten, damit die Nachbardemo nicht mitgeschaltet wird.
+
+| Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
+|---|---|---|---:|
+| `OPT-010` | `GREEN` | genau eine Planform und reihenfolgeunabhängige Lesekosten ohne die Optimierung, mindestens ein Dispatcherplan mit optionalem Parameterprädikat und mindestens zwei Query Variants bei eingeschalteter Optimierung, kein Dispatcherplan bei ausdrücklicher Abwahl, Ergebnisgleichheit über alle vier Phasen | 2 |
+
+Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Auf SQL Server 2019 und 2022 endet die Demo planmäßig mit `SKIP|SKIP_VERSION`; der Runner wertet diesen Ausgang als bestanden. Stuft der Optimierer die Abfrage trotz passender Version nicht als geeignet ein oder fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`.
+
 ## Ausführungsziele der Runtime-Runner
 
 `Tests/Runtime/execution_target.py` trennt die Prüflogik von der Frage, wo der SQL Server läuft. Die Demo-Runner wählen das Ziel über `--target`:

@@ -15,7 +15,7 @@ REVIEW = ROOT / "Documentation" / "Project_Planning" / "W2_007_REFINE_CLAIMS_REV
 A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 
 # 84 Basisfolien (W2-007) zuzueglich 10 Vertiefungsfolien (ADV-009).
-SLIDE_COUNT = 98
+SLIDE_COUNT = 102
 
 REQUIRED = {
     32: ["Cache-Schlüssel und Invalidierung sind zu trennen", "zusätzliche Cacheeinträge", "ohne einen vorhandenen Plan zu invalidieren"],

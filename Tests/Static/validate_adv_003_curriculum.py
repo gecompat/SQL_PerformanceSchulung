@@ -35,7 +35,8 @@ CLAIM_TO_LO = {
     **{f"ADV-CLM-{number:03d}": "LO-M07-04" for number in range(38, 40)},
 }
 
-# Durch ADV-009 und ADV-010 in das aktive Deck uebernommene Vertiefungsclaims
+# Durch ADV-009, ADV-010 und ADV-011 in das aktive Deck uebernommene
+# Vertiefungsclaims
 # mit ihren Anzeigepositionen. Alle uebrigen ADV-Claims bleiben ohne aktive
 # Folie.
 INTEGRATED_CLAIMS = {
@@ -46,6 +47,7 @@ INTEGRATED_CLAIMS = {
     "ADV-CLM-017": "90, 93",
     "ADV-CLM-018": "91, 92, 93",
     "ADV-CLM-019": "95, 96, 97",
+    "ADV-CLM-020": "99, 100, 101",
 }
 
 
@@ -69,8 +71,8 @@ def main() -> int:
         "| Arbeitspakete | `CUR-001`, `CUR-002`, `CUR-003`, `CUR-004`, `CUR-009`, `CUR-010`, `ADV-003` |",
         "| Beobachtbare Lernziele | 52 |",
         "| Geplante Vertiefungsclaims | 39 |",
-        "| Davon aktiv im Deck | 7 |",
-        "| Vertiefungsfolien im Deck | 14 |",
+        "| Davon aktiv im Deck | 8 |",
+        "| Vertiefungsfolien im Deck | 18 |",
         "`ADV-003` ergänzt neun beobachtbare Vertiefungslernziele",
     ):
         if fragment not in curriculum:
@@ -138,8 +140,8 @@ def main() -> int:
         "| Arbeitspakete | `CUR-005`, `ADV-003` |",
         "| Aktive Claims/Folien | 84 |",
         "| Geplante Vertiefungsclaims | 39 |",
-        "| Davon aktiv im Deck | 7 |",
-        "| Vertiefungsfolien im Deck | 14 |",
+        "| Davon aktiv im Deck | 8 |",
+        "| Vertiefungsfolien im Deck | 18 |",
         "| Beobachtbare Lernziele | 52 |",
         "| `TP-CAPSTONE` |",
     ):

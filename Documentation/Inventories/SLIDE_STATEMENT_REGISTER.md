@@ -4,8 +4,8 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `651d533596f30f77db2fdd04c9dd3296306884c5a721ecf3de2f2b6fd536b2b4`  
-**Folienumfang:** 98 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, 4 Vertiefungsfolien aus `ADV-010`)  
+**SHA-256:** `e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141`  
+**Folienumfang:** 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 Vertiefungsfolien aus `ADV-010` und `ADV-011`)  
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
 
@@ -142,9 +142,22 @@ Der Block ist additiv und schließt unmittelbar an den Block `ADV-009` an; die S
 
 `SLD-M03-121` führt die Problemform ein und stellt keine über `ADV-CLM-019` hinausgehende Produktbehauptung auf; die Folie erhält deshalb keinen eigenen Claim.
 
+## Vertiefungsblock `ADV-011` (Anzeigepositionen 98 bis 101)
+
+Der Block ist additiv und schließt unmittelbar an den Block `ADV-010` an; die Schlussfolie bleibt letzte Anzeigeposition. Er setzt die Folienspezifikation [`LO-M03-08` / Optional Parameter Plan Optimization](../Curriculum/ADV_011_SLIDE_SPECIFICATION_M03_LO08_OPPO.md) um.
+
+| Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
+|---|---:|---|---|---|---|---|---|---|---|---|
+| SLD-M03-131 | 98 | `slide99.xml` | – | Query Patterns | DOCUMENTED | Ein optionales Parameterprädikat erzwingt eine Planform, die für belegte und offene Parameter zugleich gültig sein muss; eine Suchplanform existiert dafür nicht | 2019–2025 | SRC-001, SRC-049 | KEEP | `OPT-010` |
+| SLD-M03-132 | 99 | `slide100.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Optional Parameter Plan Optimization erzeugt einen Dispatcherplan mit optionalem Parameterprädikat und je NULL-Zustand eine Query Variant | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
+| SLD-M03-133 | 100 | `slide101.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Das Verfahren setzt SQL Server 2025 und Compatibility Level 170 voraus und entfällt bei lokalen Variablen, OPTION (RECOMPILE), ANSI_NULLS OFF und Autoparametrisierung | 2025 | SRC-007, SRC-026 | KEEP | `OPT-010` |
+| SLD-M03-134 | 101 | `slide102.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Die Optimierung ist über die Datenbankeinstellung und über den Abfragehinweis steuerbar; sie grenzt sich in der Auswahlbedingung von der parametersensitiven Planoptimierung ab | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
+
+`SLD-M03-131` führt die Problemform ein und stellt keine über `ADV-CLM-020` hinausgehende Produktbehauptung auf; die Folie erhält deshalb keinen eigenen Claim.
+
 ## Abdeckungs- und Entscheidungsbilanz
 
-Die Bilanz beschreibt den durch `W2-007` abgenommenen Basissatz. Die Vertiefungsblöcke aus `ADV-009` und `ADV-010` werden getrennt geführt und verändern die Bilanz des Basissatzes nicht.
+Die Bilanz beschreibt den durch `W2-007` abgenommenen Basissatz. Die Vertiefungsblöcke aus `ADV-009`, `ADV-010` und `ADV-011` werden getrennt geführt und verändern die Bilanz des Basissatzes nicht.
 
 | Kennzahl | Wert |
 |---|---:|

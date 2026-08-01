@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the ADV-009 deck integration using Python standard library only.
+"""Validate the ADV-011 deck integration using Python standard library only.
 
-Der Pruefer bindet die zehn Vertiefungsfolien an ihre Spezifikationen, an das
-Folien- und Aussagenregister sowie an die Traceability-Matrix. Er prueft
-Struktur und Zuordnung, nicht Layoutqualitaet.
+Der Pruefer bindet die vier Vertiefungsfolien zur Optional Parameter Plan
+Optimization an ihre Spezifikation, an das Folien- und Aussagenregister
+sowie an die Traceability-Matrix. Er prueft Struktur und Zuordnung, nicht
+Layoutqualitaet.
 """
 from __future__ import annotations
 
@@ -24,38 +25,48 @@ REGISTER = ROOT / "Documentation" / "Inventories" / "SLIDE_STATEMENT_REGISTER.md
 TRACEABILITY = ROOT / "Documentation" / "Curriculum" / "TRACEABILITY_MATRIX.md"
 MANIFEST = ROOT / "Documentation" / "Inventories" / "SOURCE_MANIFEST.md"
 PRIVACY = ROOT / "Tests" / "Static" / "validate_privacy_metadata.py"
-SPEC_LO07 = ROOT / "Documentation" / "Curriculum" / "ADV_009_SLIDE_SPECIFICATION_M03.md"
-SPEC_LO08 = ROOT / "Documentation" / "Curriculum" / "ADV_009_SLIDE_SPECIFICATION_M03_LO08.md"
-BUILDER = ROOT / "Tools" / "build_adv009_slides.py"
+SPEC = (
+    ROOT
+    / "Documentation"
+    / "Curriculum"
+    / "ADV_011_SLIDE_SPECIFICATION_M03_LO08_OPPO.md"
+)
+BUILDER = ROOT / "Tools" / "build_adv011_slides.py"
 
 P_NS = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
 A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 R_ID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
 
 TOTAL_SLIDES = 102
+BASE_SLIDES = 98
 MODULE_LABEL = "3 · QUERY PATTERNS · VERTIEFUNG"
 
 # Folien-ID -> (Folienteil, Anzeigeposition, Pflichtfragment im sichtbaren Text)
 SLIDES = {
-    "SLD-M03-101": ("ppt/slides/slide85.xml", 84, "mehrdimensionale Kontextdiagnose"),
-    "SLD-M03-102": ("ppt/slides/slide86.xml", 85, "sys.dm_exec_plan_attributes"),
-    "SLD-M03-103": ("ppt/slides/slide87.xml", 86, "Parameter Sensitivity"),
-    "SLD-M03-104": ("ppt/slides/slide88.xml", 87, "OPTION (RECOMPILE)"),
-    "SLD-M03-105": ("ppt/slides/slide89.xml", 88, "Ergebnisgleichheit sichern"),
-    "SLD-M03-111": ("ppt/slides/slide90.xml", 89, "eine Planform muss jede Filterkombination bedienen"),
-    "SLD-M03-112": ("ppt/slides/slide91.xml", 90, "Kompilierarbeit"),
-    "SLD-M03-113": ("ppt/slides/slide92.xml", 91, "sys.sp_executesql"),
-    "SLD-M03-114": ("ppt/slides/slide93.xml", 92, "Statementform"),
-    "SLD-M03-115": ("ppt/slides/slide94.xml", 93, "Ergebnisgleichheit ist Voraussetzung"),
+    "SLD-M03-131": (
+        "ppt/slides/slide99.xml",
+        98,
+        "keine Suchplanform",
+    ),
+    "SLD-M03-132": (
+        "ppt/slides/slide100.xml",
+        99,
+        "QueryVariantID",
+    ),
+    "SLD-M03-133": (
+        "ppt/slides/slide101.xml",
+        100,
+        "Compatibility Level 170",
+    ),
+    "SLD-M03-134": (
+        "ppt/slides/slide102.xml",
+        101,
+        "DISABLE_OPTIONAL_PARAMETER_OPTIMIZATION",
+    ),
 }
 
 INTEGRATED_CLAIMS = {
-    "ADV-CLM-013": "85, 88",
-    "ADV-CLM-014": "84, 88",
-    "ADV-CLM-015": "86, 88",
-    "ADV-CLM-016": "87, 88",
-    "ADV-CLM-017": "90, 93",
-    "ADV-CLM-018": "91, 92, 93",
+    "ADV-CLM-020": "99, 100, 101",
 }
 
 # Keine unerlaubte Vermischung dokumentierter und empirischer Aussagen.
@@ -148,10 +159,32 @@ def check_deck(findings: list[str]) -> str:
                     findings.append(f"{slide_id}: speaker note classification line missing")
                 if "Tiefe: VERTIEFUNG" not in note_text:
                     findings.append(f"{slide_id}: speaker note depth profile missing")
+                if "Demo: OPT-010" not in note_text:
+                    findings.append(f"{slide_id}: speaker note does not name the canonical demo")
 
         # Die Schlussfolie bleibt letzte Anzeigeposition.
         if order and order[-1] != "ppt/slides/slide84.xml":
             findings.append("closing slide is no longer the last display position")
+
+        # Der ADV-009-Block behaelt seine Anzeigepositionen 84 bis 93.
+        for offset in range(10):
+            expected = f"ppt/slides/slide{85 + offset}.xml"
+            position = 84 + offset
+            if position <= len(order) and order[position - 1] != expected:
+                findings.append(
+                    f"ADV-009 slide {position} moved to {order[position - 1]}"
+                )
+                break
+
+        # Der ADV-010-Block behaelt seine Anzeigepositionen 94 bis 97.
+        for offset in range(4):
+            expected = f"ppt/slides/slide{95 + offset}.xml"
+            position = 94 + offset
+            if position <= len(order) and order[position - 1] != expected:
+                findings.append(
+                    f"ADV-010 slide {position} moved to {order[position - 1]}"
+                )
+                break
 
         # Bestehende Basisfolien behalten ihre Anzeigeposition.
         for position in range(1, 84):
@@ -177,6 +210,8 @@ def check_documents(findings: list[str], digest: str) -> None:
         findings.append("source manifest does not carry the current deck hash")
     if f"SHA-256 {digest}" in builder:
         findings.append("builder must not hard-code the deck hash")
+    if f"BASE_SLIDE_COUNT = {BASE_SLIDES}" not in builder:
+        findings.append("builder does not start from the registered base slide count")
 
     for slide_id, (part, position, _) in SLIDES.items():
         row = next(
@@ -209,21 +244,20 @@ def check_documents(findings: list[str], digest: str) -> None:
         if cells[8] != "KEEP":
             findings.append(f"{claim}: traceability decision is {cells[8]} instead of KEEP")
 
-    for spec, expected_ids in ((SPEC_LO07, range(101, 106)), (SPEC_LO08, range(111, 116))):
-        text = spec.read_text(encoding="utf-8")
-        if "| Status | `INTEGRATED` |" not in text:
-            findings.append(f"{spec.name}: status is not INTEGRATED")
-        for number in expected_ids:
-            if f"SLD-M03-{number}" not in text:
-                findings.append(f"{spec.name}: missing slide specification SLD-M03-{number}")
-        if re.search(r"Bis dahin bleiben die Claims", text):
-            findings.append(f"{spec.name}: obsolete pre-integration wording remains")
+    text = SPEC.read_text(encoding="utf-8")
+    if "| Status | `INTEGRATED` |" not in text:
+        findings.append(f"{SPEC.name}: status is not INTEGRATED")
+    for number in range(131, 135):
+        if f"SLD-M03-{number}" not in text:
+            findings.append(f"{SPEC.name}: missing slide specification SLD-M03-{number}")
+    if re.search(r"Bis dahin bleiben die Claims", text):
+        findings.append(f"{SPEC.name}: obsolete pre-integration wording remains")
 
 
 def main() -> int:
     findings: list[str] = []
     if not DECK.is_file():
-        print("adv009-deck-integration: FAIL (deck missing)")
+        print("adv011-deck-integration: FAIL (deck missing)")
         return 1
     try:
         digest = check_deck(findings)
@@ -232,13 +266,13 @@ def main() -> int:
         findings.append(f"deck or documents cannot be evaluated: {exc}")
 
     if findings:
-        print(f"adv009-deck-integration: FAIL ({len(findings)} finding(s))")
+        print(f"adv011-deck-integration: FAIL ({len(findings)} finding(s))")
         for finding in findings:
             print(f"- {finding}")
         return 1
     print(
-        f"adv009-deck-integration: PASS ({len(SLIDES)} deep-dive slides, "
-        f"{len(INTEGRATED_CLAIMS)} claims, {TOTAL_SLIDES} slides total)"
+        f"adv011-deck-integration: PASS ({len(SLIDES)} deep-dive slides, "
+        f"{len(INTEGRATED_CLAIMS)} claim, {TOTAL_SLIDES} slides total)"
     )
     return 0
 
