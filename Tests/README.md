@@ -67,6 +67,19 @@ Geprüft werden:
 
 `LABINT-001` validiert nur Architektur und Katalog. Ein realer Docker-/Podman-Lauf über `SQL_Server_Lab` folgt erst mit `LABINT-002`.
 
+## Szenariendefinitionen
+
+Der Workflow `.github/workflows/performance-scenarios.yml` startet keinen SQL Server und führt aus:
+
+```bash
+python Tests/Static/validate_performance_scenarios.py
+python3 Tests/Static/validate_privacy_metadata.py .
+```
+
+Der Validator prüft `Documentation/Inventories/performance_scenario_inventory.json` und jede Datei `Scenarios/**/scenario.json` gegeneinander: Vertragsversion, eindeutige Demo-IDs, zulässige Orchestrierungsmodi, Übereinstimmung von Inventar und Szenariendefinition sowie die Existenz aller referenzierten Repository-Pfade. Pfade außerhalb des Repositorys und absolute Pfade sind verboten.
+
+Weil Szenariendefinitionen auf Demo-Skripte und Manifeste verweisen, löst der Workflow auch bei Änderungen unterhalb von `Demos/` aus. Er bestätigt ausschließlich die Vertragskonsistenz und ersetzt keinen Lauf der Mehrsitzungsorchestrierung.
+
 ## Aktive Framework-Runtime-Matrix
 
 Der Workflow `.github/workflows/framework-sql-matrix.yml` validiert das gemeinsame Framework gegen:
