@@ -9,6 +9,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_adv008_opt015_opt016.py'
       - 'Tests/Runtime/run_adv008_opt015_opt016.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/adv008-opt015-opt016.yml'
   push:
@@ -19,6 +21,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_adv008_opt015_opt016.py'
       - 'Tests/Runtime/run_adv008_opt015_opt016.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/adv008-opt015-opt016.yml'
   workflow_dispatch:
