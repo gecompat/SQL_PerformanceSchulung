@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - 'Demos/**/manifest.json'
+      - 'Scenarios/QRY-001/**'
       - 'Tests/Lab/**'
       - 'Tests/Static/validate_sql_server_lab_test_catalog.py'
       - 'Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md'
       - 'Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md'
       - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md'
       - 'Documentation/Project_Planning/LABINT_001_SQL_SERVER_LAB_INTEGRATION_REVIEW.md'
       - 'Documentation/Project_Planning/LABINT_001_EXPECTATION_CORRECTION.md'
       - 'Documentation/Project_Planning/LABSCN_001_INTERACTIVE_SCENARIO_DECISION_REVIEW.md'
@@ -21,11 +23,13 @@ on:
     branches: [main]
     paths:
       - 'Demos/**/manifest.json'
+      - 'Scenarios/QRY-001/**'
       - 'Tests/Lab/**'
       - 'Tests/Static/validate_sql_server_lab_test_catalog.py'
       - 'Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md'
       - 'Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md'
       - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md'
       - 'Documentation/Project_Planning/LABINT_001_SQL_SERVER_LAB_INTEGRATION_REVIEW.md'
       - 'Documentation/Project_Planning/LABINT_001_EXPECTATION_CORRECTION.md'
       - 'Documentation/Project_Planning/LABSCN_001_INTERACTIVE_SCENARIO_DECISION_REVIEW.md'

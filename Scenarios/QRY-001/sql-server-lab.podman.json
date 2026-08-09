@@ -1,0 +1,19 @@
+{
+  "$schema": "https://github.com/gecompat/SQL_Server_Lab/raw/main/Schemas/lab-manifest.schema.json",
+  "name": "sql-performance-qry-001-podman",
+  "description": "Wegwerfbare SQL-Server-2025-Podman-Umgebung fuer den gruenen QRY-001-Szenariotest.",
+  "automation": {
+    "mode": "unattended"
+  },
+  "instances": [
+    {
+      "id": "primary",
+      "version": "2025",
+      "provider": "podman",
+      "os": "linux",
+      "profile": "compact",
+      "collation": "SQL_Latin1_General_CP1_CS_AS",
+      "databases": []
+    }
+  ]
+}

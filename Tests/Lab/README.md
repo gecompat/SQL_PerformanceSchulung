@@ -56,6 +56,48 @@ Diese Regel stellt sicher, dass neue Demos in die Qualitätssicherung aufgenomme
 
 Die spätere Benutzerbedienung für interaktive Szenarien wird getrennt unter `LABSCN-004` standardisiert.
 
+## Lokaler SQL_Server_Lab-Vertical-Slice
+
+`Invoke-SqlServerLabScenarioTest.ps1` führt den ersten ausführbaren,
+containerbasierten Integrationspfad für `QRY-001` aus. Der Pfad benötigt keine
+Hyper-V- oder Windows-Gastumgebung. Er verwendet ausschließlich öffentliche
+Commands aus `SQL_Server_Lab`:
+
+1. `Test-SqlServerLabManifest` validiert das Docker- oder Podman-Manifest unter
+   `Scenarios/QRY-001/`;
+2. `New-SqlServerLab` erzeugt eine kompakte SQL-Server-2025-Instanz auf Docker
+   oder Podman;
+3. `Get-SqlServerLab` bestätigt den Live-Status; die SQL-Readiness ist bereits
+   Abschlussbedingung der Provisionierung;
+4. der vorhandene `FWK-010`-Harness führt `QRY-001` standardmäßig zweimal aus;
+5. `Invoke-SqlServerLabScript` prüft nach jedem Lauf unabhängig, dass die
+   markierte Testdatenbank entfernt wurde;
+6. `Remove-SqlServerLab` entfernt Container, Volumes, Secrets und Run-State
+   scopegebunden.
+
+Der Lab-State liegt standardmäßig unter `Runtime/State/SqlServerLab` und wird
+nicht versioniert. Das Kennwort wird als `SecureString` erzeugt oder übergeben
+und nur für Kindprozesse temporär in `SQLCMDPASSWORD` gesetzt.
+
+```powershell
+./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
+    -PythonPath python `
+    -Repetitions 2
+
+./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
+    -Provider podman `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
+    -PythonPath python `
+    -Repetitions 2
+```
+
+Der aktuelle Vertical Slice ist auf SQL Server 2025 begrenzt. Docker und Podman
+sind lokal mit jeweils zwei vollständigen Läufen validiert. Die Versionen 2019
+und 2022 bleiben getrennte Folgearbeiten. Der lokale Laufnachweis und die bewusst
+offene Grenze zum interaktiven Workflow stehen unter
+[`LABINT_002_QRY_001_LOCAL_RESULT.md`](../../Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md).
+
 ## Sicherheitsregeln
 
 - Rot wird niemals implizit eingeschlossen.

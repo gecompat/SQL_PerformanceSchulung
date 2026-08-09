@@ -21,6 +21,10 @@ SCENARIO_PATH = ROOT / "Documentation" / "Architecture" / "SQL_SERVER_LAB_INTERA
 INFRASTRUCTURE_README = ROOT / "Infrastructure" / "README.md"
 BACKLOG = ROOT / ".ai" / "BACKLOG.md"
 DECISIONS = ROOT / ".ai" / "DECISIONS.md"
+QRY001_LAB_MANIFEST = ROOT / "Scenarios" / "QRY-001" / "sql-server-lab.json"
+QRY001_PODMAN_LAB_MANIFEST = ROOT / "Scenarios" / "QRY-001" / "sql-server-lab.podman.json"
+SCENARIO_TEST_RUNNER = ROOT / "Tests" / "Lab" / "Invoke-SqlServerLabScenarioTest.ps1"
+QRY001_CLEANUP_PROBE = ROOT / "Tests" / "Lab" / "Sql" / "Assert-QRY-001-Cleanup.sql"
 
 DEMO_ID = re.compile(r"^(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}$")
 CAPABILITY = re.compile(r"^[A-Z][A-Z0-9_]+$")
@@ -211,6 +215,61 @@ def validate_project_boundary() -> None:
             raise ContractError(f"Infrastructure/README.md missing marker {marker}")
 
 
+def validate_executable_vertical_slice() -> None:
+    for provider, path, expected_name in (
+        ("docker", QRY001_LAB_MANIFEST, "sql-performance-qry-001"),
+        ("podman", QRY001_PODMAN_LAB_MANIFEST, "sql-performance-qry-001-podman"),
+    ):
+        manifest = read_json(path)
+        if manifest.get("name") != expected_name:
+            raise ContractError(f"QRY-001 {provider} SQL_Server_Lab manifest has an unexpected name")
+        if manifest.get("automation") != {"mode": "unattended"}:
+            raise ContractError(f"QRY-001 {provider} manifest must be unattended and secret-free")
+
+        instances = manifest.get("instances")
+        if not isinstance(instances, list) or len(instances) != 1:
+            raise ContractError(f"QRY-001 {provider} manifest must contain one instance")
+        instance = instances[0]
+        expected = {
+            "id": "primary",
+            "version": "2025",
+            "provider": provider,
+            "os": "linux",
+            "profile": "compact",
+            "collation": "SQL_Latin1_General_CP1_CS_AS",
+            "databases": [],
+        }
+        if instance != expected:
+            raise ContractError(f"QRY-001 {provider} SQL_Server_Lab instance contract mismatch")
+        if "hyperv" in json.dumps(manifest).lower():
+            raise ContractError("QRY-001 vertical slice must not require Hyper-V")
+
+    try:
+        runner = SCENARIO_TEST_RUNNER.read_text(encoding="utf-8")
+        cleanup_probe = QRY001_CLEANUP_PROBE.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ContractError(f"executable QRY-001 vertical slice is incomplete: {exc}") from exc
+
+    runner_markers = (
+        "Test-SqlServerLabManifest",
+        "New-SqlServerLab",
+        "Get-SqlServerLab",
+        "Invoke-SqlServerLabScript",
+        "Remove-SqlServerLab",
+        "Runtime\\State\\SqlServerLab",
+        "Demos\\00_Framework\\Tools\\run_demo.py",
+        "SQLCMDPASSWORD",
+        "QRY-001",
+        "podman",
+    )
+    for marker in runner_markers:
+        if marker not in runner:
+            raise ContractError(f"QRY-001 scenario runner missing marker {marker}")
+
+    if "SQLPERF_LAB_QRY001_LOCAL" not in cleanup_probe or "DB_ID" not in cleanup_probe:
+        raise ContractError("QRY-001 independent cleanup probe is incomplete")
+
+
 def main() -> int:
     try:
         catalog = read_json(CATALOG_PATH)
@@ -257,6 +316,7 @@ def main() -> int:
             validate_demo(entry, manifests)
 
         validate_project_boundary()
+        validate_executable_vertical_slice()
 
         full_lane = lanes["FULL_CONTAINER_MATRIX"]
         eligible = [entry for entry in entries if entry["safetyLevel"] in full_lane["safetyLevels"]]
