@@ -1,0 +1,19 @@
+{
+  "$schema": "https://github.com/gecompat/SQL_Server_Lab/raw/main/Schemas/lab-manifest.schema.json",
+  "name": "sql-performance-con-004-podman",
+  "description": "Wegwerfbare SQL-Server-2025-Podmanumgebung fuer den manuellen CON-004-Blocking-Chain-Szenariolauf.",
+  "automation": {
+    "mode": "unattended"
+  },
+  "instances": [
+    {
+      "id": "primary",
+      "version": "2025",
+      "provider": "podman",
+      "os": "linux",
+      "profile": "standard",
+      "collation": "SQL_Latin1_General_CP1_CS_AS",
+      "databases": []
+    }
+  ]
+}

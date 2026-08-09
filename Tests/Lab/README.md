@@ -80,17 +80,60 @@ nicht versioniert. Das Kennwort wird als `SecureString` erzeugt oder übergeben
 und nur für Kindprozesse temporär in `SQLCMDPASSWORD` gesetzt.
 
 ```powershell
+$pythonPath = (Get-Command python).Source
+$env:SQLPERF_PYTHON = $pythonPath
+
 ./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
     -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
-    -PythonPath python `
+    -PythonPath $pythonPath `
     -Repetitions 2
 
 ./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
     -Provider podman `
     -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
-    -PythonPath python `
+    -PythonPath $pythonPath `
     -Repetitions 2
+
 ```
+
+Falls `-PythonPath` nicht gesetzt ist, versucht das Skript automatisch:
+
+1. `-PythonPath`
+2. `SQLPERF_PYTHON`
+3. `python`, `python3`, `py` im PATH
+4. typische Installationsorte (`WindowsApps`, `Program Files`, Scoop, etc.)
+
+Wenn keine Erkennung gelingt:
+
+```powershell
+# nur für die aktuelle Sitzung
+$env:SQLPERF_PYTHON = 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe'
+
+# dauerhaft (User Scope)
+[Environment]::SetEnvironmentVariable('SQLPERF_PYTHON', 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe', 'User')
+```
+
+Alternativ den Interpreter direkt übergeben:
+
+```powershell
+./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 -PythonPath 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe'
+```
+
+`CON-004` nutzt das YELLOW-Demo und benötigt die Isolationsbestätigung im
+Automationslauf:
+
+```powershell
+$pythonPath = (Get-Command python).Source
+$env:SQLPERF_PYTHON = $pythonPath
+
+./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
+    -ScenarioId CON-004 `
+    -Provider podman `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
+    -PythonPath $pythonPath `
+    -Repetitions 1
+```
+
 
 Der aktuelle Vertical Slice ist auf SQL Server 2025 begrenzt. Docker und Podman
 sind lokal mit jeweils zwei vollständigen Läufen validiert. Die Versionen 2019
@@ -105,3 +148,4 @@ offene Grenze zum interaktiven Workflow stehen unter
 - Secrets werden nicht in Katalog, Szenariodefinition oder Report persistiert.
 - Lokaler Lab-State und technische Diagnosen verbleiben außerhalb versionierter Projektpfade.
 - Änderungen in `SQL_Server_Lab` erfolgen nur nach konkretem Szenariobefund und ausdrücklicher Freigabe.
+./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 -PythonPath 'C:\Users\gerha\AppData\Local\Programs\Python\Python313\python.exe'
