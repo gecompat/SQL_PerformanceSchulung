@@ -57,15 +57,18 @@ Infrastruktur-Lifecycle.
 Die folgenden Aufrufe wurden mit jeweils zwei Wiederholungen ausgeführt:
 
 ```powershell
+$pythonPath = (Get-Command python).Source
+$env:SQLPERF_PYTHON = $pythonPath
+
 ./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
     -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
-    -PythonPath python `
+    -PythonPath $pythonPath `
     -Repetitions 2
 
 ./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 `
     -Provider podman `
     -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1 `
-    -PythonPath python `
+    -PythonPath $pythonPath `
     -Repetitions 2
 ```
 
@@ -84,6 +87,76 @@ Die folgenden Aufrufe wurden mit jeweils zwei Wiederholungen ausgeführt:
 
 Beide Läufe umfassten `PREFLIGHT`, `SETUP`, `BASELINE`, `DEMONSTRATION`,
 `OBSERVATION`, `MITIGATION`, `COMPARISON` und `CLEANUP`.
+
+### 4.1. Aktuellester Podman-Doppel-Lauf (bestätigt)
+
+| Eigenschaft | Wert |
+|---|---|
+| Datum | 2026-08-09 |
+| ScenarioId | `QRY-001` |
+| Provider | `podman` |
+| SQL Server | `2025` |
+| Repetitions | `2` |
+| RunId | `1c3edd11-aa0e-4f09-8430-2b85e182aaeb` |
+| ScopeId | `38d6ce04-b6f0-4648-a9c4-c3a6c7efa813` |
+| Initiale Probe | `Assert-QRY-001-Cleanup.sql` erfolgreich |
+| Lauf 1 | `PREFLIGHT/SETUP/BASELINE/DEMONSTRATION/OBSERVATION/MITIGATION/COMPARISON/CLEANUP` = `PASS/OK` |
+| Lauf 2 | `PREFLIGHT/SETUP/BASELINE/DEMONSTRATION/OBSERVATION/MITIGATION/COMPARISON/CLEANUP` = `PASS/OK` |
+| Cleanup nach letzter Probe | erfolgreich |
+| Infrastruktur | `Remove-SqlServerLab` -> `REMOVED`, `CLEANUP_SUCCEEDED` |
+| DemoOutcome | `PASS` |
+
+Ausgabe der finalen Objektzeile:
+
+```text
+ScenarioId : QRY-001
+Provider   : podman
+SqlVersion : 2025
+Repetitions: 2
+DemoOutcome: PASS
+InfrastructureState: REMOVED
+LabRunId : 1c3edd11-aa0e-4f09-8430-2b85e182aaeb
+```
+
+### 4.2. Docker-Doppel-Lauf (bestätigt)
+
+Docker wurde vollständig durchgeführt und bestätigt.
+
+```powershell
+.\Tests\Lab\Invoke-SqlServerLabScenarioTest.ps1 `
+  -Provider docker `
+  -SqlServerLabModulePath ..\SQL_Server_Lab\SqlServerLab.psd1 `
+  -PythonPath $pythonPath `
+  -Repetitions 2
+```
+
+| Eigenschaft | Wert |
+|---|---|
+| Datum | 2026-08-09 |
+| ScenarioId | `QRY-001` |
+| Provider | `docker` |
+| SQL Server | `2025` |
+| Repetitions | `2` |
+| RunId | `1ab246f5-9f55-4a58-b1a4-caf318061440` |
+| ScopeId | `bcf97733-3322-4694-849a-c85075eed508` |
+| Initiale Probe | `Assert-QRY-001-Cleanup.sql` erfolgreich |
+| Lauf 1 | `PREFLIGHT/SETUP/BASELINE/DEMONSTRATION/OBSERVATION/MITIGATION/COMPARISON/CLEANUP` = `PASS/OK` |
+| Lauf 2 | `PREFLIGHT/SETUP/BASELINE/DEMONSTRATION/OBSERVATION/MITIGATION/COMPARISON/CLEANUP` = `PASS/OK` |
+| Cleanup nach letzter Probe | erfolgreich |
+| Infrastruktur | `Remove-SqlServerLab` -> `REMOVED`, `CLEANUP_SUCCEEDED` |
+| DemoOutcome | `PASS` |
+
+Ausgabe der finalen Objektzeile:
+
+```text
+ScenarioId          : QRY-001
+Provider            : docker
+SqlVersion          : 2025
+Repetitions         : 2
+DemoOutcome         : PASS
+InfrastructureState : REMOVED
+LabRunId            : 1ab246f5-9f55-4a58-b1a4-caf318061440
+```
 
 ## 5. Bewusste Grenze
 

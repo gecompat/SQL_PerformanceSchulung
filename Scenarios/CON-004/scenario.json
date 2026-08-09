@@ -134,6 +134,6 @@
     "Der Problemzustand verwendet vier parallele Sessions: HEAD, MIDDLE, LEAF und OBSERVER. Der Vergleichslauf verwendet FIRST_WRITER und FOLLOWER.",
     "Konkrete Session-IDs und Lock-Ressourcenbeschreibungen sind keine stabilen fachlichen Assertions.",
     "Ein RUNNER_ASSISTED-Modus ist nur bei einem spaeteren Bedarf an dauerhaft oder wiederholt aufrechterhaltener Blocking-Aktivitaet vorgesehen.",
-    "Die konkrete SQL_Server_Lab-Manifestdatei und die kompakte Benutzeruebergabe werden im folgenden Implementierungsschritt erstellt."
+    "Das konkrete SQL_Server_Lab-Manifest fuer CON-004 liegt unter Scenarios/CON-004/sql-server-lab.json und Scenarios/CON-004/sql-server-lab.podman.json bereit."
   ]
 }

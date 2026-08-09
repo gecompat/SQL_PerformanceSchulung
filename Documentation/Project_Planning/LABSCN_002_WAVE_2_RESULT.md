@@ -78,4 +78,4 @@ Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und refer
 
 ## 9. Nicht Bestandteil dieser Integration
 
-Noch nicht implementiert sind das konkrete Lab-Manifest, die Bedienkommandos für Start, Reset und Remove, die fertige Teilnehmerübergabe sowie die Docker- und Podman-Runtimeabnahme. Diese Arbeiten bleiben Bestandteil von `LABSCN-003`.
+Noch nicht implementiert sind die Bedienkommandos für Start, Reset und Remove, die fertige Teilnehmerübergabe sowie die Docker- und Podman-Runtimeabnahme als vollständiger interaktiver Nachweis. Diese Arbeiten bleiben Bestandteil von `LABSCN-003`.
