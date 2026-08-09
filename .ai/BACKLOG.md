@@ -90,7 +90,11 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 - [x] `LABINT-001` automatisierten Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen.
 - [ ] `LABINT-002` Smoke-/Core-Test für Aufbau, Vorbereitung, Reset und Abbau des ersten interaktiven Vertical Slice implementieren.
+  - [x] Technischen QRY-001-Vorläufer auf Docker und Podman mit SQL Server 2025 über öffentliche `SQL_Server_Lab`-Commands implementieren und je Provider mit zwei vollständigen Demoläufen, unabhängiger Datenbank-Cleanup-Prüfung und Infrastrukturabbau lokal validieren.
+  - [ ] Den Test nach dem noch offenen `READY_FOR_USER`-, Reset- und Remove-Workflow von `LABSCN-003` auf den vollständigen interaktiven Lifecycle erweitern.
 - [ ] `LABINT-003` Docker-/Podman-Parität für geeignete Szenarien praktisch prüfen.
+  - [x] Provider-Parität für `QRY-001` auf SQL Server 2025 mit jeweils zwei vollständigen Läufen lokal nachweisen.
+  - [ ] Weitere geeignete Szenarien und die freigegebene Versionsmatrix prüfen.
 - [ ] `LABINT-004` gelbe und vollständige Container-Matrix nach Safety- und Szenariofreigabe aktivieren.
 
 ## P1 - Masterdeck und Präsentationsvarianten

@@ -3,10 +3,10 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-02 |
+| Stand | 2026-08-09 |
 | Geprüfter Ausgangscommit auf `origin/main` | `0a16896f484575fb6d76bff13ad19db5e9e96e44` |
 | Fachliche Hauptwelle | `ADV-008` – `QRY-013`, `QRY-004`, `OPT-009` und `OPT-010` implementiert, Folienübernahmen `ADV-009`, `ADV-010` und `ADV-011` abgeschlossen, nächster Runtime-Schnitt `OPT-017` |
-| Szenariowelle | `LABSCN-002` – Szenarioinventar und Definitionsschema |
+| Szenariowelle | `LABSCN-002` – Szenarioinventar und Definitionsschema; technischer QRY-001-Docker-/Podman-Vorläufer für `LABINT-002` lokal validiert |
 | Zweck | kanonischer operativer Einstiegspunkt für Demoimplementierung, interaktive Schulungsszenarien und nachgeordnete Runtimevalidierung |
 
 ## 1. Verifizierter Repository-Stand
@@ -78,6 +78,8 @@ Die automatisierte Matrix ist nicht der Benutzerworkflow. Ein Testlauf darf eine
 - `LABSCN-001`: `DECIDED` und im Repository verankert.
 - `LABSCN-002`: offen.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
+- `LABINT-002`: technischer QRY-001-Vorläufer auf Docker und Podman mit SQL Server 2025 lokal je Provider mit zwei vollständigen `FWK-010`-Läufen validiert; der vollständige interaktive Lifecycle bleibt an `LABSCN-003` gebunden.
+- `LABINT-003`: Provider-Parität für `QRY-001` auf SQL Server 2025 lokal nachgewiesen; weitere Szenarien und Versionen bleiben offen.
 
 ## 7. Nächste Szenarioverarbeitung
 
