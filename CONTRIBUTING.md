@@ -12,7 +12,7 @@ Vor jedem Commit sind alle geänderten Dateien auf reale personen-, kunden-, fir
 - Keine Logos, Kontaktdaten, internen Server-, Instanz-, Datenbank-, Schema- oder Projektnamen übernehmen.
 - Screenshots und Office-Metadaten vor einer Übernahme vollständig prüfen und bereinigen.
 - Diagnosedaten aus realen Systemen nicht in das Repository übernehmen.
-- Der ausdrücklich lizenzierte Urheberhinweis in `LICENCE.md` ist hiervon ausgenommen.
+- Die ausdrücklich lizenzierten Urheberhinweise in `LICENCE.md` und `.ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md` sind ausschließlich an diesen Pfaden hiervon ausgenommen.
 
 Ist die Herkunft oder Unbedenklichkeit eines Inhalts nicht eindeutig, darf er nicht committed werden, bevor eine ausdrückliche Freigabe vorliegt.
 
