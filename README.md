@@ -21,6 +21,7 @@ Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdr
 - Alle Beispiele verwenden ausschließlich synthetische Labordaten.
 - Präsentationen und weitere Schulungsartefakte enthalten keine nicht freigegebenen Firmeninformationen, Logos, Kontaktdaten oder internen Systembezeichnungen.
 - Nur `Gerhard Pisch` ist als ausdrücklich freigegebene reale Namensangabe zulässig.
+- Der verpflichtende Foundation-Herkunftsnachweis unter `.ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md` ist eine eng begrenzte lizenzrechtliche Ausnahme und erweitert keine allgemeine Namensfreigabe.
 - Bildbasierte Logos und Markenkennzeichen werden zusätzlich zur Text- und Metadatensuche visuell geprüft.
 - Risikoreiche Eingriffe sind eindeutig gekennzeichnet und ausschließlich für isolierte Laborsysteme vorgesehen.
 - Aussagen werden gegen aktuelle Primärdokumentation geprüft; versionsabhängige Aussagen werden nicht pauschalisiert.

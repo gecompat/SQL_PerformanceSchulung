@@ -1,5 +1,8 @@
 # AI-Projektsteuerung
 
+Der kanonische Repository-Einstieg ist [`../AGENTS.md`](../AGENTS.md). Dort wird zuerst die
+gemeinsame Foundation-Basis und anschließend diese projektspezifische Steuerung erschlossen.
+
 Dieser Ordner enthält den verbindlichen, maschinenlesbaren Arbeitskontext für AI-gestützte Änderungen. Vor einer Änderung sind die Dateien in folgender Reihenfolge zu lesen:
 
 1. `PROJECT_CONTEXT.md`
