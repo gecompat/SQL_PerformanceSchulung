@@ -6,11 +6,21 @@
 - Andere Repositories dürfen durch Arbeiten an diesem Projekt nicht verändert werden.
 - Eine lesende Nutzung anderer Quellen ist nur zur fachlichen oder lizenzbezogenen Referenz zulässig.
 
+## AI Repository Foundation
+
+- Der kanonische Einstieg für KI-gestützte Arbeit ist [`../AGENTS.md`](../AGENTS.md).
+- Die unter `.ai/foundation/` versionierte Foundation `1.2.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
+- Die bestehende Lesereihenfolge aus [`README.md`](README.md) bleibt für Projektfakten, Fachregeln, Architektur, Entscheidungen, Status und konkrete Validierung verbindlich.
+- Datenschutz und Neutralisierung sind gegenüber der Foundation `PROJECT_STRONGER`. Sprache, Git-Workflow und KI-Commit-Kennzeichnung sind `PROJECT_SELECTABLE_OVERRIDE`. Die detaillierten Modell-, Validierungs- und SQL-Server-Regeln gelten `COMPLEMENTARY` zur Foundation.
+- Für KI-gestützte Git-Änderungen gilt `branch_and_pr`: `main` bleibt stabil; Änderungen erfolgen auf einem thematisch kleinen Branch und werden vor dem Merge relevant validiert.
+- Tool-spezifische Adapter dienen ausschließlich der Auffindbarkeit von `AGENTS.md` und enthalten keine parallelen Projektregeln.
+
 ## Datenschutz und Neutralisierung
 
 - Repository-Inhalte verwenden ausschließlich synthetische Labordaten.
 - Keine realen Personen-, Kunden-, Firmen-, Organisations-, Umgebungs- oder proprietären Informationen, sofern sie nicht ausdrücklich freigegeben sind.
 - `Gerhard Pisch` ist als Namensangabe freigegeben.
+- Der unverändert erforderliche MIT-Herkunftsnachweis der Foundation ist ausschließlich in `.ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md` freigegeben. Diese pfad- und inhaltsgebundene Ausnahme erweitert keine allgemeine Namens- oder Echtdatenfreigabe.
 - Das vom Auftraggeber bezeichnete Firmenlogo sowie die dazugehörigen Firmen- und Markenkennzeichen sind aus allen Repository-Artefakten zu entfernen.
 - Weitere Firmeninformationen, Logos, Kontaktdaten oder interne Systembezeichnungen dürfen in Präsentationen und Begleitmaterialien nicht enthalten sein.
 - Office-Metadaten, Bilder, Screenshots, Logs und Diagnoseausgaben sind vor jeder Übernahme ausdrücklich zu prüfen.
@@ -63,6 +73,8 @@
 - Syntax- und Vertragsprüfung.
 - Laufzeittest auf den unterstützten SQL-Server-Versionen, soweit die Demo dort verfügbar ist.
 - Erwartete Resultate und tolerierte Abweichungen dokumentieren.
+- Foundation-Prüfungen belegen ausschließlich `FOUNDATION_INTEGRITY`. Projektspezifische Regeln und Dokumentationsverträge bleiben `PROJECT_SEMANTIC`; Builds, SQL-Server-Läufe und empirische Prüfungen bleiben `RUNTIME_EMPIRICAL`.
+- Ein grüner Foundation-Validator ersetzt keine betroffenen Projektvalidatoren und ist kein Nachweis für eine vollständig validierte Änderung.
 
 ## Anbieterneutrale Richtlinie zur kosten- und qualitätsoptimierten Verarbeitung
 
@@ -114,6 +126,14 @@ Erfinde keine Preise, Fähigkeiten, Kontingente oder Modellwechsel. Wenn keine z
 - leistungsfähig und teuer.
 
 Ein lokales Modell ist nicht automatisch die günstigste Wahl. Berücksichtige auch Laufzeit, Hardwareverbrauch, Ergebnisqualität und mögliche Nacharbeit.
+
+### Semantische Zuordnung zu den Foundation-Stufen
+
+- Deterministische lokale Suche, Transformation und Testausführung ohne generatives Modell entspricht `LOCAL`.
+- Die Kategorie „günstig und schnell“ für klar begrenzte, risikoarme und leicht prüfbare Arbeit entspricht `ECONOMICAL`.
+- Die Kategorie „ausgewogen“ für mehrere zusammenwirkende Dateien, Verträge oder Quellen entspricht `BALANCED`.
+- Die Kategorie „leistungsfähig und teuer“ entspricht `FRONTIER`, wenn eine Entscheidung ungelöst, kritisch oder schwer prüfbar ist und Architektur, Sicherheit, Datenschutz, Autorisierung, Datenverlust oder andere erhebliche Auswirkungen berührt. Eine bereits eindeutig geregelte Routinearbeit wird nicht allein wegen ihres Fachgebiets zu `FRONTIER`.
+- Konkrete Modellnamen, Anbieter, Preise, Kontingente und Produktfunktionen sind Laufzeitfakten. Beispiele in dieser Richtlinie begründen keine dauerhafte Verfügbarkeits- oder Kostenzusage.
 
 ### Aufgaben zerlegen
 
