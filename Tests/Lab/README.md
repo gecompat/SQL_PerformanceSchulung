@@ -106,17 +106,17 @@ Falls `-PythonPath` nicht gesetzt ist, versucht das Skript automatisch:
 Wenn keine Erkennung gelingt:
 
 ```powershell
-# nur für die aktuelle Sitzung
-$env:SQLPERF_PYTHON = 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe'
+# nur für die aktuelle Sitzung; Beispielpfad anpassen
+$env:SQLPERF_PYTHON = 'C:\\Tools\\Python313\\python.exe'
 
-# dauerhaft (User Scope)
-[Environment]::SetEnvironmentVariable('SQLPERF_PYTHON', 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe', 'User')
+# dauerhaft (User Scope; Beispielpfad anpassen)
+[Environment]::SetEnvironmentVariable('SQLPERF_PYTHON', 'C:\\Tools\\Python313\\python.exe', 'User')
 ```
 
 Alternativ den Interpreter direkt übergeben:
 
 ```powershell
-./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 -PythonPath 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe'
+./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 -PythonPath 'C:\\Tools\\Python313\\python.exe'
 ```
 
 `CON-004` nutzt das YELLOW-Demo und benötigt die Isolationsbestätigung im
@@ -148,4 +148,3 @@ offene Grenze zum interaktiven Workflow stehen unter
 - Secrets werden nicht in Katalog, Szenariodefinition oder Report persistiert.
 - Lokaler Lab-State und technische Diagnosen verbleiben außerhalb versionierter Projektpfade.
 - Änderungen in `SQL_Server_Lab` erfolgen nur nach konkretem Szenariobefund und ausdrücklicher Freigabe.
-./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 -PythonPath 'C:\Users\gerha\AppData\Local\Programs\Python\Python313\python.exe'

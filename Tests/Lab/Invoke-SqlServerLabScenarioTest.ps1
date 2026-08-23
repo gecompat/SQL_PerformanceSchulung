@@ -268,12 +268,12 @@ Automatische Erkennung hat diese Pfade geprüft:
 - Typische Windows-Installationspfade (LOCALAPPDATA, APPDATA, Program Files, Scoop, WindowsApps)
 
 Abbruch mit Hinweis:
-- Setze den Python-Pfad einmalig fuer diese Sitzung:
-  `$env:SQLPERF_PYTHON = 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe'`
+- Setze den Python-Pfad einmalig fuer diese Sitzung (Beispielpfad anpassen):
+  `$env:SQLPERF_PYTHON = 'C:\\Tools\\Python313\\python.exe'`
   `.\Tests\Lab\Invoke-SqlServerLabScenarioTest.ps1 -PythonPath $env:SQLPERF_PYTHON ...`
 
-- Oder dauerhaft (User Scope):
-  [Environment]::SetEnvironmentVariable('SQLPERF_PYTHON', 'C:\Users\<benutzer>\AppData\Local\Programs\Python\Python313\python.exe', 'User')
+- Oder dauerhaft (User Scope, Beispielpfad anpassen):
+  [Environment]::SetEnvironmentVariable('SQLPERF_PYTHON', 'C:\\Tools\\Python313\\python.exe', 'User')
 "@
 }
 
