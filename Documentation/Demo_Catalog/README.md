@@ -45,10 +45,10 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 | `OPT-002` | Statistics Anatomy | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-015` | Planweite und operatorbezogene Eigenschaften | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
-| `QRY-013` | Anwendung langsam, SSMS schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
+| `QRY-013` | Anwendung langsam, SSMS schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `QRY-004` | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
-| `OPT-009` | Parametersensitive Planoptimierung | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
-| `OPT-010` | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
+| `OPT-009` | Parametersensitive Planoptimierung | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
+| `OPT-010` | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-013` | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `CON-004` | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 
@@ -62,6 +62,9 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 |---|---|---|---|---|---|---|
 | `OPT-015` | Planweite und operatorbezogene Eigenschaften | M02 / `LO-M02-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `VALIDATED` |
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | M02 / `LO-M02-09` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `VALIDATED` |
+| `QRY-013` | Anwendung langsam, SSMS schnell | M03 / `LO-M03-07` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `VALIDATED` |
+| `OPT-009` | Parametersensitive Planoptimierung | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2022/CL160 und 2025/CL170; 2019 kontrollierter `SKIP_VERSION`; je zwei Läufe | `VALIDATED` |
+| `OPT-010` | Optional Parameter Plan Optimization | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2025/CL170; 2019 und 2022 kontrollierter `SKIP_VERSION`; je zwei Läufe | `VALIDATED` |
 
 `OPT-015` verwendet einen synthetischen Out-of-range-Statistikfall und wertet Actual-Plan-Eigenschaften normalisiert aus. `OPT-016` untersucht eine hintfreie optimizergewählte Performance Spool; `NO_PERFORMANCE_SPOOL` wird ausschließlich als kontrollierte Gegenprobe verwendet.
 
@@ -69,10 +72,7 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 
 | Demo-ID | Titel | Modul / Lernziel | Sicherheit | Ausführungspfad | Zielmatrix | Status |
 |---|---|---|---|---|---|---|
-| `QRY-013` | Anwendung langsam, SSMS schnell | M03 / `LO-M03-07` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
 | `QRY-004` | Catch-all, Recompile und dynamisches SQL | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
-| `OPT-009` | Parametersensitive Planoptimierung | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2022/CL160 und 2025/CL170; 2019 kontrollierter `SKIP_VERSION`; je zwei Läufe | `IMPLEMENTED` |
-| `OPT-010` | Optional Parameter Plan Optimization | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2025/CL170; 2019 und 2022 kontrollierter `SKIP_VERSION`; je zwei Läufe | `IMPLEMENTED` |
 
 `OPT-010` trennt das optionale Parameterprädikat `(Spalte = @p OR @p IS NULL)` bewusst vom Schiefefall aus `OPT-009`: Das Datenmodell ist gleichverteilt, damit die parametersensitive Planoptimierung ausscheidet. Die Demo belegt zuerst, dass ohne Optional Parameter Plan Optimization genau eine Planform entsteht und die Kompilierungsreihenfolge wirkungslos bleibt, und weist danach Dispatcherplan, optionales Parameterprädikat und Query Variants marker- und objektbezogen im Plancache nach. Die zugehörigen Folieninhalte stehen als Spezifikation in [`ADV_011_SLIDE_SPECIFICATION_M03_LO08_OPPO.md`](../Curriculum/ADV_011_SLIDE_SPECIFICATION_M03_LO08_OPPO.md).
 

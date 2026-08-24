@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Arbeitspaket | `ADV-008` (Schnitt `OPT-010`), `ADV-011` (Deckübernahme) |
-| Status | `IMPLEMENTED_FOR_REVIEW` |
+| Status | `VALIDATED` |
 | Prüfdatum | 2026-08-02 |
 | Demo-ID | `OPT-010` |
 | Sicherheitsstufe | `GREEN` |
@@ -108,7 +108,7 @@ Der neue Wert wurde in `Tests/Static/validate_privacy_metadata.py`, `Documentati
 
 ## 8. Offene Punkte
 
-1. Die Runtime-Abnahme über SQL Server 2019, 2022 und 2025 steht aus. Sie ist ausschließlich über die GitHub-Matrix möglich; von der Entwicklungsumgebung aus lässt sich kein Ergebnis abrufen. Der Status bleibt deshalb `IMPLEMENTED`, nicht `VALIDATED`.
+1. Die Runtime-Abnahme ist durch [Actions-Lauf 30702590969](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30702590969) belegt: SQL Server 2025 erfolgreich, SQL Server 2019 und 2022 planmäßig `SKIP_VERSION`. Demo, Runner und Workflow blieben bis zum aktuellen Stand unverändert.
 2. Auf 2019 und 2022 ist planmäßig `SKIP_VERSION` zu erwarten. Ein fachlicher Nachweis der Variantenbildung ist nur auf 2025 möglich.
 3. Die visuelle Renderprüfung der achtzehn Vertiefungsfolien im Deck steht weiterhin aus. Geprüft sind bislang Struktur, Zuordnung, Paginierung und Textinhalte, nicht die Layoutqualität.
 4. `docProps/app.xml` meldet unverändert `<ap:Slides>0</ap:Slides>`. Dieser Vorzustand wird bewusst nicht im Rahmen dieses Schnitts geändert.

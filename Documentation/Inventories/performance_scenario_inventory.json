@@ -182,14 +182,15 @@
       "forcedCondition": "A deterministic skewed data set and controlled compilation order contrast catch-all predicates, recompilation and safely parameterized dynamic SQL.",
       "verification": ["plan shape per variant", "estimated and actual rows", "logical reads", "result equivalence"],
       "resetStrategy": "DATABASE_RECREATE",
-      "verticalSliceCandidate": false
+      "verticalSliceCandidate": false,
+      "evidence": ["Actions run 30699410792 completed SQL phases and cleanup but the workflow failed on WARN_EMPIRICAL_VARIANCE; revalidation is required before a VALIDATED status."]
     },
     {
       "demoId": "QRY-013",
       "path": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context",
       "title": "Neutral client and session context",
-      "inventoryStatus": "IMPLEMENTED",
-      "implementationStatus": "IMPLEMENTED",
+      "inventoryStatus": "VALIDATED",
+      "implementationStatus": "VALIDATED",
       "classification": "A",
       "safetyLevel": "GREEN",
       "supportedProviders": ["docker", "podman"],
@@ -200,7 +201,8 @@
       "forcedCondition": "Equivalent query text executes under explicitly controlled session SET options and client-independent connection settings.",
       "verification": ["session SET-option evidence", "plan-cache separation where applicable", "result equivalence"],
       "resetStrategy": "IDEMPOTENT_RESET",
-      "verticalSliceCandidate": false
+      "verticalSliceCandidate": false,
+      "evidence": ["GitHub Actions run 30699410795 validates two Docker-based runs on SQL Server 2019, 2022 and 2025; the demo, runner and workflow are unchanged at the current repository commit."]
     }
   ],
   "wave2Decisions": {
