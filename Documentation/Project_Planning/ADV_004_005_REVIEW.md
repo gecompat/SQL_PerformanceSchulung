@@ -66,7 +66,7 @@ Eine SQL-Server-Runtime-Matrix wurde nicht ausgeführt, weil keine SQL-Datei und
 
 ## 7. Statusgrenze
 
-`ADV-004` und `ADV-005` sind fachlich und statisch `VALIDATED`. `OPT-015`, `OPT-016`, `OPT-017`, `QRY-013` sowie die Erweiterung von `QRY-004` bleiben bis zur Umsetzung und Runtimeprüfung ausdrücklich `PLANNED` beziehungsweise `DESIGNED`; sie sind nicht `IMPLEMENTED`.
+Zum Zeitpunkt dieses Reviews waren die nachfolgenden ADV-008-Schnitte noch geplant. Der aktuelle operative Stand ist inzwischen: `OPT-015`, `OPT-016` und `QRY-013` sind `VALIDATED`, `QRY-004` ist `IMPLEMENTED` mit offenem Runner-Konflikt und `OPT-017` bleibt geplant. Maßgeblich ist `CURRENT_EXECUTION_STATUS.md`.
 
 ## 8. Nächste fachliche Schritte
 

@@ -135,7 +135,7 @@
     {
       "demoId": "QRY-013",
       "manifest": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "GREEN",
       "sessions": 1,
       "providers": ["docker", "podman"],
@@ -163,7 +163,7 @@
     {
       "demoId": "OPT-009",
       "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "GREEN",
       "sessions": 1,
       "providers": ["docker", "podman"],
@@ -177,7 +177,7 @@
     {
       "demoId": "OPT-010",
       "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "GREEN",
       "sessions": 1,
       "providers": ["docker", "podman"],

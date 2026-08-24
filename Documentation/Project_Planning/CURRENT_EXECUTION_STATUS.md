@@ -3,143 +3,80 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-09 |
-| Geprüfter Ausgangscommit auf `origin/main` | `0a16896f484575fb6d76bff13ad19db5e9e96e44` |
-| Fachliche Hauptwelle | `ADV-008` – `QRY-013`, `QRY-004`, `OPT-009` und `OPT-010` implementiert, Folienübernahmen `ADV-009`, `ADV-010` und `ADV-011` abgeschlossen, nächster Runtime-Schnitt `OPT-017` |
-| Szenariowelle | `LABSCN-002` – Szenarioinventar und Definitionsschema; technischer QRY-001-Docker-/Podman-Vorläufer für `LABINT-002` lokal validiert |
-| Zweck | kanonischer operativer Einstiegspunkt für Demoimplementierung, interaktive Schulungsszenarien und nachgeordnete Runtimevalidierung |
+| Stand | 2026-08-24 |
+| geprüfter Stand auf `origin/main` | `c75d7a25e966d28abeb8225779e7cc48939159fe` |
+| Fachliche Hauptwelle | `ADV-008` – neun von zehn produktiven Demos runtimevalidiert; `QRY-004` implementiert, mit offenem Runner-Konflikt |
+| Szenariowelle | `LABSCN-002` – Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung |
+| Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
+| Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
 ## 1. Verifizierter Repository-Stand
 
-Der Ausgangsstand enthält die unter `ADV-008` implementierten und runtimevalidierten Demos `OPT-015` und `OPT-016`, den automatisierten Lab-Testkatalog sowie die korrigierte Verantwortungsgrenze zu `SQL_Server_Lab`.
+Der lokale Prüfstand auf dem oben genannten Commit ist sauber. Die statischen Validatoren und neun Unit-Tests liefen am 2026-08-24 erfolgreich. Der Privacy-Scan meldete `PASS (files=354; text=345; office=1; archives=0; approved_immutable=1)`.
 
-Die während der aktuellen Verarbeitung versehentlich auf `main` angelegten Platzhalterdateien wurden jeweils unmittelbar im Folgecommit vollständig entfernt. Im aktuellen Repositoryinhalt ist keine dieser Dateien vorhanden.
+Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nachweise stammen aus den verlinkten GitHub-Actions-Läufen; Demo, Runner und Workflow der als validiert markierten Einträge blieben bis zum geprüften Commit unverändert.
 
-Welle 0 und Gate A, `FWK-001` bis `FWK-012`, die Framework-Matrix 2019/2022/2025, Gate B, `W2-001`, `W2-007`, `PRS-009`, `PRS-011`, `TST-002`, `ADV-006` und `ADV-007` sind validiert.
-
-## 2. Abgeschlossener ADV-008-Teilstand
+## 2. Runtime-Nachweisstand der produktiven Demos
 
 | Demo | Ergebnis | Status |
 |---|---|---|
-| `OPT-015` | planweite und operatorbezogene Planevidenz mit synthetischem Out-of-range-Statistikfall, gezielter Statistikaktualisierung und normalisiertem Actual-Plan-Vertrag | `VALIDATED` |
-| `OPT-016` | Outer References, Rebinds, Rewinds und optimizergewählte Performance Spool mit kontrollierter `NO_PERFORMANCE_SPOOL`-Gegenprobe | `VALIDATED` |
+| `OPT-015` | Plan- und Statistikevidenz, zwei vollständige Läufe auf SQL Server 2019, 2022 und 2025 | `VALIDATED` |
+| `OPT-016` | Outer References, Rebinds, Rewinds und Performance Spool, zwei vollständige Läufe auf 2019, 2022 und 2025 | `VALIDATED` |
+| `QRY-013` | [Actions-Lauf 30699410795](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410795): zwei Docker-basierte Läufe auf 2019, 2022 und 2025 | `VALIDATED` |
+| `OPT-009` | [Actions-Lauf 30701731564](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30701731564): 2022/2025 erfolgreich, 2019 erwartungsgemäß `SKIP_VERSION` | `VALIDATED` |
+| `OPT-010` | [Actions-Lauf 30702590969](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30702590969): 2025 erfolgreich, 2019/2022 erwartungsgemäß `SKIP_VERSION` | `VALIDATED` |
+| `OPT-013` | Gate-B-Nachweis | `VALIDATED` |
+| `QRY-001` | Framework- und Lab-Nachweis | `VALIDATED` |
+| `OPT-002` | Framework- und Lab-Nachweis | `VALIDATED` |
+| `CON-004` | fachliche Demo und Szenariokandidat | `VALIDATED` |
+| `QRY-004` | [Actions-Lauf 30699410792](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410792): SQL-Phasen und Cleanup erfolgreich, Workflow dennoch wegen `WARN_EMPIRICAL_VARIANCE` fehlgeschlagen | `IMPLEMENTED` |
 
-Beide Demos wurden auf SQL Server 2019, 2022 und 2025 jeweils zweimal einschließlich Cleanup validiert.
+`QRY-004` ist ausdrücklich kein Runtime-Nachweis: Der Runner muss den Konflikt zwischen erfolgreicher Ausführung (`returncode=0`) und der Workflow-Bewertung des Warnsummaries auflösen und anschließend die 2019/2022/2025-Matrix erneut laufen.
 
-## 3. Verbindlicher Zielzustand der Lab-Integration
+## 3. Lab-Integration und Szenarien
 
-`LABSCN-001` und `DEC-044` legen fest:
+`LABSCN-001` und `DEC-044` bleiben verbindlich:
 
-- Für geeignete Schulungsbeispiele wird eine vollständig vorbereitete Laborumgebung erzeugt.
-- Der Benutzer kann ein einzelnes Beispiel auswählen und unabhängig vom vollständigen Schulungslauf starten.
-- Die Umgebung kann Docker, Podman, Hyper-V oder eine gemischte Topologie verwenden.
-- `SQL_Server_Lab` ist das verbindliche Provisionierungsframework.
-- `SQL_PerformanceSchulung` definiert Lernziel, Ausgangssituation, Setup, synthetische Daten, Benutzeraktionen, Beobachtungsabfragen und Reset.
-- Nach erfolgreicher Vorbereitung verbleibt die Umgebung im Status `READY_FOR_USER`.
-- Der Benutzer kann das Verhalten selbst untersuchen, Abfragen verändern, Parameter variieren, Gegenmaßnahmen testen und Beobachtungen wiederholen.
-- Die Umgebung wird erst auf ausdrücklichen Wunsch zurückgesetzt oder vollständig entfernt.
+- `SQL_Server_Lab` provisioniert die technische Umgebung; dieses Repository beschreibt Lernziel, Setup, synthetische Daten, Benutzeraktionen, Beobachtungen und Reset.
+- Ein interaktives Szenario endet nach der Vorbereitung in `READY_FOR_USER`; Reset und Entfernen sind getrennte, bewusste Benutzeraktionen.
+- Die automatisierte Matrix ist ein Qualitätssicherungsinstrument und kein Ersatz für den Benutzerworkflow.
+- Änderungen an `SQL_Server_Lab` benötigen eine konkret nachgewiesene fehlende Fähigkeit und ausdrückliche Freigabe.
 
-Der kanonische Vertrag steht unter `Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`.
+`LABSCN-002` hat Inventar und Definitionsschema für die ersten drei Wellen geliefert. Der nächste geeignete grüne Vertical Slice ist `CON-004`; der vollständige Lifecycle bleibt erst mit `LABSCN-003` fällig.
 
-## 4. Rolle von SQL_Server_Lab
+```text
+Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
+        -> interaktive Durchführung -> Reset -> Remove
+```
 
-`SQL_Server_Lab` wird verwendet, um die technische Umgebung zu realisieren. Abhängig vom Szenario kann dies umfassen:
-
-- Docker- oder Podman-Container;
-- Hyper-V-VMs mit Windows oder Linux;
-- mehrere SQL-Server-Instanzen;
-- getrennte CPU-, RAM-, Storage- oder Netzwerkprofile;
-- zusätzliche Client- oder Workload-Komponenten;
-- gemischte Topologien.
-
-Das Schulungsrepository implementiert keine eigene Providerprovisionierung.
-
-Fehlt für ein konkretes Szenario eine Lab-Fähigkeit, wird diese Lücke mit Szenario-ID, Topologie und technischem Bedarf dokumentiert. Eine Änderung in `SQL_Server_Lab` erfolgt erst nach ausdrücklicher Freigabe.
-
-## 5. Rolle der automatisierten Testmatrix
-
-Der vorhandene Katalog `Tests/Lab/performance-lab-matrix.json` bleibt als Qualitätssicherungsinstrument bestehen. Er prüft später:
-
-- Aufbau der Umgebung;
-- reproduzierbare Vorbereitung;
-- zentrale Kernbeobachtungen;
-- Reset;
-- vollständigen Abbau.
-
-Die automatisierte Matrix ist nicht der Benutzerworkflow. Ein Testlauf darf eine kurzlebige Umgebung entfernen; ein interaktives Szenario bleibt dagegen nach der Vorbereitung verfügbar.
-
-## 6. Gate-Status
+## 4. Gate-Status
 
 - Gate V0 – Quellenfreigabe: `VALIDATED`.
 - Gate V1 – Curriculumfreigabe: `VALIDATED`.
 - Gate V2 – Designfreigabe: `VALIDATED`.
-- Gate V3 – Runtimefreigabe: `PARTIAL`; `OPT-015` und `OPT-016` sind freigegeben.
-- Gate V4 – Lehrmittelfreigabe: offen.
+- Gate V3 – Runtimefreigabe: `PARTIAL`; alle oben als `VALIDATED` markierten Demos sind belegt, `QRY-004` bleibt offen.
+- Gate V4 – Lehrmittelfreigabe: offen; die visuelle Renderprüfung der Vertiefungsfolien steht aus.
 - `LABSCN-001`: `DECIDED` und im Repository verankert.
-- `LABSCN-002`: offen.
+- `LABSCN-002`: `IMPLEMENTED_FOR_REVIEW`; die vollständige Szenarioabdeckung ist noch nicht erreicht.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
-- `LABINT-002`: technischer QRY-001-Vorläufer auf Docker und Podman mit SQL Server 2025 lokal je Provider mit zwei vollständigen `FWK-010`-Läufen validiert; der vollständige interaktive Lifecycle bleibt an `LABSCN-003` gebunden.
-- `LABINT-003`: Provider-Parität für `QRY-001` auf SQL Server 2025 lokal nachgewiesen; weitere Szenarien und Versionen bleiben offen.
+- `LABINT-002` und `LABINT-003`: technischer `QRY-001`-Vorläufer und Provider-Parität für SQL Server 2025 sind nachgewiesen; weitere Szenarien und Versionen bleiben offen.
 
-## 7. Nächste Szenarioverarbeitung
+`ADV-006` und `ADV-007` bleiben als `DESIGNED`-Verträge vollständig: Die zugehörigen LAB-VP3-/VP4-Grenzen, Feature-Skips und Diagnoseabhängigkeiten sind dokumentiert, ihre fachliche Umsetzung erfolgt erst in den jeweiligen Folgewellen.
 
-`LABSCN-002` ist der nächste abhängige Infrastruktur- und Bedienungsschritt:
+## 5. Nächste fachliche Verarbeitung
 
-1. alle vorhandenen und geplanten Beispiele inventarisieren;
-2. jedes Beispiel als interaktiv geeignet, nur automatisiert prüfbar oder nicht anwendbar klassifizieren;
-3. erforderliche SQL-Versionen, Provider, Topologien und Komponenten erfassen;
-4. Host-Mindestanforderungen dokumentieren;
-5. Aufbau, Vorbereitung, Benutzerübergabe, Reset und Abbau modellieren;
-6. ein Schema für die Szenariodefinitionen erstellen;
-7. einen geeigneten grünen Vertical Slice für `LABSCN-003` auswählen.
+Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md). Kurzfristig ist die Reihenfolge:
 
-`LABSCN-003` setzt anschließend erstmals einen vollständigen Benutzerablauf um:
+1. `QRY-004`-Runner-Konflikt korrigieren und Matrix erneut validieren.
+2. Query-Store-/Extended-Events-Pilot (`DGN-003`/`DGN-005`) als belastbare Evidenz für diagnoseabhängige Schnitte aufbauen.
+3. `CON-004` als grünen interaktiven Vertical Slice umsetzen.
+4. `OPT-017` getrennt implementieren und validieren.
+5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
+6. `PRS-012`/`TST-011` sowie danach `PRS-013`/`TST-012` inklusive visueller Renderprüfung abschließen.
 
-```text
-Auswahl
--> Provisionierung mit SQL_Server_Lab
--> fachliche Vorbereitung
--> READY_FOR_USER
--> interaktive Durchführung
--> Reset
--> Remove
-```
+## 6. Sicherheits-, Datenschutz- und Quellenstatus
 
-## 8. Nächste fachliche Verarbeitung
-
-Der nächste abhängige ADV-008-Schnitt umfasst:
-
-1. `QRY-013` – neutraler Client- und Sessionkontext. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_qry013.py`, Runtime-Runner `Tests/Runtime/run_adv008_qry013.py` und Workflow `.github/workflows/adv008-qry013.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus. Die zugehörigen Folien sind unter `ADV-009` als Anzeigepositionen 84 bis 88 in das aktive Deck übernommen.
-2. `QRY-004` – Catch-all, `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_qry004.py`, Runtime-Runner `Tests/Runtime/run_adv008_qry004.py` und Workflow `.github/workflows/adv008-qry004.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus. Die zugehörigen Folien sind unter `ADV-009` als Anzeigepositionen 89 bis 93 in das aktive Deck übernommen.
-3. `ADV-009` – Folienübernahme. Status `IMPLEMENTED_FOR_REVIEW`: Das aktive Deck umfasst 94 Folien, die Prüfsummenfreigabe wurde nach `DEC-057` kontrolliert erneuert, `ADV-CLM-013` bis `ADV-CLM-018` stehen auf `KEEP`. Erzeugung über `Tools/build_adv009_slides.py`, Prüfung über `Tests/Static/validate_adv009_deck_integration.py`, Abnahmestand in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md`. Die fachliche Endabnahme hängt an der Runtime-Abnahme von `QRY-013` und `QRY-004`.
-4. `OPT-009` – Parameter Sensitive Plan Optimization. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_opt009.py`, Runtime-Runner `Tests/Runtime/run_adv008_opt009.py` und Workflow `.github/workflows/adv008-opt009.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus, wobei 2019 planmäßig mit `SKIP_VERSION` endet. Die zugehörigen Folien sind unter `ADV-010` als Anzeigepositionen 94 bis 97 in das aktive Deck übernommen; `ADV-CLM-019` steht auf `KEEP`. Abnahmestand in `Documentation/Project_Planning/ADV_008_OPT_009_REVIEW.md`.
-5. `OPT-010` – Optional Parameter Plan Optimization, bewusst getrennt von `QRY-004` und `OPT-009`. Status `IMPLEMENTED`: Bündel, statischer Vertrag `Tests/Static/validate_adv008_opt010.py`, Runtime-Runner `Tests/Runtime/run_adv008_opt010.py` und Workflow `.github/workflows/adv008-opt010.yml` liegen vor; die Runtime-Abnahme über 2019/2022/2025 steht aus, wobei 2019 und 2022 planmäßig mit `SKIP_VERSION` enden. Die zugehörigen Folien sind unter `ADV-011` als Anzeigepositionen 98 bis 101 in das aktive Deck übernommen; `ADV-CLM-020` steht auf `KEEP`. Abnahmestand in `Documentation/Project_Planning/ADV_008_OPT_010_REVIEW.md`.
-6. `ADV-011` – Folienübernahme. Status `IMPLEMENTED_FOR_REVIEW`: Das aktive Deck umfasst 102 Folien, die Prüfsummenfreigabe wurde nach `DEC-057` kontrolliert erneuert. Erzeugung über `Tools/build_adv011_slides.py`, Prüfung über `Tests/Static/validate_adv011_deck_integration.py`. Die visuelle Renderprüfung der achtzehn Vertiefungsfolien steht aus.
-7. Query-Store-/XE-Pilotvalidierung vor diagnoseabhängigen Schnitten.
-8. `OPT-017` und LAB-VP3-/VP4-Implementierungen anschließend in getrennten Paketen.
-9. `DGN-007` erst nach stabiler Query-Store-/XE-Evidenz.
-10. `RES-003` zuletzt und ausschließlich auf dedizierter Infrastruktur.
-
-## 9. Parallel ausführbare Querschnittsarbeit
-
-Unabhängig von ADV-008 und LABSCN bleiben ausführbar:
-
-- `PRS-012` und `TST-011`;
-- fachlich getrennte `W2-002`-Teilpakete;
-- Query-Store-/Extended-Events-Pilotvalidierung;
-- `INF-001` – `IMPLEMENTED_FOR_REVIEW`. Ausführungsziele und Testumgebungs-How-to für eine vorhandene SQL-Server-Instanz. Die Ausführungsziele sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen und in `Tests/Runtime/execution_target.py` umgesetzt; die Demo-Runner wählen das Ziel über `--target`. Das How-to liegt in `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`, die Runner-Anforderungen in `Documentation/Architecture/RUNNER_TOPOLOGY.md`. Der Abnahmestand steht in `Documentation/Project_Planning/INF_001_EXECUTION_PATH_REVIEW.md`. Offen bleiben der Regressionsnachweis der Runtime-Workflows und der Laufnachweis gegen eine vorhandene Instanz.
-- Entscheidungspfad je Demo – erledigt. `Documentation/Demo_Catalog/demo_execution_paths.json` führt Stufe, Ausführungspfad und Instanzbedarf je implementierter Demo; `Tests/Static/validate_demo_execution_paths.py` erzwingt die Vollständigkeit und die Begründungspflicht oberhalb von Stufe 2. Keine implementierte Demo benötigt derzeit eine Stufe über 2. Der Katalog provisioniert keine Umgebung; die automatisierte Erstellung von Demoumgebungen bleibt bewusst zurückgestellt.
-
-## 10. Abhängigkeiten und Sicherheitsgrenzen
-
-- Eine Szenariodefinition ergänzt das bestehende Demo-Manifest und ersetzt es nicht.
-- Jedes interaktive Szenario benötigt Benutzerübergabe, Reset und Abbau.
-- Gelbe und rote Szenarien benötigen ihre bestehenden Safety-Gates.
-- Gemischte Topologien werden nur bei fachlich nachgewiesenem Bedarf umgesetzt.
-- Eine Änderung im Lab-Repository setzt eine konkret dokumentierte fehlende Fähigkeit und ausdrückliche Freigabe voraus.
-- `DGN-007` setzt eine validierte Query-Store- und XE-Nutzung voraus.
-- `RES-003` setzt dedizierte Wegwerfinfrastruktur, High-Impact-Bestätigung, Kill-Switch und Laufzeitbudget voraus.
-
-## 11. Datenschutz- und Quellenstatus
-
-Szenariodefinitionen enthalten ausschließlich synthetische Daten, relative Projektpfade, öffentliche Versionsbezeichnungen und generische Rollen. Reale Hosts, Benutzer, Kennwörter, interne Pfade oder produktive Diagnosedaten werden nicht versioniert.
+- Szenariodefinitionen enthalten nur synthetische Daten, relative Projektpfade, öffentliche Versionsbezeichnungen und generische Rollen.
+- Gelbe und rote Szenarien behalten ihre bestehenden Safety-Gates; `RES-003` benötigt zusätzlich dedizierte Wegwerfinfrastruktur, High-Impact-Bestätigung, Kill-Switch und Laufzeitbudget.
+- `DGN-007` setzt validierte Query-Store- und Extended-Events-Evidenz voraus.
+- Aktuelle Produktdokumentation wird erst nach einem Source-Register-Delta-Review zu Lehrinhalt; aktuelle Herstellerdokumentation allein ist kein Implementierungsnachweis.
