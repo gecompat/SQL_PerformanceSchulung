@@ -243,6 +243,8 @@ Dieser Workstream beginnt nach `W0-003` und läuft bis zum Release.
 
 IDs werden nach Veröffentlichung nicht neu nummeriert. Entfernte Kandidaten bleiben im Katalog als `DEFERRED` oder `RETIRED` sichtbar.
 
+Die verbindliche Vergabe neuer Demo- und Arbeitspaket-Kennungen, einschließlich Konfliktverhalten bei paralleler Arbeit, ist in [`.ai/IDENTIFIER_REGISTRATION.md`](../../.ai/IDENTIFIER_REGISTRATION.md) geregelt. Eine Welle ist dort Planungsmetadatum; historische wellencodierte Kennungen bleiben ausschließlich aus Kompatibilitätsgründen erhalten.
+
 ### Pflichtfelder des Katalogs
 
 - ID, Titel, Status und Themenbereich,

@@ -13,6 +13,14 @@ python Tests/Static/test_orchestration_runtime.py
 
 Die Prüfungen kontrollieren Pflichtdateien, Statuscodes, Eigentumsmarker, deterministische Generatorregeln, T-SQL-Lexik, Python-Syntax, JSON-Metadaten, Ergebnisverträge, Prozesssteuerung, Safety-Gates, Query-Store- und XE-Verträge sowie Cleanup-Priorität. Die Prozess-Selbsttests verwenden ein synthetisches `sqlcmd`-Ersatzprogramm und benötigen weder Netzwerk noch SQL Server.
 
+## Kennungsregistrierung
+
+```bash
+python Tests/Static/validate_identifier_registration.py
+```
+
+Die Prüfung sichert die projektführende Registry, die registrierte Entscheidung `DEC-061`, die `TSK-###`-Nomenklatur sowie die Regel, dass neue Wellen nicht als Kennungen alloziert werden. Sie ist eine `PROJECT_SEMANTIC`-Prüfung und ergänzt die Foundation-Integritätsprüfung.
+
 ## Curriculum- und Privacy-Prüfung
 
 Der Workflow `.github/workflows/privacy-metadata.yml` startet keinen SQL Server und führt aus:
