@@ -9,11 +9,19 @@
 ## AI Repository Foundation
 
 - Der kanonische Einstieg für KI-gestützte Arbeit ist [`../AGENTS.md`](../AGENTS.md).
-- Die unter `.ai/foundation/` versionierte Foundation `1.2.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
+- Die unter `.ai/foundation/` versionierte Foundation `1.4.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
 - Die bestehende Lesereihenfolge aus [`README.md`](README.md) bleibt für Projektfakten, Fachregeln, Architektur, Entscheidungen, Status und konkrete Validierung verbindlich.
 - Datenschutz und Neutralisierung sind gegenüber der Foundation `PROJECT_STRONGER`. Sprache, Git-Workflow und KI-Commit-Kennzeichnung sind `PROJECT_SELECTABLE_OVERRIDE`. Die detaillierten Modell-, Validierungs- und SQL-Server-Regeln gelten `COMPLEMENTARY` zur Foundation.
 - Für KI-gestützte Git-Änderungen gilt `branch_and_pr`: `main` bleibt stabil; Änderungen erfolgen auf einem thematisch kleinen Branch und werden vor dem Merge relevant validiert.
 - Tool-spezifische Adapter dienen ausschließlich der Auffindbarkeit von `AGENTS.md` und enthalten keine parallelen Projektregeln.
+
+## Stabile Kennungen und Wellenplanung
+
+- [`IDENTIFIER_REGISTRATION.md`](IDENTIFIER_REGISTRATION.md) ist die verbindliche, projektweite Registrierungsautorität für neue Tasks, Entscheidungen und Demo-/Arbeitspaket-Kennungen ihres Geltungsbereichs. Chat-Verlauf und implizite Nummernsuche sind keine Registrierungsautorität.
+- Bestehende Kennungen bleiben unverändert (`PRESERVE`). Insbesondere werden historische Wellenkennungen wie `W0-001` und `W2-007` weder umnummeriert noch aus ihrer bisherigen Dokumentation entfernt.
+- Neue allgemeine Tasks erhalten eine stabile `TSK-###`-Kennung. Die Welle ist eine veränderbare Planungsmetadatenangabe und wird nicht mehr in neue Task-Kennungen codiert.
+- Neue Kennungen werden ausschließlich über `.ai/identity/registry.json` und einen versionierten Foundation-Referenz-Client vergeben. Direkte Vergabe benötigt den erwarteten `registry_revision`; bei parallelen Branches wird zuerst ein `DEFERRED`-Entwurf angelegt und die finale Kennung erst zentral registriert.
+- Das bestehende Quellenregister bleibt für Quellenkennungen außerhalb dieses Geltungsbereichs maßgeblich.
 
 ## Datenschutz und Neutralisierung
 
