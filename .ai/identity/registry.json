@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "profile": "foundation-artifact-registry/v1",
+  "registry_revision": 1,
+  "prefixes": {
+    "TSK": {
+      "kind": "task",
+      "next_sequence": 1,
+      "width": 3
+    },
+    "DEC": {
+      "kind": "decision",
+      "next_sequence": 62,
+      "width": 3
+    },
+    "FWK": {
+      "kind": "framework_work_item",
+      "next_sequence": 13,
+      "width": 3
+    },
+    "CUR": {
+      "kind": "curriculum_work_item",
+      "next_sequence": 13,
+      "width": 3
+    },
+    "ADV": {
+      "kind": "advanced_work_item",
+      "next_sequence": 12,
+      "width": 3
+    },
+    "PRS": {
+      "kind": "presentation_work_item",
+      "next_sequence": 14,
+      "width": 3
+    },
+    "TST": {
+      "kind": "test_work_item",
+      "next_sequence": 13,
+      "width": 3
+    },
+    "LABSCN": {
+      "kind": "lab_scenario_work_item",
+      "next_sequence": 7,
+      "width": 3
+    },
+    "LABINT": {
+      "kind": "lab_integration_work_item",
+      "next_sequence": 5,
+      "width": 3
+    },
+    "STL": {
+      "kind": "storage_demo",
+      "next_sequence": 11,
+      "width": 3
+    },
+    "OPT": {
+      "kind": "optimizer_demo",
+      "next_sequence": 18,
+      "width": 3
+    },
+    "QRY": {
+      "kind": "query_pattern_demo",
+      "next_sequence": 14,
+      "width": 3
+    },
+    "IDX": {
+      "kind": "index_demo",
+      "next_sequence": 11,
+      "width": 3
+    },
+    "CON": {
+      "kind": "concurrency_demo",
+      "next_sequence": 10,
+      "width": 3
+    },
+    "RES": {
+      "kind": "resource_demo",
+      "next_sequence": 8,
+      "width": 3
+    },
+    "DGN": {
+      "kind": "diagnostic_demo",
+      "next_sequence": 8,
+      "width": 3
+    },
+    "INF": {
+      "kind": "infrastructure_work_item",
+      "next_sequence": 7,
+      "width": 3
+    }
+  },
+  "allocations": {
+    "DEC-061": "urn:uuid:01a03379-e43c-7fbc-8b44-fb156fb2c205"
+  }
+}
