@@ -620,22 +620,19 @@ Jede Arbeitsübergabe enthält mindestens:
 
 | Feld | Stand |
 |---|---|
-| Repository-Struktur | abgeschlossen |
-| Fachliche Demos | noch nicht implementiert |
-| Testumgebungs-How-to | noch nicht implementiert; unterstützt später die Ausführung ohne vorhandenen SQL Server |
-| Sonderinfrastruktur | nicht begonnen; nur bei konkreter fachlicher Notwendigkeit |
-| Präsentationsbasis | neutraler fachlicher Neuaufbau mit 84 Folien auf `main`, seit `ADV-009` additiv auf 94 Folien erweitert; finale Demo-Integration nach Gate C offen |
-| Welle 0 | `W0-001` bis `W0-008` validiert |
-| Gate A | validiert; Abnahmeevidenz in `GATE_A_REVIEW.md` |
-| Aussagenstatus | 84/84 Folien erfasst; 80 `KEEP`, 4 `REFINE`; 26 kritische Themen vertieft geprüft |
-| Curriculumstatus | `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` validiert; 8 Module, 43 Lernziele, 84 Traceability-Zeilen und 36 kanonische Demo-Bündel |
-| Quellenstatus | 36 aktive Primärquellen mit Aussagebezug, Gültigkeitsbereich, Pflegefeldern und Review-Triggern |
-| Terminologie und Konflikte | verbindlicher Terminologiestandard aktiv; Konfliktlog enthält offene, gelöste und zurückgestellte Punkte mit Blockerwirkung |
-| Demo-ID-Status | Präfixe und curriculare Zuordnung validiert; Namensschema der synthetischen Testdatenbanken bleibt offen |
-| Nächstes Arbeitspaket | Welle 1: zunächst `FWK-001`, `FWK-002`, `FWK-008`, `FWK-009` und `FWK-012` als Sicherheits- und Vertragsbasis |
-| Danach | `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011`; anschließend vier Pilotdemos für Gate B |
-| Aktuelle Blocker | kein globaler Blocker; `CFL-007` muss vor wiederverwendbaren Setup-/Cleanup-Skripten in `FWK-002` gelöst werden; vier `REFINE`-Claims blockieren erst die spätere Präsentationsfreigabe |
-| Teststatus | Dokumentations-, Quellen-, Privacy- und Traceability-Review vorhanden; keine Demo-Runtime- oder Versionsmatrix ausgeführt, weil noch keine fachliche Demo implementiert ist |
+| Repository-Struktur | abgeschlossen; operativer Detailstand in `CURRENT_EXECUTION_STATUS.md` |
+| Fachliche Demos | zehn produktive Demos vorhanden; neun runtimevalidiert, `QRY-004` implementiert mit offenem Runner-Konflikt |
+| Testumgebungs-How-to | `INF-001` implementiert zur Prüfung; dokumentiert Zielauswahl für vorhandene Instanzen, ohne Provisionierungsversprechen |
+| Sonderinfrastruktur | nicht begonnen; bleibt an einen konkreten fachlichen Bedarf und die bestehenden Safety-Gates gebunden |
+| Präsentationsbasis | aktives Deck mit 102 Folien; `ADV-009` bis `ADV-011` integriert, visuelle Renderprüfung der Vertiefungsfolien offen |
+| Welle 0 und Framework | `W0-001` bis `W0-008`, Gate A, Framework-Matrix und Gate B validiert |
+| Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 offen |
+| Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
+| Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; ein Delta-Review für relevante SQL-Server-2025-Funktionen ist als nächste Welle geplant |
+| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist bevorzugter grüner Vertical Slice |
+| Aktuelle Priorität | `QRY-004`-Runner-Konflikt beheben und die 2019/2022/2025-Matrix erneut nachweisen |
+| Danach | Query-Store-/Extended-Events-Pilot, `CON-004` als interaktiver Vertical Slice, `OPT-017`, Quellen-Delta-Review und Lehrmittel-Renderprüfung |
+| Teststatus | statische Validatoren, neun Unit-Tests und Privacy-Scan am 2026-08-24 lokal erfolgreich; Runtime-Evidenz und offene Restrisiken in `CURRENT_EXECUTION_STATUS.md` |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
 

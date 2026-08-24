@@ -121,7 +121,7 @@ Die fünf Folien bilden einen zusammenhängenden Vertiefungsbogen: Der Bogen beg
 2. Die vier Claims sind in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` von `PLANNED` auf `KEEP` gesetzt und tragen eine aktive Foliennummer. **Erfüllt.**
 3. Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wurde im selben Schnitt kontrolliert erneuert. **Erfüllt.**
 4. `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID und Evidenzklasse. **Erfüllt.**
-5. Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `QRY-013` auf SQL Server 2019, 2022 und 2025 voraus. **Offen**, da die Runtime-Matrix ausschließlich auf GitHub-Runnern läuft.
+5. **Erfüllt.** [Actions-Lauf 30699410795](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410795) belegt die Runtime-Abnahme von `QRY-013` auf SQL Server 2019, 2022 und 2025. Die visuelle Renderprüfung bleibt ein separates Gate-V4-Thema.
 
 ## 9. Quellenübersicht
 

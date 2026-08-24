@@ -242,7 +242,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 
 ## 8. Priorisierung
 
-`ADV-001` bis `ADV-007` sowie Gate V0 bis Gate V2 sind abgeschlossen. Die nächste fachliche Priorität ist `ADV-008`: Die freigegebenen Demos werden in kleinen, voneinander unabhängigen Implementierungs- und Runtime-Schnitten umgesetzt. Als erste risikoarme Schnitte sind `OPT-015`, `OPT-016`, `QRY-013` sowie die klassischen und dynamischen Teile von `QRY-004` geeignet. Query-Store-/XE-Piloten müssen vor dem Capstone und vor den diagnoseabhängigen Memory-Schnitten runtime-validiert werden. Der rote Schnitt `RES-003` wird zuletzt und separat bearbeitet.
+`ADV-001` bis `ADV-007` sowie Gate V0 bis Gate V2 sind abgeschlossen. In `ADV-008` sind `OPT-015`, `OPT-016`, `QRY-013`, `OPT-009` und `OPT-010` inzwischen runtimevalidiert. `QRY-004` ist implementiert, aber wegen eines Runner-Konflikts noch nicht freigegeben. Die nächste fachliche Priorität ist daher dessen Stabilisierung und erneute Matrixabnahme, gefolgt vom Query-Store-/XE-Pilot, `CON-004` als interaktivem Vertical Slice und `OPT-017`. Query-Store-/XE-Piloten müssen vor dem Capstone und vor den diagnoseabhängigen Memory-Schnitten runtimevalidiert werden. Der rote Schnitt `RES-003` wird zuletzt und separat bearbeitet. Die verbindliche Reihenfolge steht in `NEXT_DEVELOPMENT_WAVES.md`.
 
 ## 9. Mindestanforderungen an die Testumgebung
 

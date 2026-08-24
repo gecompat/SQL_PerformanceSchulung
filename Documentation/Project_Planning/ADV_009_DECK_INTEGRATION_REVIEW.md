@@ -100,6 +100,6 @@ Die vollständige statische Prüfstrecke läuft grün.
 
 ## 7. Offene Punkte
 
-1. Die fachliche Endabnahme der Vertiefungsfolien setzt eine erfolgreiche Runtime-Abnahme von `QRY-013` und `QRY-004` auf SQL Server 2019, 2022 und 2025 voraus. Beide Demos stehen auf `IMPLEMENTED`, nicht auf `VALIDATED`, weil die Runtime-Matrix ausschließlich auf GitHub-gehosteten Runnern läuft und vom Arbeitsplatz nicht abgefragt werden kann.
+1. `QRY-013` ist durch [Actions-Lauf 30699410795](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410795) auf SQL Server 2019, 2022 und 2025 validiert. Die fachliche Endabnahme des gesamten Blocks bleibt offen, bis `QRY-004` seine widerspruchsfreie Runtime-Matrix besitzt und die visuelle Renderprüfung erfolgt ist.
 2. `docProps/app.xml` meldet weiterhin `<ap:Slides>0</ap:Slides>`. Der Wert war bereits vor der Erweiterung falsch und wird bewusst nicht korrigiert, um die Änderung auf den fachlichen Zweck zu begrenzen.
-3. Jede weitere Deckerweiterung ändert erneut Prüfsumme und Folienzahl. `OPT-009`, `OPT-010` und `OPT-017` benötigen deshalb ein verallgemeinertes Erzeugungswerkzeug sowie eine Fortschreibung von `SLIDE_COUNT` und der Liste integrierter Ansprüche.
+3. Jede weitere Deckerweiterung ändert erneut Prüfsumme und Folienzahl. `OPT-009` und `OPT-010` sind bereits integriert; als nächster fachlicher Erweiterungskandidat bleibt `OPT-017` und benötigt eine Fortschreibung von `SLIDE_COUNT` und der Liste integrierter Ansprüche.

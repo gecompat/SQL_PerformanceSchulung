@@ -3,7 +3,7 @@
 | Feld | Wert |
 |---|---|
 | Paket | `ADV-008` (Demo `QRY-013`), `ADV-009` (Folienspezifikation M03) |
-| Status | `IMPLEMENTED_FOR_REVIEW` |
+| Status | `VALIDATED` |
 | Lernziel | `LO-M03-07` |
 | Kanonische Demo | `QRY-013` |
 | Sicherheitsstufe | `GREEN` |
@@ -64,13 +64,12 @@ Die Demo setzt keinen instanzweiten Cache zurück. Die Planentwertung erfolgt ob
 | statische Verträge vollständig grün | erfüllt |
 | Negativprüfung des neuen Prüfers | erfüllt für abweichendes Sessionprofil, nicht idempotenten Cleanup und fehlende Foliensprechnotiz-Marke |
 | Katalog-, Inventar- und Labmatrixeintrag | erfüllt |
-| Runtime-Abnahme 2019/2022/2025, je zwei Läufe | offen |
+| Runtime-Abnahme 2019/2022/2025, je zwei Läufe | [erfüllt durch Actions-Lauf 30699410795](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410795) |
 | Deckübernahme der fünf Folien und Erneuerung der Freigabeprüfsumme | erfüllt unter `ADV-009` und `DEC-057` |
 
-Der Status bleibt `IMPLEMENTED`, bis der Runtime-Nachweis auf `github-hosted` vorliegt. Nach `DEC-047` entsteht Gate-Evidenz ausschließlich dort.
+Der Runtime-Nachweis liegt auf `github-hosted` vor. Der verlinkte Lauf führte die beiden vorgesehenen Docker-basierten Durchgänge auf SQL Server 2019, 2022 und 2025 aus. Nach `DEC-047` entsteht Gate-Evidenz ausschließlich dort.
 
 ## 7. Offene Punkte
 
-1. Runtime-Abnahme von `QRY-013` über den Workflow `adv008-qry013.yml`; danach Statuswechsel auf `VALIDATED` in Demo-Katalog, Labmatrix und Inventar.
-2. Die Deckübernahme der Folien `SLD-M03-101` bis `SLD-M03-105` ist erfolgt; die vier Ansprüche `ADV-CLM-013` bis `ADV-CLM-016` tragen die Anzeigepositionen 84 bis 88 und die Entscheidung `KEEP`. Der Vorgang ist in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md` dokumentiert; die fachliche Endabnahme der Folien hängt an der Runtime-Abnahme aus Punkt 1.
-3. Der nächste ADV-008-Schnitt bleibt `QRY-004_CLASSIC_AND_DYNAMIC`.
+1. Die Deckübernahme der Folien `SLD-M03-101` bis `SLD-M03-105` ist erfolgt; die vier Ansprüche `ADV-CLM-013` bis `ADV-CLM-016` tragen die Anzeigepositionen 84 bis 88 und die Entscheidung `KEEP`. Die visuelle Renderprüfung bleibt ein separates Gate-V4-Thema.
+2. Der nächste ADV-008-Schnitt ist die Stabilisierung und erneute Runtime-Abnahme von `QRY-004_CLASSIC_AND_DYNAMIC`.
