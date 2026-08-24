@@ -103,7 +103,7 @@ Der Bogen löst den zweiten Teil des Versprechens ein, das `SLD-M03-115` gegeben
 2. **Erfüllt.** Der Claim `ADV-CLM-020` steht in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` auf `KEEP` und trägt die aktiven Foliennummern 99, 100 und 101.
 3. **Erfüllt.** Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wurde im selben Schnitt kontrolliert auf `e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141` erneuert.
 4. **Erfüllt.** `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID, Anzeigeposition, Folienteil und Evidenzklasse.
-5. **Offen.** Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `OPT-010` auf SQL Server 2019, 2022 und 2025 voraus; auf 2019 und 2022 wird der kontrollierte `SKIP_VERSION` erwartet. Ebenfalls offen ist die visuelle Renderprüfung der vier Folien in PowerPoint.
+5. **Teilweise erfüllt.** [Actions-Lauf 30702590969](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30702590969) belegt `OPT-010` auf SQL Server 2025; SQL Server 2019 und 2022 enden planmäßig mit `SKIP_VERSION`. Offen bleibt die visuelle Renderprüfung der vier Folien in PowerPoint.
 
 Die Übernahme erfolgte additiv über `Tools/build_adv011_slides.py`. Bestehende Folienteile, Anzeigepositionen und Foliennummern der Basisfolien und der Blöcke `ADV-009` und `ADV-010` bleiben unverändert; geändert wurde ausschließlich der Nenner der Fussnotenpaginierung von 98 auf 102.
 

@@ -3,7 +3,7 @@
 | Feld | Wert |
 |---|---|
 | Arbeitspaket | `ADV-008` (Demo), `ADV-010` (Folien) |
-| Status | `IMPLEMENTED_FOR_REVIEW` |
+| Status | `VALIDATED` |
 | Datum | 2026-08-03 |
 | Demo | `OPT-009` – `Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans` |
 | Lernziel | `LO-M03-08` |
@@ -128,7 +128,7 @@ Die vollständige statische Prüfstrecke läuft grün.
 
 ## 8. Offene Punkte
 
-1. `OPT-009` steht auf `IMPLEMENTED`, nicht auf `VALIDATED`. Die Runtime-Matrix läuft ausschließlich auf GitHub-gehosteten Runnern und kann vom Arbeitsplatz nicht abgefragt werden. Dasselbe gilt unverändert für `QRY-013` und `QRY-004`.
+1. Die Runtime-Matrix wurde auf GitHub-gehosteten Runnern durch [Actions-Lauf 30701731564](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30701731564) nachgewiesen: SQL Server 2022 und 2025 erfolgreich, SQL Server 2019 planmäßig `SKIP_VERSION`. Demo, Runner und Workflow blieben bis zum aktuellen Stand unverändert.
 2. Die visuelle Renderprüfung der vier neuen Folien in PowerPoint steht aus. Der Prüfer bewertet Struktur und Zuordnung, nicht Layoutqualität.
 3. Ob der Optimierer die Demoabfrage auf allen Zielversionen tatsächlich als parametersensitiv einstuft, ist eine Laufzeitfrage. Bleibt die Variantenbildung aus, endet die Phase mit `SKIP_EVIDENCE_MISSING`; erzwungen wird nichts.
 4. Die datenbankweite Variantenzählung ist eine bewusste Vereinfachung. Sie ist belastbar, solange in der Demodatenbank nur die Demo läuft, und in der Demo-README als Grenze ausgewiesen.

@@ -2,7 +2,7 @@
 
 ## Aktueller operativer Einstiegspunkt
 
-Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausführbare Schritt stehen in [`Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md`](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md). Historische Fortschrittsmarker im Masterplan dürfen diesem Status nicht widersprechen.
+Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausführbare Schritt stehen in [`Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md`](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md). Die priorisierte Folgeplanung steht in [`Documentation/Project_Planning/NEXT_DEVELOPMENT_WAVES.md`](../Documentation/Project_Planning/NEXT_DEVELOPMENT_WAVES.md). Historische Fortschrittsmarker im Masterplan dürfen diesen Status nicht widersprechen.
 
 ## Welle 0 - Fachliche Konsolidierung
 
@@ -71,14 +71,18 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [ ] `ADV-008` freigegebene Vertiefungsdemos in kleinen, unabhängigen PRs implementieren und validieren.
   - [x] `OPT-015` Planweite und operatorbezogene Eigenschaften implementieren und auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
   - [x] `OPT-016` Rebind, Rewind, Outer References und Spools implementieren und auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
-  - [ ] Nächste Schnitte: `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC`.
+  - [x] `QRY-013` Client- und Sessionkontext auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
+  - [x] `OPT-009` Parameter Sensitive Plan Optimization mit kontrolliertem `SKIP_VERSION` auf 2019 sowie Runtime-Evidenz auf 2022 und 2025 validieren.
+  - [x] `OPT-010` Optional Parameter Plan Optimization mit kontrolliertem `SKIP_VERSION` auf 2019/2022 sowie Runtime-Evidenz auf 2025 validieren.
+  - [ ] `QRY-004_CLASSIC_AND_DYNAMIC` Runtime-Runner für `WARN_EMPIRICAL_VARIANCE` korrigieren oder die Evidenzstrecke stabilisieren und anschließend auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
+  - [ ] Nächster neuer Demo-Schnitt: `OPT-017` mit begrenztem gelbem Ressourcenprofil.
 - [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
 - [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
 
 ## P1 - Interaktive Schulungsszenarien mit SQL_Server_Lab
 
 - [x] `LABSCN-001` Ziel, Verantwortungsgrenze und Lifecycle interaktiver Schulungsszenarien verbindlich festlegen.
-- [ ] `LABSCN-002` vorhandene und geplante Beispiele inventarisieren und als interaktiv geeignet, nur automatisiert prüfbar oder nicht anwendbar klassifizieren; Schema für Szenariodefinitionen erstellen.
+- [ ] `LABSCN-002` vollständig abschließen. Inventar und Schema für die ersten drei Wellen liegen als `IMPLEMENTED_FOR_REVIEW` vor; weitere Beispiele und die vollständige Bedienungszuordnung bleiben offen.
 - [ ] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: Beispiel auswählen, über `SQL_Server_Lab` provisionieren, fachlich vorbereiten, als `READY_FOR_USER` übergeben, zurücksetzen und entfernen.
 - [ ] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
 - [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen.
