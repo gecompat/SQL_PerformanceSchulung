@@ -44,22 +44,22 @@ MODULE_LABEL = "3 · QUERY PATTERNS · VERTIEFUNG"
 # Folien-ID -> (Folienteil, Anzeigeposition, Pflichtfragment im sichtbaren Text)
 SLIDES = {
     "SLD-M03-121": (
-        "ppt/slides/slide95.xml",
+        "ppt/slides/slide94.xml",
         94,
         "genau eine zwischengespeicherte Planform",
     ),
     "SLD-M03-122": (
-        "ppt/slides/slide96.xml",
+        "ppt/slides/slide95.xml",
         95,
         "QueryVariantID",
     ),
     "SLD-M03-123": (
-        "ppt/slides/slide97.xml",
+        "ppt/slides/slide96.xml",
         96,
         "nur Gleichheitsprädikate kommen infrage",
     ),
     "SLD-M03-124": (
-        "ppt/slides/slide98.xml",
+        "ppt/slides/slide97.xml",
         97,
         "DISABLE_PARAMETER_SENSITIVE_PLAN",
     ),
@@ -101,7 +101,7 @@ def display_order(archive: zipfile.ZipFile) -> list[str]:
     }
     presentation = ET.fromstring(archive.read("ppt/presentation.xml"))
     slide_list = presentation.find(f"{P_NS}sldIdLst")
-    return [relationships[node.get(R_ID)] for node in slide_list]
+    return ["ppt/" + relationships[node.get(R_ID)].removeprefix("ppt/") for node in slide_list]
 
 
 def check_deck(findings: list[str]) -> str:
@@ -163,12 +163,12 @@ def check_deck(findings: list[str]) -> str:
                     findings.append(f"{slide_id}: speaker note does not name the canonical demo")
 
         # Die Schlussfolie bleibt letzte Anzeigeposition.
-        if order and order[-1] != "ppt/slides/slide84.xml":
+        if order and order[-1] != "ppt/slides/slide102.xml":
             findings.append("closing slide is no longer the last display position")
 
         # Der ADV-009-Block behaelt seine Anzeigepositionen 84 bis 93.
         for offset in range(10):
-            expected = f"ppt/slides/slide{85 + offset}.xml"
+            expected = f"ppt/slides/slide{84 + offset}.xml"
             position = 84 + offset
             if position <= len(order) and order[position - 1] != expected:
                 findings.append(

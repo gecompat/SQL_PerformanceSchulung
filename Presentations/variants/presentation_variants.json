@@ -1,0 +1,2752 @@
+{
+  "schema_version": 1,
+  "master_deck": "Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx",
+  "master_sha256": "86977ac815f4bd90ad56335bc3fa5847149b0b809da71a58601128b5385111f5",
+  "profiles": {
+    "BASIS": {
+      "custom_show": "SQL Performance – Basis",
+      "include_depth": [
+        "BASIS"
+      ],
+      "include_roles": [
+        "INTRO",
+        "THEORY",
+        "DEMO_INTRO",
+        "DEMO_EXECUTION",
+        "DEMO_RESULT",
+        "LAB",
+        "EXERCISE",
+        "SOLUTION",
+        "SUMMARY",
+        "TRANSITION",
+        "REFERENCE"
+      ],
+      "exclude_slide_keys": [],
+      "rationale": "Gemeinsamer Kernpfad mit Diagnosemethode und sicheren Grundbegriffen."
+    },
+    "STANDARD": {
+      "custom_show": "SQL Performance – Standard",
+      "include_depth": [
+        "BASIS",
+        "STANDARD"
+      ],
+      "include_roles": [
+        "INTRO",
+        "THEORY",
+        "DEMO_INTRO",
+        "DEMO_EXECUTION",
+        "DEMO_RESULT",
+        "LAB",
+        "EXERCISE",
+        "SOLUTION",
+        "SUMMARY",
+        "TRANSITION",
+        "REFERENCE"
+      ],
+      "exclude_slide_keys": [],
+      "rationale": "Regulaere Schulung mit technischer Herleitung ueber den Kernpfad hinaus."
+    },
+    "VERTIEFUNG": {
+      "custom_show": "SQL Performance – Vertiefung",
+      "include_depth": [
+        "BASIS",
+        "STANDARD",
+        "VERTIEFUNG"
+      ],
+      "include_roles": [
+        "INTRO",
+        "THEORY",
+        "DEMO_INTRO",
+        "DEMO_EXECUTION",
+        "DEMO_RESULT",
+        "LAB",
+        "EXERCISE",
+        "SOLUTION",
+        "SUMMARY",
+        "TRANSITION",
+        "REFERENCE"
+      ],
+      "exclude_slide_keys": [],
+      "rationale": "Vollstaendiger freigegebener Bestand einschliesslich Optimizer-Internals und IQP."
+    }
+  },
+  "slides": {
+    "SLD-M00-001": {
+      "order": 1,
+      "module": "M00",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Titel und fachlicher Rahmen des Grundlagenkurses",
+      "claims": [
+        "CLM-001"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M00-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M00-002": {
+      "order": 2,
+      "module": "M00",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Erst beobachten und messen, dann gezielt verändern",
+      "claims": [
+        "CLM-002"
+      ],
+      "sources": [
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M00-02"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M00-003": {
+      "order": 3,
+      "module": "M00",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Performance als Zusammenspiel von Latenz, Durchsatz, Ressourcen und Nebenläufigkeit bewerten",
+      "claims": [
+        "CLM-003"
+      ],
+      "sources": [
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M00-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M00-004": {
+      "order": 4,
+      "module": "M00",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Diagnosezyklus: Symptom, Engpass, Plan, Änderung, Nachweis",
+      "claims": [
+        "CLM-004"
+      ],
+      "sources": [
+        "SRC-027",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M00-02"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M00-005": {
+      "order": 5,
+      "module": "M00",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Plan, DMVs, Query Store, Extended Events und OS-Metriken beantworten unterschiedliche Fragen",
+      "claims": [
+        "CLM-005"
+      ],
+      "sources": [
+        "SRC-027",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M00-03"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M00-006": {
+      "order": 6,
+      "module": "M00",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "IQP-Funktionen hängen von Engine-Version, Kompatibilitätsstufe und teils Konfiguration ab",
+      "claims": [
+        "CLM-006"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-025",
+        "SRC-026"
+      ],
+      "learning_objectives": [
+        "LO-M00-04"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-001": {
+      "order": 7,
+      "module": "M01",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Modulnavigation zu Storage und I/O",
+      "claims": [
+        "CLM-007"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M01-01",
+        "LO-M01-02",
+        "LO-M01-03",
+        "LO-M01-04",
+        "LO-M01-05"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-002": {
+      "order": 8,
+      "module": "M01",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Daten- und Logdateien haben unterschiedliche Rollen und I/O-Muster",
+      "claims": [
+        "CLM-008"
+      ],
+      "sources": [
+        "SRC-003",
+        "SRC-033"
+      ],
+      "learning_objectives": [
+        "LO-M01-01"
+      ],
+      "demos": [
+        "STL-005"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-003": {
+      "order": 9,
+      "module": "M01",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Filegroups sind Verwaltungs-/Platzierungseinheiten; Performance folgt nicht automatisch",
+      "claims": [
+        "CLM-009"
+      ],
+      "sources": [
+        "SRC-003"
+      ],
+      "learning_objectives": [
+        "LO-M01-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-004": {
+      "order": 10,
+      "module": "M01",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "SQL Server organisiert Datenseiten in Extents; die Struktur erklärt Zugriffsmuster",
+      "claims": [
+        "CLM-010"
+      ],
+      "sources": [
+        "SRC-002"
+      ],
+      "learning_objectives": [
+        "LO-M01-02"
+      ],
+      "demos": [
+        "STL-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-005": {
+      "order": 11,
+      "module": "M01",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Zeilen- und Seitenstruktur begrenzen nutzbaren Platz und beeinflussen Seitenzahl",
+      "claims": [
+        "CLM-011"
+      ],
+      "sources": [
+        "SRC-002"
+      ],
+      "learning_objectives": [
+        "LO-M01-02"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-006": {
+      "order": 12,
+      "module": "M01",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Breitere Zeilen senken Zeilen pro Seite und können logische Reads erhöhen",
+      "claims": [
+        "CLM-012"
+      ],
+      "sources": [
+        "SRC-002"
+      ],
+      "learning_objectives": [
+        "LO-M01-02"
+      ],
+      "demos": [
+        "STL-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-007": {
+      "order": 13,
+      "module": "M01",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Allocation Units trennen In-row-, LOB- und Row-overflow-Speicher innerhalb von Partitionen",
+      "claims": [
+        "CLM-013"
+      ],
+      "sources": [
+        "SRC-002",
+        "SRC-019"
+      ],
+      "learning_objectives": [
+        "LO-M01-03"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-008": {
+      "order": 14,
+      "module": "M01",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Der Buffer Pool macht logische Reads zur zentralen Messgröße; physische Reads sind ein Teil davon",
+      "claims": [
+        "CLM-014"
+      ],
+      "sources": [
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M01-04"
+      ],
+      "demos": [
+        "STL-006"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-009": {
+      "order": 15,
+      "module": "M01",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Logical Reads und Physical Reads sind getrennt zu interpretieren; Cachezustand beeinflusst den Messlauf",
+      "claims": [
+        "CLM-015"
+      ],
+      "sources": [
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M01-04"
+      ],
+      "demos": [
+        "STL-006"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-010": {
+      "order": 16,
+      "module": "M01",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Write-ahead logging, Log Flush und Checkpoint erfüllen unterschiedliche Persistenz-/Wiederherstellungsaufgaben",
+      "claims": [
+        "CLM-016"
+      ],
+      "sources": [
+        "SRC-033"
+      ],
+      "learning_objectives": [
+        "LO-M01-05"
+      ],
+      "demos": [
+        "STL-007"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-011": {
+      "order": 17,
+      "module": "M01",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Autogrowth ist Sicherheitsnetz, nicht Kapazitätsplanung; IFI behandelt Daten- und Logwachstum unterschiedlich",
+      "claims": [
+        "CLM-017"
+      ],
+      "sources": [
+        "SRC-003",
+        "SRC-034"
+      ],
+      "learning_objectives": [
+        "LO-M01-05"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M01-012": {
+      "order": 18,
+      "module": "M01",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Wissenssicherung zu Storage und I/O",
+      "claims": [
+        "CLM-018"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M01-01",
+        "LO-M01-02",
+        "LO-M01-03",
+        "LO-M01-04",
+        "LO-M01-05"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-001": {
+      "order": 19,
+      "module": "M02",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Modulnavigation zu Query Processing",
+      "claims": [
+        "CLM-019"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M02-01",
+        "LO-M02-02",
+        "LO-M02-03",
+        "LO-M02-04",
+        "LO-M02-05",
+        "LO-M02-06",
+        "LO-M02-07"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-002": {
+      "order": 20,
+      "module": "M02",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Eine Abfrage durchläuft Parsing/Binding, Optimierung und Ausführung",
+      "claims": [
+        "CLM-020"
+      ],
+      "sources": [
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M02-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-003": {
+      "order": 21,
+      "module": "M02",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Der kostenbasierte Optimierer sucht zeitbegrenzt und garantiert nicht den global optimalen Plan",
+      "claims": [
+        "CLM-021"
+      ],
+      "sources": [
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M02-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-004": {
+      "order": 22,
+      "module": "M02",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Kardinalitätsschätzungen treiben Joinwahl, Grants und Parallelitätsentscheidungen",
+      "claims": [
+        "CLM-022"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-006"
+      ],
+      "learning_objectives": [
+        "LO-M02-02"
+      ],
+      "demos": [
+        "OPT-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-005": {
+      "order": 23,
+      "module": "M02",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Statistiken liefern Histogramm- und Dichteinformationen für Schätzungen",
+      "claims": [
+        "CLM-023"
+      ],
+      "sources": [
+        "SRC-005"
+      ],
+      "learning_objectives": [
+        "LO-M02-02"
+      ],
+      "demos": [
+        "OPT-002"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-006": {
+      "order": 24,
+      "module": "M02",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Histogramm und Dichte haben unterschiedliche Aussagebereiche; Kombinationen können Annahmen erfordern",
+      "claims": [
+        "CLM-024"
+      ],
+      "sources": [
+        "SRC-005",
+        "SRC-006"
+      ],
+      "learning_objectives": [
+        "LO-M02-02"
+      ],
+      "demos": [
+        "OPT-002"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-007": {
+      "order": 25,
+      "module": "M02",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Vertrauenswürdige Constraints können dem Optimierer zusätzliche logische Informationen geben",
+      "claims": [
+        "CLM-025"
+      ],
+      "sources": [
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M02-02"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-008": {
+      "order": 26,
+      "module": "M02",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Estimated-versus-Actual-Abweichung ist ein Startpunkt, kein alleiniger Ursachenbeweis",
+      "claims": [
+        "CLM-026"
+      ],
+      "sources": [
+        "SRC-031",
+        "SRC-005"
+      ],
+      "learning_objectives": [
+        "LO-M02-03"
+      ],
+      "demos": [
+        "OPT-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-009": {
+      "order": 27,
+      "module": "M02",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Pläne entlang Datenfluss, Zeilen, Kosten, Warnungen und Eigenschaften lesen",
+      "claims": [
+        "CLM-027"
+      ],
+      "sources": [
+        "SRC-031"
+      ],
+      "learning_objectives": [
+        "LO-M02-03"
+      ],
+      "demos": [
+        "OPT-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-010": {
+      "order": 28,
+      "module": "M02",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Joinoperatoren passen zu unterschiedlichen Eingabe-/Sortier-/Größensituationen; Adaptive Join entscheidet gegebenenfalls zur Laufzeit",
+      "claims": [
+        "CLM-028"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-007"
+      ],
+      "learning_objectives": [
+        "LO-M02-04"
+      ],
+      "demos": [
+        "OPT-012"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-011": {
+      "order": 29,
+      "module": "M02",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Sort/Hash können Memory Grants anfordern; Schätzung beeinflusst Warten, Reserve und Spill-Risiko",
+      "claims": [
+        "CLM-029"
+      ],
+      "sources": [
+        "SRC-009",
+        "SRC-010"
+      ],
+      "learning_objectives": [
+        "LO-M02-05"
+      ],
+      "demos": [
+        "OPT-014"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-012": {
+      "order": 30,
+      "module": "M02",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Spills sind Laufzeitfolgen unzureichender Arbeitsfläche und im Plan/Monitoring nachzuweisen",
+      "claims": [
+        "CLM-030"
+      ],
+      "sources": [
+        "SRC-009",
+        "SRC-029",
+        "SRC-031"
+      ],
+      "learning_objectives": [
+        "LO-M02-05"
+      ],
+      "demos": [
+        "OPT-013"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-013": {
+      "order": 31,
+      "module": "M02",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Parallelität besteht aus Tasks/Workern; Skew kann ein paralleles Gesamtergebnis dominieren",
+      "claims": [
+        "CLM-031"
+      ],
+      "sources": [
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M02-06"
+      ],
+      "demos": [
+        "RES-002"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-014": {
+      "order": 32,
+      "module": "M02",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Cache-Schlüssel, zusätzliche Cacheeinträge, Eviction, Invalidierung und Recompile sind getrennte Zustände der Planwiederverwendung",
+      "claims": [
+        "CLM-032"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-027"
+      ],
+      "learning_objectives": [
+        "LO-M02-07"
+      ],
+      "demos": [
+        "OPT-007"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-015": {
+      "order": 33,
+      "module": "M02",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Ein einzelner gecachter Plan kann bei ungleich verteilten Parameterwerten ungeeignet sein",
+      "claims": [
+        "CLM-033"
+      ],
+      "sources": [
+        "SRC-007"
+      ],
+      "learning_objectives": [
+        "LO-M02-07"
+      ],
+      "demos": [
+        "OPT-008"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-016": {
+      "order": 34,
+      "module": "M02",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "IQP-Funktionen besitzen getrennte Voraussetzungen aus Engine-Version, Compatibility Level, Datenbankkonfiguration, Query Store und Query-Eligibility",
+      "claims": [
+        "CLM-034"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-008",
+        "SRC-009",
+        "SRC-026"
+      ],
+      "learning_objectives": [
+        "LO-M02-07"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M02-017": {
+      "order": 35,
+      "module": "M02",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Wissenssicherung zu Optimierung und Ausführung",
+      "claims": [
+        "CLM-035"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M02-01",
+        "LO-M02-02",
+        "LO-M02-03",
+        "LO-M02-04",
+        "LO-M02-05",
+        "LO-M02-06",
+        "LO-M02-07"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-001": {
+      "order": 36,
+      "module": "M03",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Modulnavigation zu Abfragemustern",
+      "claims": [
+        "CLM-036"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M03-01",
+        "LO-M03-02",
+        "LO-M03-03",
+        "LO-M03-04",
+        "LO-M03-05",
+        "LO-M03-06"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-002": {
+      "order": 37,
+      "module": "M03",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "SARGable Prädikate erleichtern passende Suchzugriffe; Funktionen auf Suchspalten können sie verhindern",
+      "claims": [
+        "CLM-037"
+      ],
+      "sources": [
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M03-01"
+      ],
+      "demos": [
+        "QRY-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-003": {
+      "order": 38,
+      "module": "M03",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Datentyppräzedenz kann implizite Konvertierung an der Spalte und damit Plan-/Zugriffsfolgen erzeugen",
+      "claims": [
+        "CLM-038"
+      ],
+      "sources": [
+        "SRC-030",
+        "SRC-031"
+      ],
+      "learning_objectives": [
+        "LO-M03-01"
+      ],
+      "demos": [
+        "QRY-002"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-004": {
+      "order": 39,
+      "module": "M03",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Halb offene Datumsintervalle vermeiden Zeitanteilsfehler und bleiben suchbar",
+      "claims": [
+        "CLM-039"
+      ],
+      "sources": [
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M03-02"
+      ],
+      "demos": [
+        "QRY-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-005": {
+      "order": 40,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Optionale Prädikate können planempfindlich sein; OPPO erzeugt ab SQL Server 2025 geeignete Varianten unter Voraussetzungen",
+      "claims": [
+        "CLM-040"
+      ],
+      "sources": [
+        "SRC-026"
+      ],
+      "learning_objectives": [
+        "LO-M03-03"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-006": {
+      "order": 41,
+      "module": "M03",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Eine CTE ist eine logische Abfrageform ohne Materialisierungsgarantie",
+      "claims": [
+        "CLM-041"
+      ],
+      "sources": [
+        "SRC-011",
+        "SRC-001"
+      ],
+      "learning_objectives": [
+        "LO-M03-04"
+      ],
+      "demos": [
+        "QRY-008"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-007": {
+      "order": 42,
+      "module": "M03",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Temp Tables können Spaltenstatistiken besitzen; Table Variable Deferred Compilation nutzt bei CL 150 die erste Zeilenzahl, ersetzt aber keine Verteilungsstatist",
+      "claims": [
+        "CLM-042"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-008"
+      ],
+      "learning_objectives": [
+        "LO-M03-04"
+      ],
+      "demos": [
+        "QRY-008"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-008": {
+      "order": 43,
+      "module": "M03",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Inline TVFs sind relational integrierbar; Interleaved Execution kann geeignete MSTVFs ab CL 140 mit erster Ist-Kardinalität optimieren; Scalar UDF Inlining blei",
+      "claims": [
+        "CLM-043"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-008"
+      ],
+      "learning_objectives": [
+        "LO-M03-04"
+      ],
+      "demos": [
+        "QRY-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-009": {
+      "order": 44,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Partition Elimination folgt passenden Prädikaten und Grenzen; Partitionierung ersetzt keinen selektiven Index",
+      "claims": [
+        "CLM-044"
+      ],
+      "sources": [
+        "SRC-018"
+      ],
+      "learning_objectives": [
+        "LO-M03-05"
+      ],
+      "demos": [
+        "QRY-012"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-010": {
+      "order": 45,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Remote Pushdown hängt von Provider, Collation, Ausdruck und Plan ab; SQL Server 2025 ändert Treibervoraussetzungen",
+      "claims": [
+        "CLM-045"
+      ],
+      "sources": [
+        "SRC-020",
+        "SRC-021",
+        "SRC-022"
+      ],
+      "learning_objectives": [
+        "LO-M03-05"
+      ],
+      "demos": [
+        "QRY-012"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-011": {
+      "order": 46,
+      "module": "M03",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Datentypen und Modellierung beeinflussen Zeilenbreite, Konvertierungen, Schätzungen und Indizierbarkeit",
+      "claims": [
+        "CLM-046"
+      ],
+      "sources": [
+        "SRC-002",
+        "SRC-005",
+        "SRC-030"
+      ],
+      "learning_objectives": [
+        "LO-M03-02"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-012": {
+      "order": 47,
+      "module": "M03",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Wissenssicherung zu Abfragemustern",
+      "claims": [
+        "CLM-047"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M03-06"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-001": {
+      "order": 48,
+      "module": "M04",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Modulnavigation zu Indexen",
+      "claims": [
+        "CLM-048"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M04-01",
+        "LO-M04-02",
+        "LO-M04-03",
+        "LO-M04-04",
+        "LO-M04-05",
+        "LO-M04-06",
+        "LO-M04-07"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-002": {
+      "order": 49,
+      "module": "M04",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Heap und Clustered Index sind unterschiedliche Speicherorganisationen mit workloadabhängigen Trade-offs",
+      "claims": [
+        "CLM-049"
+      ],
+      "sources": [
+        "SRC-012",
+        "SRC-013"
+      ],
+      "learning_objectives": [
+        "LO-M04-01"
+      ],
+      "demos": [
+        "IDX-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-003": {
+      "order": 50,
+      "module": "M04",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "B+-Baum-Ebenen ermöglichen Suchnavigation; Höhe und Seitenzahl folgen Schlüssel/Zeilenmenge",
+      "claims": [
+        "CLM-050"
+      ],
+      "sources": [
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M04-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-004": {
+      "order": 51,
+      "module": "M04",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Nonclustered-Blätter enthalten einen Zeilenlokator; dessen Form hängt von Heap oder Clustered Index ab",
+      "claims": [
+        "CLM-051"
+      ],
+      "sources": [
+        "SRC-012",
+        "SRC-013"
+      ],
+      "learning_objectives": [
+        "LO-M04-01"
+      ],
+      "demos": [
+        "IDX-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-005": {
+      "order": 52,
+      "module": "M04",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Schlüsselreihenfolge bestimmt nutzbare Suchpräfixe sowie Sortier-/Gruppierungsmöglichkeiten",
+      "claims": [
+        "CLM-052"
+      ],
+      "sources": [
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M04-02"
+      ],
+      "demos": [
+        "IDX-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-006": {
+      "order": 53,
+      "module": "M04",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "INCLUDE und Filter können Abdeckung/Selektivität verbessern, erhöhen aber Wartungs- und Speicheraufwand",
+      "claims": [
+        "CLM-053"
+      ],
+      "sources": [
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M04-02"
+      ],
+      "demos": [
+        "IDX-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-007": {
+      "order": 54,
+      "module": "M04",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Seek-plus-Lookup kann oberhalb eines workloadabhängigen Tipping Points teurer als Scan werden",
+      "claims": [
+        "CLM-054"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M04-03"
+      ],
+      "demos": [
+        "IDX-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-008": {
+      "order": 55,
+      "module": "M04",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Ein schmaler, stabiler Clustered Key reduziert den Lokatoranteil vieler Nonclustered Indexe",
+      "claims": [
+        "CLM-055"
+      ],
+      "sources": [
+        "SRC-012"
+      ],
+      "learning_objectives": [
+        "LO-M04-03"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-009": {
+      "order": 56,
+      "module": "M04",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Indexentscheidung balanciert Lesegewinn gegen Schreib-, Speicher- und Wartungskosten",
+      "claims": [
+        "CLM-056"
+      ],
+      "sources": [
+        "SRC-012",
+        "SRC-032"
+      ],
+      "learning_objectives": [
+        "LO-M04-04"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-010": {
+      "order": 57,
+      "module": "M04",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Page Split, logische Fragmentierung und Seitendichte sind getrennte Signale; Fill Factor ist workloadabhängig",
+      "claims": [
+        "CLM-057"
+      ],
+      "sources": [
+        "SRC-014",
+        "SRC-015"
+      ],
+      "learning_objectives": [
+        "LO-M04-05"
+      ],
+      "demos": [
+        "IDX-006"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-011": {
+      "order": 58,
+      "module": "M04",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Indexwartung braucht Messziel und Wirkungskontrolle statt fester globaler Schwellen",
+      "claims": [
+        "CLM-058"
+      ],
+      "sources": [
+        "SRC-015"
+      ],
+      "learning_objectives": [
+        "LO-M04-05"
+      ],
+      "demos": [
+        "IDX-006"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-012": {
+      "order": 59,
+      "module": "M04",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Columnstore organisiert Daten in Rowgroups/Segmenten und verwendet Delta Store/Delete Bitmap",
+      "claims": [
+        "CLM-059"
+      ],
+      "sources": [
+        "SRC-016"
+      ],
+      "learning_objectives": [
+        "LO-M04-06"
+      ],
+      "demos": [
+        "IDX-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-013": {
+      "order": 60,
+      "module": "M04",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Batch Mode und Segment Elimination können Verarbeitung reduzieren, sind aber plan-/datenabhängig",
+      "claims": [
+        "CLM-060"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-016",
+        "SRC-017"
+      ],
+      "learning_objectives": [
+        "LO-M04-06"
+      ],
+      "demos": [
+        "IDX-010"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-014": {
+      "order": 61,
+      "module": "M04",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Rowgroup-Qualität und gelöschte Zeilen steuern Diagnose und Wartung; Hintergrund-Merge unterstützt ab 2019",
+      "claims": [
+        "CLM-061"
+      ],
+      "sources": [
+        "SRC-015",
+        "SRC-016",
+        "SRC-017"
+      ],
+      "learning_objectives": [
+        "LO-M04-07"
+      ],
+      "demos": [
+        "IDX-010"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M04-015": {
+      "order": 62,
+      "module": "M04",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Wissenssicherung zu Rowstore und Columnstore",
+      "claims": [
+        "CLM-062"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M04-01",
+        "LO-M04-02",
+        "LO-M04-03",
+        "LO-M04-04",
+        "LO-M04-05",
+        "LO-M04-06",
+        "LO-M04-07"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-001": {
+      "order": 63,
+      "module": "M05",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Modulnavigation zu Nebenläufigkeit",
+      "claims": [
+        "CLM-063"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M05-01",
+        "LO-M05-02",
+        "LO-M05-03",
+        "LO-M05-04",
+        "LO-M05-05"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-002": {
+      "order": 64,
+      "module": "M05",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Isolation Levels unterscheiden Konsistenzsicht, Sperrverhalten und Konfliktrisiko",
+      "claims": [
+        "CLM-064"
+      ],
+      "sources": [
+        "SRC-004"
+      ],
+      "learning_objectives": [
+        "LO-M05-01"
+      ],
+      "demos": [
+        "CON-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-003": {
+      "order": 65,
+      "module": "M05",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Locking und Row Versioning verschieben Konflikte und Kosten, beseitigen sie aber nicht",
+      "claims": [
+        "CLM-065"
+      ],
+      "sources": [
+        "SRC-004",
+        "SRC-029"
+      ],
+      "learning_objectives": [
+        "LO-M05-01"
+      ],
+      "demos": [
+        "CON-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-004": {
+      "order": 66,
+      "module": "M05",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Blocking ist als Kette von wartender Session zur blockierenden Wurzel zu untersuchen",
+      "claims": [
+        "CLM-066"
+      ],
+      "sources": [
+        "SRC-036"
+      ],
+      "learning_objectives": [
+        "LO-M05-02"
+      ],
+      "demos": [
+        "CON-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-005": {
+      "order": 67,
+      "module": "M05",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Blocking ist Warten; Deadlock ist ein Zyklus, den die Engine durch Abbruch eines Opfers auflöst",
+      "claims": [
+        "CLM-067"
+      ],
+      "sources": [
+        "SRC-004"
+      ],
+      "learning_objectives": [
+        "LO-M05-03"
+      ],
+      "demos": [
+        "CON-006"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-006": {
+      "order": 68,
+      "module": "M05",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "tempdb trägt temporäre Objekte, Worktables/Spills und je nach Konfiguration Versionsspeicher",
+      "claims": [
+        "CLM-068"
+      ],
+      "sources": [
+        "SRC-029",
+        "SRC-004"
+      ],
+      "learning_objectives": [
+        "LO-M05-04"
+      ],
+      "demos": [
+        "CON-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-007": {
+      "order": 69,
+      "module": "M05",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Optimized Locking reduziert bestimmte Sperrkosten mit TID/LAQ, verlangt aber ADR/RCSI-konforme Voraussetzungen",
+      "claims": [
+        "CLM-069"
+      ],
+      "sources": [
+        "SRC-025"
+      ],
+      "learning_objectives": [
+        "LO-M05-05"
+      ],
+      "demos": [
+        "CON-008"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M05-008": {
+      "order": 70,
+      "module": "M05",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Wissenssicherung zu Isolation und Blocking",
+      "claims": [
+        "CLM-070"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M05-01",
+        "LO-M05-02",
+        "LO-M05-03",
+        "LO-M05-04",
+        "LO-M05-05"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-001": {
+      "order": 71,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "INTRO"
+      ],
+      "title": "Modulnavigation zu Diagnosewerkzeugen",
+      "claims": [
+        "CLM-071"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M06-01",
+        "LO-M06-02",
+        "LO-M06-03",
+        "LO-M06-04",
+        "LO-M06-05",
+        "LO-M06-06"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-002": {
+      "order": 72,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Hohe CPU-Auslastung und CPU-bezogene Waits sind unterschiedliche Signale und brauchen Zeitkorrelation",
+      "claims": [
+        "CLM-072"
+      ],
+      "sources": [
+        "SRC-028",
+        "SRC-035"
+      ],
+      "learning_objectives": [
+        "LO-M06-01"
+      ],
+      "demos": [
+        "RES-001"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-003": {
+      "order": 73,
+      "module": "M06",
+      "depth": "STANDARD",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Instanzweite kumulative Waits und aktuelle Task-Waits haben unterschiedliche Geltungsbereiche",
+      "claims": [
+        "CLM-073"
+      ],
+      "sources": [
+        "SRC-035",
+        "SRC-036"
+      ],
+      "learning_objectives": [
+        "LO-M06-01"
+      ],
+      "demos": [
+        "RES-007"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-004": {
+      "order": 74,
+      "module": "M06",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "RESOURCE_SEMAPHORE kann auf wartende Query Memory Grants hinweisen; Grant-DMV trennt Anforderung und Zuteilung",
+      "claims": [
+        "CLM-074"
+      ],
+      "sources": [
+        "SRC-010",
+        "SRC-035"
+      ],
+      "learning_objectives": [
+        "LO-M06-02"
+      ],
+      "demos": [
+        "RES-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-005": {
+      "order": 75,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Wait-Kategorien priorisieren Hypothesen, ersetzen aber nicht Plan-/Workloadbezug",
+      "claims": [
+        "CLM-075"
+      ],
+      "sources": [
+        "SRC-035",
+        "SRC-036"
+      ],
+      "learning_objectives": [
+        "LO-M06-03"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-006": {
+      "order": 76,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Query Store speichert Query-, Plan- und Laufzeithistorie und unterstützt Regressionsanalyse/Steuerung",
+      "claims": [
+        "CLM-076"
+      ],
+      "sources": [
+        "SRC-027"
+      ],
+      "learning_objectives": [
+        "LO-M06-04"
+      ],
+      "demos": [
+        "DGN-003"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-007": {
+      "order": 77,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Extended Events und DMVs ergänzen Query Store für Ereignis- und Livezustände",
+      "claims": [
+        "CLM-077"
+      ],
+      "sources": [
+        "SRC-027",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M06-04"
+      ],
+      "demos": [
+        "DGN-005"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-008": {
+      "order": 78,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Outside-in: Nutzerzeit, Systemsignal, Query/Plan und Operatorursache schrittweise verbinden",
+      "claims": [
+        "CLM-078"
+      ],
+      "sources": [
+        "SRC-027",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M06-05"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-009": {
+      "order": 79,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Vorher/Nachher braucht gleiche Last, Zeitraum, Cache-/Datenzustand und mehrere relevante Metriken",
+      "claims": [
+        "CLM-079"
+      ],
+      "sources": [
+        "SRC-027",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M06-06"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M06-010": {
+      "order": 80,
+      "module": "M06",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Wissenssicherung zur evidenzbasierten Diagnose",
+      "claims": [
+        "CLM-080"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M06-06"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M07-001": {
+      "order": 81,
+      "module": "M07",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Messung, Reproduzierbarkeit, Versionsgrenzen und Rückfallplan bilden die Leitprinzipien",
+      "claims": [
+        "CLM-081"
+      ],
+      "sources": [
+        "SRC-027",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M07-01"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M07-002": {
+      "order": 82,
+      "module": "M07",
+      "depth": "BASIS",
+      "roles": [
+        "EXERCISE"
+      ],
+      "title": "Transfer vom Symptom zur prüfbaren nächsten Maßnahme",
+      "claims": [
+        "CLM-082"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M07-02"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M07-003": {
+      "order": 83,
+      "module": "M07",
+      "depth": "BASIS",
+      "roles": [
+        "REFERENCE"
+      ],
+      "title": "Quellen, Versionsgrenzen und empirische Ergebnisse müssen getrennt und nachverfolgbar bleiben",
+      "claims": [
+        "CLM-083"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-028"
+      ],
+      "learning_objectives": [
+        "LO-M07-03"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-101": {
+      "order": 84,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Die Differenz zwischen zwei Clients ist ein Evidenzproblem und erfordert eine mehrdimensionale Kontextdiagnose",
+      "claims": [
+        "ADV-CLM-014"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-027",
+        "SRC-046"
+      ],
+      "learning_objectives": [
+        "LO-M03-07"
+      ],
+      "demos": [
+        "QRY-013"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-102": {
+      "order": 85,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Cachekontext und SET-Optionen können zusätzliche Cacheeinträge für dasselbe Objekt erzeugen",
+      "claims": [
+        "ADV-CLM-013"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-040",
+        "SRC-046"
+      ],
+      "learning_objectives": [
+        "LO-M03-07"
+      ],
+      "demos": [
+        "QRY-013"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-103": {
+      "order": 86,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Parameter Sensitivity folgt der Planwiederverwendung bei unterschiedlicher Verteilung",
+      "claims": [
+        "ADV-CLM-015"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-047"
+      ],
+      "learning_objectives": [
+        "LO-M03-07"
+      ],
+      "demos": [
+        "QRY-013"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-104": {
+      "order": 87,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Parameter, Variablen, Literale und OPTION (RECOMPILE) liefern dem Optimierer unterschiedliche Information",
+      "claims": [
+        "ADV-CLM-016"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-007",
+        "SRC-045",
+        "SRC-046"
+      ],
+      "learning_objectives": [
+        "LO-M03-07"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-105": {
+      "order": 88,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Die Diagnose ist erst abgeschlossen, wenn jede Dimension belegt oder ausgeschlossen ist",
+      "claims": [
+        "ADV-CLM-013",
+        "ADV-CLM-014",
+        "ADV-CLM-015",
+        "ADV-CLM-016"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-027",
+        "SRC-040",
+        "SRC-046"
+      ],
+      "learning_objectives": [
+        "LO-M03-07"
+      ],
+      "demos": [
+        "QRY-013"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-111": {
+      "order": 89,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Ein statischer Querytext mit optionalen Prädikaten bindet sich an eine einzige Planform",
+      "claims": [],
+      "sources": [
+        "SRC-001",
+        "SRC-045",
+        "SRC-049"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-112": {
+      "order": 90,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "OPTION (RECOMPILE) ermöglicht laufzeitnahe Optimierung und gibt dafür die Planwiederverwendung auf",
+      "claims": [
+        "ADV-CLM-017"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-045"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-113": {
+      "order": 91,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Dynamische Suchbedingungen werden aus einer Positivliste zusammengesetzt; Werte werden gebunden",
+      "claims": [
+        "ADV-CLM-018"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-045"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-114": {
+      "order": 92,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Sicher parameterisiertes dynamisches SQL erzeugt je Filterform genau eine Statementform",
+      "claims": [
+        "ADV-CLM-018"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-045"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-115": {
+      "order": 93,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Die Auswahl folgt Verteilung, Ausführungsfrequenz, Sicherheit und Wartbarkeit; alle Strategien müssen ergebnisgleich sein",
+      "claims": [
+        "ADV-CLM-017",
+        "ADV-CLM-018"
+      ],
+      "sources": [
+        "SRC-001",
+        "SRC-007",
+        "SRC-045",
+        "SRC-049"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "QRY-004"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-121": {
+      "order": 94,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Ohne Parametersensitivität besitzt ein Querytext genau eine Planform; die Kompilierungsreihenfolge entscheidet, welcher Wert benachteiligt wird",
+      "claims": [],
+      "sources": [
+        "SRC-001",
+        "SRC-007"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-122": {
+      "order": 95,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Parameter Sensitive Plan Optimization ersetzt die eine Planform durch einen Dispatcherplan und mehrere Query Variants",
+      "claims": [
+        "ADV-CLM-019"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-008"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-123": {
+      "order": 96,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Das Verfahren ist auf höchstens drei Gleichheitsprädikate begrenzt; die Eignung ist im Plan zu belegen",
+      "claims": [
+        "ADV-CLM-019"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-008",
+        "SRC-048"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-124": {
+      "order": 97,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Die Optimierung ist auf Datenbank- und Abfrageebene steuerbar und ersetzt keine der klassischen Strategien",
+      "claims": [
+        "ADV-CLM-019"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-008"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-009"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-131": {
+      "order": 98,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Ein optionales Parameterprädikat erzwingt eine Planform, die für belegte und offene Parameter zugleich gültig sein muss; eine Suchplanform existiert dafür nicht",
+      "claims": [],
+      "sources": [
+        "SRC-001",
+        "SRC-049"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-010"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-132": {
+      "order": 99,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Optional Parameter Plan Optimization erzeugt einen Dispatcherplan mit optionalem Parameterprädikat und je NULL-Zustand eine Query Variant",
+      "claims": [
+        "ADV-CLM-020"
+      ],
+      "sources": [
+        "SRC-026",
+        "SRC-049"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-010"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-133": {
+      "order": 100,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Das Verfahren setzt SQL Server 2025 und Compatibility Level 170 voraus und entfällt bei lokalen Variablen, OPTION (RECOMPILE), ANSI_NULLS OFF und Autoparametris",
+      "claims": [
+        "ADV-CLM-020"
+      ],
+      "sources": [
+        "SRC-007",
+        "SRC-026"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-010"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M03-134": {
+      "order": 101,
+      "module": "M03",
+      "depth": "VERTIEFUNG",
+      "roles": [
+        "THEORY"
+      ],
+      "title": "Die Optimierung ist über die Datenbankeinstellung und über den Abfragehinweis steuerbar; sie grenzt sich in der Auswahlbedingung von der parametersensitiven Pla",
+      "claims": [
+        "ADV-CLM-020"
+      ],
+      "sources": [
+        "SRC-026",
+        "SRC-049"
+      ],
+      "learning_objectives": [
+        "LO-M03-08"
+      ],
+      "demos": [
+        "OPT-010"
+      ],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    },
+    "SLD-M07-004": {
+      "order": 102,
+      "module": "M07",
+      "depth": "BASIS",
+      "roles": [
+        "SUMMARY"
+      ],
+      "title": "Abschluss und weiterführender Arbeitsauftrag",
+      "claims": [
+        "CLM-084"
+      ],
+      "sources": [],
+      "learning_objectives": [
+        "LO-M07-03"
+      ],
+      "demos": [],
+      "requires": [],
+      "paired_with": [],
+      "links_to": [],
+      "profile_overrides": [],
+      "notes_required": true
+    }
+  },
+  "build": {
+    "output_directory": "Presentations/variants/build",
+    "filename_pattern": "SQL_PerformanceSchulung_{PROFILE}_{MASTER_SHORT_HASH}.pptx",
+    "preserve_master": true,
+    "delete_excluded_descending": true,
+    "fail_on_broken_links": true
+  }
+}

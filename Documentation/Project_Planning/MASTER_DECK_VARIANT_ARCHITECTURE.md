@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Arbeitspakete | `PRS-009`, `PRS-011`, `PRS-012`, `PRS-013`, `TST-011`, `TST-012` |
-| Status | `IN_PROGRESS` |
+| Status | `VALIDATED` |
 | Planversion | 1.1 |
 | Stand | 2026-07-26 |
 | Kanonisches Artefakt | vollständiges PowerPoint-Masterdeck |
@@ -131,14 +131,14 @@ Für das Masterdeck und jede freigegebene Variante gelten folgende Prüfungen:
 | ID | Größe | Status | Arbeit | Abschlusskriterium |
 |---|---:|---|---|---|
 | `PRS-011` | M | `VALIDATED` | SlideKey- und Variantenmanifest-Vertrag definieren | Vertrag und JSON Schema legen Tiefenprofile, Rollen, Abhängigkeiten, Build- und Validierungsregeln fest |
-| `PRS-012` | M | `PROPOSED` | Masterdeck mit SlideKeys und Custom Shows ausstatten | alle Folien sind stabil identifiziert; `BASIS`, `STANDARD` und `VERTIEFUNG` sind im Deck vorhanden |
-| `PRS-013` | M | `PROPOSED` | kontrollierten interaktiven Varianten-Build erstellen | Kopie, Ausschluss, Save, Fehlerbehandlung und unverändertes Masterdeck sind nachgewiesen |
-| `TST-011` | M | `PROPOSED` | statischen Variantenvalidator implementieren | Manifest, SlideKeys, Custom Shows, Abhängigkeiten, Links und Quellen werden ohne Office-Start geprüft |
-| `TST-012` | M | `PROPOSED` | Render- und Vergleichsabnahme je Variante ergänzen | visuelle Integrität, Notes, Metadaten und Profilumfang sind nachvollziehbar geprüft |
+| `PRS-012` | M | `VALIDATED` | Masterdeck mit SlideKeys und Custom Shows ausstatten | alle Folien sind stabil identifiziert; `BASIS`, `STANDARD` und `VERTIEFUNG` sind im Deck vorhanden |
+| `PRS-013` | M | `VALIDATED` | kontrollierten interaktiven Varianten-Build erstellen | Kopie, Ausschluss, Save, Fehlerbehandlung und unverändertes Masterdeck sind nachgewiesen |
+| `TST-011` | M | `VALIDATED` | statischen Variantenvalidator implementieren | Manifest, SlideKeys, Custom Shows, Abhängigkeiten, Links und Quellen werden ohne Office-Start geprüft |
+| `TST-012` | M | `VALIDATED` | Render- und Vergleichsabnahme je Variante ergänzen | visuelle Integrität, Notes, Metadaten und Profilumfang sind nachvollziehbar geprüft |
 
 ## 9. Reihenfolge
 
-`PRS-011` ist abgeschlossen. Als nächste Schritte können `PRS-012` und der schema-/manifestbezogene Teil von `TST-011` parallel beginnen. Erst wenn das Masterdeck SlideKeys und Custom Shows besitzt und die statische Prüfung erfolgreich ist, wird in `PRS-013` die optionale Erzeugung eigenständiger `.pptx`-Dateien umgesetzt. `TST-012` folgt nach der ersten erzeugten Variante.
+`PRS-011` bis `TST-012` sind abgeschlossen. Der konkrete Nachweis mit Master-Hash, Profilumfängen, Varianten-Hashes und vollständiger Renderprüfung steht in [`W_PRS_001_TEACHING_RELEASE.md`](W_PRS_001_TEACHING_RELEASE.md).
 
 Die fachliche Erweiterung des Masterdecks durch `ADV-009` verwendet von Beginn an die festgelegten Tiefenprofile. Neue Vertiefungsfolien werden daher nicht nachträglich aussortiert, sondern bei ihrer Anlage mit `SlideKey`, Profil, Quelle, Lernziel und Demo-Zuordnung registriert.
 

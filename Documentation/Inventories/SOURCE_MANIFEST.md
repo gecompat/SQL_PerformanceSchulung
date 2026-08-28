@@ -19,7 +19,7 @@ Die ursprünglichen, nicht neutralisierten Uploads sind keine Repository-Quellen
 | ID | Repository-Pfad | Typ | Umfang | SHA-256 | Git-Blob | Herkunftsklasse | Privacy-Status | Importentscheidung |
 |---|---|---|---:|---|---|---|---|---|
 | `SRC-ARCHIVE-001` | `Presentations/old/Performance Grundlagen V-2024.zip` | ZIP | 16.742.690 Byte; 30 Dateien | `78e3d1d708758d1115a066eca1df2c66d6f26ba57903b764c98e901506892041` | `f38de84504679595ef2068d21a42f62aa78f7727` | neutralisierter Altbestand | `PASS` | nur als Referenzarchiv; keine direkte Ausführung |
-| `SRC-DECK-001` | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` | PPTX | 102 Folien | `e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141` | `69e5b51abec5100accbaf643b339ec5eb016ff4a` | neutraler Neuaufbau | `PASS` | aktive Präsentationsbasis; 84 Claims durch `W2-007` als `KEEP` validiert, 10 Vertiefungsfolien durch `ADV-009` sowie je 4 Vertiefungsfolien durch `ADV-010` und `ADV-011` ergänzt |
+| `SRC-DECK-001` | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` | PPTX | 102 Folien | `86977ac815f4bd90ad56335bc3fa5847149b0b809da71a58601128b5385111f5` | `69e5b51abec5100accbaf643b339ec5eb016ff4a` | neutraler Neuaufbau | `PASS` | aktive Präsentationsbasis; 102 eindeutige SlideKeys und drei native Custom Shows durch `PRS-012`, 84 Basisclaims durch `W2-007` sowie 18 Vertiefungsfolien durch `ADV-009` bis `ADV-011` |
 
 ## 3. Inhaltsübersicht des Referenzarchivs
 

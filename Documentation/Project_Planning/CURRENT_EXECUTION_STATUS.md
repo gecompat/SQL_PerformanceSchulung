@@ -56,7 +56,7 @@ Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
 - Gate V1 – Curriculumfreigabe: `VALIDATED`.
 - Gate V2 – Designfreigabe: `VALIDATED`.
 - Gate V3 – Runtimefreigabe: `PARTIAL`; alle oben als `VALIDATED` markierten Demos sind belegt, `QRY-004` bleibt offen.
-- Gate V4 – Lehrmittelfreigabe: offen; die visuelle Renderprüfung der Vertiefungsfolien steht aus.
+- Gate V4 – Lehrmittelfreigabe: `VALIDATED`; Masterdeck und Profile bestanden Notes-, Manifest-, Custom-Show-, Build-, Render-, Metadaten-, Privacy- und Branding-Abnahme.
 - `LABSCN-001`: `DECIDED` und im Repository verankert.
 - `LABSCN-002`: `IMPLEMENTED_FOR_REVIEW`; die vollständige Szenarioabdeckung ist noch nicht erreicht.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
@@ -73,7 +73,7 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
 3. `CON-004` als gelben, isolationspflichtigen interaktiven Vertical Slice umsetzen.
 4. `OPT-017` getrennt implementieren und validieren.
 5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
-6. `PRS-012`/`TST-011` sowie danach `PRS-013`/`TST-012` inklusive visueller Renderprüfung abschließen.
+6. `W-PRS-001` ist abgeschlossen; als nächste planmäßige Welle folgt `W-COV-001` mit einzelnen Demo-Schnitten in der festgelegten Reihenfolge.
 
 ## 6. Sicherheits-, Datenschutz- und Quellenstatus
 
