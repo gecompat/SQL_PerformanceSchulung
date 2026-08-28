@@ -52,11 +52,11 @@ BEGIN
   SET NOCOUNT ON;
   IF EXISTS(SELECT 1 FROM lab.DemoControl WHERE StopRequested=1) THROW 51008,'FAIL_TIMEOUT: OPT-017-Kill-Switch ist gesetzt.',1;
   IF @RequestedDop=1
-    SELECT @ResultChecksum=CHECKSUM_AGG(BINARY_CHECKSUM(GroupKey,RowCount,TotalMeasure)),@ResultRows=SUM(RowCount),@ResultMeasure=SUM(TotalMeasure)
-    FROM(SELECT GroupKey,COUNT_BIG(*) RowCount,SUM(CONVERT(bigint,MeasureValue)) TotalMeasure FROM lab.ParallelFact WHERE ProfileCode=@ProfileCode GROUP BY GroupKey)g OPTION(RECOMPILE,MAXDOP 1);
+    SELECT @ResultChecksum=CHECKSUM_AGG(BINARY_CHECKSUM(GroupKey,[RowCount],TotalMeasure)),@ResultRows=SUM([RowCount]),@ResultMeasure=SUM(TotalMeasure)
+    FROM(SELECT GroupKey,COUNT_BIG(*) [RowCount],SUM(CONVERT(bigint,MeasureValue)) TotalMeasure FROM lab.ParallelFact WHERE ProfileCode=@ProfileCode GROUP BY GroupKey)g OPTION(RECOMPILE,MAXDOP 1);
   ELSE
-    SELECT @ResultChecksum=CHECKSUM_AGG(BINARY_CHECKSUM(GroupKey,RowCount,TotalMeasure)),@ResultRows=SUM(RowCount),@ResultMeasure=SUM(TotalMeasure)
-    FROM(SELECT GroupKey,COUNT_BIG(*) RowCount,SUM(CONVERT(bigint,MeasureValue)) TotalMeasure FROM lab.ParallelFact WHERE ProfileCode=@ProfileCode GROUP BY GroupKey)g OPTION(RECOMPILE,MAXDOP 4);
+    SELECT @ResultChecksum=CHECKSUM_AGG(BINARY_CHECKSUM(GroupKey,[RowCount],TotalMeasure)),@ResultRows=SUM([RowCount]),@ResultMeasure=SUM(TotalMeasure)
+    FROM(SELECT GroupKey,COUNT_BIG(*) [RowCount],SUM(CONVERT(bigint,MeasureValue)) TotalMeasure FROM lab.ParallelFact WHERE ProfileCode=@ProfileCode GROUP BY GroupKey)g OPTION(RECOMPILE,MAXDOP 4);
 END;
 GO
 

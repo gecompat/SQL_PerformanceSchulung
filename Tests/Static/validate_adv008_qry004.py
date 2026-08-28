@@ -285,6 +285,11 @@ def check_runtime(findings: list[str]) -> None:
             findings.append("runtime runner still rejects documented WARN/SKIP outcomes")
     if not WORKFLOW.is_file():
         findings.append("runtime workflow missing")
+    else:
+        workflow = read(WORKFLOW)
+        for marker in ("login_ready=0", 'docker exec -e "SQLCMDPASSWORD=${password}"', 'SELECT 1;'):
+            if marker not in workflow:
+                findings.append(f"runtime workflow login-readiness probe missing: {marker}")
 
 
 def main() -> int:
