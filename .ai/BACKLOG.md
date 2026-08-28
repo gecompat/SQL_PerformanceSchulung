@@ -85,7 +85,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [ ] `LABSCN-002` vollständig abschließen. Inventar und Schema für die ersten drei Wellen liegen als `IMPLEMENTED_FOR_REVIEW` vor; weitere Beispiele und die vollständige Bedienungszuordnung bleiben offen.
 - [ ] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: Beispiel auswählen, über `SQL_Server_Lab` provisionieren, fachlich vorbereiten, als `READY_FOR_USER` übergeben, zurücksetzen und entfernen.
 - [ ] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
-- [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen.
+- [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen. Die priorisierten sofortigen, bedingten und zukünftigen Kandidaten stehen in [`Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md`](../Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md); jeder Kandidat benötigt vor der Umsetzung eine eigene Detailanalyse und Quellenfreigabe.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
 - [ ] Für jedes Szenario Mindestanforderungen an Hosthardware, Providergrenzen, Versionen und Resetstrategie dokumentieren.
 - [ ] Zusätzliche Funktionalität in `SQL_Server_Lab` nur nach konkretem Szenariobefund benennen und erst nach ausdrücklicher Freigabe dort umsetzen.

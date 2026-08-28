@@ -1,0 +1,145 @@
+# LABSCN-005 – Kandidatenanalyse für weitere SQL_Server_Lab-Szenarien
+
+| Merkmal | Wert |
+|---|---|
+| Arbeitspaket | `LABSCN-005` |
+| Status | `PROPOSED` |
+| Stand | 2026-08-28 |
+| Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
+| Provisionierungsframework | `gecompat/SQL_Server_Lab` |
+| geprüfte Lab-Modulversion | `0.2.0` |
+| Zweck | späterer Analyse-, Planungs- und Entwicklungsvorrat; keine Implementierungsfreigabe |
+
+## 1. Ziel und Statusgrenze
+
+Diese Analyse sammelt weitere Schulungsbeispiele, deren technische Umgebung mit
+`SQL_Server_Lab` bereitgestellt werden kann oder nach einer konkret benannten
+Erweiterung bereitgestellt werden könnte. Sie ergänzt den bestehenden
+Szenariovertrag und ändert weder die aktuelle Entwicklungsreihenfolge noch den
+Status einer Demo.
+
+Die Aufnahme eines Kandidaten in dieses Dokument bedeutet ausdrücklich nicht,
+dass seine fachlichen Aussagen, Quellen, Runtime-Effekte oder Providerpfade
+bereits validiert sind. Vor der Umsetzung benötigt jeder Kandidat einen eigenen
+Szenariovertrag, ein Quellen-Delta-Review und die zutreffende Safety- und
+Runtime-Abnahme.
+
+## 2. Bewertungsgrundlage
+
+Der aktuelle Containerpfad von `SQL_Server_Lab` stellt Docker und Podman,
+SQL Server 2019, 2022 und 2025, mehrere Instanzen, feste Ressourcenprofile,
+SQL-Memory, `MAXDOP`, Cost Threshold, TempDB- und Datenbankdateikonfiguration,
+Query Store, Post-Provision-T-SQL sowie Start, Stop, Restart und Cleanup bereit.
+
+Für die Kandidatenbewertung gelten folgende Einschränkungen:
+
+- `resourceOverrides.maxMemoryMB` und `resourceOverrides.maxCpus` werden noch
+  nicht in Providerlimits übernommen; Ressourcenversuche verwenden deshalb die
+  belegten Profile `compact`, `standard` oder `performance`.
+- `drives[].sizeLimitGB` ist bei Containern derzeit Metadatum und kein
+  nachgewiesenes physisches Kapazitätslimit.
+- Ein Drive-Typ oder getrenntes Volume beweist noch kein bestimmtes
+  I/O-Latenzprofil oder ein getrenntes physisches Backing Device.
+- Mehrere Instanzen desselben Containerproviders sind grundsätzlich möglich.
+  Providerübergreifende direkte Containernetzwerke, allgemeine Network Faults
+  und der breite Hyper-V-SQL-Pfad sind noch nicht freigegeben.
+- `SQL_Server_Lab` verantwortet ausschließlich Infrastruktur und Lifecycle.
+  Sessionreihenfolge, Workload, Assertions, Beobachtung und fachlicher Reset
+  verbleiben in `SQL_PerformanceSchulung`.
+
+## 3. Sofort vertiefbar mit bestehenden Lab-Fähigkeiten
+
+Die Reihenfolge bewertet Lehrwert, bestehende Projektabhängigkeiten,
+Reproduzierbarkeit und den zusätzlichen Nutzen der Lab-Provisionierung. Sie ist
+keine Änderung an `NEXT_DEVELOPMENT_WAVES.md`.
+
+| Rang | Demo-IDs | Szenario und Kernevidenz | Versionen | Safety | Topologie und Profil | Reset | Offene Analyse |
+|---:|---|---|---|---|---|---|---|
+| 1 | `DGN-003`, `DGN-004`, `DGN-005` | Kontrollierte Planregression; Query-, Plan-, Runtime- und Wait-Historie; Plan Forcing beziehungsweise Query Store Hints; begrenzte Extended-Events-Evidenz und vollständige Rücknahme | 2019–2025; Query Store Hints erst ab 2022 | Grün/Gelb | eine wegwerfbare Docker-/Podman-Instanz, `standard`, Query Store `READ_WRITE` | Query Store, XE-Session und Testdatenbank markergebunden zurücksetzen | Ereignisauswahl, Retention, Feature-Skips und planstabile Regression festlegen |
+| 2 | `CON-006`, `DGN-005` | deterministischer Zwei-Session-Deadlock; Fehler 1205; Opfer, Prozesse und Ressourcen im `xml_deadlock_report`; geordnete Zugriffsvariante als Vergleich | 2019–2025 | Gelb | eine isolierte Instanz, zwei Akteure plus Beobachter | offene Transaktionen beenden, Sessions schließen, Datenzustand neu setzen | Session-Signale, Opfervertrag und begrenzte XE-Auswertung entwerfen |
+| 3 | `OPT-017`, `RES-002` | parallele Planbereiche, Exchanges, Threadverteilung, Skew, operatorbezogene Zeiten und MAXDOP-Kontrast; optional DOP Feedback | 2019–2025; DOP Feedback ab 2022 und CL 160 | Gelb | eine `performance`-Instanz mit festem CPU-Profil | Workload stoppen, Datenbankkonfiguration und Query Store zurücksetzen | Datenverteilung, Zeitbudget und hardwareunabhängige Invarianten bestimmen |
+| 4 | `OPT-014`, `RES-004`, `RES-007` | Required, Desired, Requested, Granted und Used Memory; Overgrant, Undergrant, Spill, konkurrierende Grants und `RESOURCE_SEMAPHORE`; Wait-Scope-Gegenprobe | 2019–2025; persistentes/perzentilbasiertes Feedback ab 2022 | Gelb | `standard` oder `performance`; begrenztes SQL-Memory; mehrere Sessions | Workload beenden, Sessions verifizieren, Query Store und Datenbank neu aufsetzen | Grant-Warten deterministisch erzeugen, ohne allgemeinen Speicherdruck vorzutäuschen |
+| 5 | `CON-009` | TempDB-Allocation- und Metadaten-Contention; gleiche gegenüber ungeeigneten Dateilayouts; Mehrsession-Last; optional Memory-optimized TempDB Metadata | 2019–2025; 2025 zusätzlich TempDB-ADR und Space Governance untersuchen | Gelb | isolierte `performance`-Instanz, konfigurierbare TempDB-Dateien, Restart | Sessions und temporäre Objekte entfernen; für Instanzoptionen vollständiger Rebuild zulässig | Allocation, Metadaten, Worktables, Version Store und 2025-Funktionen getrennt schneiden |
+| 6 | `CON-007`, `CON-008` | ADR, Persisted Version Store und Rollbackvergleich; auf 2025 zusätzlich TID Locks, Lock After Qualification, RCSI-Kontrast und Lockanzahl | 2019–2025; Optimized Locking nur 2025 | Gelb | eine isolierte Instanz, zwei bis drei Sessions | offene Transaktionen abbrechen, Datenbank neu erzeugen, Optionen zurücksetzen | PVS-Wachstum begrenzen und 2025-Skips sowie ADR-/RCSI-Voraussetzungen präzisieren |
+| 7 | `STL-008`, `STL-009` | geplantes gegenüber kleinteiligem Logwachstum, VLF-Struktur, Einzelcommit gegenüber Batch-Commit, Log Flushes und `WRITELOG` | 2019–2025 | Gelb/Rot | wegwerfbare Containerinstanz mit definierten Log-Dateigrößen und Growth-Schritten | Testdatenbank entfernen oder gesamte Instanz verwerfen | VLF-Evidenz von nicht kontrollierbarer Storage-Latenz trennen; keine absoluten Laufzeitzusagen |
+| 8 | `IDX-009`, `IDX-010` | Delta Store, Rowgroups, Delete Bitmap, Load-Qualität und Segment Elimination bei geordneter und ungeordneter Beladung | 2019–2025; erweiterte String-Segment-Elimination ab 2022 | Gelb | `performance`, skalierbare synthetische Datenmenge | Testdatenbank neu erzeugen | Datenmenge, Edition, Ladezeitbudget und relationale Erwartungswerte festlegen |
+| 9 | `DGN-007` | Capstone „Zeitabhängige Regression eines Suchworkloads“ mit Query Store, Plan-, Parameter-, Wait- und XE-Evidenz sowie widerlegbaren Alternativhypothesen | 2019–2025 gemäß finalem Designvertrag | Gelb | eine isolierte `performance`-Instanz | vollständiger Incident-Reset und Rücknahme der Referenzmaßnahme | erst nach validiertem Query-Store-/XE-Pilot aus Rang 1 zulässig |
+| 10 | `RES-003` | kontrollierter instanzweiter Speicherdruck, wartende Grants, `RESOURCE_SEMAPHORE` und Recovery-Nachweis | 2019–2025 | Rot | dedizierte Wegwerfinstanz, festes Ressourcenprofil, Kill-Switch | vollständiger Infrastrukturabbau | zuletzt und separat; High-Impact-Bestätigung und hartes Laufzeitbudget bleiben Pflicht |
+
+## 4. Bedingt umsetzbare Kandidaten
+
+| Demo-IDs | Möglichkeit | Vor Umsetzung nachzuweisender Spike | Aktuelle Einordnung |
+|---|---|---|---|
+| `QRY-012` | zwei SQL-Server-Container für Linked Server, Remote Pushdown, Collation- und Verschlüsselungskontraste | direkte Erreichbarkeit über das providergebundene Labnetz, OLE-DB-Treiber, TLS-/Zertifikatsverhalten, SQL-2025-Providerparameter und Docker-/Podman-Parität | gleicher Provider wahrscheinlich ausreichend; noch kein freigegebener Szenariopfad |
+| `STL-005` | Files, Filegroups, Proportional Fill und Autogrowth | logische File-Verteilung zunächst getrennt von physischer Storagewirkung beweisen | logischer Teil im Container möglich; physischer Storagevergleich zurückgestellt |
+| `DGN-006`, `RES-007` | hohe Sessionzahl, Host-/Clientmetriken und reproduzierbares `ASYNC_NETWORK_IO` | kontrollierter Workload-Client, Client-Pacing, Abbruch und maschinenunabhängiger Netzwerk-Wait-Vertrag | Runner- oder zusätzliche Clientkomponente erforderlich |
+| `CON-009`, `RES-004` | SQL-Server-2025-TempDB-Space-Governance | Resource-Governor-Konfiguration, Workloadklassifizierung, sichere Space-Grenze und vollständige Rücknahme | T-SQL-seitig plausibel; eigener roter beziehungsweise gelber Safety-Schnitt erforderlich |
+
+Für diese Zeilen gilt `SOURCE_REVIEW_REQUIRED`, bis die versions- und
+providerbezogenen Aussagen im Source Register geprüft und dem jeweiligen
+Szenariovertrag zugeordnet sind.
+
+## 5. Zukünftige Szenarien mit Lab-Fähigkeitslücke
+
+| Demo-IDs oder Erweiterung | Zielbild | Fehlende beziehungsweise noch nicht freigegebene Lab-Fähigkeit |
+|---|---|---|
+| `RES-005`, `RES-006`, physischer Teil von `STL-005` | `PAGEIOLATCH_*` gegenüber `PAGELATCH_*`, kontrollierte Daten- und Loglatenz sowie getrennte Backing Devices | belastbare I/O-Profile, physische Storage-Bindung, Kapazitätsgrenzen und providerbezogene Messung; voraussichtlich Hyper-V oder native Linux-Lane |
+| `RES-007` mit Netzwerkfault | kontrollierte Latenz, Bandbreite, Abbruch und Client-Gegenprobe | Network-Fault-Controller beziehungsweise `netem`-ähnliche, reversible und scopegebundene Capability |
+| Erweiterung von `DGN-003` | Query Store auf lesbaren Secondary Replicas unter SQL Server 2025 | vollständig validierte Availability-Group-/Mehrinstanztopologie, Endpunkte, Zertifikate, Failover und Cleanup |
+| `DGN-006` auf Windows | SQL- und OS-Metriken, Windows-spezifische Clients oder Authentifizierung | breit freigegebener Hyper-V-SQL-Pfad mit reproduzierbarer Gast-, Netzwerk- und Storage-Konfiguration |
+| providerübergreifende Variante von `QRY-012` | direkter SQL-Verkehr zwischen Docker, Podman und gegebenenfalls Hyper-V | gemeinsames providerübergreifendes Netzwerk, IPAM und Exposure-Vertrag |
+
+Auch diese Zeilen gelten vollständig als `SOURCE_REVIEW_REQUIRED`. Eine
+Fähigkeitslücke autorisiert keine Änderung in `SQL_Server_Lab`; sie muss zuerst
+in einem konkreten Szenariodesign technisch belegt und danach ausdrücklich
+freigegeben werden.
+
+## 6. Empfohlene spätere Analysefolge
+
+Die bestehende operative Reihenfolge bleibt maßgeblich. Nach dem ersten
+vollständigen `LABSCN-003`-Vertical-Slice kann `LABSCN-005` in dieser Folge
+vertieft werden:
+
+1. Query-Store-/Extended-Events-Pilot aus `DGN-003` bis `DGN-005`;
+2. `CON-006` als zweites, klar beobachtbares Multi-Session-Szenario;
+3. `OPT-017` sowie `OPT-014`/`RES-004` als ressourcengebundene Containerfälle;
+4. `CON-009`, `CON-007` und `CON-008` als versionsabhängige Instanz- und
+   Concurrency-Schnitte;
+5. Log- und Columnstore-Szenarien;
+6. bedingte Spikes;
+7. rote und infrastrukturell erweiterte Szenarien zuletzt.
+
+## 7. Pflichtfelder der späteren Detailanalyse
+
+Für einen ausgewählten Kandidaten werden vor Implementierungsbeginn mindestens
+festgelegt:
+
+- Lernziel, Fehlannahme und fachliche Kernaussage;
+- zugehörige Demo-, LAB- und Claim-IDs;
+- SQL-Server-Versionen, Compatibility Levels, Edition und Feature-Skips;
+- Provider, Instanzen, Ressourcenprofil, Sessions und Clientrollen;
+- deterministischer Ausgangszustand und Erzwingungslogik;
+- Beobachtungen, Gegenproben und hardwareunabhängige Invarianten;
+- Safety-Klasse, Timeout, Kill-Switch, Recovery und vollständiger Cleanup;
+- `READY_FOR_USER`-Übergabe, Resetstrategie und automatisierter Smoke-Test;
+- Quellenstatus und erforderliches Source-Register-Delta;
+- konkrete Lab-Fähigkeitslücke mit technischem Nachweis, falls vorhanden.
+
+## 8. Quellen- und Evidenzstatus
+
+Bereits im Source Register verankerte Grundlagen sind insbesondere `SRC-003`,
+`SRC-004`, `SRC-007` bis `SRC-010`, `SRC-015` bis `SRC-017`, `SRC-020` bis
+`SRC-022`, `SRC-025`, `SRC-027` bis `SRC-029` sowie `SRC-033` bis `SRC-036`.
+
+Vor einer fachlichen Freigabe sind mindestens folgende zusätzliche oder
+aktualisierte Microsoft-Primärquellen im regulären Quellenprozess zu prüfen:
+
+- [Deadlocks Guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17);
+- [Degree of parallelism feedback](https://learn.microsoft.com/en-us/sql/relational-databases/performance/intelligent-query-processing-degree-parallelism-feedback?view=sql-server-ver17);
+- [Accelerated database recovery](https://learn.microsoft.com/en-us/sql/relational-databases/accelerated-database-recovery-concepts?view=sql-server-ver17);
+- [Transaction Log Architecture and Management Guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-log-architecture-and-management-guide?view=sql-server-ver17);
+- [TempDB space resource governance](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/tempdb-space-resource-governance?view=sql-server-ver17).
+
+Diese Links sind Rechercheausgangspunkte und noch keine neue Freigabe im Source
+Register. Der Status bleibt daher für die betroffenen Aussagen
+`SOURCE_REVIEW_REQUIRED`.
