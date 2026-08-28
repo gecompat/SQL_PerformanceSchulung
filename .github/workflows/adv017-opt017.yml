@@ -1,0 +1,97 @@
+name: W-ADV-017 OPT-017 runtime
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/**'
+      - 'Tests/Static/validate_adv017_opt017.py'
+      - 'Tests/Runtime/run_adv017_opt017.py'
+      - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Documentation/Demo_Catalog/**'
+      - '.github/workflows/adv017-opt017.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/**'
+      - 'Tests/Static/validate_adv017_opt017.py'
+      - 'Tests/Runtime/run_adv017_opt017.py'
+      - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Documentation/Demo_Catalog/**'
+      - '.github/workflows/adv017-opt017.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adv017-opt017-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/validate_adv017_opt017.py
+      - run: python Tests/Static/validate_demo_execution_paths.py
+      - run: python Tests/Static/validate_sql_server_lab_test_catalog.py
+      - run: python Tests/Static/validate_privacy_metadata.py .
+
+  runtime:
+    name: SQL Server ${{ matrix.year }} PARALLEL
+    needs: static
+    runs-on: ${{ vars.SQLPERF_PARALLEL_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {year: 2019, major: 15, image: 'mcr.microsoft.com/mssql/server:2019-latest'}
+          - {year: 2022, major: 16, image: 'mcr.microsoft.com/mssql/server:2022-latest'}
+          - {year: 2025, major: 17, image: 'mcr.microsoft.com/mssql/server:2025-latest'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Start bounded SQL Server container
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Par"
+          container="sqlperf-opt017-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          docker pull '${{ matrix.image }}'
+          docker run --name "${container}" --hostname "${container}" --cpus 4 --memory 8g -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" -d '${{ matrix.image }}'
+          for attempt in $(seq 1 90); do
+            docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections' && exit 0
+            [ "$(docker inspect -f '{{.State.Running}}' "${container}")" = 'true' ] || exit 1
+            sleep 2
+          done
+          exit 1
+      - name: Run OPT-017 twice
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
+          python Tests/Runtime/run_adv017_opt017.py --target docker --container "${SQLPERF_SQL_CONTAINER}" --expected-major '${{ matrix.major }}' 2>&1 | tee "${RUNNER_TEMP}/opt017-${{ matrix.major }}.log"
+          exit "${PIPESTATUS[0]}"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opt017-${{ matrix.year }}-diagnostic
+          path: ${{ runner.temp }}/opt017-${{ matrix.major }}.log
+          if-no-files-found: warn
+          retention-days: 3
+      - if: failure()
+        shell: bash
+        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+      - if: always()
+        shell: bash
+        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true

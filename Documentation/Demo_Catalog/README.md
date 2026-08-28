@@ -51,8 +51,9 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 | `OPT-010` | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-013` | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `CON-004` | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
+| `OPT-017` | Parallele Planbereiche und Skew | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `IMPLEMENTED` |
 
-Keine implementierte Demo benötigt derzeit eine Stufe oberhalb von 2. Container werden ausschließlich für die Versionsmatrix der Gate-Evidenz eingesetzt, nicht weil eine Demo sie fachlich verlangt. `OPT-013` belastet `tempdb` der gesamten Instanz, `CON-004` hält Sperren über vier Sitzungen; beide verlangen deshalb eine Instanz, die zurückgesetzt oder verworfen werden darf.
+`OPT-017` benötigt als erste implementierte Demo Stufe 3, weil vier sichtbare Kerne und ein begrenztes Ressourcenprofil Teil ihres Evidenzvertrags sind. `OPT-013` belastet `tempdb` der gesamten Instanz, `CON-004` hält Sperren über vier Sitzungen; auch sie verlangen deshalb eine Instanz, die zurückgesetzt oder verworfen werden darf.
 
 Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_TEST_ENVIRONMENT.md`](../HowTo/LOCAL_TEST_ENVIRONMENT.md).
 
@@ -73,6 +74,7 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 | Demo-ID | Titel | Modul / Lernziel | Sicherheit | Ausführungspfad | Zielmatrix | Status |
 |---|---|---|---|---|---|---|
 | `QRY-004` | Catch-all, Recompile und dynamisches SQL | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
+| `OPT-017` | Parallele Planbereiche und Skew | M02 / `LO-M02-09` | Gelb | `CONTAINER` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe auf vier sichtbaren Kernen | `IMPLEMENTED` |
 
 `OPT-010` trennt das optionale Parameterprädikat `(Spalte = @p OR @p IS NULL)` bewusst vom Schiefefall aus `OPT-009`: Das Datenmodell ist gleichverteilt, damit die parametersensitive Planoptimierung ausscheidet. Die Demo belegt zuerst, dass ohne Optional Parameter Plan Optimization genau eine Planform entsteht und die Kompilierungsreihenfolge wirkungslos bleibt, und weist danach Dispatcherplan, optionales Parameterprädikat und Query Variants marker- und objektbezogen im Plancache nach. Die zugehörigen Folieninhalte stehen als Spezifikation in [`ADV_011_SLIDE_SPECIFICATION_M03_LO08_OPPO.md`](../Curriculum/ADV_011_SLIDE_SPECIFICATION_M03_LO08_OPPO.md).
 

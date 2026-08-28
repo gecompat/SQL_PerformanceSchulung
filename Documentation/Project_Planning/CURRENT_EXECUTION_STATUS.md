@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-24 |
+| Stand | 2026-08-28 |
 | geprüfter Stand auf `origin/main` | `c75d7a25e966d28abeb8225779e7cc48939159fe` |
 | Fachliche Hauptwelle | `ADV-008` – neun von zehn produktiven Demos runtimevalidiert; `QRY-004` implementiert, mit offenem Runner-Konflikt |
 | Szenariowelle | `LABSCN-002` – Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung |
@@ -30,6 +30,7 @@ Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nach
 | `OPT-002` | Framework- und Lab-Nachweis | `VALIDATED` |
 | `CON-004` | fachliche Demo und Szenariokandidat | `VALIDATED` |
 | `QRY-004` | [Actions-Lauf 30699410792](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410792): SQL-Phasen und Cleanup erfolgreich, Workflow dennoch wegen `WARN_EMPIRICAL_VARIANCE` fehlgeschlagen | `IMPLEMENTED` |
+| `OPT-017` | Gelbes `PARALLEL`-Paket mit balancierter und konzentrierter Verteilung, Actual-DOP-/Exchange-/Thread-Evidenz, serieller Gegenprobe und zweifachem Matrix-Runner; Runtime-Matrix noch offen | `IMPLEMENTED` |
 
 `QRY-004` ist ausdrücklich kein Runtime-Nachweis: Der Runner muss den Konflikt zwischen erfolgreicher Ausführung (`returncode=0`) und der Workflow-Bewertung des Warnsummaries auflösen und anschließend die 2019/2022/2025-Matrix erneut laufen.
 

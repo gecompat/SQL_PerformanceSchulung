@@ -215,6 +215,20 @@
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "EXTENDED_EVENTS"],
       "expectedOutcomes": ["PASS", "SKIP"],
       "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-017",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "performance",
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LAST_QUERY_PLAN_STATS", "CPU_4", "MEMORY_8GB"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"],
+      "defaultRepetitions": 2
     }
   ]
 }

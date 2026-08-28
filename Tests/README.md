@@ -376,6 +376,19 @@ Warnungen und kontrollierte Skips bleiben in `DGN_STAGE` und `DGN_SUMMARY`
 sichtbar. Der Status bleibt bis zu einem vollständigen Matrixnachweis
 `IMPLEMENTED`.
 
+## W-ADV-017 – parallele Pläne und Skew
+
+```bash
+python Tests/Static/validate_adv017_opt017.py
+python Tests/Runtime/run_adv017_opt017.py --target docker --container <name> --expected-major <15|16|17>
+```
+
+Der Runtime-Runner führt `OPT-017` zweimal aus, bestätigt das isolierte gelbe
+Profil und erhält `PASS`, `WARN_EMPIRICAL_VARIANCE` sowie kontrollierte
+Ressourcen- oder Evidenz-Skips in `OPT017_STAGE` und `OPT017_SUMMARY`. Nur Läufe
+mit Actual DOP, Exchanges und Threadarbeit liefern die Kernevidenz für eine
+spätere Runtimefreigabe.
+
 - `LABINT-002`: grüner lokaler Runner über `SQL_Server_Lab`;
 - `QRY-013` und `QRY-004` auf SQL Server 2019, 2022 und 2025;
 - Pilotdemos mit Query Store und Extended Events als zentralen Evidenzpfaden;
