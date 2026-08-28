@@ -2,8 +2,8 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `PROPOSED` |
-| Stand | 2026-08-24 |
+| Status | `ACTIVE` |
+| Stand | 2026-08-28 |
 | Ausgangsstand | `c75d7a25e966d28abeb8225779e7cc48939159fe` auf `origin/main` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
@@ -26,6 +26,18 @@
 | 5 | `W-SQL25-001` | Source-Register-Delta-Review für relevante SQL-Server-2025-Funktionen. Bestehende Ziele zuerst zuordnen, statt neue Features pauschal in die Schulung aufzunehmen. | Jede übernommene Aussage besitzt Quelle, Versionsbereich, Claim-Bezug, Entscheidung und gegebenenfalls Demo-ID. |
 | 6 | `W-PRS-001` | `PRS-012`/`TST-011`, danach `PRS-013`/`TST-012` abschließen und die offenen Vertiefungsfolien visuell rendern. | Renderartefakte, Layoutprüfung und aktualisierte Lehrmittelabnahme liegen vor. |
 | 7 | `W-COV-001` | Danach die verbleibende curriculare Abdeckung sequenziell angehen: zuerst `OPT-003`/`OPT-005`, dann `CON-006`/`CON-009`, `IDX-006`/`IDX-010`, `STL-008`/`STL-009` und `RES-007`. | Jede Demo wird einzeln gegen Curriculum, Source Register, Demo-Vertrag und geeignete Testmatrix abgenommen. |
+
+## 2.1 Umsetzungsstand der Wellen
+
+| Welle | Status | Evidenzgrenze |
+|---|---|---|
+| `W-STA-001` | `IMPLEMENTED` | Runnervertrag und Regressionstests sind grün; die zweifache 2019/2022/2025-Matrix bleibt offen. |
+| `W-DGN-001` | `IMPLEMENTED` | Query-Store- und XE-Pilot sind statisch vollständig; die Runtime-Matrix bleibt offen. |
+| `W-SCN-001` | `IMPLEMENTED` | Interaktiver Lifecycle und automatisierter Pfad sind getrennt; die praktische Docker-/Podman-Abnahme bleibt offen. |
+| `W-ADV-017` | `IMPLEMENTED` | Demo, Runner und Workflow liegen vor; die zweifache Parallelitätsmatrix bleibt offen. |
+| `W-SQL25-001` | `VALIDATED` | Quellen-, Claim- und Entscheidungsgrundlage ist abgeschlossen; daraus folgt keine neue Featuredemo. |
+| `W-PRS-001` | `VALIDATED` | 102 SlideKeys, drei Custom Shows, Build 41/66/102 und vollständige Master-/Profilrender liegen vor. |
+| `W-COV-001` | `PROPOSED` | Nächste Entwicklungswelle; jede Demo bleibt ein eigener Schnitt. |
 
 ## 3. SQL-Server-2025-Delta: Prüfreihenfolge, keine Vorabzusage
 

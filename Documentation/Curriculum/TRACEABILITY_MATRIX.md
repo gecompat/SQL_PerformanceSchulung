@@ -19,7 +19,7 @@
 
 Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → Folie beziehungsweise geplante Lehrposition → Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung des aktiven 84-Folien-Satzes stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die fachliche Basis der geplanten Vertiefung steht in der [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md).
 
-Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Von den 39 `ADV-CLM-*`-Claims sind sechs (`ADV-CLM-013` bis `ADV-CLM-018`) durch `ADV-009` als Vertiefungsfolien 84 bis 93 in das aktive Deck übernommen und tragen deshalb eine Foliennummer sowie die Entscheidung `KEEP`. Die übrigen 33 Claims besitzen weiterhin keine aktive Folie; ihre SlideKeys, Folienpositionen und Variantenprofile werden durch die folgenden `ADV-009`- und `PRS-012`-Schnitte festgelegt.
+Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Von den 39 `ADV-CLM-*`-Claims sind acht (`ADV-CLM-013` bis `ADV-CLM-020`) durch `ADV-009` bis `ADV-011` als Vertiefungsfolien 84 bis 101 in das aktive Deck übernommen und tragen deshalb eine Foliennummer sowie die Entscheidung `KEEP`. Die übrigen 31 Claims besitzen weiterhin keine aktive Folie. `PRS-012` hat allen 102 vorhandenen Folien stabile SlideKeys und Variantenprofile zugeordnet, erzeugt aber keine zusätzlichen fachlichen Vertiefungsfolien.
 
 ## 2. Testprofile
 
@@ -119,7 +119,7 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-081` | 81 | Diagnoseprinzipien zu Arbeitsmethode verdichten | `LO-M07-01` | KERN | `SRC-027`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-082` | 82 | nächste Messung aus fehlender Evidenz ableiten | `LO-M07-02` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-083` | 83 | Quelle, Version und Empirie getrennt verfolgen | `LO-M07-03` | KERN | `SRC-007`, `SRC-028` | – | `TP-DOC` | KEEP |
-| `CLM-084` | 94 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
+| `CLM-084` | 102 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
 
 ## 4. Geplante Vertiefung nach ADV-003
 
@@ -179,4 +179,4 @@ Die frühere Sammelkennung `DEM-STO-01` deckte sowohl Files/Log als auch Pages/E
 - Alle aktiven und geplanten Demo-Zuordnungen verwenden kanonische IDs oder eine benannte LAB-Serie.
 - Alle Claims besitzen ein Testprofil; Runtime-Profile bleiben bis zur Implementierung der Demos `PLANNED`.
 - Die früheren `REFINE`-Claims sind durch `W2-007` abgeschlossen und besitzen die Entscheidung `KEEP`; `TP-REFINE` bleibt nur als historischer Abnahmenachweis bestehen.
-- Die geplanten Vertiefungsclaims erhalten erst durch `ADV-009` und `PRS-012` aktive Foliennummern, SlideKeys und Variantenprofile.
+- Neue Vertiefungsclaims erhalten erst mit ihrer fachlichen Folienintegration eine aktive Foliennummer; `PRS-012` liefert dafür den stabilen SlideKey- und Variantenvertrag.
