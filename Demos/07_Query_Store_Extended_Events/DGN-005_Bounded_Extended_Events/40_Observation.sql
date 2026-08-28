@@ -1,3 +1,10 @@
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET NUMERIC_ROUNDABORT OFF;
 SET NOCOUNT ON; SET XACT_ABORT ON;
 DECLARE @SessionName sysname=CONVERT(sysname,N'SQLPERF_'+REPLACE('$(DemoId)','-','')+N'_$(RunToken)'),@EventCount int=0;
 SELECT @EventCount=x.TargetData.value('count(/RingBufferTarget/event[@name="error_reported"])','int') FROM sys.dm_xe_sessions s JOIN sys.dm_xe_session_targets t ON t.event_session_address=s.address CROSS APPLY(SELECT TRY_CONVERT(xml,t.target_data) AS TargetData)x WHERE s.name=@SessionName AND t.target_name=N'ring_buffer';

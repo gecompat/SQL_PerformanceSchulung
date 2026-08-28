@@ -1,4 +1,5 @@
-USE [master]; GO
+USE [master];
+GO
 SET NOCOUNT ON; SET XACT_ABORT ON;
 DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@TargetDatabase sysname=N'$(TargetDatabase)',@Sql nvarchar(max),@Major int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion')),@Cl int;
 DECLARE @Expected sysname=CONVERT(sysname,N'SQLPERF_LAB_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken),@SessionName sysname=CONVERT(sysname,N'SQLPERF_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken),@DatabaseId int;

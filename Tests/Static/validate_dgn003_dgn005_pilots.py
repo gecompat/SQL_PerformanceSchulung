@@ -42,6 +42,13 @@ def main() -> int:
             if phase.get("require_summary") is not True:
                 findings.append(f"{demo_id}: summary not required for {phase.get('id')}")
             text = path.read_text(encoding="utf-8")
+            for line_number, line in enumerate(text.splitlines(), start=1):
+                if re.search(r"(?:^|\s)GO\s*(?:--.*)?$", line, re.IGNORECASE) and not re.fullmatch(
+                    r"\s*GO(?:\s+\d+)?\s*(?:--.*)?", line, re.IGNORECASE
+                ):
+                    findings.append(
+                        f"{demo_id}: sqlcmd batch separator must be standalone in {script}:{line_number}"
+                    )
             summaries = SUMMARY.findall(text)
             if not summaries:
                 findings.append(f"{demo_id}: summary missing in {script}")
@@ -61,7 +68,7 @@ def main() -> int:
         findings.append("DGN-003: DGN-004 plan-control scope leaked into pilot")
 
     dgn005 = "\n".join(path.read_text(encoding="utf-8") for path in DEMOS["DGN-005"][0].glob("*.sql"))
-    for marker in ("sqlserver.error_reported", "package0.ring_buffer", "MAX_MEMORY=(1024)", "STARTUP_STATE=OFF", "MAX_DURATION=300 SECONDS", "@Major>=17", "SQLPERF_"):
+    for marker in ("sqlserver.error_reported", "package0.ring_buffer", "MAX_MEMORY=(1024)", "STARTUP_STATE=OFF", "MAX_DURATION=300 SECONDS", "@Major>=17", "SQLPERF_", "SET QUOTED_IDENTIFIER ON"):
         if marker not in dgn005:
             findings.append(f"DGN-005: marker missing {marker}")
     if "event_file" in dgn005.lower() or ".xel" in dgn005.lower():
