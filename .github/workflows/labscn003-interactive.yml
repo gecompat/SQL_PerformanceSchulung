@@ -1,0 +1,40 @@
+name: LABSCN-003 interactive contract
+
+on:
+  pull_request:
+    paths:
+      - 'Tools/PerformanceTrainingScenario/**'
+      - 'Scenarios/CON-004/**'
+      - 'Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md'
+      - 'Tests/Static/validate_labscn003_interactive.py'
+      - '.github/workflows/labscn003-interactive.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tools/PerformanceTrainingScenario/**'
+      - 'Scenarios/CON-004/**'
+      - 'Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md'
+      - 'Tests/Static/validate_labscn003_interactive.py'
+      - '.github/workflows/labscn003-interactive.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate interactive lifecycle
+        shell: pwsh
+        run: |
+          Import-Module ./Tools/PerformanceTrainingScenario/PerformanceTrainingScenario.psd1 -Force
+          $commands = Get-Command -Module PerformanceTrainingScenario
+          if ($commands.Count -ne 4) { throw "Expected four exported commands, got $($commands.Count)." }
+      - run: python Tests/Static/validate_labscn003_interactive.py
+      - run: python Tests/Static/validate_performance_scenarios.py
+      - run: python Tests/Static/validate_privacy_metadata.py .

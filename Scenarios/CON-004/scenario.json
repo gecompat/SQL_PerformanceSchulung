@@ -4,7 +4,7 @@
   "scenarioId": "PTS-CON-004",
   "demoId": "CON-004",
   "title": "Deterministische Blocking Chain",
-  "status": "DESIGNED",
+  "status": "IMPLEMENTED",
   "classification": "A",
   "safetyLevel": "YELLOW",
   "platforms": ["docker", "podman"],
