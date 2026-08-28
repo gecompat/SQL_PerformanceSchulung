@@ -114,6 +114,9 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 ## P2 - Reproduktion und Testmatrix
 
+- [x] `W-COV-001` neun verbleibende Demos in der Reihenfolge `OPT-003`, `OPT-005`, `CON-006`, `CON-009`, `IDX-006`, `IDX-010`, `STL-008`, `STL-009`, `RES-007` als source-, safety- und curriculumgebundene Pakete implementieren.
+- [ ] `W-COV-001` Runtimefreigabe abschließen: acht Demos sind nach je zwei 2019/2022/2025-Läufen validiert; `CON-009` benötigt auf SQL Server 2019 noch positive interne Task-Allokation oder gleichwertige Evidenz. Cleanup war in allen Läufen unabhängig erfolgreich.
+
 - [x] SQL-Server-2019/2022/2025-Testmatrix definieren und erfolgreich ausführen.
 - [x] How-to für vorhandene SQL-Server-Instanz plus isolierte synthetische Testdatenbank erstellen. Der Laufnachweis gegen eine vorhandene Instanz steht noch aus.
 - [ ] Kompakten Docker-/Podman-Bereitstellungspfad für Personen ohne verfügbaren SQL Server planen.

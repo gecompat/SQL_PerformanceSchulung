@@ -1,0 +1,1 @@
+{"contract_version":"1.0","demo_id":"RES-007","run_token":"LOCAL","timeout_seconds":45,"abort_on_first_failure":true,"sessions":[{"id":"BLOCKER","script":"10_Blocker.sql","launch_delay_ms":0},{"id":"WAITER","script":"20_Waiter.sql","launch_delay_ms":50},{"id":"OBSERVER","script":"30_Observer.sql","launch_delay_ms":100}]}

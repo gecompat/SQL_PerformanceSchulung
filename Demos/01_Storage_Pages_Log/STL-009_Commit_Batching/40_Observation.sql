@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;SELECT s.NumWrites-b.NumWrites SingleCommitWrites,s.BytesWritten-b.BytesWritten SingleCommitBytes,s.WriteLogWaitMs-b.WriteLogWaitMs InstanceWriteLogWaitMs FROM lab.Evidence s CROSS JOIN lab.Evidence b WHERE s.Stage='SINGLE_COMMIT' AND b.Stage='BASELINE';PRINT 'SQLPERF_SUMMARY|PASS|OK';

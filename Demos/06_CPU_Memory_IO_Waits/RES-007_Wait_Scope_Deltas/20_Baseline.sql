@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;DELETE fwk.SessionSignal;DELETE lab.Evidence;DECLARE @B bigint=COALESCE((SELECT SUM(wait_time_ms) FROM sys.dm_os_wait_stats WHERE wait_type LIKE 'LCK_M_%'),0);INSERT lab.Evidence(InstanceBaselineMs,InstanceAfterMs)VALUES(@B,@B);PRINT 'SQLPERF_SUMMARY|PASS|OK';

@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;IF EXISTS(SELECT 1 FROM sys.dm_exec_requests r JOIN lab.Evidence e ON e.WaiterSessionId=r.session_id WHERE r.blocking_session_id<>0) THROW 51002,'FAIL_STATE: Blockierung besteht nach Freigabe fort.',1;SELECT Value FROM lab.WaitRow WHERE RowId=1;PRINT 'SQLPERF_SUMMARY|PASS|OK';

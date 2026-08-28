@@ -1,0 +1,7 @@
+USE [master];SET NOCOUNT ON;SET XACT_ABORT ON;
+DECLARE @D varchar(7)='$(DemoId)',@R varchar(20)='$(RunToken)',@T sysname=N'$(TargetDatabase)',@P nvarchar(128),@C nvarchar(32),@ED varchar(7),@ER varchar(20),@S nvarchar(max);
+IF @D<>'OPT-003' OR @T<>N'SQLPERF_LAB_OPT003_'+@R THROW 51000,'FAIL_CONTRACT: OPT-003-Cleanupziel ist ungueltig.',1;
+IF DB_ID(@T) IS NULL BEGIN PRINT 'SQLPERF_SUMMARY|PASS|OK';RETURN;END;
+SET @S=N'SELECT @P=MAX(CASE WHEN name=N''SQLPERF.Project'' THEN CONVERT(nvarchar(128),value) END),@C=MAX(CASE WHEN name=N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(32),value) END),@D=MAX(CASE WHEN name=N''SQLPERF.DemoId'' THEN CONVERT(varchar(7),value) END),@R=MAX(CASE WHEN name=N''SQLPERF.RunToken'' THEN CONVERT(varchar(20),value) END) FROM '+QUOTENAME(@T)+N'.sys.extended_properties WHERE class=0;';EXEC sys.sp_executesql @S,N'@P nvarchar(128) OUT,@C nvarchar(32) OUT,@D varchar(7) OUT,@R varchar(20) OUT',@P OUT,@C OUT,@ED OUT,@ER OUT;
+IF @P<>N'SQL_PerformanceSchulung' OR @C<>N'1.0' OR @ED<>@D OR @ER<>@R THROW 51004,'FAIL_CLEANUP: OPT-003-Marker stimmen nicht.',1;
+SET @S=N'ALTER DATABASE '+QUOTENAME(@T)+N' SET SINGLE_USER WITH ROLLBACK IMMEDIATE;DROP DATABASE '+QUOTENAME(@T)+N';';EXEC(@S);PRINT 'SQLPERF_SUMMARY|PASS|OK';

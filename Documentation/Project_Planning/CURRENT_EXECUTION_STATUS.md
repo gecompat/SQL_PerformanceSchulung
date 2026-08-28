@@ -3,10 +3,10 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-28 |
+| Stand | 2026-08-29 |
 | geprüfter Stand auf `origin/main` | `c75d7a25e966d28abeb8225779e7cc48939159fe` |
-| Fachliche Hauptwelle | `ADV-008` – neun von zehn produktiven Demos runtimevalidiert; `QRY-004` implementiert, mit offenem Runner-Konflikt |
-| Szenariowelle | `LABSCN-002` – Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung |
+| Fachliche Hauptwelle | `W-COV-001` – acht Demos runtimevalidiert; `CON-009` mit offener SQL-Server-2019-Evidenz |
+| Szenariowelle | `LABSCN-003` – interaktiver `CON-004`-Lifecycle implementiert; praktische Docker-/Podman-Abnahme offen |
 | Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
@@ -29,10 +29,16 @@ Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nach
 | `QRY-001` | Framework- und Lab-Nachweis | `VALIDATED` |
 | `OPT-002` | Framework- und Lab-Nachweis | `VALIDATED` |
 | `CON-004` | fachliche Demo und Szenariokandidat | `VALIDATED` |
-| `QRY-004` | [Actions-Lauf 30699410792](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410792): SQL-Phasen und Cleanup erfolgreich, Workflow dennoch wegen `WARN_EMPIRICAL_VARIANCE` fehlgeschlagen | `IMPLEMENTED` |
+| `QRY-004` | Runner wertet `PASS`, `WARN` und kontrollierte `SKIP`-Codes wahrheitsgetreu aus; der ältere Actions-Lauf 30699410792 ist kein Freigabenachweis, die neue Zielmatrix bleibt offen | `IMPLEMENTED` |
 | `OPT-017` | Gelbes `PARALLEL`-Paket mit balancierter und konzentrierter Verteilung, Actual-DOP-/Exchange-/Thread-Evidenz, serieller Gegenprobe und zweifachem Matrix-Runner; Runtime-Matrix noch offen | `IMPLEMENTED` |
+| `OPT-003`, `OPT-005` | Statistik-Sampling/Skew sowie Ascending-Key-/Pflegevertrag; je zwei lokale Docker-Läufe auf 2019/2022/2025 mit `PASS` | `VALIDATED` |
+| `CON-006` | Deadlock-Zyklus, Fehler 1205, Graph und geordnete Gegenprobe; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
+| `CON-009` | TempDB-Kostenklassen; 2022/2025 je zwei `PASS`, 2019 zweimal `WARN_EMPIRICAL_VARIANCE` wegen fehlender interner Task-Allokation | `IMPLEMENTED` |
+| `IDX-006`, `IDX-010` | Rowstore-Messkette je zweimal mit fachlich akzeptierter Warnung; klassische Columnstore-Segmente je zweimal `PASS` auf allen Zielversionen | `VALIDATED` |
+| `STL-008`, `STL-009` | rote VLF-/Growth-Lane und gelber Commit-/WRITELOG-Schnitt; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
+| `RES-007` | Task-, Request- und Instanz-Waitscope mit Gegenprobe; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
 
-`QRY-004` ist ausdrücklich kein Runtime-Nachweis: Der Runner muss den Konflikt zwischen erfolgreicher Ausführung (`returncode=0`) und der Workflow-Bewertung des Warnsummaries auflösen und anschließend die 2019/2022/2025-Matrix erneut laufen.
+`QRY-004` ist ausdrücklich noch nicht runtimefreigegeben: Der Runnerkonflikt ist behoben und regressionsgetestet, aber die zweifache 2019/2022/2025-Matrix auf dem korrigierten Stand wurde noch nicht ausgeführt.
 
 ## 3. Lab-Integration und Szenarien
 
@@ -73,7 +79,8 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
 3. `CON-004` als gelben, isolationspflichtigen interaktiven Vertical Slice umsetzen.
 4. `OPT-017` getrennt implementieren und validieren.
 5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
-6. `W-PRS-001` ist abgeschlossen; als nächste planmäßige Welle folgt `W-COV-001` mit einzelnen Demo-Schnitten in der festgelegten Reihenfolge.
+6. `W-PRS-001` ist abgeschlossen.
+7. `W-COV-001` ist in der festgelegten Reihenfolge implementiert und für acht Demos runtimevalidiert; als nächster belegpflichtiger Schritt folgt die SQL-Server-2019-Evidenzstabilisierung von `CON-009`.
 
 ## 6. Sicherheits-, Datenschutz- und Quellenstatus
 

@@ -1,0 +1,4 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;SET QUOTED_IDENTIFIER ON;DECLARE @DbId int=DB_ID(),@Graphs int=0;
+IF HAS_PERMS_BY_NAME(NULL,NULL,'VIEW SERVER STATE')<>1 AND HAS_PERMS_BY_NAME(NULL,NULL,'VIEW SERVER PERFORMANCE STATE')<>1 BEGIN PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION';RETURN;END;
+;WITH X AS(SELECT TRY_CONVERT(xml,st.target_data) x FROM sys.dm_xe_session_targets st JOIN sys.dm_xe_sessions s ON s.address=st.event_session_address WHERE s.name=N'system_health' AND st.target_name=N'ring_buffer'),E AS(SELECT n.query('.') e FROM X CROSS APPLY x.nodes('//event[@name="xml_deadlock_report"]')q(n)) SELECT @Graphs=COUNT(*) FROM E WHERE CONVERT(nvarchar(max),e) LIKE N'%currentdb="'+CONVERT(nvarchar(12),@DbId)+N'"%';
+SELECT * FROM lab.Evidence;IF @Graphs=0 BEGIN PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_EVIDENCE_MISSING';RETURN;END;SELECT @Graphs DeadlockGraphs;PRINT 'SQLPERF_SUMMARY|PASS|OK';

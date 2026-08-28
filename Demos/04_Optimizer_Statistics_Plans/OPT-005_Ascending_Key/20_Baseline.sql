@@ -1,0 +1,3 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;DECLARE @I int=INDEXPROPERTY(OBJECT_ID(N'lab.AscendingData'),N'IX_OPT005_Date','IndexId');
+INSERT lab.Evidence SELECT 'BASELINE',p.rows,p.modification_counter,MAX(d.EventDate),p.last_updated,(SELECT is_auto_update_stats_async_on FROM sys.databases WHERE database_id=DB_ID()) FROM sys.dm_db_stats_properties(OBJECT_ID(N'lab.AscendingData'),@I)p CROSS JOIN lab.AscendingData d GROUP BY p.rows,p.modification_counter,p.last_updated;
+IF NOT EXISTS(SELECT 1 FROM lab.Evidence WHERE Stage='BASELINE' AND RowsTotal=100000 AND ModificationCounter=0) THROW 51006,'FAIL_RESULT_CONTRACT: OPT-005-Baseline fehlt.',1;PRINT 'SQLPERF_SUMMARY|PASS|OK';

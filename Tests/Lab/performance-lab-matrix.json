@@ -229,6 +229,87 @@
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LAST_QUERY_PLAN_STATS", "CPU_4", "MEMORY_8GB"],
       "expectedOutcomes": ["PASS", "WARN", "SKIP"],
       "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-003",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "GREEN", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard", "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-005",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "GREEN", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard", "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "CON-006",
+      "manifest": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 3,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "MULTI_SESSION_SQLCMD"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "CON-009",
+      "manifest": "Demos/05_Concurrency_Isolation_TempDB/CON-009_TempDB_Cost_Classes/manifest.json",
+      "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "performance", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "TEMPDB_WORKSPACE"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "IDX-006",
+      "manifest": "Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "INDEX_OPERATIONAL_STATS"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "IDX-010",
+      "manifest": "Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "performance", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "COLUMNSTORE", "MEMORY_8GB"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "STL-008",
+      "manifest": "Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "RED", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "performance", "environmentIsolation": "DEDICATED_DISPOSABLE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LOG_FILE_GROWTH", "STORAGE_2GB"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "STL-009",
+      "manifest": "Demos/01_Storage_Pages_Log/STL-009_Commit_Batching/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LOG_IO_STATS"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "RES-007",
+      "manifest": "Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 3,
+      "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "MULTI_SESSION_SQLCMD"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
     }
   ]
 }

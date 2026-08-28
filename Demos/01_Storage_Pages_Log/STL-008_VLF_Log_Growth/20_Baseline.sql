@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;INSERT lab.Evidence SELECT 'BASELINE',(SELECT COUNT(*) FROM sys.dm_db_log_info(DB_ID())),size*8.0/1024,growth*8.0/1024 FROM sys.database_files WHERE type=1;SELECT * FROM lab.Evidence;PRINT 'SQLPERF_SUMMARY|PASS|OK';

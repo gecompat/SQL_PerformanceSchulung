@@ -222,6 +222,80 @@
         "rejectedStage": 2,
         "reason": "A T-SQL-only test database cannot guarantee the four visible schedulers and bounded resource profile required by the core claim."
       }
+    },
+    {
+      "demoId": "OPT-003", "title": "Sampling, Skew and Histogram Boundaries",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "GREEN", "sessions": 1,
+      "stage": 1, "executionPath": "TSQL_TESTDB", "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Sampling and fullscan statistics are compared inside one marker-owned synthetic database without changing server-level state.", "escalation": null
+    },
+    {
+      "demoId": "OPT-005", "title": "Ascending Key and Statistics Maintenance",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "GREEN", "sessions": 1,
+      "stage": 1, "executionPath": "TSQL_TESTDB", "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Out-of-range values and database-scoped statistics settings are isolated to one marker-owned synthetic database.", "escalation": null
+    },
+    {
+      "demoId": "CON-006", "title": "Deterministic Deadlock Cycle",
+      "path": "Demos/07_Concurrency/CON-006_Deadlock_Cycle",
+      "manifest": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 3,
+      "stage": 2, "executionPath": "TSQL_TESTDB", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Three synchronized SQL sessions create, observe and release a bounded deadlock cycle on an isolated instance.", "escalation": null
+    },
+    {
+      "demoId": "CON-009", "title": "TempDB Cost Classes",
+      "path": "Demos/05_Concurrency_Isolation_TempDB/CON-009_TempDB_Cost_Classes",
+      "manifest": "Demos/05_Concurrency_Isolation_TempDB/CON-009_TempDB_Cost_Classes/manifest.json",
+      "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 1,
+      "stage": 2, "executionPath": "TSQL_TESTDB", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "T-SQL creates bounded user and internal TempDB work while an isolated instance prevents interference with unrelated workloads.", "escalation": null
+    },
+    {
+      "demoId": "IDX-006", "title": "Page Splits, Density and Fragmentation",
+      "path": "Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density",
+      "manifest": "Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "stage": 2, "executionPath": "TSQL_TESTDB", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "A bounded insert and rebuild workload runs in one synthetic database, while the disposable instance contains its I/O and log impact.", "escalation": null
+    },
+    {
+      "demoId": "IDX-010", "title": "Columnstore Segment Elimination and Rowgroup Quality",
+      "path": "Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments",
+      "manifest": "Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "stage": 3, "executionPath": "CONTAINER", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "A bounded performance container is required for the 1.2-million-row columnstore load and reproducible compressed-rowgroup evidence.",
+      "escalation": {"rejectedStage": 2, "reason": "A shared T-SQL test instance cannot guarantee the memory and storage envelope needed to compress the required rowgroups."}
+    },
+    {
+      "demoId": "STL-008", "title": "VLF Structure and Planned Log Growth",
+      "path": "Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth",
+      "manifest": "Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "RED", "sessions": 1,
+      "stage": 3, "executionPath": "CONTAINER", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "A dedicated disposable container bounds deliberate transaction-log growth and provides a complete reset boundary.",
+      "escalation": {"rejectedStage": 2, "reason": "Deliberate physical log growth is not acceptable on a merely isolated long-lived test instance and needs a discardable storage boundary."}
+    },
+    {
+      "demoId": "STL-009", "title": "Commit Batching and WRITELOG",
+      "path": "Demos/01_Storage_Pages_Log/STL-009_Commit_Batching",
+      "manifest": "Demos/01_Storage_Pages_Log/STL-009_Commit_Batching/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "stage": 2, "executionPath": "TSQL_TESTDB", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "A single-session bounded commit workload provides database-file deltas while an isolated instance limits log-I/O interference.", "escalation": null
+    },
+    {
+      "demoId": "RES-007", "title": "Wait Scope and Time-Bounded Deltas",
+      "path": "Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas",
+      "manifest": "Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 3,
+      "stage": 2, "executionPath": "TSQL_TESTDB", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Three synchronized SQL sessions expose task, request and server-delta wait scopes without requiring external fault injection.", "escalation": null
     }
   ]
 }

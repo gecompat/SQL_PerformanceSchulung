@@ -1,0 +1,5 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;
+DECLARE @Steps int=(SELECT Steps FROM lab.Evidence WHERE Stage='SAMPLE');
+IF @Steps IS NULL OR @Steps NOT BETWEEN 1 AND 200 THROW 51006,'FAIL_RESULT_CONTRACT: Histogrammgrenze verletzt.',1;
+SELECT CategoryId,COUNT_BIG(*) ActualRows FROM lab.SkewData GROUP BY CategoryId ORDER BY ActualRows DESC,CategoryId;
+PRINT 'SQLPERF_SUMMARY|PASS|OK';
