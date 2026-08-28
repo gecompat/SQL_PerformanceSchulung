@@ -849,7 +849,16 @@
     "DEC-063": {
       "aliases": [],
       "artifact_uid": "urn:uuid:217b7d38-1966-4b2d-accd-3558a93f167e",
-      "external_refs": [],
+      "external_refs": [
+        {
+          "system": "github-ruleset",
+          "value": "https://github.com/gecompat/SQL_PerformanceSchulung/rules/21754402"
+        },
+        {
+          "system": "github-ruleset",
+          "value": "https://github.com/gecompat/SQL_PerformanceSchulung/rules/21754415"
+        }
+      ],
       "kind": "decision",
       "registration_state": "REGISTERED",
       "relations": [

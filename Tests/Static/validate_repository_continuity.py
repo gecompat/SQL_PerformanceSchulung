@@ -52,6 +52,9 @@ def main() -> None:
             "pull_request",
             "gecompat",
             "PENDING",
+            "21754402",
+            "21754415",
+            "15368",
         ),
     )
     require_text(

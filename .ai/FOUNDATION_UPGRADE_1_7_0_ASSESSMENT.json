@@ -62,7 +62,7 @@
       ],
       "classification": "APPLY_DEFAULT",
       "evidence": [
-        "DEC-063 explicitly selects layered GitHub rulesets and a pull-request-only outage bypass.",
+        "DEC-063 explicitly selects the active GitHub rulesets Repository Core Safety (21754402) and Repository CI Gates (21754415) with a pull-request-only outage bypass for gecompat.",
         ".ai/REPOSITORY_CONTINUITY.md defines classification, evidence, authorization, residual-risk, and recovery requirements.",
         ".github/pull_request_template.md captures the mandatory break-glass audit record in the pull request."
       ],

@@ -11,7 +11,11 @@ Der Default-Branch `main` wird durch zwei getrennte GitHub-Rulesets geschützt:
 1. `Repository Core Safety` verlangt Änderungen über Pull Requests und lineare Historie. Force-Pushes und die Löschung von `main` sind verboten. Dieses Ruleset besitzt keinen Bypass.
 2. `Repository CI Gates` verlangt die Checks `registry-integrity` und `repository-governance` gegen den aktuellen `main`-Stand. Ausschließlich der GitHub-Benutzer `gecompat` ist als Bypass-Akteur im Modus `pull_request` zugelassen.
 
-Der Registry-Pfad für GitHub Actions ist über die Repository-Variable `ARTIFACT_REGISTRY_PATH=.ai/identity/registry.json` festgelegt. Die serverseitigen Ruleset-IDs und URLs werden nach der Aktivierung in diesem Dokument ergänzt.
+Der Registry-Pfad für GitHub Actions ist über die Repository-Variable `ARTIFACT_REGISTRY_PATH=.ai/identity/registry.json` festgelegt. Die serverseitige Konfiguration wurde am 2026-08-28 aktiviert:
+
+- `Repository Core Safety`: Ruleset-ID `21754402`, <https://github.com/gecompat/SQL_PerformanceSchulung/rules/21754402>
+- `Repository CI Gates`: Ruleset-ID `21754415`, <https://github.com/gecompat/SQL_PerformanceSchulung/rules/21754415>
+- erforderliche Checks: `registry-integrity` und `repository-governance`, jeweils gebunden an die GitHub-Actions-App-ID `15368`
 
 ## Zulässige Klassifikation
 
