@@ -75,7 +75,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
   - [x] `OPT-009` Parameter Sensitive Plan Optimization mit kontrolliertem `SKIP_VERSION` auf 2019 sowie Runtime-Evidenz auf 2022 und 2025 validieren.
   - [x] `OPT-010` Optional Parameter Plan Optimization mit kontrolliertem `SKIP_VERSION` auf 2019/2022 sowie Runtime-Evidenz auf 2025 validieren.
   - [ ] `QRY-004_CLASSIC_AND_DYNAMIC` Runtime-Runner für `WARN_EMPIRICAL_VARIANCE` korrigieren oder die Evidenzstrecke stabilisieren und anschließend auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
-  - [ ] Nächster neuer Demo-Schnitt: `OPT-017` mit begrenztem gelbem Ressourcenprofil.
+  - [ ] `OPT-017` mit begrenztem gelbem Ressourcenprofil ist implementiert; die zweifache 2019/2022/2025-Runtime-Matrix mit tatsächlich erzeugter Kernevidenz steht aus.
 - [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
 - [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
 
