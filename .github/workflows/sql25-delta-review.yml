@@ -1,0 +1,38 @@
+name: W-SQL25-001 delta review
+
+on:
+  pull_request:
+    paths:
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_DELTA_REVIEW.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - 'Documentation/Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/**'
+      - 'Tests/Static/validate_sql25_delta_review.py'
+      - 'Tests/Static/validate_dgn003_dgn005_pilots.py'
+      - '.github/workflows/sql25-delta-review.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_DELTA_REVIEW.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - 'Documentation/Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/**'
+      - 'Tests/Static/validate_sql25_delta_review.py'
+      - 'Tests/Static/validate_dgn003_dgn005_pilots.py'
+      - '.github/workflows/sql25-delta-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/validate_sql25_delta_review.py
+      - run: python Tests/Static/validate_dgn003_dgn005_pilots.py
+      - run: python Tests/Static/validate_privacy_metadata.py .

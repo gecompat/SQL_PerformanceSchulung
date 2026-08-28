@@ -25,7 +25,7 @@ Eine bestätigte isolierte Instanz, Berechtigung zum Verwalten und Lesen von Eve
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-Die gelbe Demo benötigt `--confirm-isolated-lab` und ein positives Zeitbudget. Die Session heißt deterministisch `SQLPERF_DGN005_<RUN>` und verwendet `STARTUP_STATE = OFF`.
+Die gelbe Demo benötigt `--confirm-isolated-lab` und ein positives Zeitbudget. Die Session heißt deterministisch `SQLPERF_DGN005_<RUN>` und verwendet `STARTUP_STATE = OFF`. Auf SQL Server 2025 begrenzt `MAX_DURATION = 300 SECONDS` zusätzlich die aktive Session; 2019 und 2022 behalten denselben expliziten Stop-/Cleanup-Vertrag ohne diese Syntax.
 
 ## 6. Synthetisches Datenmodell
 
@@ -53,11 +53,12 @@ Statische Prüfung und Runtime-Matrix validieren Ring-Buffer-Limit, `STARTUP_STA
 
 ## 12. Bekannte Grenzen
 
-Dispatch-Latenz und Eventzahl sind empirisch. Zeitgebundene SQL-Server-2025-Sessions bleiben ein optionaler späterer Pfad und sind nicht Teil dieses Basispiloten.
+Dispatch-Latenz und Eventzahl sind empirisch. `MAX_DURATION` ist nur ein zusätzlicher SQL-Server-2025-Schutz und ersetzt weder explizites Stoppen noch Cleanup.
 
 ## 13. Quellen
 
 - `SRC-028`, Microsoft Learn: Extended Events, Abrufdatum 2026-07-24.
+- `SRC-060`, Microsoft Learn: zeitgebundene Extended-Events-Sessions, Abrufdatum 2026-08-28.
 - `SRC-051` wird ausschließlich als Diagnosemethode verwendet und begründet keine Featureverfügbarkeit.
 
 ## 14. Traceability

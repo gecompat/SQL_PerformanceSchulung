@@ -630,7 +630,7 @@ Jede Arbeitsübergabe enthält mindestens:
 | Welle 0 und Framework | `W0-001` bis `W0-008`, Gate A, Framework-Matrix und Gate B validiert |
 | Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 offen |
 | Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
-| Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; ein Delta-Review für relevante SQL-Server-2025-Funktionen ist als nächste Welle geplant |
+| Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; der Delta-Review für relevante SQL-Server-2025-Funktionen ist in `SQL_SERVER_2025_DELTA_REVIEW.md` abgeschlossen |
 | Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist bevorzugter gelber, isolationspflichtiger Vertical Slice |
 | Aktuelle Priorität | `QRY-004`-Runner-Konflikt beheben und die 2019/2022/2025-Matrix erneut nachweisen |
 | Danach | Query-Store-/Extended-Events-Pilot, `CON-004` als interaktiver Vertical Slice, `OPT-017`, Quellen-Delta-Review und Lehrmittel-Renderprüfung |
