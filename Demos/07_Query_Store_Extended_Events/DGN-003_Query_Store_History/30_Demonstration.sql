@@ -1,0 +1,12 @@
+SET NOCOUNT ON; SET XACT_ABORT ON;
+CREATE TABLE #Result(Id int NOT NULL,GroupId int NOT NULL);
+EXEC sys.sp_recompile N'lab.usp_Dgn003Search';
+DECLARE @i int=0;
+WHILE @i<8 BEGIN INSERT #Result EXEC lab.usp_Dgn003Search @GroupId=1; TRUNCATE TABLE #Result; SET @i+=1; END;
+INSERT #Result EXEC lab.usp_Dgn003Search @GroupId=1;
+DECLARE @Rows bigint=(SELECT COUNT_BIG(*) FROM #Result),@Checksum int=(SELECT CHECKSUM_AGG(BINARY_CHECKSUM(Id,GroupId)) FROM #Result);
+IF @Rows<>45000 THROW 51006,'FAIL_RESULT_CONTRACT: DGN-003-Demonstration besitzt nicht die deterministische häufige Gruppe.',1;
+INSERT lab.QueryStoreEvidence(Phase,RowCount,ChecksumValue) VALUES('DEMONSTRATION',@Rows,@Checksum);
+EXEC sys.sp_query_store_flush_db;
+SELECT 1 Sequence,'DEMONSTRATION' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,CONCAT(N'Rows=',@Rows,N'; Checksum=',@Checksum) ObservedValue,N'45000 Zeilen der häufigen Gruppe' RequiredValue,N'Der zweite Ausführungszustand wurde erfasst.' Message;
+PRINT 'SQLPERF_SUMMARY|PASS|OK';

@@ -1,0 +1,12 @@
+/* DGN-005 / FWK-001 / FWK-007 / FWK-008 / FWK-012 */
+SET NOCOUNT ON; SET XACT_ABORT ON;
+DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@TargetDatabase sysname=N'$(TargetDatabase)',@Major int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion'));
+DECLARE @Expected sysname=CONVERT(sysname,N'SQLPERF_LAB_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken),@Confirm bit=$(ConfirmIsolatedLab),@Runtime int=$(MaximumRuntimeSeconds);
+DECLARE @Create bit=CASE WHEN HAS_PERMS_BY_NAME(NULL,NULL,'ALTER ANY EVENT SESSION')=1 OR (@Major>=16 AND HAS_PERMS_BY_NAME(NULL,NULL,'CREATE ANY EVENT SESSION')=1) OR IS_SRVROLEMEMBER('sysadmin')=1 THEN 1 ELSE 0 END;
+DECLARE @View bit=CASE WHEN HAS_PERMS_BY_NAME(NULL,NULL,'VIEW SERVER STATE')=1 OR (@Major>=16 AND HAS_PERMS_BY_NAME(NULL,NULL,'VIEW SERVER PERFORMANCE STATE')=1) OR IS_SRVROLEMEMBER('sysadmin')=1 THEN 1 ELSE 0 END;
+IF @DemoId<>'DGN-005' OR @TargetDatabase<>@Expected THROW 51000,'FAIL_CONTRACT: DGN-005-Zielkennung ist ungültig.',1;
+IF @Major NOT BETWEEN 15 AND 17 BEGIN SELECT 1 Sequence,'PREFLIGHT' Phase,'ENGINE_VERSION' CheckId,'SKIP' Outcome,'SKIP_VERSION' Code,CONVERT(nvarchar(20),@Major) ObservedValue,N'15 bis 17' RequiredValue,N'DGN-005 unterstützt SQL Server 2019 bis 2025.' Message; PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_VERSION'; RETURN; END;
+IF @Create=0 OR @View=0 BEGIN SELECT 1 Sequence,'PREFLIGHT' Phase,'PERMISSION' CheckId,'SKIP' Outcome,'SKIP_PERMISSION' Code,CONCAT(N'Create=',@Create,N'; View=',@View) ObservedValue,N'Event-Session- und Statusberechtigung' RequiredValue,N'XE kann nicht sicher verwaltet oder beobachtet werden.' Message; PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION'; RETURN; END;
+IF NOT EXISTS(SELECT 1 FROM sys.dm_xe_objects WHERE object_type='event' AND name='error_reported') BEGIN SELECT 1 Sequence,'PREFLIGHT' Phase,'EVENT' CheckId,'SKIP' Outcome,'SKIP_VERSION' Code,N'error_reported fehlt' ObservedValue,N'sqlserver.error_reported' RequiredValue,N'Die Ereignisklasse ist im Zielbuild nicht verfügbar.' Message; PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_VERSION'; RETURN; END;
+IF @Confirm<>1 OR @Runtime<=0 THROW 51001,'FAIL_SAFETY: DGN-005 benötigt isoliertes Lab und positives Zeitbudget.',1;
+SELECT 1 Sequence,'PREFLIGHT' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,CONCAT(N'Major=',@Major,N'; Safety=YELLOW') ObservedValue,N'isoliertes Lab; begrenzte XE-Session' RequiredValue,N'Preflight bestanden.' Message; PRINT 'SQLPERF_SUMMARY|PASS|OK';

@@ -1,0 +1,13 @@
+USE [master]; GO
+SET NOCOUNT ON; SET XACT_ABORT ON;
+DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@TargetDatabase sysname=N'$(TargetDatabase)',@Sql nvarchar(max),@Major int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion')),@Cl int;
+DECLARE @Expected sysname=CONVERT(sysname,N'SQLPERF_LAB_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken),@SessionName sysname=CONVERT(sysname,N'SQLPERF_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken),@DatabaseId int;
+SET @Cl=CASE @Major WHEN 15 THEN 150 WHEN 16 THEN 160 WHEN 17 THEN 170 END;
+IF @DemoId<>'DGN-005' OR @TargetDatabase<>@Expected OR @Cl IS NULL THROW 51000,'FAIL_CONTRACT: DGN-005-Setupziel ist ungültig.',1;
+IF DB_ID(@TargetDatabase) IS NOT NULL THROW 51002,'FAIL_STATE: DGN-005 übernimmt keine vorhandene Datenbank.',1;
+SET @Sql=N'CREATE DATABASE '+QUOTENAME(@TargetDatabase)+N'; ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET RECOVERY SIMPLE; ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET COMPATIBILITY_LEVEL = '+CONVERT(nvarchar(10),@Cl)+N';'; EXEC sys.sp_executesql @Sql;
+SET @DatabaseId=DB_ID(@TargetDatabase);
+SET @Sql=N'USE '+QUOTENAME(@TargetDatabase)+N'; EXEC sys.sp_addextendedproperty @name=N''SQLPERF.Project'',@value=N''SQL_PerformanceSchulung''; EXEC sys.sp_addextendedproperty @name=N''SQLPERF.ContractVersion'',@value=N''1.0''; EXEC sys.sp_addextendedproperty @name=N''SQLPERF.DemoId'',@value=@DemoId; EXEC sys.sp_addextendedproperty @name=N''SQLPERF.RunToken'',@value=@RunToken; IF SCHEMA_ID(N''lab'') IS NULL EXEC(N''CREATE SCHEMA lab AUTHORIZATION dbo;''); CREATE TABLE lab.XeEvidence(EventCount int NULL,SessionStopped bit NOT NULL DEFAULT(0)); INSERT lab.XeEvidence DEFAULT VALUES;'; EXEC sys.sp_executesql @Sql,N'@DemoId varchar(7),@RunToken varchar(20)',@DemoId,@RunToken;
+IF EXISTS(SELECT 1 FROM sys.server_event_sessions WHERE name=@SessionName) THROW 51002,'FAIL_STATE: Gleichnamige XE-Session wird nicht übernommen.',1;
+SET @Sql=N'CREATE EVENT SESSION '+QUOTENAME(@SessionName)+N' ON SERVER ADD EVENT sqlserver.error_reported(ACTION(sqlserver.database_id,sqlserver.session_id) WHERE ([error_number]>=(50000) AND [sqlserver].[database_id]=('+CONVERT(nvarchar(20),@DatabaseId)+N'))) ADD TARGET package0.ring_buffer(SET MAX_EVENTS_LIMIT=(100),MAX_MEMORY=(1024)) WITH(MAX_MEMORY=2048 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=1 SECONDS,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF); ALTER EVENT SESSION '+QUOTENAME(@SessionName)+N' ON SERVER STATE=START;'; EXEC sys.sp_executesql @Sql;
+SELECT 1 Sequence,'SETUP' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,@SessionName ObservedValue,N'ring_buffer <= 1024 KB; STARTUP_STATE OFF' RequiredValue,N'Die begrenzte XE-Session läuft.' Message; PRINT 'SQLPERF_SUMMARY|PASS|OK';
