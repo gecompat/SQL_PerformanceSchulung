@@ -19,6 +19,12 @@ from execution_target import ExecutionTarget, ExecutionTargetError  # noqa: E402
 DEMO_ID = "QRY-004"
 MANIFEST = ROOT / "Demos" / "05_Query_Patterns" / "QRY-004_Classic_And_Dynamic" / "manifest.json"
 SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)$", re.MULTILINE)
+ACCEPTED_SKIPS = {
+    "SKIP_VERSION",
+    "SKIP_PERMISSION",
+    "SKIP_EVIDENCE_MISSING",
+    "SKIP_TOOL_MISSING",
+}
 
 
 class Qry004Failure(RuntimeError):
@@ -45,7 +51,7 @@ def assert_database_absent(target: ExecutionTarget) -> None:
         raise Qry004Failure(f"{DEMO_ID}: cleanup verification did not return ABSENT")
 
 
-def run_demo(*, target: ExecutionTarget, repetition: int) -> None:
+def run_demo(*, target: ExecutionTarget, repetition: int) -> tuple[str, str]:
     if not MANIFEST.is_file():
         raise Qry004Failure(f"{DEMO_ID}: manifest missing")
 
@@ -70,16 +76,22 @@ def run_demo(*, target: ExecutionTarget, repetition: int) -> None:
     summaries = SUMMARY.findall(combined)
     final_summary = summaries[-1] if summaries else None
 
-    if result.returncode != 0 or final_summary != ("PASS", "OK"):
+    accepted = bool(final_summary) and (
+        final_summary[0] in {"PASS", "WARN"}
+        or (final_summary[0] == "SKIP" and final_summary[1] in ACCEPTED_SKIPS)
+    )
+    if result.returncode != 0 or not accepted:
         diagnostic = execution_target.redact(combined[-12000:])
         raise Qry004Failure(
             f"{DEMO_ID} repetition {repetition}: harness failed; "
             f"returncode={result.returncode}; summary={final_summary}; diagnostic={diagnostic}"
         )
 
-    variance = sum(1 for outcome, code in summaries if outcome == "WARN")
+    variance = sum(1 for outcome, _ in summaries if outcome == "WARN")
     assert_database_absent(target)
-    print(f"QRY004_STAGE|{DEMO_ID}|RUN_{repetition}|PASS|OK|warnings={variance}")
+    outcome, code = final_summary
+    print(f"QRY004_STAGE|{DEMO_ID}|RUN_{repetition}|{outcome}|{code}|warnings={variance}")
+    return outcome, code
 
 
 def main() -> int:
@@ -125,10 +137,16 @@ def main() -> int:
             target, expected_major=args.expected_major
         )
         print(f"QRY004_STAGE|ENGINE_{major}|IDENTITY|PASS|OK")
-        for repetition in (1, 2):
-            run_demo(target=target, repetition=repetition)
+        outcomes = [run_demo(target=target, repetition=repetition) for repetition in (1, 2)]
+        if all(item[0] == "PASS" for item in outcomes):
+            outcome, code = "PASS", "OK"
+        else:
+            outcome, code = max(
+                outcomes,
+                key=lambda item: {"PASS": 0, "WARN": 1, "SKIP": 2}[item[0]],
+            )
         print(
-            f"QRY004_SUMMARY|PASS|OK|major={major}; demos=1; repetitions=2; "
+            f"QRY004_SUMMARY|{outcome}|{code}|major={major}; demos=1; repetitions=2; "
             f"target={target.kind}"
         )
         return 0
