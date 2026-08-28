@@ -623,18 +623,18 @@ Jede Arbeitsübergabe enthält mindestens:
 | Feld | Stand |
 |---|---|
 | Repository-Struktur | abgeschlossen; operativer Detailstand in `CURRENT_EXECUTION_STATUS.md` |
-| Fachliche Demos | zehn produktive Demos vorhanden; neun runtimevalidiert, `QRY-004` implementiert mit offenem Runner-Konflikt |
+| Fachliche Demos | 22 produktive Demos vorhanden; acht W-COV-001-Demos sind runtimevalidiert, `CON-009` bleibt wegen der SQL-Server-2019-Evidenzlücke implementiert |
 | Testumgebungs-How-to | `INF-001` implementiert zur Prüfung; dokumentiert Zielauswahl für vorhandene Instanzen, ohne Provisionierungsversprechen |
 | Sonderinfrastruktur | nicht begonnen; bleibt an einen konkreten fachlichen Bedarf und die bestehenden Safety-Gates gebunden |
-| Präsentationsbasis | aktives Deck mit 102 Folien; `ADV-009` bis `ADV-011` integriert, visuelle Renderprüfung der Vertiefungsfolien offen |
+| Präsentationsbasis | aktives Deck mit 102 SlideKeys; drei Custom Shows und 41/66/102-Varianten statisch und visuell freigegeben |
 | Welle 0 und Framework | `W0-001` bis `W0-008`, Gate A, Framework-Matrix und Gate B validiert |
-| Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 offen |
+| Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 `VALIDATED` |
 | Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
 | Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; der Delta-Review für relevante SQL-Server-2025-Funktionen ist in `SQL_SERVER_2025_DELTA_REVIEW.md` abgeschlossen |
 | Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist bevorzugter gelber, isolationspflichtiger Vertical Slice |
-| Aktuelle Priorität | `QRY-004`-Runner-Konflikt beheben und die 2019/2022/2025-Matrix erneut nachweisen |
-| Danach | Query-Store-/Extended-Events-Pilot, `CON-004` als interaktiver Vertical Slice, `OPT-017`, Quellen-Delta-Review und Lehrmittel-Renderprüfung |
-| Teststatus | statische Validatoren, neun Unit-Tests und Privacy-Scan am 2026-08-24 lokal erfolgreich; Runtime-Evidenz und offene Restrisiken in `CURRENT_EXECUTION_STATUS.md` |
+| Aktuelle Priorität | offene zweifache Runtime-Matrizen für `QRY-004`, `DGN-003/005`, `OPT-017` sowie die SQL-Server-2019-Evidenz von `CON-009` nachweisen |
+| Danach | interaktive Docker-/Podman-Abnahme von `CON-004` und evidenzgebundene Statussynchronisierung |
+| Teststatus | statische Verträge und Privacy-/Metadatenprüfung werden je Welle lokal ausgeführt; Runtime-Evidenz und offene Restrisiken stehen in `CURRENT_EXECUTION_STATUS.md` |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
 

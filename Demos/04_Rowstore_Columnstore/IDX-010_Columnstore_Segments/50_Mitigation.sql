@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;DELETE lab.OrderedFact WHERE FactId%20=0;ALTER INDEX CCI_Ordered ON lab.OrderedFact REORGANIZE WITH(COMPRESS_ALL_ROW_GROUPS=ON);SELECT object_name(object_id) TableName,state_desc,total_rows,deleted_rows FROM sys.dm_db_column_store_row_group_physical_stats WHERE object_id=OBJECT_ID(N'lab.OrderedFact');PRINT 'SQLPERF_SUMMARY|PASS|OK';

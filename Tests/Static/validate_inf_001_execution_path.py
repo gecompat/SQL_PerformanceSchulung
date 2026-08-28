@@ -203,7 +203,8 @@ def _check_demo_runners(findings: list[str]) -> None:
                 f"{rel(path)}: container binding must stay in the execution "
                 "target module"
             )
-        if f"{summary_prefix}|PASS" not in text:
+        truthful_summary = f'f"{summary_prefix}|{{outcome}}|{{code}}'
+        if f"{summary_prefix}|PASS" not in text and truthful_summary not in text:
             findings.append(f"{rel(path)}: summary prefix {summary_prefix} changed")
         if "target={target.kind}" not in text:
             findings.append(

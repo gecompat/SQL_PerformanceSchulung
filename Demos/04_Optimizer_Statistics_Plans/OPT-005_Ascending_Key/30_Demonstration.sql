@@ -1,0 +1,3 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;DECLARE @N int=100001;WHILE @N<=120000 BEGIN INSERT lab.AscendingData VALUES(@N,DATEADD(day,100+(@N-100001)/1000,CONVERT(date,'2025-01-01')),REPLICATE('N',40));SET @N+=1;END;
+DECLARE @I int=INDEXPROPERTY(OBJECT_ID(N'lab.AscendingData'),N'IX_OPT005_Date','IndexId');INSERT lab.Evidence SELECT 'OUT_OF_RANGE',p.rows,p.modification_counter,MAX(d.EventDate),p.last_updated,(SELECT is_auto_update_stats_async_on FROM sys.databases WHERE database_id=DB_ID()) FROM sys.dm_db_stats_properties(OBJECT_ID(N'lab.AscendingData'),@I)p CROSS JOIN lab.AscendingData d GROUP BY p.rows,p.modification_counter,p.last_updated;
+PRINT 'SQLPERF_SUMMARY|PASS|OK';

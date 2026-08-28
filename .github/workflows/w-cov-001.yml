@@ -1,0 +1,105 @@
+name: W-COV-001 remaining demo coverage
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/01_Storage_Pages_Log/**'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-003_*/**'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-005_*/**'
+      - 'Demos/04_Rowstore_Columnstore/**'
+      - 'Demos/05_Concurrency_Isolation_TempDB/**'
+      - 'Demos/06_CPU_Memory_IO_Waits/**'
+      - 'Demos/07_Concurrency/CON-006_*/**'
+      - 'Tests/Runtime/run_w_cov_001.py'
+      - 'Tests/Static/validate_w_cov_001.py'
+      - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Documentation/Demo_Catalog/**'
+      - '.github/workflows/w-cov-001.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/**'
+      - 'Tests/Runtime/run_w_cov_001.py'
+      - 'Tests/Static/validate_w_cov_001.py'
+      - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Documentation/Demo_Catalog/**'
+      - '.github/workflows/w-cov-001.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: w-cov-001-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.12'}
+      - run: python Tests/Static/validate_w_cov_001.py
+      - run: python Tests/Static/test_w_cov_001_runner.py
+      - run: python Tests/Static/validate_demo_execution_paths.py
+      - run: python Tests/Static/validate_sql_server_lab_test_catalog.py
+      - run: python Tests/Static/validate_performance_scenarios.py
+      - run: python Tests/Static/validate_identifier_registration.py
+      - run: python Tests/Static/validate_privacy_metadata.py .
+
+  runtime:
+    needs: static
+    runs-on: ${{ vars.SQLPERF_PERFORMANCE_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        demo: ['OPT-003', 'OPT-005', 'CON-006', 'CON-009', 'IDX-006', 'IDX-010', 'STL-008', 'STL-009', 'RES-007']
+        version:
+          - {year: 2019, major: 15, image: 'mcr.microsoft.com/mssql/server:2019-latest'}
+          - {year: 2022, major: 16, image: 'mcr.microsoft.com/mssql/server:2022-latest'}
+          - {year: 2025, major: 17, image: 'mcr.microsoft.com/mssql/server:2025-latest'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.12'}
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.version.major }}Cov"
+          container="sqlperf-cov-${{ matrix.version.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          docker pull '${{ matrix.version.image }}'
+          docker run --name "${container}" --hostname "${container}" --cpus 4 --memory 8g -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" -d '${{ matrix.version.image }}'
+          for attempt in $(seq 1 90); do
+            docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections' && exit 0
+            [ "$(docker inspect -f '{{.State.Running}}' "${container}")" = 'true' ] || exit 1
+            sleep 2
+          done
+          exit 1
+      - name: Run demo twice
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
+          python Tests/Runtime/run_w_cov_001.py --demo '${{ matrix.demo }}' --target docker --container "${SQLPERF_SQL_CONTAINER}" --expected-major '${{ matrix.version.major }}' 2>&1 | tee "${RUNNER_TEMP}/w-cov-${{ matrix.demo }}-${{ matrix.version.major }}.log"
+          exit "${PIPESTATUS[0]}"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w-cov-${{ matrix.demo }}-${{ matrix.version.year }}-diagnostic
+          path: ${{ runner.temp }}/w-cov-${{ matrix.demo }}-${{ matrix.version.major }}.log
+          if-no-files-found: warn
+          retention-days: 3
+      - if: failure()
+        shell: bash
+        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+      - if: always()
+        shell: bash
+        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true

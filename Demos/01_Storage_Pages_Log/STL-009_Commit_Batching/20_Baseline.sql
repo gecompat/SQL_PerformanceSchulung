@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;INSERT lab.Evidence SELECT 'BASELINE',SUM(v.num_of_writes),SUM(v.num_of_bytes_written),COALESCE((SELECT wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type='WRITELOG'),0),0,0 FROM sys.dm_io_virtual_file_stats(DB_ID(),NULL)v JOIN sys.database_files f ON f.file_id=v.file_id WHERE f.type=1;PRINT 'SQLPERF_SUMMARY|PASS|OK';
