@@ -8,6 +8,7 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md'
       - 'Tests/Static/validate_adv008_qry004.py'
+      - 'Tests/Static/test_adv008_qry004_runner.py'
       - 'Tests/Runtime/run_adv008_qry004.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -20,6 +21,7 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md'
       - 'Tests/Static/validate_adv008_qry004.py'
+      - 'Tests/Static/test_adv008_qry004_runner.py'
       - 'Tests/Runtime/run_adv008_qry004.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -47,7 +49,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Validate QRY-004 contracts
-        run: python Tests/Static/validate_adv008_qry004.py
+        run: |
+          python Tests/Static/validate_adv008_qry004.py
+          python Tests/Static/test_adv008_qry004_runner.py
       - name: Run repository privacy scan
         run: python3 Tests/Static/validate_privacy_metadata.py .
 
