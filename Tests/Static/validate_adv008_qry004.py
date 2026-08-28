@@ -272,6 +272,17 @@ def check_runtime(findings: list[str]) -> None:
             findings.append(f"runtime runner syntax: {exc}")
         if "QRY004_SUMMARY" not in text:
             findings.append("runtime runner summary prefix missing")
+        for marker in (
+            "ACCEPTED_SKIPS",
+            'final_summary[0] in {"PASS", "WARN"}',
+            'final_summary[0] == "SKIP"',
+            "QRY004_STAGE|{DEMO_ID}|RUN_{repetition}|{outcome}|{code}",
+            "QRY004_SUMMARY|{outcome}|{code}",
+        ):
+            if marker not in text:
+                findings.append(f"runtime runner outcome propagation missing: {marker}")
+        if 'final_summary != ("PASS", "OK")' in text:
+            findings.append("runtime runner still rejects documented WARN/SKIP outcomes")
     if not WORKFLOW.is_file():
         findings.append("runtime workflow missing")
 

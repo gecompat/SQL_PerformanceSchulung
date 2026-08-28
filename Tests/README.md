@@ -236,6 +236,7 @@ Der Workflow `.github/workflows/adv008-qry004.yml` prüft zuerst:
 
 ```bash
 python Tests/Static/validate_adv008_qry004.py
+python Tests/Static/test_adv008_qry004_runner.py
 python3 Tests/Static/validate_privacy_metadata.py .
 ```
 
