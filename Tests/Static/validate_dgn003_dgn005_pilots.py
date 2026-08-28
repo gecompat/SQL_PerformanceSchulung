@@ -61,7 +61,7 @@ def main() -> int:
         findings.append("DGN-003: DGN-004 plan-control scope leaked into pilot")
 
     dgn005 = "\n".join(path.read_text(encoding="utf-8") for path in DEMOS["DGN-005"][0].glob("*.sql"))
-    for marker in ("sqlserver.error_reported", "package0.ring_buffer", "MAX_MEMORY=(1024)", "STARTUP_STATE=OFF", "SQLPERF_"):
+    for marker in ("sqlserver.error_reported", "package0.ring_buffer", "MAX_MEMORY=(1024)", "STARTUP_STATE=OFF", "MAX_DURATION=300 SECONDS", "@Major>=17", "SQLPERF_"):
         if marker not in dgn005:
             findings.append(f"DGN-005: marker missing {marker}")
     if "event_file" in dgn005.lower() or ".xel" in dgn005.lower():

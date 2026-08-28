@@ -398,3 +398,13 @@ spätere Runtimefreigabe.
 - weitere Demos und Inhaltsartefakte der Welle 2.
 
 Tests und Reports dürfen keine realen Zugangsdaten oder Umgebungsinformationen persistieren. Interaktiv notwendige reale Resultsets sind keine Repository-Artefakte.
+
+## W-SQL25-001 – Delta-Review
+
+```bash
+python Tests/Static/validate_sql25_delta_review.py
+```
+
+Der Prüfer bindet `SRC-058` bis `SRC-065`, die sieben Featureentscheidungen,
+die fortgeschriebenen Claims und den ausschließlich auf Engine 17 erzeugten
+`DGN-005`-Pfad mit `MAX_DURATION` zusammen. Er erzeugt keine Runtimefreigabe.
