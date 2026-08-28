@@ -1,0 +1,31 @@
+name: Presentation variants
+
+on:
+  pull_request:
+    paths:
+      - 'Presentations/**'
+      - 'Tools/Build-PresentationVariants.ps1'
+      - 'Tools/Set-PresentationCustomShows.ps1'
+      - 'Tools/build_presentation_variants_manifest.py'
+      - 'Tests/Static/validate_presentation_variants.py'
+      - '.github/workflows/presentation-variants.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Presentations/**'
+      - 'Tools/Build-PresentationVariants.ps1'
+      - 'Tools/Set-PresentationCustomShows.ps1'
+      - 'Tools/build_presentation_variants_manifest.py'
+      - 'Tests/Static/validate_presentation_variants.py'
+      - '.github/workflows/presentation-variants.yml'
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/validate_presentation_variants.py
+      - run: python Tests/Static/validate_privacy_metadata.py .

@@ -37,16 +37,16 @@ MODULE_LABEL = "3 · QUERY PATTERNS · VERTIEFUNG"
 
 # Folien-ID -> (Folienteil, Anzeigeposition, Pflichtfragment im sichtbaren Text)
 SLIDES = {
-    "SLD-M03-101": ("ppt/slides/slide85.xml", 84, "mehrdimensionale Kontextdiagnose"),
-    "SLD-M03-102": ("ppt/slides/slide86.xml", 85, "sys.dm_exec_plan_attributes"),
-    "SLD-M03-103": ("ppt/slides/slide87.xml", 86, "Parameter Sensitivity"),
-    "SLD-M03-104": ("ppt/slides/slide88.xml", 87, "OPTION (RECOMPILE)"),
-    "SLD-M03-105": ("ppt/slides/slide89.xml", 88, "Ergebnisgleichheit sichern"),
-    "SLD-M03-111": ("ppt/slides/slide90.xml", 89, "eine Planform muss jede Filterkombination bedienen"),
-    "SLD-M03-112": ("ppt/slides/slide91.xml", 90, "Kompilierarbeit"),
-    "SLD-M03-113": ("ppt/slides/slide92.xml", 91, "sys.sp_executesql"),
-    "SLD-M03-114": ("ppt/slides/slide93.xml", 92, "Statementform"),
-    "SLD-M03-115": ("ppt/slides/slide94.xml", 93, "Ergebnisgleichheit ist Voraussetzung"),
+    "SLD-M03-101": ("ppt/slides/slide84.xml", 84, "mehrdimensionale Kontextdiagnose"),
+    "SLD-M03-102": ("ppt/slides/slide85.xml", 85, "sys.dm_exec_plan_attributes"),
+    "SLD-M03-103": ("ppt/slides/slide86.xml", 86, "Parameter Sensitivity"),
+    "SLD-M03-104": ("ppt/slides/slide87.xml", 87, "OPTION (RECOMPILE)"),
+    "SLD-M03-105": ("ppt/slides/slide88.xml", 88, "Ergebnisgleichheit sichern"),
+    "SLD-M03-111": ("ppt/slides/slide89.xml", 89, "eine Planform muss jede Filterkombination bedienen"),
+    "SLD-M03-112": ("ppt/slides/slide90.xml", 90, "Kompilierarbeit"),
+    "SLD-M03-113": ("ppt/slides/slide91.xml", 91, "sys.sp_executesql"),
+    "SLD-M03-114": ("ppt/slides/slide92.xml", 92, "Statementform"),
+    "SLD-M03-115": ("ppt/slides/slide93.xml", 93, "Ergebnisgleichheit ist Voraussetzung"),
 }
 
 INTEGRATED_CLAIMS = {
@@ -90,7 +90,7 @@ def display_order(archive: zipfile.ZipFile) -> list[str]:
     }
     presentation = ET.fromstring(archive.read("ppt/presentation.xml"))
     slide_list = presentation.find(f"{P_NS}sldIdLst")
-    return [relationships[node.get(R_ID)] for node in slide_list]
+    return ["ppt/" + relationships[node.get(R_ID)].removeprefix("ppt/") for node in slide_list]
 
 
 def check_deck(findings: list[str]) -> str:
@@ -150,7 +150,7 @@ def check_deck(findings: list[str]) -> str:
                     findings.append(f"{slide_id}: speaker note depth profile missing")
 
         # Die Schlussfolie bleibt letzte Anzeigeposition.
-        if order and order[-1] != "ppt/slides/slide84.xml":
+        if order and order[-1] != "ppt/slides/slide102.xml":
             findings.append("closing slide is no longer the last display position")
 
         # Bestehende Basisfolien behalten ihre Anzeigeposition.

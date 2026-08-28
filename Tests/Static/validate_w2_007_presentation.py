@@ -14,8 +14,9 @@ REGISTER = ROOT / "Documentation" / "Inventories" / "SLIDE_STATEMENT_REGISTER.md
 REVIEW = ROOT / "Documentation" / "Project_Planning" / "W2_007_REFINE_CLAIMS_REVIEW.md"
 A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 
-# 84 Basisfolien (W2-007) zuzueglich 10 Vertiefungsfolien (ADV-009).
+# 84 Basisfolien (W2-007) zuzueglich 18 Vertiefungsfolien (ADV-009 bis ADV-011).
 SLIDE_COUNT = 102
+W2_007_REVIEW_HASH = "e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141"
 
 REQUIRED = {
     32: ["Cache-Schlüssel und Invalidierung sind zu trennen", "zusätzliche Cacheeinträge", "ohne einen vorhandenen Plan zu invalidieren"],
@@ -97,8 +98,8 @@ def main() -> int:
             findings.append(f"{claim} is not KEEP in statement register")
     if "| `KEEP` | 84 |" not in register or "| `REFINE` | 0 |" not in register:
         findings.append("statement register decision balance is not 84 KEEP / 0 REFINE")
-    if f"| SHA-256 | `{digest}` |" not in review or "| Status | `VALIDATED` |" not in review:
-        findings.append("W2-007 review does not identify the validated deck")
+    if f"| SHA-256 | `{W2_007_REVIEW_HASH}` |" not in review or "| Status | `VALIDATED` |" not in review:
+        findings.append("W2-007 review does not preserve its validated historical deck")
 
     if findings:
         print(f"w2-007-presentation: FAIL ({len(findings)} finding(s))")

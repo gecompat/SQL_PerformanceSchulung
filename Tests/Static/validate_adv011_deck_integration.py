@@ -44,22 +44,22 @@ MODULE_LABEL = "3 · QUERY PATTERNS · VERTIEFUNG"
 # Folien-ID -> (Folienteil, Anzeigeposition, Pflichtfragment im sichtbaren Text)
 SLIDES = {
     "SLD-M03-131": (
-        "ppt/slides/slide99.xml",
+        "ppt/slides/slide98.xml",
         98,
         "keine Suchplanform",
     ),
     "SLD-M03-132": (
-        "ppt/slides/slide100.xml",
+        "ppt/slides/slide99.xml",
         99,
         "QueryVariantID",
     ),
     "SLD-M03-133": (
-        "ppt/slides/slide101.xml",
+        "ppt/slides/slide100.xml",
         100,
         "Compatibility Level 170",
     ),
     "SLD-M03-134": (
-        "ppt/slides/slide102.xml",
+        "ppt/slides/slide101.xml",
         101,
         "DISABLE_OPTIONAL_PARAMETER_OPTIMIZATION",
     ),
@@ -101,7 +101,7 @@ def display_order(archive: zipfile.ZipFile) -> list[str]:
     }
     presentation = ET.fromstring(archive.read("ppt/presentation.xml"))
     slide_list = presentation.find(f"{P_NS}sldIdLst")
-    return [relationships[node.get(R_ID)] for node in slide_list]
+    return ["ppt/" + relationships[node.get(R_ID)].removeprefix("ppt/") for node in slide_list]
 
 
 def check_deck(findings: list[str]) -> str:
@@ -163,12 +163,12 @@ def check_deck(findings: list[str]) -> str:
                     findings.append(f"{slide_id}: speaker note does not name the canonical demo")
 
         # Die Schlussfolie bleibt letzte Anzeigeposition.
-        if order and order[-1] != "ppt/slides/slide84.xml":
+        if order and order[-1] != "ppt/slides/slide102.xml":
             findings.append("closing slide is no longer the last display position")
 
         # Der ADV-009-Block behaelt seine Anzeigepositionen 84 bis 93.
         for offset in range(10):
-            expected = f"ppt/slides/slide{85 + offset}.xml"
+            expected = f"ppt/slides/slide{84 + offset}.xml"
             position = 84 + offset
             if position <= len(order) and order[position - 1] != expected:
                 findings.append(
@@ -178,7 +178,7 @@ def check_deck(findings: list[str]) -> str:
 
         # Der ADV-010-Block behaelt seine Anzeigepositionen 94 bis 97.
         for offset in range(4):
-            expected = f"ppt/slides/slide{95 + offset}.xml"
+            expected = f"ppt/slides/slide{94 + offset}.xml"
             position = 94 + offset
             if position <= len(order) and order[position - 1] != expected:
                 findings.append(

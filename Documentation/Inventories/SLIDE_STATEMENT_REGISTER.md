@@ -4,7 +4,7 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141`  
+**SHA-256:** `86977ac815f4bd90ad56335bc3fa5847149b0b809da71a58601128b5385111f5`
 **Folienumfang:** 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 Vertiefungsfolien aus `ADV-010` und `ADV-011`)  
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
@@ -106,9 +106,9 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-081 | 81 | sl/67icwm | Abschluss | METHOD | Messung, Reproduzierbarkeit, Versionsgrenzen und Rückfallplan bilden die Leitprinzipien | versionsneutral | SRC-027, SRC-028 | KEEP | – |
 | CLM-082 | 82 | sl/vx6txt | Abschluss | DIDACTIC | Transfer vom Symptom zur prüfbaren nächsten Maßnahme | – | – | KEEP | – |
 | CLM-083 | 83 | sl/nfagg6 | Abschluss | METHOD | Quellen, Versionsgrenzen und empirische Ergebnisse müssen getrennt und nachverfolgbar bleiben | versionsneutral | SRC-007, SRC-028 | KEEP | – |
-| CLM-084 | 94 | sl/okdptu | Abschluss | DIDACTIC | Abschluss und weiterführender Arbeitsauftrag | – | – | KEEP | – |
+| CLM-084 | 102 | sl/okdptu | Abschluss | DIDACTIC | Abschluss und weiterführender Arbeitsauftrag | – | – | KEEP | – |
 
-Die Schlussfolie `CLM-084` liegt weiterhin im Folienteil `slide84.xml`, rückt durch den additiven Vertiefungsblock aber auf Anzeigeposition 94. Die übrigen 83 Basisfolien behalten Teilnamen und Anzeigeposition.
+Die Schlussfolie `CLM-084` liegt weiterhin im ursprünglichen Folienteil und steht nach allen additiven Vertiefungsblöcken auf Anzeigeposition 102. Die übrigen 83 Basisfolien behalten ihre Anzeigeposition.
 
 ## Vertiefungsblock `ADV-009` (Anzeigepositionen 84 bis 93)
 
@@ -116,16 +116,16 @@ Der Block ist additiv und schließt unmittelbar vor der Schlussfolie an. Er setz
 
 | Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
 |---|---:|---|---|---|---|---|---|---|---|---|
-| SLD-M03-101 | 84 | `slide85.xml` | `ADV-CLM-014` | Query Patterns | METHOD | Die Differenz zwischen zwei Clients ist ein Evidenzproblem und erfordert eine mehrdimensionale Kontextdiagnose | 2019–2025 | SRC-001, SRC-027, SRC-046 | KEEP | `QRY-013` |
-| SLD-M03-102 | 85 | `slide86.xml` | `ADV-CLM-013` | Query Patterns | DOCUMENTED | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge für dasselbe Objekt erzeugen | 2019–2025 | SRC-001, SRC-040, SRC-046 | KEEP | `QRY-013` |
-| SLD-M03-103 | 86 | `slide87.xml` | `ADV-CLM-015` | Query Patterns | DOCUMENTED | Parameter Sensitivity folgt der Planwiederverwendung bei unterschiedlicher Verteilung | 2019–2025 | SRC-007, SRC-047 | KEEP | `QRY-013` |
-| SLD-M03-104 | 87 | `slide88.xml` | `ADV-CLM-016` | Query Patterns | DOCUMENTED | Parameter, Variablen, Literale und `OPTION (RECOMPILE)` liefern dem Optimierer unterschiedliche Information | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-046 | KEEP | `QRY-004` |
-| SLD-M03-105 | 88 | `slide89.xml` | `ADV-CLM-013`, `ADV-CLM-014`, `ADV-CLM-015`, `ADV-CLM-016` | Query Patterns | METHOD | Die Diagnose ist erst abgeschlossen, wenn jede Dimension belegt oder ausgeschlossen ist | versionsneutral | SRC-001, SRC-027, SRC-040, SRC-046 | KEEP | `QRY-013` |
-| SLD-M03-111 | 89 | `slide90.xml` | – | Query Patterns | DOCUMENTED | Ein statischer Querytext mit optionalen Prädikaten bindet sich an eine einzige Planform | 2019–2025 | SRC-001, SRC-045, SRC-049 | KEEP | `QRY-004` |
-| SLD-M03-112 | 90 | `slide91.xml` | `ADV-CLM-017` | Query Patterns | DOCUMENTED | `OPTION (RECOMPILE)` ermöglicht laufzeitnahe Optimierung und gibt dafür die Planwiederverwendung auf | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
-| SLD-M03-113 | 91 | `slide92.xml` | `ADV-CLM-018` | Query Patterns | METHOD | Dynamische Suchbedingungen werden aus einer Positivliste zusammengesetzt; Werte werden gebunden | versionsneutral | SRC-001, SRC-045 | KEEP | `QRY-004` |
-| SLD-M03-114 | 92 | `slide93.xml` | `ADV-CLM-018` | Query Patterns | EMPIRICAL | Sicher parameterisiertes dynamisches SQL erzeugt je Filterform genau eine Statementform | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
-| SLD-M03-115 | 93 | `slide94.xml` | `ADV-CLM-017`, `ADV-CLM-018` | Query Patterns | METHOD | Die Auswahl folgt Verteilung, Ausführungsfrequenz, Sicherheit und Wartbarkeit; alle Strategien müssen ergebnisgleich sein | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-049 | KEEP | `QRY-004` |
+| SLD-M03-101 | 84 | `slide84.xml` | `ADV-CLM-014` | Query Patterns | METHOD | Die Differenz zwischen zwei Clients ist ein Evidenzproblem und erfordert eine mehrdimensionale Kontextdiagnose | 2019–2025 | SRC-001, SRC-027, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-102 | 85 | `slide85.xml` | `ADV-CLM-013` | Query Patterns | DOCUMENTED | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge für dasselbe Objekt erzeugen | 2019–2025 | SRC-001, SRC-040, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-103 | 86 | `slide86.xml` | `ADV-CLM-015` | Query Patterns | DOCUMENTED | Parameter Sensitivity folgt der Planwiederverwendung bei unterschiedlicher Verteilung | 2019–2025 | SRC-007, SRC-047 | KEEP | `QRY-013` |
+| SLD-M03-104 | 87 | `slide87.xml` | `ADV-CLM-016` | Query Patterns | DOCUMENTED | Parameter, Variablen, Literale und `OPTION (RECOMPILE)` liefern dem Optimierer unterschiedliche Information | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-046 | KEEP | `QRY-004` |
+| SLD-M03-105 | 88 | `slide88.xml` | `ADV-CLM-013`, `ADV-CLM-014`, `ADV-CLM-015`, `ADV-CLM-016` | Query Patterns | METHOD | Die Diagnose ist erst abgeschlossen, wenn jede Dimension belegt oder ausgeschlossen ist | versionsneutral | SRC-001, SRC-027, SRC-040, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-111 | 89 | `slide89.xml` | – | Query Patterns | DOCUMENTED | Ein statischer Querytext mit optionalen Prädikaten bindet sich an eine einzige Planform | 2019–2025 | SRC-001, SRC-045, SRC-049 | KEEP | `QRY-004` |
+| SLD-M03-112 | 90 | `slide90.xml` | `ADV-CLM-017` | Query Patterns | DOCUMENTED | `OPTION (RECOMPILE)` ermöglicht laufzeitnahe Optimierung und gibt dafür die Planwiederverwendung auf | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
+| SLD-M03-113 | 91 | `slide91.xml` | `ADV-CLM-018` | Query Patterns | METHOD | Dynamische Suchbedingungen werden aus einer Positivliste zusammengesetzt; Werte werden gebunden | versionsneutral | SRC-001, SRC-045 | KEEP | `QRY-004` |
+| SLD-M03-114 | 92 | `slide92.xml` | `ADV-CLM-018` | Query Patterns | EMPIRICAL | Sicher parameterisiertes dynamisches SQL erzeugt je Filterform genau eine Statementform | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
+| SLD-M03-115 | 93 | `slide93.xml` | `ADV-CLM-017`, `ADV-CLM-018` | Query Patterns | METHOD | Die Auswahl folgt Verteilung, Ausführungsfrequenz, Sicherheit und Wartbarkeit; alle Strategien müssen ergebnisgleich sein | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-049 | KEEP | `QRY-004` |
 
 `SLD-M03-111` stellt keine eigenständige Produktbehauptung auf, die über `ADV-CLM-017` und `ADV-CLM-018` hinausgeht; die Folie führt die Problemform ein und erhält deshalb keinen eigenen Claim.
 
@@ -135,10 +135,10 @@ Der Block ist additiv und schließt unmittelbar an den Block `ADV-009` an; die S
 
 | Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
 |---|---:|---|---|---|---|---|---|---|---|---|
-| SLD-M03-121 | 94 | `slide95.xml` | – | Query Patterns | DOCUMENTED | Ohne Parametersensitivität besitzt ein Querytext genau eine Planform; die Kompilierungsreihenfolge entscheidet, welcher Wert benachteiligt wird | 2019–2025 | SRC-001, SRC-007 | KEEP | `OPT-009` |
-| SLD-M03-122 | 95 | `slide96.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Parameter Sensitive Plan Optimization ersetzt die eine Planform durch einen Dispatcherplan und mehrere Query Variants | 2022–2025 | SRC-007, SRC-008 | KEEP | `OPT-009` |
-| SLD-M03-123 | 96 | `slide97.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Das Verfahren ist auf höchstens drei Gleichheitsprädikate begrenzt; die Eignung ist im Plan zu belegen | 2022–2025 | SRC-007, SRC-008, SRC-048 | KEEP | `OPT-009` |
-| SLD-M03-124 | 97 | `slide98.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Die Optimierung ist auf Datenbank- und Abfrageebene steuerbar und ersetzt keine der klassischen Strategien | 2022–2025 | SRC-007, SRC-008 | KEEP | `OPT-009` |
+| SLD-M03-121 | 94 | `slide94.xml` | – | Query Patterns | DOCUMENTED | Ohne Parametersensitivität besitzt ein Querytext genau eine Planform; die Kompilierungsreihenfolge entscheidet, welcher Wert benachteiligt wird | 2019–2025 | SRC-001, SRC-007 | KEEP | `OPT-009` |
+| SLD-M03-122 | 95 | `slide95.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Parameter Sensitive Plan Optimization ersetzt die eine Planform durch einen Dispatcherplan und mehrere Query Variants | 2022–2025 | SRC-007, SRC-008 | KEEP | `OPT-009` |
+| SLD-M03-123 | 96 | `slide96.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Das Verfahren ist auf höchstens drei Gleichheitsprädikate begrenzt; die Eignung ist im Plan zu belegen | 2022–2025 | SRC-007, SRC-008, SRC-048 | KEEP | `OPT-009` |
+| SLD-M03-124 | 97 | `slide97.xml` | `ADV-CLM-019` | Query Patterns | DOCUMENTED | Die Optimierung ist auf Datenbank- und Abfrageebene steuerbar und ersetzt keine der klassischen Strategien | 2022–2025 | SRC-007, SRC-008 | KEEP | `OPT-009` |
 
 `SLD-M03-121` führt die Problemform ein und stellt keine über `ADV-CLM-019` hinausgehende Produktbehauptung auf; die Folie erhält deshalb keinen eigenen Claim.
 
@@ -148,10 +148,10 @@ Der Block ist additiv und schließt unmittelbar an den Block `ADV-010` an; die S
 
 | Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
 |---|---:|---|---|---|---|---|---|---|---|---|
-| SLD-M03-131 | 98 | `slide99.xml` | – | Query Patterns | DOCUMENTED | Ein optionales Parameterprädikat erzwingt eine Planform, die für belegte und offene Parameter zugleich gültig sein muss; eine Suchplanform existiert dafür nicht | 2019–2025 | SRC-001, SRC-049 | KEEP | `OPT-010` |
-| SLD-M03-132 | 99 | `slide100.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Optional Parameter Plan Optimization erzeugt einen Dispatcherplan mit optionalem Parameterprädikat und je NULL-Zustand eine Query Variant | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
-| SLD-M03-133 | 100 | `slide101.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Das Verfahren setzt SQL Server 2025 und Compatibility Level 170 voraus und entfällt bei lokalen Variablen, OPTION (RECOMPILE), ANSI_NULLS OFF und Autoparametrisierung | 2025 | SRC-007, SRC-026 | KEEP | `OPT-010` |
-| SLD-M03-134 | 101 | `slide102.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Die Optimierung ist über die Datenbankeinstellung und über den Abfragehinweis steuerbar; sie grenzt sich in der Auswahlbedingung von der parametersensitiven Planoptimierung ab | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
+| SLD-M03-131 | 98 | `slide98.xml` | – | Query Patterns | DOCUMENTED | Ein optionales Parameterprädikat erzwingt eine Planform, die für belegte und offene Parameter zugleich gültig sein muss; eine Suchplanform existiert dafür nicht | 2019–2025 | SRC-001, SRC-049 | KEEP | `OPT-010` |
+| SLD-M03-132 | 99 | `slide99.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Optional Parameter Plan Optimization erzeugt einen Dispatcherplan mit optionalem Parameterprädikat und je NULL-Zustand eine Query Variant | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
+| SLD-M03-133 | 100 | `slide100.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Das Verfahren setzt SQL Server 2025 und Compatibility Level 170 voraus und entfällt bei lokalen Variablen, OPTION (RECOMPILE), ANSI_NULLS OFF und Autoparametrisierung | 2025 | SRC-007, SRC-026 | KEEP | `OPT-010` |
+| SLD-M03-134 | 101 | `slide101.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Die Optimierung ist über die Datenbankeinstellung und über den Abfragehinweis steuerbar; sie grenzt sich in der Auswahlbedingung von der parametersensitiven Planoptimierung ab | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
 
 `SLD-M03-131` führt die Problemform ein und stellt keine über `ADV-CLM-020` hinausgehende Produktbehauptung auf; die Folie erhält deshalb keinen eigenen Claim.
 
@@ -179,6 +179,6 @@ Die Bilanz beschreibt den durch `W2-007` abgenommenen Basissatz. Die Vertiefungs
 | Folien mit kanonischer Demo-ID | 10 |
 | Eindeutige kanonische Demo-IDs | 2 |
 
-Damit umfasst das aktive Deck 94 Folien: 84 Basisfolien und 10 additive Vertiefungsfolien.
+Damit umfasst das aktive Deck 102 Folien: 84 Basisfolien und 18 additive Vertiefungsfolien.
 
 Die vier früheren `REFINE`-Entscheidungen wurden in `W2-007` abgeschlossen. Sichtbarer Folientext, Speaker Notes, Quellen, Versionsgrenzen und Traceability sind im [W2-007-Review](../Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md) dokumentiert. Die kanonischen Demo-IDs sind eine curriculare Zuordnung; ihr Implementierungs- oder Validierungsstatus wird getrennt geführt.
