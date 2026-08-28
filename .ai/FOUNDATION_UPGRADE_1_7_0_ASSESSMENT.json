@@ -9,17 +9,17 @@
       "candidate_reasons": [
         "material_change:1.6.0"
       ],
-      "classification": "ALREADY_EQUIVALENT",
+      "classification": "APPLY_DEFAULT",
       "evidence": [
-        ".ai/IDENTIFIER_REGISTRATION.md defines one project Registration Authority for humans and AI.",
-        ".ai/identity/registry.json uses the compatible foundation-artifact-registry/v1 profile.",
-        "The selected artifact-registration-clients capability remains contract-equivalent and unchanged."
+        ".ai/IDENTIFIER_REGISTRATION.md defines one central project Registration Authority for humans and AI.",
+        ".ai/identity/registry.json uses foundation-artifact-registry/v2 and contains every reference protected by the former v1 counters.",
+        "DEC-062 records the explicit v1-to-v2 migration and preserves the existing DEC-061 and DEC-062 UID mappings."
       ],
-      "rationale": "The existing v1 authority preserves unique final references, registry revisions, DIRECT/DEFERRED allocation, and shared human/AI use. Foundation 1.7 explicitly retains v1 as a compatible legacy profile.",
+      "rationale": "The explicit v2 migration replaces split records and mutable counters with complete central records, derived allocation, and shared semantic validation for humans and AI.",
       "recommendation": null,
       "decision_required": null,
       "selected_capabilities": [
-        "artifact-registration-clients"
+        "artifact-registry-github"
       ]
     },
     {
@@ -27,16 +27,18 @@
       "candidate_reasons": [
         "introduced_in:1.6.0"
       ],
-      "classification": "RECOMMENDED",
+      "classification": "APPLY_DEFAULT",
       "evidence": [
-        ".ai/identity/registry.json is a repository-native v1 allocation registry.",
-        ".ai/identity/artifacts contains split artifact records.",
-        ".ai/PROJECT_RULES.md selects branch_and_pr for AI-assisted Git changes."
+        "DEC-062 authorizes MIGRATE_EXPLICIT to foundation-artifact-registry/v2.",
+        ".ai/identity/MIGRATION_V1_TO_V2.md records collision checks, preservation rules, the 211 migrated records, and recovery.",
+        ".github/workflows/artifact-registry-integrity.yml validates open-PR collisions and object-level three-way merges."
       ],
-      "rationale": "A central v2 registry could reduce split-state and concurrent-merge risks, but migrating the established Registration Authority is a project-selectable durable change and is not authorized by the Foundation upgrade alone.",
-      "recommendation": "Evaluate an explicit migration to foundation-artifact-registry/v2, including object-level merge validation, preserved historical mappings, recovery, and optional GitHub preflight gates.",
-      "decision_required": "Adopting v2 or the artifact-registry-github capability requires a separate project decision and migration plan.",
-      "selected_capabilities": []
+      "rationale": "The project explicitly selected the central v2 registry and its GitHub capability. The migration preserves historical references while removing split-state and adding concurrency-aware validation.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "artifact-registry-github"
+      ]
     },
     {
       "feature_id": "layered-validation",

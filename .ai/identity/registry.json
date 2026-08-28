@@ -1,95 +1,1975 @@
 {
-  "schema_version": 1,
-  "profile": "foundation-artifact-registry/v1",
-  "registry_revision": 1,
-  "prefixes": {
-    "TSK": {
-      "kind": "task",
-      "next_sequence": 1,
-      "width": 3
+  "artifacts": {
+    "ADV-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:bcf181bf-bd8c-40eb-a5d5-f8720b9a2721",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-001"
     },
-    "DEC": {
-      "kind": "decision",
-      "next_sequence": 62,
-      "width": 3
+    "ADV-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f7b33b69-9146-4cb4-936e-6dce87a97534",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-002"
     },
-    "FWK": {
-      "kind": "framework_work_item",
-      "next_sequence": 13,
-      "width": 3
+    "ADV-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:628fdfab-1735-43c0-bcf2-564b1104484b",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-003"
     },
-    "CUR": {
+    "ADV-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:bc5c8e9c-a801-4e2b-9753-9eb16142da52",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-004"
+    },
+    "ADV-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:447c92c9-4ed2-4226-b814-39491a8fa103",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-005"
+    },
+    "ADV-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:2f86f50a-33ee-4bcb-8168-16af6b980cf7",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-006"
+    },
+    "ADV-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e4f48b19-a7ef-4599-b201-edae5c402f76",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-007"
+    },
+    "ADV-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a5f82f6b-4594-47e1-9271-82a1ce5c2c17",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-008"
+    },
+    "ADV-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:02759483-8971-40be-aa3b-0f91c9617228",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-009"
+    },
+    "ADV-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:72ae2c20-b70c-4ee1-b163-d50ad93725e7",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-010"
+    },
+    "ADV-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c1237fc7-6af2-4a4f-85a9-a13249185bf4",
+      "external_refs": [],
+      "kind": "advanced_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung ADV-011"
+    },
+    "CON-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:833c0613-e1e6-4abb-8cc0-22d05dfd12a1",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-001"
+    },
+    "CON-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f23fe594-9ffb-4582-b7a6-88b0ea99e2eb",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-002"
+    },
+    "CON-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:15c4bffb-8310-4e3c-9205-77b7a2dcf49a",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-003"
+    },
+    "CON-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:7ab39333-e7a7-42e1-8853-52703c97b867",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-004"
+    },
+    "CON-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:0fdddd98-8aa2-47ba-9f44-8f3a7400b737",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-005"
+    },
+    "CON-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c884e32d-b505-4141-b95f-0b3b0eef19b3",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-006"
+    },
+    "CON-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e3facbb2-e248-48fe-b62c-3072330a4a64",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-007"
+    },
+    "CON-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9b345eb2-8c7d-444b-a27e-334846737d50",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-008"
+    },
+    "CON-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8e9cce9a-b5a9-4139-b3b2-a1c6aefaba28",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CON-009"
+    },
+    "CUR-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:14c2a946-79c3-49f0-b8db-52d449e999d1",
+      "external_refs": [],
       "kind": "curriculum_work_item",
-      "next_sequence": 13,
-      "width": 3
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-001"
     },
+    "CUR-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:93540b88-2519-45b1-bf17-cb641eb98a6a",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-002"
+    },
+    "CUR-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3ccaf920-57d2-4d15-b075-16d04ae48fd0",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-003"
+    },
+    "CUR-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:6fd65b93-a0c6-4cc6-9131-d28b7dd3a576",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-004"
+    },
+    "CUR-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:830cd133-eeb6-4ec7-bb73-485b296ed434",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-005"
+    },
+    "CUR-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f8e2a0d4-d878-4925-b6fc-463ae3b1bd02",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-006"
+    },
+    "CUR-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e9e464cf-38e4-48fb-83ef-bca6035612b4",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-007"
+    },
+    "CUR-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3dfa5934-6a14-468d-aa43-1d032f1fe07e",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-008"
+    },
+    "CUR-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:21b9e953-c9b7-4afa-999d-ea36bf024605",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-009"
+    },
+    "CUR-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:7f6a1b09-1d9f-44dc-bc0a-c79ebbd0dc3a",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-010"
+    },
+    "CUR-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:aed94070-427d-40d5-beca-ae4921d0fd6e",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-011"
+    },
+    "CUR-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:fa45b7a0-357c-413e-8568-b40375d49c28",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung CUR-012"
+    },
+    "DEC-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ff9db145-d02a-4ab2-bb82-01a47a760e95",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-001"
+    },
+    "DEC-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:39eb3a4c-53df-4943-a87c-7bad0b157a04",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-002"
+    },
+    "DEC-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:491e32e6-7e1e-4cae-9127-355fc9e3336c",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-003"
+    },
+    "DEC-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4ea02c70-51cd-44a8-8340-154167801505",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-004"
+    },
+    "DEC-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:fc3ec327-c314-4bba-ba60-44129dbd3a87",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-005"
+    },
+    "DEC-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9966bdd0-5671-4c02-b917-c6601ef2a53a",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-006"
+    },
+    "DEC-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4b7c363a-e687-444d-8730-e8df71da143f",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-007"
+    },
+    "DEC-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:133315da-44e3-480a-8934-50dd90dd41d1",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-008"
+    },
+    "DEC-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8f855aae-d653-4b77-9489-a22ff46dc76a",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-009"
+    },
+    "DEC-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:aa481712-20f2-40f5-8930-fa5d77cc5c65",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-010"
+    },
+    "DEC-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9d406f74-9d4e-4537-ad5a-e9c7ea73adcf",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-011"
+    },
+    "DEC-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:602fb5b0-43e8-4366-bd01-6372c63b3e54",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-012"
+    },
+    "DEC-013": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:fcc94c21-8615-4f8f-b2bd-58bc10aee6f1",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-013"
+    },
+    "DEC-014": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:170cf393-ce59-4340-b846-3476c6bd3fec",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-014"
+    },
+    "DEC-015": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:5aed80d3-b9d8-45c7-b1bf-2f2a85b8e0ea",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-015"
+    },
+    "DEC-016": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:34afd1d9-101e-4062-9888-c01b431a0f3f",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-016"
+    },
+    "DEC-017": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d5bf8342-43d1-4962-a2b1-30216b790bf2",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-017"
+    },
+    "DEC-018": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:646a8b62-aacd-4822-8eea-d126b84a6537",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-018"
+    },
+    "DEC-019": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d68f4270-f963-4187-a7dc-4aea0993585d",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-019"
+    },
+    "DEC-020": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:bf32984b-3923-4b1c-b7e0-43c69efbbc01",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-020"
+    },
+    "DEC-021": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b8131971-f458-4171-b44a-24e502af79c8",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-021"
+    },
+    "DEC-022": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:7768e227-9567-41a5-ae41-8ce438ba765a",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-022"
+    },
+    "DEC-023": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:44c5b58c-efd6-4011-9e42-5b4f097b1f69",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-023"
+    },
+    "DEC-024": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a320242c-b366-41ed-9420-b4ee63fc4a40",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-024"
+    },
+    "DEC-025": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:61cf8eb8-f518-4513-b3d2-fd2d86fddb12",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-025"
+    },
+    "DEC-026": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c9ce3db2-51c9-48d5-93c0-4cf9d92dcb6b",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-026"
+    },
+    "DEC-027": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:891608b0-3e67-4677-9b34-427cb2b68e06",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-027"
+    },
+    "DEC-028": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:860aa8ec-0b9b-451f-aa97-8dc8f8535de9",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-028"
+    },
+    "DEC-029": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d397bc8b-b2f6-4370-9ae6-99f8b4cfc6fc",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-029"
+    },
+    "DEC-030": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b3f1ff6e-12d6-460b-be19-4094967b02c4",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-030"
+    },
+    "DEC-031": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:66c377ad-4b17-4e64-994d-4e723bc6aef1",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-031"
+    },
+    "DEC-032": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:feb95a76-6dcc-47f7-a87d-101da471754e",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-032"
+    },
+    "DEC-033": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:cf185232-413a-4b7f-a519-f84565b3105a",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-033"
+    },
+    "DEC-034": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d3e00798-3331-47f7-95ae-70e042925a68",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-034"
+    },
+    "DEC-035": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:2af656c2-a752-4e56-912a-af7944f23ee2",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-035"
+    },
+    "DEC-036": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:83c82beb-0d79-4ffe-855c-56f1b137b1d1",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-036"
+    },
+    "DEC-037": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:91296958-3e40-4449-a203-b6328ca4f6a0",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-037"
+    },
+    "DEC-038": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01bb5478-8c08-4158-8eb9-8b0734f36cdb",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-038"
+    },
+    "DEC-039": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a062b018-9351-40d4-a7e3-dc32b01c93e5",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-039"
+    },
+    "DEC-040": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3b32b6d1-0873-444a-a455-1013556075be",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-040"
+    },
+    "DEC-041": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:44438796-f49c-458b-b93c-d036a795819b",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-041"
+    },
+    "DEC-042": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9db6f7b6-82ac-4659-b0c5-b415d3d00d60",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-042"
+    },
+    "DEC-043": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a338bc9c-71ff-4b98-a3ad-7b2c8dde1231",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-043"
+    },
+    "DEC-044": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:bf776584-5f2e-4711-b44a-948fd18cfc80",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-044"
+    },
+    "DEC-045": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b25be449-d3b8-4ef4-af7b-5dab5256e3cc",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-045"
+    },
+    "DEC-046": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4dc4d641-aa9b-4517-9847-1d497e7cfbbe",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-046"
+    },
+    "DEC-047": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c1af32bf-15f1-4653-b146-927a0e2e5886",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-047"
+    },
+    "DEC-048": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9e7b65d9-3ab6-4e27-a0c7-a5f0e171274c",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-048"
+    },
+    "DEC-049": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b139a62a-dc4e-4535-99b9-1e8a5c99ff42",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-049"
+    },
+    "DEC-050": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ba81cee5-d19d-4be4-a20c-d0fe4034624f",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-050"
+    },
+    "DEC-051": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:5c3446c5-f33e-4216-b8d3-ab40ad08c414",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-051"
+    },
+    "DEC-052": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:52c699df-ab12-4a93-86df-14833cccb2af",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-052"
+    },
+    "DEC-053": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:6e99018b-40f6-4e14-a483-aba394ef64d7",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-053"
+    },
+    "DEC-054": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8c887d98-3c21-4ec0-ba07-639bc82571e9",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-054"
+    },
+    "DEC-055": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:56b23c77-109f-47cd-a7a8-9e30a3e9c361",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-055"
+    },
+    "DEC-056": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3cc87b36-274d-4cda-a605-fcfed9975b9a",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-056"
+    },
+    "DEC-057": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:58472f76-343e-4619-9017-aa28456b68a3",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-057"
+    },
+    "DEC-058": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:fef5d327-a3fe-4cdc-a5d6-22793e62bfcd",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-058"
+    },
+    "DEC-059": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:377c62af-5b39-497d-92e8-bc61456a11e2",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-059"
+    },
+    "DEC-060": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:754001de-4a59-42ae-9480-1ac05cbe6949",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DEC-060"
+    },
+    "DEC-061": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a03379-e43c-7fbc-8b44-fb156fb2c205",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Foundation 1.4 and durable identifier registration"
+    },
+    "DEC-062": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a0499c-af28-7779-bb1c-1b70e49597a3",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Zentrale Artefakt-Registry v2 aktivieren"
+    },
+    "DGN-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-001"
+    },
+    "DGN-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:673f516d-55c5-45d2-851f-a4af54a7176f",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-002"
+    },
+    "DGN-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:791bba8b-700c-412c-aa67-14ac989cfdc9",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-003"
+    },
+    "DGN-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:703eccef-9d1f-4327-8eca-d90af7e95f42",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-004"
+    },
+    "DGN-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:06c2d26e-218e-40a5-907c-e2faf9ca9f66",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-005"
+    },
+    "DGN-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:22b496e2-079d-4ff5-ab21-fdab9c53bf60",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-006"
+    },
+    "DGN-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:dcb182ae-ac5a-4e75-bd31-13e9710a2075",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung DGN-007"
+    },
+    "FWK-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:6dafee88-3b83-45c9-bd59-0bd72e23e1dc",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-001"
+    },
+    "FWK-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:da36228c-3b7e-4854-b686-9323c0afea98",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-002"
+    },
+    "FWK-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:598116c3-477f-4dca-804d-aee0be57bd50",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-003"
+    },
+    "FWK-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e221d377-aa88-4427-8a31-78241a2c3b2d",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-004"
+    },
+    "FWK-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:03fcfc50-0041-4f8f-9bc0-7524950ce39d",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-005"
+    },
+    "FWK-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:691ca5cf-efb7-42ec-aa81-bfcf1f016d36",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-006"
+    },
+    "FWK-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8ef0d9bb-fae6-4681-bd11-085215692450",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-007"
+    },
+    "FWK-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1c4ac2bb-9e11-466f-afba-8459e036a6a6",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-008"
+    },
+    "FWK-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:167b1524-545a-4fc7-9614-d30be085fd94",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-009"
+    },
+    "FWK-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:0cb2b2b7-d0cb-49a9-bd95-ffee66d8b1cc",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-010"
+    },
+    "FWK-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f9d65ca2-0950-4d99-9b71-7709ec8d6a4f",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-011"
+    },
+    "FWK-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:446e442a-27dd-4675-aa9c-d9a7c77a62f7",
+      "external_refs": [],
+      "kind": "framework_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung FWK-012"
+    },
+    "IDX-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:fac477fb-a6c3-4e6a-a5c6-a6476938e51a",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-001"
+    },
+    "IDX-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:2beaa5bf-f0bc-4072-a509-d8d7f10ec75b",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-002"
+    },
+    "IDX-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:06f40d36-eb7c-4d02-871f-53f57e1f25ea",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-003"
+    },
+    "IDX-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d1b9a68e-f6f2-4a1d-9f55-353d72faca6a",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-004"
+    },
+    "IDX-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3cab855c-4751-4436-84e4-3491de4fac26",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-005"
+    },
+    "IDX-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:16f9fea2-3dd5-4048-9429-a296e8251ea9",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-006"
+    },
+    "IDX-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:023b0a50-e04a-45b4-bb5e-956c0857ddc8",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-007"
+    },
+    "IDX-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4c52d642-1a9d-4482-bdf0-1a754f3473f4",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-008"
+    },
+    "IDX-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f06729fb-4e26-4cb6-8fb6-0be7e023d4c3",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-009"
+    },
+    "IDX-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:71baf523-91bf-4673-85c5-194729ce1404",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung IDX-010"
+    },
+    "INF-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:892b8d48-89cc-44c9-a671-d7e3c4dadf51",
+      "external_refs": [],
+      "kind": "infrastructure_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung INF-001"
+    },
+    "INF-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:69394d1c-24a3-45f4-b863-a0f35d38f4a1",
+      "external_refs": [],
+      "kind": "infrastructure_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung INF-002"
+    },
+    "INF-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:682881b6-e3f1-4a8b-b5d4-1ecf05325948",
+      "external_refs": [],
+      "kind": "infrastructure_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung INF-003"
+    },
+    "INF-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1ecc239b-a1cb-4f1f-a216-8660d7b3320b",
+      "external_refs": [],
+      "kind": "infrastructure_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung INF-004"
+    },
+    "INF-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1b1026fe-9453-4051-830a-dd26c94a923c",
+      "external_refs": [],
+      "kind": "infrastructure_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung INF-005"
+    },
+    "INF-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8ac80142-3ca5-47cc-911b-2790b1dc6185",
+      "external_refs": [],
+      "kind": "infrastructure_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung INF-006"
+    },
+    "LABINT-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ddf87897-c727-46ea-a02b-867fe961b597",
+      "external_refs": [],
+      "kind": "lab_integration_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABINT-001"
+    },
+    "LABINT-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:12862a5e-01c0-4ba2-91ed-3a843e116bb9",
+      "external_refs": [],
+      "kind": "lab_integration_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABINT-002"
+    },
+    "LABINT-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4526d461-1a28-47fc-84fd-f3276d067dc3",
+      "external_refs": [],
+      "kind": "lab_integration_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABINT-003"
+    },
+    "LABINT-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f5302cf4-4345-451d-8683-61c5d576a7c9",
+      "external_refs": [],
+      "kind": "lab_integration_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABINT-004"
+    },
+    "LABSCN-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b044396d-730f-48f0-89d8-a6733bbb9249",
+      "external_refs": [],
+      "kind": "lab_scenario_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABSCN-001"
+    },
+    "LABSCN-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d4c2b07a-efb4-49ae-a396-0a4b725f9c32",
+      "external_refs": [],
+      "kind": "lab_scenario_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABSCN-002"
+    },
+    "LABSCN-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:61cdb0ed-1826-42f4-ad97-118c65cdea72",
+      "external_refs": [],
+      "kind": "lab_scenario_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABSCN-003"
+    },
+    "LABSCN-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c47f40d1-c773-4329-a60a-4abb23af2c9e",
+      "external_refs": [],
+      "kind": "lab_scenario_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABSCN-004"
+    },
+    "LABSCN-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:34a499df-66d4-42cb-9813-8f94519d7900",
+      "external_refs": [],
+      "kind": "lab_scenario_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABSCN-005"
+    },
+    "LABSCN-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3d0140ba-0a37-4691-86ad-ac995afbeddc",
+      "external_refs": [],
+      "kind": "lab_scenario_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung LABSCN-006"
+    },
+    "OPT-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:21ead1f8-5acf-4975-af89-859bd7d515a4",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-001"
+    },
+    "OPT-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a9ea1017-4d3a-4dfe-bcc4-b9a7c59ec969",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-002"
+    },
+    "OPT-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1e852a1d-92cf-4348-b790-529dab9bff08",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-003"
+    },
+    "OPT-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:60354cee-d645-421e-9abb-498b14cea9f8",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-004"
+    },
+    "OPT-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:84d839cc-39ff-43b1-af7d-92c1e5c0408e",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-005"
+    },
+    "OPT-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1a53dc88-3abf-41a7-afdb-744413aa7da1",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-006"
+    },
+    "OPT-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:18e54b06-058c-4578-829b-19489eda8416",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-007"
+    },
+    "OPT-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8f7992f4-af8f-4dcb-ba59-2ac898e8d75f",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-008"
+    },
+    "OPT-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f34a05d5-2e14-498f-b5fc-23f4605455b9",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-009"
+    },
+    "OPT-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:be96c24d-7878-41b8-bf42-ecef1a56aeae",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-010"
+    },
+    "OPT-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:432a27b3-6ff8-4d8f-b6c8-e8de4cfb6639",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-011"
+    },
+    "OPT-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:626c404a-42ad-473f-892c-6dde3ba2fe94",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-012"
+    },
+    "OPT-013": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:abf8bea2-cc5b-49a1-9a74-722a0ea466ac",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-013"
+    },
+    "OPT-014": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c92acd7a-ce9c-445d-a844-065c91e1805f",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-014"
+    },
+    "OPT-015": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d321c4b8-7234-4d5e-9150-6e0be7d22ace",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-015"
+    },
+    "OPT-016": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:33072765-f288-4e70-9f6f-22482e722071",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-016"
+    },
+    "OPT-017": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3d3de2b5-6414-43d7-b5eb-b4ea79ef4c4f",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung OPT-017"
+    },
+    "PRS-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:08860d96-b980-4144-8e40-70fc0b046327",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-001"
+    },
+    "PRS-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d98bfbb1-d60d-4d70-ac47-eda0377be3de",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-002"
+    },
+    "PRS-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:14a81a75-15fa-492b-b770-72ad36895481",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-003"
+    },
+    "PRS-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9983ed18-4fb7-4680-9b05-c831fca78880",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-004"
+    },
+    "PRS-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:33f9c172-5836-4808-a46b-7c16564a2737",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-005"
+    },
+    "PRS-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8870af9a-fb5c-45fb-82df-cdbae348c400",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-006"
+    },
+    "PRS-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e549ca28-797f-4757-88a7-8daf1e28b03f",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-007"
+    },
+    "PRS-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:c1a21564-aa6e-4e4d-a719-8feb8e75a5d9",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-008"
+    },
+    "PRS-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:5442f5c3-5b74-4028-b43f-6f28a509190c",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-009"
+    },
+    "PRS-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f6495958-30ad-4647-8dd5-9bd4740eb891",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-010"
+    },
+    "PRS-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:0afca29e-02ac-429e-9b53-de0b6ccd622f",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-011"
+    },
+    "PRS-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:73f54874-db38-48f2-940a-b82c85f8322d",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-012"
+    },
+    "PRS-013": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:77035882-27c9-4af1-87f6-929d4daa4777",
+      "external_refs": [],
+      "kind": "presentation_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung PRS-013"
+    },
+    "QRY-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d7648278-0897-4269-8288-0682268b508b",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-001"
+    },
+    "QRY-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ab5f8607-72ea-4d1c-9116-e36ec1fd64db",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-002"
+    },
+    "QRY-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:633a9678-7790-4fd0-91ec-789852bd7a3f",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-003"
+    },
+    "QRY-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:aa5de3ed-ef11-41d6-a5e9-2fbe6c05a5d9",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-004"
+    },
+    "QRY-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1ff5de4f-eb8f-45be-9ce7-eff0d14c50f2",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-005"
+    },
+    "QRY-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8d95c0c3-e3bb-40a8-a579-84b04dae69fb",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-006"
+    },
+    "QRY-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:7f656bbb-7901-4f4d-ac9a-04519f2b6cc3",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-007"
+    },
+    "QRY-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9fa4958e-4bb4-4666-a655-6499d6201386",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-008"
+    },
+    "QRY-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8e2bacc6-67c1-4ba6-8bb4-c6f21869c026",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-009"
+    },
+    "QRY-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:be21a6b0-4451-41cd-90cb-8405833cf29e",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-010"
+    },
+    "QRY-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:49263293-3070-4505-abbe-9f3719ed7662",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-011"
+    },
+    "QRY-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e8e76584-07d8-4170-b26e-06d1812c6a75",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-012"
+    },
+    "QRY-013": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:99cdf12b-c128-4dd0-ac7e-3de6080041ea",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung QRY-013"
+    },
+    "RES-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01327c79-efa7-43b1-b5dd-a5f011ae5755",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-001"
+    },
+    "RES-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:26c098e4-8677-447f-b022-0eb688f0dcd3",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-002"
+    },
+    "RES-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3de7ec5e-7283-4ba7-939d-d168df0b3840",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-003"
+    },
+    "RES-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:5e5d174a-64b3-4613-9d30-c57967159d96",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-004"
+    },
+    "RES-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4c7c8906-104a-41b9-823b-c7500543ed5b",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-005"
+    },
+    "RES-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:260877e2-4c19-4c27-b2d1-a16fec7bbfb9",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-006"
+    },
+    "RES-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:befb64a1-a146-435c-bad1-0c8120c28de4",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung RES-007"
+    },
+    "STL-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b04c442f-22c6-4e0d-8fba-3f5e06109334",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-001"
+    },
+    "STL-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3376dddd-d738-4d88-87f6-429c31217bd1",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-002"
+    },
+    "STL-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a4da7740-018b-43e2-aed0-6ffd3b497a6e",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-003"
+    },
+    "STL-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:37a8da24-fcc2-4aef-96aa-15c3d7a67cd3",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-004"
+    },
+    "STL-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:49c4962f-8c7c-4444-9ed7-e3d382379d22",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-005"
+    },
+    "STL-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ecd52c32-896c-49a5-96bc-38864c9cb5c1",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-006"
+    },
+    "STL-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ccc26ec8-1f40-415d-a526-b467326195de",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-007"
+    },
+    "STL-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:009b740a-1ac5-410e-b7c4-751ed4ca2b9e",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-008"
+    },
+    "STL-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3f95bd57-342f-468b-9933-9ab2d1ca95cf",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-009"
+    },
+    "STL-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4f2ceebc-2d30-4ef9-a314-79eac6712c01",
+      "external_refs": [],
+      "kind": "storage_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung STL-010"
+    },
+    "TST-001": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:24cb2693-7df4-499b-addb-f210d43fff6a",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-001"
+    },
+    "TST-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b3dd10ea-efef-4960-894d-70b71a45254a",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-002"
+    },
+    "TST-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:cfd72ce9-3e5a-4261-9e4d-acf2927d9a0d",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-003"
+    },
+    "TST-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:20bfd985-54c9-4957-beaa-88996e04ea24",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-004"
+    },
+    "TST-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:805f03d4-ad47-43c0-a3ec-3562b248d21a",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-005"
+    },
+    "TST-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1636d90a-6f43-4544-b23a-4d83f7fbe6ce",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-006"
+    },
+    "TST-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:76c184dc-302c-4044-98ea-25e543544ee7",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-007"
+    },
+    "TST-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8b853af8-1f17-405d-8974-a3c77dacf3c3",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-008"
+    },
+    "TST-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:6e69c0b5-9d19-4f93-adb1-a5355f63b9e3",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-009"
+    },
+    "TST-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:69d7be9b-9f93-4459-b778-b557df8dcb99",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-010"
+    },
+    "TST-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8e1198ba-ec57-4f6b-9019-9d120f23bcb4",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-011"
+    },
+    "TST-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4d26b6d4-5f5c-4697-a5bd-4501e1c55024",
+      "external_refs": [],
+      "kind": "test_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Historische Kennung TST-012"
+    }
+  },
+  "prefixes": {
     "ADV": {
       "kind": "advanced_work_item",
-      "next_sequence": 12,
-      "width": 3
-    },
-    "PRS": {
-      "kind": "presentation_work_item",
-      "next_sequence": 14,
-      "width": 3
-    },
-    "TST": {
-      "kind": "test_work_item",
-      "next_sequence": 13,
-      "width": 3
-    },
-    "LABSCN": {
-      "kind": "lab_scenario_work_item",
-      "next_sequence": 7,
-      "width": 3
-    },
-    "LABINT": {
-      "kind": "lab_integration_work_item",
-      "next_sequence": 5,
-      "width": 3
-    },
-    "STL": {
-      "kind": "storage_demo",
-      "next_sequence": 11,
-      "width": 3
-    },
-    "OPT": {
-      "kind": "optimizer_demo",
-      "next_sequence": 18,
-      "width": 3
-    },
-    "QRY": {
-      "kind": "query_pattern_demo",
-      "next_sequence": 14,
-      "width": 3
-    },
-    "IDX": {
-      "kind": "index_demo",
-      "next_sequence": 11,
       "width": 3
     },
     "CON": {
       "kind": "concurrency_demo",
-      "next_sequence": 10,
       "width": 3
     },
-    "RES": {
-      "kind": "resource_demo",
-      "next_sequence": 8,
+    "CUR": {
+      "kind": "curriculum_work_item",
+      "width": 3
+    },
+    "DEC": {
+      "kind": "decision",
       "width": 3
     },
     "DGN": {
       "kind": "diagnostic_demo",
-      "next_sequence": 8,
+      "width": 3
+    },
+    "FWK": {
+      "kind": "framework_work_item",
+      "width": 3
+    },
+    "IDX": {
+      "kind": "index_demo",
       "width": 3
     },
     "INF": {
       "kind": "infrastructure_work_item",
-      "next_sequence": 7,
+      "width": 3
+    },
+    "LABINT": {
+      "kind": "lab_integration_work_item",
+      "width": 3
+    },
+    "LABSCN": {
+      "kind": "lab_scenario_work_item",
+      "width": 3
+    },
+    "OPT": {
+      "kind": "optimizer_demo",
+      "width": 3
+    },
+    "PRS": {
+      "kind": "presentation_work_item",
+      "width": 3
+    },
+    "QRY": {
+      "kind": "query_pattern_demo",
+      "width": 3
+    },
+    "RES": {
+      "kind": "resource_demo",
+      "width": 3
+    },
+    "STL": {
+      "kind": "storage_demo",
+      "width": 3
+    },
+    "TSK": {
+      "kind": "task",
+      "width": 3
+    },
+    "TST": {
+      "kind": "test_work_item",
       "width": 3
     }
   },
-  "allocations": {
-    "DEC-061": "urn:uuid:01a03379-e43c-7fbc-8b44-fb156fb2c205"
-  }
+  "profile": "foundation-artifact-registry/v2",
+  "schema_version": 2
 }
