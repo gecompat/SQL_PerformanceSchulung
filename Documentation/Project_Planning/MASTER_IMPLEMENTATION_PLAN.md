@@ -631,7 +631,7 @@ Jede Arbeitsübergabe enthält mindestens:
 | Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 offen |
 | Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
 | Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; ein Delta-Review für relevante SQL-Server-2025-Funktionen ist als nächste Welle geplant |
-| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist bevorzugter grüner Vertical Slice |
+| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist bevorzugter gelber, isolationspflichtiger Vertical Slice |
 | Aktuelle Priorität | `QRY-004`-Runner-Konflikt beheben und die 2019/2022/2025-Matrix erneut nachweisen |
 | Danach | Query-Store-/Extended-Events-Pilot, `CON-004` als interaktiver Vertical Slice, `OPT-017`, Quellen-Delta-Review und Lehrmittel-Renderprüfung |
 | Teststatus | statische Validatoren, neun Unit-Tests und Privacy-Scan am 2026-08-24 lokal erfolgreich; Runtime-Evidenz und offene Restrisiken in `CURRENT_EXECUTION_STATUS.md` |

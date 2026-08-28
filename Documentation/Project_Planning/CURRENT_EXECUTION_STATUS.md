@@ -42,7 +42,7 @@ Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nach
 - Die automatisierte Matrix ist ein Qualitätssicherungsinstrument und kein Ersatz für den Benutzerworkflow.
 - Änderungen an `SQL_Server_Lab` benötigen eine konkret nachgewiesene fehlende Fähigkeit und ausdrückliche Freigabe.
 
-`LABSCN-002` hat Inventar und Definitionsschema für die ersten drei Wellen geliefert. Der nächste geeignete grüne Vertical Slice ist `CON-004`; der vollständige Lifecycle bleibt erst mit `LABSCN-003` fällig.
+`LABSCN-002` hat Inventar und Definitionsschema für die ersten drei Wellen geliefert. Der nächste geeignete Vertical Slice ist `CON-004`; er ist verbindlich `YELLOW` und benötigt eine isolierte Wegwerfumgebung. Der vollständige Lifecycle bleibt erst mit `LABSCN-003` fällig.
 
 ```text
 Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
@@ -69,7 +69,7 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
 
 1. `QRY-004`-Runner-Konflikt korrigieren und Matrix erneut validieren.
 2. Query-Store-/Extended-Events-Pilot (`DGN-003`/`DGN-005`) als belastbare Evidenz für diagnoseabhängige Schnitte aufbauen.
-3. `CON-004` als grünen interaktiven Vertical Slice umsetzen.
+3. `CON-004` als gelben, isolationspflichtigen interaktiven Vertical Slice umsetzen.
 4. `OPT-017` getrennt implementieren und validieren.
 5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
 6. `PRS-012`/`TST-011` sowie danach `PRS-013`/`TST-012` inklusive visueller Renderprüfung abschließen.

@@ -251,13 +251,13 @@ Ein Schulungsszenario gilt erst als vollständig, wenn folgende Artefakte vorhan
 |---|---:|---|---|---|
 | `LABSCN-001` | P0 | Ziel, Verantwortungsgrenze und Lebenszyklus interaktiver Schulungsszenarien festlegen | bestehende Demo- und Lab-Verträge | diese Architekturentscheidung ist im Repository verankert |
 | `LABSCN-002` | P0 | Szenarioinventar und Schema für Szenariodefinitionen erstellen | `LABSCN-001` | jedes bestehende und geplante Beispiel ist als interaktiv geeignet, nur automatisiert prüfbar oder nicht anwendbar klassifiziert |
-| `LABSCN-003` | P0 | ersten vollständigen Vertical Slice umsetzen | `LABSCN-002` | ein grünes Beispiel kann über `SQL_Server_Lab` aufgebaut, vorbereitet, interaktiv genutzt, zurückgesetzt und entfernt werden |
+| `LABSCN-003` | P0 | ersten vollständigen Vertical Slice umsetzen | `LABSCN-002` | das gelbe, isolationspflichtige Szenario `CON-004` kann über `SQL_Server_Lab` aufgebaut, vorbereitet, interaktiv genutzt, zurückgesetzt und entfernt werden |
 | `LABSCN-004` | P1 | Benutzerbedienung und How-to standardisieren | `LABSCN-003` | Auswahl, Start, Übergabe, Reset und Remove sind dokumentiert und praktisch geprüft |
 | `LABSCN-005` | P1 | weitere Container- und Hyper-V-Szenarien umsetzen | `LABSCN-003` | geeignete Beispiele besitzen reproduzierbare Providerprofile |
 | `LABSCN-006` | P2 | gemischte Topologien umsetzen | konkretes Beispiel mit nachgewiesenem Bedarf | mindestens ein fachlich begründetes Mischszenario ist vollständig reproduzierbar |
 
 ## 11. Nächster Umsetzungsschritt
 
-Als nächster Schritt wird unter `LABSCN-002` das vorhandene und geplante Demo-Inventar klassifiziert. Danach wird für ein geeignetes grünes Beispiel ein vollständiger Vertical Slice umgesetzt. Die Umgebung bleibt nach der Vorbereitung für den Benutzer verfügbar und wird nicht durch den Testlauf automatisch entfernt.
+`LABSCN-002` hat `CON-004` als ersten vollständigen Vertical Slice ausgewählt. Das Szenario ist `YELLOW` und benötigt deshalb eine isolierte Wegwerfumgebung. Die Umgebung bleibt nach der Vorbereitung für den Benutzer verfügbar und wird nicht durch den Testlauf automatisch entfernt.
 
 Zusätzliche Funktionalität in `SQL_Server_Lab` wird nur verlangt, wenn die konkrete Szenariodefinition mit den vorhandenen Lab-Funktionen nicht realisierbar ist. Die fehlende Fähigkeit wird dann vor jeder Änderung im Lab-Repository ausdrücklich benannt.
