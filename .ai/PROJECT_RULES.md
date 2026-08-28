@@ -9,7 +9,8 @@
 ## AI Repository Foundation
 
 - Der kanonische Einstieg für KI-gestützte Arbeit ist [`../AGENTS.md`](../AGENTS.md).
-- Die unter `.ai/foundation/` versionierte Foundation `1.4.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
+- Die unter `.ai/foundation/` versionierte Foundation `1.7.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
+- Die vollständige semantische Bewertung des Upgrades von `1.4.0` auf `1.7.0` steht in [`FOUNDATION_UPGRADE_1_7_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_7_0_ASSESSMENT.json). Die bestehende Registry im Profil `foundation-artifact-registry/v1` bleibt bis zu einer ausdrücklichen Migrationsentscheidung die projektführende Registrierungsautorität.
 - Die bestehende Lesereihenfolge aus [`README.md`](README.md) bleibt für Projektfakten, Fachregeln, Architektur, Entscheidungen, Status und konkrete Validierung verbindlich.
 - Datenschutz und Neutralisierung sind gegenüber der Foundation `PROJECT_STRONGER`. Sprache, Git-Workflow und KI-Commit-Kennzeichnung sind `PROJECT_SELECTABLE_OVERRIDE`. Die detaillierten Modell-, Validierungs- und SQL-Server-Regeln gelten `COMPLEMENTARY` zur Foundation.
 - Für KI-gestützte Git-Änderungen gilt `branch_and_pr`: `main` bleibt stabil; Änderungen erfolgen auf einem thematisch kleinen Branch und werden vor dem Merge relevant validiert.

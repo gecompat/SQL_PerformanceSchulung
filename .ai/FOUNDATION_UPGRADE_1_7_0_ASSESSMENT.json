@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.4.0",
+  "source_version": "1.7.0",
+  "source_ref": "d49f978f33001fcc098998ff7c04ffb209b28033",
+  "assessments": [
+    {
+      "feature_id": "artifact-registration",
+      "candidate_reasons": [
+        "material_change:1.6.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/IDENTIFIER_REGISTRATION.md defines one project Registration Authority for humans and AI.",
+        ".ai/identity/registry.json uses the compatible foundation-artifact-registry/v1 profile.",
+        "The selected artifact-registration-clients capability remains contract-equivalent and unchanged."
+      ],
+      "rationale": "The existing v1 authority preserves unique final references, registry revisions, DIRECT/DEFERRED allocation, and shared human/AI use. Foundation 1.7 explicitly retains v1 as a compatible legacy profile.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "artifact-registration-clients"
+      ]
+    },
+    {
+      "feature_id": "central-artifact-registry",
+      "candidate_reasons": [
+        "introduced_in:1.6.0"
+      ],
+      "classification": "RECOMMENDED",
+      "evidence": [
+        ".ai/identity/registry.json is a repository-native v1 allocation registry.",
+        ".ai/identity/artifacts contains split artifact records.",
+        ".ai/PROJECT_RULES.md selects branch_and_pr for AI-assisted Git changes."
+      ],
+      "rationale": "A central v2 registry could reduce split-state and concurrent-merge risks, but migrating the established Registration Authority is a project-selectable durable change and is not authorized by the Foundation upgrade alone.",
+      "recommendation": "Evaluate an explicit migration to foundation-artifact-registry/v2, including object-level merge validation, preserved historical mappings, recovery, and optional GitHub preflight gates.",
+      "decision_required": "Adopting v2 or the artifact-registry-github capability requires a separate project decision and migration plan.",
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "layered-validation",
+      "candidate_reasons": [
+        "material_change:1.7.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md already separates FOUNDATION_INTEGRITY, PROJECT_SEMANTIC, and RUNTIME_EMPIRICAL.",
+        "Tests/README.md documents project-specific static and runtime validation."
+      ],
+      "rationale": "Foundation 1.7 adds portable LF/CRLF comparison and truthful validation-infrastructure availability states without weakening project-specific validators.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "repository-continuity-break-glass",
+      "candidate_reasons": [
+        "introduced_in:1.7.0"
+      ],
+      "classification": "NOT_APPLICABLE",
+      "evidence": [
+        "GitHub branch-protection inspection for main returned Branch not protected on 2026-08-28.",
+        "GitHub repository-ruleset inspection returned an empty ruleset list on 2026-08-28.",
+        ".github/workflows contains CI workflows, but repository-side required-check enforcement is not configured."
+      ],
+      "rationale": "No mandatory external status check currently blocks updates to the durable repository channel, so a break-glass bypass path would not address an existing availability dependency.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-integration",
+      "candidate_reasons": [
+        "material_change:1.5.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "AGENTS.md keeps Foundation and project-specific governance transitively discoverable.",
+        ".ai/PROJECT_RULES.md records PROJECT_STRONGER, PROJECT_SELECTABLE_OVERRIDE, and COMPLEMENTARY overlaps.",
+        "The project-specific AGENTS.md section and thin tool adapters remain unchanged."
+      ],
+      "rationale": "The complete feature-delta requirement can be added while preserving the existing semantic integration and project-owned governance.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-upgrade-applicability",
+      "candidate_reasons": [
+        "introduced_in:1.5.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "The source feature catalog produced six candidates for the 1.4.0 to 1.7.0 interval.",
+        "This assessment records exactly one classification for every candidate."
+      ],
+      "rationale": "The mandatory complete feature-delta assessment is backward-compatible and is recorded through the transferred schema contract.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}
