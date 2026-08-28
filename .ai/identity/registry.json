@@ -846,6 +846,20 @@
       "relations": [],
       "title": "Zentrale Artefakt-Registry v2 aktivieren"
     },
+    "DEC-063": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:217b7d38-1966-4b2d-accd-3558a93f167e",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-062",
+          "type": "depends_on"
+        }
+      ],
+      "title": "GitHub-Regeln und Actions-Ausfallverfahren aktivieren"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

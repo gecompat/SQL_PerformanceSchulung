@@ -24,7 +24,7 @@ WORKFLOW_PATH = ROOT / ".github" / "workflows" / "artifact-registry-integrity.ym
 
 PRESERVED_MAX_SEQUENCE = {
     "TSK": 0,
-    "DEC": 62,
+    "DEC": 63,
     "FWK": 12,
     "CUR": 12,
     "ADV": 11,
@@ -45,6 +45,7 @@ PRESERVED_MAX_SEQUENCE = {
 PRESERVED_UIDS = {
     "DEC-061": "urn:uuid:01a03379-e43c-7fbc-8b44-fb156fb2c205",
     "DEC-062": "urn:uuid:01a0499c-af28-7779-bb1c-1b70e49597a3",
+    "DEC-063": "urn:uuid:217b7d38-1966-4b2d-accd-3558a93f167e",
 }
 
 

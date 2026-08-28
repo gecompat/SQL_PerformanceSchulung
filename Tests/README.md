@@ -21,6 +21,14 @@ python Tests/Static/validate_identifier_registration.py
 
 Die Prüfung sichert die zentrale Registry im Profil `foundation-artifact-registry/v2`, die vollständige Übernahme der 211 historischen Kennungen, die unveränderten UUID-Zuordnungen von `DEC-061` und `DEC-062`, die `TSK-###`-Nomenklatur sowie die Regel, dass neue Wellen nicht als Kennungen alloziert werden. Sie verbietet v1-Zähler, Revisionsfelder und getrennte Artefaktdatensätze. Als `PROJECT_SEMANTIC`-Prüfung ergänzt sie das Foundation-Semantiktool und die Foundation-Integritätsprüfung.
 
+## Repository-Kontinuität
+
+```bash
+python Tests/Static/validate_repository_continuity.py
+```
+
+Die Prüfung sichert `DEC-063`, die geschichteten Ruleset-Verträge, den ausschließlich Pull-Request-basierten Actions-Ausfallpfad, die Pflichtfelder der Auditspur und den automatischen Workflow `repository-governance`. Sie prüft Repository-Inhalte; die tatsächlichen GitHub-Rulesets werden zusätzlich über die GitHub API verifiziert.
+
 ## Curriculum- und Privacy-Prüfung
 
 Der Workflow `.github/workflows/privacy-metadata.yml` startet keinen SQL Server und führt aus:

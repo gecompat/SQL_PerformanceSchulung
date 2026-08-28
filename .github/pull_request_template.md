@@ -22,3 +22,15 @@
 ## Sicherheitsstufe
 
 <!-- Grün, Gelb oder Rot; bei Gelb/Rot Abbruch- und Rücksetzbedingungen angeben. -->
+
+## Actions-Ausfall / Break-glass
+
+- [ ] Nicht verwendet
+- [ ] `INFRASTRUCTURE_UNAVAILABLE` nach `.ai/REPOSITORY_CONTINUITY.md` belegt
+- Betroffene erforderliche Checks:
+- GitHub-Status/Fehlerbild und beobachteter Zeitraum:
+- Lokal ausgeführte Prüfungen und Ergebnisse:
+- Nicht lokal reproduzierbare Prüfungen:
+- Restrisiko:
+- Autorisierung des Bypass:
+- Verpflichtende Nachprüfung nach Wiederherstellung:

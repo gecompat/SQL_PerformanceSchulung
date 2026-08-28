@@ -7,12 +7,13 @@ Dieser Ordner enthält den verbindlichen, maschinenlesbaren Arbeitskontext für 
 
 1. `PROJECT_CONTEXT.md`
 2. `PROJECT_RULES.md`
-3. `IDENTIFIER_REGISTRATION.md`
-4. `DECISIONS.md`
-5. `DEMO_CONTRACT.md`
-6. `ROADMAP.md`
-7. [`../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md`](../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
-8. `BACKLOG.md`
+3. `REPOSITORY_CONTINUITY.md`
+4. `IDENTIFIER_REGISTRATION.md`
+5. `DECISIONS.md`
+6. `DEMO_CONTRACT.md`
+7. `ROADMAP.md`
+8. [`../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md`](../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
+9. `BACKLOG.md`
 
 ## Geltungsbereich
 

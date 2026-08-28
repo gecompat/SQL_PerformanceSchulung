@@ -14,6 +14,7 @@
 - Die bestehende Lesereihenfolge aus [`README.md`](README.md) bleibt für Projektfakten, Fachregeln, Architektur, Entscheidungen, Status und konkrete Validierung verbindlich.
 - Datenschutz und Neutralisierung sind gegenüber der Foundation `PROJECT_STRONGER`. Sprache, Git-Workflow und KI-Commit-Kennzeichnung sind `PROJECT_SELECTABLE_OVERRIDE`. Die detaillierten Modell-, Validierungs- und SQL-Server-Regeln gelten `COMPLEMENTARY` zur Foundation.
 - Für KI-gestützte Git-Änderungen gilt `branch_and_pr`: `main` bleibt stabil; Änderungen erfolgen auf einem thematisch kleinen Branch und werden vor dem Merge relevant validiert.
+- `DEC-063` und [`REPOSITORY_CONTINUITY.md`](REPOSITORY_CONTINUITY.md) wählen geschichtete GitHub-Rulesets: nicht umgehbare Core-Safety-Regeln und separate CI-Gates. Der CI-Bypass ist ausschließlich `gecompat`, nur über Pull Requests und nur für belegtes `INFRASTRUCTURE_UNAVAILABLE` zulässig; `VALIDATION_FAILURE` und `UNKNOWN` dürfen nicht umgangen werden.
 - Tool-spezifische Adapter dienen ausschließlich der Auffindbarkeit von `AGENTS.md` und enthalten keine parallelen Projektregeln.
 
 ## Stabile Kennungen und Wellenplanung

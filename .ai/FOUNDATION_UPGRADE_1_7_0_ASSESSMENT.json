@@ -60,13 +60,13 @@
       "candidate_reasons": [
         "introduced_in:1.7.0"
       ],
-      "classification": "NOT_APPLICABLE",
+      "classification": "APPLY_DEFAULT",
       "evidence": [
-        "GitHub branch-protection inspection for main returned Branch not protected on 2026-08-28.",
-        "GitHub repository-ruleset inspection returned an empty ruleset list on 2026-08-28.",
-        ".github/workflows contains CI workflows, but repository-side required-check enforcement is not configured."
+        "DEC-063 explicitly selects layered GitHub rulesets and a pull-request-only outage bypass.",
+        ".ai/REPOSITORY_CONTINUITY.md defines classification, evidence, authorization, residual-risk, and recovery requirements.",
+        ".github/pull_request_template.md captures the mandatory break-glass audit record in the pull request."
       ],
-      "rationale": "No mandatory external status check currently blocks updates to the durable repository channel, so a break-glass bypass path would not address an existing availability dependency.",
+      "rationale": "Required automated registry and governance checks improve integrity but make GitHub Actions an availability dependency. Layered rulesets preserve non-bypassable core safety while allowing one explicitly authorized actor to bypass only unavailable CI through an auditable pull request.",
       "recommendation": null,
       "decision_required": null,
       "selected_capabilities": []
