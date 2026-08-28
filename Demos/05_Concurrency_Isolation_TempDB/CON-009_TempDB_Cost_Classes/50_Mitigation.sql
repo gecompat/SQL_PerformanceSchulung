@@ -1,0 +1,1 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;SELECT N'Query-/Indexdesign und Lebensdauer temporaerer Objekte sind die hier scopegebundenen Stellhebel; keine Instanzoption wird geaendert.' Mitigation;PRINT 'SQLPERF_SUMMARY|PASS|OK';

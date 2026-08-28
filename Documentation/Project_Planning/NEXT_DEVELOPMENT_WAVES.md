@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-28 |
+| Stand | 2026-08-29 |
 | Ausgangsstand | `c75d7a25e966d28abeb8225779e7cc48939159fe` auf `origin/main` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
@@ -37,7 +37,7 @@
 | `W-ADV-017` | `IMPLEMENTED` | Demo, Runner und Workflow liegen vor; die zweifache Parallelitätsmatrix bleibt offen. |
 | `W-SQL25-001` | `VALIDATED` | Quellen-, Claim- und Entscheidungsgrundlage ist abgeschlossen; daraus folgt keine neue Featuredemo. |
 | `W-PRS-001` | `VALIDATED` | 102 SlideKeys, drei Custom Shows, Build 41/66/102 und vollständige Master-/Profilrender liegen vor. |
-| `W-COV-001` | `PROPOSED` | Nächste Entwicklungswelle; jede Demo bleibt ein eigener Schnitt. |
+| `W-COV-001` | `PARTIAL` | Acht Demos sind nach je zwei 2019/2022/2025-Läufen validiert; `CON-009` bleibt wegen fehlender interner Task-Allokation auf SQL Server 2019 `IMPLEMENTED`. |
 
 ## 3. SQL-Server-2025-Delta: Prüfreihenfolge, keine Vorabzusage
 
@@ -69,6 +69,6 @@ Renderprüfung -> Gate V4
 - Keine Änderung an `SQL_Server_Lab` ohne dokumentierte Fähigkeitslücke und ausdrückliche Freigabe.
 - Keine Statusanhebung aus statischem Testbestand allein; Runtime-Status benötigt einen konkreten Laufnachweis.
 
-## 5. Empfohlener Start
+## 5. Nächster belegpflichtiger Schritt
 
-Mit `W-STA-001` beginnen. Er beseitigt den einzigen widersprüchlichen Runtime-Nachweis, reduziert das Risiko für die Folienendfreigabe und schafft eine verlässliche Grundlage für den Diagnosepilot.
+Die Entwicklungsfolge ist implementiert. Als nächster W-COV-Schritt ist `CON-009` auf SQL Server 2019 evidenzseitig zu stabilisieren; daneben bleiben die Runtime- und interaktiven Evidenzmatrizen früherer Wellen offen. Kein `IMPLEMENTED`-Eintrag wird allein aufgrund statischer Ergebnisse auf `VALIDATED` gesetzt.
