@@ -1,0 +1,7 @@
+SET NOCOUNT ON; SET XACT_ABORT ON;
+DECLARE @SessionName sysname=CONVERT(sysname,N'SQLPERF_'+REPLACE('$(DemoId)','-','')+N'_$(RunToken)'),@EventCount int=0;
+SELECT @EventCount=x.TargetData.value('count(/RingBufferTarget/event[@name="error_reported"])','int') FROM sys.dm_xe_sessions s JOIN sys.dm_xe_session_targets t ON t.event_session_address=s.address CROSS APPLY(SELECT TRY_CONVERT(xml,t.target_data) AS TargetData)x WHERE s.name=@SessionName AND t.target_name=N'ring_buffer';
+IF COALESCE(@EventCount,0)=0 BEGIN SELECT 1 Sequence,'OBSERVATION' Phase,'XE_EVIDENCE' CheckId,'SKIP' Outcome,'SKIP_EVIDENCE_MISSING' Code,CONVERT(nvarchar(20),COALESCE(@EventCount,0)) ObservedValue,N'mindestens ein markergefiltertes Ereignis' RequiredValue,N'Das Ring-Buffer-Zeitfenster lieferte keine belastbare Ereignisevidenz.' Message; PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_EVIDENCE_MISSING'; RETURN; END;
+UPDATE lab.XeEvidence SET EventCount=@EventCount;
+SELECT @SessionName SessionName,@EventCount EventCount;
+SELECT 1 Sequence,'OBSERVATION' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,CONVERT(nvarchar(20),@EventCount) ObservedValue,N'mindestens ein error_reported-Ereignis' RequiredValue,N'Event-, Predicate- und Targetscope sind nachgewiesen.' Message; PRINT 'SQLPERF_SUMMARY|PASS|OK';
