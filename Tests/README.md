@@ -112,7 +112,7 @@ Geprüft werden:
 - Sessionzahl und erforderliche Capabilities;
 - explizite Safety-Bestätigung für gelbe und rote Lanes;
 - vollständiger Cleanup-Vertrag im Demo-Manifest;
-- Vollständigkeit der aktuellen 96 Läufe umfassenden Container-Gesamtmatrix;
+- Vollständigkeit der aktuellen 144 Läufe umfassenden Container-Gesamtmatrix;
 - Verbot von Secrets, realen Hostfeldern und absoluten Pfaden im Katalog.
 
 `LABINT-001` validiert nur Architektur und Katalog. Ein realer Docker-/Podman-Lauf über `SQL_Server_Lab` folgt erst mit `LABINT-002`.
@@ -360,6 +360,21 @@ Details stehen unter [`Tests/Runtime`](Runtime/README.md), [`Tests/Lab`](Lab/REA
 - Fehlt `sqlcmd`, wird dies als `SKIP_TOOL_MISSING` und nicht als SQL-Server-Fehler behandelt.
 
 ## Nächste Prüfbereiche
+
+## W-DGN-001 – Query-Store-/Extended-Events-Piloten
+
+Die statische Prüfung läuft mit:
+
+```bash
+python Tests/Static/validate_dgn003_dgn005_pilots.py
+python Tests/Static/validate_privacy_metadata.py .
+```
+
+Der Workflow `.github/workflows/dgn003-dgn005-pilots.yml` führt `DGN-003` und
+`DGN-005` auf SQL Server 2019, 2022 und 2025 jeweils zweimal aus. Akzeptierte
+Warnungen und kontrollierte Skips bleiben in `DGN_STAGE` und `DGN_SUMMARY`
+sichtbar. Der Status bleibt bis zu einem vollständigen Matrixnachweis
+`IMPLEMENTED`.
 
 - `LABINT-002`: grüner lokaler Runner über `SQL_Server_Lab`;
 - `QRY-013` und `QRY-004` auf SQL Server 2019, 2022 und 2025;

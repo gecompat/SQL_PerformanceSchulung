@@ -177,6 +177,34 @@
       "instanceRequirement": "DISPOSABLE_INSTANCE",
       "rationale": "Four client sessions against one isolated instance produce the blocking chain; the participant can start them manually in four windows. Held locks make the instance unusable for unrelated work during the run.",
       "escalation": null
+    },
+    {
+      "demoId": "DGN-003",
+      "title": "Query Store History",
+      "path": "Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History",
+      "manifest": "Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Query Store is enabled only in the marker-owned synthetic database and is removed with that database after the history has been observed.",
+      "escalation": null
+    },
+    {
+      "demoId": "DGN-005",
+      "title": "Bounded Extended Events Evidence",
+      "path": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events",
+      "manifest": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "stage": 2,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "The server-scoped event session is marker-filtered, memory-bounded and reversible, but an isolated disposable instance prevents interference with unrelated event-session administration.",
+      "escalation": null
     }
   ]
 }

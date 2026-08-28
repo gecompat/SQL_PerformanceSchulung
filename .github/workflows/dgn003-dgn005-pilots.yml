@@ -1,0 +1,78 @@
+name: DGN-003 and DGN-005 pilots
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/07_Query_Store_Extended_Events/**'
+      - 'Tests/Static/validate_dgn003_dgn005_pilots.py'
+      - 'Tests/Runtime/run_dgn003_dgn005_pilots.py'
+      - '.github/workflows/dgn003-dgn005-pilots.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/07_Query_Store_Extended_Events/**'
+      - 'Tests/Static/validate_dgn003_dgn005_pilots.py'
+      - 'Tests/Runtime/run_dgn003_dgn005_pilots.py'
+      - '.github/workflows/dgn003-dgn005-pilots.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/validate_dgn003_dgn005_pilots.py
+      - run: python Tests/Static/validate_privacy_metadata.py .
+  runtime:
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {year: 2019, major: 15, image: 'mcr.microsoft.com/mssql/server:2019-latest'}
+          - {year: 2022, major: 16, image: 'mcr.microsoft.com/mssql/server:2022-latest'}
+          - {year: 2025, major: 17, image: 'mcr.microsoft.com/mssql/server:2025-latest'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Start SQL Server container
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Dgn"
+          container="sqlperf-dgn-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          docker run --name "${container}" --hostname "${container}" -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" -d '${{ matrix.image }}'
+          for attempt in $(seq 1 90); do docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections' && exit 0; sleep 2; done
+          docker logs "${container}" 2>&1
+          exit 1
+      - name: Run pilots twice
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
+          python Tests/Runtime/run_dgn003_dgn005_pilots.py --target docker --container "${SQLPERF_SQL_CONTAINER}" --expected-major '${{ matrix.major }}' 2>&1 | tee "${RUNNER_TEMP}/dgn-${{ matrix.major }}.log"
+          exit "${PIPESTATUS[0]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dgn-pilots-${{ matrix.year }}-diagnostic
+          path: ${{ runner.temp }}/dgn-${{ matrix.major }}.log
+          retention-days: 3
+      - name: Remove container
+        if: always()
+        shell: bash
+        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true

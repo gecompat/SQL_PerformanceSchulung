@@ -1,0 +1,11 @@
+SET NOCOUNT ON; SET XACT_ABORT ON;
+CREATE TABLE #Result(Id int NOT NULL,GroupId int NOT NULL);
+DECLARE @i int=0;
+WHILE @i<8 BEGIN INSERT #Result EXEC lab.usp_Dgn003Search @GroupId=99; TRUNCATE TABLE #Result; SET @i+=1; END;
+INSERT #Result EXEC lab.usp_Dgn003Search @GroupId=99;
+DECLARE @Rows bigint=(SELECT COUNT_BIG(*) FROM #Result),@Checksum int=(SELECT CHECKSUM_AGG(BINARY_CHECKSUM(Id,GroupId)) FROM #Result);
+IF @Rows=0 THROW 51006,'FAIL_RESULT_CONTRACT: DGN-003-Baseline besitzt keine Ergebniszeilen.',1;
+INSERT lab.QueryStoreEvidence(Phase,RowCount,ChecksumValue) VALUES('BASELINE',@Rows,@Checksum);
+EXEC sys.sp_query_store_flush_db;
+SELECT 1 Sequence,'BASELINE' Phase,'SUMMARY' CheckId,'PASS' Outcome,'OK' Code,CONCAT(N'Rows=',@Rows,N'; Checksum=',@Checksum) ObservedValue,N'selektiver synthetischer Suchlauf' RequiredValue,N'Die Baseline wurde Query Store zur Erfassung angeboten.' Message;
+PRINT 'SQLPERF_SUMMARY|PASS|OK';

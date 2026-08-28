@@ -187,6 +187,34 @@
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
       "expectedOutcomes": ["PASS", "WARN", "SKIP"],
       "defaultRepetitions": 2
+    },
+    {
+      "demoId": "DGN-003",
+      "manifest": "Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "QUERY_STORE"],
+      "expectedOutcomes": ["PASS", "WARN", "SKIP"],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "DGN-005",
+      "manifest": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "standard",
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "EXTENDED_EVENTS"],
+      "expectedOutcomes": ["PASS", "SKIP"],
+      "defaultRepetitions": 2
     }
   ]
 }
