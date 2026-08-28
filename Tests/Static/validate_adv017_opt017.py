@@ -28,7 +28,7 @@ def main() -> int:
         if manifest.get("timeout_seconds", 0) <= 0:
             findings.append("positive runtime budget missing")
     sql = "\n".join(path.read_text(encoding="utf-8") for path in DEMO.glob("*.sql")) if DEMO.is_dir() else ""
-    for marker in ("VisibleCpu", "SKIP_RESOURCE_PROFILE", "SKIP_EVIDENCE_MISSING", "WARN_EMPIRICAL_VARIANCE", "LAST_QUERY_PLAN_STATS", "DegreeOfParallelism", "Repartition Streams", "RunTimeCountersPerThread", "SkewRatio", "MAXDOP 4", "MAXDOP 1", "StopRequested", "SQLPERF.Project", "DROP DATABASE"):
+    for marker in ("VisibleCpu", "SKIP_RESOURCE_PROFILE", "SKIP_EVIDENCE_MISSING", "WARN_EMPIRICAL_VARIANCE", "LAST_QUERY_PLAN_STATS", "DegreeOfParallelism", "Repartition Streams", "RunTimeCountersPerThread", "SkewRatio", "MAXDOP 4", "MAXDOP 1", "[RowCount]", "StopRequested", "SQLPERF.Project", "DROP DATABASE"):
         if marker.lower() not in sql.lower():
             findings.append(f"SQL marker missing: {marker}")
     for forbidden in ("DBCC FREEPROCCACHE", "DBCC DROPCLEANBUFFERS", "sp_configure", "ALTER SERVER CONFIGURATION", "KILL "):
