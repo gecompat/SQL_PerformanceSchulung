@@ -205,6 +205,23 @@
       "instanceRequirement": "DISPOSABLE_INSTANCE",
       "rationale": "The server-scoped event session is marker-filtered, memory-bounded and reversible, but an isolated disposable instance prevents interference with unrelated event-session administration.",
       "escalation": null
+    },
+    {
+      "demoId": "OPT-017",
+      "title": "Parallel Plan Regions and Skew",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "stage": 3,
+      "executionPath": "CONTAINER",
+      "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "A fixed four-CPU and recommended eight-GB profile is needed for reproducible Actual-DOP, exchange and per-thread evidence.",
+      "escalation": {
+        "rejectedStage": 2,
+        "reason": "A T-SQL-only test database cannot guarantee the four visible schedulers and bounded resource profile required by the core claim."
+      }
     }
   ]
 }
