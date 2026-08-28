@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.4.0",
+  "source_version": "1.7.0",
+  "source_ref": "d49f978f33001fcc098998ff7c04ffb209b28033",
+  "assessments": [
+    {
+      "feature_id": "artifact-registration",
+      "candidate_reasons": [
+        "material_change:1.6.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/IDENTIFIER_REGISTRATION.md defines one central project Registration Authority for humans and AI.",
+        ".ai/identity/registry.json uses foundation-artifact-registry/v2 and contains every reference protected by the former v1 counters.",
+        "DEC-062 records the explicit v1-to-v2 migration and preserves the existing DEC-061 and DEC-062 UID mappings."
+      ],
+      "rationale": "The explicit v2 migration replaces split records and mutable counters with complete central records, derived allocation, and shared semantic validation for humans and AI.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "artifact-registry-github"
+      ]
+    },
+    {
+      "feature_id": "central-artifact-registry",
+      "candidate_reasons": [
+        "introduced_in:1.6.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "DEC-062 authorizes MIGRATE_EXPLICIT to foundation-artifact-registry/v2.",
+        ".ai/identity/MIGRATION_V1_TO_V2.md records collision checks, preservation rules, the 211 migrated records, and recovery.",
+        ".github/workflows/artifact-registry-integrity.yml validates open-PR collisions and object-level three-way merges."
+      ],
+      "rationale": "The project explicitly selected the central v2 registry and its GitHub capability. The migration preserves historical references while removing split-state and adding concurrency-aware validation.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "artifact-registry-github"
+      ]
+    },
+    {
+      "feature_id": "layered-validation",
+      "candidate_reasons": [
+        "material_change:1.7.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md already separates FOUNDATION_INTEGRITY, PROJECT_SEMANTIC, and RUNTIME_EMPIRICAL.",
+        "Tests/README.md documents project-specific static and runtime validation."
+      ],
+      "rationale": "Foundation 1.7 adds portable LF/CRLF comparison and truthful validation-infrastructure availability states without weakening project-specific validators.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "repository-continuity-break-glass",
+      "candidate_reasons": [
+        "introduced_in:1.7.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "DEC-063 explicitly selects the active GitHub rulesets Repository Core Safety (21754402) and Repository CI Gates (21754415) with a pull-request-only outage bypass for gecompat.",
+        ".ai/REPOSITORY_CONTINUITY.md defines classification, evidence, authorization, residual-risk, and recovery requirements.",
+        ".github/pull_request_template.md captures the mandatory break-glass audit record in the pull request."
+      ],
+      "rationale": "Required automated registry and governance checks improve integrity but make GitHub Actions an availability dependency. Layered rulesets preserve non-bypassable core safety while allowing one explicitly authorized actor to bypass only unavailable CI through an auditable pull request.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-integration",
+      "candidate_reasons": [
+        "material_change:1.5.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "AGENTS.md keeps Foundation and project-specific governance transitively discoverable.",
+        ".ai/PROJECT_RULES.md records PROJECT_STRONGER, PROJECT_SELECTABLE_OVERRIDE, and COMPLEMENTARY overlaps.",
+        "The project-specific AGENTS.md section and thin tool adapters remain unchanged."
+      ],
+      "rationale": "The complete feature-delta requirement can be added while preserving the existing semantic integration and project-owned governance.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-upgrade-applicability",
+      "candidate_reasons": [
+        "introduced_in:1.5.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "The source feature catalog produced six candidates for the 1.4.0 to 1.7.0 interval.",
+        "This assessment records exactly one classification for every candidate."
+      ],
+      "rationale": "The mandatory complete feature-delta assessment is backward-compatible and is recorded through the transferred schema contract.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}

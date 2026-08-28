@@ -1,0 +1,25 @@
+name: Repository Governance
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  repository-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate central registry semantics
+        run: >-
+          python .ai/foundation/artifact_registry_github/registry_semantic.py
+          validate --registry .ai/identity/registry.json
+      - name: Validate project identifier registration
+        run: python Tests/Static/validate_identifier_registration.py
+      - name: Validate repository continuity contract
+        run: python Tests/Static/validate_repository_continuity.py

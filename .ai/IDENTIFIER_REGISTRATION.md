@@ -2,30 +2,29 @@
 
 ## Zweck und Geltungsbereich
 
-Diese Datei ist die verbindliche Registrierungsautorität für neue allgemeine Tasks, Entscheidungen sowie Demo- und Arbeitspaket-Kennungen in `gecompat/SQL_PerformanceSchulung`. Sie ergänzt die projektführenden Regeln in `PROJECT_RULES.md` und die Foundation-Richtlinien unter `foundation/`.
+Diese Datei beschreibt die verbindliche Registrierungsautorität für neue allgemeine Tasks, Entscheidungen sowie Demo- und Arbeitspaket-Kennungen in `gecompat/SQL_PerformanceSchulung`. Sie ergänzt die projektführenden Regeln in `PROJECT_RULES.md` und die Foundation-Richtlinien unter `foundation/`.
 
-Sie gilt nicht rückwirkend: Alle vor ihrer Einführung veröffentlichten Kennungen werden im Modus `PRESERVE` beibehalten. Quellenkennungen verbleiben im bestehenden Quellenregister und dessen Pflegeprozess.
+`DEC-062` hat die zentrale Registry im Profil `foundation-artifact-registry/v2` ausdrücklich aktiviert. Alle zuvor veröffentlichten Kennungen bleiben im Modus `PRESERVE` unverändert und wurden als zentrale Datensätze übernommen. Quellenkennungen verbleiben im bestehenden Quellenregister und dessen Pflegeprozess.
 
 ## Autorität und Arbeitsablauf
 
-Die Autorität besteht aus dem versionierten Registry-Stand `.ai/identity/registry.json` und den mitgelieferten, versionierten Foundation-Clients:
+Die einzige Registrierungsautorität ist `.ai/identity/registry.json`. Sie enthält Präfixdefinitionen und vollständige Registrierungsdatensätze; die kanonische menschliche Referenz ist jeweils der Schlüssel unter `artifacts`. Fachliche Planungszustände und Artefaktinhalte bleiben in den dafür benannten Projektdateien maßgeblich.
 
-- PowerShell: `.ai/foundation/reference_clients/ArtifactReference.ps1`
-- Python: `.ai/foundation/reference_clients/artifact_reference.py`
+Das versionierte Foundation-Tool `.ai/foundation/artifact_registry_github/registry_semantic.py` validiert die Registry, leitet die nächste freie Referenz ab und berechnet objektbezogene Drei-Wege-Merges. Menschen und KI dürfen finale Kennungen weder aus dem Chat-Verlauf noch durch Suchen oder Zählen vorhandener Markdown-Dateien ableiten.
 
-Menschen und KI verwenden dieselbe Registry und dürfen finale Kennungen weder aus dem Chat-Verlauf noch durch Suchen oder Zählen vorhandener Markdown-Dateien ableiten. Jede finale Vergabe aktualisiert die `registry_revision` und legt einen zugehörigen Artefaktdatensatz unter `.ai/identity/artifacts/` an.
-
-Für eine serielle Vergabe wird `DIRECT` mit der erwarteten Revision verwendet. Bei parallelen Branches oder Offline-Arbeit wird zunächst `DEFERRED` verwendet; der Entwurf enthält nur seine UUID. Die finale Kennung wird erst beim zentralen Registrieren vergeben. Eine veraltete erwartete Revision ist ein Konflikt und wird erneut gegen die aktuelle Registry aufgelöst, nicht überschrieben.
-
-Beispiel für eine direkte Task-Vergabe aus dem Repository-Stamm:
+Beispiel aus dem Repository-Stamm:
 
 ```powershell
-pwsh -File .ai/foundation/reference_clients/ArtifactReference.ps1 `
-  -Operation new -RegistryPath .ai/identity/registry.json `
-  -ArtifactPath .ai/identity/artifacts/TSK-001.json `
-  -Mode DIRECT -ExpectedRegistryRevision 1 `
-  -Kind task -Title 'Kurzbeschreibung'
+python .ai/foundation/artifact_registry_github/registry_semantic.py validate `
+  --registry .ai/identity/registry.json
+
+python .ai/foundation/artifact_registry_github/registry_semantic.py allocate `
+  --registry .ai/identity/registry.json --prefix TSK
 ```
+
+Nach der Ableitung wird im selben Branch unter `artifacts.<REF>` ein vollständiger Datensatz mit einer neuen UUIDv7 oder, wenn die lokale Toolchain UUIDv7 nicht bereitstellt, UUIDv4 angelegt. Er enthält mindestens `artifact_uid`, `kind`, `title`, `registration_state`, `aliases` und `relations`. Die Referenz ist erst nach erfolgreicher Validierung und Merge in den zentralen Branch final registriert.
+
+Die v2-Registry enthält weder `next_sequence` noch `registry_revision`. Bei parallelen Branches prüft `.github/workflows/artifact-registry-integrity.yml` frühzeitig andere offene Pull Requests und vergleicht das Git-Merge-Ergebnis mit dem semantischen Drei-Wege-Merge. Eine Kollision wird gegen den aktuellen `main`-Stand neu aufgelöst; bestehende Referenzen oder UUIDs werden nicht überschrieben. Offline-Entwürfe erhalten noch keine finale menschliche Referenz und werden erst nach aktueller Kollisionsprüfung registriert.
 
 ## Nomenklatur
 
@@ -40,8 +39,8 @@ Eine Task-ID bleibt bei Umplanung, Verschiebung in eine andere Welle, Statuswech
 
 Historische wellencodierte Kennungen wie `W0-001` und `W2-007` bleiben gültige Referenzen. Sie werden nicht in `TSK` migriert und neue Kennungen mit Präfix `W0` bis `W10` werden nicht vergeben.
 
-Die Registry enthält die für diesen Geltungsbereich zugelassenen Präfixe und ihre semantische Zuordnung. Ein Präfix darf nach Veröffentlichung nicht mit einer anderen Bedeutung wiederverwendet werden. Der initiale Zählerstand liegt oberhalb des am Commit `2fad8b8` veröffentlichten Bestands; historische Kennungen sind bewusst keine nachträglich erzeugten Registry-Allokationen.
+Die Registry enthält die zugelassenen Präfixe und ihre semantische Zuordnung. Ein Präfix darf nach Veröffentlichung nicht mit einer anderen Bedeutung wiederverwendet werden. Die v2-Migration hat den gesamten durch die früheren Zählerstände geschützten Bestand übernommen; die Evidenz steht in `identity/MIGRATION_V1_TO_V2.md`.
 
 ## Prüfung und Änderungen
 
-Vor einer Registrierung wird die Registry mit einem der Referenz-Clients validiert. Änderungen an Präfixen, Zählerständen oder diesem Ablauf benötigen eine neue `DEC-###`-Entscheidung und eine Aktualisierung dieser Datei. Eine Umnummerierung oder nachträgliche Neudeutung historischer Kennungen ist nur nach ausdrücklicher, dokumentierter Migrationsentscheidung zulässig.
+Vor und nach jeder Registrierung wird die Registry mit dem v2-Semantiktool validiert. Änderungen an Präfixen oder diesem Ablauf benötigen eine neue `DEC-###`-Entscheidung und eine Aktualisierung dieser Datei. Eine Umnummerierung, Entfernung, UUID-Neuzuordnung oder nachträgliche Neudeutung historischer Kennungen ist nur nach ausdrücklicher, dokumentierter Migrationsentscheidung zulässig.
