@@ -115,6 +115,22 @@ jobs:
             docker logs "${container}" 2>&1 || true
             exit 1
           fi
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec -e "SQLCMDPASSWORD=${password}" "${container}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "${login_ready}" != '1' ]; then
+            docker logs "${container}" 2>&1 || true
+            exit 1
+          fi
 
       - name: Run Gate B pilots twice
         shell: bash
