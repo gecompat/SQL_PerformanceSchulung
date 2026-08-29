@@ -47,6 +47,11 @@ def main() -> int:
         findings.append("runtime runner missing")
     if not WORKFLOW.is_file():
         findings.append("workflow missing")
+    else:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        for marker in ("login_ready=0", 'docker exec -e "SQLCMDPASSWORD=${password}"', 'SELECT 1;'):
+            if marker not in workflow:
+                findings.append(f"workflow login-readiness probe missing: {marker}")
     if findings:
         print(f"adv017-opt017: FAIL ({len(findings)} finding(s))")
         for finding in findings:
