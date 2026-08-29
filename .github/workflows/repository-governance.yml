@@ -23,3 +23,5 @@ jobs:
         run: python Tests/Static/validate_identifier_registration.py
       - name: Validate repository continuity contract
         run: python Tests/Static/validate_repository_continuity.py
+      - name: Validate SQL container readiness contracts
+        run: python Tests/Static/validate_sql_container_readiness.py
