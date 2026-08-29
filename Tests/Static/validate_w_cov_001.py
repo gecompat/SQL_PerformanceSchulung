@@ -73,6 +73,9 @@ def main() -> int:
     for demo_id in ORDER:
         if demo_id not in runner or demo_id not in workflow:
             findings.append(f"{demo_id}: runtime runner/workflow mapping missing")
+    for marker in ("login_ready=0", 'docker exec -e "SQLCMDPASSWORD=${password}"', 'SELECT 1;'):
+        if marker not in workflow:
+            findings.append(f"runtime workflow login-readiness probe missing: {marker}")
     if findings:
         print(f"w-cov-001: FAIL ({len(findings)} finding(s))")
         for finding in findings:
