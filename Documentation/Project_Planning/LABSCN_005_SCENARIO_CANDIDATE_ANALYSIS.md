@@ -4,7 +4,7 @@
 |---|---|
 | Arbeitspaket | `LABSCN-005` |
 | Status | `PROPOSED` |
-| Stand | 2026-08-28 |
+| Stand | 2026-08-29 |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Provisionierungsframework | `gecompat/SQL_Server_Lab` |
 | geprüfte Lab-Modulversion | `0.2.0` |
@@ -65,6 +65,35 @@ keine Änderung an `NEXT_DEVELOPMENT_WAVES.md`.
 | 8 | `IDX-009`, `IDX-010` | Delta Store, Rowgroups, Delete Bitmap, Load-Qualität und Segment Elimination bei geordneter und ungeordneter Beladung | 2019–2025; erweiterte String-Segment-Elimination ab 2022 | Gelb | `performance`, skalierbare synthetische Datenmenge | Testdatenbank neu erzeugen | Datenmenge, Edition, Ladezeitbudget und relationale Erwartungswerte festlegen |
 | 9 | `DGN-007` | Capstone „Zeitabhängige Regression eines Suchworkloads“ mit Query Store, Plan-, Parameter-, Wait- und XE-Evidenz sowie widerlegbaren Alternativhypothesen | 2019–2025 gemäß finalem Designvertrag | Gelb | eine isolierte `performance`-Instanz | vollständiger Incident-Reset und Rücknahme der Referenzmaßnahme | erst nach validiertem Query-Store-/XE-Pilot aus Rang 1 zulässig |
 | 10 | `RES-003` | kontrollierter instanzweiter Speicherdruck, wartende Grants, `RESOURCE_SEMAPHORE` und Recovery-Nachweis | 2019–2025 | Rot | dedizierte Wegwerfinstanz, festes Ressourcenprofil, Kill-Switch | vollständiger Infrastrukturabbau | zuletzt und separat; High-Impact-Bestätigung und hartes Laufzeitbudget bleiben Pflicht |
+
+### 3.1 Zusätzlich priorisierte fachliche Beispielschnitte
+
+Die folgenden Schnitte ergänzen den Entwicklungsvorrat mit kleineren,
+lehrzielgebundenen Beispielen. Sie verwenden ausschließlich bereits registrierte
+Demo-IDs. Ihre Reihenfolge gilt nur innerhalb dieser Kandidatengruppe und ändert
+weder `NEXT_DEVELOPMENT_WAVES.md` noch bestehende Freigabegates.
+
+| Rang | Demo-ID | Beispiel und Kernevidenz | Versionen | Safety | Vorläufiger Quellenstatus | Offene Analyse |
+|---:|---|---|---|---|---|---|
+| 1 | `QRY-006` | NULL-Falle beim Anti-Join: `NOT IN` mit einem `NULL` in der Vergleichsmenge gegen das fachlich korrekte `NOT EXISTS`; Ergebnisvertrag und mögliche Planform getrennt bewerten | 2019–2025 | Grün | `SOURCE_REVIEW_REQUIRED`; Microsoft-Primärquellen zu `IN` und `EXISTS` in den regulären Quellenprozess übernehmen | deterministische Datensätze, Ergebnisassertion und planformunabhängige Kernaussage festlegen |
+| 2 | `QRY-008` | Table-Variable-First-Execution-Trap: Compatibility Level 140 gegen 150, stark unterschiedliche erste und zweite Datenmengen sowie `#temp` als Gegenprobe; Schätzung, Joinwahl, Grant und Planwiederverwendung beobachten | 2019–2025; Deferred Compilation ab CL 150 | Grün | `SRC-007`, `SRC-008`, `SRC-011`; konkrete Runtimewirkung bleibt `EMPIRICAL` | Datenmengen so wählen, dass Erstkompilierung und Wiederverwendung sichtbar, aber nicht hardwareabhängig behauptet werden |
+| 3 | `QRY-009` | Scalar-UDF-Inlining: kontrolliert inlinefähige und bewusst nicht inlinefähige Funktion mit identischem Ergebnis vergleichen; tatsächliches Inlining, Planintegration und Parallelisierbarkeit nachweisen | 2019–2025; CL 150+ für Scalar UDF Inlining | Grün | `SRC-007`, `SRC-008`; Plan- und Laufzeitwirkung bleibt eligibility- beziehungsweise workloadabhängig | robuste Eligibility-Gegenprobe und kontrollierten Feature-Skip definieren |
+| 4 | `DGN-004` | Force, Failure und Unforce: zwei Query-Store-Pläne erzeugen, einen Plan erzwingen, eine Planvoraussetzung kontrolliert entziehen, Force-Failure und Fallback beobachten und anschließend vollständig zurücknehmen; Query Store Hints nur als 2022/2025-Zusatzpfad | 2019–2025; Query Store Hints ab 2022 | Gelb | `SRC-027`; Detailquellen zu Plan Forcing, Failure Reasons und Query Store Hints sind vor dem Design zu registrieren | deterministische Regression und Force-Failure ohne dauerhafte Objekt- oder Query-Store-Reste entwerfen |
+| 5 | `IDX-007` | Last-Page-Contention: parallele Inserts mit sequenziellem Schlüssel, `PAGELATCH_EX` und Durchsatz messen und `OPTIMIZE_FOR_SEQUENTIAL_KEY` ein- und ausschalten | 2019–2025 | Gelb | `SOURCE_REVIEW_REQUIRED`; Microsoft-Primärquelle zu `OPTIMIZE_FOR_SEQUENTIAL_KEY` registrieren | Mehrsession-Last, Mindestkonkurrenz, Zeitbudget und kontrollierten Skip bei fehlendem Engpass festlegen |
+| 6 | `OPT-014` | Oszillierendes Memory Grant Feedback: kleine und große Parameterwerte abwechseln; Grants, Spills, Feedbackzustand und mögliche Deaktivierung vergleichen; Persistenz und Perzentilmodus als 2022/2025-Zusatzpfad | 2019–2025; persistentes/perzentilbasiertes Feedback ab 2022 | Gelb | `SRC-009`, `SRC-010`, `SRC-050`; konkrete Grant- und Laufzeitwirkung bleibt `EMPIRICAL` | kontrollierte Oszillation, Query-Store-Zustand, Wiederholungszahl und Cleanup festlegen |
+
+`OPT-006` bleibt zunächst ein Research Spike und keine zugesagte Runtime-Demo.
+Der Spike vergleicht SQL Server 2019 als Baseline, SQL Server 2022 mit
+Cardinality Estimation Feedback und SQL Server 2025 zusätzlich mit CE Feedback
+für wiederkehrende Ausdrücke. Maßgeblich sind `SRC-006` bis `SRC-008` und
+`SRC-061`. Vor einer Umsetzungsentscheidung müssen Eligibility,
+Compatibility-Level, Query-Store-Voraussetzungen sowie tatsächlich verfügbare
+Showplan-, Cache- oder Extended-Events-Evidenz reproduzierbar nachgewiesen sein.
+
+Die empfohlene spätere Reihenfolge innerhalb dieser Kandidatengruppe lautet:
+`QRY-006` → `QRY-008` → `QRY-009` → `DGN-004` → `IDX-007` → `OPT-014`.
+Der `OPT-006`-Spike folgt erst danach oder wird mit dem bestehenden
+SQL-Server-2025-Delta-Review verbunden.
 
 ## 4. Bedingt umsetzbare Kandidaten
 
