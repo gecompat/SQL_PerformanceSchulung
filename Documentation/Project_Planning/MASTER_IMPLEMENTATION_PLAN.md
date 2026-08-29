@@ -298,6 +298,13 @@ Die vier Demos für Gate B werden erst im Detail ausgewählt, wenn Welle 0 abges
 
 Die folgende Liste definiert 68 geplante fachliche Demo-Bündel. Welle 10 ergänzt sechs unterstützende oder bedarfsabhängige Infrastruktur-Bündel; diese zählen nicht als eigenständige Schulungsthemen. Ein Bündel darf während des Designs in mehrere Demos geteilt werden, wenn Sicherheitsstufe, Version oder didaktischer Ablauf sonst unklar werden. Zusammenlegungen benötigen eine dokumentierte Begründung, damit keine Kernaussage verloren geht.
 
+Die darüber hinaus recherchierte Themenbreite steht im
+[Recherchekatalog für weitere SQL-Server-Beispielkategorien](SQL_SERVER_EXAMPLE_CATEGORY_RESEARCH_CATALOG.md).
+Dieser Katalog ordnet zusätzliche beziehungsweise spezialisierte Themen einem
+vorhandenen Eigentümer, einer späteren Eigentümerentscheidung, einer
+Infrastrukturabhängigkeit oder einem bewussten Ausschluss zu. Er erweitert
+weder die 68 Bündel noch die operative Wellenfolge und erzeugt keine neuen IDs.
+
 ### Welle 3 – Storage, Pages und Transaction Log
 
 | ID | Demo-Bündel | Standardrisiko |
