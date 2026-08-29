@@ -118,6 +118,67 @@ Die empfohlene spätere Reihenfolge innerhalb dieser zweiten Gruppe lautet:
 `OPT-012` → `STL-010`. Auch diese Reihenfolge ändert die operative Folge in
 `NEXT_DEVELOPMENT_WAVES.md` nicht.
 
+### 3.3 Dritte fachliche Kandidatengruppe – deterministische Grundlagen
+
+Diese Gruppe priorisiert kleine Einzelsession-Beispiele mit fachlich
+deterministischen Ergebnissen. Planformen und Laufzeitwirkungen bleiben auch
+hier empirische Evidenz und werden nicht aus der fachlichen Aussage abgeleitet.
+
+| Rang | Demo-ID | Beispiel und Kernevidenz | Versionen | Safety | Vorläufiger Quellenstatus | Offene Analyse |
+|---:|---|---|---|---|---|---|
+| 1 | `QRY-003` | Mitternachtskante: künstliches Tagesende gegen halboffenes Intervall `>= @Start AND < @Folgetag`; Grenzwerte für `datetime` und `datetime2(7)` beweisen Ergebnis- und Präzisionsunterschiede | 2019–2025 | Grün | `SOURCE_REVIEW_REQUIRED`; Primärquellen zu Datums-/Zeitpräzision und Intervallsemantik registrieren | neutrale Grenzdaten, Datentypmatrix, Ergebnisassertion und SARGability-Gegenprobe festlegen |
+| 2 | `QRY-007` | `DISTINCT` als Fehlermaskierung: fehlerhafter One-to-many-Join erzeugt Duplikate; `DISTINCT` verdeckt sie, während korrigierte Existenz- oder Aggregationslogik die fachlich richtige Menge liefert | 2019–2025 | Grün | `SOURCE_REVIEW_REQUIRED`; Primärquellen zu `DISTINCT` und Mengensemantik registrieren | fachliche Kardinalität, Duplikatursache, Ergebnisgleichheit und optionale Sort-/Hash-Evidenz trennen |
+| 3 | `IDX-003` | Key-Reihenfolge ist nicht INCLUDE: `(Mandant, Status)` gegen `(Status, Mandant)` und INCLUDE-Varianten; Seek Predicate, Residual Predicate und Abdeckung getrennt beobachten | 2019–2025 | Grün | `SRC-012`; konkrete Zugriffspfade bleiben `EMPIRICAL` | vier ausgerichtete Abfragen, identische Ergebnismengen und Indexgrößen-Gegenprobe festlegen |
+| 4 | `IDX-004` | Lookup-Kippkurve: schrittweise steigende Treffermenge führt workloadabhängig von Seek plus Lookup zu Scan; Covering Index als Gegenprobe | 2019–2025 | Grün | `SRC-012`; keine feste Tipping-Point-Prozentzahl ableiten | Selektivitätsleiter, beobachtete Umschaltstelle, Planformen und Ergebnisgleichheit festlegen |
+| 5 | `IDX-001` | Zwei Row Locators: identische Tabellen als Heap und Clustered Table; RID Lookup, Key Lookup, Punkt- und Bereichszugriff vergleichen | 2019–2025 | Grün | `SRC-012`, `SRC-013`; Planwahl bleibt `EMPIRICAL` | gleiches Datenprofil, gleichwertige Nonclustered Indexes und locatorgebundene Planassertions definieren |
+| 6 | `IDX-002` | Clustered-Key-Steuer: schmaler eindeutiger Schlüssel gegen breiten nicht eindeutigen Schlüssel; Größe der Nonclustered Indexes, Page Count und Uniquifier-Wirkung beobachten | 2019–2025 | Grün | `SRC-012`; konkrete Größenwirkung bleibt datenabhängig | Duplikatverteilung, Locatorbreite, unterstützte Metadaten und belastbare Größeninvarianten festlegen |
+| 7 | `STL-001` | Zeilenbreitenleiter: feste, variable und nullable Spalten schrittweise ergänzen; durchschnittliche Record-Größe, Zeilen pro Seite und Page Count messen | 2019–2025 | Grün | `SRC-002`; konkrete Seitenauslastung bleibt `EMPIRICAL` | unterstützte Page-/Index-Metadaten, NULL-Verteilung und skalierbare Zeilenzahl festlegen |
+| 8 | `STL-002` | Overflow-Grenze: dieselben Nutzdaten gezielt zwischen `IN_ROW_DATA`, `ROW_OVERFLOW_DATA` und `LOB_DATA` verschieben; Allocation Units und zusätzliche Reads nachweisen | 2019–2025 | Grün | `SRC-002`; Detailquelle für verwendete Katalog-/DMV-Zähler ergänzen | Datentypen, Zeilenbreite, Allocation-Unit-Assertions und Cleanup festlegen |
+
+Die empfohlene spätere Reihenfolge lautet: `QRY-003` → `QRY-007` → `IDX-003`
+→ `IDX-004` → `IDX-001` → `IDX-002` → `STL-001` → `STL-002`.
+
+### 3.4 Vierte fachliche Kandidatengruppe – Planlebenszyklus und Concurrency
+
+Diese Gruppe verbindet Mehrsession-Szenarien mit Planwiederverwendung und
+Live-Diagnose. Jeder Concurrency-Schnitt benötigt benannte Signale, Timeout,
+Kill-Switch, offene-Transaktions-Prüfung und vollständigen Reset.
+
+| Rang | Demo-ID | Beispiel und Kernevidenz | Versionen | Safety | Vorläufiger Quellenstatus | Offene Analyse |
+|---:|---|---|---|---|---|---|
+| 1 | `CON-002` | Das gesperrte Nichts: `SERIALIZABLE` liest einen nicht vorhandenen Schlüssel; eine zweite Session versucht ihn einzufügen; Key-Range-Lock, Wait und Freigabe werden sichtbar | 2019–2025 | Gelb | `SRC-004` | Indexvoraussetzung, Range-Lock-Modus, Sessionreihenfolge und blockierungsfreie Gegenprobe festlegen |
+| 2 | `CON-003` | Zwei Uhren des Row Versioning: RCSI liefert einen Statement-Snapshot, SNAPSHOT einen Transaction-Snapshot; ein konkurrierendes Update erzeugt anschließend einen kontrollierten Updatekonflikt | 2019–2025 | Gelb | `SRC-004`; konkrete Fehler- und Version-Store-Evidenz im Detaildesign prüfen | Datenbankoptionen, drei Sessionrollen, Konfliktvertrag und Rücknahme der Optionen festlegen |
+| 3 | `CON-001` | Anomalien-Ledger: Dirty Read, Non-repeatable Read, Phantom und Lost Update mit denselben synthetischen Geschäftsdaten und expliziter Endzustandsprüfung | 2019–2025 | Gelb | `SRC-004` | vier Phänomene in getrennte Phasen schneiden und Isolation, Ergebnis sowie Endzustand je Phase assertieren |
+| 4 | `CON-005` | `NOLOCK` bedeutet nicht keine Locks: Schema-Stability gegen Schema-Modification beobachten; Lock Escalation bleibt eine getrennte zweite Phase mit begrenzter Zeilenmenge | 2019–2025 | Gelb | `SRC-004`; Escalation bleibt ressourcen- und versionsabhängig | Sch-S-/Sch-M-Sequenz, begrenzte Lockzahl, XE- oder DMV-Evidenz und kontrollierten Skip festlegen |
+| 5 | `OPT-008` | Gleiche Prozedur, gegensätzliche Kompilierungsreihenfolge: kleiner und großer Parameterwert erzeugen je nach Erstkompilierung gegensätzliche Plan- und Read-Profile | 2019–2025 | Grün | `SRC-001`, `SRC-007`, `SRC-046`, `SRC-047`; Runtimewirkung bleibt `EMPIRICAL` | ausschließlich querygebundene Cache-Rücknahme, kompilierte Parameterwerte und zwei Reproduktionsrichtungen festlegen |
+| 6 | `OPT-007` | Literal Storm: viele semantisch gleiche Literalabfragen gegen `sp_executesql`; Cacheeinträge, Use Counts und Cachegröße vergleichen, ohne den gesamten Instanzcache zu leeren | 2019–2025 | Gelb | `SRC-001`, `SRC-046`; Cachewirkung bleibt `EMPIRICAL` | markergebundene Querytexte, querylokale Cleanup-Strategie und harte Obergrenze der Statements festlegen |
+| 7 | `OPT-011` | Row-Goal-Triangulation: `TOP`, `FAST n` und `EXISTS` gegen eine kontrollierte `DISABLE_OPTIMIZER_ROWGOAL`-Gegenprobe; Ergebnismenge, Plan und tatsächliche Arbeit gemeinsam bewerten | 2019–2025 | Grün | `SRC-001`, `SRC-041`; Primärquelle zum Hint im Detailreview ergänzen | reproduzierbare frühe Trefferverteilung und `SKIP_EVIDENCE_MISSING` bei ausbleibender Planwirkung definieren |
+| 8 | `DGN-002` | Session–Request–Task-Mikroskop: eine bewusst wartende oder parallele Abfrage von Session über Request und Tasks bis zu Wait Resource und Statementtext verfolgen | 2019–2025 | Grün | `SRC-028`, `SRC-036`; Detailquellen zu Request- und Task-DMVs ergänzen | kurzlebige Beobachtung stabilisieren, Rechte differenzieren und reale Umgebungsdaten aus Ausgaben ausschließen |
+
+Die empfohlene spätere Reihenfolge lautet: `CON-002` → `CON-003` → `CON-001`
+→ `CON-005` → `OPT-008` → `OPT-007` → `OPT-011` → `DGN-002`.
+
+### 3.5 Fünfte fachliche Kandidatengruppe – Evidenz, Storage und Ressourcen
+
+Diese Gruppe beginnt mit grünen Evidenz- und Metadatenbeispielen und endet mit
+ressourcenabhängigen gelben Schnitten. Instanzweite Cache- oder
+Ressourcenoperationen sind ausschließlich in bestätigter Wegwerfinfrastruktur
+zulässig.
+
+| Rang | Demo-ID | Beispiel und Kernevidenz | Versionen | Safety | Vorläufiger Quellenstatus | Offene Analyse |
+|---:|---|---|---|---|---|---|
+| 1 | `OPT-001` | Evidenzleiter: Estimated Plan, Actual Plan und Runtime-Messung derselben Abfrage; klar trennen, welche Zeilen-, Warnungs- und Ressourceninformationen erst nach Ausführung existieren | 2019–2025 | Grün | `SRC-001`, `SRC-031` | stabile Planattribute, Clientunabhängigkeit und bewusst erzeugte Schätzabweichung festlegen |
+| 2 | `DGN-001` | Fairer A/B-Vergleich: identische Prüfsumme, abwechselnde Ausführungsreihenfolge, Warm-up und mehrere Wiederholungen; IO, CPU und Elapsed Time getrennt behandeln | 2019–2025 | Grün | `SRC-001`, `SRC-031`; Primärquellen zu `STATISTICS IO/TIME` ergänzen | Messprotokoll, Wiederholungszahl, akzeptierte Streuung und keine universelle Gewinneraussage festlegen |
+| 3 | `STL-004` | Vom Objekt bis zur Seite: `sys.partitions`, `sys.allocation_units`, Page Allocations und `sys.dm_db_page_info` zu einer unterstützten Metadatenkette verbinden, ohne `DBCC PAGE` | 2019–2025 | Grün | `SRC-002`, `SRC-019`; Detailquellen für Allocation- und Page-DMVs ergänzen | Objekt-/Index-/Partition-/Allocation-/Page-Zuordnung und Berechtigungen festlegen |
+| 4 | `STL-007` | Rollback ist protokollierte Arbeit: während einer Transaktion Log Record Count und Log Bytes messen, anschließend rollbacken und Checkpoint-/Recovery-LSN getrennt betrachten | 2019–2025 | Grün | `SRC-033`; Detailquellen für Transaktions- und Log-DMVs ergänzen | unterstützte Zähler, Recovery Model, Checkpointgrenze und Ergebniszustand nach Rollback festlegen |
+| 5 | `QRY-010` | Window-Frame-Falle: Running Total mit doppelten Sortierschlüsseln unter implizitem `RANGE` gegen explizites `ROWS`; Cursor nur als optionale ergebnisgleiche Gegenprobe | 2019–2025 | Gelb | `SOURCE_REVIEW_REQUIRED`; Primärquelle zur `OVER`-Klausel registrieren | fachlich erwartete Frames, stabile Sortierung, Prüfsummen und Zeitbudget der prozeduralen Gegenprobe festlegen |
+| 6 | `IDX-008` | Gleiches Ergebnis, anderes physisches Format: NONE, ROW und PAGE auf zwei Datenprofilen; Page Count, Reads und DML-Kosten messen | 2019–2025 | Gelb | `SOURCE_REVIEW_REQUIRED`; Primärquellen zu Row-/Page-Compression und Editionen registrieren | repetitive und schlecht komprimierbare Profile, CPU-/I/O-Trennung, Rebuild-Budget und Cleanup festlegen |
+| 7 | `STL-006` | Cold/Warm ohne Kollateralschaden: physische und logische Reads auf einer frischen Wegwerfinstanz vergleichen; `DBCC DROPCLEANBUFFERS` nur isoliert und bestätigt | 2019–2025 | Gelb | `SOURCE_REVIEW_REQUIRED`; Primärquellen zu Buffer Pool und Cacheleerung registrieren | instanzweite Wirkung, exklusives Profil, Checkpoint, Wiederholungen und vollständigen Rebuild festlegen |
+| 8 | `RES-001` | Begrenzte CPU-Last: CPU-lastige Abfrage mit Zeitbudget und Kill-Switch; Worker, Scheduler und `SOS_SCHEDULER_YIELD` beobachten | 2019–2025 | Gelb | `SRC-001`, `SRC-035`; Detailquelle zum Wait und Scheduler ergänzen | hardwareunabhängige Kernassertion und `SKIP_EVIDENCE_MISSING` bei ausbleibender Wait-Evidenz festlegen |
+
+Die empfohlene spätere Reihenfolge lautet: `OPT-001` → `DGN-001` → `STL-004`
+→ `STL-007` → `QRY-010` → `IDX-008` → `STL-006` → `RES-001`.
+
 ## 4. Bedingt umsetzbare Kandidaten
 
 | Demo-IDs | Möglichkeit | Vor Umsetzung nachzuweisender Spike | Aktuelle Einordnung |
