@@ -9,6 +9,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 BASE = ROOT / "Demos" / "07_Query_Store_Extended_Events"
+WORKFLOW = ROOT / ".github" / "workflows" / "dgn003-dgn005-pilots.yml"
 DEMOS = {
     "DGN-003": (BASE / "DGN-003_Query_Store_History", "GREEN"),
     "DGN-005": (BASE / "DGN-005_Bounded_Extended_Events", "YELLOW"),
@@ -73,6 +74,14 @@ def main() -> int:
             findings.append(f"DGN-005: marker missing {marker}")
     if "event_file" in dgn005.lower() or ".xel" in dgn005.lower():
         findings.append("DGN-005: persistent XE target is forbidden")
+
+    if not WORKFLOW.is_file():
+        findings.append("DGN runtime workflow missing")
+    else:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        for marker in ("login_ready=0", 'docker exec -e "SQLCMDPASSWORD=${password}"', 'SELECT 1;'):
+            if marker not in workflow:
+                findings.append(f"DGN runtime workflow login-readiness probe missing: {marker}")
 
     if findings:
         print(f"dgn-pilots: FAIL ({len(findings)} finding(s))")
