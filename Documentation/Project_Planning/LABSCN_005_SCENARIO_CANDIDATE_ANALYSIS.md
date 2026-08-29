@@ -95,6 +95,29 @@ Die empfohlene spätere Reihenfolge innerhalb dieser Kandidatengruppe lautet:
 Der `OPT-006`-Spike folgt erst danach oder wird mit dem bestehenden
 SQL-Server-2025-Delta-Review verbunden.
 
+### 3.2 Zweite fachliche Kandidatengruppe
+
+Die zweite Kandidatengruppe ergänzt weitere kleine Schnitte, die in der ersten
+Gruppe nicht enthalten sind. Vorhandene Legacy-Beispiele sind dabei nur
+Rechercheausgangspunkte. Der spätere Demovertrag benötigt weiterhin einen
+synthetischen, eigenständigen und gegen die Zielversionen geprüften Aufbau.
+
+| Rang | Demo-ID | Beispiel und Kernevidenz | Versionen | Safety | Vorläufiger Quellenstatus | Offene Analyse |
+|---:|---|---|---|---|---|---|
+| 1 | `QRY-005` | OR-Aufteilung mit Doppelzählungsfalle: Ausgangsabfrage gegen naives `UNION ALL`, korrekt entkoppelte Zweige und `UNION`; Prüfsummen trennen fachliche Gleichheit von möglicher Laufzeitwirkung | 2019–2025 | Grün | `SOURCE_REVIEW_REQUIRED`; Microsoft-Primärquelle zur Duplikatsemantik von `UNION` und `UNION ALL` registrieren | überlappende Prädikate, identische Projektion und planformunabhängige Ergebnisevidenz festlegen |
+| 2 | `QRY-002` | Richtung der impliziten Konvertierung: einmal wird die indexierte Spalte konvertiert, einmal nur der Parameter; `CONVERT_IMPLICIT`, Zugriffspfad, tatsächliche Zeilen und Reads gemeinsam beobachten | 2019–2025 | Grün | `SRC-030`; Quelle zur SARGability- und Planwarnungsdiagnose vor dem Design ergänzen; konkrete Planwirkung bleibt `EMPIRICAL` | Datentypkombinationen und Collation-Grenzen so wählen, dass die Konvertierungsrichtung eindeutig nachweisbar ist |
+| 3 | `OPT-004` | Korrelierte Spalten ohne zusätzlichen Index: Einzelstatistiken gegen Mehrspaltenstatistik; Histogramm auf dem ersten Schlüssel, Density-Präfixe, Schätzung und Planwahl getrennt auswerten | 2019–2025 | Grün | `SRC-005`; Plan- und Laufzeitwirkung bleibt `EMPIRICAL` | synthetische Korrelation, Statistikreihenfolge und erwartete Schätzrichtung festlegen |
+| 4 | `STL-003` | Lebenszyklus eines Forwarded Record: Heap mit kurzen Zeilen anlegen, variable Spalte vergrößern, Forwarded Records und Fetches nachweisen und über `ALTER TABLE ... REBUILD` kontrolliert zurücknehmen | 2019–2025 | Grün | `SRC-013`; Detailquelle für die verwendeten DMV-Zähler vor dem Design registrieren | Mindestdatenmenge, DMV-Scope, unabhängige Vorher-/Nachher-Zähler und Rebuild-Cleanup festlegen |
+| 5 | `QRY-011` | Predicate-Implication-Labor: gefilterter Queue-Index für offene Einträge, passende und nicht implizierende Prädikate sowie eine deterministische Computed Column; unpassende `SET`-Option als kontrollierte Gegenprobe | 2019–2025 | Grün | `SOURCE_REVIEW_REQUIRED`; Primärquellen zu Filtered Indexes und Indizes auf Computed Columns registrieren | Filterprädikat, Determinismus, Präzision und zulässige `SET`-Optionen als getrennte Assertions schneiden |
+| 6 | `IDX-005` | Missing Index ist kein Ausführungsauftrag: zwei Abfragen erzeugen überlappende Vorschläge; Vorschläge, vorhandene Indizes, Schlüsselreihenfolge, INCLUDE-Breite und DML-Kosten werden gemeinsam bewertet | 2019–2025 | Gelb | `SRC-032`; konkrete Empfehlung und DML-Wirkung bleiben `METHOD` beziehungsweise `EMPIRICAL` | Vorschlagserfassung, Indexkonsolidierung, DML-Gegenprobe und vollständiges Entfernen der Testindizes festlegen |
+| 7 | `OPT-012` | Ein Adaptive-Join-Plan mit zwei Runtimeentscheidungen: derselbe gecachte Plan erhält kleine und große Eingabemengen; Schwelle und tatsächlicher Join-Typ werden nachgewiesen | 2019–2025; CL 140+ und Batch-Mode-Eligibility | Grün | `SRC-001`, `SRC-007`, `SRC-008`; tatsächliche Eligibility und Planform bleiben `EMPIRICAL` | planstabile Eingaben, Batch-Mode-Pfad und kontrollierten `SKIP_EVIDENCE_MISSING` definieren |
+| 8 | `STL-010` | Kompressionsschätzung gegen tatsächliches Ergebnis: repetitive und schlecht komprimierbare Datenprofile mit NONE, ROW und PAGE vergleichen; Schätzung, tatsächliche Größe, Reads und CPU getrennt behandeln | 2019–2025 | Gelb | `SOURCE_REVIEW_REQUIRED`; Primärquelle zu `sys.sp_estimate_data_compression_savings` und Editionsgrenzen registrieren | Datenprofile, TempDB-Nutzung, Rebuild-Zeitbudget, Edition-Skip und Rückkehr zu NONE festlegen |
+
+Die empfohlene spätere Reihenfolge innerhalb dieser zweiten Gruppe lautet:
+`QRY-005` → `QRY-002` → `OPT-004` → `STL-003` → `QRY-011` → `IDX-005` →
+`OPT-012` → `STL-010`. Auch diese Reihenfolge ändert die operative Folge in
+`NEXT_DEVELOPMENT_WAVES.md` nicht.
+
 ## 4. Bedingt umsetzbare Kandidaten
 
 | Demo-IDs | Möglichkeit | Vor Umsetzung nachzuweisender Spike | Aktuelle Einordnung |
