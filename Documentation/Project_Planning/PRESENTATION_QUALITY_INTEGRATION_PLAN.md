@@ -64,6 +64,15 @@ Die verbindlichen technischen Regeln stehen im [Architekturplan für Masterdeck-
 | `TST-011` | M | statischen Variantenvalidator implementieren | Manifest, SlideKeys, Custom Shows, Links, Quellen und Abhängigkeiten werden ohne Office-Automation geprüft |
 | `TST-012` | M | Varianten rendern und visuell abnehmen | jede Releasevariante besteht Layout-, Notes-, Metadaten-, Privacy- und Branding-Prüfung |
 
+### 3.2 Folienbezogene Beispielabdeckung
+
+Der [folienbezogene Beispielabdeckungsplan](PRESENTATION_EXAMPLE_COVERAGE_PLAN.md)
+ordnet alle technisch relevanten Konstellationen des aktiven 102-Folien-Decks
+einem primären bestehenden Demo-Eigentümer zu. Er verhindert Deck-spezifische
+Parallel-Demos, trennt Wiederverwendung von tatsächlich fehlender Entwicklung
+und legt den Artefaktvertrag für spätere Beispielskripte fest. Die Zuordnung
+ändert weder die aktive Wellenreihenfolge noch den Runtime-Status einer Demo.
+
 ### Umsetzungsnachweis Curriculum
 
 Die Curriculumgrundlage ist für den aktiven 84-Folien-Satz als `VALIDATED` nachgewiesen:

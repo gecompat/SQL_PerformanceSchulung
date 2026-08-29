@@ -187,7 +187,9 @@ eine kleine Beispielabfrage, die auslösende Daten- und Indexkonstellation, eine
 fachliche Erklärung und die maßgeblichen Planproperties erhalten. Das Labor ist
 kein vollständiges Operatorlexikon und verspricht keine universell feste
 Planform. Es ergänzt die vorhandenen Themen, ohne neue Demo-IDs oder eine neue
-Wellenreihenfolge einzuführen.
+Wellenreihenfolge einzuführen. Die primären Demo-Eigentümer und Grenzen gegen
+Parallelskripte stehen im
+[folienbezogenen Beispielabdeckungsplan](PRESENTATION_EXAMPLE_COVERAGE_PLAN.md).
 
 #### 3.6.1 Gemeinsame Datenbasis
 
