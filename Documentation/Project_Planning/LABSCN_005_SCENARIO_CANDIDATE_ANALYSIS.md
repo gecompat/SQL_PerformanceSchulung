@@ -179,6 +179,135 @@ zulässig.
 Die empfohlene spätere Reihenfolge lautet: `OPT-001` → `DGN-001` → `STL-004`
 → `STL-007` → `QRY-010` → `IDX-008` → `STL-006` → `RES-001`.
 
+### 3.6 Sechste fachliche Kandidatengruppe – Execution-Plan-Operatoren-Labor
+
+Diese Kandidatengruppe bereitet ein eigenständiges, synthetisches
+Operatoren-Labor vor. Der Anwender soll für wichtige Showplan-Operatoren jeweils
+eine kleine Beispielabfrage, die auslösende Daten- und Indexkonstellation, eine
+fachliche Erklärung und die maßgeblichen Planproperties erhalten. Das Labor ist
+kein vollständiges Operatorlexikon und verspricht keine universell feste
+Planform. Es ergänzt die vorhandenen Themen, ohne neue Demo-IDs oder eine neue
+Wellenreihenfolge einzuführen.
+
+#### 3.6.1 Gemeinsame Datenbasis
+
+Die spätere Implementierung verwendet eine ausschließlich durch `FWK-002`
+markierte Testdatenbank und erzeugt die Faktbasis deterministisch mit `FWK-003`.
+Öffentliche Beispieldatenbanken und nicht mitgelieferte Datenquellen sind keine
+Voraussetzung. Als Ausgangsprofil gilt:
+
+- `lab.SyntheticFact` mit 100.000 Faktzeilen, 1.000 Schlüsseln,
+  reproduzierbarer Verteilung und 200 Bytes Payload; als Referenzparameter
+  gelten `Seed = 12012`, `SkewPercent = 80`, `HotKeyPercent = 20`,
+  `CorrelationPercent = 80`, `StartDate = 20200101` und
+  `DateSpanDays = 3650`;
+- `lab.OperatorDimension` mit genau einem Dimensionsdatensatz je verwendetem
+  Schlüssel;
+- `lab.OperatorHeap` als fachlich identische Heap-Kopie eines begrenzten
+  Ausschnitts der Faktzeilen;
+- wenige explizit benannte Nonclustered Indexes, davon jeweils eine abdeckende
+  und eine nicht abdeckende Variante für die Lookup-Gegenprobe;
+- keine zufälligen Werte, keine Systemkataloge als Zahlenquelle und keine
+  Abhängigkeit von physischer Page-Verteilung oder einer bestimmten Hardware.
+
+Das Profil ist eine parametrisierte Vorlage und wird je Demo-ID und Run-Token in
+der jeweils eigenen markierten Testdatenbank aufgebaut. Es entsteht keine
+dauerhafte, demoübergreifend veränderliche Gemeinschaftsdatenbank.
+
+Jede Beispielabfrage erhält einen markergebundenen Query-Kommentar, eine
+deterministische Ergebnisassertion und eine unabhängige Cleanup- beziehungsweise
+Resetmöglichkeit. Der tatsächliche Ausführungsplan wird über den bestehenden
+`FWK-005`-Pfad beobachtet; ein Estimated Plan allein ist keine Runtimeevidenz.
+
+#### 3.6.2 Kandidatenmatrix für spätere Beispielskripte
+
+| Rang | Zuordnung | Daten- oder Abfragekonstellation | Erwartete Kernevidenz | Erklärung für den Anwender | Evidenzklasse |
+|---:|---|---|---|---|---|
+| 1 | `OPT-001`, `IDX-001` | vollständige Aggregation über `lab.OperatorHeap` | `Table Scan` | Ein Heap besitzt keinen Clustered Index; ohne geeigneten alternativen Zugriff wird die Heapstruktur gelesen. | `REQUIRED` |
+| 2 | `OPT-001`, `IDX-001` | breite Abfrage über einen großen Anteil von `lab.SyntheticFact` | `Clustered Index Scan` | Ein Scan kann bei großer Treffermenge günstiger sein als viele Einzelzugriffe; ein Scan ist nicht grundsätzlich ein Fehler. | `ELIGIBLE` |
+| 3 | `OPT-001`, `IDX-003` | breite, vollständig durch einen schmalen Nonclustered Index abgedeckte Projektion | `Index Scan` | Der schmalere Index kann vollständig gelesen werden, ohne die breitere Basistabelle zu verwenden. | `ELIGIBLE` |
+| 4 | `OPT-001`, `IDX-003` | Gleichheits- und Bereichsprädikat auf einem selektiven indizierten Schlüssel | `Index Seek` oder `Clustered Index Seek`; `Seek Predicates`, optionales Restprädikat | Der Seek grenzt den Schlüsselbereich ein. Gelesene und zurückgegebene Zeilen sowie Seek- und Residual-Prädikate werden getrennt bewertet. | `REQUIRED` |
+| 5 | `IDX-001`, `IDX-004` | selektiver nicht abdeckender Nonclustered Index auf der Clustered Table; Payload wird projiziert | `Index Seek`, `Nested Loops`, `Key Lookup`; Ausführungsanzahl des Lookups | Der Nonclustered Index findet Row Locators, fehlende Spalten werden aus dem Clustered Index nachgeladen. Erst viele Lookups können problematisch werden. | `ELIGIBLE` |
+| 6 | `IDX-001` | gleiche nicht abdeckende Abfrage auf `lab.OperatorHeap` | `Index Seek`, `Nested Loops`, `RID Lookup` | Ohne Clustered Key verweist der Nonclustered Index über die physische Row-ID auf die Heapzeile. | `ELIGIBLE` |
+| 7 | `IDX-003`, `IDX-004` | abdeckenden Index für die Lookup-Abfrage ergänzen und anschließend wieder entfernen | Seek ohne Lookup; identische Ergebnismenge | Die Gegenprobe trennt Zugriff und Abdeckung: Alle benötigten Spalten liegen im Index, daher ist kein zusätzlicher Locatorzugriff erforderlich. | `ELIGIBLE` |
+| 8 | `OPT-012` | höchstens zehn äußere Zeilen gegen eine große, auf dem Joinschlüssel indizierte innere Eingabe | `Nested Loops`, Outer References und innere Ausführungsanzahl | Die innere Suche wird für jede äußere Zeile ausgeführt. Kleine äußere Mengen und ein geeigneter innerer Index begünstigen diesen Algorithmus. | `ELIGIBLE` |
+| 9 | `OPT-012` | zwei größere, auf dem Joinschlüssel geordnete Eingaben | `Merge Join`; geordnete Inputs oder vorgeschalteter `Sort` | Der Algorithmus führt zwei geordnete Datenströme zusammen. Ein zusätzlich erforderlicher Sort kann den Vorteil verändern. | `ELIGIBLE` |
+| 10 | `OPT-012` | größere unsortierte Eingaben ohne passenden Joinindex | `Hash Match` mit Build- und Probe-Seite | Eine Eingabe bildet die Hashtabelle, die andere wird dagegen geprüft. Memory Grant und mögliche Spills gehören zur Erklärung. | `ELIGIBLE` |
+| 11 | `OPT-012` | gleiche Ergebnismenge mit kontrollierten querylokalen `LOOP`, `MERGE`- und `HASH`-Gegenproben | drei physische Joinalgorithmen, identische Prüfsumme | Joinhints dienen nur als didaktische Mechanik. Sie sind keine Produktionsvorgabe und beweisen nicht, dass der erzwungene Plan günstiger ist. | `CONTROLLED` |
+| 12 | `OPT-012` | kleine und große Runtimeeingabe bei Batch-Mode- und Compatibility-Level-Eligibility | `Adaptive Join`, Schwelle und tatsächlich gewählter Join-Typ | Der Join verschiebt die Wahl zwischen Nested Loops und Hash Join bis zur Laufzeit. Fehlende Eligibility ist ein kontrollierter `SKIP_EVIDENCE_MISSING`. | `ELIGIBLE` |
+| 13 | `OPT-001` | `GROUP BY` entlang einer passenden Indexreihenfolge | `Stream Aggregate`; geordnete Eingabe | Bereits geordnete Zeilen können gruppenweise verarbeitet werden, ohne zuerst eine Hashtabelle aufzubauen. | `ELIGIBLE` |
+| 14 | `OPT-001` | `GROUP BY` auf einem nicht geordneten Schlüssel; querylokale `HASH GROUP`-Gegenprobe | `Hash Match` als Aggregate | Gruppen werden in einer Hashtabelle gebildet. Grant, tatsächliche Gruppenanzahl und Spillwarnungen werden gemeinsam betrachtet. | `ELIGIBLE` |
+| 15 | `OPT-013` | `ORDER BY` ohne passende Indexordnung | `Sort`; Eingabezeilen, Speichergrant und Spillstatus | Der Operator ordnet die gesamte relevante Eingabe. Das vorhandene `OPT-013`-Spill-Labor bleibt die Vertiefung. | `REUSED` |
+| 16 | `OPT-011` | `TOP (n)` mit `ORDER BY` ohne passende Indexordnung | `Top` und `Sort` mit Top-N-Eigenschaft oder zulässige äquivalente Planform | Nur die ersten Zeilen der gewünschten Ordnung werden benötigt; das Row Goal kann weitere Planentscheidungen beeinflussen. | `ELIGIBLE` |
+| 17 | `QRY-005` | zwei disjunkte Teilmengen mit `UNION ALL` | `Concatenation`; alle Eingabezeilen bleiben erhalten | `UNION ALL` verbindet Datenströme ohne Duplikatentfernung. Die fachliche Disjunktheit wird unabhängig vom Plan geprüft. | `REQUIRED` |
+| 18 | `QRY-005`, `QRY-007` | überlappende Teilmengen mit `UNION` beziehungsweise eine kontrollierte `DISTINCT`-Abfrage | `Sort` mit Distinct-Eigenschaft oder `Hash Match` als Aggregate | Duplikatentfernung kann physisch unterschiedlich umgesetzt werden und darf keinen fehlerhaften Join verdecken. | `ELIGIBLE` |
+| 19 | `OPT-001` | kleine Zeilenmenge aus einem `VALUES`-Konstruktor | `Constant Scan` | Konstante Zeilen werden ohne Zugriff auf eine Benutzertabelle in den Plan eingebracht. | `REQUIRED` |
+| 20 | `OPT-001` | skalare Berechnung aus mindestens einer Tabellenspalte | `Compute Scalar` und definierte Ausgabeliste | Der Operator beschreibt einen skalaren Ausdruck. Laufzeitarbeit kann in andere Operatoren verschoben werden, daher ist fehlende Runtimezeit am Symbol kein Beweis für fehlende Arbeit. | `ELIGIBLE` |
+| 21 | `OPT-001`, `QRY-010` | abgeleitete Tabelle mit `ROW_NUMBER()` und äußerem Prädikat auf die berechnete Zeilennummer | `Filter` und dessen Predicate-Property | Ein Filter verwirft Zeilen aus seinem Eingang. Andere Prädikate können dagegen direkt in einen Scan oder Seek verschoben werden, weshalb nicht jede `WHERE`-Klausel ein eigenes Filtersymbol erzeugt. | `ELIGIBLE` |
+| 22 | `OPT-001` | skalare Unterabfrage ohne nachweisbare Eindeutigkeit, deren Testdaten zunächst genau einen Treffer liefern | `Stream Aggregate` und `Assert`; optionale Duplikatphase endet kontrolliert | `Assert` schützt die Semantik, dass die skalare Unterabfrage höchstens eine Zeile liefert. Die Fehlergegenprobe wird in einer rücknehmbaren Phase ausgeführt. | `ELIGIBLE` |
+| 23 | `QRY-006` | fachlich gleichwertige `EXISTS`- und `NOT EXISTS`-Abfragen einschließlich NULL-Gegenprobe | logischer Semi- beziehungsweise Anti-Semi-Join; variabler physischer Algorithmus | Existenzprüfungen benötigen nicht alle passenden Zeilen oder Spalten. Logische und physische Planform werden ausdrücklich getrennt. | `ELIGIBLE` |
+| 24 | `QRY-010` | `ROW_NUMBER()` mit `PARTITION BY` und stabiler Ordnung | `Segment`, `Sequence Project` oder versionsabhängige äquivalente Window-Planform | Die Eingabe wird in Partitionen gegliedert und innerhalb jeder Partition nummeriert. | `ELIGIBLE` |
+| 25 | `QRY-010` | laufende Summe mit doppelten Sortierschlüsseln: implizites `RANGE` gegen explizites `ROWS` | `Window Aggregate`, `Window Spool` oder zulässige äquivalente Planform; unterschiedliche fachliche Ergebnisse | Der Window Frame bestimmt, welche Zeilen zur aktuellen Zeile gehören. Operator und Ergebniseffekt müssen getrennt erklärt werden. | `ELIGIBLE` |
+| 26 | `OPT-016` | vorhandener korrelierter Apply-/Nested-Loops-Schnitt | Spool, Rebind, Rewind und Outer References | Zwischenergebnisse können wiederverwendet werden; ein Spool ist weder automatisch gut noch automatisch schlecht. | `REUSED` |
+| 27 | `OPT-017` | vorhandener ausreichend paralleler Schnitt | `Parallelism` mit Distribute-, Repartition- oder Gather-Streams, Actual DOP und Threadarbeit | Exchanges verteilen oder sammeln Zeilen zwischen Workern. Ohne tatsächliche Parallelismusevidenz bleibt der Lauf kontrolliert unfreigegeben. | `REUSED` |
+| 28 | `OPT-012`, `OPT-017` | selektiver Bitmapfilter in einem ausreichend parallelen Hash-Join-Plan | `Bitmap` und tatsächliche Zeilenreduktion | Der Optimierer kann Zeilen früh verwerfen. Die Planform ist ressourcen- und kostenabhängig und wird nicht erzwungen behauptet. | `ELIGIBLE` |
+| 29 | `IDX-010` | vorhandene Columnstore-Demo mit geordnetem Prädikat | Columnstore Scan und Segment-Eliminationsevidenz | Metadaten und tatsächliche Segmentzugriffe erklären, warum nicht jedes Segment gelesen werden muss. | `REUSED` |
+
+`REQUIRED` bezeichnet eine durch Abfragesemantik und kontrollierten Objektaufbau
+zu erwartende Kernevidenz. `ELIGIBLE` bezeichnet eine kosten-, versions- oder
+ressourcenabhängige Planform; ihr Ausbleiben führt nicht zu einer falschen
+`PASS`-Aussage, sondern gegebenenfalls zu `SKIP_EVIDENCE_MISSING`. `CONTROLLED`
+kennzeichnet ausschließlich didaktische, querylokale Hints oder Gegenproben.
+`REUSED` verweist auf einen bereits vorhandenen beziehungsweise separat
+geplanten Demovertrag und verhindert doppelte Spezialdemos.
+
+#### 3.6.3 Erklär- und Artefaktvertrag
+
+Jedes spätere Beispielskript dokumentiert in derselben Reihenfolge:
+
+1. Lernfrage und häufige Fehlannahme, etwa „Seek ist immer gut“ oder „Scan ist
+   immer schlecht“;
+2. minimale Daten-, Index- und Abfragekonstellation;
+3. fachlich erwartete Ergebnismenge oder Prüfsumme;
+4. erwartete logische und physische Operatorfamilie sowie zulässige Varianten;
+5. zu prüfende Properties, mindestens geschätzte und tatsächliche Zeilen,
+   Ausführungsanzahl, Prädikate, Ordnung, Grant und vorhandene Warnungen;
+6. Erklärung, weshalb der Operator in dieser Konstellation plausibel ist und
+   welche Aussage daraus ausdrücklich nicht folgt;
+7. Gegenprobe, Reset und Cleanup.
+
+Die spätere Umsetzung soll mindestens ein Setupskript, thematisch kleine
+Abfrageskripte, einen statischen Vertrag, einen Runtime-Runner und einen
+Katalogeintrag liefern. Abfragen mit gleichem fachlichem Ziel weisen ihre
+Ergebnisgleichheit unabhängig von der Planform nach. DML-Operatoren können in
+einem späteren Zusatzschnitt ausschließlich innerhalb einer expliziten
+Transaktion mit `ROLLBACK` ergänzt werden; sie gehören nicht zum ersten
+Operatoren-Labor.
+
+#### 3.6.4 Quellen- und Umsetzungsgrenze
+
+Vor dem Detaildesign werden mindestens die Microsoft-Primärquellen zur
+Showplan-Operatorreferenz, zu physischen Joinalgorithmen, zu Actual Execution
+Plans, zur `OVER`-Klausel sowie zu `UNION` und `UNION ALL` über den regulären
+Source-Register- und Registry-Prozess aufgenommen. Bis dahin ist die gesamte
+Gruppe `SOURCE_REVIEW_REQUIRED`. `SRC-001` und der bestehende `FWK-005`-Vertrag
+bilden bereits die allgemeine Grundlage für Optimierer-, Plan- und
+Runtimeaussagen.
+
+Die empfohlene spätere Implementierungsfolge lautet:
+
+1. Zugriffe, Lookups und Abdeckung;
+2. Nested Loops, Merge und Hash Join mit identischer Ergebnisevidenz;
+3. Aggregate, Sort, Top, Concatenation und Duplikatentfernung;
+4. Constant Scan, Compute Scalar, Assert sowie Semi-/Anti-Joins;
+5. Window-Operatoren;
+6. Verweise auf Spool-, Parallelism-, Bitmap- und Columnstore-Vertiefungen.
+
+Eine Implementierung wird erst freigegeben, nachdem der Detailvertrag die
+zulässigen Planvarianten festgelegt hat. `VALIDATED` setzt je zwei erfolgreiche
+Runtime-Läufe auf SQL Server 2019, 2022 und 2025 voraus; kontrollierte Skips
+halten den Workflow wahrheitsgetreu, ersetzen aber keine fehlende Kernevidenz.
+
 ## 4. Bedingt umsetzbare Kandidaten
 
 | Demo-IDs | Möglichkeit | Vor Umsetzung nachzuweisender Spike | Aktuelle Einordnung |
