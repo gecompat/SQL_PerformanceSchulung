@@ -638,9 +638,9 @@ Jede Arbeitsübergabe enthält mindestens:
 | Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 `VALIDATED` |
 | Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
 | Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; der Delta-Review für relevante SQL-Server-2025-Funktionen ist in `SQL_SERVER_2025_DELTA_REVIEW.md` abgeschlossen |
-| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist als erster gelber, isolationspflichtiger Vertical Slice über Project Adapter `0.1` auf Docker validiert |
+| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist als erster gelber, isolationspflichtiger Vertical Slice über Project Adapter `0.1` auf Docker und Podman validiert |
 | Aktuelle Priorität | offene zweifache Runtime-Matrizen für `QRY-004`, `DGN-003/005`, `OPT-017` sowie die SQL-Server-2019-Evidenz von `CON-009` nachweisen |
-| Danach | Podman-Parität des `CON-004`-Adapters nach Verfügbarkeit des Providers sowie weitere evidenzgebundene Szenarien |
+| Danach | weitere evidenzgebundene interaktive Szenarien und die jeweils freigegebene Provider-/Versionsmatrix |
 | Teststatus | statische Verträge und Privacy-/Metadatenprüfung werden je Welle lokal ausgeführt; Runtime-Evidenz und offene Restrisiken stehen in `CURRENT_EXECUTION_STATUS.md` |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts
