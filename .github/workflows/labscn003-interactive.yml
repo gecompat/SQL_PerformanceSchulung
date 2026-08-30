@@ -5,6 +5,7 @@ on:
     paths:
       - 'Tools/PerformanceTrainingScenario/**'
       - 'Scenarios/CON-004/**'
+      - 'Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1'
       - 'Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md'
       - 'Tests/Static/validate_labscn003_interactive.py'
       - '.github/workflows/labscn003-interactive.yml'
@@ -13,6 +14,7 @@ on:
     paths:
       - 'Tools/PerformanceTrainingScenario/**'
       - 'Scenarios/CON-004/**'
+      - 'Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1'
       - 'Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md'
       - 'Tests/Static/validate_labscn003_interactive.py'
       - '.github/workflows/labscn003-interactive.yml'
@@ -35,6 +37,13 @@ jobs:
           Import-Module ./Tools/PerformanceTrainingScenario/PerformanceTrainingScenario.psd1 -Force
           $commands = Get-Command -Module PerformanceTrainingScenario
           if ($commands.Count -ne 4) { throw "Expected four exported commands, got $($commands.Count)." }
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path ./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1),
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) { throw ($errors | Out-String) }
       - run: python Tests/Static/validate_labscn003_interactive.py
       - run: python Tests/Static/validate_performance_scenarios.py
       - run: python Tests/Static/validate_privacy_metadata.py .

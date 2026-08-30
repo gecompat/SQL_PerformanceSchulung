@@ -79,6 +79,23 @@ Der Lab-State liegt standardmäßig unter `Runtime/State/SqlServerLab` und wird
 nicht versioniert. Das Kennwort wird als `SecureString` erzeugt oder übergeben
 und nur für Kindprozesse temporär in `SQLCMDPASSWORD` gesetzt.
 
+## CON-004 über den versionierten Project Adapter
+
+`Invoke-PerformanceTrainingScenarioLifecycleTest.ps1` prüft den primären
+interaktiven Vertical Slice. Anders als der ältere automatisierte Demo-Harness
+verwendet dieser Pfad den Adaptervertrag `0.1` unter
+`Scenarios/CON-004/adapter` und die öffentlichen Lifecycle-Commands:
+
+```text
+Start -> READY_FOR_USER -> Reset -> READY_FOR_USER -> Remove
+```
+
+Install und Reset enden jeweils mit dem fachlichen Validate-Entrypoint. Remove
+führt zuerst den markergebundenen Cleanup-Entrypoint aus und entfernt danach
+die scopegebundene Docker- oder Podman-Infrastruktur samt aktivem
+Szenario-State. Der Lab-Core darf den abgeschlossenen Run als nicht aktiven,
+lokalen Auditdatensatz mit Status `REMOVED` behalten.
+
 ```powershell
 $pythonPath = (Get-Command python).Source
 $env:SQLPERF_PYTHON = $pythonPath

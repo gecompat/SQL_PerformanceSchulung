@@ -3,10 +3,10 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-29 |
+| Stand | 2026-08-30 |
 | geprüfter Stand auf `origin/main` | `c75d7a25e966d28abeb8225779e7cc48939159fe` |
 | Fachliche Hauptwelle | `W-COV-001` – acht Demos runtimevalidiert; `CON-009` mit offener SQL-Server-2019-Evidenz |
-| Szenariowelle | `LABSCN-003` – interaktiver `CON-004`-Lifecycle implementiert; praktische Docker-/Podman-Abnahme offen |
+| Szenariowelle | `LABSCN-003` – Project Adapter `0.1` und vollständiger Docker-Lifecycle auf SQL Server 2025 validiert; Podman-Parität offen |
 | Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
@@ -49,12 +49,14 @@ Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nach
 - Die automatisierte Matrix ist ein Qualitätssicherungsinstrument und kein Ersatz für den Benutzerworkflow.
 - Änderungen an `SQL_Server_Lab` benötigen eine konkret nachgewiesene fehlende Fähigkeit und ausdrückliche Freigabe.
 
-`LABSCN-002` hat Inventar und Definitionsschema für die ersten drei Wellen geliefert. Der nächste geeignete Vertical Slice ist `CON-004`; er ist verbindlich `YELLOW` und benötigt eine isolierte Wegwerfumgebung. Der vollständige Lifecycle bleibt erst mit `LABSCN-003` fällig.
+`LABSCN-002` hat Inventar und Definitionsschema für die ersten drei Wellen geliefert. `LABSCN-003` setzt `CON-004` als ersten vollständigen Vertical Slice um. Der versionierte Project Adapter `0.1` begrenzt den Pfad auf SQL Server 2025 Linux in einer isolierten Docker- oder Podman-Wegwerfumgebung und besitzt getrennte Preflight-, Install-, Validate- und Cleanup-Entrypoints.
 
 ```text
 Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
         -> interaktive Durchführung -> Reset -> Remove
 ```
+
+Der lokale Docker-Nachweis vom 2026-08-30 (RunId `30b69f0b-b140-47e6-8c90-c05e38bd7c99`) bestätigte Start und Reset jeweils als `READY_FOR_USER` sowie den anschließenden markergebundenen Datenbank-, Container- und Volume-Abbau einschließlich Abschluss des aktiven Szenario-States als `REMOVED`. Der Lab-Core behält ausschließlich den nicht aktiven Auditdatensatz des entfernten Runs. Podman war auf dem Prüfhost nicht installiert und bleibt deshalb ohne Runtime-Aussage.
 
 ## 4. Gate-Status
 
@@ -65,8 +67,10 @@ Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
 - Gate V4 – Lehrmittelfreigabe: `VALIDATED`; Masterdeck und Profile bestanden Notes-, Manifest-, Custom-Show-, Build-, Render-, Metadaten-, Privacy- und Branding-Abnahme.
 - `LABSCN-001`: `DECIDED` und im Repository verankert.
 - `LABSCN-002`: `IMPLEMENTED_FOR_REVIEW`; die vollständige Szenarioabdeckung ist noch nicht erreicht.
+- `LABSCN-003`: `VALIDATED` für den vollständigen SQL-Server-2025-Docker-Lifecycle; Podman-Parität ist nachgeordnet offen.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
-- `LABINT-002` und `LABINT-003`: technischer `QRY-001`-Vorläufer und Provider-Parität für SQL Server 2025 sind nachgewiesen; weitere Szenarien und Versionen bleiben offen.
+- `LABINT-002`: `VALIDATED` für Start, `READY_FOR_USER`, Reset und Remove von `CON-004` auf Docker.
+- `LABINT-003`: `PARTIAL`; die frühere `QRY-001`-Provider-Parität ist nachgewiesen, für den neuen `CON-004`-Adapter bleibt Podman offen.
 
 `ADV-006` und `ADV-007` bleiben als `DESIGNED`-Verträge vollständig: Die zugehörigen LAB-VP3-/VP4-Grenzen, Feature-Skips und Diagnoseabhängigkeiten sind dokumentiert, ihre fachliche Umsetzung erfolgt erst in den jeweiligen Folgewellen.
 
@@ -76,7 +80,7 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
 
 1. `QRY-004`-Runner-Konflikt korrigieren und Matrix erneut validieren.
 2. Query-Store-/Extended-Events-Pilot (`DGN-003`/`DGN-005`) als belastbare Evidenz für diagnoseabhängige Schnitte aufbauen.
-3. `CON-004` als gelben, isolationspflichtigen interaktiven Vertical Slice umsetzen.
+3. `CON-004` besitzt den validierten Docker-Vertical-Slice; als nachgeordnete Provider-Evidenz bleibt Podman offen.
 4. `OPT-017` getrennt implementieren und validieren.
 5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
 6. `W-PRS-001` ist abgeschlossen.
