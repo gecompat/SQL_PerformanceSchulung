@@ -6,7 +6,7 @@
 | Stand | 2026-08-30 |
 | geprüfter Stand auf `origin/main` | `c75d7a25e966d28abeb8225779e7cc48939159fe` |
 | Fachliche Hauptwelle | `W-COV-001` – acht Demos runtimevalidiert; `CON-009` mit offener SQL-Server-2019-Evidenz |
-| Szenariowelle | `LABSCN-003` – Project Adapter `0.1` und vollständiger Docker-Lifecycle auf SQL Server 2025 validiert; Podman-Parität offen |
+| Szenariowelle | `LABSCN-003` – Project Adapter `0.1` und vollständiger Docker-/Podman-Lifecycle auf SQL Server 2025 validiert |
 | Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
@@ -56,7 +56,14 @@ Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
         -> interaktive Durchführung -> Reset -> Remove
 ```
 
-Der lokale Docker-Nachweis vom 2026-08-30 (RunId `30b69f0b-b140-47e6-8c90-c05e38bd7c99`) bestätigte Start und Reset jeweils als `READY_FOR_USER` sowie den anschließenden markergebundenen Datenbank-, Container- und Volume-Abbau einschließlich Abschluss des aktiven Szenario-States als `REMOVED`. Der Lab-Core behält ausschließlich den nicht aktiven Auditdatensatz des entfernten Runs. Podman war auf dem Prüfhost nicht installiert und bleibt deshalb ohne Runtime-Aussage.
+Die lokalen Nachweise vom 2026-08-30 bestätigten denselben vollständigen
+Lifecycle auf Docker (RunId `30b69f0b-b140-47e6-8c90-c05e38bd7c99`) und Podman
+(RunId `f80f7d82-934b-4c7c-9d2a-a80e975d92d5`): Start und Reset endeten
+jeweils als `READY_FOR_USER`; der anschließende markergebundene Datenbank-,
+Container- und Volume-Abbau einschließlich Abschluss des aktiven
+Szenario-States endete als `REMOVED`. Der Lab-Core behält ausschließlich den
+nicht aktiven Auditdatensatz des entfernten Runs. Der Podman-Cleanup ließ eine
+bereits vorhandene, nicht zum Run gehörende Ressource unverändert gesund.
 
 ## 4. Gate-Status
 
@@ -67,10 +74,10 @@ Der lokale Docker-Nachweis vom 2026-08-30 (RunId `30b69f0b-b140-47e6-8c90-c05e38
 - Gate V4 – Lehrmittelfreigabe: `VALIDATED`; Masterdeck und Profile bestanden Notes-, Manifest-, Custom-Show-, Build-, Render-, Metadaten-, Privacy- und Branding-Abnahme.
 - `LABSCN-001`: `DECIDED` und im Repository verankert.
 - `LABSCN-002`: `IMPLEMENTED_FOR_REVIEW`; die vollständige Szenarioabdeckung ist noch nicht erreicht.
-- `LABSCN-003`: `VALIDATED` für den vollständigen SQL-Server-2025-Docker-Lifecycle; Podman-Parität ist nachgeordnet offen.
+- `LABSCN-003`: `VALIDATED` für den vollständigen SQL-Server-2025-Lifecycle auf Docker und Podman.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
 - `LABINT-002`: `VALIDATED` für Start, `READY_FOR_USER`, Reset und Remove von `CON-004` auf Docker.
-- `LABINT-003`: `PARTIAL`; die frühere `QRY-001`-Provider-Parität ist nachgewiesen, für den neuen `CON-004`-Adapter bleibt Podman offen.
+- `LABINT-003`: `PARTIAL`; die Provider-Parität ist für `QRY-001` und den versionierten `CON-004`-Adapter nachgewiesen, weitere geeignete Szenarien bleiben offen.
 
 `ADV-006` und `ADV-007` bleiben als `DESIGNED`-Verträge vollständig: Die zugehörigen LAB-VP3-/VP4-Grenzen, Feature-Skips und Diagnoseabhängigkeiten sind dokumentiert, ihre fachliche Umsetzung erfolgt erst in den jeweiligen Folgewellen.
 
@@ -80,7 +87,7 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
 
 1. `QRY-004`-Runner-Konflikt korrigieren und Matrix erneut validieren.
 2. Query-Store-/Extended-Events-Pilot (`DGN-003`/`DGN-005`) als belastbare Evidenz für diagnoseabhängige Schnitte aufbauen.
-3. `CON-004` besitzt den validierten Docker-Vertical-Slice; als nachgeordnete Provider-Evidenz bleibt Podman offen.
+3. `CON-004` besitzt den validierten Docker-/Podman-Vertical-Slice; weitere geeignete interaktive Szenarien folgen separat.
 4. `OPT-017` getrennt implementieren und validieren.
 5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
 6. `W-PRS-001` ist abgeschlossen.

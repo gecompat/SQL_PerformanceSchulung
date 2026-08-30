@@ -83,7 +83,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 - [x] `LABSCN-001` Ziel, Verantwortungsgrenze und Lifecycle interaktiver Schulungsszenarien verbindlich festlegen.
 - [ ] `LABSCN-002` vollständig abschließen. Inventar und Schema für die ersten drei Wellen liegen als `IMPLEMENTED_FOR_REVIEW` vor; weitere Beispiele und die vollständige Bedienungszuordnung bleiben offen.
-- [x] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: `CON-004` wird über den Project Adapter `0.1` auf SQL Server 2025 Linux provisioniert, fachlich vorbereitet, als `READY_FOR_USER` übergeben, zurückgesetzt und entfernt; der vollständige Docker-Lifecycle ist praktisch validiert.
+- [x] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: `CON-004` wird über den Project Adapter `0.1` auf SQL Server 2025 Linux provisioniert, fachlich vorbereitet, als `READY_FOR_USER` übergeben, zurückgesetzt und entfernt; der vollständige Lifecycle ist mit Docker und Podman praktisch validiert.
 - [ ] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
 - [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen. Die priorisierten sofortigen, bedingten und zukünftigen Kandidaten stehen in [`Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md`](../Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md); jeder Kandidat benötigt vor der Umsetzung eine eigene Detailanalyse und Quellenfreigabe.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
@@ -95,9 +95,10 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] `LABINT-001` automatisierten Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen.
 - [x] `LABINT-002` Smoke-/Core-Test für Aufbau, Vorbereitung, Reset und Abbau des ersten interaktiven Vertical Slice implementieren.
   - [x] Technischen QRY-001-Vorläufer auf Docker und Podman mit SQL Server 2025 über öffentliche `SQL_Server_Lab`-Commands implementieren und je Provider mit zwei vollständigen Demoläufen, unabhängiger Datenbank-Cleanup-Prüfung und Infrastrukturabbau lokal validieren.
-  - [x] Den Test auf den vollständigen `CON-004`-Lifecycle `READY_FOR_USER` -> Reset -> `READY_FOR_USER` -> Remove erweitern und auf SQL Server 2025 mit Docker praktisch validieren.
+  - [x] Den Test auf den vollständigen `CON-004`-Lifecycle `READY_FOR_USER` -> Reset -> `READY_FOR_USER` -> Remove erweitern und auf SQL Server 2025 mit Docker und Podman praktisch validieren.
 - [ ] `LABINT-003` Docker-/Podman-Parität für geeignete Szenarien praktisch prüfen.
   - [x] Provider-Parität für `QRY-001` auf SQL Server 2025 mit jeweils zwei vollständigen Läufen lokal nachweisen.
+  - [x] Provider-Parität für den versionierten `CON-004`-Adapter-Lifecycle auf SQL Server 2025 mit vollständigem Start-, Reset- und Remove-Lauf nachweisen.
   - [ ] Weitere geeignete Szenarien und die freigegebene Versionsmatrix prüfen.
 - [ ] `LABINT-004` gelbe und vollständige Container-Matrix nach Safety- und Szenariofreigabe aktivieren.
 

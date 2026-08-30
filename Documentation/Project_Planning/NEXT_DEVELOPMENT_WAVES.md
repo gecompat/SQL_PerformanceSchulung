@@ -33,7 +33,7 @@
 |---|---|---|
 | `W-STA-001` | `IMPLEMENTED` | Runnervertrag und Regressionstests sind grün; die zweifache 2019/2022/2025-Matrix bleibt offen. |
 | `W-DGN-001` | `IMPLEMENTED` | Query-Store- und XE-Pilot sind statisch vollständig; die Runtime-Matrix bleibt offen. |
-| `W-SCN-001` | `VALIDATED` | Project Adapter `0.1` und vollständiger SQL-Server-2025-Docker-Lifecycle sind praktisch validiert; die Podman-Parität bleibt unter `LABINT-003` offen. |
+| `W-SCN-001` | `VALIDATED` | Project Adapter `0.1` und vollständiger SQL-Server-2025-Lifecycle sind auf Docker und Podman praktisch validiert. |
 | `W-ADV-017` | `IMPLEMENTED` | Demo, Runner und Workflow liegen vor; die zweifache Parallelitätsmatrix bleibt offen. |
 | `W-SQL25-001` | `VALIDATED` | Quellen-, Claim- und Entscheidungsgrundlage ist abgeschlossen; daraus folgt keine neue Featuredemo. |
 | `W-PRS-001` | `VALIDATED` | 102 SlideKeys, drei Custom Shows, Build 41/66/102 und vollständige Master-/Profilrender liegen vor. |
@@ -71,4 +71,4 @@ Renderprüfung -> Gate V4
 
 ## 5. Nächster belegpflichtiger Schritt
 
-Die Entwicklungsfolge ist implementiert. `W-SCN-001` besitzt nun einen vollständigen Docker-Runtimenachweis; die Podman-Parität bleibt offen. Als nächster W-COV-Schritt ist `CON-009` auf SQL Server 2019 evidenzseitig zu stabilisieren; daneben bleiben weitere Runtime-Evidenzmatrizen früherer Wellen offen. Kein `IMPLEMENTED`-Eintrag wird allein aufgrund statischer Ergebnisse auf `VALIDATED` gesetzt.
+Die Entwicklungsfolge ist implementiert. `W-SCN-001` besitzt vollständige Docker- und Podman-Runtimenachweise. Als nächster W-COV-Schritt ist `CON-009` auf SQL Server 2019 evidenzseitig zu stabilisieren; daneben bleiben weitere Runtime-Evidenzmatrizen früherer Wellen offen. Kein `IMPLEMENTED`-Eintrag wird allein aufgrund statischer Ergebnisse auf `VALIDATED` gesetzt.

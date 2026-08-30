@@ -96,6 +96,12 @@ die scopegebundene Docker- oder Podman-Infrastruktur samt aktivem
 Szenario-State. Der Lab-Core darf den abgeschlossenen Run als nicht aktiven,
 lokalen Auditdatensatz mit Status `REMOVED` behalten.
 
+Der vollständige Adapter-Lifecycle ist lokal auf SQL Server 2025 mit Docker
+(RunId `30b69f0b-b140-47e6-8c90-c05e38bd7c99`) und Podman (RunId
+`f80f7d82-934b-4c7c-9d2a-a80e975d92d5`) validiert. Beide Läufe erreichten
+`READY_FOR_USER`, stellten diesen Zustand per Reset auf derselben Instanz wieder
+her und endeten nach fachlichem und infrastrukturellem Cleanup als `REMOVED`.
+
 ```powershell
 $pythonPath = (Get-Command python).Source
 $env:SQLPERF_PYTHON = $pythonPath
