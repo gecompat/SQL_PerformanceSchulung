@@ -83,7 +83,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 - [x] `LABSCN-001` Ziel, Verantwortungsgrenze und Lifecycle interaktiver Schulungsszenarien verbindlich festlegen.
 - [ ] `LABSCN-002` vollständig abschließen. Inventar und Schema für die ersten drei Wellen liegen als `IMPLEMENTED_FOR_REVIEW` vor; weitere Beispiele und die vollständige Bedienungszuordnung bleiben offen.
-- [ ] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: Beispiel auswählen, über `SQL_Server_Lab` provisionieren, fachlich vorbereiten, als `READY_FOR_USER` übergeben, zurücksetzen und entfernen.
+- [x] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: `CON-004` wird über den Project Adapter `0.1` auf SQL Server 2025 Linux provisioniert, fachlich vorbereitet, als `READY_FOR_USER` übergeben, zurückgesetzt und entfernt; der vollständige Docker-Lifecycle ist praktisch validiert.
 - [ ] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
 - [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen. Die priorisierten sofortigen, bedingten und zukünftigen Kandidaten stehen in [`Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md`](../Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md); jeder Kandidat benötigt vor der Umsetzung eine eigene Detailanalyse und Quellenfreigabe.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
@@ -93,9 +93,9 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 ## P1 - Nachgeordnete SQL_Server_Lab-Qualitätssicherung
 
 - [x] `LABINT-001` automatisierten Testkatalog, JSON-Schema und statische Vollständigkeitsprüfung erstellen.
-- [ ] `LABINT-002` Smoke-/Core-Test für Aufbau, Vorbereitung, Reset und Abbau des ersten interaktiven Vertical Slice implementieren.
+- [x] `LABINT-002` Smoke-/Core-Test für Aufbau, Vorbereitung, Reset und Abbau des ersten interaktiven Vertical Slice implementieren.
   - [x] Technischen QRY-001-Vorläufer auf Docker und Podman mit SQL Server 2025 über öffentliche `SQL_Server_Lab`-Commands implementieren und je Provider mit zwei vollständigen Demoläufen, unabhängiger Datenbank-Cleanup-Prüfung und Infrastrukturabbau lokal validieren.
-  - [ ] Den Test nach dem noch offenen `READY_FOR_USER`-, Reset- und Remove-Workflow von `LABSCN-003` auf den vollständigen interaktiven Lifecycle erweitern.
+  - [x] Den Test auf den vollständigen `CON-004`-Lifecycle `READY_FOR_USER` -> Reset -> `READY_FOR_USER` -> Remove erweitern und auf SQL Server 2025 mit Docker praktisch validieren.
 - [ ] `LABINT-003` Docker-/Podman-Parität für geeignete Szenarien praktisch prüfen.
   - [x] Provider-Parität für `QRY-001` auf SQL Server 2025 mit jeweils zwei vollständigen Läufen lokal nachweisen.
   - [ ] Weitere geeignete Szenarien und die freigegebene Versionsmatrix prüfen.

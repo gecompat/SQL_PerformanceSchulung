@@ -8,6 +8,11 @@
 - Microsoft `sqlcmd`;
 - eine bestätigte isolierte Wegwerfumgebung.
 
+Der fachliche Aufbau verwendet den Project Adapter unter
+`Scenarios/CON-004/adapter` mit Vertragsversion `0.1`. Der Adapter akzeptiert
+ausschließlich SQL Server 2025 auf einer Linux-Containerinstanz und enthält
+getrennte Entrypoints für Preflight, Installation, Validierung und Cleanup.
+
 Das Szenario ist `YELLOW`. Es hält absichtlich Sperren und darf nicht auf einer
 Instanz mit fremder Arbeit ausgeführt werden.
 
@@ -25,17 +30,29 @@ $ready = Start-PerformanceTrainingScenario `
 ```
 
 `Start-PerformanceTrainingScenario` provisioniert eine SQL-Server-2025-
-Wegwerfinstanz, führt Preflight, Setup und Baseline aus und endet mit
-`READY_FOR_USER`. Die Ausgabe enthält Server, Datenbank, Einstiegspunkt und die
+Wegwerfinstanz, validiert den Adapter gegen den konkreten Lab-Run, führt dessen
+Preflight-, Install- und Validate-Entrypoints aus und endet mit
+`READY_FOR_USER`. Die Ausgabe enthält Adaptervertragsversion, Server,
+Datenbank, Einstiegspunkt und die
 vier Rollen `HEAD`, `MIDDLE`, `LEAF` und `OBSERVER`. Sie enthält kein Kennwort.
+`SqlcmdVariables` liefert zusätzlich die verbindlichen Werte `DemoId=CON-004`
+und `RunToken=LOCAL`.
 
 ## Interaktive Durchführung
 
-Vier SQL-Fenster mit der ausgegebenen Datenbank verbinden. Die in der Übergabe
-genannten Skripte in der Reihenfolge `HEAD`, `MIDDLE`, `LEAF`, `OBSERVER`
-starten. Der Observer prüft die Blocking Chain und löst anschließend die
-kontrollierte Freigabe aus. Das automatisierte Runtime-Manifest bleibt ein
-getrennter `AUTOMATED_VERIFY`-Pfad.
+Vier SQL-Fenster mit der ausgegebenen Datenbank verbinden und den SQLCMD-Modus
+aktivieren. In jedem Fenster vor dem jeweiligen Session-Skript diese Variablen
+setzen:
+
+```sql
+:setvar DemoId "CON-004"
+:setvar RunToken "LOCAL"
+```
+
+Danach die in der Übergabe genannten Skripte in der Reihenfolge `HEAD`,
+`MIDDLE`, `LEAF`, `OBSERVER` starten. Der Observer prüft die Blocking Chain und
+löst anschließend die kontrollierte Freigabe aus. Das automatisierte
+Runtime-Manifest bleibt ein getrennter `AUTOMATED_VERIFY`-Pfad.
 
 ## Reset
 
@@ -61,3 +78,18 @@ Remove-PerformanceTrainingScenario `
 Remove führt zuerst den fachlichen Cleanup aus und entfernt danach die
 scopegebundene Lab-Infrastruktur. Lokaler Zustand liegt ausschließlich unter
 `Runtime/State/PerformanceTrainingScenario`.
+
+## Vollständiger Lifecycle-Smoke
+
+Der folgende Test prüft Start, `READY_FOR_USER`, Reset auf derselben Instanz,
+markergebundenes fachliches Cleanup und den vollständigen Infrastrukturabbau:
+
+```powershell
+./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
+    -Provider docker `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
+
+./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
+    -Provider podman `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
+```
