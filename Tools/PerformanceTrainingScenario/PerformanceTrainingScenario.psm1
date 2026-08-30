@@ -10,8 +10,10 @@ $script:ScenarioDefinitions = @{
             podman = 'Scenarios\CON-004\sql-server-lab.podman.json'
         }
         DemoRoot = 'Demos\07_Concurrency\CON-004_Blocking_Chain'
+        AdapterPath = 'Scenarios\CON-004\adapter'
         DemoId = 'CON-004'
         RunToken = 'LOCAL'
+        Database = 'SQLPERF_LAB_CON004_LOCAL'
         SafetyLevel = 'YELLOW'
     }
 }
@@ -47,16 +49,6 @@ function Resolve-LabModule {
     Import-Module $module.Path -Force
 }
 
-function Resolve-Sqlcmd {
-    param([string]$SqlcmdPath)
-    if ($SqlcmdPath -and (Test-Path -LiteralPath $SqlcmdPath -PathType Leaf)) {
-        return (Resolve-Path -LiteralPath $SqlcmdPath).Path
-    }
-    $command = Get-Command sqlcmd -ErrorAction SilentlyContinue
-    if (-not $command) { throw 'Das externe Microsoft-Tool sqlcmd wurde nicht gefunden.' }
-    return $command.Source
-}
-
 function Get-StatePath {
     param([string]$ScenarioId,[string]$StateRoot)
     return Join-Path (Resolve-ScenarioStateRoot $StateRoot) ($ScenarioId + '.json')
@@ -77,34 +69,51 @@ function Write-ScenarioState {
     $State | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $path -Encoding utf8NoBOM
 }
 
-function Invoke-ScenarioSql {
+function Invoke-WithScenarioSqlcmdPath {
     param(
-        [Parameter(Mandatory)][string]$SqlcmdPath,
-        [Parameter(Mandatory)][string]$Server,
-        [Parameter(Mandatory)][SecureString]$SaPassword,
-        [Parameter(Mandatory)][string]$ScriptPath,
-        [Parameter(Mandatory)][string]$Database,
-        [Parameter(Mandatory)][string]$DemoId,
-        [Parameter(Mandatory)][string]$RunToken
+        [string]$SqlcmdPath,
+        [Parameter(Mandatory)][scriptblock]$Action
     )
-    $previous = $env:SQLCMDPASSWORD
+    if (-not $SqlcmdPath) { return & $Action }
+    if (-not (Test-Path -LiteralPath $SqlcmdPath -PathType Leaf)) {
+        throw "Das angegebene sqlcmd wurde nicht gefunden: $SqlcmdPath"
+    }
+    $resolved = (Resolve-Path -LiteralPath $SqlcmdPath).Path
+    if ([IO.Path]::GetFileNameWithoutExtension($resolved) -ne 'sqlcmd') {
+        throw "-SqlcmdPath muss auf sqlcmd zeigen: $resolved"
+    }
+    $previousPath = $env:PATH
     try {
-        $env:SQLCMDPASSWORD = ([PSCredential]::new('sa',$SaPassword)).GetNetworkCredential().Password
-        $targetDatabase = "SQLPERF_LAB_$($DemoId.Replace('-', ''))_$RunToken"
-        $arguments = @(
-            '-S',$Server,'-U','sa','-C','-d',$Database,'-i',$ScriptPath,
-            '-b','-r','1','-v',"DemoId=$DemoId","RunToken=$RunToken",
-            "TargetDatabase=$targetDatabase",'ConfirmIsolatedLab=1',
-            'HighImpactConfirmed=0','MaximumRuntimeSeconds=300'
-        )
-        $output = & $SqlcmdPath @arguments 2>&1
-        if ($LASTEXITCODE -ne 0) { throw "SQL-Phase fehlgeschlagen: $($output -join [Environment]::NewLine)" }
-        return $output
+        $env:PATH = (Split-Path $resolved -Parent) + [IO.Path]::PathSeparator + $previousPath
+        return & $Action
     }
     finally {
-        if ($null -eq $previous) { Remove-Item Env:SQLCMDPASSWORD -ErrorAction SilentlyContinue }
-        else { $env:SQLCMDPASSWORD = $previous }
+        $env:PATH = $previousPath
     }
+}
+
+function Invoke-ScenarioAdapter {
+    param(
+        [Parameter(Mandatory)][string]$AdapterPath,
+        [Parameter(Mandatory)][string]$RunId,
+        [Parameter(Mandatory)][SecureString]$SaPassword,
+        [Parameter(Mandatory)][ValidateSet('install','validate','cleanup')][string]$Entrypoint,
+        [Parameter(Mandatory)][string]$StateRoot,
+        [string]$SqlcmdPath
+    )
+    $result = Invoke-WithScenarioSqlcmdPath -SqlcmdPath $SqlcmdPath -Action {
+        Install-SqlServerLabAdapter `
+            -Path $AdapterPath `
+            -RunId $RunId `
+            -InstanceId 'primary' `
+            -SaPassword $SaPassword `
+            -Entrypoint $Entrypoint `
+            -StateRoot $StateRoot
+    }
+    if (-not $result.Success -or $result.Status -ne 'ADAPTER_APPLIED') {
+        throw "CON-004-Adapterentrypoint '$Entrypoint' fehlgeschlagen ($($result.Status)): $($result.Message)"
+    }
+    return $result
 }
 
 function Get-PerformanceTrainingScenario {
@@ -143,33 +152,40 @@ function Start-PerformanceTrainingScenario {
     )
     $definition = Resolve-ScenarioDefinition $ScenarioId
     Resolve-LabModule $SqlServerLabModulePath
-    $sqlcmd = Resolve-Sqlcmd $SqlcmdPath
     $root = Resolve-ScenarioStateRoot $StateRoot
     $env:SQL_SERVER_LAB_STATE = $root
     $statePath = Get-StatePath $ScenarioId $root
     if (Test-Path -LiteralPath $statePath) { throw "$ScenarioId besitzt bereits einen lokalen Lifecycle-Zustand." }
     $manifest = Join-Path $script:RepositoryRoot $definition.LabManifests[$Provider]
+    $adapterPath = Join-Path $script:RepositoryRoot $definition.AdapterPath
     $validation = Test-SqlServerLabManifest -Path $manifest
     if (-not $validation.IsValid) { throw "SQL_Server_Lab-Manifest ungueltig: $($validation.Errors -join '; ')" }
+    $adapterValidation = Test-SqlServerLabAdapter -Path $adapterPath
+    if (-not $adapterValidation.IsReady) { throw "CON-004-Adapter ungueltig: $($adapterValidation.Errors -join '; ')" }
     $lab = New-SqlServerLab -Manifest $manifest -SaPassword $SaPassword -StateRoot $root -NonInteractive
     try {
         $detail = Get-SqlServerLab -RunId $lab.RunId -Detailed
         $instance = @($detail.Instances | Where-Object Id -eq 'primary')[0]
         if (-not $instance -or -not $instance.ContainerUp) { throw 'Die primaere Lab-Instanz ist nicht betriebsbereit.' }
         $server = "$($instance.Host),$($instance.Port)"
-        $demoRoot = Join-Path $script:RepositoryRoot $definition.DemoRoot
-        Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '00_Preflight.sql') 'master' $definition.DemoId $definition.RunToken | Out-Null
-        Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '10_Setup.sql') 'master' $definition.DemoId $definition.RunToken | Out-Null
-        $database = "SQLPERF_LAB_$($definition.DemoId.Replace('-', ''))_$($definition.RunToken)"
-        Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '20_Baseline.sql') $database $definition.DemoId $definition.RunToken | Out-Null
+        $runtimeAdapterValidation = Invoke-WithScenarioSqlcmdPath -SqlcmdPath $SqlcmdPath -Action {
+            Test-SqlServerLabAdapter -Path $adapterPath -RunId $lab.RunId -InstanceId 'primary' -StateRoot $root
+        }
+        if (-not $runtimeAdapterValidation.IsReady) { throw "CON-004-Adapter ist mit dem Lab-Run inkompatibel: $($runtimeAdapterValidation.Errors -join '; ')" }
+        Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $lab.RunId -SaPassword $SaPassword -Entrypoint install -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
+        Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $lab.RunId -SaPassword $SaPassword -Entrypoint validate -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
+        $database = $definition.Database
         $contract = Get-Content -Raw -LiteralPath (Join-Path $script:RepositoryRoot $definition.ScenarioPath) | ConvertFrom-Json
         Write-ScenarioState $ScenarioId $root @{
             ScenarioId=$ScenarioId; RunId=$lab.RunId; Provider=$Provider; Database=$database;
+            AdapterProjectId=$adapterValidation.ProjectId; AdapterContractVersion=$adapterValidation.Adapter.adapterContractVersion;
             Status='READY_FOR_USER'; CreatedUtc=[DateTime]::UtcNow.ToString('o')
         }
         [PSCustomObject]@{
             ScenarioId=$ScenarioId; Status='READY_FOR_USER'; RunId=$lab.RunId; Provider=$Provider;
-            Server=$server; Database=$database; SafetyLevel='YELLOW';
+            Server=$server; Database=$database; SafetyLevel='YELLOW'; AdapterProjectId=$adapterValidation.ProjectId;
+            AdapterContractVersion=$adapterValidation.Adapter.adapterContractVersion;
+            SqlcmdVariables=[ordered]@{DemoId=$definition.DemoId;RunToken=$definition.RunToken}
             SessionRoles=@($contract.orchestration.manual.sessionScripts | Sort-Object startOrder | Select-Object role,script,startOrder,instruction)
             EntryDocument=Join-Path $script:RepositoryRoot $contract.interactive.entryDocument
             ResetCommand="Reset-PerformanceTrainingScenario -ScenarioId $ScenarioId"
@@ -177,6 +193,7 @@ function Start-PerformanceTrainingScenario {
         }
     }
     catch {
+        Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
         Remove-SqlServerLab -RunId $lab.RunId -StateRoot $root -Force -Confirm:$false | Out-Null
         throw
     }
@@ -191,15 +208,15 @@ function Reset-PerformanceTrainingScenario {
         [string]$SqlcmdPath,
         [string]$StateRoot
     )
-    $definition=Resolve-ScenarioDefinition $ScenarioId; Resolve-LabModule $SqlServerLabModulePath; $sqlcmd=Resolve-Sqlcmd $SqlcmdPath
+    $definition=Resolve-ScenarioDefinition $ScenarioId; Resolve-LabModule $SqlServerLabModulePath
     $root=Resolve-ScenarioStateRoot $StateRoot; $env:SQL_SERVER_LAB_STATE=$root; $state=Read-ScenarioState $ScenarioId $root
     $detail=Get-SqlServerLab -RunId $state.RunId -Detailed; $instance=@($detail.Instances | Where-Object Id -eq 'primary')[0]
     if (-not $instance -or -not $instance.ContainerUp) { throw 'Die Szenarioinstanz ist nicht betriebsbereit.' }
-    $server="$($instance.Host),$($instance.Port)"; $demoRoot=Join-Path $script:RepositoryRoot $definition.DemoRoot
-    Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '90_Cleanup.sql') 'master' $definition.DemoId $definition.RunToken | Out-Null
-    Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '10_Setup.sql') 'master' $definition.DemoId $definition.RunToken | Out-Null
-    Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '20_Baseline.sql') $state.Database $definition.DemoId $definition.RunToken | Out-Null
-    [PSCustomObject]@{ScenarioId=$ScenarioId;Status='READY_FOR_USER';RunId=$state.RunId;Provider=$state.Provider;Database=$state.Database}
+    $adapterPath=Join-Path $script:RepositoryRoot $definition.AdapterPath
+    Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $state.RunId -SaPassword $SaPassword -Entrypoint cleanup -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
+    Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $state.RunId -SaPassword $SaPassword -Entrypoint install -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
+    Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $state.RunId -SaPassword $SaPassword -Entrypoint validate -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
+    [PSCustomObject]@{ScenarioId=$ScenarioId;Status='READY_FOR_USER';RunId=$state.RunId;Provider=$state.Provider;Database=$state.Database;AdapterProjectId=$state.AdapterProjectId;AdapterContractVersion=$state.AdapterContractVersion}
 }
 
 function Remove-PerformanceTrainingScenario {
@@ -211,13 +228,13 @@ function Remove-PerformanceTrainingScenario {
         [string]$SqlcmdPath,
         [string]$StateRoot
     )
-    $definition=Resolve-ScenarioDefinition $ScenarioId; Resolve-LabModule $SqlServerLabModulePath; $sqlcmd=Resolve-Sqlcmd $SqlcmdPath
+    $definition=Resolve-ScenarioDefinition $ScenarioId; Resolve-LabModule $SqlServerLabModulePath
     $root=Resolve-ScenarioStateRoot $StateRoot; $env:SQL_SERVER_LAB_STATE=$root; $state=Read-ScenarioState $ScenarioId $root
     if (-not $PSCmdlet.ShouldProcess("$ScenarioId / $($state.RunId)",'fachliche Artefakte und Lab-Infrastruktur entfernen')) { return }
     $detail=Get-SqlServerLab -RunId $state.RunId -Detailed; $instance=@($detail.Instances | Where-Object Id -eq 'primary')[0]
     if ($instance -and $instance.ContainerUp) {
-        $server="$($instance.Host),$($instance.Port)"; $demoRoot=Join-Path $script:RepositoryRoot $definition.DemoRoot
-        Invoke-ScenarioSql $sqlcmd $server $SaPassword (Join-Path $demoRoot '90_Cleanup.sql') 'master' $definition.DemoId $definition.RunToken | Out-Null
+        $adapterPath=Join-Path $script:RepositoryRoot $definition.AdapterPath
+        Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $state.RunId -SaPassword $SaPassword -Entrypoint cleanup -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
     }
     $removed=Remove-SqlServerLab -RunId $state.RunId -StateRoot $root -Force -Confirm:$false
     if ($removed.Status -ne 'REMOVED') { throw "Infrastrukturabbau endete mit $($removed.Status)." }
