@@ -25,7 +25,7 @@ Die Demo empfiehlt weder einen globalen `MAXDOP`-Wert noch eine universelle Skew
 
 ## 6. Synthetisches Datenmodell
 
-Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verteilt 4.096 Gruppenschlüssel annähernd gleichmäßig; `S` konzentriert 95 Prozent der Zeilen auf einen Schlüssel. Zeilenzahl und Messwertsumme sind identisch. Alle Daten sind deterministisch und synthetisch.
+Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verteilt 4.096 Gruppenschlüssel annähernd gleichmäßig; `S` konzentriert 95 Prozent der Zeilen auf einen Schlüssel. Die Aggregation verwendet einen fest auf 16 Zeilen begrenzten synthetischen Multiplikator und normalisiert Anzahl und Messwertsumme anschließend wieder. Damit überschreitet die Abfrage auch auf kompakten Testinstanzen reproduzierbar die Parallelitätsschwelle, ohne Ergebnismenge oder Datenbestand zu vergrößern. Zeilenzahl und Messwertsumme sind identisch. Alle Daten sind deterministisch und synthetisch.
 
 ## 7. Ablauf
 
