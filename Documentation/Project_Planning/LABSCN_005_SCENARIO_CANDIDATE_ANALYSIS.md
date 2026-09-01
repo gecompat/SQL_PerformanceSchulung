@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Arbeitspaket | `LABSCN-005` |
-| Status | `ACTIVE_AFTER_DGN005_VALIDATION` |
+| Status | `ACTIVE_AFTER_CON006_VALIDATION` |
 | Stand | 2026-09-01 |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Provisionierungsframework | `gecompat/SQL_Server_Lab` |
@@ -24,12 +24,12 @@ bereits validiert sind. Vor der Umsetzung benötigt jeder Kandidat einen eigenen
 Szenariovertrag, ein Quellen-Delta-Review und die zutreffende Safety- und
 Runtime-Abnahme.
 
-Erster abgeschlossener Folgeschnitt: `DGN-005` besitzt nun ein eigenes
-Detailreview, einen Project Adapter `0.1` und einen praktisch validierten
-SQL-Server-2025-Lifecycle auf Docker und Podman. `DGN-003` bleibt als
-automatisiert runtimevalidierte Query-Store-Demo bestehen; `DGN-004` ist nicht
-Bestandteil dieses interaktiven Slices. Der nächste mögliche Kandidat ist
-`CON-006`, jedoch erst nach eigenem Quellen- und Detailreview.
+`DGN-005` und `CON-006` sind als Folgeschnitte nach eigenem Detailreview über
+Project Adapter `0.1` mit einem praktisch validierten SQL-Server-2025-Lifecycle
+auf Docker und Podman abgeschlossen. `DGN-003` bleibt als automatisiert
+runtimevalidierte Query-Store-Demo bestehen; `DGN-004` ist nicht Bestandteil
+des interaktiven `DGN-005`-Slices. Der nächste mögliche Kandidat ist `DGN-007`,
+jedoch erst nach eigenem Detailreview des vollständigen Capstone-Vertrags.
 
 ## 2. Bewertungsgrundlage
 
@@ -351,14 +351,15 @@ Die bestehende operative Reihenfolge bleibt maßgeblich. Nach dem ersten
 vollständigen `LABSCN-003`-Vertical-Slice kann `LABSCN-005` in dieser Folge
 vertieft werden:
 
-1. Query-Store-/Extended-Events-Pilot aus `DGN-003` bis `DGN-005`;
-2. `CON-006` als zweites, klar beobachtbares Multi-Session-Szenario;
-3. `OPT-017` sowie `OPT-014`/`RES-004` als ressourcengebundene Containerfälle;
-4. `CON-009`, `CON-007` und `CON-008` als versionsabhängige Instanz- und
+1. Query-Store-/Extended-Events-Pilot aus `DGN-003` bis `DGN-005` (abgeschlossen);
+2. `CON-006` als klar beobachtbares Multi-Session-Szenario (abgeschlossen);
+3. `DGN-007` als eigenständig freizugebender Capstone-Schnitt;
+4. `OPT-017` sowie `OPT-014`/`RES-004` als ressourcengebundene Containerfälle;
+5. `CON-009`, `CON-007` und `CON-008` als versionsabhängige Instanz- und
    Concurrency-Schnitte;
-5. Log- und Columnstore-Szenarien;
-6. bedingte Spikes;
-7. rote und infrastrukturell erweiterte Szenarien zuletzt.
+6. Log- und Columnstore-Szenarien;
+7. bedingte Spikes;
+8. rote und infrastrukturell erweiterte Szenarien zuletzt.
 
 ## 7. Pflichtfelder der späteren Detailanalyse
 

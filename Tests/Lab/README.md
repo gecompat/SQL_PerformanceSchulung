@@ -118,6 +118,21 @@ Remove-Nachweis bestand am 2026-09-01 auf Docker (RunId
 Observation, Mitigation und Comparison mit `PASS/OK` aus und endeten mit
 `REMOVED`.
 
+`CON-006` ergänzt den dritten Project Adapter `0.1`. Die vollständige
+SQL-Server-2025-Abnahme bestand auf Docker (RunId
+`76cff6ed-a714-44e6-beda-6b916600cb98`) und Podman (RunId
+`6d2d0a51-1915-4e65-a380-baec715fc676`). Beide Läufe belegten genau ein
+Deadlockopfer mit Fehler 1205, genau einen Survivor, einen Deadlock-Graph, die
+erfolgreiche geordnete Gegenprobe sowie Reset zu `READY_FOR_USER` und Remove zu
+`REMOVED`.
+
+```powershell
+./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
+    -ScenarioId CON-006 `
+    -Provider docker `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
+```
+
 ```powershell
 ./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
     -ScenarioId DGN-005 `

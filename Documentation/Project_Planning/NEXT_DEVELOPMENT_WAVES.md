@@ -19,9 +19,9 @@
 
 | Reihenfolge | Welle | Ziel und abgegrenzter Umfang | Akzeptanzkriterium |
 |---:|---|---|---|
-| 1 | `LABSCN-005/CON-006` | Nur nach eigenem Quellen- und Detailreview entscheiden, ob der bereits runtimevalidierte Deadlock-Zyklus einen zusätzlichen interaktiven Mehrsession-Slice rechtfertigt. | Lernmehrwert gegenüber `CON-004`, Opfervertrag, XE-Grenze, Safety, Reset und Providerbedarf sind vor Implementierung eindeutig. |
-| 2 | `LABINT-004` | Gelbe beziehungsweise vollständige Container-Matrix nur für einen neu freigegebenen Szenarioslice aktivieren. | Der Slice besitzt Safety-, Quellen- und Szenariofreigabe; Matrix und Cleanup prüfen ausschließlich die neue Aussage. |
-| 3 | `LABSCN-005/DGN-007` | Capstone erst als eigenen Schnitt planen, wenn der vorhandene Query-Store-/XE-Pilot fachlich wiederverwendet werden kann. | Incident, Alternativhypothesen, Zeitfenster, Reset, Quellen und Teilnehmerübergabe sind vollständig; keine versteckte Lösung in Teilnehmerartefakten. |
+| 1 | `LABSCN-005/DGN-007` | Capstone erst als eigenen Schnitt planen, nachdem Query-Store-/XE-Pilot und `CON-006` praktisch wiederverwendbare Evidenz- und Mehrsession-Verträge liefern. | Incident, Alternativhypothesen, Zeitfenster, Reset, Quellen und Teilnehmerübergabe sind vollständig; keine versteckte Lösung in Teilnehmerartefakten. |
+| 2 | nächster `LABSCN-005`-Einzelslice | Nur einen Kandidaten mit eigenem Quellen-, Safety- und Detailreview auswählen; keine pauschale Infrastrukturwelle. | Lernmehrwert, Providerbedarf, Reset, Cleanup und versionsgebundene Aussage sind vor Implementierung eindeutig. |
+| 3 | weitere `LABINT-004`-Matrix | Nur für einen neu freigegebenen gelben Szenarioslice aktivieren. | Matrix und Cleanup prüfen ausschließlich die neue freigegebene Aussage. |
 
 ## 2.1 Umsetzungsstand der Wellen
 
@@ -42,6 +42,8 @@
 | `INF-002`/`INF-003` | `VALIDATED` | Docker und Podman melden `RESOURCE_OK`; der kompakte SQL-Server-2025-Lifecycle und Recovery-Pfad sind dokumentiert. |
 | `LABINT-003` | `VALIDATED` | Provider-Parität ist für `QRY-001`, `CON-004` und `DGN-005` praktisch belegt. |
 | `LABSCN-005/DGN-005` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `d5143f2a-…` und Podman-Run `82791985-…` führten die Teilnehmerphasen aus und endeten nach Start und Reset vollständig als `REMOVED`. |
+| `LABSCN-005/CON-006` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `76cff6ed-…` und Podman-Run `6d2d0a51-…` belegten Opfer 1205, Survivor, Deadlock-Graph, geordnete Gegenprobe, Reset und `REMOVED`. |
+| `LABINT-004/CON-006` | `VALIDATED` | Die vollständige freigegebene Matrix SQL Server 2025 × Docker/Podman ist praktisch belegt und prüft ausschließlich den neuen gelben Slice. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
 
@@ -61,8 +63,8 @@ Vector- und KI-Funktionen liegen außerhalb des derzeitigen Curriculumzuschnitts
 ## 4. Abhängigkeits- und Stop-Regeln
 
 ```text
-LABSCN-002 + LABSCN-004 -> DGN-005 validiert -> weiterer Kandidat nur nach Einzelreview
-Query Store/XE-Pilot validiert -> DGN-007 als eigener Folgeschnitt zulässig
+LABSCN-002 + LABSCN-004 -> DGN-005 + CON-006 validiert -> weiterer Kandidat nur nach Einzelreview
+Query Store/XE-Pilot + Mehrsession-Vertrag validiert -> DGN-007 als eigener Folgeschnitt zulässig
 ```
 
 - Kein `DGN-007` ohne validierten Query-Store-/XE-Pilot.
@@ -72,8 +74,9 @@ Query Store/XE-Pilot validiert -> DGN-007 als eigener Folgeschnitt zulässig
 
 ## 5. Nächster belegpflichtiger Schritt
 
-`LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der
-`DGN-005`-Folgeslice sind abgeschlossen. Der nächste mögliche Schnitt ist eine
-eigenständige Detail- und Quellenentscheidung zu `CON-006`; sie ist kein
-automatischer Implementierungsauftrag. Ressourcen-, Netzwerk-, Hyper-V- und
-gemischte Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
+`LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003`, der
+`CON-006`-bezogene `LABINT-004`-Schnitt sowie die `DGN-005`- und
+`CON-006`-Folgeslices sind abgeschlossen. Der nächste mögliche Schnitt ist ein
+eigenständiges Detailreview zu `DGN-007`; daraus folgt noch kein automatischer
+Implementierungsauftrag. Ressourcen-, Netzwerk-, Hyper-V- und gemischte
+Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.

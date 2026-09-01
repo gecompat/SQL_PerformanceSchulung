@@ -4,11 +4,11 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-09-01 |
-| geprüfter Repository-Basisstand | `b9a1ac373cd42015509069787e0c6646a7a62d22` auf `origin/main` |
+| geprüfter Repository-Basisstand | `19f3447cb635ec4aa1f9b35cfea8688f88479743` auf `origin/main` |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
-| Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003` und `LABINT-003` `VALIDATED` |
-| Szenariowelle | `CON-004` und `DGN-005` – Project Adapter `0.1` und vollständiger Docker-/Podman-Lifecycle auf SQL Server 2025 validiert |
+| Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
+| Szenariowelle | `CON-004`, `DGN-005` und `CON-006` – Project Adapter `0.1` und vollständiger Docker-/Podman-Lifecycle auf SQL Server 2025 validiert |
 | Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
@@ -54,9 +54,9 @@ Die fachlichen Runtime-Nachweise stammen aus den verlinkten GitHub-Actions-Läuf
 
 `LABSCN-002` inventarisiert alle 22 produktiven Demos vollständig und wird
 gegen den aktiven Demo-Katalog validiert. `LABSCN-003` setzt `CON-004` als
-ersten vollständigen Vertical Slice um; `LABSCN-005` ergänzt `DGN-005` als
-zweiten freigegebenen Slice. Beide versionierten Project Adapter `0.1`
-begrenzen ihren interaktiven Pfad auf SQL Server 2025 Linux in einer isolierten
+ersten vollständigen Vertical Slice um; `LABSCN-005` ergänzt `DGN-005` und
+`CON-006` als zweiten und dritten freigegebenen Slice. Alle drei versionierten
+Project Adapter `0.1` begrenzen ihren interaktiven Pfad auf SQL Server 2025 Linux in einer isolierten
 Docker- oder Podman-Wegwerfumgebung und besitzen getrennte Preflight-, Install-,
 Validate- und Cleanup-Entrypoints.
 
@@ -82,6 +82,15 @@ dem Reset erneut `READY_FOR_USER`; die markergefilterte, speicherbegrenzte
 Extended-Events-Session sowie Datenbank, Container und Volume wurden danach
 vollständig entfernt.
 
+Der `CON-006`-Folgeslice bestand am 2026-09-01 den vollständigen Lifecycle auf
+Docker (RunId `76cff6ed-a714-44e6-beda-6b916600cb98`) und Podman (RunId
+`6d2d0a51-1915-4e65-a380-baec715fc676`). Beide Provider belegten genau ein
+Opfer mit Fehler 1205, genau einen Survivor, einen Deadlock-Graph sowie zwei
+erfolgreiche Akteure in der geordneten Gegenprobe. Start und Reset endeten als
+`READY_FOR_USER`; Cleanup und Infrastrukturabbau endeten als `REMOVED`. Der
+Podman-Lauf nutzte wegen einer fremden aktiven Altressource ein isoliertes
+Ausweichnetz und ließ die fremde Ressource unverändert.
+
 ## 4. Gate-Status
 
 - Gate V0 – Quellenfreigabe: `VALIDATED`.
@@ -94,9 +103,11 @@ vollständig entfernt.
 - `LABSCN-003`: `VALIDATED` für den vollständigen SQL-Server-2025-Lifecycle auf Docker und Podman.
 - `LABSCN-004`: `VALIDATED`; Auswahl, Start, Übergabe, Reset und Remove sind standardisiert dokumentiert und statisch abgesichert.
 - `LABSCN-005/DGN-005`: `VALIDATED` als zweiter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
+- `LABSCN-005/CON-006`: `VALIDATED` als dritter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
 - `LABINT-002`: `VALIDATED` für Start, `READY_FOR_USER`, Reset und Remove von `CON-004` auf Docker.
 - `LABINT-003`: `VALIDATED` für die freigegebenen Slices `QRY-001`, `CON-004` und `DGN-005`; Docker-/Podman-Parität ist praktisch belegt.
+- `LABINT-004`: `VALIDATED` für die vollständige freigegebene SQL-Server-2025-/Docker-/Podman-Matrix des gelben `CON-006`-Slices einschließlich fachlicher Gegenprobe und Cleanup.
 - `INF-002`/`INF-003`: `VALIDATED`; beide Provider-Preflights melden `RESOURCE_OK`, Quickstart und Recovery sind dokumentiert.
 
 `ADV-006` und `ADV-007` bleiben als `DESIGNED`-Verträge vollständig: Die zugehörigen LAB-VP3-/VP4-Grenzen, Feature-Skips und Diagnoseabhängigkeiten sind dokumentiert, ihre fachliche Umsetzung erfolgt erst in den jeweiligen Folgewellen.
@@ -105,8 +116,8 @@ vollständig entfernt.
 
 Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md). Kurzfristig ist die Reihenfolge:
 
-1. Nächsten `LABSCN-005`-Kandidaten erst nach eigenem Detailreview und Quellenfreigabe auswählen; die Kandidatenanalyse priorisiert `CON-006` nach dem abgeschlossenen Query-Store/XE-Schnitt.
-2. `LABINT-004` erst aktivieren, wenn ein weiterer gelber Slice samt Safety- und Szenariofreigabe eine neue Matrixaussage benötigt.
+1. `DGN-007` nur als eigenen `LABSCN-005`-Capstone-Schnitt und erst nach vollständigem Detailreview von Incident, Alternativhypothesen, Zeitfenster, Reset, Quellen und Teilnehmerübergabe planen.
+2. Eine weitere `LABINT-004`-Matrixaussage erst aktivieren, wenn ein zusätzlicher gelber Slice samt Safety- und Szenariofreigabe sie benötigt.
 3. Docker-/Podman-Ressourcen-, Netzwerk-, Hyper-V- oder gemischte Topologien nur bei einer konkret nachgewiesenen fachlichen Abhängigkeit bearbeiten.
 4. Änderungen an `SQL_Server_Lab` bleiben ohne konkrete Fähigkeitslücke und ausdrückliche Freigabe gesperrt.
 
