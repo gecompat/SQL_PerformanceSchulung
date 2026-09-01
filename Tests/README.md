@@ -9,9 +9,10 @@ python Tests/Static/validate_framework_contracts.py
 python Tests/Static/test_result_contract_evaluator.py
 python Tests/Static/validate_orchestration_runtime.py
 python Tests/Static/test_orchestration_runtime.py
+python Tests/Static/validate_w2_002_dependency_neutralization.py
 ```
 
-Die Prüfungen kontrollieren Pflichtdateien, Statuscodes, Eigentumsmarker, deterministische Generatorregeln, T-SQL-Lexik, Python-Syntax, JSON-Metadaten, Ergebnisverträge, Prozesssteuerung, Safety-Gates, Query-Store- und XE-Verträge sowie Cleanup-Priorität. Die Prozess-Selbsttests verwenden ein synthetisches `sqlcmd`-Ersatzprogramm und benötigen weder Netzwerk noch SQL Server.
+Die Prüfungen kontrollieren Pflichtdateien, Statuscodes, Eigentumsmarker, deterministische Generatorregeln, T-SQL-Lexik, Python-Syntax, JSON-Metadaten, Ergebnisverträge, Prozesssteuerung, Safety-Gates, Query-Store- und XE-Verträge sowie Cleanup-Priorität. `validate_w2_002_dependency_neutralization.py` gleicht die neun priorisierten `W2-A`-Altquellen mit ihrem Ausführungsverbot, den neutralen Datenverträgen und den vier bereits aktiven synthetischen Ersatzdemos ab. Die Prozess-Selbsttests verwenden ein synthetisches `sqlcmd`-Ersatzprogramm und benötigen weder Netzwerk noch SQL Server.
 
 ## Kennungsregistrierung
 
@@ -255,7 +256,7 @@ Der statische Vertrag `validate_adv008_qry004.py` prüft zusätzlich zu Bündela
 |---|---|---|---:|
 | `QRY-004` | `GREEN` | eine Catch-all-Planform über drei Selektivitäten, Ergebnis- und Prüfsummenequivalenz aller drei Strategien, zwei Statementformen für drei dynamische Ausführungen, abgewiesene Positivlistenverletzung, literalfreier Statementtext | 2 |
 
-Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`; lässt sich der Nutzen der Neuoptimierung oder deren Compilepreis nicht von der Messstreuung trennen, endet die betroffene Phase mit `WARN|WARN_EMPIRICAL_VARIANCE`.
+Der Status ist `VALIDATED`. [Actions-Lauf 33222989681](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989681) führte die Demo je Zielversion zweimal aus. Die dokumentierte `WARN_EMPIRICAL_VARIANCE` der Demonstration bleibt sichtbar und zulässig: Sie belegt, dass der erwartete Read-Vorteil in diesen Umgebungen nicht eintrat, während Ergebnis-, Sicherheits-, Wiederverwendungs- und Cleanup-Verträge vollständig erfüllt wurden. Fehlt die Plancache-Evidenz, endet die betroffene Phase weiterhin mit `SKIP|SKIP_EVIDENCE_MISSING`.
 
 ## ADV-008 – Runtime-Matrix für OPT-009
 
@@ -373,8 +374,7 @@ python Tests/Static/validate_privacy_metadata.py .
 Der Workflow `.github/workflows/dgn003-dgn005-pilots.yml` führt `DGN-003` und
 `DGN-005` auf SQL Server 2019, 2022 und 2025 jeweils zweimal aus. Akzeptierte
 Warnungen und kontrollierte Skips bleiben in `DGN_STAGE` und `DGN_SUMMARY`
-sichtbar. Der Status bleibt bis zu einem vollständigen Matrixnachweis
-`IMPLEMENTED`.
+sichtbar. [Actions-Lauf 33222989682](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989682) beendete alle zwölf Demoläufe mit `PASS/OK`; beide Piloten sind `VALIDATED`.
 
 ## W-ADV-017 – parallele Pläne und Skew
 
@@ -387,7 +387,7 @@ Der Runtime-Runner führt `OPT-017` zweimal aus, bestätigt das isolierte gelbe
 Profil und erhält `PASS`, `WARN_EMPIRICAL_VARIANCE` sowie kontrollierte
 Ressourcen- oder Evidenz-Skips in `OPT017_STAGE` und `OPT017_SUMMARY`. Nur Läufe
 mit Actual DOP, Exchanges und Threadarbeit liefern die Kernevidenz für eine
-spätere Runtimefreigabe.
+Runtimefreigabe. [Actions-Lauf 33447840232](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33447840232) lieferte auf SQL Server 2019, 2022 und 2025 jeweils zweimal `PASS/OK`; `OPT-017` ist `VALIDATED`.
 
 - `LABINT-002`: grüner lokaler Runner über `SQL_Server_Lab`;
 - `QRY-013` und `QRY-004` auf SQL Server 2019, 2022 und 2025;

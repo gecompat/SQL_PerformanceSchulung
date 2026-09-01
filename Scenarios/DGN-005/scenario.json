@@ -1,0 +1,57 @@
+{
+  "$schema": "../../Documentation/Architecture/performance-training-scenario.schema.json",
+  "contractVersion": "1.1",
+  "scenarioId": "PTS-DGN-005",
+  "demoId": "DGN-005",
+  "title": "Begrenzte Extended-Events-Evidenz",
+  "status": "VALIDATED",
+  "classification": "A",
+  "safetyLevel": "YELLOW",
+  "platforms": ["docker", "podman"],
+  "sqlVersions": ["2025"],
+  "compatibilityLevels": [170],
+  "runtimeManifest": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/manifest.json",
+  "topology": {
+    "instances": [{"id": "primary", "role": "SQL Server database engine and bounded server event session", "resourceProfile": "standard"}],
+    "sessionModel": "SINGLE_SESSION",
+    "sessionRoles": ["DEMONSTRATION", "OBSERVATION", "MITIGATION", "COMPARISON"],
+    "freshInstanceRequired": true
+  },
+  "orchestration": {
+    "primaryMode": "MANUAL",
+    "supportedModes": ["MANUAL", "AUTOMATED_VERIFY"],
+    "manual": {"sessionScripts": [
+      {"role": "DEMONSTRATION", "script": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/30_Demonstration.sql", "startOrder": 1, "instruction": "Zwei neutrale, kontrolliert abgefangene Fehler erzeugen."},
+      {"role": "OBSERVATION", "script": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/40_Observation.sql", "startOrder": 2, "instruction": "Event-, Action-, Predicate-, Target- und Zeitfensterevidenz gemeinsam pruefen."},
+      {"role": "MITIGATION", "script": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/50_Mitigation.sql", "startOrder": 3, "instruction": "Die Session kontrolliert stoppen."},
+      {"role": "COMPARISON", "script": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/60_Comparison.sql", "startOrder": 4, "instruction": "Gestoppten Zustand und erhaltene synthetische Evidenz verifizieren."}
+    ]},
+    "automatedVerify": {"runtimeManifest": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/manifest.json"}
+  },
+  "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5, "notes": "Eine isolierte SQL-Server-2025-Containerinstanz ist ausreichend."},
+  "preparation": {
+    "scripts": ["Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/00_Preflight.sql", "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/10_Setup.sql", "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/20_Baseline.sql"],
+    "assertions": ["Die markergebundene Testdatenbank ist neu erstellt.", "Die Event Session filtert auf die exakte Datenbank-ID.", "Ring Buffer, Session Memory, Dispatch-Latenz und Gesamtdauer sind begrenzt.", "STARTUP_STATE ist OFF und es existiert kein Event-File-Export."],
+    "forcedCondition": "Eine laufende, markergefilterte und speicherbegrenzte Event Session wartet auf zwei synthetische Fehlerereignisse.",
+    "determinismControls": ["Feste Demo-ID und Run-Token-Kombination.", "Feste Fehlernummern oberhalb 50000.", "Datenbank-ID-Prädikat verhindert fremde Ereignisse.", "Explizites Stoppen und markergebundener Cleanup bleiben erforderlich."]
+  },
+  "interactive": {
+    "entryDocument": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/README.md",
+    "steps": ["READY_FOR_USER uebernehmen.", "SQLCMD-Variablen DemoId und RunToken setzen.", "Demonstration, Observation, Mitigation und Comparison nacheinander ausfuehren.", "Reset oder Remove ueber den standardisierten Lifecycle ausfuehren."],
+    "readyState": "READY_FOR_USER",
+    "variationPoints": ["Eventzahl und Dispatch-Latenz als empirische Werte einordnen.", "Fehlende Evidenz nur zusammen mit Session-, Filter- und Zeitraumstatus bewerten.", "Automatisierten Verifikationspfad getrennt vom manuellen Ablauf ausfuehren."]
+  },
+  "verification": {
+    "script": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/60_Comparison.sql",
+    "requiredEvidence": ["Mindestens ein markergefiltertes error_reported-Ereignis ist sichtbar oder der Lauf endet kontrolliert mit SKIP_EVIDENCE_MISSING.", "Die Event Session ist nach Mitigation gestoppt.", "Es werden keine Ereignisdateien exportiert."],
+    "timeoutSeconds": 300,
+    "controlledSkipCodes": ["SKIP_TOOL_MISSING", "SKIP_EVIDENCE_MISSING"]
+  },
+  "reset": {
+    "strategy": "FULL_REPROVISION",
+    "scripts": ["Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/90_Cleanup.sql", "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/10_Setup.sql", "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/20_Baseline.sql"],
+    "postconditions": ["Die alte Event Session und Testdatenbank sind entfernt.", "Eine neue markergefilterte Session laeuft.", "Der Zustand ist erneut READY_FOR_USER."]
+  },
+  "remove": {"cleanupScripts": ["Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/90_Cleanup.sql"], "removeLab": true},
+  "knownLimits": ["Der interaktive Adapter ist auf SQL Server 2025 begrenzt; die automatisierte Demo bleibt auf 2019, 2022 und 2025 validiert.", "Ring-Buffer-Inhalt und Eventzahl werden nicht exportiert und sind keine Golden Values."]
+}

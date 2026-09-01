@@ -44,3 +44,6 @@ jobs:
 
       - name: Test orchestration and runtime harness
         run: python Tests/Static/test_orchestration_runtime.py
+
+      - name: Validate W2-002 dependency neutralization
+        run: python Tests/Static/validate_w2_002_dependency_neutralization.py

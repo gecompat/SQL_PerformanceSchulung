@@ -10,7 +10,7 @@ DECLARE @Major int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion')),@Compa
 DECLARE @Created bit=0,@Sql nvarchar(max),@Project nvarchar(128),@Contract nvarchar(32),@ExistingDemo varchar(7),@ExistingRun varchar(20);
 IF @DemoId<>'OPT-017' OR @TargetDatabase<>@Expected OR @Compatibility IS NULL THROW 51000,'FAIL_CONTRACT: OPT-017-Zielkennung ist ungueltig.',1;
 IF DB_ID(@TargetDatabase) IS NULL BEGIN SET @Sql=N'CREATE DATABASE '+QUOTENAME(@TargetDatabase)+N';';EXEC sys.sp_executesql @Sql;SET @Created=1;END;
-SET @Sql=N'ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET RECOVERY SIMPLE;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET AUTO_CLOSE OFF;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET AUTO_SHRINK OFF;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET PAGE_VERIFY CHECKSUM;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET COMPATIBILITY_LEVEL='+CONVERT(nvarchar(10),@Compatibility)+N';ALTER DATABASE SCOPED CONFIGURATION SET LAST_QUERY_PLAN_STATS = ON;';
+SET @Sql=N'ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET RECOVERY SIMPLE;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET AUTO_CLOSE OFF;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET AUTO_SHRINK OFF;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET PAGE_VERIFY CHECKSUM;ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET COMPATIBILITY_LEVEL='+CONVERT(nvarchar(10),@Compatibility)+N';USE '+QUOTENAME(@TargetDatabase)+N';ALTER DATABASE SCOPED CONFIGURATION SET LAST_QUERY_PLAN_STATS = ON;USE [master];';
 EXEC sys.sp_executesql @Sql;
 IF @Created=1 BEGIN
   SET @Sql=N'USE '+QUOTENAME(@TargetDatabase)+N';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.Project'',@value=N''SQL_PerformanceSchulung'';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.ContractVersion'',@value=N''1.0'';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.DemoId'',@value=@Demo;EXEC sys.sp_addextendedproperty @name=N''SQLPERF.RunToken'',@value=@Run;';
@@ -53,10 +53,24 @@ BEGIN
   IF EXISTS(SELECT 1 FROM lab.DemoControl WHERE StopRequested=1) THROW 51008,'FAIL_TIMEOUT: OPT-017-Kill-Switch ist gesetzt.',1;
   IF @RequestedDop=1
     SELECT @ResultChecksum=CHECKSUM_AGG(BINARY_CHECKSUM(GroupKey,[RowCount],TotalMeasure)),@ResultRows=SUM([RowCount]),@ResultMeasure=SUM(TotalMeasure)
-    FROM(SELECT GroupKey,COUNT_BIG(*) [RowCount],SUM(CONVERT(bigint,MeasureValue)) TotalMeasure FROM lab.ParallelFact WHERE ProfileCode=@ProfileCode GROUP BY GroupKey)g OPTION(RECOMPILE,MAXDOP 1);
+    FROM
+    (
+      SELECT GroupKey,COUNT_BIG(*)/16 [RowCount],SUM(CONVERT(bigint,MeasureValue))/16 TotalMeasure
+      FROM lab.ParallelFact
+      CROSS JOIN(VALUES(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16)) AS multiplier(Sequence)
+      WHERE ProfileCode=@ProfileCode
+      GROUP BY GroupKey
+    )g OPTION(MAXDOP 1);
   ELSE
     SELECT @ResultChecksum=CHECKSUM_AGG(BINARY_CHECKSUM(GroupKey,[RowCount],TotalMeasure)),@ResultRows=SUM([RowCount]),@ResultMeasure=SUM(TotalMeasure)
-    FROM(SELECT GroupKey,COUNT_BIG(*) [RowCount],SUM(CONVERT(bigint,MeasureValue)) TotalMeasure FROM lab.ParallelFact WHERE ProfileCode=@ProfileCode GROUP BY GroupKey)g OPTION(RECOMPILE,MAXDOP 4);
+    FROM
+    (
+      SELECT GroupKey,COUNT_BIG(*)/16 [RowCount],SUM(CONVERT(bigint,MeasureValue))/16 TotalMeasure
+      FROM lab.ParallelFact
+      CROSS JOIN(VALUES(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16)) AS multiplier(Sequence)
+      WHERE ProfileCode=@ProfileCode
+      GROUP BY GroupKey
+    )g OPTION(MAXDOP 4);
 END;
 GO
 

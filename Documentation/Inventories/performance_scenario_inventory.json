@@ -1,8 +1,8 @@
 {
   "$schema": "../Architecture/performance-training-scenario-inventory.schema.json",
   "contractVersion": "1.1",
-  "status": "ASSESSED_PARTIAL",
-  "scope": "LABSCN-002 waves 1 to 3",
+  "status": "ASSESSED_COMPLETE",
+  "scope": "LABSCN-002 inventory of all productive demos in the active demo catalog",
   "repository": "gecompat/SQL_PerformanceSchulung",
   "provisioningFramework": "gecompat/SQL_Server_Lab",
   "evidenceSources": [
@@ -170,70 +170,198 @@
       "demoId": "QRY-004",
       "path": "Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic",
       "title": "Catch-all, OPTION RECOMPILE and parameterized dynamic SQL",
-      "inventoryStatus": "IMPLEMENTED",
-      "implementationStatus": "IMPLEMENTED",
+      "inventoryStatus": "ASSESSED",
+      "implementationStatus": "VALIDATED",
       "classification": "A",
       "safetyLevel": "GREEN",
       "supportedProviders": ["docker", "podman"],
       "sqlVersions": ["2019", "2022", "2025"],
       "sessionModel": "SINGLE_SESSION",
+      "sessionCount": 1,
       "primaryOrchestrationMode": "MANUAL",
       "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LAST_QUERY_PLAN_STATS"],
       "forcedCondition": "A deterministic skewed data set and controlled compilation order contrast catch-all predicates, recompilation and safely parameterized dynamic SQL.",
       "verification": ["plan shape per variant", "estimated and actual rows", "logical reads", "result equivalence"],
       "resetStrategy": "DATABASE_RECREATE",
+      "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
       "verticalSliceCandidate": false,
-      "evidence": ["Actions run 30699410792 completed SQL phases and cleanup but the workflow failed on WARN_EMPIRICAL_VARIANCE; revalidation is required before a VALIDATED status."]
+      "evidence": ["Actions run 33222989681 validates two complete runs on SQL Server 2019, 2022 and 2025; WARN_EMPIRICAL_VARIANCE is an expected truth-preserving outcome and cleanup passed."]
     },
     {
       "demoId": "QRY-013",
       "path": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context",
       "title": "Neutral client and session context",
-      "inventoryStatus": "VALIDATED",
+      "inventoryStatus": "ASSESSED",
       "implementationStatus": "VALIDATED",
       "classification": "A",
       "safetyLevel": "GREEN",
       "supportedProviders": ["docker", "podman"],
       "sqlVersions": ["2019", "2022", "2025"],
       "sessionModel": "SINGLE_OR_MULTI_SESSION",
+      "sessionCount": 1,
       "primaryOrchestrationMode": "MANUAL",
       "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE"],
       "forcedCondition": "Equivalent query text executes under explicitly controlled session SET options and client-independent connection settings.",
       "verification": ["session SET-option evidence", "plan-cache separation where applicable", "result equivalence"],
       "resetStrategy": "IDEMPOTENT_RESET",
+      "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
       "verticalSliceCandidate": false,
       "evidence": ["GitHub Actions run 30699410795 validates two Docker-based runs on SQL Server 2019, 2022 and 2025; the demo, runner and workflow are unchanged at the current repository commit."]
     },
     {
-      "demoId":"OPT-003","path":"Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew","title":"Sampling, Skew and Histogram Boundaries","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"GREEN","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"SHARED_PROVIDER_VERSION","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE"],"forcedCondition":"A deterministic hot-key distribution is represented by sampled and fullscan statistics.","verification":["rows sampled","histogram steps","hot-key row count"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":false,"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"OPT-003","path":"Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew","title":"Sampling, Skew and Histogram Boundaries","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"GREEN","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"SHARED_PROVIDER_VERSION","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE"],"forcedCondition":"A deterministic hot-key distribution is represented by sampled and fullscan statistics.","verification":["rows sampled","histogram steps","hot-key row count"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":false,"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"OPT-005","path":"Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key","title":"Ascending Key and Statistics Maintenance","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"GREEN","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"SHARED_PROVIDER_VERSION","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE"],"forcedCondition":"Deterministic values are inserted beyond the last materialized statistics boundary.","verification":["modification counter","maximum key","explicit refresh"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":false,"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"OPT-005","path":"Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key","title":"Ascending Key and Statistics Maintenance","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"GREEN","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"SHARED_PROVIDER_VERSION","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE"],"forcedCondition":"Deterministic values are inserted beyond the last materialized statistics boundary.","verification":["modification counter","maximum key","explicit refresh"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":false,"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"CON-006","path":"Demos/07_Concurrency/CON-006_Deadlock_Cycle","title":"Deterministic Deadlock Cycle","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"MULTI_SESSION","sessionCount":3,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","MULTI_SESSION_SQLCMD"],"forcedCondition":"Two signalled actors acquire row locks in opposite order and form a bounded deadlock cycle.","synchronization":"Named FWK-006 signals establish lock ownership before the conflicting accesses.","verification":["exactly one error 1205 victim","one survivor","ordered counterprobe"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":true,"knownLimits":["system_health graph visibility is optional evidence"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"CON-006","path":"Demos/07_Concurrency/CON-006_Deadlock_Cycle","title":"Deterministic Deadlock Cycle","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"MULTI_SESSION","sessionCount":3,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","MULTI_SESSION_SQLCMD"],"forcedCondition":"Two signalled actors acquire row locks in opposite order and form a bounded deadlock cycle.","synchronization":"Named FWK-006 signals establish lock ownership before the conflicting accesses.","verification":["exactly one error 1205 victim","one survivor","ordered counterprobe"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":true,"knownLimits":["system_health graph visibility is optional evidence"],"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"CON-009","path":"Demos/05_Concurrency_Isolation_TempDB/CON-009_TempDB_Cost_Classes","title":"TempDB Cost Classes","inventoryStatus":"ASSESSED","implementationStatus":"IMPLEMENTED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","TEMPDB_WORKSPACE"],"forcedCondition":"Bounded temp objects and grouping work expose separate user, internal and version-store counters.","verification":["session user-object delta","session internal-object delta","version-store snapshot"],"resetStrategy":"FULL_REPROVISION","hostMinimum":{"cpu":2,"memoryMB":8192,"storageGB":8},"verticalSliceCandidate":false,"knownLimits":["instance configuration and SQL Server 2025 governance are deferred"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"CON-009","path":"Demos/05_Concurrency_Isolation_TempDB/CON-009_TempDB_Cost_Classes","title":"TempDB Cost Classes","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","TEMPDB_WORKSPACE"],"forcedCondition":"Bounded temp objects and grouping work expose separate user, internal and version-store counters.","verification":["session user-object delta","session internal-object delta","version-store snapshot"],"resetStrategy":"FULL_REPROVISION","hostMinimum":{"cpu":2,"memoryMB":8192,"storageGB":8},"verticalSliceCandidate":false,"knownLimits":["instance configuration and SQL Server 2025 governance are deferred"],"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"IDX-006","path":"Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density","title":"Page Splits, Density and Fragmentation","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","INDEX_OPERATIONAL_STATS"],"forcedCondition":"Gap inserts run against equal tables with fill factor 100 and 80.","verification":["leaf allocation delta","page density","logical fragmentation","result equality"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":8},"verticalSliceCandidate":false,"knownLimits":["no universal maintenance threshold"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"IDX-006","path":"Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density","title":"Page Splits, Density and Fragmentation","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","INDEX_OPERATIONAL_STATS"],"forcedCondition":"Gap inserts run against equal tables with fill factor 100 and 80.","verification":["leaf allocation delta","page density","logical fragmentation","result equality"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":8},"verticalSliceCandidate":false,"knownLimits":["no universal maintenance threshold"],"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"IDX-010","path":"Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments","title":"Columnstore Segments and Rowgroup Quality","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","COLUMNSTORE","MEMORY_8GB"],"forcedCondition":"Ordered and deterministically shuffled classic CCI loads create different segment overlap.","verification":["compressed rowgroups","qualifying segments","deleted rows","result equality"],"resetStrategy":"FULL_REPROVISION","hostMinimum":{"cpu":4,"memoryMB":8192,"storageGB":12},"verticalSliceCandidate":false,"knownLimits":["ordered nonclustered columnstore remains deferred"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"IDX-010","path":"Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments","title":"Columnstore Segments and Rowgroup Quality","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","COLUMNSTORE","MEMORY_8GB"],"forcedCondition":"Ordered and deterministically shuffled classic CCI loads create different segment overlap.","verification":["compressed rowgroups","qualifying segments","deleted rows","result equality"],"resetStrategy":"FULL_REPROVISION","hostMinimum":{"cpu":4,"memoryMB":8192,"storageGB":12},"verticalSliceCandidate":false,"knownLimits":["ordered nonclustered columnstore remains deferred"],"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"STL-008","path":"Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth","title":"VLF Structure and Planned Log Growth","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"RED","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","LOG_FILE_GROWTH","STORAGE_2GB"],"forcedCondition":"A bounded transaction grows a marker-owned log with a one-megabyte growth step.","verification":["log size growth","VLF count","planned growth setting"],"resetStrategy":"FULL_REPROVISION","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":10},"verticalSliceCandidate":false,"knownLimits":["no storage-latency claim","red lane only"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"STL-008","path":"Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth","title":"VLF Structure and Planned Log Growth","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"RED","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","LOG_FILE_GROWTH","STORAGE_2GB"],"forcedCondition":"A bounded transaction grows a marker-owned log with a one-megabyte growth step.","verification":["log size growth","VLF count","planned growth setting"],"resetStrategy":"FULL_REPROVISION","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":10},"verticalSliceCandidate":false,"knownLimits":["no storage-latency claim","red lane only"],"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"STL-009","path":"Demos/01_Storage_Pages_Log/STL-009_Commit_Batching","title":"Commit Batching and WRITELOG","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","LOG_IO_STATS"],"forcedCondition":"Equal rows are written with one commit per row and one bounded batch commit.","verification":["log write delta","WRITELOG time-window delta","result equality"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":8},"verticalSliceCandidate":false,"knownLimits":["instance wait delta can contain concurrent work"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"STL-009","path":"Demos/01_Storage_Pages_Log/STL-009_Commit_Batching","title":"Commit Batching and WRITELOG","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"B","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"SINGLE_SESSION","sessionCount":1,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","LOG_IO_STATS"],"forcedCondition":"Equal rows are written with one commit per row and one bounded batch commit.","verification":["log write delta","WRITELOG time-window delta","result equality"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":8},"verticalSliceCandidate":false,"knownLimits":["instance wait delta can contain concurrent work"],"evidence":["Actions run 33222989644 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     },
     {
-      "demoId":"RES-007","path":"Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas","title":"Wait Scope and Time-Bounded Deltas","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"MULTI_SESSION","sessionCount":3,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","MULTI_SESSION_SQLCMD"],"forcedCondition":"A signalled row lock exposes current task and request waits during a bounded server-delta window.","synchronization":"Named signals bind blocker, waiter and observer before the lock is released.","verification":["task wait","request wait","instance delta","release counterprobe"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":true,"knownLimits":["ASYNC_NETWORK_IO requires a separately paced client"],"evidence":["Static W-COV-001 contract; runtime matrix pending"]
+      "demoId":"RES-007","path":"Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas","title":"Wait Scope and Time-Bounded Deltas","inventoryStatus":"ASSESSED","implementationStatus":"VALIDATED","classification":"A","safetyLevel":"YELLOW","supportedProviders":["docker","podman"],"sqlVersions":["2019","2022","2025"],"sessionModel":"MULTI_SESSION","sessionCount":3,"primaryOrchestrationMode":"AUTOMATED_VERIFY","supportedOrchestrationModes":["MANUAL","AUTOMATED_VERIFY"],"environmentIsolation":"FRESH_INSTANCE","requiredCapabilities":["SQL_DATABASE_ENGINE","CREATE_DATABASE","SERVER_STATE","MULTI_SESSION_SQLCMD"],"forcedCondition":"A signalled row lock exposes current task and request waits during a bounded server-delta window.","synchronization":"Named signals bind blocker, waiter and observer before the lock is released.","verification":["task wait","request wait","instance delta","release counterprobe"],"resetStrategy":"DATABASE_RECREATE","hostMinimum":{"cpu":2,"memoryMB":4096,"storageGB":5},"verticalSliceCandidate":true,"knownLimits":["ASYNC_NETWORK_IO requires a separately paced client"],"evidence":["Actions run 33222989644 validates two PASS runs on SQL Server 2019, 2022 and 2025."]
+    },
+    {
+      "demoId": "OPT-009",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans",
+      "title": "Parameter Sensitive Plan Optimization",
+      "inventoryStatus": "ASSESSED",
+      "implementationStatus": "VALIDATED",
+      "classification": "A",
+      "safetyLevel": "GREEN",
+      "supportedProviders": ["docker", "podman"],
+      "sqlVersions": ["2019", "2022", "2025"],
+      "sessionModel": "SINGLE_SESSION",
+      "sessionCount": 1,
+      "primaryOrchestrationMode": "MANUAL",
+      "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "QUERY_STORE"],
+      "forcedCondition": "A deterministic skewed distribution contrasts one reused plan with an eligible PSP dispatcher and query variants.",
+      "verification": ["dispatcher plan", "query variants", "cardinality boundaries", "result equivalence"],
+      "resetStrategy": "DATABASE_RECREATE",
+      "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
+      "verticalSliceCandidate": false,
+      "knownLimits": ["SQL Server 2019 returns SKIP_VERSION; variant formation remains eligibility-bound"],
+      "evidence": ["Actions run 30701731564 validates SQL Server 2022 and 2025; SQL Server 2019 returns the expected SKIP_VERSION in two runs."]
+    },
+    {
+      "demoId": "OPT-010",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans",
+      "title": "Optional Parameter Plan Optimization",
+      "inventoryStatus": "ASSESSED",
+      "implementationStatus": "VALIDATED",
+      "classification": "A",
+      "safetyLevel": "GREEN",
+      "supportedProviders": ["docker", "podman"],
+      "sqlVersions": ["2019", "2022", "2025"],
+      "sessionModel": "SINGLE_SESSION",
+      "sessionCount": 1,
+      "primaryOrchestrationMode": "MANUAL",
+      "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "QUERY_STORE"],
+      "forcedCondition": "An optional equality predicate contrasts a single plan with an eligible OPPO dispatcher and NULL-state variants.",
+      "verification": ["optional parameter predicate", "dispatcher plan", "query variants", "result equivalence"],
+      "resetStrategy": "DATABASE_RECREATE",
+      "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
+      "verticalSliceCandidate": false,
+      "knownLimits": ["SQL Server 2019 and 2022 return SKIP_VERSION; variant formation remains eligibility-bound"],
+      "evidence": ["Actions run 30702590969 validates SQL Server 2025; SQL Server 2019 and 2022 return the expected SKIP_VERSION in two runs."]
+    },
+    {
+      "demoId": "OPT-017",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew",
+      "title": "Parallel Plan Areas and Thread Work",
+      "inventoryStatus": "ASSESSED",
+      "implementationStatus": "VALIDATED",
+      "classification": "B",
+      "safetyLevel": "YELLOW",
+      "supportedProviders": ["docker", "podman"],
+      "sqlVersions": ["2019", "2022", "2025"],
+      "sessionModel": "SINGLE_SESSION",
+      "sessionCount": 1,
+      "primaryOrchestrationMode": "AUTOMATED_VERIFY",
+      "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "LAST_QUERY_PLAN_STATS", "CPU_4"],
+      "forcedCondition": "A bounded amplified workload crosses the parallel threshold and exposes exchange operators, actual DOP and per-thread work with a MAXDOP 1 counterprobe.",
+      "verification": ["actual DOP", "exchange operator", "positive per-thread work", "serial counterprobe"],
+      "resetStrategy": "DATABASE_RECREATE",
+      "hostMinimum": {"cpu": 4, "memoryMB": 8192, "storageGB": 8},
+      "verticalSliceCandidate": false,
+      "knownLimits": ["The contract proves plan and thread evidence, not a universal DOP or performance recommendation."],
+      "evidence": ["Actions run 33447840232 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
+    },
+    {
+      "demoId": "DGN-003",
+      "path": "Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History",
+      "title": "Query Store History",
+      "inventoryStatus": "ASSESSED",
+      "implementationStatus": "VALIDATED",
+      "classification": "A",
+      "safetyLevel": "GREEN",
+      "supportedProviders": ["docker", "podman"],
+      "sqlVersions": ["2019", "2022", "2025"],
+      "sessionModel": "SINGLE_SESSION",
+      "sessionCount": 1,
+      "primaryOrchestrationMode": "MANUAL",
+      "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "QUERY_STORE"],
+      "forcedCondition": "A marker-owned database records bounded Query Store plan, runtime and wait history for a deterministic query family.",
+      "verification": ["Query Store READ_WRITE state", "query and plan identity", "runtime intervals", "wait categories", "result equivalence"],
+      "resetStrategy": "DATABASE_RECREATE",
+      "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
+      "verticalSliceCandidate": true,
+      "knownLimits": ["Query Store collection is asynchronous; assertions use bounded retries and evidence presence rather than exact timing values."],
+      "evidence": ["Actions run 33222989682 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
+    },
+    {
+      "demoId": "DGN-005",
+      "path": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events",
+      "title": "Bounded Extended Events Evidence",
+      "inventoryStatus": "ASSESSED",
+      "implementationStatus": "VALIDATED",
+      "classification": "A",
+      "safetyLevel": "YELLOW",
+      "supportedProviders": ["docker", "podman"],
+      "sqlVersions": ["2019", "2022", "2025"],
+      "sessionModel": "SINGLE_SESSION",
+      "sessionCount": 1,
+      "primaryOrchestrationMode": "MANUAL",
+      "supportedOrchestrationModes": ["MANUAL", "AUTOMATED_VERIFY"],
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "EXTENDED_EVENTS"],
+      "forcedCondition": "A marker-filtered, memory-bounded Extended Events session captures a deterministic statement and is removed by the same lifecycle.",
+      "verification": ["bounded event-session configuration", "marker-filtered event", "target evidence", "session removal", "database cleanup"],
+      "resetStrategy": "FULL_REPROVISION",
+      "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5},
+      "verticalSliceCandidate": true,
+      "knownLimits": ["The event session is server-scoped; therefore an isolated disposable instance is mandatory."],
+      "evidence": ["Actions run 33222989682 validates two PASS/OK runs on SQL Server 2019, 2022 and 2025."]
     }
   ],
   "wave2Decisions": {
-    "validatedContainerSet": ["CON-004", "QRY-001", "OPT-002", "OPT-013", "OPT-015", "OPT-016"],
+    "validatedContainerSet": ["CON-004", "CON-006", "CON-009", "DGN-003", "DGN-005", "IDX-006", "IDX-010", "OPT-002", "OPT-003", "OPT-005", "OPT-009", "OPT-010", "OPT-013", "OPT-015", "OPT-016", "OPT-017", "QRY-001", "QRY-004", "QRY-013", "RES-007", "STL-008", "STL-009"],
     "preferredVerticalSlice": "CON-004",
     "singleSessionAlternative": "QRY-001",
     "scenarioSchema": "Documentation/Architecture/performance-training-scenario.schema.json",
@@ -242,10 +370,9 @@
     "con004QualityMode": "AUTOMATED_VERIFY"
   },
   "nextActions": [
-    "implement the CON-004 manual READY_FOR_USER handoff with explicit SQL-client session instructions",
-    "create the CON-004 SQL_Server_Lab manifest",
-    "retain the existing FWK-006 and FWK-010 manifests as AUTOMATED_VERIFY",
-    "select a separate genuinely RUNNER_ASSISTED vertical slice for continuous or repeating workload",
-    "run Docker and Podman lifecycle smoke tests"
+    "maintain the validated CON-004 READY_FOR_USER handoff and automated verification path",
+    "apply the generic selection, start, handoff, reset and remove how-to to every newly promoted interactive scenario",
+    "select a separate genuinely RUNNER_ASSISTED vertical slice only when continuous or repeating workload is required",
+    "require an individual detail analysis before adding another SQL_Server_Lab scenario"
   ]
 }

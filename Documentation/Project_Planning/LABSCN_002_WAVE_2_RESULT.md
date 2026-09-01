@@ -2,11 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED_FOR_REVIEW` |
+| Status | `VALIDATED` |
 | Branch | `agent/labscn-wave1-inventory` |
 | Arbeitspaket | `LABSCN-002` |
 | Verbindliche Ergänzung | `Documentation/Architecture/TSQL_SCENARIO_ORCHESTRATION.md` |
-| Folgeschritt | `LABSCN-003` – manueller CON-004-Vertical-Slice mit automatisierter Verifikation |
+| Folgeschritt | weitere Kandidaten ausschließlich nach eigenem Detailreview und Quellenfreigabe |
 
 ## 1. Ergebnis
 
@@ -63,7 +63,7 @@ Der Lab-Testkatalog führte `CON-004` ursprünglich mit drei Sessions. Das tats�
 
 Die JSON-Verträge und Repositorybeziehungen wurden strukturell angepasst. Der statische Validator `Tests/Static/validate_performance_scenarios.py` läuft seit `.github/workflows/performance-scenarios.yml` auf einem GitHub-gehosteten Runner; zuvor war er nur lokal ausführbar.
 
-Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und referenzierten Repository-Pfaden dauerhaft abgesichert. Der Status bleibt `IMPLEMENTED_FOR_REVIEW`, weil noch kein Szenario über `SQL_Server_Lab` aufgebaut und bedient wurde. Diesen Nachweis führt erst `LABSCN-003`.
+Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und referenzierten Repository-Pfaden dauerhaft abgesichert. `LABSCN-003` hat `CON-004` anschließend auf Docker und Podman praktisch validiert; `DGN-005` bestätigt denselben standardisierten Lifecycle als zweiter Slice.
 
 ## 8. Geänderte Reihenfolge für LABSCN-003
 
@@ -76,6 +76,11 @@ Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und refer
 7. Docker- und Podman-Lifecycle validieren;
 8. anschließend ein eigenständiges, fachlich tatsächlich `RUNNER_ASSISTED` benötigendes Szenario auswählen.
 
-## 9. Nicht Bestandteil dieser Integration
+## 9. Abschluss der Folgeintegration
 
-Noch nicht implementiert sind die Bedienkommandos für Start, Reset und Remove, die fertige Teilnehmerübergabe sowie die Docker- und Podman-Runtimeabnahme als vollständiger interaktiver Nachweis. Diese Arbeiten bleiben Bestandteil von `LABSCN-003`.
+Die Bedienkommandos für Start, Reset und Remove, die Teilnehmerübergabe und die
+Docker-/Podman-Runtimeabnahme sind inzwischen implementiert und praktisch
+validiert. Das endgültige Inventar umfasst 22 produktive Demos. Weitere
+interaktive Szenarien gehören nicht mehr zum Abschluss von `LABSCN-002`,
+sondern jeweils als eigener, quellen- und runtimegebundener Schnitt zu
+`LABSCN-005`.

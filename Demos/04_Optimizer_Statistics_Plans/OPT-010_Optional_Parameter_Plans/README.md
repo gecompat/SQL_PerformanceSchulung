@@ -22,7 +22,7 @@ Ein optionales Parameterprädikat ist kein Sonderfall des Parameter Sniffing. F�
 
 ## 3. Nichtziel
 
-Die Demo bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynamisches SQL als Alternative; dieser Vergleich gehört zu `QRY-004`. Die parametersensitive Planoptimierung für schiefe Gleichheitsprädikate bleibt `OPT-009` vorbehalten; OPT-010 arbeitet bewusst mit einer gleichmäßigen Verteilung, damit die beobachtete Wirkung nicht der Schiefe zugeschrieben werden kann. Die Demo behauptet nicht, dass die Optimierung Abfragen allgemein beschleunigt, und sie erzwingt die Variantenbildung nicht durch undokumentierte Eingriffe. Erweiterte Ereignisse und Query-Store-Sichten werden nicht verwendet, solange deren Pilotabnahme offen ist.
+Die Demo bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynamisches SQL als Alternative; dieser Vergleich gehört zu `QRY-004`. Die parametersensitive Planoptimierung für schiefe Gleichheitsprädikate bleibt `OPT-009` vorbehalten; OPT-010 arbeitet bewusst mit einer gleichmäßigen Verteilung, damit die beobachtete Wirkung nicht der Schiefe zugeschrieben werden kann. Die Demo behauptet nicht, dass die Optimierung Abfragen allgemein beschleunigt, und sie erzwingt die Variantenbildung nicht durch undokumentierte Eingriffe. Erweiterte Ereignisse und Query-Store-Sichten sind kein Bestandteil dieses abgegrenzten Schnitts.
 
 ## 4. Voraussetzungen
 

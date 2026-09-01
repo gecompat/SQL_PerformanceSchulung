@@ -3,7 +3,7 @@
 | Feld | Wert |
 |---|---|
 | Demo-ID | `DGN-003` |
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `GREEN` |
 | Versionen | SQL Server 2019, 2022 und 2025 |
 | Compatibility Level | 150, 160 und 170 |

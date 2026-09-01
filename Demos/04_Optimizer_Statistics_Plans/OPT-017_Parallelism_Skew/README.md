@@ -1,5 +1,11 @@
 # OPT-017 – Parallele Planbereiche und Skew
 
+| Merkmal | Wert |
+|---|---|
+| Status | `VALIDATED` |
+| Runtime-Abnahme | [Actions-Lauf 33447840232](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33447840232); je zwei `PASS/OK` auf SQL Server 2019, 2022 und 2025 |
+| Sicherheitsstufe | `YELLOW` |
+
 ## 1. Lernziel
 
 Actual DOP, Exchanges und Threadarbeit in einem parallelen Actual Plan lesen und ungleich verteilte Arbeit von einer bloßen DOP-Zahl unterscheiden.
@@ -25,7 +31,7 @@ Die Demo empfiehlt weder einen globalen `MAXDOP`-Wert noch eine universelle Skew
 
 ## 6. Synthetisches Datenmodell
 
-Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verteilt 4.096 Gruppenschlüssel annähernd gleichmäßig; `S` konzentriert 95 Prozent der Zeilen auf einen Schlüssel. Zeilenzahl und Messwertsumme sind identisch. Alle Daten sind deterministisch und synthetisch.
+Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verteilt 4.096 Gruppenschlüssel annähernd gleichmäßig; `S` konzentriert 95 Prozent der Zeilen auf einen Schlüssel. Die Aggregation verwendet einen fest auf 16 Zeilen begrenzten synthetischen Multiplikator und normalisiert Anzahl und Messwertsumme anschließend wieder. Damit überschreitet die Abfrage auch auf kompakten Testinstanzen reproduzierbar die Parallelitätsschwelle, ohne Ergebnismenge oder Datenbestand zu vergrößern. Zeilenzahl und Messwertsumme sind identisch. Alle Daten sind deterministisch und synthetisch.
 
 ## 7. Ablauf
 

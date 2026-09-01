@@ -1,0 +1,30 @@
+{
+  "$schema": "https://github.com/gecompat/SQL_Server_Lab/raw/main/Schemas/project-adapter.schema.json",
+  "adapterContractVersion": "0.1",
+  "projectId": "sql-performance-training-dgn-005",
+  "displayName": "SQL Performance Training – DGN-005",
+  "description": "Bereitet eine markergefilterte und speicherbegrenzte Extended-Events-Session auf einer isolierten SQL-Server-2025-Linux-Instanz vor.",
+  "supportedLabCoreVersions": ["0.x"],
+  "requiredCapabilities": ["container-linux", "sqlcmd"],
+  "supportedSqlVersions": ["2025"],
+  "entrypoints": {
+    "preflight": "sql/preflight.sql",
+    "install": "sql/install.sql",
+    "validate": "sql/validate.sql",
+    "cleanup": "sql/cleanup.sql"
+  },
+  "targetDatabase": "master",
+  "secretInputs": [],
+  "producedLocalArtifacts": [
+    "Markergebundene Datenbank SQLPERF_LAB_DGN005_LOCAL",
+    "Markergefilterte In-Memory-Session SQLPERF_DGN005_LOCAL"
+  ],
+  "dataClassification": "SYNTHETIC",
+  "privacyExportPolicy": "NO_AUTOMATIC_EXPORT",
+  "licenseNotice": "Synthetischer Repository-Inhalt; es gilt LICENCE.md im Repository-Root.",
+  "knownLimitations": [
+    "Der Adapter bereitet den manuellen READY_FOR_USER-Zustand vor; Demonstration, Observation, Mitigation und Comparison startet der Benutzer nacheinander.",
+    "Vertragsversion 0.1 unterstützt ausschließlich SQL Server 2025 auf Docker oder Podman.",
+    "Es werden keine Eventdateien und keine Ring-Buffer-Inhalte exportiert."
+  ]
+}
