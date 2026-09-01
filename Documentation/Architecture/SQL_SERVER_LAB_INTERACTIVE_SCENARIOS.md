@@ -259,9 +259,10 @@ Ein Schulungsszenario gilt erst als vollständig, wenn folgende Artefakte vorhan
 ## 11. Nächster Umsetzungsschritt
 
 `LABSCN-002` ist mit 22 vollständigen Inventareinträgen abgeschlossen.
-`CON-004` ist der erste, `DGN-005` der zweite vollständige Vertical Slice. Beide
-Szenarien sind `YELLOW`, benötigen eine isolierte Wegwerfumgebung und sind auf
-Docker sowie Podman praktisch validiert. Die Umgebung bleibt nach der
+`CON-004` ist der erste, `DGN-005` der zweite und `CON-006` der dritte
+vollständige Vertical Slice. Alle drei Szenarien sind `YELLOW`, benötigen eine
+isolierte Wegwerfumgebung und sind auf Docker sowie Podman praktisch validiert.
+Die Umgebung bleibt nach der
 Vorbereitung für den Benutzer verfügbar und wird erst durch den bewussten
 Remove-Schritt entfernt.
 

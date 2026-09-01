@@ -121,7 +121,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Pa
 2. Die Claims `ADV-CLM-017` und `ADV-CLM-018` sind in `Documentation/Curriculum/TRACEABILITY_MATRIX.md` von `PLANNED` auf `KEEP` gesetzt und tragen eine aktive Foliennummer. **Erfüllt.**
 3. Der freigegebene SHA-256-Wert in `Tests/Static/validate_privacy_metadata.py` wurde im selben Schnitt kontrolliert erneuert. **Erfüllt.**
 4. `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID und Evidenzklasse. **Erfüllt.**
-5. Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `QRY-004` auf SQL Server 2019, 2022 und 2025 voraus. **Offen**, da die Runtime-Matrix ausschließlich auf GitHub-Runnern läuft.
+5. Die fachliche Endabnahme setzt eine erfolgreiche Runtime-Abnahme von `QRY-004` auf SQL Server 2019, 2022 und 2025 voraus. **Erfüllt.** [Actions-Lauf 33222989681](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989681) belegt je zwei vollständige Läufe; die erwartete `WARN_EMPIRICAL_VARIANCE` verletzt keinen Ergebnis-, Sicherheits- oder Cleanup-Vertrag.
 
 ## 9. Quellenübersicht
 

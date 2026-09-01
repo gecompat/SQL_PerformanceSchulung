@@ -115,10 +115,10 @@ Nach jeder Korrektur werden alle betroffenen Prüfschichten erneut ausgeführt. 
 | Artefakt | Ergebnis | Evidenz |
 |---|---|---|
 | neutralisiertes Referenzarchiv unter `Presentations/old` | `PASS` | Hash und Umfang im Quellenmanifest; Firmen-, Kontakt-, interne System- und Brandingangaben entfernt |
-| aktiver 84-Folien-Satz unter `Presentations` | `PASS` mit zulässiger Namensangabe | 84/84 Folien gerendert; Office-Paket und Metadaten geprüft; nur `Gerhard Pisch` als reale Angabe |
-| Vertiefungsblock `ADV-009`, Anzeigepositionen 84 bis 93 | `PASS` textuell und paketseitig; visuelle Einzelprüfung offen | Folien deterministisch aus der bestehenden Vorlage erzeugt; keine neuen Medien, Beziehungen oder Metadatenfelder; Notizen führen Quellen ausschließlich als `SRC-`-IDs ohne URL |
+| aktives 102-Folien-Masterdeck unter `Presentations` | `PASS` mit zulässiger Namensangabe | 102/102 Folien sowie die Profile `BASIS` 41, `STANDARD` 66 und `VERTIEFUNG` 102 gerendert; Office-Paket, Metadaten, Privacy und Branding geprüft; nur `Gerhard Pisch` als reale Angabe |
+| Vertiefungsblöcke `ADV-009` bis `ADV-011`, Anzeigepositionen 84 bis 101 | `PASS` textuell, paketseitig und visuell | Folien deterministisch aus der bestehenden Vorlage erzeugt; vollständiger PowerPoint-Render und Einzelprüfung in `ADV_010_FINAL_ACCEPTANCE_REVIEW.md` und `W_PRS_001_TEACHING_RELEASE.md`; Notizen führen Quellen ausschließlich als `SRC-`-IDs ohne URL |
 
-Die visuelle Einzelprüfung der zehn Vertiefungsfolien steht aus. Sie ist keine Datenschutzfrage, sondern eine Renderprüfung: Der Scanner bestätigt, dass keine personenbezogenen oder kundenbezogenen Angaben hinzugekommen sind, nicht jedoch Umbruch und Lesbarkeit im Vortrag.
+Die visuelle Einzelprüfung aller 102 Masterfolien und der drei Tiefenprofile ist abgeschlossen. Sie bleibt methodisch von der automatisierten Privacy-Prüfung getrennt: Der Scanner prüft personenbezogene und kundenbezogene Angaben, während der Rendernachweis Umbruch und Lesbarkeit im Vortrag bewertet.
 
 Die fachliche Freigabe eines Artefakts ist von der Privacy-Freigabe getrennt. `PASS` bestätigt ausschließlich die hier definierten Datenschutz- und Metadatenanforderungen.
 

@@ -1,0 +1,61 @@
+{
+  "$schema": "../../Documentation/Architecture/performance-training-scenario.schema.json",
+  "contractVersion": "1.1",
+  "scenarioId": "PTS-CON-006",
+  "demoId": "CON-006",
+  "title": "Reproduzierbarer Deadlock-Zyklus",
+  "status": "VALIDATED",
+  "classification": "A",
+  "safetyLevel": "YELLOW",
+  "platforms": ["docker", "podman"],
+  "sqlVersions": ["2025"],
+  "compatibilityLevels": [170],
+  "runtimeManifest": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json",
+  "topology": {
+    "instances": [{"id": "primary", "role": "SQL Server database engine and all deadlock sessions", "resourceProfile": "standard"}],
+    "sessionModel": "MULTI_SESSION",
+    "sessionRoles": ["ACTOR_A", "ACTOR_B", "OBSERVER", "EVIDENCE", "MITIGATION", "ORDERED_A", "ORDERED_B", "VERIFICATION"],
+    "freshInstanceRequired": true
+  },
+  "orchestration": {
+    "primaryMode": "MANUAL",
+    "supportedModes": ["MANUAL", "AUTOMATED_VERIFY"],
+    "manual": {"sessionScripts": [
+      {"role": "ACTOR_A", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/Sessions/10_ActorA.sql", "startOrder": 1, "instruction": "In SQL-Fenster A starten; die Session sperrt Zeile 1 und wartet signalgesteuert auf ACTOR_B."},
+      {"role": "ACTOR_B", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/Sessions/20_ActorB.sql", "startOrder": 2, "instruction": "In SQL-Fenster B starten; die Session sperrt Zeile 2 und schließt den Deadlock-Zyklus."},
+      {"role": "OBSERVER", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/Sessions/30_Observer.sql", "startOrder": 3, "instruction": "In SQL-Fenster C starten und genau ein Opfer mit Fehler 1205 sowie einen Survivor prüfen."},
+      {"role": "EVIDENCE", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/40_Observation.sql", "startOrder": 4, "instruction": "Ergebnisablage und optional den datenbankgefilterten system_health-Graph prüfen."},
+      {"role": "MITIGATION", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/50_Mitigation.sql", "startOrder": 5, "instruction": "Signale, Evidenz und Datenwerte vor der geordneten Gegenprobe zurücksetzen."},
+      {"role": "ORDERED_A", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/Sessions/40_OrderedA.sql", "startOrder": 6, "instruction": "In SQL-Fenster A mit einheitlicher Zugriffsreihenfolge starten."},
+      {"role": "ORDERED_B", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/Sessions/50_OrderedB.sql", "startOrder": 7, "instruction": "In SQL-Fenster B mit derselben Zugriffsreihenfolge starten."},
+      {"role": "VERIFICATION", "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/70_Verification.sql", "startOrder": 8, "instruction": "Zwei erfolgreiche Gegenproben ohne Deadlockopfer bestätigen."}
+    ]},
+    "automatedVerify": {"runtimeManifest": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json"}
+  },
+  "hostMinimum": {"cpu": 2, "memoryMB": 4096, "storageGB": 5, "notes": "Eine isolierte SQL-Server-2025-Containerinstanz ist ausreichend; Parallelität entsteht durch drei SQL-Client-Sessions."},
+  "preparation": {
+    "scripts": ["Demos/07_Concurrency/CON-006_Deadlock_Cycle/00_Preflight.sql", "Demos/07_Concurrency/CON-006_Deadlock_Cycle/10_Setup.sql", "Demos/07_Concurrency/CON-006_Deadlock_Cycle/20_Baseline.sql"],
+    "assertions": ["Die markergebundene Testdatenbank ist neu erstellt.", "Zwei synthetische Zeilen, Signalobjekte und eine leere Ergebnisablage sind vorhanden.", "Es bestehen keine alten Signale, Evidenzzeilen oder offenen Requests in der Testdatenbank."],
+    "forcedCondition": "ACTOR_A und ACTOR_B erwerben durch benannte Signale bestätigt unterschiedliche Zeilensperren und greifen danach in Gegenreihenfolge zu.",
+    "determinismControls": ["DEADLOCK_PRIORITY LOW macht ACTOR_A zum erwarteten Opfer.", "Benannte Signale ersetzen fachliche Sleeps.", "Jeder Wait besitzt ein hartes Timeout.", "Die geordnete Gegenprobe verwendet für beide Akteure dieselbe Zugriffsreihenfolge."]
+  },
+  "interactive": {
+    "entryDocument": "Documentation/HowTo/CON_006_INTERACTIVE_SCENARIO.md",
+    "steps": ["READY_FOR_USER übernehmen.", "Drei SQL-Fenster öffnen und DemoId sowie RunToken setzen.", "ACTOR_A, ACTOR_B und OBSERVER in dieser Startreihenfolge ausführen.", "EVIDENCE und MITIGATION ausführen.", "ORDERED_A und ORDERED_B starten und anschließend VERIFICATION ausführen.", "Reset oder Remove über den standardisierten Lifecycle ausführen."],
+    "readyState": "READY_FOR_USER",
+    "variationPoints": ["Deadlock-Graph getrennt vom Ergebnisvertrag bewerten.", "DEADLOCK_PRIORITY nur in der Wegwerfumgebung variieren.", "Die einheitliche Zugriffsreihenfolge als präventive Gegenprobe wiederholen.", "AUTOMATED_VERIFY getrennt vom manuellen Ablauf ausführen."]
+  },
+  "verification": {
+    "script": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/70_Verification.sql",
+    "requiredEvidence": ["Genau ein Actor endet als VICTIM mit Fehler 1205.", "Genau ein Actor endet als SURVIVOR.", "Die geordnete Gegenprobe enthält zwei COMPLETED-Ergebnisse und kein Opfer."],
+    "timeoutSeconds": 180,
+    "controlledSkipCodes": ["SKIP_TOOL_MISSING", "SKIP_PERMISSION", "SKIP_EVIDENCE_MISSING"]
+  },
+  "reset": {
+    "strategy": "FULL_REPROVISION",
+    "scripts": ["Demos/07_Concurrency/CON-006_Deadlock_Cycle/90_Cleanup.sql", "Demos/07_Concurrency/CON-006_Deadlock_Cycle/10_Setup.sql", "Demos/07_Concurrency/CON-006_Deadlock_Cycle/20_Baseline.sql"],
+    "postconditions": ["Die alte Testdatenbank und alle verbliebenen Sessions sind entfernt.", "Zwei neue Baselinezeilen, leere Evidenz und leere Signale sind vorhanden.", "Der Zustand ist erneut READY_FOR_USER."]
+  },
+  "remove": {"cleanupScripts": ["Demos/07_Concurrency/CON-006_Deadlock_Cycle/90_Cleanup.sql"], "removeLab": true},
+  "knownLimits": ["Der interaktive Adapter ist auf SQL Server 2025 begrenzt; die automatisierte Demo bleibt auf 2019, 2022 und 2025 validiert.", "Deadlock-Graph-Sichtbarkeit aus system_health ist optionale Evidenz und kein Golden Value.", "Ein RUNNER_ASSISTED-Teilnehmermodus wird nicht eingeführt."]
+}

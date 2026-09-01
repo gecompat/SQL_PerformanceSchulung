@@ -131,6 +131,8 @@ def check_bundle(findings: list[str]) -> None:
         findings.append(f"{DEMO_ID}: traceability missing")
     if "| Sicherheitsstufe | `GREEN` |" not in readme_text:
         findings.append(f"{DEMO_ID}: safety mismatch")
+    if "| Status | `VALIDATED` |" not in readme_text or "Actions-Lauf 30699410795" not in readme_text:
+        findings.append(f"{DEMO_ID}: validated runtime evidence is not synchronized")
     if "CLIENT_PROFILE_A" not in readme_text or "CLIENT_PROFILE_B" not in readme_text:
         findings.append(f"{DEMO_ID}: neutral client profiles are not documented")
     for claim in SLIDE_CLAIMS:
