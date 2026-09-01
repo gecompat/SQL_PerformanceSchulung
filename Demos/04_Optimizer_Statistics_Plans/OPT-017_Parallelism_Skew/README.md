@@ -1,5 +1,11 @@
 # OPT-017 – Parallele Planbereiche und Skew
 
+| Merkmal | Wert |
+|---|---|
+| Status | `VALIDATED` |
+| Runtime-Abnahme | [Actions-Lauf 33447840232](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33447840232); je zwei `PASS/OK` auf SQL Server 2019, 2022 und 2025 |
+| Sicherheitsstufe | `YELLOW` |
+
 ## 1. Lernziel
 
 Actual DOP, Exchanges und Threadarbeit in einem parallelen Actual Plan lesen und ungleich verteilte Arbeit von einer bloßen DOP-Zahl unterscheiden.

@@ -12,14 +12,14 @@ Abschnitt 13.2 des Masterplans legt eine Stufenleiter fest. Es gilt immer die kl
 |---:|---|---|---|
 | 1 | vorhandene Testinstanz plus eigene synthetische Testdatenbank | Standard, wenn ein geeigneter SQL Server verfügbar ist | in diesem How-to beschrieben |
 | 2 | reine T-SQL-Steuerung innerhalb der isolierten Testinstanz | bevorzugt für Pläne, Statistiken, Indizes, Blocking, Deadlocks, Query Store und Extended Events | in diesem How-to beschrieben |
-| 3 | containerisierte Einzelinstanz | wenn kein SQL Server vorhanden ist oder reproduzierbare CPU-/RAM-Grenzen benötigt werden | in den Workflows umgesetzt; ein Quickstart für Arbeitsplätze ist als `INF-002` (Docker) und `INF-003` (Podman) noch offen |
+| 3 | containerisierte Einzelinstanz | wenn kein SQL Server vorhanden ist oder reproduzierbare CPU-/RAM-Grenzen benötigt werden | als `INF-002` (Docker) und `INF-003` (Podman) in `CONTAINER_QUICKSTART.md` beschrieben und für den SQL-Server-2025-Lifecycle praktisch validiert |
 | 4 | Hyper-V-VM | Windows-, OS-, Storage- oder Isolationsanforderungen | zurückgestellt (`INF-004`, DEC-049) |
 | 5 | Mehrinstanz- oder Netzwerktopologie | verteilte oder netzwerkabhängige Kernaussage | zurückgestellt (`INF-006`, DEC-049) |
 
 Entscheidungshilfe:
 
 - Steht eine SQL-Server-Instanz zur Verfügung, die **verworfen oder zurückgesetzt werden darf**, ist Stufe 1 der richtige Weg. Die sechs runtimevalidierten Demos sind so aufgebaut, dass sie auf einer solchen Instanz laufen; ihre bisherige Validierung erfolgte containerisiert.
-- Steht keine Instanz zur Verfügung, ist derzeit der containerisierte Pfad der GitHub-gehosteten Workflows der einzige geprüfte Weg. Ein dokumentierter Quickstart für Docker oder Podman Desktop am Arbeitsplatz ist noch nicht Bestandteil des Repositories.
+- Steht keine Instanz zur Verfügung, führt `Documentation/HowTo/CONTAINER_QUICKSTART.md` über den geprüften Docker- oder Podman-Arbeitsplatzpfad. Der vollständige interaktive Lifecycle ist für `CON-004` auf SQL Server 2025 validiert.
 - Hyper-V und Mehrinstanztopologien sind ausdrücklich zurückgestellt, bis der externe Runner `Key18_Perf` bereitsteht. Die Anforderungen sind in `Documentation/Architecture/RUNNER_TOPOLOGY.md` beschrieben.
 
 Läufe gegen eine vorhandene Instanz sind Entwicklungs- und Fehlersuchevidenz. Sie ersetzen keine Gate-Evidenz; diese entsteht ausschließlich auf GitHub-gehosteten Runnern über die Versionsmatrix 2019, 2022 und 2025 (DEC-047).
@@ -244,7 +244,7 @@ Demos, die CPU-/RAM-Limits, gedrosseltes I/O, Netzwerkbedingungen, mehrere Insta
 
 ## 11. Grenzen dieses How-tos
 
-- Ein Docker- oder Podman-Quickstart für den Arbeitsplatz ist nicht Bestandteil dieses How-tos. Er ist als `INF-002` und `INF-003` offen.
+- Der Docker-/Podman-Arbeitsplatzpfad ist bewusst in `Documentation/HowTo/CONTAINER_QUICKSTART.md` getrennt. `INF-002` und `INF-003` sind damit für den validierten SQL-Server-2025-Vertical-Slice abgeschlossen.
 - Hyper-V- und Mehrinstanzpfade sind zurückgestellt.
 - Die Framework-Matrix `Tests/Runtime/run_framework_sql_matrix.py` läuft ausschließlich containerisiert, weil sie Query Store und Extended Events auf Serverebene schaltet (DEC-050).
 - Die hier beschriebenen Kommandos sind gegen die Verträge des Repositories geprüft. Ein vollständiger Laufnachweis gegen eine vorhandene Instanz steht noch aus und wird in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` als offene Folgearbeit geführt.

@@ -54,7 +54,15 @@ Diese Regel stellt sicher, dass neue Demos in die Qualitätssicherung aufgenomme
 ./Tests/Lab/Invoke-PerformanceLabMatrix.ps1 -Lane CORE -Provider docker
 ```
 
-Die spätere Benutzerbedienung für interaktive Szenarien wird getrennt unter `LABSCN-004` standardisiert.
+Die standardisierte Benutzerbedienung für interaktive Szenarien liegt unter
+[`INTERACTIVE_SCENARIO_LIFECYCLE.md`](../../Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md).
+Der kompakte Docker-/Podman-Arbeitsplatzpfad steht unter
+[`CONTAINER_QUICKSTART.md`](../../Documentation/HowTo/CONTAINER_QUICKSTART.md).
+Beide Verträge werden statisch geprüft mit:
+
+```bash
+python Tests/Static/validate_labscn004_inf002003.py
+```
 
 ## Lokaler SQL_Server_Lab-Vertical-Slice
 
@@ -101,6 +109,21 @@ Der vollständige Adapter-Lifecycle ist lokal auf SQL Server 2025 mit Docker
 `f80f7d82-934b-4c7c-9d2a-a80e975d92d5`) validiert. Beide Läufe erreichten
 `READY_FOR_USER`, stellten diesen Zustand per Reset auf derselben Instanz wieder
 her und endeten nach fachlichem und infrastrukturellem Cleanup als `REMOVED`.
+
+`DGN-005` verwendet denselben öffentlichen Lifecycle mit einem eigenen,
+markergebundenen Project Adapter `0.1`. Der vollständige Start-, Reset- und
+Remove-Nachweis bestand am 2026-09-01 auf Docker (RunId
+`d5143f2a-9f18-49fa-8e9f-b91604993252`) und Podman (RunId
+`82791985-b76a-4594-a5be-bab014907f7d`). Beide Läufe führten Demonstration,
+Observation, Mitigation und Comparison mit `PASS/OK` aus und endeten mit
+`REMOVED`.
+
+```powershell
+./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
+    -ScenarioId DGN-005 `
+    -Provider docker `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
+```
 
 ```powershell
 $pythonPath = (Get-Command python).Source

@@ -4,7 +4,7 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `86977ac815f4bd90ad56335bc3fa5847149b0b809da71a58601128b5385111f5`
+**SHA-256:** `85bd14e4fc91d148889e9ebaa7128f6e1a213366f389aa6e2053f46cc0890ad3`
 **Folienumfang:** 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 Vertiefungsfolien aus `ADV-010` und `ADV-011`)  
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)

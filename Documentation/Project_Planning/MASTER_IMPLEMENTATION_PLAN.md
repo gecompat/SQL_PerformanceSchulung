@@ -454,7 +454,7 @@ Das How-to beschreibt mindestens:
 - Unterschiede zwischen SQL Server 2019, 2022 und 2025,
 - klare Kennzeichnung, welche Schulungsdemos zusätzliche Infrastruktur benötigen.
 
-Umsetzungsstand: `INF-001` liegt als `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md` vor. Die Ausführungsziele der Stufenleiter sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen und in `Tests/Runtime/execution_target.py` umgesetzt. Offen bleibt der Laufnachweis gegen eine vorhandene Instanz. `INF-002` bis `INF-006` sind unverändert offen.
+Umsetzungsstand: `INF-001` liegt als `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md` vor. Die Ausführungsziele der Stufenleiter sind in `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md` entworfen und in `Tests/Runtime/execution_target.py` umgesetzt. Offen bleibt der Laufnachweis gegen eine vorhandene Instanz. `INF-002` und `INF-003` sind mit `Documentation/HowTo/CONTAINER_QUICKSTART.md`, erfolgreichen Provider-Preflights und praktisch validiertem SQL-Server-2025-Lifecycle abgeschlossen. `INF-004` bis `INF-006` bleiben bedarfsabhängig.
 
 ### 13.5 Container-Arbeitspakete
 
@@ -630,17 +630,17 @@ Jede Arbeitsübergabe enthält mindestens:
 | Feld | Stand |
 |---|---|
 | Repository-Struktur | abgeschlossen; operativer Detailstand in `CURRENT_EXECUTION_STATUS.md` |
-| Fachliche Demos | 22 produktive Demos vorhanden; acht W-COV-001-Demos sind runtimevalidiert, `CON-009` bleibt wegen der SQL-Server-2019-Evidenzlücke implementiert |
+| Fachliche Demos | 22 produktive Demos vorhanden; `ADV-008` und alle neun `W-COV-001`-Demos sind in der zutreffenden 2019/2022/2025-Matrix runtimevalidiert |
 | Testumgebungs-How-to | `INF-001` implementiert zur Prüfung; dokumentiert Zielauswahl für vorhandene Instanzen, ohne Provisionierungsversprechen |
 | Sonderinfrastruktur | nicht begonnen; bleibt an einen konkreten fachlichen Bedarf und die bestehenden Safety-Gates gebunden |
 | Präsentationsbasis | aktives Deck mit 102 SlideKeys; drei Custom Shows und 41/66/102-Varianten statisch und visuell freigegeben |
 | Welle 0 und Framework | `W0-001` bis `W0-008`, Gate A, Framework-Matrix und Gate B validiert |
-| Gate-Status | V0 bis V2 `VALIDATED`; V3 `PARTIAL`; V4 `VALIDATED` |
+| Gate-Status | V0 bis V4 `VALIDATED` |
 | Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
 | Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; der Delta-Review für relevante SQL-Server-2025-Funktionen ist in `SQL_SERVER_2025_DELTA_REVIEW.md` abgeschlossen |
-| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit Inventar und Schema für die ersten drei Wellen implementiert zur Prüfung; `CON-004` ist als erster gelber, isolationspflichtiger Vertical Slice über Project Adapter `0.1` auf Docker und Podman validiert |
-| Aktuelle Priorität | offene zweifache Runtime-Matrizen für `QRY-004`, `DGN-003/005`, `OPT-017` sowie die SQL-Server-2019-Evidenz von `CON-009` nachweisen |
-| Danach | weitere evidenzgebundene interaktive Szenarien und die jeweils freigegebene Provider-/Versionsmatrix |
+| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit 22 vollständigen Inventareinträgen und `LABSCN-004` mit standardisiertem Lifecycle validiert; `CON-004` und `DGN-005` sind über Project Adapter `0.1` auf Docker und Podman validiert |
+| Aktuelle Priorität | kein bedingungslos freigegebener Implementierungsschnitt; nächster möglicher Kandidat ist ein eigenes Quellen- und Detailreview zu `CON-006` |
+| Danach | Weitere evidenzgebundene Szenarien nur in der jeweils freigegebenen Provider-/Versionsmatrix und nach eigener Detailanalyse umsetzen; Infrastruktur erst bei nachgewiesenem Bedarf |
 | Teststatus | statische Verträge und Privacy-/Metadatenprüfung werden je Welle lokal ausgeführt; Runtime-Evidenz und offene Restrisiken stehen in `CURRENT_EXECUTION_STATUS.md` |
 
 ## 21. Abschluss-Checkliste des Gesamtprojekts

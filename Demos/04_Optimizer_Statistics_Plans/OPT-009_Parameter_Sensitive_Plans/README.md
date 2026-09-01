@@ -22,7 +22,7 @@ Ohne Parametersensitivität besitzt ein Querytext genau eine zwischengespeichert
 
 ## 3. Nichtziel
 
-Die Demo behauptet nicht, dass Parameter Sensitive Plan Optimization Abfragen allgemein beschleunigt oder Parameter Sniffing vollständig auflöst. Sie bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynamisches SQL; dieser Vergleich gehört zu `QRY-004`. Optional Parameter Plan Optimization bleibt `OPT-010` vorbehalten. Sie erzwingt die Variantenbildung nicht durch undokumentierte Eingriffe und verwendet keine Query-Store-Sichten, deren Pilotabnahme noch offen ist.
+Die Demo behauptet nicht, dass Parameter Sensitive Plan Optimization Abfragen allgemein beschleunigt oder Parameter Sniffing vollständig auflöst. Sie bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynamisches SQL; dieser Vergleich gehört zu `QRY-004`. Optional Parameter Plan Optimization bleibt `OPT-010` vorbehalten. Sie erzwingt die Variantenbildung nicht durch undokumentierte Eingriffe und verwendet in diesem abgegrenzten Schnitt keine Query-Store-Sichten.
 
 ## 4. Voraussetzungen
 

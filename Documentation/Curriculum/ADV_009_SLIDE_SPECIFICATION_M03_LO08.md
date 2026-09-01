@@ -60,7 +60,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Pa
 
 **Sprechernotiz**
 
-`[SLIDE-ID: SLD-M03-112]` Diese Folie korrigiert zwei gegenläufige Vereinfachungen: „Recompile ist die Lösung" und „Recompile ist zu teuer". Beide sind ohne Kontext falsch. In `QRY-004` messen wir zuerst den Nutzen – für den selektiven Wert sinken die logischen Lesevorgänge – und danach den Preis: 25 ungefilterte Wiederholungen je Variante, bei identischer Arbeitsmenge, zeigen die höhere CPU-Zeit je Ausführung. Wenn sich der Kompilierungsanteil in einer Umgebung nicht von der Messstreuung trennen lässt, meldet die Demo `WARN_EMPIRICAL_VARIANCE` und behauptet keine Verschlechterung.
+`[SLIDE-ID: SLD-M03-112]` Diese Folie korrigiert zwei gegenläufige Vereinfachungen: „Recompile ist die Lösung" und „Recompile ist zu teuer". Beide sind ohne Kontext falsch. In `QRY-004` prüfen wir den möglichen Nutzen für den selektiven Wert und danach den Preis anhand von 25 ungefilterten Wiederholungen je Variante bei identischer Arbeitsmenge. Die validierte 2019/2022/2025-Matrix erzeugte für den selektiven Wert keinen Read-Vorteil und meldete deshalb wahrheitsgemäß `WARN_EMPIRICAL_VARIANCE`. Die Demo behauptet weder eine Verbesserung noch eine Verschlechterung, die sich nicht von der Messstreuung trennen lässt.
 
 **Quellen:** `SRC-001`, `SRC-045` **Demo:** `QRY-004` **Tiefe:** `VERTIEFUNG`
 

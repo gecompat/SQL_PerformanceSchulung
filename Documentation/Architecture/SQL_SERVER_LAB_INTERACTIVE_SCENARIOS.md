@@ -258,6 +258,11 @@ Ein Schulungsszenario gilt erst als vollständig, wenn folgende Artefakte vorhan
 
 ## 11. Nächster Umsetzungsschritt
 
-`LABSCN-002` hat `CON-004` als ersten vollständigen Vertical Slice ausgewählt. Das Szenario ist `YELLOW` und benötigt deshalb eine isolierte Wegwerfumgebung. Die Umgebung bleibt nach der Vorbereitung für den Benutzer verfügbar und wird nicht durch den Testlauf automatisch entfernt.
+`LABSCN-002` ist mit 22 vollständigen Inventareinträgen abgeschlossen.
+`CON-004` ist der erste, `DGN-005` der zweite vollständige Vertical Slice. Beide
+Szenarien sind `YELLOW`, benötigen eine isolierte Wegwerfumgebung und sind auf
+Docker sowie Podman praktisch validiert. Die Umgebung bleibt nach der
+Vorbereitung für den Benutzer verfügbar und wird erst durch den bewussten
+Remove-Schritt entfernt.
 
 Zusätzliche Funktionalität in `SQL_Server_Lab` wird nur verlangt, wenn die konkrete Szenariodefinition mit den vorhandenen Lab-Funktionen nicht realisierbar ist. Die fehlende Fähigkeit wird dann vor jeder Änderung im Lab-Repository ausdrücklich benannt.

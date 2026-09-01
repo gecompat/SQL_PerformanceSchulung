@@ -21,7 +21,7 @@ PATHS = {
     "RES-007": "Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas",
 }
 SAFETY = {"OPT-003":"GREEN", "OPT-005":"GREEN", "CON-006":"YELLOW", "CON-009":"YELLOW", "IDX-006":"YELLOW", "IDX-010":"YELLOW", "STL-008":"RED", "STL-009":"YELLOW", "RES-007":"YELLOW"}
-STATUS = {demo_id: ("IMPLEMENTED" if demo_id == "CON-009" else "VALIDATED") for demo_id in ORDER}
+STATUS = {demo_id: "VALIDATED" for demo_id in ORDER}
 SOURCES = {"OPT-003":{"SRC-005"}, "OPT-005":{"SRC-005"}, "CON-006":{"SRC-004"}, "CON-009":{"SRC-029","SRC-004"}, "IDX-006":{"SRC-014","SRC-015"}, "IDX-010":{"SRC-016","SRC-017"}, "STL-008":{"SRC-033"}, "STL-009":{"SRC-033"}, "RES-007":{"SRC-035","SRC-036","SRC-051"}}
 REQUIRED = {"manifest.json", "README.md", "00_Preflight.sql", "10_Setup.sql", "20_Baseline.sql", "40_Observation.sql", "50_Mitigation.sql", "90_Cleanup.sql"}
 

@@ -3,13 +3,13 @@
 | Feld | Wert |
 |---|---|
 | Arbeitspaket | `ADV-009` |
-| Status | `IMPLEMENTED_FOR_REVIEW` |
-| Datum | 2026-08-02 |
+| Status | `VALIDATED` |
+| Datum | 2026-09-01 |
 | Grundlage | `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md`, `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md` |
 | Entscheidungen | `DEC-057`, `DEC-058` (Nachfolger von `DEC-053`) |
 | Deck | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
-| Folienumfang | 84 → 94 |
-| Werkzeug | `Tools/build_adv009_slides.py` |
+| Folienumfang | 84 → 94; aktueller Master nach `ADV-010`/`ADV-011`: 102 |
+| Werkzeug | `Tools/build_adv009_slides.py`, Artifact Tool, `Tools/Set-PresentationCustomShows.ps1` |
 | Prüfer | `Tests/Static/validate_adv009_deck_integration.py` |
 
 ## 1. Ausgangslage und Freigabeänderung
@@ -98,8 +98,10 @@ Die vollständige statische Prüfstrecke läuft grün.
 
 `ADV-CLM-013` bis `ADV-CLM-018` sind damit belegt. Die verbleibenden 33 Ansprüche bleiben `PLANNED`; sie gehören zu Arbeitspaketen, deren Demos noch nicht implementiert sind.
 
-## 7. Offene Punkte
+## 7. Endabnahme am 2026-09-01
 
-1. `QRY-013` ist durch [Actions-Lauf 30699410795](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30699410795) auf SQL Server 2019, 2022 und 2025 validiert. Die fachliche Endabnahme des gesamten Blocks bleibt offen, bis `QRY-004` seine widerspruchsfreie Runtime-Matrix besitzt und die visuelle Renderprüfung erfolgt ist.
-2. `docProps/app.xml` meldet weiterhin `<ap:Slides>0</ap:Slides>`. Der Wert war bereits vor der Erweiterung falsch und wird bewusst nicht korrigiert, um die Änderung auf den fachlichen Zweck zu begrenzen.
-3. Jede weitere Deckerweiterung ändert erneut Prüfsumme und Folienzahl. `OPT-009` und `OPT-010` sind bereits integriert; als nächster fachlicher Erweiterungskandidat bleibt `OPT-017` und benötigt eine Fortschreibung von `SLIDE_COUNT` und der Liste integrierter Ansprüche.
+Die zuvor offene Sprechernotiz von `SLD-M03-112` nennt jetzt den validierten Matrixlauf 33222989681 und dessen `WARN_EMPIRICAL_VARIANCE` ausdrücklich. Sie behauptet weder einen Read-Vorteil noch eine Verschlechterung außerhalb der Messstreuung. `QRY-004` ist auf SQL Server 2019, 2022 und 2025 je zweimal gelaufen; Ergebnis- und Cleanup-Verträge blieben erfüllt.
+
+Das aktuelle 102-Folien-Deck wurde vollständig mit PowerPoint Desktop auf 1280 × 720 gerendert und jede Folie einzeln sowie als Kontaktbogen geprüft. Eine bereits vorhandene Linienkreuzung auf Folie 51 wurde beseitigt. Der erneute Render unterscheidet sich nur auf dieser Folie vom zuvor vollständig geprüften Render. `slides_test.py` meldet keinen Überlauf, der Template-Fidelity-Check keine Abweichung. Die drei nativen Custom Shows wurden nach dem Editorexport kontrolliert wiederhergestellt und durch `validate_presentation_variants.py` mit 41/66/102 Folien bestätigt.
+
+`docProps/app.xml` enthält nun 102 Folien und 102 Notizseiten. Der freigegebene Masterhash lautet `85bd14e4fc91d148889e9ebaa7128f6e1a213366f389aa6e2053f46cc0890ad3`; Datenschutzfreigabe, Statementregister, Quellenmanifest, Variantenmanifest und Planungsnachweise tragen denselben Wert. Die Prüfer für `ADV-009`, `ADV-010`, `ADV-011` und `W2-007` bestehen. Damit sind die früheren offenen Punkte geschlossen.

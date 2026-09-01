@@ -52,9 +52,9 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] Eine Multi-Session-Pilotdemo mit kontrolliertem Blocking in einer Testdatenbank umsetzen und validieren (`CON-004`).
 - [x] Eine gelbe Ressourcen-Pilotdemo mit definierten Abbruchkriterien umsetzen und validieren (`OPT-013`).
 - [x] Gate B mit statischer Prüfung und 24 vollständigen Pilotläufen abnehmen.
-- [ ] Query Store und Extended Events als zentrale Diagnosepfade in Pilotdemos validieren.
+- [x] Query Store und Extended Events als zentrale Diagnosepfade in Pilotdemos validieren.
 - [x] `W2-001` Bestandsbeispiele vollständig als `REUSE`, `REFACTOR`, `REBUILD`, `DIAGNOSTIC_ONLY` oder `REMOVE` klassifizieren und kanonischen Demo-IDs zuordnen.
-- [ ] `W2-002` interne und externe Datenabhängigkeiten der priorisierten Migrationskandidaten entfernen.
+- [x] `W2-002` interne und externe Datenabhängigkeiten der priorisierten Migrationskandidaten entfernen; die neun `W2-A`-Altquellen sind aus dem Runtimeumfang ausgeschlossen, vier aktive Ersatzdemos sind synthetisch gebunden und alle verbleibenden Neuaufbauten besitzen einen neutralen Datenvertrag.
 - [x] Diagnoseleitfaden als roten Faden von Symptom über Messung und Hypothese bis zum Vorher-Nachher-Vergleich integrieren.
 - [x] Rollenmodell für Projektionsfolie, Sprecherhinweis, Teilnehmerunterlage und Demo-Evidenz festlegen.
 - [x] Die vier aktiven `REFINE`-Claims in `W2-007` fachlich korrigieren, mit Notes/Quellen synchronisieren und gegen den aktiven Foliensatz validieren.
@@ -68,26 +68,27 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] `ADV-005` LAB-VP2, `QRY-013` und die Erweiterung von `QRY-004` vollständig entwerfen und den Designvertrag statisch validieren.
 - [x] `ADV-006` LAB-VP3 und LAB-VP4 einschließlich Ressourcen-, Versions-, Compatibility-Level-, Query-Store- und Skip-Matrix vollständig entwerfen und statisch validieren.
 - [x] `ADV-007` LAB-VP5 und `DGN-007` als vollständigen Diagnose- und Capstone-Fall mit Hypothesen-, Evidenz-, Vergleichs- und Rückfallvertrag entwerfen und statisch validieren.
-- [ ] `ADV-008` freigegebene Vertiefungsdemos in kleinen, unabhängigen PRs implementieren und validieren.
+- [x] `ADV-008` freigegebene Vertiefungsdemos in kleinen, unabhängigen PRs implementieren und validieren.
   - [x] `OPT-015` Planweite und operatorbezogene Eigenschaften implementieren und auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
   - [x] `OPT-016` Rebind, Rewind, Outer References und Spools implementieren und auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
   - [x] `QRY-013` Client- und Sessionkontext auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
   - [x] `OPT-009` Parameter Sensitive Plan Optimization mit kontrolliertem `SKIP_VERSION` auf 2019 sowie Runtime-Evidenz auf 2022 und 2025 validieren.
   - [x] `OPT-010` Optional Parameter Plan Optimization mit kontrolliertem `SKIP_VERSION` auf 2019/2022 sowie Runtime-Evidenz auf 2025 validieren.
-  - [ ] `QRY-004_CLASSIC_AND_DYNAMIC` Runtime-Runner für `WARN_EMPIRICAL_VARIANCE` korrigieren oder die Evidenzstrecke stabilisieren und anschließend auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
-  - [ ] `OPT-017` mit begrenztem gelbem Ressourcenprofil ist implementiert; die zweifache 2019/2022/2025-Runtime-Matrix mit tatsächlich erzeugter Kernevidenz steht aus.
-- [ ] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen.
-- [ ] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen.
+  - [x] `QRY-004_CLASSIC_AND_DYNAMIC` Runtime-Runner für `WARN_EMPIRICAL_VARIANCE` korrigieren oder die Evidenzstrecke stabilisieren und anschließend auf SQL Server 2019, 2022 und 2025 jeweils zweimal validieren.
+  - [x] `OPT-017` mit begrenztem gelbem Ressourcenprofil implementieren und mit zweifacher 2019/2022/2025-Runtime-Matrix einschließlich Kernevidenz validieren.
+- [x] `ADV-009` Masterdeck, Speaker Notes und Teilnehmerunterlage quellengebunden integrieren und jede neue Folie einem Tiefenprofil zuordnen; die `QRY-004`-Sprechernotiz ist mit Lauf 33222989681 synchronisiert und das 102-Folien-Deck vollständig visuell abgenommen.
+- [x] `ADV-010` Vertiefungsstrang fachlich, didaktisch und technisch abnehmen; Quellen-, Runtime-, Deck-, Notes-, Varianten- und Folgearbeitsgrenzen stehen im Endabnahmereview.
 
 ## P1 - Interaktive Schulungsszenarien mit SQL_Server_Lab
 
 - [x] `LABSCN-001` Ziel, Verantwortungsgrenze und Lifecycle interaktiver Schulungsszenarien verbindlich festlegen.
-- [ ] `LABSCN-002` vollständig abschließen. Inventar und Schema für die ersten drei Wellen liegen als `IMPLEMENTED_FOR_REVIEW` vor; weitere Beispiele und die vollständige Bedienungszuordnung bleiben offen.
+- [x] `LABSCN-002` vollständig abschließen: alle 22 produktiven Demos sind gegen den aktiven Katalog mit Lifecycle, Providergrenze, Mindestressourcen, Resetstrategie und Runtimeevidenz inventarisiert; der Validator erzwingt die vollständige Übereinstimmung.
 - [x] `LABSCN-003` ersten vollständigen Vertical Slice umsetzen: `CON-004` wird über den Project Adapter `0.1` auf SQL Server 2025 Linux provisioniert, fachlich vorbereitet, als `READY_FOR_USER` übergeben, zurückgesetzt und entfernt; der vollständige Lifecycle ist mit Docker und Podman praktisch validiert.
-- [ ] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
+- [x] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
 - [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen. Die priorisierten sofortigen, bedingten und zukünftigen Kandidaten stehen in [`Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md`](../Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md); jeder Kandidat benötigt vor der Umsetzung eine eigene Detailanalyse und Quellenfreigabe.
+  - [x] `DGN-005` nach eigenem Detailreview als zweiten interaktiven Slice über Project Adapter `0.1` implementieren und den vollständigen SQL-Server-2025-Lifecycle auf Docker und Podman praktisch validieren.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
-- [ ] Für jedes Szenario Mindestanforderungen an Hosthardware, Providergrenzen, Versionen und Resetstrategie dokumentieren.
+- [x] Für jedes produktive Szenario Mindestanforderungen an Hosthardware, Providergrenzen, Versionen und Resetstrategie dokumentieren und statisch gegen den Demo-Katalog absichern.
 - [ ] Zusätzliche Funktionalität in `SQL_Server_Lab` nur nach konkretem Szenariobefund benennen und erst nach ausdrücklicher Freigabe dort umsetzen.
 
 ## P1 - Nachgeordnete SQL_Server_Lab-Qualitätssicherung
@@ -96,10 +97,10 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] `LABINT-002` Smoke-/Core-Test für Aufbau, Vorbereitung, Reset und Abbau des ersten interaktiven Vertical Slice implementieren.
   - [x] Technischen QRY-001-Vorläufer auf Docker und Podman mit SQL Server 2025 über öffentliche `SQL_Server_Lab`-Commands implementieren und je Provider mit zwei vollständigen Demoläufen, unabhängiger Datenbank-Cleanup-Prüfung und Infrastrukturabbau lokal validieren.
   - [x] Den Test auf den vollständigen `CON-004`-Lifecycle `READY_FOR_USER` -> Reset -> `READY_FOR_USER` -> Remove erweitern und auf SQL Server 2025 mit Docker und Podman praktisch validieren.
-- [ ] `LABINT-003` Docker-/Podman-Parität für geeignete Szenarien praktisch prüfen.
+- [x] `LABINT-003` Docker-/Podman-Parität für die freigegebenen Szenarioslices praktisch prüfen.
   - [x] Provider-Parität für `QRY-001` auf SQL Server 2025 mit jeweils zwei vollständigen Läufen lokal nachweisen.
   - [x] Provider-Parität für den versionierten `CON-004`-Adapter-Lifecycle auf SQL Server 2025 mit vollständigem Start-, Reset- und Remove-Lauf nachweisen.
-  - [ ] Weitere geeignete Szenarien und die freigegebene Versionsmatrix prüfen.
+  - [x] `DGN-005` als weiteres geeignetes Szenario auf Docker und Podman praktisch prüfen; die automatisierte Demo besitzt zusätzlich die freigegebene 2019/2022/2025-Matrix aus Lauf 33222989682.
 - [ ] `LABINT-004` gelbe und vollständige Container-Matrix nach Safety- und Szenariofreigabe aktivieren.
 
 ## P1 - Masterdeck und Präsentationsvarianten
@@ -117,16 +118,16 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 
 - [x] Weitere SQL-Server-Beispielkategorien über Query Tuning hinaus systematisch recherchieren, gegen vorhandene Demo- und Folienabdeckung deduplizieren und im [Recherchekatalog](../Documentation/Project_Planning/SQL_SERVER_EXAMPLE_CATEGORY_RESEARCH_CATALOG.md) einem vorhandenen Owner, einer späteren Eigentümerentscheidung, Infrastruktur oder einem Ausschluss zuordnen. Die Recherche legt noch keine neuen IDs oder Implementierungswellen fest.
 - [x] `W-COV-001` neun verbleibende Demos in der Reihenfolge `OPT-003`, `OPT-005`, `CON-006`, `CON-009`, `IDX-006`, `IDX-010`, `STL-008`, `STL-009`, `RES-007` als source-, safety- und curriculumgebundene Pakete implementieren.
-- [ ] `W-COV-001` Runtimefreigabe abschließen: acht Demos sind nach je zwei 2019/2022/2025-Läufen validiert; `CON-009` benötigt auf SQL Server 2019 noch positive interne Task-Allokation oder gleichwertige Evidenz. Cleanup war in allen Läufen unabhängig erfolgreich.
+- [x] `W-COV-001` Runtimefreigabe für alle neun Demos nach je zwei 2019/2022/2025-Läufen abschließen; Cleanup unabhängig prüfen.
 
 - [x] SQL-Server-2019/2022/2025-Testmatrix definieren und erfolgreich ausführen.
 - [x] How-to für vorhandene SQL-Server-Instanz plus isolierte synthetische Testdatenbank erstellen. Der Laufnachweis gegen eine vorhandene Instanz steht noch aus.
-- [ ] Kompakten Docker-/Podman-Bereitstellungspfad für Personen ohne verfügbaren SQL Server planen.
+- [x] Kompakten Docker-/Podman-Bereitstellungspfad für Personen ohne verfügbaren SQL Server dokumentieren; beide Provider-Preflights melden `RESOURCE_OK`, und der vollständige SQL-Server-2025-Lifecycle ist praktisch validiert.
 - [ ] Docker-/Podman-Ressourcen- oder Netzwerkfunktionen nur für konkret abhängige Demos prüfen.
 - [ ] Hyper-V nur für nachweislich Windows-, Storage- oder OS-nahe Demos planen.
 - [x] Wiederholbare Concurrency-Prozesssteuerung ohne proprietäre Abhängigkeiten implementieren und mit realen parallelen SQL-Sessions validieren.
 - [x] Hardwareabhängige Erwartungswerte als Invarianten, Richtungen, Verhältnisse oder begründete Bandbreiten statt Fixwerte definieren.
-- [ ] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister, Lernzielen und Tiefenprofilen synchronisieren.
+- [x] Vorhandene Präsentationsmodule fachlich modernisieren und mit Demo-Katalog, Quellenregister, Lernzielen und Tiefenprofilen synchronisieren; Masterdeck und 41/66/102-Profile sind fachlich, technisch und visuell abgenommen.
 - [x] Branding-bereinigte Repository-Fassung der Schulungsunterlagen bereitstellen.
 
 ## Erledigungsregel

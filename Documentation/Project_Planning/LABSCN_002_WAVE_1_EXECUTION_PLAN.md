@@ -2,8 +2,8 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IN_PROGRESS` |
-| Stand | 2026-07-27 |
+| Status | `VALIDATED` |
+| Stand | 2026-09-01 |
 | Arbeitsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Provisionierungsframework | `gecompat/SQL_Server_Lab` |
 | Zielprovider dieser Welle | Docker und Podman |
@@ -94,6 +94,11 @@ Ein partieller Reset ist zulässig, wenn er nachweislich alle szenariorelevanten
 | `LABSCN-002.5` | P0 | Szenariodefinitionsschema entwerfen | maschinenlesbarer Vertrag für interaktive Szenarien |
 | `LABSCN-002.6` | P0 | Vertical Slice auswählen | freigegebener Kandidat für `LABSCN-003` |
 
+Alle sechs Arbeitspakete sind abgeschlossen. Das maschinenlesbare Inventar
+enthält alle 22 produktiven Demo-Manifeste; die statische Prüfung vergleicht
+die Menge vollständig mit dem aktiven Demo-Katalog und erzwingt Lifecycle-,
+Ressourcen-, Provider-, Versions- und Resetfelder je Eintrag.
+
 ## 8. Reihenfolge innerhalb der ersten Welle
 
 Zuerst werden logisch deterministische Demos untersucht. Die erste Prioritätsgruppe umfasst Concurrency, SARGability, Statistiken, Parameter- und Planverhalten sowie Query Store und Extended Events. Ressourcenabhängige Demos werden anschließend klassifiziert, jedoch erst nach einem eigenen Capability- und Toleranzvertrag als Vertical Slice umgesetzt.
@@ -117,3 +122,10 @@ Welle 1 ist abgeschlossen, wenn:
 ## 10. Sicherheits- und Datenschutzgrenze
 
 Szenariodefinitionen und Inventare enthalten ausschließlich synthetische Kennungen, öffentliche SQL-Server-Versionen, generische Rollen und repositoryrelative Pfade. Reale Hostnamen, Benutzernamen, Kennwörter, interne Pfade oder produktive Diagnosedaten werden nicht versioniert.
+
+## 11. Abschlussnachweis
+
+`Tests/Static/validate_performance_scenarios.py` bestätigt 22 inventarisierte
+produktive Demos und die freigegebenen interaktiven Szenariodefinitionen. Der
+erste Vertical Slice `CON-004` sowie der Folgeslice `DGN-005` besitzen jeweils
+einen praktisch validierten Docker-/Podman-Lifecycle auf SQL Server 2025.

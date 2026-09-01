@@ -77,9 +77,9 @@ Ein selbstgehosteter Runner führt Code aus dem Repository auf eigener Infrastru
 | Stufe 4 und 5 der Entscheidungsleiter | nicht implementiert | implementierbar |
 | Rote Szenarien einschließlich `RES-003` | zurückgestellt | ausführbar |
 | `RUNNER_ASSISTED`-Teilnehmerablauf in `LABSCN-003` | nicht umgesetzt | umsetzbar |
-| `INF-003` geprüfte Podman-Variante | offen | prüfbar |
+| `INF-003` geprüfte Podman-Variante | lokal mit vollständigem SQL-Server-2025-Lifecycle validiert | keine Runnerabhängigkeit mehr |
 
-`LABSCN-002` ist von dieser Einschränkung nicht betroffen. Dort gilt verbindlich die kleinste ausreichende Orchestrierungsstufe, und `CON-004` ist bereits auf `MANUAL` festgelegt.
+`LABSCN-002` ist abgeschlossen. `CON-004` und `DGN-005` verwenden die kleinste ausreichende Orchestrierungsstufe `MANUAL` und sind auf Docker sowie Podman praktisch validiert.
 
 ## 5. Umschaltung der Workflows
 
