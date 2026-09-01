@@ -4,11 +4,11 @@
 |---|---|
 | Paket | `ADV-008` |
 | Schnitt | `QRY-004_CLASSIC_AND_DYNAMIC` |
-| Status | `IMPLEMENTED_FOR_REVIEW` |
+| Status | `VALIDATED` |
 | Lernziel | `LO-M03-08` |
 | Claims | `ADV-CLM-016`, `ADV-CLM-017`, `ADV-CLM-018` |
 | Testprofil | `TP-RUN`, `TP-PERF` |
-| Runtime-Abnahme | offen |
+| Runtime-Abnahme | [Actions-Lauf 33222989681](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989681) |
 
 ## 1. Umfang
 
@@ -58,8 +58,8 @@ privacy-metadata: PASS (files=288; text=279; office=1; archives=0; approved_immu
 
 Der neue Prüfer wurde negativ getestet. Fünf gezielte Mutationen wurden jeweils erkannt: entfernter `OPTION (RECOMPILE)`-Hinweis, konkatenierter Filterwert, direkte Stringausführung über `EXEC(...)`, ungleiche Wiederholungszahl in der Beobachtungsphase und fehlender Folienmarker.
 
-## 6. Offene Punkte
+## 6. Runtime-Abnahme und Folgearbeit
 
-1. Die Runtime-Abnahme über SQL Server 2019, 2022 und 2025 steht aus; sie läuft ausschließlich auf GitHub-gehosteten Runnern. Der Status bleibt bis dahin `IMPLEMENTED`, nicht `VALIDATED`.
-2. Die Übernahme der fünf Folien in das Deck ist nach `DEC-057` erfolgt und in `Documentation/Project_Planning/ADV_009_DECK_INTEGRATION_REVIEW.md` dokumentiert. `ADV-CLM-017` und `ADV-CLM-018` stehen auf `KEEP` und tragen die Anzeigepositionen 90 bis 93.
-3. `OPT-009` und `OPT-010` schließen den Bogen fachlich ab und sind noch nicht implementiert.
+[Actions-Lauf 33222989681](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989681) führte `QRY-004` auf SQL Server 2019, 2022 und 2025 jeweils zweimal vollständig aus. Alle Ergebnis-, Sicherheits-, Wiederverwendungs- und Cleanup-Verträge wurden erfüllt. Die Demonstration meldete auf allen Zielversionen wahrheitsgemäß `WARN_EMPIRICAL_VARIANCE`, weil `OPTION (RECOMPILE)` für den selektiven Wert keine geringeren Reads erzeugte. Dieser dokumentierte empirische Ausgang ist nach dem Demo- und Runnervertrag zulässig und kein fehlender oder fehlgeschlagener Lauf.
+
+Die fünf Folien sind nach `DEC-057` in das Deck übernommen. `OPT-009` und `OPT-010` schließen den Bogen fachlich ab und besitzen eigene Runtime-Abnahmen.

@@ -46,16 +46,18 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 | `OPT-015` | Planweite und operatorbezogene Eigenschaften | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-016` | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `QRY-013` | Anwendung langsam, SSMS schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
-| `QRY-004` | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `IMPLEMENTED` |
+| `QRY-004` | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-009` | Parametersensitive Planoptimierung | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-010` | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-013` | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `CON-004` | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
-| `OPT-017` | Parallele Planbereiche und Skew | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `IMPLEMENTED` |
+| `DGN-003` | Query-Store-Historie | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
+| `DGN-005` | Begrenzte Extended-Events-Evidenz | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
+| `OPT-017` | Parallele Planbereiche und Skew | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `OPT-003` | Sampling, Skew und Histogrammgrenzen | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `OPT-005` | Ascending Key und Statistikpflege | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | `CON-006` | Reproduzierbarer Deadlock-Zyklus | Gelb | 3 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
-| `CON-009` | TempDB-Kostenklassen | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `IMPLEMENTED` |
+| `CON-009` | TempDB-Kostenklassen | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `IDX-006` | Page Splits, Density und Fragmentierung | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `IDX-010` | Columnstore-Segmente und Rowgroup-Qualität | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | `STL-008` | VLF-Struktur und Logwachstum | Rot | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
@@ -82,12 +84,12 @@ Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [`LOCAL_
 
 | Demo-ID | Titel | Modul / Lernziel | Sicherheit | Ausführungspfad | Zielmatrix | Status |
 |---|---|---|---|---|---|---|
-| `QRY-004` | Catch-all, Recompile und dynamisches SQL | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `IMPLEMENTED` |
-| `OPT-017` | Parallele Planbereiche und Skew | M02 / `LO-M02-09` | Gelb | `CONTAINER` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe auf vier sichtbaren Kernen | `IMPLEMENTED` |
+| `QRY-004` | Catch-all, Recompile und dynamisches SQL | M03 / `LO-M03-08` | Grün | `TSQL_TESTDB` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe | `VALIDATED` |
+| `OPT-017` | Parallele Planbereiche und Skew | M02 / `LO-M02-09` | Gelb | `CONTAINER` | SQL Server 2019/CL150, 2022/CL160, 2025/CL170; je zwei Läufe auf vier sichtbaren Kernen | `VALIDATED` |
 | `OPT-003` | Sampling, Skew und Histogrammgrenzen | M02 / `LO-M02-02` | Grün | `TSQL_TESTDB` | SQL Server 2019/2022/2025; je zwei Läufe | `VALIDATED` |
 | `OPT-005` | Ascending Key und Statistikpflege | M02 / `LO-M02-02` | Grün | `TSQL_TESTDB` | SQL Server 2019/2022/2025; je zwei Läufe | `VALIDATED` |
 | `CON-006` | Reproduzierbarer Deadlock-Zyklus | M05 / `LO-M05-03` | Gelb | `TSQL_TESTDB` | SQL Server 2019/2022/2025; je zwei Läufe | `VALIDATED` |
-| `CON-009` | TempDB-Kostenklassen | M05 / `LO-M05-04` | Gelb | `TSQL_TESTDB` | SQL Server 2019/2022/2025; je zwei Läufe | `IMPLEMENTED` |
+| `CON-009` | TempDB-Kostenklassen | M05 / `LO-M05-04` | Gelb | `TSQL_TESTDB` | SQL Server 2019/2022/2025; je zwei Läufe | `VALIDATED` |
 | `IDX-006` | Page Splits, Density und Fragmentierung | M04 / `LO-M04-05` | Gelb | `TSQL_TESTDB` | SQL Server 2019/2022/2025; je zwei Läufe | `VALIDATED` |
 | `IDX-010` | Columnstore-Segmente und Rowgroup-Qualität | M04 / `LO-M04-06/07` | Gelb | `CONTAINER` | SQL Server 2019/2022/2025; je zwei Läufe | `VALIDATED` |
 | `STL-008` | VLF-Struktur und Logwachstum | M01 | Rot | `CONTAINER` | SQL Server 2019/2022/2025; je zwei bestätigte Läufe | `VALIDATED` |

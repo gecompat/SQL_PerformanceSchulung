@@ -5,18 +5,30 @@ on:
     paths:
       - 'Tools/PerformanceTrainingScenario/**'
       - 'Scenarios/CON-004/**'
+      - 'Scenarios/DGN-005/**'
       - 'Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1'
       - 'Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md'
+      - 'Documentation/HowTo/DGN_005_INTERACTIVE_SCENARIO.md'
+      - 'Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md'
+      - 'Documentation/HowTo/CONTAINER_QUICKSTART.md'
       - 'Tests/Static/validate_labscn003_interactive.py'
+      - 'Tests/Static/validate_labscn004_inf002003.py'
+      - 'Tests/Static/validate_labscn005_dgn005.py'
       - '.github/workflows/labscn003-interactive.yml'
   push:
     branches: [main]
     paths:
       - 'Tools/PerformanceTrainingScenario/**'
       - 'Scenarios/CON-004/**'
+      - 'Scenarios/DGN-005/**'
       - 'Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1'
       - 'Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md'
+      - 'Documentation/HowTo/DGN_005_INTERACTIVE_SCENARIO.md'
+      - 'Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md'
+      - 'Documentation/HowTo/CONTAINER_QUICKSTART.md'
       - 'Tests/Static/validate_labscn003_interactive.py'
+      - 'Tests/Static/validate_labscn004_inf002003.py'
+      - 'Tests/Static/validate_labscn005_dgn005.py'
       - '.github/workflows/labscn003-interactive.yml'
 
 permissions:
@@ -45,5 +57,7 @@ jobs:
           ) | Out-Null
           if ($errors.Count -gt 0) { throw ($errors | Out-String) }
       - run: python Tests/Static/validate_labscn003_interactive.py
+      - run: python Tests/Static/validate_labscn004_inf002003.py
+      - run: python Tests/Static/validate_labscn005_dgn005.py
       - run: python Tests/Static/validate_performance_scenarios.py
       - run: python Tests/Static/validate_privacy_metadata.py .

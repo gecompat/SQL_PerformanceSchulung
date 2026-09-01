@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "work_package": "W2-002",
+  "status": "VALIDATED",
+  "review_date": "2026-09-01",
+  "source_classification": "Documentation/Inventories/legacy_example_classification.json",
+  "guarantees": {
+    "legacy_source_execution_allowed": false,
+    "dataset_origin": "SYNTHETIC_REPOSITORY_OWNED",
+    "external_data_sources_allowed": false,
+    "neutral_identifiers_required": true,
+    "database_name_pattern": "SQLPERF_LAB_<DEMOID>_<RUNTOKEN>"
+  },
+  "entries": [
+    {
+      "source_id": "SRC-LEGACY-008",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "EXCLUDED_PENDING_REBUILD",
+      "active_replacements": [],
+      "future_demo_ids": ["CON-001", "CON-002", "CON-003"],
+      "future_data_contract": "Eigene SQLPERF_LAB_-Testdatenbank, synthetische Konten und Bestellungen, explizit orchestrierte Sessions, kein fester Server- oder Loginname."
+    },
+    {
+      "source_id": "SRC-LEGACY-011",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "EXCLUDED_PENDING_REBUILD",
+      "active_replacements": [],
+      "future_demo_ids": ["DGN-002", "STL-004"],
+      "future_data_contract": "Read-only-Katalogabfrage gegen die ausgewählte SQLPERF_LAB_-Zieldatenbank; keine feste Objekt-ID und kein fremdes Schema."
+    },
+    {
+      "source_id": "SRC-LEGACY-012",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "EXCLUDED_PENDING_REBUILD",
+      "active_replacements": [],
+      "future_demo_ids": ["DGN-002", "OPT-014", "RES-004"],
+      "future_data_contract": "Read-only-DMV-Sicht mit explizitem Scope und eigener synthetischer Grant-Workload; keine externe Datenbank und keine feste Session-ID."
+    },
+    {
+      "source_id": "SRC-LEGACY-013",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "EXCLUDED_PENDING_REBUILD",
+      "active_replacements": [],
+      "future_demo_ids": ["DGN-002"],
+      "future_data_contract": "Read-only-Request-Sicht mit eigener markierter Session; keine feste Session-ID, kein fremder Querytext und keine globale Mutation."
+    },
+    {
+      "source_id": "SRC-LEGACY-014",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "ACTIVE_REPLACEMENT",
+      "active_replacements": [
+        {
+          "demo_id": "RES-007",
+          "path": "Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas"
+        }
+      ],
+      "future_demo_ids": ["DGN-002"],
+      "future_data_contract": "Wait-Deltas stammen ausschließlich aus einer markierten, synthetischen Blocking-Workload und werden nicht aus fremden Serverzuständen abgeleitet."
+    },
+    {
+      "source_id": "SRC-LEGACY-018",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "EXCLUDED_PENDING_REBUILD",
+      "active_replacements": [],
+      "future_demo_ids": ["OPT-012"],
+      "future_data_contract": "Eigene SQLPERF_LAB_-Tabellen mit deterministischen Verteilungen je Joinfamilie; keine öffentliche Beispieldatenbank und keine übernommenen Datenwerte."
+    },
+    {
+      "source_id": "SRC-LEGACY-020",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "ACTIVE_REPLACEMENT",
+      "active_replacements": [
+        {
+          "demo_id": "QRY-001",
+          "path": "Demos/05_Query_Patterns/QRY-001_SARGability"
+        },
+        {
+          "demo_id": "QRY-004",
+          "path": "Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic"
+        }
+      ],
+      "future_demo_ids": ["QRY-002", "QRY-003"],
+      "future_data_contract": "Getrennte SQLPERF_LAB_-Datenmodelle pro Lernziel, deterministische synthetische Werte, halboffene Zeitintervalle und Ergebnisgleichheitsprüfung."
+    },
+    {
+      "source_id": "SRC-LEGACY-022",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "ACTIVE_REPLACEMENT",
+      "active_replacements": [
+        {
+          "demo_id": "OPT-009",
+          "path": "Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans"
+        }
+      ],
+      "future_demo_ids": ["OPT-008"],
+      "future_data_contract": "Deterministische synthetische Schiefe in einer SQLPERF_LAB_-Datenbank; query- oder datenbanklokale Evidenz ohne globales Leeren des Plancaches."
+    },
+    {
+      "source_id": "SRC-LEGACY-028",
+      "legacy_runtime": "EXCLUDED",
+      "disposition": "EXCLUDED_PENDING_REBUILD",
+      "active_replacements": [],
+      "future_demo_ids": ["IDX-004"],
+      "future_data_contract": "Skalierbare synthetische Zeilenprofile in SQLPERF_LAB_IDX004_<RUNTOKEN>; Tipping Point wird gemessen und nicht als übernommene feste Zeilenzahl behauptet."
+    }
+  ]
+}

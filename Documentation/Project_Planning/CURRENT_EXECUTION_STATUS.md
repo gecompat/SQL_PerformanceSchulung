@@ -3,18 +3,20 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-08-30 |
-| geprüfter Stand auf `origin/main` | `c75d7a25e966d28abeb8225779e7cc48939159fe` |
-| Fachliche Hauptwelle | `W-COV-001` – acht Demos runtimevalidiert; `CON-009` mit offener SQL-Server-2019-Evidenz |
-| Szenariowelle | `LABSCN-003` – Project Adapter `0.1` und vollständiger Docker-/Podman-Lifecycle auf SQL Server 2025 validiert |
+| Stand | 2026-09-01 |
+| geprüfter Repository-Basisstand | `b9a1ac373cd42015509069787e0c6646a7a62d22` auf `origin/main` |
+| geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
+| Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
+| Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003` und `LABINT-003` `VALIDATED` |
+| Szenariowelle | `CON-004` und `DGN-005` – Project Adapter `0.1` und vollständiger Docker-/Podman-Lifecycle auf SQL Server 2025 validiert |
 | Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
 ## 1. Verifizierter Repository-Stand
 
-Der lokale Prüfstand auf dem oben genannten Commit ist sauber. Die statischen Validatoren und neun Unit-Tests liefen am 2026-08-24 erfolgreich. Der Privacy-Scan meldete `PASS (files=354; text=345; office=1; archives=0; approved_immutable=1)`.
+Der Repository-Basisstand war zu Beginn der Verarbeitung sauber. Für den korrigierten `OPT-017`-Stand liefen die betroffenen statischen Validatoren, Runner-Selbsttests, `git diff --check` und der Privacy-Scan erfolgreich; letzterer meldete `PASS (files=632; text=621; office=1; archives=0; approved_immutable=1)`.
 
-Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nachweise stammen aus den verlinkten GitHub-Actions-Läufen; Demo, Runner und Workflow der als validiert markierten Einträge blieben bis zum geprüften Commit unverändert.
+Die fachlichen Runtime-Nachweise stammen aus den verlinkten GitHub-Actions-Läufen. Die Läufe 33222989681, 33222989682 und 33222989644 prüfen den in `origin/main` enthaltenen Commit `6fd2b1d5170f7658cf0b86ee05314f2ab543adc7`. Pull Request 42 prüft `OPT-017` auf dem unveränderlichen Head `782799e`.
 
 ## 2. Runtime-Nachweisstand der produktiven Demos
 
@@ -29,16 +31,17 @@ Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nach
 | `QRY-001` | Framework- und Lab-Nachweis | `VALIDATED` |
 | `OPT-002` | Framework- und Lab-Nachweis | `VALIDATED` |
 | `CON-004` | fachliche Demo und Szenariokandidat | `VALIDATED` |
-| `QRY-004` | Runner wertet `PASS`, `WARN` und kontrollierte `SKIP`-Codes wahrheitsgetreu aus; der ältere Actions-Lauf 30699410792 ist kein Freigabenachweis, die neue Zielmatrix bleibt offen | `IMPLEMENTED` |
-| `OPT-017` | Gelbes `PARALLEL`-Paket mit balancierter und konzentrierter Verteilung, Actual-DOP-/Exchange-/Thread-Evidenz, serieller Gegenprobe und zweifachem Matrix-Runner; Runtime-Matrix noch offen | `IMPLEMENTED` |
+| `QRY-004` | [Actions-Lauf 33222989681](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989681): je zwei vollständige Läufe auf 2019/2022/2025; erwartete `WARN_EMPIRICAL_VARIANCE` ohne Vertrags- oder Cleanup-Fehler | `VALIDATED` |
+| `DGN-003`, `DGN-005` | [Actions-Lauf 33222989682](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989682): je zwei `PASS/OK` auf 2019/2022/2025 | `VALIDATED` |
+| `OPT-017` | [Actions-Lauf 33447840232](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33447840232): je zwei `PASS/OK` auf 2019/2022/2025 mit Actual DOP, Exchange, positiver Threadarbeit, serieller Gegenprobe und Cleanup | `VALIDATED` |
 | `OPT-003`, `OPT-005` | Statistik-Sampling/Skew sowie Ascending-Key-/Pflegevertrag; je zwei lokale Docker-Läufe auf 2019/2022/2025 mit `PASS` | `VALIDATED` |
 | `CON-006` | Deadlock-Zyklus, Fehler 1205, Graph und geordnete Gegenprobe; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
-| `CON-009` | TempDB-Kostenklassen; 2022/2025 je zwei `PASS`, 2019 zweimal `WARN_EMPIRICAL_VARIANCE` wegen fehlender interner Task-Allokation | `IMPLEMENTED` |
+| `CON-009` | [Actions-Lauf 33222989644](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989644): TempDB-Kostenklassen auf 2019/2022/2025 jeweils zweimal `PASS/OK` | `VALIDATED` |
 | `IDX-006`, `IDX-010` | Rowstore-Messkette je zweimal mit fachlich akzeptierter Warnung; klassische Columnstore-Segmente je zweimal `PASS` auf allen Zielversionen | `VALIDATED` |
 | `STL-008`, `STL-009` | rote VLF-/Growth-Lane und gelber Commit-/WRITELOG-Schnitt; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
 | `RES-007` | Task-, Request- und Instanz-Waitscope mit Gegenprobe; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
 
-`QRY-004` ist ausdrücklich noch nicht runtimefreigegeben: Der Runnerkonflikt ist behoben und regressionsgetestet, aber die zweifache 2019/2022/2025-Matrix auf dem korrigierten Stand wurde noch nicht ausgeführt.
+`QRY-004` bleibt fachlich bewusst warnungsfähig. `WARN_EMPIRICAL_VARIANCE` behauptet keinen nicht gemessenen Performancevorteil und verhindert die Runtimefreigabe nicht, sofern die Matrix vollständig läuft und Ergebnis-, Sicherheits-, Wiederverwendungs- und Cleanup-Verträge erfüllt sind. Genau diesen Zustand belegt Lauf 33222989681.
 
 ## 3. Lab-Integration und Szenarien
 
@@ -49,7 +52,13 @@ Es bestehen keine offenen Pull Requests oder Issues. Die fachlichen Runtime-Nach
 - Die automatisierte Matrix ist ein Qualitätssicherungsinstrument und kein Ersatz für den Benutzerworkflow.
 - Änderungen an `SQL_Server_Lab` benötigen eine konkret nachgewiesene fehlende Fähigkeit und ausdrückliche Freigabe.
 
-`LABSCN-002` hat Inventar und Definitionsschema für die ersten drei Wellen geliefert. `LABSCN-003` setzt `CON-004` als ersten vollständigen Vertical Slice um. Der versionierte Project Adapter `0.1` begrenzt den Pfad auf SQL Server 2025 Linux in einer isolierten Docker- oder Podman-Wegwerfumgebung und besitzt getrennte Preflight-, Install-, Validate- und Cleanup-Entrypoints.
+`LABSCN-002` inventarisiert alle 22 produktiven Demos vollständig und wird
+gegen den aktiven Demo-Katalog validiert. `LABSCN-003` setzt `CON-004` als
+ersten vollständigen Vertical Slice um; `LABSCN-005` ergänzt `DGN-005` als
+zweiten freigegebenen Slice. Beide versionierten Project Adapter `0.1`
+begrenzen ihren interaktiven Pfad auf SQL Server 2025 Linux in einer isolierten
+Docker- oder Podman-Wegwerfumgebung und besitzen getrennte Preflight-, Install-,
+Validate- und Cleanup-Entrypoints.
 
 ```text
 Auswahl -> Provisionierung -> fachliche Vorbereitung -> READY_FOR_USER
@@ -65,19 +74,30 @@ Szenario-States endete als `REMOVED`. Der Lab-Core behält ausschließlich den
 nicht aktiven Auditdatensatz des entfernten Runs. Der Podman-Cleanup ließ eine
 bereits vorhandene, nicht zum Run gehörende Ressource unverändert gesund.
 
+Der `DGN-005`-Folgeslice bestand am 2026-09-01 denselben Lifecycle auf Docker
+(RunId `d5143f2a-9f18-49fa-8e9f-b91604993252`) und Podman (RunId
+`82791985-b76a-4594-a5be-bab014907f7d`). Beide Provider führten Demonstration,
+Observation, Mitigation und Comparison mit `PASS/OK` aus und erreichten nach
+dem Reset erneut `READY_FOR_USER`; die markergefilterte, speicherbegrenzte
+Extended-Events-Session sowie Datenbank, Container und Volume wurden danach
+vollständig entfernt.
+
 ## 4. Gate-Status
 
 - Gate V0 – Quellenfreigabe: `VALIDATED`.
 - Gate V1 – Curriculumfreigabe: `VALIDATED`.
 - Gate V2 – Designfreigabe: `VALIDATED`.
-- Gate V3 – Runtimefreigabe: `PARTIAL`; alle oben als `VALIDATED` markierten Demos sind belegt, `QRY-004` bleibt offen.
+- Gate V3 – Runtimefreigabe: `VALIDATED`; alle freigegebenen `ADV-008`- und `W-COV-001`-Demos besitzen den zutreffenden Matrixnachweis.
 - Gate V4 – Lehrmittelfreigabe: `VALIDATED`; Masterdeck und Profile bestanden Notes-, Manifest-, Custom-Show-, Build-, Render-, Metadaten-, Privacy- und Branding-Abnahme.
 - `LABSCN-001`: `DECIDED` und im Repository verankert.
-- `LABSCN-002`: `IMPLEMENTED_FOR_REVIEW`; die vollständige Szenarioabdeckung ist noch nicht erreicht.
+- `LABSCN-002`: `VALIDATED`; 22 von 22 produktiven Demos besitzen den vollständigen Inventarvertrag.
 - `LABSCN-003`: `VALIDATED` für den vollständigen SQL-Server-2025-Lifecycle auf Docker und Podman.
+- `LABSCN-004`: `VALIDATED`; Auswahl, Start, Übergabe, Reset und Remove sind standardisiert dokumentiert und statisch abgesichert.
+- `LABSCN-005/DGN-005`: `VALIDATED` als zweiter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
 - `LABINT-002`: `VALIDATED` für Start, `READY_FOR_USER`, Reset und Remove von `CON-004` auf Docker.
-- `LABINT-003`: `PARTIAL`; die Provider-Parität ist für `QRY-001` und den versionierten `CON-004`-Adapter nachgewiesen, weitere geeignete Szenarien bleiben offen.
+- `LABINT-003`: `VALIDATED` für die freigegebenen Slices `QRY-001`, `CON-004` und `DGN-005`; Docker-/Podman-Parität ist praktisch belegt.
+- `INF-002`/`INF-003`: `VALIDATED`; beide Provider-Preflights melden `RESOURCE_OK`, Quickstart und Recovery sind dokumentiert.
 
 `ADV-006` und `ADV-007` bleiben als `DESIGNED`-Verträge vollständig: Die zugehörigen LAB-VP3-/VP4-Grenzen, Feature-Skips und Diagnoseabhängigkeiten sind dokumentiert, ihre fachliche Umsetzung erfolgt erst in den jeweiligen Folgewellen.
 
@@ -85,13 +105,10 @@ bereits vorhandene, nicht zum Run gehörende Ressource unverändert gesund.
 
 Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md). Kurzfristig ist die Reihenfolge:
 
-1. `QRY-004`-Runner-Konflikt korrigieren und Matrix erneut validieren.
-2. Query-Store-/Extended-Events-Pilot (`DGN-003`/`DGN-005`) als belastbare Evidenz für diagnoseabhängige Schnitte aufbauen.
-3. `CON-004` besitzt den validierten Docker-/Podman-Vertical-Slice; weitere geeignete interaktive Szenarien folgen separat.
-4. `OPT-017` getrennt implementieren und validieren.
-5. Quellen- und Delta-Review für relevante SQL-Server-2025-Funktionen durchführen, bevor daraus neue Lerninhalte entstehen.
-6. `W-PRS-001` ist abgeschlossen.
-7. `W-COV-001` ist in der festgelegten Reihenfolge implementiert und für acht Demos runtimevalidiert; als nächster belegpflichtiger Schritt folgt die SQL-Server-2019-Evidenzstabilisierung von `CON-009`.
+1. Nächsten `LABSCN-005`-Kandidaten erst nach eigenem Detailreview und Quellenfreigabe auswählen; die Kandidatenanalyse priorisiert `CON-006` nach dem abgeschlossenen Query-Store/XE-Schnitt.
+2. `LABINT-004` erst aktivieren, wenn ein weiterer gelber Slice samt Safety- und Szenariofreigabe eine neue Matrixaussage benötigt.
+3. Docker-/Podman-Ressourcen-, Netzwerk-, Hyper-V- oder gemischte Topologien nur bei einer konkret nachgewiesenen fachlichen Abhängigkeit bearbeiten.
+4. Änderungen an `SQL_Server_Lab` bleiben ohne konkrete Fähigkeitslücke und ausdrückliche Freigabe gesperrt.
 
 ## 6. Sicherheits-, Datenschutz- und Quellenstatus
 

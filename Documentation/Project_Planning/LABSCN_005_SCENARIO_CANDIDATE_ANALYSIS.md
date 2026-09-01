@@ -3,8 +3,8 @@
 | Merkmal | Wert |
 |---|---|
 | Arbeitspaket | `LABSCN-005` |
-| Status | `PROPOSED` |
-| Stand | 2026-08-29 |
+| Status | `ACTIVE_AFTER_DGN005_VALIDATION` |
+| Stand | 2026-09-01 |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Provisionierungsframework | `gecompat/SQL_Server_Lab` |
 | geprüfte Lab-Modulversion | `0.2.0` |
@@ -23,6 +23,13 @@ dass seine fachlichen Aussagen, Quellen, Runtime-Effekte oder Providerpfade
 bereits validiert sind. Vor der Umsetzung benötigt jeder Kandidat einen eigenen
 Szenariovertrag, ein Quellen-Delta-Review und die zutreffende Safety- und
 Runtime-Abnahme.
+
+Erster abgeschlossener Folgeschnitt: `DGN-005` besitzt nun ein eigenes
+Detailreview, einen Project Adapter `0.1` und einen praktisch validierten
+SQL-Server-2025-Lifecycle auf Docker und Podman. `DGN-003` bleibt als
+automatisiert runtimevalidierte Query-Store-Demo bestehen; `DGN-004` ist nicht
+Bestandteil dieses interaktiven Slices. Der nächste mögliche Kandidat ist
+`CON-006`, jedoch erst nach eigenem Quellen- und Detailreview.
 
 ## 2. Bewertungsgrundlage
 

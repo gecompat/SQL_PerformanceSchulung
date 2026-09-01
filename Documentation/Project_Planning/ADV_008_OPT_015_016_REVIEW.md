@@ -100,7 +100,7 @@ Die Referenzmatrix erfüllte alle Kriterien ohne Skip.
 
 ## 8. Statusgrenze
 
-`OPT-015` und `OPT-016` sind `VALIDATED`. `ADV-008` bleibt insgesamt `IN_PROGRESS`, da weitere Vertiefungsdemos noch nicht implementiert sind. Gate V3 ist damit `PARTIAL`.
+`OPT-015` und `OPT-016` sind `VALIDATED`. Der inzwischen abgeschlossene Gesamtstand von `ADV-008` und Gate V3 steht in `CURRENT_EXECUTION_STATUS.md`; dieser historische Einzelreview bleibt auf seinen ursprünglichen Schnitt begrenzt.
 
 ## 9. Nächster Schnitt
 

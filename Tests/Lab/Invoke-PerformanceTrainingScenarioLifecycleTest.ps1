@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-    Prueft den vollstaendigen CON-004-Adapter-Lifecycle auf SQL Server 2025 Linux.
+    Prueft einen vollstaendigen Project-Adapter-Lifecycle auf SQL Server 2025 Linux.
 .DESCRIPTION
     Provisioniert ueber SQL_Server_Lab, erwartet READY_FOR_USER, fuehrt einen
     fachlichen Reset aus und entfernt danach Adapterartefakte, Infrastruktur
@@ -11,6 +11,7 @@
 #>
 [CmdletBinding()]
 param(
+    [ValidateSet('CON-004','DGN-005')][string]$ScenarioId = 'CON-004',
     [ValidateSet('docker','podman')][string]$Provider = 'docker',
     [SecureString]$SaPassword,
     [string]$SqlServerLabModulePath,
@@ -22,7 +23,7 @@ $ErrorActionPreference = 'Stop'
 
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 if (-not $StateRoot) {
-    $StateRoot = Join-Path $repositoryRoot "Runtime\State\PerformanceTrainingScenario-$Provider"
+    $StateRoot = Join-Path $repositoryRoot "Runtime\State\PerformanceTrainingScenario-$($ScenarioId.Replace('-',''))-$Provider"
 }
 if (-not $SqlServerLabModulePath) {
     $SqlServerLabModulePath = Join-Path (Split-Path $repositoryRoot -Parent) 'SQL_Server_Lab\SqlServerLab.psd1'
@@ -39,15 +40,16 @@ if (-not $SaPassword) {
 
 Import-Module (Join-Path $repositoryRoot 'Tools\PerformanceTrainingScenario\PerformanceTrainingScenario.psd1') -Force
 
-$statePath = Join-Path $StateRoot 'CON-004.json'
+$statePath = Join-Path $StateRoot "$ScenarioId.json"
 $ready = $null
 $reset = $null
 $removed = $null
 $previousLabState = $env:SQL_SERVER_LAB_STATE
+$priorSqlcmdEnv = $env:SQLCMDPASSWORD
 
 try {
     $ready = Start-PerformanceTrainingScenario `
-        -ScenarioId CON-004 `
+        -ScenarioId $ScenarioId `
         -Provider $Provider `
         -SaPassword $SaPassword `
         -SqlServerLabModulePath $SqlServerLabModulePath `
@@ -55,15 +57,27 @@ try {
     if ($ready.Status -ne 'READY_FOR_USER' -or $ready.AdapterContractVersion -ne '0.1') {
         throw "Start lieferte keinen versionierten READY_FOR_USER-Zustand: $($ready | ConvertTo-Json -Compress)"
     }
-    if ($ready.SqlcmdVariables.DemoId -ne 'CON-004' -or $ready.SqlcmdVariables.RunToken -ne 'LOCAL') {
+    if ($ready.SqlcmdVariables.DemoId -ne $ScenarioId -or $ready.SqlcmdVariables.RunToken -ne 'LOCAL') {
         throw 'Die READY_FOR_USER-Uebergabe enthaelt nicht die erwarteten SQLCMD-Variablen.'
     }
     if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
-        throw 'Der lokale CON-004-Lifecycle-State fehlt nach Start.'
+        throw "Der lokale $ScenarioId-Lifecycle-State fehlt nach Start."
+    }
+
+    if ($ScenarioId -eq 'DGN-005') {
+        $env:SQLCMDPASSWORD = [System.Net.NetworkCredential]::new('', $SaPassword).Password
+        foreach ($role in @($ready.SessionRoles | Sort-Object startOrder)) {
+            $scriptPath = Join-Path $repositoryRoot $role.script
+            & sqlcmd -S $ready.Server -U sa -C -b -d $ready.Database `
+                -v 'DemoId=DGN-005' 'RunToken=LOCAL' -i $scriptPath
+            if ($LASTEXITCODE -ne 0) {
+                throw "Interaktive DGN-005-Phase $($role.role) endete mit Exitcode $LASTEXITCODE."
+            }
+        }
     }
 
     $reset = Reset-PerformanceTrainingScenario `
-        -ScenarioId CON-004 `
+        -ScenarioId $ScenarioId `
         -SaPassword $SaPassword `
         -SqlServerLabModulePath $SqlServerLabModulePath `
         -StateRoot $StateRoot
@@ -72,7 +86,7 @@ try {
     }
 
     $removed = Remove-PerformanceTrainingScenario `
-        -ScenarioId CON-004 `
+        -ScenarioId $ScenarioId `
         -SaPassword $SaPassword `
         -SqlServerLabModulePath $SqlServerLabModulePath `
         -StateRoot $StateRoot `
@@ -89,7 +103,7 @@ finally {
         if ($ready -and -not $removed -and (Test-Path -LiteralPath $statePath -PathType Leaf)) {
             try {
                 Remove-PerformanceTrainingScenario `
-                    -ScenarioId CON-004 `
+                    -ScenarioId $ScenarioId `
                     -SaPassword $SaPassword `
                     -SqlServerLabModulePath $SqlServerLabModulePath `
                     -StateRoot $StateRoot `
@@ -104,11 +118,17 @@ finally {
     }
     finally {
         $env:SQL_SERVER_LAB_STATE = $previousLabState
+        if ($null -eq $priorSqlcmdEnv) {
+            Remove-Item Env:SQLCMDPASSWORD -ErrorAction SilentlyContinue
+        }
+        else {
+            Set-Item Env:SQLCMDPASSWORD -Value $priorSqlcmdEnv
+        }
     }
 }
 
 [PSCustomObject]@{
-    ScenarioId = 'CON-004'
+    ScenarioId = $ScenarioId
     Provider = $Provider
     SqlVersion = '2025'
     AdapterContractVersion = $ready.AdapterContractVersion

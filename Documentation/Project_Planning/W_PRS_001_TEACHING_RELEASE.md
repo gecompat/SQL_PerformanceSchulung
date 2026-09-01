@@ -5,8 +5,8 @@
 | Welle | `W-PRS-001` |
 | Arbeitspakete | `PRS-012`, `PRS-013`, `TST-011`, `TST-012` |
 | Status | `VALIDATED` |
-| Prüfdatum | 2026-08-28 |
-| Masterdeck SHA-256 | `86977ac815f4bd90ad56335bc3fa5847149b0b809da71a58601128b5385111f5` |
+| Prüfdatum | 2026-09-01 |
+| Masterdeck SHA-256 | `85bd14e4fc91d148889e9ebaa7128f6e1a213366f389aa6e2053f46cc0890ad3` |
 | Manifest | `Presentations/variants/presentation_variants.json`, Schema-Version 1 |
 
 ## Ergebnis
@@ -17,9 +17,9 @@ Der interaktive PowerPoint-Desktop-Build erzeugte alle drei eigenständigen Vari
 
 | Profil | Folien | SHA-256 der erzeugten Variante | Render |
 |---|---:|---|---:|
-| `BASIS` | 41 | `651f9308ee80d9b4d0b4cc07fdd7ee0140e8784c906f33b1cf7d60b218c1055d` | 41 PNG |
-| `STANDARD` | 66 | `3d0482bd4166c110b84bfa9dabf4da9eda46cd7807ab6cf7c4248c2eb504f183` | 66 PNG |
-| `VERTIEFUNG` | 102 | `d498d6b51a762517cec5d63ab019931ef9e4f819e888a0fbf7d76c1a550dc39a` | 102 PNG |
+| `BASIS` | 41 | `ebaa6c3ce170b594031a9bdffb604b147d75d2c02440a3acd53c2f2097769744` | 41 PNG |
+| `STANDARD` | 66 | `dcef462891e039d77eec7262d9f3a4cf14d3d23d9a7c67a363bc88c2937c56eb` | 66 PNG |
+| `VERTIEFUNG` | 102 | `86156c1da8bc15f534841fbc6810443c86b93560adbbba612b61f236eb2ffbfd` | 102 PNG |
 
 Zusätzlich wurden alle 102 Masterfolien mit PowerPoint Desktop auf 1280 × 720 gerendert. Die 102 Master- und `VERTIEFUNG`-Renderings sind bytegleich. Die vollständige Kontaktbogenprüfung zeigte keine abgeschnittenen Inhalte, Platzhalter, Brandingabweichungen oder Reihenfolgefehler. Der Template-Fidelity-Check meldete `PASS`; der statische Varianten-, Notes-, Metadaten-, Privacy- und Branding-Check meldete ebenfalls `PASS`.
 

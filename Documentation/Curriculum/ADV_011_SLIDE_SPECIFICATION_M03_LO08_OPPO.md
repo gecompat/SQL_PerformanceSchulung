@@ -118,4 +118,4 @@ Die Übernahme erfolgte additiv über `Tools/build_adv011_slides.py`. Bestehende
 
 ## 9. Abgrenzung
 
-Dieser Bogen bewertet weder die parametersensitive Planoptimierung aus `OPT-009` noch die in `QRY-004` verglichenen Strategien neu. Er verwendet keine Query-Store-Sichten und keine erweiterten Ereignisse, solange deren Pilotabnahme offen ist, und behauptet keine Beschleunigung, die nicht an Dispatcher- und Variantenevidenz belegt ist.
+Dieser Bogen bewertet weder die parametersensitive Planoptimierung aus `OPT-009` noch die in `QRY-004` verglichenen Strategien neu. Er verwendet in diesem abgegrenzten Schnitt keine Query-Store-Sichten und keine erweiterten Ereignisse und behauptet keine Beschleunigung, die nicht an Dispatcher- und Variantenevidenz belegt ist.

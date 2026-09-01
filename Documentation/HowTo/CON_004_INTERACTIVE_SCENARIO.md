@@ -1,5 +1,8 @@
 # CON-004 interaktiv bereitstellen
 
+Der providerneutrale Standardablauf für Auswahl, Start, Übergabe, Reset und
+Remove steht unter `Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md`.
+
 ## Voraussetzungen
 
 - PowerShell 7.2 oder neuer;

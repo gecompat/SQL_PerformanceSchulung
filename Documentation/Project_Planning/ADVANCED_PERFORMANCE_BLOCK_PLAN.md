@@ -3,9 +3,9 @@
 | Merkmal | Wert |
 |---|---|
 | Arbeitspakete | `ADV-001` bis `ADV-010` |
-| Status | `IN_PROGRESS` |
-| Planversion | 1.4 |
-| Stand | 2026-07-26 |
+| Status | `VALIDATED` |
+| Planversion | 1.5 |
+| Stand | 2026-09-01 |
 | Zielplattform | SQL Server 2019, 2022 und 2025 |
 | Curriculumbezug | M02, M03, M06 und M07 |
 | Standard-Ausführungspfad | T-SQL in einer isolierten synthetischen Testdatenbank |
@@ -194,9 +194,9 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 | `ADV-005` | L | `VALIDATED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Clientkontext, Strategievarianten, Sicherheit, Versionsmatrix und Tests sind festgelegt |
 | `ADV-006` | L | `VALIDATED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Ressourcen-, Feature-, Query-Store-, Eligibility- und Skip-Matrix sind vollständig |
 | `ADV-007` | L | `VALIDATED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Vergleich und Recovery sind vollständig |
-| `ADV-008` | XL | `PROPOSED` | Demos in kleinen unabhängigen PRs implementieren und testen | jede Demo erreicht mindestens `IMPLEMENTED`; grüne Demos bestehen die Zielmatrix |
-| `ADV-009` | L | `PROPOSED` | Masterdeck, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug, Versionsgrenze und Tiefenprofil |
-| `ADV-010` | M | `PROPOSED` | Vertiefungsstrang fachlich und didaktisch abnehmen | Quellenreview, Runtime-Evidenz, Generalprobe und Traceability sind vollständig |
+| `ADV-008` | XL | `VALIDATED` | Demos in kleinen unabhängigen PRs implementieren und testen | implementierte Demos besitzen statische Verträge und die zutreffende zweifache Zielmatrix; verbleibende Designs bleiben ausdrücklich Folgearbeit |
+| `ADV-009` | L | `VALIDATED` | Masterdeck, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug, Versionsgrenze und Tiefenprofil |
+| `ADV-010` | M | `VALIDATED` | Vertiefungsstrang fachlich und didaktisch abnehmen | Quellenreview, Runtime-Evidenz, Material-Generalprobe und Traceability sind im Endabnahmereview vollständig |
 
 ## 7. Gates
 
@@ -225,7 +225,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 - Rote Schritte sind von grünen und gelben Pfaden getrennt und benötigen dedizierte Infrastruktur sowie ausdrückliche Bestätigung.
 - Der Capstone besitzt eine gestufte Evidenzfreigabe, mindestens zwei falsifizierbare Alternativhypothesen und genau eine reversible Referenzänderung.
 
-### Gate V3 – Runtimefreigabe
+### Gate V3 – Runtimefreigabe: `VALIDATED`
 
 - Grüne Demos wurden auf SQL Server 2019, 2022 und 2025 ausgeführt.
 - Featuregebundene Demos liefern auf nicht unterstützten Kombinationen einen begründeten `SKIP`.
@@ -233,7 +233,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 - Query Store, Extended Events und Plan-XML liefern die im Design erwartete Evidenz.
 - Rote Demos wurden ausschließlich auf der dafür vorgesehenen isolierten Infrastruktur geprüft.
 
-### Gate V4 – Lehrmittelfreigabe
+### Gate V4 – Lehrmittelfreigabe: `VALIDATED`
 
 - Folie, Speaker Notes, Teilnehmerunterlage und Demo verwenden dieselben Begriffe und Quellen-IDs.
 - Planabbildungen stammen aus den eigenen synthetischen Demos.
@@ -242,7 +242,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 
 ## 8. Priorisierung
 
-`ADV-001` bis `ADV-007` sowie Gate V0 bis Gate V2 sind abgeschlossen. In `ADV-008` sind `OPT-015`, `OPT-016`, `QRY-013`, `OPT-009` und `OPT-010` inzwischen runtimevalidiert. `QRY-004` ist implementiert, aber wegen eines Runner-Konflikts noch nicht freigegeben. Die nächste fachliche Priorität ist daher dessen Stabilisierung und erneute Matrixabnahme, gefolgt vom Query-Store-/XE-Pilot, `CON-004` als interaktivem Vertical Slice und `OPT-017`. Query-Store-/XE-Piloten müssen vor dem Capstone und vor den diagnoseabhängigen Memory-Schnitten runtimevalidiert werden. Der rote Schnitt `RES-003` wird zuletzt und separat bearbeitet. Die verbindliche Reihenfolge steht in `NEXT_DEVELOPMENT_WAVES.md`.
+`ADV-001` bis `ADV-010` sowie Gate V0 bis Gate V4 sind abgeschlossen. `OPT-015`, `OPT-016`, `QRY-013`, `QRY-004`, `OPT-009`, `OPT-010` und `OPT-017` besitzen die zutreffenden Runtime-Nachweise. Die `QRY-004`-Runtimewarnung ist mit der Sprechernotiz synchronisiert; Deck, Notes und Tiefenprofile sind vollständig gerendert und abgenommen. Die Query-Store-/XE-Piloten sind ebenfalls runtimevalidiert; `DGN-007` bleibt ein eigener Folgeschnitt. Der rote Schnitt `RES-003` wird zuletzt und separat bearbeitet. Der Endabnahmenachweis steht in `ADV_010_FINAL_ACCEPTANCE_REVIEW.md`.
 
 ## 9. Mindestanforderungen an die Testumgebung
 
@@ -264,4 +264,4 @@ Die verbindlichen projektweiten Quellen-IDs werden in `Documentation/Research/SO
 
 ## 11. Nächster ausführbarer Schritt
 
-Mit Gate V2 ist die Designphase des Vertiefungsstrangs abgeschlossen. Der nächste fachliche Schritt ist `ADV-008`. Die Umsetzung beginnt mit kleinen grünen beziehungsweise begrenzten gelben Schnitten und den dazugehörigen statischen sowie Runtime-Tests. Parallel können `PRS-012`/`TST-011`, fachlich geschnittene `W2-002`-Pakete, die Query-Store-/XE-Pilotvalidierung und das Testumgebungs-How-to bearbeitet werden.
+Der definierte Vertiefungsstrang ist bis Gate V4 abgenommen. Folgearbeit beginnt nicht durch pauschale Ausweitung dieses Blocks, sondern durch ein eigenständiges Demo- oder Szenariopaket mit Quellen-, Safety-, Lifecycle- und Runtimevertrag. Priorisiert werden die noch offenen interaktiven Szenario- und Bereitstellungspfade; `RES-003` bleibt rot und benötigt eine gesonderte Freigabe.

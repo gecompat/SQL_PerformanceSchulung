@@ -89,10 +89,13 @@ Eine fehlende Fähigkeit wird erst anhand eines konkreten Szenarios als Anforder
 | ID | Arbeit | Einordnung |
 |---|---|---|
 | `LABINT-001` | Testkatalog und statische Vollständigkeitsprüfung | abgeschlossen |
-| `LABINT-002` | automatisierten Smoke-/Core-Test für Aufbau und Abbau implementieren | Qualitätssicherung für `LABSCN-003` |
-| `LABINT-003` | Docker-/Podman-Parität prüfen | Qualitätssicherung geeigneter Container-Szenarien |
+| `LABINT-002` | automatisierten Smoke-/Core-Test für Aufbau und Abbau implementieren | abgeschlossen für `CON-004` |
+| `LABINT-003` | Docker-/Podman-Parität prüfen | abgeschlossen für die freigegebenen Slices `QRY-001`, `CON-004` und `DGN-005` |
 | `LABINT-004` | gelbe und vollständige Container-Matrix aktivieren | nach Safety- und Szenariofreigabe |
 
 ## 8. Nächster Schritt
 
-Der nächste fachliche Schritt ist `LABSCN-002`: vorhandene und geplante Beispiele klassifizieren und den interaktiven Szenariovertrag pro Beispiel definieren. Die Testautomation wird danach so erweitert, dass sie die technische Reproduzierbarkeit dieser Szenarien prüft.
+`LABSCN-002` und die Lifecycle-Standardisierung sind abgeschlossen. Weitere
+Testautomation wird nur zusammen mit einem einzeln quellen-, safety- und
+szenariofreigegebenen `LABSCN-005`-Slice erweitert; `LABINT-004` bleibt bis zu
+einer neuen Matrixaussage bedingt.

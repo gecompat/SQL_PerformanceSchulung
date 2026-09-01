@@ -34,6 +34,27 @@ def main() -> int:
     for forbidden in ("DBCC FREEPROCCACHE", "DBCC DROPCLEANBUFFERS", "sp_configure", "ALTER SERVER CONFIGURATION", "KILL "):
         if forbidden.lower() in sql.lower():
             findings.append(f"forbidden server-wide action: {forbidden}")
+    if DEMO.is_dir():
+        setup = (DEMO / "10_Setup.sql").read_text(encoding="utf-8")
+        observation = (DEMO / "40_Observation.sql").read_text(encoding="utf-8")
+        for marker in (
+            "USE '+QUOTENAME(@TargetDatabase)+N';ALTER DATABASE SCOPED CONFIGURATION SET LAST_QUERY_PLAN_STATS = ON",
+            "COUNT_BIG(*)/16",
+            "CROSS JOIN(VALUES(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16))",
+        ):
+            if marker not in setup:
+                findings.append(f"setup runtime-evidence marker missing: {marker}")
+        for marker in (
+            "sys.dm_exec_query_stats",
+            "SET QUOTED_IDENTIFIER ON",
+            "@EvidenceNode",
+            'sql:variable("@EvidenceNode")',
+            "RunTimeCountersPerThread[@ActualRows > 0]",
+        ):
+            if marker not in observation:
+                findings.append(f"observation runtime-evidence marker missing: {marker}")
+        if "sys.dm_exec_procedure_stats" in observation:
+            findings.append("observation must resolve the executed statement plan, not the procedure shell")
     if RUNNER.is_file():
         try:
             ast.parse(RUNNER.read_text(encoding="utf-8"), filename=str(RUNNER))

@@ -1,13 +1,36 @@
 /* OPT-017 normalized Actual-DOP, exchange and per-thread evidence. */
 SET NOCOUNT ON;SET XACT_ABORT ON;
+SET QUOTED_IDENTIFIER ON;
 DECLARE @Plan xml;
-SELECT TOP(1) @Plan=qps.query_plan FROM sys.dm_exec_procedure_stats ps CROSS APPLY sys.dm_exec_query_plan_stats(ps.plan_handle) qps WHERE ps.database_id=DB_ID() AND ps.object_id=OBJECT_ID(N'lab.usp_Opt017Aggregate') ORDER BY ps.last_execution_time DESC;
+SELECT TOP(1) @Plan=qps.query_plan
+FROM sys.dm_exec_query_stats AS qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) AS st
+CROSS APPLY sys.dm_exec_query_plan_stats(qs.plan_handle) AS qps
+WHERE st.dbid=DB_ID()
+  AND st.objectid=OBJECT_ID(N'lab.usp_Opt017Aggregate')
+  AND SUBSTRING(st.text,
+                (qs.statement_start_offset/2)+1,
+                ((CASE qs.statement_end_offset WHEN -1 THEN DATALENGTH(st.text)
+                        ELSE qs.statement_end_offset END-qs.statement_start_offset)/2)+1)
+      LIKE N'%MAXDOP 4%'
+ORDER BY qs.last_execution_time DESC;
 IF @Plan IS NULL BEGIN SELECT 1 Sequence,'OBSERVATION' Phase,'ACTUAL_PLAN' CheckId,'SKIP' Outcome,'SKIP_EVIDENCE_MISSING' Code,N'kein Last Actual Plan' ObservedValue,N'LAST_QUERY_PLAN_STATS mit Runtime-Plan' RequiredValue,N'Die Kernevidenz ist nicht verfuegbar.' Message;PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_EVIDENCE_MISSING';RETURN;END;
 DECLARE @Dop int,@ExchangeCount int;
 ;WITH XMLNAMESPACES(DEFAULT 'http://schemas.microsoft.com/sqlserver/2004/07/showplan') SELECT @Dop=MAX(T.N.value('(@DegreeOfParallelism)[1]','int')) FROM @Plan.nodes('//QueryPlan')T(N);
 ;WITH XMLNAMESPACES(DEFAULT 'http://schemas.microsoft.com/sqlserver/2004/07/showplan') SELECT @ExchangeCount=COUNT(*) FROM @Plan.nodes('//RelOp[@LogicalOp="Repartition Streams" or @LogicalOp="Distribute Streams" or @LogicalOp="Gather Streams"]')T(N);
 DECLARE @Thread TABLE(ThreadId int,ActualRows bigint);
-;WITH XMLNAMESPACES(DEFAULT 'http://schemas.microsoft.com/sqlserver/2004/07/showplan') INSERT @Thread(ThreadId,ActualRows) SELECT T.N.value('(@Thread)[1]','int'),T.N.value('(@ActualRows)[1]','bigint') FROM @Plan.nodes('//RelOp[@LogicalOp="Repartition Streams"]/RunTimeInformation/RunTimeCountersPerThread')T(N) WHERE T.N.value('(@ActualRows)[1]','bigint')>0;
+DECLARE @EvidenceNode int;
+;WITH XMLNAMESPACES(DEFAULT 'http://schemas.microsoft.com/sqlserver/2004/07/showplan')
+SELECT TOP(1) @EvidenceNode=T.N.value('(@NodeId)[1]','int')
+FROM @Plan.nodes('//RelOp[RunTimeInformation/RunTimeCountersPerThread]') AS T(N)
+WHERE T.N.value('count(RunTimeInformation/RunTimeCountersPerThread[@ActualRows > 0])','int')>=2
+ORDER BY T.N.value('sum(RunTimeInformation/RunTimeCountersPerThread/@ActualRows)','bigint') DESC,
+         T.N.value('(@NodeId)[1]','int');
+;WITH XMLNAMESPACES(DEFAULT 'http://schemas.microsoft.com/sqlserver/2004/07/showplan')
+INSERT @Thread(ThreadId,ActualRows)
+SELECT T.N.value('(@Thread)[1]','int'),T.N.value('(@ActualRows)[1]','bigint')
+FROM @Plan.nodes('//RelOp[@NodeId=sql:variable("@EvidenceNode")]/RunTimeInformation/RunTimeCountersPerThread')T(N)
+WHERE T.N.value('(@ActualRows)[1]','bigint')>0;
 DECLARE @Active int=(SELECT COUNT(*) FROM @Thread),@Min bigint=(SELECT MIN(ActualRows) FROM @Thread),@Max bigint=(SELECT MAX(ActualRows) FROM @Thread),@Ratio decimal(19,4);
 SET @Ratio=CASE WHEN @Min>0 THEN CONVERT(decimal(19,4),@Max*1.0/@Min) END;
 UPDATE lab.Opt017Evidence SET ActualDop=@Dop,ExchangeCount=@ExchangeCount,ActiveThreads=@Active,MinimumThreadRows=@Min,MaximumThreadRows=@Max,SkewRatio=@Ratio WHERE Phase='SKEW';

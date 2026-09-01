@@ -149,7 +149,7 @@
     {
       "demoId": "QRY-004",
       "manifest": "Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "GREEN",
       "sessions": 1,
       "providers": ["docker", "podman"],
@@ -191,7 +191,7 @@
     {
       "demoId": "DGN-003",
       "manifest": "Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "GREEN",
       "sessions": 1,
       "providers": ["docker", "podman"],
@@ -205,7 +205,7 @@
     {
       "demoId": "DGN-005",
       "manifest": "Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "YELLOW",
       "sessions": 1,
       "providers": ["docker", "podman"],
@@ -219,7 +219,7 @@
     {
       "demoId": "OPT-017",
       "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "YELLOW",
       "sessions": 1,
       "providers": ["docker", "podman"],
@@ -260,7 +260,7 @@
     {
       "demoId": "CON-009",
       "manifest": "Demos/05_Concurrency_Isolation_TempDB/CON-009_TempDB_Cost_Classes/manifest.json",
-      "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 1,
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
       "providers": ["docker", "podman"], "versions": ["2019", "2022", "2025"],
       "resourceProfile": "performance", "environmentIsolation": "FRESH_INSTANCE",
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "TEMPDB_WORKSPACE"],
