@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 import uuid
 from pathlib import Path
@@ -103,14 +104,25 @@ def main() -> None:
         fail("prefix kinds must be unique for deterministic allocation")
 
     artifacts = registry.get("artifacts")
-    if not isinstance(artifacts, dict) or set(artifacts) != expected_refs:
-        missing = sorted(expected_refs - set(artifacts or {}))
-        extra = sorted(set(artifacts or {}) - expected_refs)
-        fail(f"historical inventory mismatch; missing={missing}; extra={extra}")
+    if not isinstance(artifacts, dict):
+        fail("registry artifacts must be an object")
+    missing = sorted(expected_refs - set(artifacts))
+    if missing:
+        fail(f"historical inventory mismatch; missing={missing}")
 
     seen_uids: set[str] = set()
+    sequences: dict[str, set[int]] = {prefix: set() for prefix in prefixes}
     for ref, record in artifacts.items():
-        prefix = ref.split("-", 1)[0]
+        match = re.fullmatch(r"([A-Z][A-Z0-9]*)-([0-9]{3})", ref)
+        if match is None:
+            fail(f"{ref} is not a canonical registered reference")
+        prefix, raw_sequence = match.groups()
+        if prefix not in prefixes:
+            fail(f"{ref} uses an unregistered prefix")
+        sequence = int(raw_sequence)
+        if sequence < 1:
+            fail(f"{ref} uses an invalid sequence")
+        sequences[prefix].add(sequence)
         if not isinstance(record, dict):
             fail(f"{ref} record must be an object")
         if "human_ref" in record:
@@ -128,6 +140,14 @@ def main() -> None:
         if uid in seen_uids:
             fail(f"artifact UID is duplicated: {uid}")
         seen_uids.add(uid)
+
+    for prefix, registered_sequences in sequences.items():
+        if not registered_sequences:
+            continue
+        expected_sequences = set(range(1, max(registered_sequences) + 1))
+        if registered_sequences != expected_sequences:
+            missing_sequences = sorted(expected_sequences - registered_sequences)
+            fail(f"{prefix} registration has sequence gaps: {missing_sequences}")
 
     for ref, uid in PRESERVED_UIDS.items():
         if artifacts[ref]["artifact_uid"] != uid:

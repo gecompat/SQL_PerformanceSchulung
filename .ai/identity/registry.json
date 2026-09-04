@@ -869,6 +869,20 @@
       ],
       "title": "GitHub-Regeln und Actions-Ausfallverfahren aktivieren"
     },
+    "DEC-064": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:dcb99d61-e3ce-4754-abab-9cec29bfbc63",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-060",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Rule Context Cache lokal aktivieren"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

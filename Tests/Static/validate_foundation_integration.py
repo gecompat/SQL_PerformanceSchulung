@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -11,6 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_VERSION = "1.8.0"
 EXPECTED_SOURCE_REF = "7ddc29988b23570f462e46ebf527f8dfdd05fd75"
+EXPECTED_CACHE_CAPABILITY_SHA256 = (
+    "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b"
+)
 VALID_CLASSIFICATIONS = {
     "NOT_APPLICABLE",
     "ALREADY_EQUIVALENT",
@@ -49,6 +54,7 @@ def main() -> None:
     assessment = load_json(
         ROOT / ".ai" / "FOUNDATION_UPGRADE_1_8_0_ASSESSMENT.json"
     )
+    registry = load_json(ROOT / ".ai" / "identity" / "registry.json")
     repo_map = (ROOT / ".ai" / "foundation" / "repo_map.yaml").read_text(
         encoding="utf-8"
     )
@@ -57,6 +63,8 @@ def main() -> None:
     ).read_text(encoding="utf-8")
     project_rules = (ROOT / ".ai" / "PROJECT_RULES.md").read_text(encoding="utf-8")
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    decisions = (ROOT / ".ai" / "DECISIONS.md").read_text(encoding="utf-8")
+    runtime_readme = (ROOT / "Runtime" / "README.md").read_text(encoding="utf-8")
 
     if catalog.get("ruleset_version") != EXPECTED_VERSION:
         fail("feature catalog does not carry Foundation 1.8.0")
@@ -109,16 +117,68 @@ def main() -> None:
         fail("rule-context-cache candidate reason is incomplete")
     if not row.get("evidence") or not row.get("rationale") or not row.get("recommendation"):
         fail("rule-context-cache assessment lacks evidence, rationale or recommendation")
-    if row.get("decision_required") is not None or row.get("selected_capabilities") != []:
-        fail("optional rule-context-cache capability must remain unselected")
-    if (ROOT / ".ai" / "foundation" / "rule_context_cache").exists():
-        fail("unselected rule-context-cache capability payload is present")
+    if row.get("decision_required") is not None:
+        fail("rule-context-cache selection must not retain an unresolved decision")
+    if row.get("selected_capabilities") != ["rule-context-cache"]:
+        fail("upgrade assessment must select the rule-context-cache capability")
+    capability = (
+        ROOT
+        / ".ai"
+        / "foundation"
+        / "rule_context_cache"
+        / "rule_context_cache.py"
+    )
+    if not capability.is_file():
+        fail("selected rule-context-cache capability payload is missing")
+    capability_text = capability.read_text(encoding="utf-8")
+    capability_sha256 = hashlib.sha256(
+        capability_text.replace("\r\n", "\n").encode("utf-8")
+    ).hexdigest()
+    if capability_sha256 != EXPECTED_CACHE_CAPABILITY_SHA256:
+        fail("rule-context-cache capability differs from the reviewed source payload")
+    try:
+        compile(capability_text, str(capability), "exec")
+    except SyntaxError as exc:
+        fail(f"rule-context-cache capability has invalid Python syntax: {exc}")
+    for marker in (
+        'CONTRACT = "foundation-rule-context-cache/v1"',
+        'GENERATOR_VERSION = "1.0.0"',
+        '"CACHE_HIT"',
+        '"PARTIAL_INVALIDATION"',
+        '"CACHE_MISS"',
+    ):
+        if marker not in capability_text:
+            fail(f"rule-context-cache capability is missing {marker!r}")
+
+    ignored_probe = "Runtime/.foundation-rule-cache/foundation-cache-probe.json"
+    ignored = subprocess.run(
+        ["git", "-C", str(ROOT), "check-ignore", "--quiet", ignored_probe],
+        check=False,
+    )
+    if ignored.returncode != 0:
+        fail("configured rule-context cache record path is not ignored by Git")
+
+    decision = registry.get("artifacts", {}).get("DEC-064")
+    if not isinstance(decision, dict) or decision.get("kind") != "decision":
+        fail("DEC-064 is not registered as a decision")
+    if decision.get("registration_state") != "REGISTERED":
+        fail("DEC-064 must be registered")
+    if "| DEC-064 |" not in decisions:
+        fail("DEC-064 is missing from .ai/DECISIONS.md")
+    for marker in (
+        "Runtime/.foundation-rule-cache/",
+        "rule_context_cache.py record",
+        "rule_context_cache.py check",
+    ):
+        if marker not in runtime_readme:
+            fail(f"Runtime/README.md is missing {marker!r}")
 
     for text, source_name in (
         ("RULE_CONTEXT_CACHE_POLICY.md", "AGENTS.md"),
         ("Projektspezifische Steuerung", "AGENTS.md"),
         ("Foundation `1.8.0`", ".ai/PROJECT_RULES.md"),
-        ("optionale Capability `rule-context-cache` ist nicht ausgewählt", ".ai/PROJECT_RULES.md"),
+        ("`DEC-064`", ".ai/PROJECT_RULES.md"),
+        ("`Runtime/.foundation-rule-cache/`", ".ai/PROJECT_RULES.md"),
     ):
         content = agents if source_name == "AGENTS.md" else project_rules
         if text not in content:
@@ -126,7 +186,7 @@ def main() -> None:
 
     print(
         "foundation-integration: PASS "
-        "(1.8.0; complete 1-candidate delta; cache capability unselected)"
+        "(1.8.0; complete 1-candidate delta; cache capability selected)"
     )
 
 
