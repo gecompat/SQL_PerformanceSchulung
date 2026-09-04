@@ -87,6 +87,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] `LABSCN-004` Benutzerbedienung und How-to für Auswahl, Start, Übergabe, Reset und Remove standardisieren.
 - [ ] `LABSCN-005` weitere Container- und Hyper-V-Szenarien anhand konkreter Beispielanforderungen umsetzen. Die priorisierten sofortigen, bedingten und zukünftigen Kandidaten stehen in [`Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md`](../Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md); jeder Kandidat benötigt vor der Umsetzung eine eigene Detailanalyse und Quellenfreigabe.
   - [x] `DGN-005` nach eigenem Detailreview als zweiten interaktiven Slice über Project Adapter `0.1` implementieren und den vollständigen SQL-Server-2025-Lifecycle auf Docker und Podman praktisch validieren.
+  - [x] `CON-006` nach eigenem Quellen- und Detailreview als dritten interaktiven Slice über Project Adapter `0.1` implementieren; Deadlock-, Gegenproben-, Reset- und Remove-Vertrag auf SQL Server 2025 mit Docker und Podman praktisch validieren.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
 - [x] Für jedes produktive Szenario Mindestanforderungen an Hosthardware, Providergrenzen, Versionen und Resetstrategie dokumentieren und statisch gegen den Demo-Katalog absichern.
 - [ ] Zusätzliche Funktionalität in `SQL_Server_Lab` nur nach konkretem Szenariobefund benennen und erst nach ausdrücklicher Freigabe dort umsetzen.
@@ -101,7 +102,8 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
   - [x] Provider-Parität für `QRY-001` auf SQL Server 2025 mit jeweils zwei vollständigen Läufen lokal nachweisen.
   - [x] Provider-Parität für den versionierten `CON-004`-Adapter-Lifecycle auf SQL Server 2025 mit vollständigem Start-, Reset- und Remove-Lauf nachweisen.
   - [x] `DGN-005` als weiteres geeignetes Szenario auf Docker und Podman praktisch prüfen; die automatisierte Demo besitzt zusätzlich die freigegebene 2019/2022/2025-Matrix aus Lauf 33222989682.
-- [ ] `LABINT-004` gelbe und vollständige Container-Matrix nach Safety- und Szenariofreigabe aktivieren.
+  - [x] `CON-006` als neuen gelben Mehrsession-Slice in seiner vollständigen freigegebenen Provider-/Versionsmatrix auf Docker und Podman prüfen.
+- [x] `LABINT-004` für den freigegebenen `CON-006`-Slice aktivieren: SQL Server 2025, Docker/Podman, fachliche Deadlock- und Gegenprobe sowie vollständiger Reset/Remove sind praktisch validiert.
 
 ## P1 - Masterdeck und Präsentationsvarianten
 

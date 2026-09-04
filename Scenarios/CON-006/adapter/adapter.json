@@ -1,0 +1,27 @@
+{
+  "$schema": "https://github.com/gecompat/SQL_Server_Lab/raw/main/Schemas/project-adapter.schema.json",
+  "adapterContractVersion": "0.1",
+  "projectId": "sql-performance-training-con-006",
+  "displayName": "SQL Performance Training – CON-006",
+  "description": "Bereitet den markergebundenen CON-006-Deadlock-Zyklus auf einer isolierten SQL-Server-2025-Linux-Instanz vor.",
+  "supportedLabCoreVersions": ["0.x"],
+  "requiredCapabilities": ["container-linux", "sqlcmd"],
+  "supportedSqlVersions": ["2025"],
+  "entrypoints": {
+    "preflight": "sql/preflight.sql",
+    "install": "sql/install.sql",
+    "validate": "sql/validate.sql",
+    "cleanup": "sql/cleanup.sql"
+  },
+  "targetDatabase": "master",
+  "secretInputs": [],
+  "producedLocalArtifacts": ["Markergebundene Datenbank SQLPERF_LAB_CON006_LOCAL"],
+  "dataClassification": "SYNTHETIC",
+  "privacyExportPolicy": "NO_AUTOMATIC_EXPORT",
+  "licenseNotice": "Synthetischer Repository-Inhalt; es gilt LICENCE.md im Repository-Root.",
+  "knownLimitations": [
+    "Der Adapter bereitet den manuellen READY_FOR_USER-Zustand vor; die getrennten Deadlock-Sessions startet der Benutzer selbst.",
+    "Vertragsversion 0.1 unterstützt ausschließlich SQL Server 2025 auf Docker oder Podman.",
+    "Der Adapter liest keine Deadlock-Graphen aus und erzeugt keine Extended-Events-Session oder Exportdatei."
+  ]
+}

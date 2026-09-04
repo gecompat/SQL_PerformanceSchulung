@@ -2,7 +2,7 @@
 
 Diese Anleitung standardisiert `LABSCN-004`: Auswahl, Start, Übergabe,
 Reset und Remove verwenden für jedes freigegebene Szenario dieselben vier
-PowerShell-Commands. Freigegeben sind `CON-004` und `DGN-005`.
+PowerShell-Commands. Freigegeben sind `CON-004`, `DGN-005` und `CON-006`.
 
 ## 1. Sicherheitsgrenze und Voraussetzungen
 
@@ -27,6 +27,7 @@ Import-Module ./Tools/PerformanceTrainingScenario/PerformanceTrainingScenario.ps
 Get-PerformanceTrainingScenario
 Get-PerformanceTrainingScenario -ScenarioId CON-004
 Get-PerformanceTrainingScenario -ScenarioId DGN-005
+Get-PerformanceTrainingScenario -ScenarioId CON-006
 ```
 
 Die Ausgabe nennt Safety-Level, unterstützte Provider, Zielstatus und
@@ -78,8 +79,9 @@ $ready.SessionRoles | Format-Table startOrder,role,script
 
 Nur `READY_FOR_USER` ist eine gültige Übergabe. Die Sessionrollen werden in der
 ausgegebenen Reihenfolge gestartet. Für `CON-004` sind das `HEAD`, `MIDDLE`,
-`LEAF` und `OBSERVER`; die konkrete SQLCMD-Belegung steht im ausgegebenen
-Einstiegsdokument.
+`LEAF` und `OBSERVER`; `CON-006` führt danach `ACTOR_A`, `ACTOR_B`, `OBSERVER`,
+Evidenz, Gegenmaßnahme und geordnete Gegenprobe. Die konkrete SQLCMD-Belegung
+steht im ausgegebenen Einstiegsdokument.
 
 ## 5. Reset und erneute Übergabe
 
@@ -133,14 +135,17 @@ prüfen:
 
 ```powershell
 ./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
+    -ScenarioId CON-006 `
     -Provider docker `
     -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
 
 ./Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1 `
+    -ScenarioId CON-006 `
     -Provider podman `
     -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
 ```
 
 Die Detailanleitungen stehen unter
 `Documentation/HowTo/CON_004_INTERACTIVE_SCENARIO.md` und
-`Documentation/HowTo/DGN_005_INTERACTIVE_SCENARIO.md`.
+`Documentation/HowTo/DGN_005_INTERACTIVE_SCENARIO.md` sowie
+`Documentation/HowTo/CON_006_INTERACTIVE_SCENARIO.md`.
