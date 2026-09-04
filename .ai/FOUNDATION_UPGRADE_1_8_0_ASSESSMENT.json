@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.7.0",
+  "source_version": "1.8.0",
+  "source_ref": "7ddc29988b23570f462e46ebf527f8dfdd05fd75",
+  "assessments": [
+    {
+      "feature_id": "rule-context-cache",
+      "candidate_reasons": [
+        "introduced_in:1.8.0"
+      ],
+      "classification": "RECOMMENDED",
+      "evidence": [
+        "AGENTS.md and .ai/README.md expose a large transitive governance tree that is repeatedly analyzed during multi-wave AI work.",
+        "The repository already preserves native per-run instruction discovery and separates Foundation, project-semantic, and runtime validation.",
+        "No project decision currently selects a persistent cache location or the optional rule-context-cache capability."
+      ],
+      "rationale": "Session-local reuse with fail-closed fingerprint and dependency checks can reduce repeated rule analysis without changing authority. The core policy is integrated, while the optional executable capability and a persistent cache location remain unselected because the current task does not authorize that durable project choice.",
+      "recommendation": "Use the 1.8.0 session-local analysis contract between later change waves when every cache invariant is proven; otherwise perform a full reread. Evaluate the optional reference capability separately before selecting any persistent cache destination.",
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}
