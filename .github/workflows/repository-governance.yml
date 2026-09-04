@@ -21,6 +21,8 @@ jobs:
           validate --registry .ai/identity/registry.json
       - name: Validate project identifier registration
         run: python Tests/Static/validate_identifier_registration.py
+      - name: Validate Foundation integration contract
+        run: python Tests/Static/validate_foundation_integration.py
       - name: Validate repository continuity contract
         run: python Tests/Static/validate_repository_continuity.py
       - name: Validate SQL container readiness contracts
