@@ -11,7 +11,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('CON-004','DGN-005')][string]$ScenarioId = 'CON-004',
+    [ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId = 'CON-004',
     [ValidateSet('docker','podman')][string]$Provider = 'docker',
     [SecureString]$SaPassword,
     [string]$SqlServerLabModulePath,
@@ -75,6 +75,37 @@ try {
             }
         }
     }
+    elseif ($ScenarioId -eq 'CON-006') {
+        $env:SQLCMDPASSWORD = [System.Net.NetworkCredential]::new('', $SaPassword).Password
+        $python = (Get-Command python -ErrorAction Stop).Source
+        $orchestrator = Join-Path $repositoryRoot 'Demos\00_Framework\Tools\orchestrate_sessions.py'
+        $demoRoot = Join-Path $repositoryRoot 'Demos\07_Concurrency\CON-006_Deadlock_Cycle'
+
+        foreach ($manifestName in @('deadlock.json', 'ordered.json')) {
+            if ($manifestName -eq 'ordered.json') {
+                foreach ($scriptName in @('40_Observation.sql', '50_Mitigation.sql')) {
+                    & sqlcmd -S $ready.Server -U sa -C -b -d $ready.Database `
+                        -v 'DemoId=CON-006' 'RunToken=LOCAL' -i (Join-Path $demoRoot $scriptName)
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Interaktive CON-006-Phase $scriptName endete mit Exitcode $LASTEXITCODE."
+                    }
+                }
+            }
+            $manifestPath = Join-Path $demoRoot "Sessions\$manifestName"
+            & $python $orchestrator $manifestPath `
+                --server $ready.Server --database $ready.Database `
+                --auth sql --username sa --show-output
+            if ($LASTEXITCODE -ne 0) {
+                throw "Interaktive CON-006-Orchestrierung $manifestName endete mit Exitcode $LASTEXITCODE."
+            }
+        }
+
+        & sqlcmd -S $ready.Server -U sa -C -b -d $ready.Database `
+            -v 'DemoId=CON-006' 'RunToken=LOCAL' -i (Join-Path $demoRoot '70_Verification.sql')
+        if ($LASTEXITCODE -ne 0) {
+            throw "Interaktive CON-006-Verifikation endete mit Exitcode $LASTEXITCODE."
+        }
+    }
 
     $reset = Reset-PerformanceTrainingScenario `
         -ScenarioId $ScenarioId `
@@ -95,7 +126,7 @@ try {
         throw "Remove endete mit Status $($removed.Status)."
     }
     if (Test-Path -LiteralPath $statePath) {
-        throw 'Der lokale CON-004-Lifecycle-State ist nach Remove noch vorhanden.'
+        throw "Der lokale $ScenarioId-Lifecycle-State ist nach Remove noch vorhanden."
     }
 }
 finally {

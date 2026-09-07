@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` |
+| Status | `VALIDATED` |
 | Sicherheitsstufe | `GREEN` |
 | Zielversionen | SQL Server 2019 und 2022 (kontrollierter `SKIP_VERSION`), 2025 |
 | Compatibility Level | 170 |
@@ -10,7 +10,7 @@
 | Sessions | 1 gleichzeitige Session; vier nacheinander verglichene Planformen |
 | Laufzeitklasse | M |
 | Testprofil | `TP-RUN`, `TP-PERF` |
-| Runtime-Abnahme | offen; SQL Server 2019, 2022 und 2025 |
+| Runtime-Abnahme | [Actions-Lauf 30702590969](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30702590969): SQL Server 2025 zweimal `PASS`; 2019 und 2022 jeweils zweimal kontrolliert `SKIP_VERSION` |
 
 ## 1. Lernziel
 

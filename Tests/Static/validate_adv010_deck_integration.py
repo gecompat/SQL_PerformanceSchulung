@@ -242,6 +242,8 @@ def check_documents(findings: list[str], digest: str) -> None:
             findings.append(f"{SPEC.name}: missing slide specification SLD-M03-{number}")
     if re.search(r"Bis dahin bleiben die Claims", text):
         findings.append(f"{SPEC.name}: obsolete pre-integration wording remains")
+    if "Offen bleibt die visuelle Renderprüfung" in text:
+        findings.append(f"{SPEC.name}: obsolete open render marker remains")
 
 
 def main() -> int:
