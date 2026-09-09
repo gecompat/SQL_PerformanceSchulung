@@ -883,6 +883,20 @@
       ],
       "title": "Rule Context Cache lokal aktivieren"
     },
+    "DEC-065": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:27d6c47b-4b19-4bf6-b79e-f39c2ad9bb8a",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-060",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Vollständige Foundation-Capability-Auswahl aktivieren"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

@@ -1,15 +1,27 @@
 {
   "schema_version": 1,
   "contract": "foundation-installation-provenance/v1",
-  "ruleset_version": "1.17.1",
+  "ruleset_version": "1.17.2",
   "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
-  "source_commit": null,
-  "source_manifest_sha256": "608733307331dcdb0e2f1f6eb560dd9aa322c361d35ea953bddc866556c80c45",
-  "recorded_at": "2026-09-09T04:30:01Z",
+  "source_commit": "36d2cb20c2880b7cfaa6428db3716e6768e23964",
+  "source_manifest_sha256": "45a20a17a9dfe0317111be8a658c14599fc7266c371bc006e70e2032ddfb3b86",
+  "recorded_at": "2026-09-09T16:04:15Z",
   "selection": {
-    "adapters": [],
+    "adapters": [
+      "claude-code",
+      "gemini",
+      "github-copilot"
+    ],
     "capabilities": [
+      "ai-client-integration",
+      "ai-executor",
+      "ai-orchestrator",
+      "ai-provisioning",
+      "ai-runtime-adapters",
+      "ai-work",
+      "artifact-registration-clients",
       "artifact-registry-github",
+      "model-router",
       "rule-context-cache"
     ]
   },
@@ -89,8 +101,8 @@
       "target": ".ai/foundation/FOUNDATION_RULESET.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "d2766a74fb8af318dcb4f93e7f647f44636aa1d905763976de7cc4ddf58bc5da",
-      "installed_sha256": "d2766a74fb8af318dcb4f93e7f647f44636aa1d905763976de7cc4ddf58bc5da",
+      "source_sha256": "5a39e0fee31246ec67a7052b82083af0b642a7ec67fdf3546f7bbb8f064798ab",
+      "installed_sha256": "5a39e0fee31246ec67a7052b82083af0b642a7ec67fdf3546f7bbb8f064798ab",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -215,12 +227,192 @@
       "reason": null
     },
     {
+      "source": "foundation/capabilities/ai-client-integration/AI_CLIENT_INTEGRATION.md",
+      "target": ".ai/foundation/ai_client_integration/AI_CLIENT_INTEGRATION.md",
+      "kind": "ai-client-integration-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "392946671ce39fbc1cbf417c1ad4918966927da6c4116ea54744c119dec85c69",
+      "installed_sha256": "392946671ce39fbc1cbf417c1ad4918966927da6c4116ea54744c119dec85c69",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-client-integration/client_integration.py",
+      "target": ".ai/foundation/ai_client_integration/client_integration.py",
+      "kind": "ai-client-integration-reference",
+      "merge": "review_if_exists",
+      "source_sha256": "252bca6a9b890b124ca17aa6ebbaa070b2e0827bda4e0e65c014cf9fef6e9f3b",
+      "installed_sha256": "252bca6a9b890b124ca17aa6ebbaa070b2e0827bda4e0e65c014cf9fef6e9f3b",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-executor/AI_EXECUTOR.md",
+      "target": ".ai/foundation/ai_executor/AI_EXECUTOR.md",
+      "kind": "ai-executor-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "86f6c732bff4723e3116e5f269da7ddf7ec63d5f984b4722fda3a04b6aede9a1",
+      "installed_sha256": "86f6c732bff4723e3116e5f269da7ddf7ec63d5f984b4722fda3a04b6aede9a1",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-executor/ai_executor.py",
+      "target": ".ai/foundation/ai_executor/ai_executor.py",
+      "kind": "ai-executor-reference",
+      "merge": "review_if_exists",
+      "source_sha256": "a8e6b31b8a2207a18650c118e8ff20fa1d930aede439b91c41fed991e4ffb191",
+      "installed_sha256": "a8e6b31b8a2207a18650c118e8ff20fa1d930aede439b91c41fed991e4ffb191",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-orchestrator/AI_ORCHESTRATOR.md",
+      "target": ".ai/foundation/ai_orchestrator/AI_ORCHESTRATOR.md",
+      "kind": "ai-orchestrator-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "283db14976a04c3a291f770cd4929843db437d1070d403cf146703434eb78775",
+      "installed_sha256": "283db14976a04c3a291f770cd4929843db437d1070d403cf146703434eb78775",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-orchestrator/ai_orchestrator.py",
+      "target": ".ai/foundation/ai_orchestrator/ai_orchestrator.py",
+      "kind": "ai-orchestrator-reference",
+      "merge": "review_if_exists",
+      "source_sha256": "d7ee8386bdd24ee6f80718ffac63fc40fc0f7d53090a6a8acc70ef14e1ac7df3",
+      "installed_sha256": "d7ee8386bdd24ee6f80718ffac63fc40fc0f7d53090a6a8acc70ef14e1ac7df3",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-orchestrator/orchestrator_mcp.py",
+      "target": ".ai/foundation/ai_orchestrator/orchestrator_mcp.py",
+      "kind": "ai-orchestrator-mcp",
+      "merge": "review_if_exists",
+      "source_sha256": "f92ecdb4d8d2ece30c1dc116f5e6d7d83f11b120919058f2fee7d2925694be2f",
+      "installed_sha256": "f92ecdb4d8d2ece30c1dc116f5e6d7d83f11b120919058f2fee7d2925694be2f",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-provisioning/AI_PROVISIONING.md",
+      "target": ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
+      "kind": "ai-provisioning-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "539c56300de785ca1f980dd4bba11ba08b1cc6ad0022b09b0310164356b8c355",
+      "installed_sha256": "539c56300de785ca1f980dd4bba11ba08b1cc6ad0022b09b0310164356b8c355",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-provisioning/host_preparation.py",
+      "target": ".ai/foundation/ai_provisioning/host_preparation.py",
+      "kind": "ai-host-preparation-reference",
+      "merge": "review_if_exists",
+      "source_sha256": "2d4af24ba3342952cf82d8fce776cd0b887b6a1ef90fdf5a5accc08daf40446b",
+      "installed_sha256": "2d4af24ba3342952cf82d8fce776cd0b887b6a1ef90fdf5a5accc08daf40446b",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-runtime-adapters/AI_RUNTIME_ADAPTERS.md",
+      "target": ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md",
+      "kind": "ai-runtime-adapter-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
+      "installed_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-runtime-adapters/adapter_protocol.py",
+      "target": ".ai/foundation/ai_runtime_adapters/adapter_protocol.py",
+      "kind": "ai-runtime-adapter-protocol",
+      "merge": "review_if_exists",
+      "source_sha256": "f4fd8945fa69b7f2ec2853bc21ced416c9e7f13cbd77067816945fb48f6ccb20",
+      "installed_sha256": "f4fd8945fa69b7f2ec2853bc21ced416c9e7f13cbd77067816945fb48f6ccb20",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-runtime-adapters/reference_adapters.py",
+      "target": ".ai/foundation/ai_runtime_adapters/reference_adapters.py",
+      "kind": "ai-runtime-reference-adapters",
+      "merge": "review_if_exists",
+      "source_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
+      "installed_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-runtime-adapters/runtime_configuration.py",
+      "target": ".ai/foundation/ai_runtime_adapters/runtime_configuration.py",
+      "kind": "ai-runtime-configuration-assistant",
+      "merge": "review_if_exists",
+      "source_sha256": "3f5a298a33b503ee3533090a84f73a49eb4bf3e318a519a79235446a94455a22",
+      "installed_sha256": "3f5a298a33b503ee3533090a84f73a49eb4bf3e318a519a79235446a94455a22",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-runtime-adapters/runtime_mcp.py",
+      "target": ".ai/foundation/ai_runtime_adapters/runtime_mcp.py",
+      "kind": "ai-runtime-mcp",
+      "merge": "review_if_exists",
+      "source_sha256": "56104d6704ceb630362ecd11f0bcf1edf18b0de5a22a18b09003ee034e40aa12",
+      "installed_sha256": "56104d6704ceb630362ecd11f0bcf1edf18b0de5a22a18b09003ee034e40aa12",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-work/AI_WORK.md",
+      "target": ".ai/foundation/ai_work/AI_WORK.md",
+      "kind": "ai-work-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "f799587f76d8b4799001e82309c8c286e125aba02783edb0c8fb74a8d97729c7",
+      "installed_sha256": "f799587f76d8b4799001e82309c8c286e125aba02783edb0c8fb74a8d97729c7",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-work/ai_work.py",
+      "target": ".ai/foundation/ai_work/ai_work.py",
+      "kind": "ai-work-planner",
+      "merge": "review_if_exists",
+      "source_sha256": "aec699b4136c8a181146ac4135cd98cf553d758d11207b9102d52bfaed6d4571",
+      "installed_sha256": "aec699b4136c8a181146ac4135cd98cf553d758d11207b9102d52bfaed6d4571",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-work/capabilities.example.json",
+      "target": ".ai/foundation/ai_work/capabilities.example.json",
+      "kind": "ai-work-example",
+      "merge": "review_if_exists",
+      "source_sha256": "9c95cbcc4b23ac85b4d9e6504447d969f0e80d224f604b616478d2faa879e818",
+      "installed_sha256": "9c95cbcc4b23ac85b4d9e6504447d969f0e80d224f604b616478d2faa879e818",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/ai-work/work-request.example.json",
+      "target": ".ai/foundation/ai_work/work-request.example.json",
+      "kind": "ai-work-example",
+      "merge": "review_if_exists",
+      "source_sha256": "33721638f2a0e731f33ebde5e242be25afe8f49a7f53fa9251acbed29d8cd2e4",
+      "installed_sha256": "33721638f2a0e731f33ebde5e242be25afe8f49a7f53fa9251acbed29d8cd2e4",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
       "source": "foundation/capabilities/artifact-registry-github/registry_semantic.py",
       "target": ".ai/foundation/artifact_registry_github/registry_semantic.py",
       "kind": "registry-merge-client",
       "merge": "review_if_exists",
-      "source_sha256": "27508e405494461341d42152cdb7de4458ed8cdd9a912f29c5901d491b630ef4",
-      "installed_sha256": "27508e405494461341d42152cdb7de4458ed8cdd9a912f29c5901d491b630ef4",
+      "source_sha256": "ba604913852a2602837b517118bb2847ae3615307da3f3c740a153ec8908d2c2",
+      "installed_sha256": "ba604913852a2602837b517118bb2847ae3615307da3f3c740a153ec8908d2c2",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -229,8 +421,108 @@
       "target": ".ai/foundation/feature_catalog.json",
       "kind": "feature-catalog",
       "merge": "review_if_exists",
-      "source_sha256": "088c008274fa7577e22938b9a8e4a07c2e32ecda3cd50ea33fd2dc0c52a72557",
-      "installed_sha256": "088c008274fa7577e22938b9a8e4a07c2e32ecda3cd50ea33fd2dc0c52a72557",
+      "source_sha256": "cc7810c99bf492e5c0371163a70d1d3db9b652d9fadacf499e704d4fe4b5937b",
+      "installed_sha256": "cc7810c99bf492e5c0371163a70d1d3db9b652d9fadacf499e704d4fe4b5937b",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/MODEL_ROUTER.md",
+      "target": ".ai/foundation/model_router/MODEL_ROUTER.md",
+      "kind": "model-router-documentation",
+      "merge": "review_if_exists",
+      "source_sha256": "2ba4d3eba1d27029c7b788c0dbeff17b366b7a15de8b838b9f0c2563ec76fd4c",
+      "installed_sha256": "2ba4d3eba1d27029c7b788c0dbeff17b366b7a15de8b838b9f0c2563ec76fd4c",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/mcp.github-copilot.json",
+      "target": ".ai/foundation/model_router/mcp.github-copilot.json",
+      "kind": "model-router-mcp-template",
+      "merge": "review_if_exists",
+      "source_sha256": "96a796bdd825394befc305b704ff15406205360361fe8532452aabb8e0a50bc4",
+      "installed_sha256": "96a796bdd825394befc305b704ff15406205360361fe8532452aabb8e0a50bc4",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/mcp.visual-studio.json",
+      "target": ".ai/foundation/model_router/mcp.visual-studio.json",
+      "kind": "model-router-mcp-template",
+      "merge": "review_if_exists",
+      "source_sha256": "5824539a83fc17b8abcc05ed548b174a4722f629403d4b5cff50912dca12c1e8",
+      "installed_sha256": "5824539a83fc17b8abcc05ed548b174a4722f629403d4b5cff50912dca12c1e8",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/mcp_stdio.py",
+      "target": ".ai/foundation/model_router/mcp_stdio.py",
+      "kind": "model-router-mcp",
+      "merge": "review_if_exists",
+      "source_sha256": "8730cfb1a1cb16396b68cc413cd4d3436cd66a80753b3e452da28784fc0d32a8",
+      "installed_sha256": "8730cfb1a1cb16396b68cc413cd4d3436cd66a80753b3e452da28784fc0d32a8",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/model_router.py",
+      "target": ".ai/foundation/model_router/model_router.py",
+      "kind": "model-router-core-cli",
+      "merge": "review_if_exists",
+      "source_sha256": "8761eb5d06a49b536879b2caac532ca180590d869bd695370464b4f73b42abde",
+      "installed_sha256": "8761eb5d06a49b536879b2caac532ca180590d869bd695370464b4f73b42abde",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/ollama_cloud.py",
+      "target": ".ai/foundation/model_router/ollama_cloud.py",
+      "kind": "model-router-provider",
+      "merge": "review_if_exists",
+      "source_sha256": "7870baf709bd999382267be6db536d5bfb9818fb6134cdb5b5e2f9b06e494a46",
+      "installed_sha256": "7870baf709bd999382267be6db536d5bfb9818fb6134cdb5b5e2f9b06e494a46",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/profiles.example.json",
+      "target": ".ai/foundation/model_router/profiles.example.json",
+      "kind": "model-router-example",
+      "merge": "review_if_exists",
+      "source_sha256": "89174705732d461768e569426fbe3f578612d03d6e7bad9e0299a373a5b32d20",
+      "installed_sha256": "89174705732d461768e569426fbe3f578612d03d6e7bad9e0299a373a5b32d20",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/capabilities/model-router/router_v2.py",
+      "target": ".ai/foundation/model_router/router_v2.py",
+      "kind": "model-router-v2-core-cli",
+      "merge": "review_if_exists",
+      "source_sha256": "dfad1a4b3025034d8ad68c858b9c2e41a7ef18783803bf09edbe6f8491bc2ecf",
+      "installed_sha256": "dfad1a4b3025034d8ad68c858b9c2e41a7ef18783803bf09edbe6f8491bc2ecf",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "tools/identity/ArtifactReference.ps1",
+      "target": ".ai/foundation/reference_clients/ArtifactReference.ps1",
+      "kind": "reference-client",
+      "merge": "review_if_exists",
+      "source_sha256": "e0a1107198b1644f1d4fb9e43183da020580723da0907b6cd565e13c0bc25629",
+      "installed_sha256": "e0a1107198b1644f1d4fb9e43183da020580723da0907b6cd565e13c0bc25629",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "tools/identity/artifact_reference.py",
+      "target": ".ai/foundation/reference_clients/artifact_reference.py",
+      "kind": "reference-client",
+      "merge": "review_if_exists",
+      "source_sha256": "cb66c4bf82478d7b90ebcc5ed841f709ab1371386447f4e45232e9c51bb03b0b",
+      "installed_sha256": "cb66c4bf82478d7b90ebcc5ed841f709ab1371386447f4e45232e9c51bb03b0b",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -239,8 +531,8 @@
       "target": ".ai/foundation/repo_map.yaml",
       "kind": "rule-index",
       "merge": "review_if_exists",
-      "source_sha256": "a8a63899ca3187d0aad1351485e70386180c747615f60070795945d4a47a74af",
-      "installed_sha256": "a8a63899ca3187d0aad1351485e70386180c747615f60070795945d4a47a74af",
+      "source_sha256": "5aeba73833126629931f8ba95513878a9ba820079beb34f5dafb038401bfec6c",
+      "installed_sha256": "5aeba73833126629931f8ba95513878a9ba820079beb34f5dafb038401bfec6c",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -675,6 +967,16 @@
       "reason": null
     },
     {
+      "source": ".github/copilot-instructions.md",
+      "target": ".github/copilot-instructions.md",
+      "kind": "adapter",
+      "merge": "ai_merge_if_exists",
+      "source_sha256": "5d7beb368a2eacd4fe50fafdb4ea30982fd9f03d77a3b34e3fe0f4da4cb40f63",
+      "installed_sha256": "5d7beb368a2eacd4fe50fafdb4ea30982fd9f03d77a3b34e3fe0f4da4cb40f63",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
       "source": "foundation/capabilities/artifact-registry-github/artifact-registry-integrity.yml",
       "target": ".github/workflows/artifact-registry-integrity.yml",
       "kind": "github-workflow",
@@ -689,10 +991,30 @@
       "target": "AGENTS.md",
       "kind": "entrypoint",
       "merge": "ai_merge_if_exists",
-      "source_sha256": "333b949f64861c89b4f0016464a89634ab09f69778d34a561f92c59b29aeada9",
-      "installed_sha256": "00493db2d7f4f320e944ae85f5718ea9098911ef73f95a0150a7f5c830c3e77e",
+      "source_sha256": "c0ca57c32ad6d69f69b802caf96e5c75e19a17dbd0f5f7671066cb3d51792b22",
+      "installed_sha256": "eae4b784730249a45333413a1bf908659e7bfed4605faff0960f20bf5ee5c539",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Preserves the project-owned discovery section and omits the unselected model-router conditional instruction."
+      "reason": "Preserve project-owned governance and discovery section while adopting Foundation 1.17.2 managed guidance."
+    },
+    {
+      "source": "CLAUDE.md",
+      "target": "CLAUDE.md",
+      "kind": "adapter",
+      "merge": "ai_merge_if_exists",
+      "source_sha256": "ae493a38c8b13f2fff452bf6fa084fc27051631e7f78c6c288c29e0e8f38f043",
+      "installed_sha256": "ae493a38c8b13f2fff452bf6fa084fc27051631e7f78c6c288c29e0e8f38f043",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "GEMINI.md",
+      "target": "GEMINI.md",
+      "kind": "adapter",
+      "merge": "ai_merge_if_exists",
+      "source_sha256": "e302980754c983e41dc679ca782b0bb4e13c0557e68d489e4c04916f08b3e505",
+      "installed_sha256": "e302980754c983e41dc679ca782b0bb4e13c0557e68d489e4c04916f08b3e505",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
     }
   ]
 }
