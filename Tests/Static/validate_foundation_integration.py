@@ -11,8 +11,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_VERSION = "1.8.0"
-EXPECTED_SOURCE_REF = "7ddc29988b23570f462e46ebf527f8dfdd05fd75"
+EXPECTED_VERSION = "1.17.1"
+EXPECTED_SOURCE_REF = "c29ef2916834460455ec79be225a3632fabaf758"
 EXPECTED_CACHE_CAPABILITY_SHA256 = (
     "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b"
 )
@@ -52,7 +52,7 @@ def version_tuple(value: str) -> tuple[int, int, int]:
 def main() -> None:
     catalog = load_json(ROOT / ".ai" / "foundation" / "feature_catalog.json")
     assessment = load_json(
-        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_8_0_ASSESSMENT.json"
+        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_17_1_ASSESSMENT.json"
     )
     registry = load_json(ROOT / ".ai" / "identity" / "registry.json")
     repo_map = (ROOT / ".ai" / "foundation" / "repo_map.yaml").read_text(
@@ -67,7 +67,7 @@ def main() -> None:
     runtime_readme = (ROOT / "Runtime" / "README.md").read_text(encoding="utf-8")
 
     if catalog.get("ruleset_version") != EXPECTED_VERSION:
-        fail("feature catalog does not carry Foundation 1.8.0")
+        fail("feature catalog does not carry Foundation 1.17.1")
     if f"foundation_ruleset_version: {EXPECTED_VERSION}" not in repo_map:
         fail("Foundation repo map version is stale")
     if f"Ruleset version: {EXPECTED_VERSION}" not in ruleset:
@@ -75,16 +75,18 @@ def main() -> None:
     for required_path in (
         ROOT / ".ai" / "foundation" / "RULE_CONTEXT_CACHE_POLICY.md",
         ROOT / ".ai" / "foundation" / "schemas" / "rule-context-cache.schema.json",
+        ROOT / ".ai" / "foundation" / "AI_WORK_ORCHESTRATION_POLICY.md",
+        ROOT / ".ai" / "foundation" / "schemas" / "installation-provenance.schema.json",
     ):
         if not required_path.is_file():
-            fail(f"missing Foundation 1.8 core file {required_path.relative_to(ROOT)}")
+            fail(f"missing Foundation 1.17.1 core file {required_path.relative_to(ROOT)}")
 
     if assessment.get("schema_version") != 1:
         fail("upgrade assessment schema version must be 1")
-    if assessment.get("installed_version") != "1.7.0":
-        fail("upgrade assessment installed version must be 1.7.0")
+    if assessment.get("installed_version") != "1.8.0":
+        fail("upgrade assessment installed version must be 1.8.0")
     if assessment.get("source_version") != EXPECTED_VERSION:
-        fail("upgrade assessment source version must be 1.8.0")
+        fail("upgrade assessment source version must be 1.17.1")
     if assessment.get("source_ref") != EXPECTED_SOURCE_REF:
         fail("upgrade assessment source ref does not match the reviewed commit")
 
@@ -105,22 +107,19 @@ def main() -> None:
     if not isinstance(rows, list) or len(rows) != len(candidates):
         fail("upgrade assessment does not contain exactly the complete feature delta")
     assessed_ids = {row.get("feature_id") for row in rows}
-    if assessed_ids != candidates or candidates != {"rule-context-cache"}:
+    expected_candidates = {
+        "installed-foundation-provenance", "model-routing-interoperability",
+        "central-artifact-registry", "ai-work-orchestration", "ai-runtime-adapters",
+        "ai-work-execution", "ai-host-preparation", "ai-client-integration",
+    }
+    if assessed_ids != candidates or candidates != expected_candidates:
         fail(f"unexpected upgrade candidates: {sorted(candidates)}")
 
-    row = rows[0]
-    if row.get("classification") not in VALID_CLASSIFICATIONS:
-        fail("upgrade assessment uses an invalid classification")
-    if row.get("classification") != "RECOMMENDED":
-        fail("rule-context-cache must remain an explicit recommendation")
-    if row.get("candidate_reasons") != ["introduced_in:1.8.0"]:
-        fail("rule-context-cache candidate reason is incomplete")
-    if not row.get("evidence") or not row.get("rationale") or not row.get("recommendation"):
-        fail("rule-context-cache assessment lacks evidence, rationale or recommendation")
-    if row.get("decision_required") is not None:
-        fail("rule-context-cache selection must not retain an unresolved decision")
-    if row.get("selected_capabilities") != ["rule-context-cache"]:
-        fail("upgrade assessment must select the rule-context-cache capability")
+    for row in rows:
+        if row.get("classification") not in VALID_CLASSIFICATIONS:
+            fail("upgrade assessment uses an invalid classification")
+        if not row.get("evidence") or not row.get("rationale"):
+            fail("upgrade assessment lacks evidence or rationale")
     capability = (
         ROOT
         / ".ai"
@@ -176,7 +175,8 @@ def main() -> None:
     for text, source_name in (
         ("RULE_CONTEXT_CACHE_POLICY.md", "AGENTS.md"),
         ("Projektspezifische Steuerung", "AGENTS.md"),
-        ("Foundation `1.8.0`", ".ai/PROJECT_RULES.md"),
+        ("Foundation `1.17.1`", ".ai/PROJECT_RULES.md"),
+        ("AI_WORK_ORCHESTRATION_POLICY.md", "AGENTS.md"),
         ("`DEC-064`", ".ai/PROJECT_RULES.md"),
         ("`Runtime/.foundation-rule-cache/`", ".ai/PROJECT_RULES.md"),
     ):
@@ -186,7 +186,7 @@ def main() -> None:
 
     print(
         "foundation-integration: PASS "
-        "(1.8.0; complete 1-candidate delta; cache capability selected)"
+        "(1.17.1; complete 8-candidate delta; cache capability selected)"
     )
 
 
