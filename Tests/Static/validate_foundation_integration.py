@@ -11,8 +11,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_VERSION = "1.17.1"
-EXPECTED_SOURCE_REF = "c29ef2916834460455ec79be225a3632fabaf758"
+EXPECTED_VERSION = "1.17.2"
+EXPECTED_SOURCE_REF = "36d2cb20c2880b7cfaa6428db3716e6768e23964"
 EXPECTED_CACHE_CAPABILITY_SHA256 = (
     "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b"
 )
@@ -52,9 +52,12 @@ def version_tuple(value: str) -> tuple[int, int, int]:
 def main() -> None:
     catalog = load_json(ROOT / ".ai" / "foundation" / "feature_catalog.json")
     assessment = load_json(
-        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_17_1_ASSESSMENT.json"
+        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_17_2_ASSESSMENT.json"
     )
     registry = load_json(ROOT / ".ai" / "identity" / "registry.json")
+    provenance = load_json(
+        ROOT / ".ai" / "foundation" / "installation-provenance.json"
+    )
     repo_map = (ROOT / ".ai" / "foundation" / "repo_map.yaml").read_text(
         encoding="utf-8"
     )
@@ -67,7 +70,7 @@ def main() -> None:
     runtime_readme = (ROOT / "Runtime" / "README.md").read_text(encoding="utf-8")
 
     if catalog.get("ruleset_version") != EXPECTED_VERSION:
-        fail("feature catalog does not carry Foundation 1.17.1")
+        fail("feature catalog does not carry Foundation 1.17.2")
     if f"foundation_ruleset_version: {EXPECTED_VERSION}" not in repo_map:
         fail("Foundation repo map version is stale")
     if f"Ruleset version: {EXPECTED_VERSION}" not in ruleset:
@@ -79,16 +82,29 @@ def main() -> None:
         ROOT / ".ai" / "foundation" / "schemas" / "installation-provenance.schema.json",
     ):
         if not required_path.is_file():
-            fail(f"missing Foundation 1.17.1 core file {required_path.relative_to(ROOT)}")
+            fail(f"missing Foundation 1.17.2 core file {required_path.relative_to(ROOT)}")
 
     if assessment.get("schema_version") != 1:
         fail("upgrade assessment schema version must be 1")
-    if assessment.get("installed_version") != "1.8.0":
-        fail("upgrade assessment installed version must be 1.8.0")
+    if assessment.get("installed_version") != "1.17.1":
+        fail("upgrade assessment installed version must be 1.17.1")
     if assessment.get("source_version") != EXPECTED_VERSION:
-        fail("upgrade assessment source version must be 1.17.1")
+        fail("upgrade assessment source version must be 1.17.2")
     if assessment.get("source_ref") != EXPECTED_SOURCE_REF:
         fail("upgrade assessment source ref does not match the reviewed commit")
+    if provenance.get("ruleset_version") != EXPECTED_VERSION:
+        fail("installation provenance ruleset version is stale")
+    if provenance.get("source_commit") != EXPECTED_SOURCE_REF:
+        fail("installation provenance source commit does not match the reviewed commit")
+    selected_capabilities = set(provenance.get("selection", {}).get("capabilities", []))
+    expected_capabilities = {
+        "artifact-registration-clients", "artifact-registry-github",
+        "rule-context-cache", "ai-work", "ai-executor", "ai-provisioning",
+        "ai-client-integration", "model-router", "ai-runtime-adapters",
+        "ai-orchestrator",
+    }
+    if selected_capabilities != expected_capabilities:
+        fail("installation provenance does not record the complete capability selection")
 
     installed = version_tuple(assessment["installed_version"])
     source = version_tuple(assessment["source_version"])
@@ -107,11 +123,7 @@ def main() -> None:
     if not isinstance(rows, list) or len(rows) != len(candidates):
         fail("upgrade assessment does not contain exactly the complete feature delta")
     assessed_ids = {row.get("feature_id") for row in rows}
-    expected_candidates = {
-        "installed-foundation-provenance", "model-routing-interoperability",
-        "central-artifact-registry", "ai-work-orchestration", "ai-runtime-adapters",
-        "ai-work-execution", "ai-host-preparation", "ai-client-integration",
-    }
+    expected_candidates: set[str] = set()
     if assessed_ids != candidates or candidates != expected_candidates:
         fail(f"unexpected upgrade candidates: {sorted(candidates)}")
 
@@ -157,13 +169,13 @@ def main() -> None:
     if ignored.returncode != 0:
         fail("configured rule-context cache record path is not ignored by Git")
 
-    decision = registry.get("artifacts", {}).get("DEC-064")
+    decision = registry.get("artifacts", {}).get("DEC-065")
     if not isinstance(decision, dict) or decision.get("kind") != "decision":
-        fail("DEC-064 is not registered as a decision")
+        fail("DEC-065 is not registered as a decision")
     if decision.get("registration_state") != "REGISTERED":
-        fail("DEC-064 must be registered")
-    if "| DEC-064 |" not in decisions:
-        fail("DEC-064 is missing from .ai/DECISIONS.md")
+        fail("DEC-065 must be registered")
+    if "| DEC-065 |" not in decisions:
+        fail("DEC-065 is missing from .ai/DECISIONS.md")
     for marker in (
         "Runtime/.foundation-rule-cache/",
         "rule_context_cache.py record",
@@ -175,9 +187,9 @@ def main() -> None:
     for text, source_name in (
         ("RULE_CONTEXT_CACHE_POLICY.md", "AGENTS.md"),
         ("Projektspezifische Steuerung", "AGENTS.md"),
-        ("Foundation `1.17.1`", ".ai/PROJECT_RULES.md"),
+        ("Foundation `1.17.2`", ".ai/PROJECT_RULES.md"),
         ("AI_WORK_ORCHESTRATION_POLICY.md", "AGENTS.md"),
-        ("`DEC-064`", ".ai/PROJECT_RULES.md"),
+        ("`DEC-065`", ".ai/PROJECT_RULES.md"),
         ("`Runtime/.foundation-rule-cache/`", ".ai/PROJECT_RULES.md"),
     ):
         content = agents if source_name == "AGENTS.md" else project_rules
@@ -186,7 +198,7 @@ def main() -> None:
 
     print(
         "foundation-integration: PASS "
-        "(1.17.1; complete 8-candidate delta; cache capability selected)"
+        "(1.17.2; no new feature delta; all local capabilities selected)"
     )
 
 
