@@ -42,6 +42,19 @@ $script:ScenarioDefinitions = @{
         Database = 'SQLPERF_LAB_CON006_LOCAL'
         SafetyLevel = 'YELLOW'
     }
+    'DGN-007' = @{
+        ScenarioPath = 'Scenarios\DGN-007\scenario.json'
+        LabManifests = @{
+            docker = 'Scenarios\DGN-007\sql-server-lab.json'
+            podman = 'Scenarios\DGN-007\sql-server-lab.podman.json'
+        }
+        DemoRoot = 'Scenarios\DGN-007'
+        AdapterPath = 'Scenarios\DGN-007\adapter'
+        DemoId = 'DGN-007'
+        RunToken = 'LOCAL'
+        Database = 'SQLPERF_LAB_DGN007_LOCAL'
+        SafetyLevel = 'YELLOW'
+    }
 }
 
 function Resolve-ScenarioStateRoot {
@@ -145,7 +158,7 @@ function Invoke-ScenarioAdapter {
 function Get-PerformanceTrainingScenario {
     [CmdletBinding()]
     param(
-        [ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
+        [ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
         [string]$StateRoot
     )
     $ids = if ($ScenarioId) { @($ScenarioId) } else { @($script:ScenarioDefinitions.Keys | Sort-Object) }
@@ -169,7 +182,7 @@ function Get-PerformanceTrainingScenario {
 function Start-PerformanceTrainingScenario {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
+        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
         [Parameter(Mandatory)][ValidateSet('docker','podman')][string]$Provider,
         [Parameter(Mandatory)][SecureString]$SaPassword,
         [string]$SqlServerLabModulePath,
@@ -228,7 +241,7 @@ function Start-PerformanceTrainingScenario {
 function Reset-PerformanceTrainingScenario {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
+        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
         [Parameter(Mandatory)][SecureString]$SaPassword,
         [string]$SqlServerLabModulePath,
         [string]$SqlcmdPath,
@@ -248,7 +261,7 @@ function Reset-PerformanceTrainingScenario {
 function Remove-PerformanceTrainingScenario {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
+        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
         [Parameter(Mandatory)][SecureString]$SaPassword,
         [string]$SqlServerLabModulePath,
         [string]$SqlcmdPath,

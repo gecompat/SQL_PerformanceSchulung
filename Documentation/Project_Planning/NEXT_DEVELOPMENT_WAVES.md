@@ -76,12 +76,14 @@ Query Store/XE-Pilot + Mehrsession-Vertrag validiert -> DGN-007 als eigener Folg
 
 ## 5. Nächster belegpflichtiger Schritt
 
-Das eigenständige Detailreview zu `DGN-007` ist als `TSK-002` mit
-[`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)
-abgeschlossen (`DECIDED_PLANNING`). Es begründet keinen Implementierungsauftrag
-und keinen Runtimestatus. Der nächste zulässige Schritt ist
-Implementierungsschnitt A aus Kapitel 9 des Detailreviews (Adapter-Datenaufbau,
-Query-Store-Fenster und Incident-Erzeugung in einem eigenen Pull Request);
-davor bleibt jede Statusanhebung ohne konkreten Laufnachweis unzulässig.
-Ressourcen-, Netzwerk-, Hyper-V- und gemischte Topologien bleiben ohne konkreten
-fachlichen Bedarf gestoppt.
+Der Capstone-Planungsschnitt ist mit `TSK-002` entschieden
+(`DECIDED_PLANNING`, Detailreview
+[`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)).
+Implementierungsschnitt A (Project Adapter `0.1` mit Datenaufbau,
+Query-Store-Zeitfenstern und Incident-Erzeugung ohne Mitigationsmarker) ist
+als Adaptervertrag statisch umgesetzt und geprüft; er besitzt noch keinen
+Laufnachweis und keinen Runtimestatus. Der nächste belegpflichtige Schritt ist
+die Docker-/Podman-Lifecycle-Abnahme des Adapters gemäß Kapitel 9 des
+Detailreviews. Danach folgen Schnitt B (Evidenz, Hypothesen, Mitigation,
+Orchestrierung) und die Runtime-Matrix. Ressourcen-, Netzwerk-, Hyper-V- und
+gemischte Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
