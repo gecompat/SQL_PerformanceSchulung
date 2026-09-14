@@ -90,6 +90,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
   - [x] `CON-006` nach eigenem Quellen- und Detailreview als dritten interaktiven Slice über Project Adapter `0.1` implementieren; Deadlock-, Gegenproben-, Reset- und Remove-Vertrag auf SQL Server 2025 mit Docker und Podman praktisch validieren.
   - [x] `DGN-007` als Capstone-Planungsschnitt durch eigenes Detailreview (`TSK-002`, [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](../Documentation/Project_Planning/LABSCN_005_DGN_007_DETAIL_REVIEW.md)) entscheiden; daraus folgt kein Implementierungsauftrag.
   - [x] `DGN-007` Implementierungsschnitt A (Adapter-Datenaufbau, Query-Store-Fenster und Incident-Erzeugung) als eigenen Pull Request umsetzen; ohne `READY_FOR_USER`-Teilnehmerablauf, ohne Mitigationsmarker und ohne Runtimestatus.
+  - [x] `DGN-007` Schnitt-A-Adapter-Lifecycle auf SQL Server 2025 mit Docker (RunId `9ac100f8-…`) und Podman (RunId `e06e9ec9-…`) praktisch abnehmen: Start und Reset endeten als `READY_FOR_USER`, Remove endete als `REMOVED`.
   - [ ] `DGN-007` Implementierungsschnitt B (Evidenz-, Hypothesen-, Mitigations- und Orchestrierungsschnitte) umsetzen.
   - [ ] `DGN-007` Runtime-Matrix auf SQL Server 2019, 2022 und 2025 je zweimal validieren und anschließend die interaktive Docker-/Podman-Abnahme nachweisen.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.

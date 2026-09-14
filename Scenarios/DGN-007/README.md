@@ -70,3 +70,23 @@ Der Adapter besitzt die vier verbindlichen Entrypoints `preflight`, `install`,
 markergebunden und entfernt Datenbank inklusive Query-Store-Zustand
 vollständig. Reset und Remove folgen dem standardisierten Lifecycle aus
 [`INTERACTIVE_SCENARIO_LIFECYCLE.md`](../../Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md).
+
+## Praktische Lifecycle-Abnahme (2026-09-14)
+
+Die vollständige Adapter-Lifecycle-Abnahme lief über
+`Tests/Lab/Invoke-PerformanceTrainingScenarioLifecycleTest.ps1` mit
+`-ScenarioId DGN-007` je Provider auf SQL Server 2025:
+
+| Provider | RunId | Start | Reset | Remove |
+|---|---|---|---|---|
+| Docker | `9ac100f8-f24f-420e-949c-943e35b9bcda` | `READY_FOR_USER` | `READY_FOR_USER` | `REMOVED` |
+| Podman | `e06e9ec9-d239-4cd0-b9a7-0050dc574180` | `READY_FOR_USER` | `READY_FOR_USER` | `REMOVED` |
+
+Beide Läufe bestätigten install (Datenaufbau, 24.000 Faktzeilen, Incident-Marker
+`T1_INCIDENT`) und validate (Query Store `READ_WRITE`, zwei erfasste
+Query-Pläne). Da die interaktive `scenario.json` erst mit der Runtime-Matrix
+(Schnitt C) in den Inventar kommt, arbeitet das Orchestrierungsmodul für
+`DGN-007` mit dem statischen Vertrag `DESIGNED_SLICE_A`: Start und Reset
+erzeugen und prüfen den fachlichen Zustand vollständig, es existieren aber
+keine Teilnehmerphasen. Der Podman-Lauf ließ die vorhandene, nicht zum Run
+gehörende Altressource unverändert.

@@ -104,7 +104,7 @@ Ausweichnetz und ließ die fremde Ressource unverändert.
 - `LABSCN-004`: `VALIDATED`; Auswahl, Start, Übergabe, Reset und Remove sind standardisiert dokumentiert und statisch abgesichert.
 - `LABSCN-005/DGN-005`: `VALIDATED` als zweiter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
 - `LABSCN-005/CON-006`: `VALIDATED` als dritter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
-- `LABSCN-005/DGN-007`: `DECIDED_PLANNING` als Planungsschnitt (Detailreview `TSK-002`, 2026-09-14); Schnitt A ist als Adaptervertrag statisch umgesetzt und geprüft (`IMPLEMENTED_STATIC_SLICE_A`, ohne Laufnachweis, ohne `READY_FOR_USER`-Teilnehmerablauf und ohne Runtimestatus); Schnitt B und die Runtime-Matrix bleiben offen.
+- `LABSCN-005/DGN-007`: `IMPLEMENTED_STATIC_SLICE_A` mit praktischer Adapter-Lifecycle-Abnahme vom 2026-09-14: Docker-Run `9ac100f8-f24f-420e-949c-943e35b9bcda` und Podman-Run `e06e9ec9-d239-4cd0-b9a7-0050dc574180` bestanden jeweils Start -> `READY_FOR_USER`, Reset -> `READY_FOR_USER` und Remove -> `REMOVED` auf SQL Server 2025. Der `READY_FOR_USER`-Teilnehmerablauf, die Evidenz-/Mitigationsphasen und die Demo-Runtime-Matrix folgen in Schnitt B; ein Runtimestatus der fachlichen Demo besteht nicht.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
 - `LABINT-002`: `VALIDATED` für Start, `READY_FOR_USER`, Reset und Remove von `CON-004` auf Docker.
 - `LABINT-003`: `VALIDATED` für die freigegebenen Slices `QRY-001`, `CON-004` und `DGN-005`; Docker-/Podman-Parität ist praktisch belegt.
@@ -120,15 +120,14 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
 1. `DGN-007` Capstone-Planungsschnitt ist mit `TSK-002` entschieden
    (`DECIDED_PLANNING`, Stand 2026-09-14); der Detailreviewvertrag steht in
    [LABSCN_005_DGN_007_DETAIL_REVIEW.md](LABSCN_005_DGN_007_DETAIL_REVIEW.md).
-2. Implementierungsschnitt A ist als Adaptervertrag statisch umgesetzt:
+2. Implementierungsschnitt A ist umgesetzt und adapterseitig abgenommen:
    Project Adapter `0.1` mit Datenaufbau, Query-Store-Zeitfenstern und
-   Incident-Erzeugung ohne Mitigationsmarker, Moduleintrag und eigenem
-   statischen Validator. Es fehlen weiterhin der Docker-/Podman-Lifecycle-,
-   der `READY_FOR_USER`-Teilnehmerablauf- und der Matrix-Nachweis; der Status
-   bleibt `IMPLEMENTED_STATIC_SLICE_A`.
-3. Der nächste belegpflichtige Schritt ist die Docker-/Podman-Lifecycle-Abnahme
-   des Schnitt-A-Adapters; danach folgen Schnitt B (Evidenz, Hypothesen,
-   Mitigation, Orchestrierung) und die Runtime-Matrix.
+   Incident-Erzeugung ohne Mitigationsmarker; die Docker-/Podman-Lifecycle-Abnahme
+   bestand am 2026-09-14 mit RunId `9ac100f8-…` (Docker) und `e06e9ec9-…`
+   (Podman) jeweils über Start, Reset und Remove bis `REMOVED`.
+3. Der nächste Schritt ist Implementierungsschnitt B (Evidenz, Hypothesen,
+   Mitigation, Orchestrierung) und danach die Runtime-Matrix; ein
+   Demo-Runtimestatus besteht weiterhin nicht.
 4. Eine weitere `LABINT-004`-Matrixaussage erst aktivieren, wenn ein zusätzlicher gelber Slice samt Safety- und Szenariofreigabe sie benötigt.
 5. Docker-/Podman-Ressourcen-, Netzwerk-, Hyper-V- oder gemischte Topologien nur bei einer konkret nachgewiesenen fachlichen Abhängigkeit bearbeiten.
 6. Änderungen an `SQL_Server_Lab` bleiben ohne konkrete Fähigkeitslücke und ausdrückliche Freigabe gesperrt.

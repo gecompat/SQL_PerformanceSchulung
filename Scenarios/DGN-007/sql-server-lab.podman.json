@@ -2,14 +2,18 @@
   "$schema": "https://github.com/gecompat/SQL_Server_Lab/raw/main/Schemas/lab-manifest.schema.json",
   "name": "sql-performance-dgn-007-podman",
   "description": "Wegwerfbare SQL-Server-2025-Podmanumgebung fuer DGN-007 mit Capstone-Datenaufbau, Query-Store-Zeitfenstern und Incident-Erzeugung.",
-  "automation": {"mode": "unattended"},
-  "instances": [{
-    "id": "primary",
-    "version": "2025",
-    "provider": "podman",
-    "os": "linux",
-    "profile": "standard",
-    "collation": "SQL_Latin1_General_CP1_CS_AS",
-    "databases": []
-  }]
+  "automation": {
+    "mode": "unattended"
+  },
+  "instances": [
+    {
+      "id": "primary",
+      "version": "2025",
+      "provider": "podman",
+      "os": "linux",
+      "profile": "standard",
+      "collation": "Latin1_General_100_CS_AS",
+      "databases": []
+    }
+  ]
 }

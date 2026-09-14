@@ -97,12 +97,25 @@ def main() -> int:
             findings.append(f"unexpected DROP DATABASE in {name}")
 
     module = MODULE.read_text(encoding="utf-8")
-    for marker in ("'DGN-007'", "SQLPERF_LAB_DGN007_LOCAL", "Scenarios\\DGN-007\\scenario.json"):
+    for marker in (
+        "'DGN-007'",
+        "SQLPERF_LAB_DGN007_LOCAL",
+        "Scenarios\\DGN-007\\sql-server-lab.json",
+        "StaticSliceContract = 'DESIGNED_SLICE_A'",
+    ):
         if marker not in module:
-            findings.append("module does not publish DGN-007")
+            findings.append("module does not publish DGN-007 with the static slice contract")
 
     readme = README.read_text(encoding="utf-8")
-    for marker in ("DESIGNED", "TSK-002", "LABSCN_005_DGN_007_DETAIL_REVIEW.md", "SKIP_QUERY_STORE_REQUIRED", "SKIP_INCIDENT_NOT_REPRODUCED"):
+    for marker in (
+        "DESIGNED",
+        "TSK-002",
+        "LABSCN_005_DGN_007_DETAIL_REVIEW.md",
+        "SKIP_QUERY_STORE_REQUIRED",
+        "SKIP_INCIDENT_NOT_REPRODUCED",
+        "9ac100f8-f24f-420e-949c-943e35b9bcda",
+        "e06e9ec9-d239-4cd0-b9a7-0050dc574180",
+    ):
         if marker not in readme:
             findings.append(f"README marker missing: {marker}")
 
@@ -111,7 +124,7 @@ def main() -> int:
         for finding in findings:
             print(f"- {finding}")
         return 1
-    print("labscn005-dgn007-slice-a: PASS (YELLOW; DESIGNED contract, RUNNER_ASSISTED boundary; marker-bound data model, Query Store windows and incident generation)")
+    print("labscn005-dgn007-slice-a: PASS (YELLOW; static slice A with docker/podman lifecycle acceptance; marker-bound data model, Query Store windows and incident generation)")
     return 0
 
 

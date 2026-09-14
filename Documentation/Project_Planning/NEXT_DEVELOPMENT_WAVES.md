@@ -80,10 +80,12 @@ Der Capstone-Planungsschnitt ist mit `TSK-002` entschieden
 (`DECIDED_PLANNING`, Detailreview
 [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)).
 Implementierungsschnitt A (Project Adapter `0.1` mit Datenaufbau,
-Query-Store-Zeitfenstern und Incident-Erzeugung ohne Mitigationsmarker) ist
-als Adaptervertrag statisch umgesetzt und geprüft; er besitzt noch keinen
-Laufnachweis und keinen Runtimestatus. Der nächste belegpflichtige Schritt ist
-die Docker-/Podman-Lifecycle-Abnahme des Adapters gemäß Kapitel 9 des
-Detailreviews. Danach folgen Schnitt B (Evidenz, Hypothesen, Mitigation,
-Orchestrierung) und die Runtime-Matrix. Ressourcen-, Netzwerk-, Hyper-V- und
-gemischte Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
+Query-Store-Zeitfenstern und Incident-Erzeugung ohne Mitigationsmarker) besitzt
+seit dem 2026-09-14 die praktische Docker-/Podman-Lifecycle-Abnahme: Docker-Run
+`9ac100f8-f24f-420e-949c-943e35b9bcda` und Podman-Run
+`e06e9ec9-d239-4cd0-b9a7-0050dc574180` bestanden jeweils Start -> `READY_FOR_USER`,
+Reset -> `READY_FOR_USER` und Remove -> `REMOVED` auf SQL Server 2025. Der
+nächste Schritt ist Implementierungsschnitt B (Evidenz, Hypothesen, Mitigation,
+Orchestrierung); die Demo-Runtime-Matrix und der `READY_FOR_USER`-Teilnehmerablauf
+folgen danach. Ressourcen-, Netzwerk-, Hyper-V- und gemischte Topologien bleiben
+ohne konkreten fachlichen Bedarf gestoppt.

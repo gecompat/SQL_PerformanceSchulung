@@ -43,7 +43,7 @@ $script:ScenarioDefinitions = @{
         SafetyLevel = 'YELLOW'
     }
     'DGN-007' = @{
-        ScenarioPath = 'Scenarios\DGN-007\scenario.json'
+        ScenarioPath = $null
         LabManifests = @{
             docker = 'Scenarios\DGN-007\sql-server-lab.json'
             podman = 'Scenarios\DGN-007\sql-server-lab.podman.json'
@@ -54,6 +54,7 @@ $script:ScenarioDefinitions = @{
         RunToken = 'LOCAL'
         Database = 'SQLPERF_LAB_DGN007_LOCAL'
         SafetyLevel = 'YELLOW'
+        StaticSliceContract = 'DESIGNED_SLICE_A'
     }
 }
 
@@ -164,17 +165,21 @@ function Get-PerformanceTrainingScenario {
     $ids = if ($ScenarioId) { @($ScenarioId) } else { @($script:ScenarioDefinitions.Keys | Sort-Object) }
     foreach ($id in $ids) {
         $definition = Resolve-ScenarioDefinition $id
-        $contract = Get-Content -Raw -LiteralPath (Join-Path $script:RepositoryRoot $definition.ScenarioPath) | ConvertFrom-Json
+        $title = $id
+        if ($definition.ScenarioPath) {
+            $contract = Get-Content -Raw -LiteralPath (Join-Path $script:RepositoryRoot $definition.ScenarioPath) | ConvertFrom-Json
+            $title = $contract.title
+        }
         $statePath = Get-StatePath $id $StateRoot
         $state = if (Test-Path -LiteralPath $statePath) { Get-Content -Raw -LiteralPath $statePath | ConvertFrom-Json } else { $null }
         [PSCustomObject]@{
             ScenarioId = $id
-            Title = $contract.title
+            Title = $title
             SafetyLevel = $definition.SafetyLevel
             Providers = @($definition.LabManifests.Keys | Sort-Object)
-            ReadyState = $contract.interactive.readyState
+            ReadyState = if ($definition.ScenarioPath) { 'READY_FOR_USER' } else { $definition.StaticSliceContract }
             ActiveState = $state
-            EntryDocument = Join-Path $script:RepositoryRoot $contract.interactive.entryDocument
+            EntryDocument = if ($definition.ScenarioPath) { Join-Path $script:RepositoryRoot $contract.interactive.entryDocument } else { $null }
         }
     }
 }
@@ -214,7 +219,14 @@ function Start-PerformanceTrainingScenario {
         Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $lab.RunId -SaPassword $SaPassword -Entrypoint install -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
         Invoke-ScenarioAdapter -AdapterPath $adapterPath -RunId $lab.RunId -SaPassword $SaPassword -Entrypoint validate -StateRoot $root -SqlcmdPath $SqlcmdPath | Out-Null
         $database = $definition.Database
-        $contract = Get-Content -Raw -LiteralPath (Join-Path $script:RepositoryRoot $definition.ScenarioPath) | ConvertFrom-Json
+        $staticContract = if ($definition.ContainsKey('StaticSliceContract')) { $definition.StaticSliceContract } else { $null }
+        $sessionRoles = @()
+        $entryDocument = $null
+        if ($staticContract -ne 'DESIGNED_SLICE_A') {
+            $contract = Get-Content -Raw -LiteralPath (Join-Path $script:RepositoryRoot $definition.ScenarioPath) | ConvertFrom-Json
+            $sessionRoles = @($contract.orchestration.manual.sessionScripts | Sort-Object startOrder | Select-Object role,script,startOrder,instruction)
+            $entryDocument = Join-Path $script:RepositoryRoot $contract.interactive.entryDocument
+        }
         Write-ScenarioState $ScenarioId $root @{
             ScenarioId=$ScenarioId; RunId=$lab.RunId; Provider=$Provider; Database=$database;
             AdapterProjectId=$adapterValidation.ProjectId; AdapterContractVersion=$adapterValidation.Adapter.adapterContractVersion;
@@ -225,8 +237,8 @@ function Start-PerformanceTrainingScenario {
             Server=$server; Database=$database; SafetyLevel=$definition.SafetyLevel; AdapterProjectId=$adapterValidation.ProjectId;
             AdapterContractVersion=$adapterValidation.Adapter.adapterContractVersion;
             SqlcmdVariables=[ordered]@{DemoId=$definition.DemoId;RunToken=$definition.RunToken}
-            SessionRoles=@($contract.orchestration.manual.sessionScripts | Sort-Object startOrder | Select-Object role,script,startOrder,instruction)
-            EntryDocument=Join-Path $script:RepositoryRoot $contract.interactive.entryDocument
+            SessionRoles=$sessionRoles
+            EntryDocument=$entryDocument
             ResetCommand="Reset-PerformanceTrainingScenario -ScenarioId $ScenarioId"
             RemoveCommand="Remove-PerformanceTrainingScenario -ScenarioId $ScenarioId"
         }
