@@ -104,7 +104,7 @@ Ausweichnetz und ließ die fremde Ressource unverändert.
 - `LABSCN-004`: `VALIDATED`; Auswahl, Start, Übergabe, Reset und Remove sind standardisiert dokumentiert und statisch abgesichert.
 - `LABSCN-005/DGN-005`: `VALIDATED` als zweiter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
 - `LABSCN-005/CON-006`: `VALIDATED` als dritter interaktiver SQL-Server-2025-Slice auf Docker und Podman.
-- `LABSCN-005/DGN-007`: `DECIDED_PLANNING` als Planungsschnitt (Detailreview `TSK-002`, 2026-09-14); keine Adapter-, Runtime- oder Freigabeaussage.
+- `LABSCN-005/DGN-007`: `DECIDED_PLANNING` als Planungsschnitt (Detailreview `TSK-002`, 2026-09-14); Schnitt A ist als Adaptervertrag statisch umgesetzt und geprüft (`IMPLEMENTED_STATIC_SLICE_A`, ohne Laufnachweis, ohne `READY_FOR_USER`-Teilnehmerablauf und ohne Runtimestatus); Schnitt B und die Runtime-Matrix bleiben offen.
 - `LABINT-001`: `VALIDATED` als nachgeordneter Testkatalog.
 - `LABINT-002`: `VALIDATED` für Start, `READY_FOR_USER`, Reset und Remove von `CON-004` auf Docker.
 - `LABINT-003`: `VALIDATED` für die freigegebenen Slices `QRY-001`, `CON-004` und `DGN-005`; Docker-/Podman-Parität ist praktisch belegt.
@@ -117,16 +117,21 @@ Ausweichnetz und ließ die fremde Ressource unverändert.
 
 Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md). Kurzfristig ist die Reihenfolge:
 
-1. `DGN-007` als Capstone-Planungsschnitt ist mit `TSK-002` entschieden
-   (`DECIDED_PLANNING`, Stand 2026-09-14); der vollständige Detailreviewvertrag
-   zu Incident, Alternativhypothesen, Zeitfenstern, Reset, Quellen und
-   Teilnehmerübergabe steht in [LABSCN_005_DGN_007_DETAIL_REVIEW.md](LABSCN_005_DGN_007_DETAIL_REVIEW.md). Daraus folgt kein automatischer Implementierungsauftrag.
-2. Der nächste zulässige Schritt ist Implementierungsschnitt A aus Kapitel 9
-   des Detailreviews (Adapter-Datenaufbau, Query-Store-Fenster und
-   Incident-Erzeugung) als eigener kleiner Pull Request.
-3. Eine weitere `LABINT-004`-Matrixaussage erst aktivieren, wenn ein zusätzlicher gelber Slice samt Safety- und Szenariofreigabe sie benötigt.
-4. Docker-/Podman-Ressourcen-, Netzwerk-, Hyper-V- oder gemischte Topologien nur bei einer konkret nachgewiesenen fachlichen Abhängigkeit bearbeiten.
-5. Änderungen an `SQL_Server_Lab` bleiben ohne konkrete Fähigkeitslücke und ausdrückliche Freigabe gesperrt.
+1. `DGN-007` Capstone-Planungsschnitt ist mit `TSK-002` entschieden
+   (`DECIDED_PLANNING`, Stand 2026-09-14); der Detailreviewvertrag steht in
+   [LABSCN_005_DGN_007_DETAIL_REVIEW.md](LABSCN_005_DGN_007_DETAIL_REVIEW.md).
+2. Implementierungsschnitt A ist als Adaptervertrag statisch umgesetzt:
+   Project Adapter `0.1` mit Datenaufbau, Query-Store-Zeitfenstern und
+   Incident-Erzeugung ohne Mitigationsmarker, Moduleintrag und eigenem
+   statischen Validator. Es fehlen weiterhin der Docker-/Podman-Lifecycle-,
+   der `READY_FOR_USER`-Teilnehmerablauf- und der Matrix-Nachweis; der Status
+   bleibt `IMPLEMENTED_STATIC_SLICE_A`.
+3. Der nächste belegpflichtige Schritt ist die Docker-/Podman-Lifecycle-Abnahme
+   des Schnitt-A-Adapters; danach folgen Schnitt B (Evidenz, Hypothesen,
+   Mitigation, Orchestrierung) und die Runtime-Matrix.
+4. Eine weitere `LABINT-004`-Matrixaussage erst aktivieren, wenn ein zusätzlicher gelber Slice samt Safety- und Szenariofreigabe sie benötigt.
+5. Docker-/Podman-Ressourcen-, Netzwerk-, Hyper-V- oder gemischte Topologien nur bei einer konkret nachgewiesenen fachlichen Abhängigkeit bearbeiten.
+6. Änderungen an `SQL_Server_Lab` bleiben ohne konkrete Fähigkeitslücke und ausdrückliche Freigabe gesperrt.
 
 ## 6. Sicherheits-, Datenschutz- und Quellenstatus
 
