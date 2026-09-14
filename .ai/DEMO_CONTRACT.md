@@ -48,6 +48,16 @@ Jede Demo dokumentiert:
 17. Quellen mit Abrufdatum,
 18. Traceability zu Lernziel, Claim, Demo-ID und Testprofil.
 
+## Schritt-für-Schritt-Anleitung
+
+Jede freigegebene Demo enthält eine für Dritte nachvollziehbare
+Schritt-für-Schritt-Anleitung. Sie steht entweder im Demo-README oder ist von
+dort eindeutig verlinkt. Die Anleitung beschreibt Voraussetzungen, Preflight,
+die auszuführenden Phasen in Reihenfolge, die erwartete Beobachtung samt
+fachlicher Einordnung sowie Cleanup und Recovery nach Abbruch. Sie benennt
+zulässige Abweichungen und darf weder interne Umgebungskenntnisse noch nicht
+mitgelieferte Artefakte voraussetzen.
+
 ## Empfohlener Dateiaufbau
 
 | Datei/Pfad | Zweck |

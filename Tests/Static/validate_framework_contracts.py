@@ -70,6 +70,7 @@ README_SECTIONS = {
     "## 5. Sicherheits- und Abbruchrahmen",
     "## 6. Synthetisches Datenmodell",
     "## 7. Ablauf",
+    "### 7.1 Schritt-für-Schritt-Anleitung",
     "## 8. Erwartete Beobachtung",
     "## 10. Cleanup und Wiederherstellung",
     "## 11. Tests",
