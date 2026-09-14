@@ -27,6 +27,8 @@
 
 | Welle | Status | Evidenzgrenze |
 |---|---|---|
+| `TSK-002` | `DECIDED_PLANNING` | Detailreview [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md) entscheidet den Capstone-Planungsschnitt; daraus folgt kein Implementierungsauftrag und kein Runtimestatus. |
+|---|---|---|
 | `W-STA-001` | `VALIDATED` | Lauf 33222989681 belegt die vollständige Matrix einschließlich der erwarteten empirischen Warnungen. |
 | `W-DGN-001` | `VALIDATED` | Lauf 33222989682 belegt alle zwölf Query-Store-/XE-Pilotläufe mit `PASS/OK`. |
 | `W-SCN-001` | `VALIDATED` | Project Adapter `0.1` und vollständiger SQL-Server-2025-Lifecycle sind auf Docker und Podman praktisch validiert. |
@@ -74,9 +76,12 @@ Query Store/XE-Pilot + Mehrsession-Vertrag validiert -> DGN-007 als eigener Folg
 
 ## 5. Nächster belegpflichtiger Schritt
 
-`LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003`, der
-`CON-006`-bezogene `LABINT-004`-Schnitt sowie die `DGN-005`- und
-`CON-006`-Folgeslices sind abgeschlossen. Der nächste mögliche Schnitt ist ein
-eigenständiges Detailreview zu `DGN-007`; daraus folgt noch kein automatischer
-Implementierungsauftrag. Ressourcen-, Netzwerk-, Hyper-V- und gemischte
-Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
+Das eigenständige Detailreview zu `DGN-007` ist als `TSK-002` mit
+[`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)
+abgeschlossen (`DECIDED_PLANNING`). Es begründet keinen Implementierungsauftrag
+und keinen Runtimestatus. Der nächste zulässige Schritt ist
+Implementierungsschnitt A aus Kapitel 9 des Detailreviews (Adapter-Datenaufbau,
+Query-Store-Fenster und Incident-Erzeugung in einem eigenen Pull Request);
+davor bleibt jede Statusanhebung ohne konkreten Laufnachweis unzulässig.
+Ressourcen-, Netzwerk-, Hyper-V- und gemischte Topologien bleiben ohne konkreten
+fachlichen Bedarf gestoppt.
