@@ -79,6 +79,15 @@ Tabellen, Verteilung, Korrelation, Datenbreite, Seed und Skalierungsparameter we
 
 Fehlende Phasen werden begründet; sie werden nicht stillschweigend ausgelassen.
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+Die Anleitung richtet sich an Dritte ohne Kenntnis der ursprünglichen
+Entwicklungsumgebung. Sie führt durch Preflight, die auszuführenden Phasen,
+die erwartete Beobachtung und deren Einordnung sowie Cleanup und Recovery nach
+Abbruch. Liegt sie außerhalb dieses README, ist ihr kanonischer Pfad hier
+verlinkt. Zulässige Abweichungen und zusätzliche mitgelieferte Artefakte sind
+an der jeweiligen Ausführungsphase benannt.
+
 ## 8. Erwartete Beobachtung
 
 ### 8.1 Baseline
