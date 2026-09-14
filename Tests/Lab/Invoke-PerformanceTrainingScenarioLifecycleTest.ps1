@@ -11,7 +11,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId = 'CON-004',
+    [ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId = 'CON-004',
     [ValidateSet('docker','podman')][string]$Provider = 'docker',
     [SecureString]$SaPassword,
     [string]$SqlServerLabModulePath,
