@@ -3,8 +3,8 @@
 | Merkmal | Wert |
 |---|---|
 | Arbeitspaket | `LABSCN-005` |
-| Status | `ACTIVE_AFTER_CON006_VALIDATION` |
-| Stand | 2026-09-01 |
+| Status | `ACTIVE_AFTER_DGN007_PLANNING_DECISION` |
+| Stand | 2026-09-14 |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Provisionierungsframework | `gecompat/SQL_Server_Lab` |
 | geprüfte Lab-Modulversion | `0.2.0` |
@@ -28,8 +28,9 @@ Runtime-Abnahme.
 Project Adapter `0.1` mit einem praktisch validierten SQL-Server-2025-Lifecycle
 auf Docker und Podman abgeschlossen. `DGN-003` bleibt als automatisiert
 runtimevalidierte Query-Store-Demo bestehen; `DGN-004` ist nicht Bestandteil
-des interaktiven `DGN-005`-Slices. Der nächste mögliche Kandidat ist `DGN-007`,
-jedoch erst nach eigenem Detailreview des vollständigen Capstone-Vertrags.
+des interaktiven `DGN-005`-Slices. Der Capstone `DGN-007` ist als Planungsschnitt
+durch den Detailreview [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)
+(`TSK-002`) entschieden; seine Umsetzung folgt in eigenen Implementierungsschnitten.
 
 ## 2. Bewertungsgrundlage
 
@@ -70,7 +71,7 @@ keine Änderung an `NEXT_DEVELOPMENT_WAVES.md`.
 | 6 | `CON-007`, `CON-008` | ADR, Persisted Version Store und Rollbackvergleich; auf 2025 zusätzlich TID Locks, Lock After Qualification, RCSI-Kontrast und Lockanzahl | 2019–2025; Optimized Locking nur 2025 | Gelb | eine isolierte Instanz, zwei bis drei Sessions | offene Transaktionen abbrechen, Datenbank neu erzeugen, Optionen zurücksetzen | PVS-Wachstum begrenzen und 2025-Skips sowie ADR-/RCSI-Voraussetzungen präzisieren |
 | 7 | `STL-008`, `STL-009` | geplantes gegenüber kleinteiligem Logwachstum, VLF-Struktur, Einzelcommit gegenüber Batch-Commit, Log Flushes und `WRITELOG` | 2019–2025 | Gelb/Rot | wegwerfbare Containerinstanz mit definierten Log-Dateigrößen und Growth-Schritten | Testdatenbank entfernen oder gesamte Instanz verwerfen | VLF-Evidenz von nicht kontrollierbarer Storage-Latenz trennen; keine absoluten Laufzeitzusagen |
 | 8 | `IDX-009`, `IDX-010` | Delta Store, Rowgroups, Delete Bitmap, Load-Qualität und Segment Elimination bei geordneter und ungeordneter Beladung | 2019–2025; erweiterte String-Segment-Elimination ab 2022 | Gelb | `performance`, skalierbare synthetische Datenmenge | Testdatenbank neu erzeugen | Datenmenge, Edition, Ladezeitbudget und relationale Erwartungswerte festlegen |
-| 9 | `DGN-007` | Capstone „Zeitabhängige Regression eines Suchworkloads“ mit Query Store, Plan-, Parameter-, Wait- und XE-Evidenz sowie widerlegbaren Alternativhypothesen | 2019–2025 gemäß finalem Designvertrag | Gelb | eine isolierte `performance`-Instanz | vollständiger Incident-Reset und Rücknahme der Referenzmaßnahme | erst nach validiertem Query-Store-/XE-Pilot aus Rang 1 zulässig |
+| 9 | `DGN-007` | Capstone „Zeitabhängige Regression eines Suchworkloads“ mit Query Store, Plan-, Parameter-, Wait- und XE-Evidenz sowie widerlegbaren Alternativhypothesen | 2019–2025 gemäß finalem Designvertrag | Gelb | eine isolierte `performance`-Instanz | vollständiger Incident-Reset und Rücknahme der Referenzmaßnahme | Planungsschnitt durch `LABSCN_005_DGN_007_DETAIL_REVIEW.md` entschieden; Implementierung folgt in eigenen Schnitten |
 | 10 | `RES-003` | kontrollierter instanzweiter Speicherdruck, wartende Grants, `RESOURCE_SEMAPHORE` und Recovery-Nachweis | 2019–2025 | Rot | dedizierte Wegwerfinstanz, festes Ressourcenprofil, Kill-Switch | vollständiger Infrastrukturabbau | zuletzt und separat; High-Impact-Bestätigung und hartes Laufzeitbudget bleiben Pflicht |
 
 ### 3.1 Zusätzlich priorisierte fachliche Beispielschnitte

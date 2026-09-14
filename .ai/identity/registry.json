@@ -1957,6 +1957,15 @@
       "registration_state": "REGISTERED",
       "relations": [],
       "title": "Demo-Walkthroughs: Schritt-fuer-Schritt-Erklaerungen fuer alle Fachdemos"
+    },
+    "TSK-002": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:0198b3b1-7a2c-7d61-9f0e-4b1c2a8e5d93",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Detailreview LABSCN-005/DGN-007: Capstone-Planungsschnitt mit Incident-, Hypothesen-, Zeitfenster-, Reset- und Teilnehmeruebergabevertrag"
     }
   },
   "prefixes": {

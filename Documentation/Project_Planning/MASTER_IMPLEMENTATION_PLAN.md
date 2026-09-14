@@ -638,8 +638,8 @@ Jede Arbeitsübergabe enthält mindestens:
 | Gate-Status | V0 bis V4 `VALIDATED` |
 | Aussagen- und Curriculumstatus | kanonische Governance bleibt gültig; operative Fortschritte ersetzen nicht die Quellen- und Claim-Reviews |
 | Quellenstatus | Source Register ist die Lehrinhaltsgrundlage; der Delta-Review für relevante SQL-Server-2025-Funktionen ist in `SQL_SERVER_2025_DELTA_REVIEW.md` abgeschlossen |
-| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit 22 vollständigen Inventareinträgen und `LABSCN-004` mit standardisiertem Lifecycle validiert; `CON-004`, `DGN-005` und `CON-006` sind über Project Adapter `0.1` auf Docker und Podman validiert |
-| Aktuelle Priorität | kein bedingungslos freigegebener Implementierungsschnitt; nächster möglicher Kandidat ist ein eigenes Detailreview zu `DGN-007` |
+| Szenariostatus | `LABSCN-001` entschieden; `LABSCN-002` mit 22 vollständigen Inventareinträgen und `LABSCN-004` mit standardisiertem Lifecycle validiert; `CON-004`, `DGN-005` und `CON-006` sind über Project Adapter `0.1` auf Docker und Podman validiert; der Capstone-Planungsschnitt `DGN-007` ist durch `TSK-002` entschieden (`DECIDED_PLANNING`) |
+| Aktuelle Priorität | kein bedingungslos freigegebener Implementierungsschnitt; Detailreview zu `DGN-007` ist mit `LABSCN_005_DGN_007_DETAIL_REVIEW.md` abgeschlossen; Implementierungsschnitt A ist der nächste zulässige, aber noch nicht beauftragte Schnitt |
 | Danach | Weitere evidenzgebundene Szenarien nur in der jeweils freigegebenen Provider-/Versionsmatrix und nach eigener Detailanalyse umsetzen; Infrastruktur erst bei nachgewiesenem Bedarf |
 | Teststatus | statische Verträge und Privacy-/Metadatenprüfung werden je Welle lokal ausgeführt; Runtime-Evidenz und offene Restrisiken stehen in `CURRENT_EXECUTION_STATUS.md` |
 
