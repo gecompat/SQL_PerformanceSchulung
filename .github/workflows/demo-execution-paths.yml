@@ -4,9 +4,13 @@ on:
   pull_request:
     paths:
       - 'Documentation/Demo_Catalog/**'
+      - 'Documentation/HowTo/DEMO_EXECUTION_GUIDE.md'
       - 'Documentation/Inventories/performance_scenario_inventory.json'
+      - 'Demos/README.md'
       - 'Demos/**/manifest.json'
+      - '.ai/DEMO_CONTRACT.md'
       - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Tests/Static/validate_demo_execution_guide.py'
       - 'Tests/Static/validate_demo_execution_paths.py'
       - '.github/workflows/demo-execution-paths.yml'
   push:
@@ -14,9 +18,13 @@ on:
       - main
     paths:
       - 'Documentation/Demo_Catalog/**'
+      - 'Documentation/HowTo/DEMO_EXECUTION_GUIDE.md'
       - 'Documentation/Inventories/performance_scenario_inventory.json'
+      - 'Demos/README.md'
       - 'Demos/**/manifest.json'
+      - '.ai/DEMO_CONTRACT.md'
       - 'Tests/Lab/performance-lab-matrix.json'
+      - 'Tests/Static/validate_demo_execution_guide.py'
       - 'Tests/Static/validate_demo_execution_paths.py'
       - '.github/workflows/demo-execution-paths.yml'
   workflow_dispatch:
@@ -44,6 +52,9 @@ jobs:
 
       - name: Validate demo execution paths
         run: python Tests/Static/validate_demo_execution_paths.py
+
+      - name: Validate demo execution guide
+        run: python Tests/Static/validate_demo_execution_guide.py
 
       - name: Run repository privacy scan
         run: python3 Tests/Static/validate_privacy_metadata.py .

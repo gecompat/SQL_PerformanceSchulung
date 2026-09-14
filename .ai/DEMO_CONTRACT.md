@@ -51,12 +51,19 @@ Jede Demo dokumentiert:
 ## Schritt-für-Schritt-Anleitung
 
 Jede freigegebene Demo enthält eine für Dritte nachvollziehbare
-Schritt-für-Schritt-Anleitung. Sie steht entweder im Demo-README oder ist von
-dort eindeutig verlinkt. Die Anleitung beschreibt Voraussetzungen, Preflight,
-die auszuführenden Phasen in Reihenfolge, die erwartete Beobachtung samt
-fachlicher Einordnung sowie Cleanup und Recovery nach Abbruch. Sie benennt
-zulässige Abweichungen und darf weder interne Umgebungskenntnisse noch nicht
-mitgelieferte Artefakte voraussetzen.
+Schritt-für-Schritt-Anleitung. Sie steht entweder im Demo-README oder in einem
+zentralen, vom Demo-Einstieg eindeutig verlinkten Ausführungsleitfaden, der
+jede freigegebene Demo einzeln aufführt. Die Anleitung beschreibt
+Voraussetzungen, Preflight, die auszuführenden Phasen in Reihenfolge, die
+erwartete Beobachtung samt fachlicher Einordnung sowie Cleanup und Recovery
+nach Abbruch. Sie benennt zulässige Abweichungen und darf weder interne
+Umgebungskenntnisse noch nicht mitgelieferte Artefakte voraussetzen.
+
+Eine fachliche Ablaufbeschreibung ohne konkret ausführbaren Aufruf, bekannte
+Sicherheitsbestätigung und markergebundenen Recovery-Schritt erfüllt diese
+Anforderung nicht. Die statische Validierung prüft für jedes freigegebene
+`manifest.json`, dass dessen Demo-ID im zentralen Ausführungsleitfaden geführt
+wird und der Demo-Einstieg dorthin verweist.
 
 ## Empfohlener Dateiaufbau
 

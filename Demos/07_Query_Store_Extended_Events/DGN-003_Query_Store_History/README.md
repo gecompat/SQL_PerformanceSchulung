@@ -34,6 +34,10 @@ Query Store wird nur in der neu erzeugten Testdatenbank aktiviert und zusammen m
 
 ## 7. Ablauf
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-003` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Query-Store-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+
 Preflight und Setup aktivieren einen begrenzten Query Store. Baseline und Demonstration führen dieselbe Prozedur mit unterschiedlicher Selektivität aus. Observation liest ausschließlich markerbezogene Query-Store-Zeilen; Comparison prüft den Ausführungsvertrag.
 
 ## 8. Erwartete Beobachtung

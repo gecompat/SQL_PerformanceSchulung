@@ -51,6 +51,14 @@ Die Demo ist grün. Sie erzeugt ausschließlich eine markergebundene Testdatenba
 | Comparison | `60_Comparison.sql` | dieselbe Gruppe mit aktualisierter Statistik und identischer Ergebnismenge erneut messen |
 | Cleanup | `90_Cleanup.sql` | Datenbank nach vollständiger Markerprüfung entfernen |
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-015`.
+2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
+3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-015 -Server $server -Authentication $authentication -Username $username` aus.
+4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
+5. Wenn der Lauf abbricht, verwenden Sie ausschließlich das markergebundene Cleanup aus dem zentralen Ausführungsleitfaden; entfernen Sie keine Datenbank manuell anhand ihres Namens.
+
 ## 8. Erwartete Beobachtung
 
 Die Baseline besitzt eine Operator-Kardinalität in derselben Größenordnung wie 10.000 tatsächliche Zeilen. Der Problemzustand liefert 60.000 Zeilen, während die veraltete Statistik die neue Gruppe noch nicht abbildet. Nach dem Fullscan ist der absolute Schätzfehler kleiner, Problem- und Vergleichschecksumme sind identisch und Statistics Usage verweist weiterhin auf die untersuchte Indexstatistik.

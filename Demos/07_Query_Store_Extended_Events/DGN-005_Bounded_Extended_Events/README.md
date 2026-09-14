@@ -33,6 +33,10 @@ Die Testdatenbank enthält nur Eigentumsmarker und aggregierte Ereigniszähler. 
 
 ## 7. Ablauf
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-005` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Extended-Events-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+
 Setup erstellt und startet die begrenzte Session. Demonstration erzeugt zwei synthetische Fehler. Observation zählt passende Ring-Buffer-Ereignisse, Mitigation stoppt die Session und Comparison prüft den Zustand.
 
 ## 8. Erwartete Beobachtung

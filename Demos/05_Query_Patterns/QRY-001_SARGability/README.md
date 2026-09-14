@@ -50,6 +50,10 @@ Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer eigenen mar
 
 ## 7. Ablauf
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+
 | Phase | Datei | Zweck |
 |---|---|---|
 | Preflight | `00_Preflight.sql` | Version, Berechtigungen und kanonische Zielkennung prüfen |

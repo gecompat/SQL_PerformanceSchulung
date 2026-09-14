@@ -43,6 +43,14 @@ Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verte
 6. Mitigation führt ausschließlich eine serielle Gegenprobe mit `MAXDOP 1` aus.
 7. Comparison prüft Ergebnisequivalenz und berichtet das Verhältnis größter zu kleinster positiver Threadarbeit.
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-017`.
+2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `YELLOW`. Bestätigen Sie vor dem Start die isolierte Laborinstanz mit `-ConfirmIsolatedLab`.
+3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-017 -Server $server -Authentication $authentication -Username $username -ConfirmIsolatedLab` aus.
+4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
+5. Wenn der Lauf abbricht, verwenden Sie ausschließlich das markergebundene Cleanup aus dem zentralen Ausführungsleitfaden; entfernen Sie keine Datenbank manuell anhand ihres Namens.
+
 ## 8. Erwartete Beobachtung
 
 Ein geeigneter Host erzeugt Actual DOP mindestens 2, mindestens einen Exchange und Arbeit auf mindestens zwei Threads. Das Skew-Verhältnis wird als Messwert ausgegeben, nicht gegen eine hardwareunabhängige Golden-Schwelle geprüft.

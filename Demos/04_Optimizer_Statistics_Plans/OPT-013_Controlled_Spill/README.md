@@ -51,6 +51,14 @@ Die Demo ist gelb, weil 300.000 breite Zeilen mehrfach sortiert und ein kontroll
 | Comparison | `60_Comparison.sql` | identischen Sort über die Staging-Tabelle ohne Spill prüfen |
 | Cleanup | `90_Cleanup.sql` | markierte Testdatenbank entfernen |
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-013`.
+2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `YELLOW`. Bestätigen Sie vor dem Start die isolierte Laborinstanz mit `-ConfirmIsolatedLab`.
+3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-013 -Server $server -Authentication $authentication -Username $username -ConfirmIsolatedLab` aus.
+4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
+5. Wenn der Lauf abbricht, verwenden Sie ausschließlich das markergebundene Cleanup aus dem zentralen Ausführungsleitfaden; entfernen Sie keine Datenbank manuell anhand ihres Namens.
+
 ## 8. Erwartete Beobachtung
 
 Baseline, Problemzustand und Vergleich liefern denselben Checksum-Wert über 300.000 Zeilen und enthalten einen Sortoperator. Die Baseline besitzt `last_spills = 0`. Der Problemzustand besitzt einen kleineren Grant und `last_spills > 0`. Nach der Materialisierung in einer statistisch sichtbaren Staging-Tabelle besitzt der identische Sort wieder `last_spills = 0`.

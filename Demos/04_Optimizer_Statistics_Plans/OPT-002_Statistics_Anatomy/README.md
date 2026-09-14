@@ -51,6 +51,14 @@ Die Demo ist grün. Sie erzeugt 100.000 synthetische Zeilen und verändert aussc
 | Comparison | `60_Comparison.sql` | vollständigen Stichprobenumfang und exakte Hot-Key-Frequenz prüfen |
 | Cleanup | `90_Cleanup.sql` | markierte Testdatenbank entfernen |
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-002`.
+2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
+3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-002 -Server $server -Authentication $authentication -Username $username` aus.
+4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
+5. Wenn der Lauf abbricht, verwenden Sie ausschließlich das markergebundene Cleanup aus dem zentralen Ausführungsleitfaden; entfernen Sie keine Datenbank manuell anhand ihres Namens.
+
 ## 8. Erwartete Beobachtung
 
 Vor `FULLSCAN` ist `rows_sampled` kleiner als `rows`. Das Histogramm bezieht sich auf `CategoryId`, nicht auf `RegionId`. Nach `FULLSCAN` entspricht `rows_sampled` der Tabellenzeilenzahl. Da nur 101 verschiedene Kategorien vorhanden sind, wird die häufige Kategorie 1 als Histogrammgrenze mit einer `equal_rows`-Frequenz von 50.000 sichtbar.
