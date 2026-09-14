@@ -24,3 +24,13 @@ Es werden weder Instanzoptionen noch globale Caches verändert. Das markergeprü
 ## Quellen und Traceability
 
 `SRC-005` (`ACTIVE`, Abruf 2026-07-24) trägt Sampling, Header und Histogramm. Demo, Lernziel und Claims sind in der Traceability-Matrix verankert. Am 2026-08-29 liefen SQL Server 2019, 2022 und 2025 lokal in begrenzten Docker-Containern jeweils zweimal mit `PASS/OK`; Cleanup wurde nach jedem Lauf unabhängig geprüft.
+
+## 7. Ablauf
+
+### 7.1 Schritt-für-Schritt-Anleitung
+
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-003`.
+2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
+3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-003 -Server $server -Authentication $authentication -Username $username` aus.
+4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
+5. Wenn der Lauf abbricht, verwenden Sie ausschließlich das markergebundene Cleanup aus dem zentralen Ausführungsleitfaden; entfernen Sie keine Datenbank manuell anhand ihres Namens.

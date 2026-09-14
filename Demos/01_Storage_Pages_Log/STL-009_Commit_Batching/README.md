@@ -10,3 +10,7 @@
 `SRC-033` (`ACTIVE`) trägt Write-ahead Logging und Log Flush. Identische 4.000 Zeilen werden einmal mit Einzelcommits und einmal in einer Transaktion geschrieben. `sys.dm_io_virtual_file_stats` liefert datenbankbezogene Write-Deltas; `sys.dm_os_wait_stats` liefert ausschließlich ein zeitgebundenes, instanzweites `WRITELOG`-Delta. Ergebnisgleichheit ist exakt, die Richtung der Writeanzahl empirisch.
 
 Die Demo setzt keine Delayed-Durability- oder Instanzoption, leert keine Wait-Statistik und behauptet keine absolute Laufzeit. Sie benötigt das gelbe Safety-Gate und markergeprüftes Cleanup. Am 2026-08-29 liefen SQL Server 2019, 2022 und 2025 je zweimal mit `PASS/OK`, ergebnisgleicher Gegenprobe und vollständigem Cleanup.
+
+## Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `STL-009` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. `WRITELOG`-Delta und Ergebnisgleichheit prüfen; nach Abbruch ausschließlich den markergebundenen Cleanup aus dem Leitfaden verwenden.

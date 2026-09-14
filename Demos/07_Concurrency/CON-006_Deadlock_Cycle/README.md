@@ -17,3 +17,7 @@ Die optionale Beobachtung liest nur die vorhandene `system_health`-Ringbuffer-Ev
 ## Safety und Cleanup
 
 Offene Transaktionen sind auf 15 Sekunden begrenzt und werden in jedem CATCH zurückgerollt. Das Szenario benötigt `--confirm-isolated-lab`; Cleanup entfernt nur die vierfach markierte Datenbank. Am 2026-08-29 erzeugten SQL Server 2019, 2022 und 2025 jeweils zweimal genau ein Opfer, einen Survivor, den markergebundenen Deadlock-Graph und eine erfolgreiche geordnete Gegenprobe; Cleanup war jeweils vollständig.
+
+## Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `CON-006` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Genau ein Opfer, der Survivor und die geordnete Gegenprobe sind zu prüfen; nach Abbruch ausschließlich den markergebundenen Cleanup aus dem Leitfaden verwenden.

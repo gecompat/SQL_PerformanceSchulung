@@ -41,6 +41,10 @@ Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `S
 
 ## 7. Ablauf
 
+### 7.1 Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-004` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Die Strategien gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+
 Die Evidenztabelle unterscheidet die drei Strategien über die Werte `CATCHALL`, `RECOMPILE` und `DYNAMIC`:
 
 | Strategie | Objekt | Kennzeichnung |

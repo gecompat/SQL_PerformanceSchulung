@@ -11,3 +11,7 @@
 `LO-M05-04`, `CLM-068` und `ADV-CLM-027` trennen Benutzerobjekte, interne Worktables/Spills und Versionsspeicher. Die Demo misst kumulative Task-Allokations-Deltas für User/Internal Objects sowie einen zeitgebundenen instanzweiten Version-Store-Snapshot. Eine querylokal auf `MAX_GRANT_PERCENT=0.1` begrenzte Sortierung erzeugt die interne Arbeitsstrecke; sie ändert keine Instanzoption. Freigegebene Pages werden nicht fälschlich als nie allokiert interpretiert. Die Demo leitet aus Dateigröße allein keine Ursache ab.
 
 `SRC-029`, `SRC-004` und `SRC-031` sind `ACTIVE`. Instanzweite Dateikonfiguration, Restart, Memory-optimized TempDB Metadata und SQL-Server-2025-Space-Governance sind Nichtziele und bleiben laut Delta-Review `DEFER`. Cleanup entfernt nur die markergebundene Datenbank; temporäre Objekte sind sessionlokal. [Actions-Lauf 33222989644](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989644) validierte die Demo auf SQL Server 2019, 2022 und 2025 jeweils zweimal mit `PASS/OK`.
+
+## Schritt-für-Schritt-Anleitung
+
+Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `CON-009` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Die drei Kostenklassen und ihre Scopes aus der Evidenz prüfen; nach Abbruch ausschließlich den markergebundenen Cleanup aus dem Leitfaden verwenden.

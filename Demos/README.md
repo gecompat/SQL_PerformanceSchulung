@@ -2,6 +2,11 @@
 
 Die Demos sind nach technischen Themenblöcken gegliedert und folgen [`.ai/DEMO_CONTRACT.md`](../.ai/DEMO_CONTRACT.md).
 
+Die konkrete Schritt-für-Schritt-Ausführung aller freigegebenen Demos steht in
+[`Documentation/HowTo/DEMO_EXECUTION_GUIDE.md`](../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md).
+Sie enthält je Demo den tatsächlichen Manifestpfad, die erforderliche
+Sicherheitsbestätigung, die erwarteten Ausgaben sowie Cleanup und Recovery.
+
 | Ordner | Themen |
 |---|---|
 | `00_Framework/` | Preflight, Datengeneratoren, Messung und Cleanup |

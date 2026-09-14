@@ -137,12 +137,19 @@ Der Workflow `.github/workflows/demo-execution-paths.yml` startet keinen SQL Ser
 
 ```bash
 python Tests/Static/validate_demo_execution_paths.py
+python Tests/Static/validate_demo_execution_guide.py
 python3 Tests/Static/validate_privacy_metadata.py .
 ```
 
 Der Validator prüft `Documentation/Demo_Catalog/demo_execution_paths.json` gegen die Stufenleiter aus Abschnitt 13.2 des Masterplans. Geprüft werden die beidseitige Vollständigkeit gegenüber den produktiven Demo-Manifesten, die Zuordnung von Stufe und Ausführungspfad, die Pflicht zur Begründung oberhalb von Stufe 2, der Instanzbedarf gelber und roter Demos sowie die Übereinstimmung von Sicherheitsstufe, Sitzungszahl, Status und Manifestpfad mit `Tests/Lab/performance-lab-matrix.json` und dem Szenarioinventar.
 
 Der Katalog beschreibt den erforderlichen Ausführungspfad. Er provisioniert keine Umgebung.
+
+`validate_demo_execution_guide.py` prüft zusätzlich, dass der zentrale
+Ausführungsleitfaden jede freigegebene Demo mit ihrem tatsächlichen
+Manifestpfad enthält, die Sicherheitsbestätigungen für gelbe und rote Demos
+beschreibt und vom Demo-Einstieg verlinkt wird. Damit bleibt die im
+Demo-Vertrag geforderte Schritt-für-Schritt-Anleitung für neue Demos prüfbar.
 
 ## Aktive Framework-Runtime-Matrix
 
