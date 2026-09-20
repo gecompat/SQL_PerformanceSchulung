@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Geltungsbereich | alle 22 runtimevalidierten Fachdemos mit `manifest.json` |
+| Geltungsbereich | alle implementierten Fachdemos mit `manifest.json` |
 | Ausführung | PowerShell auf einer dedizierten Test- oder Wegwerfinstanz |
 | Ergebnis | strukturierte `SQLPERF_SUMMARY` je Phase und markergeprüftes Cleanup |
 | Ergänzende Erklärung | [`DEMO_WALKTHROUGHS.md`](DEMO_WALKTHROUGHS.md) |
@@ -28,6 +28,7 @@ Wählen Sie eine Demo aus der folgenden Tabelle. Der angegebene Schlüssel wird 
 | [`OPT-017`](../../Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit mindestens vier sichtbaren CPUs |
 | [`QRY-001`](../../Demos/05_Query_Patterns/QRY-001_SARGability/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`QRY-004`](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
+| [`QRY-006`](../../Demos/05_Query_Patterns/QRY-006_NULL_Semantics/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | lokale Docker-Matrix bestanden; Runtime-Gate offen; NULL-Ergebnisvertrag |
 | [`QRY-013`](../../Demos/05_Query_Patterns/QRY-013_Client_Session_Context/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`IDX-006`](../../Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz |
 | [`IDX-010`](../../Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit Ressourcenprofil |
@@ -93,6 +94,7 @@ $demoCatalog = @{
     'OPT-017' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/manifest.json'; Safety = 'YELLOW' }
     'QRY-001' = @{ Manifest = 'Demos/05_Query_Patterns/QRY-001_SARGability/manifest.json'; Safety = 'GREEN' }
     'QRY-004' = @{ Manifest = 'Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/manifest.json'; Safety = 'GREEN' }
+    'QRY-006' = @{ Manifest = 'Demos/05_Query_Patterns/QRY-006_NULL_Semantics/manifest.json'; Safety = 'GREEN' }
     'QRY-013' = @{ Manifest = 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/manifest.json'; Safety = 'GREEN' }
     'IDX-006' = @{ Manifest = 'Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/manifest.json'; Safety = 'YELLOW' }
     'IDX-010' = @{ Manifest = 'Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/manifest.json'; Safety = 'YELLOW' }
@@ -108,7 +110,7 @@ $demoCatalog = @{
 
 function Invoke-SqlPerfDemo {
     param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-013','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
+        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
         [Parameter(Mandatory)][string]$Server,
         [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
         [string]$Username,
@@ -161,7 +163,7 @@ Invoke-SqlPerfDemo -DemoId STL-008 -Server $server -Authentication $authenticati
 
 4. Bei einem selbstsignierten Zertifikat ergänzen Sie beim jeweiligen Aufruf `-TrustServerCertificate`. Diese Einstellung ist ausschließlich für die bereits bestätigte Wegwerfinstanz zulässig.
 
-Das Harness führt die Phasen des jeweiligen `manifest.json` in der festgelegten Reihenfolge aus: `PREFLIGHT`, `SETUP`, `BASELINE`, `DEMONSTRATION`, `OBSERVATION`, `MITIGATION`, `COMPARISON` und `CLEANUP`. Mehrsitzungsdemos führen an Stelle der Demonstration ein Sitzungsmanifest aus; die fachliche Reihenfolge wird dabei über Datenbanksignale gesteuert.
+Das Harness führt die im jeweiligen `manifest.json` festgelegten Phasen in ihrer Reihenfolge sowie `CLEANUP` aus. QRY-006 verwendet bewusst nur `PREFLIGHT`, `SETUP`, `DEMONSTRATION` und `ASSERTION`; Mehrsitzungsdemos führen an Stelle der Demonstration ein Sitzungsmanifest aus.
 
 Ein erfolgreicher Lauf endet mit `SQLPERF_SUMMARY|PASS|OK`. Ein `SKIP_VERSION` bei den in Schritt 1 genannten nicht unterstützten Versionen ist erwartetes Verhalten und erzeugt keinen Datenbankaufbau. `WARN` bedeutet, dass optionale Evidenz eingeschränkt war; lesen Sie in diesem Fall die betreffende Demo-README. Bei `FAIL` ist die angegebene Phase die Ausgangsbasis für die Diagnose. Ein `FAIL_CLEANUP` hat Vorrang und muss vor einem weiteren Lauf behoben werden.
 
@@ -180,7 +182,7 @@ Wenn PowerShell, `sqlcmd` oder der Rechner während eines Laufs beendet wurde, f
 ```powershell
 function Invoke-AbortedSqlPerfDemoCleanup {
     param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-013','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
+        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
         [Parameter(Mandatory)][string]$Server,
         [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
         [string]$Username

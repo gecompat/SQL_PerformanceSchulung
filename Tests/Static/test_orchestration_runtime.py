@@ -4,17 +4,23 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import stat
+import subprocess
 import sys
 import tempfile
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "Demos" / "00_Framework" / "Tools"
 sys.path.insert(0, str(TOOLS))
+sys.path.insert(0, str(ROOT / "Tests" / "Runtime"))
 
+from execution_target import DOCKER, ExecutionTarget  # noqa: E402
 from orchestrate_sessions import run_manifest as run_session_manifest  # noqa: E402
 from run_demo import run_demo  # noqa: E402
+from sqlcmd_process import run_sqlcmd  # noqa: E402
 
 
 FAKE_SQLCMD = r'''#!/usr/bin/env python3
@@ -30,6 +36,9 @@ except (ValueError, IndexError):
     raise SystemExit(2)
 
 name = script.stem.lower()
+if "unicode" in name:
+    print("Prüfung gültig: \ufffd")
+    print("Größe geprüft: \ufffd", file=sys.stderr)
 if "timeout" in name:
     time.sleep(5)
     print("SQLPERF_SUMMARY|PASS|OK")
@@ -255,6 +264,56 @@ def test_harness_yellow_confirmation(base: Path, executable: Path) -> None:
     assert_equal((allowed.outcome, allowed.code), ("PASS", "OK"), "yellow with confirmation")
 
 
+def test_utf8_transport_from_cp1252(base: Path, executable: Path) -> None:
+    """UTF-8-Pipes behalten SQL-Ausgabe und Status trotz cp1252-Ausgangsumgebung."""
+
+    script = write(base / "unicode_pass.sql")
+    environment = {**os.environ, "PYTHONIOENCODING": "cp1252"}
+    result = run_sqlcmd(
+        [sys.executable, str(executable), "-i", str(script)],
+        timeout_seconds=5,
+        environment=environment,
+    )
+    assert_equal(result.returncode, 0, "Python-Shim unter cp1252")
+    assert_equal(result.stdout, "Prüfung gültig: \ufffd\nSQLPERF_SUMMARY|PASS|OK\n", "UTF-8 stdout")
+    assert_equal(result.stderr, "Größe geprüft: \ufffd\n", "UTF-8 stderr")
+    assert_equal(environment["PYTHONIOENCODING"], "cp1252", "Aufruferumgebung bleibt unverändert")
+
+    target = ExecutionTarget(
+        kind=DOCKER,
+        server="synthetic",
+        auth="integrated",
+        username=None,
+        shim=executable,
+        sqlcmd_path=str(executable),
+        container="synthetic",
+    )
+    for demo, expected_exit, summary in (
+        ("unicode_pass", 0, "PASS|OK"),
+        ("unicode_execution_fail", 2, "FAIL|FAIL_EXECUTION"),
+        ("unicode_no_summary", 2, "FAIL|FAIL_CONTRACT"),
+    ):
+        manifest = demo_manifest(base / demo, demo=demo)
+        with patch.dict(os.environ, {"PYTHONIOENCODING": "cp1252"}):
+            child_environment = target.child_environment()
+        result = subprocess.run(
+            [sys.executable, str(TOOLS / "run_demo.py"), str(manifest),
+             *target.connection_arguments(), "--show-output"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="strict",
+            env=child_environment,
+            timeout=10,
+            check=False,
+        )
+        assert_equal(result.returncode, expected_exit, f"Harness-Exit: {demo}")
+        assert_equal(f"SQLPERF_SUMMARY|{summary}" in result.stdout.splitlines(), True, f"Harness-Summary: {demo}")
+        assert_equal("[DEMONSTRATION:stdout] Prüfung gültig: \ufffd" in result.stdout, True, "--show-output stdout")
+        assert_equal("[DEMONSTRATION:stderr] Größe geprüft: \ufffd" in result.stderr, True, "--show-output stderr")
+        assert_equal("CLEANUP: PASS/OK" in result.stdout, True, "Cleanup nach Unicode-Ausgabe")
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="sqlperf-orchestration-") as temporary:
         base = Path(temporary)
@@ -267,6 +326,7 @@ def main() -> int:
         test_harness_preflight_skip(base, executable)
         test_harness_optional_skip(base, executable)
         test_harness_yellow_confirmation(base, executable)
+        test_utf8_transport_from_cp1252(base, executable)
 
     print("orchestration-runtime: PASS")
     return 0

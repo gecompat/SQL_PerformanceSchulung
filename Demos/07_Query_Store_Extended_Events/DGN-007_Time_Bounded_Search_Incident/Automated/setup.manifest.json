@@ -1,0 +1,14 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "DGN-007",
+  "run_token": "AUTO",
+  "safety_level": "YELLOW",
+  "timeout_seconds": 180,
+  "cleanup_timeout_seconds": 60,
+  "phases": [
+    {"id":"PREFLIGHT","kind":"sql","script":"00_Preflight.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":30},
+    {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":90},
+    {"id":"DATA_ASSERTION","kind":"sql","script":"40_Data_Assertion.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":30}
+  ],
+  "cleanup":{"id":"CLEANUP","kind":"sql","script":"90_Cleanup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":60}
+}

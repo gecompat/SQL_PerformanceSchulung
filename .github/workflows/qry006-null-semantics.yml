@@ -1,0 +1,140 @@
+# Each matrix job executes the deterministic QRY-006 result contract twice.
+name: QRY-006 NULL semantics runtime
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-006_NULL_Semantics/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Static/validate_qry006_null_semantics_design.py'
+      - 'Tests/Static/test_qry006_runtime_order.py'
+      - 'Tests/Runtime/run_qry006_null_semantics.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - '.github/workflows/qry006-null-semantics.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-006_NULL_Semantics/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Static/validate_qry006_null_semantics_design.py'
+      - 'Tests/Static/test_qry006_runtime_order.py'
+      - 'Tests/Runtime/run_qry006_null_semantics.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - '.github/workflows/qry006-null-semantics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qry006-null-semantics-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Static QRY-006 contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate QRY-006 contracts
+        run: python Tests/Static/validate_qry006_null_semantics_design.py
+      - name: Validate compatibility and cleanup ordering
+        run: python Tests/Static/test_qry006_runtime_order.py
+      - name: Run repository privacy scan
+        run: python3 Tests/Static/validate_privacy_metadata.py .
+
+  runtime:
+    name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - year: 2019
+            major: 15
+            compatibility_level: 150
+            image: mcr.microsoft.com/mssql/server:2019-latest
+          - year: 2022
+            major: 16
+            compatibility_level: 160
+            image: mcr.microsoft.com/mssql/server:2022-latest
+          - year: 2025
+            major: 17
+            compatibility_level: 170
+            image: mcr.microsoft.com/mssql/server:2025-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Start disposable SQL Server container
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Qry"
+          container="sqlperf-qry006-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          docker pull '${{ matrix.image }}'
+          docker run --name "${container}" --hostname "${container}" \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" \
+            -d '${{ matrix.image }}'
+          for attempt in $(seq 1 90); do
+            if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then exit 0; fi
+            if [ "$(docker inspect -f '{{.State.Running}}' "${container}")" != 'true' ]; then docker logs "${container}" 2>&1 || true; exit 1; fi
+            sleep 2
+          done
+          docker logs "${container}" 2>&1 || true
+          exit 1
+      - name: Verify SQL login readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            if docker exec -e SQLCMDPASSWORD "${SQLPERF_SQL_CONTAINER}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+          exit 1
+      - name: Run QRY-006 twice
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
+          python Tests/Runtime/run_qry006_null_semantics.py \
+            --target docker --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' 2>&1 | tee "${RUNNER_TEMP}/qry006-${{ matrix.major }}.log"
+          exit "${PIPESTATUS[0]}"
+      - name: Upload QRY-006 diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qry006-null-semantics-${{ matrix.year }}-diagnostic
+          path: ${{ runner.temp }}/qry006-${{ matrix.major }}.log
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Show SQL Server logs on failure
+        if: failure()
+        shell: bash
+        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+      - name: Remove SQL Server container
+        if: always()
+        shell: bash
+        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true

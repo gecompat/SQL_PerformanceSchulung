@@ -91,6 +91,8 @@ class ExecutionTarget:
         """Umgebung fuer Kindprozesse, die ueber den Shim verbinden."""
 
         environment = os.environ.copy()
+        # Harness und Shims liefern UTF-8 an die UTF-8-dekodierenden Runner.
+        environment["PYTHONIOENCODING"] = "utf-8"
         if self.kind == DOCKER:
             environment[CONTAINER_VARIABLE] = self.container or ""
         else:
