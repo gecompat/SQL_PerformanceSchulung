@@ -175,6 +175,9 @@ def start_sqlcmd(
     """Start sqlcmd in a separate process group."""
 
     creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
+    child_environment = dict(environment) if environment is not None else os.environ.copy()
+    # Python-Shims schreiben in denselben UTF-8-Kanal, den dieser Prozess dekodiert.
+    child_environment["PYTHONIOENCODING"] = "utf-8"
     return subprocess.Popen(
         list(command),
         stdin=subprocess.DEVNULL,
@@ -183,7 +186,7 @@ def start_sqlcmd(
         text=True,
         encoding="utf-8",
         errors="replace",
-        env=dict(environment) if environment is not None else None,
+        env=child_environment,
         shell=False,
         start_new_session=(os.name != "nt"),
         creationflags=creationflags,

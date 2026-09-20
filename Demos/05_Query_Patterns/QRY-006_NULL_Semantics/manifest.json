@@ -1,0 +1,15 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-006",
+  "run_token": "LOCAL",
+  "safety_level": "GREEN",
+  "timeout_seconds": 120,
+  "cleanup_timeout_seconds": 60,
+  "phases": [
+    {"id": "PREFLIGHT", "kind": "sql", "script": "00_Preflight.sql", "database": "master", "required": true, "require_summary": true},
+    {"id": "SETUP", "kind": "sql", "script": "10_Setup.sql", "database": "master", "required": true, "require_summary": true, "timeout_seconds": 60},
+    {"id": "DEMONSTRATION", "kind": "sql", "script": "30_Demonstration.sql", "database": "target", "required": true, "require_summary": true},
+    {"id": "ASSERTION", "kind": "sql", "script": "40_Result_Assertion.sql", "database": "target", "required": true, "require_summary": true}
+  ],
+  "cleanup": {"id": "CLEANUP", "kind": "sql", "script": "90_Cleanup.sql", "database": "master", "required": true, "require_summary": true, "timeout_seconds": 60}
+}

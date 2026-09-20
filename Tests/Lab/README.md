@@ -209,3 +209,63 @@ offene Grenze zum interaktiven Workflow stehen unter
 - Secrets werden nicht in Katalog, Szenariodefinition oder Report persistiert.
 - Lokaler Lab-State und technische Diagnosen verbleiben außerhalb versionierter Projektpfade.
 - Änderungen in `SQL_Server_Lab` erfolgen nur nach konkretem Szenariobefund und ausdrücklicher Freigabe.
+
+## DGN-007 – statischer Teilnehmerablauf
+
+`Invoke-DGN007StaticParticipantFlowTest.ps1` ist ein gezielter, nicht-promotender
+SQL-Server-2025-Qualitätslauf für die sechs dokumentierten DGN-007-SQL-Stufen.
+Er provisioniert eine frische Docker- oder Podman-Instanz, führt Adapterpreflight,
+Install und Validate aus, verlangt für jede Stufe eine `SQLPERF_SUMMARY|PASS|OK`-
+Zeile und entfernt im `finally` Teilnehmerartefakte, Adapterdatenbank und Lab.
+Er erzeugt keinen interaktiven Szenariovertrag und erweitert weder Inventar noch
+Demo-Laufkatalog.
+
+Die im Harness ausgegebenen `PASS`- und `REMOVED`-Ergebnisse belegen ausschließlich
+den statischen Teilnehmerfluss einschließlich Provider-Cleanup. Sie sind nicht als
+`READY_FOR_USER`-Übergabe zu interpretieren. Für eine interaktive Promotion müssen
+`scenario.json`, Runtime-Manifest, Inventareintrag und die zugehörige Lifecycle- und
+Versionsmatrix separat vorhanden und validiert sein.
+
+```powershell
+./Tests/Lab/Invoke-DGN007StaticParticipantFlowTest.ps1 `
+    -Provider docker `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
+```
+
+Die passende statische Vertragsprüfung ist:
+
+```bash
+python Tests/Static/validate_dgn007_static_participant_flow_harness.py
+python Tests/Static/validate_labscn005_dgn007_slice_b.py
+```
+
+Der zweite Validator ist das Promotion-Readiness-Gate. Er erzwingt den Status
+`IMPLEMENTED_STATIC_SLICE_B`, den 2025-only-Adaptervertrag, die dokumentierte
+2019/2022-Skip-/Cleanup-Grenze und die Abwesenheit von `scenario.json`,
+Runtime-Manifest und Inventareintrag. Er bestätigt keine Szenariopromotion und
+startet keine Runtime.
+
+## DGN-007 – Versions-Gate 2019/2022
+
+`Invoke-DGN007UnsupportedVersionGateTest.ps1` prüft den bewusst auf SQL Server
+2025 begrenzten Adapter auf einer frischen SQL-Server-2019- oder -2022-
+Linux-Instanz. Der Adapterpreflight muss kontrolliert als
+`ADAPTER_UNSUPPORTED_SQL_VERSION` fehlschlagen; ältere Lab-Core-Versionen
+melden denselben abgelehnten Kompatibilitätsfall noch als
+`ADAPTER_UNSUPPORTED_CONTRACT`. Der Harness führt keinen Adapter-Entrypoint
+aus, prüft die Abwesenheit von `SQLPERF_LAB_DGN007_LOCAL` und entfernt das Lab
+im `finally`-Pfad. Er erzeugt keinen Szenariovertrag und erweitert keine
+Lifecycle- oder Runtime-Matrix.
+
+```powershell
+./Tests/Lab/Invoke-DGN007UnsupportedVersionGateTest.ps1 `
+    -Provider docker `
+    -SqlVersion 2022 `
+    -SqlServerLabModulePath ../SQL_Server_Lab/SqlServerLab.psd1
+```
+
+Die passende statische Vertragsprüfung ist:
+
+```bash
+python Tests/Static/validate_dgn007_unsupported_version_gate_harness.py
+```

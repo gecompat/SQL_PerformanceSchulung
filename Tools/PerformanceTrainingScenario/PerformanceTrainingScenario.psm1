@@ -55,6 +55,19 @@ $script:ScenarioDefinitions = @{
         Database = 'SQLPERF_LAB_DGN007_LOCAL'
         SafetyLevel = 'YELLOW'
         StaticSliceContract = 'DESIGNED_SLICE_A'
+        StaticParticipantFlow = @{
+            Status = 'STATIC_PARTICIPANT_FLOW_ONLY'
+            EntryDocument = 'Documentation\HowTo\DGN_007_STATIC_PARTICIPANT_FLOW.md'
+            Phases = @(
+                [ordered]@{ Order = 1; Role = 'PRECHECK'; Phase = 'Vertrag und Voraussetzungen'; Script = 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident\00_Preflight.sql' }
+                [ordered]@{ Order = 2; Role = 'TIME_WINDOWS'; Phase = 'Baseline und Incident-Fenster'; Script = 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident\20_Baseline.sql' }
+                [ordered]@{ Order = 3; Role = 'EVIDENCE'; Phase = 'Gestufte Beobachtung'; Script = 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident\40_Observation.sql' }
+                [ordered]@{ Order = 4; Role = 'HYPOTHESIS'; Phase = 'Hypothesenblatt'; Script = $null }
+                [ordered]@{ Order = 5; Role = 'REFERENCE_CHANGE'; Phase = 'Reversible Referenzänderung'; Script = 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident\50_Mitigation.sql' }
+                [ordered]@{ Order = 6; Role = 'COMPARISON'; Phase = 'Vergleichsfenster'; Script = 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident\60_Comparison.sql' }
+                [ordered]@{ Order = 7; Role = 'RECOVERY'; Phase = 'Lokales Recovery'; Script = 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident\90_Cleanup.sql' }
+            )
+        }
     }
 }
 
@@ -162,7 +175,12 @@ function Get-PerformanceTrainingScenario {
         [ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
         [string]$StateRoot
     )
-    $ids = if ($ScenarioId) { @($ScenarioId) } else { @($script:ScenarioDefinitions.Keys | Sort-Object) }
+    $ids = if ($ScenarioId) {
+        @($ScenarioId)
+    }
+    else {
+        @($script:ScenarioDefinitions.GetEnumerator() | Where-Object { $_.Value.ScenarioPath } | ForEach-Object Key | Sort-Object)
+    }
     foreach ($id in $ids) {
         $definition = Resolve-ScenarioDefinition $id
         $title = $id
@@ -172,14 +190,16 @@ function Get-PerformanceTrainingScenario {
         }
         $statePath = Get-StatePath $id $StateRoot
         $state = if (Test-Path -LiteralPath $statePath) { Get-Content -Raw -LiteralPath $statePath | ConvertFrom-Json } else { $null }
+        $staticFlow = if ($definition.ContainsKey('StaticParticipantFlow')) { $definition.StaticParticipantFlow } else { $null }
         [PSCustomObject]@{
             ScenarioId = $id
             Title = $title
             SafetyLevel = $definition.SafetyLevel
             Providers = @($definition.LabManifests.Keys | Sort-Object)
-            ReadyState = if ($definition.ScenarioPath) { 'READY_FOR_USER' } else { $definition.StaticSliceContract }
+            ReadyState = if ($definition.ScenarioPath) { 'READY_FOR_USER' } elseif ($staticFlow) { $staticFlow.Status } else { $definition.StaticSliceContract }
             ActiveState = $state
-            EntryDocument = if ($definition.ScenarioPath) { Join-Path $script:RepositoryRoot $contract.interactive.entryDocument } else { $null }
+            EntryDocument = if ($definition.ScenarioPath) { Join-Path $script:RepositoryRoot $contract.interactive.entryDocument } elseif ($staticFlow) { Join-Path $script:RepositoryRoot $staticFlow.EntryDocument } else { $null }
+            ParticipantPhases = if ($staticFlow) { @($staticFlow.Phases) } else { @() }
         }
     }
 }
@@ -187,7 +207,7 @@ function Get-PerformanceTrainingScenario {
 function Start-PerformanceTrainingScenario {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
+        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
         [Parameter(Mandatory)][ValidateSet('docker','podman')][string]$Provider,
         [Parameter(Mandatory)][SecureString]$SaPassword,
         [string]$SqlServerLabModulePath,
@@ -253,7 +273,7 @@ function Start-PerformanceTrainingScenario {
 function Reset-PerformanceTrainingScenario {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
+        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
         [Parameter(Mandatory)][SecureString]$SaPassword,
         [string]$SqlServerLabModulePath,
         [string]$SqlcmdPath,
@@ -273,7 +293,7 @@ function Reset-PerformanceTrainingScenario {
 function Remove-PerformanceTrainingScenario {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005','DGN-007')][string]$ScenarioId,
+        [Parameter(Mandatory)][ValidateSet('CON-004','CON-006','DGN-005')][string]$ScenarioId,
         [Parameter(Mandatory)][SecureString]$SaPassword,
         [string]$SqlServerLabModulePath,
         [string]$SqlcmdPath,

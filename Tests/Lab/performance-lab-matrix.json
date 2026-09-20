@@ -133,6 +133,20 @@
       "defaultRepetitions": 2
     },
     {
+      "demoId": "QRY-006",
+      "manifest": "Demos/05_Query_Patterns/QRY-006_NULL_Semantics/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": ["docker", "podman"],
+      "versions": ["2019", "2022", "2025"],
+      "resourceProfile": "compact",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE"],
+      "expectedOutcomes": ["PASS"],
+      "defaultRepetitions": 2
+    },
+    {
       "demoId": "QRY-013",
       "manifest": "Demos/05_Query_Patterns/QRY-013_Client_Session_Context/manifest.json",
       "implementationStatus": "VALIDATED",

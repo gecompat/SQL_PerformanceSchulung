@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-09-01 |
+| Stand | 2026-09-19 |
 | Ausgangsstand | Runtimeevidenz bis Pull Request 42; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
@@ -45,6 +45,7 @@
 | `LABINT-003` | `VALIDATED` | Provider-Parität ist für `QRY-001`, `CON-004` und `DGN-005` praktisch belegt. |
 | `LABSCN-005/DGN-005` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `d5143f2a-…` und Podman-Run `82791985-…` führten die Teilnehmerphasen aus und endeten nach Start und Reset vollständig als `REMOVED`. |
 | `LABSCN-005/CON-006` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `76cff6ed-…` und Podman-Run `6d2d0a51-…` belegten Opfer 1205, Survivor, Deadlock-Graph, geordnete Gegenprobe, Reset und `REMOVED`. |
+| `LABSCN-005/DGN-007` | `IMPLEMENTED_STATIC_SLICE_B` | Der nicht-promotende statische Teilnehmerfluss bestand am 2026-09-19 auf SQL Server 2025/Linux mit Docker (`ea802c20-…`) und Podman (`fba84720-…`): Adapter-Preflight, Install/Validate, alle sechs Teilnehmerstufen, Cleanup und Lab-Remove (`PASS`/`REMOVED`). Kontrollierte Negativtests auf Docker mit SQL Server 2019 (`5a12e48a-46df-471a-a266-4646ba3a02e2`) und 2022 (`139c68d8-8a22-42fb-ba19-b51059f21f2b`) ergaben kanonisch `ADAPTER_UNSUPPORTED_SQL_VERSION`, im Lab-Core `ADAPTER_UNSUPPORTED_CONTRACT`, keine DGN-Datenbank und `REMOVED`. Das ist keine 2019/2022-Fachunterstützung und keine Promotion, sondern ausschließlich der erwartete 2025-only-Skip-/Cleanup-Nachweis. Weiterhin keine `READY_FOR_USER`-Übergabe, keine Szenariopromotion und kein Nachweis für `scenario.json`, Manifest, Inventar oder vollständige Lifecycle-/Versionsmatrix. |
 | `LABINT-004/CON-006` | `VALIDATED` | Die vollständige freigegebene Matrix SQL Server 2025 × Docker/Podman ist praktisch belegt und prüft ausschließlich den neuen gelben Slice. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
@@ -85,7 +86,13 @@ seit dem 2026-09-14 die praktische Docker-/Podman-Lifecycle-Abnahme: Docker-Run
 `9ac100f8-f24f-420e-949c-943e35b9bcda` und Podman-Run
 `e06e9ec9-d239-4cd0-b9a7-0050dc574180` bestanden jeweils Start -> `READY_FOR_USER`,
 Reset -> `READY_FOR_USER` und Remove -> `REMOVED` auf SQL Server 2025. Der
-nächste Schritt ist Implementierungsschnitt B (Evidenz, Hypothesen, Mitigation,
-Orchestrierung); die Demo-Runtime-Matrix und der `READY_FOR_USER`-Teilnehmerablauf
-folgen danach. Ressourcen-, Netzwerk-, Hyper-V- und gemischte Topologien bleiben
-ohne konkreten fachlichen Bedarf gestoppt.
+nächste Schritt ist die vollständige Lifecycle-Abnahme dieser Schnitt-B-Fassung
+und eine begrenzte Provider-/Versionsmatrix. Der manuelle Teilnehmerablauf sowie
+die Evidenz-, Hypothesen- und Mitigationsartefakte sind statisch geprüft.
+Frische SQL-Server-2025/Linux-Runs bestanden am 2026-09-19 auf Docker
+(`ea802c20-4820-4007-a441-43a74a89c8fc`) und Podman
+(`fba84720-5f0b-4537-bc98-75bbad37a85b`) Adapter-Install/Validate, alle sechs
+Demo-Stufen, Teilnehmer- und Adapter-Cleanup sowie Lab-Remove. Das belegt die
+aktuelle Linux-Providerparität, ist aber keine Szenariopromotion und keine
+vollständige Lifecycle-/Versionsmatrix. Ressourcen-, Netzwerk-, Hyper-V- und
+gemischte Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
