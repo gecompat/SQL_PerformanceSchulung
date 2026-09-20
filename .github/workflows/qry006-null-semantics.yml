@@ -101,16 +101,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          password="${SQLCMDPASSWORD}"
+          login_ready=0
           for attempt in $(seq 1 30); do
-            if docker exec -e SQLCMDPASSWORD "${SQLPERF_SQL_CONTAINER}" sh -lc '
+            if docker exec -e "SQLCMDPASSWORD=${password}" "${SQLPERF_SQL_CONTAINER}" sh -lc '
               if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
               elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
               else exit 127; fi
               "$sqlcmd" -S localhost -U sa -C -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
-              exit 0
+              login_ready=1
+              break
             fi
             sleep 2
           done
+          if [ "${login_ready}" -eq 1 ]; then exit 0; fi
           docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
           exit 1
       - name: Run QRY-006 twice
