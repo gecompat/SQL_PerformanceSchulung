@@ -17,6 +17,16 @@ Der Registry-Pfad für GitHub Actions ist über die Repository-Variable `ARTIFAC
 - `Repository CI Gates`: Ruleset-ID `21754415`, <https://github.com/gecompat/SQL_PerformanceSchulung/rules/21754415>
 - erforderliche Checks: `registry-integrity` und `repository-governance`, jeweils gebunden an die GitHub-Actions-App-ID `15368`
 
+## CI-Supersession und Bindung der Validierung
+
+`DEC-067` ergänzt die Normalbetriebsregeln um eine konservative Strategie für veraltete Runs. Ein neuer Commit darf einen noch nicht gestarteten Run derselben logischen Änderung vollständig ersetzen. Abgebrochene, ersetzte oder nie gestartete Runs sind keine erfolgreiche Validierung. Für den Merge zählt nur Evidenz zum aktuellen PR-Head gegen den aktuellen Base-Stand beziehungsweise zum exakt definierten und getesteten Integrationskandidaten. Nach einer Änderung an Head oder relevanter Base ist die davon betroffene Evidenz zu erneuern.
+
+Die bestehenden statischen Workflows mit `cancel-in-progress: true` dürfen ihre ersetzten Runs abbrechen: Sie arbeiten auf dem temporären Checkout eines GitHub-gehosteten Runners und erzeugen ausschließlich lokale oder runbezogene Prüfergebnisse. Sie mutieren keine persistenten SQL- oder externen Zielressourcen. Ihre Ergebnisse werden nur dem zugehörigen Commit zugeordnet.
+
+SQL-Runtime-Workflows erzeugen und mutieren Container; ihre Runner sind teilweise über Repository-Variablen konfigurierbar. Die vorhandenen `if: always()`-Cleanup-Schritte belegen keine garantierte Bereinigung nach einer harten Unterbrechung. Deshalb gilt bei diesen Workflows `cancel-in-progress: false` oder keine automatische Cancellation. Die zehn zuvor abbrechbaren Workflows sind `adv008-opt009.yml`, `adv008-opt010.yml`, `adv008-opt015-opt016.yml`, `adv008-qry004.yml`, `adv008-qry013.yml`, `adv017-opt017.yml`, `framework-sql-matrix.yml`, `gate-b-pilots.yml`, `qry006-null-semantics.yml` und `w-cov-001.yml`. Ein bereits laufender Run wird bis zum Ergebnis und regulären Cleanup erhalten. Die bestehenden Concurrency-Gruppen dürfen weiterhin vollständig ersetzte, noch wartende Runs ersetzen.
+
+Eine Integration Queue oder gemeinsame Batch-Validierung wird nicht aktiviert. Eine spätere automatische Cancellation mutierender Validierungen setzt einen dokumentierten, nachweislich idempotenten Cleanup- und Recovery-Vertrag voraus, der auch nach harter Unterbrechung wirksam bleibt. Eine fehlgeschlagene Bereinigung oder unbekannte Runtime-Situation bleibt ein offener Fehler beziehungsweise ungeklärter Zustand und darf nicht in erfolgreiche Evidenz umgedeutet werden. Die Regeln zu `VALIDATION_FAILURE`, `INFRASTRUCTURE_UNAVAILABLE`, `UNKNOWN` und Break-glass gelten unverändert.
+
 ## Zulässige Klassifikation
 
 Ein CI-Bypass ist ausschließlich bei `INFRASTRUCTURE_UNAVAILABLE` zulässig. Dafür muss mindestens eine der folgenden Bedingungen belegt sein:

@@ -911,6 +911,20 @@
       ],
       "title": "Lokale Arbeitsbranches nach dem Merge bereinigen"
     },
+    "DEC-067": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:11ccdb47-458a-4ce5-a640-62c281b222f8",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-065",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Foundation 1.19.0 mit sicheren CI- und Sitzungsvorgaben integrieren"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

@@ -25,7 +25,8 @@ permissions:
 
 concurrency:
   group: adv017-opt017-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # DEC-067: Laufende SQL-Runtime-Validierung bis zum Cleanup erhalten.
+  cancel-in-progress: false
 
 jobs:
   static:
