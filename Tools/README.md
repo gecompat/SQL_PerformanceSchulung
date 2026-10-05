@@ -14,3 +14,28 @@ Ein Werkzeug muss Herkunft, Runtime, Abhängigkeiten, Lizenz, Eingaben, Ausgaben
 
 Jede Deckänderung erneuert die in `Tests/Static/validate_privacy_metadata.py` hinterlegte SHA-256-Freigabe. Sie ist nach `DEC-057` nur zulässig, wenn der neue Wert im selben Schnitt in `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md`, `Documentation/Inventories/SOURCE_MANIFEST.md` und `Documentation/Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md` fortgeschrieben wird.
 
+## Gezielte Diagrammkorrektur
+
+`repair_presentation_diagrams.mjs` erzeugt die im
+[Diagrammreview](../Documentation/Reviews/PRESENTATION_DIAGRAM_REVIEW_2026_10_05.md)
+beschriebenen Bestandskorrekturen aus dem dort bezeichneten Ausgangsdeck.
+Es verwendet Node.js und die extern bereitgestellte Bibliothek
+[JSZip](https://github.com/Stuk/jszip) 3.10.1 unter der MIT-Lizenzoption.
+Die Bibliothek wird nicht im Repository mitgeliefert oder automatisch installiert.
+Der Pfad zu den Runtime-Paketen wird ausdrücklich übergeben.
+
+```powershell
+node Tools/repair_presentation_diagrams.mjs `
+  --node-modules <Runtime-Paketverzeichnis> `
+  --source <Ausgangsdeck.pptx> `
+  --output Runtime/PresentationArrowReview/candidate.pptx
+```
+
+Das Werkzeug liest nur die angegebene Quelle und schreibt nur die angegebene
+Ausgabedatei. Es startet kein PowerPoint und verwendet kein Netzwerk.
+Die Ausgabe ist bei gleicher Quelle byteweise deterministisch. Ein erneuter
+Lauf gegen das bereits korrigierte Deck bricht bei den nicht mehr vorhandenen
+Ausgangsfragmenten ab, bevor eine Datei geschrieben wird. Anschließend sind
+Paketprüfung, PowerPoint-Renderprüfung, Datenschutzprüfung und die
+Präsentationsvalidatoren auszuführen. Das Werkzeug erneuert keine Freigaben.
+

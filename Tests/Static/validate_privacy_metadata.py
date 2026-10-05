@@ -46,7 +46,7 @@ APPROVED_IMMUTABLE_FILES = {
 }
 APPROVED_ACTIVE_DECK = {
     "Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx":
-        "85bd14e4fc91d148889e9ebaa7128f6e1a213366f389aa6e2053f46cc0890ad3",
+        "f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5",
 }
 FORBIDDEN_REFERENCE_EXCEPTIONS = {
     "Tests/Static/validate_w2_007_presentation.py",

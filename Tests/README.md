@@ -1,5 +1,18 @@
 # Tests
 
+## Präsentationsdiagramme
+
+```bash
+python Tests/Static/validate_presentation_diagrams.py
+```
+
+Der Prüfer kontrolliert 13 Diagramme mit Pfeilen, deren geometrische Richtung,
+die zwei Nested-Loops-Eingänge, den separat dargestellten Checkpoint und die
+bewusst gegenläufigen Wartekanten der Blocking Chain. Er prüft außerdem
+ausgewählte fachliche Klarstellungen. Der Workflow `presentation-variants`
+führt ihn bei Deck- und Prüferänderungen aus. Layout, Lesbarkeit und Branding
+benötigen weiterhin eine visuelle PowerPoint-Prüfung.
+
 ## Aktive SQL-Server-unabhängige Prüfungen
 
 Der Workflow `.github/workflows/framework-contracts.yml` ist auf Framework-, Demo-Vertrags- und statische Testpfade begrenzt. Er führt aus:

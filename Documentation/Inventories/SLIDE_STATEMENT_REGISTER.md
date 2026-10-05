@@ -4,8 +4,9 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `85bd14e4fc91d148889e9ebaa7128f6e1a213366f389aa6e2053f46cc0890ad3`
+**SHA-256:** `f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5`
 **Folienumfang:** 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 Vertiefungsfolien aus `ADV-010` und `ADV-011`)  
+**Aktuelle Bestandskorrektur:** [Diagrammreview vom 2026-10-05](../Reviews/PRESENTATION_DIAGRAM_REVIEW_2026_10_05.md)
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
 
@@ -39,7 +40,7 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-014 | 14 | sl/mwgino | Storage | DOCUMENTED | Der Buffer Pool macht logische Reads zur zentralen Messgröße; physische Reads sind ein Teil davon | 2019–2025 | SRC-001 | KEEP | STL-006 |
 | CLM-015 | 15 | sl/nz5lwz | Storage | DOCUMENTED | Logical Reads und Physical Reads sind getrennt zu interpretieren; Cachezustand beeinflusst den Messlauf | 2019–2025 | SRC-001 | KEEP | STL-006 |
 | CLM-016 | 16 | sl/vdvv7n | Storage | DOCUMENTED | Write-ahead logging, Log Flush und Checkpoint erfüllen unterschiedliche Persistenz-/Wiederherstellungsaufgaben | 2019–2025 | SRC-033 | KEEP | STL-007 |
-| CLM-017 | 17 | sl/p8ev2r | Storage | EMPIRICAL | Autogrowth ist Sicherheitsnetz, nicht Kapazitätsplanung; IFI behandelt Daten- und Logwachstum unterschiedlich | 2019–2025; Dienst-/Sicherheitskontext | SRC-003, SRC-034 | KEEP | – |
+| CLM-017 | 17 | sl/p8ev2r | Storage | EMPIRICAL | Autogrowth ist Sicherheitsnetz, nicht Kapazitätsplanung; IFI behandelt Daten- und Logwachstum unterschiedlich | 2019–2025; Log-IFI bis 64 MB ab 2022; Dienst-/Sicherheitskontext | SRC-003, SRC-034 | KEEP | – |
 | CLM-018 | 18 | sl/76l4h4 | Storage | DIDACTIC | Wissenssicherung zu Storage und I/O | – | – | KEEP | – |
 | CLM-019 | 19 | sl/eailr5 | Query Processing | DIDACTIC | Modulnavigation zu Query Processing | – | – | KEEP | – |
 | CLM-020 | 20 | sl/ltnie4 | Query Processing | DOCUMENTED | Eine Abfrage durchläuft Parsing/Binding, Optimierung und Ausführung | 2019–2025 | SRC-001 | KEEP | – |
