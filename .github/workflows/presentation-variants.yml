@@ -8,6 +8,8 @@ on:
       - 'Tools/Set-PresentationCustomShows.ps1'
       - 'Tools/build_presentation_variants_manifest.py'
       - 'Tests/Static/validate_presentation_variants.py'
+      - 'Tests/Static/validate_presentation_diagrams.py'
+      - 'Tools/repair_presentation_diagrams.mjs'
       - '.github/workflows/presentation-variants.yml'
   push:
     branches: [main]
@@ -17,6 +19,8 @@ on:
       - 'Tools/Set-PresentationCustomShows.ps1'
       - 'Tools/build_presentation_variants_manifest.py'
       - 'Tests/Static/validate_presentation_variants.py'
+      - 'Tests/Static/validate_presentation_diagrams.py'
+      - 'Tools/repair_presentation_diagrams.mjs'
       - '.github/workflows/presentation-variants.yml'
 
 jobs:
@@ -28,4 +32,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python Tests/Static/validate_presentation_variants.py
+      - run: python Tests/Static/validate_presentation_diagrams.py
       - run: python Tests/Static/validate_privacy_metadata.py .

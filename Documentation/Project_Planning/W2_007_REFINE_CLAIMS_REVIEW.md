@@ -16,6 +16,13 @@ Der oben eingetragene SHA-256-Wert ist nicht mehr der Wert des Prüfstands vom 2
 
 ## 1. Ziel und Abgrenzung
 
+Aktueller Deckstand nach der ausdrücklich beauftragten Diagrammprüfung vom
+2026-10-05: SHA-256 `f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5`.
+Der historische Prüfstand oben bleibt erhalten. Die Folien 32, 34, 42 und 43
+samt Notes sind weiterhin unverändert. Umfang und Abnahme der gezielten
+Bestandskorrekturen stehen im
+[Diagrammreview](../Reviews/PRESENTATION_DIAGRAM_REVIEW_2026_10_05.md).
+
 `W2-007` schließt die vier in der kritischen Aussagenprüfung verbliebenen `REFINE`-Entscheidungen. Geändert wurden ausschließlich sichtbarer Text, Tabelleninhalte und Speaker Notes der Folien 32, 34, 42 und 43 sowie die dazugehörigen Steuerungsdokumente. Layoutsystem, Folienreihenfolge, Brandingstatus und die übrigen 80 Claims blieben in diesem Arbeitspaket unverändert; die spätere additive Erweiterung erfolgt getrennt unter `ADV-009`.
 
 Die Abnahme bestätigt fachliche Präzision und Präsentationskonsistenz. Sie ersetzt keine noch nicht implementierte Runtime-Demo für `OPT-007`, `QRY-008` oder `QRY-009`. Die Notes der Folie 42 dürfen auf die bereits validierte `OPT-013`-Evidenz verweisen, ohne daraus eine allgemeine Produktgarantie abzuleiten.
