@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.17.2",
+  "source_version": "1.19.0",
+  "source_ref": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
+  "assessments": [
+    {
+      "feature_id": "ci-supersession-and-integration-queue",
+      "candidate_reasons": ["introduced_in:1.18.0"],
+      "classification": "DECISION_REQUIRED",
+      "evidence": [
+        ".ai/REPOSITORY_CONTINUITY.md",
+        ".ai/DECISIONS.md#DEC-067",
+        ".github/workflows/framework-sql-matrix.yml",
+        ".github/workflows/adv008-opt009.yml",
+        "Tests/Static/validate_repository_continuity.py"
+      ],
+      "rationale": "Zehn bestehende SQL-Container-Workflows konnten laufende Validierungen bei neuen Commits abbrechen; konfigurierbare Runner und Cleanup-Schritte ohne Nachweis für harte Unterbrechung widersprechen der neuen Sicherheitsgrenze. Die erforderliche Projektentscheidung wird mit DEC-067 getroffen und umgesetzt: laufende SQL-Runtime-Runs erhalten, nur vollständig ersetzte wartende Runs verwerfen, Evidenz an den aktuellen Head und Base-Stand binden. Strengere Break-glass-Regeln bleiben erhalten.",
+      "recommendation": "Die dokumentierte konservative CI-Strategie beibehalten; abgebrochene oder ersetzte Runs nicht als Validierung verwenden.",
+      "decision_required": "Mit DEC-067 aufgelöst: cancel-in-progress ist für SQL-Container-Runtime-Workflows false oder nicht aktiviert. Keine Integration Queue und keine Änderung der Cleanup-/Recovery-Garantien.",
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "session-lifecycle-management",
+      "candidate_reasons": ["introduced_in:1.19.0"],
+      "classification": "RECOMMENDED",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md#DEC-065",
+        ".ai/DECISIONS.md#DEC-067",
+        ".ai/foundation/ai_work/AI_WORK.md",
+        ".ai/foundation/schemas/session-lifecycle-request.schema.json"
+      ],
+      "rationale": "Das längerfristige KI-gestützte Projekt verwendet bereits die ai-work-Capability und einen Repository-Bootstrap. Die neuen Regeln, drei Schemas, das gekennzeichnete Beispiel und der lokale entscheidungsbasierte Planner sind kompatibel und werden übernommen. Aktuelle Kontextmetriken und eine automatische Nachfolgesitzung werden nicht behauptet. DEC-067 aktiviert weder Projektgrenzwerte noch Runtime-Persistenz oder zusätzliche Chats.",
+      "recommendation": "Bei einer tatsächlich ausgelösten Fortsetzung deterministische verfügbare Metadaten, natürliche Arbeitsgrenzen, das Delta seit dem letzten erfolgreichen Checkpoint und aktuelle Repository-Referenzen verwenden. Die Beispielschwellen nicht als Projektvorgabe übernehmen.",
+      "decision_required": "Erst eine spätere operative Aktivierung benötigt konkrete Projektschwellen, eine Auswahl zulässiger Runtime-Persistenz und gegebenenfalls aktuelle Client-Evidenz sowie Autorisierung für automatische Nachfolgesitzungen. Diese Optionen bleiben gemäß DEC-067 ungewählt.",
+      "selected_capabilities": ["ai-work"]
+    }
+  ]
+}

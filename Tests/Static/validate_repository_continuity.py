@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -78,7 +79,28 @@ def main() -> None:
     )
     require_text(ROOT / ".ai" / "README.md", ("REPOSITORY_CONTINUITY.md",))
     require_text(ROOT / ".ai" / "DECISIONS.md", ("| DEC-063 |",))
-    print("repository-continuity: PASS")
+    require_text(ROOT / ".ai" / "DECISIONS.md", ("| DEC-067 |",))
+    require_text(ROOT / ".ai" / "REPOSITORY_CONTINUITY.md", (
+        "DEC-067", "cancel-in-progress: false", "aktuellen PR-Head",
+        "Abgebrochene, ersetzte oder nie gestartete Runs",
+    ))
+    checked = 0
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        text = path.read_text(encoding="utf-8")
+        if "docker run" not in text:
+            continue
+        checked += 1
+        if unsafe_runtime_cancellation(text):
+            fail(f"{path.name}: automatic SQL-runtime cancellation lacks a hard-interruption recovery contract")
+    if checked == 0:
+        fail("no SQL-container runtime workflows were discovered")
+    print(f"repository-continuity: PASS ({checked} SQL-runtime workflows retain in-progress runs)")
+
+
+def unsafe_runtime_cancellation(text: str) -> bool:
+    """Reject true or dynamic cancellation at workflow or job scope."""
+    values = re.findall(r"^\s*cancel-in-progress:\s*([^\n#]+)", text, re.MULTILINE)
+    return any(value.strip().lower() != "false" for value in values)
 
 
 if __name__ == "__main__":
