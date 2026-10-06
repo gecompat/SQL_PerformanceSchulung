@@ -17,8 +17,11 @@ EXEC sys.sp_executesql @Sql,N'@Project nvarchar(128) OUTPUT,@Contract nvarchar(3
 IF COALESCE(@Project,N'')<>N'SQL_PerformanceSchulung' OR COALESCE(@Contract,N'')<>N'1.0'
     OR COALESCE(@Demo,'')<>'DGN-007' OR COALESCE(@Run,'')<>'LOCAL'
     THROW 51002,'PROJECT_ASSERTION_FAILED: DGN-007-Eigentumsmarker stimmen nicht ueberein.',1;
-IF (SELECT compatibility_level FROM sys.databases WHERE name=@TargetDatabase)<>170
+/* DGN007_COMPATIBILITY_GUARD_BEGIN */
+DECLARE @ActualCompatibility int=(SELECT compatibility_level FROM sys.databases WHERE name=@TargetDatabase);
+IF @ActualCompatibility IS NULL OR @ActualCompatibility<>170
     THROW 51002,'PROJECT_ASSERTION_FAILED: Compatibility Level 170 fehlt.',1;
+/* DGN007_COMPATIBILITY_GUARD_END */
 
 SET @Sql=N'SELECT @QsState=actual_state_desc,@QsCapture=query_capture_mode_desc,@QsInterval=interval_length_minutes,@QsMax=max_storage_size_mb'
     +N' FROM '+QUOTENAME(@TargetDatabase)+N'.sys.database_query_store_options;'

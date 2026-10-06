@@ -140,6 +140,23 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Versionen. Nächster kleiner Schnitt ist der kontrollierte Incidentnachweis
    auf gleicher Parameterlast mit Plan-/Laufzeitprofilevidenz; daraus folgt
    noch keine Regression, Mitigation oder Capstone-Freigabe.
+   Der Compatibility-Vorfix ersetzt im älteren Teilnehmerpfad die ungültige
+   Property-Abfrage durch den Katalogwert und lehnt NULL oder Werte ungleich
+   170 vor der Evidenzausgabe ab. Die Adaptervalidierung besitzt denselben
+   NULL-Schutz. Die Plan- oder Laufzeitprofilbedingung bleibt Folgearbeit.
+   Die acht statischen Compatibility-Tests bestanden. Am 2026-10-06 bestanden
+   zusätzlich acht T-SQL-Guard-Fixtures (170, 160, NULL und fehlende Zeile je
+   SQL-Quelle), die echte Abfrage eines fehlenden Zielnamens sowie die
+   Kontextprojektion mit synthetischen Query-Store-Optionen und echtem
+   `master`-Katalogwert auf SQL Server 2025 Developer `17.0.4075.5`.
+   Aufruf: `python Tests/Static/test_dgn007_compatibility.py --container NAME
+   --confirm-disposable-instance`. Die frische eigene Instanz war vor und
+   nach den lesenden Prüfungen leer und wurde anschließend nach
+   Eigentumsprüfung entfernt; ihre Abwesenheit wurde unabhängig bestätigt.
+   Die ersten Versuche scheiterten an der fehlenden Query-Store-Optionszeile
+   in `master` und zählen nicht als erfolgreiche Evidenz. Der Nachweis gilt
+   nur für Katalogzugriff, Guard- und Projektionsfixtures; er enthält keine
+   echte Compatibility-Änderung und keinen vollständigen Teilnehmerlauf.
 4. Eine weitere `LABINT-004`-Matrixaussage erst aktivieren, wenn ein zusätzlicher gelber Slice samt Safety- und Szenariofreigabe sie benötigt.
 5. Docker-/Podman-Ressourcen-, Netzwerk-, Hyper-V- oder gemischte Topologien nur bei einer konkret nachgewiesenen fachlichen Abhängigkeit bearbeiten.
 6. Änderungen an `SQL_Server_Lab` bleiben ohne konkrete Fähigkeitslücke und ausdrückliche Freigabe gesperrt.

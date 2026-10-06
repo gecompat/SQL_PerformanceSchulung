@@ -16,11 +16,14 @@ RUNNER_TEST = ROOT / "Tests/Static/test_dgn007_automated_setup_runner.py"
 WORKFLOW = ROOT / ".github/workflows/dgn007-automated-setup.yml"
 TRIGGER_PATHS = {
     "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/**",
+    "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql",
+    "Scenarios/DGN-007/adapter/sql/validate.sql",
     "Demos/00_Framework/Tools/**",
     "Tests/Runtime/run_dgn007_automated_setup.py",
     "Tests/Runtime/execution_target.py",
     "Tests/Runtime/docker_sqlcmd_proxy.py",
     "Tests/Static/test_dgn007_automated_setup_runner.py",
+    "Tests/Static/test_dgn007_compatibility.py",
     "Tests/Static/test_orchestration_runtime.py",
     "Tests/Static/validate_dgn007_automated_setup.py",
     "Tests/Static/validate_dgn007_query_store_windows.py",
