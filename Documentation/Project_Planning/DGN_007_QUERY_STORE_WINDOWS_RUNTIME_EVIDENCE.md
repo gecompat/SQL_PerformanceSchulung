@@ -19,8 +19,10 @@ Lifecycle prüft eine unabhängige Abfrage gegen `master` die Abwesenheit der
 eigenen AUTO-Datenbank; die eigenen Container werden danach einschließlich
 anonymer Volumes entfernt und ihre Abwesenheit separat geprüft.
 
-Der Fenstervertrag beginnt nach den vier Datenassertionsrequests. Diese
-werden durch Ausschluss ihres beobachteten aktuellen Intervalls getrennt.
+Der Fenstervertrag beginnt nach den vier Datenassertionsrequests. Vor T0 lässt der Batch
+das nach der Aktivierung beobachtete aktuelle Intervall aus. Capturewerte
+werden ausschließlich aus den anschließend belegten T0-/T1-Intervall-IDs
+übernommen; die früheren Datenassertionsrequests zählen nicht zu diesen Fenstern.
 T0 und T1 belegen zwei unterschiedliche, nicht überlappende tatsächliche
 Query-Store-Katalogintervalle. Je Fenster werden die vier Parameterpaare
 `(8,3)`, `(1,3)`, `(5,3)` und `(1,1)` genau einmal ausgeführt. T0 beginnt mit
@@ -51,23 +53,29 @@ Diese technische Evidenz verändert keine Lehrinhaltsfreigabe.
 
 ## Matrix
 
-| SQL Server | ProductVersion | Engine Major | Compatibility Level | Lifecycles | Ergebnis | Abwesenheitsprüfungen |
+Die finale Korrektur wurde pro Version in der vollständigen CI-Reihenfolge
+geprüft: zweimal Datenmodell, danach zweimal Fenster auf demselben bereinigten
+Container. Die zusätzlichen Datenmodell-Vorläufe bestanden ebenfalls; für
+alle zwölf Lifecycles ist die Datenbankabwesenheit unabhängig bestätigt.
+
+| SQL Server | ProductVersion | Engine Major | Compatibility Level | Fenster-Lifecycles | Ergebnis | Fenster-Abwesenheitsprüfungen |
 |---|---|---:|---:|---:|---|---:|
-| 2019 | `15.0.4480.2` | 15 | 150 | 2 | `PASS/OK` | 2 × bestanden |
+| 2019 | `15.0.4490.9` | 15 | 150 | 2 | `PASS/OK` | 2 × bestanden |
 | 2022 | `16.0.4265.3` | 16 | 160 | 2 | `PASS/OK` | 2 × bestanden |
 | 2025 | `17.0.4075.5` | 17 | 170 | 2 | `PASS/OK` | 2 × bestanden |
 
-Alle sechs finalen Lifecycles bestanden mit dem eingefrorenen Pulsefix. Alle
-selbst erzeugten Container wurden nach Eigentumsprüfung entfernt und ihre
-Abwesenheit unabhängig bestätigt. Verwendet wurden vorhandene Images; kein
-erneuter Pull erfolgte. Die unveränderlichen Digests lauten:
+Alle sechs finalen Fenster-Lifecycles bestanden mit den eingefrorenen dynamischen
+Kontrollqueries. Alle selbst erzeugten Container wurden nach Eigentumsprüfung
+entfernt und ihre Abwesenheit unabhängig bestätigt. Für 2019 wurde der konkrete
+Digest aus dem fehlgeschlagenen CI-Lauf neu geladen, ohne vorhandene Tags
+umzubinden. 2022 und 2025 verwenden vorhandene Images ohne erneuten Pull.
+Die unveränderlichen Digests lauten:
 
 | SQL Server | Image-Digest |
 |---|---|
-| 2019 | `mcr.microsoft.com/mssql/server@sha256:46f719fd3457d4e7e8e5845fe00c35c20e7bae7ff1e8b9fe595f2a81029f5ba8` |
+| 2019 | `mcr.microsoft.com/mssql/server@sha256:ef0b8db33970ecd01bed49c3a84a1d083c435a9891718df619298b67b352e74a` |
 | 2022 | `mcr.microsoft.com/mssql/server@sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89` |
 | 2025 | `mcr.microsoft.com/mssql/server@sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1` |
-
 
 ## Fehlerprüfung und Grenzen
 
@@ -86,6 +94,24 @@ der Probe geprüft. Die tatsächlichen Kataloggrenzen bleiben unverändert. Die
 korrigierte Kontrollquery-/Flush-Fassung wurde separat in der Matrix geprüft.
 Eine Materialisierungswirkung ist eine Inferenz aus der Diagnose, keine
 dokumentierte Garantie einer Intervallrotation durch Flush.
+
+Der erste CI-Lauf am Head `b62eaad`
+([Actions 37530007591](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37530007591))
+bestand auf 2022 und 2025; auf 2019 scheiterte der zweite Fenster-Lifecycle
+erneut am Timeout. Die vorgeschalteten Datenmodellläufe und der Infrastrukturabbau
+bestanden. Eine lokale Wiederholung der vollständigen CI-Reihenfolge
+(zweimal Datenmodell vor zweimal Fenstern) reproduzierte auf 2019 den fehlenden
+aktuellen Intervallkatalog im zweiten Fensterlauf. Die vorher erfolgreiche
+Matrix mit statischem Kontrollquery ist deshalb kein Nachweis der finalen Fassung.
+
+Die finale Korrektur verwendet für beide Kontrollabfragen feste
+`sp_executesql`-Batches mit gebundenem `bigint OUTPUT`. Dokumentiert ist deren
+separate Kompilierung erst beim Aufruf, hier nach Query-Store-Aktivierung:
+[sp_executesql](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17).
+Eine Vorabkompilierung des früheren statischen Queries bleibt eine mögliche
+Erklärung, keine nachgewiesene Kausalursache. Die vollständige Reihenfolge
+mit den zwei vorgeschalteten Datenmodellläufen wurde mit der finalen Fassung
+erneut erfolgreich geprüft.
 
 Die internen Poll- und Phasendeadlines melden strukturiert `FAIL_TIMEOUT` und
 beenden den SQL-Batch; das Framework versucht danach Cleanup. Das reguläre

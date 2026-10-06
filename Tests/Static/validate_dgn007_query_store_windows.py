@@ -103,8 +103,8 @@ SELECT q.query_id FROM sys.query_store_query q JOIN sys.query_store_query_text t
 WHERE q.object_id=@ObjectId
   AND CHARINDEX(N'/* DGN007_CASE_SEARCH */',t.query_sql_text COLLATE Latin1_General_100_BIN2)>0
 """
-POLL_PULSE = """
-SELECT @Pulse=COUNT_BIG(*) FROM dbo.CaseGroup;
+PULSE_CALL = "EXEC sys.sp_executesql N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;', N'@Rows bigint OUTPUT',@Rows=@Pulse OUTPUT;"
+POLL_PULSE = PULSE_CALL + """
 IF @Pulse IS NULL OR @Pulse<>12
 BEGIN
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
@@ -170,7 +170,8 @@ def sql_findings(sql: str) -> list[str]:
     if parent_selection is None or " ".join(parent_selection[1].split()) != " ".join(PARENT_QUERY_SELECTION.split()):
         findings.append("Capture-Scope darf ausschließlich die eigene Suchprozedur mit ihrem exakten Kommentar enthalten")
     # Der Kontrollquery darf keine Suchrequests erzeugen. Exakte Poll-Körper
-    # binden ihn an zwölf Gruppen, eigenen Flush und Deadline vor und nach Probe.
+    # binden den festen separaten Batch mit beiden OUTPUT-Bindungen an zwölf
+    # Gruppen, eigenen Flush und Deadline vor und nach Probe.
     for variable, probe in POLL_CATALOG_PROBES.items():
         label = "INITIAL_INTERVAL" if variable == "PreviousIntervalId" else "NEXT_INTERVAL"
         before = f"IF SYSUTCDATETIME()>=@PollDeadline BEGIN PRINT 'DGN007_WINDOW_TIMEOUT|{label}'; {TIMEOUT_SUMMARY} END;"
@@ -180,6 +181,10 @@ def sql_findings(sql: str) -> list[str]:
         loops = re.findall(rf"WHILE @{variable} IS NULL\s+BEGIN\s+(.*?)\s+WAITFOR DELAY '00:00:01';\s+END;", code, re.DOTALL)
         if len(loops) != 1 or " ".join(loops[0].split()) != " ".join(expected.split()):
             findings.append(f"Poll @{variable} benötigt den exakten isolierten COUNT_BIG-/Flush-/Deadline-Pfad")
+    pulse_calls = tuple(re.finditer(r"\s+".join(re.escape(part) for part in PULSE_CALL.split()), code))
+    setup_position = code.find("ALTER DATABASE [SQLPERF_LAB_DGN007_AUTO] SET QUERY_STORE=ON")
+    if len(pulse_calls) != 2 or setup_position < 0 or any(call.start() <= setup_position for call in pulse_calls):
+        findings.append("Genau zwei feste dynamische Kontrollbatches müssen erst nach dem eigenen Query-Store-Setup ausgeführt werden")
     if len(re.findall(r"\bALTER\s+DATABASE\b", code, re.IGNORECASE)) != 1:
         findings.append("Fensterschnitt darf nur das eigene begrenzte QUERY_STORE-Setup ändern")
     # Nur die fest definierten skalaren Diagnosen zulassen. Zwischen Diagnose und
@@ -251,15 +256,26 @@ def main() -> int:
         loop_start = sql.index(f"WHILE @{variable} IS NULL")
         before, loop_and_after = sql[:loop_start], sql[loop_start:]
         for original, replacement in (
-            ("SELECT @Pulse=COUNT_BIG(*) FROM dbo.CaseGroup;", ""),
+            (PULSE_CALL, ""),
+            (PULSE_CALL, "SELECT @Pulse=COUNT_BIG(*) FROM dbo.CaseGroup;"),
+            (PULSE_CALL, "EXEC dbo.usp_CaseSearch 8,3;"),
+            ("N'@Rows bigint OUTPUT',@Rows=@Pulse OUTPUT", ""),
+            ("N'@Rows bigint OUTPUT'", "N'@Rows bigint'"),
+            ("@Rows=@Pulse OUTPUT", ""),
+            ("@Rows=@Pulse OUTPUT", "@Rows=@Pulse"),
+            ("@Rows=@Pulse OUTPUT", "@Rows=@Unbound OUTPUT"),
+            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "@UnboundSql"),
+            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT COUNT_BIG(*) FROM dbo.CaseGroup;'"),
+            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;' + @UnboundSql"),
+            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup; DELETE FROM dbo.CaseRequestLog;'"),
             ("@Pulse IS NULL OR @Pulse<>12", "@Pulse IS NULL OR @Pulse<>13"),
             ("@Pulse IS NULL OR @Pulse<>12", "@Pulse<>12"),
             ("EXEC sys.sp_query_store_flush_db;", ""),
-            ("SELECT @Pulse=COUNT_BIG(*) FROM dbo.CaseGroup;", "EXEC dbo.usp_CaseSearch 8,3;"),
             ("EXEC sys.sp_query_store_flush_db;", "DELETE FROM dbo.CaseRequestLog; EXEC sys.sp_query_store_flush_db;"),
             ("IF SYSUTCDATETIME()>=@PollDeadline", "IF 1=0"),
         ):
-            mutated = before + loop_and_after.replace(original, replacement, 1)
+            pattern = r"\s+".join(re.escape(part) for part in original.split())
+            mutated = before + re.sub(pattern, lambda match: replacement, loop_and_after, count=1)
             if mutated == sql or not sql_findings(mutated):
                 findings.append(f"Negative Pulse-/Pollkontrolle nicht erkannt: @{variable}: {original}")
     if not sql_findings(sql.replace("AvgCpuUs float NOT NULL", "AvgCpuUs nvarchar(max) NOT NULL")):

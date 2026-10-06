@@ -140,8 +140,12 @@ BEGIN
         PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_TIMEOUT'; RETURN;
     END;
     /* Eigenständiger Kontrollquery: kein Suchrequest, keine Parent-Capture.
+       sp_executesql kompiliert den festen separaten Batch erst beim Aufruf nach
+       Query Store ON (Microsoft Learn sp_executesql). Dass Vorabkompilierung
+       die beobachtete 2019-Abweichung verursachte, bleibt eine Hypothese.
        Ausführung und Flush unterstützen nur Sichtbarkeit, nicht Rotation. */
-    SELECT @Pulse=COUNT_BIG(*) FROM dbo.CaseGroup;
+    EXEC sys.sp_executesql N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;',
+         N'@Rows bigint OUTPUT',@Rows=@Pulse OUTPUT;
     IF @Pulse IS NULL OR @Pulse<>12
     BEGIN
         PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
@@ -188,8 +192,10 @@ BEGIN
             PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_TIMEOUT'; RETURN;
         END;
         /* Nur die zwölf synthetischen Gruppen lesen; usp_CaseSearch und
-           CaseRequestLog bleiben während des Boundary-Polls unverändert. */
-        SELECT @Pulse=COUNT_BIG(*) FROM dbo.CaseGroup;
+           CaseRequestLog bleiben während des Boundary-Polls unverändert.
+           Derselbe feste separate Batch wird erst beim Aufruf kompiliert. */
+        EXEC sys.sp_executesql N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;',
+             N'@Rows bigint OUTPUT',@Rows=@Pulse OUTPUT;
         IF @Pulse IS NULL OR @Pulse<>12
         BEGIN
             PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;

@@ -162,7 +162,9 @@ Intervall aus. Danach führt er je vier Suchrequests in zwei getrennten,
 katalogbelegten Intervallen aus. T0 beginnt mit `(8,3)`, T1 mit `(1,3)`; beide
 enthalten dieselben vier Parameterpaare je einmal. Vor jedem Fenster wird nur
 die eigene markierte Suchprozedur objektbezogen neu kompiliert. Vor jeder Intervallprobe führt der Batch eine separate Kontrollabfrage über
-zwölf synthetische Gruppenzeilen aus; sie verändert keine Suchrequests und bleibt
+zwölf synthetische Gruppenzeilen in einem festen `sp_executesql`-Batch aus.
+Dieser wird erst nach der Query-Store-Aktivierung separat kompiliert. Die
+Kontrollabfrage verändert keine Suchrequests und bleibt
 außerhalb des Parent-/Variant-Scope. Ein Flush unterstützt die Sichtbarkeit
 und ersetzt keinen Intervallwechsel. Polling ist
 auf 90 Sekunden je Grenze und insgesamt 145 Sekunden Phase begrenzt; ein
