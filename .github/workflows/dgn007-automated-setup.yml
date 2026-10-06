@@ -1,5 +1,5 @@
 # Prüft Datenmodell, Query-Store-Fenster und neutralen Profilvergleich ohne Capstone-Freigabe.
-name: DGN-007 Automated Datenmodell, Fenster und Profilvergleich
+name: DGN-007 Automated Datenmodell, Profile und neutrale Kontrollcaptures
 
 on:
   pull_request:
@@ -14,10 +14,12 @@ on:
       - 'Tests/Static/test_dgn007_automated_setup_runner.py'
       - 'Tests/Static/test_dgn007_compatibility.py'
       - 'Tests/Static/test_dgn007_profile_comparison.py'
+      - 'Tests/Static/test_dgn007_control_capture.py'
       - 'Tests/Static/test_orchestration_runtime.py'
       - 'Tests/Static/validate_dgn007_automated_setup.py'
       - 'Tests/Static/validate_dgn007_query_store_windows.py'
       - 'Tests/Static/validate_dgn007_profile_comparison.py'
+      - 'Tests/Static/validate_dgn007_control_capture.py'
       - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tests/Static/validate_sql_container_readiness.py'
       - 'Tests/Static/validate_repository_continuity.py'
@@ -35,10 +37,12 @@ on:
       - 'Tests/Static/test_dgn007_automated_setup_runner.py'
       - 'Tests/Static/test_dgn007_compatibility.py'
       - 'Tests/Static/test_dgn007_profile_comparison.py'
+      - 'Tests/Static/test_dgn007_control_capture.py'
       - 'Tests/Static/test_orchestration_runtime.py'
       - 'Tests/Static/validate_dgn007_automated_setup.py'
       - 'Tests/Static/validate_dgn007_query_store_windows.py'
       - 'Tests/Static/validate_dgn007_profile_comparison.py'
+      - 'Tests/Static/validate_dgn007_control_capture.py'
       - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tests/Static/validate_sql_container_readiness.py'
       - 'Tests/Static/validate_repository_continuity.py'
@@ -77,6 +81,10 @@ jobs:
         run: |
           python Tests/Static/validate_dgn007_profile_comparison.py
           python Tests/Static/test_dgn007_profile_comparison.py
+      - name: Neutrale AB-/BA-/AA-Kontrollcaptures prüfen
+        run: |
+          python Tests/Static/validate_dgn007_control_capture.py
+          python Tests/Static/test_dgn007_control_capture.py
       - name: SQL-Readiness und Kontinuität prüfen
         run: |
           python Tests/Static/validate_sql_container_readiness.py
@@ -88,7 +96,13 @@ jobs:
     name: DGN-007-Datenmodell, Fenster und Profilvergleich SQL Server ${{ matrix.year }}
     needs: static
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 25
+    # Zwölf äußere Lifecycle-/Verify-Budgets (58 min), Runner-Vorprüfungen (12 min),
+    # 2025-Compatibility (5 min), nominale Readiness-Schleifen (6,5 min)
+    # und Pull (600 s + 10 s Abbruch).
+    # 100 min lassen darüber hinaus Actions-/Docker- und own-CID-Cleanup-Puffer;
+    # die regulären 180 s und Cleanup-60 s pro Lifecycle bleiben unverändert.
+    # Docker-/Hostunterbrechungen garantieren keinen Cleanup.
+    timeout-minutes: 100
     strategy:
       fail-fast: false
       matrix:
@@ -114,7 +128,7 @@ jobs:
           echo "SQLPERF_SQL_CIDFILE=${cidfile}" >> "${GITHUB_ENV}"
           export SQLCMDPASSWORD="${password}"
           export MSSQL_SA_PASSWORD="${password}"
-          docker pull '${{ matrix.image }}'
+          timeout --kill-after=10s 600s docker pull '${{ matrix.image }}'
           docker run \
             --name "${container}" \
             --hostname "${container}" \
@@ -173,6 +187,36 @@ jobs:
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
             --scope profile-comparison \
+            --target docker \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
+      - name: Zwei neutrale AB-Kontrollcapture-Lifecycles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_automated_setup.py \
+            --scope control-ab \
+            --target docker \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
+      - name: Zwei neutrale BA-Kontrollcapture-Lifecycles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_automated_setup.py \
+            --scope control-ba \
+            --target docker \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
+      - name: Zwei neutrale AA-Kontrollcapture-Lifecycles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_automated_setup.py \
+            --scope control-aa \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \

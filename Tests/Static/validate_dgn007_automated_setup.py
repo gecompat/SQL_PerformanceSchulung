@@ -25,10 +25,12 @@ TRIGGER_PATHS = {
     "Tests/Static/test_dgn007_automated_setup_runner.py",
     "Tests/Static/test_dgn007_compatibility.py",
     "Tests/Static/test_dgn007_profile_comparison.py",
+    "Tests/Static/test_dgn007_control_capture.py",
     "Tests/Static/test_orchestration_runtime.py",
     "Tests/Static/validate_dgn007_automated_setup.py",
     "Tests/Static/validate_dgn007_query_store_windows.py",
     "Tests/Static/validate_dgn007_profile_comparison.py",
+    "Tests/Static/validate_dgn007_control_capture.py",
     "Tests/Static/validate_privacy_metadata.py",
     "Tests/Static/validate_sql_container_readiness.py",
     "Tests/Static/validate_repository_continuity.py",
@@ -91,18 +93,21 @@ def workflow_findings(text: str) -> list[str]:
             findings.append("Workflow-Push muss auf main begrenzt sein")
     for marker in (
         "  workflow_dispatch:", "  contents: read", "  cancel-in-progress: false",
-        "    needs: static", "      fail-fast: false", "    timeout-minutes: 25",
+        "    needs: static", "      fail-fast: false", "    timeout-minutes: 100",
         "python -m unittest discover -s Tests/Static -p test_dgn007_automated_setup_runner.py",
         "python Tests/Static/test_orchestration_runtime.py",
         "python Tests/Static/validate_dgn007_automated_setup.py",
         "python Tests/Static/validate_dgn007_query_store_windows.py",
         "python Tests/Static/validate_dgn007_profile_comparison.py",
         "python Tests/Static/test_dgn007_profile_comparison.py",
+        "python Tests/Static/validate_dgn007_control_capture.py",
+        "python Tests/Static/test_dgn007_control_capture.py",
         "python Tests/Static/validate_privacy_metadata.py .",
         "python Tests/Static/validate_sql_container_readiness.py",
         "python Tests/Static/validate_repository_continuity.py",
         "python Tests/Runtime/run_dgn007_automated_setup.py", "--target docker",
         "--scope data-model", "--scope query-store-windows", "--scope profile-comparison",
+        "--scope control-ab", "--scope control-ba", "--scope control-aa",
         '--container "${SQLPERF_SQL_CONTAINER}"', "--expected-major '${{ matrix.major }}'",
         "--confirm-disposable-instance --confirm-isolated-lab",
         'container="sqlperf-dgn007-auto-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"',
@@ -141,13 +146,18 @@ def workflow_findings(text: str) -> list[str]:
     if re.search(r"(?:^|\s)(?:-p|--publish|--publish-all|-v|--volume|--mount)(?:=|\s|$)", start):
         findings.append("Datenmodell-Container darf keine Ports oder Volumes freigeben")
     commands = re.findall(r"(?m)^          python Tests/Runtime/run_dgn007_automated_setup.py \\\n((?:            .*\n)+)", text)
-    if len(commands) != 3 or not all(
+    if len(commands) != 6 or not all(
         f"--scope {scope}" in command and '--container "${SQLPERF_SQL_CONTAINER}"' in command
-        for scope, command in zip(("data-model", "query-store-windows", "profile-comparison"), commands)
+        for scope, command in zip(("data-model", "query-store-windows", "profile-comparison", "control-ab", "control-ba", "control-aa"), commands)
     ):
-        findings.append("Datenmodell, Fenster und Profilvergleich müssen in dieser Reihenfolge denselben bereinigten Container verwenden")
+        findings.append("Alle sechs Scopes müssen in der festgelegten Reihenfolge denselben bereinigten Container verwenden")
     if len(re.findall(r"(?m)^          docker run\b", text)) != 1:
         findings.append("Alle Prüfschnitte benötigen genau einen frischen Matrixcontainer")
+    # Tatsächliche ausführbare Pullzeile prüfen, keine kommentierte Markerkopie.
+    pulls = [line.strip() for line in text.splitlines()
+             if not line.lstrip().startswith("#") and re.search(r"\bdocker\s+pull\b", line)]
+    if pulls != ["timeout --kill-after=10s 600s docker pull '${{ matrix.image }}'"]:
+        findings.append("Der einzige Image-Pull benötigt exakt 600 Sekunden plus zehn Sekunden Abbruchgrenze")
     return findings
 
 
@@ -242,6 +252,11 @@ def main() -> int:
             ('docker rm --force --volumes "${container_id}"', 'docker rm --force "${container_id}"'),
             ("--confirm-disposable-instance --confirm-isolated-lab", "--confirm-isolated-lab"),
             ("--target docker", "--target host"),
+            ("timeout-minutes: 100", "timeout-minutes: 85"),
+            ("timeout --kill-after=10s 600s docker pull", "docker pull"),
+            ("timeout --kill-after=10s 600s docker pull", "timeout 600s docker pull"),
+            ("timeout --kill-after=10s 600s docker pull", "timeout --kill-after=10s 1200s docker pull"),
+            ("timeout --kill-after=10s 600s docker pull", "# timeout --kill-after=10s 600s docker pull"),
         )
         for original, replacement in mutations:
             if not workflow_findings(workflow.replace(original, replacement)):
