@@ -93,6 +93,7 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
   - [x] `DGN-007` Schnitt-A-Adapter-Lifecycle auf SQL Server 2025 mit Docker (RunId `9ac100f8-…`) und Podman (RunId `e06e9ec9-…`) praktisch abnehmen: Start und Reset endeten als `READY_FOR_USER`, Remove endete als `REMOVED`.
   - [ ] `DGN-007` Implementierungsschnitt B (Evidenz-, Hypothesen-, Mitigations- und Orchestrierungsschnitte) umsetzen.
   - [ ] `DGN-007` Runtime-Matrix auf SQL Server 2019, 2022 und 2025 je zweimal validieren und anschließend die interaktive Docker-/Podman-Abnahme nachweisen.
+  - [x] Den getrennten `DGN-007_DATA_MODEL`-Vertrag auf Docker für SQL Server 2019/150, 2022/160 und 2025/170 jeweils zweimal praktisch prüfen, mit unabhängiger Datenbankabwesenheit je Lauf; Runner, begrenzter CI-Workflow und [lokaler Nachweis](../Documentation/Project_Planning/DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md) vorhanden. Keine vollständige Capstone- oder Szenariofreigabe.
 - [ ] `LABSCN-006` gemischte Topologien erst für ein fachlich begründetes Beispiel mit nachgewiesenem Bedarf umsetzen.
 - [x] Für jedes produktive Szenario Mindestanforderungen an Hosthardware, Providergrenzen, Versionen und Resetstrategie dokumentieren und statisch gegen den Demo-Katalog absichern.
 - [ ] Zusätzliche Funktionalität in `SQL_Server_Lab` nur nach konkretem Szenariobefund benennen und erst nach ausdrücklicher Freigabe dort umsetzen.

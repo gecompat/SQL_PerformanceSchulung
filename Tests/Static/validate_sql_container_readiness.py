@@ -11,8 +11,11 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 READY_LOG = "SQL Server is now ready for client connections"
 REQUIRED = (
     "login_ready=0",
-    'docker exec -e "SQLCMDPASSWORD=${password}"',
     'SELECT 1;',
+)
+PASSWORD_ENV_FORMS = (
+    'docker exec -e "SQLCMDPASSWORD=${password}"',
+    'docker exec -e SQLCMDPASSWORD ',
 )
 
 
@@ -27,6 +30,8 @@ def main() -> int:
         for marker in REQUIRED:
             if marker not in text:
                 findings.append(f"{path.name}: authenticated readiness marker missing: {marker}")
+        if not any(marker in text for marker in PASSWORD_ENV_FORMS):
+            findings.append(f"{path.name}: authenticated readiness must pass SQLCMDPASSWORD through the environment")
         if re.search(r"grep[^\n]+SQL Server is now ready for client connections[^\n]+&&\s*exit\s+0", text):
             findings.append(f"{path.name}: log readiness must not exit before login verification")
 
