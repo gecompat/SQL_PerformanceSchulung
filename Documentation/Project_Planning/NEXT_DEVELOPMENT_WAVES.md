@@ -47,7 +47,8 @@
 | `LABSCN-005/CON-006` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `76cff6ed-…` und Podman-Run `6d2d0a51-…` belegten Opfer 1205, Survivor, Deadlock-Graph, geordnete Gegenprobe, Reset und `REMOVED`. |
 | `LABSCN-005/DGN-007` | `IMPLEMENTED_STATIC_SLICE_B` | Der nicht-promotende statische Teilnehmerfluss bestand am 2026-09-19 auf SQL Server 2025/Linux mit Docker (`ea802c20-…`) und Podman (`fba84720-…`): Adapter-Preflight, Install/Validate, alle sechs Teilnehmerstufen, Cleanup und Lab-Remove (`PASS`/`REMOVED`). Kontrollierte Negativtests auf Docker mit SQL Server 2019 (`5a12e48a-46df-471a-a266-4646ba3a02e2`) und 2022 (`139c68d8-8a22-42fb-ba19-b51059f21f2b`) ergaben kanonisch `ADAPTER_UNSUPPORTED_SQL_VERSION`, im Lab-Core `ADAPTER_UNSUPPORTED_CONTRACT`, keine DGN-Datenbank und `REMOVED`. Das ist keine 2019/2022-Fachunterstützung und keine Promotion, sondern ausschließlich der erwartete 2025-only-Skip-/Cleanup-Nachweis. Weiterhin keine `READY_FOR_USER`-Übergabe, keine Szenariopromotion und kein Nachweis für `scenario.json`, Manifest, Inventar oder vollständige Lifecycle-/Versionsmatrix. |
 | `LABINT-004/CON-006` | `VALIDATED` | Die vollständige freigegebene Matrix SQL Server 2025 × Docker/Podman ist praktisch belegt und prüft ausschließlich den neuen gelben Slice. |
-| `DGN-007_DATA_MODEL` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; unabhängiger Datenbankabbau und eigene Container entfernt. [Nachweis](DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md). Der neue Runner und CI-Workflow begrenzen sich auf das Datenmodell. |
+| `DGN-007_DATA_MODEL` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; unabhängiger Datenbankabbau und eigene Container entfernt. [Nachweis](DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md). Der Datenmodell-Scope bleibt begrenzt und unverändert als Default. |
+| `DGN-007_QUERY_STORE_WINDOWS` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; zwei disjunkte Katalogintervalle, gleiche Parameterlast, je vier Suchausführungen und unabhängiger Cleanup. [Nachweis](DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md). Runner und CI prüfen diesen Scope getrennt; kein Incident- oder Regressionsnachweis. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
 
@@ -81,9 +82,16 @@ Query Store/XE-Pilot + Mehrsession-Vertrag validiert -> DGN-007 als eigener Folg
 Der eigenständige automatisierte Datenmodellvertrag ist auf Docker für alle
 drei Zielversionen jeweils zweimal praktisch belegt. Seine Prüfungen enthalten
 keine Incident-, Query-Store-, XE-, Hypothesen-, Mitigations- oder interaktive
-Teilnehmerabnahme. Als nächster kleiner Schnitt ist die automatisierte
-Incident- und Zeitfensterevidenz auf diesem Datenmodell abzugrenzen und zu
-implementieren. Danach folgen die vollständige Capstone-Matrix und die
+Teilnehmerabnahme. Der anschließend getrennt implementierte
+`DGN-007_QUERY_STORE_WINDOWS`-Vertrag ist auf allen drei Versionen je zweimal
+praktisch belegt. Er prüft ausschließlich disjunkte T0/T1-Capture-Fenster mit
+gleicher Parameterlast. Als nächster kleiner Schnitt folgt der kontrollierte
+Incidentnachweis samt Plan-/Laufzeitprofilevidenz. Unterschiedliche Parameterlast
+allein ist kein Regressionsnachweis. Im zugehörigen Review sind die ältere
+Compatibility-Prüfung auf `sys.databases` mit NULL-Guard umzustellen und die
+Beobachtungsbedingung auf den Designvertrag (Plan- oder Laufzeitprofilevidenz)
+abzugleichen; der aktuelle Fenster-PR verändert diesen älteren Pfad nicht.
+Danach folgen die vollständige Capstone-Matrix und die
 interaktive Docker-/Podman-Abnahme; deren offene Gates bleiben bestehen.
 
 Der Capstone-Planungsschnitt ist mit `TSK-002` entschieden

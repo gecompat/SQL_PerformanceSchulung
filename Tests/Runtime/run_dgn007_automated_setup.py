@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DGN-007_DATA_MODEL zweimal auf einem expliziten Docker-Ziel prüfen.
+"""Den ausgewählten DGN-007-AUTO-Schnitt zweimal auf einem Docker-Ziel prüfen.
 
 180 Sekunden reguläres Budget und 60 Sekunden Cleanup werden durch FWK-010
 erzwungen. Der äußere Prozessschutz lässt dafür 20 Sekunden Start-/Abbruchzeit.
@@ -45,6 +45,48 @@ SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*
 PHASE = re.compile(r"^([A-Z][A-Z0-9_]*): (PASS|WARN|SKIP|FAIL)/([A-Z][A-Z0-9_]*) \(", re.MULTILINE)
 
 
+@dataclass(frozen=True)
+class RunContract:
+    """Unveränderlicher Scope mit eigenem Manifest und exakter Phasenmetadatenfolge."""
+
+    scope: str
+    manifest: Path
+    phase_specs: tuple[tuple[str, str, str, int], ...]
+
+    @property
+    def expected_phases(self) -> tuple[str, ...]:
+        return tuple(spec[0] for spec in self.phase_specs)
+
+
+DATA_MODEL_CONTRACT = RunContract(
+    scope=SCOPE,
+    manifest=MANIFEST,
+    phase_specs=(
+        ("PREFLIGHT", "00_Preflight.sql", "master", 30),
+        ("SETUP", "10_Setup.sql", "master", 90),
+        ("DATA_ASSERTION", "40_Data_Assertion.sql", "target", 30),
+        ("CLEANUP", "90_Cleanup.sql", "master", 60),
+    ),
+)
+QUERY_STORE_WINDOWS_CONTRACT = RunContract(
+    scope="DGN-007_QUERY_STORE_WINDOWS",
+    manifest=AUTOMATED / "windows.manifest.json",
+    phase_specs=(
+        *DATA_MODEL_CONTRACT.phase_specs[:-1],
+        ("QUERY_STORE_WINDOWS", "20_Query_Store_Windows.sql", "target", 150),
+        DATA_MODEL_CONTRACT.phase_specs[-1],
+    ),
+)
+
+
+def scope_contract(scope: str) -> RunContract:
+    if scope == "data-model":
+        return DATA_MODEL_CONTRACT
+    if scope == "query-store-windows":
+        return QUERY_STORE_WINDOWS_CONTRACT
+    raise ValueError("Unbekannter DGN-007-AUTO-Scope")
+
+
 class RunnerFailure(RuntimeError):
     """Nur ein fest definierter, datenschutzneutraler Fehlercode wird ausgegeben."""
 
@@ -60,21 +102,18 @@ class RunResult:
     code: str = "OK"
 
 
-def validate_manifest() -> None:
+def validate_manifest(*, contract: RunContract = DATA_MODEL_CONTRACT) -> None:
     """Ein geänderter Schnitt benötigt eine bewusste Anpassung des Runners."""
-    manifest = load_manifest(MANIFEST)
+    manifest = load_manifest(contract.manifest)
     phases = (*manifest.phases, manifest.cleanup)
     if (manifest.demo_id != "DGN-007" or manifest.run_token != "AUTO"
             or manifest.safety_level != "YELLOW"
             or manifest.timeout_seconds != 180 or manifest.cleanup_timeout_seconds != 60
             or any(phase is None for phase in phases)):
         raise RunnerFailure("FAIL_CONTRACT")
-    if tuple(phase.phase_id for phase in phases) != EXPECTED_PHASES:
+    if tuple(phase.phase_id for phase in phases) != contract.expected_phases:
         raise RunnerFailure("FAIL_CONTRACT")
-    expected_scripts = ("00_Preflight.sql", "10_Setup.sql", "40_Data_Assertion.sql", "90_Cleanup.sql")
-    for phase, script, selector, timeout in zip(
-        phases, expected_scripts, ("master", "master", "target", "master"), (30, 90, 30, 60)
-    ):
+    for phase, (_, script, selector, timeout) in zip(phases, contract.phase_specs):
         if (phase.kind != "sql" or not phase.required or not phase.require_summary
                 or phase.path != AUTOMATED / script or phase.database_selector != selector
                 or phase.timeout_seconds != timeout):
@@ -122,14 +161,14 @@ def assert_absent(target: ExecutionTarget) -> None:
         raise RunnerFailure("FAIL_CLEANUP")
 
 
-def run_harness(target: ExecutionTarget) -> SqlcmdResult:
-    command = [sys.executable, str(FRAMEWORK / "run_demo.py"), str(MANIFEST),
+def run_harness(target: ExecutionTarget, *, contract: RunContract = DATA_MODEL_CONTRACT) -> SqlcmdResult:
+    command = [sys.executable, str(FRAMEWORK / "run_demo.py"), str(contract.manifest),
                *target.connection_arguments(), "--confirm-isolated-lab"]
     return run_sqlcmd(command, timeout_seconds=HARNESS_TIMEOUT,
                       environment=target.child_environment())
 
 
-def check_harness(result: SqlcmdResult) -> None:
+def check_harness(result: SqlcmdResult, *, contract: RunContract = DATA_MODEL_CONTRACT) -> None:
     combined = "\n".join((result.stdout, result.stderr)).replace("\r\n", "\n")
     phases = PHASE.findall(combined)
     # Cleanup hat Vorrang, auch wenn der Harness einen früheren Fehler aggregiert.
@@ -144,7 +183,7 @@ def check_harness(result: SqlcmdResult) -> None:
     if result.returncode != 0:
         raise RunnerFailure("FAIL_EXECUTION")
     if summaries != [("PASS", "OK")] or phases != [
-        (phase, "PASS", "OK") for phase in EXPECTED_PHASES
+        (phase, "PASS", "OK") for phase in contract.expected_phases
     ]:
         raise RunnerFailure("FAIL_CONTRACT")
 
@@ -164,10 +203,10 @@ def recover(target: ExecutionTarget) -> None:
         raise RunnerFailure("FAIL_CLEANUP")
 
 
-def run_one(target: ExecutionTarget, repetition: int) -> RunResult:
+def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract = DATA_MODEL_CONTRACT) -> RunResult:
     failure: RunnerFailure | None = None
     try:
-        check_harness(run_harness(target))
+        check_harness(run_harness(target, contract=contract), contract=contract)
     except RunnerFailure as exc:
         failure = exc
     except subprocess.TimeoutExpired:
@@ -195,14 +234,15 @@ def run_one(target: ExecutionTarget, repetition: int) -> RunResult:
         cleanup_outcome = "FAIL|FAIL_CLEANUP" if failure and failure.code == "FAIL_CLEANUP" else "PASS|OK"
         print(f"DGN007_CLEANUP|RUN_{repetition}|{cleanup_outcome}")
     if failure:
-        print(f"DGN007_STAGE|{SCOPE}|RUN_{repetition}|FAIL|{failure.code}")
+        print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|FAIL|{failure.code}")
         raise failure
-    print(f"DGN007_STAGE|{SCOPE}|RUN_{repetition}|PASS|OK")
+    print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|PASS|OK")
     return RunResult(repetition)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="DGN-007-Datenmodell zweimal auf einer leeren Docker-Wegwerfinstanz prüfen.")
+    parser = argparse.ArgumentParser(description="Ausgewählten DGN-007-AUTO-Schnitt zweimal auf einer leeren Docker-Wegwerfinstanz prüfen.")
+    parser.add_argument("--scope", choices=("data-model", "query-store-windows"), default="data-model")
     parser.add_argument("--target", choices=(execution_target.DOCKER,), default=execution_target.DOCKER)
     parser.add_argument("--container", required=True)
     parser.add_argument("--expected-major", type=int, choices=(15, 16, 17), required=True)
@@ -215,6 +255,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    contract = scope_contract(args.scope)
     runs = 0
     code = "OK"
     try:
@@ -224,12 +265,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise RunnerFailure("FAIL_CONTRACT")
         if not os.environ.get("SQLCMDPASSWORD"):
             raise RunnerFailure("FAIL_SAFETY")
-        validate_manifest()
+        validate_manifest(contract=contract)
         target = resolve_target(args.container)
         execution_target.verify_engine(target, expected_major=args.expected_major)
         assert_empty_instance(target)
         for repetition in (1, 2):
-            run_one(target, repetition)
+            run_one(target, repetition, contract=contract)
             runs += 1
     except RunnerFailure as exc:
         code = exc.code
@@ -238,7 +279,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (ExecutionTargetError, OSError, ValueError, KeyboardInterrupt):
         code = "FAIL_EXECUTION"
     outcome = "PASS" if code == "OK" and runs == 2 else "FAIL"
-    print(f"DGN007_SUMMARY|{outcome}|{code}|major={args.expected_major}; runs={runs}; target=docker; scope={SCOPE}")
+    print(f"DGN007_SUMMARY|{outcome}|{code}|major={args.expected_major}; runs={runs}; target=docker; scope={contract.scope}")
     return 0 if outcome == "PASS" else 1
 
 
