@@ -87,10 +87,13 @@ Teilnehmerabnahme. Der anschließend getrennt implementierte
 praktisch belegt. Er prüft ausschließlich disjunkte T0/T1-Capture-Fenster mit
 gleicher Parameterlast. Als nächster kleiner Schnitt folgt der kontrollierte
 Incidentnachweis samt Plan-/Laufzeitprofilevidenz. Unterschiedliche Parameterlast
-allein ist kein Regressionsnachweis. Im zugehörigen Review sind die ältere
-Compatibility-Prüfung auf `sys.databases` mit NULL-Guard umzustellen und die
-Beobachtungsbedingung auf den Designvertrag (Plan- oder Laufzeitprofilevidenz)
-abzugleichen; der aktuelle Fenster-PR verändert diesen älteren Pfad nicht.
+allein ist kein Regressionsnachweis. Als begrenzte Voraussetzung verwendet der
+ältere Teilnehmerpfad jetzt `sys.databases.compatibility_level` mit NULL-Guard
+und prüft vor der Evidenzausgabe den bestehenden 2025-/170-Vertrag; auch die
+Adaptervalidierung lehnt fehlende Compatibility-Werte ab. Die
+Beobachtungsbedingung muss weiterhin auf den Designvertrag (Plan- oder
+Laufzeitprofilevidenz) abgeglichen werden. Der Compatibility-Vorfix belegt
+weder den Incident noch eine vollständige Teilnehmerabnahme.
 Danach folgen die vollständige Capstone-Matrix und die
 interaktive Docker-/Podman-Abnahme; deren offene Gates bleiben bestehen.
 

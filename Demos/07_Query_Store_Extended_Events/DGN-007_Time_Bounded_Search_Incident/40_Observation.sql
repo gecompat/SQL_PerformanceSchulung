@@ -2,6 +2,12 @@
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
+/* DGN007_COMPATIBILITY_GUARD_BEGIN */
+DECLARE @ActualCompatibility int=(SELECT compatibility_level FROM sys.databases WHERE database_id=DB_ID());
+IF @ActualCompatibility IS NULL OR @ActualCompatibility<>170
+    THROW 51000, 'FAIL_CONTRACT: Compatibility Level 170 fehlt.', 1;
+/* DGN007_COMPATIBILITY_GUARD_END */
+
 DECLARE @QueryId bigint, @PlanCount int, @RuntimeRows int, @ParentQueryCount int, @EffectiveQueryCount int, @VariantCount int,
         @XeActive bit, @XeRows int = 0, @XeStartedUtc datetimeoffset(7);
 DECLARE @SessionName sysname=N'SQLPERF_DGN007_LOCAL';
@@ -45,7 +51,7 @@ WHERE e.IncidentPhase IN(N'T0_BASELINE',N'T1_INCIDENT')
 ORDER BY s.MarkerUtc,e.QueryId,e.PlanId,e.RuntimeStatsIntervalId;
 
 /* 3 – Kontext: Datenbank- und Cacheattribute ohne Ursachenurteil. */
-SELECT 3 AS EvidenceLevel, N'CONTEXT' AS EvidenceScope, DATABASEPROPERTYEX(DB_NAME(),N'CompatibilityLevel') AS CompatibilityLevel,
+SELECT 3 AS EvidenceLevel, N'CONTEXT' AS EvidenceScope, @ActualCompatibility AS CompatibilityLevel,
        o.actual_state_desc AS QueryStoreState, o.query_capture_mode_desc AS CaptureMode
 FROM sys.database_query_store_options AS o;
 SELECT 3 AS EvidenceLevel, N'CONTEXT' AS EvidenceScope, pa.attribute, CONVERT(nvarchar(128),pa.value) AS AttributeValue

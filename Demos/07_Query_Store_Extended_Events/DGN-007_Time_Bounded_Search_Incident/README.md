@@ -25,6 +25,14 @@ Benötigt werden Rechte auf die markierte Testdatenbank, Query Store und zum Ver
 
 Query-Store-Waits und `MAX_DURATION` für XE werden vor Ort geprüft. PSP, OPPO, Query Store Hints und Plan Forcing sind keine Voraussetzung und werden im Primärfall nicht verwendet.
 
+Der bestehende manuelle Adapterpfad ist auf SQL Server 2025 mit Compatibility
+Level 170 begrenzt. `40_Observation.sql` prüft den aktuellen Katalogwert vor
+der ersten Evidenzausgabe; ein fehlender Wert oder ein anderes Compatibility
+Level führt zu `FAIL_CONTRACT`. Die Adaptervalidierung lehnt dieselbe
+Abweichung als `PROJECT_ASSERTION_FAILED` ab. Die oben genannten drei
+Zielversionen gelten für das Design und die getrennten automatisierten
+Teilschnitte; dieser Vorfix erweitert die Teilnehmerfreigabe nicht.
+
 ## Ablauf
 
 1. Der Adapter bereitet die synthetische Datenbank `SQLPERF_LAB_DGN007_LOCAL` vor. Nur bei passenden vier Eigentumsmarkern ist sie ein zulässiges Ziel.
@@ -69,8 +77,27 @@ T0, T1 und T2 bleiben getrennte Zeitfenster und Query-Store-Intervalle. Die Quer
 
 Die Artefakte wurden nur statisch geprüft. Es bestehen keine Runtime- oder `VALIDATED`-Behauptungen für die fachliche Demo. Die Runtime-Matrix 2019/2022/2025 und die didaktische Generalprobe bleiben offen.
 
+Die begrenzten Compatibility-Gegenproben laufen mit
+`python Tests/Static/test_dgn007_compatibility.py`. Acht Tests prüfen die
+extrahierten Katalogabfragen und Guard-Prädikate einschließlich NULL,
+fehlender oder fremder Katalogzeile und falschem Compatibility Level.
+Mit `--container NAME --confirm-disposable-instance` prüft derselbe Test
+zusätzlich T-SQL-Guard- und Kontextfixtures auf einer leeren Developer-
+Wegwerfinstanz mit SQL Server 2025. Der Compatibility-Wert der
+Kontextprojektion und die fehlende Zielzeile stammen dabei aus dem echten
+Katalog in `master`; die
+Query-Store-Optionen für die Kontextprojektion sind ein synthetisches Fixture,
+da `master` in diesem Lauf keine passende Optionszeile lieferte.
+Das prüft weder eine tatsächliche Änderung des Compatibility Levels noch den
+vollständigen Adapter- oder Teilnehmerablauf. Das Passwort kommt nur aus
+`SQLCMDPASSWORD`; die Testinstanz wird anschließend vom Aufrufer entfernt.
+
 ## Quellen und Traceability
 
 - `SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`, `SRC-035`, `SRC-036`; Abrufdatum gemäß Quellenregister: 2026-07-26.
 - Ergänzend `SRC-040`, `SRC-046`, `SRC-047`, `SRC-051`; die Community-Quelle begründet nur Diagnosemethodik.
 - `ADV-CLM-013` bis `ADV-CLM-015`, `ADV-CLM-034` bis `ADV-CLM-039`; `LO-M07-04`, `LO-M06-08`, `LO-M03-07`.
+- Technische Korrektur der Compatibility-Evidenz, geprüft am 2026-10-06:
+  [sys.databases](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-databases-transact-sql?view=sql-server-ver17) und
+  [DATABASEPROPERTYEX](https://learn.microsoft.com/en-us/sql/t-sql/functions/databasepropertyex-transact-sql?view=sql-server-ver17).
+  Der begrenzte Vorfix erzeugt keine neue Lehrinhaltsfreigabe.
