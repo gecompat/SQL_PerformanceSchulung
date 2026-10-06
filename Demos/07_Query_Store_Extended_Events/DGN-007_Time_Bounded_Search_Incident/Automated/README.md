@@ -1,4 +1,4 @@
-# DGN-007 – Automatisierte Datenmodell-, Fenster- und Profilverträge
+# DGN-007 – Automatisierte Datenmodell-, Fenster-, Profil- und Kontrollverträge
 
 Status Datenmodell: `IMPLEMENTED`; lokale Docker-Matrix am 2026-10-06 auf SQL Server
 2019/150, 2022/160 und 2025/170 jeweils zweimal mit `PASS/OK` bestanden.
@@ -16,6 +16,11 @@ Der zusätzliche `DGN-007_PROFILE_COMPARISON`-Vertrag vergleicht vorhandene
 T0/T1-Capture-Metriken, ohne daraus eine Incidentreproduktion abzuleiten.
 Er bestand am 2026-10-07 auf allen drei Versionen jeweils zweimal; der
 Profilnachweis dokumentiert vollständige Reihenfolge, Messwerte und Cleanup.
+Die neutralen AB-/BA-/AA-Kontrollcaptures bestanden am 2026-10-07 auf allen
+drei Versionen je zweimal. Die vollständige neue Reihenfolge umfasst 36
+erfolgreiche lokale Lifecycles; der
+[Kontrollnachweis](../../../../Documentation/Project_Planning/DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md)
+dokumentiert Metriken, ausgeführte Planmengen und unabhängigen Cleanup.
 
 ## Voraussetzungen und Grenzen
 
@@ -94,8 +99,10 @@ python Tests/Runtime/run_dgn007_automated_setup.py `
 
 Für den Fenstervertrag denselben Aufruf um `--scope query-store-windows`
 ergänzen. Ohne Scope bleibt der bisherige Datenmodellvertrag ausgewählt.
-Für den neutralen Vergleich `--scope profile-comparison` verwenden. Alle
-drei Scopes führen ihr eigenes Manifest jeweils zweimal vollständig aus.
+Für den neutralen Vergleich `--scope profile-comparison` verwenden. Für die
+Kontrollcaptures `--scope control-ab`, `--scope control-ba` oder
+`--scope control-aa` wählen. Jeder der sechs Scopes führt sein eigenes Manifest
+jeweils zweimal vollständig aus.
 Für 2019 und 2022 `--expected-major 15` beziehungsweise `16` verwenden.
 Der Runner akzeptiert ausschließlich Developer-Editionen, leere Instanzen
 und `PASS/OK` in jeder erforderlichen Phase. Bei fehlgeschlagenem Cleanup
@@ -119,6 +126,8 @@ python Demos/00_Framework/Tools/run_demo.py `
 Für den einzelnen Fensterlauf `setup.manifest.json` durch
 `windows.manifest.json` ersetzen.
 Für den einzelnen Profilvergleich `profile-comparison.manifest.json` wählen.
+Für einzelne Kontrollcaptures `control-ab.manifest.json`,
+`control-ba.manifest.json` oder `control-aa.manifest.json` wählen.
 Der normale Runner unterdrückt die SQL-Phasenausgaben. Ein interaktiver
 Manifestlauf kann mit `--show-output` die unten beschriebenen skalaren
 Vergleichsresultsets anzeigen; Rohoutput wird nicht gespeichert.
@@ -158,10 +167,12 @@ python Tests/Static/validate_dgn007_automated_setup.py
 python Tests/Static/validate_dgn007_query_store_windows.py
 python Tests/Static/validate_dgn007_profile_comparison.py
 python Tests/Static/test_dgn007_profile_comparison.py
+python Tests/Static/validate_dgn007_control_capture.py
+python Tests/Static/test_dgn007_control_capture.py
 ```
 
 Der Workflow `.github/workflows/dgn007-automated-setup.yml` prüft diese
-drei begrenzten Verträge auf allen drei Versionen je zweimal, einschließlich
+sechs begrenzten Verträge auf allen drei Versionen je zweimal, einschließlich
 unabhängiger Prüfung des Datenbankabbaus. Er startet frische Docker-Container
 mit vier CPU-Kernen und 8 GB Speicher, ohne veröffentlichte Ports oder
 Host-Volumes. Nach jedem Job entfernt er ausschließlich den eigenen Container
@@ -225,11 +236,58 @@ grenzt lokale Runtime, numerische Fixtures und Cleanup voneinander ab.
 Technische Primärquelle, geprüft am 2026-10-06:
 [Query-Store-Runtime-Stats](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17).
 
+## Neutrale Kontrollcaptures
+
+Die drei eigenständigen Scopes konfigurieren vor der Last die feste Bedingung
+je chronologischem Fenster. A führt `(8,3)`, `(1,3)`, `(5,3)`, `(1,1)` aus;
+B führt `(1,3)`, `(8,3)`, `(5,3)`, `(1,1)` aus. AB weist T0=A und T1=B zu,
+BA weist T0=B und T1=A zu, AA verwendet A in beiden Fenstern. Die chronologischen
+WindowIds und Metrikdeltas bleiben T0 und T1; eine nachträgliche Umbenennung
+zu Baseline und Incident findet nicht statt. Alle Bedingungen besitzen genau
+denselben Vierermix, je vier reguläre Ausführungen und 4.229 Ergebniszeilen.
+
+`CONTROL_CONFIG` verwendet eine der drei festen `15_Control_*.sql`-Dateien
+(fünf Sekunden), `CONTROL_WINDOWS` den eigenen `21_Controlled_Query_Store_Windows.sql`
+(150 Sekunden). Die bestehende `PROFILE_COMPARISON`-Phase bleibt unverändert.
+Danach prüft `CONTROL_EVIDENCE` die tatsächlich protokollierte Aufrufreihenfolge
+und die Bindung der ausgeführten Planmengen an die beiden Profile. Ihr externer
+Schutz beträgt zehn Sekunden, die interne Deadline acht Sekunden. Gesamtbudget
+und unabhängiges Cleanup bleiben 180 und 60 Sekunden. Der bisherige Fensterbatch
+und die bisherigen Manifeste bleiben eigenständige Verträge.
+
+Die zusätzlichen Resultsets zeigen Bedingungen, aktive Parent-/Query-/Plan-IDs,
+Planhashes und die Vereinigungsmenge ausgeführter Plan-IDs. Historische Pläne
+ohne positive reguläre Ausführungen in T0/T1 erweitern diese Menge nicht.
+Ein Plan je Fenster kann dieselbe oder verschiedene Plan-IDs bedeuten; auch
+gleiche Hashes erlauben keinen Schluss auf identische Kosten oder eine Ursache.
+Die skalaren IDs gelten nur innerhalb des jeweiligen Lifecycles. Die Phase
+liest keine Plan-XML-Inhalte und persistiert keine Querytexte oder Pläne.
+
+Jeder Lifecycle beginnt nach geprüftem Cleanup wieder mit einer neuen eigenen
+Datenbank. Ein Kontrollcapture-PASS prüft die Last-, Fenster-, Profil-, Plan-
+und Cleanup-Verträge unabhängig von Richtung und Größe der gemessenen Metriken.
+Die Gegenreihenfolge und AA sind Voraussetzungen eines späteren prospektiv
+definierten Reproduktionsvergleichs. Ein einzelner AA-Vergleich oder zwei
+Wiederholungen quantifizieren keine allgemeine Messunsicherheit.
+
+A und B verändern gemeinsam Erstparameter nach objektbezogenem `sp_recompile`
+und Aufrufreihenfolge. Die Kontrollen isolieren deshalb keine Kompilierungsursache.
+`sp_recompile` bereitet die nächste Ausführung vor; sein Aufruf belegt weder
+den konkreten kompilierten Parameter noch eine ungünstige Kompilierung.
+Primärquellen, geprüft am 2026-10-06:
+[Planmetadaten](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17),
+[sp_recompile](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-recompile-transact-sql?view=sql-server-ver17).
+
 Ein Fenster- oder Vergleichs-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
 Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP wird
 nicht deaktiviert. Als nächster kleiner Schnitt folgt der fachliche
-Incidentnachweis mit kontrollierter Vergleichslast und nachvollziehbarer
-Plan-/Laufzeitprofilevidenz. Danach folgen Requestscope, Alternativhypothesen,
+Incidentnachweis auf Grundlage der Kontrollcaptures und nachvollziehbarer
+Plan-/Laufzeitprofilevidenz. Vor seiner Ausführung sind die Akzeptanzregeln
+festzulegen: gewichtete Statement-Duration als primäre zeitbezogene Metrik,
+CPU und Reads als getrennte ergänzende Befunde, gerichteter B-A-Kontrast unter
+AB und BA sowie dessen begründete Separation gegenüber AA-Variation.
+Dies ist noch kein implementiertes Gate und kein Nachweis von Clientlatenz
+oder statistischer Signifikanz. Danach folgen Requestscope, Alternativhypothesen,
 reversible Mitigation und T2-Vergleich. Szenariopromotion, `READY_FOR_USER`,
 Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an
 `SQL_Server_Lab` bleiben offen.

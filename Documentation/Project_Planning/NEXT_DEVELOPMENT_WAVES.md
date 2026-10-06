@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-10-06 |
+| Stand | 2026-10-07 |
 | Ausgangsstand | Runtimeevidenz bis Pull Request 42; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
@@ -49,6 +49,8 @@
 | `LABINT-004/CON-006` | `VALIDATED` | Die vollständige freigegebene Matrix SQL Server 2025 × Docker/Podman ist praktisch belegt und prüft ausschließlich den neuen gelben Slice. |
 | `DGN-007_DATA_MODEL` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; unabhängiger Datenbankabbau und eigene Container entfernt. [Nachweis](DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md). Der Datenmodell-Scope bleibt begrenzt und unverändert als Default. |
 | `DGN-007_QUERY_STORE_WINDOWS` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; zwei disjunkte Katalogintervalle, gleiche Parameterlast, je vier Suchausführungen und unabhängiger Cleanup. [Nachweis](DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md). Runner und CI prüfen diesen Scope getrennt; kein Incident- oder Regressionsnachweis. |
+| `DGN-007_PROFILE_COMPARISON` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden gewichtete T0/T1-Metrikvergleiche auf allen drei Versionen je zweimal, einschließlich unabhängigem Cleanup. [Nachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md). Ohne Richtungsgate oder Incidentpromotion. |
+| `DGN-007_CONTROL_AB` / `BA` / `AA` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden alle drei neutralen Kontrollfolgen auf jeder Version je zweimal; vollständige neue Reihenfolge mit 36 Lifecycles und unabhängigem Abbau aller drei eigenen Instanzen. Tatsächliche Requestfolge, aktive Plan-ID-/Hash-Union und Variation im [Nachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md). Ein 2019-BA-Duration-Kontrast liegt innerhalb beobachteter AA-Variation; keine Incidentfreigabe. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
 
@@ -92,8 +94,25 @@ kein Richtungs- oder Mindestplangate. Die NULL-Ratio bei Null-Baseline wurde
 gesondert mit numerischer Fixture geprüft. Lokale Matrix,
 skalare Messwerte und unabhängiger Cleanup stehen im
 [Profilnachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md).
-Als nächster kleiner Schnitt folgt der kontrollierte
-Incidentnachweis samt Plan-/Laufzeitprofilevidenz. Unterschiedliche Parameterlast
+Die zusätzlichen neutralen AB-/BA-/AA-Kontrollcaptures sind auf jeder Version
+je zweimal praktisch belegt. Sie prüfen denselben Vierermix in fester tatsächlicher
+Reihenfolge und unterscheiden ausgeführte Planmengen über beide Fenster.
+AB/BA zeigten zwei aktive Plan-IDs/Hashes, AA dieselbe Plan-ID in beiden Fenstern.
+Die vollständige neue Reihenfolge mit 36 Lifecycles und unabhängigem Cleanup
+steht im [Kontrollnachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md).
+Ein 2019-BA-Duration-Kontrast liegt innerhalb beobachteter AA-Variation;
+positives Vorzeichen allein trägt deshalb keine versionsübergreifende
+Separation. Diese Captures sind explorative Voraussetzungen, keine
+prospektiven Bestätigungsläufe einer Incidentregel. Als nächster kleiner
+Schnitt folgt der kontrollierte Incidentnachweis mit vor frischen Läufen
+festgelegter gewichteter Statement-Duration als primärer zeitbezogener Metrik,
+gerichteten B-A-Kontrasten unter AB/BA und begründeter Separation gegenüber
+AA-Variation. CPU und Reads bleiben getrennte ergänzende Befunde. Keine
+nachträglich ausgewählte Ratio oder statistische Signifikanzbehauptung;
+fehlende tragfähige Evidenz bleibt `SKIP_EVIDENCE_MISSING`.
+Plan- beziehungsweise klar unterscheidbare Runtimeprofile sind zusätzlich
+gegen den Designvertrag zu begründen; Planunterschiede ersetzen kein Symptom
+und isolieren keine Kompilierungsursache. Unterschiedliche Parameterlast
 allein ist kein Regressionsnachweis. Als begrenzte Voraussetzung verwendet der
 ältere Teilnehmerpfad jetzt `sys.databases.compatibility_level` mit NULL-Guard
 und prüft vor der Evidenzausgabe den bestehenden 2025-/170-Vertrag; auch die

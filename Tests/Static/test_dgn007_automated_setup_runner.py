@@ -438,5 +438,96 @@ class ProfileComparisonRunnerTests(unittest.TestCase):
             absent.assert_called_once()
 
 
+class ControlCaptureRunnerTests(unittest.TestCase):
+    CONTRACTS = (runner.CONTROL_AB_CONTRACT, runner.CONTROL_BA_CONTRACT, runner.CONTROL_AA_CONTRACT)
+
+    def test_all_control_contracts_are_immutable_and_have_exact_eight_phases(self):
+        for order, contract in zip(("AB", "BA", "AA"), self.CONTRACTS):
+            with self.subTest(order=order):
+                self.assertIs(runner.scope_contract("control-" + order.lower()), contract)
+                self.assertEqual(contract.scope, "DGN-007_CONTROL_" + order)
+                self.assertEqual(contract.expected_phases,
+                                 ("PREFLIGHT", "SETUP", "DATA_ASSERTION", "CONTROL_CONFIG", "CONTROL_WINDOWS",
+                                  "PROFILE_COMPARISON", "CONTROL_EVIDENCE", "CLEANUP"))
+                with self.assertRaises(FrozenInstanceError):
+                    contract.scope = "OTHER"
+                runner.validate_manifest(contract=contract)
+
+    def test_each_control_manifest_rejects_budget_sequence_and_script_drift(self):
+        for contract in self.CONTRACTS:
+            manifest = runner.load_manifest(contract.manifest)
+            invalid = [replace(manifest, timeout_seconds=181), replace(manifest, cleanup_timeout_seconds=61),
+                       replace(manifest, phases=manifest.phases[:-1]), replace(manifest, phases=manifest.phases[::-1]),
+                       replace(manifest, phases=manifest.phases + (manifest.phases[-1],)), replace(manifest, cleanup=None)]
+            for index in (3, 4, 6):
+                phase = manifest.phases[index]
+                for changed in (replace(phase, timeout_seconds=phase.timeout_seconds + 1),
+                                replace(phase, database_selector="master"), replace(phase, required=False),
+                                replace(phase, path=runner.AUTOMATED / "20_Query_Store_Windows.sql")):
+                    phases = list(manifest.phases)
+                    phases[index] = changed
+                    invalid.append(replace(manifest, phases=tuple(phases)))
+            for changed in invalid:
+                with self.subTest(scope=contract.scope), patch.object(runner, "load_manifest", return_value=changed), \
+                     self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                    runner.validate_manifest(contract=contract)
+
+    def test_control_harness_rejects_missing_duplicate_skip_warn_or_foreign_scope(self):
+        for contract in self.CONTRACTS:
+            runner.check_harness(harness_result(contract=contract), contract=contract)
+            phases = [(phase, "PASS", "OK") for phase in contract.expected_phases]
+            invalid = [phases[:6] + phases[7:], phases + phases[-2:-1], phases[::-1]]
+            for outcome, code in (("SKIP", "SKIP_EVIDENCE_MISSING"), ("WARN", "WARN_EMPIRICAL_VARIANCE")):
+                changed = phases.copy()
+                changed[6] = ("CONTROL_EVIDENCE", outcome, code)
+                invalid.append(changed)
+            invalid.append([(phase, "PASS", "OK") for phase in runner.PROFILE_COMPARISON_CONTRACT.expected_phases])
+            for changed in invalid:
+                with self.subTest(scope=contract.scope), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                    runner.check_harness(harness_result(phases=changed), contract=contract)
+
+    def test_all_controls_dispatch_twice_and_hide_scalar_reports(self):
+        contracts = {str(contract.manifest): contract for contract in self.CONTRACTS}
+
+        def synthetic_result(command, **kwargs):
+            contract = contracts[command[2]]
+            self.assertNotIn("--show-output", command)
+            self.assertEqual(kwargs["timeout_seconds"], 260)
+            result = harness_result(contract=contract)
+            return replace(result, stdout=result.stdout + "\nSYNTHETIC_CONTROL_PLAN_HASH_REPORT")
+
+        with patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+             patch.object(runner, "resolve_target", return_value=target()), \
+             patch.object(runner.execution_target, "verify_engine", return_value=17), \
+             patch.object(runner, "assert_empty_instance"), \
+             patch.object(runner, "run_sqlcmd", side_effect=synthetic_result) as process, \
+             patch.object(runner, "assert_absent") as absent, redirect_stdout(io.StringIO()) as output:
+            for order in ("ab", "ba", "aa"):
+                self.assertEqual(runner.main(CliTests.CONFIRMED + ["--scope", "control-" + order]), 0)
+            self.assertEqual([call.args[0][2] for call in process.call_args_list],
+                             [str(contract.manifest) for contract in self.CONTRACTS for _ in (1, 2)])
+            self.assertEqual(absent.call_count, 6)
+            self.assertNotIn("SYNTHETIC_CONTROL_PLAN_HASH_REPORT", output.getvalue())
+        self.assertEqual(runner.build_parser().parse_args(CliTests.BASE).scope, "data-model")
+
+    def test_control_timeout_skip_and_cleanup_failure_keep_cleanup_priority(self):
+        for contract in self.CONTRACTS:
+            for outcome, code in (("FAIL", "FAIL_TIMEOUT"), ("SKIP", "SKIP_EVIDENCE_MISSING")):
+                result = harness_result(phases=[("CONTROL_WINDOWS", outcome, code), ("CLEANUP", "FAIL", "FAIL_CLEANUP")],
+                                        summary=f"{outcome}|{code}")
+                with self.subTest(scope=contract.scope, code=code), \
+                     patch.object(runner, "run_harness", return_value=result), patch.object(runner, "assert_absent") as absent, \
+                     redirect_stdout(io.StringIO()), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CLEANUP"):
+                    runner.run_one(target(), 1, contract=contract)
+                absent.assert_called_once()
+
+    def test_control_confirmation_is_required_before_target_resolution(self):
+        for order in ("ab", "ba", "aa"):
+            with self.subTest(order=order), patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+                 patch.object(runner, "resolve_target") as resolve, redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(CliTests.BASE + ["--scope", "control-" + order]), 1)
+                resolve.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

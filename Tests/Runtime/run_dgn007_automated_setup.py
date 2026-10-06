@@ -86,6 +86,33 @@ PROFILE_COMPARISON_CONTRACT = RunContract(
         QUERY_STORE_WINDOWS_CONTRACT.phase_specs[-1],
     ),
 )
+CONTROL_AB_CONTRACT = RunContract(
+    scope="DGN-007_CONTROL_AB", manifest=AUTOMATED / "control-ab.manifest.json",
+    phase_specs=(*DATA_MODEL_CONTRACT.phase_specs[:-1],
+                 ("CONTROL_CONFIG", "15_Control_AB.sql", "target", 5),
+                 ("CONTROL_WINDOWS", "21_Controlled_Query_Store_Windows.sql", "target", 150),
+                 ("PROFILE_COMPARISON", "30_Profile_Comparison.sql", "target", 10),
+                 ("CONTROL_EVIDENCE", "35_Control_Evidence.sql", "target", 10),
+                 DATA_MODEL_CONTRACT.phase_specs[-1]),
+)
+CONTROL_BA_CONTRACT = RunContract(
+    scope="DGN-007_CONTROL_BA", manifest=AUTOMATED / "control-ba.manifest.json",
+    phase_specs=(*DATA_MODEL_CONTRACT.phase_specs[:-1],
+                 ("CONTROL_CONFIG", "15_Control_BA.sql", "target", 5),
+                 ("CONTROL_WINDOWS", "21_Controlled_Query_Store_Windows.sql", "target", 150),
+                 ("PROFILE_COMPARISON", "30_Profile_Comparison.sql", "target", 10),
+                 ("CONTROL_EVIDENCE", "35_Control_Evidence.sql", "target", 10),
+                 DATA_MODEL_CONTRACT.phase_specs[-1]),
+)
+CONTROL_AA_CONTRACT = RunContract(
+    scope="DGN-007_CONTROL_AA", manifest=AUTOMATED / "control-aa.manifest.json",
+    phase_specs=(*DATA_MODEL_CONTRACT.phase_specs[:-1],
+                 ("CONTROL_CONFIG", "15_Control_AA.sql", "target", 5),
+                 ("CONTROL_WINDOWS", "21_Controlled_Query_Store_Windows.sql", "target", 150),
+                 ("PROFILE_COMPARISON", "30_Profile_Comparison.sql", "target", 10),
+                 ("CONTROL_EVIDENCE", "35_Control_Evidence.sql", "target", 10),
+                 DATA_MODEL_CONTRACT.phase_specs[-1]),
+)
 
 
 def scope_contract(scope: str) -> RunContract:
@@ -95,6 +122,12 @@ def scope_contract(scope: str) -> RunContract:
         return QUERY_STORE_WINDOWS_CONTRACT
     if scope == "profile-comparison":
         return PROFILE_COMPARISON_CONTRACT
+    if scope == "control-ab":
+        return CONTROL_AB_CONTRACT
+    if scope == "control-ba":
+        return CONTROL_BA_CONTRACT
+    if scope == "control-aa":
+        return CONTROL_AA_CONTRACT
     raise ValueError("Unbekannter DGN-007-AUTO-Scope")
 
 
@@ -253,7 +286,7 @@ def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract =
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Ausgewählten DGN-007-AUTO-Schnitt zweimal auf einer leeren Docker-Wegwerfinstanz prüfen.")
-    parser.add_argument("--scope", choices=("data-model", "query-store-windows", "profile-comparison"), default="data-model")
+    parser.add_argument("--scope", choices=("data-model", "query-store-windows", "profile-comparison", "control-ab", "control-ba", "control-aa"), default="data-model")
     parser.add_argument("--target", choices=(execution_target.DOCKER,), default=execution_target.DOCKER)
     parser.add_argument("--container", required=True)
     parser.add_argument("--expected-major", type=int, choices=(15, 16, 17), required=True)

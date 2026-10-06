@@ -144,9 +144,17 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Abbau aller fünf eigenen Container wurden unabhängig bestätigt. Der
    [Profilnachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md) dokumentiert
    gewichtete CPU-/Duration-/Reads-/Rows-Metriken ohne Incidentpromotion.
-   Nächster kleiner Schnitt ist der kontrollierte Incidentnachweis
-   auf gleicher Parameterlast mit Plan-/Laufzeitprofilevidenz; daraus folgt
-   noch keine Regression, Mitigation oder Capstone-Freigabe.
+   Die anschließend getrennten neutralen AB-/BA-/AA-Kontrollcaptures bestanden
+   am 2026-10-07 auf allen drei Versionen je zweimal. Die vollständige neue
+   Reihenfolge ergab 36 erfolgreiche lokale Lifecycles und unabhängigen Abbau
+   aller drei eigenen Container. Der
+   [Kontrollnachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md) dokumentiert
+   tatsächliche Requestfolge, aktive Plan-ID-/Hash-Union und Metrikvariation.
+   Auf 2019 überlappt eine AA-Schwankung einen BA-Duration-Kontrast.
+   Nächster kleiner Schnitt ist der prospektive kontrollierte Incidentnachweis
+   mit vorher festgelegter Statement-Duration-/Kontrollseparationsregel und
+   Plan-/Laufzeitprofilevidenz. Die bisherigen Captures belegen keine Regression,
+   Ursache, Mitigation oder Capstone-Freigabe.
    Der Compatibility-Vorfix ersetzt im älteren Teilnehmerpfad die ungültige
    Property-Abfrage durch den Katalogwert und lehnt NULL oder Werte ungleich
    170 vor der Evidenzausgabe ab. Die Adaptervalidierung besitzt denselben
