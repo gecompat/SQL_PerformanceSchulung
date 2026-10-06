@@ -1,4 +1,4 @@
-# DGN-007 – Automatisierte Datenmodell- und Fensterverträge
+# DGN-007 – Automatisierte Datenmodell-, Fenster- und Profilverträge
 
 Status Datenmodell: `IMPLEMENTED`; lokale Docker-Matrix am 2026-10-06 auf SQL Server
 2019/150, 2022/160 und 2025/170 jeweils zweimal mit `PASS/OK` bestanden.
@@ -12,6 +12,10 @@ Query-Store-Capture-Evidenz für zwei disjunkte T0/T1-Intervalle.
 Auch dieser Schnitt bestand am 2026-10-06 auf allen drei Versionen je zweimal.
 Sein Runtime-Status steht im [Fensternachweis](../../../../Documentation/Project_Planning/DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md).
 Ein `PASS` gilt ausschließlich für den jeweils ausgewählten Vertrag.
+Der zusätzliche `DGN-007_PROFILE_COMPARISON`-Vertrag vergleicht vorhandene
+T0/T1-Capture-Metriken, ohne daraus eine Incidentreproduktion abzuleiten.
+Er bestand am 2026-10-07 auf allen drei Versionen jeweils zweimal; der
+Profilnachweis dokumentiert vollständige Reihenfolge, Messwerte und Cleanup.
 
 ## Voraussetzungen und Grenzen
 
@@ -69,6 +73,10 @@ dem unveränderten Cleanup. Das gemeinsame reguläre Budget bleibt 180 Sekunden.
 kein freigegebenes Demo-`manifest.json` im Laufkatalog. Der 2025-Adapter und der
 statische Teilnehmerpfad verwenden weiterhin den eigenen Run-Token `LOCAL`.
 Dieser Test verwendet ausschließlich `AUTO`; es gibt keine `:r`-Abhängigkeit.
+Das zusätzliche `profile-comparison.manifest.json` übernimmt diese Phasen und
+fügt `PROFILE_COMPARISON` mit zehn Sekunden vor Cleanup ein. Die interne
+Vergleichsdeadline beträgt acht Sekunden. Gesamt- und Cleanup-Budget bleiben
+180 beziehungsweise 60 Sekunden.
 
 ## Ausführung und Recovery
 
@@ -86,7 +94,8 @@ python Tests/Runtime/run_dgn007_automated_setup.py `
 
 Für den Fenstervertrag denselben Aufruf um `--scope query-store-windows`
 ergänzen. Ohne Scope bleibt der bisherige Datenmodellvertrag ausgewählt.
-Beide Scopes führen ihr eigenes Manifest jeweils zweimal vollständig aus.
+Für den neutralen Vergleich `--scope profile-comparison` verwenden. Alle
+drei Scopes führen ihr eigenes Manifest jeweils zweimal vollständig aus.
 Für 2019 und 2022 `--expected-major 15` beziehungsweise `16` verwenden.
 Der Runner akzeptiert ausschließlich Developer-Editionen, leere Instanzen
 und `PASS/OK` in jeder erforderlichen Phase. Bei fehlgeschlagenem Cleanup
@@ -109,6 +118,10 @@ python Demos/00_Framework/Tools/run_demo.py `
 
 Für den einzelnen Fensterlauf `setup.manifest.json` durch
 `windows.manifest.json` ersetzen.
+Für den einzelnen Profilvergleich `profile-comparison.manifest.json` wählen.
+Der normale Runner unterdrückt die SQL-Phasenausgaben. Ein interaktiver
+Manifestlauf kann mit `--show-output` die unten beschriebenen skalaren
+Vergleichsresultsets anzeigen; Rohoutput wird nicht gespeichert.
 
 Für SQL-Authentifizierung `--auth sql --username sa` verwenden; das Passwort
 kommt ausschließlich aus `SQLCMDPASSWORD`. Verbindungs- und Zertifikatoptionen
@@ -143,10 +156,12 @@ nicht als Repository-Artefakte gespeichert.
 ```powershell
 python Tests/Static/validate_dgn007_automated_setup.py
 python Tests/Static/validate_dgn007_query_store_windows.py
+python Tests/Static/validate_dgn007_profile_comparison.py
+python Tests/Static/test_dgn007_profile_comparison.py
 ```
 
 Der Workflow `.github/workflows/dgn007-automated-setup.yml` prüft diese
-beiden begrenzten Verträge auf allen drei Versionen je zweimal, einschließlich
+drei begrenzten Verträge auf allen drei Versionen je zweimal, einschließlich
 unabhängiger Prüfung des Datenbankabbaus. Er startet frische Docker-Container
 mit vier CPU-Kernen und 8 GB Speicher, ohne veröffentlichte Ports oder
 Host-Volumes. Nach jedem Job entfernt er ausschließlich den eigenen Container
@@ -178,7 +193,39 @@ gewichtet. Die Labtabellen speichern ausschließlich Konfiguration, IDs,
 Grenzen, Counts und skalare Metriken; keine Pläne oder Querytexte. Cleanup
 entfernt diesen gesamten Zustand mit der eigenen Datenbank.
 
-Ein Fenster-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
+## Neutraler Profilvergleich
+
+Die zusätzliche Phase liest die vorhandenen `lab.IncidentProfile`-Werte und
+prüft erneut die zwei disjunkten Katalogintervalle, dieselben vier Parameterpaare,
+je vier reguläre Suchausführungen, Marker sowie den eigenen Parent-/Variant-Scope.
+Erzwungene Pläne und unterstützte Query-Store-Hints sind ausgeschlossen. Der
+Live-Katalogabgleich prüft IDs, Counts und Zeitgrenzen; er vergleicht die
+gespeicherten Metrikwerte nicht unabhängig mit neu aggregierten Live-Mittelwerten.
+Es entstehen weder weitere Suchrequests noch Flushes oder direkte Änderungen
+an persistenten Labtabellen und Query-Store-Konfiguration. Capture ALL kann
+die Beobachtungsqueries selbst erfassen; sie bleiben außerhalb des Suchscope
+und werden mit der eigenen Datenbank abgebaut.
+
+Je Fenster werden Duration, CPU, Logical Reads und Rows als
+`SUM(ExecutionCount * Mittelwert) / SUM(ExecutionCount)` gewichtet. Resultsets
+`DGN007_PROFILE_WINDOW` und `DGN007_PROFILE_METRIC` zeigen die Mittelwerte,
+tatsächlich ausgeführte Plananzahl je Fenster, Delta `T1-T0` und Ratio
+`T1/NULLIF(T0,0)`. `BaselineZero=1` kennzeichnet den nicht definierten Quotienten
+bei gültiger Null-Baseline; fehlende und negative Metriken werden abgewiesen.
+Duration und CPU beziehen sich auf Statement-Runtime in Mikrosekunden,
+Logical Reads auf 8-KB-Pages. Compilezeit und Clientlatenz werden nicht daraus
+abgeleitet.
+Je Fenster bleiben 4.229 Ergebniszeilen erforderlich; die Toleranz `0.000001`
+betrifft ausschließlich die Rundung der `float`-Aggregation.
+
+Ein Vergleichs-PASS setzt weder mehrere Pläne noch eine bestimmte Richtung,
+Ratio oder Performance-Schwelle voraus. Gleiche Profile und negative Deltas
+sind zulässige Evidenz. Der [Profilnachweis](../../../../Documentation/Project_Planning/DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md)
+grenzt lokale Runtime, numerische Fixtures und Cleanup voneinander ab.
+Technische Primärquelle, geprüft am 2026-10-06:
+[Query-Store-Runtime-Stats](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17).
+
+Ein Fenster- oder Vergleichs-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
 Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP wird
 nicht deaktiviert. Als nächster kleiner Schnitt folgt der fachliche
 Incidentnachweis mit kontrollierter Vergleichslast und nachvollziehbarer

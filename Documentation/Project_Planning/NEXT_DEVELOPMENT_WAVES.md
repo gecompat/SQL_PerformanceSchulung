@@ -85,7 +85,14 @@ keine Incident-, Query-Store-, XE-, Hypothesen-, Mitigations- oder interaktive
 Teilnehmerabnahme. Der anschließend getrennt implementierte
 `DGN-007_QUERY_STORE_WINDOWS`-Vertrag ist auf allen drei Versionen je zweimal
 praktisch belegt. Er prüft ausschließlich disjunkte T0/T1-Capture-Fenster mit
-gleicher Parameterlast. Als nächster kleiner Schnitt folgt der kontrollierte
+gleicher Parameterlast. Der getrennte neutrale `DGN-007_PROFILE_COMPARISON`-
+Vertrag bestand am 2026-10-07 ebenfalls je zweimal auf allen drei Versionen:
+gewichtete Mittelwerte, T1-T0-Deltas und tatsächlich ausgeführte Plananzahl;
+kein Richtungs- oder Mindestplangate. Die NULL-Ratio bei Null-Baseline wurde
+gesondert mit numerischer Fixture geprüft. Lokale Matrix,
+skalare Messwerte und unabhängiger Cleanup stehen im
+[Profilnachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md).
+Als nächster kleiner Schnitt folgt der kontrollierte
 Incidentnachweis samt Plan-/Laufzeitprofilevidenz. Unterschiedliche Parameterlast
 allein ist kein Regressionsnachweis. Als begrenzte Voraussetzung verwendet der
 ältere Teilnehmerpfad jetzt `sys.databases.compatibility_level` mit NULL-Guard
@@ -94,6 +101,14 @@ Adaptervalidierung lehnt fehlende Compatibility-Werte ab. Die
 Beobachtungsbedingung muss weiterhin auf den Designvertrag (Plan- oder
 Laufzeitprofilevidenz) abgeglichen werden. Der Compatibility-Vorfix belegt
 weder den Incident noch eine vollständige Teilnehmerabnahme.
+Für die ältere Beobachtungsbedingung sind ausschließlich erfolgreich
+ausgeführte T0/T1-Pläne und ihre validierten Profile maßgeblich; historische
+oder ungenutzte Planzeilen und bloße Counts 3/5 genügen nicht. Ihr bisheriger
+unterschiedlicher Lastmix ist zuerst gegen den gleichen Parameterlastvertrag
+abzugleichen. Live-Mittelwerte dürfen keine nachträglichen Zusatzrequests
+enthalten; Plan-/Profilunterscheidbarkeit und Verschlechterung sind getrennt
+zu begründen. Die jetzt gemessenen unterschiedlichen Richtungen für CPU und
+Reads erfüllen allein keine Incidentfreigabe.
 Danach folgen die vollständige Capstone-Matrix und die
 interaktive Docker-/Podman-Abnahme; deren offene Gates bleiben bestehen.
 

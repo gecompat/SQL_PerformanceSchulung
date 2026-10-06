@@ -1,5 +1,5 @@
-# Prüft DGN-007_DATA_MODEL und DGN-007_QUERY_STORE_WINDOWS ohne Capstone-Freigabe.
-name: DGN-007 Automated Datenmodell und Query-Store-Fenster
+# Prüft Datenmodell, Query-Store-Fenster und neutralen Profilvergleich ohne Capstone-Freigabe.
+name: DGN-007 Automated Datenmodell, Fenster und Profilvergleich
 
 on:
   pull_request:
@@ -13,9 +13,11 @@ on:
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - 'Tests/Static/test_dgn007_automated_setup_runner.py'
       - 'Tests/Static/test_dgn007_compatibility.py'
+      - 'Tests/Static/test_dgn007_profile_comparison.py'
       - 'Tests/Static/test_orchestration_runtime.py'
       - 'Tests/Static/validate_dgn007_automated_setup.py'
       - 'Tests/Static/validate_dgn007_query_store_windows.py'
+      - 'Tests/Static/validate_dgn007_profile_comparison.py'
       - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tests/Static/validate_sql_container_readiness.py'
       - 'Tests/Static/validate_repository_continuity.py'
@@ -32,9 +34,11 @@ on:
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - 'Tests/Static/test_dgn007_automated_setup_runner.py'
       - 'Tests/Static/test_dgn007_compatibility.py'
+      - 'Tests/Static/test_dgn007_profile_comparison.py'
       - 'Tests/Static/test_orchestration_runtime.py'
       - 'Tests/Static/validate_dgn007_automated_setup.py'
       - 'Tests/Static/validate_dgn007_query_store_windows.py'
+      - 'Tests/Static/validate_dgn007_profile_comparison.py'
       - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tests/Static/validate_sql_container_readiness.py'
       - 'Tests/Static/validate_repository_continuity.py'
@@ -51,7 +55,7 @@ concurrency:
 
 jobs:
   static:
-    name: Statische DGN-007-Datenmodell- und Fensterverträge
+    name: Statische DGN-007-Datenmodell-, Fenster- und Profilverträge
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -69,6 +73,10 @@ jobs:
         run: python Tests/Static/validate_dgn007_automated_setup.py
       - name: Query-Store-Fenstervertrag prüfen
         run: python Tests/Static/validate_dgn007_query_store_windows.py
+      - name: Neutralen Profilvergleich und gewichtete SQL-Ausdrücke prüfen
+        run: |
+          python Tests/Static/validate_dgn007_profile_comparison.py
+          python Tests/Static/test_dgn007_profile_comparison.py
       - name: SQL-Readiness und Kontinuität prüfen
         run: |
           python Tests/Static/validate_sql_container_readiness.py
@@ -77,7 +85,7 @@ jobs:
         run: python Tests/Static/validate_privacy_metadata.py .
 
   runtime:
-    name: DGN-007-Datenmodell und Query-Store-Fenster SQL Server ${{ matrix.year }}
+    name: DGN-007-Datenmodell, Fenster und Profilvergleich SQL Server ${{ matrix.year }}
     needs: static
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 25
@@ -155,6 +163,16 @@ jobs:
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
             --scope query-store-windows \
+            --target docker \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
+      - name: Zwei neutrale Profilvergleich-Lifecycles auf dem bereinigten Container
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_automated_setup.py \
+            --scope profile-comparison \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
