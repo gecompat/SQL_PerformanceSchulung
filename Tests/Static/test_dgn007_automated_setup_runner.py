@@ -367,5 +367,76 @@ class QueryStoreWindowTests(unittest.TestCase):
                                      contract=self.CONTRACT)
 
 
+class ProfileComparisonRunnerTests(unittest.TestCase):
+    CONTRACT = runner.PROFILE_COMPARISON_CONTRACT
+
+    def test_profile_manifest_is_immutable_exact_and_bounded(self):
+        self.assertIs(runner.scope_contract("profile-comparison"), self.CONTRACT)
+        with self.assertRaises(FrozenInstanceError):
+            self.CONTRACT.scope = "OTHER"
+        runner.validate_manifest(contract=self.CONTRACT)
+        self.assertEqual(self.CONTRACT.expected_phases,
+                         ("PREFLIGHT", "SETUP", "DATA_ASSERTION", "QUERY_STORE_WINDOWS", "PROFILE_COMPARISON", "CLEANUP"))
+        manifest = runner.load_manifest(self.CONTRACT.manifest)
+        profile = manifest.phases[-1]
+        invalid = [replace(manifest, timeout_seconds=181), replace(manifest, cleanup_timeout_seconds=61),
+                   replace(manifest, phases=manifest.phases[:-1]), replace(manifest, phases=manifest.phases + (profile,))]
+        for phase in (replace(profile, timeout_seconds=11), replace(profile, database_selector="master"),
+                      replace(profile, path=runner.AUTOMATED / "20_Query_Store_Windows.sql"),
+                      replace(profile, required=False), replace(profile, require_summary=False)):
+            invalid.append(replace(manifest, phases=manifest.phases[:-1] + (phase,)))
+        for changed in invalid:
+            with self.subTest(manifest=changed), patch.object(runner, "load_manifest", return_value=changed), \
+                 self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner.validate_manifest(contract=self.CONTRACT)
+
+    def test_profile_requires_six_ordered_pass_phases_and_one_summary(self):
+        runner.check_harness(harness_result(contract=self.CONTRACT), contract=self.CONTRACT)
+        phases = [(phase, "PASS", "OK") for phase in self.CONTRACT.expected_phases]
+        invalid = [phases[:-2] + phases[-1:], phases + phases[-2:-1], phases[::-1]]
+        for outcome, code in (("WARN", "WARN_EMPIRICAL_VARIANCE"), ("SKIP", "SKIP_EVIDENCE_MISSING")):
+            changed = phases.copy()
+            changed[-2] = ("PROFILE_COMPARISON", outcome, code)
+            invalid.append(changed)
+        for changed in invalid:
+            with self.subTest(phases=changed), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner.check_harness(harness_result(phases=changed), contract=self.CONTRACT)
+        result = harness_result(contract=self.CONTRACT)
+        with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+            runner.check_harness(replace(result, stdout=result.stdout + "\nSQLPERF_SUMMARY|PASS|OK"), contract=self.CONTRACT)
+
+    def test_profile_actual_dispatch_twice_hides_report_and_preserves_default(self):
+        raw = "SYNTHETIC_PROFILE_RAW_METRIC"
+        result = harness_result(contract=self.CONTRACT)
+        with patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+             patch.object(runner, "resolve_target", return_value=target()), \
+             patch.object(runner.execution_target, "verify_engine", return_value=17), \
+             patch.object(runner, "assert_empty_instance"), \
+             patch.object(runner, "run_sqlcmd", return_value=replace(result, stdout=result.stdout + "\n" + raw)) as process, \
+             patch.object(runner, "assert_absent") as absent, redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(runner.main(CliTests.CONFIRMED + ["--scope", "profile-comparison"]), 0)
+            self.assertEqual(process.call_count, 2)
+            self.assertEqual(absent.call_count, 2)
+            for call in process.call_args_list:
+                self.assertEqual(call.args[0][2], str(self.CONTRACT.manifest))
+                self.assertNotIn("--show-output", call.args[0])
+                self.assertEqual(call.kwargs["timeout_seconds"], 260)
+            self.assertNotIn(raw, output.getvalue())
+            self.assertIn("scope=DGN-007_PROFILE_COMPARISON", output.getvalue())
+        self.assertEqual(runner.build_parser().parse_args(CliTests.BASE).scope, "data-model")
+
+    def test_profile_timeout_and_cleanup_priority_remain_independent(self):
+        for cleanup, expected in (("PASS", "FAIL_TIMEOUT"), ("FAIL", "FAIL_CLEANUP")):
+            phases = [(phase, "PASS", "OK") for phase in self.CONTRACT.expected_phases]
+            phases[-2] = ("PROFILE_COMPARISON", "FAIL", "FAIL_TIMEOUT")
+            phases[-1] = ("CLEANUP", cleanup, "OK" if cleanup == "PASS" else "FAIL_CLEANUP")
+            result = harness_result(phases=phases, summary="FAIL|FAIL_TIMEOUT")
+            with self.subTest(cleanup=cleanup), patch.object(runner, "run_harness", return_value=result), \
+                 patch.object(runner, "assert_absent") as absent, redirect_stdout(io.StringIO()), \
+                 self.assertRaisesRegex(runner.RunnerFailure, expected):
+                runner.run_one(target(), 1, contract=self.CONTRACT)
+            absent.assert_called_once()
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -24,9 +24,11 @@ TRIGGER_PATHS = {
     "Tests/Runtime/docker_sqlcmd_proxy.py",
     "Tests/Static/test_dgn007_automated_setup_runner.py",
     "Tests/Static/test_dgn007_compatibility.py",
+    "Tests/Static/test_dgn007_profile_comparison.py",
     "Tests/Static/test_orchestration_runtime.py",
     "Tests/Static/validate_dgn007_automated_setup.py",
     "Tests/Static/validate_dgn007_query_store_windows.py",
+    "Tests/Static/validate_dgn007_profile_comparison.py",
     "Tests/Static/validate_privacy_metadata.py",
     "Tests/Static/validate_sql_container_readiness.py",
     "Tests/Static/validate_repository_continuity.py",
@@ -94,11 +96,13 @@ def workflow_findings(text: str) -> list[str]:
         "python Tests/Static/test_orchestration_runtime.py",
         "python Tests/Static/validate_dgn007_automated_setup.py",
         "python Tests/Static/validate_dgn007_query_store_windows.py",
+        "python Tests/Static/validate_dgn007_profile_comparison.py",
+        "python Tests/Static/test_dgn007_profile_comparison.py",
         "python Tests/Static/validate_privacy_metadata.py .",
         "python Tests/Static/validate_sql_container_readiness.py",
         "python Tests/Static/validate_repository_continuity.py",
         "python Tests/Runtime/run_dgn007_automated_setup.py", "--target docker",
-        "--scope data-model", "--scope query-store-windows",
+        "--scope data-model", "--scope query-store-windows", "--scope profile-comparison",
         '--container "${SQLPERF_SQL_CONTAINER}"', "--expected-major '${{ matrix.major }}'",
         "--confirm-disposable-instance --confirm-isolated-lab",
         'container="sqlperf-dgn007-auto-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"',
@@ -137,13 +141,13 @@ def workflow_findings(text: str) -> list[str]:
     if re.search(r"(?:^|\s)(?:-p|--publish|--publish-all|-v|--volume|--mount)(?:=|\s|$)", start):
         findings.append("Datenmodell-Container darf keine Ports oder Volumes freigeben")
     commands = re.findall(r"(?m)^          python Tests/Runtime/run_dgn007_automated_setup.py \\\n((?:            .*\n)+)", text)
-    if len(commands) != 2 or not all(
+    if len(commands) != 3 or not all(
         f"--scope {scope}" in command and '--container "${SQLPERF_SQL_CONTAINER}"' in command
-        for scope, command in zip(("data-model", "query-store-windows"), commands)
+        for scope, command in zip(("data-model", "query-store-windows", "profile-comparison"), commands)
     ):
-        findings.append("Datenmodell und Fenster müssen in dieser Reihenfolge denselben bereinigten Container verwenden")
+        findings.append("Datenmodell, Fenster und Profilvergleich müssen in dieser Reihenfolge denselben bereinigten Container verwenden")
     if len(re.findall(r"(?m)^          docker run\b", text)) != 1:
-        findings.append("Beide Prüfschnitte benötigen genau einen frischen Matrixcontainer")
+        findings.append("Alle Prüfschnitte benötigen genau einen frischen Matrixcontainer")
     return findings
 
 

@@ -77,6 +77,15 @@ QUERY_STORE_WINDOWS_CONTRACT = RunContract(
         DATA_MODEL_CONTRACT.phase_specs[-1],
     ),
 )
+PROFILE_COMPARISON_CONTRACT = RunContract(
+    scope="DGN-007_PROFILE_COMPARISON",
+    manifest=AUTOMATED / "profile-comparison.manifest.json",
+    phase_specs=(
+        *QUERY_STORE_WINDOWS_CONTRACT.phase_specs[:-1],
+        ("PROFILE_COMPARISON", "30_Profile_Comparison.sql", "target", 10),
+        QUERY_STORE_WINDOWS_CONTRACT.phase_specs[-1],
+    ),
+)
 
 
 def scope_contract(scope: str) -> RunContract:
@@ -84,6 +93,8 @@ def scope_contract(scope: str) -> RunContract:
         return DATA_MODEL_CONTRACT
     if scope == "query-store-windows":
         return QUERY_STORE_WINDOWS_CONTRACT
+    if scope == "profile-comparison":
+        return PROFILE_COMPARISON_CONTRACT
     raise ValueError("Unbekannter DGN-007-AUTO-Scope")
 
 
@@ -242,7 +253,7 @@ def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract =
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Ausgewählten DGN-007-AUTO-Schnitt zweimal auf einer leeren Docker-Wegwerfinstanz prüfen.")
-    parser.add_argument("--scope", choices=("data-model", "query-store-windows"), default="data-model")
+    parser.add_argument("--scope", choices=("data-model", "query-store-windows", "profile-comparison"), default="data-model")
     parser.add_argument("--target", choices=(execution_target.DOCKER,), default=execution_target.DOCKER)
     parser.add_argument("--container", required=True)
     parser.add_argument("--expected-major", type=int, choices=(15, 16, 17), required=True)

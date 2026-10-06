@@ -137,7 +137,14 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Der getrennte Datenmodellvertrag ist am 2026-10-06 auf Docker für alle drei
    Zielversionen je zweimal praktisch belegt. Der getrennte Query-Store-
    Fenstervertrag bestand anschließend ebenfalls je zweimal auf allen drei
-   Versionen. Nächster kleiner Schnitt ist der kontrollierte Incidentnachweis
+   Versionen. Der neutrale `DGN-007_PROFILE_COMPARISON`-Vertrag bestand am
+   2026-10-07 ebenfalls je zweimal auf allen drei Versionen. Die vollständige
+   Reihenfolge ergab 18 erfolgreiche lokale Lifecycles, vier zusätzliche
+   Ausgabekontrollen bestanden auf 2019/2022. Datenbankabwesenheit je Lauf und
+   Abbau aller fünf eigenen Container wurden unabhängig bestätigt. Der
+   [Profilnachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md) dokumentiert
+   gewichtete CPU-/Duration-/Reads-/Rows-Metriken ohne Incidentpromotion.
+   Nächster kleiner Schnitt ist der kontrollierte Incidentnachweis
    auf gleicher Parameterlast mit Plan-/Laufzeitprofilevidenz; daraus folgt
    noch keine Regression, Mitigation oder Capstone-Freigabe.
    Der Compatibility-Vorfix ersetzt im älteren Teilnehmerpfad die ungültige
