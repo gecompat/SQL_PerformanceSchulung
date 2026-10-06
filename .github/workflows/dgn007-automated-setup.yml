@@ -1,0 +1,153 @@
+# Prüft ausschließlich DGN-007_DATA_MODEL; keine Capstone- oder Szenariofreigabe.
+name: DGN-007 Automated Datenmodell
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Static/test_dgn007_automated_setup_runner.py'
+      - 'Tests/Static/test_orchestration_runtime.py'
+      - 'Tests/Static/validate_dgn007_automated_setup.py'
+      - 'Tests/Static/validate_privacy_metadata.py'
+      - 'Tests/Static/validate_sql_container_readiness.py'
+      - 'Tests/Static/validate_repository_continuity.py'
+      - '.github/workflows/dgn007-automated-setup.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Static/test_dgn007_automated_setup_runner.py'
+      - 'Tests/Static/test_orchestration_runtime.py'
+      - 'Tests/Static/validate_dgn007_automated_setup.py'
+      - 'Tests/Static/validate_privacy_metadata.py'
+      - 'Tests/Static/validate_sql_container_readiness.py'
+      - 'Tests/Static/validate_repository_continuity.py'
+      - '.github/workflows/dgn007-automated-setup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-automated-setup-${{ github.workflow }}-${{ github.ref }}
+  # DEC-067: Laufende Containerprüfung bis zum regulären Cleanup erhalten.
+  cancel-in-progress: false
+
+jobs:
+  static:
+    name: Statische DGN-007-Datenmodellverträge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Runner-Negativkontrollen prüfen
+        run: python -m unittest discover -s Tests/Static -p test_dgn007_automated_setup_runner.py
+      - name: Prozessabbruch und Cleanup einschließlich Linux-Nachfahren prüfen
+        run: python Tests/Static/test_orchestration_runtime.py
+      - name: Datenmodell- und CI-Vertrag prüfen
+        run: python Tests/Static/validate_dgn007_automated_setup.py
+      - name: SQL-Readiness und Kontinuität prüfen
+        run: |
+          python Tests/Static/validate_sql_container_readiness.py
+          python Tests/Static/validate_repository_continuity.py
+      - name: Privacy prüfen
+        run: python Tests/Static/validate_privacy_metadata.py .
+
+  runtime:
+    name: DGN-007-Datenmodell SQL Server ${{ matrix.year }}
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {year: 2019, major: 15, image: 'mcr.microsoft.com/mssql/server:2019-latest'}
+          - {year: 2022, major: 16, image: 'mcr.microsoft.com/mssql/server:2022-latest'}
+          - {year: 2025, major: 17, image: 'mcr.microsoft.com/mssql/server:2025-latest'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Frischen isolierten SQL-Container starten
+        shell: bash
+        run: |
+          set -euo pipefail
+          password=$(python -c 'import secrets; print("SqlP!" + secrets.token_hex(24))')
+          container="sqlperf-dgn007-auto-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          cidfile="${RUNNER_TEMP}/${container}.cid"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CIDFILE=${cidfile}" >> "${GITHUB_ENV}"
+          export SQLCMDPASSWORD="${password}"
+          export MSSQL_SA_PASSWORD="${password}"
+          docker pull '${{ matrix.image }}'
+          docker run \
+            --name "${container}" \
+            --hostname "${container}" \
+            --cidfile "${cidfile}" \
+            --label sqlperf.scope=dgn007-automated-setup \
+            --label "sqlperf.run=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.major }}" \
+            --cpus 4 --memory 8g \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer \
+            -e MSSQL_SA_PASSWORD -d '${{ matrix.image }}' >/dev/null
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then
+              ready=1
+              break
+            fi
+            [ "$(docker inspect -f '{{.State.Running}}' "${container}")" = 'true' ] || exit 1
+            sleep 2
+          done
+          [ "${ready}" = '1' ] || { echo 'SQL-Readiness-Logprobe fehlgeschlagen.'; exit 1; }
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec -e SQLCMDPASSWORD "${container}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -b -l 5 -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          [ "${login_ready}" = '1' ] || { echo 'Authentifizierte SQL-Readiness fehlgeschlagen.'; exit 1; }
+      - name: Zwei Datenmodell-Lifecycles mit unabhängiger Cleanup-Prüfung
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_automated_setup.py \
+            --target docker \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
+      - name: Eigenen Container einschließlich anonymer Volumes entfernen
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SQLPERF_SQL_CIDFILE:-}" ] || [ ! -s "${SQLPERF_SQL_CIDFILE}" ]; then
+            exit 0
+          fi
+          container_id="$(cat "${SQLPERF_SQL_CIDFILE}")"
+          [[ "${container_id}" =~ ^[0-9a-f]{64}$ ]] || { echo 'Ungültige eigene Container-ID.'; exit 1; }
+          identity="$(docker inspect --format '{{.Name}}|{{index .Config.Labels "sqlperf.scope"}}|{{index .Config.Labels "sqlperf.run"}}' "${container_id}")"
+          expected="/${SQLPERF_SQL_CONTAINER}|dgn007-automated-setup|${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.major }}"
+          [ "${identity}" = "${expected}" ] || { echo 'Container-Eigentumsprüfung fehlgeschlagen.'; exit 1; }
+          docker rm --force --volumes "${container_id}" >/dev/null
+          [ -z "$(docker container ls --all --quiet --filter "id=${container_id}")" ] || exit 1

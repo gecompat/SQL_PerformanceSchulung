@@ -1,6 +1,9 @@
 # DGN-007 – Automatisierter Datenmodell-Schnitt
 
-Status: `IMPLEMENTED`, Runtime noch nicht ausgeführt. Dieser eigenständige
+Status: `IMPLEMENTED`; lokale Docker-Matrix am 2026-10-06 auf SQL Server
+2019/150, 2022/160 und 2025/170 jeweils zweimal mit `PASS/OK` bestanden.
+Der [Runtime-Nachweis](../../../../Documentation/Project_Planning/DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md)
+dokumentiert Versionen, Cleanup und Grenzen. Dieser eigenständige
 `DGN-007_DATA_MODEL`-Schnitt prüft Aufbau, deterministische Daten, Suchergebnisse
 und Cleanup. Er ist eine Vorbereitung der Capstone-Runtime-Matrix und enthält
 noch keine Incident-, Query-Store-, XE-, Hypothesen- oder Mitigationsabnahme.
@@ -35,6 +38,9 @@ Statusverteilung. `ItemId` wird explizit aus der laufenden Nummer gebildet;
 damit hängt die Zuordnung der fachlichen Werte nicht von der Reihenfolge einer
 `IDENTITY`-Zuteilung ab. Der Datenmodelltest prüft vier feste Parameterklassen
 und vergleicht jede Ergebnismenge in beide Richtungen einschließlich Zeilenzahl.
+Zusätzlich sind die `ItemId`-Domäne 1 bis 24.000, jede Gruppenmenge, feste
+Suchcounts und die vier Request-Parameterpaare geprüft. Die Ausgabeordnung
+des Resultstreams wird durch `INSERT EXEC` nicht nachgewiesen.
 
 `FWK-001`, `FWK-002`, `FWK-003`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`
 gelten für den begrenzten Schnitt. Abweichung vom wiederverwendbaren Generator:
@@ -54,6 +60,29 @@ statische Teilnehmerpfad verwenden weiterhin den eigenen Run-Token `LOCAL`.
 Dieser Test verwendet ausschließlich `AUTO`; es gibt keine `:r`-Abhängigkeit.
 
 ## Ausführung und Recovery
+
+Der strikte Docker-Runner führt den vollständigen Vertrag genau zweimal aus
+und prüft nach jedem Lauf unabhängig, dass die AUTO-Datenbank fehlt. Er benötigt
+einen ausdrücklich gewählten, frischen Container und `SQLCMDPASSWORD` aus der
+Prozessumgebung. Die Wegwerfinstanz-Bestätigung autorisiert auch den isolierten
+Lab-Lauf und den markergebundenen AUTO-Datenbankabbau.
+
+```powershell
+python Tests/Runtime/run_dgn007_automated_setup.py `
+  --container <eigener-frischer-Container> --expected-major 17 `
+  --confirm-disposable-instance
+```
+
+Für 2019 und 2022 `--expected-major 15` beziehungsweise `16` verwenden.
+Der Runner akzeptiert ausschließlich Developer-Editionen, leere Instanzen
+und `PASS/OK` in jeder erforderlichen Phase. Bei fehlgeschlagenem Cleanup
+bleibt das Ergebnis `FAIL_CLEANUP`, auch wenn eine einmalige markergebundene
+Recovery den Zustand anschließend bereinigt. Ein Abbruch beendet zuerst den
+lokalen Prozessbaum; die endgültige Infrastrukturgrenze ist die Entfernung
+des eigenen Wegwerfcontainers. Harte Host-Unterbrechungen garantieren keinen
+Cleanup. Der Runner entfernt selbst keinen Container.
+
+Für einen einzelnen manuellen Manifestlauf:
 
 Im Repository-Stamm gegen eine bereits bereitgestellte, leere Wegwerfinstanz
 mit installiertem `sqlcmd` und integrierter Authentifizierung ausführen:
@@ -95,11 +124,20 @@ nicht als Repository-Artefakte gespeichert.
 python Tests/Static/validate_dgn007_automated_setup.py
 ```
 
-Vor einer Runtimefreigabe muss der Lifecycle auf allen drei Versionen je zweimal
-laufen, einschließlich unabhängiger Prüfung des Datenbankabbaus. Danach folgen
+Der Workflow `.github/workflows/dgn007-automated-setup.yml` prüft diesen
+begrenzten Schnitt auf allen drei Versionen je zweimal, einschließlich
+unabhängiger Prüfung des Datenbankabbaus. Er startet frische Docker-Container
+mit vier CPU-Kernen und 8 GB Speicher, ohne veröffentlichte Ports oder
+Host-Volumes. Nach jedem Job entfernt er ausschließlich den eigenen Container
+einschließlich anonymer Volumes. Laufende Prüfungen werden bis zum regulären
+Cleanup erhalten; Rohoutputs werden nicht als Actions-Artefakte hochgeladen.
+Die statischen Prüfungen enthalten negative Kontrollen für fehlende Phasen,
+Warnungen, Timeouts, Eigentumsprüfung und Cleanup-Fehler.
+
+Danach folgen
 die abgegrenzten Zeitfenster T0/T1/T2 und belastbare Incident-, Requestscope-,
-Hypothesen- und Vergleichsevidenz. Es wurde kein neuer Runner und kein Workflow
-für eine unvollständige Capstone-Abnahme angelegt. Szenariopromotion,
+Hypothesen- und Vergleichsevidenz. Der Runner und der Workflow prüfen
+ausschließlich das Datenmodell. Szenariopromotion,
 `READY_FOR_USER`, Katalogaufnahme und Änderungen an `SQL_Server_Lab` gehören
 nicht zu diesem Schnitt.
 

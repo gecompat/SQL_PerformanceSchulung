@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-09-19 |
+| Stand | 2026-10-06 |
 | Ausgangsstand | Runtimeevidenz bis Pull Request 42; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
@@ -47,6 +47,7 @@
 | `LABSCN-005/CON-006` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `76cff6ed-…` und Podman-Run `6d2d0a51-…` belegten Opfer 1205, Survivor, Deadlock-Graph, geordnete Gegenprobe, Reset und `REMOVED`. |
 | `LABSCN-005/DGN-007` | `IMPLEMENTED_STATIC_SLICE_B` | Der nicht-promotende statische Teilnehmerfluss bestand am 2026-09-19 auf SQL Server 2025/Linux mit Docker (`ea802c20-…`) und Podman (`fba84720-…`): Adapter-Preflight, Install/Validate, alle sechs Teilnehmerstufen, Cleanup und Lab-Remove (`PASS`/`REMOVED`). Kontrollierte Negativtests auf Docker mit SQL Server 2019 (`5a12e48a-46df-471a-a266-4646ba3a02e2`) und 2022 (`139c68d8-8a22-42fb-ba19-b51059f21f2b`) ergaben kanonisch `ADAPTER_UNSUPPORTED_SQL_VERSION`, im Lab-Core `ADAPTER_UNSUPPORTED_CONTRACT`, keine DGN-Datenbank und `REMOVED`. Das ist keine 2019/2022-Fachunterstützung und keine Promotion, sondern ausschließlich der erwartete 2025-only-Skip-/Cleanup-Nachweis. Weiterhin keine `READY_FOR_USER`-Übergabe, keine Szenariopromotion und kein Nachweis für `scenario.json`, Manifest, Inventar oder vollständige Lifecycle-/Versionsmatrix. |
 | `LABINT-004/CON-006` | `VALIDATED` | Die vollständige freigegebene Matrix SQL Server 2025 × Docker/Podman ist praktisch belegt und prüft ausschließlich den neuen gelben Slice. |
+| `DGN-007_DATA_MODEL` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; unabhängiger Datenbankabbau und eigene Container entfernt. [Nachweis](DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md). Der neue Runner und CI-Workflow begrenzen sich auf das Datenmodell. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
 
@@ -77,6 +78,14 @@ Query Store/XE-Pilot + Mehrsession-Vertrag validiert -> DGN-007 als eigener Folg
 
 ## 5. Nächster belegpflichtiger Schritt
 
+Der eigenständige automatisierte Datenmodellvertrag ist auf Docker für alle
+drei Zielversionen jeweils zweimal praktisch belegt. Seine Prüfungen enthalten
+keine Incident-, Query-Store-, XE-, Hypothesen-, Mitigations- oder interaktive
+Teilnehmerabnahme. Als nächster kleiner Schnitt ist die automatisierte
+Incident- und Zeitfensterevidenz auf diesem Datenmodell abzugrenzen und zu
+implementieren. Danach folgen die vollständige Capstone-Matrix und die
+interaktive Docker-/Podman-Abnahme; deren offene Gates bleiben bestehen.
+
 Der Capstone-Planungsschnitt ist mit `TSK-002` entschieden
 (`DECIDED_PLANNING`, Detailreview
 [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)).
@@ -85,9 +94,9 @@ Query-Store-Zeitfenstern und Incident-Erzeugung ohne Mitigationsmarker) besitzt
 seit dem 2026-09-14 die praktische Docker-/Podman-Lifecycle-Abnahme: Docker-Run
 `9ac100f8-f24f-420e-949c-943e35b9bcda` und Podman-Run
 `e06e9ec9-d239-4cd0-b9a7-0050dc574180` bestanden jeweils Start -> `READY_FOR_USER`,
-Reset -> `READY_FOR_USER` und Remove -> `REMOVED` auf SQL Server 2025. Der
-nächste Schritt ist die vollständige Lifecycle-Abnahme dieser Schnitt-B-Fassung
-und eine begrenzte Provider-/Versionsmatrix. Der manuelle Teilnehmerablauf sowie
+Reset -> `READY_FOR_USER` und Remove -> `REMOVED` auf SQL Server 2025. Die
+verbleibende Gesamtabnahme umfasst den vollständigen Lifecycle dieser
+Schnitt-B-Fassung und die begrenzte Provider-/Versionsmatrix. Der manuelle Teilnehmerablauf sowie
 die Evidenz-, Hypothesen- und Mitigationsartefakte sind statisch geprüft.
 Frische SQL-Server-2025/Linux-Runs bestanden am 2026-09-19 auf Docker
 (`ea802c20-4820-4007-a441-43a74a89c8fc`) und Podman

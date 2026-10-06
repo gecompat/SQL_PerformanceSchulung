@@ -197,7 +197,7 @@ def target_database_name(demo_id: str, run_token: str) -> str:
 
 
 def _combine_result(current: tuple[str, str], candidate: tuple[str, str]) -> tuple[str, str]:
-    if OUTCOME_PRIORITY[candidate[0]] > OUTCOME_PRIORITY[current[0]]:
+    if candidate == ("FAIL", "FAIL_CLEANUP") or OUTCOME_PRIORITY[candidate[0]] > OUTCOME_PRIORITY[current[0]]:
         return candidate
     return current
 

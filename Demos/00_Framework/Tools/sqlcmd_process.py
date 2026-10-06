@@ -144,16 +144,69 @@ def build_sqlcmd_command(
     return command
 
 
+def _linux_process_identity(pid: int) -> tuple[int, str] | None:
+    """Parent und Startzeit lesen; wiederverwendete PIDs bleiben geschützt."""
+    try:
+        fields = Path(f"/proc/{pid}/stat").read_text(encoding="utf-8").rsplit(")", 1)[1].split()
+        return int(fields[1]), fields[19]
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def _linux_descendants(parent_pid: int) -> list[tuple[int, str]]:
+    """Nachfahren einschließlich eigener Sessions vor dem Abbruch erfassen."""
+    identities: dict[int, tuple[int, str]] = {}
+    try:
+        entries = list(Path("/proc").iterdir())
+    except OSError:
+        return []
+    for entry in entries:
+        if entry.name.isdecimal():
+            pid = int(entry.name)
+            identity = _linux_process_identity(pid)
+            if identity is not None:
+                identities[pid] = identity
+    descendants: list[tuple[int, str]] = []
+    parents = {parent_pid}
+    while parents:
+        children = {pid for pid, (parent, _) in identities.items() if parent in parents}
+        descendants.extend((pid, identities[pid][1]) for pid in sorted(children))
+        for pid in children:
+            del identities[pid]
+        parents = children
+    return descendants
+
+
 def _terminate_process_tree(process: subprocess.Popen[str]) -> None:
     """Hard-stop sqlcmd and any descendants after timeout or fail-fast."""
 
+    # Ein bereits beendeter/reapter Root darf nicht über eine inzwischen
+    # möglicherweise wiederverwendete PID erneut adressiert werden.
     if process.poll() is not None:
         return
 
     try:
         if os.name == "nt":
-            process.kill()
+            # process.kill() allein lässt Harness-/Shim-Nachfahren weiterlaufen.
+            try:
+                subprocess.run(
+                    ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                    check=False, capture_output=True, timeout=5,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                )
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+            if process.poll() is None:
+                process.kill()
         else:
+            descendants = _linux_descendants(process.pid) if sys.platform.startswith("linux") else []
+            for pid, started in reversed(descendants):
+                identity = _linux_process_identity(pid)
+                if identity is not None and identity[1] == started:
+                    try:
+                        os.kill(pid, signal.SIGKILL)
+                    except (ProcessLookupError, PermissionError, OSError):
+                        pass
             os.killpg(process.pid, signal.SIGKILL)
     except (ProcessLookupError, PermissionError, OSError):
         try:
@@ -204,11 +257,27 @@ def collect_process(
     started = time.monotonic()
     timed_out = False
     try:
-        stdout, stderr = process.communicate(timeout=timeout_seconds)
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        _terminate_process_tree(process)
-        stdout, stderr = process.communicate(timeout=5)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            _terminate_process_tree(process)
+            stdout, stderr = process.communicate(timeout=5)
+    except BaseException:
+        # Auch Ctrl+C/SystemExit muss den Prozess des Setups vor der
+        # unabhängigen Prüfung des Cleanups vollständig beenden.
+        try:
+            _terminate_process_tree(process)
+        except BaseException:
+            pass
+        try:
+            process.communicate(timeout=5)
+        except BaseException:
+            try:
+                process.wait(timeout=2)
+            except BaseException:
+                pass
+        raise
 
     return SqlcmdResult(
         command=tuple(command),

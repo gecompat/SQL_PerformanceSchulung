@@ -10,7 +10,8 @@ import stat
 import subprocess
 import sys
 import tempfile
-from unittest.mock import patch
+import time
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "Demos" / "00_Framework" / "Tools"
@@ -21,6 +22,7 @@ from execution_target import DOCKER, ExecutionTarget  # noqa: E402
 from orchestrate_sessions import run_manifest as run_session_manifest  # noqa: E402
 from run_demo import run_demo  # noqa: E402
 from sqlcmd_process import run_sqlcmd  # noqa: E402
+import sqlcmd_process  # noqa: E402
 
 
 FAKE_SQLCMD = r'''#!/usr/bin/env python3
@@ -242,6 +244,9 @@ def test_harness_pass(base: Path, executable: Path) -> None:
 def test_harness_cleanup_failure(base: Path, executable: Path) -> None:
     result = run_harness(demo_manifest(base / "cleanup_failure", cleanup="cleanup_fail"), executable)
     assert_equal((result.outcome, result.code), ("FAIL", "FAIL_CLEANUP"), "cleanup priority")
+    result = run_harness(demo_manifest(base / "double_failure", demo="execution_fail", cleanup="cleanup_fail"), executable)
+    assert_equal((result.outcome, result.code), ("FAIL", "FAIL_CLEANUP"), "cleanup priority after execution failure")
+    assert_equal((result.phases[-2].outcome, result.phases[-2].code), ("FAIL", "FAIL_EXECUTION"), "original execution error preserved")
 
 
 def test_harness_preflight_skip(base: Path, executable: Path) -> None:
@@ -314,7 +319,125 @@ def test_utf8_transport_from_cp1252(base: Path, executable: Path) -> None:
         assert_equal("CLEANUP: PASS/OK" in result.stdout, True, "Cleanup nach Unicode-Ausgabe")
 
 
+def test_collect_process_interrupt() -> None:
+    """Interrupt erst nach Terminierung und bounded Reap erneut auslösen."""
+    for interruption in (KeyboardInterrupt(), SystemExit(7), RuntimeError("synthetic interruption")):
+        events = []
+        process = Mock()
+        def communicate(*, timeout):
+            events.append(("communicate", timeout))
+            if len(events) == 1:
+                raise interruption
+            return "", ""
+        process.communicate.side_effect = communicate
+        with patch.object(sqlcmd_process, "_terminate_process_tree", side_effect=lambda value: events.append(("terminate", value))):
+            try:
+                sqlcmd_process.collect_process(process, ["synthetic"], timeout_seconds=10)
+            except BaseException as exc:
+                assert_equal(exc is interruption, True, "ursprünglicher Interrupt bleibt erhalten")
+            else:
+                raise AssertionError("Interrupt wurde verschluckt")
+        assert_equal(events, [("communicate", 10), ("terminate", process), ("communicate", 5)], "Terminierung vor Reap und Wiederwurf")
+
+
+def test_windows_process_tree_termination() -> None:
+    """Taskkill beendet unter Windows den Baum und bleibt zeitlich begrenzt."""
+    process = Mock(pid=12345)
+    process.poll.side_effect = [None, 0]
+    with patch.object(sqlcmd_process.os, "name", "nt"), \
+         patch.object(sqlcmd_process.subprocess, "CREATE_NO_WINDOW", 0x08000000, create=True), \
+         patch.object(sqlcmd_process.subprocess, "run") as run:
+        sqlcmd_process._terminate_process_tree(process)
+        assert_equal(run.call_args.args[0], ["taskkill", "/PID", "12345", "/T", "/F"], "Windows-Baumabbruch")
+        assert_equal(run.call_args.kwargs["timeout"], 5, "Taskkill-Budget")
+        process.wait.assert_called_once_with(timeout=2)
+    process.poll.side_effect = None
+    process.poll.return_value = None
+    with patch.object(sqlcmd_process.os, "name", "nt"), \
+         patch.object(sqlcmd_process.subprocess, "CREATE_NO_WINDOW", 0x08000000, create=True), \
+         patch.object(sqlcmd_process.subprocess, "run", side_effect=subprocess.TimeoutExpired("taskkill", 5)):
+        sqlcmd_process._terminate_process_tree(process)
+        process.kill.assert_called_once()
+
+
+def test_completed_root_is_never_terminated_by_old_pid() -> None:
+    """Nach Reap darf eine wiederverwendete PID kein Terminierungsziel sein."""
+    for platform_name in ("nt", "posix"):
+        process = Mock(pid=12345)
+        process.poll.return_value = 0
+        with patch.object(sqlcmd_process.os, "name", platform_name), \
+             patch.object(sqlcmd_process.subprocess, "run") as run, \
+             patch.object(sqlcmd_process.os, "killpg", create=True) as killpg, \
+             patch.object(sqlcmd_process.os, "kill") as kill:
+            sqlcmd_process._terminate_process_tree(process)
+            run.assert_not_called()
+            killpg.assert_not_called()
+            kill.assert_not_called()
+            process.kill.assert_not_called()
+
+
+def test_linux_nested_session_interrupt() -> None:
+    """Ein reales Kind mit eigener Session darf nach Interrupt nicht weiterlaufen."""
+    if not sys.platform.startswith("linux"):
+        return
+    child_code = "import time; time.sleep(30)"
+    parent_code = (
+        "import subprocess,sys,time; "
+        f"child=subprocess.Popen([sys.executable,'-c',{child_code!r}],start_new_session=True); "
+        "print(child.pid,flush=True); time.sleep(30)"
+    )
+    process = sqlcmd_process.start_sqlcmd([sys.executable, "-c", parent_code])
+    child_pid = None
+    child_identity = None
+    try:
+        import select
+        if not select.select([process.stdout], [], [], 5)[0]:
+            raise AssertionError("Kind meldet seine PID nicht innerhalb des Startbudgets")
+        child_pid = int(process.stdout.readline().strip())
+        child_identity = sqlcmd_process._linux_process_identity(child_pid)
+        original_communicate = process.communicate
+        calls = 0
+        def interrupted_communicate(*, timeout):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise KeyboardInterrupt()
+            return original_communicate(timeout=timeout)
+        with patch.object(process, "communicate", side_effect=interrupted_communicate):
+            try:
+                sqlcmd_process.collect_process(process, [sys.executable, "-c", parent_code], timeout_seconds=5)
+            except KeyboardInterrupt:
+                pass
+            else:
+                raise AssertionError("Interrupt fehlt")
+        assert_equal(process.poll() is not None, True, "Parent vor Rückgabe beendet und reap")
+        # Ein bereits beendetes, noch nicht durch PID 1 reaptes Kind kann Zombie sein.
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            try:
+                state = Path(f"/proc/{child_pid}/stat").read_text().rsplit(")", 1)[1].split()[0]
+            except OSError:
+                break
+            if state == "Z":
+                break
+            time.sleep(0.01)
+        else:
+            raise AssertionError("Kind mit eigener Session läuft nach Interrupt weiter")
+    finally:
+        sqlcmd_process._terminate_process_tree(process)
+        if child_pid is not None and child_identity is not None and sqlcmd_process._linux_process_identity(child_pid) == child_identity:
+            try:
+                os.kill(child_pid, 9)
+            except ProcessLookupError:
+                pass
+        process.communicate(timeout=5)
+
+
 def main() -> int:
+    test_collect_process_interrupt()
+    test_windows_process_tree_termination()
+    test_completed_root_is_never_terminated_by_old_pid()
+    test_linux_nested_session_interrupt()
     with tempfile.TemporaryDirectory(prefix="sqlperf-orchestration-") as temporary:
         base = Path(temporary)
         executable = fake_sqlcmd(base)
