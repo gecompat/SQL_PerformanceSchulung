@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextlib import closing, redirect_stderr, redirect_stdout
-from dataclasses import replace
+from dataclasses import FrozenInstanceError, replace
 import io
 import os
 from pathlib import Path
@@ -19,9 +19,9 @@ sys.path.insert(0, str(ROOT / "Tests" / "Runtime"))
 import run_dgn007_automated_setup as runner  # noqa: E402
 
 
-def harness_result(*, phases=None, summary="PASS|OK", returncode=0, timed_out=False):
+def harness_result(*, contract=runner.DATA_MODEL_CONTRACT, phases=None, summary="PASS|OK", returncode=0, timed_out=False):
     if phases is None:
-        phases = [(phase, "PASS", "OK") for phase in runner.EXPECTED_PHASES]
+        phases = [(phase, "PASS", "OK") for phase in contract.expected_phases]
     lines = [f"SQLPERF_SUMMARY|{summary}"]
     lines.extend(f"{phase}: {outcome}/{code} (0.001s) - Synthetisches Ergebnis."
                  for phase, outcome, code in phases)
@@ -252,6 +252,119 @@ class CliTests(unittest.TestCase):
             self.assertNotIn("--show-output", process.call_args.args[0])
             self.assertIn("--confirm-isolated-lab", process.call_args.args[0])
             self.assertEqual(process.call_args.kwargs["environment"]["SQLPERF_SQL_CONTAINER"], "synthetic-test")
+
+
+class QueryStoreWindowTests(unittest.TestCase):
+    CONTRACT = runner.QUERY_STORE_WINDOWS_CONTRACT
+    ARGUMENTS = CliTests.CONFIRMED + ["--scope", "query-store-windows"]
+
+    def test_scopes_are_immutable_and_unknown_scope_is_rejected_before_connection(self):
+        self.assertIs(runner.scope_contract("data-model"), runner.DATA_MODEL_CONTRACT)
+        self.assertIs(runner.scope_contract("query-store-windows"), self.CONTRACT)
+        with self.assertRaises(FrozenInstanceError):
+            self.CONTRACT.scope = "DGN-007_DATA_MODEL"
+        with self.assertRaises(ValueError):
+            runner.scope_contract("unknown")
+        with patch.object(runner, "resolve_target") as resolve, redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as exc:
+            runner.main(CliTests.CONFIRMED + ["--scope", "unknown"])
+        self.assertEqual(exc.exception.code, 2)
+        resolve.assert_not_called()
+
+    def test_window_manifest_is_exact_and_rejects_phase_budget_script_or_database_drift(self):
+        runner.validate_manifest(contract=self.CONTRACT)
+        manifest = runner.load_manifest(self.CONTRACT.manifest)
+        self.assertEqual(self.CONTRACT.expected_phases,
+                         ("PREFLIGHT", "SETUP", "DATA_ASSERTION", "QUERY_STORE_WINDOWS", "CLEANUP"))
+        window = manifest.phases[3]
+        invalid_manifests = [
+            replace(manifest, timeout_seconds=181),
+            replace(manifest, cleanup_timeout_seconds=61),
+            replace(manifest, phases=manifest.phases[:3]),
+            replace(manifest, phases=manifest.phases + (window,)),
+            replace(manifest, cleanup=None),
+        ]
+        for invalid_window in (
+            replace(window, timeout_seconds=149),
+            replace(window, path=runner.AUTOMATED / "40_Data_Assertion.sql"),
+            replace(window, database_selector="master"),
+            replace(window, required=False),
+            replace(window, require_summary=False),
+        ):
+            invalid_manifests.append(replace(manifest, phases=manifest.phases[:3] + (invalid_window,)))
+        for invalid in invalid_manifests:
+            with self.subTest(manifest=invalid), patch.object(runner, "load_manifest", return_value=invalid):
+                with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                    runner.validate_manifest(contract=self.CONTRACT)
+
+    def test_window_requires_all_five_phases_once_in_order(self):
+        runner.check_harness(harness_result(contract=self.CONTRACT), contract=self.CONTRACT)
+        phases = [(phase, "PASS", "OK") for phase in self.CONTRACT.expected_phases]
+        for invalid in (phases[:3] + phases[4:], phases[:4] + phases[3:], phases[::-1]):
+            with self.subTest(phases=invalid), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner.check_harness(harness_result(phases=invalid), contract=self.CONTRACT)
+        with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+            runner.check_harness(harness_result(), contract=self.CONTRACT)
+        with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+            runner.check_harness(harness_result(contract=self.CONTRACT))
+
+    def test_window_warning_skip_missing_or_duplicate_summary_never_pass(self):
+        for outcome, code in (("WARN", "WARN_EMPIRICAL_VARIANCE"), ("SKIP", "SKIP_EVIDENCE_MISSING")):
+            phases = [(phase, "PASS", "OK") for phase in self.CONTRACT.expected_phases]
+            phases[3] = ("QUERY_STORE_WINDOWS", outcome, code)
+            for summary in ("PASS|OK", f"{outcome}|{code}"):
+                with self.subTest(summary=summary), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                    runner.check_harness(harness_result(phases=phases, summary=summary), contract=self.CONTRACT)
+        result = harness_result(contract=self.CONTRACT)
+        for output in (result.stdout.replace("SQLPERF_SUMMARY|PASS|OK", ""),
+                       result.stdout + "\nSQLPERF_SUMMARY|PASS|OK"):
+            with self.subTest(output=output), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner.check_harness(replace(result, stdout=output), contract=self.CONTRACT)
+
+    def test_actual_scope_dispatch_runs_each_manifest_twice_without_changing_the_default(self):
+        original_defaults = (runner.MANIFEST, runner.SCOPE, runner.EXPECTED_PHASES)
+
+        def result_for_command(command, **kwargs):
+            self.assertEqual(kwargs["timeout_seconds"], 260)
+            contract = self.CONTRACT if command[2] == str(self.CONTRACT.manifest) else runner.DATA_MODEL_CONTRACT
+            self.assertEqual(command[2], str(contract.manifest))
+            self.assertNotIn("--show-output", command)
+            return harness_result(contract=contract)
+
+        with patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+             patch.object(runner, "resolve_target", return_value=target()), \
+             patch.object(runner.execution_target, "verify_engine", return_value=17), \
+             patch.object(runner, "assert_empty_instance") as empty, \
+             patch.object(runner, "run_sqlcmd", side_effect=result_for_command) as process, \
+             patch.object(runner, "assert_absent") as absent, redirect_stdout(io.StringIO()) as output:
+            for arguments in (CliTests.CONFIRMED, self.ARGUMENTS, CliTests.CONFIRMED):
+                self.assertEqual(runner.main(arguments), 0)
+            self.assertEqual([call.args[0][2] for call in process.call_args_list],
+                             [str(runner.MANIFEST)] * 2 + [str(self.CONTRACT.manifest)] * 2 + [str(runner.MANIFEST)] * 2)
+            self.assertEqual(absent.call_count, 6)
+            self.assertEqual(empty.call_count, 3)
+            self.assertEqual(output.getvalue().count("scope=DGN-007_QUERY_STORE_WINDOWS"), 1)
+            self.assertEqual(output.getvalue().count("scope=DGN-007_DATA_MODEL"), 2)
+        self.assertEqual((runner.MANIFEST, runner.SCOPE, runner.EXPECTED_PHASES), original_defaults)
+
+    def test_window_failure_preserves_cleanup_priority_and_scope(self):
+        result = harness_result(contract=self.CONTRACT, phases=[
+            ("QUERY_STORE_WINDOWS", "FAIL", "FAIL_TIMEOUT"), ("CLEANUP", "FAIL", "FAIL_CLEANUP")
+        ], summary="FAIL|FAIL_TIMEOUT", returncode=3)
+        with patch.object(runner, "run_harness", return_value=result) as harness, \
+             patch.object(runner, "assert_absent") as absent, redirect_stdout(io.StringIO()) as output:
+            with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CLEANUP"):
+                runner.run_one(target(), 1, contract=self.CONTRACT)
+            harness.assert_called_once_with(target(), contract=self.CONTRACT)
+            absent.assert_called_once()
+            self.assertIn("DGN007_STAGE|DGN-007_QUERY_STORE_WINDOWS|RUN_1|FAIL|FAIL_CLEANUP", output.getvalue())
+
+    def test_internal_window_deadline_is_timeout_even_when_the_process_exits_normally(self):
+        phases = [(phase, "PASS", "OK") for phase in self.CONTRACT.expected_phases]
+        phases[3] = ("QUERY_STORE_WINDOWS", "FAIL", "FAIL_TIMEOUT")
+        for returncode in (0, 3):
+            with self.subTest(returncode=returncode), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_TIMEOUT"):
+                runner.check_harness(harness_result(phases=phases, summary="FAIL|FAIL_TIMEOUT", returncode=returncode),
+                                     contract=self.CONTRACT)
 
 
 if __name__ == "__main__":

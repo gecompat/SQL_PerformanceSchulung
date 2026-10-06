@@ -1,13 +1,17 @@
-# DGN-007 – Automatisierter Datenmodell-Schnitt
+# DGN-007 – Automatisierte Datenmodell- und Fensterverträge
 
-Status: `IMPLEMENTED`; lokale Docker-Matrix am 2026-10-06 auf SQL Server
+Status Datenmodell: `IMPLEMENTED`; lokale Docker-Matrix am 2026-10-06 auf SQL Server
 2019/150, 2022/160 und 2025/170 jeweils zweimal mit `PASS/OK` bestanden.
 Der [Runtime-Nachweis](../../../../Documentation/Project_Planning/DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md)
 dokumentiert Versionen, Cleanup und Grenzen. Dieser eigenständige
 `DGN-007_DATA_MODEL`-Schnitt prüft Aufbau, deterministische Daten, Suchergebnisse
 und Cleanup. Er ist eine Vorbereitung der Capstone-Runtime-Matrix und enthält
-noch keine Incident-, Query-Store-, XE-, Hypothesen- oder Mitigationsabnahme.
-Ein `PASS` gilt ausschließlich für diesen Datenmodellvertrag.
+keine Incident-, XE-, Hypothesen- oder Mitigationsabnahme.
+Der separate `DGN-007_QUERY_STORE_WINDOWS`-Vertrag ergänzt begrenzte
+Query-Store-Capture-Evidenz für zwei disjunkte T0/T1-Intervalle.
+Auch dieser Schnitt bestand am 2026-10-06 auf allen drei Versionen je zweimal.
+Sein Runtime-Status steht im [Fensternachweis](../../../../Documentation/Project_Planning/DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md).
+Ein `PASS` gilt ausschließlich für den jeweils ausgewählten Vertrag.
 
 ## Voraussetzungen und Grenzen
 
@@ -52,9 +56,16 @@ Zustände werden beim Cleanup sicher abgewiesen und benötigen eine manuelle
 Eigentumsprüfung. Das automatische Nachlöschen einer teilweise markierten
 Datenbank ist bewusst nicht implementiert.
 
-`FWK-004` bis `FWK-007` werden erst mit Messung und Incident implementiert.
-Deshalb fehlen Baseline, Demonstration, Mitigation und Comparison in diesem
-Manifest. `setup.manifest.json` ist ein ausdrücklich begrenzter Prüfpfad und
+`FWK-004` bis `FWK-006` bleiben für die vollständige Capstone-Abnahme offen.
+`FWK-007` wird im Fenstervertrag durch Konfigurationssnapshot vor Änderung
+und vollständigen markergebundenen Abbau der frischen Datenbank erfüllt: Der
+ursprüngliche Zustand ist eine abwesende Datenbank ohne Query Store. Das ist
+eine strengere Wegwerfinstanzgrenze; eine Übernahme vorhandener Datenbanken
+oder Konfigurationen ist nicht zulässig.
+Im Datenmodellmanifest fehlen Baseline, Demonstration, Mitigation und
+Comparison. Das zusätzliche `windows.manifest.json` enthält nach der
+Datenassertion ausschließlich `QUERY_STORE_WINDOWS` (150 Sekunden), vor
+dem unveränderten Cleanup. Das gemeinsame reguläre Budget bleibt 180 Sekunden. `setup.manifest.json` ist ein ausdrücklich begrenzter Prüfpfad und
 kein freigegebenes Demo-`manifest.json` im Laufkatalog. Der 2025-Adapter und der
 statische Teilnehmerpfad verwenden weiterhin den eigenen Run-Token `LOCAL`.
 Dieser Test verwendet ausschließlich `AUTO`; es gibt keine `:r`-Abhängigkeit.
@@ -73,6 +84,9 @@ python Tests/Runtime/run_dgn007_automated_setup.py `
   --confirm-disposable-instance
 ```
 
+Für den Fenstervertrag denselben Aufruf um `--scope query-store-windows`
+ergänzen. Ohne Scope bleibt der bisherige Datenmodellvertrag ausgewählt.
+Beide Scopes führen ihr eigenes Manifest jeweils zweimal vollständig aus.
 Für 2019 und 2022 `--expected-major 15` beziehungsweise `16` verwenden.
 Der Runner akzeptiert ausschließlich Developer-Editionen, leere Instanzen
 und `PASS/OK` in jeder erforderlichen Phase. Bei fehlgeschlagenem Cleanup
@@ -92,6 +106,9 @@ python Demos/00_Framework/Tools/run_demo.py `
   Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/setup.manifest.json `
   --server localhost --auth integrated --confirm-isolated-lab
 ```
+
+Für den einzelnen Fensterlauf `setup.manifest.json` durch
+`windows.manifest.json` ersetzen.
 
 Für SQL-Authentifizierung `--auth sql --username sa` verwenden; das Passwort
 kommt ausschließlich aus `SQLCMDPASSWORD`. Verbindungs- und Zertifikatoptionen
@@ -114,7 +131,10 @@ sqlcmd -S localhost -E -b -Q "IF DB_ID(N'SQLPERF_LAB_DGN007_AUTO') IS NOT NULL T
 Cleanup entfernt nur `SQLPERF_LAB_DGN007_AUTO` mit vier exakt passenden
 Eigentumsmarkern. Fehlende, abgeschnittene oder abweichende Marker verhindern
 den Abbau. Es gibt keine globale Konfigurationsänderung und keine eigene
-XE-Session. Query Store wird in diesem Schnitt nicht verändert. Ein erneuter
+XE-Session. Der Datenmodellvertrag verändert Query Store nicht; der
+Fenstervertrag setzt ausschließlich in seiner eigenen Datenbank READ_WRITE,
+Capture ALL, 128 MB, einminütige Intervalle und 60 Sekunden Flushintervall.
+Ein erneuter
 Lauf beginnt wieder beim Preflight. Rohoutput, Pläne und Querytexte werden
 nicht als Repository-Artefakte gespeichert.
 
@@ -122,10 +142,11 @@ nicht als Repository-Artefakte gespeichert.
 
 ```powershell
 python Tests/Static/validate_dgn007_automated_setup.py
+python Tests/Static/validate_dgn007_query_store_windows.py
 ```
 
-Der Workflow `.github/workflows/dgn007-automated-setup.yml` prüft diesen
-begrenzten Schnitt auf allen drei Versionen je zweimal, einschließlich
+Der Workflow `.github/workflows/dgn007-automated-setup.yml` prüft diese
+beiden begrenzten Verträge auf allen drei Versionen je zweimal, einschließlich
 unabhängiger Prüfung des Datenbankabbaus. Er startet frische Docker-Container
 mit vier CPU-Kernen und 8 GB Speicher, ohne veröffentlichte Ports oder
 Host-Volumes. Nach jedem Job entfernt er ausschließlich den eigenen Container
@@ -134,12 +155,35 @@ Cleanup erhalten; Rohoutputs werden nicht als Actions-Artefakte hochgeladen.
 Die statischen Prüfungen enthalten negative Kontrollen für fehlende Phasen,
 Warnungen, Timeouts, Eigentumsprüfung und Cleanup-Fehler.
 
-Danach folgen
-die abgegrenzten Zeitfenster T0/T1/T2 und belastbare Incident-, Requestscope-,
-Hypothesen- und Vergleichsevidenz. Der Runner und der Workflow prüfen
-ausschließlich das Datenmodell. Szenariopromotion,
-`READY_FOR_USER`, Katalogaufnahme und Änderungen an `SQL_Server_Lab` gehören
-nicht zu diesem Schnitt.
+## Fenstervertrag und verbleibende Abnahme
+
+Der Fenstervertrag lässt das tatsächlich beobachtete anfängliche Query-Store-
+Intervall aus. Danach führt er je vier Suchrequests in zwei getrennten,
+katalogbelegten Intervallen aus. T0 beginnt mit `(8,3)`, T1 mit `(1,3)`; beide
+enthalten dieselben vier Parameterpaare je einmal. Vor jedem Fenster wird nur
+die eigene markierte Suchprozedur objektbezogen neu kompiliert. Vor jeder Intervallprobe führt der Batch eine separate Kontrollabfrage über
+zwölf synthetische Gruppenzeilen aus; sie verändert keine Suchrequests und bleibt
+außerhalb des Parent-/Variant-Scope. Ein Flush unterstützt die Sichtbarkeit
+und ersetzt keinen Intervallwechsel. Polling ist
+auf 90 Sekunden je Grenze und insgesamt 145 Sekunden Phase begrenzt; ein
+nicht beobachteter Übergang führt zu `FAIL_TIMEOUT`.
+
+Ergebnisvertrag und Requestscope bleiben exakt; Query Store muss je Fenster
+vier reguläre Suchausführungen aus dem Parent-/Variant-Scope erfassen.
+PSP-Varianten werden nur auf unterstützten Engines dynamisch aufgelöst.
+Disk-/Speicherzeilen werden aggregiert und Mittelwerte nach Ausführungszahl
+gewichtet. Die Labtabellen speichern ausschließlich Konfiguration, IDs,
+Grenzen, Counts und skalare Metriken; keine Pläne oder Querytexte. Cleanup
+entfernt diesen gesamten Zustand mit der eigenen Datenbank.
+
+Ein Fenster-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
+Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP wird
+nicht deaktiviert. Als nächster kleiner Schnitt folgt der fachliche
+Incidentnachweis mit kontrollierter Vergleichslast und nachvollziehbarer
+Plan-/Laufzeitprofilevidenz. Danach folgen Requestscope, Alternativhypothesen,
+reversible Mitigation und T2-Vergleich. Szenariopromotion, `READY_FOR_USER`,
+Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an
+`SQL_Server_Lab` bleiben offen.
 
 Quellen und Traceability: bestehender Designvertrag `ADV-007`,
 `SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`, `SRC-035`, `SRC-036`
