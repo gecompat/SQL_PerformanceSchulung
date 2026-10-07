@@ -218,10 +218,18 @@ ist abgeschlossen: Procedure-Queries unter AUTO werden erfasst; dokumentierte
 asynchrone Persistenz belegt keine verzögerte Publikation. Der tatsächliche
 Pfad prüft eigene Calls und Ergebnisse, attestiert aber weder vollständigen
 Basisabschluss noch interne Aktivierung, kontinuierlichen Zustand oder
-geschlossene Coordinatorherkunft. Nächster Schnitt: begrenzten Beobachtungs-/
-Herkunftsvertrag mit State-/Familienrecords, Pulsgrenze, Vertrauensquelle und
-Observerkosten ausarbeiten. Danach explizite Methodenentscheidung und gemeinsam
-versionierte SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
+geschlossene Coordinatorherkunft. Der konkrete
+[Beobachtungs-/Herkunftsvertrag](DGN_007_OBSERVATION_PROVENANCE_CONTRACT_DESIGN.md)
+liegt als PROPOSED vor: acht Acquisitionstages, vollständige Raw-/Gruppen-/
+Coveragebindung, zwölf tatsächliche Calls, getrennte Pulsgrenze, überprüfte
+Coordinator-Vertrauensquelle und endliche Größen-/Poll-/Observerkosten.
+Bounds und deren Durchführbarkeit sind noch nicht runtimevalidiert.
+Punktweise QSStates beweisen keine Kontinuität; Sättigung bleibt bedingt.
+Die äußere Pipegrenze begrenzt heute nicht das Vorpuffern im Proxy.
+Nächster Schnitt: Suffizienz der Sättigungs-/Kontinuitätsannahmen und einer
+tatsächlich verfügbaren Vertrauensmechanik gegen die konkreten Records prüfen.
+Danach explizite Methodenentscheidung und gemeinsam versionierte
+SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
 Fehlerklassifikation, DEC-068, Last und Budgets bleiben erhalten; keine
 pauschale 1-ms-Toleranz, Abrundung oder Wiederholen bis grün. Die alternative
 Methode ist weder entschieden noch implementiert oder abgenommen. Der frühere Acht-Fixture-Vorcheck enthält keine vollständige

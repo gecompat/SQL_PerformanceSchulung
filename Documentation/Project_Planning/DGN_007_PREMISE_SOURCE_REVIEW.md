@@ -163,3 +163,9 @@ Wegwerfinstanz, Grenzen und unabhängig überprüfbarer Cleanup festzulegen.
 Die Matrix bleibt 2019/150, 2022/160 und 2025/170. G13, v1, DEC-068, bisherige
 FAILs und die fehlende PR68-Mergefreigabe bleiben unverändert. Incident-,
 Ursachen-, Mitigations-, Capstone-, Teilnehmer- und Szenariofreigabe bleiben offen.
+
+Der konkrete [Beobachtungs-/Herkunftsvertrag](DGN_007_OBSERVATION_PROVENANCE_CONTRACT_DESIGN.md)
+liegt inzwischen als PROPOSED vor. Er bindet acht Stages, Raw-/Gruppen-/
+Coverage-/Callrecords und die Coordinatorgrenze an endliche Entwurfsbounds.
+Sättigung, Zustands-/Intervallkontinuität und tatsächliche Vertrauensmechanik
+bleiben gezielt auf Suffizienz zu prüfen; keine Methoden- oder Runtimefreigabe.

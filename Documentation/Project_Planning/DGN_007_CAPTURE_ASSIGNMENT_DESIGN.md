@@ -215,8 +215,11 @@ Publikation und tatsächliche Harnessgrenzen. Die oben genannten nachlaufenden
 Statistiken sind bedingte Gegenproben bei unbekannten Voraussetzungen, keine
 behauptete dokumentierte Publikationsverzögerung nach erfolgreichem Call.
 Basisabschluss, QS-interne Aktivierung und vollständige Herkunft bleiben offen.
-Als Nächstes wird ein begrenzter Beobachtungs-/Herkunftsvertrag ausgearbeitet;
-danach folgen explizite Methodenentscheidung und gemeinsam versionierte Umsetzung.
+Der konkrete [Beobachtungs-/Herkunftsvertrag](DGN_007_OBSERVATION_PROVENANCE_CONTRACT_DESIGN.md)
+liegt inzwischen als PROPOSED vor. Als Nächstes folgt die gezielte
+Suffizienzprüfung der Sättigungs-/Kontinuitätsannahmen und tatsächlichen
+Vertrauensmechanik; danach explizite Methodenentscheidung und gemeinsam
+versionierte Umsetzung. Die endlichen Bounds sind nicht runtimevalidiert.
 Die spätere versionierte Umsetzung muss SQL21/35,
 Quellenfreeze, Body-/Transportformat, Recordmodell, Evaluator, Runner und
 Fixtures gemeinsam binden. Die bestehenden v1-Formate dürfen keine optionale
