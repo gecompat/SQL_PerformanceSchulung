@@ -129,10 +129,7 @@ die neuen Tests kommen additiv hinzu. Kein SQL-/Docker-/Launcherstart.
 Der getrennte [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
 portable Budgetgegenproben und feste eigene Linux-Kindfälle. Die neun heutigen
 Laufzeitquellen und v1/G13 bleiben erhalten; keine reale Laufzeitmachbarkeit.
-Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
-über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
-Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
-Epsilon- oder Methodenfreigabe. Alle Methodengates,
+Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Nächster kleiner Schnitt: tatsächliche Importauflösungs-/UsedBytes-Probe zuerst konkret entwerfen; vertrauenswürdiger Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bytegebundene Bytes, gemessene Origins sowie Shadowing-/Austausch-/Alias-/Replay-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung. Alle Methodengates,
 Import-/Actor-/CID-/Zugangs-/Hostgrenzen und Acquisition bleiben offen.
 PR68 und der zurückgestellte API-Schnitt behalten ihre Grenze. Keine Incident-,
 Ursachen-, Mitigations-, Capstone- oder Szenariopromotion.

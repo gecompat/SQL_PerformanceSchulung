@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `96d4deed96badb5cb7cb72e0c68c3c6e320d4c95` auf `origin/main` (Pull Request 78); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `2787619d624b30c02cd1eb16a8c272b7f436cd45` auf `origin/main` (Pull Request 79); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -295,10 +295,7 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    tatsächliche Importumgebung und verwendete Runtimebytes offen. Der getrennte
    [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
    portable Budgetgegenproben und feste eigene Linux-Kindfälle, ohne Integration
-   in Runtimequellen oder Methoden-/Runtimeattestation. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
-   über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
-   Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
-   Epsilon- oder Methodenfreigabe.
+   in Runtimequellen oder Methoden-/Runtimeattestation. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Nächster kleiner Schnitt: tatsächliche Importauflösungs-/UsedBytes-Probe zuerst konkret entwerfen; vertrauenswürdiger Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bytegebundene Bytes, gemessene Origins sowie Shadowing-/Austausch-/Alias-/Replay-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung.
    Erst nach
    tragfähiger Methodenentscheidung gemeinsam versionierte Umsetzung.
    Keine implizite OFF-/CLEAR-/Laständerung.

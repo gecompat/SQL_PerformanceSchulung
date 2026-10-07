@@ -1,0 +1,42 @@
+name: DGN-007 Numerische Pipelinegegenprobe
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Contracts/dgn007_numeric_pipeline_countermodel.py'
+      - 'Tests/Static/test_dgn007_numeric_pipeline_countermodel.py'
+      - 'Documentation/Project_Planning/DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md'
+      - '.github/workflows/dgn007-numeric-pipeline.yml'
+      - 'Tests/Contracts/dgn007_saturation_countermodel.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Contracts/dgn007_numeric_pipeline_countermodel.py'
+      - 'Tests/Static/test_dgn007_numeric_pipeline_countermodel.py'
+      - 'Documentation/Project_Planning/DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md'
+      - '.github/workflows/dgn007-numeric-pipeline.yml'
+      - 'Tests/Contracts/dgn007_saturation_countermodel.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-numeric-pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  numeric-pipeline:
+    name: DGN-007 Numerische Pipeline-Gegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Oracle, deklarierte Rundung und vorgegebenen Text getrennt prüfen
+        run: python -B Tests/Static/test_dgn007_numeric_pipeline_countermodel.py

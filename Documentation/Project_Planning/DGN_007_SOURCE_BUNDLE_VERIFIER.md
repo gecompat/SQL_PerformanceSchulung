@@ -124,10 +124,7 @@ Ein kontrollseitiger Callback erhält optional erst nach Bytebindung und
 Importprüfung die bereits gelesenen unveränderlichen Bytes. Der Default-Report
 und die CLI dieses Verifiers bleiben unverändert. Der getrennte
 [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert,
-ohne Integration in die neun Runtimequellen. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
-über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
-Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
-Epsilon- oder Methodenfreigabe. Kein Launcherstart:
+ohne Integration in die neun Runtimequellen. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Nächster kleiner Schnitt: tatsächliche Importauflösungs-/UsedBytes-Probe zuerst konkret entwerfen; vertrauenswürdiger Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bytegebundene Bytes, gemessene Origins sowie Shadowing-/Austausch-/Alias-/Replay-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung. Kein Launcherstart:
 UsedBundle, Actor/CID, Datenbankgeneration, Zugang, physischer Host,
 Acquisition, Kosten und kontinuierlicher Zustand bleiben offene Gates.
 Normative Methoden-/Grenzänderungen benötigen eine ausdrückliche neue

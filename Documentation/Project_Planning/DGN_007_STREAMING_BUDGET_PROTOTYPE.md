@@ -124,20 +124,20 @@ verlorenen Leaderanker, Gruppenabweichung, vorhandene fremde Kinder, Restore-
 Readback und unabhängige Absenz. Diese Mocks attestieren keine Linux-Syscalls.
 Die tatsächliche lokale Prüfung unter Python 3.12.14/Windows bestand mit
 59 PASS und sechs ausdrücklich Linux-spezifischen SKIPs (65 Methoden).
-Der genaue CI-Head muss anschließend alle tatsächlichen Linuxfälle ohne SKIP
-bestehen; CI-Abnahme wird am PR dokumentiert. Der [Workflow](../../.github/workflows/dgn007-streaming-budget.yml)
+Die Integration über [PR79](https://github.com/gecompat/SQL_PerformanceSchulung/pull/79)
+ist abgeschlossen: elf PR- und neun Main-Workflows SUCCESS. Der
+[PR-Linuxlauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37617395861)
+am Head `94038b6…` gegen Base `96d4dee…` und der
+[Main-Linuxlauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37617789254)
+am Squash `2787619…` bestanden jeweils alle 65 Methoden ohne SKIP.
+Vollständige unabhängige Übernahme, main-Synchronisierung und eigener
+lokaler/remote Branchabbau sind bestätigt. Der [Workflow](../../.github/workflows/dgn007-streaming-budget.yml)
 ist auf die vier eigenen Tool-/Test-/Doc-/Workflowpfade begrenzt; die bestehenden
 Bundle-/Edge- und SQL-Workflowfilter bleiben erhalten.
 
 Durchgängiges Streaming der heutigen SQL-/SQLcmd-/Proxy-/Harnesskette und ihre
 tatsächlichen Kosten bleiben offen. Der Import-/Launcherentwurf bleibt
 `PROPOSED`; PR68 und der zurückgestellte interne API-Schnitt erhalten keine
-Freigabe. Nächster kleiner Schnitt ist die numerische Pipelinegegenprobe:
-endliche Oraclepopulation → ausdrücklich deklarierte Fragmentrundung →
-separat vorgegebener synthetischer Style3-Text → bestehende Consumergewichtung.
-Exakte Partition, Rundungsabweichung und nicht injektives Consumerergebnis
-werden getrennt geprüft; keine SQL-Konversionsemulation, kein Epsilon und
-keine Methodenfreigabe. Bestehende Fraction-/Sättigungsgegenproben werden
-gezielt wiederverwendet, ohne einen zweiten allgemeinen Evaluator zu bauen. Die spätere gemeinsam versionierte Umsetzung und neue
+Freigabe. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Nächster kleiner Schnitt: tatsächliche Importauflösungs-/UsedBytes-Probe zuerst konkret entwerfen; vertrauenswürdiger Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bytegebundene Bytes, gemessene Origins sowie Shadowing-/Austausch-/Alias-/Replay-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung. Die spätere gemeinsam versionierte Umsetzung und neue
 SQL-Runtime bleiben an tragfähige explizite Methoden-/Umgebungsentscheidungen
 gebunden. Keine Incident-, Ursachen-, Mitigations- oder Capstonepromotion.
