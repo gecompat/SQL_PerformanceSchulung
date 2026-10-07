@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `3234fe0936e894d0c5d8e804c26e2d624a855c8d` auf `origin/main` (Pull Request 69); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `abeabbf2c97d3ea49c0b1f065ff764c957a0ae92` auf `origin/main` (Pull Request 70); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -252,10 +252,13 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Ausführungsumfang. Vorabrequests erfolgen vor der expliziten QS-
    Konfiguration; eine frische Datenbank garantiert kein QS-OFF oder
    Nullbaseline. Konkrete Baseline-/Intervall- und Herkunftsbelege bleiben
-   offen. Nächster kleiner Schnitt ist ein reines Voraussetzungenmodell
-   mit synthetischen Gegenbeispielen, ohne SQL-/v1-Änderung oder Runtime-
-   Attestation; danach Methodenentscheidung und gemeinsam versionierte
-   Umsetzung. Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
+   offen. Das getrennte [deklarative Voraussetzungenmodell](DGN_007_ASSIGNMENT_PREREQUISITES_MODEL.md)
+   prüft jetzt synthetische Gegenbeispiele und bedingte Konsistenz, ohne
+   SQL-/v1-Änderung oder Runtimeattestation. Passende Counts allein belegen
+   keine Herkunft; fehlende Annahmen und Widersprüche bleiben getrennt.
+   Nächster kleiner Schnitt ist die konkrete Quellen-/Ausführungspfadprüfung
+   der offenen Basis-, Intervall-, Sichtbarkeits- und Coordinatorvoraussetzungen;
+   danach explizite Methodenentscheidung und gemeinsam versionierte Umsetzung. Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
    Ursache und Behebung offen.
    Einzelheiten stehen im
    [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).

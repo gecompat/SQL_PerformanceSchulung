@@ -209,11 +209,14 @@ Konfiguration; frische Datenbank und beobachtete Nullcounts beweisen keine
 QS-OFF-Basis oder fehlende nachlaufende Statistik. Konkrete Baseline-,
 Intervallaktivierungs- und Herkunftsbelege bleiben offen. Die Vergleichbarkeit
 von QS-Endzeiten und SYSUTC-Requestklammer auf exakten 100-ns-Grenzen bleibt
-ungeklärt. Nächster kleiner Schnitt ist das reine Voraussetzungenmodell
-mit den vorab festgehaltenen synthetischen Gegenbeispielen; keine Prozesse,
-SQL- oder v1-Änderung und keine Runtimeattestation. Danach unabhängiger
-Suffizienzreview, explizite Methodenentscheidung und gemeinsam versionierte
-SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
+ungeklärt. Das getrennte [deklarative Voraussetzungenmodell](DGN_007_ASSIGNMENT_PREREQUISITES_MODEL.md)
+prüft die vorab festgehaltenen synthetischen Gegenbeispiele und bedingte
+Konsistenz; keine Prozesse im Modell, SQL-/v1-Änderung oder Runtimeattestation.
+Die Prüfung ersetzt insbesondere keine tatsächliche Herkunft trotz passender
+Counts. Nächster kleiner Schnitt ist die konkrete Quellen-/Ausführungspfadprüfung
+der offenen Baseline-, Intervallaktivierungs-, Sichtbarkeits- und
+Coordinatorvoraussetzungen. Danach explizite Methodenentscheidung und gemeinsam
+versionierte SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
 Fehlerklassifikation, DEC-068, Last und Budgets bleiben erhalten; keine
 pauschale 1-ms-Toleranz, Abrundung oder Wiederholen bis grün. Die alternative
 Methode ist weder entschieden noch implementiert oder abgenommen. Der frühere Acht-Fixture-Vorcheck enthält keine vollständige

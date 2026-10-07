@@ -1,0 +1,37 @@
+name: DGN-007 Deklaratives Voraussetzungenmodell
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Contracts/dgn007_assignment_prerequisites.py'
+      - 'Tests/Static/test_dgn007_assignment_prerequisites.py'
+      - 'Documentation/Project_Planning/DGN_007_ASSIGNMENT_PREREQUISITES_MODEL.md'
+      - '.github/workflows/dgn007-assignment-prerequisites.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Contracts/dgn007_assignment_prerequisites.py'
+      - 'Tests/Static/test_dgn007_assignment_prerequisites.py'
+      - 'Documentation/Project_Planning/DGN_007_ASSIGNMENT_PREREQUISITES_MODEL.md'
+      - '.github/workflows/dgn007-assignment-prerequisites.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-assignment-prerequisites-${{ github.workflow }}-${{ github.ref }}
+  # Reine synthetische Modellprüfung ohne SQL oder externe Ressourcen.
+  cancel-in-progress: true
+
+jobs:
+  assignment-prerequisites:
+    name: DGN-007 Reine Voraussetzungen-Gegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Deklarative Konsistenz und Gegenbeispiele prüfen
+        run: python Tests/Static/test_dgn007_assignment_prerequisites.py
