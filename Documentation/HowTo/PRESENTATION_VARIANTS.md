@@ -40,3 +40,7 @@ python Tests/Static/validate_privacy_metadata.py Presentations/variants/build
 ```
 
 Eine Variante ist nur freigegeben, wenn Folienzahl, SlideKey-Reihenfolge, Notes, Branding, Metadaten, Privacy und Renderumfang vollständig passen und das Masterdeck unverändert blieb.
+
+## Generalprobe vorbereiten
+
+Die vorhandenen Render- und Profilabnahmen belegen keine Durchführung mit echten Teilnehmenden. Verwenden Sie den [Generalprobenplan](../Project_Planning/PRS_010_REHEARSAL_PLAN.md) für Demoauswahl, Folienpositionen, Beobachtungsaufträge, Transferfragen und datensparsame Auswertung. Für die dort ausgewählten Vertiefungsfolien wird das vollständige Masterdeck verwendet; ein zusätzlicher Variantenexport ist nicht erforderlich.

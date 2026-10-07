@@ -526,6 +526,8 @@ Dieser Workstream beginnt erst nach Gate A; finale Folien werden nach Gate C fer
 | `PRS-009` | M | Zeitvarianten | Kurz-, Standard- und Vertiefungsdeck aus derselben fachlichen Basis ableitbar |
 | `PRS-010` | M | Generalprobe | vollständiger Ablauf einschließlich Start-, Abbruch- und Recovery-Pfade getestet |
 
+Der [Generalprobenplan](PRS_010_REHEARSAL_PLAN.md) konkretisiert seit 2026-10-07 die vorhandenen Pakete `PRS-010`, `CUR-007`, `CUR-008`, `DOC-002` und `DOC-003`. Die Vorbereitung ist `DESIGNED`; eine Teilnehmerdurchführung und die vollständige Kurs-Generalprobe sind noch nicht ausgeführt. Die zugehörige Prüfung von neun ausgewählten Folien und ihren Notes ist dort separat vom offenen empirischen Nachweis dokumentiert. Historische Runtime- und Lehrmittelfreigaben bleiben auf ihren Prüfstand begrenzt.
+
 ## 15. Querschnitt D – Test- und Qualitätsautomatisierung
 
 ### 15.1 Testklassen
