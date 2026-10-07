@@ -924,3 +924,174 @@ betrachtet. Er darf das negative Ergebnis nicht nachträglich zum Fit umdeuten.
 Erst eine separat versionierte Darstellung mit vollständiger neuer Größenprüfung
 kann den eigenen Codec-/Digestpfad vorbereiten. Legacy, Input82/DGNI001, sämtliche
 Inhalte, Caps und die offenen Worker-/Methodengates bleiben erhalten.
+
+## 12. Verlustfreier Stringpoolentwurf
+
+Dieser separate Kandidat ist `DESIGNED` auf Basis
+`d0f6cce60181f7afe3cae1b271b4b8fe8fb6f49e` nach PR95. Er beschreibt eine
+vollständig erhaltende Darstellung mit einem lokalen Stringpool je Form.
+Der negative vollständige Größenbefund aus §11 und der bestehende §10-Sizer
+bleiben unverändert. Es gibt hier keine Poolmessung, Codecimplementierung,
+Digestberechnung, Migration oder tatsächliche Workeraufnahme.
+
+### 12.1 Lokaler Pool und separate Hülle
+
+Jede Form hat exakt die Hülle `E4=(T,role,pool,payload)` mit vier Positionen.
+`T="pooled-binding-design/v1"` und die folgenden Rollen sind ausschließlich
+prospektive Designwerte. Ein späterer produktiver Versionspfad muss ausdrücklich
+gewählt und getestet werden; weder DGNI001 noch der heutige Matcher erkennen
+diese Hülle. Auch der §10-Pfad wird nicht stillschweigend ersetzt.
+
+`pool` ist ein exaktes Tupel mit höchstens **256** exakten Texten. Es enthält
+alle und ausschließlich die unterschiedlichen semantischen Texte im jeweiligen
+Payload, lexikografisch nach Unicode-Codepoints sortiert. Keine Normalisierung,
+Pfadkürzung, Falländerung, Locale-Sortierung oder bevorzugte Sonderposition.
+Tag und Rolle sind feste äußere Texte und gehören nicht allein deshalb zum Pool;
+ein identischer Text als semantischer Payloadwert gehört trotzdem hinein.
+
+Jede Textposition des Payloads wird durch `r:int(0..len(pool)-1)` ersetzt.
+Die feste Position entscheidet zwischen Textreferenz und semantischem Integer;
+es gibt kein selbstbeschreibendes Integer-/Enumcodeverfahren. `kind`, `loader`,
+Finder-/Hooklabels, Hextexte, Nonce und sämtliche Locator werden als exakte ursprüngliche
+Texte zurückgewonnen. `specName=null` bleibt `null`; leerer Text benötigt einen
+Poolwert `""`, leere Arrays bleiben Arrays. Keine Defaults oder ausgelassenen Felder.
+
+Alle Formen erhalten eigene vollständige Pools. Keine gemeinsame Installation-
+oder Metadata-Dictionary, kein Verweis auf eine andere Nachricht oder ein anderes
+Digestpräbild. Über 256 unterschiedliche Texte bedeutet feste Ablehnung; es gibt
+keinen Inlinefallback, zweiten Pool, höheren Cap oder automatische andere Darstellung.
+
+### 12.2 Vollständige Positionsschemata
+
+Alle Positionen beginnen bei null. `r` bezeichnet ausschließlich die obige
+Textreferenz, `n` einen unveränderten semantischen Integer mit dem jeweiligen
+Wertebereich aus §10.2. Intern gelten exakte Tupel, `str`, `int` und ausdrücklich
+erlaubtes `None`; bool, Subklassen, freie Iterables und Foreigngetter sind verboten.
+Die Darstellung verwendet JSON-Arrays. Die folgende Tabelle ersetzt jede
+Textposition einzeln; sie erhält sämtliche ursprünglichen Arity- und Feldbindungen:
+
+| Record / Arity | Exakte Positionen der Poolprojektion |
+|---|---|
+| `Dp` / 5 | `(ordinal:n,module:r,member:r,size:n,sha256:r)` |
+| `Ip` / 7 | `(protocol:r,commit:r,raw27_binding:r,source_profile:r,nonce:r,Dp[9],context_sha256:r)` |
+| `Fp` / 3 | `(path:r,size:n,sha256:r)` |
+| `Sp` / 15 | `(assumption:r,platform:r,implementation:r,version:n[3],executable:r,executable_target:r,prefixes:r[4],abi:r,paths:r[],roots:r[2],inert_zip:r,flags:n[6],finders:r[3],hooks:r[2],files:Fp[])` |
+| `Pp` / 11 | `(name:r,moduleName:r,specName:r/null,origin:r,file:r,kind:r,locations:r[],loader:r,loaderName:r,loaderPath:r,aliasGroup:r[])` |
+| `Wp` / 6 | `(ordinal:n,entry:r,phase:r,Sp,controls:r[],modules:Pp[])` |
+| `Kp` / 8 | `(commit:r,raw27_binding:r,source_profile:r,nonce:r,Dp[9],ordinal:n,entry:r,phase:r)` |
+
+| Form / Rolle | Exakter Payload / Arity |
+|---|---|
+| gemeinsame Metadata / `METADATA` | `(Ip,Wp,Kp)` / 3 |
+| Bericht / `REPORTED` | `(Kp,Sp,controls:r[],modules:Pp[])` / 4 |
+| Installation-Präbild / `pooled-installation-declaration/v1` | `(Sp,)` / 1 |
+| Worker-Präbild / `pooled-worker-declaration/v1` | `(Wp,)` / 1 |
+| Kontext-Präbild / `pooled-profile-binding-context/v1` | `(Kp,)` / 1 |
+
+Die beiden vollständigen Neuner-Deskriptorarrays erscheinen physisch separat
+in `Ip[5]` und `Kp[4]`: Metadata hat zwei, Bericht und Kontextpräbild jeweils
+eines, Installation- und Workerpräbild keines. Poolreferenzen teilen Texte,
+niemals Record-/Arraystrukturen. Beide Arrays behalten alle fünf Spalten,
+Ordinalfolge, Größen und Hashes und werden vollständig gegen den gehaltenen
+Input und gegeneinander geprüft. Keine Digestersetzung eines Arrayvorkommens.
+
+Nach Referenzauflösung gelten alle semantischen Guards aus §3/§4/§10.2:
+vollständige Name-/Memberbindung, Controls, PRE_IMPORT-Ausschlüsse, Version,
+Flags, Roots, Loaderfelder, Specnamen und die festen Frozenverbände. Die
+Modulfolge bleibt nach dem zurückgewonnenen Namen sortiert, Controls eindeutig
+geordnet, Locations vollständig in ihrer ursprünglichen Folge. Gemischte
+Frozen-/Sourcepartner behalten `()`, erlaubte Singletonrecords ihre feste
+Namenszuordnung. Nur die Textreferenzen ändern sich, keine Wertebedeutung.
+
+### 12.3 Kanonische Größen und getrennte Digestdomains
+
+`C` ist kanonisches ASCII-JSON mit `ensure_ascii=True`, kompakten Separatoren,
+`sort_keys=True` und `allow_nan=False`. Objekte sind hier ausgeschlossen;
+kanonische Array-, Text- und Integerdarstellung bleibt dennoch verpflichtend.
+Für **jede** vollständige E4-Form gilt separat `16+len(C(E4))<=16384`.
+Header, Tag, Rolle, Pool, Referenzen und alle Payloadvorkommen zählen vollständig.
+Das gemeinsame Ausgabecap von 64 KiB bleibt zusätzlich bestehen. Poolunterlauf
+oder kleiner Wirebericht beweist keinen passenden gemeinsamen Eingang.
+
+Die drei `pooled-*/v1`-Rollen sind neue getrennte Design-Digestdomains; ihre
+vollständigen E4-Hüllen wären die späteren Präbilder. SHA256 würde `C(E4)` ohne
+Header und eigenes Digestfeld hashen; die Größenrechnung enthält weiterhin
+16 Headerbytes. Jede Domain erhält ihren eigenen Pool aus ihrem eigenen Payload.
+Alte benannte oder §10-`compact-*`-Digests werden weder übernommen noch als
+gleich umgedeutet. Der Tag ist auch in allen drei Präbildern enthalten.
+
+Das erhaltene Input82-`context_sha256` bleibt dagegen exakt dessen bisheriger
+benannter v1-Metadata-Digest mit unveränderter Kanonisierung. Commit, Raw27-Bindung,
+Nonce, beide Descriptorarrays und neun Rawbodyhashes bleiben unverändert;
+keine LF-Konversion. Eindeutige Positionen, Rollen und kanonischer Pool erlauben
+eine injektive Darstellungsabbildung gültiger Records. Dies behauptet keine
+mathematische SHA256-Kollisionsfreiheit, Signatur oder Herkunftsattestation.
+
+### 12.4 Begrenzte Aufnahme und vollständige Rückgewinnung
+
+Alle bisherigen Caps gelten gleichzeitig: 16 KiB einschließlich Header je Form,
+1 MiB Bodygesamtgröße, 128 KiB je Pythonmember, 4096 UTF-8-Bytes je Text,
+höchstens 256 Elemente je variabler Sequenz **einschließlich Pool**, acht
+Arrayebenen einschließlich E4 und höchstens acht Dezimalstellen je Integer.
+Auch Unicode-ASCII-Escaping zählt tatsächlich; UTF-8-Länge allein reicht nicht.
+
+Der Caller wählt die erwartete Version und Rolle ausdrücklich vor der Aufnahme.
+Ein späterer Decoder prüft Bytegrenzen, Header und Gesamtende vor Slice und Parse.
+Nach begrenztem Parsing vergleicht er den tatsächlichen E4-Tag und die Rolle
+gegen diese Auswahl, vor Indexauslegung und Rekonstruktion; kein Dispatch aus
+unvertrauten Tags. Schema/Arity,
+Tiefe, Typen, Sequenzlängen und Integerbreiten werden während der begrenzten
+Aufnahme geprüft, bevor größere DTOs entstehen. Es gibt höchstens 16368 im
+JSON repräsentierte Knoten; ein expliziter Aufnahme-/Traversalzähler begrenzt
+sie vor Rekonstruktion. Referenzen sind exakte Integer, niemals bool, negativ,
+außerhalb des Pools oder in einer nichttextuellen Position.
+
+Der Pool wird vor Verwendung vollständig auf Textform, Reihenfolge und
+Duplikatfreiheit geprüft. Die Referenztraversierung führt eine begrenzte
+Used-Menge; nach vollständiger Prüfung muss sie genau alle Poolindizes enthalten.
+Ungenutzte Werte, fehlende Referenzen oder alternative Pools werden abgewiesen.
+Die Rekonstruktion hält gemeinsame unveränderliche Pooltexte per Referenz,
+keine wiederholten expandierten String-/Bytekopien oder benannten JSONpuffer.
+Sie zählt alle referenzierten Feldvorkommen innerhalb des Knotencaps und prüft
+deren Rollen-/Locatorbindungen einzeln. Ein kleiner Pool legitimiert keine
+unbegrenzte Expansion; Größen-/Feldprüfung erfolgt vor DTO-Pufferaufnahme.
+
+Für gültige Records gilt `unpack(pack(record))==record` mit exakten Typen,
+Werten und Folgen. Angenommene Wirebytes müssen durch kanonisches erneutes
+Packen identisch werden; alternative Escapes, Leerraum oder Zahlformen sind
+keine zusätzlichen akzeptierten Encodings. Sämtliche Formen werden geprüft;
+ein spätes malformed Feld bleibt Fehler trotz früher gültiger Abweichung.
+Öffentliche Fehler enthalten ausschließlich feste Labels, keine Locator,
+Nonce, Rohtexte oder Exceptionketten. Alle Attestationsflags bleiben false.
+
+### 12.5 Nächste Abnahme und Migration
+
+Nächster separater Implementierungsschnitt ist ein eigener reiner Pool-Sizer:
+vollständige Formprüfung, alle fünf Größen und Poolumfänge für alle drei Ordinals,
+unabhängige benannte Feldreferenz und sichere Aggregate. Vollständige vorher
+gewählte Inventur, beide Arrays und originale Input82-Bindung bleiben erhalten.
+Pool- oder Größenüberschreitung ist ein negatives Ergebnis, kein Anlass zu
+Filterung, neuen Caps oder Nachwahl. Ein tatsächlicher Fit ist derzeit offen.
+
+Erst danach folgt ein eigener versionsgebundener Codec-/Digestpfad. Er darf
+weder expandierte Legacy-`_canonical`-Fehler als Erfolg umdeuten noch durch
+Auslassen ihrer Prüfung die heutige API ändern. Die neue Dispatchauswahl und
+semantischen Guards werden separat getestet; kein automatischer Fallback.
+Verpflichtende Gegenproben für diese späteren Schnitte sind:
+
+| Gegenprobe | Erforderliches Ergebnis |
+|---|---|
+| Alle S15/P11/I7/K8/D5/F3/W6-Spalten, beide D9-Vorkommen | Exakte vollständige Rückgewinnung; unabhängige Feldreferenz und strukturelle Arrayanzahlen |
+| Pool 256/257, Duplikat/ungenutzt/unsortiert, falscher Index/Typ | 256 zulässig bei erfüllten übrigen Guards/Budgets; 257 und Formfehler feste Ablehnung ohne Fallback oder Foreignoperation |
+| Null/Leertext/Leerarray, Kinds, Mixedalias/Singleton, Unicode/Locator | Werte und ursprüngliche Folgen unverändert, UTF-8-/ASCII-Bounds tatsächlich geprüft |
+| Frühe Abweichung plus spätes malformed, Expansion vieler Referenzen | Alle Formen geprüft; begrenzter Traversal-/DTOpfad, kein Teilmatch |
+| Jede E4-Form Cap/Cap+1, Tag-/Rollen-/Headerwechsel | Fünf unabhängige volle Größenprüfungen, keine kostenlose Domain/Version |
+| Schema/Position/Domain/Version vertauscht, alte/neue Crossover | Geschlossene Dispatchgrenze, keine Digestwiederverwendung oder v1-Umdeutung |
+| Pack/Unpack/Repack und wiederholte Arraywerte | Eindeutige kanonische Bytes; Textsharing ersetzt keine Struktur |
+
+Erst nach vollständigem positivem Größen- und Codecnachweis folgt die tatsächliche
+Workerroute samt Kanal-, Consumption-, Replay- und unabhängigem Cleanupbeleg.
+Identisches gültiges Replay bleibt heute möglich. Status dieses Abschnitts ist
+ausschließlich `DESIGNED/PROJECT_SEMANTIC`; kein Fit-, Trust-, UsedBytes-, Runtime-
+oder Methodenclaim. G13, v1, DEC-068, PR68 und die geschützte Capture-Arbeit bleiben
+erhalten; die negativen historischen Ergebnisse werden nicht nachträglich geheilt.
