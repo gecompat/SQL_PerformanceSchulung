@@ -165,6 +165,12 @@ T2, vollständige Capstone-Matrix, Teilnehmerübergabe und Szenariopromotion
 bleiben offen. Der JSON-Vertrag ist kein ausführbares FWK-Manifest und keine
 Freigabe für SQL-Runtime auf vorhandenen Instanzen.
 
+Der getrennte [skalare Collector-Transport](COLLECTOR_TRANSPORT.md) ergänzt
+jetzt die reine JSON-Decodierung mit genauer Decimal-/100-ns-Darstellung.
+Fehlende Ergebniszeilen je Request bleiben `NOT_CAPTURED`/`None`; es werden
+keine Erwartungswerte als Messwerte ergänzt. Das ist ausschließlich ein
+Transport-Vorschnitt, ohne SQL-Producer, Coordinator oder Runtime-Abnahme.
+
 ## Statische Prüfung
 
 ```powershell

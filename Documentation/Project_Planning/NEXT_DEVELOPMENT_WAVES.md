@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
+| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
@@ -52,6 +52,7 @@
 | `DGN-007_PROFILE_COMPARISON` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden gewichtete T0/T1-Metrikvergleiche auf allen drei Versionen je zweimal, einschließlich unabhängigem Cleanup. [Nachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md). Ohne Richtungsgate oder Incidentpromotion. |
 | `DGN-007_CONTROL_AB` / `BA` / `AA` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden alle drei neutralen Kontrollfolgen auf jeder Version je zweimal; vollständige neue Reihenfolge mit 36 Lifecycles und unabhängigem Abbau aller drei eigenen Instanzen. Tatsächliche Requestfolge, aktive Plan-ID-/Hash-Union und Variation im [Nachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md). Ein 2019-BA-Duration-Kontrast liegt innerhalb beobachteter AA-Variation; keine Incidentfreigabe. |
 | prospektiver `DGN-007`-Prüfvertrag | `STATIC_PROSPECTIVE_CONTRACT` | `DEC-068`, reine Record-/Separationsprüfung, 34 synthetische Tests und Quellenvalidator lokal PASS. [Vertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md). Keine SQL-Runtime-Abnahme; Collector und frische Bestätigungsläufe bleiben offen. |
+| skalarer `DGN-007`-Collector-Transport | `STATIC_COLLECTOR_TRANSPORT` | Reiner JSON-Decoder mit genauer Decimal-/100-ns-Darstellung, 19 Transporttests und beide Validatoren lokal PASS; 34 Prospektivtests bleiben grün. [Transportgrenze](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/COLLECTOR_TRANSPORT.md). Keine SQL-Erfassung oder vollständigen RunRecords; fehlende Request-Ergebniszeilen bleiben `NOT_CAPTURED`/`None`. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
 
@@ -112,11 +113,19 @@ positiv und oberhalb beider absoluter AA-Drifts; zusätzlich global entweder
 vier unterschiedliche aktive Hashmengen oder einheitlich gerichtete Reads-
 Kontraste oberhalb beider absoluter AA-Reads-Drifts. 34 synthetische Tests und
 der Quellenvalidator bestanden lokal. Der Status ist ausschließlich
-`STATIC_PROSPECTIVE_CONTRACT`, keine Runtime-Abnahme. Als nächster kleiner
-Schnitt folgt der verlustfreie Collector: integrierten Freeze und Quellen
-verifizieren, vollständige Request-/Familienrecords und präzise Zeiten erfassen,
-Ressourcen, Budgets und tatsächliche Reihenfolge attestieren und Cleanup
-unabhängig bestätigen. Erst danach folgen frische Bestätigungsläufe unter
+`STATIC_PROSPECTIVE_CONTRACT`, keine Runtime-Abnahme. Der getrennte
+[Transport-Vorschnitt](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/COLLECTOR_TRANSPORT.md)
+ist jetzt als `STATIC_COLLECTOR_TRANSPORT` implementiert: 19 tatsächliche
+Decoderfixtures, beide Validatoren und die 34 Prospektivtests lokal PASS.
+Decimal-Text und UTC-100-ns-Integer bleiben präzise. Fehlende Request-
+Ergebniszeilen bleiben `NOT_CAPTURED`/`None`; deklarierte `MEASURED`-Werte
+attestieren keine Herkunft. Der Body enthält keine erfundenen Phasen-,
+Cleanup-, Lifecycle- oder Ressourcenangaben. Nächster kleiner Schnitt ist
+der SQL-Producer: tatsächlich erfasste Ergebniszeilen je Request speichern
+und vollständige skalare Projektion vor Cleanup bereitstellen. Danach folgt
+der Coordinator: integrierten Freeze und Quellen verifizieren, Ressourcen,
+Budgets und tatsächliche Reihenfolge attestieren und Cleanup unabhängig
+bestätigen. Erst danach folgen frische Bestätigungsläufe unter
 der festgelegten Regel. CPU bleibt ergänzend, ohne Fallback. Keine
 nachträglich ausgewählte Ratio oder statistische Signifikanzbehauptung;
 fehlende tragfähige Evidenz bleibt `SKIP_EVIDENCE_MISSING`.

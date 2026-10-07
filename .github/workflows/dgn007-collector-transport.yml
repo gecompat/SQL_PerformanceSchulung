@@ -1,0 +1,54 @@
+name: DGN-007 Collector-Transportvertrag
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Static/test_dgn007_collector_transport.py'
+      - 'Tests/Static/validate_dgn007_collector_transport.py'
+      - '.github/workflows/dgn007-collector-transport.yml'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Tests/Static/test_dgn007_prospective_acceptance.py'
+      - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
+      - '.github/workflows/dgn007-prospective-acceptance.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Static/test_dgn007_collector_transport.py'
+      - 'Tests/Static/validate_dgn007_collector_transport.py'
+      - '.github/workflows/dgn007-collector-transport.yml'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Tests/Static/test_dgn007_prospective_acceptance.py'
+      - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
+      - '.github/workflows/dgn007-prospective-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-collector-transport-${{ github.workflow }}-${{ github.ref }}
+  # Dieser reine Statikjob erzeugt keine SQL- oder externen Ressourcen.
+  cancel-in-progress: true
+
+jobs:
+  collector-transport:
+    name: DGN-007 Reine Collector-Transportfixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reine Transportgrenze prüfen
+        run: python Tests/Static/validate_dgn007_collector_transport.py
+      - name: Synthetische Decoderfixtures prüfen
+        run: python Tests/Static/test_dgn007_collector_transport.py
+      - name: Bestehenden prospektiven Vertrag prüfen
+        run: python Tests/Static/validate_dgn007_prospective_acceptance.py
+      - name: Bestehende 34 prospektive Fixtures prüfen
+        run: python Tests/Static/test_dgn007_prospective_acceptance.py
