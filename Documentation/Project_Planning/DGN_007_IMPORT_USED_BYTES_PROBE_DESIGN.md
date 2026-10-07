@@ -197,6 +197,11 @@ Cleanup UNKNOWN lassen; kein allgemeiner Kernel-, Speicher- oder Harddeadlinecla
 
 ## 7. Vorgesehene Gegenproben und Folgescope
 
+Der erste Implementierungsteil ist jetzt das getrennte
+[Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md). Es bereitet nur
+gebundene Bytes und binäre Rahmung vor. Die folgenden Worker-/Loadergrenzen,
+tatsächliche Importreceipts und Cleanup bleiben unimplementierter Folgescope.
+
 | Gegenprobe | Erforderliches Ergebnis |
 |---|---|
 | fremdes `Tests`-/`json`-Package, CWD/PYTHONPATH/.pth, fremder Hook | kein Fremdimport; keine Suchpfaderweiterung als erfolgreiche Lösung |

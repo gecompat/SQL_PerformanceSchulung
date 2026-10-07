@@ -5,6 +5,9 @@ on:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
       - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Static/test_dgn007_import_probe_input.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md'
       - 'Tests/Static/test_dgn007_execution_edges.py'
       - 'Documentation/Project_Planning/DGN_007_EXECUTION_EDGE_VERIFIER.md'
       - 'Tests/Static/test_dgn007_source_bundle.py'
@@ -42,6 +45,9 @@ on:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
       - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Static/test_dgn007_import_probe_input.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md'
       - 'Tests/Static/test_dgn007_execution_edges.py'
       - 'Documentation/Project_Planning/DGN_007_EXECUTION_EDGE_VERIFIER.md'
       - 'Tests/Static/test_dgn007_source_bundle.py'
@@ -97,3 +103,5 @@ jobs:
         run: python -B Tests/Static/test_dgn007_source_bundle.py
       - name: Gebundene Prozess- und Manifestkanten pruefen
         run: python -B Tests/Static/test_dgn007_execution_edges.py
+      - name: Eingangsrahmung und Kontextmanipulationen prüfen
+        run: python -B Tests/Static/test_dgn007_import_probe_input.py
