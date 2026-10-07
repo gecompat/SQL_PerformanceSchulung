@@ -47,6 +47,13 @@ Es gibt absichtlich kein freigegebenes `manifest.json`: Die fachliche Demo ist n
 
 ## Evidenzstufen und Hypothesenblatt
 
+Der getrennte [prospektive Reproduktionsvertrag](Contracts/README.md)
+legt gemäß `DEC-068` die spätere Duration-/Kontrollseparation und den
+zusätzlichen Plan-oder-Reads-Profilzweig fest. Seine reine Bewertungslogik
+und synthetischen Fixtures sind eine statische Voraussetzung. Sie verändern
+weder den Teilnehmerpfad noch die neutralen SQL-Captures und belegen keine
+Incident-Runtime-Abnahme. Collector und frische Bestätigungsläufe bleiben offen.
+
 | Stufe | Freigabe | Arbeitsauftrag |
 |---|---|---|
 | 1 | Symptom | Zeitfenster und fachlichen Requesttyp beschreiben. |

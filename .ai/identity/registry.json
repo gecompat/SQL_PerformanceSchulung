@@ -925,6 +925,28 @@
       ],
       "title": "Foundation 1.19.0 mit sicheren CI- und Sitzungsvorgaben integrieren"
     },
+    "DEC-068": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b376ecf2-7f81-4588-87f5-b9a8d96d25fe",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-031",
+          "type": "depends_on"
+        },
+        {
+          "target": "DEC-059",
+          "type": "depends_on"
+        },
+        {
+          "target": "DGN-007",
+          "type": "related_to"
+        }
+      ],
+      "title": "Prospektive Duration- und Kontrollseparation für DGN-007 festlegen"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",
