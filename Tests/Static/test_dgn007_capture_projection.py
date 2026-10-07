@@ -311,6 +311,54 @@ class ProjectionTests(unittest.TestCase):
                 runner.run_one(target,1,contract=runner.CONTROL_AB_CONTRACT,check_capture_projection=True,expected_major=15,expected_contract=self.contract)
             self.assertNotIn('DGN007_FAILURE',out.getvalue())
 
+    def test_guard_diagnostics_all_seventeen_ids_and_failure_priorities(self):
+        stdout='SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT\nCONTROL_EVIDENCE: FAIL/FAIL_RESULT_CONTRACT (1.000s) - synthetic-private'
+        for number in range(1,18):
+            guard=f'G{number:02}'
+            stderr=f'[CONTROL_EVIDENCE:stderr] DGN007_CONTROL_GUARD|{guard}\n[CONTROL_EVIDENCE:stderr] \n[CONTROL_EVIDENCE:stderr] SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'
+            result=replace(harness(()),returncode=1,stdout=stdout,stderr=stderr)
+            diagnostics=runner.capture_failure_diagnostics(result,contract=runner.CONTROL_AB_CONTRACT)
+            self.assertIn('DGN007_FAILURE|SQL_GUARD|CONTROL_EVIDENCE|'+guard,diagnostics)
+            self.assertNotIn('synthetic-private',' '.join(diagnostics))
+        target=runner.execution_target.docker_target(container='synthetic-test',sqlcmd_path='/opt/mssql-tools18/bin/sqlcmd')
+        for suffix,expected in (('', 'FAIL_EXECUTION'),('\nCLEANUP: FAIL/FAIL_CLEANUP (1.000s) - ignored','FAIL_CLEANUP'),
+                                ('\nSQLPERF_SUMMARY|FAIL|FAIL_TIMEOUT','FAIL_TIMEOUT')):
+            with patch.object(runner,'run_harness',return_value=replace(result,stdout=stdout+suffix)),patch.object(runner,'assert_absent') as absent,redirect_stdout(io.StringIO()) as out:
+                with self.assertRaisesRegex(runner.RunnerFailure,expected):
+                    runner.run_one(target,1,contract=runner.CONTROL_AB_CONTRACT,check_capture_projection=True,expected_major=15,expected_contract=self.contract)
+                absent.assert_called_once()
+                self.assertIn('DGN007_FAILURE|SQL_GUARD|CONTROL_EVIDENCE|G17',out.getvalue())
+                self.assertIn('DGN007_STAGE|DGN-007_CONTROL_AB|RUN_1|FAIL|'+expected,out.getvalue())
+
+    def test_guard_diagnostics_reject_unknown_duplicate_malformed_and_unbound_ids(self):
+        stdout='CONTROL_EVIDENCE: FAIL/FAIL_RESULT_CONTRACT (1.000s) - synthetic-private'
+        guard='[CONTROL_EVIDENCE:stderr] DGN007_CONTROL_GUARD|G01'
+        summary='[CONTROL_EVIDENCE:stderr] SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'
+        good=guard+'\n'+summary
+        bad=(good.replace('|G01','|G00'),good.replace('|G01','|G18'),good.replace('|G01','|G1'),
+             good.replace('|G01','|G01|synthetic-private'),good.replace('DGN007_CONTROL_GUARD','prefix DGN007_CONTROL_GUARD'),
+             good.replace('CONTROL_EVIDENCE:stderr','SETUP:stderr'),good.replace('CONTROL_EVIDENCE:stderr','CONTROL_EVIDENCE:stdout'),
+             guard,summary+'\n'+guard,guard+'\n[CONTROL_EVIDENCE:stderr] foreign\n'+summary,
+             good.replace('|FAIL|FAIL_RESULT_CONTRACT','|PASS|OK'),good.replace('|FAIL|FAIL_RESULT_CONTRACT','|FAIL|FAIL_TIMEOUT'),
+             guard+'\n'+good,guard.replace('|G01','|G18')+'\n'+good,
+             '[UNKNOWN:stderr] DGN007_CONTROL_GUARD|G01\n'+good,
+             'DGN007_CONTROL_GUARD|G01\n'+good,
+             '[CONTROL_EVIDENCE:stderr] prefix DGN007_CONTROL_GUARD|G01\n'+good,
+             '[CONTROL_EVIDENCE:stderr] '+'x'*9000+'\n'+good)
+        for stderr in bad:
+            result=replace(harness(()),returncode=1,stdout=stdout,stderr=stderr)
+            self.assertFalse(any('|SQL_GUARD|' in line for line in runner.capture_failure_diagnostics(result,contract=runner.CONTROL_AB_CONTRACT)))
+        for changed in ('CONTROL_WINDOWS: FAIL/FAIL_RESULT_CONTRACT (1.000s) - ignored',
+                        'CONTROL_EVIDENCE: WARN/WARN_EMPIRICAL_VARIANCE (1.000s) - ignored',
+                        'CONTROL_EVIDENCE: SKIP/SKIP_EVIDENCE_MISSING (1.000s) - ignored',
+                        harness(()).stdout):
+            result=replace(harness(()),returncode=1,stdout=changed,stderr=good)
+            self.assertFalse(any('|SQL_GUARD|' in line for line in runner.capture_failure_diagnostics(result,contract=runner.CONTROL_AB_CONTRACT)))
+        spoof=replace(harness(()),returncode=1,stdout=stdout+'\n'+good,stderr='')
+        self.assertFalse(any('|SQL_GUARD|' in line for line in runner.capture_failure_diagnostics(spoof,contract=runner.CONTROL_AB_CONTRACT)))
+        duplicate=replace(spoof,stderr=good)
+        self.assertFalse(any('|SQL_GUARD|' in line for line in runner.capture_failure_diagnostics(duplicate,contract=runner.CONTROL_AB_CONTRACT)))
+
     def test_option_only_controls_before_connection_and_private_child_command(self):
         base=['--container','synthetic-test','--expected-major','15','--confirm-disposable-instance','--check-capture-projection']
         with patch.dict(os.environ,{'SQLCMDPASSWORD':'synthetic-test-value'}),patch.object(runner,'resolve_target') as connect,redirect_stdout(io.StringIO()):
@@ -389,6 +437,24 @@ class ExtractedSqlTests(unittest.TestCase):
         self.windows=validator.WINDOWS.read_text(encoding='utf-8')
         self.evidence=validator.EVIDENCE.read_text(encoding='utf-8')
         self.connection=sqlite3.connect(':memory:');self.addCleanup(self.connection.close)
+
+    def test_guard_literal_canonicalization_is_exact_and_preserves_predicate_failures(self):
+        canonical=validator.canonical_guard_diagnostics(self.evidence)
+        self.assertNotIn('DGN007_CONTROL_GUARD',canonical)
+        self.assertEqual(canonical.count("PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;"),17)
+        first="PRINT 'DGN007_CONTROL_GUARD|G01';"
+        second="PRINT 'DGN007_CONTROL_GUARD|G02';"
+        for changed in (self.evidence.replace(first,''),self.evidence.replace(first,second),
+                        self.evidence.replace(first,first+'\n'+first),self.evidence.replace(first,"PRINT @Guard;"),
+                        self.evidence.replace(first,first.replace('G01','G18')),
+                        self.evidence.replace(first,'')+'\n'+first,
+                        self.evidence.replace("PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;",
+                                              "PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT';",1)):
+            with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
+                validator.canonical_guard_diagnostics(changed)
+        changed=self.evidence.replace('p.FirstExecutionTime<w.ExecutionStarted','1=0')
+        self.assertIn('WHERE 1=0',validator.canonical_guard_diagnostics(changed))
+        self.assertTrue(validator.projection_sql_findings(changed))
 
     def test_actual_measurement_select_guard_and_insert_use_actual_rows(self):
         sql=validator.capture_section(self.windows,'REQUEST_MEASUREMENT')

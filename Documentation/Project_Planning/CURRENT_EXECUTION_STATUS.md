@@ -173,8 +173,17 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    unabhängig abwesend bestätigt. Quellenfreeze, genaue Versions-/Imagebindung
    und getrennte frühere Fehlversuche stehen im
    [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
-   146 lokale Testmethoden ergaben 145 PASS und einen ausdrücklich
-   Linux-spezifischen SKIP unter Windows. Nächster kleiner Schnitt ist der
+   149 lokale Testmethoden der Diagnostikrevision ergaben 148 PASS und einen ausdrücklich
+   Linux-spezifischen SKIP unter Windows. Die Integration über
+   [Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
+   ist jedoch blockiert: Im aktuellen Actions-Kandidaten scheiterte SQL Server
+   2025 beim ersten BA-Lifecycle in `CONTROL_EVIDENCE` mit
+   `FAIL_RESULT_CONTRACT`; Datenbank- und Container-Cleanup bestanden.
+   Die genaue fehlgeschlagene Assertion ist bislang unbekannt. Zwei getrennte
+   private BA-Gegenproben reproduzierten den Fehler nicht und ersetzen den
+   fehlgeschlagenen CI-Nachweis nicht. Nächster kleiner Schnitt ist dessen
+   gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.
+   Nach erfolgreicher Producer-Integration folgt erst der
    Collector-Coordinator mit verifiziertem Freeze, Ressourcen, tatsächlicher
    Reihenfolge, präzisen Zeitbudgets und unabhängigem Cleanup. Erst danach
    folgen frische prospektive Bestätigungsläufe.

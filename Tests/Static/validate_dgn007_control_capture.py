@@ -140,8 +140,9 @@ def window_sql_findings(sql: str) -> list[str]:
 
 def evidence_sql_findings(sql: str) -> list[str]:
     try:
-        from validate_dgn007_capture_projection import projection_sql_findings, capture_section
+        from validate_dgn007_capture_projection import projection_sql_findings, capture_section, canonical_guard_diagnostics
         projection_findings = projection_sql_findings(sql)
+        sql = canonical_guard_diagnostics(sql)
         capture_section(sql, "PROJECTION")
         sql = re.sub(r"/\* CAPTURE_PROJECTION_BEGIN \*/.*?/\* CAPTURE_PROJECTION_END \*/",
                      "", sql, flags=re.DOTALL)

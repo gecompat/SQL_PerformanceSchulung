@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Stand | 2026-10-07 UTC / Europe/Vienna |
-| Status | 18 lokale Producer-Lifecycles PASS; alle eigenen Container unabhängig abwesend |
+| Status | 18 lokale Producer-Lifecycles im ursprünglichen Freeze PASS; Producer-Integration nach SQL-2025-CI-Fehler offen |
 | Repository-Basis | `94ed561b91d8f9958a69e08726d2a748181d3c79` (Pull Request 64) mit den Änderungen dieses PR |
 | Umfang | SQL-Producer und tatsächlicher skalarer Decoder für AB, BA und AA |
 | Abnahmegrenze | kein vollständiger Coordinator, RunRecord oder Incidentnachweis |
@@ -46,6 +46,11 @@ Benutzerdatenbanken. Der Containerabbau prüft ursprüngliche CID, eigenen Namen
 UUID-Label und Image-ID und entfernt nur diese eigene Instanz einschließlich
 ihrer anonymen Volumes. Ein unabhängiger Agent prüft anschließend CID- und
 Namensabwesenheit erneut. Fremde Ressourcen sind keine Testziele.
+
+Die folgenden Hashes binden die ursprünglichen 18 erfolgreichen lokalen
+Producer-Lifecycles vor Ergänzung der festen SQL-Guardkennungen. Die spätere
+Diagnostikrevision erhält einen eigenen Freeze; diese Ergebnisse werden ihr
+nicht nachträglich als tatsächlich ausgeführte Läufe zugeschrieben.
 
 | Eingefrorene Quelle | SHA-256, UTF-8 mit LF |
 |---|---|
@@ -245,6 +250,146 @@ jeweiligen Kontrollgruppen unverändert. Je Version bestanden zusätzlich
 drei Leerheitsprüfungen nach den Gruppen. Die ursprüngliche BA-RUN2-
 Fehlerursache bleibt unbekannt; dieser begrenzte aktuelle Nachweis ist keine
 Garantie für allgemeine Verfügbarkeit.
+
+## Actions-Kandidat und offener Integrationsfehler
+
+[Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
+prüfte den Head `a621019036c53f91d32d5183278dd129b56b027b` gegen Base
+`94ed561b91d8f9958a69e08726d2a748181d3c79`. Alle 22 Jobcheckouts wurden
+auf den Integrationscommit `b1d871799352924df0a81e8efd813ffa426f3105`
+bezogen geprüft; dessen vollständiger Baum entspricht dem Featurestand.
+Die 14 Workflows endeten mit 21 erfolgreichen Jobs und einem Fehler.
+Das ist keine erfolgreiche Gesamtvalidierung und erlaubt keinen Merge.
+
+Im [DGN-007-Lauf 37561792652](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37561792652)
+bestanden auf SQL Server 2019 und 2022 jeweils alle zwölf vorgesehenen
+Datenmodell-, Fenster-, Profil- und Kontroll-Lifecycles. Die sechs
+Producerübernahmen je Version bestanden ebenfalls. Auf SQL Server 2025
+bestanden Datenmodell, Fenster, Profilvergleich und AB jeweils zweimal.
+Der folgende erste BA-Lifecycle scheiterte in `CONTROL_EVIDENCE` mit
+`FAIL_RESULT_CONTRACT`. Der äußere Runner meldete wegen des nicht nullwertigen
+Child-Exitcodes `FAIL_EXECUTION`; seine begrenzten Diagnosen erhalten den
+tatsächlichen SQL-Resultcode. Die bestehende PRINT-/RETURN-Verzweigung
+lieferte keine SQL-Meldungsnummer oder Zeile. Welche Assertion scheiterte,
+ist unbekannt. BA-RUN2, AA und die spätere Compatibility-Prüfung wurden
+auf dieser Version nicht ausgeführt.
+
+Alle 33 gestarteten DGN-007-Datenbank-Cleanups bestanden, einschließlich
+unabhängiger Abwesenheitsprüfung. Die drei DGN-007-Container-Cleanup-Schritte
+einschließlich expliziter CID-Abwesenheitsprüfung bestanden. Der statische
+Ubuntu-Job führte alle 146 Testmethoden ohne SKIP erfolgreich aus.
+Diese Ergebnisse beseitigen den fachlichen Fehler im 2025-BA-Lifecycle nicht.
+
+CI verwendete für SQL Server 2025 den unveränderlichen Image-Digest
+`sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726`.
+Ein tatsächlicher CI-`ProductVersion`-Wert wurde nicht protokolliert und bleibt
+unbekannt. Die erfolgreiche ursprüngliche lokale Matrix verwendete dagegen
+die oben genannte lokale Docker-Image-ID `4bab24…` und `17.0.4075.5`.
+
+## Private Gegenproben nach dem CI-Fehler
+
+Zwei separat neu erzeugte eigene Instanzen führten je zwei BA-Lifecycles
+mit einer privaten Diagnosekopie von SQL35 aus. Diese ergänzt ausschließlich
+in den 17 bereits betretenen `FAIL_RESULT_CONTRACT`-Verzweigungen feste
+Kennungen `G01` bis `G17`. Prädikate, RETURN, Last, Phasenreihenfolge, Flushes
+und Budgets blieben erhalten. Die SQL35-Diagnosekopie hat den normalisierten
+SHA-256 `0c55730a0b8a44e95460053843950ccab18a86f66f0869c41000356eede170e4`.
+Sie ist ausdrücklich `NOT_CANONICAL_EVIDENCE` und gehört nicht zu den
+18 ursprünglichen Producer-Lifecycles.
+
+| Gegenprobe | tatsächliche ProductVersion | Imagebindung | Ergebnis |
+|---|---|---|---|
+| bisherige lokale 2025-Revision | `17.0.4075.5` | lokale Docker-Image-ID `sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1` | zwei BA PASS, kein Failuremarker |
+| exakte CI-Image-Revision | `17.0.5005.3` | Registrymanifestdigest `sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726` | zwei BA PASS, kein Failuremarker |
+
+Die eigenen CIDs
+`8efd72fc0c214f26cb5b996a65634c744af71032bf68b35fa2cb361542ce9141`
+und `2acf4f44aabcc041d8ffe83460c9e72d3ffe96a0c8d7ee2c7eee88ce51c7f9e9`
+wurden nach Eigentumsprüfung entfernt. Ein unabhängiger Agent bestätigte
+für beide CID und exakten Namen die Abwesenheit. Die kanonischen Quellen
+blieben unverändert. Diese begrenzten Gegenproben reproduzierten den Fehler
+nicht; sie beweisen weder seine Ursache noch seine Behebung. Die tatsächliche
+Version der zweiten eigenen Instanz attestiert nicht den fehlenden
+Versionswert des früheren CI-Containers.
+
+Eine weitere einzige Gegenprobe führte auf einer dritten frischen eigenen
+Instanz derselben CI-Revision die vollständige CI-Reihenfolge aus:
+`Datenmodell ×2 → Fenster ×2 → Profilvergleich ×2 → AB ×2 → BA ×2 → AA ×2`.
+Alle zwölf privaten Diagnose-Lifecycles bestanden, ebenso die sechs
+Kontroll-Decoderübernahmen, zwölf Datenbankabwesenheitsprüfungen und sechs
+zusätzlichen Gruppen-Leerheitsprüfungen. Kein Guardmarker wurde beobachtet.
+Der Plan sah einen Stopp beim ersten FAIL vor; dieser trat nicht ein.
+ProductVersion war `17.0.5005.3`, Registrymanifestdigest `2b5b5816…` wie oben.
+Die kanonischen Quellen blieben vor und nach allen Gruppen unverändert;
+SQL35 verwendete dieselbe private Marker-only-Kopie `0c55730a…`.
+Die eigene CID
+`0662782943d679ec7b3a40458c440f04a16d0601c84df354eea0f17926080af8`
+mit Namen `sqlperf-dgn007-producer-17-629822294e` wurde nach Eigentumsprüfung
+entfernt; ein unabhängiger Agent bestätigte CID und exakten Namen als abwesend.
+Auch diese vollständige lokale Gegenprobe ist `NOT_CANONICAL_EVIDENCE` und
+beweist keine Ursache oder Behebung des früheren CI-Fehlers.
+
+## Produktive feste Guarddiagnostik
+
+Die anschließende Revision ergänzt ausschließlich konstante ASCII-PRINTs
+`DGN007_CONTROL_GUARD|G01` bis `G17` unmittelbar vor den bestehenden 17
+`FAIL_RESULT_CONTRACT`-Summaries und RETURNs. Ein unabhängiger Review
+bestätigt: Nach Entfernung genau dieser 17 PRINTs ist der vollständige
+normalisierte SQL35-Text identisch mit dem ursprünglichen Head `a6210190…`.
+Prädikate, Last, Flushes, Deadline, Summary, RETURN und Cleanup bleiben
+unverändert. Im JSON wurde ausschließlich der SQL35-Quellenhash erneuert;
+die übrigen 13 Quellen und der gesamte Methodenvertrag bleiben identisch.
+
+Der Runner veröffentlicht eine feste Guard-ID nur aus dem tatsächlichen
+`CONTROL_EVIDENCE:stderr`-Kanal einer fehlgeschlagenen Evidenzphase,
+unmittelbar gebunden an `SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT`.
+Unbekannte, doppelte, verschobene oder falsch gebundene Marker liefern
+keinen Guardbericht. Die bestehenden Outputgrenzen und Fehlerprioritäten
+bleiben erhalten. Die validierte Kanonisierung der statischen Prüfungen
+entfernt ausschließlich diese 17 festen Literale; sämtliche bisherigen
+Prädikat- und Common-Code-Prüfungen bleiben bestehen. Diese Revision
+verbessert nur die Lokalisierung und ist keine behauptete Fehlerbehebung.
+
+| Quelle der Diagnostikrevision | SHA-256, UTF-8 mit LF |
+|---|---|
+| SQL35 | `7d51b7bf3f444683ca2360595df24abf0214512c8794c50bcf5432f5fceae29f` |
+| Vertragsdatei | `abc8135b0d648f21be597448d11d3693f57707c9801fb624670c281e422be20a` |
+| Runtime-Runner | `6127b2107b096c27c45a104e4ddb9e7516308c38d26995d44a577d7a932918b7` |
+
+Der neue semantische Vertragsdigest ist
+`d10e97f14a30d89034c44ed35dcf9adf4173141599228c62595dad686d60575d`,
+der Quellenobjektdigest
+`7e26db9f85122f1c4eb43851231694090890c5869e484b4abd0e1295cbf35a43`.
+SQL21, Frame-Packager, Transportdecoder und prospektiver Evaluator behalten
+ihre oben genannten ursprünglichen Hashes. Die neue Runtime-/CI-Prüfung
+wird getrennt zu diesem Freeze bewertet.
+
+Auf den tatsächlichen Quellen dieser Diagnostikrevision wurden 149 lokale
+Testmethoden ausgeführt: 148 PASS und derselbe Linux-spezifische SKIP unter
+Windows. Alle sieben DGN-007-Validatoren und 15 weitere betroffene
+Governance-/Projektvalidatoren bestanden. Die drei zusätzlichen Testmethoden
+prüfen sämtliche Guard-IDs, falsche Bindungen und Literal-Kanonisierung;
+die bestehenden Prädikat-, Decoder-, Cleanup- und Timeoutprüfungen bleiben
+erhalten. Diese lokalen Ergebnisse attestieren kein neues CI-Ergebnis.
+
+Die neue kanonische Diagnostikrevision bestand anschließend auf einer frischen
+eigenen SQL-2025-Developerinstanz mit tatsächlicher ProductVersion
+`17.0.5005.3` und dem exakten CI-Registrymanifestdigest `2b5b5816…` zweimal
+vollständig BA. Der unveränderte tatsächliche Packager/Decoder übernahm je
+zwei Fenster, acht Requests, eine Familie, zwei Planfensterrecords und zwei
+Planunionrecords. Alle acht Phasen, zwei unabhängige Datenbankabwesenheits-
+prüfungen und eine zusätzliche Gruppen-Leerheitsprüfung bestanden. Die
+gesonderte reale SQL-Tick-/Style3-Probe bestand ebenfalls. Alle 14 Quellen,
+der aktuelle Vertrag und die vier gebundenen Pythonmodule blieben vor und
+nach der Gruppe unverändert. Die eigene CID
+`6cb3cec515e329fef1fefd7d17dcc4aa9d22922f5dfb36a22778ee9a36db0e0a`
+mit Namen `sqlperf-dgn007-producer-17-2ef635167e` wurde nach Eigentumsprüfung
+entfernt; CID und exakter Name sind unabhängig als abwesend bestätigt.
+Diese zwei aktuellen BA-Lifecycles sind ein neuer begrenzter Entwicklungs-
+nachweis zu dieser Revision. Sie werden weder in die ursprüngliche
+18-Matrix noch in die zwölf privaten Diagnoselifecycles hineingerechnet.
+Ein erfolgreicher aktueller CI-Kandidat steht weiterhin aus; der frühere
+CI-Fehler ist dadurch nicht als behoben erklärt.
 
 ## Verbleibende Abnahmegrenzen
 

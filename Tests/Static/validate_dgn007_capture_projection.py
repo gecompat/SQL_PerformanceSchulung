@@ -24,6 +24,23 @@ def uncomment(sql):
 def normalized(sql): return ' '.join(uncomment(sql).split())
 
 
+def canonical_guard_diagnostics(sql):
+    """Nur 17 validierte konstante IDs vor denselben Ergebnisfehlern entfernen."""
+    code=uncomment(sql)
+    summary="PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT';"
+    pattern=re.compile(r"\bPRINT 'DGN007_CONTROL_GUARD\|(G(?:0[1-9]|1[0-7]))';\s*"
+                       +re.escape(summary)+r"\s*RETURN;")
+    expected=tuple(f'G{i:02}' for i in range(1,18))
+    if (tuple(match[1] for match in pattern.finditer(code))!=expected
+            or code.count('DGN007_CONTROL_GUARD')!=17
+            or len(re.findall(re.escape(summary)+r'\s*RETURN;',code))!=17):
+        raise ValueError('FAIL_CONTRACT')
+    canonical,count=re.subn(r"\bPRINT 'DGN007_CONTROL_GUARD\|G(?:0[1-9]|1[0-7])';",'',sql)
+    if count!=17:
+        raise ValueError('FAIL_CONTRACT')
+    return canonical
+
+
 def capture_section(sql,name):
     begin,end=f'/* CAPTURE_{name}_BEGIN */',f'/* CAPTURE_{name}_END */'
     if sql.count(begin)!=1 or sql.count(end)!=1 or sql.index(begin)>=sql.index(end):
@@ -103,6 +120,7 @@ PROJECTION_SECTIONS=('PROJECTION','REQUEST_ROWS','REQUEST_GUARD','EXECUTION_BOUN
 def projection_sql_findings(sql):
     findings=[]
     try:
+        sql=canonical_guard_diagnostics(sql)
         if normalized(capture_section(sql,'REQUIRED_GUARD'))!="OR OBJECT_ID(N'lab.RequestResultCapture',N'U') IS NULL":
             findings.append('Producer benötigt exakt den zusätzlichen Messschema-Existenzschutz')
         code=normalized(capture_section(sql,'PROJECTION'))
@@ -201,6 +219,9 @@ def main():
     findings+=pure_findings(module)+frame_contract_findings(module)
     findings+=runner_projection_findings(RUNNER.read_text(encoding='utf-8'))
     findings+=workflow_findings(WORKFLOW.read_text(encoding='utf-8'))
+    for i in range(1,18):
+        if not projection_sql_findings(evidence.replace(f"PRINT 'DGN007_CONTROL_GUARD|G{i:02}';",'')):
+            findings.append('Fehlende feste Guard-ID wurde nicht erkannt')
     for marker in PROJECTION_MARKERS:
         if not projection_sql_findings(re.sub(re.escape(marker).replace(r'\ ',r'\s*'),'REMOVED',evidence)):
             findings.append('Negative Projectionkontrolle wurde nicht erkannt')

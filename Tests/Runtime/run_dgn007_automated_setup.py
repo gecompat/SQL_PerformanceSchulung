@@ -435,6 +435,7 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
         return ()
     diagnostics: list[str] = []
     failed_phases: set[str] = set()
+    guard_phase_failed = False
 
     def append(line):
         if line not in diagnostics and len(diagnostics) < MAX_FAILURE_DIAGNOSTICS:
@@ -446,16 +447,22 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
         phase = FAILURE_PHASE.fullmatch(line)
         if phase and phase[1] in contract.expected_phases and phase[3] in FAILURE_CODES[phase[2]]:
             failed_phases.add(phase[1])
+            if phase[1] == "CONTROL_EVIDENCE" and phase[2] == "FAIL":
+                guard_phase_failed = True
             append(f"DGN007_FAILURE|OUTER_PHASE|{phase[1]}|{phase[2]}|{phase[3]}")
         summary = SUMMARY.fullmatch(line)
         if summary and summary[1] in FAILURE_CODES and summary[2] in FAILURE_CODES[summary[1]]:
             append(f"DGN007_FAILURE|OUTER_SUMMARY|{summary[1]}|{summary[2]}")
     if not diagnostics:
         return ()
-    for line in result.stderr.splitlines():
+    raw_lines = result.stderr.splitlines()
+    guards = []
+    for position, line in enumerate(raw_lines):
         if len(line) > MAX_CAPTURE_LINE_CHARS:
             continue
         raw = RAW_PHASE.fullmatch(line)
+        if raw and raw[3].startswith("DGN007_CONTROL_GUARD"):
+            guards.append((position, raw))
         if not raw or raw[1] not in failed_phases or raw[2] != "stderr":
             continue
         summary = SUMMARY.fullmatch(raw[3])
@@ -466,6 +473,22 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
             number, level, state, line_number = (int(value) for value in message.groups())
             if number <= 2147483647 and 1 <= level <= 25 and state <= 255 and line_number <= 1000000:
                 append(f"DGN007_FAILURE|SQL_MESSAGE|{raw[1]}|msg={number}; line={line_number}")
+    if (guard_phase_failed and len(guards) == 1
+            and result.stderr.count("DGN007_CONTROL_GUARD") == 1
+            and "DGN007_CONTROL_GUARD" not in result.stdout
+            and all(len(line) <= MAX_CAPTURE_LINE_CHARS for line in raw_lines)):
+        position, raw = guards[0]
+        guard = re.fullmatch(r"DGN007_CONTROL_GUARD\|(G(?:0[1-9]|1[0-7]))", raw[3])
+        following = None
+        for line in raw_lines[position + 1:]:
+            following = RAW_PHASE.fullmatch(line) if len(line) <= MAX_CAPTURE_LINE_CHARS else None
+            if (following is None or following.groups()[:2] != ("CONTROL_EVIDENCE", "stderr")
+                    or following[3] != ""):
+                break
+        if (guard and raw.groups()[:2] == ("CONTROL_EVIDENCE", "stderr") and following
+                and following.groups()[:2] == ("CONTROL_EVIDENCE", "stderr")
+                and following[3] == "SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT"):
+            append(f"DGN007_FAILURE|SQL_GUARD|CONTROL_EVIDENCE|{guard[1]}")
     return tuple(diagnostics)
 
 

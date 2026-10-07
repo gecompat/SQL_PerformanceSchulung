@@ -128,8 +128,15 @@ insgesamt 18 vollständige Lifecycles mit tatsächlichem Decoder und unabhängig
 Cleanup. Alle drei eigenen Container sind unabhängig abwesend bestätigt.
 Der [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md)
 bindet konkrete Versionen, Images und Quellenfreeze und hält frühere
-Fehlversuche getrennt fest. 146 lokale Testmethoden ergaben 145 PASS und
-einen Linux-spezifischen SKIP unter Windows. Nächster kleiner Schnitt ist
+Fehlversuche getrennt fest. 149 lokale Testmethoden der Diagnostikrevision ergaben 148 PASS und
+einen Linux-spezifischen SKIP unter Windows. Die Producer-Integration über
+[Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
+bleibt durch einen tatsächlichen SQL-2025-CI-Fehler blockiert: BA-RUN1 endet
+in `CONTROL_EVIDENCE` mit `FAIL_RESULT_CONTRACT`, bei erfolgreichem Cleanup.
+Die genaue Assertion ist unbekannt; zwei private BA-Gegenproben ohne
+Reproduktion ändern den CI-Befund nicht. Nächster zulässiger Schnitt ist
+gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.
+Erst nach erfolgreicher Producer-Integration folgt
 der Collector-Coordinator: integrierten Freeze und Quellen verifizieren,
 Ressourcen, präzise Budgets und tatsächliche Reihenfolge attestieren und
 Cleanup unabhängig bestätigen. Vollständige Bodies und tatsächliche

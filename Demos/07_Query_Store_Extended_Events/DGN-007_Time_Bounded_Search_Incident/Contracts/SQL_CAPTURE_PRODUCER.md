@@ -107,6 +107,33 @@ ruft keine Incident-Separationsbewertung auf.
 
 Im Fehlerfall ergänzt der Modus nach der unabhängigen Cleanup-Prüfung
 ausschließlich bekannte Phasenstatus und begrenzte numerische SQL-Fehlerdetails.
+Zusätzlich kann er eine der 17 konstanten Guardkennungen aus SQL35 ausgeben:
+`DGN007_FAILURE|SQL_GUARD|CONTROL_EVIDENCE|G13`. Dazu müssen der tatsächliche
+stderr-Kanal, die fehlgeschlagene Evidenzphase und die unmittelbar folgende
+`FAIL_RESULT_CONTRACT`-Summary übereinstimmen. Unbekannte, doppelte oder
+verschobene Kennungen werden nicht veröffentlicht. Die Kennungen gehören
+zu den folgenden unverändert bestehenden Prüfabschnitten:
+
+| Kennung | Prüfabschnitt |
+|---|---|
+| G01 | Kontrollkonfiguration |
+| G02 | Fenster und Katalogintervalle |
+| G03 | Requestmenge und Parametermix |
+| G04 | tatsächliche Requestfolge |
+| G05 | gespeicherte Profile, Scope, Counts und Metriken |
+| G06 | Forced Plans |
+| G07 | Live-Katalogmetriken |
+| G08 | Live-Abgleich von IDs, Counts und Zeiten |
+| G09 | aktive Planhashes |
+| G10 | aktive PlanTypes |
+| G11 | aktive Ausführungsanzahl |
+| G12 | tatsächliche Request-Ergebnisbindung |
+| G13 | Query-Store-Endzeiten innerhalb der Ausführungsgrenzen |
+| G14 | gewichtete Totals und Recordanzahl |
+| G15 | UTC-Tickdarstellung |
+| G16 | projizierte Planbindung und PlanType |
+| G17 | JSON-, ASCII- und Größenvertrag |
+
 Er veröffentlicht keinen Rohfehlertext. Diese Diagnose ändert weder Outcome
 noch Fehlerpriorität, Budget oder Wiederholungsverhalten.
 
@@ -117,8 +144,12 @@ tatsächlichem Decoder, unabhängiger Datenbankabwesenheit und überprüftem
 Containerabbau. Alle drei eigenen CIDs und exakten Namen sind unabhängig
 abwesend bestätigt. Der [Runtime-Nachweis](../../../../Documentation/Project_Planning/DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md)
 bindet konkrete Versionen, Images und Quellendigest und trennt frühere
-Fehlversuche von der erfolgreichen aktuellen Matrix. Das sind begrenzte
-Entwicklungsnachweise; die GitHub-Actions-Abnahme bleibt eine eigene Prüfung.
+Fehlversuche von der erfolgreichen ursprünglichen Matrix. Die spätere
+Guarddiagnostikrevision ist separat gebunden. Die ursprüngliche Actions-
+Prüfung scheiterte auf SQL Server 2025 in BA-RUN1; lokale private Gegenproben
+reproduzierten diesen Fehler nicht. Seine Ursache bleibt offen. Das sind
+begrenzte Entwicklungsnachweise; erfolgreiche GitHub-Actions-Evidenz zum
+aktuellen Head und Base bleibt vor Integration erforderlich.
 
 ## Statische und synthetische Prüfung
 
@@ -127,13 +158,13 @@ python Tests/Static/validate_dgn007_capture_projection.py
 python Tests/Static/test_dgn007_capture_projection.py
 ```
 
-Die neue Suite enthält 27 Testmethoden mit parametrisierten Gegenproben für
+Die aktuelle Suite enthält 30 Testmethoden mit parametrisierten Gegenproben für
 alle drei Major Versions und Kontrollscopes, echte Decoderanbindung,
 Framegrenzen, Queryfamilien, Requestbindungen, SQL-Ausdrucksfixtures und
-begrenzte Prozess-/Fehlerausgabe. Unter Windows bestanden 26; die
+begrenzte Prozess-/Fehlerausgabe. Unter Windows bestanden 29; die
 Linux-spezifische Exit-vor-EOF-Gegenprobe ist dort ausdrücklich SKIP und
 wird im Linux-CI ausgeführt. Zusammen mit den bestehenden DGN-007-Suites
-wurden 146 Testmethoden ausgeführt: 145 PASS und dieser eine SKIP.
+wurden 149 Testmethoden ausgeführt: 148 PASS und dieser eine SKIP.
 Die SQL-Ausdrucksfixtures sind modellbasierte Prüfungen; die gesonderten
 T-SQL-Proben und Kontrolllifecycles bleiben erforderlich. Der Validator
 prüft die additive SQL-Erweiterung, reine Packagergrenze und CI-Anbindung;

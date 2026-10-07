@@ -66,6 +66,7 @@ IF (SELECT COUNT_BIG(*) FROM lab.ControlSequence)<>2
    OR EXISTS(SELECT 1 FROM lab.ControlSequence a JOIN lab.ControlSequence b ON a.WindowId=0 AND b.WindowId=1
              WHERE a.ConditionCode='B' AND b.ConditionCode='B')
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G01';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CONTROL_SEQUENCE_GUARD_END */
@@ -87,6 +88,7 @@ IF (SELECT COUNT_BIG(*) FROM lab.IncidentState)<>2
              LEFT JOIN sys.query_store_runtime_stats_interval i ON i.runtime_stats_interval_id=w.RuntimeStatsIntervalId
              WHERE i.runtime_stats_interval_id IS NULL OR i.start_time<>w.IntervalStart OR i.end_time<>w.IntervalEnd)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G02';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* DGN007_CONTROL_WINDOW_GUARD_END */
@@ -108,6 +110,7 @@ IF (SELECT COUNT_BIG(*) FROM dbo.CaseRequestLog)<>12
              EXCEPT SELECT w.WindowId,r.GroupKey,r.StatusCode FROM lab.IncidentState w
              JOIN dbo.CaseRequestLog r ON r.RequestLogId BETWEEN w.FirstRequestLogId AND w.LastRequestLogId)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G03';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* DGN007_CONTROL_REQUEST_GUARD_END */
@@ -134,6 +137,7 @@ IF EXISTS(SELECT WindowId,Sequence,GroupKey,StatusCode FROM #OrderedRequests
    OR EXISTS(SELECT WindowId,Sequence,GroupKey,StatusCode FROM #Parameters
              EXCEPT SELECT WindowId,Sequence,GroupKey,StatusCode FROM #OrderedRequests)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G04';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CONTROL_ORDER_GUARD_END */
@@ -176,12 +180,14 @@ IF EXISTS(SELECT 1 FROM lab.IncidentProfile p
    OR EXISTS(SELECT ParentQueryId FROM lab.IncidentProfile WHERE WindowId=1
              EXCEPT SELECT ParentQueryId FROM lab.IncidentProfile WHERE WindowId=0)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G05';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* DGN007_CONTROL_METRIC_GUARD_END */
 
 IF EXISTS(SELECT 1 FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId WHERE p.is_forced_plan IS NULL OR p.is_forced_plan<>0)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G06';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 IF @Major>=16 AND OBJECT_ID(N'sys.query_store_query_hints',N'V') IS NOT NULL
@@ -198,6 +204,7 @@ IF EXISTS(SELECT 1 FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_
              OR r.avg_duration IS NULL OR r.avg_duration<0 OR r.avg_cpu_time IS NULL OR r.avg_cpu_time<0
              OR r.avg_logical_io_reads IS NULL OR r.avg_logical_io_reads<0 OR r.avg_rowcount IS NULL OR r.avg_rowcount<0))
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G07';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 SELECT w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,r.runtime_stats_interval_id AS RuntimeStatsIntervalId,
@@ -217,6 +224,7 @@ IF EXISTS(SELECT WindowId,ParentQueryId,QueryId,PlanId,RuntimeStatsIntervalId,Ex
              FROM #LiveRuntime
              EXCEPT SELECT WindowId,ParentQueryId,QueryId,PlanId,RuntimeStatsIntervalId,ExecutionType,ExecutionCount,FirstExecutionTime,LastExecutionTime FROM lab.IncidentProfile)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G08';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 
@@ -228,6 +236,7 @@ IF EXISTS(SELECT 1 FROM lab.IncidentProfile p
           JOIN sys.query_store_plan q ON q.plan_id=p.PlanId AND q.query_id=p.QueryId
           WHERE q.query_plan_hash IS NULL OR DATALENGTH(q.query_plan_hash)<>8)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G09';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CONTROL_HASH_GUARD_END */
@@ -248,12 +257,14 @@ IF @Major>=16
             SET @Invalid=1;',N'@Invalid bit OUTPUT',@Invalid=@InvalidPlanType OUTPUT;
 IF @InvalidPlanType=1
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G10';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 IF (SELECT COUNT_BIG(*) FROM #ExecutedPlans)=0
    OR EXISTS(SELECT 1 FROM lab.IncidentState w
              WHERE COALESCE((SELECT SUM(p.ExecutionCount) FROM #ExecutedPlans p WHERE p.WindowId=w.WindowId),0)<>4)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G11';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 IF SYSUTCDATETIME()>=@PhaseDeadline
@@ -316,6 +327,7 @@ IF (SELECT COUNT_BIG(*) FROM lab.RequestResultCapture)<>8
    OR EXISTS(SELECT 1 FROM lab.IncidentState w
              WHERE (SELECT COUNT_BIG(*) FROM #CaptureRequests r WHERE r.WindowId=w.WindowId)<>4)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G12';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CAPTURE_REQUEST_GUARD_END */
@@ -323,6 +335,7 @@ END;
 IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
           WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G13';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CAPTURE_EXECUTION_BOUNDS_END */
@@ -354,6 +367,7 @@ IF (SELECT COUNT_BIG(*) FROM #CaptureTotals)<>2
    OR (SELECT COUNT_BIG(*) FROM #CaptureFamilies) NOT BETWEEN 1 AND 12
    OR (SELECT COUNT_BIG(*) FROM #ExecutedPlans) NOT BETWEEN 1 AND 8
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G14';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CAPTURE_TOTALS_GUARD_END */
@@ -382,6 +396,7 @@ IF (SELECT COUNT_BIG(*) FROM #CaptureWindowTicks)<>8
    OR EXISTS(SELECT 1 FROM #CaptureWindowTicks WHERE Ticks IS NULL OR Ticks<0 OR Ticks>3155378975999999999)
    OR EXISTS(SELECT 1 FROM #CapturePlanTicks WHERE Ticks IS NULL OR Ticks<0 OR Ticks>3155378975999999999)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G15';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CAPTURE_TIME_GUARD_END */
@@ -401,6 +416,7 @@ IF @Major>=16
 IF (SELECT COUNT_BIG(*) FROM #CapturePlans)<>(SELECT COUNT_BIG(*) FROM lab.IncidentProfile)
    OR EXISTS(SELECT 1 FROM #CapturePlans WHERE @Major>=16 AND (PlanType IS NULL OR PlanType NOT IN (0,2)))
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G16';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 
@@ -449,6 +465,7 @@ IF @ProjectionJson IS NULL OR LEN(@ProjectionJson) NOT BETWEEN 1 AND 32000
    OR @ProjectionJson COLLATE Latin1_General_100_BIN2 LIKE N'%[^ -~]%'
    OR DATALENGTH(@ProjectionJson)<>2*LEN(@ProjectionJson) OR ISJSON(@ProjectionJson)<>1
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G17';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CAPTURE_FRAME_GUARD_END */
