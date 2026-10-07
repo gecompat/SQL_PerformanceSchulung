@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `94ed561b91d8f9958a69e08726d2a748181d3c79` auf `origin/main` (Pull Request 64) |
+| geprüfter Repository-Basisstand | `da7b0eb7c3bfb5238141c34520b237228ca77085` auf `origin/main` (Pull Request 65) |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -174,28 +174,27 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    und getrennte frühere Fehlversuche stehen im
    [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
    156 lokale Testmethoden der Phasendiagnostikrevision ergaben 155 PASS und einen ausdrücklich
-   Linux-spezifischen SKIP unter Windows. Die Integration über
+   Linux-spezifischen SKIP unter Windows. Die Producer-Integration über
    [Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
-   ist jedoch blockiert: Im ersten Actions-Kandidaten scheiterte SQL Server
-   2025 beim ersten BA-Lifecycle in `CONTROL_EVIDENCE` mit
-   `FAIL_RESULT_CONTRACT`; Datenbank- und Container-Cleanup bestanden.
-   Die genaue fehlgeschlagene Assertion ist bislang unbekannt. Auch der zweite
-   Kandidat mit festen Guardkennungen scheiterte: SQL Server 2022 meldete
-   in WINDOWS-RUN1 `FAIL_EXECUTION` ohne sichtbaren Child-Code; die drei
-   gestarteten Datenbank-Cleanups und der Containerabbau bestanden.
-   Die sichere Phasendiagnostik aller sechs bekannten Scopes ist implementiert
-   und unabhängig geprüft; SQL-Prädikate und Budgets bleiben unverändert.
-   Eine getrennte frische 2022-Gegenprobe zum neuen Runner bestand zweimal
-   Datenmodell und zweimal Fenster mit unabhängigem Cleanup. Der Fehler
-   wurde nicht reproduziert; erfolgreiche CI zum neuen Head steht aus.
-   Zwei getrennte
-   private BA-Gegenproben reproduzierten den Fehler nicht und ersetzen den
-   fehlgeschlagenen CI-Nachweis nicht. Nächster kleiner Schnitt ist dessen
-   gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.
-   Nach erfolgreicher Producer-Integration folgt erst der
-   Collector-Coordinator mit verifiziertem Freeze, Ressourcen, tatsächlicher
-   Reihenfolge, präzisen Zeitbudgets und unabhängigem Cleanup. Erst danach
-   folgen frische prospektive Bestätigungsläufe.
+   ist abgeschlossen: Head `20a867e…` gegen Base `94ed561b…`, geprüfter
+   Integrationscommit `df78cb0…`, 14 Workflows und alle 22 Jobs SUCCESS.
+   Linux führte alle 156 Methoden ohne SKIP aus. Je Version bestanden zwölf
+   Lifecycles, sechs Decoder-Captures und zwölf unabhängige Datenbank-
+   abwesenheitsprüfungen; die drei DGN-007-CIDs sind explizit abwesend bestätigt.
+   Der Squash `da7b0eb…` wurde am 2026-10-07 um 04:18:12 UTC integriert;
+   vollständige Tree-Gleichheit, Main-Synchronisierung und lokale/remote
+   Bereinigung des eigenen Arbeitsbranches sind unabhängig bestätigt.
+   Die zwei historischen CI-Fehler bleiben im Producernachweis getrennt
+   dokumentiert; ihre Ursache ist unbekannt. Die Diagnostik ändert weder
+   SQL-Prädikate noch Budgets und behauptet keine Fehlerbehebung.
+   Nächster kleiner Schnitt ist die interne verlustfreie Capture-Rückgabe:
+   den vollständigen Body und tatsächlich geprüfte Phasen übernehmen,
+   Rückgabe erst nach erfolgreichem Harness-Cleanup und erstem erfolgreichen
+   unabhängigen Abwesenheitscheck. Counts, CLI und Fehlerprioritäten bleiben
+   gleich; Recovery liefert niemals einen erfolgreichen Capture-Beleg.
+   Dies erzeugt keine RunRecords oder Runtimeattestation. Danach folgen
+   Coordinator-Freeze, Ressourcen, tatsächliche serielle Reihenfolge und
+   präzise Budgets; erst danach frische prospektive Bestätigungsläufe.
    Die bisherigen Captures belegen keine Regression, Ursache, Mitigation oder
    Capstone-Freigabe.
    Der Compatibility-Vorfix ersetzt im älteren Teilnehmerpfad die ungültige

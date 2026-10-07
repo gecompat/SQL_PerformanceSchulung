@@ -388,8 +388,8 @@ entfernt; CID und exakter Name sind unabhängig als abwesend bestätigt.
 Diese zwei aktuellen BA-Lifecycles sind ein neuer begrenzter Entwicklungs-
 nachweis zu dieser Revision. Sie werden weder in die ursprüngliche
 18-Matrix noch in die zwölf privaten Diagnoselifecycles hineingerechnet.
-Ein erfolgreicher aktueller CI-Kandidat steht weiterhin aus; der frühere
-CI-Fehler ist dadurch nicht als behoben erklärt.
+Zum Zeitpunkt dieser Gegenprobe stand ein erfolgreicher aktueller CI-Kandidat
+noch aus; die Gegenprobe erklärt den früheren CI-Fehler nicht als behoben.
 
 ## Zweiter Actions-Kandidat: Fensterfehler auf SQL Server 2022
 
@@ -480,8 +480,63 @@ Diese vier aktuellen Lifecycles sind ausschließlich ein begrenzter Nachweis
 für die Phasendiagnostikrevision. Sie werden weder zur ursprünglichen
 18-Kontrollmatrix noch zur späteren BA-Prüfung oder zu privaten Diagnoseläufen
 addiert. Der zweite CI-Fensterfehler wurde nicht reproduziert; seine Ursache
-bleibt offen. Erfolgreiche Actions am neuen exakten Head und Base bleiben
-vor Integration erforderlich.
+bleibt offen. Zum Zeitpunkt dieser Gegenprobe standen erfolgreiche Actions
+am neuen exakten Head und Base vor Integration noch aus.
+
+## Erfolgreiche Integrationsabnahme und Übernahme
+
+Der folgende aktuelle Kandidat wurde vor Merge unabhängig vollständig
+abgenommen: PR65-Head `20a867e2f0ce9ffa4430e138f76479904145ba48`
+gegen Base `94ed561b91d8f9958a69e08726d2a748181d3c79`,
+Integrationscommit `df78cb0fb83f6b3992d1a8c2f6b55bf8b2f83598` mit
+exakt diesen beiden Parents. Integrations- und Featuretree sind vollständig
+`3949e7a1013db8b1d98903581d6e87a0ee992412`. Alle 14 Workflows und
+22 Jobs/Checks endeten SUCCESS; alle Checkouts binden an denselben
+Integrationscommit und alle Checks an Head und Actions-App `15368`.
+Die erforderlichen [Registry-](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37568945174)
+und [Governance-Prüfungen](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37568945226)
+waren bei unverändertem, streng aktuellem Base-Gate erfolgreich.
+
+Der [DGN-007-Lauf 37568945100](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37568945100)
+führte alle 156 Linux-Testmethoden ohne SKIP aus. Auf jeder Zielversion
+15/150, 16/160 und 17/170 bestanden zwölf Lifecycles in der bestehenden
+Reihenfolge Datenmodell, Fenster, Profil, AB, BA, AA mit je zwei Runs.
+Je Version bestanden sechs vollständige Producer-Decoder-Captures,
+zwölf unabhängige Datenbankabwesenheitsprüfungen und sechs Scope-Summaries
+mit `runs=2`. Alle Bodies enthalten zwei Fenster, acht Requests, eine
+Familie und zwei Planfensterrecords; die aktive Union enthält zwei Records
+unter AB/BA und einen unter AA. Auf 2025 bestanden zusätzlich die acht
+Compatibility-Gegenproben. Alle neun SQL-Remove-Schritte waren SUCCESS;
+die drei DGN-007-Cleanups bestätigten Eigentum über Name, Labels und CID
+sowie die anschließende explizite CID-Abwesenheit. Diese vollständige neue
+CI-Matrix umfasst 36 Lifecycles und 18 Producer-Captures; sie wird separat
+zu den früheren lokalen und fehlgeschlagenen Kandidaten bewertet.
+
+Root prüfte unmittelbar vor Merge erneut den unveränderten Head, Base,
+alle 22 erfolgreichen Checks und `MERGEABLE/CLEAN`. [Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
+wurde regulär als Squash `da7b0eb7c3bfb5238141c34520b237228ca77085`
+am 2026-10-07 um 04:18:12 UTC integriert. Eine unabhängige Übernahmeprüfung
+bestätigte serverseitig und lokal genau einen Parent `94ed561b…`, den
+vollständigen gleichen Tree `3949e7a…`, leeren Gesamtdiff zum Featurehead,
+keine zusätzlichen Branchcommits und den einzigen sauberen Worktree.
+`main` wurde mit `origin/main` synchronisiert. Erst danach wurde der eigene
+Branch `codex/dgn007-sql-capture-producer` remote mit einer an den geprüften
+Head gebundenen Löschungs-Lease und lokal entfernt. Anschließend gab es
+lokal und remote ausschließlich `main` am bestätigten Squash.
+
+Die historischen Fehler an `a6210190…` und `23efba04…` bleiben tatsächliche
+fehlgeschlagene Kandidaten mit unbekannter genauer Ursache. Die neue
+vollständige erfolgreiche Abnahme hebt ihre Befunde nicht auf und behauptet
+keine Behebung durch Diagnostik. Die automatisch gestartete Main-Push-CI
+am Squash ist ein getrennter, zum Zeitpunkt dieser Quittung noch laufender
+Nachweis; ihre Ergebnisse werden nicht vorweggenommen.
+
+Nächster kleiner Schnitt ist die interne verlustfreie Rückgabe von Body und
+tatsächlich geprüften Phasen erst nach erfolgreichem Lifecycle, Harness-
+Cleanup und erster unabhängiger Datenbankabwesenheit. Recovery macht keinen
+Fehler zum erfolgreichen Capture-Beleg. Counts, CLI und Fehlerprioritäten
+bleiben erhalten. Daraus folgt noch kein RunRecord, Ressourcen-/Budget-/
+Reihenfolgenachweis, keine Runtimeattestation und keine Incidentbewertung.
 
 ## Verbleibende Abnahmegrenzen
 
