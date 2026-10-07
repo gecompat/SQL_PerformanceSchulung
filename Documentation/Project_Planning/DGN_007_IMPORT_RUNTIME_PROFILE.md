@@ -35,7 +35,9 @@ unabhängige Herkunftsattestation. Die Baselinewahl bleibt Verantwortung des
 Kontrollaufrufers; eine Klasse oder ein Authoritylabel verleiht keine Rechte
 und ist kein Trustbeleg. Ein Worker darf später nicht sein eigenes Ergebnis
 als unabhängige Auswahlquelle verwenden. Die konkrete getrennte Parent-/Worker-
-Baselineübertragung und ihre Ausführungsbindung bleiben offen.
+Baselineübertragung und ihre Ausführungsbindung bleiben offen. Der getrennte
+[skalare Bindungsvertrag](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md) legt jetzt
+deren Deklarations-/Vergleichsschnitt als `DESIGNED` fest, ohne ihn zu implementieren.
 
 Beobachtet werden tatsächliche Startflags, Interpreter-/Installationsmetadaten,
 Finder-/Hookidentitäten und der vollständige begrenzte vorbeladene Modulbestand.
@@ -85,8 +87,15 @@ Lokal unter Python 3.12.14: 24 Testmethoden, davon 23 PASS und genau ein
 ausdrücklicher Linux-SKIP (0,042 s). In der Linux-CI muss auch diese Methode
 PASS erreichen. Die elf Projektvalidatoren und fünf Frameworkprüfungen
 bestanden separat mit Exit 0 (Privacy: 909 Dateien; Result-Evaluator: vier
-Tests). Head/Base-CI ist vor Integration erforderlich; die Main-Push-CI
-des übernommenen Squash wird anschließend separat geprüft. Ein Metadatenmatch
+Tests). PR85 integrierte den Vorschnitt als Squash
+`e75baeb811c1a9973198200c94aa37a795d64b1a`. Die getrennten Linux-Runs
+[PR85](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37638549160)
+und [Main](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37639021867)
+bestanden jeweils Bundle36, Edge26, Input27, Loader27 und Profil24 ohne SKIP.
+Der PR-Checkout war `f6ff05aa1cae9ca149a624a360bcce23558eb7c9` am exakten
+Head/Base; der Main-Checkout war der genannte Squash. Der begrenzte tatsächliche
+Linux-Bootstrapmatch wurde damit getrennt von portablen Fixtures geprüft.
+Ein Metadatenmatch
 ist kein erfolgreicher DGN-Import. Feste Quellenauflösung, tatsächliche
 Loaderverwendung und Importabschluss sowie drei begrenzte eigene Linux-Worker
 mit unabhängig geprüftem Cleanup bleiben offen. G13, v1, DEC-068 und die
