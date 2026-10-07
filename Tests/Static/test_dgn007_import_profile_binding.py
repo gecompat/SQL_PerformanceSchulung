@@ -80,6 +80,60 @@ def at_size(target):
     return replace(w, installation=inst), replace(r, installation=inst), c
 
 
+# Namensumfang einer privaten Linux-3.12.3-Charakterisierung, keine Sollinventur.
+# Labels, private Locator und Liveobjekte werden ausdrücklich nicht übernommen.
+CHARACTERIZED_NAMES = (
+    "__main__", "_abc", "_ast", "_blake2", "_codecs", "_collections", "_collections_abc",
+    "_frozen_importlib", "_frozen_importlib_external", "_functools", "_hashlib", "_imp", "_io",
+    "_json", "_opcode", "_operator", "_signal", "_sre", "_stat", "_struct",
+    "_sysconfigdata__x86_64-linux-gnu", "_thread", "_tokenize", "_warnings", "_weakref", "_weakrefset",
+    "abc", "ast", "builtins", "codecs", "collections", "collections.abc", "contextlib", "copy",
+    "copyreg", "dataclasses", "dgn007_import_runtime_profile", "dis", "encodings", "encodings.aliases",
+    "encodings.utf_8", "enum", "functools", "genericpath", "hashlib", "importlib", "importlib._abc",
+    "importlib._bootstrap", "importlib._bootstrap_external", "importlib.machinery", "importlib.util",
+    "inspect", "io", "itertools", "json", "json.decoder", "json.encoder", "json.scanner", "keyword",
+    "linecache", "marshal", "opcode", "operator", "os", "os.path", "posix", "posixpath", "re",
+    "re._casefix", "re._compiler", "re._constants", "re._parser", "reprlib", "stat", "struct", "sys",
+    "sysconfig", "threading", "time", "token", "tokenize", "types", "warnings", "weakref", "zipimport",
+)
+
+
+def relaxed_kind_rows(name):
+    # Alle Kindmöglichkeiten; leere Pfade/Locations/Aliase schwächen die Form.
+    # Diese Dicts sind Rechenuntergrenzen, ausdrücklich keine gültigen DTOs.
+    rows = []
+    for kind, loader, origin in (("BUILTIN", "BUILTIN", "built-in"), ("FROZEN", "FROZEN", "frozen"),
+                                ("SOURCE", "SOURCE", ""), ("EXTENSION", "EXTENSION", "")):
+        mn, sn = b.FROZEN_NAMES.get(name, (name, name)) if kind == "FROZEN" else (name, name)
+        rows.append(dict(name=name, moduleName=mn, specName=sn, origin=origin, file="", kind=kind,
+                         locations=(), loader=loader, loaderName=name if kind in ("SOURCE", "EXTENSION") else "",
+                         loaderPath="", aliasGroup=()))
+    if name in ("__main__", "dgn007_import_runtime_profile"):
+        for loader in ("NONE", "SOURCE"):
+            rows.append(dict(name=name, moduleName=name, specName=None, origin="", file="", kind="CONTROL",
+                             locations=(), loader=loader, loaderName=name if loader == "SOURCE" else "",
+                             loaderPath="", aliasGroup=()))
+    return rows
+
+
+def relaxed_shared_metadata(ordinal):
+    # Formgeprüfter Input82 mit echten Hashes leerer synthetischer Bodies.
+    # Größe 0 und unveränderliche Hexbreiten unterapproximieren alle echten Inputs.
+    parent = prepared()
+    parent = replace(parent, sources=tuple(replace(row, body=b"", sha256=hashlib.sha256(b"").hexdigest())
+                                           for row in parent.sources))
+    context = b.derive_binding_context(parent, ordinal)
+    inst = b._value(installation())
+    for key in ("executable", "executable_target", "abi", "inert_zip"):
+        inst[key] = ""
+    inst.update(prefixes=("",) * 4, roots=("",) * 2, paths=(), files=(), version=(3, 12, 0))
+    modules = tuple(min(relaxed_kind_rows(name), key=lambda row: len(canonical(row)))
+                    for name in CHARACTERIZED_NAMES)
+    worker = dict(ordinal=ordinal, entry=b.ENTRIES[ordinal - 1], phase="PRE_IMPORT", installation=inst,
+                  controls=("__main__", "dgn007_import_runtime_profile"), modules=modules)
+    return dict(input=i._metadata(parent), worker=worker, context=b._value(context))
+
+
 class Foreign:
     def __getattribute__(self, _):
         raise RuntimeError("synthetic-private-getter")
@@ -90,6 +144,67 @@ class Foreign:
 
 
 class MatcherTests(unittest.TestCase):
+    def test_characterized_names_shared_metadata_conservative_lower_bound(self):
+        self.assertEqual(CHARACTERIZED_NAMES, tuple(sorted(set(CHARACTERIZED_NAMES))))
+        self.assertEqual(len(CHARACTERIZED_NAMES), 85)
+        names_lf = ("\n".join(CHARACTERIZED_NAMES) + "\n").encode("ascii")
+        self.assertEqual(len(names_lf.splitlines()), 85)
+        self.assertEqual(hashlib.sha256(names_lf).hexdigest(),
+                         "a9e02a88ef624e791c757ab840fb652387871d4b009ed08bf5dca83aa5393d1f")
+        keys = {f.name for f in fields(b.ModuleDeclaration)}
+        self.assertEqual(len(keys), 11)
+        for name in CHARACTERIZED_NAMES:
+            choices = relaxed_kind_rows(name)
+            self.assertEqual({r["kind"] for r in choices},
+                             {"BUILTIN", "FROZEN", "SOURCE", "EXTENSION"} |
+                             ({"CONTROL"} if name in ("__main__", "dgn007_import_runtime_profile") else set()))
+            for row in choices:
+                self.assertEqual(set(row), keys)
+        # Feldweise Lockerung und Minimum über alle Kinds können eine gültige
+        # Darstellung nur verkürzen. Selbst diese Untergrenze überschreitet den Cap.
+        for ordinal in (1, 2, 3):
+            metadata = relaxed_shared_metadata(ordinal)
+            self.assertEqual(set(metadata), {"input", "worker", "context"})
+            self.assertIn("context_sha256", metadata["input"])
+            self.assertEqual(len(metadata["input"]["modules"]), 9)
+            self.assertEqual(len(metadata["context"]["modules"]), 9)
+            self.assertEqual(len(metadata["worker"]["modules"]), 85)
+            modules = metadata["worker"]["modules"]
+            self.assertEqual(sum(len(canonical(row)) for row in modules), 16363)
+            self.assertEqual(len(canonical(modules)), 16449)
+            self.assertEqual(len(canonical(metadata["worker"]["installation"])), 342)
+            self.assertEqual(len(canonical(metadata["input"]["modules"])), 1714)
+            self.assertEqual(len(canonical(metadata["context"]["modules"])), 1714)
+            lower = 16 + len(canonical(metadata))
+            self.assertEqual(lower, (21144, 21130, 21108)[ordinal - 1])
+            self.assertGreater(lower, b.MAX_METADATA)
+            relaxed_report = dict(context=metadata["context"],
+                                  installation=metadata["worker"]["installation"],
+                                  controls=metadata["worker"]["controls"], modules=modules)
+            self.assertEqual(16 + len(canonical(relaxed_report)), (18953, 18946, 18935)[ordinal - 1])
+            with self.assertRaises(b.BindingRejected) as cm:
+                b._canonical(metadata)
+            self.assertEqual(str(cm.exception), "METADATA_LIMIT")
+
+    def test_complete_synthetic_name_extent_rejected_only_by_shared_cap(self):
+        # Eigene synthetische Kindwahl, keine tatsächliche Installation/Workerbaseline.
+        modules = tuple(b.ModuleDeclaration(name, name, None, "", "/synthetic/control.py", "CONTROL", (), "NONE")
+                        if name in ("__main__", "dgn007_import_runtime_profile") else builtin(name)
+                        for name in CHARACTERIZED_NAMES)
+        w, r, c = fixture(modules=modules, inst=replace(installation(), version=(3, 12, 3)))
+        b._worker(w)
+        b._reported(r)
+        b._context(c)
+        self.assertEqual(tuple(row.name for row in w.modules), CHARACTERIZED_NAMES)
+        self.assertEqual(len(w.modules), 85)
+        self.assertLess(len(w.modules), b.MAX_RECORDS)
+        self.assertLess(max(len(value.encode("utf-8")) for row in w.modules
+                            for value in (row.name, row.moduleName, row.origin, row.file)), b.MAX_FIELD)
+        self.assertEqual(size(w, c), 21815)
+        self.assertEqual(16 + len(canonical(b._value(r))), 19615)
+        self.assertGreater(size(w, c), b.MAX_METADATA)
+        self.reject(w, r, c, "METADATA_LIMIT")
+
     def reject(self, w, r, c, issue=None):
         out = b.match_reported_profile(w, r, c)
         self.assertEqual(out.status, "REJECTED_REPORTED_PROFILE")

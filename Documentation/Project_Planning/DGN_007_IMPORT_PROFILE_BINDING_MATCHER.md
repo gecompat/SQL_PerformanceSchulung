@@ -106,3 +106,28 @@ und [Dataclasses](https://docs.python.org/3.12/library/dataclasses.html#frozen-i
 `iterencode` liefert Teiltexte; eine feste Byteobergrenze ist zusätzlich vom
 Projekt durchzusetzen. `frozen=True` ersetzt weder vollständige Formprüfung
 noch einen Schutz gegen privilegierte Mutation im Kontrollprozess.
+
+## Getrennte Größenuntergrenze der charakterisierten Bootstraproute
+
+Der [begrenzte Größenbeleg](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#9-charakterisierte-bootstraproute-und-größenuntergrenze)
+ergänzt zwei portable Gegenproben im vorhandenen Testscript. Seine 85 festen
+öffentlichen Namen stammen aus einer separat bezeichneten lokalen
+Charakterisierung unter CPython 3.12.3; sie sind keine operative Sollinventur.
+Die konservative Rechnung berücksichtigt alle elf Modulkeys und alle
+zulässigen Kindfälle einschließlich der festen Frozen-Namen und der beiden
+Controlnullspecs. Verkleinerte Locator-/Installationswerte dienen nur einer
+Untergrenze, keiner gültigen Nachricht. Das vollständige Modularray benötigt
+mindestens 16.449 Bytes; einschließlich beider vollständiger neunfacher
+Deskriptorarrays, übriger Metadata und Header sind es je Einstieg mindestens
+21.144, 21.130 beziehungsweise 21.108 Bytes. Alle drei überschreiten den
+unveränderten gemeinsamen 16-KiB-Cap.
+
+Die zweite Gegenprobe hält eine vollständig formgültige synthetische
+85er-Deklaration mit kleinen Einzelwerten und bestätigt den festen
+`METADATA_LIMIT`-Fehler. Sie behauptet keine tatsächlichen Modulkinds oder
+Workerbeobachtung. Der Matcher und seine 38 bisherigen Methoden bleiben
+unverändert; lokal bestanden jetzt alle 40 Methoden unter CPython 3.12.14
+ohne SKIP. Der konkrete gemeinsame CI-Stand wird im Pull Request gebunden.
+Eine vollständige Darstellung innerhalb unveränderter Caps braucht zunächst
+einen getrennten Entwurf und Review; keine Filterung, zusätzliche 16 KiB,
+Digestersetzung oder Protokolländerung folgt aus diesen Tests.
