@@ -131,6 +131,10 @@ beiden Records und jeweils die festen Modul-/Specnamen des Profilvorschnitts.
 Fehlender oder widersprüchlicher Partner ist ein fester Formfehler. Ein einzeln
 vorhandener erlaubter Frozenrecord darf ausschließlich `aliasGroup=()` tragen.
 Diese Konsistenzprüfung attestiert keine gemeinsame Liveidentität.
+Zwei benannte Cachekeys allein bilden keinen Frozenverband: ein separat
+kohärenter Sourcewrapper und ein Frozenrecord bleiben eigenständige Records
+mit `aliasGroup=()`. Der lokale Projektionsguard verlangt weiterhin gemeinsame
+Modul-/Specidentität, wenn beide Records als Frozenpartner vorliegen.
 Exakte `str/int/tuple/bytes` werden vor Vergleich geprüft; bool und Subklassen
 sind keine Zahlenrecords. Kein Text enthält NUL oder ungepaarte Surrogate.
 `kind` ist genau `BUILTIN,FROZEN,SOURCE,EXTENSION,CONTROL`; Listenlängen bleiben

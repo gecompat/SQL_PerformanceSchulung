@@ -192,6 +192,13 @@ Modul-/Spec-/Loadernamen und Loaderpfade aus den erneut geprüften Liveobjekten.
 Benannte Frozenpaare erhalten einen Verband ausschließlich bei beiden Cachekeys
 und gemeinsamer Modul-/Specidentität; ein zulässiger Einzelrecord bleibt ohne
 Verband. Kein Nonce-/Commit-/Ordinal-/Einstieg-/Phasenkontext wird aus PASS erzeugt.
+Ein normaler Sourcewrapper unter einem zweiten benannten Cachekey bildet keinen
+Frozenverband. Beide einzeln kohärenten Records werden vollständig mit `()`
+erhalten; bei zwei behaupteten Frozenpartnern bleibt die gemeinsame Modul-/
+Specidentität zwingend. Die CPython-3.12.14-Quellen beschreiben
+[`collections.abc` als Sourcewrapper](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/collections/abc.py)
+über [`_collections_abc`](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/_collections_abc.py);
+dies allein attestiert keine konkrete installierte Inventur.
 
 Die Payload hat exakt `(selection, installation, modules)`:
 
@@ -218,11 +225,26 @@ Typen/Subklassen, bool-Zahlen und ungültige File-/Locationlocator auch bei
 Frozen/Control ab. Texte werden weder ergänzt noch normalisiert, die Inventur
 weder gefiltert noch gekürzt.
 
-Lokal auf Windows unter CPython 3.12.14: 56 Methoden, 53 PASS und genau
-3 ausdrücklich begründete Linux-SKIPs (0.062 s). Die neue tatsächliche
+Lokal auf Windows unter CPython 3.12.14: 57 Methoden, 54 PASS und genau
+3 ausdrücklich begründete Linux-SKIPs (0.057 s). Die neue tatsächliche
 Linuxprojektion wird im direkten Testbootstrap vor `unittest.mock` aufgenommen
 und ist in der Linux-CI ohne SKIP zu prüfen. Der bestehende reine Matcher bleibt
 separat; seine 38 Methoden prüfen keine tatsächliche Workerbeobachtung.
+
+Der erste [PR90-Linuxlauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37660707640)
+am Head `8dd432740c26d16ca806340dd119146158137704` auf Ubuntu mit CPython
+3.12.14 bestand die ersten vier Suiten mit 36/26/27/27 Methoden. Die damalige
+Profilesuite mit 56 Methoden hatte eine tatsächliche Projektionsablehnung und
+einen fehlgeschlagenen Test; der nachfolgende Matcherstep wurde nicht ausgeführt.
+Dies ist kein erfolgreicher Linuxnachweis. Der zusätzliche Aliaszwang bei
+Frozenrecord plus Sourcewrapper wurde unabhängig im Quellreview eingegrenzt
+und unter CPython 3.12.14 separat mit synthetischen Records reproduziert:
+Legacyvergleich `MATCHED_DECLARED_BASELINE/NONE`, damalige Projektion
+`REJECTED_PROFILE/MODULE_COHERENCY` ohne Skalare.
+Die neue portable Regression schlug mit der alten Aliaslogik fehl und besteht
+nach dem engen Fix: beide Records bleiben ohne Verband erhalten; für zwei
+Frozenpartner bleibt der Identitätsguard bestehen. Der aktualisierte Head braucht erneut die
+vollständige erfolgreiche CI einschließlich tatsächlicher Linuxprojektion.
 
 Dieser Slice bestätigt keine atomare Aufnahme oder dauerhaft gültige
 Cachemitgliedschaft. Nach späterem Cache-/Runtimewechsel braucht jede aktuelle

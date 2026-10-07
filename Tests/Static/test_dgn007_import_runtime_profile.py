@@ -701,6 +701,34 @@ class ScalarProjectionTests(unittest.TestCase):
                     self.assertEqual(projected[n][1:3], names)
                     self.assertEqual(projected[n][-1], tuple(sorted(pair)) if len(selected) == 2 else ())
 
+    def test_mixed_frozen_and_source_partner_stays_complete_without_alias(self):
+        p, o, known = self.fixture()
+        frozen = ModuleType("collections.abc")
+        frozen.__spec__ = ModuleSpec("_collections_abc", FrozenImporter, origin="frozen")
+        frozen.__loader__ = FrozenImporter
+        loader = SourceFileLoader("collections.abc", "/declared/lib/collections/abc.py")
+        source = ModuleType("collections.abc")
+        source.__spec__ = ModuleSpec("collections.abc", loader, origin=loader.path)
+        source.__loader__, source.__file__ = loader, loader.path
+        extra = (m.ModuleRecord("_collections_abc", "frozen", "", "FROZEN", (),
+                                frozen, frozen.__spec__, FrozenImporter),
+                 m.ModuleRecord("collections.abc", loader.path, loader.path, "SOURCE", (),
+                                source, source.__spec__, loader))
+        rows = tuple(sorted(p.modules + extra, key=lambda r: r.name))
+        p, o = replace(p, modules=rows), replace(o, modules=rows)
+        self.assertEqual(m.validate_profile(p, o).status, "MATCHED_DECLARED_BASELINE")
+        result, _ = self.observe(p, o, known)
+        self.assertEqual(result.report.issue, "NONE")
+        self.assertEqual(result.report.status, "MATCHED_DECLARED_BASELINE")
+        projected = {r[0]: r for r in result.scalars[2]}
+        self.assertEqual(tuple(r[0] for r in result.scalars[2]), tuple(r.name for r in rows))
+        self.assertEqual(projected["_collections_abc"][1:3], ("collections.abc", "_collections_abc"))
+        self.assertEqual(projected["collections.abc"][1:3], ("collections.abc", "collections.abc"))
+        self.assertEqual(projected["_collections_abc"][-1], ())
+        self.assertEqual(projected["collections.abc"][-1], ())
+        self.assertEqual(projected["collections.abc"][7:10],
+                         ("SOURCE", "collections.abc", loader.path))
+
     def test_foreign_suffixes_are_rejected_before_equality_or_iteration(self):
         p, o, known = self.fixture()
         class Foreign:
@@ -807,6 +835,8 @@ class ActualLinuxProfileTests(unittest.TestCase):
         self.assertFalse(result.report.runtime_attested or result.report.import_used_bytes_attested)
 
     def test_actual_scalar_projection_before_mock_bootstrap(self):
+        self.assertEqual(LINUX_SCALARS.report.issue, "NONE")
+        self.assertEqual(LINUX_SCALARS.report.status, "MATCHED_DECLARED_BASELINE")
         self.assertEqual(LINUX_SCALARS.report, LINUX_BOOTSTRAP)
         self.assertIs(type(LINUX_SCALARS.scalars), tuple)
         selection, installation, modules = LINUX_SCALARS.scalars

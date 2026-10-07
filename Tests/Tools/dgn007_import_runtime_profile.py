@@ -489,9 +489,9 @@ def _project_scalars(expected, observation):
                          ("_collections_abc", "collections.abc"), ("os.path", "posixpath")):
                 if row.name in pair and all(n in by_name for n in pair):
                     a, b = (by_name[n] for n in pair)
-                    _need(a.kind == b.kind == "FROZEN" and a.module is b.module and a.spec is b.spec,
-                          "MODULE_COHERENCY")
-                    aliases = tuple(sorted(pair))
+                    if a.kind == b.kind == "FROZEN":
+                        _need(a.module is b.module and a.spec is b.spec, "MODULE_COHERENCY")
+                        aliases = tuple(sorted(pair))
         modules.append((row.name, module_name, spec_name, row.origin, row.file, row.kind,
                         row.locations, loader, loader_name, loader_path, aliases))
     selection = (expected.assumption, expected.roots, expected.inert_zip, expected.controls)
