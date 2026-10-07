@@ -26,7 +26,8 @@ def declared_linux_bootstrap():
     abi = sysconfig.get_config_var("SOABI") or ""
     missing = tuple(p for p in sys.path if p.endswith(".zip") and not os.path.lexists(p))
     if len(missing) != 1:
-        return m.ProfileReport("REJECTED_PROFILE", "TEST_BASELINE_UNAVAILABLE")
+        report = m.ProfileReport("REJECTED_PROFILE", "TEST_BASELINE_UNAVAILABLE")
+        return m.ObservationResult(report), report
     controls = ("__main__", "dgn007_import_runtime_profile")
     rows = []
     for name, module in sorted(sys.modules.copy().items()):
@@ -42,10 +43,12 @@ def declared_linux_bootstrap():
                                 (sys.prefix, sys.exec_prefix, sys.base_prefix, sys.base_exec_prefix),
                                 abi, tuple(sys.path), roots, missing[0], controls,
                                 tuple(sys.meta_path), tuple(sys.path_hooks), tuple(rows), ())
-    return m.observe_current_interpreter(expected)
+    records = m.observe_current_interpreter_records(expected)
+    legacy = m.observe_current_interpreter(expected)
+    return records, legacy
 
 
-LINUX_BOOTSTRAP = declared_linux_bootstrap() if sys.platform == "linux" else None
+LINUX_RECORDS, LINUX_BOOTSTRAP = declared_linux_bootstrap() if sys.platform == "linux" else (None, None)
 import unittest
 from unittest.mock import patch
 
@@ -341,6 +344,193 @@ class ProfileTests(unittest.TestCase):
                 self.assertNotIn(name, {"Popen", "run", "exec", "compile", "find_spec", "import_module", "walk", "rglob"})
 
 
+class ObservationRecordsTests(unittest.TestCase):
+    def observe(self, expected, captures, opened=None):
+        # Nur Aufnahme-/I/O-Gegenproben; kein neuer Trust- oder Workerbootstrap.
+        with patch.object(m.sys, "platform", "linux"), patch.object(m, "_capture", side_effect=captures) as capture, \
+             patch.object(m.os.path, "isdir", return_value=True), patch.object(m.os.path, "isfile", return_value=True), \
+             patch.object(m.os.path, "islink", return_value=False), patch.object(m.os.path, "lexists", return_value=False), \
+             patch.object(m.os.path, "realpath", side_effect=lambda path: path), \
+             patch("builtins.open", side_effect=opened) as stream:
+            result = m.observe_current_interpreter_records(expected)
+        return result, capture, stream
+
+    def rejected(self, result, issue):
+        self.assertIs(type(result), m.ObservationResult)
+        self.assertEqual((result.report.status, result.report.issue), ("REJECTED_PROFILE", issue))
+        self.assertIsNone(result.observation)
+        self.assertFalse(result.report.trust_attested or result.report.runtime_attested or
+                         result.report.import_used_bytes_attested or result.report.method_approved)
+
+    def test_returns_exact_after_object_and_computed_hash_rows(self):
+        p, before = fixture()
+        raw = b"synthetic\r\n"
+        file = m.FileDigest(p.executable_target, len(raw), hashlib.sha256(raw).hexdigest())
+        p, before = replace(p, files=(file,)), replace(before, files=(file,))
+        captured = []
+        def capture(expected, files):
+            row = replace(before, files=files)
+            captured.append(row)
+            return row
+        result, calls, stream = self.observe(p, capture, lambda name, mode: io.BytesIO(raw))
+        self.assertIs(result.observation, captured[1])
+        self.assertIsNot(result.observation, captured[0])
+        self.assertIsNot(result.observation, before)
+        self.assertIs(result.observation.files[0], calls.call_args.args[1][0])
+        self.assertIsNot(result.observation.files[0], file)
+        self.assertEqual(result.observation.files, (file,))
+        self.assertEqual(result.report.status, "MATCHED_DECLARED_BASELINE")
+        stream.assert_called_once_with(file.path, "rb")
+
+    def test_shape_and_preflight_failures_never_return_records(self):
+        p, o = fixture()
+        result, captures, stream = self.observe(replace(p, token=True), (o, o))
+        self.rejected(result, "INVALID_RECORD")
+        captures.assert_not_called()
+        stream.assert_not_called()
+        for check, issue in (("isdir", "ROOT_MISMATCH"), ("isfile", "INTERPRETER_MISMATCH")):
+            with patch.object(m.sys, "platform", "linux"), patch.object(m.os.path, "isdir", return_value=True), \
+                 patch.object(m.os.path, "realpath", side_effect=lambda path: path), \
+                 patch.object(m.os.path, check, return_value=False), \
+                 patch.object(m, "_capture") as capture, patch("builtins.open") as opened:
+                result = m.observe_current_interpreter_records(p)
+            self.rejected(result, issue)
+            capture.assert_not_called()
+            opened.assert_not_called()
+
+    def test_before_and_after_capture_errors_have_no_partial_observation(self):
+        p, o = fixture()
+        for captures in ((OSError("private fixture"),), (o, OSError("private fixture")),
+                         (o, object.__new__(m.Observation))):
+            result, _, _ = self.observe(p, captures)
+            self.rejected(result, "OBSERVATION_FAILED")
+            self.assertNotIn("private fixture", repr(result))
+
+    def test_comparison_failure_at_either_stage_drops_records(self):
+        p, o = fixture()
+        for captures, count in (((replace(o, abi="changed"),), 1),
+                                ((o, replace(o, abi="changed")), 2)):
+            result, capture, _ = self.observe(p, captures)
+            self.rejected(result, "PROFILE_MISMATCH")
+            self.assertEqual(capture.call_count, count)
+
+    def test_after_with_equal_scalars_but_changed_live_anchors_drops_records(self):
+        p, o = fixture()
+        origin = "/declared/lib/fixture.py"
+        loader = SourceFileLoader("fixture", origin)
+        module = ModuleType("fixture")
+        module.__spec__, module.__loader__, module.__file__ = ModuleSpec("fixture", loader, origin=origin), loader, origin
+        row = m.ModuleRecord("fixture", origin, origin, "SOURCE", (), module, module.__spec__, loader)
+        p, before = replace(p, modules=(row,)), replace(o, modules=(row,))
+        for changed in ("module", "spec", "loader"):
+            other_loader = SourceFileLoader("fixture", origin) if changed == "loader" else loader
+            other_spec = module.__spec__ if changed == "module" else ModuleSpec("fixture", other_loader, origin=origin)
+            other = ModuleType("fixture")
+            other.__spec__, other.__loader__, other.__file__ = other_spec, other_loader, origin
+            other_row = replace(row, module=other, spec=other_spec, loader=other_loader)
+            after = replace(before, modules=(other_row,))
+            # Beide Aufnahmen sind einzeln kohärent; Gleichheit der Skalare ersetzt keine Ankerbindung.
+            m._shape(after, False)
+            result, capture, _ = self.observe(p, (before, after))
+            self.rejected(result, "MODULE_MISMATCH")
+            self.assertEqual(capture.call_count, 2)
+
+    def test_file_open_read_and_final_digest_failures_drop_before(self):
+        p, o = fixture()
+        raw = b"synthetic\r\n"
+        file = m.FileDigest(p.executable_target, len(raw), hashlib.sha256(raw).hexdigest())
+        p, o = replace(p, files=(file,)), replace(o, files=(file,))
+        class FailedRead(io.BytesIO):
+            def read(self, size):
+                raise OSError("private read")
+        for opened in (lambda name, mode: FailedRead(), OSError("private open")):
+            result, capture, _ = self.observe(p, (o,), opened)
+            self.rejected(result, "OBSERVATION_FAILED")
+            self.assertEqual(capture.call_count, 1)
+        result, capture, _ = self.observe(p, lambda expected, files: replace(o, files=files),
+                                         lambda name, mode: io.BytesIO(b"synthetic\n"))
+        self.rejected(result, "PROFILE_MISMATCH")
+        self.assertEqual(capture.call_count, 2)
+
+    def test_file_overflow_drops_records_before_final_capture(self):
+        p, o = fixture()
+        file = m.FileDigest(p.executable_target, 1, hashlib.sha256(b"x").hexdigest())
+        p, o = replace(p, files=(file,)), replace(o, files=(file,))
+        with patch.object(m, "MAX_FILE", 1):
+            result, capture, _ = self.observe(p, (o,), lambda name, mode: io.BytesIO(b"xx"))
+        self.rejected(result, "FILE_LIMIT")
+        self.assertEqual(capture.call_count, 1)
+
+    def test_foreign_and_uninitialized_expected_are_closed_before_io(self):
+        class Foreign:
+            def __getattribute__(self, name):
+                raise RuntimeError("foreign getter")
+            def __eq__(self, other):
+                raise RuntimeError("foreign equality")
+        p, o = fixture()
+        for expected, issue in ((Foreign(), "INVALID_RECORD"),
+                                (object.__new__(m.DeclaredProfile), "OBSERVATION_FAILED")):
+            result, capture, opened = self.observe(expected, (o,))
+            self.rejected(result, issue)
+            capture.assert_not_called()
+            opened.assert_not_called()
+
+    def test_windows_records_fail_before_any_capture_or_io(self):
+        with patch.object(m.sys, "platform", "win32"), patch.object(m, "_capture") as capture, \
+             patch("builtins.open") as opened, patch.object(m.os.path, "isdir") as directory:
+            result = m.observe_current_interpreter_records(object())
+        self.rejected(result, "UNSUPPORTED_PLATFORM")
+        capture.assert_not_called()
+        opened.assert_not_called()
+        directory.assert_not_called()
+
+    def test_legacy_wrapper_delegates_once_and_preserves_report_identity(self):
+        p, o = fixture()
+        for report, observation in ((m.ProfileReport("MATCHED_DECLARED_BASELINE", "NONE", True), o),
+                                    (m.ProfileReport("REJECTED_PROFILE", "PROFILE_MISMATCH"), None)):
+            result = m.ObservationResult(report, observation)
+            with patch.object(m, "observe_current_interpreter_records", return_value=result) as shared:
+                self.assertIs(m.observe_current_interpreter(p), report)
+            shared.assert_called_once_with(p)
+
+    def test_result_is_frozen_and_does_not_render_private_records(self):
+        p, o = fixture()
+        result, _, _ = self.observe(p, (o, o))
+        self.assertNotIn("/declared", repr(result))
+        self.assertNotIn(repr(p.token), repr(result))
+        with self.assertRaises(FrozenInstanceError):
+            result.observation = None
+        with self.assertRaises(FrozenInstanceError):
+            result.report = m.ProfileReport("REJECTED_PROFILE", "INVALID_RECORD")
+
+    def test_held_module_mutation_invalidates_later_pure_comparison(self):
+        p, o = fixture()
+        module = ModuleType("fixture")
+        module.__spec__ = ModuleSpec("fixture", BuiltinImporter, origin="built-in")
+        module.__loader__ = BuiltinImporter
+        row = m.ModuleRecord("fixture", "built-in", "", "BUILTIN", (), module, module.__spec__, BuiltinImporter)
+        p, o = replace(p, modules=(row,)), replace(o, modules=(row,))
+        result, _, _ = self.observe(p, (o, o))
+        self.assertIs(result.observation, o)
+        module.__spec__.origin = "changed"
+        self.assertEqual(m.validate_profile(p, result.observation).issue, "MODULE_COHERENCY")
+
+    def test_current_cache_exchange_is_not_revalidated_by_held_anchors(self):
+        p, o = fixture()
+        module = ModuleType("fixture")
+        module.__spec__ = ModuleSpec("fixture", BuiltinImporter, origin="built-in")
+        module.__loader__ = BuiltinImporter
+        row = m.ModuleRecord("fixture", "built-in", "", "BUILTIN", (), module, module.__spec__, BuiltinImporter)
+        p, o = replace(p, modules=(row,)), replace(o, modules=(row,))
+        result, _, _ = self.observe(p, (o, o))
+        replacement = ModuleType("fixture")
+        replacement.__spec__, replacement.__loader__ = module.__spec__, BuiltinImporter
+        with patch.dict(sys.modules, {"fixture": replacement}):
+            self.assertIsNot(sys.modules["fixture"], result.observation.modules[0].module)
+            self.assertEqual(m.validate_profile(p, result.observation).status, "MATCHED_DECLARED_BASELINE")
+        # Reine Ankerprüfung ist keine aktuelle Cache-/Suchpfad-/Finderinventur.
+
+
 @unittest.skipUnless(sys.platform == "linux", "Linux-only observation; portable validation runs everywhere")
 class ActualLinuxProfileTests(unittest.TestCase):
     def test_current_isolated_controlruntime_matches_explicit_caller_baseline(self):
@@ -348,6 +538,16 @@ class ActualLinuxProfileTests(unittest.TestCase):
         r = LINUX_BOOTSTRAP
         self.assertEqual((r.status, r.issue), ("MATCHED_DECLARED_BASELINE", "NONE"))
         self.assertFalse(r.trust_attested or r.runtime_attested)
+
+    def test_actual_records_result_retains_successful_after_inventory(self):
+        result = LINUX_RECORDS
+        self.assertIs(type(result), m.ObservationResult)
+        self.assertEqual(result.report, LINUX_BOOTSTRAP)
+        self.assertIs(type(result.observation), m.Observation)
+        self.assertTrue(result.observation.modules)
+        self.assertEqual(result.observation.files, ())
+        self.assertEqual(result.observation.flags, (1, 1, 1, 1, 1, 0))
+        self.assertFalse(result.report.runtime_attested or result.report.import_used_bytes_attested)
 
 
 if __name__ == "__main__":

@@ -336,12 +336,23 @@ def _capture(expected, files):
                        sys.flags.optimize), tuple(sys.path), tuple(sys.meta_path), tuple(sys.path_hooks), modules, files)
 
 
-def observe_current_interpreter(expected: DeclaredProfile) -> ProfileReport:
-    """Nur aktuelle Kontrollruntime; kein Start, Resolver oder Import eines Kandidaten."""
+@dataclass(frozen=True)
+class ObservationResult:
+    """Lokales Aufnahmeergebnis; gehaltene Liveanker bleiben privat und veränderlich."""
+    report: ProfileReport
+    observation: Observation | None = field(default=None, repr=False)
+
+
+def observe_current_interpreter_records(expected: DeclaredProfile) -> ObservationResult:
+    """Gibt nur nach vollständiger Prüfung die tatsächlich letzte Aufnahme zurück.
+
+    Spätere reine Validierung prüft gehaltene Anker, keinen aktuellen Cachebestand.
+    Die Rückgabe ist keine Worker-, Trust- oder UsedBytes-Attestation.
+    """
     if type(sys.platform) is not str:
-        return ProfileReport("REJECTED_PROFILE", "INVALID_RECORD")
+        return ObservationResult(ProfileReport("REJECTED_PROFILE", "INVALID_RECORD"))
     if sys.platform != "linux":
-        return ProfileReport("REJECTED_PROFILE", "UNSUPPORTED_PLATFORM")
+        return ObservationResult(ProfileReport("REJECTED_PROFILE", "UNSUPPORTED_PLATFORM"))
     try:
         _shape(expected, True)
         _need(all(os.path.isabs(p) and os.path.isdir(p) for p in expected.roots), "ROOT_MISMATCH")
@@ -370,7 +381,12 @@ def observe_current_interpreter(expected: DeclaredProfile) -> ProfileReport:
         after = _capture(expected, tuple(rows))
         _compare(expected, after)
     except _Failure as error:
-        return ProfileReport("REJECTED_PROFILE", str(error))
+        return ObservationResult(ProfileReport("REJECTED_PROFILE", str(error)))
     except (OSError, AttributeError, TypeError, ValueError, UnicodeError):
-        return ProfileReport("REJECTED_PROFILE", "OBSERVATION_FAILED")
-    return ProfileReport("MATCHED_DECLARED_BASELINE", "NONE", True)
+        return ObservationResult(ProfileReport("REJECTED_PROFILE", "OBSERVATION_FAILED"))
+    return ObservationResult(ProfileReport("MATCHED_DECLARED_BASELINE", "NONE", True), after)
+
+
+def observe_current_interpreter(expected: DeclaredProfile) -> ProfileReport:
+    """Bisherige Report-API über denselben vollständigen Aufnahmefluss."""
+    return observe_current_interpreter_records(expected).report
