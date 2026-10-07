@@ -207,8 +207,12 @@ DGN-Import- oder Auflösungsnachweis. Der getrennte
 [Interpreter-/Stdlib-Profilvorschnitt](DGN_007_IMPORT_RUNTIME_PROFILE.md)
 beobachtet inzwischen begrenzte aktuelle Kontrollbootstrapmetadaten und prüft
 Übereinstimmung mit einer separat deklarierten Baseline. Die ausdrücklich
-angenommene Kontrollruntime erhält dadurch keine Trustattestation; getrennte
-Parent-/Workerbindung bleibt offen. Die folgenden vollständigen Worker-/Loadergrenzen,
+angenommene Kontrollruntime erhält dadurch keine Trustattestation. Der getrennte
+[skalare Parent-/Worker-Profilbindungsvertrag](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md)
+ist jetzt `DESIGNED`: separat vorab gewählte Workerinventur und gemeinsamer
+Eingangs-/Ordinal-/Phasenkontext. Reiner Vergleich, tatsächlicher Beobachtungsadapter,
+Kanal- und Verbrauchsbindung bleiben unimplementiert; die Parent-/Workerbindung
+ist noch nicht belegt. Die folgenden vollständigen Worker-/Loadergrenzen,
 tatsächliche DGN-Importreceipts und Cleanup bleiben unimplementierter Folgescope.
 
 | Gegenprobe | Erforderliches Ergebnis |
