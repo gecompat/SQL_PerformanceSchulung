@@ -94,8 +94,15 @@ gleicht zusätzlich die Ergebnisse mit der tatsächlichen bestehenden
 Diese Verträge werden ausschließlich mit synthetischen Records importiert;
 kein SQL, Prozesslauncher oder Collector wird gestartet. Tatsächliche
 Prüfung unter Python 3.12.14/Windows: alle 28 Methoden PASS, ohne SKIP.
-Der unabhängige Code-/Testreview ist abgeschlossen; die CI-Abnahme am
-exakten aktuellen Head/Base folgt am PR.
+Der unabhängige Code-/Testreview und die Integration über
+[PR80](https://github.com/gecompat/SQL_PerformanceSchulung/pull/80) sind abgeschlossen:
+zwölf PR- und zehn Main-Workflows SUCCESS. Der
+[PR-Linuxlauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37620080819)
+am Head `bf4af4f…` gegen Base `2787619…` und der
+[Main-Linuxlauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37620585743)
+am Squash `fe5bdd2…` bestanden jeweils alle 28 Methoden ohne SKIP.
+Vollständige unabhängige Übernahme, main-Synchronisierung und eigener
+lokaler/remote Branchabbau sind bestätigt.
 Der [Workflow](../../.github/workflows/dgn007-numeric-pipeline.yml) bindet die
 vier eigenen Dateien und die drei direkten/transitiven Consumer-Testquellen
 exakt; bestehende SQL-/Bundle-/Streamingfilter bleiben erhalten.
@@ -107,8 +114,4 @@ keine RunRecord-, Incident-, Ursachen-, Mitigations- oder Capstoneabnahme.
 PR68 und der zurückgestellte API-Schnitt bleiben ohne Freigabe. Die
 gemeinsam versionierte SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinator-
 Umsetzung braucht weiterhin eine tragfähige explizite Methodenentscheidung.
-Als nächste technische Offline-Voraussetzung ist die tatsächliche
-Importauflösungs-/UsedBytes-Probe zuerst konkret zu entwerfen: vertrauenswürdiger
-Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bereits bytegebundene
-Bytes, gemessene Origins, keine Nachladung, Shadowing-/Austausch-/Alias-/Replay-
-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung.
+Der konkrete [Import-/UsedBytes-Entwurf](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md) liegt als `DESIGNED` vor: feste Import-Only-Einstiege, kontrollierter Rohbyte-Loader, vertrauenswürdiges Interpreter-/Stdlibprofil, getrennte Receipts und begrenzter eigener Cleanup. Noch keine Probeimplementierung oder Importausführung. Nächster kleiner Schnitt ist ein separater begrenzter Linux-/Python-3.12-Import-Only-Prototyp mit Shadowing-/Austausch-/Alias-/Replay- und Cleanupgegenproben. Sein Claim bleibt auf tatsächlich abgeschlossene Top-Level-Imports begrenzt; keine vollständige UsedBundle-, SQL-, Acquisition- oder Methodenattestation.
