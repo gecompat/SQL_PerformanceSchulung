@@ -167,11 +167,46 @@ ausgelösten G13-Fehlerzweig. Der Runner bindet diese Metadaten an tatsächliche
 stderr, die eindeutige fehlgeschlagene Kontroll-Evidenzphase und den
 unveränderten Guard-/Summary-Abschluss; Ausgabe erst nach Cleanup.
 Keine zusätzliche Query-Store-Sicht, keine Prädikat-, Last-, Zeitbudget- oder
-Outcomeänderung. Reporterentfernung muss den gesamten bisherigen SQL35
-ergeben; Quellenbindung, sinnvolle synthetische SQL-/Parserfixtures und neue
-exakte Head-/Base-CI sind erforderlich. Dieser Schnitt schließt eine Messlücke
-und behauptet keine Fehlerbehebung. Danach werden tatsächliche G13-Werte
-beurteilt; kein spekulativer Toleranzfix oder wiederholen bis grün.
+Outcomeänderung. Der Reporter ist inzwischen lokal implementiert und
+unabhängig geprüft: exakt validiertes Entfernen ergibt den ganzen bisherigen
+SQL35, Quellenbindung ist erneuert, 43 Runner- und 37 Producer-/Reporter-
+Methoden (ein Linux-spezifischer Windows-SKIP) sowie sieben Validatoren
+bestanden. Acht tatsächliche temporäre SQL-Branchfixtures auf einer neuen
+eigenen 2022-Instanz bestanden, einschließlich Ein-Tick-Abständen, gleicher
+Requestgrenzen, UTC-Offset, acht Gruppen und ausdrücklichem Overflow.
+Unveränderter Freeze und eigener Containerabbau sind unabhängig bestätigt.
+Der ganze Report bleibt atomar innerhalb 24 Diagnosezeilen. Als nächster
+Schritt wurde die reguläre CI von [Pull Request 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68)
+am Head `27a9b5c…` gegen Base `12b130f…`, Integration `55877a5…`, vollständig
+beendet: 13/14 Workflows und 20/22 Jobs SUCCESS. 2019 AA1 und 2022 BA1
+scheiterten an G13. First−Start beträgt −0,4263 beziehungsweise −0,951 ms;
+Last liegt jeweils innerhalb der oberen Grenze. 2025 bestand zwölf Lifecycles
+und sechs Captures. Alle 32 ersten Datenbankabwesenheitsprüfungen und neun
+SQL-Containerabbauten bestanden; Linux 163 Methoden PASS. Der PR bleibt
+unmerged und ohne CI-Freigabe. Der Reporter schließt die Messlücke, belegt
+aber keine Ursache oder Behebung. Das beobachtete Millisekundenraster ist
+keine zugesagte QS-Auflösung oder Toleranz.
+
+Die einmalige private Originalmaterialisierungsprobe auf neuer eigener 2022-
+Instanz reproduzierte G13 bereits in AB1: First−Start −0,2609 ms. Die verletzte
+Gruppe enthält in Captureversuch 1 und im getrennten Live-SELECT jeweils genau
+eine positive Raw-Zeile mit Count vier, keine Zero-/NULL-/Negative-Zeilen.
+Ein Zero-Extremum erklärt diesen lokalen Fehler nicht. Elf temporäre SQL-
+Fixtures PASS; sechs Präfix-Lifecycles PASS, AB1 FAIL mit sofortigem Stop,
+keine AB2/BA/AA oder erfolgreiche AB-Capture. Sieben erste DB-Abwesenheits-
+prüfungen, vier Gruppen-Leerheitsprüfungen und eigener Containerabbau PASS;
+CID/Name unabhängig abwesend, Freeze mit 27 Dateien unverändert. Zusätzliche
+Projektion/DML sind Beobachterinstrumentierung, keine identische kanonische
+Timingprüfung und kein historischer CI-Ursachenbeweis.
+
+Nächster Schnitt ist ein quellenbasierter prüffähiger Gegenentwurf zum Mess-
+oder Zuordnungsbeleg. Die Vergleichbarkeit von QS-Endzeiten und SYSUTC-
+Requestklammer auf exakten 100-ns-Grenzen ist ungeklärt; eine gemeinsame Clock
+oder zulässige Fehlergrenze ist nicht belegt. Bestehende Guards, Fehler-
+klassifikation und DEC-068 bleiben erhalten. Keine pauschale 1-ms-Toleranz,
+Abrundung, identische Probe-Wiederholung oder Wiederholen bis grün. Eine
+alternative Methode ist noch nicht entschieden, implementiert oder abgenommen. Der frühere Acht-Fixture-Vorcheck enthält keine vollständige
+Lifecycle-/Versionsmatrix oder Reproduktion des Main-G13.
 
 Die interne verlustfreie Capture-Rückgabe ist lokal vorbereitet und geprüft;
 Veröffentlichung und Integration sind bis zur G13-Klärung zurückgestellt.

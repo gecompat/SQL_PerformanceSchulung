@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `a0bc753d4c1fe492ba3c875bdefea5c00d8235b4` auf `origin/main` (Pull Request 66); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `12b130f0df1f963a9075430745e406e8e2a38494` auf `origin/main` (Pull Request 67); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -210,7 +210,46 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Nächster Schnitt ist der begrenzte kanonische G13-Grenzabstandsbericht,
    ausschließlich im bereits verletzten Fehlerzweig, mit strenger Kanalbindung
    und Ausgabe erst nach Cleanup. Guards, Last und Budgets bleiben gleich.
-   Keine identische Wiederholung oder Toleranzkorrektur ohne neue Evidenz. Die interne Capture-Rückgabe ist lokal vorbereitet und unabhängig
+   Dieser begrenzte kanonische Reporter ist jetzt lokal implementiert und
+   unabhängig geprüft. 43 Runner-Tests, 37 Producer-/Reporter-Methoden
+   (36 PASS, ein Linux-spezifischer SKIP unter Windows) und sieben
+   DGN-007-Validatoren bestanden. Acht tatsächliche temporäre SQL-Branchfixtures
+   bestanden auf einer neuen eigenen 2022-Instanz `16.0.4295.3`:
+   beide Ein-Tick-Verletzungen, beide Seiten, Gleichheit, gleiche Requestgrenzen,
+   UTC-Offset, acht Gruppen und ausdrücklicher Overflow bei neun.
+   Quellenfreeze unverändert; eigene CID und Name nach Entfernung unabhängig
+   abwesend bestätigt. Der ganze vorherige SQL35 ergibt sich nach exakt
+   validierter Reporterentfernung unverändert. Der Report bleibt atomar
+   innerhalb 24 Diagnosezeilen und wird erst nach Cleanup ausgegeben.
+   Die reguläre CI von [Pull Request 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68)
+   am Head `27a9b5c…` gegen Base `12b130f…`, Integration `55877a5…`, ist
+   vollständig beendet: 13/14 Workflows und 20/22 Jobs SUCCESS. 2019 AA1
+   und 2022 BA1 scheiterten an G13; 2025 bestand zwölf Lifecycles und sechs
+   Captures. Der Reporter erfasste jeweils genau eine vollständige verletzte
+   Gruppe: First−Start beträgt −4.263 beziehungsweise −9.510 100-ns-Ticks,
+   entsprechend −0,4263 beziehungsweise −0,951 ms; nur die untere Grenze
+   ist verletzt. Alle 32 begonnenen Lifecycles bestanden die erste unabhängige
+   Datenbankabwesenheitsprüfung, alle neun SQL-Containerabbauten bestanden;
+   DGN-007 mit expliziter eigener CID-Abwesenheit. Linux 163 Methoden PASS.
+   Der PR bleibt ohne Mergefreigabe offen. Beide QS-Zeitwerte liegen in diesen
+   zwei Beobachtungen auf einem Millisekundenraster; daraus folgt keine
+   allgemeine Auflösung, Clockursache oder Toleranzfreigabe. Die getrennte private
+   Originalmaterialisierungsprobe reproduzierte G13 auf einer neuen eigenen
+   2022-Instanz in AB1: First−Start −0,2609 ms. Die verletzte Gruppe enthält im
+   tatsächlich übernommenen Captureversuch und im Live-SELECT jeweils eine
+   positive Zeile mit Count vier, keine Zero-/NULL-/Negative-Zeilen. Ein
+   Zero-Extremum erklärt diese lokale Verletzung nicht. Elf temporäre SQL-
+   Fixtures bestanden; sechs Präfix-Lifecycles PASS, AB1 FAIL, sofortiger Stop.
+   Alle sieben ersten DB-Abwesenheitsprüfungen und unabhängiger eigener
+   Containerabbau bestanden; Freeze mit 27 Dateien unverändert. Kein AB2/BA/AA
+   und kein erfolgreicher AB-Capture. Die Messvertragsgrenze zwischen QS-Endzeit
+   und SYSUTC-Requestklammer bleibt ungeklärt. Nächster Schnitt ist ein
+   quellenbasierter prüffähiger Gegenentwurf zum Mess-/Zuordnungsbeleg;
+   bestehende Guards und Fehler bleiben erhalten. Ursache und Behebung offen.
+   Einzelheiten stehen im
+   [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
+   Keine identische Wiederholung oder Toleranzkorrektur ohne neue Evidenz.
+   Die interne Capture-Rückgabe ist lokal vorbereitet und unabhängig
    geprüft, ihre Veröffentlichung und Integration sind zunächst zurückgestellt.
    Nach der G13-Klärung folgt die interne verlustfreie Capture-Rückgabe:
    den vollständigen Body und tatsächlich geprüfte Phasen übernehmen,
