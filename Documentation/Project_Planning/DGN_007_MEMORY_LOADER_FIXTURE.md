@@ -69,11 +69,19 @@ mehrfache Aufrufe, RNG-Ausfall und unveränderte globale Importstrukturen. Der
 unabhängige Review fand einen finalen Objektaustausch zwischen `COMPLETE` und
 Berichterstellung; die korrigierte Reportprüfung verwirft auch diesen Fall.
 Zusätzlich bestanden die elf projektbezogenen Validatoren und fünf betroffenen
-Frameworkbefehle. Die Linux-PR-/Main-CI steht für diesen Quellstand noch aus und
-wird am unveränderlichen Head beziehungsweise Squash getrennt im PR festgehalten.
+Frameworkbefehle. PR84 integrierte den Slice als Squash
+`457288472e53bb8cda2cc74d2921fd29a570e4b5`. Die getrennten Linux-Runs
+[PR84](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37633080400)
+und [Main](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37633600019)
+bestanden jeweils Bundle36, Edge26, Input27 und Loader27 ohne SKIP. Der
+PR-Checkout war `94fe4e016bb6aa3dd8b600651ba2d990a7571f6d` am exakten Head/Base;
+der Main-Checkout war der genannte Squash. Keine DGN-Importausführung daraus.
 Ein synthetischer Erfolg ist kein erfolgreicher DGN-Import.
-Als nächste Teile bleiben das vertrauenswürdige Interpreter-/Stdlibprofil,
-die feste Auflösung und tatsächliche Verwendung der vorbereiteten neun Quellen,
+Der getrennte [Interpreter-/Stdlib-Profilvorschnitt](DGN_007_IMPORT_RUNTIME_PROFILE.md)
+nimmt inzwischen begrenzte Bootstrapmetadaten auf und vergleicht sie mit
+einer separat deklarierten Baseline, ohne Trustattestation. Als nächste Teile
+bleiben getrennte Parent-/Worker-Profilbindung, feste Auflösung und tatsächliche
+Verwendung der vorbereiteten neun Quellen,
 vollständige Importabschlussreceipts sowie drei begrenzte eigene Linux-Worker
 mit unabhängig geprüftem Cleanup offen. G13, v1, DEC-068 und die zurückgestellte
 Capture-API bleiben unverändert; kein Incident-, Capstone- oder Szenariobeleg.
