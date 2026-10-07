@@ -608,6 +608,13 @@ Die Schritte 1 bis 4 sind abgeschlossen. Der aktuelle Einstiegspunkt ist Schritt
 
 ## 19. Wiederaufnahmeprotokoll
 
+Die Entwicklung pausiert auf ausdrücklichen Benutzerauftrag vom 2026-10-07 nach
+der integrierten Runde PR 91. Für die spätere Fortsetzung ist zuerst
+[CURRENT_EXECUTION_STATUS.md §0](CURRENT_EXECUTION_STATUS.md#0-entwicklungspause-und-wiederaufnahme)
+mit geprüftem Basisstand, offener Reihenfolge und geschützter Arbeit zu lesen.
+Die Pause ist kein Gesamtabschluss; erst eine ausdrückliche Fortsetzung erlaubt
+neue Entwicklungsarbeit und die Reaktivierung der pausierten Automation.
+
 Bei jeder späteren Fortsetzung ist folgender Ablauf verbindlich:
 
 1. Readme-Reihenfolge aus Abschnitt 2 vollständig lesen.
@@ -638,6 +645,7 @@ Jede Arbeitsübergabe enthält mindestens:
 
 | Feld | Stand |
 |---|---|
+| Operativer Entwicklungsstatus | `PAUSED` nach PR 91; Wiederaufnahme gemäß Abschnitt 19 und `CURRENT_EXECUTION_STATUS.md` §0 |
 | Repository-Struktur | abgeschlossen; operativer Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Fachliche Demos | 22 produktive Demos vorhanden; `ADV-008` und alle neun `W-COV-001`-Demos sind in der zutreffenden 2019/2022/2025-Matrix runtimevalidiert |
 | Testumgebungs-How-to | `INF-001` implementiert zur Prüfung; dokumentiert Zielauswahl für vorhandene Instanzen, ohne Provisionierungsversprechen |

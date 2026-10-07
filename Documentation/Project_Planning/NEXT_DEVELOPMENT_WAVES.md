@@ -2,13 +2,22 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `ACTIVE` |
+| Status | `PAUSED` – Wiederaufnahme nur nach ausdrücklicher Fortsetzung |
 | Stand | 2026-10-07 |
 | Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64 sowie begrenzter SQL-Producer aus Pull Request 65; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
 ## 1. Planungsgrundlagen
+
+Die Entwicklung pausiert auf Benutzerauftrag vom 2026-10-07 nach der integrierten
+Runde [Pull Request 91](https://github.com/gecompat/SQL_PerformanceSchulung/pull/91).
+Der vollständige Einstieg samt offener Reihenfolge und geschützter ungemergter
+Arbeit steht in [CURRENT_EXECUTION_STATUS.md §0](CURRENT_EXECUTION_STATUS.md#0-entwicklungspause-und-wiederaufnahme).
+Nach ausdrücklicher Fortsetzung zuerst den Darstellungs- und Digestvertrag bei
+unveränderten Inhalten und Caps reviewen, danach vollständige Bootstrapinventur
+und volle Größenprüfung. Die nachfolgenden Wellen bleiben geplant; die Pause
+ändert keine fachliche Statusbewertung oder Freigabe.
 
 - `QRY-004`, `DGN-003`, `DGN-005`, `OPT-017` und alle neun Demos aus `W-COV-001` besitzen aktuelle Matrixnachweise aus GitHub Actions.
 - `WARN_EMPIRICAL_VARIANCE` ist nur dort als Freigabeausgang zulässig, wo der Demo-Vertrag die empirische Abweichung ausdrücklich beschreibt und alle invarianten Ergebnis-, Sicherheits- und Cleanup-Verträge erfüllt sind.

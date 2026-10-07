@@ -2,6 +2,13 @@
 
 ## Aktueller operativer Einstiegspunkt
 
+Die Entwicklung ist auf Benutzerauftrag vom 2026-10-07 nach der integrierten
+Runde PR 91 pausiert. Wiederaufnahme nur nach ausdrücklicher Fortsetzung;
+offene Schritte, erhaltene ungemergte Arbeit und Startverfahren stehen in
+[CURRENT_EXECUTION_STATUS.md §0](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md#0-entwicklungspause-und-wiederaufnahme).
+Nächster offener Importvorschnitt bleibt der separat reviewte Darstellungs-
+und Digestvertrag bei unveränderten Inhalten und Caps. Offene Punkte bleiben offen.
+
 Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausführbare Schritt stehen in [`Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md`](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md). Die priorisierte Folgeplanung steht in [`Documentation/Project_Planning/NEXT_DEVELOPMENT_WAVES.md`](../Documentation/Project_Planning/NEXT_DEVELOPMENT_WAVES.md). Historische Fortschrittsmarker im Masterplan dürfen diesen Status nicht widersprechen.
 
 ## Welle 0 - Fachliche Konsolidierung

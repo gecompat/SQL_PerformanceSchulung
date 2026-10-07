@@ -2,15 +2,88 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `ACTIVE` |
+| Status | `PAUSED` – auf ausdrücklichen Benutzerauftrag; Wiederaufnahme nur nach erneuter Fortsetzung |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `54b043dc30bb3afd522742203d8c260a9fa8235f` auf `origin/main` (Pull Request 88); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `a1eef1bead97275ba22b28d699d4bb728bbec20f` auf `origin/main` (Pull Request 91); SQL-Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
 | Szenariowelle | `CON-004`, `DGN-005` und `CON-006` – Project Adapter `0.1` und vollständiger Docker-/Podman-Lifecycle auf SQL Server 2025 validiert |
 | Folgeplanung | [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md) |
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
+
+## 0. Entwicklungspause und Wiederaufnahme
+
+Am 2026-10-07 wurde nach der abgeschlossenen Entwicklungsrunde eine Pause
+beauftragt. Der letzte integrierte Implementierungs-/Nachweisschnitt ist
+[Pull Request 91](https://github.com/gecompat/SQL_PerformanceSchulung/pull/91):
+Die getrennte Charakterisierung umfasst 85 Bootstrapnamen; die vollständige
+verkleinerte Modularray-Untergrenze beträgt 16.449 Bytes und die gemeinsame
+Metadata mit Header mindestens 21.108 bis 21.144 Bytes. Dies schließt nur die
+heutige benannte JSON-Darstellung dieses charakterisierten Umfangs aus und
+liefert keine operative Sollinventur oder Worker-, Trust- oder UsedBytesattestation.
+40 Matcher-Tests bestanden lokal und in Linux-CI. Alle neun PR- und sieben
+Main-Prüfungen waren erfolgreich; vollständige Squash-Übernahme, synchronisiertes
+Main und lokale/remote Bereinigung des eigenen Arbeitsbranches wurden unabhängig
+bestätigt. Die Nachweise und Grenzen stehen im
+[Profilbindungsentwurf §9](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#9-charakterisierte-bootstraproute-und-größenuntergrenze).
+
+Die Entwicklungsautomation wurde auf `PAUSED` gesetzt. Dieser abschließende
+Dokumentationsschnitt hält die Pause und offene Arbeit fest; er wird über einen
+eigenen PR integriert und anschließend regulär bereinigt. Es folgt kein neuer
+Implementierungsschnitt. Eine verspätete automatische Fortsetzung hebt die Pause
+nicht auf. Das Gesamtprojekt und die offenen fachlichen Gates sind nicht abgeschlossen.
+
+### Geordnete offene Schritte
+
+1. Nach ausdrücklicher Wiederaufnahme zuerst den vollständig erhaltenden
+   Darstellungs- und Digestvertrag separat entwerfen und unabhängig reviewen.
+   Gemeinsame Metadata, Berichte und alle kanonischen Digestpräbilder müssen
+   zusammen betrachtet werden: Nur den Transport zu verkleinern reicht bei
+   anschließender Expansion in die heutige benannte JSON-Form nicht aus.
+   Input82/DGNI001, sämtliche Felder, beide vollständigen Neuner-Deskriptorarrays
+   und die bestehenden Caps bleiben erhalten. Keine stillschweigende Filterung,
+   Capanhebung oder Digestersetzung; ein Codec ist damit noch nicht implementiert.
+2. Danach konkrete Bootstrapfixture und unabhängig vorab gewählte vollständige
+   Workerinventur festlegen. Volle Größenprüfung einschließlich tatsächlicher
+   Installations-/Locatorfelder und Header durchführen; verkleinerte Untergrenzen
+   oder feste Tupel allein belegen keine vollständige Darstellbarkeit.
+3. Erst danach den kombinierten Codec sowie tatsächliche Parent-/Worker-Anbindung,
+   feste Quellenauflösung, Kanal-, Kontext-, Consumption- und Replaybindung in
+   kleinen getrennten Schnitten umsetzen und validieren.
+4. Anschließend den begrenzten Linux-/Python-3.12-Import-Only-Prototyp mit
+   tatsächlicher DGN-Loaderverwendung, Importabschluss und unabhängigem Cleanup
+   eigener Worker belegen. Dies ist weiterhin keine vollständige UsedBundle-,
+   SQL-, Acquisition-, Methoden- oder Capstoneattestation.
+5. G13-/Messvertragsklärung und ausdrückliche Methodenentscheidung bleiben eigene
+   Gates. Erst danach die zurückgestellte interne Capture-Rückgabe integrieren,
+   Coordinator-Freeze, Ressourcen, serielle Reihenfolge und Budgets belegen und
+   frische prospektive Bestätigungsläufe ausführen. Historische Fehler, v1 und
+   `DEC-068` bleiben gültig; keine Toleranz- oder Metrikkorrektur ohne Entscheidung.
+
+### Erhaltene Arbeit und Startverfahren
+
+Der offene [Pull Request 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68)
+und der geschützte Branch `codex/dgn007-g13-boundary-report` bei
+`27a9b5ce81347beaa6d6bfd8788c62965495f0ca` bleiben ungemergt erhalten.
+Der unveröffentlichte lokale Branch `codex/dgn007-internal-capture-receipt`
+bei `83f08fb71446445e70fb6227e442ed7109637de6` bleibt erhalten; seine Veröffentlichung
+ist zurückgestellt. Beide sind keine freigegebenen Integrationen. Private
+Review-/Runtime-Dateien, Chat-Verlauf und lokale Cache-Records sind keine
+Voraussetzung oder dauerhafte Projektwahrheit. In diesem Pausenschnitt wurde
+keine SQL-Runtime gestartet und keine bestehende SQL- oder Containerressource verändert.
+
+Bei späterer Fortsetzung die native AGENTS-Anweisungskette und die Lesereihenfolge
+aus [`.ai/README.md`](../../.ai/README.md) erneut erschließen, den dann aktuellen
+`origin/main` samt offenen PRs, Branches und laufender Arbeit prüfen und diesen
+Abschnitt gegen [NEXT_DEVELOPMENT_WAVES.md](NEXT_DEVELOPMENT_WAVES.md),
+[Masterplan §19](MASTER_IMPLEMENTATION_PLAN.md#19-wiederaufnahmeprotokoll) und
+[Backlog](../../.ai/BACKLOG.md) abgleichen. Den nächsten Scope genau einem
+Implementierungsowner zuweisen und unabhängig reviewen. SQL-Runtime bleibt auf
+ausdrücklich bestätigte neue isolierte Wegwerfinstanzen begrenzt. Die Automation
+nur nach ausdrücklicher Fortsetzung wieder aktivieren; keine automatische
+Chat-/Sessionrotation. External Tables und Graph Tables bleiben im Backlog als
+nachgeordnetes `P2`-Thema ohne Implementierungs- oder Runtimefreigabe.
 
 ## 1. Verifizierter Repository-Stand
 
