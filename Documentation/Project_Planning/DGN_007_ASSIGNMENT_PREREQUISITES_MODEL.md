@@ -109,8 +109,9 @@ keine reale QS-Einzelidentität. Dieses Voraussetzungenmodell und seine 42
 Testmethoden bleiben unverändert. Das konkrete
 [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet;
 alle Methodengates bleiben offen. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
-ist statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche
-Importumgebung bleiben ohne Runtimeattestation Folgearbeit. Erst die spätere gemeinsam versionierte Umsetzung
+ist statisch implementiert; die getrennte [Kantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist ebenfalls statisch implementiert. Import-/Launcherentwurf PROPOSED,
+tatsächliche Importumgebung und Runtimeattestation offen. Erst die spätere gemeinsam versionierte Umsetzung
 verbindet SQL21/35, Quellenfreeze, Transport, Records, Evaluator und Coordinator.
 
 G13, v1, DEC-068, bekannte CI-Fehler und die fehlende PR68-Mergefreigabe bleiben

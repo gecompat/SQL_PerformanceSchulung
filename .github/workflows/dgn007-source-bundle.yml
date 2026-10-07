@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_execution_edges.py'
+      - 'Documentation/Project_Planning/DGN_007_EXECUTION_EDGE_VERIFIER.md'
       - 'Tests/Static/test_dgn007_source_bundle.py'
       - 'Documentation/Project_Planning/DGN_007_SOURCE_BUNDLE_VERIFIER.md'
       - '.github/workflows/dgn007-source-bundle.yml'
@@ -38,6 +41,9 @@ on:
     branches: [main]
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_execution_edges.py'
+      - 'Documentation/Project_Planning/DGN_007_EXECUTION_EDGE_VERIFIER.md'
       - 'Tests/Static/test_dgn007_source_bundle.py'
       - 'Documentation/Project_Planning/DGN_007_SOURCE_BUNDLE_VERIFIER.md'
       - '.github/workflows/dgn007-source-bundle.yml'
@@ -81,7 +87,7 @@ jobs:
   source-bundle:
     name: DGN-007 Offline-Bundle-Gegenproben
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -89,3 +95,5 @@ jobs:
           python-version: '3.12'
       - name: Gebundene Kandidaten und Manipulationen prüfen
         run: python -B Tests/Static/test_dgn007_source_bundle.py
+      - name: Gebundene Prozess- und Manifestkanten pruefen
+        run: python -B Tests/Static/test_dgn007_execution_edges.py

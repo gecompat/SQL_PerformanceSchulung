@@ -222,8 +222,9 @@ stärkeren kontinuierlichen QS-Zustand; das konservative Methodengate wird
 nicht aufgehoben. Das getrennte [Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
 ist implementiert; das [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
 ist vorbereitet, keine Methodenwahl. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
-ist statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche
-Importumgebung bleiben Folgearbeit. Tatsächliche Herkunft, Acquisition-/
+ist statisch implementiert. Die getrennte [Kantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist ebenfalls statisch implementiert; der Import-/Launcherentwurf bleibt PROPOSED.
+Tatsächliche Importumgebung und Ausführung bleiben offen. Tatsächliche Herkunft, Acquisition-/
 Floatregel und endliche Bounds bleiben offen. Danach braucht die alternative
 Beweisart eine ausdrückliche Entscheidung vor gemeinsam versionierter Umsetzung.
 Die spätere versionierte Umsetzung muss SQL21/35,

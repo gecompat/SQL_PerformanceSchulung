@@ -91,7 +91,7 @@ exakte Signaturgleichheit ebenfalls nicht bewiesen.
 
 | Gate | vorhandener Beleg | konkreter Kandidat / fehlender Nachweis | nächste begrenzte Maßnahme |
 |---|---|---|---|
-| Quellen und Importclosure | CODE: statischer 14-SQL-/Manifesthashvertrag; Runner/Harness/Proxy lesen Live-Dateien und Imports. Getrennter [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md) bindet 27 Kandidatenmitglieder und deklarierte Imports. | exakter Commit und Gitblob-/Bytebindung aller tatsächlich verwendeten Mitglieder, festgelegter Einstieg und tatsächliche Importauflösung; Interpreter, Stdlib und Tools ausdrücklich vertrauenswürdig benennen. Statischer Kandidatenbundle ist noch kein ausgeführter Freeze. | Prozess-/Manifestdatenkanten offline prüfen und tatsächliche Importumgebung/Launcher explizit entwerfen |
+| Quellen und Importclosure | CODE: statischer 14-SQL-/Manifesthashvertrag; Runner/Harness/Proxy lesen Live-Dateien und Imports. Getrennter [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md) bindet 27 Kandidatenmitglieder und deklarierte Imports; [Kantenprofil](DGN_007_EXECUTION_EDGE_VERIFIER.md) statisch implementiert. | exakter Commit und Gitblob-/Bytebindung aller tatsächlich verwendeten Mitglieder, festgelegter Einstieg und tatsächliche Importauflösung; Interpreter, Stdlib und Tools ausdrücklich vertrauenswürdig benennen. Statischer Kandidatenbundle ist noch kein ausgeführter Freeze. | Import-/Launcherentwurf PROPOSED; tatsächliche Import-/Quellen-/Toolauflösung bleibt offen |
 | Launcher und Actor | CODE: eigener serieller Harness und echte Phasenfolge. | benannter vertrauenswürdiger Launcher kontrolliert die tatsächlichen Ausführungsbytes, Actoridentität und Receipts. Eigenes Signieren/Flags aus dem Payload sind keine unabhängige Attestation. Schutz während Ausführung noch offen. | Erzeuger-/Prüfergrenze und tatsächliche private Berechtigungen vor Launcherimplementierung festlegen |
 | Ziel und Generation | CODE: SQL/Readiness verwenden Namen; CI prüft vollständige CID beim Abbau. | festgelegter Daemonkontext und vollständige CID durch jede SQL-/Readiness-/Recovery-/Cleanupaktion; serverseitig bestätigte neue DBgeneration und Lifecyclebindung. Namen/Labels nur Zusatzbindung. | jede Aktion auf eindeutige Zielbindung entwerfen; Alias-, Austausch- und Replay-Gegenproben |
 | Zugangsumfang | CODE: keine veröffentlichten Ports/Mounts, eigene Sessionfolge. | tatsächlich beschränkter Zugang; Host-/Daemonadministratoren und dieselbe OS-Identität gehören zur benannten Vertrauensgrenze. `--network none` begrenzt Netz, verhindert keine Daemonzugriffe. | überprüfbare Verwaltungs-/Credential-/Actorgrenze festlegen; kooperatives Lock nur für eigene Teilnehmer beanspruchen |
@@ -139,8 +139,11 @@ Vergleichsevidenz ohne Separation begrenzt und heilt keine Methodenprämisse.
 Der [Offline-Quellenbundle-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md) ist
 als getrennter statischer Schnitt implementiert. Er
 startet keinen Collector, Launcher, Interpreter des Bundles, SQL oder Docker.
-Er prüft nur eine technische statische Quellenvoraussetzung; tatsächliche
-Prozess-/Manifestdatenkanten und die Importumgebung bleiben Folgearbeit:
+Er prüft nur eine technische statische Quellenvoraussetzung.
+Die getrennte [Prozess-/Manifestkantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist ebenfalls statisch implementiert; Import-/Launcherentwurf PROPOSED und
+tatsächliche Importumgebung offen. Die folgenden Quellenvoraussetzungen bleiben
+ausdrücklich auf statische Kandidaten beschränkt:
 
 1. Expliziten Commit, feste reviewte Mitgliederliste und Einstieg gegen
    tatsächliche Gitblobs und Kandidatenbytes prüfen; relative Pfade, Dateitypen,
@@ -163,8 +166,11 @@ Prozess-/Manifestdatenkanten und die Importumgebung bleiben Folgearbeit:
    Zugangs-, Host-, Acquisition- oder Budgetbeleg. Alias/Replay und tatsächliche
    Ausführung bleiben Folgefixtures des späteren Ziel-/Launcherpfads.
 
-Danach sind die noch offenen Gates wieder gegen tatsächliche Evidenz zu
-prüfen. Keine endlose Modell-/Pollingwiederholung bis PASS. Die spätere
+Nächster kleiner Schnitt sind begrenzte Offline-Streaming-/Poll-/Kostengegenproben
+mit synthetischem Prozessinput vor Pufferung, ohne Integration in die neun
+Runtimequellen. Ein solcher Prototyp attestiert keine reale Machbarkeit der
+vollständigen 145/180/60-Kette. Die noch offenen Gates sind weiterhin gegen
+tatsächliche Evidenz zu prüfen. Keine endlose Modell-/Pollingwiederholung bis PASS. Die spätere
 gemeinsam versionierte Umsetzung verbindet SQL21/35, Freeze, Transport,
 Records, Evaluator und Coordinator erst nach tragfähiger expliziter Entscheidung.
 

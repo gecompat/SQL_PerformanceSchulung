@@ -200,8 +200,9 @@ Prämissen ergeben keine Runtimefreigabe. Das konkrete
 [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet,
 keine Methodenwahl. Es benennt Acquisition-/Floatkandidat, tatsächliche Vertrauens-/
 Hostgrenze und Kostenplan mit offenen Gates. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
-ist statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche Importumgebung
-bleiben Folgearbeit; Zielalias/Replay bleiben im späteren Launcherpfad. Vor gemeinsam
+ist statisch implementiert; die getrennte [Kantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist ebenfalls statisch implementiert. Import-/Launcherentwurf PROPOSED,
+tatsächliche Importumgebung offen; Zielalias/Replay bleiben im späteren Launcherpfad. Vor gemeinsam
 versionierten SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinatoränderungen
 bleibt eine tragfähige explizite Methodenentscheidung erforderlich.
 

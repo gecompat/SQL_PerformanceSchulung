@@ -174,5 +174,6 @@ Pfad attestiert noch keine vollständige Bundle-/Zugangs-/Hostgrenze oder
 Acquisition-/Floatregel. Das [Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
 ist implementiert und das [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
 vorbereitet. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md) ist
-statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche Importumgebung
-bleiben Folgearbeit. Keine Methoden- oder Runtimefreigabe.
+statisch implementiert; die getrennte [Kantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist ebenfalls statisch implementiert. Import-/Launcherentwurf PROPOSED,
+tatsächliche Importumgebung offen. Keine Methoden- oder Runtimefreigabe.

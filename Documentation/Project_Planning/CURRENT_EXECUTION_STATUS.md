@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `0e980fd59320962881f2453af102ad131c92477a` auf `origin/main` (Pull Request 76); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `db2760d55e721bb4a6ce57d110b4d5173feb3983` auf `origin/main` (Pull Request 77); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -289,8 +289,12 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    ist statisch implementiert: feste 27 Mitglieder, originale Gitblobs,
    getrennte Rohbyte-/LF-Bindung und deklarierte AST-Imports mit Manipulationsfixtures.
    Keine SQL-/Launcher-Runtime oder tatsächliche Ausführungsattestation.
-   Nächster Schnitt ist die getrennte Offline-Prüfung der Prozess-/Manifestdatenkanten
-   samt explizitem Importumgebungs-/Launcherentwurf, weiterhin ohne Launcherstart.
+   Die getrennte [Prozess-/Manifestkantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+   ist statisch implementiert: Python-3.12-Ganz-AST-Profil, sechs SQL-only-Manifeste,
+   14 Quellenhashes und SQLCMD-Gegenproben. Import-/Launcherentwurf PROPOSED,
+   tatsächliche Importumgebung und verwendete Runtimebytes offen. Nächster
+   kleiner Schnitt: begrenzter Offline-Streaming-/Poll-/Kostenprototyp mit
+   synthetischem Prozessinput vor Pufferung; keine Integration in Runtimequellen.
    Erst nach
    tragfähiger Methodenentscheidung gemeinsam versionierte Umsetzung.
    Keine implizite OFF-/CLEAR-/Laständerung.
