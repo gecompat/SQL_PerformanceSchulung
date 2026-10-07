@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `fe5bdd25af429de347a7cdd75376d84eed9f6105` auf `origin/main` (Pull Request 80); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `09608ec723c08e2be46cd1b3025817c402f674b1` auf `origin/main` (Pull Request 81); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -295,7 +295,7 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    tatsächliche Importumgebung und verwendete Runtimebytes offen. Der getrennte
    [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
    portable Budgetgegenproben und feste eigene Linux-Kindfälle, ohne Integration
-   in Runtimequellen oder Methoden-/Runtimeattestation. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Der konkrete [Import-/UsedBytes-Entwurf](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md) liegt als `DESIGNED` vor: feste Import-Only-Einstiege, kontrollierter Rohbyte-Loader, vertrauenswürdiges Interpreter-/Stdlibprofil, getrennte Receipts und begrenzter eigener Cleanup. Noch keine Probeimplementierung oder Importausführung. Nächster kleiner Schnitt ist ein separater begrenzter Linux-/Python-3.12-Import-Only-Prototyp mit Shadowing-/Austausch-/Alias-/Replay- und Cleanupgegenproben. Sein Claim bleibt auf tatsächlich abgeschlossene Top-Level-Imports begrenzt; keine vollständige UsedBundle-, SQL-, Acquisition- oder Methodenattestation.
+   in Runtimequellen oder Methoden-/Runtimeattestation. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Der konkrete [Import-/UsedBytes-Entwurf](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md) liegt als `DESIGNED` vor: feste Import-Only-Einstiege, kontrollierter Rohbyte-Loader, vertrauenswürdiges Interpreter-/Stdlibprofil, getrennte Receipts und begrenzter eigener Cleanup. Der erste Implementierungsteil ist das getrennte [Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md): unveränderter 27-Member-Git-/Kantenvorcheck, eingefrorene neun Python-Rohbytes und begrenzte binäre Rahmung mit Kontext- und Manipulationsgegenproben. Keine Worker- oder Kandidatenimportausführung und kein UsedBytes-Claim. Der vollständige Linux-/Python-3.12-Import-Only-Prototyp bleibt offen; als nächster Teil folgen vertrauenswürdiges Interpreter-/Stdlibprofil, Rohbyte-Loader, Abschlussreceipts und begrenzte eigene Worker samt unabhängigem Cleanup. Sein Claim bleibt auf tatsächlich abgeschlossene Top-Level-Imports begrenzt; keine vollständige UsedBundle-, SQL-, Acquisition- oder Methodenattestation.
    Erst nach
    tragfähiger Methodenentscheidung gemeinsam versionierte Umsetzung.
    Keine implizite OFF-/CLEAR-/Laständerung.
