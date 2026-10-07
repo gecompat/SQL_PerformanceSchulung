@@ -546,3 +546,195 @@ vorab gewählte operative Inventur, volle Größenprüfung, kombinierter Codec,
 Parent-/Workerbindung, tatsächliche Imports und unabhängiger Cleanup offen.
 DGNI001, die neun Runtimequellen, G13, v1, DEC-068, PR68 und die zurückgestellte
 Capture-API bleiben unverändert.
+
+## 10. Vollständig erhaltender Darstellungs- und Digestentwurf
+
+Dieser Abschnitt ist `DESIGNED` auf Basis
+`43b6d29012e77ad6de3f3f24259c91fdfde0263e` nach der integrierten Runde PR91
+und der dokumentierten Pause. Die ausdrücklich wieder aufgenommene Entwicklung
+bearbeitet zunächst nur diesen Entwurf. Keine Produktionsfunktion, Testdatei,
+Codecversion oder Workerroute wird hier geändert oder ausgeführt.
+Die Größen aus §9 bleiben Belege der bisherigen benannten JSON-Form.
+
+### 10.1 Getrennter Darstellungsweg und vollständige Inhalte
+
+Der Kandidat verwendet feste Tupelpositionen ohne Indextabelle, gemeinsame
+Stringtabelle, Kompression oder abgeleitete Ersatzfelder. Jeder vorhandene Wert
+bleibt ausdrücklich enthalten, auch wiederholte Pfadtexte und beide vollständigen
+neunfachen Deskriptorarrays. Die semantischen DTOs und sämtliche Formregeln aus
+§3/§4 bleiben der Maßstab. Absolute Locator werden weder verkürzt noch normalisiert;
+leere Texte, erlaubtes `null`, leere Tupel und feste Labeltexte bleiben getrennt.
+Namen, Reihenfolgen, Frozenverbände, Controls, Flags und alle Hashes bleiben erhalten.
+
+Die nachfolgend benannte kompakte Form ist eine mögliche neue private Darstellung,
+keine neue Interpretation von `DGNI001`. Dessen Magic, Header, sieben exakte
+Metadatafelder, `context_sha256`, Rohbytes und Prüfregeln bleiben unverändert.
+Eine spätere kombinierte Rahmung und ihr eigener Versionsdiscriminator sind
+gesondert zu implementieren und freizugeben. Es gibt keine automatische Erkennung,
+Fallbackannahme oder erfolgreiche v1-Dekodierung zusätzlicher Profilfelder.
+
+### 10.2 Geschlossene Positionen und Typen
+
+Alle Positionen beginnen bei null. Ein Record hat exakt die angegebene Arity;
+keine Spalte ist optional oder wird bei einem leeren Wert weggelassen. Intern
+sind Records und Sequenzen exakte Tupel, Texte exakte `str`, Zahlen exakte `int`;
+bool, Subklassen, fremde Getter und freie Iterables sind ausgeschlossen.
+Die Darstellung überträgt Tupel als JSON-Arrays, keine freien Objekte.
+`Text` hat höchstens 4096 UTF-8-Bytes, enthält weder NUL noch ungepaarte Surrogate.
+`Hex(n)` ist ein solcher Text aus genau `n` kleinen Hexzeichen. Nur die unten
+benannte `specName`-Position erlaubt `null`; sonst sind fehlende Werte Formfehler.
+
+| Form / Arity | Positionen und vollständige Werte |
+|---|---|
+| Deskriptor `D` / 5 | `0 ordinal:int(0..8), 1 module:Text, 2 member:Text, 3 size:int(0..131072), 4 sha256:Hex(64)` |
+| Inputprojektion `I` / 7 | `0 protocol:Text, 1 commit:Hex(40), 2 raw27_binding:Hex(64), 3 source_profile:Text, 4 nonce:Hex(64), 5 modules:D[9], 6 context_sha256:Hex(64)` |
+| Dateifingerprint `F` / 3 | `0 path:Text, 1 size:int(0..33554432), 2 sha256:Hex(64)` |
+| Installation `S` / 15 | `0 assumption:Text, 1 platform:Text, 2 implementation:Text, 3 version:int[3], 4 executable:Text, 5 executable_target:Text, 6 prefixes:Text[4], 7 abi:Text, 8 paths:Text[], 9 roots:Text[2], 10 inert_zip:Text, 11 flags:int[6], 12 finders:Text[3], 13 hooks:Text[2], 14 files:F[]` |
+| Modul `P` / 11 | `0 name:Text, 1 moduleName:Text, 2 specName:Text/null, 3 origin:Text, 4 file:Text, 5 kind:Text, 6 locations:Text[], 7 loader:Text, 8 loaderName:Text, 9 loaderPath:Text, 10 aliasGroup:Text[]` |
+| Workerdeklaration `W` / 6 | `0 ordinal:int(1..3), 1 entry:Text, 2 phase:Text, 3 installation:S, 4 controls:Text[], 5 modules:P[]` |
+| Bindungskontext `K` / 8 | `0 commit:Hex(40), 1 raw27_binding:Hex(64), 2 source_profile:Text, 3 nonce:Hex(64), 4 modules:D[9], 5 ordinal:int(1..3), 6 entry:Text, 7 phase:Text` |
+
+Jede variable Sequenz bleibt auf höchstens 256 Elemente begrenzt; `P[]` enthält
+mindestens einen Record. `files` hat höchstens zwei Records und insgesamt höchstens
+67108864 Dateibytes. Die Version ist exakt `(3,12,patch)` mit `patch` 0..999,
+die sechs Flags sind `(1,1,1,1,1,0)`, Finderlabels `BUILTIN,FROZEN,PATH`, Hooklabels
+`ZIPIMPORTER,FILEFINDER`. `platform="linux"`, `implementation="cpython"` und
+die Annahme aus §2 bleiben feste Werte. Zwei unterschiedliche Roots, vier Prefixe,
+Suchpfad-/Fingerprintfolge und die bestehenden Locatorguards bleiben verpflichtend.
+
+`kind` bleibt genau `BUILTIN,FROZEN,SOURCE,EXTENSION,CONTROL`, `loader` genau
+`NONE,BUILTIN,FROZEN,SOURCE,EXTENSION`; keine Integercodes ersetzen diese Texte.
+Alle Kind-/Spec-/Loader-/Rootbindungen und das PRE_IMPORT-Verbot eigener DGN-Namen
+einschließlich `Tests`/`Tests.Contracts` gelten unverändert. Modulrecords sind
+eindeutig nach `name` sortiert. Controls sind geordnet, eindeutig und genau an die
+CONTROL-Records gebunden. Locations behalten ihre vollständige deklarierte Folge;
+es gibt keine zusätzliche Sortierung oder Deduplizierung. Aliasverbände sind
+`()` oder eines der festen sortierten Paare aus §3 mit den dortigen Partnerregeln.
+Gemischte Frozen-/Sourcepartner bleiben eigenständige Records mit `()`.
+
+Beide `D[9]`-Arrays erscheinen tatsächlich, einmal in `I[5]`, einmal in `K[4]`.
+Jede Zeile folgt ordinalweise dem unveränderten Input82-Name-/Membermapping;
+alle fünf Felder stimmen zwischen beiden Arrays und mit dem gehaltenen Eingang
+überein. Die Summe der neun Größen ist höchstens 1048576. Die neun Bodies selbst
+behalten ihre Rawhashes und den bisherigen separaten Bodycap ohne LF-Konversion.
+`I[0]="dgn007-import-input/v1"`, beide Quellenprofilwerte bleiben exakt
+`dgn007-docker-sql-only/v1`. Die Noncehextexte repräsentieren dieselben gehaltenen
+32 Bytes. Ordinal, Einstieg und `PRE_IMPORT` entsprechen der festen Tabelle in §4.
+
+### 10.3 Gemeinsame Rechnung, Bericht und Digestpräbilder
+
+Der feste Darstellungstag `T="compact-binding-design"` ist ein **Entwurfswert**,
+keine registrierte oder bereits akzeptierte Codecversion. Er und die Rollentexte
+werden vollständig serialisiert. Eine spätere produktive Auswahl braucht einen
+expliziten Versions- und Migrationsvertrag; dessen tatsächliche Tags und Header
+müssen erneut mitgezählt und geprüft werden, nicht als kostenlose Zusätze gelten.
+Der Kandidat hat diese geschlossenen äußeren Formen; die semantischen vier
+Berichtsfelder bleiben vollständig enthalten, die äußeren zwei Tags kommen hinzu:
+
+| Form / Arity | Exakte Positionen |
+|---|---|
+| Gemeinsame Metadata `M` / 5 | `(T,"METADATA",I,W,K)` |
+| Bericht `R` / 6 | `(T,"REPORTED",K,S,controls,P[])` |
+| Installation-Digestpräbild / 3 | `(T,"compact-installation-declaration",S)` |
+| Worker-Digestpräbild / 3 | `(T,"compact-worker-declaration",W)` |
+| Kontext-Digestpräbild / 3 | `(T,"compact-profile-binding-context",K)` |
+
+`C` bleibt die kanonische ASCII-JSON-Darstellung aus §5 mit `ensure_ascii=True`,
+kompakten Separatoren und `allow_nan=False`. Für **jede** der fünf Formen gilt
+separat `16 + len(C(form)) <= 16384`; Tags, Rollentexte und sämtliche wiederholten
+Inhalte zählen mit. Der 16-Byte-Header bleibt Budgetbestandteil auch bei den drei
+Digestpräbildern, wie bei der heutigen `_canonical`-Regel. SHA256 hasht jeweils
+`C(Digestpräbild)` ohne Header und ohne eigenes Digestfeld; die Budgetprüfung
+ist davon getrennt. Die Body-, Feld-, Record- und gemeinsamen Ausgabecaps aus §5
+bleiben zusätzlich bestehen. Ein kleiner Bericht ersetzt keine passende gemeinsame
+Metadata, ein kleiner Wireframe keine passenden Digestpräbilder.
+
+Die `compact-*`-Domains sind ausschließlich Designwerte und vom bisherigen
+`installation-declaration/worker-declaration/profile-binding-context`-Weg getrennt.
+Gleiche semantische Records können andere neue Digests erhalten; alte Digests
+dürfen nicht unter einer neuen Domain wiederverwendet oder als gleich umgedeutet
+werden. Positionsfolge, JSON-Typen und Rollentags machen die kanonischen Präbilder
+eindeutig unterscheidbar. Dies behauptet keine mathematische Kollisionsfreiheit
+von SHA256, keine Signatur und keine Herkunfts- oder Replayattestation.
+
+`I[6]` bleibt dagegen exakt der bisherige Input82-`context_sha256`: Er wird aus
+der vollständig zurückgewonnenen **benannten** v1-Metadata ohne ihr eigenes
+Digestfeld mit unveränderter Input82-Kanonisierung berechnet. Die Tupelprojektion
+ändert weder diesen Digest noch Commit, Raw27-Bindung oder einen Sourcehash.
+Beide Descriptorarrays und sämtliche doppelt vorkommenden Kontextwerte werden
+vor Vergleich gegen den separat gehaltenen Parent geprüft, nicht zusammengelegt.
+
+### 10.4 Begrenzter Roundtrip und geschlossene Fehlergrenze
+
+Ein späterer Decoder begrenzt den vollständigen Byteeingang vor Slice, Decode,
+Parse und Rekonstruktion. Metadata hat höchstens 16368 Bytes plus 16 Headerbytes;
+Bericht und Digestpräbilder haben denselben Budgetabzug. Künftige Headerwerte
+werden vor Vertrauen in deklarierte Längen auf exakte Form, Gesamtgröße und
+vollständiges Ende geprüft. Zusatzpayload und abgeschnittene Eingänge sind Fehler.
+Kein heutiger DGNI001-Decoder wird dafür erweitert oder als Fallback verwendet.
+
+Die neue JSON-Grammatik erlaubt nur die obigen Arrayformen, Texte, erlaubtes
+`null` und nichtnegative Integer mit höchstens acht Dezimalstellen. Objekte,
+bool, Floats, NaN/Infinity und zusätzliche Verschachtelungen sind ausgeschlossen.
+Maximale Verschachtelung ist acht Arrayebenen; Arity und Sequenzcaps gelten vor
+dem Aufbau größerer DTOs. Ein späterer Parser muss diese Grenzen tatsächlich
+während der Aufnahme durchsetzen. UTF-8-Feldgrößen und ASCII-Escapingausdehnung
+werden beide geprüft. Die kanonische Gesamtgröße wird abbrechend mitgezählt,
+bevor vollständige große String-/JSONpuffer entstehen; kein unbegrenztes
+`json.dumps` über noch ungeprüfte verschachtelte Recordmengen.
+
+Für gültige DTOs muss Entpacken nach Packen exakt dieselben Felder, Typen,
+Tuplefolgen und Bytes zurückgeben. Für angenommene Wirebytes muss erneutes
+kanonisches Packen exakt dieselben Bytes ergeben; alternative Leerraum-, Zahl-
+oder Escapedarstellungen werden im neuen Weg geschlossen abgewiesen. Dies
+ändert nicht die heutige v1-Akzeptanzregel. Alle Formen werden geprüft, auch
+wenn zuvor eine gültige Abweichung festgestellt wurde. Fehlende Werte werden
+weder aus dem Soll ergänzt noch aus einer Gleichheit erfunden.
+
+Öffentliche Fehler sind feste Labels ohne Rohtexte, private Locator, Nonce oder
+Exceptioncontext. Der Teilclaim bleibt ausschließlich deklarativer Match unter
+der ausdrücklich gewählten Annahme, sämtliche Attestationsflags bleiben false.
+Consumption und identisches gültiges Replay bleiben bis zum tatsächlichen
+Lifecycle offen. Ein Tupel oder Digest attestiert keine erfolgreiche Aufnahme.
+
+### 10.5 Migration, nächste Abnahme und offene Machbarkeit
+
+Der heutige Matcher bleibt auf dem benannten Weg aus §5. Er berechnet vor einem
+Match und vor den drei Digests weiterhin dessen Größen. Rückexpansion einer
+kompakten Nachricht in diese DTOs umgeht `_canonical` nicht; ein dortiges
+`METADATA_LIMIT` wird niemals als Erfolg umgedeutet. Ein zukünftiger kompakter
+Prüfweg braucht eigene explizite Versionsauswahl, die obigen Größenregeln und
+vollständig getestete semantische Guards. Kein stiller Ersatz der Legacy-API,
+kein Abfangen ihres Grenzfehlers als Wahl eines leichteren Prüfers.
+
+Die nächste kleine Abnahme ist die konkrete Bootstrapfixture mit einer vorab
+separat gewählten vollständigen Inventur und voller Größenrechnung. Sie darf
+reine Berechnungen der geplanten Form verwenden, implementiert aber noch keinen
+Decoder oder Worker. Danach folgt der eigene versionierte Codec-/Digestpfad mit
+vollständigen Roundtrip- und Gegenproben. Dessen spätere Abnahme muss insbesondere
+diese Prüfungen tragen, bevor die tatsächliche Workerroute beginnt:
+
+| Gegenprobe | Erforderlicher Nachweis |
+|---|---|
+| Alle Formen, Kindfälle, Null-/Leerfälle, Frozenpaare und Locations | Exakter vollständiger Roundtrip ohne Feldverlust, Normalisierung oder implizite Defaults |
+| Jedes einzelne Feld verändert, gleiche Werte unter anderer Rolle/Domain | Unterschiedliche kanonische Präbilder; kein Domainaustausch oder wiederverwendeter alter Digest |
+| Beide vollständigen Descriptorarrays, geänderte Ordinals/Hashes/Größen/Nonce | Eigene Arrayvorkommen und vollständige Parent-/Kontextbindung; alte Input82-Digests unverändert |
+| Falsche Arity/Position/Enum, bool/Subklasse/Foreigngetter, Zusatzpayload | Feste Formfehler vor fremder Operation oder unbeschränkter Rekonstruktion |
+| Spätes malformed Feld nach früher gültiger Abweichung | Formfehler bleibt sichtbar; kein frühzeitiger Teilmatch |
+| Gemeinsame Form, Bericht und jedes Digestpräbild genau am Cap/Cap+1 | Alle fünf Budgetprüfungen; ASCII-/UTF-8-Ausdehnung, Tags und Header tatsächlich mitgerechnet |
+| Kompakter Wire passt, expandierte Legacyform oder neuer Worker-Digest nicht | Kein Erfolg durch alten Matcher oder Auslassen einer Größenprüfung |
+| Bestehende DGNI001-/Matchergegenproben und Quellenbindings | Legacyverhalten und Rawbytes bleiben unverändert; keine v1-Umdeutung |
+
+Dieser Tupelentwurf ist ein kleiner deterministischer Kandidat, kein Fitbeleg.
+Weniger Keys sparen Darstellungskosten, vollständige echte Locator und die
+konkret gewählte Inventur sind jedoch noch nicht eingesetzt. Ein Unterlauf
+einer gelockerten Teilrechnung erlaubt weder die operative Auswahl noch einen
+erfolgreichen Transfer. Falls die vollständige spätere Sizingfixture bei einer
+der fünf Formen überschreitet, folgt ein fester Fehler, keine Filterung,
+Digestersetzung, Capanhebung oder spontane neue Darstellung.
+
+Nach diesem Review bleiben separat vorgewählte vollständige operative Sollinventur,
+vollständige Größenprüfung, Codec-/Versionsmigration, Worker-/Kanal-/Consumption-
+bindung, tatsächliche Imports und unabhängiger Cleanup offen. Die 85 Namen aus §9
+werden keine erfolgreiche Baseline. G13, v1, DEC-068, PR68, die geschützte interne
+Capture-Arbeit und sämtliche SQL-/Acquisition-/Methodengates bleiben erhalten.
