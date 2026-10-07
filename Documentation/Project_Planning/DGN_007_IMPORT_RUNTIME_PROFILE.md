@@ -36,8 +36,10 @@ Kontrollaufrufers; eine Klasse oder ein Authoritylabel verleiht keine Rechte
 und ist kein Trustbeleg. Ein Worker darf später nicht sein eigenes Ergebnis
 als unabhängige Auswahlquelle verwenden. Die konkrete getrennte Parent-/Worker-
 Baselineübertragung und ihre Ausführungsbindung bleiben offen. Der getrennte
-[skalare Bindungsvertrag](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md) legt jetzt
-deren Deklarations-/Vergleichsschnitt als `DESIGNED` fest, ohne ihn zu implementieren.
+[skalare Bindungsvertrag](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md) legt
+deren Formen als `DESIGNED` fest. Der getrennte
+[reine Matcher](DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md) ist jetzt implementiert;
+er vergleicht deklarierte Records, keine tatsächliche Workerbeobachtung.
 
 Beobachtet werden tatsächliche Startflags, Interpreter-/Installationsmetadaten,
 Finder-/Hookidentitäten und der vollständige begrenzte vorbeladene Modulbestand.
