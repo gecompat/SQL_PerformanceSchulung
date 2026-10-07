@@ -102,11 +102,12 @@ ist abgeschlossen. Der konkrete [Beobachtungsentwurf](DGN_007_OBSERVATION_PROVEN
 und der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) liegen inzwischen vor. Injektive
 Sättigung aus unabhängig geschlossenem tatsächlichem Callumfang kann Erfassung
 tragen; kontinuierliches RW/ALL folgt nicht daraus. Freeze-/Zugangs-/Hostgrenze,
-Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen. Als Nächstes
-prüft ein getrenntes begrenztes synthetisches Sättigungs-/Acquisition-Gegenmodell
-den expliziten Zählschluss; Tokens sind ausschließlich Modelloracle, keine
-reale QS-Einzelidentität. Danach benötigt die alternative Beweisart eine
-explizite Methodenentscheidung. Erst die spätere gemeinsam versionierte Umsetzung
+Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen. Das getrennte
+[Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
+prüft jetzt den expliziten Zählschluss; Tokens sind ausschließlich Modelloracle,
+keine reale QS-Einzelidentität. Dieses Voraussetzungenmodell und seine 42
+Testmethoden bleiben unverändert. Als Nächstes benötigt die alternative
+Beweisart ein konkretes explizites Methodenentscheidungspaket. Erst die spätere gemeinsam versionierte Umsetzung
 verbindet SQL21/35, Quellenfreeze, Transport, Records, Evaluator und Coordinator.
 
 G13, v1, DEC-068, bekannte CI-Fehler und die fehlende PR68-Mergefreigabe bleiben

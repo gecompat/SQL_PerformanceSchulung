@@ -280,9 +280,11 @@ Die obigen kontinuierlichen Zustands-/Intervallgates bleiben konservative
 Methodenanforderungen dieses Vorschlags, nicht Prämissen des engeren
 Sättigungssatzes. Sie werden hier nicht aufgehoben. Tatsächliche Freeze-/
 Zugangs-/Hostgrenze, Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen.
-Nächster kleiner Schnitt ist das begrenzte reine Sättigungs-/Acquisition-
-Gegenmodell mit synthetischen Ausführungstokens, keine Runtimeidentitäten.
-Erst danach folgt die dokumentierte Methodenentscheidung vor gemeinsam
+Das getrennte [Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
+prüft jetzt synthetische Ausführungstokens, keine Runtimeidentitäten.
+Nächster kleiner Schnitt ist das konkrete Methodenentscheidungspaket mit
+belegten oder ausdrücklich offenen Acquisition-/Float-, Vertrauens-/Host-/
+Zugangs- und Kostengates. Erst danach folgt die tragfähige Entscheidung vor gemeinsam
 versionierter SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung.
 Alle drei Zeitbeziehungen QS↔SYSUTC, QS↔Katalog und SYSUTC↔Katalog bleiben
 gesondert zu entscheiden; diese Records entfernen kein Zeitprädikat.

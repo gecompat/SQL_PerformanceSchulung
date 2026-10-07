@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `f13359cac6bc6a5120f61d09b6cff21e6d431c5a` auf `origin/main` (Pull Request 72); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `b68d32a87984337b7330aa5f7f97e338ec963971` auf `origin/main` (Pull Request 74); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -276,9 +276,15 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    aus Counts nicht bewiesen und hier nicht aufgehoben. Der heutige Pfad
    liest Live-Dateien und adressiert Namen; Bundle-/Zugangs-/Hostgrenze,
    Acquisition-/Floatregel und Kostenmachbarkeit bleiben tatsächlich offen.
-   Nächster Schnitt: begrenztes reines Sättigungs-/Acquisition-Gegenmodell
-   mit synthetischen Ausführungstokens; danach explizite Methodenentscheidung
-   vor gemeinsam versionierter Umsetzung. Keine Runtime-/Methodenfreigabe.
+   Das getrennte [Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
+   prüft jetzt den Zählschluss mit synthetischen Ausführungstokens und getrennten
+   Claims für Callerfassung, Bucketzuordnung und QS-Zustand. Die alte 42-Test-
+   Voraussetzungssuite bleibt erhalten. Keine reale QS-Einzelidentität oder
+   Runtime-/Methodenfreigabe. Nächster Schnitt ist ein konkretes
+   Methodenentscheidungspaket: tatsächliche Acquisition-/Floatregel,
+   Freeze-/Actor-/Host-/Zugangsgrenze und Kostenmachbarkeit je Pflichtgate
+   belegbar entscheiden oder ausdrücklich offen lassen; erst danach gemeinsam
+   versionierte Umsetzung. Keine implizite OFF-/CLEAR-/Laständerung.
    Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
    Ursache und Behebung offen.
    Einzelheiten stehen im
