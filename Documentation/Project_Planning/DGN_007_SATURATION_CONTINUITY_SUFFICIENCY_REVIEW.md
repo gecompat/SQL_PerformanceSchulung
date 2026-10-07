@@ -173,8 +173,9 @@ unbekannt lassen. Bundle-/Actorbelege beweisen keine QS-Zustandskontinuität.
 
 ## 6. Endliche Gegenproben und nächster ausführbarer Vorschnitt
 
-Der nächste kleine Schnitt ist ein **reines, begrenztes synthetisches
-Sättigungs-/Acquisition-Gegenmodell**. Es ergänzt die vorhandenen 42
+Der in diesem Review vorgeschlagene Vorschnitt ist inzwischen als getrenntes
+[synthetisches Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
+implementiert. Es ergänzt die vorhandenen 42
 Voraussetzungstests um den hier expliziten Zählschluss. Synthetische
 Ausführungstokens dienen ausschließlich als Modelloracle; reale QS-Zeilen
 liefern keine solchen individuellen Tokens. Keine Prozesse, Dateien,
