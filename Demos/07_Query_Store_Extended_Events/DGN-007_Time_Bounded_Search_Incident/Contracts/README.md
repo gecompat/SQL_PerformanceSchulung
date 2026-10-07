@@ -25,8 +25,9 @@ Jede Version wird einzeln bewertet; Metriken verschiedener Versionen werden
 nicht gepoolt. Die künftige vollständige Matrix verlangt alle drei Ergebnisse.
 
 Die Lifecycles einer Version laufen seriell. Das bestehende Mindestprofil
-von vier logischen CPU-Kernen und 8 GB sowie eine SQL-Session je Lifecycle
-bleiben erhalten. Auf einem gemeinsamen lokalen Host ist höchstens eine
+von vier logischen CPU-Kernen und 8 GB sowie höchstens eine gleichzeitig
+aktive SQL-Session je Lifecycle bleiben erhalten. Die Phasen dürfen seriell
+neue Sessions öffnen. Auf einem gemeinsamen lokalen Host ist höchstens eine
 Version gleichzeitig aktiv; Matrixjobs auf getrennten GitHub-Hosts dürfen
 parallel laufen. Reguläres Budget und Cleanup-Budget bleiben 180 und
 60 Sekunden je Lifecycle. Das ist ein deklarativer Vertrag, noch keine

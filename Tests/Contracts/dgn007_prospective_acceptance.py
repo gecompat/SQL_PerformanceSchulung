@@ -182,7 +182,7 @@ def _policy() -> dict:
                             for condition, rows in zip(("A", "B"), REQUEST_MAPPING)},
         "resources_policy": {
             "minimum_logical_cpus": 4, "minimum_memory_mb": 8192,
-            "sql_sessions_per_lifecycle": 1, "lifecycles_per_version": "serial",
+            "maximum_concurrent_sql_sessions": 1, "lifecycles_per_version": "serial",
             "max_active_versions_per_physical_host": 1,
             "hosted_matrix": "separate_hosts_only", "attestation": "collector_pending",
         },
