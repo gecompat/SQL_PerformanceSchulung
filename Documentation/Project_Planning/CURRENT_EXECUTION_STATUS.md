@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `d1c469342c1473c837d070ffef3af0c44deb821c` auf `origin/main` (Pull Request 75); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `0e980fd59320962881f2453af102ad131c92477a` auf `origin/main` (Pull Request 76); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -285,9 +285,13 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Acquisition-/Count- und Floatkandidat, ausführbare Freeze-/Actor-/CID-/
    Host-/Zugangsgrenzen sowie gleichzeitige Streaming-/Poll-/Kostenlimits.
    Alle Methodengates bleiben offen; normative Auswahl braucht eine ausdrückliche
-   neue Entscheidung. Nächster ausführbarer Schnitt ist ein Offline-Bundle-/
-   Importpfad-Verifier mit Manipulationsfixtures, ohne SQL oder Launcher.
-   Statische Byteprüfung attestiert keine tatsächliche Ausführung. Erst nach
+   neue Entscheidung. Der [Offline-Quellenbundle-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
+   ist statisch implementiert: feste 27 Mitglieder, originale Gitblobs,
+   getrennte Rohbyte-/LF-Bindung und deklarierte AST-Imports mit Manipulationsfixtures.
+   Keine SQL-/Launcher-Runtime oder tatsächliche Ausführungsattestation.
+   Nächster Schnitt ist die getrennte Offline-Prüfung der Prozess-/Manifestdatenkanten
+   samt explizitem Importumgebungs-/Launcherentwurf, weiterhin ohne Launcherstart.
+   Erst nach
    tragfähiger Methodenentscheidung gemeinsam versionierte Umsetzung.
    Keine implizite OFF-/CLEAR-/Laständerung.
    Bestehende Guards, Fehler und DEC-068 bleiben erhalten;

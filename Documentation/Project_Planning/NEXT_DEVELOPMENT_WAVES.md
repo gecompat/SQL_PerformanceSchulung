@@ -239,9 +239,12 @@ Kein Token ist eine reale QS-Einzelidentität. Das konkrete
 Gate-Matrix mit Acquisition-/Count- und konservativem Floatkandidaten, tatsächlicher
 Freeze-/Actor-/CID-/Host-/Zugangsgrenze und Kostenplan innerhalb 145/180/60 Sekunden
 und 4 CPU/8 GiB. Alle Methodengates bleiben offen; Einzelmaxima sind keine
-gemeinsame Machbarkeitsevidenz. Nächster ausführbarer kleiner Schnitt ist ein
-Offline-Bundle-/Importpfad-Verifier samt Manipulationsfixtures, ohne SQL oder
-Launcher. Statischer Kandidaten-PASS attestiert keine verwendeten Runtimebytes.
+gemeinsame Machbarkeitsevidenz. Der [Offline-Quellenbundle-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
+ist statisch implementiert: feste 27 Mitglieder, Gitblob-/Rohbytebindung,
+separate LF-Äquivalenz und deklarierte AST-Imports samt Manipulationsfixtures.
+Statischer Kandidaten-PASS attestiert keine verwendeten Runtimebytes.
+Nächster kleiner Schnitt ist die getrennte Offline-Prüfung der Prozess-/
+Manifestdatenkanten samt explizitem Importumgebungs-/Launcherentwurf, ohne Launcherstart.
 Normative Methoden-/Grenzänderungen brauchen eine ausdrückliche neue Entscheidung.
 Keine implizite OFF-/CLEAR-/Laständerung. Erst eine tragfähige explizite
 Methodenentscheidung erlaubt gemeinsam versionierte

@@ -135,8 +135,9 @@ Ziel-/Zeitanker des gesonderten Zustandsclaims. Die finale Bindung wird vor
 Integration unabhängig überprüft.
 Das konkrete [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
 ist inzwischen vorbereitet: Acquisition-/Floatkandidat, tatsächliche Freeze-/
-Host-/Zugangsgrenze und Kostenplan mit weiterhin offenen Gates. Nächster
-ausführbarer Schnitt ist ein Offline-Bundle-/Importpfad-Verifier ohne SQL.
+Host-/Zugangsgrenze und Kostenplan mit weiterhin offenen Gates. Der
+[Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md) ist statisch implementiert;
+Prozess-/Manifestdatenkanten und tatsächliche Importumgebung bleiben Folgearbeit ohne SQL.
 Vor gemeinsam versionierter Umsetzung bleibt die Methodenentscheidung offen. Ein
 synthetisches PASS schließt keines dieser Runtimegates. v1, G13, DEC-068,
 historische FAILs, PR68 und der zurückgestellte API-Schnitt bleiben erhalten.

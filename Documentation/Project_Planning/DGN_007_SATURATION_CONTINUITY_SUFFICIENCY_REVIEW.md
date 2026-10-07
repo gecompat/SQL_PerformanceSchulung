@@ -199,9 +199,9 @@ Modell-PASS bedeutet nur bedingte synthetische Konsistenz. Unknown/fehlende
 Prämissen ergeben keine Runtimefreigabe. Das konkrete
 [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet,
 keine Methodenwahl. Es benennt Acquisition-/Floatkandidat, tatsächliche Vertrauens-/
-Hostgrenze und Kostenplan mit offenen Gates. Nächster ausführbarer Schnitt ist
-ein Offline-Bundle-/Importpfad-Verifier mit manipulierten Mitgliedern und
-Executorbytes; Zielalias/Replay bleiben im späteren Launcherpfad. Vor gemeinsam
+Hostgrenze und Kostenplan mit offenen Gates. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
+ist statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche Importumgebung
+bleiben Folgearbeit; Zielalias/Replay bleiben im späteren Launcherpfad. Vor gemeinsam
 versionierten SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinatoränderungen
 bleibt eine tragfähige explizite Methodenentscheidung erforderlich.
 
