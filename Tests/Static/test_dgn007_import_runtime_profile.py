@@ -27,7 +27,7 @@ def declared_linux_bootstrap():
     missing = tuple(p for p in sys.path if p.endswith(".zip") and not os.path.lexists(p))
     if len(missing) != 1:
         report = m.ProfileReport("REJECTED_PROFILE", "TEST_BASELINE_UNAVAILABLE")
-        return m.ObservationResult(report), report
+        return m.ObservationResult(report), report, m.ScalarObservationResult(report)
     controls = ("__main__", "dgn007_import_runtime_profile")
     rows = []
     for name, module in sorted(sys.modules.copy().items()):
@@ -43,12 +43,14 @@ def declared_linux_bootstrap():
                                 (sys.prefix, sys.exec_prefix, sys.base_prefix, sys.base_exec_prefix),
                                 abi, tuple(sys.path), roots, missing[0], controls,
                                 tuple(sys.meta_path), tuple(sys.path_hooks), tuple(rows), ())
+    known_hook = sys.path_hooks[1]  # Separate Kontrollauswahl vor dem beobachtenden Aufruf.
     records = m.observe_current_interpreter_records(expected)
     legacy = m.observe_current_interpreter(expected)
-    return records, legacy
+    scalars = m.observe_current_interpreter_scalars(expected, known_hook)
+    return records, legacy, scalars
 
 
-LINUX_RECORDS, LINUX_BOOTSTRAP = declared_linux_bootstrap() if sys.platform == "linux" else (None, None)
+LINUX_RECORDS, LINUX_BOOTSTRAP, LINUX_SCALARS = declared_linux_bootstrap() if sys.platform == "linux" else (None, None, None)
 import unittest
 from unittest.mock import patch
 
@@ -531,6 +533,289 @@ class ObservationRecordsTests(unittest.TestCase):
         # Reine Ankerprüfung ist keine aktuelle Cache-/Suchpfad-/Finderinventur.
 
 
+class ScalarProjectionTests(unittest.TestCase):
+    def setUp(self):
+        self.boot = sys.modules["_frozen_importlib_external"]
+        # Portables Modell: kohärenter Frozenrecord ohne Windows-Dateilocator.
+        change = patch.dict(self.boot.__dict__, {"__file__": ""})
+        change.start()
+        self.addCleanup(change.stop)
+
+    def fixture(self):
+        p, o = fixture()
+        row = m.ModuleRecord("_frozen_importlib_external", "frozen", "", "FROZEN", (),
+                             self.boot, self.boot.__spec__, FrozenImporter)
+        known = sys.path_hooks[1]
+        p = replace(p, hooks=(zipimporter, known), modules=(row,) + p.modules)
+        return p, replace(o, hooks=p.hooks, modules=p.modules), known
+
+    def observe(self, p, o, known, captures=None):
+        with patch.object(m.sys, "platform", "linux"), \
+             patch.object(m, "_capture", side_effect=captures or (o, replace(o))) as capture, \
+             patch.object(m.os.path, "isdir", return_value=True), patch.object(m.os.path, "isfile", return_value=True), \
+             patch.object(m.os.path, "realpath", side_effect=lambda path: path), \
+             patch.object(m.os.path, "lexists", return_value=False):
+            result = m.observe_current_interpreter_scalars(p, known)
+        return result, capture
+
+    def reject(self, result, issue):
+        self.assertEqual((result.report.status, result.report.issue), ("REJECTED_PROFILE", issue))
+        self.assertIsNone(result.scalars)
+        self.assertFalse(result.report.trust_attested or result.report.runtime_attested or
+                         result.report.method_approved or result.report.import_used_bytes_attested)
+
+    def test_fresh_projection_complete_primitives_and_private_frozen_result(self):
+        p, o, known = self.fixture()
+        result, capture = self.observe(p, o, known)
+        self.assertEqual(capture.call_count, 2)
+        self.assertEqual(result.report.status, "MATCHED_DECLARED_BASELINE")
+        selection, installation, modules = result.scalars
+        self.assertEqual(selection, (p.assumption, p.roots, p.inert_zip, p.controls))
+        self.assertEqual(installation, (o.platform, o.implementation, o.version, o.executable, o.executable_target,
+                                      o.prefixes, o.abi, o.flags, o.paths, ("BUILTIN", "FROZEN", "PATH"),
+                                      ("ZIPIMPORTER", "FILEFINDER"), ()))
+        self.assertEqual(modules[0], ("_frozen_importlib_external", "importlib._bootstrap_external",
+                                     "_frozen_importlib_external", "frozen", "", "FROZEN", (), "FROZEN", "", "", ()))
+        self.assertEqual(modules[1], ("sys", "sys", "sys", "built-in", "", "BUILTIN", (), "BUILTIN", "", "", ()))
+        def primitive(value):
+            self.assertIn(type(value), (tuple, str, int, type(None)))
+            if type(value) is tuple:
+                for item in value:
+                    primitive(item)
+        primitive(result.scalars)
+        self.assertNotIn("/declared", repr(result))
+        with self.assertRaises(FrozenInstanceError):
+            result.scalars = ()
+
+    def test_known_hook_missing_foreign_or_unrelated_is_closed(self):
+        p, o, known = self.fixture()
+        class Foreign:
+            def __getattribute__(self, name):
+                raise RuntimeError("private getter")
+        for value in (None, Foreign(), hook):
+            result, _ = self.observe(p, o, value)
+            self.reject(result, "FILEFINDER_BINDING")
+        # Selbst eine gleiche harmlose Funktion in Soll, Ist UND separatem Parameter ist keine Factoryhook.
+        p, o = replace(p, hooks=(zipimporter, hook)), replace(o, hooks=(zipimporter, hook))
+        result, _ = self.observe(p, o, hook)
+        self.reject(result, "FILEFINDER_BINDING")
+
+    def test_hook_factory_globals_and_closure_are_actually_bound(self):
+        p, o, known = self.fixture()
+        wrong = type(known)(known.__code__, {}, closure=known.__closure__)
+        p, o = replace(p, hooks=(zipimporter, wrong)), replace(o, hooks=(zipimporter, wrong))
+        result, _ = self.observe(p, o, wrong)
+        self.reject(result, "FILEFINDER_BINDING")
+        wrong = self.boot.FileFinder.path_hook((self.boot.SourceFileLoader, [".synthetic"]))
+        p, o = replace(p, hooks=(zipimporter, wrong)), replace(o, hooks=(zipimporter, wrong))
+        result, _ = self.observe(p, o, wrong)
+        self.reject(result, "FILEFINDER_BINDING")
+
+    def test_factory_requires_complete_observed_frozen_binding(self):
+        p, o, known = self.fixture()
+        p, o = replace(p, modules=p.modules[1:]), replace(o, modules=o.modules[1:])
+        result, _ = self.observe(p, o, known)
+        self.reject(result, "FILEFINDER_BINDING")
+
+    def test_actual_source_and_control_fields_are_copied_without_synthesis(self):
+        p, o, known = self.fixture()
+        loader = SourceFileLoader("fixture", "/declared/lib/fixture.py")
+        module = ModuleType("fixture")
+        module.__spec__, module.__loader__, module.__file__ = ModuleSpec("fixture", loader, origin=loader.path), loader, loader.path
+        row = m.ModuleRecord("fixture", loader.path, loader.path, "SOURCE", (), module, module.__spec__, loader)
+        rows = (p.modules[0], row, p.modules[1])
+        p, o = replace(p, modules=rows), replace(o, modules=rows)
+        result, _ = self.observe(p, o, known)
+        self.assertEqual(result.scalars[2][1], ("fixture", "fixture", "fixture", loader.path, loader.path,
+                                             "SOURCE", (), "SOURCE", "fixture", loader.path, ()))
+        control = ModuleType("__main__")
+        control.__spec__, control.__loader__, control.__file__ = None, None, "/declared/control.py"
+        row = m.ModuleRecord("__main__", "", control.__file__, "CONTROL", (), control, None, None)
+        rows = (row,) + p.modules
+        p, o = replace(p, modules=rows, controls=("__main__",)), replace(o, modules=rows)
+        result, _ = self.observe(p, o, known)
+        self.assertEqual(result.scalars[2][0][2], None)
+        self.assertEqual(result.scalars[2][0][7:10], ("NONE", "", ""))
+
+    def test_scalar_controlset_must_equal_complete_observed_roles(self):
+        p, o, known = self.fixture()
+        result, _ = self.observe(replace(p, controls=("__main__",)), o, known)
+        self.reject(result, "CONTROL_MISMATCH")
+
+    def test_projection_files_use_verified_final_hash_rows(self):
+        p, o, known = self.fixture()
+        raw = b"synthetic\r\n"
+        file = m.FileDigest(p.executable_target, len(raw), hashlib.sha256(raw).hexdigest())
+        p, o = replace(p, files=(file,)), replace(o, files=(file,))
+        def capture(expected, files):
+            return replace(o, files=files)
+        with patch("builtins.open", side_effect=lambda path, mode: io.BytesIO(raw)):
+            result, _ = self.observe(p, o, known, capture)
+        self.assertEqual(result.scalars[1][-1], ((file.path, len(raw), file.sha256),))
+        with patch("builtins.open", side_effect=lambda path, mode: io.BytesIO(b"synthetic\n")):
+            result, _ = self.observe(p, o, known, capture)
+        self.reject(result, "PROFILE_MISMATCH")
+
+    def test_stricter_scalar_text_prefix_and_frozen_locator_forms(self):
+        p, o, known = self.fixture()
+        for field, value in (("abi", "bad\0abi"), ("prefixes", ("relative",) * 4)):
+            result, _ = self.observe(replace(p, **{field: value}), replace(o, **{field: value}), known)
+            self.reject(result, "SCALAR_FORM" if field == "abi" else "PATH_MISMATCH")
+        for path in ("relative.py", "/declared/../file.py", "/declared//file.py"):
+            with patch.dict(self.boot.__dict__, {"__file__": path}):
+                rows = (replace(p.modules[0], file=path), p.modules[1])
+                result, _ = self.observe(replace(p, modules=rows), replace(o, modules=rows), known)
+                self.reject(result, "PATH_MISMATCH")
+
+    def test_alias_pairs_preserve_fixed_names_and_local_identity(self):
+        p, o, known = self.fixture()
+        alias = replace(p.modules[0], name="importlib._bootstrap_external")
+        rows = (p.modules[0], alias, p.modules[1])
+        p, o = replace(p, modules=rows), replace(o, modules=rows)
+        result, _ = self.observe(p, o, known)
+        pair = ("_frozen_importlib_external", "importlib._bootstrap_external")
+        self.assertEqual(result.scalars[2][0][-1], pair)
+        self.assertEqual(result.scalars[2][1][-1], pair)
+        other = ModuleType("importlib._bootstrap_external")
+        other.__spec__, other.__loader__, other.__file__ = self.boot.__spec__, FrozenImporter, ""
+        rows = (p.modules[0], replace(alias, module=other), p.modules[2])
+        result, _ = self.observe(replace(p, modules=rows), replace(o, modules=rows), known)
+        self.reject(result, "MODULE_COHERENCY")
+
+    def test_all_other_fixed_frozen_pairs_and_singletons(self):
+        for pair, names in ((("_frozen_importlib", "importlib._bootstrap"),
+                             ("importlib._bootstrap", "_frozen_importlib")),
+                            (("_collections_abc", "collections.abc"), ("collections.abc", "_collections_abc")),
+                            (("os.path", "posixpath"), ("posixpath", "posixpath"))):
+            p, o, known = self.fixture()
+            module = ModuleType(names[0])
+            module.__spec__, module.__loader__ = ModuleSpec(names[1], FrozenImporter, origin="frozen"), FrozenImporter
+            for selected in (pair[:1], pair):
+                extra = tuple(m.ModuleRecord(n, "frozen", "", "FROZEN", (), module, module.__spec__, FrozenImporter)
+                              for n in selected)
+                rows = tuple(sorted(p.modules + extra, key=lambda r: r.name))
+                result, _ = self.observe(replace(p, modules=rows), replace(o, modules=rows), known)
+                self.assertEqual(result.report.status, "MATCHED_DECLARED_BASELINE")
+                projected = {r[0]: r for r in result.scalars[2]}
+                for n in selected:
+                    self.assertEqual(projected[n][1:3], names)
+                    self.assertEqual(projected[n][-1], tuple(sorted(pair)) if len(selected) == 2 else ())
+
+    def test_mixed_frozen_and_source_partner_stays_complete_without_alias(self):
+        p, o, known = self.fixture()
+        frozen = ModuleType("collections.abc")
+        frozen.__spec__ = ModuleSpec("_collections_abc", FrozenImporter, origin="frozen")
+        frozen.__loader__ = FrozenImporter
+        loader = SourceFileLoader("collections.abc", "/declared/lib/collections/abc.py")
+        source = ModuleType("collections.abc")
+        source.__spec__ = ModuleSpec("collections.abc", loader, origin=loader.path)
+        source.__loader__, source.__file__ = loader, loader.path
+        extra = (m.ModuleRecord("_collections_abc", "frozen", "", "FROZEN", (),
+                                frozen, frozen.__spec__, FrozenImporter),
+                 m.ModuleRecord("collections.abc", loader.path, loader.path, "SOURCE", (),
+                                source, source.__spec__, loader))
+        rows = tuple(sorted(p.modules + extra, key=lambda r: r.name))
+        p, o = replace(p, modules=rows), replace(o, modules=rows)
+        self.assertEqual(m.validate_profile(p, o).status, "MATCHED_DECLARED_BASELINE")
+        result, _ = self.observe(p, o, known)
+        self.assertEqual(result.report.issue, "NONE")
+        self.assertEqual(result.report.status, "MATCHED_DECLARED_BASELINE")
+        projected = {r[0]: r for r in result.scalars[2]}
+        self.assertEqual(tuple(r[0] for r in result.scalars[2]), tuple(r.name for r in rows))
+        self.assertEqual(projected["_collections_abc"][1:3], ("collections.abc", "_collections_abc"))
+        self.assertEqual(projected["collections.abc"][1:3], ("collections.abc", "collections.abc"))
+        self.assertEqual(projected["_collections_abc"][-1], ())
+        self.assertEqual(projected["collections.abc"][-1], ())
+        self.assertEqual(projected["collections.abc"][7:10],
+                         ("SOURCE", "collections.abc", loader.path))
+
+    def test_foreign_suffixes_are_rejected_before_equality_or_iteration(self):
+        p, o, known = self.fixture()
+        class Foreign:
+            def __getattribute__(self, name):
+                raise RuntimeError("foreign getter")
+            def __eq__(self, other):
+                raise RuntimeError("foreign equality")
+            def __iter__(self):
+                raise RuntimeError("foreign iteration")
+        for value in ([Foreign()], ["x" * 4097], Foreign(), [".x"] * 257):
+            with patch.dict(self.boot.__dict__, {"EXTENSION_SUFFIXES": value}):
+                result, _ = self.observe(p, o, known)
+            self.reject(result, "INVALID_RECORD" if type(value) is list and len(value) <= 256 else "FILEFINDER_BINDING")
+
+    def test_hook_and_factory_code_changes_during_projection_are_rejected(self):
+        p, o, known = self.fixture()
+        factory = self.boot.FileFinder.__dict__["path_hook"].__func__
+        original = m._project_scalars
+        for target in (known, factory):
+            old = target.__code__
+            def mutate(expected, observation):
+                scalars = original(expected, observation)
+                target.__code__ = old.replace(co_name="synthetic_changed_code")
+                return scalars
+            try:
+                with patch.object(m, "_project_scalars", side_effect=mutate):
+                    result, _ = self.observe(p, o, known)
+                self.reject(result, "FILEFINDER_BINDING")
+            finally:
+                target.__code__ = old
+
+    def test_failed_fresh_capture_cannot_project_old_report_or_records(self):
+        p, o, known = self.fixture()
+        result, _ = self.observe(p, o, known, (o, OSError("private capture")))
+        self.reject(result, "OBSERVATION_FAILED")
+        self.assertNotIn("private capture", repr(result))
+
+    def test_module_mutation_during_projection_prevents_scalar_return(self):
+        p, o, known = self.fixture()
+        original = m._project_scalars
+        def mutate(expected, observation):
+            scalars = original(expected, observation)
+            observation.modules[0].module.__file__ = "/changed/file.py"
+            return scalars
+        with patch.object(m, "_project_scalars", side_effect=mutate):
+            result, _ = self.observe(p, o, known)
+        self.reject(result, "MODULE_COHERENCY")
+
+    def test_hook_configuration_mutation_during_projection_is_closed(self):
+        p, o, known = self.fixture()
+        original = m._project_scalars
+        suffixes = self.boot.SOURCE_SUFFIXES
+        old = suffixes[:]
+        def mutate(expected, observation):
+            scalars = original(expected, observation)
+            suffixes.append(".synthetic")
+            return scalars
+        try:
+            with patch.object(m, "_project_scalars", side_effect=mutate):
+                result, _ = self.observe(p, o, known)
+            self.reject(result, "FILEFINDER_BINDING")
+        finally:
+            suffixes[:] = old
+
+    def test_deleted_module_name_during_projection_is_fixed_rejection(self):
+        p, o, known = self.fixture()
+        original = m._project_scalars
+        old_name = self.boot.__dict__["__name__"]
+        def mutate(expected, observation):
+            del observation.modules[0].module.__dict__["__name__"]
+            return original(expected, observation)
+        try:
+            with patch.object(m, "_project_scalars", side_effect=mutate):
+                result, _ = self.observe(p, o, known)
+            self.reject(result, "INVALID_RECORD")
+        finally:
+            self.boot.__dict__["__name__"] = old_name
+
+    def test_windows_scalar_api_is_unsupported_before_io_or_hook_access(self):
+        with patch.object(m.sys, "platform", "win32"), patch.object(m, "_capture") as capture, \
+             patch("builtins.open") as opened:
+            result = m.observe_current_interpreter_scalars(object(), object())
+        self.reject(result, "UNSUPPORTED_PLATFORM")
+        capture.assert_not_called()
+        opened.assert_not_called()
+
+
 @unittest.skipUnless(sys.platform == "linux", "Linux-only observation; portable validation runs everywhere")
 class ActualLinuxProfileTests(unittest.TestCase):
     def test_current_isolated_controlruntime_matches_explicit_caller_baseline(self):
@@ -548,6 +833,16 @@ class ActualLinuxProfileTests(unittest.TestCase):
         self.assertEqual(result.observation.files, ())
         self.assertEqual(result.observation.flags, (1, 1, 1, 1, 1, 0))
         self.assertFalse(result.report.runtime_attested or result.report.import_used_bytes_attested)
+
+    def test_actual_scalar_projection_before_mock_bootstrap(self):
+        self.assertEqual(LINUX_SCALARS.report.issue, "NONE")
+        self.assertEqual(LINUX_SCALARS.report.status, "MATCHED_DECLARED_BASELINE")
+        self.assertEqual(LINUX_SCALARS.report, LINUX_BOOTSTRAP)
+        self.assertIs(type(LINUX_SCALARS.scalars), tuple)
+        selection, installation, modules = LINUX_SCALARS.scalars
+        self.assertEqual(selection[3], ("__main__", "dgn007_import_runtime_profile"))
+        self.assertEqual(installation[10], ("ZIPIMPORTER", "FILEFINDER"))
+        self.assertEqual(tuple(r[0] for r in modules), tuple(r.name for r in LINUX_RECORDS.observation.modules))
 
 
 if __name__ == "__main__":

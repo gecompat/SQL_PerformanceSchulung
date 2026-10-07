@@ -390,3 +390,141 @@ def observe_current_interpreter_records(expected: DeclaredProfile) -> Observatio
 def observe_current_interpreter(expected: DeclaredProfile) -> ProfileReport:
     """Bisherige Report-API über denselben vollständigen Aufnahmefluss."""
     return observe_current_interpreter_records(expected).report
+
+
+@dataclass(frozen=True)
+class ScalarObservationResult:
+    """Private primitive Projektion; kein Wireframe oder gemeinsamer Größenbeleg."""
+    report: ProfileReport
+    scalars: tuple | None = field(default=None, repr=False)
+
+
+def _filefinder_hook(observation, known):
+    # Lokale Bindung an die angenommene CPython-3.12-Kontrollruntime, kein Trustbeleg.
+    _need(type(known) is FunctionType and observation.hooks[1] is known, "FILEFINDER_BINDING")
+    rows = [r for r in observation.modules if r.name == "_frozen_importlib_external"]
+    _need(len(rows) == 1 and rows[0].kind == "FROZEN" and rows[0].loader is FrozenImporter,
+          "FILEFINDER_BINDING")
+    namespace = rows[0].module.__dict__
+    finder = namespace.get("FileFinder")
+    _need(type(finder) is type, "FILEFINDER_BINDING")
+    descriptor = finder.__dict__.get("path_hook")
+    _need(type(descriptor) is classmethod and type(descriptor.__func__) is FunctionType,
+          "FILEFINDER_BINDING")
+    factory = descriptor.__func__
+    constants = factory.__code__.co_consts
+    _need(len(constants) <= MAX_RECORDS and any(known.__code__ is c for c in constants)
+          and known.__globals__ is factory.__globals__ and factory.__globals__ is namespace,
+          "FILEFINDER_BINDING")
+    _need(known.__defaults__ is None and known.__kwdefaults__ is None
+          and known.__code__.co_freevars == ("cls", "loader_details")
+          and type(known.__closure__) is tuple and len(known.__closure__) == 2,
+          "FILEFINDER_BINDING")
+    cls, details = (cell.cell_contents for cell in known.__closure__)
+    _need(cls is finder and type(details) is tuple and len(details) == 3, "FILEFINDER_BINDING")
+    for row, loader_name, suffix_name in zip(details,
+            ("ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader"),
+            ("EXTENSION_SUFFIXES", "SOURCE_SUFFIXES", "BYTECODE_SUFFIXES")):
+        _need(type(row) is tuple and len(row) == 2, "FILEFINDER_BINDING")
+        loader, suffixes = row
+        configured = namespace.get(suffix_name)
+        _need(type(loader) is type and loader is namespace.get(loader_name)
+              and type(suffixes) is list and 0 < len(suffixes) <= MAX_RECORDS
+              and type(configured) is list and 0 < len(configured) <= MAX_RECORDS,
+              "FILEFINDER_BINDING")
+        for suffix in suffixes + configured:
+            _scalar_text(suffix)
+        # Begrenzte Konfigurationswerte binden; die Listen müssen nicht dasselbe Objekt sein.
+        _need(suffixes == configured, "FILEFINDER_BINDING")
+    return (finder, descriptor, factory, factory.__code__, known.__code__, cls, details,
+            tuple((r[0], r[1], tuple(r[1])) for r in details))
+
+
+def _scalar_text(value):
+    _text(value)
+    _need("\x00" not in value, "SCALAR_FORM")
+
+
+def _project_scalars(expected, observation):
+    """Drei feste Tupel: selection, installation, vollständige Modulzeilen."""
+    for value in (expected.assumption, observation.platform, observation.implementation, observation.abi):
+        _scalar_text(value)
+    for value in observation.prefixes + expected.roots + observation.paths + (
+            observation.executable, observation.executable_target, expected.inert_zip):
+        _scalar_text(value)
+        _absolute(value)
+    for name in expected.controls:
+        _scalar_text(name)
+    _need(set(expected.controls) == {r.name for r in observation.modules if r.kind == "CONTROL"},
+          "CONTROL_MISMATCH")
+    by_name = {r.name: r for r in observation.modules}
+    modules = []
+    for row in observation.modules:
+        module_name = row.module.__dict__.get("__name__")
+        spec_name = None if row.spec is None else row.spec.name
+        loader_name = row.loader.name if type(row.loader) in (SourceFileLoader, ExtensionFileLoader) else ""
+        loader_path = row.loader.path if type(row.loader) in (SourceFileLoader, ExtensionFileLoader) else ""
+        for value in (row.name, module_name, row.origin, row.file, row.kind, loader_name, loader_path):
+            _scalar_text(value)
+        _need(row.name != "", "SCALAR_FORM")
+        if spec_name is not None:
+            _scalar_text(spec_name)
+        if row.file:
+            _absolute(row.file)
+        for location in row.locations:
+            _scalar_text(location)
+            _absolute(location)
+        if row.kind == "CONTROL" and row.spec is not None:
+            _absolute(row.origin)
+        if row.kind in ("SOURCE", "EXTENSION"):
+            _need(all(_under(p, expected.roots) for p in (row.origin, row.file) + row.locations),
+                  "PATH_MISMATCH")
+        loader = ("NONE" if row.loader is None else "BUILTIN" if row.loader is BuiltinImporter else
+                  "FROZEN" if row.loader is FrozenImporter else
+                  "SOURCE" if type(row.loader) is SourceFileLoader else "EXTENSION")
+        aliases = ()
+        if row.kind == "FROZEN":
+            for pair in (("_frozen_importlib", "importlib._bootstrap"),
+                         ("_frozen_importlib_external", "importlib._bootstrap_external"),
+                         ("_collections_abc", "collections.abc"), ("os.path", "posixpath")):
+                if row.name in pair and all(n in by_name for n in pair):
+                    a, b = (by_name[n] for n in pair)
+                    if a.kind == b.kind == "FROZEN":
+                        _need(a.module is b.module and a.spec is b.spec, "MODULE_COHERENCY")
+                        aliases = tuple(sorted(pair))
+        modules.append((row.name, module_name, spec_name, row.origin, row.file, row.kind,
+                        row.locations, loader, loader_name, loader_path, aliases))
+    selection = (expected.assumption, expected.roots, expected.inert_zip, expected.controls)
+    installation = (observation.platform, observation.implementation, observation.version,
+                    observation.executable, observation.executable_target, observation.prefixes,
+                    observation.abi, observation.flags, observation.paths,
+                    ("BUILTIN", "FROZEN", "PATH"), ("ZIPIMPORTER", "FILEFINDER"),
+                    tuple((r.path, r.size, r.sha256) for r in observation.files))
+    return selection, installation, tuple(modules)
+
+
+def observe_current_interpreter_scalars(expected: DeclaredProfile,
+                                      separately_known_filefinder_hook) -> ScalarObservationResult:
+    """Frische Aufnahme und lokale Projektion unter separat gewählter Hookannahme.
+
+    Keine Imports, Codec-/16-KiB-, Worker-, Trust- oder UsedBytes-Attestation.
+    Die Kontrollreferenz wird nicht aus der Aufnahme als erfolgreiche Auswahl erzeugt.
+    """
+    records = observe_current_interpreter_records(expected)
+    if records.observation is None:
+        return ScalarObservationResult(records.report)
+    try:
+        observation = records.observation
+        _compare(expected, observation)
+        hook = _filefinder_hook(observation, separately_known_filefinder_hook)
+        scalars = _project_scalars(expected, observation)
+        _compare(expected, observation)
+        after_hook = _filefinder_hook(observation, separately_known_filefinder_hook)
+        _need(all(a is b for a, b in zip(hook[:7], after_hook[:7]))
+              and all(a[0] is b[0] and a[1] is b[1] and a[2] == b[2]
+                      for a, b in zip(hook[7], after_hook[7])), "FILEFINDER_BINDING")
+    except _Failure as error:
+        return ScalarObservationResult(ProfileReport("REJECTED_PROFILE", str(error)))
+    except (AttributeError, TypeError, ValueError, UnicodeError):
+        return ScalarObservationResult(ProfileReport("REJECTED_PROFILE", "SCALAR_PROJECTION_FAILED"))
+    return ScalarObservationResult(records.report, scalars)

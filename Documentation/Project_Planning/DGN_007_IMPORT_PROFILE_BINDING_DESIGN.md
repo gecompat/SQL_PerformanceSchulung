@@ -4,7 +4,7 @@
 |---|---|
 | Stand | 2026-10-07 |
 | Repositorybasis | `e75baeb811c1a9973198200c94aa37a795d64b1a` nach PR85 |
-| Status | `DESIGNED`; Matcher und lokale Record-Rückgabe separat implementiert, Bootstraproute entworfen |
+| Status | `DESIGNED`; Matcher, lokale Record-Rückgabe und skalare Projektion separat implementiert, Bootstraproute entworfen |
 | Vorgesehener Teilclaim | `MATCHED_REPORTED_DECLARATION` |
 | Geltung | `PROJECT_SEMANTIC`; deklarierter skalarer Vergleich |
 | Grenze | keine Trust-, Worker-, UsedBytes-, Cleanup-, SQL- oder Methodenattestation |
@@ -38,8 +38,10 @@ geprüft am 2026-10-07. Die folgenden engeren Bindungsregeln sind Projektentwurf
 Die bisherige Profil-API gibt weiterhin ausschließlich `ProfileReport` zurück.
 Die getrennte Erweiterung `observe_current_interpreter_records` liefert jetzt
 zusätzlich ihre vollständig geprüfte lokale Abschlussaufnahme; bei Ablehnung
-enthält `ObservationResult` keine Observation. Diese Rückgabe attestiert keine
-Workerbeobachtung, Scalarprojektion oder spätere aktuelle Cachemitgliedschaft.
+enthält `ObservationResult` keine Observation. Diese Record-Rückgabe attestiert keine
+Workerbeobachtung oder spätere aktuelle Cachemitgliedschaft. Die getrennte
+aktuelle Scalarprojektion ist inzwischen im Profilmodul implementiert;
+sie ist keine Worker-/Trustattestation.
 Die heutige Auswahl erlaubt genau die Kontrollnamen `__main__` und
 `dgn007_import_runtime_profile`. Input82 importiert dagegen auch Bundle und
 Edges. Eine vollständige Parentinventur passt daher nicht unverändert als
@@ -129,6 +131,10 @@ beiden Records und jeweils die festen Modul-/Specnamen des Profilvorschnitts.
 Fehlender oder widersprüchlicher Partner ist ein fester Formfehler. Ein einzeln
 vorhandener erlaubter Frozenrecord darf ausschließlich `aliasGroup=()` tragen.
 Diese Konsistenzprüfung attestiert keine gemeinsame Liveidentität.
+Zwei benannte Cachekeys allein bilden keinen Frozenverband: ein separat
+kohärenter Sourcewrapper und ein Frozenrecord bleiben eigenständige Records
+mit `aliasGroup=()`. Der lokale Projektionsguard verlangt weiterhin gemeinsame
+Modul-/Specidentität, wenn beide Records als Frozenpartner vorliegen.
 Exakte `str/int/tuple/bytes` werden vor Vergleich geprüft; bool und Subklassen
 sind keine Zahlenrecords. Kein Text enthält NUL oder ungepaarte Surrogate.
 `kind` ist genau `BUILTIN,FROZEN,SOURCE,EXTENSION,CONTROL`; Listenlängen bleiben
@@ -256,7 +262,7 @@ Validierung und verbleibende Grenzen stehen im [Matcher-Nachweis](DGN_007_IMPORT
 Der tatsächliche Adapter braucht zuerst eine vollständig benannte Bootstrapquelle
 und deren eigene Importkanten. Die lokale Record-Rückgabe des Profilvorschnitts ist inzwischen getrennt
 implementiert; ein `ProfileReport` allein genügt weiterhin nicht. Die
-Scalarprojektion bleibt offen. Eine erneute reine `validate_profile`-Prüfung
+Scalarprojektion ist inzwischen als getrennter lokaler Vorschnitt implementiert. Eine erneute reine `validate_profile`-Prüfung
 kontrolliert gehaltene Modul-/Spec-/Loaderobjekte, aber nicht deren aktuelle
 `sys.modules`-Mitgliedschaft oder heutige Suchpfad-/Finder-/Hookzustände.
 Spätere aktuelle Runtimeverwendung braucht deshalb eine frische Aufnahme;
@@ -281,7 +287,8 @@ Toleranz, Mitigation oder Capstone-/Methodenfreigabe folgt aus diesem Entwurf.
 
 Dieser ergänzende Designstand beruht auf `54b043dc30bb3afd522742203d8c260a9fa8235f`
 nach PR88. Er wählt eine spätere Bootstraproute; deren Quelle, operative
-Inventur, Projektion und Codec sind noch nicht implementiert oder ausgeführt.
+Inventur und Codec sind noch nicht implementiert oder ausgeführt. Die getrennte
+importneutrale Projektion ist inzwischen im bestehenden Profilmodul implementiert.
 Die vorhandenen Linux-Profiltests sind Tests ihres eigenen Scriptbootstraps,
 keine Inventur oder Abnahme des hier gewählten Workers.
 
@@ -340,12 +347,17 @@ bleibt bis zur konkreten Fixture und ihrem unabhängigen Review offen.
 
 ### 8.2 Herkunft der skalaren Felder
 
-Die geplante Projektion liegt im vorhandenen Profilmodul und fügt keine
+Die getrennt implementierte Projektion liegt im vorhandenen Profilmodul und fügt keine
 Bootstrapimports hinzu. Ihre private Rückgabe besteht ausschließlich aus
 exakten primitiven Werten und begrenzten Tupeln; eine spätere Parentdekodierung
 erstellt daraus die vorhandenen Matcher-DTOs. Keine neuen Livepointer-DTOs,
 Callables, freien Wire-Mappings oder Imports des Matchers im Worker.
-Die genaue ausführbare Rückgabe-API und ihr Codec bleiben Folgearbeit.
+Die ausführbare Rückgabe-API lautet inzwischen
+`observe_current_interpreter_scalars(expected, separately_known_filefinder_hook)`;
+`ScalarObservationResult` enthält den festen Report und private primitive Tupel
+oder bei Ablehnung `scalars=None`. Der kombinierte Codec bleibt Folgearbeit.
+Die konkrete Tupleform und Validierung sind im
+[Profilnachweis](DGN_007_IMPORT_RUNTIME_PROFILE.md) beschrieben.
 
 | Feldgruppe | Ausschließliche Herkunft |
 |---|---|
@@ -414,8 +426,8 @@ zu prüfende Protokolländerung. Die tatsächliche Darstellbarkeit ist offen.
 | volle gemeinsame Metadata genau am Cap und ein Byte darüber | nur genau zulässige vollständige Form; darüber Größenfehler, kein Teilmatch oder neues Zusatzbudget |
 | passende skalare Rückgabe ohne tatsächlichen Worker/Kanal | ausschließlich deklarativer Inhalt, keine Worker-/Consumptionattestation |
 
-Die nächsten Implementierungsteile sind die importneutrale Projektion,
-die konkret reviewte Bootstrapfixture samt vollständiger separater Sollinventur
+Die importneutrale Projektion ist als getrennter lokaler Vorschnitt implementiert.
+Die nächsten Implementierungsteile sind die konkret reviewte Bootstrapfixture samt vollständiger separater Sollinventur
 und Größenprüfung sowie danach der kombinierte Codec. Erst deren Abnahme
 ermöglicht die tatsächliche Parent-/Workerroute aus §7. Die neun Runtimequellen,
 DGNI001, alle bestehenden Bounds und false-Attestationsflags bleiben erhalten.
@@ -427,3 +439,12 @@ und [ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.m
 Für die Hookfactory gilt zusätzlich [FileFinder.path_hook](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.FileFinder.path_hook).
 Die engere Bootstrap-/Projektionsauswahl ist Projektentwurf, keine aus diesen
 Dokumentationsseiten abgeleitete Runtimegarantie.
+
+Die zusätzliche lokale Hookprüfung verlangt neben der separat gewählten
+Funktionsreferenz passende gehaltene Factorycode- und Closurebindungen der
+gewählten CPython-3.12-Kontrollruntime. Eine beliebige harmlose Funktion
+wird auch bei identischer Soll-/Istbindung nicht als `FILEFINDER` projiziert.
+Kein Hook/Finder wird dafür ausgeführt. Die prüfbare Struktur ist enger als
+`FunctionType`; unabhängige ursprüngliche Factoryausführung oder unveränderte
+Stdlibbytes werden dadurch weiterhin nicht attestiert. Die operativ separat
+gewählte Workerbaseline und deren spätere Ausführungsbindung bleiben offen.
