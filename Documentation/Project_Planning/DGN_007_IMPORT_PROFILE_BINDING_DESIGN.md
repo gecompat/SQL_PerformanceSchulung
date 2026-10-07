@@ -35,9 +35,11 @@ Objektidentität.
 [Python 3.12: ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec),
 geprüft am 2026-10-07. Die folgenden engeren Bindungsregeln sind Projektentwurf.
 
-Die bestehende Profil-API gibt nur `ProfileReport` zurück, keine vollständig
-geprüften Observationrecords. Ein solcher Statusreport kann weder die
-fehlenden Records ersetzen noch eine Workerbeobachtung attestieren.
+Die bisherige Profil-API gibt weiterhin ausschließlich `ProfileReport` zurück.
+Die getrennte Erweiterung `observe_current_interpreter_records` liefert jetzt
+zusätzlich ihre vollständig geprüfte lokale Abschlussaufnahme; bei Ablehnung
+enthält `ObservationResult` keine Observation. Diese Rückgabe attestiert keine
+Workerbeobachtung, Scalarprojektion oder spätere aktuelle Cachemitgliedschaft.
 Die heutige Auswahl erlaubt genau die Kontrollnamen `__main__` und
 `dgn007_import_runtime_profile`. Input82 importiert dagegen auch Bundle und
 Edges. Eine vollständige Parentinventur passt daher nicht unverändert als
@@ -252,10 +254,14 @@ Validierung und verbleibende Grenzen stehen im [Matcher-Nachweis](DGN_007_IMPORT
 ## 7. Getrennter späterer Adapter und verbleibende Gates
 
 Der tatsächliche Adapter braucht zuerst eine vollständig benannte Bootstrapquelle
-und deren eigene Importkanten. Er muss den Profilvorschnitt eng faktorisieren,
-um geprüfte lokale Records nach tatsächlicher Aufnahme zurückzugeben; ein
-`ProfileReport` genügt nicht. Lokale Objektkohärenz wird vor skalarer Projektion
-geprüft und von der übertragenen Deklaration getrennt gehalten.
+und deren eigene Importkanten. Die lokale Record-Rückgabe des Profilvorschnitts ist inzwischen getrennt
+implementiert; ein `ProfileReport` allein genügt weiterhin nicht. Die
+Scalarprojektion bleibt offen. Eine erneute reine `validate_profile`-Prüfung
+kontrolliert gehaltene Modul-/Spec-/Loaderobjekte, aber nicht deren aktuelle
+`sys.modules`-Mitgliedschaft oder heutige Suchpfad-/Finder-/Hookzustände.
+Spätere aktuelle Runtimeverwendung braucht deshalb eine frische Aufnahme;
+lokale Objektkohärenz muss vor Projektion geprüft und von der übertragenen
+Deklaration getrennt gehalten werden.
 Keine künstlichen Recordwerte oder erfolgreiche Observation aus einem Flag ergänzen.
 
 Danach werden tatsächlicher Workerstart, eigener Kanal, Nonce/Ordinal-Consumption,

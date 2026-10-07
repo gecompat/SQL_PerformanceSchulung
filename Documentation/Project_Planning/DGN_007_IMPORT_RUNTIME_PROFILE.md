@@ -108,3 +108,58 @@ Primärquellen, geprüft am 2026-10-07:
 und [Isolation-/Site-/Bytecodeflags](https://docs.python.org/3.12/using/cmdline.html).
 `sys.stdlib_module_names` ist eine plattformübergreifende Namensliste, kein
 Inventar installierter oder tatsächlich verwendeter Bibliotheksbytes.
+
+## Getrennte lokale Record-Rückgabe
+
+Die Erweiterung auf Basis `25c9801e458ba124a8d4afc9e48655dc15fcbf51` nach PR87
+liegt als `IMPLEMENTED_LOCAL_OBSERVATION_RECORDS` vor. Die neue API
+`observe_current_interpreter_records(expected) -> ObservationResult` enthält
+den bisherigen `ProfileReport` und ein privates Feld `observation`. Der
+bisherige Aufruf `observe_current_interpreter(expected)` liefert weiterhin
+ausschließlich den Report desselben Beobachtungspfads. `validate_profile`
+bleibt der reine Vergleich. Es gibt keine neue Bootstrapquelle oder neue
+Controlnamen, Importkanten, Finder, Suchpfade oder Worker.
+
+Die Record-API gibt ausschließlich das tatsächlich durch `_capture` erzeugte
+`after`-Objekt zurück, nachdem die vorherige Aufnahme, die unveränderten
+optionalen Rohhashreads und die vollständige Abschlussprüfung erfolgreich
+waren. Keine Recordwerte werden aus dem Soll ergänzt oder aus einem PASS-Flag
+rekonstruiert. Jede regulär behandelte Ablehnung liefert `observation=None`,
+auch vor der Aufnahme, beim Dateilesen und bei einer Abschlussabweichung.
+Plattform-/Form-/I/O-Fehler behalten feste öffentliche Codes. Harte
+Unterbrechungen liefern keine erfolgreiche Rückgabe oder neue Cleanupzusage.
+
+`ObservationResult` ist frozen; `observation` ist von seiner Repräsentation
+ausgeschlossen. Dies verhindert weder eine spätere Veränderung gehaltener
+Module-/Spec-/Loaderobjekte noch ein bewusstes Auslesen privater Felder. Die
+Rückgabe beschreibt die lokal geprüfte Aufnahme beim Abschlussvergleich,
+keinen dauerhaft gültigen Zustand. Erneutes `validate_profile` prüft gehaltene
+Objektkohärenz und Skalare, aber keine heutige `sys.modules`-Mitgliedschaft,
+keine aktuellen Suchpfade, Finder oder Hooks. Ein ausgetauschter Cacheeintrag
+kann bei unverändertem gehaltenem Objekt weiter rein matchen. Für eine spätere
+aktuelle Runtimeverwendung ist eine frische Aufnahme nötig; auch diese ist
+keine atomare Runtime- oder Herkunftsattestation. Die gewählte Kontrollruntime
+bleibt ausdrücklich angenommen.
+
+Der vorhandene direkte Testskriptbootstrap nimmt auf Linux mit `-I -S -B`
+die Records vor `unittest.mock` auf und prüft den begrenzten tatsächlichen
+Pfad gesondert. Portable Fixtures testen Abschlussobjektidentität, tatsächlich
+gelesene Hashrecords, Fehler jeder Phase ohne Records, Legacykompatibilität,
+private frozen Rückgabe und spätere Objekt-/Cacheveränderungen. Lokal auf
+Windows mit CPython 3.12.14 bestanden 36 von 38 Methoden; genau zwei
+Linux-Methoden wurden ausdrücklich übersprungen (0.040 s). Die Linux-CI
+muss alle 38 Methoden ohne SKIP ausführen. Dieser lokale Nachweis ist kein
+Linux-Runtimeerfolg.
+
+Die Caps aus dem Profilvorschnitt und sämtliche false-Attestationsflags
+bleiben erhalten. Konkrete Workerinventur, Scalarprojektion, kombinierter
+Codec mit gemeinsamem 16-KiB-Budget und tatsächliche Kanal-/Consumptionbindung
+bleiben offen. Ebenso offen bleiben DGN-Loaderverwendung, Importabschluss und
+unabhängiger eigener Worker-Cleanup. Keine SQL-Ausführung, G13-/v1-/DEC-068-
+Änderung, Incident- oder Capstonepromotion.
+
+Primärquellen, geprüft am 2026-10-07: Python 3.12 beschreibt
+[frozen Records und Repräsentation](https://docs.python.org/3.12/library/dataclasses.html),
+[den veränderbaren Modulcache](https://docs.python.org/3.12/library/sys.html#sys.modules)
+und [unabhängige Module-/Specmetadaten](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec).
+Die engeren API- und Fehlergrenzen sind Projektimplementierung.
