@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `12b130f0df1f963a9075430745e406e8e2a38494` auf `origin/main` (Pull Request 67); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `3234fe0936e894d0c5d8e804c26e2d624a855c8d` auf `origin/main` (Pull Request 69); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -243,9 +243,20 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Alle sieben ersten DB-Abwesenheitsprüfungen und unabhängiger eigener
    Containerabbau bestanden; Freeze mit 27 Dateien unverändert. Kein AB2/BA/AA
    und kein erfolgreicher AB-Capture. Die Messvertragsgrenze zwischen QS-Endzeit
-   und SYSUTC-Requestklammer bleibt ungeklärt. Nächster Schnitt ist ein
-   quellenbasierter prüffähiger Gegenentwurf zum Mess-/Zuordnungsbeleg;
-   bestehende Guards und Fehler bleiben erhalten. Ursache und Behebung offen.
+   und SYSUTC-Requestklammer bleibt ungeklärt. Der quellenbasierte
+   [Mess-/Zuordnungsgegenentwurf](DGN_007_CAPTURE_ASSIGNMENT_DESIGN.md) liegt
+   jetzt als `PROPOSED` vor: exakter Einschluss und kontrollierte
+   Kollektivzuordnung sind getrennte Alternativen. Der Kandidat verlangt
+   eine belegte Familienbasis B, sequenziellen T0-Capture vor T1,
+   vollständige Bilanz B→B+4→B+8 und vertrauenswürdig attestierten
+   Ausführungsumfang. Vorabrequests erfolgen vor der expliziten QS-
+   Konfiguration; eine frische Datenbank garantiert kein QS-OFF oder
+   Nullbaseline. Konkrete Baseline-/Intervall- und Herkunftsbelege bleiben
+   offen. Nächster kleiner Schnitt ist ein reines Voraussetzungenmodell
+   mit synthetischen Gegenbeispielen, ohne SQL-/v1-Änderung oder Runtime-
+   Attestation; danach Methodenentscheidung und gemeinsam versionierte
+   Umsetzung. Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
+   Ursache und Behebung offen.
    Einzelheiten stehen im
    [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
    Keine identische Wiederholung oder Toleranzkorrektur ohne neue Evidenz.

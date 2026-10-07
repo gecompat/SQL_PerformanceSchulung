@@ -199,13 +199,24 @@ CID/Name unabhängig abwesend, Freeze mit 27 Dateien unverändert. Zusätzliche
 Projektion/DML sind Beobachterinstrumentierung, keine identische kanonische
 Timingprüfung und kein historischer CI-Ursachenbeweis.
 
-Nächster Schnitt ist ein quellenbasierter prüffähiger Gegenentwurf zum Mess-
-oder Zuordnungsbeleg. Die Vergleichbarkeit von QS-Endzeiten und SYSUTC-
-Requestklammer auf exakten 100-ns-Grenzen ist ungeklärt; eine gemeinsame Clock
-oder zulässige Fehlergrenze ist nicht belegt. Bestehende Guards, Fehler-
-klassifikation und DEC-068 bleiben erhalten. Keine pauschale 1-ms-Toleranz,
-Abrundung, identische Probe-Wiederholung oder Wiederholen bis grün. Eine
-alternative Methode ist noch nicht entschieden, implementiert oder abgenommen. Der frühere Acht-Fixture-Vorcheck enthält keine vollständige
+Der quellenbasierte [Mess-/Zuordnungsgegenentwurf](DGN_007_CAPTURE_ASSIGNMENT_DESIGN.md)
+liegt jetzt als `PROPOSED` vor. Er trennt exakten zeitlichen Einschluss und
+kontrollierte Kollektivzuordnung. Der ausgearbeitete Kandidat benötigt eine
+belegte vollständige Familienbasis B, T0-Capture vor T1, Bilanz B→B+4→B+8
+über alle Familien-/Intervallgruppen sowie vertrauenswürdig attestierten
+Ausführungsumfang. Die vier Vorabrequests laufen vor der expliziten QS-
+Konfiguration; frische Datenbank und beobachtete Nullcounts beweisen keine
+QS-OFF-Basis oder fehlende nachlaufende Statistik. Konkrete Baseline-,
+Intervallaktivierungs- und Herkunftsbelege bleiben offen. Die Vergleichbarkeit
+von QS-Endzeiten und SYSUTC-Requestklammer auf exakten 100-ns-Grenzen bleibt
+ungeklärt. Nächster kleiner Schnitt ist das reine Voraussetzungenmodell
+mit den vorab festgehaltenen synthetischen Gegenbeispielen; keine Prozesse,
+SQL- oder v1-Änderung und keine Runtimeattestation. Danach unabhängiger
+Suffizienzreview, explizite Methodenentscheidung und gemeinsam versionierte
+SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
+Fehlerklassifikation, DEC-068, Last und Budgets bleiben erhalten; keine
+pauschale 1-ms-Toleranz, Abrundung oder Wiederholen bis grün. Die alternative
+Methode ist weder entschieden noch implementiert oder abgenommen. Der frühere Acht-Fixture-Vorcheck enthält keine vollständige
 Lifecycle-/Versionsmatrix oder Reproduktion des Main-G13.
 
 Die interne verlustfreie Capture-Rückgabe ist lokal vorbereitet und geprüft;
