@@ -5,6 +5,9 @@ on:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
       - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_import_runtime_profile.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Tests/Tools/dgn007_memory_loader_fixture.py'
       - 'Tests/Static/test_dgn007_memory_loader_fixture.py'
       - 'Documentation/Project_Planning/DGN_007_MEMORY_LOADER_FIXTURE.md'
@@ -48,6 +51,9 @@ on:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
       - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_import_runtime_profile.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Tests/Tools/dgn007_memory_loader_fixture.py'
       - 'Tests/Static/test_dgn007_memory_loader_fixture.py'
       - 'Documentation/Project_Planning/DGN_007_MEMORY_LOADER_FIXTURE.md'
@@ -113,3 +119,5 @@ jobs:
         run: python -B Tests/Static/test_dgn007_import_probe_input.py
       - name: Feste Memory-Loader-Fälle und Abschlussbindungen prüfen
         run: python -B Tests/Static/test_dgn007_memory_loader_fixture.py
+      - name: Deklariertes Profil und isolierte Bootstrapmetadaten prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_import_runtime_profile.py

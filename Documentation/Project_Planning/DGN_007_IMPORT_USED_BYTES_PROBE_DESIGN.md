@@ -203,7 +203,12 @@ gebundene Bytes und binäre Rahmung vor. Die getrennte
 [synthetische Memory-Loader-Komponente](DGN_007_MEMORY_LOADER_FIXTURE.md)
 erprobt inzwischen tatsächliches Compile/Exec ausschließlich fester harmloser
 Fixturebytes und ihre objektgebundenen Beginn-/Abschlussreceipts. Sie ist kein
-DGN-Import- oder Auflösungsnachweis. Die folgenden vollständigen Worker-/Loadergrenzen,
+DGN-Import- oder Auflösungsnachweis. Der getrennte
+[Interpreter-/Stdlib-Profilvorschnitt](DGN_007_IMPORT_RUNTIME_PROFILE.md)
+beobachtet inzwischen begrenzte aktuelle Kontrollbootstrapmetadaten und prüft
+Übereinstimmung mit einer separat deklarierten Baseline. Die ausdrücklich
+angenommene Kontrollruntime erhält dadurch keine Trustattestation; getrennte
+Parent-/Workerbindung bleibt offen. Die folgenden vollständigen Worker-/Loadergrenzen,
 tatsächliche DGN-Importreceipts und Cleanup bleiben unimplementierter Folgescope.
 
 | Gegenprobe | Erforderliches Ergebnis |
