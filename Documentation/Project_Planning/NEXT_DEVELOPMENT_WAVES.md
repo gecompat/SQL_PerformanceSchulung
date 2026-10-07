@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
+| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64 sowie begrenzter SQL-Producer aus Pull Request 65; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
@@ -131,25 +131,27 @@ bindet konkrete Versionen, Images und Quellenfreeze und hält frühere
 Fehlversuche getrennt fest. 156 lokale Testmethoden der Phasendiagnostikrevision ergaben 155 PASS und
 einen Linux-spezifischen SKIP unter Windows. Die Producer-Integration über
 [Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
-bleibt durch einen tatsächlichen SQL-2025-CI-Fehler blockiert: BA-RUN1 endet
-in `CONTROL_EVIDENCE` mit `FAIL_RESULT_CONTRACT`, bei erfolgreichem Cleanup.
-Die genaue Assertion ist unbekannt. Der zweite Kandidat mit festen
-Guardkennungen scheiterte zusätzlich auf SQL Server 2022 in WINDOWS-RUN1
-mit `FAIL_EXECUTION` ohne sichtbaren Child-Code; Cleanup bestand.
-Die sichere Phasendiagnostik der sechs bekannten Scopes ist implementiert
-und unabhängig geprüft, ohne Änderung der SQL-Prädikate oder Budgets.
-Eine getrennte frische 2022-Gegenprobe bestand zweimal Datenmodell und
-zweimal Fenster mit unabhängigem Cleanup. Der Fehler wurde nicht
-reproduziert; erfolgreiche CI zum neuen exakten Head bleibt erforderlich.
-Zwei private BA-Gegenproben ohne
-Reproduktion ändern den CI-Befund nicht. Nächster zulässiger Schnitt ist
-gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.
-Erst nach erfolgreicher Producer-Integration folgt
-der Collector-Coordinator: integrierten Freeze und Quellen verifizieren,
-Ressourcen, präzise Budgets und tatsächliche Reihenfolge attestieren und
-Cleanup unabhängig bestätigen. Vollständige Bodies und tatsächliche
-Phasen-/Cleanup-Belege müssen den vorhandenen Harness wiederverwenden;
-die heutigen Counts allein sind kein vollständiger RunRecord.
+ist abgeschlossen: 14 Workflows und alle 22 Jobs SUCCESS am Head
+`20a867e…` gegen Base `94ed561b…`, Integration `df78cb0…`.
+Je Version bestanden zwölf Lifecycles mit sechs tatsächlichen Decoder-
+Captures und unabhängigem Cleanup; Linux führte alle 156 Methoden ohne
+SKIP aus. Der Squash `da7b0eb…`, vollständige Übernahme, synchronisiertes
+Main und lokale/remote Bereinigung des eigenen Branches sind bestätigt.
+Die zwei historischen CI-Fehler bleiben getrennt dokumentiert, ohne
+behauptete Ursache oder Behebung. SQL-Prädikate und Budgets bleiben gleich.
+
+Nächster kleiner Schnitt ist die interne verlustfreie Capture-Rückgabe:
+Body, tatsächlich geprüfte Phasen und erfolgreiche erste unabhängige
+Datenbankabwesenheit über denselben Harness erhalten. Rückgabe erfolgt
+nur nach erfolgreichem Lifecycle und Cleanup; erfolgreiche Recovery
+ändert einen ersten Abwesenheitsfehler nicht in PASS. Der direkte Helper
+akzeptiert ausschließlich unveränderte bekannte Kontrollverträge.
+Counts-/CLI-Ausgabe und Fehlerprioritäten bleiben erhalten; keine
+RunRecords, Incidentbewertung oder `runtime_attested=True`.
+Danach muss der Collector-Coordinator den integrierten Freeze und Quellen,
+Ressourcen, präzise Budgets und tatsächliche serielle Reihenfolge attestieren
+und Cleanup unabhängig bestätigen. Die interne Capture-Rückgabe allein
+ist kein vollständiger RunRecord oder Coordinator-Nachweis.
 Erst danach folgen frische Bestätigungsläufe unter
 der festgelegten Regel. CPU bleibt ergänzend, ohne Fallback. Keine
 nachträglich ausgewählte Ratio oder statistische Signifikanzbehauptung;
