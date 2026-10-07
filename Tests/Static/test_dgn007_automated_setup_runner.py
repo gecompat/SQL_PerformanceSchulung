@@ -529,5 +529,133 @@ class ControlCaptureRunnerTests(unittest.TestCase):
                 resolve.assert_not_called()
 
 
+class PhaseDiagnosticsTests(unittest.TestCase):
+    SCOPES = ("data-model", "query-store-windows", "profile-comparison",
+              "control-ab", "control-ba", "control-aa")
+
+    def test_private_bounded_command_for_all_six_scopes_and_combined_flags(self):
+        for contract in runner.KNOWN_CONTRACTS:
+            with self.subTest(scope=contract.scope), \
+                 patch.object(runner, "start_sqlcmd") as start, \
+                 patch.object(runner, "collect_capture_process", return_value=harness_result(contract=contract)) as collect, \
+                 patch.object(runner, "run_sqlcmd") as unbounded:
+                runner.run_harness(target(), contract=contract, check_phase_diagnostics=True)
+                command = start.call_args.args[0]
+                self.assertEqual(command[:2], [sys.executable, "-u"])
+                self.assertEqual(command.count("--show-output"), 1)
+                self.assertEqual(start.call_args.kwargs["environment"]["PYTHONUNBUFFERED"], "1")
+                self.assertEqual(collect.call_args.kwargs, {"contract": contract})
+                self.assertNotIn("-P", command)
+                unbounded.assert_not_called()
+        with patch.object(runner, "start_sqlcmd") as start, \
+             patch.object(runner, "collect_capture_process"):
+            runner.run_harness(target(), contract=runner.CONTROL_AB_CONTRACT,
+                               check_phase_diagnostics=True, check_capture_projection=True)
+            self.assertEqual(start.call_args.args[0].count("--show-output"), 1)
+        foreign = replace(runner.DATA_MODEL_CONTRACT, scope="DGN-007_UNKNOWN")
+        with patch.object(runner, "start_sqlcmd") as start, self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+            runner.run_harness(target(), contract=foreign, check_phase_diagnostics=True)
+        start.assert_not_called()
+
+    def test_cli_dispatches_two_runs_without_capture_abnahme_or_success_diagnostics(self):
+        for scope, contract in zip(self.SCOPES, runner.KNOWN_CONTRACTS):
+            result = harness_result(contract=contract)
+            result = replace(result, stderr="[SETUP:stderr] synthetic-private-error-text")
+            with self.subTest(scope=scope), patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+                 patch.object(runner, "resolve_target", return_value=target()), \
+                 patch.object(runner.execution_target, "verify_engine", return_value=17), \
+                 patch.object(runner, "assert_empty_instance"), \
+                 patch.object(runner, "run_harness", return_value=result) as process, \
+                 patch.object(runner, "assert_absent") as absent, \
+                 patch.object(runner, "decode_projection") as decode, redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(runner.main(CliTests.CONFIRMED + ["--scope", scope, "--check-phase-diagnostics"]), 0)
+                self.assertEqual(process.call_count, 2)
+                self.assertEqual(absent.call_count, 2)
+                self.assertTrue(all(call.kwargs == {"contract": contract, "check_phase_diagnostics": True}
+                                    for call in process.call_args_list))
+                decode.assert_not_called()
+                for forbidden in ("DGN007_CAPTURE|", "DGN007_FAILURE|", "synthetic-private", "synthetic-test-value"):
+                    self.assertNotIn(forbidden, output.getvalue())
+        for scope in self.SCOPES[:3]:
+            with patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+                 patch.object(runner, "resolve_target") as connect, redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(CliTests.CONFIRMED + ["--scope", scope,
+                    "--check-phase-diagnostics", "--check-capture-projection"]), 1)
+                connect.assert_not_called()
+        self.assertFalse(runner.build_parser().parse_args(CliTests.BASE).check_phase_diagnostics)
+
+    def test_default_failure_retains_result_and_emits_only_outer_fields_for_every_scope(self):
+        for contract in runner.KNOWN_CONTRACTS:
+            result = harness_result(contract=contract,
+                phases=[("SETUP", "FAIL", "FAIL_EXECUTION"), ("CLEANUP", "PASS", "OK")],
+                summary="FAIL|FAIL_EXECUTION", returncode=2)
+            result = replace(result, stdout=result.stdout + "\nsynthetic-private SELECT secret FROM source")
+            with self.subTest(scope=contract.scope), patch.object(runner, "run_harness", return_value=result) as process, \
+                 patch.object(runner, "assert_absent") as absent, redirect_stdout(io.StringIO()) as output, \
+                 self.assertRaisesRegex(runner.RunnerFailure, "FAIL_EXECUTION"):
+                runner.run_one(target(), 1, contract=contract)
+            process.assert_called_once_with(target(), contract=contract)
+            absent.assert_called_once()
+            text = output.getvalue()
+            self.assertIn("DGN007_FAILURE|OUTER_PHASE|SETUP|FAIL|FAIL_EXECUTION", text)
+            self.assertIn("DGN007_FAILURE|OUTER_SUMMARY|FAIL|FAIL_EXECUTION", text)
+            self.assertLess(text.index("DGN007_CLEANUP|"), text.index("DGN007_FAILURE|"))
+            self.assertNotIn("synthetic-private", text)
+
+    def test_failed_phase_and_actual_stderr_binding_for_every_scope(self):
+        for contract in runner.KNOWN_CONTRACTS:
+            phase = "QUERY_STORE_WINDOWS" if contract == runner.QUERY_STORE_WINDOWS_CONTRACT else "DATA_ASSERTION"
+            result = harness_result(contract=contract, phases=[(phase, "FAIL", "FAIL_EXECUTION"), ("CLEANUP", "PASS", "OK")],
+                                    summary="FAIL|FAIL_EXECUTION", returncode=2)
+            result = replace(result, stderr="\n".join((
+                f"[{phase}:stderr] Msg 51002, Level 16, State 1, Server synthetic-private, Line 391",
+                f"[{phase}:stderr] SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT",
+                f"[{phase}:stderr] synthetic-private query_plan_xml password",
+                f"[{phase}:stdout] Msg 51002, Level 16, State 1, Line 999",
+                "[UNKNOWN:stderr] Msg 51002, Level 16, State 1, Line 999",
+                "[SETUP:stderr] Msg 51002, Level 16, State 1, Line 999")))
+            with self.subTest(scope=contract.scope), patch.object(runner, "run_harness", return_value=result), \
+                 patch.object(runner, "assert_absent"), redirect_stdout(io.StringIO()) as output, \
+                 self.assertRaisesRegex(runner.RunnerFailure, "FAIL_EXECUTION"):
+                runner.run_one(target(), 1, contract=contract, check_phase_diagnostics=True)
+            self.assertIn(f"DGN007_FAILURE|SQL_MESSAGE|{phase}|msg=51002; line=391", output.getvalue())
+            self.assertIn(f"DGN007_FAILURE|SQL_STATUS|{phase}|FAIL|FAIL_RESULT_CONTRACT", output.getvalue())
+            for forbidden in ("synthetic-private", "query_plan_xml", "password", "line=999", "SQL_GUARD"):
+                self.assertNotIn(forbidden, output.getvalue())
+
+    def test_scope_bound_limit_priority_with_actual_private_python_pipe(self):
+        contract = runner.QUERY_STORE_WINDOWS_CONTRACT
+        for phase, channel, code, expected in (
+            ("QUERY_STORE_WINDOWS", "stderr", "FAIL_TIMEOUT", "FAIL_TIMEOUT"),
+            ("CONTROL_WINDOWS", "stderr", "FAIL_TIMEOUT", "FAIL_CONTRACT"),
+            ("QUERY_STORE_WINDOWS", "stdout", "FAIL_TIMEOUT", "FAIL_CONTRACT"),
+            ("CLEANUP", "stderr", "FAIL_CLEANUP", "FAIL_CLEANUP"),
+        ):
+            line = f"[{phase}:{channel}] SQLPERF_SUMMARY|FAIL|{code}\n"
+            command = [sys.executable, "-c", "import sys; sys.stderr.write(" + repr(line) + "); sys.stderr.flush(); sys.stderr.write('x'*9000); sys.stderr.flush()"]
+            with self.subTest(phase=phase, channel=channel), self.assertRaisesRegex(runner.RunnerFailure, expected):
+                runner.collect_capture_process(runner.start_sqlcmd(command), command, contract=contract)
+
+    def test_sql_message_diagnostics_require_fail_not_warn_skip_or_pass(self):
+        for outcome, code in (("WARN", "WARN_EMPIRICAL_VARIANCE"), ("SKIP", "SKIP_EVIDENCE_MISSING"), ("PASS", "OK")):
+            result = harness_result(phases=[("SETUP", outcome, code)], summary=f"{outcome}|{code}")
+            result = replace(result, stderr="[SETUP:stderr] Msg 51002, Level 16, State 1, Line 391")
+            diagnostics = runner.capture_failure_diagnostics(result, contract=runner.DATA_MODEL_CONTRACT)
+            self.assertFalse(any("|SQL_MESSAGE|" in line for line in diagnostics))
+
+    def test_new_flag_preserves_sticky_cleanup_and_timeout_priority(self):
+        contract = runner.QUERY_STORE_WINDOWS_CONTRACT
+        result = harness_result(contract=contract, phases=[("QUERY_STORE_WINDOWS", "FAIL", "FAIL_TIMEOUT"), ("CLEANUP", "PASS", "OK")],
+                                summary="FAIL|FAIL_TIMEOUT", returncode=3)
+        for absence_failure, expected in ((None, "FAIL_TIMEOUT"), (runner.RunnerFailure("FAIL_CLEANUP"), "FAIL_CLEANUP")):
+            with self.subTest(expected=expected), patch.object(runner, "run_harness", return_value=result), \
+                 patch.object(runner, "assert_absent", side_effect=[absence_failure, None] if absence_failure else [None]) as absent, \
+                 patch.object(runner, "recover"), redirect_stdout(io.StringIO()) as output, \
+                 self.assertRaisesRegex(runner.RunnerFailure, expected):
+                runner.run_one(target(), 1, contract=contract, check_phase_diagnostics=True)
+            self.assertEqual(absent.call_count, 2 if absence_failure else 1)
+            self.assertIn(f"DGN007_STAGE|{contract.scope}|RUN_1|FAIL|{expected}", output.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()

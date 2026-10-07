@@ -286,6 +286,14 @@ reinen Packager und Decoder. Acht Phasen und 180-/60-Sekunden-Budgets bleiben
 erhalten. Quellenrevision, Präzision, Ausgabegrenzen und die eigene begrenzte
 Runtime-Abnahme stehen im Producer-Vertrag.
 
+Für begrenzte Fehlerdiagnose unterstützt derselbe Runner zusätzlich
+`--check-phase-diagnostics` in allen sechs bekannten Scopes. Die vorhandenen
+CI-Aufrufe für Datenmodell, Fenster und Profilvergleich verwenden diese Option.
+Bei Fehlern erscheinen erst nach Cleanup ausschließlich erlaubte
+Phasen-/Summarycodes und tatsächlich stderr-gebundene numerische SQL-Details.
+SQL35-Guardkennungen bleiben auf Kontroll-Evidenz beschränkt. Die Option
+aktiviert keine Capture-Abnahme; SQL, Lifecycles und Budgets bleiben gleich.
+
 Ein Fenster- oder Vergleichs-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
 Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP wird
 nicht deaktiviert. Die Akzeptanzmethodik ist im

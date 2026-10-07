@@ -105,6 +105,15 @@ Testreport ausgegeben noch persistiert. Cleanupfehler und Timeouts behalten
 ihre Priorität. Diese Prüfung erzeugt keine vollständigen `RunRecord`s und
 ruft keine Incident-Separationsbewertung auf.
 
+Die zusätzliche Option `--check-phase-diagnostics` verwendet dieselbe private,
+begrenzte Pipe für alle sechs bekannten Scopes, ohne Capture-Abnahme oder
+weitere SQL-Ausführung. Die bestehende CI aktiviert sie für Datenmodell,
+Fenster und Profilvergleich. Beide Optionen zusammen erlauben Capture
+weiterhin ausschließlich für die drei Kontrollscopes. Erfolgreiche öffentliche
+Ausgabe, SQL-Prädikate, Budgets und Fehlerprioritäten bleiben unverändert.
+Auch der normale Nichtproducer-Pfad bewahrt bei Fehlern das tatsächliche
+Child-Ergebnis für dieselbe begrenzte Metadatendiagnose.
+
 Im Fehlerfall ergänzt der Modus nach der unabhängigen Cleanup-Prüfung
 ausschließlich bekannte Phasenstatus und begrenzte numerische SQL-Fehlerdetails.
 Zusätzlich kann er eine der 17 konstanten Guardkennungen aus SQL35 ausgeben:
@@ -164,7 +173,7 @@ Framegrenzen, Queryfamilien, Requestbindungen, SQL-Ausdrucksfixtures und
 begrenzte Prozess-/Fehlerausgabe. Unter Windows bestanden 29; die
 Linux-spezifische Exit-vor-EOF-Gegenprobe ist dort ausdrücklich SKIP und
 wird im Linux-CI ausgeführt. Zusammen mit den bestehenden DGN-007-Suites
-wurden 149 Testmethoden ausgeführt: 148 PASS und dieser eine SKIP.
+wurden 156 Testmethoden ausgeführt: 155 PASS und dieser eine SKIP.
 Die SQL-Ausdrucksfixtures sind modellbasierte Prüfungen; die gesonderten
 T-SQL-Proben und Kontrolllifecycles bleiben erforderlich. Der Validator
 prüft die additive SQL-Erweiterung, reine Packagergrenze und CI-Anbindung;

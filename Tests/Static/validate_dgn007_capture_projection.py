@@ -185,13 +185,21 @@ def runner_projection_findings(source):
     functions={n.name:n for n in tree.body if isinstance(n,ast.FunctionDef)}
     show=[n for n in ast.walk(tree) if isinstance(n,ast.Constant) and n.value=='--show-output']
     function=functions.get('run_harness')
-    conditional=[n for n in ast.walk(function) if isinstance(n,ast.If) and isinstance(n.test,ast.Name) and n.test.id=='check_capture_projection'] if function else []
+    condition=ast.dump(ast.parse('check_capture_projection or check_phase_diagnostics',mode='eval').body)
+    conditional=[n for n in ast.walk(function) if isinstance(n,ast.If) and ast.dump(n.test)==condition] if function else []
     allowed=[n for block in conditional for n in ast.walk(block) if isinstance(n,ast.Constant) and n.value=='--show-output']
     if len(show)!=1 or len(allowed)!=1 or show[0] is not allowed[0]:
-        findings.append('show-output ist ausschließlich im privaten Producer-Kindprozess zulässig')
+        findings.append('show-output ist ausschließlich bei den beiden privaten begrenzten Diagnose-/Produceroptionen zulässig')
+    guard=ast.dump(ast.parse('contract not in KNOWN_CONTRACTS or (check_capture_projection and contract.scope not in CONTROL_SCOPES)',mode='eval').body)
+    if len(conditional)!=1 or not any(isinstance(n,ast.If) and ast.dump(n.test)==guard for n in ast.walk(conditional[0])):
+        findings.append('Private Ausgabe benötigt den kanonischen Scope und die unveränderte Controls-only-Producergrenze')
     for marker in ('command.insert(1, "-u")','MAX_CAPTURE_OUTPUT_BYTES = 262144','MAX_CAPTURE_LINE_CHARS = 8192',
                    'body.major != expected_major','body.scope != contract.scope','not body.row_evidence_complete',
-                   'channel != "stderr"','contract.scope not in CONTROL_SCOPES','decode_projection(tuple(frames), expected_contract)'):
+                   'channel != "stderr"','contract.scope not in CONTROL_SCOPES','decode_projection(tuple(frames), expected_contract)',
+                   'contract not in KNOWN_CONTRACTS','--check-phase-diagnostics',
+                   'collect_capture_process(process, command, contract=contract)',
+                   'reported_capture_failure(result.stdout, result.stderr, contract=contract)',
+                   'HARNESS_TIMEOUT = 180 + 60 + 20'):
         if marker not in source: findings.append('Producer-Runner-Vertrag fehlt: '+marker)
     for name in ('collect_capture_process','check_capture'):
         if name not in functions: findings.append('Private Producer-Prozessgrenze fehlt')
@@ -203,6 +211,8 @@ def workflow_findings(source):
     calls=re.findall(r'(?m)^          python Tests/Runtime/run_dgn007_automated_setup.py \\\n((?:            .*\n)+)',source)
     if len(calls)!=6 or [('--check-capture-projection' in call) for call in calls]!=[False,False,False,True,True,True]:
         findings.append('Nur dieselben sechs Controls-Lifecycles benötigen die Produceroption')
+    if (len(calls)!=6 or [call.count('--check-phase-diagnostics') for call in calls]!=[1,1,1,0,0,0]):
+        findings.append('Genau Datenmodell, Fenster und Profilvergleich benötigen die private Phasendiagnostik')
     for name in ('validate_dgn007_capture_projection','test_dgn007_capture_projection',
                  'validate_dgn007_collector_transport','test_dgn007_collector_transport',
                  'validate_dgn007_prospective_acceptance','test_dgn007_prospective_acceptance'):

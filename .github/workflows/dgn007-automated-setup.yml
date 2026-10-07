@@ -194,7 +194,7 @@ jobs:
         run: |
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope data-model \
+            --scope data-model --check-phase-diagnostics \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
@@ -204,7 +204,7 @@ jobs:
         run: |
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope query-store-windows \
+            --scope query-store-windows --check-phase-diagnostics \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
@@ -214,7 +214,7 @@ jobs:
         run: |
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope profile-comparison \
+            --scope profile-comparison --check-phase-diagnostics \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \

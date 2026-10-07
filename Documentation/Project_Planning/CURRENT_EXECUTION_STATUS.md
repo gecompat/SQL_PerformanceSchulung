@@ -173,13 +173,22 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    unabhängig abwesend bestätigt. Quellenfreeze, genaue Versions-/Imagebindung
    und getrennte frühere Fehlversuche stehen im
    [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
-   149 lokale Testmethoden der Diagnostikrevision ergaben 148 PASS und einen ausdrücklich
+   156 lokale Testmethoden der Phasendiagnostikrevision ergaben 155 PASS und einen ausdrücklich
    Linux-spezifischen SKIP unter Windows. Die Integration über
    [Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
-   ist jedoch blockiert: Im aktuellen Actions-Kandidaten scheiterte SQL Server
+   ist jedoch blockiert: Im ersten Actions-Kandidaten scheiterte SQL Server
    2025 beim ersten BA-Lifecycle in `CONTROL_EVIDENCE` mit
    `FAIL_RESULT_CONTRACT`; Datenbank- und Container-Cleanup bestanden.
-   Die genaue fehlgeschlagene Assertion ist bislang unbekannt. Zwei getrennte
+   Die genaue fehlgeschlagene Assertion ist bislang unbekannt. Auch der zweite
+   Kandidat mit festen Guardkennungen scheiterte: SQL Server 2022 meldete
+   in WINDOWS-RUN1 `FAIL_EXECUTION` ohne sichtbaren Child-Code; die drei
+   gestarteten Datenbank-Cleanups und der Containerabbau bestanden.
+   Die sichere Phasendiagnostik aller sechs bekannten Scopes ist implementiert
+   und unabhängig geprüft; SQL-Prädikate und Budgets bleiben unverändert.
+   Eine getrennte frische 2022-Gegenprobe zum neuen Runner bestand zweimal
+   Datenmodell und zweimal Fenster mit unabhängigem Cleanup. Der Fehler
+   wurde nicht reproduziert; erfolgreiche CI zum neuen Head steht aus.
+   Zwei getrennte
    private BA-Gegenproben reproduzierten den Fehler nicht und ersetzen den
    fehlgeschlagenen CI-Nachweis nicht. Nächster kleiner Schnitt ist dessen
    gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.

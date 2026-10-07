@@ -262,7 +262,8 @@ class ProjectionTests(unittest.TestCase):
             'DGN007_FAILURE|OUTER_PHASE|CONTROL_WINDOWS|FAIL|FAIL_EXECUTION',
             'DGN007_FAILURE|SQL_MESSAGE|CONTROL_WINDOWS|msg=51002; line=391',
             'DGN007_FAILURE|SQL_STATUS|CONTROL_WINDOWS|FAIL|FAIL_RESULT_CONTRACT'))
-        self.assertEqual(runner.capture_failure_diagnostics(result,contract=runner.DATA_MODEL_CONTRACT),())
+        self.assertEqual(runner.capture_failure_diagnostics(result,contract=runner.DATA_MODEL_CONTRACT),(
+            'DGN007_FAILURE|OUTER_SUMMARY|FAIL|FAIL_EXECUTION',))
         good=harness(frames(self.value))
         self.assertEqual(runner.capture_failure_diagnostics(replace(good,stderr=stderr),contract=runner.CONTROL_AB_CONTRACT),())
 
@@ -561,6 +562,13 @@ class ExtractedSqlTests(unittest.TestCase):
             self.assertTrue(validator.workflow_findings(workflow.replace(before,after)),before)
         source=validator.RUNNER.read_text(encoding='utf-8');self.assertEqual(validator.runner_projection_findings(source),[])
         self.assertTrue(validator.runner_projection_findings(source+'\nprint("--show-output")'))
+        self.assertTrue(validator.runner_projection_findings(source.replace(
+            'if check_capture_projection or check_phase_diagnostics:', 'if True:')))
+        self.assertTrue(validator.runner_projection_findings(source.replace(
+            'or (check_capture_projection and contract.scope not in CONTROL_SCOPES)', 'or False')))
+        for scope in ('data-model','query-store-windows','profile-comparison'):
+            self.assertTrue(validator.workflow_findings(workflow.replace(
+                '--scope '+scope+' --check-phase-diagnostics','--scope '+scope)))
 
 
 if __name__=='__main__':unittest.main()

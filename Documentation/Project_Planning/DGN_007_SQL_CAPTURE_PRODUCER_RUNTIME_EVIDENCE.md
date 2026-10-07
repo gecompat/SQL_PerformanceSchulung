@@ -391,6 +391,98 @@ nachweis zu dieser Revision. Sie werden weder in die ursprüngliche
 Ein erfolgreicher aktueller CI-Kandidat steht weiterhin aus; der frühere
 CI-Fehler ist dadurch nicht als behoben erklärt.
 
+## Zweiter Actions-Kandidat: Fensterfehler auf SQL Server 2022
+
+Die produktive Guarddiagnostik wurde im Head
+`23efba041cf05c027133bcc9b9e9672fa309eda5` gegen dieselbe Base `94ed561b…`
+im Integrationscommit `25046954b9ef6e0ad061902e8f9c271acf24fbfc`
+geprüft. Dessen vollständiger Tree `8d957ca2781402b0217504c2f251848effbb67bf`
+entspricht dem Featuretree. Der statische Linux-Job führte alle 149 Methoden
+ohne SKIP erfolgreich aus.
+
+Im [DGN-007-Lauf 37566959578](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37566959578)
+scheiterte SQL Server 2022 im ersten `QUERY_STORE_WINDOWS`-Lifecycle mit
+äußerem `FAIL_EXECUTION`, nach zwei erfolgreichen Datenmodell-Lifecycles.
+Der Fensterschritt lief von 03:30:08 bis 03:32:11 UTC. Diese 123 Sekunden
+beweisen weder Timeout noch eine konkrete verletzte Assertion. Der normale
+Fensteraufruf liefert keinen privaten Raw-Phase-Output; sein tatsächlicher
+Child-Phasen-/SQL-Code wurde vom Runner nicht diagnostisch weitergegeben.
+Es liegen keine SQL-Guard-, Meldungsnummer-, Zeilen- oder Timeoutmarker vor.
+Die genaue Ursache bleibt unbekannt; der Producer wurde auf dieser Version
+in diesem Lauf noch nicht erreicht.
+
+Alle drei begonnenen Datenbank-Lifecycles endeten mit erfolgreicher
+unabhängiger Abwesenheitsprüfung. Der eigene 2022-Container wurde mit
+Eigentumsprüfung entfernt; der erfolgreiche Cleanup-Schritt enthält
+zusätzlich die explizite CID-Abwesenheitsprüfung. CI verwendete den
+Registrymanifestdigest
+`sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`.
+Eine tatsächlich protokollierte CI-ProductVersion ist nicht belegt.
+Die 2019-/2025-Jobs wurden bis zum regulären Ende erhalten. Beide bestanden
+je zwölf Lifecycles und sechs tatsächliche Decoder-Captures; 2025 zusätzlich
+acht Compatibility-Gegenproben. Über alle drei DGN-007-Jobs bestanden alle
+27 begonnenen Datenbankabwesenheitsprüfungen und die drei expliziten
+own-CID-Abwesenheitsprüfungen. Alle neun SQL-Remove-Schritte waren SUCCESS.
+Die unabhängige Abschlussprüfung bestätigte 14 abgeschlossene Workflows
+und 22 Jobs: 13 Workflows und 21 Jobs SUCCESS, ausschließlich dieser
+2022-Fensterjob FAILURE. Alle 22 Checkouts prüften exakt `25046954…`,
+alle Checks waren an den exakten Head und Actions-App `15368` gebunden.
+Die erfolgreichen erforderlichen Checks erlauben keinen Bypass dieses
+fachlich ungeklärten Fehlers. Dieser zweite fehlgeschlagene
+Integrationskandidat wird weder als Infrastrukturfehler noch als
+vollständiger erfolgreicher Producer-Nachweis umgedeutet.
+
+## Sichere Phasendiagnostik und getrennte 2022-Gegenprobe
+
+Die folgende Revision ergänzt `--check-phase-diagnostics` für genau die sechs
+bestehenden Scopeverträge. Sie verwendet denselben privaten, begrenzten
+Capture-Reader mit 262144 Bytes UTF-8-Textausgabe über beide Pipes,
+8192 Zeichen pro Zeile und 260 Sekunden äußerem Schutz. Unter Windows
+normalisiert der Textreader CRLF zu LF.
+Bei Fehlern werden erst nach Cleanup bekannte Phasen-/Summarycodes sowie
+konkret stderr-gebundene numerische SQL-Meldungen ausgegeben. Guardkennungen
+bleiben ausschließlich an fehlgeschlagene Kontroll-Evidenz gebunden.
+Die Capture-Option bleibt auch bei kombinierter Optionswahl Controls-only.
+Eine Captureoption auf Nicht-Control-Scopes wird auch bei gleichzeitig
+gesetzter Phasendiagnostik vor Verbindung abgewiesen.
+Die vorhandenen drei Datenmodell-/Fenster-/Profilaufrufe der CI erhalten
+lediglich das neue Flag. SQL, Manifeste, Capturevertrag, Methodik, Last,
+Lifecycles und reguläre Budgets bleiben unverändert. Die Diagnose ist keine
+behauptete Fehlerbehebung.
+
+Der Runner-Freeze vom 2026-10-07 03:41:42 UTC bindet den LF-Hash
+`bedfa3344bfab19b20730f2726872c8f5143bc7aa3f494067f7d1b0dc1b5a70e`.
+Alle 14 Quellen entsprechen weiterhin dem aktuellen Vertrag `abc8135b…`;
+Packager, Transportdecoder und prospektiver Evaluator behalten ihre oben
+gebundenen Hashes. Ein unabhängiger Code-Review ergab keine Befunde.
+Die sieben DGN-007-Suites führten tatsächlich 156 Methoden aus: 155 PASS,
+ein Linux-spezifischer SKIP unter Windows. Die sieben zusätzlichen
+Runnerfixtures prüfen insbesondere Scope-/Kanalbindung, Optionsgrenzen,
+Timeoutpriorität und Ausgabe nach Cleanup. Alle 22 betroffenen lokalen
+Governance-/Projektvalidatoren bestanden, darunter die sieben DGN-007-
+Verträge, Registry mit 219 Artefakten, Foundationintegrität und Privacy
+mit 872 Dateien. Die 65 lokalen Markdownlinks der sieben geänderten
+Dokumente und `git diff --check` waren ebenfalls erfolgreich.
+
+Diese Quellen bestanden anschließend auf genau einer neuen eigenen
+SQL-2022-Developerinstanz mit tatsächlicher ProductVersion `16.0.4295.3`
+und dem exakten CI-Registrymanifestdigest `sha256:4402d880…` in der Reihenfolge
+zweimal Datenmodell und zweimal Query-Store-Fenster. Alle vier Lifecycles,
+vier unabhängige Datenbankabwesenheitsprüfungen, zwei zusätzliche
+Gruppen-Leerheitsprüfungen und die reale SQL-Tick-/Style3-Probe bestanden.
+Alle 14 Quellen sowie die vier Pythonmodule und der Vertrag blieben während
+der Ausführung unverändert. Die eigene CID
+`e7ac3f167b604fc980c8af182572e31a3e104660ae787180c4eeead960f94d1f`
+mit exaktem Namen `sqlperf-dgn007-producer-16-50fc08e26f` wurde nach
+Eigentumsprüfung entfernt; CID und Name sind unabhängig abwesend bestätigt.
+
+Diese vier aktuellen Lifecycles sind ausschließlich ein begrenzter Nachweis
+für die Phasendiagnostikrevision. Sie werden weder zur ursprünglichen
+18-Kontrollmatrix noch zur späteren BA-Prüfung oder zu privaten Diagnoseläufen
+addiert. Der zweite CI-Fensterfehler wurde nicht reproduziert; seine Ursache
+bleibt offen. Erfolgreiche Actions am neuen exakten Head und Base bleiben
+vor Integration erforderlich.
+
 ## Verbleibende Abnahmegrenzen
 
 Lokale Ergebnisse und spätere Actions-Ergebnisse werden getrennt

@@ -143,6 +143,10 @@ CONTROL_AA_CONTRACT = RunContract(
 )
 
 
+KNOWN_CONTRACTS = (DATA_MODEL_CONTRACT, QUERY_STORE_WINDOWS_CONTRACT, PROFILE_COMPARISON_CONTRACT,
+                   CONTROL_AB_CONTRACT, CONTROL_BA_CONTRACT, CONTROL_AA_CONTRACT)
+
+
 def scope_contract(scope: str) -> RunContract:
     if scope == "data-model":
         return DATA_MODEL_CONTRACT
@@ -234,24 +238,27 @@ def assert_absent(target: ExecutionTarget) -> None:
 
 
 def run_harness(target: ExecutionTarget, *, contract: RunContract = DATA_MODEL_CONTRACT,
-                check_capture_projection: bool = False) -> SqlcmdResult:
+                check_capture_projection: bool = False,
+                check_phase_diagnostics: bool = False) -> SqlcmdResult:
     command = [sys.executable, str(FRAMEWORK / "run_demo.py"), str(contract.manifest),
                *target.connection_arguments(), "--confirm-isolated-lab"]
-    if check_capture_projection:
-        if contract.scope not in CONTROL_SCOPES:
+    if check_capture_projection or check_phase_diagnostics:
+        if (contract not in KNOWN_CONTRACTS
+                or (check_capture_projection and contract.scope not in CONTROL_SCOPES)):
             raise RunnerFailure("FAIL_CONTRACT")
         command.append("--show-output")
         command.insert(1, "-u")
         environment = dict(target.child_environment())
         environment["PYTHONUNBUFFERED"] = "1"
         process = start_sqlcmd(command, environment=environment)
-        return collect_capture_process(process, command)
+        return collect_capture_process(process, command, contract=contract)
     return run_sqlcmd(command, timeout_seconds=HARNESS_TIMEOUT,
                       environment=target.child_environment())
 
 
-def collect_capture_process(process, command: Sequence[str]) -> SqlcmdResult:
-    """Beide private Pipes während der Evidenzphase begrenzt im Speicher lesen.
+def collect_capture_process(process, command: Sequence[str], *,
+                            contract: RunContract = CONTROL_AB_CONTRACT) -> SqlcmdResult:
+    """Beide private Harness-Pipes begrenzt im Speicher lesen.
 
     Höchstens 256 KiB UTF-8-Textausgabe über beide Pipes bleiben im Speicher;
     der Windows-Textreader normalisiert CRLF zu LF. Die Kindprozessausgabe
@@ -393,7 +400,7 @@ def collect_capture_process(process, command: Sequence[str]) -> SqlcmdResult:
             for channel in ("stdout", "stderr"):
                 getattr(process, channel).close()
     if limited:
-        known = reported_capture_failure("".join(output["stdout"]), "".join(output["stderr"]))
+        known = reported_capture_failure("".join(output["stdout"]), "".join(output["stderr"]), contract=contract)
         if known == "FAIL_CLEANUP":
             raise RunnerFailure(known)
         if timed_out or known == "FAIL_TIMEOUT":
@@ -403,13 +410,17 @@ def collect_capture_process(process, command: Sequence[str]) -> SqlcmdResult:
                         "".join(output["stderr"]), timed_out, time.monotonic() - started)
 
 
-def reported_capture_failure(stdout: str, stderr: str) -> str | None:
+def reported_capture_failure(stdout: str, stderr: str, *,
+                             contract: RunContract = CONTROL_AB_CONTRACT) -> str | None:
     """Bekannte Statuscodes ausschließlich aus echten Statuskanälen gewinnen."""
-    phases = PHASE.findall(stdout.replace("\r\n", "\n"))
+    if contract not in KNOWN_CONTRACTS:
+        return None
+    phases = [phase for phase in PHASE.findall(stdout.replace("\r\n", "\n"))
+              if phase[0] in contract.expected_phases]
     summaries = SUMMARY.findall(stdout.replace("\r\n", "\n"))
     for line in stderr.splitlines():
         match = RAW_PHASE.fullmatch(line)
-        if match and match[1] in CONTROL_AB_CONTRACT.expected_phases and match[2] == "stderr":
+        if match and match[1] in contract.expected_phases and match[2] == "stderr":
             summary = SUMMARY.fullmatch(match[3])
             if summary:
                 phases.append((match[1], *summary.groups()))
@@ -430,7 +441,7 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
     Diagnose. SQL-Zahlen benötigen zusätzlich dieselbe fehlgeschlagene Phase
     und den tatsächlichen stderr-Kanal. Die Funktion verändert keine Bewertung.
     """
-    if (contract.scope not in CONTROL_SCOPES
+    if (contract not in KNOWN_CONTRACTS
             or len((result.stdout + result.stderr).encode("utf-8")) > MAX_CAPTURE_OUTPUT_BYTES):
         return ()
     diagnostics: list[str] = []
@@ -446,8 +457,9 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
             continue
         phase = FAILURE_PHASE.fullmatch(line)
         if phase and phase[1] in contract.expected_phases and phase[3] in FAILURE_CODES[phase[2]]:
-            failed_phases.add(phase[1])
-            if phase[1] == "CONTROL_EVIDENCE" and phase[2] == "FAIL":
+            if phase[2] == "FAIL":
+                failed_phases.add(phase[1])
+            if contract.scope in CONTROL_SCOPES and phase[1] == "CONTROL_EVIDENCE" and phase[2] == "FAIL":
                 guard_phase_failed = True
             append(f"DGN007_FAILURE|OUTER_PHASE|{phase[1]}|{phase[2]}|{phase[3]}")
         summary = SUMMARY.fullmatch(line)
@@ -513,7 +525,7 @@ def check_capture(result: SqlcmdResult, *, contract: RunContract, expected_major
     except RunnerFailure as error:
         harness_failure = error.code
     if len(combined.encode("utf-8")) > MAX_CAPTURE_OUTPUT_BYTES:
-        known = reported_capture_failure(result.stdout, result.stderr)
+        known = reported_capture_failure(result.stdout, result.stderr, contract=contract)
         if known == "FAIL_CLEANUP":
             raise RunnerFailure(known)
         if known == "FAIL_TIMEOUT" or result.timed_out:
@@ -608,19 +620,27 @@ def recover(target: ExecutionTarget) -> None:
 
 def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract = DATA_MODEL_CONTRACT,
             check_capture_projection: bool = False, expected_major: int | None = None,
-            expected_contract=None) -> RunResult:
+            expected_contract=None, check_phase_diagnostics: bool = False) -> RunResult:
     failure: RunnerFailure | None = None
     result: SqlcmdResult | None = None
     try:
         if check_capture_projection:
             if contract.scope not in CONTROL_SCOPES or expected_major not in (15, 16, 17) or expected_contract is None:
                 raise RunnerFailure("FAIL_CONTRACT")
-            result = run_harness(target, contract=contract, check_capture_projection=True)
+            if check_phase_diagnostics:
+                result = run_harness(target, contract=contract, check_capture_projection=True,
+                                     check_phase_diagnostics=True)
+            else:
+                result = run_harness(target, contract=contract, check_capture_projection=True)
             counts = check_capture(result, contract=contract, expected_major=expected_major,
                                    expected_contract=expected_contract)
             print(f"DGN007_CAPTURE|{contract.scope}|RUN_{repetition}|PASS|OK|windows={counts[0]}; requests={counts[1]}; families={counts[2]}; plans={counts[3]}; union={counts[4]}")
         else:
-            check_harness(run_harness(target, contract=contract), contract=contract)
+            if check_phase_diagnostics:
+                result = run_harness(target, contract=contract, check_phase_diagnostics=True)
+            else:
+                result = run_harness(target, contract=contract)
+            check_harness(result, contract=contract)
     except RunnerFailure as exc:
         failure = exc
     except subprocess.TimeoutExpired:
@@ -648,7 +668,7 @@ def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract =
         cleanup_outcome = "FAIL|FAIL_CLEANUP" if failure and failure.code == "FAIL_CLEANUP" else "PASS|OK"
         print(f"DGN007_CLEANUP|RUN_{repetition}|{cleanup_outcome}")
     if failure:
-        if check_capture_projection and result is not None:
+        if result is not None:
             for diagnostic in capture_failure_diagnostics(result, contract=contract):
                 print(diagnostic)
         print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|FAIL|{failure.code}")
@@ -663,6 +683,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--target", choices=(execution_target.DOCKER,), default=execution_target.DOCKER)
     parser.add_argument("--check-capture-projection", action="store_true",
                         help="Skalare SQL-Projektion nur bei control-ab/ba/aa intern prüfen; keine Incidentbewertung oder Rohoutputausgabe.")
+    parser.add_argument("--check-phase-diagnostics", action="store_true",
+                        help="SQL-Phasenausgabe für alle sechs Scopes privat begrenzt lesen; bei Fehler nur geprüfte Status-/Msg-/Line-Metadaten ausgeben.")
     parser.add_argument("--container", required=True)
     parser.add_argument("--expected-major", type=int, choices=(15, 16, 17), required=True)
     parser.add_argument("--confirm-disposable-instance", action="store_true",
@@ -698,8 +720,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         assert_empty_instance(target)
         for repetition in (1, 2):
             if args.check_capture_projection:
-                run_one(target, repetition, contract=contract, check_capture_projection=True,
-                        expected_major=args.expected_major, expected_contract=expected_contract)
+                if args.check_phase_diagnostics:
+                    run_one(target, repetition, contract=contract, check_capture_projection=True,
+                            expected_major=args.expected_major, expected_contract=expected_contract,
+                            check_phase_diagnostics=True)
+                else:
+                    run_one(target, repetition, contract=contract, check_capture_projection=True,
+                            expected_major=args.expected_major, expected_contract=expected_contract)
+            elif args.check_phase_diagnostics:
+                run_one(target, repetition, contract=contract, check_phase_diagnostics=True)
             else:
                 run_one(target, repetition, contract=contract)
             runs += 1

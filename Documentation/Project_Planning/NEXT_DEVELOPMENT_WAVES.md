@@ -128,12 +128,20 @@ insgesamt 18 vollständige Lifecycles mit tatsächlichem Decoder und unabhängig
 Cleanup. Alle drei eigenen Container sind unabhängig abwesend bestätigt.
 Der [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md)
 bindet konkrete Versionen, Images und Quellenfreeze und hält frühere
-Fehlversuche getrennt fest. 149 lokale Testmethoden der Diagnostikrevision ergaben 148 PASS und
+Fehlversuche getrennt fest. 156 lokale Testmethoden der Phasendiagnostikrevision ergaben 155 PASS und
 einen Linux-spezifischen SKIP unter Windows. Die Producer-Integration über
 [Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
 bleibt durch einen tatsächlichen SQL-2025-CI-Fehler blockiert: BA-RUN1 endet
 in `CONTROL_EVIDENCE` mit `FAIL_RESULT_CONTRACT`, bei erfolgreichem Cleanup.
-Die genaue Assertion ist unbekannt; zwei private BA-Gegenproben ohne
+Die genaue Assertion ist unbekannt. Der zweite Kandidat mit festen
+Guardkennungen scheiterte zusätzlich auf SQL Server 2022 in WINDOWS-RUN1
+mit `FAIL_EXECUTION` ohne sichtbaren Child-Code; Cleanup bestand.
+Die sichere Phasendiagnostik der sechs bekannten Scopes ist implementiert
+und unabhängig geprüft, ohne Änderung der SQL-Prädikate oder Budgets.
+Eine getrennte frische 2022-Gegenprobe bestand zweimal Datenmodell und
+zweimal Fenster mit unabhängigem Cleanup. Der Fehler wurde nicht
+reproduziert; erfolgreiche CI zum neuen exakten Head bleibt erforderlich.
+Zwei private BA-Gegenproben ohne
 Reproduktion ändern den CI-Befund nicht. Nächster zulässiger Schnitt ist
 gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.
 Erst nach erfolgreicher Producer-Integration folgt
