@@ -45,6 +45,9 @@ IF @ObjectId IS NULL OR SCHEMA_ID(N'lab') IS NULL
    OR OBJECT_ID(N'lab.QueryStoreBaseline',N'U') IS NOT NULL
    OR OBJECT_ID(N'lab.IncidentState',N'U') IS NOT NULL
    OR OBJECT_ID(N'lab.IncidentProfile',N'U') IS NOT NULL
+   /* CAPTURE_FRESH_GUARD_BEGIN */
+   OR OBJECT_ID(N'lab.RequestResultCapture',N'U') IS NOT NULL
+   /* CAPTURE_FRESH_GUARD_END */
    OR (SELECT COUNT_BIG(*) FROM dbo.CaseRequestLog)<>4
     THROW 51002,'FAIL_STATE: Frischer Datenmodellzustand nach vier Assertionsrequests erforderlich.',1;
 IF EXISTS(SELECT GroupKey,StatusCode FROM dbo.CaseRequestLog GROUP BY GroupKey,StatusCode HAVING COUNT_BIG(*)<>1)
@@ -128,6 +131,18 @@ CREATE TABLE lab.IncidentProfile(
     PRIMARY KEY(WindowId,PlanId,RuntimeStatsIntervalId,ExecutionType),
     FOREIGN KEY(WindowId) REFERENCES lab.IncidentState(WindowId)
 );
+/* CAPTURE_REQUEST_SCHEMA_BEGIN */
+CREATE TABLE lab.RequestResultCapture(
+    WindowId tinyint NOT NULL,
+    Ordinal tinyint NOT NULL,
+    RequestLogId bigint NOT NULL UNIQUE,
+    ReturnedRows bigint NOT NULL,
+    PRIMARY KEY(WindowId,Ordinal),
+    FOREIGN KEY(RequestLogId) REFERENCES dbo.CaseRequestLog(RequestLogId),
+    CHECK(WindowId IN (0,1) AND Ordinal BETWEEN 1 AND 4 AND ReturnedRows>0)
+);
+DECLARE @MeasuredReturnedRows bigint;
+/* CAPTURE_REQUEST_SCHEMA_END */
 ALTER DATABASE [SQLPERF_LAB_DGN007_AUTO] SET QUERY_STORE=ON
  (OPERATION_MODE=READ_WRITE,QUERY_CAPTURE_MODE=ALL,MAX_STORAGE_SIZE_MB=128,
   INTERVAL_LENGTH_MINUTES=1,DATA_FLUSH_INTERVAL_SECONDS=60);
@@ -282,6 +297,17 @@ BEGIN
                          AND GroupKey=@GroupKey AND StatusCode=@StatusCode)
             THROW 51002,'FAIL_RESULT_CONTRACT: Genau ein passender Request je Parameterpaar erforderlich.',1;
         SET @LastRequestId=(SELECT MAX(RequestLogId) FROM dbo.CaseRequestLog);
+        /* CAPTURE_REQUEST_MEASUREMENT_BEGIN */
+        /* Tatsächlich materialisierte Ergebniszeilen des gerade geprüften
+           Requests; ExpectedCount ist nur Assertion, niemals Messquelle. */
+        SELECT @MeasuredReturnedRows=COUNT_BIG(*) FROM #Actual;
+        IF @MeasuredReturnedRows IS NULL OR @MeasuredReturnedRows<=0 OR @MeasuredReturnedRows<>@ExpectedCount
+        BEGIN
+            PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+        END;
+        INSERT lab.RequestResultCapture(WindowId,Ordinal,RequestLogId,ReturnedRows)
+        VALUES(@WindowId,@Sequence,@LastRequestId,@MeasuredReturnedRows);
+        /* CAPTURE_REQUEST_MEASUREMENT_END */
         IF @FirstRequestId IS NULL SET @FirstRequestId=@LastRequestId;
         SET @BeforeRequestId=@LastRequestId;
         SET @Sequence+=1;

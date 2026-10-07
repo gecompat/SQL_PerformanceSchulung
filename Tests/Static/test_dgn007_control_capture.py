@@ -11,6 +11,7 @@ import re
 import unittest
 
 import test_dgn007_profile_comparison as profile_fixture
+from validate_dgn007_capture_projection import canonical_guard_diagnostics
 
 portable = profile_fixture.portable
 from validate_dgn007_control_capture import (
@@ -20,7 +21,7 @@ from validate_dgn007_control_capture import (
 
 
 def predicate(sql: str, name: str) -> str:
-    block = section(sql, name)
+    block = section(canonical_guard_diagnostics(sql), name)
     if name == "SEQUENCE_GUARD":
         block = block[block.index("IF (SELECT COUNT_BIG(*)"):]
     match = re.fullmatch(r"IF\s+(.*?)\s+BEGIN\s+PRINT 'SQLPERF_SUMMARY\|FAIL\|FAIL_RESULT_CONTRACT';\s+RETURN;\s+END;",

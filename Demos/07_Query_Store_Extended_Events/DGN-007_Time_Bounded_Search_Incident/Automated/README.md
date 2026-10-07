@@ -278,16 +278,31 @@ Primärquellen, geprüft am 2026-10-06:
 [Planmetadaten](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17),
 [sp_recompile](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-recompile-transact-sql?view=sql-server-ver17).
 
+Der getrennte [SQL-Producer](../Contracts/SQL_CAPTURE_PRODUCER.md) ergänzt
+jetzt tatsächlich erfasste Ergebniscounts je Request und vollständige
+skalare ASCII-Frames vor Cleanup. Die additive Option
+`--check-capture-projection` prüft dieselben Kontroll-Lifecycles über den
+reinen Packager und Decoder. Acht Phasen und 180-/60-Sekunden-Budgets bleiben
+erhalten. Quellenrevision, Präzision, Ausgabegrenzen und die eigene begrenzte
+Runtime-Abnahme stehen im Producer-Vertrag.
+
+Für begrenzte Fehlerdiagnose unterstützt derselbe Runner zusätzlich
+`--check-phase-diagnostics` in allen sechs bekannten Scopes. Die vorhandenen
+CI-Aufrufe für Datenmodell, Fenster und Profilvergleich verwenden diese Option.
+Bei Fehlern erscheinen erst nach Cleanup ausschließlich erlaubte
+Phasen-/Summarycodes und tatsächlich stderr-gebundene numerische SQL-Details.
+SQL35-Guardkennungen bleiben auf Kontroll-Evidenz beschränkt. Die Option
+aktiviert keine Capture-Abnahme; SQL, Lifecycles und Budgets bleiben gleich.
+
 Ein Fenster- oder Vergleichs-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
 Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP wird
-nicht deaktiviert. Als nächster kleiner Schnitt folgt der fachliche
-Incidentnachweis auf Grundlage der Kontrollcaptures und nachvollziehbarer
-Plan-/Laufzeitprofilevidenz. Vor seiner Ausführung sind die Akzeptanzregeln
-festzulegen: gewichtete Statement-Duration als primäre zeitbezogene Metrik,
-CPU und Reads als getrennte ergänzende Befunde, gerichteter B-A-Kontrast unter
-AB und BA sowie dessen begründete Separation gegenüber AA-Variation.
-Dies ist noch kein implementiertes Gate und kein Nachweis von Clientlatenz
-oder statistischer Signifikanz. Danach folgen Requestscope, Alternativhypothesen,
+nicht deaktiviert. Die Akzeptanzmethodik ist im
+[prospektiven Vertrag](../Contracts/README.md) durch `DEC-068` vorab festgelegt.
+Nach der begrenzten Producer-Prüfung folgt der Collector-Coordinator mit
+verifiziertem Freeze, Ressourcen, Reihenfolge, Budgets und unabhängigem
+Cleanup. Erst danach folgen frische Bestätigungsläufe. Das ist weiterhin
+kein Incident-Gate und kein Nachweis von Clientlatenz oder statistischer
+Signifikanz. Danach folgen Requestscope, Alternativhypothesen,
 reversible Mitigation und T2-Vergleich. Szenariopromotion, `READY_FOR_USER`,
 Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an
 `SQL_Server_Lab` bleiben offen.

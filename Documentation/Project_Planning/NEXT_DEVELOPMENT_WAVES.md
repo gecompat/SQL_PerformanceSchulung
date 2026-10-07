@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
+| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
@@ -120,12 +120,37 @@ Decoderfixtures, beide Validatoren und die 34 Prospektivtests lokal PASS.
 Decimal-Text und UTC-100-ns-Integer bleiben präzise. Fehlende Request-
 Ergebniszeilen bleiben `NOT_CAPTURED`/`None`; deklarierte `MEASURED`-Werte
 attestieren keine Herkunft. Der Body enthält keine erfundenen Phasen-,
-Cleanup-, Lifecycle- oder Ressourcenangaben. Nächster kleiner Schnitt ist
-der SQL-Producer: tatsächlich erfasste Ergebniszeilen je Request speichern
-und vollständige skalare Projektion vor Cleanup bereitstellen. Danach folgt
-der Coordinator: integrierten Freeze und Quellen verifizieren, Ressourcen,
-Budgets und tatsächliche Reihenfolge attestieren und Cleanup unabhängig
-bestätigen. Erst danach folgen frische Bestätigungsläufe unter
+Cleanup-, Lifecycle- oder Ressourcenangaben. Der getrennte SQL-Producer
+speichert jetzt tatsächlich gezählte Ergebniszeilen je Request und stellt
+die vollständige skalare Projektion vor Cleanup bereit. Seine neue lokale
+2019/150-, 2022/160- und 2025/170-Matrix bestand je zweimal AB/BA/AA,
+insgesamt 18 vollständige Lifecycles mit tatsächlichem Decoder und unabhängigem
+Cleanup. Alle drei eigenen Container sind unabhängig abwesend bestätigt.
+Der [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md)
+bindet konkrete Versionen, Images und Quellenfreeze und hält frühere
+Fehlversuche getrennt fest. 156 lokale Testmethoden der Phasendiagnostikrevision ergaben 155 PASS und
+einen Linux-spezifischen SKIP unter Windows. Die Producer-Integration über
+[Pull Request 65](https://github.com/gecompat/SQL_PerformanceSchulung/pull/65)
+bleibt durch einen tatsächlichen SQL-2025-CI-Fehler blockiert: BA-RUN1 endet
+in `CONTROL_EVIDENCE` mit `FAIL_RESULT_CONTRACT`, bei erfolgreichem Cleanup.
+Die genaue Assertion ist unbekannt. Der zweite Kandidat mit festen
+Guardkennungen scheiterte zusätzlich auf SQL Server 2022 in WINDOWS-RUN1
+mit `FAIL_EXECUTION` ohne sichtbaren Child-Code; Cleanup bestand.
+Die sichere Phasendiagnostik der sechs bekannten Scopes ist implementiert
+und unabhängig geprüft, ohne Änderung der SQL-Prädikate oder Budgets.
+Eine getrennte frische 2022-Gegenprobe bestand zweimal Datenmodell und
+zweimal Fenster mit unabhängigem Cleanup. Der Fehler wurde nicht
+reproduziert; erfolgreiche CI zum neuen exakten Head bleibt erforderlich.
+Zwei private BA-Gegenproben ohne
+Reproduktion ändern den CI-Befund nicht. Nächster zulässiger Schnitt ist
+gezielte Diagnose und Korrektur bei unveränderten Abnahmegrenzen.
+Erst nach erfolgreicher Producer-Integration folgt
+der Collector-Coordinator: integrierten Freeze und Quellen verifizieren,
+Ressourcen, präzise Budgets und tatsächliche Reihenfolge attestieren und
+Cleanup unabhängig bestätigen. Vollständige Bodies und tatsächliche
+Phasen-/Cleanup-Belege müssen den vorhandenen Harness wiederverwenden;
+die heutigen Counts allein sind kein vollständiger RunRecord.
+Erst danach folgen frische Bestätigungsläufe unter
 der festgelegten Regel. CPU bleibt ergänzend, ohne Fallback. Keine
 nachträglich ausgewählte Ratio oder statistische Signifikanzbehauptung;
 fehlende tragfähige Evidenz bleibt `SKIP_EVIDENCE_MISSING`.

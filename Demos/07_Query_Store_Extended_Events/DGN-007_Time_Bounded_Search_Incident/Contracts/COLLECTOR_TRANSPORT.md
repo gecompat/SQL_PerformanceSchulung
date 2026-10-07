@@ -12,8 +12,9 @@ Der Decoder ist ein begrenzter Teil des noch offenen Collectors. Er nimmt
 genau ein JSON-Textdokument und einen bereits validierten
 `AcceptanceContract` entgegen. Er liefert einen unveränderlichen `CaptureBody`
 mit skalaren Fenster-, Request-, Familien-, Plan- und Union-Records. Er öffnet
-keine Dateien oder Verbindungen und startet keine Prozesse. Die vorhandenen
-SQL-Batches, der Statusrunner und der prospektive v1-Vertrag bleiben unverändert.
+keine Dateien oder Verbindungen und startet keine Prozesse. Der getrennte
+[SQL-Producer](SQL_CAPTURE_PRODUCER.md) verwendet diesen Decoder über einen
+reinen Packager; eine vollständige Lifecycle-Abnahme bleibt eigene Folgearbeit.
 
 ## Öffentliche API und Format
 
@@ -97,9 +98,11 @@ der Query-Store-Aggregation oder vor Übergabe des Texts entstanden ist.
 Der heutige [Setupvertrag](../Automated/10_Setup.sql) speichert im
 `CaseRequestLog` ID, Parameter und Zeit, aber keine Ergebniszeilen.
 [CONTROL_WINDOWS](../Automated/21_Controlled_Query_Store_Windows.sql) prüft
-Ergebniscount und Ergebnisgleichheit während der Ausführung, persistiert den
-Count jedoch nicht je Request. Der Decoder ergänzt deshalb niemals die
-bekannten Erwartungszahlen als angeblich gemessene Werte.
+Ergebniscount und Ergebnisgleichheit während der Ausführung. Der getrennte
+Producer speichert den tatsächlichen Count jetzt requestgebunden in
+`lab.RequestResultCapture`. Der Decoder selbst ergänzt niemals die bekannten
+Erwartungszahlen als angeblich gemessene Werte. Andere unvollständige Caller
+behalten ausdrücklich `NOT_CAPTURED`/`None`.
 
 `row_evidence_complete` bedeutet ausschließlich, dass alle acht gelieferten
 Requests `MEASURED` deklarieren. Dieses Flag attestiert keine Messherkunft.
@@ -130,16 +133,17 @@ python Tests/Static/test_dgn007_prospective_acceptance.py
 19 Transporttests mit parametrisierten Gegenproben und die bestehenden
 34 Prospektivtests bestanden lokal, ebenso beide Validatoren. Der eigene
 fünfminütige Statikworkflow prüft diese Grenze im temporären GitHub-Checkout.
-Es wurden keine SQL-Instanzen gestartet und keine SQL-Läufe dieses
-Transportformats ausgeführt; Producer und Coordinator fehlen noch.
+Dieser ursprüngliche Decoder-Nachweis enthält keine SQL-Runtime. Der
+getrennte Producer und seine eigene Prüfung stehen in
+[SQL_CAPTURE_PRODUCER.md](SQL_CAPTURE_PRODUCER.md); der Coordinator bleibt offen.
 
 ## Nächster ausführbarer Schnitt
 
-Der SQL-Producer muss Ergebniszeilen je Request tatsächlich erfassen und
-die vollständige skalare Projektion nach der Evidenzphase und vor Cleanup
-bereitstellen. Der bestehende Framework-Harness hält derzeit nur
-Phasenresultate, keine Resultsets. Die Übernahme muss deshalb innerhalb des
-Lifecycles erfolgen. Danach muss der Coordinator den integrierten Freeze,
+Der Producer stellt tatsächliche Ergebniszeilen und die vollständige skalare
+Projektion in der Evidenzphase vor Cleanup bereit. Der bestehende
+Framework-Harness hält weiterhin nur Phasenresultate, keine Resultsets;
+die zusätzliche kontrollierte Frameübernahme erfolgt im Producer-Modus.
+Danach muss der Coordinator den integrierten Freeze,
 Quellen, Zielinstanz, Ressourcen, tatsächliche serielle Reihenfolge und
 Zeitbudgets prüfen sowie Cleanup und Datenbankabwesenheit unabhängig
 bestätigen. Erst dann dürfen frische Bestätigungsläufe den prospektiven

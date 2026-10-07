@@ -44,6 +44,9 @@ IF @ObjectId IS NULL OR OBJECT_DEFINITION(@ObjectId) IS NULL
    OR OBJECT_ID(N'lab.IncidentState',N'U') IS NULL
    OR OBJECT_ID(N'lab.IncidentProfile',N'U') IS NULL
    OR OBJECT_ID(N'dbo.CaseRequestLog',N'U') IS NULL
+   /* CAPTURE_REQUIRED_GUARD_BEGIN */
+   OR OBJECT_ID(N'lab.RequestResultCapture',N'U') IS NULL
+   /* CAPTURE_REQUIRED_GUARD_END */
     THROW 51002,'FAIL_STATE: Markierter Fenster- und Profilzustand fehlt.',1;
 IF NOT EXISTS(SELECT 1 FROM sys.database_query_store_options
               WHERE actual_state=2 AND desired_state=2 AND query_capture_mode=1
@@ -63,6 +66,7 @@ IF (SELECT COUNT_BIG(*) FROM lab.ControlSequence)<>2
    OR EXISTS(SELECT 1 FROM lab.ControlSequence a JOIN lab.ControlSequence b ON a.WindowId=0 AND b.WindowId=1
              WHERE a.ConditionCode='B' AND b.ConditionCode='B')
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G01';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CONTROL_SEQUENCE_GUARD_END */
@@ -84,6 +88,7 @@ IF (SELECT COUNT_BIG(*) FROM lab.IncidentState)<>2
              LEFT JOIN sys.query_store_runtime_stats_interval i ON i.runtime_stats_interval_id=w.RuntimeStatsIntervalId
              WHERE i.runtime_stats_interval_id IS NULL OR i.start_time<>w.IntervalStart OR i.end_time<>w.IntervalEnd)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G02';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* DGN007_CONTROL_WINDOW_GUARD_END */
@@ -105,6 +110,7 @@ IF (SELECT COUNT_BIG(*) FROM dbo.CaseRequestLog)<>12
              EXCEPT SELECT w.WindowId,r.GroupKey,r.StatusCode FROM lab.IncidentState w
              JOIN dbo.CaseRequestLog r ON r.RequestLogId BETWEEN w.FirstRequestLogId AND w.LastRequestLogId)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G03';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* DGN007_CONTROL_REQUEST_GUARD_END */
@@ -131,6 +137,7 @@ IF EXISTS(SELECT WindowId,Sequence,GroupKey,StatusCode FROM #OrderedRequests
    OR EXISTS(SELECT WindowId,Sequence,GroupKey,StatusCode FROM #Parameters
              EXCEPT SELECT WindowId,Sequence,GroupKey,StatusCode FROM #OrderedRequests)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G04';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CONTROL_ORDER_GUARD_END */
@@ -173,12 +180,14 @@ IF EXISTS(SELECT 1 FROM lab.IncidentProfile p
    OR EXISTS(SELECT ParentQueryId FROM lab.IncidentProfile WHERE WindowId=1
              EXCEPT SELECT ParentQueryId FROM lab.IncidentProfile WHERE WindowId=0)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G05';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* DGN007_CONTROL_METRIC_GUARD_END */
 
 IF EXISTS(SELECT 1 FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId WHERE p.is_forced_plan IS NULL OR p.is_forced_plan<>0)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G06';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 IF @Major>=16 AND OBJECT_ID(N'sys.query_store_query_hints',N'V') IS NOT NULL
@@ -195,6 +204,7 @@ IF EXISTS(SELECT 1 FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_
              OR r.avg_duration IS NULL OR r.avg_duration<0 OR r.avg_cpu_time IS NULL OR r.avg_cpu_time<0
              OR r.avg_logical_io_reads IS NULL OR r.avg_logical_io_reads<0 OR r.avg_rowcount IS NULL OR r.avg_rowcount<0))
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G07';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 SELECT w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,r.runtime_stats_interval_id AS RuntimeStatsIntervalId,
@@ -214,6 +224,7 @@ IF EXISTS(SELECT WindowId,ParentQueryId,QueryId,PlanId,RuntimeStatsIntervalId,Ex
              FROM #LiveRuntime
              EXCEPT SELECT WindowId,ParentQueryId,QueryId,PlanId,RuntimeStatsIntervalId,ExecutionType,ExecutionCount,FirstExecutionTime,LastExecutionTime FROM lab.IncidentProfile)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G08';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 
@@ -225,6 +236,7 @@ IF EXISTS(SELECT 1 FROM lab.IncidentProfile p
           JOIN sys.query_store_plan q ON q.plan_id=p.PlanId AND q.query_id=p.QueryId
           WHERE q.query_plan_hash IS NULL OR DATALENGTH(q.query_plan_hash)<>8)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G09';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 /* CONTROL_HASH_GUARD_END */
@@ -245,12 +257,14 @@ IF @Major>=16
             SET @Invalid=1;',N'@Invalid bit OUTPUT',@Invalid=@InvalidPlanType OUTPUT;
 IF @InvalidPlanType=1
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G10';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 IF (SELECT COUNT_BIG(*) FROM #ExecutedPlans)=0
    OR EXISTS(SELECT 1 FROM lab.IncidentState w
              WHERE COALESCE((SELECT SUM(p.ExecutionCount) FROM #ExecutedPlans p WHERE p.WindowId=w.WindowId),0)<>4)
 BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G11';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;
 IF SYSUTCDATETIME()>=@PhaseDeadline
@@ -281,6 +295,197 @@ GROUP BY ParentQueryId,QueryId,PlanId,QueryPlanHash
 ORDER BY ParentQueryId,QueryId,PlanId;
 /* CONTROL_PLAN_UNION_END */
 SELECT N'DGN007_CONTROL_SCOPE' AS ReportKind,N'Kontrollcapture; keine Incidentfreigabe' AS ScopeMessage;
+/* CAPTURE_PROJECTION_BEGIN */
+/* Gemessene Skalarprojektion vor Cleanup; keine Herkunfts-/Freezeattestation.
+   Primärquellen Microsoft Learn PRINT, FOR JSON, JSON_QUERY, CONVERT Style 3
+   und DATEDIFF_BIG, geprüft am 2026-10-07. Kein Querytext oder Plan-XML im Body.
+   Schema und Digests ergänzt ausschließlich der externe reine Packager. */
+IF SYSUTCDATETIME()>=@PhaseDeadline
+BEGIN
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_TIMEOUT'; RETURN;
+END;
+/* CAPTURE_REQUEST_ROWS_BEGIN */
+SELECT w.WindowId,ROW_NUMBER() OVER(PARTITION BY w.WindowId ORDER BY r.RequestLogId) AS Ordinal,
+       r.RequestLogId,r.GroupKey,r.StatusCode
+INTO #CaptureRequestSource
+FROM lab.IncidentState w JOIN dbo.CaseRequestLog r
+  ON r.RequestLogId BETWEEN w.FirstRequestLogId AND w.LastRequestLogId;
+SELECT r.WindowId,r.Ordinal,r.RequestLogId,r.GroupKey,r.StatusCode,c.ReturnedRows
+INTO #CaptureRequests
+FROM #CaptureRequestSource r LEFT JOIN lab.RequestResultCapture c
+  ON c.WindowId=r.WindowId AND c.Ordinal=r.Ordinal AND c.RequestLogId=r.RequestLogId;
+/* CAPTURE_REQUEST_ROWS_END */
+/* CAPTURE_REQUEST_GUARD_BEGIN */
+IF (SELECT COUNT_BIG(*) FROM lab.RequestResultCapture)<>8
+   OR (SELECT COUNT_BIG(*) FROM #CaptureRequests)<>8
+   OR EXISTS(SELECT 1 FROM #CaptureRequests r LEFT JOIN #Parameters p
+               ON p.WindowId=r.WindowId AND p.Sequence=r.Ordinal
+             WHERE p.WindowId IS NULL OR r.ReturnedRows IS NULL OR r.ReturnedRows<=0
+                OR r.ReturnedRows<>p.ExpectedCount OR r.GroupKey<>p.GroupKey OR r.StatusCode<>p.StatusCode)
+   OR EXISTS(SELECT WindowId,Ordinal FROM #CaptureRequests GROUP BY WindowId,Ordinal HAVING COUNT_BIG(*)<>1)
+   OR EXISTS(SELECT RequestLogId FROM #CaptureRequests GROUP BY RequestLogId HAVING COUNT_BIG(*)<>1)
+   OR EXISTS(SELECT 1 FROM lab.IncidentState w
+             WHERE (SELECT COUNT_BIG(*) FROM #CaptureRequests r WHERE r.WindowId=w.WindowId)<>4)
+BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G12';
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+END;
+/* CAPTURE_REQUEST_GUARD_END */
+/* CAPTURE_EXECUTION_BOUNDS_BEGIN */
+IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
+          WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)
+BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G13';
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+END;
+/* CAPTURE_EXECUTION_BOUNDS_END */
+
+/* Nur tatsächlich verwendete Familien plus nötige Self-Parent-Anker.
+   Selbst ein nicht ausgeführter Parent/Dispatcher ist damit nur Familienanker,
+   niemals aktiver Plan oder Element der ausgeführten Planunion. */
+/* CAPTURE_FAMILY_ROWS_BEGIN */
+SELECT s.QueryId,s.ParentQueryId INTO #CaptureFamilies FROM #ScopedQueries s
+WHERE EXISTS(SELECT 1 FROM lab.IncidentProfile p WHERE p.QueryId=s.QueryId)
+   OR EXISTS(SELECT 1 FROM lab.IncidentProfile p WHERE p.ParentQueryId=s.QueryId AND s.ParentQueryId=s.QueryId);
+/* CAPTURE_FAMILY_ROWS_END */
+/* CAPTURE_WEIGHTED_TOTALS_BEGIN */
+SELECT p.WindowId,SUM(p.ExecutionCount) AS ExecutionCount,
+       COUNT(DISTINCT p.PlanId) AS ObservedPlanCount,
+       SUM(p.ExecutionCount*p.AvgDurationUs)/NULLIF(SUM(p.ExecutionCount),0) AS AvgDurationUs,
+       SUM(p.ExecutionCount*p.AvgCpuUs)/NULLIF(SUM(p.ExecutionCount),0) AS AvgCpuUs,
+       SUM(p.ExecutionCount*p.AvgLogicalReads)/NULLIF(SUM(p.ExecutionCount),0) AS AvgLogicalReads,
+       SUM(p.ExecutionCount*p.AvgRowCount)/NULLIF(SUM(p.ExecutionCount),0) AS AvgRowCount,
+       SUM(p.ExecutionCount*p.AvgRowCount) AS TotalRows
+INTO #CaptureTotals FROM lab.IncidentProfile p GROUP BY p.WindowId;
+/* CAPTURE_WEIGHTED_TOTALS_END */
+/* CAPTURE_TOTALS_GUARD_BEGIN */
+IF (SELECT COUNT_BIG(*) FROM #CaptureTotals)<>2
+   OR EXISTS(SELECT 1 FROM #CaptureTotals
+             WHERE ExecutionCount<>4 OR AvgDurationUs IS NULL OR AvgDurationUs<0
+                OR AvgCpuUs IS NULL OR AvgCpuUs<0 OR AvgLogicalReads IS NULL OR AvgLogicalReads<0
+                OR AvgRowCount IS NULL OR AvgRowCount<0 OR TotalRows IS NULL OR ABS(TotalRows-4229.0)>0.000001)
+   OR (SELECT COUNT_BIG(*) FROM #CaptureFamilies) NOT BETWEEN 1 AND 12
+   OR (SELECT COUNT_BIG(*) FROM #ExecutedPlans) NOT BETWEEN 1 AND 8
+BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G14';
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+END;
+/* CAPTURE_TOTALS_GUARD_END */
+
+/* UTC datetimeoffset(7) zuerst normalisieren. Der Tagesrest ist höchstens ein
+   Tag: ein Nanosekunden-DATEDIFF über Jahrtausende würde bigint überlaufen. */
+/* CAPTURE_TIME_ROWS_BEGIN */
+SELECT w.WindowId,t.TimeKind,
+       DATEDIFF_BIG(day,CONVERT(datetime2(7),'0001-01-01'),u.UtcTime)*CONVERT(bigint,864000000000)
+       +DATEDIFF_BIG(nanosecond,CONVERT(datetime2(7),CONVERT(date,u.UtcTime)),u.UtcTime)/100 AS Ticks
+INTO #CaptureWindowTicks
+FROM lab.IncidentState w
+CROSS APPLY(VALUES('interval_start',w.IntervalStart),('interval_end',w.IntervalEnd),
+                  ('execution_started',w.ExecutionStarted),('execution_finished',w.ExecutionFinished)) t(TimeKind,TimeValue)
+CROSS APPLY(SELECT CONVERT(datetime2(7),SWITCHOFFSET(t.TimeValue,'+00:00')) AS UtcTime) u;
+SELECT p.WindowId,p.PlanId,t.TimeKind,
+       DATEDIFF_BIG(day,CONVERT(datetime2(7),'0001-01-01'),u.UtcTime)*CONVERT(bigint,864000000000)
+       +DATEDIFF_BIG(nanosecond,CONVERT(datetime2(7),CONVERT(date,u.UtcTime)),u.UtcTime)/100 AS Ticks
+INTO #CapturePlanTicks
+FROM lab.IncidentProfile p
+CROSS APPLY(VALUES('first',p.FirstExecutionTime),('last',p.LastExecutionTime)) t(TimeKind,TimeValue)
+CROSS APPLY(SELECT CONVERT(datetime2(7),SWITCHOFFSET(t.TimeValue,'+00:00')) AS UtcTime) u;
+/* CAPTURE_TIME_ROWS_END */
+/* CAPTURE_TIME_GUARD_BEGIN */
+IF (SELECT COUNT_BIG(*) FROM #CaptureWindowTicks)<>8
+   OR EXISTS(SELECT 1 FROM #CaptureWindowTicks WHERE Ticks IS NULL OR Ticks<0 OR Ticks>3155378975999999999)
+   OR EXISTS(SELECT 1 FROM #CapturePlanTicks WHERE Ticks IS NULL OR Ticks<0 OR Ticks>3155378975999999999)
+BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G15';
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+END;
+/* CAPTURE_TIME_GUARD_END */
+
+SELECT p.WindowId,p.ParentQueryId,p.QueryId,p.PlanId,p.RuntimeStatsIntervalId,p.ExecutionType,p.ExecutionCount,
+       f.Ticks AS FirstTicks,l.Ticks AS LastTicks,CONVERT(varchar(16),q.query_plan_hash,2) AS PlanHash,
+       CONVERT(int,NULL) AS PlanType
+INTO #CapturePlans
+FROM lab.IncidentProfile p JOIN sys.query_store_plan q ON q.plan_id=p.PlanId AND q.query_id=p.QueryId
+JOIN #CapturePlanTicks f ON f.WindowId=p.WindowId AND f.PlanId=p.PlanId AND f.TimeKind='first'
+JOIN #CapturePlanTicks l ON l.WindowId=p.WindowId AND l.PlanId=p.PlanId AND l.TimeKind='last';
+/* Keine statische Referenz auf plan_type, die Spalte fehlt auf SQL2019. */
+IF @Major>=16
+    EXEC sys.sp_executesql N'
+        UPDATE c SET PlanType=p.plan_type FROM #CapturePlans c
+        JOIN sys.query_store_plan p ON p.plan_id=c.PlanId AND p.query_id=c.QueryId;';
+IF (SELECT COUNT_BIG(*) FROM #CapturePlans)<>(SELECT COUNT_BIG(*) FROM lab.IncidentProfile)
+   OR EXISTS(SELECT 1 FROM #CapturePlans WHERE @Major>=16 AND (PlanType IS NULL OR PlanType NOT IN (0,2)))
+BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G16';
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+END;
+
+/* CAPTURE_JSON_BEGIN */
+DECLARE @CaptureScope varchar(24)=
+    (SELECT CASE a.ConditionCode+b.ConditionCode WHEN 'AB' THEN 'DGN-007_CONTROL_AB'
+                 WHEN 'BA' THEN 'DGN-007_CONTROL_BA' WHEN 'AA' THEN 'DGN-007_CONTROL_AA' END
+     FROM lab.ControlSequence a JOIN lab.ControlSequence b ON a.WindowId=0 AND b.WindowId=1);
+DECLARE @ProjectionJson nvarchar(max)=
+ (SELECT @Major AS major,@ActualCompatibility AS compatibility,@CaptureScope AS scope,@ObjectId AS parent_object_id,
+    JSON_QUERY((SELECT w.WindowId AS window_id,c.ConditionCode AS condition,w.RuntimeStatsIntervalId AS interval_id,
+      i.Ticks AS interval_start_ticks,e.Ticks AS interval_end_ticks,s.Ticks AS execution_started_ticks,f.Ticks AS execution_finished_ticks,
+      w.FirstRequestLogId AS first_request_log_id,w.LastRequestLogId AS last_request_log_id,
+      w.RequestCount AS request_count,w.CapturedExecutions AS captured_executions,t.ExecutionCount AS execution_count,
+      t.ObservedPlanCount AS observed_plan_count,
+      (SELECT COUNT_BIG(*) FROM #ExecutedPlans p WHERE p.WindowId=w.WindowId) AS executed_plan_count,
+      CONVERT(varchar(64),t.AvgDurationUs,3) AS avg_duration_us,CONVERT(varchar(64),t.AvgCpuUs,3) AS avg_cpu_us,
+      CONVERT(varchar(64),t.AvgLogicalReads,3) AS avg_logical_reads,CONVERT(varchar(64),t.AvgRowCount,3) AS avg_row_count,
+      CONVERT(varchar(64),t.TotalRows,3) AS total_rows
+     FROM lab.IncidentState w JOIN lab.ControlSequence c ON c.WindowId=w.WindowId JOIN #CaptureTotals t ON t.WindowId=w.WindowId
+     JOIN #CaptureWindowTicks i ON i.WindowId=w.WindowId AND i.TimeKind='interval_start'
+     JOIN #CaptureWindowTicks e ON e.WindowId=w.WindowId AND e.TimeKind='interval_end'
+     JOIN #CaptureWindowTicks s ON s.WindowId=w.WindowId AND s.TimeKind='execution_started'
+     JOIN #CaptureWindowTicks f ON f.WindowId=w.WindowId AND f.TimeKind='execution_finished'
+     ORDER BY w.WindowId FOR JSON PATH,INCLUDE_NULL_VALUES)) AS windows,
+    JSON_QUERY((SELECT WindowId AS window_id,Ordinal AS ordinal,RequestLogId AS request_log_id,
+      GroupKey AS group_key,StatusCode AS status_code,ReturnedRows AS returned_rows,'MEASURED' AS row_evidence
+      FROM #CaptureRequests ORDER BY WindowId,Ordinal FOR JSON PATH,INCLUDE_NULL_VALUES)) AS requests,
+    JSON_QUERY((SELECT QueryId AS query_id,ParentQueryId AS parent_query_id,@ObjectId AS parent_object_id,
+      'dbo.usp_CaseSearch' AS parent_object_name,'/* DGN007_CASE_SEARCH */' AS statement_marker
+      FROM #CaptureFamilies ORDER BY QueryId FOR JSON PATH,INCLUDE_NULL_VALUES)) AS families,
+    JSON_QUERY((SELECT WindowId AS window_id,ParentQueryId AS parent_query_id,QueryId AS query_id,PlanId AS plan_id,
+      RuntimeStatsIntervalId AS interval_id,ExecutionType AS execution_type,ExecutionCount AS execution_count,
+      FirstTicks AS first_execution_ticks,LastTicks AS last_execution_ticks,PlanHash AS query_plan_hash,PlanType AS plan_type
+      FROM #CapturePlans ORDER BY WindowId,ParentQueryId,QueryId,PlanId FOR JSON PATH,INCLUDE_NULL_VALUES)) AS plans,
+    JSON_QUERY((SELECT ParentQueryId AS parent_query_id,QueryId AS query_id,PlanId AS plan_id,
+      CONVERT(varchar(16),QueryPlanHash,2) AS query_plan_hash,
+      MAX(CASE WHEN WindowId=0 THEN 1 ELSE 0 END) AS executed_in_t0,
+      MAX(CASE WHEN WindowId=1 THEN 1 ELSE 0 END) AS executed_in_t1
+      FROM #ExecutedPlans GROUP BY ParentQueryId,QueryId,PlanId,QueryPlanHash
+      ORDER BY ParentQueryId,QueryId,PlanId FOR JSON PATH,INCLUDE_NULL_VALUES)) AS plan_union
+  FOR JSON PATH,INCLUDE_NULL_VALUES,WITHOUT_ARRAY_WRAPPER);
+/* CAPTURE_JSON_END */
+/* CAPTURE_FRAME_GUARD_BEGIN */
+IF @ProjectionJson IS NULL OR LEN(@ProjectionJson) NOT BETWEEN 1 AND 32000
+   OR @ProjectionJson COLLATE Latin1_General_100_BIN2 LIKE N'%[^ -~]%'
+   OR DATALENGTH(@ProjectionJson)<>2*LEN(@ProjectionJson) OR ISJSON(@ProjectionJson)<>1
+BEGIN
+    PRINT 'DGN007_CONTROL_GUARD|G17';
+    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+END;
+/* CAPTURE_FRAME_GUARD_END */
+/* CAPTURE_FRAMES_BEGIN */
+DECLARE @ProjectionAscii varchar(max)=CONVERT(varchar(max),@ProjectionJson);
+DECLARE @PayloadLength int=DATALENGTH(@ProjectionAscii),@FrameCount int=(DATALENGTH(@ProjectionAscii)+ 511)/512,@FrameOrdinal int=1;
+DECLARE @Frame varchar(8000);
+WHILE @FrameOrdinal<=@FrameCount
+BEGIN
+    IF SYSUTCDATETIME()>=@PhaseDeadline
+    BEGIN
+        PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_TIMEOUT'; RETURN;
+    END;
+    SET @Frame=CONCAT('DGN007_CAPTURE_FRAME|1|',CONVERT(varchar(2),@FrameOrdinal),'|',CONVERT(varchar(2),@FrameCount),'|',
+                      CONVERT(varchar(5),@PayloadLength),'|',SUBSTRING(@ProjectionAscii,(@FrameOrdinal-1)*512+1,512));
+    PRINT @Frame;
+    SET @FrameOrdinal+=1;
+END;
+/* CAPTURE_FRAMES_END */
+/* CAPTURE_PROJECTION_END */
 IF SYSUTCDATETIME()>=@PhaseDeadline
 BEGIN
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_TIMEOUT'; RETURN;

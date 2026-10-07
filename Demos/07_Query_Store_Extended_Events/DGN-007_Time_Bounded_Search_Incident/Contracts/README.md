@@ -46,8 +46,9 @@ AA T0=A/T1=A. T0 und T1 behalten ihre chronologischen WindowIds; insbesondere
 wird das BA-Vorzeichen nicht aus einem unverändert übernommenen T1−T0-Delta
 abgeleitet. Die künftige Übertragung muss die acht Suchrequests jedes
 Lifecycles einschließlich IDs, Reihenfolge, Parameterpaaren und Ergebniszeilen
-liefern. Die heutigen 30-/35-Ausgaben liefern diesen vollständigen typisierten
-Record noch nicht.
+liefern. Der getrennte [SQL-Producer](SQL_CAPTURE_PRODUCER.md) ergänzt jetzt
+gemessene Skalarprojektion und Transport. Vollständige `RunRecord`s samt
+Lifecycle-Attestationen bleiben Coordinator-Folgearbeit.
 
 ## Gerichtetes Symptom und getrennte zusätzliche Evidenz
 
@@ -156,8 +157,9 @@ Ein späterer Collector muss vor dem SQL-Start den integrierten Freeze-Stand,
 die Quellen, Zielinstanz, Ressourcen und Reihenfolge verifizieren. Er muss
 skalare Metriken und Zeitangaben verlustfrei übertragen, die vollständigen
 Request- und Familienrecords erfassen und Cleanup unabhängig bestätigen.
-Der heutige Statusrunner, die SQL-Batches, neutralen Capture-PASS-Ausgänge
-und Teilnehmerartefakte werden durch diesen Schnitt nicht verändert.
+Die Bewertungsmethodik und Teilnehmerartefakte bleiben unverändert. Der
+getrennte Producer erweitert 21/35 und bindet deren neue Quellenrevision;
+historische Captures erhalten dadurch keine nachträgliche Abnahme.
 
 Danach folgen frische prospektive Bestätigungsläufe. Incidentfreigabe,
 Compile-Ursache, Alternativhypothesen, XE-/Wait-Kontext, reversible Mitigation,
@@ -169,7 +171,8 @@ Der getrennte [skalare Collector-Transport](COLLECTOR_TRANSPORT.md) ergänzt
 jetzt die reine JSON-Decodierung mit genauer Decimal-/100-ns-Darstellung.
 Fehlende Ergebniszeilen je Request bleiben `NOT_CAPTURED`/`None`; es werden
 keine Erwartungswerte als Messwerte ergänzt. Das ist ausschließlich ein
-Transport-Vorschnitt, ohne SQL-Producer, Coordinator oder Runtime-Abnahme.
+Transport-Vorschnitt. Der getrennte SQL-Producer hat eine eigene Prüfgrenze;
+Coordinator und Incident-Runtime-Abnahme bleiben offen.
 
 ## Statische Prüfung
 
