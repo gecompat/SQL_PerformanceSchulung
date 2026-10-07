@@ -1,0 +1,70 @@
+name: DGN-007 Prospektiver Akzeptanzvertrag
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Tests/Static/test_dgn007_prospective_acceptance.py'
+      - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
+      - '.github/workflows/dgn007-prospective-acceptance.yml'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/00_Preflight.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/10_Setup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AB.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_BA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/21_Controlled_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/30_Profile_Comparison.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/35_Control_Evidence.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/40_Data_Assertion.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/90_Cleanup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ab.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ba.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-aa.manifest.json'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Tests/Static/test_dgn007_prospective_acceptance.py'
+      - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
+      - '.github/workflows/dgn007-prospective-acceptance.yml'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/00_Preflight.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/10_Setup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AB.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_BA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/21_Controlled_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/30_Profile_Comparison.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/35_Control_Evidence.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/40_Data_Assertion.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/90_Cleanup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ab.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ba.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-aa.manifest.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-prospective-acceptance-${{ github.workflow }}-${{ github.ref }}
+  # Dieser reine Statikjob erzeugt keine SQL- oder externen Ressourcen.
+  cancel-in-progress: true
+
+jobs:
+  acceptance-contract:
+    name: DGN-007 Reine prospektive Vertragsfixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reinen Vertrag und CI-Grenzen prüfen
+        run: python Tests/Static/validate_dgn007_prospective_acceptance.py
+      - name: Synthetische Akzeptanz- und Nichtnachweisfixtures prüfen
+        run: python Tests/Static/test_dgn007_prospective_acceptance.py

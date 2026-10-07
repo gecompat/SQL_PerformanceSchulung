@@ -3,8 +3,8 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `ACTIVE` |
-| Stand | 2026-10-06 |
-| geprüfter Repository-Basisstand | `8b49b7788228e483e4f4021a078e6dc7b07e11d0` auf `origin/main` |
+| Stand | 2026-10-07 |
+| geprüfter Repository-Basisstand | `39767fabd96c96be2fc5b0fcc3f96819a660167b` auf `origin/main` (Pull Request 62) |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -151,10 +151,16 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    [Kontrollnachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md) dokumentiert
    tatsächliche Requestfolge, aktive Plan-ID-/Hash-Union und Metrikvariation.
    Auf 2019 überlappt eine AA-Schwankung einen BA-Duration-Kontrast.
-   Nächster kleiner Schnitt ist der prospektive kontrollierte Incidentnachweis
-   mit vorher festgelegter Statement-Duration-/Kontrollseparationsregel und
-   Plan-/Laufzeitprofilevidenz. Die bisherigen Captures belegen keine Regression,
-   Ursache, Mitigation oder Capstone-Freigabe.
+   Der getrennte [prospektive Prüfvertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md)
+   liegt jetzt als `STATIC_PROSPECTIVE_CONTRACT` vor (`DEC-068`): reine
+   Recordprüfung, gerichtete Duration-Separation gegenüber AA und globaler
+   Planfingerprint- oder Reads-Zweig. 34 synthetische Tests und der Validator
+   für 14 gebundene SQL-/Manifestquellen bestanden lokal. Das ist ausschließlich
+   `PROJECT_SEMANTIC`, keine SQL-Runtime-Abnahme. Nächster kleiner Schnitt ist
+   ein verlustfreier Collector mit verifiziertem Freeze, Request-/Familienrecords
+   und unabhängigem Cleanup; danach folgen frische Bestätigungsläufe.
+   Die bisherigen Captures belegen keine Regression, Ursache, Mitigation oder
+   Capstone-Freigabe.
    Der Compatibility-Vorfix ersetzt im älteren Teilnehmerpfad die ungültige
    Property-Abfrage durch den Katalogwert und lehnt NULL oder Werte ungleich
    170 vor der Evidenzausgabe ab. Die Adaptervalidierung besitzt denselben

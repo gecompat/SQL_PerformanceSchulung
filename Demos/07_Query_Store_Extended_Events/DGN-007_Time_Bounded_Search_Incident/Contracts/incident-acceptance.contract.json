@@ -1,0 +1,124 @@
+{
+  "schema": "dgn007-prospective-acceptance/v1",
+  "decision_reference": "DEC-068",
+  "status": "STATIC_PROSPECTIVE_CONTRACT",
+  "demo_id": "DGN-007",
+  "expected_versions": {
+    "15": 150,
+    "16": 160,
+    "17": 170
+  },
+  "blocks": [
+    [
+      "AB",
+      "BA",
+      "AA"
+    ],
+    [
+      "AA",
+      "BA",
+      "AB"
+    ]
+  ],
+  "request_mapping": {
+    "A": [
+      [
+        8,
+        3,
+        228
+      ],
+      [
+        1,
+        3,
+        2286
+      ],
+      [
+        5,
+        3,
+        1144
+      ],
+      [
+        1,
+        1,
+        571
+      ]
+    ],
+    "B": [
+      [
+        1,
+        3,
+        2286
+      ],
+      [
+        8,
+        3,
+        228
+      ],
+      [
+        5,
+        3,
+        1144
+      ],
+      [
+        1,
+        1,
+        571
+      ]
+    ]
+  },
+  "resources_policy": {
+    "minimum_logical_cpus": 4,
+    "minimum_memory_mb": 8192,
+    "sql_sessions_per_lifecycle": 1,
+    "lifecycles_per_version": "serial",
+    "max_active_versions_per_physical_host": 1,
+    "hosted_matrix": "separate_hosts_only",
+    "attestation": "collector_pending"
+  },
+  "regular_budget_seconds": 180,
+  "cleanup_budget_seconds": 60,
+  "budget_and_sequence_attestation": "collector_pending_declared_order_only",
+  "requests_per_window": 4,
+  "total_rows_per_window": "4229",
+  "row_rounding_tolerance": "0.000001",
+  "primary_metric": "AvgDurationUs",
+  "duration_rule": "all_b_minus_a_positive_and_min_gt_max_abs_aa_drift",
+  "additional_evidence_rule": "all_four_plan_hash_sets_different_OR_reads_separated",
+  "reads_rule": "all_same_nonzero_sign_AND_min_abs_gt_max_abs_aa_drift",
+  "cpu_fallback": false,
+  "ratio_gate": false,
+  "plan_count_minimum": null,
+  "plan_comparison_scope": "within_lifecycle_only",
+  "decimal_input": {
+    "max_digits": 34,
+    "min_exponent": -30,
+    "max_adjusted": 20
+  },
+  "arithmetic": "exact_fraction_from_decimal",
+  "time_input": {
+    "unit": "100ns",
+    "origin": "0001-01-01T00:00:00Z",
+    "representation": "nonnegative_integer",
+    "maximum": 3155378975999999999,
+    "attestation": "collector_pending"
+  },
+  "source_hash_normalization": "utf8_crlf_to_lf",
+  "freeze_binding": "syntactic_and_internal_only_collector_attestation_pending",
+  "claim_scope": "Prospektive Prädikatprüfung; keine Runtime-Abnahme",
+  "source_sha256": {
+    "00_Preflight.sql": "551949aa3fa3677e4d525e56546c0444e3f59ca648ba8a910fbe4d0fb7ec0d0f",
+    "10_Setup.sql": "d98999eca8737b2933625855b26212d5f27db7e5ddcbbb2f628a6a4d54599df1",
+    "15_Control_AB.sql": "53fa0233b08f3fcdcbed5effa60613ee699b66f93b6dee47b28a4082b97f82a0",
+    "15_Control_BA.sql": "419236dd483b213a8157ebce87752d38f461c9d67476f4378a47f8dca2e312a9",
+    "15_Control_AA.sql": "7d914e9a902a7429d8d095c4ca089457ef92b5891d6795078bdd0e63c3d825e1",
+    "20_Query_Store_Windows.sql": "cb664f4faeef4f54dae33773d61c4625b6a7ec2a8e5a8ddc61f5ff724b0efe06",
+    "21_Controlled_Query_Store_Windows.sql": "ce161b39ff6ec7f9c04aa3b865cdcc47bc1172ad929e58375ad2174889b7ebd3",
+    "30_Profile_Comparison.sql": "5b180913ace958efd6803ea72cd6375cd4f4ddd0fde79c63427dbd4efe768fdb",
+    "35_Control_Evidence.sql": "3f291a29d09c37ca5ec5fa520ef7790d0aef0e60ffe49a9124c400495bbae7b6",
+    "40_Data_Assertion.sql": "c80b961bffdcab6e26ecee05dd022790082794b5f283f49032ff818e508ffa3e",
+    "90_Cleanup.sql": "ca0575b2b63874021785a69bcc7334ddbdc4af63a51c33d991437ba95864fa3c",
+    "control-ab.manifest.json": "70efa350b28d7394be45b23c2c9b90c2381e85cc5a82b43f501b162abf303934",
+    "control-ba.manifest.json": "427ad515fc4bf8765271a2646b105caaa936933b13a8a58c739276b81b488cfc",
+    "control-aa.manifest.json": "e50e4f508ba37c206d74964f0ce218ecb1e31c9f29e5de5980bda4451e9387da"
+  }
+}

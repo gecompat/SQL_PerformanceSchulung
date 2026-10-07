@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| Ausgangsstand | Runtimeevidenz bis Pull Request 42; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
+| Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
@@ -51,6 +51,7 @@
 | `DGN-007_QUERY_STORE_WINDOWS` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; zwei disjunkte Katalogintervalle, gleiche Parameterlast, je vier Suchausführungen und unabhängiger Cleanup. [Nachweis](DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md). Runner und CI prüfen diesen Scope getrennt; kein Incident- oder Regressionsnachweis. |
 | `DGN-007_PROFILE_COMPARISON` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden gewichtete T0/T1-Metrikvergleiche auf allen drei Versionen je zweimal, einschließlich unabhängigem Cleanup. [Nachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md). Ohne Richtungsgate oder Incidentpromotion. |
 | `DGN-007_CONTROL_AB` / `BA` / `AA` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden alle drei neutralen Kontrollfolgen auf jeder Version je zweimal; vollständige neue Reihenfolge mit 36 Lifecycles und unabhängigem Abbau aller drei eigenen Instanzen. Tatsächliche Requestfolge, aktive Plan-ID-/Hash-Union und Variation im [Nachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md). Ein 2019-BA-Duration-Kontrast liegt innerhalb beobachteter AA-Variation; keine Incidentfreigabe. |
+| prospektiver `DGN-007`-Prüfvertrag | `STATIC_PROSPECTIVE_CONTRACT` | `DEC-068`, reine Record-/Separationsprüfung, 34 synthetische Tests und Quellenvalidator lokal PASS. [Vertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md). Keine SQL-Runtime-Abnahme; Collector und frische Bestätigungsläufe bleiben offen. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
 
@@ -103,11 +104,20 @@ steht im [Kontrollnachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md).
 Ein 2019-BA-Duration-Kontrast liegt innerhalb beobachteter AA-Variation;
 positives Vorzeichen allein trägt deshalb keine versionsübergreifende
 Separation. Diese Captures sind explorative Voraussetzungen, keine
-prospektiven Bestätigungsläufe einer Incidentregel. Als nächster kleiner
-Schnitt folgt der kontrollierte Incidentnachweis mit vor frischen Läufen
-festgelegter gewichteter Statement-Duration als primärer zeitbezogener Metrik,
-gerichteten B-A-Kontrasten unter AB/BA und begründeter Separation gegenüber
-AA-Variation. CPU und Reads bleiben getrennte ergänzende Befunde. Keine
+prospektiven Bestätigungsläufe einer Incidentregel. Der getrennte reine
+[Prüfvertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md)
+legt diese Regel jetzt vorab fest (`DEC-068`): gewichtete Statement-Duration
+als primäre zeitbezogene Metrik, alle vier B-A-Kontraste unter AB/BA strikt
+positiv und oberhalb beider absoluter AA-Drifts; zusätzlich global entweder
+vier unterschiedliche aktive Hashmengen oder einheitlich gerichtete Reads-
+Kontraste oberhalb beider absoluter AA-Reads-Drifts. 34 synthetische Tests und
+der Quellenvalidator bestanden lokal. Der Status ist ausschließlich
+`STATIC_PROSPECTIVE_CONTRACT`, keine Runtime-Abnahme. Als nächster kleiner
+Schnitt folgt der verlustfreie Collector: integrierten Freeze und Quellen
+verifizieren, vollständige Request-/Familienrecords und präzise Zeiten erfassen,
+Ressourcen, Budgets und tatsächliche Reihenfolge attestieren und Cleanup
+unabhängig bestätigen. Erst danach folgen frische Bestätigungsläufe unter
+der festgelegten Regel. CPU bleibt ergänzend, ohne Fallback. Keine
 nachträglich ausgewählte Ratio oder statistische Signifikanzbehauptung;
 fehlende tragfähige Evidenz bleibt `SKIP_EVIDENCE_MISSING`.
 Plan- beziehungsweise klar unterscheidbare Runtimeprofile sind zusätzlich
