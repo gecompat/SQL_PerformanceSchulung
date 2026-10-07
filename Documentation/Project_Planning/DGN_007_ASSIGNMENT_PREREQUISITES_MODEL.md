@@ -106,8 +106,10 @@ Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen. Das getrennte
 [Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
 prüft jetzt den expliziten Zählschluss; Tokens sind ausschließlich Modelloracle,
 keine reale QS-Einzelidentität. Dieses Voraussetzungenmodell und seine 42
-Testmethoden bleiben unverändert. Als Nächstes benötigt die alternative
-Beweisart ein konkretes explizites Methodenentscheidungspaket. Erst die spätere gemeinsam versionierte Umsetzung
+Testmethoden bleiben unverändert. Das konkrete
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet;
+alle Methodengates bleiben offen. Nächster ausführbarer Schnitt ist ein
+Offline-Bundle-/Importpfad-Verifier ohne Runtimeattestation. Erst die spätere gemeinsam versionierte Umsetzung
 verbindet SQL21/35, Quellenfreeze, Transport, Records, Evaluator und Coordinator.
 
 G13, v1, DEC-068, bekannte CI-Fehler und die fehlende PR68-Mergefreigabe bleiben

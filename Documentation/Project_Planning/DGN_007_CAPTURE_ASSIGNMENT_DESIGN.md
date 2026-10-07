@@ -219,10 +219,12 @@ Der konkrete [Beobachtungs-/Herkunftsvertrag](DGN_007_OBSERVATION_PROVENANCE_CON
 liegt inzwischen als PROPOSED vor. Der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md)
 trennt inzwischen bedingte Callerfassung und kollektive Bucketzuordnung vom
 stärkeren kontinuierlichen QS-Zustand; das konservative Methodengate wird
-nicht aufgehoben. Nächster Schnitt ist das begrenzte reine Sättigungs-/
-Acquisition-Gegenmodell; danach explizite Methodenentscheidung und gemeinsam
-versionierte Umsetzung. Tatsächliche Herkunft, Acquisition-/Floatregel und
-endliche Bounds sind nicht runtimevalidiert.
+nicht aufgehoben. Das getrennte [Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
+ist implementiert; das [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
+ist vorbereitet, keine Methodenwahl. Nächster ausführbarer Schnitt ist der
+Offline-Bundle-/Importpfad-Verifier. Tatsächliche Herkunft, Acquisition-/
+Floatregel und endliche Bounds bleiben offen. Danach braucht die alternative
+Beweisart eine ausdrückliche Entscheidung vor gemeinsam versionierter Umsetzung.
 Die spätere versionierte Umsetzung muss SQL21/35,
 Quellenfreeze, Body-/Transportformat, Recordmodell, Evaluator, Runner und
 Fixtures gemeinsam binden. Die bestehenden v1-Formate dürfen keine optionale

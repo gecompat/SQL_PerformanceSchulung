@@ -196,12 +196,14 @@ Verbindungen, SQL-/v1-Änderung oder Runtimeattestation im Modell.
 | T0-Capture erst nach T1 oder gemischte Acquisition | Stage-/Kohärenzprämisse nicht etabliert |
 
 Modell-PASS bedeutet nur bedingte synthetische Konsistenz. Unknown/fehlende
-Prämissen ergeben keine Runtimefreigabe. Danach folgt die konkrete
-Methodenentscheidung samt Acquisition-/Floatregel, tatsächlicher Vertrauens-
-und Hostgrenze sowie Kostenplan, bevor gemeinsam versionierte SQL-, Freeze-,
-Transport-, Record-, Evaluator- und Coordinatoränderungen zulässig sind.
-Ein Bundle-Verifier kann später separat mit manipulierten Mitgliedern,
-Executorbytes, Importpfaden, Zielalias und Replay negativ geprüft werden.
+Prämissen ergeben keine Runtimefreigabe. Das konkrete
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet,
+keine Methodenwahl. Es benennt Acquisition-/Floatkandidat, tatsächliche Vertrauens-/
+Hostgrenze und Kostenplan mit offenen Gates. Nächster ausführbarer Schnitt ist
+ein Offline-Bundle-/Importpfad-Verifier mit manipulierten Mitgliedern und
+Executorbytes; Zielalias/Replay bleiben im späteren Launcherpfad. Vor gemeinsam
+versionierten SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinatoränderungen
+bleibt eine tragfähige explizite Methodenentscheidung erforderlich.
 
 Die acht Stages und vorgeschlagenen Zeilen-/Byte-/Poll-/Observerlimits aus
 PR73 bleiben unvalidiert. Durchgängiges Streaming vor dem heute vorpuffernden

@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `b68d32a87984337b7330aa5f7f97e338ec963971` auf `origin/main` (Pull Request 74); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `d1c469342c1473c837d070ffef3af0c44deb821c` auf `origin/main` (Pull Request 75); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -280,11 +280,16 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    prüft jetzt den Zählschluss mit synthetischen Ausführungstokens und getrennten
    Claims für Callerfassung, Bucketzuordnung und QS-Zustand. Die alte 42-Test-
    Voraussetzungssuite bleibt erhalten. Keine reale QS-Einzelidentität oder
-   Runtime-/Methodenfreigabe. Nächster Schnitt ist ein konkretes
-   Methodenentscheidungspaket: tatsächliche Acquisition-/Floatregel,
-   Freeze-/Actor-/Host-/Zugangsgrenze und Kostenmachbarkeit je Pflichtgate
-   belegbar entscheiden oder ausdrücklich offen lassen; erst danach gemeinsam
-   versionierte Umsetzung. Keine implizite OFF-/CLEAR-/Laständerung.
+   Runtime-/Methodenfreigabe. Das konkrete
+   [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet:
+   Acquisition-/Count- und Floatkandidat, ausführbare Freeze-/Actor-/CID-/
+   Host-/Zugangsgrenzen sowie gleichzeitige Streaming-/Poll-/Kostenlimits.
+   Alle Methodengates bleiben offen; normative Auswahl braucht eine ausdrückliche
+   neue Entscheidung. Nächster ausführbarer Schnitt ist ein Offline-Bundle-/
+   Importpfad-Verifier mit Manipulationsfixtures, ohne SQL oder Launcher.
+   Statische Byteprüfung attestiert keine tatsächliche Ausführung. Erst nach
+   tragfähiger Methodenentscheidung gemeinsam versionierte Umsetzung.
+   Keine implizite OFF-/CLEAR-/Laständerung.
    Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
    Ursache und Behebung offen.
    Einzelheiten stehen im
