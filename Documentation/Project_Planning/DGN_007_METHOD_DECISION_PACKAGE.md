@@ -82,9 +82,10 @@ Synthetischer Gegenfall, keine beobachtete SQL-Ursache: dieselben vier Werte
 `1,2,2,2` ergeben `1.75`. Ein Fragment `count4/avgText=1.75` und die Partition
 `count3/avgText=1.6666666666666667` plus `count1/avgText=2` ergeben nach exakter
 Textgewichtung `1.750000000000000025`. Eine unveränderte Population kann damit
-abgelehnt werden. Ein späterer begrenzter numerischer Vorschnitt kann Oracle,
-gerundetes Fragmentmittel, Style3-Text und Consumergewichtung getrennt prüfen;
-er entscheidet keine universelle Toleranz. Acquisitionkohärenz wird durch
+abgelehnt werden. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md)
+prüft Oracle, deklarierte Fragmentrundung, separat vorgegebenen Text und
+Consumergewichtung; sie entscheidet keine universelle Toleranz und emuliert
+keine SQL-Konversion. Acquisitionkohärenz wird durch
 exakte Signaturgleichheit ebenfalls nicht bewiesen.
 
 ## Gate-Matrix: ausführbarer Herkunftspfad
@@ -168,10 +169,7 @@ ausdrücklich auf statische Kandidaten beschränkt:
 
 Der getrennte [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert, ohne Integration
 in die neun Runtimequellen. Er attestiert keine reale Machbarkeit der
-vollständigen 145/180/60-Kette. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
-über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
-Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
-Epsilon- oder Methodenfreigabe. Die noch offenen Gates sind weiterhin gegen
+vollständigen 145/180/60-Kette. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Nächster kleiner Schnitt: tatsächliche Importauflösungs-/UsedBytes-Probe zuerst konkret entwerfen; vertrauenswürdiger Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bytegebundene Bytes, gemessene Origins sowie Shadowing-/Austausch-/Alias-/Replay-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung. Die noch offenen Gates sind weiterhin gegen
 tatsächliche Evidenz zu prüfen. Keine endlose Modell-/Pollingwiederholung bis PASS. Die spätere
 gemeinsam versionierte Umsetzung verbindet SQL21/35, Freeze, Transport,
 Records, Evaluator und Coordinator erst nach tragfähiger expliziter Entscheidung.

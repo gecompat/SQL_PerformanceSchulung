@@ -249,10 +249,7 @@ ist statisch implementiert: Python-3.12-Ganz-AST-Profil, sechs SQL-only-Manifest
 tatsächliche Importumgebung und verwendete Runtimebytes offen. Der getrennte
 [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
 portable Budgetgegenproben und feste eigene Linux-Kindfälle; keine Integration
-in die neun Runtimequellen oder reale Laufzeitmachbarkeit. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
-über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
-Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
-Epsilon- oder Methodenfreigabe.
+in die neun Runtimequellen oder reale Laufzeitmachbarkeit. Die getrennte [numerische Pipelinegegenprobe](DGN_007_NUMERIC_PIPELINE_COUNTERMODEL.md) ist implementiert: 28 synthetische Tests trennen Oracle, deklarierte Fragmentrundung, vorgegebenen Text und bestehende Consumergewichtung. Keine SQL-Konversionsemulation, Epsilon- oder Methodenfreigabe. Nächster kleiner Schnitt: tatsächliche Importauflösungs-/UsedBytes-Probe zuerst konkret entwerfen; vertrauenswürdiger Interpreter/Stdlib, kontrollierter Suchpfad und Loader, bytegebundene Bytes, gemessene Origins sowie Shadowing-/Austausch-/Alias-/Replay-Gegenfälle und eigener Cleanup. Ein Entwurf allein attestiert keine Ausführung.
 Normative Methoden-/Grenzänderungen brauchen eine ausdrückliche neue Entscheidung.
 Keine implizite OFF-/CLEAR-/Laständerung. Erst eine tragfähige explizite
 Methodenentscheidung erlaubt gemeinsam versionierte
