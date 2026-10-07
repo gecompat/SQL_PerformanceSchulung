@@ -738,3 +738,189 @@ vollständige Größenprüfung, Codec-/Versionsmigration, Worker-/Kanal-/Consump
 bindung, tatsächliche Imports und unabhängiger Cleanup offen. Die 85 Namen aus §9
 werden keine erfolgreiche Baseline. G13, v1, DEC-068, PR68, die geschützte interne
 Capture-Arbeit und sämtliche SQL-/Acquisition-/Methodengates bleiben erhalten.
+
+## 11. Separat ausgewählte vollständige Bootstrapfixture
+
+Auf Repositorybasis `7222dd76e9a4fde6537b90d93cdb9dd170fc17ad` nach PR94
+wurde am 2026-10-08 eine vollständige private Deklaration für eine bestehende
+Linux-/CPython-3.12.3-Installation ausgewählt und vor der Gegenaufnahme unabhängig
+geprüft. Die Auswahl gehört ausschließlich zu dieser konkreten Kontrollfixture;
+sie ist keine operative Sollinventur der noch unimplementierten Workerroute.
+Die Patchversion ist nicht die jeweilige GitHub-Actions-Patchversion.
+
+### 11.1 Auswahl vor Gegenaufnahme
+
+Die 85 öffentlichen Kandidatennamen aus §9 wurden als exakte sortierte Liste
+mit SHA256 `a9e02a88ef624e791c757ab840fb652387871d4b009ed08bf5dca83aa5393d1f`
+vorab festgelegt. Die Auswahl übernimmt keine früher beobachteten Kinds,
+Specfelder oder Locator. Sämtliche 15 Installationsfelder und alle elf Felder
+jedes der 85 Modulrecords wurden aus der separat gewählten Installation,
+Builtin-/Frozen-Tabellen, vorhandenen festen Stdlib-/Extensiondateien und den
+reviewten Importquellen deklariert. Zwei Dateifingerprints sind vollständig
+enthalten. Alle absoluten Locator und vollständigen privaten Tabellen bleiben
+außerhalb der versionierten Projektartefakte.
+
+Der Bootstrap behält die fünf direkten Imports aus §8, die exakt zwei Controls,
+gebundene Profil-Rohbytes und die Vorinitialisierung von `SOABI`/`DESTSHARED`.
+Die fehlende Umgebungsvorgabe `_PYTHON_SYSCONFIGDATA_NAME` und der konkret gewählte
+Sysconfig-Datenmodulname sind ausdrückliche Auswahlbedingungen. Die installierte
+`sysconfig.py` ist separat gebunden; der Upstream allein ersetzt keine Prüfung
+einer distributions- oder buildabhängigen Installation.
+
+Der erste Auswahlinspektor erzeugte eine vollständige Tabelle, deren zwei
+`importlib`-Cachealiases fälschlich als Source deklariert waren. Der unabhängige
+Form-/Quellenreview wies diese Auswahl **vor** Gegenaufnahme und Größenmessung
+ab. `_imp.is_frozen` unter einem Aliasnamen ersetzt nicht die Cachezuweisung
+in `importlib.__init__`. Die korrigierte Auswahl verwendet die quellengebundenen
+Frozenpartner; `collections.abc` bleibt ein eigenständiger Sourcewrapper und
+erhält mit `_collections_abc` keinen erfundenen Frozenverband.
+[CPython 3.12.3: Importlib](https://raw.githubusercontent.com/python/cpython/v3.12.3/Lib/importlib/__init__.py),
+[Collections-Wrapper](https://raw.githubusercontent.com/python/cpython/v3.12.3/Lib/collections/abc.py),
+[Sysconfig](https://raw.githubusercontent.com/python/cpython/v3.12.3/Lib/sysconfig.py),
+geprüft am 2026-10-08. Die konkreten installierten Quellenbindungen bleiben
+von diesen Upstreamreferenzen getrennt.
+
+Die korrigierte Tabelle wurde exklusiv als neue private Datei materialisiert,
+eingefroren und nochmals unabhängig geprüft. Die bestehende Matcher-Formprüfung
+akzeptierte vollständige Installation, Inventur, Kontext und Bericht für alle
+drei `PRE_IMPORT`-Selectoren. Dessen `_canonical` und Matchfunktion wurden dabei
+nicht aufgerufen; Tabellenform ist kein Größen- oder Matchbeleg.
+
+### 11.2 Vollständige Gegencharakterisierung
+
+Erst nach diesem Tabellenreview lief eine neue getrennte Gegencharakterisierung.
+Die Kontrollquelle enthält die separat geprüften vollständigen Profil-Rohbytes
+und vergleicht ihre begrenzt gelesenen Bytes **vor** `compile`/`exec` mit diesem
+gehaltenen Inhalt. Dazu kommt kein sechster Bootstrapimport. Ein nachträglicher
+Hashvergleich allein wurde im Vorabreview abgewiesen und vor dem ersten Lauf
+korrigiert. Kandidatenbytes, Matcher und Input82 werden im Kontrollbootstrap
+nicht importiert oder ausgeführt.
+
+Die tatsächliche Gegenaufnahme enthielt 85 Records: 24 Builtin-, 16 Frozen-,
+41 Source-, zwei Extension- und zwei Controlrecords. Sämtliche 15
+Installationsfelder, beide Dateifingerprints, Controls und alle elf Felder jedes
+geordneten Modulrecords stimmten exakt mit der vorher eingefrorenen Auswahl
+überein. Es wurden keine fehlenden Werte ergänzt, keine Pfade normalisiert und
+kein abweichender Bericht zur neuen Erwartung gemacht. Alle drei
+ausgewählten Frozenverbände und das gemischte Collections-Paar blieben erhalten.
+
+Der private Parent verwendete ein 20-s-Zeitbudget und höchstens 64 KiB gemeinsam
+akzeptierte stdout-/stderr-Bytes, begrenzte 1024-Byte-Lesestücke und feste
+Ausgabelabels. Der vollständige private Ergebnisrecord blieb separat auf 64 KiB
+begrenzt und wurde exklusiv geschrieben. Der tatsächliche Aufruf endete regulär
+nach 5,52 s; Quellen und vorherige Auswahl blieben unverändert. Das akzeptierte
+Pufferbudget ist kein harter Betriebssystem-Lese- oder Cleanupbeweis. Ein
+Timeout-/EOF-/Budgetfehler hätte keinen erfolgreichen Nachweis ergeben.
+
+Der unabhängige Nachreview bestätigte die vollständige Gleichheit. Dies ist eine
+Gegencharakterisierung der gewählten Kontrollfixture, keine atomare Aufnahme,
+vollständige transitive Resolverclosure oder zukünftige Workerbaseline. Die
+Hookprüfung bindet Factorycode und Closurestruktur; sie attestiert keine
+ursprüngliche Factoryausführung. Trust-, Runtime-, UsedBytes- und Methodenflags
+bleiben false. Operative Parent-/Worker-, Kanal-, Consumption- und Cleanupreceipts
+sind weiterhin offen.
+
+| Privater geprüfter Inhalt | SHA256 / Umfang |
+|---|---|
+| Abgewiesene erste Auswahltabelle | `555765659e4d12eabacfff89ffb22181117cb8ab25720e2e1ab3e3c2266af10d`; 36.472 Bytes |
+| Korrigierter Auswahlinspektor | `fefddc7c17a585a0200971a00621a94773291b1ba9da9a5cef6476258656271d` |
+| Vorher eingefrorene vollständige Auswahl | `05109f812187e2765b544b277610f5ab2ec6f44f702884e702a859395c0bac21`; 36.409 Bytes |
+| Neue vollständige Kontrollquelle | `2b2e1c89c8c7b4aac08da7875d123e2785dc91d155e494d974a625e21c13de7c` |
+| Begrenzter Kontrollparent | `7fa67b5993b6d3969ef9f97a78b7f11fde447c0802b51e4d023ca26e7eb051d8` |
+| Tatsächliche vollständige Gegenaufnahme | `a3c769dc7aa65d447f78957febb06baaf340a35c1cdfded6152bf03fbc874037`; 24.016 Bytes |
+| Gehaltene Profil-Rohbytes | `cb6a6e4f8d96370d02dbd8bb0ba9ec63fe8819ceb188e5b9597f90a8a7e14b0d`; 26.234 Bytes |
+
+Diese Hashes identifizieren die geprüften privaten Inhalte, keine Trustquelle.
+Private Dateien oder frühere Chat-Aussagen sind keine Fortsetzungsvoraussetzung:
+Eine neue Installation oder Kontrollquelle benötigt eine neue vollständige
+Auswahl, deren vorherigen Freeze/Review und eine getrennte Gegenaufnahme.
+
+### 11.3 Separater ursprünglicher Input82-Rahmen
+
+Ein vorab unabhängig geprüfter privater Vorbereitungsschritt übernahm alle 27
+Rohmember exakt aus den Gitblobs der festen Repositorybasis. Er erzeugte eine
+eigene isolierte temporäre Quellkopie und rief das bestehende `prepare_input`
+einschließlich Git-/AST-Vorprüfung auf. Im selben Prozess blieb das ursprüngliche
+`PreparedInput` gehalten; der bestehende Encode-/Decode-Roundtrip stimmte exakt
+überein. Kandidatenquellen wurden dabei weder importiert noch ausgeführt.
+
+Der exklusiv gespeicherte DGNI001-Rahmen hat SHA256
+`ac9de35b5b4e801b71c10c998813ca6f10a69a2956487d83d543fff3c451535d`:
+132.986 Bytes aus 16 Header-, 2.133 Metadata- und 130.837 Bodybytes. Die vollständige
+27-Member-Rohbindung lautet
+`bf0288301cb2429638d94d550ceae53495f385b3c494482d1f6ad0e9f33d4a45`.
+Alle neun Deskriptoren und ihre Bodyhashes/Rohbytes entsprechen den festen
+Gitblobs. Der unabhängige Nachreview bestätigte Rahmung, kanonische Metadata,
+ursprünglichen Kontextdigest, Rohbindung und sämtliche Zuordnungen.
+
+Die eigene temporäre Quellkopie wurde nach vorheriger Prüfung ihrer absoluten
+Grenzen regulär entfernt; zwei getrennte Nachkontrollen fanden keine zugehörigen
+Tempverzeichnisse. Dieser Cleanup betrifft ausschließlich diese Quellkopie.
+Er ersetzt keinen zukünftigen Worker-/Prozessgruppen-Cleanupnachweis.
+
+Der Vorbereitungsprozess ist beendet. Eine spätere Größenrechnung darf den
+unveränderten gespeicherten Rahmen begrenzt rekonstruieren, attestiert dadurch
+aber weder das fortbestehende ursprüngliche Parentobjekt noch einen tatsächlichen
+Workertransfer, Runtimeherkunft oder Trust. Vorbereitung und Nonce werden dafür
+nicht erneut erzeugt. Die privaten Rahmenbytes und ihre Nonce bleiben außerhalb
+versionierter Artefakte.
+
+### 11.4 Vollständige reine Größenrechnung: negativ
+
+Der getrennte reine Prüfer
+[`dgn007_compact_profile_sizing.py`](../../Tests/Tools/dgn007_compact_profile_sizing.py)
+prüft zunächst sämtliche DTO- und Kontextformen und zählt dann alle fünf
+vollständigen Entwurfsformen aus §10 inkrementell in kanonischem ASCII-JSON.
+Jede Größe enthält 16 Headerbytes, Tags und sämtliche zugehörigen tatsächlichen
+Formfelder. Die gemeinsame Metadata enthält beide vollständigen Neuner-
+Deskriptorarrays; Report und Kontextpräbild enthalten das Kontextarray, Installation
+und Workerpräbild keine Deskriptorarrays. Er erzeugt keine Wirebytes, neuen Digests
+oder Decoder und verändert den benannten Legacy-Matcher nicht. Eine Überschreitung
+liefert `DESIGN_SIZING_OVERFLOW`; sämtliche fünf Größen bleiben sichtbar.
+Ungültige Records liefern ausschließlich `REJECTED_DESIGN_SIZING/INVALID_RECORD`.
+
+Nach vollständigem Source-/Testreview und Vorprüfung des privaten Messhelpers
+lief genau eine konkrete Rechnung unter CPython 3.12.14 mit `-I -S -B`.
+Die vorher eingefrorene vollständige Auswahl blieb unverändert. Der gespeicherte
+Originalrahmen aus §11.3 wurde begrenzt rekonstruiert und exakt gegen den bestehenden
+Input82-Encode-/Decode-Roundtrip geprüft; keine neue Vorbereitung oder Nonce.
+Eine unabhängige benannte Feldreferenz rechnete alle 15 Größen vollständig nach.
+
+| Ordinal / Einstieg | gemeinsame Metadata | Report | Installation-Präbild | Worker-Präbild | Kontext-Präbild |
+|---|---:|---:|---:|---:|---:|
+| 1 / `run_dgn007_automated_setup` | **17.127** | 15.431 | 719 | 13.893 | 1.678 |
+| 2 / `docker_sqlcmd_proxy` | **17.113** | 15.424 | 719 | 13.886 | 1.671 |
+| 3 / `run_demo` | **17.091** | 15.413 | 719 | 13.875 | 1.660 |
+
+Alle Werte sind Bytes einschließlich Header. Die gemeinsame Metadata überschreitet
+das unveränderte 16.384-Byte-Cap um 743, 729 beziehungsweise 707 Bytes. Die übrigen
+vier Formen unterschreiten es. Damit ist der Tupelkandidat aus §10 für diese
+vollständige Fixture **nicht darstellbar**. Kein erfolgreicher Codec-/Transfer-
+oder operativer Workerbeleg folgt daraus. Ein passender Einzelbericht reicht nicht.
+Es wurden weder Felder, Locator, Arrays oder Controls gekürzt noch Caps angehoben.
+
+Der Messhelper hat SHA256
+`520ed99058e845d5e68734430722d0c0c25b61af193dcc452fc1c673c1c85fec`;
+das ausschließlich skalare Ergebnisaggregat hat SHA256
+`83c5b9a227fb0e321c735cfb5e2e504675fb58f3b94101fa0bb5b77ba5b381c7`.
+Der vorherige private Helperentwurf wurde wegen einer Listen-/Tupelzuordnung in
+der benannten Referenz vor der Messung korrigiert; es gab keinen vorherigen
+fehlgeschlagenen Messlauf. Der tatsächliche Aufruf endete nach 1,406 s regulär.
+Vor-/Nachpins und unabhängiger Nachreview bleiben an diese konkreten Inhalte gebunden.
+
+34 portable Gegenproben prüfen vollständige Feldpositionen und Schemamengen,
+beide Arrays und unveränderten Input82-Kontextdigest, ASCII-/UTF-8-Ausdehnung,
+gültige gemeinsame/Report-/Installations-/Workerformen genau am Cap und Cap+1,
+mehrfache Überschreitungen, späte Formfehler, Foreigngetter, Aliasgruppen und
+feste private Reports. Ein gültiger Kontext kann mit seinen festen Namen und
+Hexbreiten das Cap nicht erreichen; dessen maximale gültige Form und getrennte
+interne Zählarithmetik ersetzen kein erfundenes Kontext-Capfixture.
+34/34 Tests bestanden unter CPython 3.12.14 ohne SKIP. Die unveränderten 27 Input82-
+und 40 Matcher-Tests bestanden ebenfalls ohne SKIP.
+
+Als nächster separater Schnitt ist ein expliziter verlustfreier Darstellungs-
+Deltaentwurf zu prüfen, der Wiederholungen erhält und alle fünf Formen gemeinsam
+betrachtet. Er darf das negative Ergebnis nicht nachträglich zum Fit umdeuten.
+Erst eine separat versionierte Darstellung mit vollständiger neuer Größenprüfung
+kann den eigenen Codec-/Digestpfad vorbereiten. Legacy, Input82/DGNI001, sämtliche
+Inhalte, Caps und die offenen Worker-/Methodengates bleiben erhalten.
