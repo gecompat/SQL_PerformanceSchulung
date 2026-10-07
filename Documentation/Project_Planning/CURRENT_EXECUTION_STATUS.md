@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `db2760d55e721bb4a6ce57d110b4d5173feb3983` auf `origin/main` (Pull Request 77); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `96d4deed96badb5cb7cb72e0c68c3c6e320d4c95` auf `origin/main` (Pull Request 78); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -292,9 +292,13 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Die getrennte [Prozess-/Manifestkantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
    ist statisch implementiert: Python-3.12-Ganz-AST-Profil, sechs SQL-only-Manifeste,
    14 Quellenhashes und SQLCMD-Gegenproben. Import-/Launcherentwurf PROPOSED,
-   tatsächliche Importumgebung und verwendete Runtimebytes offen. Nächster
-   kleiner Schnitt: begrenzter Offline-Streaming-/Poll-/Kostenprototyp mit
-   synthetischem Prozessinput vor Pufferung; keine Integration in Runtimequellen.
+   tatsächliche Importumgebung und verwendete Runtimebytes offen. Der getrennte
+   [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
+   portable Budgetgegenproben und feste eigene Linux-Kindfälle, ohne Integration
+   in Runtimequellen oder Methoden-/Runtimeattestation. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
+   über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
+   Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
+   Epsilon- oder Methodenfreigabe.
    Erst nach
    tragfähiger Methodenentscheidung gemeinsam versionierte Umsetzung.
    Keine implizite OFF-/CLEAR-/Laständerung.

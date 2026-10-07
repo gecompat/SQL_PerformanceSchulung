@@ -122,9 +122,12 @@ Die getrennte [Prozess-/Manifestkantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.
 ist statisch implementiert; der Import-/Launcherentwurf bleibt PROPOSED.
 Ein kontrollseitiger Callback erhält optional erst nach Bytebindung und
 Importprüfung die bereits gelesenen unveränderlichen Bytes. Der Default-Report
-und die CLI dieses Verifiers bleiben unverändert. Nächster kleiner Schnitt ist
-ein begrenzter Offline-Streaming-/Poll-/Kostenprototyp mit synthetischem Input
-vor Pufferung, ohne Integration in die neun Runtimequellen. Kein Launcherstart:
+und die CLI dieses Verifiers bleiben unverändert. Der getrennte
+[synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert,
+ohne Integration in die neun Runtimequellen. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
+über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
+Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
+Epsilon- oder Methodenfreigabe. Kein Launcherstart:
 UsedBundle, Actor/CID, Datenbankgeneration, Zugang, physischer Host,
 Acquisition, Kosten und kontinuierlicher Zustand bleiben offene Gates.
 Normative Methoden-/Grenzänderungen benötigen eine ausdrückliche neue
