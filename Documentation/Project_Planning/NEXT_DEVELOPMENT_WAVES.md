@@ -234,13 +234,16 @@ konservative Methodengate bleibt vorgeschlagen. Heutige Live-Dateizugriffe
 und Zielnamen binden keinen vollständigen unveränderlichen Ausführungspfad.
 Das getrennte [Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
 implementiert die synthetischen Gegenproben mit getrennten Teilclaims.
-Kein Token ist eine reale QS-Einzelidentität. Nächster kleiner Schnitt ist
-ein konkretes Methodenentscheidungspaket mit einer Gate-Matrix: tatsächliche
-Acquisition-/Countsemantik und Floatstabilität, ausführbare Freeze-/Actor-/
-Host-/Zugangsmechanik sowie Streaming-/Poll-/Observerkosten innerhalb der
-bestehenden 180/60 Sekunden und 4 CPU/8 GiB. Je Gate Evidenz, verbleibende
-Lücke und zulässige Folgemaßnahme benennen; unbekannte Voraussetzungen bleiben
-offen. Keine implizite OFF-/CLEAR-/Laständerung. Erst eine tragfähige explizite
+Kein Token ist eine reale QS-Einzelidentität. Das konkrete
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet:
+Gate-Matrix mit Acquisition-/Count- und konservativem Floatkandidaten, tatsächlicher
+Freeze-/Actor-/CID-/Host-/Zugangsgrenze und Kostenplan innerhalb 145/180/60 Sekunden
+und 4 CPU/8 GiB. Alle Methodengates bleiben offen; Einzelmaxima sind keine
+gemeinsame Machbarkeitsevidenz. Nächster ausführbarer kleiner Schnitt ist ein
+Offline-Bundle-/Importpfad-Verifier samt Manipulationsfixtures, ohne SQL oder
+Launcher. Statischer Kandidaten-PASS attestiert keine verwendeten Runtimebytes.
+Normative Methoden-/Grenzänderungen brauchen eine ausdrückliche neue Entscheidung.
+Keine implizite OFF-/CLEAR-/Laständerung. Erst eine tragfähige explizite
 Methodenentscheidung erlaubt gemeinsam versionierte
 SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
 Fehlerklassifikation, DEC-068, Last und Budgets bleiben erhalten; keine

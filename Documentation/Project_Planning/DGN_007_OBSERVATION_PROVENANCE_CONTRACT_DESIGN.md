@@ -282,9 +282,10 @@ Sättigungssatzes. Sie werden hier nicht aufgehoben. Tatsächliche Freeze-/
 Zugangs-/Hostgrenze, Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen.
 Das getrennte [Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
 prüft jetzt synthetische Ausführungstokens, keine Runtimeidentitäten.
-Nächster kleiner Schnitt ist das konkrete Methodenentscheidungspaket mit
-belegten oder ausdrücklich offenen Acquisition-/Float-, Vertrauens-/Host-/
-Zugangs- und Kostengates. Erst danach folgt die tragfähige Entscheidung vor gemeinsam
+Das konkrete [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
+ist vorbereitet: alle Acquisition-/Float-, Vertrauens-/Host-/Zugangs- und
+Kostengates bleiben offen. Nächster ausführbarer Schnitt ist ein Offline-Bundle-/
+Importpfad-Verifier ohne SQL oder Launcher. Erst danach folgt die tragfähige Entscheidung vor gemeinsam
 versionierter SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung.
 Alle drei Zeitbeziehungen QS↔SYSUTC, QS↔Katalog und SYSUTC↔Katalog bleiben
 gesondert zu entscheiden; diese Records entfernen kein Zeitprädikat.

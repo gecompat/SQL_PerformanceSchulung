@@ -133,9 +133,11 @@ Governance-/Projektvalidatoren und fünf Frameworkprüfungen bestanden ebenfalls
 Unabhängige Reviews führten zu Gegenproben für ungültige Ausführungstypen und
 Ziel-/Zeitanker des gesonderten Zustandsclaims. Die finale Bindung wird vor
 Integration unabhängig überprüft.
-Danach folgt das konkrete explizite Methodenentscheidungspaket mit
-Acquisition-/Floatregel, tatsächlicher Freeze-/Host-/Zugangsgrenze und
-durchführbarem Kostenplan vor gemeinsam versionierter Umsetzung. Ein
+Das konkrete [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
+ist inzwischen vorbereitet: Acquisition-/Floatkandidat, tatsächliche Freeze-/
+Host-/Zugangsgrenze und Kostenplan mit weiterhin offenen Gates. Nächster
+ausführbarer Schnitt ist ein Offline-Bundle-/Importpfad-Verifier ohne SQL.
+Vor gemeinsam versionierter Umsetzung bleibt die Methodenentscheidung offen. Ein
 synthetisches PASS schließt keines dieser Runtimegates. v1, G13, DEC-068,
 historische FAILs, PR68 und der zurückgestellte API-Schnitt bleiben erhalten.
 Incident-, Ursachen-, Mitigations-, Capstone-, Teilnehmer- und Szenariofreigabe

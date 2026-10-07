@@ -171,5 +171,7 @@ Der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) ist 
 Callerfassung und kollektive QS-Buckets sind unter getrennten Herkunfts-/
 Zählprämissen bedingt ableitbar, kontinuierliches RW/ALL nicht. Der heutige
 Pfad attestiert noch keine vollständige Bundle-/Zugangs-/Hostgrenze oder
-Acquisition-/Floatregel. Als Nächstes folgt das begrenzte reine Sättigungs-/
-Acquisition-Gegenmodell; keine Methoden- oder Runtimefreigabe.
+Acquisition-/Floatregel. Das [Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
+ist implementiert und das [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
+vorbereitet. Nächster ausführbarer Schnitt ist ein Offline-Bundle-/Importpfad-
+Verifier; keine Methoden- oder Runtimefreigabe.
