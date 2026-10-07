@@ -67,14 +67,16 @@ Die Evidenztabelle unterscheidet die drei Strategien über die Werte `CATCHALL`,
 ## 8. Erwartete Beobachtung
 
 - Baseline: genau eine Planform für drei Kombinationen; 20, 19 980 und 4 000 Trefferzeilen.
-- Demonstration: identische Ergebnisse und Checksummen wie die Baseline, jedoch weniger logische Lesevorgänge für den selektiven Wert.
-- Observation: je 25 gezählte Ausführungen, unveränderte Planformzahl für die Catch-all-Variante und höhere CPU je Ausführung für die neu optimierte Variante.
+- Demonstration: identische Ergebnisse und Checksummen wie die Baseline; ein möglicher Vorteil bei den logischen Lesevorgängen für den selektiven Wert wird gemessen. Bleibt er aus, folgt `WARN_EMPIRICAL_VARIANCE`.
+- Observation: je 25 gezählte Ausführungen und unveränderte Planformzahl für die Catch-all-Variante; der CPU-Aufwand der neu optimierten Variante wird bei identischer Arbeitsmenge verglichen. Eine nicht von der Messstreuung trennbare Richtung folgt als `WARN_EMPIRICAL_VARIANCE`.
 - Mitigation: zwei Statementformen für drei Ausführungen, keine Filterwerte im zwischengespeicherten Statementtext, kontrollierte Abweisung einer unbekannten Filterdefinition.
 - Comparison: durchgängige Ergebnisgleichheit über alle drei Strategien bei unverändert einer Catch-all-Planform.
 
 ## 9. Interpretation
 
-Die Catch-all-Formulierung ist nicht falsch, sondern bindet sich an eine einzige Planform, die für alle Selektivitäten gleich gut oder gleich schlecht passt. `OPTION (RECOMPILE)` löst diese Bindung und zahlt dafür mit Compilearbeit je Ausführung; das lohnt sich bei stark schwankender Selektivität und seltenen Ausführungen, nicht bei hoher Ausführungsfrequenz. Sicheres dynamisches SQL trennt die Filterform von den Werten: Es begrenzt die Zahl der Statementformen auf die Zahl der Filterformen und bleibt durch Parameterbindung injektionssicher. Die Strategiewahl folgt damit Verteilung, Ausführungsfrequenz, Wartbarkeit und Sicherheit.
+Die Catch-all-Formulierung verwendet in dieser kontrollierten Baseline eine wiederverwendete Planform. Ihre Eignung kann zwischen den Selektivitäten unterscheiden. `OPTION (RECOMPILE)` ermöglicht eine Optimierung mit den aktuellen Werten und erzeugt dafür Compilearbeit je Ausführung. Ob sich dies lohnt, ist anhand der Verteilung, Ausführungsfrequenz und tatsächlichen Messung zu beurteilen. Sicheres dynamisches SQL trennt die Filterform von den Werten: Es begrenzt im gezeigten Aufbau die Zahl der Statementformen auf die Zahl der Filterformen und bindet Werte als Parameter. Die Strategiewahl berücksichtigt außerdem Wartbarkeit und Sicherheit; die Demo begründet keine allgemeine Rangfolge.
+
+Der [Matrixlauf vom 2026-08-29](../../../Documentation/Project_Planning/ADV_008_QRY_004_REVIEW.md) lieferte auf 2019/150, 2022/160 und 2025/170 jeweils zweimal `WARN_EMPIRICAL_VARIANCE`, weil für den selektiven Wert kein Read-Vorteil durch Recompile beobachtet wurde. Ergebnis-, Sicherheits-, Wiederverwendungs- und Cleanup-Verträge waren erfüllt. Dieser historische Befund ist auch in der Sprechernotiz von `SLD-M03-112` enthalten; er ist keine neue Runtimeprüfung des aktuellen Repository-Stands.
 
 ## 10. Cleanup und Wiederherstellung
 

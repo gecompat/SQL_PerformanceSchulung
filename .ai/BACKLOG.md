@@ -164,6 +164,10 @@ Der kanonische aktuelle Fortschritt, die Abhängigkeiten und der nächste ausfü
 - [x] `TST-011` statischen Validator für Manifest, SlideKeys, Custom Shows, Abhängigkeiten, Links, Quellen und Demo-IDs implementieren.
 - [x] `TST-012` Render-, Notes-, Metadaten-, Privacy- und Branding-Abnahme für jede freigegebene Variante implementieren.
 - [x] Trainer-Runbook um Auswahl und Start der Custom Shows sowie Erzeugung eigenständiger Varianten ergänzen.
+- [x] Orientierung und Ergebnisdarstellung der vorhandenen Demo-Einstiege korrigieren; historische Runtime-Nachweise der 22 katalogisierten Demos mit Datum, Run-Commit, Versions-Skips und empirischen Warnungen im bestehenden Katalog einordnen.
+- [x] `PRS-010`, `CUR-007`, `CUR-008`, `DOC-002` und `DOC-003`: [repräsentative Generalprobe](../Documentation/Project_Planning/PRS_010_REHEARSAL_PLAN.md) mit Ablauf, Aufgaben, Musterantworten, Beobachtungsbogen und Abbruch-/Cleanup-Pfad vorbereiten; neun ausgewählte Folien und Notes am aktuellen Deck-Hash prüfen. Dies erledigt ausschließlich die Vorbereitung.
+- [ ] Die vorbereitete Teilnehmer-Generalprobe tatsächlich durchführen, Istzeiten und selbstständigen Transfer datensparsam auswerten sowie verbleibende Projektions- und Recoveryprüfungen belegen.
+- [ ] `PRS-010` anschließend durch eine dokumentierte Generalprobe des vollständigen gewählten Kursprofils abschließen; der repräsentative Pilot allein ist keine vollständige Schulungs- oder Releaseabnahme.
 
 ## P2 - External Tables und Graph Tables
 

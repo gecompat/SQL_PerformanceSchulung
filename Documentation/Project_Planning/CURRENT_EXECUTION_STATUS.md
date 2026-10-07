@@ -36,6 +36,8 @@ nicht auf. Das Gesamtprojekt und die offenen fachlichen Gates sind nicht abgesch
 
 ### Geordnete offene Schritte
 
+Der ausdrückliche Auftrag vom 2026-10-07 zur Demo-Orientierung und Vorbereitung der Schulungsabnahme ist ein begrenzter Dokumentationsschnitt. Der [Demo-Katalog](../Demo_Catalog/README.md) ordnet historische Nachweise ein; der [Generalprobenplan](PRS_010_REHEARSAL_PLAN.md) enthält die vorbereitete Auswahl und eine getrennte Folien-/Notes-Prüfung. Eine Teilnehmer-Generalprobe wurde nicht durchgeführt; zur Aufarbeitung der Nachweise wurde keine lokale oder manuell angestoßene SQL-Runtime ausgeführt. Automatisch durch den Pull Request ausgelöste bestehende CI-Prüfungen bleiben an ihren eigenen Run-Commit gebunden und ersetzen keine Teilnehmerabnahme. Die allgemeine Entwicklungspause, offene DGN-007-Gates und pausierte Automation bleiben bestehen; dieser Auftrag reaktiviert sie nicht.
+
 1. Nach ausdrücklicher Wiederaufnahme zuerst den vollständig erhaltenden
    Darstellungs- und Digestvertrag separat entwerfen und unabhängig reviewen.
    Gemeinsame Metadata, Berichte und alle kanonischen Digestpräbilder müssen
