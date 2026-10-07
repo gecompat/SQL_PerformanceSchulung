@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `6ba3354e60016f5c1ba0f8cc86c7ac1a0dcf981a` auf `origin/main` (Pull Request 63) |
+| geprüfter Repository-Basisstand | `94ed561b91d8f9958a69e08726d2a748181d3c79` auf `origin/main` (Pull Request 64) |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -163,11 +163,21 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    19 Transporttests und beide Validatoren bestanden lokal, ebenso die
    34 Prospektivtests. Fehlende Ergebniszeilen je Request bleiben ausdrücklich
    `NOT_CAPTURED`/`None`; auch `MEASURED` ist nur eine Eingabedeklaration.
-   Kein vollständiger RunRecord, keine SQL-Runtime-Abnahme. Nächster kleiner
-   Schnitt ist der SQL-Producer mit tatsächlich erfassten Ergebniszeilen je
-   Request und vollständiger skalarer Projektion vor Cleanup. Danach folgt
-   der Coordinator mit verifiziertem Freeze, Ressourcen-/Reihenfolgeprüfung
-   und unabhängigem Cleanup; erst dann frische Bestätigungsläufe.
+   Dieser reine Decoder bildet keinen vollständigen RunRecord. Der getrennte
+   [SQL-Producer](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/SQL_CAPTURE_PRODUCER.md)
+   erfasst jetzt tatsächlich gezählte Ergebniszeilen je Request und stellt
+   die vollständige skalare Projektion vor Cleanup bereit. Die neue lokale
+   Matrix bestand am 2026-10-07 auf 2019/150, 2022/160 und 2025/170 je zweimal
+   AB/BA/AA: insgesamt 18 vollständige Lifecycles mit tatsächlichem Decoder
+   und unabhängiger Datenbankabwesenheit. Alle drei eigenen Container sind
+   unabhängig abwesend bestätigt. Quellenfreeze, genaue Versions-/Imagebindung
+   und getrennte frühere Fehlversuche stehen im
+   [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
+   146 lokale Testmethoden ergaben 145 PASS und einen ausdrücklich
+   Linux-spezifischen SKIP unter Windows. Nächster kleiner Schnitt ist der
+   Collector-Coordinator mit verifiziertem Freeze, Ressourcen, tatsächlicher
+   Reihenfolge, präzisen Zeitbudgets und unabhängigem Cleanup. Erst danach
+   folgen frische prospektive Bestätigungsläufe.
    Die bisherigen Captures belegen keine Regression, Ursache, Mitigation oder
    Capstone-Freigabe.
    Der Compatibility-Vorfix ersetzt im älteren Teilnehmerpfad die ungültige

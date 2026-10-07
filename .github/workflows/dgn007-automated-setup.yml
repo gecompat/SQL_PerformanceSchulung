@@ -8,6 +8,16 @@ on:
       - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql'
       - 'Scenarios/DGN-007/adapter/sql/validate.sql'
       - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Contracts/dgn007_capture_projection.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Tests/Static/test_dgn007_capture_projection.py'
+      - 'Tests/Static/validate_dgn007_capture_projection.py'
+      - 'Tests/Static/test_dgn007_collector_transport.py'
+      - 'Tests/Static/validate_dgn007_collector_transport.py'
+      - 'Tests/Static/test_dgn007_prospective_acceptance.py'
+      - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
       - 'Tests/Runtime/run_dgn007_automated_setup.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
@@ -31,6 +41,16 @@ on:
       - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql'
       - 'Scenarios/DGN-007/adapter/sql/validate.sql'
       - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Contracts/dgn007_capture_projection.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Tests/Static/test_dgn007_capture_projection.py'
+      - 'Tests/Static/validate_dgn007_capture_projection.py'
+      - 'Tests/Static/test_dgn007_collector_transport.py'
+      - 'Tests/Static/validate_dgn007_collector_transport.py'
+      - 'Tests/Static/test_dgn007_prospective_acceptance.py'
+      - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
       - 'Tests/Runtime/run_dgn007_automated_setup.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
@@ -85,6 +105,14 @@ jobs:
         run: |
           python Tests/Static/validate_dgn007_control_capture.py
           python Tests/Static/test_dgn007_control_capture.py
+      - name: Skalare SQL-Projektion und tatsächlichen Decoder prüfen
+        run: |
+          python Tests/Static/validate_dgn007_capture_projection.py
+          python Tests/Static/test_dgn007_capture_projection.py
+          python Tests/Static/validate_dgn007_collector_transport.py
+          python Tests/Static/test_dgn007_collector_transport.py
+          python Tests/Static/validate_dgn007_prospective_acceptance.py
+          python Tests/Static/test_dgn007_prospective_acceptance.py
       - name: SQL-Readiness und Kontinuität prüfen
         run: |
           python Tests/Static/validate_sql_container_readiness.py
@@ -196,7 +224,7 @@ jobs:
         run: |
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope control-ab \
+            --scope control-ab --check-capture-projection \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
@@ -206,7 +234,7 @@ jobs:
         run: |
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope control-ba \
+            --scope control-ba --check-capture-projection \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
@@ -216,7 +244,7 @@ jobs:
         run: |
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope control-aa \
+            --scope control-aa --check-capture-projection \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \

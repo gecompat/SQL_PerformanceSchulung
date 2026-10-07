@@ -19,6 +19,16 @@ TRIGGER_PATHS = {
     "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql",
     "Scenarios/DGN-007/adapter/sql/validate.sql",
     "Demos/00_Framework/Tools/**",
+    "Tests/Contracts/dgn007_capture_projection.py",
+    "Tests/Contracts/dgn007_collector_transport.py",
+    "Tests/Contracts/dgn007_prospective_acceptance.py",
+    "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json",
+    "Tests/Static/test_dgn007_capture_projection.py",
+    "Tests/Static/validate_dgn007_capture_projection.py",
+    "Tests/Static/test_dgn007_collector_transport.py",
+    "Tests/Static/validate_dgn007_collector_transport.py",
+    "Tests/Static/test_dgn007_prospective_acceptance.py",
+    "Tests/Static/validate_dgn007_prospective_acceptance.py",
     "Tests/Runtime/run_dgn007_automated_setup.py",
     "Tests/Runtime/execution_target.py",
     "Tests/Runtime/docker_sqlcmd_proxy.py",
@@ -170,7 +180,8 @@ def runner_findings(text: str) -> list[str]:
         if marker not in literals:
             findings.append(f"Runner-Vertrag fehlt: {marker}")
     if "--show-output" in literals:
-        findings.append("Runner darf den SQL-Rohoutput nicht ausgeben")
+        from validate_dgn007_capture_projection import runner_projection_findings
+        findings.extend(runner_projection_findings(text))
     if "--password" in literals or "-P" in literals:
         findings.append("Runner darf kein Passwortargument unterstützen")
     if "SQLPERF_LAB_DGN007_AUTO" not in literals:

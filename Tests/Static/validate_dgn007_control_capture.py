@@ -120,6 +120,14 @@ def window_sql_findings(sql: str) -> list[str]:
         base = BASE_WINDOWS.read_text(encoding="utf-8")
         parameter_block = base[base.index("CREATE TABLE #Parameters"):base.index("CREATE TABLE #Actual")]
         canonical = replace_section(replace_section(sql, "SEQUENCE_GUARD"), "PARAMETERS", parameter_block)
+        # Der Producer-Validator prüft diese neuen Abschnitte zusätzlich streng.
+        # Außerhalb davon bleibt die vollständige Gleichheit zu 20 erhalten.
+        from validate_dgn007_capture_projection import capture_section, request_capture_findings
+        findings.extend(request_capture_findings(sql))
+        for name in ("FRESH_GUARD", "REQUEST_SCHEMA", "REQUEST_MEASUREMENT"):
+            capture_section(canonical, name)
+            canonical = re.sub(r"/\* CAPTURE_" + name + r"_BEGIN \*/.*?/\* CAPTURE_" + name + r"_END \*/",
+                               "", canonical, flags=re.DOTALL)
         if normalized(canonical) != normalized(base):
             findings.append("Kontrollfenster ändern ausführbaren Code außerhalb der beiden erlaubten Blöcke")
         findings.extend(window_findings(canonical))
@@ -132,8 +140,16 @@ def window_sql_findings(sql: str) -> list[str]:
 
 def evidence_sql_findings(sql: str) -> list[str]:
     try:
+        from validate_dgn007_capture_projection import projection_sql_findings, capture_section
+        projection_findings = projection_sql_findings(sql)
+        capture_section(sql, "PROJECTION")
+        sql = re.sub(r"/\* CAPTURE_PROJECTION_BEGIN \*/.*?/\* CAPTURE_PROJECTION_END \*/",
+                     "", sql, flags=re.DOTALL)
+        capture_section(sql, "REQUIRED_GUARD")
+        sql = re.sub(r"/\* CAPTURE_REQUIRED_GUARD_BEGIN \*/.*?/\* CAPTURE_REQUIRED_GUARD_END \*/",
+                     "", sql, flags=re.DOTALL)
         code = normalized(sql)
-        findings = sequence_findings(sql)
+        findings = [*projection_findings, *sequence_findings(sql)]
         findings.extend(safety_prefix_findings(sql, "DECLARE @ObjectId"))
         findings.extend(ownership_findings(uncomment(sql)[:uncomment(sql).find("DECLARE @ObjectId")]))
         for marker in (*REQUIRED_SQL[:16], *EVIDENCE_MARKERS):
