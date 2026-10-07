@@ -173,5 +173,6 @@ Zählprämissen bedingt ableitbar, kontinuierliches RW/ALL nicht. Der heutige
 Pfad attestiert noch keine vollständige Bundle-/Zugangs-/Hostgrenze oder
 Acquisition-/Floatregel. Das [Gegenmodell](DGN_007_SATURATION_COUNTERMODEL.md)
 ist implementiert und das [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
-vorbereitet. Nächster ausführbarer Schnitt ist ein Offline-Bundle-/Importpfad-
-Verifier; keine Methoden- oder Runtimefreigabe.
+vorbereitet. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md) ist
+statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche Importumgebung
+bleiben Folgearbeit. Keine Methoden- oder Runtimefreigabe.

@@ -284,8 +284,9 @@ Das getrennte [Sättigungs-/Acquisition-Gegenmodell](DGN_007_SATURATION_COUNTERM
 prüft jetzt synthetische Ausführungstokens, keine Runtimeidentitäten.
 Das konkrete [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md)
 ist vorbereitet: alle Acquisition-/Float-, Vertrauens-/Host-/Zugangs- und
-Kostengates bleiben offen. Nächster ausführbarer Schnitt ist ein Offline-Bundle-/
-Importpfad-Verifier ohne SQL oder Launcher. Erst danach folgt die tragfähige Entscheidung vor gemeinsam
+Kostengates bleiben offen. Der [Offline-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
+ist statisch implementiert; Prozess-/Manifestdatenkanten und tatsächliche
+Importumgebung bleiben Folgearbeit ohne SQL oder Launcherstart. Erst danach folgt die tragfähige Entscheidung vor gemeinsam
 versionierter SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung.
 Alle drei Zeitbeziehungen QS↔SYSUTC, QS↔Katalog und SYSUTC↔Katalog bleiben
 gesondert zu entscheiden; diese Records entfernen kein Zeitprädikat.

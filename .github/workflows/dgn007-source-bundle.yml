@@ -1,0 +1,91 @@
+name: DGN-007 Offline-Quellenbundle
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Static/test_dgn007_source_bundle.py'
+      - 'Documentation/Project_Planning/DGN_007_SOURCE_BUNDLE_VERIFIER.md'
+      - '.github/workflows/dgn007-source-bundle.yml'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Demos/00_Framework/Tools/orchestrate_sessions.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Contracts/dgn007_capture_projection.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/00_Preflight.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/10_Setup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AB.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_BA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/21_Controlled_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/30_Profile_Comparison.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/35_Control_Evidence.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/40_Data_Assertion.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/90_Cleanup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/setup.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/windows.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/profile-comparison.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ab.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ba.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-aa.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Static/test_dgn007_source_bundle.py'
+      - 'Documentation/Project_Planning/DGN_007_SOURCE_BUNDLE_VERIFIER.md'
+      - '.github/workflows/dgn007-source-bundle.yml'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Demos/00_Framework/Tools/orchestrate_sessions.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Contracts/dgn007_capture_projection.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/00_Preflight.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/10_Setup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AB.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_BA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/21_Controlled_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/30_Profile_Comparison.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/35_Control_Evidence.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/40_Data_Assertion.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/90_Cleanup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/setup.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/windows.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/profile-comparison.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ab.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ba.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-aa.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-source-bundle-${{ github.workflow }}-${{ github.ref }}
+  # Ausschließlich eigene temporäre Git-/Dateifixtures, keine SQL-Ressourcen.
+  cancel-in-progress: true
+
+jobs:
+  source-bundle:
+    name: DGN-007 Offline-Bundle-Gegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Gebundene Kandidaten und Manipulationen prüfen
+        run: python -B Tests/Static/test_dgn007_source_bundle.py
