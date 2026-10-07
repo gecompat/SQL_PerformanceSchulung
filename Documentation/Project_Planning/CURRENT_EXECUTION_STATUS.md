@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `da7b0eb7c3bfb5238141c34520b237228ca77085` auf `origin/main` (Pull Request 65) |
+| geprüfter Repository-Basisstand | `a0bc753d4c1fe492ba3c875bdefea5c00d8235b4` auf `origin/main` (Pull Request 66); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -187,7 +187,32 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Die zwei historischen CI-Fehler bleiben im Producernachweis getrennt
    dokumentiert; ihre Ursache ist unbekannt. Die Diagnostik ändert weder
    SQL-Prädikate noch Budgets und behauptet keine Fehlerbehebung.
-   Nächster kleiner Schnitt ist die interne verlustfreie Capture-Rückgabe:
+   Die anschließend getrennte Main-Push-CI am Squash `da7b0eb…` ist vollständig
+   beendet: 12 von 13 Workflows und 47 von 48 Jobs SUCCESS. Im
+   [DGN-007-Lauf 37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)
+   scheiterte SQL Server 2022 im zweiten BA-Lifecycle mit
+   `CONTROL_EVIDENCE / FAIL_RESULT_CONTRACT / G13`; dieser Guard prüft
+   gespeicherte Query-Store-Zeiten gegen `ExecutionStarted/ExecutionFinished`.
+   Alle zehn begonnenen 2022-Datenbankabwesenheitsprüfungen und der eigene
+   Containerabbau einschließlich expliziter CID-Abwesenheit bestanden.
+   2019/2025 bestanden jeweils zwölf Lifecycles und sechs Decoder-Captures.
+   Das ist ein neuer tatsächlicher Runtime-Vertragsfehler, keine vollständige
+   Main-CI-Freigabe und keine Aufhebung der erfolgreichen PR65-Abnahme.
+   Welche Grenze verletzt wurde und weshalb, ist noch nicht belegt.
+   Die getrennte private 2022-Gegenprobe bestand anschließend den CI-Präfix
+   Datenmodell, Fenster, Profil, AB und BA je zweimal: zehn Lifecycles,
+   vier Decoder-Captures, zehn Abwesenheitsprüfungen und fünf zusätzliche
+   Gruppen-Leerheitsprüfungen PASS. Die eigene Instanz ist unabhängig abwesend;
+   alle 21 Freeze-Dateien blieben gleich. G13 wurde nicht reproduziert und
+   es liegen keine tatsächlichen G13-Zeitwerte vor. Zwei vorherige synthetische
+   Probe-Vorchecks scheiterten vor jedem Lifecycle; ihre Defekte und ihr
+   unabhängig bestätigter Cleanup stehen im Producernachweis getrennt.
+   Nächster Schnitt ist der begrenzte kanonische G13-Grenzabstandsbericht,
+   ausschließlich im bereits verletzten Fehlerzweig, mit strenger Kanalbindung
+   und Ausgabe erst nach Cleanup. Guards, Last und Budgets bleiben gleich.
+   Keine identische Wiederholung oder Toleranzkorrektur ohne neue Evidenz. Die interne Capture-Rückgabe ist lokal vorbereitet und unabhängig
+   geprüft, ihre Veröffentlichung und Integration sind zunächst zurückgestellt.
+   Nach der G13-Klärung folgt die interne verlustfreie Capture-Rückgabe:
    den vollständigen Body und tatsächlich geprüfte Phasen übernehmen,
    Rückgabe erst nach erfolgreichem Harness-Cleanup und erstem erfolgreichen
    unabhängigen Abwesenheitscheck. Counts, CLI und Fehlerprioritäten bleiben

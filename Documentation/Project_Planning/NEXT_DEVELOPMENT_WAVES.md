@@ -140,7 +140,42 @@ Main und lokale/remote Bereinigung des eigenen Branches sind bestätigt.
 Die zwei historischen CI-Fehler bleiben getrennt dokumentiert, ohne
 behauptete Ursache oder Behebung. SQL-Prädikate und Budgets bleiben gleich.
 
-Nächster kleiner Schnitt ist die interne verlustfreie Capture-Rückgabe:
+Die getrennte Main-Push-CI am Squash `da7b0eb…` ist danach vollständig
+beendet: 12/13 Workflows und 47/48 Jobs SUCCESS, ausschließlich SQL Server
+2022 im zweiten BA-Lifecycle `CONTROL_EVIDENCE / FAIL_RESULT_CONTRACT / G13`.
+Alle zehn begonnenen 2022-Abwesenheitsprüfungen und der ownergebundene
+Containerabbau einschließlich expliziter CID-Abwesenheit bestanden.
+2019/2025 bestanden je zwölf Lifecycles und sechs Captures. Der neue Fehler
+ist von der erfolgreichen PR65-Integration und den zwei historischen
+CI-Fehlern getrennt zu bewerten; seine skalare Ursache ist offen.
+
+Die private skalare Probe ist als begrenzte Gegenprobe abgeschlossen: auf
+neuer eigener 2022-Instanz mit CI-Imagebindung und tatsächlicher Version
+`16.0.4295.3` bestanden Datenmodell, Fenster, Profil, AB und BA jeweils zweimal,
+insgesamt zehn Lifecycles und vier Decoder-Captures. Zehn unabhängige
+Datenbankabwesenheitsprüfungen, fünf Gruppen-Leerheitsprüfungen, Quellenfreeze
+mit 21 Dateien und unabhängiger own-CID-/Namensabbau bestanden. G13 wurde
+nicht reproduziert; es liegen keine tatsächlichen verletzten Grenzabstände vor.
+Zwei frühere private synthetische Vorchecks scheiterten vor jedem Lifecycle;
+Defekte und unabhängiger Cleanup bleiben im Producernachweis getrennt.
+Kein Main-, Incident- oder Behebungsnachweis; AA wurde nicht ausgeführt.
+
+Nächster belegpflichtiger Schnitt ist ein eigener kanonischer Diagnosebericht,
+keine identische Wiederholung: maximal acht gespeicherte verletzte
+Profilgruppen, exakte UTC-Ticks und Grenzabstände ausschließlich im bereits
+ausgelösten G13-Fehlerzweig. Der Runner bindet diese Metadaten an tatsächliches
+stderr, die eindeutige fehlgeschlagene Kontroll-Evidenzphase und den
+unveränderten Guard-/Summary-Abschluss; Ausgabe erst nach Cleanup.
+Keine zusätzliche Query-Store-Sicht, keine Prädikat-, Last-, Zeitbudget- oder
+Outcomeänderung. Reporterentfernung muss den gesamten bisherigen SQL35
+ergeben; Quellenbindung, sinnvolle synthetische SQL-/Parserfixtures und neue
+exakte Head-/Base-CI sind erforderlich. Dieser Schnitt schließt eine Messlücke
+und behauptet keine Fehlerbehebung. Danach werden tatsächliche G13-Werte
+beurteilt; kein spekulativer Toleranzfix oder wiederholen bis grün.
+
+Die interne verlustfreie Capture-Rückgabe ist lokal vorbereitet und geprüft;
+Veröffentlichung und Integration sind bis zur G13-Klärung zurückgestellt.
+Danach folgt der geplante API-Schnitt:
 Body, tatsächlich geprüfte Phasen und erfolgreiche erste unabhängige
 Datenbankabwesenheit über denselben Harness erhalten. Rückgabe erfolgt
 nur nach erfolgreichem Lifecycle und Cleanup; erfolgreiche Recovery
