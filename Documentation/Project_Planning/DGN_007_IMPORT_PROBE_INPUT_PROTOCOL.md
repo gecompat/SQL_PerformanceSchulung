@@ -72,14 +72,21 @@ alle 27 Methoden unter Python 3.12.14 auf Windows ohne SKIP erfolgreich:
 Die letzte vollständige Ausführung dauerte 28,514 s. Der Scope umfasst auch
 einen tatsächlichen Dateiaustausch nach dem Freeze und ein commitgebundenes
 zusätzliches ausführbares AST, das vor der Vorbereitung abgelehnt wird.
-Der PR-/Main-CI-Nachweis steht für diesen Quellstand noch aus. Der Slice attestiert
+PR82 integrierte diesen Quellstand als Squash `d02b13bc4acc713a12886bf2daad0e00a3f8114d`.
+Die getrennten Linux-CI-Runs [PR82](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37627975334)
+und [Main](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37628434498)
+bestanden jeweils alle 27 Eingangsprotokoll-, 36 Bundle- und 26 Kantentests ohne SKIP.
+Der Slice attestiert
 weder verwendete Importbytes noch Importabschluss oder Prozesscleanup.
 `runtime_attested`, `import_used_bytes_attested` und Methodenfreigabe bleiben
 false. G13, v1, DEC-068, die offene PR68 und die zurückgestellte Capture-API
 bleiben erhalten; es entsteht kein Incident- oder Capstonebeleg.
 
-Als nächster Teil folgen das konkrete vertrauenswürdige Interpreter-/Stdlibprofil,
-der kontrollierte Rohbyte-Loader, bindende Beginn-/Abschlussreceipts und eigene
+Die getrennte [synthetische Memory-Loader-Komponente](DGN_007_MEMORY_LOADER_FIXTURE.md)
+erprobt inzwischen Compile/Exec fester harmloser Fixturebytes und ihre objektgebundenen
+Beginn-/Abschlussreceipts. Sie verwendet keinen `PreparedInput` und führt keine DGN-Quelle aus.
+Als nächste Teile folgen das konkrete vertrauenswürdige Interpreter-/Stdlibprofil,
+die feste Quellenauflösung, tatsächliche DGN-Loaderverwendung und Importabschluss sowie eigene
 Linux-Worker mit gemeinsam begrenzter Aufnahme und unabhängig überprüftem Cleanup.
 Erst tatsächlich abgeschlossene Imports dürfen einen gesonderten Import-Only-Claim
 tragen. Der Entwurf bleibt für diese noch nicht implementierten Grenzen maßgeblich.

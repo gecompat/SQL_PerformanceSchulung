@@ -5,6 +5,9 @@ on:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
       - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_memory_loader_fixture.py'
+      - 'Tests/Static/test_dgn007_memory_loader_fixture.py'
+      - 'Documentation/Project_Planning/DGN_007_MEMORY_LOADER_FIXTURE.md'
       - 'Tests/Tools/dgn007_import_probe_input.py'
       - 'Tests/Static/test_dgn007_import_probe_input.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md'
@@ -45,6 +48,9 @@ on:
     paths:
       - 'Tests/Tools/dgn007_source_bundle.py'
       - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_memory_loader_fixture.py'
+      - 'Tests/Static/test_dgn007_memory_loader_fixture.py'
+      - 'Documentation/Project_Planning/DGN_007_MEMORY_LOADER_FIXTURE.md'
       - 'Tests/Tools/dgn007_import_probe_input.py'
       - 'Tests/Static/test_dgn007_import_probe_input.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md'
@@ -86,7 +92,7 @@ permissions:
 
 concurrency:
   group: dgn007-source-bundle-${{ github.workflow }}-${{ github.ref }}
-  # Ausschließlich eigene temporäre Git-/Dateifixtures, keine SQL-Ressourcen.
+  # Eigene Git-/Dateifixtures und feste synthetische Loaderbytes, keine SQL-Ressourcen.
   cancel-in-progress: true
 
 jobs:
@@ -105,3 +111,5 @@ jobs:
         run: python -B Tests/Static/test_dgn007_execution_edges.py
       - name: Eingangsrahmung und Kontextmanipulationen prüfen
         run: python -B Tests/Static/test_dgn007_import_probe_input.py
+      - name: Feste Memory-Loader-Fälle und Abschlussbindungen prüfen
+        run: python -B Tests/Static/test_dgn007_memory_loader_fixture.py

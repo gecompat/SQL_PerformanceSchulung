@@ -199,8 +199,12 @@ Cleanup UNKNOWN lassen; kein allgemeiner Kernel-, Speicher- oder Harddeadlinecla
 
 Der erste Implementierungsteil ist jetzt das getrennte
 [Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md). Es bereitet nur
-gebundene Bytes und binäre Rahmung vor. Die folgenden Worker-/Loadergrenzen,
-tatsächliche Importreceipts und Cleanup bleiben unimplementierter Folgescope.
+gebundene Bytes und binäre Rahmung vor. Die getrennte
+[synthetische Memory-Loader-Komponente](DGN_007_MEMORY_LOADER_FIXTURE.md)
+erprobt inzwischen tatsächliches Compile/Exec ausschließlich fester harmloser
+Fixturebytes und ihre objektgebundenen Beginn-/Abschlussreceipts. Sie ist kein
+DGN-Import- oder Auflösungsnachweis. Die folgenden vollständigen Worker-/Loadergrenzen,
+tatsächliche DGN-Importreceipts und Cleanup bleiben unimplementierter Folgescope.
 
 | Gegenprobe | Erforderliches Ergebnis |
 |---|---|
