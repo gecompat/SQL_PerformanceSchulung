@@ -4,7 +4,7 @@
 |---|---|
 | Stand | 2026-10-07 |
 | Repositorybasis | `e75baeb811c1a9973198200c94aa37a795d64b1a` nach PR85 |
-| Status | `DESIGNED`; keine Implementierung oder Workerroute |
+| Status | `DESIGNED`; reiner Matcher separat implementiert, Workerroute offen |
 | Vorgesehener Teilclaim | `MATCHED_REPORTED_DECLARATION` |
 | Geltung | `PROJECT_SEMANTIC`; deklarierter skalarer Vergleich |
 | Grenze | keine Trust-, Worker-, UsedBytes-, Cleanup-, SQL- oder Methodenattestation |
@@ -14,8 +14,9 @@ Dieser Entwurf verbindet das unveränderte
 [Profilvorschnitt](DGN_007_IMPORT_RUNTIME_PROFILE.md). Er konkretisiert die
 nächste Vorbereitung des [Importentwurfs](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md).
 Die neun DGN-Quellen und alle 27 Bundlemember bleiben unverändert.
-Der nächste Codeschnitt soll ausschließlich skalare Deklarationen und Berichte
-prüfen; er startet keinen Worker und importiert keine Kandidatenquellen.
+Der getrennte [reine Matcher](DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md) prüft
+ausschließlich skalare Deklarationen und Berichte; er startet keinen Worker
+und importiert keine Kandidatenquellen.
 
 ## 1. Bestehende Grenzen und dokumentierte Fakten
 
@@ -74,7 +75,7 @@ dürfen daraus nicht nachträglich ergänzt werden.
 
 ## 3. Vorgesehene skalare DTOs und API
 
-Alle folgenden Namen sind Vorschläge für noch nicht vorhandenen Code. DTOs
+Die folgenden skalaren Formen sind im getrennten reinen Matcher umgesetzt. DTOs
 sind frozen Records aus exakten primitiven Typen, begrenzten Tupeln und Bytes;
 keine Livepointer, Callables, freien Mappings oder ausführbaren Quellen.
 
@@ -85,7 +86,7 @@ keine Livepointer, Callables, freien Mappings oder ausführbaren Quellen.
 | `BindingContext` | Commit, Raw27-Bindung, Quellenprofil, Nonce und neun geordnete Name/Member/Hash-Zuordnungen aus dem separat gehaltenen `PreparedInput`; Ordinal/Einstieg/Phase aus der Kontrollauswahl |
 | `ReportedProfile` | berichteter Kontext und vollständige skalare Installations-/Inventurfelder; keine vom Sender auswählbare erwartete Deklaration |
 
-Die vorgesehene reine Funktion lautet
+Die implementierte reine Funktion lautet
 `match_reported_profile(expected, reported, context)`.
 Sie prüft zuerst jede Form und alle Grenzen, dann interne Konsistenz und
 Gleichheit gegen die separat gehaltenen Erwartungen. Ein später ungültiger
@@ -217,7 +218,7 @@ Sie enthalten keine absoluten Pfade, Rohfehler, Quelltexte oder Noncewerte.
 `method_approved` bleiben false. Unbekannte oder malformed Pflichtangaben
 erzeugen feste Fehler; bloße JSON-/Bool-/Digestangaben liefern keinen Runtimebeleg.
 
-## 6. Gegenprobenmatrix und Bereitschaft des nächsten Codeschnitts
+## 6. Gegenprobenmatrix und reiner Codeschnitt
 
 | Gegenprobe | Erforderliche Aussage |
 |---|---|
@@ -239,13 +240,14 @@ erzeugen feste Fehler; bloße JSON-/Bool-/Digestangaben liefern keinen Runtimebe
 | gültige Nachricht erneut unter demselben Kontext | skalarer Match kann erneut gelingen; keine Consumption-/Replayattestation |
 | passend berichtete Werte ohne tatsächlichen Worker oder als manipulierte Nachricht | kein Worker-/Kanal-/Beobachtungsbeleg |
 
-Die feste Form aus §3 und Rechnung aus §5 sind Bereitschaftskriterien für den
-reinen DTO-Matcher. Erwartete Workerinventuren werden vom Kontrollaufrufer
+Die feste Form aus §3 und Rechnung aus §5 sind die verbindliche Grundlage des
+reinen DTO-Matchers. Erwartete Workerinventuren werden vom Kontrollaufrufer
 vor dem Bericht gewählt; die Tests verwenden synthetische private Locator und vollständige
 positive/negative Records. Keine neue Runtime oder Produktionsdatenaufnahme.
-Vorgeschlagene spätere Dateien (NICHT VORHANDEN):
-`Tests/Tools/dgn007_import_profile_binding.py` und
-`Tests/Static/test_dgn007_import_profile_binding.py`.
+Die getrennte Implementierung liegt in
+[`dgn007_import_profile_binding.py`](../../Tests/Tools/dgn007_import_profile_binding.py)
+und [`test_dgn007_import_profile_binding.py`](../../Tests/Static/test_dgn007_import_profile_binding.py).
+Validierung und verbleibende Grenzen stehen im [Matcher-Nachweis](DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md).
 
 ## 7. Getrennter späterer Adapter und verbleibende Gates
 

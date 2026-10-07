@@ -7,6 +7,9 @@ on:
       - 'Tests/Tools/dgn007_execution_edges.py'
       - 'Tests/Tools/dgn007_import_runtime_profile.py'
       - 'Tests/Static/test_dgn007_import_runtime_profile.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Static/test_dgn007_import_profile_binding.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
       - 'Tests/Tools/dgn007_memory_loader_fixture.py'
@@ -54,6 +57,9 @@ on:
       - 'Tests/Tools/dgn007_execution_edges.py'
       - 'Tests/Tools/dgn007_import_runtime_profile.py'
       - 'Tests/Static/test_dgn007_import_runtime_profile.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Static/test_dgn007_import_profile_binding.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
       - 'Tests/Tools/dgn007_memory_loader_fixture.py'
@@ -123,3 +129,5 @@ jobs:
         run: python -B Tests/Static/test_dgn007_memory_loader_fixture.py
       - name: Deklariertes Profil und isolierte Bootstrapmetadaten prüfen
         run: python -I -S -B Tests/Static/test_dgn007_import_runtime_profile.py
+      - name: Skalare Profilbindung und gemeinsame Metadatengrenzen prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_import_profile_binding.py
