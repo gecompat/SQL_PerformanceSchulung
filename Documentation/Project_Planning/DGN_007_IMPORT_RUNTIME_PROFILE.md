@@ -154,7 +154,12 @@ Linux-Runtimeerfolg.
 Die Caps aus dem Profilvorschnitt und sämtliche false-Attestationsflags
 bleiben erhalten. Konkrete Workerinventur, Scalarprojektion, kombinierter
 Codec mit gemeinsamem 16-KiB-Budget und tatsächliche Kanal-/Consumptionbindung
-bleiben offen. Ebenso offen bleiben DGN-Loaderverwendung, Importabschluss und
+bleiben offen. Die konkrete Bootstraproute und Feldherkunft sind inzwischen im
+[Profilbindungsentwurf §8](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#8-konkreter-bootstrap--und-projektionsvorschnitt)
+festgelegt. Die geplante Scriptquelle, ihre vollständige separat gewählte
+operative Inventur, importneutrale Projektion und tatsächliche gemeinsame
+Größenprüfung sind noch nicht implementiert oder ausgeführt.
+Ebenso offen bleiben DGN-Loaderverwendung, Importabschluss und
 unabhängiger eigener Worker-Cleanup. Keine SQL-Ausführung, G13-/v1-/DEC-068-
 Änderung, Incident- oder Capstonepromotion.
 
