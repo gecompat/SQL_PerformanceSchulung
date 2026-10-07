@@ -427,8 +427,11 @@ zu prüfende Protokolländerung. Die tatsächliche Darstellbarkeit ist offen.
 | passende skalare Rückgabe ohne tatsächlichen Worker/Kanal | ausschließlich deklarativer Inhalt, keine Worker-/Consumptionattestation |
 
 Die importneutrale Projektion ist als getrennter lokaler Vorschnitt implementiert.
-Die nächsten Implementierungsteile sind die konkret reviewte Bootstrapfixture samt vollständiger separater Sollinventur
-und Größenprüfung sowie danach der kombinierte Codec. Erst deren Abnahme
+Die getrennte Charakterisierung und konservative Untergrenze in §9 schließen die
+heutige Darstellung für deren gesamten Namenumfang aus. Als nächster kleiner
+Schnitt folgt ein separat reviewter Darstellungsentwurf bei unveränderten
+Inhalten und Caps. Danach folgen die konkret reviewte Bootstrapfixture samt
+vorab separater vollständiger Sollinventur, voller Größenprüfung und kombiniertem Codec. Erst deren Abnahme
 ermöglicht die tatsächliche Parent-/Workerroute aus §7. Die neun Runtimequellen,
 DGNI001, alle bestehenden Bounds und false-Attestationsflags bleiben erhalten.
 Kein Workerstart, DGN-Import, SQL-Lauf oder Cleanupnachweis wurde hier ausgeführt.
@@ -448,3 +451,98 @@ Kein Hook/Finder wird dafür ausgeführt. Die prüfbare Struktur ist enger als
 `FunctionType`; unabhängige ursprüngliche Factoryausführung oder unveränderte
 Stdlibbytes werden dadurch weiterhin nicht attestiert. Die operativ separat
 gewählte Workerbaseline und deren spätere Ausführungsbindung bleiben offen.
+
+## 9. Charakterisierte Bootstraproute und Größenuntergrenze
+
+Auf Repositorybasis `2d0ef5c08adff5117eebd11b076cd6745314a94e` nach PR90
+wurde am 2026-10-07 eine getrennte private Offline-Charakterisierung unter
+Linux/CPython 3.12.3 mit `-I -S -B` ausgeführt. Sie verwendete die fünf
+Stdlibimports aus §8 und genau die beiden dort gewählten Kontrollrollen.
+Die bestehende Profilquelle wurde über einen einmaligen begrenzten Rohread
+mit 128-KiB-Cap plus Sentinel und direkte `compile`-/`exec`-Ausführung geladen.
+Spec und SourceFileLoader blieben ausdrücklich gebundene Kontrollmetadaten;
+`exec_module` und `get_code` wurden nicht aufgerufen. `SOABI` und `DESTSHARED`
+wurden vor der Inventur initialisiert. Kein Matcher, Input82, Bundle, Edges
+oder Kandidatenmodul wurde in diesem Bootstrap importiert. Absolute Locator
+und Rohfehler bleiben privat.
+
+Die erste Fassung wurde tatsächlich mit
+`REJECTED_CHARACTERIZATION/OBSERVATION_FAILED` abgewiesen und lieferte keine
+Modulrecords. Eine getrennte Gegenprobe zeigte: Nach den fünf gewählten Imports
+ist `importlib.machinery` noch nicht als Attribut vorhanden, die bereits
+geladene Frozen-Bootstrapnamespace enthält jedoch `SourceFileLoader`.
+Die eng korrigierte Fassung bindet diese gehaltene Klasse vor der Profilquelle
+und prüft danach ihre Identität mit deren `SourceFileLoader`. Sie fügt keinen
+zusätzlichen Import hinzu. Nur dieser geänderte Input wurde erneut ausgeführt.
+Der erste Fehler bleibt ein Fehlversuch, keine erfolgreiche Kalibrierung.
+
+Die korrigierte Fassung lieferte ausschließlich `CHARACTERIZATION_ONLY`:
+85 geordnete Namen, 2 Controls, 24 Builtin-, 16 Frozen-, 41 Source- und
+2 Extensionrecords. Beide Quellbindungen waren vor und nach der Ausführung
+unverändert. Die Profilquelle hatte 26.234 Rohbytes; dies attestiert keine
+bereits ausgeführten Stdlibbytes. Die private Explorerquelle hatte SHA256
+`bb71b434aa3b6486604d5cf3720473cc156eaf7be1d98e2b5dc3a7189aca48dc`,
+die erste fehlgeschlagene Fassung
+`7980de0198f42c1d70d21e1dc83f426b6ba3edab48d665b64662a63e70ac6398`.
+Die Profilquelle blieb roh an
+`cb6a6e4f8d96370d02dbd8bb0ba9ec63fe8819ceb188e5b9597f90a8a7e14b0d`
+gebunden; ihre separate LF-Bindung lautet
+`76ca85015d81a743097d665f56c1d626e31e82c704e5b341e39d2d521e153c7a`.
+Diese Hashes identifizieren geprüfte Inhalte, keine Installationtrustquelle.
+Die Ausgabe war vor Übernahme auf höchstens 1024 Bytes je Zeile und 64 KiB
+insgesamt begrenzt; der private Parent verwendete nochmals engere 32-KiB-
+Grenzen je stdout/stderr. Ein Abbruch ohne gesicherten Abschluss hätte keinen
+Cleanupbeleg erzeugt. Dies war kein Start des geplanten operativen Workers.
+
+Die vollständigen öffentlichen Modulnamen dienen ausschließlich als Input
+der portablen Größengegenprobe in
+[`test_dgn007_import_profile_binding.py`](../../Tests/Static/test_dgn007_import_profile_binding.py).
+Sie sind keine unabhängig ausgewählte operative Sollinventur. Die Probe
+verwendet keine tatsächlichen Hostlocator oder ausgeführten Stdlibquellen.
+Für jeden Namen werden alle erlaubten Kindformen mit sämtlichen elf
+Pflichtfeldern gerechnet und die jeweils kleinste kanonische Darstellung
+gewählt. Die festen Frozen-Modul-/Specnamen bleiben erhalten;
+Source-/Extensionloadernamen zählen weiterhin mit. Nur die zwei Controls
+dürfen einen Nullspec als kleinsten Kontrollfall führen. Pfadtexte,
+Locations und Aliasverbände werden bewusst verkleinert. Auch Installationlocator,
+ABI und Suchpfade werden verkleinert; alle Installationskeys bleiben vorhanden.
+Diese unterapproximierten Formen sind **keine gültigen Nachrichten**.
+
+Die vollständige unveränderte Input82-Metadata einschließlich
+`context_sha256` und der vollständige Bindungskontext zählen getrennt mit
+allen neun Deskriptoren. Größe null je synthetischem Body ist eine zusätzliche
+konservative Verkleinerung; reale Größen erhöhen oder erhalten die Länge.
+Die Rechnung verwendet unverändert §5 und zählt den 16-Byte-Header hinzu.
+
+| Untergrenze | ASCII-Bytes |
+|---|---:|
+| Summe aller 85 vollständigen Modulobjekte | 16.363 |
+| Vollständiges Modularray einschließlich 84 Kommata und zwei Klammern | 16.449 |
+| Gelockerte vollständige Installation | 342 |
+| Je vollständiges neunfaches Deskriptorarray | 1.714 |
+| Gemeinsame Metadata und Header, Ordinal 1 / Runner | 21.144 |
+| Gemeinsame Metadata und Header, Ordinal 2 / Proxy | 21.130 |
+| Gemeinsame Metadata und Header, Ordinal 3 / Harness | 21.108 |
+
+Bereits das Modularray allein überschreitet 16.384 Bytes. Die kleinste
+gemeinsame Untergrenze liegt 4.724 Bytes darüber. Deshalb passt jede vollständige
+Deklaration dieses charakterisierten Namenumfangs unter der heutigen benannten
+JSON-Form nicht in den gemeinsamen Cap. Die Minima der Rechenformen sind
+2 Control-, 23 Source- und 60 Frozenformen; diese Zahlen beschreiben die
+Verkleinerung und **nicht** die tatsächlichen beobachteten Kinds.
+Eine zweite vollständig formgültige synthetische 85er-Deklaration erreicht
+bei kleinen Einzelwerten unverändert `REJECTED_REPORTED_PROFILE/METADATA_LIMIT`.
+Der Produktionsmatcher, seine 38 bestehenden Gegenproben und alle Caps bleiben
+unverändert; lokal bestanden jetzt 40 Methoden unter CPython 3.12.14 ohne SKIP.
+
+Dies schließt nur den vollständigen charakterisierten Umfang unter dieser
+Darstellung aus. Es beweist keine Linux-universelle Inventur, Herkunft,
+Installationtrust-, Worker-, UsedBytes-, Consumption-, Codec-, SQL- oder
+Methodenattestation. Eine kleinere Teilinventur wäre kein Darstellbarkeitsbeleg
+der vollständigen Route. Keine Filterung, Kürzung, Capanhebung, Kompression
+oder Digestersetzung wird hier freigegeben. Ein anderer vollständig erhaltender
+Darstellungsentwurf ist der getrennte nächste Review; danach bleiben konkret
+vorab gewählte operative Inventur, volle Größenprüfung, kombinierter Codec,
+Parent-/Workerbindung, tatsächliche Imports und unabhängiger Cleanup offen.
+DGNI001, die neun Runtimequellen, G13, v1, DEC-068, PR68 und die zurückgestellte
+Capture-API bleiben unverändert.
