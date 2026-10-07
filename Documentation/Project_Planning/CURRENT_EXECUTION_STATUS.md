@@ -269,9 +269,16 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Diese Obergrenzen sind vorgeschlagen, nicht runtimevalidiert; Sättigung
    bleibt bedingt, punktweise States belegen keine Kontinuität. Die äußere
    256-KiB-Grenze belegt heute keine Gesamtgrenze im vorher puffernden Proxy.
-   Nächster Schnitt: Sättigungs-/Kontinuitätsannahmen und tatsächlich verfügbare
-   Vertrauensmechanik gegen diese Records gezielt auf Suffizienz prüfen;
-   danach explizite Methodenentscheidung und gemeinsame Umsetzung.
+   Der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) ist abgeschlossen: unter unabhängig
+   geschlossenem Callumfang und injektiver kohärenter Zählung trägt Sättigung
+   Callerfassung; vollständige keyweise Stageledger tragen kollektiv I0/I1.
+   Durchgängiges RW/ALL ist ein getrenntes konservatives Methodengate,
+   aus Counts nicht bewiesen und hier nicht aufgehoben. Der heutige Pfad
+   liest Live-Dateien und adressiert Namen; Bundle-/Zugangs-/Hostgrenze,
+   Acquisition-/Floatregel und Kostenmachbarkeit bleiben tatsächlich offen.
+   Nächster Schnitt: begrenztes reines Sättigungs-/Acquisition-Gegenmodell
+   mit synthetischen Ausführungstokens; danach explizite Methodenentscheidung
+   vor gemeinsam versionierter Umsetzung. Keine Runtime-/Methodenfreigabe.
    Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
    Ursache und Behebung offen.
    Einzelheiten stehen im

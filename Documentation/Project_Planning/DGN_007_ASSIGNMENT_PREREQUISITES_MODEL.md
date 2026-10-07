@@ -98,12 +98,15 @@ die ausgeführten synthetischen beziehungsweise statischen Prüfungen,
 keine SQL-Sichtbarkeit oder Ausführungsmethode.
 
 Die getrennte [Quellen-/Ausführungspfadprüfung](DGN_007_PREMISE_SOURCE_REVIEW.md)
-ist abgeschlossen. Baselineabschluss, QS-eigene Intervallaktivierung,
-Sichtbarkeit und vertrauenswürdige Coordinatorherkunft bleiben tatsächlich
-offen. Als Nächstes wird der begrenzte Beobachtungs-/Herkunftsvertrag mit
-konkreten Records und Vertrauensgrenzen ausgearbeitet. Danach benötigt die
-alternative Beweisart eine explizite Methodenentscheidung. Erst die spätere
-gemeinsam versionierte Umsetzung
+ist abgeschlossen. Der konkrete [Beobachtungsentwurf](DGN_007_OBSERVATION_PROVENANCE_CONTRACT_DESIGN.md)
+und der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) liegen inzwischen vor. Injektive
+Sättigung aus unabhängig geschlossenem tatsächlichem Callumfang kann Erfassung
+tragen; kontinuierliches RW/ALL folgt nicht daraus. Freeze-/Zugangs-/Hostgrenze,
+Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen. Als Nächstes
+prüft ein getrenntes begrenztes synthetisches Sättigungs-/Acquisition-Gegenmodell
+den expliziten Zählschluss; Tokens sind ausschließlich Modelloracle, keine
+reale QS-Einzelidentität. Danach benötigt die alternative Beweisart eine
+explizite Methodenentscheidung. Erst die spätere gemeinsam versionierte Umsetzung
 verbindet SQL21/35, Quellenfreeze, Transport, Records, Evaluator und Coordinator.
 
 G13, v1, DEC-068, bekannte CI-Fehler und die fehlende PR68-Mergefreigabe bleiben

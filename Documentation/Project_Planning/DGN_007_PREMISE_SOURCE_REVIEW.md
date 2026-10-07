@@ -167,5 +167,9 @@ Ursachen-, Mitigations-, Capstone-, Teilnehmer- und Szenariofreigabe bleiben off
 Der konkrete [Beobachtungs-/Herkunftsvertrag](DGN_007_OBSERVATION_PROVENANCE_CONTRACT_DESIGN.md)
 liegt inzwischen als PROPOSED vor. Er bindet acht Stages, Raw-/Gruppen-/
 Coverage-/Callrecords und die Coordinatorgrenze an endliche Entwurfsbounds.
-Sättigung, Zustands-/Intervallkontinuität und tatsächliche Vertrauensmechanik
-bleiben gezielt auf Suffizienz zu prüfen; keine Methoden- oder Runtimefreigabe.
+Der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) ist inzwischen abgeschlossen:
+Callerfassung und kollektive QS-Buckets sind unter getrennten Herkunfts-/
+Zählprämissen bedingt ableitbar, kontinuierliches RW/ALL nicht. Der heutige
+Pfad attestiert noch keine vollständige Bundle-/Zugangs-/Hostgrenze oder
+Acquisition-/Floatregel. Als Nächstes folgt das begrenzte reine Sättigungs-/
+Acquisition-Gegenmodell; keine Methoden- oder Runtimefreigabe.

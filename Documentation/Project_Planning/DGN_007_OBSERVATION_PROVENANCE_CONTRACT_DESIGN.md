@@ -125,9 +125,11 @@ Delta 1 heilt keine unbekannte frühere Pulsbasis oder Herkunft.
 Ergebnis 12, Flushreturn oder SYSUTC-Katalogvergleich ersetzen dieses Delta
 nicht. Der Puls ruft die Suchprozedur nicht auf.
 
-`INFERENZ`: Das Delta belegt retrospektiv diesen Puls. Kontinuität des gewählten
-Intervalls und der Erfassung während aller vier Suchcalls braucht einen
-zusätzlichen Suffizienznachweis. Zustände vor/nach Calls können zwischenzeitliche
+`INFERENZ`: Das Delta belegt retrospektiv diesen Puls. Es belegt weder die
+Bucketzuordnung der folgenden Suchcalls noch einen durchgehenden QS-Zustand.
+Der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) trennt
+den möglichen retrospektiven Stageledgerschluss von diesen stärkeren Ansprüchen.
+Zustände vor/nach Calls können zwischenzeitliche
 OFF/READ_ONLY/Capturemodeänderungen übersehen. Auch ein geschlossener eigener
 Actor verhindert automatische QS-Zustandswechsel nicht. Die beobachteten
 Optionsrecords sind daher keine vollständige Statechange-Historie.
@@ -270,9 +272,16 @@ begründeten OFF-Ausschluss, (4) QS-interne Intervallwahl und Kontinuität,
 (5) Acquisitionkohärenz und Float-Stabilitätsregel, (6) durchgängige Bounds
 und durchführbarer Kostenplan. Alle sind derzeit **offen**.
 
-Nächster kleiner Schnitt ist die gezielte Suffizienzprüfung der
-Sättigungs-/Kontinuitätsannahmen gegen diese konkreten Records und
-Gegenproben, einschließlich einer tatsächlich verfügbaren Vertrauensmechanik.
+Der [Suffizienzreview](DGN_007_SATURATION_CONTINUITY_SUFFICIENCY_REVIEW.md) ist
+abgeschlossen: injektive kohärente Sättigung unter unabhängig geschlossenem
+Callumfang kann Erfassung tragen; vollständige keyweise Stageledger können
+kollektive Bucketzuordnung tragen. Kontinuierliches RW/ALL folgt daraus nicht.
+Die obigen kontinuierlichen Zustands-/Intervallgates bleiben konservative
+Methodenanforderungen dieses Vorschlags, nicht Prämissen des engeren
+Sättigungssatzes. Sie werden hier nicht aufgehoben. Tatsächliche Freeze-/
+Zugangs-/Hostgrenze, Acquisition-/Floatregel und Kostenmachbarkeit bleiben offen.
+Nächster kleiner Schnitt ist das begrenzte reine Sättigungs-/Acquisition-
+Gegenmodell mit synthetischen Ausführungstokens, keine Runtimeidentitäten.
 Erst danach folgt die dokumentierte Methodenentscheidung vor gemeinsam
 versionierter SQL-/Freeze-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung.
 Alle drei Zeitbeziehungen QS↔SYSUTC, QS↔Katalog und SYSUTC↔Katalog bleiben
