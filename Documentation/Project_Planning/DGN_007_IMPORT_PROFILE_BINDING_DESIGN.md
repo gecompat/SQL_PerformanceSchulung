@@ -1095,3 +1095,120 @@ Identisches gültiges Replay bleibt heute möglich. Status dieses Abschnitts ist
 ausschließlich `DESIGNED/PROJECT_SEMANTIC`; kein Fit-, Trust-, UsedBytes-, Runtime-
 oder Methodenclaim. G13, v1, DEC-068, PR68 und die geschützte Capture-Arbeit bleiben
 erhalten; die negativen historischen Ergebnisse werden nicht nachträglich geheilt.
+
+## 13. Separater reiner Stringpool-Sizer
+
+Dieser Implementierungsschnitt basiert auf
+`2f6e06d433ea962feb7755b7c386d6fd9e19ca5c` nach PR96. Er setzt ausschließlich
+die deklarative Größenrechnung aus §12 um. Der Tupel-Negativbefund aus §11,
+Input82/DGNI001 und der bestehende Matcher bleiben unverändert. Keine
+Codec-/Digestmigration, Workeraufnahme oder Methodenfreigabe folgt daraus.
+
+### 13.1 Vollständige Formen und Aufnahmegrenzen
+
+Der neue reine Prüfer
+[`dgn007_pooled_profile_sizing.py`](../../Tests/Tools/dgn007_pooled_profile_sizing.py)
+prüft zunächst vollständig Input82-, Worker- und Kontextformen. Er traversiert
+dann alle fünf tatsächlichen Payloads direkt aus den geprüften Records, bevor
+größere Tupelprojektionen entstehen. Jedes physische Record-/Arrayvorkommen
+zählt erneut. Die E4-Hülle einschließlich Tag, Rolle und Poolcontainer sowie
+sämtliche Payloadknoten und unterschiedlichen Pooltexte zählen gegen 16.368
+Knoten; höchstens acht Arrayebenen einschließlich E4 sind erlaubt.
+
+Erst nach allen Vorprüfungen entstehen je Form ein eigener vollständiger,
+sortierter Pool und die positionsgebundenen Referenzen. Textwerte bleiben
+gemeinsam gehalten; Integer, erlaubtes `null` und leere Arrays behalten ihre
+Semantik. Sämtliche Felder und beide Neunerarrays der gemeinsamen Metadata
+werden erhalten. Die fünf vollständigen ASCII-JSON-Größen enthalten jeweils
+16 Headerbytes, Tag, Rolle, eigenen Pool und sämtliche Payloadvorkommen.
+
+Reiner Byteoverflow liefert `POOL_DESIGN_SIZING_OVERFLOW` samt allen fünf Größen,
+Poolanzahlen und Einzelüberschreitungen. Unterlauf liefert ausschließlich
+`POOL_DESIGN_SIZING_ONLY`, keinen Herkunfts- oder Runtimeclaim. Pool257,
+Knoten-/Tiefenüberschreitung oder Formfehler führen zu
+`REJECTED_POOL_DESIGN_SIZING` mit festen Labels und ohne Formen. Es gibt keinen
+Fallback, keine Filterung und keine höheren Caps. Alle Attestationsflags bleiben false.
+
+### 13.2 Portable unabhängige Gegenproben
+
+Die neue
+[`Testsuite`](../../Tests/Static/test_dgn007_pooled_profile_sizing.py)
+prüft eine unabhängige benannte Feldreferenz und vollständige Rückgewinnung
+aller S15/P11/I7/K8/D5/F3/W6-Werte, eigene sortierte vollständige Pools und
+physische Deskriptorarrays für alle drei Ordinals. Pool256 ist bei erfüllten
+übrigen Guards zulässig, Pool257 wird abgewiesen. Null-/Leertext-/Leerarrayfälle,
+Integer gegenüber Textreferenzen, Unicode-/UTF-8-/ASCII-Ausdehnung,
+Frozen-/Mixedaliasfälle und ursprüngliche Input82-Rohbytebindung werden geprüft.
+
+Gültige gemeinsame Metadata-, Report-, Installations- und Workerformen erreichen
+jeweils exakt Cap und Cap+1. Der gültige feste Kontext bleibt unter dem Cap;
+die getrennte interne Zählarithmetik wird nicht als gültige Kontextfixture
+ausgegeben. Späte malformed Felder schlagen trotz früher Byte-/Poolüberschreitung
+fehl. Foreigngetter, Subklassen, fehlende Records und falsche primitive Formen
+werden vor fremden Operationen abgewiesen. Viele wiederholte Locations belegen
+den Knotengate vor Projektion; interne Gegenproben prüfen exakt 16.368/16.369
+Knoten und acht/neun Arrayebenen. Das sind Sizer- und Generatorprüfungen,
+keine Gegenproben eines noch nicht vorhandenen Wiredecoders.
+
+37/37 Methoden bestanden lokal unter CPython 3.12.14 mit `-I -S -B -X utf8`,
+ohne SKIP. Zwei zunächst ungültige synthetische Poolfixtures verwendeten nicht
+zulässige Installationssuchpfade; sie wurden auf erlaubte Source-Locations
+korrigiert. Die Produktionsquelle blieb dabei unverändert. Der unabhängige
+vollständige Quell-/Testreview bestätigte beide Freezehashes ohne Befund und
+ohne Wiederholung der Tests. Die vollständige private Fixturemessung bleibt
+ein separates Gate nach Vorprüfung des konkreten Messhelpers.
+
+| Geprüfte portable Quelle | LF-SHA256 |
+|---|---|
+| Reiner Pool-Sizer | `0b34a15e0745a7b96bf378d0e6dd5b456a01651b45f965bfdcba6f2831f0b87e` |
+| Unabhängige Testsuite | `c7d0ff7a6863749718098fc7a4789fad2d055ef9f8f1c490eeb30b47f46d0985` |
+
+### 13.3 Vollständige reine Fixturemessung
+
+Nach vollständigem Quell-/Testreview und zwei getrennten Vorprüfungen des
+konkreten privaten Messhelpers lief genau eine reine Messung unter CPython
+3.12.14 mit `-I -S -B -X utf8`. Die vollständige vorgewählte Auswahl aus §11.2
+mit 85 Records und zwei Controls sowie der Originalrahmen aus §11.3 blieben
+unverändert. Keine neue Bootstrapaufnahme, Vorbereitung oder Nonceerzeugung.
+Der begrenzt rekonstruierte Rahmen bestand den bestehenden Input82-Roundtrip;
+dies attestiert kein fortbestehendes ursprüngliches Parentobjekt oder Transfer.
+
+Eine unabhängige benannte Feldreferenz erhielt sämtliche Werte und Folgen,
+beide Deskriptorarrays und den ursprünglichen Input82-Digest. Sie prüfte die
+vollständige Referenzrückgewinnung und ausschließliche Verwendung aller Poolwerte
+und rechnete alle fünf Größen für alle drei Ordinals vollständig nach.
+
+| Ordinal / Einstieg | gemeinsame Metadata | Report | Installation-Präbild | Worker-Präbild | Kontext-Präbild |
+|---|---:|---:|---:|---:|---:|
+| 1 / `run_dgn007_automated_setup` | 9.389 | 9.083 | 638 | 7.408 | 1.746 |
+| 2 / `docker_sqlcmd_proxy` | 9.389 | 9.083 | 638 | 7.401 | 1.746 |
+| 3 / `run_demo` | 9.389 | 9.083 | 638 | 7.390 | 1.746 |
+
+Alle Werte sind Bytes einschließlich 16 Headerbytes. Die Poolanzahlen sind
+bei jedem Ordinal in dieser Formfolge **204/202/17/172/32**. Sämtliche 15 Größen
+unterschreiten das unveränderte 16.384-Byte-Cap, alle Poolanzahlen das 256-Cap.
+Dies ist ein positiver Darstellbarkeitsnachweis für diese vollständige gewählte
+Kontrollfixture und diesen Designkandidaten. Es wurden weder Felder, Locator,
+Arrayvorkommen oder Controls gekürzt noch Caps angehoben. Andere Installationen
+oder operative Workerbaselines werden damit nicht validiert. Der negative
+Tupelbefund aus §11 bleibt erhalten; die heutige API wird nicht umgedeutet.
+
+Der Messhelper hat RAW-SHA256
+`a849e7e8b3cd5fd4f7b78c05f6002f7c4de964fcc5012549592072ce9f4f8f82`;
+das sichere skalare Ergebnisaggregat hat SHA256
+`222444826efec57bc5d309db17df5760efba466c3abe0b74de568b91640672f9`.
+Der konkrete Aufruf endete regulär nach 0,722 s. Vor-/Nachpins der sechs
+tatsächlich verwendeten RAW-Kontrollquellen und beider Eingaben bestanden.
+RAW-Pins bleiben von portablen LF-Provenienzen getrennt; nach Checkout veränderte
+EOL-Bytes werden nicht stillschweigend als identische Ausführungsbytes behandelt.
+Private Locator, Nonce und Bodies bleiben außerhalb versionierter Artefakte.
+
+Der zusätzliche unabhängige Nachreview bestätigte aus den unveränderten
+Eingaben sämtliche 15 Größen, Poolanzahlen, Feldrückgewinnung und ursprüngliche
+Inputbindung mit eigener Stdlib-Nachrechnung, ohne Helper-/Sizer-Replay.
+Als nächster kleiner Schnitt folgt nach diesem vollständigen Größenbefund
+ein eigener ausdrücklich versions-/rollengebundener Codec-/Digestpfad mit
+begrenzt kanonischer Aufnahme und Repack. Kombinierte Bodyrahmung, tatsächliche
+Parent-/Worker-Anbindung, Consumption-/Replay-/Cleanupbelege und Methodengates
+bleiben getrennt offen. Kein Runtime-, Trust-, UsedBytes- oder Methodenclaim;
+alle Attestationsflags bleiben false.

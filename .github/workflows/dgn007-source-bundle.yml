@@ -11,6 +11,8 @@ on:
       - 'Tests/Static/test_dgn007_import_profile_binding.py'
       - 'Tests/Tools/dgn007_compact_profile_sizing.py'
       - 'Tests/Static/test_dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Static/test_dgn007_pooled_profile_sizing.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
@@ -63,6 +65,8 @@ on:
       - 'Tests/Static/test_dgn007_import_profile_binding.py'
       - 'Tests/Tools/dgn007_compact_profile_sizing.py'
       - 'Tests/Static/test_dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Static/test_dgn007_pooled_profile_sizing.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
@@ -137,3 +141,5 @@ jobs:
         run: python -I -S -B Tests/Static/test_dgn007_import_profile_binding.py
       - name: Vollständige deklarative Formen und Größen des Entwurfs prüfen
         run: python -I -S -B Tests/Static/test_dgn007_compact_profile_sizing.py
+      - name: Vollständige Stringpools und Größen des getrennten Entwurfs prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_pooled_profile_sizing.py
