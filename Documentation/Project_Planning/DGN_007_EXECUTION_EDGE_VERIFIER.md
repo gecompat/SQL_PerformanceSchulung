@@ -126,10 +126,13 @@ werden getrennt geprüft. Bestehende 36 Bundle-Gegenproben bleiben im
 [statischen Workflow](../../.github/workflows/dgn007-source-bundle.yml) erhalten;
 die neuen Tests kommen additiv hinzu. Kein SQL-/Docker-/Launcherstart.
 
-Nächster kleiner Schnitt sind begrenzte Offline-Gegenproben zur durchgängigen
-Streaming-/Poll-/Kostenkette mit synthetischem Prozessinput vor Pufferung.
-Ein solcher Prototyp darf weder die neun heutigen Laufzeitquellen noch v1/G13
-ändern und attestiert keine reale Laufzeitmachbarkeit. Alle Methodengates,
+Der getrennte [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
+portable Budgetgegenproben und feste eigene Linux-Kindfälle. Die neun heutigen
+Laufzeitquellen und v1/G13 bleiben erhalten; keine reale Laufzeitmachbarkeit.
+Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
+über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
+Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
+Epsilon- oder Methodenfreigabe. Alle Methodengates,
 Import-/Actor-/CID-/Zugangs-/Hostgrenzen und Acquisition bleiben offen.
 PR68 und der zurückgestellte API-Schnitt behalten ihre Grenze. Keine Incident-,
 Ursachen-, Mitigations-, Capstone- oder Szenariopromotion.

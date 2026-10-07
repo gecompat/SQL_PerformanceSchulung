@@ -117,3 +117,10 @@ verbindet SQL21/35, Quellenfreeze, Transport, Records, Evaluator und Coordinator
 G13, v1, DEC-068, bekannte CI-Fehler und die fehlende PR68-Mergefreigabe bleiben
 unverändert. Der lokale API-Schnitt bleibt zurückgestellt. Incident-,
 Ursachen-, Mitigations-, Capstone-, Teilnehmer- und Szenarioabnahme bleiben offen.
+
+Der getrennte [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
+portable Budgetgegenproben und feste eigene Linux-Kindfälle, ohne Integration
+in Runtimequellen oder Methoden-/Runtimeattestation. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
+über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
+Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
+Epsilon- oder Methodenfreigabe.

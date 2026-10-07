@@ -247,3 +247,10 @@ Weitere Primärquellen, geprüft am 2026-10-07:
 [sp_query_store_flush_db](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-flush-db-transact-sql?view=sql-server-ver17).
 Flush unterstützt die Persistierung vorhandener Daten; er liefert keine
 Ausführungsexklusivität oder atomare historische Sicht.
+
+Der getrennte [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert:
+portable Budgetgegenproben und feste eigene Linux-Kindfälle, ohne Integration
+in Runtimequellen oder Methoden-/Runtimeattestation. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
+über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
+Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
+Epsilon- oder Methodenfreigabe.

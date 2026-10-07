@@ -166,10 +166,12 @@ ausdrücklich auf statische Kandidaten beschränkt:
    Zugangs-, Host-, Acquisition- oder Budgetbeleg. Alias/Replay und tatsächliche
    Ausführung bleiben Folgefixtures des späteren Ziel-/Launcherpfads.
 
-Nächster kleiner Schnitt sind begrenzte Offline-Streaming-/Poll-/Kostengegenproben
-mit synthetischem Prozessinput vor Pufferung, ohne Integration in die neun
-Runtimequellen. Ein solcher Prototyp attestiert keine reale Machbarkeit der
-vollständigen 145/180/60-Kette. Die noch offenen Gates sind weiterhin gegen
+Der getrennte [synthetische Streaming-/Budgetprototyp](DGN_007_STREAMING_BUDGET_PROTOTYPE.md) ist implementiert, ohne Integration
+in die neun Runtimequellen. Er attestiert keine reale Machbarkeit der
+vollständigen 145/180/60-Kette. Nächster kleiner Schnitt: getrennte numerische Gegenprobe von endlicher Oraclepopulation
+über ausdrücklich deklarierte Fragmentrundung und separat vorgegebenen synthetischen
+Style3-Text bis zur bestehenden Consumergewichtung. Keine SQL-Konversionsemulation,
+Epsilon- oder Methodenfreigabe. Die noch offenen Gates sind weiterhin gegen
 tatsächliche Evidenz zu prüfen. Keine endlose Modell-/Pollingwiederholung bis PASS. Die spätere
 gemeinsam versionierte Umsetzung verbindet SQL21/35, Freeze, Transport,
 Records, Evaluator und Coordinator erst nach tragfähiger expliziter Entscheidung.
