@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `57e4c7faf9c3d3ec17d7f98d430ebf5c5dd18712` auf `origin/main` (Pull Request 71); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `f13359cac6bc6a5120f61d09b6cff21e6d431c5a` auf `origin/main` (Pull Request 72); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -262,9 +262,16 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Calls, Ergebnismessung und erster Cleanupabschluss sind nutzbar, aber
    kontinuierlicher QS-Zustand, vollständiger Basisabschluss, interne
    Intervallaktivierung und geschlossene Coordinatorherkunft bleiben offen.
-   Nächster Schnitt: begrenzten Beobachtungs-/Herkunftsvertrag mit konkreten
-   State-/Familienrecords, Pulsgrenze, Vertrauensquelle und Observerkosten
-   ausarbeiten; danach explizite Methodenentscheidung und gemeinsame Umsetzung.
+   Der konkrete [Beobachtungs-/Herkunftsvertrag](DGN_007_OBSERVATION_PROVENANCE_CONTRACT_DESIGN.md)
+   liegt jetzt als `PROPOSED` vor: acht Stages, vollständige Raw-/Gruppen-/
+   Coveragebindung, zwölf tatsächliche Calls, getrennte Pulsgrenze,
+   Coordinator-Vertrauensquelle und endliche Größen-/Poll-/Kostenlimits.
+   Diese Obergrenzen sind vorgeschlagen, nicht runtimevalidiert; Sättigung
+   bleibt bedingt, punktweise States belegen keine Kontinuität. Die äußere
+   256-KiB-Grenze belegt heute keine Gesamtgrenze im vorher puffernden Proxy.
+   Nächster Schnitt: Sättigungs-/Kontinuitätsannahmen und tatsächlich verfügbare
+   Vertrauensmechanik gegen diese Records gezielt auf Suffizienz prüfen;
+   danach explizite Methodenentscheidung und gemeinsame Umsetzung.
    Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
    Ursache und Behebung offen.
    Einzelheiten stehen im
