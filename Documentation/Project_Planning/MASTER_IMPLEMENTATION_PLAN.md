@@ -356,6 +356,15 @@ weder die 68 Bündel noch die operative Wellenfolge und erzeugt keine neuen IDs.
 | `QRY-011` | Computed Column, Filtered Index und Predicate Implication | Grün |
 | `QRY-012` | Partition Elimination, Remote Pushdown sowie messbare JSON/XML/String-Kosten | Gelb |
 
+Als offene Themenvormerkungen mit Status `PROPOSED` werden außerdem
+**External Tables** und **Graph Tables** im [Backlog](../../.ai/BACKLOG.md)
+geführt. External Tables vertiefen quellabhängigen Datenzugriff, Pushdown
+und Übertragungskosten; Graph Tables vertiefen Node-/Edge-Abfragen und den
+Vergleich mit semantisch gleichwertigen relationalen Modellen. Beide Themen
+berühren Planmechanik und Indizes aus Welle 4 und Welle 6. Quellen-,
+Versions- und Abdeckungsprüfung gehen einer konkreten Demo-/Kennungszuordnung
+voraus; Reihenfolge und Freigabestatus der bestehenden Demos bleiben erhalten.
+
 ### Welle 6 – Rowstore und Columnstore
 
 | ID | Demo-Bündel | Standardrisiko |
