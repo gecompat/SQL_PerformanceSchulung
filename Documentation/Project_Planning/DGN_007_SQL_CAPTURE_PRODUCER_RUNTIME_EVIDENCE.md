@@ -531,12 +531,197 @@ keine Behebung durch Diagnostik. Die automatisch gestartete Main-Push-CI
 am Squash ist ein getrennter, zum Zeitpunkt dieser Quittung noch laufender
 Nachweis; ihre Ergebnisse werden nicht vorweggenommen.
 
-Nächster kleiner Schnitt ist die interne verlustfreie Rückgabe von Body und
+Der damals geplante Folgeschnitt war die interne verlustfreie Rückgabe von Body und
 tatsächlich geprüften Phasen erst nach erfolgreichem Lifecycle, Harness-
 Cleanup und erster unabhängiger Datenbankabwesenheit. Recovery macht keinen
 Fehler zum erfolgreichen Capture-Beleg. Counts, CLI und Fehlerprioritäten
 bleiben erhalten. Daraus folgt noch kein RunRecord, Ressourcen-/Budget-/
 Reihenfolgenachweis, keine Runtimeattestation und keine Incidentbewertung.
+
+## Getrennter Main-Push-Nachweis: tatsächlicher G13-Fehler
+
+Die automatisch gestartete Push-CI prüfte den unveränderten Squash
+`da7b0eb7c3bfb5238141c34520b237228ca77085`. Die unabhängige Abschlussprüfung
+bestätigte alle 13 abgeschlossenen Workflows und 48 Jobs: 12 Workflows und
+47 Jobs SUCCESS, ausschließlich der 2022-Job aus
+[DGN-007-Lauf 37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)
+FAILURE. Alle 48 Checkouts binden exakt an diesen Main-Commit, alle Checks
+an den exakten Head und Actions-App `15368`. PR66 wurde separat mit sieben
+erfolgreichen Checks am exakten Head/Base integriert; dessen Änderungen
+betreffen ausschließlich Dokumentation.
+
+SQL Server 2022 bestand neun Lifecycles, einschließlich BA RUN_1; BA RUN_2
+scheiterte im Schritt von 04:31:02 bis 04:35:02 UTC mit äußerem
+`FAIL_EXECUTION`. Die feste, kanalgebundene Diagnose lautet
+`CONTROL_EVIDENCE / FAIL_RESULT_CONTRACT / G13`. Genau dieser Guard prüft
+`FirstExecutionTime < ExecutionStarted OR LastExecutionTime > ExecutionFinished`
+für gespeicherte IncidentProfile-Zeilen. Es fehlen skalare Zeitwerte und
+SQL-Meldungsnummern; die Guard-ID belegt weder die verletzte Seite noch
+Ursache, Größe oder eine zulässige Toleranz des Abstandes.
+
+Alle zehn begonnenen 2022-Lifecycles bestanden ihre unabhängige
+Datenbankabwesenheitsprüfung. AA wurde nach dem Fehler nicht ausgeführt.
+Der tatsächliche CI-Pulldigest ist
+`sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`.
+Der eigene Container `sqlperf-dgn007-auto-16-37570814577-1` wurde nach
+Name-/Scope-/Ownerprüfung an die CID-Datei gebunden entfernt; die explizite
+leere CID-Filterliste wurde erfolgreich geprüft. Der konkrete CID-Wert und
+eine tatsächliche CI-ProductVersion sind nicht geloggt und werden nicht
+behauptet.
+
+2019 und 2025 liefen bis zum regulären Ende: je zwölf Lifecycles, sechs
+Decoder-Captures, zwölf unabhängige Datenbankabwesenheitsprüfungen und
+sechs Scope-Summaries PASS; 2025 zusätzlich acht Compatibility-Gegenproben.
+Alle neun SQL-Remove-Schritte waren SUCCESS; DGN-007 prüfte für alle drei
+Instanzen die explizite own-CID-Abwesenheit. Der Linux-Job führte alle 156
+Methoden ohne SKIP erfolgreich aus. W-COV bestand alle 28 Jobs mit 54
+äußeren Runs (48 PASS, sechs zulässige WARN); seine 27 Cleanup-Kommandos
+waren SUCCESS, besitzen aber die bestehende `|| true`-Grenze und keinen
+zusätzlichen unabhängigen CID-Abwesenheitsbeleg.
+
+Dieser neue Runtime-Vertragsfehler verhindert eine vollständige Main-CI-
+Freigabe. Er wird nicht als Infrastrukturfehler klassifiziert oder umgangen.
+Die erfolgreiche exakte PR65-Integrationsabnahme bleibt ein getrennter
+historischer Beleg. Die beiden früheren CI-Fehler behalten ihre unbekannte
+Ursache; aus G13 dieses neuen Laufs wird keine rückwirkende Diagnose abgeleitet.
+
+Der statische Review fand eine prüfbare Hypothese: SQL21 sowie SQL30/35
+aggregieren MIN/ MAX über alle regulären Statistikzeilen, bevor
+`HAVING SUM(count_executions)>0` positive Gruppen auswählt. Einzelne
+Nullzählzeilen sind damit nicht aus den Extrema ausgeschlossen. Dass solche
+Zeilen den tatsächlichen G13 verursacht haben, ist nicht belegt.
+[Microsoft Learn](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver16)
+beschreibt First/Last als Ausführungsendzeiten und mögliche Disk-/In-Memory-
+Mehrfachzeilen mit notwendiger Aggregation (abgerufen 2026-10-07). Für
+Zeitwerte bei `count_executions=0` nennt die Quelle keine Sondersemantik.
+
+Die getrennte [SYSUTCDATETIME-Dokumentation](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver16)
+unterscheidet sieben Nachkommastellen beziehungsweise die 100-ns-Präzision
+der genannten Windows-API von hardware-/Windowsabhängiger Genauigkeit
+(abgerufen 2026-10-07). Daraus folgt keine tatsächliche Query-Store-Auflösung
+oder Linux-Implementierung. In den geprüften Primärquellen ist keine
+entsprechende gemeinsame Clock oder tickgenaue Ordnung gegenüber unmittelbar
+gemessenen Requestgrenzen zugesichert. Ein gespeicherter Tickabstand darf
+deshalb nicht als universelle Millisekundentoleranz oder Ursachenbeweis
+umgedeutet werden.
+
+Für die folgende private Untersuchung wurde eine skalare Probe ausschließlich
+im bereits verletzten G13-Zweig gewählt. Sie trennt gespeichertes Profil und früheren Live-Snapshot von
+einer einzigen späteren, exakt auf dieselben Query-/Parent-/Plan-/Intervall-
+Keys begrenzten Query-Store-Sicht. Counts, UTC-100-ns-Ticks und signierte
+Grenzabstände bleiben präzise; feste Caps kennzeichnen Overflow ausdrücklich
+als unvollständige Stichprobe. Keine Querytexte, Plan-XML oder Payload-
+Persistenz, keine zusätzlichen Suchausführungen, Flushes oder Waits; kein
+Prädikat-, Budget- oder Toleranzfix. Private Kopie und Main-Runner werden
+separat gebunden, kanonische Quellen bleiben unverändert. Die lokale
+vorbereitete interne Capture-API bleibt ungepusht; ihre Freigabe/Integration
+ist zunächst zurückgestellt. Eine Probe ist noch kein Ursachen- oder
+Behebungsnachweis.
+
+## Private G13-Probe: fehlgeschlagener synthetischer Vorcheck
+
+Der erste private Vorcheck begann am 2026-10-07 nach dem Freeze von
+04:53:34 UTC auf einer neuen eigenen SQL-2022-Developerinstanz
+`16.0.4295.3` mit CI-Pullref `sha256:4402d880…`. Ref und lokale Inspect-ID
+wurden vor Erzeugung separat aufgelöst; auf dieser Plattform stimmen sie
+überein. Der ursprüngliche Tick-/Style3-Vorcheck bestand. Die zusätzliche
+rein temporäre synthetische G13-Zweigfixture scheiterte dann mit drei
+`Msg 156 / Level 15 / State 1`, vor jedem DGN-007-Lifecycle.
+
+Der private Driver `356dad2535d231965779c475270237cea840e4455678b124a04c8d2f06e8b90d`
+erzeugte die undelimitierte temporäre Spalte `LineNo`. Microsoft führt
+[`LINENO` als reserviertes Schlüsselwort](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver16)
+(abgerufen 2026-10-07); dies ist ein konkreter Syntaxdefekt der privaten
+Probe, kein Beleg zur Ursache des tatsächlichen Main-G13. Die folgende
+private Korrektur benennt nur diese Spalte um. Ein skalarer Subquery im
+END-VALUES-Ausdruck wird vorsorglich in eine lokale Countvariable gezogen;
+ein dadurch verursachter SQL-Fehler ist in diesem Versuch nicht belegt.
+Guards, Last, kanonische Quellen und Budgets bleiben unverändert.
+
+Die eigene CID
+`8b86df2095a23e9badc16ac568bd575acd496ee1f19b7d92e373cc3f61a64154`
+mit Name `sqlperf-dgn007-producer-16-26777b96c9` wurde nach Eigentumsprüfung
+entfernt. Ein unabhängiger Agent prüfte anschließend ausschließlich diese
+exakte CID und den exakten Namen: beide Abfragen Exit 0 und null Treffer.
+Der Versuch ist ausdrücklich fehlgeschlagene private Validierung, keine
+Kontrollcapture-, Runtime- oder Ursachenabnahme. Kein Rawoutput wurde
+persistiert. Ein weiterer Versuch benötigt zuerst den neu geprüften
+privaten Probe-Code und einen neuen Freeze.
+
+Der zweite frische Vorcheck nach der privaten Syntaxkorrektur verwendete
+Driver `d331fe30ac27a5cde9b8e79be7f55421406a13ebebf239e570c609e593238bf6`
+und Freeze 04:56:57 UTC. Der SQL-Aufruf endete ohne Meldungsnummern mit
+Exit 0; die Parent-Assertion zum exakt achtzeiligen Output scheiterte
+vor jedem Lifecycle. Die CID
+`37f6a3d9fa58f65d7b044437b476ce2b00156870f3ccd870ba32fc552e075f9f`
+mit Name `sqlperf-dgn007-producer-16-d499c41762` wurde ownergebunden entfernt;
+exakte CID und Name sind durch getrennte read-only Abfragen unabhängig
+abwesend bestätigt. Dieser Versuch ist ebenfalls keine Runtimeabnahme.
+
+Der anschließend unabhängig gelesene Parentwrapper
+`e0fb1ed0c7a0d1149dc3c06c6b89d398b53c1212fc2e8b05ddfbab9a17924e21`
+erlaubt nur den exakt bekannten englischen NULL-Aggregatwarntext als
+höchstens zwei zusätzliche Zeilen. Acht gültige vollständige Probe-Records,
+alle bisherigen Parser-/Tickasserts, null unbekannte Zeilen und null
+`PROBE_ERROR` bleiben erforderlich. Der Driver und SQL bleiben unverändert.
+Ein neuer Freeze vom 04:59:38 UTC bindet alle 14 kanonischen Quellen, den
+Vertrag, vier Pythonmodule und beide privaten Helper: insgesamt 21 Dateien.
+Auf der dritten neuen eigenen Instanz `16.0.4295.3` mit Ref/Inspect-ID
+`sha256:4402d880…` bestand die tatsächliche synthetische T-SQL-Vorprüfung:
+neun Ausgabezeilen, acht Probe-Records, genau eine bekannte NULL-Warnung,
+kein Probe- oder unbekannter Output. Die temporäre Fixture bestätigt exakt
+`First−Start=-1` und `Last−Finish=-5` UTC-100-ns-Ticks bei einer Gruppe und
+null Raw-QS-Zeilen. Der dritte Vorcheck belegt die zusätzliche Warnzeile als konkrete
+Verletzung der bisherigen Achtzeilenannahme; der Output des zweiten
+Vorchecks wurde nicht vollständig beobachtet. Diese synthetische Probe beweist weder G13-Reproduktion
+noch dessen Ursache oder Behebung. Der folgende tatsächliche CI-Präfixlauf
+und sein Cleanup werden separat bewertet.
+
+## Getrennte private CI-Präfixgegenprobe ohne G13-Reproduktion
+
+Die dritte neue eigene Instanz führte nach dem erfolgreichen synthetischen
+Vorcheck die CI-Reihenfolge bis zur fehlerhaften Stelle aus: Datenmodell,
+Query-Store-Fenster, Profilvergleich, AB und BA je zwei vollständige
+Lifecycles. Alle zehn Lifecycles, vier tatsächliche Kontroll-Decoder-Captures,
+zehn erste unabhängige Datenbankabwesenheitsprüfungen und fünf zusätzliche
+Gruppen-Leerheitsprüfungen bestanden. Je Kontrollbody: zwei Fenster, acht
+Requests, eine Familie, zwei Planfensterrecords und zwei Unionrecords.
+Keine G13-Verletzung und keine echten G13-Skalarrecords wurden beobachtet.
+AA, vollständige CI-Matrix und prospektive Incidentbewertung waren nicht
+Teil dieser begrenzten Untersuchung.
+
+Der Main-Runner bleibt exakt der gepinnte Blob `bedfa3344…` aus `a0bc753…`.
+Der private Driver `d331fe30…` erzeugt SQL35-Kopie
+`5fd30b819c0f4ba0e64f02419fdda8b166016108c34568288fd674772db41d39`;
+die exakte Entfernung des markierten Reporters ergibt den ganzen
+kanonischen SQL35. Der Reporter läuft nur im bereits verletzten G13-Zweig;
+dieser wurde hier nicht erreicht. Auch durch die neu kompilierte private
+Kopie ändern sich keine Prädikate, Last, Flushes, Waits oder Budgets.
+Alle 21 vorab gebundenen Dateien blieben während jeder Gruppe und im
+abschließenden Freezevergleich um 05:17:01 UTC unverändert: 14 kanonische
+SQL-/Manifestquellen, der Vertrag, vier Pythonmodule und beide privaten
+Helper. Private Ergebnisse sind ausdrücklich `NOT_CANONICAL_EVIDENCE`;
+die vorbereitete interne API war weder Runner noch Gegenstand dieses Laufs.
+
+Die eigene CID
+`5fd4a7891fe0fc97a2c3a6eac92f93ed6f2881e9c5c5b75b82ad09c625a2a88e`
+mit Name `sqlperf-dgn007-producer-16-e0db740562` wurde nach exakter
+Name-/Scope-/Owner-/Imageprüfung mit `rm --force --volumes` entfernt.
+Parent und unabhängiger Agent bestätigten die Abwesenheit; der Agent
+prüfte ausschließlich exakte CID und exakten Namen, jeweils Exit 0 und
+null Treffer. Alle drei ausschließlich für diese Untersuchung erzeugten
+Instanzen sind somit unabhängig als abwesend bestätigt.
+
+Die Ursache des Main-G13 bleibt offen. Ein ausbleibender Fehler auf dem
+lokalen Host belegt keine Behebung oder Main-CI-Freigabe. Nächster kleiner
+Schnitt ist der vorab unabhängig als zulässig geprüfte kanonische
+G13-Grenzabstandsbericht: nur gespeicherte verletzte Gruppen, maximal acht,
+präzise UTC-Ticks/Abstände, feste Ausgabegrenzen und strenge Bindung an
+den tatsächlichen Failure-/stderr-/Guard-/Summary-Satz. Ausgabe nach
+Cleanup, unveränderte Guardlogik, Deadlines und Fehlerprioritäten.
+Neue Quellenbindung, synthetische SQL-/Parserfixtures und reguläre CI
+am exakten neuen Head/Base sind erforderlich. Kein neuer QS-Snapshot,
+kein Toleranzfix, keine identische Wiederholung der privaten Probe.
 
 ## Verbleibende Abnahmegrenzen
 
