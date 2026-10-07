@@ -188,9 +188,9 @@ diesem Dokumentationsschnitt.
 
 ## 6. Prüfplan und nächster kleiner Schnitt
 
-Als Nächstes ist ein **reines modellbasiertes Voraussetzungenmodell** mit
-synthetischen Gegenbeispielen zulässig. Es analysiert Receipt-/Scope-/Bilanz-
-Konsistenz, startet keine Prozesse und attestiert keine Runtime. Es muss
+Das getrennte [deklarative Voraussetzungenmodell](DGN_007_ASSIGNMENT_PREREQUISITES_MODEL.md)
+ist inzwischen implementiert und synthetisch geprüft. Es analysiert
+Receipt-/Scope-/Bilanz-Konsistenz, startet keine Prozesse und attestiert keine Runtime. Es muss
 fehlende vertrauenswürdige Herkunft ausdrücklich von einer gültigen
 deklarativen Modellannahme unterscheiden. Mindestens diese Fälle sind
 vorab festzuhalten:
@@ -209,9 +209,15 @@ vorab festzuhalten:
 | Ein-Tick-/Gleichheitsfälle an Katalog- und Requestgrenzen | Zeitbeziehungen separat modellieren; keine versteckte Rundung oder neue Inklusivität. |
 | Timeout, erstes Abwesenheitscheck-FAIL und erfolgreiche Recovery | Kein erfolgreicher Runtimebeleg; ursprünglicher Fehler und Cleanuppriorität erhalten. |
 
-Danach folgen unabhängiger Review der logischen Suffizienz und der noch
-offenen SQL-Sichtbarkeits-/Intervallvoraussetzungen sowie eine explizite
-Methodenentscheidung. Die spätere versionierte Umsetzung muss SQL21/35,
+Die getrennte [Quellen-/Ausführungspfadprüfung](DGN_007_PREMISE_SOURCE_REVIEW.md)
+präzisiert inzwischen Procedure-Erfassung unter AUTO, Persistenz gegenüber
+Publikation und tatsächliche Harnessgrenzen. Die oben genannten nachlaufenden
+Statistiken sind bedingte Gegenproben bei unbekannten Voraussetzungen, keine
+behauptete dokumentierte Publikationsverzögerung nach erfolgreichem Call.
+Basisabschluss, QS-interne Aktivierung und vollständige Herkunft bleiben offen.
+Als Nächstes wird ein begrenzter Beobachtungs-/Herkunftsvertrag ausgearbeitet;
+danach folgen explizite Methodenentscheidung und gemeinsam versionierte Umsetzung.
+Die spätere versionierte Umsetzung muss SQL21/35,
 Quellenfreeze, Body-/Transportformat, Recordmodell, Evaluator, Runner und
 Fixtures gemeinsam binden. Die bestehenden v1-Formate dürfen keine optionale
 Hintertür erhalten. Konkrete Ledgergrenzen, neue Capturekosten und
