@@ -4,7 +4,7 @@
 |---|---|
 | Stand | 2026-10-07 |
 | Repositorybasis | `e75baeb811c1a9973198200c94aa37a795d64b1a` nach PR85 |
-| Status | `DESIGNED`; reiner Matcher separat implementiert, Workerroute offen |
+| Status | `DESIGNED`; Matcher und lokale Record-Rückgabe separat implementiert, Bootstraproute entworfen |
 | Vorgesehener Teilclaim | `MATCHED_REPORTED_DECLARATION` |
 | Geltung | `PROJECT_SEMANTIC`; deklarierter skalarer Vergleich |
 | Grenze | keine Trust-, Worker-, UsedBytes-, Cleanup-, SQL- oder Methodenattestation |
@@ -276,3 +276,154 @@ im bestehenden Entwicklungsauftrag; materielle Methodengrenzen bleiben erhalten.
 G13, v1, DEC-068, historische FAILs, offene PR68 und die zurückgestellte
 Capture-API bleiben unverändert. Kein RunRecord, Incidentvergleich, Ursache,
 Toleranz, Mitigation oder Capstone-/Methodenfreigabe folgt aus diesem Entwurf.
+
+## 8. Konkreter Bootstrap- und Projektionsvorschnitt
+
+Dieser ergänzende Designstand beruht auf `54b043dc30bb3afd522742203d8c260a9fa8235f`
+nach PR88. Er wählt eine spätere Bootstraproute; deren Quelle, operative
+Inventur, Projektion und Codec sind noch nicht implementiert oder ausgeführt.
+Die vorhandenen Linux-Profiltests sind Tests ihres eigenen Scriptbootstraps,
+keine Inventur oder Abnahme des hier gewählten Workers.
+
+### 8.1 Quelle und geschlossene Importreihenfolge
+
+Geplanter Locator, **NICHT VORHANDEN**:
+`Tests/Tools/dgn007_import_worker_bootstrap.py`. Der vertrauenswürdige Parent
+wählt und prüft diese Kontrollquelle und die bestehende Profilquelle vor
+einem späteren Start separat. Beide sind Kontrollprogramm, keine der neun
+Kandidatenquellen und kein neuer Bestandteil der Raw27-Bindung. Ihr Review und
+ihre Bytebindung attestieren weder Installationtrust noch ausgeführte Bytes.
+
+Die gewählte Route startet ausschließlich den absoluten Scriptlocator mit
+der separat gewählten absoluten CPython-3.12-Executable auf Linux und
+`-I -S -B`. Der Scriptcode läuft als `__main__`; kein `-m`, PATH-Fallback oder
+Scriptdirectory-Eintrag wird ergänzt. Der Bootstrap benennt vor seiner Aufnahme
+als direkte Stdlibimports `importlib.util`, `sys`, `sysconfig`, `json` und `struct`.
+JSON-/Rahmungsarbeit liegt später im Scriptcode, nicht in zusätzlich importierten
+Projektmodulen. Die Auswahl dieser Imports legt noch keine Codecversion fest.
+
+Die bestehende Datei `Tests/Tools/dgn007_import_runtime_profile.py` wird unter
+genau `dgn007_import_runtime_profile` über einen separat gewählten absoluten
+Locator und einen ausdrücklich gebundenen Source-Spec/Loader geladen. Diese
+Kontrollquellenroute sucht kein Projektmodul über `sys.path` und verwendet
+keinen Kandidatenlocator. Der weitere konkrete Kontrollquellenlese-/Execpfad
+muss vor Ausführung geprüft werden; das bloße Loaderlabel belegt keine
+tatsächlich gelesenen oder ausgeführten Kontrollbytes. Insbesondere verhindert
+`-B` das Schreiben von Bytecodecache, nicht dessen Lesen.
+
+Die direkten Imports des unveränderten Profilmoduls bleiben erhalten:
+`dataclasses`, `hashlib`, `importlib.machinery`, `os`, `sys`, `sysconfig`,
+`types` und `zipimport`. Ihre vollständigen transitiven Module sind vor dem
+Profilabgleich ausdrücklich auszuwählen. Der Worker importiert vor dieser
+Aufnahme weder Matcher, Input82, Bundle, Edges noch einen zusätzlichen
+Projektionsadapter. Die Controlnamen bleiben exakt `__main__` und
+`dgn007_import_runtime_profile`; keine Allowlist- oder Rooterweiterung.
+
+Vor der ersten Aufnahme werden die ausgewählten Stdlibroots einschließlich
+`DESTSHARED` sowie der separate ABI-Wert `SOABI` vollständig ermittelt und
+gegen die separat gewählte Installation geprüft. Diese Initialisierung muss abgeschlossen sein, weil
+`_capture` heute den Modulcache vor seinem eigenen `SOABI`-Aufruf kopiert.
+Ein dadurch erst nach der Kopie geladener Sysconfig-Datenmodulrecord darf
+nicht unbemerkt aus der Anfangsinventur fehlen. Die vorhandene Linux-Testfixture
+initialisiert diese Werte bereits vor ihrer separaten Aufnahme; daraus folgt
+keine automatische Vorinitialisierung einer neuen Bootstrapquelle.
+
+Die Workerauswahl enthält vollständig geordnete Namen, Spec-/Loaderformen,
+Origins, Locations und die benannten Frozenverbände für die konkrete
+Installation und Bootstrapquelle. Sie steht separat vor der erfolgreichen
+Aufnahme fest. Erst danach dürfen die zu diesen vorgewählten Namen gehörenden
+lokalen Liveanker gebunden werden. Der Worker übernimmt weder seinen gesamten
+beobachteten Cache als Soll noch eine erfolgreiche Aufnahme als eigene
+Baseline. Parentinventur, heutige Testinventur und bloße Stdlibnamenslisten
+ersetzen diese Workerauswahl nicht. Die vollständige ausführbare Auswahl
+bleibt bis zur konkreten Fixture und ihrem unabhängigen Review offen.
+
+### 8.2 Herkunft der skalaren Felder
+
+Die geplante Projektion liegt im vorhandenen Profilmodul und fügt keine
+Bootstrapimports hinzu. Ihre private Rückgabe besteht ausschließlich aus
+exakten primitiven Werten und begrenzten Tupeln; eine spätere Parentdekodierung
+erstellt daraus die vorhandenen Matcher-DTOs. Keine neuen Livepointer-DTOs,
+Callables, freien Wire-Mappings oder Imports des Matchers im Worker.
+Die genaue ausführbare Rückgabe-API und ihr Codec bleiben Folgearbeit.
+
+| Feldgruppe | Ausschließliche Herkunft |
+|---|---|
+| `assumption,roots,inert_zip,controls` | separat gewählte `DeclaredProfile`; diese Werte fehlen in `Observation` und bleiben deklarative Auswahl |
+| `platform,implementation,version,executable,executable_target,prefixes,abi,flags,paths,files` | vollständig geprüfte aktuelle Abschlussaufnahme; keine Ergänzung fehlender Messwerte aus dem Soll |
+| `name,origin,file,kind,locations` je Modul | tatsächliche geprüfte Modulrecords, vollständig und in ihrer vorhandenen Reihenfolge |
+| `moduleName,specName,loaderName,loaderPath` | geprüfte gehaltene Module-/Spec-/Loaderobjekte; kein Erfinden aus Cachekey oder Kindlabel |
+| Finder-/Hooklabels | Finder aus geprüften festen Klassen; Hooklabel `FILEFINDER` zusätzlich aus einer separat gewählten bekannten FileFinder-Hookbindung, nicht aus `FunctionType` allein; Labels attestieren keine Herkunft |
+| `aliasGroup` | ausschließlich benannte Frozenpaare mit beiden vorhandenen Cachekeys und geprüfter gemeinsamer Modul-/Specidentität; Singleton `()` |
+| Commit, Raw27, Quellenprofil, Nonce, Modulzuordnungen, Ordinal/Einstieg/Phase | separat gehaltener ursprünglicher Eingang und Workerauswahl; kein aus einem PASS rekonstruierter Kontext |
+
+Die Projektion folgt einer frischen erfolgreichen
+`observe_current_interpreter_records`-Aufnahme, bevor weitere Imports oder
+Kandidatenoperationen erfolgen. Vor dem Lesen der skalaren Objektfelder wird
+die lokale Kohärenz erneut geprüft und nach der Projektion nochmals bestätigt.
+Erst nach vollständiger Formprüfung und Abschlusskohärenz
+darf die private skalare Rückgabe entstehen; jede reguläre Ablehnung liefert
+keine Projektion. Ein früherer `ProfileReport` oder manuell konstruierter
+`ObservationResult` ist kein Ausführungs- oder Herkunftsbeleg.
+
+Auch dieser Ablauf behauptet keine atomare Snapshotgarantie oder dauerhafte
+Cachemitgliedschaft. Der reine Validator kann nur gehaltene Anker prüfen.
+Eine spätere aktuelle Runtimeverwendung benötigt erneut die tatsächliche
+Aufnahme; eine zwischenzeitliche Cacheersetzung mit gleichen Texten darf
+nicht durch Wiederverwendung eines früheren Reports als geprüft gelten.
+Unbekannte oder konkurrierend veränderte Zustände ergeben keine Attestation.
+
+Der heutige Profilvalidator prüft den zweiten Hook ausschließlich als exakten
+`FunctionType` und auf Identität gegen die gewählte Baseline. Das identifiziert
+nicht jede solche Funktion als `FileFinder.path_hook`-Ergebnis. Vor einer
+Projektion als `FILEFINDER` muss deshalb die bekannte FileFinder-Hookbindung
+separat aus der gewählten Kontrollbootstrapquelle feststehen. Fehlt diese
+Bindung, folgt keine automatische Kategorienprojektion; gleiche fremde
+Funktionen in Soll und Ist ersetzen sie nicht. Diese zusätzliche Auswahl
+bleibt deklarativ und ist keine unabhängige Herkunftsattestation.
+
+### 8.3 Formen, gemeinsame Grenzen und Abnahme
+
+Alle projizierten Werte müssen zusätzlich die engere skalare Form aus §3
+erfüllen: exakte Typen, keine bool-Zahlen/Subklassen, NUL oder ungepaarten
+Surrogate; sämtliche nichtleeren File-/Locationlocator auch für Frozen und
+Control absolut und ohne Normalisierung. Specfreier Control bleibt ausdrücklich
+`specName=null`, `origin=""`, `locations=()`. Loaderlabels und leere
+Loadernamen/-pfade folgen exakt dem Matcher; Textgleichheit ersetzt keine
+Livekohärenz. Unbekannte Loader, freie Aliase oder fehlende Partner werden
+nicht umgedeutet. Identisch ungültige Soll-/Istwerte bleiben ungültig.
+
+Die vollständige Inventur wird weder gefiltert, gekürzt noch durch einen
+Digest ersetzt. Ihre Darstellbarkeit wird mit der vollständigen unveränderten
+Input82-Metadata, Workerdeklaration und Kontext gegen §5 geprüft:
+`16 + len(C(metadata)) <= 16384`. Ein isolierter Projektionsgrößentest reicht
+nicht. Ebenso bleibt die Berichtsgrenze erhalten. Passt die konkrete Auswahl
+nicht, folgt ein fester Größenfehler; dieser Entwurf erhöht keinen Cap und
+komprimiert keine bestehende Form. Eine andere Darstellung ist eine getrennte
+zu prüfende Protokolländerung. Die tatsächliche Darstellbarkeit ist offen.
+
+| Gegenprobe | Vorgesehene Abnahme |
+|---|---|
+| Bootstrap importiert Matcher/Input82 oder weiteres Projektmodul | vollständige Profilablehnung, keine Control-/Rootfreigabe oder Cachefilterung |
+| Inventur entsteht erst aus erfolgreichem Istbericht | keine gültige unabhängig gewählte Workerdeklaration |
+| Modul/Spec/Loader oder Frozenpartner wird nach Aufnahme verändert | keine erfolgreiche Projektion aus alten Ankern/Labels |
+| Sysconfigdaten fehlen vor Aufnahme oder Anker ändern sich während Projektion | feste Ablehnung ohne unvollständige Inventur oder teilweise Rückgabe |
+| Cachekey zeigt inzwischen auf ein anderes Objekt bei gleichen Texten | neue Aufnahme nötig; reine gehaltene Kohärenz allein genügt nicht |
+| fehlendes beobachtetes Feld, fremder Typ, ungültiger Locator oder Alias | feste Ablehnung ohne ergänzte/normalisierte Projektionswerte |
+| fremde harmlose Funktion identisch als zweiter Hook in Soll/Ist | kein automatisch identifiziertes `FILEFINDER`; bekannte separate Hookbindung erforderlich |
+| volle gemeinsame Metadata genau am Cap und ein Byte darüber | nur genau zulässige vollständige Form; darüber Größenfehler, kein Teilmatch oder neues Zusatzbudget |
+| passende skalare Rückgabe ohne tatsächlichen Worker/Kanal | ausschließlich deklarativer Inhalt, keine Worker-/Consumptionattestation |
+
+Die nächsten Implementierungsteile sind die importneutrale Projektion,
+die konkret reviewte Bootstrapfixture samt vollständiger separater Sollinventur
+und Größenprüfung sowie danach der kombinierte Codec. Erst deren Abnahme
+ermöglicht die tatsächliche Parent-/Workerroute aus §7. Die neun Runtimequellen,
+DGNI001, alle bestehenden Bounds und false-Attestationsflags bleiben erhalten.
+Kein Workerstart, DGN-Import, SQL-Lauf oder Cleanupnachweis wurde hier ausgeführt.
+
+Quellen, geprüft am 2026-10-07: [Python 3.12: Scriptstart und Isolationflags](https://docs.python.org/3.12/using/cmdline.html),
+[Importcache und Importablauf](https://docs.python.org/3.12/reference/import.html)
+und [ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec).
+Für die Hookfactory gilt zusätzlich [FileFinder.path_hook](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.FileFinder.path_hook).
+Die engere Bootstrap-/Projektionsauswahl ist Projektentwurf, keine aus diesen
+Dokumentationsseiten abgeleitete Runtimegarantie.
