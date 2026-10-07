@@ -97,11 +97,13 @@ Frameworkprüfungen bestanden ebenfalls. Diese Ergebnisse validieren nur
 die ausgeführten synthetischen beziehungsweise statischen Prüfungen,
 keine SQL-Sichtbarkeit oder Ausführungsmethode.
 
-Der nächste zulässige Schnitt klärt die offenen Voraussetzungen anhand
-konkreter Quellen und des tatsächlichen Ausführungspfads: Baselineabschluss,
-QS-eigene Intervallaktivierung, Sichtbarkeit und vertrauenswürdige
-Coordinatorherkunft. Danach benötigt die alternative Beweisart eine explizite
-Methodenentscheidung. Erst die spätere gemeinsam versionierte Umsetzung
+Die getrennte [Quellen-/Ausführungspfadprüfung](DGN_007_PREMISE_SOURCE_REVIEW.md)
+ist abgeschlossen. Baselineabschluss, QS-eigene Intervallaktivierung,
+Sichtbarkeit und vertrauenswürdige Coordinatorherkunft bleiben tatsächlich
+offen. Als Nächstes wird der begrenzte Beobachtungs-/Herkunftsvertrag mit
+konkreten Records und Vertrauensgrenzen ausgearbeitet. Danach benötigt die
+alternative Beweisart eine explizite Methodenentscheidung. Erst die spätere
+gemeinsam versionierte Umsetzung
 verbindet SQL21/35, Quellenfreeze, Transport, Records, Evaluator und Coordinator.
 
 G13, v1, DEC-068, bekannte CI-Fehler und die fehlende PR68-Mergefreigabe bleiben

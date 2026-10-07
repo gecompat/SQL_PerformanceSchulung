@@ -213,9 +213,14 @@ ungeklärt. Das getrennte [deklarative Voraussetzungenmodell](DGN_007_ASSIGNMENT
 prüft die vorab festgehaltenen synthetischen Gegenbeispiele und bedingte
 Konsistenz; keine Prozesse im Modell, SQL-/v1-Änderung oder Runtimeattestation.
 Die Prüfung ersetzt insbesondere keine tatsächliche Herkunft trotz passender
-Counts. Nächster kleiner Schnitt ist die konkrete Quellen-/Ausführungspfadprüfung
-der offenen Baseline-, Intervallaktivierungs-, Sichtbarkeits- und
-Coordinatorvoraussetzungen. Danach explizite Methodenentscheidung und gemeinsam
+Counts. Die [Quellen-/Ausführungspfadprüfung](DGN_007_PREMISE_SOURCE_REVIEW.md)
+ist abgeschlossen: Procedure-Queries unter AUTO werden erfasst; dokumentierte
+asynchrone Persistenz belegt keine verzögerte Publikation. Der tatsächliche
+Pfad prüft eigene Calls und Ergebnisse, attestiert aber weder vollständigen
+Basisabschluss noch interne Aktivierung, kontinuierlichen Zustand oder
+geschlossene Coordinatorherkunft. Nächster Schnitt: begrenzten Beobachtungs-/
+Herkunftsvertrag mit State-/Familienrecords, Pulsgrenze, Vertrauensquelle und
+Observerkosten ausarbeiten. Danach explizite Methodenentscheidung und gemeinsam
 versionierte SQL-/Transport-/Record-/Evaluator-/Coordinator-Umsetzung. Bestehende Guards,
 Fehlerklassifikation, DEC-068, Last und Budgets bleiben erhalten; keine
 pauschale 1-ms-Toleranz, Abrundung oder Wiederholen bis grün. Die alternative

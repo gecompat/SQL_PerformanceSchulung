@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `abeabbf2c97d3ea49c0b1f065ff764c957a0ae92` auf `origin/main` (Pull Request 70); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `57e4c7faf9c3d3ec17d7f98d430ebf5c5dd18712` auf `origin/main` (Pull Request 71); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -256,9 +256,16 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    prüft jetzt synthetische Gegenbeispiele und bedingte Konsistenz, ohne
    SQL-/v1-Änderung oder Runtimeattestation. Passende Counts allein belegen
    keine Herkunft; fehlende Annahmen und Widersprüche bleiben getrennt.
-   Nächster kleiner Schnitt ist die konkrete Quellen-/Ausführungspfadprüfung
-   der offenen Basis-, Intervall-, Sichtbarkeits- und Coordinatorvoraussetzungen;
-   danach explizite Methodenentscheidung und gemeinsam versionierte Umsetzung. Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
+   Die getrennte [Quellen-/Ausführungspfadprüfung](DGN_007_PREMISE_SOURCE_REVIEW.md)
+   ist abgeschlossen: Procedure-Queries werden auch unter AUTO erfasst;
+   asynchrone Persistenz ist keine belegte Publikationsverzögerung. Eigene
+   Calls, Ergebnismessung und erster Cleanupabschluss sind nutzbar, aber
+   kontinuierlicher QS-Zustand, vollständiger Basisabschluss, interne
+   Intervallaktivierung und geschlossene Coordinatorherkunft bleiben offen.
+   Nächster Schnitt: begrenzten Beobachtungs-/Herkunftsvertrag mit konkreten
+   State-/Familienrecords, Pulsgrenze, Vertrauensquelle und Observerkosten
+   ausarbeiten; danach explizite Methodenentscheidung und gemeinsame Umsetzung.
+   Bestehende Guards, Fehler und DEC-068 bleiben erhalten;
    Ursache und Behebung offen.
    Einzelheiten stehen im
    [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
