@@ -152,13 +152,14 @@ muss alle 38 Methoden ohne SKIP ausführen. Dieser lokale Nachweis ist kein
 Linux-Runtimeerfolg.
 
 Die Caps aus dem Profilvorschnitt und sämtliche false-Attestationsflags
-bleiben erhalten. Konkrete Workerinventur, Scalarprojektion, kombinierter
+bleiben erhalten. Konkrete Workerinventur und kombinierter
 Codec mit gemeinsamem 16-KiB-Budget und tatsächliche Kanal-/Consumptionbindung
 bleiben offen. Die konkrete Bootstraproute und Feldherkunft sind inzwischen im
 [Profilbindungsentwurf §8](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#8-konkreter-bootstrap--und-projektionsvorschnitt)
 festgelegt. Die geplante Scriptquelle, ihre vollständige separat gewählte
-operative Inventur, importneutrale Projektion und tatsächliche gemeinsame
-Größenprüfung sind noch nicht implementiert oder ausgeführt.
+operative Inventur und tatsächliche gemeinsame Größenprüfung sind noch
+nicht implementiert oder ausgeführt. Die getrennte importneutrale Projektion
+ist inzwischen implementiert; ihr begrenzter Nachweis folgt unten.
 Ebenso offen bleiben DGN-Loaderverwendung, Importabschluss und
 unabhängiger eigener Worker-Cleanup. Keine SQL-Ausführung, G13-/v1-/DEC-068-
 Änderung, Incident- oder Capstonepromotion.
@@ -168,3 +169,72 @@ Primärquellen, geprüft am 2026-10-07: Python 3.12 beschreibt
 [den veränderbaren Modulcache](https://docs.python.org/3.12/library/sys.html#sys.modules)
 und [unabhängige Module-/Specmetadaten](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec).
 Die engeren API- und Fehlergrenzen sind Projektimplementierung.
+
+## Getrennte aktuelle skalare Projektion
+
+Auf Basis `139853578cc4b1ad8f7842047270f4cd376cd505` nach PR89 liegt der
+Vorschnitt als `IMPLEMENTED_LOCAL_SCALAR_PROJECTION` vor.
+`observe_current_interpreter_scalars(expected, separately_known_filefinder_hook)`
+führt intern eine frische vollständige Recordaufnahme aus. Danach werden
+gehaltene Modul-/Spec-/Loaderfelder vor und nach ihrer Projektion erneut
+geprüft. Jede regulär behandelte Ablehnung enthält `scalars=None`; ein früherer
+Report oder manuell konstruiertes `ObservationResult` wird nicht als öffentlicher
+Projektionsinput akzeptiert. Legacy-API, Controls, direkte Imports und Caps bleiben
+erhalten. Es gibt keinen Matcher-/Input82import oder Workerstart.
+
+`ScalarObservationResult` ist frozen und zeigt seine private Payload nicht in
+`repr`. Die Payload enthält ausschließlich exakte primitive Werte und begrenzte
+Tupel, keine Liveobjekte, Callables, freien Mappings oder Matcher-DTOs. Ihre
+Feldherkunft folgt [BindingDesign §8](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#8-konkreter-bootstrap--und-projektionsvorschnitt):
+Annahme, Roots, fehlender Zip-Eintrag und Controls stammen aus der Callerwahl;
+Installationswerte und Filefingerprints aus der tatsächlichen Abschlussaufnahme;
+Modul-/Spec-/Loadernamen und Loaderpfade aus den erneut geprüften Liveobjekten.
+Benannte Frozenpaare erhalten einen Verband ausschließlich bei beiden Cachekeys
+und gemeinsamer Modul-/Specidentität; ein zulässiger Einzelrecord bleibt ohne
+Verband. Kein Nonce-/Commit-/Ordinal-/Einstieg-/Phasenkontext wird aus PASS erzeugt.
+
+Die Payload hat exakt `(selection, installation, modules)`:
+
+| Tupel | Geordnete Felder |
+|---|---|
+| `selection` | `assumption,roots,inert_zip,controls` |
+| `installation` | `platform,implementation,version,executable,executable_target,prefixes,abi,flags,paths,finders,hooks,files` |
+| jede Modulzeile in `modules` | `name,moduleName,specName,origin,file,kind,locations,loader,loaderName,loaderPath,aliasGroup` |
+| jede Dateizeile in `files` | `path,size,sha256` |
+
+Die Reihenfolge und alle Werte bleiben vollständig erhalten. `specName=None`
+ist ausschließlich der geprüfte specfreie Controlfall. Neue feste Fehlercodes
+sind `FILEFINDER_BINDING`, `SCALAR_FORM` und `SCALAR_PROJECTION_FAILED`; vorhandene
+Profilfehler werden weitergereicht. Erfolgreiche Projektion behält ausschließlich
+`MATCHED_DECLARED_BASELINE`, ohne neue Attestationsflags.
+
+Für `FILEFINDER` ist zusätzlich eine separat vorgewählte bekannte Hookreferenz
+erforderlich. Der lokale Guard prüft ihre Identität und tatsächliche Factorycode-,
+Closure- und feste Loader-/Suffixstruktur unter der gewählten Kontrollruntime.
+Er führt den Hook nicht aus. Gleiche fremde Funktionen in Soll/Ist reichen nicht;
+die zusätzliche Strukturprüfung ist keine unabhängige Herkunfts- oder
+UsedBytesattestation. Die engeren Scalarformen lehnen NUL, Surrogate, fremde
+Typen/Subklassen, bool-Zahlen und ungültige File-/Locationlocator auch bei
+Frozen/Control ab. Texte werden weder ergänzt noch normalisiert, die Inventur
+weder gefiltert noch gekürzt.
+
+Lokal auf Windows unter CPython 3.12.14: 56 Methoden, 53 PASS und genau
+3 ausdrücklich begründete Linux-SKIPs (0.062 s). Die neue tatsächliche
+Linuxprojektion wird im direkten Testbootstrap vor `unittest.mock` aufgenommen
+und ist in der Linux-CI ohne SKIP zu prüfen. Der bestehende reine Matcher bleibt
+separat; seine 38 Methoden prüfen keine tatsächliche Workerbeobachtung.
+
+Dieser Slice bestätigt keine atomare Aufnahme oder dauerhaft gültige
+Cachemitgliedschaft. Nach späterem Cache-/Runtimewechsel braucht jede aktuelle
+Verwendung erneut eine frische Aufnahme. Vollständige operative Workerfixture
+und unabhängig separat gewählte Inventur, gemeinsame Darstellung einschließlich
+Input82-Metadata und Kontext innerhalb 16 KiB, kombinierter Codec sowie
+Parent-/Worker-/Kanal-/Consumptionbindung bleiben offen. Kein isolierter
+Scalargrößentest ersetzt die gemeinsame Rechnung. G13, v1, DEC-068 und die
+zurückgestellte Capture-API bleiben unverändert; keine SQL-/Incident-/
+Capstone- oder Methodenfreigabe.
+
+Primärquellen, frisch geprüft am 2026-10-07: [Python 3.12: FileFinder.path_hook](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.FileFinder.path_hook)
+beschreibt die Factoryclosure; [ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec)
+beschreibt unabhängig veränderbare Module-/Specmetadaten. Die engeren Guards
+und Rückgabegrenzen sind Projektimplementierung, keine allgemeine Runtimegarantie.
