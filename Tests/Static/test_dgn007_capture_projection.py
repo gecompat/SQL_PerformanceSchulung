@@ -454,7 +454,8 @@ class ExtractedSqlTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
                 validator.canonical_guard_diagnostics(changed)
         changed=self.evidence.replace('p.FirstExecutionTime<w.ExecutionStarted','1=0')
-        self.assertIn('WHERE 1=0',validator.canonical_guard_diagnostics(changed))
+        with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
+            validator.canonical_guard_diagnostics(changed)
         self.assertTrue(validator.projection_sql_findings(changed))
 
     def test_actual_measurement_select_guard_and_insert_use_actual_rows(self):
@@ -569,6 +570,143 @@ class ExtractedSqlTests(unittest.TestCase):
         for scope in ('data-model','query-store-windows','profile-comparison'):
             self.assertTrue(validator.workflow_findings(workflow.replace(
                 '--scope '+scope+' --check-phase-diagnostics','--scope '+scope)))
+
+
+class G13BoundaryTests(unittest.TestCase):
+    """Echte Decoderfunktion, begrenzte synthetische Failurekanäle; kein SQL."""
+    @staticmethod
+    def record(ordinal=1,window=0,plan=101,count=4,first=99,last=201):
+        start,finish=100+window*1000,200+window*1000
+        first+=window*1000;last+=window*1000
+        return (ordinal,window,100,100,plan,window+1,0,count,start,finish,first,last,first-start,last-finish)
+
+    @staticmethod
+    def result(records=(),status='COMPLETE'):
+        observed=len(records) if status=='COMPLETE' else 9 if status=='OVERFLOW' else 0
+        lines=[f'DGN007_G13_BOUNDARY|1|BEGIN|{status}|{observed}']
+        lines+=['DGN007_G13_BOUNDARY|1|GROUP|'+'|'.join(str(v) for v in record) for record in records]
+        lines+=[f'DGN007_G13_BOUNDARY|1|END|{len(records)}',
+                'DGN007_CONTROL_GUARD|G13','SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT']
+        return runner.SqlcmdResult((),0,
+            'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT\nCONTROL_EVIDENCE: FAIL/FAIL_RESULT_CONTRACT (0.001s) - synthetic-private\nCLEANUP: PASS/OK (0.001s)',
+            '\n'.join('[CONTROL_EVIDENCE:stderr] '+line for line in lines),False,.001)
+
+    def decode(self,result,contract=runner.CONTROL_AB_CONTRACT):
+        return runner._g13_boundary_diagnostics(result,contract=contract)
+
+    def test_both_signed_sides_one_tick_equality_and_eight_groups(self):
+        for contract in (runner.CONTROL_AB_CONTRACT,runner.CONTROL_BA_CONTRACT,runner.CONTROL_AA_CONTRACT):
+            for first,last in ((99,200),(100,201),(99,201)):
+                record=self.record(first=first,last=last)
+                expected=('DGN007_FAILURE|G13_BOUNDARY|COMPLETE|groups=1',
+                          'DGN007_FAILURE|G13_BOUNDARY|GROUP|'+'|'.join(str(v) for v in record))
+                self.assertEqual(self.decode(self.result((record,)),contract),expected)
+        self.assertIn('MALFORMED',self.decode(self.result((self.record(first=100,last=200),)))[0])
+        records=tuple(self.record(i+1,i//4,101+i,1) for i in range(8))
+        self.assertEqual(len(self.decode(self.result(records))),9)
+        self.assertTrue(all(len(line)<=512 for line in self.decode(self.result(records))))
+        for low in (1,MAX_TICKS-100):
+            row=(1,0,100,100,101,1,0,4,low,low+50,low-1,low+51,-1,1)
+            self.assertIn('|COMPLETE|',self.decode(self.result((row,)))[0])
+        # G02 und Reporter erlauben gleiche Requestgrenzen. Ein außerhalb
+        # liegender QS-Endzeitwert bleibt eine vollständige G13-Diagnose.
+        row=(1,0,100,100,101,1,0,4,100,100,99,101,-1,1)
+        self.assertIn('|COMPLETE|',self.decode(self.result((row,)))[0])
+
+    def test_overflow_source_and_incomplete_are_explicitly_insufficient(self):
+        self.assertEqual(self.decode(self.result(status='OVERFLOW')),('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|OVERFLOW',))
+        self.assertEqual(self.decode(self.result(status='INSUFFICIENT')),('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|SOURCE',))
+        self.assertIn('MALFORMED',self.decode(self.result(tuple(self.record(i+1,i//5,101+i,1) for i in range(9))))[0])
+        result=self.result((self.record(),))
+        for stderr in (result.stderr.replace('|END|1','|END|2'),
+                       result.stderr.replace('|BEGIN|COMPLETE|1','|BEGIN|COMPLETE|2'),
+                       '\n'.join(line for line in result.stderr.splitlines() if '|GROUP|' not in line),
+                       result.stderr.replace('|END|1','|END|1\nforeign raw line'),
+                       result.stderr.replace('|END|1','|END|1\n[CONTROL_EVIDENCE:stderr] foreign')):
+            self.assertEqual(self.decode(replace(result,stderr=stderr)),('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|MALFORMED',))
+
+    def test_full_failure_caller_reserves_report_guard_status_before_message_numbers(self):
+        records=tuple(self.record(i+1,i//4,101+i,1) for i in range(8))
+        result=self.result(records)
+        messages='\n'.join(f'[CONTROL_EVIDENCE:stderr] Msg 51002, Level 16, State 1, Line {i}' for i in range(1,31))
+        result=replace(result,stderr=messages+'\n'+result.stderr)
+        diagnostics=runner.capture_failure_diagnostics(result,contract=runner.CONTROL_AB_CONTRACT)
+        boundary=self.decode(result)
+        self.assertEqual(len(diagnostics),24)
+        self.assertEqual(tuple(line for line in diagnostics if '|G13_BOUNDARY|' in line),boundary)
+        self.assertIn('DGN007_FAILURE|SQL_GUARD|CONTROL_EVIDENCE|G13',diagnostics)
+        self.assertIn('DGN007_FAILURE|OUTER_PHASE|CONTROL_EVIDENCE|FAIL|FAIL_RESULT_CONTRACT',diagnostics)
+        self.assertIn('DGN007_FAILURE|SQL_STATUS|CONTROL_EVIDENCE|FAIL|FAIL_RESULT_CONTRACT',diagnostics)
+        first_message=next(i for i,line in enumerate(diagnostics) if '|SQL_MESSAGE|' in line)
+        self.assertTrue(all('|SQL_MESSAGE|' in line for line in diagnostics[first_message:]))
+        self.assertLess(next(i for i,line in enumerate(diagnostics) if '|GROUP|8|' in line),first_message)
+
+    def test_actual_channel_phase_outer_guard_summary_and_contract_binding(self):
+        result=self.result((self.record(),))
+        invalid=(replace(result,stderr=result.stderr.replace('CONTROL_EVIDENCE:stderr','CONTROL_EVIDENCE:stdout')),
+                 replace(result,stdout=result.stdout.replace('(0.001s) - synthetic-private','(')),
+                 replace(result,stdout=result.stdout+'\nCONTROL_EVIDENCE: FAIL/FAIL_RESULT_CONTRACT (0.001s)'),
+                 replace(result,stdout=result.stdout+'\nSETUP: FAIL/FAIL_EXECUTION (0.001s)'),
+                 replace(result,stdout=result.stdout.replace('CONTROL_EVIDENCE: FAIL/FAIL_RESULT_CONTRACT','CONTROL_EVIDENCE: PASS/OK')),
+                 replace(result,stderr=result.stderr.replace('|G13','|G12')),
+                 replace(result,stderr=result.stderr+'\n[CONTROL_EVIDENCE:stderr] SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'),
+                 replace(result,stderr=result.stderr.replace('DGN007_CONTROL_GUARD|G13','DGN007_CONTROL_GUARD|G13\nforeign')),
+                 replace(result,stderr=result.stderr+'\n[CONTROL_EVIDENCE:stderr] DGN007_CONTROL_GUARD|G13'),
+                 replace(result,stdout=result.stdout+'\n'+result.stderr,stderr=''))
+        for changed in invalid:
+            self.assertFalse(any('|GROUP|' in line or '|COMPLETE|' in line for line in self.decode(changed)))
+        for contract in (runner.DATA_MODEL_CONTRACT,replace(runner.CONTROL_AB_CONTRACT,manifest=Path('foreign'))):
+            self.assertEqual(self.decode(result,contract),())
+        self.assertEqual(self.decode(replace(result,stderr=result.stderr+'x'*300000)),())
+
+    def test_numeric_key_order_count_time_delta_and_size_bounds(self):
+        original=self.record()
+        invalid=[]
+        for index,value in ((0,2),(1,2),(2,0),(3,9223372036854775808),(5,0),(6,1),(7,0),(7,5),
+                            (8,201),(10,-1),(11,MAX_TICKS+1),(12,0),(13,0)):
+            row=list(original);row[index]=value;invalid.append((tuple(row),))
+        invalid.extend(((original,original),
+                        (self.record(1,0,102,2),self.record(2,0,101,2)),
+                        (self.record(1,0,101,3),self.record(2,0,102,2)),
+                        (self.record(1,0,101,2),self.record(2,0,102,2,first=100,last=200))))
+        for records in invalid:
+            self.assertEqual(self.decode(self.result(records)),('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|MALFORMED',))
+        result=self.result((original,))
+        for before,after in (('|GROUP|1|0','|GROUP|01|0'),('|-1|1','|-0|1'),
+                             ('|GROUP|1|0','|GROUP|1|False'),('|END|1','|END|1|private'),
+                             ('|GROUP|1|0','|GROUP|1|'+'9'*513)):
+            self.assertEqual(self.decode(replace(result,stderr=result.stderr.replace(before,after))),
+                             ('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|MALFORMED',))
+
+    def test_reporter_exact_strip_and_all_code_remains_bound(self):
+        sql=validator.EVIDENCE.read_text(encoding='utf-8')
+        stripped=validator.strip_boundary_reporter(sql,check_baseline=True)
+        self.assertNotIn('G13_BOUNDARY',stripped)
+        self.assertIn("PRINT 'DGN007_CONTROL_GUARD|G13';\n    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;",stripped)
+        block=validator.boundary_reporter(sql)
+        for changed in (sql.replace(block,''),sql.replace(block,block+block),sql.replace('SELECT TOP(9)','SELECT TOP(10)'),
+                        sql.replace('DATALENGTH(Record)>512','DATALENGTH(Record)>513'),
+                        sql.replace('FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId\n        WHERE','FROM sys.query_store_runtime_stats p JOIN lab.IncidentState w ON w.WindowId=p.WindowId\n        WHERE'),
+                        sql.replace("PRINT 'DGN007_CONTROL_GUARD|G13';","PRINT 'DGN007_CONTROL_GUARD|G13'; PRINT 'free';"),
+                        sql+'\nPRINT \'free\';'):
+            self.assertTrue(validator.projection_sql_findings(changed))
+
+    def test_diagnostics_are_after_cleanup_and_never_change_sticky_failure(self):
+        target=runner.execution_target.docker_target(container='synthetic-test',sqlcmd_path='/opt/mssql-tools18/bin/sqlcmd')
+        base=self.result((self.record(),))
+        for status in ('COMPLETE','OVERFLOW','INSUFFICIENT'):
+            for timed_out,cleanup_failure,expected in ((False,False,'FAIL_CONTRACT'),(True,False,'FAIL_TIMEOUT'),(True,True,'FAIL_CLEANUP')):
+                result=replace(base if status=='COMPLETE' else self.result(status=status),timed_out=timed_out)
+                events=[]
+                def absence(target):
+                    events.append('absence')
+                    if cleanup_failure:raise runner.RunnerFailure('FAIL_CLEANUP')
+                with patch.object(runner,'run_harness',return_value=result),patch.object(runner,'assert_absent',side_effect=absence),patch.object(runner,'recover'),redirect_stdout(io.StringIO()) as out:
+                    with self.assertRaisesRegex(runner.RunnerFailure,expected):
+                        runner.run_one(target,1,contract=runner.CONTROL_AB_CONTRACT,check_phase_diagnostics=True)
+                    text=out.getvalue();self.assertTrue(events)
+                    self.assertLess(text.index('DGN007_CLEANUP'),text.index('DGN007_FAILURE|G13_BOUNDARY'))
+                    self.assertIn('|FAIL|'+expected,text);self.assertNotIn('synthetic-private',text)
 
 
 if __name__=='__main__':unittest.main()

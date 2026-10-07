@@ -2,6 +2,7 @@
 """Prüft den skalaren SQL-Producervertrag; keine Incident-/Herkunftsabnahme."""
 from __future__ import annotations
 import ast
+import hashlib
 from pathlib import Path
 import re
 import sys
@@ -24,8 +25,37 @@ def uncomment(sql):
 def normalized(sql): return ' '.join(uncomment(sql).split())
 
 
+G13_REPORTER_SHA256 = '148ce779f3ca9ebdd9644e9b180ad26d88fa810f757f25dad4ea40d316b0a064'
+G13_BASE_SQL_SHA256 = '7d51b7bf3f444683ca2360595df24abf0214512c8794c50bcf5432f5fceae29f'
+
+
+def boundary_reporter(sql):
+    """Ein exakt gebundener Abschnitt; keine freie PRINT-Normalisierung."""
+    sql = sql.replace('\r\n', '\n')
+    begin, end = '/* G13_BOUNDARY_REPORTER_BEGIN */', '/* G13_BOUNDARY_REPORTER_END */'
+    if sql.count(begin) != 1 or sql.count(end) != 1:
+        raise ValueError('FAIL_CONTRACT')
+    start, finish = sql.index(begin), sql.index(end) + len(end) + 1
+    block = sql[start:finish]
+    if (hashlib.sha256(block.encode('utf-8')).hexdigest() != G13_REPORTER_SHA256
+            or not sql[:start].endswith("WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)\nBEGIN\n")
+            or not sql[finish:].startswith("    PRINT 'DGN007_CONTROL_GUARD|G13';\n    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;\nEND;")):
+        raise ValueError('FAIL_CONTRACT')
+    return block
+
+
+def strip_boundary_reporter(sql, *, check_baseline=False):
+    block = boundary_reporter(sql)
+    stripped = sql.replace('\r\n', '\n').replace(block, '', 1)
+    if check_baseline and hashlib.sha256(stripped.encode('utf-8')).hexdigest() != G13_BASE_SQL_SHA256:
+        raise ValueError('FAIL_CONTRACT')
+    return stripped
+
+
 def canonical_guard_diagnostics(sql):
     """Nur 17 validierte konstante IDs vor denselben Ergebnisfehlern entfernen."""
+    if 'G13_BOUNDARY_REPORTER' in sql:
+        sql = strip_boundary_reporter(sql)
     code=uncomment(sql)
     summary="PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT';"
     pattern=re.compile(r"\bPRINT 'DGN007_CONTROL_GUARD\|(G(?:0[1-9]|1[0-7]))';\s*"
@@ -120,6 +150,8 @@ PROJECTION_SECTIONS=('PROJECTION','REQUEST_ROWS','REQUEST_GUARD','EXECUTION_BOUN
 def projection_sql_findings(sql):
     findings=[]
     try:
+        # Ganze bisherige SQL35-Datei bleibt nach exakt geprüftem Strip identisch.
+        sql = strip_boundary_reporter(sql, check_baseline=True)
         sql=canonical_guard_diagnostics(sql)
         if normalized(capture_section(sql,'REQUIRED_GUARD'))!="OR OBJECT_ID(N'lab.RequestResultCapture',N'U') IS NULL":
             findings.append('Producer benötigt exakt den zusätzlichen Messschema-Existenzschutz')

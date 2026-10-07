@@ -146,7 +146,62 @@ zu den folgenden unverändert bestehenden Prüfabschnitten:
 Er veröffentlicht keinen Rohfehlertext. Diese Diagnose ändert weder Outcome
 noch Fehlerpriorität, Budget oder Wiederholungsverhalten.
 
-Die neue lokale Prüfung bestand am 2026-10-07 auf 2019/150, 2022/160 und
+Der begrenzte G13-Grenzabstandsbericht liest ausschließlich die bereits
+gespeicherten verletzten `lab.IncidentProfile`-/`lab.IncidentState`-Gruppen,
+erst nachdem das unveränderte G13-Prädikat verletzt ist. `TOP(9)` erkennt
+einen Überlauf; höchstens acht Gruppen werden vollständig berichtet. Die
+Counts bleiben positiv und auf höchstens vier je Fenster begrenzt. Es gibt
+keine zusätzliche Query-Store-Sicht, Suchausführung, Flush oder Wartephase.
+Ein eindeutiger, exakt gehashter Reporterabschnitt ist die einzige
+SQL-Erweiterung. Sein Entfernen muss den gesamten bisherigen SQL35-Text
+mit identischem normalisierten SHA-256 ergeben; freie PRINT-Normalisierung
+ist unzulässig.
+
+Die ASCII-Records sind einschließlich Prefix auf 512 Zeichen begrenzt:
+
+```text
+DGN007_G13_BOUNDARY|1|BEGIN|COMPLETE|group_count
+DGN007_G13_BOUNDARY|1|GROUP|ordinal|window|parent|query|plan|interval|type|count|start|finish|first|last|first_minus_start|last_minus_finish
+DGN007_G13_BOUNDARY|1|END|group_count
+```
+
+`OVERFLOW|9` bezeichnet mindestens neun beobachtete Gruppen und liefert
+keine partiellen Gruppen; `INSUFFICIENT|0` bezeichnet nicht bereitstellbare
+Skalarwerte. Beide schließen mit `END|0`. Die Ausgabe der Diagnose erfolgt
+im Runner erst nach seiner unabhängigen Cleanup-Prüfung. Der Parser verlangt
+einen unveränderten bekannten Kontrollvertrag, die eindeutige tatsächlich
+fehlgeschlagene `CONTROL_EVIDENCE`-Phase und ihren tatsächlichen stderr-Kanal.
+BEGIN, geordnete vollständige Gruppen und END müssen lückenlos vor genau
+einem G13 mit unmittelbar folgender `FAIL_RESULT_CONTRACT`-Summary stehen.
+Keys, Counts, Zeitdomäne und exakte vorzeichenbehaftete Subtraktionen werden
+erneut geprüft. Der gesamte Report wird atomar innerhalb der bestehenden
+24-Zeilen-Diagnosegrenze reserviert. Strukturierte Status- und Guardfelder
+haben Vorrang; optionale SQL-Msg-Zahlen erhalten nur verbleibende Plätze.
+Ein ungültiger Report liefert nur eine feste
+`INSUFFICIENT|MALFORMED`-Kennung; bei fehlender Failure-/Kanalbindung wird
+kein Grenzabstandsbericht veröffentlicht. Fehlende oder unvollständige
+Diagnose unterdrückt niemals den ursprünglichen Fehler, Timeout oder Cleanup.
+
+Die Ticks bewahren die Darstellung ab `0001-01-01` mit sieben Nachkommastellen
+nach UTC-Normalisierung. Dokumentiert sind die QS-Zeitfelder als
+Ausführungs-Endzeiten; eine gemeinsame Clock oder identische tatsächliche
+Messauflösung mit `SYSUTCDATETIME` und die Zeitsemantik bei Nullzählzeilen
+sind in den geprüften Primärquellen nicht zugesagt. Der gespeicherte Bericht
+behauptet weder einen neuen QS-Snapshot noch eine Ursache, Toleranz oder
+Fehlerbehebung. Er enthält keine Querytexte, Plan-XML oder Metriken.
+Quellen, geprüft am 2026-10-07:
+[QS-Zeitfelder](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17),
+[SYSUTCDATETIME](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver17),
+[SWITCHOFFSET](https://learn.microsoft.com/en-us/sql/t-sql/functions/switchoffset-transact-sql?view=sql-server-ver17).
+Die neue Reporterrevision bestand acht tatsächliche temporäre SQL-Branchfixtures
+auf einer neuen eigenen 2022-Developerinstanz `16.0.4295.3`, einschließlich
+Ein-Tick-Verletzungen, gleicher Requestgrenzen, UTC-Offset, acht Gruppen und
+Overflow bei neun. Freeze und eigener Cleanup sind getrennt gebunden im
+[Runtime-Nachweis](../../../../Documentation/Project_Planning/DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
+Die reguläre CI am exakten neuen Head/Base bleibt vor Integration erforderlich;
+der Vorcheck ersetzt keine Lifecycle-/Versionsmatrix oder G13-Ursachenklärung.
+
+Die ursprüngliche lokale Producerprüfung bestand am 2026-10-07 auf 2019/150, 2022/160 und
 2025/170: je zweimal AB/BA/AA auf frisch erzeugten, ausdrücklich bestätigten
 eigenen Developer-Wegwerfinstanzen, insgesamt 18 vollständige Lifecycles mit
 tatsächlichem Decoder, unabhängiger Datenbankabwesenheit und überprüftem
@@ -167,13 +222,19 @@ python Tests/Static/validate_dgn007_capture_projection.py
 python Tests/Static/test_dgn007_capture_projection.py
 ```
 
-Die aktuelle Suite enthält 30 Testmethoden mit parametrisierten Gegenproben für
+Die aktuelle Suite enthält 37 Testmethoden mit parametrisierten Gegenproben für
 alle drei Major Versions und Kontrollscopes, echte Decoderanbindung,
 Framegrenzen, Queryfamilien, Requestbindungen, SQL-Ausdrucksfixtures und
-begrenzte Prozess-/Fehlerausgabe. Unter Windows bestanden 29; die
+begrenzte Prozess-/Fehlerausgabe. Unter Windows bestanden 36; die
 Linux-spezifische Exit-vor-EOF-Gegenprobe ist dort ausdrücklich SKIP und
 wird im Linux-CI ausgeführt. Zusammen mit den bestehenden DGN-007-Suites
-wurden 156 Testmethoden ausgeführt: 155 PASS und dieser eine SKIP.
+wurden vor der Reporterrevision 156 Testmethoden ausgeführt: 155 PASS und dieser eine SKIP.
+Die sieben zusätzlichen Reporter-Testmethoden prüfen beide verletzten Grenzen,
+einzelne Ticks, acht Gruppen, Kanal-/Failurebindung, fehlende oder doppelte
+Records, Überlauf, exaktes Entfernen des SQL-Abschnitts und unveränderte
+Cleanup-/Timeoutprioritäten sowie vollständige atomare Reports bei vielen
+optionalen SQL-Messages. Unter Windows bestanden die aktuellen
+37 Producer-/Reporter-Methoden mit dem bereits genannten Linux-SKIP.
 Die SQL-Ausdrucksfixtures sind modellbasierte Prüfungen; die gesonderten
 T-SQL-Proben und Kontrolllifecycles bleiben erforderlich. Der Validator
 prüft die additive SQL-Erweiterung, reine Packagergrenze und CI-Anbindung;

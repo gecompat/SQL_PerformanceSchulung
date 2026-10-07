@@ -167,11 +167,20 @@ ausgelösten G13-Fehlerzweig. Der Runner bindet diese Metadaten an tatsächliche
 stderr, die eindeutige fehlgeschlagene Kontroll-Evidenzphase und den
 unveränderten Guard-/Summary-Abschluss; Ausgabe erst nach Cleanup.
 Keine zusätzliche Query-Store-Sicht, keine Prädikat-, Last-, Zeitbudget- oder
-Outcomeänderung. Reporterentfernung muss den gesamten bisherigen SQL35
-ergeben; Quellenbindung, sinnvolle synthetische SQL-/Parserfixtures und neue
-exakte Head-/Base-CI sind erforderlich. Dieser Schnitt schließt eine Messlücke
-und behauptet keine Fehlerbehebung. Danach werden tatsächliche G13-Werte
-beurteilt; kein spekulativer Toleranzfix oder wiederholen bis grün.
+Outcomeänderung. Der Reporter ist inzwischen lokal implementiert und
+unabhängig geprüft: exakt validiertes Entfernen ergibt den ganzen bisherigen
+SQL35, Quellenbindung ist erneuert, 43 Runner- und 37 Producer-/Reporter-
+Methoden (ein Linux-spezifischer Windows-SKIP) sowie sieben Validatoren
+bestanden. Acht tatsächliche temporäre SQL-Branchfixtures auf einer neuen
+eigenen 2022-Instanz bestanden, einschließlich Ein-Tick-Abständen, gleicher
+Requestgrenzen, UTC-Offset, acht Gruppen und ausdrücklichem Overflow.
+Unveränderter Freeze und eigener Containerabbau sind unabhängig bestätigt.
+Der ganze Report bleibt atomar innerhalb 24 Diagnosezeilen. Als nächster
+Schritt sind reguläre exakte Head-/Base-CI und Integration erforderlich.
+Dieser Schnitt schließt eine Messlücke und behauptet keine Fehlerbehebung.
+Danach werden tatsächliche G13-Werte beurteilt; kein spekulativer Toleranzfix
+oder wiederholen bis grün. Der begrenzte lokale Vorcheck enthält keine
+vollständige Lifecycle-/Versionsmatrix oder Reproduktion des Main-G13.
 
 Die interne verlustfreie Capture-Rückgabe ist lokal vorbereitet und geprüft;
 Veröffentlichung und Integration sind bis zur G13-Klärung zurückgestellt.

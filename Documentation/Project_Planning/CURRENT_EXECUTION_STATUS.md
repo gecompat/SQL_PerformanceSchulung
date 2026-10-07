@@ -4,7 +4,7 @@
 |---|---|
 | Status | `ACTIVE` |
 | Stand | 2026-10-07 |
-| geprüfter Repository-Basisstand | `a0bc753d4c1fe492ba3c875bdefea5c00d8235b4` auf `origin/main` (Pull Request 66); Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `12b130f0df1f963a9075430745e406e8e2a38494` auf `origin/main` (Pull Request 67); Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -210,7 +210,22 @@ Die verbindliche Reihenfolge und die Akzeptanzkriterien stehen in [NEXT_DEVELOPM
    Nächster Schnitt ist der begrenzte kanonische G13-Grenzabstandsbericht,
    ausschließlich im bereits verletzten Fehlerzweig, mit strenger Kanalbindung
    und Ausgabe erst nach Cleanup. Guards, Last und Budgets bleiben gleich.
-   Keine identische Wiederholung oder Toleranzkorrektur ohne neue Evidenz. Die interne Capture-Rückgabe ist lokal vorbereitet und unabhängig
+   Dieser begrenzte kanonische Reporter ist jetzt lokal implementiert und
+   unabhängig geprüft. 43 Runner-Tests, 37 Producer-/Reporter-Methoden
+   (36 PASS, ein Linux-spezifischer SKIP unter Windows) und sieben
+   DGN-007-Validatoren bestanden. Acht tatsächliche temporäre SQL-Branchfixtures
+   bestanden auf einer neuen eigenen 2022-Instanz `16.0.4295.3`:
+   beide Ein-Tick-Verletzungen, beide Seiten, Gleichheit, gleiche Requestgrenzen,
+   UTC-Offset, acht Gruppen und ausdrücklicher Overflow bei neun.
+   Quellenfreeze unverändert; eigene CID und Name nach Entfernung unabhängig
+   abwesend bestätigt. Der ganze vorherige SQL35 ergibt sich nach exakt
+   validierter Reporterentfernung unverändert. Der Report bleibt atomar
+   innerhalb 24 Diagnosezeilen und wird erst nach Cleanup ausgegeben.
+   Reguläre exakte Head-/Base-CI und Integration stehen noch aus; kein
+   tatsächlicher G13-Ursachen- oder Behebungsnachweis. Einzelheiten stehen im
+   [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md).
+   Keine identische Wiederholung oder Toleranzkorrektur ohne neue Evidenz.
+   Die interne Capture-Rückgabe ist lokal vorbereitet und unabhängig
    geprüft, ihre Veröffentlichung und Integration sind zunächst zurückgestellt.
    Nach der G13-Klärung folgt die interne verlustfreie Capture-Rückgabe:
    den vollständigen Body und tatsächlich geprüfte Phasen übernehmen,

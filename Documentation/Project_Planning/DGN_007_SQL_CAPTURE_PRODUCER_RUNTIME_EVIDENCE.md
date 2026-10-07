@@ -723,6 +723,122 @@ Neue Quellenbindung, synthetische SQL-/Parserfixtures und reguläre CI
 am exakten neuen Head/Base sind erforderlich. Kein neuer QS-Snapshot,
 kein Toleranzfix, keine identische Wiederholung der privaten Probe.
 
+## Integration des getrennten G13-Untersuchungsberichts
+
+[Pull Request 67](https://github.com/gecompat/SQL_PerformanceSchulung/pull/67)
+integrierte ausschließlich den Befund, die privaten Gegenproben und den
+folgenden Diagnoseplan. Head `d2531b04816321ecbf6f747ccf26bb4fdd8d9754`
+gegen Base `a0bc753d4c1fe492ba3c875bdefea5c00d8235b4` bestand sieben
+Workflows, sieben Jobs und sieben Checks. Alle Checkouts verwendeten den
+Integrationscommit `7282ffc69d0f2f4a6abccc528e65dddbb9a1e36b` mit genau
+diesen Parents; Required Checks und Actions-App `15368` wurden unabhängig
+geprüft. Der Squash `12b130f0df1f963a9075430745e406e8e2a38494` wurde am
+2026-10-07 um 05:24:24 UTC gemergt. Er besitzt genau die Base als Parent
+und denselben vollständigen Tree `fee07a99da66f3618e5c700034815fec429c6529`
+wie der Featurehead. Gesamtdiff, zusätzliche Branchcommits und Worktree-
+Belegung wurden unabhängig geprüft. Nach Main-Synchronisierung wurde
+`codex/dgn007-g13-investigation` remote mit exakter Head-Lease und lokal
+entfernt. Die fünf ausgelösten Main-Push-Workflows dieses reinen
+Dokumentationssquashes bestanden ebenfalls; sie prüfen keine neue SQL-Revision.
+
+Der getrennte lokale Branch `codex/dgn007-internal-capture-receipt` enthält
+weiterhin den ungemergten API-Entwurf `83f08fb71446445e70fb6227e442ed7109637de6`.
+Er wurde nicht gepusht und bleibt bis zur G13-Klärung erhalten. Aus der
+Dokumentationsintegration folgt keine Behebung des Main-Runtimefehlers.
+
+## Kanonischer gespeicherter G13-Grenzabstandsbericht
+
+Der getrennte Diagnose-Schnitt basiert auf `12b130f…`. SQL35 ergänzt
+ausschließlich den bereits verletzten G13-Zweig. Ein deterministisch
+geordnetes `TOP(9)` liest gespeicherte IncidentProfile-/IncidentState-Gruppen:
+höchstens acht gültige Gruppen werden vollständig berichtet, neun ergeben
+ausdrücklich `OVERFLOW`. Es gibt keine weitere Query-Store-Sicht, Suche,
+Flush- oder Warteoperation. Keys, positive Ausführungszahlen, genaue
+UTC-100-ns-Ticks für Start/Finish/First/Last und die signierten Abstände
+First−Start sowie Last−Finish bleiben skalare Diagnosewerte. Jede tatsächliche
+Reporter-Message ist ASCII und höchstens 512 Zeichen lang. Ungültige Quellen
+oder Diagnosefehler liefern `INSUFFICIENT`; der ursprüngliche G13-
+Guard, seine angrenzende FAIL-Summary und RETURN bleiben erhalten.
+
+Der Runner akzeptiert diese Records nur für unveränderte bekannte
+Kontrollverträge, tatsächliches `CONTROL_EVIDENCE:stderr`, genau eine
+fehlgeschlagene Evidenzphase und den eindeutigen angrenzenden G13-/Summary-
+Abschluss. Anzahl, Reihenfolge, Keys, Counts, UTC-Bounds und signierte
+Differenzen werden vollständig geprüft. Ausgabe erfolgt erst nach der
+bestehenden unabhängigen Cleanup-Prüfung. Der vollständige Report erhält
+atomar Platz innerhalb des unveränderten 24-Zeilen-Diagnoselimits;
+strukturierte Guard-/Phasenstatus haben Vorrang vor optionalen SQL-
+Meldungszahlen. Fehlende, gekürzte oder ungültige Reports werden niemals
+als vollständige Gruppenmenge ausgegeben. Outcomes, Timeouts, Cleanup-
+Prioritäten, Last und Budgets ändern sich nicht.
+
+Zwei Reviewbefunde wurden vor der Runtimeprüfung korrigiert: Der neue
+Parser erlaubt entsprechend dem vorhandenen G02-Vertrag gleiche
+Requestgrenzen; er verschärft sie nicht auf strikt positive Zeitdauer.
+Eine Fullcallerfixture mit 30 gebundenen Meldungszeilen und acht Gruppen
+belegt die atomare Ausgabe aller neun Reportzeilen einschließlich Header,
+zusätzlich Guard-/Phasenstatus, bei genau 24 gesamten Diagnosezeilen.
+
+Die Quellenrevision ändert ausschließlich SQL35 innerhalb der vorhandenen
+14 SQL-/Manifestquellen. Der streng gebundene Reporterblock
+`148ce779f3ca9ebdd9644e9b180ad26d88fa810f757f25dad4ea40d316b0a064`
+wird nur an der exakten G13-Position akzeptiert. Seine Entfernung ergibt
+die gesamte vorherige SQL35-Datei mit LF-SHA `7d51b7bf…`, unabhängig
+bytegenau bestätigt. Neue SQL35-LF-SHA:
+`81cf1dead911564e9d80f0cdee044b72aa88d25b9821505278b6290cd8336117`;
+Quellenobjektdigest `6892931b06ea1460ea1333029448f301bbd951f5bc54d348bd7a30e9458ab047`,
+semantischer Vertragsdigest
+`4032f80b49e67b9bb9e062c7fbd2c4a0b56f8a655410b6e73e2dde9f74ae6c90`.
+Shape, Schema, Methodik, Evaluator und öffentliche CLI bleiben erhalten.
+
+Lokal bestanden 43 Runner-Tests und 37 Producer-/Reporter-Testmethoden
+(36 PASS, ein ausdrücklich Linux-spezifischer SKIP unter Windows), dazu
+alle sieben DGN-007-Validatoren. Zusätzliche Phase-, Profil-, Kontroll-,
+Prospektiv-, Transport- und Compatibility-Suites bestanden. Registry mit
+219 Artefakten, Kennungsvertrag und Repositorykontinuität bestanden ebenfalls.
+Diese synthetischen und statischen Prüfungen sind keine Incident-Abnahme.
+
+Der einmalige frische T-SQL-Vorcheck begann am 2026-10-07 um 05:43:08 UTC
+auf einer neuen eigenen SQL-Server-2022-Developerinstanz `16.0.4295.3`.
+Pullref und separat vorab aufgelöste Inspect-ID waren hier jeweils
+`sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`.
+Vier CPU und 8 GiB, keine Ports oder Mounts, kein Pull, Secrets ausschließlich
+im temporären Prozess-Environment. Die import-sichere private Fixture
+extrahiert nach dem strengen Stripnachweis den tatsächlichen kanonischen
+G13-Branch; nur die beiden gespeicherten Quellen werden durch temporäre
+synthetische Tabellen in `master` ersetzt. Es entstehen keine DGN-Datenbank
+und keine zusätzlichen Suchausführungen.
+
+Alle acht tatsächlichen SQL-Cases bestanden: First−Start=−1 Tick,
+Last−Finish=+1 Tick, beide verletzte Grenzen, Gleichheit ohne Verletzung,
+gleiche Requestgrenzen mit verletzten Profilzeiten, UTC-Offsetnormalisierung,
+acht vollständig geprüfte Gruppen sowie neun Gruppen mit ausdrücklichem
+Overflow. Die tatsächliche stderr-Ausgabe wurde im Speicher vom neuen
+Parser geprüft; kein Rohoutput wurde persistiert. Die Instanz war vor und
+nach jedem Case hinsichtlich Benutzerdatenbanken leer. Der Vorabfreeze mit
+20 gebundenen Dateien blieb vor jedem Case und abschließend unverändert:
+14 Quellen, Vertrag, drei geänderte Pythondateien und beide privaten Helper.
+Freeze-Digest `c6c14753928f501fb2450ce1db9efc2261699ba080b889b971b61d264f7ad539`;
+Runner-LF `ca6703285492820719544d6ba0c72fd6973e83c67769f64ae767d45542f14420`,
+private Fixture-LF `f62f30158a407582a817c4a7e1866614395b2c3630a705dd5d04ef98f0314f54`,
+Parent-LF `df2d15aa71ca8d46883b673b0bba4b6a4e3438faf48975d939ec18b86cb3be54`.
+
+Die eigene CID
+`e3ba774b14b8305a6cb8104d9ff3363b314621569b04d4be3e7f1dbfb13e368d`
+mit Name `sqlperf-dgn007-boundary-16-1d4e79aa40` wurde nach exakter
+Name-/Scope-/Owner-/Imageprüfung mit `rm --force --volumes` entfernt.
+Der Parent bestätigte nach Entfernung die CID-Abwesenheit; der unabhängige
+Agent prüfte zusätzlich genau diese CID und diesen exakten Namen jeweils
+mit Exit 0 und null Treffern. Der Parent
+beendete die Prüfung mit Exit 0. Das ist ein begrenzter SQL-Syntax-,
+Framing-, UTC-/Abstands- und Overflow-Nachweis auf 2022; keine vollständige
+Lifecycle-/Versionsmatrix und keine Reproduktion des tatsächlichen Main-G13.
+
+Die reguläre PR-CI am exakten neuen Head gegen den aktuellen Base-Stand
+bleibt vor Integration erforderlich. Die Ursache des historischen Main-
+G13 ist weiterhin offen; dieser Reporter schließt eine Messlücke und
+behauptet keine Behebung, Toleranzfreigabe oder Incidentpromotion.
+
 ## Verbleibende Abnahmegrenzen
 
 Lokale Ergebnisse und spätere Actions-Ergebnisse werden getrennt
