@@ -21,6 +21,7 @@ import stat
 import subprocess
 import threading
 import time
+from types import MappingProxyType
 
 DEMO = "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/"
 PYTHON_MEMBERS = (
@@ -281,7 +282,7 @@ def _imports(bodies: dict[str, bytes], policy: Policy) -> None:
 
 
 def verify_bundle(repository: Path, commit: str, candidate: Path,
-                  policy: Policy = DGN007) -> Report:
+                  policy: Policy = DGN007, *, bound_validator=None) -> Report:
     """Nur Snapshot und deklarierte AST-Imports; kein allgemeiner Sandboxbeweis."""
     raw = logical = False
     try:
@@ -329,6 +330,14 @@ def verify_bundle(repository: Path, commit: str, candidate: Path,
             raise Rejected("RAW_BYTES_DIFFER")
         raw = logical = True
         _imports(bodies, policy)
+        if bound_validator is not None:
+            # Nur kontrollseitiger Code; exakt gelesene Bytes, keine Neuaufnahme.
+            try:
+                bound_validator(MappingProxyType(bodies))
+            except Rejected:
+                raise
+            except Exception:
+                raise Rejected("BOUND_VALIDATOR_FAILED") from None
         bind = lambda rows: hashlib.sha256(json.dumps(rows, ensure_ascii=True,
                                       separators=(",", ":")).encode()).hexdigest()
         return Report("PASS_STATIC_CANDIDATE", "NONE", commit, True, True, True,

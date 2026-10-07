@@ -113,14 +113,18 @@ bei deren Fehlen ausdrücklich als SKIP ausgewiesen; Linux-CI führt sie aus.
 Reparseattribute besitzen zusätzlich eine kontrollierte Gegenprobe.
 Keine SQL-, Docker- oder Launcher-Runtime ist beteiligt. Der eigene
 [Workflow](../../.github/workflows/dgn007-source-bundle.yml) ist statisch und
-auf die vier konkreten Verifierpfade und die 27 exakten Quellmember begrenzt;
+auf die sieben konkreten Verifier-/Dokumentpfade und die 27 exakten Quellmember begrenzt;
 spätere Änderungen dieser Quellen lösen damit die Closuregegenprobe aus.
 
 ## Nächster begrenzter Schnitt
 
-Eine getrennte Offline-Prüfung der tatsächlichen Prozess-/Manifestdatenkanten
-und ein expliziter Importumgebungs-/Launcherentwurf müssen die statische
-Kandidatenliste auf den realen Einstieg abgleichen. Noch kein Launcherstart:
+Die getrennte [Prozess-/Manifestkantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist statisch implementiert; der Import-/Launcherentwurf bleibt PROPOSED.
+Ein kontrollseitiger Callback erhält optional erst nach Bytebindung und
+Importprüfung die bereits gelesenen unveränderlichen Bytes. Der Default-Report
+und die CLI dieses Verifiers bleiben unverändert. Nächster kleiner Schnitt ist
+ein begrenzter Offline-Streaming-/Poll-/Kostenprototyp mit synthetischem Input
+vor Pufferung, ohne Integration in die neun Runtimequellen. Kein Launcherstart:
 UsedBundle, Actor/CID, Datenbankgeneration, Zugang, physischer Host,
 Acquisition, Kosten und kontinuierlicher Zustand bleiben offene Gates.
 Normative Methoden-/Grenzänderungen benötigen eine ausdrückliche neue

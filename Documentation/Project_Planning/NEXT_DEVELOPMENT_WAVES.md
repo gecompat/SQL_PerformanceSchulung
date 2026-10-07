@@ -243,8 +243,13 @@ gemeinsame Machbarkeitsevidenz. Der [Offline-Quellenbundle-Verifier](DGN_007_SOU
 ist statisch implementiert: feste 27 Mitglieder, Gitblob-/Rohbytebindung,
 separate LF-Äquivalenz und deklarierte AST-Imports samt Manipulationsfixtures.
 Statischer Kandidaten-PASS attestiert keine verwendeten Runtimebytes.
-Nächster kleiner Schnitt ist die getrennte Offline-Prüfung der Prozess-/
-Manifestdatenkanten samt explizitem Importumgebungs-/Launcherentwurf, ohne Launcherstart.
+Die getrennte [Prozess-/Manifestkantenprüfung](DGN_007_EXECUTION_EDGE_VERIFIER.md)
+ist statisch implementiert: Python-3.12-Ganz-AST-Profil, sechs SQL-only-Manifeste,
+14 Quellenhashes und SQLCMD-Gegenproben. Import-/Launcherentwurf PROPOSED,
+tatsächliche Importumgebung und verwendete Runtimebytes offen. Nächster kleiner
+Schnitt: begrenzter Offline-Streaming-/Poll-/Kostenprototyp mit synthetischem
+Prozessinput vor Pufferung; keine Integration in die neun Runtimequellen,
+keine reale Laufzeitmachbarkeit oder Methoden-/Launcherattestation.
 Normative Methoden-/Grenzänderungen brauchen eine ausdrückliche neue Entscheidung.
 Keine implizite OFF-/CLEAR-/Laständerung. Erst eine tragfähige explizite
 Methodenentscheidung erlaubt gemeinsam versionierte
