@@ -1212,3 +1212,219 @@ begrenzt kanonischer Aufnahme und Repack. Kombinierte Bodyrahmung, tatsächliche
 Parent-/Worker-Anbindung, Consumption-/Replay-/Cleanupbelege und Methodengates
 bleiben getrennt offen. Kein Runtime-, Trust-, UsedBytes- oder Methodenclaim;
 alle Attestationsflags bleiben false.
+
+## 14. Separater experimenteller Formcodec und Design-Digests
+
+Dieser kleine Schnitt basiert auf
+`6e0575ee386ed2cf6666292db1c5468d9fae15a5` nach PR97. Er setzt die
+positionsgebundenen E4-Formen aus §12 nach dem positiven vollständigen
+Größenbeleg aus §13 um. Der neue Pfad ist ein reiner experimenteller
+Formcodec mit getrennten Design-Digests. Produktive Versionsmigration,
+kombinierte Bodyrahmung und tatsächliche Parent-/Worker-Anbindung bleiben
+eigene spätere Gates. Input82/DGNI001, Legacy-API und die negativen älteren
+Größenbefunde werden dadurch nicht verändert.
+
+### 14.1 Explizite Auswahl und eigene Rahmung
+
+Der Caller wählt vor jeder Aufnahme ausdrücklich
+`expected_version="pooled-binding-design/v1"` und eine der fünf Rollen aus
+§12. Der eigene 16-Byte-Header hat die Form `struct.Struct(">8sII")`:
+Magic `b"DGNP001\0"`, Rollencode und vollständige kanonische JSON-Länge.
+Rollencodes 1 bis 5 entsprechen genau der Tabellenfolge aus §12.2.
+Der Header zählt gegen 16.384 Bytes; die JSON-Nutzlast hat höchstens
+16.368 Bytes. Es gibt keinen zusätzlichen Rawbodyteil. Dieser experimentelle
+Discriminator aktiviert keine produktive Workerroute oder Migration.
+
+Der Decoder nimmt ausschließlich exakte `bytes` an. Bytegrenze, Magic,
+Rollencode, explizite Auswahl, Längenfeld und Gesamtende werden vor Slice
+und Parse geprüft. Nach begrenztem Parsing werden tatsächlicher E4-Tag und
+Rolle gegen Caller und Header geprüft, bevor Referenzen interpretiert werden.
+Kein Dispatch aus fremdem Tag, Legacy-Fallback oder Versionsdefault.
+
+### 14.2 Begrenzte Aufnahme und vollständige Semantik
+
+Ein eigener ASCII-JSON-Arrayparser zählt höchstens 16.368 repräsentierte
+Knoten vor deren Aufnahme. Arraytiefe einschließlich E4 bleibt höchstens
+acht, jede Sequenz einschließlich Pool höchstens 256, Integer exakt
+0 bis 99.999.999 und höchstens acht Dezimalstellen. Objekte, bool, floats,
+NaN und fremde Containerformen sind ausgeschlossen. Textaufnahme begrenzt
+UTF-8 auf 4.096 Bytes, prüft Escapeformen und vollständige Surrogatpaare
+und lehnt NUL sowie isolierte Surrogate ab. Die kanonische ASCII-Neuausgabe
+muss exakt denselben Bytes entsprechen; alternative Escapes, Zahlformen
+oder Leerraum werden dadurch nicht als weiteres Encoding akzeptiert.
+
+Der gesamte Pool wird vor Referenzverwendung auf exakte Texte, Ordnung,
+Eindeutigkeit und Bounds geprüft. Nur Textpositionen werden aufgelöst;
+semantische Integer und das allein erlaubte `specName=null` behalten ihre
+Typen. Nach vollständiger Traversierung müssen sämtliche und ausschließlich
+alle Poolindizes verwendet sein. Die Rekonstruktion hält die unveränderlichen
+Pooltexte gemeinsam; sie erzeugt keine wiederholten expandierten JSONpuffer.
+Arity, Positionen und sämtliche ursprünglichen semantischen Guards gelten
+für alle S15/P11/I7/K8/D5/F3/W6-Felder und beide physisch vorhandenen D9-Arrays.
+
+Caller-`prepared` und `expected_worker` sind separat gehaltene Vergleichswerte,
+keine Quelle für ausgelassene empfangene Felder. Erst die vollständig gültigen
+empfangenen Werte werden verglichen. Ein später Formfehler dominiert eine
+frühe gültige Abweichung; es gibt keinen Teilmatch. Beide Deskriptorarrays,
+Original-Input82-SHA, Commit, Raw27-Bindung, Nonce und neun Rawbodyhashes bleiben
+vollständig erhalten und geprüft, ohne LF-Konversion.
+
+Die einzeln dekodierten Installation- und Workerformen enthalten keinen
+Kontext oder D9-Nachweis und begründen keine Nonce-, Parent- oder
+Gesamtprofilbindung. Ein vollständiger deklarativer Profilvergleich prüft
+separat alle fünf tatsächlichen empfangenen Rollen. Der Singleformdecoder prüft
+seine eine empfangene Rolle vollständig; er behauptet keinen vollständigen
+Fünf-Formen-Match. Vor erfolgreicher Encoder-Einzelframeausgabe oder Digestberechnung
+müssen bereits alle fünf vollständigen Formen sämtliche Semantik-, Pool-,
+Knoten-, Tiefen- und Bytegates bestehen; eine kleine einzelne Form heilt
+keine zu große gemeinsame Metadata. Die Summe aller fünf Formen einschließlich
+aller fünf Header muss vor Encoder-Einzelframeausgabe, Formsetausgabe oder Digestberechnung
+zusätzlich das unveränderte 64-KiB-Ausgabecap einhalten.
+
+### 14.3 Getrennte Digestdomains und Abnahme
+
+Die getrennten APIs des neuen
+[`dgn007_pooled_profile_codec.py`](../../Tests/Tools/dgn007_pooled_profile_codec.py)
+verlangen jeweils die explizite Version:
+
+| API | Ergebnis und Grenze |
+|---|---|
+| `encode_declared_form(prepared, worker, *, expected_version, role)` | exakte Framebytes nach allen fünf erzeugten Formgates |
+| `encode_declared_formset(prepared, worker, *, expected_version)` | fünf Frames in fester Rollenfolge nach gemeinsamem Ausgabegate |
+| `decode_declared_form(frame, *, expected_version, expected_role, prepared, expected_worker)` | eigener frozen `DecodedForm` mit vollständig zurückgewonnenem Payload; S/W ohne Kontextmatch |
+| `digest_declared_profile(prepared, worker, *, expected_version)` | `CHECKED_DECLARED_FORMSET` mit drei eigenen Design-Digests nach allen fünf erzeugten Formgates |
+| `match_declared_formset(frames, prepared, expected_worker, *, expected_version)` | `MATCHED_DECLARED_FORMSET` mit drei eigenen Digests erst nach allen fünf tatsächlich empfangenen Formgates und vollständigem Vergleich; sonst feste Ablehnung |
+
+Payloadrecords haben kein inhaltliches `repr`. Erfolgreiche Reports bleiben
+`PROJECT_SEMANTIC` und sämtliche Attestationsflags false. Encoder und
+Einzeldecoder verwenden bei Ablehnung feste `CodecRejected`-Labels ohne
+Exceptionkette; Formsetvergleich liefert `REJECTED_DECLARED_FORMSET` ohne Digests.
+
+Erst nach sämtlichen fünf Gates entstehen drei eigene SHA256-Design-Digests
+über die vollständigen kanonischen E4-Hüllen ohne Header: Installation,
+Worker und Profilbindungskontext verwenden jeweils ihre eigene `pooled-*/v1`-
+Rolle und ihren eigenen vollständigen Pool. Alte benannte oder `compact-*`-
+Digests werden nicht wiederverwendet. Der bestehende benannte Input82-Digest
+bleibt unverändert. Dies attestiert weder Herkunft noch Kollisionsfreiheit.
+
+Die Abnahme verlangt vollständige Roundtrips aller Rollen und drei Ordinals,
+unabhängige Feldreferenz und Digestrechnung sowie Gegenproben für Header-,
+Rollen-, Versions-, Domain- und Legacy-Crossover. Bounds, Poolfehler,
+Null-/Leer-/Unicodefälle, falsche Positionstypen, späte malformed Felder,
+beide D9-Vorkommen und ursprüngliche Rawbytebindung werden separat geprüft.
+Ein tatsächlicher vollständiger Codecbeleg derselben privaten Kontrollfixture
+bleibt bis zum Quell-/Testreview und zur Vorprüfung eines konkreten begrenzten
+Helpers offen. Öffentliche Fehler enthalten ausschließlich feste Labels,
+keine Payloads, Locator, Nonce oder Exceptionketten. Sämtliche Attestationsflags
+bleiben false. Keine SQL-, Trust-, UsedBytes-, Replay-, Cleanup- oder
+Methodenfreigabe folgt aus einem deklarativen Roundtrip.
+
+### 14.4 Portable Gegenproben und getrennte Grenzen
+
+Die neue
+[`Testsuite`](../../Tests/Static/test_dgn007_pooled_profile_codec.py)
+bestand lokal 41/41 Methoden ohne SKIP unter CPython 3.12.14 mit
+`-I -S -B -X utf8` in 0,239 s. Eine unabhängige benannte Feldreferenz prüft
+sämtliche Rollen und drei Ordinals, originale Input82-Bindung, beide D9-Arrays,
+vollständige DTO-Werte, getrennte Digestpräbilder und kanonischen Repack.
+Gültige Metadata-, Report-, Installations- und Workerrahmen erreichen jeweils
+exakt 16.384 Bytes und werden aufgenommen; 16.385 Bytes werden vor Parse
+abgewiesen. Der gültige feste Kontext bleibt unter dem Cap. Seine getrennte
+interne Header-/Integerarithmetik ist kein gültiges Kontext-Capfixture.
+
+Pool256 ist mit erlaubten Source-Locations zulässig; Pool257, Duplikate,
+Unordnung, ungenutzte Werte und ungültige Indizes werden abgewiesen.
+Null, Leertext, leere Folgen, Integer gegenüber Textreferenzen, Unicode,
+Surrogatpaare und UTF-8-Grenzen bleiben positionsgebunden. Ein wiederholter
+Locationtext wird unveränderlich geteilt; alle Arrayvorkommen bleiben erhalten.
+Foreigngetter, Subklassen, uninitialisierte Records und verfälschte Callerwerte
+werden vor fremden Operationen abgewiesen. Späte malformed Empfangsfelder
+dominieren frühe gültige Abweichungen. Alte Magic-/Domain-/Versionsformen
+erhalten keinen Fallback.
+
+Knoten-, Tiefen- und gemeinsame 64-KiB-Gegenproben prüfen die interne begrenzte
+Aufnahme beziehungsweise Zählarithmetik zusätzlich. Kontrollierte Zähler und
+synthetische Kosteneingaben werden ausdrücklich nicht als gültige maximale
+E4-Feldfixtures ausgegeben. Die tatsächliche Frame-/Längen-/Gesamtgrenze wird
+auch gegen einen Parsermock vor dessen Aufruf geprüft.
+
+Drei zunächst falsche Fixture-Erwartungen wurden nach tatsächlichen
+Fehlerläufen korrigiert: Digestersatz hinterließ einen ungenutzten Poolwert,
+fehlende Surrogatfortsetzung ergibt `JSON_FORM`, und die interne feste
+Kontextarithmetik ergibt bei Cap `INTEGER_LIMIT`. Diese Korrekturen ersetzen
+keine berichteten früheren Fehler durch nachträglichen Erfolg. Der separate
+Singledecoder vergleicht seinen tatsächlichen Frame gegen semantisch gültige
+Callerwerte; er fordert keine Bytefreigabe vier nicht empfangener Formen.
+Alle fünf erzeugten Formen und das gemeinsame Ausgabegate bleiben dagegen
+vor Encoder-Einzelframeausgabe oder Digests zwingend, alle fünf tatsächlichen
+Empfangsformen vor dem vollständigen Formsetmatch.
+
+| Geprüfte portable Quelle | LF-SHA256 |
+|---|---|
+| Experimenteller Formcodec | `3b351a196239247d34b198067a07a178fc3b74dd8bfc68488dd194ccbe9c7751` |
+| Unabhängige Testsuite | `9752af10ce0103ad7e247baeaf72a0cc90d87f2583cc2ca67a8cee235aef104e` |
+
+Der private vollständige Codecbeleg erfolgte erst nach unabhängigem Quell-/
+Testreview und Vorprüfung des konkreten Helpers; §14.5 dokumentiert diesen
+getrennten Nachweis. Keine neue Aufnahme, Nonce oder operative Baseline wird
+durch die synthetischen Gegenproben gerechtfertigt.
+
+### 14.5 Vollständiger reiner Codecbeleg der Originalfixture
+
+Nach vollständigem unabhängigem Quell-/Testreview und zwei getrennten
+Vorprüfungen des konkreten Helpers lief genau eine neue reine Codecprüfung
+unter CPython 3.12.14 mit `-I -S -B -X utf8`. Sie endete regulär nach 1,024 s
+mit Exitcode 0. Die vollständige separat vorgewählte Auswahl mit 85 Records
+und zwei Controls aus §11.2 sowie der Originalrahmen aus §11.3 blieben
+unverändert. Keine erneute Bootstrapaufnahme, Vorbereitung, Nonce oder
+Ausführung eines früheren Messhelpers. Die begrenzte Rekonstruktion bestand
+den bestehenden Input82-Roundtrip; ursprünglicher Parentmemory oder Transfer
+werden damit nicht attestiert.
+
+Die unabhängige benannte Feldreferenz erhielt sämtliche Felder, Typen und Folgen.
+Alle fünf tatsächlichen Framebytes je Ordinal entsprachen den unabhängig
+erzeugten E4-Referenzen. Die tatsächlichen Decodergebnisse wurden vollständig
+gegen eigene DTO-/Feldreferenzen geprüft; beide D9-Arrays, ursprünglicher
+Input82-Digest, neun Rawbodyhashes und 130.837 Bodybytes blieben erhalten.
+Kanonischer Repack und vollständige Verwendung sämtlicher Poolwerte bestanden.
+Alle drei eigenen Digestdomains je Ordinal stimmten mit der unabhängigen
+Stdlib-Rechnung überein; Encoder-, Digest- und tatsächliche Formsetmatch-APIs
+bestanden sämtliche fünf Formgates und das gemeinsame Ausgabegate.
+
+| Ordinal | Fünf Framegrößen einschließlich aller Header | Gesamtausgabe |
+|---|---|---:|
+| 1 | 9.389 / 9.083 / 638 / 7.408 / 1.746 | 28.264 |
+| 2 | 9.389 / 9.083 / 638 / 7.401 / 1.746 | 28.257 |
+| 3 | 9.389 / 9.083 / 638 / 7.390 / 1.746 | 28.246 |
+
+Alle Werte sind Bytes. Die Rollenfolge entspricht §12.2, die Poolanzahlen
+sind bei allen Ordinals 204/202/17/172/32. Alle 15 Frames bleiben unter
+16.384 Bytes, jedes vollständige Set unter 65.536 Bytes. Dies ist ein reiner
+deklarativer Codecbeleg dieser vollständigen Kontrollfixture, keine operative
+Sollinventur oder tatsächliche Workerbeobachtung.
+
+Der konkrete Helper hat RAW-SHA256
+`3d340c0a579fcc172f7446c400423df1506a2d881a78fd236b9497c823592aac`
+und 12.472 Bytes. Das sichere Ergebnisaggregat hat SHA256
+`b9c28069cb9447830e46a5bf6918e4c89fd347eb5b598e55089ff34444c0366c`.
+Vor-/Nachpins aller sieben tatsächlich importierten RAW-Kontrollquellen und
+beider Originaleingaben bestanden. Der bestehende Pool-Sizer hat nach Checkout
+RAW-SHA256 `5671b043e5cca2eae482151ee2bf8b7a964e9ee580da750c45c46494d0f8d2ef`;
+sein portabler LF-Hash aus §13.2 bleibt unverändert. RAW-Ausführungsbytes werden
+nicht mit portablen LF-Provenienzen gleichgesetzt. Private Locator, Nonce,
+Inventurdetails und Bodies bleiben außerhalb versionierter Artefakte.
+
+Der zusätzliche unabhängige Nachreview rechnete aus den unveränderten Eingaben
+mit eigener Stdlib-Referenz sämtliche 15 Frames, neun Domain-Digests und drei
+Formset-SHA identisch nach. Vollständige Positionen, Rückgewinnung, Usedsets,
+D9-Vorkommen und ursprüngliche Rawbytebindung bestanden; alle Pins unverändert.
+Das sichere Aggregat hat 2.515 Bytes und ausschließlich die geprüfte Feldmenge.
+Kein Helper-/Codec-/Sizer-/Prepare-/Counter-Replay. Diese Nachrechnung bestätigt
+die erwarteten Bytes und Digests, ersetzt keine zweite tatsächliche Codecaufnahme.
+Nächster kleiner Schnitt ist ein eigener reiner experimenteller kombinierter Metadata-/
+Rawbody-Frameprototyp. Er behält die neun Originalbodies, deren Caps und sämtliche
+Bindungen und aktiviert keine produktive Workerroute. Operative Baseline,
+Versionsmigration, Parent-/Worker-Anbindung, tatsächliche Quellenauflösung,
+Consumption-/Replay-/Cleanup- und Methodengates bleiben getrennt offen.
+Alle Attestationsflags einschließlich vollständiger Runtimeinventur und
+ursprünglicher Parentmemory bleiben false; keine Methoden- oder Runtimefreigabe.
