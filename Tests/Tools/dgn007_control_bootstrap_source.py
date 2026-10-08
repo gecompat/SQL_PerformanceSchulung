@@ -242,3 +242,147 @@ def build_control_bootstrap(profile_raw, *, logical_profile) -> BootstrapSource:
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_SYSCONFIG_HELPERS = '''
+def _config_text(value, locator=False):
+    _require(type(value) is str and len(value) <= 4096, "CONTROL_SYSCONFIG_FORM")
+    valid = True
+    try:
+        valid = len(value.encode("utf-8", "strict")) <= 4096 and "\\0" not in value
+    except UnicodeError:
+        valid = False
+    _require(valid, "CONTROL_SYSCONFIG_FORM")
+    if locator:
+        _require(value.startswith("/") and not value.endswith("/")
+                 and "\\\\" not in value and "//" not in value
+                 and all(part not in ("", ".", "..") for part in value[1:].split("/")),
+                 "CONTROL_SYSCONFIG_FORM")
+
+
+def _config_anchor(cache, module_class, spec_class, loader_class):
+    label = "CONTROL_SYSCONFIG_BINDING"
+    _require(type(sys) is module_class and _dictionary(sys.modules)
+             and sys.modules is cache, label)
+    _require(type(sysconfig) is module_class and cache.get("sysconfig") is sysconfig, label)
+    md = sysconfig.__dict__
+    _require(_dictionary(md), label)
+    _text(md.get("__name__"), "sysconfig", label)
+    _text(md.get("__package__"), "", label)
+    filename = md.get("__file__")
+    _config_text(filename, True)
+    spec, loader = md.get("__spec__"), md.get("__loader__")
+    _require(type(spec) is spec_class and type(loader) is loader_class
+             and "__path__" not in md, label)
+    sd, ld = spec.__dict__, loader.__dict__
+    _require(_dictionary(sd) and _dictionary(ld), label)
+    _text(sd.get("name"), "sysconfig", label)
+    _text(sd.get("origin"), filename, label)
+    _require(sd.get("loader") is loader and sd.get("submodule_search_locations") is None
+             and sd.get("_set_fileattr") is True, label)
+    _text(ld.get("name"), "sysconfig", label)
+    _text(ld.get("path"), filename, label)
+    cached, spec_cached = md.get("__cached__"), sd.get("_cached")
+    _require((cached is None or type(cached) is str)
+             and (spec_cached is None or type(spec_cached) is str), label)
+    if cached is not None:
+        _config_text(cached)
+    if spec_cached is not None:
+        _config_text(spec_cached)
+    _require(cached == spec_cached, label)
+    function = md.get("get_config_var")
+    _require(type(function) is type(_load_bound_control), label)
+    _require(function.__globals__ is md and type(function.__code__) is type(_load_bound_control.__code__)
+             and function.__defaults__ is None and function.__kwdefaults__ is None
+             and function.__closure__ is None, label)
+    return (sysconfig, md, function, function.__code__, spec, sd, loader, ld, filename, cached)
+
+
+def _config_check(anchor, cache, module_class, spec_class, loader_class):
+    current = _config_anchor(cache, module_class, spec_class, loader_class)
+    _require(all(current[index] is anchor[index] for index in range(8))
+             and current[8:] == anchor[8:], "CONTROL_SYSCONFIG_BINDING")
+
+
+def _initialize_config(anchor, chosen, cache, module_class, spec_class, loader_class, coherence):
+    _require(_EXPECTED_SOABI is chosen[0] and _EXPECTED_DESTSHARED is chosen[1],
+             "CONTROL_SYSCONFIG_BINDING")
+    _config_check(anchor, cache, module_class, spec_class, loader_class)
+    _coherent(*coherence)
+    actual_soabi = anchor[2]("SOABI")
+    _config_check(anchor, cache, module_class, spec_class, loader_class)
+    _coherent(*coherence)
+    actual_destshared = anchor[2]("DESTSHARED")
+    _config_check(anchor, cache, module_class, spec_class, loader_class)
+    _coherent(*coherence)
+    _require(_EXPECTED_SOABI is chosen[0] and _EXPECTED_DESTSHARED is chosen[1],
+             "CONTROL_SYSCONFIG_BINDING")
+    # Beide Formen sind vollständig geprüft, bevor ein Erwartungsvergleich erfolgt.
+    try:
+        _config_text(actual_soabi)
+        _config_text(actual_destshared, True)
+    except UnicodeError:
+        raise _ControlRejected("CONTROL_SYSCONFIG_FORM") from None
+    _require(actual_soabi == chosen[0] and actual_destshared == chosen[1],
+             "CONTROL_SYSCONFIG_MISMATCH")
+
+
+'''
+
+
+def _config_expected(value, *, locator):
+    label = "DESTSHARED_FORM" if locator else "SOABI_FORM"
+    _need(type(value) is str and len(value) <= MAX_LOCATOR_BYTES, label)
+    valid = True
+    try:
+        valid = len(value.encode("utf-8", "strict")) <= MAX_LOCATOR_BYTES and "\0" not in value
+    except UnicodeError:
+        valid = False
+    _need(valid, label)
+    if locator:
+        _need(value.startswith("/") and not value.endswith("/")
+              and "\\" not in value and "//" not in value
+              and all(part not in ("", ".", "..") for part in value[1:].split("/")), label)
+
+
+def build_sysconfig_control_bootstrap(profile_raw, *, logical_profile,
+                                     expected_soabi, expected_destshared) -> BootstrapSource:
+    """Separate reine Quellenroute für zwei vorab gewählte Sysconfigtexte."""
+    _need(type(profile_raw) is bytes, "PROFILE_TYPE")
+    _need(0 < len(profile_raw) <= MAX_PROFILE_BYTES, "PROFILE_SIZE")
+    _locator(logical_profile)
+    _config_expected(expected_soabi, locator=False)
+    _config_expected(expected_destshared, locator=True)
+    # Nur feste, eindeutig vorhandene Templateanker; die Legacykonstanten bleiben erhalten.
+    changes = (
+        ("def _load_bound_control():", _SYSCONFIG_HELPERS + "def _load_bound_control():"),
+        ("        exec(code, module.__dict__, module.__dict__)",
+         "        config_anchor = _config_anchor(cache, module_class, spec_class, loader_class)\n"
+         "        chosen = (_EXPECTED_SOABI, _EXPECTED_DESTSHARED)\n"
+         "        coherence = (module, spec, loader, loader_class, spec_class, cache, main,\n"
+         "                     expected, code, module_class, name, filename)\n"
+         "        exec(code, module.__dict__, module.__dict__)"),
+        ("    except _ControlRejected as error:",
+         "        phase = \"CONTROL_SYSCONFIG_CALL\"\n"
+         "        _initialize_config(config_anchor, chosen, cache, module_class, spec_class, loader_class, coherence)\n"
+         "        _coherent(module, spec, loader, loader_class, spec_class, cache, main,\n"
+         "                  expected, code, module_class, name, filename)\n"
+         "    except _ControlRejected as error:"),
+        ('"CONTROL_COHERENCY", "CONTROL_COMPILE")',
+         '"CONTROL_COHERENCY", "CONTROL_COMPILE", "CONTROL_SYSCONFIG_BINDING",\n'
+         '                  "CONTROL_SYSCONFIG_FORM", "CONTROL_SYSCONFIG_MISMATCH", "CONTROL_SYSCONFIG_CALL")'),
+        ('    except BaseException:\n        issue = "CONTROL_EXEC"',
+         '    except BaseException:\n        issue = phase if phase == "CONTROL_SYSCONFIG_CALL" else "CONTROL_EXEC"'),
+    )
+    body = _BODY
+    for old, new in changes:
+        _need(body.count(old) == 1, "TEMPLATE_FORM")
+        body = body.replace(old, new, 1)
+    source = (_PREFIX + "\n_EXPECTED_PROFILE_RAW = " + repr(profile_raw)
+              + "\n_PROFILE_FILE = " + ascii(logical_profile)
+              + "\n_EXPECTED_SOABI = " + ascii(expected_soabi)
+              + "\n_EXPECTED_DESTSHARED = " + ascii(expected_destshared) + "\n" + body).encode("utf-8")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
