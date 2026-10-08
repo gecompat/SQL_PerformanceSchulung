@@ -17,6 +17,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Tools"))
 import dgn007_control_bootstrap_source as subject
+import dgn007_pooled_profile_codec as syntax_reference
 
 RAW = b"SYNTHETIC_VALUE = 7\n"
 LOCATOR = "/synthetic/control/profile.py"
@@ -169,8 +170,10 @@ class Run:
         self.custom_builtins.update(__import__=fixed_import, compile=actual_compile, exec=actual_exec)
         self.main.__dict__["__builtins__"] = self.custom_builtins
 
-    def execute(self):
-        if self.config:
+    def execute(self, selected=None):
+        if selected is not None:
+            pass
+        elif self.config:
             selected = subject.build_sysconfig_control_bootstrap(
                 self.raw, logical_profile=LOCATOR, expected_soabi=self.expected_soabi,
                 expected_destshared=self.expected_destshared)
@@ -700,6 +703,360 @@ class SysconfigBootstrapTests(unittest.TestCase):
         self.rejected(run, "CONTROL_SOURCE_MISMATCH")
         self.assertEqual(run.config_calls, [])
         self.assertEqual(run.compile_calls, [])
+
+
+def syntax_fixture(ordinal=1, *, marker="synthetic", locations=()):
+    """Benannte vollständige Syntaxwerte; ausdrücklich keine gültige Profilauswahl."""
+    files = ({"path": "file-locator", "size": 0, "sha256": "file-hash"},)
+    installation = dict(
+        assumption="assumption", platform="platform", implementation="implementation",
+        version=(3, 12, 14), executable="executable", executable_target="target",
+        prefixes=("prefix", "exec-prefix", "base-prefix", "base-exec-prefix"),
+        abi="abi", paths=("search-path",), roots=("root-a", "root-b"), inert_zip="",
+        flags=(1, 1, 1, 1, 1, 0), finders=("finder-a", "finder-b", "finder-c"),
+        hooks=("hook-a", "hook-b"), files=files)
+    module = dict(name="cache-key", moduleName="module-name", specName=None,
+                  origin="origin", file="module-file", kind="kind", locations=locations,
+                  loader="loader", loaderName="loader-name", loaderPath="loader-path",
+                  aliasGroup=("alias-a", "alias-b"))
+    def descriptors(prefix):
+        return tuple(dict(ordinal=n, module=prefix + "module" + str(n),
+                          member=prefix + "member" + str(n), size=n,
+                          sha256=prefix + "hash" + str(n)) for n in range(1, 10))
+    ip = dict(protocol="protocol", commit="input-commit", raw27_binding="input-raw27",
+              source_profile="input-profile", nonce="input-nonce", modules=descriptors("I"),
+              context_sha256="original-input-digest")
+    kr = dict(commit="different-context-commit", raw27_binding="context-raw27",
+              source_profile="context-profile", nonce="different-context-nonce",
+              modules=descriptors("K"), ordinal=ordinal, entry="context-entry", phase="context-phase")
+    wr = dict(ordinal=ordinal, entry="worker-entry", phase=marker,
+              installation=installation, controls=("control-a", "control-b"), modules=(module,))
+    # Vollständige Namensfeldprojektion, unabhängig vom erzeugten Schemacode.
+    d_fields = ("ordinal", "module", "member", "size", "sha256")
+    s_fields = ("assumption", "platform", "implementation", "version", "executable",
+                "executable_target", "prefixes", "abi", "paths", "roots", "inert_zip",
+                "flags", "finders", "hooks", "files")
+    p_fields = ("name", "moduleName", "specName", "origin", "file", "kind", "locations",
+                "loader", "loaderName", "loaderPath", "aliasGroup")
+    sr = tuple(installation[k] if k != "files" else
+               tuple(tuple(f[j] for j in ("path", "size", "sha256")) for f in files)
+               for k in s_fields)
+    pr = tuple(module[k] for k in p_fields)
+    ir = tuple(ip[k] if k != "modules" else tuple(tuple(d[j] for j in d_fields) for d in ip[k])
+               for k in ("protocol", "commit", "raw27_binding", "source_profile", "nonce",
+                         "modules", "context_sha256"))
+    cr = tuple(kr[k] if k != "modules" else tuple(tuple(d[j] for j in d_fields) for d in kr[k])
+               for k in ("commit", "raw27_binding", "source_profile", "nonce", "modules",
+                         "ordinal", "entry", "phase"))
+    payload = (ir, (wr["ordinal"], wr["entry"], wr["phase"], sr, wr["controls"], (pr,)), cr)
+    return payload
+
+
+def syntax_form(payload):
+    """Unabhängige Poolaufnahme aus festen eigenen Tuplefixtures."""
+    texts = set()
+    def collect(value):
+        if type(value) is str:
+            texts.add(value)
+        elif type(value) is tuple:
+            for item in value:
+                collect(item)
+    collect(payload)
+    pool = tuple(sorted(texts))
+    def project(value):
+        if type(value) is str:
+            return pool.index(value)
+        if type(value) is tuple:
+            return tuple(project(item) for item in value)
+        return value
+    return ("pooled-binding-design/v1", "METADATA", pool, project(payload))
+
+
+def syntax_bytes(form):
+    return json.dumps(form, ensure_ascii=True, sort_keys=True,
+                      separators=(",", ":"), allow_nan=False).encode("ascii")
+
+
+class InlineMetadataSyntaxTests(unittest.TestCase):
+    def setUp(self):
+        self.selected = subject.build_inline_syntax_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.decode = self.namespace["_inline_metadata_syntax"]
+        self.payload = syntax_fixture()
+
+    def packet(self, body, *, declared_body=0):
+        return struct.pack(">8sII", b"DGNC001\0", len(body), declared_body), body
+
+    def accepted(self, payload=None):
+        value = self.payload if payload is None else payload
+        result = self.decode(*self.packet(syntax_bytes(syntax_form(value))))
+        self.assertEqual(result[:2], ("VALID_METADATA_SYNTAX", "NONE"))
+        self.assertEqual(result[2], value)
+        return result[2]
+
+    def rejected(self, header, body, issue=None):
+        result = self.decode(header, body)
+        self.assertEqual(result[0], "REJECTED_METADATA_SYNTAX")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        return result
+
+    def test_full_named_field_recovery_three_ordinals(self):
+        for ordinal in (1, 2, 3):
+            payload = syntax_fixture(ordinal)
+            actual = self.accepted(payload)
+            self.assertEqual(tuple(map(len, actual)), (7, 6, 8))
+            self.assertEqual(len(actual[1][3]), 15)
+            self.assertEqual(len(actual[1][5][0]), 11)
+            self.assertEqual(len(actual[1][3][-1][0]), 3)
+            for descriptor_array in (actual[0][5], actual[2][4]):
+                self.assertEqual(len(descriptor_array), 9)
+                self.assertTrue(all(len(row) == 5 for row in descriptor_array))
+            self.assertNotEqual(actual[0][5], actual[2][4])
+            self.assertIsNot(actual[0][5], actual[2][4])
+
+    def test_semantic_contradictions_are_only_syntax_success(self):
+        actual = self.accepted()
+        self.assertNotEqual(actual[0][1], actual[2][0])
+        self.assertNotEqual(actual[0][4], actual[2][3])
+        self.assertNotEqual(actual[1][1:3], actual[2][6:8])
+        self.assertEqual(actual[0][-1], "original-input-digest")
+        self.assertEqual(actual[1][3][4], "executable")  # Kein absoluter Profilocator.
+        self.assertIsNone(actual[1][5][0][2])
+
+    def test_literal_integer_zero_null_empty_and_shared_text(self):
+        actual = self.accepted(syntax_fixture(marker="", locations=("", "")))
+        self.assertEqual(actual[1][3][-1][0][1], 0)
+        self.assertIsNone(actual[1][5][0][2])
+        self.assertEqual(actual[1][2], "")
+        self.assertIs(actual[1][5][0][6][0], actual[1][5][0][6][1])
+
+    def test_unicode_exact_and_no_normalization(self):
+        for text in ("é", "e\u0301", "😀", "\x7f", "\b\f\n\r\t\"\\"):
+            self.accepted(syntax_fixture(marker=text))
+        self.assertNotEqual(syntax_bytes(syntax_form(syntax_fixture(marker="é"))),
+                            syntax_bytes(syntax_form(syntax_fixture(marker="e\u0301"))))
+
+    def test_no_body_read_release_or_digest_claim(self):
+        body = syntax_bytes(syntax_form(self.payload))
+        result = self.decode(*self.packet(body, declared_body=1048576))
+        self.assertEqual(result[:2], ("VALID_METADATA_SYNTAX", "NONE"))
+        self.assertEqual(self.run.reads, [131073])
+        self.assertNotIn("declared_context_match", self.namespace)
+        self.assertEqual(self.selected.claim, "GENERATED_CONTROL_SOURCE_ONLY")
+        for field in ("runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved"):
+            self.assertIs(getattr(self.selected, field), False)
+
+    def test_header_limits_before_parser_or_payload_methods(self):
+        body = syntax_bytes(syntax_form(self.payload))
+        with patch.dict(self.namespace, _InlineParser=Foreign()):
+            for header in (b"", b"x" * 17, struct.pack(">8sII", b"WRONG000", len(body), 0)):
+                self.rejected(header, body, "HEADER_FORM")
+            for length in (0, 16369, 0xffffffff):
+                self.rejected(struct.pack(">8sII", b"DGNC001\0", length, 0), body, "METADATA_LIMIT")
+            self.rejected(struct.pack(">8sII", b"DGNC001\0", len(body), 1048577), body, "BODY_LIMIT")
+            self.rejected(struct.pack(">8sII", b"DGNC001\0", len(body) + 1, 0), body, "METADATA_LENGTH")
+
+    def test_exact_bytes_types_before_foreign_dispatch(self):
+        header, body = self.packet(syntax_bytes(syntax_form(self.payload)))
+        class ByteSubclass(bytes):
+            def __len__(self):
+                raise AssertionError("FOREIGN_LENGTH")
+        for value in (Foreign(), None, True, bytearray(body), memoryview(body), ByteSubclass(body)):
+            self.rejected(value, body, "INPUT_TYPE")
+            self.rejected(header, value, "INPUT_TYPE")
+
+    def test_json_forbidden_scalar_forms(self):
+        for body in (b"true", b"false", b"-1", b"1.0", b"1e0", b"{}", b"[01]", b"[nullx]",
+                     b"[1,]", b"", b" [0]", b"[0] ", b"[0][0]"):
+            self.rejected(*self.packet(body))
+
+    def test_integer_eight_digits_and_nine_rejected(self):
+        parser = self.namespace["_InlineParser"](b"99999999")
+        self.assertEqual(parser.value(), 99999999)
+        self.rejected(*self.packet(b"100000000"), "INTEGER_LIMIT")
+
+    def test_depth_eight_and_nine_before_schema(self):
+        parser = self.namespace["_InlineParser"](b"[" * 8 + b"0" + b"]" * 8)
+        parser.value()
+        self.assertEqual(parser.pos, 17)
+        self.rejected(*self.packet(b"[" * 9 + b"0" + b"]" * 9), "DEPTH_LIMIT")
+
+    def test_node_guard_is_internal_boundary_not_valid_frame_claim(self):
+        parser = self.namespace["_InlineParser"](b"0")
+        parser.nodes = 16367
+        self.assertEqual(parser.value(), 0)
+        parser = self.namespace["_InlineParser"](b"0")
+        parser.nodes = 16368
+        with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+            parser.value()
+        self.assertEqual(caught.exception.args, ("NODE_LIMIT",))
+        self.assertEqual(parser.pos, 0)
+
+    def test_sequence_256_and_257_before_schema(self):
+        body = b"[" + b",".join([b"0"] * 256) + b"]"
+        self.assertEqual(len(self.namespace["_InlineParser"](body).value()), 256)
+        self.rejected(*self.packet(b"[" + b",".join([b"0"] * 257) + b"]"), "SEQUENCE_LIMIT")
+
+    def test_text_utf8_caps_before_pool(self):
+        self.accepted(syntax_fixture(marker="a" * 4096))
+        self.rejected(*self.packet(syntax_bytes(syntax_form(syntax_fixture(marker="a" * 4097)))), "TEXT_LIMIT")
+        parser = self.namespace["_InlineParser"](syntax_bytes("é" * 2048))
+        self.assertEqual(len(parser.value().encode("utf-8")), 4096)
+        self.rejected(*self.packet(syntax_bytes("é" * 2049)), "TEXT_LIMIT")
+
+    def test_bad_unicode_and_nul_no_raw_errors(self):
+        for body, issue in ((b'"\\ud800"', "JSON_FORM"), (b'"\\udc00"', "JSON_TEXT"),
+                            (b'"\\ud800\\u0041"', "JSON_TEXT"), (b'"\\u0000"', "JSON_TEXT"),
+                            (b'"\\q"', "JSON_TEXT"), (b'"\\uZZZZ"', "JSON_TEXT"),
+                            (b'"\xff"', "JSON_TEXT"), (b'"\x01"', "JSON_TEXT"),
+                            (b'"unterminated', "JSON_TEXT")):
+            self.rejected(*self.packet(body), issue)
+
+    def test_alternative_escapes_and_whitespace_are_noncanonical(self):
+        body = syntax_bytes(syntax_form(self.payload))
+        for changed in (body.replace(b"synthetic", b"\\u0073ynthetic", 1),
+                        body.replace(b"METADATA", b"\\u004dETADATA", 1)):
+            self.rejected(*self.packet(changed), "NONCANONICAL")
+        self.rejected(*self.packet(body.replace(b",", b", ", 1)), "JSON_FORM")
+
+    def test_tag_and_role_before_positions(self):
+        form = syntax_form(self.payload)
+        for index, value, issue in ((0, "wrong-version", "VERSION_MISMATCH"),
+                                   (1, "REPORTED", "ROLE_MISMATCH")):
+            changed = list(form)
+            changed[index] = value
+            changed[3] = ()
+            self.rejected(*self.packet(syntax_bytes(changed)), issue)
+
+    def test_pool_order_duplicate_unused_and_type(self):
+        form = syntax_form(self.payload)
+        for pool, issue in ((tuple(reversed(form[2])), "POOL_FORM"),
+                            ((form[2][0],) + form[2], "POOL_FORM"),
+                            (form[2] + ("zz-unused",), "POOL_UNUSED"), ((0,), "POOL_FORM")):
+            self.rejected(*self.packet(syntax_bytes(form[:2] + (pool, form[3]))), issue)
+
+    def test_pool_256_used_and_257_closed(self):
+        base = len(syntax_form(self.payload)[2])
+        locations = tuple("extra-%03d" % n for n in range(256 - base))
+        payload = syntax_fixture(locations=locations)
+        self.assertEqual(len(syntax_form(payload)[2]), 256)
+        self.accepted(payload)
+        self.rejected(*self.packet(syntax_bytes(syntax_form(
+            syntax_fixture(locations=locations + ("extra-overflow",))))), "SEQUENCE_LIMIT")
+
+    def test_wrong_text_reference_and_integer_position(self):
+        form = syntax_form(self.payload)
+        i, w, k = form[3]
+        changed = (i, (None,) + w[1:], k)
+        self.rejected(*self.packet(syntax_bytes(form[:3] + (changed,))), "POSITION_TYPE")
+        changed = ((len(form[2]),) + i[1:], w, k)
+        self.rejected(*self.packet(syntax_bytes(form[:3] + (changed,))), "REFERENCE_RANGE")
+        changed = ((None,) + i[1:], w, k)
+        self.rejected(*self.packet(syntax_bytes(form[:3] + (changed,))), "POSITION_TYPE")
+
+    def test_each_closed_arity_and_both_descriptor_counts(self):
+        i, w, k = self.payload
+        variants = ((i[:-1], w, k), (i, w[:-1], k), (i, w, k[:-1]),
+                    (i[:5] + (i[5][:-1],) + i[6:], w, k),
+                    (i, w, k[:4] + (k[4] + (k[4][0],),) + k[5:]),
+                    (i, w[:3] + (w[3][:-1],) + w[4:], k),
+                    (i, w[:5] + ((w[5][0][:-1],),), k))
+        for payload in variants:
+            self.rejected(*self.packet(syntax_bytes(syntax_form(payload))), "SCHEMA_FORM")
+
+    def test_late_malformed_has_no_partial_payload(self):
+        i, w, k = self.payload
+        damaged = k[:-1] + (None,)
+        self.rejected(*self.packet(syntax_bytes(syntax_form((i, w, damaged)))), "POSITION_TYPE")
+
+    def test_last_field_ninth_second_descriptor_never_partial(self):
+        i, w, k = self.payload
+        rows = k[4][:-1] + (k[4][-1][:-1] + (None,),)
+        damaged = k[:4] + (rows,) + k[5:]
+        self.rejected(*self.packet(syntax_bytes(syntax_form((i, w, damaged)))), "POSITION_TYPE")
+
+    def test_existing_codec_syntax_reference_without_semantics(self):
+        with patch.object(syntax_reference, "_semantics", side_effect=AssertionError("NO_SEMANTICS")):
+            for ordinal in (1, 2, 3):
+                payload = syntax_fixture(ordinal, marker="é😀", locations=("", "shared", "shared"))
+                body = syntax_bytes(syntax_form(payload))
+                parser = syntax_reference._Parser(body)
+                form = parser.value()
+                self.assertEqual(parser.pos, len(body))
+                expected = syntax_reference._resolve(form, 0)
+                actual = self.decode(*self.packet(body))
+                self.assertEqual(actual[:2], ("VALID_METADATA_SYNTAX", "NONE"))
+                self.assertEqual(actual[2], expected)
+                self.assertEqual(actual[2], payload)
+
+    def test_exact_metadata_cap_and_plus_one_before_parser(self):
+        # Vier eindeutig verwendete Felder, jedes unter eigenem Textcap.
+        def padded(n):
+            i, w, k = self.payload
+            a, b, c, d = (4000, 4000, 3000, n - 11000)
+            i = ("A" * a, "B" * b, "C" * c, "D" * d) + i[4:]
+            return syntax_bytes(syntax_form((i, w, k)))
+        # Nach dieser festen Umbenennung bleibt die Poolreihenfolge bei Padding gleich.
+        # Die unabhängige Stdlibreferenz berücksichtigt auch geänderte Indexbreiten.
+        needed = 13000 + 16368 - len(padded(13000))
+        body = padded(needed)
+        self.assertEqual(len(body), 16368)
+        self.assertEqual(self.decode(*self.packet(body))[:2], ("VALID_METADATA_SYNTAX", "NONE"))
+        body = padded(needed + 1)
+        self.assertEqual(len(body), 16369)
+        self.rejected(*self.packet(body), "METADATA_LIMIT")
+
+    def test_syntax_error_labels_hide_payload(self):
+        secret = b"SYNTHETIC_PRIVATE_PAYLOAD"
+        result = self.rejected(*self.packet(secret), "JSON_FORM")
+        self.assertNotIn(secret.decode(), repr(result))
+        with patch.dict(self.namespace, _InlineParser=Foreign()):
+            result = self.rejected(*self.packet(syntax_bytes(syntax_form(self.payload))), "SYNTAX_INTERNAL")
+        self.assertEqual(result, ("REJECTED_METADATA_SYNTAX", "SYNTAX_INTERNAL", None))
+
+    def test_new_generator_imports_closure_and_legacy_golden_bytes(self):
+        tree = ast.parse(self.selected.source)
+        imports = [n.names[0].name for n in ast.walk(tree) if type(n) is ast.Import]
+        self.assertEqual(imports, ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in ast.walk(tree)))
+        names = {n.id for n in ast.walk(tree) if type(n) is ast.Name}
+        self.assertTrue({"_semantics", "_comparison", "input", "print"}.isdisjoint(names))
+        legacy = subject.build_control_bootstrap(RAW, logical_profile=LOCATOR)
+        self.assertEqual(legacy.source_sha256,
+                         "6b6307c021e97a5c4949306b5b9ac7f7063a7f31522be70db27c14c6a79956df")
+        self.assertEqual(hashlib.sha256(subject._BODY.encode()).hexdigest(),
+                         "7fa4b5d58c27c41a9ccd4e05adb51ae36112214d33c7c96d3c7eec7503391029")
+        config = subject.build_sysconfig_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.replace(("\n" + subject._INLINE_SYNTAX).encode(), b"", 1),
+                         config.source)
+
+    def test_new_generator_cap_type_privacy_and_no_read(self):
+        with patch.object(builtins, "open", side_effect=AssertionError("NO_READ")):
+            selected = subject.build_inline_syntax_control_bootstrap(
+                RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(selected.source_sha256, hashlib.sha256(selected.source).hexdigest())
+        self.assertNotIn(LOCATOR, repr(selected))
+        for raw in (Foreign(), bytearray(RAW), None, b"\0" * 40000):
+            with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+                subject.build_inline_syntax_control_bootstrap(
+                    raw, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+            self.assertTrue(caught.exception.__suppress_context__)
+        overhead = len(subject.build_inline_syntax_control_bootstrap(
+            b"x", logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED).source) - 1
+        raw = b"x" * (131072 - overhead)
+        selected = subject.build_inline_syntax_control_bootstrap(
+            raw, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(selected.source_size, 131072)
+        with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+            subject.build_inline_syntax_control_bootstrap(
+                raw + b"x", logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
 
 
 if __name__ == "__main__":

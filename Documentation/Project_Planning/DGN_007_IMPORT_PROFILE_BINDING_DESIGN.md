@@ -2127,3 +2127,86 @@ feststehen, bevor die endgültige gehaltene Quelle mit vollständiger separat
 vorgewählter S15/P11-Inventur und dem Fünf-Formen-/64-KiB-Gate abgenommen wird.
 Kein alter Capture, keine historische Namenliste und kein erfolgreicher
 beobachteter Cache wird nachträglich zur operativen Sollbaseline.
+
+## 20. Reine additive Inline-Metadata-Syntaxquelle
+
+Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
+`Tests/Tools/dgn007_control_bootstrap_source.py`. Er übernimmt ausschließlich
+die separat gehaltenen Kontrollinputs der Sysconfigroute und fügt feste
+Inline-Syntaxdefinitionen vor deren bestehenden Dispatcher ein. Beide älteren
+Generatorrouten, `_PREFIX` und `_BODY` bleiben erhalten. Keine neue direkte
+Importabhängigkeit: weiterhin `importlib.util`, `sys`, `sysconfig`, `json` und
+`struct`, zwei Controls. Die vollständigen erzeugten UTF-8-Scriptbytes bleiben
+einschließlich Literalexpansion und neuen Definitionen auf 131.072 Bytes
+begrenzt; die bisherigen Profil- und Locatorgrenzen bleiben erhalten.
+
+Die private Funktion `_inline_metadata_syntax(header, metadata)` erhält zwei
+bereits gehaltene exakte Byteobjekte. Sie nimmt keinen Stream auf. Vor dem
+Parser prüft sie den 16-Byte-DGNC-Header `>8sII`, `DGNC001\0`, die exakte
+Metadata-Länge und deren gemeinsames 16.384-Byte-Cap einschließlich Header.
+Die deklarierte Bodylänge darf 1.048.576 Bytes, der deklarierte vollständige
+Rahmen 1.064.960 Bytes nicht überschreiten. Diese deklarativen Prüfungen lesen
+keine Bodies und belegen keine tatsächliche Bodygröße oder Bodyfreiheit.
+
+Der begrenzte ASCIIparser erlaubt ausschließlich Arrays, Strings, `null` und
+nichtnegative Integer mit höchstens acht Dezimalstellen. Es gelten 16.368
+Knoten, Arraytiefe acht, höchstens 256 Sequenz-/Poolwerte und 4.096 UTF-8-Bytes
+je Text; kein NUL, keine verwaisten Surrogates, keine zusätzlichen JSONformen.
+E4-Version `pooled-binding-design/v1` und Rolle `METADATA` sind fest. Der lokale
+Pool muss sortiert, eindeutig und vollständig verwendet sein. Die vollständige
+Positionsprüfung erhält M=(I7,W6,K8), S15, P11, F3 und beide physischen D9;
+Integer und Textreferenzen bleiben getrennt, nur die festgelegte nullable
+specName-Position erlaubt `None`. Kanonischer ASCII-Repack muss mit sämtlichen
+tatsächlich übergebenen Metadatabytes übereinstimmen.
+
+Ein Syntaxerfolg liefert ausschließlich `VALID_METADATA_SYNTAX`, `NONE` und
+den privaten vollständig rekonstruierten Payload. Eine Ablehnung liefert einen
+festen Fehlercode und keinen Teilpayload. Das ist keine M/IP/S15/P11/D9-Semantik,
+keine Installation-/Profilvalidierung, kein Originaldigest- oder Callerabgleich,
+kein Bodyhash-/Consumption-/Replaynachweis und keine Body-/Importfreigabe.
+Insbesondere muss eine vollständige, syntaktisch gültige Fixture mit
+widersprüchlichen D9-, Commit-, Nonce- und Worker-/Kontextwerten hier akzeptiert
+werden. `GENERATED_CONTROL_SOURCE_ONLY` und sämtliche false-Attestationsflags
+bleiben erhalten; es gibt keinen stdin-/stdout-/Worker-/Kandidatenstart.
+
+Die erweiterte isolierte synthetische Suite steht in
+`Tests/Static/test_dgn007_control_bootstrap_source.py`. Root und unabhängiger
+Review prüften den vollständigen Source-/Testfreeze vor jeder Ausführung.
+Der erste isolierte Lauf unter CPython 3.12.14 endete mit Exit 1: 80 Tests in
+0,628 Sekunden, 79 PASS und eine Fixture-Labelabweichung, kein ERROR oder SKIP.
+Ein High-Surrogate ohne folgenden Low-Surrogate-Escape wurde korrekt abgelehnt;
+die Fixture erwartete dabei `JSON_TEXT`, während die zwingende `_take`-Prüfung
+wie im bestehenden Codec `JSON_FORM` lieferte. Nur diese Testerwartung wurde
+nach erneutem Root-/unabhängigem Delta-PRE korrigiert; Produktionscode,
+Ablehnung und fehlender Teilpayload blieben unverändert.
+
+Der zweite geänderte isolierte Lauf mit `-I -S -B -X utf8` bestand mit Exit 0:
+80/80 PASS in 0,568 Sekunden, kein FAILURE, ERROR oder SKIP. Die Suite prüft
+vollständige benannte Feldrückgewinnung für alle drei Ordinals, beide getrennten
+D9 einschließlich beschädigter letzter Zelle, aktuelle Codecsyntaxprojektion
+unter `_semantics`-Sentinel, semantische Widersprüche, Typen vor fremdem Dispatch,
+Header-/Pool-/Integer-/Sequenz-/Depth-/Text-/Metadatacaps und deren Gegenfälle,
+Unicode ohne Normalisierung, kanonischen Repack, private Fehlerausgänge,
+Legacy-Goldenbytes sowie das vollständige Scriptcap. Eigene Tempabsenz und
+gehaltene reale Cache-/Main-Sentinels bestanden; Sysconfigcalls blieben auf
+separaten Fakeglobals. Kein realer Profil-/Sysconfig-/Worker-/SQLlauf.
+
+Die abschließenden Quellenpins nach beiden Läufen sind für das Tool RAW
+`3ca52d4046cd880117bd98606e460c08519cb422b37a8561dc17558ce934f343`
+und LF `3af0ab9bd6ea134d349c74aa759583c57653e57774b8d37950ef29b92e4db3fc`
+(28.077 LFbytes); für den korrigierten Test RAW
+`ec7f27e2f43036e750f7c8a0869ffd5483d5c7a8593d25109be7946535e4c15b`
+und LF `fd9a3714aa7816527d264aed2b257550bc6229d47a769bcb0c8b171019bcf54d`
+(54.685 LFbytes). Die lexikografisch nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide Dateien als
+SHA-256 `cc9a4b0519044c5472fbf11ad6c36f8be9a8937821f7ae185ebc097d102ea55b`.
+RAW-/LF-Pins blieben nach dem erfolgreichen Lauf unverändert. Kein alter
+privater Capture oder nativer Auswahlbeleg wurde erneut ausgeführt oder als
+Sollinventur verwendet.
+
+Nächster getrennter Vorschnitt ist die vollständige inline Metadata-Semantik
+einschließlich Originaldigestbindung. Anschließend folgen fehlende inline
+Receiver-/Reporter- und Kanalteile. Erst die endgültige vollständige Quelle
+darf mit separat vorgewählter operativer S15-/P11-Inventur und dem gemeinsamen
+Fünf-Formen-/64-KiB-Gate abgenommen werden. Parent-/Worker-, Loader-, Consumption-,
+Replay-, Cleanup- und G13-Methodengates bleiben offen.
