@@ -2612,3 +2612,133 @@ Felder folgt als gesonderter kleiner Schnitt nach §16.3. Tatsächlicher Kanal,
 Bodyaufnahme und Freigaben, separat vorgewählte operative S15-/P11-Inventur
 der endgültigen Quelle, Fünf-Formen-/64-KiB-Gate sowie Parent-/Worker-,
 Loader-, Consumption-, Replay-, Cleanup- und G13-Methodengates bleiben offen.
+
+## 25. Vollständiger deklarativer Inline-Metadata-Callerabgleich
+
+Die achte additive Quellenroute `build_inline_match_control_bootstrap`
+ergänzt ausschließlich den Vergleich gegebener Header-/Metadata-Chunks
+gegen separat gehaltene vollständige Erwartungsfelder. Die privaten APIs
+erhalten `expected_format`, `expected_input`, `expected_worker` und
+`expected_context` ausdrücklich; kein fehlendes Feld wird aus dem Empfang
+ergänzt. Die Darstellung bleibt exakt
+`pooled-combined-input-design/v1`. Sieben frühere Builder bleiben erhalten.
+
+`_inline_match_metadata_chunks(chunks, *, expected_format, expected_input,
+expected_worker, expected_context)` erhält exact primitive I7-, W6- und
+K8-Tupel. Formatwahl, vollständige Chunktypen und Erwartungsformen werden
+vor den begrenzten Größen-/Headerprüfungen geprüft. Der Empfang verwendet
+genau einen begrenzten tatsächlichen M-Parser mit vollständiger Auflösung;
+er delegiert nicht an die frühere Receiver-Semantik mit vorzeitigem Hash.
+Vollständige Actual-/Expectedformen einschließlich S15, aller P11/F3 und
+beider D9 je Seite sowie beide vollständigen Semantiken gehen dem
+gehaltenen kanonischen M-Repack, jedem SHA und intrinsischen oder
+Caller-Bindungsvergleich vor.
+
+Die tatsächliche angekündigte Bodygröße muss beiden tatsächlichen D9-Summen
+entsprechen. Die erwarteten D9-Summen werden zunächst nur untereinander
+geprüft; eine frühe Soll-/Receivedheaderabweichung ersetzt keinen
+vollständigen Vorlauf. Zwei getrennte benannte Original-Input82-Präbilder
+verwenden alle ursprünglichen Felder und vollständige D5-Listen, ohne
+`context_sha256` im Präbild. Sie erzeugen jeweils den unveränderten
+Originalinputdigest. Anschließend werden beide intrinsischen I7-/K8- und
+W6-/K8-Bindungen und der vollständige tatsächliche Payload gegen den
+separat gehaltenen erwarteten Payload geprüft. Kein K-Domain-Digest
+ersetzt die vollständigen Worker-, Installations- oder Inventurfelder.
+
+Encoder- und Provideranker umfassen schon den tatsächlichen M-Repack.
+Unmittelbare PREs und dominante POSTs verhindern eine neue Dispatchauswahl
+nach Callbackdrift. Providerbindungsverlust dominiert Encoderbindungsverlust
+und sonstige Fehler. Erfolg liefert ausschließlich
+`("MATCHED_DECLARED_METADATA","NONE",(actual_header,actual_metadata,actual_payload))`.
+Ablehnung liefert `REJECTED_DECLARED_METADATA`, ein festes Issue und None.
+Es gibt keine Teilrückgabe, Kanalphase oder tatsächliche Freigabe.
+
+Dieser reine Vorschnitt nimmt keine Bodies auf, beobachtet kein Workerprofil
+und startet keinen Worker oder SQL Server. Tatsächliche stdin-/EOF-Führung,
+BODY_RELEASE, BODY_END, INPUT_COMPLETE, IMPORT_RELEASE, Consumption,
+Replayfreiheit, Ursprung, Quellenauflösung, Loader und unabhängiger Cleanup
+bleiben eigene Gates. Die separate operative Inventur der endgültigen
+Quelle und das gesamte Fünf-Formen-/64-KiB-Gate bleiben vor jedem späteren
+Start erforderlich. Sämtliche Attestationsflags bleiben false; die
+gehaltene Kontrollruntime bleibt eine ausdrücklich benannte Annahme.
+G13, v1, DEC-068 und geschützte ungemergte Arbeit bleiben erhalten.
+
+Die Chunkaufnahme läuft in höchstens drei endlichen Durchläufen zu jeweils
+256 Stücken: Typen, Längen und Headerstücke. Der Header umfasst 16 Bytes;
+Join einschließlich Header bleibt auf 16.384 Bytes, Metadata auf 16.368 Bytes
+begrenzt. Actualparser und Positionsauflösung laufen jeweils einmal.
+Zwei getrennte logische Formvorläufe bleiben je auf 16.368 Knoten, Depth acht,
+256 Folgewerte und 4.096 Textbytes begrenzt. Beide vollständigen
+Workersemantiken prüfen alle P11-/Locations-/Aliasfelder und höchstens zwei
+F3 je Seite. Vier vollständige D9-Vorläufe prüfen 36 Deskriptoren und deren
+vier Neunergrößensummen. I7-/K8-/D9-Hexprüfungen umfassen 3.104 Zeichen
+über beide Seiten; F3 ergänzen höchstens 256 Hexzeichen, zwei tatsächliche
+SHAresultate weitere 128. Der erfolgreiche Pfad verwendet genau drei
+JSON-Kodierungen: tatsächlicher M-Repack und zwei benannte Originalpräbilder,
+sowie zwei Originalinput-SHAs. Wiederholte Encoder-/Provider-PREs und POSTs
+vor/nach Konstruktion, pro Stück, Update, Abschluss und im äußeren Finale
+sind zusätzliche begrenzte Namespace-/Class-/Functionprüfungen. Diese
+endlichen Arbeiten beweisen keine operative Deadline oder Sandbox.
+
+Root und unabhängiger Review lasen den gesamten neuen Quell-/Testteil vor
+dem ersten Lauf. Der erste isolierte Lauf unter CPython 3.12.14 mit
+`-I -S -B -X utf8` prüfte 243 Methoden in 4,701 Sekunden: 241 PASS,
+null Assertionsfehler, zwei ERROR, null SKIP, Exit 1. Beide Fehler lagen
+in der Fixturevorbereitung vor dem Matcher: Nach einem Encoderpatch wurde
+die synthetische Metadata erneut über json.dumps erzeugt. Die gepatchte
+iterencode-Fixture akzeptierte dessen _one_shot-Argument nicht; der
+Foreign-JSONEncoder war nicht aufrufbar. Der Produktionscode wurde
+nicht verändert. Ausschließlich diese zwei Methoden halten nun ihre
+Header-/Metadata-Chunks vor dem jeweiligen Patch. Root und unabhängiger
+Deltareview bestätigten die exakte Rücknahme zum vollständigen früheren
+Test-LFstand vor dem zweiten autorisierten Lauf.
+
+Der zweite Lauf auf dem geänderten Fixturestand bestand 243/243 Methoden
+in 4,886 Sekunden, Exit 0, ohne FAILURE, ERROR oder SKIP. Er enthält 34 neue
+Gegenproben; alle 209 bisherigen Methoden, 26 alten Test-Topdefinitionen,
+zwölf alten Tool-Topdefinitionen und der gesamte alte Tool-LFpräfix bleiben
+erhalten. §1–24 bleiben ein LF-byteidentischer Vertragspräfix.
+Kein unveränderter historischer Capture-, Prepare-, Nonce-, Profil- oder
+Workerhelper wurde erneut ausgeführt.
+
+Die neuen Gegenproben prüfen alle drei Ordinals mit unabhängiger vollständiger
+Feldrückgewinnung, echte Empfangsrückgabe ohne Defaults und getrennte gültige
+Originalpräbilder. Beide vollständigen D9, S15/P11/F3, Selector, Controls,
+Aliasgruppen und Locatorregeln werden geprüft; identische ungültige Felder
+bleiben Ablehnung. Späte Actual-/Expectedform- und Semantikfehler gehen
+frühen gültigen Inhaltsabweichungen und Hashdispatch vor. Eigene Original-
+digests und intrinsische Bindungen werden je Seite vor Caller-Mismatch
+geprüft. Ein tatsächlicher Repack, Providerwechsel schon während M-Encoding
+vor dem ersten Hashconstructor, Encoder-/Provider-PREs und dominante
+Fehler-POSTs ergeben keine Teilrückgabe oder Rohexception. Exacttypen,
+Subklassen, Chunks 256/257, Stücke 1.024/1.025 Bytes, Headeraufteilungen,
+leere Stücke, ein gültiger 16.384-Byte-Eingang und 16.385-Byte-Ablehnung,
+Zusatz-/Body-/Commandbytes und Truncation werden begrenzt geprüft.
+Wiederholtes reines Match ist keine Consumption- oder Freigabeattestation.
+
+RAW-/LF-Pins blieben vor/nach jedem Versuch unverändert. Realcache, Main,
+Sysconfig, JSON, Encoder-/Class-/Functionsentinels und eigene temporäre
+Fixtureabsenz bestanden in beiden Versuchen ohne Reparatur. Es erfolgte
+kein tatsächlicher Profil-, Sysconfig-, Worker- oder SQLstart.
+
+Der unveränderte Toolpin ist RAW
+`c1fe75a0cf8d750f6b6f2c155b24572aec868f8daade096c5601ca918f6f2038`
+und LF `22fbc8708d715d8d86ab4f97b10bae431da32774446a2260ee35bec51ceb93d2`
+(74.880 LFbytes). Der erste Testpin war RAW
+`7e4af15ceb3087de3f9ef5122ed0f59598da9f84749401dea6e6ba84679fcc5b`,
+LF `72b40f276a3d906918804a237ae5d0d391093ed6e3d1db44468feaa0cf385696`
+(193.649 LFbytes), Paarbindung
+`c3de4c890c77b0b2f16fc9197274c66b9b4af012ae2eba881f1f1b6a8e324ccb`.
+Der endgültige Testpin ist RAW
+`7d79f720511006ffc3c0f56e186a6825d0429ac49a434b68bd7cecb37f6ecc03`,
+LF `31a3165ef19fc0c9aaee1c7c7c2718930cb6d7018e5bcafd4737725a68d380cc`
+(193.891 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide finalen
+Dateien als SHA-256
+`8881993daaca62878b4a593648e12cb35552c67be791da7cc2e0129e2b4aaee1`.
+
+Nächster kleiner Offline-Schnitt ist die begrenzte reine Bodyaufnahme nach
+§16.3. Tatsächlicher Kanal und Freigaben, separat vorgewählte operative
+S15-/P11-Inventur der endgültigen Quelle, Fünf-Formen-/64-KiB-Gate sowie
+Parent-/Worker-, Loader-, Consumption-, Replay-, Cleanup- und G13-
+Methodengates bleiben offen.
