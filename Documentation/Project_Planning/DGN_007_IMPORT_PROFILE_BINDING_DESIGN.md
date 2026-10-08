@@ -3204,9 +3204,9 @@ Worker- oder SQLprobe wurde erneut ausgeführt.
 
 Die reine additive INPUT_COMPLETE-Quelle ist nach §30 synthetisch geprüft.
 Der vollständige Record-/Footer→R-Calleradapter ist in §31 additiv implementiert
-und synthetisch geprüft. Der exklusive Parent-Ledgervertrag liegt in §32 als
-DESIGNED vor. Nächster kleiner Schnitt ist ausschließlich lokale Ledgerzustandslogik
-mit gehaltenen Fakeadaptern und neuen synthetischen Gegenproben. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
+und synthetisch geprüft. Der exklusive Parent-Ledgervertrag aus §32 ist mit der eigenen lokalen
+synthetischen Ledgerkomponente nach §32.5 geprüft. Nächster kleiner Schnitt:
+DESIGN vollständiger BEGIN-/COMPLETE-Loaderrecords samt codefreien Parent-Paaren. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
 Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
 Loader, Worker und unabhängiger Cleanup sowie G13-/Methodengates bleiben offen.
 
@@ -3341,13 +3341,13 @@ Raw27-Herkunft, Sender, Consumption, Replayfreiheit, IMPORT_RELEASE oder
 eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben false.
 
 Der vollständige Record-/Footer→R-Calleradapter ist in §31 rein additiv
-implementiert und synthetisch geprüft. Der separate exklusive Parent-Ledgervertrag
-liegt in §32 als DESIGNED vor; nächste Folge ist ausschließlich lokale
-Ledgerzustandslogik mit gehaltenen Fakeadaptern und synthetischen Gegenproben.
+implementiert und synthetisch geprüft. Die eigene lokale synthetische Ledgerkomponente
+zum exklusiven Vertrag aus §32 ist nach §32.5 geprüft; nächste Folge ist
+DESIGN vollständiger BEGIN-/COMPLETE-Loaderrecords samt codefreien Parent-Paaren.
 Die frühe Callerordinalprüfung aus §27 darf im neuen Gesamtpfad spätere
 Actual-R-Form-/Semantikfehler nicht verdecken; ein bloßes Verketten der
 bestehenden Teilfunktionen ist dafür kein Nachweis. Die lokale Ledgerimplementierung
-mit höchstens drei vollständig vorgewählten Slots folgt separat nach §32. Tatsächlicher
+mit höchstens drei vollständig vorgewählten Slots ist nach §32.5 synthetisch geprüft. Tatsächlicher
 Kanal, operative Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker-
 und unabhängiger Cleanupnachweis bleiben getrennt.
 G13, v1, DEC-068 und die geschützte Arbeit bleiben erhalten.
@@ -3590,9 +3590,9 @@ Ein rein statischer Schreibvorcheck hielt vor jeder Dateiänderung an einer
 falsch formulierten Platzhalterkontrolle an. Ausschließlich dieser lesende
 Hilfscheck wurde korrigiert; keine Suite oder Produktquelle wurde ausgeführt.
 
-Der separate exklusive Parent-Ledgervertrag liegt in §32 als DESIGNED vor;
-nächster kleiner Schnitt ist ausschließlich lokale Ledgerzustandslogik mit
-gehaltenen Fakeadaptern und neuen synthetischen Gegenproben. Caller-Tupel und
+Die eigene lokale synthetische Ledgerkomponente zum exklusiven Vertrag aus §32
+ist nach §32.5 geprüft; nächster kleiner Schnitt: DESIGN vollständiger
+BEGIN-/COMPLETE-Loaderrecords samt codefreien Parent-Paaren. Caller-Tupel und
 Statuslabels sind keine verbrauchten Ereignisse. Tatsächlicher Kanal, operative
 Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker- und unabhängiger
 Cleanupnachweis sowie Methoden- und Szenariopromotion bleiben getrennt offen.
@@ -3680,18 +3680,18 @@ Tool RAW SHA-256
 Keine historische private Aufnahme, Prepare-, Nonce-, native Profil-,
 Sysconfig-, Worker- oder SQLprobe wurde erneut ausgeführt. Sämtliche
 Attestationsflags bleiben false; G13, v1, DEC-068 und geschützte Arbeit bleiben
-erhalten. Ledger, tatsächlicher Kanal, Loader, Consumption, Replayfreiheit,
-UsedBytes, operative Auswahl und unabhängiger Worker-Cleanup bleiben getrennte
-Folgegates. Der separate exklusive Parent-Ledgervertrag aus §32 liegt als DESIGNED
-vor. Nächster kleiner Schnitt ist ausschließlich lokale Ledgerzustandslogik
-mit gehaltenen Fakeadaptern und neuen synthetischen Gegenproben.
+erhalten. Die eigene lokale Ledgerkomponente ist nach §32.5 synthetisch geprüft.
+Tatsächlicher Kanal, Loader, Consumption, Replayfreiheit, UsedBytes, operative
+Auswahl und unabhängiger Worker-Cleanup bleiben getrennte Folgegates.
+Nächster kleiner Schnitt: DESIGN vollständiger BEGIN-/COMPLETE-Loaderrecords
+samt codefreien Parent-Paaren; SESSION_END folgt danach separat.
 
 ## 32. Exklusives Parent-Ledger mit vorab gebundenen K-Slots
 
-Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Vertrag legt
-ausschließlich lokale Zustandslogik in genau einem gehaltenen Parent-Ledger
-fest. Eine Implementierung, synthetische Ausführung oder operative Anbindung
-ist damit nicht belegt. Die reinen Quellen und Nachweise aus §24–31 bleiben erhalten.
+Status des ursprünglichen Vertrags: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`.
+Die eigene lokale synthetische Umsetzung und ihr begrenzter Nachweis sind in
+§32.5 dokumentiert. Der Vertrag allein belegt keine Ausführung oder operative
+Anbindung. Die reinen Quellen und Nachweise aus §24–31 bleiben erhalten.
 
 ### 32.1 Owner und vollständige Vorwahl
 
@@ -3808,8 +3808,8 @@ und wiederholte Ankerprüfungen bleiben zusätzlich zu buchen. §16 hält weiter
 Body-/Transfercaps sowie 65536 stdout-/stderr-Bytes und 63984 Reservebytes.
 Reservierungen oder Ledgerrecords erhalten kein Zusatzbudget.
 
-Der nächste eigene synthetische Schnitt implementiert nur eine kontrollseitige
-lokale Zustandskomponente mit gehaltenen Fakeadaptern, keinen weiteren
+Der im ursprünglichen DESIGN vorgewählte synthetische Schnitt implementiert
+nach §32.5 nur eine kontrollseitige lokale Zustandskomponente mit gehaltenen Fakeadaptern, keinen weiteren
 Workerbuilder oder Parent im Workerscript. Konkrete Source-/API-/Owner-/
 Harnesswahl und vollständige Root-/Review-PRE werden vor Sourceänderung
 separat festgelegt. Gegenproben prüfen volle K-Vorwahl,
@@ -3819,10 +3819,112 @@ Reentranz mit späterem äußerem Erfolg, Drift vor Commit, Teilübertragung ohn
 Rollback, sticky FAILED/UNKNOWN, einmaligen Cleanup und verweigerten Folgestart.
 Kopien, Statusflags und ein zweites Ledger erzeugen keinen Replaybeleg.
 Vollständige Source/Test-PRE, tatsächliche neue synthetische Tests und deren
-Evidenz folgen separat; dieser DESIGN-Schnitt führt sie nicht aus.
+Evidenz sind separat in §32.5 belegt; der ursprüngliche DESIGN-Schnitt führte sie nicht aus.
 
 Tatsächliche Kanaleventherkunft, Sender, operative S15/P11-Auswahl samt
 Fünf-Formen-/64-KiB-Gate, Loader-/Worker-/Consumption-/UsedBytes- und unabhängige
 Cleanupnachweise bleiben offen. Alle Attestationsflags bleiben false;
 kein globaler Replay-, Trust-, Deadline- oder Fitclaim. G13, v1, DEC-068,
 geschützte PR68, interne Capturearbeit und External-/Graph-P2 bleiben erhalten.
+
+### 32.5 Eigene lokale synthetische Ledgerkomponente
+
+Status: `IMPLEMENTED_SYNTHETIC_LEDGER`, Aussagebereich `PROJECT_SEMANTIC`.
+Der ursprüngliche §32-DESIGN-Nachweis bleibt getrennt. Die neue Source
+`Tests/Tools/dgn007_parent_ledger.py` und ausschließlich neue isolierte
+Tests in `Tests/Static/test_dgn007_parent_ledger.py` implementieren eine
+kontrollseitige lokale Zustandskomponente. Vierzehn Workerbuilder und ihre
+460 bisherigen Methoden bleiben unverändert; sie wurden lokal nicht erneut ausgeführt.
+
+Die konkret vorgewählte API besteht aus `create_local_ledger(contexts, *, adapter)`
+und den argumentlosen `advance()`, `failure_cleanup()` und `diagnose()`.
+Genau der gehaltene private Fakeadapter und dessen direkter Invocationpfad
+dürfen den lokalen Übergang erzeugen. Ein ausgewählter FunctionType-Hook
+dient ausschließlich synthetischen Gegenfällen; seine Rückgabe bleibt unbeachtet.
+Vor dem Ledgeraufbau folgen vollständige Primitive aller ein bis drei K8/D9
+vor vollständiger Semantik, Präfixfolge und gemeinsamer Eingangsbindung.
+Eine separat gehaltene vollständige unveränderliche K-/D5-Baseline schützt auch
+inaktive Folgeslots vor unbeobachtetem Drift; der Kontext ist nicht seine eigene Baseline.
+
+Der Start wird lokal vor dem Fakeaufruf reserviert. Drei Commandbits werden
+vor dem jeweiligen Fakewrite gebucht. Tatsächliche eigene Invocation,
+gehaltenes Rückgabeobjekt, Owner-/Slot-/Kontextidentität, vollständige
+K-Bindung, Sequenz, Ausgangs-/Zielzustand und unbenutzte Bindung werden gemeinsam
+geprüft. Ein vorab erzeugtes Receipt ist noch kein Invocationabschluss.
+Eine getrennte feste PRE-Aufnahme aller Slot-/Reserve-/Attempt-/Completionwerte,
+Slot-/Kontext-/Baselinereferenzen, Index und Zähler erhält die schon gebuchten
+eigenen Pflichten auch bei gültigen direkten Hookfeldänderungen. Formen gehen
+Compare vor; inaktive Slots dürfen nicht vorzeitig als CLOSED erscheinen.
+Diese Aufnahme ist kein Journal und repariert keine Caller-K oder Ressourcen.
+Reentranz bleibt sticky, auch wenn der äußere Fakepfad anschließend zurückkehrt.
+Der normale Drei-Slot-Pfad umfasst 33 Übergänge, 30 Fakecallbacks,
+drei Start- und neun Commandreservierungen sowie drei Fakecleanupversuche.
+Das ist keine tatsächliche Ereignisherkunft oder Übertragung.
+
+Cleanupreservierung, einmalig verbrauchter Versuch und bestätigter lokaler
+Abschluss sind getrennt. Ein PRE-Fehler verbraucht den einmaligen Cleanupversuch;
+wiederholte terminale Aufrufe rufen ihn nicht nochmals auf.
+Erste Ursache und dominantes Abschlussissue bleiben getrennt.
+Fehlender beziehungsweise unklarer Cleanupabschluss dominiert als
+`UNKNOWN / LEDGER_CLEANUP`, anschließend folgen synthetischer
+Provider-, Encoder- und erster sonstiger Fehler. Ein späterer erfolgreich
+geprüfter Fakecleanup beseitigt nur die fehlende lokale Abschlussbindung;
+er erzeugt keinen erfolgreichen Versuch oder Ressourcenabwesenheitsbeleg.
+
+Gehaltene Funktionen, transitive Kontextprüfer, Modul-/Klassenräume,
+MRO/Bases, Code, Globals, Defaults/Kwdefaults und Closurezellidentitäten/-inhalte
+werden über den Callback geprüft. Der aktive lexikalische POST hält seine
+nativen Prüfer vor dem Callback; er dispatcht keinen bereits veränderten
+Pythonchecker. Diagnostik verwendet gehaltenen Code, frische lokale Builtins
+und native Slots; sie übernimmt keine private Exceptionnachricht.
+Feste bounded Issueformen gehen Membership und Compare vor.
+Dies bleibt eine kontrollierte Owner-/Fakeadapterannahme, keine beliebige
+Python-/Hostmanipulationsabwehr.
+
+Die vollständige Source-/Test-/Harnesswahl und unabhängige Auswahl-PRE
+gingen der Sourceänderung voraus. Root und unabhängiger Reviewer lasen
+vor dem ersten Lauf die vollständigen finalen Source-/Test-/Harnessstände.
+Draftkorrekturen betrafen Cleanupverbrauch/-dominanz, spätere Checkerdrift,
+native POST-Bindungen, geschlossene Exceptionlabels, primitive Zustandsformen,
+generated Constructorclosures, sichere spätere Run-/Stop-Einstiege,
+ursprüngliche Anchorinstanz/-tupel, unveränderliche native Dispatchtabellen,
+fehlende eigene Felder vor Core-POST, separat gehaltene ursprüngliche Zustandswerte
+und tatsächlich registrierte eigene Testpatches.
+Ein rein lesender Deltahilfsaufruf scheiterte vor Prozessstart an der Windows-
+Argumentlängengrenze. Der Reader wurde ohne Source- oder Suiteausführung korrigiert.
+Das Harness restauriert ausschließlich vorab registrierte eigene Patches und
+prüft danach tatsächlichen Modulcache/__main__, Modul-/Klassenräume,
+Funktionen und Closureinhalte unabhängig. Fremde Zustände werden nicht repariert.
+
+Genau ein autorisierter initialer Lauf mit dem gebündelten CPython 3.12.14 und
+`-I -S -B -X utf8 Tests/Static/test_dgn007_parent_ledger.py`:
+66/66 PASS, 0 Failures, 0 Errors, 0 Skips, Exit 0. Unittestzeit 0,426 Sekunden;
+separat mit PowerShell-Stopwatch gemessene Prozesswallzeit 0,5766168 Sekunden.
+Alle 66 tatsächlich ausgeführten setUp-/tearDown-Sentinels bestanden. Es wurden
+keine Tempdateien angelegt; ein Ressourcenabwesenheitsnachweis wird daraus nicht
+abgeleitet. Die Suite wurde weder wiederholt noch um historische Fixtures erweitert.
+
+Source RAW=LF SHA-256 `01c005db3efdf287ec586e985f317c249fd6a6d1361577dc20cbfbb89c5e3960`
+(45470 Bytes); Test RAW=LF SHA-256
+`653aa0855c4e2c22cf6c9bbfb92d3be560fd60582c2110228bed0475d6e182dd`
+(54825 Bytes). Die sortierte kompakte ASCII-JSON-Paarbindung aus Pfad und LF-SHA
+ist `91f10b0e68fd9a27f53db65b6b31c295645688d7cf302fd7d8e15cc0f636347c`.
+RAW-/LF-/Paar-Pins wurden nach dem Lauf erneut unabhängig gemessen und blieben gleich.
+
+Die neue Source führt weder JSON/SHA, Parser, Aufnahme, tatsächliches I/O,
+Worker, Loader noch SQL aus. Die initialen Form- und Ledgerbuchungsbounds aus
+§32 bleiben erhalten; wiederholte Kontext-/Ankerarbeit ist zusätzliche Arbeit,
+kein Beleg für das gemeinsame 20-s-/64-KiB-Gate. Keine historische private
+Aufnahme, Prepare-, Nonce-, native Profil-, Sysconfig-, Worker- oder SQLprobe
+wurde wiederholt. Sämtliche Attestationsflags bleiben false.
+Exklusive Ownerwahl und einmalige Adapterbindung attestieren keine globale
+Replayfreiheit; ein neuer Adapter mit gleichen K-Werten bleibt möglich.
+
+Nächster kleiner Schnitt ist ausschließlich der DESIGN-Vertrag vollständiger
+BEGIN-/COMPLETE-Loaderrecords einschließlich codefreier Parent-Paare auf Basis
+§16.4 und UsedBytes §2/5. SESSION_END folgt separat nach den exakten Recordformen;
+seine Counts und sein Hashpräbild dürfen nicht vorausgesetzt werden.
+Tatsächliche Parent-/Worker-/Kanal-/Loader-/Consumption-/UsedBytes-Bindung,
+operative S15/P11-Auswahl mit Fünf-Formen-/64-KiB-Gate und unabhängiger
+Ressourcen-Cleanup bleiben offen. G13, v1, DEC-068, geschützte PR68,
+interne Capturearbeit sowie External-/Graph-P2 bleiben erhalten.
