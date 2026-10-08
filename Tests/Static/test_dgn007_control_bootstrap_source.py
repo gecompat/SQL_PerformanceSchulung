@@ -4,7 +4,7 @@ import builtins
 from dataclasses import FrozenInstanceError
 import hashlib
 import importlib.util
-from importlib.machinery import ModuleSpec, SourceFileLoader
+from importlib.machinery import ExtensionFileLoader, ModuleSpec, SourceFileLoader
 import json
 from pathlib import Path
 import struct
@@ -1057,6 +1057,454 @@ class InlineMetadataSyntaxTests(unittest.TestCase):
             subject.build_inline_syntax_control_bootstrap(
                 raw + b"x", logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
         self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+
+
+def semantic_fixture(ordinal=1):
+    """Unabhängige benannte Originalmetadata aus ausschließlich eigenen Bytes."""
+    rows = tuple(dict(ordinal=n, module=module, member=member, size=len(raw),
+                      sha256=hashlib.sha256(raw).hexdigest())
+                 for n, (module, member) in enumerate(syntax_reference.b.input82.MODULES)
+                 for raw in (b"synthetic-source-" + str(n).encode("ascii"),))
+    original = dict(protocol="dgn007-import-input/v1", commit="1" * 40,
+                    raw27_binding="2" * 64, source_profile="dgn007-docker-sql-only/v1",
+                    nonce="3" * 64, modules=list(rows))
+    digest = hashlib.sha256(json.dumps(original, sort_keys=True, ensure_ascii=True,
+                            separators=(",", ":"), allow_nan=False).encode("ascii")).hexdigest()
+    descriptors = tuple(tuple(row[k] for k in ("ordinal", "module", "member", "size", "sha256"))
+                        for row in rows)
+    ip = tuple(original[k] for k in ("protocol", "commit", "raw27_binding", "source_profile", "nonce")) + (descriptors, digest)
+    installation = ("DECLARED_SETUP_PYTHON_CONTROL_RUNTIME", "linux", "cpython", (3, 12, 14),
+                    "/synthetic/bin/python", "/synthetic/bin/python", ("/synthetic",) * 4,
+                    SOABI, ("/synthetic/stdlib", "/synthetic/stdlib/lib-dynload", "/synthetic/python312.zip"),
+                    ("/synthetic/stdlib", "/synthetic/stdlib/lib-dynload"), "/synthetic/python312.zip",
+                    (1, 1, 1, 1, 1, 0), ("BUILTIN", "FROZEN", "PATH"), ("ZIPIMPORTER", "FILEFINDER"),
+                    (("/synthetic/bin/python", 0, "4" * 64),))
+    modules = (("__main__", "__main__", None, "", MAIN_FILE, "CONTROL", (), "NONE", "", "", ()),
+               (NAME, NAME, NAME, LOCATOR, LOCATOR, "CONTROL", (), "SOURCE", NAME, LOCATOR, ()),
+               ("sys", "sys", "sys", "built-in", "", "BUILTIN", (), "BUILTIN", "", "", ()))
+    entry = ("run_dgn007_automated_setup", "docker_sqlcmd_proxy", "run_demo")[ordinal - 1]
+    worker = (ordinal, entry, "PRE_IMPORT", installation, ("__main__", NAME), modules)
+    context = ip[1:5] + (descriptors, ordinal, entry, "PRE_IMPORT")
+    return (ip, worker, context)
+
+
+def semantic_change(payload, path, value):
+    """Gehaltene synthetische Tupleänderung ohne JSON-/Semantikdefault."""
+    if not path:
+        return value
+    rows = list(payload)
+    rows[path[0]] = semantic_change(rows[path[0]], path[1:], value)
+    return tuple(rows)
+
+
+def _fixture_sha256():
+    """Fester Constructorcode mit getrenntem synthetischem Providernamespace."""
+    global _HASH_CALLS
+    _HASH_CALLS += 1
+    if _HASH_CALLBACK is not None:
+        _HASH_CALLBACK()
+    if _HASH_ERROR is not None:
+        raise _HASH_ERROR
+    if _HASH_RESULT is not None:
+        return _HASH_RESULT
+    return _NATIVE_SHA()
+
+
+class InlineMetadataSemanticsTests(unittest.TestCase):
+    def setUp(self):
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin="/synthetic/stdlib/hashlib.py")
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        native_file = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", native_file)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=native_file)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        # Nur synthetische Metadaten: module_from_spec würde eine Extension laden.
+        self.native.__dict__.update(__file__=native_file, __package__="", __spec__=native_spec,
+                                    __loader__=native_loader, __cached__=None,
+                                    HASH=hashlib.__dict__["_hashlib"].HASH,
+                                    openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(
+            _hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+
+        def bind_provider(run):
+            profile = run.cache[NAME]
+            profile.hashlib = self.provider
+            profile.ExtensionFileLoader = ExtensionFileLoader
+            run.cache["hashlib"] = self.provider
+            run.cache["_hashlib"] = self.native
+
+        self.selected = subject.build_inline_semantics_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.decode = self.namespace["_inline_metadata_semantics"]
+        self.payload = semantic_fixture()
+
+    def packet(self, payload, *, body_size=None):
+        metadata = syntax_bytes(syntax_form(payload))
+        declared = sum(row[3] for row in payload[0][5]) if body_size is None else body_size
+        return struct.pack(">8sII", b"DGNC001\0", len(metadata), declared), metadata
+
+    def accepted(self, payload=None):
+        payload = self.payload if payload is None else payload
+        result = self.decode(*self.packet(payload))
+        self.assertEqual(result[:2], ("VALID_METADATA_SEMANTICS", "NONE"))
+        self.assertEqual(result[2], payload)
+        return result[2]
+
+    def rejected(self, payload=None, issue=None, *, body_size=None):
+        payload = self.payload if payload is None else payload
+        result = self.decode(*self.packet(payload, body_size=body_size))
+        self.assertEqual(result[0], "REJECTED_METADATA_SEMANTICS")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("/synthetic", repr(result))
+        return result
+
+    def test_full_semantics_all_ordinals_matches_actual_codec(self):
+        for ordinal in (1, 2, 3):
+            payload = semantic_fixture(ordinal)
+            actual = self.accepted(payload)
+            reference = syntax_reference._semantics(payload, 0)
+            self.assertEqual(actual[0], reference[0])
+            worker, context = reference[1:]
+            self.assertEqual(actual[1][:3], (worker.ordinal, worker.entry, worker.phase))
+            self.assertEqual(actual[1][3], tuple(getattr(worker.installation, key)
+                if key != "files" else tuple((r.path, r.size, r.sha256) for r in worker.installation.files)
+                for key in ("assumption", "platform", "implementation", "version", "executable",
+                            "executable_target", "prefixes", "abi", "paths", "roots", "inert_zip",
+                            "flags", "finders", "hooks", "files")))
+            self.assertEqual(actual[1][4], worker.controls)
+            self.assertEqual(actual[1][5], tuple(tuple(getattr(r, key) for key in (
+                "name", "moduleName", "specName", "origin", "file", "kind", "locations",
+                "loader", "loaderName", "loaderPath", "aliasGroup")) for r in worker.modules))
+            self.assertEqual(actual[2][:4], (context.commit, context.raw27_binding,
+                                           context.source_profile, context.nonce.hex()))
+            self.assertEqual(actual[2][4], tuple((r.ordinal, r.module, r.member, r.size, r.sha256)
+                                               for r in context.modules))
+            self.assertEqual(actual[2][5:], (context.ordinal, context.entry, context.phase))
+
+    def test_original_named_digest_preimage_has_no_ordinal_or_pool(self):
+        seen = []
+        encoder = json.JSONEncoder
+        class RecordingEncoder(encoder):
+            def iterencode(self, value, *args, **kwargs):
+                if type(value) is dict:
+                    seen.append(value)
+                return super().iterencode(value, *args, **kwargs)
+        with patch.object(json, "JSONEncoder", RecordingEncoder):
+            self.accepted()
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(set(seen[0]), {"protocol", "commit", "raw27_binding", "source_profile", "nonce", "modules"})
+        self.assertIs(type(seen[0]["modules"]), list)
+        self.assertTrue(all(set(r) == {"ordinal", "module", "member", "size", "sha256"} for r in seen[0]["modules"]))
+        digest = hashlib.sha256(json.dumps(seen[0], sort_keys=True, ensure_ascii=True,
+                               separators=(",", ":"), allow_nan=False).encode("ascii")).hexdigest()
+        self.assertEqual(digest, self.payload[0][6])
+
+    def test_original_mapping_constants_match_current_source_contract(self):
+        self.assertEqual(self.namespace["_SEMANTIC_MODULES"], syntax_reference.b.input82.MODULES)
+        self.assertEqual(self.namespace["_SEMANTIC_ENTRIES"], syntax_reference.b.ENTRIES)
+        self.assertEqual(self.namespace["_SEMANTIC_FROZEN"], syntax_reference.b.FROZEN_NAMES)
+        self.assertEqual(self.namespace["_SEMANTIC_PAIRS"], syntax_reference.b.ALIAS_PAIRS)
+
+    def test_semantics_rejects_previous_syntax_only_contradictions(self):
+        self.rejected(syntax_fixture(), "CONTEXT_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_installation_policy_fields_and_lexical_paths(self):
+        for index, value, issue in (
+            (0, "wrong", "INSTALLATION_FORM"), (1, "win32", "INSTALLATION_FORM"),
+            (2, "other", "INSTALLATION_FORM"), (3, (3, 13, 0), "INSTALLATION_FORM"),
+            (3, (3, 12, 1000), "INSTALLATION_FORM"), (7, "", "INSTALLATION_FORM"),
+            (9, ("/same", "/same"), "INSTALLATION_FORM"),
+            (8, ("/foreign",), "PATH_FORM"), (4, "relative", "PATH_FORM"),
+            (5, "/synthetic/../escape", "PATH_FORM"), (10, "/double//slash", "PATH_FORM"),
+            (11, (1, 1, 1, 1, 1, 1), "INSTALLATION_FORM"),
+            (12, ("BUILTIN", "FROZEN", "OTHER"), "INSTALLATION_FORM"),
+            (13, ("ZIPIMPORTER", "OTHER"), "INSTALLATION_FORM")):
+            self.rejected(semantic_change(self.payload, (1, 3, index), value), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_file_forms_optional_selection_and_bounds(self):
+        self.accepted(semantic_change(self.payload, (1, 3, 14), ()))
+        first = self.payload[1][3][14][0]
+        self.accepted(semantic_change(self.payload, (1, 3, 14), (first, ("/synthetic/stdlib/file", 0, "4" * 64))))
+        for files in ((first, first), (("/other", 0, "4" * 64),),
+                      (first, ("/foreign/file", 0, "4" * 64)),
+                      ((first[0], 33554433, first[2]),), (first,) * 3):
+            self.rejected(semantic_change(self.payload, (1, 3, 14), files), "FILE_FORM")
+
+    def test_source_extension_loader_root_and_locations(self):
+        for kind in ("SOURCE", "EXTENSION"):
+            row = ("synthetic", "synthetic", "synthetic", "/synthetic/stdlib/x", "/synthetic/stdlib/x",
+                   kind, ("/synthetic/stdlib/pkg",), kind, "synthetic", "/synthetic/stdlib/x", ())
+            payload = semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (row,))))
+            self.accepted(payload)
+            for index, value, issue in ((3, "/foreign/x", "MODULE_FORM"), (8, "other", "MODULE_FORM"),
+                                        (9, "/other", "MODULE_FORM"), (6, ("/foreign",), "PATH_FORM")):
+                changed = list(row)
+                changed[index] = value
+                self.rejected(semantic_change(self.payload, (1, 5), tuple(sorted(
+                    self.payload[1][5] + (tuple(changed),)))), issue)
+            outside = tuple("/foreign/x" if n in (3, 4, 9) else value for n, value in enumerate(row))
+            self.rejected(semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (outside,)))), "PATH_FORM")
+
+    def test_builtin_frozen_nullspec_and_metadata_rules(self):
+        for index, value in ((1, "other"), (2, None), (3, "foreign"), (5, "other"),
+                             (7, "SOURCE"), (8, "not-empty"), (9, "not-empty")):
+            self.rejected(semantic_change(self.payload, (1, 5, 2, index), value), "MODULE_FORM")
+        self.rejected(semantic_change(self.payload, (1, 5, 0, 3), "/nonempty"), "MODULE_FORM")
+        self.rejected(semantic_change(self.payload, (1, 5, 0, 6), ("relative",)), "PATH_FORM")
+        row = ("os.path", "posixpath", "posixpath", "frozen", "/synthetic/stdlib/posixpath.py", "FROZEN",
+               (), "FROZEN", "", "", ())
+        self.accepted(semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (row,)))))
+        self.rejected(semantic_change(self.payload, (1, 5, 2, 4), "relative"), "PATH_FORM")
+
+    def test_inventory_order_duplicates_ownnames_and_generic_controls(self):
+        self.rejected(semantic_change(self.payload, (1, 5), ()), "INVENTORY_FORM")
+        self.rejected(semantic_change(self.payload, (1, 5), self.payload[1][5][::-1]), "INVENTORY_FORM")
+        self.rejected(semantic_change(self.payload, (1, 5), self.payload[1][5] + (self.payload[1][5][-1],)), "INVENTORY_FORM")
+        for name in self.namespace["_SEMANTIC_OWN"]:
+            self.rejected(semantic_change(self.payload, (1, 5, 2, 0), name), "OWN_MODULE_CACHED")
+        self.rejected(semantic_change(self.payload, (1, 4), ("__main__",)), "CONTROL_FORM")
+        self.rejected(semantic_change(self.payload, (1, 4), ("__main__", "__main__")), "CONTROL_FORM")
+        extra = ("selected_control", "selected_control", None, "", "", "CONTROL", (), "NONE", "", "", ())
+        payload = semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (extra,))))
+        self.accepted(semantic_change(payload, (1, 4), payload[1][4] + ("selected_control",)))
+
+    def test_all_frozen_pairs_singleton_empty_and_mixed_source(self):
+        for pair in self.namespace["_SEMANTIC_PAIRS"]:
+            rows = []
+            for name in pair:
+                names = self.namespace["_SEMANTIC_FROZEN"].get(name, (name, name))
+                rows.append((name, *names, "frozen", "", "FROZEN", (), "FROZEN", "", "", pair))
+            self.accepted(semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + tuple(rows)))))
+            missing = self.payload[1][5] + (rows[0],)
+            self.rejected(semantic_change(self.payload, (1, 5), tuple(sorted(missing))), "ALIAS_FORM")
+            single = rows[0][:-1] + ((),)
+            self.accepted(semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (single,)))))
+            different = rows[1][:-1] + ((),)
+            self.rejected(semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (rows[0], different)))), "ALIAS_FORM")
+        frozen = ("_collections_abc", "collections.abc", "_collections_abc", "frozen", "", "FROZEN", (), "FROZEN", "", "", ())
+        source = ("collections.abc", "collections.abc", "collections.abc", "/synthetic/stdlib/collections/abc.py",
+                  "/synthetic/stdlib/collections/abc.py", "SOURCE", (), "SOURCE", "collections.abc",
+                  "/synthetic/stdlib/collections/abc.py", ())
+        self.accepted(semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + (frozen, source)))))
+
+    def test_each_descriptor_mapping_size_hash_and_late_cell(self):
+        for prefix in ((0, 5), (2, 4)):
+            for field, value in ((0, 8), (1, "wrong"), (2, "wrong"), (3, 131073), (4, "z" * 64)):
+                self.rejected(semantic_change(self.payload, prefix + (0, field), value), "CONTEXT_FORM")
+            self.rejected(semantic_change(self.payload, prefix + (8, 4), "BAD"), "CONTEXT_FORM")
+            oversized = tuple(row[:3] + (131072, row[4]) for row in self.payload[0][5])
+            self.rejected(semantic_change(self.payload, prefix, oversized), "CONTEXT_FORM",
+                          body_size=sum(row[3] for row in self.payload[0][5]))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_context_texts_nonce_protocol_hex_forms(self):
+        for path, value in (((0, 0), "wrong"), ((0, 1), "a" * 39), ((0, 2), "A" * 64),
+                            ((0, 3), "wrong"), ((0, 4), "3" * 63), ((0, 6), "g" * 64),
+                            ((2, 0), "wrong"), ((2, 1), "g" * 64), ((2, 2), "wrong"), ((2, 3), "wrong")):
+            self.rejected(semantic_change(self.payload, path, value), "CONTEXT_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_selector_forms_and_valid_selector_mismatch(self):
+        for path, value in (((1, 0), 0), ((1, 1), "wrong"), ((1, 2), "POST_IMPORT"),
+                            ((2, 5), 4), ((2, 6), "wrong"), ((2, 7), "POST_IMPORT")):
+            self.rejected(semantic_change(self.payload, path, value), "CONTEXT_FORM")
+        payload = semantic_change(self.payload, (2,), self.payload[2][:5] + semantic_fixture(2)[2][5:])
+        self.rejected(payload, "CONTEXT_MISMATCH")
+
+    def test_declared_body_sum_before_provider_and_no_body_claim(self):
+        self.rejected(issue="DECLARED_BODY_LENGTH", body_size=0)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+        self.accepted()  # Bodies are absent; accepted SHA/size fields are declarations only.
+
+    def test_valid_digest_context_mismatch_and_opaque_hashes(self):
+        self.rejected(semantic_change(self.payload, (0, 6), "0" * 64), "INPUT_DIGEST")
+        for path in ((2, 0), (2, 1), (2, 3), (2, 4, 8, 4)):
+            old = self.payload
+            for position in path:
+                old = old[position]
+            self.rejected(semantic_change(self.payload, path, "a" * len(old)), "INPUT_BINDING")
+        # Declared hashes are not recomputed from bodies by this API.
+        payload = semantic_change(self.payload, (2, 4, 8, 4), "0" * 64)
+        payload = semantic_change(payload, (0, 5, 8, 4), "0" * 64)
+        ip = payload[0]
+        value = dict(zip(("protocol", "commit", "raw27_binding", "source_profile", "nonce"), ip[:5]))
+        value["modules"] = [dict(zip(("ordinal", "module", "member", "size", "sha256"), r)) for r in ip[5]]
+        digest = hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=True, separators=(",", ":")).encode("ascii")).hexdigest()
+        self.accepted(semantic_change(payload, (0, 6), digest))
+
+    def test_late_form_failure_dominates_early_binding_and_digest(self):
+        changed = semantic_change(self.payload, (0, 6), "0" * 64)
+        self.rejected(semantic_change(changed, (2, 4, 8, 4), "BAD"), "CONTEXT_FORM")
+        self.rejected(semantic_change(changed, (1, 5, 2, 7), "NONE"), "MODULE_FORM")
+        malformed = semantic_change(changed, (2, 4, 8, 4), None)
+        self.rejected(malformed, "POSITION_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_wrong_header_and_foreign_bytes_precede_provider(self):
+        header, metadata = self.packet(self.payload)
+        for a, b in ((Foreign(), metadata), (header, Foreign()), (b"", metadata)):
+            result = self.decode(a, b)
+            self.assertEqual(result[0], "REJECTED_METADATA_SEMANTICS")
+            self.assertIsNone(result[2])
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_missing_bound_profile_and_provider_foreign_fields(self):
+        original = self.namespace["_SEMANTIC_CONTROL_ANCHOR"]
+        for value in (None, Foreign(), ()):
+            self.namespace["_SEMANTIC_CONTROL_ANCHOR"] = value
+            self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.namespace["_SEMANTIC_CONTROL_ANCHOR"] = original
+        profile = self.run.cache[NAME]
+        for value in (None, Foreign(), ForeignModule("hashlib")):
+            profile.hashlib = value
+            self.rejected(issue="HASH_PROVIDER_BINDING")
+        profile.hashlib = self.provider
+        self.provider.__dict__[ForeignKey("foreign-key")] = Foreign()
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_provider_metadata_spec_loader_and_callable_drift(self):
+        for target, key, value in (
+            (self.provider.__dict__, "__name__", Foreign()),
+            (self.provider.__dict__, "__spec__", Foreign()),
+            (self.provider.__spec__.__dict__, "origin", Foreign()),
+            (self.provider.__loader__.__dict__, "path", Foreign()),
+            (self.provider.__dict__, "sha256", Foreign()),
+            (self.provider.__dict__, "_hashlib", Foreign())):
+            old = target[key]
+            target[key] = value
+            self.rejected(issue="HASH_PROVIDER_BINDING")
+            target[key] = old
+        old = self.factory.__defaults__
+        self.factory.__defaults__ = (None,)
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.factory.__defaults__ = old
+
+    def test_native_constructor_supported_and_result_exact_type(self):
+        self.provider.sha256 = hashlib.sha256
+        self.accepted()
+        self.provider.sha256 = self.factory
+        for value in (Foreign(), ForeignModule("HASH"), object()):
+            self.provider._HASH_RESULT = value
+            self.rejected(issue="HASH_PROVIDER_OBJECT")
+
+    def test_constructor_failure_fixed_and_post_drift_dominant(self):
+        self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.rejected(issue="HASH_PROVIDER_CALL")
+        self.provider._HASH_CALLBACK = lambda: self.run.cache.__setitem__("hashlib", Foreign())
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_provider_code_and_cache_drift_during_constructor(self):
+        old = self.factory.__code__
+        self.provider._HASH_CALLBACK = lambda: setattr(self.factory, "__code__", _fixture_config_var.__code__)
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.factory.__code__ = old
+        self.provider._HASH_CALLBACK = lambda: self.run.cache.__setitem__(NAME, ModuleType(NAME))
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_native_class_and_method_descriptor_exchange_is_closed(self):
+        held = self.native.HASH
+        # Ein gleich beschrifteter Python-Typ erhält keine native Methodenbindung.
+        for update in (Foreign(), property(lambda obj: self.fail("FOREIGN_METHOD_GETTER")),
+                       held.__dict__["update"]):
+            replacement = type("HASH", (), {"__module__": "_hashlib", "update": update,
+                                            "hexdigest": held.__dict__["hexdigest"]})
+            self.native.HASH = replacement
+            self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.native.HASH = held
+        contaminated = type("HASH", (), {"__module__": "_hashlib", "update": held.__dict__["update"],
+                                         "hexdigest": held.__dict__["hexdigest"],
+                                         ForeignKey("foreign-key"): None})
+        self.native.HASH = contaminated
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+        oversized = type("HASH", (), {"field" + str(n): None for n in range(257)})
+        self.native.HASH = oversized
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.native.HASH = held
+        self.provider._HASH_CALLBACK = lambda: setattr(self.native, "HASH", Foreign())
+        self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_hash_update_error_and_profile_mutation_during_encoding(self):
+        encoder = json.JSONEncoder
+        class BrokenEncoder(encoder):
+            def iterencode(self, value, *args, **kwargs):
+                if type(value) is dict:
+                    yield "x"
+                    raise ValueError("PRIVATE_PAYLOAD")
+                yield from super().iterencode(value, *args, **kwargs)
+        with patch.object(json, "JSONEncoder", BrokenEncoder):
+            self.rejected(issue="HASH_PROVIDER_CALL")
+        class ChangedEncoder(encoder):
+            def iterencode(inner, value, *args, **kwargs):
+                if type(value) is dict:
+                    self.run.cache[NAME].__name__ = "wrong"
+                yield from super().iterencode(value, *args, **kwargs)
+        with patch.object(json, "JSONEncoder", ChangedEncoder):
+            self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_cleanup_never_repairs_foreign_provider_or_cache(self):
+        replacement = ModuleType("hashlib")
+        self.run.cache["hashlib"] = replacement
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.assertIs(self.run.cache["hashlib"], replacement)
+        self.assertIs(self.run.cache[NAME], self.namespace["_CONTROL_RESULT"][2])
+
+    def test_no_actual_provider_call_before_shapes_or_under_caller_exception(self):
+        try:
+            raise RuntimeError("PRIVATE_PAYLOAD")
+        except RuntimeError:
+            result = self.rejected(semantic_change(self.payload, (1, 3, 1), "wrong"), "INSTALLATION_FORM")
+        self.assertEqual(result, ("REJECTED_METADATA_SEMANTICS", "INSTALLATION_FORM", None))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_additive_route_legacy_bytes_imports_and_private_claim(self):
+        old = subject.build_inline_syntax_control_bootstrap(RAW, logical_profile=LOCATOR,
+                                                           expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        rebuilt = self.selected.source.decode("utf-8").replace("\n" + subject._INLINE_SEMANTICS + "\n", "\n", 1)
+        rebuilt = rebuilt.replace("global _CONTROL_ATTEMPTED, _SEMANTIC_CONTROL_ANCHOR", "global _CONTROL_ATTEMPTED", 1)
+        rebuilt = rebuilt.replace("    _SEMANTIC_CONTROL_ANCHOR = coherence\n", "", 1)
+        self.assertEqual(rebuilt.encode("utf-8"), old.source)
+        tree = ast.parse(self.selected.source)
+        imports = [n.names[0].name for n in tree.body if type(n) is ast.Import]
+        self.assertEqual(imports, ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in tree.body))
+        self.assertEqual(self.selected.claim, "GENERATED_CONTROL_SOURCE_ONLY")
+        self.assertFalse(self.selected.runtime_attested)
+        self.assertFalse(self.selected.trust_attested)
+        self.assertFalse(self.selected.import_used_bytes_attested)
+
+    def test_semantics_generator_script_cap_and_rejection_privacy(self):
+        base = subject.build_inline_semantics_control_bootstrap(b"x", logical_profile=LOCATOR,
+                         expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        overhead = len(base.source) - 1
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - overhead)
+        selected = subject.build_inline_semantics_control_bootstrap(raw, logical_profile=LOCATOR,
+                            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(selected.source), subject.MAX_SCRIPT_BYTES)
+        with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+            subject.build_inline_semantics_control_bootstrap(raw + b"x", logical_profile=LOCATOR,
+                            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+        for field in ("profile_raw", "logical_profile", "expected_soabi", "expected_destshared"):
+            fields = dict(profile_raw=RAW, logical_profile=LOCATOR, expected_soabi=SOABI,
+                          expected_destshared=DESTSHARED)
+            fields[field] = Foreign()
+            with self.assertRaises(subject.BootstrapSourceRejected):
+                subject.build_inline_semantics_control_bootstrap(**fields)
 
 
 if __name__ == "__main__":
