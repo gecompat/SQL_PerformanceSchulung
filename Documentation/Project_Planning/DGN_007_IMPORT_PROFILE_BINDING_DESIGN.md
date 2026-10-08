@@ -1826,3 +1826,113 @@ SQL-/Docker-/Collector- oder materielle Methodenerweiterungen folgen daraus nich
 G13, v1, DEC-068, historische FAILs, geschützte PR68 und die zurückgestellte
 Capture-API bleiben unverändert. Dieser Abschnitt erzeugt keinen RunRecord,
 keine Methodenfreigabe und keinen tatsächlichen Worker-/UsedBytesbeleg.
+
+## 17. Reiner Generator gehaltener Kontrollbootstrapquellen
+
+Der getrennte Vorschnitt in
+[`dgn007_control_bootstrap_source.py`](../../Tests/Tools/dgn007_control_bootstrap_source.py)
+erzeugt private Scriptbytes aus separat gewählten, vertrauten Kontrollbytes.
+`build_control_bootstrap(profile_raw, *, logical_profile)` liest selbst keine
+Datei, kompiliert oder importiert kein Profil und startet keinen Prozess.
+Der eingefrorene, reprfreie `BootstrapSource` hält vollständige Script- und
+Profilbytes sowie den Locator; öffentliche Größen, Hashes und feste Labels
+geben keinen Quelleninhalt aus. `trust_assumed` benennt die Kontrollannahme;
+Trust-, Runtime-, Import-UsedBytes- und Methodenattestationsflags bleiben false.
+Dies ist kein operativer Worker und ersetzt den geplanten Scriptlocator aus §8
+nicht. Die bestehende echte Profilquelle wurde in diesem Schnitt nicht geladen.
+
+### 17.1 Gebundene Bytes und begrenzte Metadaten
+
+Nur exakte nichtleere `bytes` bis 131.072 Bytes und ein exakter kanonischer
+absoluter Linux-Locator bis 4.096 UTF-8-Bytes sind zulässig. Das erzeugte
+UTF-8-Script ist einschließlich des expandierten Rawbyteliterals, des Locators
+und des Templates zusätzlich auf tatsächliche 131.072 Bytes begrenzt.
+Ein passendes Profil allein garantiert deshalb keinen passenden Scriptumfang.
+Die fünf direkten Templateimports bleiben `importlib.util`, `sys`, `sysconfig`,
+`json` und `struct`; zusätzliche Projektimporte gehören nicht zu diesem Generator.
+Diese AST-Gegenprobe attestiert keine beliebigen transitiven Imports gewählter
+Profilbytes oder die spätere vollständige operative Inventur.
+
+Der einzelne gebundene Kontrollladeversuch prüft den gehaltenen Modulcache
+und die beiden Kontrollnamen vor einem Read. Ein vorhandenes Profil wird nicht
+übernommen oder entfernt. Cache-, Modul-, Spec-, Loader- und Factorydicts haben
+höchstens 256 exakte Stringkeys mit jeweils höchstens 4.096 UTF-8-Bytes; die
+Prüfung erfolgt vor fremden Getter-/Equality- oder Cachelookupoperationen.
+Die erneute Main-Typprüfung erfolgt auch nach Exec vor dessen Namespacezugriff.
+
+Ein tatsächlicher binärer Read nimmt höchstens 131.073 Bytes einschließlich
+Overflow-Sentinel auf. Er muss vor Compile und Specanlage exakt den gehaltenen
+Erwartungsbytes entsprechen. Genau dieses tatsächliche Readobjekt wird mit
+`compile(raw, locator, "exec", dont_inherit=True, optimize=0)` kompiliert und
+das gleiche Codeobjekt ausgeführt. Python 3.12 unterstützt Bytequellen und
+die ausdrücklich gewählten Compileparameter. [Python-3.12-Referenz](https://docs.python.org/3.12/library/functions.html#compile), abgerufen am 2026-10-08.
+
+Die gehaltene `SourceFileLoader`-Klasse aus `_frozen_importlib_external` dient
+der Modul-/Specmetadatenanlage. Name und Pfad werden gegen den gewählten Locator
+geprüft; `get_code` und `exec_module` sind keine Quellenroute. Die Factory-APIs
+erzeugen Spec und Modul, während dieser Vorschnitt die Quellenausführung selbst
+bindet. [Python-3.12-importlib-Referenz](https://docs.python.org/3.12/library/importlib.html#importlib.util.module_from_spec), abgerufen am 2026-10-08.
+Eine danebenliegende pyc-Datei wird nicht als Kontrollbytebeleg verwendet.
+Modul, Spec, Loader, Name, File, Package und Cachedfelder müssen vor und nach
+Exec kohärent sein; Cachedwerte haben vor Equality die Form None oder exactstr.
+Diese Checks begründen keine Herkunftsattestation für die gewählte Kontrollruntime
+und sind keine Sandbox für beliebige untrusted Profilprogramme.
+
+Fehler erhalten feste getrennte Read-/Compile-/Execlabels. Eine im Profil selbst
+erzeugte OSError oder SyntaxError wird dadurch nicht als vorgelagerter Read- oder
+Compilefehler ausgegeben. Der fehlgeschlagene Versuch wird nicht wiederholt.
+Cleanup entfernt nur den nach Identität selbst eingesetzten Profileintrag;
+fremder Ersatz, anderer Cache oder unprüfbare Keys bleiben unangetastet und
+liefern `CONTROL_CLEANUP`. Die öffentliche Erzeugung unterdrückt die sichtbare
+Exceptionverkettung mit `from None`; dies löscht nicht Pythons internes
+`__context__` und darf nicht als solches behauptet werden.
+
+### 17.2 Synthetische Abnahme und nächste operative Gates
+
+Die Gegenproben in
+[`test_dgn007_control_bootstrap_source.py`](../../Tests/Static/test_dgn007_control_bootstrap_source.py)
+verwenden ausschließlich feste harmlose synthetische Kontrollbytes, einen
+getrennten Fakecache und eigene temporäre Dateifixtures. Sie prüfen unter
+anderem tatsächliche Read-/Compile-/Execobjekte, CRLF, BOM und Encodingcookie,
+Rawmismatch vor Compile/Spec, pyc-/Loadergegenproben, Script- und Readcaps,
+fremde Typen/Keys, Metadatenmutation, phasengenaue Fehler, eigenen Cleanup und
+den abgelehnten zweiten Versuch. Windows-Fixturemetadaten sind ausdrücklich
+synthetische Linuxmetadaten; sie attestieren keine echte Linux-Factoryausführung.
+
+Der erste lokale Lauf unter CPython 3.12.14 mit `-I -S -B -X utf8` meldete
+32 Methoden, 23 PASS, acht FAIL, einen ERROR und keinen SKIP. Die reale Windows-
+Specfactory normalisierte den synthetischen absoluten Linux-Locator; dies
+verletzte die beabsichtigte Kohärenz. Die Fixture wurde daraufhin eng korrigiert,
+ohne den Linuxvertrag des Generators zu lockern. Der korrigierte Abnahmestand
+wird ausschließlich an seinen erneut geprüften Source-/Testfreeze gebunden.
+Der zweite lokale Lauf meldete 32 Methoden, 30 PASS, zwei FAIL, keinen ERROR
+und keinen SKIP. Die beiden Body-import-sys-Mutationsfälle erforderten eine
+ausdrückliche Bindung der synthetischen Modulbuiltins an den getrennten
+Fixtureimportcache: beide lieferten unerwartet `LOADED_BOUND_CONTROL_SOURCE`,
+statt der erwarteten `CONTROL_COHERENCY`-/`CONTROL_CLEANUP`-Ablehnungen.
+Dieser Testbefund wird getrennt erhalten. Der frühere echte Cachezustand dieser
+beendeten Testprozesse wurde nicht separat aufgenommen; ein damaliger
+Profileintrag oder Hostcacheeffekt wird deshalb nicht behauptet.
+Nach erneuter unabhängiger Sicherheitsprüfung bestand der dritte isolierte
+Lauf unter CPython 3.12.14 alle 32 Methoden in 0,151 Sekunden ohne FAIL, ERROR
+oder SKIP. Die explizite Body-sys-/Fakebuiltinsidentität, tatsächliche Absenz
+jedes gehaltenen eigenen Tempziels sowie unveränderte reale
+Profilecachemitgliedschaft, Mainobjekt und Mainname bestanden. Die Produktionsquelle blieb
+bei beiden Fixturekorrekturen unverändert. Der geprüfte finale LF-Stand lautet:
+
+| Datei | Bytes | SHA-256 |
+|---|---:|---|
+| Generator | 11.206 | `5df8995a778379328b501f900fcc2b10f755eca5915958784fb4bed999da937b` |
+| Testsuite | 20.109 | `727bbcbe024dc9ab211c4ca5ea2ae1e20dd8f23a0830a246131575ce4f9c7763` |
+
+Dies belegt ausschließlich den synthetischen Vorschnitt am genannten Source;
+kein tatsächliches Kontrollprofil, operativer Worker oder DGN-Kandidat lief.
+
+Als nächster zulässiger Schnitt bleiben die frische, unabhängig vorgewählte
+operative Installation und vollständige S15-/P11-Inventur mit allen fünf
+Darstellungen und dem gemeinsamen 64-KiB-Gate. Charakterisierung und historische
+Fixture werden nicht zur operativen Baseline erklärt. Inline Receiver/Reporter,
+vollständige Kanalzustände, Parentadapter, tatsächlicher DGN-Quellenloader,
+Consumption/Replay und unabhängig bereinigte eigene Worker folgen getrennt.
+G13, v1, DEC-068, historische FAILs, PR68 und die zurückgestellte Capture-API
+bleiben erhalten; keine SQL-/Acquisition-/Capstone- oder Methodenfreigabe.
