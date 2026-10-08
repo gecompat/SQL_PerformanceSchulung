@@ -2856,3 +2856,119 @@ Reassemblierung attestiert kein beobachtetes Profil. Tatsächlicher I/O,
 gemeinsame operative Kanal-/stderr-Budgets, Freigaben, operative Inventur
 und Fünf-Formen-/64-KiB-Gate sowie Parent-/Worker-, Loader-, Consumption-,
 Replay-, Cleanup- und G13-Methodengates bleiben offen.
+
+## 27. Reine begrenzte Reassemblierung gehaltener Profilrecords
+
+Die zehnte additive Quellenroute `build_inline_reassemble_control_bootstrap`
+ergänzt ausschließlich die begrenzte Reassemblierung bereits gehaltener
+PROFILE-BEGIN-/Fragment-/END-Records nach §16.4.
+`_inline_reassemble_profile_records(records, *, expected_ordinal)` erhält
+ein exaktes Tupel exakter `bytes` und einen separat gewählten Ordinal.
+Es gibt keine Datei-, Stream-, Pipe-, Prozess- oder Workeraufnahme.
+
+Die Aufnahme ist auf höchstens 21 Records, 1.024 Bytes je Record und
+17.488 Bytes insgesamt begrenzt. Alle Recordelementtypen werden vor jeder
+Längenaufnahme oder Parsingoperation geprüft. BEGIN und END bleiben je
+höchstens 256 Bytes; höchstens 19 Fragmente tragen je höchstens 896 opake
+ASCII-Payloadbytes und höchstens 32 Envelopebytes einschließlich LF.
+Die 17.488 Bytes sind die reine gehaltene Eingangsgrenze
+`16368 + 19*32 + 2*256`, kein zusätzliches operatives Kanalbudget.
+Die gemeinsame 65.536-Byte-Kappe einschließlich tatsächlichem stderr,
+die 63.984-Byte-Reservearithmetik sowie 20-/10-Sekunden- und I/O-Grenzen
+aus §16.4 bleiben unverändert und operativ unbelegt.
+
+Sämtliche Records tragen genau ein abschließendes LF, kein CR und kein
+inneres physisches LF. Nur die ersten vier Fragmentseparatoren werden
+ausgelegt; weitere `|` im Payload bleiben unverändert. BEGIN hat genau
+vier, END genau fünf primitive Felder. Ordinal, JSONlänge, Fragmentanzahl
+und sämtliche kanonischen Envelope-Dezimalfelder werden vollständig
+geprüft. `bool`, Subklassen, zusätzliche oder fehlende Felder bleiben
+abgelehnt. Die angekündigte JSONlänge liegt zwischen 1 und 16.368 Bytes;
+die Fragmentanzahl ist genau ihre Aufrundung auf 896-Byte-Stücke.
+Sequenz, Reihenfolge, Ordinal, Anzahl und sämtliche tatsächlichen
+Payloadlängen einschließlich des letzten Rests müssen vollständig passen.
+
+Die vollständigen tatsächlichen Formen und interne Konsistenz gehen einem
+Callerabgleich vor. Unter gehaltenen Encoder- und Providerankern werden
+beide Controlzeilen kanonisch neu kodiert und der SHA-256 über die tatsächlich
+einmal zusammengesetzten Originalpayloadbytes geprüft. Erst danach wird
+der tatsächliche Ordinal mit der vollständigen separaten Erwartung verglichen.
+Provider-POST dominiert Encoder-POST und sonstige Fehler; keine fremden
+Namespaces werden repariert. Erfolg liefert atomar
+`("REASSEMBLED_PROFILE_RECORDS","NONE",(actual_header,actual_json,original_records))`.
+Fehler liefern `("REJECTED_PROFILE_RECORDS",fixed_issue,None)`; es werden
+keine Teilbytes oder Callerdefaults zurückgegeben.
+
+Der rekonstruierte feste REPORTED-Header verwendet ausschließlich
+`struct.Struct(">8sII")`, Magic `b"DGNP001\0"`, Rollenindex 2 und die
+tatsächliche JSONlänge. Die reassemblierten Bytes bleiben opak: weder
+vollständiges E4-/R-Schema, Poolauflösung, Installation, Inventur, K-Kontext
+noch Callerprofilbindung sind dadurch geprüft. Ein passender Footer
+attestiert keine Kanal-, Host-, Actor- oder Beobachtungsherkunft.
+
+Dieser reine Vorschnitt verwendet auf dem Erfolgspfad zwei begrenzte
+Control-JSON-Kodierungen, einen SHA über höchstens 16.368 Originalbytes,
+einen begrenzten Payloadjoin und einen festen 16-Byte-Header. Endliche
+Type-/Längen-/ASCII-/Envelope-/Formvorläufe und wiederholte gebundene
+Namespace-/Class-/Function-PREs und POSTs bleiben zusätzliche Kosten.
+Keine Deadline-, Sandbox- oder gemeinsame Fünf-Formen-Fitattestation folgt
+aus dieser reinen Kostenaufstellung. Neun frühere Builder bleiben erhalten;
+sämtliche Attestationsflags bleiben false und Kontrollruntime-Trust eine
+ausdrücklich deklarierte Annahme.
+
+Root und unabhängiger Review lasen den vollständigen neuen Source-/Testteil
+und seine Fixture-/Sentinelabhängigkeiten vor dem ersten Lauf. Zwei neue
+Erwartungslabels wurden dabei eng korrigiert: JSON-`true` und Leerraum
+nach einem Komma scheitern bereits im unveränderten Parser mit `JSON_FORM`;
+None beziehungsweise zusätzliche/fehlende Controlfelder ergeben
+`SCALAR_FORM`, ein escaped BEGIN erreicht `NONCANONICAL` beim Repack.
+Ausschließlich zwei neue Fixtureschleifen wurden angepasst; der
+Produktionscode blieb unverändert. Das waren lesende Vorreviewbefunde,
+keine ausgeführten fehlgeschlagenen Testversuche.
+
+Der erste und einzige isolierte Lauf unter CPython 3.12.14 mit
+`-I -S -B -X utf8` bestand 304/304 Methoden in 5,923 Sekunden
+(Wallzeit 6,7073508 Sekunden), Exit 0, ohne FAILURE, ERROR oder SKIP.
+32 neue Gegenproben ergänzen die unveränderten 272 alten Methoden.
+Alle 14 alten Tool-/28 alten Test-Topdefinitionen sind AST-identisch;
+der ganze alte Tool-LFpräfix und Vertragspräfix §1–26 bleiben erhalten.
+Statische PRE-/POST-Pins und tatsächliche Realcache-/Main-/Sysconfig-/
+JSON-/Encoder-/Class-/Functionsentinels sowie eigene temporäre Fixtureabsenz
+bestanden ohne Reparatur. Root bestätigte die unveränderten finalen Pins
+und AST-/Präfixerhaltung zusätzlich nach dem Lauf.
+
+Die Gegenproben prüfen alle drei Ordinals mit unabhängiger Framing-/
+Footer-/Headerreferenz, direkte Konformität mit gehaltenen Reporterrecords,
+opake Nicht-R-Payloads mit inneren Separatoren und Unicodeescapes,
+1/896/897/16.368 Bytes samt genauem letzten Rest, 16.369 Bytes und
+20 Fragmente sowie fehlende/doppelte/umgestellte/fremde Fragmente.
+Exacttypen, späte Fremdtypen vor frühen Oversizes, 1.024/1.025- und
+256/257-Bytegrenzen, vollständige späte Control-/Envelopeformen vor
+gültigem Callerunterschied, kanonische Dezimalfelder und Actual-Footerhash
+vor Ordinalabgleich bleiben geprüft. Die 17.488-/17.489-Bytefixtures
+prüfen ausschließlich die Intakearithmetik mit absichtlich ungültigen
+Recordzeilen; sie werden nicht als gültige maximale Frames ausgegeben.
+Provider-/Encoder-PRE, Drift während tatsächlicher Kodierung und SHA,
+Callfehler und dominante POSTs ergeben feste atomare Ablehnung.
+Neun frühere Builder, direkte Templateimports, Scriptcap einschließlich
+Rawliteralexpansion und false Flags bleiben geprüft. Ein reiner wiederholter
+Aufruf ist ausdrücklich keine Consumption- oder Replayattestation.
+
+Toolpin: RAW
+`bb85cab2d7331b8f8dfc8f41c9576c41326ea77ccfbee007a4cfd14c03f7d279`,
+LF `55ff418c41a6c22c25ba2250cd92990574266c57803b5b9ec31ed8c250fea984`
+(85.007 LFbytes). Finaler Testpin: RAW
+`5780a51b51e94e1119d26fa1d6872d26e6894b864e8005913a64581848ee2c3a`,
+LF `d6dfde840ea48cdcb901ca25f9aab006beed0ab491ccb19ad03e826f454a843d`
+(238.692 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide Dateien
+als SHA-256
+`3536f9aafe9cec1f02f6644e357b22257e3870c42af9c6da0df40fca0d30123c`.
+Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
+Worker- oder SQLprobe wurde erneut ausgeführt.
+
+Nächster reiner Schnitt ist die vollständige tatsächliche R-Form-/Pool-/
+Semantikprüfung und ihr Abgleich mit separat gehaltenen Callerwerten.
+Tatsächlicher Kanal, Freigaben, operative Auswahl samt Fünf-Formen-/64-KiB-
+Gate, Parent-/Worker-, Loader-, Consumption-, Replay- und Cleanupnachweise
+sowie G13-/Methodengates bleiben getrennt offen.
