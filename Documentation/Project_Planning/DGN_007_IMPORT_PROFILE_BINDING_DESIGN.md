@@ -2492,3 +2492,123 @@ Tatsächlicher Kanal, vollständiger Callerabgleich, Bodyaufnahme und Freigaben,
 separat vorgewählte operative S15-/P11-Inventur, Fünf-Formen-/64-KiB-Gate
 sowie Parent-/Worker-, Loader-, Consumption-, Replay-, Cleanup- und
 G13-Methodengates bleiben getrennte Folgearbeit.
+
+## 24. Reine K-Domain und deklarativ gebundene Commands
+
+Die siebte additive Quellenroute `build_inline_command_control_bootstrap`
+ergänzt ausschließlich reine K-Digestbildung, Commandkodierung und Vergleich
+einer bereits gehaltenen Commandzeile nach §16.3. Die sechs bisherigen
+Builder bleiben erhalten. Die privaten APIs heißen
+`_inline_context_digest(context, *, expected_format)`,
+`_inline_command_encode(kind, context, *, expected_format)` und
+`_inline_command_match(line, *, expected_kind, expected_context, expected_format)`.
+Die Darstellung wird separat und exakt als
+`pooled-combined-input-design/v1` gewählt; kein Tagdispatch oder Fallback.
+
+Das vollständig gegebene K8 enthält Commit, Raw27-Bindung, Sourceprofil,
+Nonce, die vollständigen neun D5, Ordinal, Einstieg und PRE_IMPORT-Phase.
+Der komplette primitive Formvorlauf und die bestehenden K-/D9-Regeln gehen
+Encoder-/Provideraufnahme, Hashdispatch und inhaltlichem Callerabgleich vor.
+Es wird kein I7 ergänzt oder ein Originaldigest zur K-Prüfung erfunden.
+Das eigene Präbild ist exakt die kanonische ASCII-JSON-E4-Hülle mit Rolle
+`pooled-profile-binding-context/v1`, eigenem vollständigem sortierten Pool
+und Payload `(Kp,)` mit Arity 1. SHA-256 gilt über diese JSONbytes ohne
+Header. Der benannte Input82-/I7-Digest `context_sha256` bleibt unverändert
+und getrennt. Die Einzel-K-Prüfung erfüllt keine Fünf-Formen-Abnahme:
+alle fünf tatsächlichen Formen und das gemeinsame 64-KiB-Gate bleiben
+vor jedem späteren operativen Start erforderlich.
+
+Commands verwenden ausschließlich die drei Kindwerte `BODY_RELEASE`,
+`BODY_END` und `IMPORT_RELEASE`. Die tatsächliche Form ist
+`[kind, ordinal, nonceHex, context_digest]` als kanonische ASCII-JSONzeile
+mit genau einem abschließenden LF und höchstens 256 Bytes einschließlich LF.
+Der Matcher erhält den erwarteten Kindwert und den vollständigen
+Erwartungskontext getrennt vom empfangenen Record. Exact-Bytetype, Länge,
+LF, vollständige primitive Form, gültige Kind-/Ordinal-/Hexwerte sowie
+kanonischer Repack werden geprüft; fehlende Felder werden nicht ergänzt.
+Erst danach entsteht der eigene K-Digest für den vollständigen Vergleich.
+
+Encoder und Hashprovider werden aus der bereits gehaltenen Kontrollruntime
+gebunden. Unmittelbare PREs und dominante POSTs bleiben erforderlich;
+Providerbindungsverlust dominiert Encoderbindungsverlust und sonstige Fehler.
+Diese Kohärenz ist keine Herkunfts- oder Installationsattestation.
+Erfolg liefert ausschließlich private feste Status-/Issue-/Payloadtupel:
+`FORMATTED_CONTEXT_DIGEST` mit Digest, `FORMATTED_BOUND_COMMAND` mit
+Commandbytes oder `MATCHED_DECLARED_COMMAND` mit dem tatsächlichen
+vollständigen Commandtuple, jeweils `NONE` als Issue. Ablehnung liefert
+`REJECTED_CONTEXT_DIGEST` beziehungsweise `REJECTED_BOUND_COMMAND`,
+ein festes Issue und None; kein Teilresultat.
+
+Digestbildung benötigt eine K-Kodierung und einen SHA; Encode ergänzt
+eine Commandkodierung. Match ergänzt einen auf höchstens 255 JSONbytes
+begrenzten Parserdurchlauf und einen Command-Repack. Der K-Typvorlauf
+umfasst genau 63 Knoten: 33 Textpositionen, 19 Integer und elf Tupelcontainer.
+Die K-Semantik prüft neun Deskriptoren und höchstens 744 Hexzeichen;
+Match ergänzt die Fünfknoten-Commandform und 128 empfangene Hexzeichen.
+Die eigene Poolaufnahme und Projektion durchlaufen jeweils 64 Payloadknoten;
+höchstens 32 unterschiedliche Texte ergeben zusammen mit der E4-Basis
+höchstens 100 physische Form-/Poolknoten und Containerdepth fünf.
+Der resultierende SHA-Digest wird zusätzlich als 64 Hexzeichen geprüft.
+Die unveränderten Limits 256 Poolwerte, 16.368 Knoten, Depth acht,
+4.096 Textbytes und 16-KiB-Formgröße bleiben dennoch wirksam.
+
+Encoder-/Provider-/Namespace-/Class-/Functionprüfungen laufen zusätzlich
+vor und nach Constructor, Hashupdate und Hashabschluss sowie beim Encoder
+vor und nach Konstruktion und pro Stück und im äußeren Finale.
+Namespacevorläufe bleiben auf 256 Schlüssel und jeweils 4.096 UTF-8-Bytes
+begrenzt. Diese wiederholte Kohärenzarbeit wird nicht als einzelner JSON-
+oder Hashcall ausgegeben. Die endlichen Durchläufe beweisen keine operative
+Deadline, gemeinsame Transferbudgetabnahme oder allgemeine Sandboxgrenze.
+
+Dieser Vorschnitt verändert keine Kanalphase und erteilt keine tatsächliche
+Freigabe. Bodyaufnahme, INPUT_COMPLETE, stdin/EOF, Consumption, Replay,
+Parent-/Workerbetrieb, Quellenauflösung, Loader und Cleanup bleiben getrennt.
+Alle Attestationsflags bleiben false. Historische Captures, native Auswahl,
+Prepare, Nonce und Profilaufnahme werden nicht erneut ausgeführt.
+
+Root und unabhängiger Review lasen sämtliche neuen Quell-/Testteile vor
+der Ausführung. Ein falscher Parserattributname wurde im Vorreview vor dem
+ersten Freeze korrigiert; zwei enge Actual-Formgegenfälle wurden vor dem
+abschließenden PRE ergänzt. Es gab keinen Testfehllauf oder Rerun.
+Der einzige autorisierte isolierte Ownerlauf mit `-I -S -B -X utf8` unter
+CPython 3.12.14 bestand 209/209 Methoden in 3,838 Sekunden, Exit 0,
+kein FAILURE, ERROR oder SKIP. Alle 174 bisherigen Methoden und 25 alten
+Testdefinitionen bleiben AST-identisch; sämtliche elf alten Tooldefinitionen
+und der gesamte alte Tool-LFpräfix bleiben erhalten. §1–23 sind ein
+LF-byteidentischer Präfix des bisherigen Vertrags.
+
+Die 35 neuen Methoden prüfen alle drei Ordinals und Commandkinds, vollständige
+unabhängige E4-K-Rückgewinnung samt eigenem Präbild und Digest, Feldmutationen
+sowie Verwechslungen mit Originalinputdigest, anderer Domain oder Header.
+Exact-Formate, Foreignobjekte/Subklassen, Boolwerte, vollständige späte D9-
+Fehler, alle Selector-/Nonce-/Digestbindungen, tatsächliches fünftes Feld,
+LF-/CR-/Zusatzbytes und nichtkanonische Nachrichten scheitern atomar.
+Ein später Actual-Formfehler geht einer frühen Callersemantikabweichung vor.
+Provider-/Encoder-PREs, Instanzschatten, Callbackdrift, dominante POSTs
+und aktive Callerexceptions liefern keine Teilbytes oder privaten Rohfehler.
+Die 256-Byte-Intakegegenprobe enthält ausdrücklich ungültiges Padding;
+sie ist kein gültiger maximaler Command. K ist im festen Schema kleiner
+als die Formcap; künstlich abgesenkte interne Limits prüfen Guardarithmetik
+und sind kein zusätzlicher Größen-, Deadline- oder Transferbudgetnachweis.
+
+RAW-/LF-Pins blieben vor und nach dem Lauf unverändert. Eigene temporäre
+Fixtureabsenz und sämtliche Realcache-/Main-/Sysconfig-/JSON-/Encoder-/
+Class-/Functionstate-Sentinels bestanden ohne Reparatur. Es erfolgte kein
+tatsächlicher Profil-, Sysconfig-, Worker- oder SQLstart und kein Replay
+einer historischen privaten Charakterisierung oder Auswahl.
+
+Toolpins sind RAW
+`a11ea9ab914d07b9293804d85e7de2e37a19b5248e9bb26b681929b4e4f64010`
+und LF `539ecd18aa10fd9e5e65574bbdba31764e7b0afe9d05da1c315f6e3b31c2ce60`
+(69.047 LFbytes). Testpins sind RAW
+`eee182e9b91947b5f3e5b054cdccf598b5b4818a144cb3cde78e0508d1170190`
+und LF `88c60b6ccce1f1f4e6165188b6b51159eb59dd885fcb0de2ee3af21f513c418b`
+(166.862 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide Dateien als
+SHA-256 `f530be6e668a7ca65ec69c675a8136fca25ddc2bf7bb5012a37e294234f6c0e8`.
+
+Der vollständige deklarative Callerabgleich gegebener Header-/Metadata-
+Felder folgt als gesonderter kleiner Schnitt nach §16.3. Tatsächlicher Kanal,
+Bodyaufnahme und Freigaben, separat vorgewählte operative S15-/P11-Inventur
+der endgültigen Quelle, Fünf-Formen-/64-KiB-Gate sowie Parent-/Worker-,
+Loader-, Consumption-, Replay-, Cleanup- und G13-Methodengates bleiben offen.
