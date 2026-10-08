@@ -1298,3 +1298,136 @@ def build_inline_receive_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_COMMAND = r'''
+_COMMAND_FORMAT = "pooled-combined-input-design/v1"
+_COMMAND_DOMAIN = "pooled-profile-binding-context/v1"
+_COMMAND_KINDS = ("BODY_RELEASE", "BODY_END", "IMPORT_RELEASE")
+_COMMAND_SHAPE = ("t", "n", "t", "t")
+_COMMAND_LIMIT = 256
+
+
+def _command_kind(kind):
+    _inline_need(type(kind) is str and kind in _COMMAND_KINDS, "COMMAND_KIND")
+
+
+def _command_context(context):
+    # Aufruf ausschließlich nach dem vollständigen K8-/D9-Typvorlauf.
+    _semantic_hex(context[0], 40)
+    _semantic_hex(context[1], 64)
+    _semantic_hex(context[3], 64)
+    _inline_need(context[2] == "dgn007-docker-sql-only/v1", "CONTEXT_FORM")
+    _semantic_descriptors(context[4])
+    _semantic_selector(*context[5:])
+
+
+def _command_received(line):
+    _inline_need(type(line) is bytes, "COMMAND_TYPE")
+    _inline_need(0 < len(line) <= _COMMAND_LIMIT, "COMMAND_LIMIT")
+    _inline_need(line[-1:] == b"\n" and line.count(b"\n") == 1 and b"\r" not in line,
+                 "COMMAND_FORM")
+    parser = _InlineParser(line[:-1])
+    actual = parser.value()
+    _inline_need(parser.pos == len(parser.data), "COMMAND_FORM")
+    _report_shape(_COMMAND_SHAPE, actual)
+    return actual
+
+
+def _command_k_json(context, encoder_anchor):
+    # Eigener vollständiger Pool, Payload (Kp,), keine REPORTED-/Input82-Domain.
+    packed = _report_pack((context,))
+    form = (packed[0], _COMMAND_DOMAIN, packed[2], packed[3])
+    return _report_json(form, encoder_anchor)
+
+
+def _command_compute(context, kind, line, operation, expected_format):
+    anchor, encoder_anchor = None, None
+    status = {"digest": "REJECTED_CONTEXT_DIGEST", "encode": "REJECTED_BOUND_COMMAND",
+              "match": "REJECTED_BOUND_COMMAND"}[operation]
+    try:
+        _inline_need(type(expected_format) is str and expected_format == _COMMAND_FORMAT,
+                     "FORMAT_SELECTION")
+        if operation != "digest":
+            _command_kind(kind)
+        _report_shape(_INLINE_K, context)
+        actual = _command_received(line) if operation == "match" else None
+        _command_context(context)
+        if operation == "match":
+            _command_kind(actual[0])
+            _inline_need(1 <= actual[1] <= 3, "COMMAND_FORM")
+            _semantic_hex(actual[2], 64)
+            _semantic_hex(actual[3], 64)
+        # Sämtliche Caller-/Receivedformen vor Encoderaufnahme oder Hashdispatch.
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        if operation == "match":
+            canonical = _report_json(actual, encoder_anchor) + b"\n"
+            _inline_need(len(canonical) <= _COMMAND_LIMIT, "COMMAND_LIMIT")
+            _inline_need(canonical == line, "COMMAND_CANONICAL")
+        data = _command_k_json(context, encoder_anchor)
+        digest = _report_sha(data, anchor)
+        if operation == "digest":
+            result = ("FORMATTED_CONTEXT_DIGEST", "NONE", digest)
+        elif operation == "encode":
+            command = (kind, context[5], context[3], digest)
+            encoded = _report_json(command, encoder_anchor) + b"\n"
+            _inline_need(len(encoded) <= _COMMAND_LIMIT, "COMMAND_LIMIT")
+            result = ("FORMATTED_BOUND_COMMAND", "NONE", encoded)
+        else:
+            _inline_need(actual == (kind, context[5], context[3], digest), "COMMAND_MISMATCH")
+            result = ("MATCHED_DECLARED_COMMAND", "NONE", actual)
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return result
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "COMMAND_INTERNAL"
+    # Feste dominante POST-Priorität: Providerverlust > Encoderverlust > sonstiger Fehler.
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return (status, issue, None)
+
+
+def _inline_context_digest(context, *, expected_format):
+    """Einzelnes gegebenes K; kein Fünf-Formen-Gate, Caller-/Herkunftsclaim."""
+    return _command_compute(context, None, None, "digest", expected_format)
+
+
+def _inline_command_encode(kind, context, *, expected_format):
+    """Private kanonische Commandbytes; keine operative Freigabe."""
+    return _command_compute(context, kind, None, "encode", expected_format)
+
+
+def _inline_command_match(line, *, expected_kind, expected_context, expected_format):
+    """Vollständig empfangene Form gegen getrennt gewählte deklarative Werte."""
+    return _command_compute(expected_context, expected_kind, line, "match", expected_format)
+'''
+
+
+def build_inline_command_control_bootstrap(profile_raw, *, logical_profile,
+                                          expected_soabi, expected_destshared) -> BootstrapSource:
+    """Siebte reine Quellenroute für K-Domain und deklarativ gebundene Commands."""
+    selected = build_inline_receive_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_COMMAND + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))

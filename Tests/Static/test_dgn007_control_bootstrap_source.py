@@ -2480,5 +2480,487 @@ class InlineMetadataReceiverTests(unittest.TestCase):
         self.assertNotIn(LOCATOR, repr(selected))
 
 
+class InlineContextCommandTests(unittest.TestCase):
+    def setUp(self):
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[key]
+                                           for key in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        path = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", path)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=path)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=path, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_command_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.digest = self.namespace["_inline_context_digest"]
+        self.encode = self.namespace["_inline_command_encode"]
+        self.match = self.namespace["_inline_command_match"]
+        self.context = semantic_fixture()[2]
+        self.format = "pooled-combined-input-design/v1"
+        self.kinds = ("BODY_RELEASE", "BODY_END", "IMPORT_RELEASE")
+
+    def tearDown(self):
+        InlineProfileReporterTests.tearDown(self)
+
+    def reference(self, context):
+        # Unabhängige vollständige Textaufnahme und K-Arity, nicht Produktionspacker.
+        texts = set()
+        def collect(value):
+            if type(value) is str:
+                texts.add(value)
+            elif type(value) is tuple:
+                for child in value:
+                    collect(child)
+        collect(context)
+        pool = tuple(sorted(texts))
+        def project(value):
+            if type(value) is str:
+                return pool.index(value)
+            if type(value) is tuple:
+                return tuple(project(child) for child in value)
+            return value
+        form = ("pooled-binding-design/v1", "pooled-profile-binding-context/v1",
+                pool, (project(context),))
+        data = json.dumps(form, sort_keys=True, ensure_ascii=True, separators=(",", ":"),
+                          allow_nan=False).encode("ascii")
+        return form, data, hashlib.sha256(data).hexdigest()
+
+    def line(self, *, kind="BODY_RELEASE", context=_REPORT_OMITTED, digest=_REPORT_OMITTED):
+        context = self.context if context is _REPORT_OMITTED else context
+        digest = self.reference(context)[2] if digest is _REPORT_OMITTED else digest
+        return json.dumps((kind, context[5], context[3], digest), ensure_ascii=True,
+                          separators=(",", ":"), allow_nan=False).encode("ascii") + b"\n"
+
+    def reject(self, result, issue=None):
+        self.assertIn(result[0], ("REJECTED_CONTEXT_DIGEST", "REJECTED_BOUND_COMMAND"))
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        self.assertNotIn("/synthetic", repr(result))
+        return result
+
+    def test_complete_k_reference_codec_arity_and_all_three_ordinals(self):
+        for ordinal in (1, 2, 3):
+            context = semantic_fixture(ordinal)[2]
+            form, data, digest = self.reference(context)
+            result = self.digest(context, expected_format=self.format)
+            self.assertEqual(result, ("FORMATTED_CONTEXT_DIGEST", "NONE", digest))
+            self.assertEqual(self.namespace["_command_k_json"](context,
+                self.namespace["_report_encoder_anchor"]()), data)
+            self.assertEqual(syntax_reference._resolve(form, 4), (context,))
+            actual = syntax_reference._semantics((context,), 4)[0]
+            self.assertEqual(actual.commit, context[0])
+            self.assertEqual(actual.raw27_binding, context[1])
+            self.assertEqual(actual.source_profile, context[2])
+            self.assertEqual(actual.nonce.hex(), context[3])
+            self.assertEqual(tuple((r.ordinal, r.module, r.member, r.size, r.sha256)
+                for r in actual.modules), context[4])
+            self.assertEqual((actual.ordinal, actual.entry, actual.phase), context[5:])
+            self.assertEqual(hashlib.sha256(syntax_reference._canonical(form)).hexdigest(), digest)
+            self.assertEqual(len(form[3]), 1)
+
+    def test_all_kinds_and_ordinals_encode_match_actual_fields(self):
+        for ordinal in (1, 2, 3):
+            context = semantic_fixture(ordinal)[2]
+            for kind in self.kinds:
+                line = self.line(kind=kind, context=context)
+                self.assertEqual(self.encode(kind, context, expected_format=self.format),
+                    ("FORMATTED_BOUND_COMMAND", "NONE", line))
+                actual = self.match(line, expected_kind=kind, expected_context=context,
+                                    expected_format=self.format)
+                self.assertEqual(actual, ("MATCHED_DECLARED_COMMAND", "NONE",
+                    (kind, ordinal, context[3], self.reference(context)[2])))
+                self.assertLessEqual(len(line), 256)
+                self.assertEqual(line.count(b"\n"), 1)
+
+    def test_original_input_domain_and_header_are_not_k_digest(self):
+        form, data, digest = self.reference(self.context)
+        original = semantic_fixture()[0][6]
+        alternatives = (original, hashlib.sha256(struct.pack(">8sII", b"DGNP001\0", 5,
+            len(data)) + data).hexdigest(), hashlib.sha256(syntax_bytes(
+            (form[0], "REPORTED", form[2], form[3]))).hexdigest(),
+            hashlib.sha256(syntax_bytes((form[0], form[1], form[2], form[3][0]))).hexdigest())
+        for wrong in alternatives:
+            self.assertNotEqual(digest, wrong)
+            self.reject(self.match(self.line(digest=wrong), expected_kind=self.kinds[0],
+                expected_context=self.context, expected_format=self.format), "COMMAND_MISMATCH")
+
+    def test_every_k_field_mutation_changes_complete_digest(self):
+        base = self.reference(self.context)[2]
+        for path, value in (((0,), "b" * 40), ((1,), "c" * 64), ((3,), "d" * 64),
+                            ((4, 8, 3), 1), ((4, 8, 4), "e" * 64)):
+            context = semantic_change(self.context, path, value)
+            digest = self.reference(context)[2]
+            self.assertNotEqual(base, digest)
+            self.assertEqual(self.digest(context, expected_format=self.format)[2], digest)
+        self.assertNotEqual(base, self.reference(semantic_fixture(2)[2])[2])
+
+    def test_fixed_format_precedes_foreign_intake(self):
+        for value in (None, True, Foreign(), ForeignKey(self.format), "other", "pooled-binding-design/v1"):
+            self.reject(self.digest(Foreign(), expected_format=value), "FORMAT_SELECTION")
+            self.reject(self.encode(Foreign(), Foreign(), expected_format=value), "FORMAT_SELECTION")
+            self.reject(self.match(Foreign(), expected_kind=Foreign(), expected_context=Foreign(),
+                expected_format=value), "FORMAT_SELECTION")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_separate_expected_kind_never_received_fallback(self):
+        for kind in (None, True, Foreign(), ForeignKey("BODY_RELEASE"), "INPUT_COMPLETE", "body_release"):
+            self.reject(self.encode(kind, self.context, expected_format=self.format), "COMMAND_KIND")
+            self.reject(self.match(self.line(), expected_kind=kind, expected_context=self.context,
+                expected_format=self.format), "COMMAND_KIND")
+        self.reject(self.match(self.line(kind="BODY_END"), expected_kind="BODY_RELEASE",
+            expected_context=self.context, expected_format=self.format), "COMMAND_MISMATCH")
+
+    def test_exact_k_container_and_primitive_subclasses(self):
+        class Tuples(tuple):
+            def __iter__(self):
+                raise AssertionError("FOREIGN_ITERATOR")
+        class Text(str):
+            def __eq__(self, other):
+                raise AssertionError("FOREIGN_EQUALITY")
+        class Number(int):
+            pass
+        for context in (None, (), [], Foreign(), Tuples(self.context)):
+            self.reject(self.digest(context, expected_format=self.format), "SCALAR_FORM")
+        for path, value in (((0,), Text("a" * 40)), ((5,), True), ((5,), Number(1)),
+                            ((4,), Tuples(self.context[4])), ((4, 8, 4), Foreign())):
+            self.reject(self.digest(semantic_change(self.context, path, value),
+                expected_format=self.format), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_d9_primitive_dominates_early_semantic_difference(self):
+        context = semantic_change(self.context, (0,), "nothex")
+        context = semantic_change(context, (4, 8, 4), Foreign())
+        for result in (self.digest(context, expected_format=self.format),
+            self.encode("BODY_RELEASE", context, expected_format=self.format),
+            self.match(self.line(kind="BODY_END"), expected_kind="BODY_RELEASE",
+                expected_context=context, expected_format=self.format)):
+            self.reject(result, "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_full_d9_exact_arity_order_mapping_and_digest_forms(self):
+        cases = ((self.context[4][:-1], "SCALAR_FORM"),
+                 (self.context[4][::-1], "CONTEXT_FORM"),
+                 (self.context[4][:-1] + (self.context[4][0],), "CONTEXT_FORM"))
+        for rows, issue in cases:
+            self.reject(self.digest(semantic_change(self.context, (4,), rows),
+                expected_format=self.format), issue)
+        for path, value in (((4, 8, 0), 7), ((4, 8, 1), "wrong"), ((4, 8, 2), "wrong.py"),
+                            ((4, 8, 4), "A" * 64), ((4, 8, 4), "0" * 63)):
+            self.reject(self.digest(semantic_change(self.context, path, value),
+                expected_format=self.format), "CONTEXT_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_source_profile_hex_and_selector_policy_without_fake_i7(self):
+        for path, value in (((0,), "g" * 40), ((1,), "0" * 63), ((2,), "other"),
+                            ((3,), "A" * 64), ((5,), 0), ((5,), 4),
+                            ((6,), "other-entry"), ((7,), "POST_IMPORT")):
+            self.reject(self.digest(semantic_change(self.context, path, value),
+                expected_format=self.format), "CONTEXT_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_declared_member_and_total_body_caps_without_body_read(self):
+        context = semantic_change(self.context, (4, 8, 3), 131072)
+        self.assertEqual(self.digest(context, expected_format=self.format)[0], "FORMATTED_CONTEXT_DIGEST")
+        self.reject(self.digest(semantic_change(context, (4, 8, 3), 131073),
+            expected_format=self.format), "CONTEXT_FORM")
+        rows = tuple(r[:3] + (131072,) + r[4:] for r in self.context[4])
+        self.reject(self.digest(semantic_change(self.context, (4,), rows),
+            expected_format=self.format), "CONTEXT_FORM")
+
+    def test_text_encoding_nul_surrogate_and_utf8_caps_before_provider(self):
+        for value in ("\0", "\ud800", "x" * 4097, "é" * 2049):
+            self.reject(self.digest(semantic_change(self.context, (4, 8, 2), value),
+                expected_format=self.format))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_received_exact_bytes_not_foreign_or_subclass(self):
+        class Bytes(bytes):
+            def __len__(self):
+                raise AssertionError("FOREIGN_LENGTH")
+        for line in (None, True, [], Foreign(), bytearray(self.line()), memoryview(self.line()), Bytes(self.line())):
+            self.reject(self.match(line, expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format), "COMMAND_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_received_lf_exact_no_cr_suffix_or_multiple_record(self):
+        line = self.line()
+        for value in (line[:-1], line + b"\n", line + b"x", line[:-1] + b"\r\n",
+                      line[:1] + b"\n" + line[1:]):
+            self.reject(self.match(value, expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format), "COMMAND_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_received_line_256_intake_257_preparser_and_empty(self):
+        # 256 synthetische Paddingbytes sind keine gültige kanonische Commandform.
+        line = self.line()
+        at = line[:-1] + b" " * (256 - len(line)) + b"\n"
+        self.assertEqual(len(at), 256)
+        self.reject(self.match(at, expected_kind="BODY_RELEASE", expected_context=self.context,
+            expected_format=self.format), "COMMAND_FORM")
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            for value in (at[:-1] + b"x\n", b""):
+                self.reject(self.match(value, expected_kind="BODY_RELEASE", expected_context=self.context,
+                    expected_format=self.format), "COMMAND_LIMIT")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_received_arity_null_bool_float_object_and_late_bad_field(self):
+        for value in (b'[]\n', b'["BODY_RELEASE",1]\n', b'["BODY_RELEASE",true,"a","b"]\n',
+                      b'["BODY_RELEASE",1.0,"a","b"]\n', b'{}\n',
+                      b'["BODY_RELEASE",1,"' + b"a" * 64 + b'",null]\n'):
+            self.reject(self.match(value, expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format))
+        # Tatsächlich empfangene gültige Viererform mit zusätzlichem fünften Feld.
+        self.reject(self.match(self.line()[:-2] + b',"extra"]\n', expected_kind="BODY_RELEASE",
+            expected_context=self.context, expected_format=self.format), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_received_semantic_forms_before_hash_and_wrong_selector(self):
+        valid = json.loads(self.line())
+        for index, value in ((0, "INPUT_COMPLETE"), (1, 0), (1, 4), (2, "A" * 64),
+                             (2, "0" * 63), (3, "g" * 64)):
+            actual = valid.copy()
+            actual[index] = value
+            line = json.dumps(actual, separators=(",", ":")).encode("ascii") + b"\n"
+            self.reject(self.match(line, expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_noncanonical_escapes_spaces_and_integer_leading_zero(self):
+        line = self.line()
+        for value in (line.replace(b'"BODY_RELEASE"', b'"\\u0042ODY_RELEASE"'),
+                      line.replace(b",", b", ", 1), line.replace(b",1,", b",01,", 1)):
+            result = self.reject(self.match(value, expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format))
+            self.assertIn(result[1], ("COMMAND_CANONICAL", "JSON_FORM"))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_valid_received_kind_ordinal_nonce_and_digest_mismatch(self):
+        valid = json.loads(self.line())
+        for index, value in ((0, "BODY_END"), (1, 2), (2, "a" * 64), (3, "b" * 64)):
+            actual = valid.copy()
+            actual[index] = value
+            line = json.dumps(actual, separators=(",", ":")).encode("ascii") + b"\n"
+            self.reject(self.match(line, expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format), "COMMAND_MISMATCH")
+
+    def test_late_received_form_dominates_valid_early_kind_mismatch(self):
+        line = b'["BODY_END",1,"' + self.context[3].encode("ascii") + b'",null]\n'
+        self.reject(self.match(line, expected_kind="BODY_RELEASE", expected_context=self.context,
+            expected_format=self.format), "SCALAR_FORM")
+        # Gültige Caller-Typform, aber falsches Commithex: späte Actual-Form geht vor.
+        self.reject(self.match(line, expected_kind="BODY_RELEASE",
+            expected_context=semantic_change(self.context, (0,), "nothex"),
+            expected_format=self.format), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_provider_pre_without_changed_constructor_execution(self):
+        with patch.dict(self.run.cache, {"hashlib": Foreign()}):
+            self.reject(self.digest(self.context, expected_format=self.format), "HASH_PROVIDER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_provider_call_failure_private_and_dominant_post(self):
+        self.provider._HASH_ERROR = RuntimeError("PRIVATE_PAYLOAD")
+        self.reject(self.digest(self.context, expected_format=self.format), "HASH_PROVIDER_CALL")
+        def drift():
+            self.run.cache["hashlib"] = Foreign()
+        self.provider._HASH_CALLBACK = drift
+        self.reject(self.encode("BODY_RELEASE", self.context, expected_format=self.format),
+                    "HASH_PROVIDER_BINDING")
+
+    def test_bad_hash_result_has_no_partial_command(self):
+        for value in (None, Foreign(), "A" * 64):
+            if value is None:
+                self.provider._HASH_RESULT = "short"
+            else:
+                self.provider._HASH_RESULT = value
+            self.reject(self.encode("BODY_RELEASE", self.context, expected_format=self.format))
+
+    def test_encoder_pre_rejects_foreign_without_provider_call(self):
+        with patch.object(json, "JSONEncoder", Foreign()):
+            self.reject(self.digest(self.context, expected_format=self.format), "REPORT_ENCODER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_encoder_constructor_instance_shadow_never_called(self):
+        cls, old = json.JSONEncoder, json.JSONEncoder.__init__
+        namespace = self.real_encoder_module.__dict__
+        keys = ("_REPORT_HELD_INIT", "_REPORT_SHADOW")
+        self.assertTrue(all(key not in namespace for key in keys))
+        calls = []
+        def shadow(value):
+            calls.append(value)
+            return ("PRIVATE_PAYLOAD",)
+        namespace.update(_REPORT_HELD_INIT=old, _REPORT_SHADOW=shadow)
+        try:
+            cls.__init__ = FunctionType(_fixture_report_encoder_instance_shadow.__code__, namespace)
+            self.reject(self.digest(self.context, expected_format=self.format), "REPORT_ENCODER_BINDING")
+        finally:
+            cls.__init__ = old
+            for key in keys:
+                del namespace[key]
+        self.assertEqual(calls, [])
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_encoder_callback_provider_drift_before_hash_constructor(self):
+        cls, old_code = json.JSONEncoder, self.factory.__code__
+        held_iter = cls.iterencode
+        namespace = self.real_encoder_module.__dict__
+        keys = ("_REPORT_FACTORY", "_REPORT_REPLACEMENT_CODE", "_REPORT_HELD_ITER")
+        self.assertTrue(all(key not in namespace for key in keys))
+        namespace.update(_REPORT_FACTORY=self.factory, _REPORT_REPLACEMENT_CODE=_fixture_config_var.__code__,
+                         _REPORT_HELD_ITER=held_iter)
+        try:
+            cls.iterencode = FunctionType(_fixture_report_encoder_exchange_provider.__code__, namespace)
+            self.reject(self.digest(self.context, expected_format=self.format), "HASH_PROVIDER_BINDING")
+        finally:
+            cls.iterencode = held_iter
+            self.factory.__code__ = old_code
+            for key in keys:
+                del namespace[key]
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_encoder_post_on_failed_hash_and_provider_higher_priority(self):
+        original = json.JSONEncoder.default
+        replacement = FunctionType(original.__code__, original.__globals__, "default")
+        def drift():
+            json.JSONEncoder.default = replacement
+            self.provider._HASH_ERROR = RuntimeError("PRIVATE_PAYLOAD")
+        try:
+            self.provider._HASH_CALLBACK = drift
+            self.reject(self.digest(self.context, expected_format=self.format), "REPORT_ENCODER_BINDING")
+            json.JSONEncoder.default = original
+            def both():
+                drift()
+                self.run.cache["hashlib"] = Foreign()
+            self.provider._HASH_CALLBACK = both
+            self.reject(self.digest(self.context, expected_format=self.format), "HASH_PROVIDER_BINDING")
+        finally:
+            json.JSONEncoder.default = original
+
+    def test_encoder_error_post_and_no_raw_exception_context(self):
+        def failing(*args):
+            raise OSError("PRIVATE_PAYLOAD")
+        try:
+            raise ValueError("PRIVATE_PAYLOAD")
+        except ValueError:
+            with patch.dict(self.namespace, {"_command_k_json": failing}):
+                self.reject(self.digest(self.context, expected_format=self.format), "COMMAND_INTERNAL")
+
+    def test_encoding_hash_counts_no_original_digest_or_m_parser(self):
+        calls = []
+        original = self.namespace["_report_json"]
+        def counted(form, anchor):
+            calls.append(form)
+            return original(form, anchor)
+        with patch.dict(self.namespace, {"_report_json": counted, "_semantic_inputs": Foreign(),
+                        "_semantic_original_digest": Foreign(), "_inline_metadata_syntax": Foreign()}):
+            self.assertEqual(self.digest(self.context, expected_format=self.format)[0], "FORMATTED_CONTEXT_DIGEST")
+            self.assertEqual(len(calls), 1)
+            calls.clear()
+            encoded = self.encode("BODY_RELEASE", self.context, expected_format=self.format)
+            self.assertEqual(encoded[0], "FORMATTED_BOUND_COMMAND")
+            self.assertEqual(len(calls), 2)
+            calls.clear()
+            self.assertEqual(self.match(encoded[2], expected_kind="BODY_RELEASE", expected_context=self.context,
+                expected_format=self.format)[0], "MATCHED_DECLARED_COMMAND")
+            self.assertEqual(len(calls), 2)
+        self.assertEqual(self.provider._HASH_CALLS, 3)
+
+    def test_k_cap_honestly_small_valid_form_and_internal_counter_guard(self):
+        _, data, _ = self.reference(self.context)
+        self.assertLess(len(data) + 16, 16384)
+        # Feste K-Schemawerte tragen keine frei wählbaren langen Locatorfelder.
+        with patch.dict(self.namespace, {"_INLINE_METADATA_CAP": len(data) + 16}):
+            self.assertEqual(self.digest(self.context, expected_format=self.format)[0], "FORMATTED_CONTEXT_DIGEST")
+        with patch.dict(self.namespace, {"_INLINE_METADATA_CAP": len(data) + 15}):
+            self.reject(self.digest(self.context, expected_format=self.format), "METADATA_LIMIT")
+
+    def test_internal_pool_node_and_depth_guards_no_cap_promotion(self):
+        # Bekannter vollständiger K-Packer; künstlich abgesenkte interne Limits.
+        for key, value, issue in (("_INLINE_NODES", 4, "NODE_LIMIT"),
+                                 ("_INLINE_DEPTH", 1, "DEPTH_LIMIT")):
+            with patch.dict(self.namespace, {key: value}):
+                self.reject(self.digest(self.context, expected_format=self.format), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_repeat_match_has_no_consumption_or_release_transition(self):
+        line = self.line(kind="IMPORT_RELEASE")
+        results = tuple(self.match(line, expected_kind="IMPORT_RELEASE", expected_context=self.context,
+            expected_format=self.format) for _ in range(2))
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(results[0][0], "MATCHED_DECLARED_COMMAND")
+        self.assertEqual(self.provider._HASH_CALLS, 2)
+
+    def test_six_old_builders_and_all_definition_bytes_unchanged(self):
+        sixth = subject.build_inline_receive_control_bootstrap(RAW, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.replace(("\n" + subject._INLINE_COMMAND).encode(), b"", 1),
+                         sixth.source)
+        before, after = ast.parse(sixth.source), ast.parse(self.selected.source)
+        definitions = {n.name: ast.dump(n) for n in after.body if type(n) in (ast.FunctionDef, ast.ClassDef)}
+        self.assertTrue(all(definitions[n.name] == ast.dump(n) for n in before.body
+                           if type(n) in (ast.FunctionDef, ast.ClassDef)))
+
+    def test_source_imports_claims_and_no_channel_candidate_io(self):
+        tree = ast.parse(self.selected.source)
+        self.assertEqual([n.names[0].name for n in tree.body if type(n) is ast.Import],
+                         ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in ast.walk(tree)))
+        helpers = ast.parse(subject._INLINE_COMMAND)
+        forbidden = {"read", "write", "open", "print", "input", "exec", "compile", "Popen",
+                     "observe_current_interpreter_scalars", "prepare_input"}
+        self.assertFalse(any(type(n) is ast.Call and (type(n.func) is ast.Name and n.func.id in forbidden
+            or type(n.func) is ast.Attribute and n.func.attr in forbidden) for n in ast.walk(helpers)))
+        self.assertEqual(self.selected.claim, "GENERATED_CONTROL_SOURCE_ONLY")
+        for key in ("runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved"):
+            self.assertFalse(getattr(self.selected, key))
+
+    def test_full_generated_script_cap_and_private_failure(self):
+        base = subject.build_inline_command_control_bootstrap(b"x", logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - len(base.source) + 1)
+        selected = subject.build_inline_command_control_bootstrap(raw, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(selected.source), subject.MAX_SCRIPT_BYTES)
+        with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+            subject.build_inline_command_control_bootstrap(raw + b"x", logical_profile=LOCATOR,
+                expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+        self.assertTrue(caught.exception.__suppress_context__)
+        self.assertNotIn(LOCATOR, repr(selected))
+
+
 if __name__ == "__main__":
     unittest.main()
