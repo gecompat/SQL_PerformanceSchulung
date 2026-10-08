@@ -3144,8 +3144,8 @@ Der reine Plan darf wiederholt dasselbe Ergebnis liefern. Einmalverbrauch
 benötigt später ein exklusiv gehaltenes kontrollseitiges Ledger mit höchstens
 drei vorab vollständigen K-/Nonce-/Ordinalslots. Caller-Tupel, Boolflags,
 kopierte Zustände und Planlabels attestieren keinen früheren Übergang.
-Die genaue INPUT_COMPLETE-Recordform ist im nachfolgenden §30 als DESIGNED geschlossen;
-ihre Parserimplementierung folgt separat. FAILED/UNKNOWN dürfen
+Die genaue INPUT_COMPLETE-Recordform und ihre reine additive Parserquelle
+sind im nachfolgenden §30 synthetisch geprüft. FAILED/UNKNOWN dürfen
 in einem späteren Ledger keinen Neustart oder stillen Reset erlauben.
 
 Die synthetischen Gegenproben prüfen alle drei Ordinals, vollständige
@@ -3203,8 +3203,9 @@ Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt.
 
 Die reine additive INPUT_COMPLETE-Quelle ist nach §30 synthetisch geprüft.
-Nächster kleiner Schnitt ist ausschließlich der DESIGN-Vertrag für den
-vollständigen Record-/Footer→R-Calleradapter mit geschlossener Fehlerpriorität.
+Der vollständige Record-/Footer→R-Calleradapter liegt in §31 als DESIGNED vor.
+Nächster kleiner Schnitt ist dessen reine additive Builderimplementierung
+mit neuen synthetischen Gegenproben.
 Exklusives Ledger und Record-/Footeradapter mit geschlossener Fehlerpriorität
 folgen getrennt. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
 Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
@@ -3340,8 +3341,9 @@ Profilaufnahme aus und attestiert weder Originalinputprüfung noch
 Raw27-Herkunft, Sender, Consumption, Replayfreiheit, IMPORT_RELEASE oder
 eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben false.
 
-Nächster kleiner Schnitt ist ausschließlich der DESIGN-Vertrag für einen
-vollständigen Record-/Footer→R-Calleradapter mit geschlossener Fehlerpriorität.
+Der vollständige Record-/Footer→R-Calleradapter ist in §31 als DESIGNED
+mit geschlossener Fehlerpriorität festgelegt. Nächster kleiner Schnitt ist
+seine reine additive Builder14-Implementierung mit neuen synthetischen Gegenproben.
 Die frühe Callerordinalprüfung aus §27 darf im neuen Gesamtpfad spätere
 Actual-R-Form-/Semantikfehler nicht verdecken; ein bloßes Verketten der
 bestehenden Teilfunktionen ist dafür kein Nachweis. Exklusives Ledger mit
@@ -3410,3 +3412,188 @@ Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt. Quellen- und Testfit,
 synthetische Gegenproben und spätere CI attestieren keine operative
 Fünf-Formen-/64-KiB-Ausgabe, Sender-, Trust-, UsedBytes- oder Methodenfreigabe.
+
+## 31. Vollständiger deklarativer Profilrecord-Callerabgleich
+
+Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Vertrag
+schließt die Fehlerpriorität zwischen Recordaufnahme, Footer und vollständigem
+R-Callerabgleich. Es gibt noch keine Adapterimplementierung oder neue
+synthetische Ausführungsevidenz für diesen Gesamtpfad.
+
+### 31.1 Getrennte Auswahl und vollständig gehaltene Eingänge
+
+Die künftige vierzehnte additive Quellenroute heißt
+`build_inline_profile_records_match_control_bootstrap(profile_raw, *,
+logical_profile, expected_soabi, expected_destshared)`. Sie ergänzt
+`_inline_match_profile_records(records, *, expected_format, expected_phase,
+expected_reported)`.
+
+Der Caller wählt ausdrücklich `pooled-combined-input-design/v1` und die
+lokale deklarative Prüfabsicht `AWAIT_PROFILE`. Die Wahl belegt keinen
+vorherigen Kanalübergang. Separates vollständiges Expected-R4 enthält
+K8, S15, Controls und sämtliche P11-Vorkommen; sein K.phase bleibt
+`PRE_IMPORT`. Es werden keine Callerwerte aus Receivedrecords abgeleitet
+oder ergänzt. Für den DTO-Caller wird kein eigenes E4-/16-KiB-Fit behauptet.
+
+Received ist ein exaktes Tupel exakter bytes-Objekte. Der Pfad nimmt
+ausschließlich bereits gehaltene PROFILE-BEGIN-/Fragment-/END-Records auf,
+keine Dateien, Streams, Pipes oder Prozesse. Alle früheren Reassembler-,
+R-Matcher-, BODY_RELEASE- und INPUT_COMPLETE-Verträge bleiben erhalten.
+Insbesondere wird §27 nicht mit dem Receivedordinal als eigenem Soll
+aufgerufen. Seine frühe REPORT_ORDINAL_MISMATCH-Prüfung vor R-Semantik
+würde im Gesamtpfad einen späten Actual-R-Fehler verdecken.
+
+### 31.2 Geschlossener begrenzter Vorlauf
+
+Format und Prüfabsicht werden als exakte Strings vor jeder Aufnahme geprüft.
+Danach folgen exakter Receivedtupeltyp, 3–21 Records, sämtliche exakten
+Elementtypen vor deren Längen und die ganze Expected-R4-Primitiveform.
+Alle Aufnahmegrenzen gelten gleichzeitig: 1–1024 Bytes je Record,
+höchstens 17488 Bytes insgesamt und BEGIN/END je höchstens 256 Bytes.
+Jeder Record trägt genau ein abschließendes LF, kein CR, NUL oder inneres
+physisches LF; seine übrigen Bytes sind ausschließlich ASCII 1–127.
+
+Beide vollständigen Controlformen, sämtliche Envelopeformen und die
+vollständige interne Konsistenz werden vor dem Payloadjoin aufgenommen.
+BEGIN ist exakt `["PROFILE_BEGIN",ordinal,json_length,fragment_count]`;
+END exakt `["PROFILE_END",ordinal,json_length,fragment_count,footer_sha256]`.
+Ordinal ist Integer 1–3, JSONlänge 1–16368, Anzahl 1–19; der Footer ist
+ein exakter kleingeschriebener 64-Zeichen-Hexstring. bool und Subklassen,
+fehlende oder zusätzliche Felder bleiben unzulässig.
+
+Nur die ersten vier `|` der Fragmentzeile `P|ordinal|sequence|total|payload`
+sind Separatoren. Alle Dezimalfelder sind kanonisch ohne Vorzeichen oder
+führende Null. Höchstens 19 Payloads tragen je 1–896 Bytes und höchstens
+32 Envelopebytes einschließlich LF. BEGIN und END müssen intern vollständig
+übereinstimmen; sämtliche Fragmente binden Ordinal, tatsächliche Reihenfolge,
+Anzahl und vollständige Payloadlängen einschließlich des letzten Rests.
+Die Anzahl ist exakt `ceil(json_length/896)`. Hier erfolgt ausschließlich
+interne Recordkonsistenz, kein Vergleich mit Expected-R oder Expectedordinal.
+
+Die Payloads werden genau einmal begrenzt zu den tatsächlichen Original-
+JSONbytes zusammengesetzt. Ein eigener begrenzter R-Parser und REPORTED-
+Poolresolver prüfen die gesamte E4-/R-Form: feste Version
+`pooled-binding-design/v1`, Rolle REPORTED, sortierter eindeutiger und
+vollständig benutzter Pool, alle Referenzen und vollständige Payloadpositionen.
+Null, Leertext, Integer und jedes Arrayvorkommen bleiben erhalten.
+Höchstens 16368 JSONbytes, 256 Poolwerte, 16368 Knoten, Tiefe 8,
+Sequenzgrenzen und UTF-8-Textgrenzen von 4096 Bytes gelten gleichzeitig.
+
+Beide ganzen R4-Primitiveformen gehen beiden R-Semantiken vor. Anschließend
+werden Actual-R und separates Expected-R vollständig semantisch geprüft:
+K8 mit sämtlichen neun D5, Installation S15, Roots/Pfade, Module/P11,
+Controlmengen und vollständige Frozenverbände. Gleiche ungültige Actual- und
+Callerwerte sind kein Match. Diese Prüfung führt keine operative Sollinventur
+oder neue feste Controlanzahl ein. Noch kein JSON-Repack oder SHA wird
+aufgerufen; ein früher gültiger Callerunterschied darf späte Actual- oder
+Caller-Form-/Semantikfehler nicht verdecken.
+
+### 31.3 Gehaltene Anker, kanonische Bytes und später Callerabgleich
+
+Erst danach werden die äußeren Encoder- und Provideranker aufgenommen und
+über sämtliche drei Kodierungen und den Footer-SHA gehalten. BEGIN und END
+werden kanonisch als ASCII-JSON plus LF neu kodiert und vollständig gegen
+die ursprünglichen gehaltenen Controlbytes geprüft. Actual-R wird mit
+seinem eigenen vollständigen sortierten Pool aus dem aufgelösten R4 neu
+projiziert und kodiert; seine Bytes müssen vollständig den tatsächlichen
+Original-JSONbytes entsprechen. Ein bloßes Re-Encoding der geparsten
+E4-Hülle ersetzt diesen Actual-R-Repack nicht.
+
+Beide Anker werden vor und nach jeder Kodierung sowie unmittelbar vor und
+nach dem tatsächlichen Footerhash erneut geprüft. Frische innere Anker
+dürfen äußeren Bindungsverlust nicht neu baselinen. SHA-256 umfasst genau
+die zusammengesetzten Original-JSONbytes ohne Header; der tatsächliche
+Digest muss dem vollständig geprüften END-Footer entsprechen.
+Dies berechnet weder die E4-K-Domain noch das benannte Original-Input82-
+Präbild. Es gibt keinen Command, BODY_RELEASE-Plan oder Bodyhash.
+
+Erst nach den ganzen Formen/Semantiken, allen kanonischen Repackprüfungen
+und dem Footerhash wird der interne Recordordinal an Actual-K.ordinal
+gebunden. Danach wird das vollständige Actual-R4 gegen das gesamte
+separate Expected-R4 verglichen, einschließlich aller K8-/D9-, Ordinal-,
+Nonce-, S15-, Control- und P11-Felder. Ordinal-/Nonce-only-Vergleiche oder
+Receivedwerte als Callerdefaults sind unzulässig. Ein später Actualfehler
+oder Footerfehler geht einem bloßen gültigen Callerunterschied vor.
+
+Der rekonstruierte Actualheader ist ausschließlich
+`struct.Struct(">8sII").pack(b"DGNP001\0",2,len(actual_json))`:
+16 Bytes, feste REPORTED-Rolle und tatsächliche JSONlänge.
+Nach dominanten Abschlussprüfungen liefert Erfolg atomar
+`("MATCHED_DECLARED_PROFILE_RECORDS","NONE",
+(actual_header,actual_json,actual_R,original_records))`.
+JSON und ursprüngliches Receivedtupel bleiben die tatsächlich gehaltenen
+Objekte; die Rückgabe enthält keine erwarteten Ersatzwerte.
+Ablehnung liefert `("REJECTED_PROFILE_RECORD_MATCH",fixed_issue,None)`,
+ohne Teilheader, Teilrecords, private Rohfehler oder Exceptionketten.
+
+Selektionslabels bleiben FORMAT_SELECTION und PHASE_SELECTION.
+Bestehende feste RECORD-/CONTROL-/FRAGMENT-/FOOTER-/JSON-/SCALAR-/POOL-/
+CONTEXT-/HASH-/ENCODER-Guardlabels bleiben zulässig. Interne
+Recordordinal-/Actual-K-Abweichung verwendet REPORT_ORDINAL_MISMATCH;
+vollständige Callerabweichung REPORTED_MISMATCH und sonstige interne
+Fehler PROFILE_RECORD_MATCH_INTERNAL. Providerbindungsverlust dominiert
+Encoderbindungsverlust und jeden sonstigen festen Fehler. POST gilt
+auch nach Encoding-, Constructor-, Digest- oder Unterfunktionsfehlern.
+
+### 31.4 Endliche Kosten und künftige Gegenproben
+
+Der vollständige Erfolgspfad verwendet zwei Controlparser und einen
+R-Parser samt Resolver, zwei vollständige R-Form-/Semantikvorläufe,
+drei JSON-Kodierungen (BEGIN, END, Actual-R) und genau einen Footer-SHA.
+Höchstens 18 D5-, 512 P11- und vier F3-Vorkommen sowie 1488 K-/D9- und
+höchstens 256 F3-Hexzeichen gehören zur Semantik; Footer und SHA-Ergebnis
+ergänzen je 64 Hexzeichen. Ein begrenzter Payloadjoin und ein 16-Byte-
+Header sowie alle Record-/ASCII-/Envelope-/Pool-/Projektion-/Namespace-/
+Class-/Function-/Provider-/Encoderprüfungen bleiben zusätzliche Arbeit.
+
+17488 Bytes sind die gehaltene Inputkappe
+`16368+19*32+2*256`, kein zusätzliches Kanalbudget. Die gemeinsame
+65536-Byte-Kappe, 63984-Byte-Reserve, tatsächliches stderr, 20 Sekunden
+reguläres Budget plus 10 Sekunden Cleanup und die I/O-Grenzen aus §16.4
+bleiben unverändert. Kostenrechnung und einzelne synthetische Pfadzählungen
+attestieren keine operative Deadline oder gemeinsame Fünf-Formen-Fitgrenze.
+
+Künftige Gegenproben prüfen alle drei Ordinals gegen unabhängig benannte
+R-/Framing-/Footerreferenzen und genaue Actualobjektidentität. Späte
+Actual-P11/D9-/R-Form- oder Semantikfehler müssen vor einem frühen gültigen
+Callerordinalunterschied erscheinen; späte Callerfehler vor Repack/SHA.
+Weitere Fälle: vollständige späte END-/Envelopefehler, Footerfehler vor
+Callerabweichung, Recordordinal gegen Actual-K, gleichartige Kontamination,
+Pool-/Null-/Integer-/Unicode-/Escape-/Canonicalitätsfehler sowie sämtliche
+Record-, Fragment-, JSON- und Poolgrenzen. Ungültige reine Intakegrenzfälle
+werden getrennt von gültigen Maximalformen bezeichnet.
+
+Encoding-/Constructorfehler und Drift bei jeder der drei Kodierungen
+sowie beim SHA prüfen dieselben äußeren Anker und atomare dominante POSTs.
+Ein gezählter Erfolg muss drei Parser, drei JSON-Kodierungen und einen
+Footer-SHA zeigen; alte Topmatcher/Command-/K-/Originaldigesthelpers werden
+nicht als versteckte Delegation verwendet. Vollständige Root- und
+unabhängige Source/Test-PRE samt tatsächlicher Fixture-/tearDown-Lektüre
+und ausdrückliches einmaliges Lauf-GO sind vor späterer Synthetik erforderlich.
+
+### 31.5 Erhaltung und getrennte Folgeschnitte
+
+Die spätere additive Umsetzung erhält dreizehn bestehende Builder,
+413 alte Methoden, alle bisherigen Definitionen und erzeugten Quellenbytes,
+fünf direkte Scriptimports, zwei Controls und das Scriptcap von 131072
+Bytes einschließlich Rawliteralexpansion. Keine zusätzliche Codec-/Matcher-/
+Input82-Adapterimportroute vor PRE. Scriptfit muss später tatsächlich geprüft
+werden; dieser Dokumentationsschnitt führt keine lokale Suite oder private Probe aus.
+
+Der Adapter bleibt reine wiederholbare deklarative Prüfung. Er attestiert
+keinen tatsächlichen Sender, Kanal, vorherigen Übergang, Worker, Trust,
+UsedBytes, Consumption, Replayfreiheit oder Importfreigabe. Alle
+Attestationsflags bleiben false. Kontrollruntime-Trust bleibt ausdrücklich
+deklarierte Annahme. G13, v1, DEC-068 und geschützte Arbeit bleiben erhalten.
+
+Ein rein statischer Schreibvorcheck hielt vor jeder Dateiänderung an einer
+falsch formulierten Platzhalterkontrolle an. Ausschließlich dieser lesende
+Hilfscheck wurde korrigiert; keine Suite oder Produktquelle wurde ausgeführt.
+
+Nächster kleiner Schnitt ist ausschließlich die additive Builder14-/
+Adapterimplementierung mit neuen synthetischen Gegenproben.
+Ein exklusives Ledger mit höchstens drei vorab vollständigen K-Slots
+folgt danach in einem eigenen DESIGN-Schnitt; Caller-Tupel und Statuslabels
+sind keine verbrauchten Ereignisse. Tatsächlicher Kanal, operative
+Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker- und unabhängiger
+Cleanupnachweis sowie Methoden- und Szenariopromotion bleiben getrennt offen.
