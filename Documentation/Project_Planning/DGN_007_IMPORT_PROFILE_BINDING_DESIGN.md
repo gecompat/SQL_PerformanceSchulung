@@ -3020,9 +3020,14 @@ Zehn frühere Builder, direkte Templateimports, Scriptcap und sämtliche false
 Attestationsflags bleiben geschützt; Kontrollruntime-Trust bleibt eine
 explizite deklarierte Annahme.
 
-Root und unabhängiger Review lasen den vollständigen neuen Source-/Testteil
-und die Fixtureabhängigkeiten vor dem ersten Lauf. Ein Sourcebefund wurde
-vorab korrigiert: Actual-Repack aus aufgelöstem R4 statt erneutem Encoding
+Der unabhängige Reviewer las den vollständigen finalen neuen Source-/Testteil
+und die Fixtureabhängigkeiten vor dem ersten Lauf. Root las den vollständigen
+ursprünglichen 431-Zeilen-Testentwurf und die ausdrücklich vorgelegten
+Korrekturen vor dem Lauf; 57 abschließend ergänzte Testzeilen mit vollständiger
+DTO-Referenz und fünf zusätzlichen Gegenproben erst nach dem Merge. Die
+Nachkontrolle ergab keinen weiteren Befund. Der unabhängige finale Vorreview
+lag vor; ein zusätzlicher Lauf war dadurch nicht erforderlich. Ein Sourcebefund
+wurde vorab korrigiert: Actual-Repack aus aufgelöstem R4 statt erneutem Encoding
 der geparsten E4-Hülle. Fünf neue Fixturelabels wurden an die tatsächlichen
 früheren Guards gebunden: PATH_FORM, CONTROL_FORM, OWN_MODULE_CACHED,
 ALIAS_FORM und SEQUENCE_LIMIT. Vor der kombinierten Provider-/Encoderdrift
@@ -3062,7 +3067,93 @@ LF `664cc639f8eaa6a010a7765bd5bd3b0b27bcd52644dee9f2b37767a211452846`
 Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt.
 
-Nächster kleiner reiner Schnitt ist die deklarative Verbindung von R-Abgleich,
-Commands und Phasenübergängen. Tatsächlicher Kanal, Freigaben, operative
-Auswahl samt Fünf-Formen-/64-KiB-Gate, Consumption, Replay, Loader-, Worker-
+Der deklarative R→BODY_RELEASE-Plan nach §29 liegt als DESIGNED vor;
+nächster kleiner reiner Schnitt ist seine additive Builderimplementierung.
+Tatsächlicher Kanal, Freigaben, operative Auswahl samt Fünf-Formen-/64-KiB-Gate, Consumption, Replay, Loader-, Worker-
 und Cleanupnachweise sowie G13-/Methodengates bleiben getrennt offen.
+
+## 29. Deklarativer R→BODY_RELEASE-Plan
+
+Status: `DESIGNED`. Dieser kleine Vertrag beschreibt eine künftige reine
+Planfunktion, keinen tatsächlich gesendeten Command, Kanalübergang oder
+Einmalverbrauch. Implementierung und synthetische Abnahme sind noch offen.
+
+Der vorgesehene zwölfte Builder ergänzt
+`_inline_plan_profile_body_release(header, metadata, *, expected_format,
+expected_phase, expected_reported, expected_context)`.
+Header und JSON sind separat gehaltene exakte Bytes. Der Caller wählt
+`pooled-combined-input-design/v1`, die lokale Planphase `AWAIT_PROFILE`,
+vollständiges R4 und unabhängig gehaltenes vollständiges K8.
+Die feste R-Darstellung bleibt `pooled-binding-design/v1`/REPORTED mit
+DGNP-Headerrolle 2; sie wird nicht von der Combined-Formauswahl ersetzt.
+Planphasen sind getrennt von K.phase, die weiterhin `PRE_IMPORT` sein muss.
+Ein Callerlabel beweist keine vorherige Aufnahme oder operative Phase.
+
+Beide vollständigen Callerformen und die ganze tatsächliche R-Form werden
+vor sämtlichen Semantiken aufgenommen. Sämtliche tatsächlichen R-/K8-,
+Expected-R-/K8- und separaten Expected-K8-Semantiken gehen Encoding,
+Crossvergleich und Hash vor. Ein später ungültiger K8-Callerwert darf nicht
+von einem frühen gültigen R-Unterschied verdeckt werden. Der Entwurf darf
+deshalb den bestehenden R-Matcher nicht naiv vor diesen Prüfungen aufrufen;
+er verwendet dessen vollständig begrenzte untere Form-/Semantikhelfer.
+
+Unter über die ganze Zusammensetzung gehaltenen Provider-/Encoderankern
+wird Actual-R4 neu gepoolt und kodiert. Original-JSON und Actual-Repack
+müssen vollständig identisch sein. Erst danach wird der vollständige
+Actual-R4 mit dem separaten Caller-R4 verglichen und der gesamte
+Actual-K8 an dessen K8 und das unabhängig gehaltene Caller-K8 gebunden.
+Ordinal-/Nonce-only-Vergleiche oder Callerdefaults sind unzulässig.
+
+Erst nach dieser vollständigen deklarativen Bindung wird ausschließlich
+`BODY_RELEASE` aus Actual-K8 nach §24 kodiert: eigene headerfreie E4-K-Domain,
+ein K-SHA, feste Vierfeld-Commandzeile, genau ein LF und höchstens 256 Bytes.
+Erfolg soll atomar
+`("PLANNED_DECLARED_BODY_RELEASE","NONE",
+(actual_header,actual_json,actual_R,command_bytes,"BODY_RELEASE_READY"))`
+liefern; Ablehnung
+`("REJECTED_PROFILE_BODY_RELEASE_PLAN",fixed_issue,None)`.
+Feste Format-/Phasenselektionsfehler und bestehende begrenzte Guardlabels
+dürfen keine privaten Rohfehler oder Teilwerte zurückgeben.
+Provider-POST dominiert Encoder-POST und sonstige Fehler, auch wenn eine
+Unterfunktion erst nach erfolgreichem R-Repack scheitert.
+Beide äußeren Anker werden vor dem inneren Commandencoder und nach dessen
+Erfolg oder Fehler erneut geprüft. Seine frischen inneren Anker dürfen einen
+zwischenzeitlichen Verlust des gehaltenen äußeren Providers nicht neu baselinen.
+Es erfolgt kein Write, Send, Import oder Workerstart.
+
+Der geplante Erfolgspfad umfasst einen begrenzten R-Parser/Resolver,
+zwei R-Form-/Semantikvorläufe und zwei zusätzliche 63-Knoten-K8-Typvorläufe
+für separates Caller-K8 und Commandencoding. Die vier K-Semantikdurchläufe
+enthalten höchstens 36 D5-Vorkommen und 2976 K-/D9-Hexzeichen;
+höchstens vier F3 ergänzen 256 Hexzeichen. Die Prüfung des tatsächlichen
+SHA-Ergebnisdigests ergänzt separat 64 Hexzeichen. Actual-R-/K-Poolaufnahme und
+Projektion, drei JSON-Kodierungen (R, K-Präbild, Command) und ein K-SHA
+bleiben ebenso zu buchen wie zusätzliche gebundene Namespace-/Class-/
+Functionvorläufe und dominante POSTs. Das ist eine geplante Rechnung,
+kein gemessener Call-, Deadline-, Transfer- oder gemeinsamer Fitbeleg.
+
+Die Route erhält keinen Footer-/Recordadapter. §27 vergleicht den
+Callerordinal vor R-Semantik; naive Verkettung kann einen späteren
+ungültigen R-Wert hinter einem frühen Ordinalunterschied verbergen.
+Ein späterer Adapter benötigt eine ausdrücklich geschlossene Priorität
+oder getrennten begrenzten Intake ohne frühen Callerabgleich.
+Receivedordinal als eigenes Soll zu verwenden wäre keine Callerbindung.
+
+Der reine Plan darf wiederholt dasselbe Ergebnis liefern. Einmalverbrauch
+benötigt später ein exklusiv gehaltenes kontrollseitiges Ledger mit höchstens
+drei vorab vollständigen K-/Nonce-/Ordinalslots. Caller-Tupel, Boolflags,
+kopierte Zustände und Planlabels attestieren keinen früheren Übergang.
+`INPUT_COMPLETE` ist bislang benannt und budgetiert; seine genaue Recordform
+muss vor einem Parser separat geschlossen werden. FAILED/UNKNOWN dürfen
+in einem späteren Ledger keinen Neustart oder stillen Reset erlauben.
+
+Die künftigen synthetischen Gegenproben müssen alle drei Ordinals, vollständige
+unabhängige K-Domain-/Commandreferenzen, späte tatsächliche und Callerfehler
+vor Hash, gesamte K8-Crossbindung, falsche Phase/Format/Exacttypen,
+Provider-/Encoderdrift und dominante atomare POSTs prüfen.
+Ein R-Erfolg mit anschließendem Commandfehler darf kein Teilresultat liefern.
+Wiederholbarer Plan bleibt ausdrücklich ohne Replayattestation; die elf alten
+Builder, 341 Methoden, Scriptcap, fünf direkte Imports und false Flags
+sind zu schützen. Frische operative Auswahl, alle fünf Formen/64 KiB,
+tatsächlicher Kanal, Freigaben, Loader, Worker, Consumption und Cleanup
+sowie G13-/Methodengates bleiben unverändert getrennt offen.
