@@ -1635,3 +1635,111 @@ def build_inline_body_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_REASSEMBLE = r'''
+def _reassemble_control(line, schema):
+    parser = _InlineParser(line[:-1])
+    value = parser.value()
+    _inline_need(parser.pos == len(line) - 1, "JSON_FORM")
+    _report_shape(schema, value)
+    return value
+
+
+def _reassemble_decimal(token):
+    _inline_need(1 <= len(token) <= 8 and 49 <= token[0] <= 57
+                 and all(48 <= byte <= 57 for byte in token), "FRAGMENT_FORM")
+    return int(token)
+
+
+def _inline_reassemble_profile_records(records, *, expected_ordinal):
+    """Gehaltene ASCII-Fragmente und Footer; keine R-Semantik oder Kanalaufnahme."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_ordinal) is int and 1 <= expected_ordinal <= 3,
+                     "ORDINAL_SELECTION")
+        _inline_need(type(records) is tuple, "RECORDS_TYPE")
+        _inline_need(3 <= len(records) <= 21, "RECORDS_LIMIT")
+        for line in records:
+            _inline_need(type(line) is bytes, "RECORD_TYPE")
+        sizes = tuple(len(line) for line in records)
+        _inline_need(all(0 < size <= 1024 for size in sizes), "RECORD_LIMIT")
+        _inline_need(sum(sizes) <= 17488, "RECORDS_BYTES_LIMIT")
+        _inline_need(sizes[0] <= 256 and sizes[-1] <= 256, "CONTROL_LIMIT")
+        for line in records:
+            _inline_need(line[-1] == 10 and all(0 < byte < 128 and byte not in (10, 13)
+                         for byte in line[:-1]), "RECORD_ASCII")
+        # Beide vollständigen Primitiveformen vor Feldbindungen und Callerabgleich.
+        begin = _reassemble_control(records[0], ("t", "n", "n", "n"))
+        end = _reassemble_control(records[-1], ("t", "n", "n", "n", "t"))
+        fragments = []
+        for line in records[1:-1]:
+            fields = line[:-1].split(b"|", 4)
+            _inline_need(len(fields) == 5 and fields[0] == b"P", "FRAGMENT_FORM")
+            ordinal, sequence, total = tuple(_reassemble_decimal(token) for token in fields[1:4])
+            payload = fields[4]
+            _inline_need(1 <= ordinal <= 3 and 1 <= sequence <= 19 and 1 <= total <= 19,
+                         "FRAGMENT_FORM")
+            _inline_need(1 <= len(payload) <= 896 and len(line) - len(payload) <= 32,
+                         "FRAGMENT_LIMIT")
+            fragments.append((ordinal, sequence, total, payload))
+        _inline_need(begin[0] == "PROFILE_BEGIN" and end[0] == "PROFILE_END", "CONTROL_FORM")
+        for control in (begin, end):
+            _inline_need(1 <= control[1] <= 3 and 1 <= control[2] <= 16368
+                         and 1 <= control[3] <= 19, "CONTROL_FORM")
+        _inline_need(len(end[4]) == 64 and all(char in "0123456789abcdef" for char in end[4]),
+                     "FOOTER_FORM")
+        _inline_need(begin[1:] == end[1:4], "RECORD_BINDING")
+        ordinal, length, total = begin[1:]
+        _inline_need(total == len(fragments) == (length + 895) // 896, "FRAGMENT_BINDING")
+        for index, fragment in enumerate(fragments, 1):
+            _inline_need(fragment[:3] == (ordinal, index, total), "FRAGMENT_BINDING")
+            expected_size = 896 if index < total else length - 896 * (total - 1)
+            _inline_need(len(fragment[3]) == expected_size, "FRAGMENT_BINDING")
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        _inline_need(_report_json(begin, encoder_anchor) + b"\n" == records[0], "NONCANONICAL")
+        _inline_need(_report_json(end, encoder_anchor) + b"\n" == records[-1], "NONCANONICAL")
+        data = b"".join(fragment[3] for fragment in fragments)
+        digest = _report_sha(data, anchor)
+        _inline_need(digest == end[4], "FOOTER_HASH")
+        _inline_need(ordinal == expected_ordinal, "REPORT_ORDINAL_MISMATCH")
+        header = _INLINE_HEADER.pack(b"DGNP001\0", 2, len(data))
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("REASSEMBLED_PROFILE_RECORDS", "NONE", (header, data, records))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "REASSEMBLE_INTERNAL"
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_PROFILE_RECORDS", issue, None)
+'''
+
+
+def build_inline_reassemble_control_bootstrap(profile_raw, *, logical_profile,
+                                             expected_soabi, expected_destshared) -> BootstrapSource:
+    """Zehnte reine Quellenroute für gehaltene PROFILE-Records ohne Kanal- oder R-Claim."""
+    selected = build_inline_body_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_REASSEMBLE + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
