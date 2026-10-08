@@ -1428,3 +1428,171 @@ Versionsmigration, Parent-/Worker-Anbindung, tatsächliche Quellenauflösung,
 Consumption-/Replay-/Cleanup- und Methodengates bleiben getrennt offen.
 Alle Attestationsflags einschließlich vollständiger Runtimeinventur und
 ursprünglicher Parentmemory bleiben false; keine Methoden- oder Runtimefreigabe.
+
+## 15. Separater experimenteller kombinierter Eingangsrahmen
+
+Dieser reine Prototyp basiert auf `0cdcdbd07a9c2cf9d1e71c2f481948546169b9c3`
+nach PR 98. Er ergänzt den Formcodec aus §14 um die neun unveränderten
+Rawbodies. Er führt keine Quellenbeobachtung, Vorbereitung, Nonceerzeugung,
+Prozess-, Worker-, Import- oder SQL-Ausführung durch.
+
+### 15.1 Explizites Format und gleichzeitige Grenzen
+
+Der Caller wählt ausdrücklich
+`expected_format="pooled-combined-input-design/v1"`. Es gibt keinen Default
+oder Legacy-Fallback. Der eigene Header `struct.Struct(">8sII")` enthält
+Magic `b"DGNC001\0"`, Metadata-JSON-Länge und Rawbodylänge. Die Metadata
+ist genau die unveränderte kanonische E4-Hülle aus §12 mit deren Tag
+`pooled-binding-design/v1` und fester Rolle `METADATA`. Die neun Bodies
+folgen in der unveränderten Deskriptorreihenfolge.
+
+Die gesamten Metadata einschließlich 16-Byte-Header dürfen höchstens
+16.384 Bytes umfassen. Gleichzeitig gelten 131.072 Bytes je Body,
+1.048.576 Bytes für sämtliche Bodies und 1.064.960 Bytes für den Gesamtframe.
+Der Encoder muss vor Freigabe weiterhin alle fünf vollständigen Formgates
+aus §14 einschließlich deren gemeinsamen 65.536-Byte-Ausgabegate erfüllen.
+Dieses Ausgabegate beschreibt ausschließlich die fünf Metadataformen;
+Rawbodies sind begrenzter interner Eingang und Bestandteil der kontrollseitigen
+Framebytes, keine öffentliche Diagnose- oder Konsolenausgabe.
+
+### 15.2 Vollständige Aufnahme vor Vergleich
+
+Der Decoder akzeptiert ausschließlich exakte `bytes`. Er prüft Formatwahl,
+Gesamtgrenze, Header, sämtliche Längen und exaktes Gesamtende vor Slice und
+Parse. Anschließend prüft der bestehende private Formcodec seine tatsächlich
+empfangene METADATA vollständig: E4, Pool, Positionen, sämtliche Records,
+beide physischen D9 und den ursprünglichen benannten Input82-Digest.
+Die Aufnahme verwendet dessen `_decode` mit fester Rolle, nicht dessen
+bereits gegen Callerwerte vergleichenden öffentlichen Singledecoder.
+
+Vor jeder Bodyaufnahme müssen alle neun Größen zusammen exakt der
+deklarierten Rawbodylänge entsprechen und sämtliche Einzel-/Gesamtcaps
+erfüllen. Danach werden alle tatsächlich empfangenen neun Bodyhashes und
+Offsets geprüft. Erst nach vollständiger eigener Metadata- und Bodyprüfung
+erfolgt der Vergleich mit separat gehaltenen semantisch gültigen Callerwerten.
+Eine frühe gültige Callerabweichung darf ein späteres Bodyproblem nicht
+verdecken. Kein Ergebnis enthält aus Callerwerten ergänzte Empfangsfelder.
+
+Erfolg liefert einen eigenen privaten frozen Record ohne Inhalts-`repr` mit
+vollständig zurückgewonnenen Metadata und tatsächlich empfangenen Rawbytes.
+Ablehnung erfolgt atomar über feste technische Labels ohne Exceptionkette
+oder Payloadausgabe. Sämtliche Attestationsflags bleiben false; ein deklarierter
+Kontextmatch attestiert keine Herkunft, tatsächliche Verwendung oder Replayfreiheit.
+
+### 15.3 Abnahme und Folgegrenzen
+
+Die getrennte
+[`Komponente`](../../Tests/Tools/dgn007_pooled_combined_input.py)
+besitzt ausschließlich die folgenden explizit ausgewählten APIs:
+
+| API | Ergebnis und Grenze |
+|---|---|
+| `encode_combined_input(prepared, worker, *, expected_format)` | tatsächliche kontrollseitige Framebytes nach sämtlichen fünf Formgates |
+| `decode_combined_input(frame, *, expected_format, prepared, expected_worker)` | eigener `DecodedCombinedInput` mit empfangener Metadata, Worker, Kontext und neun `ReceivedSource`-Records erst nach vollständiger Prüfung |
+
+Die getrennte
+[`Testsuite`](../../Tests/Static/test_dgn007_pooled_combined_input.py)
+prüft drei Ordinals, unabhängige Frame-/Feldreferenzen,
+Originalbyteerhaltung einschließlich CRLF, Header-/Längenfehler, beide D9,
+Mappings, Nonce-/Kontextwechsel, Einzel-/Gesamtcaps und späte Bodyfehler trotz
+früherer gültiger Abweichung. Die Grenzfälle trennen gültige Feldfixtures von
+internen Zählergegenproben. Kein Kandidatenbody wird importiert oder ausgeführt.
+
+Ein vollständiger neuer Originalfixturebeleg folgt erst nach unabhängigem
+Quell-/Testreview und Vorprüfung eines konkreten begrenzten privaten Helpers.
+Frühere Helpers werden nicht wiederholt. Operative Versionsauswahl, tatsächlich
+gewählte Workerbaseline, Parent-/Worker-Anbindung, Quellenauflösung, Consumption,
+Replay und unabhängiger Cleanup bleiben getrennte nachfolgende Gates.
+
+### 15.4 Portable Gegenproben und unabhängiger Review
+
+Die neue Testsuite bestand im ersten tatsächlichen Lauf unter CPython 3.12.14
+mit `-I -S -B -X utf8` alle 34/34 Methoden ohne SKIP in 0,122 s. Es gab keine
+nachträgliche Code- oder Fixturekorrektur eines Fehlerlaufs. Ein unabhängiger
+Quell-/Testreview las die vollständigen beiden Dateien einschließlich aller
+34 Gegenproben ohne eigenen Testlauf und bestätigte denselben Freeze.
+
+Drei Ordinals erhalten vollständige unabhängige Frame- und Feldreferenzen.
+Beide physisch getrennten D9, der ursprüngliche benannte Input82-Digest,
+neun Rawhashes und sämtliche tatsächlich zurückgegebenen Bytes bleiben erhalten.
+CRLF, Leerbytes, NUL und Nicht-UTF-8-Bytes sind opake Bodywerte. Der Prototyp
+interpretiert oder importiert diese Bodies nicht. Gültige abweichende Nonce-,
+Commit-, Raw27- oder Ordinalwerte ergeben ausschließlich einen deklarativen
+Mismatch; späte malformed Metadata oder Bodyhashfehler dominieren solche
+frühen gültigen Abweichungen und treten vor jeder Calleraufnahme auf.
+
+Gültige Metadata erreichen exakt 16.384 Bytes einschließlich Header,
+gültige einzelne Bodies 131.072 Bytes und die Bodygesamtheit 1.048.576 Bytes.
+Ein gültiger gemeinsamer Frame erreicht gleichzeitig 1.064.960 Bytes und wird
+vollständig aufgenommen; Cap+1 wird vor dem Parser abgewiesen. Die separate
+64-KiB-Gegenprobe ist ausdrücklich interne `_size`-Zählarithmetik, keine
+behauptete maximale gültige Fünf-Formen-Fixture. Sämtliche tatsächlichen
+Encoderformen behalten ihr gemeinsames Gate; ein Decoder behauptet nur die
+eigene empfangene METADATA und deren neun Bodies.
+
+| Geprüfte portable Quelle | LF-SHA256 |
+|---|---|
+| Experimenteller kombinierter Eingang | `8db9291088d21e81f8eaf7d63740ec6db3a6f24e621dfb380ce3775aba0b871e` |
+| Unabhängige Testsuite | `b2bae852772830e02d7448f8dcf3eb674806d5a9c5ee0b97bbab68fb555a419d` |
+
+Alle Ergebnisse sind frozen und ohne Inhalts-`repr`; Fehler enthalten feste
+Labels ohne Cause oder Context. Identische gültige Eingaben bleiben wiederholbar.
+Keine Herkunfts-, Worker-, Trust-, Consumption-, Replay-, Cleanup- oder
+Methodenattestation folgt daraus. §15.5 beschreibt den anschließend getrennt
+ausgeführten privaten Originalfixturebeleg.
+
+### 15.5 Vollständiger reiner Combined-Beleg der Originalfixture
+
+Nach dem vollständigen unabhängigen Quell-/Testreview und zwei getrennten
+Vorprüfungen des konkreten neuen Helpers lief genau eine neue reine
+Combined-Prüfung unter CPython 3.12.14 mit `-I -S -B -X utf8`.
+Sie endete regulär nach 0,223 s mit Exitcode 0. Die vollständige vorgewählte
+Originalauswahl mit 85 Records und zwei Controls sowie der Input82-Originalrahmen
+aus §11 blieben unverändert. Keine frühere Messung wurde wiederholt, keine
+neue Aufnahme, Vorbereitung, Nonce oder Worker-/Importausführung durchgeführt.
+
+Alle drei tatsächlich erzeugten Frames entsprachen vollständigen unabhängigen
+benannten Referenzen. Tatsächlich empfangene Inputfelder, Worker, Kontext,
+beide physische D9-Arrays, ursprünglicher Input82-Digest und sämtliche neun
+Rawbytes wurden vollständig verglichen. Sämtliche Poolwerte wurden verwendet,
+vollständige Feldrückgewinnung und kanonischer Repack allein aus den tatsächlichen
+Empfangsrecords bestanden. Ursprünglicher Parentmemory oder Transfer werden
+durch die begrenzte Originalrahmen-Rekonstruktion nicht attestiert.
+
+| Ordinal | Metadata einschließlich Header | Rawbodybytes | Gesamtframe | Fünf Metadataausgaben |
+|---|---:|---:|---:|---:|
+| 1 | 9.389 | 130.837 | 140.226 | 28.264 |
+| 2 | 9.389 | 130.837 | 140.226 | 28.257 |
+| 3 | 9.389 | 130.837 | 140.226 | 28.246 |
+
+Alle Werte sind Bytes; Poolanzahl jeweils 204. Die vier gleichzeitigen
+Eingangsgrenzen bleiben erhalten. Die letzte Spalte ist ausschließlich die
+getrennte Fünf-Formen-Metadataausgabe; der größere interne Bodyframe ist keine
+öffentliche Konsolenausgabe und kein Beleg für eine 64-KiB-Workerkanalübertragung.
+
+Der neue private Helper hat RAW-SHA256
+`5b57c2f5a014b68f2b89cc0f17f693dd4c15715193b9d92ac8df1e9a55cee29c`
+und 12.744 Bytes. Das sichere Ergebnisaggregat hat SHA256
+`8b427102154206eb625ed79a6356da6c19f93f4ddd0aa963acbe94b051566634`.
+Alle acht tatsächlich importierten RAW-Kontrollquellen sowie beide Originaleingaben
+bestanden Vor-/Nachpins. Der bestehende Formcodec hat nach Checkout RAW-SHA256
+`88f6b55c6c7e1e8e99c731a519f65d0edf96631b1a8b562d27262ac052a7c1f9`;
+sein portabler LF-Hash aus §14 bleibt unverändert. RAW-Ausführungsbytes werden
+nicht mit portablen LF-Provenienzen gleichgesetzt. Private Locator, Nonce,
+Inventurdetails und Bodies bleiben außerhalb versionierter Artefakte.
+
+Der zusätzliche unabhängige Nachreview rechnete mit ausschließlich eigener
+Stdlib-Referenz aus den unveränderten Originaleingaben sämtliche fünf E4-Formen
+je Ordinal, alle vollständigen Felder, Usedsets, beide D9 und neun Rawhashes nach.
+Die drei erwarteten Combined-Frames, deren Größen und SHA256 sowie sämtliche
+Metadataausgabesummen stimmen exakt. Das sichere Aggregat hat 1.917 Bytes und
+entspricht vollständig der erwarteten Feldmenge ohne Extras. Alle acht Quellen-,
+Helper- und Inputpins bleiben unverändert. Kein Helper-/Combined-/Codec-/Sizer-/
+Prepare-/Counter-Import oder Replay; diese Nachrechnung bestätigt erwartete
+vollständige Bytes und Felder, keine zweite tatsächliche Decoderaufnahme.
+
+Sämtliche Attestationsflags einschließlich vollständiger Runtimeinventur und
+ursprünglicher Parentmemory bleiben false. Der Beleg betrifft ausschließlich
+diese unveränderte vollständige Kontrollfixture. Operative Versionsauswahl,
+frische tatsächlich gewählte Workerbaseline, Parent-/Worker-Anbindung,
+Quellenauflösung, Consumption, Replay und unabhängiger Cleanup bleiben offen.
