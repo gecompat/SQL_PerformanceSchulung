@@ -2742,3 +2742,117 @@ Nächster kleiner Offline-Schnitt ist die begrenzte reine Bodyaufnahme nach
 S15-/P11-Inventur der endgültigen Quelle, Fünf-Formen-/64-KiB-Gate sowie
 Parent-/Worker-, Loader-, Consumption-, Replay-, Cleanup- und G13-
 Methodengates bleiben offen.
+
+## 26. Reine begrenzte Aufnahme deklarierter Rawbodies
+
+Die neunte additive Quellenroute `build_inline_body_control_bootstrap`
+ergänzt ausschließlich die Prüfung von neun bereits gehaltenen Rawbodies.
+`_inline_receive_declared_bodies(metadata_chunks, bodies, *, expected_format,
+expected_input, expected_worker, expected_context)` erhält ein exaktes
+Neunertupel exakter `bytes` und separat gehaltene vollständige I7-/W6-/K8-
+Erwartungen. Format bleibt `pooled-combined-input-design/v1`; sämtliche
+Chunk- und Bodyelementtypen werden vor Längenaufnahme, Parser oder Hashdispatch
+geprüft. Es gibt keine Stream-, Dateiread- oder Commandaufnahme.
+
+Der begrenzte tatsächliche M-Parser und seine Positionsauflösung laufen genau
+einmal über höchstens 16.384 Header-/Metadatabytes. Beide vollständigen
+Actual-/Expectedformen und Semantiken einschließlich S15, P11/F3 und aller
+vier D9-Vorkommen werden vor Repack oder Hash geprüft. Jeder tatsächliche
+Body bleibt auf 131.072 Bytes begrenzt, die Neunersumme auf 1.048.576 Bytes.
+Die im tatsächlichen Header deklarierte Bodylänge und beide Actual-D9 müssen
+vollständig zu diesen neun Längen passen. Expected-D9 werden zunächst
+innerhalb ihrer eigenen vollständigen Deklaration geprüft.
+
+Gehaltene Encoder- und Provideranker umfassen den tatsächlichen kanonischen
+M-Repack, zwei getrennte benannte Original-Input82-Präbilder und anschließend
+neun einzelne Rawhashes. Originaldigests und intrinsische I7-/K8-/W6-Bindungen
+werden je Seite eigenständig geprüft. Alle neun Rawhashes werden gehalten,
+bevor beide tatsächlichen D9-Hashfelder und der vollständige Actual-/Expected-
+Payload verglichen werden. Ein früher gültiger Callerunterschied überspringt
+keinen späten Rawbodyfehler. Die Bodies werden weder zusammengefügt noch
+kompiliert, dekodiert oder normalisiert; CRLF, BOM, NUL und Nicht-UTF-8-Bytes
+bleiben unverändert. Leere Bodies sind nur mit passender Größe und Rawhash gültig.
+
+Erfolg liefert atomar
+`("RECEIVED_DECLARED_BODIES","NONE",(actual_header,actual_metadata,actual_payload,original_bodies))`.
+Die Rückgabe enthält ausschließlich tatsächliche Empfangswerte und die
+ursprünglichen gehaltenen Bodyobjekte. Fehler liefern
+`("REJECTED_DECLARED_BODIES",fixed_issue,None)`; keine Callerdefaults oder
+Teilbytes werden zurückgegeben. Dominanter Provider-POST geht Encoder-POST
+und allen sonstigen Fehlern vor; keine fremden Namespaces werden repariert.
+
+Der erfolgreiche Pfad verwendet genau drei JSON-Kodierungen und elf SHA-
+Aufrufe: ein tatsächlicher M-Repack, zwei Originalpräbilder sowie zwei
+Original- und neun Rawbodydigests. Neun endliche Größen- und Rawhashprüfungen
+ergänzen die unveränderten begrenzten M-/Form-/Semantikvorläufe und wiederholten
+Namespace-/Class-/Function-PREs und POSTs aus §25. Kein Bodyjoin oder
+Gesamtbodycopy ist erforderlich. Diese Kostenaufstellung beweist keine
+operative Deadline oder Sandbox.
+
+Dieser reine Vorschnitt attestiert weder Raw27-Herkunft noch tatsächlichen
+Transfer, lokale Profilaufnahme, BODY_RELEASE, BODY_END, INPUT_COMPLETE,
+IMPORT_RELEASE, EOF, Consumption, Replayfreiheit oder Quellenverwendung.
+Acht frühere Builder und ihre Tests bleiben erhalten. Operative Inventur,
+Fünf-Formen-/64-KiB-Gate sowie Parent-/Worker-, Loader-, Cleanup- und G13-
+Methodengates bleiben offen. Sämtliche Attestationsflags bleiben false;
+die gehaltene Kontrollruntime bleibt eine ausdrückliche Annahme.
+
+Root und unabhängiger Review lasen den gesamten neuen Source-/Testteil vor
+dem ersten Lauf. Beide Vorpins und beide POSTs bestätigten unveränderte RAW-/
+LF-Pins; Realcache, Main, Sysconfig, JSON, Encoder-/Class-/Functionsentinels
+und eigene temporäre Fixtureabsenz bestanden ohne Reparatur in beiden Versuchen.
+Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
+Worker- oder SQLprobe wurde erneut ausgeführt.
+
+Der erste isolierte Lauf unter CPython 3.12.14 mit `-I -S -B -X utf8`
+prüfte 272 Methoden in 7,031 Sekunden (Wallzeit 8,0161883 Sekunden):
+271 PASS, eine FAILURE, null ERROR oder SKIP, Exit 1. Der neue Test
+`test_late_actual_form_before_early_valid_caller_difference` erwartete
+`SCALAR_FORM` für None im letzten Actual-D9-Hashfeld. Der tatsächliche
+Positionsresolver lehnt diesen Wert schon früher mit `POSITION_TYPE` ab.
+Die Ablehnung und atomare None-Rückgabe waren korrekt; ausschließlich
+das erwartete Fixturelabel wurde geändert. Root und unabhängiger
+Deltareview bestätigten die genaue Ganzdatei-Rücknahme auf den früheren
+RAW-/LF-Teststand vor dem zweiten Lauf; der Produktionscode blieb unverändert.
+
+Der zweite Lauf auf dem geänderten Fixturestand bestand 272/272 Methoden
+in 6,309 Sekunden (Wallzeit 7,1164713 Sekunden), Exit 0, ohne FAILURE,
+ERROR oder SKIP. Er umfasst 29 neue Gegenproben; alle 243 alten Methoden,
+13 alten Tool-/27 alten Test-Topdefinitionen und der ganze alte Tool-LFpräfix
+bleiben erhalten. Der Vertragspräfix §1–25 bleibt LF-byteidentisch.
+
+Die Gegenproben prüfen alle drei Ordinals mit unabhängigen vollständigen
+Original- und Rawhashoracles, Originalbodyidentitäten, neun Emptybytes,
+opake CRLF/BOM/NUL/Nicht-UTF-8-Daten, Membergrenze 131.072/131.073 und
+Gesamtgrenze 1.048.576/1.048.577 Bytes. Exacttypen, Neunerarity,
+späte Fremdtypen vor frühen Oversizes, beide Actual-D9, vollständige
+Mappings, Größen und alle neun Rawhashes vor frühem gültigem Callerunterschied,
+ein Parser/drei JSON/elf SHA und Provider-/Encoderdrift beim Repack sowie
+ersten/letzten Rawconstructor werden begrenzt geprüft. Acht bisherige Builder,
+unveränderte direkte Templateimports, false Flags und Scriptcap einschließlich
+Rawliteralexpansion bleiben geprüft. Reines Wiederholen ist kein
+Consumption-, Freigabe- oder Replaynachweis.
+
+Toolpin in beiden Versuchen: RAW
+`f098c01525f83d7e40e171a6e842d80a7b0458e1121f48bd65e31580ae2951c2`,
+LF `8cd546f7e4313d900bb63959293ed186ab3b12e907064f59ef4857e08da1224d`
+(79.430 LFbytes). Erster Testpin: RAW
+`e164c4d726b76054d8626df63e72037553dd150124f74630a948e12bff587cf2`,
+LF `f576bdac90607c7105bcbf2c7c8df250117b1aaf69642645e94c700b0feb9af3`
+(216.407 LFbytes), Paarbindung
+`34cd0538d60d093efe99c1a7ece245ffc1097935e42ce6d4889ad69154d6e313`.
+Finaler Testpin: RAW
+`1408bead671135ce4d93cee32d5d8fc706de23faeb0f0acfe589bfc3fa285dc8`,
+LF `01753a1249b49012266cb7e86a4c40a361f724e8bc37323748528d325e7c506b`
+(216.409 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide finalen
+Dateien als SHA-256
+`ba70113a2832bf012f1d92c0aace43e260850ddec759c6fea93405049d1e3528`.
+
+Nächster kleiner Offline-Schnitt ist die reine begrenzte Reassemblierung
+bereits gehaltener PROFILE-BEGIN/Fragmente/END-Records nach §16.4.
+Vollständige R-Form, Semantik und Callerbindung folgen getrennt; opake
+Reassemblierung attestiert kein beobachtetes Profil. Tatsächlicher I/O,
+gemeinsame operative Kanal-/stderr-Budgets, Freigaben, operative Inventur
+und Fünf-Formen-/64-KiB-Gate sowie Parent-/Worker-, Loader-, Consumption-,
+Replay-, Cleanup- und G13-Methodengates bleiben offen.
