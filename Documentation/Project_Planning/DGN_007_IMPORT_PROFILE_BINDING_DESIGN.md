@@ -2304,3 +2304,105 @@ die endgültige vollständige Quelle darf mit separat vorgewählter operativer
 S15-/P11-Inventur und dem gemeinsamen Fünf-Formen-/64-KiB-Gate abgenommen werden.
 Parent-/Worker-, Loader-, Consumption-, Replay-, Cleanup- und G13-Methodengates
 bleiben offen.
+
+## 22. Reiner additiver Inline-Profilreporter
+
+Der ausschließlich synthetische Vorschnitt ergänzt die fünfte reine Builderroute
+`build_inline_report_control_bootstrap` um die private
+`_inline_profile_report(header, metadata, scalars)`.
+Ihre Eingaben sind gehaltene Header-/Metadatabytes und die drei vollständigen
+skalaren Tupel aus `_project_scalars`: Auswahl mit vier Feldern, Installation
+mit zwölf Feldern und vollständige P11-Modulzeilen. Die ältere Semantikroute
+bleibt erhalten. Es erfolgt keine Profilaufnahme oder Ausgabe auf einen Kanal.
+
+Die vollständige M-Syntax und sämtliche Scalarformen müssen vor dem Original-
+Input82-Digest und Bindungsvergleichen abgeschlossen sein. Die tatsächliche
+S15-Installation wird ausschließlich aus der separat gegebenen Auswahl und
+Installation rekonstruiert; Controls und P11 kommen aus denselben Scalarinputs.
+K stammt aus der vollständig validierten gehaltenen Metadata. Ein formgültiges
+abweichendes Istprofil muss als abweichender Report erhalten bleiben. Der
+Reporter führt keinen Callerabgleich durch und ergänzt keine Sollworkerfelder.
+
+Die neue Route verwendet einen vollständigen begrenzten M-Parser-/Canonical-Repack-
+Durchlauf. Nach vollständiger Formprüfung folgt das unveränderte
+benannte Original-Input82-Präbild mit separat gebundenem Encoder und unmittelbar
+geprüftem Provider. Der SHA-256 der R-JSONbytes ist ein zweites eigenes Präbild;
+er ersetzt weder den Originaldigest noch den späteren K-Domain-Digest.
+Encoderklasse, unmittelbar verwendete Funktionen, Codes und Defaults sowie
+die gehaltenen Namespaces werden um die tatsächlichen Calls erneut geprüft.
+Die Encoderinstanz hat genau die acht kanonischen Settings; Schattenmethoden
+werden vor Dispatch abgelehnt. Verwendet wird die gehaltene Klassenfunktion.
+Vier zusätzliche begrenzte JSON-Kodierungen betreffen Originalpräbild, R,
+BEGIN und END; daneben stehen ein M-Repack und zwei SHA-Berechnungen.
+Diese wiederholten begrenzten Scans sind zusätzliche Kosten und kein Nachweis
+der späteren gemeinsamen operativen 20-Sekunden-Deadline.
+
+R erhält seine eigene vollständige E4-Hülle mit Rolle `REPORTED`, lokalem
+sortiertem eindeutigem Pool und dem Payload `(K,S15,controls,P11)`.
+Alle Stringvorkommen, Integer und das ausschließlich an `specName` zulässige
+Null bleiben verlustfrei. Es gelten gleichzeitig höchstens 256 Poolwerte,
+256 Folgeelemente, acht Ebenen, 16.368 Knoten und 4.096 UTF-8-Bytes je Text.
+Der begrenzte kanonische ASCII-Encoder darf zusammen mit dem festen 16-Byte-
+Header höchstens 16.384 Bytes erzeugen. Kleine Einzelreports ersetzen nicht
+die spätere gemeinsame Prüfung aller fünf Formen oder des 64-KiB-Kanalbudgets.
+
+Die private Rückgabe enthält erst nach vollständig erfolgreicher Prüfung
+sämtliche gehaltenen ASCII-Records: BEGIN, höchstens 19 `P|...`-Fragmente
+und END mit SHA-256 der tatsächlichen R-JSONbytes. Je Fragment gelten 896
+Payloadbytes und 32 Envelopebytes einschließlich LF; die allgemeine Zeilenkappe
+bleibt 1.024 Bytes. BEGIN und END bleiben jeweils höchstens 256 Bytes.
+Innere Pipezeichen sind unveränderte Payloadbytes; es gibt keinen zweiten
+Escape-Layer. Fehler liefern feste Codes und keinen Teilreport. Ein eigener
+Provideranker wird vor und nach der Rechnung geprüft, auch bei Callfehlern;
+Bindungsverlust bleibt dominant. Die Kontrollruntime bleibt eine ausdrücklich
+deklarierte Vertrauensannahme, keine Herkunfts- oder Installationsattestation.
+
+Erfolg liefert `FORMATTED_PROFILE_REPORT`, `NONE` und ausschließlich das
+private unveränderliche Recordtupel; Ablehnung liefert feste Codes und None.
+Providerbindungsverlust dominiert Encoderbindungsverlust, dieser den Callfehler.
+Alle Attestationsflags bleiben false und der Quellenclaim bleibt
+`GENERATED_CONTROL_SOURCE_ONLY`. Vier frühere Builder, sämtliche 18 bisherigen
+Tooldefinitionen und die 108 bisherigen Testmethoden sind AST-identisch.
+Die fünf direkten Scriptimports, zwei tatsächlichen Controls und das
+131.072-Byte-Scriptcap sind erhalten.
+
+Root und unabhängiger Review lasen die vollständige Quelle und Tests sowie
+die engen Korrekturen vor Ausführung. Dispatch-/Instance-/Keyworddefault-
+Bindungen und unmittelbare Provider-PREs wurden bereits im Quellreview
+korrigiert; die neue Fixture unterscheidet ausdrücklich gegebenes Scalar-None
+von ausgelassenen Argumenten. Der lokale Nachweis umfasst einen einzigen Lauf
+ohne Fehlversuch.
+Der einzige autorisierte isolierte Lauf mit `-I -S -B -X utf8` bestand unter
+CPython 3.12.14 mit Exit 0: 149/149 PASS in 1,946 Sekunden, kein FAILURE,
+ERROR oder SKIP. Vor- und Nachpins blieben vollständig unverändert.
+
+Die 41 neuen Methoden prüfen sämtliche tatsächlichen Scalarfelder und alle
+drei Ordinals gegen eine unabhängige benannte Referenz und den tatsächlichen
+REPORTED-Codec. Ein formgültig abweichendes Profil bleibt abweichend erhalten.
+Späte Primitive-/P11-/F3-Fehler gehen Originaldigest-/Bindungsvergleichen vor.
+Vollständige Frozenpaare, Singletons, gemischte Source-/Frozenrecords,
+Kontrollinventur, Pool 256/257, tatsächliche Metadata 16.384/16.385 einschließlich
+Header, Unicode, innere Separatoren und Fragmentgrenzen 896/897 sowie 18/19
+sind geprüft. Die unabhängige Testzusammensetzung verwirft fehlende, doppelte
+und umgestellte Records; dies ist kein produktiver Receivernachweis.
+Provider-/Encoder-/Code-/Namespace-/Defaults-/Instanzdrift und dominante
+Fehler-POSTs liefern keine Teilrecords. Gehaltene reale Cache-/Main-/Sysconfig-
+und JSON-/Encoder-/Functionstate-Sentinels über die gesamten neuen Tests
+sowie eigene temporäre Fixtureabsenz bestanden. Alte private Captures, native
+Auswahl, Prepare und Nonces wurden nicht erneut ausgeführt; kein tatsächlicher
+Profil-/Sysconfig-/Worker-/SQLstart.
+
+Abschließende Toolpins sind RAW
+`e12bdc060a63ab158746737f61ce8fb4324ec62715cb6ce0865eb16a88b969db`
+und LF `a11ab6729d0a30b95f2a7d3f09d011f4f4fb1bbb4a252961ae301dfa85979b34`
+(59.602 LFbytes). Der Test hat RAW
+`1b37aa25d594f2e5f81a547900e43c9de0024e317fb7a3e9a48bd4688b423221`
+und LF `3ee9bca9102506f02fa9b5e32a9fde41caf09fe144cfe845fd3b16f11f1442e9`
+(118.703 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide Dateien als
+SHA-256 `77f4c656056f691205f0333253167f77987a302b9fe4718fc89d4638a93d1437`.
+
+Nächster reiner Offline-Schnitt sind Receiver-/Kanalteile nach §16. Separat
+vorgewählte operative S15-/P11-Inventur der endgültigen Quelle, gemeinsames
+Fünf-Formen-/64-KiB-Gate und Parent-/Worker-, Loader-, Consumption-, Replay-,
+Cleanup- und G13-Methodengates bleiben getrennte Folgearbeit.
