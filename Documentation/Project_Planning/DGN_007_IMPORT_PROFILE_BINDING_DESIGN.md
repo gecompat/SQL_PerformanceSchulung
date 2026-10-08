@@ -3203,11 +3203,10 @@ Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt.
 
 Die reine additive INPUT_COMPLETE-Quelle ist nach §30 synthetisch geprüft.
-Der vollständige Record-/Footer→R-Calleradapter liegt in §31 als DESIGNED vor.
-Nächster kleiner Schnitt ist dessen reine additive Builderimplementierung
-mit neuen synthetischen Gegenproben.
-Exklusives Ledger und Record-/Footeradapter mit geschlossener Fehlerpriorität
-folgen getrennt. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
+Der vollständige Record-/Footer→R-Calleradapter ist in §31 additiv implementiert
+und synthetisch geprüft. Der exklusive Parent-Ledgervertrag liegt in §32 als
+DESIGNED vor. Nächster kleiner Schnitt ist ausschließlich lokale Ledgerzustandslogik
+mit gehaltenen Fakeadaptern und neuen synthetischen Gegenproben. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
 Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
 Loader, Worker und unabhängiger Cleanup sowie G13-/Methodengates bleiben offen.
 
@@ -3342,12 +3341,13 @@ Raw27-Herkunft, Sender, Consumption, Replayfreiheit, IMPORT_RELEASE oder
 eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben false.
 
 Der vollständige Record-/Footer→R-Calleradapter ist in §31 rein additiv
-implementiert und lokal synthetisch geprüft. Nächster kleiner Schnitt ist
-sein separater exklusiver Ledgervertrag als DESIGN.
+implementiert und synthetisch geprüft. Der separate exklusive Parent-Ledgervertrag
+liegt in §32 als DESIGNED vor; nächste Folge ist ausschließlich lokale
+Ledgerzustandslogik mit gehaltenen Fakeadaptern und synthetischen Gegenproben.
 Die frühe Callerordinalprüfung aus §27 darf im neuen Gesamtpfad spätere
 Actual-R-Form-/Semantikfehler nicht verdecken; ein bloßes Verketten der
-bestehenden Teilfunktionen ist dafür kein Nachweis. Exklusives Ledger mit
-drei vollständig vorgewählten Slots folgt danach separat. Tatsächlicher
+bestehenden Teilfunktionen ist dafür kein Nachweis. Die lokale Ledgerimplementierung
+mit höchstens drei vollständig vorgewählten Slots folgt separat nach §32. Tatsächlicher
 Kanal, operative Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker-
 und unabhängiger Cleanupnachweis bleiben getrennt.
 G13, v1, DEC-068 und die geschützte Arbeit bleiben erhalten.
@@ -3590,9 +3590,10 @@ Ein rein statischer Schreibvorcheck hielt vor jeder Dateiänderung an einer
 falsch formulierten Platzhalterkontrolle an. Ausschließlich dieser lesende
 Hilfscheck wurde korrigiert; keine Suite oder Produktquelle wurde ausgeführt.
 
-Nächster kleiner Schnitt ist ausschließlich der eigene DESIGN-Vertrag für
-ein exklusives Ledger mit höchstens drei vorab vollständigen K-Slots; Caller-Tupel und Statuslabels
-sind keine verbrauchten Ereignisse. Tatsächlicher Kanal, operative
+Der separate exklusive Parent-Ledgervertrag liegt in §32 als DESIGNED vor;
+nächster kleiner Schnitt ist ausschließlich lokale Ledgerzustandslogik mit
+gehaltenen Fakeadaptern und neuen synthetischen Gegenproben. Caller-Tupel und
+Statuslabels sind keine verbrauchten Ereignisse. Tatsächlicher Kanal, operative
 Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker- und unabhängiger
 Cleanupnachweis sowie Methoden- und Szenariopromotion bleiben getrennt offen.
 
@@ -3681,5 +3682,147 @@ Sysconfig-, Worker- oder SQLprobe wurde erneut ausgeführt. Sämtliche
 Attestationsflags bleiben false; G13, v1, DEC-068 und geschützte Arbeit bleiben
 erhalten. Ledger, tatsächlicher Kanal, Loader, Consumption, Replayfreiheit,
 UsedBytes, operative Auswahl und unabhängiger Worker-Cleanup bleiben getrennte
-Folgegates. Nächster kleiner Schnitt ist ausschließlich der separate DESIGN-
-Vertrag für ein exklusives Ledger mit höchstens drei vorab vollständigen K-Slots.
+Folgegates. Der separate exklusive Parent-Ledgervertrag aus §32 liegt als DESIGNED
+vor. Nächster kleiner Schnitt ist ausschließlich lokale Ledgerzustandslogik
+mit gehaltenen Fakeadaptern und neuen synthetischen Gegenproben.
+
+## 32. Exklusives Parent-Ledger mit vorab gebundenen K-Slots
+
+Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Vertrag legt
+ausschließlich lokale Zustandslogik in genau einem gehaltenen Parent-Ledger
+fest. Eine Implementierung, synthetische Ausführung oder operative Anbindung
+ist damit nicht belegt. Die reinen Quellen und Nachweise aus §24–31 bleiben erhalten.
+
+### 32.1 Owner und vollständige Vorwahl
+
+Der vertrauenswürdig gewählte Parent hält für den gesamten Versuch genau ein
+Ledger. Der Worker erhält weder dieses Objekt noch eine eigene Ersatzinstanz.
+Vor jedem Start werden ein bis höchstens drei vollständige K8-Slots gewählt;
+der vollständige Drei-Worker-Versuch benötigt alle drei. Die Slots bilden einen
+Präfix der festen Folge Runner, Proxy, Harness mit Ordinals 1, 2, 3 und den
+zugehörigen Einstiegen aus §24. K.phase bleibt in jedem Slot `PRE_IMPORT`;
+lokale Ledgerzustände ersetzen dieses Kontextfeld nicht.
+
+Alle Slot- und K8-/D9-Primitiveformen werden vollständig vor Semantiken und
+Vergleichen geprüft. Anschließend folgen sämtliche K-Semantiken und die
+vollständige gemeinsame Eingangsbindung: Commit, Raw27-Bindung, Sourceprofil,
+Nonce und alle neun D5 stimmen zwischen den Slots überein. Ordinal und Einstieg
+folgen der festen Auswahl. Eine gemeinsame Nonce ist zulässig; die Paare
+aus Nonce und Ordinal sind eindeutig. Fehlende Felder werden nicht ergänzt.
+Erst nach dem ganzen Vorlauf darf ein Ledger oder eine Startreservierung entstehen.
+
+Der Parent hält unveränderliche vollständige Kontexte und seine gewählten
+Prüfer-/Adapterreferenzen. Es gibt kein Copy, Serialize, Resume, Reset oder Retry
+und nach Abbruch kein zweites Ledger für dieselben Slots. Ein neu erzeugtes
+Objekt mit gleichen K-Werten würde diese lokale Grenze umgehen; es wäre kein
+Beleg für globale Replayfreiheit. Die Exklusivität ist eine kontrollseitige
+Ownerannahme, keine Abwehr beliebiger Python- oder Hostmanipulation.
+
+### 32.2 Endliche Zustände und Reservierung vor Sideeffects
+
+Höchstens ein Slot ist aktiv. Die folgende Tabelle definiert zwölf Zustände
+und elf normale Übergänge je Slot. Ihre Voraussetzungen sind Anforderungen
+an spätere direkte Adapterrückgabewege, keine bereits beobachteten Ereignisse.
+
+| Ausgangszustand | Folgezustand | Vollständige Voraussetzung |
+|---|---|---|
+| `RESERVED` | `START_RESERVED` | Der Owner reserviert den eigenen einmaligen Start vor jedem Launcheraufruf. |
+| `START_RESERVED` | `AWAIT_PROFILE` | Eigener Start und vollständige Header-/M-Übertragung sind im späteren Adapter bestätigt. |
+| `AWAIT_PROFILE` | `BODY_RELEASE_RESERVED` | Vollständiger §31-Abgleich und gebundener Plan aus §29 gelingen; BODY_RELEASE wird vor Schreiben reserviert. |
+| `BODY_RELEASE_RESERVED` | `BODY_TRANSFER` | Der spätere Adapter bestätigt das vollständige Schreiben des gebundenen BODY_RELEASE. |
+| `BODY_TRANSFER` | `BODY_END_RESERVED` | Alle neun Bodies sind vollständig übertragen; BODY_END wird vor Schreiben reserviert. |
+| `BODY_END_RESERVED` | `AWAIT_INPUT_COMPLETE` | Der spätere Adapter bestätigt das vollständige Schreiben von BODY_END. |
+| `AWAIT_INPUT_COMPLETE` | `IMPORT_RELEASE_RESERVED` | Der tatsächliche gehaltene Record wird vollständig nach §30 abgeglichen; IMPORT_RELEASE wird vor Schreiben reserviert. |
+| `IMPORT_RELEASE_RESERVED` | `AWAIT_SESSION_END` | IMPORT_RELEASE ist vollständig geschrieben und der eigene stdin-Schluss bestätigt. |
+| `AWAIT_SESSION_END` | `AWAIT_DRAIN_EXIT` | Die künftig geschlossenen Abschluss-/Loaderrecords sind vollständig geprüft. |
+| `AWAIT_DRAIN_EXIT` | `AWAIT_CLEANUP` | Beide Ausgabepipes sind bis EOF gedraint und der gehaltene eigene Exit ist geprüft. |
+| `AWAIT_CLEANUP` | `CLOSED` | Eigene Absenz und erforderlicher Restore sind unabhängig erfolgreich abgeprüft. |
+
+Start und genau drei Commands erhalten je Slot je eine dauerhaft gebuchte
+Reservierung. Sie wird vor dem jeweiligen Sideeffect atomar verbraucht und
+bei Exception, Teilübertragung oder Unklarheit nicht zurückgenommen.
+Ein Planerfolg aus §29 ist noch kein Schreiben; ein Match aus §30 ist noch
+kein Empfang über einen eigenen Kanal. SESSION_END-/Loaderrecordformen und
+tatsächliche Send-/Read-/EOF-/Exit-/Cleanupadapter bleiben eigene Folgeschnitte.
+Der folgende Slot darf erst nach `CLOSED` des Vorgängers starten.
+
+### 32.3 Ereignisbindung und atomare Fehler
+
+Das Ledger akzeptiert keine öffentliche Ereignistupel-, Bool-, Status- oder
+Snapshot-Authority. Der Owner ruft den gehaltenen Prüfer beziehungsweise
+späteren Adapter direkt auf den vollständigen gehaltenen Eingängen auf.
+Nur dessen vollständig geprüfter interner Rückgabeweg kann einen Übergang
+binden. Eine private Übergangsbindung hält Ledger-/Slotobjektidentität,
+Ereignisart, endliche Sequenz, den vollständigen K8 und die tatsächlichen
+Eingangs-/Rückgabeobjekte; Ordinal-/Nonce-only- oder Digest-only-Bindung genügt nicht.
+Fremde, kopierte, bereits verwendete oder falsch geordnete Bindungen scheitern.
+Eine Tokenklasse allein attestiert keine Ereignisherkunft.
+
+Vollständige Primitive und Kontextformen gehen Equality und Compare vor.
+Bei Zusammensetzung mit §24/29–31 werden äußere Encoder-/Provideranker
+über die gesamte Prüferfolge gehalten; frische innere Anker dürfen Drift
+nicht neu baselinen. Providerbindungsverlust dominiert Encoderbindungsverlust
+und sonstigen festen Fehler. Erfolgscommit erfolgt erst nach dominanten POSTs
+und erneuter Prüfung von Owner, Slot, Sequenz und unverändertem Zustand.
+Es gibt keine Teilfreigabe oder öffentlichen privaten Rohfehler.
+
+Eine Reentranzsperre bleibt über die direkte Invocation gehalten. Ein
+reentrant abgelehnter Call setzt den ersten sticky Fehler und stoppt den
+ganzen Versuch. Ein danach zurückkehrender äußerer Adapter darf diesen
+Zustand nicht mit Erfolg überschreiben. Fehler liefern feste Labels; geplant
+sind LEDGER_FORM, LEDGER_LIMIT, LEDGER_CONTEXT, LEDGER_OWNER, LEDGER_ORDER,
+LEDGER_CONSUMED, LEDGER_REENTRANT und LEDGER_INTERNAL sowie bestehende
+dominante Provider-/Encoderlabels. Unklarer Ereignisabschluss bleibt `UNKNOWN`.
+
+`FAILED` und `UNKNOWN` sind terminal für den ganzen Versuch; keine weiteren
+Slots starten. Wiederholte terminale Aufrufe erzeugen weder Callback noch
+Start, Write oder neue Reservierung. Cleanup ist eine getrennte Aktivität,
+je eigenem gestarteten Slot höchstens einmal vor Invocation reserviert; im
+normalen Pfad gehört diese Reservierung zum Übergang nach AWAIT_CLEANUP. Sein Abschluss wird
+gesondert gehalten; er verwandelt FAILED/UNKNOWN nicht in erfolgreiches CLOSED.
+Die erste Fehlerursache wird unverändert in einem eigenen festen Feld gehalten.
+Das separate Abschlussissue folgt der festen Dominanz: fehlender oder unklarer
+Absenz-/Restorebeleg, Providerbindungsverlust, Encoderbindungsverlust, sonstige
+erste Fehlerursache. Ein späterer POST- oder Cleanupfehler darf durch die
+frühe Ursache nicht verdeckt werden; Zustand und Reservierungen werden nicht
+zurückgenommen. Ein späterer Recoveryerfolg erzeugt keinen PASS.
+
+### 32.4 Grenzen, Gegenproben und nächster Schnitt
+
+Feste Felder halten Zustand, Sequenz, vier Verbrauchsreservierungen, erste
+Fehlerursache, dominantes Abschlussissue und einmaligen Cleanupabschluss je Slot;
+es gibt kein wachsendes Journal.
+Höchstens drei Startversuche und neun Commandreservierungen sind möglich.
+Der normale Pfad hat höchstens 33 Übergangscommits. Zusätzlich sind höchstens
+drei erste Slotfehler, drei Fehlercleanupreservierungen und drei zugehörige
+Abschlüsse vorgesehen, insgesamt höchstens 42 Zustands-/Abschlussbuchungen;
+wiederholte terminale Ablehnungen
+erweitern diesen Bestand nicht. Cleanupinvocations sind auf drei eigene Slots
+begrenzt. Diese Zahlen zählen lokale Buchungen, keine Bytes oder I/O-Schritte.
+
+Die Initialprüfung umfasst höchstens 189 K8-Formknoten, 27 D5-Vorkommen und
+2232 K-/D9-Hexzeichen. Tatsächliche Matcher-, Pool-, Parser-, Encoding-, SHA-
+und wiederholte Ankerprüfungen bleiben zusätzlich zu buchen. §16 hält weiterhin
+20 Sekunden gemeinsame reguläre Deadline, zehn Sekunden kumulativen Cleanup,
+4096 I/O-Schritte und 64 No-progress-Schritte, alle bestehenden Feld-/Form-/
+Body-/Transfercaps sowie 65536 stdout-/stderr-Bytes und 63984 Reservebytes.
+Reservierungen oder Ledgerrecords erhalten kein Zusatzbudget.
+
+Der nächste eigene synthetische Schnitt implementiert nur eine kontrollseitige
+lokale Zustandskomponente mit gehaltenen Fakeadaptern, keinen weiteren
+Workerbuilder oder Parent im Workerscript. Konkrete Source-/API-/Owner-/
+Harnesswahl und vollständige Root-/Review-PRE werden vor Sourceänderung
+separat festgelegt. Gegenproben prüfen volle K-Vorwahl,
+gemeinsame Nonce mit eindeutigen Ordinals, Slotreihenfolge, Duplicate Start/
+Command, fremde Owner-/Slot-/Sequenzbindungen, späte Formen vor Compare,
+Reentranz mit späterem äußerem Erfolg, Drift vor Commit, Teilübertragung ohne
+Rollback, sticky FAILED/UNKNOWN, einmaligen Cleanup und verweigerten Folgestart.
+Kopien, Statusflags und ein zweites Ledger erzeugen keinen Replaybeleg.
+Vollständige Source/Test-PRE, tatsächliche neue synthetische Tests und deren
+Evidenz folgen separat; dieser DESIGN-Schnitt führt sie nicht aus.
+
+Tatsächliche Kanaleventherkunft, Sender, operative S15/P11-Auswahl samt
+Fünf-Formen-/64-KiB-Gate, Loader-/Worker-/Consumption-/UsedBytes- und unabhängige
+Cleanupnachweise bleiben offen. Alle Attestationsflags bleiben false;
+kein globaler Replay-, Trust-, Deadline- oder Fitclaim. G13, v1, DEC-068,
+geschützte PR68, interne Capturearbeit und External-/Graph-P2 bleiben erhalten.
