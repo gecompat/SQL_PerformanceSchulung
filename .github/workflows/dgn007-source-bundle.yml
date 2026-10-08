@@ -19,6 +19,8 @@ on:
       - 'Tests/Static/test_dgn007_pooled_combined_input.py'
       - 'Tests/Tools/dgn007_control_bootstrap_source.py'
       - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_parent_ledger.py'
+      - 'Tests/Static/test_dgn007_parent_ledger.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
@@ -79,6 +81,8 @@ on:
       - 'Tests/Static/test_dgn007_pooled_combined_input.py'
       - 'Tests/Tools/dgn007_control_bootstrap_source.py'
       - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_parent_ledger.py'
+      - 'Tests/Static/test_dgn007_parent_ledger.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
@@ -161,3 +165,5 @@ jobs:
         run: python -I -S -B Tests/Static/test_dgn007_pooled_combined_input.py
       - name: Gehaltene Kontrollbootstrapquellen und synthetische Byteausführung prüfen
         run: python -I -S -B Tests/Static/test_dgn007_control_bootstrap_source.py
+      - name: Exklusive Parent-Ledger-Zustände und synthetische Adapter prüfen
+        run: python -I -S -B -X utf8 Tests/Static/test_dgn007_parent_ledger.py
