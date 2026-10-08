@@ -3206,7 +3206,7 @@ Die reine additive INPUT_COMPLETE-Quelle ist nach §30 synthetisch geprüft.
 Der vollständige Record-/Footer→R-Calleradapter ist in §31 additiv implementiert
 und synthetisch geprüft. Der exklusive Parent-Ledgervertrag aus §32 ist mit der eigenen lokalen
 synthetischen Ledgerkomponente nach §32.5 geprüft. Nächster kleiner Schnitt:
-DESIGN vollständiger BEGIN-/COMPLETE-Loaderrecords samt codefreien Parent-Paaren. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
+separater SESSION_END-DESIGN-Vertrag nach vollständigen Loaderrecordformen aus §33. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
 Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
 Loader, Worker und unabhängiger Cleanup sowie G13-/Methodengates bleiben offen.
 
@@ -3343,7 +3343,7 @@ eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben fals
 Der vollständige Record-/Footer→R-Calleradapter ist in §31 rein additiv
 implementiert und synthetisch geprüft. Die eigene lokale synthetische Ledgerkomponente
 zum exklusiven Vertrag aus §32 ist nach §32.5 geprüft; nächste Folge ist
-DESIGN vollständiger BEGIN-/COMPLETE-Loaderrecords samt codefreien Parent-Paaren.
+separater SESSION_END-DESIGN-Vertrag nach vollständigen Loaderrecordformen aus §33.
 Die frühe Callerordinalprüfung aus §27 darf im neuen Gesamtpfad spätere
 Actual-R-Form-/Semantikfehler nicht verdecken; ein bloßes Verketten der
 bestehenden Teilfunktionen ist dafür kein Nachweis. Die lokale Ledgerimplementierung
@@ -3591,8 +3591,8 @@ falsch formulierten Platzhalterkontrolle an. Ausschließlich dieser lesende
 Hilfscheck wurde korrigiert; keine Suite oder Produktquelle wurde ausgeführt.
 
 Die eigene lokale synthetische Ledgerkomponente zum exklusiven Vertrag aus §32
-ist nach §32.5 geprüft; nächster kleiner Schnitt: DESIGN vollständiger
-BEGIN-/COMPLETE-Loaderrecords samt codefreien Parent-Paaren. Caller-Tupel und
+ist nach §32.5 geprüft; nächster kleiner Schnitt: separater
+SESSION_END-DESIGN-Vertrag nach vollständigen Loaderrecordformen aus §33. Caller-Tupel und
 Statuslabels sind keine verbrauchten Ereignisse. Tatsächlicher Kanal, operative
 Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker- und unabhängiger
 Cleanupnachweis sowie Methoden- und Szenariopromotion bleiben getrennt offen.
@@ -3683,8 +3683,8 @@ Attestationsflags bleiben false; G13, v1, DEC-068 und geschützte Arbeit bleiben
 erhalten. Die eigene lokale Ledgerkomponente ist nach §32.5 synthetisch geprüft.
 Tatsächlicher Kanal, Loader, Consumption, Replayfreiheit, UsedBytes, operative
 Auswahl und unabhängiger Worker-Cleanup bleiben getrennte Folgegates.
-Nächster kleiner Schnitt: DESIGN vollständiger BEGIN-/COMPLETE-Loaderrecords
-samt codefreien Parent-Paaren; SESSION_END folgt danach separat.
+Der vollständige Loaderrecordvertrag liegt in §33 als DESIGNED vor.
+Nächster kleiner Schnitt: separater SESSION_END-DESIGN-Vertrag.
 
 ## 32. Exklusives Parent-Ledger mit vorab gebundenen K-Slots
 
@@ -3920,11 +3920,202 @@ wurde wiederholt. Sämtliche Attestationsflags bleiben false.
 Exklusive Ownerwahl und einmalige Adapterbindung attestieren keine globale
 Replayfreiheit; ein neuer Adapter mit gleichen K-Werten bleibt möglich.
 
-Nächster kleiner Schnitt ist ausschließlich der DESIGN-Vertrag vollständiger
-BEGIN-/COMPLETE-Loaderrecords einschließlich codefreier Parent-Paare auf Basis
-§16.4 und UsedBytes §2/5. SESSION_END folgt separat nach den exakten Recordformen;
-seine Counts und sein Hashpräbild dürfen nicht vorausgesetzt werden.
+Der vollständige Loaderrecordvertrag nach §16.4 und UsedBytes §2/5 liegt
+in §33 als DESIGNED vor. Nächster kleiner Schnitt ist der separate SESSION_END-
+DESIGN-Vertrag; seine Counts und sein Hashpräbild dürfen nicht vorausgesetzt werden.
 Tatsächliche Parent-/Worker-/Kanal-/Loader-/Consumption-/UsedBytes-Bindung,
 operative S15/P11-Auswahl mit Fünf-Formen-/64-KiB-Gate und unabhängiger
 Ressourcen-Cleanup bleiben offen. G13, v1, DEC-068, geschützte PR68,
 interne Capturearbeit sowie External-/Graph-P2 bleiben erhalten.
+
+## 33. Vollständige deklarative BEGIN-/COMPLETE-Loaderrecords
+
+Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Schnitt
+schließt ausschließlich die vollständige geplante Recordform nach §16.4.
+Er implementiert weder einen Parser/Builder noch Loader, Parentregistrierung,
+Kanalaufnahme oder Worker. Die synthetische Ledgerkomponente aus §32.5 bleibt
+getrennt; ihr erfolgreicher Fakepfad bestätigt keine Loaderverwendung.
+
+### 33.1 Feste Zuordnung und prospektive Importfolge
+
+Die unveränderte Zuordnung aus §2 des
+[Import-/UsedBytes-Entwurfs](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#2-beobachtete-feste-quellen-und-einstiege)
+und `MODULES`/`PYTHON_MEMBERS` des Bundle-Verifiers bleibt maßgeblich:
+
+| SOURCE-Index | Modul |
+|---:|---|
+| 0 | `run_dgn007_automated_setup` |
+| 1 | `execution_target` |
+| 2 | `docker_sqlcmd_proxy` |
+| 3 | `run_demo` |
+| 4 | `orchestrate_sessions` |
+| 5 | `sqlcmd_process` |
+| 6 | `Tests.Contracts.dgn007_capture_projection` |
+| 7 | `Tests.Contracts.dgn007_collector_transport` |
+| 8 | `Tests.Contracts.dgn007_prospective_acceptance` |
+
+PARENT-Index 0 bezeichnet `Tests`, Index 1 `Tests.Contracts`. Beide
+sind ausschließlich codefreie kontrollierte Packages, keine weiteren
+Pythonmember oder hinzugefügten `__init__.py`. Nur Runner benötigt diese
+Parents. Proxy und Harness erhalten keine vorsorglichen Parentimports.
+
+Die Sollfolge für einen frischen Modulcache ergibt sich rein statisch aus den
+gebundenen Top-Level-Kanten, nicht aus einer ausgeführten Importbeobachtung:
+
+| Workerordinal | Eigene SOURCE-BEGIN-Folge | SOURCE-COMPLETE-Folge | Eigene Quellen / Parents |
+|---:|---|---|---:|
+| 1, Runner | 0, 1, 5, 3, 4, 6, 7, 8 | 5, 1, 4, 3, 8, 7, 6, 0 | 8 / 2 |
+| 2, Proxy | 2 | 2 | 1 / 0 |
+| 3, Harness | 3, 4, 5 | 5, 4, 3 | 3 / 0 |
+
+Die komplette Runner-BEGIN-Folge mit einmalig gebuchter Importsequenz lautet
+`S0(1), S1(2), S5(3), S3(4), S4(5), P0(6), P1(7), S6(8), S7(9), S8(10)`.
+Hier bedeutet `S` SOURCE und `P` PARENT; die Kurzform ist kein Wireformat.
+Beide Parentregistrierungen schließen vor SOURCE 6 ab. Die genaue operative
+Registration-/Hookroute muss später separat ausgewählt und geprüft werden.
+Keine neue Auflösung aus Live-Dateien oder Kandidatenlabels wird vorausgesetzt.
+
+### 33.2 Neun vollständige Felder und getrennte Livebindung
+
+Jede tatsächliche geplante Recordzeile ist exakt das kanonische ASCII-JSON-Array
+`[tag, workerOrdinal, importSequence, sourceKind, sourceIndex, context_digest, raw_sha256, originSlot, objectSlot]`
+mit genau einem abschließenden LF, ohne weitere Bytes, und höchstens 256 Bytes
+einschließlich LF. Die geschlossene Encoderwahl entspricht dem bestehenden
+kanonischen ASCII-Profil; keine Leerzeichen, alternativen Escapes, CRLF oder
+zweiten Zeilen. Fehlende oder zusätzliche Felder werden nicht ergänzt.
+
+`tag` ist exakt `BEGIN` oder `COMPLETE`; `sourceKind` exakt `SOURCE`
+oder `PARENT`. Alle Integer sind exakte Integer, keine Boolwerte/Subklassen.
+Ordinal ist 1–3. Importsequenz ist der vor Beginn einmal verbrauchte Zähler,
+für Runner 1–10, Proxy 1 und Harness 1–3; `objectSlot` entspricht exakt
+dieser Sequenz. SOURCE verwendet Index 0–8 und `originSlot=sourceIndex`.
+PARENT verwendet Index 0–1 und `originSlot=9+sourceIndex`.
+Beide Indexdomänen bleiben durch `sourceKind` getrennt.
+
+`context_digest` ist exakt der 64-stellige Lowerhex-SHA aus der vollständigen
+eigenen headerfreien E4-K-Domain nach §24, mit Rolle
+`pooled-profile-binding-context/v1` und separat gewähltem Format
+`pooled-combined-input-design/v1`. Der volle K8 bindet Commit, Raw27,
+Sourceprofil, Nonce, vollständige D9, Workerordinal, Einstieg und PRE_IMPORT.
+Es wird weder eine Noncewiederholung noch das Original-Input82-Präbild
+eingeführt. Die deklarative K-Phase ersetzt keine tatsächliche Importfreigabe.
+SOURCE-Rawhash ist exakt der 64-stellige Lowerhex-SHA des vollständig
+gehaltenen D5 am festen Index. PARENT-Rawhash ist ausschließlich JSON `null`;
+kein Emptyfile, Hash leerer Bytes, Code- oder Byteconsumptionclaim.
+
+Origin- und Objektslots sind ausschließlich Verweise auf eine künftig vor
+Callback separat gehaltene private Tabelle. Der Originplatz bindet die
+gewählte private logische Origin; der Objektplatz die eigene Invocation.
+Weder Integergleichheit noch `id()` attestieren Pythonobjektidentität.
+Absolute Locator, Sourcebytes, Codeobjekte oder Rohfehler werden nicht ausgegeben.
+
+Für SOURCE hält der zukünftige direkte Loader vor BEGIN die tatsächlichen
+empfangenen unveränderten Rohbytes, vollständigen D5/K, Modul-/Spec-/Loaderobjekte,
+private Origin und Invocation. BEGIN liegt vor Compile dieser Bytes.
+COMPLETE setzt tatsächlich zurückgekehrtes Exec dieses gehaltenen Codeobjekts
+sowie kohärente Modul-/Spec-/Origin-/Cache-/Objekt-POSTs voraus.
+Der gehaltene `co_filename` gehört zur selben Auswahl; ein späterer
+Dateiread, Rehash anderer Bytes oder gleicher Origintext ersetzt sie nicht.
+
+PARENT-COMPLETE bedeutet ausschließlich Abschluss einer gehaltenen eigenen
+codefreien Registrierungsinvocation, nach tatsächlichen Modul-/Spec-/
+PackageLocations-/Cache-POSTs. Gewählt sind `spec.origin=None`,
+`__file__` abwesend und separat gehaltene private PackageLocations.
+Keine Parent-Compile-/Exec-Invocation wird behauptet. Die Python-3.12-Dokumentation
+zeigt für den Namespacezweig mit Origin None und PackageLocations gerade
+keinen `exec_module`-Aufruf; daher ist dessen Listener kein Abschlussnachweis.
+[Python-Importsystem §5.4](https://docs.python.org/3.12/reference/import.html#loading),
+geprüft am 2026-10-08, Seitenkopf 3.12.15.
+Auch `__spec__.origin` und `__file__` werden nicht automatisch synchronisiert;
+der SOURCE-Adapter muss beide separat prüfen.
+[Python ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec),
+geprüft am 2026-10-08. Diese Produktfakten wählen noch keinen operativen Adapter.
+
+### 33.3 Vollständiger deklarativer Paarabgleich
+
+Die spätere reine Auswahl ist
+`_inline_match_loader_records(records, *, expected_format, expected_context)`.
+Dies ist ein API-Entwurf, keine vorhandene fünfzehnte Quellenroute.
+Der Caller hält den vollständigen K8 separat; Recordwerte sind keine
+Owner-/Ereignis-/Origin-/Objekt-Authority.
+
+Vor Parser, Decode oder Kopie wird das ganze exakte äußere Tupel begrenzt:
+höchstens 20 Recordzeilen für Runner, zwei für Proxy, sechs für Harness.
+Alle Zeilen sind exakte Bytes und haben 1–256 Bytes; die gesamte gehaltene
+Zeilenmenge bleibt höchstens 20*256 Bytes. Vor Len-/Compare-/Membership-
+Dispatch gehen sämtliche relevanten exakten Typen. Alle Actual-Recordprimitive
+und vollständigen Caller-K8-/D9-Primitive gehen sämtlichen Semantiken vor.
+Anschließend folgen volle Record-/K-Semantiken, kanonischer Repack jeder
+Zeile, eigene vollständige K-Digestbildung und erst dann Caller-/Raw-/
+Slot-/Paar-/Mengencross. Ein früher gültiger Callerunterschied darf keinen
+späten Form-/Semantik- oder fehlenden Abschlussfehler verdecken.
+
+Der begrenzte Stack hält offene Invocations; COMPLETE gehört ausschließlich
+zur aktuellen offenen Invocation und hat dieselben acht übrigen Felder
+wie deren BEGIN. Begonnene SOURCE-Paare sind verschachtelt; BEGIN/COMPLETE
+müssen nicht benachbart stehen. Parents bilden vor SOURCE 6 abgeschlossene
+codefreie Registrierungspaare. Sequenz, feste Begin-/Endfolge und alle
+ausgewählten Mengen müssen vollständig stimmen. Zweiter BEGIN für denselben
+SOURCE-/PARENT-Slot, Duplicate COMPLETE, Reload, Alias, fremde Parents,
+zusätzliche eigene Ladung oder nicht geleerter Stack liefern kein Match.
+Ein später zulässiger Cachehit erzeugt kein neues Paar; der operative Pfad
+muss dabei das bereits quittierte tatsächliche Modulobjekt halten.
+
+Ein vollständiges Match hat genau 20/2/6 Records und 10/1/3 Paare je Worker.
+Über drei Worker sind es zwölf SOURCE- und zwei tatsächliche PARENT-Paare;
+die SOURCE-Vereinigung bleibt genau neun Member. Erfolg liefert atomar nur
+`(MATCHED_DECLARED_LOADER_RECORDS, NONE, (records, actual_records))`:
+ursprüngliche gehaltene Recordbytes und tatsächlich vollständig geprüfte
+Formen, keine Callerergänzungen. Ablehnung liefert
+`(REJECTED_LOADER_RECORDS, fixed_issue, None)`. Geplant sind rollenfeste
+TYPE-, LIMIT-, FORM-, CANONICAL-, BINDING-, ORDER- und MISSING-Issues sowie
+bestehende Kontext-/Hash-/Encoderfehler. Gehaltene äußere Provider-/Encoder-
+PREs und dominante POSTs gelten über die ganze Folge und auch nach Fehler:
+Providerbindungsverlust vor Encoderbindungsverlust vor sonstigem festen Issue.
+Private Exceptiontexte werden nicht übernommen; kein Teilmatch oder Ledgerverbrauch.
+
+### 33.4 Bounds, Gegenproben und Folgescope
+
+Reine unabhängige Literal-/Schemarechnung ergibt einschließlich LF maximal
+SOURCE BEGIN 165 / COMPLETE 168 Bytes und PARENT BEGIN 104 / COMPLETE 107 Bytes.
+Die frühere Draftrechnung 166/169 verwendete für SOURCE einen unzulässigen
+zweistelligen Originslot; sie wurde vor Implementierung berichtigt.
+Das belegt keine tatsächliche Kanalübertragung oder Laufzeit.
+Die konservativen Reserven aus §16.4 bleiben unverändert: zwölf SOURCE-Paare
+mit 6144 Bytes und sechs PARENT-Paare mit 3072 Bytes, obwohl die jetzige
+Sollmenge nur zwei Parents benötigt. Gemeinsame Reserve 63984 von 65536 Bytes,
+1552 verbleibende stderr-Bytes; keine Zusatzreserve oder Capanhebung.
+
+Pro künftigem Workerprüfer sind höchstens 20 auf jeweils 255 JSONbytes
+begrenzte Parserdurchläufe und 20 Recordrepacks, eine K-Kodierung und ein
+eigener K-SHA vorgesehen. K allein hat 63 Formknoten, neun D5 und höchstens
+744 Hexzeichen; über drei volle K höchstens 2232. Die zusätzlichen Recordfelder,
+empfangenen Raw-/K-Hexwerte, Pool-/Parserarbeit und wiederholten Ankerprüfungen
+bleiben separat zu buchen. Drei serielle Workers, gemeinsame 20-s-Deadline,
+kumulativ zehn Sekunden Cleanup, 4096 I/O-Schritte und 64 No-progress-Schritte
+bleiben gleichzeitig wirksam. Der Designpfad führt keinen dieser Prüfer aus.
+
+Neue spätere synthetische Gegenproben müssen alle drei vollständigen Traces,
+verschachtelte Paare, codefreie Parents ohne File/Rawhash, parentfreie Proxy-/
+Harnesspfade, späte Fehler vor Callercompare, fehlende/doppelte/umgestellte
+Records, letzte K-/Raw-/Origin-/Objektslotänderung, SOURCE-null/PARENT-Hash,
+Bool-/Subclass-/Foreignformen, falsche Domain/Nonce im separaten K, alternative
+Escapes/Space/CRLF/zweites LF/257 Bytes, Bounds/Stack/Counts und dominanten
+Provider-/Encoderdrift mit tatsächlich geprüften eigenen Harnessrestores abdecken.
+Source-, API-, Owner-, Test- und Harnesswahl sowie vollständige Root-/Review-PRE
+gehen einer künftigen Sourceänderung und neuen Suite ausdrücklich voraus.
+Die bestehende synthetische Memory-Loader-Fixture ist kein Wire-/Workerbeleg.
+
+Nach neuem ausdrücklichem Wiederaufnahmeauftrag ist der nächste geplante kleine
+Schnitt ausschließlich der separate SESSION_END-DESIGN-Vertrag mit exakten Counts
+und nicht selbstreferentiellem Kanalhashpräbild. Der Benutzerstopp vom 2026-10-08
+begrenzt diese Runde auf den vorhandenen §33-DESIGN-/PR-Abschluss samt eigenem
+Cleanup und Beendigung des Orchestrators und seiner Subagents; die Automation
+ist `PAUSED`. Dieser Folgeschritt wird in der aktuellen Runde nicht begonnen.
+Tatsächlicher Kanal, Loader-/Parentregistrierungsadapter, Freigaben, Consumption,
+UsedBytes, Replayfreiheit, operative S15/P11-Inventur samt Fünf-Formen-/64-KiB-Gate
+und unabhängiger Ressourcen-Cleanup bleiben offen. Alle Attestationsflags false;
+kein Runtime-, Trust-, Deadline-, Incident-, Szenario- oder Capstoneclaim.
+G13, v1, DEC-068, geschützte PR68, interne Capturearbeit und External-/Graph-P2
+bleiben erhalten. Dieser lokale DESIGN-Pfad führt keine neue oder alte lokale
+Suite, private Profil-/Prepare-/Nonceaufnahme, Worker- oder SQLprobe aus.
