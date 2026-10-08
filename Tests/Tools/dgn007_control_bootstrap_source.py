@@ -608,3 +608,333 @@ def build_sysconfig_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+# Deklarative Semantik separat; keine Bodyaufnahme oder Callerfreigabe.
+_INLINE_SEMANTICS = r'''
+_SEMANTIC_CONTROL_ANCHOR = None
+_SEMANTIC_ENTRIES = ("run_dgn007_automated_setup", "docker_sqlcmd_proxy", "run_demo")
+_SEMANTIC_MODULES = (
+    ("run_dgn007_automated_setup", "Tests/Runtime/run_dgn007_automated_setup.py"),
+    ("execution_target", "Tests/Runtime/execution_target.py"),
+    ("docker_sqlcmd_proxy", "Tests/Runtime/docker_sqlcmd_proxy.py"),
+    ("run_demo", "Demos/00_Framework/Tools/run_demo.py"),
+    ("orchestrate_sessions", "Demos/00_Framework/Tools/orchestrate_sessions.py"),
+    ("sqlcmd_process", "Demos/00_Framework/Tools/sqlcmd_process.py"),
+    ("Tests.Contracts.dgn007_capture_projection", "Tests/Contracts/dgn007_capture_projection.py"),
+    ("Tests.Contracts.dgn007_collector_transport", "Tests/Contracts/dgn007_collector_transport.py"),
+    ("Tests.Contracts.dgn007_prospective_acceptance", "Tests/Contracts/dgn007_prospective_acceptance.py"),
+)
+_SEMANTIC_OWN = tuple(row[0] for row in _SEMANTIC_MODULES) + ("Tests", "Tests.Contracts")
+_SEMANTIC_FROZEN = {
+    "_frozen_importlib": ("importlib._bootstrap", "_frozen_importlib"),
+    "importlib._bootstrap": ("importlib._bootstrap", "_frozen_importlib"),
+    "_frozen_importlib_external": ("importlib._bootstrap_external", "_frozen_importlib_external"),
+    "importlib._bootstrap_external": ("importlib._bootstrap_external", "_frozen_importlib_external"),
+    "_collections_abc": ("collections.abc", "_collections_abc"),
+    "collections.abc": ("collections.abc", "_collections_abc"),
+    "os.path": ("posixpath", "posixpath"),
+}
+_SEMANTIC_PAIRS = tuple(tuple(sorted(pair)) for pair in (
+    ("_frozen_importlib", "importlib._bootstrap"),
+    ("_frozen_importlib_external", "importlib._bootstrap_external"),
+    ("_collections_abc", "collections.abc"), ("os.path", "posixpath")))
+
+
+def _semantic_hex(value, width):
+    _inline_need(type(value) is str and len(value) == width
+                 and all(c in "0123456789abcdef" for c in value), "CONTEXT_FORM")
+
+
+def _semantic_absolute(value):
+    _inline_need(type(value) is str and value.startswith("/") and "//" not in value
+                 and (value == "/" or not value.endswith("/"))
+                 and all(p not in (".", "..") for p in value.split("/")), "PATH_FORM")
+
+
+def _semantic_under(value, roots):
+    return any(value == root or value.startswith(root.rstrip("/") + "/") for root in roots)
+
+
+def _semantic_selector(ordinal, entry, phase):
+    _inline_need(type(ordinal) is int and 1 <= ordinal <= 3
+                 and entry == _SEMANTIC_ENTRIES[ordinal - 1] and phase == "PRE_IMPORT",
+                 "CONTEXT_FORM")
+
+
+def _semantic_installation(row):
+    assumption, platform, implementation, version, exe, target, prefixes, abi, paths, roots, inert, flags, finders, hooks, files = row
+    _inline_need(assumption == "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME" and platform == "linux"
+                 and implementation == "cpython" and abi != "" and version[:2] == (3, 12)
+                 and all(n <= 999 for n in version), "INSTALLATION_FORM")
+    _inline_need(len(set(roots)) == 2, "INSTALLATION_FORM")
+    for path in prefixes + roots + paths + (exe, target, inert):
+        _semantic_absolute(path)
+    _inline_need(all(path in roots or path == inert for path in paths), "PATH_FORM")
+    _inline_need(flags == (1, 1, 1, 1, 1, 0) and finders == ("BUILTIN", "FROZEN", "PATH")
+                 and hooks == ("ZIPIMPORTER", "FILEFINDER"), "INSTALLATION_FORM")
+    _inline_need(len(files) <= 2, "FILE_FORM")
+    total, names = 0, []
+    for index, (path, size, digest) in enumerate(files):
+        _semantic_absolute(path)
+        _semantic_hex(digest, 64)
+        _inline_need(size <= 33554432 and (path == target if index == 0 else _semantic_under(path, roots)),
+                     "FILE_FORM")
+        total += size
+        names.append(path)
+    _inline_need(total <= 67108864 and len(set(names)) == len(names), "FILE_FORM")
+
+
+def _semantic_module(row, roots):
+    name, module_name, spec_name, origin, filename, kind, locations, loader, loader_name, loader_path, aliases = row
+    if filename:
+        _semantic_absolute(filename)
+    for path in locations:
+        _semantic_absolute(path)
+    _inline_need(name != "" and name not in _SEMANTIC_OWN, "OWN_MODULE_CACHED")
+    _inline_need(kind in ("BUILTIN", "FROZEN", "SOURCE", "EXTENSION", "CONTROL")
+                 and loader in ("NONE", "BUILTIN", "FROZEN", "SOURCE", "EXTENSION"), "MODULE_FORM")
+    expected_names = _SEMANTIC_FROZEN.get(name, (name, name)) if kind == "FROZEN" else (name, name)
+    _inline_need(module_name == expected_names[0], "MODULE_FORM")
+    if spec_name is None:
+        _inline_need(kind == "CONTROL" and origin == "" and locations == (), "MODULE_FORM")
+    else:
+        _inline_need(spec_name == expected_names[1], "MODULE_FORM")
+    if loader in ("SOURCE", "EXTENSION"):
+        _inline_need(loader_name == name and loader_path == filename, "MODULE_FORM")
+        _semantic_absolute(filename)
+    else:
+        _inline_need(loader_name == loader_path == "", "MODULE_FORM")
+    if kind == "BUILTIN":
+        _inline_need(loader == "BUILTIN" and origin == "built-in" and locations == (), "MODULE_FORM")
+    elif kind == "FROZEN":
+        _inline_need(loader == "FROZEN" and origin == "frozen", "MODULE_FORM")
+    elif kind in ("SOURCE", "EXTENSION"):
+        _inline_need(loader == kind and origin == filename, "MODULE_FORM")
+        for path in (origin, filename) + locations:
+            _semantic_absolute(path)
+            _inline_need(_semantic_under(path, roots), "PATH_FORM")
+    else:
+        _inline_need(loader in ("NONE", "SOURCE"), "MODULE_FORM")
+        if spec_name is not None:
+            _semantic_absolute(origin)
+    _inline_need(aliases == () or (kind == "FROZEN" and aliases in _SEMANTIC_PAIRS
+                 and name in aliases), "ALIAS_FORM")
+
+
+def _semantic_worker(row):
+    ordinal, entry, phase, installation, controls, modules = row
+    _semantic_selector(ordinal, entry, phase)
+    _semantic_installation(installation)
+    _inline_need(len(modules) > 0, "INVENTORY_FORM")
+    for module in modules:
+        _semantic_module(module, installation[9])
+    names = tuple(module[0] for module in modules)
+    _inline_need(names == tuple(sorted(set(names))), "INVENTORY_FORM")
+    _inline_need(len(set(controls)) == len(controls)
+                 and set(controls) == {module[0] for module in modules if module[5] == "CONTROL"},
+                 "CONTROL_FORM")
+    by_name = {module[0]: module for module in modules}
+    for module in modules:
+        for name in module[10]:
+            _inline_need(name in by_name and by_name[name][5] == "FROZEN"
+                         and by_name[name][10] == module[10], "ALIAS_FORM")
+
+
+def _semantic_descriptors(rows):
+    total = 0
+    for index, (row, mapping) in enumerate(zip(rows, _SEMANTIC_MODULES)):
+        ordinal, module, member, size, digest = row
+        _semantic_hex(digest, 64)
+        _inline_need((ordinal, module, member) == (index,) + mapping and size <= 131072,
+                     "CONTEXT_FORM")
+        total += size
+    _inline_need(total <= _INLINE_BODY_CAP, "CONTEXT_FORM")
+    return total
+
+
+def _semantic_inputs(ip, context):
+    _inline_need(ip[0] == "dgn007-import-input/v1"
+                 and ip[3] == context[2] == "dgn007-docker-sql-only/v1", "CONTEXT_FORM")
+    for value, width in ((ip[1], 40), (ip[2], 64), (ip[4], 64), (ip[6], 64),
+                         (context[0], 40), (context[1], 64), (context[3], 64)):
+        _semantic_hex(value, width)
+    _semantic_selector(*context[5:])
+    totals = (_semantic_descriptors(ip[5]), _semantic_descriptors(context[4]))
+    return totals
+
+
+def _semantic_provider_text(value):
+    label = "HASH_PROVIDER_BINDING"
+    _inline_need(type(value) is str and len(value) <= 4096 and "\0" not in value, label)
+    try:
+        size = len(value.encode("utf-8", "strict"))
+    except UnicodeError:
+        raise _InlineSyntaxRejected(label) from None
+    _inline_need(size <= 4096, label)
+
+
+def _semantic_namespace(module, cache, name, spec_class, loader_class):
+    label = "HASH_PROVIDER_BINDING"
+    _inline_need(type(module) is _MODULE_CLASS and _dictionary(module.__dict__), label)
+    md = module.__dict__
+    _inline_need(cache.get(name) is module, label)
+    _inline_need(type(md.get("__name__")) is str and md.get("__name__") == name, label)
+    _inline_need(type(md.get("__package__")) is str and md.get("__package__") == ""
+                 and "__path__" not in md, label)
+    spec, loader = md.get("__spec__"), md.get("__loader__")
+    _inline_need(type(spec) is spec_class and type(loader) is loader_class, label)
+    sd, ld = spec.__dict__, loader.__dict__
+    _inline_need(_dictionary(sd) and _dictionary(ld), label)
+    for value in (sd.get("name"), sd.get("origin"), ld.get("name"), ld.get("path"), md.get("__file__")):
+        _semantic_provider_text(value)
+    _inline_need(sd["name"] == ld["name"] == name and sd["origin"] == ld["path"] == md["__file__"]
+                 and sd.get("loader") is loader and sd.get("submodule_search_locations") is None
+                 and sd.get("_set_fileattr") is True, label)
+    cached, spec_cached = md.get("__cached__"), sd.get("_cached")
+    for value in (cached, spec_cached):
+        _inline_need(value is None or type(value) is str, label)
+        if value is not None:
+            _semantic_provider_text(value)
+    _inline_need(cached == spec_cached, label)
+    return (module, md, spec, sd, loader, ld, sd["origin"], cached)
+
+
+def _semantic_class_namespace(value):
+    label = "HASH_PROVIDER_BINDING"
+    _inline_need(type(value) is type, label)
+    namespace = value.__dict__
+    _inline_need(type(namespace) is type(type.__dict__) and len(namespace) <= 256, label)
+    for key in namespace:
+        _semantic_provider_text(key)
+    return namespace
+
+
+def _semantic_provider_anchor():
+    label = "HASH_PROVIDER_BINDING"
+    a = _SEMANTIC_CONTROL_ANCHOR
+    _inline_need(type(a) is tuple and len(a) == 12, label)
+    try:
+        _coherent(*a)
+    except BaseException:
+        raise _InlineSyntaxRejected(label) from None
+    module, spec, loader, loader_class, spec_class, cache = a[:6]
+    provider = module.__dict__.get("hashlib")
+    pa = _semantic_namespace(provider, cache, "hashlib", spec_class, loader_class)
+    native = pa[1].get("_hashlib")
+    # Bekannte vorhandene Extensionklasse aus dem gehaltenen Profilnamespace.
+    extension_class = module.__dict__.get("ExtensionFileLoader")
+    _semantic_class_namespace(extension_class)
+    _inline_need(type(extension_class.__name__) is str
+                 and extension_class.__name__ == "ExtensionFileLoader", label)
+    na = _semantic_namespace(native, cache, "_hashlib", spec_class, extension_class)
+    factory, object_class = pa[1].get("sha256"), na[1].get("HASH")
+    cd = _semantic_class_namespace(object_class)
+    _inline_need(type(object_class.__module__) is str and type(object_class.__name__) is str
+                 and object_class.__module__ == "_hashlib" and object_class.__name__ == "HASH", label)
+    update, hexdigest = cd.get("update"), cd.get("hexdigest")
+    _inline_need(type(update) is type(bytes.hex) and type(hexdigest) is type(bytes.hex)
+                 and update.__objclass__ is object_class and hexdigest.__objclass__ is object_class
+                 and object_class.__getattribute__ is object.__getattribute__, label)
+    code = None
+    if type(factory) is type(_semantic_provider_anchor):
+        _inline_need(factory.__globals__ is pa[1] and factory.__defaults__ is None
+                     and factory.__kwdefaults__ is None and factory.__closure__ is None, label)
+        _inline_need(type(factory.__name__) is str and factory.__name__ == "sha256", label)
+        code = factory.__code__
+        _inline_need(type(code) is type(_semantic_provider_anchor.__code__), label)
+    else:
+        _inline_need(type(factory) is type(struct.pack) and factory is na[1].get("openssl_sha256"), label)
+    return (a, pa, na, extension_class, factory, code, object_class, update, hexdigest)
+
+
+def _semantic_provider_check(anchor):
+    current = _semantic_provider_anchor()
+    _inline_need(current[0] is anchor[0]
+                 and all(current[index] is anchor[index] for index in range(3, 9))
+                 and all(current[group][index] is anchor[group][index] for group in (1, 2) for index in range(6))
+                 and current[1][6:] == anchor[1][6:] and current[2][6:] == anchor[2][6:],
+                 "HASH_PROVIDER_BINDING")
+
+
+def _semantic_original_digest(ip):
+    anchor = _semantic_provider_anchor()
+    issue, digest = None, None
+    try:
+        obj = anchor[4]()
+        _inline_need(type(obj) is anchor[6], "HASH_PROVIDER_OBJECT")
+        # Lesbare Methoden erst nach Bindung an die gehaltene native Hashklasse.
+        update, finish = obj.update, obj.hexdigest
+        _inline_need(type(update) is type(struct.pack) and update.__self__ is obj
+                     and type(finish) is type(struct.pack) and finish.__self__ is obj,
+                     "HASH_PROVIDER_OBJECT")
+        value = dict(protocol=ip[0], commit=ip[1], raw27_binding=ip[2], source_profile=ip[3], nonce=ip[4],
+                     modules=[dict(zip(("ordinal", "module", "member", "size", "sha256"), row)) for row in ip[5]])
+        encoder = json.JSONEncoder(sort_keys=True, ensure_ascii=True, separators=(",", ":"), allow_nan=False)
+        size = 16
+        for piece in encoder.iterencode(value):
+            _inline_need(type(piece) is str, "HASH_PROVIDER_CALL")
+            size += len(piece)
+            _inline_need(size <= _INLINE_METADATA_CAP, "METADATA_LIMIT")
+            data = piece.encode("ascii", "strict")
+            update(data)
+        digest = finish()
+        _semantic_hex(digest, 64)
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except BaseException:
+        issue = "HASH_PROVIDER_CALL"
+    # Bindungsverlust dominiert einen Providerfehler; keine Reparatur fremder Caches.
+    _semantic_provider_check(anchor)
+    if issue is not None:
+        raise _InlineSyntaxRejected(issue) from None
+    return digest
+
+
+def _inline_metadata_semantics(header, metadata):
+    """Private deklarative Metadata; keine Bodies, Inventur oder Freigabe."""
+    syntax = _inline_metadata_syntax(header, metadata)
+    if syntax[0] != "VALID_METADATA_SYNTAX":
+        return ("REJECTED_METADATA_SEMANTICS", syntax[1], None)
+    try:
+        ip, worker, context = syntax[2]
+        _semantic_worker(worker)
+        totals = _semantic_inputs(ip, context)
+        body_size = _INLINE_HEADER.unpack(header)[2]
+        _inline_need(body_size == totals[0] == totals[1], "DECLARED_BODY_LENGTH")
+        # Sämtliche Formen vor Originaldigest und vor jedem Bindungsvergleich.
+        digest = _semantic_original_digest(ip)
+        _inline_need(digest == ip[6], "INPUT_DIGEST")
+        _inline_need(ip[1:5] == context[:4] and ip[5] == context[4], "INPUT_BINDING")
+        _inline_need(worker[:3] == context[5:], "CONTEXT_MISMATCH")
+        return ("VALID_METADATA_SEMANTICS", "NONE", syntax[2])
+    except _InlineSyntaxRejected as error:
+        return ("REJECTED_METADATA_SEMANTICS", error.args[0], None)
+    except BaseException:
+        return ("REJECTED_METADATA_SEMANTICS", "SEMANTICS_INTERNAL", None)
+'''
+
+
+def build_inline_semantics_control_bootstrap(profile_raw, *, logical_profile,
+                                             expected_soabi, expected_destshared) -> BootstrapSource:
+    """Vierte reine Quellenroute; deklarative Metadata ohne Body-/Callerclaim."""
+    selected = build_inline_syntax_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    changes = (
+        ('    global _CONTROL_ATTEMPTED\n', '    global _CONTROL_ATTEMPTED, _SEMANTIC_CONTROL_ANCHOR\n'),
+        ('    return ("LOADED_BOUND_CONTROL_SOURCE", "NONE", module)',
+         '    _SEMANTIC_CONTROL_ANCHOR = coherence\n'
+         '    return ("LOADED_BOUND_CONTROL_SOURCE", "NONE", module)'),
+        ('\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n',
+         '\n' + _INLINE_SEMANTICS + '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'),
+    )
+    for old, new in changes:
+        _need(text.count(old) == 1, "TEMPLATE_FORM")
+        text = text.replace(old, new, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))

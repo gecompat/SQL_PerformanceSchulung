@@ -2210,3 +2210,97 @@ Receiver-/Reporter- und Kanalteile. Erst die endgültige vollständige Quelle
 darf mit separat vorgewählter operativer S15-/P11-Inventur und dem gemeinsamen
 Fünf-Formen-/64-KiB-Gate abgenommen werden. Parent-/Worker-, Loader-, Consumption-,
 Replay-, Cleanup- und G13-Methodengates bleiben offen.
+
+## 21. Reine additive Inline-Metadata-Semantikquelle
+
+Der vierte reine Builder `build_inline_semantics_control_bootstrap` ergänzt die
+bestehende Syntaxroute um feste Definitionen und den gehaltenen Kontrollanker.
+Seine Eingaben bleiben ausschließlich die separat gehaltenen Profilbytes,
+der logische Locator und die vorgewählten Sysconfigtexte. Die drei älteren
+Builder und deren erzeugte Bytes bleiben erhalten. Die vollständige Quelle
+bleibt auf 131.072 Bytes begrenzt; weiterhin fünf direkte Scriptimports und
+zwei tatsächliche Controls. Der Builder startet keine Runtime.
+
+Die private `_inline_metadata_semantics(header, metadata)` prüft zunächst die
+vollständige Syntax aus §20. Danach gelten die aktuellen deklarativen Regeln
+des Profilvergleichs und Codecs: S15-Installation mit lexikalischen Pfaden,
+optionale F3-Auswahl, sämtliche P11-Record-/Loader-/Root-/Aliasformen,
+sortierte eindeutige Modulnamen und deklarative Controls, vollständige I7/K8-
+Kontexte sowie beide getrennten D9 mit der unveränderten Neuner-Zuordnung.
+Eine deklarierte Inventur wird dabei nicht zur operativen Sollinventur.
+Alle Formen werden vor Digestrechnung und Bindungsvergleichen abgeschlossen.
+Die angekündigte Header-Bodylänge wird nur mit den beiden vollständig
+validierten Neuner-Größensummen verglichen; keine Bodies werden gelesen.
+
+Der Original Input82-Digest bleibt SHA-256 über das unveränderte benannte
+Präbild aus `protocol`, `commit`, `raw27_binding`, `source_profile`, `nonce`
+und der Liste vollständiger Deskriptor-Dictionaries. Der E4-K-Digest ersetzt
+ihn nicht. Der begrenzte kanonische ASCII-Encoder speist diese eigenen
+Metadatabytes in den gehaltenen Provider. Erst danach folgen I/K-Gleichheit
+und Worker-/K-Selectorabgleich.
+
+Der Provider stammt ausschließlich aus dem Export `hashlib` des erfolgreich
+gebundenen Profilmoduls. Modulcache, Namespaces, Specs, Loader, Constructorcode
+beziehungsweise native Constructoridentität sowie HASH-Klasse und Methoden
+werden vor und nach der Rechnung gehalten und geprüft, auch nach Callfehlern.
+Classnamespaces erlauben höchstens 256 exakte Stringkeys; ihre Formen werden
+vor gezielten Lookup-/Methodenoperationen geprüft.
+Ein Bindungsverlust dominiert den Callfehler; fremde Caches werden nicht
+repariert. Unterstützt ist nur der vorhandene `_hashlib`-/`HASH`-Pfad mit den
+geprüften exakten Formen. Andere Provider werden ohne Fallback abgelehnt.
+Der synthetische Harness nutzt einen eigenen festen Functioncode und getrennte
+Providerglobals. Diese Kohärenzprüfung attestiert weder Providerherkunft noch
+eine tatsächlich gewählte Installation: die deklarierte Kontrollruntime
+bleibt die ausdrücklich benannte Vertrauensannahme.
+
+Ein Erfolg liefert `VALID_METADATA_SEMANTICS`, `NONE` und ausschließlich den
+privaten vollständig rekonstruierten Payload. Ablehnungen liefern feste
+Fehlercodes ohne Teilpayload. Alle Attestationsflags bleiben false und der
+Quellenclaim bleibt `GENERATED_CONTROL_SOURCE_ONLY`. Callerabgleich,
+tatsächliche Bodyhashes, Raw27, Consumption, Replay und Freigaben folgen erst
+in ihren eigenen Schritten.
+
+Root und unabhängiger Review prüften den vollständigen Quell-/Testfreeze vor
+dem ersten isolierten Lauf mit `-I -S -B -X utf8`. Unter CPython 3.12.14 endete
+er mit Exit 1: 108 Tests in 1,241 Sekunden, 106 PASS und zwei Fixturefehler,
+kein ERROR oder SKIP. Die frühere Syntaxfixture enthält die abweichenden
+Selectorwerte `worker-entry`/`synthetic` und wurde deshalb korrekt schon mit
+`CONTEXT_FORM` abgelehnt, statt des erwarteten späteren `INSTALLATION_FORM`.
+Im D9-Summenfall erzeugte die Fixture
+auch eine angekündigte Bodygröße über 1 MiB; korrekt folgte bereits `BODY_LIMIT`
+statt des erwarteten semantischen Summenfehlers. Beide Ablehnungen lieferten
+keinen Teilpayload. Produktionscode und Quellenpins blieben unverändert.
+Die engen Testkorrekturen setzen die Selector-Erwartung richtig und halten
+beim D9-Summenfall eine separat gültige Header-Bodygröße. Ein weiterer Lauf
+folgte erst nach erneutem Root-/unabhängigem Delta-PRE. Der zweite geänderte
+isolierte Lauf bestand mit Exit 0: 108/108 PASS in 0,936 Sekunden unter
+CPython 3.12.14, kein FAILURE, ERROR oder SKIP. Alle drei Ordinals und
+vollständigen deklarativen Formen wurden gegen die tatsächliche Referenz
+geprüft; ferner ursprüngliches benanntes Digestpräbild, späte Formfehler,
+beide D9, Headerankündigung, Selector-/Bindungsabweichungen und unverifizierte
+deklarierte Bodyhashes. Provider-/Code-/Cache-/Class-/Methodendrift sowie
+Callfehler werden ohne fremde Getter oder Teilpayload geprüft. Drei ältere
+Generatorbytes, vollständiges Scriptcap und false-Claims sind erhalten.
+Gehaltene reale Cache-/Main-/Sysconfig-Sentinels und eigene Tempabsenz bestanden.
+Kein alter privater Capture, nativer Auswahlbeleg, Preparepfad oder Nonce wurde
+erneut ausgeführt; kein realer Profil-/Sysconfig-/Worker-/SQLstart.
+
+Abschließende Toolpins sind RAW
+`87f741eb566be85ab9c3e9918f3eda8f97d88fe2c90bc12d04e11e5125f4f00f`
+und LF `fda2435b5ca55ffae9870903f8e17d5a396dd664b2cf37a367aed8025487f96d`
+(44.906 LFbytes). Der korrigierte Test hat RAW
+`b246ea614eb376e79cb227cace12a55b37ab0e59c3d9b0454384db9ee60a5f2c`
+und LF `321b56bebfce2b4a27c7c7ef7cdbbaba808c4faac6d173af4e3ad3f2e8f58093`
+(82.396 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide Dateien als
+SHA-256 `3a23e4a1f33ec0e71d86f9f6c6db3b95e4ea33d020705a710c30a739145173dc`.
+Toolpins blieben über beide Läufe unverändert; die zwei Testkorrekturen wurden
+vollständig auf den vorherigen Freeze zurückgerechnet. Abschließende Pins
+blieben nach dem erfolgreichen Lauf unverändert.
+
+Nächster reiner Offline-Vorschnitt ist der inline Profilreporter mit begrenzter
+Form-/Fragmentdarstellung. Anschließend folgen Receiver- und Kanalteile. Erst
+die endgültige vollständige Quelle darf mit separat vorgewählter operativer
+S15-/P11-Inventur und dem gemeinsamen Fünf-Formen-/64-KiB-Gate abgenommen werden.
+Parent-/Worker-, Loader-, Consumption-, Replay-, Cleanup- und G13-Methodengates
+bleiben offen.
