@@ -2009,3 +2009,121 @@ sortierten `[Pfad, LF-SHA-256]`-Paare mit `ensure_ascii=True` und
 Die Legacy-Goldenquelle blieb 8.101 Bytes mit SHA-256
 `6b6307c021e97a5c4949306b5b9ac7f7063a7f31522be70db27c14c6a79956df`.
 Keine lokale Wiederholung älterer Fixture-/Helper-/Profilaufnahmen.
+
+## 19. Private Auswahlgrundlage vor einer vollständigen operativen Inventur
+
+Die frische vollständige Auswahl aus §8/§16 bleibt offen. Nach §18 ist der
+nächste kleine Vorschnitt eine separat reviewte, begrenzte native
+Installationsmetadatenabfrage. Sie ist keine Ausführung der Bootstrapquelle,
+keine Profilaufnahme und keine operative S15-/P11-Baseline. Die bisherigen
+historischen Kontrollcaptures werden dafür nicht wiederholt oder promoviert.
+
+Die Quellen-/Installationsauswahl beginnt mit gezielter lesender Prüfung der
+bereits vorhandenen Linux-CPython-3.12-Executable, öffentlichen Paket- und
+Buildquellen sowie der direkten Stdlibquellen. Die tatsächlichen privaten
+Locator und vollständigen Records bleiben unversioniert. Eine existierende
+Quelldatei belegt keinen Source-Loaderkind: ein Modul kann in der gewählten
+Installation Builtin oder Frozen sein. Ebenso ersetzt ein vorhandener
+Sysconfigdatensymlink nicht den aus der konkret installierten Sysconfigquelle
+begründeten Standardmodulnamen. Die frühere Namenwahl ist kein Fallback.
+
+| Auswahlfeld | Zulässiger Vorschnitt | Weiterhin fehlender Nachweis |
+|---|---|---|
+| Implementation, Patch, Executable, vier Prefixes, gesamte Startup-Pfade, sechs Flags | begrenzte native sys-Felder der vorher gewählten Executable | tatsächliche Felder der endgültigen gehaltenen Bootstraproute |
+| Builtin-Verfügbarkeit | vollständige begrenzte `sys.builtin_module_names` | tatsächliche Cachemitgliedschaft oder P11-Modul-/Spec-/Loaderrecord |
+| Frozen-Verfügbarkeit | ausschließlich native Abfrage einer vorab festen quellenbegründeten Namenfolge | tatsächliche Importausführung, Frozenverbände und vollständige P11-Metadaten |
+| SOABI, DESTSHARED und Sysconfigdatenmodulname | separat gelesene konkrete Build-/Sysconfigquelle als Wahlgrundlage | tatsächliche §18-Calls, explizite Override-Auswahl und passende Inventur |
+| Dateiidentität und Paketstand | gebundene Rohbytes/Hashes beziehungsweise gelesene Paketmetadaten | physischer Trust oder bereits ausgeführte Bibliotheksbytes |
+
+Dokumentiert: `sys.builtin_module_names` beschreibt die in den Interpreter
+einkompilierten Module; der Modulcache beschreibt bereits importierte Module.
+[Python 3.12: sys](https://docs.python.org/3.12/library/sys.html#sys.builtin_module_names),
+abgerufen am 2026-10-08. Die Auswahl hält diese beiden Aussagen getrennt.
+Die Isolationflags folgen der
+[Python-3.12-Kommandozeilenreferenz](https://docs.python.org/3.12/using/cmdline.html#cmdoption-I);
+`-B` wird weiterhin nicht als Schutz vor Bytecodecache-Lesen ausgegeben.
+
+Die private Metadatenquelle und ihr vollständiger Aufrufplan müssen vor dem
+einmaligen Versuch durch Owner, Root und unabhängigen Review eingefroren sein.
+Vorgewählte Executable-/Quellenpins, feste Argumente, exakte Typ-/Feldformen,
+positive Deadline und gemeinsame Ausgabegrenze vor Pufferung/Decodierung gehören
+zusammen. Kein `sys.modules`-Array wird zur Sollinventur. Keine Profil-,
+Sysconfig-, Bootstrap-, DGN- oder Hookausführung; kein Netzwerk, keine Installation
+und keine neue Instanz. Native Verfügbarkeitsabfragen führen keine Kandidaten
+aus. Keine Diagnosepayloads oder Tracebacks in öffentlicher Rückgabe.
+
+Windows-Launcher und Linux-Kind werden getrennt behandelt. Ein Windowsprozess-
+Exit oder Kill ist kein Linux-Cleanupbeleg. Die Source-/Aufrufprüfung muss den
+tatsächlich eigenen Linuxprozess und ausschließlich eigene neu erzeugte
+Tempziele sowie deren unabhängige Reap-/Absenzprüfung vorsehen. Fremde PID-,
+Gruppen- oder Zielbereinigung bleibt verboten. Ein unklarer Abbruch bleibt
+`UNKNOWN`; Timeout oder Recovery erzeugen keine erfolgreiche Auswahl. Kein Retry
+ohne neue geprüfte Quelle, Eingang oder konkrete Umgebungsänderung.
+
+Die begrenzte Abnahme dieses Vorschnitts ist in §19.1 dokumentiert. Tatsächliche Installationsrecords,
+Startuparrays, Hostpfade und Umgebungswerte verbleiben privat in den vorhandenen
+Ignoregrenzen. Das Repository erhält nur datenschutzgeprüfte abstrakte Methode,
+öffentliche Quellenfakten und den begrenzten wahrheitsgemäßen Nachweisstatus.
+
+Anschließend bleibt die vollständige vorab quellenbegründete S15-/P11-Auswahl
+für die endgültige gehaltene Quelle erforderlich, samt aller fünf Formen und
+gemeinsamem 64-KiB-Gate. Der inline Receiver/Reporter und seine konkrete
+Importreihenfolge fehlen weiterhin; eine Auswahl für §18 ersetzt deren spätere
+Abnahme nicht. Parent-/Worker-, Loader-, Kanal-, Consumption-, Replay- und
+Cleanupgates bleiben getrennt. Keine Trust-, UsedBytes-, SQL-, Methoden- oder
+Capstoneattestation; G13, v1, DEC-068 und geschützte Arbeit bleiben erhalten.
+
+
+### 19.1 Einmaliger begrenzter Auswahlbeleg
+
+Owner, Root und unabhängiger Reviewer haben die vollständige private native
+Quelle und den tatsächlichen Parent vor genau einem Versuch geprüft. Die
+native Quelle blieb RAW=LF SHA-256
+`432fa59b01ce6e9d464e07194961f5b34490c0f0f2309f755f0564f827a98d35`
+(11.158 Bytes); der abschließend geprüfte Parent blieb RAW=LF SHA-256
+`0f7b352350c5b7330df11169539a94a007831cad989a8d7fbe4b38ccfdf7f677`
+(17.653 Bytes). Dies sind Quellenbindungen, keine Digestveröffentlichung realer
+Installationsrecords und kein Herkunfts- oder Ausführungsbytebeleg.
+
+Der konkrete private Windows-Parent setzte den Aufrufplan mit
+`Popen(shell=False)`, gehaltenen Prozessobjekten und round-robin
+`PeekNamedPipe` um; eine .NET-Ausführung wird nicht behauptet. Beide Pipes
+wurden in höchstens 1.024-Bytechunks aufgenommen, mit Restbudgetprüfung vor
+jedem Read und gemeinsamer Buchung vor Pufferung/Decodierung. Der eine
+20-Sekunden-Deadlinewert begann vor dem ersten Pinprozess. Der getrennte
+Fehlercleanup hätte höchstens fünf Sekunden und denselben globalen
+4.096-Schrittzähler verwendet; keine Erneuerung von Byte-/Zeitbudgets.
+OS-Aufrufe und Prozessstart bleiben kein generischer Kernel-Harddeadlinebeweis.
+
+Der einmalige Versuch endete mit Exit 0. Die native Ausgabe enthielt 20
+vollständig geprüfte Felder in 1.332 ASCIIbytes: 60 Builtin-Verfügbarkeiten,
+vier vorab feste Frozenfragen mit vier positiven Antworten, vier Prefixfelder,
+drei Startup-Pfade und die sechs gewählten Flags. Die vollständigen Werte
+bleiben ausschließlich im privaten ignorierten Ergebnis. Native Verfügbarkeit
+ist keine tatsächliche Import-, Cachemitgliedschafts- oder P11-Attestation.
+
+Alle vier gehaltenen Windows-Prozesse lieferten Exit 0, Wait und beide EOFs;
+der Linux-Supervisor hielt/waitete sein eigenes Kind und lieferte die feste
+Quittung. Ein separater lesender Aufruf prüfte ausschließlich beide gehaltenen
+eigenen Linux-PIDs. PRE/POST-Pins und beide Kontrollquellen blieben unverändert.
+Die gemeinsame tatsächliche stdout/stderr-Aufnahme einschließlich Pin- und
+Absenzaufrufen betrug 2.403 Bytes; die reguläre interne Dauer 3,937 Sekunden.
+Der Output wurde erst danach exklusiv in das vorher abwesende eigene private
+Ergebnisziel geschrieben. Keine eigene Linux-Tempdatei wurde erzeugt.
+
+Ein unabhängiger POST prüfte ohne Parent-/Native-/Profilreplay die vollständigen
+privaten Records, exakten Formen, Bytes/Längen, Quittungen und Budgets. Die vier
+eigenen Windows-PIDs und beide gehaltenen Linux-PIDs wurden erneut ausschließlich
+lesend auf Abwesenheit geprüft und waren abwesend. Alle sechs Attestationsflags
+blieben false. Keine Profil-/Sysconfig-/Bootstrap-/DGN-/SQL-Ausführung und kein
+Runtime-, Trust-, UsedBytes-, Methoden-, Inventur- oder Workerclaim.
+
+Nächster zulässiger kleiner Offline-Schnitt ist die reine additive Erzeugung
+von Inline-Header-/E4-Syntaxcode mit kanonischer Darstellung und vollständigen
+Syntax-/Pool-/Positionsgrenzen. Dieser Schnitt ersetzt keine
+M/IP/S15/P11/D9-Semantik, Originaldigestprüfung oder Rawbodyfreigabe.
+Anschließend müssen sämtliche fehlenden inline Teile und ihre Importreihenfolge
+feststehen, bevor die endgültige gehaltene Quelle mit vollständiger separat
+vorgewählter S15/P11-Inventur und dem Fünf-Formen-/64-KiB-Gate abgenommen wird.
+Kein alter Capture, keine historische Namenliste und kein erfolgreicher
+beobachteter Cache wird nachträglich zur operativen Sollbaseline.
