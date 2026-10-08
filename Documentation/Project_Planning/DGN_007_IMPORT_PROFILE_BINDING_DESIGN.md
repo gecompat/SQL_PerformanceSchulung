@@ -1596,3 +1596,233 @@ ursprünglicher Parentmemory bleiben false. Der Beleg betrifft ausschließlich
 diese unveränderte vollständige Kontrollfixture. Operative Versionsauswahl,
 frische tatsächlich gewählte Workerbaseline, Parent-/Worker-Anbindung,
 Quellenauflösung, Consumption, Replay und unabhängiger Cleanup bleiben offen.
+
+## 16. Konkrete operative Bootstrap- und Kanalreihenfolge
+
+Dieser ergänzende Vertrag ist `DESIGNED` im Scope `PROJECT_SEMANTIC` auf Basis
+`37b89ac523cae619b120a09db6ac0711bd5f0093` nach PR99. Er wählt die nächste
+begrenzte Offlinefolge, führt sie aber nicht aus. Die Belege aus §11–15 bleiben
+Belege ihrer konkreten Kontrollfixture. Die dort charakterisierten 85 Namen
+werden weder als operative Baseline übernommen noch als vollständige
+Importclosure einer neuen Bootstrapquelle ausgegeben.
+
+### 16.1 Vorab gewählte Quelle, Installation und Darstellung
+
+Der Parent wählt ausdrücklich `pooled-combined-input-design/v1` aus §15 und
+`pooled-binding-design/v1` mit den festen Rollen aus §12. Es gibt keinen
+Legacy-Fallback oder Dispatch anhand eines untrusted Tags. DGNC-/DGNP-Header,
+E4-Felder, beide vollständigen D9 und ursprünglicher Input82-Digest bleiben
+unverändert. Die folgende Kanalsteuerung ist ein gesonderter prospektiver
+Vertrag; sie ist noch keine implementierte produktive Versionsmigration.
+
+Vor jedem späteren Start stehen die absoluten Linux-CPython-3.12-Executable-
+und Scriptlocator, Patch-/Buildauswahl, Kontrollquellenbytes und vollständigen
+S15/P11-Erwartungen separat fest. Der geplante Scriptlocator aus §8 bleibt
+**NICHT VORHANDEN**. Seine eigene Importinventur ist neu zu begründen, weil
+Inlineempfang und die Kontrollquellenführung Teil dieser konkreten Quelle sind.
+Parentinventur und erfolgreiche Istaufnahme ersetzen diese Auswahl nicht.
+Eine getrennte Charakterisierung darf einen Kandidaten widerlegen; Abweichungen
+führen zum Stop statt zum nachträglichen Ergänzen oder Filtern der Erwartung.
+
+Die gewählte Installation enthält alle 15 Felder; jeder ausgewählte Modulrecord
+enthält alle elf Felder einschließlich privater vollständiger Locator,
+Package-Locations und Loadernamen/-pfade. Frozenverbände folgen §3/§8:
+beide tatsächlich kohärenten Frozenpartner können einen Verband tragen;
+Mixedpartner bleiben vollständig mit `()`. Sysconfig-Buildmodul und eine
+ausdrücklich ungesetzte `_PYTHON_SYSCONFIGDATA_NAME`-Overrideauswahl gehören
+zur konkreten Bootstrapauswahl. Ein früheres Isolationflag ersetzt diese Wahl
+nicht. Physische Installationtrust bleibt eine ausdrücklich deklarierte Annahme.
+
+Die vollständige neue Auswahl wird vor Start und Kommunikation unabhängig
+reviewt und rein gerechnet: sämtliche fünf E4-Formen je Ordinal erfüllen
+jeweils 16.384 Bytes einschließlich Header und zusammen 65.536 Bytes.
+Pool-, Knoten-, Tiefen-, Sequenz- und Feldgrenzen gelten gleichzeitig.
+Die volle gemeinsame M enthält Input82, Worker und Kontext; beide D9 bleiben
+physisch erhalten. Ein kleiner Einzelreport, historische Größen oder ein
+angepasster Locator belegen diesen neuen Fit nicht. Überlauf bleibt Ablehnung.
+
+### 16.2 Importneutraler Bootstrap und tatsächlich gehaltene Kontrollbytes
+
+§8 bleibt verbindlich: der absolute Scriptstart verwendet `-I -S -B`, die fünf
+direkten Stdlibimports `importlib.util`, `sys`, `sysconfig`, `json`, `struct`
+und ausschließlich die Controls `__main__`, `dgn007_import_runtime_profile`.
+Receiver, geschlossene Formprüfung und Reporter werden als zu implementierende
+Inlinevariante im Script gewählt. Vor PRE_IMPORT werden keine Combined-, Codec-,
+Matcher-, Input82-, Bundle- oder sonstigen Projektadaptermodule importiert.
+Die vorhandenen APIs dienen kontrollseitig als Konformitätsreferenz;
+ihre Semantik gilt nicht automatisch als im Inlinecode umgesetzt.
+
+Die separat reviewte Bootstrapquelle hält die vorab ausgewählten vollständigen
+Rawbytes der Profilkontrollquelle als feste private Konstante. Ihr tatsächlicher
+Dateiread ist auf 131.072 Bytes plus einen Sentinel begrenzt. Die gelesenen
+Bytes müssen vor Specanlage und Ausführung exakt der gehaltenen Konstante
+entsprechen. Erst danach erfolgen `compile(raw, logical_file,
+"exec", dont_inherit=True, optimize=0)` und die gebundene Modulausführung.
+Source-Spec und SourceFileLoader beschreiben Name und Locator; weder
+`SourceFileLoader.get_code` noch dessen `exec_module` übernimmt die Ausführung.
+Ein Loaderlabel oder nachträglicher Hash ersetzt diesen Vorabvergleich nicht.
+`-B` wird weiterhin nicht als Schutz vor Bytecodecache-Lesen ausgegeben.
+
+Die Profilquelle behält ihre bisherigen Imports. SOABI und DESTSHARED werden
+vor der Inventuraufnahme initialisiert und gegen die separat gewählte Installation
+gebunden. Die früh übertragenen vollständigen Erwartungsrecords erlauben danach
+nur die lokale Ankerbindung ihrer vorgewählten Namen. Fehlende oder zusätzliche
+Cacheeinträge scheitern; der aktuelle Cache wird nicht zur eigenen Sollbaseline.
+Die bekannte FileFinder-Hookbindung und ihre kontrollruntimegebundene Struktur
+werden nach §8 geprüft, ohne den Hook auszuführen oder Trust daraus abzuleiten.
+
+### 16.3 Zwei Freigaben mit endlichem Empfangshaltepunkt
+
+Der Parent hält vor Transfer Input82, alle neun Rawbodies, die gewählte
+Workerdeklaration und den jeweiligen Kontext getrennt. Er prüft ihre vollständigen
+Formen und Rawhashes, alle fünf Erzeugungsgates und die Gesamtgrenze vor der
+ersten Ausgabe. Nonce, Ordinal, Einstieg und PRE_IMPORT-Phase sind damit vor
+dem Workerreport gewählt; keine dieser Angaben stammt aus dessen eigener Wahl.
+
+1. Der Parent sendet zunächst nur den 16-Byte-DGNC-Header und exakt dessen
+   vollständige M-Metadata. Die deklarierte Bodylänge bleibt Teil des Headers;
+   noch kein Kandidatenbody wird gesendet. Der Inlineempfang prüft Header und
+   M vollständig begrenzt, einschließlich beider D9 und Originalinputdigest,
+   bevor diese Erwartung für die lokale Profilaufnahme verwendet wird.
+2. Der Worker nimmt sein Profil frisch auf, prüft lokale Kohärenz vor/nach
+   Scalarprojektion und sendet ausschließlich die vollständige R-Form der
+   tatsächlich aufgenommenen Skalare. Kein Body-/UsedBytes-Erfolg wird gemeldet.
+   Der Parent dekodiert den gesamten Report und vergleicht alle empfangenen
+   Felder mit seiner separat gehaltenen Auswahl und seinem Kontext.
+3. Erst danach sendet der Parent `BODY_RELEASE`. Der Worker prüft dessen
+   exakte Kontextbindung und nimmt genau die neun angekündigten Bodies auf.
+   Alle Größen, Offsets, Einzel-/Gesamtcaps und tatsächlichen Rawhashes werden
+   vor einem Gesamtvergleich oder einer Consumerfreigabe geprüft.
+   Ein gebundenes `BODY_END` schließt diese Übertragung ab.
+4. Erst nach vollständigem eigenen M-/Body-/Originalhashcheck und unverändertem
+   frischem lokalen Profil meldet der Worker `INPUT_COMPLETE`. Eine hierfür
+   erneut erforderliche Aufnahme wird innerhalb derselben Deadline geprüft;
+   sämtliche tatsächlich frisch aufgenommenen Felder müssen lokal vollständig
+   dem schon geprüften R entsprechen. Jede Abweichung stoppt den Versuch.
+   Der Kanal trägt genau einen vollständigen PRE_IMPORT-Report, keinen zweiten
+   POST-Report und keinen Digestersatz für dessen Felder. Dieser lokale Check
+   ist kein zweiter vom Parent vollständig empfangener Beobachtungsbeleg.
+5. Der Parent prüft dieses Abschlussrecord und sendet einmal `IMPORT_RELEASE`.
+   Anschließend schließt er stdin. Der Worker verlangt das erwartete EOF ohne
+   Zusatzbytes, bevor eine spätere Kandidatenoperation zulässig wird.
+   EOF ist keine zusätzliche Freigabe und ersetzt keines der beiden Commands.
+
+`BODY_RELEASE`, `BODY_END` und `IMPORT_RELEASE` sind jeweils eine kanonische
+ASCII-JSON-Tupelzeile `[kind, ordinal, nonceHex, context_digest]` mit LF,
+höchstens 256 Bytes und festen Kindwerten. Pro Worker sind genau diese drei
+Commands erlaubt. `context_digest` ist genau der eigene §14.3-Digest über
+das kanonische vollständige E4-K-Präbild mit Rolle
+`pooled-profile-binding-context/v1`, ohne Header. Er bindet insbesondere
+Ordinal, Einstieg und Phase. Der ursprüngliche I7-/Input82-Wert
+`context_sha256` bleibt getrennt und unverändert; er wird nicht umgedeutet.
+Die tatsächlich codierten Combinedbytes und alle drei
+Commands müssen gemeinsam vor Start vollständig gerechnet innerhalb desselben
+unveränderten Transfercaps liegen: höchstens 1.064.960 Bytes je Worker und
+global höchstens 3 MiB Bodies plus 48 KiB Metadata einschließlich Steuerbytes.
+Die höchstens 768 Commandbytes erhalten kein Zusatzbudget. Einzelne Metadata-
+und Bodycaps sowie der reine §15-Codec bleiben unverändert. Dessen maximaler
+Frame ist auf dieser Handshakeroute ohne Steuerreserve nicht startbar.
+Der Worker liest nie über die gerade erlaubte Phase hinaus.
+
+Ein vorzeitiges EOF, falscher Command, zusätzliche Nachricht, andere Nonce,
+Phase oder Ordinal führt zur festen Ablehnung. Empfangene Felder werden nie
+aus Callerwerten ergänzt. `INPUT_COMPLETE` bedeutet Byteaufnahme und Prüfung,
+keine Ausführung. Hashgleichheit und erfolgreiche Freigaben attestieren weder
+Host-, Kanal- noch Actorherkunft. Die lokale Consumptiontabelle reserviert
+Nonce/Ordinal vor Start und erlaubt jede Phasentransition genau einmal.
+Ein abgebrochener oder unbekannt beendeter Versuch wird nicht erneut gestartet.
+
+### 16.4 Begrenzter Rückkanal und gemeinsame Kosten
+
+Der Parent drainiert stdout und stderr während sämtlicher stdin-Schreibphasen
+mit endlichen nichtblockierenden Schritten. Er wartet nicht zuerst auf das
+Ende des Schreibens. Der Worker wartet an den beiden Haltepunkten nur auf
+den nächsten erlaubten Command. Vererbte offene Pipes, Backpressure und
+No-progress werden innerhalb derselben begrenzten Steuerung behandelt.
+
+Die R-JSON wird ohne zweiten JSON-Escape-Layer in ASCII-Fragmente geteilt:
+`P|ordinal|sequence|total|payload` mit LF, höchstens 896 Payloadbytes und
+höchstens 32 Envelopebytes einschließlich LF. Das Payload bleibt opak bis
+zur vollständigen begrenzten Zusammensetzung; nur die ersten vier Separatoren
+werden ausgewertet. Kanonisches E4-JSON enthält keine physischen Zeilenumbrüche.
+Maximal 16.368 JSONbytes benötigen höchstens 19 solche Records. Jeder Record
+bleibt unter der allgemeinen 1.024-Byte-Zeilengrenze; keine Einzelzeile trägt
+den vollständigen privaten Report.
+
+`PROFILE_BEGIN` und `PROFILE_END` sind jeweils kanonische ASCII-Tupelzeilen
+mit Ordinal, JSONlänge und Fragmentanzahl; END enthält zusätzlich den SHA256
+der tatsächlich zusammengesetzten JSONbytes. Beide bleiben höchstens 256 Bytes.
+Der Parent rekonstruiert nur den fest gewählten DGNP-REPORTED-Header und prüft
+das tatsächliche E4, Kontext, Schema, Pool, Repack und alle Records vollständig.
+Fehlende, doppelte, umgestellte oder fremde Fragmente scheitern ohne Teilreport.
+Private Reportbytes bleiben ausschließlich im begrenzten Parentmemory.
+
+Alle Envelope-, LF-, Footer- und tatsächlichen stderr-Bytes zählen vor Pufferung
+oder Decode zur gemeinsamen 65.536-Byte-Kappe für sämtliche drei Workers.
+Für den späteren Quellenloader werden insgesamt höchstens zwölf eigene
+Modulausführungen über die drei festen Einstiegssätze und höchstens zwei
+codefreie Parentmodule je Worker erwartet. BEGIN/COMPLETE tragen je höchstens 256 Bytes; sie
+binden Modulordinal, Sequenz und Rawhash an den einmal festgelegten Kontext.
+Ihre konkrete vollständige Form und tatsächliche Erzeugung sind Folgearbeit.
+
+Der konservative Kanalnachweis reserviert `3*(16368+19*32) = 50928` Bytes für
+R-Fragmente, 1.536 für PROFILE-BEGIN/END, 768 für INPUT_COMPLETE,
+6.144 für zwölf BEGIN/COMPLETE-Paare, 3.072 für sechs Parent-Paare,
+768 für drei SESSION_END und 768 für höchstens drei feste Fehlerrecords.
+Damit sind höchstens 63.984 Bytes vorgesehen; 1.552 Bytes verbleiben innerhalb
+derselben Kappe für weitere tatsächliche stderr-Bytes. Dies ist Budgetarithmetik,
+kein tatsächlicher Kanal- oder Erfolgsbeleg. Jede spätere Änderung von Anzahl,
+Feldform oder Länge benötigt denselben vollständigen Nachweis; tatsächliche
+Byteüberschreitung scheitert unabhängig von dieser Reserve.
+
+Der Parent startet höchstens drei Workers seriell in der festen Reihenfolge
+Runner, Proxy, Harness und erst nach unabhängigem Cleanup des Vorgängers.
+Eine gemeinsame monotone 20-Sekunden-Deadline beginnt vor der regulären
+Probevorbereitung und wird für Aufnahme, Transfer, Freigaben, Import, Drain
+und Abschluss nie erneuert. Daneben gelten insgesamt 4.096 I/O-Schritte
+und 64 aufeinanderfolgende Schritte ohne neue Bytes, EOF oder Zustandsübergang.
+Fehlgeschlagene Starts/Schritte und Wartezeiten bleiben gebuchte Kosten;
+fachliche Query-Store-Polls gehören nicht zu diesem I/O-Zähler.
+
+Cleanup hat höchstens zehn Sekunden kumulative gemessene monotone Segmente
+mit nicht erneuerbarem Restbudget; die reguläre Wallclock läuft weiter.
+SESSION_END bindet die endgültigen Recordzahlen und den bisherigen Kanalhash;
+danach sind vollständiges stdout-/stderr-EOF und eigener Exit getrennt nötig.
+Exit vor Drain, Kill oder ein Footer allein beweist keinen Cleanup.
+Nur die eigene neue Linux-Prozessgruppe wird anhand ihres gehaltenen Leaders
+gestoppt und unabhängig auf Kinderabsenz geprüft; keine fremde PID-/Namenssuche.
+Bindungsverlust, Reap-/Restorefehler oder harte Unterbrechung bleiben dominant
+und führen ohne Absenzreceipt zu unbekanntem Cleanup, nie zu Recovery-PASS.
+
+### 16.5 Getrennte nächste Abnahmen und verbleibende Grenzen
+
+Der nächste kleine Implementierungsschnitt ist ausschließlich die feste
+Bootstrapkontrollquelle mit synthetischen Gegenproben. Er führt noch keine
+operative Workerinventur oder DGN-Imports aus. Danach folgen die neue separat
+gewählte Installation/volle Inventur und vollständige Fünf-Formen-Größenprüfung,
+der importneutrale Empfang/Report und anschließend Parentadapter, tatsächlicher
+Quellenloader, Consumption und unabhängig geprüfter Drei-Worker-Cleanup.
+Jede Stufe bleibt an ihre konkreten Sources und tatsächlich ausgeführten Checks
+gebunden; die implementierten Kontrollcodecs ersetzen keine Adapterabnahme.
+
+| Gegenprobe | Verbindliches späteres Gate |
+|---|---|
+| Profilbytes ändern zwischen Vorpin und Read; pyc liegt daneben | tatsächliche gehaltene Bytes vor compile prüfen; keine Cache-/Loaderlabelverwendung als Bytebeleg |
+| neue Projektimporte oder fehlender Sysconfigrecord vor PRE | vollständige Inventurablehnung, kein Controlausbau oder Sollrefresh |
+| neue Bootstrapquelle passt nicht in eine volle Form | kein Start, kein Filter, kein Capwechsel |
+| falsche/fehlende späte M-/Bodyfelder trotz frühem passenden Profil | atomare Ablehnung vor INPUT_COMPLETE und Kandidatenfreigabe |
+| Schreibbackpressure bei gleichzeitig vollem stderr | beide Pipes begrenzt drainieren; keine getrennte zusätzliche Ausgabekappe |
+| Teilreport, fremder Ordinal oder doppelte Freigabe | keine Zustandsfortsetzung und kein stateless Fallback |
+| EOF vor IMPORT_RELEASE oder Zusatzbytes danach | feste Ablehnung; EOF heilt keine fehlende Freigabe |
+| Profil-/Cache-/Hookänderung nach frühem Report | frische Aufnahme erforderlich, keine dauerhafte Validiertheit gehaltener Anker |
+| Leaderexit mit geerbten offenen Pipes; fehlender Footer/Absenz | kein Erfolg aus Exit; Deadline und dominanter Cleanupfehler bleiben erhalten |
+
+Inlinekonformität, neue vollständige Inventur, konkrete Kanalreceiptformen,
+Resolver-/Stdlibtrust und tatsächliche BEGIN/COMPLETE-Bytes bleiben offen.
+Auch eine frische Aufnahme liefert keine atomare oder dauerhaft gültige Runtime-
+Snapshotgarantie. Alle Attestationsflags bleiben in diesem Design false.
+Gewöhnliche begrenzte Offlineentwicklung liegt im bestehenden Auftrag;
+SQL-/Docker-/Collector- oder materielle Methodenerweiterungen folgen daraus nicht.
+G13, v1, DEC-068, historische FAILs, geschützte PR68 und die zurückgestellte
+Capture-API bleiben unverändert. Dieser Abschnitt erzeugt keinen RunRecord,
+keine Methodenfreigabe und keinen tatsächlichen Worker-/UsedBytesbeleg.
