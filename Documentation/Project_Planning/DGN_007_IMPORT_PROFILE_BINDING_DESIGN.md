@@ -1936,3 +1936,76 @@ vollständige Kanalzustände, Parentadapter, tatsächlicher DGN-Quellenloader,
 Consumption/Replay und unabhängig bereinigte eigene Worker folgen getrennt.
 G13, v1, DEC-068, historische FAILs, PR68 und die zurückgestellte Capture-API
 bleiben erhalten; keine SQL-/Acquisition-/Capstone- oder Methodenfreigabe.
+
+## 18. Feste Sysconfig-Vorinitialisierung gehaltener Kontrollquellen
+
+Die nächste getrennte Quellen-Erweiterung ergänzt den reinen Generator um
+`build_sysconfig_control_bootstrap(profile_raw, *, logical_profile,
+expected_soabi, expected_destshared)`. Sie erzeugt weiterhin ausschließlich
+private Scriptbytes. Die bestehende API `build_control_bootstrap` und deren
+erzeugte Quellbytes bleiben erhalten. Alle Aussagen aus §17 sind historische
+Evidenz ihres dort gebundenen Sources, keine Abnahme dieser Erweiterung.
+
+Die beiden Erwartungswerte sind separat gewählte exakte Texte, keine Aufnahme
+aus dem laufenden Modulcache. SOABI enthält keinen NUL oder ungepaarten
+Surrogate und höchstens 4.096 UTF-8-Bytes; ein expliziter Leertext ist ein Wert,
+kein None-Default. DESTSHARED ist ein kanonischer absoluter Linux-Locator
+innerhalb derselben Feldgrenze. Beide Literale zählen einschließlich ihrer
+Expansion zum unveränderten tatsächlichen 131.072-Byte-Scriptcap. Die fünf
+direkten Imports und zwei Controls bleiben unverändert; keine Codec-, Input82-,
+Matcher-, Observation- oder Kandidatenimporte gehören zu diesem Vorschnitt.
+
+Die erzeugte neue Route hält die Sysconfig-Modul-, Namespace-, Funktions-,
+Code-, Globals-, Spec- und Loaderanker vor dem gebundenen Profilexec aus §17.
+Nach diesem Exec prüft sie innerhalb desselben Kontrolllifecycles die gehaltene
+Bindung und ruft SOABI und DESTSHARED in fester Reihenfolge auf. Vor und nach
+jedem Call werden die Anker und die Profilkohärenz erneut geprüft.
+Beide tatsächlichen Rückgabewerte werden vollständig auf ihre
+Form geprüft, bevor ihr Vergleich mit den separat gewählten Texten erfolgt.
+Erst nach erneuter Modul-, Callable-, Cache- und Profilkohärenz darf der
+Kontrollladeversuch erfolgreich enden. Es gibt keine Profilaufnahme und keinen
+operativen Workerstart. Ein Fehler entfernt ausschließlich den selbst
+eingesetzten Profileintrag; der bestehende identitätsgebundene Cleanup bleibt
+dominant. Sysconfigcache, Buildmodule und fremde Einträge werden nicht
+zurückgesetzt, übernommen oder nach einem Fehler repariert. Kein Retry.
+
+Dokumentiert: `sysconfig.get_config_var` liefert für einen fehlenden Namen
+`None`; ein solcher Wert ersetzt keinen gewählten Text.
+[Python-3.12-Sysconfig-Referenz](https://docs.python.org/3.12/library/sysconfig.html#sysconfig.get_config_var), abgerufen am 2026-10-08.
+Projektseitig bleibt der Grund aus §8/§16 maßgeblich: Die vorhandene Aufnahme
+kopiert den Modulcache vor ihrem eigenen SOABI-Aufruf. Ein dort erst geladenes
+Buildmodul darf keinen fehlenden Vorinitialisierungsrecord heilen. Zwei passende
+Werte attestieren weder dieses Buildmodul noch die Abwesenheit eines
+`_PYTHON_SYSCONFIGDATA_NAME`-Overrides oder die Herkunft der Kontrollruntime.
+Diese Auswahl, die vollständigen S15-/P11-Felder und alle fünf Darstellungen
+einschließlich des gemeinsamen 64-KiB-Gates bleiben getrennte nächste Abnahmen.
+
+Der unabhängige Source-/Test-PRE und der anschließende einmalige isolierte
+Ownerlauf bestanden: CPython 3.12.14 mit `-I -S -B -X utf8`, Exit 0,
+53/53 PASS in 0,401 s, 0 FAIL/ERROR/SKIP. Die 32 bisherigen und 21 neuen
+Testmethoden verwenden ausschließlich die gebundene Fake-Sysconfig und feste
+synthetische Kontrollbytes; kein realer Sysconfigcall oder Profil-/Workerstart.
+Aufrufreihenfolge, beide tatsächlichen Werte, Form vor Vergleich,
+Fremdtypen, Mismatch, Mutation, Exceptionprivacy, Literal-/Scriptcap und eigener
+Cleanup gehören zum selben geprüften Sourcefreeze. Die bisherigen echten
+Cache-/Main-Sentinels und die eigene Tempzielabsenz bleiben erhalten.
+Keine tatsächliche Installation, Workerinventur, Profilaufnahme oder DGN-Quelle
+wird damit ausgeführt; Trust-, Runtime-, UsedBytes- und Methodenflags bleiben
+false. G13, v1, DEC-068, historische FAILs und geschützte Arbeit bleiben erhalten.
+
+
+Der ausgeführte Source/Testfreeze blieb danach unverändert (SHA-256 über
+LF-normalisierte Bytes):
+
+| Quelle | SHA-256 |
+|---|---|
+| Tool | `9782f6ec59a5bdd8107ef35150686aea0f32ce0eb6bab7361b20d878b42243a7` |
+| Test | `2afbd7997f62e0f4decd9c025d2ca10db9fea9aa4c05d32e53811192647da894` |
+
+Die Zweifile-Bindung ist SHA-256 über das UTF-8-kodierte kompakte JSON der
+sortierten `[Pfad, LF-SHA-256]`-Paare mit `ensure_ascii=True` und
+`separators=(',', ':')`:
+`3e263551fcf7b863646c76352425f1b5d2d476e0ed9401ae0e394c96ddda184a`.
+Die Legacy-Goldenquelle blieb 8.101 Bytes mit SHA-256
+`6b6307c021e97a5c4949306b5b9ac7f7063a7f31522be70db27c14c6a79956df`.
+Keine lokale Wiederholung älterer Fixture-/Helper-/Profilaufnahmen.
