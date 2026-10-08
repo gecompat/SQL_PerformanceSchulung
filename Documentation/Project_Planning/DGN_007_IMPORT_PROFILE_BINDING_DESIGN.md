@@ -3341,9 +3341,9 @@ Profilaufnahme aus und attestiert weder Originalinputprüfung noch
 Raw27-Herkunft, Sender, Consumption, Replayfreiheit, IMPORT_RELEASE oder
 eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben false.
 
-Der vollständige Record-/Footer→R-Calleradapter ist in §31 als DESIGNED
-mit geschlossener Fehlerpriorität festgelegt. Nächster kleiner Schnitt ist
-seine reine additive Builder14-Implementierung mit neuen synthetischen Gegenproben.
+Der vollständige Record-/Footer→R-Calleradapter ist in §31 rein additiv
+implementiert und lokal synthetisch geprüft. Nächster kleiner Schnitt ist
+sein separater exklusiver Ledgervertrag als DESIGN.
 Die frühe Callerordinalprüfung aus §27 darf im neuen Gesamtpfad spätere
 Actual-R-Form-/Semantikfehler nicht verdecken; ein bloßes Verketten der
 bestehenden Teilfunktionen ist dafür kein Nachweis. Exklusives Ledger mit
@@ -3415,14 +3415,14 @@ Fünf-Formen-/64-KiB-Ausgabe, Sender-, Trust-, UsedBytes- oder Methodenfreigabe.
 
 ## 31. Vollständiger deklarativer Profilrecord-Callerabgleich
 
-Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Vertrag
-schließt die Fehlerpriorität zwischen Recordaufnahme, Footer und vollständigem
-R-Callerabgleich. Es gibt noch keine Adapterimplementierung oder neue
-synthetische Ausführungsevidenz für diesen Gesamtpfad.
+Status: `IMPLEMENTED_SYNTHETIC_MATCH`, Aussagebereich `PROJECT_SEMANTIC` mit begrenzter
+synthetischer Ausführungsevidenz nach §31.6. Der additive Adapter schließt die
+Fehlerpriorität zwischen Recordaufnahme, Footer und vollständigem
+R-Callerabgleich. Operative Kanal- und Workeranbindung bleiben offen.
 
 ### 31.1 Getrennte Auswahl und vollständig gehaltene Eingänge
 
-Die künftige vierzehnte additive Quellenroute heißt
+Die vierzehnte additive Quellenroute heißt
 `build_inline_profile_records_match_control_bootstrap(profile_raw, *,
 logical_profile, expected_soabi, expected_destshared)`. Sie ergänzt
 `_inline_match_profile_records(records, *, expected_format, expected_phase,
@@ -3553,7 +3553,7 @@ reguläres Budget plus 10 Sekunden Cleanup und die I/O-Grenzen aus §16.4
 bleiben unverändert. Kostenrechnung und einzelne synthetische Pfadzählungen
 attestieren keine operative Deadline oder gemeinsame Fünf-Formen-Fitgrenze.
 
-Künftige Gegenproben prüfen alle drei Ordinals gegen unabhängig benannte
+Die synthetischen Gegenproben prüfen alle drei Ordinals gegen unabhängig benannte
 R-/Framing-/Footerreferenzen und genaue Actualobjektidentität. Späte
 Actual-P11/D9-/R-Form- oder Semantikfehler müssen vor einem frühen gültigen
 Callerordinalunterschied erscheinen; späte Callerfehler vor Repack/SHA.
@@ -3573,12 +3573,12 @@ und ausdrückliches einmaliges Lauf-GO sind vor späterer Synthetik erforderlich
 
 ### 31.5 Erhaltung und getrennte Folgeschnitte
 
-Die spätere additive Umsetzung erhält dreizehn bestehende Builder,
+Die additive Umsetzung erhält dreizehn bestehende Builder,
 413 alte Methoden, alle bisherigen Definitionen und erzeugten Quellenbytes,
 fünf direkte Scriptimports, zwei Controls und das Scriptcap von 131072
 Bytes einschließlich Rawliteralexpansion. Keine zusätzliche Codec-/Matcher-/
-Input82-Adapterimportroute vor PRE. Scriptfit muss später tatsächlich geprüft
-werden; dieser Dokumentationsschnitt führt keine lokale Suite oder private Probe aus.
+Input82-Adapterimportroute vor PRE. Scriptfit wird in der synthetischen Suite tatsächlich geprüft; §31.6 bindet
+den ausgeführten Lauf. Keine private Probe wird wiederholt.
 
 Der Adapter bleibt reine wiederholbare deklarative Prüfung. Er attestiert
 keinen tatsächlichen Sender, Kanal, vorherigen Übergang, Worker, Trust,
@@ -3590,10 +3590,96 @@ Ein rein statischer Schreibvorcheck hielt vor jeder Dateiänderung an einer
 falsch formulierten Platzhalterkontrolle an. Ausschließlich dieser lesende
 Hilfscheck wurde korrigiert; keine Suite oder Produktquelle wurde ausgeführt.
 
-Nächster kleiner Schnitt ist ausschließlich die additive Builder14-/
-Adapterimplementierung mit neuen synthetischen Gegenproben.
-Ein exklusives Ledger mit höchstens drei vorab vollständigen K-Slots
-folgt danach in einem eigenen DESIGN-Schnitt; Caller-Tupel und Statuslabels
+Nächster kleiner Schnitt ist ausschließlich der eigene DESIGN-Vertrag für
+ein exklusives Ledger mit höchstens drei vorab vollständigen K-Slots; Caller-Tupel und Statuslabels
 sind keine verbrauchten Ereignisse. Tatsächlicher Kanal, operative
 Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker- und unabhängiger
 Cleanupnachweis sowie Methoden- und Szenariopromotion bleiben getrennt offen.
+
+
+### 31.6 Tatsächliche additive Umsetzung und begrenzter Nachweis
+
+Die vierzehnte Quellenroute ergänzt ausschließlich die neue Inlinekonstante
+und ihren Builder; alle alten Toolbytes bilden den unveränderten LF-Präfix.
+Alle 18 alten Tool- und 32 alten Test-Topdefinitionen sind klassenweise
+AST-identisch. Die eigene neue Testklasse enthält 47 Methoden; sämtliche
+413 früheren Methoden bleiben erhalten, insgesamt 460. Die dreizehn früheren
+Builderquellen, fünf direkten Scriptimports, zwei Controls und sämtliche Caps
+bleiben erhalten. Der neue Sourceappend umfasst 124, der Testappend 697 Zeilen.
+
+Root und unabhängiger Reviewer prüften die ganzen finalen Source-/Testdeltas,
+das tatsächliche vollständige `Run.execute`, die delegierte
+`InlineMetadataMatchTests.tearDown`→`InlineProfileReporterTests.tearDown`-
+Kette, gehaltene Zustandsanker und relevante Helfer vor der Ausführung.
+Enge Fixturekorrekturen für Resolverlabels, tatsächliche JSONobjektidentität,
+Einrückung und zutreffende Testbenennung sowie weitere Gegenfälle erfolgten
+vor dem ersten Lauf. Eine zunächst gemeldete Capture-Is-Prüfung war wegen
+einer nicht treffenden Textreplacement im ersten Freeze tatsächlich nicht
+vorhanden. Root und unabhängiger Review hielten die Freigabe offen; erst der
+korrigierte finale Stand enthält tatsächliche SHA-Daten-/Resolver-R4-Captures
+mit Identitätsprüfungen. Source blieb unverändert. Ein reiner JS-Hilfsentwurf
+für den Dokumentationsvorcheck scheiterte vor einem Shell-/Dateiaufruf;
+die korrigierte rein statische Prüfung bestand. Kein ausgeführter Suitefehllauf.
+
+Genau ein lokaler Versuch mit
+`python -I -S -B -X utf8 Tests/Static/test_dgn007_control_bootstrap_source.py`
+unter CPython 3.12.14 bestand 460/460 Methoden ohne Failure, Error oder SKIP:
+12.574 s unittest-Zeit, Exit 0. Die separat tatsächlich um den gestarteten
+Pythonprozess gemessene PowerShell-Stopwatchzeit beträgt 12.9830236 s.
+Die initiale Toolwartezeit von 10.0029062 s (Session 81269, Chunk ce0451)
+und der abschließende Poll 5b898a werden nicht zu einer Prozesswallzeit summiert.
+Statischer PRE 0963f1 und POST c372e5 bestanden mit identischen RAW-/LF-Pins
+und Paarbindung. Der tatsächliche Harness prüfte realen Cache, Mainname,
+Sysconfig-, JSON-/Encoderklassen-/Modul-/Functioncode-/Defaults-/Kwdefaults-
+Anker sowie die Abwesenheit der eigenen temporären Fixture ohne Reparatur.
+Dies ist kein externer Worker-, Kanal-, Runtimeherkunfts- oder Trustnachweis.
+
+Die eigene benannte R4-/K8-/D5-/S15-/F3-/P11-Pooloracle, unabhängige
+Stdlib-Framing-/Footerbildung und vollständige ergänzende Codec-DTO-Vergleiche
+binden alle Felder und alle drei Ordinals. Die tatsächlich an Footer-SHA
+übergebenen JSONbytes und vom Resolver erzeugten R4 bleiben die
+zurückgegebenen Objekte; Originalrecords werden ebenfalls per Identität geprüft.
+Der gezählte Erfolg enthält zwei Controlparser, einen R-Parser, drei JSON-
+Kodierungen und genau einen Footer-SHA. Alte Topmatcher, K-/Originalinput-
+Digest- und Commandhelpers sind als versteckte Delegation ausgeschlossen.
+
+Gegenproben prüfen späte Actual-P11-/D9-Form-/Semantikfehler vor gültigem frühem
+Callerordinalunterschied, späte Callerfehler vor Encoding/SHA, Footerfehler vor
+Callerabweichung, Recordordinal gegen Actual-K sowie gleichartige ungültige
+Kontamination. Null, Leertext, Integer, Unicode, innere Pipes, Escapes,
+Poolreferenzen, vollständige Frozenverbände und kanonischer Actual-R-Repack
+bleiben erhalten. Encoder-/Providerdrift und Encodingfehler werden in allen
+drei Kodierungen geprüft; Constructor-/Digestfehler und Footerdrift prüfen
+dieselbe dominante äußere POST-Reihenfolge. Wiederholter Match ist ausdrücklich
+kein Einmalverbrauch.
+
+Eine gültige synthetische R-Form erreicht tatsächlich 16368 JSONbytes plus
+16 Headerbytes, 19 Fragmente und 21 Records; der letzte Payloadrest beträgt
+240 Bytes. 16369 JSONbytes scheitern bereits am Controlcap. 256 Poolwerte
+sind gültig; 257 scheitern am Parsersequenzcap. Größere gültige Expected-DTOs
+mit mehr als 16 KiB oder 257 Pooltexten erzeugen vollständigen Mismatch,
+keinen Received-Fitfehler. Reine Intakegrenzen 17488/17489, 1024/1025 und
+256/257 sowie ungültige Depth-/Sequenceformen sind davon getrennt bezeichnet.
+Der Scriptcap- und Rawliteralexpansionstest prüft tatsächlich 131072 Bytes.
+Diese synthetischen Formen attestieren weder eine operative Sollinventur
+noch die gemeinsame Fünf-Formen-/64-KiB-Ausgabe oder eine operative Deadline.
+
+Tool RAW SHA-256
+`8b882eb2a2204e110cface5ff70b363a6b19457ffaf339e8126ebf260a7d56af`
+(108.243 Bytes), LF
+`d548482f73a650f25c8ca94df90de345a0ac6841dfbfe7b8517fc89fb12b472e`
+(106.091 Bytes). Test RAW
+`594770d730f40012d9036a42088dd49ffefc173025a72fe9d4f37a1fd8f1637b`
+(369.637 Bytes), LF
+`88e0921802940557e53751e0cfd793a673f2642b65a2aa2f1a4e6741e91af7fa`
+(363.232 Bytes). Sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')`, Paar-SHA-256
+`28c1f06144bbb431221d74c63f9a82e9c81a49f45b57934871ef0d6759372af7`.
+
+Keine historische private Aufnahme, Prepare-, Nonce-, native Profil-,
+Sysconfig-, Worker- oder SQLprobe wurde erneut ausgeführt. Sämtliche
+Attestationsflags bleiben false; G13, v1, DEC-068 und geschützte Arbeit bleiben
+erhalten. Ledger, tatsächlicher Kanal, Loader, Consumption, Replayfreiheit,
+UsedBytes, operative Auswahl und unabhängiger Worker-Cleanup bleiben getrennte
+Folgegates. Nächster kleiner Schnitt ist ausschließlich der separate DESIGN-
+Vertrag für ein exklusives Ledger mit höchstens drei vorab vollständigen K-Slots.

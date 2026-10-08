@@ -2026,3 +2026,127 @@ def build_inline_input_complete_control_bootstrap(profile_raw, *, logical_profil
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_PROFILE_RECORDS_MATCH = r'''
+def _profile_records_check(encoder_anchor, anchor):
+    _report_encoder_check(encoder_anchor)
+    _semantic_provider_check(anchor)
+
+
+def _profile_records_encode(value, encoder_anchor, anchor):
+    _profile_records_check(encoder_anchor, anchor)
+    data = _report_json(value, encoder_anchor)
+    _profile_records_check(encoder_anchor, anchor)
+    return data
+
+
+def _inline_match_profile_records(records, *, expected_format, expected_phase, expected_reported):
+    """Gehaltene Records und vollständiges Caller-R; kein Kanal oder Einmalverbrauch."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_format) is str and expected_format == _COMMAND_FORMAT,
+                     "FORMAT_SELECTION")
+        _inline_need(type(expected_phase) is str and expected_phase == "AWAIT_PROFILE",
+                     "PHASE_SELECTION")
+        _inline_need(type(records) is tuple, "RECORDS_TYPE")
+        _inline_need(3 <= len(records) <= 21, "RECORDS_LIMIT")
+        for line in records:
+            _inline_need(type(line) is bytes, "RECORD_TYPE")
+        _report_shape(_REPORT_R, expected_reported)
+        sizes = tuple(len(line) for line in records)
+        _inline_need(all(0 < size <= 1024 for size in sizes), "RECORD_LIMIT")
+        _inline_need(sum(sizes) <= 17488, "RECORDS_BYTES_LIMIT")
+        _inline_need(sizes[0] <= 256 and sizes[-1] <= 256, "CONTROL_LIMIT")
+        for line in records:
+            _inline_need(line[-1] == 10 and all(0 < byte < 128 and byte not in (10, 13)
+                         for byte in line[:-1]), "RECORD_ASCII")
+        begin = _reassemble_control(records[0], ("t", "n", "n", "n"))
+        end = _reassemble_control(records[-1], ("t", "n", "n", "n", "t"))
+        fragments = []
+        for line in records[1:-1]:
+            fields = line[:-1].split(b"|", 4)
+            _inline_need(len(fields) == 5 and fields[0] == b"P", "FRAGMENT_FORM")
+            ordinal, sequence, total = tuple(_reassemble_decimal(token) for token in fields[1:4])
+            payload = fields[4]
+            _inline_need(1 <= ordinal <= 3 and 1 <= sequence <= 19 and 1 <= total <= 19,
+                         "FRAGMENT_FORM")
+            _inline_need(1 <= len(payload) <= 896 and len(line) - len(payload) <= 32,
+                         "FRAGMENT_LIMIT")
+            fragments.append((ordinal, sequence, total, payload))
+        _inline_need(begin[0] == "PROFILE_BEGIN" and end[0] == "PROFILE_END", "CONTROL_FORM")
+        for control in (begin, end):
+            _inline_need(1 <= control[1] <= 3 and 1 <= control[2] <= 16368
+                         and 1 <= control[3] <= 19, "CONTROL_FORM")
+        _inline_need(len(end[4]) == 64 and all(char in "0123456789abcdef" for char in end[4]),
+                     "FOOTER_FORM")
+        _inline_need(begin[1:] == end[1:4], "RECORD_BINDING")
+        ordinal, length, total = begin[1:]
+        _inline_need(total == len(fragments) == (length + 895) // 896, "FRAGMENT_BINDING")
+        for index, fragment in enumerate(fragments, 1):
+            _inline_need(fragment[:3] == (ordinal, index, total), "FRAGMENT_BINDING")
+            expected_size = 896 if index < total else length - 896 * (total - 1)
+            _inline_need(len(fragment[3]) == expected_size, "FRAGMENT_BINDING")
+        data = b"".join(fragment[3] for fragment in fragments)
+        parser = _InlineParser(data)
+        form = parser.value()
+        _inline_need(parser.pos == len(data), "JSON_END")
+        actual = _profile_resolve(form)
+        _report_shape(_REPORT_R, actual)
+        # Beide ganzen R-Formen und Semantiken vor Repack, Hash oder Callerabgleich.
+        for reported in (actual, expected_reported):
+            _command_context(reported[0])
+            _semantic_worker(reported[0][5:] + reported[1:])
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        _inline_need(_profile_records_encode(begin, encoder_anchor, anchor) + b"\n" == records[0],
+                     "NONCANONICAL")
+        _inline_need(_profile_records_encode(end, encoder_anchor, anchor) + b"\n" == records[-1],
+                     "NONCANONICAL")
+        _inline_need(_profile_records_encode(_report_pack(actual), encoder_anchor, anchor) == data,
+                     "NONCANONICAL")
+        _profile_records_check(encoder_anchor, anchor)
+        digest = _report_sha(data, anchor)
+        _profile_records_check(encoder_anchor, anchor)
+        _inline_need(digest == end[4], "FOOTER_HASH")
+        _inline_need(ordinal == actual[0][5], "REPORT_ORDINAL_MISMATCH")
+        _inline_need(actual == expected_reported, "REPORTED_MISMATCH")
+        header = _INLINE_HEADER.pack(b"DGNP001\0", 2, len(data))
+        _profile_records_check(encoder_anchor, anchor)
+        return ("MATCHED_DECLARED_PROFILE_RECORDS", "NONE", (header, data, actual, records))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "PROFILE_RECORD_MATCH_INTERNAL"
+    # Auch bei Unterfunktionsfehlern: Providerverlust > Encoderverlust > sonstiger Fehler.
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_PROFILE_RECORD_MATCH", issue, None)
+'''
+
+
+def build_inline_profile_records_match_control_bootstrap(profile_raw, *, logical_profile,
+                                                        expected_soabi, expected_destshared) -> BootstrapSource:
+    """Vierzehnte additive Quellenroute für vollständigen deklarativen Profilrecordabgleich."""
+    selected = build_inline_input_complete_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_PROFILE_RECORDS_MATCH + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
