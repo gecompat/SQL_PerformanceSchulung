@@ -1550,3 +1550,88 @@ def build_inline_match_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_BODY = r'''
+def _inline_receive_declared_bodies(metadata_chunks, bodies, *, expected_format,
+                                    expected_input, expected_worker, expected_context):
+    """Gehaltene neun Rawbodies; keine Kanalphase, Quellenverwendung oder Herkunft."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_format) is str and expected_format == _RECEIVE_FORMAT,
+                     "FORMAT_SELECTION")
+        _inline_need(type(metadata_chunks) is tuple, "CHUNKS_TYPE")
+        _inline_need(len(metadata_chunks) <= _RECEIVE_CHUNKS, "CHUNKS_LIMIT")
+        for chunk in metadata_chunks:
+            _inline_need(type(chunk) is bytes, "CHUNK_TYPE")
+        _inline_need(type(bodies) is tuple, "BODIES_TYPE")
+        _inline_need(len(bodies) == 9, "BODIES_COUNT")
+        for body in bodies:
+            _inline_need(type(body) is bytes, "BODY_TYPE")
+        expected = (expected_input, expected_worker, expected_context)
+        _report_shape(_INLINE_M, expected)
+        header, metadata, form, actual, body_size = _match_intake(metadata_chunks)
+        _report_shape(_INLINE_M, actual)
+        # Beide Vollsemantiken und sämtliche tatsächlichen Größen vor jedem SHA.
+        for payload in (actual, expected):
+            _semantic_worker(payload[1])
+            totals = _semantic_inputs(payload[0], payload[2])
+            _inline_need(totals[0] == totals[1], "DECLARED_BODY_LENGTH")
+        sizes = tuple(len(body) for body in bodies)
+        _inline_need(all(size <= 131072 for size in sizes), "MEMBER_LIMIT")
+        _inline_need(sum(sizes) <= _INLINE_BODY_CAP, "BODY_LIMIT")
+        _inline_need(body_size == sum(sizes), "DECLARED_BODY_LENGTH")
+        for index, size in enumerate(sizes):
+            _inline_need(actual[0][5][index][3] == size
+                         and actual[2][4][index][3] == size, "BODY_SIZE")
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        _inline_need(_report_json(form, encoder_anchor) == metadata, "NONCANONICAL")
+        actual_digest = _report_sha(_report_json(_match_original(actual[0]), encoder_anchor), anchor)
+        expected_digest = _report_sha(_report_json(_match_original(expected[0]), encoder_anchor), anchor)
+        _match_intrinsic(actual, actual_digest)
+        _match_intrinsic(expected, expected_digest)
+        # Kein Join, Decode oder LF-Normalisieren; jedes gehaltene Rawobjekt einzeln.
+        hashes = tuple(_report_sha(body, anchor) for body in bodies)
+        for index, digest in enumerate(hashes):
+            _inline_need(digest == actual[0][5][index][4]
+                         and digest == actual[2][4][index][4], "BODY_HASH")
+        _inline_need(actual == expected, "METADATA_DECLARATION_MISMATCH")
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("RECEIVED_DECLARED_BODIES", "NONE", (header, metadata, actual, bodies))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "BODY_RECEIVE_INTERNAL"
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_DECLARED_BODIES", issue, None)
+'''
+
+
+def build_inline_body_control_bootstrap(profile_raw, *, logical_profile,
+                                       expected_soabi, expected_destshared) -> BootstrapSource:
+    """Neunte reine Quellenroute für begrenzte deklarativ gebundene Rawbodyaufnahme."""
+    selected = build_inline_match_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_BODY + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))

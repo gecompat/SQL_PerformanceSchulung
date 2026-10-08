@@ -3414,5 +3414,387 @@ class InlineMetadataMatchTests(unittest.TestCase):
             self.assertFalse(getattr(selected, key))
 
 
+class InlineBodyReceiveTests(unittest.TestCase):
+    def setUp(self):
+        # Neue Route, aber derselbe ausdrücklich getrennte synthetische Provider.
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[key]
+                                           for key in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        path = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", path)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=path)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=path, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_body_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.receive = self.namespace["_inline_receive_declared_bodies"]
+        self.payload = semantic_fixture()
+        self.bodies = tuple(b"synthetic-source-" + str(n).encode("ascii") for n in range(9))
+        self.format = "pooled-combined-input-design/v1"
+
+    tearDown = InlineMetadataMatchTests.tearDown
+    packet = InlineMetadataMatchTests.packet
+    chunks = InlineMetadataMatchTests.chunks
+    rehashed = InlineMetadataMatchTests.rehashed
+
+    def data(self, ordinal=1, bodies=_REPORT_OMITTED):
+        bodies = self.bodies if bodies is _REPORT_OMITTED else bodies
+        payload = semantic_fixture(ordinal)
+        rows = tuple(r[:3] + (len(raw), hashlib.sha256(raw).hexdigest())
+                     for r, raw in zip(payload[0][5], bodies))
+        payload = semantic_change(payload, (0, 5), rows)
+        payload = self.rehashed(semantic_change(payload, (2, 4), rows))
+        return payload, bodies
+
+    def call(self, *, actual=_REPORT_OMITTED, expected=_REPORT_OMITTED,
+             bodies=_REPORT_OMITTED, chunks=_REPORT_OMITTED, expected_format=_REPORT_OMITTED):
+        actual = self.payload if actual is _REPORT_OMITTED else actual
+        expected = self.payload if expected is _REPORT_OMITTED else expected
+        bodies = self.bodies if bodies is _REPORT_OMITTED else bodies
+        if chunks is _REPORT_OMITTED:
+            header, metadata = self.packet(actual)
+            chunks = self.chunks(header + metadata)
+        return self.receive(chunks, bodies,
+            expected_format=self.format if expected_format is _REPORT_OMITTED else expected_format,
+            expected_input=expected[0], expected_worker=expected[1], expected_context=expected[2])
+
+    def reject(self, result, issue=None):
+        self.assertEqual(result[0], "REJECTED_DECLARED_BODIES")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        self.assertNotIn("/synthetic", repr(result))
+        return result
+
+    def test_three_ordinals_full_independent_original_and_raw_oracle(self):
+        for ordinal in (1, 2, 3):
+            payload, bodies = self.data(ordinal)
+            header, metadata = self.packet(payload)
+            result = self.call(actual=payload, expected=payload, bodies=bodies)
+            self.assertEqual(result, ("RECEIVED_DECLARED_BODIES", "NONE", (header, metadata, payload, bodies)))
+            self.assertIs(result[2][3], bodies)
+            self.assertIsNot(result[2][2], payload)
+            parser = syntax_reference._Parser(metadata)
+            self.assertEqual(syntax_reference._resolve(parser.value(), 0), payload)
+            syntax_reference._semantics(payload, 0)
+            self.assertEqual(self.rehashed(payload)[0][6], payload[0][6])
+            for n, raw in enumerate(bodies):
+                self.assertIs(result[2][3][n], raw)
+                for rows in (result[2][2][0][5], result[2][2][2][4]):
+                    self.assertEqual(rows[n][3:], (len(raw), hashlib.sha256(raw).hexdigest()))
+        self.assertEqual(self.provider._HASH_CALLS, 33)
+
+    def test_nine_empty_original_objects_and_zero_body_header(self):
+        payload, bodies = self.data(bodies=(b"",) * 9)
+        result = self.call(actual=payload, expected=payload, bodies=bodies)
+        self.assertEqual(result[0], "RECEIVED_DECLARED_BODIES")
+        self.assertEqual(struct.unpack(">8sII", result[2][0])[2], 0)
+        self.assertIs(result[2][3], bodies)
+        self.assertEqual(self.provider._HASH_CALLS, 11)
+
+    def test_crlf_bom_nul_and_non_utf8_are_opaque(self):
+        bodies = (b"line\r\n", b"line\n", b"\xef\xbb\xbftext", b"\0", b"\xff\xfe", b"\r", b"\n", b"", b"a\0b")
+        payload, bodies = self.data(bodies=bodies)
+        result = self.call(actual=payload, expected=payload, bodies=bodies)
+        self.assertEqual(result[0], "RECEIVED_DECLARED_BODIES")
+        self.assertIs(result[2][3], bodies)
+        self.assertNotEqual(payload[0][5][0][4], payload[0][5][1][4])
+
+    def test_member_exact_131072_and_plus_one_before_hash(self):
+        bodies = (b"a" * 131072,) + (b"",) * 8
+        payload, bodies = self.data(bodies=bodies)
+        self.assertEqual(self.call(actual=payload, expected=payload, bodies=bodies)[0], "RECEIVED_DECLARED_BODIES")
+        self.provider._HASH_CALLS = 0
+        self.reject(self.call(actual=payload, expected=payload, bodies=(bodies[0] + b"a",) + bodies[1:]), "MEMBER_LIMIT")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_total_exact_1048576_and_plus_one_before_hash(self):
+        bodies = (b"a" * 131072,) * 8 + (b"",)
+        payload, bodies = self.data(bodies=bodies)
+        self.assertEqual(sum(map(len, bodies)), 1048576)
+        result = self.call(actual=payload, expected=payload, bodies=bodies)
+        self.assertEqual(result[0], "RECEIVED_DECLARED_BODIES")
+        self.assertIs(result[2][3], bodies)
+        self.provider._HASH_CALLS = 0
+        self.reject(self.call(actual=payload, expected=payload, bodies=bodies[:-1] + (b"x",)), "BODY_LIMIT")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_container_counts_eight_ten_mutable_foreign(self):
+        bodies = self.data()[1]
+        for value, issue in ((None, "BODIES_TYPE"), ([], "BODIES_TYPE"), (Foreign(), "BODIES_TYPE"),
+                             (bodies[:8], "BODIES_COUNT"), (bodies + (b"",), "BODIES_COUNT")):
+            self.reject(self.call(bodies=value), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_all_body_types_before_any_body_length(self):
+        class Bytes(bytes):
+            def __len__(self):
+                raise AssertionError("FOREIGN_LENGTH")
+        class Tuple(tuple):
+            def __iter__(self):
+                raise AssertionError("FOREIGN_ITERATOR")
+        for value in (bytearray(b"x"), memoryview(b"x"), Bytes(b"x"), Foreign(), True):
+            self.reject(self.call(bodies=(b"x" * 131073,) + (b"",) * 7 + (value,)), "BODY_TYPE")
+        self.reject(self.call(bodies=Tuple(self.data()[1])), "BODIES_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_format_before_foreign_bodies_chunks_or_expected(self):
+        for value in (None, True, Foreign(), ForeignKey(self.format), "other"):
+            self.reject(self.receive(Foreign(), Foreign(), expected_format=value,
+                expected_input=Foreign(), expected_worker=Foreign(), expected_context=Foreign()), "FORMAT_SELECTION")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_chunk_foreign_and_limits_before_body_hash(self):
+        for chunks in ((b"x" * 1025, Foreign()), (b"x" * 1025,), (b"",) * 257,
+                       (b"x" * 1024,) * 16 + (b"x",), (b"",)):
+            self.reject(self.call(chunks=chunks))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_expected_form_before_parser_and_body_lengths(self):
+        bad = semantic_change(self.payload, (2, 4, 8, 4), Foreign())
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            self.reject(self.call(expected=bad, bodies=(b"x" * 131073,) + (b"",) * 8), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_actual_form_before_early_valid_caller_difference(self):
+        expected = semantic_change(self.payload, (1, 3, 7), "other-abi")
+        bad = semantic_change(self.payload, (2, 4, 8, 4), None)
+        self.reject(self.call(actual=bad, expected=expected), "POSITION_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_identical_invalid_module_and_descriptor_never_succeed(self):
+        for path, value in (((1, 5, 2, 4), "relative"), ((0, 5, 8, 2), "wrong.py"),
+                            ((2, 4, 8, 4), "A" * 64)):
+            bad = semantic_change(self.payload, path, value)
+            self.reject(self.call(actual=bad, expected=bad))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_both_actual_size_arrays_and_header_total_before_hash(self):
+        for path in ((0, 5, 8, 3), (2, 4, 8, 3)):
+            bad = semantic_change(self.payload, path, self.payload[0][5][8][3] + 1)
+            self.reject(self.call(actual=bad), "DECLARED_BODY_LENGTH")
+        rows = tuple(r[:3] + (r[3] + 1, r[4]) if n == 8 else r for n, r in enumerate(self.payload[0][5]))
+        bad = semantic_change(semantic_change(self.payload, (0, 5), rows), (2, 4), rows)
+        self.reject(self.call(actual=bad), "DECLARED_BODY_LENGTH")
+        header, metadata = self.packet(body_size=1)
+        self.reject(self.call(chunks=self.chunks(header + metadata)), "DECLARED_BODY_LENGTH")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_individual_actual_sizes_cannot_hide_in_equal_total(self):
+        rows = list(self.payload[0][5])
+        rows[0] = rows[0][:3] + (rows[0][3] + 1, rows[0][4])
+        rows[8] = rows[8][:3] + (rows[8][3] - 1, rows[8][4])
+        bad = semantic_change(semantic_change(self.payload, (0, 5), tuple(rows)), (2, 4), tuple(rows))
+        self.reject(self.call(actual=bad), "BODY_SIZE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_mapping_order_and_member_contract_before_hash(self):
+        rows = self.payload[0][5]
+        for changed in (rows[::-1], (rows[0],) * 9,
+                        rows[:-1] + (rows[8][:1] + ("wrongmodule",) + rows[8][2:],)):
+            bad = semantic_change(semantic_change(self.payload, (0, 5), changed), (2, 4), changed)
+            self.reject(self.call(actual=bad))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_last_rawhash_precedes_early_valid_caller_mismatch(self):
+        expected = semantic_change(self.payload, (1, 3, 7), "other-abi")
+        bodies = self.data()[1]
+        bodies = bodies[:-1] + (b"X" * len(bodies[8]),)
+        self.reject(self.call(expected=expected, bodies=bodies), "BODY_HASH")
+        self.assertEqual(self.provider._HASH_CALLS, 11)
+
+    def test_first_rawhash_failure_still_checks_all_nine_hashes(self):
+        bodies = self.data()[1]
+        bodies = (b"X" * len(bodies[0]),) + bodies[1:]
+        self.reject(self.call(bodies=bodies), "BODY_HASH")
+        self.assertEqual(self.provider._HASH_CALLS, 11)
+
+    def test_both_actual_hash_arrays_and_intrinsic_original_bindings(self):
+        for path in ((0, 5, 8, 4), (2, 4, 8, 4)):
+            bad = self.rehashed(semantic_change(self.payload, path, "a" * 64))
+            self.reject(self.call(actual=bad), "INPUT_BINDING")
+        rows = tuple(r[:4] + ("a" * 64,) if n == 8 else r for n, r in enumerate(self.payload[0][5]))
+        bad = self.rehashed(semantic_change(semantic_change(self.payload, (0, 5), rows), (2, 4), rows))
+        self.reject(self.call(actual=bad, expected=bad), "BODY_HASH")
+
+    def test_original_digest_and_context_selector_are_not_rawhashes(self):
+        for path, value, issue in (((0, 6), "a" * 64, "INPUT_DIGEST"),
+                                   ((2, 3), "a" * 64, "INPUT_BINDING"),
+                                   ((1, 0), 2, "CONTEXT_FORM")):
+            self.reject(self.call(actual=semantic_change(self.payload, path, value)), issue)
+
+    def test_valid_changed_actual_raws_never_fill_expected_fields(self):
+        bodies = tuple(b"another-source-" + str(n).encode() for n in range(9))
+        payload, bodies = self.data(bodies=bodies)
+        self.reject(self.call(actual=payload, bodies=bodies), "METADATA_DECLARATION_MISMATCH")
+        self.assertEqual(self.provider._HASH_CALLS, 11)
+        self.assertEqual(self.call(actual=payload, expected=payload, bodies=bodies)[0], "RECEIVED_DECLARED_BODIES")
+
+    def test_m_repack_provider_drift_prevents_first_constructor(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        cls, original, old_code = json.JSONEncoder, json.JSONEncoder.iterencode, self.factory.__code__
+        namespace = self.real_encoder_module.__dict__
+        keys = ("_REPORT_FACTORY", "_REPORT_REPLACEMENT_CODE", "_REPORT_HELD_ITER")
+        self.assertTrue(all(k not in namespace for k in keys))
+        namespace.update(_REPORT_FACTORY=self.factory, _REPORT_REPLACEMENT_CODE=_fixture_config_var.__code__,
+                         _REPORT_HELD_ITER=original)
+        try:
+            cls.iterencode = FunctionType(_fixture_report_encoder_exchange_provider.__code__, namespace)
+            self.reject(self.call(chunks=chunks), "HASH_PROVIDER_BINDING")
+        finally:
+            cls.iterencode = original
+            self.factory.__code__ = old_code
+            for key in keys:
+                del namespace[key]
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_first_and_last_raw_constructor_drift_and_raise(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        for number in (3, 11):
+            self.provider._HASH_CALLS = 0
+            def drift():
+                if self.provider._HASH_CALLS == number:
+                    self.run.cache["hashlib"] = Foreign()
+                    self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+            self.provider._HASH_CALLBACK = drift
+            with patch.dict(self.run.cache, {"hashlib": self.provider}):
+                self.reject(self.call(chunks=chunks), "HASH_PROVIDER_BINDING")
+            self.provider._HASH_ERROR = None
+            self.assertEqual(self.provider._HASH_CALLS, number)
+
+    def test_encoder_post_and_provider_higher_priority_after_last_raw_error(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        for provider_loss in (False, True):
+            self.provider._HASH_CALLS = 0
+            def drift():
+                if self.provider._HASH_CALLS == 11:
+                    self.run.cache["json.encoder"] = Foreign()
+                    if provider_loss:
+                        self.run.cache["hashlib"] = Foreign()
+                    self.provider._HASH_ERROR = RuntimeError("PRIVATE_PAYLOAD")
+            self.provider._HASH_CALLBACK = drift
+            with patch.dict(self.run.cache, {"hashlib": self.provider, "json.encoder": self.real_encoder_module}):
+                self.reject(self.call(chunks=chunks), "HASH_PROVIDER_BINDING" if provider_loss else "REPORT_ENCODER_BINDING")
+            self.provider._HASH_ERROR = None
+
+    def test_first_original_hash_drift_dominates_constructor_failure(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        def drift():
+            self.run.cache["hashlib"] = Foreign()
+            self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.provider._HASH_CALLBACK = drift
+        with patch.dict(self.run.cache, {"hashlib": self.provider}):
+            self.reject(self.call(chunks=chunks), "HASH_PROVIDER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 1)
+
+    def test_provider_and_encoder_pre_fixed_labels_no_calls(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        with patch.dict(self.run.cache, {"hashlib": Foreign()}):
+            self.reject(self.call(chunks=chunks), "HASH_PROVIDER_BINDING")
+        with patch.object(json, "JSONEncoder", Foreign()):
+            self.reject(self.call(chunks=chunks), "REPORT_ENCODER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_exact_one_parser_three_json_eleven_sha_no_early_matcher(self):
+        events, encodings = [], []
+        parser, encode = self.namespace["_InlineParser"], self.namespace["_report_json"]
+        def parse(data):
+            events.append(data)
+            return parser(data)
+        def record(form, anchor):
+            encodings.append(form)
+            return encode(form, anchor)
+        with patch.dict(self.namespace, {"_InlineParser": parse, "_report_json": record,
+            "_inline_match_metadata_chunks": Foreign(), "_semantic_original_digest": Foreign(),
+            "_inline_receive_metadata_chunks": Foreign(), "_inline_metadata_semantics": Foreign()}):
+            result = self.call()
+        self.assertEqual(result[0], "RECEIVED_DECLARED_BODIES")
+        self.assertEqual(len(events), 1)
+        self.assertEqual(len(encodings), 3)
+        self.assertEqual(encodings[0], syntax_form(self.payload))
+        self.assertEqual(encodings[1], encodings[2])
+        self.assertIs(type(encodings[1]["modules"]), list)
+        self.assertNotIn("context_sha256", encodings[1])
+        self.assertEqual(self.provider._HASH_CALLS, 11)
+
+    def test_private_failure_active_context_and_repeat_no_consumption(self):
+        try:
+            raise RuntimeError("PRIVATE_PAYLOAD")
+        except RuntimeError:
+            self.reject(self.call(bodies=(None,) * 9), "BODY_TYPE")
+        first, second = self.call(), self.call()
+        self.assertEqual(first, second)
+        self.assertEqual(first[0], "RECEIVED_DECLARED_BODIES")
+
+    def test_eight_old_builders_bytes_definitions_imports_and_false_flags(self):
+        previous = subject.build_inline_match_control_bootstrap(RAW, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.replace(("\n" + subject._INLINE_BODY).encode(), b"", 1), previous.source)
+        old, new = ast.parse(previous.source), ast.parse(self.selected.source)
+        defs = {n.name: ast.dump(n) for n in new.body if type(n) in (ast.FunctionDef, ast.ClassDef)}
+        self.assertTrue(all(defs[n.name] == ast.dump(n) for n in old.body if type(n) in (ast.FunctionDef, ast.ClassDef)))
+        self.assertEqual([n.names[0].name for n in new.body if type(n) is ast.Import],
+                         ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in ast.walk(new)))
+        self.assertEqual(self.selected.claim, "GENERATED_CONTROL_SOURCE_ONLY")
+        for name in ("runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved"):
+            self.assertFalse(getattr(self.selected, name))
+        tree = ast.parse(subject._INLINE_BODY)
+        forbidden = {"read", "write", "open", "print", "input", "exec", "compile", "Popen", "prepare_input"}
+        self.assertFalse(any(type(n) is ast.Call and (type(n.func) is ast.Name and n.func.id in forbidden
+            or type(n.func) is ast.Attribute and n.func.attr in forbidden) for n in ast.walk(tree)))
+
+    def test_generated_script_cap_includes_literal_expansion(self):
+        base = subject.build_inline_body_control_bootstrap(b"x", logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - len(base.source) + 1)
+        selected = subject.build_inline_body_control_bootstrap(raw, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(selected.source), subject.MAX_SCRIPT_BYTES)
+        for value in (raw + b"x", b"\0" * len(raw)):
+            with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+                subject.build_inline_body_control_bootstrap(value, logical_profile=LOCATOR,
+                    expected_soabi=SOABI, expected_destshared=DESTSHARED)
+            self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+            self.assertTrue(caught.exception.__suppress_context__)
+        self.assertNotIn(LOCATOR, repr(selected))
+
 if __name__ == "__main__":
     unittest.main()
