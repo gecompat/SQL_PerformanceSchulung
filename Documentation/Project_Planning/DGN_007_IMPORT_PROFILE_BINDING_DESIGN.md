@@ -3144,8 +3144,8 @@ Der reine Plan darf wiederholt dasselbe Ergebnis liefern. Einmalverbrauch
 benötigt später ein exklusiv gehaltenes kontrollseitiges Ledger mit höchstens
 drei vorab vollständigen K-/Nonce-/Ordinalslots. Caller-Tupel, Boolflags,
 kopierte Zustände und Planlabels attestieren keinen früheren Übergang.
-`INPUT_COMPLETE` ist bislang benannt und budgetiert; seine genaue Recordform
-muss vor einem Parser separat geschlossen werden. FAILED/UNKNOWN dürfen
+Die genaue INPUT_COMPLETE-Recordform ist im nachfolgenden §30 als DESIGNED geschlossen;
+ihre Parserimplementierung folgt separat. FAILED/UNKNOWN dürfen
 in einem späteren Ledger keinen Neustart oder stillen Reset erlauben.
 
 Die synthetischen Gegenproben prüfen alle drei Ordinals, vollständige
@@ -3202,9 +3202,147 @@ LF `ef5f5b107e7d0dce389a6aab3db7e544f134731bee2db88851cc25038c127e33`
 Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt.
 
-Nächster kleiner Schnitt ist ein separater Entwurf der genauen
-`INPUT_COMPLETE`-Rückkanalrecordform vor ihrer künftigen Parserimplementierung.
+Der separate INPUT_COMPLETE-Recordentwurf liegt in §30 als DESIGNED vor.
+Nächster kleiner Schnitt ist dessen reine additive Builderimplementierung
+mit neuen synthetischen Gegenproben.
 Exklusives Ledger und Record-/Footeradapter mit geschlossener Fehlerpriorität
 folgen getrennt. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
 Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
 Loader, Worker und unabhängiger Cleanup sowie G13-/Methodengates bleiben offen.
+
+## 30. Deklarativer INPUT_COMPLETE-Rückkanalrecord
+
+Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Abschnitt
+schließt die Recordform vor ihrer Parserimplementierung. Er belegt weder
+tatsächliche Eingangsprüfung noch Kanal-, Sender- oder Phasenherkunft.
+
+### 30.1 Feste Form und getrennte Callerwahl
+
+Die künftige dreizehnte additive Quellenroute heißt
+`build_inline_input_complete_control_bootstrap(profile_raw, *, logical_profile,
+expected_soabi, expected_destshared)`. Sie ergänzt
+`_inline_match_input_complete(line, *, expected_format, expected_phase,
+expected_context)`.
+
+Der Caller wählt ausdrücklich `pooled-combined-input-design/v1`, die
+deklarative Prüfabsicht `AWAIT_INPUT_COMPLETE` und unabhängig gehaltenes
+vollständiges K8. K.phase bleibt `PRE_IMPORT`. Die Prüfabsicht belegt keinen
+vorherigen Übergang und wird durch einen Match nicht verändert.
+
+Der tatsächliche Rückkanalrecord hat exakt vier Felder:
+`["INPUT_COMPLETE", ordinal, nonceHex, context_digest]`. Ordinal ist ein
+exakter Integer 1–3; Nonce und Digest sind exakte Strings mit jeweils
+64 kleingeschriebenen Hexzeichen. Die Aufnahme ist ein exaktes bytes-Objekt
+mit `0 < len(line) <= 256`, einschließlich genau eines abschließenden LF.
+CR, zweites LF, zusätzliche Felder, Suffixbytes, Defaults und Normalisierung
+sind unzulässig. bool und Primitive-Subklassen sind keine gültigen Ersatztypen.
+
+`INPUT_COMPLETE` ist ein eigener Rückkanaltag, kein vierter Commandkind.
+BODY_RELEASE, BODY_END und IMPORT_RELEASE aus §24 bleiben unverändert.
+Mit den festen Feldbreiten umfasst jede gültige kanonische Zeile 155 Bytes:
+zwei Arrayklammern, sechs Anführungszeichen, 14 Tagzeichen, eine
+Ordinalziffer, 128 Hexzeichen, drei Kommas und ein LF.
+Die bestehende Reserve bleibt drei mal 256 gleich 768 Bytes innerhalb
+derselben globalen stdout-/stderr-Kappe. Sie erhält kein Zusatzbudget.
+Der 155-Byte-Wert ist eine Formrechnung, kein tatsächlicher Kanalnachweis.
+
+### 30.2 Vollständiger Vorlauf und Digestbindung
+
+Format und Prüfabsicht werden als exakte Strings vor Aufnahme geprüft.
+Danach werden exakter Receivedbytetyp und begrenzte Zeilenlänge geprüft.
+Vollständige Caller-K8-/D9-Primitiveformen sowie die begrenzt geparste
+vollständige Receivedviererform gehen sämtlichen Semantiken, Vergleichen
+und Hashaufrufen vor. Ein später fremdes oder fehlendes Receivedfeld darf
+weder durch einen frühen gültigen Callerunterschied noch durch früher
+ungültige Callersemantik verdeckt werden.
+
+Anschließend werden die vollständige K8-Semantik nach §24 und alle
+Receivedfeldsemantiken geprüft. Dazu gehören Commit, Raw27-Bindung,
+Sourceprofil, Nonce, sämtliche neun vollständigen Deskriptoren und der
+feste Ordinal-/Einstiegs-/PRE_IMPORT-Selector. Receivedtag, Ordinal und beide
+Hexfelder sind vollständig geprüft, bevor Anker aufgenommen werden.
+
+Danach werden äußere Encoder-/Provideranker über die gesamte Berechnung
+gehalten. Der Actualrecord wird kanonisch als ASCII-JSON plus LF neu
+kodiert und vollständig gegen die echten gehaltenen Receivedbytes geprüft.
+Erst danach wird das vollständige Caller-K8 mit eigenem sortiertem
+vollständigem Pool und Payload `(Kp,)` als E4 kodiert:
+`("pooled-binding-design/v1", "pooled-profile-binding-context/v1", pool, (Kp,))`.
+SHA-256 umfasst genau diese kanonischen ASCII-JSONbytes ohne Header.
+Alle bestehenden Text-, Sequenz-, Pool-, Knoten-, Tiefen- und
+JSON-/Headerzählgrenzen bleiben erhalten.
+
+Der vollständige Actualviererrecord muss
+`("INPUT_COMPLETE", K[5], K[3], computed_context_digest)` entsprechen.
+Der Digest bindet alle K8-Felder, nicht nur Ordinal und Nonce. Kein
+Receivedwert wird als eigenes Soll ausgewählt, kein Feld ergänzt und
+kein I7 erfunden. Der Original-Input82-`context_sha256` bleibt das getrennte
+unveränderte benannte Präbild; weder dessen Wert noch der Footer-/R-Digest
+ersetzt den K-Digest. Die einzelne K-Berechnung ersetzt kein
+Fünf-Formen-/64-KiB-Gate.
+
+### 30.3 Atomare Rückgabe und feste Fehlerpriorität
+
+Erfolg liefert ausschließlich
+`("MATCHED_DECLARED_INPUT_COMPLETE", "NONE", (line, actual))`
+mit den tatsächlichen gehaltenen Receivedbytes und allen vier tatsächlichen
+Feldern. Ablehnung liefert
+`("REJECTED_INPUT_COMPLETE", fixed_issue, None)`. Es gibt keine Teilrückgabe.
+
+Selektionsfehler heißen FORMAT_SELECTION beziehungsweise PHASE_SELECTION.
+Rollenfeste Labels sind INPUT_COMPLETE_TYPE, INPUT_COMPLETE_LIMIT,
+INPUT_COMPLETE_FORM, INPUT_COMPLETE_KIND, INPUT_COMPLETE_CANONICAL,
+INPUT_COMPLETE_MISMATCH und INPUT_COMPLETE_INTERNAL.
+Bestehende feste Parser-/SCALAR-/TEXT-/CONTEXT-/HASH-/ENCODER-Guardlabels
+bleiben zulässig; keine Rohfehler, privaten Werte oder Exceptionketten
+werden ausgegeben. Die dominante Abschlusspriorität lautet
+Providerbindungsverlust vor Encoderbindungsverlust vor sonstigem festen Fehler.
+POST gilt auch bei Encoding- oder Constructor-/Digestfehlern; frische innere
+Anker dürfen einen Verlust äußerer Bindung nicht neu baselinen.
+
+### 30.4 Endliche Kosten und Gegenproben
+
+Der vollständige Erfolgspfad umfasst einen Parser für höchstens
+255 JSONbytes, einen 63-Knoten-K8- und einen Fünf-Knoten-Receivedformvorlauf,
+neun D5-Vorkommen, 744 K-/D9-Hexzeichen, 128 Receivedhexzeichen und separat
+64 Ergebnishexzeichen. Zwei JSON-Kodierungen betreffen Actualrecord-Repack
+und E4-K-Präbild; ein K-SHA folgt. Eigene Poolaufnahme/Projektion und
+wiederholte begrenzte Namespace-/Class-/Function-/Provider-/Encoderkohärenzprüfungen
+sind zusätzliche Arbeit. Diese Rechnung attestiert keine operative
+Laufzeit, Deadline oder Gesamtausgabegröße.
+
+Künftige Synthetik prüft alle drei Ordinals und ein unabhängig vollständig
+benanntes K-/D9-/E4-Digestoracle, sämtliche K-Feldänderungen bei
+gleichbleibendem Ordinal/Nonce, Original-/R-Domainverwechslung, genaue
+Actualrückgabe und unveränderte Bytes. Gegenfälle umfassen falsche
+Auswahl/Prüfabsicht, Foreign/Subklassen/bool/null, fehlendes/fünftes Feld,
+spätes malformed D9 oder Receivedfeld vor Hash, falschen Tag,
+Nonce/Ordinal/Digest, CRLF/zweites LF/Suffix, Spaces/alternative Escapes
+und Unicode sowie Encoder-/Providerdrift und dominante Fehler.
+Die feste gültige Form ist 155 Bytes; 256-/257-Byte-Aufnahmefälle sind
+Grenzgegenproben, kein gültiger 256-Byte-Formbeleg.
+
+Die spätere additive Umsetzung erhält zwölf bestehende Builder und
+378 alte Testmethoden, alle bisherigen Definitionen und erzeugten Bytes,
+fünf direkte Scriptimports, zwei Controls und das Scriptcap von
+131072 Bytes einschließlich Literalexpansion.
+Es erfolgen keine Codec-/Matcher-/Input82-Adapterimporte vor PRE.
+Ein Scriptfit ist erst nach tatsächlicher späterer Quellenprüfung belegt.
+Vollständige Root- und unabhängige Source/Test-PRE sowie ausdrückliches GO
+gehen einem einzelnen isolierten synthetischen Suiteversuch vor.
+
+### 30.5 Getrennte Folgeschnitte und offene Claims
+
+Die reine Funktion prüft eine wiederholbare deklarative Rückmeldung.
+Sie berechnet keine tatsächlichen Bodyhashes, führt keine frische
+Profilaufnahme aus und attestiert weder Originalinputprüfung noch
+Raw27-Herkunft, Sender, Consumption, Replayfreiheit, IMPORT_RELEASE oder
+eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben false.
+
+Nächster kleiner Schnitt ist ausschließlich die additive Builder13-/
+Matcherimplementierung mit neuen synthetischen Gegenproben.
+Exklusives Ledger mit den drei vollständig vorgewählten Slots,
+Record-/Footeradapter mit geschlossener Fehlerpriorität, tatsächlicher
+Kanal, operative Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker-
+und unabhängiger Cleanupnachweis folgen getrennt.
+G13, v1, DEC-068 und die geschützte Arbeit bleiben erhalten.
