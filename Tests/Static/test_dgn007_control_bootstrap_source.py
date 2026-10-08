@@ -4197,5 +4197,493 @@ class InlineProfileReassembleTests(unittest.TestCase):
             self.assertTrue(caught.exception.__suppress_context__)
 
 
+class InlineProfileMatchTests(unittest.TestCase):
+    def setUp(self):
+        # Neue Route, aber derselbe ausdrücklich getrennte synthetische Provider.
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[key]
+                                           for key in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        path = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", path)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=path)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=path, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_profile_match_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.receive = self.namespace["_inline_match_profile_report"]
+        self.reported, self.form, self.metadata = reporter_reference(semantic_fixture(), reporter_scalars(semantic_fixture()))
+        self.header = struct.pack(">8sII", b"DGNP001\0", 2, len(self.metadata))
+
+    tearDown = InlineMetadataMatchTests.tearDown
+
+    def bytes_for(self, reported):
+        # Unabhängige Referenzprojektion aller gegebenen R-Felder.
+        _, _, pool, positions = syntax_form(reported)
+        form = ("pooled-binding-design/v1", "REPORTED", pool, positions)
+        data = syntax_bytes(form)
+        return struct.pack(">8sII", b"DGNP001\0", 2, len(data)), data, form
+
+    def call(self, reported=_REPORT_OMITTED, *, header=_REPORT_OMITTED,
+             metadata=_REPORT_OMITTED, version="pooled-binding-design/v1"):
+        return self.receive(self.header if header is _REPORT_OMITTED else header,
+                            self.metadata if metadata is _REPORT_OMITTED else metadata,
+                            expected_version=version,
+                            expected_reported=self.reported if reported is _REPORT_OMITTED else reported)
+
+    def reject(self, result, issue=None):
+        self.assertEqual(result[0], "REJECTED_PROFILE_REPORT")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        self.assertNotIn(LOCATOR, repr(result))
+
+    def accepted(self, reported):
+        header, metadata, form = self.bytes_for(reported)
+        result = self.call(reported, header=header, metadata=metadata)
+        self.assertEqual(result[:2], ("MATCHED_REPORTED_DECLARATION", "NONE"), result[:2])
+        self.assertIs(result[2][0], header)
+        self.assertIs(result[2][1], metadata)
+        self.assertEqual(result[2][2], reported)
+        parsed = syntax_reference._Parser(metadata).value()
+        actual = syntax_reference._resolve(parsed, 1)
+        self.assertEqual(actual, reported)
+        declaration = syntax_reference._semantics(actual, 1)[0]
+        self.assertEqual(declaration.context.ordinal, reported[0][5])
+        self.assertEqual(declaration.modules[0].specName, reported[3][0][2])
+        context = declaration.context
+        self.assertEqual((context.commit, context.raw27_binding, context.source_profile,
+                          context.nonce.hex(), tuple((r.ordinal, r.module, r.member, r.size, r.sha256)
+                          for r in context.modules), context.ordinal, context.entry, context.phase), reported[0])
+        installation = declaration.installation
+        self.assertEqual(tuple(getattr(installation, name) for name in (
+            "assumption", "platform", "implementation", "version", "executable", "executable_target",
+            "prefixes", "abi", "paths", "roots", "inert_zip", "flags", "finders", "hooks")) +
+            (tuple((r.path, r.size, r.sha256) for r in installation.files),), reported[1])
+        self.assertEqual(declaration.controls, reported[2])
+        self.assertEqual(tuple(tuple(getattr(row, name) for name in (
+            "name", "moduleName", "specName", "origin", "file", "kind", "locations", "loader",
+            "loaderName", "loaderPath", "aliasGroup")) for row in declaration.modules), reported[3])
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+        return result
+
+    def test_all_three_ordinals_complete_codec_reference_zero_sha(self):
+        for ordinal in (1, 2, 3):
+            payload = semantic_fixture(ordinal)
+            reported = reporter_reference(payload, reporter_scalars(payload))[0]
+            self.accepted(reported)
+
+    def test_actual_fields_preserved_and_valid_caller_differences_not_defaults(self):
+        # Jede Spaltengruppe bleibt explizit und wird nicht aus Callerwerten ersetzt.
+        changes = (((0, 0), "a" * 40), ((0, 1), "b" * 64), ((0, 3), "c" * 64),
+                   ((0, 4, 8, 4), "d" * 64), ((1, 3, 2), 13), ((1, 7), "alternate-abi"),
+                   ((1, 14, 0, 1), 1), ((3, 0, 4), "/synthetic/main_other.py"))
+        for path, value in changes:
+            changed = semantic_change(self.reported, path, value)
+            self.accepted(changed)
+            header, data, _ = self.bytes_for(changed)
+            self.reject(self.call(header=header, metadata=data), "REPORTED_MISMATCH")
+
+    def test_null_empty_text_empty_array_and_integer_zero_retained(self):
+        result = self.accepted(self.reported)[2][2]
+        self.assertIsNone(result[3][0][2])
+        self.assertEqual(result[3][0][3], "")
+        self.assertEqual(result[3][0][6], ())
+        self.assertEqual(result[0][4][0][0], 0)
+        self.assertIn("", self.form[2])
+        self.assertIs(type(result[0][4][0][0]), int)
+
+    def test_version_exact_before_any_foreign_input(self):
+        class Text(str):
+            pass
+        for value in (None, Foreign(), True, Text("pooled-binding-design/v1"), "other"):
+            self.reject(self.call(Foreign(), header=Foreign(), metadata=Foreign(), version=value),
+                        "VERSION_SELECTION")
+
+    def test_both_byte_types_before_foreign_length(self):
+        class Blob(bytes):
+            def __len__(self):
+                raise AssertionError("foreign length")
+        for value in (None, Foreign(), bytearray(b"x"), Blob(b"x")):
+            self.reject(self.call(header=value), "INPUT_TYPE")
+            self.reject(self.call(metadata=value), "INPUT_TYPE")
+
+    def test_expected_full_shape_before_actual_parser_and_provider(self):
+        class Rows(tuple):
+            pass
+        for value in (None, Foreign(), list(self.reported), Rows(self.reported)):
+            with patch.dict(self.namespace, {"_InlineParser": Foreign(), "_semantic_provider_anchor": Foreign()}):
+                self.reject(self.call(value), "SCALAR_FORM")
+        bad = semantic_change(self.reported, (3, 2, 10), (Foreign(),))
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            self.reject(self.call(bad), "SCALAR_FORM")
+
+    def test_expected_late_bool_subclass_and_foreign_before_early_actual_difference(self):
+        class Number(int):
+            pass
+        changed = semantic_change(self.reported, (0, 0), "a" * 40)
+        h, data, _ = self.bytes_for(changed)
+        for path, value in (((0, 4, 8, 3), True), ((1, 3, 2), Number(14)), ((3, 2, 4), Foreign())):
+            with patch.dict(self.namespace, {"_semantic_provider_anchor": Foreign()}):
+                self.reject(self.call(semantic_change(self.reported, path, value), header=h, metadata=data),
+                            "SCALAR_FORM")
+
+    def test_late_actual_bad_position_before_early_valid_expected_difference(self):
+        expected = semantic_change(self.reported, (0, 0), "a" * 40)
+        form = semantic_change(self.form, (3, 3, 2, 10), (None,))
+        data = syntax_bytes(form)
+        with patch.dict(self.namespace, {"_semantic_provider_anchor": Foreign()}):
+            self.reject(self.call(expected, header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)),
+                                  metadata=data), "POSITION_TYPE")
+
+    def test_late_actual_semantics_before_early_valid_expected_difference(self):
+        actual = semantic_change(self.reported, (3, 2, 7), "SOURCE")
+        h, data, _ = self.bytes_for(actual)
+        expected = semantic_change(self.reported, (0, 0), "a" * 40)
+        with patch.dict(self.namespace, {"_semantic_provider_anchor": Foreign()}):
+            self.reject(self.call(expected, header=h, metadata=data), "MODULE_FORM")
+
+    def test_late_expected_semantics_before_actual_repack(self):
+        expected = semantic_change(self.reported, (3, 2, 7), "SOURCE")
+        with patch.dict(self.namespace, {"_report_json": Foreign(), "_semantic_provider_anchor": Foreign()}):
+            self.reject(self.call(expected), "MODULE_FORM")
+
+    def test_identical_outside_root_source_and_loader_contamination_rejected(self):
+        rows = (("source", "source", "source", "/outside/source.py", "/outside/source.py",
+                 "SOURCE", (), "SOURCE", "source", "/outside/source.py", ()),)
+        changed = semantic_change(self.reported, (3,), tuple(sorted(self.reported[3] + rows)))
+        h, data, _ = self.bytes_for(changed)
+        self.reject(self.call(changed, header=h, metadata=data), "PATH_FORM")
+        changed = semantic_change(self.reported, (3, 1, 8), "wrong")
+        h, data, _ = self.bytes_for(changed)
+        self.reject(self.call(changed, header=h, metadata=data), "MODULE_FORM")
+
+    def test_identical_controls_own_names_and_installation_contamination_rejected(self):
+        for changed, issue in ((semantic_change(self.reported, (2,), ("__main__",)), "CONTROL_FORM"),
+                               (semantic_change(self.reported, (1, 11, 0), 0), "INSTALLATION_FORM")):
+            h, data, _ = self.bytes_for(changed)
+            self.reject(self.call(changed, header=h, metadata=data), issue)
+        changed = semantic_change(self.reported, (3, 2, 0), "Tests")
+        h, data, _ = self.bytes_for(changed)
+        self.reject(self.call(changed, header=h, metadata=data), "OWN_MODULE_CACHED")
+
+    def test_frozen_pair_and_singleton_empty_group_and_mixed_partner(self):
+        pair = ("_frozen_importlib", "importlib._bootstrap")
+        def frozen(name, group):
+            return (name, "importlib._bootstrap", "_frozen_importlib", "frozen", "", "FROZEN",
+                    (), "FROZEN", "", "", group)
+        rows = tuple(frozen(name, pair) for name in pair)
+        self.accepted(semantic_change(self.reported, (3,), tuple(sorted(self.reported[3] + rows))))
+        self.accepted(semantic_change(self.reported, (3,), tuple(sorted(self.reported[3] + (frozen(pair[1], ()),)))))
+        mixed = (("_collections_abc", "collections.abc", "_collections_abc", "frozen", "", "FROZEN",
+                  (), "FROZEN", "", "", ()),
+                 ("collections.abc", "collections.abc", "collections.abc", "/synthetic/stdlib/abc.py",
+                  "/synthetic/stdlib/abc.py", "SOURCE", (), "SOURCE", "collections.abc",
+                  "/synthetic/stdlib/abc.py", ()))
+        self.accepted(semantic_change(self.reported, (3,), tuple(sorted(self.reported[3] + mixed))))
+        bad = semantic_change(self.reported, (3,), tuple(sorted(self.reported[3] + rows[:1])))
+        h, data, _ = self.bytes_for(bad)
+        self.reject(self.call(bad, header=h, metadata=data), "ALIAS_FORM")
+
+    def test_k_descriptors_mapping_order_and_final_hash_form(self):
+        for path, value in (((0, 4, 8, 0), 7), ((0, 4, 8, 1), "unknown"),
+                            ((0, 4, 8, 2), "other.py"), ((0, 4, 8, 4), "g" * 64)):
+            bad = semantic_change(self.reported, path, value)
+            h, data, _ = self.bytes_for(bad)
+            self.reject(self.call(bad, header=h, metadata=data), "CONTEXT_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_k_nonce_profile_commit_and_selector_forms(self):
+        for path, value, issue in (((0, 0), "a" * 39, "CONTEXT_FORM"),
+                                   ((0, 2), "other", "CONTEXT_FORM"),
+                                   ((0, 3), "a" * 63, "CONTEXT_FORM"),
+                                   ((0, 5), 0, "CONTEXT_FORM"),
+                                   ((0, 6), "wrong", "CONTEXT_FORM"),
+                                   ((0, 7), "other", "CONTEXT_FORM")):
+            bad = semantic_change(self.reported, path, value)
+            h, data, _ = self.bytes_for(bad)
+            self.reject(self.call(bad, header=h, metadata=data), issue)
+
+    def test_header_length_magic_role_and_announcement_before_parser(self):
+        headers = (b"", self.header[:-1], self.header + b"x",
+                   struct.pack(">8sII", b"DGNC001\0", 2, len(self.metadata)),
+                   struct.pack(">8sII", b"DGNP001\0", 1, len(self.metadata)))
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            for h in headers:
+                self.reject(self.call(header=h), "HEADER_FORM")
+            self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(self.metadata) + 1)),
+                        "METADATA_LENGTH")
+
+    def test_metadata_empty_overcap_and_trailing_bytes(self):
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            self.reject(self.call(metadata=b""), "METADATA_LIMIT")
+            self.reject(self.call(metadata=b"x" * 16369), "METADATA_LIMIT")
+        data = self.metadata + b"x"
+        self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "JSON_END")
+
+    def test_tag_and_role_before_reference_interpretation(self):
+        for index, value, issue in ((0, "other", "VERSION_MISMATCH"), (1, "METADATA", "ROLE_MISMATCH")):
+            form = semantic_change(self.form, (index,), value)
+            form = semantic_change(form, (3,), (None,))
+            data = syntax_bytes(form)
+            self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), issue)
+
+    def test_pool_duplicate_order_unused_and_reference_range(self):
+        for pool, issue in ((self.form[2] + (self.form[2][-1],), "POOL_FORM"),
+                            (tuple(reversed(self.form[2])), "POOL_FORM"),
+                            (tuple(sorted(self.form[2] + ("unused-extra",))), "POOL_UNUSED")):
+            if issue == "POOL_UNUSED":
+                # Positionen nach eigenem vollständigem Pool neu zuordnen, Extra bleibt unbenutzt.
+                pool = self.form[2] + ("zz-unused-extra",)
+            form = semantic_change(self.form, (2,), pool)
+            data = syntax_bytes(form)
+            self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), issue)
+        form = semantic_change(self.form, (3, 0, 0), len(self.form[2]))
+        data = syntax_bytes(form)
+        self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "REFERENCE_RANGE")
+
+    def test_pool_256_full_valid_and_257_rejected(self):
+        count = len(self.form[2])
+        locations = tuple("/synthetic/stdlib/location%03d" % n for n in range(256 - count))
+        valid = semantic_change(self.reported, (3, 1, 6), locations)
+        self.assertEqual(len(self.bytes_for(valid)[2][2]), 256)
+        self.accepted(valid)
+        bad = semantic_change(valid, (3, 1, 6), locations + ("/synthetic/stdlib/extra",))
+        h, data, _ = self.bytes_for(bad)
+        self.reject(self.call(bad, header=h, metadata=data), "SEQUENCE_LIMIT")
+
+    def reported_with_size(self, size):
+        prefix = "/synthetic/stdlib/"
+        for count in range(4):
+            locations = tuple(prefix + chr(97 + n) * (4096 - len(prefix)) for n in range(count))
+            last = prefix + "z"
+            value = semantic_change(self.reported, (3, 1, 6), locations + (last,))
+            delta = size - len(self.bytes_for(value)[1])
+            if 0 <= delta <= 4096 - len(last):
+                value = semantic_change(value, (3, 1, 6), locations + (last + "z" * delta,))
+                self.assertEqual(len(self.bytes_for(value)[1]), size)
+                return value
+        self.fail("Keine synthetische gültige Locatorgröße gefunden")
+
+    def test_real_metadata_cap_16384_then_16385_not_internal_counter(self):
+        value = self.reported_with_size(16368)
+        self.accepted(value)
+        h, data, _ = self.bytes_for(self.reported_with_size(16369))
+        self.reject(self.call(value, header=h, metadata=data), "METADATA_LIMIT")
+
+    def test_expected_valid_dto_is_not_required_to_fit_its_own_e4(self):
+        large = self.reported_with_size(16369)
+        self.reject(self.call(large), "REPORTED_MISMATCH")
+
+    def test_unicode_ascii_escaping_pipe_and_shared_text_identity(self):
+        value = semantic_change(self.reported, (1, 7), 'ABI|"\\é😀\u007f')
+        result = self.accepted(value)
+        self.assertIn(b"\\u00e9", result[2][1])
+        self.assertIn(b"\\ud83d\\ude00", result[2][1])
+        actual = result[2][2]
+        self.assertIs(actual[3][2][0], actual[3][2][1])
+
+    def test_noncanonical_escape_and_whitespace_strict(self):
+        data = self.metadata.replace(b"REPORTED", b"REP\\u004fRTED")
+        self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "NONCANONICAL")
+        data = self.metadata.replace(b",", b", ", 1)
+        self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "JSON_FORM")
+
+    def test_null_only_spec_name_and_raw_nul_surrogate_text_closed(self):
+        for path in ((3, 0, 3), (0, 3), (1, 7)):
+            form = semantic_change(self.form, (3,) + path, None)
+            data = syntax_bytes(form)
+            self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "POSITION_TYPE")
+        data = self.metadata.replace(b"REPORTED", b"REP\0ORTED")
+        self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "JSON_TEXT")
+        for text in ("\ud800", "nul\0"):
+            self.reject(self.call(semantic_change(self.reported, (1, 7), text)), "TEXT_LIMIT")
+
+    def test_actual_iterencoder_provider_drift_even_without_hash_call(self):
+        cls, original = json.JSONEncoder, json.JSONEncoder.iterencode
+        old_code = self.factory.__code__
+        namespace = self.real_encoder_module.__dict__
+        keys = ("_REPORT_FACTORY", "_REPORT_REPLACEMENT_CODE", "_REPORT_HELD_ITER")
+        self.assertTrue(all(key not in namespace for key in keys))
+        namespace.update(_REPORT_FACTORY=self.factory, _REPORT_REPLACEMENT_CODE=_fixture_config_var.__code__,
+                         _REPORT_HELD_ITER=original)
+        try:
+            cls.iterencode = FunctionType(_fixture_report_encoder_exchange_provider.__code__, namespace)
+            self.reject(self.call(), "HASH_PROVIDER_BINDING")
+        finally:
+            cls.iterencode = original
+            self.factory.__code__ = old_code
+            for key in keys:
+                del namespace[key]
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_encoder_error_post_drift_and_provider_priority(self):
+        original = json.JSONEncoder.default
+        replacement = FunctionType(original.__code__, original.__globals__, "default")
+        old = self.run.cache["hashlib"]
+        def failed(*args):
+            raise OSError("PRIVATE_PAYLOAD")
+        with patch.dict(self.namespace, {"_report_json": failed}):
+            self.reject(self.call(), "PROFILE_MATCH_INTERNAL")
+        def drift(*args):
+            json.JSONEncoder.default = replacement
+            raise OSError("PRIVATE_PAYLOAD")
+        try:
+            with patch.dict(self.namespace, {"_report_json": drift}):
+                self.reject(self.call(), "REPORT_ENCODER_BINDING")
+            json.JSONEncoder.default = original
+            def both(*args):
+                self.run.cache["hashlib"] = Foreign()
+                return drift(*args)
+            with patch.dict(self.namespace, {"_report_json": both}):
+                self.reject(self.call(), "HASH_PROVIDER_BINDING")
+        finally:
+            json.JSONEncoder.default = original
+            self.run.cache["hashlib"] = old
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_provider_and_encoder_pre_fixed_failure_without_sha(self):
+        old = self.run.cache["hashlib"]
+        try:
+            self.run.cache["hashlib"] = Foreign()
+            self.reject(self.call(), "HASH_PROVIDER_BINDING")
+        finally:
+            self.run.cache["hashlib"] = old
+        with patch.object(json, "JSONEncoder", Foreign()):
+            self.reject(self.call(), "REPORT_ENCODER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_one_parser_one_repack_zero_sha_and_repeatable_pure_match(self):
+        original_parser = self.namespace["_InlineParser"]
+        original_json = self.namespace["_report_json"]
+        counts = [0, 0]
+        def parser(data):
+            counts[0] += 1
+            return original_parser(data)
+        def repack(form, anchor):
+            counts[1] += 1
+            return original_json(form, anchor)
+        with patch.dict(self.namespace, {"_InlineParser": parser, "_report_json": repack,
+                                       "_report_sha": Foreign(), "_semantic_original_digest": Foreign()}):
+            self.assertEqual(self.call()[0], "MATCHED_REPORTED_DECLARATION")
+            self.assertEqual(self.call()[0], "MATCHED_REPORTED_DECLARATION")
+        self.assertEqual(counts, [2, 2])
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_opaque_footer_records_alone_never_create_r_success(self):
+        data = b"opaque|not-r"
+        self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), "JSON_FORM")
+        with patch.dict(self.namespace, {"_inline_reassemble_profile_records": Foreign()}):
+            self.assertEqual(self.call()[0], "MATCHED_REPORTED_DECLARATION")
+
+    def test_old_ten_builders_bytes_and_importclosure_preserved(self):
+        new = ast.parse(self.selected.source)
+        old = subject.build_inline_reassemble_control_bootstrap(RAW, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        anchor = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+        self.assertEqual(self.selected.source.decode().replace('\n' + subject._INLINE_PROFILE_MATCH, '', 1),
+                         old.source.decode())
+        self.assertEqual([alias.name for n in ast.walk(new) if type(n) is ast.Import for alias in n.names],
+                         ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in ast.walk(new)))
+        forbidden = {"open", "read", "write", "input", "print", "exec", "compile", "Popen"}
+        self.assertFalse(any(type(n) is ast.Call and (type(n.func) is ast.Name and n.func.id in forbidden
+            or type(n.func) is ast.Attribute and n.func.attr in forbidden)
+            for n in ast.walk(ast.parse(subject._INLINE_PROFILE_MATCH))))
+
+    def test_script_cap_literal_and_private_frozen_flags(self):
+        base = subject.build_inline_profile_match_control_bootstrap(b"x", logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - len(base.source) + 1)
+        value = subject.build_inline_profile_match_control_bootstrap(raw, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(value.source), 131072)
+        self.assertNotIn(LOCATOR, repr(value))
+        self.assertFalse(value.runtime_attested)
+        self.assertFalse(value.import_used_bytes_attested)
+        with self.assertRaises(FrozenInstanceError):
+            value.source = b"x"
+        for oversized in (raw + b"x", b"\0" * len(raw)):
+            with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+                subject.build_inline_profile_match_control_bootstrap(oversized, logical_profile=LOCATOR,
+                    expected_soabi=SOABI, expected_destshared=DESTSHARED)
+            self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+            self.assertTrue(caught.exception.__suppress_context__)
+
+
+    def test_parser_depth_integer_and_schema_arity_guards(self):
+        for data, issue in ((b"[" * 9 + b"0" + b"]" * 9, "DEPTH_LIMIT"),
+                            (b"100000000", "INTEGER_LIMIT"), (b"[]", "SCHEMA_FORM")):
+            self.reject(self.call(header=struct.pack(">8sII", b"DGNP001\0", 2, len(data)), metadata=data), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_expected_node_bound_before_actual_parser_not_wire_fit_claim(self):
+        rows = tuple(("source%03d" % n, "source%03d" % n, "source%03d" % n,
+                      "/synthetic/stdlib/x", "/synthetic/stdlib/x", "SOURCE",
+                      ("/synthetic/stdlib/pkg",) * 256, "SOURCE", "source%03d" % n,
+                      "/synthetic/stdlib/x", ()) for n in range(70))
+        oversized = semantic_change(self.reported, (3,), tuple(sorted(self.reported[3] + rows)))
+        with patch.dict(self.namespace, {"_InlineParser": Foreign(), "_semantic_provider_anchor": Foreign()}):
+            self.reject(self.call(oversized), "NODE_LIMIT")
+
+    def test_repeated_held_text_references_share_identity_after_real_resolution(self):
+        repeated = ("/synthetic/stdlib/pkg",) * 256
+        value = semantic_change(self.reported, (3, 1, 6), repeated)
+        result = self.accepted(value)
+        actual = result[2][2][3][1][6]
+        self.assertEqual(len(actual), 256)
+        self.assertTrue(all(text is actual[0] for text in actual))
+
+    def test_generic_declarative_controlset_not_operational_two_name_baseline(self):
+        extra = ("synthetic_control", "synthetic_control", None, "", "/synthetic/control.py",
+                 "CONTROL", (), "NONE", "", "", ())
+        value = semantic_change(self.reported, (2,), self.reported[2] + (extra[0],))
+        value = semantic_change(value, (3,), tuple(sorted(value[3] + (extra,))))
+        self.accepted(value)
+
+    def test_canonical_repack_uses_actual_resolved_fields_not_expected(self):
+        value = semantic_change(self.reported, (1, 7), "different-actual-abi")
+        header, metadata, form = self.bytes_for(value)
+        original = self.namespace["_report_pack"]
+        seen = []
+        def pack(payload):
+            seen.append(payload)
+            return original(payload)
+        with patch.dict(self.namespace, {"_report_pack": pack}):
+            self.reject(self.call(header=header, metadata=metadata), "REPORTED_MISMATCH")
+        self.assertEqual(seen, [value])
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
 if __name__ == "__main__":
     unittest.main()
