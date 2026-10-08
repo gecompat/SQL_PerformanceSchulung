@@ -1228,3 +1228,73 @@ def build_inline_report_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_RECEIVER = r'''
+_RECEIVE_FORMAT = "pooled-combined-input-design/v1"
+_RECEIVE_CHUNKS = 256
+_RECEIVE_CHUNK_BYTES = 1024
+
+
+def _inline_receive_metadata_chunks(chunks, *, expected_format):
+    """Nur gegebene Chunks aufnehmen; keine Pipe, Bodies oder Freigabe."""
+    try:
+        _inline_need(type(expected_format) is str
+                     and expected_format == _RECEIVE_FORMAT, "FORMAT_SELECTION")
+        _inline_need(type(chunks) is tuple, "CHUNKS_TYPE")
+        _inline_need(len(chunks) <= _RECEIVE_CHUNKS, "CHUNKS_LIMIT")
+        # Alle Typen vor Längen, Kopien, Headerauslegung oder Provideraktivität.
+        for chunk in chunks:
+            _inline_need(type(chunk) is bytes, "CHUNK_TYPE")
+        total, oversized = 0, False
+        for chunk in chunks:
+            oversized = oversized or len(chunk) > _RECEIVE_CHUNK_BYTES
+            total += len(chunk)
+        _inline_need(not oversized, "CHUNK_LIMIT")
+        _inline_need(total <= _INLINE_METADATA_CAP, "METADATA_LIMIT")
+        _inline_need(total >= _INLINE_HEADER.size, "HEADER_LENGTH")
+        # Leere Stücke sind zulässig und zählen zur endlichen Chunkgrenze.
+        pieces, missing = [], _INLINE_HEADER.size
+        for chunk in chunks:
+            if missing:
+                piece = chunk[:missing]
+                pieces.append(piece)
+                missing -= len(piece)
+        header = b"".join(pieces)
+        magic, metadata_size, body_size = _INLINE_HEADER.unpack(header)
+        _inline_need(magic == _INLINE_MAGIC, "HEADER_FORM")
+        _inline_need(0 < metadata_size <= _INLINE_METADATA_CAP - _INLINE_HEADER.size,
+                     "METADATA_LIMIT")
+        _inline_need(body_size <= _INLINE_BODY_CAP, "BODY_LIMIT")
+        _inline_need(_INLINE_HEADER.size + metadata_size + body_size <= _INLINE_FRAME_CAP,
+                     "FRAME_LIMIT")
+        # Erst das exakte Ende prüfen: kein Suffix und keine Body-/Commandaufnahme.
+        _inline_need(total == _INLINE_HEADER.size + metadata_size, "METADATA_LENGTH")
+        received = b"".join(chunks)
+        metadata = received[_INLINE_HEADER.size:]
+        semantic = _inline_metadata_semantics(header, metadata)
+        if semantic[0] != "VALID_METADATA_SEMANTICS":
+            return ("REJECTED_RECEIVED_METADATA", semantic[1], None)
+        return ("VALID_RECEIVED_METADATA", "NONE", (header, metadata, semantic[2]))
+    except _InlineSyntaxRejected as error:
+        return ("REJECTED_RECEIVED_METADATA", error.args[0], None)
+    except BaseException:
+        return ("REJECTED_RECEIVED_METADATA", "RECEIVE_INTERNAL", None)
+'''
+
+
+def build_inline_receive_control_bootstrap(profile_raw, *, logical_profile,
+                                          expected_soabi, expected_destshared) -> BootstrapSource:
+    """Sechste reine Quellenroute für gehaltene Header-/Metadata-Chunks."""
+    selected = build_inline_report_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_RECEIVER + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
