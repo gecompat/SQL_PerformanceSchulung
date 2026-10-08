@@ -1846,3 +1846,95 @@ def build_inline_profile_match_control_bootstrap(profile_raw, *, logical_profile
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_PROFILE_BODY_RELEASE = r'''
+def _inline_plan_profile_body_release(header, metadata, *, expected_format, expected_phase,
+                                      expected_reported, expected_context):
+    """Atomarer deklarativer Plan; kein Send, Phasenübergang oder Einmalverbrauch."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_format) is str and expected_format == _COMMAND_FORMAT,
+                     "FORMAT_SELECTION")
+        _inline_need(type(expected_phase) is str and expected_phase == "AWAIT_PROFILE",
+                     "PHASE_SELECTION")
+        _inline_need(type(header) is bytes and type(metadata) is bytes, "INPUT_TYPE")
+        # Beide vollständigen Callerformen vor Parsing; keinerlei Callerdefaults.
+        _report_shape(_REPORT_R, expected_reported)
+        _report_shape(_INLINE_K, expected_context)
+        _inline_need(len(header) == _INLINE_HEADER.size, "HEADER_FORM")
+        _inline_need(0 < len(metadata) <= _INLINE_METADATA_CAP - _INLINE_HEADER.size,
+                     "METADATA_LIMIT")
+        magic, role, length = _INLINE_HEADER.unpack(header)
+        _inline_need(magic == b"DGNP001\0" and role == 2, "HEADER_FORM")
+        _inline_need(length == len(metadata), "METADATA_LENGTH")
+        parser = _InlineParser(metadata)
+        form = parser.value()
+        _inline_need(parser.pos == len(metadata), "JSON_END")
+        actual = _profile_resolve(form)
+        _report_shape(_REPORT_R, actual)
+        # Sämtliche Vollformen vor sämtlichen Semantiken, diese vor Encoding/SHA.
+        for reported in (actual, expected_reported):
+            _command_context(reported[0])
+            _semantic_worker(reported[0][5:] + reported[1:])
+        _command_context(expected_context)
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        _inline_need(_report_json(_report_pack(actual), encoder_anchor) == metadata,
+                     "NONCANONICAL")
+        _inline_need(actual == expected_reported, "REPORTED_MISMATCH")
+        _inline_need(actual[0] == expected_reported[0] == expected_context, "CONTEXT_MISMATCH")
+        # Innere frische Anker dürfen einen äußeren Bindungsverlust nicht neu baselinen.
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        command = _inline_command_encode("BODY_RELEASE", actual[0], expected_format=expected_format)
+        _inline_need(type(command) is tuple and len(command) == 3
+                     and type(command[0]) is str and type(command[1]) is str,
+                     "PROFILE_BODY_RELEASE_INTERNAL")
+        if command[0] != "FORMATTED_BOUND_COMMAND":
+            _inline_need(command[0] == "REJECTED_BOUND_COMMAND" and command[2] is None,
+                         "PROFILE_BODY_RELEASE_INTERNAL")
+            raise _InlineSyntaxRejected(command[1]) from None
+        _inline_need(command[1] == "NONE" and type(command[2]) is bytes
+                     and 0 < len(command[2]) <= _COMMAND_LIMIT,
+                     "PROFILE_BODY_RELEASE_INTERNAL")
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("PLANNED_DECLARED_BODY_RELEASE", "NONE",
+                (header, metadata, actual, command[2], "BODY_RELEASE_READY"))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "PROFILE_BODY_RELEASE_INTERNAL"
+    # Auch nach Unterfunktionsfehler: Providerverlust > Encoderverlust > Fehler.
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_PROFILE_BODY_RELEASE_PLAN", issue, None)
+'''
+
+
+def build_inline_profile_body_release_control_bootstrap(profile_raw, *, logical_profile,
+                                                       expected_soabi, expected_destshared) -> BootstrapSource:
+    """Zwölfte additive Quellenroute für den reinen deklarativen BODY_RELEASE-Plan."""
+    selected = build_inline_profile_match_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_PROFILE_BODY_RELEASE + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
