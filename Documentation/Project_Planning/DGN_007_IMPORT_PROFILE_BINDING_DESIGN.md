@@ -2406,3 +2406,89 @@ Nächster reiner Offline-Schnitt sind Receiver-/Kanalteile nach §16. Separat
 vorgewählte operative S15-/P11-Inventur der endgültigen Quelle, gemeinsames
 Fünf-Formen-/64-KiB-Gate und Parent-/Worker-, Loader-, Consumption-, Replay-,
 Cleanup- und G13-Methodengates bleiben getrennte Folgearbeit.
+
+## 23. Reine begrenzte Inline-Header-/Metadata-Aufnahme
+
+Der additive Vorschnitt setzt ausschließlich den ersten Aufnahmehalt
+aus §16.3 für bereits gehaltene synthetische Bytes um. Der Caller wählt die
+feste Darstellung `pooled-combined-input-design/v1` ausdrücklich; es gibt
+keinen Dispatch anhand eines empfangenen Tags und keinen Legacy-Fallback.
+Die Eingabe ist ein exakt typisiertes Tupel mit höchstens 256 exakten
+Bytesstücken von jeweils höchstens 1.024 Bytes. Ihre gesamte Länge bleibt
+auf 16.384 Bytes einschließlich des festen 16-Byte-DGNC-Headers begrenzt.
+Alle Typen und Längen werden vor Kopien, Parser- und Hashcalls geprüft.
+Leere Stücke sind zulässig und zählen gegen dieselbe 256-Stück-Grenze.
+Die sechste reine Builderroute heißt `build_inline_receive_control_bootstrap`;
+ihre private Funktion ist
+`_inline_receive_metadata_chunks(chunks, *, expected_format)`.
+
+Nach der begrenzten Headeraufnahme müssen Magic, Metadata-, Body- und
+Combinedcaps gültig sein. Die Gesamtmenge muss exakt Header plus deklarierter
+Metadata entsprechen, bevor Metadatabytes kopiert und vollständig geprüft
+werden. Angehängte Body- oder Commandbytes werden abgewiesen. Beide D9 und
+sämtliche deklarativen Felder sowie der unveränderte benannte Originaldigest
+bleiben vollständig erhalten. Erfolg darf ausschließlich atomar die gehaltenen
+Header-/Metadatabytes und den vollständig validierten Payload zurückgeben;
+eine Ablehnung enthält feste Labels und keine Teilrückgabe. Erfolg liefert
+`VALID_RECEIVED_METADATA`, `NONE` und das private Tupel
+`(header, metadata, vollständig_validierter_payload)`. Ablehnung liefert
+`REJECTED_RECEIVED_METADATA`, ein festes Fehlerlabel und None.
+Formatwahl, sämtliche Elementtypen und sämtliche Stück-/Gesamtlängen werden
+in dieser Reihenfolge geprüft. Die Aufnahme umfasst höchstens je 256 Typ-,
+Längen- und Headeriterationen, insgesamt höchstens 16 kopierte Headerbytes,
+einen Join von höchstens 16.384 Bytes und einen Metadataslice von höchstens
+16.368 Bytes. Danach läuft die vorhandene vollständige M-Semantik einmal.
+Die Combinedcapprüfung bleibt erhalten; bei den gleichzeitig geltenden
+Einzelcaps ist sie rechnerisch redundant und kein zusätzliches Bytebudget.
+
+Die fünf bisherigen Builderrouten bleiben erhalten. Dieser Vorschnitt umfasst
+keine stdin-/Pipeaufnahme, Callbacks, Bodyaufnahme oder Freigabe, keinen
+Callerabgleich und keine Profilinventur. Seine endliche Stück-/Byteprüfung
+und der vollständige M-Parser-/Repack-/Originaldigestdurchlauf sind kein
+Nachweis der operativen 20-Sekunden-Deadline. K-Domain-Digest, Commands,
+BODY_RELEASE, BODY_END, INPUT_COMPLETE, IMPORT_RELEASE und erwartetes EOF
+sowie die tatsächliche Parent-/Worker-, Consumption-, Replay- und
+Cleanupbindung bleiben getrennte Folgearbeit. Alle Attestationsflags bleiben
+false; historische Captures und native Auswahl werden nicht wiederholt.
+
+Root und unabhängiger Review lasen Quelle und Tests vollständig vor der
+Ausführung. Die beiden eingefrorenen Dateien bestanden anschließend genau
+einen autorisierten isolierten Lauf mit `-I -S -B -X utf8` unter CPython
+3.12.14: 174/174 PASS in 2,905 Sekunden, Exit 0, kein FAILURE, ERROR oder SKIP.
+Es gab keinen Fehlversuch oder Rerun. Alle 149 bisherigen Testmethoden und
+sämtliche bisherigen Definitionen bleiben AST-identisch; die bisherige
+Toolquelle und die Abschnitte §1–22 sind LF-byteidentische Präfixe.
+
+Die 25 neuen Methoden prüfen Headerpositionen 0–16 mit führenden, inneren
+und nachlaufenden Leerchunks, Einbyteheader und übergreifende Chunkgrenzen,
+256/257 Stücke, 1.024/1.025 Stückbytes und tatsächliche gültige Metadata
+16.384/16.385 einschließlich Header. Vollständige Typ-/Gesamtvorläufe gehen
+Headerauslegung, Parser und Provider vor. Sämtliche drei Ordinals werden mit
+einer unabhängigen benannten Referenz und dem tatsächlichen Formcodec
+vollständig rückgewonnen. Positive Bodyankündigung bleibt deklarativ;
+Truncation, angehängte Bodies/Commands, späte Fehler in der zweiten D9,
+Originaldigest-/Kontext-/Selectorfehler und dominante Provider-POSTs liefern
+keine Teilbytes. Unicode und innere Separatoren bleiben unverändert.
+Wiederholte reine Auswertung ist kein Consumption- oder Replaynachweis.
+
+RAW-/LF-Pins blieben vor und nach dem Lauf unverändert. Die eigenen
+temporären Fixtureabsenzprüfungen und vollständigen Realcache-/Main-/
+Sysconfig-/JSON-/Encoder-/Functionstate-Sentinels bestanden ohne Reparatur.
+Kein tatsächlicher Profil-, Sysconfig-, Worker- oder SQLstart und kein
+erneuter historischer Capture, Prepare, Nonce oder native Auswahl.
+
+Toolpins sind RAW
+`733a2ba9bb836b88e32ef4d16f64f1926c1018be666341db394eacac73ce72be`
+und LF `9baf1b288918f78aa0d4316241ca0492b9966908dd8d4f31fe4e4cf8d8998b98`
+(63.197 LFbytes). Testpins sind RAW
+`d2b2f27cc0577d93c04c840bd2fb1d5e1712f92c36b0119a1bd6069a73fade47`
+und LF `88a55fd3752c8f0224d821185057e9d7c19a6c29d1d819e359f9014357b2e841`
+(138.318 LFbytes). Die nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]` mit Trennzeichen `(',',':')` bindet beide Dateien als
+SHA-256 `e3a6148e70a90219fb0fafd0d90f68e8ca3f9b88c68ed734250c7cc4d790f69c`.
+
+Nächster kleiner reiner Schnitt sind K-Domain-/Commandteile nach §16.3.
+Tatsächlicher Kanal, vollständiger Callerabgleich, Bodyaufnahme und Freigaben,
+separat vorgewählte operative S15-/P11-Inventur, Fünf-Formen-/64-KiB-Gate
+sowie Parent-/Worker-, Loader-, Consumption-, Replay-, Cleanup- und
+G13-Methodengates bleiben getrennte Folgearbeit.

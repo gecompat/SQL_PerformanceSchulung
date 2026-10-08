@@ -2149,5 +2149,336 @@ class InlineProfileReporterTests(unittest.TestCase):
         self.assertNotIn(LOCATOR, repr(self.selected))
 
 
+class InlineMetadataReceiverTests(unittest.TestCase):
+    def setUp(self):
+        # Derselbe rein synthetische Provider; eigene Cache-/Main-Anker um jeden Test.
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[key]
+                                           for key in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        native_file = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", native_file)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=native_file)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=native_file, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_receive_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.receive = self.namespace["_inline_receive_metadata_chunks"]
+        self.payload = semantic_fixture()
+        self.format = "pooled-combined-input-design/v1"
+
+    def tearDown(self):
+        # Dieselben vollständigen gehaltenen Realstate-Prüfungen, ohne Reparatur.
+        InlineProfileReporterTests.tearDown(self)
+
+    def packet(self, payload=None, *, body_size=None):
+        return InlineMetadataSemanticsTests.packet(self, self.payload if payload is None else payload,
+                                                   body_size=body_size)
+
+    def chunks(self, data, size=1024):
+        return tuple(data[n:n + size] for n in range(0, len(data), size))
+
+    def accepted(self, chunks=None, payload=None):
+        payload = self.payload if payload is None else payload
+        header, metadata = self.packet(payload)
+        chunks = self.chunks(header + metadata) if chunks is None else chunks
+        result = self.receive(chunks, expected_format=self.format)
+        self.assertEqual(result[:2], ("VALID_RECEIVED_METADATA", "NONE"), result[:2])
+        self.assertIs(type(result[2]), tuple)
+        self.assertEqual(result[2], (header, metadata, payload))
+        self.assertTrue(all(type(value) is bytes for value in result[2][:2]))
+        return result[2]
+
+    def rejected(self, chunks, issue=None, *, expected_format=_REPORT_OMITTED):
+        selected = self.format if expected_format is _REPORT_OMITTED else expected_format
+        result = self.receive(chunks, expected_format=selected)
+        self.assertEqual(result[0], "REJECTED_RECEIVED_METADATA")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("/synthetic", repr(result))
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        return result
+
+    def test_all_header_splits_and_single_byte_header_chunks(self):
+        header, metadata = self.packet()
+        for split in range(17):
+            self.accepted((header[:split], header[split:]) + self.chunks(metadata))
+            self.accepted((b"", header[:split], b"", header[split:]) + self.chunks(metadata) + (b"",))
+        self.accepted(tuple(bytes((n,)) for n in header) + self.chunks(metadata))
+
+    def test_chunks_can_cross_header_metadata_and_1024_boundaries(self):
+        header, metadata = self.packet()
+        for size in (127, 511, 1023, 1024):
+            chunks = self.chunks(header + metadata, size)
+            self.assertTrue(all(len(c) <= 1024 for c in chunks))
+            self.accepted(chunks)
+
+    def test_full_all_ordinal_payloads_match_independent_codec_fields(self):
+        for ordinal in (1, 2, 3):
+            payload = semantic_fixture(ordinal)
+            held = self.accepted(payload=payload)
+            actual = held[2]
+            reference = syntax_reference._semantics(payload, 0)
+            self.assertEqual(actual[0], reference[0])
+            worker, context = reference[1:]
+            installation = worker.installation
+            self.assertEqual(actual[1][:3], (worker.ordinal, worker.entry, worker.phase))
+            self.assertEqual(actual[1][3], tuple(getattr(installation, key)
+                if key != "files" else tuple((row.path, row.size, row.sha256) for row in installation.files)
+                for key in ("assumption", "platform", "implementation", "version", "executable",
+                    "executable_target", "prefixes", "abi", "paths", "roots", "inert_zip", "flags",
+                    "finders", "hooks", "files")))
+            self.assertEqual(actual[1][4], worker.controls)
+            self.assertEqual(actual[1][5], tuple(tuple(getattr(row, key) for key in (
+                "name", "moduleName", "specName", "origin", "file", "kind", "locations", "loader",
+                "loaderName", "loaderPath", "aliasGroup")) for row in worker.modules))
+            self.assertEqual(actual[2][:4], (context.commit, context.raw27_binding,
+                context.source_profile, context.nonce.hex()))
+            self.assertEqual(actual[2][4], tuple((row.ordinal, row.module, row.member, row.size, row.sha256)
+                                               for row in context.modules))
+            self.assertEqual(actual[2][5:], (context.ordinal, context.entry, context.phase))
+
+    def test_empty_chunks_are_finite_and_count_toward_256(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        self.accepted((b"",) * (256 - len(chunks)) + chunks)
+        self.rejected((b"",) * (257 - len(chunks)) + chunks, "CHUNKS_LIMIT")
+        self.rejected((), "HEADER_LENGTH")
+        self.rejected((b"",) * 256, "HEADER_LENGTH")
+
+    def test_format_exact_and_chosen_before_foreign_chunks(self):
+        for value in (None, True, Foreign(), ForeignKey(self.format), "other",
+                      "pooled-binding-design/v1"):
+            self.rejected(Foreign(), "FORMAT_SELECTION", expected_format=value)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_foreign_tuple_and_byte_subclasses_are_never_dispatched(self):
+        class Tuples(tuple):
+            def __iter__(self):
+                raise AssertionError("FOREIGN_ITERATOR")
+        class Bytes(bytes):
+            def __len__(self):
+                raise AssertionError("FOREIGN_LENGTH")
+        for value in (None, [], Foreign(), Tuples(())):
+            self.rejected(value, "CHUNKS_TYPE")
+        for value in (None, True, bytearray(), memoryview(b""), Foreign(), Bytes(b"x")):
+            self.rejected((value,), "CHUNK_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_foreign_type_dominates_early_large_or_invalid_header(self):
+        with patch.dict(self.namespace, {"_inline_metadata_semantics": Foreign(), "_INLINE_HEADER": Foreign()}):
+            self.rejected((b"x" * 1025, Foreign()), "CHUNK_TYPE")
+            self.rejected((b"x" * 16, Foreign()), "CHUNK_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_chunk_1024_allowed_and_1025_closed_before_parser(self):
+        header, metadata = self.packet()
+        data = header + metadata
+        self.assertGreater(len(data), 1025)
+        self.accepted(self.chunks(data, 1024))
+        with patch.dict(self.namespace, {"_inline_metadata_semantics": Foreign(), "_INLINE_HEADER": Foreign()}):
+            self.rejected((data[:1025],) + self.chunks(data[1025:]), "CHUNK_LIMIT")
+
+    def test_entire_total_preflight_before_header_or_parser(self):
+        with patch.dict(self.namespace, {"_inline_metadata_semantics": Foreign(), "_INLINE_HEADER": Foreign()}):
+            self.rejected((b"x" * 1024,) * 16 + (b"x",), "METADATA_LIMIT")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_every_short_header_and_truncated_metadata_no_hash(self):
+        header, metadata = self.packet()
+        for size in range(16):
+            self.rejected((header[:size],), "HEADER_LENGTH")
+        for data in (header, header + metadata[:-1], header + metadata[:1]):
+            self.rejected(self.chunks(data), "METADATA_LENGTH")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_extra_body_command_and_suffix_are_rejected_before_semantics(self):
+        header, metadata = self.packet()
+        for extra in (b"x", b'BODY_RELEASE\n', b'\0', b'\r\n'):
+            with patch.dict(self.namespace, {"_inline_metadata_semantics": Foreign()}):
+                self.rejected(self.chunks(header + metadata + extra), "METADATA_LENGTH")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_header_magic_metadata_and_body_bounds(self):
+        _, metadata = self.packet()
+        cases = ((b"WRONG001", len(metadata), 0, "HEADER_FORM"),
+                 (b"DGNC001\0", 0, 0, "METADATA_LIMIT"),
+                 (b"DGNC001\0", 16369, 0, "METADATA_LIMIT"),
+                 (b"DGNC001\0", len(metadata), 1048577, "BODY_LIMIT"))
+        for magic, length, body, issue in cases:
+            with patch.dict(self.namespace, {"_inline_metadata_semantics": Foreign()}):
+                self.rejected(self.chunks(struct.pack(">8sII", magic, length, body) + metadata), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_positive_body_announcement_is_not_body_intake(self):
+        payload = self.payload
+        descriptors = tuple(row[:3] + (1,) + row[4:] for row in payload[0][5])
+        payload = semantic_change(payload, (0, 5), descriptors)
+        payload = semantic_change(payload, (2, 4), descriptors)
+        original = dict(protocol=payload[0][0], commit=payload[0][1], raw27_binding=payload[0][2],
+            source_profile=payload[0][3], nonce=payload[0][4], modules=[dict(zip(
+                ("ordinal", "module", "member", "size", "sha256"), row)) for row in descriptors])
+        digest = hashlib.sha256(json.dumps(original, sort_keys=True, ensure_ascii=True,
+            separators=(",", ":"), allow_nan=False).encode("ascii")).hexdigest()
+        payload = semantic_change(payload, (0, 6), digest)
+        held = self.accepted(payload=payload)
+        self.assertEqual(struct.unpack(">8sII", held[0])[2], 9)
+        self.assertEqual(len(held), 3)
+
+    def test_declared_body_sum_mismatch_has_no_partial_return(self):
+        header, metadata = self.packet(body_size=1)
+        self.rejected(self.chunks(header + metadata), "DECLARED_BODY_LENGTH")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_last_field_second_ninth_descriptor_before_original_digest(self):
+        changed = semantic_change(self.payload, (0, 6), "0" * 64)
+        changed = semantic_change(changed, (2, 4, 8, 4), None)
+        header, metadata = self.packet(changed)
+        self.rejected(self.chunks(header + metadata), "POSITION_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_original_digest_context_and_selector_fail_atomic(self):
+        for payload, issue in ((semantic_change(self.payload, (0, 6), "0" * 64), "INPUT_DIGEST"),
+            (semantic_change(self.payload, (2, 3), "a" * 64), "INPUT_BINDING"),
+            (semantic_change(self.payload, (2,), self.payload[2][:5] + semantic_fixture(2)[2][5:]),
+             "CONTEXT_MISMATCH")):
+            header, metadata = self.packet(payload)
+            self.rejected(self.chunks(header + metadata), issue)
+
+    def test_provider_pre_and_dominant_failed_constructor_post(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        with patch.dict(self.run.cache, {"hashlib": Foreign()}):
+            self.rejected(chunks, "HASH_PROVIDER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+        def drift():
+            self.run.cache["hashlib"] = Foreign()
+            self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.provider._HASH_CALLBACK = drift
+        self.rejected(chunks, "HASH_PROVIDER_BINDING")
+
+    def test_provider_call_failure_never_returns_received_bytes(self):
+        self.provider._HASH_ERROR = RuntimeError("PRIVATE_PAYLOAD")
+        header, metadata = self.packet()
+        self.rejected(self.chunks(header + metadata), "HASH_PROVIDER_CALL")
+
+    def test_valid_metadata_total_cap_exact_and_plus_one(self):
+        # Gültige S15 ABI-Texte: gleiche Providerdaten, nur deklarative Metadata wächst.
+        initial = semantic_change(self.payload, (1, 3, 7), "x")
+        for count in range(3, 6):
+            locations = tuple("/synthetic/stdlib/" + chr(97 + n) * 3900 for n in range(count))
+            source = ("source", "source", "source", "/synthetic/stdlib/source.py",
+                "/synthetic/stdlib/source.py", "SOURCE", locations, "SOURCE", "source",
+                "/synthetic/stdlib/source.py", ())
+            candidate = semantic_change(initial, (1, 5), tuple(sorted(initial[1][5] + (source,))))
+            header, metadata = self.packet(candidate)
+            padding = 16384 - 16 - len(metadata)
+            if 0 <= padding <= 4095:
+                candidate = semantic_change(candidate, (1, 3, 7), "x" * (padding + 1))
+                header, metadata = self.packet(candidate)
+                self.assertEqual(len(header + metadata), 16384)
+                self.accepted(self.chunks(header + metadata), candidate)
+                over = semantic_change(candidate, (1, 3, 7), "x" * (padding + 2))
+                header, metadata = self.packet(over)
+                self.assertEqual(len(header + metadata), 16385)
+                self.rejected(self.chunks(header + metadata), "METADATA_LIMIT")
+                return
+        self.fail("Keine gültige synthetische Metadata-Grenzfixture")
+
+    def test_received_exact_bytes_unicode_without_normalization(self):
+        payload = semantic_change(self.payload, (1, 3, 7), 'ABI|quote"slash\\é😀')
+        header, metadata = self.packet(payload)
+        self.assertIn(b"\\u00e9", metadata)
+        self.assertIn(b"|", metadata)
+        self.accepted(self.chunks(header + metadata, 127), payload)
+        altered = metadata.replace(b",", b", ", 1)
+        new_header = struct.pack(">8sII", b"DGNC001\0", len(altered), 0)
+        self.rejected(self.chunks(new_header + altered), "JSON_FORM")
+
+    def test_failure_under_active_exception_has_only_fixed_tuple(self):
+        try:
+            raise OSError("PRIVATE_PAYLOAD")
+        except OSError:
+            result = self.rejected((Foreign(),), "CHUNK_TYPE")
+        self.assertEqual(result, ("REJECTED_RECEIVED_METADATA", "CHUNK_TYPE", None))
+
+    def test_repeat_given_chunks_has_no_consumption_or_replay_claim(self):
+        first = self.accepted()
+        second = self.accepted()
+        self.assertEqual(first, second)
+        self.assertEqual(self.provider._HASH_CALLS, 2)
+
+    def test_five_old_builders_and_definitions_unchanged(self):
+        fifth = subject.build_inline_report_control_bootstrap(RAW, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.replace(
+            ("\n" + subject._INLINE_RECEIVER).encode("utf-8"), b"", 1), fifth.source)
+        before, after = ast.parse(fifth.source), ast.parse(self.selected.source)
+        actual = {node.name: ast.dump(node) for node in after.body
+                  if type(node) in (ast.ClassDef, ast.FunctionDef)}
+        self.assertTrue(all(actual[node.name] == ast.dump(node) for node in before.body
+                           if type(node) in (ast.ClassDef, ast.FunctionDef)))
+
+    def test_fixed_imports_no_pipe_body_observation_or_release(self):
+        tree = ast.parse(self.selected.source)
+        self.assertEqual([n.names[0].name for n in tree.body if type(n) is ast.Import],
+                         ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in ast.walk(tree)))
+        helper = next(n for n in tree.body if type(n) is ast.FunctionDef
+                      and n.name == "_inline_receive_metadata_chunks")
+        forbidden = {"read", "readinto", "open", "print", "input", "write", "Popen", "exec", "compile",
+                     "observe_current_interpreter_scalars"}
+        self.assertFalse(any(type(n) is ast.Call and (type(n.func) is ast.Name and n.func.id in forbidden
+            or type(n.func) is ast.Attribute and n.func.attr in forbidden) for n in ast.walk(helper)))
+        self.assertEqual(self.selected.claim, "GENERATED_CONTROL_SOURCE_ONLY")
+        for field in ("runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved"):
+            self.assertFalse(getattr(self.selected, field))
+
+    def test_full_source_cap_and_private_generation_failure(self):
+        base = subject.build_inline_receive_control_bootstrap(b"x", logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - len(base.source) + 1)
+        selected = subject.build_inline_receive_control_bootstrap(raw, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(selected.source), subject.MAX_SCRIPT_BYTES)
+        with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+            subject.build_inline_receive_control_bootstrap(raw + b"x", logical_profile=LOCATOR,
+                expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+        self.assertTrue(caught.exception.__suppress_context__)
+        self.assertNotIn(LOCATOR, repr(selected))
+
+
 if __name__ == "__main__":
     unittest.main()
