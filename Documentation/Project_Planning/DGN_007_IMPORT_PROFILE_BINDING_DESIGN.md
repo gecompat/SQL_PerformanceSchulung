@@ -2972,3 +2972,97 @@ Semantikprüfung und ihr Abgleich mit separat gehaltenen Callerwerten.
 Tatsächlicher Kanal, Freigaben, operative Auswahl samt Fünf-Formen-/64-KiB-
 Gate, Parent-/Worker-, Loader-, Consumption-, Replay- und Cleanupnachweise
 sowie G13-/Methodengates bleiben getrennt offen.
+
+## 28. Vollständiger deklarativer Inline-Profilabgleich
+
+Der elfte additive Builder `build_inline_profile_match_control_bootstrap`
+ergänzt die private Funktion
+`_inline_match_profile_report(header, metadata, *, expected_version, expected_reported)`.
+Sie erhält ausschließlich gehaltene exakte Header-/JSONbytes und separat
+vorgegebene vollständige R4-Callerwerte: K8, S15, Controls und sämtliche
+P11-Vorkommen. Die Auswahl ist fest `pooled-binding-design/v1`; untrusted
+Tags wählen keinen alternativen Decoder.
+
+Vor Parsing gelten der exakte 16-Byte-Header `struct.Struct(">8sII")`,
+Magic `b"DGNP001\0"`, Rolle 2, höchstens 16.368 JSONbytes und gleiche
+angekündigte/tatsächliche Länge. Der vollständige Caller-Typvorlauf geht
+Parsing vor. Ein begrenzter Parser und eigener REPORTED-R-Poolresolver
+erhalten Null, leeren Text, Integerpositionen und sämtliche Arrayvorkommen.
+Der Pool ist sortiert, eindeutig, vollständig verwendet und auf 256 Werte
+begrenzt. Knoten-, Tiefen-, Sequenz- und UTF-8-Textgrenzen gelten gleichzeitig.
+
+Beide vollständigen R-Formen und Semantiken gehen Encoding und Vergleich vor.
+K8/D9, Installation, Roots, Pfade, Loader, eigene Modulnamen, Controlmengen
+sowie vollständige Frozenverbände bleiben geprüft. Gleichartige ungültige
+Caller-/Actualwerte werden nicht durch Gleichheit akzeptiert. Dieser reine
+DTO-Vertrag führt keine operative Sollinventur oder zusätzliche feste
+Controlanzahl ein.
+
+Unter gehaltenen Provider- und Encoderankern wird das aufgelöste tatsächliche
+R4 kanonisch neu gepoolt und kodiert. Die tatsächlichen Original-JSONbytes
+müssen vollständig identisch sein; anschließend werden sämtliche Werte mit
+dem separaten Caller-R4 verglichen. Provider-POST dominiert Encoder-POST und
+sonstige Fehler. Erfolg liefert atomar
+`("MATCHED_REPORTED_DECLARATION","NONE",(actual_header,actual_json,actual_R))`;
+Fehler liefern `("REJECTED_PROFILE_REPORT",fixed_issue,None)`.
+Keine Callerdefaults oder Teilwerte werden zurückgegeben.
+
+Die reine Route benötigt einen Parser samt Resolver über höchstens 16.368
+Knoten, zwei vollständige R-Form-/Semantikvorläufe, höchstens 18 D9-,
+512 P11- und vier F3-Vorkommen sowie einen Actual-Repack.
+1488 K-/D9-Hexzeichen und höchstens 256 F3-Hexzeichen werden geprüft.
+Gebundene Namespace-/Class-/Functionscans bleiben zusätzliche Kosten.
+Die Matchfunktion berechnet keinen SHA: R enthält weder I7 noch das
+Original-Input82-Digestpräbild. Der Footer-SHA gehört ausschließlich §27;
+eine direkte R-Prüfung behauptet keine vorherige Footerprüfung.
+
+Zehn frühere Builder, direkte Templateimports, Scriptcap und sämtliche false
+Attestationsflags bleiben geschützt; Kontrollruntime-Trust bleibt eine
+explizite deklarierte Annahme.
+
+Root und unabhängiger Review lasen den vollständigen neuen Source-/Testteil
+und die Fixtureabhängigkeiten vor dem ersten Lauf. Ein Sourcebefund wurde
+vorab korrigiert: Actual-Repack aus aufgelöstem R4 statt erneutem Encoding
+der geparsten E4-Hülle. Fünf neue Fixturelabels wurden an die tatsächlichen
+früheren Guards gebunden: PATH_FORM, CONTROL_FORM, OWN_MODULE_CACHED,
+ALIAS_FORM und SEQUENCE_LIMIT. Vor der kombinierten Provider-/Encoderdrift
+wird der originale Encoderdefault wiederhergestellt, damit beide gegen
+frische Anker driften. Diese lesenden Vorbefunde sind keine Fehlläufe.
+
+Der erste und einzige isolierte Lauf unter CPython 3.12.14 mit
+`-I -S -B -X utf8` bestand 341/341 Methoden in 6,984 Sekunden
+(Wallzeit 7,8030697 Sekunden), Exit 0, ohne FAILURE, ERROR oder SKIP.
+37 neue Methoden ergänzen die unveränderten 304 alten Methoden.
+Alle 15 alten Tool-/29 alten Test-Topdefinitionen und der gesamte alte
+Tool-LFpräfix bleiben erhalten. Statischer PRE/POST, Realcache-/Main-/
+Sysconfig-/JSON-/Encoderclass-/Functionsentinels und eigene temporäre
+Fixtureabsenz bestanden ohne Reparatur.
+
+Die Gegenproben prüfen alle drei Ordinals gegen unabhängige benannte
+Referenzprojektion und den bestehenden Codec, tatsächliche Rückgabeidentität,
+Null/Leertext/Integer/Arrayvorkommen, Frozenpaare, Singleton und Mixedpartner,
+gleichartige Root-/Loader-/Control-/OWN-Kontamination, beide vollständigen
+späten Formen/Semantiken vor frühen Callerunterschieden, kanonischen Pool
+mit 256/257 Werten, echte 16.368/16.369-JSONbytegrenzen, Unicode, Escapes,
+Headerrollen, Encoder-/Providerdrift und dominante atomare Fehler.
+Die separate gültige Caller-Deklaration muss ihr eigenes E4 nicht in 16 KiB
+kodieren können; dieser DTO-Abgleich attestiert kein gemeinsames Fünf-Formen-Gate.
+Tatsächliche Constructorzählung sowie blockierte SHA-/Originaldigesthelpers
+belegen null SHA-Aufrufe der Matchfunktion. Wiederholter reiner Aufruf
+bleibt ausdrücklich keine Consumption- oder Replayattestation.
+
+Toolpin RAW `9928ba30f4fdf39eb481cf2d75a9bc188fbe68b6d74fca31dba7c36e7fd33e9a`,
+LF `6362b614e09344ccb3087b227fe0e63c39d52398bf68c12c7894a77ea2c2d232`
+(90.075 LFbytes). Testpin RAW
+`2d00c87b5221d45352907ca6b09016e380cda8d9a72a8d88c064ac6c3091e3df`,
+LF `664cc639f8eaa6a010a7765bd5bd3b0b27bcd52644dee9f2b37767a211452846`
+(267.683 LFbytes). Nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]`, Trennzeichen `(',',':')`, Paar-SHA-256
+`5ca2349974a79cddb4ca9daf9d252e31c078e202b15490203f2dec6f864cf700`.
+Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
+Worker- oder SQLprobe wurde erneut ausgeführt.
+
+Nächster kleiner reiner Schnitt ist die deklarative Verbindung von R-Abgleich,
+Commands und Phasenübergängen. Tatsächlicher Kanal, Freigaben, operative
+Auswahl samt Fünf-Formen-/64-KiB-Gate, Consumption, Replay, Loader-, Worker-
+und Cleanupnachweise sowie G13-/Methodengates bleiben getrennt offen.

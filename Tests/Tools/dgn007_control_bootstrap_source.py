@@ -1743,3 +1743,106 @@ def build_inline_reassemble_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_PROFILE_MATCH = r'''
+def _profile_resolve(form):
+    _inline_need(type(form) is tuple and len(form) == 4, "SCHEMA_FORM")
+    _inline_need(type(form[0]) is str and form[0] == _INLINE_TAG, "VERSION_MISMATCH")
+    _inline_need(type(form[1]) is str and form[1] == "REPORTED", "ROLE_MISMATCH")
+    pool = form[2]
+    _inline_need(type(pool) is tuple and len(pool) <= _INLINE_SEQUENCE, "POOL_LIMIT")
+    for text in pool:
+        _inline_need(type(text) is str, "POOL_FORM")
+        _inline_need(len(text) <= _INLINE_TEXT and "\0" not in text
+                     and len(text.encode("utf-8", "strict")) <= _INLINE_TEXT, "TEXT_LIMIT")
+    _inline_need(pool == tuple(sorted(set(pool))), "POOL_FORM")
+    used = set()
+
+    def walk(value, schema):
+        if type(schema) is str:
+            if schema == "z" and value is None:
+                return None
+            _inline_need(type(value) is int and 0 <= value <= 99999999, "POSITION_TYPE")
+            if schema == "n":
+                return value
+            _inline_need(value < len(pool), "REFERENCE_RANGE")
+            used.add(value)
+            return pool[value]
+        _inline_need(type(value) is tuple and len(value) <= _INLINE_SEQUENCE, "SCHEMA_FORM")
+        if schema[0] == "sequence":
+            _inline_need(schema[2] is None or len(value) == schema[2], "SCHEMA_FORM")
+            return tuple(walk(v, schema[1]) for v in value)
+        _inline_need(len(value) == len(schema), "SCHEMA_FORM")
+        return tuple(walk(v, sc) for v, sc in zip(value, schema))
+
+    payload = walk(form[3], _REPORT_R)
+    _inline_need(used == set(range(len(pool))), "POOL_UNUSED")
+    return payload
+
+
+def _inline_match_profile_report(header, metadata, *, expected_version, expected_reported):
+    """Vollständiger deklarativer R-Abgleich; kein Footer-, Herkunfts- oder Runtimebeleg."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_version) is str and expected_version == _INLINE_TAG,
+                     "VERSION_SELECTION")
+        _inline_need(type(header) is bytes and type(metadata) is bytes, "INPUT_TYPE")
+        _report_shape(_REPORT_R, expected_reported)
+        _inline_need(len(header) == _INLINE_HEADER.size, "HEADER_FORM")
+        _inline_need(0 < len(metadata) <= _INLINE_METADATA_CAP - _INLINE_HEADER.size,
+                     "METADATA_LIMIT")
+        magic, role, length = _INLINE_HEADER.unpack(header)
+        _inline_need(magic == b"DGNP001\0" and role == 2, "HEADER_FORM")
+        _inline_need(length == len(metadata), "METADATA_LENGTH")
+        parser = _InlineParser(metadata)
+        form = parser.value()
+        _inline_need(parser.pos == len(metadata), "JSON_END")
+        actual = _profile_resolve(form)
+        _report_shape(_REPORT_R, actual)
+        # Jede vollständige Form und Semantik vor Encoding und inhaltlichem Vergleich.
+        for reported in (actual, expected_reported):
+            _command_context(reported[0])
+            _semantic_worker(reported[0][5:] + reported[1:])
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        _inline_need(_report_json(_report_pack(actual), encoder_anchor) == metadata, "NONCANONICAL")
+        _inline_need(actual == expected_reported, "REPORTED_MISMATCH")
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("MATCHED_REPORTED_DECLARATION", "NONE", (header, metadata, actual))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "PROFILE_MATCH_INTERNAL"
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_PROFILE_REPORT", issue, None)
+'''
+
+
+def build_inline_profile_match_control_bootstrap(profile_raw, *, logical_profile,
+                                                expected_soabi, expected_destshared) -> BootstrapSource:
+    """Elfte additive Quellenroute für den reinen deklarativen R-Callerabgleich."""
+    selected = build_inline_reassemble_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_PROFILE_MATCH + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
