@@ -1507,5 +1507,647 @@ class InlineMetadataSemanticsTests(unittest.TestCase):
                 subject.build_inline_semantics_control_bootstrap(**fields)
 
 
+def reporter_scalars(payload):
+    """Gegebene Scalar3-Fixture; unabhängige benannte Feldzuordnung."""
+    names = ("assumption", "platform", "implementation", "version", "exe", "target", "prefixes",
+             "abi", "paths", "roots", "inert", "flags", "finders", "hooks", "files")
+    fields = dict(zip(names, payload[1][3]))
+    selection = tuple(fields[k] for k in ("assumption", "roots", "inert")) + (payload[1][4],)
+    installation = tuple(fields[k] for k in ("platform", "implementation", "version", "exe", "target",
+                          "prefixes", "abi", "flags", "paths", "finders", "hooks", "files"))
+    return (selection, installation, payload[1][5])
+
+
+def reporter_reference(payload, scalars):
+    """Eigene benannte Referenz, ohne Produktionsprojektion oder M-Sollfallback."""
+    selection = dict(zip(("assumption", "roots", "inert", "controls"), scalars[0]))
+    values = dict(zip(("platform", "implementation", "version", "exe", "target", "prefixes", "abi",
+                      "flags", "paths", "finders", "hooks", "files"), scalars[1]))
+    values.update(selection)
+    installation = tuple(values[k] for k in ("assumption", "platform", "implementation", "version",
+        "exe", "target", "prefixes", "abi", "paths", "roots", "inert", "flags", "finders", "hooks", "files"))
+    reported = (payload[2], installation, selection["controls"], scalars[2])
+    _, _, pool, positions = syntax_form(reported)
+    form = ("pooled-binding-design/v1", "REPORTED", pool, positions)
+    return reported, form, syntax_bytes(form)
+
+
+def reporter_reassemble(records):
+    """Testreferenz für vollständige Records, kein produktiver Receiver."""
+    begin, end = json.loads(records[0]), json.loads(records[-1])
+    assert begin[0] == "PROFILE_BEGIN" and end[0] == "PROFILE_END"
+    assert begin[1:] == end[1:4] and len(records) == begin[3] + 2
+    parts = []
+    for sequence, record in enumerate(records[1:-1], 1):
+        fields = record[:-1].split(b"|", 4)
+        assert record.endswith(b"\n") and len(record) <= 1024
+        assert fields[:4] == [b"P", str(begin[1]).encode(), str(sequence).encode(), str(begin[3]).encode()]
+        assert 0 < len(fields[4]) <= 896
+        assert sequence == begin[3] or len(fields[4]) == 896
+        parts.append(fields[4])
+    data = b"".join(parts)
+    assert len(data) == begin[2] and hashlib.sha256(data).hexdigest() == end[4]
+    return data
+
+
+def _fixture_report_encoder_init(instance, **kwargs):
+    """Feste synthetische Dispatchmutation, nur mit getrennt eingesetzten Globals."""
+    _REPORT_HELD_INIT(instance, **kwargs)
+    _REPORT_ENCODER_CLASS.synthetic_dispatch = 1
+
+
+def _fixture_report_encoder_iterencode(instance, value):
+    global _REPORT_ITER_CALLED
+    _REPORT_ITER_CALLED += 1
+    return _REPORT_HELD_ITER(instance, value)
+
+
+def _fixture_report_encoder_exchange_provider(instance, value):
+    _REPORT_FACTORY.__code__ = _REPORT_REPLACEMENT_CODE
+    return _REPORT_HELD_ITER(instance, value)
+
+
+def _fixture_report_encoder_instance_shadow(instance, **kwargs):
+    _REPORT_HELD_INIT(instance, **kwargs)
+    instance.iterencode = _REPORT_SHADOW
+
+
+def _fixture_report_encoder_instance_setting(instance, **kwargs):
+    _REPORT_HELD_INIT(instance, **kwargs)
+    instance.ensure_ascii = False
+
+
+_REPORT_OMITTED = object()
+
+
+class InlineProfileReporterTests(unittest.TestCase):
+    def setUp(self):
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[k] for k in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        native_file = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", native_file)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=native_file)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=native_file, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_report_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.report = self.namespace["_inline_profile_report"]
+        self.payload = semantic_fixture()
+        self.scalars = reporter_scalars(self.payload)
+
+    def tearDown(self):
+        # Nach dem ganzen synthetischen Reporttest; keine Reparatur realer Caches.
+        self.assertIs(sys.modules, self.real_cache)
+        for name, value in zip(self.real_names, self.real_values):
+            self.assertIs(sys.modules.get(name, _REPORT_OMITTED), value)
+        self.assertEqual(sys.modules["__main__"].__name__, self.real_main_name)
+        self.assertIs(json.JSONEncoder, self.real_encoder)
+        for current, expected in ((tuple(sorted(self.real_encoder.__dict__.items())), self.real_encoder_namespace),
+            (tuple(sorted(json.__dict__.items())), self.real_json_namespace),
+            (tuple(sorted(self.real_encoder_module.__dict__.items())), self.real_encoder_module_namespace)):
+            self.assertEqual(tuple(k for k, _ in current), tuple(k for k, _ in expected))
+            self.assertTrue(all(a[1] is b[1] for a, b in zip(current, expected)))
+        for fn, state in zip(self.real_encoder_functions, self.real_encoder_states):
+            self.assertIs(fn.__code__, state[0])
+            self.assertIs(fn.__defaults__, state[1])
+            self.assertIs(fn.__kwdefaults__, state[2])
+            if state[3] is not None:
+                current = tuple(sorted(fn.__kwdefaults__.items()))
+                self.assertEqual(tuple(k for k, _ in current), tuple(k for k, _ in state[3]))
+                self.assertTrue(all(a[1] is b[1] for a, b in zip(current, state[3])))
+
+    def call(self, payload=None, scalars=_REPORT_OMITTED):
+        payload = self.payload if payload is None else payload
+        scalars = self.scalars if scalars is _REPORT_OMITTED else scalars
+        metadata = syntax_bytes(syntax_form(payload))
+        header = struct.pack(">8sII", b"DGNC001\0", len(metadata), sum(row[3] for row in payload[0][5]))
+        return self.report(header, metadata, scalars)
+
+    def accepted(self, payload=None, scalars=_REPORT_OMITTED):
+        payload = self.payload if payload is None else payload
+        scalars = self.scalars if scalars is _REPORT_OMITTED else scalars
+        result = self.call(payload, scalars)
+        self.assertEqual(result[:2], ("FORMATTED_PROFILE_REPORT", "NONE"), result[:2])
+        self.assertIs(type(result[2]), tuple)
+        actual = reporter_reassemble(result[2])
+        expected, form, data = reporter_reference(payload, scalars)
+        self.assertEqual(actual, data)
+        parser = syntax_reference._Parser(actual)
+        parsed = parser.value()
+        self.assertEqual(parser.pos, len(actual))
+        self.assertEqual(parsed, form)
+        self.assertEqual(syntax_reference._resolve(parsed, 1), expected)
+        reference = syntax_reference._semantics(expected, 1)[0]
+        self.assertEqual(reference.installation.version, expected[1][3])
+        self.assertEqual(reference.controls, expected[2])
+        self.assertEqual(tuple(tuple(getattr(row, k) for k in (
+            "name", "moduleName", "specName", "origin", "file", "kind", "locations", "loader",
+            "loaderName", "loaderPath", "aliasGroup")) for row in reference.modules), expected[3])
+        return result[2]
+
+    def rejected(self, scalars=_REPORT_OMITTED, issue=None, payload=None):
+        result = self.call(payload, scalars)
+        self.assertEqual(result[0], "REJECTED_PROFILE_REPORT")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("/synthetic", repr(result))
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        return result
+
+    def test_all_three_ordinals_complete_reference_and_codec(self):
+        for ordinal in (1, 2, 3):
+            payload = semantic_fixture(ordinal)
+            self.accepted(payload, reporter_scalars(payload))
+
+    def test_given_installation_and_inventory_are_not_worker_defaults(self):
+        changed = semantic_change(self.scalars, (1, 2), (3, 12, 99))
+        row = ("additional", "additional", "additional", "built-in", "", "BUILTIN", (), "BUILTIN", "", "", ())
+        changed = semantic_change(changed, (2,), tuple(sorted(changed[2] + (row,))))
+        self.accepted(scalars=changed)
+
+    def test_context_original_digest_and_report_digest_are_distinct(self):
+        records = self.accepted()
+        end = json.loads(records[-1])
+        data = reporter_reassemble(records)
+        self.assertEqual(end[4], hashlib.sha256(data).hexdigest())
+        self.assertNotEqual(end[4], self.payload[0][6])
+        self.assertEqual(self.provider._HASH_CALLS, 2)
+        actual = syntax_reference._resolve(syntax_reference._Parser(data).value(), 1)
+        self.assertEqual(actual[0], self.payload[2])
+
+    def test_one_metadata_parser_pass_and_separate_digest_preimages(self):
+        original = self.namespace["_inline_metadata_syntax"]
+        calls = []
+        def counted(*args):
+            calls.append(args)
+            return original(*args)
+        self.namespace["_inline_metadata_syntax"] = counted
+        self.accepted()
+        self.assertEqual(len(calls), 1)
+
+    def test_late_scalar_primitive_failure_before_bad_input_digest(self):
+        payload = semantic_change(self.payload, (0, 6), "0" * 64)
+        for path, value in (((2, 2, 10), Foreign()), ((1, 11, 0, 2), None),
+                            ((1, 2, 2), True), ((0, 3), ["__main__", NAME])):
+            self.rejected(semantic_change(self.scalars, path, value), "SCALAR_FORM", payload)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_semantic_scalar_failure_before_bad_input_digest(self):
+        payload = semantic_change(self.payload, (0, 6), "0" * 64)
+        self.rejected(semantic_change(self.scalars, (2, 2, 7), "NONE"), "MODULE_FORM", payload)
+        self.rejected(semantic_change(self.scalars, (1, 11, 0, 2), "BAD"), "CONTEXT_FORM", payload)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_missing_foreign_subclass_scalar_containers(self):
+        class ForeignTuple(tuple):
+            pass
+        class ForeignText(str):
+            pass
+        for value in (Foreign(), None, (), self.scalars[:2], ForeignTuple(self.scalars)):
+            self.rejected(value, "SCALAR_FORM")
+        self.rejected(semantic_change(self.scalars, (1, 0), ForeignText("linux")), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_text_encoding_nul_utf8_and_4096_byte_bounds(self):
+        for value in ("\0", "\ud800", "x" * 4097, "é" * 2049):
+            result = self.rejected(semantic_change(self.scalars, (1, 6), value))
+            self.assertIn(result[1], ("SCALAR_FORM", "TEXT_LIMIT"))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_s15_policy_and_source_root_loader_contamination(self):
+        for path, value, issue in (((1, 0), "win32", "INSTALLATION_FORM"),
+            ((0, 1), ("/same", "/same"), "INSTALLATION_FORM"),
+            ((1, 8), ("/foreign",), "PATH_FORM"), ((2, 1, 8), "wrong", "MODULE_FORM"),
+            ((2, 1, 9), "/foreign", "MODULE_FORM"), ((2, 2, 4), "relative", "PATH_FORM")):
+            self.rejected(semantic_change(self.scalars, path, value), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_generic_controls_nullspec_and_own_cache_names(self):
+        row = ("chosen_control", "chosen_control", None, "", "", "CONTROL", (), "NONE", "", "", ())
+        scalars = semantic_change(self.scalars, (2,), tuple(sorted(self.scalars[2] + (row,))))
+        scalars = semantic_change(scalars, (0, 3), self.scalars[0][3] + ("chosen_control",))
+        self.accepted(scalars=scalars)
+        self.rejected(semantic_change(self.scalars, (0, 3), ("__main__",)), "CONTROL_FORM")
+        self.rejected(semantic_change(self.scalars, (2, 2, 0), "Tests.Contracts"), "OWN_MODULE_CACHED")
+
+    def test_complete_frozen_pairs_optional_singletons_and_mixed(self):
+        for pair in self.namespace["_SEMANTIC_PAIRS"]:
+            rows = []
+            for name in pair:
+                module, spec = self.namespace["_SEMANTIC_FROZEN"].get(name, (name, name))
+                rows.append((name, module, spec, "frozen", "", "FROZEN", (), "FROZEN", "", "", pair))
+            changed = semantic_change(self.scalars, (2,), tuple(sorted(self.scalars[2] + tuple(rows))))
+            self.accepted(scalars=changed)
+            self.rejected(semantic_change(changed, (2,), tuple(r for r in changed[2] if r[0] != pair[1])), "ALIAS_FORM")
+            singleton = rows[0][:-1] + ((),)
+            self.accepted(scalars=semantic_change(self.scalars, (2,), tuple(sorted(self.scalars[2] + (singleton,)))))
+        frozen = ("_collections_abc", "collections.abc", "_collections_abc", "frozen", "", "FROZEN", (), "FROZEN", "", "", ())
+        path = "/synthetic/stdlib/collections/abc.py"
+        source = ("collections.abc", "collections.abc", "collections.abc", path, path, "SOURCE", (), "SOURCE", "collections.abc", path, ())
+        self.accepted(scalars=semantic_change(self.scalars, (2,), tuple(sorted(self.scalars[2] + (frozen, source)))))
+
+    def test_reordered_duplicate_inventory_and_late_second_d9(self):
+        self.rejected(semantic_change(self.scalars, (2,), self.scalars[2][::-1]), "INVENTORY_FORM")
+        self.rejected(semantic_change(self.scalars, (2,), self.scalars[2] + (self.scalars[2][-1],)), "INVENTORY_FORM")
+        self.rejected(payload=semantic_change(self.payload, (2, 4, 8, 4), None), issue="POSITION_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_input_digest_and_context_selector_fail_without_records(self):
+        self.rejected(payload=semantic_change(self.payload, (0, 6), "0" * 64), issue="INPUT_DIGEST")
+        self.rejected(payload=semantic_change(self.payload, (2, 3), "a" * 64), issue="INPUT_BINDING")
+        self.rejected(payload=semantic_change(self.payload, (2,), self.payload[2][:5] + semantic_fixture(2)[2][5:]), issue="CONTEXT_MISMATCH")
+
+    def test_own_pool_not_input_pool_and_semantic_integer_zero(self):
+        scalars = semantic_change(self.scalars, (1, 6), "pooled-binding-design/v1")
+        records = self.accepted(scalars=scalars)
+        parsed = syntax_reference._Parser(reporter_reassemble(records)).value()
+        self.assertIn("pooled-binding-design/v1", parsed[2])
+        self.assertEqual(parsed[3][0][4][0][0], 0)  # D5 ordinal is an integer, not a TextRef.
+        self.assertIsNone(parsed[3][3][0][2])
+        self.assertIn("", parsed[2])
+
+    def test_unicode_and_pipe_payload_without_second_escape_layer(self):
+        value = 'ABI|quote"slash\\é😀\u007f'
+        records = self.accepted(scalars=semantic_change(self.scalars, (1, 6), value))
+        data = reporter_reassemble(records)
+        self.assertIn(b"|quote", data)
+        self.assertIn(b"\\u00e9", data)
+        self.assertIn(b"\\ud83d\\ude00", data)
+        self.assertNotIn(b"\n", data)
+
+    def test_pool_exact_256_then_257_with_valid_source_locations(self):
+        expected, _, _ = reporter_reference(self.payload, self.scalars)
+        count = len(syntax_form(expected)[2])
+        locations = tuple("/synthetic/stdlib/location%03d" % n for n in range(256 - count))
+        scalars = semantic_change(self.scalars, (2, 1, 6), locations)
+        self.accepted(scalars=scalars)
+        self.assertEqual(len(reporter_reference(self.payload, scalars)[1][2]), 256)
+        self.rejected(semantic_change(scalars, (2, 1, 6), locations + ("/synthetic/stdlib/extra",)), "POOL_LIMIT")
+
+    def scalar_with_json_size(self, size):
+        # Vier vollständige zulässige Locatorfelder, keine künstliche Counteränderung.
+        prefix = "/synthetic/stdlib/"
+        for count in range(4):
+            locations = tuple(prefix + chr(97 + n) * (4096 - len(prefix)) for n in range(count))
+            last = prefix + "z"
+            scalars = semantic_change(self.scalars, (2, 1, 6), locations + (last,))
+            delta = size - len(reporter_reference(self.payload, scalars)[2])
+            if 0 <= delta <= 4096 - len(last):
+                scalars = semantic_change(scalars, (2, 1, 6), locations + (last + "z" * delta,))
+                self.assertEqual(len(reporter_reference(self.payload, scalars)[2]), size)
+                return scalars
+        self.fail("Keine gültige synthetische Locatorgröße gefunden")
+
+    def test_actual_report_metadata_cap_exact_then_one_byte_over(self):
+        at_cap = self.scalar_with_json_size(16368)
+        records = self.accepted(scalars=at_cap)
+        self.assertEqual(len(reporter_reassemble(records)), 16368)
+        self.assertEqual(len(records), 21)
+        self.rejected(self.scalar_with_json_size(16369), "METADATA_LIMIT")
+
+    def test_bounded_repeated_locations_before_pool_and_hash(self):
+        rows = tuple(("source%03d" % n, "source%03d" % n, "source%03d" % n,
+                      "/synthetic/stdlib/x", "/synthetic/stdlib/x", "SOURCE",
+                      ("/synthetic/stdlib/pkg",) * 256, "SOURCE", "source%03d" % n,
+                      "/synthetic/stdlib/x", ()) for n in range(70))
+        scalars = semantic_change(self.scalars, (2,), tuple(sorted(self.scalars[2] + rows)))
+        self.rejected(scalars, "NODE_LIMIT")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_internal_shape_depth_and_node_guard_arithmetic(self):
+        # Interne Aufnahmegrenzen, kein behaupteter gültiger Scalar3 mit dieser Tiefe.
+        shape, value = "n", 0
+        for _ in range(8):
+            shape, value = (shape,), (value,)
+        self.namespace["_report_shape"](shape, value)
+        with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+            self.namespace["_report_shape"]((shape,), (value,))
+        self.assertEqual(caught.exception.args, ("DEPTH_LIMIT",))
+        counter = [16367]
+        self.namespace["_report_shape"]("n", 0, counter=counter)
+        with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+            self.namespace["_report_shape"]("n", 0, counter=counter)
+        self.assertEqual(caught.exception.args, ("NODE_LIMIT",))
+
+    def test_header_metadata_foreign_before_scalar_or_hash(self):
+        metadata = syntax_bytes(syntax_form(self.payload))
+        header = struct.pack(">8sII", b"DGNC001\0", len(metadata), 0)
+        for a, b in ((Foreign(), metadata), (header, Foreign()), (b"", metadata)):
+            result = self.report(a, b, Foreign())
+            self.assertEqual(result[0], "REJECTED_PROFILE_REPORT")
+            self.assertIsNone(result[2])
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_private_records_896_897_and_exact_last_rest(self):
+        # Interne Framingarithmetik über harmlose Bytes, kein Canonical-/Decoderclaim.
+        encoder = self.namespace["_report_encoder_anchor"]()
+        for size in (1, 895, 896, 897, 1792, 1793, 16128, 16368):
+            data = b"x" * size
+            records = self.namespace["_report_records"](data, 3, hashlib.sha256(data).hexdigest(), encoder)
+            self.assertEqual(reporter_reassemble(records), data)
+            self.assertEqual(len(records), (size + 895) // 896 + 2)
+            self.assertTrue(all(len(r) <= 1024 for r in records))
+            self.assertTrue(len(records[0]) <= 256 and len(records[-1]) <= 256)
+        with self.assertRaises(self.namespace["_InlineSyntaxRejected"]):
+            self.namespace["_report_records"](b"x" * 16369, 1, "0" * 64, encoder)
+
+    def test_test_reassembly_rejects_missing_duplicate_order_and_footer(self):
+        records = self.accepted()
+        self.assertGreater(len(records), 3)
+        changed = list(records)
+        changed[1], changed[2] = changed[2], changed[1]
+        for rows in (records[:-1], records[:1] + records[2:], records[:2] + records[1:], tuple(changed),
+                     records[:-1] + (records[-1].replace(b'"PROFILE_END"', b'"WRONG"'),)):
+            with self.assertRaises((AssertionError, ValueError, IndexError)):
+                reporter_reassemble(rows)
+
+    def test_encoder_class_exchange_and_code_drift_closed(self):
+        anchor = self.namespace["_report_encoder_anchor"]()
+        with patch.object(json, "JSONEncoder", Foreign()):
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]):
+                self.namespace["_report_encoder_check"](anchor)
+        method = json.JSONEncoder.iterencode
+        code = method.__code__
+        try:
+            method.__code__ = _fixture_config_var.__code__
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]):
+                self.namespace["_report_encoder_check"](anchor)
+        finally:
+            method.__code__ = code
+
+    def test_public_report_foreign_encoder_has_encoder_binding_label(self):
+        header_metadata = InlineMetadataSemanticsTests.packet(self, self.payload)
+        original = self.namespace["_inline_metadata_syntax"]
+        def changed(*args):
+            actual = original(*args)
+            json.JSONEncoder = Foreign()
+            return actual
+        # Erstaufnahme des Encoderankers nach tatsächlich erfolgreichem M-Repack.
+        with patch.dict(self.namespace, {"_inline_metadata_syntax": changed}):
+            with patch.object(json, "JSONEncoder", json.JSONEncoder):
+                result = self.report(*header_metadata, self.scalars)
+        self.assertEqual(result, ("REJECTED_PROFILE_REPORT", "REPORT_ENCODER_BINDING", None))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_encoder_drift_during_original_hash_is_closed(self):
+        self.provider._HASH_CALLBACK = lambda: self.run.cache.__setitem__("json.encoder", Foreign())
+        self.rejected(issue="REPORT_ENCODER_BINDING")
+
+    def test_encoder_drift_during_report_hash_is_closed(self):
+        def change():
+            if self.provider._HASH_CALLS == 2:
+                self.run.cache["json.encoder"] = Foreign()
+        self.provider._HASH_CALLBACK = change
+        self.rejected(issue="REPORT_ENCODER_BINDING")
+
+    def test_encoder_binding_loss_dominates_failed_original_constructor(self):
+        def change():
+            self.run.cache["json.encoder"] = Foreign()
+            self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.provider._HASH_CALLBACK = change
+        self.rejected(issue="REPORT_ENCODER_BINDING")
+
+    def test_provider_binding_loss_dominates_both_encoder_and_call_failure(self):
+        def change():
+            self.run.cache["json.encoder"] = Foreign()
+            self.run.cache["hashlib"] = Foreign()
+            self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.provider._HASH_CALLBACK = change
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_class_dispatch_and_keyword_default_mutation_guard(self):
+        cls = json.JSONEncoder
+        anchor = self.namespace["_report_encoder_anchor"]()
+        try:
+            cls.synthetic_field = 1
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]):
+                self.namespace["_report_encoder_check"](anchor)
+        finally:
+            del cls.synthetic_field
+        keywords = cls.__init__.__kwdefaults__
+        old = keywords["ensure_ascii"]
+        try:
+            keywords["ensure_ascii"] = not old
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]):
+                self.namespace["_report_encoder_check"](anchor)
+        finally:
+            keywords["ensure_ascii"] = old
+        invoked = []
+        def foreign_getattribute(obj, name):
+            invoked.append(name)
+            return object.__getattribute__(obj, name)
+        try:
+            cls.__getattribute__ = foreign_getattribute
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]):
+                self.namespace["_report_encoder_check"](anchor)
+            self.assertEqual(invoked, [])
+        finally:
+            del cls.__getattribute__
+
+    def test_constructor_class_drift_before_first_iterencode_lookup(self):
+        cls = json.JSONEncoder
+        held, held_iter = cls.__init__, cls.iterencode
+        namespace = sys.modules["json.encoder"].__dict__
+        # Ausschließlich gehaltene eigene temporäre Globale; vollständig zurücksetzen.
+        keys = ("_REPORT_HELD_INIT", "_REPORT_ENCODER_CLASS", "_REPORT_ITER_CALLED", "_REPORT_HELD_ITER")
+        self.assertTrue(all(k not in namespace for k in keys))
+        namespace.update(_REPORT_HELD_INIT=held, _REPORT_ENCODER_CLASS=cls,
+                         _REPORT_ITER_CALLED=0, _REPORT_HELD_ITER=held_iter)
+        function = FunctionType(_fixture_report_encoder_init.__code__, namespace)
+        iterator = FunctionType(_fixture_report_encoder_iterencode.__code__, namespace)
+        try:
+            cls.__init__ = function
+            cls.iterencode = iterator
+            anchor = self.namespace["_report_encoder_anchor"]()
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+                self.namespace["_report_json"](("x",), anchor)
+            self.assertEqual(caught.exception.args, ("REPORT_ENCODER_BINDING",))
+            self.assertEqual(namespace["_REPORT_ITER_CALLED"], 0)
+            self.assertIn("synthetic_dispatch", cls.__dict__)
+        finally:
+            cls.__init__ = held
+            cls.iterencode = held_iter
+            if "synthetic_dispatch" in cls.__dict__:
+                del cls.synthetic_dispatch
+            for key in keys:
+                del namespace[key]
+
+    def test_encoder_cannot_execute_changed_provider_constructor(self):
+        encoder_anchor = self.namespace["_report_encoder_anchor"]()
+        provider_anchor = self.namespace["_semantic_provider_anchor"]()
+        old = self.factory.__code__
+        try:
+            self.factory.__code__ = _fixture_config_var.__code__
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+                self.namespace["_report_sha"](b"synthetic", provider_anchor)
+            self.assertEqual(caught.exception.args, ("HASH_PROVIDER_BINDING",))
+            self.assertEqual(self.provider._HASH_CALLS, 0)
+        finally:
+            self.factory.__code__ = old
+        self.namespace["_report_encoder_check"](encoder_anchor)
+
+    def test_actual_encoder_exchange_precedes_hash_constructor_rejection(self):
+        cls, old_code = json.JSONEncoder, self.factory.__code__
+        held_iter = cls.iterencode
+        namespace = sys.modules["json.encoder"].__dict__
+        keys = ("_REPORT_FACTORY", "_REPORT_REPLACEMENT_CODE", "_REPORT_HELD_ITER")
+        self.assertTrue(all(k not in namespace for k in keys))
+        namespace.update(_REPORT_FACTORY=self.factory, _REPORT_REPLACEMENT_CODE=_fixture_config_var.__code__,
+                         _REPORT_HELD_ITER=held_iter)
+        try:
+            cls.iterencode = FunctionType(_fixture_report_encoder_exchange_provider.__code__, namespace)
+            # Feste Callbackroute wird vor PRE gewählt; sie bleibt im Encoderanker identisch.
+            encoder_anchor = self.namespace["_report_encoder_anchor"]()
+            provider_anchor = self.namespace["_semantic_provider_anchor"]()
+            data = self.namespace["_report_json"](("synthetic",), encoder_anchor)
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+                self.namespace["_report_sha"](data, provider_anchor)
+            self.assertEqual(caught.exception.args, ("HASH_PROVIDER_BINDING",))
+            self.assertEqual(self.provider._HASH_CALLS, 0)
+        finally:
+            cls.iterencode = held_iter
+            self.factory.__code__ = old_code
+            for key in keys:
+                del namespace[key]
+
+    def test_constructor_instance_shadow_is_closed_before_foreign_call(self):
+        cls, held = json.JSONEncoder, json.JSONEncoder.__init__
+        namespace = sys.modules["json.encoder"].__dict__
+        keys = ("_REPORT_HELD_INIT", "_REPORT_SHADOW")
+        self.assertTrue(all(key not in namespace for key in keys))
+        calls = []
+        def shadow(value):
+            calls.append(value)
+            return ("PRIVATE_PAYLOAD",)
+        namespace.update(_REPORT_HELD_INIT=held, _REPORT_SHADOW=shadow)
+        try:
+            cls.__init__ = FunctionType(_fixture_report_encoder_instance_shadow.__code__, namespace)
+            anchor = self.namespace["_report_encoder_anchor"]()
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+                self.namespace["_report_json"](("synthetic",), anchor)
+            self.assertEqual(caught.exception.args, ("REPORT_ENCODER_BINDING",))
+            self.assertEqual(calls, [])
+        finally:
+            cls.__init__ = held
+            for key in keys:
+                del namespace[key]
+
+    def test_constructor_silent_instance_setting_change_is_closed(self):
+        cls, held = json.JSONEncoder, json.JSONEncoder.__init__
+        namespace = sys.modules["json.encoder"].__dict__
+        self.assertNotIn("_REPORT_HELD_INIT", namespace)
+        namespace["_REPORT_HELD_INIT"] = held
+        try:
+            cls.__init__ = FunctionType(_fixture_report_encoder_instance_setting.__code__, namespace)
+            anchor = self.namespace["_report_encoder_anchor"]()
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+                self.namespace["_report_json"](("é",), anchor)
+            self.assertEqual(caught.exception.args, ("REPORT_ENCODER_BINDING",))
+        finally:
+            cls.__init__ = held
+            del namespace["_REPORT_HELD_INIT"]
+
+    def test_all_canonical_instance_setting_forms_and_values(self):
+        anchor = self.namespace["_report_encoder_anchor"]()
+        for name, value in (("skipkeys", True), ("ensure_ascii", False), ("check_circular", False),
+                            ("allow_nan", True), ("sort_keys", False), ("indent", 0),
+                            ("item_separator", ", "), ("key_separator", ": "),
+                            ("ensure_ascii", 1), ("item_separator", Foreign()), ("default", Foreign())):
+            encoder = json.JSONEncoder(sort_keys=True, ensure_ascii=True, separators=(",", ":"), allow_nan=False)
+            setattr(encoder, name, value)
+            with self.assertRaises(self.namespace["_InlineSyntaxRejected"]) as caught:
+                self.namespace["_report_encoder_instance"](encoder, anchor)
+            self.assertEqual(caught.exception.args, ("REPORT_ENCODER_BINDING",))
+
+    def test_provider_error_on_second_hash_has_no_records(self):
+        def change():
+            if self.provider._HASH_CALLS == 2:
+                self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.provider._HASH_CALLBACK = change
+        self.rejected(issue="HASH_PROVIDER_CALL")
+
+    def test_provider_post_binding_loss_dominates_constructor_failure(self):
+        def change():
+            if self.provider._HASH_CALLS == 2:
+                self.run.cache["hashlib"] = Foreign()
+                self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+        self.provider._HASH_CALLBACK = change
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+
+    def test_provider_code_and_hash_class_drift_closed(self):
+        self.native.HASH = Foreign()
+        self.rejected(issue="HASH_PROVIDER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_reporter_source_no_capture_or_pipe_and_fixed_five_imports(self):
+        tree = ast.parse(self.selected.source)
+        imports = [n.names[0].name for n in tree.body if isinstance(n, ast.Import)]
+        self.assertEqual(imports, ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(isinstance(n, ast.ImportFrom) for n in ast.walk(tree)))
+        report = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_inline_profile_report")
+        forbidden = {"print", "input", "open", "observe_current_interpreter_scalars", "Popen", "write"}
+        self.assertFalse(any(isinstance(n, ast.Call) and (isinstance(n.func, ast.Name) and n.func.id in forbidden
+            or isinstance(n.func, ast.Attribute) and n.func.attr in forbidden) for n in ast.walk(report)))
+        self.assertFalse(self.selected.runtime_attested)
+        self.assertFalse(self.selected.trust_attested)
+        self.assertFalse(self.selected.import_used_bytes_attested)
+        self.assertFalse(self.selected.method_approved)
+
+    def test_four_old_source_builders_and_definition_bytes_unchanged(self):
+        fourth = subject.build_inline_semantics_control_bootstrap(RAW, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.decode().replace("\n" + subject._INLINE_REPORT, "", 1), fourth.source.decode())
+        previous = ast.parse(fourth.source)
+        actual = ast.parse(self.selected.source)
+        definitions = {n.name: ast.dump(n) for n in actual.body if isinstance(n, (ast.ClassDef, ast.FunctionDef))}
+        self.assertTrue(all(definitions[n.name] == ast.dump(n) for n in previous.body
+            if isinstance(n, (ast.ClassDef, ast.FunctionDef))))
+
+    def test_full_report_source_cap_and_foreign_generation_inputs(self):
+        base = subject.build_inline_report_control_bootstrap(b"x", logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - len(base.source) + 1)
+        at_cap = subject.build_inline_report_control_bootstrap(raw, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(at_cap.source), subject.MAX_SCRIPT_BYTES)
+        with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+            subject.build_inline_report_control_bootstrap(raw + b"x", logical_profile=LOCATOR,
+                expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+        self.assertNotIn(LOCATOR, repr(self.selected))
+
+
 if __name__ == "__main__":
     unittest.main()

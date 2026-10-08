@@ -938,3 +938,293 @@ def build_inline_semantics_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+# Gegebene Scalarformen und private Records; keine Aufnahme oder Pipeausgabe.
+_INLINE_REPORT = r'''
+_REPORT_SELECTION = ("t", _inline_seq("t", 2), "t", _inline_seq("t"))
+_REPORT_INSTALLATION = ("t", "t", _inline_seq("n", 3), "t", "t", _inline_seq("t", 4),
+                        "t", _inline_seq("n", 6), _inline_seq("t"), _inline_seq("t", 3),
+                        _inline_seq("t", 2), _inline_seq(_INLINE_F))
+_REPORT_SCALARS = (_REPORT_SELECTION, _REPORT_INSTALLATION, _inline_seq(_INLINE_P))
+_REPORT_R = (_INLINE_K, _INLINE_S, _inline_seq("t"), _inline_seq(_INLINE_P))
+
+
+def _report_shape(schema, value, depth=1, counter=None):
+    if counter is None:
+        counter = [0]
+    counter[0] += 1
+    _inline_need(counter[0] <= _INLINE_NODES, "NODE_LIMIT")
+    if schema in ("t", "z"):
+        if schema == "z" and value is None:
+            return
+        _inline_need(type(value) is str and len(value) <= _INLINE_TEXT, "SCALAR_FORM")
+        _inline_need("\0" not in value and len(value.encode("utf-8", "strict")) <= _INLINE_TEXT,
+                     "TEXT_LIMIT")
+    elif schema == "n":
+        _inline_need(type(value) is int and 0 <= value <= 99999999, "SCALAR_FORM")
+    else:
+        _inline_need(type(value) is tuple and len(value) <= _INLINE_SEQUENCE, "SCALAR_FORM")
+        _inline_need(depth <= _INLINE_DEPTH, "DEPTH_LIMIT")
+        if schema[0] == "sequence":
+            _inline_need(schema[2] is None or len(value) == schema[2], "SCALAR_FORM")
+            for child in value:
+                _report_shape(schema[1], child, depth + 1, counter)
+        else:
+            _inline_need(len(value) == len(schema), "SCALAR_FORM")
+            for field, child in zip(schema, value):
+                _report_shape(field, child, depth + 1, counter)
+
+
+def _report_encoder_anchor():
+    label = "REPORT_ENCODER_BINDING"
+    a = _SEMANTIC_CONTROL_ANCHOR
+    _inline_need(type(a) is tuple and len(a) == 12 and _dictionary(a[5]), label)
+    cache = a[5]
+    _inline_need(type(json) is _MODULE_CLASS and _dictionary(json.__dict__)
+                 and cache.get("json") is json, label)
+    module = cache.get("json.encoder")
+    _inline_need(type(module) is _MODULE_CLASS and _dictionary(module.__dict__), label)
+    md = module.__dict__
+    _inline_need(type(md.get("__name__")) is str and md.get("__name__") == "json.encoder", label)
+    cls = json.__dict__.get("JSONEncoder")
+    try:
+        cd = _semantic_class_namespace(cls)
+    except _InlineSyntaxRejected:
+        raise _InlineSyntaxRejected(label) from None
+    _inline_need(md.get("JSONEncoder") is cls and type(cls.__module__) is str
+                 and cls.__module__ == "json.encoder", label)
+    bases, mro = cls.__bases__, cls.__mro__
+    _inline_need(type(bases) is tuple and len(bases) == 1 and bases[0] is object
+                 and type(mro) is tuple and len(mro) == 2 and mro[0] is cls and mro[1] is object
+                 and cd.get("__getattribute__", object.__getattribute__) is object.__getattribute__
+                 and cd.get("__new__", object.__new__) is object.__new__, label)
+    functions = tuple(cd.get(name) for name in ("__init__", "iterencode", "default"))
+    for function in functions:
+        _inline_need(type(function) is type(_report_encoder_anchor) and function.__globals__ is md
+                     and type(function.__code__) is type(_report_encoder_anchor.__code__), label)
+    functions += (md.get("_make_iterencode"),)
+    _inline_need(type(functions[3]) is type(_report_encoder_anchor)
+                 and functions[3].__globals__ is md, label)
+    states = []
+    for function in functions:
+        defaults, keywords = function.__defaults__, function.__kwdefaults__
+        _inline_need(function.__closure__ is None and (defaults is None or
+                     type(defaults) is tuple and len(defaults) <= 256)
+                     and (keywords is None or _dictionary(keywords)), label)
+        states.append((function.__code__, defaults, keywords,
+                       () if keywords is None else tuple(sorted(keywords.items()))))
+    return (json, json.__dict__, module, md, cls, functions, tuple(states), tuple(sorted(md.items())),
+            tuple(sorted(cd.items())), cls.__bases__, cls.__mro__)
+
+
+def _report_encoder_check(anchor):
+    current = _report_encoder_anchor()
+    _inline_need(all(current[index] is anchor[index] for index in range(5))
+                 and all(current[5][index] is anchor[5][index] for index in range(4))
+                 and all(current[6][index][field] is anchor[6][index][field]
+                         for index in range(4) for field in range(3))
+                 and all(len(current[6][index][3]) == len(anchor[6][index][3])
+                         and all(a[0] == b[0] and a[1] is b[1]
+                                 for a, b in zip(current[6][index][3], anchor[6][index][3]))
+                         for index in range(4))
+                 and all(len(current[group]) == len(anchor[group])
+                         and all(a[0] == b[0] and a[1] is b[1]
+                                 for a, b in zip(current[group], anchor[group])) for group in (7, 8))
+                 and current[9] is anchor[9] and current[10] is anchor[10],
+                 "REPORT_ENCODER_BINDING")
+
+
+def _report_pack(payload):
+    # Die E4-Vorkommen werden vor Pool-/Positionsaufnahme begrenzt.
+    texts, nodes = set(), [4]
+    def collect(value, depth):
+        nodes[0] += 1
+        _inline_need(nodes[0] <= _INLINE_NODES, "NODE_LIMIT")
+        if type(value) is tuple:
+            _inline_need(depth <= _INLINE_DEPTH and len(value) <= _INLINE_SEQUENCE, "DEPTH_LIMIT")
+            for child in value:
+                collect(child, depth + 1)
+        elif type(value) is str:
+            texts.add(value)
+            _inline_need(len(texts) <= 256, "POOL_LIMIT")
+    collect(payload, 2)
+    _inline_need(nodes[0] + len(texts) <= _INLINE_NODES, "NODE_LIMIT")
+    pool = tuple(sorted(texts))
+    positions = {value: index for index, value in enumerate(pool)}
+    def project(value):
+        if type(value) is str:
+            return positions[value]
+        if type(value) is tuple:
+            return tuple(project(child) for child in value)
+        return value
+    return (_INLINE_TAG, "REPORTED", pool, project(payload))
+
+
+def _report_encoder_instance(encoder, anchor):
+    label = "REPORT_ENCODER_BINDING"
+    _inline_need(type(encoder) is anchor[4] and _dictionary(encoder.__dict__), label)
+    values = encoder.__dict__
+    names = ("skipkeys", "ensure_ascii", "check_circular", "allow_nan", "sort_keys", "indent",
+             "item_separator", "key_separator")
+    _inline_need(len(values) == len(names) and all(name in values for name in names), label)
+    for name, expected in (("skipkeys", False), ("ensure_ascii", True), ("check_circular", True),
+                           ("allow_nan", False), ("sort_keys", True)):
+        _inline_need(type(values[name]) is bool and values[name] is expected, label)
+    _inline_need(values["indent"] is None, label)
+    for name, expected in (("item_separator", ","), ("key_separator", ":")):
+        _inline_need(type(values[name]) is str and values[name] == expected, label)
+    method = encoder.iterencode
+    _inline_need(type(method) is type(_report_json.__get__(encoder, anchor[4]))
+                 and method.__self__ is encoder and method.__func__ is anchor[5][1], label)
+
+
+def _report_json(form, encoder_anchor):
+    issue, data, encoder = None, None, None
+    try:
+        _report_encoder_check(encoder_anchor)
+        encoder = encoder_anchor[4](sort_keys=True, ensure_ascii=True, separators=(",", ":"), allow_nan=False)
+        _report_encoder_check(encoder_anchor)
+        _report_encoder_instance(encoder, encoder_anchor)
+        parts, size = [], 16
+        # Keine Schattenfunktion aus dem Instanznamespace als Dispatchquelle.
+        for piece in encoder_anchor[5][1](encoder, form):
+            _report_encoder_check(encoder_anchor)
+            _report_encoder_instance(encoder, encoder_anchor)
+            _inline_need(type(piece) is str, "REPORT_ENCODER_CALL")
+            size += len(piece)
+            _inline_need(size <= _INLINE_METADATA_CAP, "METADATA_LIMIT")
+            parts.append(piece.encode("ascii", "strict"))
+        data = b"".join(parts)
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except BaseException:
+        issue = "REPORT_ENCODER_CALL"
+    _report_encoder_check(encoder_anchor)
+    if encoder is not None:
+        _report_encoder_instance(encoder, encoder_anchor)
+    if issue is not None:
+        raise _InlineSyntaxRejected(issue) from None
+    return data
+
+
+def _report_sha(data, anchor):
+    issue, digest = None, None
+    try:
+        _semantic_provider_check(anchor)
+        obj = anchor[4]()
+        _semantic_provider_check(anchor)
+        _inline_need(type(obj) is anchor[6], "HASH_PROVIDER_OBJECT")
+        update, finish = obj.update, obj.hexdigest
+        _inline_need(type(update) is type(struct.pack) and update.__self__ is obj
+                     and type(finish) is type(struct.pack) and finish.__self__ is obj,
+                     "HASH_PROVIDER_OBJECT")
+        _semantic_provider_check(anchor)
+        update(data)
+        _semantic_provider_check(anchor)
+        digest = finish()
+        _semantic_hex(digest, 64)
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except BaseException:
+        issue = "HASH_PROVIDER_CALL"
+    _semantic_provider_check(anchor)
+    if issue is not None:
+        raise _InlineSyntaxRejected(issue) from None
+    return digest
+
+
+def _report_records(data, ordinal, digest, encoder_anchor):
+    _inline_need(type(data) is bytes and 0 < len(data) <= _INLINE_METADATA_CAP - 16
+                 and type(ordinal) is int and 1 <= ordinal <= 3, "REPORT_FRAME")
+    _semantic_hex(digest, 64)
+    total = (len(data) + 895) // 896
+    _inline_need(1 <= total <= 19, "REPORT_FRAME")
+    begin = _report_json(("PROFILE_BEGIN", ordinal, len(data), total), encoder_anchor) + b"\n"
+    end = _report_json(("PROFILE_END", ordinal, len(data), total, digest), encoder_anchor) + b"\n"
+    _inline_need(len(begin) <= 256 and len(end) <= 256, "REPORT_FRAME")
+    rows = [begin]
+    for sequence in range(1, total + 1):
+        piece = data[(sequence - 1) * 896:sequence * 896]
+        envelope = ("P|%d|%d|%d|" % (ordinal, sequence, total)).encode("ascii")
+        _inline_need(len(envelope) + 1 <= 32 and len(piece) <= 896
+                     and len(envelope) + len(piece) + 1 <= 1024, "REPORT_FRAME")
+        rows.append(envelope + piece + b"\n")
+    rows.append(end)
+    return tuple(rows)
+
+
+def _inline_profile_report(header, metadata, scalars):
+    """Gegebene Scalarfelder als private Records; keine Aufnahme oder Freigabe."""
+    syntax = _inline_metadata_syntax(header, metadata)
+    if syntax[0] != "VALID_METADATA_SYNTAX":
+        return ("REJECTED_PROFILE_REPORT", syntax[1], None)
+    anchor, encoder_anchor = None, None
+    try:
+        _report_shape(_REPORT_SCALARS, scalars)
+        selection, installation, modules = scalars
+        assumption, roots, inert, controls = selection
+        platform, implementation, version, exe, target, prefixes, abi, flags, paths, finders, hooks, files = installation
+        chosen = (assumption, platform, implementation, version, exe, target, prefixes, abi,
+                  paths, roots, inert, flags, finders, hooks, files)
+        # Auch die vollständigen gegebenen Inventurformen werden vor allen Digests geprüft.
+        worker = syntax[2][1]
+        _semantic_worker(worker)
+        totals = _semantic_inputs(syntax[2][0], syntax[2][2])
+        _semantic_worker(worker[:3] + (chosen, controls, modules))
+        _inline_need(_INLINE_HEADER.unpack(header)[2] == totals[0] == totals[1], "DECLARED_BODY_LENGTH")
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        ip, _, context = syntax[2]
+        original = dict(protocol=ip[0], commit=ip[1], raw27_binding=ip[2], source_profile=ip[3], nonce=ip[4],
+                        modules=[dict(zip(("ordinal", "module", "member", "size", "sha256"), row)) for row in ip[5]])
+        # Unverändertes benanntes Originalpräbild; unmittelbare PRE vor jedem Constructor.
+        original_digest = _report_sha(_report_json(original, encoder_anchor), anchor)
+        _inline_need(original_digest == ip[6], "INPUT_DIGEST")
+        _inline_need(ip[1:5] == context[:4] and ip[5] == context[4], "INPUT_BINDING")
+        _inline_need(worker[:3] == context[5:], "CONTEXT_MISMATCH")
+        # K stammt aus M; S15 und Inventur ausschließlich aus den gegebenen Scalars.
+        payload = (syntax[2][2], chosen, controls, modules)
+        _report_shape(_REPORT_R, payload)
+        form = _report_pack(payload)
+        data = _report_json(form, encoder_anchor)
+        digest = _report_sha(data, anchor)
+        records = _report_records(data, payload[0][5], digest, encoder_anchor)
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("FORMATTED_PROFILE_REPORT", "NONE", records)
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "REPORT_INTERNAL"
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_PROFILE_REPORT", issue, None)
+'''
+
+
+def build_inline_report_control_bootstrap(profile_raw, *, logical_profile,
+                                         expected_soabi, expected_destshared) -> BootstrapSource:
+    """Fünfte reine Quellenroute für gegebene Scalarformen und private Reportrecords."""
+    selected = build_inline_semantics_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_REPORT + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
