@@ -244,6 +244,228 @@ def build_control_bootstrap(profile_raw, *, logical_profile) -> BootstrapSource:
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
 
 
+# Eigene additive Syntaxquelle. Kein Import des Codecs und keine Semantikroute.
+_INLINE_SYNTAX = r'''
+_INLINE_TAG = "pooled-binding-design/v1"
+_INLINE_ROLE = "METADATA"
+_INLINE_HEADER = struct.Struct(">8sII")
+_INLINE_MAGIC = b"DGNC001\0"
+_INLINE_METADATA_CAP = 16384
+_INLINE_BODY_CAP = 1048576
+_INLINE_FRAME_CAP = 1064960
+_INLINE_NODES = 16368
+_INLINE_DEPTH = 8
+_INLINE_SEQUENCE = 256
+_INLINE_TEXT = 4096
+
+
+class _InlineSyntaxRejected(ValueError):
+    pass
+
+
+def _inline_need(ok, issue):
+    if not ok:
+        raise _InlineSyntaxRejected(issue) from None
+
+
+class _InlineParser:
+    """Begrenzte ASCIIarrays; kein allgemeiner JSONdecoder."""
+    def __init__(self, data):
+        self.data, self.pos, self.nodes = data, 0, 0
+
+    def _take(self, byte):
+        _inline_need(self.pos < len(self.data) and self.data[self.pos] == byte, "JSON_FORM")
+        self.pos += 1
+
+    def _hex4(self):
+        _inline_need(self.pos + 4 <= len(self.data), "JSON_TEXT")
+        value = 0
+        for offset in range(4):
+            ch = self.data[self.pos + offset]
+            _inline_need(ch in b"0123456789abcdefABCDEF", "JSON_TEXT")
+            value = value * 16 + int(chr(ch), 16)
+        self.pos += 4
+        return value
+
+    def _string(self):
+        self._take(34)
+        chars, utf8 = [], 0
+        escapes = {34: '"', 92: "\\", 47: "/", 98: "\b", 102: "\f",
+                   110: "\n", 114: "\r", 116: "\t"}
+        while True:
+            _inline_need(self.pos < len(self.data), "JSON_TEXT")
+            ch = self.data[self.pos]
+            self.pos += 1
+            if ch == 34:
+                return "".join(chars)
+            if ch == 92:
+                _inline_need(self.pos < len(self.data), "JSON_TEXT")
+                esc = self.data[self.pos]
+                self.pos += 1
+                if esc == 117:
+                    cp = self._hex4()
+                    if 0xD800 <= cp <= 0xDBFF:
+                        self._take(92)
+                        self._take(117)
+                        low = self._hex4()
+                        _inline_need(0xDC00 <= low <= 0xDFFF, "JSON_TEXT")
+                        cp = 0x10000 + ((cp - 0xD800) << 10) + low - 0xDC00
+                    else:
+                        _inline_need(not 0xDC00 <= cp <= 0xDFFF, "JSON_TEXT")
+                    char = chr(cp)
+                else:
+                    _inline_need(esc in escapes, "JSON_TEXT")
+                    char = escapes[esc]
+            else:
+                _inline_need(32 <= ch < 128, "JSON_TEXT")
+                char = chr(ch)
+            _inline_need(char != "\0", "JSON_TEXT")
+            utf8 += len(char.encode("utf-8"))
+            _inline_need(utf8 <= _INLINE_TEXT, "TEXT_LIMIT")
+            chars.append(char)
+
+    def value(self, depth=1):
+        self.nodes += 1
+        _inline_need(self.nodes <= _INLINE_NODES, "NODE_LIMIT")
+        _inline_need(self.pos < len(self.data), "JSON_FORM")
+        ch = self.data[self.pos]
+        if ch == 91:
+            _inline_need(depth <= _INLINE_DEPTH, "DEPTH_LIMIT")
+            self.pos += 1
+            rows = []
+            if self.pos < len(self.data) and self.data[self.pos] == 93:
+                self.pos += 1
+                return ()
+            while True:
+                _inline_need(len(rows) < _INLINE_SEQUENCE, "SEQUENCE_LIMIT")
+                rows.append(self.value(depth + 1))
+                _inline_need(self.pos < len(self.data), "JSON_FORM")
+                if self.data[self.pos] == 93:
+                    self.pos += 1
+                    return tuple(rows)
+                self._take(44)
+        if ch == 34:
+            return self._string()
+        if ch == 110:
+            _inline_need(self.data[self.pos:self.pos + 4] == b"null", "JSON_FORM")
+            self.pos += 4
+            return None
+        _inline_need(48 <= ch <= 57, "JSON_FORM")
+        start = self.pos
+        while self.pos < len(self.data) and 48 <= self.data[self.pos] <= 57:
+            self.pos += 1
+            _inline_need(self.pos - start <= 8, "INTEGER_LIMIT")
+        _inline_need(self.pos - start == 1 or self.data[start] != 48, "JSON_FORM")
+        return int(self.data[start:self.pos])
+
+
+def _inline_seq(schema, count=None):
+    return ("sequence", schema, count)
+
+
+# n: semantischer Integer; t: Textreferenz; z: Textreferenz oder None.
+# Die Formen bewahren alle Positionen; deren fachliche Werte sind ungeprüft.
+_INLINE_D = ("n", "t", "t", "n", "t")
+_INLINE_F = ("t", "n", "t")
+_INLINE_S = ("t", "t", "t", _inline_seq("n", 3), "t", "t", _inline_seq("t", 4), "t",
+             _inline_seq("t"), _inline_seq("t", 2), "t", _inline_seq("n", 6),
+             _inline_seq("t", 3), _inline_seq("t", 2), _inline_seq(_INLINE_F))
+_INLINE_P = ("t", "t", "z", "t", "t", "t", _inline_seq("t"), "t", "t", "t", _inline_seq("t"))
+_INLINE_W = ("n", "t", "t", _INLINE_S, _inline_seq("t"), _inline_seq(_INLINE_P))
+_INLINE_K = ("t", "t", "t", "t", _inline_seq(_INLINE_D, 9), "n", "t", "t")
+_INLINE_I = ("t", "t", "t", "t", "t", _inline_seq(_INLINE_D, 9), "t")
+_INLINE_M = (_INLINE_I, _INLINE_W, _INLINE_K)
+
+
+def _inline_resolve(form):
+    _inline_need(type(form) is tuple and len(form) == 4, "SCHEMA_FORM")
+    _inline_need(type(form[0]) is str and form[0] == _INLINE_TAG, "VERSION_MISMATCH")
+    _inline_need(type(form[1]) is str and form[1] == _INLINE_ROLE, "ROLE_MISMATCH")
+    pool = form[2]
+    _inline_need(type(pool) is tuple and len(pool) <= _INLINE_SEQUENCE, "POOL_LIMIT")
+    for text in pool:
+        _inline_need(type(text) is str, "POOL_FORM")
+        _inline_need(len(text) <= _INLINE_TEXT, "TEXT_LIMIT")
+        _inline_need("\0" not in text and len(text.encode("utf-8", "strict")) <= _INLINE_TEXT,
+                     "TEXT_LIMIT")
+    _inline_need(pool == tuple(sorted(set(pool))), "POOL_FORM")
+    used = set()
+
+    def walk(value, schema):
+        if type(schema) is str:
+            if schema == "z" and value is None:
+                return None
+            _inline_need(type(value) is int and 0 <= value <= 99999999, "POSITION_TYPE")
+            if schema == "n":
+                return value
+            _inline_need(value < len(pool), "REFERENCE_RANGE")
+            used.add(value)
+            return pool[value]
+        _inline_need(type(value) is tuple and len(value) <= _INLINE_SEQUENCE, "SCHEMA_FORM")
+        if schema[0] == "sequence":
+            _inline_need(schema[2] is None or len(value) == schema[2], "SCHEMA_FORM")
+            return tuple(walk(v, schema[1]) for v in value)
+        _inline_need(len(value) == len(schema), "SCHEMA_FORM")
+        return tuple(walk(v, sc) for v, sc in zip(value, schema))
+
+    payload = walk(form[3], _INLINE_M)
+    _inline_need(used == set(range(len(pool))), "POOL_UNUSED")
+    return payload
+
+
+def _inline_canonical(form):
+    pieces, size = [], _INLINE_HEADER.size
+    encoder = json.JSONEncoder(ensure_ascii=True, sort_keys=True,
+                              separators=(",", ":"), allow_nan=False)
+    for piece in encoder.iterencode(form):
+        size += len(piece)
+        _inline_need(size <= _INLINE_METADATA_CAP, "METADATA_LIMIT")
+        pieces.append(piece.encode("ascii"))
+    return b"".join(pieces)
+
+
+def _inline_metadata_syntax(header, metadata):
+    """Private Payload: Syntax allein; keine Semantik, Aufnahme oder Freigabe."""
+    try:
+        _inline_need(type(header) is bytes and type(metadata) is bytes, "INPUT_TYPE")
+        _inline_need(len(header) == _INLINE_HEADER.size, "HEADER_FORM")
+        magic, metadata_size, body_size = _INLINE_HEADER.unpack(header)
+        _inline_need(magic == _INLINE_MAGIC, "HEADER_FORM")
+        _inline_need(0 < metadata_size <= _INLINE_METADATA_CAP - _INLINE_HEADER.size,
+                     "METADATA_LIMIT")
+        _inline_need(body_size <= _INLINE_BODY_CAP, "BODY_LIMIT")
+        _inline_need(_INLINE_HEADER.size + metadata_size + body_size <= _INLINE_FRAME_CAP,
+                     "FRAME_LIMIT")
+        _inline_need(len(metadata) == metadata_size, "METADATA_LENGTH")
+        parser = _InlineParser(metadata)
+        form = parser.value()
+        _inline_need(parser.pos == len(metadata), "JSON_END")
+        payload = _inline_resolve(form)
+        _inline_need(_inline_canonical(form) == metadata, "NONCANONICAL")
+        return ("VALID_METADATA_SYNTAX", "NONE", payload)
+    except _InlineSyntaxRejected as error:
+        return ("REJECTED_METADATA_SYNTAX", error.args[0], None)
+    except BaseException:
+        return ("REJECTED_METADATA_SYNTAX", "SYNTAX_INTERNAL", None)
+'''
+
+
+def build_inline_syntax_control_bootstrap(profile_raw, *, logical_profile,
+                                          expected_soabi, expected_destshared) -> BootstrapSource:
+    """Reine dritte Quellenroute; inline Header-/E4-Syntax ohne Empfang/Semantik."""
+    selected = build_sysconfig_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    source_text = selected.source.decode("utf-8", "strict")
+    anchor = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(source_text.count(anchor) == 1, "TEMPLATE_FORM")
+    source = source_text.replace(anchor, "\n" + _INLINE_SYNTAX + anchor, 1).encode("utf-8")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
 _SYSCONFIG_HELPERS = '''
 def _config_text(value, locator=False):
     _require(type(value) is str and len(value) <= 4096, "CONTROL_SYSCONFIG_FORM")
