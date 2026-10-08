@@ -3202,9 +3202,9 @@ LF `ef5f5b107e7d0dce389a6aab3db7e544f134731bee2db88851cc25038c127e33`
 Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt.
 
-Der separate INPUT_COMPLETE-Recordentwurf liegt in §30 als DESIGNED vor.
-Nächster kleiner Schnitt ist dessen reine additive Builderimplementierung
-mit neuen synthetischen Gegenproben.
+Die reine additive INPUT_COMPLETE-Quelle ist nach §30 synthetisch geprüft.
+Nächster kleiner Schnitt ist ausschließlich der DESIGN-Vertrag für den
+vollständigen Record-/Footer→R-Calleradapter mit geschlossener Fehlerpriorität.
 Exklusives Ledger und Record-/Footeradapter mit geschlossener Fehlerpriorität
 folgen getrennt. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
 Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
@@ -3212,13 +3212,13 @@ Loader, Worker und unabhängiger Cleanup sowie G13-/Methodengates bleiben offen.
 
 ## 30. Deklarativer INPUT_COMPLETE-Rückkanalrecord
 
-Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Dieser Abschnitt
-schließt die Recordform vor ihrer Parserimplementierung. Er belegt weder
+Status: `IMPLEMENTED_SYNTHETIC_MATCH`, Aussagebereich `PROJECT_SEMANTIC`.
+Die reine additive Quelle ist implementiert und synthetisch geprüft. Sie belegt weder
 tatsächliche Eingangsprüfung noch Kanal-, Sender- oder Phasenherkunft.
 
 ### 30.1 Feste Form und getrennte Callerwahl
 
-Die künftige dreizehnte additive Quellenroute heißt
+Die dreizehnte additive Quellenroute heißt
 `build_inline_input_complete_control_bootstrap(profile_raw, *, logical_profile,
 expected_soabi, expected_destshared)`. Sie ergänzt
 `_inline_match_input_complete(line, *, expected_format, expected_phase,
@@ -3311,7 +3311,7 @@ wiederholte begrenzte Namespace-/Class-/Function-/Provider-/Encoderkohärenzprü
 sind zusätzliche Arbeit. Diese Rechnung attestiert keine operative
 Laufzeit, Deadline oder Gesamtausgabegröße.
 
-Künftige Synthetik prüft alle drei Ordinals und ein unabhängig vollständig
+Die neue Synthetik prüft alle drei Ordinals und ein unabhängig vollständig
 benanntes K-/D9-/E4-Digestoracle, sämtliche K-Feldänderungen bei
 gleichbleibendem Ordinal/Nonce, Original-/R-Domainverwechslung, genaue
 Actualrückgabe und unveränderte Bytes. Gegenfälle umfassen falsche
@@ -3322,14 +3322,15 @@ und Unicode sowie Encoder-/Providerdrift und dominante Fehler.
 Die feste gültige Form ist 155 Bytes; 256-/257-Byte-Aufnahmefälle sind
 Grenzgegenproben, kein gültiger 256-Byte-Formbeleg.
 
-Die spätere additive Umsetzung erhält zwölf bestehende Builder und
+Die additive Umsetzung erhält zwölf bestehende Builder und
 378 alte Testmethoden, alle bisherigen Definitionen und erzeugten Bytes,
 fünf direkte Scriptimports, zwei Controls und das Scriptcap von
 131072 Bytes einschließlich Literalexpansion.
 Es erfolgen keine Codec-/Matcher-/Input82-Adapterimporte vor PRE.
-Ein Scriptfit ist erst nach tatsächlicher späterer Quellenprüfung belegt.
+Die synthetische Quellenprüfung belegt Scriptfit einschließlich Literalexpansion;
+sie ersetzt keine spätere vollständige operative Quellenauswahl.
 Vollständige Root- und unabhängige Source/Test-PRE sowie ausdrückliches GO
-gehen einem einzelnen isolierten synthetischen Suiteversuch vor.
+gingen dem einzigen isolierten synthetischen Suiteversuch vor.
 
 ### 30.5 Getrennte Folgeschnitte und offene Claims
 
@@ -3339,10 +3340,73 @@ Profilaufnahme aus und attestiert weder Originalinputprüfung noch
 Raw27-Herkunft, Sender, Consumption, Replayfreiheit, IMPORT_RELEASE oder
 eine operative Phasentransition. Alle bestehenden Attestationsflags bleiben false.
 
-Nächster kleiner Schnitt ist ausschließlich die additive Builder13-/
-Matcherimplementierung mit neuen synthetischen Gegenproben.
-Exklusives Ledger mit den drei vollständig vorgewählten Slots,
-Record-/Footeradapter mit geschlossener Fehlerpriorität, tatsächlicher
+Nächster kleiner Schnitt ist ausschließlich der DESIGN-Vertrag für einen
+vollständigen Record-/Footer→R-Calleradapter mit geschlossener Fehlerpriorität.
+Die frühe Callerordinalprüfung aus §27 darf im neuen Gesamtpfad spätere
+Actual-R-Form-/Semantikfehler nicht verdecken; ein bloßes Verketten der
+bestehenden Teilfunktionen ist dafür kein Nachweis. Exklusives Ledger mit
+drei vollständig vorgewählten Slots folgt danach separat. Tatsächlicher
 Kanal, operative Inventur samt Fünf-Formen-/64-KiB-Gate, Loader-, Worker-
-und unabhängiger Cleanupnachweis folgen getrennt.
+und unabhängiger Cleanupnachweis bleiben getrennt.
 G13, v1, DEC-068 und die geschützte Arbeit bleiben erhalten.
+
+
+### 30.6 Tatsächliche synthetische Umsetzung und begrenzter Nachweis
+
+Der Builder ergänzt ausschließlich `_INLINE_INPUT_COMPLETE` und seine
+öffentliche Quellenroute; alle alten Toolbytes bilden den unveränderten Präfix.
+Alle 17 alten Tool- und 31 alten Test-Topdefinitionen sind klassenweise
+AST-identisch. Die neue eigene Testklasse enthält 35 Methoden; sämtliche
+378 früheren Testmethoden bleiben unverändert. Die zwölf früheren erzeugten
+Builderquellen, fünf direkte Scriptimports, zwei Controls und sämtliche Caps
+bleiben erhalten.
+
+Root und unabhängiger Reviewer lasen vor der Ausführung die ganzen finalen
+88 Source- und 487 Testergänzungszeilen, tatsächliches `Run.execute`,
+delegierten `InlineProfileReporterTests.tearDown` und relevante Abhängigkeiten.
+Zwei enge Testpräzisierungen wurden vor dem ersten Lauf vollständig reviewt:
+ein genauerer Testname für K-Encodingfehler mit Providerverlust sowie Unicode-
+und NUL-Noncegegenfälle innerhalb des Zeilencaps. Der Source blieb unverändert.
+Ein rein statischer Audit des unabhängigen Reviewers scheiterte zunächst an
+flacher Testnamenszuordnung; der klassenweise Ganz-AST-Vergleich bestand
+danach. Dies war kein Source-/Suitefehler. Zwei JS-Syntaxpannen bei rein
+statischen Aufruf-/Dokumentationsentwürfen erreichten weder Tool noch Datei.
+
+Genau ein lokaler Versuch mit
+`python -I -S -B -X utf8 Tests/Static/test_dgn007_control_bootstrap_source.py`
+unter CPython 3.12.14 bestand 413/413 Methoden ohne Fehler, Failure oder SKIP:
+10.577 s unittest-Zeit, Exit 0. Der initiale Toolaufruf wartete 10.0099812 s
+und lieferte Session 94166; Poll 603df0 bestätigte den erfolgreichen Abschluss.
+Diese Wartezeit ist keine gemessene gesamte Prozesswallzeit.
+Statischer PRE und POST bestätigen dieselben RAW-/LF-Pins und Paarbindung.
+Der tatsächliche Test-Harness prüfte gehaltene Cache-/Modul-/Encoder-/
+Functionzustände und die Abwesenheit seines eigenen temporären
+Fixtureverzeichnisses, ohne reparierende Logik. Dies ist kein externer
+Prozess-/Worker- oder Runtimeherkunftsnachweis.
+
+Die benannte unabhängige K8-/D5-Pooloracle bindet sämtliche Felder und
+die eigene headerfreie E4-Domain. Gegenproben prüfen alle drei Ordinals,
+Actualbytesidentität, Fehlformen und späte Felder vor Hashdispatch,
+Original-/R-Domainverwechslung, kanonischen Repack, tatsächliche
+Encoding-/Constructorfehler, Drift zwischen beiden Kodierungen und
+Provider-vor-Encoder-POST. Wiederholter Match ist ausdrücklich kein
+Einmalverbrauch. 256/257 Bytes sind Aufnahmegegenfälle; jede gültige Form
+bleibt 155 Bytes. Das K-Capexperiment verwendet ehrlich abgesenkte interne
+Zählgrenzen, keine tatsächlich große operative Fixture.
+
+Tool RAW SHA-256
+`df75b18cf773c23260819af83b49c96e36d68287c8b391e04cf72d7a6d9543ad`
+(101.473 Bytes), LF
+`4c3f204f66c5a8b27da1a756c4ef14307a53b153d32ff2cac36b0a478589760d`
+(99.445 Bytes). Test RAW
+`1797ff68f37652b91a7c4a0a443a8d2ad160c774e181dfed3a802f949d45251e`
+(330.740 Bytes), LF
+`95b9b71921bc43afefa280521cc580dc77c029cda8b2d937939e202f853d5262`
+(325.032 Bytes). Nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]`, Trennzeichen `(',',':')`, Paar-SHA-256
+`9d6fce8d75e40e7b6add1205258492d9689bbbe541b71ecc914e2b7134ba65db`.
+
+Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
+Worker- oder SQLprobe wurde erneut ausgeführt. Quellen- und Testfit,
+synthetische Gegenproben und spätere CI attestieren keine operative
+Fünf-Formen-/64-KiB-Ausgabe, Sender-, Trust-, UsedBytes- oder Methodenfreigabe.

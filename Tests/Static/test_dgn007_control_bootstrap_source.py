@@ -5217,5 +5217,492 @@ class InlineProfileBodyReleasePlanTests(unittest.TestCase):
             self.assertEqual(error.exception.args, ("SCRIPT_LIMIT",))
             self.assertTrue(error.exception.__suppress_context__)
 
+
+class InlineInputCompleteTests(unittest.TestCase):
+    def setUp(self):
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[key]
+                                           for key in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        path = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", path)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=path)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=path, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_input_complete_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.match = self.namespace["_inline_match_input_complete"]
+        self.context = semantic_fixture()[2]
+        self.format = "pooled-combined-input-design/v1"
+        self.phase = "AWAIT_INPUT_COMPLETE"
+        self.held_line = self.line(self.context)
+
+    def tearDown(self):
+        InlineProfileReporterTests.tearDown(self)
+
+    def reference(self, context):
+        # Unabhängige benannte K8-/D5-Felder und eigene vollständige Textaufnahme.
+        named = dict(zip(("commit", "raw27", "source_profile", "nonce", "modules",
+                          "ordinal", "entry", "phase"), context))
+        descriptors = tuple(dict(zip(("ordinal", "module", "member", "size", "sha256"), row))
+                            for row in named["modules"])
+        k = tuple(named[key] for key in ("commit", "raw27", "source_profile", "nonce")) + (
+            tuple(tuple(row[key] for key in ("ordinal", "module", "member", "size", "sha256"))
+                  for row in descriptors),) + tuple(named[key] for key in ("ordinal", "entry", "phase"))
+        texts = set()
+        def collect(value):
+            if type(value) is str:
+                texts.add(value)
+            elif type(value) is tuple:
+                for child in value:
+                    collect(child)
+        collect(k)
+        pool = tuple(sorted(texts))
+        def project(value):
+            if type(value) is str:
+                return pool.index(value)
+            if type(value) is tuple:
+                return tuple(project(child) for child in value)
+            return value
+        form = ("pooled-binding-design/v1", "pooled-profile-binding-context/v1",
+                pool, (project(k),))
+        data = json.dumps(form, sort_keys=True, ensure_ascii=True, separators=(",", ":"),
+                          allow_nan=False).encode("ascii")
+        return form, data, hashlib.sha256(data).hexdigest()
+
+    def line(self, context=_REPORT_OMITTED, *, fields=_REPORT_OMITTED):
+        context = self.context if context is _REPORT_OMITTED else context
+        if fields is _REPORT_OMITTED:
+            fields = ("INPUT_COMPLETE", context[5], context[3], self.reference(context)[2])
+        return json.dumps(fields, ensure_ascii=True, separators=(",", ":"),
+                          allow_nan=False).encode("ascii") + b"\n"
+
+    def call(self, line=_REPORT_OMITTED, context=_REPORT_OMITTED, *,
+             format=_REPORT_OMITTED, phase=_REPORT_OMITTED):
+        # Alle Defaultbytes wurden vor Encoder-/Providerpatches gehalten.
+        return self.match(self.held_line if line is _REPORT_OMITTED else line,
+            expected_context=self.context if context is _REPORT_OMITTED else context,
+            expected_format=self.format if format is _REPORT_OMITTED else format,
+            expected_phase=self.phase if phase is _REPORT_OMITTED else phase)
+
+    def rejected(self, result, issue=None):
+        self.assertEqual(result[0], "REJECTED_INPUT_COMPLETE")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        self.assertNotIn(LOCATOR, repr(result))
+        return result
+
+    def accepted(self, context):
+        line = self.line(context)
+        fields = ("INPUT_COMPLETE", context[5], context[3], self.reference(context)[2])
+        before = self.provider._HASH_CALLS
+        result = self.call(line, context)
+        self.assertEqual(result, ("MATCHED_DECLARED_INPUT_COMPLETE", "NONE", (line, fields)))
+        self.assertIs(result[2][0], line)
+        self.assertEqual(len(line), 155)
+        self.assertEqual(self.provider._HASH_CALLS, before + 1)
+        form, data, _ = self.reference(context)
+        self.assertEqual(syntax_reference._resolve(form, 4), (context,))
+        dto = syntax_reference._semantics((context,), 4)[0]
+        self.assertEqual((dto.commit, dto.raw27_binding, dto.source_profile, dto.nonce.hex()), context[:4])
+        self.assertEqual(tuple((row.ordinal, row.module, row.member, row.size, row.sha256)
+                              for row in dto.modules), context[4])
+        self.assertEqual((dto.ordinal, dto.entry, dto.phase), context[5:])
+        self.assertEqual(hashlib.sha256(syntax_reference._canonical(form)).hexdigest(),
+                         self.reference(context)[2])
+        return result
+
+    def test_full_named_oracle_all_three_ordinals_actual_return(self):
+        for ordinal in (1, 2, 3):
+            self.accepted(semantic_fixture(ordinal)[2])
+
+    def test_all_valid_k_hash_field_changes_preserved(self):
+        for path, value in (((0,), "a"*40), ((1,), "b"*64), ((3,), "c"*64),
+                            ((4, 0, 3), 0), ((4, 8, 3), 131072), ((4, 8, 4), "d"*64)):
+            context = semantic_change(self.context, path, value)
+            self.assertNotEqual(self.reference(context)[2], self.reference(self.context)[2])
+            self.accepted(context)
+            self.rejected(self.call(self.held_line, context), "INPUT_COMPLETE_MISMATCH")
+
+    def test_original_r_and_header_domains_never_replace_k(self):
+        form, data, digest = self.reference(self.context)
+        alternatives = (semantic_fixture()[0][6],
+            hashlib.sha256(struct.pack(">8sII", b"DGNP001\0", 5, len(data)) + data).hexdigest(),
+            hashlib.sha256(syntax_bytes((form[0], "REPORTED", form[2], form[3]))).hexdigest(),
+            hashlib.sha256(syntax_bytes((form[0], form[1], form[2], form[3][0]))).hexdigest())
+        for wrong in alternatives:
+            self.assertNotEqual(wrong, digest)
+            self.rejected(self.call(self.line(fields=("INPUT_COMPLETE", 1, self.context[3], wrong))),
+                          "INPUT_COMPLETE_MISMATCH")
+
+    def test_format_selection_precedes_all_foreign_intake(self):
+        for value in (Foreign(), ForeignKey(self.format), None, True, "other", "pooled-binding-design/v1"):
+            self.rejected(self.call(Foreign(), Foreign(), format=value), "FORMAT_SELECTION")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_phase_selection_is_exact_and_only_declared_intent(self):
+        for value in (Foreign(), ForeignKey(self.phase), None, True, "AWAIT_PROFILE", "PRE_IMPORT"):
+            self.rejected(self.call(Foreign(), Foreign(), phase=value), "PHASE_SELECTION")
+        result = self.call()
+        self.assertEqual(result[0], "MATCHED_DECLARED_INPUT_COMPLETE")
+        self.assertEqual(self.context[7], "PRE_IMPORT")
+        self.assertEqual(self.phase, "AWAIT_INPUT_COMPLETE")
+
+    def test_record_types_exact_before_length(self):
+        class BytesSubclass(bytes): pass
+        for value in (Foreign(), BytesSubclass(self.held_line), bytearray(self.held_line),
+                      memoryview(self.held_line), None, True, self.held_line.decode()):
+            self.rejected(self.call(value), "INPUT_COMPLETE_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_155_valid_and_256_257_intake_not_valid_cap_fixture(self):
+        self.assertEqual(len(self.held_line), 155)
+        self.assertEqual(self.call()[0], "MATCHED_DECLARED_INPUT_COMPLETE")
+        # Nur Aufnahmegrenzen: die angehängten Spaces sind keine gültige Recordform.
+        for size, issue in ((256, "INPUT_COMPLETE_FORM"), (257, "INPUT_COMPLETE_LIMIT")):
+            line = self.held_line[:-1] + b" "*(size-155) + b"\n"
+            self.assertEqual(len(line), size)
+            self.rejected(self.call(line), issue)
+        self.rejected(self.call(b""), "INPUT_COMPLETE_LIMIT")
+
+    def test_lf_crlf_second_lf_suffix_and_truncation(self):
+        for value in (self.held_line[:-1], self.held_line[:-1]+b"\r\n",
+                      self.held_line+b"\n", self.held_line+b"x", b"\n"):
+            self.rejected(self.call(value))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_complete_received_arity_null_bool_float_object(self):
+        fields = json.loads(self.held_line)
+        cases = ((), fields[:2], tuple(fields)+(0,), (fields[0], 1, fields[2], None))
+        for value in cases:
+            self.rejected(self.call(self.line(fields=value)), "SCALAR_FORM")
+        for value in (b'["INPUT_COMPLETE",true,"x","x"]\n',
+                      b'["INPUT_COMPLETE",1.0,"x","x"]\n', b'{}\n'):
+            self.rejected(self.call(value), "JSON_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_received_form_before_wrong_tag_and_bad_caller_hex(self):
+        line = self.line(fields=("BODY_END", 1, self.context[3], None))
+        context = semantic_change(self.context, (0,), "nothex")
+        self.rejected(self.call(line, context), "SCALAR_FORM")
+        self.rejected(self.call(line), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_complete_caller_exact_containers_and_all_late_fields(self):
+        class TupleSubclass(tuple): pass
+        for value in (None, Foreign(), list(self.context), TupleSubclass(self.context), self.context[:-1]):
+            self.rejected(self.call(context=value), "SCALAR_FORM")
+        for path, value in (((7,), Foreign()), ((4,8,4), Foreign()), ((4,8,3), True),
+                            ((4,8), None), ((4,), self.context[4][:-1])):
+            self.rejected(self.call(context=semantic_change(self.context, path, value)), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_caller_form_before_early_valid_received_difference(self):
+        line = self.line(fields=("INPUT_COMPLETE", 2, self.context[3], "a"*64))
+        self.rejected(self.call(line, semantic_change(self.context, (4,8,4), Foreign())), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_entire_d9_semantics_mapping_order_member_size_hash(self):
+        for path, value in (((4,8,0), 0), ((4,8,1), "other"), ((4,8,2), "foreign.py"),
+                            ((4,8,3), 131073), ((4,8,4), "G"*64)):
+            self.rejected(self.call(context=semantic_change(self.context, path, value)))
+        swapped = list(self.context[4])
+        swapped[0], swapped[8] = swapped[8], swapped[0]
+        self.rejected(self.call(context=semantic_change(self.context, (4,), tuple(swapped))))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_complete_k_source_profile_selector_phase_semantics(self):
+        for path, value in (((0,), "g"*40), ((1,), "Z"*64), ((2,), "other"),
+                            ((3,), "short"), ((5,), 0), ((5,), 4), ((6,), "other"),
+                            ((7,), "AWAIT_INPUT_COMPLETE")):
+            self.rejected(self.call(context=semantic_change(self.context, path, value)))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_fixed_tag_not_fourth_command_kind_or_received_fallback(self):
+        for tag in ("BODY_RELEASE", "BODY_END", "IMPORT_RELEASE", "input_complete", "OTHER"):
+            self.rejected(self.call(self.line(fields=(tag, 1, self.context[3], "a"*64))),
+                          "INPUT_COMPLETE_KIND")
+        self.assertEqual(self.namespace["_COMMAND_KINDS"], ("BODY_RELEASE", "BODY_END", "IMPORT_RELEASE"))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_received_semantics_before_hash_dispatch(self):
+        for fields in (("INPUT_COMPLETE",0,self.context[3],"a"*64),
+                       ("INPUT_COMPLETE",4,self.context[3],"a"*64),
+                       ("INPUT_COMPLETE",1,"A"*64,"a"*64),
+                       ("INPUT_COMPLETE",1,self.context[3],"short")):
+            self.rejected(self.call(self.line(fields=fields)))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_valid_nonce_ordinal_digest_full_mismatch_after_hash(self):
+        fields = json.loads(self.held_line)
+        for index, value in ((1,2),(2,"a"*64),(3,"b"*64)):
+            altered = fields.copy()
+            altered[index] = value
+            before = self.provider._HASH_CALLS
+            self.rejected(self.call(self.line(fields=altered)), "INPUT_COMPLETE_MISMATCH")
+            self.assertEqual(self.provider._HASH_CALLS, before+1)
+
+    def test_noncanonical_escapes_spaces_integer_zero_prefix(self):
+        for line, issue in ((self.held_line.replace(b"INPUT_COMPLETE",b"INPUT_\\u0043OMPLETE"),
+                             "INPUT_COMPLETE_CANONICAL"),
+                            (self.held_line.replace(b",",b", ",1),"JSON_FORM"),
+                            (self.held_line.replace(b",1,",b",01,",1),"JSON_FORM")):
+            self.rejected(self.call(line), issue)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_nonascii_bom_nul_and_unicode_fields_rejected(self):
+        for value in (b"\xef\xbb\xbf"+self.held_line,
+                      self.held_line.replace(b"INPUT_COMPLETE",b"INPUT_\xffCOMPLETE"),
+                      self.held_line.replace(b"INPUT_COMPLETE",b"INPUT_\x00COMPLETE"),
+                      self.line(fields=("INPUT_COMPLETE",1,"\\u0000"*16,"a"*64)),
+                      self.line(fields=("INPUT_COMPLETE",1,"\u00e9"*64,"a"*64))):
+            self.rejected(self.call(value))
+        for nonce in ("é"+"a"*63, "\0"+"a"*63):
+            line = self.line(fields=("INPUT_COMPLETE",1,nonce,"a"*64))
+            self.assertLessEqual(len(line),256)
+            result = self.rejected(self.call(line))
+            self.assertNotEqual(result[1],"INPUT_COMPLETE_LIMIT")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_provider_and_encoder_pre_fixed_labels(self):
+        with patch.dict(self.run.cache, {"hashlib": Foreign()}):
+            self.rejected(self.call(), "HASH_PROVIDER_BINDING")
+        with patch.object(json, "JSONEncoder", Foreign()):
+            self.rejected(self.call(), "REPORT_ENCODER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_repack_provider_drift_prevents_second_encoding_and_constructor(self):
+        held = self.namespace["_report_json"]
+        calls = []
+        old_code = self.factory.__code__
+        def drift(form, anchor):
+            calls.append(form)
+            result = held(form, anchor)
+            self.factory.__code__ = _fixture_config_var.__code__
+            return result
+        try:
+            with patch.dict(self.namespace, {"_report_json": drift}):
+                self.rejected(self.call(), "HASH_PROVIDER_BINDING")
+        finally:
+            self.factory.__code__ = old_code
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_second_encoding_provider_drift_prevents_constructor(self):
+        held = self.namespace["_report_json"]
+        calls=[]
+        def drift(form, anchor):
+            result = held(form, anchor)
+            calls.append(form)
+            if len(calls)==2:
+                self.run.cache["hashlib"]=Foreign()
+            return result
+        with patch.dict(self.namespace, {"_report_json": drift}):
+            self.rejected(self.call(), "HASH_PROVIDER_BINDING")
+        self.assertEqual(len(calls),2)
+        self.assertEqual(self.provider._HASH_CALLS,0)
+
+    def test_actual_iterencoder_provider_code_drift_no_inner_rebaseline(self):
+        cls, old_code = json.JSONEncoder, self.factory.__code__
+        held_iter=cls.iterencode
+        namespace=self.real_encoder_module.__dict__
+        keys=("_REPORT_FACTORY","_REPORT_REPLACEMENT_CODE","_REPORT_HELD_ITER")
+        self.assertTrue(all(key not in namespace for key in keys))
+        namespace.update(_REPORT_FACTORY=self.factory, _REPORT_REPLACEMENT_CODE=_fixture_config_var.__code__,
+                         _REPORT_HELD_ITER=held_iter)
+        try:
+            cls.iterencode=FunctionType(_fixture_report_encoder_exchange_provider.__code__,namespace)
+            self.rejected(self.call(),"HASH_PROVIDER_BINDING")
+        finally:
+            cls.iterencode=held_iter
+            self.factory.__code__=old_code
+            for key in keys:
+                del namespace[key]
+        self.assertEqual(self.provider._HASH_CALLS,0)
+
+    def test_encoder_drift_between_encodings_no_partial_record(self):
+        held=self.namespace["_report_json"]
+        old=json.JSONEncoder.default
+        replacement=FunctionType(old.__code__,old.__globals__,"default")
+        def drift(form,anchor):
+            result=held(form,anchor)
+            json.JSONEncoder.default=replacement
+            return result
+        try:
+            with patch.dict(self.namespace,{"_report_json":drift}):
+                self.rejected(self.call(),"REPORT_ENCODER_BINDING")
+        finally:
+            json.JSONEncoder.default=old
+        self.assertEqual(self.provider._HASH_CALLS,0)
+
+    def test_constructor_failure_and_dominant_provider_post(self):
+        self.provider._HASH_ERROR=RuntimeError("PRIVATE_PAYLOAD")
+        self.rejected(self.call(),"HASH_PROVIDER_CALL")
+        self.provider._HASH_CALLBACK=lambda: self.run.cache.update(hashlib=Foreign())
+        self.rejected(self.call(),"HASH_PROVIDER_BINDING")
+
+    def test_constructor_error_encoder_post_and_provider_priority(self):
+        old=json.JSONEncoder.default
+        replacement=FunctionType(old.__code__,old.__globals__,"default")
+        def drift():
+            json.JSONEncoder.default=replacement
+            self.provider._HASH_ERROR=RuntimeError("PRIVATE_PAYLOAD")
+        try:
+            self.provider._HASH_CALLBACK=drift
+            self.rejected(self.call(),"REPORT_ENCODER_BINDING")
+            json.JSONEncoder.default=old
+            def both():
+                drift()
+                self.run.cache["hashlib"]=Foreign()
+            self.provider._HASH_CALLBACK=both
+            self.rejected(self.call(),"HASH_PROVIDER_BINDING")
+        finally:
+            json.JSONEncoder.default=old
+
+    def test_invalid_hash_objects_atomic(self):
+        for value in (Foreign(), "short", b"raw", True):
+            self.provider._HASH_RESULT=value
+            self.rejected(self.call(),"HASH_PROVIDER_OBJECT")
+
+    def test_encoder_constructor_shadow_no_foreign_dispatch(self):
+        cls, old=json.JSONEncoder,json.JSONEncoder.__init__
+        namespace=self.real_encoder_module.__dict__
+        keys=("_REPORT_HELD_INIT","_REPORT_SHADOW")
+        self.assertTrue(all(key not in namespace for key in keys))
+        calls=[]
+        def shadow(value):
+            calls.append(value)
+            return ("PRIVATE_PAYLOAD",)
+        namespace.update(_REPORT_HELD_INIT=old,_REPORT_SHADOW=shadow)
+        try:
+            cls.__init__=FunctionType(_fixture_report_encoder_instance_shadow.__code__,namespace)
+            self.rejected(self.call(),"REPORT_ENCODER_BINDING")
+        finally:
+            cls.__init__=old
+            for key in keys:
+                del namespace[key]
+        self.assertEqual(calls,[])
+        self.assertEqual(self.provider._HASH_CALLS,0)
+
+    def test_encoder_error_post_and_private_active_exception(self):
+        def fail(*args):
+            raise RuntimeError("PRIVATE_PAYLOAD")
+        try:
+            raise ValueError("PRIVATE_PAYLOAD")
+        except ValueError:
+            with patch.dict(self.namespace,{"_command_k_json":fail}):
+                self.rejected(self.call(),"INPUT_COMPLETE_INTERNAL")
+        self.assertEqual(self.provider._HASH_CALLS,0)
+
+    def test_k_encoding_error_with_dominant_provider_binding_loss(self):
+        def fail(*args):
+            self.run.cache["hashlib"]=Foreign()
+            raise RuntimeError("PRIVATE_PAYLOAD")
+        with patch.dict(self.namespace,{"_command_k_json":fail}):
+            self.rejected(self.call(),"HASH_PROVIDER_BINDING")
+
+    def test_one_parser_two_json_one_sha_no_delegate(self):
+        parses=[]; encodes=[]
+        oldparser=self.namespace["_InlineParser"]; oldjson=self.namespace["_report_json"]
+        def parser(data):
+            parses.append(data)
+            return oldparser(data)
+        def encode(form,anchor):
+            encodes.append(form)
+            return oldjson(form,anchor)
+        forbidden={key:Foreign() for key in ("_inline_context_digest","_inline_command_match",
+            "_inline_command_encode","_command_compute","_semantic_original_digest","_semantic_inputs",
+            "_inline_receive_metadata_chunks","_inline_receive_declared_bodies")}
+        with patch.dict(self.namespace,dict(forbidden,_InlineParser=parser,_report_json=encode)):
+            result=self.call()
+        self.assertEqual(result[0],"MATCHED_DECLARED_INPUT_COMPLETE")
+        self.assertEqual(len(parses),1)
+        self.assertEqual(len(encodes),2)
+        self.assertEqual(self.provider._HASH_CALLS,1)
+        self.assertEqual(encodes[0],result[2][1])
+        self.assertEqual(encodes[1],self.reference(self.context)[0])
+
+    def test_k_bounds_remain_separate_from_all_five(self):
+        _,data,_=self.reference(self.context)
+        self.assertLess(len(data)+16,16384)
+        # Interne abgesenkte Zählgrenzen, kein gültiger großer K-Frame.
+        with patch.dict(self.namespace,{"_INLINE_METADATA_CAP":len(data)+16}):
+            self.assertEqual(self.call()[0],"MATCHED_DECLARED_INPUT_COMPLETE")
+        with patch.dict(self.namespace,{"_INLINE_METADATA_CAP":len(data)+15}):
+            self.rejected(self.call(),"METADATA_LIMIT")
+
+    def test_repeat_match_not_consumption_or_phase_transition(self):
+        one=self.call(); two=self.call()
+        self.assertEqual(one,two)
+        self.assertIs(one[2][0],self.held_line)
+        self.assertEqual(self.provider._HASH_CALLS,2)
+        self.assertEqual(self.context[7],"PRE_IMPORT")
+
+    def test_twelve_prior_builder_bytes_and_five_imports_preserved(self):
+        previous=subject.build_inline_profile_body_release_control_bootstrap(RAW,logical_profile=LOCATOR,
+            expected_soabi=SOABI,expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.replace(("\n"+subject._INLINE_INPUT_COMPLETE).encode(),b"",1),
+                         previous.source)
+        before,after=ast.parse(previous.source),ast.parse(self.selected.source)
+        definitions={n.name:ast.dump(n) for n in after.body if type(n) in (ast.FunctionDef,ast.ClassDef)}
+        self.assertTrue(all(definitions[n.name]==ast.dump(n) for n in before.body
+                           if type(n) in (ast.FunctionDef,ast.ClassDef)))
+        imports=[n for n in after.body if isinstance(n,(ast.Import,ast.ImportFrom))]
+        self.assertEqual(len(imports),5)
+        self.assertEqual(tuple(alias.name for n in imports for alias in n.names),
+                         ("importlib.util","sys","sysconfig","json","struct"))
+
+    def test_new_builder_scriptcap_literal_expansion_and_private_falseflags(self):
+        kwargs=dict(logical_profile=LOCATOR,expected_soabi=SOABI,expected_destshared=DESTSHARED)
+        builder=subject.build_inline_input_complete_control_bootstrap
+        overhead=len(builder(b"x",**kwargs).source)-1
+        raw=b"x"*(131072-overhead)
+        selected=builder(raw,**kwargs)
+        self.assertEqual(selected.source_size,131072)
+        self.assertIs(selected.profile_raw,raw)
+        self.assertEqual(selected.source_sha256,hashlib.sha256(selected.source).hexdigest())
+        self.assertNotIn(LOCATOR,repr(selected))
+        with self.assertRaises(FrozenInstanceError):
+            selected.source=b"replacement"
+        for field in ("trust_attested","runtime_attested","import_used_bytes_attested","method_approved"):
+            self.assertIs(getattr(selected,field),False)
+        for value in (raw+b"x",b"\0"*len(raw)):
+            with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+                builder(value,**kwargs)
+            self.assertEqual(caught.exception.args,("SCRIPT_LIMIT",))
+            self.assertTrue(caught.exception.__suppress_context__)
+
 if __name__ == "__main__":
     unittest.main()
