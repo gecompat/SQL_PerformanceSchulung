@@ -3067,18 +3067,18 @@ LF `664cc639f8eaa6a010a7765bd5bd3b0b27bcd52644dee9f2b37767a211452846`
 Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt.
 
-Der deklarative R→BODY_RELEASE-Plan nach §29 liegt als DESIGNED vor;
-nächster kleiner reiner Schnitt ist seine additive Builderimplementierung.
+Die additive reine R→BODY_RELEASE-Planquelle nach §29 ist synthetisch geprüft;
+nächster kleiner Schnitt ist der separate INPUT_COMPLETE-Recordentwurf.
 Tatsächlicher Kanal, Freigaben, operative Auswahl samt Fünf-Formen-/64-KiB-Gate, Consumption, Replay, Loader-, Worker-
 und Cleanupnachweise sowie G13-/Methodengates bleiben getrennt offen.
 
 ## 29. Deklarativer R→BODY_RELEASE-Plan
 
-Status: `DESIGNED`. Dieser kleine Vertrag beschreibt eine künftige reine
-Planfunktion, keinen tatsächlich gesendeten Command, Kanalübergang oder
-Einmalverbrauch. Implementierung und synthetische Abnahme sind noch offen.
+Status: `IMPLEMENTED_SYNTHETIC_PLAN`. Die reine Planfunktion ist implementiert
+und synthetisch geprüft. Sie attestiert keinen tatsächlich gesendeten Command,
+Kanalübergang oder Einmalverbrauch.
 
-Der vorgesehene zwölfte Builder ergänzt
+Der zwölfte additive Builder `build_inline_profile_body_release_control_bootstrap` ergänzt
 `_inline_plan_profile_body_release(header, metadata, *, expected_format,
 expected_phase, expected_reported, expected_context)`.
 Header und JSON sind separat gehaltene exakte Bytes. Der Caller wählt
@@ -3107,10 +3107,10 @@ Ordinal-/Nonce-only-Vergleiche oder Callerdefaults sind unzulässig.
 Erst nach dieser vollständigen deklarativen Bindung wird ausschließlich
 `BODY_RELEASE` aus Actual-K8 nach §24 kodiert: eigene headerfreie E4-K-Domain,
 ein K-SHA, feste Vierfeld-Commandzeile, genau ein LF und höchstens 256 Bytes.
-Erfolg soll atomar
+Erfolg liefert atomar
 `("PLANNED_DECLARED_BODY_RELEASE","NONE",
 (actual_header,actual_json,actual_R,command_bytes,"BODY_RELEASE_READY"))`
-liefern; Ablehnung
+; Ablehnung liefert
 `("REJECTED_PROFILE_BODY_RELEASE_PLAN",fixed_issue,None)`.
 Feste Format-/Phasenselektionsfehler und bestehende begrenzte Guardlabels
 dürfen keine privaten Rohfehler oder Teilwerte zurückgeben.
@@ -3121,7 +3121,7 @@ Erfolg oder Fehler erneut geprüft. Seine frischen inneren Anker dürfen einen
 zwischenzeitlichen Verlust des gehaltenen äußeren Providers nicht neu baselinen.
 Es erfolgt kein Write, Send, Import oder Workerstart.
 
-Der geplante Erfolgspfad umfasst einen begrenzten R-Parser/Resolver,
+Der reine Erfolgspfad umfasst einen begrenzten R-Parser/Resolver,
 zwei R-Form-/Semantikvorläufe und zwei zusätzliche 63-Knoten-K8-Typvorläufe
 für separates Caller-K8 und Commandencoding. Die vier K-Semantikdurchläufe
 enthalten höchstens 36 D5-Vorkommen und 2976 K-/D9-Hexzeichen;
@@ -3129,8 +3129,9 @@ höchstens vier F3 ergänzen 256 Hexzeichen. Die Prüfung des tatsächlichen
 SHA-Ergebnisdigests ergänzt separat 64 Hexzeichen. Actual-R-/K-Poolaufnahme und
 Projektion, drei JSON-Kodierungen (R, K-Präbild, Command) und ein K-SHA
 bleiben ebenso zu buchen wie zusätzliche gebundene Namespace-/Class-/
-Functionvorläufe und dominante POSTs. Das ist eine geplante Rechnung,
-kein gemessener Call-, Deadline-, Transfer- oder gemeinsamer Fitbeleg.
+Functionvorläufe und dominante POSTs. Diese Obergrenzen sind eine
+Quellenrechnung; die synthetische Einzelpfadzählung unten belegt keine
+operative Laufzeit, Transfergröße oder gemeinsame Fitgrenze.
 
 Die Route erhält keinen Footer-/Recordadapter. §27 vergleicht den
 Callerordinal vor R-Semantik; naive Verkettung kann einen späteren
@@ -3147,13 +3148,63 @@ kopierte Zustände und Planlabels attestieren keinen früheren Übergang.
 muss vor einem Parser separat geschlossen werden. FAILED/UNKNOWN dürfen
 in einem späteren Ledger keinen Neustart oder stillen Reset erlauben.
 
-Die künftigen synthetischen Gegenproben müssen alle drei Ordinals, vollständige
+Die synthetischen Gegenproben prüfen alle drei Ordinals, vollständige
 unabhängige K-Domain-/Commandreferenzen, späte tatsächliche und Callerfehler
 vor Hash, gesamte K8-Crossbindung, falsche Phase/Format/Exacttypen,
-Provider-/Encoderdrift und dominante atomare POSTs prüfen.
-Ein R-Erfolg mit anschließendem Commandfehler darf kein Teilresultat liefern.
+Provider-/Encoderdrift und dominante atomare POSTs.
+Ein R-Erfolg mit anschließendem Commandfehler liefert kein Teilresultat.
 Wiederholbarer Plan bleibt ausdrücklich ohne Replayattestation; die elf alten
 Builder, 341 Methoden, Scriptcap, fünf direkte Imports und false Flags
-sind zu schützen. Frische operative Auswahl, alle fünf Formen/64 KiB,
+bleiben erhalten. Frische operative Auswahl, alle fünf Formen/64 KiB,
 tatsächlicher Kanal, Freigaben, Loader, Worker, Consumption und Cleanup
 sowie G13-/Methodengates bleiben unverändert getrennt offen.
+
+Die additive Planquelle ist im bestehenden Generator und dessen synthetischer
+Suite implementiert. Root und unabhängiger Reviewer lasen den vollständigen
+finalen neuen Source-/Testteil vor dem ersten Suiteaufruf. Der unabhängige
+Reviewer prüfte zusätzlich `Run.execute`, geerbten `tearDown` und die
+Fixtureabhängigkeiten. 92 Source- und 532 Testzeilen wurden additiv ergänzt.
+
+Der erste und einzige isolierte Lauf unter CPython 3.12.14 mit
+`-I -S -B -X utf8` bestand 378/378 Methoden in 8,922 Sekunden
+(Wallzeit 9,9825819 Sekunden), Exit 0, ohne FAILURE, ERROR oder SKIP.
+37 neue Methoden ergänzen die unveränderten 341 alten Methoden.
+Alle 16 aktuellen alten Tool-/30 alten Test-Topdefinitionen und der ganze
+Tool-LFpräfix sind erhalten. Ein erster rein statischer PRE-Hilfscheck
+scheiterte ausschließlich an einem falschen Textmuster für den unveränderten
+Tempabsenz-Guard. Nur der lesende Auditcommand wurde korrigiert; kein
+Suite- oder Sourcefehllauf. Statischer PRE/POST, tatsächliche Realcache-/Main-/
+Sysconfig-/JSON-/Encoderclass-/Functionsentinels und eigene temporäre
+Fixtureabsenz bestanden ohne Reparatur.
+
+Die Gegenproben prüfen alle drei Ordinals gegen vollständige benannte K-/D9-
+und separate Stdlib-Commandreferenzen sowie tatsächliche R-Rückgewinnung.
+Sämtliche Callerformen vor Parsing/Semantik, späte tatsächliche und Caller-
+Semantik vor frühem gültigem Unterschied, gesamte unabhängige K8-Bindung,
+echte 16.368/16.369-JSONbytegrenzen, Null/Leertext/Arrayvorkommen,
+Frozenpartner, Unicode und unveränderte Actualbytes sind geprüft.
+Tatsächliche Encoder-/Providerdrifts verhindern inneres Rebaselining;
+innere Commandfehler liefern atomar keine Teilwerte.
+Der gezählte Erfolg hat einen Parser, drei JSON-Kodierungen und genau
+einen K-SHA. Das ist ein synthetischer Einzelpfadnachweis;
+die übrigen begrenzten Scans und der prospektive Kostenvertrag bleiben
+zusätzlich zu berücksichtigen. Wiederholter reiner Plan attestiert
+keinen früheren Phasenübergang oder Einmalverbrauch.
+
+Toolpin RAW `694dc387eb19ae99158640ccf8270aa0eac4717c45d416dec06ec0d78bb19b2a`,
+LF `bfb25402050d1d34877ba38ab46d1a2a61b768e22106c8e9022694a2f5d67fe0`
+(95.119 LFbytes). Testpin RAW
+`e16a1e2dbccf623d83b113111ec2807ddf2be4fba1e47e2e48f1a9a1601baa82`,
+LF `ef5f5b107e7d0dce389a6aab3db7e544f134731bee2db88851cc25038c127e33`
+(298.410 LFbytes). Nach Pfad sortierte kompakte ASCII-JSONliste
+`[[path,LFsha],...]`, Trennzeichen `(',',':')`, Paar-SHA-256
+`e764f88c533858641e898efafddcf7a5dba01bddff5679482c148b7f84b6af96`.
+Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
+Worker- oder SQLprobe wurde erneut ausgeführt.
+
+Nächster kleiner Schnitt ist ein separater Entwurf der genauen
+`INPUT_COMPLETE`-Rückkanalrecordform vor ihrer künftigen Parserimplementierung.
+Exklusives Ledger und Record-/Footeradapter mit geschlossener Fehlerpriorität
+folgen getrennt. Tatsächlicher Kanal, Body-/Profil-Sendernachweise, operative
+Auswahl samt Fünf-Formen-/64-KiB-Gate, Freigaben, Consumption, Replay,
+Loader, Worker und unabhängiger Cleanup sowie G13-/Methodengates bleiben offen.
