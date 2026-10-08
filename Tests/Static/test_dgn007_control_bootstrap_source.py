@@ -2962,5 +2962,457 @@ class InlineContextCommandTests(unittest.TestCase):
         self.assertNotIn(LOCATOR, repr(selected))
 
 
+class InlineMetadataMatchTests(unittest.TestCase):
+    def setUp(self):
+        # Neue Route, aber derselbe ausdrücklich getrennte synthetische Provider.
+        self.real_cache = sys.modules
+        self.real_names = (NAME, "__main__", "sysconfig", "json", "json.encoder", "_hashlib")
+        self.real_values = tuple(sys.modules.get(name, _REPORT_OMITTED) for name in self.real_names)
+        self.real_main_name = sys.modules["__main__"].__name__
+        self.real_encoder = json.JSONEncoder
+        self.real_encoder_namespace = tuple(sorted(self.real_encoder.__dict__.items()))
+        self.real_json_namespace = tuple(sorted(json.__dict__.items()))
+        self.real_encoder_module = sys.modules["json.encoder"]
+        self.real_encoder_module_namespace = tuple(sorted(self.real_encoder_module.__dict__.items()))
+        self.real_encoder_functions = tuple(self.real_encoder.__dict__[key]
+                                           for key in ("__init__", "iterencode", "default"))
+        self.real_encoder_states = tuple((fn.__code__, fn.__defaults__, fn.__kwdefaults__,
+            None if fn.__kwdefaults__ is None else tuple(sorted(fn.__kwdefaults__.items())))
+            for fn in self.real_encoder_functions)
+        loader = SourceFileLoader("hashlib", "/synthetic/stdlib/hashlib.py")
+        spec = ModuleSpec("hashlib", loader, origin=loader.path)
+        spec._set_fileattr = True
+        spec._cached = "/synthetic/stdlib/__pycache__/hashlib.cpython-312.pyc"
+        self.provider = importlib.util.module_from_spec(spec)
+        path = "/synthetic/stdlib/lib-dynload/_hashlib.so"
+        native_loader = ExtensionFileLoader("_hashlib", path)
+        native_spec = ModuleSpec("_hashlib", native_loader, origin=path)
+        native_spec._set_fileattr = True
+        self.native = ModuleType("_hashlib")
+        self.native.__dict__.update(__file__=path, __package__="", __spec__=native_spec,
+            __loader__=native_loader, __cached__=None, HASH=hashlib.__dict__["_hashlib"].HASH,
+            openssl_sha256=hashlib.sha256)
+        self.provider.__dict__.update(_hashlib=self.native, _NATIVE_SHA=hashlib.sha256,
+            _HASH_CALLS=0, _HASH_CALLBACK=None, _HASH_ERROR=None, _HASH_RESULT=None)
+        self.factory = FunctionType(_fixture_sha256.__code__, self.provider.__dict__, "sha256")
+        self.provider.sha256 = self.factory
+        def bind_provider(run):
+            run.cache[NAME].hashlib = self.provider
+            run.cache[NAME].ExtensionFileLoader = ExtensionFileLoader
+            run.cache.update(hashlib=self.provider, _hashlib=self.native,
+                             json=json, **{"json.encoder": sys.modules["json.encoder"]})
+        self.selected = subject.build_inline_match_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.run = Run(config=True, after_exec=bind_provider)
+        self.assertEqual(self.run.execute(self.selected)[:2], ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.namespace = self.run.main_namespace
+        self.match = self.namespace["_inline_match_metadata_chunks"]
+        self.payload = semantic_fixture()
+        self.format = "pooled-combined-input-design/v1"
+
+    def tearDown(self):
+        InlineProfileReporterTests.tearDown(self)
+
+    def packet(self, payload=_REPORT_OMITTED, *, body_size=None):
+        payload = self.payload if payload is _REPORT_OMITTED else payload
+        return InlineMetadataSemanticsTests.packet(self, payload, body_size=body_size)
+
+    def chunks(self, data, size=1024):
+        return tuple(data[n:n + size] for n in range(0, len(data), size))
+
+    def call(self, *, actual=_REPORT_OMITTED, expected=_REPORT_OMITTED,
+             chunks=_REPORT_OMITTED, expected_format=_REPORT_OMITTED):
+        actual = self.payload if actual is _REPORT_OMITTED else actual
+        expected = self.payload if expected is _REPORT_OMITTED else expected
+        if chunks is _REPORT_OMITTED:
+            header, metadata = self.packet(actual)
+            chunks = self.chunks(header + metadata)
+        return self.match(chunks, expected_format=self.format if expected_format is _REPORT_OMITTED
+            else expected_format, expected_input=expected[0], expected_worker=expected[1],
+            expected_context=expected[2])
+
+    def reject(self, result, issue=None):
+        self.assertEqual(result[0], "REJECTED_DECLARED_METADATA")
+        self.assertIsNone(result[2])
+        if issue is not None:
+            self.assertEqual(result[1], issue)
+        self.assertNotIn("PRIVATE_PAYLOAD", repr(result))
+        self.assertNotIn("/synthetic", repr(result))
+        return result
+
+    def rehashed(self, payload):
+        # Benannte unabhängige Originaldarstellung: modules ist ausdrücklich list.
+        ip = payload[0]
+        named = dict(protocol=ip[0], commit=ip[1], raw27_binding=ip[2], source_profile=ip[3], nonce=ip[4],
+            modules=[dict(ordinal=r[0], module=r[1], member=r[2], size=r[3], sha256=r[4]) for r in ip[5]])
+        digest = hashlib.sha256(json.dumps(named, sort_keys=True, ensure_ascii=True,
+            separators=(",", ":"), allow_nan=False).encode("ascii")).hexdigest()
+        return semantic_change(payload, (0, 6), digest)
+
+    def test_full_reference_all_roles_and_three_ordinals_actual_return(self):
+        for ordinal in (1, 2, 3):
+            payload = semantic_fixture(ordinal)
+            header, metadata = self.packet(payload)
+            result = self.call(actual=payload, expected=payload)
+            self.assertEqual(result, ("MATCHED_DECLARED_METADATA", "NONE", (header, metadata, payload)))
+            parsed = syntax_reference._Parser(metadata)
+            form = parsed.value()
+            self.assertEqual(syntax_reference._resolve(form, 0), payload)
+            ip, worker, context = syntax_reference._semantics(payload, 0)
+            self.assertEqual(ip, payload[0])
+            self.assertEqual(tuple((r.ordinal, r.module, r.member, r.size, r.sha256) for r in context.modules), payload[2][4])
+            self.assertEqual(tuple(getattr(worker.installation, name) for name in (
+                "assumption", "platform", "implementation", "version", "executable", "executable_target",
+                "prefixes", "abi", "paths", "roots", "inert_zip", "flags", "finders", "hooks")), payload[1][3][:14])
+            self.assertEqual(tuple((r.path, r.size, r.sha256) for r in worker.installation.files), payload[1][3][14])
+            self.assertEqual(tuple(tuple(getattr(r, name) for name in (
+                "name", "moduleName", "specName", "origin", "file", "kind", "locations", "loader",
+                "loaderName", "loaderPath", "aliasGroup")) for r in worker.modules), payload[1][5])
+            self.assertEqual(worker.controls, payload[1][4])
+            self.assertEqual((context.ordinal, context.entry, context.phase), payload[2][5:])
+
+    def test_actual_private_bytes_and_payload_are_not_expected_defaults(self):
+        expected = tuple(tuple(row) for row in self.payload)
+        header, metadata = self.packet()
+        result = self.call(expected=expected, chunks=(header,) + self.chunks(metadata))
+        self.assertEqual(result[0], "MATCHED_DECLARED_METADATA")
+        self.assertEqual(result[2], (header, metadata, expected))
+        self.assertIsNot(result[2][2], expected)
+        self.assertIsNot(result[2][2][1], expected[1])
+
+    def test_valid_installation_and_complete_p11_differences_remain_mismatch(self):
+        for path, value in (((1, 3, 7), "another-abi"), ((1, 3, 6, 3), "/other-prefix"),
+                            ((1, 3, 14, 0, 1), 1), ((1, 3, 14, 0, 2), "a" * 64),
+                            ((1, 5, 0, 4), "/other-main.py")):
+            changed = semantic_change(self.payload, path, value)
+            self.reject(self.call(actual=changed), "METADATA_DECLARATION_MISMATCH")
+            self.reject(self.call(expected=changed), "METADATA_DECLARATION_MISMATCH")
+
+    def test_two_independent_valid_original_preimages_both_hashed(self):
+        changed = self.payload
+        for ip_index, k_index, value in ((1, 0, "a" * 40), (2, 1, "b" * 64), (4, 3, "c" * 64)):
+            changed = semantic_change(changed, (0, ip_index), value)
+            changed = semantic_change(changed, (2, k_index), value)
+        changed = self.rehashed(changed)
+        self.assertNotEqual(changed[0][6], self.payload[0][6])
+        self.reject(self.call(actual=changed), "METADATA_DECLARATION_MISMATCH")
+        self.assertEqual(self.provider._HASH_CALLS, 2)
+        self.assertEqual(self.call(actual=changed, expected=changed)[0], "MATCHED_DECLARED_METADATA")
+
+    def test_both_complete_d9_arrays_change_and_are_retained(self):
+        rows = tuple(r[:3] + (r[3] + 1, "d" * 64) for r in self.payload[0][5])
+        changed = semantic_change(self.payload, (0, 5), rows)
+        changed = self.rehashed(semantic_change(changed, (2, 4), rows))
+        self.reject(self.call(actual=changed), "METADATA_DECLARATION_MISMATCH")
+        self.assertEqual(self.call(actual=changed, expected=changed)[2][2], changed)
+
+    def test_format_first_without_foreign_dispatch(self):
+        for value in (None, True, Foreign(), ForeignKey(self.format), "other"):
+            self.reject(self.match(Foreign(), expected_format=value, expected_input=Foreign(),
+                expected_worker=Foreign(), expected_context=Foreign()), "FORMAT_SELECTION")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_chunk_types_precede_expected_forms_and_lengths(self):
+        for chunks in (None, [], Foreign(), (b"x" * 1025, Foreign())):
+            self.reject(self.call(chunks=chunks, expected=(Foreign(), Foreign(), Foreign())))
+        class Bytes(bytes):
+            def __len__(self):
+                raise AssertionError("FOREIGN_LENGTH")
+        self.reject(self.call(chunks=(Bytes(b"x"),)), "CHUNK_TYPE")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_all_expected_primitive_fields_before_actual_parse_or_hash(self):
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            for path, value in (((0,), None), ((1,), []), ((2,), Foreign()),
+                                ((1, 3, 14, 0, 2), Foreign()), ((2, 4, 8, 4), True)):
+                self.reject(self.call(expected=semantic_change(self.payload, path, value)), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_expected_subclasses_bool_and_foreign_getters_closed(self):
+        class TupleSubclass(tuple):
+            def __iter__(self):
+                raise AssertionError("FOREIGN_ITERATOR")
+        class TextSubclass(str):
+            def __eq__(self, other):
+                raise AssertionError("FOREIGN_EQUALITY")
+        class IntSubclass(int):
+            pass
+        for path, value in (((0,), TupleSubclass(self.payload[0])),
+            ((1, 3, 7), TextSubclass(SOABI)), ((1, 0), True), ((2, 5), IntSubclass(1)),
+            ((1, 5, 2, 4), Foreign())):
+            self.reject(self.call(expected=semantic_change(self.payload, path, value)), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_both_sides_identical_invalid_late_descriptor_never_match(self):
+        for path, value in (((0, 5, 8, 2), "wrong.py"), ((2, 4, 8, 4), "A" * 64),
+                            ((1, 3, 14, 0, 0), "/foreign/executable")):
+            bad = semantic_change(self.payload, path, value)
+            self.reject(self.call(actual=bad, expected=bad))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_expected_malformed_dominates_early_valid_difference(self):
+        early = semantic_change(self.payload, (1, 3, 7), "valid-other-abi")
+        for path in ((1, 5, 2, 10), (1, 3, 14, 0, 2), (2, 4, 8, 4)):
+            changed = semantic_change(early, path, Foreign())
+            self.reject(self.call(expected=changed), "SCALAR_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_actual_form_dominates_early_expected_semantic_error(self):
+        expected = semantic_change(self.payload, (0, 1), "nothex")
+        for path in ((1, 5, 2, 10), (1, 3, 14, 0, 2), (2, 4, 8, 4)):
+            actual = semantic_change(self.payload, path, None)
+            self.reject(self.call(actual=actual, expected=expected))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_actual_module_semantics_before_early_valid_mismatch(self):
+        expected = semantic_change(self.payload, (1, 3, 7), "valid-other-abi")
+        actual = semantic_change(self.payload, (1, 5, 2, 7), "SOURCE")
+        with patch.dict(self.namespace, {"_report_json": Foreign()}):
+            self.reject(self.call(actual=actual, expected=expected), "MODULE_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_late_expected_semantics_before_first_repack_or_digest(self):
+        for path, value in (((1, 3, 14, 0, 2), "A" * 64), ((2, 4, 8, 1), "wrong")):
+            with patch.dict(self.namespace, {"_report_json": Foreign()}):
+                self.reject(self.call(expected=semantic_change(self.payload, path, value)))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_identical_invalid_roots_loader_controls_and_cached_candidates_reject(self):
+        cases = (((1, 3, 9, 0), "/synthetic/stdlib/../escape"),
+                 ((1, 5, 1, 9), "/wrong/profile.py"),
+                 ((1, 4), ("__main__",)), ((1, 5, 2, 0), "Tests"))
+        for path, value in cases:
+            changed = semantic_change(self.payload, path, value)
+            self.reject(self.call(actual=changed, expected=changed))
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_complete_mixed_and_frozen_alias_records_without_live_claim(self):
+        file = "/synthetic/stdlib/collections/abc.py"
+        mixed = (("_collections_abc", "collections.abc", "_collections_abc", "frozen",
+            "/synthetic/stdlib/_collections_abc.py", "FROZEN", (), "FROZEN", "", "", ()),
+            ("collections.abc", "collections.abc", "collections.abc", file, file,
+             "SOURCE", (), "SOURCE", "collections.abc", file, ()))
+        pair = ("_frozen_importlib", "importlib._bootstrap")
+        frozen = tuple((name, "importlib._bootstrap", "_frozen_importlib", "frozen", "",
+            "FROZEN", (), "FROZEN", "", "", pair) for name in pair)
+        changed = semantic_change(self.payload, (1, 5), tuple(sorted(self.payload[1][5] + mixed + frozen)))
+        self.assertEqual(self.call(actual=changed, expected=changed)[2][2], changed)
+        bad = semantic_change(changed, (1, 5), tuple(r for r in changed[1][5] if r[0] != pair[1]))
+        self.reject(self.call(actual=bad, expected=bad), "ALIAS_FORM")
+
+    def test_both_original_digest_failures_are_separate_and_atomic(self):
+        bad = semantic_change(self.payload, (0, 6), "0" * 64)
+        self.reject(self.call(actual=bad), "INPUT_DIGEST")
+        self.assertEqual(self.provider._HASH_CALLS, 2)
+        self.reject(self.call(expected=bad), "INPUT_DIGEST")
+        self.assertEqual(self.provider._HASH_CALLS, 4)
+
+    def test_intrinsic_i_k_and_worker_selector_before_caller_mismatch(self):
+        cases = ((semantic_change(self.payload, (2, 3), "a" * 64), "INPUT_BINDING"),
+                 (semantic_change(self.payload, (2,), self.payload[2][:5] + semantic_fixture(2)[2][5:]),
+                  "CONTEXT_MISMATCH"))
+        for payload, issue in cases:
+            self.reject(self.call(actual=payload), issue)
+            self.reject(self.call(expected=payload), issue)
+
+    def test_original_sha_is_not_k_domain_or_header_sha(self):
+        bad = semantic_change(self.payload, (0, 6), hashlib.sha256(
+            syntax_bytes(syntax_form(self.payload))).hexdigest())
+        self.reject(self.call(actual=bad, expected=bad), "INPUT_DIGEST")
+
+    def test_header_splits_and_leading_trailing_empty_chunks(self):
+        header, metadata = self.packet()
+        for split in range(17):
+            chunks = (b"", header[:split], b"", header[split:]) + self.chunks(metadata) + (b"",)
+            self.assertEqual(self.call(chunks=chunks)[2], (header, metadata, self.payload))
+
+    def test_chunk_256_257_and_chunk_1024_1025_limits(self):
+        header, metadata = self.packet()
+        chunks = self.chunks(header + metadata)
+        exact = (b"",) * (255 - len(chunks)) + chunks + (b"",)
+        self.assertEqual(len(exact), 256)
+        self.assertEqual(self.call(chunks=exact)[0], "MATCHED_DECLARED_METADATA")
+        self.reject(self.call(chunks=exact + (b"",)), "CHUNKS_LIMIT")
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            self.reject(self.call(chunks=(b"x" * 1025,)), "CHUNK_LIMIT")
+        self.assertTrue(all(len(c) <= 1024 for c in chunks))
+
+    def test_declared_positive_body_is_not_received_and_no_suffix_permitted(self):
+        header, metadata = self.packet()
+        self.assertGreater(struct.unpack(">8sII", header)[2], 0)
+        for suffix in (b"x", b"\n", b'["BODY_RELEASE"]\n'):
+            self.reject(self.call(chunks=self.chunks(header + metadata + suffix)), "METADATA_LENGTH")
+        for data in (header[:15], header + metadata[:-1]):
+            self.reject(self.call(chunks=self.chunks(data)))
+
+    def test_header_errors_preparser_and_actual_body_sum_only(self):
+        header, metadata = self.packet()
+        with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+            for magic, size, body in ((b"DGNP001\0", len(metadata), 0),
+                (b"DGNC001\0", 16369, 0), (b"DGNC001\0", len(metadata), 1048577)):
+                self.reject(self.call(chunks=self.chunks(struct.pack(">8sII", magic, size, body) + metadata)))
+        wrong, metadata = self.packet(body_size=0)
+        self.reject(self.call(chunks=self.chunks(wrong + metadata)), "DECLARED_BODY_LENGTH")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_valid_total_16384_and_16385_preparser(self):
+        initial = semantic_change(self.payload, (1, 3, 7), "x")
+        for count in range(3, 6):
+            locations = tuple("/synthetic/stdlib/" + chr(97 + n) * 3900 for n in range(count))
+            path = "/synthetic/stdlib/source.py"
+            source = ("source", "source", "source", path, path, "SOURCE", locations,
+                      "SOURCE", "source", path, ())
+            candidate = semantic_change(initial, (1, 5), tuple(sorted(initial[1][5] + (source,))))
+            header, metadata = self.packet(candidate)
+            padding = 16384 - 16 - len(metadata)
+            if 0 <= padding <= 4095:
+                candidate = semantic_change(candidate, (1, 3, 7), "x" * (padding + 1))
+                header, metadata = self.packet(candidate)
+                self.assertEqual(len(header + metadata), 16384)
+                self.assertEqual(self.call(actual=candidate, expected=candidate)[0], "MATCHED_DECLARED_METADATA")
+                over = semantic_change(candidate, (1, 3, 7), "x" * (padding + 2))
+                header, metadata = self.packet(over)
+                self.assertEqual(len(header + metadata), 16385)
+                with patch.dict(self.namespace, {"_InlineParser": Foreign()}):
+                    self.reject(self.call(expected=over, chunks=self.chunks(header + metadata)), "METADATA_LIMIT")
+                return
+        self.fail("Keine gültige synthetische Metadata-Grenzfixture")
+
+    def test_exact_unicode_and_noncanonical_repack_before_sha(self):
+        payload = semantic_change(self.payload, (1, 3, 7), 'ABI|é😀"\\')
+        self.assertEqual(self.call(actual=payload, expected=payload)[2][2], payload)
+        self.provider._HASH_CALLS = 0
+        header, metadata = self.packet()
+        changed = metadata.replace(b"pooled-binding", b"\\u0070ooled-binding", 1)
+        header = struct.pack(">8sII", b"DGNC001\0", len(changed), sum(r[3] for r in self.payload[0][5]))
+        self.reject(self.call(chunks=self.chunks(header + changed)), "NONCANONICAL")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_m_repack_provider_drift_prevents_changed_constructor(self):
+        header, metadata = self.packet()
+        held_chunks = self.chunks(header + metadata)
+        cls, original = json.JSONEncoder, json.JSONEncoder.iterencode
+        old_code = self.factory.__code__
+        namespace = self.real_encoder_module.__dict__
+        keys = ("_REPORT_FACTORY", "_REPORT_REPLACEMENT_CODE", "_REPORT_HELD_ITER")
+        self.assertTrue(all(k not in namespace for k in keys))
+        namespace.update(_REPORT_FACTORY=self.factory, _REPORT_REPLACEMENT_CODE=_fixture_config_var.__code__,
+                         _REPORT_HELD_ITER=original)
+        try:
+            cls.iterencode = FunctionType(_fixture_report_encoder_exchange_provider.__code__, namespace)
+            self.reject(self.call(chunks=held_chunks), "HASH_PROVIDER_BINDING")
+        finally:
+            cls.iterencode = original
+            self.factory.__code__ = old_code
+            for k in keys:
+                del namespace[k]
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_m_repack_encoder_drift_has_no_digest(self):
+        original = self.namespace["_report_json"]
+        def drift(form, anchor):
+            result = original(form, anchor)
+            self.run.cache["json.encoder"] = Foreign()
+            return result
+        with patch.dict(self.namespace, {"_report_json": drift}):
+            self.reject(self.call(), "REPORT_ENCODER_BINDING")
+        # Der erste Original-Encoder-PRE scheitert vor dem ersten SHA.
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_first_and_second_hash_provider_drift_dominates_failure(self):
+        for number in (1, 2):
+            self.provider._HASH_CALLS = 0
+            def drift():
+                if self.provider._HASH_CALLS == number:
+                    self.run.cache["hashlib"] = Foreign()
+                    self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+            self.provider._HASH_CALLBACK = drift
+            with patch.dict(self.run.cache, {"hashlib": self.provider}):
+                self.reject(self.call(), "HASH_PROVIDER_BINDING")
+            self.provider._HASH_ERROR = None
+            self.assertEqual(self.provider._HASH_CALLS, number)
+
+    def test_first_and_second_hash_encoder_post_on_call_failure(self):
+        for number in (1, 2):
+            self.provider._HASH_CALLS = 0
+            def drift():
+                if self.provider._HASH_CALLS == number:
+                    self.run.cache["json.encoder"] = Foreign()
+                    self.provider._HASH_ERROR = OSError("PRIVATE_PAYLOAD")
+            self.provider._HASH_CALLBACK = drift
+            with patch.dict(self.run.cache, {"json.encoder": self.real_encoder_module}):
+                self.reject(self.call(), "REPORT_ENCODER_BINDING")
+            self.provider._HASH_ERROR = None
+            self.assertEqual(self.provider._HASH_CALLS, number)
+
+    def test_provider_and_encoder_pre_fixed_labels(self):
+        header, metadata = self.packet()
+        held_chunks = self.chunks(header + metadata)
+        with patch.dict(self.run.cache, {"hashlib": Foreign()}):
+            self.reject(self.call(chunks=held_chunks), "HASH_PROVIDER_BINDING")
+        with patch.object(json, "JSONEncoder", Foreign()):
+            self.reject(self.call(chunks=held_chunks), "REPORT_ENCODER_BINDING")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
+    def test_exact_cost_one_parser_three_encodings_two_original_hashes(self):
+        events, encodings = [], []
+        parser, encode = self.namespace["_InlineParser"], self.namespace["_report_json"]
+        def parse(data):
+            events.append(data)
+            return parser(data)
+        def record(form, anchor):
+            encodings.append(form)
+            return encode(form, anchor)
+        with patch.dict(self.namespace, {"_InlineParser": parse, "_report_json": record,
+            "_inline_metadata_syntax": Foreign(), "_inline_receive_metadata_chunks": Foreign(),
+            "_inline_metadata_semantics": Foreign(), "_semantic_original_digest": Foreign()}):
+            self.assertEqual(self.call()[0], "MATCHED_DECLARED_METADATA")
+        self.assertEqual(len(events), 1)
+        self.assertEqual(len(encodings), 3)
+        self.assertEqual(encodings[0], syntax_form(self.payload))
+        self.assertEqual(encodings[1], encodings[2])
+        self.assertIs(type(encodings[1]["modules"]), list)
+        self.assertNotIn("context_sha256", encodings[1])
+        self.assertEqual(self.provider._HASH_CALLS, 2)
+
+    def test_private_active_exception_failure_and_repeat_no_consumption(self):
+        try:
+            raise ValueError("PRIVATE_PAYLOAD")
+        except ValueError:
+            self.reject(self.call(expected=(None, None, None)), "SCALAR_FORM")
+        first, second = self.call(), self.call()
+        self.assertEqual(first, second)
+        self.assertEqual(first[0], "MATCHED_DECLARED_METADATA")
+
+    def test_seven_legacy_builder_bytes_and_definitions_preserved(self):
+        previous = subject.build_inline_command_control_bootstrap(RAW, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(self.selected.source.replace(("\n" + subject._INLINE_MATCH).encode(), b"", 1), previous.source)
+        old, new = ast.parse(previous.source), ast.parse(self.selected.source)
+        definitions = {n.name: ast.dump(n) for n in new.body if type(n) in (ast.FunctionDef, ast.ClassDef)}
+        self.assertTrue(all(definitions[n.name] == ast.dump(n) for n in old.body
+            if type(n) in (ast.FunctionDef, ast.ClassDef)))
+        self.assertEqual([n.names[0].name for n in new.body if type(n) is ast.Import],
+                         ["importlib.util", "sys", "sysconfig", "json", "struct"])
+        self.assertFalse(any(type(n) is ast.ImportFrom for n in ast.walk(new)))
+
+    def test_full_script_cap_and_false_claims(self):
+        base = subject.build_inline_match_control_bootstrap(b"x", logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        raw = b"x" * (subject.MAX_SCRIPT_BYTES - len(base.source) + 1)
+        selected = subject.build_inline_match_control_bootstrap(raw, logical_profile=LOCATOR,
+            expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(len(selected.source), subject.MAX_SCRIPT_BYTES)
+        with self.assertRaises(subject.BootstrapSourceRejected) as caught:
+            subject.build_inline_match_control_bootstrap(raw + b"x", logical_profile=LOCATOR,
+                expected_soabi=SOABI, expected_destshared=DESTSHARED)
+        self.assertEqual(caught.exception.args, ("SCRIPT_LIMIT",))
+        self.assertTrue(caught.exception.__suppress_context__)
+        self.assertNotIn(LOCATOR, repr(selected))
+        self.assertEqual(selected.claim, "GENERATED_CONTROL_SOURCE_ONLY")
+        for key in ("runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved"):
+            self.assertFalse(getattr(selected, key))
+
+
 if __name__ == "__main__":
     unittest.main()

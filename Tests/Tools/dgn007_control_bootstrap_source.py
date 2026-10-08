@@ -1431,3 +1431,122 @@ def build_inline_command_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_MATCH = r'''
+def _match_intake(chunks):
+    # Alle Typen wurden vor diesem begrenzten Längen-/Kopierpfad geprüft.
+    total, oversized = 0, False
+    for chunk in chunks:
+        oversized = oversized or len(chunk) > _RECEIVE_CHUNK_BYTES
+        total += len(chunk)
+    _inline_need(not oversized, "CHUNK_LIMIT")
+    _inline_need(total <= _INLINE_METADATA_CAP, "METADATA_LIMIT")
+    _inline_need(total >= _INLINE_HEADER.size, "HEADER_LENGTH")
+    pieces, missing = [], _INLINE_HEADER.size
+    for chunk in chunks:
+        if missing:
+            piece = chunk[:missing]
+            pieces.append(piece)
+            missing -= len(piece)
+    header = b"".join(pieces)
+    magic, metadata_size, body_size = _INLINE_HEADER.unpack(header)
+    _inline_need(magic == _INLINE_MAGIC, "HEADER_FORM")
+    _inline_need(0 < metadata_size <= _INLINE_METADATA_CAP - _INLINE_HEADER.size,
+                 "METADATA_LIMIT")
+    _inline_need(body_size <= _INLINE_BODY_CAP, "BODY_LIMIT")
+    _inline_need(_INLINE_HEADER.size + metadata_size + body_size <= _INLINE_FRAME_CAP,
+                 "FRAME_LIMIT")
+    _inline_need(total == _INLINE_HEADER.size + metadata_size, "METADATA_LENGTH")
+    received = b"".join(chunks)
+    metadata = received[_INLINE_HEADER.size:]
+    parser = _InlineParser(metadata)
+    form = parser.value()
+    _inline_need(parser.pos == len(metadata), "JSON_END")
+    return header, metadata, form, _inline_resolve(form), body_size
+
+
+def _match_original(ip):
+    # Vollständiges benanntes Input82-Präbild, nicht E4/K oder context_sha256.
+    return dict(protocol=ip[0], commit=ip[1], raw27_binding=ip[2], source_profile=ip[3], nonce=ip[4],
+                modules=[dict(zip(("ordinal", "module", "member", "size", "sha256"), row))
+                         for row in ip[5]])
+
+
+def _match_intrinsic(payload, digest):
+    ip, worker, context = payload
+    _inline_need(digest == ip[6], "INPUT_DIGEST")
+    _inline_need(ip[1:5] == context[:4] and ip[5] == context[4], "INPUT_BINDING")
+    _inline_need(worker[:3] == context[5:], "CONTEXT_MISMATCH")
+
+
+def _inline_match_metadata_chunks(chunks, *, expected_format, expected_input,
+                                  expected_worker, expected_context):
+    """Gehaltene Metadata gegen getrennte Vollformen; keine operative Freigabe."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_format) is str and expected_format == _RECEIVE_FORMAT,
+                     "FORMAT_SELECTION")
+        _inline_need(type(chunks) is tuple, "CHUNKS_TYPE")
+        _inline_need(len(chunks) <= _RECEIVE_CHUNKS, "CHUNKS_LIMIT")
+        for chunk in chunks:
+            _inline_need(type(chunk) is bytes, "CHUNK_TYPE")
+        expected = (expected_input, expected_worker, expected_context)
+        _report_shape(_INLINE_M, expected)
+        header, metadata, form, actual, body_size = _match_intake(chunks)
+        _report_shape(_INLINE_M, actual)
+        # Beide vollständigen Semantiken vor Repack, SHA oder Bindungsvergleich.
+        for payload in (actual, expected):
+            _semantic_worker(payload[1])
+            totals = _semantic_inputs(payload[0], payload[2])
+            _inline_need(totals[0] == totals[1], "DECLARED_BODY_LENGTH")
+            if payload is actual:
+                _inline_need(body_size == totals[0], "DECLARED_BODY_LENGTH")
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        _inline_need(_report_json(form, encoder_anchor) == metadata, "NONCANONICAL")
+        # Zwei eigenständige Präbilder; unmittelbare gehaltene Provider-PRE je SHA.
+        actual_digest = _report_sha(_report_json(_match_original(actual[0]), encoder_anchor), anchor)
+        expected_digest = _report_sha(_report_json(_match_original(expected[0]), encoder_anchor), anchor)
+        _match_intrinsic(actual, actual_digest)
+        _match_intrinsic(expected, expected_digest)
+        _inline_need(actual == expected, "METADATA_DECLARATION_MISMATCH")
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("MATCHED_DECLARED_METADATA", "NONE", (header, metadata, actual))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "METADATA_MATCH_INTERNAL"
+    # Beide POSTs auch nach Fehlern; Providerverlust hat die höchste Priorität.
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_DECLARED_METADATA", issue, None)
+'''
+
+
+def build_inline_match_control_bootstrap(profile_raw, *, logical_profile,
+                                        expected_soabi, expected_destshared) -> BootstrapSource:
+    """Achte reine Quellenroute für vollständigen deklarativen Metadata-Abgleich."""
+    selected = build_inline_command_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_MATCH + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
