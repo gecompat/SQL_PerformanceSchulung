@@ -1938,3 +1938,91 @@ def build_inline_profile_body_release_control_bootstrap(profile_raw, *, logical_
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_INPUT_COMPLETE = r'''
+_INPUT_COMPLETE_SHAPE = ("t", "n", "t", "t")
+_INPUT_COMPLETE_LIMIT = 256
+
+
+def _input_complete_received(line):
+    _inline_need(type(line) is bytes, "INPUT_COMPLETE_TYPE")
+    _inline_need(0 < len(line) <= _INPUT_COMPLETE_LIMIT, "INPUT_COMPLETE_LIMIT")
+    _inline_need(line[-1:] == b"\n" and line.count(b"\n") == 1 and b"\r" not in line,
+                 "INPUT_COMPLETE_FORM")
+    parser = _InlineParser(line[:-1])
+    actual = parser.value()
+    _inline_need(parser.pos == len(parser.data), "INPUT_COMPLETE_FORM")
+    _report_shape(_INPUT_COMPLETE_SHAPE, actual)
+    return actual
+
+
+def _inline_match_input_complete(line, *, expected_format, expected_phase, expected_context):
+    """Eigener deklarativer Rückkanalrecord; kein Bodycheck oder Phasenübergang."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(expected_format) is str and expected_format == _COMMAND_FORMAT,
+                     "FORMAT_SELECTION")
+        _inline_need(type(expected_phase) is str and expected_phase == "AWAIT_INPUT_COMPLETE",
+                     "PHASE_SELECTION")
+        _inline_need(type(line) is bytes, "INPUT_COMPLETE_TYPE")
+        _inline_need(0 < len(line) <= _INPUT_COMPLETE_LIMIT, "INPUT_COMPLETE_LIMIT")
+        # Beide vollständigen Primitiveformen vor Semantik, Repack und SHA.
+        _report_shape(_INLINE_K, expected_context)
+        actual = _input_complete_received(line)
+        _command_context(expected_context)
+        _inline_need(actual[0] == "INPUT_COMPLETE", "INPUT_COMPLETE_KIND")
+        _inline_need(1 <= actual[1] <= 3, "INPUT_COMPLETE_FORM")
+        _semantic_hex(actual[2], 64)
+        _semantic_hex(actual[3], 64)
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        canonical = _report_json(actual, encoder_anchor) + b"\n"
+        _inline_need(len(canonical) <= _INPUT_COMPLETE_LIMIT, "INPUT_COMPLETE_LIMIT")
+        _inline_need(canonical == line, "INPUT_COMPLETE_CANONICAL")
+        # Dieselben Anker über beide Kodierungen; kein inneres Rebaselining.
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        data = _command_k_json(expected_context, encoder_anchor)
+        digest = _report_sha(data, anchor)
+        _inline_need(actual == ("INPUT_COMPLETE", expected_context[5],
+                                expected_context[3], digest), "INPUT_COMPLETE_MISMATCH")
+        _report_encoder_check(encoder_anchor)
+        _semantic_provider_check(anchor)
+        return ("MATCHED_DECLARED_INPUT_COMPLETE", "NONE", (line, actual))
+    except _InlineSyntaxRejected as error:
+        issue = error.args[0]
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "INPUT_COMPLETE_INTERNAL"
+    # Auch bei Callfehlern: Providerverlust > Encoderverlust > sonstiger Fehler.
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_INPUT_COMPLETE", issue, None)
+'''
+
+
+def build_inline_input_complete_control_bootstrap(profile_raw, *, logical_profile,
+                                                 expected_soabi, expected_destshared) -> BootstrapSource:
+    """Dreizehnte additive Quellenroute für deklarativ gebundene INPUT_COMPLETE-Records."""
+    selected = build_inline_profile_body_release_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_INPUT_COMPLETE + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
