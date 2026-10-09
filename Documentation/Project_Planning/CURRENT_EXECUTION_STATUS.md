@@ -4,7 +4,8 @@
 |---|---|
 | Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
 | Stand | 2026-10-09 |
-| geprüfter Repository-Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` auf `origin/main` nach PR 123; Foundation `1.20.0` und scopebezogene Prozesssteuerung separat integriert, sieben PR-/fünf Main-Checks bestanden, vollständige Übernahme und eigener Branchcleanup bestätigt; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
+| aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) in `origin/main` auf `47e3cd605e0bfc7e14e4494c0ee9b00fc5aeb4eb` integriert. Der geprüfte Branch und der Squash-Merge besitzen denselben Git-Tree; 39 PR-Checks waren erfolgreich, elf SQL-Runtime-Jobs wegen unveränderter fachlicher Eingaben ausdrücklich `SKIPPED`, und 27 Main-Push-Workflows waren erfolgreich. Eigener lokaler und Remote-Branch sind nach Übernahme entfernt. Keine neue DGN-007-Runtime-Abnahme oder Reporterfreigabe. |
+| früherer fachlicher Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` nach PR 123; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |

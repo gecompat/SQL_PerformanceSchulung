@@ -44,8 +44,13 @@ bei jedem PR gleichzeitig, sodass `22 × 2,229 s` keine beobachtete Ersparnis
 ist. Der vorherige G13-Review belegt einen vollständigen grünen Lauf
 mit 36 Lifecycles sowie spätere echte Fehler; sie werden nicht durch einen
 Selektor umgedeutet. Die lokalen Selektortests prüfen positive, negative,
-gemeinsame und unbekannte Eingaben. CI muss die aktuellen statischen und
-Pflichtchecks am finalen PR-Head/Base erst noch bestätigen.
+gemeinsame und unbekannte Eingaben. [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126)
+bestand am Head `6c7369c5a9989aa9cba3f2f01bd7dfe21e397a06` gegen Base
+`f8281db20da6ffc2927581e19876a639f19ca96b` mit 39 erfolgreichen
+Checks und elf ausdrücklich übersprungenen SQL-Runtime-Jobs; beide Pflichtchecks
+waren erfolgreich. Der Squash-Merge `47e3cd605e0bfc7e14e4494c0ee9b00fc5aeb4eb`
+hat denselben Git-Tree wie der geprüfte Branch. 27 Main-Push-Workflows
+schlossen erfolgreich ab. Diese Ergebnisse qualifizieren DGN-007 nicht neu.
 
 ## Erhaltene strengere Projektgrenzen
 
