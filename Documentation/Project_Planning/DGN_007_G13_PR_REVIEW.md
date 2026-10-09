@@ -5,6 +5,7 @@
 | Stand | 2026-10-09 |
 | Auftrag | Ursache und Nutzen des liegengebliebenen Diagnose-PR prüfen und den relevanten Abschluss verfolgen |
 | geprüfte Main-Basis | `174076b505b4f317a0b3f2fe7830ae3244ff03d3` |
+| aktueller Abgleich nach Foundation-Upgrade | `2f04deb2fed0faf5bedf70101fea3f4b93d46678`, [PR 123](https://github.com/gecompat/SQL_PerformanceSchulung/pull/123) |
 | ursprünglicher Reporter-Head | `27a9b5ce81347beaa6d6bfd8788c62965495f0ca` |
 | aktualisierter Reporter-Kandidat | `f9ec582017c942e4278252427c62695e313d37f9` |
 | aktuelle Codefreigabe | `BLOCKED` – zwei aktuelle substantielle Runtimefehler; kein Merge oder Bypass |
@@ -179,3 +180,142 @@ den verbindlichen Abschlussprozess wieder auf. SESSION_END und weitere
 ausdrücklich pausierte Folgepakete werden nicht mit diesem Diagnoseauftrag
 begonnen. Dauerhaft maßgeblich sind dieser Review, der kanonische
 [Ausführungsstand](CURRENT_EXECUTION_STATUS.md) und DEC-069.
+
+## Begrenzter Korrekturscope nach Foundation 1.20.0
+
+Der anschließende Benutzerauftrag autorisiert Ursachenanalyse und normale
+Fehlerkorrekturen für SQL20-Erfassung und G13 innerhalb der bestehenden Methode.
+Eine zusätzliche Freigabe dieser Fehlerkorrekturen ist nicht erforderlich.
+Die ausdrücklich ausgeschlossenen Entwicklungswellen, SESSION_END, interne
+Capture-Rückgabe und pausierte Automation bleiben ausgeschlossen. Ein
+Implementierungsverantwortlicher führte den Scope ohne Unteragenten. Das vorab
+gewählte Diagnoselimit war ein Lifecycle je betroffener Version; eine zusätzliche
+Bestätigungsmatrix war nur nach einer belegten Korrektur vorgesehen.
+
+### Bestands- und Quellenabgleich
+
+Main `2f04deb…` enthält das separat integrierte Foundation-Upgrade mit grüner
+Pflicht-CI; sieben PR- und fünf Main-Checks bestanden. Der eigene Upgrade-Branch
+wurde erst nach bestätigtem serverseitigem Merge und vollständig identischen
+Trees lokal sowie remote entfernt. Die Aktualisierung ändert keine SQL-Quelle.
+SQL20 und SQL21 sind zwischen Main und Reporter-Head `f9ec582…` Gitblob-identisch.
+Die Reporter-Erweiterungen in SQL35, Runner, Decoder-Tests, Validator und
+kontrollseitigem AST-Profil sind weiterhin unübernommen. PR68 ist `CLOSED`,
+Remote-/Lokalbranch `codex/dgn007-g13-boundary-report` steht weiter exakt auf
+`f9ec582017c942e4278252427c62695e313d37f9`. Die ausdrücklich zurückgestellte interne
+Capturearbeit `83f08fb…` wurde weder integriert noch gelöscht.
+
+Die drei oben verlinkten Microsoft-Primärquellen wurden erneut am 2026-10-09
+geprüft. Query Store beschreibt First/Last als Ausführungs-Endzeiten und fordert
+Aggregation aktiver Memory-/Diskfragmente. Eine Garantie für den exakten
+100-ns-Einschluss zwischen Query Store und SYSUTC ergibt sich daraus weiterhin
+nicht. Die Quellenprüfung ersetzt keinen beobachteten fehlgeschlagenen Capture.
+
+### Zwei einmalige lokale Diagnosen
+
+Grundlage war ein privater Git-Export des gepinnten Reporter-Heads. SQL20/SQL21
+erhielten ausschließlich nach `CAPTURE_DONE` lesende skalare Projektionen aus
+`lab.IncidentState`, `lab.IncidentProfile`, dem Requestcount und höchstens 32
+RuntimeStats-Zeilen der eigenen Prozedur. SQL35 erhielt dieselbe zusätzliche
+Rohsicht ausschließlich im bereits verletzten G13-Zweig vor dem vorhandenen
+Reporter. Vier Assertionsrequests und zweimal vier Fenstercalls, Parameter,
+Abnahmen, Aggregation, Guards, Caps und Budgets blieben unverändert. Kein neuer
+Suchcall, kein OFF/CLEAR, keine Rundung und keine größere Wartefrist.
+
+Der lokale Diagnosewrapper hatte den Rawbyte-SHA256
+`fd88b131e154db82b3e15e4f88eed300b50f2453a1541e110bfe353df520a6c6`.
+Er rief pro Version genau einmal den bestehenden FWK-Harness mit dem ausgewählten
+Manifest und `--show-output` auf. Die privaten SQL-Ergänzungen sind Diagnose-
+instrumentierung, kein versionsgebundener Bundle-/Gate- oder Importnachweis.
+Die tatsächlichen Suchphase-Grenzen blieben SQL20/21 145 s, Lifecycle 180 s,
+Cleanup 60 s und äußerer Schutz 260 s. Eigene Container hatten vier CPU/8 GiB,
+keine Ports oder Mounts; vorhandene fremde Container wurden nicht verändert.
+
+| Version und Scope | tatsächlich beobachtetes Ergebnis | Phasenlaufzeit | gesamte lokale Walltime |
+|---|---|---|---|
+| SQL Server 2022 Developer `16.0.4265.3`, `profile-comparison` | Harness Exit 0; alle sechs Phasen PASS; ausgewählte Suchprofile je Fenster Count 4, Requestgesamtcount 12 | SQL20 107,736 s | 460,184 s einschließlich fehlgeschlagenem Readinessvorlauf |
+| SQL Server 2025 Developer `17.0.4075.5`, `control-ba` | Harness Exit 0; alle acht Phasen PASS einschließlich SQL35; ausgewählte Suchprofile je Fenster Count 4, Requestgesamtcount 12 | SQL21 108,431 s | 180,140 s einschließlich Readinessvorlauf |
+
+Die initiale `localhost`-Verbindung im Docker-Netzmodus `none` scheiterte vor
+dem Lifecycle mit ODBC-Login-Timeout/TCP-Namensauflösungsfehler. Eine getrennte
+numerische Loopback-Readiness bestand. Nach Entfernen des `none`-Anschlusses und
+Anschluss an das reguläre Bridge-Netz ohne Portfreigabe bestand die unveränderte
+`localhost`-Route. Diese Änderung betrifft die lokale Diagnoseumgebung, nicht
+den bestehenden Runner oder die SQL-Methode. Der erste Vorlauf bleibt ein
+Infrastrukturfehllauf. Insgesamt liefen nur die beiden genannten SQL-Lifecycles.
+
+Beide ersten unabhängigen Datenbankabwesenheitsprüfungen bestanden ohne Recovery.
+Beide eigenen Container wurden nach Name-/Scope-/Eigentumsprüfung über ihre
+vollständige CID entfernt; unabhängige CID-Abwesenheit bestand. Gesamtwalltime
+der beiden lokalen Versuche: 640,324 s, inklusive Fehlervorlauf und Cleanup.
+Keine Wiederholung bis zufällig grün und keine weitere SQL-Matrix.
+
+Die gespeicherten Vergleichswerte, UTC:
+
+| Version / Fenster | ExecutionStarted | FirstExecutionTime | First−Start |
+|---|---|---|---|
+| 2022 / 0 | `11:17:00.4030093` | `11:17:00.4170000` | +13,9907 ms |
+| 2022 / 1 | `11:18:00.8997081` | `11:18:00.9230000` | +23,2919 ms |
+| 2025 / 0 | `11:20:00.2668783` | `11:20:00.2900000` | +23,1217 ms |
+| 2025 / 1 | `11:21:00.4391822` | `11:21:00.4470000` | +7,8178 ms |
+
+Die SQL2025-Lastwerte lagen ebenfalls innerhalb der Klammer: Fenster 0
+`11:20:00.6800000` vor Finish `11:20:00.7194504`; Fenster 1
+`11:21:00.8130000` vor Finish `11:21:00.8498137`. Die zusätzliche Prozedur-Rohsicht
+lieferte pro Version sechs Zeilen, jeweils Count vier, ohne sichtbare Null- oder
+Zerozeilen. Sie enthält auch andere Statements der Prozedur: ihre Counts dürfen
+nicht zusätzlich zum markergebundenen Suchstatement gezählt werden. Die Sicht
+belegt weder vollständige Fehlerfall-Coverage noch die Herkunft früherer CI-Werte.
+
+### Ergebnis, fehlender Beleg und Wiederaufnahme
+
+Keiner der beiden bekannten CI-Fehler wurde in diesen einmaligen Diagnosen
+reproduziert. Ein lokaler PASS ist **keine Fehlerbehebung** und überschreibt weder
+die CI-Fehler am Reporter-Head noch die früheren echten G13-Verletzungen. Eine
+aus belegter Ursache abgeleitete Codekorrektur liegt deshalb nicht vor. Reporter-
+Code bleibt `BLOCKED`, PR68 bleibt geschlossen und sein Branch erhalten.
+
+Der Messablauf bleibt: vier echte Suchrequests werden mit Ergebnissen und
+Requestlog geprüft; Query Store gruppiert die Stats des Suchstatements nach
+Fenster/Plan/Type. SQL20 verlangt genau vier erfasste Ausführungen je Fenster.
+SQL35 verlangt anschließend, dass First/Last exakt in der zuvor gespeicherten
+SYSUTC-Klammer liegen. Ein Countfehler beendet bereits SQL20 und erreicht den
+SQL35-Reporter nicht. Eine G13-Verletzung beendet SQL35 unabhängig von der
+Nützlichkeit des Diagnoseberichts.
+
+- **SQL2022-Erfassung:** Der CI-Fehler belegt die verletzte Viererabnahme, aber
+  nicht, ob ein Fenster zu wenige, zusätzliche oder falsch zugeordnete Counts
+  hatte. Es fehlen die im **fehlerhaften** Lauf verwendeten Profile, der vollständige
+  marker-/familiengebundene Rohcountzustand und dessen zeitliche Aufnahmebindung.
+  Ohne diese Werte sind Captureverzug, unvollständige Familie, Acquisitionwechsel
+  und Fehlzuordnung Hypothesen. Wiederaufnahme: eine begrenzte skalare Fehleraufnahme
+  vor Cleanup aus dem tatsächlich fehlgeschlagenen SQL20-Pfad; vorhandene Poll-
+  und Lifecyclegrenzen unverändert. Danach eine konkrete Ursachenhypothese samt
+  Gegenprobe. Keine identische Matrixwiederholung allein für einen PASS.
+- **SQL2025-Zeitgrenze:** Die tatsächlichen −0,8298 ms bleiben belegt. Die neue
+  erfolgreiche Klammer beweist keine universelle Messgarantie. Für diesen CI-
+  Fehler fehlen positive und Zero-Rawfragmente derselben Acquisition sowie ein
+  belastbarer Zusammenhang zwischen Enginezeit und SYSUTC. Wiederaufnahme unter
+  bestehender Methode: fehlende Fehlerbelege gezielt aufnehmen und eine belegte
+  Aggregations-/Implementierungsursache prüfen. Rundung, Puffer, verschobene
+  Fensterklammer oder Ersatz von G13 bleiben materielle Methodenänderungen.
+
+Die konkrete fachliche Auswahl ist deshalb: G13 exakt erhalten und den Reporter
+bis zu belastbarer Fehlerfall-Evidenz blockieren, oder die im
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) vorgeschlagene
+kollektive Zuordnung separat entscheiden. Diese Alternative benötigt vollständige
+Call-/Familien-/Acquisition- und Zwischenstandsbelege statt eines exakten
+QS↔SYSUTC-Einschlussclaims; alle dort offenen Gates und unveränderten Ressourcen-
+grenzen wären zu erfüllen. Empfehlung für den begrenzten Korrekturscope:
+**G13 zunächst exakt erhalten und die fehlende Fehleraufnahme nachholen**.
+Die Methodenalternative hat mehrere zusätzliche offene Nachweise; ihre Auswahl
+wäre keine kleine Fehlerkorrektur. Die Auswahl wurde dem Benutzer konkret
+vorgelegt; keine Variante ist stillschweigend aktiviert.
+
+Jeder später korrigierte Reporter-Kandidat benötigt Quellen-/Vertragsabgleich
+gegen den dann aktuellen Main-Stand, passende lokale Gegenproben und erfolgreiche
+relevante CI für den exakten Head/Base. Erst danach Integration und eigene
+Branchbereinigung. Alte Failures bleiben sichtbar. Foundation-/Prozessupgrade
+ist bereits getrennt abgeschlossen; allgemeine Welle und Automation bleiben
+pausiert. Die Ursache-/Methodenarbeit ist mit diesen Wiederaufnahmebedingungen
+offen, nicht als erledigte Reparatur geführt.
