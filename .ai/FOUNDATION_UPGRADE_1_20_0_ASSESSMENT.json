@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.19.0",
+  "source_version": "1.20.0",
+  "source_ref": "39ae5c534bb0cf78046485754ed1be7867bf9534",
+  "assessments": [
+    {
+      "feature_id": "ai-client-integration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md"
+      ],
+      "rationale": "Die mit DEC-065 bereits ausgewählte lokale Referenzcapability wird erhalten. Proportionale Nutzung gilt nur für entsprechende ausgewählte Operationen; Routinearbeit braucht keine Planner-/Receipt-/Dispatchkette. Keine zusätzliche Runtime-, Provider-, Credential-, Netzwerk-, Modell- oder Kostenauthorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "ai-client-integration"
+      ]
+    },
+    {
+      "feature_id": "ai-host-preparation",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md"
+      ],
+      "rationale": "Die mit DEC-065 bereits ausgewählte lokale Referenzcapability wird erhalten. Proportionale Nutzung gilt nur für entsprechende ausgewählte Operationen; Routinearbeit braucht keine Planner-/Receipt-/Dispatchkette. Keine zusätzliche Runtime-, Provider-, Credential-, Netzwerk-, Modell- oder Kostenauthorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "ai-provisioning"
+      ]
+    },
+    {
+      "feature_id": "ai-runtime-adapters",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md"
+      ],
+      "rationale": "Die mit DEC-065 bereits ausgewählte lokale Referenzcapability wird erhalten. Proportionale Nutzung gilt nur für entsprechende ausgewählte Operationen; Routinearbeit braucht keine Planner-/Receipt-/Dispatchkette. Keine zusätzliche Runtime-, Provider-, Credential-, Netzwerk-, Modell- oder Kostenauthorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "ai-runtime-adapters"
+      ]
+    },
+    {
+      "feature_id": "ai-work-execution",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md"
+      ],
+      "rationale": "Die mit DEC-065 bereits ausgewählte lokale Referenzcapability wird erhalten. Proportionale Nutzung gilt nur für entsprechende ausgewählte Operationen; Routinearbeit braucht keine Planner-/Receipt-/Dispatchkette. Keine zusätzliche Runtime-, Provider-, Credential-, Netzwerk-, Modell- oder Kostenauthorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "ai-executor"
+      ]
+    },
+    {
+      "feature_id": "ai-work-orchestration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md"
+      ],
+      "rationale": "Die mit DEC-065 bereits ausgewählte lokale Referenzcapability wird erhalten. Proportionale Nutzung gilt nur für entsprechende ausgewählte Operationen; Routinearbeit braucht keine Planner-/Receipt-/Dispatchkette. Keine zusätzliche Runtime-, Provider-, Credential-, Netzwerk-, Modell- oder Kostenauthorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "ai-work"
+      ]
+    },
+    {
+      "feature_id": "artifact-registration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/IDENTIFIER_REGISTRATION.md",
+        ".ai/REPOSITORY_CONTINUITY.md",
+        ".ai/identity/registry.json"
+      ],
+      "rationale": "DEC-062 und IDENTIFIER_REGISTRATION erhalten eine gemeinsame Registrierungsautorität für Menschen/KI. DEC-070 wird darüber neu registriert; keine historische Umnummerierung.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "authorization-envelope",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        "CONTRIBUTING.md",
+        "Documentation/Project_Planning/DGN_007_METHOD_DECISION_PACKAGE.md"
+      ],
+      "rationale": "Der aktuelle Auftrag autorisiert normale Korrekturen, Prozessänderung und PR-/Mergeabschluss. Methodenänderung bleibt ein gesonderter konkreter Entscheid; keine erneute Freigabe autorisierter Fehlerkorrekturen.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "bounded-processing-efficiency",
+      "candidate_reasons": [
+        "introduced_in:1.20.0"
+      ],
+      "classification": "RECOMMENDED",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/FOUNDATION_UPGRADE_1_20_0_REVIEW.md",
+        "Runtime/README.md"
+      ],
+      "rationale": "Der bisherige Bootstrap verlangt neun Dokumente und PROJECT_RULES verweist ausdrücklich auf vollständige Wiederlektüre. Der aktuelle Benutzerauftrag autorisiert die Änderung dieser stärkeren Prozessregeln. DEC-070 und README ersetzen sie durch relevante Quellen und geprüfte Sessionwiederverwendung; zusätzliche Reviews prüfen konkrete Risiken. Datenschutz, Messmethode und Gates bleiben geschützt.",
+      "recommendation": "Scopebezogene Verarbeitung und geprüfte Sessionwiederverwendung gemäß DEC-070 übernehmen; geschützte Evidenzgrenzen erhalten.",
+      "decision_required": "Durch ausdrücklichen Auftrag und DEC-070 aufgelöst; keine fachliche Methodenänderung.",
+      "selected_capabilities": [
+        "ai-client-integration",
+        "ai-executor",
+        "ai-orchestrator",
+        "ai-provisioning",
+        "ai-runtime-adapters",
+        "ai-work",
+        "artifact-registration-clients",
+        "artifact-registry-github",
+        "model-router",
+        "rule-context-cache"
+      ]
+    },
+    {
+      "feature_id": "central-artifact-registry",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/IDENTIFIER_REGISTRATION.md",
+        ".ai/REPOSITORY_CONTINUITY.md",
+        ".ai/identity/registry.json",
+        ".github/workflows/artifact-registry-integrity.yml"
+      ],
+      "rationale": "Das bereits aktive v2-Profil und der semantische Drei-Wege-/Cross-PR-Preflight bleiben unverändert. Keine neue Registry oder generierte Planungsautorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "artifact-registry-github"
+      ]
+    },
+    {
+      "feature_id": "ci-supersession-and-integration-queue",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/IDENTIFIER_REGISTRATION.md",
+        ".ai/REPOSITORY_CONTINUITY.md",
+        "Tests/Static/validate_repository_continuity.py"
+      ],
+      "rationale": "DEC-067 bindet CI an Head/Base und erhält laufende SQL-Mutationen. Queue und Cancellation bleiben unverändert ungewählt; Pflichtchecks schützen den konkreten Integrationskandidaten.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "foundation-baseline",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/foundation/FOUNDATION_RULESET.md",
+        ".ai/foundation/FOUNDATION_REFERENCE.md"
+      ],
+      "rationale": "Der kurze Ruleset-Einstieg und getrennte FOUNDATION_REFERENCE erhalten den geschützten Mindestvertrag ohne rekursive Komplettlektüre. Projektkontext, Sprache, Datenschutz und SQL-Verträge bleiben projektführend.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "installed-foundation-provenance",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/foundation/installation-provenance.json",
+        "Tests/Static/validate_foundation_integration.py"
+      ],
+      "rationale": "107 ausgewählte Dateien und Manifestidentität werden aus der gepinnten Quelle portabel gebunden. Nur AGENTS.md behält begründete Projekt-Discovery; keine Runtime-/Promptdaten in der Provenienz.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "layered-validation",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        "Tests/Static/validate_foundation_integration.py",
+        "Documentation/Project_Planning/DGN_007_G13_PR_REVIEW.md"
+      ],
+      "rationale": "Foundationintegrität wird von Projektsemantik und empirischer SQL-Evidenz getrennt. Zusätzliche Reviews benötigen eine offene Frage; fehlgeschlagene PR68-Runtimegates werden weder ersetzt noch umgangen.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "model-routing-interoperability",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md"
+      ],
+      "rationale": "Die mit DEC-065 bereits ausgewählte lokale Referenzcapability wird erhalten. Proportionale Nutzung gilt nur für entsprechende ausgewählte Operationen; Routinearbeit braucht keine Planner-/Receipt-/Dispatchkette. Keine zusätzliche Runtime-, Provider-, Credential-, Netzwerk-, Modell- oder Kostenauthorität.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "model-router"
+      ]
+    },
+    {
+      "feature_id": "persistent-identity",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/IDENTIFIER_REGISTRATION.md",
+        ".ai/REPOSITORY_CONTINUITY.md",
+        ".ai/identity/registry.json"
+      ],
+      "rationale": "Historische Wellen-/Demo-/DEC-Kennungen und UID-Zuordnungen bleiben PRESERVE. Neue allgemeine Tasks sind schon flach; keine Migration oder zusätzliche Identitätsentscheidung nötig.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "repository-continuity-break-glass",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "PROJECT_STRONGER",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/REPOSITORY_CONTINUITY.md"
+      ],
+      "rationale": "DEC-063 verlangt dokumentierten Infrastrukturausfall mit genauer Bypassautorität und Nachprüfung. Die strengere Grenze schützt substantielle Fehler vor Umgehung; unverändert wirtschaftlich vertretbar.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "rule-context-cache",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        "Runtime/README.md",
+        ".ai/foundation/PROCESSING_EFFICIENCY_POLICY.md"
+      ],
+      "rationale": "DEC-064 erhält die installierte persistente Capability und den ignorierten Recordpfad. DEC-070 ergänzt Sessionwiederverwendung ohne Pflichtrecords, ohne deren Misssemantik zu ändern. Unbekannte Discoverykonfiguration ist kein Hit.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": [
+        "rule-context-cache"
+      ]
+    },
+    {
+      "feature_id": "rules-only-transfer",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/foundation/installation-provenance.json",
+        ".ai/FOUNDATION_UPGRADE_1_20_0_REVIEW.md"
+      ],
+      "rationale": "Ausschließlich manifestselektierte Foundationquellen werden installiert; Quellprojektpläne, Status, Rootlizenz und Beispielgovernance ersetzen keine Projektquellen.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-integration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        "AGENTS.md",
+        ".ai/FOUNDATION_UPGRADE_1_20_0_REVIEW.md"
+      ],
+      "rationale": "Die autorisierte Prozesskorrektur erhält aktive Projektautoritäten und discovery-only Adapter. Datenschutz und fachliche Gates bleiben stärker/ergänzend; die breite Lektüre wird ausdrücklich und begründet geändert.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-upgrade-applicability",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/FOUNDATION_UPGRADE_1_20_0_ASSESSMENT.json",
+        ".ai/foundation/feature_catalog.json"
+      ],
+      "rationale": "Das Manifest bestimmt 1.20.0; der Feature-Katalog ergibt exakt ein neues und 20 materiell geänderte Features gegenüber 1.19.0. Alle 21 erhalten eine Klassifikation; Empfehlung und Projektwahl DEC-070 sind sichtbar.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "session-lifecycle-management",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/README.md",
+        ".ai/IDENTIFIER_REGISTRATION.md",
+        ".ai/REPOSITORY_CONTINUITY.md",
+        "Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md"
+      ],
+      "rationale": "DEC-067 erhält verfügbare Sessionverträge ohne Schwellen/Persistenz/automatische Folgechats. Proportionale Checkpoints begründen keinen Chatwechsel; pausierte Automation bleibt pausiert.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}
