@@ -27,8 +27,12 @@ Beide ersten DB-Abwesenheitsprüfungen und die eigenen Containerabbauten bestand
 Der vorherige Matrix-PASS ist keine Freigabe dieses fehlgeschlagenen Heads.
 PR68 ist für die getrennte Integration von Prüfbericht und Abschlussprozess
 vorübergehend geschlossen; nicht übernommener Code und Branch bleiben konkret
-referenziert erhalten. Die Erweiterung um den Erfassungsfehler ist als
-Scopeentscheid beim Benutzer angefragt. Kein Bypass oder Wiederholen bis grün.
+referenziert erhalten. Der aktuelle Benutzerauftrag autorisiert zusätzlich die
+begrenzte Ursachenanalyse und Korrektur der Erfassungs-/Zeitgrenzenfehler innerhalb
+der bisherigen Methode sowie das getrennte Foundation-Upgrade auf `1.20.0` und
+die Prozesskorrektur gemäß `DEC-070`. Die frühere Scopeanfrage ist damit erledigt;
+eine materielle Methodenänderung bleibt ein eigener erläuterter Entscheid.
+Kein Bypass oder Wiederholen bis grün.
 Allgemeine Entwicklung, Automation, SESSION_END und die ausdrücklich
 zurückgestellte interne Capture-Rückgabe bleiben pausiert.
 

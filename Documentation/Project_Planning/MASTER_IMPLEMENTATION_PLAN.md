@@ -18,15 +18,12 @@ Der Plan erzeugt selbst noch keine Demo-Skripte, Infrastrukturdefinitionen oder 
 
 ## 2. Verbindlicher Ausgangspunkt
 
-Vor jeder Bearbeitung sind in dieser Reihenfolge zu lesen:
-
-1. [`.ai/PROJECT_CONTEXT.md`](../../.ai/PROJECT_CONTEXT.md)
-2. [`.ai/PROJECT_RULES.md`](../../.ai/PROJECT_RULES.md)
-3. [`.ai/DECISIONS.md`](../../.ai/DECISIONS.md)
-4. [`.ai/DEMO_CONTRACT.md`](../../.ai/DEMO_CONTRACT.md)
-5. [`.ai/ROADMAP.md`](../../.ai/ROADMAP.md)
-6. dieses Dokument
-7. [`.ai/BACKLOG.md`](../../.ai/BACKLOG.md)
+Der aktuelle scopebezogene Einstieg steht gemäß `DEC-070` in
+[`.ai/README.md`](../../.ai/README.md). Dieser Plan wird mit den betroffenen
+Arbeitspaketen und Abhängigkeiten gelesen, wenn sich Planung, Gates,
+Demo-Bestand oder Wiederaufnahmeverfahren ändern. Die frühere allgemeine
+Pflichtfolge entfällt; fachliche Paketverträge und erforderliche Validierung
+bleiben erhalten. Das ist eine Prozesskorrektur, kein Beginn einer neuen Welle.
 
 Die Repository-Grundstruktur wurde mit Commit `25bc970d8b9bb6d4519e52e3d5ab85e85c1c5e66` angelegt. Dieser Commit ist nur die technische Ausgangsbasis; der fachliche und ausführbare Inhalt ist noch zu erstellen.
 

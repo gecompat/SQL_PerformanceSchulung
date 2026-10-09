@@ -961,6 +961,14 @@
       ],
       "title": "Vollständigen Arbeitsabschluss und lokale sowie Remote-Branchbereinigung verfolgen"
     },
+    "DEC-070": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a12056-f40b-744d-81e3-77ff23691d86",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Foundation 1.20.0 und scopebezogene wirtschaftliche Projektsteuerung"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",
