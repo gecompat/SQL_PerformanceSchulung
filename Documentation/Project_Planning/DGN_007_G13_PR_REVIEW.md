@@ -309,8 +309,11 @@ QS↔SYSUTC-Einschlussclaims; alle dort offenen Gates und unveränderten Ressour
 grenzen wären zu erfüllen. Empfehlung für den begrenzten Korrekturscope:
 **G13 zunächst exakt erhalten und die fehlende Fehleraufnahme nachholen**.
 Die Methodenalternative hat mehrere zusätzliche offene Nachweise; ihre Auswahl
-wäre keine kleine Fehlerkorrektur. Die Auswahl wurde dem Benutzer konkret
-vorgelegt; keine Variante ist stillschweigend aktiviert.
+wäre keine kleine Fehlerkorrektur. Der Benutzer hat am 2026-10-09 ausdrücklich
+„G13 exakt beibehalten; fehlende Fehlerbelege gezielt nachholen“ ausgewählt.
+Damit ist die fachliche Abnahmerichtung geklärt, die Fehlerursache weiterhin offen.
+Die Methodenalternative bleibt ungewählt; die fehlende Fehleraufnahme ist noch
+kein implementierter oder erfolgreicher Nachweis.
 
 Jeder später korrigierte Reporter-Kandidat benötigt Quellen-/Vertragsabgleich
 gegen den dann aktuellen Main-Stand, passende lokale Gegenproben und erfolgreiche
