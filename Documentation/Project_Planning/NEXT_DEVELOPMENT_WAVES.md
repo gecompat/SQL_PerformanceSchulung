@@ -2,13 +2,25 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `PAUSED` – Benutzerstopp vom 2026-10-08; ausschließlich laufenden §33-Schnitt über PR abschließen |
+| Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
 | Stand | 2026-10-08 |
 | Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64 sowie begrenzter SQL-Producer aus Pull Request 65; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
 ## 1. Planungsgrundlagen
+
+Der gezielte Benutzerauftrag vom 2026-10-09 betrifft Prüfung und Abschluss von
+PR 68 sowie DEC-069; der [G13-/PR-Review](DGN_007_G13_PR_REVIEW.md) führt diesen
+isolierten Diagnoseschnitt. Er verlangt erfolgreiche relevante aktuelle CI,
+ohne G13 oder die offene Methodenentscheidung zu ändern. Die nachfolgende
+allgemeine Folgeplanung und die interne Capture-Rückgabe bleiben ausdrücklich
+zurückgestellt.
+Der aktuelle Reporter-Head `f9ec582…` scheiterte auf 2022 an SQL20 und auf
+2025 an G13. Deshalb wird nur der geprüfte Befund und Abschlussprozess getrennt
+integriert; der Code-PR ist vorübergehend geschlossen und sein Branch wegen
+nicht übernommener Änderungen erhalten. Zusätzlicher Scopeentscheid angefragt;
+kein Bypass und kein Wiederholen unveränderter Kandidaten bis grün.
 
 Die Entwicklung wurde am 2026-10-07 nach der über PR 92 dokumentierten Pause
 ausdrücklich mit den bisherigen Regeln wieder aufgenommen. Seit dem Benutzerstopp

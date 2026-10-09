@@ -1,5 +1,19 @@
 # Initialer Backlog
 
+Der gezielte Benutzerauftrag vom 2026-10-09 nimmt ausschließlich Prüfung und
+Abschluss der bestehenden G13-Reporterarbeit in PR 68 sowie den vollständigen
+Arbeitsabschluss nach DEC-069 wieder auf. Der
+[G13-/PR-Review](../Documentation/Project_Planning/DGN_007_G13_PR_REVIEW.md) ist
+für diesen Schnitt maßgeblich. Allgemeine Entwicklung, Automation und ausdrücklich
+zurückgestellte Arbeiten bleiben pausiert. Historische HOLD-/CI-Befunde weiter
+unten bleiben Nachweise ihrer jeweiligen Version und ersetzen keine aktuelle CI.
+Die neue CI am Reporter-Head `f9ec582…` scheiterte auf 2022 an SQL20 und auf
+2025 an G13 (−0,8298 ms). Der Code ist technisch blockiert; PR68 ist für den
+getrennten Dokumentationsabschluss vorübergehend geschlossen, sein Branch bleibt
+wegen nicht übernommener Arbeit erhalten. Der zusätzliche Scopeentscheid ist
+beim Benutzer angefragt. Der vorherige Matrix-PASS wird nicht als Freigabe oder
+Behebung umgedeutet.
+
 ## Aktueller operativer Einstiegspunkt
 
 Die Entwicklung wurde am 2026-10-07 nach der über PR 92 dokumentierten Pause
