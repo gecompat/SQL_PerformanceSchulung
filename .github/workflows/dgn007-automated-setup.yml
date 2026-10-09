@@ -25,14 +25,10 @@ on:
       - 'Tests/Static/test_dgn007_compatibility.py'
       - 'Tests/Static/test_dgn007_profile_comparison.py'
       - 'Tests/Static/test_dgn007_control_capture.py'
-      - 'Tests/Static/test_orchestration_runtime.py'
       - 'Tests/Static/validate_dgn007_automated_setup.py'
       - 'Tests/Static/validate_dgn007_query_store_windows.py'
       - 'Tests/Static/validate_dgn007_profile_comparison.py'
       - 'Tests/Static/validate_dgn007_control_capture.py'
-      - 'Tests/Static/validate_privacy_metadata.py'
-      - 'Tests/Static/validate_sql_container_readiness.py'
-      - 'Tests/Static/validate_repository_continuity.py'
       - '.github/workflows/dgn007-automated-setup.yml'
   push:
     branches: [main]
@@ -58,14 +54,10 @@ on:
       - 'Tests/Static/test_dgn007_compatibility.py'
       - 'Tests/Static/test_dgn007_profile_comparison.py'
       - 'Tests/Static/test_dgn007_control_capture.py'
-      - 'Tests/Static/test_orchestration_runtime.py'
       - 'Tests/Static/validate_dgn007_automated_setup.py'
       - 'Tests/Static/validate_dgn007_query_store_windows.py'
       - 'Tests/Static/validate_dgn007_profile_comparison.py'
       - 'Tests/Static/validate_dgn007_control_capture.py'
-      - 'Tests/Static/validate_privacy_metadata.py'
-      - 'Tests/Static/validate_sql_container_readiness.py'
-      - 'Tests/Static/validate_repository_continuity.py'
       - '.github/workflows/dgn007-automated-setup.yml'
   workflow_dispatch:
 
@@ -78,6 +70,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow dgn007 --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
   static:
     name: Statische DGN-007-Datenmodell-, Fenster- und Profilverträge
     runs-on: ubuntu-latest
@@ -91,8 +101,6 @@ jobs:
         run: python -m unittest discover -s Tests/Static -p test_dgn007_automated_setup_runner.py
       - name: Compatibility-Level-Katalog und NULL-Guards prüfen
         run: python Tests/Static/test_dgn007_compatibility.py
-      - name: Prozessabbruch und Cleanup einschließlich Linux-Nachfahren prüfen
-        run: python Tests/Static/test_orchestration_runtime.py
       - name: Datenmodell- und CI-Vertrag prüfen
         run: python Tests/Static/validate_dgn007_automated_setup.py
       - name: Query-Store-Fenstervertrag prüfen
@@ -113,16 +121,11 @@ jobs:
           python Tests/Static/test_dgn007_collector_transport.py
           python Tests/Static/validate_dgn007_prospective_acceptance.py
           python Tests/Static/test_dgn007_prospective_acceptance.py
-      - name: SQL-Readiness und Kontinuität prüfen
-        run: |
-          python Tests/Static/validate_sql_container_readiness.py
-          python Tests/Static/validate_repository_continuity.py
-      - name: Privacy prüfen
-        run: python Tests/Static/validate_privacy_metadata.py .
 
   runtime:
     name: DGN-007-Datenmodell, Fenster und Profilvergleich SQL Server ${{ matrix.year }}
-    needs: static
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     # Zwölf äußere Lifecycle-/Verify-Budgets (58 min), Runner-Vorprüfungen (12 min),
     # 2025-Compatibility (5 min), nominale Readiness-Schleifen (6,5 min)

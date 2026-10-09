@@ -11,9 +11,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_VERSION = "1.20.0"
-EXPECTED_SOURCE_REF = "39ae5c534bb0cf78046485754ed1be7867bf9534"
-EXPECTED_MANIFEST_SHA256 = "d707d9dfe5cbcf7d323260891ec5d535493715d1413d7b6e421b2691aa1149d5"
+EXPECTED_VERSION = "1.21.0"
+EXPECTED_SOURCE_REF = "d720db4f2f0d043756a958d5195d0e62090b1c8f"
+EXPECTED_MANIFEST_SHA256 = "5c4268140ba8cb6c3c38ce42cdd1ebecd8d5c3db23309bb90c77bc8b38ebf2f6"
 EXPECTED_CACHE_CAPABILITY_SHA256 = (
     "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b"
 )
@@ -53,7 +53,7 @@ def version_tuple(value: str) -> tuple[int, int, int]:
 def main() -> None:
     catalog = load_json(ROOT / ".ai" / "foundation" / "feature_catalog.json")
     assessment = load_json(
-        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_20_0_ASSESSMENT.json"
+        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_21_0_ASSESSMENT.json"
     )
     registry = load_json(ROOT / ".ai" / "identity" / "registry.json")
     provenance = load_json(
@@ -95,8 +95,8 @@ def main() -> None:
 
     if assessment.get("schema_version") != 1:
         fail("upgrade assessment schema version must be 1")
-    if assessment.get("installed_version") != "1.19.0":
-        fail("upgrade assessment installed version must be 1.19.0")
+    if assessment.get("installed_version") != "1.20.0":
+        fail("upgrade assessment installed version must be 1.20.0")
     if assessment.get("source_version") != EXPECTED_VERSION:
         fail(f"upgrade assessment source version must be {EXPECTED_VERSION}")
     if assessment.get("source_ref") != EXPECTED_SOURCE_REF:
@@ -135,27 +135,13 @@ def main() -> None:
         fail("upgrade assessment does not contain exactly the complete feature delta")
     assessed_ids = {row.get("feature_id") for row in rows}
     expected_candidates = {
-        'ai-client-integration',
-        'ai-host-preparation',
-        'ai-runtime-adapters',
-        'ai-work-execution',
-        'ai-work-orchestration',
-        'artifact-registration',
-        'authorization-envelope',
         'bounded-processing-efficiency',
-        'central-artifact-registry',
-        'ci-supersession-and-integration-queue',
         'foundation-baseline',
         'installed-foundation-provenance',
         'layered-validation',
-        'model-routing-interoperability',
-        'persistent-identity',
-        'repository-continuity-break-glass',
-        'rule-context-cache',
+        'processing-overhead-assessment',
         'rules-only-transfer',
         'semantic-integration',
-        'semantic-upgrade-applicability',
-        'session-lifecycle-management',
     }
     if assessed_ids != candidates or candidates != expected_candidates:
         fail(f"unexpected upgrade candidates: {sorted(candidates)}")
@@ -169,8 +155,10 @@ def main() -> None:
     if classifications.get("bounded-processing-efficiency") != "RECOMMENDED":
         fail("processing efficiency recommendation is missing")
     efficiency = next(row for row in rows if row["feature_id"] == "bounded-processing-efficiency")
-    if "DEC-070" not in efficiency.get("decision_required", ""):
-        fail("authorized processing choice must resolve through DEC-070")
+    if "DEC-071" not in efficiency.get("decision_required", ""):
+        fail("authorized processing choice must resolve through DEC-071")
+    if classifications.get("processing-overhead-assessment") != "APPLY_DEFAULT":
+        fail("actual processing-overhead assessment is missing")
 
     files = provenance.get("files", [])
     targets = [row.get("target") for row in files]
@@ -244,7 +232,7 @@ def main() -> None:
     if ignored.returncode != 0:
         fail("configured rule-context cache record path is not ignored by Git")
 
-    for reference in ("DEC-065", "DEC-067", "DEC-070"):
+    for reference in ("DEC-065", "DEC-067", "DEC-070", "DEC-071"):
         decision = registry.get("artifacts", {}).get(reference)
         if not isinstance(decision, dict) or decision.get("kind") != "decision":
             fail(f"{reference} is not registered as a decision")
@@ -268,7 +256,7 @@ def main() -> None:
         ("`DEC-065`", ".ai/PROJECT_RULES.md"),
         ("`Runtime/.foundation-rule-cache/`", ".ai/PROJECT_RULES.md"),
         ("`DEC-067`", ".ai/PROJECT_RULES.md"),
-        ("FOUNDATION_UPGRADE_1_20_0_ASSESSMENT.json", ".ai/PROJECT_RULES.md"),
+        ("FOUNDATION_UPGRADE_1_21_0_ASSESSMENT.json", ".ai/PROJECT_RULES.md"),
         ("foundation-session-lifecycle/v1", ".ai/PROJECT_RULES.md"),
         ("successor_session_capability: UNKNOWN", ".ai/PROJECT_RULES.md"),
     ):
@@ -288,7 +276,7 @@ def main() -> None:
 
     print(
         "foundation-integration: PASS "
-        "(1.20.0; complete 21-feature delta; 107 installation hashes; "
+        "(1.21.0; complete 7-feature delta; 107 installation hashes; "
         "all local capabilities preserved)"
     )
 

@@ -46,6 +46,3 @@ jobs:
 
       - name: Validate performance scenarios
         run: python Tests/Static/validate_performance_scenarios.py
-
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .

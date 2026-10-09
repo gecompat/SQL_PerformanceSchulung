@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.20.0",
+  "source_version": "1.21.0",
+  "source_ref": "d720db4f2f0d043756a958d5195d0e62090b1c8f",
+  "assessments": [
+    {
+      "feature_id": "bounded-processing-efficiency",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "RECOMMENDED",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".github/workflows"
+      ],
+      "rationale": "Die bisherige scopebezogene Steuerung bleibt erhalten. DEC-071 setzt die neue Phasentrennung und tatsächliche CI-Auswahl um; die DGN-007-Qualifikationsverträge bleiben geschützt.",
+      "recommendation": null,
+      "decision_required": "DEC-071 setzt die empfohlene Effizienzanpassung im autorisierten Umfang um.",
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "foundation-baseline",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "AGENTS.md",
+        ".ai/PROJECT_RULES.md",
+        ".ai/foundation/FOUNDATION_RULESET.md"
+      ],
+      "rationale": "Die neue Pflicht zum tatsächlichen Aufwandassessment ist in der Wurzel auffindbar; projektspezifische Datenschutz-, Demo-, Methoden- und CI-Regeln bleiben maßgeblich.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "installed-foundation-provenance",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/installation-provenance.json",
+        ".ai/foundation/repo_map.yaml"
+      ],
+      "rationale": "Alle 107 ausgewählten Dateien werden gegen das gepinnte Manifest gebunden; AGENTS.md erhält die projektgeführte Discovery als begründeten Override.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "layered-validation",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DEMO_CONTRACT.md",
+        "Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md"
+      ],
+      "rationale": "Diagnose und Entwicklung werden von Qualifikation getrennt; bestehende SQL-Versionen, DGN-007-Oracles und Cleanup bleiben für fachliche Abnahme offen beziehungsweise verbindlich.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "processing-overhead-assessment",
+      "candidate_reasons": [
+        "introduced_in:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/FOUNDATION_UPGRADE_1_21_0_REVIEW.md",
+        ".github/workflows/privacy-metadata.yml",
+        ".github/workflows/dgn007-automated-setup.yml",
+        ".github/workflows/framework-sql-matrix.yml"
+      ],
+      "rationale": "Die tatsächlichen 36 CI-Workflows, Vollscans, statischen Selbsttests, Matrixpfade sowie Log-, Review- und Wiederholungsregeln werden bewertet und im autorisierten Umfang korrigiert.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "rules-only-transfer",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/installation-provenance.json",
+        "AGENTS.md",
+        ".ai/PROJECT_RULES.md"
+      ],
+      "rationale": "Manifest-Whitelist und bisherige Auswahl bleiben unverändert; nur zehn geänderte Foundation-Ziele werden aus dem gepinnten Commit übertragen, mit Projektsektion in AGENTS.md.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "semantic-integration",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/PROJECT_RULES.md",
+        ".ai/DECISIONS.md",
+        ".ai/FOUNDATION_UPGRADE_1_21_0_REVIEW.md"
+      ],
+      "rationale": "Foundation-Defaults und bewusste strengere Projektverträge werden getrennt. Der gemeinsame Scan wird zentralisiert; Pflichtchecks, Identitäten, Methodenwahl und pausierte Arbeit bleiben erhalten.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}

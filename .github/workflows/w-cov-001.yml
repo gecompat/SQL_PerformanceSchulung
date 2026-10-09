@@ -18,7 +18,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Demos/**'
+      - 'Demos/01_Storage_Pages_Log/**'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-003_*/**'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-005_*/**'
+      - 'Demos/04_Rowstore_Columnstore/**'
+      - 'Demos/05_Concurrency_Isolation_TempDB/**'
+      - 'Demos/06_CPU_Memory_IO_Waits/**'
+      - 'Demos/07_Concurrency/CON-006_*/**'
       - 'Tests/Runtime/run_w_cov_001.py'
       - 'Tests/Static/validate_w_cov_001.py'
       - 'Tests/Lab/performance-lab-matrix.json'
@@ -35,6 +41,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow w-cov-001 --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
   static:
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -48,10 +72,10 @@ jobs:
       - run: python Tests/Static/validate_sql_server_lab_test_catalog.py
       - run: python Tests/Static/validate_performance_scenarios.py
       - run: python Tests/Static/validate_identifier_registration.py
-      - run: python Tests/Static/validate_privacy_metadata.py .
 
   runtime:
-    needs: static
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_PERFORMANCE_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 90
     strategy:

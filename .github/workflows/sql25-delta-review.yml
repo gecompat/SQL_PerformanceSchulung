@@ -35,4 +35,3 @@ jobs:
           python-version: '3.12'
       - run: python Tests/Static/validate_sql25_delta_review.py
       - run: python Tests/Static/validate_dgn003_dgn005_pilots.py
-      - run: python Tests/Static/validate_privacy_metadata.py .

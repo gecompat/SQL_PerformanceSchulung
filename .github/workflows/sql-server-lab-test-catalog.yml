@@ -9,7 +9,6 @@ on:
       - 'Tests/Static/validate_sql_server_lab_test_catalog.py'
       - 'Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md'
       - 'Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md'
-      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - 'Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md'
       - 'Documentation/Project_Planning/LABINT_001_SQL_SERVER_LAB_INTEGRATION_REVIEW.md'
       - 'Documentation/Project_Planning/LABINT_001_EXPECTATION_CORRECTION.md'
@@ -28,7 +27,6 @@ on:
       - 'Tests/Static/validate_sql_server_lab_test_catalog.py'
       - 'Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md'
       - 'Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md'
-      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - 'Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md'
       - 'Documentation/Project_Planning/LABINT_001_SQL_SERVER_LAB_INTEGRATION_REVIEW.md'
       - 'Documentation/Project_Planning/LABINT_001_EXPECTATION_CORRECTION.md'
@@ -61,5 +59,3 @@ jobs:
           python-version: '3.12'
       - name: Validate interactive scenario and automated test catalog
         run: python3 Tests/Static/validate_sql_server_lab_test_catalog.py
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .

@@ -124,7 +124,7 @@ Die fachliche Freigabe eines Artefakts ist von der Privacy-Freigabe getrennt. `P
 
 ## 8. Automatisierte Prüfung durch TST-002
 
-`Tests/Static/validate_privacy_metadata.py` ist ein User-defined Tool des Projekts und verwendet ausschließlich die Python-Standardbibliothek. Der Workflow `.github/workflows/privacy-metadata.yml` führt Curriculumprüfung, Scanner-Selbsttests und Repositoryscan ohne SQL-Server-Start aus.
+`Tests/Static/validate_privacy_metadata.py` ist ein User-defined Tool des Projekts und verwendet ausschließlich die Python-Standardbibliothek. Der Workflow `.github/workflows/privacy-metadata.yml` führt Curriculumprüfung und vollständigen Repositoryscan ohne SQL-Server-Start auf jedem Pull Request und Main-Push aus. Der pfadbegrenzte Workflow `.github/workflows/privacy-scanner-contracts.yml` führt Scanner-Selbsttests bei Änderungen am Scanner, Test oder Workflow aus.
 
 Der Scanner prüft automatisiert:
 

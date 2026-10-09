@@ -4,14 +4,22 @@ on:
   pull_request:
     paths:
       - 'Demos/00_Framework/**'
-      - 'Tests/Runtime/**'
+      - 'Tests/Runtime/run_framework_sql_matrix.py'
+      - 'Tests/Runtime/run_framework_sql_matrix_staged.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - '.github/workflows/framework-sql-matrix.yml'
   push:
     branches:
       - main
     paths:
       - 'Demos/00_Framework/**'
-      - 'Tests/Runtime/**'
+      - 'Tests/Runtime/run_framework_sql_matrix.py'
+      - 'Tests/Runtime/run_framework_sql_matrix_staged.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
       - '.github/workflows/framework-sql-matrix.yml'
   workflow_dispatch:
 
@@ -24,8 +32,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow framework --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
   runtime:
     name: SQL Server ${{ matrix.year }}
+    needs: changes
+    if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 30
     strategy:

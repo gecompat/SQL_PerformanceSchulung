@@ -33,4 +33,3 @@ jobs:
           python-version: '3.12'
       - run: python Tests/Static/validate_presentation_variants.py
       - run: python Tests/Static/validate_presentation_diagrams.py
-      - run: python Tests/Static/validate_privacy_metadata.py .

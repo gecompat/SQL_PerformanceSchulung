@@ -11,7 +11,6 @@ on:
       - 'Documentation/Inventories/SOURCE_MANIFEST.md'
       - 'Tests/Static/validate_adv010_deck_integration.py'
       - 'Tests/Static/validate_adv_003_curriculum.py'
-      - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tests/Static/validate_w2_007_presentation.py'
       - 'Tools/build_adv010_slides.py'
       - '.github/workflows/adv010-deck-integration.yml'
@@ -26,7 +25,6 @@ on:
       - 'Documentation/Inventories/SOURCE_MANIFEST.md'
       - 'Tests/Static/validate_adv010_deck_integration.py'
       - 'Tests/Static/validate_adv_003_curriculum.py'
-      - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tests/Static/validate_w2_007_presentation.py'
       - 'Tools/build_adv010_slides.py'
       - '.github/workflows/adv010-deck-integration.yml'
@@ -54,7 +52,5 @@ jobs:
         run: python Tests/Static/validate_adv_003_curriculum.py
       - name: Validate the presentation baseline
         run: python Tests/Static/validate_w2_007_presentation.py
-      - name: Validate privacy and metadata
-        run: python Tests/Static/validate_privacy_metadata.py
       - name: Confirm the deck builder is idempotent
         run: python Tools/build_adv010_slides.py --check
