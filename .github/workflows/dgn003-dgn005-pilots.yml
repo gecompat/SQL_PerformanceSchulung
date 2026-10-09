@@ -3,16 +3,24 @@ name: DGN-003 and DGN-005 pilots
 on:
   pull_request:
     paths:
-      - 'Demos/07_Query_Store_Extended_Events/**'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/**'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/**'
+      - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_dgn003_dgn005_pilots.py'
       - 'Tests/Runtime/run_dgn003_dgn005_pilots.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/dgn003-dgn005-pilots.yml'
   push:
     branches: [main]
     paths:
-      - 'Demos/07_Query_Store_Extended_Events/**'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/**'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/**'
+      - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_dgn003_dgn005_pilots.py'
       - 'Tests/Runtime/run_dgn003_dgn005_pilots.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - '.github/workflows/dgn003-dgn005-pilots.yml'
   workflow_dispatch:
 
@@ -20,6 +28,24 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow dgn003-dgn005-pilots --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
   static:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -29,9 +55,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python Tests/Static/validate_dgn003_dgn005_pilots.py
-      - run: python Tests/Static/validate_privacy_metadata.py .
   runtime:
-    needs: static
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 50
     strategy:

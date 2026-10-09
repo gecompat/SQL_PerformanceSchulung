@@ -49,9 +49,20 @@ Der Workflow `.github/workflows/privacy-metadata.yml` startet keinen SQL Server 
 
 ```bash
 python3 Tests/Static/validate_adv_003_curriculum.py
-python3 Tests/Static/test_privacy_metadata_scanner.py
 python3 Tests/Static/validate_privacy_metadata.py .
 ```
+
+Der vollständige Privacy-Scan läuft zentral auf jedem Pull Request und Main-Push;
+die Fachworkflows wiederholen ihn nicht. Die Scanner-Selbsttests laufen im
+pfadbegrenzten Workflow `privacy-scanner-contracts.yml`, wenn Scanner, Test oder
+Workflow geändert wurden. Die verpflichtende Prüfung aller geänderten Dateien
+vor jedem Commit bleibt davon unabhängig.
+
+Änderungen an reinen statischen Prüfungen beanspruchen keine neue SQL-Runtime-
+Abnahme. `runtime-selector-contracts.yml` prüft die Auswahl der betroffenen
+Runtime-Jobs mit Positiv-, Negativ-, gemeinsamen Abhängigkeits- und
+Unbekannt-Fällen. Bei unklarer Git-Bindung wird die Runtime ausgeführt; eine
+ausgewählte Qualifikationsmatrix behält ihre Versionen und Wiederholungen.
 
 `validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sieben Claims sind durch `ADV-009` und `ADV-010` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 32 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
 

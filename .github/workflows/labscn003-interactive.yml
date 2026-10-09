@@ -67,4 +67,3 @@ jobs:
       - run: python Tests/Static/validate_labscn005_dgn005.py
       - run: python Tests/Static/validate_labscn005_con006.py
       - run: python Tests/Static/validate_performance_scenarios.py
-      - run: python Tests/Static/validate_privacy_metadata.py .

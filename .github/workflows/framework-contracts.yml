@@ -4,7 +4,15 @@ on:
   pull_request:
     paths:
       - 'Demos/00_Framework/**'
-      - 'Tests/Static/**'
+      - 'Tests/Static/validate_framework_contracts.py'
+      - 'Tests/Static/test_result_contract_evaluator.py'
+      - 'Tests/Static/validate_orchestration_runtime.py'
+      - 'Tests/Static/test_orchestration_runtime.py'
+      - 'Tests/Static/validate_w2_002_dependency_neutralization.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Documentation/Inventories/legacy_example_classification.json'
+      - 'Documentation/Inventories/w2_002_dependency_neutralization.json'
+      - 'Documentation/Project_Planning/W2_002_DEPENDENCY_NEUTRALIZATION_REVIEW.md'
       - '.github/workflows/framework-contracts.yml'
       - '.ai/DEMO_CONTRACT.md'
   push:
@@ -12,7 +20,15 @@ on:
       - main
     paths:
       - 'Demos/00_Framework/**'
-      - 'Tests/Static/**'
+      - 'Tests/Static/validate_framework_contracts.py'
+      - 'Tests/Static/test_result_contract_evaluator.py'
+      - 'Tests/Static/validate_orchestration_runtime.py'
+      - 'Tests/Static/test_orchestration_runtime.py'
+      - 'Tests/Static/validate_w2_002_dependency_neutralization.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Documentation/Inventories/legacy_example_classification.json'
+      - 'Documentation/Inventories/w2_002_dependency_neutralization.json'
+      - 'Documentation/Project_Planning/W2_002_DEPENDENCY_NEUTRALIZATION_REVIEW.md'
       - '.github/workflows/framework-contracts.yml'
       - '.ai/DEMO_CONTRACT.md'
   workflow_dispatch:

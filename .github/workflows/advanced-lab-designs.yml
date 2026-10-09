@@ -7,7 +7,6 @@ on:
       - 'Documentation/Project_Planning/ADV_005_LAB_VP2_DESIGN.md'
       - 'Documentation/Project_Planning/advanced_vp1_vp2_design.json'
       - 'Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md'
-      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - '.ai/BACKLOG.md'
       - 'Tests/Static/validate_adv_004_005_designs.py'
       - '.github/workflows/advanced-lab-designs.yml'
@@ -18,7 +17,6 @@ on:
       - 'Documentation/Project_Planning/ADV_005_LAB_VP2_DESIGN.md'
       - 'Documentation/Project_Planning/advanced_vp1_vp2_design.json'
       - 'Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md'
-      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - '.ai/BACKLOG.md'
       - 'Tests/Static/validate_adv_004_005_designs.py'
       - '.github/workflows/advanced-lab-designs.yml'
@@ -41,5 +39,3 @@ jobs:
         uses: actions/checkout@v6
       - name: Validate design contracts
         run: python3 Tests/Static/validate_adv_004_005_designs.py
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .

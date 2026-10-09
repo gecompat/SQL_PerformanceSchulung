@@ -36,6 +36,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow qry006-null-semantics --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
   static:
     name: Static QRY-006 contracts
     runs-on: ubuntu-latest
@@ -49,12 +67,11 @@ jobs:
         run: python Tests/Static/validate_qry006_null_semantics_design.py
       - name: Validate compatibility and cleanup ordering
         run: python Tests/Static/test_qry006_runtime_order.py
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}
-    needs: static
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 45
     strategy:

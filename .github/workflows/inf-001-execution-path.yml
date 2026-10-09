@@ -58,6 +58,3 @@ jobs:
 
       - name: Validate INF-001 execution path
         run: python Tests/Static/validate_inf_001_execution_path.py
-
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .

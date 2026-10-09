@@ -1,0 +1,32 @@
+name: Privacy scanner contracts
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Static/validate_privacy_metadata.py'
+      - 'Tests/Static/test_privacy_metadata_scanner.py'
+      - '.github/workflows/privacy-metadata.yml'
+      - '.github/workflows/privacy-scanner-contracts.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Static/validate_privacy_metadata.py'
+      - 'Tests/Static/test_privacy_metadata_scanner.py'
+      - '.github/workflows/privacy-metadata.yml'
+      - '.github/workflows/privacy-scanner-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: privacy-scanner-contracts-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 Tests/Static/test_privacy_metadata_scanner.py

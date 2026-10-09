@@ -36,6 +36,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow adv008-opt010 --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
   static:
     name: Static OPT-010 contracts
     runs-on: ubuntu-latest
@@ -49,12 +67,11 @@ jobs:
           python-version: '3.12'
       - name: Validate OPT-010 contracts
         run: python Tests/Static/validate_adv008_opt010.py
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .
 
   runtime:
     name: SQL Server ${{ matrix.year }}
-    needs: static
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 45
     strategy:

@@ -12,7 +12,6 @@ on:
       - 'Documentation/Inventories/SOURCE_MANIFEST.md'
       - 'Tests/Static/validate_adv009_deck_integration.py'
       - 'Tests/Static/validate_adv_003_curriculum.py'
-      - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tools/build_adv009_slides.py'
       - '.github/workflows/adv009-deck-integration.yml'
   push:
@@ -27,7 +26,6 @@ on:
       - 'Documentation/Inventories/SOURCE_MANIFEST.md'
       - 'Tests/Static/validate_adv009_deck_integration.py'
       - 'Tests/Static/validate_adv_003_curriculum.py'
-      - 'Tests/Static/validate_privacy_metadata.py'
       - 'Tools/build_adv009_slides.py'
       - '.github/workflows/adv009-deck-integration.yml'
   workflow_dispatch:
@@ -50,7 +48,5 @@ jobs:
         run: python Tests/Static/validate_adv009_deck_integration.py
       - name: Validate ADV-003 curriculum traceability
         run: python Tests/Static/validate_adv_003_curriculum.py
-      - name: Validate privacy and metadata
-        run: python Tests/Static/validate_privacy_metadata.py
       - name: Confirm the deck builder is idempotent
         run: python Tools/build_adv009_slides.py --check

@@ -55,6 +55,3 @@ jobs:
 
       - name: Validate demo execution guide
         run: python Tests/Static/validate_demo_execution_guide.py
-
-      - name: Run repository privacy scan
-        run: python3 Tests/Static/validate_privacy_metadata.py .

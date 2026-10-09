@@ -969,6 +969,19 @@
       "relations": [],
       "title": "Foundation 1.20.0 und scopebezogene wirtschaftliche Projektsteuerung"
     },
+    "DEC-071": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a120e3-fdab-76b4-b975-45e1c54c76e5",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-070",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Foundation 1.21.0 und vertragsbezogene CI-Testauswahl"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

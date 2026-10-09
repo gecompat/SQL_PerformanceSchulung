@@ -9,7 +9,7 @@
 ## AI Repository Foundation
 
 - Der kanonische Einstieg für KI-gestützte Arbeit ist [`../AGENTS.md`](../AGENTS.md).
-- Die unter `.ai/foundation/` versionierte Foundation `1.20.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
+- Die unter `.ai/foundation/` versionierte Foundation `1.21.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
 - Die historischen Bewertungen bis `1.8.0` stehen in [`FOUNDATION_UPGRADE_1_7_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_7_0_ASSESSMENT.json) und [`FOUNDATION_UPGRADE_1_8_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_8_0_ASSESSMENT.json); das vollständige Delta von `1.8.0` auf `1.17.1` steht in [`FOUNDATION_UPGRADE_1_17_1_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_17_1_ASSESSMENT.json). `DEC-062` aktiviert weiterhin die zentrale Registry im Profil `foundation-artifact-registry/v2` und die Capability `artifact-registry-github` als projektführende Registrierungsautorität. `DEC-064` aktiviert zusätzlich die Capability `rule-context-cache` mit dem lokalen, unversionierten Record-Pfad `Runtime/.foundation-rule-cache/`; native Instruction Discovery und der vollständige relevante Scope bei `CACHE_MISS` bleiben verpflichtend. Die vollständige Capability-Auswahl ist in `DEC-065` dokumentiert; sie installiert ausschließlich lokale Referenzimplementierungen und ersetzt keine projektbezogene Autorisierung für Runtime-, Provider-, Credential-, Netzwerk- oder externe Effektentscheidungen.
 - Der scopebezogene Einstieg aus [`README.md`](README.md) ist gemäß `DEC-070` verbindlich. Zusätzliche Entscheidungen, Verträge, Planungsabschnitte und Abhängigkeiten werden nur bei Betroffenheit gelesen; Auffindbarkeit bedeutet keine Komplettlektüre. Registry-/Identitätsregeln gelten bei entsprechenden Änderungen.
 - Datenschutz und Neutralisierung sind gegenüber der Foundation `PROJECT_STRONGER`. Sprache, Git-Workflow und KI-Commit-Kennzeichnung sind `PROJECT_SELECTABLE_OVERRIDE`. Die detaillierten Modell-, Validierungs- und SQL-Server-Regeln gelten `COMPLEMENTARY` zur Foundation.
@@ -19,6 +19,7 @@
 - `DEC-063` und [`REPOSITORY_CONTINUITY.md`](REPOSITORY_CONTINUITY.md) wählen geschichtete GitHub-Rulesets: nicht umgehbare Core-Safety-Regeln und separate CI-Gates. Der CI-Bypass ist ausschließlich `gecompat`, nur über Pull Requests und nur für belegtes `INFRASTRUCTURE_UNAVAILABLE` zulässig; `VALIDATION_FAILURE` und `UNKNOWN` dürfen nicht umgangen werden.
 - Tool-spezifische Adapter dienen ausschließlich der Auffindbarkeit von `AGENTS.md` und enthalten keine parallelen Projektregeln.
 - `DEC-070` dokumentiert das Upgrade auf `1.20.0`, alle 21 Delta-Features und die ausdrücklich autorisierte Prozesskorrektur in [`FOUNDATION_UPGRADE_1_20_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_20_0_ASSESSMENT.json) und [`FOUNDATION_UPGRADE_1_20_0_REVIEW.md`](FOUNDATION_UPGRADE_1_20_0_REVIEW.md). Geprüfte Sessionwiederverwendung folgt `foundation/PROCESSING_EFFICIENCY_POLICY.md` ohne Pflicht zu persistenten Records. Der strengere persistente Cachevertrag bleibt bei dessen Nutzung unverändert; ein Miss verlangt den vollständigen relevanten Scope statt sämtlicher Planung.
+- `DEC-071` dokumentiert Foundation `1.21.0` und das vollständige sieben Features umfassende Delta in [`FOUNDATION_UPGRADE_1_21_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_21_0_ASSESSMENT.json) und [`FOUNDATION_UPGRADE_1_21_0_REVIEW.md`](FOUNDATION_UPGRADE_1_21_0_REVIEW.md). Das erforderliche Aufwandassessment bewertet tatsächliche Test-, Log-, Review- und Modellwege; die korrigierte CI-Auswahl erhält aktuelle Pflichtnachweise und fachliche Qualifikationsgates.
 - `DEC-067` dokumentiert das Upgrade von `1.17.2` auf `1.19.0`. Das vollständige Delta und die Integrationsprüfung stehen in [`FOUNDATION_UPGRADE_1_19_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_19_0_ASSESSMENT.json) und [`FOUNDATION_UPGRADE_1_19_0_REVIEW.md`](FOUNDATION_UPGRADE_1_19_0_REVIEW.md). Die CI-Strategie wird in [`REPOSITORY_CONTINUITY.md`](REPOSITORY_CONTINUITY.md) konkretisiert; laufende SQL-Container-Validierungen bleiben erhalten.
 - Die Session-Verträge `foundation-session-lifecycle/v1` und `foundation-session-handoff/v1` sowie der bereits gewählte lokale `ai-work`-Planner sind verfügbar. Projektschwellen, die Persistenz von Session-/Checkpoint-/Handoff-Runtime-Zustand und automatische Nachfolgesitzungen sind nicht aktiviert. Die Beispielwerte sind keine Projektvorgabe. Fehlende Kontextmetriken bleiben unbekannt; ohne vertrauenswürdige aktuelle Client-Evidenz gilt `successor_session_capability: UNKNOWN` mit manueller Fortsetzung bei einem tatsächlichen Rotationstrigger.
 - Eine ausgelöste Fortsetzung übernimmt nur das Delta seit dem letzten erfolgreichen Checkpoint und Verweise auf maßgebliche Repository-Artefakte. Sie führt native Instruction Discovery und den aktuellen Projekt-Bootstrap erneut aus. Laufende semantische Chat-Analyse zur Rotationsentscheidung, Zusammenfassungsketten und die Übernahme nicht verfügbarer Regelanalysen sind unzulässig. Das Upgrade begründet keine Autorisierung zur Erstellung zusätzlicher Chats.
@@ -87,10 +88,12 @@
 
 - Statische Sicherheits- und Datenschutzprüfung.
 - Syntax- und Vertragsprüfung.
-- Laufzeittest auf den unterstützten SQL-Server-Versionen, soweit die Demo dort verfügbar ist.
+- Laufzeittest auf den unterstützten SQL-Server-Versionen, soweit die Demo dort verfügbar ist und ausführbares Verhalten, Mess-/Ergebnisvertrag, Runtime-Werkzeug oder dessen relevante Abhängigkeit betroffen ist. Eine reine Dokumentations-, Governance- oder statische Prüfänderung löst für sich allein keine SQL-Matrix aus; unbekannte Wirkung wird konservativ als betroffen behandelt.
 - Erwartete Resultate und tolerierte Abweichungen dokumentieren.
 - Foundation-Prüfungen belegen ausschließlich `FOUNDATION_INTEGRITY`. Projektspezifische Regeln und Dokumentationsverträge bleiben `PROJECT_SEMANTIC`; Builds, SQL-Server-Läufe und empirische Prüfungen bleiben `RUNTIME_EMPIRICAL`.
 - Ein grüner Foundation-Validator ersetzt keine betroffenen Projektvalidatoren und ist kein Nachweis für eine vollständig validierte Änderung.
+- Diagnose und begrenzte Entwicklung dürfen mit einem betroffenen Scope beginnen und beanspruchen damit keine Versions- oder Modulabnahme. Die bestehende DGN-007-Qualifikation mit zwei Lifecycles je Scope und unterstützter Version, ihren Oracles und unabhängigen Cleanup-Prüfungen bleibt für den entsprechenden finalen Claim verbindlich. Fehlgeschlagene aktuelle Evidenz wird nicht durch einen früheren PASS ersetzt.
+- Der vollständige Repository-Privacy-Scan wird zentral für jeden Pull Request und Push nach `main` ausgeführt. Fachworkflows prüfen ihre eigenen Verträge; ein identischer Vollscan am selben Commit wird dort nicht nochmals ausgeführt. Die Prüfung aller geänderten Dateien vor jedem Commit gemäß `CONTRIBUTING.md` bleibt bestehen. Scanner-Selbsttests werden bei Änderungen am Scanner, seinen Tests oder seinem Workflow ausgeführt.
 
 ## Kosten- und qualitätsoptimierte Verarbeitung
 
@@ -124,6 +127,10 @@ Nacharbeit. Verfügbarkeit, Preise und Kontingente dürfen nicht erfunden werden
 - Zuerst kleinste relevante Tests, dann erforderliche statische Prüfungen und
   betroffene Integration/Runtime. Vollständige Suiten nur bei betroffenem Gate
   oder begründetem Risiko. Unveränderte erfolgreiche Checks nicht wiederholen.
+- CI-Diagnosen zuerst lokal deterministisch auf Status, betroffenen Vertrag,
+  fehlgeschlagene Phase und kleine redigierte Fundstellen verdichten. Den
+  vollständigen ursprünglichen Lauf als verlinkte Evidenz erhalten; Voll-Logs
+  nur bei einer konkret offenen Ursache in den Modellkontext übernehmen.
 - Vorhandene synthetische Fixtures und lokale Werkzeuge bevorzugen. Neue
   Abhängigkeiten, Dienste, externe Effekte oder Kosten nur im Autorisierungsrahmen
   des Auftrags; reale Produktionsdaten und Secrets bleiben ausgeschlossen.

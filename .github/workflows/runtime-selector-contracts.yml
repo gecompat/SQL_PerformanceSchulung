@@ -1,0 +1,55 @@
+name: SQL runtime selector contracts
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Static/select_runtime_workflow.py'
+      - 'Tests/Static/test_runtime_workflow_selector.py'
+      - '.github/workflows/adv008-opt009.yml'
+      - '.github/workflows/adv008-opt010.yml'
+      - '.github/workflows/adv008-opt015-opt016.yml'
+      - '.github/workflows/adv008-qry004.yml'
+      - '.github/workflows/adv008-qry013.yml'
+      - '.github/workflows/adv017-opt017.yml'
+      - '.github/workflows/dgn003-dgn005-pilots.yml'
+      - '.github/workflows/dgn007-automated-setup.yml'
+      - '.github/workflows/framework-sql-matrix.yml'
+      - '.github/workflows/qry006-null-semantics.yml'
+      - '.github/workflows/w-cov-001.yml'
+      - '.github/workflows/runtime-selector-contracts.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Static/select_runtime_workflow.py'
+      - 'Tests/Static/test_runtime_workflow_selector.py'
+      - '.github/workflows/adv008-opt009.yml'
+      - '.github/workflows/adv008-opt010.yml'
+      - '.github/workflows/adv008-opt015-opt016.yml'
+      - '.github/workflows/adv008-qry004.yml'
+      - '.github/workflows/adv008-qry013.yml'
+      - '.github/workflows/adv017-opt017.yml'
+      - '.github/workflows/dgn003-dgn005-pilots.yml'
+      - '.github/workflows/dgn007-automated-setup.yml'
+      - '.github/workflows/framework-sql-matrix.yml'
+      - '.github/workflows/qry006-null-semantics.yml'
+      - '.github/workflows/w-cov-001.yml'
+      - '.github/workflows/runtime-selector-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-selector-contracts-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s Tests/Static -p test_runtime_workflow_selector.py
