@@ -4,7 +4,7 @@
 |---|---|
 | Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
 | Stand | 2026-10-09 |
-| geprüfter Repository-Basisstand | `99af91bc8d25312b62659f6e83f29b3fd2bbcd30` auf `origin/main` nach PR 120; lokale synthetische Ledgerkomponente nach §32.5 integriert, 66/66 lokal sowie neun PR-/sieben Main-CI-Prüfungen bestanden, volle Übernahme und eigener Cleanup unabhängig bestätigt; vollständige Loaderrecordformen nach §33 DESIGNED, nächster separater SESSION_END-Vertrag noch offen; operativer Bootstrap-/Kanalvertrag weiterhin DESIGNED, SQL-Codebasis `da7b0eb…` aus Pull Request 65 |
+| geprüfter Repository-Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` auf `origin/main` nach PR 123; Foundation `1.20.0` und scopebezogene Prozesssteuerung separat integriert, sieben PR-/fünf Main-Checks bestanden, vollständige Übernahme und eigener Branchcleanup bestätigt; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
 | Abgeschlossene Folgepakete | `W2-002`, `ADV-009`, `ADV-010`, `LABSCN-002`, `LABSCN-004`, `INF-002`, `INF-003`, `LABINT-003` und der `CON-006`-bezogene `LABINT-004`-Schnitt `VALIDATED` |
@@ -35,6 +35,25 @@ eine materielle Methodenänderung bleibt ein eigener erläuterter Entscheid.
 Kein Bypass oder Wiederholen bis grün.
 Allgemeine Entwicklung, Automation, SESSION_END und die ausdrücklich
 zurückgestellte interne Capture-Rückgabe bleiben pausiert.
+
+Der begrenzte Korrekturscope ist im
+[aktuellen Reviewabschnitt](DGN_007_G13_PR_REVIEW.md#begrenzter-korrekturscope-nach-foundation-1200)
+abgeschlossen dokumentiert: ein lokaler `profile-comparison`-Lifecycle auf SQL
+Server 2022 `16.0.4265.3` und ein `control-ba`-Lifecycle auf SQL Server 2025
+`17.0.4075.5` bestanden ihre Phasen und beide ersten unabhängigen Cleanupchecks.
+Sie reproduzierten die CI-Fehler nicht; es liegt **keine belegte Reparatur** vor.
+640,324 s lokale Gesamtwalltime einschließlich fehlgeschlagenem Readinessvorlauf
+und eigenem Cleanup; keine Unteragenten, identische Wiederholung oder zusätzliche
+SQL-Matrix. Reporter-Head/Branch `f9ec582…` bleibt erhalten und `BLOCKED`.
+
+Wiederaufnahmebedingungen: im tatsächlich fehlgeschlagenen SQL20-Pfad begrenzte
+Counts-/Familien-/Rawaufnahme vor Cleanup und eine daraus abgeleitete Gegenprobe;
+bei G13 positive/Zero-Rawfragmente desselben Fehlerfalls sowie belastbare
+QS↔SYSUTC-Evidenz oder eine ausdrückliche neue Methodenentscheidung. Empfehlung:
+G13 zunächst exakt erhalten und die fehlenden Fehlerbelege nachholen. Die konkrete
+fachliche Auswahl ist beim Benutzer offen; kein Puffer, keine Rundung, keine
+Capänderung und keine Methodenalternative ist aktiviert. Erst ein belegter Fix
+mit erforderlichen aktuellen Head-/Base-Checks erlaubt den Reporter-Merge.
 
 Am 2026-10-08 hat der Benutzer angewiesen, keine neuen Aufgaben zu beginnen,
 alle laufenden Arbeiten konsistent abzuschließen und anschließend diesen
