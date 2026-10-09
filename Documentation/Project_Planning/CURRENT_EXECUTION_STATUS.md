@@ -50,9 +50,11 @@ Wiederaufnahmebedingungen: im tatsächlich fehlgeschlagenen SQL20-Pfad begrenzte
 Counts-/Familien-/Rawaufnahme vor Cleanup und eine daraus abgeleitete Gegenprobe;
 bei G13 positive/Zero-Rawfragmente desselben Fehlerfalls sowie belastbare
 QS↔SYSUTC-Evidenz oder eine ausdrückliche neue Methodenentscheidung. Empfehlung:
-G13 zunächst exakt erhalten und die fehlenden Fehlerbelege nachholen. Die konkrete
-fachliche Auswahl ist beim Benutzer offen; kein Puffer, keine Rundung, keine
-Capänderung und keine Methodenalternative ist aktiviert. Erst ein belegter Fix
+G13 zunächst exakt erhalten und die fehlenden Fehlerbelege nachholen. Der Benutzer
+hat diese Abnahmerichtung am 2026-10-09 ausdrücklich ausgewählt. Die Methoden-
+alternative bleibt ungewählt; kein Puffer, keine Rundung und keine Capänderung
+ist aktiviert. Die begrenzte Fehleraufnahme ist die Wiederaufnahmebedingung,
+keine bereits implementierte oder erfolgreiche Erfassung des CI-Fehlers. Erst ein belegter Fix
 mit erforderlichen aktuellen Head-/Base-Checks erlaubt den Reporter-Merge.
 
 Am 2026-10-08 hat der Benutzer angewiesen, keine neuen Aufgaben zu beginnen,
