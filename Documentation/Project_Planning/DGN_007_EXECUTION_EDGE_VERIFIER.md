@@ -8,6 +8,16 @@
 | Geltung | neun Pythonquellen, sechs SQL-only-Manifeste, elf SQLquellen und Incidentvertrag |
 | Methodenentscheidung | offen; [Gate-Matrix](DGN_007_METHOD_DECISION_PACKAGE.md) |
 
+Der gezielte Reporterabschluss in PR 68 aktualisiert am 2026-10-09 ausschließlich
+den Python-3.12-Ganzdatei-AST-Digest des reviewten Runners auf
+`4822652135ef0ac6ec867c4960b1532b47fbee9a30d49f55f0a22d0dc620954b`.
+Die acht anderen Digests, Parserversion, Kanten, Manifestprojektionen und
+Incidentpolicy bleiben unverändert. Die erste aktuelle CI erkannte mit
+`PYTHON_PROFILE_CHANGED` korrekt die bisher fehlende Bindung. Der
+[Abschlussreview](DGN_007_G13_PR_REVIEW.md) dokumentiert die Änderung;
+sie ist keine Methoden- oder Runtimefreigabe und kein automatisch akzeptiertes
+Kandidatenprofil.
+
 ## Statische Kontrolle bereits gebundener Bytes
 
 [`dgn007_execution_edges.py`](../../Tests/Tools/dgn007_execution_edges.py)

@@ -61,6 +61,29 @@ Der Diagnose-PR wird getrennt von einer zukünftigen Methodenänderung geprüft.
 Das [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) und
 DEC-068 bleiben unverändert; ihre Gates sind durch Reporter-PASS nicht erfüllt.
 
+Der erste aktualisierte CI-Lauf
+[37892132149](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37892132149)
+erkannte einen zusätzlichen Integrationsbedarf: Der später hinzugekommene
+Offline-Kantenverifier band noch den Runner vor der Reporteränderung und meldete
+`PYTHON_PROFILE_CHANGED`. Die lokale Nachrechnung aller neun Ganzdatei-AST-Digests
+mit dem geforderten CPython 3.12.14 bestätigte genau eine Änderung: den Runner.
+Nach dem vollständigen Runnerdiffreview wurde nur sein expliziter Profildigest
+aktualisiert. Die acht anderen Digests, Parserversion, Imports, deklarierten Kanten,
+Manifestprojektionen und die außerhalb der Quellenhashes gebundene Incidentpolicy
+bleiben unverändert. Der Kandidat wird nicht gegen seinen eigenen Digest akzeptiert;
+das kontrollseitige Profil bleibt fest und negative AST-Gegenproben maßgeblich.
+
+Die 26 Kantenprüfungen bestanden danach unter CPython 3.12.14. Eine zusätzlich
+gestartete lokale Quellenbundlesuite lieferte im ersten Testcontainer mit
+128-Prozesslimit anschließend `can't start new thread` und kein erfolgreiches
+Ergebnis. Nach Änderung der Testumgebung auf einen eigenen Container mit
+Init-Reaper und 512-Prozesslimit bestanden alle zwölf Offline-CI-Suiten:
+885 Testmethoden, kein SKIP. Der Checkout war read-only eingebunden; während
+der Tests war das Containernetz getrennt. Die Git-Abhängigkeit wurde ausschließlich
+im eigenen wegwerfbaren Container bereitgestellt. Beide eigenen Testcontainer
+wurden nach Eigentumsprüfung entfernt und ihre Abwesenheit unabhängig geprüft.
+Diese lokalen Gegenproben attestieren keine SQL-Ausführung oder Methodenwahl.
+
 ## Prüfung und Abschlussbedingung
 
 Am aktualisierten Kandidaten bestanden lokal 170 Testmethoden: 169 PASS,
