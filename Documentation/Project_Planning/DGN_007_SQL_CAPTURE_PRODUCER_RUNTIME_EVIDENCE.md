@@ -3,8 +3,9 @@
 | Merkmal | Wert |
 |---|---|
 | Stand | 2026-10-07 UTC / Europe/Vienna |
-| Status | 18 lokale Producer-Lifecycles im ursprünglichen Freeze PASS; Producer-Integration nach SQL-2025-CI-Fehler offen |
-| Repository-Basis | `94ed561b91d8f9958a69e08726d2a748181d3c79` (Pull Request 64) mit den Änderungen dieses PR |
+| Status | Producer über PR65 integriert; PR68-Grenzreporter unmerged mit 2019-/2022-G13-Fehlern; private Originalmaterialisierungsprobe reproduziert G13, Messvertragsgrenze offen |
+| Ursprüngliche Producer-Basis | `94ed561b91d8f9958a69e08726d2a748181d3c79` (Pull Request 64); Producer später über PR65 integriert |
+| Basis des aktuellen Nachweisschnitts | `12b130f0df1f963a9075430745e406e8e2a38494` auf main (PR67); Reporter-Kandidat PR68 / `27a9b5c…` bleibt unmerged |
 | Umfang | SQL-Producer und tatsächlicher skalarer Decoder für AB, BA und AA |
 | Abnahmegrenze | kein vollständiger Coordinator, RunRecord oder Incidentnachweis |
 
@@ -748,7 +749,8 @@ Dokumentationsintegration folgt keine Behebung des Main-Runtimefehlers.
 
 ## Kanonischer gespeicherter G13-Grenzabstandsbericht
 
-Der getrennte Diagnose-Schnitt basiert auf `12b130f…`. SQL35 ergänzt
+Der getrennte Diagnose-Schnitt in PR68 ist noch nicht integriert und basiert
+auf `12b130f…`. Seine vorgeschlagene SQL35 ergänzt
 ausschließlich den bereits verletzten G13-Zweig. Ein deterministisch
 geordnetes `TOP(9)` liest gespeicherte IncidentProfile-/IncidentState-Gruppen:
 höchstens acht gültige Gruppen werden vollständig berichtet, neun ergeben
@@ -834,10 +836,194 @@ beendete die Prüfung mit Exit 0. Das ist ein begrenzter SQL-Syntax-,
 Framing-, UTC-/Abstands- und Overflow-Nachweis auf 2022; keine vollständige
 Lifecycle-/Versionsmatrix und keine Reproduktion des tatsächlichen Main-G13.
 
-Die reguläre PR-CI am exakten neuen Head gegen den aktuellen Base-Stand
-bleibt vor Integration erforderlich. Die Ursache des historischen Main-
-G13 ist weiterhin offen; dieser Reporter schließt eine Messlücke und
-behauptet keine Behebung, Toleranzfreigabe oder Incidentpromotion.
+## Reguläre PR68-CI: zwei tatsächliche untere G13-Verletzungen
+
+[Pull Request 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68)
+prüfte Head `27a9b5ce81347beaa6d6bfd8788c62965495f0ca` gegen unveränderte
+Base `12b130f0df1f963a9075430745e406e8e2a38494`. Alle 22 Job-Checkouts
+verwendeten Integration `55877a57d1c0cae46696cde31e02b9257bcede95` mit genau
+Base und Head als Parents; Feature-/Integrationstree
+`0082cccea34f7b152d81dc12093d0f19390aec34`. Alle 22 Checks gehören zur
+GitHub-Actions-App `15368` und sind beendet: 20 SUCCESS, zwei FAILURE.
+13 von 14 Workflows bestanden; Registry und Governance bestanden.
+Es gab keine Cancellation, Wiederholung oder CI-Umgehung. PR68 bleibt offen
+und ohne Mergefreigabe. Diese Evidenz gilt für diesen unveränderlichen Head,
+nicht für nachfolgende Änderungen.
+
+Im [DGN-007-Lauf 37578209099](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37578209099)
+scheiterten SQL Server 2019 AA1 und SQL Server 2022 BA1 an
+`CONTROL_EVIDENCE / FAIL_RESULT_CONTRACT / G13`, jeweils äußerlich
+`FAIL_EXECUTION`. Der neue Reporter lieferte jeweils `COMPLETE`, eine Gruppe,
+Ordinal 1, Window 1, Intervall 3, ExecutionType 0 und ExecutionCount 4.
+Keine SQL_MESSAGE wurde berichtet. Vollständige gebundene 100-ns-Tickwerte:
+
+| Wert | 2019 AA1, Job 112651876364 | 2022 BA1, Job 112651876245 |
+|---|---:|---:|
+| ParentQueryId / QueryId / PlanId | 10 / 10 / 10 | 12 / 12 / 3 |
+| ExecutionStartedTicks | 639269500809204263 | 639269498400479510 |
+| ExecutionFinishedTicks | 639269500812089540 | 639269498407323552 |
+| FirstExecutionTicks | 639269500809200000 | 639269498400470000 |
+| LastExecutionTicks | 639269500811870000 | 639269498406870000 |
+| FirstMinusStart | −4263 | −9510 |
+| LastMinusFinish | −219540 | −453552 |
+
+Nur First verletzt die untere Grenze: −0,4263 beziehungsweise −0,951 ms.
+Last liegt jeweils innerhalb der oberen Grenze: −21,954 beziehungsweise
+−45,3552 ms. Beide QS-Extrema haben hier Rest 0 modulo 10.000; First
+entspricht in beiden Beobachtungen `floor(Start / 10000) * 10000`.
+Das ist eine rechnerische Beziehung dieser zwei Beobachtungen, kein Beleg
+für allgemeine Quantisierung, gemeinsame Clock, Ursache oder zulässige
+Toleranz. Der 2019-AA-Schritt lief am 2026-10-07 von 06:06:01 bis
+06:08:01 UTC; der 2022-BA-Schritt von 06:02:02 bis 06:04:02 UTC.
+
+| Version | Begonnene Lifecycles | Decoder-Captures PASS | Erste unabhängige DB-Abwesenheit PASS |
+|---|---|---:|---:|
+| 2019 | elf: zehn PASS, AA1 FAIL; AA2 nicht gestartet | vier, AB/BA | elf |
+| 2022 | neun: acht PASS, BA1 FAIL; BA2/AA nicht gestartet | zwei, AB | neun |
+| 2025 | zwölf PASS, alle sechs Scopes je zweimal | sechs, AB/BA/AA | zwölf |
+
+Insgesamt 32 begonnene Lifecycles, 30 PASS und zwei FAIL; zwölf tatsächliche
+Decoder-Captures PASS: zehn AB-/BA-Captures mit Counts `2/8/1/2/2`,
+zwei 2025-AA-Captures mit Counts `2/8/1/2/1`. Alle 32 ersten
+Datenbankabwesenheitsprüfungen bestanden. Der unveränderte Runner latcht einen
+Fehler der ersten Prüfung auch bei erfolgreicher Recovery auf FAIL_CLEANUP;
+ein PASS belegt daher diese erste Prüfung. Alle neun SQL-Remove-Schritte
+bestanden. DGN-007 bindet Name, Scope und Owner an die CID-Datei und prüft
+anschließend explizit CID-Abwesenheit; alle drei Prüfungen bestanden.
+Die betroffenen Namen sind `sqlperf-dgn007-auto-15-37578209099-1` und
+`sqlperf-dgn007-auto-16-37578209099-1`, Scope `dgn007-automated-setup`,
+Owner `37578209099-1-15` beziehungsweise `37578209099-1-16`. Konkrete CID-
+Werte und tatsächliche ProductVersion sind nicht geloggt und bleiben unbekannt.
+Der 2022-CI-Pulldigest ist `sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`.
+Linux führte alle 163 statischen Methoden ohne SKIP aus; zusätzlich bestanden
+acht 2025-Compatibility-Tests. Diese erfolgreichen Teilprüfungen ersetzen
+die zwei fehlgeschlagenen Runtime-Verträge nicht.
+
+Microsoft beschreibt QS First/Last als Ausführungs-Endzeiten und mögliche
+mehrere Disk-/In-Memory-Zeilen aktiver Intervalle; die Aggregation erfolgt
+über Plan, ExecutionType und Intervall. Eine besondere Zeitsemantik für
+Zero-Count-Zeilen oder gemeinsame Auflösung mit SYSUTCDATETIME wird dort
+nicht zugesagt. [QS-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17),
+[SYSUTCDATETIME](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver17),
+abgerufen am 2026-10-07. ExecutionCount 4 ist ein Aggregat und schließt
+Zero-Count-Raw-Zeilen mit wirksamen MIN-/MAX-Werten nicht aus.
+
+## Private Originalmaterialisierungsprobe: G13 ohne Zero-Extremum
+
+Der einmalige Versuch auf einer neu erzeugten eigenen SQL-Server-2022-
+Developerinstanz `16.0.4295.3` hielt die kanonischen Quellen am PR68-Head
+`27a9b5c…` unverändert. Die private Kopie erweitert genau den ursprünglichen
+SQL21-Capture-SELECT und SQL35-Live-SELECT: zusätzliche Rowcounts und
+positive/zero Extrema aus jeweils derselben Materialisierung, unveränderte
+Originalausdrücke, WHERE/GROUP BY/HAVING, Originalprofilwerte ohne
+Reaggregation. SQL21 ersetzt die private Hilfstabelle pro Pollversuch;
+berichtet wird der tatsächlich übernommene Versuch. SQL35 liest ausschließlich
+diese damaligen Materialisierungen, keine zusätzliche spätere QS-Rohprobe.
+„Ursprünglich“ meint dieselbe SELECT-Materialisierung, keine zugesagte
+transaktionale Momentaufnahme der dynamischen Sichten. Zusätzliche Projektion
+und DML sind Beobachterinstrumentierung; dies ist kein identischer
+kanonischer Timinglauf.
+
+Private Kopie und Parser wurden unabhängig lesend geprüft. Exakter
+Rückwärtsstrip ergibt SQL21-LF `bcc48a59…` und SQL35-LF `81cf1dea…` des
+unveränderlichen Heads. Nur für den abschließenden BA-Präfixlauf war ein
+privater Einzellauf vorgesehen: exakt rückprüfbare Ersetzungen der
+Repetitionsliste, Erfolgszählung und ausdrücklich privaten Summary; alle
+Safety-, Vorprüfungs-, Fehler- und run_one-Pfade unverändert. Tatsächlich
+wurde dieser BA-Pfad wegen des früheren Fehlers nie gestartet.
+
+Vorab bestanden die reinen Prüfungen: zehn positive und 32 negative
+Parser-/Stripfälle, fünf synthetische Aggregationsfälle mit den elf tatsächlichen
+Zusatzaggregatausdrücken in SQLite,
+drei Einzellauf- und drei unveränderte Nichtcontrol-Delegationen. Auf der
+neuen Instanz bestanden alle elf tatsächlichen temporären SQL-Fixtures:
+Zero- und positive Extrema, gemischte Counts, umgekehrte Zero-Zeiten,
+UTC-Offset, gleiche Requestgrenzen, zweiter Captureversuch, acht Gruppen,
+neun mit Overflow, fehlende Composition und Gleichheit ohne G13. Sie prüfen
+die tatsächlichen SELECT-Ersetzungen und den tatsächlichen G13-Branch mit
+#Temp-Quellen in master; negative/NULL-Fälle sind keine vollständigen
+kanonischen Lifecycles. Der exakte bekannte NULL-Aggregatwarntext wird nur
+vor dem ersten Record begrenzt zugelassen, nicht innerhalb Report oder
+Guardabschluss. Keine ANSI_WARNINGS-Änderung.
+
+Anschließend bestanden Datenmodell, Fenster und Profilvergleich jeweils
+zwei Lifecycles. AB1 scheiterte tatsächlich an
+`CONTROL_EVIDENCE / FAIL_RESULT_CONTRACT / G13`, äußerlich FAIL_EXECUTION.
+Sofortiger Stop: insgesamt sieben begonnene Lifecycles, sechs PASS und ein
+FAIL; kein AB2/BA/AA und keine erfolgreiche Kontroll-DecoderCapture.
+Der kanonische Grenzreporter und der private Composition-Parser lieferten
+jeweils COMPLETE, genau eine verletzte Gruppe. Window 0, ParentQueryId 12,
+QueryId 12, PlanId 3, Intervall 2, ExecutionType 0, ExecutionCount 4.
+Alle folgenden Zeitwerte sind exakte UTC-100-ns-Ticks:
+
+| Wert | gespeicherte Gruppe / Materialisierung |
+|---|---:|
+| ExecutionStarted | 639269515801802609 |
+| ExecutionFinished | 639269515805896738 |
+| FirstExecutionTime | 639269515801800000 |
+| LastExecutionTime | 639269515805600000 |
+| First−Start | −2609 |
+| Last−Finish | −296738 |
+| SQL21-Materialisierung vorher | 639269516405918212 |
+| SQL21-Materialisierung nachher | 639269516406163755 |
+| SQL35-Materialisierung vorher | 639269516420571944 |
+| SQL35-Materialisierung nachher | 639269516420737369 |
+
+SQL21 berichtete Captureversuch 1. Beide getrennten ursprünglichen
+Materialisierungen enthalten für diese verletzte Gruppe genau eine Raw-Zeile,
+eine positive Zeile mit Summe vier; Zero-, NULL- und Negative-Rowcounts sind
+jeweils `0`, negative Countsumme ist `0`. Positive MIN-/MAX-Werte sind
+identisch mit All-/Stored-Werten; Zero-Extrema bleiben ausdrücklich NULL.
+Damit erklärt ein Zero-Extremum diese konkrete private Verletzung nicht.
+Dies ist stärker als ExecutionCount 4 allein, aber kein rückwirkender
+Zusammensetzungsbeweis für die historischen CI-Läufe.
+
+First−Start = −0,2609 ms, Last−Finish = −29,6738 ms: nur die untere Grenze
+ist verletzt. Beide QS-Extrema haben Rest null modulo 10.000; First entspricht
+hier wiederum floor(Start/10000)*10000. Requestspanne 409,4129 ms, QS-
+First→Last 380 ms. Die Beobachtung beweist weder allgemeine Quantisierung
+noch Clockursache oder einen zulässigen 1-ms-Puffer. Die Zeitklammern von
+SQL21 und SQL35 messen jeweils ihre SELECT-Ausführung; sie attestieren keine
+gemeinsame Clock oder Sicht. Math und Interpretation wurden unabhängig geprüft.
+
+Vier CPU, 8 GiB, reguläre Bridge, keine Ports/Mounts oder Pulls. Pullref und
+separat aufgelöste Inspect-ID waren hier beide
+`sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`.
+Freeze mit 27 Dateien vor Start, vor jeder Gruppe und nach dem Stop unverändert,
+abschließend unabhängig rekonstruiert:
+`0c56ab64589e45504322a8968214f1f4327db2480345a5574b0b236ef17d4fc9`.
+Runner `ca670328…`, privater Driver
+`90c9991dd1583fbb531794c83c592e1256462ea7ec6068a3ba396cb28435a291`,
+Fixtures `d2d0267949d8794c17bcb0ea8087f5a5026b4ba107b5eba6f2e93a01cb00e509`,
+Parent `2a5a011b8395e42d1c794620a50d3e8e0faf0928e0fa5927627340f7f0ca10b3`;
+private SQL21 `4ab39ebb05afa98ee66d8b4807c6b0d36a1a344ab2b58ba1711ac94d657712e0`,
+SQL35 `34e0de78eb4f0e233716ef684c8ef376c7f5e3352721f38df66f4bc9d33fc37c`.
+Die Helper und privaten SQL-Kopien bleiben ignoriert, Rohoutput nur im Speicher.
+Die Größenprüfung erfolgt nach Prozess-Capture und ist keine zusätzliche
+Streaming-Speichergrenze.
+
+Alle sieben ersten unabhängigen Datenbankabwesenheitsprüfungen und vier
+zusätzlichen Gruppen-Leerheitsprüfungen bestanden; auch die Instanz nach jedem
+Tempfixture war leer hinsichtlich Benutzerdatenbanken. Die eigene CID
+`9c63218a9157acc034bfb71830fe835c840b0f461c7610b9c3ea54d036fafa1d`,
+Name `sqlperf-dgn007-composition-16-d87871cdc1`, Scope
+`dgn007-g13-composition-private`, Owner `d87871cdc1ad4b7bba168df520ac4917`,
+wurde nach erneuter Name-/Scope-/Owner-/Image-ID-Prüfung entfernt. Der Parent
+bestätigte CID-Abwesenheit; der unabhängige Agent prüfte ausschließlich
+vollständige CID und exakt verankerten Namen separat, jeweils Exit 0 und
+null Treffer. Der Parent beendet den Versuch wegen des tatsächlichen G13
+mit Exit 1; Cleanup macht den Lifecycle nicht erfolgreich.
+
+Nächster offener DGN-007-Abnahmepunkt ist die Vergleichbarkeit von QS-
+Ausführungs-Endzeiten und SYSUTC-Requestklammer auf exakten 100-ns-Grenzen.
+Ein quellenbasierter prüffähiger Gegenentwurf muss entweder einen fachlich
+vergleichbaren Einschließungsbeleg oder einen unabhängig validierten
+Kollektivzuordnungsbeleg definieren. Eine alternative Methode ist noch nicht
+entschieden, implementiert oder abgenommen. Bestehende Guards, Fehler-
+klassifikation, DEC-068, Last und Budgets bleiben erhalten; keine pauschale
+Toleranz, Abrundung oder Umetikettierung von Katalogintervallen. Keine identische
+Probe-Wiederholung, kein Bypass oder Wiederholen bis grün. Historische Fehler,
+Clockursache, Behebung und Incidentpromotion bleiben offen.
 
 ## Verbleibende Abnahmegrenzen
 

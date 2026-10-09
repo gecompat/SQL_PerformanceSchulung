@@ -238,7 +238,7 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 - Folie, Speaker Notes, Teilnehmerunterlage und Demo verwenden dieselben Begriffe und Quellen-IDs.
 - Planabbildungen stammen aus den eigenen synthetischen Demos.
 - Quellen sind an der Aussage und zusätzlich im Quellenverzeichnis nachvollziehbar.
-- Die Generalprobe bestätigt Zeitbedarf, Übergänge, Recovery und Verständlichkeit.
+- Eine Generalprobe soll Zeitbedarf, Übergänge, Recovery und Verständlichkeit praktisch bestätigen. Die historische Gate-V4-Abnahme belegt Render, Notes und Profilstruktur; ein ausgefüllter Nachweis mit echten Teilnehmenden fehlt. Der [Generalprobenplan](PRS_010_REHEARSAL_PLAN.md) bereitet diese noch offene empirische Teilprüfung vor und erweitert den historischen Gate-Status nicht um einen Lernerfolgsnachweis.
 
 ## 8. Priorisierung
 

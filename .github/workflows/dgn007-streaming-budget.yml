@@ -1,0 +1,38 @@
+name: DGN-007 Synthetischer Streaming-Prototyp
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_streaming_budget_prototype.py'
+      - 'Tests/Static/test_dgn007_streaming_budget_prototype.py'
+      - 'Documentation/Project_Planning/DGN_007_STREAMING_BUDGET_PROTOTYPE.md'
+      - '.github/workflows/dgn007-streaming-budget.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_streaming_budget_prototype.py'
+      - 'Tests/Static/test_dgn007_streaming_budget_prototype.py'
+      - 'Documentation/Project_Planning/DGN_007_STREAMING_BUDGET_PROTOTYPE.md'
+      - '.github/workflows/dgn007-streaming-budget.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-streaming-budget-${{ github.workflow }}-${{ github.ref }}
+  # Ausschließlich eigene synthetische Prozesse des ephemeren Testjobs.
+  # Cancellation ist kein Cleanup- oder Methodenbeleg.
+  cancel-in-progress: true
+
+jobs:
+  streaming-budget:
+    name: DGN-007 Synthetische Streaming-Gegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Budgetkern und eigene Linux-Kindprozesse prüfen
+        run: python -B Tests/Static/test_dgn007_streaming_budget_prototype.py

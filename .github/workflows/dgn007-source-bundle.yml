@@ -1,0 +1,169 @@
+name: DGN-007 Offline-Quellenbundle
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_import_runtime_profile.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Static/test_dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Static/test_dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Static/test_dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Static/test_dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_combined_input.py'
+      - 'Tests/Static/test_dgn007_pooled_combined_input.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_parent_ledger.py'
+      - 'Tests/Static/test_dgn007_parent_ledger.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
+      - 'Tests/Tools/dgn007_memory_loader_fixture.py'
+      - 'Tests/Static/test_dgn007_memory_loader_fixture.py'
+      - 'Documentation/Project_Planning/DGN_007_MEMORY_LOADER_FIXTURE.md'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Static/test_dgn007_import_probe_input.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md'
+      - 'Tests/Static/test_dgn007_execution_edges.py'
+      - 'Documentation/Project_Planning/DGN_007_EXECUTION_EDGE_VERIFIER.md'
+      - 'Tests/Static/test_dgn007_source_bundle.py'
+      - 'Documentation/Project_Planning/DGN_007_SOURCE_BUNDLE_VERIFIER.md'
+      - '.github/workflows/dgn007-source-bundle.yml'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Demos/00_Framework/Tools/orchestrate_sessions.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Contracts/dgn007_capture_projection.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/00_Preflight.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/10_Setup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AB.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_BA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/21_Controlled_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/30_Profile_Comparison.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/35_Control_Evidence.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/40_Data_Assertion.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/90_Cleanup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/setup.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/windows.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/profile-comparison.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ab.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ba.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-aa.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_import_runtime_profile.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Static/test_dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Static/test_dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Static/test_dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Static/test_dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_combined_input.py'
+      - 'Tests/Static/test_dgn007_pooled_combined_input.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_parent_ledger.py'
+      - 'Tests/Static/test_dgn007_parent_ledger.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_RUNTIME_PROFILE.md'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md'
+      - 'Tests/Tools/dgn007_memory_loader_fixture.py'
+      - 'Tests/Static/test_dgn007_memory_loader_fixture.py'
+      - 'Documentation/Project_Planning/DGN_007_MEMORY_LOADER_FIXTURE.md'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Static/test_dgn007_import_probe_input.py'
+      - 'Documentation/Project_Planning/DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md'
+      - 'Tests/Static/test_dgn007_execution_edges.py'
+      - 'Documentation/Project_Planning/DGN_007_EXECUTION_EDGE_VERIFIER.md'
+      - 'Tests/Static/test_dgn007_source_bundle.py'
+      - 'Documentation/Project_Planning/DGN_007_SOURCE_BUNDLE_VERIFIER.md'
+      - '.github/workflows/dgn007-source-bundle.yml'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Demos/00_Framework/Tools/orchestrate_sessions.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Contracts/dgn007_capture_projection.py'
+      - 'Tests/Contracts/dgn007_collector_transport.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/00_Preflight.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/10_Setup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AB.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_BA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/15_Control_AA.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/21_Controlled_Query_Store_Windows.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/30_Profile_Comparison.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/35_Control_Evidence.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/40_Data_Assertion.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/90_Cleanup.sql'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/setup.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/windows.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/profile-comparison.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ab.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-ba.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/control-aa.manifest.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-source-bundle-${{ github.workflow }}-${{ github.ref }}
+  # Eigene Git-/Dateifixtures und feste synthetische Loaderbytes, keine SQL-Ressourcen.
+  cancel-in-progress: true
+
+jobs:
+  source-bundle:
+    name: DGN-007 Offline-Bundle-Gegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Gebundene Kandidaten und Manipulationen prüfen
+        run: python -B Tests/Static/test_dgn007_source_bundle.py
+      - name: Gebundene Prozess- und Manifestkanten pruefen
+        run: python -B Tests/Static/test_dgn007_execution_edges.py
+      - name: Eingangsrahmung und Kontextmanipulationen prüfen
+        run: python -B Tests/Static/test_dgn007_import_probe_input.py
+      - name: Feste Memory-Loader-Fälle und Abschlussbindungen prüfen
+        run: python -B Tests/Static/test_dgn007_memory_loader_fixture.py
+      - name: Deklariertes Profil und isolierte Bootstrapmetadaten prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_import_runtime_profile.py
+      - name: Skalare Profilbindung und gemeinsame Metadatengrenzen prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_import_profile_binding.py
+      - name: Vollständige deklarative Formen und Größen des Entwurfs prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_compact_profile_sizing.py
+      - name: Vollständige Stringpools und Größen des getrennten Entwurfs prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_pooled_profile_sizing.py
+      - name: Begrenzte Stringpoolrahmen und eigene Digestdomains prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_pooled_profile_codec.py
+      - name: Kombinierte Stringpoolmetadata und vollständige Rawbodybindung prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_pooled_combined_input.py
+      - name: Gehaltene Kontrollbootstrapquellen und synthetische Byteausführung prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_control_bootstrap_source.py
+      - name: Exklusive Parent-Ledger-Zustände und synthetische Adapter prüfen
+        run: python -I -S -B -X utf8 Tests/Static/test_dgn007_parent_ledger.py

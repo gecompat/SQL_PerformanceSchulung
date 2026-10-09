@@ -1,13 +1,15 @@
-# Ausführungsleitfaden für alle freigegebenen Demos
+# Ausführungsleitfaden für die katalogisierten Demos
 
 | Merkmal | Wert |
 |---|---|
-| Geltungsbereich | alle implementierten Fachdemos mit `manifest.json` |
+| Geltungsbereich | 22 runtimevalidierte Fachdemos sowie der ausdrücklich eingeschränkte Entwicklungseinstieg `QRY-006` |
 | Ausführung | PowerShell auf einer dedizierten Test- oder Wegwerfinstanz |
 | Ergebnis | strukturierte `SQLPERF_SUMMARY` je Phase und markergeprüftes Cleanup |
 | Ergänzende Erklärung | [`DEMO_WALKTHROUGHS.md`](DEMO_WALKTHROUGHS.md) |
 
-Dieser Leitfaden ist der verbindliche Ausführungspfad für die freigegebenen Demos. Er beschreibt nicht nur deren Inhalt, sondern die Schritte, mit denen eine Person ohne Kenntnis der ursprünglichen Entwicklungsumgebung einen Lauf starten, das Ergebnis einordnen und einen abgebrochenen Lauf bereinigen kann. Die jeweilige Demo-README erklärt Lernziel, Datenmodell, Evidenz und fachliche Grenzen.
+Dieser Leitfaden ist der verbindliche Ausführungspfad für die runtimevalidierten Demos. Er beschreibt die Schritte, mit denen eine Person ohne Kenntnis der ursprünglichen Entwicklungsumgebung einen Lauf starten, das Ergebnis einordnen und einen abgebrochenen Lauf bereinigen kann. Die jeweilige Demo-README erklärt Lernziel, Datenmodell, Evidenz und fachliche Grenzen.
+
+Beginnen Sie mit dem [Demo-Katalog](../Demo_Catalog/README.md): Dort sind Ausführungsvoraussetzung, Implementierungsstatus und datierter Runtime-Nachweis getrennt dargestellt. `QRY-006` bleibt `IMPLEMENTED` mit lokalem Nachweis und offenem Runtime-Gate; seine Aufnahme in den Aufrufer bedeutet keine vollständige Abnahme. Die Teilmanifeste von `DGN-007` gehören nicht zu diesem allgemeinen Ausführungspfad.
 
 Die Demos erzeugen und entfernen eigene synthetische Testdatenbanken. Auch eine grüne Demo gehört deshalb nicht auf eine produktive Instanz. Gelbe und rote Demos dürfen ausschließlich auf einer Instanz ausgeführt werden, die verworfen oder kontrolliert zurückgesetzt werden darf.
 
@@ -15,7 +17,7 @@ Die Demos erzeugen und entfernen eigene synthetische Testdatenbanken. Auch eine 
 
 Wählen Sie eine Demo aus der folgenden Tabelle. Der angegebene Schlüssel wird in Schritt 5 unverändert als `-DemoId` verwendet. Die Links führen zur fachlichen Beschreibung; der Pfad ist das tatsächlich vom Harness gelesene Manifest.
 
-| Demo | Sicherheitsstufe | Unterstützte Engine / Compatibility Level | Besonderheit |
+| Demo | Sicherheitsstufe | Versionsvoraussetzung: Engine / Compatibility Level | Besonderheit |
 |---|---|---|---|
 | [`OPT-002`](../../Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`OPT-003`](../../Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
@@ -27,10 +29,10 @@ Wählen Sie eine Demo aus der folgenden Tabelle. Der angegebene Schlüssel wird 
 | [`OPT-016`](../../Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`OPT-017`](../../Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit mindestens vier sichtbaren CPUs |
 | [`QRY-001`](../../Demos/05_Query_Patterns/QRY-001_SARGability/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
-| [`QRY-004`](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
+| [`QRY-004`](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | historischer Nachweis mit `WARN_EMPIRICAL_VARIANCE`; kein beobachteter Read-Vorteil durch Recompile |
 | [`QRY-006`](../../Demos/05_Query_Patterns/QRY-006_NULL_Semantics/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | lokale Docker-Matrix bestanden; Runtime-Gate offen; NULL-Ergebnisvertrag |
 | [`QRY-013`](../../Demos/05_Query_Patterns/QRY-013_Client_Session_Context/README.md) | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
-| [`IDX-006`](../../Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz |
+| [`IDX-006`](../../Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz; historischer Nachweis mit `WARN_EMPIRICAL_VARIANCE`, keine allgemeine Fill-Factor-Richtung |
 | [`IDX-010`](../../Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit Ressourcenprofil |
 | [`CON-004`](../../Demos/07_Concurrency/CON-004_Blocking_Chain/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Mehrsitzungsorchestrierung; alternativ interaktiv gemäß [`INTERACTIVE_SCENARIO_LIFECYCLE.md`](INTERACTIVE_SCENARIO_LIFECYCLE.md) |
 | [`CON-006`](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Mehrsitzungsorchestrierung |
@@ -165,7 +167,19 @@ Invoke-SqlPerfDemo -DemoId STL-008 -Server $server -Authentication $authenticati
 
 Das Harness führt die im jeweiligen `manifest.json` festgelegten Phasen in ihrer Reihenfolge sowie `CLEANUP` aus. QRY-006 verwendet bewusst nur `PREFLIGHT`, `SETUP`, `DEMONSTRATION` und `ASSERTION`; Mehrsitzungsdemos führen an Stelle der Demonstration ein Sitzungsmanifest aus.
 
-Ein erfolgreicher Lauf endet mit `SQLPERF_SUMMARY|PASS|OK`. Ein `SKIP_VERSION` bei den in Schritt 1 genannten nicht unterstützten Versionen ist erwartetes Verhalten und erzeugt keinen Datenbankaufbau. `WARN` bedeutet, dass optionale Evidenz eingeschränkt war; lesen Sie in diesem Fall die betreffende Demo-README. Bei `FAIL` ist die angegebene Phase die Ausgangsbasis für die Diagnose. Ein `FAIL_CLEANUP` hat Vorrang und muss vor einem weiteren Lauf behoben werden.
+Ordnen Sie die Summary nach dem bestehenden [FWK-012-Vertrag](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md) ein:
+
+| Ergebnis | Bedeutung für die Vorführung |
+|---|---|
+| `PASS / OK` | Die im Lauf geprüften Verträge sind erfüllt. Die beobachtete Wirkung gilt für das konkrete Datenmodell und die verwendete Umgebung. |
+| `SKIP / SKIP_VERSION` | Die Funktion ist auf dieser Version nicht verfügbar. Das ist ein Nachweis der Versionsgrenze, kein Nachweis ihrer Wirkung. Bei den oben genannten PSP-/OPPO-Versions-Skips entsteht keine Demodatenbank. |
+| `WARN / WARN_EMPIRICAL_VARIANCE` | Eine erwartete Performance-Richtung oder Messqualität ist eingeschränkt. Beispielsweise lieferte `QRY-004` im dokumentierten Matrixlauf keinen Read-Vorteil durch Recompile. Stellen Sie keine Verbesserung dar, die nicht beobachtet wurde. |
+| `WARN / WARN_OPTIONAL_EVIDENCE_SKIPPED` | Ein optionaler Evidenzteil entfiel. Die zulässige Schlussfolgerung ergibt sich aus der Demo-README und den übrigen Resultaten. |
+| `SKIP / SKIP_EVIDENCE_MISSING` | Die erforderliche Wirkung ist in diesem Lauf nicht nachgewiesen. Benennen Sie die Prüflücke und verwenden Sie den Lauf nicht als fachlichen Erfolgsbeleg. |
+| andere kontrollierte `SKIP`-Codes | Eine konkrete Voraussetzung fehlt, etwa Rechte, Werkzeug oder Ressourcenprofil. Beheben Sie die benannte Voraussetzung; eine Wirkung ist damit noch nicht geprüft. |
+| `FAIL` | Ein Vertrag oder die Ausführung ist fehlgeschlagen. Die gemeldete Phase ist der Diagnoseeinstieg; keine erfolgreiche Vorführung behaupten. `FAIL_CLEANUP` hat Vorrang und muss vor weiteren Läufen behoben werden. |
+
+Der Harness kann auch bei `WARN` oder kontrolliertem `SKIP` mit Exitcode 0 enden. Exitcode und grüner CI-Status allein ersetzen daher weder die Phasenergebnisse noch die fachliche Evidenz. Die Tabelle erläutert bestehende Codes und führt keine neuen Statuswerte ein.
 
 ## 6. Cleanup prüfen und nach Abbruch wiederherstellen
 

@@ -11,6 +11,10 @@
 
 ## Abnahmeergebnis
 
+### Einordnung des historischen Nachweises (2026-10-07)
+
+Dieser Review beschreibt den Prüfstand vom 2026-09-01 mit dem oben genannten Deck-Hash. Der [Diagramm- und Inhaltsreview vom 2026-10-05](../Reviews/PRESENTATION_DIAGRAM_REVIEW_2026_10_05.md) dokumentiert spätere Korrekturen und den aktuellen Hash. Die Abnahme umfasst Quellen, Demo-Verträge, Render und Profilstruktur; in diesem Bericht ist keine Generalprobe mit echten Teilnehmenden dokumentiert. Sie ist deshalb kein empirischer Nachweis von Verständnis, Istzeit oder selbstständigem Transfer. Die [Teilnehmer-Generalprobe](PRS_010_REHEARSAL_PLAN.md) ist vorbereitet, aber noch nicht durchgeführt. Der historische Status und seine damaligen Nachweise bleiben erhalten.
+
 Der implementierte Vertiefungsstrang ist fachlich, didaktisch und technisch abgenommen. Die Abnahme erweitert keine Runtimefreigabe auf noch nicht implementierte Demos: verbleibende Claims und Designs behalten ihren dokumentierten Planungsstatus und werden als Folgearbeit behandelt.
 
 | Achse | Nachweis | Ergebnis |
