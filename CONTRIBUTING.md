@@ -42,6 +42,18 @@ Neue Texte sind sachlich, eindeutig, technisch präzise, gut lesbar und möglich
 
 Nach jedem erfolgreichen Pull-Request-Merge wird das lokale `main` mit `origin/main` synchronisiert und der zugehörige lokale Arbeitsbranch gelöscht. Zuerst sind der serverseitige Merge, der lokale Branchstand und die vollständige Übernahme der Änderungen zu prüfen. Bei einem Squash-Merge genügt `git branch --merged` allein nicht als Nachweis. `git branch -D` ist nur zulässig, wenn die Übernahme unabhängig bestätigt ist und der Branch keine zusätzlichen, nicht übernommenen Änderungen enthält. Ein Branch in einem anderen Worktree bleibt bis zu dessen sicherem Abschluss erhalten. Die Abschlussmeldung bestätigt die lokale Bereinigung oder benennt den konkreten Hinderungsgrund. Maßgeblich ist `DEC-066` in [`.ai/DECISIONS.md`](.ai/DECISIONS.md).
 
+### Vollständiger Arbeitsabschluss
+
+Begonnene Arbeit wird gemäß `DEC-069` bis zur relevanten Validierung und Integration
+in `origin/main` verfolgt, sofern sie nicht ausdrücklich zurückgestellt oder
+ausgeschlossen ist. Ein offener Pull Request oder ein vorbereiteter Branch ist
+kein Abschluss. Nach unabhängig bestätigter vollständiger Übernahme werden auch
+die zugehörigen Remote-Branches entfernt; zusätzliche nicht übernommene Änderungen
+und fremde Worktrees bleiben geschützt. Sachlich verworfene Arbeit wird begründet
+geschlossen. Offene Blocker und ausdrückliche Zurückstellungen stehen mit Grund,
+verbleibendem Gate, Wiederaufnahmebedingung und PR-/Branch-Verweis im kanonischen
+Ausführungsstand. Fehlgeschlagene Checks dürfen nicht umgangen werden.
+
 ## KI-generierte Commit Messages
 
 Jede Commit Message, die vollständig oder überwiegend von einer KI erstellt wird, muss mit dem Namen der tatsächlich verwendeten KI und einem Doppelpunkt beginnen. Beispiele sind:

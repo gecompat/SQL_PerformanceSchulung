@@ -947,6 +947,20 @@
       ],
       "title": "Prospektive Duration- und Kontrollseparation für DGN-007 festlegen"
     },
+    "DEC-069": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a11f46-1305-70be-ac83-8a0440eef503",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-066",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Vollständigen Arbeitsabschluss und lokale sowie Remote-Branchbereinigung verfolgen"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

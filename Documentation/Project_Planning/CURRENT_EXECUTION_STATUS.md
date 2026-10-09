@@ -2,8 +2,8 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `PAUSED` – Benutzerstopp vom 2026-10-08; ausschließlich laufenden §33-Schnitt über PR abschließen |
-| Stand | 2026-10-08 |
+| Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
+| Stand | 2026-10-09 |
 | geprüfter Repository-Basisstand | `99af91bc8d25312b62659f6e83f29b3fd2bbcd30` auf `origin/main` nach PR 120; lokale synthetische Ledgerkomponente nach §32.5 integriert, 66/66 lokal sowie neun PR-/sieben Main-CI-Prüfungen bestanden, volle Übernahme und eigener Cleanup unabhängig bestätigt; vollständige Loaderrecordformen nach §33 DESIGNED, nächster separater SESSION_END-Vertrag noch offen; operativer Bootstrap-/Kanalvertrag weiterhin DESIGNED, SQL-Codebasis `da7b0eb…` aus Pull Request 65 |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
@@ -13,6 +13,24 @@
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
 ## 0. Entwicklungspause und Wiederaufnahme
+
+Der Benutzerauftrag vom 2026-10-09 nimmt gezielt die Prüfung und den Abschluss
+der bestehenden Reporterarbeit in PR 68 wieder auf. Der
+[G13-/PR-Review](DGN_007_G13_PR_REVIEW.md) trennt den nützlichen Diagnoseschnitt
+von der offenen Methodenänderung und dokumentiert Ursache, Quellenprüfung,
+Bestandsabgleich sowie die aktuellen Abschlussbedingungen. Integration verlangt
+erfolgreiche relevante CI am aktuellen Head/Base; historische G13-Fehler bleiben
+gültig. DEC-069 macht Integration und eigene Branchbereinigung zum Arbeitsabschluss.
+Die neue CI am Head `f9ec582…` scheiterte auf 2022 an der SQL20-Abnahme
+von vier erfassten Ausführungen je Fenster und auf 2025 an G13 (−0,8298 ms).
+Beide ersten DB-Abwesenheitsprüfungen und die eigenen Containerabbauten bestanden.
+Der vorherige Matrix-PASS ist keine Freigabe dieses fehlgeschlagenen Heads.
+PR68 ist für die getrennte Integration von Prüfbericht und Abschlussprozess
+vorübergehend geschlossen; nicht übernommener Code und Branch bleiben konkret
+referenziert erhalten. Die Erweiterung um den Erfassungsfehler ist als
+Scopeentscheid beim Benutzer angefragt. Kein Bypass oder Wiederholen bis grün.
+Allgemeine Entwicklung, Automation, SESSION_END und die ausdrücklich
+zurückgestellte interne Capture-Rückgabe bleiben pausiert.
 
 Am 2026-10-08 hat der Benutzer angewiesen, keine neuen Aufgaben zu beginnen,
 alle laufenden Arbeiten konsistent abzuschließen und anschließend diesen
@@ -452,9 +470,18 @@ Der ausdrückliche Auftrag vom 2026-10-07 zur Demo-Orientierung und Vorbereitung
 
 ### Erhaltene Arbeit und Startverfahren
 
-Der offene [Pull Request 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68)
-und der geschützte Branch `codex/dgn007-g13-boundary-report` bei
-`27a9b5ce81347beaa6d6bfd8788c62965495f0ca` bleiben ungemergt erhalten.
+Die Reporterarbeit in [Pull Request 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68)
+wurde seit dem gezielten Auftrag vom 2026-10-09 gegen den aktuellen Main-Stand
+erneut validiert. Der aktuelle Head `f9ec582…` ist wegen der beiden im
+Abschlussreview belegten Runtimefehler technisch blockiert; PR68 wurde für den
+getrennten Dokumentationsabschluss vorübergehend geschlossen. Der Code bleibt
+auf seinem konkret benannten Branch erhalten. Nach Klärung/Korrektur der
+Erfassung und des G13-/Methodengates folgen Quellenreview, erfolgreiche aktuelle
+CI, Integration und eigene Branchbereinigung.
+Der [Abschlussreview](DGN_007_G13_PR_REVIEW.md) ist für diesen Schnitt maßgeblich.
+Der ursprüngliche Reporter-Head war
+`27a9b5ce81347beaa6d6bfd8788c62965495f0ca`; die folgenden Befunde beschreiben
+den historischen HOLD-Stand, keine abgeschlossene aktuelle Revalidierung.
 Der erneute vollständige Branchabgleich am 2026-10-08 gegen Main
 `e8dc3a0f37e64ecef8f69cc0afb7dd5912341eac` und sein unabhängiger Review
 bestätigen: SQL35, Runner, Producer-Test und -Validator, VertragsJSON sowie
@@ -462,7 +489,7 @@ bestätigen: SQL35, Runner, Producer-Test und -Validator, VertragsJSON sowie
 `12b130f0df1f963a9075430745e406e8e2a38494`; die Reporteränderungen fehlen.
 Die fünf Kanonik-/Evidenzdokumente wurden dagegen separat übernommen
 beziehungsweise fortgeschrieben. Der Branch ist daher weiterhin benötigt
-und wird nicht als redundant gelöscht. PR68 ist ausdrücklich als HOLD
+und wurde nicht als redundant gelöscht. PR68 war ausdrücklich als HOLD
 ohne Mergefreigabe gekennzeichnet; 20/22 abgeschlossene Checks SUCCESS,
 2019 AA1 und 2022 BA1 weiterhin G13 FAIL. Vor einer Integration sind
 Methodengate, aktueller Quellenreview und erfolgreiche head-/basegebundene
