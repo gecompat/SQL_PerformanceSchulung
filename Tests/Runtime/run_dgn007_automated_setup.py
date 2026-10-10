@@ -495,7 +495,7 @@ def _query_store_raw_diagnostics(result: SqlcmdResult, *, contract: RunContract)
         if (len(row) != 13 or row[:3] != [prefix, '1', 'ROW'] or row[3] != str(index)
                 or row[4] not in ('0', '1')
                 or any(not re.fullmatch(r'[0-9]{1,19}', value) for value in row[5:11])
-                or any(not re.fullmatch(r'(?:N|[0-9T:+.\-]{19,40})', value) for value in row[11:])):
+                or any(not re.fullmatch(r'(?:N|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{7})?(?:Z|\+00:00))', value) for value in row[11:])):
             return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
     if windows:
         for window in (0, 1):

@@ -28,15 +28,15 @@ CONTRACT = bundle.DEMO + "Contracts/incident-acceptance.contract.json"
 # ast.dump(include_attributes=False), Parsergrammatik Python 3.12. Kommentare
 # und Layout sind kein ausführbarer AST; Encoding bleibt separat geschlossen.
 PYTHON_AST_SHA256 = (
-    "04eac029f690aedfab51b9c8c4d3bcc62c23215912bc0c51168c99086105d0a3",
+    "f85bb50cc2e0f992d166eacd7a89733eae5f8f1bd4ca137355376fbe66ae8de2",
     "585493e97ba6e4c759bccf8fe983d6b61d32253435b4b2481a195f6784d38925",
     "958e555b9e25392e4bf6024eef6ea528305bf489b43ab1ed5af35388eddd37c8",
     "555a3adc06030e7a3a2edde38cca6eee547c2bd7b2fbaecd1e93d3f87e1a0614",
     "f25c55b61537c2304cfcb1c0266215c87c80a28e8558d7e607b96b05fc8edca2",
     "d55a50c4390dcd740e050e0d9b2e471c60a6498bb70b49ed1d1231e1fb887210",
     "770372e6beba2b8ad1993d581c87038e0ed3cdb059dfad58206133f201e49d4e",
-    "37c201d2d3049005fe886cc77c68f8e54a4886f911c5a459d5f0d46e57d2cc99",
-    "3e11c0177f398f6144f9a1264c7a5320a4a4bdad9d5cc3aad483108f8f1caa2b",
+    "f689d616ef25a528bca4ad7029aa9e4db69f1d43b5e747086ed6db8956084118",
+    "58e2df784e76442584bc181f347d9334d95dddd87b6e4910402314fa7047a983",
 )
 # Deklarierte Kanten im oben gebundenen Profil; keine automatische Reachability.
 # Externe Tools/OS/Python und spätere Importumgebung bleiben Vertrauensgrenzen.
@@ -67,10 +67,10 @@ MANIFEST_PROJECTIONS = (
     ("CONTROL_WINDOWS", "21_Controlled_Query_Store_Windows.sql", "target", 150),
     COMPARISON, ("CONTROL_EVIDENCE", "35_Control_Evidence.sql", "target", 10)))
     for name in ("AB", "BA", "AA"))
-# Elf SQL- und ausschließlich drei Kontrollmanifeste im unveränderten v1-Vertrag.
+# Elf SQL- und ausschließlich drei Kontrollmanifeste im V2-Vertrag (DEC-072).
 SOURCE_KEYS = tuple(Path(p).name for p in bundle.DATA_MEMBERS if p.endswith(".sql")) + (
     "control-ab.manifest.json", "control-ba.manifest.json", "control-aa.manifest.json")
-CONTRACT_POLICY_SHA256 = "2ef6f78bb9b2c604ae7dfe39b266838f6cc1bda4c14e178e1b541fc30f92f66c"
+CONTRACT_POLICY_SHA256 = "628c8947b6275f439b70477140415d754b6cab1abd96568b5110810fa8dd7e8f"
 
 
 @dataclass(frozen=True)

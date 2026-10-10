@@ -8,11 +8,38 @@
 | aktueller Abgleich nach Foundation-Upgrade | `2f04deb2fed0faf5bedf70101fea3f4b93d46678`, [PR 123](https://github.com/gecompat/SQL_PerformanceSchulung/pull/123) |
 | ursprünglicher Reporter-Head | `27a9b5ce81347beaa6d6bfd8788c62965495f0ca` |
 | aktualisierter Reporter-Kandidat | `f9ec582017c942e4278252427c62695e313d37f9` |
-| aktuelle Codefreigabe | `BLOCKED` – zwei aktuelle substantielle Runtimefehler; kein Merge oder Bypass |
+| aktueller Abschluss | PR 68 fachlich verworfen; finaler Parser-/Methodenschnitt in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132) gemäß `DEC-072`, Integration nur mit aktueller relevanter CI |
 | Arbeit | [PR 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68), `codex/dgn007-g13-boundary-report` |
 | Ergebnisgrenze | Diagnosepaket; keine G13-Behebung, Methodenwahl oder Incidentfreigabe |
 
 ## Problem und nachweisbare Ursache des Fehlschlags
+
+**Aktuelle Entscheidung vom 2026-10-10:** Der Benutzer hat die neue Methode
+freigegeben und den Umfang anschließend auf einen zügigen, begrenzten Abschluss
+festgelegt. `DEC-072` und der v2-Vertrag behandeln QS↔SYSUTC diagnostisch ohne
+Zeitpuffer. SQL20/21 verlangen im gewählten Intervall zusätzlich tatsächliche
+reguläre QS-Erfassung des festen separat markierten Pollqueries; eine passend
+datierte Katalogzeile allein genügt nicht. Die eigene kontrollierte Last und
+ihre Ergebnisse, vier reguläre Suchausführungen, Intervall-/Familien-/Planbindung,
+Budgets und Cleanup bleiben überprüft. Die Aussage ist eine beobachtete
+Labzuordnung, keine exakte Einzelrequest→Plan- oder Host-Provenienzattestation.
+Die größere vorgeschlagene Nachweisarchitektur bleibt zurückgestellt.
+
+PR 68 wird verworfen, weil sein ausschließlich am bisherigen G13-Fehlerpfad
+hängender Reporter für diesen Abschluss überholt ist. Das ist kein Befund eines
+defekten Reporters. Die nützliche Rawdiagnose aus PR 128 ist schon mit PR 130
+auf Main; den zusätzlichen alten Reporter übernehmen wir aus demselben Grund
+nicht. PR 132 korrigiert die tatsächlich fehlerhafte UTC-Z-/Vollsekunden-
+Parserannahme und führt die v2-Methode ein. Originalzeiten bleiben vollständig
+im Capture, die alte Rawdiagnose bleibt begrenzt erhalten. Der alte v1-Evaluator
+behält sein G13-Prädikat; v1-Bodies werden nicht als v2 interpretiert.
+Die relevante aktuelle Versionsmatrix und Integration sind direkt in PR 132
+nachprüfbar. Erst danach folgt die Bereinigung der zugehörigen Branches;
+verworfene Quellen werden zuvor lokal als geprüftes Git-Bundle gesichert.
+
+Die folgenden Analysen und fehlgeschlagenen Runs bilden die Historie. Aussagen
+über noch ausstehende Benutzerfreigabe oder notwendige größere Provenienzgates
+gelten nicht mehr für den ausdrücklich gewählten begrenzten Abschluss.
 
 SQL21 speichert unmittelbar vor den vier Suchrequests je Fenster
 `ExecutionStarted` und danach `ExecutionFinished` aus `SYSUTCDATETIME()`.
@@ -416,3 +443,90 @@ exakten G13-Abnahme bleiben Reporter-PR 128 und Parserfix-PR 132 blockiert.
 Wiederaufnahme braucht vollständige Fehler-Zeitgrenzen und eine gezielte
 Gegenprobe; eine andere Zuordnungsmethode verlangt die gesonderte
 Entscheidung samt offenen Gates des Methodenpakets.
+
+## Isolierte Zeitquellen-Gegenprobe vom 2026-10-10
+
+Der erneute Benutzerauftrag „weiterführen“ autorisiert den begrenzten
+Korrekturscope. Eine neue Gegenprobe untersucht die Zeitklammer getrennt vom
+DGN-007-Datenmodell: frischer eigener Docker-Container, SQL Server 2022
+Developer `16.0.4265.3`, Image `2022-latest`, vier CPU und 8 GiB Limit.
+Das tatsächlich verwendete Image war digestgebunden an
+`sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89`;
+Repositorybasis vor dem lokalen Kandidaten: `642bb09`.
+Nur eine eigene synthetische Datenbank mit vier Projekt-/Vertrags-/Demo-/Runmarkern
+wurde erzeugt. Es gab keine fremden Benutzerdatenbanken und keinen Zugriff auf
+die anderen laufenden Container. Diese Probe ist keine DGN-007-Abnahme.
+
+Query Store wurde auf `READ_WRITE`, Capture `ALL` und einminütige Intervalle
+gesetzt. Eine Tabelle enthielt die vier Zahlen 1, 2, 3, 4. 32 verschiedene,
+innerhalb des SELECT-Statements markierte parameterisierte Abfragen berechneten
+`SUM(n) WHERE n>@p` mit `@p=0`. Nach einmaligem Warmup dieser 32 Statements
+und `QUERY_STORE CLEAR ALL` wurde jedes Statement genau einmal zwischen
+zwei unmittelbar davor/danach gespeicherten `SYSUTCDATETIME()`-Werten ausgeführt.
+Nach dem Flush wurden die regulären Rawfragmente je eindeutiger Querymarkierung
+über Query-/Planbindung aggregiert. Alle 32 Gruppen hatten Count 1, alle
+berechneten Werte waren 10; die gemessenen Query-Store-Durations lagen bei
+26 bis 57 Mikrosekunden. Die Warmup-Ausführungen sind in diesen Counts nicht
+enthalten. Die Auswertung behauptet keine atomare Sicht der Katalogsichten.
+
+Bei **31 von 32** Messpaaren lag `first_execution_time` vor dem zuvor
+gespeicherten Start. Der größte negative Abstand war **75.996 Ticks =
+7,5996 ms**. Ein konkretes Paar war Start/Finish
+`2026-10-10T13:44:14.0075996Z`, First/Last
+`2026-10-10T13:44:14Z`, Count 1, Duration 27 Mikrosekunden.
+Kein Last-Wert lag oberhalb der jeweiligen Finish-Grenze. SYSUTC-Starts und
+QS-First-Werte nahmen jeweils sieben verschiedene Werte an; die Probe
+belegt weder eine universelle Quantisierung noch eine konkrete interne Clock-
+Implementierung. Sie widerlegt jedoch für diese Umgebung die Voraussetzung,
+dass eine korrekt erfasste erfolgreiche Ausführung zwingend in der exakten
+QS↔SYSUTC-Klammer liegt. Die Abweichung über 1 ms widerlegt zusätzlich eine
+Erklärung allein durch Abschneiden der SYSUTC-Nachkommastellen auf volle ms.
+Die historischen SQL20-Countfehler werden dadurch nicht erklärt.
+
+Ein erster Instrumentierungsvorlauf mit nachgestellten Querymarkierungen
+lieferte keine zugeordneten Capturegruppen und wurde als
+`CAPTURE_INSUFFICIENT` abgewiesen. Nur der korrigierte SELECT-interne Marker
+erbrachte den obigen Count-1-Nachweis. Es wurde keine unveränderte DGN-007-Matrix
+wiederholt. Beide eigenen Datenbanken wurden markergebunden entfernt,
+ihre erste unabhängige Abwesenheitsprüfung bestand. Beide Container wurden
+nach vollständiger CID-/Name-/Scope-/Eigentümerprüfung entfernt und unabhängig
+abwesend geprüft. Gemessene Gesamtwalltime beider Versuche einschließlich
+Cleanup: 21,592 s. Modell-/Tokenverbrauch ist unbekannt; keine Unteragenten.
+
+Microsoft Learn beschreibt First/Last als Ausführungs-Endzeit und unterscheidet
+bei SYSUTCDATETIME Präzision und Genauigkeit; daraus folgt keine gemeinsame
+100-ns-Genauigkeit dieser beiden Quellen. Quellen am 2026-10-10 erneut geprüft:
+[Query-Store-RuntimeStats](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17),
+[SYSUTCDATETIME](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver17).
+
+### Konkreter Vorschlag; Methodenentscheidung noch ausstehend
+
+Die QS↔SYSUTC-Klammer soll als Zuordnungsbeweis abgelöst werden; die exakten
+Abstände bleiben als Diagnose erhalten. Die Alternative muss tatsächliche
+erfolgreiche Calls, vollständige Query-/Planfamilien, korrekte Rawaggregation
+ohne Doppelzählung, nachvollziehbare T0-/T1-Intervallzuordnung und die
+Sichtbarkeits-/Zustandsgrenzen nach dem bestehenden
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) belegen.
+Ein bloßer Count 4 oder ein passendes Intervall reicht dafür nicht.
+Der Vorschlag aktiviert keinen Puffer, keine Rundung, keine Capänderung und
+keinen CI-Bypass. Auswahl und neuer registrierter DEC sind vor einer normativen
+G13-Änderung erforderlich. Bis dahin bleibt G13 unverändert und die Reporter-
+Integration blockiert. Die konkrete Auswahl wurde beim Benutzer angefragt.
+
+Unabhängig davon zeigte die neue Probe einen weiteren realen Style-127-Fall:
+bei vollen Sekunden entfällt der Bruchteil vollständig (`13:44:14Z`). Der lokale
+Parserkandidat auf dem vorhandenen PR-132-Branch akzeptiert deshalb neben sieben
+Nachkommastellen auch keinen Bruchteil, jeweils ausschließlich mit `Z` oder
+`+00:00`. Positivkontrollen für beide Formen und eine Negativkontrolle für
+abweichende Bruchteillänge erhalten die Kanal-, Scope-, Guard-, Count-, Overflow-
+und Cleanupbindungen. Der neue CPython-3.12-Runner-AST-Digest ist explizit
+gebunden; die acht anderen Digests bleiben unverändert. Dieser lokale Kandidat
+ist keine G13-Korrektur, nicht nach Main übernommen und noch nicht neu in CI
+ausgeführt. Er wird vor der abhängigen Methodenentscheidung nicht als neuer
+unveränderter Matrixversuch gepusht.
+Die 46 lokalen Runner-Testmethoden, Capture-Projektions-/Kontrollvalidatoren,
+Privacy und `diff --check` bestanden. Das direkte CPython-3.12-Kantenprofil
+bestand für die aktuellen Working-Tree-Bytes einschließlich aller neun ASTs,
+Manifeste und Policy; eine zusätzliche ausführbare AST-Zeile wurde als
+`PYTHON_PROFILE_CHANGED` abgewiesen. Das ist kein erneuter Lauf der vollständigen
+commitgebundenen Offline-Suite und keine Runtimequalifikation des Parserkandidaten.

@@ -27,11 +27,22 @@ def normalized(sql): return ' '.join(uncomment(sql).split())
 
 G13_RAW_SHA256 = '9b2a63cfb7d20fe428e87e0a7c7d92be8511b69e60e80800bac5b7348375d00c'
 G13_BASE_SQL_SHA256 = '7d51b7bf3f444683ca2360595df24abf0214512c8794c50bcf5432f5fceae29f'
+G13_METHOD_COMMENT = """/* DEC-072: QS und SYSUTC besitzen keine nachgewiesene gemeinsame Messuhr.
+   Nur Diagnose; unveränderte Intervall-, Request-, Ergebnis- und Countguards
+   begrenzen die Aussage auf das beobachtete isolierte Schulungslabor. */
+"""
+G13_DIAGNOSTIC = "    PRINT 'DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH';\n"
+G13_LEGACY_FAILURE = "    PRINT 'DGN007_CONTROL_GUARD|G13';\n    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;\n"
 
 
 def strip_g13_raw_diagnostic(sql, *, check_baseline=False):
-    """Nur die exakt geprüfte Fehlerdiagnose aus dem bekannten SQL35 entfernen."""
+    """V2-Methode exakt binden; übrige Guards gegen den V1-Bestand prüfen."""
     sql = sql.replace('\r\n', '\n')
+    if G13_DIAGNOSTIC in sql or 'DEC-072' in sql:
+        if (sql.count(G13_METHOD_COMMENT) != 1 or sql.count(G13_DIAGNOSTIC) != 1
+                or not sql.startswith('END;', sql.index(G13_DIAGNOSTIC) + len(G13_DIAGNOSTIC))):
+            raise ValueError('FAIL_CONTRACT')
+        sql = sql.replace(G13_METHOD_COMMENT, '').replace(G13_DIAGNOSTIC, G13_LEGACY_FAILURE)
     begin, end = '/* G13_RAW_DIAGNOSTIC_BEGIN */', '/* G13_RAW_DIAGNOSTIC_END */'
     if sql.count(begin) != 1 or sql.count(end) != 1:
         raise ValueError('FAIL_CONTRACT')
@@ -257,7 +268,8 @@ def main():
     findings+=runner_projection_findings(RUNNER.read_text(encoding='utf-8'))
     findings+=workflow_findings(WORKFLOW.read_text(encoding='utf-8'))
     for i in range(1,18):
-        if not projection_sql_findings(evidence.replace(f"PRINT 'DGN007_CONTROL_GUARD|G{i:02}';",'')):
+        marker = "PRINT 'DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH';" if i == 13 else f"PRINT 'DGN007_CONTROL_GUARD|G{i:02}';"
+        if not projection_sql_findings(evidence.replace(marker,'')):
             findings.append('Fehlende feste Guard-ID wurde nicht erkannt')
     for marker in PROJECTION_MARKERS:
         if not projection_sql_findings(re.sub(re.escape(marker).replace(r'\ ',r'\s*'),'REMOVED',evidence)):

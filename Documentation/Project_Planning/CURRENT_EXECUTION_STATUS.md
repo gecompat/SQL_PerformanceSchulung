@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | allgemeine Entwicklung `PAUSED`; DGN-007-Reporter `BLOCKED` durch bestätigte G13-Fehler und ungeklärten SQL20-Countfehler; UTC-Z-Parserkorrektur in Draft-PR 132 wegen fachlich roter Matrix ebenfalls `BLOCKED` |
+| Status | allgemeine Entwicklung `PAUSED`; begrenzter DGN-007-Abschluss gemäß `DEC-072` in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132), dessen aktuelle CI-/Merge-Evidenz maßgeblich ist; PR 68 und PR 128 fachlich ersetzt und nicht weiterzuführen |
 | Stand | 2026-10-10 |
 | aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) integriert. Die eigenständige Fehlerrohdiagnose aus [PR 130](https://github.com/gecompat/SQL_PerformanceSchulung/pull/130) ist auf `aea230fb65798afddd4643c92b84f09403819ec6` in `origin/main`; die [PR-130-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38048742623) bestand auf 2019/2022/2025. Der neuere [Main-Lauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38050043409) scheiterte auf SQL Server 2019 an G13; die [PR-132-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38051475267) auf SQL Server 2022 ebenfalls. Keine Reporterfreigabe. |
 | früherer fachlicher Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` nach PR 123; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
@@ -14,6 +14,36 @@
 | Zweck | kanonischer operativer Einstiegspunkt für Nachweisstand, offene Gates und nächste Schnitte |
 
 ## 0. Entwicklungspause und Wiederaufnahme
+
+### Verbindlicher Abschlussumfang vom 2026-10-10
+
+Der Benutzer hat die Methodenänderung ausdrücklich freigegeben und danach
+einen zügigen Abschluss verlangt. `DEC-072` ersetzt für diesen begrenzten
+Schulungslauf die notwendige exakte QS↔SYSUTC-Klammer durch Diagnose ohne
+Puffer. Die Query-Store-Intervallauswahl verlangt tatsächliche reguläre
+Erfassung des separat markierten Pollqueries. Tatsächliche Requests,
+Ergebnisse, Intervall-IDs, vier reguläre Suchausführungen je Fenster,
+Planfamilien, Budgets und unabhängiger Cleanup bleiben maßgeblich.
+Der v2-Vertrag und Decoder erhalten die Originalzeiten; historische
+v1-Evaluatorregeln werden nicht umgedeutet. Unterschiedliche Starts sind erlaubt.
+
+Der ursprüngliche Reporter ist kein nachgewiesener Reporterfehler. Sein
+Fehler-only-Pfad ist durch diese Korrektur überholt: vorhandene Rawdiagnose
+und die vollständigen skalaren Capture-Zeitwerte decken den begrenzten
+Diagnosebedarf ab. PR 68 wird deshalb begründet verworfen. Die nutzbare
+Rawdiagnose aus PR 128 ist bereits durch PR 130 integriert; verbleibender
+Reportercode wird aus demselben Grund verworfen. PR 132 enthält den finalen
+Parser-/Methodenschnitt und wird nur nach aktueller relevanter CI integriert.
+Anschließend werden diese drei zugehörigen Branches nach geprüftem Abgleich
+beziehungsweise begründeter Verwerfung und lokaler Sicherung bereinigt.
+
+Weitergehende Provenienz-, Collector-, SESSION_END- und Capstonearbeiten
+bleiben ausdrücklich zurückgestellt. Sie sind keine Abschlussbedingung dieses
+begrenzten Diagnoseschnitts. Frühere Aussagen zu unverändertem G13 oder noch
+fehlender Methodenfreigabe in den folgenden historischen Abschnitten sind
+durch diesen Abschnitt und `DEC-072` ersetzt. Historische FAILs bleiben gültig;
+der frühere SQL20-Countfehler ist ohne eigene Fehlrohwerte nicht abschließend
+erklärt und wird durch einen späteren PASS nicht rückwirkend widerlegt.
 
 Der Benutzerauftrag vom 2026-10-09 nimmt gezielt die Prüfung und den Abschluss
 der bestehenden Reporterarbeit in PR 68 wieder auf. Der
@@ -174,6 +204,21 @@ nach dem vorhandenen Entscheidungspaket. Keine weiteren unveränderten
 Matrixläufe, kein Bypass und keine stillschweigende Rundung oder Pufferung.
 PR 132 und sein Branch bleiben wegen nicht übernommener Parserkorrektur erhalten;
 PR 128, der alte PR68-Branch und die pausierte interne Capturearbeit ebenfalls.
+
+### Aktueller Gegenbefund zur Zeitklammer
+
+Der neue Auftrag „weiterführen“ setzt die gezielte DGN-007-Ursachenprüfung fort.
+Die [isolierte Zeitquellen-Gegenprobe](DGN_007_G13_PR_REVIEW.md#isolierte-zeitquellen-gegenprobe-vom-2026-10-10)
+auf SQL Server 2022 `16.0.4265.3` erfasste 32 synthetische Abfragen genau einmal
+je Query. Bei 31 lag der QS-First-Wert vor dem zuvor gemessenen SYSUTC-Start,
+maximal um 7,5996 ms. Das ist ein Gegenbeleg zur exakten gemeinsamen Zeitklammer
+in dieser Umgebung, keine allgemeine Clock-Erklärung und keine SQL20-Countreparatur.
+Beide eigenen Probeninstanzen und Datenbanken sind unabhängig abwesend geprüft.
+Der konkrete Ersatz der QS↔SYSUTC-Beweisart durch nachzuweisende Ausführungs-/
+Intervallzuordnung ist zur ausdrücklichen Methodenentscheidung vorgelegt.
+G13 und die Integrationssperre bleiben bis dahin unverändert. Ein zusätzlich
+belegter UTC-Formatfall ohne Sekundenbruch ist im lokalen PR-132-Kandidaten
+abgedeckt; kein neuer unveränderter Matrixlauf wurde gestartet.
 
 Am 2026-10-08 hat der Benutzer angewiesen, keine neuen Aufgaben zu beginnen,
 alle laufenden Arbeiten konsistent abzuschließen und anschließend diesen

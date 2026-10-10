@@ -376,9 +376,7 @@ class ProspectiveAcceptanceTests(unittest.TestCase):
             with self.subTest(field=field):
                 self.result(change_window(self.runs,0,0,**{field:maximum+1}))
         run=self.runs[0]; plan=run.plans[0]; window=run.windows[0]
-        for field,value in (("first_execution_ticks",maximum+1),("last_execution_ticks",maximum+1),
-                            ("first_execution_ticks",window.execution_started_ticks-1),
-                            ("last_execution_ticks",window.execution_finished_ticks+1)):
+        for field,value in (("first_execution_ticks",maximum+1),("last_execution_ticks",maximum+1)):
             with self.subTest(field=field,value=value):
                 self.result(change_run(self.runs,plans=(replace(plan,**{field:value}),run.plans[1])))
         self.result(self.runs,"PASS","OK")  # first/last exakt an beiden Requestgrenzen.
@@ -390,6 +388,18 @@ class ProspectiveAcceptanceTests(unittest.TestCase):
         plans=tuple(replace(p,first_execution_ticks=p.first_execution_ticks+offset,
                             last_execution_ticks=p.last_execution_ticks+offset) for p in run.plans)
         self.result(change_run(self.runs,windows=windows,plans=plans),"PASS","OK")
+
+    def test_v2_clock_mismatch_is_diagnostic_and_v1_keeps_its_original_rule(self):
+        run=self.runs[0]
+        plan=replace(run.plans[0],first_execution_ticks=1099,last_execution_ticks=1201)
+        changed=change_run(self.runs,plans=(plan,run.plans[1]))
+        self.result(changed,"PASS","OK")
+        mapping=evaluator._policy('dgn007-prospective-acceptance/v1')
+        mapping['source_sha256']=dict(self.contract.source_hashes)
+        legacy=evaluator.contract_from_mapping(mapping)
+        legacy_runs=tuple(replace(r,contract_digest=legacy.contract_digest,source_digest=legacy.source_digest) for r in changed)
+        decision=evaluator.evaluate_version(legacy,15,legacy_runs)
+        self.assertEqual((decision.outcome,decision.code),('FAIL','FAIL_RESULT_CONTRACT'))
 
     def test_active_plan_union_must_equal_exact_window_membership(self):
         run=self.runs[0]

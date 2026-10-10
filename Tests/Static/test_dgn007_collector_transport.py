@@ -54,7 +54,7 @@ def payload(contract,major=15,sequence="AB",measured=True):
             query_plan_hash=hash_value,plan_type=None if major==15 else 0))
         union.append(dict(parent_query_id=101,query_id=101,plan_id=1+window_id,query_plan_hash=hash_value,
             executed_in_t0=int(window_id==0),executed_in_t1=int(window_id==1)))
-    return dict(schema="dgn007-capture-body/v1",major=major,compatibility=major*10,
+    return dict(schema=transport.SCHEMA,major=major,compatibility=major*10,
         scope="DGN-007_CONTROL_"+sequence,contract_digest=contract.contract_digest,
         source_digest=contract.source_digest,parent_object_id=915,
         windows=windows,requests=requests,
@@ -247,8 +247,18 @@ class CollectorTransportTests(unittest.TestCase):
     def test_disjoint_intervals_and_execution_bounds(self):
         for collection,key,value in (('windows','interval_id',11),('windows','interval_end_ticks',2100),
                 ('windows','execution_started_ticks',999),('windows','execution_finished_ticks',2000),
-                ('plans','first_execution_ticks',1099),('plans','last_execution_ticks',1201),('plans','interval_id',11)):
+                ('plans','first_execution_ticks',999),('plans','last_execution_ticks',2000),('plans','interval_id',11)):
             document=deepcopy(self.payload);document[collection][0][key]=value;self.rejected(document)
+
+    def test_v2_preserves_clock_mismatch_and_rejects_legacy_body(self):
+        document=deepcopy(self.payload)
+        document['plans'][0]['first_execution_ticks']=1099
+        document['plans'][0]['last_execution_ticks']=1201
+        result=self.decode(document)
+        self.assertEqual(result.plans[0].first_execution_ticks,1099)
+        self.assertEqual(result.plans[0].last_execution_ticks,1201)
+        document['schema']='dgn007-capture-body/v1'
+        self.rejected(document,'FAIL_CONTRACT')
 
     def test_parent_families_active_plans_and_plan_types(self):
         for collection,key,value in (('families','parent_query_id',999),('families','parent_object_id',999),

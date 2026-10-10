@@ -982,6 +982,19 @@
       ],
       "title": "Foundation 1.21.0 und vertragsbezogene CI-Testauswahl"
     },
+    "DEC-072": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a12670-f36e-7277-9537-aecffc649c91",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-068",
+          "type": "depends_on"
+        }
+      ],
+      "title": "DGN-007: beobachtete Intervallzuordnung und diagnostische QS-SYSUTC-Zeitklammer"
+    },
     "DGN-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:39f0bb94-174c-44c6-a7ed-68b64f405754",

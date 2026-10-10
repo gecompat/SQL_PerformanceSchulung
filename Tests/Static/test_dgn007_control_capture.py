@@ -8,6 +8,7 @@ aus den SQL-Dateien. Dies ist kein Query-Store-Runtime- oder Incidentnachweis.
 from __future__ import annotations
 
 import re
+import sqlite3
 import unittest
 
 import test_dgn007_profile_comparison as profile_fixture
@@ -36,6 +37,42 @@ def select_into(sql: str, table: str) -> str:
 
 
 class ControlCaptureTests(unittest.TestCase):
+    def test_interval_selection_requires_observed_regular_pulse_capture(self):
+        # Prädikat aus beiden tatsächlichen SQL-Dateien, keine Sollkopie.
+        for path in (BASE_WINDOWS, WINDOWS):
+            sql=path.read_text(encoding='utf-8')
+            queries=re.findall(r'AND runtime_stats_interval_id IN \((.*?)\)\s*ORDER BY start_time',sql,re.S)
+            self.assertEqual(len(queries),2)
+            for query in queries:
+                query=re.sub(r"\bN'", "'", query)
+                query=re.sub(r"CHARINDEX\(N?'([^']+)',t.query_sql_text COLLATE Latin1_General_100_BIN2\)",r"instr(t.query_sql_text,'\1')",query)
+                query=query.replace('COLLATE Latin1_General_100_BIN2','')
+                # Nur der erfasste reguläre markierte Pollquery darf das
+                # neue Intervall freigeben; leerer Katalogeintrag reicht nicht.
+                connection=sqlite3.connect(':memory:')
+                self.addCleanup(connection.close)
+                connection.executescript("""
+                    ATTACH DATABASE ':memory:' AS sys;
+                    CREATE TABLE sys.query_store_runtime_stats(plan_id INT,runtime_stats_interval_id INT,execution_type INT,count_executions INT);
+                    CREATE TABLE sys.query_store_plan(plan_id INT,query_id INT);
+                    CREATE TABLE sys.query_store_query(query_id INT,object_id INT,query_text_id INT);
+                    CREATE TABLE sys.query_store_query_text(query_text_id INT,query_sql_text TEXT);
+                    INSERT INTO sys.query_store_plan VALUES(1,1);
+                    INSERT INTO sys.query_store_query VALUES(1,0,1);
+                    INSERT INTO sys.query_store_query_text VALUES(1,'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;');
+                """)
+                self.assertEqual(connection.execute(query).fetchall(),[])
+                for execution_type,count,expected in ((0,0,[]),(3,1,[]),(0,1,[(11,)])):
+                    connection.execute('DELETE FROM sys.query_store_runtime_stats')
+                    connection.execute('INSERT INTO sys.query_store_runtime_stats VALUES(1,11,?,?)',(execution_type,count))
+                    self.assertEqual(connection.execute(query).fetchall(),expected)
+                connection.execute("UPDATE sys.query_store_query_text SET query_sql_text='SELECT 1'")
+                self.assertEqual(connection.execute(query).fetchall(),[])
+                # Der Katalogreader enthält den Marker als Suchliteral,
+                # ist jedoch nicht der feste Pollquery selbst.
+                connection.execute("UPDATE sys.query_store_query_text SET query_sql_text=?",('SELECT 1 FROM sys.query_store_query_text WHERE '+queries[0],))
+                self.assertEqual(connection.execute(query).fetchall(),[])
+
     def setUp(self) -> None:
         # Gemeinsame synthetische Tabellenbasis; keine Vererbung ihrer Testmethoden.
         self.fixture = profile_fixture.ProfileComparisonTests()

@@ -137,7 +137,7 @@ zu den folgenden unverändert bestehenden Prüfabschnitten:
 | G10 | aktive PlanTypes |
 | G11 | aktive Ausführungsanzahl |
 | G12 | tatsächliche Request-Ergebnisbindung |
-| G13 | Query-Store-Endzeiten innerhalb der Ausführungsgrenzen |
+| G13 | Seit DEC-072 diagnostischer QS↔SYSUTC-Vergleich, ohne Fail/Return oder Zeitpuffer; unveränderte Originalzeiten im v2-Capture |
 | G14 | gewichtete Totals und Recordanzahl |
 | G15 | UTC-Tickdarstellung |
 | G16 | projizierte Planbindung und PlanType |
