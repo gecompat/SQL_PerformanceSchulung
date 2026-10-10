@@ -322,3 +322,40 @@ Branchbereinigung. Alte Failures bleiben sichtbar. Foundation-/Prozessupgrade
 ist bereits getrennt abgeschlossen; allgemeine Welle und Automation bleiben
 pausiert. Die Ursache-/Methodenarbeit ist mit diesen Wiederaufnahmebedingungen
 offen, nicht als erledigte Reparatur geführt.
+
+## Erneute begrenzte Fehleraufnahme am 2026-10-10
+
+Der Benutzer nahm DGN-007 erneut auf und ließ die zuvor gewählte exakte
+G13-Abnahme unverändert. [Draft-PR 128](https://github.com/gecompat/SQL_PerformanceSchulung/pull/128)
+bindet den erhaltenen Reporter an den aktuellen Main-Stand und ergänzt nur im
+tatsächlich fehlgeschlagenen SQL20- beziehungsweise G13-Zweig eine begrenzte
+skalare Rohaufnahme vor Cleanup. Die Diagnose gibt höchstens 16 Query-Store-
+Einzelzeilen mit Fenster-, Familien-, Plan-, Intervall-, Typ-, Count- und
+Zeitfeldern aus; bei SQL20 zusätzlich die Ist-Counts beider Fenster. Der Runner
+prüft die erlaubten Felder und zeigt sie erst nach unabhängiger Cleanupprüfung.
+Ausführungsfolge, vier Requests je Fenster, G13-Prädikat, zehn Sekunden
+Capture-Polling, Phasen- und Cleanupbudgets wurden nicht geändert.
+
+Ein erster lokaler SQL-2022-Diagnoseversuch fand einen neu eingeführten
+SQL-Syntaxfehler vor der fachlichen Abnahme. Nach dieser konkreten Korrektur
+bestanden je ein gezielter `profile-comparison`-Lifecycle auf SQL Server 2022
+und `control-ba` auf SQL Server 2025, jeweils mit erster unabhängiger
+Datenbankabwesenheit und eigenem Containerabbau. Dieser Entwicklungsschritt ist
+kein SQL20-Fehlerfallbeleg. Die einzige neue vollständige
+[PR-Matrix 38045921184](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38045921184)
+am Head `657bbb22759cfbf27e5fbbfbf63e3660a885b3b2` gegen Base `0601361…`
+bestand auf SQL Server 2019, 2022 und 2025. Alle sechs Scopes je Version liefen
+zweimal; die drei Jobs und ihre Cleanupschritte schlossen erfolgreich ab.
+Statische DGN-007-, Offline-Bundle-, Privacy-, Registry- und Governance-Checks
+bestanden. Die zwei bekannten Fehler traten nicht auf.
+
+Damit fehlen unverändert die **Ist-Counts und Familien-/Rohzeilen aus dem
+fehlgeschlagenen SQL20-Lauf** sowie **positive und Zero-Rohfragmente des
+fehlgeschlagenen G13-Laufs** und eine belastbare QS↔SYSUTC-Zeitquellenbeziehung.
+Die neue Matrix widerlegt die früheren Fehler nicht. Eine Ursache und eine
+relevante Gegenprobe sind weiterhin offen; ein rein grüner Wiederholungslauf
+ist keine Reparatur. PR 128 bleibt Draft/`BLOCKED`, der Reporter unintegriert.
+Wiederaufnahme unter der gewählten Methode erfolgt erst mit einem authentischen
+Fehlerfall und dessen vollständiger begrenzter Aufnahme. Eine kollektive
+Zuordnung benötigt stattdessen die gesonderte Methodenentscheidung samt den
+offenen Gates aus dem [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md).
