@@ -335,6 +335,44 @@ END;
 IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
           WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)
 BEGIN
+/* G13_RAW_DIAGNOSTIC_BEGIN */
+    /* Rohfragmente desselben Fehlerfalls aus erneuter Query-Store-Abfrage,
+       kein atomarer Snapshot der gespeicherten Profilaufnahme. Einschließlich
+       Zero-Count-Zeilen; höchstens 16 skalare Zeilen vor dem bestehenden Guard. */
+    BEGIN TRY
+    SELECT TOP(17) ROW_NUMBER() OVER(ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,
+                                      r.runtime_stats_interval_id,r.execution_type,r.first_execution_time) AS Ordinal,
+           w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,
+           r.runtime_stats_interval_id AS IntervalId,r.execution_type AS ExecutionType,
+           r.count_executions AS ExecutionCount,r.first_execution_time AS FirstTime,
+           r.last_execution_time AS LastTime
+    INTO #G13FailureRaw
+    FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
+    JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
+    JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
+    ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,r.runtime_stats_interval_id,
+             r.execution_type,r.first_execution_time;
+    DECLARE @G13RawCount int=(SELECT COUNT(*) FROM #G13FailureRaw),@G13RawOrdinal int=1;
+    DECLARE @G13RawLine varchar(512);
+    PRINT CONCAT('DGN007_G13_RAW|1|BEGIN|',CASE WHEN @G13RawCount>16 THEN 'OVERFLOW' ELSE 'COMPLETE' END,
+                 '|',@G13RawCount);
+    WHILE @G13RawOrdinal<=@G13RawCount AND @G13RawOrdinal<=16
+    BEGIN
+        SELECT @G13RawLine=CONCAT('DGN007_G13_RAW|1|ROW|',Ordinal,'|',WindowId,'|',ParentQueryId,
+                                 '|',QueryId,'|',PlanId,'|',IntervalId,'|',ExecutionType,'|',ExecutionCount,
+                                 '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(FirstTime,'+00:00'),127),'N'),
+                                 '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(LastTime,'+00:00'),127),'N'))
+        FROM #G13FailureRaw WHERE Ordinal=@G13RawOrdinal;
+        PRINT @G13RawLine;
+        SET @G13RawOrdinal+=1;
+    END;
+    PRINT CONCAT('DGN007_G13_RAW|1|END|',CASE WHEN @G13RawCount>16 THEN 0 ELSE @G13RawCount END);
+    END TRY
+    BEGIN CATCH
+        PRINT 'DGN007_G13_RAW|1|BEGIN|INSUFFICIENT|0';
+        PRINT 'DGN007_G13_RAW|1|END|0';
+    END CATCH;
+/* G13_RAW_DIAGNOSTIC_END */
     PRINT 'DGN007_CONTROL_GUARD|G13';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;

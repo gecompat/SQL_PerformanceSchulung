@@ -454,8 +454,17 @@ class ExtractedSqlTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
                 validator.canonical_guard_diagnostics(changed)
         changed=self.evidence.replace('p.FirstExecutionTime<w.ExecutionStarted','1=0')
-        self.assertIn('WHERE 1=0',validator.canonical_guard_diagnostics(changed))
+        with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
+            validator.canonical_guard_diagnostics(changed)
         self.assertTrue(validator.projection_sql_findings(changed))
+
+    def test_g13_raw_diagnostic_strip_is_exact(self):
+        sql = self.evidence
+        self.assertEqual(validator.strip_g13_raw_diagnostic(sql, check_baseline=True).count('DGN007_G13_RAW'), 0)
+        for changed in (sql.replace('TOP(17)', 'TOP(18)', 1),
+                        sql.replace('/* G13_RAW_DIAGNOSTIC_END */', ''),
+                        sql.replace("PRINT 'DGN007_CONTROL_GUARD|G13';", "PRINT 'DGN007_CONTROL_GUARD|G12';")):
+            self.assertTrue(validator.projection_sql_findings(changed))
 
     def test_actual_measurement_select_guard_and_insert_use_actual_rows(self):
         sql=validator.capture_section(self.windows,'REQUEST_MEASUREMENT')
