@@ -662,6 +662,10 @@ class PhaseDiagnosticsTests(unittest.TestCase):
         zulu = replace(result, stderr=result.stderr.replace('+00:00', 'Z'))
         self.assertEqual(runner._query_store_raw_diagnostics(zulu, contract=contract)[0],
                          'DGN007_FAILURE|SQL20_RAW|COMPLETE|rows=1')
+        for zone in ('Z', '+00:00'):
+            whole_seconds = replace(result, stderr=result.stderr.replace('.0000000', '').replace('+00:00', zone))
+            self.assertEqual(runner._query_store_raw_diagnostics(whole_seconds, contract=contract)[0],
+                             'DGN007_FAILURE|SQL20_RAW|COMPLETE|rows=1')
         self.assertEqual(runner._query_store_raw_diagnostics(replace(result, stderr=result.stderr.replace(
             'QUERY_STORE_WINDOWS:stderr', 'SETUP:stderr')), contract=contract),
             ('DGN007_FAILURE|SQL20_RAW|INSUFFICIENT|MALFORMED',))
@@ -684,6 +688,13 @@ class PhaseDiagnosticsTests(unittest.TestCase):
         zulu = replace(result, stderr=result.stderr.replace('+00:00', 'Z'))
         self.assertEqual(runner._query_store_raw_diagnostics(zulu, contract=contract)[0],
                          'DGN007_FAILURE|G13_RAW|COMPLETE|rows=1')
+        for zone in ('Z', '+00:00'):
+            whole_seconds = replace(result, stderr=result.stderr.replace('.0000000', '').replace('+00:00', zone))
+            self.assertEqual(runner._query_store_raw_diagnostics(whole_seconds, contract=contract)[0],
+                             'DGN007_FAILURE|G13_RAW|COMPLETE|rows=1')
+        short_fraction = replace(result, stderr=result.stderr.replace('.0000000', '.000'))
+        self.assertEqual(runner._query_store_raw_diagnostics(short_fraction, contract=contract),
+                         ('DGN007_FAILURE|G13_RAW|INSUFFICIENT|MALFORMED',))
         poisoned = replace(result, stderr=result.stderr.replace('20|30|0|0|', '20|secret|0|0|'))
         self.assertEqual(runner._query_store_raw_diagnostics(poisoned, contract=contract),
                          ('DGN007_FAILURE|G13_RAW|INSUFFICIENT|MALFORMED',))

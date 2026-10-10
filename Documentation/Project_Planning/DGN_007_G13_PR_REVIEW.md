@@ -386,3 +386,120 @@ Die exakte G13-Abnahmerichtung des Benutzers bleibt gewählt. Für eine
 Wiederaufnahme sind die echten SQL20-Ist-Counts und Rohzeilen, G13-Rohfragmente
 und belastbare Zeitquellenbelege zu prüfen und eine gezielte Gegenprobe
 abzuleiten. Ein Methodenwechsel benötigt eine gesonderte Entscheidung.
+
+## Main- und PR-132-Fehler nach dem Diagnose-Merge
+
+Der [Main-Lauf 38050043409](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38050043409)
+scheiterte bei SQL Server 2019, `CONTROL_AA / RUN_2`, an G13. Die neue
+Rohdiagnose wurde als `INSUFFICIENT|MALFORMED` verworfen. Eine einmalige
+isolierte SQL-Server-2019-Probe des verwendeten Style-127-Ausdrucks ergab
+`2026-10-10T12:17:11.3875115Z`: Das bisherige Decoderformat ließ das `Z`
+nicht zu. Diese belegte Parserursache sagt nichts über die G13-Grenzverletzung.
+
+[Draft-PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132)
+akzeptiert nur siebenstellige UTC-Zeitwerte mit `Z` oder `+00:00` und änderte
+keinen SQL-Producer und kein Oracle. In der aktuellen
+[Matrix 38051475267](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38051475267)
+bestanden 2019 und 2025, während 2022 in `CONTROL_BA / RUN_1` an G13
+scheiterte. Der nun erfolgreich decodierte begrenzte Rawblock enthielt genau
+zwei positive reguläre Zeilen, je Count 4: Fenster 0 Plan 16 Intervall 2
+mit First/Last `12:32:00.2930000Z`/`12:32:00.6570000Z`, Fenster 1 Plan 2
+Intervall 3 mit `12:33:00.8500000Z`/`12:33:01.2200000Z`. Die
+`ExecutionStarted`-/`ExecutionFinished`-Werte des Fehlerfalls fehlen weiterhin.
+Der unabhängige Datenbank-Cleanup und alle Containerabbauten bestanden.
+PR 132 bleibt wegen des fachlichen CI-FAILs Draft und ungemergt; kein Bypass.
+
+Die positiven Rohgruppen widerlegen eine allgemeine Zero-Count-Ursache.
+Die QS↔SYSUTC-Grenze ist damit nicht entschieden. SQL20-Ist-Counts eines
+tatsächlichen Fehlers fehlen ebenfalls. Unter der vom Benutzer ausgewählten
+exakten G13-Abnahme bleiben Reporter-PR 128 und Parserfix-PR 132 blockiert.
+Wiederaufnahme braucht vollständige Fehler-Zeitgrenzen und eine gezielte
+Gegenprobe; eine andere Zuordnungsmethode verlangt die gesonderte
+Entscheidung samt offenen Gates des Methodenpakets.
+
+## Isolierte Zeitquellen-Gegenprobe vom 2026-10-10
+
+Der erneute Benutzerauftrag „weiterführen“ autorisiert den begrenzten
+Korrekturscope. Eine neue Gegenprobe untersucht die Zeitklammer getrennt vom
+DGN-007-Datenmodell: frischer eigener Docker-Container, SQL Server 2022
+Developer `16.0.4265.3`, Image `2022-latest`, vier CPU und 8 GiB Limit.
+Das tatsächlich verwendete Image war digestgebunden an
+`sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89`;
+Repositorybasis vor dem lokalen Kandidaten: `642bb09`.
+Nur eine eigene synthetische Datenbank mit vier Projekt-/Vertrags-/Demo-/Runmarkern
+wurde erzeugt. Es gab keine fremden Benutzerdatenbanken und keinen Zugriff auf
+die anderen laufenden Container. Diese Probe ist keine DGN-007-Abnahme.
+
+Query Store wurde auf `READ_WRITE`, Capture `ALL` und einminütige Intervalle
+gesetzt. Eine Tabelle enthielt die vier Zahlen 1, 2, 3, 4. 32 verschiedene,
+innerhalb des SELECT-Statements markierte parameterisierte Abfragen berechneten
+`SUM(n) WHERE n>@p` mit `@p=0`. Nach einmaligem Warmup dieser 32 Statements
+und `QUERY_STORE CLEAR ALL` wurde jedes Statement genau einmal zwischen
+zwei unmittelbar davor/danach gespeicherten `SYSUTCDATETIME()`-Werten ausgeführt.
+Nach dem Flush wurden die regulären Rawfragmente je eindeutiger Querymarkierung
+über Query-/Planbindung aggregiert. Alle 32 Gruppen hatten Count 1, alle
+berechneten Werte waren 10; die gemessenen Query-Store-Durations lagen bei
+26 bis 57 Mikrosekunden. Die Warmup-Ausführungen sind in diesen Counts nicht
+enthalten. Die Auswertung behauptet keine atomare Sicht der Katalogsichten.
+
+Bei **31 von 32** Messpaaren lag `first_execution_time` vor dem zuvor
+gespeicherten Start. Der größte negative Abstand war **75.996 Ticks =
+7,5996 ms**. Ein konkretes Paar war Start/Finish
+`2026-10-10T13:44:14.0075996Z`, First/Last
+`2026-10-10T13:44:14Z`, Count 1, Duration 27 Mikrosekunden.
+Kein Last-Wert lag oberhalb der jeweiligen Finish-Grenze. SYSUTC-Starts und
+QS-First-Werte nahmen jeweils sieben verschiedene Werte an; die Probe
+belegt weder eine universelle Quantisierung noch eine konkrete interne Clock-
+Implementierung. Sie widerlegt jedoch für diese Umgebung die Voraussetzung,
+dass eine korrekt erfasste erfolgreiche Ausführung zwingend in der exakten
+QS↔SYSUTC-Klammer liegt. Die Abweichung über 1 ms widerlegt zusätzlich eine
+Erklärung allein durch Abschneiden der SYSUTC-Nachkommastellen auf volle ms.
+Die historischen SQL20-Countfehler werden dadurch nicht erklärt.
+
+Ein erster Instrumentierungsvorlauf mit nachgestellten Querymarkierungen
+lieferte keine zugeordneten Capturegruppen und wurde als
+`CAPTURE_INSUFFICIENT` abgewiesen. Nur der korrigierte SELECT-interne Marker
+erbrachte den obigen Count-1-Nachweis. Es wurde keine unveränderte DGN-007-Matrix
+wiederholt. Beide eigenen Datenbanken wurden markergebunden entfernt,
+ihre erste unabhängige Abwesenheitsprüfung bestand. Beide Container wurden
+nach vollständiger CID-/Name-/Scope-/Eigentümerprüfung entfernt und unabhängig
+abwesend geprüft. Gemessene Gesamtwalltime beider Versuche einschließlich
+Cleanup: 21,592 s. Modell-/Tokenverbrauch ist unbekannt; keine Unteragenten.
+
+Microsoft Learn beschreibt First/Last als Ausführungs-Endzeit und unterscheidet
+bei SYSUTCDATETIME Präzision und Genauigkeit; daraus folgt keine gemeinsame
+100-ns-Genauigkeit dieser beiden Quellen. Quellen am 2026-10-10 erneut geprüft:
+[Query-Store-RuntimeStats](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17),
+[SYSUTCDATETIME](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver17).
+
+### Konkreter Vorschlag; Methodenentscheidung noch ausstehend
+
+Die QS↔SYSUTC-Klammer soll als Zuordnungsbeweis abgelöst werden; die exakten
+Abstände bleiben als Diagnose erhalten. Die Alternative muss tatsächliche
+erfolgreiche Calls, vollständige Query-/Planfamilien, korrekte Rawaggregation
+ohne Doppelzählung, nachvollziehbare T0-/T1-Intervallzuordnung und die
+Sichtbarkeits-/Zustandsgrenzen nach dem bestehenden
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) belegen.
+Ein bloßer Count 4 oder ein passendes Intervall reicht dafür nicht.
+Der Vorschlag aktiviert keinen Puffer, keine Rundung, keine Capänderung und
+keinen CI-Bypass. Auswahl und neuer registrierter DEC sind vor einer normativen
+G13-Änderung erforderlich. Bis dahin bleibt G13 unverändert und die Reporter-
+Integration blockiert. Die konkrete Auswahl wurde beim Benutzer angefragt.
+
+Unabhängig davon zeigte die neue Probe einen weiteren realen Style-127-Fall:
+bei vollen Sekunden entfällt der Bruchteil vollständig (`13:44:14Z`). Der lokale
+Parserkandidat auf dem vorhandenen PR-132-Branch akzeptiert deshalb neben sieben
+Nachkommastellen auch keinen Bruchteil, jeweils ausschließlich mit `Z` oder
+`+00:00`. Positivkontrollen für beide Formen und eine Negativkontrolle für
+abweichende Bruchteillänge erhalten die Kanal-, Scope-, Guard-, Count-, Overflow-
+und Cleanupbindungen. Der neue CPython-3.12-Runner-AST-Digest ist explizit
+gebunden; die acht anderen Digests bleiben unverändert. Dieser lokale Kandidat
+ist keine G13-Korrektur, nicht nach Main übernommen und noch nicht neu in CI
+ausgeführt. Er wird vor der abhängigen Methodenentscheidung nicht als neuer
+unveränderter Matrixversuch gepusht.
+Die 46 lokalen Runner-Testmethoden, Capture-Projektions-/Kontrollvalidatoren,
+Privacy und `diff --check` bestanden. Das direkte CPython-3.12-Kantenprofil
+bestand für die aktuellen Working-Tree-Bytes einschließlich aller neun ASTs,
+Manifeste und Policy; eine zusätzliche ausführbare AST-Zeile wurde als
+`PYTHON_PROFILE_CHANGED` abgewiesen. Das ist kein erneuter Lauf der vollständigen
+commitgebundenen Offline-Suite und keine Runtimequalifikation des Parserkandidaten.

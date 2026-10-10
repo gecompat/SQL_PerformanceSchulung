@@ -28,7 +28,7 @@ CONTRACT = bundle.DEMO + "Contracts/incident-acceptance.contract.json"
 # ast.dump(include_attributes=False), Parsergrammatik Python 3.12. Kommentare
 # und Layout sind kein ausführbarer AST; Encoding bleibt separat geschlossen.
 PYTHON_AST_SHA256 = (
-    "d5aa302004fedee9f2b792611e26883f725e6a48c1baa79f32f2c6e0d380e0cc",
+    "f85bb50cc2e0f992d166eacd7a89733eae5f8f1bd4ca137355376fbe66ae8de2",
     "585493e97ba6e4c759bccf8fe983d6b61d32253435b4b2481a195f6784d38925",
     "958e555b9e25392e4bf6024eef6ea528305bf489b43ab1ed5af35388eddd37c8",
     "555a3adc06030e7a3a2edde38cca6eee547c2bd7b2fbaecd1e93d3f87e1a0614",
