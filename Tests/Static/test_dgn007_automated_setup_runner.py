@@ -643,6 +643,45 @@ class PhaseDiagnosticsTests(unittest.TestCase):
             diagnostics = runner.capture_failure_diagnostics(result, contract=runner.DATA_MODEL_CONTRACT)
             self.assertFalse(any("|SQL_MESSAGE|" in line for line in diagnostics))
 
+    def test_sql20_raw_evidence_requires_failed_phase_and_complete_numeric_block(self):
+        contract = runner.QUERY_STORE_WINDOWS_CONTRACT
+        result = harness_result(contract=contract,
+            phases=[('QUERY_STORE_WINDOWS', 'FAIL', 'FAIL_EXECUTION'), ('CLEANUP', 'PASS', 'OK')],
+            summary='FAIL|FAIL_EXECUTION', returncode=2)
+        records = (
+            'DGN007_SQL20_RAW|1|BEGIN|COMPLETE|1',
+            'DGN007_SQL20_RAW|1|WINDOW|0|4|4|0',
+            'DGN007_SQL20_RAW|1|WINDOW|1|4|3|3',
+            'DGN007_SQL20_RAW|1|ROW|1|1|10|10|20|30|0|3|2026-10-10T12:00:00.0000000+00:00|2026-10-10T12:00:01.0000000+00:00',
+            'DGN007_SQL20_RAW|1|END|1',
+        )
+        result = replace(result, stderr='\n'.join(f'[QUERY_STORE_WINDOWS:stderr] {line}' for line in records))
+        found = runner._query_store_raw_diagnostics(result, contract=contract)
+        self.assertEqual(found[0], 'DGN007_FAILURE|SQL20_RAW|COMPLETE|rows=1')
+        self.assertIn('DGN007_FAILURE|SQL20_RAW|WINDOW|1|4|3|3', found)
+        self.assertEqual(runner._query_store_raw_diagnostics(replace(result, stderr=result.stderr.replace(
+            'QUERY_STORE_WINDOWS:stderr', 'SETUP:stderr')), contract=contract),
+            ('DGN007_FAILURE|SQL20_RAW|INSUFFICIENT|MALFORMED',))
+
+    def test_g13_raw_evidence_preserves_zero_count_and_rejects_private_text(self):
+        contract = runner.CONTROL_BA_CONTRACT
+        result = harness_result(contract=contract,
+            phases=[('CONTROL_EVIDENCE', 'FAIL', 'FAIL_RESULT_CONTRACT'), ('CLEANUP', 'PASS', 'OK')],
+            summary='FAIL|FAIL_RESULT_CONTRACT', returncode=2)
+        records = (
+            'DGN007_G13_RAW|1|BEGIN|COMPLETE|1',
+            'DGN007_G13_RAW|1|ROW|1|1|10|10|20|30|0|0|2026-10-10T12:00:00.0000000+00:00|2026-10-10T12:00:00.0000000+00:00',
+            'DGN007_G13_RAW|1|END|1',
+            'DGN007_CONTROL_GUARD|G13',
+        )
+        result = replace(result, stderr='\n'.join(f'[CONTROL_EVIDENCE:stderr] {line}' for line in records))
+        found = runner._query_store_raw_diagnostics(result, contract=contract)
+        self.assertEqual(found[0], 'DGN007_FAILURE|G13_RAW|COMPLETE|rows=1')
+        self.assertIn('|0|0|2026-10-10T12:00:00', found[1])
+        poisoned = replace(result, stderr=result.stderr.replace('20|30|0|0|', '20|secret|0|0|'))
+        self.assertEqual(runner._query_store_raw_diagnostics(poisoned, contract=contract),
+                         ('DGN007_FAILURE|G13_RAW|INSUFFICIENT|MALFORMED',))
+
     def test_new_flag_preserves_sticky_cleanup_and_timeout_priority(self):
         contract = runner.QUERY_STORE_WINDOWS_CONTRACT
         result = harness_result(contract=contract, phases=[("QUERY_STORE_WINDOWS", "FAIL", "FAIL_TIMEOUT"), ("CLEANUP", "PASS", "OK")],

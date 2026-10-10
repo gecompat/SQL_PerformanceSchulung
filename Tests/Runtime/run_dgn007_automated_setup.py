@@ -71,6 +71,8 @@ SQL_MESSAGE = re.compile(r"Msg ([1-9][0-9]{0,9}), Level ([0-9]{1,2}), State ([0-
                          r"(?:Server [^,\r\n]{1,256}, )?(?:Procedure [^,\r\n]{1,256}, )?"
                          r"Line ([1-9][0-9]{0,6})(?: \[Batch Start Line [0-9]{1,7}\])?")
 MAX_FAILURE_DIAGNOSTICS = 24
+G13_BOUNDARY_PREFIX = 'DGN007_G13_BOUNDARY|'
+MAX_SQL_TICKS = 3155378975999999999
 
 
 @dataclass(frozen=True)
@@ -434,6 +436,174 @@ def reported_capture_failure(stdout: str, stderr: str, *,
     return None
 
 
+def _g13_boundary_diagnostics(result: SqlcmdResult, *, contract: RunContract) -> tuple[str, ...]:
+    """Nur vollständige gespeicherte G13-Grenzabstände; keine Ursachenbewertung.
+
+    Diese optionale Diagnose entscheidet niemals über Lifecycle oder Cleanup.
+    Fehlende/ungültige Records sind ausschließlich unvollständige Diagnose.
+    """
+    if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
+            or len((result.stdout + result.stderr).encode('utf-8')) > MAX_CAPTURE_OUTPUT_BYTES):
+        return ()
+    outer = [p for p in PHASE.findall(result.stdout) if p[0] == 'CONTROL_EVIDENCE']
+    if outer != [('CONTROL_EVIDENCE', 'FAIL', 'FAIL_RESULT_CONTRACT')]:
+        return ()
+    outer_lines = [line for line in result.stdout.splitlines() if line.startswith('CONTROL_EVIDENCE:')]
+    if len(outer_lines) != 1 or not FAILURE_PHASE.fullmatch(outer_lines[0]):
+        return ()
+    if any(p != 'CONTROL_EVIDENCE' and p != 'CLEANUP' and o == 'FAIL'
+           for p, o, _ in PHASE.findall(result.stdout)):
+        return ()
+    if ('DGN007_CONTROL_GUARD' in result.stdout or G13_BOUNDARY_PREFIX in result.stdout
+            or result.stderr.count('DGN007_CONTROL_GUARD') != 1):
+        return ()
+    lines = result.stderr.splitlines()
+    guard = '[CONTROL_EVIDENCE:stderr] DGN007_CONTROL_GUARD|G13'
+    if lines.count(guard) != 1:
+        return ()
+    position = lines.index(guard)
+    following = position + 1
+    empty = '[CONTROL_EVIDENCE:stderr] '
+    while following < len(lines) and lines[following] == empty:
+        following += 1
+    if following == len(lines) or lines[following] != '[CONTROL_EVIDENCE:stderr] SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT':
+        return ()
+    statuses = [raw[3] for line in lines if (raw := RAW_PHASE.fullmatch(line))
+                and raw[1] == 'CONTROL_EVIDENCE' and SUMMARY.fullmatch(raw[3])]
+    if statuses != ['SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT']:
+        return ()
+    positions = [i for i, line in enumerate(lines) if G13_BOUNDARY_PREFIX in line]
+    if not positions:
+        return ()
+    malformed = ('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|MALFORMED',)
+    first = positions[0]
+    if (positions[-1] >= position or any(len(line) > 512 + len(empty) for line in lines[first:position])
+            or result.stderr.count(G13_BOUNDARY_PREFIX) != len(positions)):
+        return malformed
+    records = []
+    for line in lines[first:position]:
+        if line == empty:
+            continue
+        raw = RAW_PHASE.fullmatch(line)
+        if (not raw or raw.groups()[:2] != ('CONTROL_EVIDENCE', 'stderr')
+                or not raw[3].startswith(G13_BOUNDARY_PREFIX) or not raw[3].isascii()
+                or len(raw[3]) > 512):
+            return malformed
+        records.append(raw[3].split('|'))
+    if len(records) < 2:
+        return malformed
+    begin, end = records[0], records[-1]
+    if (len(begin) != 5 or begin[:3] != ['DGN007_G13_BOUNDARY', '1', 'BEGIN']
+            or len(end) != 4 or end[:3] != ['DGN007_G13_BOUNDARY', '1', 'END']):
+        return malformed
+    if begin[3:] == ['OVERFLOW', '9'] and end[3] == '0' and len(records) == 2:
+        return ('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|OVERFLOW',)
+    if begin[3:] == ['INSUFFICIENT', '0'] and end[3] == '0' and len(records) == 2:
+        return ('DGN007_FAILURE|G13_BOUNDARY|INSUFFICIENT|SOURCE',)
+    if (begin[3] != 'COMPLETE' or not re.fullmatch('[1-8]', begin[4])
+            or end[3] != begin[4] or len(records) != int(begin[4]) + 2):
+        return malformed
+    keys, counts, bounds, plan_bindings, query_bindings, safe = [], {0: 0, 1: 0}, {}, {}, {}, []
+    for ordinal, record in enumerate(records[1:-1], 1):
+        if (len(record) != 17 or record[:3] != ['DGN007_G13_BOUNDARY', '1', 'GROUP']
+                or any(not re.fullmatch(r'(?:0|[1-9][0-9]{0,18})', field) for field in record[3:15])
+                or any(not re.fullmatch(r'(?:0|-?[1-9][0-9]{0,18})', field) for field in record[15:])):
+            return malformed
+        values = tuple(int(field) for field in record[3:])
+        index, window, parent, query, plan, interval, kind, count, start, finish, first_tick, last_tick, ds, df = values
+        if (index != ordinal or window not in (0, 1) or kind != 0 or not 1 <= count <= 4
+                or any(not 1 <= value <= 9223372036854775807 for value in (parent, query, plan, interval))
+                or any(not 0 <= value <= MAX_SQL_TICKS for value in (start, finish, first_tick, last_tick))
+                or start > finish or first_tick > last_tick
+                or ds != first_tick - start or df != last_tick - finish or not (ds < 0 or df > 0)):
+            return malformed
+        keys.append((window, parent, query, plan, interval, kind))
+        if window in bounds and bounds[window] != (interval, start, finish):
+            return malformed
+        bounds[window] = (interval, start, finish)
+        if plan in plan_bindings and plan_bindings[plan] != (parent, query):
+            return malformed
+        plan_bindings[plan] = (parent, query)
+        if query in query_bindings and query_bindings[query] != parent:
+            return malformed
+        query_bindings[query] = parent
+        counts[window] += count
+        safe.append('DGN007_FAILURE|G13_BOUNDARY|GROUP|' + '|'.join(record[3:]))
+    if keys != sorted(set(keys)) or any(count > 4 for count in counts.values()):
+        return malformed
+    if len(bounds) == 2 and (bounds[0][0] == bounds[1][0] or bounds[0][2] > bounds[1][1]):
+        return malformed
+    return (f'DGN007_FAILURE|G13_BOUNDARY|COMPLETE|groups={len(keys)}', *safe)
+
+
+def _query_store_raw_diagnostics(result: SqlcmdResult, *, contract: RunContract) -> tuple[str, ...]:
+    """Begrenzte numerische Rohfragmente nur aus einem tatsächlich fehlgeschlagenen SQL-Pfad."""
+    if len((result.stdout + result.stderr).encode('utf-8')) > MAX_CAPTURE_OUTPUT_BYTES:
+        return ()
+    failures = {phase for phase, outcome, _ in PHASE.findall(result.stdout) if outcome == 'FAIL'}
+    if contract.scope in CONTROL_SCOPES and failures == {'CONTROL_EVIDENCE'}:
+        prefix, phase, label = 'DGN007_G13_RAW', 'CONTROL_EVIDENCE', 'G13_RAW'
+        if result.stderr.count('DGN007_CONTROL_GUARD|G13') != 1:
+            return ()
+    elif failures in ({'QUERY_STORE_WINDOWS'}, {'CONTROL_WINDOWS'}):
+        phase = next(iter(failures))
+        if phase not in contract.expected_phases:
+            return ()
+        prefix, label = 'DGN007_SQL20_RAW', 'SQL20_RAW'
+    else:
+        return ()
+    records = []
+    for line in result.stderr.splitlines():
+        if prefix not in line:
+            continue
+        raw = RAW_PHASE.fullmatch(line)
+        if (raw is None or raw.groups()[:2] != (phase, 'stderr')
+                or not raw[3].startswith(prefix + '|1|') or not raw[3].isascii()
+                or len(raw[3]) > 512):
+            return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+        records.append(raw[3].split('|'))
+    if len(records) < 2 or records[0][:3] != [prefix, '1', 'BEGIN']:
+        return ()
+    begin, end = records[0], records[-1]
+    if (len(begin) != 5 or len(end) != 4 or end[:3] != [prefix, '1', 'END']
+            or begin[3] not in ('COMPLETE', 'OVERFLOW')
+            or not re.fullmatch(r'[0-9]{1,2}', begin[4])
+            or not re.fullmatch(r'[0-9]{1,2}', end[3])):
+        return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    declared = int(begin[4])
+    if begin[3] == 'OVERFLOW':
+        if declared != 17 or int(end[3]) != 0 or len(records) != 18 + (2 if label == 'SQL20_RAW' else 0):
+            return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+        return (f'DGN007_FAILURE|{label}|INSUFFICIENT|OVERFLOW',)
+    if declared > 16 or int(end[3]) != declared:
+        return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    middle = records[1:-1]
+    windows = []
+    if label == 'SQL20_RAW':
+        windows, middle = middle[:2], middle[2:]
+        if (len(windows) != 2 or any(len(row) != 7 or row[:3] != [prefix, '1', 'WINDOW']
+                                     or row[3] != str(index)
+                                     or any(not re.fullmatch(r'(?:N|[0-9]{1,19})', value)
+                                            for value in row[4:])
+                                     for index, row in enumerate(windows))):
+            return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    if len(middle) != declared:
+        return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    for index, row in enumerate(middle, 1):
+        if (len(row) != 13 or row[:3] != [prefix, '1', 'ROW'] or row[3] != str(index)
+                or row[4] not in ('0', '1')
+                or any(not re.fullmatch(r'[0-9]{1,19}', value) for value in row[5:11])
+                or any(not re.fullmatch(r'(?:N|[0-9T:+.\-]{19,40})', value) for value in row[11:])):
+            return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    if windows:
+        for window in (0, 1):
+            regular_count = sum(int(row[10]) for row in middle if row[4] == str(window) and row[9] == '0')
+            if int(windows[window][6]) != regular_count:
+                return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    return (f'DGN007_FAILURE|{label}|COMPLETE|rows={declared}',
+            *(f'DGN007_FAILURE|{label}|' + '|'.join(row[2:]) for row in (*windows, *middle)))
+
+
 def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) -> tuple[str, ...]:
     """Nur feste Statusfelder und positive Msg/Line-Zahlen; keine Rohtexte.
 
@@ -445,10 +615,19 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
             or len((result.stdout + result.stderr).encode("utf-8")) > MAX_CAPTURE_OUTPUT_BYTES):
         return ()
     diagnostics: list[str] = []
+    structured: list[str] = []
+    messages: list[str] = []
     failed_phases: set[str] = set()
     guard_phase_failed = False
 
     def append(line):
+        bucket = messages if '|SQL_MESSAGE|' in line else structured
+        if line not in bucket:
+            if '|SQL_GUARD|' in line:
+                bucket.insert(0, line)
+                del bucket[MAX_FAILURE_DIAGNOSTICS:]
+            elif len(bucket) < MAX_FAILURE_DIAGNOSTICS:
+                bucket.append(line)
         if line not in diagnostics and len(diagnostics) < MAX_FAILURE_DIAGNOSTICS:
             diagnostics.append(line)
 
@@ -501,6 +680,16 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
                 and following.groups()[:2] == ("CONTROL_EVIDENCE", "stderr")
                 and following[3] == "SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT"):
             append(f"DGN007_FAILURE|SQL_GUARD|CONTROL_EVIDENCE|{guard[1]}")
+    boundary = _g13_boundary_diagnostics(result, contract=contract)
+    raw = _query_store_raw_diagnostics(result, contract=contract)
+    if boundary or raw:
+        # Strukturierte Statusfelder und vollständige Berichte vor Msg/Line reservieren.
+        diagnostics = structured[:MAX_FAILURE_DIAGNOSTICS - len(boundary)] + list(boundary)
+        if raw and len(diagnostics) + len(raw) <= MAX_FAILURE_DIAGNOSTICS:
+            diagnostics.extend(raw)
+        elif raw and len(diagnostics) < MAX_FAILURE_DIAGNOSTICS:
+            diagnostics.append(f'DGN007_FAILURE|{raw[0].split("|")[1]}|INSUFFICIENT|OUTPUT_LIMIT')
+        diagnostics.extend(messages[:MAX_FAILURE_DIAGNOSTICS - len(diagnostics)])
     return tuple(diagnostics)
 
 

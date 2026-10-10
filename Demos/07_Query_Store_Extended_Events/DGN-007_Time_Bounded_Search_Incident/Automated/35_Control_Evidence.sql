@@ -335,6 +335,108 @@ END;
 IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
           WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)
 BEGIN
+/* G13_BOUNDARY_REPORTER_BEGIN */
+    /* Rohfragmente derselben fehlgeschlagenen Acquisition, einschließlich
+       Zero-Count-Zeilen; höchstens 16 skalare Zeilen vor dem bestehenden Guard. */
+    SELECT TOP(17) ROW_NUMBER() OVER(ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,
+                                      r.runtime_stats_interval_id,r.execution_type,r.first_execution_time) AS Ordinal,
+           w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,
+           r.runtime_stats_interval_id AS IntervalId,r.execution_type AS ExecutionType,
+           r.count_executions AS ExecutionCount,r.first_execution_time AS FirstTime,
+           r.last_execution_time AS LastTime
+    INTO #G13FailureRaw
+    FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
+    JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
+    JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
+    ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,r.runtime_stats_interval_id,
+             r.execution_type,r.first_execution_time;
+    DECLARE @G13RawCount int=(SELECT COUNT(*) FROM #G13FailureRaw),@G13RawOrdinal int=1;
+    DECLARE @G13RawLine varchar(512);
+    PRINT CONCAT('DGN007_G13_RAW|1|BEGIN|',CASE WHEN @G13RawCount>16 THEN 'OVERFLOW' ELSE 'COMPLETE' END,
+                 '|',@G13RawCount);
+    WHILE @G13RawOrdinal<=@G13RawCount AND @G13RawOrdinal<=16
+    BEGIN
+        SELECT @G13RawLine=CONCAT('DGN007_G13_RAW|1|ROW|',Ordinal,'|',WindowId,'|',ParentQueryId,
+                                 '|',QueryId,'|',PlanId,'|',IntervalId,'|',ExecutionType,'|',ExecutionCount,
+                                 '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(FirstTime,'+00:00'),127),'N'),
+                                 '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(LastTime,'+00:00'),127),'N'))
+        FROM #G13FailureRaw WHERE Ordinal=@G13RawOrdinal;
+        PRINT @G13RawLine;
+        SET @G13RawOrdinal+=1;
+    END;
+    PRINT CONCAT('DGN007_G13_RAW|1|END|',CASE WHEN @G13RawCount>16 THEN 0 ELSE @G13RawCount END);
+    /* Nur gespeicherte verletzte Gruppen; keine zusätzliche QS-Sicht.
+       100-ns-Darstellung ist keine Zusage gemeinsamer Messauflösung/Clock.
+       Alle Zeilen vor PRINT bilden; Diagnosefehler ändern G13 nicht. */
+    DECLARE @G13Stored TABLE(
+        GroupOrdinal int IDENTITY(1,1),WindowId tinyint,ParentQueryId bigint,QueryId bigint,
+        PlanId bigint,IntervalId bigint,ExecutionType tinyint,ExecutionCount bigint,
+        Started datetimeoffset(7),Finished datetimeoffset(7),FirstTime datetimeoffset(7),LastTime datetimeoffset(7));
+    DECLARE @G13Lines TABLE(ProbeLineOrdinal int PRIMARY KEY,Record varchar(8000));
+    DECLARE @G13Status varchar(12)='INSUFFICIENT',@G13Observed int=0,@G13Reported int=0;
+    BEGIN TRY
+        INSERT @G13Stored(WindowId,ParentQueryId,QueryId,PlanId,IntervalId,ExecutionType,ExecutionCount,
+                         Started,Finished,FirstTime,LastTime)
+        SELECT TOP(9) p.WindowId,p.ParentQueryId,p.QueryId,p.PlanId,p.RuntimeStatsIntervalId,p.ExecutionType,p.ExecutionCount,
+               w.ExecutionStarted,w.ExecutionFinished,p.FirstExecutionTime,p.LastExecutionTime
+        FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
+        WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished
+        ORDER BY p.WindowId,p.ParentQueryId,p.QueryId,p.PlanId,p.RuntimeStatsIntervalId,p.ExecutionType;
+        SELECT @G13Observed=COUNT(*) FROM @G13Stored;
+        IF @G13Observed>8 SET @G13Status='OVERFLOW';
+        ELSE IF @G13Observed BETWEEN 1 AND 8
+            AND NOT EXISTS(SELECT 1 FROM @G13Stored WHERE WindowId IS NULL OR WindowId NOT IN (0,1)
+                 OR ParentQueryId IS NULL OR ParentQueryId<=0 OR QueryId IS NULL OR QueryId<=0
+                 OR PlanId IS NULL OR PlanId<=0 OR IntervalId IS NULL OR IntervalId<=0
+                 OR ExecutionType IS NULL OR ExecutionType<>0 OR ExecutionCount IS NULL OR ExecutionCount NOT BETWEEN 1 AND 4
+                 OR Started IS NULL OR Finished IS NULL OR FirstTime IS NULL OR LastTime IS NULL
+                 OR Started>Finished OR FirstTime>LastTime)
+            AND NOT EXISTS(SELECT WindowId,ParentQueryId,QueryId,PlanId,IntervalId,ExecutionType FROM @G13Stored
+                 GROUP BY WindowId,ParentQueryId,QueryId,PlanId,IntervalId,ExecutionType HAVING COUNT(*)<>1)
+            AND NOT EXISTS(SELECT WindowId FROM @G13Stored GROUP BY WindowId HAVING SUM(ExecutionCount)>4)
+        BEGIN
+            INSERT @G13Lines(ProbeLineOrdinal,Record)
+            SELECT s.GroupOrdinal,CONCAT('DGN007_G13_BOUNDARY|1|GROUP|',s.GroupOrdinal,'|',s.WindowId,'|',s.ParentQueryId,
+                   '|',s.QueryId,'|',s.PlanId,'|',s.IntervalId,'|',s.ExecutionType,'|',s.ExecutionCount,
+                   '|',t.StartTicks,'|',t.FinishTicks,'|',t.FirstTicks,'|',t.LastTicks,
+                   '|',t.FirstTicks-t.StartTicks,'|',t.LastTicks-t.FinishTicks)
+            FROM @G13Stored s
+            CROSS APPLY(SELECT CONVERT(datetime2(7),SWITCHOFFSET(s.Started,'+00:00')) AS StartUtc,
+                               CONVERT(datetime2(7),SWITCHOFFSET(s.Finished,'+00:00')) AS FinishUtc,
+                               CONVERT(datetime2(7),SWITCHOFFSET(s.FirstTime,'+00:00')) AS FirstUtc,
+                               CONVERT(datetime2(7),SWITCHOFFSET(s.LastTime,'+00:00')) AS LastUtc) u
+            CROSS APPLY(SELECT
+                DATEDIFF_BIG(day,CONVERT(datetime2(7),'0001-01-01'),u.StartUtc)*CONVERT(bigint,864000000000)
+                +DATEDIFF_BIG(nanosecond,CONVERT(datetime2(7),CONVERT(date,u.StartUtc)),u.StartUtc)/100 AS StartTicks,
+                DATEDIFF_BIG(day,CONVERT(datetime2(7),'0001-01-01'),u.FinishUtc)*CONVERT(bigint,864000000000)
+                +DATEDIFF_BIG(nanosecond,CONVERT(datetime2(7),CONVERT(date,u.FinishUtc)),u.FinishUtc)/100 AS FinishTicks,
+                DATEDIFF_BIG(day,CONVERT(datetime2(7),'0001-01-01'),u.FirstUtc)*CONVERT(bigint,864000000000)
+                +DATEDIFF_BIG(nanosecond,CONVERT(datetime2(7),CONVERT(date,u.FirstUtc)),u.FirstUtc)/100 AS FirstTicks,
+                DATEDIFF_BIG(day,CONVERT(datetime2(7),'0001-01-01'),u.LastUtc)*CONVERT(bigint,864000000000)
+                +DATEDIFF_BIG(nanosecond,CONVERT(datetime2(7),CONVERT(date,u.LastUtc)),u.LastUtc)/100 AS LastTicks) t;
+            IF NOT EXISTS(SELECT 1 FROM @G13Lines WHERE DATALENGTH(Record)>512
+                 OR Record COLLATE Latin1_General_100_BIN2 LIKE '%[^ -~]%')
+                AND (SELECT COUNT(*) FROM @G13Lines)=@G13Observed
+            BEGIN
+                SET @G13Status='COMPLETE'; SET @G13Reported=@G13Observed;
+            END;
+        END;
+    END TRY
+    BEGIN CATCH
+        SET @G13Status='INSUFFICIENT'; SET @G13Observed=0; SET @G13Reported=0;
+    END CATCH;
+    IF @G13Status='INSUFFICIENT' BEGIN SET @G13Observed=0; SET @G13Reported=0; END;
+    DECLARE @G13Line varchar(8000)=CONCAT('DGN007_G13_BOUNDARY|1|BEGIN|',@G13Status,'|',@G13Observed);
+    PRINT @G13Line;
+    DECLARE @G13Ordinal int=1;
+    WHILE @G13Ordinal<=@G13Reported
+    BEGIN
+        SELECT @G13Line=Record FROM @G13Lines WHERE ProbeLineOrdinal=@G13Ordinal;
+        PRINT @G13Line; SET @G13Ordinal+=1;
+    END;
+    SET @G13Line=CONCAT('DGN007_G13_BOUNDARY|1|END|',@G13Reported);
+    PRINT @G13Line;
+/* G13_BOUNDARY_REPORTER_END */
     PRINT 'DGN007_CONTROL_GUARD|G13';
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
 END;

@@ -397,7 +397,54 @@ BEGIN
     PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_EVIDENCE_MISSING'; RETURN;
 END;
 IF @Ready<>1
+BEGIN
+    /* Nur im echten SQL20-Fehlerpfad: markergebundene skalare Rohzeilen vor Cleanup.
+       Weder Polling noch Viererabnahme oder Query-Store-Zustand werden geändert. */
+    SELECT TOP(17) ROW_NUMBER() OVER(ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,
+                                      r.runtime_stats_interval_id,r.execution_type,r.first_execution_time) AS Ordinal,
+           w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,
+           r.runtime_stats_interval_id AS IntervalId,r.execution_type AS ExecutionType,
+           r.count_executions AS ExecutionCount,r.first_execution_time AS FirstTime,
+           r.last_execution_time AS LastTime
+    INTO #Sql20FailureRaw
+    FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
+    JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
+    JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
+    ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,r.runtime_stats_interval_id,
+             r.execution_type,r.first_execution_time;
+    DECLARE @DiagRows int=(SELECT COUNT(*) FROM #Sql20FailureRaw),@DiagWindow tinyint=0;
+    PRINT CONCAT('DGN007_SQL20_RAW|1|BEGIN|',CASE WHEN @DiagRows>16 THEN 'OVERFLOW' ELSE 'COMPLETE' END,
+                 '|',@DiagRows);
+    DECLARE @DiagRequestCount bigint,@DiagProfileCount bigint,@DiagRawCount bigint;
+    WHILE @DiagWindow<=1
+    BEGIN
+        SELECT @DiagRequestCount=RequestCount FROM lab.IncidentState WHERE WindowId=@DiagWindow;
+        SELECT @DiagProfileCount=COALESCE(SUM(ExecutionCount),0)
+        FROM lab.IncidentProfile WHERE WindowId=@DiagWindow;
+        SELECT @DiagRawCount=COALESCE(SUM(r.count_executions),0)
+        FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
+        JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
+        JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
+        WHERE w.WindowId=@DiagWindow AND r.execution_type=0;
+        PRINT CONCAT('DGN007_SQL20_RAW|1|WINDOW|',@DiagWindow,'|',
+            COALESCE(CONVERT(varchar(20),@DiagRequestCount),'N'),'|',@DiagProfileCount,'|',@DiagRawCount);
+        SET @DiagWindow+=1;
+    END;
+    DECLARE @DiagOrdinal int=1;
+    DECLARE @DiagLine varchar(512);
+    WHILE @DiagOrdinal<=@DiagRows AND @DiagOrdinal<=16
+    BEGIN
+        SELECT @DiagLine=CONCAT('DGN007_SQL20_RAW|1|ROW|',Ordinal,'|',WindowId,'|',ParentQueryId,
+                             '|',QueryId,'|',PlanId,'|',IntervalId,'|',ExecutionType,'|',ExecutionCount,
+                             '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(FirstTime,'+00:00'),127),'N'),
+                             '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(LastTime,'+00:00'),127),'N'))
+        FROM #Sql20FailureRaw WHERE Ordinal=@DiagOrdinal;
+        PRINT @DiagLine;
+        SET @DiagOrdinal+=1;
+    END;
+    PRINT CONCAT('DGN007_SQL20_RAW|1|END|',CASE WHEN @DiagRows>16 THEN 0 ELSE @DiagRows END);
     THROW 51002,'FAIL_RESULT_CONTRACT: Query Store erfasste nicht genau vier Suchausführungen je Fenster.',1;
+END;
 IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
           WHERE p.FirstExecutionTime<w.IntervalStart OR p.LastExecutionTime>=w.IntervalEnd)
    OR EXISTS(SELECT 1 FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId WHERE p.is_forced_plan=1)
