@@ -386,3 +386,33 @@ Die exakte G13-Abnahmerichtung des Benutzers bleibt gewählt. Für eine
 Wiederaufnahme sind die echten SQL20-Ist-Counts und Rohzeilen, G13-Rohfragmente
 und belastbare Zeitquellenbelege zu prüfen und eine gezielte Gegenprobe
 abzuleiten. Ein Methodenwechsel benötigt eine gesonderte Entscheidung.
+
+## Main- und PR-132-Fehler nach dem Diagnose-Merge
+
+Der [Main-Lauf 38050043409](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38050043409)
+scheiterte bei SQL Server 2019, `CONTROL_AA / RUN_2`, an G13. Die neue
+Rohdiagnose wurde als `INSUFFICIENT|MALFORMED` verworfen. Eine einmalige
+isolierte SQL-Server-2019-Probe des verwendeten Style-127-Ausdrucks ergab
+`2026-10-10T12:17:11.3875115Z`: Das bisherige Decoderformat ließ das `Z`
+nicht zu. Diese belegte Parserursache sagt nichts über die G13-Grenzverletzung.
+
+[Draft-PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132)
+akzeptiert nur siebenstellige UTC-Zeitwerte mit `Z` oder `+00:00` und änderte
+keinen SQL-Producer und kein Oracle. In der aktuellen
+[Matrix 38051475267](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38051475267)
+bestanden 2019 und 2025, während 2022 in `CONTROL_BA / RUN_1` an G13
+scheiterte. Der nun erfolgreich decodierte begrenzte Rawblock enthielt genau
+zwei positive reguläre Zeilen, je Count 4: Fenster 0 Plan 16 Intervall 2
+mit First/Last `12:32:00.2930000Z`/`12:32:00.6570000Z`, Fenster 1 Plan 2
+Intervall 3 mit `12:33:00.8500000Z`/`12:33:01.2200000Z`. Die
+`ExecutionStarted`-/`ExecutionFinished`-Werte des Fehlerfalls fehlen weiterhin.
+Der unabhängige Datenbank-Cleanup und alle Containerabbauten bestanden.
+PR 132 bleibt wegen des fachlichen CI-FAILs Draft und ungemergt; kein Bypass.
+
+Die positiven Rohgruppen widerlegen eine allgemeine Zero-Count-Ursache.
+Die QS↔SYSUTC-Grenze ist damit nicht entschieden. SQL20-Ist-Counts eines
+tatsächlichen Fehlers fehlen ebenfalls. Unter der vom Benutzer ausgewählten
+exakten G13-Abnahme bleiben Reporter-PR 128 und Parserfix-PR 132 blockiert.
+Wiederaufnahme braucht vollständige Fehler-Zeitgrenzen und eine gezielte
+Gegenprobe; eine andere Zuordnungsmethode verlangt die gesonderte
+Entscheidung samt offenen Gates des Methodenpakets.
