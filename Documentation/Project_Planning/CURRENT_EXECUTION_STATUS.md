@@ -4,7 +4,7 @@
 |---|---|
 | Status | allgemeine Entwicklung `PAUSED`; DGN-007-Reporter trotz grüner Diagnosematrix weiterhin `BLOCKED` durch ungeklärte historische SQL20-/G13-Fehler |
 | Stand | 2026-10-10 |
-| aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) integriert; [PR 127](https://github.com/gecompat/SQL_PerformanceSchulung/pull/127) synchronisierte den Abschlussstand auf `060136117d1f213aeeaa482dc2d9378f5ce69e9a` in `origin/main`. Die aktuelle [DGN-007-Diagnosematrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38045921184) am noch nicht übernommenen PR-Head `657bbb2…` bestand auf 2019/2022/2025, reproduzierte die Fehler aber nicht und erteilt keine Reporterfreigabe. |
+| aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) integriert. Die eigenständige Fehlerrohdiagnose aus [PR 130](https://github.com/gecompat/SQL_PerformanceSchulung/pull/130) ist auf `aea230fb65798afddd4643c92b84f09403819ec6` in `origin/main`; die [aktuelle PR-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38048742623) bestand auf 2019/2022/2025, reproduzierte die Fehler aber nicht und erteilt keine Reporterfreigabe. |
 | früherer fachlicher Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` nach PR 123; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
@@ -54,9 +54,9 @@ QS↔SYSUTC-Evidenz oder eine ausdrückliche neue Methodenentscheidung. Empfehlu
 G13 zunächst exakt erhalten und die fehlenden Fehlerbelege nachholen. Der Benutzer
 hat diese Abnahmerichtung am 2026-10-09 ausdrücklich ausgewählt. Die Methoden-
 alternative bleibt ungewählt; kein Puffer, keine Rundung und keine Capänderung
-ist aktiviert. Die begrenzte Fehleraufnahme ist die Wiederaufnahmebedingung,
-keine bereits implementierte oder erfolgreiche Erfassung des CI-Fehlers. Erst ein belegter Fix
-mit erforderlichen aktuellen Head-/Base-Checks erlaubt den Reporter-Merge.
+ist aktiviert. Die begrenzte Fehleraufnahme ist inzwischen in PR 130 implementiert, hat aber
+noch keinen echten CI-Fehler erfasst. Erst ein belegter Fix mit erforderlichen
+aktuellen Head-/Base-Checks erlaubt den Reporter-Merge.
 
 ### DGN-007-Diagnose und Abschlussgrenze vom 2026-10-10
 
@@ -93,6 +93,44 @@ unveränderte Matrix und keine Reporter-Integration allein aufgrund des PASS.
 Der alte PR68-Branch `codex/dgn007-g13-boundary-report`, der Draft-Branch aus
 PR 128 und die ausdrücklich zurückgestellte lokale interne Capturearbeit bleiben
 wegen nicht übernommener Änderungen erhalten.
+
+### Integrierter Rohdiagnoseschnitt; Reporter weiterhin blockiert
+
+[PR 130](https://github.com/gecompat/SQL_PerformanceSchulung/pull/130) hat nur
+begrenzte Rohdiagnosen in die bereits vorhandenen SQL20-/SQL21-Countfehler- und
+SQL35/G13-Fehlerzweige übernommen. Die spätere Query-Store-Rohsicht ist keine
+atomare Wiederholung der gespeicherten Profilaufnahme. Sie gibt höchstens
+16 skalare Zeilen sowie bei SQL20 beide Fenster-Counts aus; Overflow,
+Abfragefehler oder ungültige Records bleiben ausdrücklich unzureichende
+Diagnose. Requests, Viererabnahme, exakter G13-Guard, Polling, Caps und
+Cleanuppriorität sind unverändert. Der Grenzabstands-Reporter aus Draft-PR 128
+ist nicht enthalten.
+
+Die einzige aktuelle [PR-130-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38048742623)
+am Head `177b1b72341debce9dbc43432259dccffae919f1` gegen Base
+`0e71067c2a86d9e866b705fdefaf7dd9f914f397` bestand auf SQL Server
+2019/2022/2025 je sechs Scopes mit zwei Lifecycles (36 insgesamt). Alle
+36 unabhängigen Datenbank-Cleanupchecks und die drei Containerabbauten
+bestanden. Auch Privacy, Registry, Governance, Offline-Bundle und die
+betroffenen statischen DGN-007-Checks waren grün. Der Squash-Merge
+`aea230fb65798afddd4643c92b84f09403819ec6` hat denselben Tree wie der
+geprüfte Head; lokales `main` ist mit `origin/main` synchronisiert. Der eigene
+vollständig übernommene Diagnosebranch wurde lokal und remote entfernt.
+
+Keiner der zwei alten Fehler trat in dieser Matrix auf. Tatsächliche SQL20-
+Ist-Counts aus einem Fehllauf und positive/Zero-Rawfragmente des SQL-2025-
+G13-Fehllaufs fehlen weiter; eine neue Query-Store-Abfrage wäre zudem kein
+atomarer Beleg der ursprünglichen Profilaufnahme. Die beobachteten G13-
+Grenzverletzungen und eine frühere positive Count-4-Rohzeile widerlegen eine
+allgemeine Zero-Count-Erklärung, beweisen aber noch keine zulässige
+Zeitquellengrenze. PR 128 bleibt Draft/`BLOCKED`, PR 68 geschlossen mit
+erhaltenem Codebranch, die interne Capturearbeit pausiert. Wiederaufnahme:
+authentischen fehlgeschlagenen Lauf mit Counts, Rohzeilen und Zeitwerten
+gezielt auswerten, daraus eine ursachenbezogene Gegenprobe ableiten und den
+exakten G13-Vertrag beibehalten. Falls dies innerhalb des Vertrags nicht
+möglich ist, braucht die kollektive Zuordnung eine neue ausdrückliche
+Methodenentscheidung mit den offenen Gates des Entscheidungspakets. Kein
+weiterer unveränderter Matrixlauf und kein Reporter-Merge allein wegen PASS.
 
 Am 2026-10-08 hat der Benutzer angewiesen, keine neuen Aufgaben zu beginnen,
 alle laufenden Arbeiten konsistent abzuschließen und anschließend diesen

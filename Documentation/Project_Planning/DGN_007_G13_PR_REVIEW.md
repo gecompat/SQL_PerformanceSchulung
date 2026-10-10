@@ -359,3 +359,30 @@ Wiederaufnahme unter der gewählten Methode erfolgt erst mit einem authentischen
 Fehlerfall und dessen vollständiger begrenzter Aufnahme. Eine kollektive
 Zuordnung benötigt stattdessen die gesonderte Methodenentscheidung samt den
 offenen Gates aus dem [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md).
+
+## Separat integrierte Rohdiagnose nach PR 130
+
+[PR 130](https://github.com/gecompat/SQL_PerformanceSchulung/pull/130) isolierte
+die auf 16 skalare Zeilen begrenzten SQL20-/G13-Rohdiagnosen aus dem weiterhin
+blockierten Reporterpaket. SQL20 meldet im tatsächlichen Countfehler beide
+Fenster-Counts und scoped Rawfragmente; G13 meldet im verletzten Guardzweig
+positive und Zero-Rawfragmente. Jede Sicht ist eine spätere Query-Store-Abfrage
+im selben Fehlerfall, keine atomare Rawaufnahme des gespeicherten Profils.
+Fehlende, überlaufende oder ungültige Diagnose ist kein positiver Beleg.
+Der bestehende Fehlerausgang und unabhängige Cleanup bleiben maßgeblich.
+
+Der aktuelle [CI-Lauf 38048742623](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38048742623)
+bestand gegen Base `0e71067…` auf 2019, 2022 und 2025 alle sechs Scopes
+zweimal, insgesamt 36 Lifecycles mit 36 unabhängigen Cleanup-PASS, sowie die
+statischen und Pflichtchecks. PR 130 wurde als Tree-identischer Squash-Commit
+`aea230f…` auf `origin/main` integriert; sein eigener Branch wurde nach
+Übernahmeprüfung lokal und remote gelöscht. Kein SQL20- oder G13-Fehler trat
+auf. Diese grüne Diagnosematrix ersetzt weder den roten CI-Lauf
+[37892941746](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37892941746)
+noch die fehlende Ursachen- und Zeitquellenevidenz. Der Reporter bleibt in
+[Draft-PR 128](https://github.com/gecompat/SQL_PerformanceSchulung/pull/128)
+`BLOCKED`; dessen Branch sowie der alte PR68-Branch bleiben erhalten.
+Die exakte G13-Abnahmerichtung des Benutzers bleibt gewählt. Für eine
+Wiederaufnahme sind die echten SQL20-Ist-Counts und Rohzeilen, G13-Rohfragmente
+und belastbare Zeitquellenbelege zu prüfen und eine gezielte Gegenprobe
+abzuleiten. Ein Methodenwechsel benötigt eine gesonderte Entscheidung.
