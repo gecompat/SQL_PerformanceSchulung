@@ -2,9 +2,9 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
-| Stand | 2026-10-09 |
-| aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) in `origin/main` auf `47e3cd605e0bfc7e14e4494c0ee9b00fc5aeb4eb` integriert. Der geprüfte Branch und der Squash-Merge besitzen denselben Git-Tree; 39 PR-Checks waren erfolgreich, elf SQL-Runtime-Jobs wegen unveränderter fachlicher Eingaben ausdrücklich `SKIPPED`, und 27 Main-Push-Workflows waren erfolgreich. Eigener lokaler und Remote-Branch sind nach Übernahme entfernt. Keine neue DGN-007-Runtime-Abnahme oder Reporterfreigabe. |
+| Status | allgemeine Entwicklung `PAUSED`; DGN-007-Reporter trotz grüner Diagnosematrix weiterhin `BLOCKED` durch ungeklärte historische SQL20-/G13-Fehler |
+| Stand | 2026-10-10 |
+| aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) integriert; [PR 127](https://github.com/gecompat/SQL_PerformanceSchulung/pull/127) synchronisierte den Abschlussstand auf `060136117d1f213aeeaa482dc2d9378f5ce69e9a` in `origin/main`. Die aktuelle [DGN-007-Diagnosematrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38045921184) am noch nicht übernommenen PR-Head `657bbb2…` bestand auf 2019/2022/2025, reproduzierte die Fehler aber nicht und erteilt keine Reporterfreigabe. |
 | früherer fachlicher Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` nach PR 123; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
 | Fachliche Hauptwelle | `ADV-008` und `W-COV-001` vollständig runtimevalidiert |
@@ -57,6 +57,42 @@ alternative bleibt ungewählt; kein Puffer, keine Rundung und keine Capänderung
 ist aktiviert. Die begrenzte Fehleraufnahme ist die Wiederaufnahmebedingung,
 keine bereits implementierte oder erfolgreiche Erfassung des CI-Fehlers. Erst ein belegter Fix
 mit erforderlichen aktuellen Head-/Base-Checks erlaubt den Reporter-Merge.
+
+### DGN-007-Diagnose und Abschlussgrenze vom 2026-10-10
+
+Der erneute ausdrückliche Benutzerauftrag nahm ausschließlich DGN-007 zur
+autonomen Bearbeitung wieder auf; allgemeine Entwicklung, SESSION_END, interne
+Capture-Rückgabe und die pausierte Automation bleiben ausgenommen. Der erhaltene
+Reporter wurde in [Draft-PR 128](https://github.com/gecompat/SQL_PerformanceSchulung/pull/128)
+auf dem Branch `codex/dgn007-failure-evidence` mit einer ausschließlich im echten
+SQL20- beziehungsweise G13-Fehlerzweig aktiven, auf 16 skalare Rohzeilen
+begrenzten Diagnose kombiniert. Viererabnahme, G13, Requests, Polling und
+Budgets sind unverändert. Nach einer korrigierten SQL-Syntaxstelle bestanden je
+ein instrumentierter lokaler `profile-comparison`-Lifecycle auf SQL Server 2022
+und `control-ba` auf SQL Server 2025 samt unabhängigen Cleanupprüfungen. Diese
+beiden Läufe reproduzierten die Fehler nicht.
+
+Die einzige aktuelle [PR-Matrix 38045921184](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38045921184)
+am Head `657bbb22759cfbf27e5fbbfbf63e3660a885b3b2` gegen Base `0601361…`
+bestand alle statischen Gates und die vollständigen SQL-Jobs auf 2019, 2022 und
+2025. Je Version erreichte der Runner die sechs Scopes mit zwei Lifecycles;
+Cleanup und Containerabbau sind im Job erfolgreich abgeschlossen. Weder der
+frühere SQL20-Countfehler noch G13 trat auf. Ein aktueller PASS ist deshalb
+**keine belegte Korrektur** der fehlgeschlagenen [Matrix 37892941746](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37892941746).
+PR 128 bleibt Draft/`BLOCKED`; der Reporter-Code ist nicht in `main`.
+
+Weiter fehlen die tatsächlichen SQL20-Ist-Counts samt Familien-/Rawzustand aus
+einem fehlgeschlagenen Lauf und bei G13 die positiven/Zero-Rohfragmente derselben
+fehlgeschlagenen Acquisition sowie ein belastbarer QS↔SYSUTC-Zeitquellenbeleg.
+Die gewählte exakte G13-Abnahme bleibt bestehen. Wiederaufnahme braucht einen
+authentischen Fehlerfall mit diesen begrenzten Belegen und eine daraus abgeleitete
+Gegenprobe; eine alternative kollektive Zuordnung verlangt zuvor die ausdrückliche
+Methodenentscheidung und ihre offenen Gates aus dem
+[Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md). Keine weitere
+unveränderte Matrix und keine Reporter-Integration allein aufgrund des PASS.
+Der alte PR68-Branch `codex/dgn007-g13-boundary-report`, der Draft-Branch aus
+PR 128 und die ausdrücklich zurückgestellte lokale interne Capturearbeit bleiben
+wegen nicht übernommener Änderungen erhalten.
 
 Am 2026-10-08 hat der Benutzer angewiesen, keine neuen Aufgaben zu beginnen,
 alle laufenden Arbeiten konsistent abzuschließen und anschließend diesen
