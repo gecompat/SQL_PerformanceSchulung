@@ -310,3 +310,15 @@ Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an
 Quellen und Traceability: bestehender Designvertrag `ADV-007`,
 `SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`, `SRC-035`, `SRC-036`
 mit Abrufdatum gemäß Quellenregister; `LO-M07-04`, `LO-M06-08`, `LO-M03-07`.
+
+Seit `DEC-072` muss der separate feste Pollquery mit dem Marker
+`DGN007_INTERVAL_PULSE` im ausgewählten Query-Store-Intervall tatsächlich
+regulär erfasst sein. Eine lediglich passend datierte Katalogzeile reicht
+nicht mehr für die Rotation. Die Suchrequests laufen weiterhin nacheinander.
+SQL35 meldet eine Abweichung zwischen QS-First/Last und SYSUTC-Start/Ende als
+`DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH` und gibt die unveränderten
+skalaren Capture-Zeitwerte aus. Diese Abweichung beendet den Lauf nicht.
+Ausführungszahlen, Intervall-IDs, Requests, Ergebnisse, Planfamilien und Cleanup
+bleiben Voraussetzung des begrenzten Kontrollcapture-PASS. Der Capture-Body
+und der prospektive Vertrag verwenden explizit Version 2; es gibt keinen
+optional abschaltbaren Zeitguard und keinen Zeitpuffer.

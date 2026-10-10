@@ -463,7 +463,8 @@ class ExtractedSqlTests(unittest.TestCase):
         self.assertEqual(validator.strip_g13_raw_diagnostic(sql, check_baseline=True).count('DGN007_G13_RAW'), 0)
         for changed in (sql.replace('TOP(17)', 'TOP(18)', 1),
                         sql.replace('/* G13_RAW_DIAGNOSTIC_END */', ''),
-                        sql.replace("PRINT 'DGN007_CONTROL_GUARD|G13';", "PRINT 'DGN007_CONTROL_GUARD|G12';")):
+                        sql.replace("PRINT 'DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH';", "RETURN;"),
+                        sql.replace(validator.G13_DIAGNOSTIC, validator.G13_DIAGNOSTIC + '    RETURN;\n')):
             self.assertTrue(validator.projection_sql_findings(changed))
 
     def test_actual_measurement_select_guard_and_insert_use_actual_rows(self):

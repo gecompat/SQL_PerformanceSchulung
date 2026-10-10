@@ -3,8 +3,8 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `STATIC_PROSPECTIVE_CONTRACT` |
-| Entscheidung | `DEC-068` in [`.ai/DECISIONS.md`](../../../../.ai/DECISIONS.md) |
-| Vertragsrevision | [`incident-acceptance.contract.json`](incident-acceptance.contract.json), `dgn007-prospective-acceptance/v1` |
+| Entscheidung | `DEC-068` (Metriken) und `DEC-072` (beobachtete Intervallzuordnung) in [`.ai/DECISIONS.md`](../../../../.ai/DECISIONS.md) |
+| Vertragsrevision | [`incident-acceptance.contract.json`](incident-acceptance.contract.json), `dgn007-prospective-acceptance/v2` |
 | Implementierung | [reiner Evaluator](../../../../Tests/Contracts/dgn007_prospective_acceptance.py) |
 | Abnahmegrenze | Prädikate und Konsistenz synthetischer Records; keine SQL-Runtime-Abnahme |
 
@@ -15,6 +15,19 @@ Reproduktionsbewertung vor frischen Bestätigungsläufen fest. Der Evaluator
 nimmt bereits typisierte skalare Records entgegen. Er startet keine Prozesse,
 öffnet keine Dateien oder SQL-Verbindungen und liest keinen `sqlcmd`-Output.
 Ein Fixture-PASS bestätigt ausschließlich die Berechnung und Recordkonsistenz.
+
+Version 2 behandelt den direkten QS↔SYSUTC-Vergleich gemäß `DEC-072` nur
+diagnostisch. Die Originalzeitwerte bleiben erhalten, ohne Puffer oder
+Rundungskorrektur. Die kontrollierten Requests müssen tatsächlich erfolgreich
+ausgeführt und ihre Ergebnisse geprüft sein; Query Store muss in den
+beobachteten Intervallen jeweils genau vier reguläre Suchausführungen zeigen.
+Die Intervallauswahl verlangt zusätzlich die tatsächliche Query-Store-Erfassung
+des separaten markierten Pollqueries im ausgewählten Intervall. Alle bisherigen
+Ergebnis-, Count-, Familien-, Plan-, Budget- und Cleanup-Prüfungen bleiben bestehen.
+Das ist eine begrenzte Beobachtung im isolierten vertrauenswürdigen Lab, keine
+Einzelrequest→Plan- oder kontinuierliche Zustandsattestation. Der Evaluator kann
+historische v1-Verträge weiterhin unter deren ursprünglicher Zeitregel prüfen;
+der aktuelle v2-Capture-Decoder interpretiert keinen v1-Body als v2.
 
 ## Vorab festgelegte Methode
 

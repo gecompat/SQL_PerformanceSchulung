@@ -1,7 +1,7 @@
 """Begrenzter JSON-Transport eines skalaren DGN-007-Capture-Bodys.
 
 decode_capture(text, expected_contract) prüft ausschließlich PROJECT_SEMANTIC.
-Schema dgn007-capture-body/v1 bindet Major/Compatibility, Control-Scope,
+Schema dgn007-capture-body/v2 bindet Major/Compatibility, Control-Scope,
 Parent-Objekt und deklarierte Digests; Herkunft und Vorabfreeze sind unbelegt.
 Die JSON-Arrays windows/families/plans/plan_union verwenden exakt die Felder
 der vorhandenen frozen Recordtypen. Metriken sind Decimal-Text, Planhashes
@@ -24,7 +24,7 @@ from Tests.Contracts.dgn007_prospective_acceptance import (
     QueryFamilyRecord, REQUEST_MAPPING, WindowRecord, _contract_valid,
 )
 
-SCHEMA = "dgn007-capture-body/v1"
+SCHEMA = "dgn007-capture-body/v2"
 MAX_PAYLOAD_BYTES = 32768
 MAX_JSON_DEPTH = 8
 MAX_INTEGER_DIGITS = 19
@@ -288,9 +288,7 @@ def _bindings(body: CaptureBody) -> None:
         _require(plan.interval_id == window.interval_id and plan.query_id in families
                  and families[plan.query_id].parent_query_id == plan.parent_query_id
                  and window.interval_start_ticks <= plan.first_execution_ticks
-                 <= plan.last_execution_ticks < window.interval_end_ticks
-                 and window.execution_started_ticks <= plan.first_execution_ticks
-                 <= plan.last_execution_ticks <= window.execution_finished_ticks)
+                 <= plan.last_execution_ticks < window.interval_end_ticks)
         key = (plan.window_id, plan.plan_id)
         identity = (plan.parent_query_id, plan.query_id, plan.query_plan_hash, plan.plan_type)
         _require(key not in keys and (plan.plan_id not in identities or identities[plan.plan_id] == identity))
@@ -322,6 +320,7 @@ def _decode(text: str, expected_contract: AcceptanceContract) -> CaptureBody:
                        parse_float=_reject_number, parse_constant=_reject_number)
     header = _object(value, _TOP_FIELDS)
     _require(type(header["schema"]) is str and header["schema"] == SCHEMA, "FAIL_CONTRACT")
+    _require(expected_contract.schema == "dgn007-prospective-acceptance/v2", "FAIL_CONTRACT")
     major = _integer(header["major"])
     compatibility = _integer(header["compatibility"])
     _require(major in (15, 16, 17) and compatibility == major * 10, "FAIL_CONTRACT")

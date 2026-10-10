@@ -169,10 +169,10 @@ class ContractError(ValueError):
         super().__init__("FAIL_CONTRACT")
 
 
-def _policy() -> dict:
+def _policy(schema: str = "dgn007-prospective-acceptance/v2") -> dict:
     """Feste Regeln; JSON darf diese Version nicht stillschweigend umdefinieren."""
-    return {
-        "schema": "dgn007-prospective-acceptance/v1",
+    policy = {
+        "schema": schema,
         "decision_reference": "DEC-068",
         "status": "STATIC_PROSPECTIVE_CONTRACT",
         "demo_id": "DGN-007",
@@ -209,6 +209,13 @@ def _policy() -> dict:
         "freeze_binding": "syntactic_and_internal_only_collector_attestation_pending",
         "claim_scope": "Prospektive Prädikatprüfung; keine Runtime-Abnahme",
     }
+    if schema == "dgn007-prospective-acceptance/v2":
+        policy["assignment_decision_reference"] = "DEC-072"
+        policy["assignment_scope"] = "isolated_lab_observed_requests_and_query_store_intervals"
+        policy["qs_sysutc_execution_envelope"] = "diagnostic_only_no_tolerance"
+    elif schema != "dgn007-prospective-acceptance/v1":
+        raise ContractError()
+    return policy
 
 
 def _digest(mapping: dict) -> str:
@@ -245,7 +252,7 @@ def contract_from_mapping(mapping: dict) -> AcceptanceContract:
     try:
         if type(mapping) is not dict or not _plain_json(mapping):
             raise ContractError()
-        policy = _policy()
+        policy = _policy(mapping.get("schema"))
         if set(mapping) != set(policy) | {"source_sha256"}:
             raise ContractError()
         actual_policy = {key: mapping[key] for key in policy}
@@ -338,15 +345,15 @@ def _contract_valid(contract: AcceptanceContract) -> bool:
             or any(type(row) is not tuple or len(row) != 2 or type(row[0]) is not str
                    or not _sha256(row[1]) for row in contract.source_hashes)):
         return False
-    mapping = _policy()
-    mapping["source_sha256"] = dict(contract.source_hashes)
     try:
+        mapping = _policy(contract.schema)
+        mapping["source_sha256"] = dict(contract.source_hashes)
         return contract == contract_from_mapping(mapping)
     except ContractError:
         return False
 
 
-def _run_valid(run: RunRecord, sequence: str) -> None:
+def _run_valid(run: RunRecord, sequence: str, schema: str) -> None:
     """Last, Zeitgrenzen und gebundene aktive Mengen aus Records nachprüfen.
 
     SQL-Eigentum, tatsächliche Ausführung/Reihenfolge und frischer Lifecycle
@@ -435,9 +442,10 @@ def _run_valid(run: RunRecord, sequence: str) -> None:
                  and families[plan.query_id].parent_query_id == plan.parent_query_id)
         _require(_ticks(plan.first_execution_ticks) and _ticks(plan.last_execution_ticks)
                  and window.interval_start_ticks <= plan.first_execution_ticks
-                 <= plan.last_execution_ticks < window.interval_end_ticks
-                 and window.execution_started_ticks <= plan.first_execution_ticks
-                 <= plan.last_execution_ticks <= window.execution_finished_ticks)
+                 <= plan.last_execution_ticks < window.interval_end_ticks)
+        if schema == "dgn007-prospective-acceptance/v1":
+            _require(window.execution_started_ticks <= plan.first_execution_ticks
+                     <= plan.last_execution_ticks <= window.execution_finished_ticks)
         _require(type(plan.query_plan_hash) is bytes and len(plan.query_plan_hash) == 8)
         _require((run.major == 15 and plan.plan_type is None)
                  or (run.major >= 16 and _integer(plan.plan_type, 0, 2) and plan.plan_type != 1))
@@ -509,7 +517,7 @@ def evaluate_version(contract: AcceptanceContract, expected_major: int,
         duration, reads, duration_drift, reads_drift, plan_differences = [], [], [], [], []
         for index, run in enumerate(runs):
             sequence = BLOCKS[index // 3][index % 3]
-            _run_valid(run, sequence)
+            _run_valid(run, sequence, contract.schema)
             first, second = run.windows
             if sequence == "AA":
                 duration_drift.append(abs(_metric(second.avg_duration_us) - _metric(first.avg_duration_us)))

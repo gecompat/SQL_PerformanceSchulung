@@ -8,11 +8,38 @@
 | aktueller Abgleich nach Foundation-Upgrade | `2f04deb2fed0faf5bedf70101fea3f4b93d46678`, [PR 123](https://github.com/gecompat/SQL_PerformanceSchulung/pull/123) |
 | ursprünglicher Reporter-Head | `27a9b5ce81347beaa6d6bfd8788c62965495f0ca` |
 | aktualisierter Reporter-Kandidat | `f9ec582017c942e4278252427c62695e313d37f9` |
-| aktuelle Codefreigabe | `BLOCKED` – zwei aktuelle substantielle Runtimefehler; kein Merge oder Bypass |
+| aktueller Abschluss | PR 68 fachlich verworfen; finaler Parser-/Methodenschnitt in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132) gemäß `DEC-072`, Integration nur mit aktueller relevanter CI |
 | Arbeit | [PR 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68), `codex/dgn007-g13-boundary-report` |
 | Ergebnisgrenze | Diagnosepaket; keine G13-Behebung, Methodenwahl oder Incidentfreigabe |
 
 ## Problem und nachweisbare Ursache des Fehlschlags
+
+**Aktuelle Entscheidung vom 2026-10-10:** Der Benutzer hat die neue Methode
+freigegeben und den Umfang anschließend auf einen zügigen, begrenzten Abschluss
+festgelegt. `DEC-072` und der v2-Vertrag behandeln QS↔SYSUTC diagnostisch ohne
+Zeitpuffer. SQL20/21 verlangen im gewählten Intervall zusätzlich tatsächliche
+reguläre QS-Erfassung des festen separat markierten Pollqueries; eine passend
+datierte Katalogzeile allein genügt nicht. Die eigene kontrollierte Last und
+ihre Ergebnisse, vier reguläre Suchausführungen, Intervall-/Familien-/Planbindung,
+Budgets und Cleanup bleiben überprüft. Die Aussage ist eine beobachtete
+Labzuordnung, keine exakte Einzelrequest→Plan- oder Host-Provenienzattestation.
+Die größere vorgeschlagene Nachweisarchitektur bleibt zurückgestellt.
+
+PR 68 wird verworfen, weil sein ausschließlich am bisherigen G13-Fehlerpfad
+hängender Reporter für diesen Abschluss überholt ist. Das ist kein Befund eines
+defekten Reporters. Die nützliche Rawdiagnose aus PR 128 ist schon mit PR 130
+auf Main; den zusätzlichen alten Reporter übernehmen wir aus demselben Grund
+nicht. PR 132 korrigiert die tatsächlich fehlerhafte UTC-Z-/Vollsekunden-
+Parserannahme und führt die v2-Methode ein. Originalzeiten bleiben vollständig
+im Capture, die alte Rawdiagnose bleibt begrenzt erhalten. Der alte v1-Evaluator
+behält sein G13-Prädikat; v1-Bodies werden nicht als v2 interpretiert.
+Die relevante aktuelle Versionsmatrix und Integration sind direkt in PR 132
+nachprüfbar. Erst danach folgt die Bereinigung der zugehörigen Branches;
+verworfene Quellen werden zuvor lokal als geprüftes Git-Bundle gesichert.
+
+Die folgenden Analysen und fehlgeschlagenen Runs bilden die Historie. Aussagen
+über noch ausstehende Benutzerfreigabe oder notwendige größere Provenienzgates
+gelten nicht mehr für den ausdrücklich gewählten begrenzten Abschluss.
 
 SQL21 speichert unmittelbar vor den vier Suchrequests je Fenster
 `ExecutionStarted` und danach `ExecutionFinished` aus `SYSUTCDATETIME()`.

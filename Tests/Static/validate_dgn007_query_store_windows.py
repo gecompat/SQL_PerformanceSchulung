@@ -103,7 +103,7 @@ SELECT q.query_id FROM sys.query_store_query q JOIN sys.query_store_query_text t
 WHERE q.object_id=@ObjectId
   AND CHARINDEX(N'/* DGN007_CASE_SEARCH */',t.query_sql_text COLLATE Latin1_General_100_BIN2)>0
 """
-PULSE_CALL = "EXEC sys.sp_executesql N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;', N'@Rows bigint OUTPUT',@Rows=@Pulse OUTPUT;"
+PULSE_CALL = "EXEC sys.sp_executesql N'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;', N'@Rows bigint OUTPUT',@Rows=@Pulse OUTPUT;"
 POLL_PULSE = PULSE_CALL + """
 IF @Pulse IS NULL OR @Pulse<>12
 BEGIN
@@ -117,6 +117,14 @@ SELECT TOP(1) @PreviousIntervalId=runtime_stats_interval_id,@PreviousEnd=end_tim
 FROM sys.query_store_runtime_stats_interval
 WHERE start_time<=TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
   AND end_time>TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
+AND runtime_stats_interval_id IN (
+            SELECT r.runtime_stats_interval_id
+            FROM sys.query_store_runtime_stats r JOIN sys.query_store_plan p ON p.plan_id=r.plan_id
+            JOIN sys.query_store_query q ON q.query_id=p.query_id
+            JOIN sys.query_store_query_text t ON t.query_text_id=q.query_text_id
+            WHERE q.object_id=0 AND r.execution_type=0 AND r.count_executions>0
+              AND CHARINDEX(N'/* DGN007_INTERVAL_PULSE */',t.query_sql_text COLLATE Latin1_General_100_BIN2)>0
+              AND RTRIM(REPLACE(t.query_sql_text,N';',N'')) COLLATE Latin1_General_100_BIN2 LIKE N'%SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup')
 ORDER BY start_time DESC;
 """,
     "IntervalId": """
@@ -125,6 +133,14 @@ FROM sys.query_store_runtime_stats_interval
 WHERE runtime_stats_interval_id<>@PreviousIntervalId AND start_time>=@PreviousEnd
   AND start_time<=TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
   AND end_time>TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
+AND runtime_stats_interval_id IN (
+            SELECT r.runtime_stats_interval_id
+            FROM sys.query_store_runtime_stats r JOIN sys.query_store_plan p ON p.plan_id=r.plan_id
+            JOIN sys.query_store_query q ON q.query_id=p.query_id
+            JOIN sys.query_store_query_text t ON t.query_text_id=q.query_text_id
+            WHERE q.object_id=0 AND r.execution_type=0 AND r.count_executions>0
+              AND CHARINDEX(N'/* DGN007_INTERVAL_PULSE */',t.query_sql_text COLLATE Latin1_General_100_BIN2)>0
+              AND RTRIM(REPLACE(t.query_sql_text,N';',N'')) COLLATE Latin1_General_100_BIN2 LIKE N'%SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup')
 ORDER BY start_time;
 """,
 }
@@ -264,10 +280,10 @@ def main() -> int:
             ("@Rows=@Pulse OUTPUT", ""),
             ("@Rows=@Pulse OUTPUT", "@Rows=@Pulse"),
             ("@Rows=@Pulse OUTPUT", "@Rows=@Unbound OUTPUT"),
-            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "@UnboundSql"),
-            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT COUNT_BIG(*) FROM dbo.CaseGroup;'"),
-            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;' + @UnboundSql"),
-            ("N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup; DELETE FROM dbo.CaseRequestLog;'"),
+            ("N'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "@UnboundSql"),
+            ("N'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT COUNT_BIG(*) FROM dbo.CaseGroup;'"),
+            ("N'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;' + @UnboundSql"),
+            ("N'SELECT /* DGN007_INTERVAL_PULSE */ @Rows=COUNT_BIG(*) FROM dbo.CaseGroup;'", "N'SELECT @Rows=COUNT_BIG(*) FROM dbo.CaseGroup; DELETE FROM dbo.CaseRequestLog;'"),
             ("@Pulse IS NULL OR @Pulse<>12", "@Pulse IS NULL OR @Pulse<>13"),
             ("@Pulse IS NULL OR @Pulse<>12", "@Pulse<>12"),
             ("EXEC sys.sp_query_store_flush_db;", ""),

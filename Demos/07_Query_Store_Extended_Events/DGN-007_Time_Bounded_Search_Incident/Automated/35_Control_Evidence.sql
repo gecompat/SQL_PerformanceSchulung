@@ -332,6 +332,9 @@ BEGIN
 END;
 /* CAPTURE_REQUEST_GUARD_END */
 /* CAPTURE_EXECUTION_BOUNDS_BEGIN */
+/* DEC-072: QS und SYSUTC besitzen keine nachgewiesene gemeinsame Messuhr.
+   Nur Diagnose; unveränderte Intervall-, Request-, Ergebnis- und Countguards
+   begrenzen die Aussage auf das beobachtete isolierte Schulungslabor. */
 IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
           WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)
 BEGIN
@@ -373,8 +376,7 @@ BEGIN
         PRINT 'DGN007_G13_RAW|1|END|0';
     END CATCH;
 /* G13_RAW_DIAGNOSTIC_END */
-    PRINT 'DGN007_CONTROL_GUARD|G13';
-    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;
+    PRINT 'DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH';
 END;
 /* CAPTURE_EXECUTION_BOUNDS_END */
 
