@@ -114,7 +114,44 @@ Timeoutfixtures bleiben auf ihren damaligen Input gebunden und werden hier nicht
 neu ausgeführte Prüfung ausgegeben. Die alten QRY-014-Läufe wurden nicht wiederholt.
 Modell-/Tokenverbrauch bleibt unbekannt.
 
-Der zusätzliche Nachweis erweitert ausschließlich den Providerumfang auf QRY-014
-bis QRY-016. QRY-017–QRY-019 und DGN-008/009 bleiben auf Podman unqualifiziert;
+Dieser zusätzliche Schnitt erweitert ausschließlich den Providerumfang auf QRY-014
+bis QRY-016; er allein qualifiziert QRY-017–QRY-019 und DGN-008/009 nicht.
 Windows, andere Editionen, niedrigere CLs, ANN und reale Modellintegration bleiben
 offen. Vollständige TSK-004-/TSK-013-Abnahme ist damit nicht gegeben.
+
+## Erweiterung auf QRY-017 und QRY-018
+
+Der folgende unabhängige Schnitt verwendet Basis
+`608280e0b1aaae4a64fdc20cfab7bc0569ef654c` und dieselben unveränderten öffentlichen
+SQL-/FWK-/Host-/SQLCMD-Quellen. Nur die vor Create begrenzte Demo-Auswahl des
+privaten Helpers wurde auf QRY-017/QRY-018 gesetzt. Die oben genannten Prozess-,
+Ressourcen-, Secret- und Cleanupgrenzen bleiben erhalten; kein zusätzliches
+unabhängiges Review unveränderter Grenzen. Ein Owner, maximal zwei Korrekturwellen;
+keine Korrekturwelle oder Runtimefehlversuch wurde benötigt.
+
+Sechs neue eigene Container wurden seriell mit denselben drei lokalen Image-IDs
+betrieben. Builds, Editionen und OS entsprechen der ersten Tabelle.
+
+| Demo | 17.0.5005.3 / Enterprise Developer / Linux | 15.0.4490.9 und 16.0.4295.3 / Developer / Linux |
+|---|---|---|
+| QRY-017 | zwei Lifecycles WARN_OPTIONAL_EVIDENCE_SKIPPED, je drei Ergebnisassertionen; Setup-Idempotenz und 48 volle Markergegenproben PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+| QRY-018 | zwei Lifecycles PASS, je vier Ergebnisassertionen; Setup-Idempotenz, sieben fachliche Negativfälle und 80 volle Markergegenproben PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+
+Das Full-Text-WARN ist an den tatsächlich gemessenen fehlenden optionalen
+Full-Text-Bestand gebunden; es wird nicht zu einer Full-Text-Abnahme umgedeutet.
+Die QRY-017-Gegenprobe mit fehlenden Suchdokumenten wurde mit dem erwarteten
+Ergebnisvertragsfehler abgewiesen. QRY-018 prüft feste Offlineantworten mit
+Claim-/Quellen-/Versions-/Kontextbindung, keine tatsächliche Generierung.
+Seine sieben Negativkontrollen weisen falschen Claim, falsches Zitat, fehlende oder
+manipulierte Chunks, fehlende aktuelle Quelle, fehlenden Replay und falschen
+Quellenfakt ab. Die 48/80 Markerfälle behalten den vollständigen Bytevergleich.
+
+Alle zwölf Lifecycles und beide Negativkontroll-Fixtures haben unabhängige eigene
+DB-Abwesenheitsbelege. Alle sechs Container wurden nach Ownerprüfung entfernt und
+separat als abwesend geprüft. Die Quellenlogs bleiben privat unter Runtime;
+kein Hostinventar, Prompt, Secret oder Office-Artefakt wird übernommen.
+
+Der bisherige Podmanumfang umfasst damit QRY-014–QRY-018. QRY-019 und DGN-008/009,
+Windows, andere Editionen, niedrigere CLs und weitere Feature-/Modellpfade bleiben
+offen. Die angehaltenen CL-/ANN-/Tenantfehler und DEC-033 ändern sich nicht.
+Modell-/Tokenverbrauch bleibt unbekannt; keine Gesamt-TSK-Abnahme.
