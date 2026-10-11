@@ -25,7 +25,9 @@ eingeschränkten Datenbankbenutzer; sein [Nachweis](SQL_SERVER_2025_AI_SQL_INPUT
 belegt ausschließlich den synthetischen lokalen Kontrollharness.
 DGN-009 ergänzt TSK-009 durch tatsächliches Retrieval manipulierter Quellen, feste
 Antwort-/Toolfixtures und minimale SQL-Rechte. Sein [Nachweis](SQL_SERVER_2025_AI_INJECTION_REVIEW.md)
-bleibt getrennt von Livegeneration und DGN-008-External-Model-/Endpointrechten.
+bleibt getrennt von Livegeneration. DGN-008 ergänzt tatsächlich erstellte Offline-
+Modellmetadaten, getrennte SQL-Rollen und Grantreduktion; sein [Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md)
+qualifiziert Modell-EXECUTE nur als Metadatenrecht, keine Inferenz oder echten Credentials.
 
 ## 1. Zielbild und Abgrenzung
 

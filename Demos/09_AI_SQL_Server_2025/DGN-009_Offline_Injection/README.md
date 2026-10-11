@@ -1,6 +1,6 @@
 # DGN-009 – Manipulierte Quellen und feste Offline-Toolpolicy
 
-Status: IMPLEMENTED; lokaler Review-/Runtime-/Integrationsnachweis offen.
+Status: IMPLEMENTED; lokaler Slice über [PR 141](https://github.com/gecompat/SQL_PerformanceSchulung/pull/141) mit grünen Head-/Main-Gates integriert. Allgemeine Provider-/Inferenzabnahme bleibt getrennt offen.
 GREEN, eine Session, SQL Server 2025 (17.x), Kompatibilität 170. 2019/2022 liefern
 SKIP_VERSION vor Setup. Keine Modellgenerierung, Provider- oder Netzwerkaufrufe.
 
