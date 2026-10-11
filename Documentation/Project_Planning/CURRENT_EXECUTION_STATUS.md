@@ -164,7 +164,16 @@ Branchabbau sind geprüft. Der folgende private CL-Slice ist nach zwei Korrektur
 mit FAIL angehalten: Skalaroracle ohne NULL-Gegenkontrolle, ungeklärter konkreter
 Chunkfehler bei 150/160; nur die volle positive CL170-Chunkfixture und unabhängiger
 eigener Cleanup sind belegt. [Grenzen und Wiederaufnahme](SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md).
-Keine dritte Korrektur; unmittelbar folgt der neu konkret genehmigte lokale ANN-Slice.
+Keine dritte Korrektur. Dieser CL-/Freigabecheckpoint ist über PR 146 mit sieben
+Headprüfungen und fünf Main-Workflows in `3ac552998996500849dcd29c9a855c5dd7063f92`
+integriert; Tree `c36517efac6bb4c8d2f9fe9b279fc09cf39021c2`, Synchronisierung und
+eigener lokaler/remote Branchabbau sind geprüft.
+Unmittelbar folgte der neu konkret genehmigte lokale ANN-Slice. Sein erster privater
+IDX-011-Prototyp ist nach zwei Korrekturwellen FAIL: Parser/Metadaten-/Vektorkonvertierung,
+SQL-Recovery und konfiguriertes Cleanupbudget noch unqualifiziert. Alle drei eigenen
+Container sind nach verifiziertem gezieltem Abbau abwesend; kein Index-/Recall-/Plan-
+oder SQL-Restore-PASS. [Grenzen und Wiederaufnahme](SQL_SERVER_2025_AI_ANN_PREVIEW_REVIEW.md).
+Keine dritte Korrektur oder automatische Rücksetzung dieses Slice-Budgets.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
