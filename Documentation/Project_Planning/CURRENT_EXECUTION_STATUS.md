@@ -2031,3 +2031,64 @@ die freien Zyklen werden nicht ohne neue Frage verbraucht. Historische
 C1/C2-FAILs erhalten. [Tatsächliche Werte und Grenzen](SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md#c3-zwei-vollständige-tatsächliche-kostenlifecycles).
 Dieser konsistente Stand wird über PR integriert; danach unmittelbar
 tatsächliche Versions-SKIPs 2019/2022. Gesamtworkstream und Heartbeat aktiv.
+
+
+### IDX-012: Versionsfolge nach vollständig abgeschlossener PR178-Integration
+
+[PR 178](https://github.com/gecompat/SQL_PerformanceSchulung/pull/178):
+Head 528e770d237e1ac59738fd7712bbf99f4f1b8af7 gegen
+Base 4dc956df3f66c21c672e9add30405853bc1e4ca8, alle 13 Headchecks SUCCESS.
+Squash 1aead3c727e90d907bf20048e2feebca41642b68, vollständiger Tree
+b3e6a389fd9373d4d8180fd6adf73ea3cf533d01 identisch. Alle sieben ausgewählten
+Main-Workflows SUCCESS: 38179207709/38179207543/38179207514/38179207439/
+38179207560/38179207542/38179207525. main/origin/main sauber synchronisiert;
+eigener Kostenbranch lokal und remote entfernt, keine eigenen Container
+oder temporären Kosteninputs verblieben.
+
+Unmittelbar folgt der [IDX-012-Versionsnachweis](SQL_SERVER_2025_AI_IDX012_VERSION_REVIEW.md)
+auf codex/sql2025-ai-idx012-versions, Basis
+1aead3c727e90d907bf20048e2feebca41642b68. Ein stabiler Kandidat muss je zwei
+tatsächliche 2019-/2022-SKIPs vor Setup erfüllen. Ausdrücklich erweiterte
+lokale Wellenfreigabe: maximal sechs Kandidaten/24 serielle eigene Container;
+ein FAIL hält an, Folgekandidat nur bei geändertem Ausführungsinput und
+geschlossenem vorherigem Lifecycle. Nach vollständigem Vier-Slot-Nachweis
+kein unnötiger Verbrauch weiterer Kandidaten. Vorhandene ursprüngliche
+Ledger anderer Schnitte bleiben geschlossen.
+
+Unveränderter öffentlicher Preflight, Controllerdefault ohne Storage-,
+Rebuild- oder Kostenflags. Genau eine PREFLIGHT/SKIP/SKIP_VERSION-Phase,
+OriginalPreview=None und cleanup_ok=false sind erforderlich; dieses Feld
+ist keine SQL-Recovery. Neue read-only DB-Abwesenheit und unabhängige eigene
+vollständige CID-/Namensabwesenheit nötig. Kein Preview/MAXDOP/Setup/DDL.
+Eigene lokale unveränderliche 2019-/2022-Images, vier CPUs/sechs GiB,
+300 s einschließlich Startup und 60 s tatsächlichem eigenen Cleanup.
+Secret nur ENV, geerbtes SQLCMDINI entfernt; keine Pulls oder Fremdeffekte.
+
+Enge ursprüngliche Guardclosure und aktuelle Controller-/Parent-/Ledger-
+Delta-Closure ohne offene P1/P2 vorhanden, keine Runtime durch den Reviewer.
+Nach main-Sync unveränderte SHA256: Preflight C9B56105FF001C49D5C2453D2214105C5BEE569E5976D28DCC1EEC344CE30CD3,
+Controller 5D7964A85FE8041726901A66BA4629633119BDB97491972E25F82F41CF685705,
+Parent 92D9C91D2F830F7B8DC8D82D2B83979BAF5F4A8FABC135F031E450C65D3F5F2D.
+Keine unveränderten Tests/Reviews wiederholen. 28 Controllergegenproben
+am selben Quellstand bereits PASS; tatsächliche Versionsruntime erst nach
+dieser kanonischen Scopebindung. PR-/Head-/Main-/Tree-/Sync-/eigener Cleanup-
+Abschluss erforderlich. Minimalrollen, Hard-Abort und vollständige Abnahme
+bleiben Folgearbeit. Gesamtworkstream und Heartbeat aktiv.
+
+
+Die Versionsfolge bestand alle vier eigenen seriellen Lifecycles desselben
+stabilen Kandidaten: zweimal tatsächliches 15.0.4490.9 und zweimal
+16.0.4295.3; Tokens D95D67B29CBB4BBA/3BFE11AA071F43BC/
+D0D5543990174020/F588C8C09C0941AE. Je genau PREFLIGHT/SKIP/SKIP_VERSION,
+keine weitere Phase/kein Setup. OriginalPreview=None und cleanup_ok=false
+sind kein SQL-Recoveryclaim. Neuer unabhängiger read-only Client bestätigt
+jeweils DB-Abwesenheit; eigene vollständige CID und Name unabhängig abwesend.
+Cleanup 11,3410314/10,6015398/12,7354592/12,4055188 s; vier Admissionen
+closed=true ohne failure. Quellen und Parent innerhalb C1 bytegleich.
+Alle Kandidaten bleiben endlich begrenzt; nach diesem vollständigen Nachweis
+keine unnötigen weiteren grünen Proben. [Details](SQL_SERVER_2025_AI_IDX012_VERSION_REVIEW.md#tatsächliche-vier-versionslifecycles).
+Konsistenten Stand jetzt über PR/aktuelle Head-/Main-Gates/Tree-/Sync-/
+eigene Branchbereinigung abschließen. Unmittelbar danach kontrollierte
+IDX-012-Fehler-/Recoveryfälle; Minimalrollen, Hard-Abort und vollständige
+Runtime-/TP-PERF-Abnahme bleiben zusätzlich offen. Gesamtworkstream und
+Heartbeat aktiv.
