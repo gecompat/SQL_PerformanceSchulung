@@ -244,8 +244,24 @@ Versionen: QRY-017 zweimal WARN bei fehlender optionaler Full-Text-Evidenz mit j
 drei Assertions, QRY-018 zweimal PASS mit je vier Assertions; acht ältere
 SKIP_VERSION-Lifecycles vor Setup. 48/80 volle Markerfälle, Setup-Idempotenz und
 ein/sieben fachliche Negativfälle bestanden; eigene DBs und sechs Container sind
-unabhängig abwesend. Kein Runtimefehler, keine Korrekturwelle. Vor Abschluss sind
-die aktuellen ausgewählten Head-/Main-Gates, Synchronisierung und Branchabbau nötig.
+unabhängig abwesend. Kein Runtimefehler, keine Korrekturwelle. PR 152 ist mit acht
+Headprüfungen auf `3d11f2f5c8f12d77c47619033573cac42bbfdd4e` und sechs Main-Workflows
+auf `941b11dab7dc5c4e8cb0a09a95473368714392db` integriert. Tree
+`a3ad175b984436e0b98cc24e2674090468e9b3e1`, Synchronisierung und eigener lokaler/remote
+Branchabbau bestätigt. Unmittelbar folgt auf `codex/sql2025-ai-podman-security`
+der unabhängige Podmanumfang QRY-019/DGN-008/DGN-009, maximal neun serielle neue eigene
+Container für drei Engineversionen und je zwei Lifecycles, ein Owner und maximal
+zwei Korrekturwellen. Unveränderte öffentliche SQL-/Runner-/Ergebnis-/Markerquellen,
+gleiche private Helpergrenzen, kein Modellaufruf und keine fremde Instanzwirkung.
+Die neun Providerläufe bestanden die erwarteten Verträge: je zwei positive
+17.x-Lifecycles mit fünf/neun/acht Assertions, zwölf kontrollierte ältere
+Versions-SKIPs vor Setup. Je 80 vollständige Markerfälle, Setup-Idempotenz und
+acht/zehn/zehn fachliche Negativfälle bestanden. Eigene DBs und alle neun eigenen
+Container sind unabhängig abwesend; keine Korrekturwelle. Der konkrete Podmanpfad
+deckt damit alle acht implementierten Offline-Demos ab, einschließlich des
+sichtbaren QRY-017-Full-Text-WARN. Keine allgemeine Provider- oder Gesamt-TSK-Abnahme.
+Aktuelle ausgewählte Head-/Main-Gates, Synchronisierung und eigener Branchabbau
+bleiben vor regulärem Abschluss erforderlich.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.

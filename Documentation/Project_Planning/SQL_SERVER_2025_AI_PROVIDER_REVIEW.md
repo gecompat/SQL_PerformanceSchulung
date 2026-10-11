@@ -2,8 +2,10 @@
 
 Stand: 2026-10-11. Runtimequellen `5d71cda59849c357aafc5036c29529f7bf081d30`,
 nach Squash `2f1dfec5d76cad63232f0a9eb968f880324ed5cf` identischer vollständiger Tree.
-Die Erstqualifikation betrifft QRY-014 auf Podman und dessen 15.x/16.x-Versionsgrenze;
-kein vollständiger Podman-, Live-Modell- oder 360-Lauf-Matrixnachweis.
+Die Erstqualifikation betrifft QRY-014 auf Podman und dessen 15.x/16.x-Versionsgrenze.
+Die unten abgegrenzten Erweiterungen decken inzwischen alle acht implementierten
+Offline-Demos ab; kein Nachweis für alle 18 Entwürfe, Live-Modelle oder eine
+360-Lauf-Matrix.
 
 ## Tatsächlicher Ausführungspfad
 
@@ -151,7 +153,45 @@ DB-Abwesenheitsbelege. Alle sechs Container wurden nach Ownerprüfung entfernt u
 separat als abwesend geprüft. Die Quellenlogs bleiben privat unter Runtime;
 kein Hostinventar, Prompt, Secret oder Office-Artefakt wird übernommen.
 
-Der bisherige Podmanumfang umfasst damit QRY-014–QRY-018. QRY-019 und DGN-008/009,
-Windows, andere Editionen, niedrigere CLs und weitere Feature-/Modellpfade bleiben
+Dieser Schnitt erweitert den bisherigen Podmanumfang auf QRY-014–QRY-018.
+QRY-019 und DGN-008/009 sind darin nicht enthalten. Windows, andere Editionen,
+niedrigere CLs und weitere Feature-/Modellpfade bleiben
 offen. Die angehaltenen CL-/ANN-/Tenantfehler und DEC-033 ändern sich nicht.
 Modell-/Tokenverbrauch bleibt unbekannt; keine Gesamt-TSK-Abnahme.
+
+## Erweiterung auf QRY-019, DGN-008 und DGN-009
+
+Dieser weitere unabhängige Schnitt verwendet Basis
+`941b11dab7dc5c4e8cb0a09a95473368714392db` und dieselben unveränderten öffentlichen
+SQL-/FWK-/Host-/SQLCMD-Quellen. Die private Demo-Auswahl ist vor Create auf genau
+QRY-019/DGN-008/DGN-009 begrenzt. Ein Owner und maximal zwei Korrekturwellen;
+kein zusätzliches unabhängiges Review unveränderter Provider-/Secret-/Zeit-/
+Cleanupgrenzen. Kein Runtimefehlversuch und keine Korrekturwelle.
+
+Neun neue eigene Container wurden seriell mit denselben drei lokalen Image-IDs
+betrieben. Builds, Editionen und OS entsprechen der ersten Tabelle.
+
+| Demo | 17.0.5005.3 / Enterprise Developer / Linux | 15.0.4490.9 und 16.0.4295.3 / Developer / Linux |
+|---|---|---|
+| QRY-019 | zwei Lifecycles PASS, je fünf Ergebnisassertionen; Setup-Idempotenz, acht fachliche Negativfälle und 80 volle Markerfälle PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+| DGN-008 | zwei Lifecycles PASS, je neun Ergebnisassertionen; Setup-Idempotenz, zehn fachliche Negativfälle und 80 volle Markerfälle PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+| DGN-009 | zwei Lifecycles PASS, je acht Ergebnisassertionen; Setup-Idempotenz, zehn fachliche Negativfälle und 80 volle Markerfälle PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+
+QRY-019 benutzt tatsächliche Wertparameter und einen eingeschränkten Reader;
+Fixture-/Statement-/Wert-/Rechteabweichungen wurden abgewiesen. DGN-008 prüft
+tatsächliche SQL-Nutzung, Rechteverweigerungen und gebundene External-Model-
+Metadaten ohne Inferenz oder Credentialbindung. DGN-009 prüft tatsächliches
+Retrieval manipulierten Quelltexts, feste Tool-/Antwortfixtures und eingeschränkte
+SQL-Rechte; keine allgemeine Sicherheit beliebiger Modellantworten.
+
+Alle 18 Lifecycles und drei Negativkontroll-Fixtures haben unabhängige eigene
+DB-Abwesenheitsbelege. Alle neun Container wurden nach Ownerprüfung entfernt und
+separat als abwesend geprüft. Die privaten Quellenlogs sind mechanisch gegen
+Status, Assertions, Negativfälle und Cleanup geprüft; keine Green-Vollogs oder
+unveränderten SQL-Quellen werden erneut an einen Reviewer gegeben.
+
+Damit sind QRY-014–QRY-019 und DGN-008/DGN-009 auf diesem konkreten Podmanpfad
+qualifiziert: zusammen 16 SQL-2025-Lifecycles einschließlich zwei Full-Text-WARNs
+und 32 kontrollierte ältere Versions-SKIPs. Dies erweitert den Providerbeleg,
+keine Windows-/Editions-/CL-/Live-/Tenant-/ANN-/Gesamtworkstreamabnahme.
+Die bekannten FAILs und DEC-033 bleiben unverändert; Modell-/Tokenverbrauch unbekannt.
