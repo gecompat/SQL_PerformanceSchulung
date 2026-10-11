@@ -30,6 +30,39 @@ numerische Indexgeneration. Freshness und Storage sind weitere eigene Schritte.
 - Der vorläufige Setup-/Prüfkontext verwendet sa im eigenen Container.
   Minimalrollen- und Hard-Abort-Abnahme bleiben offen.
 
+## Eingeschränkter Ausführungskontext
+
+Der eigene Operator benötigt für DB-Erstellung und Performance-DMVs
+CREATE ANY DATABASE und VIEW SERVER PERFORMANCE STATE; er wird Owner
+seiner eigenen Testdatenbank. Der Preflight hält bei fehlenden Rechten vor
+Setup mit SKIP_PERMISSION an. Keine automatische Grantvergabe.
+Im bestätigten eigenen Lab kann dessen Admin die beiden Rechte einem eigenen
+vorbereiteten SQL-Login gewähren:
+
+```sql
+GRANT CREATE ANY DATABASE TO [LabDemoLogin];
+GRANT VIEW SERVER PERFORMANCE STATE TO [LabDemoLogin];
+```
+
+Der tatsächliche erste vollständige Operatorlauf scheiterte am Indexbuild:
+2571 wegen internen DBCC TRACEON, anschließend 42234. Beide einzeln
+entzogenen Rechte, Setup, Kosten-BEFORE, vier NO_INDEX-DML-Kontrollen und
+vollständiger DB-/Login-/Containercleanup sind belegt. Für den unveränderten
+vollständigen CLI-Pfad bleibt daher der eigene sa-Kontext erforderlich.
+Passwörter ausschließlich als SQLCMDPASSWORD-ENV bereitstellen. Der
+[Rollennachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md)
+belegt nach zwei erhaltenen FAIL-Kandidaten mit zwei vollständigen C3-
+Lifecycles im selben erweiterten Ledger die feste lokale Trennung: ausschließlich die beiden Indexbuilds unter Admin, DML und
+Beobachtung vor/nach ihnen unter tatsächlich attestiertem Operator. Dies ist
+ein begrenzter lokaler Nachweis mit eigener literaler Eingabe; der öffentliche
+Einzel-Login-Controller besitzt noch keine entsprechende Multi-Login-API.
+Beide einzeln entzogenen Rechte halten tatsächlich vor Setup an; Grantrestore,
+eigene Ownerbindung, acht geordnete Kontext-/SID-Records, alle DML-/Rebuild-/
+Source-/Storage-/Kostenkontrollen und unabhängiger DB-/Login-/Containercleanup
+bestanden. Öffentliche Ergebnisse bleiben WARN/Generation UNKNOWN,
+runtime_qualification NOT_ESTABLISHED. Beide tatsächlichen FAILs bleiben erhalten.
+Keine Behauptung der absolut kleinsten möglichen Rechtekombination.
+
 ## Ausführung und Ergebnis
 
 Der öffentliche Controller führt keine Provisionierung und beim Import kein SQL

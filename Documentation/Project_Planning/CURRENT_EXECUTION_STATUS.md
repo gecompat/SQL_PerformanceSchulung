@@ -2136,3 +2136,104 @@ Kosten-/Versionsledger bleiben geschlossen. Hard-Abort, Minimalrollen und
 vollständige Runtime-/TP-PERF-Abnahme bleiben offen. Keine Änderung anderer
 Repositories/Provider-/Cloud-/ONNX-/roter Hostgrenzen. Gesamtworkstream und
 Heartbeat aktiv; regulärer PR-/Integrations-/Sync-/Cleanupabschluss nötig.
+
+
+### IDX-012: Rollenfolge nach vollständiger PR180-Integration
+
+[PR 180](https://github.com/gecompat/SQL_PerformanceSchulung/pull/180):
+Head d29d3ac2e0f64b4c72fa09af7484031c6bc8d8b3 gegen
+Base 99b8df923f144f6e915ff3718addf24582de7224, alle 13 Head-SUCCESS;
+Squash 6a8c6ca3835f1f88ae63d6588685f19a675dcb7c, voller Tree
+055be4f7410f802376be02f47f8c324affb41120 identisch.
+Alle sieben ausgewählten Main-Workflows SUCCESS: 38181778703/38181778718/
+38181778753/38181778713/38181778747/38181778711/38181778695.
+main/origin/main sauber synchronisiert; eigener Recoverybranch lokal/remote
+entfernt, keine eigenen Container verblieben.
+
+Unmittelbar folgt der [eingeschränkte IDX-012-Ausführungskontext](SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md)
+auf codex/sql2025-ai-idx012-roles, Basis
+6a8c6ca3835f1f88ae63d6588685f19a675dcb7c. Ausdrücklich erweiterte lokale
+Welle: sechs Kandidaten/zwölf serielle eigene Container, zwei stabile
+Rollenlifecycles nach engen tatsächlichen Grant-/Revoke-Gegenproben.
+Eigenes Login/SID im eigenen Container, nur CREATE ANY DATABASE und
+VIEW SERVER PERFORMANCE STATE, keine feste Serverrolle; eigene DB-Owner-
+Bindung und vollständige öffentliche DML-/Rebuild-/Storage-/Kostenfolge.
+Admin nur für Fixture und dessen Cleanup, keine sa-Demophase. Neues
+SKIP_PERMISSION-Gate vor Host-DMV/Setup, übriger Controller unverändert.
+Secret nur ENV; tatsächlich gebundener eigener Login-Drop erst nach DB-
+Abwesenheit und mit neuem unabhängigem Principal-/SID-Abwesenheitsclient.
+300 s inklusive Startup/20 s SQL-Recovery innerhalb 60 s Gesamtcleanup
+einschließlich Login-/Containercleanup; keine Fremd-/Host-/Provideränderung.
+Noch keine Rollenruntime dieses Scopes. Kein absoluter Minimalitätsclaim,
+kein Hard-Abort oder vollständiger Runtime-/TP-PERF-Claim. Vor Admission
+enge Quellenclosure und betroffene Gegenproben; regulärer PR-/Integrations-/
+Sync-/eigener Cleanupabschluss erforderlich. Workstream und Heartbeat aktiv.
+
+Vor der ersten Rollenadmission enge unabhängige Quellenclosure ohne weitere
+P1/P2; zwei P2 zum Phasentupel und konkurrierenden Principal-SQL-Cleanup bei
+unbestätigtem Clientende vor Runtime korrigiert. 31 Controllergegenproben und
+eine enge rein synthetische Parent-Gegenprobe für genau diesen Unknown-Guard
+PASS. Keine Runtime durch den Reviewer. Aktuelle Quellenbindung: Preflight
+7FC2A900E2419CDF10590145270F3A06377CBB6A8A49E6E6836860EEE36DB684,
+Controller unverändert DFBC01CAE5428F279BCE1DF8363ECFF0BCD692A507842A0DD2625DBC5F13D6F1,
+Parent 59B6EF00AFF65FF42B8FD6BFE6EE84AB475E8223BCC32594739B1F9C02C81736.
+
+Tatsächlicher C1-Rollenlauf 803B41BD338040B1 geschlossen FAIL: Rechteentzug-
+Gegenproben/Grantrestore, Setup/Owner/Baseline/Storage/Kosten-BEFORE und vier
+NO_INDEX-DML-Kontrollen bestanden; Indexbau verweigert internen DBCC TRACEON
+mit 2571/State 3, anschließend 42234/State 1. Kein Rollen-/Index-/Rebuild-PASS.
+Originalrestores/Attestation 0/0, neue DB-Abwesenheit, tatsächlicher eigener
+Login-Drop/neue Principal-/SID-Abwesenheit und voller CID-/Namenscleanup
+bestanden (13,0928537 s). Ein tatsächlicher Versuch verbraucht, kein zweiter
+unveränderter Lauf. [FAIL und Quellenabgleich](SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md#tatsächlicher-erster-fail-und-begrenzte-kontexttrennung).
+Innerhalb desselben Sechskandidatenledgers folgt C2 mit geändertem festen
+Parent/privater Kontextquelle: nur die beiden vorhandenen Indexbuilds unter
+sa, kontrollierte DML/Beobachtung vor/nach jeweils unter tatsächlichem
+Operator mit vier geordneten Kontext-/SID-Records pro Kostenphase. Kein
+sa-Fallback, keine zusätzlichen Operatorgrants; kein öffentlicher unveränderter
+Einzel-Login- oder vollständiger Nicht-sysadmin-Buildclaim. Native Quellen-
+bytes/Hashes privat aufnehmen; drei betroffene synthetische Gegenproben PASS,
+enge Delta-Closure vor Admission erforderlich. Alle alten FAILs/Grenzen und
+gesamte Deadline/ClientEndUnknown-Eigentumsfloors bleiben erhalten.
+
+Enge unabhängige C2-Closure vor Admission ohne P1/P2 zur konkret neuen
+Identitäts-/Native-Input-Grenze erteilt. Aktueller Parent
+F0341668E58E5FD6C0E00E09DA21579F5B694D8F6C2E44A0944C77E20FA0451A,
+feste Kontextquelle E320B1D61E1599C6A63017D15D40575D19D1548FFB5DA0DF42F61272979E3E76.
+Privilegierter Kontext nur der exakt erkannte einzelne Index-DDL je Phase;
+geordnete Operatorrückkehr, Secret-/Token-/SID-/Lease-/Größenfloors bestätigt.
+Keine Runtime oder Tests durch den Reviewer; Closure vor C2-Admission.
+
+C2/A16779D9D401423E geschlossen FAIL_EXECUTION: Msg 156 am unquotierten
+reservierten Alias Checkpoint in der ersten nativen Kontextquelle, keine
+tatsächlichen Kontext-/Index-/DML-/Rebuild-Ergebnisse. Beide Rechtegegenproben,
+Grantrestores und DB-Ownerbindung bestanden; Originalrestores/Attestation 0/0,
+neue DB-Abwesenheit, eigener Login-Drop mit neuer Principal-/SID-Abwesenheit
+und volle CID-/Namensabwesenheit bestanden (13,0965515 s Gesamtcleanup).
+Zwei geschlossene Fehlkandidaten bleiben im selben Sechskandidatenledger.
+C3 korrigiert ausschließlich [Checkpoint], Kontextquelle
+F78446CF632378D3A2CE31357D2E75879765B75AC9459C8C9161878D3C4B89D0,
+Parent unverändert. Drei betroffene synthetische Gegenproben PASS; enge
+unabhängige Syntaxdelta-Closure vor Admission erteilt, ursprüngliche C2-
+Identitäts-/Privileg-/Lease-/Cleanupsemantik unverändert. Kein neuer
+Benutzerfreigabezyklus innerhalb der ausdrücklich erweiterten lokalen Welle.
+
+
+IDX-012-Rollensplit C3 tatsächlich mit zwei stabilen vollständigen Lifecycles
+bestanden: F2BED8B1B7FB4008/CA7DFACE4C9F47D3 auf 17.0.5005.3, sämtliche
+Ausführungsquellen und native Eingabebytes gleich. Je beide einzeln entzogenen
+Rechte vor Setup SKIP_PERMISSION, tatsächliche Grantrestores/DB-Ownerbindung;
+acht geordnete Kontext-/SID-Records, Admin nur für beide Indexbuilds,
+DML/Beobachtung/Drop/Commit/Kosten unter Operator; vier positive/vier 42231-
+DML-Kontrollen, vollständige 999-Row-Quellenkontrolle, fünf Rebuild-Suchen mit
+Recall@5 1 und übrige 998 Texte gleich. Drei Speicherpunkte/zwei Kostenfolgen
+mit unveränderten Grenzen; öffentliche Ergebnisse WARN, Generation UNKNOWN,
+runtime_qualification NOT_ESTABLISHED. Tatsächliche Restores/Attestation 0/0,
+neue DB-Abwesenheit, eigener Login-Drop und neue Principal-/SID-Abwesenheit,
+volle eigene CID-/Namensabwesenheit bestanden; Cleanup 13,4958547/13,7201669 s.
+C1/C2 FAIL bleiben im selben Ledger; vier eigene Container entfernt. Keine
+weitere identische grüne Admission. [Teilnachweis](SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md#tatsächliche-zwei-stabile-rollenlifecycles-c3).
+Öffentliche Multi-Login-API/absolute Minimalrollen/Hard-Abort und Gesamt-/
+TP-PERF-Abnahme bleiben offen. Nächster Schritt: reguläre PR-Integration
+gegen aktuelle Basis, alle Head-/Main-Gates, Tree-/Sync-/eigener Branchcleanup;
+danach unmittelbar nächster zulässiger lokaler Schnitt. Workstream aktiv.
