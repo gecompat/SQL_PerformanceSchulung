@@ -8,6 +8,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_sql2025_ai_local.py'
+      - 'Tests/Static/idx011_benchmark_evidence.py'
+      - 'Tests/Static/test_idx011_benchmark.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -20,6 +22,8 @@ on:
       - 'Demos/00_Framework/Tools/**'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_sql2025_ai_local.py'
+      - 'Tests/Static/idx011_benchmark_evidence.py'
+      - 'Tests/Static/test_idx011_benchmark.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -67,6 +71,8 @@ jobs:
         run: python Tests/Static/validate_framework_contracts.py
       - name: Validate compatibility and cleanup ordering
         run: python Tests/Static/test_sql2025_ai_local.py
+      - name: Validate bounded IDX-011 benchmark preparation
+        run: python Tests/Static/test_idx011_benchmark.py
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}

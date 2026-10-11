@@ -672,14 +672,22 @@ scopebezogene Aktualisierung der beiden Demoentwürfe; keine globale Framework-
 Lockerung. Die Nutzerfreigabe umfasst notwendige weitere lokale Schritte dieser Welle.
 Der konkrete [Profilentwurf](SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md) behält
 Generation UNKNOWN/WARN und alle anderen Abnahmegates, keine neue Runtime.
-DEC-074 ist vom zentralen Semantiktool bei leerer PR-Reservierungslage abgeleitet;
-vor Integration noch nicht final registriert. Der erforderliche enge fachliche
+DEC-074 ist vom zentralen Semantiktool bei leerer PR-Reservierungslage abgeleitet
+und mit PR168 final integriert. Der erforderliche enge fachliche
 Review schloss vor Registrierung ohne offene P1/P2: funktionale Qualifikation
 benötigt keine erfundene numerische Generation, alle anderen Gates bleiben Pflicht.
 Die Registry enthält den neuen vollständigen UUID-Datensatz; 265 Artefakte bestanden
 zentrale Semantik-/projektbezogene Kennungsvalidierung. DECISIONS, beide Demoentwürfe
 und der Workstreamplan wenden ausschließlich den begrenzten DEC-074-Pfad an.
-Keine neue Runtime und keine unveränderten Diagnosewiederholungen. Aktuelle Integration folgt.
+Keine neue lokale Runtime und keine unveränderten Diagnosewiederholungen.
+PR168-Head 26dee8d6b3d3fb5633e220a15cf62b27d91948ef gegen Base
+3fea838a999c4576cc53a706567624aa280f0c3b bestand alle 42 gewählten Checks.
+Squash 40159404acb1b20f0f69072f9e52664f2593bd86 bestand alle acht gewählten
+Main-Workflows einschließlich der konservativ ausgewählten Legacy-Matrizen.
+Vollständiger Tree e90913ccb9b56924b23fc51aba11327963f57301 wurde unabhängig
+als identisch bestätigt; lokales main per Fast-forward synchronisiert und eigener
+Arbeitsbranch lokal/remote entfernt. Keine Abnahme der pausierten Workstreams
+oder der öffentlichen ANN-Demos aus diesen Integrationsprüfungen.
 
 Unmittelbarer nächster Implementierungsschnitt nach Profilintegration ist die
 öffentliche IDX-011-Demo mit dokumentiertem DEC-074-Profil, vollständigem Ergebnis-/
@@ -698,6 +706,24 @@ keine unbewiesene Speedupratio oder generische Indexnutzung. Betroffene lokale T
 erforderlicher unabhängiger tatsächlicher Quellen-/Methodenreview und aktuelle Head-/
 Main-Gates, Synchronisierung sowie eigener Cleanup schließen den Schnitt vollständig.
 IDX-012-DML/Freshness und Provider-/Cloud-/ONNX-Gates bleiben eigene Schritte.
+
+Der erste begrenzte Offline-Teil des öffentlichen IDX-011-Schnitts bereitet den
+[Benchmark-Auswertungsvertrag](SQL_SERVER_2025_AI_IDX011_BENCHMARK_CONTRACT.md)
+vor: fünf getrennt attestierte Warm-up-Requests je Pfad und 18 serielle Fenster
+in drei AB-/BA-/AA-Blöcken mit je 100 Queries. Jede Query hat eigene vollständige
+Rows-/Distanz-/Recallprüfung; AA und Warm-ups werden nicht in den A/B-Vergleich
+gerechnet. Tatsächliche Counter-/UTC-Grenzen und vollständige Requestbindung,
+unabhängig attestierte Ziel-DB-ID und chronologische nicht überlappende Fenster
+verhindern falsche Serien- oder Qualitätsclaims. Zwölf synthetische Gegenproben
+bestanden. Keine SQL-Ausführung, kein verbrauchter öffentlicher Runtimekandidat
+oder Container und keine TP-PERF-/Demoabnahme. Quellen-/Plan-/Memory-/Spill-/
+Buildkosten-/Versions-/Recoverygates bleiben offen; runtime_qualification ist
+NOT_ESTABLISHED. Ein Owner, ein notwendiger konkreter Quellenreview und eine
+kohärente Korrekturwelle für die zeitliche Serienbindung; der unabhängige enge
+Quellenreview schloss ohne offene P1/P2. Demo-Ausführungspfade und zehn betroffene
+Selector-Gegenproben bestanden; aktuelle Integration dieses Offline-Teils folgt.
+Der öffentliche Phasencontroller
+und seine SQL-Quellen sind der anschließende offene Implementierungsschritt.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
