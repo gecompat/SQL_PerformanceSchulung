@@ -25,6 +25,7 @@ from sqlcmd_process import build_sqlcmd_command, collect_process, extract_summar
 sys.path.insert(0, str(FOLDER))
 from dml_boundary_evidence import validate_dml_boundary
 from lifecycle_evidence import validate_lifecycle
+from storage_evidence import validate_storage
 
 
 @dataclass(frozen=True)
@@ -62,7 +63,8 @@ def phase_command(executable, server, auth, username, script, token, original, v
         raise ValueError('Tatsächlich erfasste Previewbaseline fehlt')
     permitted={'FaultAfterIndexBuild':{'0','1'},'WarmupOrdinal':{str(i) for i in range(6)},
                'Block':{str(i) for i in range(4)},'Slot':{'0','1','2'},
-               'Order':{'WARMUP','AB','BA','AA'},'Path':{'EXACT','VECTOR_SEARCH'}}
+               'Order':{'WARMUP','AB','BA','AA'},'Path':{'EXACT','VECTOR_SEARCH'},
+               'StorageStage':{'BASELINE','INDEXED','REBUILT'}}
     if any(k not in permitted or v not in permitted[k] for k,v in (variables or {}).items()):
         raise ValueError('Freie oder eigentumsüberschreibende SQL-Variable abgewiesen')
     values = {'DemoId':'IDX-012', 'RunToken':token, 'TargetDatabase':'SQLPERF_LAB_IDX012_'+token,
@@ -194,10 +196,11 @@ def same_snapshot(before, after, *, enable=None, table_names=None, indexes=None)
 
 
 def run_profile(*, executable, server, auth, username, token, confirmed, high_impact,
-                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary"):
+                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False):
     if (confirmed is not True or high_impact is not True or not isinstance(token,str)
             or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup')
-            or mode not in ('dml-boundary','drop-rebuild')):
+            or mode not in ('dml-boundary','drop-rebuild') or type(capture_storage) is not bool
+            or (capture_storage and mode!='drop-rebuild')):
         raise ValueError('Lokale YELLOW-Bestätigung und vollständige Tokenbindung erforderlich')
     folder=Path(folder).resolve()
     regular=Deadline(300,clock)
@@ -254,6 +257,13 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             same_snapshot(before,data,**changes)
         return data
 
+    def storage(stage):
+        if capture_storage:
+            output=normal('STORAGE_'+stage,'22_Storage.sql',variables={'StorageStage':stage})
+            actual=validate_storage(one_record(output,'STORAGE'),token=token,database_id=database_id,
+                                    fixture_object=state['fixture_object'],stage=stage)
+            evidence.setdefault('storage',[]).append(actual)
+
     try:
         normal('PREFLIGHT','00_Preflight.sql')
         output=normal('SETUP','10_Setup.sql')
@@ -277,6 +287,7 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
         distances=combine_source(baseline_output,database_id)
         names=[('dbo','PreviewState'),('lab','VectorFixture'),('lab','FrozenSource'),('lab','ExactOracle')]
         state=snapshot(1,1,state,table_names=names,indexes=0)
+        storage('BASELINE')
         before_vectors={row['Id']:row['JsonValue'] for block in records(baseline_output)
                         if block.get('kind')=='SOURCE_VECTOR_BLOCK' for row in block['vectors']}
         output=normal('DML_BOUNDARY','30_DmlBoundary.sql')
@@ -300,6 +311,7 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
         evidence['dml_boundary']=validate_dml_boundary(records(output),token=token,database_id=database_id)
         evidence['index']=index
         state=snapshot(1,1,state,indexes=1)
+        storage('INDEXED')
         after=normal('SOURCE_AFTER','40_SourceAfter.sql')
         after_distances=combine_source(after,database_id)
         after_vectors={row['Id']:row['JsonValue'] for block in records(after)
@@ -332,6 +344,7 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             snapshot(1,1,state)
             evidence['lifecycle']=lifecycle
             evidence['rebuild_source_comparison']={'rows':999,'only_changed_id':999,'other_998_texts_equal':True}
+            storage('REBUILT')
     except PhaseStop as stopped:
         outcome,code=stopped.outcome,stopped.code
     except TimeoutError:
@@ -378,13 +391,14 @@ def main():
     parser.add_argument('--server',required=True)
     parser.add_argument('--sqlcmd')
     parser.add_argument('--mode',choices=('dml-boundary','drop-rebuild'),default='dml-boundary')
+    parser.add_argument('--capture-storage',action='store_true')
     parser.add_argument('--username',default='sa')
     parser.add_argument('--run-token',required=True)
     parser.add_argument('--confirm-isolated-lab',action='store_true')
     parser.add_argument('--high-impact-confirmed',action='store_true')
     args=parser.parse_args()
     result=run_profile(executable=resolve_sqlcmd(args.sqlcmd),server=args.server,auth='sql',username=args.username,
-                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode)
+                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode,capture_storage=args.capture_storage)
     print(json.dumps(result.__dict__,ensure_ascii=False))
     return 1 if result.outcome=='FAIL' else 0
 

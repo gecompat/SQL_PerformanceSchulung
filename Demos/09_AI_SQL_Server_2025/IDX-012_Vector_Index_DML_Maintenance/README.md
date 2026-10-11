@@ -114,6 +114,7 @@ OBSERVED_AFTER_REBUILD_ONLY; vollständige Runtimequalifikation NOT_ESTABLISHED.
 python Tests/Static/test_idx012_profile.py
 python Tests/Static/test_idx012_dml_boundary.py
 python Tests/Static/test_idx012_lifecycle.py
+python Tests/Static/test_idx012_storage.py
 ```
 
 Diese synthetischen Offlineprüfungen attestieren keine SQL-Runtime. Aktuelle
@@ -125,3 +126,26 @@ Indexformate; ihr aktueller DML-Pfad wird nicht auf diesen festen Build übertra
 Projektprofil: DEC-074; Traceability: IDX-012, CUR-019/CUR-020, TSK-006,
 FWK-001–005/008–012, TP-RUN/TP-PERF. Abweichung: vollständige CLI-JSON-Spalten
 über -y 0; alle noch fehlenden Abnahmen bleiben ausdrücklich offen.
+
+## Optionale vollständige DB-Speicheraufnahme
+
+Zusätzlich --mode drop-rebuild --capture-storage erfasst drei neue read-only
+Katalogaufnahmen nach Baseline, erstem Indexbau und Rebuild. Der Default führt
+keine Speicheraufnahme aus; --capture-storage ohne drop-rebuild wird vor jedem
+SQL-Aufruf abgewiesen. 22_Storage.sql bindet Marker, Baselines, Optionen und
+Stage vollständig; der Client prüft eigene DB/Token/Fixture, tatsächliche 999
+Rows, Indexcounts 0/1/1, Transaktionswerte 0/0 und sämtliche begrenzten Datei-,
+internen Tabellen- und Partitionsrows. Überschrittene Grenzen sind FAIL statt
+Trunkierung. FILEPROPERTY null, fehlender Wert und gemessene null Seiten bleiben
+verschieden; DMV-row_count ist APPROXIMATE. Seitenwerte haben 8192 Bytes.
+
+Dies sind DB-weite Punktaufnahmen einschließlich der zwischenzeitlichen DML-
+Kontrollen und des Drop-/Commit-/Rebuilds. Sie beweisen keine isolierten Index-
+oder Buildkosten. Indexstorageattribuierung NOT_ESTABLISHED, Writes-/TempDB-/
+Worker-Kosten NOT_CAPTURED. Der [Speichernachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_STORAGE_REVIEW.md)
+führt genaue Methode, Primärquellen, Budget, Review und tatsächlichen Laufstand.
+Die erste zusätzliche Runtimeaufnahme scheiterte vor Indexbau am Grenzguard;
+Originalrestores und eigener Cleanup bestanden. Das Budget ist geschlossen.
+Eine getrennte Capturefolge mit tatsächlichen Guardwerten ist vorbereitet,
+noch nicht ausgeführt; Runtimequalifikation bleibt offen. Der Guardrecord
+STORAGE_GUARD ist keine vollständige Speicheraufnahme und ersetzt keine Prüfung.
