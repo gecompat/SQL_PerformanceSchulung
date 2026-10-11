@@ -2,9 +2,9 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
-`TSK-003` ist der gesondert autorisierte Planungsschnitt; sein Abschluss benötigt Validierung
-und Integration. Der Folgeauftrag autorisiert nun den Workstream: TSK-004, TSK-005, TSK-008 und TSK-009 sind `IN_PROGRESS`,
-weitere Pakete bleiben `PROPOSED`; allgemeine Entwicklung bleibt `PAUSED`.
+`TSK-003` ist der gesondert autorisierte Planungsschnitt. Der Folgeauftrag autorisiert
+die Umsetzung des Workstreams; konkrete Teilnachweise und offene Gates stehen in den
+folgenden Einträgen und im kanonischen Ausführungsstand. Allgemeine Entwicklung bleibt `PAUSED`.
 Umfang, Abhängigkeiten, Aufwand und Abnahme werden im
 [Workstream-Plan §12](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
@@ -17,7 +17,7 @@ gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 - [ ] `TSK-009`: QRY-019, DGN-009 und DGN-008 integriert über PR 138/141/143 mit grünen Head-/Main-Gates; CON-010 nach zwei Korrekturwellen mit FAIL angehalten ([Checkpoint](../Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_REVIEW.md)). DGN-008-Offline-Metadatenrechte sind [ohne Inferenz qualifiziert](../Documentation/Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md). Tenant-/Datenschutz-/Providerfälle bleiben offen.
 - [ ] `TSK-010`: Benchmarks/Diagnose; nach `TSK-006` und `TSK-009`, Inferenz zusätzlich `TSK-007`.
 - [ ] `TSK-011`: SQL-Assistenz/Gegenmessung; nach `TSK-005` und `TSK-009`. [Private DGN-010-Ergebnis-/Storagevorbereitung](../Documentation/Project_Planning/SQL_SERVER_2025_AI_INDEX_HYPOTHESIS_REVIEW.md) bestand ohne Performanceclaim; vollständige TP-PERF-Abnahme bleibt offen, Demo PROPOSED.
-- [ ] `TSK-012`: Curriculum/Masterdeck/Notes/Lehrmaterial; nach `TSK-008`–`TSK-011` und Demoabnahmen.
+- [ ] `TSK-012`: Curriculum/Masterdeck/Notes/Lehrmaterial; nach `TSK-008`–`TSK-011` und Demoabnahmen. [Offline-Arbeitsheft](../Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md) als begrenzter Teilentwurf für acht qualifizierte Demos begonnen; Gesamtcurriculum und Generalprobe bleiben offen.
 - [ ] `TSK-013`: Runtime-/Negativ-/Cleanupqualifikation; nach `TSK-005`–`TSK-011`.
 - [ ] `TSK-014`: Generalprobe/Workstreamabnahme; nach `TSK-012` und `TSK-013`.
 

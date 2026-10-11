@@ -358,6 +358,12 @@ Preview-/Buildgrenze und Recovery. Trainerunterlagen führen Setup/Timing/Muster
 Teilnehmerunterlagen Vorbereitung, Aufgaben, sichere Runbooks, Glossar und Bewertungsrubrik.
 Varianten werden aus derselben Quelle erzeugt. Render-/Office-Metadatenprüfung erst bei tatsächlicher Änderung.
 
+Der erste unabhängige TSK-012-Teilentwurf ist das
+[Offline-Arbeitsheft](../HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md): acht Aufgaben,
+Trainerlösungen, Beobachtungsbogen und Rubrik für die bereits qualifizierten Demos.
+Es stellt keine neue SQL-Runtime oder vollständige didaktische Abnahme her;
+Masterdeck/Notes, weitere Module und tatsächliche Teilnehmererprobung bleiben offen.
+
 ## 12. Priorisierte Arbeitspakete und Abhängigkeiten
 
 Alle Folgepakete sind `PROPOSED` und durch fehlenden Implementierungsauftrag operativ gesperrt.
