@@ -12,6 +12,7 @@ import copy
 from dataclasses import dataclass
 import json
 import math
+import os
 from pathlib import Path
 import re
 import sys
@@ -26,6 +27,7 @@ sys.path.insert(0, str(FOLDER))
 from dml_boundary_evidence import validate_dml_boundary
 from lifecycle_evidence import validate_lifecycle
 from storage_evidence import validate_storage
+from cost_evidence import validate_costs
 
 
 @dataclass(frozen=True)
@@ -50,10 +52,38 @@ class Deadline:
 
 
 def execute_client(command, *, timeout_seconds):
-    process = start_sqlcmd(command)
+    process = start_sqlcmd(command,environment=client_environment(command))
     # Der öffentliche Collector beendet auch bei Ctrl+C den Prozessbaum, bevor
     # unabhängige Recoveryclients beginnen.
     return collect_process(process, command, timeout_seconds=timeout_seconds)
+
+
+def cost_context(script):
+    script=Path(script).resolve()
+    phases={'30_CostBoundary.sql':('DML_BOUNDARY','30_DmlBoundary.sql'),
+            '50_CostRebuild.sql':('REBUILD','50_DropRebuild.sql')}
+    if script.name not in phases:
+        return None,{}
+    stage,filename=phases[script.name]
+    work=(script.parent/filename).resolve()
+    frame=(script.parent/'23_CostFrame.sql').resolve()
+    if work.parent!=script.parent or frame.parent!=script.parent or not work.is_file() or not frame.is_file():
+        raise ValueError('Fester eigener SQLCMD-Includepfad fehlt')
+    if any(char in str(path) for path in (work,frame) for char in ('"','\r','\n','\0','$(')):
+        raise ValueError('SQLCMD-Includepfad enthält freie Syntax')
+    return stage,{'PhaseWorkFile':str(work),'CostFrameFile':str(frame)}
+
+
+def client_environment(command,environment=None):
+    # Native Windows-ODBC-sqlcmd akzeptiert die Drivepfade nicht als unquotierte
+    # -v-Werte. Feste Includevariablen deshalb ausschließlich pro Prozess ENV;
+    # geerbte gleichnamige Werte werden durch die eigene feste Map überschrieben.
+    result=dict(os.environ if environment is None else environment)
+    _,paths=cost_context(Path(command[command.index('-i')+1]))
+    reserved={name.casefold() for name in paths}
+    result={name:value for name,value in result.items() if name.casefold() not in reserved}
+    result.update(paths)
+    return result
 
 
 def phase_command(executable, server, auth, username, script, token, original, variables=None):
@@ -71,6 +101,9 @@ def phase_command(executable, server, auth, username, script, token, original, v
               'ConfirmIsolatedLab':'1', 'HighImpactConfirmed':'1', 'MaximumRuntimeSeconds':'300',
               'OriginalPreview':str(original if original is not None else -1), 'FaultAfterIndexBuild':'0'}
     values.update(variables or {})
+    stage,_=cost_context(script)
+    if stage is not None:
+        values['CostStage']=stage
     master_phases={'00_Preflight.sql','10_Setup.sql','90_Restore.sql','91_AttestDrop.sql','92_Absence.sql'}
     database='master' if script.name in master_phases else 'SQLPERF_LAB_IDX012_'+token
     command = build_sqlcmd_command(executable=executable, server=server, auth=auth,
@@ -196,12 +229,15 @@ def same_snapshot(before, after, *, enable=None, table_names=None, indexes=None)
 
 
 def run_profile(*, executable, server, auth, username, token, confirmed, high_impact,
-                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False):
+                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False, capture_costs=False):
     if (confirmed is not True or high_impact is not True or not isinstance(token,str)
             or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup')
             or mode not in ('dml-boundary','drop-rebuild') or type(capture_storage) is not bool
-            or (capture_storage and mode!='drop-rebuild')):
+            or (capture_storage and mode!='drop-rebuild') or type(capture_costs) is not bool
+            or (capture_costs and (mode!='drop-rebuild' or not capture_storage))):
         raise ValueError('Lokale YELLOW-Bestätigung und vollständige Tokenbindung erforderlich')
+    if capture_costs:
+        raise ValueError('Kostenpfad FAIL_CLIENT_INCLUDE: bis zur getrennten Clientqualifikation vor SQL gesperrt')
     folder=Path(folder).resolve()
     regular=Deadline(300,clock)
     if normal_deadline is not None:
@@ -264,6 +300,13 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
                                     fixture_object=state['fixture_object'],stage=stage)
             evidence.setdefault('storage',[]).append(actual)
 
+    def costs(output,stage):
+        if capture_costs:
+            own_files={f['file_id'] for f in evidence['storage'][0]['record']['files']}
+            actual=validate_costs([r for r in records(output) if r.get('kind')=='PHASE_COST'],
+                                  token=token,database_id=database_id,stage=stage,file_ids=own_files)
+            evidence.setdefault('phase_costs',[]).append(actual)
+
     try:
         normal('PREFLIGHT','00_Preflight.sql')
         output=normal('SETUP','10_Setup.sql')
@@ -290,7 +333,8 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
         storage('BASELINE')
         before_vectors={row['Id']:row['JsonValue'] for block in records(baseline_output)
                         if block.get('kind')=='SOURCE_VECTOR_BLOCK' for row in block['vectors']}
-        output=normal('DML_BOUNDARY','30_DmlBoundary.sql')
+        output=normal('DML_BOUNDARY','30_CostBoundary.sql' if capture_costs else '30_DmlBoundary.sql')
+        costs(output,'DML_BOUNDARY')
         index=one_record(output,'INDEX')
         if (index.get('RunToken')!=token or type(index.get('DatabaseId')) is not int
                 or index['DatabaseId']!=database_id
@@ -324,7 +368,8 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
         snapshot(1,1,state)
         evidence['independent_source_comparison']={'rows':999,'full_text_equal':True,'distance_equal':True}
         if mode=='drop-rebuild':
-            lifecycle_output=normal('DROP_CHANGE_REBUILD','50_DropRebuild.sql')
+            lifecycle_output=normal('DROP_CHANGE_REBUILD','50_CostRebuild.sql' if capture_costs else '50_DropRebuild.sql')
+            costs(lifecycle_output,'REBUILD')
             state=snapshot(1,1,state)
             final_output=normal('SOURCE_REBUILT','40_SourceAfter.sql')
             final_distances=combine_source(final_output,database_id,changed=True)
@@ -392,13 +437,14 @@ def main():
     parser.add_argument('--sqlcmd')
     parser.add_argument('--mode',choices=('dml-boundary','drop-rebuild'),default='dml-boundary')
     parser.add_argument('--capture-storage',action='store_true')
+    parser.add_argument('--capture-costs',action='store_true')
     parser.add_argument('--username',default='sa')
     parser.add_argument('--run-token',required=True)
     parser.add_argument('--confirm-isolated-lab',action='store_true')
     parser.add_argument('--high-impact-confirmed',action='store_true')
     args=parser.parse_args()
     result=run_profile(executable=resolve_sqlcmd(args.sqlcmd),server=args.server,auth='sql',username=args.username,
-                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode,capture_storage=args.capture_storage)
+                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode,capture_storage=args.capture_storage,capture_costs=args.capture_costs)
     print(json.dumps(result.__dict__,ensure_ascii=False))
     return 1 if result.outcome=='FAIL' else 0
 
