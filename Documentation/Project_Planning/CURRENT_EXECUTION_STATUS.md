@@ -328,6 +328,35 @@ Der enge unabhängige Review des Diagnoseentscheids fand keine P1/P2 und schloss
 das reine Entwurfs-Quellengate. Keine Ausführungsgenehmigung oder Runtime dadurch.
 Die betroffene Datenschutz-/Metadatenprüfung und git diff --check bestanden.
 TSK-012 bleibt insgesamt offen.
+PR 157 ist mit acht Headprüfungen auf `1a85d7062f8d772e560b2eaa6f4a78dba9b053f4`
+und sechs Main-Workflows auf `2f3cf94884bb4dcd0571ee8d55bfdcbbafd35c3a` integriert.
+Tree `ce4ac56af199011a560b412ce07474ff0931c48e`, Synchronisierung und eigener lokaler/
+remote Branchabbau bestätigt. Der Benutzer hat anschließend ausdrücklich
+„Ja, Parserdiagnose freigeben (empfohlen)“ geantwortet. Auf
+`codex/sql2025-ai-ann-parser-diagnosis` wird allein dieser neue Umfang umgesetzt:
+ein privater Diagnosekandidat/ein Container, höchstens zwei unveränderte PARSEONLY-
+Aufrufe, keine Korrekturwelle und kein anschließender Indexbuild/Search.
+Die unveränderten hashgebundenen Setup-/Recovery-/Cleanuphelper wurden wiederverwendet.
+Drei betroffene lokale Parser-/Snapshot-Gegenfixtures bestanden; der enge
+unabhängige Review des neuen ausführbaren Deltas schloss zwei P2 vor SQL
+(begrenzter JSON-Skalar und strikte 343-/Clientfehlerauswertung). Beide Reviews
+übersahen die tatsächliche lokale sqlcmd-Inkompatibilität von `-h -1 -y 0`.
+Der einzige Lauf ist [FAIL vor Setup](SQL_SERVER_2025_AI_ANN_PARSER_REVIEW.md):
+300-Sekunden-Readinessbudget erschöpft, einzelne Readinessfehlerausgaben unbekannt;
+SQL-Recovery und separate SQL-Abwesenheit tatsächlich FAIL wegen Clientoptionen.
+Keine persistente Baseline oder Previewattestierung; beide PARSEONLY-Aufrufe
+unausgeführt. Gebundener eigener Containerabbau und separate Abwesenheit bestanden,
+Cleanup 11,989 Sekunden. Kein RESTORED-/DROP-/SQL-Abwesenheits-PASS behaupten.
+Eine geänderte lokale Argumentkontrolle ohne SQL-Text/neuen Container gegen
+ungültigen Loopbackport 0 erreichte ohne `-h` die erwartete Verbindungsablehnung;
+keine SQL-/JSON-Runtimeabnahme. Ausgeführte private Quellen bleiben unverändert.
+Ein neuer [enger Clientkorrekturentscheid](SQL_SERVER_2025_AI_ANN_PARSER_CLIENT_DECISION.md)
+ist PENDING_USER_DECISION: ein zusätzlicher Kandidat/ein Container, keine
+Korrekturwelle, unveränderte Parser-/Effekt-/Cleanupgrenzen. Der enge unabhängige
+Review des Befunds und neuen Entwurfs fand keine P1/P2; keine Runtime dadurch.
+Aktuelle Head-/Main-Gates, Integration und eigener Branchcleanup folgen;
+keine neue Ausführungsfreigabe. Die alten FAIL-Checkpoints und weiteren
+Build-/DOP-Gates bleiben bestehen. Der Heartbeat setzt keine dieser Grenzen zurück.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
