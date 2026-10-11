@@ -469,6 +469,41 @@ vorbereitet: eigener neuer Diagnoseumfang, Generation UNKNOWN bleibt erhalten,
 eine feste dokumentierte TOP_N-Signatur, kein alternativer Syntaxfallback oder
 volle IDX-011-Abnahme. Quellenreview und Integration der Metadatendiagnose
 bleiben vor dessen SQL-Start erforderlich. Historische FAILs/Budgets unverändert.
+PR 162 ist mit sieben erfolgreichen Headprüfungen auf
+`b838f121e5e555d1d535991b2406452bb7ee92fb` gegen Basis
+`429d587d4b5b34bf36467c0b391afdb741b533a6` integriert. Alle fünf ausgewählten
+Main-Workflows auf `99657fa2c3bd29f17ee5139b96439f3b23a28e15` bestanden;
+Tree-Identität `2c3b2d9491cb515fd024b699f524d0b3e6a1ef74`, Synchronisierung und
+eigener lokaler/remote Branchabbau bestätigt. Unmittelbar beginnt der autorisierte
+Legacy-Diagnoseumfang auf `codex/sql2025-ai-ann-legacy` an dieser Basis.
+Der erforderliche Methoden-/Quellenreview des unveränderten ersten privaten
+Kandidaten und seine fünf lokalen Tests sind abgeschlossen. Höchstens zwei neue
+Kandidaten/vier serielle eigene Container, höchstens zwei vollständige Lifecycles
+je positivem stabilem Kandidaten; keine Generation oder Indexnutzung voraussetzen.
+Der erste Legacy-Kandidat stoppte am Texttyp-/Metricguard vor Search (51003),
+bei ausgegebener vollständiger DiskANN/COSINE-Metadatenrow. Tatsächliche Speichertypen
+noch unbekannt; beide Restores 0/0, neue Attestierung und separate DB-/Containerabwesenheit
+bestanden, Cleanup 12,297 Sekunden. Seine ausgeführten Quellen bleiben unverändert.
+Der zweite erlaubte Kandidat erfasst Textspeichertypen/-längen und vergleicht
+die Werte ohne Case-/Whitespaceänderung in einheitlicher Unicodeform; zehn feste
+Wertnegative und eine varchar-/nvarchar-Positive sind zusätzlich vor Search gebunden.
+Zwei lokale Generator-Testfehler durch implizite Windows-Decodierung vor SQL wurden
+im vorbereiteten Kandidaten korrigiert; der anschließende Fünf-Test-Lauf bestand.
+Der enge unabhängige Review des tatsächlichen Deltas fand keine P1/P2; Quellengate
+vor SQL geschlossen. Der zweite Kandidat bestand beide vorgesehenen vollständigen
+[Legacy-Ergebnislifecycles](SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_REVIEW.md):
+tatsächliche Texttypen nvarchar 14/12 Bytes, feste TOP_N-Signatur lieferte je fünf
+distanzgeprüfte Rows und 5/5 Schnittmenge mit Exact-Oracle. Je 24 Marker-/neun
+Baseline-/drei Ergebnis-/drei Quell-/zehn Textwertgegenproben und vier vollständige
+107-Host-/41-DB-scoped-Snapshots bestanden. Voller Source-/Metadatenvergleich,
+eigener Indexdrop, beide tatsächlichen Restores 0/0, neue Attestierung und separate
+DB-/Containerabwesenheit bestanden; Cleanup 12,383/12,710 Sekunden. Generation
+UNKNOWN und Indexnutzung UNPROVEN; kein Plan-/Performance-/Demo-PASS. Zwei neue
+Kandidaten/drei Container verbraucht, Umfang regulär abgeschlossen; Integration folgt.
+Unmittelbarer Folgeschnitt gemäß Wellenautorisierung ist die
+[begrenzte tatsächliche Planausgabe](SQL_SERVER_2025_AI_ANN_PLAN_DECISION.md):
+maximal zwei neue Kandidaten/zwei Container, eigener enger Plan-/Clientreview und
+betroffene Tests vor SQL, keine DML-/Cloud-/ONNX-/Hostwirkung.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

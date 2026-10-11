@@ -100,8 +100,14 @@ keine Such-/Indexnutzungsqualifikation. SRC-097 bezeichnet die Buildparameter
 als intern; die dokumentierte Version-Migrationsabfrage liefert hier keinen Wert.
 Die zusätzliche Benutzerfreigabe autorisiert einen eigenen begrenzten
 [Legacy-Signaturversuch](../Project_Planning/SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_DECISION.md)
-ohne numerische Generation zu behaupten; eine erfolgreiche private Queryprobe
-ersetzt keine konkrete Generations-/TP-PERF-/Demoabnahme.
+ohne numerische Generation zu behaupten. Der
+[zweite Kandidat bestand zwei vollständige Ergebnislifecycles](../Project_Planning/SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_REVIEW.md):
+je fünf distanzgeprüfte Quellrows und 5/5 Schnittmenge mit Exact-Oracle; tatsächliche
+Katalogtexttypen nvarchar. Erster Kandidat FAIL am Speicherformvergleich erhalten.
+Beide tatsächlichen Restores und separate DB-/Containerabwesenheit bestanden.
+Generation UNKNOWN, Indexnutzung UNPROVEN; keine konkrete Generations-/TP-PERF-/Demoabnahme.
+Die eigene [tatsächliche Planausgabe](../Project_Planning/SQL_SERVER_2025_AI_ANN_PLAN_DECISION.md)
+ist ein begrenzter autorisierter Folgeschnitt mit eigenem Quellengate vor SQL.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die

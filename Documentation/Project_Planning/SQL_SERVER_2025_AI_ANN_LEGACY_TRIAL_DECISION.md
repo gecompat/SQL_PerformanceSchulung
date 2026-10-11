@@ -1,6 +1,8 @@
 # TSK-006 – begrenzter Legacy-Signaturversuch bei unbekannter Generation
 
-Stand: 2026-10-11. AUTHORIZED_BOUNDED_DIAGNOSIS durch die ausdrückliche zusätzliche
+Stand: 2026-10-11. Diagnoseumfang mit [zwei bestandenen Ergebnislifecycles im zweiten Kandidaten](SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_REVIEW.md)
+regulär abgeschlossen; erster Kandidat FAIL erhalten. Generation UNKNOWN,
+Indexnutzung UNPROVEN. AUTHORIZED_BOUNDED_DIAGNOSIS durch die ausdrückliche zusätzliche
 Benutzerfreigabe „auch alle weiteren Freigaben zur Durchführung dieser Entwicklungswelle“.
 Dies ist ein neuer Diagnoseumfang nach Integration der
 [einzelnen Metadatenaufnahme](SQL_SERVER_2025_AI_ANN_METADATA_REVIEW.md).
