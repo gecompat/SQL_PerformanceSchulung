@@ -1,9 +1,16 @@
 # TSK-006 – begrenzte tatsächliche ANN-Planausgabe
 
-Stand: 2026-10-11. AUTHORIZED_BOUNDED_DIAGNOSIS gemäß ausdrücklicher
+Stand: 2026-10-11. [Einzelne Planausgabe bestanden](SQL_SERVER_2025_AI_ANN_PLAN_REVIEW.md),
+eigener Vector Index Seek mit fünf tatsächlichen Rows, Generation UNKNOWN.
+Diagnoseumfang nach einem Kandidaten/Container regulär abgeschlossen.
+AUTHORIZED_BOUNDED_DIAGNOSIS gemäß ausdrücklicher
 Benutzerautorisierung aller weiteren notwendigen lokalen Schritte dieser
 Entwicklungswelle. Der [Legacy-Ergebnisnachweis](SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_REVIEW.md)
 belegt Ergebnisse, aber keine Indexnutzung. Historische Budgets und FAILs bleiben erhalten.
+Der erforderliche enge Methoden-/Quellenreview des tatsächlichen ersten privaten
+Kandidaten fand keine P1/P2; fünf bestehende und sechs neue betroffene lokale Tests
+bestanden vor SQL. Suchbefund PR 163 vollständig integriert; Quellengate geschlossen.
+Keine Plan-/Runtimeattestation durch den Review.
 
 ## Frage und endlicher Umfang
 

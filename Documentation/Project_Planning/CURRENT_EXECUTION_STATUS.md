@@ -504,6 +504,27 @@ Unmittelbarer Folgeschnitt gemäß Wellenautorisierung ist die
 [begrenzte tatsächliche Planausgabe](SQL_SERVER_2025_AI_ANN_PLAN_DECISION.md):
 maximal zwei neue Kandidaten/zwei Container, eigener enger Plan-/Clientreview und
 betroffene Tests vor SQL, keine DML-/Cloud-/ONNX-/Hostwirkung.
+PR 163 ist mit sieben erfolgreichen Headprüfungen auf
+`03c04a77644774df497e5514bcfe0632002d628e` gegen Basis
+`99657fa2c3bd29f17ee5139b96439f3b23a28e15` integriert. Alle fünf ausgewählten
+Main-Workflows auf `d4ace6614ae500329e05160e0dd4f7ad16c9b8e7` bestanden;
+Tree-Identität `ff755ae9155f254508ccc8b034b7bd344eae9c1d`, main synchronisiert,
+eigener Branch lokal/remote entfernt. Unmittelbar beginnt die begrenzte Plandiagnose
+auf `codex/sql2025-ai-ann-plan` an dieser Basis. Fünf bestehende lokale Grenztests
+und sechs neue Plan-/Manipulationstests bestanden. Der enge unabhängige Review des
+tatsächlichen XML-/Statement-/Runtime-/Indexbindings fand keine P1/P2;
+Quellengate vor SQL geschlossen. Der erste einzelne Plankandidat bestand die
+[tatsächliche Planausgabe](SQL_SERVER_2025_AI_ANN_PLAN_REVIEW.md): vollständiges
+gebundenes Actual-XML, eigener Vector Index Seek/DiskANN mit fünf tatsächlichen
+Rows, daneben Nested Loops und Clustered Index Seek. Indexnutzung für diesen
+festen ungefilterten Suchaufruf beobachtet; Generation UNKNOWN. Ergebnis-/Source-/
+Metadaten-/Konfigurationskontrollen bestanden, beide tatsächlichen Restores 0/0,
+neue Attestierung und separate SQL-/Containerabwesenheit bestanden; Cleanup
+12,583 Sekunden. Ein Kandidat/Container verbraucht, Umfang regulär abgeschlossen;
+Integration folgt. Unmittelbarer Folgeschnitt gemäß Wellenautorisierung ist die
+[begrenzte Filter-/Ergebnisdiagnose](SQL_SERVER_2025_AI_ANN_FILTER_DECISION.md)
+mit drei vorab festen Id-Fenstern und gebundenem Exact-Oracle; eigenes Quellen-/
+Testgate vor SQL. Kein gefilterter Indexnutzungs-/Performance-/voller Demo-PASS.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

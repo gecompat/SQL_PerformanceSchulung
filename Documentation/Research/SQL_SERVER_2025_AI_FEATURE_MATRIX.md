@@ -106,8 +106,12 @@ je f체nf distanzgepr체fte Quellrows und 5/5 Schnittmenge mit Exact-Oracle; tats�
 Katalogtexttypen nvarchar. Erster Kandidat FAIL am Speicherformvergleich erhalten.
 Beide tats채chlichen Restores und separate DB-/Containerabwesenheit bestanden.
 Generation UNKNOWN, Indexnutzung UNPROVEN; keine konkrete Generations-/TP-PERF-/Demoabnahme.
-Die eigene [tats채chliche Planausgabe](../Project_Planning/SQL_SERVER_2025_AI_ANN_PLAN_DECISION.md)
-ist ein begrenzter autorisierter Folgeschnitt mit eigenem Quellengate vor SQL.
+Die eigene [tats채chliche Planausgabe bestand](../Project_Planning/SQL_SERVER_2025_AI_ANN_PLAN_REVIEW.md):
+Vector Index Seek auf dem voll gebundenen eigenen DiskANN-Index mit f체nf
+tats채chlichen Rows. Dies belegt Indexnutzung nur f체r den festen ungefilterten
+Suchaufruf; Generation UNKNOWN, kein Performance-/voller Demo-PASS.
+Die [Filter-/Ergebnisdiagnose](../Project_Planning/SQL_SERVER_2025_AI_ANN_FILTER_DECISION.md)
+ist ein eigener begrenzter autorisierter Folgeschnitt.
 
 Ressourcengrenze, gepr체ft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die
