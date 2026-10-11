@@ -90,13 +90,20 @@ Unmittelbar folgt QRY-019 aus TSK-009 auf `codex/sql2025-ai-sql-input-policy`, B
 prüft eine feste vollständige SQL-Struktur, zwei tatsächlich gebundene Werte unter
 QRY019_reader WITHOUT LOGIN und drei feste Rechteverweigerungen mit Bestandsnachkontrolle.
 2019/2022 bestanden je zwei SKIP_VERSION-Lifecycles vor Setup und eigenen Cleanup.
-Die erste lokale 17.x-Qualifikation bestand zwei Lifecycles, fünf Ergebnisassertions,
-80 Markergegenproben und sieben fachliche Gegenproben. Eine konkrete P2-Orakellücke
-des unabhängigen Reviews führte zur vollständigen bytegenauen Bindung aller acht
-Fixtureinhalte und einer achten Gegenprobe. Aktuelle lokale Runtime mit allen acht
-Gegenproben und gezielter unabhängiger Findingabschluss bestanden. PR-/Main-Integration
-steht im [QRY-019-Nachweis](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md).
+Die aktuelle lokale 17.x-Qualifikation bestand zwei Lifecycles, fünf Ergebnisassertions,
+80 Markergegenproben und acht fachliche Gegenproben; ein P2-Orakelfinding ist geschlossen.
+Alle 49 Headprüfungen bestanden; PR 138 ist in `25a7c0af1b377b9250deeac4cf4288224900689f`
+integriert. Tree-Identität, Synchronisierung, eigener Branchabbau und alle elf Main-Workflows
+sind belegt im [QRY-019-Nachweis](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md).
 TSK-009 bleibt offen für Tenant-, Datenschutz- und weitere Providerfälle.
+
+Der nächste zulässige CON-010-Schritt ist mit einer privaten 17.x-RLS-/Identitätsvorprobe
+begonnen: drei Kontextfälle und drei tatsächliche Rechteverweigerungen bestanden samt
+Sessionreset und eigenem DB-/Containerabbau. Konkreter Fehler und korrigierte Vor-/Nachbindung
+stehen im [Checkpoint](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md#nächster-checkpoint-private-con-010-vorbereitung).
+CON-010 bleibt PROPOSED; nächster kleiner Schnitt ist sein vollständiger markierter Lifecycle
+mit Sessionwechsel, Leakagegegenproben und unabhängigem Review. Serverlogin/Pooling und
+ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben offen, KI-Heartbeat aktiv.
 
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 

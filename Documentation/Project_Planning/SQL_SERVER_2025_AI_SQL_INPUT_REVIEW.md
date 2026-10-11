@@ -2,7 +2,7 @@
 
 Stand: 2026-10-11. TSK-009, CUR-018/CUR-021, TP-RUN.
 Basis: `4de76ffc9eeb23882e5b6f4c02be3b32576b8f75`, Branch
-`codex/sql2025-ai-sql-input-policy`. IMPLEMENTED; aktuelle PR-/Main-Gates offen.
+`codex/sql2025-ai-sql-input-policy`. IMPLEMENTED; lokaler Schnitt samt PR-/Main-Gates integriert.
 
 ## Ergebnisvertrag und Sicherheitsgrenze
 
@@ -48,8 +48,8 @@ zwei kohärenten Aufbaukorrekturen bestand sie zwei tatsächliche Wertbindungen,
 Rechteverweigerungen, unveränderte drei Rows sowie DB- und eigenen Containerabbau.
 Diese Entwicklungsfehler sind keine erfolgreich ausgeführten Parameter-/Rechtekontrollen.
 Das daraus erzeugte vollständige Demopaket bestand den ersten lokalen Runtimeversuch.
-Ein anfänglicher Validatoraufruf verwendete einen nicht existierenden Dateinamen;
-der korrekte Frameworkvalidator bestand. Kein SQL-/Oraclebypass oder Retry bis grün.
+Zwei anfängliche Validatoraufrufe verwendeten nicht existierende Dateinamen;
+die korrekten Framework-/ADV-006/007-Validatoren bestanden. Kein SQL-/Oraclebypass oder Retry bis grün.
 
 Der unabhängige Quellenreview fand eine konkrete P2-Lücke: Alle sechs negativen
 Statementfixtures konnten durch NULL ersetzt werden, während die Counts PASS lieferten.
@@ -83,4 +83,42 @@ python Tests/Runtime/run_sql2025_ai_local.py --target docker --container '<eigen
 SQLCMDPASSWORD bleibt die Passwortquelle ohne Wert in Prozessargumenten. Alle Daten sind
 synthetisch. SRC-099/SRC-091 wurden am 2026-10-11 an Microsoft-Primärquellen geprüft.
 TSK-009 bleibt IN_PROGRESS: Tenant-/Datenschutz-/Providergrenzen sind separat offen.
-Aktuelle PR-/Main-Evidenz und vollständiger Branchabschluss sind vor Abschluss erforderlich.
+Alle 49 PR-Prüfungen am aktuellen Head `3ac2b6c63c435446208b51d5955f440e39510e2e`
+bestanden, einschließlich der [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38133330578)
+und der [bestehenden Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38133330553).
+[PR 138](https://github.com/gecompat/SQL_PerformanceSchulung/pull/138) ist in
+`25a7c0af1b377b9250deeac4cf4288224900689f` integriert. Vollständige Tree-Identität wurde
+geprüft, main synchronisiert und der eigene Branch lokal/remote entfernt.
+Alle elf Main-Workflows dieses Integrationscommits bestanden, darunter die
+[KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38133801177)
+und die [bestehende Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38133801231).
+Die übrigen Plattform-/Anwendungs-/Livegates bleiben sichtbar offen; kein Gesamtabschluss.
+
+
+## Nächster Checkpoint: private CON-010-Vorbereitung
+
+Der nächste zulässige Schritt CON-010 ist mit einer begrenzten privaten 17.x-Vorprobe
+begonnen. Eine echte RLS-Filterpolicy bindet zwei synthetische Dokumente und ihre
+Geometrievektoren an TenantA/TenantB als eingeschränkte Datenbankbenutzer WITHOUT LOGIN.
+Drei tatsächliche Ergebnisfälle bestanden: je eine eigene vollständige Quelle mit
+Exact-Cosinusdistanz null für A/B und kein Kontext für einen nicht zugeordneten Benutzer.
+Ein manipulierter Sessionwert mit Tenant B erweitert den Zugriff von A nicht; die
+Policy verwendet die Datenbankidentität. Die erweiterte Vorprobe bestand zusätzlich
+drei tatsächliche Verweigerungen: Policyänderung mit 33268, Fremdimpersonation mit
+15517 und Lesen nach SELECT-Revocation mit 229. Bestehende aktive Policy und Zielbindung
+werden davor/danach aus dem Eigentümerkontext geprüft. Der erste Rechteversuch erwartete
+irrtümlich 15151 statt 33268 und blieb FAIL; eigener Containerabbau bestand. Nach neuer
+Runtime-/Primärquellen-Evidenz wurde ausschließlich diese Fehlerbindung korrigiert und
+die Vor-/Nachkontrolle gegen fehlende/NULL-Metadaten verstärkt. Der geänderte Lauf bestand.
+REVERT, expliziter Sessionreset, DB-Abbau und separat geprüfte eigene Containerabwesenheit
+bestanden. Das ist nur eine Vorprobe,
+kein implementiertes CON-010-Demopaket und keine Serverlogin-/Pooling-/ANN-Abnahme.
+SRC-093 und der [Microsoft-Fehlerkatalog](https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors-31000-to-41399?view=sql-server-ver17)
+wurden erneut gelesen. Nächster kleiner Schnitt:
+vollständiger markierter Lifecycle mit echten Policy-/Impersonations-/Revocationkontrollen,
+Sessionwechsel und Ergebnis-/Leakagegegenproben. ANN bleibt von TSK-006 abhängig,
+Cloud-/ONNX-/Live-Modellgrenzen unverändert offen. Der KI-Heartbeat bleibt aktiv.
+
+Die privaten Proben bleiben unter Runtime, außerhalb der versionierten Demoquellen.
+Dieser Nachweis behauptet dafür keinen unabhängigen Quellenreview oder vollständigen
+FWK-010/FWK-011-/TP-CON-Lifecycle. Der bestehende CON-010-Entwurf bleibt PROPOSED.
