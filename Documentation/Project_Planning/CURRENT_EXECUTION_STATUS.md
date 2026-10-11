@@ -20,7 +20,12 @@
 Der neue Benutzerauftrag autorisiert die autonome Entwicklung des integrierten
 KI-Workstreams durch den Orchestrator. Die Implementierungsgrenze des ursprünglichen
 Planungsauftrags ist damit für diesen Workstream aufgehoben; allgemeine Entwicklung,
-DGN-007-Folgearbeiten und Entwicklungsautomation bleiben pausiert.
+DGN-007-Folgearbeiten bleiben pausiert. Die spätere ausdrückliche Freigabe
+„Ja, Heartbeat einrichten“ autorisiert ausschließlich den Heartbeat dieses
+KI-Orchestrator-Chats: `sql-2025-ki-workstream-orchestrator`, alle 30 Minuten,
+ACTIVE seit 2026-10-11. Er setzt zulässige Arbeit fort und meldet nur wesentliche
+Änderungen, Abschluss, Fehler oder nötige Entscheidungen. Andere Automationen
+werden nicht wieder aufgenommen; Cloud-/Bezahl- und ONNX-Gates bleiben bestehen.
 
 Der endliche Gesamtumfang sind `TSK-004`–`TSK-014` und die 18 registrierten Demoentwürfe.
 Erster zusammenhängender Schnitt: lokale Build-/Syntaxqualifikation aus `TSK-004` und
@@ -41,15 +46,25 @@ der lokale Pflichtpfad kann unabhängig fortschreiten. Die Rückmeldung des Benu
 KI-Integration von SQL_Server_Lab. Der öffentliche lokale RAG-Controller ist der
 zu prüfende Anwendungspfad; der interne HTTPS-Referenzslice ist getrennt von einem
 allgemeinen Gateway zu behandeln. Cloudkosten und ONNX-Hoständerungen sind weiterhin
-nicht freigegeben. Es wurde keine wiederkehrende Automation eingerichtet.
+nicht freigegeben. Der Heartbeat ist eine Wiederaufnahmeabsicherung; ein regulär
+abgeschlossener Schnitt führt im selben Turn zum nächsten zulässigen Schritt.
 
 Die erste lokale Qualifikation von QRY-014 bis QRY-017 ist mit Ergebnisverträgen,
 224 Markergegenproben, fünf fachlichen Negativkontrollen und eigenem Cleanup
 belegt. QRY-017 meldet bei fehlender Full-Text-Komponente ausdrücklich WARN;
 2019/2022 prüfen ausschließlich die Versionsgrenze. Der
 [Implementierungsnachweis](SQL_SERVER_2025_AI_LOCAL_IMPLEMENTATION_REVIEW.md)
-führt Charakterisierungsfehler und Korrekturen. Unabhängige Korrekturkontrolle,
-aktuelle CI und Integration dieses Branches sind noch offen.
+führt Charakterisierungsfehler und Korrekturen. Die unabhängige Quellenkontrolle
+schloss alle vier Befundgruppen ohne weitere Safety-Befunde; sie ist kein eigener
+Runtimebeleg. Alle 51 PR-Prüfungen am Head
+`7831f9293d8e4653006c23e74b008e71707cabeb` bestanden, einschließlich der
+[KI-Versionsmatrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129371244).
+[PR 135](https://github.com/gecompat/SQL_PerformanceSchulung/pull/135) ist in
+`87017c04c04516495a4b653134532ac993db20ca` integriert. Vollständige Tree-Identität
+des Squash-Ergebnisses wurde geprüft; main synchronisiert und der eigene
+Arbeitsbranch lokal/remote entfernt. Der anschließende Main-Lauf ist separat
+zu bewerten. Nächster zulässiger Schnitt: öffentliche lokale Modellintegration
+aus TSK-007 mit eigenem SQL_Server_Lab-Run und begrenzten synthetischen Daten.
 
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 
@@ -68,7 +83,9 @@ zurückgestellte Arbeiten werden durch diesen Auftrag nicht wieder aufgenommen.
 
 Wiederaufnahme benötigt einen gesonderten Implementierungsauftrag mit gewähltem Erstumfang.
 Cloud/Bezahl-API, ONNX/Instanzänderung und Previewpfade benötigen zusätzlich die benannten
-konkreten Freigaben. Keine Automation wird erstellt oder aktiviert.
+konkreten Freigaben. Der damalige Planungsauftrag erlaubte keine Automation;
+die spätere ausdrücklich freigegebene Implementierung und der oben benannte
+Heartbeat ersetzen diese historische Grenze ausschließlich für den KI-Workstream.
 
 ### Verbindlicher Abschlussumfang vom 2026-10-10
 
