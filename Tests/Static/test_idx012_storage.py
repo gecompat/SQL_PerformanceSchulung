@@ -106,5 +106,14 @@ class Storage(unittest.TestCase):
             row=fixture();row.pop(key)
             with self.assertRaises(ValueError):run(row)
 
+    def test_full_catalog_ceiling_preserves_fixture_and_rejects_overflow(self):
+        row=fixture()
+        row['partitions'] += [dict(row['partitions'][0],partition_id=1000+i,object_id=-i) for i in range(1,512)]
+        row['PartitionCount']=512
+        self.assertEqual(len(run(row)['record']['partitions']),512)
+        row['partitions'].append(dict(row['partitions'][0],partition_id=1512,object_id=-512))
+        row['PartitionCount']=513
+        with self.assertRaises(ValueError):run(row)
+
 
 if __name__=='__main__':unittest.main()

@@ -25,7 +25,7 @@ def validate_storage(record,*,token,database_id,fixture_object,stage):
     files,internal,parts=record.get('files'),record.get('internal_tables'),record.get('partitions')
     if (not isinstance(files,list) or len(files)!=2 or {r.get('type') for r in files}!={0,1}
             or not isinstance(internal,list) or len(internal)>64
-            or not isinstance(parts,list) or not 1<=len(parts)<=128):
+            or not isinstance(parts,list) or not 1<=len(parts)<=512):
         raise ValueError('Vollständiger begrenzter eigener Katalog fehlt')
     for name,rows in [('FileCount',files),('InternalCount',internal),('PartitionCount',parts)]:
         if type(record.get(name)) is not int or record[name]!=len(rows):
