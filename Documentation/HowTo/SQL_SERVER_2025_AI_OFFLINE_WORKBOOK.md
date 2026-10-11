@@ -9,6 +9,8 @@ Teilnehmererprobung und gemessene Lehrzeiten stehen aus.
 
 Die [Grundlagenbegriffe](SQL_SERVER_2025_AI_OFFLINE_GLOSSARY.md) erklären Modell,
 Vektor, Chunk, Retrieval und Antwort vor der ersten Aufgabe.
+Der [Trainerleitfaden](SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md) ergänzt die
+vorgeschlagene Reihenfolge und Moderation; Lösungen und Rubrik bleiben hier gepflegt.
 
 Vorwissen: SELECT, ORDER BY, Parameter, Datenbankrechte und der Unterschied zwischen
 Engineversion und Compatibility Level. Alle acht Demoprofile verwenden SQL Server

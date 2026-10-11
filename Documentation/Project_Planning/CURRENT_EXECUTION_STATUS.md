@@ -296,6 +296,19 @@ Keine Indexgeneration, ANN-Rows, Recall-/Plan-/Performance- oder FWK-Abnahme.
 Parser-/Previewursache bleibt offen; weitere ANN-Arbeit benötigt einen konkret
 vorbereiteten Nachweisumfang und neuen Budgetentscheid. Der Fehlercheckpoint wird
 mit aktuellen Head-/Main-Gates integriert; unabhängige Lehrmaterialarbeit folgt.
+PR 155 integrierte den wahrheitsgemäßen ANN-FAIL mit sieben Headprüfungen auf
+`63a4263d6cea1c9d07a1bf4039d7b90e2d208780` und fünf Main-Workflows auf
+`2ce534ab2f6d638c5fb38615c3a06ded6088aaac`. Tree
+`8d1faa5eb105bb9d702c69c83c5a2c4465746244`, Synchronisierung und eigener lokaler/remote
+Branchabbau bestätigt. Unmittelbar folgt auf `codex/sql2025-ai-offline-trainer`
+der unabhängige TSK-012-Teilentwurf eines Trainerleitfadens für genau die acht
+qualifizierten Offline-Demos: Moderation, Reihenfolge und Umgang mit tatsächlichen
+Status-/Cleanupgrenzen. Lösungen/Rubrik bleiben im Arbeitsheft; keine neue SQL-,
+Teilnehmer-, Masterdeck- oder Gesamtcurriculumabnahme. Ein Owner, höchstens zwei
+kohärente Korrekturwellen; keine neue Runtime oder unabhängige Reviewkette für
+unveränderte Demoquellen. Alle 14 lokalen Materiallinks, INF-001-Ausführungspfad,
+Datenschutz-/Metadatenprüfung und git diff --check bestanden. Aktuelle Head-/Main-
+Gates und Integration dieses reinen Materialschnitts folgen.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
