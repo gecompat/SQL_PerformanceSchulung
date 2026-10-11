@@ -2,7 +2,7 @@
 
 Stand: 2026-10-11. Scope: QRY-014 bis QRY-017, TSK-004/TSK-005.
 Branch: `codex/sql2025-ai-local-demos`; Basis `fb53157eba381d23022b9a91aaa36a359f609576`.
-Status: IMPLEMENTED; aktueller Actions-/Integrationsgate noch offen. Dieser Schnitt
+Status: IMPLEMENTED; PR-Head validiert und durch PR 135 integriert. Dieser Schnitt
 nimmt weder den gesamten Workstream noch TSK-004 mit allen Providerpfaden ab.
 
 ## Technischer Umfang
@@ -46,7 +46,18 @@ QRY-014/015 wurden vor der isolierten letzten QRY-016-Korrektur geprüft; deren
 SQL-/Ergebnisbytes blieben dabei unverändert. Ein zusätzliches PRINT mit Subquery
 wurde nach Fehler 1046 durch eine gemessene skalare Variable ersetzt; nur QRY-016
 und die zuvor noch ausstehende QRY-017-Qualifikation wurden lokal neu ausgeführt.
-Die unabhängige Korrekturkontrolle und aktuelle CI bleiben offen.
+Die unabhängige Quellenkontrolle schloss alle vier Befundgruppen und fand keine
+weiteren Safety-Befunde. Sie führte selbst keine Runtime aus. Die aktuelle
+[KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129371244)
+bestand auf 2019/2022/2025 am Head `7831f9293d8e4653006c23e74b008e71707cabeb`;
+alle 51 PR-Prüfungen waren erfolgreich. Sie qualifiziert die neuen Dockerpfade
+einschließlich Versionsgrenze, Ergebnissen, Gegenproben und eigenem Cleanup.
+[PR 135](https://github.com/gecompat/SQL_PerformanceSchulung/pull/135) wurde als
+`87017c04c04516495a4b653134532ac993db20ca` integriert. Der vollständige Tree war
+mit dem lokalen Branch identisch; main wurde synchronisiert und der lokale sowie
+Remote-Branch entfernt. Alle 13 Main-Workflows dieses Integrationscommits bestanden,
+einschließlich der [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129793884)
+und [W-COV-001](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129793842).
 
 Fehlendes Full-Text bleibt WARN_OPTIONAL_EVIDENCE_SKIPPED. Der Runner trennt den
 bestandenen Qualifikationstest vom aggregierten Demoergebnis; Versions-Skips sind
@@ -82,7 +93,14 @@ Containerabbau prüft sein eigenes Label und anschließende Abwesenheit.
 
 Die Lab-Katalogerweiterung erhöht die geplante vollständige Provider-/Versionsmatrix
 von 264 auf 312 Runs. Das ist eine Planungssumme, kein ausgeführter Nachweis.
-Keine neue Vollmatrixautomation oder wiederkehrende Modellarbeit wird aktiviert.
+Keine neue Vollmatrixautomation wurde aktiviert. Der Benutzer genehmigte nach dem
+ursprünglichen Planungsauftrag ausdrücklich einen Heartbeat für diesen Chat;
+`sql-2025-ki-workstream-orchestrator` ist ACTIVE mit 30 Minuten Intervall.
+Der gespeicherte Prompt wahrt den endlichen Umfang, unveränderte Test-/Reviewbelege,
+konkrete Effektgrenzen und stille unveränderte Zustände. Er dient der Wiederaufnahme;
+laufende autorisierte Arbeit wird unmittelbar fortgesetzt. Andere Workstreams
+und Automationen bleiben pausiert. Diese Promptprüfung ist der relevante
+Verarbeitungsaufwandnachweis; unbekannte Modell-/Tokenkosten bleiben unbekannt.
 CI bewertet den aktuellen Head; Nachweise früherer Commits ersetzen diesen Gate nicht.
 
 ## Quellen und nächste Schritte
