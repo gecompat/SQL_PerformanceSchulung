@@ -128,9 +128,24 @@ tatsächliches Setup-CREATE, erlaubte Readerrow/Ingestion-Writes, fünf tatsäch
 Rechteverweigerungen nach Grantreduktion und volle Modell-/Rechte-/Endpointbindung.
 Nach einer dokumentierten Korrekturwelle bestanden lokal zwei 17.x-Lifecycles mit
 je neun Assertions, 80 Markergegenproben und zehn Resultnegative sowie eigener
-DB-/Container-/Netzabbau. Versions-, Review- und Integrationsgate werden im
-[Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) ergänzt; Modell-EXECUTE bleibt
-ausschließlich Metadatenrecht, Inferenz und echte Credential-/Egressabnahme offen.
+DB-/Container-/Netzabbau. 15.x/16.x bestanden je zwei Versions-SKIPs vor SETUP;
+der unabhängige Quellenreview fand keine offenen P1/P2. PR 143 bestand 49 Headprüfungen,
+Squash `2f1dfec5d76cad63232f0a9eb968f880324ed5cf` alle elf Main-Workflows.
+Tree-Identität, Synchronisierung und eigener lokaler/remote Branchabbau sind im
+[Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) geschlossen; Modell-EXECUTE
+bleibt ausschließlich Metadatenrecht, Inferenz und echte Credential-/Egressabnahme offen.
+
+Unmittelbar folgte eine begrenzte Podman-QRY-014-Providerprobe unter TSK-004:
+17.0.5005.3 bestand zwei Lifecycles mit je drei Assertions, 48 Markergegenproben und
+Setup-Idempotenz; 15.0.4490.9/16.0.4295.3 jeweils zwei Versions-SKIPs. Eigene DB-/
+Containerabwesenheit bestand. Ein P2-Adapterfinding zu Prozesszeitgrenzen wurde mit
+einer Korrekturwelle und vier privaten Timeoutgegenfixtures geschlossen; keine
+unveränderte SQL-Wiederholung, keine empirische OCI-Hängequalifikation. Der
+[Provider-Nachweis](SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) begrenzt diese Aussage auf
+QRY-014, keine vollständige Podman-/360-Matrixabnahme.
+Für TSK-006 ist ein [konkretes lokales Preview-Freigabepaket](SQL_SERVER_2025_AI_PREVIEW_DECISION.md)
+vorbereitet; die Benutzerentscheidung ist ausstehend. PREVIEW_FEATURES wurde nicht aktiviert.
+Andere zulässige Offlinearbeit bleibt ausführbar; Gesamtworkstream und Heartbeat bleiben aktiv.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
