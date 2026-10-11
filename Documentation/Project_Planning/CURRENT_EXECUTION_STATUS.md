@@ -101,9 +101,14 @@ Der nächste zulässige CON-010-Schritt ist mit einer privaten 17.x-RLS-/Identit
 begonnen: drei Kontextfälle und drei tatsächliche Rechteverweigerungen bestanden samt
 Sessionreset und eigenem DB-/Containerabbau. Konkreter Fehler und korrigierte Vor-/Nachbindung
 stehen im [Checkpoint](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md#nächster-checkpoint-private-con-010-vorbereitung).
-CON-010 bleibt PROPOSED; nächster kleiner Schnitt ist sein vollständiger markierter Lifecycle
-mit Sessionwechsel, Leakagegegenproben und unabhängigem Review. Serverlogin/Pooling und
-ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben offen, KI-Heartbeat aktiv.
+Der vollständige CON-010-Kandidat wurde nach drei 17.x-Fehlversuchen und zwei
+Korrekturwellen mit FAIL angehalten. Die neue Metadatenprobe belegt zusätzlich erzeugte
+CONNECT-Grants als verbleibende Fixtureabweichung; Code und Registrierungsänderungen
+wurden zurückgenommen, eigener DB-/Containerabbau ist belegt im
+[Checkpoint](SQL_SERVER_2025_AI_TENANT_REVIEW.md). CON-010 bleibt PROPOSED. Nächster
+unabhängiger Schritt ist die synthetische Offline-Vorbereitung von DGN-009.
+Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
+offen, KI-Heartbeat aktiv.
 
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 
