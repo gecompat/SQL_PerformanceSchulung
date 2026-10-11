@@ -202,6 +202,23 @@ class ControllerBoundaries(unittest.TestCase):
             with self.assertRaises(ValueError):run(client,mode=mode)
             self.assertEqual(client.files,[])
 
+    def test_storage_requires_explicit_boolean_and_rebuild_before_any_client(self):
+        for options in ({'capture_storage':True},{'capture_storage':1,'mode':'drop-rebuild'},
+                        {'capture_storage':None,'mode':'drop-rebuild'}):
+            client=Client()
+            with self.assertRaises(ValueError):run(client,**options)
+            self.assertEqual(client.files,[])
+
+    def test_storage_stage_cannot_override_owner_or_accept_free_phase(self):
+        for variables in ({'StorageStage':'BASELINE '},{'StorageStage':'OTHER'},
+                          {'StorageStage':'INDEXED','RunToken':'0'*16}):
+            with self.assertRaises(ValueError):
+                profile.phase_command('sqlcmd','localhost','sql','sa',FOLDER/'22_Storage.sql',TOKEN,0,variables)
+        for stage in ('BASELINE','INDEXED','REBUILT'):
+            command=profile.phase_command('sqlcmd','localhost','sql','sa',FOLDER/'22_Storage.sql',TOKEN,0,{'StorageStage':stage})
+            self.assertIn('StorageStage='+stage,command)
+            self.assertEqual(command[command.index('-d')+1],'SQLPERF_LAB_IDX012_'+TOKEN)
+
 
 if __name__=='__main__':
     unittest.main()
