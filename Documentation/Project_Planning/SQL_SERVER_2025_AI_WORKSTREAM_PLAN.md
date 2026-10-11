@@ -14,6 +14,14 @@
 Der nachfolgende Plan dokumentiert den ursprünglichen Planungsschnitt. Der neue
 Benutzerauftrag vom 2026-10-11 autorisiert dessen autonome Umsetzung; Scope, Budget
 und aktueller Nachweis stehen im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md#autonome-umsetzung-des-ki-workstreams-vom-2026-10-11).
+Der zusätzliche Benutzerauftrag erweitert die lokale Entwicklungswelle auf
+sechs kohärente Test-/Korrekturkandidaten je Schnitt; bisherige Versuche
+zählen im gemeinsamen Ledger weiter mit. Wiederholungen nach FAIL benötigen
+geänderte Ausführungsquellen; stabile positive Wiederholungen bleiben bei
+tatsächlich erforderlichen Qualifikationsgates zulässig. Sicherheits-,
+Cleanup- und Providergrenzen bleiben bestehen. Der aktuelle
+[Kostenfolgeschnitt](SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md#benutzererweiterung-und-dritter-kandidat)
+setzt nach zwei Client-FAILs mit einer begrenzten literalen SQL-Eingabe fort.
 Allgemeine Entwicklung und andere Automationen bleiben pausiert; der ausdrücklich
 genehmigte KI-Heartbeat ist aktiv. Externe/Bezahl- und rote
 Hoständerungen behalten ihre jeweiligen Gates. QRY-014 bis QRY-017 sind der erste

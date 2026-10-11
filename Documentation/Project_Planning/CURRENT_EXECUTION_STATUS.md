@@ -1974,3 +1974,60 @@ Kostenwiederaufnahme benötigt einen getrennten endlichen Clientvertrag,
 geänderte Eingaben und Quellenclosure nach vollständiger Checkpointintegration;
 keine unveränderte Probe, keine stille Budgetrücksetzung. Gesamtworkstream und
 Heartbeat aktiv; übrige Provider-/Cloud-/ONNX-Gates bleiben unverändert.
+
+### IDX-012: Benutzererweiterung nach vollständiger PR177-Integration
+
+[PR 177](https://github.com/gecompat/SQL_PerformanceSchulung/pull/177) ist
+vollständig abgeschlossen: Head 5a80dbdb6c3cbe7af4928fd843ec97bdd0a6f823 gegen
+Base 018c678f55660a559bfd2acc4eb3f56675bce8eb mit 13 SUCCESS;
+Squash 4dc956df3f66c21c672e9add30405853bc1e4ca8 mit sieben ausgewählten
+Main-SUCCESS (38176790631/38176790669/38176790632/38176790662/38176790708/
+38176790645/38176790629). Vollständiger Tree
+63adece444541ba2913e7ee33d207a40e2c17ed7 identisch; main/origin/main sauber
+synchronisiert, eigener Kostenbranch lokal/remote entfernt. Keine eigenen
+Container verblieben. C1/C2 bleiben geschlossene FAILs ohne Kostenframes.
+
+Der Benutzer verlangt jetzt ausdrücklich mehr als zwei Testzyklen. Die
+lokale Entwicklungswelle erhält sechs kohärente Test-/Korrekturkandidaten je
+Schnitt. Die Kostenfolge verwendet denselben Ledger: C1/C2 zählen mit,
+maximal sechs Kandidaten/zwölf serielle eigene Container. Kein unveränderter
+Retry nach FAIL; Quellenänderung und gezielte Risiko-Closure erforderlich.
+Keine Wiederöffnung alter Ledger und keine Änderung von Provider-/Cloud-/
+ONNX-/roten Hostgrenzen. Unbekannter Modell-/Tokenverbrauch bleibt unbekannt.
+
+Unmittelbar läuft die [C3-Clientkorrektur](SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md#benutzererweiterung-und-dritter-kandidat)
+auf codex/sql2025-ai-idx012-cost-bundle, Basis 4dc956df3f66c21c672e9add30405853bc1e4ca8.
+Feste öffentliche Quellen werden mit vier Batchgrenzen in genau einer
+eigenen temporären SQL-Datei bis 160000 UTF-8-Bytes zusammengefügt;
+Startupskriptvererbung ist ausgeschlossen. Aufnahme und eigener Cleanup
+werden eng unabhängig geprüft; Admission erst danach. SQL-Effekte,
+Countersemantik, Originalrestore und 300 s einschließlich Startup/20 s
+SQL-Recovery innerhalb 60 s gesamtem Cleanup bleiben unverändert.
+28 betroffene Controllergegenproben bestanden. Quellenreview-P2 vor
+Admission korrigiert: Die neue Input-Lease verlangt bestätigtes Prozessende
+vor Dateientfernung; sonst FAIL_CLEANUP ohne konkurrierende SQL-Recovery.
+Unabhängige Closure ohne weitere Befunde erteilt; aktuelle Controllerbindung
+5D7964A85FE8041726901A66BA4629633119BDB97491972E25F82F41CF685705 und
+Parent EBF13336594B74558567F331E5A7A7BD87C128D47B6388946461067B5E47BB36.
+Kein C3-Runtimeclaim vor
+tatsächlicher Ausführung. Zwei positive Lifecycles desselben stabilen
+Kandidaten erforderlich. Danach konsistenter PR-/Main-/Sync-/Cleanupabschluss
+und unmittelbar nächster zulässiger Schritt Versions-SKIPs 2019/2022.
+Gesamtworkstream und Heartbeat bleiben aktiv.
+
+
+C3 bestand anschließend beide vollständigen Kostenlifecycles, Tokens
+3E2901DC14FA4A4E/064EB3DBC5FC4B54, tatsächlicher Build 17.0.5005.3 und
+WARN_OPTIONAL_EVIDENCE_SKIPPED. Beide Phasen je Lauf liefern vollständige
+BEFORE/AFTER-Kostenframes in derselben Session; Session-/TempDB-/eigene
+DB-Dateideltas sind tatsächlich erfasst, reine Index-/vollständige
+Workerkosten bleiben NOT_ESTABLISHED. Alle DML-/Quellen-/Drop-/Commit-/
+Rebuild-/Recall-/Storagekontrollen bestanden. Tatsächliche Originalrestores
+und unabhängige Attestation 0/0, markergebundener Drop, neue DB-Abwesenheit,
+eigene vollständige CID-/Namensabwesenheit und temporäre Dateiabwesenheit
+bestanden; Cleanup 13,7552919/13,3577670 s. Beide C3-Admissionen geschlossen
+ohne failure. Kostenfolge nach drei Kandidaten/vier Admissionen beendet;
+die freien Zyklen werden nicht ohne neue Frage verbraucht. Historische
+C1/C2-FAILs erhalten. [Tatsächliche Werte und Grenzen](SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md#c3-zwei-vollständige-tatsächliche-kostenlifecycles).
+Dieser konsistente Stand wird über PR integriert; danach unmittelbar
+tatsächliche Versions-SKIPs 2019/2022. Gesamtworkstream und Heartbeat aktiv.

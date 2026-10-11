@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT=Path(__file__).resolve().parents[2]
 FOLDER=ROOT/'Demos/09_AI_SQL_Server_2025/IDX-012_Vector_Index_DML_Maintenance'
@@ -239,6 +239,8 @@ class ControllerBoundaries(unittest.TestCase):
             self.assertEqual(command[command.index('-d')+1],'SQLPERF_LAB_IDX012_'+TOKEN)
 
     def test_cost_include_and_stage_cannot_be_overridden_by_caller(self):
+        with self.assertRaises(ValueError):
+            profile.cost_source(ROOT/'Runtime'/'30_CostBoundary.sql')
         for variables in ({'CostStage':'REBUILD'},{'PhaseWorkFile':'foreign.sql'},
                           {'CostFrameFile':'foreign.sql'}):
             with self.assertRaises(ValueError):
@@ -256,6 +258,7 @@ class ControllerBoundaries(unittest.TestCase):
     def test_native_cost_executor_uses_fixed_process_environment(self):
         command=profile.phase_command('sqlcmd','localhost','integrated',None,FOLDER/'30_CostBoundary.sql',TOKEN,0)
         with patch.object(profile,'start_sqlcmd') as start,patch.object(profile,'collect_process') as collect:
+            start.return_value.poll.return_value=0
             profile.execute_client(command,timeout_seconds=5)
             self.assertEqual(start.call_args.kwargs['environment']['PhaseWorkFile'],str((FOLDER/'30_DmlBoundary.sql').resolve()))
             self.assertEqual(collect.call_args.kwargs['timeout_seconds'],5)
@@ -272,11 +275,82 @@ class ControllerBoundaries(unittest.TestCase):
         self.assertEqual(inherited,original)
         self.assertEqual(environment['SQLCMDPASSWORD'],'synthetic')
 
-    def test_known_failed_cost_include_mode_stops_before_setup(self):
-        client=Client()
-        with self.assertRaisesRegex(ValueError,'FAIL_CLIENT_INCLUDE'):
-            run(client,capture_storage=True,capture_costs=True,mode='drop-rebuild')
-        self.assertEqual(client.files,[])
+    def test_literal_cost_source_uses_one_original_phase_and_two_ordered_frames(self):
+        for wrapper,work in [('30_CostBoundary.sql','30_DmlBoundary.sql'),('50_CostRebuild.sql','50_DropRebuild.sql')]:
+            source=profile.cost_source(FOLDER/wrapper)
+            original=(FOLDER/work).read_text(encoding='utf-8')
+            frame=(FOLDER/'23_CostFrame.sql').read_text(encoding='utf-8')
+            self.assertEqual(source.count(original),1)
+            self.assertEqual(source.count(frame),2)
+            before=source.index(':setvar CostFrame BEFORE')
+            actual=source.index(original)
+            after=source.index(':setvar CostFrame AFTER')
+            self.assertLess(before,actual)
+            self.assertLess(actual,after)
+            self.assertEqual(source.count('\nGO\n'),4)
+            self.assertNotIn(':r ',source)
+            self.assertLessEqual(len(source.encode('utf-8')),160000)
+
+    def test_prepared_native_input_is_owned_and_removed_after_exception(self):
+        command=profile.phase_command('sqlcmd','localhost','integrated',None,FOLDER/'30_CostBoundary.sql',TOKEN,0)
+        original=command.copy()
+        actual_file=None
+        with self.assertRaisesRegex(RuntimeError,'controlled'):
+            with profile.execution_input(command) as lease:
+                actual=lease.command
+                actual_file=Path(actual[actual.index('-i')+1])
+                self.assertEqual(actual_file.parent,(ROOT/'Runtime').resolve())
+                self.assertTrue(actual_file.is_file())
+                self.assertEqual(actual_file.read_text(encoding='utf-8'),profile.cost_source(FOLDER/'30_CostBoundary.sql'))
+                raise RuntimeError('controlled')
+        self.assertIsNotNone(actual_file)
+        self.assertFalse(actual_file.exists())
+        self.assertEqual(command,original)
+
+    def test_collector_exception_preserves_input_only_while_client_is_alive(self):
+        command=profile.phase_command('sqlcmd','localhost','integrated',None,FOLDER/'30_CostBoundary.sql',TOKEN,0)
+        for status in (None,1):
+            process=Mock()
+            process.poll.return_value=status
+            source=None
+            def collector(actual_process,actual_command,**kwargs):
+                nonlocal source
+                self.assertIs(actual_process,process)
+                source=Path(actual_command[actual_command.index('-i')+1])
+                raise RuntimeError('controlled collector exception')
+            with patch.object(profile,'start_sqlcmd',return_value=process),patch.object(profile,'collect_process',side_effect=collector):
+                with self.assertRaisesRegex(profile.ClientEndUnknown if status is None else RuntimeError,
+                                            'FAIL_CLEANUP' if status is None else 'controlled collector'):
+                    profile.execute_client(command,timeout_seconds=5)
+            self.assertIsNotNone(source)
+            self.assertEqual(source.exists(),status is None)
+            if source.exists():
+                # Ausschließlich die soeben von dieser Fixture erzeugte Datei.
+                source.unlink()
+
+    def test_unknown_client_end_blocks_racing_sql_recovery(self):
+        def trigger(name,output):
+            if name=='21_Snapshot.sql':
+                raise profile.ClientEndUnknown('controlled unknown process end')
+            return output
+        client=Client(trigger)
+        result=run(client)
+        self.assertEqual((result.outcome,result.code,result.cleanup_ok),('FAIL','FAIL_CLEANUP',False))
+        self.assertEqual(result.evidence['client_end'],'UNKNOWN')
+        self.assertFalse(any(name in client.files for name in ('90_Restore.sql','91_AttestDrop.sql','92_Absence.sql')))
+
+    def test_unbound_startup_script_is_removed_from_process_env(self):
+        command=profile.phase_command('sqlcmd','localhost','integrated',None,FOLDER/'00_Preflight.sql',TOKEN,None)
+        original={'SQLCMDINI':'foreign','SqlCmdIni':'foreign','SQLCMDPASSWORD':'synthetic'}
+        actual=profile.client_environment(command,original)
+        self.assertFalse(any(key.casefold()=='sqlcmdini' for key in actual))
+        self.assertEqual(actual['SQLCMDPASSWORD'],'synthetic')
+        self.assertEqual(original['SQLCMDINI'],'foreign')
+
+    def test_extra_sqlcmd_commands_and_unbounded_source_are_rejected(self):
+        for content in (':r foreign.sql',' :connect foreign','!! foreign','GO 100','SELECT 1;\n'*25000):
+            with patch.object(Path,'read_text',return_value=content):
+                with self.assertRaises(ValueError):profile.cost_source(FOLDER/'30_CostBoundary.sql')
 
 
 if __name__=='__main__':

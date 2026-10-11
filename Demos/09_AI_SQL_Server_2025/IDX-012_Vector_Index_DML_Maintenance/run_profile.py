@@ -10,12 +10,14 @@ from __future__ import annotations
 import argparse
 import copy
 from dataclasses import dataclass
+from contextlib import contextmanager
 import json
 import math
 import os
 from pathlib import Path
 import re
 import sys
+import tempfile
 import time
 
 FOLDER = Path(__file__).resolve().parent
@@ -52,10 +54,9 @@ class Deadline:
 
 
 def execute_client(command, *, timeout_seconds):
-    process = start_sqlcmd(command,environment=client_environment(command))
-    # Der öffentliche Collector beendet auch bei Ctrl+C den Prozessbaum, bevor
-    # unabhängige Recoveryclients beginnen.
-    return collect_process(process, command, timeout_seconds=timeout_seconds)
+    with execution_input(command) as lease:
+        process = lease.start(environment=client_environment(command))
+        return collect_process(process, lease.command, timeout_seconds=timeout_seconds)
 
 
 def cost_context(script):
@@ -64,6 +65,8 @@ def cost_context(script):
             '50_CostRebuild.sql':('REBUILD','50_DropRebuild.sql')}
     if script.name not in phases:
         return None,{}
+    if script.parent!=FOLDER.resolve():
+        raise ValueError('Kostenquelle außerhalb des festen öffentlichen Demoordners')
     stage,filename=phases[script.name]
     work=(script.parent/filename).resolve()
     frame=(script.parent/'23_CostFrame.sql').resolve()
@@ -75,15 +78,87 @@ def cost_context(script):
 
 
 def client_environment(command,environment=None):
-    # Native Windows-ODBC-sqlcmd akzeptiert die Drivepfade nicht als unquotierte
-    # -v-Werte. Feste Includevariablen deshalb ausschließlich pro Prozess ENV;
-    # geerbte gleichnamige Werte werden durch die eigene feste Map überschrieben.
+    # Feste Pfadwerte bleiben für Executoradapter eindeutig gebunden; die
+    # tatsächliche Kostenquelle verwendet keine nativen :r-Includes mehr.
+    # Geerbte Startupskripte dürfen die gebundene SQL-Quelle nicht ergänzen.
     result=dict(os.environ if environment is None else environment)
     _,paths=cost_context(Path(command[command.index('-i')+1]))
-    reserved={name.casefold() for name in paths}
+    reserved={name.casefold() for name in paths}|{'sqlcmdini'}
     result={name:value for name,value in result.items() if name.casefold() not in reserved}
     result.update(paths)
     return result
+
+
+def cost_source(script):
+    stage,paths=cost_context(script)
+    if stage is None:
+        raise ValueError('Feste eigene Kostenphase erforderlich')
+    files=[Path(script).resolve(),Path(paths['CostFrameFile']),Path(paths['PhaseWorkFile'])]
+    if sum(p.stat().st_size*(2 if i==1 else 1) for i,p in enumerate(files))+512>160000:
+        raise ValueError('Temporäre eigene SQL-Quelle außerhalb Grenze')
+    wrapper,frame,work=(p.read_text(encoding='utf-8') for p in files)
+    if any(re.search(r'(?im)^\s*(?::|!!|GO(?:\s|$))',text) for text in (wrapper,frame,work)):
+        raise ValueError('Freier SQLCMD-Aufruf in eigener Kostenquelle abgewiesen')
+    text=(wrapper+'\nGO\n:setvar CostFrame BEFORE\n'+frame+'\nGO\n'+work
+          +'\nGO\n:setvar CostFrame AFTER\n'+frame+'\nGO\n')
+    if len(text.encode('utf-8'))>160000:
+        raise ValueError('Temporäre eigene SQL-Quelle außerhalb Grenze')
+    return text
+
+
+@dataclass
+class ExecutionInput:
+    command: list
+    process: object | None = None
+
+    def start(self, *, environment):
+        if self.process is not None:
+            raise ValueError('Eigene Eingabe bereits an einen Client gebunden')
+        self.process=start_sqlcmd(self.command,environment=environment)
+        return self.process
+
+
+class ClientEndUnknown(RuntimeError):
+    pass
+
+
+@contextmanager
+def execution_input(command):
+    script=Path(command[command.index('-i')+1])
+    stage,_=cost_context(script)
+    if stage is None:
+        yield ExecutionInput(command)
+        return
+    source=cost_source(script)
+    runtime=(ROOT/'Runtime').resolve()
+    if runtime.parent!=ROOT.resolve() or runtime.name!='Runtime':
+        raise ValueError('Temporäre SQL-Datei verlässt das eigene Repository')
+    runtime.mkdir(exist_ok=True)
+    own_file=None
+    lease=None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',newline='\n',
+                                         prefix='idx012-cost-',suffix='.sql',dir=runtime,delete=False) as stream:
+            own_file=Path(stream.name).resolve()
+            if own_file.parent!=runtime or not own_file.name.startswith('idx012-cost-'):
+                raise ValueError('Temporäre eigene SQL-Dateibindung fehlt')
+            stream.write(source)
+        actual=list(command)
+        actual[actual.index('-i')+1]=str(own_file)
+        lease=ExecutionInput(actual)
+        yield lease
+    finally:
+        if own_file is not None:
+            if own_file.parent!=runtime or not own_file.name.startswith('idx012-cost-'):
+                raise ValueError('Temporäre eigene Cleanupbindung fehlt')
+            if lease is not None and lease.process is not None:
+                try:
+                    status=lease.process.poll()
+                except BaseException as error:
+                    raise ClientEndUnknown('FAIL_CLEANUP: Clientstatus nicht prüfbar; eigene SQL-Datei erhalten') from error
+                if type(status) is not int:
+                    raise ClientEndUnknown('FAIL_CLEANUP: Native Clientende ungeklärt; eigene SQL-Datei erhalten')
+            own_file.unlink(missing_ok=True)
 
 
 def phase_command(executable, server, auth, username, script, token, original, variables=None):
@@ -236,8 +311,6 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             or (capture_storage and mode!='drop-rebuild') or type(capture_costs) is not bool
             or (capture_costs and (mode!='drop-rebuild' or not capture_storage))):
         raise ValueError('Lokale YELLOW-Bestätigung und vollständige Tokenbindung erforderlich')
-    if capture_costs:
-        raise ValueError('Kostenpfad FAIL_CLIENT_INCLUDE: bis zur getrennten Clientqualifikation vor SQL gesperrt')
     folder=Path(folder).resolve()
     regular=Deadline(300,clock)
     if normal_deadline is not None:
@@ -245,6 +318,7 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             raise ValueError('Tatsächliche übergeordnete Deadline erforderlich')
         regular.end=min(regular.end,normal_deadline)
     started=False
+    client_end_unknown=False
     original=None
     phases=[]
     evidence={'generation':'UNKNOWN','runtime_qualification':'NOT_ESTABLISHED'}
@@ -390,6 +464,10 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             evidence['lifecycle']=lifecycle
             evidence['rebuild_source_comparison']={'rows':999,'only_changed_id':999,'other_998_texts_equal':True}
             storage('REBUILT')
+    except ClientEndUnknown:
+        client_end_unknown=True
+        outcome,code='FAIL','FAIL_CLEANUP'
+        evidence.update(client_end='UNKNOWN',temporary_source_cleanup='NOT_ESTABLISHED')
     except PhaseStop as stopped:
         outcome,code=stopped.outcome,stopped.code
     except TimeoutError:
@@ -399,7 +477,7 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
     except KeyboardInterrupt:
         outcome,code='FAIL','FAIL_EXECUTION'
     finally:
-        if started:
+        if started and not client_end_unknown:
             recovery=Deadline(20,clock)
             successes=set()
             for identity,filename,cap in [('RESTORE','90_Restore.sql',6),('ATTEST_DROP','91_AttestDrop.sql',6),('ABSENCE','92_Absence.sql',4)]:

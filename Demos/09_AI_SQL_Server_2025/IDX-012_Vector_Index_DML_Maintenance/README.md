@@ -162,16 +162,20 @@ STORAGE_GUARD ist keine vollständige Speicheraufnahme und ersetzt keine Prüfun
 
 ## Optionale tatsächliche Phasenkosten
 
-Der aktuell gesperrte Entwurf `--mode drop-rebuild --capture-storage
---capture-costs` soll vor/nach den vollständigen DML-/Rebuildphasen rohe Session-, TempDB- und
-eigene DB-Dateicounter. Beide Punkte jeder Phase kommen aus derselben Verbindung;
-feste Wrapper lesen die unveränderten ursprünglichen Phasen über absolute,
-controllergebundene `:r`-Pfade ein. `GO` beendet die vorige Batch vor der nächsten
-Sessioncounteraufnahme. Der Default bleibt unverändert. Kosten ohne expliziten
+Der dritte qualifizierte Kandidat für `--mode drop-rebuild --capture-storage
+--capture-costs` nimmt vor/nach vollständigen DML-/Rebuildphasen rohe Session-,
+TempDB- und eigene DB-Dateicounter auf. Beide Punkte jeder Phase kommen aus
+derselben Verbindung. Der Controller assembliert ausschließlich feste
+öffentliche Quellen mit vier GO-Grenzen in einer einzelnen eigenen
+temporären SQL-Datei unter Runtime, höchstens 160000 UTF-8-Bytes.
+Die ursprüngliche Arbeitsphase steht einmal, der Kostenframe zweimal in
+der Eingabe. Native :r-Dateinamenauflösung entfällt. Die eigene Datei wird
+nach bestätigt beendetem Client auch bei Fehler entfernt. Ungeklärtes
+Prozessende erhält die Datei und meldet FAIL_CLEANUP. Geerbtes SQLCMDINI wird entfernt.
+Eigene Executoradapter verwenden execution_input(command) und
+client_environment(command, environment). Default und bestehende
+Storage-/Drop-/Rebuildmodi bleiben verfügbar. Kosten ohne expliziten
 Storage-/Rebuildmodus oder nichtboolesche Optionen werden vor SQL abgewiesen.
-Die festen absoluten Includepfade stehen ausschließlich in der frischen nativen
-Prozessumgebung; geerbte Pfadwerte werden überschrieben. Eigene Executoradapter
-verwenden `client_environment(command, environment)` bei start_sqlcmd.
 
 Session-writes bedeutet Dirty-Page-Markierungen, keine tatsächlichen Datei-
 Writes. TempDB umfasst abgeschlossene Tasks derselben Session ohne IAM und
@@ -179,15 +183,19 @@ laufende Tasks. Datei-Writes/-Bytes/-Stallzeit gehören allen Writern der eigene
 DB zwischen zwei Punkten einschließlich Hintergrundarbeit. Fehlend/null/Reset
 sind FAIL; gemessene null bleibt null. Die Phasen enthalten Kontrollen,
 Beobachtung und Instrumentierung; isolierte Indexbaukosten und vollständige
-Worker-/TP-PERF-Abnahme bleiben NOT_ESTABLISHED. Der [Kostennachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md)
-bindet Primärquellen, tatsächlichen Laufstand, Review und endliches Budget.
-Beide Kostenkandidaten scheiterten vor Kosten-SQL; kein Kostenruntimeclaim.
-Der erste zugelassene Kostenlauf scheiterte an der nativen `-v`-Drivepfadübergabe
-vor Kosten-SQL; beide Originalrestores und unabhängiger eigener Cleanup bestanden.
-Der zweite Kandidat mit festen Prozess-ENV-Pfaden erhielt den wörtlichen
-Dateinamen `$(CostFrameFile)`/Invalid filename; beide Originalrestores und
-eigener Cleanup bestanden. Budget regulär geschlossen. Der Controller sperrt
-`--capture-costs` mit FAIL_CLIENT_INCLUDE vor jedem SQL-Client. Kosten nicht
-ausführen; getrennte qualifizierte Clientkorrektur erforderlich. Beide FAILs
-und endliches Budget bleiben im Kostennachweis erhalten. Default und der
-bereits qualifizierte Storage-/Drop-/Rebuildmodus bleiben verfügbar.
+Worker-/TP-PERF-Abnahme bleiben NOT_ESTABLISHED.
+
+Der [Kostennachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md)
+bindet Primärquellen, Quellenreview und tatsächlichen Laufstand. Die ersten
+beiden Kandidaten scheiterten vor Kosten-SQL an nativen Clientpfaden;
+beide Originalrestores und unabhängiger eigener Cleanup bestanden. PR 177
+integrierte die damalige Sperre vollständig. Die ausdrückliche
+Benutzererweiterung erlaubt jetzt sechs Kandidaten/höchstens zwölf serielle
+eigene Container im selben Ledger einschließlich C1/C2. Kein Reset und kein
+unveränderter Fehlversuch. C3 bestand danach zwei vollständige eigene Lifecycles auf 17.0.5005.3
+mit tatsächlichen Session-/TempDB-/Dateikostenpunkten, allen DML-/Rebuild-
+Kontrollen, Originalrestores 0/0 und unabhängiger DB-/CID-/Namensabwesenheit.
+Temporäre Eingabedateien sind entfernt. Session CPU DML 1676/1650 ms,
+Rebuild 1142/1083 ms; alle Werte umfassen ganze Phasen samt Kontrollen.
+Der Kostennachweis erhält die einzelnen Dateidifferenzen und Grenzen;
+eine Manifest-/Demo-/TP-PERF-Freigabe ist damit nicht verbunden.
