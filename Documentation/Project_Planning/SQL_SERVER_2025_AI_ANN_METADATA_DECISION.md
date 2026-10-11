@@ -1,11 +1,20 @@
 # TSK-006 – einzelne ANN-Metadatendiagnose nach Generationsstopp
 
-Stand: 2026-10-11. PENDING_USER_DECISION. Keine neue ausführbare Quelle oder
-SQL-/Containerruntime durch dieses Paket. Der
+Stand: 2026-10-11. AUTHORIZED_BOUNDED_IMPLEMENTATION. Der Benutzer bestätigte
+ausdrücklich „ja, ich gebe das frei - und auch alle weiteren Freigaben zur Durchführung
+dieser Entwicklungswelle werden hiermit erteilt“. Der konkrete Einzelumfang ist
+freigegeben; der tatsächliche Quellenreview bleibt vor SQL erforderlich. Der
 [Build-/Suchumfang](SQL_SERVER_2025_AI_ANN_BUILD_DECISION.md) hält ausdrücklich
 nach zwei ungelösten Kandidaten an; beide sind verbraucht. Der
 [FAIL-Checkpoint](SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md) belegt einen eigenen
 Index, aber keinen ausgegebenen Rohwert für Generation/Typ/Metric.
+
+Der ausdrücklich freigegebene Einzelumfang ist inzwischen
+[METADATA_CAPTURE_PASS](SQL_SERVER_2025_AI_ANN_METADATA_REVIEW.md): genau ein
+Kandidat/Container, tatsächliche fehlende Version-Eigenschaft, GENERATION_UNKNOWN,
+keine Suche, vollständige Restores und separate eigene Abwesenheitsprüfungen bestanden.
+Das Einzelbudget ist verbraucht; der nächste private Umfang folgt ausschließlich
+der zusätzlichen ausdrücklichen Wellenautorisierung und seinem eigenen Vertrag.
 
 Der enge unabhängige Befund-/Budget-/Effektreview fand keine konkreten P1/P2.
 Dies schließt das Entwurfsgate; das spätere tatsächliche Delta-Quellengate bleibt

@@ -93,6 +93,15 @@ danach eigener Index erstellt, aber Stopp am Generationsgate vor Search (51003).
 Konkrete Generation und rohe Typ-/Metric-/Buildparameter unbekannt, weil vor dem
 Guard nicht ausgegeben. Keine Such-/Recallevidenz; beide tatsächlichen Restores 0/0
 und separate DB-/Containerabwesenheit bestanden.
+Die anschließend [bestandene einzelne Metadatenaufnahme](../Project_Planning/SQL_SERVER_2025_AI_ANN_METADATA_REVIEW.md)
+belegt nun am eigenen festen Build: DiskANN/COSINE, gültige Buildparameter,
+Version-Schlüssel fehlt, Versionsableitungen NULL. Generation UNKNOWN und
+keine Such-/Indexnutzungsqualifikation. SRC-097 bezeichnet die Buildparameter
+als intern; die dokumentierte Version-Migrationsabfrage liefert hier keinen Wert.
+Die zusätzliche Benutzerfreigabe autorisiert einen eigenen begrenzten
+[Legacy-Signaturversuch](../Project_Planning/SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_DECISION.md)
+ohne numerische Generation zu behaupten; eine erfolgreiche private Queryprobe
+ersetzt keine konkrete Generations-/TP-PERF-/Demoabnahme.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die
