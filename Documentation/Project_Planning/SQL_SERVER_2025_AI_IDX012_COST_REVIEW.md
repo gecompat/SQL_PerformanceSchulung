@@ -8,23 +8,35 @@ geschlossen; ihre Resultate attestieren diese neue Aufnahme nicht.
 
 ## Methode und Aussagegrenze
 
-Der Default bleibt unverändert. Der Entwurf sieht ausschließlich `--mode
-drop-rebuild --capture-storage --capture-costs` für 30_CostBoundary und
-50_CostRebuild vor. Dieser Modus ist nach den unten dokumentierten Client-FAILs
-vor jedem SQL-Aufruf gesperrt; die folgenden Absätze beschreiben den Entwurf.
-Feste absolute SQLCMD-`:r`-Pfade lesen die unveränderten öffentlichen
-30_DmlBoundary/50_DropRebuild ein. Vor und nach der jeweils vollständigen
-Phase steht eine eigene Kostenaufnahme. `GO` beendet die vorherige Batch,
-bevor der nächste Sessioncounterpunkt gelesen wird. Beide Punkte stammen
-aus derselben tatsächlichen Verbindung; eigener temporärer Kontext bindet
-Session/DB/Token/Stage und endet mit der Verbindung, ohne neues dauerhaftes
-Objekt. Die Pfade/Stages sind ausschließlich feste Controllerauswahl und
-können nicht durch freie Caller-Variablen überschrieben werden.
-Die zwei Include-Pfade werden ausschließlich als feste Prozess-ENV-Werte
-übergeben; geerbte gleichnamige Werte werden ersetzt, die Elternumgebung bleibt
-unverändert. CostStage bleibt feste CLI-Variable. Eigene Executor-Adapter müssen
-den öffentlichen `client_environment(command, environment)`-Helper beim
-start_sqlcmd-Aufruf verwenden; sonst ist der Kostenpfad nicht attestiert.
+Der Default bleibt unverändert. Ausschließlich `--mode drop-rebuild
+--capture-storage --capture-costs` verwendet die beiden Kostenphasen. Nach
+den historischen Client-FAILs und der vollständig integrierten Sperre in
+PR 177 bestand der dritte Kandidat mit geänderter Clientübergabe beide Lifecycles.
+Er assembliert ausschließlich den festen Wrapper, 23_CostFrame und die
+ursprüngliche öffentliche 30_DmlBoundary/50_DropRebuild als literalen
+SQL-Text. Zeilenenden werden normalisiert; eine byteidentische Übernahme der
+ursprünglichen Dateien wird dadurch nicht behauptet. Vier feste GO-Grenzen
+trennen Kontext, ersten Kostenpunkt, vollständige Arbeitsphase und zweiten
+Kostenpunkt. Beide Punkte stammen aus derselben tatsächlichen Verbindung;
+eigener temporärer SQL-Kontext bindet Session/DB/Token/Stage und endet mit
+der Verbindung, ohne neues dauerhaftes Objekt.
+
+Die native Eingabe ist eine einzelne eigene temporäre Datei unter Runtime,
+höchstens 160000 UTF-8-Bytes. Eingelesene Quellen dürfen keine SQLCMD-
+Kommandos, freien GO-Grenzen oder Shellaufrufe enthalten. Der Controller
+schließt die Datei vor Clientstart und entfernt ausschließlich diese Datei
+im finally-Pfad nach bestätigtem Ende des gebundenen Clientprozesses, auch bei
+Timeout oder Fehler. Ist das Prozessende ungeklärt, bleibt die eigene Datei
+erhalten und der Cleanup meldet FAIL_CLEANUP. Weitere SQL-Recoveryclients
+starten dann nicht gegen den ungeklärt lebenden Client. Der eigene Parent
+behält seine begrenzte Containerrecovery; diese belegt keinen SQL-Restore.
+Native `:r`-Dateinamenauflösung wird nicht verwendet. Geerbtes
+SQLCMDINI wird in allen Phasen entfernt; keine ungebundene Startupquelle.
+CostStage bleibt feste CLI-Variable. Eigene Executoradapter verwenden
+`execution_input(command)` zusammen mit `client_environment(command,
+environment)`; der Qualifikationsparent sichert die tatsächlich übergebene
+Quelldatei und deren SHA256 ausschließlich im ignorierten Nachweisordner.
+Das ist Quellenprovenienz, noch keine Runtimeattestation.
 
 23_CostFrame prüft vollständige FWK-002-Marker, persistierte Originalbaselines,
 tatsächlich Preview/MAXDOP 1/1, 999 Quellenrows, Indexzahl und separat vor
@@ -57,7 +69,7 @@ Wait-, vollständige Worker- oder allgemeine Freshness-/Generationsabnahme.
 Alle bisherigen Quellen-, Distanz-, Metadaten-, Restore- und Abwesenheits-
 kontrollen bleiben erforderlich.
 
-## Endliches Budget und Checkpoints
+## Ursprüngliches Zweikandidatenbudget und Checkpoints
 
 Ein Implementierungsverantwortlicher und ein enger unabhängiger Quellenreview
 für Countersemantik, Batch-/Includebindung, Eigentum, Budget und Cleanup.
@@ -193,7 +205,8 @@ eine reine Sperrgegenprobe nach dem regulären FAIL-Checkpoint. Keine neue
 Runtimejobdefinition. Konservative Auswahl
 führt weiterhin acht freigegebene Offline-Demos auf drei Versionen je zweimal
 am aktuellen Head und auf main aus; sie attestiert diesen Prototyp nicht.
-Lokale Kostenruntime endet spätestens nach vier eigenen Admissionen.
+Das ursprüngliche Budget endete nach höchstens vier eigenen Admissionen;
+die spätere ausdrückliche Benutzererweiterung steht im folgenden Abschnitt.
 Unveränderte DML-/Lifecycle-/Storagetests und frühere Reviews werden lokal
 nicht ohne neuen Anlass wiederholt; keine vollständige Analyse-/Reviewkette.
 
@@ -208,3 +221,116 @@ Abruf 2026-10-11; keine tatsächliche Buildattestation durch Dokumentation:
 - [SQLCMD-Scriptingvariablen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver17): Prozess-ENV, Präzedenz und Fehlverhalten bei fehlender Variable.
 - [Python os.environ](https://docs.python.org/3/library/os.html#os.environ): case-insensitive Windows-Umgebung und Uppercase-Normalisierung.
 - [SQLCMD-Utility](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17#-w-screen_width): maximale Clientbreite 65535.
+
+## Benutzererweiterung und dritter Kandidat
+
+Der Benutzer hat am 2026-10-11 ausdrücklich mehr als zwei Testzyklen für
+diese lokale Entwicklungswelle verlangt. Die neue endliche Grenze beträgt
+sechs kohärente Test-/Korrekturkandidaten je Schnitt. Im selben Kostenledger
+zählen C1 und C2 weiterhin mit; die Grenze ist jetzt sechs Kandidaten und
+höchstens zwölf serielle eigene Container. Ein FAIL hält den betroffenen
+Kandidaten an; ein weiterer Kandidat benötigt geänderte Ausführungsquellen
+und die gezielte Closure eines tatsächlich offenen Risikos. Zwei positive
+Lifecycles müssen weiterhin vom selben stabilen Kandidaten stammen. Ein
+unveränderter Fehlversuch wird nicht wiederholt. Alte FAILs, Cleanupwerte
+und verbrauchte Admissionen bleiben erhalten. Provider-, Cloud-, ONNX- und
+rote Hostgrenzen werden dadurch nicht erweitert.
+
+C3 auf codex/sql2025-ai-idx012-cost-bundle, Basis
+4dc956df3f66c21c672e9add30405853bc1e4ca8, ersetzt die gescheiterte native
+Includeübergabe durch die oben begrenzte literale Eingabe. Countersemantik,
+SQL-Effektgrenzen, Originalrestores, 300 s einschließlich Startup und 20 s
+SQL-Recovery innerhalb 60 s gesamtem Cleanup bleiben unverändert.
+28 geänderte Controllergegenproben bestanden vor Admission; unveränderte
+Kosten-, Storage-, DML-, Lifecycle- und Selektortests werden ohne neuen
+Anlass nicht nochmals lokal ausgeführt. Ein enger unabhängiger Quellenreview
+prüft Clientinput, Batchbindung, eigenen Dateicleanup, Quellenprovenienz und
+das erweiterte gemeinsame Ledger. Keine neue administrative Reviewkette
+oder Runtimejobdefinition. Die bestehenden Head-/Integrationsgates bleiben
+verpflichtend; Modell-/Tokenverbrauch ist unbekannt.
+
+Der enge Review fand einen P2: Der alte Collector garantiert bei erfolgloser
+Prozessbeendigung auf dem Ausnahmeweg kein bestätigtes Clientende. Die neue
+ExecutionInput-Lease bindet deshalb den tatsächlichen gestarteten Prozess
+an den Dateicleanup. Nur ein Integer-Endstatus erlaubt die Entfernung;
+fehlender oder nicht prüfbarer Endstatus erhält die Quelle und meldet
+ClientEndUnknown/FAIL_CLEANUP. Der Controller unterbindet dann konkurrierende
+SQL-Recovery, cleanup_ok bleibt false. Beide Executorpfade verwenden dieselbe
+Lease. Gegenproben decken lebenden und beendeten Client sowie fehlende
+SQL-Recovery im Unbekanntfall ab. Die enge unabhängige P2-Closure ist vor
+Admission erforderlich und jetzt ohne weitere Befunde erteilt; kein
+Runtimeversuch durch den Reviewer. Aktuelle geprüfte SHA256-Bindungen:
+Controller 5D7964A85FE8041726901A66BA4629633119BDB97491972E25F82F41CF685705,
+Parent EBF13336594B74558567F331E5A7A7BD87C128D47B6388946461067B5E47BB36,
+beide Wrapper 6937A20A397C9AA159EDC3F21E5F3F0913A89F7830E867B195DB144E29527BC8.
+
+Status: C3 mit zwei vollständigen positiven Lifecycles qualifiziert für die
+begrenzten Phasenkosten; konsistenter PR-/Integrationsabschluss folgt.
+C1/C2 besitzen weiterhin keine Kostenframes. Isolierte Index-/vollständige
+Workerkosten sowie vollständige TP-PERF- oder Demoabnahme bleiben offen.
+
+## C3: zwei vollständige tatsächliche Kostenlifecycles
+
+Tokens 3E2901DC14FA4A4E und 064EB3DBC5FC4B54, tatsächlicher SQL-Build
+17.0.5005.3, beide WARN_OPTIONAL_EVIDENCE_SKIPPED. Alle bisherigen Kontrollen
+bestanden: vier positive zurückgerollte DML-Kontrollen ohne Index und vier
+tatsächliche 42231/State1-Verweigerungen mit Index; vollständige 999-Row-
+Quelle und unabhängige Distanzen; eigener Drop mit Indexbestand null vor
+Commit Id999; übrige 998 Vektortexte unverändert; vollständige neue Metadaten,
+fünf tatsächliche Suchkontrollen mit ANN-Recall@5 1 und geändertem Id999 auf
+Rang1/Distanz0 nach Rebuild. Generation UNKNOWN und Freshness ausschließlich
+OBSERVED_AFTER_REBUILD_ONLY. Drei vollständige Storagepunkte pro Lauf.
+
+Vier tatsächliche PHASE_COST-Frames pro Lauf, jeweils BEFORE/AFTER in der
+gleichen tatsächlichen Session pro Phase. Guards bestätigen eigene DB/Token,
+999 Rows, Transaktion 0/0, eine Session-/TempDB-Row und beide eigenen Dateien.
+Es werden Counterdifferenzen ganzer Phasen einschließlich Kontrollen,
+Beobachtung und Instrumentierung berichtet; keine reinen Indexbaukosten.
+
+| Lauf / Phase | Session CPU ms | Session Reads | Dirty-Page-Markierungen | Session Logical Reads | TempDB User Alloc/Dealloc Seiten | TempDB Internal Alloc/Dealloc Seiten |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 / DML_BOUNDARY | 1676 | 40 | 234 | 1111374 | 0/0 | 80/64 |
+| 1 / REBUILD | 1142 | 8 | 87 | 1062750 | 8/0 | 0/0 |
+| 2 / DML_BOUNDARY | 1650 | 40 | 234 | 1111368 | 0/0 | 80/64 |
+| 2 / REBUILD | 1083 | 8 | 87 | 1062754 | 8/0 | 0/0 |
+
+| Lauf / Phase | Datei-ID | Sampledelta ms | Writes | Geschriebene Bytes | Write-Stall ms |
+|---|---:|---:|---:|---:|---:|
+| 1 / DML_BOUNDARY | 1 | 1833 | 2 | 663552 | 1 |
+| 1 / DML_BOUNDARY | 2 | 1833 | 34 | 692224 | 15 |
+| 1 / REBUILD | 1 | 1271 | 2 | 655360 | 1 |
+| 1 / REBUILD | 2 | 1271 | 23 | 610304 | 10 |
+| 2 / DML_BOUNDARY | 1 | 1788 | 2 | 663552 | 1 |
+| 2 / DML_BOUNDARY | 2 | 1788 | 34 | 692224 | 19 |
+| 2 / REBUILD | 1 | 1213 | 2 | 655360 | 1 |
+| 2 / REBUILD | 2 | 1213 | 23 | 610304 | 11 |
+
+Dateipunkte umfassen alle Writer der eigenen DB einschließlich Hintergrundarbeit.
+TempDB-Seiten umfassen ausschließlich abgeschlossene Tasks; null ist ein
+tatsächlich gemessener Delta und beweist weder vollständige Worker- noch
+TempDB-Kostenfreiheit. Session Reads null beziehungsweise die hier erfassten
+Reads sind keine vollständigen Worker-Reads. Buildzeiten 1109590/973468 µs,
+Rebuildzeiten 1054882/962357 µs; diese getrennten Walltimepunkte besitzen keine
+exklusive Zuordnung zu den oben ausgewiesenen Counterdifferenzen.
+
+Die tatsächlich an den NativeClient übergebenen Quellen sind in beiden
+Läufen identisch: DML 25325 UTF-8-Bytes/SHA256
+1917145B7762B977CC3D568BF0F26A987B5EF231DC4D9EA6F1675FA2A1F65DE5,
+Rebuild 24535 Bytes/SHA256
+962DB15772A1060C066090581C96DD668B89AAA35B8762208C734C77872AA7C7.
+Beide Quelldateien wurden vor Clientstart lokal gesichert und pro Admission
+gehasht; keine zusätzliche Diagnoseprobe. Quellen und rohe Resultate bleiben
+im ignorierten Nachweisordner. Öffentliche SQL-/Controller-/Parentquellen
+sind innerhalb C3 bytegleich; spätere README-Ergebnisnachträge ändern keine
+ausgeführten Quellen.
+
+Tatsächlicher Restore und neue unabhängige Attestation bestätigen jeweils
+die Originalwerte Preview/MAXDOP 0/0. Markergebundener Drop und neuer
+DB-Abwesenheitsclient bestanden. Eigene vollständige CID und eigener Name
+sind unabhängig abwesend; gesamter Cleanup 13,7552919/13,3577670 s.
+Beide Admissionen closed=true ohne failure. Kein temporärer eigener
+idx012-cost-Input verblieben. C1/C2 bleiben unverändert geschlossene FAILs.
+Die Folge schließt nach drei Kandidaten/vier tatsächlichen Admissionen mit
+zwei stabilen positiven C3-Lifecycles; weitere Zyklen werden nicht allein
+wegen des noch freien Budgets ausgelöst. Versions-SKIPs, Minimalrollen,
+Hard-Abort und vollständige Runtime-/TP-PERF-Abnahme bleiben Folgearbeit.

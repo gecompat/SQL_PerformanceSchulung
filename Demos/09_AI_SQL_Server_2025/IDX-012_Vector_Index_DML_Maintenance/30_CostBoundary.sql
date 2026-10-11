@@ -48,10 +48,3 @@ IF (SELECT COUNT(*) FROM sys.database_scoped_configurations WHERE
 IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51003,'Unerwartete eigene Transaktion.',1;
 CREATE TABLE #IDX012CostContext(SessionId int NOT NULL,DatabaseId int NOT NULL,RunToken nvarchar(max) NOT NULL,Stage nvarchar(max) NOT NULL);
 INSERT #IDX012CostContext VALUES(@@SPID,DB_ID(),N'$(RunToken)',N'$(CostStage)');
-:setvar CostFrame BEFORE
-:r "$(CostFrameFile)"
-GO
-:r "$(PhaseWorkFile)"
-GO
-:setvar CostFrame AFTER
-:r "$(CostFrameFile)"
