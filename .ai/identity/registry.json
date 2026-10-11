@@ -2977,6 +2977,15 @@
         }
       ],
       "title": "KI-Generalprobe und Workstreamabnahme"
+    },
+    "DEC-074": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:84f5a48a-f7e0-4419-b6ae-49dad4ffe5fc",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Gebundenes ANN-Legacyprofil mit Generation UNKNOWN/WARN"
     }
   },
   "prefixes": {
