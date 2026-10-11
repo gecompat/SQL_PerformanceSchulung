@@ -111,8 +111,18 @@ unabhängiger Schritt DGN-009 bestand eine korrigierte private 17.x-Vorprobe mit
 Der enge Quellenreview fand keine konkreten Befunde. Das daraus entstandene vollständige
 DGN-009-Offline-Paket ist IMPLEMENTED und lokal qualifiziert: zwei 17.x-Lifecycles,
 80 Markergegenproben, zehn Resultnegative und je zwei Versions-SKIPs auf 15.x/16.x,
-jeweils eigener DB-/Containerabbau. Sein aktueller Review-/Integrationsnachweis
-wird [getrennt geführt](SQL_SERVER_2025_AI_INJECTION_REVIEW.md).
+jeweils eigener DB-/Containerabbau. Quellenreview und Integration sind abgeschlossen:
+PR 141 bestand 49 aktuelle Headprüfungen; Squash
+`8d3b074ddbfb4694f1d111ef41e56514da4a0391` alle elf Main-Workflows.
+Tree-Identität, main-Synchronisierung und eigener Branchabbau werden
+[getrennt geführt](SQL_SERVER_2025_AI_INJECTION_REVIEW.md).
+Unmittelbar folgte die private DGN-008-Metadaten-/Rechtevorbereitung: tatsächliches
+CREATE EXTERNAL MODEL ohne Inferenz, positiver parametrisierter SELECT und drei
+Rechteverweigerungen 262/229/229 bestanden samt DB-/Container-/Netzabbau. Der erste
+Readiness-Timeout und eine kohärente Korrekturwelle bleiben im
+[Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) sichtbar. Ein enger Quellenreview
+fand keine konkreten Befunde. DGN-008 bleibt PROPOSED; als nächster Schnitt folgt sein
+vollständiges Offline-Demopaket, Modell-EXECUTE bislang ausschließlich Metadatenrecht.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

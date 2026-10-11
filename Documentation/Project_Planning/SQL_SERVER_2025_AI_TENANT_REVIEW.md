@@ -68,3 +68,11 @@ allgemeine Seitenkanalfreiheit bleiben UNQUALIFIED. Live-Lab-RAG bleibt am beste
 DEC-033-Secretgate blockiert; Cloud-/Bezahl- und ONNX-/rote Hoständerungen sind nicht
 freigegeben. Der nächste unabhängige zulässige Schritt ist die synthetische Offline-
 Vorbereitung von DGN-009 gemäß registriertem Demoentwurf, ohne Live-Modellaufruf.
+
+Der reine FAIL-Checkpoint wurde über [PR 140](https://github.com/gecompat/SQL_PerformanceSchulung/pull/140)
+integriert: sieben Headprüfungen auf `79ab040711187d95a0cf7d2f2272996e826e9453` und
+fünf Main-Workflows auf Squash `26461f9f9716da3e83f0a807c9e0d64acdf7a45e` bestanden.
+Vollständige Tree-Identität, main-Synchronisierung und eigener lokaler/remote
+Branchabbau wurden geprüft. Diese Dokumentintegration ändert den fachlichen FAIL
+nicht. Der anschließende DGN-009-Schnitt ist im [eigenen Nachweis](SQL_SERVER_2025_AI_INJECTION_REVIEW.md)
+abgeschlossen; die nächste DGN-008-Vorbereitung wird getrennt geführt.
