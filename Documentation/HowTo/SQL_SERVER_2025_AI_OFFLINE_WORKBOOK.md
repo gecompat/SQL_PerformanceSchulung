@@ -7,6 +7,9 @@ Teilnehmererprobung und gemessene Lehrzeiten stehen aus.
 
 ## Vorbereitung und Nachweise
 
+Die [Grundlagenbegriffe](SQL_SERVER_2025_AI_OFFLINE_GLOSSARY.md) erklären Modell,
+Vektor, Chunk, Retrieval und Antwort vor der ersten Aufgabe.
+
 Vorwissen: SELECT, ORDER BY, Parameter, Datenbankrechte und der Unterschied zwischen
 Engineversion und Compatibility Level. Alle acht Demoprofile verwenden SQL Server
 2025, CL170 und eine eigene synthetische Testdatenbank. Die bisherige Runtimequalifikation

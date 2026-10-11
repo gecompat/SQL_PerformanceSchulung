@@ -197,6 +197,20 @@ Der enge unabhängige Review fand keine konkreten P1/P2 in Aufgaben/Lösungen un
 Fixture-/Rechte-/Providergrenzen; keine eigene Runtime oder Generalprobe ausgeführt.
 Keine Korrekturwelle wurde benötigt. Die ausgewählten CI-Pfade führen statische
 Gates aus; unveränderte SQL-Runtime und Officeprüfungen werden nicht wiederholt.
+Der Arbeitsheft-Schnitt ist über PR 149 integriert: neun Headprüfungen auf
+`4abed7167a6344279f1d81f028235adfd49556e3`, sieben Main-Workflows auf
+`a566e23856758b7a1047dfbdb6641ffd094c7d82` bestanden. Tree
+`f3bfe7241ef938c34b8d0b15148ce6a7047ba8ad`, Synchronisierung und eigener lokaler/remote
+Branchabbau sind geprüft. Unmittelbar folgt auf `codex/sql2025-ai-offline-glossary`
+der begrenzte [Grundlagenbegriffe-Teilentwurf](../HowTo/SQL_SERVER_2025_AI_OFFLINE_GLOSSARY.md).
+Ein Owner, maximal zwei Korrekturwellen, keine Runtime-/Präsentations-/Regeländerung;
+bekannte Quellen werden gezielt geprüft, kein erneuter Review der alten Democodebasis.
+Die fünf ausgewählten Primärquellen wurden aktuell geprüft; 33 lokale Links im
+Glossar/Arbeitsheft, sechs mathematische Beispiele, INF-001 und Privacy bestanden.
+Keine SQL-Runtime ausgeführt. Für diese reine Begriffserklärung ist kein zusätzliches
+unabhängiges Sicherheitsreview erforderlich; der Arbeitsheftreview wird nicht auf
+neue Inhalte umgedeutet. Keine ausgeführte Korrekturwelle.
+TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
