@@ -119,6 +119,11 @@ bewahrt ungeeignete Session-Nulldeltas als WARN. Zwei geänderte Live-Request-
 Lifecycles liefern aktive CPU-/Logical-Read-Deltas; Exact-Zeitnullwerte und
 Koordinator-/Workergrenzen bleiben sichtbar. Kein ANN-Vorteil am festen kleinen
 Korpus belegt, keine vollständige FWK-/TP-PERF-/Demoabnahme.
+Die [einzelne UPDATE-/Rollback-Diagnose](../Project_Planning/SQL_SERVER_2025_AI_ANN_DML_REVIEW.md)
+bestand im zweiten Kandidaten zweimal: tatsächlicher SQL-Fehler 42231/State 1,
+Transaktionssnapshot 0/0, vollständige Source-/Indexmetadaten unverändert. Erster
+Kandidat FAIL an widersprüchlicher JSON-Transaktionsevidenz erhalten. Staleoption
+ABSENT, Freshness NOT_TESTED, keine allgemeine DML-/Generations-/Demoabnahme.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die
