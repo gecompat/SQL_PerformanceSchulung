@@ -63,8 +63,14 @@ Runtimebeleg. Alle 51 PR-Prüfungen am Head
 `87017c04c04516495a4b653134532ac993db20ca` integriert. Vollständige Tree-Identität
 des Squash-Ergebnisses wurde geprüft; main synchronisiert und der eigene
 Arbeitsbranch lokal/remote entfernt. Der anschließende Main-Lauf ist separat
-zu bewerten. Nächster zulässiger Schnitt: öffentliche lokale Modellintegration
-aus TSK-007 mit eigenem SQL_Server_Lab-Run und begrenzten synthetischen Daten.
+zu bewerten. Die anschließende Quellenprüfung des öffentlichen Modellpfads fand
+eine konkrete Secret-Grenze: SQL_Server_Lab übergibt intern das SQL-Passwort als
+sqlcmd-Prozessargument, entgegen DEC-033. Der
+[Modellpfad-Leitfaden](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md#offene-secret-grenze-vor-live-rag)
+bindet Quelle, Grenze und Wiederaufnahme. Kein Live-RAG-Aufruf, kein Lab-Run,
+keine Änderung des anderen Repositorys. Nächster unabhängiger zulässiger Schnitt:
+Offline-RAG QRY-018 aus TSK-008; die lokale Modellintegration aus TSK-007 bleibt
+bis zu einem öffentlich nutzbaren passwortfreien Frameworkpfad angehalten.
 
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 

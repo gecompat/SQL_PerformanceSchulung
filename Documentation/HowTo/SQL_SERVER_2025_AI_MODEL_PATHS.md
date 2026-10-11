@@ -71,6 +71,27 @@ Hostmodellbindung und scopegebundenen Cleanup qualifizieren. Der Frameworkvertra
 begrenzt einzelne Requests, ersetzt aber keinen Gesamtbudget- oder Antwortqualitätsbeleg.
 Es wird weder ein eigener Proxy noch ein zweites Lab-Provisionierungssystem aufgebaut.
 
+## Offene Secret-Grenze vor Live-RAG
+
+Die Quellenprüfung des öffentlichen Controllers am oben gebundenen Commit zeigt:
+`Invoke-SqlServerLabAiRag` ruft intern `Invoke-LabAiRag` auf. Dessen SQL-Pfad
+verwendet `Invoke-SqlQuery`; in `Private/SqlReadiness.ps1`, Zeilen 491–501, wird
+das flüchtige Passwort mit `sqlcmd -P` als Prozessargument übergeben. Der öffentliche
+Controller besitzt keinen Parameter für einen anderen SQL-Executor. SecureString
+am API-Eingang verhindert diese spätere Klartextübergabe nicht.
+
+Das widerspricht dem hier verbindlichen [DEC-033](../../.ai/DECISIONS.md):
+SQL-Passwörter ausschließlich über SQLCMDPASSWORD, passwortfreie Kommandozeilen.
+WhatIf bleibt ein gültiger Planbeleg; der Live-Aufruf wird mit diesem Frameworkstand
+nicht ausgeführt. Es wurde noch kein Lab-Run provisioniert und kein Modell aufgerufen.
+Kein privater Moduloverride und keine Umgehung des Secret-Vertrags.
+
+Wiederaufnahme: öffentlich nutzbarer, nachweislich passwortfreier SQL-Pfad für
+Provisionierung, Readiness und RAG, einschließlich Gegenprobe gegen Passwortargumente
+und eigenem Cleanup. Änderungen an SQL_Server_Lab benötigen einen ausdrücklich auf
+dieses andere Repository erweiterten Auftrag. Der Offline-RAG-Schnitt QRY-018 aus
+TSK-008 kann unabhängig fortschreiten.
+
 Die Antwort wird erst nach Prüfung der tatsächlich zurückgegebenen Dokument-IDs,
 Dokumentversionen und Quelleninhalte bewertet. Eine nichtleere Antwort belegt keine
 fachliche Korrektheit. Prompts, Antworten und Hostinventar werden nicht als Git-Artefakte
