@@ -114,6 +114,11 @@ Die [Filter-/Ergebnisdiagnose bestand zwei Lifecycles](../Project_Planning/SQL_S
 breite Id-Fenster Recall@5 1; Fenster 501–510 null ANN- gegen fünf Exact-Rows,
 Recall@5 0/ROWS_BELOW_K. Sichtbarer Legacy-Postfilterverlust am festen Korpus/Query;
 gefilterte Indexnutzung UNPROVEN, kein Performance-/voller Demo-PASS.
+Die [begrenzte Messdiagnose](../Project_Planning/SQL_SERVER_2025_AI_ANN_MEASUREMENT_REVIEW.md)
+bewahrt ungeeignete Session-Nulldeltas als WARN. Zwei geänderte Live-Request-
+Lifecycles liefern aktive CPU-/Logical-Read-Deltas; Exact-Zeitnullwerte und
+Koordinator-/Workergrenzen bleiben sichtbar. Kein ANN-Vorteil am festen kleinen
+Korpus belegt, keine vollständige FWK-/TP-PERF-/Demoabnahme.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die

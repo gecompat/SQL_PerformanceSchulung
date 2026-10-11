@@ -564,6 +564,57 @@ Methoden-/Quellenreview vor SQL; Retry nur mit geändertem Input/neuer Evidenz.
 Nach zwei ungelösten Kandidaten Befund integrieren, kein stilles Budgetreset.
 Aktuelle Head-/Main-Gates, PR, Synchronisierung und eigener Cleanup schließen
 diesen eigenen Messbefund ab. Dies ist keine vollständige FWK-/TP-PERF-/Demoabnahme.
+PR 165 ist mit sieben erfolgreichen Headprüfungen auf
+`8e062ec7486b81d35ee2eec679f593d274f50a8b` gegen Basis
+`b35f147632ceba3a8b433ec2ac062bfe70205301` integriert. Alle fünf ausgewählten
+Main-Workflows auf `777c56210e08114f9d180ae907075a50544a4be0` bestanden;
+Tree-Identität `8bb954836a5d8b90e8e066067a9af59d6f67cf23`, main synchronisiert,
+eigener Branch lokal/remote entfernt. Unmittelbar beginnt der Messfolgeschnitt
+auf `codex/sql2025-ai-ann-measure` an dieser Basis. Fünf bestehende Grenztests und
+zunächst fünf neue Mess-/Coverage-/Manipulationstests bestanden. Der unabhängige
+Review fand einen P2: Minimum der Batch-Recallmittelwerte irreführend als Queryminimum
+benannt. Vor SQL im unbenutzten Kandidaten auf min_batch_mean_recall_at_5 korrigiert;
+eine tatsächliche 49/50-Fixture bindet 0,98 ohne Queryminimumclaim. Sechs betroffene
+Mess-Gegenproben bestanden; der enge Nachreview schloss den P2 vor SQL.
+Messkandidat 01 wurde einmal unverändert ausgeführt: technische Capture-/Ergebnis-/
+Cleanupkontrollen PASS, sämtliche Session-CPU-/Read-/Logical-Read-/Write-Deltas null.
+EXACT-Elapsed-Median null; keine Performancequalifikation: WARN ungeeignetes oder
+inaktives Zählerfenster und Zeitquantisierung. Der ausgeführte Kandidat wird nicht
+verändert oder ohne neue Evidenz wiederholt. Seine fünf gemessenen Batches je Pfad
+enthielten tatsächlich je 50 Treffer/50 mögliche; Restore beider Baselines 0/0 und
+unabhängige DB-/Containerabwesenheit bestanden in 12,385 Sekunden.
+Der zweite bereits budgetierte Kandidat ändert ausschließlich die Zählerquelle auf
+sys.dm_exec_requests (LIVE_REQUEST), gebunden an dieselbe Session, Request-ID,
+Startzeit, Connection-ID und eigene DB-ID vor/nach jedem Batch. Keine fehlenden/nullen
+oder negativen Zähler und keine wechselnde Identität; mindestens ein positives
+Logical-Read-Delta je Pfad nach Warm-up-Ausschluss verlangt. Das belegt ein aktives
+Fenster, keine vollständige Worker-IO: parallele Row-Mode-Requests haben laut
+SRC-110 eine Koordinatorgrenze; tatsächlicher Such-DOP bleibt UNPROVEN und
+preemptive Zeit nicht erfasst. Suchzahl, Reihenfolge, Ergebnis-/Qualitätskontrollen,
+Effekte und endliches Kandidaten-/Containerbudget bleiben unverändert. Betroffene
+13 betroffene Gegenproben bestanden; enger unabhängiger Methoden-/Quellenreview
+schloss vor SQL ohne offene P1/P2. Kandidat 02 bestand zwei unveränderte Lifecycles:
+aktive CPU-/Logical-Read-Deltas, alle gemessenen Batches 50 Rows/50 Oracle-Treffer,
+EXACT-Zeitnullwerte weiterhin sichtbar. Kein ANN-Vorteil am kleinen festen Korpus
+belegt; keine Speedupratio aus quantisierten Kleinstmessungen. Vollständige Source-/
+Metadaten-/Konfigurationskontrollen, Restores 0/0, neue Attestierung und separate
+DB-/Containerabwesenheit bestanden; Cleanup 12,386/12,299 Sekunden. Zwei Kandidaten/
+drei Container, Messscope abgeschlossen. Der [Messnachweis](SQL_SERVER_2025_AI_ANN_MEASUREMENT_REVIEW.md)
+bewahrt Kandidat01-WARN und begrenzte Requestmetrik. Aktuelle Integration folgt.
+
+Unmittelbarer nächster zulässiger eigener Schnitt nach dieser Integration:
+ein fester gültiger UPDATE auf der eigenen 1000-Row-VECTOR(3)-Quelle bei aktivem
+eigenem Vectorindex, innerhalb einer ausschließlich zurückgerollten Transaktion.
+Höchstens zwei neue Kandidaten/vier serielle eigene Container, zwei Lifecycles
+je stabilem positiven Kandidaten; kein INSERT/DELETE/MERGE und keine Staleoption.
+Tatsächlichen SQL-Fehler oder Erfolg aufnehmen, keine erwartete Fehlernummer erfinden;
+Erfolg ebenfalls immer zurückrollen. Vollständigen Sourcezustand nach Rollback
+mit der vor DML gesicherten Quelle vergleichen, Own-Indexmetadaten weiter binden.
+Keine Freshness-/DML-Freigabe aus einer technischen Diagnose ableiten. Alle bisherigen
+Image-/Versions-/Ressourcen-/Konfigurations-/Marker-/Zeit-/Restore-/Cleanupgrenzen
+gelten; betroffene Tests und enger tatsächlicher Quellen-/Methodenreview vor SQL.
+Keine Host-/Cloud-/ONNX-Wirkung. Kein Reset früherer Budgets; eigener endlicher
+DML-Diagnosescope aus der ausdrücklich erteilten weiteren lokalen Wellenfreigabe.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
