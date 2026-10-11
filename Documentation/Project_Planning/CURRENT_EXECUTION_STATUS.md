@@ -15,6 +15,25 @@
 
 ## 0. Entwicklungspause und Wiederaufnahme
 
+### Eigenständiger KI-Planungsauftrag vom 2026-10-11
+
+Der Benutzer hat `TSK-003`, den [KI-Workstream-Plan](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md),
+zur Recherche, Planung, Registrierung, Validierung und Planungsintegration autorisiert.
+Allgemeine Entwicklung bleibt **PAUSED**. `DEC-073` erweitert nur das künftige Curriculum.
+`CUR-013`–`CUR-022`, `TSK-004`–`TSK-014` und 18 Demoentwürfe sind keine begonnenen
+Implementierungen und erhalten durch Registrierung keine Ausführungsfreigabe.
+
+Planungsbasis war der saubere, mit origin/main identische Commit
+`113648c4884fe788797c5f0c3788a54f74ecfc9c`; zu diesem Zeitpunkt waren keine offenen PRs vorhanden.
+Eigener Branch: `codex/sql2025-ai-workstream-plan`. Aktuelle Head-/Base-, Prüf-, Review-
+und Mergebelege werden im zugehörigen Planungs-PR geführt. Historische Runtimeprüfungen
+werden nicht als KI-Evidenz übernommen. Bestehende DGN-007-/Pauseabschnitte und ausdrücklich
+zurückgestellte Arbeiten werden durch diesen Auftrag nicht wieder aufgenommen.
+
+Wiederaufnahme benötigt einen gesonderten Implementierungsauftrag mit gewähltem Erstumfang.
+Cloud/Bezahl-API, ONNX/Instanzänderung und Previewpfade benötigen zusätzlich die benannten
+konkreten Freigaben. Keine Automation wird erstellt oder aktiviert.
+
 ### Verbindlicher Abschlussumfang vom 2026-10-10
 
 Der Benutzer hat die Methodenänderung ausdrücklich freigegeben und danach

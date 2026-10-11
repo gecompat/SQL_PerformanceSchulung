@@ -16,6 +16,16 @@ Dieser Plan beschreibt die vollständige Umsetzung des Schulungsprojekts so deta
 
 Der Plan erzeugt selbst noch keine Demo-Skripte, Infrastrukturdefinitionen oder Präsentationen. Er legt Arbeitspakete, Reihenfolge, Abhängigkeiten, erwartete Artefakte, Prüfschritte und Abschlusskriterien fest.
 
+### Eigenständige Curriculumerweiterung vom 2026-10-11
+
+`DEC-073`/`TSK-003` ergänzen den [KI-Workstream](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md).
+Dieser Plan ist für zehn neue Module, 18 geplante Demos, elf Folgepakete, Provider-/Previewgates
+und Security-/Benchmarkanforderungen maßgeblich; kein konkurrierender Masterplan wird gepflegt.
+Produktgrenzen stehen in der [Featurematrix](../Research/SQL_SERVER_2025_AI_FEATURE_MATRIX.md),
+Lifecycles im [Demoentwurf](../Demo_Catalog/SQL_SERVER_2025_AI_DEMO_DESIGNS.md).
+Bestehende Wellen und Abnahmestände bleiben erhalten. Implementierung, Masterdeckänderung
+und allgemeine Wiederaufnahme sind nicht freigegeben.
+
 ## 2. Verbindlicher Ausgangspunkt
 
 Der aktuelle scopebezogene Einstieg steht gemäß `DEC-070` in

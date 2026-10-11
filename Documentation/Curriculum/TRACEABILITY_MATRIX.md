@@ -17,6 +17,31 @@
 
 ## 1. Zweck
 
+### Eigenständig geplanter KI-Workstream: Quelle → Aussage/Lernziel → Lehrposition → Demo → Test
+
+`TSK-003`/`DEC-073`, Stand 2026-10-11. Alle folgenden Lehrpositionen sind geplant und besitzen
+noch keine Foliennummer/SlideKey; die aktive Deckmatrix bleibt unverändert. Die Modul-ID
+verweist auf den vollständigen Lernziel-/Bewertungsvertrag in
+[Workstream-Plan §6](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#6-modulverträge-und-bewertung).
+Demo-IDs verweisen auf den [Lifecycleentwurf](../Demo_Catalog/SQL_SERVER_2025_AI_DEMO_DESIGNS.md).
+Die Featurematrix trennt dokumentierte Claims von noch empirisch offenen Wirkungen.
+
+| Modul / geplante Lehrposition | Aussage/Lernziel und Evidenzklasse | Quellen | Demos | Testziel / Profil |
+|---|---|---|---|---|
+| `CUR-013`: Begriffe/Geometrie | Komponenten/Metric erklären; DIDACTIC, Dokumentiert | `SRC-072`–`SRC-075`, `SRC-087`, `SRC-094`, `SRC-095` | `QRY-014`, `QRY-015` | Begriffs-/Geometrie-/Dimensionsinvarianten; TP-RUN/TP-DOC |
+| `CUR-014`: VECTOR/Exact | Typ/Norm/Exact ohne ANN; Dokumentiert | `SRC-072`–`SRC-076` | `QRY-014`, `QRY-015` | Typ-/Metric-/Null-/Dimensionsgegenproben; TP-RUN |
+| `CUR-015`: Chunking | CL170, Zeichen/Overlap/Provenienz; Dokumentiert/METHOD | `SRC-079`, `SRC-081` | `QRY-016` | Ordnung/Quellenrekonstruktion/Version; TP-RUN |
+| `CUR-016`: Provider/Modelle | TLS/API/Rechte/Modellraum; Dokumentiert, Interoperabilität Hypothese | `SRC-080`–`SRC-088`, `SRC-096` | `QRY-020`, `QRY-021`, `QRY-022`, `DGN-008` | Endpoint-/Auth-/Dimension-/Budget-/SKIPgrenzen; TP-RUN |
+| `CUR-017`: Suche/RAG | Retrievalbeleg vor akzeptierter Antwort; METHOD | `SRC-073`, `SRC-078`, `SRC-087`, `SRC-095`, `SRC-100` | `QRY-017`, `QRY-018` | Relevanz, Claimbeleg, Widerspruch/Abstention; TP-RUN/TP-PERF |
+| `CUR-018`: Trust Boundaries | Rechte/Tenants/Injection wirksam begrenzen; METHOD | `SRC-080`, `SRC-082`, `SRC-088`, `SRC-090`, `SRC-091`, `SRC-093`, `SRC-096`, `SRC-099` | `CON-010`, `DGN-008`, `DGN-009`, `QRY-019` | positive/negative Rollen-/Tenant-/Tooltests; TP-RUN/TP-CON |
+| `CUR-019`: DiskANN/Lifecycle | Approximation/Generation/Freshness trennen; Dokumentiert, Wirkung Hypothese | `SRC-073`, `SRC-077`, `SRC-078`, `SRC-094`, `SRC-097` | `IDX-011`, `IDX-012` | Exactoracle, Recall, Plan/Fallback, Build/DML/Cleanup; TP-PERF |
+| `CUR-020`: Benchmark/Diagnose | SQL-/Modell-/Gesamtzeit und Qualität gemeinsam messen; METHOD | `SRC-027`, `SRC-028`, `SRC-072`, `SRC-078`, `SRC-081`, `SRC-082` | `RES-008`, `RES-009`, `DGN-011` | Ressourcen, n/Quantile/Fehler, Quality, Grenzen; TP-PERF/TP-CON |
+| `CUR-021`: SQL-Assistenz | LLM-Hypothese fachlich und empirisch prüfen; METHOD | `SRC-027`, `SRC-028`, `SRC-032`, `SRC-089`–`SRC-092`, `SRC-099` | `DGN-010`, `QRY-019` | gleiche Resultate, A/B/AA, DML-/Storagekosten; TP-PERF |
+| `CUR-022`: Architektur/TCO/Agenten | Go/No-Go und begrenzte Toolautorität begründen; DIDACTIC/METHOD | `SRC-088`–`SRC-092`, `SRC-098` | `QRY-018`, `DGN-008`, `DGN-009` | Qualität/Rechte/TCO/Rückfallpfad; TP-DOC/TP-RUN |
+
+Kein EMPIRICAL-Claim ist bereits abgenommen. Quellen/Modulverträge/Phasen sind geplant;
+die vollständige spätere Kette einschließlich tatsächlicher Tests/Folien wird in `TSK-012`/`TSK-013` ergänzt.
+
 Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → Folie beziehungsweise geplante Lehrposition → Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung des aktiven 84-Folien-Satzes stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die fachliche Basis der geplanten Vertiefung steht in der [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md).
 
 Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Von den 39 `ADV-CLM-*`-Claims sind acht (`ADV-CLM-013` bis `ADV-CLM-020`) durch `ADV-009` bis `ADV-011` als Vertiefungsfolien 84 bis 101 in das aktive Deck übernommen und tragen deshalb eine Foliennummer sowie die Entscheidung `KEEP`. Die übrigen 31 Claims besitzen weiterhin keine aktive Folie. `PRS-012` hat allen 102 vorhandenen Folien stabile SlideKeys und Variantenprofile zugeordnet, erzeugt aber keine zusätzlichen fachlichen Vertiefungsfolien.

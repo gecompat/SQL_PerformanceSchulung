@@ -6,6 +6,10 @@ Für die Ausführung beginnen Sie im [zentralen Ausführungsleitfaden](../HowTo/
 
 ## Status und Nachweis richtig lesen
 
+Der [KI-Demoentwurf](SQL_SERVER_2025_AI_DEMO_DESIGNS.md) führt 18 zukünftige Demos zu
+`DEC-073`/`TSK-003`. Alle sind PROPOSED ohne Manifestpfad, Runtimebeleg oder Schulungsfreigabe.
+Die folgenden vorhandenen Nachweise bleiben getrennt.
+
 `VALIDATED` ist der Projektstatus einer abgegrenzten Abnahme. `PASS`, `WARN`, `SKIP` und `FAIL` sind Ergebnisse einzelner Ausführungen gemäß [FWK-012](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md). Diese Ebenen werden nicht gleichgesetzt:
 
 - Ein erwarteter `SKIP_VERSION` belegt die kontrollierte Versionsgrenze, aber keine Funktionswirkung auf dieser Version.
