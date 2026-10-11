@@ -1,6 +1,9 @@
 # TSK-006 – begrenzte ANN-Filter- und Ergebnisdiagnose
 
-Stand: 2026-10-11. AUTHORIZED_BOUNDED_DIAGNOSIS durch die ausdrückliche zusätzliche
+Stand: 2026-10-11. [Zwei vollständige Filterlifecycles bestanden](SQL_SERVER_2025_AI_ANN_FILTER_REVIEW.md),
+enger Filter mit sichtbarem Qualitätsverlust (null ANN- gegen fünf Exact-Rows).
+Ein Kandidat/zwei Container, Umfang regulär abgeschlossen; kein allgemeiner Qualitätsclaim.
+AUTHORIZED_BOUNDED_DIAGNOSIS durch die ausdrückliche zusätzliche
 Benutzerfreigabe aller weiteren notwendigen lokalen Schritte dieser Entwicklungswelle.
 Der [Actual-Planbefund](SQL_SERVER_2025_AI_ANN_PLAN_REVIEW.md) bindet die eigene
 Indexnutzung nur an den bisher ungefilterten Suchaufruf. Historische Budgets/FAILs
