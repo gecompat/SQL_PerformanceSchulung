@@ -1,8 +1,9 @@
 # TSK-006 – konkretes Freigabepaket für den lokalen ANN-Preview-Slice
 
-Stand: 2026-10-11. PROPOSED / Freigabe ausstehend. Dieses Paket aktiviert keine
-Previewfunktion und attestiert keine Index-/Recall-/DML-Runtime. Die Entwicklung
-anderer unabhängiger autorisierter Offlinepfade kann fortgesetzt werden.
+Stand: 2026-10-11. AUTHORIZED: Der Benutzer hat im Orchestrator-Chat ausdrücklich
+„Ja, lokalen ANN-Slice freigeben“ für dieses unveränderte Paket bestätigt.
+Die Freigabe umfasst ausschließlich die nachfolgend gebundenen Effekte und Limits;
+sie attestiert keine Index-/Recall-/DML-Runtime. Unabhängige Offlinearbeit bleibt zulässig.
 
 ## Ausgewählter Effekt und harte Grenzen
 
@@ -23,7 +24,7 @@ ein erforderlicher enger unabhängiger Review und maximal zwei kohärente Korrek
 je zusammenhängendem Implementierungsschnitt. Unbekannter Modell-/Tokenverbrauch
 bleibt unbekannt; keine Modellaufrufe, externen Payloads oder Kosten-APIs.
 
-Die einzige zusätzlich freizugebende Konfigurationsänderung lautet in der neuen
+Die einzige zusätzlich freigegebene Konfigurationsänderung lautet in der neuen
 eigenen Testdatenbank:
 
 ```sql
@@ -38,7 +39,7 @@ und eigener RunToken. Nur SQLPERF_LAB_IDX011_<RunToken> beziehungsweise
 SQLPERF_LAB_IDX012_<RunToken> darf verwendet und abgebaut werden. Vorhandene fremde
 oder nicht exakt markierte Bestände ergeben FAIL ohne Änderung.
 
-## Ausführbarer fachlicher Schnitt nach Freigabe
+## Freigegebener fachlicher Schnitt
 
 IDX-011 legt ausschließlich einen eigenen DiskANN-Index auf der synthetischen
 Labtabelle an, bindet die tatsächliche Indexgeneration aus sys.vector_indexes und
@@ -68,14 +69,15 @@ an Phasengrenzen und unabhängige eigene DB-/Containerabwesenheit gehören zum A
 Kein vollständiger Performance-, ANN-Tenant-/RLS-, Seitenkanal- oder Providerclaim
 aus diesem kleinen synthetischen Profil. Ohne Freigabe bleibt PREVIEW_FEATURES unverändert.
 
-## Warum eine Entscheidung aussteht
+## Grundlage und Grenze der konkreten Entscheidung
 
 Der [kanonische Workstreamplan §12](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 führt TSK-006 mit der Abhängigkeit „Previewentscheid“. Der
 [gemeinsame Demo-Vertrag](../Demo_Catalog/SQL_SERVER_2025_AI_DEMO_DESIGNS.md#gemeinsamer-vertrag-aller-folgenden-entwürfe)
 verlangt im Previewprofil „vorher genehmigtes PREVIEW_FEATURES in eigener DB“.
 Die allgemeine autonome Entwicklungsfreigabe ersetzt diesen noch offenen konkreten
-Previewumfang nicht. Cloud-/Bezahl-, ONNX- und rote Hostfreigaben bleiben getrennt.
+Previewumfang nicht. Der konkrete Benutzerentscheid ist jetzt erfolgt;
+Cloud-/Bezahl-, ONNX- und rote Hostfreigaben bleiben getrennt.
 
 Die am 2026-10-11 geprüften Primärquellen
 [CREATE VECTOR INDEX](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql?view=sql-server-ver17)

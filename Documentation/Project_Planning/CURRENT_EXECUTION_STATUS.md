@@ -144,7 +144,8 @@ unveränderte SQL-Wiederholung, keine empirische OCI-Hängequalifikation. Der
 [Provider-Nachweis](SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) begrenzt diese Aussage auf
 QRY-014, keine vollständige Podman-/360-Matrixabnahme.
 Für TSK-006 ist ein [konkretes lokales Preview-Freigabepaket](SQL_SERVER_2025_AI_PREVIEW_DECISION.md)
-vorbereitet; die Benutzerentscheidung ist ausstehend. PREVIEW_FEATURES wurde nicht aktiviert.
+vorbereitet und inzwischen ausdrücklich vom Benutzer mit „Ja, lokalen ANN-Slice
+freigeben“ genehmigt. Die Runtimequalifikation dieses begrenzten Effekts ist noch offen.
 Andere zulässige Offlinearbeit bleibt ausführbar; Gesamtworkstream und Heartbeat bleiben aktiv.
 
 Der Provider-/Previewcheckpoint ist über PR 144 mit sieben Headprüfungen und fünf
@@ -156,6 +157,14 @@ Podman17.0.5005.3: je zehn gleiche volle Queryrows vor/mit/nach eigenem INCLUDE-
 DB-/Containerabbau. Ein enger Quellenreview fand keine konkreten P1/P2. DGN-010 bleibt
 PROPOSED; A/B/BA/AA, tatsächliche Pläne/Reads/CPU/DMLkosten und vollständige TP-PERF-
 Abnahme fehlen. [Nachweis](SQL_SERVER_2025_AI_INDEX_HYPOTHESIS_REVIEW.md).
+Dieser DGN-010-Checkpoint ist über PR 145 mit sieben Headprüfungen und fünf
+Main-Workflows in `63f256fcbca522fa3ed7c2fdd6fee564c83381f1` integriert; Tree
+`1908eeb9e1f4a9d97ae97e840627859fd9cd9eba`, Synchronisierung und eigener lokaler/remote
+Branchabbau sind geprüft. Der folgende private CL-Slice ist nach zwei Korrekturwellen
+mit FAIL angehalten: Skalaroracle ohne NULL-Gegenkontrolle, ungeklärter konkreter
+Chunkfehler bei 150/160; nur die volle positive CL170-Chunkfixture und unabhängiger
+eigener Cleanup sind belegt. [Grenzen und Wiederaufnahme](SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md).
+Keine dritte Korrektur; unmittelbar folgt der neu konkret genehmigte lokale ANN-Slice.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

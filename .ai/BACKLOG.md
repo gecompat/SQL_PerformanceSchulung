@@ -9,9 +9,9 @@ Umfang, Abhängigkeiten, Aufwand und Abnahme werden im
 [Workstream-Plan §12](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 
-- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; lokale Docker-Qualifikation und [begrenzte Podman-QRY-014-Probe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bestanden; weitere Syntax-/Treiber-/Feature-/Providerpfade offen.
+- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; lokale Docker-Qualifikation und [begrenzte Podman-QRY-014-Probe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bestanden; [CL-Slice nach zwei Korrekturwellen FAIL](../Documentation/Project_Planning/SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md), weitere Syntax-/Treiber-/Feature-/Providerpfade offen.
 - [ ] `TSK-005`: lokaler Pfad und synthetisches Korpus; QRY-014 bis QRY-017 implementiert, Runtime-/Integrationsgate im aktuellen Nachweis.
-- [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005` und Previewentscheid. [Konkretes lokales Freigabepaket](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PREVIEW_DECISION.md) vorbereitet, Freigabe ausstehend; keine Previewaktivierung.
+- [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005`. [Konkretes lokales Freigabepaket](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PREVIEW_DECISION.md) ausdrücklich vom Benutzer genehmigt; begrenzter IDX-011/IDX-012-Slice darf beginnen, Runtime noch offen.
 - [ ] `TSK-007`: lokale und optionale externe/ONNX-Embeddingpfade; nach `TSK-004` und jeweiliger Freigabe.
 - [ ] `TSK-008`: QRY-018 Offline-Replay integriert über PR 137 mit grünen Head-/Main-Gates; Live zusätzlich `TSK-007` bleibt offen.
 - [ ] `TSK-009`: QRY-019, DGN-009 und DGN-008 integriert über PR 138/141/143 mit grünen Head-/Main-Gates; CON-010 nach zwei Korrekturwellen mit FAIL angehalten ([Checkpoint](../Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_REVIEW.md)). DGN-008-Offline-Metadatenrechte sind [ohne Inferenz qualifiziert](../Documentation/Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md). Tenant-/Datenschutz-/Providerfälle bleiben offen.
