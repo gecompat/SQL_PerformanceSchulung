@@ -56,6 +56,22 @@ def run(client,**kw):
 
 
 class ControllerBoundaries(unittest.TestCase):
+    def test_unknown_fault_is_rejected_before_any_client(self):
+        for value in ('after_index_build ', 'other', True, 1):
+            client=Client()
+            with self.assertRaises(ValueError):
+                run(client,fault=value)
+            self.assertEqual(client.files,[])
+
+    def test_build_fault_does_not_trigger_before_qualified_index_and_source(self):
+        client=Client()
+        result=run(client,fault='after_index_build')
+        self.assertEqual((result.outcome,result.code),('FAIL','FAIL_CONTRACT'))
+        self.assertTrue(result.cleanup_ok)
+        self.assertNotIn('controlled_fault',result.evidence)
+        self.assertFalse(any(row[0]=='CONTROLLED_FAULT_AFTER_INDEX_BUILD' for row in result.phases))
+        self.assertNotIn('50_DropRebuild.sql',client.files)
+
     def setUp(self):
         environment=patch.dict(os.environ,{'SQLCMDPASSWORD':'synthetic-fixture'},clear=False)
         environment.start()
