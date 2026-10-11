@@ -12,6 +12,8 @@ on:
       - 'Tests/Static/test_idx011_benchmark.py'
       - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Static/test_idx011_plan.py'
+      - 'Tests/Static/test_idx012_profile.py'
+      - 'Tests/Static/test_idx012_dml_boundary.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -28,6 +30,8 @@ on:
       - 'Tests/Static/test_idx011_benchmark.py'
       - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Static/test_idx011_plan.py'
+      - 'Tests/Static/test_idx012_profile.py'
+      - 'Tests/Static/test_idx012_dml_boundary.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -81,6 +85,10 @@ jobs:
         run: python Tests/Static/test_idx011_profile.py
       - name: Validate bounded representative IDX-011 plan measurements
         run: python Tests/Static/test_idx011_plan.py
+      - name: Validate bounded IDX-012 DML and recovery preparation
+        run: |
+          python Tests/Static/test_idx012_profile.py
+          python Tests/Static/test_idx012_dml_boundary.py
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}
