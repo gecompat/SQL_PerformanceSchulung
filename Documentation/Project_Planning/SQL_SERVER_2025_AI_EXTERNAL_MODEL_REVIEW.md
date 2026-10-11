@@ -3,8 +3,8 @@
 Stand: 2026-10-11. TSK-009, CUR-016/CUR-018/CUR-022. Basis
 `8d3b074ddbfb4694f1d111ef41e56514da4a0391` für die private Vorbereitung. Der folgende
 vollständige DGN-008-Offline-Slice ist IMPLEMENTED auf Basis
-`eb203ed7f06abd3e52be2084fbc02e562eb3ecac`; Runtime-/Review-/Integrationsgate wird
-unten getrennt geführt. Die private Vorbereitung ersetzt keine Demopaketabnahme.
+`eb203ed7f06abd3e52be2084fbc02e562eb3ecac`; lokale Versionsqualifikation, Quellenreview
+und Integration sind unten abgeschlossen. Die private Vorbereitung ersetzt keine Demopaketabnahme.
 Inferenz, Providerbetrieb, echte Credentialbindung und allgemeine Egresskontrolle
 bleiben UNQUALIFIED. Die privaten Quellen liegen ignoriert unter Runtime.
 
@@ -145,6 +145,20 @@ Katalogvalidator und 31-Demo-Leitfaden bestanden. 360 bezeichnet die geplante Ma
 aus zwei Providern, drei Versionen und zwei Wiederholungen, keine ausgeführten
 360 Läufe und keinen Podmanbeleg. Der bisherige 22-Demo-Abnahmebestand bleibt erhalten.
 Dieser Slice hat einen Owner, einen erforderlichen Review und höchstens zwei
-Korrekturwellen; bislang ist eine verbraucht. Die vorhandenen drei KI-CI-Versionsjobs
+Korrekturwellen; eine ist verbraucht. Die vorhandenen drei KI-CI-Versionsjobs
 werden um genau eine Demo erweitert; keine neue Reviewkette, kein Modellaufruf,
 keine neue Automation oder Workflowregel. Modell-/Tokenverbrauch bleibt unbekannt.
+
+## Integration und eigener Arbeitsabschluss
+
+[PR 143](https://github.com/gecompat/SQL_PerformanceSchulung/pull/143) bestand alle
+49 Prüfungen am exakten Head `5d71cda59849c357aafc5036c29529f7bf081d30` gegen die
+unveränderte Basis `eb203ed7f06abd3e52be2084fbc02e562eb3ecac`. Squash
+`2f1dfec5d76cad63232f0a9eb968f880324ed5cf` hat denselben vollständigen Tree
+`09f572f9745da001c84c2fef2aa17ad62e606862`. main wurde synchronisiert; eigener
+Arbeitsbranch lokal/remote entfernt. Alle elf Main-Workflows desselben Integrationscommits
+bestanden, darunter [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38138841162)
+und [bestehende Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38138841133).
+Die unmittelbar folgende begrenzte Podman-Qualifikation von QRY-014 und dessen
+Versionsgrenze steht im [eigenen Nachweis](SQL_SERVER_2025_AI_PROVIDER_REVIEW.md).
+CON-010-FAIL sowie Inferenz-/Provider-/Credential-/Egressgrenzen bleiben erhalten.
