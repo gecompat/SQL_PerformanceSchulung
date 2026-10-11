@@ -1,7 +1,9 @@
 # TSK-006 – einzelner Parser-/Previewdiagnoseentscheid
 
-Stand: 2026-10-11. PENDING_USER_DECISION. Keine neue SQL-Ausführung oder
-Korrekturquelle. Der [Wiederaufnahmecheckpoint](SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md)
+Stand: 2026-10-11. AUTHORIZED: Der Benutzer bestätigte ausdrücklich
+„Ja, Parserdiagnose freigeben (empfohlen)“. Die Freigabe gilt ausschließlich für
+den folgenden einzelnen Diagnoseumfang; sie attestiert keine Runtime.
+Der [Wiederaufnahmecheckpoint](SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md)
 bleibt FAIL; beide zusätzlichen Kandidaten sind verbraucht und ihre Container
 abwesend. Ungenutzte Containerplätze setzen das Kandidatenbudget nicht zurück.
 
@@ -120,10 +122,19 @@ jetzt nicht freigegeben. Kein Server-/Host-Workaround wird ausgeführt.
 Die drei Primärquellen wurden am 2026-10-11 geprüft. Nach Abschluss oder Fehler
 dieser einzelnen Diagnose wird angehalten; der Heartbeat startet keine weitere
 Korrektur durch Namenswechsel oder Umdeutung des Befunds. Unabhängige autorisierte
-Offlinearbeit bleibt zulässig. Ohne den neuen ausdrücklichen Budgetentscheid
-erfolgt keine weitere ANN-Korrektur oder SQL-Runtime.
+Offlinearbeit bleibt zulässig. Der neue ausdrückliche Budgetentscheid ist jetzt
+erfolgt; er setzt kein vorher verbrauchtes Kandidatenbudget zurück.
+
+Die inzwischen durchgeführte einzelne Diagnose ist mit
+[FAIL vor Setup abgeschlossen](SQL_SERVER_2025_AI_ANN_PARSER_REVIEW.md).
+Der Kandidat und sein Containerbudget sind verbraucht; keine Wiederholung dieses
+Pakets. Ein begrenzter weiterer [Clientkorrekturentscheid](SQL_SERVER_2025_AI_ANN_PARSER_CLIENT_DECISION.md)
+ist PENDING_USER_DECISION und erweitert dieses historische Paket nicht.
 
 Der enge unabhängige Review dieses Entscheidungsentwurfs fand keine konkreten
 P1/P2. Er prüfte ausschließlich Parser-/Effekt-/Budget-/Claimgrenzen; keine
 Korrekturquelle oder Runtime und keine erneute Vollanalyse der bisherigen Helper.
-Das Entwurfs-Quellengate ist geschlossen, der Benutzerentscheid bleibt ausstehend.
+Das Entwurfs-Quellengate ist geschlossen. Der Benutzerentscheid ist inzwischen
+erfolgte; der tatsächliche Quellen-/Effektreview vor SQL wurde durchgeführt.
+Seine geschlossenen P2 und die übersehene Clientoptionsinkompatibilität stehen
+im tatsächlichen FAIL-Checkpoint.

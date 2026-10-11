@@ -80,7 +80,8 @@ historischen Pakets werden nicht erweitert. Weitere tatsächliche Builds/Suchlä
 benötigen einen wirksamen freigegebenen DOP-1-Pfad, ein zusätzlicher DB-scoped-
 MAXDOP-Set/Restore ist bisher nicht freigegeben. Der
 [einzelne Parserdiagnoseentwurf](SQL_SERVER_2025_AI_ANN_PARSER_DECISION.md)
-enthält keinen Indexbuild und bleibt bis zum neuen Budgetentscheid PENDING.
+enthält keinen Indexbuild und ist inzwischen ausdrücklich genehmigt; seine
+einzelne Diagnose erweitert keine Build-/Suchfreigabe.
 
 Der [kanonische Workstreamplan §12](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 führt TSK-006 mit der Abhängigkeit „Previewentscheid“. Der
