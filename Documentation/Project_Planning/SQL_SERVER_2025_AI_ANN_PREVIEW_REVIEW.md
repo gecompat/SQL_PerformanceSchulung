@@ -63,3 +63,16 @@ Preview-Ausgangs-/Restorekontrollen und eine am Build zulässige vollständige
 Vektorrepräsentation. Erst anschließend folgen Indexgeneration, tatsächliche
 Oracle-/Negativ-/Plan-/Versionskontrollen und vollständige FWK-/TP-PERF-Abnahme.
 Das ursprünglich freigegebene Effektpaket wird durch diesen FAIL nicht erweitert.
+
+## Integration des Fehlercheckpoints
+
+[PR 147](https://github.com/gecompat/SQL_PerformanceSchulung/pull/147) integrierte
+ausschließlich diesen wahrheitsgemäßen Fehlerstand und die zugehörige Steuerung.
+Sieben Headprüfungen auf `4e6fc20bd17be4c9480db143a6b8ce116bddec07` und alle fünf
+ausgewählten Main-Workflows auf Squash `73316d6fa0d1c86c528457d4b01a4250fe026e8f`
+bestanden. Tree `e2be0ab1b075423595b33ad9bb12b72b6ee7c246`, main-Synchronisierung
+und Entfernung des eigenen lokalen/remote Branchs codex/sql2025-ai-ann-preview
+sind geprüft. Diese statischen Gates ersetzen keinen fehlgeschlagenen SQL-Nachweis.
+Der angehaltene Slice wird durch den aktiven Heartbeat nicht automatisch erneut
+gestartet. Unabhängige Lehrmaterialarbeit für bereits qualifizierte Offline-Demos
+bleibt im autorisierten Gesamtumfang möglich; Gesamtworkstream ist nicht abgeschlossen.

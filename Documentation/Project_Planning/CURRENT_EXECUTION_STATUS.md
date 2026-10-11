@@ -174,6 +174,14 @@ SQL-Recovery und konfiguriertes Cleanupbudget noch unqualifiziert. Alle drei eig
 Container sind nach verifiziertem gezieltem Abbau abwesend; kein Index-/Recall-/Plan-
 oder SQL-Restore-PASS. [Grenzen und Wiederaufnahme](SQL_SERVER_2025_AI_ANN_PREVIEW_REVIEW.md).
 Keine dritte Korrektur oder automatische Rücksetzung dieses Slice-Budgets.
+Der ANN-Fehlercheckpoint ist über PR 147 in
+`73316d6fa0d1c86c528457d4b01a4250fe026e8f` integriert: sieben Headprüfungen,
+fünf Main-Workflows, Tree `e2be0ab1b075423595b33ad9bb12b72b6ee7c246`,
+Synchronisierung und eigener lokaler/remote Branchabbau abgeschlossen.
+Der betreffende Runtime-Slice bleibt angehalten; Heartbeat und autorisierte
+unabhängige Arbeit bleiben aktiv. Nächster unabhängiger Scope ist proportionales
+Lehrmaterial für die acht bereits qualifizierten Offline-Demos, keine Wiederholung
+der gescheiterten CL-/ANN-Prototypen und keine Gesamtlehrgangsfreigabe.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
