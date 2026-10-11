@@ -84,6 +84,14 @@ class ControllerBoundaries(unittest.TestCase):
         self.assertEqual(client.files,['00_Preflight.sql'])
         self.assertFalse(result.cleanup_ok)
 
+    def test_permission_skip_never_enters_setup_or_recovery(self):
+        client=Client(lambda name,out:'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION')
+        result=run(client)
+        self.assertEqual((result.outcome,result.code),('SKIP','SKIP_PERMISSION'))
+        self.assertEqual(client.files,['00_Preflight.sql'])
+        self.assertIsNone(result.original_preview)
+        self.assertFalse(result.cleanup_ok)
+
     def test_controlled_setup_fault_restores_attests_and_checks_absence(self):
         client=Client()
         result=run(client,fault='after_setup')
