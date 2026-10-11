@@ -61,7 +61,7 @@ SELECT N'STORAGE_GUARD' AS [kind],@Stage AS [Stage],DB_ID() AS [DatabaseId],
  FOR JSON PATH,WITHOUT_ARRAY_WRAPPER,INCLUDE_NULL_VALUES;
 IF @Rows<>999 OR @TranCount<>0 OR @TranState<>0
  OR @IndexCount<>CASE WHEN @Stage=N'BASELINE' THEN 0 ELSE 1 END
- OR @PartitionCount NOT BETWEEN 1 AND 128 OR @InternalCount NOT BETWEEN 0 AND 64 OR @FileCount<>2
+ OR @PartitionCount NOT BETWEEN 1 AND 512 OR @InternalCount NOT BETWEEN 0 AND 64 OR @FileCount<>2
  THROW 51003,'Tatsächliche feste Speicheraufnahme überschreitet ihre Grenzen.',1;
 DECLARE @Output nvarchar(max)=(SELECT N'STORAGE' AS [kind],@Stage AS [Stage],
  DB_ID() AS [DatabaseId],DB_NAME() AS [Context],N'$(RunToken)' AS [RunToken],

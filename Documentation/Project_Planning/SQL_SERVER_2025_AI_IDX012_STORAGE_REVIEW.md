@@ -131,6 +131,118 @@ unverändert. Der Consumer akzeptiert ausschließlich kind=STORAGE; Diagnose-
 Guardrecord ersetzt keine Aufnahme. Keine zusätzliche Runtime durch den Reviewer.
 Keine erneute unveränderte Runtime, kein neuer Runtimeerfolg behauptet.
 
+## Tatsächliche Capturefolge und neue Kataloggrenze
+
+PR175 ist vollständig integriert: Head 7a27ba984834a8d75f5d3d7a39db178c6f2fb29b
+gegen Basis 2d8a6005a9300094af573ae05e30b9dea69192e6, alle 13 Headchecks SUCCESS;
+Squash 36c2d7aacd4a27185968128f72ae4a8164e120b1, alle sieben ausgewählten
+Main-Workflows einschließlich KI-Runtime/Cleanup SUCCESS. Vollständiger Tree
+ee6fb8ab17ed0e1de9cc017d95523af66f2a9617 identisch, main synchronisiert und
+eigener Storage-Branch lokal/remote entfernt. Danach tatsächlicher öffentlicher
+Pfad-/Originalbyteschluss für die Capturefolge.
+
+Token DCC9B668B1234055, tatsächlich 17.0.5005.3: erneut FAIL vor Indexbau,
+diesmal mit vollständigem tatsächlichem STORAGE_GUARD. Baseline: 999 Rows,
+Indexcount 0, Transaktion 0/0, zwei Dateien, 43 interne Tabellen, 199 Partitionen.
+199 überschreitet das angesetzte Limit 128. Alle übrigen Guardwerte stimmen.
+Der erste historische FAIL enthielt keine Counts; seine einzelne Ursache bleibt
+unbewiesen. Die Transaktionshypothese ist kein nachgewiesener Erstfehler.
+
+Tatsächliche Originalrestores 0/0, unabhängige Attestation/DB-/eigene CID-/
+Namensabwesenheit bestanden; gesamter Cleanup 12,658 s. Captureledger geschlossen
+FAIL, kein zweiter Lauf/keine Korrektur darin. Keine vollständige STORAGE-Aufnahme
+oder Parser-/Index-/Rebuild-Runtimeattestation aus dieser Folge.
+
+Die neue, weiterhin ausdrücklich autorisierte lokale Katalogfolge begrenzt die
+vollständige DB-Aufnahme auf 512 Partitionen und unverändert 120000 UTF-16-Outputbytes; 64
+interne Tabellen, zwei Dateien, exakte Counts/Fixturepartition und sämtliche
+anderen Guards bleiben erhalten. Die tatsächlich beobachteten 199 Partitionen
+werden vollständig aufgenommen; keine Filterung oder Trunkierung. Der unabhängige Review wies die vorbereitete Erweiterung auf 400000 UTF-16-Bytes
+als P2 zurück: der native Client -w 65535 würde einen solchen Scalar umbrechen.
+Deshalb bleibt das ursprüngliche Scalarmaximum 120000 UTF-16-Bytes (höchstens
+60000 Codeunits) erhalten; gleichzeitig müssen Count- und Outputgrenze erfüllt
+sein. Größere Aufnahmen bleiben FAIL ohne Trunkierung. Keine neue Blockreassemblierung
+oder Änderung der Clientbreite erforderlich. Der Collector bleibt unverändert.
+Die DB-/Dateimaxima, synthetischen Rows, Optionen und Zeitgrenzen ändern sich
+nicht. Es wird kein externer Datenbestand oder neuer Hosteffekt aufgenommen.
+
+Neuer Parent/Ledger Runtime/IDX012_STORAGE_CATALOG: genau ein stabiler Kandidat,
+maximal zwei eigene serielle Container, keine Korrekturwelle. Admission erst
+nach engem unabhängigem Quellenreview und aktuellem öffentlichen Pfad-/Hashschluss;
+beide bisherigen FAIL-Ledger bleiben geschlossen. Diese Katalogfolge gehört zum
+laufenden zusammenhängenden Capture-/Grenzenschnitt; sein vollständiger PR-/
+Integrationsabschluss bleibt Pflicht. 14 aktualisierte Storagegegenproben PASS,
+darunter vollständige 512-Partitionen-Aufnahme mit eigener Fixture und Abweisung
+der 513. Partition. Unveränderte Controller-/Selektortests nicht wiederholt.
+
+Vorbereitete neue Originalbytes (SHA256): 22_Storage.sql
+A206AEBAC505D72C4DC620091254A3083B70D61DE916126EA07BA3ED417A2D7C;
+storage_evidence.py
+1117135BC156B325EFA265A61B5F1777983EEA30E89AFE9D3A1D2B6D38B253C4;
+lokaler qualify_catalog.py
+F0D3C2E3BF87BC9FE56842324E7169F12659776D1C207B37799C950F950303D5.
+Controller bleibt unverändert auf 8ED9B9AA426A6462D70D1CC165D664492291CBDD25281196986ACEE3E9EC9940.
+
+Die enge unabhängige Closure des Transport-P2 ist bestanden: alle aktuellen
+Quellenhashes stimmen, keine weiteren Befunde. Das Scalarmaximum schützt die
+unveränderte Clientbreite; keine größere Aufnahme wird still abgeschnitten.
+Keine Runtime durch den Reviewer. Erst danach Admission der Katalogfolge.
+
+## Katalogfolge: zwei vollständige positive Lifecycles
+
+Nach tatsächlichem öffentlichen Import-/Pfad-/Hashschluss der 19 gemeinsamen
+Kandidatenquellen bestanden beide Admissionen des einzigen stabilen Kandidaten.
+Die Codebytes entsprechen exakt den oben zuletzt unabhängig geprüften Quellen.
+Der Ledger ist mit zwei geschlossenen Lifecycles ohne Fehler ausgeschöpft;
+keine Korrekturwelle oder weitere Admission.
+
+| Beobachtung | Lauf 1 | Lauf 2 |
+|---|---|---|
+| vollständiger eigener Token | 2D00C5B617964E25 | B249FF1FEB194EC3 |
+| tatsächlicher Build | 17.0.5005.3 | 17.0.5005.3 |
+| Ausgang | WARN_OPTIONAL_EVIDENCE_SKIPPED | WARN_OPTIONAL_EVIDENCE_SKIPPED |
+| erster Indexbuild / Rebuild | 896,459 / 996,664 ms | 944,009 / 1038,306 ms |
+| tatsächlich restaurierte Originaloptionen Preview/MAXDOP | 0/0 | 0/0 |
+| gesamter Cleanup ab erstem Restore | 12,686 s | 12,624 s |
+| unabhängige DB-/eigene CID-/Namensabwesenheit | bestanden | bestanden |
+
+Alle drei neuen Storageclients liefern tatsächliche 999 SourceRows, Indexcount
+0/1/1 und vor JSON erfasste Transaktionswerte 0/0. Vollständige Counts/Arrays,
+einzigartige IDs, Fixture-PK-Partition, Numerik/Seitenbilanzen und sämtliche
+Marker-/Baseline-/Options-/Host-/Quellensnapshots bestanden. Beide vollständigen
+Katalogmengen wurden ohne Filterung und ohne Wrapped-JSON-Decoder transportiert:
+
+| DB-weite Aufnahme, beide Läufe | BASELINE | INDEXED | REBUILT |
+|---|---:|---:|---:|
+| interne Tabellen / Partitionen | 43 / 199 | 45 / 203 | 45 / 203 |
+| Summe verwendeter Partitionsseiten | 369 | 427 | 430 |
+| Summe reservierter Partitionsseiten | 487 | 607 | 615 |
+| Fixture-PK verwendet / reserviert | 7 / 9 | 7 / 9 | 7 / 9 |
+| data-Dateigröße / FILEPROPERTY SpaceUsed, Seiten | 1024 / 496 | 1024 / 616 | 1024 / 624 |
+| log-Dateigröße / FILEPROPERTY SpaceUsed, Seiten, Lauf 1 | 1024 / 119 | 1024 / 204 | 1024 / 279 |
+| log-Dateigröße / FILEPROPERTY SpaceUsed, Seiten, Lauf 2 | 1024 / 120 | 1024 / 205 | 1024 / 279 |
+| vollständiger Scalar, Codeunits / UTF-16-Bytes | 51219 / 102438 | 52454 / 104908 | 52454 / 104908 |
+
+Damit liegen alle tatsächlichen Scalars unter 60000 Codeunits/120000 UTF-16-
+Bytes und der Clientbreite 65535. Die Tabelle enthält rohe DB-/Katalogpunkte,
+keine isolierte Indexstorage- oder Buildkostenrechnung. FILEPROPERTY-Werte
+werden nicht in aktive Logbelegung oder tatsächliche Datei-Writes umgedeutet.
+DMV-row_count ist auch bei hier tatsächlich 999 ausdrücklich APPROXIMATE;
+die unabhängige vollständige Quellenprüfung bleibt das Ergebnisoracle.
+
+Beide Läufe bestanden zusätzlich die vier positiven/vier tatsächlich 42231-
+verweigerten DML-Kontrollen, tatsächlichen eigenen Drop, Commit allein Id 999,
+fünf distanzgeprüfte Suchkontrollen und neue vollständige Quellen-/Indexmetadaten.
+Id 999 bleibt neuer Top-1 mit Distanz null; beide ANN-Aufnahmen Recall@5 1,
+übrige 998 Vektortexte unverändert. Freshness OBSERVED_AFTER_REBUILD_ONLY,
+Generation UNKNOWN und Runtimequalifikation NOT_ESTABLISHED bleiben bestehen.
+
+Die beiden vorherigen FAIL-Ledger und der zurückgewiesene Transportentwurf
+bleiben erhalten. Vollständige Writes-/TempDB-/Worker-/Plan-/Minimalrollen-/
+Hard-Abort-/Versions-/TP-PERF-Abnahme offen. Kein neuer Provider-/Modellaufruf.
+Head-/Main-Gates, vollständige Treebindung, Synchronisierung und eigener
+Branchabbau sind zusätzliche Integrationspflichten dieses Ergebnisstands.
+
 Der vorhandene statische KI-Job erhält genau einen zusätzlichen reinen Test.
 Runtimejobdefinition bleibt unverändert. Die konservative vorhandene Auswahl
 führt weiterhin die acht freigegebenen Offline-Demos auf drei Versionen je

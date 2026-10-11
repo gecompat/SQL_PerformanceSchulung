@@ -146,6 +146,15 @@ Worker-Kosten NOT_CAPTURED. Der [Speichernachweis](../../../Documentation/Projec
 führt genaue Methode, Primärquellen, Budget, Review und tatsächlichen Laufstand.
 Die erste zusätzliche Runtimeaufnahme scheiterte vor Indexbau am Grenzguard;
 Originalrestores und eigener Cleanup bestanden. Das Budget ist geschlossen.
-Eine getrennte Capturefolge mit tatsächlichen Guardwerten ist vorbereitet,
-noch nicht ausgeführt; Runtimequalifikation bleibt offen. Der Guardrecord
+Die getrennte Capturefolge mit tatsächlichen Guardwerten
+lieferte anschließend 199 Baselinepartitionen bei Limit 128; Transaktion 0/0,
+43 interne Tabellen und zwei Dateien. Auch dieser FAIL ist geschlossen mit
+beiden Restores und eigenem Cleanup. Eine getrennte Katalogfolge begrenzt die
+vollständige Aufnahme auf 512 Partitionen/120000 UTF-16-Bytes; beide Grenzen
+gelten gleichzeitig, ein größerer Datensatz bleibt FAIL. Übrige Grenzen
+unverändert. Danach bestanden zwei vollständige eigene Katalog-/DML-/Rebuild-
+Lifecycles mit drei Aufnahmen je Lauf: 199/203/203 vollständige Partitionen,
+43/45/45 interne Tabellen, tatsächliche Restores 0/0 und unabhängiger eigener
+Cleanup. Alle Scalars bleiben unter 120000 UTF-16-Bytes und Clientbreite 65535.
+Isolierte Indexkosten und vollständige Runtimequalifikation bleiben offen. Der Guardrecord
 STORAGE_GUARD ist keine vollständige Speicheraufnahme und ersetzt keine Prüfung.
