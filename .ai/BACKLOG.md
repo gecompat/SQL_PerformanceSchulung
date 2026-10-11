@@ -3,7 +3,7 @@
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
 `TSK-003` ist der gesondert autorisierte Planungsschnitt; sein Abschluss benötigt Validierung
-und Integration. Der Folgeauftrag autorisiert nun den Workstream: TSK-004, TSK-005 und TSK-008 sind `IN_PROGRESS`,
+und Integration. Der Folgeauftrag autorisiert nun den Workstream: TSK-004, TSK-005, TSK-008 und TSK-009 sind `IN_PROGRESS`,
 weitere Pakete bleiben `PROPOSED`; allgemeine Entwicklung bleibt `PAUSED`.
 Umfang, Abhängigkeiten, Aufwand und Abnahme werden im
 [Workstream-Plan §12](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
@@ -13,8 +13,8 @@ gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 - [ ] `TSK-005`: lokaler Pfad und synthetisches Korpus; QRY-014 bis QRY-017 implementiert, Runtime-/Integrationsgate im aktuellen Nachweis.
 - [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005` und Previewentscheid.
 - [ ] `TSK-007`: lokale und optionale externe/ONNX-Embeddingpfade; nach `TSK-004` und jeweiliger Freigabe.
-- [ ] `TSK-008`: QRY-018 Offline-Replay implementiert; aktueller Review-/Runtime-/Integrationsgate im eigenen Nachweis, Live zusätzlich `TSK-007`.
-- [ ] `TSK-009`: Rechte/Tenants/Injection/Datenschutz; nach `TSK-005`, Providerfälle zusätzlich `TSK-007`.
+- [ ] `TSK-008`: QRY-018 Offline-Replay integriert über PR 137 mit grünen Head-/Main-Gates; Live zusätzlich `TSK-007` bleibt offen.
+- [ ] `TSK-009`: QRY-019 mit fester SQL-Struktur und Wertbindung implementiert; aktueller Nachweis offen, Tenants/Datenschutz und Providerfälle bleiben getrennt offen.
 - [ ] `TSK-010`: Benchmarks/Diagnose; nach `TSK-006` und `TSK-009`, Inferenz zusätzlich `TSK-007`.
 - [ ] `TSK-011`: SQL-Assistenz/Gegenmessung; nach `TSK-005` und `TSK-009`.
 - [ ] `TSK-012`: Curriculum/Masterdeck/Notes/Lehrmaterial; nach `TSK-008`–`TSK-011` und Demoabnahmen.

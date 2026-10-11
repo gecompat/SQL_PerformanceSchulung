@@ -20,6 +20,9 @@ Hoständerungen behalten ihre jeweiligen Gates. QRY-014 bis QRY-017 sind der ers
 zusammenhängende Implementierungsschnitt; der Workstream ist damit noch nicht abgenommen.
 QRY-018 ergänzt jetzt den Offline-RAG-Schnitt aus TSK-008; sein
 [Qualifikationsnachweis](SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md) bleibt getrennt von Live-RAG.
+QRY-019 beginnt TSK-009 mit fester SQL-Struktur, tatsächlicher Wertbindung und einem
+eingeschränkten Datenbankbenutzer; sein [Nachweis](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md)
+belegt ausschließlich den synthetischen lokalen Kontrollharness.
 
 ## 1. Zielbild und Abgrenzung
 
