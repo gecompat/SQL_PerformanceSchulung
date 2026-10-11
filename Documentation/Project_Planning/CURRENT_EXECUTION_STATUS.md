@@ -74,6 +74,15 @@ keine Änderung des anderen Repositorys. Nächster unabhängiger zulässiger Sch
 Offline-RAG QRY-018 aus TSK-008; die lokale Modellintegration aus TSK-007 bleibt
 bis zu einem öffentlich nutzbaren passwortfreien Frameworkpfad angehalten.
 
+Der nächste autonome Schnitt implementiert QRY-018 als modellfreien Offline-RAG-Replay,
+Branch `codex/sql2025-ai-offline-rag`, Basis `0b6743f14f855103dfa63b0b67ffc75426f1ad1f`.
+Zwei lokale 17.x-Lifecycles, 80 Markergegenproben, sieben fachliche Gegenproben,
+Setup-Idempotenz und unabhängiger DB-/Containercleanup bestanden. Der unabhängige
+Quellenreview fand im beauftragten Risikoscope keine offenen Befunde; keine zusätzliche
+Runtimeattestation. Aktuelle Versions-/CI-/Integrationsgates stehen im
+[Offline-RAG-Nachweis](SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md). TSK-008 ist begonnen,
+aber der Gesamtworkstream und der Livepfad bleiben offen.
+
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 
 Der Benutzer hat `TSK-003`, den [KI-Workstream-Plan](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md),

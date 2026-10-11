@@ -36,6 +36,7 @@ Wählen Sie eine Demo aus der folgenden Tabelle. Der angegebene Schlüssel wird 
 | [`QRY-015`](../../Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; lokale Mechanikfixture |
 | [`QRY-016`](../../Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; lokale Mechanikfixture |
 | [`QRY-017`](../../Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; Full-Text optional |
+| [`QRY-018`](../../Demos/09_AI_SQL_Server_2025/QRY-018_Offline_RAG/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; Offline-Replay, kein Modell |
 | [`IDX-006`](../../Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz; historischer Nachweis mit `WARN_EMPIRICAL_VARIANCE`, keine allgemeine Fill-Factor-Richtung |
 | [`IDX-010`](../../Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit Ressourcenprofil |
 | [`CON-004`](../../Demos/07_Concurrency/CON-004_Blocking_Chain/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Mehrsitzungsorchestrierung; alternativ interaktiv gemäß [`INTERACTIVE_SCENARIO_LIFECYCLE.md`](INTERACTIVE_SCENARIO_LIFECYCLE.md) |
@@ -106,6 +107,7 @@ $demoCatalog = @{
     'QRY-015' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics/manifest.json'; Safety = 'GREEN' }
     'QRY-016' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance/manifest.json'; Safety = 'GREEN' }
     'QRY-017' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/manifest.json'; Safety = 'GREEN' }
+    'QRY-018' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/QRY-018_Offline_RAG/manifest.json'; Safety = 'GREEN' }
     'IDX-006' = @{ Manifest = 'Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/manifest.json'; Safety = 'YELLOW' }
     'IDX-010' = @{ Manifest = 'Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/manifest.json'; Safety = 'YELLOW' }
     'CON-004' = @{ Manifest = 'Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json'; Safety = 'YELLOW' }
@@ -120,7 +122,7 @@ $demoCatalog = @{
 
 function Invoke-SqlPerfDemo {
     param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
+        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
         [Parameter(Mandatory)][string]$Server,
         [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
         [string]$Username,
@@ -204,7 +206,7 @@ Wenn PowerShell, `sqlcmd` oder der Rechner während eines Laufs beendet wurde, f
 ```powershell
 function Invoke-AbortedSqlPerfDemoCleanup {
     param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
+        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
         [Parameter(Mandatory)][string]$Server,
         [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
         [string]$Username

@@ -14,9 +14,12 @@
 Der nachfolgende Plan dokumentiert den ursprünglichen Planungsschnitt. Der neue
 Benutzerauftrag vom 2026-10-11 autorisiert dessen autonome Umsetzung; Scope, Budget
 und aktueller Nachweis stehen im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md#autonome-umsetzung-des-ki-workstreams-vom-2026-10-11).
-Allgemeine Entwicklung und Automation bleiben pausiert. Externe/Bezahl- und rote
+Allgemeine Entwicklung und andere Automationen bleiben pausiert; der ausdrücklich
+genehmigte KI-Heartbeat ist aktiv. Externe/Bezahl- und rote
 Hoständerungen behalten ihre jeweiligen Gates. QRY-014 bis QRY-017 sind der erste
 zusammenhängende Implementierungsschnitt; der Workstream ist damit noch nicht abgenommen.
+QRY-018 ergänzt jetzt den Offline-RAG-Schnitt aus TSK-008; sein
+[Qualifikationsnachweis](SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md) bleibt getrennt von Live-RAG.
 
 ## 1. Zielbild und Abgrenzung
 

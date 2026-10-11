@@ -433,6 +433,33 @@
         "WARN"
       ],
       "defaultRepetitions": 2
+    },
+    {
+      "demoId": "QRY-018",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-018_Offline_RAG/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": [
+        "docker",
+        "podman"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "compact",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE"
+      ],
+      "expectedOutcomes": [
+        "PASS",
+        "SKIP"
+      ],
+      "defaultRepetitions": 2
     }
   ]
 }
