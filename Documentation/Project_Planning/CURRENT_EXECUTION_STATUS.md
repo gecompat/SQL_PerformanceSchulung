@@ -525,6 +525,45 @@ Integration folgt. Unmittelbarer Folgeschnitt gemäß Wellenautorisierung ist di
 [begrenzte Filter-/Ergebnisdiagnose](SQL_SERVER_2025_AI_ANN_FILTER_DECISION.md)
 mit drei vorab festen Id-Fenstern und gebundenem Exact-Oracle; eigenes Quellen-/
 Testgate vor SQL. Kein gefilterter Indexnutzungs-/Performance-/voller Demo-PASS.
+PR 164 ist mit sieben erfolgreichen Headprüfungen auf
+`eae8ebd1a1813366fe83154041e0757b7291d06d` gegen Basis
+`d4ace6614ae500329e05160e0dd4f7ad16c9b8e7` integriert. Alle fünf ausgewählten
+Main-Workflows auf `b35f147632ceba3a8b433ec2ac062bfe70205301` bestanden;
+Tree-Identität `7997a7995efad05d05cb88f4c9085272040a0fdf`, main synchronisiert,
+eigener Branch lokal/remote entfernt. Unmittelbar beginnt die Filterdiagnose
+auf `codex/sql2025-ai-ann-filter` an dieser Basis. Fünf bestehende Grenztests
+und sechs neue Filter-/Coverage-/Recall-/Manipulationstests bestanden. Enger
+unabhängiger Review des tatsächlichen Filter-/Oracle-/Clientdeltas fand keine P1/P2;
+Quellengate vor SQL geschlossen. Ein stabiler Kandidat bestand beide vollständigen
+[Filterlifecycles](SQL_SERVER_2025_AI_ANN_FILTER_REVIEW.md): breite Fenster 1–1000/
+1–100 je fünf ANN-/Exact-Rows und Recall@5 1; enges Fenster 501–510 null ANN- gegen
+fünf Exact-Rows, Recall@5 0 und sichtbares ROWS_BELOW_K. Vier neue Filtergegenproben
+und alle bisherigen Source-/Marker-/Baseline-/Metadaten-/Konfigurationskontrollen
+bestanden. Beide tatsächlichen Restores 0/0, neue Attestierung und separate SQL-/
+Containerabwesenheit bestanden; Cleanup 12,354/12,552 Sekunden. Generation UNKNOWN,
+gefilterte Indexnutzung UNPROVEN, kein Performance-/voller Demo-PASS. Ein Kandidat/
+zwei Container, Umfang regulär abgeschlossen; Integration folgt.
+
+Unmittelbarer Folgeschnitt aus der erteilten lokalen Wellenautorisierung ist eine
+begrenzte sessionbezogene Messdiagnose am ungefilterten festen Query/Korpus:
+maximal zwei neue Kandidaten/vier serielle eigene Container und zwei Lifecycles
+je positivem stabilem Kandidaten. Beide Pfade geben dieselben fünf Id-/Distanz-
+Spalten zurück; identische temporäre Ergebnisspeicherung. Je Pfad ein ausgeschlossener
+Warm-up und fünf gemessene Batches mit je zehn Suchstatements; alternierende
+Paarreihenfolge, keine Cacheleerung. Pro Lifecycle höchstens 61 Legacy-Suchaufrufe
+und 61 Exact-Queries einschließlich bisherigem Query-/Oraclevorlauf. Alle Rows
+und Distanz-/Recallgrenzen weiterhin tatsächlich prüfen. Session-CPU-/Read-/
+Logical-Read-/Write-Deltas und UTC-Elapsed erfassen, gleiche Session/Nicht-NULL/
+Nichtnegativität prüfen; Median und Min/Max aus fünf Batches je Pfad. Quantisierung,
+Mess-/temporärer Speicheraufwand und ausgeschlossener Warm-up bleiben sichtbar;
+kein festes Speedupversprechen, optionale Waits nicht erhoben. Generation UNKNOWN,
+neue Indexnutzung UNPROVEN ohne neue Planausgabe. Unveränderte 1000-Row-/Image-/
+Build-/Ressourcen-/Konfigurations-/Marker-/300-Sekunden-/60-Sekunden-Cleanupgrenzen;
+keine DML-/Stale-/Host-/Cloud-/ONNX-Wirkung. Betroffene Tests und enger erforderlicher
+Methoden-/Quellenreview vor SQL; Retry nur mit geändertem Input/neuer Evidenz.
+Nach zwei ungelösten Kandidaten Befund integrieren, kein stilles Budgetreset.
+Aktuelle Head-/Main-Gates, PR, Synchronisierung und eigener Cleanup schließen
+diesen eigenen Messbefund ab. Dies ist keine vollständige FWK-/TP-PERF-/Demoabnahme.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

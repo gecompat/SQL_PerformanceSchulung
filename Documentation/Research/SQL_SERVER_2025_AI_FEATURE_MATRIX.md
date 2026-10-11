@@ -110,8 +110,10 @@ Die eigene [tatsächliche Planausgabe bestand](../Project_Planning/SQL_SERVER_20
 Vector Index Seek auf dem voll gebundenen eigenen DiskANN-Index mit fünf
 tatsächlichen Rows. Dies belegt Indexnutzung nur für den festen ungefilterten
 Suchaufruf; Generation UNKNOWN, kein Performance-/voller Demo-PASS.
-Die [Filter-/Ergebnisdiagnose](../Project_Planning/SQL_SERVER_2025_AI_ANN_FILTER_DECISION.md)
-ist ein eigener begrenzter autorisierter Folgeschnitt.
+Die [Filter-/Ergebnisdiagnose bestand zwei Lifecycles](../Project_Planning/SQL_SERVER_2025_AI_ANN_FILTER_REVIEW.md):
+breite Id-Fenster Recall@5 1; Fenster 501–510 null ANN- gegen fünf Exact-Rows,
+Recall@5 0/ROWS_BELOW_K. Sichtbarer Legacy-Postfilterverlust am festen Korpus/Query;
+gefilterte Indexnutzung UNPROVEN, kein Performance-/voller Demo-PASS.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die
