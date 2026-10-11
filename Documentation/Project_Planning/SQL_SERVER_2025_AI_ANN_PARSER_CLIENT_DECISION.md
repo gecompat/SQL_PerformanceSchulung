@@ -1,11 +1,16 @@
 # TSK-006 – begrenzter Clientkorrekturentscheid für Parserdiagnose
 
-Stand: 2026-10-11. PENDING_USER_DECISION. Keine neue ausführbare Korrekturquelle
-oder neue SQL-/Containerruntime durch diesen Entwurf autorisiert.
+Stand: 2026-10-11. AUTHORIZED: Der Benutzer bestätigte ausdrücklich
+„Ja, Clientkorrekturpaket freigeben (empfohlen)“. Ausschließlich der folgende
+einzelne Kandidat war genehmigt; keine Runtimeabnahme dadurch. Er ist inzwischen
+[mit FAIL vor Setup abgeschlossen](SQL_SERVER_2025_AI_ANN_PARSER_CLIENT_REVIEW.md),
+eigene DB und Container abwesend. Das Budget ist verbraucht und wird nicht erneut
+verwendet; ein [enger Readinessentscheid](SQL_SERVER_2025_AI_ANN_READINESS_DECISION.md)
+bleibt PENDING_USER_DECISION.
 
 Der enge unabhängige Review dieses neuen Budget-/Claimentwurfs fand keine P1/P2.
 Dies schließt allein das Entwurfsgate, nicht den noch erforderlichen tatsächlichen
-Quellen-/Effektreview eines später ausdrücklich autorisierten neuen Kandidaten.
+Quellen-/Effektreview des jetzt ausdrücklich autorisierten neuen Kandidaten.
 
 Die [einzelne Parserdiagnose](SQL_SERVER_2025_AI_ANN_PARSER_REVIEW.md) scheiterte
 vor Setup. Die erhaltenen Recovery-/Abwesenheitsfehler belegen die lokale

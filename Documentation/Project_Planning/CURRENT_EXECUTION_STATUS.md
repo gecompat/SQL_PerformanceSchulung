@@ -357,6 +357,32 @@ Review des Befunds und neuen Entwurfs fand keine P1/P2; keine Runtime dadurch.
 Aktuelle Head-/Main-Gates, Integration und eigener Branchcleanup folgen;
 keine neue Ausführungsfreigabe. Die alten FAIL-Checkpoints und weiteren
 Build-/DOP-Gates bleiben bestehen. Der Heartbeat setzt keine dieser Grenzen zurück.
+PR 158 ist mit sieben Headprüfungen auf `f119f8f172ba4107e34aabd38bb13e8d212021c1`
+und fünf Main-Workflows auf `00b546416eb6e7250f10f42bff1c724dab43c4c6` integriert.
+Tree `b78cbc4cd7e02c748d7ddd5374d31b2210ee7140`, Synchronisierung und eigener lokaler/
+remote Branchabbau bestätigt. Anschließend bestätigte der Benutzer ausdrücklich
+„Ja, Clientkorrekturpaket freigeben (empfohlen)“. Auf
+`codex/sql2025-ai-ann-parser-client` wird genau dessen neuer Kandidat vorbereitet:
+`-y 0 -w 65535` ohne `-h`, Optionsgegenfixture vor Containerstart und erhaltene
+begrenzte redigierte Readinessfehler, sofortiger Stopp unbekannter Meldungen.
+Die beiden neuen betroffenen Client-/Readinessfixtures bestanden; der enge
+unabhängige Deltareview schloss gemischte Fehlerausgaben als P2 vor Runtime.
+Der tatsächlich ausgeführte einzige neue Kandidat ist
+[FAIL vor Setup](SQL_SERVER_2025_AI_ANN_PARSER_CLIENT_REVIEW.md): seine erhaltene
+erste ODBC-TCP-Readinessmeldung enthielt eine zusätzliche Punktzeile und wurde
+von der überengen Zeilenauswertung als unbekannt abgelehnt. 0 Parseraufrufe,
+keine Baseline oder Previewattestierung. Tatsächlicher neuer Recoveryclient
+meldete ALREADY_ABSENT, separater SQL-Client bestätigte DB-Abwesenheit; eigene
+gebundene Containerentfernung und separate Abwesenheit bestanden, 13,887 Sekunden.
+Die korrigierten Clientoptionen sind damit SQL-verbindungsfähig; keine Snapshot-,
+Parser- oder ANN-Abnahme. Keine Änderung der ausgeführten historischen Quellen.
+Der [Readinessentscheid](SQL_SERVER_2025_AI_ANN_READINESS_DECISION.md) bereitet
+ausschließlich einen neuen Kandidaten/Container ohne Korrekturwelle und einen
+präziseren Auswerter dieser tatsächlich erhaltenen Meldungsstruktur vor:
+PENDING_USER_DECISION, keine neue ausführbare Quelle oder Runtime. Sein enger
+Befund-/Entwurfsreview fand keine P1/P2; das spätere Ausführungsgate bleibt offen.
+Aktuelle Head-/Main-Gates, Integration und eigener Branchcleanup folgen.
+Der Heartbeat wiederholt diesen FAIL nicht automatisch.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
