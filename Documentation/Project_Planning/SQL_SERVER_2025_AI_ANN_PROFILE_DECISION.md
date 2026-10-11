@@ -23,7 +23,8 @@ heißt gebundenes Legacy-TOP_N-Profil, keine numerische Generation oder GA-Garan
 ## Verpflichtende Grenzen des neuen Pfads
 
 - Read-only Versions-/Build-/Edition-/OS-/CL-Prüfung vor Setup. SQL 2019/2022
-  bleiben SKIP_VERSION; andere unqualifizierte 17.x-Profile SKIP_PROFILE_UNQUALIFIED.
+  bleiben SKIP_VERSION; andere unqualifizierte 17.x-Profile melden den vorhandenen
+  FWK-012-Code SKIP_CONFIGURATION mit Detail PROFILE_UNQUALIFIED. Kein neuer Statuscode.
   Kein Syntaxfallback, kein Herunterstufen eines Runtimefehlers zu SKIP.
 - Nur eigene synthetische markierte Datenbank, 1000 nichtdegenerierte float32-
   VECTOR(3)-Rows, clustered INT-PK, cosine und K=5. Derselbe Korpus/Queryvektor,
