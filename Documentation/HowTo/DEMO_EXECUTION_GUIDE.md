@@ -2,10 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Geltungsbereich | 22 historisch runtimevalidierte Fachdemos, vier lokale KI-Implementierungen sowie der ausdrücklich eingeschränkte Entwicklungseinstieg `QRY-006` |
+| Geltungsbereich | 22 historisch runtimevalidierte Fachdemos, acht lokale Offline-KI-Implementierungen sowie der ausdrücklich eingeschränkte Entwicklungseinstieg `QRY-006` |
 | Ausführung | PowerShell auf einer dedizierten Test- oder Wegwerfinstanz |
 | Ergebnis | strukturierte `SQLPERF_SUMMARY` je Phase und markergeprüftes Cleanup |
 | Ergänzende Erklärung | [`DEMO_WALKTHROUGHS.md`](DEMO_WALKTHROUGHS.md) |
+| Offline-KI-Aufgaben und Trainerlösungen | [`SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md`](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md); Teilentwurf, keine Gesamtlehrgangsfreigabe |
 
 Dieser Leitfaden ist der verbindliche Ausführungspfad für die runtimevalidierten Demos. Er beschreibt die Schritte, mit denen eine Person ohne Kenntnis der ursprünglichen Entwicklungsumgebung einen Lauf starten, das Ergebnis einordnen und einen abgebrochenen Lauf bereinigen kann. Die jeweilige Demo-README erklärt Lernziel, Datenmodell, Evidenz und fachliche Grenzen.
 

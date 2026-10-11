@@ -182,6 +182,21 @@ Der betreffende Runtime-Slice bleibt angehalten; Heartbeat und autorisierte
 unabhängige Arbeit bleiben aktiv. Nächster unabhängiger Scope ist proportionales
 Lehrmaterial für die acht bereits qualifizierten Offline-Demos, keine Wiederholung
 der gescheiterten CL-/ANN-Prototypen und keine Gesamtlehrgangsfreigabe.
+Der unabhängige TSK-012-Teilentwurf wird auf
+`codex/sql2025-ai-offline-workbook`, Basis `e363d7e5d8927ffb4c4ce6e01e8740b93e8bc2a8`,
+als [Offline-Arbeitsheft](../HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md) umgesetzt:
+acht Aufgaben mit Trainerlösungen, Beobachtungsbogen und didaktischer Rubrik.
+Ein Owner, höchstens ein enger Review der neuen Fixture-/Rechte-/Providergrenzen und
+zwei Korrekturwellen begrenzen den Scope. Keine Runtimequelle oder Präsentation wird
+geändert; keine neue SQL-, Windows-/Podman-, Lehrzeit- oder Teilnehmerabnahme.
+Betroffene lokale Doc-/Privacychecks und aktuelle Head-/Main-Gates sind vor Abschluss
+erforderlich. Modell-/Tokenverbrauch bleibt unbekannt.
+Die lokalen Guide-/Pfadprüfungen bestanden mit 31 Demos, Registry mit 264 Artefakten,
+INF-001 mit sechs Runnern/neun How-to-Themen, Privacy, Diff und alle 27 Workbooklinks.
+Der enge unabhängige Review fand keine konkreten P1/P2 in Aufgaben/Lösungen und deren
+Fixture-/Rechte-/Providergrenzen; keine eigene Runtime oder Generalprobe ausgeführt.
+Keine Korrekturwelle wurde benötigt. Die ausgewählten CI-Pfade führen statische
+Gates aus; unveränderte SQL-Runtime und Officeprüfungen werden nicht wiederholt.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
