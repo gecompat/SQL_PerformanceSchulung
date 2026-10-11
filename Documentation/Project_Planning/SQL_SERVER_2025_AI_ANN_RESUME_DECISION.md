@@ -1,10 +1,17 @@
 # TSK-006 – begrenzter Wiederaufnahmeentscheid nach dem ANN-FAIL
 
-Stand: 2026-10-11. PENDING_USER_DECISION. Dieses Paket wird vorbereitet;
-es autorisiert keine dritte Korrektur oder weitere SQL-Ausführung.
+Stand: 2026-10-11. AUTHORIZED. Der Benutzer hat im Orchestrator-Chat ausdrücklich
+„Ja, Zusatzpaket freigeben (empfohlen)“ bestätigt. Das zusätzliche Korrekturbudget
+gilt ausschließlich für den unten begrenzten privaten Wiederaufnahmeschnitt.
 Die ursprüngliche [Effektfreigabe](SQL_SERVER_2025_AI_PREVIEW_DECISION.md)
 bleibt gültig und unverändert. Der [Fehlercheckpoint](SQL_SERVER_2025_AI_ANN_PREVIEW_REVIEW.md)
 bleibt FAIL; die bekannten eigenen Container sind abwesend.
+
+Die genehmigte Wiederaufnahme ist inzwischen [mit FAIL angehalten](SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md):
+beide zusätzlichen Kandidaten verbraucht, zwei eigene Container entfernt, tatsächliche
+SQL-Restore-/DB-Abwesenheitsbelege erhalten. Keine Index-/ANN-Abnahme und keine dritte
+Korrektur durch ungenutzte Containerplätze. Die folgende Freigabe bleibt der historische
+Autorisierungsrahmen dieses abgeschlossenen Fehlerschnitts.
 
 ## Empfehlung und Entscheidung
 
@@ -74,6 +81,7 @@ Die ursprüngliche Effektfreigabe begrenzt jeden zusammenhängenden Schnitt auf
 fest: „Keine weitere Änderung oder Runtime darf durch stilles Zurücksetzen dieses
 Korrekturbudgets erfolgen.“ Beide Wellen sind verbraucht. Deshalb ersetzt weder die
 allgemeine autonome Entwicklung noch ein neuer Heartbeat diesen Budgetentscheid.
-Bis zur Antwort bleiben die privaten ANN-Quellen unverändert; unabhängige autorisierte
-Arbeit wird fortgesetzt. Eine Ablehnung belässt ANN angehalten und nimmt die bereits
-genehmigten lokalen Effekte nicht als ausgeführt oder erfolgreich an.
+Der zusätzliche Budgetentscheid ist jetzt erfolgt. Die historischen Fehlerquellen
+bleiben erhalten; der neue begrenzte Kandidat wird separat vorbereitet. Die Freigabe
+ist kein Runtime-/Recovery-/ANN-Erfolgsnachweis. Unabhängige autorisierte Arbeit bleibt
+zulässig; andere Fehlerbudgets und Effektgates werden nicht zurückgesetzt.

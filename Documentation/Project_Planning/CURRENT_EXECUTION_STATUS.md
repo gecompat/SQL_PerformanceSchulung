@@ -272,6 +272,30 @@ dieses neue Paket gegen beide ursprünglichen Autoritäten und fand keine P1/P2.
 Keine neue Runtime, keine dritte ANN-Korrektur; die privaten Quellen sind unverändert.
 Nach Integration dieses Entscheidungspakets bleibt ANN bis zur Benutzerantwort
 angehalten. Cloud-/ONNX-/Secret- und übrige Fehlgates werden dadurch nicht geöffnet.
+PR 154 ist mit sieben Headprüfungen auf `e84b18b608b22c9e3c7671ca70ef499d3a7f5ab4`
+und fünf Main-Workflows auf `4f74caeb55dcbdaabd9f2176e7ced9dd77c103dc` integriert;
+Tree `5d0747591b6094af1295f2cd05ae8b34238e323c`, Synchronisierung und eigener lokaler/
+remote Branchabbau bestätigt. Die ausdrückliche Antwort „Ja, Zusatzpaket freigeben
+(empfohlen)“ autorisiert jetzt allein das dort begrenzte neue ANN-Budget.
+Wiederaufnahme auf `codex/sql2025-ai-ann-resume`, Basis dieses Integrationscommits,
+maximal zwei zusätzliche kohärente Kandidaten und vier neue eigene Container.
+Historische private Quellen bleiben erhalten; Kandidat 1 wird separat vorbereitet,
+lokal gegen Recovery-/Deadline-/Baselinefehler geprüft und eng unabhängig reviewt,
+bevor neue SQL-Runtime erfolgt. Andere Fehlbudgets bleiben angehalten.
+Die begrenzte Wiederaufnahme wurde mit [FAIL abgeschlossen](SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md):
+Kandidat 1 verwarf die Setupausgabe vor ANN, deren Originalinhalt nicht erhalten wurde;
+Kandidat 2 erfasste Baseline 0, scheiterte aber bei dynamischer CREATE VECTOR INDEX
+an Parserfehler 343 und anschließend 51003. Beide zusätzlichen Kandidaten sind
+verbraucht; zwei von maximal vier Containern genutzt, keine dritte Korrektur.
+Vor Runtime bestanden sieben lokale Sicherheitsfixtures und der enge unabhängige
+Review mit geschlossenem Image-Tag-P2; Kandidat 2 bestand zwei betroffene Baseline-
+Gegenfixtures und den Deltareview. Beide tatsächlichen Recoveries meldeten RESTORED_0
+und DROP_CONFIRMED; jeweils separate SQL-DB-Abwesenheit und gebundener eigener
+Containerabbau/Abwesenheit bestanden, Cleanup 12,112/12,117 Sekunden.
+Keine Indexgeneration, ANN-Rows, Recall-/Plan-/Performance- oder FWK-Abnahme.
+Parser-/Previewursache bleibt offen; weitere ANN-Arbeit benötigt einen konkret
+vorbereiteten Nachweisumfang und neuen Budgetentscheid. Der Fehlercheckpoint wird
+mit aktuellen Head-/Main-Gates integriert; unabhängige Lehrmaterialarbeit folgt.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
