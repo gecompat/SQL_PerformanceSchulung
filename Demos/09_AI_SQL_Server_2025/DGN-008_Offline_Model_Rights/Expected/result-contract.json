@@ -1,0 +1,88 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "DGN-008",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "baseline_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "baseline_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "reader_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "reader_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "ingestion_writes",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "ingestion_writes",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "permission_denials",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "permission_denials",
+      "expected": 5,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "reader_model_execute_metadata",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "reader_model_execute_metadata",
+      "expected": 0,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "ingestion_model_execute_metadata",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "ingestion_model_execute_metadata",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "endpoint_allowed",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "endpoint_allowed",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "endpoint_denied",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "endpoint_denied",
+      "expected": 3,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "owned_model_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "owned_model_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}

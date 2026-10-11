@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prueft QRY-014 bis QRY-019 und DGN-009 zweimal mit FWK-010 und FWK-011."""
+"""Prueft QRY-014 bis QRY-019 und DGN-008/009 zweimal mit FWK-010 und FWK-011."""
 from __future__ import annotations
 
 import argparse
@@ -23,6 +23,7 @@ DEMOS = {
     "QRY-018": "QRY-018_Offline_RAG",
     "QRY-019": "QRY-019_SQL_Input_Policy",
     "DGN-009": "DGN-009_Offline_Injection",
+    "DGN-008": "DGN-008_Offline_Model_Rights",
 }
 SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)$", re.MULTILINE)
 RECORD = re.compile(r"^AI_ASSERT\|(baseline|comparison)\|([a-z][a-z0-9_]*)\|([^|]+)$")
@@ -132,7 +133,10 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
         database = "master" if filename[:2] in ("00", "10", "90") else name
         return targets.run_sql(target, database=database, sql_text=text, timeout_seconds=60)
 
-    def state() -> str:
+    def state(*, stable_setup: bool = False) -> str:
+        if demo_id == "DGN-008":
+            times = "" if stable_setup else ",external_model_id,create_time,modify_time"
+            return targets.run_sql(target, database=name, sql_text="SET NOCOUNT ON; SELECT Id,FactDays FROM lab.Sources ORDER BY Id; SELECT Id,CONVERT(varchar(max),CONVERT(varbinary(max),Location),2),CONVERT(varchar(max),CONVERT(varbinary(max),CredentialAlias),2) FROM lab.EndpointPolicy ORDER BY Id; SELECT Id,CONVERT(varchar(max),CONVERT(varbinary(max),Location),2) FROM lab.EndpointCandidates ORDER BY Id; SELECT name,USER_NAME(principal_id),location,api_format,model_type_id,model_type_desc,model,credential_id,CONVERT(nvarchar(max),parameters)" + times + " FROM sys.external_models ORDER BY name; SELECT name,USER_NAME(principal_id),location,api_format,model_type_id,model_type_desc,model,credential_id,ParametersText" + times + " FROM lab.ModelBinding ORDER BY name; SELECT USER_NAME(grantee_principal_id),class,CASE WHEN class=110 THEN (SELECT name FROM sys.external_models WHERE external_model_id=major_id) WHEN class=1 THEN OBJECT_NAME(major_id) ELSE CONVERT(nvarchar(20),major_id) END,minor_id,permission_name,state,USER_NAME(grantor_principal_id) FROM sys.database_permissions WHERE grantee_principal_id IN(USER_ID(N'DGN008_setup'),USER_ID(N'DGN008_ingestion'),USER_ID(N'DGN008_reader'),DATABASE_PRINCIPAL_ID(N'DGN008_setupRole'),DATABASE_PRINCIPAL_ID(N'DGN008_ingestionRole'),DATABASE_PRINCIPAL_ID(N'DGN008_retrievalRole')) ORDER BY USER_NAME(grantee_principal_id),class,permission_name,major_id; SELECT USER_NAME(role_principal_id),USER_NAME(member_principal_id) FROM sys.database_role_members ORDER BY USER_NAME(role_principal_id),USER_NAME(member_principal_id); SELECT NameBytes,ConfiguredValue,ActiveValue FROM lab.HostOptions ORDER BY NameBytes; SELECT CONVERT(varbinary(256),name),value,value_in_use FROM sys.configurations ORDER BY name; SELECT compatibility_level,recovery_model_desc FROM sys.databases WHERE database_id=DB_ID(); SELECT file_id,size,max_size,growth FROM sys.database_files ORDER BY file_id;", timeout_seconds=30)
         if demo_id == "DGN-009":
             return targets.run_sql(target, database=name, sql_text="SET NOCOUNT ON; SELECT SourceId,Version,IsCurrent,Trusted,FactDays,CONVERT(varchar(max),HASHBYTES('SHA2_256',CONVERT(varbinary(max),Content)),2),CONVERT(varchar(max),V) FROM lab.Documents ORDER BY SourceId; SELECT USER_NAME(grantee_principal_id),class,OBJECT_NAME(major_id),minor_id,permission_name,state FROM sys.database_permissions WHERE grantee_principal_id IN(USER_ID(N'DGN009_reader'),USER_ID(N'DGN009_sink')) ORDER BY USER_NAME(grantee_principal_id),class,permission_name; SELECT compatibility_level,recovery_model_desc FROM sys.databases WHERE database_id=DB_ID(); SELECT file_id,size,max_size,growth FROM sys.database_files ORDER BY file_id;", timeout_seconds=30)
         fixture = "Inventory" if demo_id == "QRY-019" else "VectorFixture"
@@ -141,12 +145,15 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
     assert_absent(target, demo_id)
     try:
         phase("10_Setup.sql")
-        before = state()
+        before = state(stable_setup=True)
         phase("10_Setup.sql")
-        if state() != before:
+        if state(stable_setup=True) != before:
             raise AiFailure("idempotentes Setup hat Fixture oder Konfiguration veraendert")
+        # Frisch angelegte Modell-IDs/Zeitstempel duerfen beim Setup wechseln;
+        # alle Markergegenproben binden danach auch diese vollstaendigen Werte.
+        before = state()
         negatives = ("00_Preflight.sql", "10_Setup.sql", "90_Cleanup.sql")
-        if demo_id in ("QRY-016", "QRY-018", "QRY-019", "DGN-009"):
+        if demo_id in ("QRY-016", "QRY-018", "QRY-019", "DGN-008", "DGN-009"):
             negatives += ("20_Baseline.sql", "30_Demonstration.sql")
         for marker, value in markers.items():
             for invalid in (None, "FOREIGN", value + " ", value + "X" * 256):
@@ -194,7 +201,26 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
             else:
                 raise AiFailure("fehlende/falsche fachliche Daten wurden akzeptiert")
 
-        if demo_id == "DGN-009":
+        if demo_id == "DGN-008":
+            mutations = (
+                "DELETE FROM lab.Sources;",
+                "UPDATE lab.Sources SET FactDays=99 WHERE Id=1;",
+                "UPDATE lab.EndpointPolicy SET CredentialAlias=N'wrong';",
+                "UPDATE lab.EndpointCandidates SET Location=Location+N' ' WHERE Id=1;",
+                "UPDATE lab.ModelBinding SET location=location+N' ';",
+                "DROP EXTERNAL MODEL DGN008_OfflineModel;",
+                "GRANT UPDATE ON OBJECT::lab.Sources TO DGN008_retrievalRole;",
+                "GRANT SELECT ON OBJECT::lab.EndpointPolicy TO DGN008_retrievalRole;",
+                "ALTER ROLE DGN008_ingestionRole ADD MEMBER DGN008_reader;",
+                "REVOKE UPDATE ON OBJECT::lab.Sources FROM DGN008_ingestionRole;",
+            )
+            for mutation in mutations:
+                phase("10_Setup.sql")
+                phase("50_Mitigation.sql")
+                mutate(mutation)
+                rejected("60_Comparison.sql")
+            print(f"AI_LOCAL|{demo_id}|RESULT_NEGATIVE_{len(mutations)}|PASS")
+        elif demo_id == "DGN-009":
             mutations = (
                 "DELETE FROM lab.Documents;",
                 "UPDATE lab.Documents SET FactDays=99 WHERE SourceId=1;",

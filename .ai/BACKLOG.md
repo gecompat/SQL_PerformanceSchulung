@@ -14,7 +14,7 @@ gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 - [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005` und Previewentscheid.
 - [ ] `TSK-007`: lokale und optionale externe/ONNX-Embeddingpfade; nach `TSK-004` und jeweiliger Freigabe.
 - [ ] `TSK-008`: QRY-018 Offline-Replay integriert über PR 137 mit grünen Head-/Main-Gates; Live zusätzlich `TSK-007` bleibt offen.
-- [ ] `TSK-009`: QRY-019 und DGN-009 integriert über PR 138/141 mit grünen Head-/Main-Gates; CON-010 nach zwei Korrekturwellen mit FAIL angehalten ([Checkpoint](../Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_REVIEW.md)). DGN-008 bleibt PROPOSED; die [private Offline-Metadaten-/Rechtevorbereitung](../Documentation/Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) bestand ohne Inferenz. Nächster Schnitt ist das vollständige DGN-008-Offline-Demopaket. Tenant-/Datenschutz-/Providerfälle bleiben offen.
+- [ ] `TSK-009`: QRY-019 und DGN-009 integriert über PR 138/141 mit grünen Head-/Main-Gates; CON-010 nach zwei Korrekturwellen mit FAIL angehalten ([Checkpoint](../Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_REVIEW.md)). DGN-008-Offline-Demopaket IMPLEMENTED mit lokalem 17.x-Nachweis ohne Inferenz; aktuelles Versions-/Review-/Integrationsgate im [Nachweis](../Documentation/Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md). Tenant-/Datenschutz-/Providerfälle bleiben offen.
 - [ ] `TSK-010`: Benchmarks/Diagnose; nach `TSK-006` und `TSK-009`, Inferenz zusätzlich `TSK-007`.
 - [ ] `TSK-011`: SQL-Assistenz/Gegenmessung; nach `TSK-005` und `TSK-009`.
 - [ ] `TSK-012`: Curriculum/Masterdeck/Notes/Lehrmaterial; nach `TSK-008`–`TSK-011` und Demoabnahmen.

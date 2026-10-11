@@ -1,4 +1,4 @@
-# Each matrix job executes the deterministic QRY-014 through QRY-019 and DGN-009 result contract twice.
+# Each matrix job executes the deterministic QRY-014 through QRY-019 and DGN-008/009 result contract twice.
 name: SQL Server 2025 AI local runtime
 
 on:
@@ -55,7 +55,7 @@ jobs:
           --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
 
   static:
-    name: Static QRY-014 through QRY-019 and DGN-009 contracts
+    name: Static QRY-014 through QRY-019 and DGN-008/009 contracts
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Validate QRY-014 through QRY-019 and DGN-009 contracts
+      - name: Validate QRY-014 through QRY-019 and DGN-008/009 contracts
         run: python Tests/Static/validate_framework_contracts.py
       - name: Validate compatibility and cleanup ordering
         run: python Tests/Static/test_sql2025_ai_local.py

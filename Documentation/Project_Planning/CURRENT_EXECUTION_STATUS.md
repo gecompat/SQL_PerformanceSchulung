@@ -121,8 +121,16 @@ CREATE EXTERNAL MODEL ohne Inferenz, positiver parametrisierter SELECT und drei
 Rechteverweigerungen 262/229/229 bestanden samt DB-/Container-/Netzabbau. Der erste
 Readiness-Timeout und eine kohärente Korrekturwelle bleiben im
 [Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) sichtbar. Ein enger Quellenreview
-fand keine konkreten Befunde. DGN-008 bleibt PROPOSED; als nächster Schnitt folgt sein
-vollständiges Offline-Demopaket, Modell-EXECUTE bislang ausschließlich Metadatenrecht.
+fand keine konkreten Befunde. Der folgende vollständige DGN-008-Offline-Slice ist
+IMPLEMENTED auf `codex/sql2025-ai-model-rights`, Basis
+`eb203ed7f06abd3e52be2084fbc02e562eb3ecac`: getrennte Setup-/Ingestion-/Retrievalrollen,
+tatsächliches Setup-CREATE, erlaubte Readerrow/Ingestion-Writes, fünf tatsächliche
+Rechteverweigerungen nach Grantreduktion und volle Modell-/Rechte-/Endpointbindung.
+Nach einer dokumentierten Korrekturwelle bestanden lokal zwei 17.x-Lifecycles mit
+je neun Assertions, 80 Markergegenproben und zehn Resultnegative sowie eigener
+DB-/Container-/Netzabbau. Versions-, Review- und Integrationsgate werden im
+[Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) ergänzt; Modell-EXECUTE bleibt
+ausschließlich Metadatenrecht, Inferenz und echte Credential-/Egressabnahme offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
