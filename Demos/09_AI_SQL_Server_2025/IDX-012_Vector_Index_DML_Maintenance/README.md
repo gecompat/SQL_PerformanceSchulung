@@ -250,3 +250,19 @@ Temporäre Eingabedateien sind entfernt. Session CPU DML 1676/1650 ms,
 Rebuild 1142/1083 ms; alle Werte umfassen ganze Phasen samt Kontrollen.
 Der Kostennachweis erhält die einzelnen Dateidifferenzen und Grenzen;
 eine Manifest-/Demo-/TP-PERF-Freigabe ist damit nicht verbunden.
+
+
+## Begrenzter Containerabbruch nach fertigem Index
+
+Der [eigene Containerabbruch](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_HARD_ABORT_REVIEW.md)
+bestand zweimal auf identischem 17.0.5005.3-Quellstand: tatsächlicher SIGKILL
+erst nach qualifiziertem Index-/Source-/Snapshotcheckpoint und beendetem
+Arbeitsclient, tatsächlicher Exit 137 ohne OOM, neuer Start desselben gebundenen
+CID und neue Readiness. Neue read-only Clients bestätigten den vollständigen
+identischen Snapshot samt persistierter Originalbaseline und alle 999
+Vektortexte/Distanzen/Indexmetadaten. Tatsächliche Originalrestores 0/0,
+markergebundener Drop und neue DB-/CID-/Namensabwesenheit bestanden innerhalb
+derselben 60-s-Deadline ab vor Kill. Öffentliche kontrollierte FAILs bleiben
+FAIL; der Parent attestiert nur diesen eigenen Containerabbruch mit Recovery.
+Abbruch während aktiver Build-/DML-/Rebuildphase und vollständige
+Hard-Abort-/Runtime-/TP-PERF-Abnahme bleiben offen.

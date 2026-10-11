@@ -2237,3 +2237,49 @@ weitere identische grüne Admission. [Teilnachweis](SQL_SERVER_2025_AI_IDX012_RO
 TP-PERF-Abnahme bleiben offen. Nächster Schritt: reguläre PR-Integration
 gegen aktuelle Basis, alle Head-/Main-Gates, Tree-/Sync-/eigener Branchcleanup;
 danach unmittelbar nächster zulässiger lokaler Schnitt. Workstream aktiv.
+
+PR 181 vollständig geschlossen: Head fa74265781803fd41a8310d41b5e7f38f8cbfe59
+gegen Basis 6a8c6ca3835f1f88ae63d6588685f19a675dcb7c, alle 13 Head-Checks SUCCESS;
+Squash 7acf4c27868285ad08872f3e954c19347f0f7c6d, vollständiger Tree
+b0f0144b8fd8e98dd90cd0d2ed9a0e4ea43e9f9d exakt identisch. Alle sieben Main-
+Workflows SUCCESS: 38184152108/38184152119/38184152145/38184152159/38184152171/
+38184152093/38184152149. main/origin/main per FF sauber synchronisiert;
+eigener Rollenbranch lokal/remote entfernt, keine eigenen Container verblieben.
+
+Unmittelbar folgt der [begrenzte eigene Containerabbruch](SQL_SERVER_2025_AI_IDX012_HARD_ABORT_REVIEW.md)
+auf codex/sql2025-ai-idx012-hard-abort, Basis 7acf4c27868285ad08872f3e954c19347f0f7c6d.
+Nur idle Container-SIGKILL nach qualifiziertem fertiggestelltem Index-/Source-/
+Snapshotcheckpoint und beendetem Client; gleicher vollständig gebundener CID
+und tatsächlicher neuer Wiederanlauf, danach neue read-only Snapshot-/Source-
+Kontrollen und unveränderte Originalrestores/markergebundener Cleanup.
+Sechs Kandidaten/zwölf serielle eigene Container, zwei stabile Lifecycles,
+gesamter Cleanup 60 s bereits vor Kill ohne Reset; öffentlicher SQL-Recovery-
+Vertrag 20 s bleibt erhalten. Keine aktive DDL-/vollständige Hard-Abortabnahme.
+Noch keine Admission; enge Quellenclosure für Signal-/Restart-/Deadline-/
+ClientEndUnknown-Grenze vor Runtime erforderlich. Workstream/Heartbeat aktiv.
+
+Vor Admission enge unabhängige Quellenclosure erteilt ohne weitere P1/P2.
+Collector-/Pollausnahmen mit unbestätigtem Ende verwenden ClientEndUnknown;
+Review-P2 vor Runtime geschlossen, neun betroffene rein synthetische
+Gegenproben PASS (fünf Restart-, vier tatsächliche ClientEnd-/Recoveryfälle).
+Parent 2A7DF31DB4C573248B3B51C5E5D56762FDD0A13E1CAB56F49D1C86BED4503454,
+Restarthelper 27858DFD1D2050E3E4A1DD8E4D27765E29B9C84EE7DF7316E69734C144C52D9B;
+öffentlicher Controller DFBC unverändert. Kein SQL/Container durch Reviewer.
+
+
+IDX-012 eigener idle Container-SIGKILL tatsächlich zweimal auf stabilen C1-
+Quellen bestanden: F92CEAC8A7614EAB/3EF8E51FAD3B4BE8. Vor Kill jeweils
+qualifizierter Index-/vollständiger 999-Row-Source-/Snapshotcheckpoint und
+bestätigt beendeter Arbeitsclient. Tatsächlicher Exit 137 ohne OOM, neuer
+Start desselben gebundenen CID/neue Readiness, neue vollständig identische
+Snapshot-/Source-/Indexrecords samt Originalbaseline 0/0 und aktuellem 1/1.
+Öffentlich je kontrolliertes FAIL_EXECUTION; tatsächliche Originalrestores/
+Attestation 0/0, neuer DB-Abwesenheitsclient und eigene volle CID-/
+Namensabwesenheit bestanden. Gesamtes Cleanup ab vor Kill einschließlich
+Restart/read-only/SQL-Restore/Containerabbau 19.4342235/19.3921410 s,
+keine Deadline zurückgesetzt; beide eigenen Container entfernt.
+[Begrenzter Teilnachweis](SQL_SERVER_2025_AI_IDX012_HARD_ABORT_REVIEW.md#tatsächliche-zwei-stabile-containerabbruch-lifecycles).
+Aktive Build-/DML-/Rebuild-Unterbrechung und vollständige Hard-Abort-/Runtime-/
+TP-PERF-Abnahme bleiben offen. Nächster Schritt: aktuelle Head-/Main-Gates,
+PR-Integration/Tree-/FF-Sync-/eigener Branchcleanup, danach nächster
+zulässiger lokaler Schnitt. Workstream und Heartbeat aktiv.
