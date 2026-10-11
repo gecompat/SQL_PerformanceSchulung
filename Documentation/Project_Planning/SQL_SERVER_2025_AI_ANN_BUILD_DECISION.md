@@ -1,9 +1,16 @@
 # TSK-006 – begrenzter ANN-Build-/Suchentscheid mit DB-scoped-MAXDOP
 
-Stand: 2026-10-11. PENDING_USER_DECISION. Die
+Stand: 2026-10-11. AUTHORIZED_BOUNDED_IMPLEMENTATION. Der Benutzer bestätigte
+ausdrücklich „Ja, ANN-Build-/Suchpaket freigeben (empfohlen)“. Die
 [bestandene Parserdiagnose](SQL_SERVER_2025_AI_ANN_PARSER_PASS_REVIEW.md) autorisiert
 keinen Indexbuild/Search. Die historischen Korrekturbudgets bleiben verbraucht;
-keine neue ausführbare Quelle oder SQL-/Containerruntime durch diesen Entwurf.
+der unten begrenzte neue Umfang ist freigegeben. Der tatsächliche Quellenreview
+bleibt vor SQL erforderlich.
+
+Beide ausdrücklich freigegebenen Kandidaten sind inzwischen ausgeführt:
+[FAIL-Checkpoint](SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md), zwei eigene Container,
+beide tatsächlichen Restores und separate SQL-/Containerabwesenheit bestanden.
+Das Kandidatenbudget ist verbraucht; keine Wiederaufnahme aus freien Containerplätzen.
 
 Der enge unabhängige Befund-/Effekt-/Budgetreview fand keine konkreten P1/P2.
 Dies schließt allein das Entwurfsgate; der tatsächliche neue Baseline-/Restore-/
