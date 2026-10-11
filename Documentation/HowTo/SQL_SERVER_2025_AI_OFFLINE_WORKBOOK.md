@@ -14,7 +14,7 @@ Vorwissen: SELECT, ORDER BY, Parameter, Datenbankrechte und der Unterschied zwis
 Engineversion und Compatibility Level. Alle acht Demoprofile verwenden SQL Server
 2025, CL170 und eine eigene synthetische Testdatenbank. Die bisherige Runtimequalifikation
 betrifft Enterprise Developer auf Linux/Docker; die zusätzliche Podmanprobe deckt
-nur QRY-014 ab. Windows und andere Editionen sind damit nicht qualifiziert.
+QRY-014 bis QRY-016 ab. Windows und andere Editionen sind damit nicht qualifiziert.
 2019/2022 prüfen die vorgesehene SKIP_VERSION-Grenze vor Setup. Bei QRY-019 ist dies
 eine Workstreamgrenze, keine Aussage über das Alter der Parameterbindung.
 

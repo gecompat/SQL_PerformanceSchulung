@@ -2,7 +2,7 @@
 
 Stand: 2026-10-11. Runtimequellen `5d71cda59849c357aafc5036c29529f7bf081d30`,
 nach Squash `2f1dfec5d76cad63232f0a9eb968f880324ed5cf` identischer vollständiger Tree.
-Qualifiziert ist ausschließlich QRY-014 auf Podman und dessen 15.x/16.x-Versionsgrenze;
+Die Erstqualifikation betrifft QRY-014 auf Podman und dessen 15.x/16.x-Versionsgrenze;
 kein vollständiger Podman-, Live-Modell- oder 360-Lauf-Matrixnachweis.
 
 ## Tatsächlicher Ausführungspfad
@@ -77,3 +77,44 @@ Vollständiger Tree `34b170cbf4cc4e2b20882459c261d1eb7a1cd3f7`, main-Synchronisi
 und eigener lokaler/remote Branchabbau wurden geprüft. Keine SQL-Runtimequelle
 wurde im Checkpoint geändert oder unverändert erneut ausgeführt.
 Unmittelbar folgte die [private DGN-010-Ergebnis-/Storagevorbereitung](SQL_SERVER_2025_AI_INDEX_HYPOTHESIS_REVIEW.md).
+
+## Erweiterung auf QRY-015 und QRY-016
+
+Am 2026-10-11 wurden die unveränderten Runtimequellen auf Basis
+`86b08af7b355addae497b94f9f06e536414b6dd2` zusätzlich qualifiziert. Der private
+Providerhelper übernimmt den oben geprüften Pfad unverändert und ergänzt nur eine
+vor Create geprüfte Auswahl aus QRY-015/QRY-016. Prozess-/Readiness-/Cleanupgrenzen,
+Env-only-Secrets und der öffentliche FWK-Hosttarget bleiben erhalten. Keine neue
+SQL-Implementierung, Previewaktivierung, Lab-Schnittstelle oder Hostkonfiguration.
+
+Es wurden sechs neue eigene Container seriell erzeugt und vollständig bereinigt;
+die drei vorhandenen Images und ihre vollständigen lokalen IDs entsprechen der
+obigen Tabelle. Tatsächliche Builds/Editionen/OS entsprechen ebenfalls dieser
+Tabelle. Es gab keinen Runtime-Fehlversuch und keine Korrekturwelle.
+
+| Demo | 17.0.5005.3 / Enterprise Developer / Linux | 15.0.4490.9 und 16.0.4295.3 / Developer / Linux |
+|---|---|---|
+| QRY-015 | zwei Lifecycles PASS, je drei Ergebnisassertionen; Setup-Idempotenz und 48 volle Markergegenproben PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+| QRY-016 | zwei Lifecycles PASS, je drei Ergebnisassertionen; Setup-Idempotenz und 80 volle Markergegenproben PASS | je zwei SKIP_VERSION vor SETUP, keine fachliche Assertion |
+
+QRY-015 wies zusätzlich leere Vektorfixtures in Baseline und Demonstration mit dem
+erwarteten Ergebnisvertragsfehler ab. QRY-016 wies manipulierten Chunktext und
+fehlende Chunks in Comparison mit diesem Fehler ab. Die Markerfälle umfassen jeden
+der vier vollständigen Marker als fehlend, falsch, mit nachgestelltem Leerzeichen
+und mit langem Suffix; Fehlerrückgabe und unveränderte Fixture-/Konfigurationswerte
+werden je geprüfter Phase kontrolliert. Alle zwölf Lifecycles und die beiden
+Negativkontroll-Fixtures haben unabhängige DB-Abwesenheitsbelege. Alle sechs exakten
+eigenen Container wurden nach Ownerprüfung entfernt und separat als abwesend geprüft.
+
+Ein Owner führt diesen begrenzten Schnitt. Die neue Auswahl benötigt kein zusätzliches
+unabhängiges Sicherheitsreview: Sie verändert keine der bereits unabhängig geprüften
+Provider-/Secret-/Prozess-/Cleanupgrenzen. Dies ist kein Review neuer SQL-Quellen oder
+Nachweis von Prozesshängen. Der frühere Quellenreview und dessen vier private
+Timeoutfixtures bleiben auf ihren damaligen Input gebunden und werden hier nicht als
+neu ausgeführte Prüfung ausgegeben. Die alten QRY-014-Läufe wurden nicht wiederholt.
+Modell-/Tokenverbrauch bleibt unbekannt.
+
+Der zusätzliche Nachweis erweitert ausschließlich den Providerumfang auf QRY-014
+bis QRY-016. QRY-017–QRY-019 und DGN-008/009 bleiben auf Podman unqualifiziert;
+Windows, andere Editionen, niedrigere CLs, ANN und reale Modellintegration bleiben
+offen. Vollständige TSK-004-/TSK-013-Abnahme ist damit nicht gegeben.
