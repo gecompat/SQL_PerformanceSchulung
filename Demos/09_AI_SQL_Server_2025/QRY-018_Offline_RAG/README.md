@@ -1,6 +1,7 @@
 # QRY-018 – Offline-RAG mit überprüfbarer Retrieval-Evidenz
 
-Status: IMPLEMENTED; aktueller Review-/Runtime-/Integrationsgate offen.
+Status: IMPLEMENTED; lokaler Schnitt samt aktuellem PR-/Main-Gate integriert über
+[PR 137](https://github.com/gecompat/SQL_PerformanceSchulung/pull/137).
 Zuordnung: CUR-017/CUR-022, TSK-008, TP-RUN. Die Demo ist ein deterministischer
 Offline-Replay; sie führt weder Embedding- noch generative Modellaufrufe aus.
 

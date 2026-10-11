@@ -380,6 +380,20 @@
       "instanceRequirement": "SHARED_TEST_INSTANCE",
       "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
       "escalation": null
+    },
+    {
+      "demoId": "QRY-019",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Feste SQL-Struktur und Parameterbindung",
+      "path": "Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
     }
   ]
 }

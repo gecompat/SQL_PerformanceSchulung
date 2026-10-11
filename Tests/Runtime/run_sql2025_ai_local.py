@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prueft QRY-014 bis QRY-018 zweimal mit FWK-010 und FWK-011."""
+"""Prueft QRY-014 bis QRY-019 zweimal mit FWK-010 und FWK-011."""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +21,7 @@ DEMOS = {
     "QRY-016": "QRY-016_Chunk_Provenance",
     "QRY-017": "QRY-017_Search_Comparison",
     "QRY-018": "QRY-018_Offline_RAG",
+    "QRY-019": "QRY-019_SQL_Input_Policy",
 }
 SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)$", re.MULTILINE)
 RECORD = re.compile(r"^AI_ASSERT\|(baseline|comparison)\|([a-z][a-z0-9_]*)\|([^|]+)$")
@@ -131,7 +132,8 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
         return targets.run_sql(target, database=database, sql_text=text, timeout_seconds=60)
 
     def state() -> str:
-        return targets.run_sql(target, database="master", sql_text=f"SET NOCOUNT ON; SELECT compatibility_level,recovery_model_desc FROM sys.databases WHERE name=N'{name}'; SELECT COUNT(*) FROM [{name}].lab.VectorFixture; SELECT file_id,size,max_size,growth FROM sys.master_files WHERE database_id=DB_ID(N'{name}') ORDER BY file_id;", timeout_seconds=30)
+        fixture = "Inventory" if demo_id == "QRY-019" else "VectorFixture"
+        return targets.run_sql(target, database="master", sql_text=f"SET NOCOUNT ON; SELECT compatibility_level,recovery_model_desc FROM sys.databases WHERE name=N'{name}'; SELECT COUNT(*) FROM [{name}].lab.{fixture}; SELECT file_id,size,max_size,growth FROM sys.master_files WHERE database_id=DB_ID(N'{name}') ORDER BY file_id;", timeout_seconds=30)
 
     assert_absent(target, demo_id)
     try:
@@ -141,7 +143,7 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
         if state() != before:
             raise AiFailure("idempotentes Setup hat Fixture oder Konfiguration veraendert")
         negatives = ("00_Preflight.sql", "10_Setup.sql", "90_Cleanup.sql")
-        if demo_id in ("QRY-016", "QRY-018"):
+        if demo_id in ("QRY-016", "QRY-018", "QRY-019"):
             negatives += ("20_Baseline.sql", "30_Demonstration.sql")
         for marker, value in markers.items():
             for invalid in (None, "FOREIGN", value + " ", value + "X" * 256):
@@ -189,7 +191,23 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
             else:
                 raise AiFailure("fehlende/falsche fachliche Daten wurden akzeptiert")
 
-        if demo_id == "QRY-018":
+        if demo_id == "QRY-019":
+            mutations = (
+                "DELETE FROM lab.Candidates;",
+                "DELETE FROM lab.Inventory;",
+                "UPDATE lab.Inventory SET Colour=N'wrong' WHERE ModuleCode=N'MOD-A';",
+                "UPDATE lab.Candidates SET StatementText=StatementText+N' ' WHERE Id=1;",
+                "UPDATE lab.Candidates SET ValueText=REPLICATE(N'X',201) WHERE Id=1;",
+                "UPDATE lab.Candidates SET ValueText=N'MOD-B' WHERE Id=2;",
+                "GRANT UPDATE ON OBJECT::lab.Inventory TO [QRY019_reader];",
+                "UPDATE lab.Candidates SET StatementText=NULL WHERE Id BETWEEN 3 AND 8;",
+            )
+            for mutation in mutations:
+                phase("10_Setup.sql")
+                mutate(mutation)
+                rejected("60_Comparison.sql")
+            print(f"AI_LOCAL|{demo_id}|RESULT_NEGATIVE_{len(mutations)}|PASS")
+        elif demo_id == "QRY-018":
             # Jede Mutation hat eine neue volle Fixture; keine stillen Sollwertkorrekturen.
             mutations = (
                 "UPDATE lab.Replay SET ClaimDays=99 WHERE ReplayId=1;",

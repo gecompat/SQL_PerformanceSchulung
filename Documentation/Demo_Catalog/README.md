@@ -7,8 +7,8 @@ Für die Ausführung beginnen Sie im [zentralen Ausführungsleitfaden](../HowTo/
 ## Status und Nachweis richtig lesen
 
 Der [KI-Demoentwurf](SQL_SERVER_2025_AI_DEMO_DESIGNS.md) führt 18 zukünftige Demos zu
-`DEC-073`/`TSK-003`. Die 13 noch nicht implementierten Entwürfe sind PROPOSED ohne
-Manifestpfad, Runtimebeleg oder Schulungsfreigabe; fünf lokale Demopakete stehen unten.
+`DEC-073`/`TSK-003`. Die 12 noch nicht implementierten Entwürfe sind PROPOSED ohne
+Manifestpfad, Runtimebeleg oder Schulungsfreigabe; sechs lokale Demopakete stehen unten.
 Die folgenden vorhandenen Nachweise bleiben getrennt.
 
 `VALIDATED` ist der Projektstatus einer abgegrenzten Abnahme. `PASS`, `WARN`, `SKIP` und `FAIL` sind Ergebnisse einzelner Ausführungen gemäß [FWK-012](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md). Diese Ebenen werden nicht gleichgesetzt:
@@ -152,7 +152,7 @@ Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträg
 
 ## Lokale KI-Demos – Implementierung vom 2026-10-11
 
-Die fünf Demos laufen ohne Modell oder Endpoint. `IMPLEMENTED` bezeichnet den aktuellen
+Die sechs Demos laufen ohne Modell oder Endpoint. `IMPLEMENTED` bezeichnet den aktuellen
 Codebestand; lokale Runtime-Evidenz und aktuelle Actions-Gates stehen im
 [Implementierungsnachweis](../Project_Planning/SQL_SERVER_2025_AI_LOCAL_IMPLEMENTATION_REVIEW.md).
 Der neue QRY-018-Schnitt wird im [Offline-RAG-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md) getrennt geführt.
@@ -165,3 +165,4 @@ Windows- und Podman-Runtime sowie ein installierter Full-Text-Pfad bleiben geson
 | [`QRY-016`](../../Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance/README.md) | Chunking und Provenienz | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
 | [`QRY-017`](../../Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/README.md) | Suchwege vergleichen | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
 | [`QRY-018`](../../Demos/09_AI_SQL_Server_2025/QRY-018_Offline_RAG/README.md) | Offline-RAG und Quellenbewertung | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
+| [`QRY-019`](../../Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/README.md) | Feste SQL-Struktur und Parameterbindung | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |

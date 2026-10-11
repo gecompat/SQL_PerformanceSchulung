@@ -1,0 +1,52 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-019",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "baseline_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "baseline_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "allowed_inputs",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "allowed_inputs",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "denied_inputs",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "denied_inputs",
+      "expected": 6,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "bound_values",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "bound_values",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "permission_denials",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "permission_denials",
+      "expected": 3,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}

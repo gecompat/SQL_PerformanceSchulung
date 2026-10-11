@@ -2,7 +2,7 @@
 
 Stand: 2026-10-11. TSK-008, CUR-017/CUR-022, TP-RUN.
 Basis: `0b6743f14f855103dfa63b0b67ffc75426f1ad1f`;
-Branch: `codex/sql2025-ai-offline-rag`. Status IMPLEMENTED, aktuelle Gates offen.
+Branch: `codex/sql2025-ai-offline-rag`. Status IMPLEMENTED; lokaler Schnitt integriert.
 
 ## Umfang und Ergebnisvertrag
 
@@ -70,4 +70,15 @@ python Tests/Runtime/run_sql2025_ai_local.py --target docker --container '<eigen
 SQLCMDPASSWORD ist die einzige Passwortquelle. Source IDs, SourceVersion und Quellenbereiche
 sind ausschließlich synthetisch; Prompts, Hostinventar und Modellantworten werden nicht persistiert.
 Produkt-/Architekturquellen: SRC-073, SRC-079 und SRC-095; am 2026-10-11 erneut geprüft.
-Aktuelle PR-/Main-Evidenz und vollständige Integration bleiben vor Abschluss erforderlich.
+Alle 49 PR-Prüfungen am aktuellen Head `68722d846fef72541b71a079d7e78868dc46c17b`
+bestanden, einschließlich der [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38132309335)
+und der [bestehenden Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38132309391).
+Der gezielte unabhängige Abschluss bestätigte die geschlossene Docker-Secret-Grenze;
+keine weitere SQL-/Oraclekorrektur. [PR 137](https://github.com/gecompat/SQL_PerformanceSchulung/pull/137)
+ist in `4de76ffc9eeb23882e5b6f4c02be3b32576b8f75` integriert. Vollständige Tree-Identität
+wurde geprüft, main synchronisiert und der eigene Branch lokal/remote entfernt.
+Alle elf Main-Workflows dieses Integrationscommits bestanden, darunter die
+[KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38132720697)
+und die [Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38132720657).
+Der reguläre Abschluss setzte unmittelbar QRY-019 als nächsten zulässigen unabhängigen
+Schnitt fort. Live-RAG und die übrigen genannten Plattformgrenzen bleiben offen.

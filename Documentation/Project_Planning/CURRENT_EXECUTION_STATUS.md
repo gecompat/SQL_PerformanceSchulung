@@ -74,14 +74,29 @@ keine Änderung des anderen Repositorys. Nächster unabhängiger zulässiger Sch
 Offline-RAG QRY-018 aus TSK-008; die lokale Modellintegration aus TSK-007 bleibt
 bis zu einem öffentlich nutzbaren passwortfreien Frameworkpfad angehalten.
 
-Der nächste autonome Schnitt implementiert QRY-018 als modellfreien Offline-RAG-Replay,
+Der zweite autonome Schnitt implementiert QRY-018 als modellfreien Offline-RAG-Replay,
 Branch `codex/sql2025-ai-offline-rag`, Basis `0b6743f14f855103dfa63b0b67ffc75426f1ad1f`.
 Zwei lokale 17.x-Lifecycles, 80 Markergegenproben, sieben fachliche Gegenproben,
 Setup-Idempotenz und unabhängiger DB-/Containercleanup bestanden. Der unabhängige
 Quellenreview fand im beauftragten Risikoscope keine offenen Befunde; keine zusätzliche
-Runtimeattestation. Aktuelle Versions-/CI-/Integrationsgates stehen im
+Runtimeattestation. Alle 49 aktuellen Headprüfungen bestanden; PR 137 ist in
+`4de76ffc9eeb23882e5b6f4c02be3b32576b8f75` integriert. Tree-Identität, Synchronisierung,
+lokaler/remote Branchabbau und alle elf Main-Workflows sind belegt im
 [Offline-RAG-Nachweis](SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md). TSK-008 ist begonnen,
 aber der Gesamtworkstream und der Livepfad bleiben offen.
+
+Unmittelbar folgt QRY-019 aus TSK-009 auf `codex/sql2025-ai-sql-input-policy`, Basis
+`4de76ffc9eeb23882e5b6f4c02be3b32576b8f75`. Der kontrollierte synthetische Harness
+prüft eine feste vollständige SQL-Struktur, zwei tatsächlich gebundene Werte unter
+QRY019_reader WITHOUT LOGIN und drei feste Rechteverweigerungen mit Bestandsnachkontrolle.
+2019/2022 bestanden je zwei SKIP_VERSION-Lifecycles vor Setup und eigenen Cleanup.
+Die erste lokale 17.x-Qualifikation bestand zwei Lifecycles, fünf Ergebnisassertions,
+80 Markergegenproben und sieben fachliche Gegenproben. Eine konkrete P2-Orakellücke
+des unabhängigen Reviews führte zur vollständigen bytegenauen Bindung aller acht
+Fixtureinhalte und einer achten Gegenprobe. Aktuelle lokale Runtime mit allen acht
+Gegenproben und gezielter unabhängiger Findingabschluss bestanden. PR-/Main-Integration
+steht im [QRY-019-Nachweis](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md).
+TSK-009 bleibt offen für Tenant-, Datenschutz- und weitere Providerfälle.
 
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 
