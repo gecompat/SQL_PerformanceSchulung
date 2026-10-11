@@ -205,6 +205,10 @@ alle Module erhalten später Trainerlösung, Teilnehmerauftrag und die hier besc
   Vorwissen: `CUR-014`/`CUR-017`, M04 empfohlen. Theorie: Graphsuche, Kandidaten und Trade-offs;
   Paper beschreibt Algorithmus, nicht verbindliche SQL-Internals.
 - Praxis: `IDX-011`/`IDX-012`. Beobachtung: Altformat kann Postfilter-/DML-/Stale-Grenzen besitzen.
+  [DEC-074](SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md) erlaubt ausschließlich für
+  den empirisch gebundenen Build 17.0.5005.3 ein Legacy-TOP_N-Profil mit numerischer
+  Generation UNKNOWN/WARN. Alle Qualitäts-/Plan-/Mess-/DML-/Recoverygates bleiben;
+  keine Annahme einer numerischen Generation oder neuer Azure-Funktionalität.
 - Frage: Ist niedrige Laufzeit ausreichend? Fehlinterpretation: TOP-k ist garantiert das exakte Top-k.
   Musterlösung: gleiche Candidate-/Metric-/Tie-Regel, Recall@k, Index-/Planbeleg, Update- und Buildkosten.
 - Quellen: `SRC-073`, `SRC-077`, `SRC-078`, `SRC-094`, `SRC-097`.
@@ -294,8 +298,10 @@ direkt vergleichbar. Der Basispfad nutzt 1000 deterministische Vektoren; Skalenl
 10000/100000 Vektoren nur bei freigegebenem Ressourcenprofil.
 
 Vor dem Lauf einfrieren: Seed/Korpusversion, Modell/Digest, Dimension/Typ, Metric, k=5/10,
-Filterselektivität, Tenant, Indexgeneration, SQLbuild/CL/Edition/OS, Treiber, DOP, Cache-/Warm-up-
-Methode, Concurrency 1/2/4/8 und Grenzen. Kein globales Cacheleeren. Fünf Warm-up-Requests
+Filterselektivität, Tenant, Indexgeneration, SQLbuild/CL/Edition/OS, Treiber, DOP,
+Cache-/Warm-up-Methode, Concurrency 1/2/4/8 und Grenzen. Im engen DEC-074-Pfad
+Generation UNKNOWN/WARN und vollständiges empirisches Build-/Index-/Syntaxprofil
+erfassen; keine numerische Generation ergänzen. Kein globales Cacheleeren. Fünf Warm-up-Requests
 werden separat protokolliert, danach drei Reihenfolgeblöcke A/B und B/A sowie AA-Kontrolle.
 Indexbuild und Ingestion gehören in eigene Messfenster. Umfang bleibt innerhalb §7/Demolimits.
 

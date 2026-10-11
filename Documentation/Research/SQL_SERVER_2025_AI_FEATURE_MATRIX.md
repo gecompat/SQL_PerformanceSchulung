@@ -124,6 +124,10 @@ bestand im zweiten Kandidaten zweimal: tatsächlicher SQL-Fehler 42231/State 1,
 Transaktionssnapshot 0/0, vollständige Source-/Indexmetadaten unverändert. Erster
 Kandidat FAIL an widersprüchlicher JSON-Transaktionsevidenz erhalten. Staleoption
 ABSENT, Freshness NOT_TESTED, keine allgemeine DML-/Generations-/Demoabnahme.
+Der fachlich unabhängig geprüfte [DEC-074-Profilpfad](../Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md)
+erlaubt ausschließlich für den empirisch gebundenen 17.0.5005.3-Build funktionale
+Qualifikation mit Generation UNKNOWN/WARN. Alle übrigen Demo-/TP-PERF-/Recovery-
+Gates bleiben Pflicht; keine vollständige Demoabnahme aus den privaten Diagnosen.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die

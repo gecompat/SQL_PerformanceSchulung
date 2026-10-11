@@ -650,7 +650,13 @@ Containerabwesenheit bestanden; Cleanup 12,391/12,323 Sekunden, Prozesscode 0.
 Zwei Kandidaten/drei Container, Scope abgeschlossen; früherer FAIL bleibt erhalten.
 Der [DML-Diagnosenachweis](SQL_SERVER_2025_AI_ANN_DML_REVIEW.md) begrenzt diesen
 konkreten UPDATE-Befund: Freshness NOT_TESTED, allgemeine DML-Unterstützung UNPROVEN,
-Generation UNKNOWN. Aktuelle Integration folgt.
+Generation UNKNOWN. PR 167 ist mit sieben erfolgreichen Headprüfungen auf
+`1f0a81c8787ca666858236ee3e74f1ba51287096` gegen Basis
+`b7fd69ce49e50a4f489b38640464e520f0329087` integriert. Alle fünf ausgewählten
+Main-Workflows auf `3fea838a999c4576cc53a706567624aa280f0c3b` bestanden;
+Tree-Identität `3118c61658aa883d48e11f437b29f39c6ae53370`, main synchronisiert,
+eigener Branch lokal/remote entfernt. Methodenbranch `codex/sql2025-ai-ann-profile`
+beginnt unmittelbar an dieser Basis.
 
 Unmittelbarer nächster zulässiger Schritt nach Integration ist die enge fachliche
 Methodenentscheidung für das beobachtete fehlende numerische Versionsfeld:
@@ -664,6 +670,34 @@ Review, höchstens eine kohärente Korrektur; keine neue SQL-/Provider-/Hostwirk
 Bei fachlicher Annahme eigene stabile Entscheidung via zentraler Registry und
 scopebezogene Aktualisierung der beiden Demoentwürfe; keine globale Framework-
 Lockerung. Die Nutzerfreigabe umfasst notwendige weitere lokale Schritte dieser Welle.
+Der konkrete [Profilentwurf](SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md) behält
+Generation UNKNOWN/WARN und alle anderen Abnahmegates, keine neue Runtime.
+DEC-074 ist vom zentralen Semantiktool bei leerer PR-Reservierungslage abgeleitet;
+vor Integration noch nicht final registriert. Der erforderliche enge fachliche
+Review schloss vor Registrierung ohne offene P1/P2: funktionale Qualifikation
+benötigt keine erfundene numerische Generation, alle anderen Gates bleiben Pflicht.
+Die Registry enthält den neuen vollständigen UUID-Datensatz; 265 Artefakte bestanden
+zentrale Semantik-/projektbezogene Kennungsvalidierung. DECISIONS, beide Demoentwürfe
+und der Workstreamplan wenden ausschließlich den begrenzten DEC-074-Pfad an.
+Keine neue Runtime und keine unveränderten Diagnosewiederholungen. Aktuelle Integration folgt.
+
+Unmittelbarer nächster Implementierungsschnitt nach Profilintegration ist die
+öffentliche IDX-011-Demo mit dokumentiertem DEC-074-Profil, vollständigem Ergebnis-/
+Qualitäts-/Filter-/Plan-/Benchmark-/Versions-/Recoveryvertrag. Höchstens zwei
+kohärente Kandidaten und 16 eigene serielle Testcontainer insgesamt: je positivem
+stabilem Kandidaten zweimal 2025-Happy-Path, je zweimal 2019/2022-SKIP_VERSION vor
+Setup und zwei eigene 2025-Abbruch-/Recoveryproben nach Setup bzw. nach Indexbau.
+Nur nachweislich verfügbare eigene lokale Images, keine Downloads/Hoständerungen.
+Unveränderte 1000-Row-VECTOR(3)/K=5-/4CPU-/6GiB-/DB-Preview-/MAXDOP-/300-Sekunden-/
+60-Sekunden-Cleanupgrenzen; Marker, tatsächliche duale Baselines/Restores und
+separate DB-/Containerabwesenheit bleiben Pflicht. Benchmark vor SQL konkret
+einfrieren: je Pfad fünf ausgeschlossene Warm-up-Requests und drei Reihenfolgeblöcke
+AB/BA/AA, identische Ergebnisablage, keine Cacheleerung; fixe Batchgröße im konkreten
+Implementierungsvertrag begrenzen. Active-Request- und Zeit-/Workergrenzen sichtbar,
+keine unbewiesene Speedupratio oder generische Indexnutzung. Betroffene lokale Tests,
+erforderlicher unabhängiger tatsächlicher Quellen-/Methodenreview und aktuelle Head-/
+Main-Gates, Synchronisierung sowie eigener Cleanup schließen den Schnitt vollständig.
+IDX-012-DML/Freshness und Provider-/Cloud-/ONNX-Gates bleiben eigene Schritte.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

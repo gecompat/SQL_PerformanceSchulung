@@ -209,7 +209,9 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 
 - Ziel: `CUR-019`, `TSK-006`; Recall/Laufzeit und Planpfad gemeinsam bewerten.
   Preview klein/Grün; skaliert Last/Gelb; ALTER auf eigener Basistabelle, SELECT für Queryrolle.
-- Preflight/Setup: Preview bereits freigegeben, konkrete Indexgeneration, clustered INT-PK,
+- Preflight/Setup: Preview bereits freigegeben, belegte numerische Indexgeneration oder
+  ausschließlich das [gebundene Profil aus DEC-074](../Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md)
+  für 17.0.5005.3 mit Generation UNKNOWN/WARN; clustered INT-PK,
   passender Vektortyp/Metric und genügend Rows am Build; synthetisch nichtdegenerierte Vektoren.
 - Baseline: exaktes Top-k mit gleicher Kandidatenmenge/Metric/Tieregel.
   Demonstration: Indexbuild und generationspassendes VECTOR_SEARCH, selektive Filter variieren.
@@ -224,7 +226,9 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 
 - Ziel: `CUR-019`/`CUR-020`, `TSK-006`; Kosten/Freshness am tatsächlichen Indexformat trennen.
   Last/Gelb; eigener Index-DDL-/DML-Setupkontext, keine Produktionswartung.
-- Preflight/Setup: gebundener Build und Indexgeneration, Ressourcen/Stop; deterministisches
+- Preflight/Setup: gebundener Build und belegte numerische Indexgeneration oder
+  ausschließlich das [gebundene Profil aus DEC-074](../Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md)
+  für 17.0.5005.3 mit Generation UNKNOWN/WARN; Ressourcen/Stop; deterministisches
   Update-/Delete-/Insert-Korpus. Baseline: geladenes Korpus und Exact-Oracle vor Indexbuild.
 - Demonstration: Build messen; kontrollierte Datenänderung im erlaubten Format, gegebenenfalls
   dokumentierte Read-only-Grenze bzw. ausdrücklich gewählter ALLOW_STALE_VECTOR_INDEX-Labpfad.
