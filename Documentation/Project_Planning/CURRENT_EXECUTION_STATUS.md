@@ -260,8 +260,18 @@ acht/zehn/zehn fachliche Negativfälle bestanden. Eigene DBs und alle neun eigen
 Container sind unabhängig abwesend; keine Korrekturwelle. Der konkrete Podmanpfad
 deckt damit alle acht implementierten Offline-Demos ab, einschließlich des
 sichtbaren QRY-017-Full-Text-WARN. Keine allgemeine Provider- oder Gesamt-TSK-Abnahme.
-Aktuelle ausgewählte Head-/Main-Gates, Synchronisierung und eigener Branchabbau
-bleiben vor regulärem Abschluss erforderlich.
+PR 153 ist mit acht Headprüfungen auf `c76943cc823c66c5370b7de1d682cce39d4d3ddb`
+und sechs Main-Workflows auf `e4482e4d73a860a9b7c2f1b8d7204df749e1d2f5` integriert.
+Tree `1fcbda32716960d9fb2dd797f5c7fdb57ca06158`, Synchronisierung und eigener
+lokaler/remote Branchabbau bestätigt. Unmittelbar folgt auf
+`codex/sql2025-ai-ann-resume-decision` der konkrete
+[ANN-Wiederaufnahmeentwurf](SQL_SERVER_2025_AI_ANN_RESUME_DECISION.md),
+PENDING_USER_DECISION: maximal zwei zusätzliche Korrekturkandidaten, vier neue
+eigene Container, unveränderte Effekte. Der enge unabhängige Review prüfte allein
+dieses neue Paket gegen beide ursprünglichen Autoritäten und fand keine P1/P2.
+Keine neue Runtime, keine dritte ANN-Korrektur; die privaten Quellen sind unverändert.
+Nach Integration dieses Entscheidungspakets bleibt ANN bis zur Benutzerantwort
+angehalten. Cloud-/ONNX-/Secret- und übrige Fehlgates werden dadurch nicht geöffnet.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.

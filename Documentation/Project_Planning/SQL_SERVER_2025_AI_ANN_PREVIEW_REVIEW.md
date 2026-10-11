@@ -76,3 +76,12 @@ sind geprüft. Diese statischen Gates ersetzen keinen fehlgeschlagenen SQL-Nachw
 Der angehaltene Slice wird durch den aktiven Heartbeat nicht automatisch erneut
 gestartet. Unabhängige Lehrmaterialarbeit für bereits qualifizierte Offline-Demos
 bleibt im autorisierten Gesamtumfang möglich; Gesamtworkstream ist nicht abgeschlossen.
+
+Der neue [Wiederaufnahmeentwurf](SQL_SERVER_2025_AI_ANN_RESUME_DECISION.md) liegt
+als PENDING_USER_DECISION vor. Er beschreibt höchstens zwei zusätzliche kohärente
+Korrekturkandidaten und vier neue eigene serielle Container bei unveränderter
+Effektfreigabe. Der enge unabhängige Review ausschließlich dieses Entwurfs fand
+keine konkreten P1/P2; keine Runtime oder Recovery wurde dadurch qualifiziert.
+Die privaten ANN-Quellen bleiben unverändert, bis der zusätzliche Budgetentscheid
+vorliegt. Unabhängige Providerqualifikation und Lehrmaterialarbeit sind inzwischen
+integriert; sie beheben den ANN-FAIL nicht.
