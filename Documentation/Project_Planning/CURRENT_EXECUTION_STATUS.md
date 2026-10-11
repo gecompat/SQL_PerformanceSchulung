@@ -765,7 +765,47 @@ NOT_CAPTURED. Zwölf synthetische Gegenproben und der reine Replay beider
 vollständigen Rohquellen bestanden bei unveränderten bisherigen Planassertions;
 enger unabhängiger Methodenreview ohne offene P1/P2. Kein weiterer SQL- oder
 Containerlauf und keine still erweiterte Runtimequalifikation. Konkrete Werte
-stehen im öffentlichen Runtimebefund; aktuelle Integration dieses Zusatzes folgt.
+stehen im öffentlichen Runtimebefund. PR171-Head
+8991a2134e9d9966d81cdf63932aaa5e1c28fe7b gegen Base
+fa17e414a75a362122a2977b39fb3d3fde577977 bestand zehn gewählte Headchecks.
+Squash 8ce53d59f051ab385935ba9319fa5033f2fcb179 bestand alle vier gewählten
+Main-Workflows; vollständiger Tree 0cd96e297a2f7b68ae8510b9f0a16ba7517bab4c
+identisch. main synchronisiert, eigener Branch lokal/remote entfernt.
+
+Unmittelbar folgt die eigene IDX-012-DML-Grenzenvorstufe auf
+codex/sql2025-ai-dml-boundary, Basis 8ce53d59f051ab385935ba9319fa5033f2fcb179.
+Sie nutzt die weitere ausdrückliche lokale Wellenfreigabe und hält bisherige
+Budget-/FAIL-Historie unverändert. Neuer endlicher Umfang: höchstens zwei kohärente
+Kandidaten/vier eigene serielle 2025-Container, zwei Lifecycles je positivem
+stabilem Kandidaten; ein Owner und ein erforderlicher enger Quellenreview vor SQL.
+17.0.5005.3, float32 VECTOR(3), vier CPUs/sechs GiB, eigene IDX-012-Marker/DB.
+999 Ausgangsrows mit bisheriger Rezeptur; vier feste positive DML-Kontrollen vor
+Indexbau und dieselben vier Operationen danach. UPDATE/DELETE/MERGE betreffen
+Id 23, gültiger INSERT betrifft die fehlende Id 1000; höchstens 1000 Rows auch
+innerhalb der Transaktion. Alle Änderungen werden zurückgerollt, vollständige
+Quellbytes, tatsächlicher Transaktionssnapshot und Indexmetadaten nachkontrolliert.
+Eine neue Verbindung prüft sämtliche 999 tatsächlichen Vektoren/Distanzen und
+vollständige Snapshots. Erwartete feste Indexverweigerung 42231/State 1 muss
+tatsächlich beobachtet werden; andere Resultate sind FAIL mit Rohbefund.
+Keine zusätzliche Scoped-Option; nur eigene Preview/MAXDOP mit Originalbaselines,
+300 s einschließlich Startup sowie 20 s SQL-Recovery im gemeinsamen 60-s-Cleanup.
+Keine neue Benchmarkserie, kein Cloud-/Modell-/ONNX-Aufruf, kein Pull und keine
+Host-/Fremdänderung. Der [konkrete DML-Grenzenbefund](SQL_SERVER_2025_AI_IDX012_DML_BOUNDARY_REVIEW.md)
+belegt den unabhängig geschlossenen Quellenreview und beide vollständigen Lifecycles
+des ersten unveränderten Kandidaten: CDC97E68E2114CE5 und 63AD6D8A17CE4FE9.
+Je vier tatsächliche positive DML-Kontrollen ohne Index und vier Verweigerungen
+42231/State 1 mit Index, vollständige 999-Row-Quellen-/Indexmetadatenprüfung,
+tatsächliche Originalrestores 0/0 und separate DB-/Containerabwesenheit bestanden.
+Buildwandzeiten 801,053/1130,006 ms, gesamter Cleanup 12,180/13,164 s.
+Beide Admissionen geschlossen, zwei Container verbraucht, kein Runtime-FAIL.
+Generation UNKNOWN/WARN, Freshness NOT_TESTED und Runtimequalifikation
+NOT_ESTABLISHED; Storage-, Minimalrollen-, Versions- und Hard-Abort-Abnahme offen.
+Zwölf Controller-, elf DML-Evidenz- und zehn Selector-Gegenproben bestanden;
+anfängliche reine Fixture-Dateinamenfehler bleiben im Befund dokumentiert.
+Der konsistente Stand wird mit aktuellen Head-/Main-Gates über PR integriert.
+Bei FAIL hält der Kandidat an;
+ein geänderter zweiter Kandidat braucht konkreten Befund und aktuelle Closure,
+kein stiller Reset. Nach zwei ungelösten Kandidaten checkpointgebundener Stop.
 Build-/Storage-/DML-Folgearbeit
 bleibt konkret begrenzt und checkpointgebunden; der verbrauchte Zweikandidaten-
 Controllerstand wird nicht still zurückgesetzt.
