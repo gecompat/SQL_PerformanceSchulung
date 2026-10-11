@@ -15,6 +15,42 @@
 
 ## 0. Entwicklungspause und Wiederaufnahme
 
+### Autonome Umsetzung des KI-Workstreams vom 2026-10-11
+
+Der neue Benutzerauftrag autorisiert die autonome Entwicklung des integrierten
+KI-Workstreams durch den Orchestrator. Die Implementierungsgrenze des ursprünglichen
+Planungsauftrags ist damit für diesen Workstream aufgehoben; allgemeine Entwicklung,
+DGN-007-Folgearbeiten und Entwicklungsautomation bleiben pausiert.
+
+Der endliche Gesamtumfang sind `TSK-004`–`TSK-014` und die 18 registrierten Demoentwürfe.
+Erster zusammenhängender Schnitt: lokale Build-/Syntaxqualifikation aus `TSK-004` und
+`QRY-014`–`QRY-017` aus `TSK-005`, auf eigenem Branch
+`codex/sql2025-ai-local-demos`, Basis `fb53157eba381d23022b9a91aaa36a359f609576`.
+Ein Implementierungsverantwortlicher führt den Schnitt; ein unabhängiger Review prüft
+konkrete Sicherheits-/Versions-/Ergebnisrisiken. Pro Schnitt höchstens zwei kohärente
+Korrekturwellen. Checkpoints sind lokale Qualifikation, stabiler Reviewkandidat und
+validierte Integration. Bei ungelöstem Fehler, fehlender exakter Effektfreigabe oder
+ausgeschöpfter Korrekturgrenze wird der betroffene Schnitt mit Evidenz angehalten und
+eigener Cleanup abgeschlossen. Modell-/Tokenverbrauch ist unbekannt und wird nicht
+als gemessener Wert ausgegeben.
+
+Der erste Pfad verwendet synthetische Daten, float32 und eigene markierte Testdatenbanken.
+Es werden weder bestehende Instanzen noch fremde Container verändert. Preview-, Modell-,
+Cloud-/Bezahl-API- und ONNX-Pfade behalten ihre konkreten Qualifikations-/Freigabegates;
+der lokale Pflichtpfad kann unabhängig fortschreiten. Die Rückmeldung des Benutzers bevorzugt die vorhandene
+KI-Integration von SQL_Server_Lab. Der öffentliche lokale RAG-Controller ist der
+zu prüfende Anwendungspfad; der interne HTTPS-Referenzslice ist getrennt von einem
+allgemeinen Gateway zu behandeln. Cloudkosten und ONNX-Hoständerungen sind weiterhin
+nicht freigegeben. Es wurde keine wiederkehrende Automation eingerichtet.
+
+Die erste lokale Qualifikation von QRY-014 bis QRY-017 ist mit Ergebnisverträgen,
+224 Markergegenproben, fünf fachlichen Negativkontrollen und eigenem Cleanup
+belegt. QRY-017 meldet bei fehlender Full-Text-Komponente ausdrücklich WARN;
+2019/2022 prüfen ausschließlich die Versionsgrenze. Der
+[Implementierungsnachweis](SQL_SERVER_2025_AI_LOCAL_IMPLEMENTATION_REVIEW.md)
+führt Charakterisierungsfehler und Korrekturen. Unabhängige Korrekturkontrolle,
+aktuelle CI und Integration dieses Branches sind noch offen.
+
 ### Eigenständiger KI-Planungsauftrag vom 2026-10-11
 
 Der Benutzer hat `TSK-003`, den [KI-Workstream-Plan](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md),

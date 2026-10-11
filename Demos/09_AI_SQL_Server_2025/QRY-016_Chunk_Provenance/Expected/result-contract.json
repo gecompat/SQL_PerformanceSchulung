@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-016",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "rejected_chunk_parameters",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "rejected_chunk_parameters",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "document_versions",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "document_versions",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "source_mismatches",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "source_mismatches",
+      "expected": 0,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}

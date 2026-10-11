@@ -201,3 +201,16 @@ Featurestatus und Voraussetzungen stehen zusätzlich in der
 Ihre historischen Registerzeilen und früheren Abnahmen bleiben erhalten. Query Store trägt
 aggregierte Historie, Werkzeuge ihre Messbereiche und Missing-Index-Hinweise keine vollständige
 Workloadentscheidung. Kein SQL-Lauf wird aus Quellenlektüre abgeleitet.
+
+## SQL-Server-Lab-Verträge für den Implementierungspfad
+
+Die folgenden öffentlichen Quellen wurden am 2026-10-11 am Commit
+`26468023f74c85d97b253d4dde6c0c5a80b88782` gelesen. Deren datierte Referenzabnahmen
+ersetzen keine neue Schulungs-Runtimequalifikation.
+
+| ID | Klasse | Quelle | Verwendung | Grenzen | Abruf | Prüfung | Status | Aktualisierung |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-101` | PRIMARY | SQL Server Lab (2026), [Existing Ollama RAG](https://github.com/gecompat/SQL_Server_Lab/blob/26468023f74c85d97b253d4dde6c0c5a80b88782/Documentation/Architecture/AI_RAG_EXISTING_OLLAMA.md) | Öffentlicher RAG-Controller, lokaler Loopback-HTTP-Pfad, Modell-/Digestprüfung | Öffentliche Projektverträge, keine Hersteller-Freigabe oder neue Runtimeattestation | 2026-10-11 | 2026-10-11 | ACTIVE | Vertrags-/API-/Quellstandänderung oder abweichende Evidenz |
+| `SRC-102` | PRIMARY | SQL Server Lab (2026), [SQL HTTPS Bridge](https://github.com/gecompat/SQL_Server_Lab/blob/26468023f74c85d97b253d4dde6c0c5a80b88782/Documentation/Architecture/AI_SQL_HTTPS_BRIDGE.md) | Interne Docker-Referenz für SQL-External-Model; kein allgemeines Gateway-API | Öffentliche Projektverträge, keine Hersteller-Freigabe oder neue Runtimeattestation | 2026-10-11 | 2026-10-11 | ACTIVE | Vertrags-/API-/Quellstandänderung oder abweichende Evidenz |
+| `SRC-103` | PRIMARY | SQL Server Lab (2026), [SQL AI Local Acceleration](https://github.com/gecompat/SQL_Server_Lab/blob/26468023f74c85d97b253d4dde6c0c5a80b88782/Documentation/User/SQL_AI_LOCAL_ACCELERATION.md) | Provider-/TLS-/OVMS-Verträge; nur konkret dokumentierte Teile wiederverwenden | Öffentliche Projektverträge, keine Hersteller-Freigabe oder neue Runtimeattestation | 2026-10-11 | 2026-10-11 | ACTIVE | Vertrags-/API-/Quellstandänderung oder abweichende Evidenz |
+| `SRC-104` | PRIMARY | Microsoft (2026), [OBJECTPROPERTY](https://learn.microsoft.com/en-us/sql/t-sql/functions/objectproperty-transact-sql?view=sql-server-ver17) | Full-Text-ItemCount/PopulateStatus in QRY-017 | Installierte Komponente und objektbezogene Population; keine Antwortqualitätsgarantie | 2026-10-11 | 2026-10-11 | ACTIVE | Dokumentations-/Propertyänderung oder abweichende Evidenz |
