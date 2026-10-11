@@ -2,8 +2,10 @@
 
 Stand: 2026-10-11. Implementierungsvorbereitung innerhalb TSK-006 und DEC-074.
 Der versionierte Validator ist ein offline geprüfter Teil der öffentlichen
-Demoimplementierung. Es gibt noch keinen ausführbaren IDX-011-Phasenvertrag und
-keine öffentliche SQL-Runtimeabnahme. Synthetische Fixtures ersetzen keine
+Demoimplementierung. Der anschließende
+[öffentliche Controller und Runtimebefund](SQL_SERVER_2025_AI_IDX011_RUNTIME_REVIEW.md)
+belegen inzwischen begrenzte tatsächliche Requests und Lifecycle-Erwartungen;
+die vollständige Demo-/TP-PERF-Abnahme bleibt offen. Synthetische Fixtures ersetzen keine
 tatsächlichen Requests, Ergebnisse, Quellen-, Index- oder Cleanupnachweise.
 
 ## Vor SQL fixierte Umfangs- und Ergebnisgrenzen
@@ -86,9 +88,11 @@ kanonischen Ausführungsstand.
 
 Das Modul führt kein SQL aus und attestiert nicht selbst Quelle, Eigentum,
 Build-/Indexprofil, tatsächliche Pläne oder Lifecycle. Diese vorgelagerten und
-nachgelagerten Pflichten bleiben beim künftigen öffentlichen Runner. Insbesondere
-Memory-/Spill-/Plan-/Buildkosten-, Versions-, Abbruch- und Recoveryabnahme bleiben
-offen. Der Validator gibt daher runtime_qualification NOT_ESTABLISHED aus;
+nachgelagerten Pflichten bleiben beim öffentlichen Runner. Der anschließende
+Runtimebefund belegt den konkreten repräsentativen Plan sowie begrenzte
+Versions-/Fehler-/Recoveryfälle. Memory-/Spill-/vollständige Build-/Storagekosten-,
+Rollen- und Hard-Abortabnahme bleiben offen. Der Validator gibt weiterhin
+runtime_qualification NOT_ESTABLISHED aus;
 ein Offline-PASS qualifiziert weder IDX-011 noch TP-PERF.
 
 Verarbeitungsaufwand: ein Owner und ein notwendiger Reviewer für den konkreten

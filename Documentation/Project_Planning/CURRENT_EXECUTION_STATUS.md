@@ -721,9 +721,41 @@ Buildkosten-/Versions-/Recoverygates bleiben offen; runtime_qualification ist
 NOT_ESTABLISHED. Ein Owner, ein notwendiger konkreter Quellenreview und eine
 kohärente Korrekturwelle für die zeitliche Serienbindung; der unabhängige enge
 Quellenreview schloss ohne offene P1/P2. Demo-Ausführungspfade und zehn betroffene
-Selector-Gegenproben bestanden; aktuelle Integration dieses Offline-Teils folgt.
-Der öffentliche Phasencontroller
-und seine SQL-Quellen sind der anschließende offene Implementierungsschritt.
+Selector-Gegenproben bestanden. PR169-Head
+2f8b7394eac4a8c3f2f754a8528cf8209492e072 gegen Base
+40159404acb1b20f0f69072f9e52664f2593bd86 bestand 44 gewählte Checks;
+der statisch ausgewählte KI-Runtimejob war SKIPPED/NOT_APPLICABLE.
+Squash 87102e8fa022d4b7a870f3d824546efef2d1f341 bestand neun Main-Workflows.
+Der vollständige Tree d305e6d0afc8ec8c919a48434bc8affcfbe57dc0 war identisch;
+main synchronisiert, eigener Branch lokal/remote entfernt. Die konservativ
+durch die Workflowdatei ausgewählten anderen CI-Matrizen sind Integrationsgates,
+keine neue Abnahme pausierter Workstreams oder der ANN-Demo.
+Der anschließende öffentliche Phasencontroller und seine SQL-Quellen entstehen in
+[IDX-011](../../Demos/09_AI_SQL_Server_2025/IDX-011_Exact_Approximate_Search/README.md).
+Noch keine freigegebene Demo, kein manifest.json und keine TP-PERF-Abnahme.
+Der konkrete Quellen-/Sicherheitsreview und die begrenzte lokale Versions-/
+Fehler-/Recoverymatrix sind im
+[öffentlichen Runtimebefund](SQL_SERVER_2025_AI_IDX011_RUNTIME_REVIEW.md) belegt:
+fünf P2 vor SQL geschlossen; Kandidat 1 FAIL_RESULT_CONTRACT nach vollständiger
+Quellenaufnahme wegen eines falschen Python-Rundungsoracles, keine Index-/Suchphase.
+Vollständiger vorhandener Output und enger unabhängiger Review bestätigten die
+rationale Oraclekorrektur ohne Toleranzlockerung. Kandidat 2 erfüllte mit stabiler
+Quelle alle acht seriellen Lifecycle-Erwartungen: zwei vollständige 2025-Läufe,
+je zwei 2019-/2022-SKIP_VERSION vor Setup und kontrollierte Fehler nach Setup
+bzw. Indexbau/vor Suche mit vollständiger Recovery. Neun eigene Container
+insgesamt, alle abwesend, keine Downloads/Host-/Fremdmutation.
+Je vollständigem Lauf 1810 tatsächlich einzeln geprüfte Benchmarkqueries,
+minimales Recall@5 1,0; enge Filterprobe weiterhin null ANN-Rows/Recall 0.
+Eigener tatsächlicher repräsentativer Indexplan und Exact-Fallback bestanden.
+Beide Baselines/Restores 0/0; unabhängige Attestation vor Drop und DB-Abwesenheit.
+Generations-/Memory-/Spill-/Worker-/DOP-/Rollen-/Hard-Abortgrenzen bleiben sichtbar,
+keine TP-PERF- oder vollständige Demoabnahme. Betroffene Offlinegegenproben:
+zwölf Controller-, zwölf Benchmark- und zehn Selectorprüfungen bestanden.
+Aktuelle Head-/Main-Integration dieses Schnitts folgt. Danach unmittelbar
+zulässige fehlende Evidenz aus den neu vorhandenen tatsächlichen Plänen auswerten,
+ohne unveränderte SQL-/Benchmarkwiederholung. Build-/Storage-/DML-Folgearbeit
+bleibt konkret begrenzt und checkpointgebunden; der verbrauchte Zweikandidaten-
+Controllerstand wird nicht still zurückgesetzt.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

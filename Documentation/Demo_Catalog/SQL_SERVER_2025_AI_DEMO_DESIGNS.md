@@ -225,6 +225,9 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   mit getrennten tatsächlichen Warm-up-Requests, seriellen AB-/BA-/AA-Fenstern
   und Qualitätsprüfung je Query. Offline-Gegenproben ersetzen keine öffentliche
   SQL-, TP-PERF-, Versions-, Plan- oder Recoveryabnahme; IDX-011 bleibt offen.
+  Der [öffentliche Phasencontroller](../../Demos/09_AI_SQL_Server_2025/IDX-011_Exact_Approximate_Search/README.md)
+  mit eigenen SQL-Quellen ist die anschließende Implementierungsvorstufe;
+  ohne manifest.json noch keine freigegebene Demo und keine TP-PERF-Abnahme.
 
 ## IDX-012 – Vector-Index-Build, DML und Maintenance
 

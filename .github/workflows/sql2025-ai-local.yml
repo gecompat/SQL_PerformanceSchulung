@@ -10,6 +10,7 @@ on:
       - 'Tests/Static/test_sql2025_ai_local.py'
       - 'Tests/Static/idx011_benchmark_evidence.py'
       - 'Tests/Static/test_idx011_benchmark.py'
+      - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -24,6 +25,7 @@ on:
       - 'Tests/Static/test_sql2025_ai_local.py'
       - 'Tests/Static/idx011_benchmark_evidence.py'
       - 'Tests/Static/test_idx011_benchmark.py'
+      - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -73,6 +75,8 @@ jobs:
         run: python Tests/Static/test_sql2025_ai_local.py
       - name: Validate bounded IDX-011 benchmark preparation
         run: python Tests/Static/test_idx011_benchmark.py
+      - name: Validate bounded IDX-011 controller and recovery
+        run: python Tests/Static/test_idx011_profile.py
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}
