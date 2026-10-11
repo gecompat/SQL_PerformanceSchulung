@@ -24,6 +24,7 @@ sys.path.insert(0, str(ROOT/'Demos/00_Framework/Tools'))
 from sqlcmd_process import build_sqlcmd_command, collect_process, extract_summary, resolve_sqlcmd, start_sqlcmd
 sys.path.insert(0, str(FOLDER))
 from dml_boundary_evidence import validate_dml_boundary
+from lifecycle_evidence import validate_lifecycle
 
 
 @dataclass(frozen=True)
@@ -101,12 +102,14 @@ def one_record(output, kind):
     return selected[0]
 
 
-def source_distances(row, database_id):
+def source_distances(row, database_id, *, changed=False):
+    if type(changed) is not bool:
+        raise ValueError('Festes boolesches Quellenprofil erforderlich')
     if row.get('DatabaseId') != database_id:
         raise ValueError('Unabhängig attestierte eigene Quellen-DB fehlt')
     vectors, distances = row.get('vectors'), row.get('rows')
     if not isinstance(vectors, list) or not isinstance(distances, list) or len(vectors)!=999 or len(distances)!=999:
-        raise ValueError('Vollständige 1000-Row-Quelle fehlt')
+        raise ValueError('Vollständige 999-Row-Quelle fehlt')
     calculated = {}
     for item in vectors:
         identity = item.get('Id')
@@ -116,7 +119,7 @@ def source_distances(row, database_id):
         # Ausschließlich der vollständig beobachtete DEC-074-Korpus: seine
         # T-SQL-Division liefert sechs Dezimalstellen, bevor float32 entsteht.
         # Die unabhängige rationale Ganzzahlrechnung vermeidet Python-round.
-        expected = (1,identity/1000,(((identity*17)%97)*1000000//97)/1000000)
+        expected = (1,0,0) if changed and identity==999 else (1,identity/1000,(((identity*17)%97)*1000000//97)/1000000)
         if (not isinstance(v,list) or len(v)!=3 or any(type(x) not in (int,float) or not math.isfinite(x) for x in v)
                 or any(abs(x-y)>0.000001 for x,y in zip(v,expected))):
             raise ValueError('Tatsächliche float32-VECTOR(3)-Quelle verändert')
@@ -132,7 +135,7 @@ def source_distances(row, database_id):
     return actual
 
 
-def combine_source(output,database_id):
+def combine_source(output,database_id,*,changed=False):
     row=one_record(output,'SOURCE_DISTANCES')
     blocks=[r for r in records(output) if r.get('kind')=='SOURCE_VECTOR_BLOCK']
     if (len(blocks)!=10 or any(type(r.get('BlockId')) is not int for r in blocks)
@@ -147,7 +150,7 @@ def combine_source(output,database_id):
             raise ValueError('Tatsächliche eigene Quellenblockidentität verletzt')
         vectors.extend(items)
     row['vectors']=vectors
-    return source_distances(row,database_id)
+    return source_distances(row,database_id,changed=changed)
 
 
 def validate_snapshot(data, token, original, preview, maxdop):
@@ -191,9 +194,10 @@ def same_snapshot(before, after, *, enable=None, table_names=None, indexes=None)
 
 
 def run_profile(*, executable, server, auth, username, token, confirmed, high_impact,
-                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None):
+                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary"):
     if (confirmed is not True or high_impact is not True or not isinstance(token,str)
-            or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup')):
+            or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup')
+            or mode not in ('dml-boundary','drop-rebuild')):
         raise ValueError('Lokale YELLOW-Bestätigung und vollständige Tokenbindung erforderlich')
     folder=Path(folder).resolve()
     regular=Deadline(300,clock)
@@ -307,6 +311,27 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             raise ValueError('Independent complete actual source or index state changed')
         snapshot(1,1,state)
         evidence['independent_source_comparison']={'rows':999,'full_text_equal':True,'distance_equal':True}
+        if mode=='drop-rebuild':
+            lifecycle_output=normal('DROP_CHANGE_REBUILD','50_DropRebuild.sql')
+            state=snapshot(1,1,state)
+            final_output=normal('SOURCE_REBUILT','40_SourceAfter.sql')
+            final_distances=combine_source(final_output,database_id,changed=True)
+            final_vectors={row['Id']:row['JsonValue'] for block in records(final_output)
+                           if block.get('kind')=='SOURCE_VECTOR_BLOCK' for row in block['vectors']}
+            if (set(final_vectors)!=set(before_vectors) or final_vectors[999]==before_vectors[999]
+                    or json.loads(final_vectors[999])!=[1,0,0]
+                    or any(final_vectors[i]!=before_vectors[i] for i in range(1,999))):
+                raise ValueError('Unabhängige vollständige Ein-Row-Quellenänderung fehlt')
+            lifecycle=validate_lifecycle(records(lifecycle_output),token=token,database_id=database_id,
+                                         before_distances=distances,after_distances=final_distances,
+                                         before_metadata=metadata)
+            final_index=one_record(final_output,'INDEX_AFTER')
+            if (final_index.get('RunToken')!=token or type(final_index.get('DatabaseId')) is not int
+                    or final_index['DatabaseId']!=database_id or final_index.get('metadata')!=lifecycle['metadata']):
+                raise ValueError('Unabhängige vollständige aktuelle Rebuildmetadaten fehlen')
+            snapshot(1,1,state)
+            evidence['lifecycle']=lifecycle
+            evidence['rebuild_source_comparison']={'rows':999,'only_changed_id':999,'other_998_texts_equal':True}
     except PhaseStop as stopped:
         outcome,code=stopped.outcome,stopped.code
     except TimeoutError:
@@ -352,13 +377,14 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--server',required=True)
     parser.add_argument('--sqlcmd')
+    parser.add_argument('--mode',choices=('dml-boundary','drop-rebuild'),default='dml-boundary')
     parser.add_argument('--username',default='sa')
     parser.add_argument('--run-token',required=True)
     parser.add_argument('--confirm-isolated-lab',action='store_true')
     parser.add_argument('--high-impact-confirmed',action='store_true')
     args=parser.parse_args()
     result=run_profile(executable=resolve_sqlcmd(args.sqlcmd),server=args.server,auth='sql',username=args.username,
-                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed)
+                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode)
     print(json.dumps(result.__dict__,ensure_ascii=False))
     return 1 if result.outcome=='FAIL' else 0
 

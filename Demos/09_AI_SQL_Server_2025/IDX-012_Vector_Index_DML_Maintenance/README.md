@@ -89,9 +89,28 @@ bleiben erhalten; keine vollständige Demoabnahme.
 
 ## Tests, Quellen und Traceability
 
+Der getrennte Modus `--mode drop-rebuild` führt nach den unveränderten DML-
+Kontrollen zusätzlich 50_DropRebuild und eine neue vollständige Quellenaufnahme
+aus. Er entfernt ausschließlich den eigenen Index, ändert genau Id 999 dauerhaft
+auf VECTOR(3) [1,0,0] und baut denselben eigenen DiskANN/COSINE-Index neu auf.
+Fünf tatsächliche Suchkontrollen prüfen Baseline-Exact/ANN, Exact nach Änderung
+ohne Index und Exact/ANN nach Rebuild gegen sämtliche tatsächlichen 999 Distanzen.
+Id 999 darf vorher nicht Top-5 sein und muss anschließend distanzgeprüfter Top-1
+mit Distanz null sein; ANN-Recall@5 muss in den beiden festen Aufnahmen 1 betragen.
+Ein neuer Client prüft alle übrigen 998 Vektortexte unverändert und vollständige
+Rebuildmetadaten. Der Default bleibt `dml-boundary` ohne dauerhafte Änderung.
+Freshness ist dabei ausschließlich OBSERVED_AFTER_REBUILD_ONLY; keine allgemeine
+Updateunterstützung, laufende Indexaktualisierung oder neue numerische Generation.
+Dieser zusätzliche Modus benötigt seinen eigenen Quellen-/Runtimebefund;
+frühere DML-Läufe attestieren ihn nicht.
+Der [Rebuildcheckpoint](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_REBUILD_REVIEW.md)
+enthält zwei tatsächliche FAILs und den getrennten Compile-Folgeentwurf.
+Der Modus ist noch nicht runtimequalifiziert; Freshness NOT_ESTABLISHED.
+
 ```powershell
 python Tests/Static/test_idx012_profile.py
 python Tests/Static/test_idx012_dml_boundary.py
+python Tests/Static/test_idx012_lifecycle.py
 ```
 
 Diese synthetischen Offlineprüfungen attestieren keine SQL-Runtime. Aktuelle
