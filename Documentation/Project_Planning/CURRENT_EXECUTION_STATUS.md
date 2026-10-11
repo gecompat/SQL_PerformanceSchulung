@@ -210,6 +210,27 @@ Glossar/Arbeitsheft, sechs mathematische Beispiele, INF-001 und Privacy bestande
 Keine SQL-Runtime ausgeführt. Für diese reine Begriffserklärung ist kein zusätzliches
 unabhängiges Sicherheitsreview erforderlich; der Arbeitsheftreview wird nicht auf
 neue Inhalte umgedeutet. Keine ausgeführte Korrekturwelle.
+Der Glossar-Schnitt ist über PR 150 integriert: fünf Headprüfungen auf
+`d51245e628661d4042b8d19590569b48f07b9ee5`, drei Main-Workflows auf
+`86b08af7b355addae497b94f9f06e536414b6dd2` bestanden. Tree
+`ee31572c5087a1bd512e1ab9629dc4628c8beebf`, Synchronisierung und eigener lokaler/remote
+Branchabbau sind bestätigt. Unmittelbar folgt auf
+`codex/sql2025-ai-podman-metrics-chunks` eine begrenzte zusätzliche Providerqualifikation
+von QRY-015/QRY-016: je zwei Lifecycles auf 17.x sowie je zwei ältere Versions-SKIPs
+auf 15.x/16.x, maximal sechs neue eigene seriell betriebene Podmancontainer.
+Vorhandene lokale Images, Loopback, vier CPUs/sechs GiB, Env-only-Secrets und der
+vorhandene Host-/SQLCMD-/FWK-Pfad bleiben erhalten. Ein Owner, maximal zwei
+Korrekturwellen; keine neue SQL-Funktion, Previewaktivierung oder Hoständerung.
+Alle Ergebnis-/Marker-/Cleanupkontrollen bleiben unverändert; nur die Auswahl
+des privaten Providerhelpers wird auf die zwei vorhandenen Demo-IDs begrenzt.
+Die sechs frischen Providerläufe bestanden: vier positive Lifecycles auf
+17.0.5005.3 mit je drei Assertions sowie acht SKIP_VERSION-Lifecycles vor Setup
+auf 15.0.4490.9/16.0.4295.3. QRY-015/016 bestanden Setup-Idempotenz, 48/80 volle
+Markerfälle und jeweils zwei fachliche Negativkontrollen. Unabhängige eigene
+DB-Abwesenheit und sechs ownergebundene Containerabbaue sind bestätigt.
+Keine Korrekturwelle; kein neuer unabhängiger Review unveränderter Grenzen.
+Der [Providercheckpoint](SQL_SERVER_2025_AI_PROVIDER_REVIEW.md#erweiterung-auf-qry-015-und-qry-016)
+begrenzt die Aussage. Aktuelle Head-/Main-Gates und eigener Branchabbau sind offen.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
