@@ -802,7 +802,46 @@ Generation UNKNOWN/WARN, Freshness NOT_TESTED und Runtimequalifikation
 NOT_ESTABLISHED; Storage-, Minimalrollen-, Versions- und Hard-Abort-Abnahme offen.
 Zwölf Controller-, elf DML-Evidenz- und zehn Selector-Gegenproben bestanden;
 anfängliche reine Fixture-Dateinamenfehler bleiben im Befund dokumentiert.
-Der konsistente Stand wird mit aktuellen Head-/Main-Gates über PR integriert.
+PR172-Head 2b31bd62333530c33d72e38ef1dafad9f842577d gegen Base
+8ce53d59f051ab385935ba9319fa5033f2fcb179 bestand alle 13 Checks. Squash
+a661ad0e3ac206beb66535c59bfb1512066b6c4a bestand alle sieben tatsächlich gewählten
+Main-Workflows; vollständiger Tree 0e525a467777880e55d5fd4f66841d96e01464e7 identisch.
+main synchronisiert, eigener Branch lokal/remote entfernt, alle Runtimegates beendet.
+
+Unmittelbarer Folgeschritt: eigener IDX-012-Drop-/Änderungs-/Rebuildmodus auf
+codex/sql2025-ai-idx012-rebuild, Basis a661ad0e3ac206beb66535c59bfb1512066b6c4a.
+Neues eigenes Budget: höchstens zwei kohärente Kandidaten/vier serielle eigene
+2025-Container, zwei vollständige positive Lifecycles am stabilen Kandidaten.
+Die weitere ausdrückliche lokale Wellenfreigabe deckt diesen isolierten Effekt:
+nach bestätigtem Indexdrop exakt Id 999 dauerhaft auf [1,0,0] ändern, tatsächlichen
+Commit/übrige 998 Quellen prüfen, eigenen Index erneut bauen und dieselbe feste
+Cosine-Top-5-Abfrage vor/nach anhand aller tatsächlichen Quellen kontrollieren.
+Keine neue Scoped-Option, Dimension, Rowzahl, Lastserie, Images oder Hosteffekte;
+4CPU/6GiB, Startup im 300-s-Budget und bisherige eigene 20-/60-s-Recoverygrenzen.
+Ein Owner, ein erforderlicher unabhängiger enger Quellenreview ohne offene
+Methodenbefunde; vor Admission tatsächliche Promotion-/Pfad-/Hashclosure und
+betroffene Gegenproben. Der private Controllerentwurf darf nicht direkt laufen.
+Freshness ausschließlich OBSERVED_AFTER_REBUILD_ONLY, Generation UNKNOWN/WARN;
+keine vollständige Runtime-/TP-PERF-/Storage-/Rollen-/Hard-Abortabnahme.
+Historische Budgets und FAIL bleiben erhalten, kein unveränderter Retry.
+Rebuild-Kandidat 1 E2EE1E999C104A0A: FAIL_EXECUTION in 50_DropRebuild vor
+Batchausführung, tatsächliche Parserfehler 156/State 1 am unquotierten RowCount-
+Alias und 102/State 1 an IndexCount. Vorherige DML-Kontrollen bestanden; keine
+Ausführung des neuen Drop-/Commit-/Rebuildbatches. Beide Originalrestores 0/0,
+separate DB-/Containerabwesenheit und gesamter Cleanup 12,671 s bestanden.
+Enge Korrektur ausschließlich SQL-Aliasquotierung [RowCount]/[IndexCount];
+aktuelle konkrete Reviewclosure vor geänderter Kandidat-2-Admission erforderlich.
+Diese enge Closure bestand; Kandidat 2 E095EBFA02D548F0 lieferte dennoch
+FAIL_EXECUTION mit tatsächlichem 42231/State 1 am UPDATE. Der Output attestiert
+keinen abgeschlossenen Commit/Rebuild und keinen tatsächlich vorher erfolgten
+Drop. Beide Originalrestores 0/0, separate DB-/Containerabwesenheit und gesamter
+Cleanup 12,155 s bestanden. Beide Kandidaten beendet; keine weitere Admission
+im ursprünglichen Budget. [FAIL-Checkpoint und konkreter Compile-Folgeschritt](SQL_SERVER_2025_AI_IDX012_REBUILD_REVIEW.md)
+bereiten getrennt genau einen Kandidaten/zwei Container ohne Korrekturwelle vor:
+tatsächliche No-Index-/Transaktionsaufnahme nach Drop, erst danach festes
+parametrisiertes UPDATE im unteren Compile-Scope. Frühere Hypothese zur statischen
+Bindung bleibt unbewiesen; Freshness NOT_ESTABLISHED. Neue Runtime erst nach
+Integration dieses Checkpoints und enger Quellen-/Pfad-/Hashclosure.
 Bei FAIL hält der Kandidat an;
 ein geänderter zweiter Kandidat braucht konkreten Befund und aktuelle Closure,
 kein stiller Reset. Nach zwei ungelösten Kandidaten checkpointgebundener Stop.

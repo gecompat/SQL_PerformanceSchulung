@@ -14,6 +14,7 @@ on:
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
       - 'Tests/Static/test_idx012_dml_boundary.py'
+      - 'Tests/Static/test_idx012_lifecycle.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -32,6 +33,7 @@ on:
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
       - 'Tests/Static/test_idx012_dml_boundary.py'
+      - 'Tests/Static/test_idx012_lifecycle.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -89,6 +91,7 @@ jobs:
         run: |
           python Tests/Static/test_idx012_profile.py
           python Tests/Static/test_idx012_dml_boundary.py
+          python Tests/Static/test_idx012_lifecycle.py
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}

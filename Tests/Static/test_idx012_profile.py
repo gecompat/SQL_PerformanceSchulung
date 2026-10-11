@@ -153,7 +153,7 @@ class ControllerBoundaries(unittest.TestCase):
         self.assertNotIn('-h',command)
         self.assertEqual(command[command.index('-y')+1],'0')
         self.assertEqual(command[command.index('-d')+1],'master')
-        for filename in ('11_EnablePreview.sql','12_EnableMaxdop.sql','20_Baseline.sql','40_SourceAfter.sql','30_DmlBoundary.sql','21_Snapshot.sql'):
+        for filename in ('11_EnablePreview.sql','12_EnableMaxdop.sql','20_Baseline.sql','40_SourceAfter.sql','30_DmlBoundary.sql','21_Snapshot.sql','50_DropRebuild.sql'):
             command=profile.phase_command('sqlcmd','localhost','sql','sa',FOLDER/filename,TOKEN,0)
             self.assertEqual(command[command.index('-d')+1],'SQLPERF_LAB_IDX012_'+TOKEN)
 
@@ -179,6 +179,28 @@ class ControllerBoundaries(unittest.TestCase):
             if mutation=='id':bad[-1]['vectors'][0]['Id']=1
             if mutation=='bool':bad[1]['BlockId']=True
             with self.subTest(mutation=mutation),self.assertRaises(ValueError):profile.combine_source(encode(bad),5)
+
+
+    def test_rebuild_source_profile_changes_only_id_999(self):
+        import math
+        vectors=[]
+        distances=[]
+        for i in range(1,1000):
+            v=[1,0,0] if i==999 else [1,i/1000,(((i*17)%97)*1000000//97)/1000000]
+            vectors.append({'Id':i,'JsonValue':json.dumps(v)})
+            distances.append({'Id':i,'DistanceValue':1-1/math.sqrt(sum(x*x for x in v))})
+        row={'DatabaseId':5,'vectors':vectors,'rows':distances}
+        self.assertEqual(profile.source_distances(row,5,changed=True)[999],0)
+        with self.assertRaises(ValueError):profile.source_distances(row,5)
+        with self.assertRaises(ValueError):profile.source_distances(row,5,changed=1)
+        row['vectors'][22]['JsonValue']='[1,0,0]'
+        with self.assertRaises(ValueError):profile.source_distances(row,5,changed=True)
+
+    def test_unknown_mode_is_rejected_before_sql_client(self):
+        for mode in ('drop-rebuild ',True,None,'other'):
+            client=Client()
+            with self.assertRaises(ValueError):run(client,mode=mode)
+            self.assertEqual(client.files,[])
 
 
 if __name__=='__main__':
