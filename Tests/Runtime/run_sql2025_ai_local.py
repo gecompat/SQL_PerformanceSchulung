@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prueft QRY-014 bis QRY-019 zweimal mit FWK-010 und FWK-011."""
+"""Prueft QRY-014 bis QRY-019 und DGN-009 zweimal mit FWK-010 und FWK-011."""
 from __future__ import annotations
 
 import argparse
@@ -22,6 +22,7 @@ DEMOS = {
     "QRY-017": "QRY-017_Search_Comparison",
     "QRY-018": "QRY-018_Offline_RAG",
     "QRY-019": "QRY-019_SQL_Input_Policy",
+    "DGN-009": "DGN-009_Offline_Injection",
 }
 SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)$", re.MULTILINE)
 RECORD = re.compile(r"^AI_ASSERT\|(baseline|comparison)\|([a-z][a-z0-9_]*)\|([^|]+)$")
@@ -132,6 +133,8 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
         return targets.run_sql(target, database=database, sql_text=text, timeout_seconds=60)
 
     def state() -> str:
+        if demo_id == "DGN-009":
+            return targets.run_sql(target, database=name, sql_text="SET NOCOUNT ON; SELECT SourceId,Version,IsCurrent,Trusted,FactDays,CONVERT(varchar(max),HASHBYTES('SHA2_256',CONVERT(varbinary(max),Content)),2),CONVERT(varchar(max),V) FROM lab.Documents ORDER BY SourceId; SELECT USER_NAME(grantee_principal_id),class,OBJECT_NAME(major_id),minor_id,permission_name,state FROM sys.database_permissions WHERE grantee_principal_id IN(USER_ID(N'DGN009_reader'),USER_ID(N'DGN009_sink')) ORDER BY USER_NAME(grantee_principal_id),class,permission_name; SELECT compatibility_level,recovery_model_desc FROM sys.databases WHERE database_id=DB_ID(); SELECT file_id,size,max_size,growth FROM sys.database_files ORDER BY file_id;", timeout_seconds=30)
         fixture = "Inventory" if demo_id == "QRY-019" else "VectorFixture"
         return targets.run_sql(target, database="master", sql_text=f"SET NOCOUNT ON; SELECT compatibility_level,recovery_model_desc FROM sys.databases WHERE name=N'{name}'; SELECT COUNT(*) FROM [{name}].lab.{fixture}; SELECT file_id,size,max_size,growth FROM sys.master_files WHERE database_id=DB_ID(N'{name}') ORDER BY file_id;", timeout_seconds=30)
 
@@ -143,7 +146,7 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
         if state() != before:
             raise AiFailure("idempotentes Setup hat Fixture oder Konfiguration veraendert")
         negatives = ("00_Preflight.sql", "10_Setup.sql", "90_Cleanup.sql")
-        if demo_id in ("QRY-016", "QRY-018", "QRY-019"):
+        if demo_id in ("QRY-016", "QRY-018", "QRY-019", "DGN-009"):
             negatives += ("20_Baseline.sql", "30_Demonstration.sql")
         for marker, value in markers.items():
             for invalid in (None, "FOREIGN", value + " ", value + "X" * 256):
@@ -191,7 +194,25 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
             else:
                 raise AiFailure("fehlende/falsche fachliche Daten wurden akzeptiert")
 
-        if demo_id == "QRY-019":
+        if demo_id == "DGN-009":
+            mutations = (
+                "DELETE FROM lab.Documents;",
+                "UPDATE lab.Documents SET FactDays=99 WHERE SourceId=1;",
+                "UPDATE lab.Documents SET Content=N'wrong' WHERE SourceId=2;",
+                "UPDATE lab.Documents SET V='[0,1,0]' WHERE SourceId=1;",
+                "UPDATE lab.Documents SET IsCurrent=1 WHERE SourceId=3;",
+                "UPDATE lab.Documents SET Trusted=1 WHERE SourceId=2;",
+                "UPDATE lab.Documents SET Version=1 WHERE SourceId=3;",
+                "GRANT UPDATE ON OBJECT::lab.Documents TO [DGN009_reader];",
+                "GRANT CONTROL TO [DGN009_sink];",
+                "REVOKE SELECT ON OBJECT::lab.Documents FROM [DGN009_reader];",
+            )
+            for mutation in mutations:
+                phase("10_Setup.sql")
+                mutate(mutation)
+                rejected("60_Comparison.sql")
+            print(f"AI_LOCAL|{demo_id}|RESULT_NEGATIVE_{len(mutations)}|PASS")
+        elif demo_id == "QRY-019":
             mutations = (
                 "DELETE FROM lab.Candidates;",
                 "DELETE FROM lab.Inventory;",

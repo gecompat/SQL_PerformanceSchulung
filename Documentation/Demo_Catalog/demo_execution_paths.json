@@ -394,6 +394,20 @@
       "instanceRequirement": "SHARED_TEST_INSTANCE",
       "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
       "escalation": null
+    },
+    {
+      "demoId": "DGN-009",
+      "manifest": "Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Manipulierte Quellen und feste Offline-Toolpolicy",
+      "path": "Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
     }
   ]
 }

@@ -106,7 +106,13 @@ Korrekturwellen mit FAIL angehalten. Die neue Metadatenprobe belegt zusätzlich 
 CONNECT-Grants als verbleibende Fixtureabweichung; Code und Registrierungsänderungen
 wurden zurückgenommen, eigener DB-/Containerabbau ist belegt im
 [Checkpoint](SQL_SERVER_2025_AI_TENANT_REVIEW.md). CON-010 bleibt PROPOSED. Nächster
-unabhängiger Schritt ist die synthetische Offline-Vorbereitung von DGN-009.
+unabhängiger Schritt DGN-009 bestand eine korrigierte private 17.x-Vorprobe mit
+2 retrievten Quellen, Antworten/Tools je 1/3 und tatsächlichen Rechtefehlern 4613/229.
+Der enge Quellenreview fand keine konkreten Befunde. Das daraus entstandene vollständige
+DGN-009-Offline-Paket ist IMPLEMENTED und lokal qualifiziert: zwei 17.x-Lifecycles,
+80 Markergegenproben, zehn Resultnegative und je zwei Versions-SKIPs auf 15.x/16.x,
+jeweils eigener DB-/Containerabbau. Sein aktueller Review-/Integrationsnachweis
+wird [getrennt geführt](SQL_SERVER_2025_AI_INJECTION_REVIEW.md).
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
