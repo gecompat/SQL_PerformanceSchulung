@@ -113,9 +113,18 @@ Waits-, Memory-Grant- oder Spillabnahme. Fehlendes heißt NOT_CAPTURED oder UNPR
 niemals Null. Ein tatsächlicher eigener Indexoperator beweist nur seine konkrete
 repräsentative Query, keine generische Nutzung aller Mess- oder Filterqueries.
 
+statement_metrics enthält ausschließlich rohe Showplanattribute des eindeutig
+gebundenen repräsentativen Suchstatements: direktes MemoryGrantInfo, DOP und
+NonParallelPlanReason sowie die Struktur von Warnings/WaitStats. Fehlende Werte
+bleiben null/NOT_CAPTURED; ein vorhandener DOP-Rohwert 0 wird nicht in 1
+umgedeutet. Fehlende Warnings oder WaitStats belegen keine Spill-/Waitfreiheit.
+Die tatsächlichen Werte zweier vorhandener Pläne stehen im
+[Runtimebefund](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX011_RUNTIME_REVIEW.md).
+
 Tests: `python Tests/Static/test_idx011_profile.py` prüft Controller-/Recovery-/
 Quellengegenproben; `python Tests/Static/test_idx011_benchmark.py` prüft den
-Benchmarkvertrag. Beide sind Offlineprüfungen und keine Runtimequalifikation.
+Benchmarkvertrag. `python Tests/Static/test_idx011_plan.py` prüft die begrenzte
+repräsentative Planauswertung. Alle drei sind Offlineprüfungen und keine Runtimequalifikation.
 Die lokale Versions-/Fehler-/Recoverymatrix wird im kanonischen
 [Ausführungsstand](../../../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
 geführt. Traceability: TSK-006, IDX-011, CUR-019, DEC-074, FWK-001–005/008–012,

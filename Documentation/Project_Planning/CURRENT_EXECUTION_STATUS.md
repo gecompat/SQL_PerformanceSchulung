@@ -751,9 +751,22 @@ Beide Baselines/Restores 0/0; unabhängige Attestation vor Drop und DB-Abwesenhe
 Generations-/Memory-/Spill-/Worker-/DOP-/Rollen-/Hard-Abortgrenzen bleiben sichtbar,
 keine TP-PERF- oder vollständige Demoabnahme. Betroffene Offlinegegenproben:
 zwölf Controller-, zwölf Benchmark- und zehn Selectorprüfungen bestanden.
-Aktuelle Head-/Main-Integration dieses Schnitts folgt. Danach unmittelbar
-zulässige fehlende Evidenz aus den neu vorhandenen tatsächlichen Plänen auswerten,
-ohne unveränderte SQL-/Benchmarkwiederholung. Build-/Storage-/DML-Folgearbeit
+PR170-Head 159a68d849d91eaf4d2049e86ed361cef49393c4 gegen Base
+87102e8fa022d4b7a870f3d824546efef2d1f341 bestand alle 48 Checks. Squash
+fa17e414a75a362122a2977b39fb3d3fde577977 bestand alle zehn gewählten Main-Workflows;
+vollständiger Tree f842bbb192e705d4aabf57295fa5c14d4a50d8e1 identisch.
+main synchronisiert, eigener Branch lokal/remote entfernt. Der geänderte
+Demo_Catalog-Pfad wählte W-COV/OPT-017 konservativ; diese Integrationsmatrizen
+sind keine ANN-Abnahme und keine Wiederaufnahme pausierter Workstreams.
+Unmittelbar folgt der reine Parserzusatz für fehlende Evidenz aus den beiden
+neu vorhandenen tatsächlichen Plänen: eigene Statement-/Build-/Indexbindung,
+rohe MemoryGrantInfo-/DOP-Attribute, fehlende Warnings/WaitStats bleiben
+NOT_CAPTURED. Zwölf synthetische Gegenproben und der reine Replay beider
+vollständigen Rohquellen bestanden bei unveränderten bisherigen Planassertions;
+enger unabhängiger Methodenreview ohne offene P1/P2. Kein weiterer SQL- oder
+Containerlauf und keine still erweiterte Runtimequalifikation. Konkrete Werte
+stehen im öffentlichen Runtimebefund; aktuelle Integration dieses Zusatzes folgt.
+Build-/Storage-/DML-Folgearbeit
 bleibt konkret begrenzt und checkpointgebunden; der verbrauchte Zweikandidaten-
 Controllerstand wird nicht still zurückgesetzt.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
