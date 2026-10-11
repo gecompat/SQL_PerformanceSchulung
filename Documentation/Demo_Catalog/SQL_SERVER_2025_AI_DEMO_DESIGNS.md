@@ -1,7 +1,11 @@
 # KI-Workstream – vollständiger Demo-Katalogentwurf
 
 Stand: 2026-10-11. Planung: `TSK-003`, Entscheidung: `DEC-073`.
-Alle 18 Demos sind **PROPOSED**, ohne ausführbare Dateien und ohne Runtimefreigabe.
+Der ursprüngliche Planungsschnitt führte alle 18 Demos als **PROPOSED**. Seit dem
+Implementierungsauftrag vom 2026-10-11 besitzen QRY-014 bis QRY-017 ausführbare
+[Demopakete](../../Demos/09_AI_SQL_Server_2025/README.md); deren aktueller Code- und
+Nachweisstand ist im [Katalog](README.md#lokale-ki-demos--implementierung-vom-2026-10-11) geführt.
+Die übrigen 14 Entwürfe bleiben PROPOSED.
 Die Kennungen sind über die zentrale Registry abgeleitet; ihre endgültige Registrierung erfolgt
 mit Planungsintegration. [Workstream-Plan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md)
 und [Featurematrix](../Research/SQL_SERVER_2025_AI_FEATURE_MATRIX.md) sind die verbindlichen Ergänzungen.

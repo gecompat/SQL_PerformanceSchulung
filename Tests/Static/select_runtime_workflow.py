@@ -16,6 +16,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = {
+    "sql2025-ai-local": ".github/workflows/sql2025-ai-local.yml",
     "adv008-opt009": ".github/workflows/adv008-opt009.yml",
     "adv008-opt010": ".github/workflows/adv008-opt010.yml",
     "adv008-opt015-opt016": ".github/workflows/adv008-opt015-opt016.yml",

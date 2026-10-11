@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-014",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "rejected_inputs",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "rejected_inputs",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "rejected_model_space",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "rejected_model_space",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "valid_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "valid_rows",
+      "expected": 5,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}

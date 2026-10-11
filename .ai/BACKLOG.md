@@ -3,13 +3,14 @@
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
 `TSK-003` ist der gesondert autorisierte Planungsschnitt; sein Abschluss benötigt Validierung
-und Integration. Alle Folgepakete sind `PROPOSED`; allgemeine Entwicklung bleibt `PAUSED`.
+und Integration. Der Folgeauftrag autorisiert nun den Workstream: TSK-004 und TSK-005 sind `IN_PROGRESS`,
+weitere Pakete bleiben `PROPOSED`; allgemeine Entwicklung bleibt `PAUSED`.
 Umfang, Abhängigkeiten, Aufwand und Abnahme werden im
 [Workstream-Plan §12](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 
-- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; gesonderter Implementierungsauftrag erforderlich.
-- [ ] `TSK-005`: lokaler Pfad und synthetisches Korpus; nach `TSK-004`.
+- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; lokale 17.x-Qualifikation begonnen, weiterer Providerumfang offen.
+- [ ] `TSK-005`: lokaler Pfad und synthetisches Korpus; QRY-014 bis QRY-017 implementiert, Runtime-/Integrationsgate im aktuellen Nachweis.
 - [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005` und Previewentscheid.
 - [ ] `TSK-007`: lokale und optionale externe/ONNX-Embeddingpfade; nach `TSK-004` und jeweiliger Freigabe.
 - [ ] `TSK-008`: RAG/Quellenbewertung; nach `TSK-005`, Live zusätzlich `TSK-007`.

@@ -1,0 +1,35 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-015",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "raw_dot_top_id",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "raw_dot_top_id",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "manual_norm2",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "manual_norm2",
+      "expected": 5,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "unit_norm",
+      "kind": "RANGE",
+      "phase": "comparison",
+      "metric": "normalized_norm2",
+      "minimum": 0.999999,
+      "maximum": 1.000001,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}

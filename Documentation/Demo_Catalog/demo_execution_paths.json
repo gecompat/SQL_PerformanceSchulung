@@ -310,6 +310,62 @@
       "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 3,
       "stage": 2, "executionPath": "TSQL_TESTDB", "instanceRequirement": "DISPOSABLE_INSTANCE",
       "rationale": "Three synchronized SQL sessions expose task, request and server-delta wait scopes without requiring external fault injection.", "escalation": null
+    },
+    {
+      "demoId": "QRY-014",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Vektortypen und Modellraum",
+      "path": "Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
+    },
+    {
+      "demoId": "QRY-015",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Distanz und Normalisierung",
+      "path": "Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
+    },
+    {
+      "demoId": "QRY-016",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Chunking und Provenienz",
+      "path": "Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
+    },
+    {
+      "demoId": "QRY-017",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Suchwege vergleichen",
+      "path": "Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
     }
   ]
 }

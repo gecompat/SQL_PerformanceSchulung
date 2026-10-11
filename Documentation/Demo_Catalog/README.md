@@ -148,3 +148,17 @@ Die Zeitangaben hier sind die von GitHub gelieferten UTC-Erstellungszeiten (`cre
 `QRY-013` trennt Kontext- und Parameterdimension: Zwei explizit gesetzte, neutrale Sessionprofile erzeugen bei identischem Ergebnis getrennte Cacheeinträge, während ein unveränderter Kontext mit anderem Parameterwert eine abweichende Arbeitsmenge zeigt. Die Demo benennt keinen Client und keinen Treiber als Ursache. Die zugehörigen Folieninhalte stehen als Spezifikation in [`ADV_009_SLIDE_SPECIFICATION_M03.md`](../Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md) und sind als Anzeigepositionen 84 bis 88 in das aktive Deck übernommen.
 
 Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträge stehen in den jeweiligen Demo-README-Dateien. Die datierten Abnahmenachweise je Demo sind in der Runtime-Tabelle oben verlinkt.
+
+## Lokale KI-Demos – Implementierung vom 2026-10-11
+
+Die vier Demos laufen ohne Modell oder Endpoint. `IMPLEMENTED` bezeichnet den aktuellen
+Codebestand; lokale Runtime-Evidenz und der noch offene Actions-Gate stehen im
+[Implementierungsnachweis](../Project_Planning/SQL_SERVER_2025_AI_LOCAL_IMPLEMENTATION_REVIEW.md).
+Windows- und Podman-Runtime sowie ein installierter Full-Text-Pfad bleiben gesondert offen.
+
+| Demo | Titel | Status | Ausführung |
+|---|---|---|---|
+| [`QRY-014`](../../Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type/README.md) | Vektortypen und Modellraum | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
+| [`QRY-015`](../../Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics/README.md) | Distanz und Normalisierung | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
+| [`QRY-016`](../../Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance/README.md) | Chunking und Provenienz | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
+| [`QRY-017`](../../Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/README.md) | Suchwege vergleichen | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |

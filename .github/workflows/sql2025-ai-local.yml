@@ -1,0 +1,156 @@
+# Each matrix job executes the deterministic QRY-014 through QRY-017 result contract twice.
+name: SQL Server 2025 AI local runtime
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/09_AI_SQL_Server_2025/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Static/validate_framework_contracts.py'
+      - 'Tests/Static/test_sql2025_ai_local.py'
+      - 'Tests/Runtime/run_sql2025_ai_local.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - '.github/workflows/sql2025-ai-local.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/09_AI_SQL_Server_2025/**'
+      - 'Demos/00_Framework/Tools/**'
+      - 'Tests/Static/validate_framework_contracts.py'
+      - 'Tests/Static/test_sql2025_ai_local.py'
+      - 'Tests/Runtime/run_sql2025_ai_local.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/host_sqlcmd_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - '.github/workflows/sql2025-ai-local.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sql2025-ai-local-${{ github.workflow }}-${{ github.ref }}
+  # DEC-067: Laufende SQL-Runtime-Validierung bis zum Cleanup erhalten.
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow sql2025-ai-local --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
+  static:
+    name: Static QRY-014 through QRY-017 contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate QRY-014 through QRY-017 contracts
+        run: python Tests/Static/validate_framework_contracts.py
+      - name: Validate compatibility and cleanup ordering
+        run: python Tests/Static/test_sql2025_ai_local.py
+
+  runtime:
+    name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - year: 2019
+            major: 15
+            compatibility_level: 150
+            image: mcr.microsoft.com/mssql/server:2019-latest
+          - year: 2022
+            major: 16
+            compatibility_level: 160
+            image: mcr.microsoft.com/mssql/server:2022-latest
+          - year: 2025
+            major: 17
+            compatibility_level: 170
+            image: mcr.microsoft.com/mssql/server:2025-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Start disposable SQL Server container
+        shell: bash
+        run: |
+          set -euo pipefail
+          random_hex=$(openssl rand -hex 20)
+          password="SqlP!${random_hex}"
+          container="sqlperf-ai-local-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          docker pull '${{ matrix.image }}'
+          export MSSQL_SA_PASSWORD="${password}"
+          docker run --name "${container}" --hostname "${container}" --label sqlperf.owner=ai-local-ci --cpus 4 --memory 6g \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD \
+            -d '${{ matrix.image }}'
+          for attempt in $(seq 1 90); do
+            if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then exit 0; fi
+            if [ "$(docker inspect -f '{{.State.Running}}' "${container}")" != 'true' ]; then echo 'AI_LOCAL|FAIL_CONTAINER_START'; exit 1; fi
+            sleep 2
+          done
+          echo 'AI_LOCAL|FAIL_START_TIMEOUT'
+          exit 1
+      - name: Verify SQL login readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="${SQLCMDPASSWORD}"
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec -e "SQLCMDPASSWORD=${password}" "${SQLPERF_SQL_CONTAINER}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "${login_ready}" -eq 1 ]; then exit 0; fi
+          echo 'AI_LOCAL|FAIL_SQL_LOGIN_TIMEOUT'
+          exit 1
+      - name: Verify two lifecycles, result contracts and ownership negatives
+        shell: bash
+        run: |
+          python Tests/Runtime/run_sql2025_ai_local.py \
+            --target docker --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}'
+      - name: Remove SQL Server container
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if docker container inspect "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1; then
+            test "$(docker inspect -f '{{index .Config.Labels "sqlperf.owner"}}' "${SQLPERF_SQL_CONTAINER}")" = ai-local-ci
+            docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null
+          fi
+          if docker container inspect "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1; then exit 1; fi
+          echo 'AI_LOCAL_CLEANUP|OWN_CONTAINER_ABSENT|PASS'

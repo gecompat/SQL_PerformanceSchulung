@@ -324,6 +324,115 @@
       "resourceProfile": "standard", "environmentIsolation": "FRESH_INSTANCE",
       "requiredCapabilities": ["SQL_DATABASE_ENGINE", "CREATE_DATABASE", "SERVER_STATE", "MULTI_SESSION_SQLCMD"],
       "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
+    },
+    {
+      "demoId": "QRY-014",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": [
+        "docker",
+        "podman"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "compact",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE"
+      ],
+      "expectedOutcomes": [
+        "PASS",
+        "SKIP"
+      ],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "QRY-015",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": [
+        "docker",
+        "podman"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "compact",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE"
+      ],
+      "expectedOutcomes": [
+        "PASS",
+        "SKIP"
+      ],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "QRY-016",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-016_Chunk_Provenance/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": [
+        "docker",
+        "podman"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "compact",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE"
+      ],
+      "expectedOutcomes": [
+        "PASS",
+        "SKIP"
+      ],
+      "defaultRepetitions": 2
+    },
+    {
+      "demoId": "QRY-017",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "providers": [
+        "docker",
+        "podman"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "compact",
+      "environmentIsolation": "SHARED_PROVIDER_VERSION",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE"
+      ],
+      "expectedOutcomes": [
+        "PASS",
+        "SKIP",
+        "WARN"
+      ],
+      "defaultRepetitions": 2
     }
   ]
 }
