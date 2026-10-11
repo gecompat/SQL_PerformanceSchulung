@@ -219,6 +219,65 @@ class ControllerBoundaries(unittest.TestCase):
             self.assertIn('StorageStage='+stage,command)
             self.assertEqual(command[command.index('-d')+1],'SQLPERF_LAB_IDX012_'+TOKEN)
 
+    def test_costs_require_explicit_storage_and_rebuild_before_sql(self):
+        for options in ({'capture_costs':True},{'capture_costs':True,'mode':'drop-rebuild'},
+                        {'capture_costs':1,'capture_storage':True,'mode':'drop-rebuild'},
+                        {'capture_costs':None,'capture_storage':True,'mode':'drop-rebuild'}):
+            client=Client()
+            with self.assertRaises(ValueError):run(client,**options)
+            self.assertEqual(client.files,[])
+
+    def test_cost_includes_are_fixed_absolute_files_inside_own_phase_folder(self):
+        for wrapper,stage,work in [('30_CostBoundary.sql','DML_BOUNDARY','30_DmlBoundary.sql'),
+                                   ('50_CostRebuild.sql','REBUILD','50_DropRebuild.sql')]:
+            command=profile.phase_command('sqlcmd','localhost','sql','sa',FOLDER/wrapper,TOKEN,0)
+            self.assertIn('CostStage='+stage,command)
+            environment=profile.client_environment(command,{'SQLCMDPASSWORD':'synthetic'})
+            self.assertEqual(environment['PhaseWorkFile'],str((FOLDER/work).resolve()))
+            self.assertEqual(environment['CostFrameFile'],str((FOLDER/'23_CostFrame.sql').resolve()))
+            self.assertFalse(any(arg.startswith(('PhaseWorkFile=','CostFrameFile=')) for arg in command))
+            self.assertEqual(command[command.index('-d')+1],'SQLPERF_LAB_IDX012_'+TOKEN)
+
+    def test_cost_include_and_stage_cannot_be_overridden_by_caller(self):
+        for variables in ({'CostStage':'REBUILD'},{'PhaseWorkFile':'foreign.sql'},
+                          {'CostFrameFile':'foreign.sql'}):
+            with self.assertRaises(ValueError):
+                profile.phase_command('sqlcmd','localhost','sql','sa',FOLDER/'30_CostBoundary.sql',TOKEN,0,variables)
+
+    def test_cost_process_env_replaces_inherited_paths_and_preserves_secret_env(self):
+        command=profile.phase_command('sqlcmd','localhost','sql','sa',FOLDER/'50_CostRebuild.sql',TOKEN,0)
+        inherited={'SQLCMDPASSWORD':'synthetic','PhaseWorkFile':'foreign','CostFrameFile':'foreign'}
+        environment=profile.client_environment(command,inherited)
+        self.assertEqual(environment['SQLCMDPASSWORD'],'synthetic')
+        self.assertEqual(environment['PhaseWorkFile'],str((FOLDER/'50_DropRebuild.sql').resolve()))
+        self.assertEqual(environment['CostFrameFile'],str((FOLDER/'23_CostFrame.sql').resolve()))
+        self.assertEqual(inherited['PhaseWorkFile'],'foreign')
+
+    def test_native_cost_executor_uses_fixed_process_environment(self):
+        command=profile.phase_command('sqlcmd','localhost','integrated',None,FOLDER/'30_CostBoundary.sql',TOKEN,0)
+        with patch.object(profile,'start_sqlcmd') as start,patch.object(profile,'collect_process') as collect:
+            profile.execute_client(command,timeout_seconds=5)
+            self.assertEqual(start.call_args.kwargs['environment']['PhaseWorkFile'],str((FOLDER/'30_DmlBoundary.sql').resolve()))
+            self.assertEqual(collect.call_args.kwargs['timeout_seconds'],5)
+
+    def test_windows_case_variants_cannot_duplicate_reserved_include_env_keys(self):
+        command=profile.phase_command('sqlcmd','localhost','integrated',None,FOLDER/'30_CostBoundary.sql',TOKEN,0)
+        inherited={'PHASEWORKFILE':'foreign-upper','PhaseWorkFile':'foreign-mixed',
+                   'COSTFRAMEFILE':'foreign-upper','costframefile':'foreign-lower','SQLCMDPASSWORD':'synthetic'}
+        original=inherited.copy()
+        environment=profile.client_environment(command,inherited)
+        for key,file in [('PhaseWorkFile','30_DmlBoundary.sql'),('CostFrameFile','23_CostFrame.sql')]:
+            self.assertEqual([k for k in environment if k.casefold()==key.casefold()],[key])
+            self.assertEqual(environment[key],str((FOLDER/file).resolve()))
+        self.assertEqual(inherited,original)
+        self.assertEqual(environment['SQLCMDPASSWORD'],'synthetic')
+
+    def test_known_failed_cost_include_mode_stops_before_setup(self):
+        client=Client()
+        with self.assertRaisesRegex(ValueError,'FAIL_CLIENT_INCLUDE'):
+            run(client,capture_storage=True,capture_costs=True,mode='drop-rebuild')
+        self.assertEqual(client.files,[])
+
 
 if __name__=='__main__':
     unittest.main()

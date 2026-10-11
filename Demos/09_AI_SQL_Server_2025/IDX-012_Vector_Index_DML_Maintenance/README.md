@@ -115,6 +115,7 @@ python Tests/Static/test_idx012_profile.py
 python Tests/Static/test_idx012_dml_boundary.py
 python Tests/Static/test_idx012_lifecycle.py
 python Tests/Static/test_idx012_storage.py
+python Tests/Static/test_idx012_costs.py
 ```
 
 Diese synthetischen Offlineprüfungen attestieren keine SQL-Runtime. Aktuelle
@@ -158,3 +159,35 @@ Lifecycles mit drei Aufnahmen je Lauf: 199/203/203 vollständige Partitionen,
 Cleanup. Alle Scalars bleiben unter 120000 UTF-16-Bytes und Clientbreite 65535.
 Isolierte Indexkosten und vollständige Runtimequalifikation bleiben offen. Der Guardrecord
 STORAGE_GUARD ist keine vollständige Speicheraufnahme und ersetzt keine Prüfung.
+
+## Optionale tatsächliche Phasenkosten
+
+Der aktuell gesperrte Entwurf `--mode drop-rebuild --capture-storage
+--capture-costs` soll vor/nach den vollständigen DML-/Rebuildphasen rohe Session-, TempDB- und
+eigene DB-Dateicounter. Beide Punkte jeder Phase kommen aus derselben Verbindung;
+feste Wrapper lesen die unveränderten ursprünglichen Phasen über absolute,
+controllergebundene `:r`-Pfade ein. `GO` beendet die vorige Batch vor der nächsten
+Sessioncounteraufnahme. Der Default bleibt unverändert. Kosten ohne expliziten
+Storage-/Rebuildmodus oder nichtboolesche Optionen werden vor SQL abgewiesen.
+Die festen absoluten Includepfade stehen ausschließlich in der frischen nativen
+Prozessumgebung; geerbte Pfadwerte werden überschrieben. Eigene Executoradapter
+verwenden `client_environment(command, environment)` bei start_sqlcmd.
+
+Session-writes bedeutet Dirty-Page-Markierungen, keine tatsächlichen Datei-
+Writes. TempDB umfasst abgeschlossene Tasks derselben Session ohne IAM und
+laufende Tasks. Datei-Writes/-Bytes/-Stallzeit gehören allen Writern der eigenen
+DB zwischen zwei Punkten einschließlich Hintergrundarbeit. Fehlend/null/Reset
+sind FAIL; gemessene null bleibt null. Die Phasen enthalten Kontrollen,
+Beobachtung und Instrumentierung; isolierte Indexbaukosten und vollständige
+Worker-/TP-PERF-Abnahme bleiben NOT_ESTABLISHED. Der [Kostennachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md)
+bindet Primärquellen, tatsächlichen Laufstand, Review und endliches Budget.
+Beide Kostenkandidaten scheiterten vor Kosten-SQL; kein Kostenruntimeclaim.
+Der erste zugelassene Kostenlauf scheiterte an der nativen `-v`-Drivepfadübergabe
+vor Kosten-SQL; beide Originalrestores und unabhängiger eigener Cleanup bestanden.
+Der zweite Kandidat mit festen Prozess-ENV-Pfaden erhielt den wörtlichen
+Dateinamen `$(CostFrameFile)`/Invalid filename; beide Originalrestores und
+eigener Cleanup bestanden. Budget regulär geschlossen. Der Controller sperrt
+`--capture-costs` mit FAIL_CLIENT_INCLUDE vor jedem SQL-Client. Kosten nicht
+ausführen; getrennte qualifizierte Clientkorrektur erforderlich. Beide FAILs
+und endliches Budget bleiben im Kostennachweis erhalten. Default und der
+bereits qualifizierte Storage-/Drop-/Rebuildmodus bleiben verfügbar.

@@ -1925,3 +1925,52 @@ PR175 ist vollständig abgeschlossen: Head 7a27ba984834a8d75f5d3d7a39db178c6f2fb
 Die neue [begrenzte Katalogfolge](SQL_SERVER_2025_AI_IDX012_STORAGE_REVIEW.md#tatsächliche-capturefolge-und-neue-kataloggrenze) nutzt die weitere lokale Wellenfreigabe: vollständige Aufnahme bis 512 Partitionen/unverändert 120000 UTF-16-Bytes; übrige Guards, DB-/Dateimaxima, Optionen, 999–1000 Rows, 300 s einschließlich Startup und 20 s SQL-Recovery innerhalb 60 s Cleanup bleiben unverändert. Neuer unabhängiger Parent/Ledger: genau ein stabiler Kandidat/maximal zwei serielle eigene Container, keine Korrekturwelle; die beiden alten FAIL-Budgets bleiben geschlossen. Admission erst nach engem Quellenreview und öffentlichem Pfad-/Hashschluss; vollständiger PR-/Integrationsabschluss dieses zusammenhängenden Capture-/Grenzenschnitts bleibt Pflicht. Gesamtworkstream und Heartbeat bleiben aktiv.
 
 Die Katalogfolge bestand danach beide vollständigen eigenen Lifecycles: Tokens 2D00C5B617964E25/B249FF1FEB194EC3, tatsächlicher Build 17.0.5005.3, WARN_OPTIONAL_EVIDENCE_SKIPPED. Drei vollständige Storageaufnahmen je Lauf mit 199/203/203 Partitionen und 43/45/45 internen Tabellen; alle Scalars 102438/104908/104908 UTF-16-Bytes ohne Trunkierung. Tatsächliche Originalrestores 0/0, unabhängige DB-/CID-/Namensabwesenheit und gesamter Cleanup 12,686/12,624 s bestanden. Beide Admissionen des stabilen Kandidaten sind geschlossen, Budget ausgeschöpft ohne Korrekturwelle. Alle bisherigen DML-/Quellen-/Drop-/Commit-/Rebuild-/Recallkontrollen bestanden. [Ergebnisse und Grenzen](SQL_SERVER_2025_AI_IDX012_STORAGE_REVIEW.md#katalogfolge-zwei-vollständige-positive-lifecycles); Generation UNKNOWN, Freshness OBSERVED_AFTER_REBUILD_ONLY, isolierte Kosten und vollständige Runtimequalifikation offen. Beide alten FAIL-Ledger bleiben erhalten. Der konsistente Ergebnisstand wird jetzt über PR integriert; anschließend nächster zulässiger Schritt tatsächliche, getrennt interpretierte Session-/TempDB-/DB-Dateikostenpunkte, keine reine Indexkostenbehauptung. Gesamtworkstream und Heartbeat bleiben aktiv.
+
+### IDX-012: Kostenfolge nach vollständig abgeschlossener PR176-Integration
+
+[PR 176](https://github.com/gecompat/SQL_PerformanceSchulung/pull/176) ist nach
+13 erfolgreichen Headchecks auf cd28bf5ccf11ba6865c410b3c7e3a4f8c1384606 in
+018c678f55660a559bfd2acc4eb3f56675bce8eb integriert. Vollständiger Tree
+f68328b2943b93a306874dbee76c015e36e6fdfa identisch; alle sieben ausgewählten
+Main-Workflows bestanden: 38174402097/38174402166/38174402101/38174402066/
+38174402139/38174402067/38174402085. main synchron, sauber; eigener
+Storage-Capture-Branch lokal/remote entfernt, keine eigenen Container verblieben.
+
+Der [Phasenkostenschnitt](SQL_SERVER_2025_AI_IDX012_COST_REVIEW.md) auf
+codex/sql2025-ai-idx012-costs, Basis 018c678f55660a559bfd2acc4eb3f56675bce8eb,
+ist nach zwei Kandidaten mit FAIL angehalten. Die weitere lokale Wellenfreigabe
+gilt; der neue eigene Parent/Ledger erlaubte maximal zwei stabile Kandidaten/
+vier serielle eigene Container und verlangte zwei positive Lifecycles desselben
+Kandidaten. Effekte unverändert: eigene Preview/MAXDOP, 999–1000 Rows,
+300 s einschließlich Startup, 20 s SQL-Recovery innerhalb 60 s gesamtem Cleanup.
+Keine isolierten Indexbau- oder vollständigen Worker-Kosten. Admissionen erst
+nach öffentlicher Quellenbindung und engem unabhängigem Review.
+
+C1 448381C255F044D1: native Windows-ODBC-sqlcmd verwirft die neuen unquotierten
+-v-Drivepfade vor Kosten-SQL/erstem Indexbau. Setup/Enable/Source-/Storagebaseline
+bestanden; beide tatsächlichen Restores 0/0 und unabhängige DB-/eigene Namens-/
+vollständige CID-Abwesenheit belegt. Gesamter Cleanup 13,2039358 s;
+closed=true/FAIL, keine zweite C1-Admission. C2 änderte ausschließlich die
+feste Include-Pfadübergabe auf Prozess-ENV. Der enge ENV-Review fand vor
+Admission einen Windows-Case-P2; alle reservierten Schreibvarianten werden
+entfernt. Unabhängige Closure, 22 Controllergegenproben PASS; keine zusätzliche
+Runtime durch diese vorbereitende Korrektur.
+
+C2 C7273FFC05C04F70: NativeClient meldet wörtlich '$(CostFrameFile)': Invalid
+filename beim ersten :r vor Kosten-SQL/Indexbau. Ursache über die unverarbeitete
+Dateinamenvariable hinaus UNKNOWN, kein Kostenclaim. Beide tatsächlichen
+Originalrestores 0/0, neue Attestation, markergebundener Drop, DB-Abwesenheit
+und unabhängige eigene Namens-/CID-Abwesenheit PASS; Cleanup 13,5870011 s.
+Zwei Kandidaten/zwei Admissionen geschlossen, Budget regulär beendet;
+unbenutzte Slots sind keine weitere Korrekturwelle. Öffentlicher Kostenmodus
+jetzt mit FAIL_CLIENT_INCLUDE vor jedem SQL/Setup gesperrt. 23 Controller-
+gegenproben PASS; unveränderte Kosten-/Selektortests nicht erneut ausgeführt.
+
+Die bekannten DML-/Rebuild-/Storagemodi bleiben verfügbar. Writes/TempDB/Worker,
+vollständige IDX-012-Abnahme, Minimalrollen und Hard-Abort bleiben offen.
+Checkpoint über PR integrieren; anschließend nächster unabhängiger zulässiger
+Schritt: tatsächliche IDX-012-Versions-SKIPs auf 2019/2022 vor Setup. Eine
+Kostenwiederaufnahme benötigt einen getrennten endlichen Clientvertrag,
+geänderte Eingaben und Quellenclosure nach vollständiger Checkpointintegration;
+keine unveränderte Probe, keine stille Budgetrücksetzung. Gesamtworkstream und
+Heartbeat aktiv; übrige Provider-/Cloud-/ONNX-Gates bleiben unverändert.
