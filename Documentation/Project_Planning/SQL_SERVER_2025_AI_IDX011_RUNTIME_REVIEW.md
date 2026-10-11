@@ -139,3 +139,58 @@ Integrationsgates aus. Die Workflowdatei kann zusätzlich Legacy-Matrizen auslö
 deren tatsächliche Head-/Main-Auswahl wird im PR belegt. Diese Prüfungen sind
 keine ANN-Abnahme und keine Wiederaufnahme anderer Workstreams. Modell-/
 Tokenverbrauch bleibt unbekannt.
+
+## Vorhandene repräsentative Pläne – begrenzte Memory-Evidenz
+
+Der anschließende Parserzusatz wertet ausschließlich das eindeutig gebundene
+Suchstatement des bereits aufgenommenen Actual Plans aus. Build 17.0.5005.3,
+vollständiger Statementtext und eigene Objekt-/Index-/Actual-Rows-Bindung bleiben
+erhalten. Direkte MemoryGrantInfo-Attribute werden als rohe Showplanwerte
+ausgegeben; fehlende Attribute bleiben null/NOT_CAPTURED. Die Strukturaufnahme
+von Warnings und WaitStats ist kein Spill- oder Waitkosten-Oracle. Der DOP-Rohwert
+0 wird weder zu 1 korrigiert noch auf andere Queries übertragen.
+
+Aus beiden vollständigen vorhandenen Rohoutputs wurde der neue Parser rein lokal
+ausgeführt. Sämtliche bisherigen Planassertions blieben inhaltlich identisch;
+kein zusätzlicher SQL-, Container-, Benchmark- oder Provideraufruf. Die Quellen
+stammen aus Kandidat 2 der abgeschlossenen öffentlichen Runtimewelle:
+
+| Rohes Attribut des repräsentativen Suchstatements | Lauf 1 | Lauf 2 |
+|---|---|---|
+| DegreeOfParallelism | 0 | 0 |
+| NonParallelPlanReason | MaxDOPSetToOne | MaxDOPSetToOne |
+| SerialRequiredMemory / RequiredMemory | 512 / 512 | 512 / 512 |
+| SerialDesiredMemory / DesiredMemory | 552 / 552 | 552 / 552 |
+| RequestedMemory / GrantedMemory | 1024 / 1024 | 1024 / 1024 |
+| MaxUsedMemory | 32 | 32 |
+| GrantWaitTime / LastRequestedMemory | 0 / 0 | 0 / 0 |
+| MaxQueryMemory | 758528 | 757616 |
+| Warnings / WaitStats | NOT_CAPTURED / NOT_CAPTURED | NOT_CAPTURED / NOT_CAPTURED |
+
+Diese Werte sind unmittelbare Attribute genau zweier repräsentativer Aufnahmen.
+Sie sind keine Memory-/DOP-Abnahme aller 1810 Benchmarkqueries je Lauf, keine
+gemessene Spill-/Waitfreiheit und keine vollständigen Build-/Storagekosten.
+Die Rohattribute behalten ihre Originalnamen; das Parserformat führt keine
+Einheitenumrechnung oder abgeleiteten Nullwerte durch. Zur Einordnung der
+MemoryGrantInfo-Felder dienen SRC-009 und die
+[Microsoft-Diagnose zu Memory Grants](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues)
+(Abruf 2026-10-11); der konkrete numerische Befund stammt aus den eigenen Plänen.
+
+Vollständige Rohquellen-SHA256, ohne Übernahme der XML-Outputs ins Repository:
+Lauf 1 f587f1461f09839e3218bac26be5ddf43fda9910195e65bbba2a58dc974d912e;
+Lauf 2 291f1cf22e496cf11e456ec546d5df8c7abfd9a5229e4a4fe262579450949faf.
+Zwölf neue synthetische Parsergegenproben trennen fehlend/Null, direkte/nested
+Memoryknoten, andere Statements, doppelte Plan-/Memory-/Waitknoten, ungültige
+Numericformen, Build-/Statement-/Tokenbindung und fremde Indexobjekte.
+
+Verarbeitungsumfang dieses Zusatzes: ein Owner, ein erforderlicher enger
+Methodenreview, höchstens eine kohärente Quellenkorrektur. Rein vorhandene
+Planquellen und synthetische Gegenproben; keine Wiederholung der abgeschlossenen
+lokalen Runtimewelle. Der bestehende konservative CI-Selector wählt wegen der
+geänderten öffentlichen Parserquelle die acht-Demo-KI-Matrix. Der neue statische
+Test wird in denselben vorhandenen statischen Job aufgenommen; Runtimegates und
+andere Workstreamgrenzen bleiben erhalten. Modell-/Tokenverbrauch unbekannt.
+
+Der erforderliche enge unabhängige Methodenreview schloss ohne offene P1/P2.
+Parser-SHA256 DD3771E53FC3E9FDD10165FF692A72D520BD640FFCCF608B2F9ADF7C0DDE49F2;
+keine Runtime durch den Reviewer und keine Erweiterung der Abnahme.

@@ -14,6 +14,60 @@ def identifier(value, expected):
     return value in (expected, '[' + expected + ']')
 
 
+def unsigned_attribute(element, name):
+    """Fehlend bleibt None; Null ist nur bei tatsächlich vorhandenem Attribut Null."""
+    raw = element.get(name)
+    if raw is None:
+        return None
+    if not re.fullmatch('[0-9]{1,19}', raw) or int(raw) > 9223372036854775807:
+        raise RuntimeError('Invalid bounded numeric Showplan attribute: ' + name)
+    return int(raw)
+
+
+def statement_metrics(plan):
+    """Rohe Showplanwerte ausschließlich des gebundenen repräsentativen Statements."""
+    memory = plan.findall('p:MemoryGrantInfo', NS)
+    waits = plan.findall('p:WaitStats', NS)
+    if len(memory) > 1 or len(waits) > 1:
+        raise RuntimeError('Ambiguous statement memory/wait evidence')
+    warnings = plan.findall('.//p:Warnings', NS)
+    warning_tags = []
+    for warning in warnings:
+        for child in warning:
+            prefix = '{' + NS['p'] + '}'
+            if not child.tag.startswith(prefix) or len(child.tag) > 256:
+                raise RuntimeError('Invalid bounded warning element')
+            warning_tags.append(child.tag[len(prefix):])
+    if len(warning_tags) > 1000:
+        raise RuntimeError('Excessive warning evidence')
+    reason = plan.get('NonParallelPlanReason')
+    if reason is not None and len(reason) > 256:
+        raise RuntimeError('NonParallelPlanReason size exceeded')
+    return {
+        'coverage': 'REPRESENTATIVE_STATEMENT_ONLY',
+        'numeric_units': 'RAW_SHOWPLAN_ATTRIBUTES',
+        'degree_of_parallelism': unsigned_attribute(plan, 'DegreeOfParallelism'),
+        'non_parallel_reason': reason,
+        'memory_grant': {
+            'state': 'CAPTURED' if memory else 'NOT_CAPTURED',
+            'attributes': {name: unsigned_attribute(memory[0], name) for name in (
+                'SerialRequiredMemory', 'SerialDesiredMemory', 'RequiredMemory',
+                'DesiredMemory', 'RequestedMemory', 'GrantWaitTime', 'MaxQueryMemory',
+                'GrantedMemory', 'MaxUsedMemory', 'LastRequestedMemory')}
+                if memory else None,
+        },
+        'warnings': {
+            'state': 'CAPTURED' if warnings else 'NOT_CAPTURED',
+            'element_count': len(warnings) if warnings else None,
+            'child_tags': warning_tags if warnings else None,
+        },
+        'wait_stats': {
+            'state': 'CAPTURED' if waits else 'NOT_CAPTURED',
+            'entry_count': len(waits[0]) if waits else None,
+        },
+    }
+
+
 def capture_plan(output, token):
     if not re.fullmatch('[A-F0-9]{16}', token):
         raise ValueError('Invalid own token')
@@ -36,9 +90,10 @@ def capture_plan(output, token):
     if len(statements) != 1:
         raise RuntimeError('Actual fixed search statement missing or ambiguous')
     stmt = statements[0]
-    plan = stmt.find('p:QueryPlan', NS)
-    if plan is None:
-        raise RuntimeError('Search QueryPlan missing')
+    plans = stmt.findall('p:QueryPlan', NS)
+    if len(plans) != 1:
+        raise RuntimeError('Search QueryPlan missing or ambiguous')
+    plan = plans[0]
     relops = plan.findall('.//p:RelOp', NS)
     if not 1 <= len(relops) <= 100:
         raise RuntimeError('Operator count outside bounded profile')
@@ -81,4 +136,4 @@ def capture_plan(output, token):
     return {'kind': 'ACTUAL_PLAN', 'build': '17.0.5005.3',
             'generation': 'UNKNOWN',
             'index_usage': 'OWN_INDEX_RUNTIME_OBSERVED' if own_index_observed else 'UNKNOWN',
-            'operators': operators}
+            'operators': operators, 'statement_metrics': statement_metrics(plan)}
