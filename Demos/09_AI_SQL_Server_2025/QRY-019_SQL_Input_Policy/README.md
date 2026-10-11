@@ -1,6 +1,6 @@
 # QRY-019 – Feste SQL-Struktur und gebundene Werte
 
-Status: IMPLEMENTED; aktueller Review-/Runtime-/Integrationsgate offen.
+Status: IMPLEMENTED; lokaler Slice über [PR 138](https://github.com/gecompat/SQL_PerformanceSchulung/pull/138) mit grünen Head-/Main-Gates integriert. Allgemeine Tenant-/Providerabnahme bleibt getrennt offen.
 Zuordnung: CUR-018/CUR-021, TSK-009, TP-RUN. Acht eingefrorene synthetische
 Ausgabefixtures ersetzen Modellantworten. Kein Modellaufruf, keine Generationsqualifikation.
 

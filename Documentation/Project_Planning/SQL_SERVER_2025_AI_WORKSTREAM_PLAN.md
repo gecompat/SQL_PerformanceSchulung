@@ -23,6 +23,9 @@ QRY-018 ergänzt jetzt den Offline-RAG-Schnitt aus TSK-008; sein
 QRY-019 beginnt TSK-009 mit fester SQL-Struktur, tatsächlicher Wertbindung und einem
 eingeschränkten Datenbankbenutzer; sein [Nachweis](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md)
 belegt ausschließlich den synthetischen lokalen Kontrollharness.
+DGN-009 ergänzt TSK-009 durch tatsächliches Retrieval manipulierter Quellen, feste
+Antwort-/Toolfixtures und minimale SQL-Rechte. Sein [Nachweis](SQL_SERVER_2025_AI_INJECTION_REVIEW.md)
+bleibt getrennt von Livegeneration und DGN-008-External-Model-/Endpointrechten.
 
 ## 1. Zielbild und Abgrenzung
 

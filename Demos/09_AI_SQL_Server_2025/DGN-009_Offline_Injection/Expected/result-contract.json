@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "DGN-009",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "baseline_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "baseline_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "retrieved_sources",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "retrieved_sources",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "accepted_answers",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "accepted_answers",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "rejected_answers",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "rejected_answers",
+      "expected": 3,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "allowed_tools",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "allowed_tools",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "denied_tools",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "denied_tools",
+      "expected": 3,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "permission_denials",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "permission_denials",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "executed_tool_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "executed_tool_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}
