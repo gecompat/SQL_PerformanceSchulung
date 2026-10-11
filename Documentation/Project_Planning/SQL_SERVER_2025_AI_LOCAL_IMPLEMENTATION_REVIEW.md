@@ -55,7 +55,9 @@ einschließlich Versionsgrenze, Ergebnissen, Gegenproben und eigenem Cleanup.
 [PR 135](https://github.com/gecompat/SQL_PerformanceSchulung/pull/135) wurde als
 `87017c04c04516495a4b653134532ac993db20ca` integriert. Der vollständige Tree war
 mit dem lokalen Branch identisch; main wurde synchronisiert und der lokale sowie
-Remote-Branch entfernt. Der anschließende Main-Lauf ist ein separater Gate.
+Remote-Branch entfernt. Alle 13 Main-Workflows dieses Integrationscommits bestanden,
+einschließlich der [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129793884)
+und [W-COV-001](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129793842).
 
 Fehlendes Full-Text bleibt WARN_OPTIONAL_EVIDENCE_SKIPPED. Der Runner trennt den
 bestandenen Qualifikationstest vom aggregierten Demoergebnis; Versions-Skips sind

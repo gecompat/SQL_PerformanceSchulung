@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | allgemeine Entwicklung `PAUSED`; begrenzter DGN-007-Abschluss gemäß `DEC-072` in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132), dessen aktuelle CI-/Merge-Evidenz maßgeblich ist; PR 68 und PR 128 fachlich ersetzt und nicht weiterzuführen |
-| Stand | 2026-10-10 |
+| Stand | 2026-10-11; KI-Workstream aktiv gemäß §0, übrige Entwicklung pausiert |
 | aktueller Integrationsnachweis | Foundation `1.21.0` und die vertragsbezogene CI-Testauswahl sind durch [PR 126](https://github.com/gecompat/SQL_PerformanceSchulung/pull/126) integriert. Die eigenständige Fehlerrohdiagnose aus [PR 130](https://github.com/gecompat/SQL_PerformanceSchulung/pull/130) ist auf `aea230fb65798afddd4643c92b84f09403819ec6` in `origin/main`; die [PR-130-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38048742623) bestand auf 2019/2022/2025. Der neuere [Main-Lauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38050043409) scheiterte auf SQL Server 2019 an G13; die [PR-132-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38051475267) auf SQL Server 2022 ebenfalls. Keine Reporterfreigabe. |
 | früherer fachlicher Basisstand | `2f04deb2fed0faf5bedf70101fea3f4b93d46678` nach PR 123; Ledgerkomponente §32.5 und Loaderrecordformen §33 bleiben im bisherigen Nachweisstand; SESSION_END und operativer Bootstrap-/Kanalvertrag bleiben pausiert/offen; SQL-Codebasis `da7b0eb…` aus Pull Request 65 unverändert |
 | geprüfter Runtime-Stand | `782799e` aus Pull Request 42; `OPT-017`-Matrix vollständig grün |
@@ -62,8 +62,10 @@ Runtimebeleg. Alle 51 PR-Prüfungen am Head
 [PR 135](https://github.com/gecompat/SQL_PerformanceSchulung/pull/135) ist in
 `87017c04c04516495a4b653134532ac993db20ca` integriert. Vollständige Tree-Identität
 des Squash-Ergebnisses wurde geprüft; main synchronisiert und der eigene
-Arbeitsbranch lokal/remote entfernt. Der anschließende Main-Lauf ist separat
-zu bewerten. Die anschließende Quellenprüfung des öffentlichen Modellpfads fand
+Arbeitsbranch lokal/remote entfernt. Alle 13 Main-Workflows desselben Integrationscommits
+bestanden, darunter die [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129793884)
+und die [bestehende Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38129793842).
+Die anschließende Quellenprüfung des öffentlichen Modellpfads fand
 eine konkrete Secret-Grenze: SQL_Server_Lab übergibt intern das SQL-Passwort als
 sqlcmd-Prozessargument, entgegen DEC-033. Der
 [Modellpfad-Leitfaden](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md#offene-secret-grenze-vor-live-rag)
