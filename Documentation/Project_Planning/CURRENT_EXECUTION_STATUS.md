@@ -441,6 +441,34 @@ Ausgeführte Quellen unverändert; kein neuer ANN-Lauf. Der konkrete
 einen neuen eigenen Kandidaten/Container ohne Search bei unveränderten lokalen
 Effekten vor und bleibt PENDING_USER_DECISION. Aktuelle Head-/Main-Gates und
 eigener Branchcleanup dieses begrenzten Befunds folgen vor der Benutzerfrage.
+PR 161 ist mit acht Headprüfungen auf `cc62fd079ce6773880395b5b08ee1c5fe5d6f02b`
+und sechs Main-Workflows auf `429d587d4b5b34bf36467c0b391afdb741b533a6` integriert.
+Tree `966377ed486a6c7e09d57f9709c888f6e30d0879`, Synchronisierung und eigener
+lokaler/remote Branchabbau bestätigt. Der Benutzer erteilte anschließend ausdrücklich
+die Metadatenfreigabe und „auch alle weiteren Freigaben zur Durchführung dieser
+Entwicklungswelle“. Diese zusätzliche Autorisierung erlaubt weitere notwendige
+lokale ANN-Schritte der Welle ohne wiederholte Budgetfreigabefragen; historische
+FAILs und verbrauchte Budgets bleiben erhalten. Jeder neue zusammenhängende Umfang
+erhält weiterhin eine endliche Ausführungsgrenze, betroffene Tests, erforderliche
+unabhängige Reviews und eigenen Cleanup. Zunächst genau die einzelne Metadatendiagnose
+ohne Search auf `codex/sql2025-ai-ann-metadata`, Basis `429d587d4b5b34bf36467c0b391afdb741b533a6`.
+Keine zusätzliche Host-/Cloud-/ONNX-Wirkung aus diesem lokalen Paket ableiten.
+Der enge tatsächliche Metadaten-Quellenreview fand keine P1/P2, fünf betroffene
+lokale Tests bestanden. Der einzige neue Kandidat bestand als
+[vollständige Metadatenaufnahme](SQL_SERVER_2025_AI_ANN_METADATA_REVIEW.md):
+eigener Index Typ 8/VECTOR, DiskANN/COSINE, gültige Buildparameter mit StartId/L/M/R,
+Version-Schlüssel fehlt tatsächlich, beide Versionsableitungen NULL. Keine Generation
+erraten; keine Search-/Recall-/Indexnutzungsevidenz. 1000 volle Quellenrows,
+24 Marker-/neun Baseline-/drei Quellgegenproben und vier vollständige Snapshots
+mit je 107 Host-/41 DB-scoped-Konfigurationsrows bestanden. Eigener Indexdrop,
+tatsächliche Restores 0/0, neuer Attest/Dropclient, separater SQL-DB-Abwesenheitsclient
+und gebundener Containerabbau/zusätzliche Abwesenheit bestanden; Cleanup 12,439 Sekunden.
+Unmittelbar wird gemäß zusätzlicher ausdrücklicher Benutzerautorisierung ein
+[begrenzter Legacy-Signaturversuch](SQL_SERVER_2025_AI_ANN_LEGACY_TRIAL_DECISION.md)
+vorbereitet: eigener neuer Diagnoseumfang, Generation UNKNOWN bleibt erhalten,
+eine feste dokumentierte TOP_N-Signatur, kein alternativer Syntaxfallback oder
+volle IDX-011-Abnahme. Quellenreview und Integration der Metadatendiagnose
+bleiben vor dessen SQL-Start erforderlich. Historische FAILs/Budgets unverändert.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
