@@ -2092,3 +2092,47 @@ eigene Branchbereinigung abschließen. Unmittelbar danach kontrollierte
 IDX-012-Fehler-/Recoveryfälle; Minimalrollen, Hard-Abort und vollständige
 Runtime-/TP-PERF-Abnahme bleiben zusätzlich offen. Gesamtworkstream und
 Heartbeat aktiv.
+
+### IDX-012: kontrollierte Recovery nach vollständiger PR179-Integration
+
+[PR 179](https://github.com/gecompat/SQL_PerformanceSchulung/pull/179):
+Head 7152584274b9037db1e210eb50505f9771ef2f8f gegen
+Base 1aead3c727e90d907bf20048e2feebca41642b68, sieben Head-SUCCESS;
+Squash 99b8df923f144f6e915ff3718addf24582de7224, voller Tree
+8f3b19b9f76f60cfd3e8955708f0af28f1819873 identisch. Alle fünf ausgewählten
+Main-Workflows SUCCESS: 38180208984/38180209017/38180208983/38180209019/
+38180209001. main/origin/main sauber synchronisiert; eigener Versionsbranch
+lokal/remote entfernt, keine eigenen Container verblieben.
+
+Unmittelbar folgt die [kontrollierte IDX-012-Recovery](SQL_SERVER_2025_AI_IDX012_RECOVERY_REVIEW.md)
+auf codex/sql2025-ai-idx012-recovery, Basis
+99b8df923f144f6e915ff3718addf24582de7224. Ausdrücklich erweiterte lokale
+Welle: maximal sechs Kandidaten/24 serielle eigene Container; je stabiler
+Kandidat zwei Fehler nach Setup und zwei nach qualifiziertem Indexbau samt
+vollständiger unabhängiger Sourceprüfung. Kontrollierter FAIL_EXECUTION
+bleibt im Ergebnis FAIL; der Parent attestiert ausschließlich dessen
+tatsächlich erwartete Auslösung und vollständige Recovery. Frühere Fehler,
+Timeout, ungeklärtes Clientende oder FAIL_CLEANUP erfüllen den Fall nicht.
+Vier abgeschlossene stabile Fälle nötig; keine unnötigen weiteren Zyklen.
+SQL-Effekte, Originalrestores, 999–1000 Rows, 300 s einschließlich Startup,
+20 s SQL-Recovery innerhalb 60 s gesamtem Cleanup bleiben unverändert.
+30 betroffene Controllergegenproben PASS. Neuer Fehlerpunkt und Parent
+vor Admission eng unabhängig ohne neue P1/P2 geschlossen; aktuelle Bindung
+Controller DFBC01CAE5428F279BCE1DF8363ECFF0BCD692A507842A0DD2625DBC5F13D6F1,
+Parent F9EB8B93AC5AB947EF2F7B09D3F21E916A5A2A3623B56129735748333C1B2A8D.
+Die anschließende tatsächliche Runtime bestand alle vier festen Fälle desselben
+C1 auf 17.0.5005.3: Setup-Tokens 0D5DA53FBF6B43CE/D86B5FF43CC246A5,
+Build-Tokens 3C04F622FC6D4E14/47C9D7AA36DF4A74. Öffentlich je erwartetes
+FAIL/FAIL_EXECUTION mit passendem kontrolliertem Fehlercheckpoint; Parent-PASS
+nur für diesen Fall samt tatsächlicher Recovery. Alle Originalrestores/
+Attestationen 0/0, neue DB-Abwesenheit und eigene vollständige CID-/
+Namensabwesenheit belegt; Cleanup 12,6183559/13,0445620/12,7929698/
+12,8262864 s, alle Admissionen geschlossen ohne failure. Nach Build je
+vier positive/vier tatsächliche 42231-DML-Kontrollen, voller 999-Row-
+Quellen-/Distanzabgleich und vollständige eigene Indexmetadaten vorhanden.
+Alle Ausführungsquellen samt Parent innerhalb C1 bytegleich; kein Rebuild.
+[Ergebnisdetails](SQL_SERVER_2025_AI_IDX012_RECOVERY_REVIEW.md#tatsächliche-vier-fehler--und-recoverylifecycles).
+Kosten-/Versionsledger bleiben geschlossen. Hard-Abort, Minimalrollen und
+vollständige Runtime-/TP-PERF-Abnahme bleiben offen. Keine Änderung anderer
+Repositories/Provider-/Cloud-/ONNX-/roter Hostgrenzen. Gesamtworkstream und
+Heartbeat aktiv; regulärer PR-/Integrations-/Sync-/Cleanupabschluss nötig.

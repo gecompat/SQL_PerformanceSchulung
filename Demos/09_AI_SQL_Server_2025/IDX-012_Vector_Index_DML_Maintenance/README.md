@@ -160,6 +160,24 @@ Cleanup. Alle Scalars bleiben unter 120000 UTF-16-Bytes und Clientbreite 65535.
 Isolierte Indexkosten und vollständige Runtimequalifikation bleiben offen. Der Guardrecord
 STORAGE_GUARD ist keine vollständige Speicheraufnahme und ersetzt keine Prüfung.
 
+## Kontrollierte Fehler- und Recoveryfälle
+
+Die feste Python-API-Option fault='after_setup' oder fault='after_index_build'
+prüft kontrollierte FAIL_EXECUTION-Fälle. Der Buildfehler wird erst nach
+geprüftem Index, Snapshot und unabhängiger vollständiger Quellen-/Distanz-
+kontrolle ausgelöst; der Tag lautet AFTER_INDEX_BUILD_AND_SOURCE_CHECK.
+Rebuild wird dabei nicht begonnen. Danach müssen tatsächliche Original-
+restores, neue Attestation vor markergebundenem Drop und DB-Abwesenheit
+bestehen. Ein früherer Fehler erfüllt diesen kontrollierten Fall nicht.
+Der [Recoveryvertrag](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_RECOVERY_REVIEW.md)
+begrenzt vier feste eigene serielle Fälle sowie Quellenreview und Budget.
+Alle vier festen Fälle desselben stabilen Kandidaten bestanden auf tatsächlichem
+17.0.5005.3: erwartetes FAIL_EXECUTION mit vollständigen Originalrestores 0/0,
+neuer DB-Abwesenheit und eigener vollständiger CID-/Namensabwesenheit.
+Die öffentlichen Ergebnisse bleiben FAIL; der Parent attestiert den Fehlerfall
+samt Recovery, keine vollständige Demoabnahme.
+Default unverändert; Hard-Abort und Minimalrollen bleiben zusätzlich offen.
+
 ## Optionale tatsächliche Phasenkosten
 
 Der dritte qualifizierte Kandidat für `--mode drop-rebuild --capture-storage

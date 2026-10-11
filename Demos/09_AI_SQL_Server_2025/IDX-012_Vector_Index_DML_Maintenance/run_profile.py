@@ -306,7 +306,7 @@ def same_snapshot(before, after, *, enable=None, table_names=None, indexes=None)
 def run_profile(*, executable, server, auth, username, token, confirmed, high_impact,
                 folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False, capture_costs=False):
     if (confirmed is not True or high_impact is not True or not isinstance(token,str)
-            or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup')
+            or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup','after_index_build')
             or mode not in ('dml-boundary','drop-rebuild') or type(capture_storage) is not bool
             or (capture_storage and mode!='drop-rebuild') or type(capture_costs) is not bool
             or (capture_costs and (mode!='drop-rebuild' or not capture_storage))):
@@ -394,6 +394,7 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             raise ValueError('Unabhängige tatsächliche eigene DB-ID fehlt')
         evidence['database_id']=database_id
         if fault=='after_setup':
+            evidence['controlled_fault']='AFTER_SETUP'
             phases.append(('CONTROLLED_FAULT_AFTER_SETUP','FAIL','FAIL_EXECUTION'))
             raise PhaseStop('FAIL','FAIL_EXECUTION')
         normal('ENABLE_PREVIEW','11_EnablePreview.sql')
@@ -441,6 +442,10 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             raise ValueError('Independent complete actual source or index state changed')
         snapshot(1,1,state)
         evidence['independent_source_comparison']={'rows':999,'full_text_equal':True,'distance_equal':True}
+        if fault=='after_index_build':
+            evidence['controlled_fault']='AFTER_INDEX_BUILD_AND_SOURCE_CHECK'
+            phases.append(('CONTROLLED_FAULT_AFTER_INDEX_BUILD','FAIL','FAIL_EXECUTION'))
+            raise PhaseStop('FAIL','FAIL_EXECUTION')
         if mode=='drop-rebuild':
             lifecycle_output=normal('DROP_CHANGE_REBUILD','50_CostRebuild.sql' if capture_costs else '50_DropRebuild.sql')
             costs(lifecycle_output,'REBUILD')
