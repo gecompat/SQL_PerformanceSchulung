@@ -1,5 +1,25 @@
 # Initialer Backlog
 
+## Eigenständiger KI-Workstream – Planung vom 2026-10-11
+
+`TSK-003` ist der gesondert autorisierte Planungsschnitt; sein Abschluss benötigt Validierung
+und Integration. Alle Folgepakete sind `PROPOSED`; allgemeine Entwicklung bleibt `PAUSED`.
+Umfang, Abhängigkeiten, Aufwand und Abnahme werden im
+[Workstream-Plan §12](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
+gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
+
+- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; gesonderter Implementierungsauftrag erforderlich.
+- [ ] `TSK-005`: lokaler Pfad und synthetisches Korpus; nach `TSK-004`.
+- [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005` und Previewentscheid.
+- [ ] `TSK-007`: lokale und optionale externe/ONNX-Embeddingpfade; nach `TSK-004` und jeweiliger Freigabe.
+- [ ] `TSK-008`: RAG/Quellenbewertung; nach `TSK-005`, Live zusätzlich `TSK-007`.
+- [ ] `TSK-009`: Rechte/Tenants/Injection/Datenschutz; nach `TSK-005`, Providerfälle zusätzlich `TSK-007`.
+- [ ] `TSK-010`: Benchmarks/Diagnose; nach `TSK-006` und `TSK-009`, Inferenz zusätzlich `TSK-007`.
+- [ ] `TSK-011`: SQL-Assistenz/Gegenmessung; nach `TSK-005` und `TSK-009`.
+- [ ] `TSK-012`: Curriculum/Masterdeck/Notes/Lehrmaterial; nach `TSK-008`–`TSK-011` und Demoabnahmen.
+- [ ] `TSK-013`: Runtime-/Negativ-/Cleanupqualifikation; nach `TSK-005`–`TSK-011`.
+- [ ] `TSK-014`: Generalprobe/Workstreamabnahme; nach `TSK-012` und `TSK-013`.
+
 Der gezielte Benutzerauftrag vom 2026-10-09 nimmt ausschließlich Prüfung und
 Abschluss der bestehenden G13-Reporterarbeit in PR 68 sowie den vollständigen
 Arbeitsabschluss nach DEC-069 wieder auf. Der

@@ -2064,6 +2064,919 @@
       "registration_state": "REGISTERED",
       "relations": [],
       "title": "Detailreview LABSCN-005/DGN-007: Capstone-Planungsschnitt mit Incident-, Hypothesen-, Zeitfenster-, Reset- und Teilnehmeruebergabevertrag"
+    },
+    "CON-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:b456c5da-55d7-42f2-9fe4-5968d3b7762c",
+      "external_refs": [],
+      "kind": "concurrency_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-009",
+          "type": "implements"
+        }
+      ],
+      "title": "Tenant-Isolation bei semantischer Suche"
+    },
+    "CUR-013": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:3388e25f-2b19-479c-92cb-f68638c7629b",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "KI-Grundlagen für SQL-Server-Fachleute"
+    },
+    "CUR-014": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:e1a4745a-f3b0-4cd9-8e14-a2070d058f33",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Native Vektoren und Exact Search"
+    },
+    "CUR-015": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:827cd682-7eae-4404-a787-4235c04be84d",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Chunking und Wissensbasis"
+    },
+    "CUR-016": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a05c5c07-9e0a-4064-8039-4edcefd770fd",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Modelle und sichere Integration"
+    },
+    "CUR-017": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a6604885-f481-4acc-8d4f-00956de8bb61",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Semantische Suche und RAG"
+    },
+    "CUR-018": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:399ef099-7996-4fb2-b5be-2d0e6a503a03",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Security, Datenschutz und Tenant-Isolation"
+    },
+    "CUR-019": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f556d5a8-a027-4622-a131-7244c6f0ba57",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "ANN und Index-Lifecycle"
+    },
+    "CUR-020": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d0a5cc45-c4c1-40a9-aca3-d28d1a34b9c8",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Performance, Skalierung und Diagnose"
+    },
+    "CUR-021": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:7011f1ef-f769-4c3b-8edb-0417840e8a8b",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "LLMs für SQL-Entwicklung und Analyse"
+    },
+    "CUR-022": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:305a240c-0ad5-4b81-97de-f1d399cdf914",
+      "external_refs": [],
+      "kind": "curriculum_work_item",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        }
+      ],
+      "title": "Architektur, Kosten und kontrollierte Agenten"
+    },
+    "DEC-073": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a19435ea-7018-4b7c-b24f-2dfe8ef091a1",
+      "external_refs": [],
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze"
+    },
+    "DGN-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ec85e3e0-9a94-415c-b58e-4427844cbdd9",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-009",
+          "type": "implements"
+        }
+      ],
+      "title": "External Models, Rechte und Datenabfluss"
+    },
+    "DGN-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a7ea2541-ac4e-48c2-bd65-273cb5177840",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-009",
+          "type": "implements"
+        },
+        {
+          "target": "QRY-018",
+          "type": "depends_on"
+        },
+        {
+          "target": "DGN-008",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Prompt Injection und manipulierte Retrieval-Quellen"
+    },
+    "DGN-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8100eb59-b552-49e9-828f-2d685e331b46",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-011",
+          "type": "implements"
+        }
+      ],
+      "title": "LLM-Optimierungsvorschlag und Gegenmessung"
+    },
+    "DGN-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:0b5bcb88-2686-4be3-a18d-e7e5432304fc",
+      "external_refs": [],
+      "kind": "diagnostic_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-010",
+          "type": "implements"
+        }
+      ],
+      "title": "SQL-, Netzwerk- und Inferenzdiagnose"
+    },
+    "IDX-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:85f57be5-586a-4735-8908-bccaa4348d14",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-006",
+          "type": "implements"
+        }
+      ],
+      "title": "Exact gegen Approximate Vector Search"
+    },
+    "IDX-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d9093d14-c07b-4719-a705-3d60193b20b9",
+      "external_refs": [],
+      "kind": "index_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-006",
+          "type": "implements"
+        },
+        {
+          "target": "IDX-011",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Vector-Index-Build, DML und Maintenance"
+    },
+    "QRY-014": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:89690488-73b9-40f5-bae2-4496644a3dd2",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "implements"
+        }
+      ],
+      "title": "Vektortypen und Dimensionsgrenzen"
+    },
+    "QRY-015": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:9aaeb233-3f1a-4fbd-8188-2d687a3e0672",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "implements"
+        }
+      ],
+      "title": "Distanz, Norm und Normalisierung"
+    },
+    "QRY-016": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:92dedb25-9ff5-4b82-a584-7807ed24d156",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "implements"
+        }
+      ],
+      "title": "Chunking, Overlap und Provenienz"
+    },
+    "QRY-017": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:125d9054-e8c0-4b95-8d26-b054330d0001",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "implements"
+        }
+      ],
+      "title": "Relationale, Full-Text- und semantische Suche"
+    },
+    "QRY-018": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:25eef1cd-7cc7-496f-84be-9ce55a40ede3",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-008",
+          "type": "implements"
+        }
+      ],
+      "title": "RAG mit überprüfbarer Retrieval-Evidenz"
+    },
+    "QRY-019": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d5c91f9b-9119-41a6-9519-2254f326928b",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-009",
+          "type": "implements"
+        }
+      ],
+      "title": "KI-generiertes SQL und Injection-Abwehr"
+    },
+    "QRY-020": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:059acad0-38ce-4b2b-b7ac-67a6d5ceb502",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-007",
+          "type": "implements"
+        }
+      ],
+      "title": "Lokale Embeddings über Ollama"
+    },
+    "QRY-021": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:27e75041-4307-4149-ab86-e5d70d43a4d1",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-007",
+          "type": "implements"
+        }
+      ],
+      "title": "Optionale externe Embeddings"
+    },
+    "QRY-022": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:a7bceab5-efa1-4422-8da5-474c86e249d0",
+      "external_refs": [],
+      "kind": "query_pattern_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-007",
+          "type": "implements"
+        }
+      ],
+      "title": "Optionale lokale ONNX-Embeddings"
+    },
+    "RES-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:06678094-17c6-439d-ba2e-33781ecd908f",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-010",
+          "type": "implements"
+        }
+      ],
+      "title": "Vektordimensionen und Ressourcenbedarf"
+    },
+    "RES-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:8a33dfd5-f7d5-4bae-bf8c-14ab66e0690e",
+      "external_refs": [],
+      "kind": "resource_demo",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-010",
+          "type": "implements"
+        }
+      ],
+      "title": "Concurrent Vector Workloads und Latenzverteilung"
+    },
+    "TSK-003": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:d31cdfee-0b36-4a13-b14a-b7e240abc892",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        }
+      ],
+      "title": "KI mit und für Microsoft SQL Server 2025: Planungsintegration"
+    },
+    "TSK-004": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4438cb01-beca-433b-9525-e32ad9cd829c",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-003",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Feature-, Build- und Providerqualifikation"
+    },
+    "TSK-005": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:6b6c1f13-a234-4bf6-9ff0-09b1733685f5",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-004",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Lokalpfad und synthetisches Korpus"
+    },
+    "TSK-006": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:dd13e5ec-27f8-433c-a417-7e835a02c83f",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Vector-Index und Maintenance"
+    },
+    "TSK-007": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:7bd978aa-bf7e-4ab0-ad80-02c08eb606db",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-004",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Embedding-Providerpfade"
+    },
+    "TSK-008": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:bc4b0bfd-54c0-4ec7-aa56-82d3b53f2644",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-007",
+          "type": "related_to"
+        }
+      ],
+      "title": "KI-RAG und Quellenbewertung"
+    },
+    "TSK-009": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:1952e2cc-ce05-405e-9181-f202573b6585",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-007",
+          "type": "related_to"
+        }
+      ],
+      "title": "KI-Security und Datenschutzlabor"
+    },
+    "TSK-010": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:f06d6deb-8472-452f-ae70-1b05adc71526",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-006",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-009",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-007",
+          "type": "related_to"
+        }
+      ],
+      "title": "KI-Benchmark und Diagnose"
+    },
+    "TSK-011": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:fc0ae44d-c8b5-4069-95bb-7b0557a11820",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-009",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-SQL-Assistenz und Gegenmessung"
+    },
+    "TSK-012": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:12c5f0b7-8222-4489-bf80-d07dc3890ade",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-008",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-009",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-010",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-011",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Präsentations- und Lehrmaterialintegration"
+    },
+    "TSK-013": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4d3ef83f-3e0a-43d8-9cb9-e46e4ac6baea",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-005",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-006",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-007",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-008",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-009",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-010",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-011",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Runtime- und Negativqualifikation"
+    },
+    "TSK-014": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:4b5aa1b1-f1ed-405c-a2c2-bea5f5a0a14b",
+      "external_refs": [],
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-073",
+          "type": "governed_by"
+        },
+        {
+          "target": "TSK-003",
+          "type": "parent"
+        },
+        {
+          "target": "TSK-012",
+          "type": "depends_on"
+        },
+        {
+          "target": "TSK-013",
+          "type": "depends_on"
+        }
+      ],
+      "title": "KI-Generalprobe und Workstreamabnahme"
     }
   },
   "prefixes": {

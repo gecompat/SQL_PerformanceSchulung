@@ -16,6 +16,17 @@
 
 ## 1. Kommunikations- und Kompetenzziel
 
+### Eigenständig geplanter KI-Workstream
+
+`DEC-073` ergänzt das Curriculum durch `CUR-013`–`CUR-022`. Die vollständigen Modulverträge
+mit Lernziel, Vorwissen, Theorie, Praxis, Zeit, Beobachtung, Verständnisfragen,
+Fehlinterpretationen, Musterlösungen und Quellen stehen im
+[Workstream-Plan §5–6](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#5-pfade-und-zeitbedarf).
+Die [Traceability-Matrix](TRACEABILITY_MATRIX.md) ordnet Aussage/Lernziel, Quelle, geplante
+Lehrposition, Demo und Testziel zu. BASIS/STANDARD/VERTIEFUNG sind berücksichtigt;
+geschätzt 150/390/640 Netto-Lehrminuten. Die bisherigen 52 Lernziele, Deckzählungen
+und VALIDATED-Metadaten beschreiben weiterhin das bestehende Curriculum.
+
 Nach Abschluss des gemeinsamen Kernpfads sollen SQL-Server-Developer und Analysten mit T-SQL-Grundkenntnissen ein Performanceproblem als überprüfbare Diagnoseaufgabe strukturieren, geeignete Evidenz auswählen, technische Ursache und bloße Korrelation unterscheiden und die Wirkung genau einer begründeten Änderung unter vergleichbaren Bedingungen nachweisen können.
 
 Die Schulung vermittelt keine Sammlung allgemeiner Tuningregeln. Technische Detailkenntnisse werden nur dann als Lernziel aufgenommen, wenn sie eine beobachtbare Diagnose- oder Entwurfsentscheidung ermöglichen. Produktverhalten, empirische Beobachtung und didaktische Methode bleiben getrennte Aussageklassen.

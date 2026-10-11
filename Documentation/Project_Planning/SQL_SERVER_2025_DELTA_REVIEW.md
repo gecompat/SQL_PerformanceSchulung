@@ -13,6 +13,9 @@
 
 ## 2. Entscheidungsmatrix
 
+Die Matrix ist der historische Befund vom 2026-08-28. Für den neuen Vector/KI-Planungsscope
+gilt zusätzlich §6; die damalige Zeile bleibt erhalten.
+
 | Funktion | Quellen | bestehender Bezug | Entscheidung | Begründung und nächste Bedingung |
 |---|---|---|---|---|
 | CE Feedback für Ausdrücke | `SRC-058`, `SRC-061` | `OPT-006`, `ADV-CLM-033` | `ADOPT` | SQL Server 2025, CL 160+, Datenbankkonfiguration, wiederkehrende Ausdrucksmuster und tatsächliche Feedbackevidenz. Keine neue Demo; ein späterer `OPT-006`-Schnitt prüft Showplan-, XE- oder Cacheevidenz und Regression Protection. |
@@ -40,3 +43,13 @@
 ## 5. Ergebnis
 
 Der Delta-Review übernimmt zwei Aussagen, stellt vier Funktionen zurück und klassifiziert Vector-/KI-Funktionen außerhalb des Curriculums. Er erzeugt keine neue Demo-ID und verändert die Entwicklungsreihenfolge nicht.
+
+## 6. Ergänzende Curriculumentscheidung vom 2026-10-11
+
+Der ausdrückliche Benutzerauftrag und `DEC-073` lösen die frühere Vector/KI-Scopegrenze für
+die **zukünftige Planung** ab. Der historische OUT_OF_SCOPE-Befund bleibt unverändert lesbar.
+Der [KI-Workstream-Plan](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md) mit Featurematrix und
+Demoentwurf definiert den neuen Lehrstrang. Quellen `SRC-072`–`SRC-100` ersetzen keinen
+Runtimebeleg. SQL Server 2025 Preview, Azure-Freigaben, Indexgenerationen und SSMSfunktionen
+werden getrennt geführt. Andere ADOPT-/DEFER-Entscheidungen und bestehende Reihenfolge bleiben
+erhalten; Demoimplementierung und Präsentationsarbeit benötigen einen eigenen Auftrag.

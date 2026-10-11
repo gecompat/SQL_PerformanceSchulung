@@ -1,5 +1,18 @@
 # Roadmap
 
+## Eigenständiger Workstream – KI mit und für Microsoft SQL Server 2025
+
+`TSK-003` und `DEC-073` autorisieren ausschließlich die Planung dieses neuen Lehrstrangs.
+Der [Workstream-Plan](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md)
+führt zehn Module (`CUR-013`–`CUR-022`), 18 zukünftige Demos und elf Folgepakete
+(`TSK-004`–`TSK-014`). BASIS/STANDARD/VERTIEFUNG umfassen geschätzte 150/390/640
+Netto-Lehrminuten. Bestehende Wellen und die allgemeine Entwicklungspause bleiben erhalten.
+
+Nach gesonderter Implementierungsfreigabe: Feature-/Buildqualifikation → lokaler Korpus/Vektoren
+→ Rechte/Tenants → optionale Modelle/RAG und Previewindizes → Benchmark/Assistenz →
+Lehrmaterial/Qualifikation → Generalprobe. Cloud, ONNX und Instanzänderungen besitzen separate Gates.
+Der frühere Vector/KI-Ausschluss bleibt historisch lesbar und wird für die künftige Planung ergänzt.
+
 ## Welle 0 - Fachliche Konsolidierung
 
 Bestehende Schulungsaussagen inventarisieren und als beibehalten, präzisieren, ersetzen oder entfernen klassifizieren. Besonders zu prüfen sind CTE-Materialisierung, Table Variables, Fill Factor, Partition-Metadaten, RCSI/SNAPSHOT, Columnstore-Versionen, Cardinality Estimation, Filegroups und Memory Grants.
