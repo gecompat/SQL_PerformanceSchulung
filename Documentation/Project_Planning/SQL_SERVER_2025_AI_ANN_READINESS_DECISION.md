@@ -1,9 +1,17 @@
 # TSK-006 – einzelner Entscheid für nachgewiesenes Readinessformat
 
-Stand: 2026-10-11. PENDING_USER_DECISION. Kein neuer ausführbarer Kandidat oder
-Container durch diesen Entwurf autorisiert. Der letzte
+Stand: 2026-10-11. AUTHORIZED: Der Benutzer bestätigte ausdrücklich
+„Ja, Readinesspaket freigeben (empfohlen)“. Ausschließlich der folgende einzelne
+Kandidat ist genehmigt; keine Runtimeabnahme dadurch. Der letzte
 [Clientkorrekturkandidat](SQL_SERVER_2025_AI_ANN_PARSER_CLIENT_REVIEW.md) ist FAIL,
 sein Budget verbraucht; eigene DB und Container sind nachweislich abwesend.
+
+Die genehmigte einzelne Readinesswiederaufnahme ist inzwischen als
+[Parser-/Previewdiagnose bestanden](SQL_SERVER_2025_AI_ANN_PARSER_PASS_REVIEW.md).
+Zwei identische Parseraufrufe, tatsächlicher Restore 0 und unabhängige DB-/
+Containerabwesenheit sind belegt. Kein Indexbuild oder Search; dieser einzelne
+Umfang ist abgeschlossen und wird nicht erneut ausgeführt. Ein neuer
+[Build-/Suchentscheid](SQL_SERVER_2025_AI_ANN_BUILD_DECISION.md) bleibt PENDING.
 
 Der enge unabhängige Review dieses Befund-/Budgetentwurfs fand keine P1/P2.
 Dies schließt ausschließlich das Entwurfsgate. Ein tatsächlich ausführbarer neuer

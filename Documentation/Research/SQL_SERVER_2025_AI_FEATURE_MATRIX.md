@@ -4,7 +4,8 @@ Stand und Prüfung: 2026-10-11. Arbeitspaket: `TSK-003`; Folgequalifikation: `TS
 Dies ist die fachliche Matrix zum [Workstream-Plan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md).
 Quellenautorität bleibt [SOURCE_REGISTER.md](SOURCE_REGISTER.md), Einträge `SRC-072`–`SRC-100`.
 Die folgenden Aussagen sind **Dokumentiert**, soweit eine Quelle angegeben ist.
-Buildqualifikation, Laufzeiten und Providerinteroperabilität sind noch nicht empirisch geprüft.
+Diese Matrix ersetzt keine empirische Build-/Runtime-/Providerqualifikation;
+konkrete Teilnachweise und offene Gates stehen im kanonischen Ausführungsstand.
 
 ## 1. Plattform- und Freigabegrenzen
 
@@ -80,6 +81,13 @@ norm1/norminf sind die anderen dokumentierten Normargumente. Die Metric bestimmt
 kleinere Distanz bedeutet Nähe, keine Wahrscheinlichkeit fachlicher Korrektheit.
 
 ### S3 – Index und Suche nach Indexgeneration
+
+Die [einzelne Parserdiagnose](../Project_Planning/SQL_SERVER_2025_AI_ANN_PARSER_PASS_REVIEW.md)
+bestand am eigenen Build 17.0.5005.3: tatsächlicher Previewwert 0 → Fehler 343,
+nach separat attestiertem 1 → gleicher Parsertext akzeptiert. Kein Indexbuild oder
+Suchlauf; historische Batch-/Sessionursache nicht isoliert bewiesen. Ein weiterer
+[Build-/Suchentscheid](../Project_Planning/SQL_SERVER_2025_AI_ANN_BUILD_DECISION.md)
+beantragt zusätzlich eigenen DB-scoped-MAXDOP-Set/Restore und bleibt PENDING.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die

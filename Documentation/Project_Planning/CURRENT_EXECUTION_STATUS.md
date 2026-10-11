@@ -383,6 +383,38 @@ PENDING_USER_DECISION, keine neue ausführbare Quelle oder Runtime. Sein enger
 Befund-/Entwurfsreview fand keine P1/P2; das spätere Ausführungsgate bleibt offen.
 Aktuelle Head-/Main-Gates, Integration und eigener Branchcleanup folgen.
 Der Heartbeat wiederholt diesen FAIL nicht automatisch.
+PR 159 ist mit sieben Headprüfungen auf `80d07bc0c5a981851485c2ba182ee437e8a94ba9`
+und fünf Main-Workflows auf `f0841b3652e23a3378bf535fe68caae53f3baea3` integriert.
+Tree `8e5f0b43587a16284eca73e90ed686dd4d8e09b2`, Synchronisierung und eigener lokaler/
+remote Branchabbau bestätigt. Der Benutzer bestätigte anschließend ausdrücklich
+„Ja, Readinesspaket freigeben (empfohlen)“. Auf `codex/sql2025-ai-ann-readiness`
+wird genau dessen neuer Kandidat vorbereitet: nur der Readinessmeldungsblock-
+auswerter für die erhaltene TCP-/Punktzeilenstruktur wird geändert. Alle anderen
+Client-/Parser-/Snapshot-/Helper-/Effekt-/Cleanupgrenzen bleiben unverändert.
+Drei betroffene Readiness-/Optionsfixtures bestanden vor Containerstart;
+der enge tatsächliche Delta-Quellenreview fand keine P1/P2. Der einzige neue
+Kandidat bestand als [Parser-/Previewdiagnose](SQL_SERVER_2025_AI_ANN_PARSER_PASS_REVIEW.md):
+tatsächliche Baseline 0, feste PARSEONLY-Probe mit Fehler 343 und unverändertem
+erfasstem Zustand; nach abgeschlossenem Enable und frischem attestiertem DB-Client
+Preview 1, derselbe Parsertext mit Code 0/leerer Ausgabe akzeptiert. Sieben volle
+Snapshots mit je 107 Host-/41 DB-scoped-Konfigurationsrows verglichen, eigene
+Fixture/Vectorindexabwesenheit vor/nach beiden Aufrufen. Ausgewählte sys.databases-
+Optionsfelder erfasst, keine allgemeine Metadatenqualifikation behaupten.
+Tatsächlicher RESTORED_0/DROP_CONFIRMED, separater neuer SQL-DB-Abwesenheitsclient,
+gebundener eigener Containerabbau und separate Abwesenheit bestanden; Cleanup
+12,715 Sekunden. Keine Indexgeneration, Suche, Recall-/Plan-/Performanceevidenz.
+Historische 343-Batch-/Sessionursache nicht isoliert kausal bewiesen; alte FAILs
+und Budgets bleiben erhalten. Ausgeführte Quellen unverändert, keine Wiederholung.
+Unmittelbar wird ein [konkreter ANN-Build-/Suchentscheid](SQL_SERVER_2025_AI_ANN_BUILD_DECISION.md)
+vorbereitet: zwei Kandidaten/vier eigene serielle Container, höchstens 1000
+VECTOR(3)-Rows und zusätzlich nur eigener DB-scoped-MAXDOP-Set/Restore auf tatsächlich
+gespeicherte 0. Frische Preview-/MAXDOP-Attestierung vor Build, Restore beider Werte
+mit separatem neuem Attestierungs-/Dropclient. Angepasstes Cleanupcallbudget weiterhin
+50 Sekunden/absolute 60; keine Host- oder zusätzlichen Providerwirkungen.
+SRC-108 begründet den dokumentierten Konfigurationspfad, kein empirischer Worker-/
+DOP-Befund. PENDING_USER_DECISION; enger Entwurfsreview fand keine P1/P2.
+Aktuelle Head-/Main-Gates, Integration und eigener Branchcleanup folgen.
+Kein automatischer ANN-Folgelauf oder neues Ausführungsgate dadurch.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
