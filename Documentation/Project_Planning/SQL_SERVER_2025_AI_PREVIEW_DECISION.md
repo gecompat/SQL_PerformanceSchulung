@@ -71,6 +71,17 @@ aus diesem kleinen synthetischen Profil. Ohne Freigabe bleibt PREVIEW_FEATURES u
 
 ## Grundlage und Grenze der konkreten Entscheidung
 
+Aktuelle Ressourcenpräzisierung vom 2026-10-11: `SRC-106`,
+[SQL Server 2025 known issues](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-known-issues?view=sql-server-ver17#vector-index),
+dokumentiert einen ignorierten MAXDOP-Parameter bei Vector Index/Search. Die DDL-
+Angabe MAXDOP=1 garantiert deshalb keinen tatsächlichen DOP 1; am ausgewählten
+Image wurde wegen Parser-FAIL kein Build-/DOP-Beleg erreicht. Die Effekte dieses
+historischen Pakets werden nicht erweitert. Weitere tatsächliche Builds/Suchläufe
+benötigen einen wirksamen freigegebenen DOP-1-Pfad, ein zusätzlicher DB-scoped-
+MAXDOP-Set/Restore ist bisher nicht freigegeben. Der
+[einzelne Parserdiagnoseentwurf](SQL_SERVER_2025_AI_ANN_PARSER_DECISION.md)
+enthält keinen Indexbuild und bleibt bis zum neuen Budgetentscheid PENDING.
+
 Der [kanonische Workstreamplan §12](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 führt TSK-006 mit der Abhängigkeit „Previewentscheid“. Der
 [gemeinsame Demo-Vertrag](../Demo_Catalog/SQL_SERVER_2025_AI_DEMO_DESIGNS.md#gemeinsamer-vertrag-aller-folgenden-entwürfe)
