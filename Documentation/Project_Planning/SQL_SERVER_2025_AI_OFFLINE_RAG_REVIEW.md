@@ -54,6 +54,12 @@ Katalogeintrag erhöht die geplante Docker-/Podman-Vollmatrix von 312 auf 324 Ru
 ausgeführte Abnahme. Die bestehende breitere Katalogregression bleibt erhalten; es gibt
 keine zusätzliche Vollmatrixautomation, keinen Rohlogexport und keine Reviewkette.
 Static-only Folgedokumentation verlangt keine erneute SQL-Qualifikation am gleichen Input.
+Eine nachträgliche konkrete Secret-Grenze betraf den bestehenden KI-Readiness-Schritt:
+Docker erhielt den Passwortwert als -e-Prozessargument. Der korrigierte Schritt übergibt
+nur SQLCMDPASSWORD als Namen und übernimmt den Wert aus der Prozessumgebung, wie die
+vorhandenen Runtimeadapter und alle lokalen Qualifikationen. Eine statische Regression
+schützt diese Grenze. Die neue Runtimeblockänderung rechtfertigt einen frischen Head-/CI-Gate;
+laufende mutierende Jobs werden bis zu ihrem Cleanup erhalten. Keine SQL-/Oraclekorrektur.
 
 ## Reproduktion und nächste Schritte
 

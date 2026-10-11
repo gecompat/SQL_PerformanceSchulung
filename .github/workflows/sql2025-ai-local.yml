@@ -121,10 +121,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          password="${SQLCMDPASSWORD}"
           login_ready=0
           for attempt in $(seq 1 30); do
-            if docker exec -e "SQLCMDPASSWORD=${password}" "${SQLPERF_SQL_CONTAINER}" sh -lc '
+            if docker exec -e SQLCMDPASSWORD "${SQLPERF_SQL_CONTAINER}" sh -lc '
               if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
               elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
               else exit 127; fi
