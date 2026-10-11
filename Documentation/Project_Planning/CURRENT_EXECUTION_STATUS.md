@@ -146,6 +146,16 @@ QRY-014, keine vollständige Podman-/360-Matrixabnahme.
 Für TSK-006 ist ein [konkretes lokales Preview-Freigabepaket](SQL_SERVER_2025_AI_PREVIEW_DECISION.md)
 vorbereitet; die Benutzerentscheidung ist ausstehend. PREVIEW_FEATURES wurde nicht aktiviert.
 Andere zulässige Offlinearbeit bleibt ausführbar; Gesamtworkstream und Heartbeat bleiben aktiv.
+
+Der Provider-/Previewcheckpoint ist über PR 144 mit sieben Headprüfungen und fünf
+Main-Workflows integriert in `acd88e25e15932ff42154a7c40e436d8837aaee8`; Tree-Identität,
+Synchronisierung und eigener lokaler/remote Branchabbau sind abgeschlossen.
+Unmittelbar bestand eine neue private DGN-010-Ergebnis-/Storageprobe auf eigenem
+Podman17.0.5005.3: je zehn gleiche volle Queryrows vor/mit/nach eigenem INCLUDE-Index,
+1000 unveränderte SourceRows, 17 zusätzliche tatsächliche Indexseiten und unabhängiger
+DB-/Containerabbau. Ein enger Quellenreview fand keine konkreten P1/P2. DGN-010 bleibt
+PROPOSED; A/B/BA/AA, tatsächliche Pläne/Reads/CPU/DMLkosten und vollständige TP-PERF-
+Abnahme fehlen. [Nachweis](SQL_SERVER_2025_AI_INDEX_HYPOTHESIS_REVIEW.md).
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
