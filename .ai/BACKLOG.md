@@ -16,7 +16,7 @@ gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 - [ ] `TSK-008`: QRY-018 Offline-Replay integriert über PR 137 mit grünen Head-/Main-Gates; Live zusätzlich `TSK-007` bleibt offen.
 - [ ] `TSK-009`: QRY-019, DGN-009 und DGN-008 integriert über PR 138/141/143 mit grünen Head-/Main-Gates; CON-010 nach zwei Korrekturwellen mit FAIL angehalten ([Checkpoint](../Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_REVIEW.md)). DGN-008-Offline-Metadatenrechte sind [ohne Inferenz qualifiziert](../Documentation/Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md). Tenant-/Datenschutz-/Providerfälle bleiben offen.
 - [ ] `TSK-010`: Benchmarks/Diagnose; nach `TSK-006` und `TSK-009`, Inferenz zusätzlich `TSK-007`.
-- [ ] `TSK-011`: SQL-Assistenz/Gegenmessung; nach `TSK-005` und `TSK-009`.
+- [ ] `TSK-011`: SQL-Assistenz/Gegenmessung; nach `TSK-005` und `TSK-009`. [Private DGN-010-Ergebnis-/Storagevorbereitung](../Documentation/Project_Planning/SQL_SERVER_2025_AI_INDEX_HYPOTHESIS_REVIEW.md) bestand ohne Performanceclaim; vollständige TP-PERF-Abnahme bleibt offen, Demo PROPOSED.
 - [ ] `TSK-012`: Curriculum/Masterdeck/Notes/Lehrmaterial; nach `TSK-008`–`TSK-011` und Demoabnahmen.
 - [ ] `TSK-013`: Runtime-/Negativ-/Cleanupqualifikation; nach `TSK-005`–`TSK-011`.
 - [ ] `TSK-014`: Generalprobe/Workstreamabnahme; nach `TSK-012` und `TSK-013`.

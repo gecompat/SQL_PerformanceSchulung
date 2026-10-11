@@ -67,3 +67,13 @@ bilden diesen endlichen Slice. Modell-/Tokenverbrauch des Orchestrators bleibt u
 TSK-004 bleibt offen für weitere Syntax-/Treiber-/Feature- und Providerpfade; der reale
 lokale Modellpfad bleibt am DEC-033-Secretgate. Preview/ANN, Cloud-/Bezahl-, ONNX- und
 rote Hoständerungen werden durch diesen Providerbeleg nicht freigegeben.
+
+## Integration des Checkpoints
+
+[PR 144](https://github.com/gecompat/SQL_PerformanceSchulung/pull/144) bestand sieben
+Headprüfungen auf `4ac365c4b94ca78b8c5eaf76a7eb2d35c2bff83d`; Squash
+`acd88e25e15932ff42154a7c40e436d8837aaee8` alle fünf ausgewählten Main-Workflows.
+Vollständiger Tree `34b170cbf4cc4e2b20882459c261d1eb7a1cd3f7`, main-Synchronisierung
+und eigener lokaler/remote Branchabbau wurden geprüft. Keine SQL-Runtimequelle
+wurde im Checkpoint geändert oder unverändert erneut ausgeführt.
+Unmittelbar folgte die [private DGN-010-Ergebnis-/Storagevorbereitung](SQL_SERVER_2025_AI_INDEX_HYPOTHESIS_REVIEW.md).
