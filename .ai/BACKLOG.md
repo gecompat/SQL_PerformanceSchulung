@@ -9,7 +9,7 @@ Umfang, Abhängigkeiten, Aufwand und Abnahme werden im
 [Workstream-Plan §12](../Documentation/Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#12-priorisierte-arbeitspakete-und-abhängigkeiten)
 gepflegt. Registry-REGISTERED bezeichnet Identität, keine Umsetzung.
 
-- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; lokale Docker-Qualifikation und [begrenzte Podman-QRY-014–016-Proben](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bestanden; [CL-Slice nach zwei Korrekturwellen FAIL](../Documentation/Project_Planning/SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md), weitere Syntax-/Treiber-/Feature-/Providerpfade offen.
+- [ ] `TSK-004`: Feature-/Build-/Providerqualifikation; lokale Docker-Qualifikation und [begrenzte Podman-QRY-014–018-Proben](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bestanden; [CL-Slice nach zwei Korrekturwellen FAIL](../Documentation/Project_Planning/SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md), weitere Syntax-/Treiber-/Feature-/Providerpfade offen.
 - [ ] `TSK-005`: lokaler Pfad und synthetisches Korpus; QRY-014 bis QRY-017 implementiert, Runtime-/Integrationsgate im aktuellen Nachweis.
 - [ ] `TSK-006`: ANN-/Index-Lifecycle; nach `TSK-005`. [Konkretes lokales Freigabepaket](../Documentation/Project_Planning/SQL_SERVER_2025_AI_PREVIEW_DECISION.md) ausdrücklich genehmigt; [erster privater Prototyp nach zwei Korrekturwellen FAIL](../Documentation/Project_Planning/SQL_SERVER_2025_AI_ANN_PREVIEW_REVIEW.md), Runtime und IDX-011/IDX-012-Abnahme offen.
 - [ ] `TSK-007`: lokale und optionale externe/ONNX-Embeddingpfade; nach `TSK-004` und jeweiliger Freigabe.

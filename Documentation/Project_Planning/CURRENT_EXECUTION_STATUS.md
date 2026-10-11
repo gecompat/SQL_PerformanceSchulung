@@ -230,7 +230,22 @@ Markerfälle und jeweils zwei fachliche Negativkontrollen. Unabhängige eigene
 DB-Abwesenheit und sechs ownergebundene Containerabbaue sind bestätigt.
 Keine Korrekturwelle; kein neuer unabhängiger Review unveränderter Grenzen.
 Der [Providercheckpoint](SQL_SERVER_2025_AI_PROVIDER_REVIEW.md#erweiterung-auf-qry-015-und-qry-016)
-begrenzt die Aussage. Aktuelle Head-/Main-Gates und eigener Branchabbau sind offen.
+begrenzt die Aussage. PR 151 ist mit acht Headprüfungen auf
+`3427e0c9bcb60ebb822ddcab19131a3e0e0e9f91` und sechs Main-Workflows auf
+`608280e0b1aaae4a64fdc20cfab7bc0569ef654c` integriert. Tree
+`0da1460fde61843d72864030ea0456ed8decbabc`, Synchronisierung und eigener lokaler/remote
+Branchabbau sind bestätigt. Unmittelbar folgt auf `codex/sql2025-ai-podman-search-rag`
+der unabhängige QRY-017/QRY-018-Podmanschnitt mit denselben sechs seriellen eigenen
+Containern als Höchstzahl, je zwei Lifecycles je Demo und 15.x/16.x/17.x sowie maximal
+zwei Korrekturwellen. Unveränderte SQL-/Runner-/Marker-/Ergebnisverträge; optionales
+Full-Text-WARN bleibt sichtbar. Ein Owner, keine neuen Provider-/Secret-/Cleanupgrenzen.
+Der QRY-017/QRY-018-Podmanschnitt bestand die erwarteten Verträge auf allen drei
+Versionen: QRY-017 zweimal WARN bei fehlender optionaler Full-Text-Evidenz mit je
+drei Assertions, QRY-018 zweimal PASS mit je vier Assertions; acht ältere
+SKIP_VERSION-Lifecycles vor Setup. 48/80 volle Markerfälle, Setup-Idempotenz und
+ein/sieben fachliche Negativfälle bestanden; eigene DBs und sechs Container sind
+unabhängig abwesend. Kein Runtimefehler, keine Korrekturwelle. Vor Abschluss sind
+die aktuellen ausgewählten Head-/Main-Gates, Synchronisierung und Branchabbau nötig.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
