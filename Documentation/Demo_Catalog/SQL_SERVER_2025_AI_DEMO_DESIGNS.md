@@ -221,6 +221,10 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   Oraclevergleich, Fallback gekennzeichnet, keine Indexverwendung ohne Planbeleg,
   Qualität vorab fixiert, Performance ohne feste Beschleunigungsratio; unabhängiger Cleanup.
 - Quellen/Abhängigkeit: `SRC-073`, `SRC-077`/`SRC-078`/`SRC-094`/`SRC-097`; `TSK-005`, Previewfreigabe.
+- Implementierungsvorbereitung: [begrenzter Benchmark-Auswertungsvertrag](../Project_Planning/SQL_SERVER_2025_AI_IDX011_BENCHMARK_CONTRACT.md)
+  mit getrennten tatsächlichen Warm-up-Requests, seriellen AB-/BA-/AA-Fenstern
+  und Qualitätsprüfung je Query. Offline-Gegenproben ersetzen keine öffentliche
+  SQL-, TP-PERF-, Versions-, Plan- oder Recoveryabnahme; IDX-011 bleibt offen.
 
 ## IDX-012 – Vector-Index-Build, DML und Maintenance
 
