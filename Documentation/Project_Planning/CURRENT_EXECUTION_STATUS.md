@@ -600,7 +600,13 @@ belegt; keine Speedupratio aus quantisierten Kleinstmessungen. Vollständige Sou
 Metadaten-/Konfigurationskontrollen, Restores 0/0, neue Attestierung und separate
 DB-/Containerabwesenheit bestanden; Cleanup 12,386/12,299 Sekunden. Zwei Kandidaten/
 drei Container, Messscope abgeschlossen. Der [Messnachweis](SQL_SERVER_2025_AI_ANN_MEASUREMENT_REVIEW.md)
-bewahrt Kandidat01-WARN und begrenzte Requestmetrik. Aktuelle Integration folgt.
+bewahrt Kandidat01-WARN und begrenzte Requestmetrik. PR 166 ist mit acht erfolgreichen
+Headprüfungen auf `0f02c1422553d14bb143efda5b7e2a21b0177c10` gegen Basis
+`777c56210e08114f9d180ae907075a50544a4be0` integriert. Alle sechs ausgewählten
+Main-Workflows auf `b7fd69ce49e50a4f489b38640464e520f0329087` bestanden;
+Tree-Identität `0050622ffdc09c9070bbceb73aad19ae98d0ccff`, main synchronisiert,
+eigener Branch lokal/remote entfernt. Der neue DML-Diagnosebranch beginnt an
+dieser Basis: `codex/sql2025-ai-ann-dml`.
 
 Unmittelbarer nächster zulässiger eigener Schnitt nach dieser Integration:
 ein fester gültiger UPDATE auf der eigenen 1000-Row-VECTOR(3)-Quelle bei aktivem
@@ -615,6 +621,49 @@ Image-/Versions-/Ressourcen-/Konfigurations-/Marker-/Zeit-/Restore-/Cleanupgrenz
 gelten; betroffene Tests und enger tatsächlicher Quellen-/Methodenreview vor SQL.
 Keine Host-/Cloud-/ONNX-Wirkung. Kein Reset früherer Budgets; eigener endlicher
 DML-Diagnosescope aus der ausdrücklich erteilten weiteren lokalen Wellenfreigabe.
+Vorprüfung der tatsächlichen vollständigen 41 DB-Konfigurationsrows des gebundenen
+Builds zeigt keine ALLOW_STALE_VECTOR_INDEX-Row. Der Diagnoseguard verlangt dieses
+ABSENT-Profil; keine erfundene OFF-Attestierung und kein Set. Ein neues privates
+Kandidat01-Delta begrenzt genau ein parameterisiertes gültiges UPDATE auf Id 23,
+vorher tatsächlich vorhandenes und abweichendes VECTOR(3)-Ziel. Nach Erfolg wird
+die tatsächliche eine Row und Zielbyteform innerhalb der Transaktion gesichert;
+SQL-Rejection und Fehlernummer/-State/-Text werden ohne Read-only-Klassifikation
+aufgenommen. Immer Rollback und vollständiger beidseitiger Sourcebytevergleich.
+Elf betroffene Grenz-/Diagnosegegenproben bestanden; erforderlicher enger Methoden-/
+Quellenreview schloss vor SQL ohne offene P1/P2, kein vollständiger erneut unveränderter
+Safetyreview. Kandidat 01 tatsächlich FAIL: gültiges UPDATE mit SQL 42231/State 1
+verweigert, vollständige Source-/Metadaten-/Konfigurationskontrollen bestanden;
+JSON meldete RolledBack=false trotz zuvor bestandenem Transaktionsguard. Dies
+ist widersprüchliche Transaktionsevidenz, kein technischer DML-Diagnose-PASS.
+Restores 0/0, neue Attestierung und separate DB-/Containerabwesenheit bestanden
+in 12,253 Sekunden; Prozesscode 1, ausgeführte Bytes bleiben unverändert.
+Der zweite bereits budgetierte Kandidat sichert tatsächlichen @@TRANCOUNT und
+XACT_STATE() unmittelbar nach Rollback in Variablen, prüft beide null und gibt
+diese Zahlen sowie das daraus abgeleitete RolledBack aus, statt erneut innerhalb
+der JSON-SELECT auszuwerten. Parser verlangt beide tatsächlichen Zahlen null;
+NULL, negativ, offen oder Boolean werden verworfen. Sieben betroffene Tests und
+enger Befundnachreview schlossen vor SQL ohne offene P1/P2. Zwei unveränderte
+Lifecycles bestanden: tatsächliche UPDATE-Verweigerung 42231/State 1,
+TransactionCount=0/TransactionState=0, Sourcebytes/Indexmetadaten unverändert.
+Vollständige Kontrollen, Restores 0/0, neue Attestierung und separate DB-/
+Containerabwesenheit bestanden; Cleanup 12,391/12,323 Sekunden, Prozesscode 0.
+Zwei Kandidaten/drei Container, Scope abgeschlossen; früherer FAIL bleibt erhalten.
+Der [DML-Diagnosenachweis](SQL_SERVER_2025_AI_ANN_DML_REVIEW.md) begrenzt diesen
+konkreten UPDATE-Befund: Freshness NOT_TESTED, allgemeine DML-Unterstützung UNPROVEN,
+Generation UNKNOWN. Aktuelle Integration folgt.
+
+Unmittelbarer nächster zulässiger Schritt nach Integration ist die enge fachliche
+Methodenentscheidung für das beobachtete fehlende numerische Versionsfeld:
+prüfen, ob IDX-011/IDX-012 für ausschließlich den festen Build 17.0.5005.3 ein
+empirisch gebundenes Legacy-DiskANN/COSINE-/TOP_N-/UPDATE-Rejection-Profil mit
+Generation UNKNOWN/WARN akzeptieren können. Kein Ersetzen unbekannter Werte durch
+1/2/3, kein Azure-/anderer Buildtransfer und kein Wegfall von tatsächlicher
+Plan-/Index-/Ergebnis-/Qualitäts-/Mess-/Versions-/Restore-/Cleanupabnahme.
+Ein zusammenhängender Methodenentwurf und ein erforderlicher unabhängiger fachlicher
+Review, höchstens eine kohärente Korrektur; keine neue SQL-/Provider-/Hostwirkung.
+Bei fachlicher Annahme eigene stabile Entscheidung via zentraler Registry und
+scopebezogene Aktualisierung der beiden Demoentwürfe; keine globale Framework-
+Lockerung. Die Nutzerfreigabe umfasst notwendige weitere lokale Schritte dieser Welle.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 
