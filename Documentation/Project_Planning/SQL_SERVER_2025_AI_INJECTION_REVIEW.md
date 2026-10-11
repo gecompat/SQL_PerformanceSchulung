@@ -2,8 +2,8 @@
 
 Stand: 2026-10-11. CUR-018/CUR-022, TSK-009, TP-RUN.
 Basis: `26461f9f9716da3e83f0a807c9e0d64acdf7a45e`, Branch
-`codex/sql2025-ai-injection-preparation`. IMPLEMENTED; lokaler Runtime-/Review-/
-Integrationsgate noch offen; lokale Versionsqualifikation und Quellenreview bestanden. DGN-008-External-Modelrechte und Livegeneration bleiben
+`codex/sql2025-ai-injection-preparation`. IMPLEMENTED; lokale Versionsqualifikation,
+Quellenreview und Integration abgeschlossen. DGN-008-External-Modelrechte und Livegeneration bleiben
 getrennt offen; CON-010 bleibt mit FAIL am [Checkpoint](SQL_SERVER_2025_AI_TENANT_REVIEW.md).
 
 ## Tatsächlicher Kontrollumfang
@@ -106,3 +106,16 @@ Die Primärquellen wurden am 2026-10-11 geprüft: GRANT benötigt passende Grant
 laut [Microsoft](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/grant-a-permission-to-a-principal?view=sql-server-ver17);
 4613 bezeichnet fehlendes GRANT-Recht im
 [Fehlerkatalog](https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors-4000-to-4999?view=sql-server-ver17).
+
+## Integration und eigener Arbeitsabschluss
+
+[PR 141](https://github.com/gecompat/SQL_PerformanceSchulung/pull/141) bestand alle
+49 Prüfungen am exakten Head `d97dda7a7f69db44c7381e449658edb79aaba623` gegen die
+unveränderte Basis `26461f9f9716da3e83f0a807c9e0d64acdf7a45e`. Squash
+`8d3b074ddbfb4694f1d111ef41e56514da4a0391` hat denselben vollständigen Tree
+`76d7471a90b77f77d992b6342e61804fd27632a7`. main wurde synchronisiert und der eigene
+Branch lokal/remote entfernt. Alle elf Main-Workflows dieses Integrationscommits
+bestanden, einschließlich [KI-Matrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38136885343)
+und [bestehender Regression](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/38136885369).
+Der unmittelbar folgende DGN-008-Vorbereitungsschnitt wird im
+[getrennten Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) geführt.
