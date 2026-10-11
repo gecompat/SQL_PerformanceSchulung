@@ -842,6 +842,25 @@ tatsächliche No-Index-/Transaktionsaufnahme nach Drop, erst danach festes
 parametrisiertes UPDATE im unteren Compile-Scope. Frühere Hypothese zur statischen
 Bindung bleibt unbewiesen; Freshness NOT_ESTABLISHED. Neue Runtime erst nach
 Integration dieses Checkpoints und enger Quellen-/Pfad-/Hashclosure.
+PR173 ist vollständig integriert: Head 273ed98bd3592d068dc8ddbb720772205c48617a
+gegen Base a661ad0e3ac206beb66535c59bfb1512066b6c4a, alle 13 Headchecks SUCCESS;
+Squash efc9d0fa820e633f1159f22d7b151ac74fc5eb06, alle sieben gewählten
+Main-Workflows SUCCESS. Tree f0b03f9aebfd1ed9375b59b8c53d0094f3bd889f identisch,
+main synchronisiert, eigener Branch lokal/remote entfernt.
+Nach tatsächlicher öffentlicher Pfad-/Hashclosure erfüllte die getrennte
+Compile-Folge ihren einzigen stabilen Kandidaten mit beiden Lifecycles:
+605DA945288C4E55 und 65DAFE36C86649D3. Tatsächlicher Indexcount null nach Drop,
+Commit exakt Id 999 und fünf vollständige distanzgeprüfte Suchkontrollen;
+Top-5 zuvor 23/40/6/63/46, danach Exact und ANN 999/23/40/6/63, Recall@5 1.
+Neue vollständige Quellen-/Metadatenaufnahme bestätigte alle 999 Rows und
+unveränderte übrige 998 Vektortexte. Originalrestores 0/0 und separate DB-/
+Containerabwesenheit bestanden, gesamter Cleanup 12,379/12,152 s.
+Erster Build/Rebuild 756,468/895,366 und 732,222/747,841 ms; keine allgemeine
+Kosten-/Qualitygarantie. Generation UNKNOWN/WARN, Freshness ausschließlich
+OBSERVED_AFTER_REBUILD_ONLY und Runtimequalifikation NOT_ESTABLISHED.
+Alle drei bisherigen Scopeledger bleiben geschlossen, ursprüngliche FAILs
+bleiben erhalten. Folgeschnitt codex/sql2025-ai-idx012-compile integriert
+ausschließlich diese tatsächlich neue Dokumentation; Code unverändert.
 Bei FAIL hält der Kandidat an;
 ein geänderter zweiter Kandidat braucht konkreten Befund und aktuelle Closure,
 kein stiller Reset. Nach zwei ungelösten Kandidaten checkpointgebundener Stop.

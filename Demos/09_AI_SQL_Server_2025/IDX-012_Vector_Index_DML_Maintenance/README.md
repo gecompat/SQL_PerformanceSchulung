@@ -104,8 +104,11 @@ Updateunterstützung, laufende Indexaktualisierung oder neue numerische Generati
 Dieser zusätzliche Modus benötigt seinen eigenen Quellen-/Runtimebefund;
 frühere DML-Läufe attestieren ihn nicht.
 Der [Rebuildcheckpoint](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_REBUILD_REVIEW.md)
-enthält zwei tatsächliche FAILs und den getrennten Compile-Folgeentwurf.
-Der Modus ist noch nicht runtimequalifiziert; Freshness NOT_ESTABLISHED.
+erhält zwei tatsächliche FAILs und belegt anschließend beide vollständig
+abgeschlossenen Compile-Lifecycles: tatsächlicher Drop, Commit exakt Id 999,
+fünf distanzgeprüfte Suchkontrollen, Recall@5 1, vollständige neue Quellen-/
+Metadatenprüfung sowie Restores/DB-/Containerabwesenheit. Freshness ausschließlich
+OBSERVED_AFTER_REBUILD_ONLY; vollständige Runtimequalifikation NOT_ESTABLISHED.
 
 ```powershell
 python Tests/Static/test_idx012_profile.py

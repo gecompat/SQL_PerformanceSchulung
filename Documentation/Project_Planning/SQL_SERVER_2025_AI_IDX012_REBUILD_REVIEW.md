@@ -1,6 +1,7 @@
 # IDX-012 – Drop-/Änderungs-/Rebuildcheckpoint
 
-Stand: 2026-10-11. Beide Runtimekandidaten FAIL; Freshness nicht attestiert.
+Stand: 2026-10-11. Ursprüngliche Kandidaten FAIL; getrennte Compile-Folge zweimal
+technisch erfüllt. Freshness ausschließlich OBSERVED_AFTER_REBUILD_ONLY.
 TSK-006 und vollständige Demoabnahme bleiben offen.
 
 ## Beendete ursprüngliche Welle
@@ -78,6 +79,66 @@ SHA256 der geprüften Folgequellen:
 
 Nur Quellenreview; keine Runtime durch den Reviewer. Checkpointintegration und
 tatsächliche aktuelle öffentliche Import-/Hashbindung bleiben vor Admission Pflicht.
+
+## Tatsächlich abgeschlossene Compile-Folge
+
+Der Checkpoint ist über PR173 vollständig integriert: Head
+273ed98bd3592d068dc8ddbb720772205c48617a gegen Base
+a661ad0e3ac206beb66535c59bfb1512066b6c4a, alle 13 Headchecks SUCCESS.
+Squash efc9d0fa820e633f1159f22d7b151ac74fc5eb06, alle sieben tatsächlich gewählten
+Main-Workflows einschließlich KI-Matrix/Cleanup SUCCESS. Vollständiger Tree
+f0b03f9aebfd1ed9375b59b8c53d0094f3bd889f identisch, main synchronisiert,
+eigener Branch lokal/remote entfernt.
+
+Danach tatsächlicher öffentlicher Import-/Pfad-/Hashschluss mit den oben
+geprüften Codebytes; Git-Zeilenendendarstellung wurde getrennt geprüft und die
+reviewten Originalbytes für die Runtime erhalten. Keine semantische Codeänderung.
+Neuer Compile-Parent/Ledger: genau ein stabiler Kandidat, zwei eigene Container,
+keine Korrekturwelle. Beide Lifecycles vollständig geschlossen:
+
+| Beobachtung | Lauf 1 | Lauf 2 |
+|---|---|---|
+| vollständiger eigener Token | 605DA945288C4E55 | 65DAFE36C86649D3 |
+| Ausgang | WARN_OPTIONAL_EVIDENCE_SKIPPED | WARN_OPTIONAL_EVIDENCE_SKIPPED |
+| tatsächlicher Indexcount nach Drop/vor DML | 0 | 0 |
+| tatsächlicher Commit der Änderung | eine Row, Id 999, Transaktion 0/0 | eine Row, Id 999, Transaktion 0/0 |
+| Quellenprüfung über neue Verbindung | alle 999 Rows, nur Id 999 geändert | alle 999 Rows, nur Id 999 geändert |
+| erster Indexbuild / Rebuild-Wandzeit | 756,468 / 895,366 ms | 732,222 / 747,841 ms |
+| tatsächliche Originalrestores Preview/MAXDOP | 0/0 | 0/0 |
+| gesamter Cleanup ab erstem Restore | 12,379 s | 12,152 s |
+| separate DB-/eigene CID-/Namensabwesenheit | bestanden | bestanden |
+
+Beide Läufe prüfen vor dieser Folge zusätzlich alle vier positiven und vier
+verweigerten DML-Kontrollen aus der DML-Grenzenvorstufe. Nach Drop ist die
+tatsächlich ausgegebene Rowzahl 999, Transaktionswerte 0/0; das untere dynamische
+UPDATE meldet eine betroffene Row. Der vollständige neue Clientvergleich prüft
+alle übrigen 998 Vektortexte exakt unverändert, Id 999 tatsächlich [1,0,0], alle
+999 Cosinedistanzen unabhängig und vollständige aktuelle eigene Indexmetadaten.
+
+Alle fünf Suchkontrollen stimmen in beiden Läufen überein:
+
+| Phase/Pfad | tatsächliche distanzgeprüfte Top-5-IDs |
+|---|---|
+| Baseline Exact und ANN | 23, 40, 6, 63, 46 |
+| nach Änderung ohne Index, Exact | 999, 23, 40, 6, 63 |
+| nach Rebuild, Exact und ANN | 999, 23, 40, 6, 63 |
+
+ANN-Recall@5 ist jeweils tatsächlich 1; Id 999 hat nach Änderung/Rebuild
+Distanz null und war zuvor nicht in den Top-5. Keine Benchmarkserie oder
+allgemeine Qualitätsgarantie. Der tatsächlich neu erstellte eigene Index ist
+type 8/VECTOR, aktiv, nicht hypothetisch, DiskANN/COSINE. Metadata-/Source-
+vergleich und vollständige Host-/Scoped-/Marker-/Baselinesnapshots bestanden.
+Die numerische Generation bleibt UNKNOWN; gleiche Index-ID beweist keine
+Indexgeneration oder In-place-Aktualisierung. Der Ursprung des historischen
+statischen 42231 ist mit diesen positiven Folgeinputs nicht isoliert bewiesen.
+
+Dies attestiert ausschließlich den konkreten Drop-/Commit-/Rebuildpfad in
+17.0.5005.3. Freshness OBSERVED_AFTER_REBUILD_ONLY, Runtimequalifikation
+NOT_ESTABLISHED. Vollständige Storage-/Writes-/TempDB-/Worker-/Plan-/Rollen-/
+Hard-Abort-/Versions-/TP-PERF-Abnahme bleiben offen. Kein neuer Modell-/
+Provideraufruf; alte FAILs/Budgets bleiben erhalten. Dieser Folgeschnitt ändert
+ausschließlich die Dokumentation des tatsächlich erhaltenen Ergebnisses;
+keine Wiederholung unveränderter Codechecks, keine zusätzliche Reviewkette.
 
 Aufwand: ein Owner, erforderliche enge Reviews zu den tatsächlichen neuen
 Befunden; keine Reviewkette, keine Wiederholung grüner unveränderter Tests.
