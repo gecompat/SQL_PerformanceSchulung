@@ -309,6 +309,24 @@ kohärente Korrekturwellen; keine neue Runtime oder unabhängige Reviewkette fü
 unveränderte Demoquellen. Alle 14 lokalen Materiallinks, INF-001-Ausführungspfad,
 Datenschutz-/Metadatenprüfung und git diff --check bestanden. Aktuelle Head-/Main-
 Gates und Integration dieses reinen Materialschnitts folgen.
+PR 156 ist mit neun Headprüfungen auf `4345ecbfddbb97120e5a679978a19ed65e7411e7`
+und sieben Main-Workflows auf `5b638544621b50ad6a8db2c1051c4250861d3490` integriert.
+Tree `07992392e80c446f83970ba2885af96782344d00`, Synchronisierung und eigener lokaler/
+remote Branchabbau bestätigt. Unmittelbar folgt auf `codex/sql2025-ai-ann-parser-decision`
+die reine Vorbereitung eines [einzelnen Parserdiagnoseentscheids](SQL_SERVER_2025_AI_ANN_PARSER_DECISION.md).
+PENDING_USER_DECISION, keine neue Korrekturquelle oder SQL-Runtime: ein Kandidat/ein
+Container, maximal zwei feste PARSEONLY-Aufrufe, kein Indexbuild/Search/Performance-
+oder anschließender Implementierungsclaim. Drei frisch geprüfte Primärquellen sind
+im Quellenregister ergänzt. SRC-106 dokumentiert den ignorierten MAXDOP-Parameter;
+ein wirksamer freigegebener DOP-1-Pfad ist deshalb vor tatsächlichem Build/Search
+zusätzlich erforderlich. Kein empirischer DOP-Befund und kein Konfigurationsworkaround.
+Ein Owner und enger Entscheidungsreview allein der neuen Diagnose-/Effektgrenzen;
+keine Wiederholung der unveränderten Runtime- oder Recoveryanalyse. Head-/Main-
+Integration und eigener Cleanup dieses Entscheidungspakets sind erforderlich;
+danach bleibt ANN bis zum ausdrücklichen neuen Budgetentscheid angehalten.
+Der enge unabhängige Review des Diagnoseentscheids fand keine P1/P2 und schloss
+das reine Entwurfs-Quellengate. Keine Ausführungsgenehmigung oder Runtime dadurch.
+Die betroffene Datenschutz-/Metadatenprüfung und git diff --check bestanden.
 TSK-012 bleibt insgesamt offen.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.

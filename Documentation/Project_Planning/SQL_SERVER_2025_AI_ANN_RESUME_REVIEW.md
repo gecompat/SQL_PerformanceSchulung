@@ -97,3 +97,11 @@ die Effektfreigabe wird dadurch nicht erweitert. Unabhängige autorisierte
 Lehrmaterialarbeit für die acht qualifizierten Offline-Demos bleibt zulässig.
 Der Heartbeat bleibt als Wiederaufnahmeabsicherung aktiv und setzt dieses Budget
 nicht zurück. Der Gesamtworkstream ist weiterhin offen.
+
+Die anschließende Quellenrecherche dokumentierte in `SRC-106` den ignorierten
+MAXDOP-Parameter für SQL-2025-Vector-Index/Search. Kein empirischer DOP-Befund aus
+diesem fehlgeschlagenen Slice. Ein neuer
+[einzelner Parser-/Previewdiagnoseentwurf](SQL_SERVER_2025_AI_ANN_PARSER_DECISION.md)
+ist PENDING_USER_DECISION; ohne Indexbuild, ein Kandidat/ein Container, höchstens
+zwei feste Parseraufrufe. Weder diese Planung noch ein positiver Syntaxbefund
+autorisiert eine weitere ANN-Implementierungswelle oder zusätzliche DOP-Konfiguration.

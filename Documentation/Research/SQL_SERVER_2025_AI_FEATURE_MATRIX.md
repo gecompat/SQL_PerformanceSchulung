@@ -81,6 +81,14 @@ kleinere Distanz bedeutet Nähe, keine Wahrscheinlichkeit fachlicher Korrektheit
 
 ### S3 – Index und Suche nach Indexgeneration
 
+Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
+den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die
+folgende DDL-Angabe garantiert deshalb keinen tatsächlichen DOP 1. Server- oder
+DB-scoped-Konfigurationsalternativen benötigen ihren eigenen Effektentscheid und
+Restorevertrag; sie werden nicht automatisch durch eine Previewfreigabe erlaubt.
+Am ausgewählten lokalen Build ist der Indexparser noch FAIL, kein empirischer
+DOP-/Indexbuildnachweis ([Checkpoint](../Project_Planning/SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md)).
+
 ```sql
 CREATE VECTOR INDEX IX_Chunks_Vector ON dbo.Chunks(Embedding)
 WITH (METRIC = 'cosine', TYPE = 'DiskANN', MAXDOP = 1);
