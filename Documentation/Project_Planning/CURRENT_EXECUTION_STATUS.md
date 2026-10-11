@@ -415,6 +415,32 @@ SRC-108 begründet den dokumentierten Konfigurationspfad, kein empirischer Worke
 DOP-Befund. PENDING_USER_DECISION; enger Entwurfsreview fand keine P1/P2.
 Aktuelle Head-/Main-Gates, Integration und eigener Branchcleanup folgen.
 Kein automatischer ANN-Folgelauf oder neues Ausführungsgate dadurch.
+PR 160 ist mit acht Headprüfungen auf `3030dc8ba5e00d7a057de0a09367e0ae4915993d`
+und sechs Main-Workflows auf `443697b350c51aa153dff8a02f2d325fe78a734a` integriert.
+Tree `252237a6024b22ba9bb352a7990a4d9f9381d4b0`, Synchronisierung und eigener
+lokaler/remote Branchabbau bestätigt. Anschließend bestätigte der Benutzer
+ausdrücklich „Ja, ANN-Build-/Suchpaket freigeben (empfohlen)“.
+Auf `codex/sql2025-ai-ann-build` wird der erste neue private Kandidat vorbereitet:
+beide persistente Baselines, separater Set/Attestierungsablauf und beide tatsächliche
+Restores mit neuem Attestierungs-/Dropclient. Das neue Budget umfasst höchstens
+zwei Kandidaten/vier serielle eigene Container; keine Wiederaufnahme alter Budgets.
+Der unabhängige tatsächliche Delta-Quellenreview bleibt vor SQL erforderlich.
+Dieser erforderliche erste Quellenreview und der gezielte QUOTED_IDENTIFIER-
+Deltareview fanden keine P1/P2. Fünf betroffene lokale Tests bestanden.
+Beide Kandidaten wurden auf je einem neuen eigenen Container ausgeführt:
+[Build-/Such-FAIL](SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md). Erster Kandidat:
+1934 wegen QUOTED_IDENTIFIER, kein Index-/Such-PASS. Zweiter Kandidat: tatsächliche
+Sessionoption 1, eigener Index erstellt und Identitätscount 1, dann 51003 am
+Generationsguard vor Metadatenausgabe und Search. Konkrete Generation/Typ-/Metric-
+Rohwerte bleiben UNKNOWN; kein automatischer Generation-3-Schluss.
+Beide tatsächlichen Restores 0/0, getrennte neue Attestierungs-/Dropclients,
+separate SQL-DB-/Containerabwesenheit bestanden; Cleanup 12,444/12,397 Sekunden.
+Zwei Kandidaten verbraucht, zwei ungenutzte Containerplätze erlauben keinen dritten.
+Ausgeführte Quellen unverändert; kein neuer ANN-Lauf. Der konkrete
+[einzelne Metadatenentscheid](SQL_SERVER_2025_AI_ANN_METADATA_DECISION.md) bereitet
+einen neuen eigenen Kandidaten/Container ohne Search bei unveränderten lokalen
+Effekten vor und bleibt PENDING_USER_DECISION. Aktuelle Head-/Main-Gates und
+eigener Branchcleanup dieses begrenzten Befunds folgen vor der Benutzerfrage.
 Serverlogin/Pooling und ANN sind nicht abgenommen; Live-/Cloud-/ONNX-Gates bleiben
 offen, KI-Heartbeat aktiv.
 

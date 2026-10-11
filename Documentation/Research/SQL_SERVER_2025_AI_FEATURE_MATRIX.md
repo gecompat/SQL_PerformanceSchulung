@@ -85,17 +85,25 @@ kleinere Distanz bedeutet Nähe, keine Wahrscheinlichkeit fachlicher Korrektheit
 Die [einzelne Parserdiagnose](../Project_Planning/SQL_SERVER_2025_AI_ANN_PARSER_PASS_REVIEW.md)
 bestand am eigenen Build 17.0.5005.3: tatsächlicher Previewwert 0 → Fehler 343,
 nach separat attestiertem 1 → gleicher Parsertext akzeptiert. Kein Indexbuild oder
-Suchlauf; historische Batch-/Sessionursache nicht isoliert bewiesen. Ein weiterer
+Suchlauf durch diese Syntaxdiagnose; historische Batch-/Sessionursache nicht isoliert bewiesen. Der weitere
 [Build-/Suchentscheid](../Project_Planning/SQL_SERVER_2025_AI_ANN_BUILD_DECISION.md)
-beantragt zusätzlich eigenen DB-scoped-MAXDOP-Set/Restore und bleibt PENDING.
+wurde ausdrücklich genehmigt. Sein [Befund](../Project_Planning/SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md)
+bleibt nach beiden Kandidaten FAIL: zuerst Sessionoption QUOTED_IDENTIFIER (1934),
+danach eigener Index erstellt, aber Stopp am Generationsgate vor Search (51003).
+Konkrete Generation und rohe Typ-/Metric-/Buildparameter unbekannt, weil vor dem
+Guard nicht ausgegeben. Keine Such-/Recallevidenz; beide tatsächlichen Restores 0/0
+und separate DB-/Containerabwesenheit bestanden.
 
 Ressourcengrenze, geprüft am 2026-10-11: `SRC-106` dokumentiert, dass SQL Server 2025
 den MAXDOP-Parameter von CREATE VECTOR INDEX/VECTOR_SEARCH ignorieren kann. Die
 folgende DDL-Angabe garantiert deshalb keinen tatsächlichen DOP 1. Server- oder
 DB-scoped-Konfigurationsalternativen benötigen ihren eigenen Effektentscheid und
 Restorevertrag; sie werden nicht automatisch durch eine Previewfreigabe erlaubt.
-Am ausgewählten lokalen Build ist der Indexparser noch FAIL, kein empirischer
-DOP-/Indexbuildnachweis ([Checkpoint](../Project_Planning/SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md)).
+Am ausgewählten lokalen Build ist Parserannahme und später die Erstellung eines
+eigenen Index belegt; Generation/Search bleiben unqualifiziert. Der attestierte
+eigene DB-scoped-MAXDOPwert 1 ist kein empirischer Worker-/DOP-Nachweis.
+Der historische [Resume-FAIL](../Project_Planning/SQL_SERVER_2025_AI_ANN_RESUME_REVIEW.md)
+bleibt erhalten und wird nicht zum aktuellen PASS umgedeutet.
 
 ```sql
 CREATE VECTOR INDEX IX_Chunks_Vector ON dbo.Chunks(Embedding)
