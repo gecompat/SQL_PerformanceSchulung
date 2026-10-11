@@ -366,6 +366,20 @@
       "instanceRequirement": "SHARED_TEST_INSTANCE",
       "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
       "escalation": null
+    },
+    {
+      "demoId": "QRY-018",
+      "manifest": "Demos/09_AI_SQL_Server_2025/QRY-018_Offline_RAG/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Offline-RAG und Quellenbewertung",
+      "path": "Demos/09_AI_SQL_Server_2025/QRY-018_Offline_RAG",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
     }
   ]
 }

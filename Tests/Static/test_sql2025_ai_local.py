@@ -14,6 +14,13 @@ import run_sql2025_ai_local as runner
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_ci_readiness_passes_environment_name_without_secret_argument(self):
+        workflow = (ROOT / ".github/workflows/sql2025-ai-local.yml").read_text(encoding="utf-8")
+        readiness = workflow.split("- name: Verify SQL login readiness", 1)[1].split("- name:", 1)[0]
+        self.assertRegex(readiness, r"docker exec -e SQLCMDPASSWORD\s")
+        self.assertNotRegex(readiness, r"docker exec[^\n]*SQLCMDPASSWORD=")
+        self.assertNotRegex(readiness, r"docker exec[^\n]*\s-P\s")
+
     def setUp(self):
         self.contract = {"contract_version": "1.0", "demo_id": "QRY-014", "profile": "LOCAL",
                          "assertions": [{"id": "a", "kind": "EXACT", "phase": "comparison",

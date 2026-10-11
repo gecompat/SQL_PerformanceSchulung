@@ -1,0 +1,43 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-018",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "unverified_claims",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "unverified_claims",
+      "expected": 7,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "accepted_claims",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "accepted_claims",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "rejected_claims",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "rejected_claims",
+      "expected": 7,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "reasoned_abstentions",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "reasoned_abstentions",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}
