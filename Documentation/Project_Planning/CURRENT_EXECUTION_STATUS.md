@@ -3501,3 +3501,17 @@ Labquellen bytegebunden, null SQL/Inferenz, andere Repositories unverändert.
 TSK007/Live-RAG/volle Abnahme offen, alte FAILs und Cloud-/ONNX-/Hostgrenzen
 erhalten. Aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen; anschließend
 unmittelbar unabhängige Kostencontrollerqualifikation aus TSK013.
+
+## TSK-013: getrennte Kostencontroller-Gateprüfung
+
+PR213 abgeschlossen: acht Head-/sechs Main-Workflows PASS, Squash
+e15e821ebfe99ff23924fb2498e218f0dd1c0193, voller identischer Tree, main FF/sauber,
+eigener lokaler/Remote-Branch entfernt. RAG-Secretblocker bleibt sichtbar. Danach
+unmittelbar [Kosten-CI-Consumer](SQL_SERVER_2025_AI_DGN010_COST_CI_REVIEW.md)
+vorbereitet: zehn synthetische Consumermethoden/elf Selector-Methoden PASS,
+volle bounded Record-/Aggregate-/Negativ-/Cleanupbindung und fail-closed2025Gate.
+-y0-Adapter ermöglicht Vollframes bei unverändertem Remote-End-/Envsecretvertrag.
+Keine lokale SQLwiederholung. Sechs Quellenkandidaten/Checkpoint3/hard6, maximal21
+eigene CI-Container einschließlich Integration. Enger unabhängiger Review und
+tatsächliche aktuelle Head-/Main-Matrizen folgen; DGN010 PROPOSED/WARN, volle
+TP-PERF-/Workstreamabnahme offen und historische FAILs erhalten.

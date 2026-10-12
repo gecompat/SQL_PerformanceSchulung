@@ -3,7 +3,7 @@
 import os,subprocess,sys
 import docker_sqlcmd_proxy as proxy
 proxy.BOOLEAN_FLAGS=proxy.BOOLEAN_FLAGS|{'-C'}
-proxy.VALUE_FLAGS=proxy.VALUE_FLAGS|{'-l'}
+proxy.VALUE_FLAGS=proxy.VALUE_FLAGS|{'-l','-y'}
 
 # Fester Code, argv über "$@"; kein dynamisches Shellquoting und kein Passwortargument.
 # Der Frame entsteht erst nach dem tatsächlichen Ende des nativen sqlcmd im Container.
@@ -12,6 +12,9 @@ REMOTE_WAIT='"$@"; result=$?; printf "\\nDGN010_REMOTE_END|%s\\n" "$result" >&2;
 def main():
     try:
         database,script,username,variables,passthrough=proxy._parse_args(sys.argv[1:])
+        widths=[passthrough[index+1] for index,value in enumerate(passthrough) if value == '-y']
+        if widths and widths != ['0']:
+            raise ValueError('DGN-010-Vollframes benoetigen -y 0')
         container=os.environ.get('SQLPERF_SQL_CONTAINER')
         if not container or not os.environ.get('SQLCMDPASSWORD'):raise ValueError('Eigener Container und SQLCMDPASSWORD erforderlich')
         command=['docker','exec','-i','-e','SQLCMDPASSWORD',container,'sh','-c',REMOTE_WAIT,
