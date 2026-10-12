@@ -28,15 +28,14 @@ class EvidenceTests(unittest.TestCase):
         self.assertIn('SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT',stream.getvalue())
         self.assertNotIn('AI_LOCAL_QUALIFICATION|PASS',stream.getvalue())
 
-    def test_optional_diagnostics_preserve_default_and_actual_print_evidence(self):
-        target=runner.targets.ExecutionTarget(kind='docker',container='synthetic-fixture',sqlcmd_path='sqlcmd',server=None,auth='sql',username='sa',shim=None)
-        result=subprocess.CompletedProcess([],0,'actual rows\n','SQLPERF_SUMMARY|PASS|OK\n')
-        with patch.object(runner.targets.subprocess,'run',return_value=result):
-            self.assertEqual(runner.targets.run_sql(target,database='master',sql_text='SET NOCOUNT ON;'),result.stdout)
-            self.assertEqual(runner.targets.run_sql(target,database='master',sql_text='SET NOCOUNT ON;',include_diagnostics=True),result.stdout+'\n'+result.stderr)
-        result.returncode=1;result.stderr='Msg 51004, Level 16, State 1, Line 1\nFAIL_STATE: Erwartete Abweisung.'
-        with patch.object(runner.targets.subprocess,'run',return_value=result),self.assertRaises(runner.targets.ExecutionTargetError):
-            runner.targets.run_sql(target,database='master',sql_text='SET NOCOUNT ON;',include_diagnostics=True)
+    def test_con010_summary_projection_keeps_oracles_and_rejects_missing_or_duplicate(self):
+        original="PRINT 'SQLPERF_SUMMARY|PASS|OK';"
+        before="IF @Matches<>4 THROW 51004,'FAIL_STATE: Marker fehlen.',1;\n"
+        after="\nPRINT 'SQLPERF_SUMMARY|SKIP|SKIP_VERSION'; RETURN;"
+        text=before+original+after
+        self.assertEqual(con010_controls.stdout_phase(text),before+"SELECT 'SQLPERF_SUMMARY|PASS|OK';"+after)
+        for wrong in (before+after,text+original,text.replace('PASS|OK','WARN|WARN_OPTIONAL_EVIDENCE_SKIPPED')):
+            with self.subTest(wrong=wrong),self.assertRaises(ValueError):con010_controls.stdout_phase(wrong)
 
     def test_con010_native_error_requires_exact_number_and_message(self):
         for code,detail in ((51004,'FAIL_STATE'),(51003,'FAIL_RESULT_CONTRACT')):

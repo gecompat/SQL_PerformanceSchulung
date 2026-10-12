@@ -76,9 +76,12 @@ manipulationen je gegen Baseline/Comparison, Setupidempotenz und je zwei
 2019-/2022-SKIPs vor Setup. Ein wirkungsloser erster Spaltengrant-Test blieb
 FAIL; Spalten-DENY und tatsächliche Snapshotänderung qualifizierten C2.
 Die anschließende öffentliche CI zeigte einen PRINT-/stderr-Fehler im
-Consumer. C3 qualifizierte dessen Korrektur mit den tatsächlichen öffentlichen
-`sqlcmd -r 1`-Ausgabeoptionen; der CI-FAIL bleibt sichtbar. Alle 15 eigenen
-Qualifikationscontainer und ihre Datenbanken sind abwesend.
+Consumer. C3 qualifizierte den Diagnostikkanal, scheiterte anschließend an
+einer eingefrorenen gemeinsamen API-Abhängigkeit. C4 stellt die gemeinsame
+API wieder her und projiziert nur die feste positive Consumersummary als
+SELECT; alle Gegenproben mit tatsächlichem `sqlcmd -r 1` bestanden. Beide
+CI-FAILs bleiben sichtbar. Alle 20 eigenen Qualifikationscontainer und ihre
+Datenbanken sind abwesend.
 
 ## Schritt-für-Schritt-Anleitung
 

@@ -2376,3 +2376,21 @@ Endstatus-/elf öffentliche Runnermethoden PASS. Keine geänderten SQLoracles.
 Aktuelle korrigierte Head-/Main-Gates, Integration/FF-Sync/eigener Branchcleanup
 folgen vollständig; nächster unabhängiger Schnitt weiterhin RES-008. Keine
 TSK-009-/Provider-/Pooling-/Gesamtabnahme, Modell-/Tokenverbrauch unbekannt.
+
+
+### CON-010 C4: gemeinsame API wiederhergestellt
+
+C3 lokal PASS, anschließend Head c720508 im Offline-CI 38190655438
+FAIL/PYTHON_PROFILE_CHANGED an eingefrorener gemeinsamer API-Abhängigkeit;
+kein Merge. C4 stellt gemeinsame API exakt auf Baseline zurück und projiziert
+ausschließlich die feste positive CON-010-Consumersummary per SELECT auf stdout.
+Keine Migration pausierter Workstreams/Profiles; reguläre Demo-SQLbytes und
+SQL-/RLS-/Grant-/Fehleroracles unverändert. Alle fünf C4-Slots bestanden:
+192 Marker-/32 Resultabweisungen, 16 tatsächliche Mutationen, Setupidempotenz,
+je zwei 2019-/2022-SKIPs vor Setup. Alle 20 eigenen Container samt DB/CID/Name
+neu abwesend, Endstatus bekannt, Cleanup unter derselben 60-s-Deadline.
+Alle historischen nativen-/CI-FAILs im selben sechs-Kandidaten-Ledger erhalten,
+keine weitere unveränderte grüne Wiederholung. Enger C4-Review geschlossen,
+elf öffentliche Runner-/sieben private Endstatustests PASS. Aktuelle C4-
+Head-/Main-Gates/Integration/FF-Sync/eigener Branchcleanup erforderlich; danach
+unmittelbar RES-008-Vorschnitt. Kein TSK-009-/Pooling-/Provider-Gesamtabschluss.

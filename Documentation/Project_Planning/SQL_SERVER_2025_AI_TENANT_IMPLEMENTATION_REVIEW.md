@@ -162,3 +162,42 @@ werden nach PASS nicht als weitere identische Läufe verbraucht. C1/C2/C3-
 Quellenbytes und Rawnachweise sind im ignorierten Runtimepfad archiviert.
 Aktuelle korrigierte PR-Head-/Main-Gates und vollständige Integration bleiben
 bis tatsächlichem Abschluss erforderlich. Keine Gesamtabnahme von TSK-009.
+
+
+## C4: gemeinsame API-Baseline und begrenzte Summaryprojektion
+
+C3-Nativqualifikation bleibt PASS. Die anschließende CI auf Head
+c720508483b7e6ff1d20acb5eee03ad3f475a495 scheiterte im abgeschlossenen
+Offline-Run 38190655438 mit PYTHON_PROFILE_CHANGED: die gemeinsame API besitzt
+eine eingefrorene AST-Ausführungskante. Kein Merge oder Bypass; alle mutierenden
+Runs bleiben bis zum eigenen Cleanup erhalten. Dieser CI-FAIL ist source- und
+rawhashgebunden im selben Ledger; kein umdeklarierter nativer C3-FAIL.
+
+C4 stellt execution_target.py exakt auf die gemeinsame Baseline zurück,
+kein eingefrorenes Profil oder pausierter Workstream wird migriert. Ausschließlich
+der CON-010-Consumer verlangt genau eine feste positive Phasensummary und ersetzt
+deren PRINT durch SELECT vor dem tatsächlichen SQLlauf. Eigene Abwesenheit ist
+ebenfalls SELECT. Nur diese Ausgaben gehen dadurch bei -r 1 nach stdout; alle
+SQL-/RLS-/Grant-/Errororacles und die regulären Demo-SQLdateien bleiben bytegleich.
+Der reguläre manifestbasierte Demorunner verwendet seinen bisherigen stderr-
+Vertrag. Fehlende/doppelte positive Summary ist FAIL, keine erfundene Summary.
+Strukturierter ValueError-FAIL bleibt im KI-Runner erhalten. Enger unabhängiger
+C4-Quellenreview vor Admission geschlossen, kein P1/P2, keine Runtime des Reviewers.
+Elf öffentliche Runnermethoden einschließlich tatsächlicher Ausgabetransformation
+und Missing/Duplicate-Guards sowie sieben private Endstatustests PASS.
+
+| Fester Slot | Synthetischer Token | Tatsächlicher Build | Ergebnis | Gesamter eigener Cleanup | Neue DB/CID/Name abwesend |
+|---|---|---|---|---|---|
+| C4 / 2019-skip-1 | `AE270E743BC64A1B` | 15.0.4490.9 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 11.4641215 s | PASS |
+| C4 / 2019-skip-2 | `451B4DB817544F58` | 15.0.4490.9 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 11.1417999 s | PASS |
+| C4 / 2022-skip-1 | `2D7DC9D4FD6B465E` | 16.0.4295.3 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 12.5165042 s | PASS |
+| C4 / 2022-skip-2 | `F19A93F2C0FE44C8` | 16.0.4295.3 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 12.5446963 s | PASS |
+| C4 / 2025-controls | `54B4A45FBE8D4BC5` | 17.0.5005.3 | 192 Marker-/32 Resultabweisungen; 16 tatsächliche Mutationen; nur feste PASS-Summary SELECT | 13.3312633 s | PASS |
+
+Alle fünf C4-Slots am selben gebundenen Quellenkandidaten bestanden, insgesamt
+20 eigene Qualifikationscontainer samt DB/CID/Name neu abwesend, kein UNKNOWN,
+gemeinsames Cleanup jeweils unter 60 s. Vier von sechs Kandidaten verbraucht,
+keine zusätzlichen identischen grünen Kandidaten. Sämtliche C1–C4-Quellenbytes
+und Rawbelege archiviert. Aktuelle C4-Head-/Main-Gates und vollständige Integration,
+FF-Sync und eigener Branchcleanup bleiben bis tatsächlichem Abschluss erforderlich.
+TSK-009-/Pooling-/Provider-/ANN-/Gesamtabnahme weiterhin offen.

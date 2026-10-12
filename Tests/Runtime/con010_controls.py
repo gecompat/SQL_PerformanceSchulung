@@ -9,6 +9,12 @@ MARKERS={'SQLPERF.Project':'SQL_PerformanceSchulung','SQLPERF.ContractVersion':'
 PHASES=('00_Preflight.sql','10_Setup.sql','20_Baseline.sql','30_Demonstration.sql',
         '40_Observation.sql','50_Mitigation.sql','60_Comparison.sql','90_Cleanup.sql')
 
+def stdout_phase(sql_text):
+    """Nur die feste positive Summary auf stdout; eigene SQL-Orakel bleiben gleich."""
+    original="PRINT 'SQLPERF_SUMMARY|PASS|OK';"
+    if sql_text.count(original)!=1:raise ValueError('Eine feste positive Phasensummary erforderlich')
+    return sql_text.replace(original,"SELECT 'SQLPERF_SUMMARY|PASS|OK';")
+
 def literal(text):return "N'"+text.replace("'","''")+"'"
 
 def match(name,value):
@@ -68,18 +74,18 @@ def expected_native_error(text,code,detail):
 
 def run(target,directory:Path,*,cleanup_started=None):
     name='SQLPERF_LAB_CON010_LOCAL';end=time.monotonic()+900;cleanup_end=None
-    def sql(text,database=name,cap=30,cleanup=False,diagnostics=False):
+    def sql(text,database=name,cap=30,cleanup=False):
         budget=cleanup_end if cleanup else end
         remaining=min(cap,budget-time.monotonic())
         if remaining<=0:raise TimeoutError('CON-010 Gegenprobenbudget verbraucht')
-        return targets.run_sql(target,database=database,sql_text=text,timeout_seconds=remaining,include_diagnostics=diagnostics)
+        return targets.run_sql(target,database=database,sql_text=text,timeout_seconds=remaining)
     def absent(cleanup=False):
-        output=sql(f"SET NOCOUNT ON; IF DB_ID(N'{name}') IS NOT NULL THROW 51003,'DB residue',1; PRINT 'CON010_DB|ABSENT';",database='master',cap=4,cleanup=cleanup,diagnostics=True)
+        output=sql(f"SET NOCOUNT ON; IF DB_ID(N'{name}') IS NOT NULL THROW 51003,'DB residue',1; SELECT 'CON010_DB|ABSENT';",database='master',cap=4,cleanup=cleanup)
         if output.strip()!='CON010_DB|ABSENT':raise ValueError('Neue unabhängige CON-010-DB-Abwesenheit fehlt')
     def phase(filename,cleanup=False):
         text=(directory/filename).read_text(encoding='utf-8')
         for k,v in {'DemoId':'CON-010','RunToken':'LOCAL','TargetDatabase':name}.items():text=text.replace('$('+k+')',v)
-        output=sql(text,database='master' if filename[:2] in ('00','10','90') else name,cap=20 if cleanup else 60,cleanup=cleanup,diagnostics=True)
+        output=sql(stdout_phase(text),database='master' if filename[:2] in ('00','10','90') else name,cap=20 if cleanup else 60,cleanup=cleanup)
         if 'SQLPERF_SUMMARY|PASS|OK' not in output:raise ValueError('CON-010-Phasensummary fehlt')
         return output
     def rejected(filename,code,detail):
