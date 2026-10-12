@@ -34,8 +34,10 @@ tatsächlichen Werten und Verhältnissen. Median/Min/Max/Stichprobengröße und
 Nullzählung enthalten alle aufgenommenen Fenster, auch Ausreißer. Nullbaseline
 ergibt N/A statt Division oder erfundenem Nullverhältnis. Sechs Batchfenster
 belegen keine individuellen Querylatenzen, belastbaren Tails oder Signifikanz.
-Gegenstand ist LIVE_REQUEST-Batchkosten einschließlich Counter-/Tempresult-
-Overhead; vollständige Worker-I/O bleibt NOT_ESTABLISHED.
+CPU/I/O sind LIVE_REQUEST-Differenzen vor/nach der 100-Query-Schleife einschließlich
+des Overheads an den Counter-Messgrenzen. Elapsed umfasst die UTC-Zeit der Schleife
+einschließlich Tempresult-Inserts. Die Messgrenzen sind nicht identisch;
+vollständige Worker-I/O bleibt NOT_ESTABLISHED.
 
 Vier repräsentative Planrecords bleiben an Dimension/Build/Quellenobjekt und
 Scan100/Root1 gebunden. Nur numerische rohe Memoryattribute und roher DOP werden

@@ -96,8 +96,11 @@ werte, Querytexte, Quellen-/Planstrings oder XMLs werden ausgegeben.
 
 Die Auswertung trennt 20 Warmups und AA von den sechs A/B-Batchfenstern je Pfad
 und Paar. Median/Min/Max/n/Nullzählung enthalten auch Ausreißer; Nullbaseline
-ergibt N/A (`null` im JSON), keine Division. CPU/Elapsed gelten pro Batch mit
-100 Queries einschließlich Counter-/Tempresult-Overhead. Sechs Batchfenster
+ergibt N/A (`null` im JSON), keine Division. Jeder Batch enthält 100 Queries.
+CPU/I/O stammen aus eigenen Request-Counters vor/nach der Schleife einschließlich
+des Overheads an diesen Messgrenzen. Elapsed umfasst die UTC-Zeit der Schleife
+einschließlich Tempresult-Inserts; beide Messgrenzen sind nicht identisch.
+Sechs Batchfenster
 belegen keine individuellen Querylatenzen, belastbare Tails oder Signifikanz.
 Vier repräsentative Planrecords liefern ausschließlich rohe numerische
 Memory-/DOP-Attribute; fehlend bleibt `null`, roher DOP 0 bleibt 0.
