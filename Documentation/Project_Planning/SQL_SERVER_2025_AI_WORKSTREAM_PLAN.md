@@ -542,3 +542,13 @@ stehen vor einer allgemeinen Dimensions-/Modellqualitätsaussage. Lösung/Rubrik
 bleiben allein im Arbeitsheft; optionale Ergänzung getrennt von den 16 Basispunkten.
 Keine tatsächliche Teilnehmererprobung, Lehrzeiten oder volle Curriculum-/Masterdeck-/
 Notes-/Render-/Generalprobenabnahme; RES-008 weiterhin PROPOSED.
+
+
+Der [begrenzte private DGN-010-Ownerplannachweis](SQL_SERVER_2025_AI_INDEX_PLAN_REVIEW.md)
+ergänzt unter TSK-011/CUR-021 zweimal drei tatsächliche eigene Pläne mit gleichen
+vollständigen zehn-Row-Resultaten, 16000 gebundenen Source-Rows, tatsächlicher
+Quellennegative/Restore, unveränderten Readerrechten und vollständigem eigenen Cleanup.
+Planwechsel und 17 zusätzliche Indexseiten ergeben keinen Performancegewinn oder
+Widerlegung. Readerpläne, CPU/Elapsed/Reads, DMLkosten, AB/BA/AA/Effektseparation,
+ältere Engines, öffentliche Demo und voller TP-PERF-/Modulnachweis bleiben offen;
+DGN-010 PROPOSED. Nächster begrenzter Schritt ergänzt diese Messgrenze.
