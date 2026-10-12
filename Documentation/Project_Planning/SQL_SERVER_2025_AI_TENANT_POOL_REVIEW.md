@@ -127,3 +127,107 @@ geschlossen; private Codevorbereitung darf parallel ohne Native beginnen.
 Pooling anderer Provider/OS/Authformen, Performance, Passwort-/TLSintegrität,
 Seitenkanäle und volle öffentliche CON-010-/TSK-009-/TP-CON-Abnahme bleiben offen.
 Andere Repositories bleiben unverändert; allgemeine Entwicklung und DGN-007 pausiert.
+
+
+## Quellenabschluss und erste Runtimequalifikation
+
+[PR221](https://github.com/gecompat/SQL_PerformanceSchulung/pull/221) ist vollständig
+integriert: acht aktuelle Head-/sechs Main-Gates PASS, vollständiger identischer
+Tree, main synchron und sauber, eigener lokaler und Remote-Branch entfernt.
+Der [Quellenreview](SQL_SERVER_2025_AI_TENANT_POOL_SOURCE_REVIEW.md) schließt die
+neuen Request-, Credential-, Pool-, Ergebnis- und Cleanupgrenzen unabhängig ab.
+
+Die Implementierung verwendet eine bewusst strengere Zeitgrenze: dieselbe einmalige
+60-Sekunden-Cleanupdeadline beginnt bereits VOR dem Poolchild. Das Child erhält
+höchstens 40 Sekunden und höchstens die verbleibende normale und Cleanupzeit.
+Sechs Checkouts, OwnClearPool/Close, frische physische Abwesenheit, gehaltene
+Login-/DB-Drops und eigener Containerabbau müssen innerhalb derselben verbleibenden
+Zeit enden. Kein Reset und keine zusätzliche IPC-/Clock-Infrastruktur. Das hält
+die Ausführung endlich; unzureichende Laufzeit bleibt ein tatsächlicher FAIL.
+
+Bekannte vollständige, credential-geprüfte Childreceipts bleiben vor semantischer
+Auswertung privat erhalten. Ein falsches Ergebnis ist FAIL mit Nachweis.
+Unbestätigte Requestenden bleiben sticky UNKNOWN und erlauben kein Folge-SQL.
+Die private Admission ist ein dauerhafter Nachweis; Inputabwesenheit bezeichnet
+die eigenen temporären input-*.sql, nicht die erhaltenen Beweisdateien.
+SQLcmd-Handles und der eine separate .NET-/PowerShell-Child werden getrennt gezählt.
+
+Quellenkarte und alle vier Rootgates binden tatsächliche Bytes vor jedem Effekt.
+Eine relevante Änderung am PowerShell-Caller zählt nun ebenfalls für den Retry;
+eine bloße Planänderung autorisiert keine unveränderte Wiederholung. Exklusive
+Admission ist kandidatbezogen, höchstens sechs Kandidaten/eigene Container,
+Checkpoint nach drei, harter Stop nach sechs. Provider-/Host-/Cloud-/ONNX-Grenzen,
+öffentliche CON-010- und vollständige TSK-009-Abnahme bleiben offen.
+
+
+## Kandidat 1: bekanntes FAIL vor Checkoutnachweisen
+
+Der neue eigene SQL-17.0.5005.3-Testcontainer erreichte Setup, drei Loginzuordnungen
+und einen vollständigen Quellen-/Rechtezustand. Der separate PowerShell-Child
+lieferte ein vollständiges credential-geprüftes FAIL-Receipt mit bekanntem Ende,
+aber null Checkoutrecords und unbewiesenem Poolcleanup. Seine erste Fehlerbehandlung
+erhielt keine konkrete Ursache; daraus folgt ausdrücklich kein Provider-/TDSbefund.
+Zehn tatsächliche SQLcmd-Handles plus ein separater Poolchild; kein UNKNOWN.
+
+Keine Login-/DB-Adoption bei fehlendem Poolcleanupleasing. Der vollständige eigene
+Namespace ohne Mounts wurde innerhalb derselben Deadline entfernt. Root prüfte
+die tatsächlichen Quellenbytes, den vollständigen Zustand, das Receipt und neue
+CID-/Namens-/SQLinputabwesenheit unabhängig. SQL-Abwesenheit bleibt NOT_ESTABLISHED,
+Poolreuse/Reset/Pool-Cleanup bleiben NOT_ESTABLISHED. Historisches FAIL bleibt erhalten.
+
+Nächster zulässiger Kandidat ergänzt ausschließlich begrenzte credential-geprüfte
+Fehlerdiagnose im Receipt. Er benötigt geänderte Quellen, neuen engen Sourceschluss
+und kandidatbezogene Rootadmission; das gemeinsame Sechserbudget bleibt erhalten.
+
+
+## Kandidat 2: Konstruktion vor Open fehlgeschlagen
+
+Der korrigierte Diagnosecaller liefert ein bekanntes FAIL-Receipt mit
+Phase OWNER_CONNECTION und Typ System.ArgumentException; null Checkoutrecords.
+Das grenzt den Fehler auf die Verbindungskonstruktion ein, ohne Rohmeldungen oder
+Secrets zu exportieren. Kein Provider-/TDS-/Authfehlernachweis. Wieder zehn
+SQLcmd-Handles plus ein separater Child, ein vollständiger Zustand; Root prüfte
+Quellen, Receipt und frische eigene CID-/Namens-/SQLinputabwesenheit unabhängig.
+SQL-/Pool-Cleanup bleibt NOT_ESTABLISHED, kein UNKNOWN. Beide historische FAILs
+bleiben erhalten. Eine geschlossene lokale Constructorgegenprobe mit synthetischen
+Credentials und ohne Open/SQL/ClearPool soll die konkrete Clientkorrektur vor dem
+nächsten eigenen Container prüfen. Dieselbe Sechserwelle bleibt maßgeblich.
+
+
+## Kandidat 3: begrenzte private Poolkomponente PASS
+
+Der korrigierte Caller bestand im neuen eigenen SQL-17.0.5005.3-Testcontainer
+sechs Checkouts in A/B/U/A/B/U-Reihenfolge. Tatsächliche Owner-DMVconnection_ids
+und connect_time belegen drei physische Wiederverwendungen innerhalb der Lanes;
+die drei tatsächlichen Poolkeys und Serververbindungen sind zwischen Lanes getrennt.
+ClientGUIDs bleiben typisierte Metadaten ohne Gleichheits-/Differenzoracle.
+
+Zwölf vollständige Before-/After-Ergebnisse erhalten die tatsächlichen
+Login-/User-/SID-/DBbindungen: A/B jeweils eigene komplette Quelle samt VECTOR(3),
+positiv authentifiziertes Unmapped null Rows. Sechs manipulierte Kontextwerte
+wechseln keinen Tenant; der zweite Checkout beobachtet NULL vor jeder Reparatur.
+Zwei vollständige Quellen-/RLS-/Principal-/Rechte-/Configzustände sind identisch.
+Die früheren grünen Policy-/Impersonation-/REVOKE-Negativtests wurden nicht wiederholt.
+
+Tatsächliches OwnClearPool für drei gehaltene Referenzen, Close und neue physische
+Abwesenheit im Child; eine zusätzliche frische Parentabfrage bestätigt den Abbau.
+Erst danach gehaltene eigene Login-Drops vor DBdrop, neue getrennte SQL-Abwesenheiten,
+eigener Containerabbau und frische CID-/Namens-/SQLinputabwesenheit. Bekannte
+Request-/Childenden, kein UNKNOWN. Alle Aktionen blieben innerhalb derselben
+60-Sekunden-Cleanupdeadline, die bereits vor dem höchstens 40-Sekunden-Child begann.
+
+Root prüfte unabhängig tatsächliche Receipts, vollständige Rawstates und deren
+Gleichheit mit dem Messrecord, alle archivierten Effektquellen sowie neue eigene
+Namespace-/Inputabwesenheit. Checkpoint3 ist auf den abgeschlossenen Ledger gebunden.
+Drei eigene Container, insgesamt 37 SQLcmd-Handles und drei separate Poolchildren;
+C3 allein 17 SQLcmd-Handles. Beide historische FAILs erhalten, C1/C2 SQL-/Pool-Cleanup
+NOT_ESTABLISHED; ihre bestätigte eigene Namespaceabwesenheit bleibt getrennt.
+Keine weiteren Kandidaten nach erreichtem PASS und keine neue Modellinferenz.
+
+Der PASS gilt ausschließlich für diesen privaten Caller, diese vorhandene
+Assembly-/Host-/Enginekombination, drei synthetische Lanes und die feste serielle
+Population. Allgemeine Provider-/OS-/Authformen, Performance, ANN/Tenantseitenkanäle,
+Passwort-/TLSintegrität, öffentliche Poolconsumer und volle CON-010-/TSK-009-/TP-CON-
+Abnahme bleiben offen. Andere Repositories unverändert; allgemeine Entwicklung
+und DGN-007 bleiben pausiert. Aktuelle Head-/Main-Gates, PRintegration, Synchronisierung
+und eigener Branchcleanup sind vor Schnittabschluss erforderlich.
