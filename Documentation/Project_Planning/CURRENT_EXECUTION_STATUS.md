@@ -2620,3 +2620,35 @@ keine unveränderte Wiederholung dieser grünen Pläne. Allgemeine Entwicklung/D
 pausiert; keine Cloud-/Modell-/ONNX-/roten Hosteffekte oder andere Repositoryänderung.
 Sechs kohärente Kandidaten je lokalem Schnitt autorisiert, Verbrauch unbekannt,
 Heartbeat aktiv.
+
+
+## DGN-010: begrenzte private Reader-Zugriffspfadmessung
+
+PR191 vollständig abgeschlossen: Head 4065d6a36dd45e04b261c0164ba153badd975de3, sieben Head-Workflows PASS;
+Squash 27ef0a118fb25a8ad00353ebd347fb1ad258db4c, fünf Main-Workflows PASS; ganzer Tree ab91c69b0de0d9f8c94fcccf0822518dd14a745d exakt übernommen,
+main FF/sauber und eigener lokaler/Remote-Branch entfernt. Unmittelbar TSK-011/
+CUR-021 im Branch codex/sql2025-ai-dgn010-measurement fortgesetzt.
+
+[Gebundene feste Readerbatchmessung](SQL_SERVER_2025_AI_INDEX_MEASUREMENT_REVIEW.md):
+C1 Counter-FAIL erhalten, C2 mit zwei vollständigen Lifecycles bestanden. Je zehn
+Warmups/18 serielle AB-/BA-/AA-Fenster, 1810 vollständige Queryoracles, zusätzliche
+positive/negative Kontrolle; beide eigenen Indizes während aller Messphasen vorhanden.
+AB/BA sechs Samples je erzwungenem PK-/Candidatepfad, drei AA-Paare separat.
+CPU/I/O eigene Requestdeltas einschließlich Grenzen, UTC-Elapsed enthält
+Impersonation/Query-/Buffer-/Transfer-/Delete-/REVERT-Aufwand; keine identischen
+Messgrenzen, individuelle Querylatenz oder Nettonutzenbehauptung.
+
+22000 Source-Rows, vier neue tatsächliche Ownerpläne, 58 positive Fensterframes
+inklusive zwei separater Kontrollen und vier native Negative vollständig gebunden.
+Quelle/Config/Readerrechte unverändert; SourceDELETE/Restore/Setupidempotenz,
+Indexbuild/Drop und markergebundener SQL-/DB-/CID-/Namenscleanup bestanden.
+Enger unabhängiger P2-/Sourceabschluss, acht reine Methoden PASS; ursprünglicher
+reiner Fixturefehler erhalten. Reviewer ohne Tests/Runtime, keine Reviewkette.
+Sechs kohärente Kandidaten je Schnitt autorisiert, bisherige FAILs erhalten.
+
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. Danach nächste begrenzte DGN-010-DML-/Effektseparationsfrage.
+Isolierte Index-/Query-/vollständige Worker-/DMLkosten, ältere Engines, öffentliches
+Paket und vollständige TP-PERF-/TSK-011-/Modulabnahme offen; DGN-010 PROPOSED.
+Allgemeine Entwicklung/DGN-007 pausiert; keine Cloud-/Modell-/ONNX-/roten
+Hosteffekte oder andere Repositoryänderung. Verbrauch unbekannt, Heartbeat aktiv.

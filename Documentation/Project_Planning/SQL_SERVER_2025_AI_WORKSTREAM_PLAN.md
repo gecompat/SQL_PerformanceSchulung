@@ -552,3 +552,14 @@ Planwechsel und 17 zusätzliche Indexseiten ergeben keinen Performancegewinn ode
 Widerlegung. Readerpläne, CPU/Elapsed/Reads, DMLkosten, AB/BA/AA/Effektseparation,
 ältere Engines, öffentliche Demo und voller TP-PERF-/Modulnachweis bleiben offen;
 DGN-010 PROPOSED. Nächster begrenzter Schritt ergänzt diese Messgrenze.
+
+
+Die [private DGN-010-Readerbatchmessung](SQL_SERVER_2025_AI_INDEX_MEASUREMENT_REVIEW.md)
+ergänzt TSK-011/CUR-021 nach erhaltenem C1-Counter-FAIL zweimal zehn Warmups und
+18 feste AB-/BA-/AA-Fenster mit je 1810 vollständigen Queryoracles. Beide eigenen
+Indizes bleiben vorhanden; sechs AB/BA-Samples je erzwungenem PK-/Candidatepfad,
+drei AA-Paare separat. UTC-/Requestmessgrenzen, Buffer-/Impersonationaufwand,
+Negativkontrollen/Restore, 22000 Source-Rows/vier Ownerpläne und eigener Cleanup
+sind gebunden. Kein Index-abwesend/vorhanden-Nettonutzen, isolierte Query-/DML-/
+vollständige Workerkosten oder volle TP-PERF-/Modulabnahme; DGN-010 PROPOSED.
+Nächster begrenzter Schritt ergänzt DML-/Effektseparation.
