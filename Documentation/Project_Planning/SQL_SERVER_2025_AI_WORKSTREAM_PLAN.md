@@ -23,8 +23,18 @@ historische FAILs erhalten, SQL-Abwesenheit C1–C3 NOT_ESTABLISHED. Checkpoint3
 gemeinsames endliches Budget und unabhängiger neuer Sicherheitsreview eingehalten.
 Null Modell-/Provider-/Hosteffekte; SRC-114 bindet die Primärquellen. Öffentliche
 WITHOUT-LOGIN-Demo, Passwortintegrität-/Pooling-/ANN-/Gesamtabnahmegrenzen bleiben.
-Nach aktueller Integration folgen unmittelbar unabhängige TSK-012-Belegleseaufgaben
+PR219 ist vollständig integriert: acht Head-/sechs Main-Gates PASS, voller Tree,
+FF-Synchronisierung und eigener lokaler/Remote-Branchcleanup. Unmittelbar folgen
+unabhängige TSK-012-Belegleseaufgaben
 an vorhandenen Embedding-/SQL-/Generation-/Tenantnachweisen, ohne weitere Native.
+Arbeitsheft und Trainerleitfaden ergänzen drei optionale Aufgaben; Einsteiger
+trennen Zweck, Erwartung, tatsächlichen Befund und offene Aussagegrenze.
+Lösungen/Rubrik bleiben allein im Arbeitsheft, acht Basisaufgaben/16 Punkte und
+RES-008 getrennt erhalten. Vorhandene 61-Folien-Artefaktprüfung wird übernommen,
+keine neue Office-/SQL-/Modellprüfung oder Lehrzeit-/Lernwirksamkeitsbehauptung.
+Maximal sechs Textkorrekturkandidaten/Checkpoint3/hard6, ein Owner/enges Rootreview,
+zwei Material-/drei Steuerdateien. Integration und eigene Bereinigung bleiben
+für den aktuellen Textschnitt erforderlich.
 
 Der nachfolgende Plan dokumentiert den ursprünglichen Planungsschnitt. Der neue
 Benutzerauftrag vom 2026-10-11 autorisiert dessen autonome Umsetzung; Scope, Budget

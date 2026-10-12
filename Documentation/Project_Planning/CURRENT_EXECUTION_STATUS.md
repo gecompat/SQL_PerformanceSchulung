@@ -1,4 +1,29 @@
 # Aktueller Ausführungsstand
+
+## TSK-012: optionale Belegleseaufgaben nach PR219
+
+[PR219](https://github.com/gecompat/SQL_PerformanceSchulung/pull/219) ist auf
+`7571af81ae3286d398e7c397b4f27840daf49e78` vollständig abgeschlossen: acht aktuelle
+Head-/sechs Main-Workflows PASS, ganzer Tree identisch, main FF/synchron/sauber,
+eigener lokaler und Remote-Branch entfernt. Der begrenzte private Authentifizierungs-
+PASS und vier historische FAILs bleiben in ihrem jeweiligen Scope.
+
+Unmittelbar folgt ein unabhängiger Textschnitt in
+[Arbeitsheft](../HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md) und
+[Trainerleitfaden](../HowTo/SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md): drei optionale
+Leseaufgaben zu tatsächlichem Embedding/SQL-Retrieval, gescheiterter Generation und
+begrenzter Login-Trennung. Zweck, vorherige Erwartung, Beobachtung und Aussagegrenze
+bilden den Einsteigerpfad. Lösungen und optionale Rubrik bleiben nur im Arbeitsheft;
+acht Basisaufgaben/16 Punkte und RES-008 bleiben unverändert.
+
+Ein Implementierungsverantwortlicher, ein enges Root-Fakten-/Didaktikreview, maximal
+sechs zusammenhängende Textkorrekturkandidaten, Checkpoint3/hard6. Zwei Material-
+und drei kanonische Steuerdateien, keine neue Kennung. Null neue Modell-, SQL-,
+Container- oder Office-Ausführung. Der vorhandene 61-Folien-Artefaktnachweis wird
+übernommen; Lehrzeiten, Lernwirksamkeit und Generalprobe bleiben unqualifiziert.
+Aktuelle Head-/Main-Integration und eigener Cleanup schließen den Textschnitt.
+Allgemeine Entwicklung und DGN-007 bleiben pausiert; GenerationHard6 bleibt FAIL.
+
 ## Tenant-Authentifizierung: begrenztes Profil bestanden
 
 Nach vollständig geschlossenem PR218 ist die
@@ -15,7 +40,7 @@ Checkpoint3 eingehalten, kein weiterer grüner Lauf und kein Budgetreset.
 Null Modell-/Provider-/Cloud-/Hosteffekte. Öffentliche Demo bleibt WITHOUT LOGIN;
 Passwortintegrität, Pooling, ANN und volle TSK-009-/TP-CON-Abnahme offen.
 Aktuelle Head-/Main-Gates, vollständige Integration und eigener Branchcleanup
-folgen. Danach unmittelbar unabhängige TSK-012-Belegleseaufgaben aus vorhandener
+sind über PR219 abgeschlossen. Danach unmittelbar unabhängige TSK-012-Belegleseaufgaben aus vorhandener
 Evidenz, ohne weitere Modell-/SQL-/Officeausführung. Allgemeine Entwicklung und
 DGN-007 bleiben pausiert; Generatorwelle bleibt FAIL/Hard6.
 
