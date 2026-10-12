@@ -3543,3 +3543,42 @@ Vollrecords/Normen/ausgeführte Quellen rein neu gebunden. Eigener Prozess beend
 keine SQL-/Labänderung oder UNKNOWN. Zwei Inferenzaufrufe, keine Wiederholung
 für die Ergebnisprüfung. Begrenzte Entwicklungsevidenz, keine volle TSK007-/
 RAG-/SQLHTTPS-/QRY020-Abnahme. Aktuelle Integrationsgates folgen.
+
+
+## TSK-008/007: fester lokaler Dokument-/Fragekorpus
+
+Frische geschlossene Vorgrenze PR215: 9 aktuelle Head-/7 Main-Workflows PASS,
+Squash1ed895bb8bbebef286aeb46cffd4c1c97cdf6d2b, voller identischer Tree
+3b38543fbefe0584f5da57326ba9840669cacba1, main FF/synchron/sauber, eigener
+lokaler und Remote-Branch entfernt. Die zuvor offenen Integrationsgates sind
+geschlossen; die zwei tatsächlichen öffentlichen lokalen Vektorrückgaben
+bleiben reine Komponentenevidenz, keine Korpus- oder volle Workstreamabnahme.
+
+Root hat den neuen [privaten Vier-Input-Korpus](SQL_SERVER_2025_AI_MODEL_CORPUS_REVIEW.md)
+unabhängig ohne offene P1/P2 geprüft: drei feste englische Dokumente A/red,
+B/blue, C/green plus eine feste crimson-Frage, Dokument-/Fragepräfixe explizit,
+Fullvector768/finite/Norm und vorab eingefrorenes Cosine-Top1=A. Alle Ties,
+identischen Vektoren, fehlende/falsche Input-/Record-/Counterbindungen sind FAIL.
+13 reine Pythonmethoden plus PS-Input-/Counterselftest PASS, nur Mock-Popen,
+keine Modell-/Metadata-/SQLcalls in der Vorbereitung. Bekannte schmale API-/
+CommandInfo-/LabSource-/LocalBinding-/UNKNOWN-Floors wiederverwendet.
+
+Genau sechs kohärente Kandidaten, ein Profil je Kandidat, max24 Inferenz-/162
+Metadatenrequests kumulativ, Checkpoint3/hard6. C1 reserviert4+27, Retry0,
+30s je Inferenz/5s je Metadata, Parent300s einschließlich Startup plus eine
+gemeinsame5s-Reapingdeadline. UNKNOWN sperrt jede Folgeinferenz; historische
+FAILs bleiben im Ledger. Rawvectors/Receipt ausschließlich ignoriertesRuntime,
+stdout nur Status/Zähler. Quellen-/Lab-/Proof-/Dokumentgates vor exklusiveC1-
+Admission; C1-Native-Ergebnis noch offen. Kein SQL-/Cloud-/Generator-/RAG-/HTTPS-
+Effekt, keine allgemeine Qualität oder TSK007/008-/QRY020-/Gesamtabnahme.
+Modell-/Tokenverbrauch unbekannt; SRC112/113 wiederverwendet, kein Source-ID-Neueintrag.
+
+C1 des festen Dokument-/Fragekorpus lokal bestanden: vier tatsächliche öffentliche
+Inferenzcalls/27 Metadatenrequests, vier vollständige768-Vektoren/3072 endliche
+Koordinaten, vorabTop1A beobachtet (CosineA0.8031306189541002,
+B0.7859511311854047, C0.7826607701190610; Margin0.01717948776869549).
+Root hat die Vollrecords und Cosines unabhängig neu berechnet; eigener Prozess
+bestätigt beendet, Labquellen/-checkout unverändert, keine SQLcalls/UNKNOWN.
+Ein Kandidat verbraucht, keine Wiederholung nach PASS. Dieser einzelne
+synthetische Fall ersetzt keine allgemeine Retrieval-/Sprach-/Antwortqualität
+oder Live-RAG-/SQLHTTPS-/TSK007/008-Abnahme. Aktuelle Integration folgt.
