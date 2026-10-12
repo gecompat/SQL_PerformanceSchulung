@@ -1,6 +1,6 @@
 # RES-008 – private Quellen-, Dimensions- und Storagevorbereitung
 
-Stand: 2026-10-12. TSK-010/CUR-019, Basis
+Stand: 2026-10-12. TSK-010/CUR-020, Basis
 `84aef7016cc86194281805adc29ae9bc15fcec2f`, Branch
 `codex/sql2025-ai-res008-preparation`. RES-008 bleibt PROPOSED.
 Der Nachweis umfasst weder ein öffentlich ausführbares Demopaket noch eine

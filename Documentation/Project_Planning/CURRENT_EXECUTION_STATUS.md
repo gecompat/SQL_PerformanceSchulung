@@ -2406,7 +2406,7 @@ lokales main FF-synchronisiert, sauber, eigener lokaler/Remote-Branch entfernt.
 Die vorstehenden C2-/C3-CI-FAILs bleiben historische Befunde ihrer Heads.
 
 Unmittelbar folgte codex/sql2025-ai-res008-preparation auf dieser Main-Basis.
-TSK-010/CUR-019, RES-008 weiterhin PROPOSED. Sechs Kandidaten/maximal zwölf
+TSK-010/CUR-020, RES-008 weiterhin PROPOSED. Sechs Kandidaten/maximal zwölf
 eigene serielle Container; ein Owner, enger unabhängiger Quellenreview und
 C2-Deltaclosure vor Admission. C1 nach Setup FAIL/8124 an äußerer Referenz in
 Komponentenaggregat, tatsächlicher SQL-/DB-/Containercleanup bestanden.
