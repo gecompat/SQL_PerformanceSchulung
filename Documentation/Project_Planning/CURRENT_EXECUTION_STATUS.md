@@ -2683,3 +2683,35 @@ vollständige TP-PERF-/TSK-011-/Modulabnahme offen; DGN-010 PROPOSED.
 Sechs kohärente Kandidaten je Schnitt autorisiert, historische FAILs erhalten.
 Allgemeine Entwicklung/DGN-007 pausiert; keine Cloud-/Modell-/ONNX-/roten
 Hosteffekte oder andere Repositoryänderung. Verbrauch unbekannt, Heartbeat aktiv.
+
+
+## DGN-010: begrenzter ungezwungener SELECTvergleich ohne/mit Index
+
+PR193 vollständig abgeschlossen: Head 12b0716293a8607994b80804e0402768b18997f5, sieben Head-Workflows PASS;
+Squash f1984f36a91c67161a0acf66f22e3d373089edc6, fünf Main-Workflows PASS; ganzer Tree fc9d81e3cb7c81063f65694fefb97bf3bc4300c5 exakt übernommen,
+main FF/sauber und eigener lokaler/Remote-Branch entfernt. Unmittelbar TSK-011/
+CUR-021 im Branch codex/sql2025-ai-dgn010-select fortgesetzt.
+
+[Gebundener ungezwungener Readerbatchvergleich](SQL_SERVER_2025_AI_INDEX_SELECT_REVIEW.md):
+C1 zweimal je zehn Warmups/18 AB-/BA-/AA-Fenster und 1810 vollständige Queryoracles
+bestanden. A ohne/B mit Candidateindex, identische SELECT ohne INDEX-Hints, feste
+Readerrechte; vier Build-/Dropzyklen je Profil außerhalb Messfenster. AB/BA sechs
+Samples je Zustand, drei AA-Paare separat. UTC-/Requestgrenzen enthalten Buffer-/
+Impersonationaufwand, keine individuelle Querylatenz/isolierte Indexkosten.
+
+92000 vollständige Source-Rows/58 positive Fensterframes/vier native Negative
+exakt gebunden; Source/config/Readerrechte gleich, Source-/Querynegative/Restore/
+Idempotenz und eigener markergebundener SQL-/DB-/CID-/Namenscleanup bestanden.
+Enger unabhängiger Quellenabschluss ohne offene P1/P2, grüne Readerparseranalyse
+nach tatsächlichem LF-normalisiertem Vergleich wiederverwendet. Neue positive/
+zwei fremde Scopepräfixfälle bestanden; anfängliche reine Fixture-/Bytevergleichs-
+Fehler erhalten, keine Runtimewirkung. Keine alte grüne Suitewiederholung.
+
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. Danach begrenzte Vorbereitung des öffentlichen DGN-010-Pakets.
+Keine aktuellen Readerpläne/Indexnutzungs-/Nettonutzen-/vollständigen Workerkosten-
+oder vollen TP-PERF-/TSK-011-/Modulclaims; ältere Engines/Recoveryqualifikation und
+öffentlicher Consumer offen. DGN-010 PROPOSED. Sechs kohärente Kandidaten je Schnitt
+autorisiert, historische FAILs erhalten; allgemeine Entwicklung/DGN-007 pausiert,
+keine Provider-/roten Hosteffekte oder andere Repositoryänderung. Verbrauch
+unbekannt, Heartbeat aktiv.
