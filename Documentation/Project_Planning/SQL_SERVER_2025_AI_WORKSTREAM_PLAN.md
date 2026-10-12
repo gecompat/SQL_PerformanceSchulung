@@ -11,6 +11,21 @@
 
 ## Aktueller Implementierungsstand
 
+Nach vollständig geschlossenem PR218 bleibt die Generatorwelle FAIL/Hard6.
+Unabhängig bestand unter TSK-009/CON-010 die
+[private Tenant-Serverloginkomponente](SQL_SERVER_2025_AI_TENANT_LOGIN_REVIEW.md)
+im fünften Kandidaten: drei echte Login-/Benutzer-/SIDbindungen, eigene A/B-
+Quellen, authentifiziertes Unmapped, manipulierten Sessionwert abgewehrt/reset,
+drei Rechtefehler, fünf echte Eigentumsabweisungen und 23 vollständige States
+einschließlich Restore. Vollständiger tatsächlicher Login-/DB-/SQL-/Container-
+Cleanup, kein UNKNOWN. Fünf eigene Container/95 Clienthandles, C5 60; vier
+historische FAILs erhalten, SQL-Abwesenheit C1–C3 NOT_ESTABLISHED. Checkpoint3,
+gemeinsames endliches Budget und unabhängiger neuer Sicherheitsreview eingehalten.
+Null Modell-/Provider-/Hosteffekte; SRC-114 bindet die Primärquellen. Öffentliche
+WITHOUT-LOGIN-Demo, Passwortintegrität-/Pooling-/ANN-/Gesamtabnahmegrenzen bleiben.
+Nach aktueller Integration folgen unmittelbar unabhängige TSK-012-Belegleseaufgaben
+an vorhandenen Embedding-/SQL-/Generation-/Tenantnachweisen, ohne weitere Native.
+
 Der nachfolgende Plan dokumentiert den ursprünglichen Planungsschnitt. Der neue
 Benutzerauftrag vom 2026-10-11 autorisiert dessen autonome Umsetzung; Scope, Budget
 und aktueller Nachweis stehen im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md#autonome-umsetzung-des-ki-workstreams-vom-2026-10-11).
