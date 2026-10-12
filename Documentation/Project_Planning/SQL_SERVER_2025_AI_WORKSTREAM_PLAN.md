@@ -574,3 +574,13 @@ UTC-/Requestgrenzen enthalten OUTPUT-/Transaktions-/Rollbackaufwand. Ungezwungen
 SELECTvergleich ohne/mit Index, Nettonutzen, isolierte Index-/Commit-/vollständige
 Workerkosten, öffentliche FWK-/Versions-/Recoveryqualifikation und vollständige
 TP-PERF-/Modulabnahme bleiben offen; DGN-010 PROPOSED.
+
+
+Der [private ungezwungene DGN-010-SELECTvergleich](SQL_SERVER_2025_AI_INDEX_SELECT_REVIEW.md)
+ergänzt TSK-011/CUR-021 zweimal zehn Warmups/18 AB-/BA-/AA-Fenster und je 1810
+vollständige Queryoracles ohne/mit Candidateindex. Identische Readerquery ohne
+INDEX-Hints, vier getrennte Build-/Dropzyklen je Profil, 92000 Source-Rows und
+Source-/Querynegative/Restore/eigener Cleanup gebunden. Buffer-/Impersonation-
+aufwand und unterschiedliche Request-/UTC-Grenzen sichtbar; keine aktuellen
+Readerpläne/Indexnutzung, individuelle Latenz/Indexnettonutzen oder volle TP-PERF-/
+Modulabnahme. DGN-010 PROPOSED; nächster Schritt öffentliche Paketvorbereitung.
