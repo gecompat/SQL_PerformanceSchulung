@@ -810,3 +810,22 @@ Zweimal2025WARN, je zweimal2019/22SKIP vorSetup, ein2025Setupfault/Recovery
 verbindlich. Kein neuer lokaler Native-Lauf und keine volle Performanceabnahme.
 Endliches Budget sechs Quellenkandidaten/Checkpoint3/hard6 und maximal21 eigene
 CI-Container einschließlich finaler Integration; aktuelle Gateergebnisse offen.
+
+## TSK-007: öffentliche lokale Modellkomponente vor SQL-Integration
+
+Nach vollständigem Abschluss von PR214 unmittelbar die [AiModel-Komponentenfrage](SQL_SERVER_2025_AI_MODEL_COMPONENT_REVIEW.md)
+aufgenommen: explizite lokale öffentliche API ohne SQL, zwei feste synthetische
+Nomic-Vektoren mit vollständiger Live-Bindung vor/nach Inferenz und eigenem
+Prozessbudget/UNKNOWN-Sperre. Reine Binding-/Vektorgegenfälle und Parenttests
+Normal/-O bestanden; enger unabhängiger Quellenabschluss vor Nativeadmission.
+Sechs Quellenkandidaten/max12 Inferenzcalls/max90 Metadatacalls, Checkpoint3/hard6;
+C1-Ergebnis zunächst offen. Kein Cloud-/ONNX-/SQLREST-/Hostkonfigurationseffekt,
+kein vollständiger QRY020-/RAG-/Workstreamabschluss.
+
+Die getrennte AiModel-C1-Komponente ist inzwischen lokal nativ bestanden: zwei
+vollständige768-Vektoren/1536 endliche Koordinaten, wiederholter Input mit
+Koordinatendifferenz0 und tatsächlicher gleicher Modell-/Digest-/Versionsbindung;
+Vollrecords/Normen/ausgeführte Quellen rein neu gebunden. Eigener Prozess beendet,
+keine SQL-/Labänderung oder UNKNOWN. Zwei Inferenzaufrufe, keine Wiederholung
+für die Ergebnisprüfung. Begrenzte Entwicklungsevidenz, keine volle TSK007-/
+RAG-/SQLHTTPS-/QRY020-Abnahme. Aktuelle Integrationsgates folgen.

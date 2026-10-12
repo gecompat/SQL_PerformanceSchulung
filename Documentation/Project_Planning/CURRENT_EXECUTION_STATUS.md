@@ -3515,3 +3515,31 @@ Keine lokale SQLwiederholung. Sechs Quellenkandidaten/Checkpoint3/hard6, maximal
 eigene CI-Container einschließlich Integration. Enger unabhängiger Review und
 tatsächliche aktuelle Head-/Main-Matrizen folgen; DGN010 PROPOSED/WARN, volle
 TP-PERF-/Workstreamabnahme offen und historische FAILs erhalten.
+
+## TSK-007: lokale öffentliche Modellkomponente
+
+PR214 vollständig abgeschlossen: zehn aktuelle Head-/acht Main-Workflows PASS,
+Squash1f4b0f8f9435631977918122d62c337a6665afcd, voller identischer Tree, main FF/
+sauber, eigener lokaler/Remote-Branch entfernt. Beide aktuellen nativen Matrizen
+separat gebunden: vier2025positive bounded WARN-Profile, acht Versions-SKIPs
+vorSetup und zwei erwartete Setupfaults/Recovery; alle sechs eigenen CI-Container
+als abwesend belegt. Keine erneute lokale SQLqualifikation, volle Abnahme offen.
+
+Unmittelbar [öffentliche lokale AiModel-Komponente](SQL_SERVER_2025_AI_MODEL_COMPONENT_REVIEW.md)
+vorbereitet: ohne SQL/RAG, Nomic768/local, zwei feste synthetische Inferenzaufrufe,
+Metadaten vor/nach jedem Call, vollständige numerische Vektoren im privaten
+Nachweis und eigenes150s-/5s-Prozessbudget. Drei konkrete P2-Gruppen einschließlich
+Recovery-Restpunkt vor Native geschlossen; zwei positive/neun negative reine
+Binding-/Vektorfälle und sieben Parentmethoden Normal/-O bestanden. Budget sechs
+Quellenkandidaten/max12 Model-/max90Metadatacalls, Checkpoint3/hard6; UNKNOWN
+sperrt neue Inferenzadmission. C1-Native-/Integrations-/Cleanupresultate offen,
+TSK007/RAG/SQLHTTPS/QRY020/volle Workstreamabnahme offen. Andere Repositories
+unverändert, keine Cloud-/ONNX-/rote Hosteffekte, Modell-/Tokenverbrauch unbekannt.
+
+Die getrennte AiModel-C1-Komponente ist inzwischen lokal nativ bestanden: zwei
+vollständige768-Vektoren/1536 endliche Koordinaten, wiederholter Input mit
+Koordinatendifferenz0 und tatsächlicher gleicher Modell-/Digest-/Versionsbindung;
+Vollrecords/Normen/ausgeführte Quellen rein neu gebunden. Eigener Prozess beendet,
+keine SQL-/Labänderung oder UNKNOWN. Zwei Inferenzaufrufe, keine Wiederholung
+für die Ergebnisprüfung. Begrenzte Entwicklungsevidenz, keine volle TSK007-/
+RAG-/SQLHTTPS-/QRY020-Abnahme. Aktuelle Integrationsgates folgen.
