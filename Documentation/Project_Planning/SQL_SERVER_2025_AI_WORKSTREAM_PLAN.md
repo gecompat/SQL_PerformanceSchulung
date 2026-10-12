@@ -584,3 +584,13 @@ Source-/Querynegative/Restore/eigener Cleanup gebunden. Buffer-/Impersonation-
 aufwand und unterschiedliche Request-/UTC-Grenzen sichtbar; keine aktuellen
 Readerpläne/Indexnutzung, individuelle Latenz/Indexnettonutzen oder volle TP-PERF-/
 Modulabnahme. DGN-010 PROPOSED; nächster Schritt öffentliche Paketvorbereitung.
+
+
+Der [öffentliche reine DGN-010-Auswertungsvertrag](SQL_SERVER_2025_AI_DGN010_BENCHMARK_CONTRACT.md)
+bereitet SELECT-/DML-Scopes mit vollständiger Population, Source-/Request-/Result-
+und DML-Ordinal-/Rollbackdepthbindung sowie getrennten Warmups/AA vor. 20 synthetische
+Methoden und enger unabhängiger Quellenabschluss bestanden; vier vorhandene gebundene
+Native-Records rein erneut ausgewertet, 48 numerische FWK-PASSs ohne SQLwiederholung.
+Runtime-/TP-PERF-Qualifikation NOT_ESTABLISHED, aktuelle Indexnutzung NOT_CAPTURED.
+Nächster Schritt öffentlicher bounded Runtimeproducer/Versions-/Marker-/Recovery-
+qualifikation; DGN-010 PROPOSED, keine volle Modul-/Indexnettonutzenabnahme.

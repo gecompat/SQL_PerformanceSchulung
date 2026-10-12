@@ -2715,3 +2715,37 @@ oder vollen TP-PERF-/TSK-011-/Modulclaims; ältere Engines/Recoveryqualifikation
 autorisiert, historische FAILs erhalten; allgemeine Entwicklung/DGN-007 pausiert,
 keine Provider-/roten Hosteffekte oder andere Repositoryänderung. Verbrauch
 unbekannt, Heartbeat aktiv.
+
+
+## DGN-010: öffentlicher reiner Benchmarkauswertungsvertrag
+
+PR194 vollständig abgeschlossen: Head f30021a308bbd1bc6571ccd0d375330daabb839b, sieben aktuelle Head-
+Workflows PASS; Squash abd392c63d7b89421df91f27626261f942ebe494, fünf Main-Workflows PASS; ganzer Tree
+32d8d00dca6f1f7d49ed6b3967ac3cc745edea26 exakt übernommen, main FF/sauber und eigener lokaler/Remote-
+Branch entfernt. Unmittelbar TSK-011/CUR-021 im Branch
+codex/sql2025-ai-dgn010-contract fortgesetzt.
+
+[Öffentlicher reiner Auswertungsvertrag](SQL_SERVER_2025_AI_DGN010_BENCHMARK_CONTRACT.md)
+mit festen SELECT-/DML-Scopes, 46 vollständigen Quellenzuständen, 29 eindeutigen
+positiven Fenstern inklusive separater Kontrolle, zehn Warmups/18 AB-/BA-/AA-
+Messfenstern, 1810 Statementoracles und 18100 Rowkontrollen. Vollständige Source-/
+Payload-/Request-/DB-/Counter-/UTC-/DML-Ordinal-/Rollbackdepthbindung; Warmups und
+AA separat, alle Samples/Nullen/Ausreißer/exakte große Dezimalmediane erhalten.
+Keine Identitäts-/UTC-/Source-/Plan-Rawausgabe. Zwei feste FWK-011-Verträge mit je
+zwölf vollständig gebundenen Pflichtinvarianten; numerischer PASS ist kein Runtime-PASS.
+
+20 reine Methoden bestanden, enger unabhängiger Quellenabschluss ohne offene
+P1/P2; Reviewer ohne Tests/Runtime, keine Reviewkette. Vier bereits gebundene
+Native-Records erneut rein geprüft: 48 FWK-PASSs und exakt gleiche Samples/Mediane,
+null weitere SQL-/Containerläufe. Vorhandene Nativequellen/Recordhashes und
+unabhängiger DB-ID-Frame gebunden. Keine neue Runtime-/Herkunfts-/Versionsattestation.
+
+Statische KI-CI um neue Tests/Quellen erweitert, Runtimejob/Gemeinsam-API unverändert.
+Aktuelle Head-/Main-Gates einschließlich tatsächlicher statischer Selection,
+PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup folgen vor Abschluss.
+Danach öffentlicher bounded DGN-010-Runtimeproducer mit getrennten SELECT-/DML-
+Messscopes und Versions-/Marker-/Fehler-/Recoveryqualifikation. DGN-010 PROPOSED,
+vollständige TP-PERF-/TSK-011-/Modulabnahme/Indexnettonutzen/weitere Kosten offen.
+Sechs kohärente Kandidaten je lokalem Schnitt autorisiert, historische FAILs erhalten;
+allgemeine Entwicklung/DGN-007/andere Automationen pausiert, keine Provider-/roten
+Hosteffekte oder andere Repositoryänderung. Verbrauch unbekannt, Heartbeat aktiv.

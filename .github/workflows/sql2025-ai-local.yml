@@ -10,6 +10,10 @@ on:
       - 'Tests/Static/test_sql2025_ai_local.py'
       - 'Tests/Static/idx011_benchmark_evidence.py'
       - 'Tests/Static/test_idx011_benchmark.py'
+      - 'Tests/Static/dgn010_window_evidence.py'
+      - 'Tests/Static/dgn010_benchmark_evidence.py'
+      - 'Tests/Static/test_dgn010_benchmark.py'
+      - 'Tests/Static/Fixtures/dgn010/**'
       - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
@@ -40,6 +44,10 @@ on:
       - 'Tests/Static/test_sql2025_ai_local.py'
       - 'Tests/Static/idx011_benchmark_evidence.py'
       - 'Tests/Static/test_idx011_benchmark.py'
+      - 'Tests/Static/dgn010_window_evidence.py'
+      - 'Tests/Static/dgn010_benchmark_evidence.py'
+      - 'Tests/Static/test_dgn010_benchmark.py'
+      - 'Tests/Static/Fixtures/dgn010/**'
       - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
@@ -105,6 +113,8 @@ jobs:
         run: python Tests/Static/test_sql2025_ai_local.py
       - name: Validate bounded IDX-011 benchmark preparation
         run: python Tests/Static/test_idx011_benchmark.py
+      - name: Validate bounded DGN-010 benchmark preparation
+        run: python Tests/Static/test_dgn010_benchmark.py
       - name: Validate bounded IDX-011 controller and recovery
         run: python Tests/Static/test_idx011_profile.py
       - name: Validate bounded representative IDX-011 plan measurements
