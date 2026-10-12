@@ -170,3 +170,10 @@ Windows- und Podman-Runtime sowie ein installierter Full-Text-Pfad bleiben geson
 | [`DGN-008`](../../Demos/09_AI_SQL_Server_2025/DGN-008_Offline_Model_Rights/README.md) | Modellmetadaten und getrennte Offline-Rechte | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
 | [`DGN-009`](../../Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/README.md) | Manipulierte Quellen und feste Offline-Toolpolicy | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
 | [`CON-010`](../../Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/README.md) | Tenant-Isolation vor dem Vektorkontext | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
+
+[RES-008](../../Demos/09_AI_SQL_Server_2025/RES-008_Vector_Dimensions/README.md)
+besitzt zusätzlich einen öffentlich ausführbaren begrenzten YELLOW-Consumer
+für vier float32-Dimensionen. Sein [Teilnachweis](../Project_Planning/SQL_SERVER_2025_AI_RESOURCE_PUBLIC_REVIEW.md)
+belegt zwei vollständige lokale Profile, vier Versions-SKIPs vor Setup und
+einen tatsächlichen Setupfault mit eigenem Cleanup. Status PROPOSED bleibt
+erhalten; keine vollständige FWK-011-/Demo-/TP-PERF- oder Modulabnahme.

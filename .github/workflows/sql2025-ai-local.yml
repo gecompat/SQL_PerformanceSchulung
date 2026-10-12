@@ -17,6 +17,10 @@ on:
       - 'Tests/Static/test_idx012_lifecycle.py'
       - 'Tests/Static/test_idx012_storage.py'
       - 'Tests/Static/test_idx012_costs.py'
+      - 'Tests/Static/test_res008_profile.py'
+      - 'Tests/Static/test_res008_plans.py'
+      - 'Tests/Static/test_res008_measurement.py'
+      - 'Tests/Runtime/run_res008_profile.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/con010_controls.py'
       - 'Tests/Runtime/execution_target.py'
@@ -39,6 +43,10 @@ on:
       - 'Tests/Static/test_idx012_lifecycle.py'
       - 'Tests/Static/test_idx012_storage.py'
       - 'Tests/Static/test_idx012_costs.py'
+      - 'Tests/Static/test_res008_profile.py'
+      - 'Tests/Static/test_res008_plans.py'
+      - 'Tests/Static/test_res008_measurement.py'
+      - 'Tests/Runtime/run_res008_profile.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/con010_controls.py'
       - 'Tests/Runtime/execution_target.py'
@@ -100,6 +108,11 @@ jobs:
           python Tests/Static/test_idx012_lifecycle.py
           python Tests/Static/test_idx012_storage.py
           python Tests/Static/test_idx012_costs.py
+      - name: Validate bounded RES-008 consumer and evidence
+        run: |
+          python Tests/Static/test_res008_profile.py
+          python Tests/Static/test_res008_plans.py
+          python Tests/Static/test_res008_measurement.py
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}
@@ -174,6 +187,12 @@ jobs:
         run: |
           python Tests/Runtime/run_sql2025_ai_local.py \
             --target docker --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}'
+      - name: Verify bounded RES-008 public lifecycles and setup recovery
+        shell: bash
+        run: |
+          python Tests/Runtime/run_res008_profile.py \
+            --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Remove SQL Server container
         if: always()

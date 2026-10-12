@@ -2484,3 +2484,36 @@ folgen vor Abschluss. Danach unmittelbar öffentliche RES-008-Demoqualifikation
 unter getrennten Performancegrenzen. RES-008 PROPOSED, TSK-010/TP-PERF/
 Worker-/Provider-/Gesamtabnahme offen. Kein Cloud-/ONNX-/roter Hosteffekt,
 Modell-/Tokenverbrauch unbekannt; Heartbeat aktiv.
+
+## RES-008: öffentlicher begrenzter Consumer
+
+PR187 vollständig abgeschlossen: Head 334f91f743081c7c73ff1d823715e011227dec6c
+mit sieben aktuellen Head-Workflows, Squash 1891b35d81dcdc61274a4a738994c3b25aa09dd4
+mit fünf aktuellen Main-Workflows PASS. Ganzer Tree d516ca9e6fc919c5c05bc8bf4a83fe32e5871b04
+gleich übernommen, lokales main per FF sauber, eigener lokaler/Remote-Branch entfernt.
+Unmittelbar codex/sql2025-ai-res008-public gestartet, TSK-010/CUR-020.
+
+Öffentlicher Controller mit sechs Kandidaten/maximal 42 eigenen seriellen
+Containern für sieben feste Slots. C1 alle sieben lokal bestanden: vier tatsächliche
+2019-/2022-SKIPs vor Setup, zwei vollständige SQL-17.0.5005.3-Profile mit je
+20 Warmups, 54 AB-/BA-/AA-Fenstern, 5420 einzelnen Queryoracles und vier Actual-
+Plänen; tatsächlicher eindeutig attestierter Fault nach PASS-Setup mit Recovery.
+Zehn vollständige 400-Row-Aufnahmen gleich, Source-/Querynegative exakt 51003,
+Restore, Setupidempotenz, DB-Konfiguration 0/0 und unabhängiger eigener Cleanup.
+148 native Fenster und acht native Pläne exakt gegen vollständige Records gebunden.
+
+[Öffentlicher Teilnachweis](SQL_SERVER_2025_AI_RESOURCE_PUBLIC_REVIEW.md).
+15 Controller-/24 Plan-/18 Messgegenfälle und enger unabhängiger Abschluss
+dreier konkreter P2 vor Admission bestanden. Private Launcherimportkollision
+vor Admission korrigiert, kein damaliger Container-/SQL-Effekt; historische
+Source-/Mess-/Plan-FAILs bleiben erhalten. Keine unveränderte grüne Wiederholung.
+Öffentliche gemeinsame API unverändert; neue CI prüft den öffentlichen
+Consumer-/Shim-/Prozesspfad, Pflicht-SKIPs und WARNs sowie eigenen Cleanup.
+
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. Danach unmittelbar begrenzte öffentliche Aggregation/
+Ergebnisinterpretation aus den bereits vollständigen Records ohne erneute
+unveränderte SQL-Läufe. RES-008 PROPOSED, neun lokale Demopakete IMPLEMENTED;
+vollständige FWK-011-/Demo-/TP-PERF-/TSK-010-/Modul-/Workstreamabnahme offen.
+Keine Cloud-/Modell-/ONNX-/rote Hostwirkung, kein anderes Repository verändert;
+Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.
