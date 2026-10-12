@@ -612,3 +612,19 @@ PR196 vollständig geschlossen (Head zehn/Main acht Workflows samt tatsächliche
 
 
 [Native Markerqualifikation](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md) C4 zweimal vollständig bestanden: 384 echte 51004-Abweisungen, 482 volle Stateaufnahmen/482000 Rows, 48 Restores und eigener SQL-/DB-/CID-/Namenscleanup. Drei historische FAILs erhalten, alle fünf lokalen Container geschlossen; vier von sechs Quellenkandidaten, keine Budgeterneuerung. Frische Head-/Main-/Integrations-/Sync-/Branchcleanupgates vor Abschluss; danach eigene Readerplan-/Indexnutzungsfrage. DGN-010 bleibt PROPOSED/full-TP-PERF NOT_ESTABLISHED.
+
+
+DGN-010-Marker über PR197 mit tatsächlichen Head9/Main7-Gates, kompletter Tree-/
+FF-Synchronisierung und eigenem Branchcleanup integriert. Nächster endlicher
+[privater Reader-Indexnutzungsschnitt](SQL_SERVER_2025_AI_DGN010_USAGE_REVIEW.md):
+sechs Korrekturkandidaten/max12 serielle eigene Container, Checkpoint3/hard6,
+zwei stabile Native-Lifecycles und aktuelle PR-/Main-Gates. Fehlende DMVrow
+bleibt fehlend, tatsächliche Readerpläne und Indexnettonutzen bleiben offen.
+
+
+Der erste Indexnutzungskandidat bestand zwei neue eigene Native-Lifecycles: sechs
+volle Singlequeryfenster/60 Rows, 18000 Source- und 12000 State-Rows, vier native
+Negativframes; tatsächliche PK→Candidate→PK-Seeks jeweils 1, keine Readerpläne
+oder Nettonutzenqualifikation. Eigener SQL-/DB-/Containercleanup bestanden.
+Aktuelle PR-/Main-Gates und Branchcleanup folgen. Nächste zulässige DGN-010-Frage
+ist begrenzter Owner-INSERT mit tatsächlichem Rollbackrestore ohne/mit Candidate.

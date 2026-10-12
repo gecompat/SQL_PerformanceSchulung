@@ -2899,3 +2899,59 @@ Aktuelle Head-/Main-Gates mit tatsächlichem neuen Markerconsumer, PR/Integratio
 ganze Treeübernahme, FF-Synchronisierung und eigener lokaler/Remote-Branchcleanup
 folgen vor Abschluss. Danach separate tatsächliche Readerplan-/Indexnutzungsfrage;
 Workstream und Heartbeat bleiben aktiv.
+
+
+## DGN-010: Marker integriert, begrenzte Indexnutzung registriert
+
+PR 197 tatsächlich abgeschlossen: Head9/Main7 einschließlich nativer Marker-
+Dreierversionenmatrix PASS, Squash 4c7c7382041143c06be76bb18aa4124322a6f0e5, ganzer Tree
+87f31d31e55658f16f49a1413a91feffca21b533 exakt, FF-main synchron und eigener lokaler/
+Remotebranch abwesend. Historische drei FAILs und Producer-WARN erhalten.
+
+Unmittelbare Folge ist [drei tatsächliche einzelne Reader-Indexnutzungsfenster](SQL_SERVER_2025_AI_DGN010_USAGE_REVIEW.md)
+mit vollem Source-/Rechte-/Config-Orakel; Budget sechs neue Korrekturkandidaten/
+zwölf serielle eigene Container, Checkpoint3/hard6, zwei stabile positive
+Lifecycles erforderlich. Neue konkrete Source-/Cleanup-P2 vor Native geschlossen,
+elf reine DMVgegenfälle und ein Cleanupfehlerpfad PASS. Admission noch offen;
+kein Readerplan-/Nettonutzen-/voller Runtimeclaim, öffentliche Producer unverändert.
+Modell-/Tokenverbrauch unbekannt. Workstream/Heartbeat aktiv.
+
+
+## Tatsächlicher Native-C1-Nachweis
+
+Der stabile erste Kandidat bestand zwei neue eigene vollständige SQL-17.0.5005.3-
+Lifecycles, Tokens EC61C42B0BEF4CB3/F4D8F54238FF4633. Je 31 tatsächliche Nativecalls,
+drei einzelne ungezwungene Readerqueries mit vollständigem Zehnrow-/Payload-
+Digest; insgesamt sechs Queryfenster/60 Queryrows, 18 Sourceproben/18000 Rows,
+zwölf vollständige Stateaufnahmen/12000 Rows und vier echte vollständige
+51003/FAIL_RESULT_CONTRACT-Negativframes. Alle ursprünglichen Nativeframes und
+die tatsächlich verwendeten Sourcehashes lokal gebunden und unabhängig vom
+In-memory-Ergebnis rein geprüft, keine neue SQL-Ausführung dabei.
+
+In beiden Profilen tatsächliche UserSeeks-Differenz 1 am PK ohne Candidate,
+1 am Candidate bei vorhandenem Candidate und 1 am PK nach Candidateabbau.
+Im mittleren Fenster PK-Differenz 0; alle beobachteten UserScan-/Lookup-/Update-
+und Systemcounterdifferenzen 0. Keine INDEX-Hints. Alle relevanten DMVrows waren
+vor/nach tatsächlich vorhanden; der fehlende-/neue-Rowpfad wurde hier nicht
+nativ erreicht und bleibt nur rein gegengeprüft. Nullwerte sind hier tatsächliche
+Differenzen vorhandener Rows, keine Ergänzung fehlender Baselines.
+
+Tatsächliche DB-ID, vollständiger Request, gleicher Startup, exakter fester
+SQLtextdigest und tatsächliche Source-/Indexidentität gebunden. Jede vollständige
+Statepaarung unverändert, zwei kontrollierte Candidate-DDL-Transitions außerhalb
+der jeweiligen Queryintervalle; vollständiger Source-Restore nach Negativprobe.
+Guarded SQLcleanup 90/91, frisch unabhängige DB-Abwesenheit und voller eigener
+CID-/Namenscleanup bestanden; beide eigenen Container abwesend, kein UNKNOWN.
+Ein von sechs Kandidaten verwendet; keine weiteren unveränderten grünen Läufe.
+
+Dies ist ein PASS der begrenzten privaten tatsächlichen Nutzungsbeobachtung,
+keine zusätzliche öffentliche Producer-Funktion. Öffentlicher Producer weiterhin
+Gesamt-WARN; runtime_qualification und index_net_benefit NOT_ESTABLISHED,
+actual_reader_plan NOT_CAPTURED. Keine allgemeine Performanceempfehlung aus drei
+Singlequeries. Modell-/Tokenverbrauch unbekannt.
+
+Aktuelle selektierte Head-/Main-Gates, PR/Integration, ganzer Tree, FF-main und
+eigener lokaler/Remote-Branchcleanup folgen. Danach nächste zulässige begrenzte
+DGN-010-Kostenfrage: Owner-INSERT mit tatsächlichem Rollbackrestore ohne/mit
+Candidate. Commit-/Build-/Worker-/volle Readerpläne und vollständige TP-PERF-/
+Modul-/Lehrmaterialabnahme bleiben offen; Workstream/Heartbeat aktiv.
