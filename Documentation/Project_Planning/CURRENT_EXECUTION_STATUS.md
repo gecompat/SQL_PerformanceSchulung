@@ -3277,3 +3277,26 @@ Vollrecords anschließend an tatsächliche unveränderte Ausführungsquellen rei
 gebunden, kein zusätzlicher SQL-Lauf. Private Inputs/Logs/Records bleiben privat.
 Aktuelle Head-/Main-/PR-/Tree-/FF-/Ownbranchgates folgen. Danach unmittelbar
 bereits erhobene Indexseiten rein aufbereiten; Nettonutzen/volle Abnahme offen.
+
+## DGN-010: reine Folgeaufbereitung vorhandener Indexseiten
+
+PR 205 ist auf main 6079f7a50f3ab0a61d1e21ec9d79a9d2d19e2e16 mit sieben
+Head-/fünf Main-Workflows PASS, ganzer Tree/FF-main sauber und eigenem lokalem/
+Remote-Branchcleanup abgeschlossen. Beide eigenen Testinstanzen abwesend,
+kein UNKNOWN. Unmittelbare Folge auf `codex/sql2025-ai-dgn010-index-pages`:
+[vorhandene native Indexseiten](SQL_SERVER_2025_AI_DGN010_INDEX_PAGES_REVIEW.md)
+aus denselben exakt hashgebundenen Vollrecords und unveränderten Quellen.
+
+Je Profil fünf feste A/B/A/B/A-Aufnahmen. Originaler PK durchgängig 18 Used/
+33 Reserved Pages, Candidate in B 17 Used/33 Reserved Pages; ausgewählte
+Indexsumme 18/33 gegen 35/66. Candidate in A tatsächlich abwesend, kein
+fehlender Wert als gemessene Null. Rowcount-1000-Katalogaufnahme und die
+vollständige tatsächliche Source-Rowqualifikation bleiben getrennt.
+Alle zehn Beobachtungen erhalten, drei reine Gegenproben bestanden,
+null zusätzliche SQLcalls oder Container, keine unveränderte grüne Wiederholung.
+
+Used/Reserved sind Partitionallokationen einschließlich Verwaltungsaufwand,
+keine vollständige Datei-/RAM-/Log-/Nutzdatenmessung oder Nettonutzenqualifikation.
+Quelle/Record/DDL-/Cleanupbelege unverändert; kein weiteres Review derselben
+geprüften Nativequellen. Aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen,
+danach öffentlicher getrennt begrenzter Kostenrecord-/Aggregationsvertrag.
