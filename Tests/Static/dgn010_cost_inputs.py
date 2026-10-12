@@ -20,6 +20,13 @@ def build_sql(*,database_id,object_id,kind,cycle,held_lease):
     identity(database_id,object_id)
     if type(kind) is not str or kind not in costs.DDL or type(cycle) is not int or cycle not in (1,2):raise ValueError('Fixed own DDL/cycle required')
     costs.lease(held_lease,object_id,kind=='DROP')
+    return _compose(database_id,object_id,kind,cycle,held_lease)
+
+def drop_absent_sql(*,database_id,object_id):
+    identity(database_id,object_id)
+    return _compose(database_id,object_id,'DROP',1,costs.EMPTY)
+
+def _compose(database_id,object_id,kind,cycle,held_lease):
     sql=BUILD_TEMPLATE
     for name,value in {'Kind':kind,'Cycle':str(cycle),'ObjectId':str(object_id),'Lease':held_lease.replace("'","''")}.items():sql=sql.replace('$('+name+')',value)
     if '$(' in sql:raise ValueError('Unbound SQL input')

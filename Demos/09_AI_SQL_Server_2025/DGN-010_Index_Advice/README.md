@@ -161,3 +161,35 @@ Abweisungen, 482 vollständigen unveränderten Stateaufnahmen und 48 Restores,
 eigenem SQLcleanup und neu bestätigter DB-/CID-/Namensabwesenheit. C1/C2/C3-FAILs
 bleiben dokumentiert. Dieser Sicherheitsnachweis erweitert keine Performance-/
 Readerplan-/volle TP-PERF- oder IMPLEMENTED-Abnahme.
+
+## Öffentlicher Kostencontroller – Nativequalifikation offen
+
+Die zusätzliche feste Vorbereitung in `run_cost_profile.py` verbindet den
+[Kostenrecordvertrag](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_COST_CONTRACT.md)
+mit zwei eigenen CREATE-/DROP-Zyklen, echten Source-/DROP-Abwesenheitsnegativen,
+vollständigen State-/Source-/Leasekontrollen und markergebundenem Cleanup.
+Elf synthetische Controllermethoden, sieben Eingabemethoden und enger unabhängiger
+Quellenreview bestanden. Dies ist kein Native-PASS dieses Kostencontrollers;
+Version-/Fehlerlauf-/Owncontainerqualifikation folgt getrennt. Private früher
+qualifizierte Buildkosten ersetzen keine öffentliche Controllerabnahme.
+
+Der Runner provisioniert nichts und verlangt dieselben beiden YELLOW-Bestätigungen,
+eigene isolierte SQL17.0.5005.3/Developer/CL170-Instanz und SQLCMDPASSWORD im Prozess-
+Environment. Nur nach tatsächlichem Preflight/Setup/Negativen/Recordprüfung bleibt
+das Ergebnis WARN; Runtime-/TP-PERF-/Worker-/Nettonutzen NOT_ESTABLISHED.
+`--summary` gibt bei WARN und vollständig bestätigtem Cleanup nur Aggregate aus.
+
+```powershell
+python Demos/09_AI_SQL_Server_2025/DGN-010_Index_Advice/run_cost_profile.py --server <eigener-lokaler-endpoint> --confirm-isolated-lab --high-impact-confirmed --summary
+```
+
+Alle Normalrequests teilen 300 Sekunden und Cleanup insgesamt weitere höchstens
+60 Sekunden, beide durch Parentdeadlines verkürzbar. UNKNOWN sperrt weitere SQLclients
+und erhält eigene exklusive SQLinputs unter Runtime; kein neuer SQLcleanup oder
+stilles Entfernen dieser Inputs. Unlink-/Cleanupfehler bleiben FAIL_CLEANUP.
+API-Rohrecords gehören ausschließlich in private Runtime-Evidenz. Kein eigener
+Containerabbau durch den Demo-Runner; dieser braucht separate vollständige Eigentumsbindung.
+
+Reine Controllergegenproben: `python Tests/Static/test_dgn010_cost_profile.py`.
+Der [enge Controllernachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_COST_CONTROLLER_REVIEW.md)
+ist der konkrete Quellen-/Claimvertrag. DGN-010 bleibt PROPOSED.

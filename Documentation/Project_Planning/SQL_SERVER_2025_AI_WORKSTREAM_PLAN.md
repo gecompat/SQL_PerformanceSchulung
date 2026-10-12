@@ -732,3 +732,11 @@ Quellenabschluss PASS, acht vorhandene DDL-Leases rein angebunden. Null neue
 SQLcalls/Container und keine Nativequalifikation dieser API; danach tatsächlicher
 öffentlicher begrenzter Kostencontroller/Versions-/Runtimequalifikation.
 TSK-011/CUR-021 und DGN-010 PROPOSED/WARN; volle Abnahme bleibt offen.
+
+Die [öffentliche begrenzte Kostencontroller-Vorbereitung](SQL_SERVER_2025_AI_DGN010_COST_CONTROLLER_REVIEW.md)
+verbindet unter TSK-011/CUR-021 die festen Eingaben mit vier DDL-Fenstern, acht
+Source-/zehn Vollstates, echten Negativen, KnownEnd- und Owninput-/SQLcleanup.
+Elf reine Controller-/sieben Eingabemethoden und enger unabhängiger Quellenabschluss
+PASS; keine neue lokale Controller-Nativequalifikation. Neue Demosource verlangt
+aktuelle bestehende CI-Runtime True; anschließend getrennte neue Controller-Native-
+Version-/Fault-/Owncontainerqualifikation. PROPOSED/WARN/volle Abnahme offen.

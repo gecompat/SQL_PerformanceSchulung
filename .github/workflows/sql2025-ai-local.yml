@@ -17,6 +17,7 @@ on:
       - 'Tests/Static/test_dgn010_cost_evidence.py'
       - 'Tests/Static/dgn010_cost_inputs.py'
       - 'Tests/Static/test_dgn010_cost_inputs.py'
+      - 'Tests/Static/test_dgn010_cost_profile.py'
       - 'Tests/Static/Fixtures/dgn010/**'
       - 'Tests/Static/test_dgn010_profile.py'
       - 'Tests/Static/select_runtime_workflow.py'
@@ -62,6 +63,7 @@ on:
       - 'Tests/Static/test_dgn010_cost_evidence.py'
       - 'Tests/Static/dgn010_cost_inputs.py'
       - 'Tests/Static/test_dgn010_cost_inputs.py'
+      - 'Tests/Static/test_dgn010_cost_profile.py'
       - 'Tests/Static/Fixtures/dgn010/**'
       - 'Tests/Static/test_dgn010_profile.py'
       - 'Tests/Static/select_runtime_workflow.py'
@@ -141,6 +143,8 @@ jobs:
         run: python Tests/Static/test_dgn010_cost_evidence.py
       - name: Validate fixed DGN-010 cost SQL inputs
         run: python Tests/Static/test_dgn010_cost_inputs.py
+      - name: Validate bounded DGN-010 cost controller
+        run: python Tests/Static/test_dgn010_cost_profile.py
       - name: Validate bounded DGN-010 public controller
         run: python Tests/Static/test_dgn010_profile.py
       - name: Validate bounded DGN-010 marker controller
