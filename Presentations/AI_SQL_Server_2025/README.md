@@ -31,14 +31,16 @@ Podmanpfad der acht Basisdemos. `CON-010` besitzt einen eigenen begrenzten
 Consumer-/Versionsnachweis. Windows, andere Editionen, Serverlogins und
 Verbindungspooling werden daraus nicht abgeleitet. Live-Provider, Cloud und
 ONNX besitzen eigene Freigaben. Der öffentliche Provider-Livepfad bleibt
-wegen `DEC-033`/SQLcmd-P blockiert. Der damalige DGN-010-Readerplanstand und
-vollständige Indexnettonutzen sind im Deck als `NOT_ESTABLISHED` eingeordnet.
+wegen `DEC-033`/SQLcmd-P blockiert. Zwei private DGN-010-Original-Readerplanprofile
+sind belegt. Vollständige Runtime-/TP-PERF-Abnahme und Indexnettonutzen bleiben
+`NOT_ESTABLISHED`.
 
 Die fachliche Recherchebindung des Decks ist `origin/main` bei
-`83d28cd59ae1f8a34028518e4904e44800236e81`, Stand 2026-10-12. Folie 31
-beschreibt diesen begrenzten damaligen Readerplanstand. Der anschließend
-integrierte [Readerplan-UTC-Nachweis](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md)
-belegt inzwischen zwei private vollständige Original-Readerplanprofile.
+`83d28cd59ae1f8a34028518e4904e44800236e81`, Stand 2026-10-12. Die konkrete
+Readerplanaussage auf Folie 31 ist auf main
+`4bfb1914623c3c49fcc287ee8079013a0fad6ddb` aktualisiert. Der integrierte
+[Readerplan-UTC-Nachweis](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md)
+belegt zwei private vollständige Original-Readerplanprofile.
 Die öffentlichen Producer und vollständige Runtime-/TP-PERF-/Nettonutzengates
 bleiben davon getrennt. Dieser zusätzliche Nachweis hebt die allgemeine
 Unterrichts- oder Performancegrenze des Decks nicht auf.
@@ -69,6 +71,10 @@ vorhandene Ausgabe. Für einen neuen Kandidaten wird die vorherige eigene
 Ausgabe nach Prüfung ihres Pfads in den privaten Buildbereich verschoben.
 Renderbilder, Layoutdaten und Validierungsbericht bleiben unter `Runtime`.
 Jede finale Folie muss zusätzlich einzeln visuell geprüft werden.
+Nach einer eng begrenzten Korrektur erlaubt `AI_SLIDES_RENDER_ONLY` die
+aktuelle betroffene Foliennummer. Unveränderte Folien benötigen dabei einen
+vorhandenen passenden Render- und Einzelprüfnachweis. Paket, Metadaten,
+Geometrie und finaler Import werden weiter am vollständigen Deck geprüft.
 
 ## Hinweise bei abweichender Darstellung
 

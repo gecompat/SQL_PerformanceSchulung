@@ -3134,3 +3134,50 @@ Nettonutzen. Commit-/Build-/volle Worker-/Modul-/Lehrmaterialabnahme bleiben off
 Aktuelle selektierte Head-/Main-Gates, PR/Integration, ganze Treeübernahme,
 FF-main und eigener lokaler/Remote-Branchcleanup folgen. Danach unmittelbar
 nächste zulässige begrenzte Buildkostenfrage; Workstream/Heartbeat bleiben aktiv.
+
+## TSK-012: Eigenständiger KI-Foliensatz vom 2026-10-12
+
+Der ausdrücklich parallel autorisierte Schulungsschnitt enthält
+[34 editierbare PowerPoint-Folien](../../Presentations/SQL_Server_2025_KI.pptx)
+für CUR-013 bis CUR-022 mit 34 vollständigen Sprechernotizen, Quellen und
+konkreten manifestbasierten Demoaufträgen. Alle 18 registrierten Demoentwürfe
+sind als neun IMPLEMENTED- und neun PROPOSED-Demos abgedeckt.
+[Reproduzierbare Masterquelle und Trainerhinweis](../../Presentations/AI_SQL_Server_2025/README.md)
+verlinken die bestehenden Ausführungsverträge, Lösungen und Rubrik. Neue
+SlideKeys und eigene KI-Tiefenprofile sind nicht als abgenommen registriert.
+
+Der Quellenstand des Decks ist main 83d28cd59ae1f8a34028518e4904e44800236e81.
+Der neue konkrete Reviewbefund erforderte eine eng begrenzte Korrektur von
+Folie 31: zwei private Original-Readerplanprofile sind jetzt ausdrücklich
+auf der Folie und in den Notizen mit dem kanonischen Clock-Nachweis gebunden.
+Quellenstand dieser Aussage ist main 4bfb191; die allgemeine Recherchebindung
+an main 83d28cd bleibt dokumentiert.
+PR 201 ist auf main 4bfb1914623c3c49fcc287ee8079013a0fad6ddb mit sieben Head-/
+fünf Main-Workflows, exakter Treeübernahme, FF-main und eigenem Branchcleanup
+abgeschlossen. Öffentliche Producer, volle Runtime-/TP-PERF- und
+Indexnettonutzengates bleiben weiterhin getrennt und offen.
+
+Aktuelles PPTX: 147514 Bytes, SHA-256
+726398beff736cb9b51818b4596e65c0895a66f568de021ebd3cc3af19202fcd.
+34/34 Folien vollständig gerendert und einzeln auf Inhalt, Umbruch,
+Lesbarkeit und Privacy geprüft. 13 native Tabellen, 34 Notizen und alle
+18 Demo-IDs bestätigt. Paket-, Geometrie-, Arial- und First-Party-Importprüfung
+bestanden; ein konservativer Tabellenhöhenhinweis auf Folie 5 zeigt im
+tatsächlichen Render keinen Überlauf. Identitätsmetadaten neutralisiert,
+keine Medien, Logos, eingebetteten Objekte, Credentials oder privaten Pfade.
+Die betroffenen Dateien bestanden die bestehende Privacyprüfung vor Commit.
+Kein editierender PowerPoint-Anwendungstest, keine neue SQL- oder
+Provider-/Cloud-/ONNX-/Hostausführung. Rawrender und Prüfrecords bleiben unter
+ignoriertem Runtime. Sechs endliche Authoring-/Korrekturkandidaten verbraucht,
+Checkpoint3 eingehalten. Der zusätzliche konkrete Reviewbefund zur inzwischen
+überholten Readerplanaussage autorisierte einen sichtbaren C7-Folgecheckpoint
+ohne Reset der alten Kandidaten. C7 korrigierte nur Folie 31 und ihre Quellen-
+notizen; geänderte Folie neu gerendert und einzeln geprüft, notwendige finale
+Paket-/Metadaten-/Geometrie-/Importbindung am vollständigen Deck bestanden.
+Unveränderte Einzelprüfungen wiederverwendet; kein zusätzlicher Native-Lauf.
+Der fachliche Folienumfang ist geschlossen.
+
+TSK-012 bleibt offen: tatsächliche Teilnehmererprobung, gemessene Lehrzeiten,
+vollständige Teaching Paths und Generalprobe fehlen. PR 202 integriert
+ausschließlich diesen Materialfortschritt; tatsächliche aktuelle Head-/
+Main-Gates, Treeübernahme und Branchcleanup folgen der seriellen Koordination.

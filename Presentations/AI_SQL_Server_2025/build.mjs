@@ -114,11 +114,16 @@ console.log(JSON.stringify({ finalPath: output, slideCount: 34, nativeTables, va
 // Nach dem Finalizer genau den finalen Packageinhalt neu importieren und vollständig rendern.
 const { FileBlob } = await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
 const final = await PresentationFile.importPptx(await FileBlob.load(output));
+const onlyRender = process.env.AI_SLIDES_RENDER_ONLY ? Number(process.env.AI_SLIDES_RENDER_ONLY) : null;
+if (onlyRender !== null && (!Number.isInteger(onlyRender) || onlyRender < 1 || onlyRender > 34)) throw new Error('AI_SLIDES_RENDER_ONLY muss eine vorhandene Foliennummer sein.');
+let rendered = 0;
 for (const [i, slide] of final.slides.items.entries()) {
+  if (onlyRender !== null && onlyRender !== i + 1) continue;
   const stem = `slide-${String(i + 1).padStart(2, '0')}`;
   const png = await final.export({ slide, format: 'png', scale: 1 });
   await fs.writeFile(path.join(build, `${stem}.png`), new Uint8Array(await png.arrayBuffer()));
   await fs.writeFile(path.join(build, `${stem}.layout.json`), await (await slide.export({ format: 'layout' })).text());
+  rendered++;
 }
-await fs.writeFile(path.join(build, 'deck-montage.webp'), new Uint8Array(await (await final.export({ format: 'webp', montage: true })).arrayBuffer()));
-console.log('Alle 34 finalen Folien gerendert.');
+if (onlyRender === null) await fs.writeFile(path.join(build, 'deck-montage.webp'), new Uint8Array(await (await final.export({ format: 'webp', montage: true })).arrayBuffer()));
+console.log(`${rendered} finale Folien gerendert.`);
