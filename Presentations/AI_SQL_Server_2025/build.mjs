@@ -16,9 +16,15 @@ process.env.RUNTIME_NODE_MODULES = modules;
 const require = createRequire(path.join(modules, '_presentation_resolver.cjs'));
 const { Presentation, PresentationFile } = await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
 const { finalizePresentation, resolvePresentationFont } = await import(pathToFileURL(path.join(skill, 'container_tools/artifact_tool_utils.mjs')).href);
-const build = path.join(root, 'Runtime/Temp/ai-slides');
-const output = path.join(root, 'Presentations/SQL_Server_2025_KI.pptx');
+const build = path.resolve(root, process.env.AI_SLIDES_BUILD_DIR ?? 'Runtime/Temp/ai-slides');
+const output = path.resolve(root, process.env.AI_SLIDES_OUTPUT ?? 'Presentations/SQL_Server_2025_KI.pptx');
+for (const target of [build, output]) {
+  const relative = path.relative(root, target);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Build und Ausgabe müssen im Workspace liegen.');
+}
+const slideCount = deck.slides.length;
 await fs.mkdir(build, { recursive: true });
+await fs.mkdir(path.dirname(output), { recursive: true });
 const register = await fs.readFile(path.join(root, 'Documentation/Research/SOURCE_REGISTER.md'), 'utf8');
 const sourceMap = new Map();
 for (const line of register.split(/\r?\n/)) {
@@ -66,11 +72,12 @@ for (let i = 0; i < deck.slides.length; i++) {
       t.cells.block({ row: 0, column: 0, rowCount: data.table.length, columnCount: data.table[0].length }).assign({ margins: { left: 12, right: 12, top: 5, bottom: 5 }, anchor: 'center' });
     } else {
       if (data.code) {
-        text(slide, data.code, 72, y, 1136, 180, 28, false, colors.accent);
-        y += 205;
+        const codeHeight = Math.max(180, data.code.split('\n').length * 34);
+        text(slide, data.code, 72, y, 1136, codeHeight, 28, false, colors.accent);
+        y += codeHeight + 25;
       }
       const blocks = data.blocks ?? [];
-      const available = data.code ? 225 : 405;
+      const available = data.code ? 616 - y : 405;
       const pitch = available / Math.max(1, blocks.length);
       for (const [label, body] of blocks) {
         text(slide, label, 72, y, 245, pitch - 10, 28, true, colors.accent);
@@ -97,7 +104,7 @@ for (let i = 0; i < deck.slides.length; i++) {
   notes.push(`Didaktische Zuordnung: ${data.module}. Materialstand ${deck.date}. Aktuelle Ausführungsfreigaben und Demo-Gates: Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md.`);
   slide.speakerNotes.text = notes.join('\n\n');
 }
-if (p.slides.items.length !== 34) throw new Error('Der Gesamtumfang muss 34 Folien betragen.');
+if (p.slides.items.length !== slideCount) throw new Error('Deckquelle und exportierter Folienumfang stimmen nicht überein.');
 const candidate = path.join(build, 'candidate.pptx');
 await (await PresentationFile.exportPptx(p)).save(candidate);
 // Identitätsmetadaten und nicht benötigte automatische Vorschau entfernen.
@@ -107,15 +114,15 @@ const result = await finalizePresentation({ workspaceDir: root, candidatePath: c
   integrityValidatorPath: path.join(skill, 'container_tools/inspect_presentation_package_integrity.py'),
   layoutValidatorPath: path.join(skill, 'container_tools/inspect_presentation_layout_geometry.py'),
   layoutArgs: ['--expected-slide-size-emu', '12192000,6858000', '--validate-bullet-geometry', '--validate-heading-fit', ...nativeTables.flatMap(n => ['--require-native-table-slide', String(n)])],
-  explicitTotalSlideCount: 34, requiredNativeTableOwnerSlides: nativeTables, requiredNativeChartOwnerSlides: [],
+  explicitTotalSlideCount: slideCount, requiredNativeTableOwnerSlides: nativeTables, requiredNativeChartOwnerSlides: [],
   fontPolicy: { basis: 'design', families: [fontFamily] }, verifyArtifactToolImport: true,
   receiptPath: path.join(build, `validation-${Date.now()}.json`) });
-console.log(JSON.stringify({ finalPath: output, slideCount: 34, nativeTables, validationStatus: result.status ?? 'completed' }));
+console.log(JSON.stringify({ finalPath: output, slideCount, nativeTables, validationStatus: result.status ?? 'completed' }));
 // Nach dem Finalizer genau den finalen Packageinhalt neu importieren und vollständig rendern.
 const { FileBlob } = await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
 const final = await PresentationFile.importPptx(await FileBlob.load(output));
 const onlyRender = process.env.AI_SLIDES_RENDER_ONLY ? Number(process.env.AI_SLIDES_RENDER_ONLY) : null;
-if (onlyRender !== null && (!Number.isInteger(onlyRender) || onlyRender < 1 || onlyRender > 34)) throw new Error('AI_SLIDES_RENDER_ONLY muss eine vorhandene Foliennummer sein.');
+if (onlyRender !== null && (!Number.isInteger(onlyRender) || onlyRender < 1 || onlyRender > slideCount)) throw new Error('AI_SLIDES_RENDER_ONLY muss eine vorhandene Foliennummer sein.');
 let rendered = 0;
 for (const [i, slide] of final.slides.items.entries()) {
   if (onlyRender !== null && onlyRender !== i + 1) continue;

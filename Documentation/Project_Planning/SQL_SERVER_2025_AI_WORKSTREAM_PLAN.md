@@ -402,13 +402,19 @@ vergleichbare Messwerte, Annahmen, verbleibende Risiken und einen Nicht-KI-Vergl
 Eine fachlich gepflegte PowerPoint-Masterquelle bleibt maßgeblich. Der ursprüngliche
 Plan schätzte 30–45 zusätzliche Lehrpositionen mit SlideKeys und Tiefenprofilen.
 Der ausdrücklich parallel autorisierte TSK-012-Folienschnitt enthält jetzt
-[34 editierbare KI-Folien](../../Presentations/SQL_Server_2025_KI.pptx) mit vollständigen
+[61 editierbare KI-Folien](../../Presentations/SQL_Server_2025_KI.pptx) mit vollständigen
 Sprechernotizen, Quellen und konkreten manifestbasierten Demoaufträgen.
 [Masterquelle und Trainerhinweis](../../Presentations/AI_SQL_Server_2025/README.md)
 sind reproduzierbar und decken CUR-013 bis CUR-022 sowie alle 18 Demoentwürfe ab.
 Neun IMPLEMENTED- und neun PROPOSED-Demos bleiben getrennt. Das bestehende
 Performance-Masterdeck und dessen Variantenmanifest sind unverändert. Neue
 SlideKeys, separate KI-Tiefenprofile und ihre Generalprobe sind nicht abgenommen.
+Der Benutzerauftrag zur niedrigeren Einstiegshürde ergänzt 27 Einführungsfolien
+vor den bisherigen 34 Fachfolien. Ein durchgehender synthetischer Wissensbasisfall
+erklärt Begriffe, Anwendungsfälle und Voraussetzungen. Eine angeleitete lokale
+SELECT-/VECTOR-Vorführung verbindet Vorhersage, Code und mathematische Sollwerte.
+Modellzugang, Preview, Cloudkonto und neue Datenbankobjekte sind dafür unnötig.
+Die Unterrichtspfade bezeichnen Materialauswahl, keine gemessenen Lehrzeiten.
 Die nachfolgende PowerPoint-Reparatur erhält den Namespacepräfix der
 Datumsmetadaten. Das korrigierte Deck ist in PowerPoint 16.0 geöffnet sowie
 für Text, Tabellen, Notizen und Speichern/erneutes Öffnen geprüft; die ursprüngliche

@@ -3191,13 +3191,51 @@ Regressionen einschließlich der ursprünglichen negativen Kontrolle im
 bestehenden Presentation-Workflow. Genau ein korrigiertes Paket wurde in
 PowerPoint 16.0 tatsächlich geöffnet: 34 Folien, 13 native Tabellen; Text,
 Tabellenzelle und Sprechernotiz bearbeitet, private Kopie gespeichert und erneut
-geöffnet, jeweils PASS. Aktuelles neutralisiertes PPTX: 147868 Bytes, SHA-256
+geöffnet, jeweils PASS. Repariertes PPTX in PR 203: 147868 Bytes, SHA-256
 f7ac0e74cc41333bff3f0c38ab0f472b1e47cb2b2f7f796c795f0868b1f6f97c.
 Alle Folien- und Notizenparts bleiben bytegleich. Keine SQL-, Provider-, Cloud-,
 ONNX- oder Hostausführung. Office-Testkopie und ursprünglicher Export bleiben
 privat. Head-/Main-Gates, PR-Integration, Synchronisierung und eigenes
-Branchcleanup schließen diesen Reparaturschnitt ab.
+Branchcleanup schlossen diesen Reparaturschnitt ab: PR 203 integriert auf
+main b17113bd479bef0f8a644d6e6246b53ac0814338, acht Head-/sechs Main-Workflows
+PASS, exakter Tree, FF-main sauber und eigener lokaler/Remote-Branch entfernt.
 
 TSK-012 bleibt offen: tatsächliche Teilnehmererprobung, gemessene Lehrzeiten,
 vollständige Teaching Paths und Generalprobe fehlen. Der Workstream und sein
 Heartbeat bleiben aktiv.
+
+### Erweiterte Einführung für Anwender:innen ohne KI-Erfahrung
+
+Der anschließende Benutzerauftrag verlangt einen umfangreicheren Einstieg vor
+den Fachdetails. Der Schnitt `codex/sql2025-ai-beginner-introduction` erweitert
+TSK-012 auf 61 Folien: 27 neue Einführungsfolien vor den bisherigen 34 Fachfolien.
+Ein durchgehender synthetischer MOD_A-Wissensbasisfall erklärt Quelle/Fassung,
+KI/ML, Modell, Training/Inferenz, Sprachmodell, Tokens, Rollen und Anwendungsfälle.
+Server/Client/CL, vorbereitete Labverbindung, Rechte und späterer Modellzugang
+erhalten verständliche Voraussetzungen und nächste Schritte. Cloudkonto,
+ChatGPT, Copilot, Modellservice, Preview und neue Datenbankobjekte sind für den
+ersten geometrischen DECLARE-/VALUES-/SELECT-Versuch nicht erforderlich.
+Vorhersage, vollständiger Code und besprochene Sollwerte 0/1/2 sind getrennt;
+die Werte sind mathematisch hergeleitet, kein neuer SQL-Runtimebefund und keine
+gemessene Sprachsemantik. Quellen-/Nichtantwortfälle schließen den Einstieg ab.
+
+Der reproduzierbare Export leitet Folienzahl und native Tabellen aus der
+Masterquelle ab und erlaubt getrennte private Build-/Ausgabepfade. C1 hielt
+an der Eingangsprüfung des Finalizers an, weil Receipt und finaler Ausgabeordner nicht getrennt
+waren. Dieser FAIL bleibt privat erhalten. C2 mit getrennten Ordnern bestand
+Paket, Geometrie, Arial und finalen First-Party-Import. Alle 61 Folien wurden
+neu gerendert und einzeln visuell geprüft. Ein konservativer Tabellenhöhenhinweis
+auf Folie 32 zeigte im konkreten Render keinen Überlauf. PowerPoint 16.0 öffnete
+61 Folien mit 23 nativen Tabellen und 61 Sprechernotizen. Text, Tabellenzelle
+und Notiz bearbeiten sowie private Kopie speichern/erneut öffnen jeweils PASS.
+Aktuelles neutrales PPTX: 245680 Bytes, SHA-256
+72275f2fa0156799e4346b35fb3436fe420b113f0ae38dea0b94cd3a10b62a99.
+Alle 18 Demo-IDs, neun IMPLEMENTED/neun PROPOSED und ihre offenen Gates bleiben
+erhalten. Arbeitsheftlösungen und Rubrik bleiben unverändert. Trainerleitfaden,
+Backlog und Workstreamplan sind mit dem neuen gemeinsamen Einstieg abgeglichen.
+
+Keine SQL-, Provider-, Cloud- oder ONNX-Ausführung und keine roten Hoständerungen. Office-Testkopien,
+Renderdaten und Prüfnachweise bleiben privat. Head-/Main-Gates, PR-Integration,
+Synchronisierung und eigenes Branchcleanup bilden den Integrationsabschluss.
+Lehrzeiten, Teilnehmererprobung, vollständige Teaching Paths und Generalprobe
+bleiben offen; die alten Zeitplanwerte belegen keine Dauer dieses größeren Decks.
