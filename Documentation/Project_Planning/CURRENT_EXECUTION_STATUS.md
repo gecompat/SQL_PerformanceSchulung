@@ -1,5 +1,18 @@
 # Aktueller Ausführungsstand
 
+## TSK-009: öffentlicher SQLcmd-Clientadapter nach PR224
+
+PR224 vollständig geschlossen (8 Head/6 Main, Tree/FF/Branches), Main
+04e4f08a8dfc9b5121a112c1083a1622f9057ecc. Unmittelbar folgt der
+[öffentliche Clientadapter](SQL_SERVER_2025_AI_POOL_CLIENT_REVIEW.md): tatsächliche
+Framework-APIs, Capturebindung an dasselbe gehaltene Prozessobjekt, sticky UNKNOWN,
+Privacy vor Digests und unveränderte Deadlines mit erforderlicher Cleanupreserve.
+SOURCE_ONLY: 6/CP3/hard6, ein Owner/enger Rootreview, null lokale echte Prozesse/
+SQL/CLR/Container/Modelle/Provider-Metadaten. Neue Kontrollfolgentests mit Fakehandles;
+keine Wiederholung alter grüner Checks oder privater C3-Proben. Pfadbetroffene CI
+bleibt Pflicht; kein Selector-/RED-Defaultwechsel. Voller Producer/Runtime offen.
+
+
 ## TSK-009: öffentliche V2-Capturevorstufe nach PR223
 
 PR223 vollständig geschlossen (8 Head/6 Main, Tree/FF/Branches), Main

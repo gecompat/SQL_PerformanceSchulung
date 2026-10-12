@@ -8,7 +8,10 @@
     "Documentation/HowTo/SQL_SERVER_2025_AI_POOL_CAPTURE_V2.md",
     "Demos/00_Framework/Tools/sqlcmd_process.py"
   ],
-  "collector_sha256": "d8b553419bb34e4bafe7d0a7baee55ca28a5b97d1ad64710e131674aa6ca9757",
+  "collector_sha256_variants": [
+    "d8b553419bb34e4bafe7d0a7baee55ca28a5b97d1ad64710e131674aa6ca9757",
+    "ef33fbeb4436044ac2fd490b90b0608e4743f0f8accbbd3e3a2ee762fc2ac09d"
+  ],
   "input_scope": "CLIENT_INPUT_FILE_UTF8_BEFORE_SQLCMD_ENV_EXPANSION",
   "output_scope": "COLLECTOR_DECODED_TEXT_UTF8_REENCODED",
   "frame_prefix": "CON010_POOL_CAPTURE_PART",

@@ -104,3 +104,17 @@ Container je Quellenkandidat, maximal sechs. Keine private Runtimeimporte oder
 allgemeine Provisionierung. Tatsächliche Ausführung und Producer-/Provider-/
 CON-010-/TSK-009-/TP-CON-Abnahme bleiben offen. Keine Rawcaptures werden aus privaten
 C3-Records kopiert; Gegenfälle sind ausschließlich synthetisch.
+
+
+## Zwei geprüfte Collector-Checkoutvarianten
+
+Die unveränderte öffentliche Collectorquelle ist separat als tatsächlicher LF-Blob
+(SHA256 ef33fbeb4436044ac2fd490b90b0608e4743f0f8accbbd3e3a2ee762fc2ac09d)
+und Windows-CRLF-Checkout (d8b553419bb34e4bafe7d0a7baee55ca28a5b97d1ad64710e131674aa6ca9757)
+gebunden. Beide konkreten Bytes wurden sourcegeprüft; der Helper normalisiert nichts
+und akzeptiert keine weitere Variante. Quellenkarte und Capture bewahren den
+jeweils tatsächlich gelesenen Rawbyte-SHA. Das erweitert keine Provider-/OS-/Runtime-
+Abnahme; der historische PR224-Windows-Nachweis bleibt korrekt. Der feste aktuelle
+V2-Vertrag führt genau beide Werte unter `collector_sha256_variants`. Der Helper
+übernimmt keine freien Zulassungen aus dieser Liste; beide zulässigen SHAs sind
+zusätzlich ausdrücklich im Code gebunden.
