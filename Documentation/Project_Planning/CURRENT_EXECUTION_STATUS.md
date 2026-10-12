@@ -2525,3 +2525,33 @@ unveränderte SQL-Läufe. RES-008 PROPOSED, neun lokale Demopakete IMPLEMENTED;
 vollständige FWK-011-/Demo-/TP-PERF-/TSK-010-/Modul-/Workstreamabnahme offen.
 Keine Cloud-/Modell-/ONNX-/rote Hostwirkung, kein anderes Repository verändert;
 Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.
+
+
+## RES-008: begrenzte öffentliche Aggregation
+
+PR188 vollständig abgeschlossen: Head b2c55911994db6460a15e27e2b5b3ca32390ac0b,
+zwölf aktuelle Head-Workflows; Squash 192fcd945d1408bf6509263600af7beb2bb83c4d,
+zehn aktuelle Main-Workflows PASS. Ganzer Tree 151bd6af448e7b6153b23c5a7b69f63d9f7353d6
+gleich übernommen, main FF-synchronisiert/sauber und eigener lokaler/Remote-Branch
+entfernt. CI-C1 auf allen drei Versionen FAIL am Proxy erhalten, Containercleanup
+bestanden; eigener CI-C2-Adapter mit aktuellem Public-PASS/SKIP/WARN/Recoverypfad.
+Unmittelbar codex/sql2025-ai-res008-aggregation begonnen, TSK-010/CUR-020.
+
+[Gebundene Aggregation](SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md):
+exakte 20-Warmup-/54-Fensterpopulation, sechs A/B-Batchfenster je Pfad/Paar, AA
+separat; nullbedingtes N/A, Nullzählungen und Ausreißer sichtbar. 148 vorhandene
+Raw-Windowframes und acht Raw-Pläne exakt gebunden, zwei begrenzte Auswertungen
+mit je 30 numerischen FWK-011-Invarianten bestanden, keine neuen lokalen SQL-Läufe.
+25 reine Populations-/Counter-/Oracle-/Plan-/Privacy-/FWK-Gegenfälle und drei
+öffentliche CLI-Fälle bestanden. Konkreter unabhängiger Assertionbinding-P2
+geschlossen; keine Reviewer-Tests/-Runtime oder Reviewkette. Gesamt-WARN,
+PROPOSED und offene volle Worker-/TP-PERF-/TSK-010-/Modulabnahme erhalten.
+
+CLI --summary optional nach positivem bekanntem Controllerabschluss, keine
+Rawdiagnosepersistierung; CI bewertet die neue Aggregation am öffentlichen
+nativen Consumer und erhält vollständigen eigenen Cleanup. Aktuelle Head-/Main-
+Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup folgen vor
+Abschluss. Danach begrenzte Teilnehmer-/Traineraufgabe zu diesem Teilprofil
+unter TSK-012 ohne SQL-Retry/volle didaktische Abnahme. Keine Cloud-/Modell-/ONNX-/
+roten Hosteffekte oder andere Repositoryänderung; Verbrauch unbekannt,
+Heartbeat aktiv; sechs kohärente Kandidaten je lokalem Schnitt bleiben autorisiert.

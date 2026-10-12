@@ -8,6 +8,7 @@ from pathlib import Path
 FOLDER=Path(__file__).resolve().parent;ROOT=FOLDER.parents[2]
 sys.path[:0]=[str(FOLDER),str(ROOT/'Demos/00_Framework/Tools')]
 import res008_source as source,res008_measurement as measurement,res008_plans as plans
+import res008_summary as summary
 from sqlcmd_process import build_sqlcmd_command,collect_process,resolve_sqlcmd,start_sqlcmd
 
 DATABASE='SQLPERF_LAB_RES008_LOCAL'
@@ -167,10 +168,15 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--server',required=True);parser.add_argument('--sqlcmd');parser.add_argument('--username',default='sa')
     parser.add_argument('--confirm-isolated-lab',action='store_true');parser.add_argument('--high-impact-confirmed',action='store_true')
+    parser.add_argument('--summary',action='store_true',help='Nur geprüfte aggregierte Werte nach erfolgreichem begrenztem Profil ausgeben')
     args=parser.parse_args()
     try:result=run_profile(executable=resolve_sqlcmd(args.sqlcmd),server=args.server,username=args.username,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed)
     except FileNotFoundError:print('SQLPERF_SUMMARY|SKIP|SKIP_TOOL_MISSING');return 0
     except (ValueError,OSError):print('SQLPERF_SUMMARY|FAIL|FAIL_SAFETY');return 1
+    if args.summary and result.outcome=='WARN':
+        try:aggregate=summary.summarize_result(result)
+        except (OSError,ValueError,TypeError,KeyError):print('SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT');return 1
+        print('RES008_AGGREGATE|'+json.dumps(aggregate,sort_keys=True,allow_nan=False))
     print('RES008_PROFILE|BOUNDED_ONLY|WINDOWS_'+str(len(result.evidence.get('windows',())))+'|PLANS_'+str(len(result.evidence.get('plans',())))+'|CLEANUP_'+str(result.cleanup_ok))
     print('SQLPERF_SUMMARY|'+result.outcome+'|'+result.code)
     return 1 if result.outcome=='FAIL' else 0

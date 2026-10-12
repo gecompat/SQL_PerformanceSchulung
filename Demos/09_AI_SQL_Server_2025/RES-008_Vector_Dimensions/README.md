@@ -88,8 +88,25 @@ kein Manifest behauptet eine vollständige TP-PERF-Qualifikation.
 
 Der öffentliche Aufruf schreibt weder vollständige Quellen noch Rawoutput,
 Pläne oder Diagnosewerte auf Datenträger. Ergebnisse liegen während des Aufrufs
-im Speicher; die CLI zeigt nur aggregierte Counts/Status. Eine spätere kontrollierte
-Publikations-/FWK-011-Aggregation ist ein getrenntes noch offenes Gate.
+im Speicher; die CLI zeigt standardmäßig Counts/Status. Optional `--summary`
+zum obigen Aufruf hinzufügen: erst nach positivem bekanntem Abschluss und Cleanup
+folgt ein JSON-Frame `RES008_AGGREGATE` mit geprüften aggregierten Zahlen und
+30 numerischen FWK-011-Assertions. Keine Rawidentitäten, Request-/UTC-/Connection-
+werte, Querytexte, Quellen-/Planstrings oder XMLs werden ausgegeben.
+
+Die Auswertung trennt 20 Warmups und AA von den sechs A/B-Batchfenstern je Pfad
+und Paar. Median/Min/Max/n/Nullzählung enthalten auch Ausreißer; Nullbaseline
+ergibt N/A (`null` im JSON), keine Division. CPU/Elapsed gelten pro Batch mit
+100 Queries einschließlich Counter-/Tempresult-Overhead. Sechs Batchfenster
+belegen keine individuellen Querylatenzen, belastbare Tails oder Signifikanz.
+Vier repräsentative Planrecords liefern ausschließlich rohe numerische
+Memory-/DOP-Attribute; fehlend bleibt `null`, roher DOP 0 bleibt 0.
+
+Die drei [Expected-Verträge](Expected/RES008_D384.result-contract.json) prüfen
+je zehn feste EXACT/FAIL-Invarianten zu Quellen, Vektorbytes und vollständiger
+Query-/Fensterabdeckung. FWK-011-PASS für diese Invarianten verändert weder
+Gesamt-WARN noch PROPOSED oder die offene volle TP-PERF-/Demo-/Modulabnahme.
+[Gebundener Aggregationsnachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md).
 
 ## 8. Erwartete Beobachtung
 
@@ -139,7 +156,8 @@ Integration werden getrennt nachgewiesen; historische FAILs bleiben erhalten.
 
 Kleine synthetische Population, feste Version und Ressourcen. Vollständige
 Worker-I/O, Waits/Spills/TempDB, größere Profile, Loader-/Modellqualität,
-FWK-011-Aggregation und volle TP-PERF-/Demo-/Versionsabnahme offen.
+vollständige FWK-/TP-PERF-/Demo-/Versionsabnahme offen. Die begrenzte Aggregation
+prüft ausschließlich den dokumentierten Teilumfang.
 Keine Inferenz, Cloud-, Bezahl-API, ONNX oder rote Hostwirkung.
 
 ## 13. Quellen

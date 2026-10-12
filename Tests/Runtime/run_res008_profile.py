@@ -32,7 +32,12 @@ def main():
         outcomes=[];qualified=[]
         for repetition in (1,2):
             result=profile.run_profile(executable=str(target.shim),server=target.server,auth=target.auth,username=target.username,confirmed=True,high_impact=True)
-            qualified.append(validate(result,major));outcomes.append((result.outcome,result.code))
+            accepted=validate(result,major)
+            if accepted:
+                aggregate=profile.summary.summarize_result(result)
+                if aggregate['outcome']!='WARN' or sum(len(r['assertions']) for r in aggregate['fwk011'])!=30:raise ValueError('Begrenzte FWK-011-Aggregation fehlt')
+                print(f'RES008_AGGREGATE|RUN_{repetition}|FWK011_30_PASS|OVERALL_WARN')
+            qualified.append(accepted);outcomes.append((result.outcome,result.code))
             print(f'RES008_CONSUMER|RUN_{repetition}|{result.outcome}|{result.code}|CLEANUP_CONFIRMED')
         if all(qualified):
             fault=profile.run_profile(executable=str(target.shim),server=target.server,auth=target.auth,username=target.username,confirmed=True,high_impact=True,fault='after_setup')
