@@ -698,3 +698,14 @@ vier echte Negative, alle eigenen XE-/DB-/Containerlifecycles geschlossen.
 Historische sechs FAILs erhalten; Folgewelle C7–C12, positive Schnittgrenze erreicht.
 Private Beobachtung PASS; öffentliche Producer-WARN/TP-PERF-/Nettonutzengrenzen
 erhalten. Aktuelle PR-/Main-/Tree-/FF-/Ownbranchgates folgen; danach Buildkostenfrage.
+
+Die nächste begrenzte [Build-/Dropkostenfrage](SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md)
+ist vor Admission mit sechs Kandidaten/max12 eigenen seriellen Containern und
+Checkpoint3/hard6 gebunden. Zwei CREATE-/DROP-Zyklen je stabilem Profil erfassen
+tatsächlichen Request, Textdigest, gehaltene Index-/Spalten-Lease und vollständige
+unabhängige Source-/State-/Negativ-/Cleanuporacles. Keine Vermischung mit bisherigen
+Reader-/Rollbackzeiten oder Ableitung voller Worker-/Log-/Nettonutzenqualifikation.
+Native C1 bestand zweimal: acht vollständige DDL-Fenster, 16000 Source-Rows,
+20000 Vollstate-Rows, vier echte Negativen und vollständiger eigener DB-/
+Containerabbau. Alle beobachteten Zahlen bleiben getrennt gebunden; allgemeine
+Kosten, Worker/Commit/Nettonutzen und vollständige TP-PERF-Abnahme offen.
