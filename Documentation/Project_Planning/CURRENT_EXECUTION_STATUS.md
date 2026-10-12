@@ -1,12 +1,26 @@
 # Aktueller Ausführungsstand
+## Lokale Generatorwelle abgeschlossen: FAIL
 
-## Aktive DGN-010-Veröffentlichung nach PR195
+Sechs geschlossene Kandidaten, fünf tatsächliche Inferenz-/31 Metadatenrequests,
+kein korrekter positiver Antwortfall. Kein Negativfall gestartet; keine bestandene
+Enthaltung. Alle eigenen Caller und Requestenden bestätigt, kein UNKNOWN. Null
+neue SQL-/Container-/Cloud-/Hoständerungen. Vollständiger unveränderter Lab-Export
+nach Native erneut geprüft. Historische FAILs und ausdrückliche C6-Vorverarbeitung
+bleiben sichtbar. Hard6 erreicht, keine weiteren Calls dieser Welle. Eine neue
+begründete Route benötigt geänderten Vertrag/Evidenz und endliche neue Planung;
+volle Live-RAG-/QRY-020-/TSK-007/008-Abnahme bleibt offen. Modell-/Tokens unbekannt.
+Details: [begrenzter Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
+Unabhängige lokale Tenant-/Serverloginqualifikation unter TSK-009 folgt nach
+vollständiger Integration; allgemeine Entwicklung und DGN-007 bleiben pausiert.
+
+
+## Historischer DGN-010-Veröffentlichungscheckpoint nach PR195
 
 PR195 vollständig abgeschlossen: Head 83333b8d69532de77ddeab8b04f290e66e619c2f,
 acht Head-Workflows PASS; Squash 398fecc664419cec5332b456de60c80498045d36,
 sechs Main-Workflows PASS; ganzer Tree 93a2a03e4c42552cfe6342be71064014ac195eec
 exakt übernommen, main FF/sauber, eigener lokaler/Remote-Branch entfernt.
-Unmittelbare Fortsetzung: öffentlicher begrenzter SELECT-/DML-Runtimeproducer
+Damals unmittelbar folgende Veröffentlichung: begrenzter SELECT-/DML-Runtimeproducer
 im Branch codex/sql2025-ai-dgn010-public. DGN-010 bleibt PROPOSED; vollständiger
 TP-PERF-/Nettonutzen-/Insert-/Worker-/Plan-/Modulclaim bleibt offen.
 
@@ -3609,3 +3623,68 @@ UNKNOWNfalse. EinKandidat/einContainer,0 neueModellaufrufe, keine Runtime-
 wiederholung für reinen Vollrecordabschluss; ModeltokensUNKNOWN. Einzelner
 synthetischer Suchfall, keine volle Live-RAG-/SQLHTTPS-/Generator-/TSK007/008-
 Abnahme; aktuelle Integration folgt.
+
+
+## TSK-008/007: lokale Generation am geprüften SQL-Snapshot
+
+PR217 vollständig geschlossen:8 aktuelleHead/6Main PASS,
+Squash1101a14499e8ee3d6cb009f69c3c7ad09ad7f3fe, vollerTree/FF/synchron/sauber,
+eigenerlokaler/Remote-Branch entfernt. SQL-Korpus-C1/OwnDB-/Container-/
+Inputcleanup abgeschlossen, keinUNKNOWN. Unmittelbar [lokale Generatorkomponente](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md)
+aufgenommen. Begrenzte Discovery3Metadata+1WhatIf,0Inference/SQL, vorhandener
+lokaler öffentlicherQwenkey/completion/remoteFieldsnull; keineAntwortabnahme.
+PositiveQuelle aus tatsächlich geprüftem unverändertem SQL-Snapshot; drei feste
+JSONcases ANSWER/A/red beziehungsweise zweimalABSTAIN/null/null, fail-first
+vorFolgecall und unabhängiges Wholeoracle. Max6Kandidaten/18Inference/126Metadata,
+CP3/hard6, C1 3+21/300+ein5. Sourceprep/Review/Admission/Native noch offen.
+KeineModelldownloads/Neustarts/Cloud-/ONNX-/Hoständerung, ModelltokensUNKNOWN.
+Kein vollständigerLive-End-to-End-RAG-/SQLHTTPS-/QRY020-/TSK007/008-Abschluss.
+
+Die lokale Generation C1 ist FAIL_RESULT_CONTRACT: ein Inferenz- und sechs
+Metadatenrequests. Der positive Case liefert eine Nichtantwort im Markdown-
+Codeblock statt des festgelegten JSONobjekts ANSWER/A/red. Case2 und Case3
+wurden nicht aufgerufen; kein ABSTAIN-PASS. Fail-first greift tatsächlich.
+Requestenden bekannt, eigener Caller beendet, kein UNKNOWN und keine SQL-/
+Hoständerung. C1 bleibt FAIL. C2 ändert ausschließlich den Prompt: festes
+crimson=red-Übungsglossar und rohe JSONbeispiele. Quellen-/Fragebytes und alle
+Ergebnisoracles bleiben unverändert; keine Codefenceentfernung oder Anpassung
+des Solls an das beobachtete Ergebnis. Budget sechs Kandidaten, 18 Inferenz-/
+126 Metadatenrequests unverändert; neue Quellenprüfung und Admission vor Calls.
+
+C2 der lokalen Generation ist vor API-Aufrufen mit FAIL beendet: null neue
+Inferenz-/Metadatenrequests, keine Records, eigener Caller beendet und kein
+UNKNOWN. Nachfolgend festgestellte parallele Lab-Änderungen bleiben unangetastet;
+der Receipt enthält keinen konkreten Fehlercode. C3 bereitet einen unveränderten
+vollständigen Export des geprüften Lab-Commits in eigenes Runtime mit voller
+Tree-/Blob-/SHA-/Populationbindung vor. C2-Prompts und Ergebnisoracles bleiben
+unverändert. Beide historischen FAILs bleiben erhalten; bisher insgesamt ein
+Inferenz- und sechs Metadatenrequests. Quellenreview und Admission vor C3 offen,
+Budget sechs Kandidaten mit Dreiercheckpoint unverändert. Details und Grenzen:
+[Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
+
+Die Generation C3 ist semantisch FAIL: ein Inferenz-/sechs Metadatenrequests,
+gültiges rohes JSON mit Nichtantwort im positiven Fall. Weitere Cases wurden
+nicht gestartet; eigener Caller beendet, bekannte Requestenden, kein UNKNOWN.
+Dreiercheckpoint gebunden; drei FAIL-Kandidaten erhalten, insgesamt zwei
+Inferenz-/zwölf Metadatenrequests. C4 ändert ausschließlich die Promptstruktur
+und entfernt konkrete Antwortbeispiele; tatsächliche SQL-Quellen, Frage und
+Ergebnisoracles unverändert. Hard6 und übrige Effekte unverändert. Quellenreview
+und Admission vor weiteren Calls offen; keine allgemeine Qualitätsabnahme.
+
+Generation C4 ist ebenfalls FAIL (ein Inferenz-/sechs Metadatenrequests,
+Nichtantwort mit Codeblock im positiven Fall). Eigener Caller beendet,
+Requestenden bekannt, kein UNKNOWN; weitere Cases nicht gestartet. Eine
+einzelne anschließende read-only Vorlagendiagnose liefert keinen belegten
+Enthaltungszwang. C4 inklusive Diagnose sieben Metadatenrequests innerhalb
+seiner Reservation21; global tatsächlich drei Inferenz-/19 Metadatenrequests.
+Vier historische FAIL-Kandidaten erhalten. C5 wird als kürzere generische
+Fallentscheidung bei unveränderten Quellen und Oracles vorbereitet; keine
+unveränderte Wiederholung. Hard6 bleibt, neue Review-/Admissiongates offen.
+
+Generation C5 semantisch FAIL: gültiges JSON mit Nichtantwort im positiven Fall,
+ein Inferenz-/sechs Metadatenrequests. Eigener Caller beendet, Requestenden
+bekannt, kein UNKNOWN. Fünf FAIL-Kandidaten archiviert; global tatsächlich vier
+Inferenz-/25 Metadatenrequests. Letzter C6-Kandidat ergänzt separat deklarierte
+deterministische Glossarnormalisierung zur erhaltenen Originalfrage. Tatsächliche
+SQL-Quelle und Oracles unverändert; Pipelineänderung und eingeschränkter Claim
+ausdrücklich sichtbar. Review/Admission offen; nach C6 Hardstop dieser Welle.
