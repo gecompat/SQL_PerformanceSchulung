@@ -3481,3 +3481,23 @@ Istwert-/Oracle-/Fehleraufbewahrungs-/Restore-/CleanupqualifikationPASS;
 öffentlicheCL170Profile/alteFAILs erhalten, volleTSK004-/Provider-/Demo-/
 Curriculum-/Workstreamabnahme offen. AktuelleHead-/Main-/PR-/Tree-/FF-/
 Ownbranchgates folgen; danach nächste unabhängigeoffeneQualifikationsfrage.
+
+## TSK-007: aktuelle öffentliche Providerverträge
+
+PR212 vollständig abgeschlossen: sieben Head-/fünf Main-Workflows bestanden,
+Squash187ecae23d20c724e4a060ae909f6f237ff2ce60, vollständiger Tree
+5d24a814a996795517a3a64c8e5f429ac8857a6b exakt übernommen; main synchronisiert,
+sauber und eigener lokaler/Remote-Branch abgebaut. Danach den aktuellen lokalen
+Modellpfad quellengebunden geprüft.
+
+[Aktueller Modellpfadbefund](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md#aktualisierte-öffentliche-verträge-am-2026-10-12)
+am sauberen Lab-Commit f4c9fcd30c397e25c95e57d7aeecc98dc194063e:
+RAG weiterhin BLOCKED_DEC033, tatsächliches sqlcmd-Passwortargument und kein
+öffentlicher alternativer Executor. Neue öffentliche Shared-Gateway-Sitzungs-
+APIs sind vorhanden, Backendvertrag Llama.cpp/OVMS, keine allgemeine Ollama-
+Bridge. Lokaler Ollama-Probe/Katalog erfolgreich; kein Modell aufgerufen und
+keine Capability-/Digest-/Qualitätsabnahme daraus abgeleitet. Sieben betroffene
+Labquellen bytegebunden, null SQL/Inferenz, andere Repositories unverändert.
+TSK007/Live-RAG/volle Abnahme offen, alte FAILs und Cloud-/ONNX-/Hostgrenzen
+erhalten. Aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen; anschließend
+unmittelbar unabhängige Kostencontrollerqualifikation aus TSK013.

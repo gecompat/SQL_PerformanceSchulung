@@ -96,3 +96,43 @@ Die Antwort wird erst nach Prüfung der tatsächlich zurückgegebenen Dokument-I
 Dokumentversionen und Quelleninhalte bewertet. Eine nichtleere Antwort belegt keine
 fachliche Korrektheit. Prompts, Antworten und Hostinventar werden nicht als Git-Artefakte
 gespeichert. Der Cloudpfad wird nicht als automatischer Fallback verwendet.
+
+## Aktualisierte öffentliche Verträge am 2026-10-12
+
+Die erneute Quellenprüfung bindet den aktuellen sauberen SQL_Server_Lab-Stand
+`f4c9fcd30c397e25c95e57d7aeecc98dc194063e`. Der ursprüngliche Stand und dessen
+WhatIf-Nachweis oben bleiben historische Evidenz. Der Live-RAG-Secretblocker
+besteht weiterhin: öffentliche API ohne SQL-Executorparameter → Invoke-LabAiRag
+→ Invoke-SqlQuery → sqlcmd mit `-P`. SecureString am Eingang erfüllt DEC-033
+für diesen nachfolgenden Prozessaufruf weiterhin nicht. Kein Live-Aufruf,
+Lab-Provisionierung, privater Override oder anderes Repository verändert.
+
+Der aktuelle öffentliche HTTPS-Vertragsumfang ist größer als im ursprünglichen
+Leitfaden: Get-SqlServerLabAiSharedGatewayPlan, die getrennten Preflight-/Storage-/
+Upstream-APIs sowie Start-SqlServerLabAiSharedGatewaySession und die zugehörige
+Stop-API sind vorhanden. Der Plan allein startet keinen Gateway; die separate
+Session-API kann eine besitzgebundene, zeitlich begrenzte Sitzung starten.
+Die Backend-ValidateSets in öffentlichem Plan und Implementierung erlauben
+LlamaCppCpu, LlamaCppCuda, LlamaCppOpenVino, LlamaCppRocm, LlamaCppVulkan,
+LlamaCppSycl und OpenVinoModelServer. Ollama ist dort kein zulässiges Backend.
+Gebundene Upstreampfade sind `/v1/embeddings` beziehungsweise `/v3/embeddings`.
+Dies ersetzt weder den internen Docker-Ollama-Referenzslice noch dessen fehlende
+allgemeine öffentliche Gateway-API. Vor einer eigenen Nutzung sind tatsächliche
+Modell-/Runtimeartefakte, TLS-/Consumerbindungen und Cleanup zu qualifizieren;
+die bloße API-Verfügbarkeit ist keine solche Abnahme.
+
+Quellen: öffentliche RAG-/Shared-Gateway-APIs sowie Private/AiRag.ps1,
+Private/SqlReadiness.ps1 und Private/AiSharedGatewayPlan.ps1 am genannten Commit,
+Abruf 2026-10-12. Die lokale reine Quellenprüfung bindet die vollständigen Bytes
+dieser sieben betroffenen Dateien; null SQL- oder Modellaufrufe. Ein separater
+Runtime-Probe und Katalogabruf bestätigten einen erreichbaren lokalen Ollama-Dienst
+und vorhandene lokale Modelle. Katalogverfügbarkeit attestiert weder Embedding-
+Capability, Dimension, Live-Digest noch semantische Qualität. Cloud-Tags bleiben
+REMOTE und wurden nicht aufgerufen. Kein Modellinventar oder Hostdetail wird
+als Repository-Artefakt übernommen; Modell-/Tokenverbrauch bleibt unbekannt.
+
+TSK-007 bleibt offen. Wiederaufnahme des RAG-Pfads erst nach öffentlich nutzbarem
+passwortfreiem SQL-Pfad einschließlich Provisionierung, Readiness und Cleanup.
+Ein anderer lokaler Backendpfad braucht nachweislich vorhandene passende Artefakte
+und einen begrenzten eigenen Qualifikationsschnitt. Bis dahin werden unabhängige
+Offline-/Runtimeaufgaben fortgesetzt; Cloud-, ONNX- und rote Hostgrenzen bleiben.
