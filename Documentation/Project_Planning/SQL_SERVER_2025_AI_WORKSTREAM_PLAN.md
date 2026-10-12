@@ -594,3 +594,15 @@ Native-Records rein erneut ausgewertet, 48 numerische FWK-PASSs ohne SQLwiederho
 Runtime-/TP-PERF-Qualifikation NOT_ESTABLISHED, aktuelle Indexnutzung NOT_CAPTURED.
 Nächster Schritt öffentlicher bounded Runtimeproducer/Versions-/Marker-/Recovery-
 qualifikation; DGN-010 PROPOSED, keine volle Modul-/Indexnettonutzenabnahme.
+
+
+Der [öffentliche begrenzte DGN-010-Producer](SQL_SERVER_2025_AI_DGN010_PUBLIC_REVIEW.md)
+bestand C2 mit acht Versions-SKIPs vor Setup, je zwei vollständigen SELECT-/DML-
+Profilen und zwei tatsächlichen Setupfaults mit Recovery. 23 eigene Container
+einschließlich C1 geschlossen; historischer Editions-FAIL erhalten. 184000 Source-
+Rows/116 positive Fensterframes/acht Native-Negative/48 numerische FWK-PASSs
+an aktuelle Quellen und Rohframes gebunden. Regulärer markergebundener Cleanup
+und unabhängige Abwesenheiten bestanden. Gesamt-WARN/NOT_ESTABLISHED, DGN-010
+PROPOSED; vollständige Marker-Manipulationsqualifikation und volle TP-PERF-/
+Indexnettonutzen-/Modulabnahme offen. Aktuelle Head-/Main-Gates vor Integration,
+unmittelbare Folge native Marker-Manipulationsqualifikation.

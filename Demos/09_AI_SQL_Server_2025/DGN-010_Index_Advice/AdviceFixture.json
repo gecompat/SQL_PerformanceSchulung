@@ -1,0 +1,7 @@
+{
+  "demo_id": "DGN-010",
+  "origin": "SYNTHETIC_FIXED_TEACHING_FIXTURE",
+  "model_call": false,
+  "advice": "Ein zusätzlicher Index auf Id mit INCLUDE(Value,Payload) kann SELECT-Abfragen unterstützen. Prüfe gleiche Ergebnisse, tatsächliche Nutzung, Speicher und Schreibkosten vor einer Entscheidung.",
+  "automatic_execution": false
+}

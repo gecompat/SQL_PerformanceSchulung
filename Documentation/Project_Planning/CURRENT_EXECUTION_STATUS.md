@@ -1,5 +1,34 @@
 # Aktueller Ausführungsstand
 
+## Aktive DGN-010-Veröffentlichung nach PR195
+
+PR195 vollständig abgeschlossen: Head 83333b8d69532de77ddeab8b04f290e66e619c2f,
+acht Head-Workflows PASS; Squash 398fecc664419cec5332b456de60c80498045d36,
+sechs Main-Workflows PASS; ganzer Tree 93a2a03e4c42552cfe6342be71064014ac195eec
+exakt übernommen, main FF/sauber, eigener lokaler/Remote-Branch entfernt.
+Unmittelbare Fortsetzung: öffentlicher begrenzter SELECT-/DML-Runtimeproducer
+im Branch codex/sql2025-ai-dgn010-public. DGN-010 bleibt PROPOSED; vollständiger
+TP-PERF-/Nettonutzen-/Insert-/Worker-/Plan-/Modulclaim bleibt offen.
+
+Vor Admission fest: sechs kohärente Quellenkandidaten, je höchstens 14 neue eigene
+serielle Container, insgesamt höchstens 84. Je Scope zwei Versions-SKIPs für
+2019/2022, zwei vollständige SQL2025-Lifecycles, zusätzlich ein kontrollierter
+Setupfault pro Scope. 300 Sekunden reguläres Parent-/Profilbudget und 60 Sekunden
+gemeinsamer eigener SQL-/Containercleanup, vier CPU/sechs GiB, feste vorhandene
+Images, SQL2025 17.0.5005.3/Developer/CL170. 1000 synthetische Source-Rows,
+MAXDOP/PREVIEW_FEATURES unverändert0, keine Host-/Provider-/anderen Repositoryeffekte.
+Checkpoint nach geschlossenem Kandidaten; Retry ausschließlich nach relevant
+geänderten Ausführungsquellen oder neuer Evidenz, historische FAILs erhalten.
+Kandidat1: acht Versions-SKIPs erfolgreich; SQL2025-SELECT1 wegen falschem alten
+Edition-Anzeigenamen SKIP_CONFIGURATION statt begrenztem Profil, Qualifikation
+FAIL vor Setup. Alle neun eigenen Container/DBs abwesend, Endstatus bekannt.
+Kandidat2 korrigiert ausschließlich die native Preflight-Editionsbindung auf
+dokumentierte EditionID -2117995310/EngineEdition3, explizite NULLabwehr und
+einen tatsächlichen Versions-/Editionsframe. Der geänderte gemeinsame Preflight
+benötigt die Versionsqualifikation dieses Quellenkandidaten. Kein Budgetreset.
+Aktuelle Head-/Main-CI qualifiziert den öffentlichen Consumer separat auf ihren
+jeweiligen wegwerfbaren Instanzen; ein lokaler PASS ersetzt diese Gates nicht.
+
 | Merkmal | Wert |
 |---|---|
 | Status | allgemeine Entwicklung `PAUSED`; begrenzter DGN-007-Abschluss gemäß `DEC-072` in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132), dessen aktuelle CI-/Merge-Evidenz maßgeblich ist; PR 68 und PR 128 fachlich ersetzt und nicht weiterzuführen |
@@ -2749,3 +2778,42 @@ vollständige TP-PERF-/TSK-011-/Modulabnahme/Indexnettonutzen/weitere Kosten off
 Sechs kohärente Kandidaten je lokalem Schnitt autorisiert, historische FAILs erhalten;
 allgemeine Entwicklung/DGN-007/andere Automationen pausiert, keine Provider-/roten
 Hosteffekte oder andere Repositoryänderung. Verbrauch unbekannt, Heartbeat aktiv.
+
+
+## Öffentlicher DGN-010-Consumer: gebundener Kandidat2
+
+[Teilnachweis](SQL_SERVER_2025_AI_DGN010_PUBLIC_REVIEW.md).
+
+## Tatsächlicher begrenzter öffentlicher Nachweis
+
+Kandidat2 vollständig geschlossen: acht tatsächliche Versions-SKIPs vor Setup
+(je Scope zweimal 2019/2022), SELECT und DML jeweils zweimal vollständig SQL2025,
+zwei kontrollierte Fehler nach PASS-Setup mit anschließender eigener Recovery.
+14 neue eigene Container dieses Kandidaten, alle DB-/CID-/Namensabwesenheiten
+unabhängig bestätigt, kein unbekannter Clientendstatus. Einschließlich C1 sind
+23 Container geschlossen; der Editions-FAIL bleibt erhalten, vier Kandidaten
+des gemeinsamen Sechserbudgets verbleiben, kein Budgetreset.
+
+Vier vollständige öffentliche Profile an tatsächliche Nativeframes gebunden:
+184000 Source-Rows in 184 Vollsnapshots, 116 positive Fensterframes einschließlich
+vier separater Kontrollen, acht echte 51003-Negativframes, 32 Indexübergänge,
+7240 vollständige Statementoracles/72400 Rowkontrollen und 48 numerische FWK-PASSs.
+Jeder tatsächliche Versions-/Editionsframe ist 17/17.0.5005.3/3/-2117995310;
+unabhängige DB-ID, komplette Rawhashes und ausgewählte Ausführungsquellen gebunden.
+Source-/Querynegative/Restore/Idempotenz, Config-/Readerrechte, eigener Rollback
+und markergebundener regulärer SQLcleanup bestanden. Zehn Warmups/18 Messfenster
+je Profil; sechs AB-/BA-Samples je Zustand, drei AA-Paare separat. Alle Samples,
+Nullen/Ausreißer/exakte Mediantexte erhalten. Kein Rawausgabeclaim aus CLI/Repository.
+
+Öffentlicher Gesamtstatus WARN_OPTIONAL_EVIDENCE_SKIPPED; reine Recordvalidierung
+und numerische FWK-Invarianten PASS, Runtime-/TP-PERF-Abnahme NOT_ESTABLISHED und
+aktuelle Indexnutzung NOT_CAPTURED. Keine vollen Worker-/Indexnettonutzen-/Modulclaims.
+Separate vollständige Marker-Manipulationsgegenproben, harte DML-/Buildunterbrechung,
+Readerpläne, Insert-/Commit-/Buildkosten und vollständige TP-PERF-Abnahme offen.
+
+Aktuelle Head-/Main-Gates mit tatsächlicher Consumer-Matrix, PR/Integration,
+ganze Treeübernahme/FF-Synchronisierung/eigener lokaler und Remote-Branchcleanup
+folgen vor Abschluss. Danach native Marker-Manipulationsqualifikation desselben
+öffentlichen Pakets. Allgemeine Entwicklung/DGN-007/andere Automationen pausiert;
+keine Provider-/roten Hosteffekte oder andere Repositoryänderung, Verbrauch unbekannt,
+Heartbeat aktiv.
