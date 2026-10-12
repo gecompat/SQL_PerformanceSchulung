@@ -61,6 +61,15 @@ C1-Zeitauswertungs-FAIL erhalten; C2 trennt grobe DMV-Identität von feinem
 Messzeitstempel. Quellen-/Querygegenproben, Restore und eigener Cleanup bestanden.
 Pläne/Memory/Workergrenzen, öffentliches Paket und TP-PERF bleiben offen.
 
+Die [repräsentative RES-008-Planfolge](SQL_SERVER_2025_AI_RESOURCE_PLAN_REVIEW.md)
+ergänzt nach vollständig abgeschlossenem PR186 acht tatsächliche Exact-Pläne
+in zwei stabilen Lifecycles. Eigene Scans100/Ergebnisroot1, tatsächliche Memory-
+attribute, volle Quellen-/Konfigurationsgleichheit und eigener Cleanup bestanden.
+C1-Root-FAIL bleibt erhalten; C2 direkte Projektion und strikter Rowparser,
+24 synthetische Gegenfälle und enger unabhängiger Quellenabschluss bestanden.
+Waits/Warnings NOT_CAPTURED, keine vollständige Worker-/Spill-/TP-PERF-Abnahme.
+Öffentliche Demoqualifikation folgt getrennt; RES-008 bleibt PROPOSED.
+
 ## 1. Zielbild und Abgrenzung
 
 Teilnehmende sollen KI-Funktionen technisch korrekt einsetzen, ihre Rechte begrenzen,
