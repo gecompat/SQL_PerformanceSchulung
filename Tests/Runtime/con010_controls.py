@@ -68,18 +68,18 @@ def expected_native_error(text,code,detail):
 
 def run(target,directory:Path,*,cleanup_started=None):
     name='SQLPERF_LAB_CON010_LOCAL';end=time.monotonic()+900;cleanup_end=None
-    def sql(text,database=name,cap=30,cleanup=False):
+    def sql(text,database=name,cap=30,cleanup=False,diagnostics=False):
         budget=cleanup_end if cleanup else end
         remaining=min(cap,budget-time.monotonic())
         if remaining<=0:raise TimeoutError('CON-010 Gegenprobenbudget verbraucht')
-        return targets.run_sql(target,database=database,sql_text=text,timeout_seconds=remaining)
+        return targets.run_sql(target,database=database,sql_text=text,timeout_seconds=remaining,include_diagnostics=diagnostics)
     def absent(cleanup=False):
-        output=sql(f"SET NOCOUNT ON; IF DB_ID(N'{name}') IS NOT NULL THROW 51003,'DB residue',1; PRINT 'CON010_DB|ABSENT';",database='master',cap=4,cleanup=cleanup)
+        output=sql(f"SET NOCOUNT ON; IF DB_ID(N'{name}') IS NOT NULL THROW 51003,'DB residue',1; PRINT 'CON010_DB|ABSENT';",database='master',cap=4,cleanup=cleanup,diagnostics=True)
         if output.strip()!='CON010_DB|ABSENT':raise ValueError('Neue unabhängige CON-010-DB-Abwesenheit fehlt')
     def phase(filename,cleanup=False):
         text=(directory/filename).read_text(encoding='utf-8')
         for k,v in {'DemoId':'CON-010','RunToken':'LOCAL','TargetDatabase':name}.items():text=text.replace('$('+k+')',v)
-        output=sql(text,database='master' if filename[:2] in ('00','10','90') else name,cap=20 if cleanup else 60,cleanup=cleanup)
+        output=sql(text,database='master' if filename[:2] in ('00','10','90') else name,cap=20 if cleanup else 60,cleanup=cleanup,diagnostics=True)
         if 'SQLPERF_SUMMARY|PASS|OK' not in output:raise ValueError('CON-010-Phasensummary fehlt')
         return output
     def rejected(filename,code,detail):

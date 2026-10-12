@@ -2356,3 +2356,23 @@ bleiben offen. Nächster unabhängiger lokaler Schnitt nach vollständiger Integ
 RES-008-Quellen-/Dimensions-/Storagevorbereitung aus TSK-010, mit begrenztem
 synthetischem float32-Profil; keine Cloud-/ONNX-/rote Hostwirkung oder Wiederaufnahme
 anderer Workstreams. Heartbeat bleibt Wiederaufnahmeabsicherung des aktiven Auftrags.
+
+
+### CON-010 C3: korrigierter öffentlicher Ausgabekanal
+
+PR 184 ist noch offen. Head 4c28f5d2f0c10efd1cc1af80bc1ea4a35a677a7c:
+SQL-AI-CI 38188982540 FAIL nach zwei positiven regulären CON-010-Lifecycles,
+vor Setup des Gegenprobenconsumers; PRINT war durch -r 1 nach stderr geroutet,
+API lieferte stdout. Eigener CI-Container bereinigt, kein Merge dieses Heads.
+Andere zwölf ausgewählte Head-Workflows abgeschlossen erfolgreich.
+C3 korrigiert optionalen API-Diagnostikkanal/gezielte Consumer-Summaries und
+strukturierten ValueError-FAIL. Alle fünf festen C3-Slots unter tatsächlichen
+öffentlichen Ausgabeoptionen bestanden: 192 Marker-/32 Resultabweisungen,
+16 tatsächliche Mutationen, Setupidempotenz und je zwei 2019-/2022-SKIPs.
+Alle 15 eigenen Container samt DB/CID/Name neu abwesend, Endstatus bekannt;
+alle historischen FAILs bleiben im gemeinsamen sechs-Kandidaten-Ledger.
+Enger C3-Deltaquellenreview vor Admission geschlossen, sieben synthetische
+Endstatus-/elf öffentliche Runnermethoden PASS. Keine geänderten SQLoracles.
+Aktuelle korrigierte Head-/Main-Gates, Integration/FF-Sync/eigener Branchcleanup
+folgen vollständig; nächster unabhängiger Schnitt weiterhin RES-008. Keine
+TSK-009-/Provider-/Pooling-/Gesamtabnahme, Modell-/Tokenverbrauch unbekannt.

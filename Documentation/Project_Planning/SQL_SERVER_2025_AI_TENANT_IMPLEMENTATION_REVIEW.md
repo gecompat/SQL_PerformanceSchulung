@@ -123,3 +123,42 @@ Keine Performance-/TP-PERF-Abnahme oder Privilegschutz vor dem Owner.
 Rohdaten und vollständige Principal-/SID-Metadaten bleiben im ignorierten privaten
 Runtimepfad. Öffentliche Tokens sind ausschließlich frische synthetische Kennungen;
 kein Passwort, Hostendpoint, kompletter CID oder reale Benutzer-/Umgebungsdiagnose.
+
+
+## C3: tatsächlicher öffentlicher Ausgabekanal
+
+Die öffentliche CI auf PR-184-Head 4c28f5d2f0c10efd1cc1af80bc1ea4a35a677a7c
+ist im SQL-AI-Run 38188982540 tatsächlich FAIL. Beide regulären CON-010-
+Lifecycles bestanden; danach scheiterte die neue Consumer-Abwesenheitsprüfung
+vor Setup. Die öffentliche sqlcmd-Option -r 1 routete PRINT nach stderr,
+die API lieferte ausschließlich stdout. Eigener CI-Container tatsächlich
+bereinigt. Dieser Head wurde nicht gemergt; native C2-Positivbelege bleiben
+unverändert und ersetzen keine fehlgeschlagene CI-Qualifikation.
+
+C3 fügt der API ein optionales include_diagnostics hinzu. Nur tatsächliche
+PRINT-Summaries und Abwesenheitsmeldungen nutzen stdout plus stderr; Default,
+Snapshots, Fehlerstatus und SQL-/RLS-/Grantoracles bleiben unverändert.
+ValueError im Consumer wird im Runner als FAIL_RESULT_CONTRACT abgeschlossen.
+Der private C3-Parent verwendet jetzt exakt die öffentlichen Ausgabeoptionen
+einschließlich -r 1; seine unabhängige Root-Abwesenheit liefert SELECT, die
+Versions-SKIPs lesen ausdrücklich stderr. Enger unabhängiger Deltaquellenreview
+vor Admission geschlossen, kein P1/P2; Reviewer ohne Runtime-/Testausführung.
+Sieben synthetische Endstatus- und elf öffentliche Runnermethoden PASS.
+
+| Fester Slot | Synthetischer Token | Tatsächlicher Build | Ergebnis | Gesamter eigener Cleanup | Neue DB/CID/Name abwesend |
+|---|---|---|---|---|---|
+| C3 / 2019-skip-1 | `4544348AF532489F` | 15.0.4490.9 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 11.0590221 s | PASS |
+| C3 / 2019-skip-2 | `FA65A61D067F4741` | 15.0.4490.9 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 10.7648486 s | PASS |
+| C3 / 2022-skip-1 | `7EBEB7A78B104FA0` | 16.0.4295.3 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 12.5672187 s | PASS |
+| C3 / 2022-skip-2 | `986AA867F1414046` | 16.0.4295.3 | SKIP_VERSION vor Setup, tatsächlicher stderr-Ausgabekanal | 12.5430919 s | PASS |
+| C3 / 2025-controls | `86136B96B04F4E0F` | 17.0.5005.3 | 192 Marker-/32 Resultabweisungen; 16 sichtbare Mutationen; tatsächliches -r 1 | 13.0742035 s | PASS |
+
+Alle fünf C3-Slots bestanden am selben gebundenen Quellenkandidaten. Insgesamt
+15 eigene Qualifikationscontainer samt DB, vollständiger CID und Name abwesend;
+Cleanup jeweils unter derselben 60-s-Deadline, kein UNKNOWN. Alle historischen
+FAILs bleiben erhalten. Der dritte von maximal sechs Kandidaten/maximal 30
+Containern schließt die lokale Ausgabekanalqualifikation; ungenutzte Kandidaten
+werden nach PASS nicht als weitere identische Läufe verbraucht. C1/C2/C3-
+Quellenbytes und Rawnachweise sind im ignorierten Runtimepfad archiviert.
+Aktuelle korrigierte PR-Head-/Main-Gates und vollständige Integration bleiben
+bis tatsächlichem Abschluss erforderlich. Keine Gesamtabnahme von TSK-009.

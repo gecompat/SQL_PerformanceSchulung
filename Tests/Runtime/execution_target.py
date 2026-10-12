@@ -251,8 +251,9 @@ def run_sql(
     database: str,
     sql_text: str,
     timeout_seconds: int = 120,
+    include_diagnostics: bool = False,
 ) -> str:
-    """Fuehrt ein T-SQL-Skript gegen das Ziel aus und liefert stdout."""
+    """Liefert stdout; optional auch stderr für tatsächliche PRINT-Summaries."""
 
     if target.kind == DOCKER:
         command = _docker_command(target, database)
@@ -274,7 +275,7 @@ def run_sql(
         raise ExecutionTargetError(
             f"sqlcmd failed in database {database}: {diagnostic[-2000:]}"
         )
-    return result.stdout
+    return result.stdout + ("\n" + result.stderr if include_diagnostics else "")
 
 
 def verify_engine(

@@ -320,7 +320,7 @@ def main() -> int:
             if major == 17:
                 ownership_controls(target, demo_id)
     except (AiFailure, targets.ExecutionTargetError, evaluator.ContractError,
-            OSError, subprocess.TimeoutExpired) as exc:
+            OSError, subprocess.TimeoutExpired, ValueError) as exc:
         print(targets.redact(str(exc)), file=sys.stderr)
         print("SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT")
         return 1

@@ -75,7 +75,10 @@ belegt 192 Markerabweisungen über alle acht Phasen, 16 tatsächliche Fixture-
 manipulationen je gegen Baseline/Comparison, Setupidempotenz und je zwei
 2019-/2022-SKIPs vor Setup. Ein wirkungsloser erster Spaltengrant-Test blieb
 FAIL; Spalten-DENY und tatsächliche Snapshotänderung qualifizierten C2.
-Alle zehn eigenen Qualifikationscontainer und ihre Datenbanken sind abwesend.
+Die anschließende öffentliche CI zeigte einen PRINT-/stderr-Fehler im
+Consumer. C3 qualifizierte dessen Korrektur mit den tatsächlichen öffentlichen
+`sqlcmd -r 1`-Ausgabeoptionen; der CI-FAIL bleibt sichtbar. Alle 15 eigenen
+Qualifikationscontainer und ihre Datenbanken sind abwesend.
 
 ## Schritt-für-Schritt-Anleitung
 

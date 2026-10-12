@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Regressionen gegen falsche Versions-, Skip- und Evidenzfreigaben."""
 import copy
-from contextlib import redirect_stdout
+from contextlib import redirect_stdout, redirect_stderr
 import io
 from pathlib import Path
 import sys
+import subprocess
 import unittest
 from unittest.mock import patch
 
@@ -15,6 +16,28 @@ import con010_controls
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_control_validation_error_produces_structured_fail(self):
+        stream=io.StringIO()
+        argv=['runner','--container','synthetic-fixture','--expected-major','17','--demo','CON-010']
+        with patch.object(sys,'argv',argv),patch.object(runner.targets,'docker_target'), \
+             patch.object(runner.targets,'require_disposable_instance'),patch.object(runner.targets,'verify_engine',return_value=17), \
+             patch.object(runner,'run_demo',return_value=('PASS','OK')), \
+             patch.object(runner,'ownership_controls',side_effect=ValueError('synthetic invalid fixture')), \
+             redirect_stdout(stream),redirect_stderr(io.StringIO()):
+            self.assertEqual(runner.main(),1)
+        self.assertIn('SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT',stream.getvalue())
+        self.assertNotIn('AI_LOCAL_QUALIFICATION|PASS',stream.getvalue())
+
+    def test_optional_diagnostics_preserve_default_and_actual_print_evidence(self):
+        target=runner.targets.ExecutionTarget(kind='docker',container='synthetic-fixture',sqlcmd_path='sqlcmd',server=None,auth='sql',username='sa',shim=None)
+        result=subprocess.CompletedProcess([],0,'actual rows\n','SQLPERF_SUMMARY|PASS|OK\n')
+        with patch.object(runner.targets.subprocess,'run',return_value=result):
+            self.assertEqual(runner.targets.run_sql(target,database='master',sql_text='SET NOCOUNT ON;'),result.stdout)
+            self.assertEqual(runner.targets.run_sql(target,database='master',sql_text='SET NOCOUNT ON;',include_diagnostics=True),result.stdout+'\n'+result.stderr)
+        result.returncode=1;result.stderr='Msg 51004, Level 16, State 1, Line 1\nFAIL_STATE: Erwartete Abweisung.'
+        with patch.object(runner.targets.subprocess,'run',return_value=result),self.assertRaises(runner.targets.ExecutionTargetError):
+            runner.targets.run_sql(target,database='master',sql_text='SET NOCOUNT ON;',include_diagnostics=True)
+
     def test_con010_native_error_requires_exact_number_and_message(self):
         for code,detail in ((51004,'FAIL_STATE'),(51003,'FAIL_RESULT_CONTRACT')):
             text=f'Msg {code}, Level 16, State 1, Server synthetic-fixture, Line 22\n{detail}: Erwartete Abweisung.\n'
