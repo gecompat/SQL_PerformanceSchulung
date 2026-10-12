@@ -774,3 +774,18 @@ vier echteNegativen/Restore und alle sieben eigenen Lifecycles/Inputs geschlosse
 Alle tatsächlichen Zahlen/Vollframes rein gebunden; EOL-Helfer-Ablaufbefund erhalten.
 Begrenzte Kosten-/Versions-/Recoveryqualifikation PASS, ProducerWARN/PROPOSED und
 volle Runtime-/Worker-/Commit-/TP-PERF-/Nettonutzen-/Lehrpfad-/Modulabnahme offen.
+
+Die neue [begrenzte CL-Istwertqualifikation](SQL_SERVER_2025_AI_CL_RESULT_REVIEW.md)
+greift TSK-004 mit neuem Result-/NULL-/Fehleraufbewahrungsscope auf: sechs neue
+Kandidaten/max12 zusätzlicheeigeneContainer, Checkpoint3/hard6/zwei stabileProfile.
+Alte dreiFAIL-Container/Beobachtungen bleiben erhalten. CL150/160/170 mit echten
+Skalarwerten/24 NativeNULL-Kontrollen jeProfil, vollständigen Chunkrows/Fehlern
+undCL170BaselineRestore; keineLockerungöffentlicherCL170Profile. Acht reine
+Methoden/engerQuellenabschluss bestanden, Native zunächst offen.
+
+NeueCL-Istwert-C1 bestandzweimal:96 protokolliertePhasen ohneBootstrap, sechs
+Skalarrecords/48 nativeNULL-Rejections/sechsChunkrecords/16Vollstates, beide
+CL170BaselineRestores undvoller eigenerCleanup. LowCL150/160tatsächlicher
+Error102/State38near= erklärt diealte208-Annahme; keinegenerelleVerfügbarkeits-
+freigabe. CL170positiveFixturevollständig. AlleFrames/Caller/Quellen/Cleanup
+rein gebunden, alteFAILs/öffentlicheCL170Grenzen undvolleTSK004Abnahmeoffen.
