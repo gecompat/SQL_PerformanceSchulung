@@ -70,6 +70,13 @@ C1-Root-FAIL bleibt erhalten; C2 direkte Projektion und strikter Rowparser,
 Waits/Warnings NOT_CAPTURED, keine vollständige Worker-/Spill-/TP-PERF-Abnahme.
 Öffentliche Demoqualifikation folgt getrennt; RES-008 bleibt PROPOSED.
 
+Der [öffentliche begrenzte RES-008-Consumer](SQL_SERVER_2025_AI_RESOURCE_PUBLIC_REVIEW.md)
+verbindet diese Quellen jetzt ohne private Imports: zwei lokale Vollprofile,
+vier Versions-SKIPs vor Setup und tatsächlicher attestierter Setupfault mit
+eigenem Cleanup. Native WARNs bleiben sichtbar; noch kein FWK-010-Manifest oder
+vollständige FWK-011-Aggregation, RES-008 weiterhin PROPOSED. CI prüft den
+tatsächlich anderen öffentlichen Shim-/Prozesspfad; voller TP-PERF-/Modulclaim offen.
+
 ## 1. Zielbild und Abgrenzung
 
 Teilnehmende sollen KI-Funktionen technisch korrekt einsetzen, ihre Rechte begrenzen,
