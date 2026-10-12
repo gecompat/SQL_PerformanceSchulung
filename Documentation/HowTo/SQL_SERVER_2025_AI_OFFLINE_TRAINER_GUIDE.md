@@ -9,6 +9,32 @@ gepflegt. Dieser Leitfaden ergänzt deren Durchführung.
 
 ## Vorbereitung der Lehrperson
 
+### Gemeinsamer Einstieg ohne KI-Vorkenntnisse
+
+Beginnen Sie mit dem [Einsteigerblock des KI-Foliensatzes](../../Presentations/AI_SQL_Server_2025/README.md).
+Die bekannten Schritte einer SELECT-Abfrage bilden den Bezugspunkt für den
+synthetischen Wissensbasisfall. Lassen Sie zuerst die erwartete Quelle und
+Antwort benennen. Erklären Sie die neuen Begriffe einzeln, bevor Modellzugang,
+Vektorindizes oder Performancefragen hinzukommen. Fragen der Gruppe und
+gemeinsame Ergebnisbesprechung gehören zu diesem Einstieg.
+
+Der erste geometrische SQL-Versuch ist eine angeleitete Vorführung mit lokalen
+Variablen und SELECT. Zeigen Sie Voraussetzung, Vorhersage, Code und Ergebnis
+in dieser Reihenfolge. Die vorgegebenen Zahlen stammen aus keiner realen
+Embedding-Inferenz. Die Vorführung benötigt eine vorbereitete SQL-2025-
+Labverbindung, aber weder Modellservice, Cloudkonto noch Preview-Enable.
+Ohne passenden eigenen Server bespricht die Gruppe die Ergebnisfolie.
+Installation, Login-/Rollenänderung und Modellzugang sind keine Schritte,
+die Teilnehmende aus einem Fehler im Beispiel heraus eigenständig ausführen.
+
+Erst danach wählen Sie passende Fachmodule und die unten aufgeführten
+manifestbasierten Demos. Deren Setup, Rollen, vollständige Eigentumsmarker und
+Cleanup bleiben verbindlich. Die neue Vorführung verändert die acht
+Arbeitsheftaufgaben, ihre einzige Lösung und Rubrik nicht. Lehrzeiten und
+Lernwirksamkeit der erweiterten Einführung sind noch nicht erprobt.
+
+### Vorbereitung der manifestbasierten Demos
+
 Lesen Sie die [Grundlagenbegriffe](SQL_SERVER_2025_AI_OFFLINE_GLOSSARY.md), das
 Arbeitsheft und die acht unten verlinkten Demo-READMEs. Klären Sie vor der Einheit,
 ob SELECT, ORDER BY, Parameter und Objektberechtigungen bereits bekannt sind.
