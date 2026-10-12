@@ -661,3 +661,18 @@ keine Zweiprofilqualifikation. Harte Sechsergrenze sichtbar erreicht, kein Reset
 Konsistenter FAIL-Checkpoint mit aktuellen PR-/Head-/Main-/Tree-/FF-/Cleanupgates
 folgt; parallel explizit autorisierte KI-Schulungsfolien im eigenen Worktree.
 Öffentliche Producer-WARN/PROPOSED und volle TP-PERF-/Nettonutzengrenzen erhalten.
+
+[UTC-Readerplan-Folgewelle](SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md)
+nach vollständig integriertem PR200: kumulativ C7–C12, erste sechs FAILs erhalten,
+max18 serielle eigene Container gesamt; Checkpoint C9/hard C12. Tatsächliche
+Millisekunden-UTC-Sourcekorrektur, unveränderte Sicherheits-/Runtime-/Cleanup-
+Floors und Zweiprofilnachweis. Fünfzehn reine Tests PASS, Native noch offen.
+
+
+[Originalreaderpläne](SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md): C7 zweimal
+nativ bestanden, sechs ungezwungene SELECTs/60 Queryrows/Root10+Source10,
+tatsächliche Runtimeparameter/Stack-Statementbindung,18000 Source-/12000 State-Rows,
+vier echte Negative, alle eigenen XE-/DB-/Containerlifecycles geschlossen.
+Historische sechs FAILs erhalten; Folgewelle C7–C12, positive Schnittgrenze erreicht.
+Private Beobachtung PASS; öffentliche Producer-WARN/TP-PERF-/Nettonutzengrenzen
+erhalten. Aktuelle PR-/Main-/Tree-/FF-/Ownbranchgates folgen; danach Buildkostenfrage.

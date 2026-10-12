@@ -3070,3 +3070,67 @@ Nettonutzen-/Lehrmaterialabnahme NOT_ESTABLISHED. Aktuelle Head-/Main-Gates,
 Integration, ganze Treeübernahme, FF-Synchronisierung und eigener lokaler/
 Remote-Branchcleanup folgen. Danach unabhängige autorisierte Folienarbeit und
 weitere konkrete Sourcekorrekturen ausschließlich mit sichtbarem Folgecheckpoint.
+
+## Readerplan-Folgewelle C7–C12 registriert
+
+PR200 ist vollständig geschlossen: sieben aktuelle Head-/fünf Main-Gates,
+ganzer Tree/FF-main/eigener lokaler und Remote-Branchcleanup bestanden.
+[UTC-Folgewelle](SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md): tatsächlich
+beobachtete Native-Millisekundenauflösung statt falscher genauerer Zeitannahme;
+vollständige Originalsource-/Preparedtext-/Request-/Runtime-/Cleanupbindung
+unverändert. Explizite fortgeltende Freigabe der weiteren lokalen Entwicklung;
+keine erneute gewöhnliche Budgetfrage. Alte sechs FAILs erhalten, kumulativ
+C7–C12/max18 Container einschließlich alter sechs; Zwischencheckpoint C9/hard C12.
+Fünfzehn reine Methoden bestanden; zwei stabile tatsächliche Lifecycles fehlen.
+Parallele KI-Schulungsfolien im eigenen Worktree werden erstellt.
+
+
+## Tatsächlicher Native-C7-Nachweis und Checkpoint
+
+Kandidat 7 bestand zwei neue eigene vollständige SQL-17.0.5005.3-Lifecycles,
+Tokens 102F335BC31343C9/8E457B5AFF5B48FA. Nativecalls je Profil:
+32/32. Insgesamt sechs ursprüngliche
+ungezwungene Reader-Abfragen mit 60 vollständigen Rowdigests, 18 Sourceproben/
+18000 Rows und zwölf vollständige Stateaufnahmen/12000 Rows. Vier echte vollständige
+51003/FAIL_RESULT_CONTRACT-Negativframes; ursprüngliche Source tatsächlich erhalten.
+
+| Profil | Ohne Candidate | Mit Candidate | Nach Abbau |
+| --- | --- | --- | --- |
+| 1 | Clustered Index Seek / [DGN010_OwnPK] | Index Seek / [DGN010_OwnCandidate] | Clustered Index Seek / [DGN010_OwnPK] |
+| 2 | Clustered Index Seek / [DGN010_OwnPK] | Index Seek / [DGN010_OwnCandidate] | Clustered Index Seek / [DGN010_OwnPK] |
+
+Jeder passende Actualplan hat tatsächlichen Ergebnisroot10 und Source10,
+jeweils genau einen Thread0/eine Ausführung; int-Runtimeparameter101/110.
+Vollständiger tatsächlicher Batchtext, Event-Session-/DB-ID, fünfteiliger Request,
+Native Stackhandle/Byteoffsets und genau passender vollständiger StatementText
+gebunden. Native UTC-Ereignisse auf ihrer tatsächlich gelieferten Millisekunden-
+auflösung dem ursprünglichen Readerintervall zugeordnet; kein Querydauerclaim.
+Vollständiger Preparedtext-SHA mit Parameterdeklaration und originalem Semikolon,
+Native-Statementoffsets ohne ausschließlich terminales Semikolon gebunden.
+Kein geschätzter Cacheplan als Actualplan ausgegeben. Original-
+ShowplanXML und vollständige tatsächlich ausgeführte/importierte Sourcehashes
+privat erhalten und rein erneut an die Records gebunden, keine neue SQL-Ausführung
+für diese Recordprüfung. Alle Ringpopulationen vollständig, keine Verdrängung/
+Trunkierung/Dropcounter; eigene Sitzungsdefinition vor Abbau vollständig gleich.
+
+Alle Source-/Statepaare einschließlich Config-Variant-/Datei-/Objekt-/Reader-/
+Rechte-/Rollen-/Markerbytes vollständig unverändert. Zwei Candidate-DDL-
+Transitions außerhalb der Queryaufnahme je Profil. Sechs eigene XE-Sitzungen
+nativ abgebaut, je Profil zusätzlich frisch unabhängige Abwesenheit aller drei
+Sitzungen. Guarded90/91, neue unabhängige DB-Abwesenheit und voller eigener
+CID-/Namensabbau PASS. Alle 8 eigenen Container abwesend, kein UNKNOWN.
+6 historische FAIL-Lifecycles bleiben sichtbar. Kumulativ C7; 1 von sechs
+Kandidaten der Folgewelle verwendet. Erste Sechserwelle unverändert FAIL erhalten;
+positiver Schnitt sicher geschlossen, kein Reset
+und keine weiteren unveränderten grünen Wiederholungen. Fünfzehn reine Gegenfälle
+und enge unabhängige Source-/Deltareviews ohne offene P1/P2 bestanden. Reviewer
+attestierte keine Nativeausführung. Modell-/Tokenverbrauch unbekannt.
+
+PASS der begrenzten privaten tatsächlichen Originalreaderplanbeobachtung.
+Öffentliche Producer weiterhin Gesamt-WARN; volle Runtime/TP-PERF und
+Indexnettonutzen NOT_ESTABLISHED. Die zusätzliche Instrumentierung ist getrennt
+von den bisherigen Performance-Messungen. Ein Index Seek belegt für sich keinen
+Nettonutzen. Commit-/Build-/volle Worker-/Modul-/Lehrmaterialabnahme bleiben offen.
+Aktuelle selektierte Head-/Main-Gates, PR/Integration, ganze Treeübernahme,
+FF-main und eigener lokaler/Remote-Branchcleanup folgen. Danach unmittelbar
+nächste zulässige begrenzte Buildkostenfrage; Workstream/Heartbeat bleiben aktiv.
