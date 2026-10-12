@@ -1,7 +1,7 @@
 # KI mit SQL Server 2025 – Arbeitsheft für den Offlinepfad
 
-Stand: 2026-10-11. TSK-012, Teilentwurf für acht implementierte und lokal qualifizierte
-Demos. Keine vollständige Curriculum-, Masterdeck- oder Generalprobenabnahme.
+Stand: 2026-10-12. TSK-012, Teilentwurf für acht implementierte und lokal qualifizierte
+Demos plus eine getrennte Ergebnisleseaufgabe zum begrenzten PROPOSED-Profil RES-008. Keine vollständige Curriculum-, Masterdeck- oder Generalprobenabnahme.
 Die Aufgaben, Lösungen und Rubrik sind didaktische Vorschläge; eine tatsächliche
 Teilnehmererprobung und gemessene Lehrzeiten stehen aus.
 
@@ -160,6 +160,49 @@ Benennen Sie die einzige ausgeführte erlaubte Toolaktion und die Grenze des Off
 
 Abgabe: Quellen-/Toolentscheidung, tatsächliche SQL-Grenze und kein Live-Sicherheitsclaim.
 
+## Ergänzende Ergebnisleseaufgabe: RES-008
+
+Zuordnung: CUR-020/TSK-012. Dieser getrennte Materialentwurf ergänzt die acht
+implementierten Basisübungen. RES-008 bleibt PROPOSED; volle Demo-/TP-PERF-/
+Modulabnahme und tatsächliche Teilnehmererprobung sind offen.
+Material: [öffentlicher begrenzter Consumer](../../Demos/09_AI_SQL_Server_2025/RES-008_Vector_Dimensions/README.md),
+[gebundene aggregierte Beobachtungen](../Project_Planning/SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md)
+und [fester numerischer Vertrag für Dimension 384](../../Demos/09_AI_SQL_Server_2025/RES-008_Vector_Dimensions/Expected/RES008_D384.result-contract.json).
+
+Lesen Sie die bereits gebundenen Beobachtungen und den Vertrag. Diese Aufgabe
+fordert keinen neuen SQL-Lauf. Ein späterer begründeter praktischer Lauf verwendet
+ausschließlich den Controller aus der Demo-README, beide YELLOW-Bestätigungen
+und optional `--summary`. Kein FWK-010-Manifest wird für diesen Teilpfad behauptet.
+Nur SQL 17.0.5005.3/CL170 ist das feste Lastprofil; andere Builds beziehungsweise
+2019/2022 enden vor Setup mit dem dokumentierten SKIP. Ownerrechte, authentifizierte
+eigene Instanz und tatsächlich bestätigter Cleanup bleiben Voraussetzungen.
+
+1. Berechnen Sie aus vier Dimensionen, fünf Warmups je Dimension und drei
+   Dimensionspaaren mit je drei AB-/BA-/AA-Blöcken die 74 Requests, 54 Messfenster
+   und 5420 Einzelquerykontrollen. Wie viele A- beziehungsweise B-Fenster tragen
+   den Median eines Vergleichspaars? Begründen Sie den Ausschluss von Warmup/AA.
+2. Lesen Sie Lauf 1, Dimension 384: CPU-Median 6,5/7 ms, Elapsed-Median
+   8169/6151 µs, Logical-Reads-Median 615/2415, jeweils A=32/B=384 und n=6.
+   Erklären Sie die unterschiedliche Richtung. Benennen Sie die Batchgröße und
+   zwei Grenzen vor einer allgemeinen Aussage zur Dimensionswahl.
+3. Erläutern Sie ein Elapsed-Nullfenster trotz positiver CPU und ein N/A-Verhältnis
+   bei Baseline null. Welche Beobachtung würde verloren gehen, wenn Nullfenster
+   oder große Maxima einfach aus dem Datensatz entfernt würden?
+4. Ordnen Sie die 30 numerischen FWK-011-Assertions dem begrenzten Profil zu:
+   Source-Rows, Vektorbytes, Fenster- und Queryabdeckung, eine Ergebnisrow.
+   Weshalb ändern diese PASSs weder Gesamt-WARN noch PROPOSED? Deuten Sie fehlende
+   Wait-/Spillbelege und rohen Plan-DOP 0 ohne erfundene Null-/Workerwerte.
+5. Unterscheiden Sie gültige Typdimension, größere tatsächliche Nutzdatenbytes,
+   identische synthetische Cosinetreffer und echte Modell-/Antwortqualität.
+   Benennen Sie zwei neue fachliche Belege, bevor Zero-Padding oder kleinere
+   Dimension als Modelloptimierung empfohlen wird.
+
+Abgabe: nachvollziehbare Populationsrechnung, korrekt begrenzte Batchinterpretation,
+sichtbare N/A-/Null-/Ausreißergrenzen und getrennte Aussage zu FWK-PASS/Gesamt-WARN/
+offener Modellqualität. Keine Rawidentitäten, Querytexte oder Daten realer Systeme
+in den Beobachtungsbogen übernehmen. Der freigegebene Aggregationsframe enthält
+ausschließlich den dokumentierten begrenzten numerischen Export.
+
 ## Trainerlösungen und Rückfragen
 
 Die folgende Tabelle ist dieselbe gepflegte Quelle für die Trainerfassung.
@@ -176,6 +219,7 @@ Die vorgeschlagenen Rückfragen prüfen Transfer, keine gemessene Lernwirksamkei
 | QRY-019 | Nur kanonisches SQL wird ausgeführt; Werte sind separate Parameter. Quote-/DDL-Text bleibt ein Wert und trifft die synthetische Literalrow. Identifier und Zusatzstatements gehören zur festen Strukturpolicy. Reader hat CONNECT und Objekt-SELECT; dbo-Harness, Serverlogin und Anwendungsservice sind unterschiedliche Grenzen. | Warum sind Policyentscheidung und tatsächlicher Readerfehler zwei Belege? |
 | DGN-008 | Setup erstellt und besitzt Modellmetadaten. Ingestion schreibt tatsächlich 7→8→7. Retrieval verliert Policy-SELECT und Modell-EXECUTE; Quellen-SELECT bleibt möglich. EXECUTE-Metadaten sind keine Inferenz, SYNTHETIC_NO_SECRET kein Credential. Endpointablehnung prüft Bytes, keine echte Verbindung. | Welche neue Evidenz wäre für einen tatsächlichen Modellaufruf erforderlich? |
 | DGN-009 | Manipulierter Inhalt wird tatsächlich retrievt, seine Anweisungen werden nicht zu SQL. Feste Policy liefert Antworten/Tools je 1 erlaubt, 3 abgelehnt. Nur ReadFact auf Quelle1 wird fest parametrisiert ausgeführt; GRANT/UPDATE scheitern tatsächlich mit 4613/229. Trust wird nicht vom Modell erkannt; kein allgemeiner Injection-/Tenant-/Egressnachweis. | Welche Grenze bleibt trotz dieser erfolgreichen festen Kontrollen offen? |
+| RES-008, getrennte Ergänzung | 20 Warmups plus 3×3×6=54 Messfenster; 20×1+54×100=5420 kontrollierte Queries. Pro Paar/Pfad sechs AB-/BA-Fenster; AA drei getrennte Baselinepaare. CPU/I/O sind eigene Request-Counterdifferenzen vor/nach der 100-Query-Schleife samt Overhead an diesen Messgrenzen. Elapsed misst die UTC-Zeit der Schleife samt Tempresult-Inserts; die Messgrenzen sind nicht identisch. Ein Elapsed-Nullfenster bei positiver CPU belegt keine fehlende Arbeit; Zeitauflösung, Reihenfolge und Streuung begrenzen die Interpretation. n=6 ergibt keinen belastbaren Query-p99 oder Signifikanznachweis. Baseline null ergibt N/A, Ausreißer bleiben in Max/Medianpopulation. 30 numerische Invarianten und repräsentative rohe Planattribute belegen keine volle Worker-/TP-PERF-/Modellabnahme; Gesamt-WARN/PROPOSED bleiben. Vor einer echten Dimensionsreduktion fehlen ein Vergleich tatsächlich erzeugter Embeddings mit gebundener Modellversion und eine fachlich gelabelte Retrieval-/Antwortbewertung desselben Korpus. | Welche zusätzliche Qualitätsmessung wäre vor einer echten Dimensionsreduktion erforderlich? |
 
 ## Beobachtungsbogen und Bewertungsrubrik
 
@@ -195,7 +239,9 @@ Lehrzeiten erst bei einer späteren genehmigten Erprobung als Istwerte.
 
 Didaktischer Vorschlag: pro Demo 0–2 Punkte. Zwei Punkte verlangen einen passenden
 konkreten Beobachtungsbeleg und eine korrekte Aussagegrenze; ein Punkt verlangt eines
-davon, null Punkte keines. Acht Aufgaben ergeben höchstens 16 Punkte. Es wird keine
+davon, null Punkte keines. Acht Basisaufgaben ergeben höchstens 16 Punkte. Die getrennte RES-008-Leseaufgabe
+hat optional weitere 0–2 Punkte mit denselben Beleg-/Grenzkriterien und verändert
+die Basisrubrik nicht. Es wird keine
 Bestehensschwelle oder Kompetenzzertifizierung aus ungetestetem Material abgeleitet.
 Eine Verwechslung von Fixture und Live-Inferenz, Policy und SQL-Rechten oder
 Cleanupsummary und tatsächlicher DB-Abwesenheit wird vor der Freigabe weiterer
@@ -207,8 +253,12 @@ Live-Modellintegration, echte Credential-/TLS-/Egressfälle, CON-010-Tenants,
 IDX-011/IDX-012-ANN, Performance-/Kostenmessung und vollständige Kursprofile gehören
 nicht zur Abnahme dieser acht Übungen. Aktuelle FAIL-/Freigabegrenzen stehen im
 [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md).
-Der [CL-Slice](../Project_Planning/SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md) und
-der [ANN-Prototyp](../Project_Planning/SQL_SERVER_2025_AI_ANN_PREVIEW_REVIEW.md)
-bleiben angehalten. Die Aufgaben lockern weder CL170 noch diese Runtimegates.
+Der [CL-Slice](../Project_Planning/SQL_SERVER_2025_AI_COMPATIBILITY_REVIEW.md)
+bleibt ein historischer FAIL mit eigener offener Wiederaufnahmegrenze. ANN besitzt
+inzwischen ein [öffentliches begrenztes Profil](../../Demos/09_AI_SQL_Server_2025/IDX-011_Exact_Approximate_Search/README.md)
+und weitere Teilnachweise im aktuellen Ausführungsstand; historische FAILs werden
+dadurch nicht gelöscht. Die Aufgaben lockern weder CL170 noch die offenen
+Versions-/Provider-/Gesamtabnahmegates. RES-008 ergänzt nur die oben begrenzte
+Ergebnisinterpretation; vollständige Performance-/Modellabnahme bleibt offen.
 Masterdeck, Speaker Notes, Render-/Office-Prüfung und tatsächliche Generalprobe
 bleiben offene Teile von TSK-012/TSK-014.
