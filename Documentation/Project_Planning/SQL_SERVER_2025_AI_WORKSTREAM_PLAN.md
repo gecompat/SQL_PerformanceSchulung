@@ -11,6 +11,26 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-009: private Poolkomponente in C3 bestanden
+
+Nach vollständig integriertem PR221 bestand die
+[begrenzte private Poolkomponente](SQL_SERVER_2025_AI_TENANT_POOL_REVIEW.md)
+in C3: sechs tatsächliche Checkouts, drei physische Wiederverwendungen und getrennte
+Poolkeys/Serververbindungen; zwölf vollständige Before-/After-Identitäts-/Row-/
+Kontextergebnisse, Reset vor Reparatur, zwei identische Vollstates. Tatsächliches
+OwnClearPool/Close/neue physische Abwesenheit, gehaltene Login-Drops vor DBdrop,
+frische getrennte SQL-/CID-/Namens-/SQLinputabwesenheit; kein UNKNOWN.
+Root schloss [Quellen- und Recordreview](SQL_SERVER_2025_AI_TENANT_POOL_SOURCE_REVIEW.md)
+unabhängig. Drei eigene Container/37 SQLcmd-Handles plus drei separate Poolchildren,
+C3 17 Handles; beide historischen FAILs erhalten, C1/C2 SQL-/Pool-Cleanup
+NOT_ESTABLISHED. Checkpoint3 gebunden; keine weitere Probe nach PASS. Alle Aktionen
+innerhalb derselben 60s-Cleanupdeadline ab vor dem höchstens 40s-Child, kein Reset.
+Keine neue Dependency, Inferenz, Provider-/Cloud-/Hoständerung oder rote Standard-CI.
+Private Admission-/Messrecords bleiben privat. Öffentliche Poolconsumer, weitere
+Provider/Authformen, Performance, ANN/Seitenkanäle, Passwort-/TLSintegrität und volle
+CON-010-/TSK-009-Abnahme bleiben offen. Aktuelle PR-/Main-Gates, Integration,
+Synchronisierung und eigener lokaler/Remote-Branchcleanup folgen vor Abschluss.
+
 Nach vollständig geschlossenem PR218 bleibt die Generatorwelle FAIL/Hard6.
 Unabhängig bestand unter TSK-009/CON-010 die
 [private Tenant-Serverloginkomponente](SQL_SERVER_2025_AI_TENANT_LOGIN_REVIEW.md)
