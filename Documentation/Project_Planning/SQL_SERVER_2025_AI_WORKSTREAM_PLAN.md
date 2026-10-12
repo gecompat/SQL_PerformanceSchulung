@@ -523,3 +523,11 @@ Die tatsächlichen CI-Trigger werden vor Push gegen die geänderten Pfade geprü
 Pflichtgates bleiben erhalten. Modell-/Tokenverbrauch ist nicht zuverlässig gemessen und wird
 nicht geschätzt als Istwert ausgegeben. Prüfresultate und Head-/Base-/Mergebindung stehen im
 Planungs-PR; spätere Runtime- und Generalproben bleiben ausdrücklich nicht ausgeführt.
+
+
+Öffentliche [begrenzte RES-008-Aggregation](SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md)
+bindet nach vollständig abgeschlossenem PR188 zwei vorhandene native Profile
+ohne SQL-Wiederholung. 20 Warmups ausgeschlossen, sechs A/B-Batchfenster je
+Paar, AA separat, N/A/Nullwerte/Ausreißer sichtbar. Je 30 numerische FWK-011-
+Invarianten bestanden; Gesamt-WARN/PROPOSED und volle Worker-/TP-PERF-/Modul-
+abnahme offen. Die öffentliche CLI und CI konsumieren diese begrenzte Auswertung.

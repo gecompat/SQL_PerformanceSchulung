@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "RES-008",
+  "profile": "RES008_D1536",
+  "assertions": [
+    {
+      "id": "baseline_source_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "source_rows",
+      "expected": 100,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_vector_bytes",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "vector_bytes",
+      "expected": 136,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_measured_windows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "measured_windows",
+      "expected": 6,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_query_oracles",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "query_oracles",
+      "expected": 600,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_query_result_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "query_result_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_source_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "source_rows",
+      "expected": 100,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_vector_bytes",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "vector_bytes",
+      "expected": 6152,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_measured_windows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "measured_windows",
+      "expected": 6,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_query_oracles",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "query_oracles",
+      "expected": 600,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_query_result_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "query_result_rows",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}
