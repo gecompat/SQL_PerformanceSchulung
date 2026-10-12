@@ -645,3 +645,19 @@ Prüf-/OUTPUT-/Rollbacks im Messscope enthalten, keine reine INSERT-/Commit-/
 Nettonutzenqualifikation. Source/Rechte/Config und eigener Cleanup erhalten.
 Aktuelle PR-/Main-/Tree-/FF-/Ownbranchgates folgen; danach nächste zulässige
 begrenzte Kosten-/Planfrage.
+
+
+PR199 Head7/Main5/ganzer Tree/FF/Ownbranchcleanup abgeschlossen. Nächster
+[begrenzter tatsächlicher Readerplanschnitt](SQL_SERVER_2025_AI_DGN010_READER_PLANS_REVIEW.md)
+unter TSK-011: Originalquery/Readerrechte unverändert, temporäre gebundene XE-
+Sitzung im eigenen Container; sechs Kandidaten/max12, Checkpoint3/hard6.
+Planaufnahme getrennt von Performance-Messungen; voller Nettonutzen offen.
+
+
+[Readerplanwelle](SQL_SERVER_2025_AI_DGN010_READER_PLANS_REVIEW.md): C1–C6 FAIL,
+alle sechs eigenen DB-/Containerlifecycles sicher geschlossen, kein UNKNOWN.
+C6 erreicht vollständige Source-/Preparedtextbindung, scheitert an Ereigniszeitvergleich;
+keine Zweiprofilqualifikation. Harte Sechsergrenze sichtbar erreicht, kein Reset.
+Konsistenter FAIL-Checkpoint mit aktuellen PR-/Head-/Main-/Tree-/FF-/Cleanupgates
+folgt; parallel explizit autorisierte KI-Schulungsfolien im eigenen Worktree.
+Öffentliche Producer-WARN/PROPOSED und volle TP-PERF-/Nettonutzengrenzen erhalten.

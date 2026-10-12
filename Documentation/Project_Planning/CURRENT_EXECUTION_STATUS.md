@@ -3017,3 +3017,56 @@ Lehrmaterial-/Workstreamabnahme bleiben offen. Aktuelle selektierte Head-/Main-
 Gates, PR/Integration, ganzer Tree/FF-main und eigener lokaler/Remotebranchcleanup
 folgen. Danach unmittelbar nächste zulässige begrenzte Kosten-/Planfrage;
 Workstream/Heartbeat bleiben aktiv.
+
+
+## DGN-010: INSERT integriert, tatsächliche Readerpläne registriert
+
+PR199 vollständig abgeschlossen: Head7/Main5 PASS, Main 83d28cd59ae1f8a34028518e4904e44800236e81,
+ganzer Tree a84484ab10f07518decb402972a9a4af10a59a93 exakt, FF-main und eigene Branches bereinigt.
+Nächster [begrenzter Readerplanschnitt](SQL_SERVER_2025_AI_DGN010_READER_PLANS_REVIEW.md):
+sechs Kandidaten/max12 serielle eigene Container, Checkpoint3/hard6 und zwei
+stabile Lifecycles. Drei Originalqueries/volle Source-Statepaare, kurzlebige
+gebundene XE-Sitzung nur im eigenen Container; noch keine Nativeadmission.
+Commit-/Build-/volle Worker-/Nettonutzen-/vollständige Abnahme offen.
+
+
+Readerplan-C1 FAIL nach 17 Nativecalls: Lightweight-XML ohne StatementText,
+strikte ursprüngliche Zuordnung deshalb nicht bestanden. Eigene DB/CID/Name
+vollständig abwesend, kein UNKNOWN. Gebundene Formatkorrektur C2 mit nativer
+sql_text-Aktion und tatsächlichen Runtimeparametern im
+[Readerplannachweis](SQL_SERVER_2025_AI_DGN010_READER_PLANS_REVIEW.md); zehn reine
+Gegenfälle bestanden. Enger Deltaabschluss vor C2-Admission, Budget sechs unverändert.
+
+
+Readerplan-Checkpoint3: C1/C2 fehlgeschlagene Formatzuordnung, C3 SQL1934
+(QUOTED_IDENTIFIER für XML). Alle drei eigenen DB-/CID-/Namenslifecycles
+sicher geschlossen, kein UNKNOWN. Drei von sechs Kandidaten verbraucht,
+C4 setzt ausschließlich QUOTED_IDENTIFIER ON in der eigenen temporären
+Nativeverbindung; Stack-/Source-/Reader-/Cleanupfloors unverändert.
+[Gebundene Befunde und Korrektur](SQL_SERVER_2025_AI_DGN010_READER_PLANS_REVIEW.md).
+
+
+## C6: geschlossener FAIL-Checkpoint der ersten Readerplanwelle
+
+C6 (9577FCB01FA0466E) endet nach 17 Nativecalls mit FAIL: Die tatsächliche
+XE-Ereigniszeit 2026-10-12T09:15:54.768Z besteht den bisherigen Vergleich mit dem
+Readerintervall 2026-10-12T09:15:54.7684718 bis 2026-10-12T09:15:54.7684718 nicht.
+Die vorliegenden Zeitfelder haben unterschiedliche Nachkommastellen; noch kein
+akzeptierter tatsächlicher Originalreaderplannachweis und keine stabile
+Zweiprofilqualifikation. Die vorangehenden vollständigen Source-/Request-/
+Prepared-Text-/Stackoffsetkontrollen wurden tatsächlich erreicht.
+
+Guarded90/91, frische unabhängige DB-Abwesenheit und voller eigener CID-/
+Namensabbau sind bestätigt. Cleanup 13.46 Sekunden, kein
+UNKNOWN. Alle sechs Kandidaten dieser Welle sind fehlgeschlagen, alle sechs
+Container sicher abwesend; harte Sechsergrenze erreicht. Kein C7 in dieser
+Welle, keine unveränderte Wiederholung und kein stilles Zurücksetzen.
+Vierzehn betroffene reine Tests und enge unabhängige Quellenreviews ohne
+offene P1/P2 ersetzen keinen Native-PASS. Modell-/Tokenverbrauch unbekannt.
+
+Dieser konsistente FAIL-Checkpoint wird über PR integriert. Öffentliche
+Producer weiterhin Gesamt-WARN, DGN-010 PROPOSED, vollständige TP-PERF-/
+Nettonutzen-/Lehrmaterialabnahme NOT_ESTABLISHED. Aktuelle Head-/Main-Gates,
+Integration, ganze Treeübernahme, FF-Synchronisierung und eigener lokaler/
+Remote-Branchcleanup folgen. Danach unabhängige autorisierte Folienarbeit und
+weitere konkrete Sourcekorrekturen ausschließlich mit sichtbarem Folgecheckpoint.
