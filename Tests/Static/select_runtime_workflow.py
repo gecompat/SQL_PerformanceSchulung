@@ -36,6 +36,8 @@ RUNTIME_DEPENDENCIES = {
     WORKFLOWS['sql2025-ai-local']: (
         'Tests/Static/dgn010_window_evidence.py',
         'Tests/Static/dgn010_benchmark_evidence.py',
+        'Tests/Static/dgn010_cost_evidence.py',
+        'Tests/Static/dgn010_cost_inputs.py',
         'Tests/Static/Fixtures/dgn010/**',
     ),
 }

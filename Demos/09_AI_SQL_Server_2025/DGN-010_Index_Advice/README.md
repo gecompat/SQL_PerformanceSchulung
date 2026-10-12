@@ -193,3 +193,11 @@ Containerabbau durch den Demo-Runner; dieser braucht separate vollständige Eige
 Reine Controllergegenproben: `python Tests/Static/test_dgn010_cost_profile.py`.
 Der [enge Controllernachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_COST_CONTROLLER_REVIEW.md)
 ist der konkrete Quellen-/Claimvertrag. DGN-010 bleibt PROPOSED.
+
+## Getrennte Kosten-Gateprüfung
+
+Der [Kosten-CI-Consumer](../../../Tests/Runtime/run_dgn010_cost_profile.py) prüft
+zwei bounded WARN-Profile auf SQL2025, zweimal Versions-SKIP vorSetup auf2019/22
+und eine2025Setup-Recovery. Der [Qualifikationsscope](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_COST_CI_REVIEW.md)
+unterscheidet aktuelle Head-/Main-Gates von früheren lokalen Entwicklungsläufen.
+Keine volle Performance-/Workerkosten-/Nettonutzenabnahme; DGN-010 bleibt PROPOSED.

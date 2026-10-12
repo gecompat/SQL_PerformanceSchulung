@@ -18,6 +18,8 @@ on:
       - 'Tests/Static/dgn010_cost_inputs.py'
       - 'Tests/Static/test_dgn010_cost_inputs.py'
       - 'Tests/Static/test_dgn010_cost_profile.py'
+      - 'Tests/Static/test_dgn010_cost_consumer.py'
+      - 'Tests/Runtime/run_dgn010_cost_profile.py'
       - 'Tests/Static/Fixtures/dgn010/**'
       - 'Tests/Static/test_dgn010_profile.py'
       - 'Tests/Static/select_runtime_workflow.py'
@@ -64,6 +66,8 @@ on:
       - 'Tests/Static/dgn010_cost_inputs.py'
       - 'Tests/Static/test_dgn010_cost_inputs.py'
       - 'Tests/Static/test_dgn010_cost_profile.py'
+      - 'Tests/Static/test_dgn010_cost_consumer.py'
+      - 'Tests/Runtime/run_dgn010_cost_profile.py'
       - 'Tests/Static/Fixtures/dgn010/**'
       - 'Tests/Static/test_dgn010_profile.py'
       - 'Tests/Static/select_runtime_workflow.py'
@@ -145,6 +149,8 @@ jobs:
         run: python Tests/Static/test_dgn010_cost_inputs.py
       - name: Validate bounded DGN-010 cost controller
         run: python Tests/Static/test_dgn010_cost_profile.py
+      - name: Validate bounded DGN-010 cost CI consumer
+        run: python Tests/Static/test_dgn010_cost_consumer.py
       - name: Validate bounded DGN-010 public controller
         run: python Tests/Static/test_dgn010_profile.py
       - name: Validate bounded DGN-010 marker controller
@@ -253,6 +259,12 @@ jobs:
         shell: bash
         run: |
           python Tests/Runtime/run_dgn010_profile.py \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}'
+      - name: Verify bounded DGN-010 cost lifecycles and setup recovery
+        shell: bash
+        run: |
+          python Tests/Runtime/run_dgn010_cost_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Verify complete DGN-010 ownership marker controls

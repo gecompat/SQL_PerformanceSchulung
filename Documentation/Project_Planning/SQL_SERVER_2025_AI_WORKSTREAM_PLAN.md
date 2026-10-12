@@ -800,3 +800,13 @@ BLOCKED_DEC033. Lokaler Dienst erreichbar, reine Katalogverfügbarkeit ist keine
 Capability-/Digest-/Inferenzabnahme. Null SQL-/Modellaufrufe, keine Labänderung.
 Keine neue Freigabegrenze, kein Zurücksetzen alter FAILs und kein TSK-007-Abschluss.
 Nach Integration unmittelbar unabhängige TSK-013-Kostencontrollerqualifikation.
+
+## TSK-013: Kostencontroller in den tatsächlichen Runtimegates
+
+Nach vollständigem Abschluss von PR213 unmittelbar den [getrennten Kosten-CI-Schnitt](SQL_SERVER_2025_AI_DGN010_COST_CI_REVIEW.md)
+begonnen. Ein statischer Verbrauchertest und ein bounded Runtimeconsumer im
+bestehenden Drei-Versionsjob; Kostenmodule jetzt wirkliche Nativeabhängigkeiten.
+Zweimal2025WARN, je zweimal2019/22SKIP vorSetup, ein2025Setupfault/Recovery
+verbindlich. Kein neuer lokaler Native-Lauf und keine volle Performanceabnahme.
+Endliches Budget sechs Quellenkandidaten/Checkpoint3/hard6 und maximal21 eigene
+CI-Container einschließlich finaler Integration; aktuelle Gateergebnisse offen.
