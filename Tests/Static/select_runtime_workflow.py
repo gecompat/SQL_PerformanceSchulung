@@ -30,6 +30,16 @@ WORKFLOWS = {
     "w-cov-001": ".github/workflows/w-cov-001.yml",
 }
 
+# Diese reinen Module und Fixtures sind jetzt tatsächliche Eingaben des
+# öffentlichen DGN-010-Runtimeconsumers. Ihre Änderung benötigt native Gates.
+RUNTIME_DEPENDENCIES = {
+    WORKFLOWS['sql2025-ai-local']: (
+        'Tests/Static/dgn010_window_evidence.py',
+        'Tests/Static/dgn010_benchmark_evidence.py',
+        'Tests/Static/Fixtures/dgn010/**',
+    ),
+}
+
 
 def parse_trigger_paths(text: str) -> tuple[str, ...]:
     event_block = re.search(r"(?ms)^on:\n(?P<events>.*?)(?=^permissions:|^concurrency:|^jobs:|\Z)", text)
@@ -67,6 +77,8 @@ def select_runtime(
 ) -> bool:
     """Fail closed for affected runtime inputs; static changes get static gates."""
     affected = {path for path in changed_paths if any(fnmatchcase(path, pattern) for pattern in patterns)}
+    if any(fnmatchcase(path, pattern) for path in affected for pattern in RUNTIME_DEPENDENCIES.get(workflow, ())):
+        return True
     if any(path != workflow and not path.startswith("Tests/Static/") for path in affected):
         return True
     return workflow in affected and runtime_job_changed

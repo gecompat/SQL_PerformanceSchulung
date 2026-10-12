@@ -12,6 +12,13 @@ import select_runtime_workflow as selector
 
 
 class RuntimeSelectorTests(unittest.TestCase):
+    def test_dgn010_runtime_consumed_records_select_native_but_tests_stay_static(self) -> None:
+        workflow=selector.WORKFLOWS['sql2025-ai-local'];patterns=selector.trigger_paths(workflow)
+        for path in ('Tests/Static/dgn010_window_evidence.py','Tests/Static/dgn010_benchmark_evidence.py','Tests/Static/Fixtures/dgn010/DGN010_DML.result-contract.json'):
+            with self.subTest(path=path):
+                self.assertTrue(selector.select_runtime({path},patterns,workflow,runtime_job_changed=False))
+        self.assertFalse(selector.select_runtime({'Tests/Static/test_dgn010_profile.py'},patterns,workflow,runtime_job_changed=False))
+
     def test_full_privacy_scan_has_one_ci_owner(self) -> None:
         owners = []
         for path in (selector.ROOT / ".github/workflows").glob("*.yml"):

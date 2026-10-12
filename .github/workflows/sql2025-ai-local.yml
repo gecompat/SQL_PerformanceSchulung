@@ -14,6 +14,10 @@ on:
       - 'Tests/Static/dgn010_benchmark_evidence.py'
       - 'Tests/Static/test_dgn010_benchmark.py'
       - 'Tests/Static/Fixtures/dgn010/**'
+      - 'Tests/Static/test_dgn010_profile.py'
+      - 'Tests/Static/select_runtime_workflow.py'
+      - 'Tests/Runtime/run_dgn010_profile.py'
+      - 'Tests/Runtime/dgn010_docker_sqlcmd_proxy.py'
       - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
@@ -48,6 +52,10 @@ on:
       - 'Tests/Static/dgn010_benchmark_evidence.py'
       - 'Tests/Static/test_dgn010_benchmark.py'
       - 'Tests/Static/Fixtures/dgn010/**'
+      - 'Tests/Static/test_dgn010_profile.py'
+      - 'Tests/Static/select_runtime_workflow.py'
+      - 'Tests/Runtime/run_dgn010_profile.py'
+      - 'Tests/Runtime/dgn010_docker_sqlcmd_proxy.py'
       - 'Tests/Static/test_idx011_profile.py'
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
@@ -115,6 +123,8 @@ jobs:
         run: python Tests/Static/test_idx011_benchmark.py
       - name: Validate bounded DGN-010 benchmark preparation
         run: python Tests/Static/test_dgn010_benchmark.py
+      - name: Validate bounded DGN-010 public controller
+        run: python Tests/Static/test_dgn010_profile.py
       - name: Validate bounded IDX-011 controller and recovery
         run: python Tests/Static/test_idx011_profile.py
       - name: Validate bounded representative IDX-011 plan measurements
@@ -213,6 +223,12 @@ jobs:
         shell: bash
         run: |
           python Tests/Runtime/run_res008_profile.py \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}'
+      - name: Verify bounded DGN-010 SELECT and DML lifecycles and setup recovery
+        shell: bash
+        run: |
+          python Tests/Runtime/run_dgn010_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Remove SQL Server container
