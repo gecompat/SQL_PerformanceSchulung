@@ -2955,3 +2955,65 @@ eigener lokaler/Remote-Branchcleanup folgen. Danach nächste zulässige begrenzt
 DGN-010-Kostenfrage: Owner-INSERT mit tatsächlichem Rollbackrestore ohne/mit
 Candidate. Commit-/Build-/Worker-/volle Readerpläne und vollständige TP-PERF-/
 Modul-/Lehrmaterialabnahme bleiben offen; Workstream/Heartbeat aktiv.
+
+
+## DGN-010: Indexnutzung integriert, Owner-INSERT-/Rollback registriert
+
+PR198 mit aktuellen Head7/Main5 PASS abgeschlossen, Squashd6e0efe9e5d6fd7a0e403fa610176ebbd68cb44b,
+ganzer Treee5eaf5d57ac42e8ab99f7db34b5bd5690c4b2fb6 exakt, FF-main synchron/Ownbranches abwesend.
+Nächste [private INSERT-/per-Statement-Rollbackfrage](SQL_SERVER_2025_AI_DGN010_INSERT_REVIEW.md)
+mit1000Originalrows/max1010kurzzeitig, 10Warmups/18ABBAAA/Control1/46Sources/
+29vollständigen Statepaaren: sechsKandidaten/max12eigeneContainer, Checkpoint3/
+hard6/zwei stabilevolleLifecycles. Acht neue reine Oraclegegenfälle bestanden;
+NativeAdmission erst nach engem Sourceabschluss. Kein Commit-/Build-/Worker-/
+Readerplan-/Nettonutzen-/vollerRuntimeclaim; Workstream/Heartbeat aktiv.
+
+
+## Tatsächlicher Native-C1-Nachweis
+
+Der stabile erste Kandidat bestand zwei neue eigene vollständige SQL-17.0.5005.3-
+Lifecycles, Tokens FBFF95626B5D4922/9A106CC3A62A44FE. Je 153 tatsächliche
+Nativecalls; insgesamt 58 positive Fenster, 3620 Warmup-/Mess-INSERTs plus zwei
+separate positive Einzelcontrols. 36200 vollständige Benchmark-OUTPUT-Roworacles
+plus 20 separate Controlrows, 3622 tatsächlich geprüfte positive Rollbacks.
+92 volle Sourceproben/92000 Rows und 116 vollständige Stateaufnahmen/116000 Rows;
+58 vollständige unveränderte Vorher-/Nachherpaare inklusive aller DB-/Datei-/
+Config-Variantbytes/NULL/Metadata/Reader-/Rechte-/Rollen-/Property-/Sourcewerte.
+Alle ursprünglichen Nativeframes an tatsächliche Sourcehashes und komplette
+transportierte Ergebnisse rein gebunden; keine neue SQL-Ausführung für diese
+Recordprüfung. Vier echte vollständige 51003/FAIL_RESULT_CONTRACT-Gegenframes,
+Source-/OUTPUT-Negative tatsächlich abgewiesen und ursprüngliche Source erhalten.
+
+Je Profil zehn Warmups, 18 AB/BA/AA-Fenster zu hundert INSERTs, sechs Baseline-/
+sechs Vergleichssamples und drei AA-Paare. Mediane pro Hundert-INSERT-Fenster,
+Warmups/AA ausgeschlossen; sämtliche Originalsamples/Range/Nullwerte/AA lokal
+erhalten. Kein Durchschnitt über die beiden Profile und keine Signifikanzbehauptung.
+
+| Profil | CPU ohne/mit (ms) | Logical Reads ohne/mit | Elapsed ohne/mit (µs) |
+| --- | --- | --- | --- |
+| 1 | 23.5 / 30.5 | 8958 / 15155.5 | 24686.5 / 36995.5 |
+| 2 | 23 / 32 | 8957 / 15152.5 | 22608.5 / 39136 |
+
+In diesen beiden begrenzten Profilen liegen die Candidate-Mediane für CPU,
+Logical Reads und Elapsed höher. Das beobachtet INSERT-/OUTPUT-/Rowprüf-/
+BEGIN-/ROLLBACK-Batchkosten unter den festgelegten Bedingungen. Keine reine
+INSERTcpu, Commit-/Builddauer, gesamte Worker-/Log-I/O oder Gesamt-Nettonutzen-
+qualifikation. Ergebnisse anderer Workloads, Datenumfänge und tatsächlicher
+Readerpläne sind damit nicht attestiert; ein Seek allein belegt keinen Lesegewinn.
+
+Originalsource1000 nach jedem Statement wiederhergestellt, kurzzeitig nur zehn
+zusätzliche synthetische Rows; kein Commit. Acht kontrollierte Create-/Drop-
+transitions außerhalb der Messfenster je Profil, Source-/Readerrechte unverändert.
+Guarded90/91 sowie frisch unabhängige DB-Abwesenheit, voller eigener CID-/Name-
+Cleanup bestanden; beide eigenen Container abwesend, kein UNKNOWN. Ein von sechs
+Kandidaten verwendet, keine weiteren unveränderten grünen Wiederholungen.
+Acht reine neue Gegenfälle und enger unabhängiger Review ohne offene P1/P2
+bestanden; Modell-/Tokenverbrauch unbekannt, keine anderen Repositories verändert.
+
+Dies ist PASS der begrenzten privaten INSERT-/Rollbackbeobachtung; öffentliche
+Producer unverändert Gesamt-WARN, Runtime/TP-PERF/Indexnettonutzen NOT_ESTABLISHED.
+Tatsächliche Readerpläne, Commit-/Build-/volle Workerkosten, vollständige Modul-/
+Lehrmaterial-/Workstreamabnahme bleiben offen. Aktuelle selektierte Head-/Main-
+Gates, PR/Integration, ganzer Tree/FF-main und eigener lokaler/Remotebranchcleanup
+folgen. Danach unmittelbar nächste zulässige begrenzte Kosten-/Planfrage;
+Workstream/Heartbeat bleiben aktiv.
