@@ -3582,3 +3582,30 @@ bestätigt beendet, Labquellen/-checkout unverändert, keine SQLcalls/UNKNOWN.
 Ein Kandidat verbraucht, keine Wiederholung nach PASS. Dieser einzelne
 synthetische Fall ersetzt keine allgemeine Retrieval-/Sprach-/Antwortqualität
 oder Live-RAG-/SQLHTTPS-/TSK007/008-Abnahme. Aktuelle Integration folgt.
+
+
+## TSK-008: SQL-Persistenz des tatsächlichen Modellkorpus
+
+PR216 vollständig abgeschlossen: acht aktuelle Head-/sechs Main-Workflows
+PASS, Squash914f8b72f61ab3d538c3898c2b56db4c8dbc4cf8, voller identischer
+Tree, main FF/synchron/sauber, eigener lokaler/Remote-Branch entfernt.
+Unmittelbar [getrennten SQL-Korpuskomponentenschnitt](SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md)
+aufgenommen: vorhandener tatsächlicher Vier-Inputreceipt, null neue Inferenz,
+VECTOR768/float32 und vollständiges Exact-Retrieval-/Cosineoracle, eigene
+Frameworkmarker und tatsächliche Negativ-/Restore-/Abwesenheitskontrollen.
+Sechs Kandidaten/maxsechs serielle eigene Container, Checkpoint3/hard6,
+300snormal/ein60sCleanup; Quellenreview/Admission/Native noch offen.
+Keine Umdeutung von Offline-QRY018, keine Live-RAG-/SQLHTTPS-/Generator-/
+allgemeine Qualitäts- oder TSK007/008-Abnahme. Andere Repositories unverändert,
+keine Cloud-/ONNX-/Hostkonfiguration, Modell-/Tokenverbrauch unbekannt.
+
+Die getrennte SQL-Korpus-C1 ist anschließend tatsächlich bestanden: ein neuer
+eigener SQL17.0.5005.3-Container/CL170,69Nativephasen ohneBootstrap/29Vollstates,
+vier vollständige768-float32-Records und unabhängiges Top1A-/Cosine-/Koordinaten-
+oracle. Drei tatsächliche51003-Resultatgegenproben,16 tatsächliche51004-
+Ownershipabweisungen und4Vollstaterestores. Eigentumsgebundener echterDrop,
+Probe-/Parent-DB-Abwesenheit und frischeOwnCID-/Namensabsence, Inputdateien0/
+UNKNOWNfalse. EinKandidat/einContainer,0 neueModellaufrufe, keine Runtime-
+wiederholung für reinen Vollrecordabschluss; ModeltokensUNKNOWN. Einzelner
+synthetischer Suchfall, keine volle Live-RAG-/SQLHTTPS-/Generator-/TSK007/008-
+Abnahme; aktuelle Integration folgt.
