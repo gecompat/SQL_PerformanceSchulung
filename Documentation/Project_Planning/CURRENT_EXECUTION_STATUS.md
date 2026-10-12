@@ -2425,3 +2425,31 @@ Loader/Modellqualität, ältere Engines und öffentliche Demo-/TP-PERF-Abnahme
 bleiben offen. Nächster zulässiger lokaler Schritt nach vollständiger Integration:
 RES-008-Messmethodenerweiterung. Kein Workstream-Gesamtabschluss; Heartbeat aktiv,
 Cloud-/ONNX-/rote Hostgrenzen unverändert, Modell-/Tokenverbrauch unbekannt.
+
+
+## RES-008: begrenzte private Messfenster
+
+PR185 vollständig abgeschlossen: Head 4f29e564d2602fa38cafcf0ae5a89775425ec07b
+mit sieben Head-Workflows, Squash a3bfb66fb032c292b604fa939d27a211ded19ecb
+mit fünf Main-Workflows PASS. Vollständiger Tree f7ce3e181fdfdba2c916e828061bdda2db76a8cd
+gleich übernommen; lokales main FF-synchronisiert und sauber, eigener lokaler/Remote-Branch entfernt.
+Unmittelbar codex/sql2025-ai-res008-measurement gestartet, TSK-010/CUR-020.
+
+Neue konkrete Messfrage mit sechs Kandidaten/maximal zwölf eigenen seriellen
+Containern; C1 FAIL am groben DMV-/feinen Fensterzeitvergleich erhalten,
+tatsächlicher eigener SQL-/DB-/CID-/Namenscleanup PASS. C2 ändert nur diesen
+unbegründeten Cross-Type-Vergleich, rohe Requestidentity und tatsächliche
+Counter-/UTCdeltas/Nichtüberlappung voll erhalten. Zwei vollständige stabile
+Lifecycles mit je 20 Warmups, 54 AB-/BA-/AA-Fenstern und 5420 einzelnen Queryoracles
+bestanden; alle Fenster gegen unabhängig attestierte eigene DB-ID und volle
+native Chunkframes gebunden. Tatsächliche SourceDELETE-/Querymutationsnegative
+mit exakt 51003, acht vollständige 400-Row-/Config-Aufnahmen und Restore gleich.
+Eigener Cleanup aller drei Container/DBs unter unveränderter 60-Sekunden-Deadline.
+
+[Gebundener Teilnachweis](SQL_SERVER_2025_AI_RESOURCE_MEASUREMENT_REVIEW.md).
+Ein Owner, enger Source- und C2-Delta-Review geschlossen, 18 betroffene synthetische
+Cases PASS. Keine weitere grüne Wiederholung; Runtime-/Sourcebytes privat ignoriert.
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. Danach unmittelbar begrenzte Plan-/Memoryaufnahme für RES-008.
+RES-008 PROPOSED, TSK-010/TP-PERF/Worker-/Provider-/Gesamtabnahme offen. Kein
+Cloud-/ONNX-/roter Hosteffekt, Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.
