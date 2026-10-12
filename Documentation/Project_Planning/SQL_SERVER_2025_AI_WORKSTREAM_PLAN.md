@@ -36,6 +36,11 @@ Antwort-/Toolfixtures und minimale SQL-Rechte. Sein [Nachweis](SQL_SERVER_2025_A
 bleibt getrennt von Livegeneration. DGN-008 ergänzt tatsächlich erstellte Offline-
 Modellmetadaten, getrennte SQL-Rollen und Grantreduktion; sein [Nachweis](SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md)
 qualifiziert Modell-EXECUTE nur als Metadatenrecht, keine Inferenz oder echten Credentials.
+CON-010 ist unter der erweiterten lokalen Wellenfreigabe mit zwei stabilen
+privaten C5-Lifecycles wiederaufgenommen; genaue sechs CONNECT-/SELECT-Grants,
+RLS/Quellen und tatsächliche Rechteverweigerungen sind im
+[Teilnachweis](SQL_SERVER_2025_AI_TENANT_RESUME_REVIEW.md) gebunden. Historische
+FAILs bleiben sichtbar, öffentliche Demo- und Versions-/Negativgates offen.
 
 ## 1. Zielbild und Abgrenzung
 

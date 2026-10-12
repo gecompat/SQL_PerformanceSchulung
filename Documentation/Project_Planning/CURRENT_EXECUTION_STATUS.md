@@ -2283,3 +2283,37 @@ Aktive Build-/DML-/Rebuild-Unterbrechung und vollständige Hard-Abort-/Runtime-/
 TP-PERF-Abnahme bleiben offen. Nächster Schritt: aktuelle Head-/Main-Gates,
 PR-Integration/Tree-/FF-Sync-/eigener Branchcleanup, danach nächster
 zulässiger lokaler Schnitt. Workstream und Heartbeat aktiv.
+
+
+## CON-010-Wiederaufnahme nach Erweiterung der Testzyklen
+
+Unmittelbar nach vollständigem PR-182-Abschluss folgt der begrenzte private
+TSK-009-/CUR-018-Schnitt CON-010 auf codex/sql2025-ai-con010-resume,
+Basis 9a9c0e957a1444d79f936c8cc1bcb9b83839435a. PR 182 hatte 13 aktuelle
+Head- und sieben Main-Gates erfolgreich; vollständiger Tree
+35ef8a41a67180fc8cc1543c5585910cab4201de, lokales main synchronisiert,
+eigener lokaler/Remote-Branch entfernt. Idle-SIGKILL bleibt Teilnachweis;
+Abbruch während aktiver DDL aus TSK-006 weiterhin offen.
+
+Benutzerfreigabe erweitert auf sechs kohärente Test-/Korrekturkandidaten.
+Drei historische vollständige CON-010-FAILs und zwei Metadatenproben werden
+weitergezählt. C4 korrigierte die vollständige Rechtefixture, scheiterte
+jedoch nativ in Setup mit Kollationsfehler 468; actual Cleanup/DB/CID/Name
+PASS. C5 korrigiert ausschließlich Statebytes und bestand zwei vollständige
+Lifecycles mit je zwei Setups und sechs Resultassertions. Alle sechs
+CONNECT-/SELECT-Grants einschließlich Klassen, Ziel, Grantor, Zustand und
+vollständigen Bytes sind exakt gebunden; RLS/Funktions-/Quellen-/Vektoren-
+oracles sowie drei tatsächliche Rechteverweigerungen und Reset bestanden.
+Cleanup und unabhängige DB-/CID-/Namensabwesenheit unter derselben 60-s-
+Deadline PASS. Quellen-/Test-/Review-/Verbrauchsgrenzen im
+[begrenzten Wiederaufnahmenachweis](SQL_SERVER_2025_AI_TENANT_RESUME_REVIEW.md).
+
+Die alte Abbruchgrenze wird ausschließlich durch die neue menschliche
+Wellenautorität übersteuert; kein stilles Zurücksetzen, kein C6 nach grünen
+Pflichtwiederholungen. Enger unabhängiger Quellenreview, konkreter P2 vor
+Admission geschlossen, C5-Statebyte-Delta geschlossen. Sechs rein synthetische
+Endstatus-/Recoverytests PASS, kein wiederholter grüner Altcheck.
+CON-010 bleibt PROPOSED. Nächster zulässiger Schnitt nach diesem PR-/Main-/
+Sync-/Cleanupabschluss: öffentliche Demoeinbindung mit vollständigen
+Marker-/Fixturegegenproben und 2019-/2022-Versionsgrenzen; Pooling/echte
+Logins/ANN bleiben getrennt. Provider-/Cloud-/ONNX-/rote Hostgrenzen bleiben.
