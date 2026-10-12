@@ -3239,3 +3239,41 @@ Renderdaten und Prüfnachweise bleiben privat. Head-/Main-Gates, PR-Integration,
 Synchronisierung und eigenes Branchcleanup bilden den Integrationsabschluss.
 Lehrzeiten, Teilnehmererprobung, vollständige Teaching Paths und Generalprobe
 bleiben offen; die alten Zeitplanwerte belegen keine Dauer dieses größeren Decks.
+
+## Fortsetzung: begrenzte DGN-010-Build-/Dropkosten
+
+PR 204 ist vollständig abgeschlossen: main 7a68bb7261ffbdb21b6cf7ece4d1d88cc1d5bee6,
+neun Head-/sieben Main-Workflows PASS, ganzer Tree/FF-main sauber und eigener
+lokaler/Remote-Branch entfernt. Der nächste zulässige SQL-Schritt ist auf
+`codex/sql2025-ai-dgn010-build-costs` begonnen: [getrennte Build-/Dropfenster](SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md)
+unter TSK-011/CUR-021. Sechs Kandidaten/max12 eigene serielle Container,
+Checkpoint3/hard6; zwei vollständige stabile positive Profile. Bestehende
+Reader-/INSERT-/Folienfehler bleiben erhalten. Unbekannter Modell-/Tokenverbrauch
+bleibt unbekannt, keine weitere gewöhnliche Budgetfreigabe erforderlich.
+
+Private feste Quellen und sieben reine Gegenproben/CLI-help vorhanden; enger
+unabhängiger DDL-/Lease-/Request-/Counter-/Vollstate-/Cleanupquellenreview ohne
+offene P1/P2. Noch keine neue Nativeausführung. Messbereiche getrennt von
+bestehenden Reader-/Rollbackfenstern, vollständige 13-Key-States, echte Source-
+und DROP-ohne-Indexnegative, gleiche bytegenaue Eigentumsmarker und KnownEnd-
+300/60-Sekunden-/CID-Cleanupfloors. Öffentliche Producer weiterhin WARN,
+DGN-010 PROPOSED; vollständige Runtime/TP-PERF/Nettonutzen bleiben offen.
+
+### Native Buildkosten-C1 zweimal bestanden
+
+Zwei stabile neue vollständige Profile, je 34 Nativecalls: vier Builds/vier
+Abbaue, 16000 Source-Rows, 20000 Vollstate-Rows und vier tatsächliche
+51003-Negativen/Source-Restore. Native Request-/DDL-/Counter-/UTC-/gehaltene
+Index-/Spalten-Lease und unabhängige Vollstatebindung bestanden. Alle acht
+Zahlen im [Buildkostennachweis](SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md)
+erhalten; keine isolierten Worker-/Log-/Commit-/vollen Lifecyclezeiten daraus
+ableiten. Writes 0 bei DROP bleibt eine begrenzte tatsächliche Requestbeobachtung.
+
+Beide SQL-90/91-/frischen DB-Abwesenheits-/vollständigen CID-/Namens-/zusätzlichen
+Ownerlabel-Abwesenheitskontrollen PASS, kein UNKNOWN und keine eigene Restinstanz.
+Ein Kandidat/zwei Container verbraucht; keine unveränderte grüne Wiederholung.
+Sieben reine Gegenproben und enger unabhängiger Quellenabschluss bestanden;
+Vollrecords anschließend an tatsächliche unveränderte Ausführungsquellen rein
+gebunden, kein zusätzlicher SQL-Lauf. Private Inputs/Logs/Records bleiben privat.
+Aktuelle Head-/Main-/PR-/Tree-/FF-/Ownbranchgates folgen. Danach unmittelbar
+bereits erhobene Indexseiten rein aufbereiten; Nettonutzen/volle Abnahme offen.
