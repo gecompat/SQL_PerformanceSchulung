@@ -51,4 +51,13 @@ class FixedInputTests(unittest.TestCase):
         with patch('subprocess.Popen',side_effect=AssertionError('No native client permitted')):
             self.build();inputs.state_sql(database_id=7,object_id=100)
 
+    def test_absent_drop_negative_is_fixed_and_guarded(self):
+        sql=inputs.drop_absent_sql(database_id=7,object_id=100)
+        self.assertIn("@RawKind nvarchar(max)=N'DROP'",sql)
+        self.assertIn("@Cycle int=1",sql)
+        self.assertIn("@Held nvarchar(max)=N'"+inputs.costs.EMPTY+"'",sql)
+        self.assertLess(sql.index('Actual own candidate prestate'),sql.index('EXEC sys.sp_executesql @Ddl'))
+        self.assertLess(sql.index('Vollstaendige Gegenprobenbindung verloren'),sql.index('Actual own candidate prestate'))
+        with self.assertRaises(ValueError):inputs.drop_absent_sql(database_id=True,object_id=100)
+
 if __name__=='__main__':unittest.main()

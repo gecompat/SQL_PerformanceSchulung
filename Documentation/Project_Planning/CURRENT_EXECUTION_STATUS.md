@@ -3342,3 +3342,26 @@ Zwei neue Trigger/ein statischer Schritt, Runtimejob unverändert. Aktuelle
 PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen. Danach tatsächlichen öffentlichen
 Kostencontroller vorbereiten; Producer WARN/DGN-010 PROPOSED und volle Runtime/
 TP-PERF/Worker/Nettonutzen NOT_ESTABLISHED bleiben erhalten.
+
+## DGN-010: öffentliche Kostencontroller-Vorbereitung
+
+PR208 vollständig abgeschlossen: main 40d56069f28e4add5e2380fd2c3cd2ec93853afe,
+acht Head-/sechs Main-Workflows PASS, tatsächliche Runtimeauswahl False/Job SKIPPED,
+ganzer Tree gleich, FF-main sauber und eigener lokaler/Remote-Branch entfernt.
+Unmittelbare Fortsetzung auf `codex/sql2025-ai-dgn010-cost-controller`:
+[öffentlicher begrenzter Kostencontroller](SQL_SERVER_2025_AI_DGN010_COST_CONTROLLER_REVIEW.md),
+sechs Quellenkandidaten/Checkpoint3/hard6, noch keine lokale Controller-Nativequalifikation.
+
+Elf synthetische Controller- und sieben Eingabemethoden PASS, CLI-help ohneClient;
+enger unabhängiger neuer Ablauf-/KnownEnd-/Negativ-/Input-/Cleanupreview ohne
+offene P1/P2. Vier DDL-Fenster, acht Source-/zehn Vollstateaufnahmen, feste echte
+Source-/DROP-Abwesenheitsnegative, volle Zwischenfensterkontinuität und einmalige
+Parent300/60-Deadlines. UNKNOWN sperrt SQL und erhält Inputs; Unlinkfehler bleiben
+FAIL_CLEANUP. CLI nur geprüfte Aggregate bei WARN und vollständigem Cleanup.
+
+Neue Demosource erfordert tatsächliche bestehende CI-Runtimeauswahl True,
+vorhandene isolierte Versionsmatrix inklusive eigenem CI-Cleanup. Diese Matrix
+prüft bisherige Scopes, keine neue Kostencontroller-Nativequalifikation.
+Aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen; danach separat budgetierte
+Nativequalifikation des neuen Controllers. Producer WARN/DGN-010 PROPOSED,
+Runtime/TP-PERF/Worker/Nettonutzen NOT_ESTABLISHED; alle historischen FAILs erhalten.
