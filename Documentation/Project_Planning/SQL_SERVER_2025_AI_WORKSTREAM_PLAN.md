@@ -724,3 +724,11 @@ nullable Typbindung und Statekontinuität. Beide Samples/Nullen/exakte Mediane u
 A/B/A/B/A-Allokationen bleiben getrennt. Numerische Recordvalidierung ist keine
 Runtime-/TP-PERF-/Worker-/Nettonutzenqualifikation. DGN-010 PROPOSED und öffentlicher
 Producer WARN; unmittelbar nach Integration begrenzte Produceranbindung vorbereiten.
+
+Der nächste kleine Producerteil stellt [feste öffentliche Kosten-SQLeingaben](SQL_SERVER_2025_AI_DGN010_COST_INPUT_REVIEW.md)
+bereit: vollständige DB-/Marker-/NULL-sichere Source-/gehaltene Leasebindung,
+keine freien DDL- oder Modelleingaben. Sechs reine Methoden/enger unabhängiger
+Quellenabschluss PASS, acht vorhandene DDL-Leases rein angebunden. Null neue
+SQLcalls/Container und keine Nativequalifikation dieser API; danach tatsächlicher
+öffentlicher begrenzter Kostencontroller/Versions-/Runtimequalifikation.
+TSK-011/CUR-021 und DGN-010 PROPOSED/WARN; volle Abnahme bleibt offen.

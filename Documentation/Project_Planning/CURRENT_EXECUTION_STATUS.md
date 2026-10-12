@@ -3322,3 +3322,23 @@ Producer WARN/DGN-010 PROPOSED, Runtime/TP-PERF/Worker/Nettonutzen NOT_ESTABLISH
 Nur zwei neue Workflowtrigger/ein reiner statischer Schritt, Runtimeauswahl am
 tatsächlichen Head/Main False erforderlich. Aktuelle PR-/Head-/Main-/Tree-/FF-/
 Ownbranchgates folgen; danach öffentliche begrenzte Producerintegration.
+
+## DGN-010: öffentliche feste Kostenproducer-Eingaben
+
+PR207 ist vollständig abgeschlossen: main f8b212f1e25370cda958892a53c75890a3e7367a,
+acht Head-/sechs Main-Workflows PASS, Runtimeauswahl False (Runtimejob SKIPPED,
+kein Runtime-PASS), ganzer Tree gleich, FF-main sauber und eigener Branch lokal/
+remote entfernt. Unmittelbare erste Produceranbindung auf
+`codex/sql2025-ai-dgn010-cost-inputs`: [feste öffentliche SQLeingaben](SQL_SERVER_2025_AI_DGN010_COST_INPUT_REVIEW.md).
+Sechs Quellenkandidaten/Checkpoint3/hard6, keine neuen SQLcalls/Container.
+
+Sechs reine Gegenproben und enger unabhängiger Kompositionsreview ohne offene
+P1/P2 bestanden. Vorhandene feste DDL-/Statequellen übernommen, nur Source-NULL-
+Guard enger. Vollständige DB-/Marker-/Source-/gehaltene Leasebindung vor DDL;
+alle acht vorhandenen tatsächlichen DDL-Leases rein angebunden. Kein Prozessstart
+oder SQLaufruf; kein ausführbarer Kostencontroller und keine neue Nativeabnahme.
+
+Zwei neue Trigger/ein statischer Schritt, Runtimejob unverändert. Aktuelle
+PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen. Danach tatsächlichen öffentlichen
+Kostencontroller vorbereiten; Producer WARN/DGN-010 PROPOSED und volle Runtime/
+TP-PERF/Worker/Nettonutzen NOT_ESTABLISHED bleiben erhalten.
