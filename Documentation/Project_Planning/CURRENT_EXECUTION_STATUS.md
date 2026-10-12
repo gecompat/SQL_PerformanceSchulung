@@ -3436,3 +3436,48 @@ oder Liveausführungsfreigabe. Kein neues PPTX/Render/Office-/SQL-/Providerprofi
 Lehrpfad-Praxis/Freigaben/volle TP-PERF-/Modulabnahme und TSK012/014 bleiben offen.
 Kleine reine Planung: ein Owner, keine zusätzliche Reviewkette; aktuelle lokale
 Summen-/Link-/Material-/Privacy- und Head-/Main-/PR-/Tree-/FF-/Ownbranchgates folgen.
+
+## TSK-004: neue begrenzte CL-Istwertqualifikation
+
+PR211 vollständig abgeschlossen: main 3675a8c3663155519da548de5560fdecc1dc0d95,
+neun Head-/sieben Main-Workflows PASS, RuntimeauswahlFalse, ganzerTreegleich,
+FF-main sauber/eigener lokaler undRemoteBranchentfernt. TeachingPaths geplant,
+keine Teilnehmer-/Zeit-/Generalprobenabnahme; PPTXunverändert. UnmittelbareFolge
+auf `codex/sql2025-ai-cl-result-qualification`: [neue CL-Istwertwelle](SQL_SERVER_2025_AI_CL_RESULT_REVIEW.md).
+
+VorAdmission sechs neuekohärenteKandidaten/max12 zusätzlicheeigeneContainer,
+Checkpoint3/hard6/zwei stabilevollständigeProfile. Alte dreiContainer/FAILs und
+fehlende frühereSQL-Abwesenheitsbelege bleiben erhalten, keinLedgerreset.
+NativeCL150/160/170: tatsächlicheSkalare/normalisierteKoordinaten, explizite
+NULL-Gates/24 erwarteteNativeNULL-Rejections jeProfil, volleChunkrows oder
+volleErrorNumber/Severity/State/Line/Procedure/Messagebytes. Keine erzwungene
+LowCL-Denialannahme, dokumentierteGrenze vonbeobachtetemBuildresultat trennen.
+
+Acht reineMethoden/CLIhelp undengerunabhängigerQuellenabschluss nachgeschlossener
+Dependency-P2 bestanden. Neue eigeneCL-DB/Marker, gleicherKnownEnd/300-60-/
+vollgebundenerCID-/Namenscleanupfloor; tatsächlicherCL170BaselineRestore.
+Native zunächst offen; keineLockerungöffentlicherCL170Demos oderProvider-/
+Cloud-/ONNX-/Hosteffekte. TSK004/volleDemo-/Curriculum-/Workstreamabnahme offen.
+
+### Neue CL-Istwert-C1 zweimal nativ bestanden
+
+Je48 protokolliertePhasen ohneReadiness-/Versionbootstrap, sechs vollständige
+Skalarrecords/48 nativeNULL-Abweisungen/sechs volleChunkrecords/16Vollstates und
+zwei vollständigeCL170BaselineRestores. BeideeigeneDB-/CID-/Namenslifecycles
+geschlossen, Ownerlabelinventurleer, Inputsabwesend/keinUNKNOWN; einneuer
+Ausführungskandidat/zweiContainer, alte dreiFAIL-Container unverändert erhalten.
+
+TatsächlicheSkalare beiCL150/160/170: Dimensions3/float32, Norm5,
+UnitNorm1.000000023841858, Euc0/Dot-25/Cos0 undalle drei normalisierten
+Koordinaten. Vorabfixierte1e-5-Toleranz, keinebitgenaue1 behaupten.
+BeiCL150/160 tatsächlicherChunkError102/Severity15/State38/Line3/ProcedureNULL
+mitvollenMessagebytes „Incorrect syntax near '='.“; kein208 undkeinekorrekten
+Chunkrows. DeralteDenialoracle-FAIL ist erklärt; OBSERVED_OTHER_ERROR_NO_AVAILABILITY_CLAIM,
+keine generelleLowCL-Funktionsfreigabe. CL170vollständigezweiFixtureRows.
+
+AlleNative-Skalar-/NULL-Fehler-/Chunk-/State-/Caller-/Source-/Restore-/
+Abwesenheitsframes rein gebunden, null weitereSQLcalls dafür. Begrenzte
+Istwert-/Oracle-/Fehleraufbewahrungs-/Restore-/CleanupqualifikationPASS;
+öffentlicheCL170Profile/alteFAILs erhalten, volleTSK004-/Provider-/Demo-/
+Curriculum-/Workstreamabnahme offen. AktuelleHead-/Main-/PR-/Tree-/FF-/
+Ownbranchgates folgen; danach nächste unabhängigeoffeneQualifikationsfrage.
