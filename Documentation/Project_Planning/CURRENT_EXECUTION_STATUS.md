@@ -1,5 +1,23 @@
 # Aktueller Ausführungsstand
 
+
+## TSK-009: öffentlicher Poolrecordvertrag kohärent, Capturegrenzen WARN
+
+PR222 ist vollständig integriert (7 Head/5 Main, Tree/FF/Branches geschlossen).
+Der [öffentliche reine Poolrecordvertrag](SQL_SERVER_2025_AI_POOL_RECORD_REVIEW.md)
+ist implementiert: 14 neue reine Methoden mit betroffenen PASS-Nachweisen, drei
+optimierte Root-Schutzmethoden und neuer optimierter Captureshape-Gegenfall bestanden.
+C1-Offline-FAIL (nicht erfasstes predicates.operation) erhalten; C2 konsumiert
+unveränderten C3-Payload erfolgreich: sechs Checkouts/drei physische Reuses/Resets,
+zwölf vollständige Ergebnisse, acht Queryquellrows, zwei Vollstates und komplette
+Rawclosuretexte. Record-Kohärenz PASS, Gesamtstatus WARN; individuelle Request-/
+Inputcaptures fehlen und bleiben NOT_ESTABLISHED, Callerprovenienz nicht unabhängig
+attestiert. Zwei Quellenkandidaten/zwei Reportaufrufe, kein weiterer Replay nach PASS,
+max6/CP3/hard6 ohne Reset; null neue SQL-/Container-/Modell-/Metadatenaufrufe.
+Kein Demos09-/Workflow-/Selectorwechsel. Aktuelle PR-/Main-Gates/Integration/FF/
+Branches folgen vor Abschluss. Öffentlicher Producer/Capture-/Admission-/Recovery-
+Runtimevertrag und volle CON-010-/TSK-009-/TP-CON-Abnahme bleiben offen.
+
 ## TSK-009: private Poolkomponente in C3 bestanden
 
 Nach vollständig integriertem PR221 bestand die
