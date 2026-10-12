@@ -1,4 +1,24 @@
 # Aktueller Ausführungsstand
+## Tenant-Authentifizierung: begrenztes Profil bestanden
+
+Nach vollständig geschlossenem PR218 ist die
+[private Serverlogin-Komponente](SQL_SERVER_2025_AI_TENANT_LOGIN_REVIEW.md) unter
+TSK-009/CON-010 nativ begrenzt bestanden: C5 mit drei tatsächlich getrennten
+Login-/User-/SIDidentitäten, eigenen A/B-Quellen und authentifiziertem Unmapped,
+Sessionmanipulation/Reset, drei tatsächlichen Rechtefehlern, fünf realen
+Eigentumsabweisungen und 23 vollständigen Zustandsaufnahmen einschließlich Restore.
+Echte drei Login-Drops vor DBdrop, getrennte frische SQL-/CID-/Namens-/Inputabwesenheit,
+kein UNKNOWN. Fünf eigene Container/95 tatsächliche Clienthandles insgesamt,
+davon C5 60; vier historische FAILs erhalten. C1–C3 SQL-Abwesenheit NOT_ESTABLISHED,
+eigene Namespaces zerstört; C4 und C5 tatsächlicher SQL-Cleanup bestanden.
+Checkpoint3 eingehalten, kein weiterer grüner Lauf und kein Budgetreset.
+Null Modell-/Provider-/Cloud-/Hosteffekte. Öffentliche Demo bleibt WITHOUT LOGIN;
+Passwortintegrität, Pooling, ANN und volle TSK-009-/TP-CON-Abnahme offen.
+Aktuelle Head-/Main-Gates, vollständige Integration und eigener Branchcleanup
+folgen. Danach unmittelbar unabhängige TSK-012-Belegleseaufgaben aus vorhandener
+Evidenz, ohne weitere Modell-/SQL-/Officeausführung. Allgemeine Entwicklung und
+DGN-007 bleiben pausiert; Generatorwelle bleibt FAIL/Hard6.
+
 ## Lokale Generatorwelle abgeschlossen: FAIL
 
 Sechs geschlossene Kandidaten, fünf tatsächliche Inferenz-/31 Metadatenrequests,
