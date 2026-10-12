@@ -1,0 +1,115 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "DGN-010",
+  "profile": "DGN010_SELECT",
+  "assertions": [
+    {
+      "id": "baseline_source_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "source_rows",
+      "expected": 1000,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_measured_windows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "measured_windows",
+      "expected": 6,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_statement_oracles",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "statement_oracles",
+      "expected": 600,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_full_row_controls",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "full_row_controls",
+      "expected": 6000,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_rows_per_statement",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "rows_per_statement",
+      "expected": 10,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "baseline_statements_per_window",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "statements_per_window",
+      "expected": 100,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_source_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "source_rows",
+      "expected": 1000,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_measured_windows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "measured_windows",
+      "expected": 6,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_statement_oracles",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "statement_oracles",
+      "expected": 600,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_full_row_controls",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "full_row_controls",
+      "expected": 6000,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_rows_per_statement",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "rows_per_statement",
+      "expected": 10,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "comparison_statements_per_window",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "statements_per_window",
+      "expected": 100,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}
