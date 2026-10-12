@@ -2453,3 +2453,34 @@ Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchc
 folgen vor Abschluss. Danach unmittelbar begrenzte Plan-/Memoryaufnahme für RES-008.
 RES-008 PROPOSED, TSK-010/TP-PERF/Worker-/Provider-/Gesamtabnahme offen. Kein
 Cloud-/ONNX-/roter Hosteffekt, Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.
+
+## RES-008: repräsentative tatsächliche Pläne
+
+PR186 vollständig abgeschlossen: Head 78f9747209ca0aea52508bcb6a584ff431816841
+mit sieben aktuellen Head-Workflows, Squash e8fb5d801464e5e2acb37fdeef5f7d203c048cb3
+mit fünf aktuellen Main-Workflows PASS. Vollständiger Tree
+e0ab4de7a0cca55a92bdc91909dfebdc469cc47f gleich übernommen, lokales main
+FF-synchronisiert und sauber, eigener lokaler/Remote-Branch entfernt.
+Unmittelbar codex/sql2025-ai-res008-plans gestartet, TSK-010/CUR-020.
+
+Neue konkrete Planfrage mit sechs Kandidaten/maximal zwölf eigenen seriellen
+Containern. C1 FAIL am fehlenden tatsächlichen Ergebnisrootzähler erhalten;
+eigener SQL-/DB-/CID-/Namenscleanup bestanden. C2 ändert nur direkte Id-/Distanz-
+projektion und deren exakte Statement-/Rowauswertung; Root-/Scan-/Threadguards
+erhalten. Enge unabhängige P2-Closure und 24 synthetische Gegenfälle bestanden.
+Zwei vollständige stabile Lifecycles mit je vier tatsächlichen Exact-Plänen,
+eigener Scan mit 100 Rows, Ergebnisroot mit einer Row und Id 1/Distanz 0,
+acht Raw-/Recordbindungen und elf vollständige 400-Row-Aufnahmen über alle drei
+Lifecycles bestanden. Tatsächliche DELETE-Gegenprobe mit 51003 und Restore, idempotentes zweites
+Setup, volle Source-/Configgleichheit und unabhängiger eigener Cleanup.
+
+[Gebundener Teilnachweis](SQL_SERVER_2025_AI_RESOURCE_PLAN_REVIEW.md).
+Tatsächliche Memoryattribute veröffentlicht; Compute-Scalar-RuntimeRows und
+Waits/Warnings NOT_CAPTURED, Roh-DOP 0 ohne Umdeutung. Keine Aussage über alle
+früheren Messfenster oder fehlende Spills/Waits; Zeit-WARNs bleiben sichtbar.
+Keine weitere grüne Wiederholung; Runtime-/Sourcebytes privat ignoriert.
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Cleanup
+folgen vor Abschluss. Danach unmittelbar öffentliche RES-008-Demoqualifikation
+unter getrennten Performancegrenzen. RES-008 PROPOSED, TSK-010/TP-PERF/
+Worker-/Provider-/Gesamtabnahme offen. Kein Cloud-/ONNX-/roter Hosteffekt,
+Modell-/Tokenverbrauch unbekannt; Heartbeat aktiv.
