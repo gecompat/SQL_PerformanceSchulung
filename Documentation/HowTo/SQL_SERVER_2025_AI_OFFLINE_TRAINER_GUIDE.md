@@ -18,6 +18,13 @@ Antwort benennen. Erklären Sie die neuen Begriffe einzeln, bevor Modellzugang,
 Vektorindizes oder Performancefragen hinzukommen. Fragen der Gruppe und
 gemeinsame Ergebnisbesprechung gehören zu diesem Einstieg.
 
+Die [konkreten Teaching Paths für das 61-Folien-Deck](SQL_SERVER_2025_AI_TEACHING_PATHS.md)
+binden diesen Einstieg an90 geplante Netto-Minuten. BASIS wählt danach Material für
+ein Vierstundenfenster aus; STANDARD plant einen Unterrichtstag mit allen acht
+Offlineaufgaben, VERTIEFUNG zwei Tage einschließlich getrennten Beleglese-/
+Entwurfsaufgaben. Bruttofenster, Pausen und Nettolehrzeit sind im kanonischen
+Workstreamplan getrennt. Zeiten und Verständlichkeit sind noch nicht erprobt.
+
 Der erste geometrische SQL-Versuch ist eine angeleitete Vorführung mit lokalen
 Variablen und SELECT. Zeigen Sie Voraussetzung, Vorhersage, Code und Ergebnis
 in dieser Reihenfolge. Die vorgegebenen Zahlen stammen aus keiner realen
@@ -88,9 +95,10 @@ lassen sich keine Lehrzeiten ableiten.
 ## Vorgeschlagene Reihenfolge und Moderation
 
 Die Reihenfolge baut vom Datentyp über Retrieval bis zu überprüfbaren
-Kontrollgrenzen auf. Sie ist ein begrenzter Offlinepfad; die vollständigen
-Lehrpfade BASIS/STANDARD/VERTIEFUNG bleiben im
-[Workstreamplan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md).
+Kontrollgrenzen auf und beginnt erst nach dem gemeinsamen Einsteigerblock.
+Die [Teaching Paths](SQL_SERVER_2025_AI_TEACHING_PATHS.md) ordnen sie dem derzeit
+vorbereiteten Offlinekern zu; vollständige Live-/Curriculum-/Generalprobenabnahme
+bleiben im [Workstreamplan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md) offen.
 
 | Schritt / Material | Fokus der Moderation | Beobachtung für die Besprechung | Transferfrage |
 |---|---|---|---|

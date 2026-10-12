@@ -154,10 +154,30 @@ Keine unbelegte Beschleunigung, Rechts-/Compliancegarantie oder universelle Kost
 
 ## 5. Pfade und Zeitbedarf
 
-Die Minuten sind geschätzte Netto-Lehrzeit einschließlich Demo/Übung, ohne Pausen,
-Installation und Modelldownloads. BASIS ist eine kurze Einführung, STANDARD der vollständige
-praktische Tagespfad, VERTIEFUNG ein zweitägiger Pfad einschließlich STANDARD-Inhalten.
-Eine Vierstundenfassung kann nur als gekürzte Einführung angeboten werden.
+Für das erweiterte 61-Folien-Deck gilt die folgende aktuelle Planung. Sie enthält
+einen gemeinsamen Einsteigerblock von90 Netto-Minuten ohne KI-Vorkenntnisse.
+Die [konkreten Teaching Paths](../HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md) binden
+Folienauswahl, Aktivitäten, Aufgaben und Ergebnisbesprechung an diese Planfenster.
+Keine Zeit ist gemessen; TSK-014 prüft Lehrdauer und Verständlichkeit erst in der Generalprobe.
+
+| Pfad | Geplantes Bruttofenster | Nettolehrzeit einschließlich Fragen/Reserve | Pausen | Inhalt |
+|---|---:|---:|---:|---|
+| BASIS | 240 Minuten | 210 Minuten | 30 Minuten | Gemeinsamer Einstieg, ausgewählte Vektor-/Rechtevorführung, Ergebnislesen und Einordnung |
+| STANDARD | 480 Minuten | 420 Minuten | 60 Minuten | Gemeinsamer Einstieg und alle acht Offlinearbeitsheftaufgaben |
+| VERTIEFUNG | 960 Minuten / zwei Tage | 840 Minuten | 120 Minuten | STANDARD plus begrenzte Belegleseaufgaben und ausdrücklich offene Vertiefungsentwürfe |
+
+BASIS ist eine Auswahl aus dem Material, keine vollständige 61-Folien-/18-Livedemo-
+Abnahme in vier Stunden. STANDARD ist der derzeit vorbereitete Offlinekern; der
+geplante zusätzliche lokale Live-Embeddingpfad bleibt bis zu dessen Provider-/
+Runtimequalifikation offen und ist nicht als ausgeführte Tagespraxis zugesagt.
+Cloud und ONNX sind keine Pflicht des Offlinekerns. VERTIEFUNG verarbeitet offene
+Index-/Modell-/Betriebsfragen ausdrücklich als begrenzte Belege oder Entwurfsaufgaben.
+Pausen, Vorbereitung und Vorwissen werden von tatsächlicher Netto-Lehrzeit getrennt.
+
+### Historische erste Modulschätzung vor dem erweiterten Einstieg
+
+Die folgenden ursprünglichen Netto-Modulwerte bleiben als Planhistorie erhalten.
+Sie sind weder aktuelle Lehrfenster des 61-Folien-Decks noch gemessene Kursdauer.
 
 | Modul | BASIS | STANDARD: Theorie / Praxis | VERTIEFUNG: Theorie / Praxis |
 |---|---:|---:|---:|
@@ -173,15 +193,13 @@ Eine Vierstundenfassung kann nur als gekürzte Einführung angeboten werden.
 | `CUR-022` Entscheidung | 15 | 15 / 15 | 25 / 35 |
 | **Summe** | **150 Minuten** | **145 / 245 = 390 Minuten** | **235 / 405 = 640 Minuten** |
 
-BASIS führt kleine Vektor- und Rechtefälle vor; die übrigen Module sind Einordnung mit
-Beispielen. STANDARD priorisiert lokale Embeddings; Cloud und ONNX sind keine Pflicht.
-VERTIEFUNG ergänzt Indexinternals, Qualität/Concurrency/Diagnose und Angriffsszenarien.
 Ersteinrichtung wird separat mit 60–120 Minuten geschätzt. Schulungslänge und Hardwarebedarf
 werden in `TSK-014` mit Teilnehmenden geprüft, nicht aus diesen Schätzungen als belegt ausgegeben.
 
 ## 6. Modulverträge und Bewertung
 
-Die Modul-IDs sind registrierte Curriculum-Arbeitspakete. Zeit/Theorie/Praxis gelten gemäß §5;
+Die Modul-IDs sind registrierte Curriculum-Arbeitspakete. Aktuelle Pfadfenster gelten gemäß §5;
+die dort erhaltenen ersten Modul-/Theorie-/Praxisschätzungen sind historisch, nicht erprobt.
 alle Module erhalten später Trainerlösung, Teilnehmerauftrag und die hier beschriebenen Kriterien.
 
 ### CUR-013 – Grundlagen
