@@ -829,3 +829,34 @@ Vollrecords/Normen/ausgeführte Quellen rein neu gebunden. Eigener Prozess beend
 keine SQL-/Labänderung oder UNKNOWN. Zwei Inferenzaufrufe, keine Wiederholung
 für die Ergebnisprüfung. Begrenzte Entwicklungsevidenz, keine volle TSK007-/
 RAG-/SQLHTTPS-/QRY020-Abnahme. Aktuelle Integrationsgates folgen.
+
+
+## TSK-008/007: fester lokaler Dokument-/Fragekorpus
+
+PR215 ist frisch vollständig geschlossen: 9Head/7Main PASS, Squash
+1ed895bb8bbebef286aeb46cffd4c1c97cdf6d2b, voller identischer Tree,
+main FF/sauber und eigener lokaler/Remote-Branch entfernt. Die zuvor offenen
+Integrationsgates der getrennten Zwei-Vektor-Komponente sind damit geschlossen;
+TSK007/008 und volle RAG-/SQLHTTPS-/QRY020-Abnahme bleiben offen.
+
+Unmittelbarer eigener [Vier-Input-Korpus](SQL_SERVER_2025_AI_MODEL_CORPUS_REVIEW.md):
+drei feste englische Dokumente mit search_document: und eine crimson-Frage mit
+search_query:, erwartetes Top1=A bereits vor Admission eingefroren. Öffentliche
+lokale API, Nomic768, vier vollständige finite Vektoren, unabhängige Cosine-/
+Tie-/Identitätskontrolle und Beobachtungsbindung vor/nach jedem Call. Sechs
+Quellenkandidaten/max24 Inferenz-/max162 Metadatacalls, Checkpoint3/hard6;
+C1 4+27, 300s einschließlich Startup und einmal5s-Recovery, UNKNOWN-Sperre.
+13 reine Methoden und PS-Selftest PASS; Rootreview geschlossen, C1-Native
+offen. Keine SQL-/Cloud-/Generator-/RAG-/HTTPS-Wirkung, kein allgemeiner
+Qualitäts- oder TSK007/008-Vollabschluss. SRC112/113 wiederverwendet;
+Rawvectors/Receipt privat und Modell-/Tokenverbrauch unbekannt.
+
+C1 des festen Dokument-/Fragekorpus lokal bestanden: vier tatsächliche öffentliche
+Inferenzcalls/27 Metadatenrequests, vier vollständige768-Vektoren/3072 endliche
+Koordinaten, vorabTop1A beobachtet (CosineA0.8031306189541002,
+B0.7859511311854047, C0.7826607701190610; Margin0.01717948776869549).
+Root hat die Vollrecords und Cosines unabhängig neu berechnet; eigener Prozess
+bestätigt beendet, Labquellen/-checkout unverändert, keine SQLcalls/UNKNOWN.
+Ein Kandidat verbraucht, keine Wiederholung nach PASS. Dieser einzelne
+synthetische Fall ersetzt keine allgemeine Retrieval-/Sprach-/Antwortqualität
+oder Live-RAG-/SQLHTTPS-/TSK007/008-Abnahme. Aktuelle Integration folgt.

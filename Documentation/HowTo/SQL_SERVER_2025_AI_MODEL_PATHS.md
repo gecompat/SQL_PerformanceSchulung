@@ -146,3 +146,25 @@ Digest-/Capability-/Dimensionsbindung vor und nach Inferenz. Zwei tatsächliche
 vollständige768-Vektorrückgaben sind lokal bestanden und rein gebunden; weder
 Live-RAG noch SQL-seitige Embeddings werden daraus
 als bestanden ausgegeben. Keine Änderung am DEC-033-Secretblocker des RAG-API.
+
+
+## TSK-008/007: fester lokaler Dokument-/Fragekorpus
+
+Nach vollständig geschlossenem PR215 folgt der [eigene Korpusvertrag](../Project_Planning/SQL_SERVER_2025_AI_MODEL_CORPUS_REVIEW.md):
+drei feste synthetische Dokumente A/red, B/blue, C/green mit search_document:
+und die feste crimson-Frage mit search_query:. Die vorhandene öffentliche lokale
+AiModel-API ist der einzige Inferenzweg; Nominaldimension768, vollständige
+Live-Bindung und Fullvectororacle. Vorab eingefrorenes Top1=A; alle Rangties,
+identischen Vektoren und nicht endlichen Werte sind FAIL. Keine allgemeine
+Qualitäts-/Live-RAG-/SQLHTTPS-/TSK007/008-Abnahme. 13 reine Mockmethoden,
+PS-Input-/Counterselftest und unabhängiger Rootreview ohne offene P1/P2;
+C1-Native noch offen. Sechs Kandidaten/Checkpoint3/hard6, max24+162 Calls,
+C1 vier Inferenz-/27 Metadatenrequests, eigener300s-Parent plus gemeinsame5s-
+Recovery; UNKNOWN sperrt neue Inferenz. Rawvectors/Receipt rein privat,
+Modell-/Tokenverbrauch unbekannt; SRC-112/SRC-113 unverändert wiederverwendet.
+
+Der getrennte Vier-Input-C1 ist lokal bestanden: tatsächliche drei Dokument-
+und eine Frageembeddingrückgabe, vollständige768-Vektoren und unabhängig
+berechnetes vorabTop1A. Dieser einzelne synthetische Synonymfall belegt weder
+allgemeine Retrievalqualität noch SQL-Persistenz, generative Antwort oder
+Live-RAG. Die vollständige Evidenz und Ergebnisgrenzen stehen im Korpusreview.
