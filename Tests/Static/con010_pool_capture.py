@@ -5,6 +5,7 @@ ROOT=Path(__file__).resolve().parents[2]
 CONTRACT_PATH=ROOT/'Tests/Static/Fixtures/con010/pool-capture-contract-v2.json'
 COLLECTOR_PATH=ROOT/'Demos/00_Framework/Tools/sqlcmd_process.py'
 COLLECTOR_SHA='d8b553419bb34e4bafe7d0a7baee55ca28a5b97d1ad64710e131674aa6ca9757'
+COLLECTOR_SHAS=frozenset((COLLECTOR_SHA,'ef33fbeb4436044ac2fd490b90b0608e4743f0f8accbbd3e3a2ee762fc2ac09d'))
 SOURCE_KEYS=('Tests/Static/con010_pool_capture.py','Tests/Static/test_con010_pool_capture.py','Tests/Static/Fixtures/con010/pool-capture-contract-v2.json','Documentation/HowTo/SQL_SERVER_2025_AI_POOL_CAPTURE_V2.md','Demos/00_Framework/Tools/sqlcmd_process.py')
 INPUT_SCOPE='CLIENT_INPUT_FILE_UTF8_BEFORE_SQLCMD_ENV_EXPANSION'
 OUTPUT_SCOPE='COLLECTOR_DECODED_TEXT_UTF8_REENCODED'
@@ -30,8 +31,13 @@ def sha(value):
 
 def sources():
     result={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in SOURCE_KEYS}
-    if result[SOURCE_KEYS[-1]]!=COLLECTOR_SHA:raise ValueError('Geprüfter öffentlicher Collector verändert')
+    result[SOURCE_KEYS[-1]]=collector_raw_sha()
     return result
+
+def collector_raw_sha():
+    value=hashlib.sha256(COLLECTOR_PATH.read_bytes()).hexdigest()
+    if value not in COLLECTOR_SHAS:raise ValueError('Geprüfter öffentlicher Collector verändert')
+    return value
 
 def source_gate(expected):
     if type(expected) is not dict or set(expected)!=set(SOURCE_KEYS):raise ValueError('Nur vollständige vorhandene öffentliche Quellen zulässig')
@@ -41,7 +47,7 @@ def source_gate(expected):
 
 def collector_type():
     global _collector
-    if hashlib.sha256(COLLECTOR_PATH.read_bytes()).hexdigest()!=COLLECTOR_SHA:raise ValueError('Collectorquelle verändert')
+    collector_raw_sha()
     if _collector is None:
         name='sqlcmd_process'
         module=sys.modules.get(name)
@@ -104,7 +110,7 @@ def capture_sqlcmd(result,*,ordinal,pid,final_poll,input_bytes,secret_values,sou
     credential_gate(text,result.stdout,result.stderr,result.command,secret_values)
     known=type(final_poll) is int and final_poll==result.returncode
     unknown=result.timed_out or not known or result.returncode<0
-    return {'Contract':'CON010_POOL_CAPTURE_V2','Ordinal':ordinal,'Kind':'SQLCMD','Pid':pid,'ReturnCode':result.returncode,'FinalPoll':final_poll,'TimedOut':result.timed_out,'DurationSeconds':result.duration_seconds,'ClientProcessEnd':'KNOWN' if known else 'UNKNOWN','ServerRequestEnd':'UNKNOWN' if unknown else 'NOT_CAPTURED','UnknownSticky':unknown,'FollowupPolicy':'NO_FOLLOWUP_SQL' if unknown else 'REQUIRES_SEMANTIC_AND_SCOPE_GATE','InputFileBytes':len(input_bytes),'InputFileSha256':hashlib.sha256(input_bytes).hexdigest(),'InputDigestScope':INPUT_SCOPE,'StdoutTextBytes':len(result.stdout.encode('utf-8')),'StdoutTextSha256':hashlib.sha256(result.stdout.encode('utf-8')).hexdigest(),'StderrTextBytes':len(result.stderr.encode('utf-8')),'StderrTextSha256':hashlib.sha256(result.stderr.encode('utf-8')).hexdigest(),'OutputDigestScope':OUTPUT_SCOPE,'CollectorSourceSha256':COLLECTOR_SHA,'CredentialSafety':'CHECKED_AGAINST_PRIVATE_CALLER_LIST','CaptureProvenance':'NOT_INDEPENDENTLY_ATTESTED'}
+    return {'Contract':'CON010_POOL_CAPTURE_V2','Ordinal':ordinal,'Kind':'SQLCMD','Pid':pid,'ReturnCode':result.returncode,'FinalPoll':final_poll,'TimedOut':result.timed_out,'DurationSeconds':result.duration_seconds,'ClientProcessEnd':'KNOWN' if known else 'UNKNOWN','ServerRequestEnd':'UNKNOWN' if unknown else 'NOT_CAPTURED','UnknownSticky':unknown,'FollowupPolicy':'NO_FOLLOWUP_SQL' if unknown else 'REQUIRES_SEMANTIC_AND_SCOPE_GATE','InputFileBytes':len(input_bytes),'InputFileSha256':hashlib.sha256(input_bytes).hexdigest(),'InputDigestScope':INPUT_SCOPE,'StdoutTextBytes':len(result.stdout.encode('utf-8')),'StdoutTextSha256':hashlib.sha256(result.stdout.encode('utf-8')).hexdigest(),'StderrTextBytes':len(result.stderr.encode('utf-8')),'StderrTextSha256':hashlib.sha256(result.stderr.encode('utf-8')).hexdigest(),'OutputDigestScope':OUTPUT_SCOPE,'CollectorSourceSha256':source_binding[SOURCE_KEYS[-1]],'CredentialSafety':'CHECKED_AGAINST_PRIVATE_CALLER_LIST','CaptureProvenance':'NOT_INDEPENDENTLY_ATTESTED'}
 
 def require_followup(previous_unknown,capture):
     if type(previous_unknown) is not bool or type(capture) is not dict or type(capture.get('UnknownSticky')) is not bool:raise ClientEndUnknown('Unvollständige sticky-Endbindung')
@@ -125,7 +131,8 @@ def validate_capture(item):
     sha(item['InputFileSha256'])
     known=type(item['FinalPoll']) is int and item['FinalPoll']==item['ReturnCode']
     unknown=item['TimedOut'] or not known or item['ReturnCode']<0
-    fixed={'Contract':'CON010_POOL_CAPTURE_V2','Kind':'SQLCMD','InputDigestScope':INPUT_SCOPE,'OutputDigestScope':OUTPUT_SCOPE,'CollectorSourceSha256':COLLECTOR_SHA,'CredentialSafety':'CHECKED_AGAINST_PRIVATE_CALLER_LIST','CaptureProvenance':'NOT_INDEPENDENTLY_ATTESTED','ClientProcessEnd':'KNOWN' if known else 'UNKNOWN','ServerRequestEnd':'UNKNOWN' if unknown else 'NOT_CAPTURED','UnknownSticky':unknown,'FollowupPolicy':'NO_FOLLOWUP_SQL' if unknown else 'REQUIRES_SEMANTIC_AND_SCOPE_GATE'}
+    if item['CollectorSourceSha256'] not in COLLECTOR_SHAS:raise ValueError('Nicht geprüfte Collectorbytes')
+    fixed={'Contract':'CON010_POOL_CAPTURE_V2','Kind':'SQLCMD','InputDigestScope':INPUT_SCOPE,'OutputDigestScope':OUTPUT_SCOPE,'CredentialSafety':'CHECKED_AGAINST_PRIVATE_CALLER_LIST','CaptureProvenance':'NOT_INDEPENDENTLY_ATTESTED','ClientProcessEnd':'KNOWN' if known else 'UNKNOWN','ServerRequestEnd':'UNKNOWN' if unknown else 'NOT_CAPTURED','UnknownSticky':unknown,'FollowupPolicy':'NO_FOLLOWUP_SQL' if unknown else 'REQUIRES_SEMANTIC_AND_SCOPE_GATE'}
     if any(item[k]!=v for k,v in fixed.items()):raise ValueError('Deklarierte End-/Timeout-/Scopebindung inkohärent')
     return item
 

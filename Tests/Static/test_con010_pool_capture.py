@@ -16,6 +16,23 @@ def frames(text):
     return ''.join(f'CON010_POOL_CAPTURE_PART|{n+1}|{count}|{units}|'+text[n*200:(n+1)*200].encode('utf-16-le').hex().upper()+'\n' for n in range(count))+'SQLPERF_SUMMARY|PASS|OK\n'
 
 class CaptureTests(unittest.TestCase):
+    def test_only_explicit_lf_crlf_collector_bytes_and_actual_capture_sha(self):
+        original=c.COLLECTOR_PATH.read_bytes();lf=original.replace(b'\r\n',b'\n');crlf=lf.replace(b'\n',b'\r\n')
+        self.assertEqual({hashlib.sha256(v).hexdigest() for v in (lf,crlf)},set(c.COLLECTOR_SHAS))
+        contract=json.loads(c.CONTRACT_PATH.read_bytes().decode('utf-8'))
+        self.assertEqual(set(contract['collector_sha256_variants']),set(c.COLLECTOR_SHAS))
+        self.assertEqual(len(contract['collector_sha256_variants']),2)
+        self.assertNotIn('collector_sha256',contract)
+        c.collector_type()
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'sqlcmd_process.py'
+            for raw in (lf,crlf):
+                path.write_bytes(raw)
+                with patch.object(c,'COLLECTOR_PATH',path):
+                    record=capture();c.validate_capture(record)
+                    self.assertEqual(record['CollectorSourceSha256'],hashlib.sha256(raw).hexdigest())
+            path.write_bytes(lf+b'# foreign\n')
+            with patch.object(c,'COLLECTOR_PATH',path),self.assertRaises(ValueError):capture()
     def test_actual_public_collector_result_and_configured_digest_scopes(self):
         class Process:
             pid=123;returncode=0
