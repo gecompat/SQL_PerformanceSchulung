@@ -2317,3 +2317,80 @@ CON-010 bleibt PROPOSED. Nächster zulässiger Schnitt nach diesem PR-/Main-/
 Sync-/Cleanupabschluss: öffentliche Demoeinbindung mit vollständigen
 Marker-/Fixturegegenproben und 2019-/2022-Versionsgrenzen; Pooling/echte
 Logins/ANN bleiben getrennt. Provider-/Cloud-/ONNX-/rote Hostgrenzen bleiben.
+
+
+## CON-010: öffentliche Demo und tatsächliche Gegenproben
+
+Nach vollständigem PR-183-Abschluss unmittelbar nächster TSK-009-Schnitt auf
+codex/sql2025-ai-con010-public, Basis d43a1c0303ad18e26cecc63a9c944f5b7ca8bf16.
+PR 183: sieben aktuelle Head-/fünf Main-Gates erfolgreich, vollständiger Tree
+f6f1480bd96ab29adbdb754b45cbb2e31b1d682b, lokales main FF-synchronisiert,
+eigener lokaler/Remote-Branch entfernt. Historische CON-010-FAILs unverändert.
+
+Neuer öffentlicher Consumer mit sechs Kandidaten/maximal 30 seriellen eigenen
+Containern. C1: vier Versions-SKIPs und 192 Markerabweisungen bestanden; FAIL
+an wirkungslosem zusätzlichem Spalten-SELECT unter Tabellen-SELECT. Tatsächlicher
+Cleanup/neue DB-/vollständige CID-/Namensabwesenheit bestanden. C2 änderte nur
+Spalten-DENY und verlangt vollständige Snapshotänderung vor jeder Mutation.
+Alle 16 tatsächlichen Source-/Policy-/Rechte-/Rollenmanipulationen mit exakt
+51003/FAIL_RESULT_CONTRACT gegen Baseline und Comparison abgewiesen; alle
+192 Markerproben mit exakt 51004/FAIL_STATE über acht Phasen abgewiesen,
+vollständige Snapshots unverändert und tatsächliche markergebundene Reparatur.
+Setup zweimal semantisch gleich; je zweimal echte 2019-/2022-SKIPs vor Setup.
+Alle zehn eigenen Container vollständig geschlossen, DB/CID/Name neu abwesend;
+Cleanup jeweils unter gemeinsamer 60-s-Deadline. Keine rohe Diagnose veröffentlicht.
+
+CON-010 jetzt IMPLEMENTED unter vorhandener Registryidentität; neunte lokale
+KI-Demo. 32 Demos/372 Runs bleiben geplanter Providerkatalog, keine Vollausführung.
+Neue Consumerabhängigkeit in beiden Workflowpathsets, mutierende CI unverändert
+cancel-in-progress=false. Ein Owner/enger Risiko- und Deltaquellenreview; zwei
+P2 vor Admission geschlossen, wirkungslose native Probe wahrheitsgemäß FAIL.
+Sechs synthetische Endstatus-/neun öffentliche Runnermethoden und betroffene
+Framework-/Guide-/Katalog-/Selektorgates PASS. Modell-/Tokenverbrauch unbekannt.
+
+[Gebundener öffentlicher Nachweis](SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md).
+Aktuelle Head-/Main-Gates, PR-Merge, vollständige Treeübernahme/FF-Sync und eigener
+Branchcleanup sind vor Schnittabschluss erforderlich. Pooling, authentifizierte
+Serverlogins, mehrere Sessions, ANN/Postfilter, Seitenkanäle und TSK-009-Gesamtabnahme
+bleiben offen. Nächster unabhängiger lokaler Schnitt nach vollständiger Integration:
+RES-008-Quellen-/Dimensions-/Storagevorbereitung aus TSK-010, mit begrenztem
+synthetischem float32-Profil; keine Cloud-/ONNX-/rote Hostwirkung oder Wiederaufnahme
+anderer Workstreams. Heartbeat bleibt Wiederaufnahmeabsicherung des aktiven Auftrags.
+
+
+### CON-010 C3: korrigierter öffentlicher Ausgabekanal
+
+PR 184 ist noch offen. Head 4c28f5d2f0c10efd1cc1af80bc1ea4a35a677a7c:
+SQL-AI-CI 38188982540 FAIL nach zwei positiven regulären CON-010-Lifecycles,
+vor Setup des Gegenprobenconsumers; PRINT war durch -r 1 nach stderr geroutet,
+API lieferte stdout. Eigener CI-Container bereinigt, kein Merge dieses Heads.
+Andere zwölf ausgewählte Head-Workflows abgeschlossen erfolgreich.
+C3 korrigiert optionalen API-Diagnostikkanal/gezielte Consumer-Summaries und
+strukturierten ValueError-FAIL. Alle fünf festen C3-Slots unter tatsächlichen
+öffentlichen Ausgabeoptionen bestanden: 192 Marker-/32 Resultabweisungen,
+16 tatsächliche Mutationen, Setupidempotenz und je zwei 2019-/2022-SKIPs.
+Alle 15 eigenen Container samt DB/CID/Name neu abwesend, Endstatus bekannt;
+alle historischen FAILs bleiben im gemeinsamen sechs-Kandidaten-Ledger.
+Enger C3-Deltaquellenreview vor Admission geschlossen, sieben synthetische
+Endstatus-/elf öffentliche Runnermethoden PASS. Keine geänderten SQLoracles.
+Aktuelle korrigierte Head-/Main-Gates, Integration/FF-Sync/eigener Branchcleanup
+folgen vollständig; nächster unabhängiger Schnitt weiterhin RES-008. Keine
+TSK-009-/Provider-/Pooling-/Gesamtabnahme, Modell-/Tokenverbrauch unbekannt.
+
+
+### CON-010 C4: gemeinsame API wiederhergestellt
+
+C3 lokal PASS, anschließend Head c720508 im Offline-CI 38190655438
+FAIL/PYTHON_PROFILE_CHANGED an eingefrorener gemeinsamer API-Abhängigkeit;
+kein Merge. C4 stellt gemeinsame API exakt auf Baseline zurück und projiziert
+ausschließlich die feste positive CON-010-Consumersummary per SELECT auf stdout.
+Keine Migration pausierter Workstreams/Profiles; reguläre Demo-SQLbytes und
+SQL-/RLS-/Grant-/Fehleroracles unverändert. Alle fünf C4-Slots bestanden:
+192 Marker-/32 Resultabweisungen, 16 tatsächliche Mutationen, Setupidempotenz,
+je zwei 2019-/2022-SKIPs vor Setup. Alle 20 eigenen Container samt DB/CID/Name
+neu abwesend, Endstatus bekannt, Cleanup unter derselben 60-s-Deadline.
+Alle historischen nativen-/CI-FAILs im selben sechs-Kandidaten-Ledger erhalten,
+keine weitere unveränderte grüne Wiederholung. Enger C4-Review geschlossen,
+elf öffentliche Runner-/sieben private Endstatustests PASS. Aktuelle C4-
+Head-/Main-Gates/Integration/FF-Sync/eigener Branchcleanup erforderlich; danach
+unmittelbar RES-008-Vorschnitt. Kein TSK-009-/Pooling-/Provider-Gesamtabschluss.

@@ -321,8 +321,8 @@ def main() -> int:
         full_lane = lanes["FULL_CONTAINER_MATRIX"]
         eligible = [entry for entry in entries if entry["safetyLevel"] in full_lane["safetyLevels"]]
         runs = len(eligible) * len(PROVIDERS) * len(full_lane["versions"]) * full_lane["repetitions"]
-        if runs != 360:
-            raise ContractError(f"current full matrix must contain 360 runs, got {runs}")
+        if runs != 372:
+            raise ContractError(f"current full matrix must contain 372 runs, got {runs}")
 
         print(
             "sql-server-lab-scenario-contract: PASS "

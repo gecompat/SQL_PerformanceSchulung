@@ -1,19 +1,58 @@
 #!/usr/bin/env python3
 """Regressionen gegen falsche Versions-, Skip- und Evidenzfreigaben."""
 import copy
-from contextlib import redirect_stdout
+from contextlib import redirect_stdout, redirect_stderr
 import io
 from pathlib import Path
 import sys
+import subprocess
 import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Tests/Runtime"))
 import run_sql2025_ai_local as runner
+import con010_controls
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_control_validation_error_produces_structured_fail(self):
+        stream=io.StringIO()
+        argv=['runner','--container','synthetic-fixture','--expected-major','17','--demo','CON-010']
+        with patch.object(sys,'argv',argv),patch.object(runner.targets,'docker_target'), \
+             patch.object(runner.targets,'require_disposable_instance'),patch.object(runner.targets,'verify_engine',return_value=17), \
+             patch.object(runner,'run_demo',return_value=('PASS','OK')), \
+             patch.object(runner,'ownership_controls',side_effect=ValueError('synthetic invalid fixture')), \
+             redirect_stdout(stream),redirect_stderr(io.StringIO()):
+            self.assertEqual(runner.main(),1)
+        self.assertIn('SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT',stream.getvalue())
+        self.assertNotIn('AI_LOCAL_QUALIFICATION|PASS',stream.getvalue())
+
+    def test_con010_summary_projection_keeps_oracles_and_rejects_missing_or_duplicate(self):
+        original="PRINT 'SQLPERF_SUMMARY|PASS|OK';"
+        before="IF @Matches<>4 THROW 51004,'FAIL_STATE: Marker fehlen.',1;\n"
+        after="\nPRINT 'SQLPERF_SUMMARY|SKIP|SKIP_VERSION'; RETURN;"
+        text=before+original+after
+        self.assertEqual(con010_controls.stdout_phase(text),before+"SELECT 'SQLPERF_SUMMARY|PASS|OK';"+after)
+        for wrong in (before+after,text+original,text.replace('PASS|OK','WARN|WARN_OPTIONAL_EVIDENCE_SKIPPED')):
+            with self.subTest(wrong=wrong),self.assertRaises(ValueError):con010_controls.stdout_phase(wrong)
+
+    def test_con010_native_error_requires_exact_number_and_message(self):
+        for code,detail in ((51004,'FAIL_STATE'),(51003,'FAIL_RESULT_CONTRACT')):
+            text=f'Msg {code}, Level 16, State 1, Server synthetic-fixture, Line 22\n{detail}: Erwartete Abweisung.\n'
+            self.assertTrue(con010_controls.expected_native_error(text,code,detail))
+            self.assertTrue(con010_controls.expected_native_error('sqlcmd failed in database master: '+text,code,detail))
+            for wrong in (text.replace(f'Msg {code}',f'Msg 1{code}'),text.replace(detail,detail+'X'),
+                          text.replace('Msg ',''),text.replace(detail,'Anderer Fehler; '+detail)):
+                with self.subTest(wrong=wrong):self.assertFalse(con010_controls.expected_native_error(wrong,code,detail))
+
+    def test_con010_mixed_or_unassociated_native_errors_fail(self):
+        expected='Msg 51004, Level 16, State 1, Line 7\r\nFAIL_STATE: Erwartete Abweisung.\r\n'
+        wrong='Msg 229, Level 14, State 5, Line 8\nAnderer Fehler.\n'
+        for text in (wrong+expected,expected+wrong,expected+expected,expected+'Msg 229, Level 14, State 5, Line 8',
+                     expected.replace('FAIL_STATE:', 'Andere Nachricht.\nFAIL_STATE:')):
+            with self.subTest(text=text):self.assertFalse(con010_controls.expected_native_error(text,51004,'FAIL_STATE'))
+
     def test_ci_readiness_passes_environment_name_without_secret_argument(self):
         workflow = (ROOT / ".github/workflows/sql2025-ai-local.yml").read_text(encoding="utf-8")
         readiness = workflow.split("- name: Verify SQL login readiness", 1)[1].split("- name:", 1)[0]

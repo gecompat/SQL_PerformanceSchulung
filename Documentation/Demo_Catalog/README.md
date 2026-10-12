@@ -152,7 +152,7 @@ Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträg
 
 ## Lokale KI-Demos – Implementierung vom 2026-10-11
 
-Die acht Demos laufen ohne Modell- oder Endpointaufruf. DGN-008 erzeugt ausschließlich ein Modellmetadatenobjekt. `IMPLEMENTED` bezeichnet den aktuellen
+Die neun Demos laufen ohne Modell- oder Endpointaufruf. DGN-008 erzeugt ausschließlich ein Modellmetadatenobjekt. `IMPLEMENTED` bezeichnet den aktuellen
 Codebestand; lokale Runtime-Evidenz und aktuelle Actions-Gates stehen im
 [Implementierungsnachweis](../Project_Planning/SQL_SERVER_2025_AI_LOCAL_IMPLEMENTATION_REVIEW.md).
 Der neue QRY-018-Schnitt wird im [Offline-RAG-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md) getrennt geführt.
@@ -169,3 +169,4 @@ Windows- und Podman-Runtime sowie ein installierter Full-Text-Pfad bleiben geson
 | [`QRY-019`](../../Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/README.md) | Feste SQL-Struktur und Parameterbindung | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
 | [`DGN-008`](../../Demos/09_AI_SQL_Server_2025/DGN-008_Offline_Model_Rights/README.md) | Modellmetadaten und getrennte Offline-Rechte | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
 | [`DGN-009`](../../Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/README.md) | Manipulierte Quellen und feste Offline-Toolpolicy | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |
+| [`CON-010`](../../Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/README.md) | Tenant-Isolation vor dem Vektorkontext | `IMPLEMENTED` | Grün, 1 Session, Stufe 1 / TSQL_TESTDB |

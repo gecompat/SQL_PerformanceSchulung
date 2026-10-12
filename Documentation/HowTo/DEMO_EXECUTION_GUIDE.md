@@ -42,6 +42,7 @@ Wählen Sie eine Demo aus der folgenden Tabelle. Der angegebene Schlüssel wird 
 | [`QRY-019`](../../Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; feste SQL-Form, gebundene Werte |
 | [`DGN-008`](../../Demos/09_AI_SQL_Server_2025/DGN-008_Offline_Model_Rights/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; Modellmetadaten und getrennte Offline-Rechte |
 | [`DGN-009`](../../Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; manipulierte Quellen und feste Toolpolicy |
+| [`CON-010`](../../Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/README.md) | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; RLS, exakte Quellen und drei native Rechteverweigerungen |
 | [`IDX-006`](../../Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz; historischer Nachweis mit `WARN_EMPIRICAL_VARIANCE`, keine allgemeine Fill-Factor-Richtung |
 | [`IDX-010`](../../Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit Ressourcenprofil |
 | [`CON-004`](../../Demos/07_Concurrency/CON-004_Blocking_Chain/README.md) | `YELLOW` | 2019/150, 2022/160, 2025/170 | Mehrsitzungsorchestrierung; alternativ interaktiv gemäß [`INTERACTIVE_SCENARIO_LIFECYCLE.md`](INTERACTIVE_SCENARIO_LIFECYCLE.md) |
@@ -116,6 +117,7 @@ $demoCatalog = @{
     'QRY-019' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/manifest.json'; Safety = 'GREEN' }
     'DGN-008' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/DGN-008_Offline_Model_Rights/manifest.json'; Safety = 'GREEN' }
     'DGN-009' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/manifest.json'; Safety = 'GREEN' }
+    'CON-010' = @{ Manifest = 'Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/manifest.json'; Safety = 'GREEN' }
     'IDX-006' = @{ Manifest = 'Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/manifest.json'; Safety = 'YELLOW' }
     'IDX-010' = @{ Manifest = 'Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/manifest.json'; Safety = 'YELLOW' }
     'CON-004' = @{ Manifest = 'Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json'; Safety = 'YELLOW' }
@@ -130,7 +132,7 @@ $demoCatalog = @{
 
 function Invoke-SqlPerfDemo {
     param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','QRY-019','DGN-008','DGN-009','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
+        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','QRY-019','DGN-008','DGN-009','CON-010','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
         [Parameter(Mandatory)][string]$Server,
         [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
         [string]$Username,
@@ -214,7 +216,7 @@ Wenn PowerShell, `sqlcmd` oder der Rechner während eines Laufs beendet wurde, f
 ```powershell
 function Invoke-AbortedSqlPerfDemoCleanup {
     param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','QRY-019','DGN-008','DGN-009','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
+        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','QRY-019','DGN-008','DGN-009','CON-010','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
         [Parameter(Mandatory)][string]$Server,
         [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
         [string]$Username

@@ -422,6 +422,20 @@
       "instanceRequirement": "SHARED_TEST_INSTANCE",
       "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
       "escalation": null
+    },
+    {
+      "demoId": "CON-010",
+      "manifest": "Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "GREEN",
+      "sessions": 1,
+      "title": "Tenant-Isolation vor dem Vektorkontext",
+      "path": "Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation",
+      "stage": 1,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "SHARED_TEST_INSTANCE",
+      "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
+      "escalation": null
     }
   ]
 }
