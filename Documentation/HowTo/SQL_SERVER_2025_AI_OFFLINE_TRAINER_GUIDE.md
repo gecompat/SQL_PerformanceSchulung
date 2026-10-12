@@ -1,7 +1,8 @@
 # KI mit SQL Server 2025 – Trainerleitfaden für den Offlinepfad
 
 Stand: 2026-10-12. TSK-012, didaktischer Teilentwurf für acht implementierte Demos
-plus getrennte Ergebnisleseaufgabe zum begrenzten PROPOSED-Profil RES-008.
+plus getrennte RES-008-Ergebnisleseaufgabe und drei optionale lokale
+Evidenzleseaufgaben. Alle Lösungen bleiben ausschließlich im Arbeitsheft.
 Reihenfolge und Moderation sind Vorschläge; Teilnehmererprobung, Lehrzeiten und
 Gesamtcurriculumabnahme stehen aus. Die Trainerlösungen und die Bewertungsrubrik
 werden ausschließlich im [Arbeitsheft](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md)
@@ -138,7 +139,40 @@ Basisaufgaben behalten maximal 16 Punkte. Keine Namen, Rawidentitäten,
 Querytexte oder Daten realer Systeme sammeln. Die Auswertung allein belegt
 keinen neuen Runtime-, Provider-, Tenant- oder vollständigen Performancepfad.
 
+## Drei optionale lokale Evidenzleseaufgaben moderieren
+
+Die neuen [Aufgaben E1–E3 mit Lösungen](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md#drei-optionale-evidenzleseaufgaben-lokale-komponenten)
+lesen bestehende öffentliche Teilnachweise. Sie erfordern keine neue Modell- oder
+SQL-Ausführung. Geben Sie ausschließlich die dort verlinkten öffentlichen
+Zusammenfassungen aus; keine privaten Receipts, Vektoren, Server-/Containernamen,
+IDs, SIDs oder Secrets. Installation, Login-/Rollen-DDL, Cloud-/Provideraufrufe
+und private Qualifikationsskripte sind keine Teilnehmeraufgaben.
+
+Leiten Sie Einsteigende je Aufgabe durch **Zweck → vorherige Erwartung → tatsächliche
+Beobachtung → offene Schlussfolgerung**. Lassen Sie Erwartung und Status vor der
+Interpretation getrennt notieren. Eine Komponentenprüfung betrifft einen einzelnen
+Schritt; sie ist keine Abnahme der gesamten Anwendung. Bewerten Sie nach der
+getrennten optionalen Arbeitsheftrubrik; keine Bestehens- oder Zeitbehauptung.
+
+| Optionale Aufgabe | Geeigneter Anschluss | Moderationsfrage vor der Lösung |
+|---|---|---|
+| E1, Modellreceipt und SQL-Suche | Nach QRY-014/QRY-018: vom geometrischen Beispiel zu einem gebundenen tatsächlichen Modell-/SQL-Teilbeleg. | Welche Stufe erzeugte die Vektoren, welche verwendete sie nur erneut, und welche Antwortstufe fehlt? |
+| E2, gescheiterte Generation | Nach QRY-018: verfügbare Rückgabe, gültiges Format und fachlich richtige Antwort getrennt behandeln. | Was durfte nach dem positiven Fehlerfall noch als tatsächlich geprüft gezählt werden? |
+| E3, tatsächliche SQL-Logins | Nach QRY-019/DGN-008: Anmeldung, DBuser-Zuordnung, Datenfilter und Rechtefehler getrennt verorten. | Welcher Identitätsbeleg unterscheidet eine neue authentifizierte Verbindung vom bisherigen EXECUTE-AS-Beispiel? |
+
+Besprechen Sie Lösungen ausschließlich anhand der drei zusätzlichen Einträge im
+Arbeitsheft. Bei historischen FAILs wird keine Korrektur oder Wiederholung im
+Unterricht beauftragt. Ein zerstörter eigener Container ist von einem tatsächlich
+belegten SQL-Drop und einer frischen SQL-Abwesenheitsprüfung zu unterscheiden.
+Die Ergänzungen verändern weder acht Basisaufgaben/16 Punkte noch die separate
+RES-008-Bewertung; E1–E3 erhalten optional je eigene 0–2 Punkte. Die vorhandenen
+Teaching-Path-Zeiten bleiben unveränderte Planung ohne gemessene Lehrdauer.
+
 ## Umgang mit abweichenden Beobachtungen
+
+Die folgende Handlungstabelle betrifft später tatsächlich ausgeführte Basisdemos.
+Bei E1–E3 lesen Sie ausschließlich den vorhandenen Status- und Cleanupnachweis;
+keine neue Recovery, Inferenz, Login-DDL oder Wiederholung wird damit beauftragt.
 
 | Tatsächlicher Status | Nächster Lehrschritt |
 |---|---|
@@ -162,5 +196,9 @@ Eine Bestehensgrenze oder gemessene Lernwirksamkeit ist damit nicht festgelegt.
 
 Dokumentieren Sie offene Verständnisfragen und tatsächliche Status-/Cleanupgrenzen
 ohne reale Systemdaten. Dieses Material ist für die anschließende Generalprobe
-vorbereitet; Teilnehmerabnahme, Masterdeck, Livepfade und alle 18 registrierten
-Demoentwürfe bleiben im kanonischen Workstreamplan und Ausführungsstand offen.
+vorbereitet. Das [61-Folien-KI-Deck mit editierbaren Sprechernotizen](../../Presentations/AI_SQL_Server_2025/README.md)
+hat bereits dokumentierte Render-/Einzelbild- und native PowerPoint-Prüfung.
+Teilnehmererprobung, gemessene Lehrzeiten, tatsächliche Generalprobe, volle
+Live-/Lehrpfade und die vollständige Abnahme aller 18 registrierten Demoentwürfe
+bleiben im kanonischen Workstreamplan und Ausführungsstand offen. Hierfür wurden
+weder das Deck neu exportiert noch Office, SQL oder ein Modell aufgerufen.

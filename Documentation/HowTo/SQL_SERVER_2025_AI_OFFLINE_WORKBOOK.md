@@ -1,7 +1,8 @@
 # KI mit SQL Server 2025 – Arbeitsheft für den Offlinepfad
 
 Stand: 2026-10-12. TSK-012, Teilentwurf für acht implementierte und lokal qualifizierte
-Demos plus eine getrennte Ergebnisleseaufgabe zum begrenzten PROPOSED-Profil RES-008. Keine vollständige Curriculum-, Masterdeck- oder Generalprobenabnahme.
+Demos plus die getrennte RES-008-Ergebnisleseaufgabe und drei optionale
+Evidenzleseaufgaben. Keine vollständige Curriculum- oder Generalprobenabnahme.
 Die Aufgaben, Lösungen und Rubrik sind didaktische Vorschläge; eine tatsächliche
 Teilnehmererprobung und gemessene Lehrzeiten stehen aus.
 
@@ -11,6 +12,9 @@ Die [Grundlagenbegriffe](SQL_SERVER_2025_AI_OFFLINE_GLOSSARY.md) erklären Model
 Vektor, Chunk, Retrieval und Antwort vor der ersten Aufgabe.
 Der [Trainerleitfaden](SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md) ergänzt die
 vorgeschlagene Reihenfolge und Moderation; Lösungen und Rubrik bleiben hier gepflegt.
+Das [61-Folien-KI-Deck mit Sprechernotizen](../../Presentations/AI_SQL_Server_2025/README.md)
+ist ein geprüfter Materialvorrat. Seine Artefaktprüfung belegt keine Unterrichtsdauer
+oder bestandene Teilnehmer-/Generalprobe.
 
 Vorwissen: SELECT, ORDER BY, Parameter, Datenbankrechte und der Unterschied zwischen
 Engineversion und Compatibility Level. Alle acht Demoprofile verwenden SQL Server
@@ -31,7 +35,7 @@ SQL-Identitäten sind Teil der Kontrollen von QRY-019, DGN-008 und DGN-009; die 
 Fälle zeigen die fachliche Mechanik im Ownerharness. Die Demoausgabe ersetzt nicht
 die unabhängige Prüfung der eigenen DB-Abwesenheit.
 
-Für jede Aufgabe zuerst eine Vorhersage notieren, dann den manifestbasierten Lauf
+Für jede der acht Basisaufgaben zuerst eine Vorhersage notieren, dann den manifestbasierten Lauf
 gemäß Leitfaden beobachten. Notieren Sie Demo-ID, Build, CL, Ergebnisstatus, konkrete
 Rows oder Rechtefehler sowie Cleanupstatus. Behalten Sie FAIL, WARN und SKIP bei;
 ein neuer Lauf benötigt geänderte Eingaben oder einen begründeten neuen Prüfauftrag.
@@ -203,6 +207,107 @@ offener Modellqualität. Keine Rawidentitäten, Querytexte oder Daten realer Sys
 in den Beobachtungsbogen übernehmen. Der freigegebene Aggregationsframe enthält
 ausschließlich den dokumentierten begrenzten numerischen Export.
 
+## Drei optionale Evidenzleseaufgaben: lokale Komponenten
+
+Diese drei Aufgaben ergänzen die acht Basisaufgaben und RES-008 getrennt.
+Sie lesen vorhandene veröffentlichte Teilnachweise; Sie starten dafür weder SQL
+noch ein Modell. Keine Installation, Login-/Rollen-DDL, Cloud-/Provideraufrufe
+oder Wiederholung privater Qualifikationsskripte. Die Lehrperson verwendet nur die
+unten verlinkten öffentlichen Zusammenfassungen. Private Rawreceipts, Vektoren,
+Verbindungsnamen, Container-IDs, SIDs oder Secrets werden nicht übernommen.
+
+Für Einsteigende: Eine **Komponente** ist hier ein einzeln geprüfter Schritt,
+etwa Vektoren erzeugen, sie in SQL suchen oder eine Verbindung authentifizieren.
+Ein erfolgreicher Schritt qualifiziert noch nicht die ganze Anwendung. Eine
+**Ergebnis-Erwartung** wird vor dem Versuch festgelegt. Ein fehlgeschlagener
+Vergleich bleibt FAIL, auch wenn eine Rückgabe syntaktisch gültig oder der Cleanup
+erfolgreich ist. Arbeiten Sie je Aufgabe in vier Schritten:
+
+1. **Zweck:** Welcher einzelne Schritt sollte geprüft werden?
+2. **Erwartung:** Welches konkrete Ergebnis war vorher festgelegt?
+3. **Beobachtung:** Welcher tatsächliche Befund liegt in der Zusammenfassung vor?
+4. **Grenze:** Welche naheliegende Schlussfolgerung folgt daraus noch nicht?
+
+Abgabe je Aufgabe: diese vier kurzen Einträge mit Link zur öffentlichen
+Nachweisstelle. Dafür gilt eine eigene optionale Rubrik, keine neue Bestehensgrenze
+oder geplante Unterrichtsdauer. Die vorhandenen Teaching-Path-Zeiten bleiben
+unveränderte, noch nicht gemessene Planung.
+
+Ein **Receipt** ist das aufgezeichnete Ergebnis eines Modellaufrufs, mit den
+gebundenen Eingaben und Rückgaben. Es bescheinigt nicht automatisch fachliche
+Richtigkeit. **Top1** bedeutet der erste Treffer in der festgelegten Rangfolge.
+
+### E1 – Vom tatsächlichen Embedding zur SQL-Quelle
+
+Zuordnung: CUR-014/CUR-016/CUR-017; TSK-007/TSK-008-Teilnachweise.
+Material: [lokaler Modellkomponentenbeleg](../Project_Planning/SQL_SERVER_2025_AI_MODEL_COMPONENT_REVIEW.md),
+[Corpusbeleg](../Project_Planning/SQL_SERVER_2025_AI_MODEL_CORPUS_REVIEW.md) und
+[SQL-Persistenz-/Exact-Beleg](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md).
+Die integrierten PR215–217 betreffen nacheinander getrennte begrenzte Komponenten.
+
+Zweck: Unterscheiden Sie ein tatsächlich zurückgegebenes Modell-Embedding von den
+fest zugeordneten Geometrievektoren in QRY-014. Lesen Sie den Corpusfall mit
+Nomic: drei synthetische Dokumente und eine Frage. Der öffentliche Corpusvertrag
+enthält genau diese englischen Eingaben:
+
+| Eingabe | Unverändertes öffentliches Originalliteral |
+|---|---|
+| A | `search_document: Synthetic module A contains red building blocks.` |
+| B | `search_document: Synthetic module B contains blue building blocks.` |
+| C | `search_document: Synthetic module C contains green building blocks.` |
+| QUERY | `search_query: Which synthetic module stores crimson building blocks?` |
+
+Deutsch eingeordnet: Die Module enthalten rote, blaue beziehungsweise grüne
+Bausteine; die Frage sucht das Modul mit scharlachroten Bausteinen. Die Präfixe
+kennzeichnen Dokument und Frage und gehörten zu den damaligen Eingaben. Diese
+Tabelle ist Lesematerial, kein Auftrag zu einem neuen Modellaufruf. Zeichnen Sie
+die Verbindung vom vorhandenen Modellreceipt zu den gespeicherten SQL-Records
+und zum Suchtreffer.
+
+Notieren Sie vorher, wie viele Vektoren für drei Dokumente plus eine Frage zu
+erwarten sind und welches Dokument als Top1 festgelegt war. Vergleichen Sie dies
+mit Dimension, vollständiger Rücklesung und tatsächlicher SQL-Rangfolge. Ordnen
+Sie einen Cosine-Score der Ähnlichkeit zu; ist er eine Wahrscheinlichkeit, dass
+die Quelle fachlich richtig ist? Warum lässt der Bestand keinen allgemeinen
+Qualitäts- oder vollständigen Live-RAG-Nachweis zu?
+
+### E2 – Erreichbare Generation ist noch keine richtige Antwort
+
+Zuordnung: CUR-016/CUR-017/CUR-022; TSK-007/TSK-008-Teilgrenze.
+Material: [abschließender Generationbeleg](../Project_Planning/SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
+PR218 erhält den Hard6-FAIL und die tatsächlich verbrauchte Requestpopulation.
+
+Zweck: Trennen Sie Modellzugang, Antwortformat und Antwortinhalt. Die feste positive
+Erwartung war eine rohe JSON-Antwort mit Entscheidung ANSWER, Quellenkennung A
+und Farbwort red. Lesen Sie die tatsächlich beobachteten Antworten und den Grund,
+warum nach einem fehlerhaften positiven Fall kein nächster Fall gestartet wurde.
+
+Halten Sie fest, wie viele Inferenz- und Metadatenrequests tatsächlich zur Welle
+gehörten. Was ist über die vorbereiteten Fälle mit leerem oder widersprüchlichem
+Kontext belegt? Unterscheiden Sie eine ausgegebene Nichtantwort im falschen
+positiven Fall von einer geprüften korrekten Enthaltung. Vergleichen Sie diesen
+FAIL mit einem optionalen Provider, der gar nicht verfügbar ist: Welche Evidenz
+fehlt jeweils? Leiten Sie keine interne Modellursache oder Leistung anderer Modelle ab.
+
+### E3 – SQL-Identität und Tenantzuordnung tatsächlich lesen
+
+Zuordnung: CUR-018/CUR-022; TSK-009-Teilnachweis.
+Material: [privater Authentifizierungsfall, öffentliche Zusammenfassung](../Project_Planning/SQL_SERVER_2025_AI_TENANT_LOGIN_REVIEW.md)
+und [öffentlicher CON-010-Scope](../../Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/README.md).
+Die private Komponente ändert den bisherigen EXECUTE-AS-Scope der öffentlichen Demo nicht.
+
+Zweck: Unterscheiden Sie die tatsächliche Anmeldung einer neuen Verbindung von
+EXECUTE AS innerhalb einer vorhandenen Verbindung. Erwarten Sie für Tenant A/B
+je die eigene Quelle; was sollte eine authentifizierte, keinem Tenant zugeordnete
+Identität sehen? Lesen Sie danach C5, den manipulierten Sessionkontext und die
+tatsächlichen Rechtefehler. Welche Identitäts- und Datenbelege gehören zusammen?
+
+Vergleichen Sie außerdem die Cleanupnachweise: C1–C3 besitzen zerstörte eigene
+Containernamespaces, aber keine bestandene SQL-Abwesenheitsprüfung; C4/C5 besitzen
+tatsächliche Login-/DB-Drops und neue SQL-Abwesenheit. Begründen Sie, warum der
+positive C5-Fall weder Pooling, Passwortintegrität noch die vollständige öffentliche
+authentifizierte CON-010- oder TSK-009-Abnahme belegt.
+
 ## Trainerlösungen und Rückfragen
 
 Die folgende Tabelle ist dieselbe gepflegte Quelle für die Trainerfassung.
@@ -220,6 +325,17 @@ Die vorgeschlagenen Rückfragen prüfen Transfer, keine gemessene Lernwirksamkei
 | DGN-008 | Setup erstellt und besitzt Modellmetadaten. Ingestion schreibt tatsächlich 7→8→7. Retrieval verliert Policy-SELECT und Modell-EXECUTE; Quellen-SELECT bleibt möglich. EXECUTE-Metadaten sind keine Inferenz, SYNTHETIC_NO_SECRET kein Credential. Endpointablehnung prüft Bytes, keine echte Verbindung. | Welche neue Evidenz wäre für einen tatsächlichen Modellaufruf erforderlich? |
 | DGN-009 | Manipulierter Inhalt wird tatsächlich retrievt, seine Anweisungen werden nicht zu SQL. Feste Policy liefert Antworten/Tools je 1 erlaubt, 3 abgelehnt. Nur ReadFact auf Quelle1 wird fest parametrisiert ausgeführt; GRANT/UPDATE scheitern tatsächlich mit 4613/229. Trust wird nicht vom Modell erkannt; kein allgemeiner Injection-/Tenant-/Egressnachweis. | Welche Grenze bleibt trotz dieser erfolgreichen festen Kontrollen offen? |
 | RES-008, getrennte Ergänzung | 20 Warmups plus 3×3×6=54 Messfenster; 20×1+54×100=5420 kontrollierte Queries. Pro Paar/Pfad sechs AB-/BA-Fenster; AA drei getrennte Baselinepaare. CPU/I/O sind eigene Request-Counterdifferenzen vor/nach der 100-Query-Schleife samt Overhead an diesen Messgrenzen. Elapsed misst die UTC-Zeit der Schleife samt Tempresult-Inserts; die Messgrenzen sind nicht identisch. Ein Elapsed-Nullfenster bei positiver CPU belegt keine fehlende Arbeit; Zeitauflösung, Reihenfolge und Streuung begrenzen die Interpretation. n=6 ergibt keinen belastbaren Query-p99 oder Signifikanznachweis. Baseline null ergibt N/A, Ausreißer bleiben in Max/Medianpopulation. 30 numerische Invarianten und repräsentative rohe Planattribute belegen keine volle Worker-/TP-PERF-/Modellabnahme; Gesamt-WARN/PROPOSED bleiben. Vor einer echten Dimensionsreduktion fehlen ein Vergleich tatsächlich erzeugter Embeddings mit gebundener Modellversion und eine fachlich gelabelte Retrieval-/Antwortbewertung desselben Korpus. | Welche zusätzliche Qualitätsmessung wäre vor einer echten Dimensionsreduktion erforderlich? |
+
+### Lösungen zu den drei optionalen Evidenzleseaufgaben
+
+Diese Lösungseinträge gelten ausschließlich für die verlinkten Teilnachweise.
+Sie sind didaktische Vorschläge, keine neue Ausführung oder Teilnehmerabnahme.
+
+| Aufgabe | Erwartete Erklärung zum vorhandenen Befund | Rückfrage |
+|---|---|---|
+| E1 | Corpus-C1 erzeugte vier vollständige Nomic-Vektoren mit je 768 endlichen Koordinaten: drei Dokumente plus eine Frage. Der getrennte SQL-C1 speicherte und las alle vier VECTOR(768)-Records zurück; gesucht wurden die drei Dokumente. Vorab erwartetes und tatsächlich beobachtetes eindeutiges Top1 ist A. Modell- und SQL-Cosines werden unabhängig nachgerechnet und liegen innerhalb der vorher festgelegten 1e-5-Toleranz; SQL-Score für A etwa 0,80313. Score ist keine Wahrheitswahrscheinlichkeit. Der SQL-Schritt verwendete das vorhandene Receipt, keine neue Inferenz. Numerischer Roundtrip belegt keine bitgleichen physischen VECTORbytes, dieser einzelne synthetische englische Fall keine allgemeine Relevanz-/Antwortqualität oder vollständigen Live-RAG. PR215 ist der vorgelagerte Modellkomponentenbeleg; seine zwei separaten Modellaufrufe werden nicht als die vier Corpusaufrufe ausgegeben. | Welcher neue Beleg wäre für eine generierte, tatsächlich quellengestützte Antwort erforderlich? |
+| E2 | Hard6 endet FAIL; tatsächlich fünf Inferenz- und 31 Metadatenrequests in der Generationwelle, einschließlich genau einer C4-Vorlagendiagnose. Die vorgelagerte Discovery ist separat und wird nicht in diese Counts umgedeutet. Keine richtige positive Antwort; Nichtantworten oder Codefences verfehlten den vorher festgelegten Vertrag. C2 scheiterte bereits am Sourcegate ohne Modellcall. Fail-first verhinderte sämtliche Negativcase-Aufrufe: deshalb weder bestandene Empty-/Conflict-Enthaltung noch allgemeiner Sicherheitsbeleg. Ein erreichbarer Provider und eine erhaltene Rückgabe sind andere Befunde als ein UNAVAILABLE-Pfad ohne Inferenz; keiner liefert für sich Antwortqualität. Interne Ursache und andere Modelle bleiben unbekannt. | Warum darf eine im positiven Fall falsche Nichtantwort nicht als erfolgreiche ABSTAIN-Kontrolle gezählt werden? |
+| E3 | C5 bestätigt drei frische authentifizierte SQL-Loginverbindungen mit passenden Server-/Original-/DBuser-Identitäten und SIDs. A/B erhalten je nur die eigene vollständige Quelle samt VECTOR(3), Unmapped besitzt positive Authentifizierung und null Rows. Der auf B gesetzte Sessionkontext ändert A nicht; Reset und tatsächliche SQL-Verweigerungen sind belegt. 23 Vollstates und fünf Guardfehler begrenzen die Zustands-/Eigentumskontrolle. C1–C3 bleiben FAIL mit SQL-Abwesenheit NOT_ESTABLISHED trotz zerstörter eigener Namespaces; C4/C5 besitzen tatsächliche gehaltene Login-Drops vor DBdrop plus neue getrennte SQL-Abwesenheit. Kein Pooling-, Passwortintegritäts-, Seitenkanal- oder öffentlicher authentifizierter CON-010-/TSK-009-Gesamtnachweis; Owner ist ausdrücklich privilegierter Fixtureharness. | Welche zusätzliche Prüfung wäre für echte wiederverwendete Poolverbindungen nötig? |
 
 ## Beobachtungsbogen und Bewertungsrubrik
 
@@ -241,7 +357,10 @@ Didaktischer Vorschlag: pro Demo 0–2 Punkte. Zwei Punkte verlangen einen passe
 konkreten Beobachtungsbeleg und eine korrekte Aussagegrenze; ein Punkt verlangt eines
 davon, null Punkte keines. Acht Basisaufgaben ergeben höchstens 16 Punkte. Die getrennte RES-008-Leseaufgabe
 hat optional weitere 0–2 Punkte mit denselben Beleg-/Grenzkriterien und verändert
-die Basisrubrik nicht. Es wird keine
+die Basisrubrik nicht. E1, E2 und E3 werden zusätzlich jeweils getrennt mit optionalen
+0–2 Punkten nach denselben Beleg-/Grenzkriterien bewertet (zusammen höchstens sechs
+weitere optionale Punkte). Keine dieser Ergänzungen verändert die acht Basisaufgaben,
+deren 16 Punkte oder die separate RES-008-Rubrik. Es wird keine
 Bestehensschwelle oder Kompetenzzertifizierung aus ungetestetem Material abgeleitet.
 Eine Verwechslung von Fixture und Live-Inferenz, Policy und SQL-Rechten oder
 Cleanupsummary und tatsächlicher DB-Abwesenheit wird vor der Freigabe weiterer
@@ -249,7 +368,9 @@ Cleanupsummary und tatsächlicher DB-Abwesenheit wird vor der Freigabe weiterer
 
 ## Offene Erweiterungen
 
-Live-Modellintegration, echte Credential-/TLS-/Egressfälle, CON-010-Tenants,
+Die drei neuen Leseaufgaben behandeln begrenzte lokale Komponenten, keine
+praktische Erweiterung der acht Basisdemos. Vollständige Live-Modellintegration,
+echte Credential-/TLS-/Egressfälle, öffentliche authentifizierte CON-010-Tenants,
 IDX-011/IDX-012-ANN, Performance-/Kostenmessung und vollständige Kursprofile gehören
 nicht zur Abnahme dieser acht Übungen. Aktuelle FAIL-/Freigabegrenzen stehen im
 [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md).
@@ -260,5 +381,8 @@ und weitere Teilnachweise im aktuellen Ausführungsstand; historische FAILs werd
 dadurch nicht gelöscht. Die Aufgaben lockern weder CL170 noch die offenen
 Versions-/Provider-/Gesamtabnahmegates. RES-008 ergänzt nur die oben begrenzte
 Ergebnisinterpretation; vollständige Performance-/Modellabnahme bleibt offen.
-Masterdeck, Speaker Notes, Render-/Office-Prüfung und tatsächliche Generalprobe
-bleiben offene Teile von TSK-012/TSK-014.
+Das [61-Folien-KI-Deck und seine editierbaren Sprechernotizen](../../Presentations/AI_SQL_Server_2025/README.md)
+besitzen dokumentierte vollständige Render-/Einzelbild- und native PowerPoint-
+Prüfung. Teilnehmererprobung, gemessene Lehrzeiten, vollständige Lehrpfadabnahme
+und tatsächliche Generalprobe bleiben offen. Diese Leseaufgaben erzeugen keine
+neue Deck-/Office-/SQL-/Modellprüfung.
