@@ -1,5 +1,28 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: Engine-/CL-/Client-Lesehilfe nach vollständigem PR226-Abschluss
+
+PR226 vollständig geschlossen (10Head/8Main/Runtime, Tree/FF/Branches, gesicherte
+Belege/eigenerWorktree). Der unmittelbar folgende
+[Dokumentschnitt](SQL_SERVER_2025_AI_VECTOR_COMPATIBILITY_REVIEW.md) verbessert
+den Einstieg anhand dreier Grenzen und dreier Fälle. Zwei Textkandidaten,
+15 lokale Links/Produktprivacy2/enger Root-Aussageabgleich PASS; abschließende
+Sechs-Dateien-Privacy und aktuelle PR-/Main-/Tree-/FF-/Cleanupgates vor Integration.
+Keine neuen SQL-/CLR-/Provider-/Modell-/Containerproben oder Installationen.
+Native Binärbindung/float16/volleTSK004 offen; Pool-UNKNOWNwelle bleibt gestoppt.
+
+
+## TSK-004: unabhaengiger Engine-/CL-/Client-Dokumentschnitt vorbereitet
+
+Der [begrenzte Abgleich](SQL_SERVER_2025_AI_VECTOR_COMPATIBILITY_REVIEW.md)
+trennt Serverbuild, Compatibility Level und Clienttransport fuer den Einstieg.
+Eigener Worktree/Sourcevorbereitung waehrend PR226-CIgates, Publikation erst nach
+vollstaendigem PR226-/Tree-/FF-/Cleanupabschluss. Vorhandene Primaerquellen und
+bestandene enge Teilnachweise; keine neue SQL-/CLR-/Provider-/Modell-/Containerprobe
+oder Treiberinstallation, kein Reset der Pool-UNKNOWNwelle. 6/CP3/hard6 reine
+Textkandidaten; native binaere Treiberbindung/float16/volleTSK004 offen.
+
+
 ## TSK-009: korrigierter öffentlicher Pool-Sourceabschluss vor Integration
 
 Der [öffentliche Pool-Schnitt](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md) ist

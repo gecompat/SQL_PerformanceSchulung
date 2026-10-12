@@ -53,6 +53,25 @@ keine Zusicherung für jede Unterfunktion, Bibliothek oder künftige Revision.
 Keine native allgemeine Chat-/Completion-Funktion wird aus `MODEL_TYPE=EMBEDDINGS` abgeleitet.
 Die generative RAG-Stufe liegt in der Anwendung.
 
+### Engine, CL und Client: begrenzter Abgleich vom 2026-10-13
+
+Für diesen Abschnitt wurden die bestehenden Primärquellen SRC-072 und SRC-079
+am 2026-10-13 erneut geprüft. Der allgemeine Prüfstand dieser Matrix bleibt
+2026-10-11; daraus folgt keine erneute Prüfung aller übrigen Quellen.
+
+| Grenze | Dokumentiert | Im Projekt tatsächlich beobachtet / offen |
+|---|---|---|
+| Engine | VECTOR gehört zu SQL Server 2025 / 17.x. Ein Client oder ein höherer CL ergänzt die Funktion nicht in einer älteren Engine (SRC-072). | Der [Providerteilnachweis](../Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bindet konkrete Builds; 15.x/16.x endeten vor Setup mit Versions-SKIPs. Das ist kein Test nativer VECTOR-Verarbeitung dieser älteren Engines. |
+| Compatibility Level | Der VECTOR-Typ ist unter allen CLs verfügbar; AI_GENERATE_CHUNKS verlangt mindestens CL 170 (SRC-072/079). | Die [CL-Istwertqualifikation](../Project_Planning/SQL_SERVER_2025_AI_CL_RESULT_REVIEW.md) bestand auf 17.0.5005.3 mit float32-Skalaren bei CL 150/160/170. Der feste Chunkaufruf lieferte bei CL 150/160 Error 102 und bei CL 170 beide vollständigen Rows. Error 102 bleibt OBSERVED_OTHER_ERROR_NO_AVAILABILITY_CLAIM; keine allgemeine Low-CL-Freigabe. |
+| Clienttransport | Native binäre Übertragung benötigt den dokumentierten TDS-/Treiberpfad: TDS 7.4 oder höher und einen unterstützenden Treiber; Microsoft.Data.SqlClient 6.1 dokumentiert SqlVector für float32. Der dokumentierte Abwärtspfad für ältere Clients verwendet VARCHAR(MAX)/JSON (SRC-072). | Der [Corpus-SQL-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md) prüfte alle Koordinaten über JSON sowie vollständige Cosine-Ergebnisse. Native binäre Treiberbindung ist hier empirisch UNQUALIFIED; JSON ist kein Nachweis identischer physischer VECTORbits. |
+
+Dokumentierte Treiberunterstützung bedeutet nicht, dass die konkrete Anwendung
+bereits qualifiziert wurde. Umgekehrt bedeutet der offene Binärtransportnachweis
+keine pauschale Inkompatibilität älterer Clients. Öffentliche Demoprofile bleiben
+CL 170; float16, andere Builds/Editionen und die vollständige TSK-004-Abnahme bleiben
+offen. Eine verständliche Entscheidungshilfe mit drei Fällen steht im
+[Engine-/CL-/Client-Guide](../HowTo/SQL_SERVER_2025_AI_VECTOR_COMPATIBILITY.md).
+
 ## 3. Präzise T-SQL-Formen als Planungsbeispiele
 
 Eigenständige Beispiele; nicht ausgeführt und kein Demo-Setup. Die Tabellen-/Modellnamen
