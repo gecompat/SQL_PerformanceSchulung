@@ -715,3 +715,12 @@ fünf A/B/A/B/A-Aufnahmen, PK 18 Used/33 Reserved Pages, zusätzlicher Candidate
 in B 17/33. Abwesender Candidate bleibt Abwesenheit; keine Umdeutung in gemessene
 Null oder vollständigen DB-/Datei-/RAM-/Log-/Nettonutzenclaim. Anschließend
 öffentlichen getrennten Kostenrecord-/Aggregationsvertrag vorbereiten.
+
+Der [öffentliche reine Kostenrecordvertrag](SQL_SERVER_2025_AI_DGN010_COST_CONTRACT.md)
+bindet anschließend TSK-011/CUR-021 an die beiden bestehenden Vollrecords, null
+neue SQLcalls/Container. 15 synthetische Methoden und enger unabhängiger
+Quellenabschluss nach drei geschlossenen P2; volle siebenstellige UTC-Ordnung,
+nullable Typbindung und Statekontinuität. Beide Samples/Nullen/exakte Mediane und
+A/B/A/B/A-Allokationen bleiben getrennt. Numerische Recordvalidierung ist keine
+Runtime-/TP-PERF-/Worker-/Nettonutzenqualifikation. DGN-010 PROPOSED und öffentlicher
+Producer WARN; unmittelbar nach Integration begrenzte Produceranbindung vorbereiten.

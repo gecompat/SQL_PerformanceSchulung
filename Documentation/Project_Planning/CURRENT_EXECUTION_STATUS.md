@@ -3300,3 +3300,25 @@ keine vollständige Datei-/RAM-/Log-/Nutzdatenmessung oder Nettonutzenqualifikat
 Quelle/Record/DDL-/Cleanupbelege unverändert; kein weiteres Review derselben
 geprüften Nativequellen. Aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen,
 danach öffentlicher getrennt begrenzter Kostenrecord-/Aggregationsvertrag.
+
+## DGN-010: öffentlicher reiner Kostenrecordvertrag
+
+PR206 ist vollständig abgeschlossen: main 5c5c2596f54db93b33229fe3c99bf98881500a4b,
+sieben Head-/fünf Main-Workflows PASS, ganzer Tree gleich, FF-main sauber und
+eigener lokaler/Remote-Branch entfernt. Unmittelbare Folge auf
+`codex/sql2025-ai-dgn010-cost-records`: [öffentlicher numerischer Vertrag](SQL_SERVER_2025_AI_DGN010_COST_CONTRACT.md),
+sechs Kandidaten/Checkpoint3/hard6, keine neuen SQLcalls oder Container.
+
+15 synthetische Gegenproben bestanden. Enger unabhängiger Review meldete drei P2,
+anschließend geschlossen: siebte datetime2(7)-Stelle, nullable Typbindung und volle
+Statekontinuität zwischen Fenstern. Zwei vorhandene exakt hashgebundene Native-
+Vollrecords mit separat gebundenen Caller-DBID-Frames rein neu geprüft: acht
+DDL-Fenster, 16000 Source-/20000 State-Rows. Nativequellen und frühere tatsächliche
+Negativ-/Cleanupbelege bleiben unverändert; keine unveränderte grüne Wiederholung.
+
+Alle beiden Samples/Nullen/exakte Mediane und fünf A/B/A/B/A-Allokationen je Profil
+erhalten. Numerischer PASS attestiert keine bloßen Controllerflags; öffentliche
+Producer WARN/DGN-010 PROPOSED, Runtime/TP-PERF/Worker/Nettonutzen NOT_ESTABLISHED.
+Nur zwei neue Workflowtrigger/ein reiner statischer Schritt, Runtimeauswahl am
+tatsächlichen Head/Main False erforderlich. Aktuelle PR-/Head-/Main-/Tree-/FF-/
+Ownbranchgates folgen; danach öffentliche begrenzte Producerintegration.
