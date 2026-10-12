@@ -709,3 +709,9 @@ Native C1 bestand zweimal: acht vollständige DDL-Fenster, 16000 Source-Rows,
 20000 Vollstate-Rows, vier echte Negativen und vollständiger eigener DB-/
 Containerabbau. Alle beobachteten Zahlen bleiben getrennt gebunden; allgemeine
 Kosten, Worker/Commit/Nettonutzen und vollständige TP-PERF-Abnahme offen.
+Die reine [Indexseitenfolgefrage](SQL_SERVER_2025_AI_DGN010_INDEX_PAGES_REVIEW.md)
+nutzt exakt dieselben gebundenen Native-Vollrecords ohne neue SQLcalls: je Profil
+fünf A/B/A/B/A-Aufnahmen, PK 18 Used/33 Reserved Pages, zusätzlicher Candidate
+in B 17/33. Abwesender Candidate bleibt Abwesenheit; keine Umdeutung in gemessene
+Null oder vollständigen DB-/Datei-/RAM-/Log-/Nettonutzenclaim. Anschließend
+öffentlichen getrennten Kostenrecord-/Aggregationsvertrag vorbereiten.
