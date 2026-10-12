@@ -91,7 +91,7 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(p.client._private_environment(SECRETS)['SQLCMDPASSWORD'],SECRETS[0])
     def test_namespace_known_failure_captures_actual_channels_before_semantics(self):
         q=self.producer();q.cli='PURE_FAKE_PODMAN'
-        command=['PURE_FAKE_PODMAN','ps','-a'];response=p.subprocess.CompletedProcess(command,125,'','synthetic-configuration-error')
+        command=['PURE_FAKE_PODMAN','ps','--no-trunc','-a'];response=p.subprocess.CompletedProcess(command,125,'','synthetic-configuration-error')
         with patch.object(p.subprocess,'run',return_value=response),self.assertRaises(p.Failure):q.podman(['ps','--no-trunc','-a'],3)
         self.assertFalse(q.unknown);self.assertEqual(q.create_attempts,0)
         self.assertEqual(q.namespace_calls[0]['Command'],command);self.assertEqual(q.namespace_calls[0]['ReturnCode'],125);self.assertEqual(q.namespace_calls[0]['Stderr'],'synthetic-configuration-error');self.assertEqual(q.namespace_calls[0]['ProcessEnd'],'SUBPROCESS_RUN_RETURNED')

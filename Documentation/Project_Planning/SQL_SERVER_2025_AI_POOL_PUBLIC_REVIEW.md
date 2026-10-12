@@ -151,3 +151,12 @@ neue RED-/SQL-/CLR-/Providerausfuehrung durch diese Tests. Runtime-Abschnitt und
 Selector bleiben unveraendert; aktuelle Head-/Main-Gates bleiben Pflicht. Die alte
 CI-Staticabnahme deckte die neuen Methoden nicht ab und ist kein Ersatz fuer den
 neuen Head. Privacy der zwoelf betroffenen Pfade wird aktuell geprueft.
+
+## Erster reiner CI-Fail und enge Fixturekorrektur
+
+Head702ba10: neue normale 25er-Suite 24PASS/1FAIL, anschliessende Runtime SKIP.
+Im bekannten Fehlerruecklauf-Test erwartete das Fixtureargv noch ps/-a statt
+des bereits tatsaechlichen ps/--no-trunc/-a. Nur dieses Expectedliteral korrigiert;
+genau betroffener Fall lokal normal/-O PASS mit originalen Rawkanal-SHAs.
+Produktquellen unveraendert, keine lokale25er-Wiederholung. Historischer CI-Fail
+bleibt erhalten; neue aktuelle Head-/Main-Gates vor Integration Pflicht.
