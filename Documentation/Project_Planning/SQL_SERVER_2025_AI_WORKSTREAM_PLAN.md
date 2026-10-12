@@ -563,3 +563,14 @@ Negativkontrollen/Restore, 22000 Source-Rows/vier Ownerpläne und eigener Cleanu
 sind gebunden. Kein Index-abwesend/vorhanden-Nettonutzen, isolierte Query-/DML-/
 vollständige Workerkosten oder volle TP-PERF-/Modulabnahme; DGN-010 PROPOSED.
 Nächster begrenzter Schritt ergänzt DML-/Effektseparation.
+
+
+Die [private DGN-010-DML-Effektseparation](SQL_SERVER_2025_AI_INDEX_DML_REVIEW.md)
+ergänzt TSK-011/CUR-021 zweimal zehn Warmups/18 AB-/BA-/AA-Fenster mit je 1810
+tatsächlichen UPDATEs/18100 vollständigen OUTPUT-Rowkontrollen. A ohne/B mit
+Candidateindex, vier tatsächliche Build-/Dropzyklen je Profil außerhalb Messung,
+92000 Source-Rows und eigener Rollback-/Negativ-/Cleanupnachweis gebunden.
+UTC-/Requestgrenzen enthalten OUTPUT-/Transaktions-/Rollbackaufwand. Ungezwungener
+SELECTvergleich ohne/mit Index, Nettonutzen, isolierte Index-/Commit-/vollständige
+Workerkosten, öffentliche FWK-/Versions-/Recoveryqualifikation und vollständige
+TP-PERF-/Modulabnahme bleiben offen; DGN-010 PROPOSED.

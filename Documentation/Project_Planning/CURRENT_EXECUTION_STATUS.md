@@ -2652,3 +2652,34 @@ Isolierte Index-/Query-/vollständige Worker-/DMLkosten, ältere Engines, öffen
 Paket und vollständige TP-PERF-/TSK-011-/Modulabnahme offen; DGN-010 PROPOSED.
 Allgemeine Entwicklung/DGN-007 pausiert; keine Cloud-/Modell-/ONNX-/roten
 Hosteffekte oder andere Repositoryänderung. Verbrauch unbekannt, Heartbeat aktiv.
+
+
+## DGN-010: begrenzte private DML-Effektseparation
+
+PR192 vollständig abgeschlossen: Head 003bad4017233091f560752e93d2420b00c2f764, sieben Head-Workflows PASS;
+Squash 2bef37419d9399cb5fc49658592de351b16815e5, fünf Main-Workflows PASS; ganzer Tree a6dc9110a041c9c8be37c64aa9f41959e5efec81 exakt übernommen,
+main FF/sauber und eigener lokaler/Remote-Branch entfernt. Unmittelbar TSK-011/
+CUR-021 im Branch codex/sql2025-ai-dgn010-dml fortgesetzt.
+
+[Gebundene Owner-DML-Batchmessung](SQL_SERVER_2025_AI_INDEX_DML_REVIEW.md):
+C1 zweimal mit je zehn Warmups/18 seriellen AB-/BA-/AA-Fenstern und 1810 tatsächlichen
+UPDATEs/18100 vollständigen OUTPUT-Rowkontrollen bestanden. A ohne/B mit Candidateindex;
+vier Build-/Dropzyklen je Profil außerhalb Messfenster, 46 vollständige Source-/
+Config-/Reader-/Indexaufnahmen. Value=Id×3+Ordinal während eigener Transaktion,
+tatsächlicher Rollback und voller unveränderter Source-Nachbestand; Source-/OUTPUT-
+51003-Gegenproben/Restore/Idempotenz und vollständiger eigener Cleanup bestanden.
+
+92000 Source-Rows/58 positive Fensterframes/vier native Negative exakt gebunden.
+Sechs AB/BA-Samples pro Indexzustand, drei AA-Paare separat. Requestdeltas und
+UTC-Batchgrenzen einschließlich OUTPUT-/Transaktions-/Rollbackaufwand sichtbar;
+keine isolierten Index-/Commit-/vollständigen Workerkosten. Enger unabhängiger
+Quellenabschluss ohne offene P1/P2, acht reine Methoden PASS; Reviewer ohne
+Tests/Runtime, keine Reviewkette oder Wiederholung früherer grüner Nativeruns.
+
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. Danach begrenzter ungezwungener SELECTvergleich ohne/mit Index.
+Nettonutzen, weitere Kosten, öffentliche FWK-/Versions-/Recoveryqualifikation und
+vollständige TP-PERF-/TSK-011-/Modulabnahme offen; DGN-010 PROPOSED.
+Sechs kohärente Kandidaten je Schnitt autorisiert, historische FAILs erhalten.
+Allgemeine Entwicklung/DGN-007 pausiert; keine Cloud-/Modell-/ONNX-/roten
+Hosteffekte oder andere Repositoryänderung. Verbrauch unbekannt, Heartbeat aktiv.
