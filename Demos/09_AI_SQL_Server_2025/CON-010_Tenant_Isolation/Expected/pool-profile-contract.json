@@ -1,0 +1,34 @@
+{
+  "contract": "CON010_POOLPUBLIC_V2",
+  "stage": "SOURCE_PREPARATION_ONLY",
+  "database": "SQLPERF_LAB_CON010_POOLPUBLIC",
+  "run_token": "POOLPUBLIC",
+  "order": [
+    "A",
+    "B",
+    "U",
+    "A",
+    "B",
+    "U"
+  ],
+  "rows": 2,
+  "dimensions": 3,
+  "logins": 3,
+  "dotnet_records": 57,
+  "physical_connections": 3,
+  "client_guid_equality": "NOT_AN_ORACLE",
+  "tds_request_attestation": "NOT_ESTABLISHED",
+  "runtime_generalization": "NOT_ESTABLISHED",
+  "tp_con": "NOT_ESTABLISHED",
+  "input_digest_scope": "CLIENT_INPUT_FILE_UTF8_BEFORE_SQLCMD_ENV_EXPANSION",
+  "collector_configured_wait_headroom_seconds": 26,
+  "namespace_cleanup_caps_seconds": [
+    3,
+    3,
+    8,
+    3,
+    3
+  ],
+  "namespace_cleanup_reserve_seconds": 20,
+  "wallclock_guarantee": "NO_WALLCLOCK_GUARANTEE"
+}
