@@ -46,6 +46,14 @@ schließt lokal 192 Marker-/32 Resultabweisungen, tatsächliche Mutationsattesta
 Setupidempotenz, Versions-SKIPs und eigenen Cleanup. Aktuelle PR-/Main-Gates,
 Pooling, Serverlogins, ANN und Seitenkanäle bleiben getrennte Grenzen.
 
+PR 184 ist vollständig integriert; aktuelle Head-/Main-Gates, Treeübernahme,
+Synchronisierung und eigener Branchcleanup sind abgeschlossen.
+Die [private RES-008-Vorbereitung](SQL_SERVER_2025_AI_RESOURCE_DIMENSION_REVIEW.md)
+belegt danach zwei stabile Quellen-/Dimensions-/Storage-Lifecycles für vier
+kleine float32-Populationen einschließlich tatsächlicher negativer Quellenkontrolle
+und vollständigem eigenem Cleanup. C1 bleibt FAIL; C2 korrigierte nur das Oracle.
+RES-008 bleibt PROPOSED, TSK-010 und Performance-/TP-PERF-Abnahme bleiben offen.
+
 ## 1. Zielbild und Abgrenzung
 
 Teilnehmende sollen KI-Funktionen technisch korrekt einsetzen, ihre Rechte begrenzen,

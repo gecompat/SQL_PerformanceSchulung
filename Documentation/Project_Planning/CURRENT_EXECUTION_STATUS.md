@@ -2394,3 +2394,34 @@ keine weitere unveränderte grüne Wiederholung. Enger C4-Review geschlossen,
 elf öffentliche Runner-/sieben private Endstatustests PASS. Aktuelle C4-
 Head-/Main-Gates/Integration/FF-Sync/eigener Branchcleanup erforderlich; danach
 unmittelbar RES-008-Vorschnitt. Kein TSK-009-/Pooling-/Provider-Gesamtabschluss.
+
+
+## RES-008: private Dimensions- und Storagevorbereitung
+
+PR 184 vollständig abgeschlossen: Head 7f37469c0b83ae36618cd26b5b12133930b8c78b
+mit 49 erfolgreichen Checks/13 ausgewählten Workflows, Squash
+84aef7016cc86194281805adc29ae9bc15fcec2f mit elf erfolgreichen Main-Workflows.
+Vollständiger Tree 1418d4f9f9786dba176759d499ed53a19db11423 gleich übernommen;
+lokales main FF-synchronisiert, sauber, eigener lokaler/Remote-Branch entfernt.
+Die vorstehenden C2-/C3-CI-FAILs bleiben historische Befunde ihrer Heads.
+
+Unmittelbar folgte codex/sql2025-ai-res008-preparation auf dieser Main-Basis.
+TSK-010/CUR-020, RES-008 weiterhin PROPOSED. Sechs Kandidaten/maximal zwölf
+eigene serielle Container; ein Owner, enger unabhängiger Quellenreview und
+C2-Deltaclosure vor Admission. C1 nach Setup FAIL/8124 an äußerer Referenz in
+Komponentenaggregat, tatsächlicher SQL-/DB-/Containercleanup bestanden.
+C2 änderte nur vier Oracleprüfstellen; zwei vollständige Lifecycles bestanden.
+Je drei vollständige Aufnahmen aller 400 Rows in vier float32-Dimensionen,
+Storage/Metadaten/vier Suchkontrollen, Setupidempotenz, tatsächliche DELETE-
+Quellengegenprobe mit exakt 51003 und vollständiger Restore bestanden.
+DB-Optionen 0/0 erhalten; Cleanup aller drei DBs/Container unabhängig belegt,
+bekanntes natives Ende und dieselbe 60-s-Deadline ohne Reset. Private Ledger,
+Sourcebytes und Rohlogs bleiben ignoriert; keine weitere grüne Wiederholung.
+
+[Gebundener Teilnachweis](SQL_SERVER_2025_AI_RESOURCE_DIMENSION_REVIEW.md).
+Aktuelle Head-/Main-Gates, PR-Merge, vollständige Treeübernahme, FF-Sync und
+eigener Branchcleanup folgen vor Abschluss. CPU/Elapsed/Memory/Plans, AB/BA/AA,
+Loader/Modellqualität, ältere Engines und öffentliche Demo-/TP-PERF-Abnahme
+bleiben offen. Nächster zulässiger lokaler Schritt nach vollständiger Integration:
+RES-008-Messmethodenerweiterung. Kein Workstream-Gesamtabschluss; Heartbeat aktiv,
+Cloud-/ONNX-/rote Hostgrenzen unverändert, Modell-/Tokenverbrauch unbekannt.
