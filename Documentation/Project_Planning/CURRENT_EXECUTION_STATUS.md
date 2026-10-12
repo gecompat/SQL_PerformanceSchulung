@@ -3412,3 +3412,27 @@ Begrenzte öffentliche Kosten-/Versions-/Setuprecoveryqualifikation PASS; tatsä
 Producer WARN/DGN-010 PROPOSED. Runtime/TP-PERF/Worker/Commit/Nettonutzen/Lehrpfade/
 Modulabnahme bleiben offen. Aktuelle Head-/Main-/PR-/Tree-/FF-/Ownbranchgates folgen;
 danach nächste unabhängige offene Kosten-/Lehrpfadfrage, keine grünen Wiederholungen.
+
+## TSK-012: konkrete Teaching Paths zum erweiterten Einsteigerdeck
+
+PR210 vollständig abgeschlossen: main 658ed3be28e8c349e5270a0a2c98cc32cfaaf264,
+sieben Head-/fünf Main-Workflows PASS, tatsächliche Runtimeauswahl False, ganzer
+Tree gleich, FF-main sauber und eigener lokaler/Remote-Branch entfernt. Alle
+sieben eigenen Cost-Nativecontainer/Inputs abwesend. Unmittelbare unabhängige
+Fortsetzung auf `codex/sql2025-ai-beginner-teaching-paths`:
+[konkrete Teaching Paths](../HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md) für61Folien.
+
+Gemeinsamer90-Minuten-Einstieg: bekannte Quelle/SELECT, einzelne KI-Begriffe,
+Version/Client/CL/Lab/Rechte, geometrische Vorhersage/SQL/Ergebnis, echte Modell-
+hürden und Quelle/Antwort/Nichtantwort. BASIS240brutto/210netto/30Pause,
+STANDARD480/420/60 mit allen acht Offlineaufgaben, VERTIEFUNG960/840/120 über
+zwei Tage mit abgegrenzten Beleglese-/Entwurfsaufgaben. Aktuelle kanonische
+Fenster ersetzen alte150/390/640 als neue Unterrichtsplanung; historische
+Modulgewichte bleiben erhalten. Foliennummern aus tatsächlicher Masterquelle.
+
+Alle Zeiten ungemessene Planwerte, keine tatsächliche Teilnehmer-/Generalprobe.
+Lösungen/Rubrik ausschließlich im bestehenden Arbeitsheft, keine neue Bewertung
+oder Liveausführungsfreigabe. Kein neues PPTX/Render/Office-/SQL-/Providerprofil.
+Lehrpfad-Praxis/Freigaben/volle TP-PERF-/Modulabnahme und TSK012/014 bleiben offen.
+Kleine reine Planung: ein Owner, keine zusätzliche Reviewkette; aktuelle lokale
+Summen-/Link-/Material-/Privacy- und Head-/Main-/PR-/Tree-/FF-/Ownbranchgates folgen.

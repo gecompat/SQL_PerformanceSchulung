@@ -42,6 +42,16 @@ IMPLEMENTED-Demos und neun PROPOSED-Entwürfe sind ausdrücklich getrennt.
 Die vorgeschlagenen Lehrzeiten sind nicht erprobt. Vollständige Lehrpfad-,
 TP-PERF-, Teilnehmer- und Generalprobenabnahme stehen weiterhin aus.
 
+Die [konkreten Teaching Paths](../../Documentation/HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md)
+planen90 Netto-Minuten für den gemeinsamen Einstieg. Die aktuellen kanonischen
+Bruttofenster betragen vier Stunden für BASIS, einen Unterrichtstag für STANDARD
+und zwei Tage für VERTIEFUNG; Pausen und Nettolehrzeit sind getrennt.
+STANDARD enthält den vorbereiteten Offlinekern mit acht Arbeitsheftaufgaben.
+Offene Live-/Provider-/Performancepfade bleiben gesonderte Erweiterungen.
+Die frühere Modulschätzung wird nur als Planhistorie erhalten; alle neuen Zeiten
+brauchen eine tatsächliche Generalprobe. Deck/PPTX und seine bisherigen Prüfnachweise
+werden durch diese reine Ablaufplanung nicht neu erzeugt.
+
 Demoaufrufe setzen den [Ausführungsleitfaden](../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md)
 voraus. Eine eigene dedizierte Labinstanz, aktuelle Preflight-Ergebnisse und
 markergebundenes Cleanup sind verbindlich. SQL-Authentifizierung verwendet
