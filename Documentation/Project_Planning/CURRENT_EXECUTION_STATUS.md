@@ -2817,3 +2817,85 @@ folgen vor Abschluss. Danach native Marker-Manipulationsqualifikation desselben
 öffentlichen Pakets. Allgemeine Entwicklung/DGN-007/andere Automationen pausiert;
 keine Provider-/roten Hosteffekte oder andere Repositoryänderung, Verbrauch unbekannt,
 Heartbeat aktiv.
+
+
+## DGN-010: PR196 geschlossen, begrenzte Markerqualifikation
+
+Stand: 2026-10-12, TSK-011/CUR-021; DGN-010 bleibt PROPOSED.
+Der [öffentliche Producer](SQL_SERVER_2025_AI_DGN010_PUBLIC_REVIEW.md) ist über
+[PR 196](https://github.com/gecompat/SQL_PerformanceSchulung/pull/196) vollständig
+integriert. Zehn Head- und acht Main-Workflows bestanden einschließlich tatsächlicher
+Consumer-Matrix auf drei Engineversionen. Head 6d9ac26f69ac76f46ade8a094acb8225ce64e7b1,
+Main 324c8ba21df182dddeb30c76e4947a793b84b022, ganzer Tree
+224dce4178d6d28340657dbdab41c9aa9ffefb88 exakt übernommen; FF-Synchronisierung,
+eigener lokaler und Remote-Branchcleanup abgeschlossen. Historischer C1-Editions-FAIL,
+Gesamt-WARN und NOT_ESTABLISHED bleiben erhalten.
+
+
+Vor Admission gilt der [kanonische Markerschnitt](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md): sechs Quellenkandidaten/maximal zwölf eigene lokale Container, zwei stabile vollständige Lifecycles, je 192 Nativeabweisungen/24 Restores und volle Source-/Metadatenvergleiche. Enger Review und neun reine Gegenfallmethoden abgeschlossen; noch kein nativer Marker-PASS. 300+60-Sekundenfloors, sticky UNKNOWN, CI-Aufwandgrenze und dreier Wave-Checkpoint im Teilvertrag. Danach tatsächliche Readerplan-/Indexnutzungsfrage. Workstream/Heartbeat aktiv; alle alten FAIL-/Provider-/TP-PERF-Grenzen bleiben sichtbar.
+
+C1 der Markerqualifikation ist nach tatsächlichem PASS-Setup vor Markerprobe mit
+FAIL geschlossen: die Auswertung wies den einzelnen normalen USE-Infoframe ab.
+Eigenes SQLcleanup und neue DB-/CID-/Namensabwesenheit tatsächlich bestanden,
+kein UNKNOWN; geschlossener Fehler bleibt im selben Sechserledger. C2 erlaubt
+nur den exakten positiven Setupinfoframe, elf reine Methoden einschließlich
+gemischter Fehlermeldungsabwehr PASS; enger Deltaabschluss und danach neue
+native Admission gemäß [Teilnachweis](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md#tatsächlicher-c1-fail-und-gebundener-c2).
+
+C2 der Markerqualifikation ist bei der ersten vollständigen Snapshotabfrage mit
+Msg 8114 geschlossen FAIL: pauschale bigint-Konvertierung eines tatsächlichen
+nvarchar-Konfigwerts. Source-/Readerprobe sowie eigener SQLcleanup und neue
+DB-/CID-/Namensabwesenheiten bestanden; keine Markerprobe/kein UNKNOWN. C3 erhält
+Typ und vollständige primäre/sekundäre Konfigbytes statt Zahlannahme, neuer reiner
+Typ-/Byte-/NULLgegenfall PASS, alte grüne Fälle nicht wiederholt. Enger Deltaabschluss
+und neue NativeAdmission, danach dreier Wave-Checkpoint gemäß
+[Teilnachweis](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md#tatsächlicher-c2-fail-und-gebundener-c3).
+
+Dreier Wave-Checkpoint: C3-FAIL nach tatsächlichem vollständigem Snapshot mit
+1000 Rows/41 Configs, fehlender Key für die tatsächlich leere Rollenliste.
+Alle drei Kandidaten einschließlich eigener DB/CID/Name vollständig geschlossen,
+kein UNKNOWN; Fehlerhistorie bleibt erhalten. C4 erhält [] ausdrücklich und
+transportiert vollständige Snapshotbytes als begrenzte UTF-16-Hexframes. 13 reine
+Codec-/Controllerfälle bestanden wegen geändertem Codec, enger Capture-Deltaabschluss
+vor neuer NativeAdmission. Drei weitere Quellenkandidaten bleiben autorisiert,
+kein Reset; [Checkpoint](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md#dreier-wave-checkpoint-c3-fail-und-gebundener-c4).
+
+
+## DGN-010: C4-Markerqualifikation tatsächlich bestanden
+
+[Teilnachweis](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md#tatsächlicher-c4-nachweis-und-wave-checkpoint).
+
+Der stabile C4 bestand zwei neue eigene vollständige SQL-17.0.5005.3-Lifecycles,
+Tokens 51335850D04844FA/02B1C9C49BF649B8. 982 tatsächliche Nativecalls; je 192 einzelne echte vollständige
+51004/FAIL_STATE-Abweisungen über vier Marker/sechs Abweichungen/acht Phasen,
+24 an die tatsächliche Abweichung gebundene vollständige Restores und eigene
+Source-/Readerprobe vor/nach der Matrix. Keine akzeptierte fremde Fixture.
+
+384 tatsächliche Negativframes, 482 vollständige Stateaufnahmen mit 482000
+Id/Value/Payload-Rows und 4000 weitere Source-Proberows aus vier Nativeproben an
+Originalframes und ausgewählte Sourcehashes gebunden. Die vollständigen State-
+Aufnahmen erhalten alle DB-/Datei-/Config-/Objekt-/Index-/Spalten-/Reader-/Rechte-/
+Rollen-/Propertywerte; alle 192 Vergleiche je Profil unverändert, 24 vollständige
+Originalbaseline-Restores. Tatsächliche Text-Variantwerte inklusive vollständiger
+Bytes/Typ/NULL und tatsächlich leere Rollenliste aufgenommen. Keine Trunkierung,
+Byte-/Präfixverkürzung oder angenommene Defaults. Frisch unabhängige DB-ID und
+Versions-/Editionsframe attestiert. Regular 300/Gesamtrecovery 60 Sekunden erhalten.
+
+Alle fünf eigenen lokalen Container dieser Wave geschlossen, eigenes guarded
+SQLcleanup sowie neue DB-/CID-/Namensabwesenheiten bestanden; kein UNKNOWN.
+Die drei historischen C1/C2/C3-FAILs bleiben im selben Sechserledger erhalten.
+Vier von sechs Quellenkandidaten verwendet; zwei verbleiben, kein Reset und
+keine weiteren lokalen grünen Wiederholungen ohne neue Eingaben. Dreier-FAIL-
+Checkpoint und nun vollständiger C4-Ergebnischeckpoint dokumentiert.
+
+13 reine Codec-/Controllergegenfälle PASS; enger unabhängiger Marker-/Parent-/
+CI-/Captureabschluss jeweils nur für neue konkrete Risiken, keine Reviewkette.
+Echte native Markerqualifikation PASS als separater Sicherheitsclaim; öffentlicher
+SELECT-/DML-Producer bleibt Gesamt-WARN, volle Runtime-/TP-PERF-/Indexnettonutzen-
+Qualifikation NOT_ESTABLISHED, aktuelle Readerpläne/Indexnutzung weiterhin offen.
+Modell-/Tokenverbrauch unbekannt; keine Provider-/Host-/anderen Repositoryeffekte.
+
+Aktuelle Head-/Main-Gates mit tatsächlichem neuen Markerconsumer, PR/Integration,
+ganze Treeübernahme, FF-Synchronisierung und eigener lokaler/Remote-Branchcleanup
+folgen vor Abschluss. Danach separate tatsächliche Readerplan-/Indexnutzungsfrage;
+Workstream und Heartbeat bleiben aktiv.

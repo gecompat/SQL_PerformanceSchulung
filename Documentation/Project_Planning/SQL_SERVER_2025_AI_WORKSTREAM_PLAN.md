@@ -606,3 +606,9 @@ und unabhängige Abwesenheiten bestanden. Gesamt-WARN/NOT_ESTABLISHED, DGN-010
 PROPOSED; vollständige Marker-Manipulationsqualifikation und volle TP-PERF-/
 Indexnettonutzen-/Modulabnahme offen. Aktuelle Head-/Main-Gates vor Integration,
 unmittelbare Folge native Marker-Manipulationsqualifikation.
+
+
+PR196 vollständig geschlossen (Head zehn/Main acht Workflows samt tatsächlicher Matrix, ganzer Tree/FF-Sync/eigener Branchcleanup). Unmittelbar folgt die [begrenzte vollständige Markerqualifikation](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md): sechs Quellenkandidaten, zwölf eigene lokale Container, zwei stabile Lifecycles mit je 192 Nativeabweisungen und 24 Restores. Keine volle TP-PERF-Abnahme; DGN-010 PROPOSED. Nächste getrennte Frage tatsächliche Readerplan-/Indexnutzung.
+
+
+[Native Markerqualifikation](SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md) C4 zweimal vollständig bestanden: 384 echte 51004-Abweisungen, 482 volle Stateaufnahmen/482000 Rows, 48 Restores und eigener SQL-/DB-/CID-/Namenscleanup. Drei historische FAILs erhalten, alle fünf lokalen Container geschlossen; vier von sechs Quellenkandidaten, keine Budgeterneuerung. Frische Head-/Main-/Integrations-/Sync-/Branchcleanupgates vor Abschluss; danach eigene Readerplan-/Indexnutzungsfrage. DGN-010 bleibt PROPOSED/full-TP-PERF NOT_ESTABLISHED.

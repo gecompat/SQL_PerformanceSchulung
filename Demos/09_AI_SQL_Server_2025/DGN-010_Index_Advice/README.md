@@ -121,6 +121,20 @@ Ein beendeter lokaler Pythonproxy allein ist kein Remote-Endnachweis.
 Reine Record-/FWK-Gegenfälle: `python Tests/Static/test_dgn010_benchmark.py`.
 Controller-/Endstatusgegenfälle: `python Tests/Static/test_dgn010_profile.py`.
 Native Consumer: `python Tests/Runtime/run_dgn010_profile.py --container <eigener-wegwerfbarer-container> --expected-major 17`.
+Separate reine Marker-/Restore-/Framegegenfälle:
+`python Tests/Static/test_dgn010_marker_controls.py`.
+Separate native Markerqualifikation auf einer eigenen wegwerfbaren Instanz:
+`python Tests/Runtime/run_dgn010_marker_controls.py --container <eigener-wegwerfbarer-container> --expected-major 17`.
+Dieser feste Harness erzeugt nur die abwesende eigene DB, verändert jeden der
+vier Marker sechsfach und verlangt über acht guarded SQLphasen 192 tatsächliche
+51004-Abweisungen, vollständige unveränderte Source-/Metadatensnapshots sowie
+24 vollständig gebundene Restores und eigenes Cleanup. SQL2019/2022 liefern
+SKIP_VERSION vor Setup. Snapshotbytes werden vollständig als begrenzte
+UTF-16-Hexframes transportiert; leere Rollen und primäre/sekundäre Variantwerte
+einschließlich Typ/NULL bleiben erhalten. Ein mutierter Marker erlaubt nur die
+an genau diese eigene Abweichung gebundene Reparatur. UNKNOWN sperrt weitere SQL.
+Dieser Harness ist eine getrennte Abnahme des
+[Marker-Teilnachweises](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md).
 Zwei Lifecycles je Scope, erforderliche Versions-SKIPs und ein tatsächlicher
 Setupfault je unterstütztem Scope werden separat kontrolliert. Aktuelle CI
 prüft dieselben Profile. Ein Record-PASS ersetzt weder native Attestation noch
@@ -137,5 +151,13 @@ ordnet -2117995310 vor 2025 Developer und ab 2025 Developer Enterprise zu.
 Tabellevariable-OUTPUT bleibt nach Rollback erhalten; der Sourcezustand wird
 unabhängig vollständig geprüft. Insert-/Commit-/Buildkosten, vollständige
 Readerpläne, größerer Datenumfang und voller Indexnettonutzen bleiben offen.
-Separate vollständige native Marker-Manipulationsgegenproben und harte
-Unterbrechungen während DML/Build gehören nicht zum Claim dieses begrenzten Producers.
+Die separate Markerqualifikation erweitert ausschließlich den Sicherheitsnachweis.
+Harte Unterbrechungen während DML/Build gehören nicht zum Claim dieses begrenzten
+Producers; vollständige Runtime-/TP-PERF-Abnahme bleibt NOT_ESTABLISHED.
+
+
+Die separate native Markerqualifikation bestand C4 zweimal mit 384 tatsächlichen
+Abweisungen, 482 vollständigen unveränderten Stateaufnahmen und 48 Restores,
+eigenem SQLcleanup und neu bestätigter DB-/CID-/Namensabwesenheit. C1/C2/C3-FAILs
+bleiben dokumentiert. Dieser Sicherheitsnachweis erweitert keine Performance-/
+Readerplan-/volle TP-PERF- oder IMPLEMENTED-Abnahme.
