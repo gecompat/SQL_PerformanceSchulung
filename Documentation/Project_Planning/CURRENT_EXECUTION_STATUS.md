@@ -2587,3 +2587,36 @@ bleiben offen. Danach unmittelbar nächste unabhängige kanonische Teilaufgabe;
 allgemeine Entwicklung/DGN-007 bleiben pausiert. Keine Cloud-/Modell-/ONNX-/roten
 Hosteffekte, kein anderes Repository verändert. Sechs kohärente Kandidaten je
 lokalem Schnitt autorisiert; Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.
+
+
+## DGN-010: begrenzte private Actual-Planqualifikation
+
+PR190 vollständig abgeschlossen: acht aktuelle Head-/sechs Main-Workflows PASS;
+Head 71aa155ad6e86fdd4490534e22969ddaf92f2089, Squash e7c407fe957245bcc83052ce266748fc19b1aa62,
+ganzer Tree 95c407b5d74cf93fd7db942731385732dcc9b738 exakt übernommen;
+main FF/sauber und eigener lokaler/Remote-Branch entfernt. Unmittelbar TSK-011/
+CUR-021 im Branch codex/sql2025-ai-dgn010-plans fortgesetzt.
+
+[Gebundener DGN-010-Ownerplannachweis](SQL_SERVER_2025_AI_INDEX_PLAN_REVIEW.md):
+C1 zweimal auf eigener fester 2025-Instanz bestanden, je acht vollständige 1000-Row-
+Sourceaufnahmen, tatsächliche DELETE-51003-Gegenprobe/Restore, feste Readerrechte
+und eigene Indexbuild-/Dropfolge. Sechs native Actual-Pläne/16000 Source-Rows exakt
+gegen private Records gebunden. Je drei vollständige zehn-Row-Ownerqueryresultate;
+Clustered Index Seek → eigener Candidate-Index Seek → Clustered Index Seek.
+17 zusätzliche used pages, keine Performancewiderlegung. Roher DOP0/erfasste echte
+Memorynullen getrennt von fehlenden Attributen, Waits/Warnings NOT_CAPTURED.
+
+Zwei konkrete P2 vor Admission geschlossen, fünf reine Methoden mit elf/neun/neun
+Gegenfällen bestanden; anfängliche reine Testtreiberfehler erhalten. Kein Reviewer-
+Test-/Runtime oder Reviewkette. Je 21 dokumentierte native Phasencalls und Marker-
+Cleanup mit unabhängiger DB-/Namens-/CID-Abwesenheit innerhalb 60 Sekunden bestanden.
+Ownerpläne qualifizieren keine Readerpläne/Minimalrollen; Reads/CPU/Elapsed, DMLkosten,
+AB/BA/AA/Effektseparation, ältere Engines, öffentliches Paket und volle TP-PERF-/
+TSK-011-/Modulabnahme offen. DGN-010 PROPOSED.
+
+Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. Danach nächste begrenzte kanonische DGN-010-Messaufgabe;
+keine unveränderte Wiederholung dieser grünen Pläne. Allgemeine Entwicklung/DGN-007
+pausiert; keine Cloud-/Modell-/ONNX-/roten Hosteffekte oder andere Repositoryänderung.
+Sechs kohärente Kandidaten je lokalem Schnitt autorisiert, Verbrauch unbekannt,
+Heartbeat aktiv.
