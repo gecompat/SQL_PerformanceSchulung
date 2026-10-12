@@ -1,5 +1,70 @@
 # Aktueller Ausführungsstand
 
+## TSK-009: korrigierter öffentlicher Pool-Sourceabschluss vor Integration
+
+Der [öffentliche Pool-Schnitt](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md) ist
+SOURCE_ONLY auf aktuellen15Sources:25neueMethoden über betroffene Prüfungen,
+zuletzt4normal/-O mit vollständigen Originalkanälen PASS; AST3/Privacy11/Rootreview
+geschlossen. APPDATA-only Namespaceumgebung, vollständige .ID-Abfragen,
+--time=0-Abbau und sticky mutatives UNKNOWN korrigiert.
+C1/C2FAIL/einContainer/0SQLcmd/0Poolchildren und getrenntes RecoveryUNKNOWN
+bleiben erhalten; frische ganze CID/Name/Inputs abwesend, keinC3. Native-/SQLcleanup-/
+TP-CON-Qualifikation NOT_ESTABLISHED. Aktueller PR-/Head-/Main-/Tree-/FF-/
+Branch-/Worktreeabschluss folgt; unabhängige autorisierte Arbeit geht weiter.
+
+
+## TSK-009: öffentliche Pool-Nativewelle nach UNKNOWN angehalten
+
+[Öffentliches opt-in RED-Poolprofil](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md):
+C1 FAIL vor Create, C2 FAIL nach einem eigenen Container an Podman-Feldcase,
+je null SQLcmd-/Poolchild-/Modellaufrufe. Root Resourcecleanup überschreitet den
+8s-Cap; Request-Ende UNKNOWN bleibt sticky. Frische tatsächliche vollständige
+CID-/Namens-/Inputabwesenheit bestätigt, kein zweiter rm/keine Folge-SQL.
+Nativewelle nach zwei Kandidaten/einem Container gestoppt, keine C3-Probe.
+Unabhängige reine Feldcase-/FullCID-/Abbau-/UNKNOWNkorrektur, betroffene Checks
+und PR-/Main-/Tree-/FF-/Cleanupintegration folgen. Öffentliche Runtimequalifikation
+und ursprünglicher SQL-/Profilcleanup NOT_ESTABLISHED; volle Abnahme bleibt offen.
+
+
+## TSK-009: öffentlicher Poolproducer C1 vor Create fehlgeschlagen
+
+Der [öffentliche opt-in RED-Poolproducer](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md)
+hat aktuelle Source-/Privacy-/Rootgates bestanden. C1 scheitert an der ersten
+Podman-Abfrage mit beschränkter CLIumgebung, vor Create/SQL/Poolchild: null neue
+Container/SQLcmd-/Modellaufrufe, kein UNKNOWN, tatsächliche neue Namensabwesenheit
+in separater read-only Diagnose. Historischer FAIL/kein erfundener CIDabschluss.
+Gezielte eigene CLIumgebung-/No-create-Failkorrektur wird vorbereitet; Native C2
+erst nach geändertem gebundenem Sourceabschluss. 6/CP3/hard6 und bestehende
+Host-/Cloud-/ONNX-/Fremdrepogrenzen unverändert; voller Runtime-/TP-CON-Nachweis offen.
+
+
+## TSK-009: öffentliche Poolproducer-Sourcevorbereitung nach vollständigem PR225-Abschluss
+
+PR225 vollständig geschlossen: c7dec2b15eb521f467690e6f33290a6088f2dd82,
+10 Head/8 Main einschließlich betroffener Runtime-CI PASS, voller identischer Tree,
+primärer Main FF/synchron/sauber, eigener Branch lokal/remote entfernt.
+Im eigenen Worktree folgt der [öffentliche opt-in RED-Poolproducer](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md),
+zunächst SOURCE_ONLY. Aktuelle Sources/Privacy/Tests/enges Rootreview vor lokaler
+Nativeadmission. 6/CP3/hard6/max6 neue eigene serielle Container/einer jeKandidat;
+keine Default-RED-/Host-/Cloud-/ONNX-/Fremdrepoeffekte. Einzelne tatsächliche Client-
+Requestreceipts, Marker-/HeldSID-/Source-/State-/Negativ-/Physical-/Cleanupbindung
+werden konkret umgesetzt. Öffentlicher Runtime-/TSK009-/TP-CON-Nachweis noch offen.
+
+
+## TSK-009: öffentliche Poolproducer-Sourcevorbereitung während PR225-Maingates
+
+PR225 ist auf c7dec2b15eb521f467690e6f33290a6088f2dd82 gemergt, zehn Head-Gates PASS;
+acht Main-Gates/primäre Synchronisierung/Cleanup werden noch im Orchestrator gebunden.
+Der eigene Worktree bereitet unabhängig den [opt-in RED-Poolproducer](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md)
+vor: drei eigene Logins, zwei VECTOR(3)-Rows, sechs authentifizierte Checkouts,
+tatsächliche Request-/Source-/Marker-/Principal-/State-/Negativ-/Cleanupverträge.
+SOURCE_ONLY: 6/CP3/hard6, ein Owner/enger Rootreview, null lokale Domainprozesse/
+SQL/Container/Provider-/Modellproben. Native erst nach vollständig geschlossenem
+PR225 und aktuellem gebundenem Quellenabschluss/Admission. Maximal sechs neue eigene
+serielle Container, einer je Kandidat; kein Default-RED-/Host-/Cloud-/ONNX-/Fremdrepo-
+Effekt. Alle tatsächlichen Runtime-/Provider-/Serverrequest-/TP-CON-Grenzen offen.
+
+
 ## TSK-009: öffentlicher SQLcmd-Clientadapter nach PR224
 
 PR224 vollständig geschlossen (8 Head/6 Main, Tree/FF/Branches), Main

@@ -166,6 +166,16 @@ jobs:
           python Tests/Static/test_idx012_lifecycle.py
           python Tests/Static/test_idx012_storage.py
           python Tests/Static/test_idx012_costs.py
+      - name: Validate source-only CON-010 pool producer and protected cleanup deltas
+        env:
+          PYTHONPATH: Tests/Static
+        run: |
+          python Tests/Static/test_con010_pool_profile.py
+          python -O -m unittest \
+            test_con010_pool_profile.ProducerTests.test_supported_container_id_case_full_ps_and_immediate_rm_argv \
+            test_con010_pool_profile.ProducerTests.test_mutative_remove_missing_end_is_sticky_and_no_second_remove_or_sql \
+            test_con010_pool_profile.ProducerTests.test_recorded_unknown_wave_stop_cannot_admit_native_candidate \
+            test_con010_pool_profile.ProducerTests.test_actual_namespace_cleanup_preserves_full_inspect_and_two_absence_outputs
       - name: Validate bounded RES-008 consumer and evidence
         run: |
           python Tests/Static/test_res008_profile.py
