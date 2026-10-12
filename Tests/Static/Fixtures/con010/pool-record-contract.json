@@ -1,0 +1,208 @@
+{
+  "contract": "CON010_POOL_RECORD_V1",
+  "purpose": "Kohärenz vollständiger deklarierter InMemory-Records, keine unabhängige Runtimeattestierung",
+  "profile_build": "17.0.5005.3",
+  "database": "SQLPERF_LAB_CON010_TENANTPOOL",
+  "marker_run": "TENANTPOOL",
+  "scope": "PRIVATE_THREE_POOLS_SIX_CHECKOUTS_ONLY",
+  "record_bound_utf8": 3000000,
+  "artifact_bound_utf8": 1000000,
+  "state_types": {
+    "config": {
+      "configuration_id": "int",
+      "name": "str",
+      "is_value_default": "bool",
+      "value_type": "str",
+      "value_precision": "int",
+      "value_scale": "int",
+      "value_max_length": "int",
+      "value_collation": "NoneType",
+      "value_bytes": "int",
+      "value_hex": "str",
+      "secondary_type": "NoneType",
+      "secondary_precision": "NoneType",
+      "secondary_scale": "NoneType",
+      "secondary_max_length": "NoneType",
+      "secondary_collation": "NoneType",
+      "secondary_bytes": "NoneType",
+      "secondary_hex": "NoneType"
+    },
+    "files": {
+      "file_id": "int",
+      "name": "str",
+      "type": "int",
+      "size": "int",
+      "max_size": "int",
+      "growth": "int",
+      "is_percent_growth": "bool",
+      "is_read_only": "bool",
+      "guid": "str"
+    },
+    "properties": {
+      "class": "int",
+      "major_id": "int",
+      "minor_id": "int",
+      "name_bytes": "int",
+      "name_hex": "str",
+      "value_bytes": "int",
+      "value_hex": "str",
+      "base_type": "str"
+    },
+    "db": {
+      "database_id": "int",
+      "name": "str",
+      "compatibility_level": "int",
+      "recovery_model_desc": "str",
+      "owner_sid": "str"
+    },
+    "schemas": {
+      "schema_id": "int",
+      "name": "str",
+      "principal_id": "int"
+    },
+    "objects": {
+      "object_id": "int",
+      "schema_id": "int",
+      "parent_object_id": "int",
+      "name": "str",
+      "type": "str",
+      "create_date": "str",
+      "modify_date": "str"
+    },
+    "indexes": {
+      "object_id": "int",
+      "index_id": "int",
+      "name": "str",
+      "type": "int",
+      "is_unique": "bool",
+      "is_primary_key": "bool",
+      "is_disabled": "bool"
+    },
+    "index_columns": {
+      "object_id": "int",
+      "index_id": "int",
+      "index_column_id": "int",
+      "column_id": "int",
+      "key_ordinal": "int",
+      "is_included_column": "bool"
+    },
+    "columns": {
+      "object_id": "int",
+      "column_id": "int",
+      "name": "str",
+      "system_type_id": "int",
+      "user_type_id": "int",
+      "max_length": "int",
+      "precision": "int",
+      "scale": "int",
+      "collation_name": "NoneType",
+      "is_nullable": "bool",
+      "vector_dimensions": "NoneType",
+      "vector_base_type": "NoneType"
+    },
+    "policies": {
+      "object_id": "int",
+      "is_enabled": "bool",
+      "is_schema_bound": "bool"
+    },
+    "predicates": {
+      "object_id": "int",
+      "security_predicate_id": "int",
+      "target_object_id": "int",
+      "predicate_definition": "str",
+      "predicate_type": "int"
+    },
+    "modules": {
+      "object_id": "int",
+      "definition": "str",
+      "is_schema_bound": "bool"
+    },
+    "rows": {
+      "Id": "int",
+      "TenantId": "int",
+      "ContentBytes": "int",
+      "ContentHex": "str",
+      "VectorJson": "str"
+    }
+  },
+  "nullable_types": {
+    "config": {
+      "value_collation": "str",
+      "secondary_type": "str",
+      "secondary_precision": "int",
+      "secondary_scale": "int",
+      "secondary_max_length": "int",
+      "secondary_collation": "str",
+      "secondary_bytes": "int",
+      "secondary_hex": "str"
+    },
+    "columns": {
+      "collation_name": "str",
+      "vector_dimensions": "int",
+      "vector_base_type": "int"
+    }
+  },
+  "expected_counts": {
+    "checkouts": 6,
+    "lanes": 3,
+    "physical_reuse": 3,
+    "second_checkout_resets": 3,
+    "identity_result_records": 12,
+    "query_source_rows": 8,
+    "full_states": 2,
+    "state_source_rows": 4,
+    "parent_physical_absence_texts": 1,
+    "fresh_sql_absence_texts": 2
+  },
+  "claims": {
+    "caller_provenance": "NOT_INDEPENDENTLY_ATTESTED",
+    "runtime_qualification": "NOT_ESTABLISHED",
+    "public_con010_qualification": "NOT_ESTABLISHED",
+    "tp_con": "NOT_ESTABLISHED",
+    "portable_provider_support": "NOT_ESTABLISHED"
+  },
+  "source_keys": [
+    "Demos/00_Framework/Tools/evaluate_result_contract.py",
+    "Demos/00_Framework/Tools/orchestrate_sessions.py",
+    "Demos/00_Framework/Tools/run_demo.py",
+    "Demos/00_Framework/Tools/sqlcmd_process.py",
+    "HOST/PowerShell",
+    "HOST/SqlClient",
+    "Runtime/AI_TENANT_LOGIN/oracle.py",
+    "Runtime/AI_TENANT_LOGIN/probe.py",
+    "Runtime/AI_TENANT_LOGIN/qualify.py",
+    "Runtime/AI_TENANT_LOGIN/sql_sources.py",
+    "Runtime/AI_TENANT_POOL/Plan.md",
+    "Runtime/AI_TENANT_POOL/oracle.py",
+    "Runtime/AI_TENANT_POOL/pool.ps1",
+    "Runtime/AI_TENANT_POOL/pool_oracle.py",
+    "Runtime/AI_TENANT_POOL/probe.py",
+    "Runtime/AI_TENANT_POOL/qualify.py",
+    "Runtime/AI_TENANT_POOL/reflection-proof.json",
+    "Runtime/AI_TENANT_POOL/sources/10_Setup.sql",
+    "Runtime/AI_TENANT_POOL/sources/11_Logins.sql",
+    "Runtime/AI_TENANT_POOL/sources/20_AuthA.sql",
+    "Runtime/AI_TENANT_POOL/sources/20_AuthB.sql",
+    "Runtime/AI_TENANT_POOL/sources/20_AuthU.sql",
+    "Runtime/AI_TENANT_POOL/sources/21_Spoof.sql",
+    "Runtime/AI_TENANT_POOL/sources/30_ALTER.sql",
+    "Runtime/AI_TENANT_POOL/sources/30_IMPERSONATE.sql",
+    "Runtime/AI_TENANT_POOL/sources/30_REVOKED_SELECT.sql",
+    "Runtime/AI_TENANT_POOL/sources/40_Revoke.sql",
+    "Runtime/AI_TENANT_POOL/sources/41_Restore.sql",
+    "Runtime/AI_TENANT_POOL/sources/80_State.sql",
+    "Runtime/AI_TENANT_POOL/sources/81_Identity.sql",
+    "Runtime/AI_TENANT_POOL/sources/89_DropGuard.sql",
+    "Runtime/AI_TENANT_POOL/sources/90_Cleanup.sql",
+    "Runtime/AI_TENANT_POOL/sources/91_Absence.sql",
+    "Runtime/AI_TENANT_POOL/sql_sources.py",
+    "Runtime/ANN_READINESS_PROBE/qualify_parser.py",
+    "Runtime/ANN_RESUME_CANDIDATE02/qualify.py",
+    "Runtime/ANN_RESUME_CANDIDATE02/sql_sources.py",
+    "Runtime/CL_RESULT_QUALIFICATION/qualify.py",
+    "Runtime/CON010_RESUME/qualify.py",
+    "Tests/Runtime/dgn010_marker_controls.py",
+    "Tests/Runtime/execution_target.py",
+    "Tests/Runtime/run_sql2025_ai_local.py"
+  ]
+}
