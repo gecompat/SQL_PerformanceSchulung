@@ -789,3 +789,14 @@ CL170BaselineRestores undvoller eigenerCleanup. LowCL150/160tatsächlicher
 Error102/State38near= erklärt diealte208-Annahme; keinegenerelleVerfügbarkeits-
 freigabe. CL170positiveFixturevollständig. AlleFrames/Caller/Quellen/Cleanup
 rein gebunden, alteFAILs/öffentlicheCL170Grenzen undvolleTSK004Abnahmeoffen.
+
+## TSK-007: öffentliche Providergrenzen erneut gebunden
+
+Am 2026-10-12 den [Modellpfad-Leitfaden](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md#aktualisierte-öffentliche-verträge-am-2026-10-12)
+gegen den aktuellen sauberen Lab-Commit erneut geprüft. Neue öffentliche Shared-
+Gateway-Sitzungs-APIs für Llama.cpp/OVMS sind vorhanden; keine allgemeine Ollama-
+Bridge daraus abgeleitet. RAG bleibt wegen tatsächlichem sqlcmd-Passwortargument
+BLOCKED_DEC033. Lokaler Dienst erreichbar, reine Katalogverfügbarkeit ist keine
+Capability-/Digest-/Inferenzabnahme. Null SQL-/Modellaufrufe, keine Labänderung.
+Keine neue Freigabegrenze, kein Zurücksetzen alter FAILs und kein TSK-007-Abschluss.
+Nach Integration unmittelbar unabhängige TSK-013-Kostencontrollerqualifikation.
