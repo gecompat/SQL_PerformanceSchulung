@@ -9,6 +9,7 @@ on:
       - 'Tools/build_presentation_variants_manifest.py'
       - 'Tests/Static/validate_presentation_variants.py'
       - 'Tests/Static/validate_presentation_diagrams.py'
+      - 'Tests/Static/test_ai_presentation_package.py'
       - 'Tools/repair_presentation_diagrams.mjs'
       - '.github/workflows/presentation-variants.yml'
   push:
@@ -20,6 +21,7 @@ on:
       - 'Tools/build_presentation_variants_manifest.py'
       - 'Tests/Static/validate_presentation_variants.py'
       - 'Tests/Static/validate_presentation_diagrams.py'
+      - 'Tests/Static/test_ai_presentation_package.py'
       - 'Tools/repair_presentation_diagrams.mjs'
       - '.github/workflows/presentation-variants.yml'
 
@@ -33,3 +35,4 @@ jobs:
           python-version: '3.12'
       - run: python Tests/Static/validate_presentation_variants.py
       - run: python Tests/Static/validate_presentation_diagrams.py
+      - run: python Tests/Static/test_ai_presentation_package.py

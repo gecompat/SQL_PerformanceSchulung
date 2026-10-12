@@ -76,6 +76,23 @@ aktuelle betroffene Foliennummer. Unveränderte Folien benötigen dabei einen
 vorhandenen passenden Render- und Einzelprüfnachweis. Paket, Metadaten,
 Geometrie und finaler Import werden weiter am vollständigen Deck geprüft.
 
+Die Neutralisierung erhält den Namespacepräfix `dcterms` auch für den
+Attributwert `xsi:type="dcterms:W3CDTF"` in den Datumsmetadaten. Wohlgeformtes
+XML und ein erfolgreicher Rendererimport reichen dafür nicht: ein ungebundener
+Präfix in diesem Attributwert führte beim ersten Export zur Ablehnung durch
+PowerPoint. Der Regressionstest `Tests/Static/test_ai_presentation_package.py`
+prüft die auflösbaren Datums-QNames am synthetischen Export und am veröffentlichten
+Deck sowie eine negative Kontrolle des ursprünglichen Fehlers. Der vorhandene
+Presentation-Workflow führt diese drei lokalen Prüfungen zusätzlich aus;
+SQL-Runtime und weitere Dienste werden dadurch nicht ausgelöst.
+
+Die Metadatenkorrektur vom 2026-10-12 ist zusätzlich in Microsoft PowerPoint
+16.0 geprüft: 34 Folien geöffnet, 13 native Tabellen erkannt, Text, Tabellenzelle
+und Sprechernotiz bearbeitet sowie eine private Kopie gespeichert und erneut
+geöffnet. Die veröffentlichten Folien- und Notizenparts sind gegenüber dem
+ersten Deck bytegleich; die bestehenden visuellen Einzelprüfungen gelten weiter.
+Die Office-Testkopie bleibt privat, die veröffentlichte Datei ist neutralisiert.
+
 ## Hinweise bei abweichender Darstellung
 
 Eine fehlende Arial-Schrift, andere Glyphenmetriken oder abweichende

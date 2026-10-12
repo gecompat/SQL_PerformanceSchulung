@@ -3157,7 +3157,7 @@ fünf Main-Workflows, exakter Treeübernahme, FF-main und eigenem Branchcleanup
 abgeschlossen. Öffentliche Producer, volle Runtime-/TP-PERF- und
 Indexnettonutzengates bleiben weiterhin getrennt und offen.
 
-Aktuelles PPTX: 147514 Bytes, SHA-256
+Erster Export in PR 202: 147514 Bytes, SHA-256
 726398beff736cb9b51818b4596e65c0895a66f568de021ebd3cc3af19202fcd.
 34/34 Folien vollständig gerendert und einzeln auf Inhalt, Umbruch,
 Lesbarkeit und Privacy geprüft. 13 native Tabellen, 34 Notizen und alle
@@ -3166,7 +3166,7 @@ bestanden; ein konservativer Tabellenhöhenhinweis auf Folie 5 zeigt im
 tatsächlichen Render keinen Überlauf. Identitätsmetadaten neutralisiert,
 keine Medien, Logos, eingebetteten Objekte, Credentials oder privaten Pfade.
 Die betroffenen Dateien bestanden die bestehende Privacyprüfung vor Commit.
-Kein editierender PowerPoint-Anwendungstest, keine neue SQL- oder
+Beim ersten Export kein editierender PowerPoint-Anwendungstest, keine neue SQL- oder
 Provider-/Cloud-/ONNX-/Hostausführung. Rawrender und Prüfrecords bleiben unter
 ignoriertem Runtime. Sechs endliche Authoring-/Korrekturkandidaten verbraucht,
 Checkpoint3 eingehalten. Der zusätzliche konkrete Reviewbefund zur inzwischen
@@ -3177,7 +3177,27 @@ Paket-/Metadaten-/Geometrie-/Importbindung am vollständigen Deck bestanden.
 Unveränderte Einzelprüfungen wiederverwendet; kein zusätzlicher Native-Lauf.
 Der fachliche Folienumfang ist geschlossen.
 
+PR 202 ist auf main 1a514f92a88e2c4034dfa333026784e496456676 mit acht Head-/
+sechs Main-Workflows, exakter Treeübernahme, FF-main und eigenem Branch-/
+Worktreecleanup abgeschlossen. Die anschließende Benutzerprobe in PowerPoint
+schlug trotz der Paket-/Renderprüfungen fehl: Die Metadatenneutralisierung
+benannte den Namespacepräfix um, ließ aber `xsi:type="dcterms:W3CDTF"` mit
+ungebundenem `dcterms` stehen. Dieser Fehler bleibt als ursprünglicher FAIL
+sichtbar; er betrifft die Office-Lesbarkeit und keine SQL-Demo.
+
+Der ausdrücklich angeforderte Reparaturschnitt auf
+`codex/sql2025-ai-pptx-office-repair` erhält den Datumspräfix und ergänzt drei
+Regressionen einschließlich der ursprünglichen negativen Kontrolle im
+bestehenden Presentation-Workflow. Genau ein korrigiertes Paket wurde in
+PowerPoint 16.0 tatsächlich geöffnet: 34 Folien, 13 native Tabellen; Text,
+Tabellenzelle und Sprechernotiz bearbeitet, private Kopie gespeichert und erneut
+geöffnet, jeweils PASS. Aktuelles neutralisiertes PPTX: 147868 Bytes, SHA-256
+f7ac0e74cc41333bff3f0c38ab0f472b1e47cb2b2f7f796c795f0868b1f6f97c.
+Alle Folien- und Notizenparts bleiben bytegleich. Keine SQL-, Provider-, Cloud-,
+ONNX- oder Hostausführung. Office-Testkopie und ursprünglicher Export bleiben
+privat. Head-/Main-Gates, PR-Integration, Synchronisierung und eigenes
+Branchcleanup schließen diesen Reparaturschnitt ab.
+
 TSK-012 bleibt offen: tatsächliche Teilnehmererprobung, gemessene Lehrzeiten,
-vollständige Teaching Paths und Generalprobe fehlen. PR 202 integriert
-ausschließlich diesen Materialfortschritt; tatsächliche aktuelle Head-/
-Main-Gates, Treeübernahme und Branchcleanup folgen der seriellen Koordination.
+vollständige Teaching Paths und Generalprobe fehlen. Der Workstream und sein
+Heartbeat bleiben aktiv.
