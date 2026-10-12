@@ -2555,3 +2555,35 @@ Abschluss. Danach begrenzte Teilnehmer-/Traineraufgabe zu diesem Teilprofil
 unter TSK-012 ohne SQL-Retry/volle didaktische Abnahme. Keine Cloud-/Modell-/ONNX-/
 roten Hosteffekte oder andere Repositoryänderung; Verbrauch unbekannt,
 Heartbeat aktiv; sechs kohärente Kandidaten je lokalem Schnitt bleiben autorisiert.
+
+
+## RES-008: begrenztes Teilnehmer- und Trainermaterial
+
+[PR189](https://github.com/gecompat/SQL_PerformanceSchulung/pull/189) vollständig
+abgeschlossen: Head 88a9d60f640fc9984c61cdb7a9be0703ba6b1d37, neun aktuelle Head-Workflows PASS;
+Squash eab09f6e8de580e9087f214e07bdaf62283a9690, sieben aktuelle Main-Workflows PASS.
+Ganzer Tree 2418eb0933d76903d98644f7ffef392aa67d68bb exakt übernommen, main FF-synchronisiert/sauber;
+eigener lokaler/Remote-Branch entfernt. Öffentliche 2025-Aggregation in Head/Main
+je zweimal mit 30 numerischen FWK-PASSs bei Gesamt-WARN, tatsächlicher Setupfault-
+Recovery und eigenem Cleanup; Versions-SKIPs vor Setup erhalten. Abschließende
+Dokumentpräzisierung trennt UTC-Schleifenzeit von umgebenden Request-Countergrenzen.
+Unmittelbar codex/sql2025-ai-res008-teaching begonnen, TSK-012/CUR-020.
+
+Das bestehende [Arbeitsheft](../HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md#ergänzende-ergebnisleseaufgabe-res-008)
+und der [Trainerleitfaden](../HowTo/SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md#getrennte-ergänzung-res-008-ergebnisse-lesen)
+enthalten eine getrennte Ergebnisleseaufgabe aus den bereits gebundenen Beobachtungen:
+20 Warmups, 54 Messfenster, 74 Requests, 5420 Querykontrollen; sechs A/B-Fenster
+je Pfad/Paar, AA separat. Batch-/Counter-/UTC-Grenzen, N/A/Nullwerte/Ausreißer,
+beschränkte FWK-Invarianten und fehlende Modellqualität sind Aufgaben und Lösung.
+Die einzige Lösung/Rubrik bleibt im Arbeitsheft; acht Basisübungen maximal 16 Punkte,
+getrennte optionale Ergänzung 0–2 Punkte. Keine neuen SQL-Läufe oder didaktischen
+Istwerte; tatsächliche Teilnehmererprobung, Lehrzeiten, Masterdeck/Notes/Render und
+Generalprobe offen. Historische FAILs und aktuelle ANN-Teilqualifikation unterschieden.
+
+Quellen-, Link-, Sprach-, Privacy- und Diffprüfung für diese Dokumentänderung;
+aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
+folgen vor Abschluss. RES-008 PROPOSED/Gesamt-WARN und volle TP-PERF-/Modulabnahme
+bleiben offen. Danach unmittelbar nächste unabhängige kanonische Teilaufgabe;
+allgemeine Entwicklung/DGN-007 bleiben pausiert. Keine Cloud-/Modell-/ONNX-/roten
+Hosteffekte, kein anderes Repository verändert. Sechs kohärente Kandidaten je
+lokalem Schnitt autorisiert; Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.

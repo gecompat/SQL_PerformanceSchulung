@@ -1,6 +1,7 @@
 # KI mit SQL Server 2025 – Trainerleitfaden für den Offlinepfad
 
-Stand: 2026-10-11. TSK-012, didaktischer Teilentwurf für acht implementierte Demos.
+Stand: 2026-10-12. TSK-012, didaktischer Teilentwurf für acht implementierte Demos
+plus getrennte Ergebnisleseaufgabe zum begrenzten PROPOSED-Profil RES-008.
 Reihenfolge und Moderation sind Vorschläge; Teilnehmererprobung, Lehrzeiten und
 Gesamtcurriculumabnahme stehen aus. Die Trainerlösungen und die Bewertungsrubrik
 werden ausschließlich im [Arbeitsheft](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md)
@@ -75,6 +76,33 @@ Lehrpfade BASIS/STANDARD/VERTIEFUNG bleiben im
 | 6. [QRY-019](../../Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/README.md), CUR-018/CUR-021/CUR-022 | Feste Statementstruktur, Wertparameter und tatsächliche SQL-Rechte im Code verorten lassen. | Literal-Treffer trotz Quote-/DDL-Text als Wert; abgelehntes Zusatzstatement und Readergrenzen. | Warum sind Strukturpolicy und Rechteverweigerung zwei unterschiedliche Belege? |
 | 7. [DGN-008](../../Demos/09_AI_SQL_Server_2025/DGN-008_Offline_Model_Rights/README.md), CUR-016/CUR-018/CUR-022 | Setup, Ingestion und Retrieval ihren tatsächlichen Rechten zuordnen. | Grantreduktion und erlaubter Restbetrieb; External-Model-Recht als Metadatenbeleg. | Was müsste für einen tatsächlichen Provider-/Embeddingaufruf zusätzlich geprüft werden? |
 | 8. [DGN-009](../../Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/README.md), CUR-018/CUR-022 | Quelleninhalt und Befugnis zur Ausführung getrennt verfolgen. | Tatsächlich retrievte manipulierte Quelle, feste Antwort-/Toolpolicy und echte SQL-Rechtefehler. | Welche Grenze bleibt gegenüber einem unbekannten Live-Modell und seinen Tools offen? |
+
+## Getrennte Ergänzung: RES-008-Ergebnisse lesen
+
+Nutzen Sie die ergänzende Aufgabe und die einzige gepflegte Lösung im
+[Arbeitsheft](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md#ergänzende-ergebnisleseaufgabe-res-008).
+Diese Ergänzung ist nicht Teil der acht implementierten Basisdemos und hebt
+PROPOSED/volle TP-PERF-/Modulgrenzen nicht auf. Vorliegende
+[gebundene aggregierte Beobachtungen](../Project_Planning/SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md)
+genügen für die Leseaufgabe; kein erneuter unveränderter SQL-Lauf erforderlich.
+Ein späterer begründeter praktischer Versuch folgt ausschließlich der
+[Demo-README](../../Demos/09_AI_SQL_Server_2025/RES-008_Vector_Dimensions/README.md)
+mit YELLOW-/Owner-/Build-/Cleanupgrenzen und optional `--summary`.
+
+Lassen Sie zuerst 20/54/74/5420 sowie sechs A/B-Fenster je Pfad/Paar berechnen.
+Zeigen Sie danach, wie CPU, Elapsed und Reads im konkreten Dimensionspaar
+unterschiedliche Richtungen besitzen können. Fragen Sie nach Batch- gegenüber
+individueller Querylatenz, AA-Kontrolle, N/A/Nullfenstern und vollständigem
+Beibehalten von Ausreißern. Die UTC-Schleifenzeit einschließlich Tempresult-Inserts
+und die sie umgebenden eigenen Request-Counterdifferenzen besitzen verschiedene
+Messgrenzen. Besprechen Sie abschließend die beschränkte Bedeutung
+der 30 numerischen FWK-PASSs bei Gesamt-WARN, repräsentativem Plan und offener
+Modellqualität. Keine Lehrdauer oder gemessene Lernwirksamkeit aus Runtime ableiten.
+
+Bewerten Sie die Ergänzung getrennt nach der Arbeitsheftrubrik; die acht
+Basisaufgaben behalten maximal 16 Punkte. Keine Namen, Rawidentitäten,
+Querytexte oder Daten realer Systeme sammeln. Die Auswertung allein belegt
+keinen neuen Runtime-, Provider-, Tenant- oder vollständigen Performancepfad.
 
 ## Umgang mit abweichenden Beobachtungen
 

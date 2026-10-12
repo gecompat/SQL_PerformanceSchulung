@@ -531,3 +531,14 @@ ohne SQL-Wiederholung. 20 Warmups ausgeschlossen, sechs A/B-Batchfenster je
 Paar, AA separat, N/A/Nullwerte/Ausreißer sichtbar. Je 30 numerische FWK-011-
 Invarianten bestanden; Gesamt-WARN/PROPOSED und volle Worker-/TP-PERF-/Modul-
 abnahme offen. Die öffentliche CLI und CI konsumieren diese begrenzte Auswertung.
+
+
+Die getrennte [RES-008-Ergebnisleseaufgabe im Arbeitsheft](../HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md#ergänzende-ergebnisleseaufgabe-res-008)
+und ihre [Trainermoderation](../HowTo/SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md#getrennte-ergänzung-res-008-ergebnisse-lesen)
+ergänzen unter TSK-012/CUR-020 die acht bestehenden Basisübungen. Vorliegende
+gebundene Aggregate genügen; kein SQL-Retry. Populationsrechnung, getrennte
+Batch-/Counter-/UTC-Grenzen, N/A/Nullwerte/Ausreißer und FWK-PASS bei Gesamt-WARN
+stehen vor einer allgemeinen Dimensions-/Modellqualitätsaussage. Lösung/Rubrik
+bleiben allein im Arbeitsheft; optionale Ergänzung getrennt von den 16 Basispunkten.
+Keine tatsächliche Teilnehmererprobung, Lehrzeiten oder volle Curriculum-/Masterdeck-/
+Notes-/Render-/Generalprobenabnahme; RES-008 weiterhin PROPOSED.
