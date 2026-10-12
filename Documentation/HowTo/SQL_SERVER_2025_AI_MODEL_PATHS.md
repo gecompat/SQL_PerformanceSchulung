@@ -136,3 +136,13 @@ passwortfreiem SQL-Pfad einschließlich Provisionierung, Readiness und Cleanup.
 Ein anderer lokaler Backendpfad braucht nachweislich vorhandene passende Artefakte
 und einen begrenzten eigenen Qualifikationsschnitt. Bis dahin werden unabhängige
 Offline-/Runtimeaufgaben fortgesetzt; Cloud-, ONNX- und rote Hostgrenzen bleiben.
+
+## Getrennte öffentliche Embeddingkomponente
+
+Die [AiModel-Komponentenprüfung](../Project_Planning/SQL_SERVER_2025_AI_MODEL_COMPONENT_REVIEW.md)
+verwendet die öffentliche Invoke-SqlServerLabAiModel-API ohne SQL-Verbindung, mit
+expliziter lokaler Lane, festen synthetischen Eingaben und separater Modell-/
+Digest-/Capability-/Dimensionsbindung vor und nach Inferenz. Zwei tatsächliche
+vollständige768-Vektorrückgaben sind lokal bestanden und rein gebunden; weder
+Live-RAG noch SQL-seitige Embeddings werden daraus
+als bestanden ausgegeben. Keine Änderung am DEC-033-Secretblocker des RAG-API.
