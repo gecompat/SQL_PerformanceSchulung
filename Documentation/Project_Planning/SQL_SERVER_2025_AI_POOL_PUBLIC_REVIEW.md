@@ -142,3 +142,12 @@ sind geschlossen. Es folgt die Integration des SOURCE_ONLY-Schnitts mit
 C1/C2FAIL/RecoveryUNKNOWN, keine nachträgliche öffentliche Runtimeabnahme.
 Betroffene aktuelle Head-/Main-CI, voller Tree, FF und eigener Cleanup sind
 vor Abschluss Pflicht. Unabhängige autorisierte Folgearbeit wird fortgesetzt.
+
+## CI-Abgleich und begrenzter Mehraufwand
+
+Ein neuer reiner Static-Schritt deckt genau die 25 neuen Poolprofilmethoden sowie
+vier geschuetzte Deltafaelle unter -O ab. Zwei zusaetzliche CI-Pythonprozesse, keine
+neue RED-/SQL-/CLR-/Providerausfuehrung durch diese Tests. Runtime-Abschnitt und
+Selector bleiben unveraendert; aktuelle Head-/Main-Gates bleiben Pflicht. Die alte
+CI-Staticabnahme deckte die neuen Methoden nicht ab und ist kein Ersatz fuer den
+neuen Head. Privacy der zwoelf betroffenen Pfade wird aktuell geprueft.
