@@ -3365,3 +3365,50 @@ prüft bisherige Scopes, keine neue Kostencontroller-Nativequalifikation.
 Aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen; danach separat budgetierte
 Nativequalifikation des neuen Controllers. Producer WARN/DGN-010 PROPOSED,
 Runtime/TP-PERF/Worker/Nettonutzen NOT_ESTABLISHED; alle historischen FAILs erhalten.
+
+## DGN-010: separate native öffentliche Kostenqualifikation
+
+PR209 vollständig abgeschlossen: main bf206ccbb1b0892773b9b0ef785b85e80b1ba9d0,
+neun Head-/sieben Main-Workflows PASS, tatsächliche bestehende Versionsmatrix
+inklusive eigenem CI-Cleanup an Head/Main bestanden, ganzer Tree gleich,
+FF-main sauber und eigener lokaler/Remote-Branch entfernt. Unmittelbare Folge
+auf `codex/sql2025-ai-dgn010-cost-qualification`: [separate neue Nativewelle](SQL_SERVER_2025_AI_DGN010_COST_PUBLIC_REVIEW.md).
+
+Vor erster Admission sechs kohärente Quellenkandidaten/max12 neue eigene serielle
+Container, Checkpoint3/hard6. Zwei2025positive, je zwei2019/22-SKIPs vorSetup und
+ein2025Setupfault/Recovery; insgesamt sieben feste Slots. Vollständige aktuelle
+Publicquellenbindung nach alleiniger EOL-Normalisierung, ausgeführte Rohbytes
+jeAdmission zusätzlich. Enger unabhängiger neuer Input-/Adapter-/Budgetreview
+ohne offene P1/P2; bestehende Endstatus-/Containerfloors unverändert.
+
+Native noch offen. 300 Sekunden regulär/einmal60gesamtCleanup einschließlich
+frischer DB-Abwesenheit und voll gebundenem CID-/Namensabbau. UNKNOWN sperrt SQL
+und erhält Inputs, keine ungebundene Rettung oder Ledgerreset. Provider-/Cloud-/
+ONNX-/Hostgrenzen unverändert. DGN-010 PROPOSED/Producer WARN; volle Runtime/
+TP-PERF/Worker/Commit/Nettonutzen/Modulabnahme bleibt NOT_ESTABLISHED.
+
+### Öffentliche Kosten-C1 vollständig nativ bestanden
+
+Alle sieben festen eigenen Slots bestanden: zwei2025positive/WARN, je zwei
+2019/22-SKIP_VERSION vorSetup, ein tatsächlicher erwarteter FAIL_EXECUTION nach
+PASS-Setup mit vollständiger Recovery. 97 protokollierte Nativephasen ohne
+Readiness-/separate Engineversionqueries; acht DDL-Fenster, 16000 Source-/20000
+Vollstate-Rows, vier echte51003-Abweisungen/Source-Restore. Alle sieben DB-/
+CID-/Namenslifecycles geschlossen, eigene Ownerlabel-Inventur leer, Inputs
+abwesend/keinUNKNOWN. C1/sieben Container verbraucht, keine Nativekorrekturwelle.
+
+Alle Native-Vollframes/Records/negativen Fehlerframes/Source-/State-/DDL-/
+Caller-DB-/OID-/Aggregate-/Cleanupbelege rein an tatsächliche ausgeführte Quellen
+gebunden; null zusätzlicher SQLaufruf dafür. Sämtliche acht Zahlen einschließlich
+CREATE49211us/Cpu46 aus Profil1 bleiben erhalten und jeProfil getrennt.
+
+Ein zusätzlicher reiner EOL-Bindungshelfer war zunächst zu eng; erste Admission
+startete nach dessen FAIL. Scope/Budget/Safety bereits kanonisch registriert und
+im Adapter durchgesetzt. Danach raw- oder ausschließlichEOL-identische Review-
+Quellen korrekt gebunden, keine Codeänderung/Nativewiederholung. Privater Receipt
+erst danach erstellt; Ablaufbefund bleibt im konkreten Nachweis sichtbar.
+
+Begrenzte öffentliche Kosten-/Versions-/Setuprecoveryqualifikation PASS; tatsächlicher
+Producer WARN/DGN-010 PROPOSED. Runtime/TP-PERF/Worker/Commit/Nettonutzen/Lehrpfade/
+Modulabnahme bleiben offen. Aktuelle Head-/Main-/PR-/Tree-/FF-/Ownbranchgates folgen;
+danach nächste unabhängige offene Kosten-/Lehrpfadfrage, keine grünen Wiederholungen.

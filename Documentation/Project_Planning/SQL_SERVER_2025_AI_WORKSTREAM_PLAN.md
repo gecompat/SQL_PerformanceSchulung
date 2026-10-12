@@ -740,3 +740,19 @@ Elf reine Controller-/sieben Eingabemethoden und enger unabhängiger Quellenabsc
 PASS; keine neue lokale Controller-Nativequalifikation. Neue Demosource verlangt
 aktuelle bestehende CI-Runtime True; anschließend getrennte neue Controller-Native-
 Version-/Fault-/Owncontainerqualifikation. PROPOSED/WARN/volle Abnahme offen.
+
+Die [separate native öffentliche Kostenqualifikation](SQL_SERVER_2025_AI_DGN010_COST_PUBLIC_REVIEW.md)
+folgt nach vollständiger Controllerintegration unter TSK-011/CUR-021. VorAdmission
+sechs Quellenkandidaten/max12 neue eigene serielle Container, Checkpoint3/hard6;
+zwei2025positive, je zwei2019/22-SKIPs vorSetup und ein2025Setupfault/Recovery.
+Öffentliche Quellen/Adapter eng geprüft, Native zunächst offen; gleicher vollständiger
+Marker-/KnownEnd-/300-60-/DB-/CID-/Namenscleanupfloor. WARN/PROPOSED und volle
+Runtime-/TP-PERF-/Worker-/Commit-/Nettonutzen-/Modulabnahme bleiben erhalten.
+
+Öffentliche Kosten-C1 bestand alle sieben Slots: zwei2025positive/WARN, vier
+Versions-SKIPs vorSetup, ein erwarteter Setupfault/Recovery; 97 protokollierte
+Nativephasen ohne Bootstrapqueries, acht DDL-Fenster, 16000 Source-/20000 State-Rows,
+vier echteNegativen/Restore und alle sieben eigenen Lifecycles/Inputs geschlossen.
+Alle tatsächlichen Zahlen/Vollframes rein gebunden; EOL-Helfer-Ablaufbefund erhalten.
+Begrenzte Kosten-/Versions-/Recoveryqualifikation PASS, ProducerWARN/PROPOSED und
+volle Runtime-/Worker-/Commit-/TP-PERF-/Nettonutzen-/Lehrpfad-/Modulabnahme offen.
