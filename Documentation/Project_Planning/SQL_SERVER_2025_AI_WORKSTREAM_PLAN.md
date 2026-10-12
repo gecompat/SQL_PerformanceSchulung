@@ -25,7 +25,7 @@ Null Modell-/Provider-/Hosteffekte; SRC-114 bindet die Primärquellen. Öffentli
 WITHOUT-LOGIN-Demo, Passwortintegrität-/Pooling-/ANN-/Gesamtabnahmegrenzen bleiben.
 PR219 ist vollständig integriert: acht Head-/sechs Main-Gates PASS, voller Tree,
 FF-Synchronisierung und eigener lokaler/Remote-Branchcleanup. Unmittelbar folgen
-unabhängige TSK-012-Belegleseaufgaben
+unabhängige TSK-012-Belegleseaufgaben, inzwischen über PR220 vollständig integriert,
 an vorhandenen Embedding-/SQL-/Generation-/Tenantnachweisen, ohne weitere Native.
 Arbeitsheft und Trainerleitfaden ergänzen drei optionale Aufgaben; Einsteiger
 trennen Zweck, Erwartung, tatsächlichen Befund und offene Aussagegrenze.
@@ -33,8 +33,18 @@ Lösungen/Rubrik bleiben allein im Arbeitsheft, acht Basisaufgaben/16 Punkte und
 RES-008 getrennt erhalten. Vorhandene 61-Folien-Artefaktprüfung wird übernommen,
 keine neue Office-/SQL-/Modellprüfung oder Lehrzeit-/Lernwirksamkeitsbehauptung.
 Maximal sechs Textkorrekturkandidaten/Checkpoint3/hard6, ein Owner/enges Rootreview,
-zwei Material-/drei Steuerdateien. Integration und eigene Bereinigung bleiben
-für den aktuellen Textschnitt erforderlich.
+zwei Material-/drei Steuerdateien. PR220: acht aktuelle Head-/sechs Main-Gates PASS,
+voller identischer Tree, main FF/sauber und eigener lokaler/Remote-Branch entfernt.
+
+Unmittelbare Folge unter TSK-009/CON-010:
+[private Poolvorbereitung](SQL_SERVER_2025_AI_TENANT_POOL_REVIEW.md).
+Vorhandene öffentliche SqlClient-API nur read-only bestätigt, keine Verbindung
+geöffnet. Physische Server-DMV-Bindung/Sessionreset/OwnClearPool sind neue Fragen;
+keine unbewiesene Client-GUID-Stabilität als Erfolgsoracle. Sechs Kandidaten/maximal
+sechs neue eigene serielle Container, CP3/hard6, 300+ein60, je sechs Checkouts.
+Scope-Review geschlossen; private Codevorbereitung ohne Native, Sourceschluss/
+Review/Admission vor Native offen. Kein KI-Provider-/Host-/Cloudwechsel oder neue Installation,
+keine neue Standard-CI oder volle öffentliche CON-010-/Poolingabnahme.
 
 Der nachfolgende Plan dokumentiert den ursprünglichen Planungsschnitt. Der neue
 Benutzerauftrag vom 2026-10-11 autorisiert dessen autonome Umsetzung; Scope, Budget

@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## TSK-009: Poolvorbereitung nach vollständig geschlossenem PR220
+
+[PR220](https://github.com/gecompat/SQL_PerformanceSchulung/pull/220) ist auf
+`a0b01f4515677a546841797a00c492a8dd695826` vollständig abgeschlossen: acht aktuelle
+Head-/sechs Main-Workflows PASS, vollständiger identischer Tree, main FF/sauber,
+eigener lokaler und Remote-Branch entfernt. Arbeitsheft und Trainerleitfaden
+enthalten drei optionale Evidenzleseaufgaben; Teilnehmer-/Generalprobe offen.
+
+Unmittelbar folgt die [begrenzte Poolvorbereitung](SQL_SERVER_2025_AI_TENANT_POOL_REVIEW.md)
+unter TSK-009/CON-010. Vorhandene öffentliche SqlClient-Oberfläche read-only
+bestätigt; kein Open/SQL/Poolclear/Download. Scope-Review korrigierte vor Code
+die unbelegte Client-GUID-Gleichheitsannahme: physische Wiederverwendung benötigt
+tatsächliche Owner-DMVconnection_id/connect_time mit voller Session-/SID-/DB-/
+ApplicationName-/Noncebindung. Reset wird vor Reparatur beobachtet; nur eigene
+Pools, Credentialinstanzen und neue Login-/DB-/Containerleases.
+
+Sechs Quellenkandidaten/maximal sechs neue serielle eigene Container, Checkpoint3/
+hard6, je ein Profil mit sechs Checkouts, 300 Sekunden plus einmal60 Cleanup.
+Source-/Review-/exklusive Admission vor Native offen. Private Codevorbereitung
+darf ohne Native parallel zur Scopeintegration beginnen. Keine neuen Dependencies,
+Modell-/KI-Provider-/Cloud-/Hoständerungen oder rote Standard-CI. C5-Authbasis bleibt
+separater Teil-PASS; öffentliche WITHOUT-LOGIN-Demo und volle Pool-/TSK-009-Abnahme
+bleiben offen. Andere Repositories unverändert; allgemeine Entwicklung/DGN-007 pausiert.
+
+
 ## TSK-012: optionale Belegleseaufgaben nach PR219
 
 [PR219](https://github.com/gecompat/SQL_PerformanceSchulung/pull/219) ist auf
@@ -21,7 +46,7 @@ sechs zusammenhängende Textkorrekturkandidaten, Checkpoint3/hard6. Zwei Materia
 und drei kanonische Steuerdateien, keine neue Kennung. Null neue Modell-, SQL-,
 Container- oder Office-Ausführung. Der vorhandene 61-Folien-Artefaktnachweis wird
 übernommen; Lehrzeiten, Lernwirksamkeit und Generalprobe bleiben unqualifiziert.
-Aktuelle Head-/Main-Integration und eigener Cleanup schließen den Textschnitt.
+Aktuelle Head-/Main-Integration und eigener Cleanup sind über PR220 abgeschlossen.
 Allgemeine Entwicklung und DGN-007 bleiben pausiert; GenerationHard6 bleibt FAIL.
 
 ## Tenant-Authentifizierung: begrenztes Profil bestanden
