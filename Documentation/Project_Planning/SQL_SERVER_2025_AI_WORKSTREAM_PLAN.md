@@ -399,10 +399,16 @@ vergleichbare Messwerte, Annahmen, verbleibende Risiken und einen Nicht-KI-Vergl
 
 ## 11. Lehrmaterial- und Präsentationskonzept
 
-Eine fachlich gepflegte PowerPoint-Masterquelle bleibt maßgeblich. `TSK-012` plant später
-30–45 zusätzliche Lehrpositionen als Schätzung, mit stabilen SlideKeys aus dem bestehenden
-Präsentationsprozess, BASIS/STANDARD/VERTIEFUNG-Profilen und Demo-/Quellenverweisen.
-Noch keine neuen Slide-IDs und keine Präsentationsdatei in diesem Schnitt.
+Eine fachlich gepflegte PowerPoint-Masterquelle bleibt maßgeblich. Der ursprüngliche
+Plan schätzte 30–45 zusätzliche Lehrpositionen mit SlideKeys und Tiefenprofilen.
+Der ausdrücklich parallel autorisierte TSK-012-Folienschnitt enthält jetzt
+[34 editierbare KI-Folien](../../Presentations/SQL_Server_2025_KI.pptx) mit vollständigen
+Sprechernotizen, Quellen und konkreten manifestbasierten Demoaufträgen.
+[Masterquelle und Trainerhinweis](../../Presentations/AI_SQL_Server_2025/README.md)
+sind reproduzierbar und decken CUR-013 bis CUR-022 sowie alle 18 Demoentwürfe ab.
+Neun IMPLEMENTED- und neun PROPOSED-Demos bleiben getrennt. Das bestehende
+Performance-Masterdeck und dessen Variantenmanifest sind unverändert. Neue
+SlideKeys, separate KI-Tiefenprofile und ihre Generalprobe sind nicht abgenommen.
 
 Diagramme zeigen Engine/Provider/Modell/Anwendung, Daten-/Trust Boundaries und RAG-Provenienz.
 Performancecharts zeigen Laufzeit **und** Recall/Ressourcen mit n und Fehlerquote;
@@ -416,7 +422,12 @@ Der erste unabhängige TSK-012-Teilentwurf ist das
 [Offline-Arbeitsheft](../HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md): acht Aufgaben,
 Trainerlösungen, Beobachtungsbogen und Rubrik für die bereits qualifizierten Demos.
 Es stellt keine neue SQL-Runtime oder vollständige didaktische Abnahme her;
-Masterdeck/Notes, weitere Module und tatsächliche Teilnehmererprobung bleiben offen.
+Der anschließende Folienschnitt ergänzt Masterquelle, Notes und vollständigen
+34-Folien-Render mit Einzelprüfung. Tatsächliche Teilnehmererprobung, vollständige
+Teaching Paths, Runtime-/TP-PERF-/Nettonutzengates und Generalprobe bleiben offen.
+Die allgemeine Recherchebindung an main 83d28cd bleibt dokumentiert. Folie 31
+ist nach dem neuen konkreten Befund auf main 4bfb191 mit zwei privaten
+Original-Readerplanprofilen und dem kanonischen Clock-Nachweis aktualisiert.
 
 ## 12. Priorisierte Arbeitspakete und Abhängigkeiten
 
