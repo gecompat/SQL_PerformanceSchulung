@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "CON-010",
+  "profile": "LOCAL",
+  "assertions": [
+    {
+      "id": "baseline_rows",
+      "kind": "EXACT",
+      "phase": "baseline",
+      "metric": "baseline_rows",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "authorized_contexts",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "authorized_contexts",
+      "expected": 2,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "unauthorized_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "unauthorized_rows",
+      "expected": 0,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "permission_denials",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "permission_denials",
+      "expected": 3,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "revoked_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "revoked_rows",
+      "expected": 0,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "session_resets",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "session_resets",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}

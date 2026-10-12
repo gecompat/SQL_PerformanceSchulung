@@ -40,7 +40,11 @@ CON-010 ist unter der erweiterten lokalen Wellenfreigabe mit zwei stabilen
 privaten C5-Lifecycles wiederaufgenommen; genaue sechs CONNECT-/SELECT-Grants,
 RLS/Quellen und tatsächliche Rechteverweigerungen sind im
 [Teilnachweis](SQL_SERVER_2025_AI_TENANT_RESUME_REVIEW.md) gebunden. Historische
-FAILs bleiben sichtbar, öffentliche Demo- und Versions-/Negativgates offen.
+FAILs bleiben sichtbar. Die öffentliche Demo ist jetzt IMPLEMENTED; der
+[Consumer-/Versionsnachweis](SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md)
+schließt lokal 192 Marker-/32 Resultabweisungen, tatsächliche Mutationsattestation,
+Setupidempotenz, Versions-SKIPs und eigenen Cleanup. Aktuelle PR-/Main-Gates,
+Pooling, Serverlogins, ANN und Seitenkanäle bleiben getrennte Grenzen.
 
 ## 1. Zielbild und Abgrenzung
 

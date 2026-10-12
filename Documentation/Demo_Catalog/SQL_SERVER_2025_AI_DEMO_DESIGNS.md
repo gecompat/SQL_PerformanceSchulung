@@ -2,10 +2,10 @@
 
 Stand: 2026-10-11. Planung: `TSK-003`, Entscheidung: `DEC-073`.
 Der ursprüngliche Planungsschnitt führte alle 18 Demos als **PROPOSED**. Seit dem
-Implementierungsauftrag vom 2026-10-11 besitzen QRY-014 bis QRY-019 und DGN-008/009 ausführbare
+Implementierungsauftrag vom 2026-10-11 besitzen QRY-014 bis QRY-019, DGN-008/009 und CON-010 ausführbare
 [Demopakete](../../Demos/09_AI_SQL_Server_2025/README.md); deren aktueller Code- und
 Nachweisstand ist im [Katalog](README.md#lokale-ki-demos--implementierung-vom-2026-10-11) geführt.
-Die übrigen 10 Entwürfe bleiben PROPOSED. QRY-018 implementiert ausschließlich
+Die übrigen 9 Entwürfe bleiben PROPOSED. QRY-018 implementiert ausschließlich
 den Offline-Replay; sein Live-Modellpfad bleibt getrennt und offen.
 Die Kennungen sind über die zentrale Registry abgeleitet; ihre endgültige Registrierung erfolgt
 mit Planungsintegration. [Workstream-Plan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md)

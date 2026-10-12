@@ -24,6 +24,7 @@ DEMOS = {
     "QRY-019": "QRY-019_SQL_Input_Policy",
     "DGN-009": "DGN-009_Offline_Injection",
     "DGN-008": "DGN-008_Offline_Model_Rights",
+    "CON-010": "CON-010_Tenant_Isolation",
 }
 SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)$", re.MULTILINE)
 RECORD = re.compile(r"^AI_ASSERT\|(baseline|comparison)\|([a-z][a-z0-9_]*)\|([^|]+)$")
@@ -121,6 +122,10 @@ def run_demo(target: targets.ExecutionTarget, major: int, demo_id: str, repetiti
 def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
     """Prueft NULL-/Falschmarker vor Preflight, Setup und Cleanup auf eigener Fixture."""
     directory = ROOT / "Demos/09_AI_SQL_Server_2025" / DEMOS[demo_id]
+    if demo_id == "CON-010":
+        from con010_controls import run
+        run(target, directory)
+        return
     name = "SQLPERF_LAB_" + demo_id.replace("-", "") + "_LOCAL"
     markers = {"SQLPERF.Project": "SQL_PerformanceSchulung",
                "SQLPERF.ContractVersion": "1.0", "SQLPERF.DemoId": demo_id,
