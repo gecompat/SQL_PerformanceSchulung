@@ -168,3 +168,23 @@ und eine Frageembeddingrückgabe, vollständige768-Vektoren und unabhängig
 berechnetes vorabTop1A. Dieser einzelne synthetische Synonymfall belegt weder
 allgemeine Retrievalqualität noch SQL-Persistenz, generative Antwort oder
 Live-RAG. Die vollständige Evidenz und Ergebnisgrenzen stehen im Korpusreview.
+
+## Getrennte SQL-Persistenz des Modellkorpus
+
+Die [SQL-Korpuskomponentenprüfung](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md)
+verwendet ausschließlich die bereits erzeugten vier Vektoren. Sie prüft eigene
+SQL2025-VECTOR768-Persistenz, vollständigen Transport und Exact Retrieval
+mit separatem Ownership-/Negativ-/Cleanupvertrag. Vorbereitung läuft; keine
+neuen Modellaufrufe und keine Umgehung des Lab-RAG-Secretblockers.
+SQL-HTTPS, Generator und voller Live-RAG bleiben eigene offene Grenzen.
+
+Die getrennte SQL-Korpus-C1 ist anschließend tatsächlich bestanden: ein neuer
+eigener SQL17.0.5005.3-Container/CL170,69Nativephasen ohneBootstrap/29Vollstates,
+vier vollständige768-float32-Records und unabhängiges Top1A-/Cosine-/Koordinaten-
+oracle. Drei tatsächliche51003-Resultatgegenproben,16 tatsächliche51004-
+Ownershipabweisungen und4Vollstaterestores. Eigentumsgebundener echterDrop,
+Probe-/Parent-DB-Abwesenheit und frischeOwnCID-/Namensabsence, Inputdateien0/
+UNKNOWNfalse. EinKandidat/einContainer,0 neueModellaufrufe, keine Runtime-
+wiederholung für reinen Vollrecordabschluss; ModeltokensUNKNOWN. Einzelner
+synthetischer Suchfall, keine volle Live-RAG-/SQLHTTPS-/Generator-/TSK007/008-
+Abnahme; aktuelle Integration folgt.
