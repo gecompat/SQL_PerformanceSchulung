@@ -2510,6 +2510,14 @@ Source-/Mess-/Plan-FAILs bleiben erhalten. Keine unveränderte grüne Wiederholu
 Öffentliche gemeinsame API unverändert; neue CI prüft den öffentlichen
 Consumer-/Shim-/Prozesspfad, Pflicht-SKIPs und WARNs sowie eigenen Cleanup.
 
+CI-C1 (Head ba65cf386e028cb2e8e2b5efcc91142b146d1726, Run 38199574328)
+FAIL am bisherigen Containerproxy: zusätzliche RES-008-Optionen nicht akzeptiert,
+2019/2022 mit unabhängiger Containerentfernung, öffentliche SQL-Abwesenheit
+dabei nicht qualifiziert. CI-C2 ändert nur den eigenen Adapter und dessen Auswahl
+im neuen Runner; gemeinsame API/Proxy und SQL-/Controllerbytes unverändert.
+Drei neue Argument-/ENV-/stdin-/Exitcodegegenfälle bestanden. Beide CI-Kandidaten
+werden im erweiterten Sechskandidatenbudget erhalten; aktueller CI-Nachweis folgt.
+
 Aktuelle Head-/Main-Gates, PR/Integration/Treeübernahme/FF-Sync/eigener Branchcleanup
 folgen vor Abschluss. Danach unmittelbar begrenzte öffentliche Aggregation/
 Ergebnisinterpretation aus den bereits vollständigen Records ohne erneute

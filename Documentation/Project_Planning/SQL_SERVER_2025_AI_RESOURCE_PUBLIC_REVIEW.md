@@ -95,6 +95,18 @@ bleiben Pflicht; tatsächliche Auswahl wird aus den betroffenen Pfaden gebunden.
 Größere Runtime-/Reviewbudgets werden nicht aus unbekannten Modell-/Tokenkosten
 abgeleitet; Verbrauch unbekannt. Keine Vollsuite-Lokaldoppelprüfung.
 
+CI-C1 am Head ba65cf386e028cb2e8e2b5efcc91142b146d1726 bleibt FAIL:
+Run 38199574328 verweigert die RES-008-Optionen `-C`/`-l` im bisherigen
+Containerproxy auf 2019/2022. Die unabhängige Containerentfernung besteht;
+die öffentliche SQL-Abwesenheit dieses CI-Aufrufs ist damit nicht qualifiziert.
+Die vorherigen lokalen C1-Nachweise bleiben separat gebunden. CI-C2 ergänzt
+ausschließlich einen eigenen dünnen RES-008-Adapter für `-C`/`-l`/`-y` und
+wählt diesen im neuen Runner. Gemeinsame API-/Proxydateien und alle öffentlichen
+SQL-/Controllerbytes bleiben unverändert. Drei neue synthetische Adaptertests
+prüfen sämtliche tatsächlich erzeugten Phasenargumente, Ablehnung von Passwort-/
+freien SQL-Optionen sowie Native-ENV-/stdin-/Exitcodeweitergabe. Der geänderte
+CI-Eingang benötigt neue aktuelle Head-/Main-Gates; kein unveränderter Retry.
+
 Private Rawdaten, Session-/Connection-/Containerwerte und vollständige XMLs
 bleiben ignoriert. Öffentlicher Aufruf zeigt Counts/Status und persistiert keine
 Rohdiagnosen; gültige Ergebnisse stehen im Speicher zur kontrollierten weiteren

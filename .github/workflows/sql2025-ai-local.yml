@@ -21,6 +21,8 @@ on:
       - 'Tests/Static/test_res008_plans.py'
       - 'Tests/Static/test_res008_measurement.py'
       - 'Tests/Runtime/run_res008_profile.py'
+      - 'Tests/Runtime/res008_docker_sqlcmd_proxy.py'
+      - 'Tests/Static/test_res008_proxy.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/con010_controls.py'
       - 'Tests/Runtime/execution_target.py'
@@ -47,6 +49,8 @@ on:
       - 'Tests/Static/test_res008_plans.py'
       - 'Tests/Static/test_res008_measurement.py'
       - 'Tests/Runtime/run_res008_profile.py'
+      - 'Tests/Runtime/res008_docker_sqlcmd_proxy.py'
+      - 'Tests/Static/test_res008_proxy.py'
       - 'Tests/Runtime/run_sql2025_ai_local.py'
       - 'Tests/Runtime/con010_controls.py'
       - 'Tests/Runtime/execution_target.py'
@@ -113,6 +117,7 @@ jobs:
           python Tests/Static/test_res008_profile.py
           python Tests/Static/test_res008_plans.py
           python Tests/Static/test_res008_measurement.py
+          python Tests/Static/test_res008_proxy.py
 
   runtime:
     name: SQL Server ${{ matrix.year }} / CL ${{ matrix.compatibility_level }}

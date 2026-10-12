@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Zwei öffentliche begrenzte Lifecycles; Versions-SKIP und Setupfault getrennt."""
 import argparse,importlib.util,os,sys
+from dataclasses import replace
 from pathlib import Path
 import execution_target as targets
 ROOT=Path(__file__).resolve().parents[2]
@@ -26,6 +27,7 @@ def main():
     try:
         target=targets.docker_target(container=args.container)
         targets.require_disposable_instance(target,False);major=targets.verify_engine(target,expected_major=args.expected_major)
+        target=replace(target,shim=ROOT/'Tests/Runtime/res008_docker_sqlcmd_proxy.py')
         os.environ[targets.CONTAINER_VARIABLE]=target.container
         outcomes=[];qualified=[]
         for repetition in (1,2):
