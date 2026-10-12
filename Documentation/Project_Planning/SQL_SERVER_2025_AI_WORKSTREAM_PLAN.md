@@ -409,6 +409,11 @@ sind reproduzierbar und decken CUR-013 bis CUR-022 sowie alle 18 Demoentwürfe a
 Neun IMPLEMENTED- und neun PROPOSED-Demos bleiben getrennt. Das bestehende
 Performance-Masterdeck und dessen Variantenmanifest sind unverändert. Neue
 SlideKeys, separate KI-Tiefenprofile und ihre Generalprobe sind nicht abgenommen.
+Die nachfolgende PowerPoint-Reparatur erhält den Namespacepräfix der
+Datumsmetadaten. Das korrigierte Deck ist in PowerPoint 16.0 geöffnet sowie
+für Text, Tabellen, Notizen und Speichern/erneutes Öffnen geprüft; die ursprüngliche
+Office-Ablehnung und die weiterhin offene didaktische Abnahme bleiben im
+[Ausführungsstand](CURRENT_EXECUTION_STATUS.md) getrennt dokumentiert.
 
 Diagramme zeigen Engine/Provider/Modell/Anwendung, Daten-/Trust Boundaries und RAG-Provenienz.
 Performancecharts zeigen Laufzeit **und** Recall/Ressourcen mit n und Fehlerquote;

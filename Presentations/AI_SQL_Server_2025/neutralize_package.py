@@ -6,6 +6,16 @@ from xml.etree import ElementTree as ET
 
 
 def neutralize(target: Path) -> None:
+    # xsi:type values contain lexical QNames. Preserve the prefix used inside
+    # dcterms:W3CDTF instead of letting ElementTree rename its namespace to ns2.
+    for prefix, namespace in {
+        'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+        'dc': 'http://purl.org/dc/elements/1.1/',
+        'dcterms': 'http://purl.org/dc/terms/',
+        'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        'ep': 'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+    }.items():
+        ET.register_namespace(prefix, namespace)
     with ZipFile(target) as archive:
         contents = {item.filename: archive.read(item) for item in archive.infolist()}
     removed = {name for name in contents if name.lower().startswith('docprops/thumbnail.')}
