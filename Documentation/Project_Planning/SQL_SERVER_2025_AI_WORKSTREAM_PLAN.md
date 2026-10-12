@@ -11,6 +11,19 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-009: öffentliche V2-Capturevorstufe nach PR223
+
+PR223 vollständig geschlossen (8 Head/6 Main, Tree/FF/Branches), Main
+c0e40cf8945cc7e135b871ed26641e223dc29d6d. Unmittelbar folgt die
+[V2-Capturevorstufe](SQL_SERVER_2025_AI_POOL_CAPTURE_REVIEW.md): ausschließlich
+vorhandene öffentliche Sources und kleine Capturehelper/Vertrag/Tests; V1 bleibt
+unverändert. Processende ist kein TDS-Beweis, SQLcmd-InputSHA nur vor ENV-Expansion,
+Credentialprüfung vor Digests; Timeout/UNKNOWN sperren Folge-SQL. 6/CP3/hard6,
+ein Owner/enger Rootreview, heute null neue Prozesse/SQL/Container/Modell-/Provider-
+Metadatenaufrufe. Keine Legacy-/C3-/CLRprobe, Default-CI ohne RED und keine Workflow-/
+Selectorausnahme. Öffentlicher Producer/Nativeadmission bleibt separater Folgeumfang.
+
+
 
 ## TSK-009: öffentlicher Poolrecordvertrag kohärent, Capturegrenzen WARN
 

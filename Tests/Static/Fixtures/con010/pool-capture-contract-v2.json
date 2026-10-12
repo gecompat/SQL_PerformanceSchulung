@@ -1,0 +1,29 @@
+{
+  "contract": "CON010_POOL_CAPTURE_V2",
+  "stage": "SOURCE_ONLY",
+  "source_keys": [
+    "Tests/Static/con010_pool_capture.py",
+    "Tests/Static/test_con010_pool_capture.py",
+    "Tests/Static/Fixtures/con010/pool-capture-contract-v2.json",
+    "Documentation/HowTo/SQL_SERVER_2025_AI_POOL_CAPTURE_V2.md",
+    "Demos/00_Framework/Tools/sqlcmd_process.py"
+  ],
+  "collector_sha256": "d8b553419bb34e4bafe7d0a7baee55ca28a5b97d1ad64710e131674aa6ca9757",
+  "input_scope": "CLIENT_INPUT_FILE_UTF8_BEFORE_SQLCMD_ENV_EXPANSION",
+  "output_scope": "COLLECTOR_DECODED_TEXT_UTF8_REENCODED",
+  "frame_prefix": "CON010_POOL_CAPTURE_PART",
+  "frame_units": 200,
+  "frame_max_units": 200000,
+  "input_max_bytes": 160000,
+  "output_max_bytes": 1000000,
+  "configured_reaping_reserve_seconds": 26,
+  "communicate_retry_seconds": 5,
+  "windows_taskkill_seconds": 5,
+  "terminate_wait_seconds": 2,
+  "capture_is_server_request_end": false,
+  "runtime_qualification": "NOT_ESTABLISHED",
+  "caller_provenance": "NOT_INDEPENDENTLY_ATTESTED",
+  "wallclock_guarantee": "NO_WALLCLOCK_GUARANTEE",
+  "bare_exception_configured_wait_seconds": 14,
+  "required_cleanup_reserve_is_mandatory": true
+}
