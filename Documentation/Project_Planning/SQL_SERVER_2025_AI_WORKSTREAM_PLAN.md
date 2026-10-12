@@ -628,3 +628,20 @@ Negativframes; tatsächliche PK→Candidate→PK-Seeks jeweils 1, keine Readerpl
 oder Nettonutzenqualifikation. Eigener SQL-/DB-/Containercleanup bestanden.
 Aktuelle PR-/Main-Gates und Branchcleanup folgen. Nächste zulässige DGN-010-Frage
 ist begrenzter Owner-INSERT mit tatsächlichem Rollbackrestore ohne/mit Candidate.
+
+
+PR198-Indexnutzung Head7/Main5/ganzerTree/FF/Ownbranchcleanup abgeschlossen.
+Nächster begrenzter [Owner-INSERT-/Rollbackkosten-Schnitt](SQL_SERVER_2025_AI_DGN010_INSERT_REVIEW.md):
+1000Originalrows/max1010kurzzeitig, per-INSERTRestore, AB/BA/AA plus volleSource-/
+Stateoracles; sechsKandidaten/max12serielleContainer, Checkpoint3/hard6.
+Commit/Build/Worker/Readerpläne/Indexnettonutzen/fullTP-PERF bleiben offen.
+
+
+INSERT-/per-Statement-Rollback C1 zweimal nativ bestanden: 3620 Benchmark-INSERTs
+plus2 positive Controls, 36220 volle positive Roworacles/3622 tatsächliche
+Rollbackkontrollen, 92000 Source-/116000 State-Rows und vier echte Negative.
+Candidate-Mediane für CPU/LogicalReads/Elapsed in beiden Profilen höher;
+Prüf-/OUTPUT-/Rollbacks im Messscope enthalten, keine reine INSERT-/Commit-/
+Nettonutzenqualifikation. Source/Rechte/Config und eigener Cleanup erhalten.
+Aktuelle PR-/Main-/Tree-/FF-/Ownbranchgates folgen; danach nächste zulässige
+begrenzte Kosten-/Planfrage.
