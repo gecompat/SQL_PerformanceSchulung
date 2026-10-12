@@ -54,6 +54,13 @@ kleine float32-Populationen einschließlich tatsächlicher negativer Quellenkont
 und vollständigem eigenem Cleanup. C1 bleibt FAIL; C2 korrigierte nur das Oracle.
 RES-008 bleibt PROPOSED, TSK-010 und Performance-/TP-PERF-Abnahme bleiben offen.
 
+Die [private RES-008-Messfolge](SQL_SERVER_2025_AI_RESOURCE_MEASUREMENT_REVIEW.md)
+ergänzt nach vollständig abgeschlossenem PR185 zwei stabile Lifecycles mit je
+20 Warmups, 54 tatsächlichen AB-/BA-/AA-Fenstern und 5420 einzelnen Queryoracles.
+C1-Zeitauswertungs-FAIL erhalten; C2 trennt grobe DMV-Identität von feinem
+Messzeitstempel. Quellen-/Querygegenproben, Restore und eigener Cleanup bestanden.
+Pläne/Memory/Workergrenzen, öffentliches Paket und TP-PERF bleiben offen.
+
 ## 1. Zielbild und Abgrenzung
 
 Teilnehmende sollen KI-Funktionen technisch korrekt einsetzen, ihre Rechte begrenzen,
