@@ -1,5 +1,31 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: geänderte Loader-Auflösungsgegenprobe nach PR232
+
+PR232 vollständig geschlossen: neun Head-/sieben Main-Gates, voller Tree,
+Main 6f3a116f/FF-Synchronisierung, eigene Branches entfernt, 84 private Dateien
+gesichert und eigener Worktree tatsächlich archiviert; SQL-CI nicht ausgelöst.
+Bekannter C1-Loader-FAIL/COHERENT_DIAGNOSIS_STOP bleibt unverändert erhalten.
+Der sichtbare [Folgeentscheid](SQL_SERVER_2025_AI_LOADER_RESOLUTION_REVIEW.md)
+setzt die kumulative Sechsergrenze mit C2–C6 fort, Checkpoint nach C3.
+Der Schnitt begann mit C2-Sourcevorbereitung: sichere Host-/Fehlermetadaten, danach bei bekanntem
+FAIL geänderte eigene Dateilayouts. Keine SQL-Verbindung oder globale Hoständerung,
+sticky UNKNOWN und frühere Hardstops unverändert. Neue Rootgates vor Effekten.
+C2 ist tatsächlich bekannt beendet: Compiler PID 48964/poll 0/rc 0 und
+Probe PID 61144/poll 1/rc 1, kein Timeout/UNKNOWN. .NET 10.0.12, vier Hostphasen
+RETURNED, LOAD_SQLCLIENT/FileNotFoundException/THREW, sicherer Name
+Microsoft.Data.SqlClient/PARTIAL_DISPLAY. DLL vorhanden, TPA 201/OwnClientInTpa
+false, APP_PATHS null. Keine Typ-/SQL-Qualifikation. Kumulativ zwei Compiler/zwei
+Proben, C1-86-Pins aktuell. C3: neuer eigener literal Bestand mit identischer
+C2-DLL, keine Kompilierung; neue Source-/Pin-/Rootgates vor einer Probe/Checkpoint3.
+C3 tatsächlich PASS ausschließlich für Loader/Typmetadaten: Probe PID 58712/
+poll 0/rc 0/.126375s, kein Timeout/UNKNOWN, acht individuelle Enden vollständig,
+SqlClient/Assemblyversion 6.0.0.0 aus eigener literal Datei/SHA und beide Typen
+bestätigt. OwnClientInTpa true bei TpaCount 201; keine flache Client-DLL.
+C1-86-/C2-69-Pins aktuell, kumulativ zwei Compiler/drei Proben und Checkpoint3.
+STOP_AFTER_LOADER_METADATA_PASS, C4–C6 nicht ausgeführt, SQL null;
+Typed-API-/SNI-/TDS-/SQL-/volle TSK-004-Abnahme und alte C6-Ursache offen.
+
 ## TSK-004: getrennte Assembly-Ladediagnose nach PR231
 
 PR231 vollständig geschlossen: zehn erfolgreiche Head-Gates/Runtime-SKIP,
