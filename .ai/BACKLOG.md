@@ -2,6 +2,23 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller TSK-004-Schnitt: [eigener geänderter Caller mit Sessionreader](../Documentation/Project_Planning/SQL_SERVER_2025_AI_READER_TRANSPORT_REVIEW.md).
+PR235 vollständig geschlossen: neun Head-/sieben Main-Gates, Maind5ee1864,
+Tree/FF/Branches, 39 private Files gesichert/eigener Worktree archiviert.
+Alter Transport-C1 bleibt UNKNOWN_STOP, Originale/alte Ressourcen readonly.
+Neue V2-Sourcebasis mit acht tatsächlichen Readerfeldern/Einzelenden;
+gemeinsames Nativebudget zählt alten C1 weiter, höchstens fünf zusätzliche
+eigene Kandidaten/Container/Compiles/Caller, Gesamtcheckpoint3/hard6.
+Jetzt Source-/Purevorbereitung; neue Effekte null, getrennte Rootgates vor Effekten.
+R1/Gesamt2 tatsächlich FAIL/UNKNOWN_STOP: Compiler2/WARNs erhalten,
+Caller/Container2 und ChildknownEnds. Acht Driver-Typmetadaten/22 Readersteps;
+GetInt32(1) wirft InvalidCastException bei gemeldetem DB_ID-smallint/System.Int16,
+gegenüber dokumentiertem int. Null Folge-SQL, eine volle eigene Containment/
+frische CID-/Namensabwesenheit; SQLcleanup/DB-/Inputabwesenheit nicht belegt,
+closed false/71 Sources und Originale erhalten. Keine typed/Controls-Qualification.
+Aktuelle Integration, danach geänderte DB_ID-int-Sourceprojektion; gemeinsames
+Restbudget vier Kandidaten/Gesamt3–6, nächster Gesamt3 ist Checkpoint, kein Reset.
+
 Aktueller TSK-004-Schnitt: [unabhängiger Sessionreader-/Fehlervertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_SESSION_READER_REVIEW.md).
 PR234 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main24478d42,
 voller Tree/FF/Branches, 122 private Dateien gesichert/eigener Worktree archiviert.

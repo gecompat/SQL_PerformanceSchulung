@@ -102,6 +102,16 @@ nicht erfasst. Der jetzt dokumentierte Typmismatch ist ein überprüfbarer
 Sourcebefund; er beweist nicht rückwirkend die tatsächliche Fehlerursache.
 Die alte UNKNOWN-Welle bleibt gestoppt.
 
+Die spätere [V2-Transportakte](../Project_Planning/SQL_SERVER_2025_AI_READER_TRANSPORT_REVIEW.md)
+erfasst die nächste Fehlerstelle: Der Driver meldet für `DB_ID()`
+smallint/System.Int16, und `GetInt32(1)` wirft tatsächlich InvalidCastException.
+Die aktuelle DB_ID-Dokumentation nennt weiterhin `int`; die Tabelle oben
+enthält diese dokumentierte Angabe. Driverbeobachtung und Herstellervertrag
+bleiben getrennt, ohne eine allgemeine Server-/Wireursache zu behaupten.
+Der nächste Sourcepfad projektiert deshalb auch `CONVERT(int,DB_ID())`
+ausdrücklich. Dieser neue Sourcevorschlag ist noch kein bestandener Runtimepfad.
+Der ursprüngliche unklassifizierte Fehler aus der älteren Akte bleibt unbewiesen.
+
 Dieser [Sessionreader-Schnitt](../Project_Planning/SQL_SERVER_2025_AI_SESSION_READER_REVIEW.md)
 ist SOURCE_ONLY: acht projektierte Typ-/Getterbindungen und neue reine
 Gegenfälle. Er führt keine Kompilierung, CLR-/Driver-/SQL-/Containerprobe aus.
