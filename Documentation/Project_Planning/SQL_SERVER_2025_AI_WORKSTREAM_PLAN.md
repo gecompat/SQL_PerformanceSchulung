@@ -11,6 +11,30 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: reiner Clientlayoutvertrag nach PR230
+
+PR230 ist vollständig geschlossen: elf erfolgreiche Head-Gates und ein
+Runtime-SKIP, acht erfolgreiche Main-Workflows mit bestätigtem Runtime-SKIP,
+vollständiger Tree/Main 9d731f55/FF-Synchronisierung, eigene Branches entfernt,
+121 Dateien gesichert und eigener Worktree tatsächlich archiviert.
+Unmittelbar [reiner Clientlayoutvertrag](SQL_SERVER_2025_AI_CLIENT_LAYOUT_REVIEW.md):
+vorhandene Deps-/Asset-/Compilerpins, volle relative Pfade/RIDwahl/Hashes und
+Basenamekollisionen; Sourcefrage, FileNotFound-Ursprung weiterhin UNPROVEN.
+Sechs Sourcekandidaten, Checkpoint nach drei und Abbruch nach sechs; ein
+Implementierungsverantwortlicher und enger Rootreview, ohne neue Laufzeit-,
+Provider-, Modell- oder Hosteffekte.
+Nur statische Trigger/Tests, Runtimebody/Selector unverändert. Vor einer rein
+historischen Bestandsauswertung aktuelle Source-/Expected-/Privacy-/Rootgates;
+keine Wiederaufnahme der VECTOR-/Pool-/Generationshardstops oder volle Abnahme.
+C1-Bestandsauswertung FAIL, Originale und Quellen gesichert. Der explizite
+C2-Folgeentscheid ergänzt ausschließlich den echten Ressourcenabschnitt;
+kumulativ höchstens zwei Offlineprozesse/Reportversuche, danach Stop,
+unverändert keine Laufzeitwirkungen.
+C2 tatsächlich COHERENT/WARN abgeschlossen: 31 Appdateien/28 Runtimeassets,
+fünf fehlende wörtliche runtimeTargets-Unterpfade bei vorhandenen flachen DLLs.
+Originale und C1-Archiv51 unverändert; STOPPED_AFTER_C2, kein Loaderbeweis,
+FileNotFound-Ursprung weiterhin UNPROVEN und volle TSK-004-Abnahme offen.
+
 ## TSK-006: reiner ANN-DML-/Rollenrecordvertrag nach PR229
 
 PR229 vollständig geschlossen (7Head/5Main/Main d28761f2/Tree/FF/Branches/

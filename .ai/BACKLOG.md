@@ -2,6 +2,22 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller unabhängiger TSK-004-Schnitt: [reiner Clientlayoutvertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_CLIENT_LAYOUT_REVIEW.md).
+PR230 ist vollständig integriert, synchronisiert und bereinigt; 121 private
+Dateien sind gesichert und der eigene Worktree tatsächlich archiviert.
+ANN-Records bleiben COHERENT/WARN, das Replaypaket ist gestoppt.
+Die neue reine Deps-/RID-/Pfad-/Hash-/Kollisionsprüfung erlaubt sechs
+Sourcekandidaten mit Checkpoint nach drei Kandidaten, ohne neue Laufzeitwirkungen.
+FileNotFound-Ursprung UNPROVEN; VECTOR FAIL_HARD6_UNKNOWN bleibt gestoppt. Volle
+TSK-004/006-/Workstreamabnahmen und Human-/Providergrenzen bleiben offen.
+C1-Bestandsauswertung FAIL wegen des nicht abgebildeten `resources`-Abschnitts;
+Originale und FAIL gesichert. Konkreter C2-Sourcefolgeentscheid mit kumulativ
+höchstens zwei Offlineprozessen/Reportversuchen, danach anhalten; Laufzeitbudget null.
+C2 ist nach Ressourcenmetadatenkorrektur tatsächlich COHERENT/WARN abgeschlossen:
+31 Dateien/28 Runtimeassets, fünf fehlende wörtliche Unterpfade bei vorhandenen
+flachen DLLs. Originale und C1-Archiv51 unverändert, Paket STOPPED_AFTER_C2;
+FileNotFound-Ursprung und Runtimequalifikation weiterhin nicht nachgewiesen.
+
 Aktueller unabhängiger TSK-006-Schnitt: [reiner IDX-012-DML-/Rollenrecordvertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_RECORD_CONTRACT_REVIEW.md).
 PR229 vollständig integriert/synchronisiert/bereinigt, tatsächlicher eigener
 Worktreearchiv nach 391 gesicherten privaten Dateien. VECTOR Hard6UNKNOWN bleibt

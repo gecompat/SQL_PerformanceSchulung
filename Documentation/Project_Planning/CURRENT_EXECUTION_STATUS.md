@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: reiner Clientlayoutvertrag nach PR230
+
+PR230 ist vollständig geschlossen: elf erfolgreiche Head-Gates und ein
+Runtime-SKIP, acht erfolgreiche Main-Workflows mit bestätigtem Runtime-SKIP,
+vollständiger Tree/Main 9d731f55/FF-Synchronisierung, eigene Branches entfernt,
+121 Dateien gesichert und eigener Worktree tatsächlich archiviert.
+ANN-Records bleiben COHERENT/WARN, Capturelücken bleiben sichtbar,
+Replaypaket STOPPED_AFTER_C2. Unmittelbar [reiner Clientlayoutvertrag](SQL_SERVER_2025_AI_CLIENT_LAYOUT_REVIEW.md)
+auf unveränderten PR229-Deps-/App-/Compilerpins: fünf Unterpfadabweichungen bei
+flach kopierten Assets, FileNotFound-Ursprung UNPROVEN. EinOwner/engerRootreview,
+sechs Sourcekandidaten mit Checkpoint nach drei und Abbruch nach sechs;
+keine dotnet-, Assemblyload-, Provider-, SQL-, Container-, Modell-, Download-
+oder Hostaufrufe.
+Source-/Tests-/Expected-/Privacy-/Rootgates vor einer historischen reinen
+Bestandsauswertung; kein impliziter Loader-/Runtime-PASS oder Hard6-Wiederaufnahme.
+C1 endete bekannt mit FAIL_OFFLINE_LAYOUT/FIXED_PACKAGE_ASSET_SCHEMA; ein
+Reportversuch, kein abgeschlossener Report, Originale unverändert und FAIL gesichert.
+C2 bildet ausschließlich den tatsächlichen `resources`-Abschnitt ab; sichtbarer
+Folgeentscheid mit kumulativ zwei Prozessen/Reportversuchen, danach Stop.
+C2 ist tatsächlich abgeschlossen: PID 62428/poll 0/Returncode 0, kein
+Timeout/UNKNOWN, Source COHERENT/WARN; 31 Dateien, 28 Runtimeassets und fünf
+fehlende wörtliche Unterpfade bei vorhandenen flachen DLLs. Originale und
+C1-Archiv51 unverändert, STOPPED_AFTER_C2. FileNotFound-Ursprung UNPROVEN,
+Loader-/Typed-API-/TDS-/SQL-/Runtimequalifikation NOT_ESTABLISHED.
+
 ## TSK-006: reiner ANN-DML-/Rollenrecordvertrag nach PR229
 
 PR229 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main d28761f2,
