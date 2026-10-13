@@ -2,6 +2,23 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller TSK-004-Folgeschnitt: [geänderte Loader-Auflösungsgegenprobe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_LOADER_RESOLUTION_REVIEW.md).
+PR232 vollständig geschlossen, 84 private Dateien gesichert, eigener Worktree
+tatsächlich archiviert. C1 bekannter Loader-FAIL bleibt erhalten. Sichtbarer
+Folgeentscheid erlaubt C2–C6 innerhalb der bestehenden kumulativen Sechsergrenze,
+Checkpoint nach C3; neue sichere Host-/Fehlermetadaten und gezielte eigene
+Dateivarianten, ohne SQL oder globale Hoständerungen. Kein unveränderter Retry.
+C2 tatsächlich bekannter Loader-FAIL, sicher erfasster Name Microsoft.Data.SqlClient:
+DLL vorhanden, OwnClientInTpa false/TpaCount 201/APP_PATHS null. Vier Hostphasen
+und Load-Exception beendet, C1-86-Pins unverändert, kumulativ zwei Compiler/zwei
+Proben. C3 bereitet fünf literal eigene Unterpfade mit identischem C2-Build vor;
+keine neue Kompilierung oder SQL-Verbindung, neue Rootgates vor der Einzelprobe.
+C3 ist tatsächlich Loader-/Typmetadaten-PASS: identischer C2-Build, fünf
+literal Dateien, acht API-Enden, eigene geladene SqlClient-SHA und beide Typen
+belegt. C1-86-/C2-69-Pins unverändert; Checkpoint3, kumulativ zwei Compiler/drei
+Proben, STOP_AFTER_LOADER_METADATA_PASS. C4–C6 nicht ausgeführt, SQL und volle
+Treiberqualifikation weiterhin offen; kein Loader-PASS für den alten C6-Client.
+
 Aktueller TSK-004-Schnitt: [getrennte lokale Assembly-Ladediagnose](../Documentation/Project_Planning/SQL_SERVER_2025_AI_LOADER_DIAGNOSIS_REVIEW.md).
 PR231 vollständig integriert, synchronisiert und bereinigt; 138 private Dateien
 gesichert und eigener Worktree tatsächlich archiviert. Neuer eigener Probehost

@@ -11,6 +11,26 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: geänderte Loader-Auflösungsgegenprobe nach PR232
+
+PR232 vollständig geschlossen: neun Head-/sieben Main-Gates, Main 6f3a116f,
+vollständiger Tree/FF-Synchronisierung, eigene Branches entfernt, 84 private
+Dateien gesichert und eigener Worktree tatsächlich archiviert. Bekannter
+C1-Loader-FAIL bleibt erhalten. Der [sichtbare Folgeentscheid](SQL_SERVER_2025_AI_LOADER_RESOLUTION_REVIEW.md)
+erlaubt C2–C6 innerhalb derselben kumulativen Sechsergrenze, Checkpoint nach C3,
+ohne SQL oder globale Hoständerungen. Kein stilles Zurücksetzen der Stopdatei,
+des Budgets oder der früheren Hard6-/UNKNOWN-Grenzen. Beginn mit C2-Sourcevorbereitung.
+C2 tatsächlich bekannter Loader-FAIL mit sicherem Namen Microsoft.Data.SqlClient,
+vier beendeten Hostphasen, TPA 201/OwnClientInTpa false und APP_PATHS null bei
+vorhandener DLL. Sources/Originale/C1-86-Pins aktuell, kumulativ zwei Compiler/zwei
+Proben; keine Typ-/SQL-Qualifikation. Unmittelbar geänderte eigene C3-Unterpfade
+mit identischem C2-Build, ohne neue Kompilierung und mit neuen Rootgates/Checkpoint3.
+C3 tatsächlich Loader-/Typmetadaten-PASS mit identischem C2-Build, fünf
+literal Dateien, eigener geladener SHA und beiden Typen; acht Enden vollständig.
+C1-86-/C2-69-Pins unverändert, Checkpoint3, kumulativ zwei Compiler/drei Proben,
+STOP_AFTER_LOADER_METADATA_PASS. C4–C6 nicht ausgeführt; SQL null, keine
+volle Typed-API-/SNI-/TDS-/SQL-/Treiberqualifikation oder alte C6-Ursachenklärung.
+
 ## TSK-004: getrennte Assembly-Ladediagnose nach PR231
 
 PR231 ist vollständig geschlossen: zehn erfolgreiche Head-Gates/Runtime-SKIP,
