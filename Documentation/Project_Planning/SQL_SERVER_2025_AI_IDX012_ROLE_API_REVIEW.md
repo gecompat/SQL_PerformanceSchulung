@@ -80,7 +80,7 @@ nur einem neuen vollständigen Controllergegenfall normal und unter `-O`:
 beide bestanden, insgesamt 20 Invokationen/acht gehaltene Prozesse. UNKNOWN im
 Restore liefert FAIL_CLEANUP und NOT_ESTABLISHED mit vollständigen sicheren
 Captures/zurückgehaltenen Inputs zurück; kein weiterer Recovery-SQLclient.
-Fünf von maximal sechs Quellenständen verbraucht; einer verbleibt. Root hat Source4/overall5 semantisch und mechanisch abgeschlossen;
+Vor der CI-Imagekorrektur waren fünf von sechs Quellenständen verbraucht; einer verblieb. Root hat Source4/overall5 semantisch und mechanisch abgeschlossen;
 CLEANUP_UNKNOWN_RESULT_LOST ist geschlossen. Der Quellenstand wird über PR
 integriert; Native-/Server-/TDS-Abnahme bleibt offen, Domainaufrufe bleiben null.
 
@@ -93,3 +93,27 @@ oder mechanische Source4-Finding; der tatsächliche Checkpoint wurde nach vier
 geprüften Zuständen geschlossen. Diese Abschlussprosa ändert ausschließlich
 die vier kanonischen Dokumente. Der ausgeführte Source4-Code, Test und Workflow
 sowie ursprünglicher Freeze/Rootcheckpoint bleiben unverändert gebunden.
+
+## Tatsächlicher CI-Image-Drift und sechster Quellenstand
+
+Der erste PR244-Headlauf blieb tatsächlich FAIL: Der SQL2025-Kostenconsumer
+verwarf SKIP_CONFIGURATION; die vier vorangehenden DGN-010-Lifecycles hatten
+bereits SKIP_CONFIGURATION mit bestätigtem Cleanup geliefert. Der ursprüngliche
+CI-Namespacecleanup bestand. Die Logdigests belegen, dass `2025-latest` gegenüber
+dem erfolgreichen Mainlauf38415812533 ein anderes Image auflöste: vorher
+`sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726`,
+im fehlgeschlagenen Headlauf38427774683 dagegen
+`sha256:742481d1b1186cccc81220a1eaacef244ca8d0f7d19c8e5c70df8ae541ffbab2`.
+Image-Drift ist belegt; die tatsächliche neue Build-/Editionabweichung ist
+UNPROVEN, weil der SKIP keine abweichenden Werte ausgibt.
+
+Der sechste und letzte Quellenstand CI_IMAGE_INPUT_CORRECTION pinnt nur den
+SQL2025-Matrixeintrag auf den tatsächlich erfolgreichen RegistryDigest.
+2019/2022, Laufskripte, Testoracles und Rollenproduktbytes bleiben unverändert;
+keine SKIP- oder FAIL-Umdeutung und kein unveränderter CI-Rerun. Source4-Freeze,
+Rootreview, 20 Methodeninvokationen/acht gehaltene Testprozesse sowie die beiden
+Original-CI-Logs bleiben erhalten. Keine lokale Purewiederholung oder neue
+Domainaufrufe. Jetzt sechs von sechs Quellenständen/Hard6, kein Reset oder
+Source7. Die neue geänderte CI-Eingabe erhält aktuelle Head-/Main-Gates vor
+Integration; PR244 bleibt bis dahin ungemergt. Öffentliche Rollenruntime und
+vollständige Demo-/Server-/TDS-/TP-PERF-Abnahme bleiben NOT_ESTABLISHED.
