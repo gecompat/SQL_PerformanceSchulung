@@ -1,5 +1,76 @@
 # KI mit und für Microsoft SQL Server 2025 – Workstream-Plan
 
+## TSK-006: V2-Rechtegegenfälle korrigiert; historischer Report bleibt FAIL
+
+Der einmalige historische Offlinebericht scheiterte mit V2_RECORD_BINDING:
+attempted1, completed0, keine Summary. Driver-PID8276 und Child-PID72048
+endeten bestätigt mit Poll/Returncode1, ohne Timeout oder UNKNOWN. Alle51
+festen Eingangsdateien und acht Authoritydateien blieben vor/nach bytegleich.
+Root hat den Fehler und die Originalkanäle unabhängig geprüft.
+
+Der konkrete Fehler betrifft die beiden Rechtegegenfälle: Die tatsächliche
+öffentliche API liefert für das noch nicht gestartete Cleanupfenster vier
+Felder, während Consumer und Fixture nur Status erwarteten. Source5 fordert
+jetzt exakt Status=NOT_STARTED, Seconds als int60 sowie beide Zeitfelder=None.
+Fehlende, zusätzliche und widersprüchliche Felder werden abgewiesen. Der neue
+betroffene Gegenfall bestand normal PID11964 und optimiert PID16700, jeweils
+Poll/Returncode0; alle31 Quellen blieben unverändert. Enger Rootreview bestanden.
+
+Fünf geprüfte Quellenstände,21 Methodeninvokationen/19 PASS/zwei erhaltene FAIL,
+zusätzlich erster Driver-SyntaxFAIL; acht bestätigte Unitprozessenden. Keine
+alte grüne Suite lokal wiederholt. Der ursprüngliche historische Report bleibt
+FAIL; das maximale Einzelreportbudget ist verbraucht und wird nicht zurückgesetzt.
+Null Native-, SQL-, Container-, Provider- oder Modellaufrufe in diesem Schnitt.
+V1, alte Evidenz und Claims unverändert; Runtime-/Herkunfts-/Credentialgrenzen
+bleiben offen. Modell-/Tokenverbrauch UNKNOWN.
+
+Dieser Schnitt wird mit aktuellem Quellen-/Dokumentfreeze, PR-/Head-/Main-Gates,
+Integration nach origin/main, Synchronisierung und eigenem Cleanup geschlossen.
+Erst anschließend darf eine getrennte begründete Folgewelle einen weiteren
+historischen Bericht zulassen; kein Wiederholungs-PASS in dieser Welle.
+
+[Konkrete Belege und Grenzen](SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md).
+
+## TSK-006: V2-Source4 Fixturekorrektur gezielt bestanden
+
+Source4 ändert nur den Helperfixture-Pfadvergleich; Produktguards Source3-gleich.
+Betroffener Fall1N/1O bestanden, alle Helpernegativzweige erstmals erreicht.
+VierStände/19Invokationen/17PASS2FAIL plus ersterDriverSyntaxFAIL, sechs bekannte
+Testenden. PrivacyN/O-BelegeSource3 unverändert, keinealte7/6-Wiederholung.
+HistorischerOfflineReport/Domain0; freshRootabnahme nochvorReport erforderlich.
+[Konkrete aktuelle Belege und verbleibende Grenzen](SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md).
+
+## TSK-006: V2 tatsächlicher Checkpoint3 geschlossen
+
+Source3-Privacycluster normal/optimiert bestanden; Helperfixture beide FAIL
+am Extended-/Normalpfadvergleich, negativeHelperzweige NOT_REACHED.
+RootactualCP3: dreiStände/17Invokationen/15PASS2FAIL plusSource1SyntaxFAIL,
+vier bekannteTestenden. Source4 ausschließlich betroffeneFixtureBytevergleich-
+Korrektur mit1N/1O; keinealtegrüneSuite/Privacywiederholung. Offline-/Domain0,
+keinehistorischeReportadmission. [Konkreter Checkpoint und Grenzen](SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md).
+
+## TSK-006: V2-Source2 enger Rootreview verlangt Guardkorrektur
+
+Source1 privater Driver-SyntaxFAIL vor Child bleibt; Source2 erstmals7N/6O
+bestanden,13 Methoden/2 bekannte Testenden. Root reproduzierte zwei neue reine
+Privacyfindings: gemischte bekannte Hexformen und verschachtelte PART-Frames
+passieren vor Digests. Zusätzlich feste vier Pure-Modulnamen vor Import begrenzen.
+Source3 gezielt, kein alter7/6-Replay; tatsächlicherCP3 erst nach Source3.
+Offline-/Native-/SQL-/Host-/Modelleffekte0, Originale/aktuellerDocstand vorher
+gesichert. [Aktueller Befund und unveränderte Grenzen](SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md).
+
+## TSK-006: öffentliche V2-Recordauswertung als nächster Offline-Schritt
+
+PR246 ist vollständig geschlossen: Head13/Main11 erfolgreich, Main e3d8d61e,
+voller Tree, synchrones sauberes Main, eigene Branches entfernt;439 private
+Originale hashgesichert und Worktree tatsächlich archiviert. PublicRole-C3 bleibt
+begrenzter Teilnachweis mit WARN/offenen Owner-/TDS-/Runtime-/TP-PERF-Grenzen.
+Der separate V2-Consumer nimmt die neue Public-Resultform auf; V1-CapturesNone und
+historische Inputpins bleiben unverändert. Ein Implementer, enger Rootreview,
+max6 Source/ActualCP3/Hard6 und höchstens ein gebundener Offline-C3-Report nach Freeze.
+Neue Runtime-/SQL-/Modelleffekte0, keine Wiederaufnahme alter Native-/V1-Wellen.
+[Endlicher Scope, Prüf- und Claimgrenzen](SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md).
+
 ## TSK-006: öffentlicher Rollenmodus tatsächlich begrenzt bestanden
 
 C3/insgesamt Rollenkandidat6 bestand den abgegrenzten öffentlichen APIvertrag

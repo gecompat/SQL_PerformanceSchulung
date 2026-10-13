@@ -114,3 +114,67 @@ Die Herstellergrenze beschreibt [CREATE VECTOR INDEX](https://learn.microsoft.co
 (SRC-077); sie ersetzt die Beobachtung dieses festen Builds nicht.
 
 Die binäre JSON-Darstellung erläutert [FOR JSON: Datentypkonvertierung](https://learn.microsoft.com/en-us/sql/relational-databases/json/how-for-json-converts-sql-server-data-types-to-json-data-types-sql-server?view=sql-server-ver17) (SRC-117).
+
+## V2: Resultate der öffentlichen Rollen-API lesen
+
+Die öffentliche Rollen-API liefert inzwischen individuelle Clientcaptures.
+Dafür gibt es einen getrennten V2-Vertrag. V1 und seine beiden historischen
+Inputpins bleiben erhalten: fehlende Captures werden dort weiterhin nicht ergänzt.
+
+V2 erwartet drei unveränderte Resultdictionaries: zuerst den Gegenfall ohne
+CREATE ANY DATABASE, danach den Gegenfall ohne VIEW SERVER PERFORMANCE STATE,
+zuletzt den positiven WARN des festen operator-admin-build-/Drop-Rebuild-Profils.
+In den zwei Kostenphasen bleibt jeweils derselbe Client aktiv: Operator,
+Admin nur für den festen Indexbuild, anschließend wieder Operator. Acht
+geordnete Kontextrecords werden mit den beiden BEFORE-/AFTER-Kostenpaaren
+verbunden. Session-writes sind dabei keine gemessenen Dateischreibvorgänge;
+der gesamte Phasenaufwand enthält auch Kontrollen und Beobachtung.
+
+Mit bereits im Speicher vorhandenen Dictionaries lautet der reine Aufruf:
+
+```python
+from idx012_public_role_evidence_v2 import report
+
+record = {"contract": "IDX012_PUBLIC_ROLE_RECORD_V2", "profiles": public_results}
+summary = report(record, binding, secrets=private_known_secrets)
+```
+
+`binding` enthält Token, DB-ID, Fixture-Objekt-ID, Operator-/Admin-SID,
+ursprünglichen Previewwert, die feste aktuelle 24-Dateien-ExecutionSourcekarte,
+die Consumer-/Expectedkarte und die ausdrücklich erklärte Herkunft. Es gibt
+keinen frei wählbaren Dateipfad oder SQL-Executor. Der Consumer liest nur
+seinen festen Expectedvertrag, V1-Helfer und die öffentlichen reinen
+Evidenzfunktionen; er startet keine Clients. Die Prüfung verbindet 25
+Clientrecords mit tatsächlichen Inputtexten, UTF-8-Digests, getrennten
+Kanälen, PID/Poll/Returncode und Quellen vor/nach den Aufrufen.
+Die Inputbindung betrifft konfigurierte Texte vor ENV-Erweiterung, keine
+unabhängig attestierten serverseitig ausgeführten SQLbytes.
+
+Die Secretliste ist ein erforderlicher privater Parameter und wird nicht
+ausgegeben oder gehasht. Plaintext, UTF-8-/UTF-16-Hex und JSON-escapete
+bekannte Werte werden vor Digests geprüft. Empfangene Hexframes sind im
+festen JSON-Zeilen-Transport nicht unterstützt und werden auch innerhalb
+dekodierter JSON-Strings abgewiesen. Hexschreibungen werden unabhängig von
+Groß-/Kleinschreibung erkannt; Plaintext bleibt unverändert case-sensitiv.
+Eine ausdrücklich leere Liste ergibt NOT_CHECKED_FOR_UNAVAILABLE_SECRETS,
+keine behauptete vollständige Credentialprüfung. Herkunft und Vollständigkeit
+der Callerangaben bleiben DECLARED_NOT_INDEPENDENTLY_ATTESTED.
+
+Die Ausgabe bleibt WARN mit festen Counts und Claims. Kohärente individuelle
+Prozessenden attestieren kein Server-/TDS-Ende. SQL-Restore, guarded Drop und
+frische DB-Abwesenheit werden anhand konkreter Kanaltexte geprüft. Die
+öffentlichen Resultate enthalten keine eigenständigen Parent-Namespace-/
+Principalcleanup-Records; diese Claims bleiben NOT_ESTABLISHED. Das gilt
+auch für den unabhängigen Ownerquery, vollständige DML-Errorfelder,
+allgemeine Runtimequalifikation und TP-PERF; die Indexgeneration bleibt UNKNOWN.
+Für diese Leseaufgabe sind keine neue SQL-Ausführung, Installation oder
+Login-DDL nötig. Der [V2-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md)
+beschreibt die abgegrenzte Source- und spätere Offlineprüfung.
+
+Der erste einmalige historische V2-Abgleich endete mit bekanntem FAIL:
+der damalige Consumer erwartete bei den beiden Rechtegegenfällen nur
+Status=NOT_STARTED; die öffentliche API erfasst zusätzlich Seconds=60
+sowie StartedMonotonic und DeadlineMonotonic jeweils NULL. Source5 bindet
+nun diese vollständige feste Form. Der ursprüngliche Bericht bleibt FAIL;
+ein erfolgreicher V2-Abnahmelauf auf der historischen Akte ist noch nicht
+belegt. Die neuen reinen Gegenfälle ersetzen diesen fehlenden Nachweis nicht.

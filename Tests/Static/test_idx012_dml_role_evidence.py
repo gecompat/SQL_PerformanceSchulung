@@ -168,4 +168,241 @@ class RecordTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError,'FIXED_CONTRACT_DRIFT'):m.report(r,b)
 
 
+def public_v2_fixture():
+    """Vollständig synthetische APIform; kein historischer Rawrecord."""
+    import idx012_public_role_evidence_v2 as v2
+    r, old = fixture()
+    b = {k: old[k] for k in ('token', 'database_id', 'fixture_object', 'operator_sid', 'admin_sid', 'original_preview', 'provenance')}
+    b.update(execution_sources=v2.execution_sources(), consumer_sources=v2.source_binding())
+    token, db = b['token'], b['database_id']
+    base = dict(generation='UNKNOWN', runtime_qualification='NOT_ESTABLISHED',
+        role_runtime_qualification='NOT_ESTABLISHED', role_server_request_end='NOT_ATTESTED',
+        role_profile='operator-admin-build', role_cost_scope='WHOLE_PHASE_INCLUDING_CONTEXT_AND_ATTESTATION',
+        role_collector_mode='FIXED_ABSOLUTE_CALL_DEADLINE', role_reap_reserve_seconds=2)
+    def cap(script, ordinal):
+        text = 'SET NOCOUNT ON; -- ausschließlich synthetische Capturefixture\n'
+        return dict(Auth='ADMIN_ORIGINAL_OPERATOR_CONTEXT' if script in ('30_CostBoundary.sql', '50_CostRebuild.sql') else 'OPERATOR_AUTH',
+            Budget=dict(AbsoluteDeadline=1000.0, ChannelsObserved=True, CollectorCode=None, CollectorFailed=False,
+                ObservedOverrun=False, PreReapPoll=0, PrimaryWaitSeconds=4.0, ReapReserveSeconds=2),
+            ChannelStatus='SAFE', CollectorCode=None, CollectorDurationSeconds=0.1, CollectorFailed=False,
+            CollectorMode='FIXED_ABSOLUTE_CALL_DEADLINE', ElapsedSeconds=0.2, FinalPoll=0,
+            InputSha256=m.hashlib.sha256(text.encode()).hexdigest(), InputText=text, Phase=script, Pid=100+ordinal,
+            ProcessReturnCode=0, ProcessStartAttempted=True, ProcessStarted=True, RejectCode=None,
+            ReturnCode=0, ServerRequestEnd='NOT_ATTESTED', SourceBefore=copy.deepcopy(b['execution_sources']),
+            SourceAfter=copy.deepcopy(b['execution_sources']), Stdout='', Stderr='', TimedOut=False, UnknownSticky=False)
+    def inputs(captures):
+        return [dict(Path='PUREFIXTURE/role-'+str(i)+'.sql', InputSha256=c['InputSha256'], Retained=False) for i,c in enumerate(captures)]
+    profiles = []
+    for i, detail in enumerate(('MISSING_CREATE_DATABASE', 'MISSING_SERVER_PERFORMANCE_STATE')):
+        c = cap('00_Preflight.sql', i)
+        c['Stdout'] = 'IDX012_DETAIL|'+detail+'\n'
+        e = copy.deepcopy(base); e.update(role_captures=[c], role_inputs=inputs([c]), shared_cleanup_window={'DeadlineMonotonic':None,'Seconds':60,'StartedMonotonic':None,'Status':'NOT_STARTED'})
+        profiles.append(dict(outcome='SKIP', code='SKIP_PERMISSION', phases=[['PREFLIGHT','SKIP','SKIP_PERMISSION']], original_preview=None, cleanup_ok=False, evidence=e))
+    captures = [cap(script, i+2) for i,script in enumerate(v2.SCRIPTS)]
+    def put(position, rows, extra=''):
+        captures[position]['Stdout'] = '\n'.join(json.dumps(row, separators=(',',':')) for row in rows)+'\n'+extra
+    def source(data, changed=False):
+        vectors=copy.deepcopy(data['vectors']); distances=copy.deepcopy(data['rows'])
+        if changed: vectors[-1]['JsonValue']='[1,0,0]'; distances[-1]['DistanceValue']=0
+        rows=[dict(kind='SOURCE_DISTANCES',DatabaseId=db,rows=distances)]
+        for i in range(10): rows.append(dict(kind='SOURCE_VECTOR_BLOCK',DatabaseId=db,BlockId=i+1,vectors=vectors[i*100:(i+1)*100]))
+        return rows, {item['Id']:item['DistanceValue'] for item in distances}
+    baseline, distances=source(r['source_before'])
+    rebuilt, after_distances=source(r['source_before'],True)
+    put(7,baseline);put(13,baseline);put(17,rebuilt)
+    index=dict(kind='INDEX',DatabaseId=db,RunToken=token,BuildElapsedUs=10,metadata=r['index_metadata']['before'])
+    def contexts(stage, session):
+        return [dict(kind='ROLE_CONTEXT',Stage=stage,Checkpoint=k,
+            LoginName='sa' if k=='ADMIN_BUILD' else 'SQLPERF_IDX012_ROLE_'+token,
+            Sid=b['admin_sid'] if k=='ADMIN_BUILD' else b['operator_sid'],OriginalLogin='sa',OriginalSid=b['admin_sid'],
+            Sysadmin=int(k=='ADMIN_BUILD'),ControlServer=int(k=='ADMIN_BUILD'),AlterAnyLogin=int(k=='ADMIN_BUILD'),
+            SessionId=session,DatabaseId=db,RunToken=token) for k in m.CHECKPOINTS]
+    def frames(stage,session):
+        rows=[]
+        for i,frame in enumerate(('BEFORE','AFTER')):
+            rows.append(dict(kind='PHASE_COST',Stage=stage,Frame=frame,DatabaseId=db,Context='SQLPERF_LAB_IDX012_'+token,RunToken=token,
+                SessionId=session,SourceRows=999,VectorIndexes=0 if stage=='DML_BOUNDARY' and i==0 else 1,
+                TransactionCount=0,TransactionState=0,SessionCount=1,TempdbCount=1,FileCount=2,
+                session=[dict(session_id=session,cpu_time=i,reads=i,writes=i,logical_reads=i)],
+                tempdb=[dict(session_id=session,database_id=2,user_objects_alloc_page_count=i,user_objects_dealloc_page_count=0,internal_objects_alloc_page_count=i,internal_objects_dealloc_page_count=0)],
+                files=[dict(database_id=db,file_id=f,sample_ms=i,num_of_writes=i,num_of_bytes_written=i,io_stall_write_ms=i) for f in(1,2)]))
+        return rows
+    ctx1=contexts('DML_BOUNDARY',77);ctx2=contexts('REBUILD',78)
+    f1=frames('DML_BOUNDARY',77);f2=frames('REBUILD',78)
+    put(10,ctx1+f1+r['dml']+[index])
+    lifecycle=[dict(kind='LIFECYCLE_DROP',DatabaseId=db,RunToken=token,IndexCount=0,RowCount=999,TransactionCount=0,TransactionState=0),
+        dict(kind='LIFECYCLE_CHANGE',DatabaseId=db,RunToken=token,AffectedRows=1,RowCount=999,TransactionCount=0,TransactionState=0,Committed=True,OtherSourceUnchanged=True,NewVector='[1,0,0]',IndexCount=0),
+        dict(kind='LIFECYCLE_REBUILD',DatabaseId=db,RunToken=token,BuildElapsedUs=11,BeforeMetadata=index['metadata'],AfterMetadata=index['metadata'])]
+    for i,(stage,path) in enumerate((('BASELINE','EXACT'),('BASELINE','ANN'),('AFTER_CHANGE','EXACT'),('REBUILT','EXACT'),('REBUILT','ANN')),1):
+        d=distances if stage=='BASELINE' else after_distances
+        ids=sorted(d,key=lambda k:(d[k],k))[:5]
+        lifecycle.append(dict(kind='LIFECYCLE_QUERY',DatabaseId=db,RunToken=token,Ordinal=i,Stage=stage,Path=path,rows=[dict(Id=k,DistanceValue=d[k])for k in ids]))
+    put(15,ctx2+f2+lifecycle)
+    storage=[]
+    for position,stage in((9,'BASELINE'),(12,'INDEXED'),(19,'REBUILT')):
+        raw=dict(kind='STORAGE',Stage=stage,DatabaseId=db,Context='SQLPERF_LAB_IDX012_'+token,RunToken=token,FixtureObject=b['fixture_object'],
+            SourceRows=999,VectorIndexes=0 if stage=='BASELINE' else 1,TransactionCount=0,TransactionState=0,FileCount=2,InternalCount=0,PartitionCount=1,
+            files=[dict(file_id=1,type=0,size=128,space_used_pages=10),dict(file_id=2,type=1,size=128,space_used_pages=None)],internal_tables=[],
+            partitions=[dict(partition_id=1,object_id=b['fixture_object'],index_id=1,partition_number=1,row_count=999,used_page_count=10,reserved_page_count=12,in_row_used_page_count=10,lob_used_page_count=0,row_overflow_used_page_count=0)])
+        put(position,[raw]);storage.append(v2.pure_helper('storage').validate_storage(raw,token=token,database_id=db,fixture_object=b['fixture_object'],stage=stage))
+    for position in(2,4,6,8,11,14,16,18):
+        state=copy.deepcopy(r['snapshots']['after' if position>=11 else 'before'])
+        if position<8:
+            state['fixture_object']=None;state['tables']=[t for t in state['tables']if t['TableName']=='PreviewState']
+            for row in state['scoped']:
+                if row['name']=='PREVIEW_FEATURES':row['value']=int(position>=4)
+                if row['name']=='MAXDOP':row['value']=int(position>=6)
+        put(position,[state])
+    captures[20]['Stdout']=f'ANN_RESTORE|{token}|0|0\n'
+    captures[21]['Stdout']=f'ANN_ATTEST|{token}|0|0\nANN_RECOVERY|DROP_CONFIRMED\n'
+    captures[22]['Stdout']='ANN_DB|ABSENT\n'
+    e=copy.deepcopy(base);e.update(role_captures=captures,role_inputs=inputs(captures),database_id=db,
+        shared_cleanup_window=dict(Status='ACTUAL_STARTED',StartedMonotonic=900.0,DeadlineMonotonic=960.0,Seconds=60),
+        role_contexts=ctx1+ctx2,phase_costs=[v2.pure_helper('cost').validate_costs(f,token=token,database_id=db,stage=stage,file_ids={1,2})for f,stage in((f1,'DML_BOUNDARY'),(f2,'REBUILD'))],
+        dml_boundary=v2.pure_helper('dml_boundary').validate_dml_boundary(r['dml'],token=token,database_id=db),index=index,
+        independent_source_comparison=dict(rows=999,full_text_equal=True,distance_equal=True),
+        rebuild_source_comparison=dict(rows=999,only_changed_id=999,other_998_texts_equal=True),storage=storage,
+        lifecycle=v2.pure_helper('lifecycle').validate_lifecycle(lifecycle,token=token,database_id=db,before_distances=distances,after_distances=after_distances,before_metadata=index['metadata']))
+    profiles.append(dict(outcome='WARN',code='WARN_OPTIONAL_EVIDENCE_SKIPPED',phases=[[p,'WARN'if i==0 else 'PASS','WARN_OPTIONAL_EVIDENCE_SKIPPED'if i==0 else 'OK']for i,p in enumerate(v2.PHASES)],original_preview=0,cleanup_ok=True,evidence=e))
+    return json.loads(json.dumps({'contract':v2.SCHEMA,'profiles':profiles})),b
+
+
+class PublicV2Tests(unittest.TestCase):
+    def rejected(self,change,secrets=None):
+        import idx012_public_role_evidence_v2 as v2
+        r,b=public_v2_fixture();change(r,b)
+        with self.assertRaises((ValueError,TypeError)):v2.report(r,b,secrets=[]if secrets is None else secrets)
+
+    def test_public_v2_coherent_warn_bounded_export_and_v1_preserved(self):
+        import idx012_public_role_evidence_v2 as v2
+        r,b=public_v2_fixture();result=v2.report(r,b,secrets=[])
+        self.assertEqual(result['outcome'],'WARN');self.assertEqual(result['counts']['client_captures'],25)
+        self.assertEqual(result['credential_check'],'NOT_CHECKED_FOR_UNAVAILABLE_SECRETS')
+        self.assertTrue(all(result['claims'][k]=='NOT_ESTABLISHED'for k in('owner_query','server_request_end','dml_full_error_capture','runtime_qualification','principal_cleanup','namespace_cleanup')))
+        text=json.dumps(result)
+        for value in(b['token'],b['operator_sid'],'InputText','Stdout','Pid','sha256'):self.assertNotIn(value,text)
+        self.assertEqual(m.SCHEMA,'IDX012_DML_ROLE_RECORD_V1');self.assertEqual(m.INPUT_PINS['DML_BOUNDARY']['utf8_bytes'],28420)
+
+    def test_public_v2_plain_schema_sources_contract_and_extra_fields(self):
+        import idx012_public_role_evidence_v2 as v2
+        for change in(lambda r,b:r.update(extra=True),lambda r,b:b['execution_sources'].pop(next(iter(b['execution_sources']))),
+            lambda r,b:b['execution_sources'].update({next(iter(b['execution_sources'])):'f'*64}),
+            lambda r,b:r['profiles'][2]['evidence'].update(owner_query='PASS'),
+            lambda r,b:r['profiles'][2]['evidence'].update(database_id=True)):
+            self.rejected(change)
+        string_alias=type('str',(str,),{})
+        self.rejected(lambda r,b:r.update(contract=string_alias(v2.SCHEMA)))
+        for change in(lambda x:x['counts'].update(cost_pairs=True),lambda x:x['claims'].update(runtime_qualification='PASS'),lambda x:x.update(raw='extra')):
+            with tempfile.TemporaryDirectory()as folder:
+                p=Path(folder)/'contract.json';data=copy.deepcopy(v2.EXPECTED);change(data);p.write_bytes(json.dumps(data).encode())
+                with patch.object(v2,'CONTRACT',p),patch.object(v2,'source_binding',return_value={'PURE': 'a'*64}):
+                    r,b=public_v2_fixture()
+                    with self.assertRaises(ValueError):v2.report(r,b,secrets=[])
+
+    def test_public_v2_individual_end_input_channels_and_unknown(self):
+        for field,value in(('FinalPoll',None),('ReturnCode',True),('TimedOut',True),('UnknownSticky',True),('ProcessStarted',False),('ChannelStatus','SAFE_COMPLETE'),('InputSha256','f'*64),('ElapsedSeconds',float('inf'))):
+            self.rejected(lambda r,b,k=field,v=value:r['profiles'][2]['evidence']['role_captures'][0].update(**{k:v}))
+        self.rejected(lambda r,b:r['profiles'][2]['evidence']['role_captures'][0]['Budget'].update(ObservedOverrun=True))
+        self.rejected(lambda r,b:r['profiles'][2]['evidence']['role_inputs'][0].update(Retained=True))
+        self.rejected(lambda r,b:r['profiles'][2]['evidence']['role_captures'].pop())
+
+    def test_public_v2_order_sid_privilege_and_same_cost_session(self):
+        for change in(lambda r,b:r['profiles'][2]['evidence']['role_contexts'].reverse(),
+            lambda r,b:r['profiles'][2]['evidence']['role_contexts'][1].update(Sid=b['operator_sid']),
+            lambda r,b:r['profiles'][2]['evidence']['role_contexts'][0].update(AlterAnyLogin=True),
+            lambda r,b:r['profiles'][2]['evidence']['phase_costs'][0]['frames'][1].update(SessionId=99)):
+            self.rejected(change)
+        # Gleichartige Manipulation im Raw UND Summary darf nicht durch Vergleich passieren.
+        def rebind(r,b):
+            e=r['profiles'][2]['evidence'];rows=[]
+            for line in e['role_captures'][10]['Stdout'].splitlines():
+                item=json.loads(line)
+                if item.get('kind')=='ROLE_CONTEXT'and item['Checkpoint']=='ROLE_END':item['SessionId']=99
+                rows.append(item)
+            e['role_captures'][10]['Stdout']='\n'.join(json.dumps(x)for x in rows)
+            e['role_contexts'][3]['SessionId']=99
+        self.rejected(rebind)
+
+    def test_public_v2_distinct_rights_negatives_cleanup_and_warn(self):
+        for change in(lambda r,b:r['profiles'][1]['evidence']['role_captures'][0].update(Stdout='IDX012_DETAIL|MISSING_CREATE_DATABASE'),
+            lambda r,b:r['profiles'][0]['phases'].append(['SETUP','PASS','OK']),
+            lambda r,b:r['profiles'][2].update(outcome='PASS'),
+            lambda r,b:r['profiles'][2]['evidence']['role_captures'][22].update(Stdout=''),
+            lambda r,b:r['profiles'][2]['evidence']['shared_cleanup_window'].update(Seconds=True)):
+            self.rejected(change)
+
+    def test_public_v2_negative_window_full_not_started_contract(self):
+        import idx012_public_role_evidence_v2 as v2
+        r,b=public_v2_fixture()
+        result=v2.report(r,b,secrets=[])
+        self.assertEqual(result['outcome'],'WARN')
+        self.assertEqual(result['counts']['permission_negatives'],2)
+        self.assertEqual(result['claims']['runtime_qualification'],'NOT_ESTABLISHED')
+        for ordinal in(0,1):
+            for key in('DeadlineMonotonic','Seconds','StartedMonotonic','Status'):
+                self.rejected(lambda r,b,i=ordinal,k=key:r['profiles'][i]['evidence']['shared_cleanup_window'].pop(k))
+            for change in(lambda w:w.update(extra=None),lambda w:w.update(Seconds=True),lambda w:w.update(Seconds=60.0),
+                lambda w:w.update(Seconds=59),lambda w:w.update(StartedMonotonic=0),lambda w:w.update(DeadlineMonotonic=False),
+                lambda w:w.update(Status='ACTUAL_STARTED'),lambda w:w.update(Status=None)):
+                self.rejected(lambda r,b,i=ordinal,c=change:c(r['profiles'][i]['evidence']['shared_cleanup_window']))
+
+    def test_public_v2_credential_plain_hex_json_and_received_frames(self):
+        import idx012_public_role_evidence_v2 as v2
+        secrets=['SyntheticSecretOne7','SyntheticSecretTwo8']
+        for value in(secrets[0],secrets[1].encode().hex(),secrets[0].encode('utf-16-le').hex().upper(),
+            '{"Message":"'+''.join('\\u%04x'%ord(c)for c in secrets[0])+'"}'):
+            self.rejected(lambda r,b,v=value:r['profiles'][2]['evidence']['role_captures'][0].update(Stderr=v),secrets)
+        wire=secrets[0].encode('utf-16-le').hex().upper();parts=wire[:30],wire[30:]
+        self.rejected(lambda r,b:r['profiles'][2]['evidence']['role_captures'][0].update(Stderr='IDX012_PART|1|'+parts[0]+'\nIDX012_PART|2|'+parts[1]),secrets)
+        # Repro: Mixedcase in InputText muss vor jedem Input-/Quellendigest scheitern.
+        for encoded in(secrets[0].encode().hex(),secrets[1].encode('utf-16-le').hex()):
+            upper=False;letters=[]
+            for c in encoded:
+                if c.isalpha():upper=not upper;letters.append(c.upper()if upper else c)
+                else:letters.append(c)
+            mixed=''.join(letters);self.assertNotEqual(mixed,mixed.lower());self.assertNotEqual(mixed,mixed.upper())
+            r,b=public_v2_fixture();r['profiles'][2]['evidence']['role_captures'][0]['InputText']=mixed
+            with patch.object(v2.hashlib,'sha256',side_effect=AssertionError('DIGEST_BEFORE_PRIVACY')):
+                with self.assertRaisesRegex(ValueError,'^V2_CREDENTIAL_OUTPUT$'):v2.report(r,b,secrets=secrets)
+        nested=json.dumps({'ErrorMessage':{'items':['IDX012_PART|1|'+parts[0]+'\nIDX012_PART|2|'+parts[1]]}})
+        r,b=public_v2_fixture();r['profiles'][2]['evidence']['role_captures'][0]['Stderr']=nested
+        with patch.object(v2.hashlib,'sha256',side_effect=AssertionError('DIGEST_BEFORE_PRIVACY')):
+            with self.assertRaisesRegex(ValueError,'^V2_UNSUPPORTED_RECEIVED_FRAME$'):v2.report(r,b,secrets=secrets)
+        r,b=public_v2_fixture();r['profiles'][2]['evidence']['role_captures'][0]['InputText']="PRINT N'IDX012_PART|1|12345678';"
+        self.assertIsNone(v2.privacy(r,secrets))
+
+    def test_public_v2_pure_helper_fixed_names_paths_and_no_foreign_import(self):
+        import idx012_public_role_evidence_v2 as v2
+        import os
+        def normalized(path):
+            text=str(path.resolve())
+            return Path(text[4:]if text.startswith('\\\\?\\')else text).resolve()
+        def full_bytes(path):
+            text=str(path.resolve())
+            if os.name=='nt'and not text.startswith('\\\\?\\'):text='\\\\?\\'+text
+            return Path(text).read_bytes()
+        for name in('cost','dml_boundary','lifecycle','storage'):
+            actual=Path(v2.pure_helper(name).__file__);expected=v2.FOLDER/(name+'_evidence.py')
+            self.assertEqual(normalized(actual),normalized(expected))
+            self.assertEqual(full_bytes(actual),full_bytes(expected))
+        alias=type('str',(str,),{})
+        with patch.object(v2.importlib.util,'spec_from_file_location')as loader:
+            for name in(None,True,alias('cost'),'run_profile','../cost','cost.py','cost/../../role_profile'):
+                with self.assertRaisesRegex(ValueError,'^V2_FIXED_PURE_HELPER_NAME$'):v2.pure_helper(name)
+            with patch.object(v2,'FOLDER',Path('PURE_FOREIGN_FOLDER')):
+                with self.assertRaisesRegex(ValueError,'^V2_FIXED_PURE_HELPER_PATH$'):v2.pure_helper('cost')
+            with patch.object(Path,'is_symlink',return_value=True):
+                with self.assertRaisesRegex(ValueError,'^V2_FIXED_PURE_HELPER_PATH$'):v2.pure_helper('cost')
+            loader.assert_not_called()
+
+    def test_public_v2_dml_rollback_source_and_cost_counter_tampering(self):
+        def modify(r,b):
+            e=r['profiles'][2]['evidence'];rows=[json.loads(l)for l in e['role_captures'][10]['Stdout'].splitlines()]
+            next(x for x in rows if x.get('kind')=='DML_BOUNDARY')['RolledBack']=False
+            e['role_captures'][10]['Stdout']='\n'.join(json.dumps(x)for x in rows)
+        self.rejected(modify)
+        self.rejected(lambda r,b:r['profiles'][2]['evidence']['phase_costs'][0]['session_delta'].update(cpu_time=-1))
+        self.rejected(lambda r,b:r['profiles'][2]['evidence']['rebuild_source_comparison'].update(other_998_texts_equal=False))
+
+
 if __name__ == '__main__': unittest.main()
