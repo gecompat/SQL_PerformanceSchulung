@@ -1,5 +1,62 @@
 # KI mit und für Microsoft SQL Server 2025 – Workstream-Plan
 
+## C1: historischer öffentlicher V2-Record kohärent mit WARN
+
+Der erste neue Kandidat hat den unveränderten tatsächlich gesicherten C3-Record
+mit dem veröffentlichten korrigierten Consumer vollständig ausgewertet:
+SOURCE_COHERENT_OVERALL_WARN, COHERENT_PUBLIC_V2, attempted1/completed1.
+Driver-PID68696 und Reportchild-PID32960 endeten bestätigt mit Poll/Returncode0,
+ohne Timeout oder UNKNOWN. Alle56 festen Eingangsdateien und neun Authority-
+dateien blieben vor/nach bytegleich. Root hat Originalkanäle, Quellen, vollständige
+Prozessenden, Ergebnisform, Ledger und STOP unabhängig geprüft.
+
+Feste Counts: drei Profile,25 Clientcaptures, acht Rollenkontexte, zwei Kostenpaare,
+zwei Rechtegegenfälle sowie vier positive und vier abgewiesene DML-Fälle.
+Die unveränderten Profile wurden vollständig geprüft; keine neuen SQLergebnisse
+oder Runtimecapturen erzeugt. SQLcleanup bleibt lediglich TEXTS_COHERENT,
+Herkunft und Credentiallisten-Vollständigkeit bleiben deklarativ. Bei secrets=[]
+bleibt NOT_CHECKED_FOR_UNAVAILABLE_SECRETS; Generation UNKNOWN und die offenen
+Ownerquery-/TDS-/vollständigen DML-Error-/Parentcleanup-/Runtime-/TP-PERF-Claims
+werden nicht hochgestuft. Dies ist ein begrenzter Recordnachweis.
+
+Neue Welle: ein Quellenstand und ein erfolgreicher kohärenter Report mit WARN,
+keine zusätzlichen Unit-/Syntaxproben oder Domainaufrufe. Beim ersten kohärenten
+Befund tatsächlich STOP; keine weiteren Kandidaten oder Budgetausschöpfung.
+Zusammen mit der früheren Welle zwei historische Versuche: der erste FAIL
+V2_RECORD_BINDING bleibt unverändert mit seinem verbrauchten Max1 und STOP.
+Die vor dem neuen Report abgewiesene Rootmetadatenassertion mit falsch
+übertragenem Preparedhash ist separat erhalten; nach direkter Aufnahme des
+vollständigen Hashs korrigiert, kein Report vor dieser Korrektur und keine
+Umzählung als Runtime-/Quellen-Syntaxfehler. Ihr PID bleibt NOT_CAPTURED.
+
+Alle56 tatsächlich verwendeten Eingangsbytes sind flach gesichert, dazu23 feste
+Authority-/Ergebnis-/Raw-/Ledger-/Rootreviewdateien; bytegenau erneut verglichen.
+Originalmanifest und Admission bleiben unverändert. Nach dem tatsächlichen
+Report werden ausschließlich HowTo und kanonischer Dokumentstand aktualisiert;
+die Dokumentdeltas werden getrennt vom unveränderten Ausführungsbeleg gebunden.
+Aktuelle lokale Dokumentprüfungen, PR-/Head-/Main-Gates, origin/main-Integration,
+FullTree, Synchronisierung und eigener Cleanup folgen. Modell-/Tokenverbrauch UNKNOWN.
+
+[Konkreter Nachweis und offene Grenzen](SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md).
+
+## TSK-006: getrennte historische V2-Requalifikation in Vorbereitung
+
+PR247 vollständig geschlossen: zehn Head- und acht Main-Checks erfolgreich,
+je ein Runtimejob nicht ausgewählt; Main67d83316722e396624ba77db2c51d66ff43b9b93,
+FullTree/Sync/Branchcleanup bestanden,876 private Dateien bytegenau erhalten,
+Worktree tatsächlich archiviert. Der ursprüngliche V2-Report bleibt FAIL
+V2_RECORD_BINDING, attempted1/completed0; sein Max1 und STOP bleiben erhalten.
+
+Der veröffentlichte Source5-Consumer korrigiert den tatsächlich gefundenen
+vollständigen NOT_STARTED-Vertrag. Darauf folgt eine getrennte historische
+Offlinewelle: maximal sechs relevante Quellen-/Adapterstände und sechs Reports,
+ActualCheckpoint3/Hard6/UNKNOWN-/erster kohärenter Stop. Weitere Versuche nur
+mit verändertem Input/Source oder neuer Evidenz, keine alten grünen Wiederholungen.
+Ein Implementer, enger Rootreview; Null Domain-/Modell-/Hosteffekte. Alte Counts,
+Claims, V1 und Originalprofile unverändert. Zunächst keine Reportadmission.
+
+[Konkreter Scope und aktuelle Grenzen](SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md).
+
 ## TSK-006: V2-Rechtegegenfälle korrigiert; historischer Report bleibt FAIL
 
 Der einmalige historische Offlinebericht scheiterte mit V2_RECORD_BINDING:
