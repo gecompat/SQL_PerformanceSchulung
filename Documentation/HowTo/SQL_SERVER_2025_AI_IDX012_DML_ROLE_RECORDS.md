@@ -176,5 +176,25 @@ der damalige Consumer erwartete bei den beiden Rechtegegenfällen nur
 Status=NOT_STARTED; die öffentliche API erfasst zusätzlich Seconds=60
 sowie StartedMonotonic und DeadlineMonotonic jeweils NULL. Source5 bindet
 nun diese vollständige feste Form. Der ursprüngliche Bericht bleibt FAIL;
-ein erfolgreicher V2-Abnahmelauf auf der historischen Akte ist noch nicht
-belegt. Die neuen reinen Gegenfälle ersetzen diesen fehlenden Nachweis nicht.
+das damalige Einmalbudget ist verbraucht und sein STOP bleibt erhalten.
+Die neuen reinen Gegenfälle schreiben diesen Bericht nicht nachträglich um.
+
+Ein getrennt zugelassener historischer Abgleich mit dem korrigierten Consumer
+erreichte anschließend COHERENT_PUBLIC_V2 mit Gesamtergebnis WARN. Er prüfte
+drei unveränderte öffentliche Profile, 25 individuelle Clientcaptures, acht
+geordnete Rollenkontexte, zwei Kostenpaare und zwei Rechtegegenfälle sowie
+vier erfolgreiche DML-Kontrollen und vier DML-Verweigerungen. Die vollständigen
+Originalprofile und aktuellen Quellenbindungen blieben vor/nach identisch.
+Nach diesem ersten kohärenten Befund wurde die neue Welle gestoppt. Insgesamt
+liegen damit der ursprüngliche FAIL und ein neuer kohärenter WARN-Bericht vor.
+
+Dieser reine Datenabgleich führte kein neues SQL, keinen Container und keinen
+Provider aus. Er ersetzt keine unabhängige Herkunftsattestierung der Callerrecords.
+Die ursprünglichen Credentials waren nicht verfügbar: secrets=[] blieb
+ausdrücklich NOT_CHECKED_FOR_UNAVAILABLE_SECRETS. Der zusätzlich gebundene
+Producer-Privacyreview ergänzt keine vollständige Consumer-Credentialprüfung.
+Generation UNKNOWN, die genannten NOT_ESTABLISHED-Claims und insbesondere
+die fehlende allgemeine Runtime-/TP-PERF-Qualifikation bleiben unverändert.
+Der [getrennte Requalifikationsnachweis](../Project_Planning/SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md)
+grenzt diesen kohärenten historischen Recordcheck vom ersten fehlgeschlagenen
+Einmalpaket ab.
