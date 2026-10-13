@@ -1,5 +1,37 @@
 # Aktueller Ausführungsstand
 
+## TSK-007/008: getrennte lokale Routeignung und Gesamtcheckpoint3
+
+Aktueller Schnitt: [beobachtbare Routeignung](SQL_SERVER_2025_AI_ROUTE_ELIGIBILITY_REVIEW.md).
+PR240 vollständig geschlossen: sieben Head- und fünf Main-Gates, Main dee36a7b,
+vollständiger Tree, FF-Synchronisierung und eigene Branches bereinigt;
+1.534 Dateien gesichert und eigener Worktree archiviert. C2 bleibt kohärent
+UNAVAILABLE, ohne Unterscheidung zwischen fehlendem Tag und Mindestversion.
+Die neue Beobachtungsgrundlage trennt tatsächliche Version, Mindestversions-
+entscheidung, Tag-Präsenz und Ursachen; alte Records werden nicht ergänzt.
+C3 tatsächlich COHERENT_DIAGNOSTIC_ONLY/UNAVAILABLE: Runtimeversion0.40.2
+ist mindestens0.11.10, version_supported=true. Exakte gemma3:1b-Tagmatches0,
+tag_present=false; tag_missing=true und version_below_minimum=false.
+Zwei neue bekannte HTTP200-Responses (version/tags), kumulativ vier Metadata;
+Show/WhatIf/Inferenz0. Top-/Childenden bekannt, kein Timeout/UNKNOWN,
+elf Quellenbindungen, vollständiger eigener Snapshot und129 historische
+Dateien unverändert; kein Inventar gespeichert. Alte C2-Ursache bleibt
+NOT_DISTINGUISHED, kein rückwirkender Versions- oder Tagbefund.
+Pflichtcheckpoint3 anhand C1/C2/C3 unabhängig geschlossen: PASS_DIAGNOSIS_ONLY.
+Gesamte Diagnosewelle STOP; keine vierte Probe oder weitere Metadaten/Inferenz
+auch bei rechnerisch verbleibendem Budget. Fünf neue Puremethoden normal/-O
+bestanden; keine alten grünen Suiten wiederholt. Keine Modelle, Downloads oder
+Hoständerungen; Lizenzinferenz NOT_ADMITTED/Gewichte und volle Gates offen.
+
+Nach vollständiger Integration dieses Nachweises folgt eine unabhängige
+TSK-009-Poolgrundlage zunächst SOURCE_ONLY auf aktuellen korrigierten
+öffentlichen Quellen. Bekannte Namespacekorrekturen nicht erneut analysieren;
+Delta zum tatsächlich gestoppten PR226-Stand und neue eigene Input-/Scope-/
+Rootbindungen prüfen. Alte zwei Nativeversuche/ein Container/SQL0/Poolchild0
+transparent weiterzählen; alle alten UNKNOWNs und Stops erhalten. Kein C3 der
+alten Welle, kein Ressourcenreplay oder Recovery. Neue Nativeeffekte erst nach
+separatem aktuellen Quellen-/Sicherheitsreview und konkreter Rootadmission.
+
 ## TSK-007/008: anderer vorhandener lokaler Completionpfad nach PR239
 
 Aktueller Schnitt: [lokaler Completionbestand](SQL_SERVER_2025_AI_COMPLETION_ROUTE_REVIEW.md).
