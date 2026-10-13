@@ -2,6 +2,37 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller TSK-004-Schnitt: [explizite DB-ID-Projektion im gemeinsamen Restbudget](../Documentation/Project_Planning/SQL_SERVER_2025_AI_DBID_PROJECTION_REVIEW.md).
+PR236 vollständig geschlossen: acht Head-/sechs Main-Gates, Main11ec85c1,
+Tree/FF/Branches, 125 private Dateien gesichert/eigener Worktree archiviert.
+Alte R1/Gesamt2-Welle bleibt UNKNOWN_STOP, kein Aufruf alter Pakete/Ressourcen.
+Neue eigene Source mit explizitem CONVERT(int,DB_ID()), geänderten Bindungen
+und vor Native geprüftem Dimensions-TRY/CATCH-Scope. Prior2Compiler/Container/
+Caller zählen weiter, höchstens vier zusätzliche Gesamt3–6; erster Gesamt3
+erzwingt Rootcheckpoint. Source-/Purevorbereitung, neue Effekte null;
+Source6/CP3/hard6 und getrennte Rootadmissions vor Compiler/Native.
+
+Gesamt3 tatsächlich FAIL/UNKNOWN_STOP; Pflichtcheckpoint3 durch unabhängigen
+Rootreview geschlossen. Compiler46412/poll0/rc0/0,712391s, zwei CS1701-WARNs;
+Top57876/poll1/rc1/12,640812s, Child65112/poll0/rc0, kein Timeout.
+Child meldet acht tatsächliche Typfelder einschließlich DB-ID-int/Int32,
+31 vollständig beendete Readerteilschritte und zehn API-Enden, zwei Native-/
+JSON-Vektoren vor/nach unverändert, NULL(3) und spezifische SQL-Abweisung42204
+mit allen sechs Fehlerfeldern. Der Parent verwirft bereits OPEN:
+tatsächliches Encrypt=True, eingefrorenes Oracle erwartet Encrypt=Mandatory.
+Die isolierte In-Memory-Gegenprüfung aller übrigen Recordfloors ist kein
+geänderter tatsächlicher Lauf oder Runtime-PASS; Originale/UNKNOWN bleiben.
+Sechs bekannte SQLcmdenden/ein Vollstate/keine Controls, null Folge-SQL;
+eine volle eigene Containment und frische ganze CID-/Namensabwesenheit.
+SQLcleanup NOT_ESTABLISHED/DB- und Inputabwesenheit false/closed false.
+Alle 71 Sources und Originalbytes erhalten. Kumulativ drei Compiler/Container/
+Caller, drei verbleibende Gesamt4–6; kein automatischer vierter Versuch.
+Aktuelle vollständige PR-/Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktree-
+Integration folgt. Danach ausschließlich neue eigene Source-/Scopebasis mit
+quellengeprüfter präziser OPEN-Auswertung, fortgeführten prior3/rest3 und
+neuen Rootgates; kein Aufruf des gestoppten Pakets oder alter Ressourcen.
+Volle Runtime-/Wire-/TSK-004-/Workstreamabnahme bleibt offen.
+
 Aktueller TSK-004-Schnitt: [eigener geänderter Caller mit Sessionreader](../Documentation/Project_Planning/SQL_SERVER_2025_AI_READER_TRANSPORT_REVIEW.md).
 PR235 vollständig geschlossen: neun Head-/sieben Main-Gates, Maind5ee1864,
 Tree/FF/Branches, 39 private Files gesichert/eigener Worktree archiviert.
