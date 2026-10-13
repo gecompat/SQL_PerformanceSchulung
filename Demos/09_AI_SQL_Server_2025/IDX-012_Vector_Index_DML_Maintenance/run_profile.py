@@ -31,6 +31,8 @@ from lifecycle_evidence import validate_lifecycle
 from storage_evidence import validate_storage
 from cost_evidence import validate_costs
 import role_profile
+import cleanup_budget
+SharedCleanupWindow=cleanup_budget.SharedCleanupWindow
 
 
 @dataclass(frozen=True)
@@ -305,7 +307,7 @@ def same_snapshot(before, after, *, enable=None, table_names=None, indexes=None)
 
 
 def run_profile(*, executable, server, auth, username, token, confirmed, high_impact,
-                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False, capture_costs=False, role_mode=None, role_sid=None, admin_sid=None):
+                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False, capture_costs=False, role_mode=None, role_sid=None, admin_sid=None, shared_cleanup_window=None):
     if (confirmed is not True or high_impact is not True or not isinstance(token,str)
             or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup','after_index_build')
             or mode not in ('dml-boundary','drop-rebuild') or type(capture_storage) is not bool
@@ -314,6 +316,10 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
         raise ValueError('Lokale YELLOW-Bestätigung und vollständige Tokenbindung erforderlich')
     folder=Path(folder).resolve()
     role_client=None;role_binding=None
+    if shared_cleanup_window is not None:
+        if role_mode!=role_profile.MODE or clock is not time.monotonic:
+            raise ValueError('FIXED_CLEANUP_BUDGET_MODE')
+        cleanup_budget.validate_window(shared_cleanup_window)
     if role_mode is not None:
         if (type(role_mode)is not str or role_mode!=role_profile.MODE or auth!='sql'
                 or folder!=FOLDER.resolve() or executor is not execute_client or mode!='drop-rebuild'
@@ -323,7 +329,10 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             raise ValueError('FIXED_PUBLIC_ROLE_MODE')
         role_binding=role_profile.bind(token,role_sid,admin_sid,dict(os.environ))
         if type(username)is not str or username!=role_binding.operator:raise ValueError('FIXED_OPERATOR_USERNAME')
-        role_client=role_profile._RoleClient(sys.modules[__name__],role_binding,executable,server)
+        if shared_cleanup_window is None:
+            role_client=role_profile._RoleClient(sys.modules[__name__],role_binding,executable,server)
+        else:
+            role_client=role_profile._RoleClient(sys.modules[__name__],role_binding,executable,server,budgeted=True)
         executor=role_client.execute
     elif role_sid is not None or admin_sid is not None:raise ValueError('ROLE_ARGUMENT_WITHOUT_MODE')
     regular=Deadline(300,clock)
@@ -345,9 +354,14 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             raise ValueError('SQL-Pfad verlässt das eigene Phasenverzeichnis')
         command=phase_command(executable,server,auth,username,script,token,original,variables)
         timeout=budget.remaining(cap)
+        call_deadline=None
+        if shared_cleanup_window is not None:
+            now=time.monotonic();call_deadline=min(budget.end,now+cap)
+            timeout=call_deadline-now
         if identity=='SETUP':
             started=True
-        response=executor(command,timeout_seconds=timeout)
+        response=(executor(command,timeout_seconds=timeout)if shared_cleanup_window is None else
+                  executor(command,timeout_seconds=timeout,call_deadline=call_deadline))
         output=response.stdout+'\n'+response.stderr
         if len(output.encode('utf-8'))>1000000:
             raise ValueError('Vollständiger Output überschreitet den begrenzten Vertrag')
@@ -503,7 +517,11 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             client_end_unknown=True;outcome,code='FAIL','FAIL_CLEANUP'
             evidence.update(client_end='UNKNOWN',temporary_source_cleanup='NOT_ESTABLISHED')
         if started and not client_end_unknown:
+            if shared_cleanup_window is not None:
+                shared_cleanup_window.begin()
             recovery=Deadline(20,clock)
+            if shared_cleanup_window is not None:
+                recovery.end=min(recovery.end,shared_cleanup_window.deadline)
             successes=set()
             for identity,filename,cap in [('RESTORE','90_Restore.sql',6),('ATTEST_DROP','91_AttestDrop.sql',6),('ABSENCE','92_Absence.sql',4)]:
                 if identity=='ATTEST_DROP' and 'RESTORE' not in successes:
@@ -537,6 +555,8 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
                         role_runtime_qualification='NOT_ESTABLISHED',role_server_request_end='NOT_ATTESTED',
                         role_cost_scope='WHOLE_PHASE_INCLUDING_CONTEXT_AND_ATTESTATION')
         if outcome=='WARN' and len(evidence.get('role_contexts',[]))!=8:outcome,code='FAIL','FAIL_RESULT_CONTRACT'
+    if shared_cleanup_window is not None:
+        evidence.update(shared_cleanup_window=shared_cleanup_window.snapshot(),role_collector_mode='FIXED_ABSOLUTE_CALL_DEADLINE',role_reap_reserve_seconds=cleanup_budget.REAP_SECONDS)
     return Result(outcome,code,tuple(phases),original,cleanup_ok,evidence)
 
 

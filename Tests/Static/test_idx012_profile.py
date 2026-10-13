@@ -512,5 +512,178 @@ class RoleApiTests(unittest.TestCase):
             main_client=self.client();self.assertEqual(main_client.sources,client.sources)
         with patch.object(profile,'__spec__',None),self.assertRaises(ValueError):self.client()
 
+
+class CleanupBudgetTests(unittest.TestCase):
+    OPERATOR=RoleApiTests.OPERATOR;ADMIN=RoleApiTests.ADMIN;SID=RoleApiTests.SID
+    def setUp(self):RoleApiTests.setUp(self)
+    def client(self,budgeted=True):
+        client=self.role._RoleClient(profile,self.binding,'sqlcmd','localhost,1433',budgeted=budgeted)
+        def clean():
+            for item in client.inputs:
+                path=Path(item['Path'])
+                if path.exists():
+                    self.assertEqual(path.parent,ROOT/'Runtime');self.assertTrue(path.name.startswith('idx012-role-'))
+                    self.assertEqual(__import__('hashlib').sha256(path.read_bytes()).hexdigest(),item['InputSha256']);path.unlink()
+        self.addCleanup(clean);return client
+    def command(self,name='00_Preflight.sql'):return profile.phase_command('sqlcmd','localhost,1433','sql',self.binding.operator,FOLDER/name,TOKEN,0)
+    def arguments(self,window):
+        return dict(executable='sqlcmd',server='localhost,1433',auth='sql',username=self.binding.operator,token=TOKEN,confirmed=True,high_impact=True,mode='drop-rebuild',capture_storage=True,capture_costs=True,role_mode=self.role.MODE,role_sid=self.SID,admin_sid='01',shared_cleanup_window=window)
+    def test_cleanup_window_typed_single_start_readonly_and_no_reset(self):
+        budget=profile.cleanup_budget;window=profile.SharedCleanupWindow()
+        self.assertEqual(window.snapshot(),{'Status':'NOT_STARTED','StartedMonotonic':None,'DeadlineMonotonic':None,'Seconds':60})
+        with self.assertRaises(ValueError):window.remaining(1)
+        first=window.begin();self.assertEqual(first,window.begin());self.assertEqual(first['DeadlineMonotonic'],first['StartedMonotonic']+60)
+        self.assertGreater(window.remaining(10),0);self.assertLessEqual(window.remaining(10),10)
+        with self.assertRaises(AttributeError):window._end=first['DeadlineMonotonic']+60
+        self.assertFalse(hasattr(window,'reset'))
+        for cap in (True,False,None,0,-1,61,float('nan'),float('inf'),'10'):
+            with self.subTest(cap=repr(cap)),self.assertRaises(ValueError):window.remaining(cap)
+        class Foreign(budget.SharedCleanupWindow):pass
+        for value in (True,{},Foreign(),window):
+            with patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):profile.run_profile(**self.arguments(value))
+            start.assert_not_called()
+        with patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):profile.run_profile(**(self.arguments(profile.SharedCleanupWindow())|{'clock':lambda:0}))
+        start.assert_not_called()
+    def test_window_reinitialization_and_constant_tampering_cannot_restart_or_start_clients(self):
+        budget=profile.cleanup_budget
+        for started in (False,True):
+            window=profile.SharedCleanupWindow()
+            if started:window.begin()
+            before=window.snapshot()
+            with self.assertRaises(ValueError):window.__init__()
+            self.assertEqual(window.snapshot(),before)
+        for name,values in (('SECONDS',(600,60.0,True,None)),('REAP_SECONDS',(0,10,2.0,True,None))):
+            for value in values:
+                with self.subTest(name=name,value=repr(value)):
+                    window=profile.SharedCleanupWindow();before=window.snapshot()
+                    with patch.object(budget,name,value):
+                        with self.assertRaises(ValueError):window.begin()
+                        with self.assertRaises(ValueError):window.snapshot()
+                        with self.assertRaises(ValueError):budget.validate_call(110.0,10)
+                        with patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):
+                            profile.run_profile(**self.arguments(window))
+                        start.assert_not_called()
+                    self.assertEqual(window.snapshot(),before)
+        window=profile.SharedCleanupWindow();before=window.begin()
+        for name,value in (('SECONDS',600),('REAP_SECONDS',10)):
+            with patch.object(budget,name,value),self.assertRaises(ValueError):window.remaining(10)
+            self.assertEqual(window.snapshot(),before)
+        client=self.client()
+        with patch.object(budget,'REAP_SECONDS',10),patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):
+            client.execute(self.command(),timeout_seconds=10,call_deadline=profile.time.monotonic()+10)
+        start.assert_not_called();self.assertEqual(client.inputs,[]);self.assertEqual(client.captures,[])
+
+    def test_shared_window_foreign_property_reset_and_module_callbacks_rejected_before_start(self):
+        budget=profile.cleanup_budget
+        for replacement in (property(lambda value:float('inf')),property(budget.SharedCleanupWindow.deadline.fget,lambda value,new:None)):
+            with patch.object(budget.SharedCleanupWindow,'deadline',replacement),patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):
+                profile.run_profile(**self.arguments(profile.SharedCleanupWindow()))
+            start.assert_not_called()
+        with patch.object(budget.SharedCleanupWindow,'reset',lambda value:None,create=True),patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):
+            profile.run_profile(**self.arguments(profile.SharedCleanupWindow()))
+        start.assert_not_called()
+        with patch.object(budget,'validate_call',lambda *args:None),patch.object(profile,'start_sqlcmd')as start,self.assertRaises(ValueError):
+            profile.run_profile(**self.arguments(profile.SharedCleanupWindow()))
+        start.assert_not_called()
+
+    def test_absolute_collector_keeps_one_handle_and_subtracts_startup_from_primary_wait(self):
+        import sqlcmd_process as collector
+        now=[100.0]
+        class Handle:
+            pid=123;returncode=0
+            def __init__(self):self.waits=[]
+            def poll(self):return 0
+            def communicate(self,timeout):self.waits.append(timeout);now[0]=105.0;return ('SQLPERF_SUMMARY|PASS|OK','')
+            def kill(self):raise AssertionError('KNOWN_HANDLE_KILL')
+        handle=Handle();client=self.client()
+        def start(*args,**kwargs):now[0]=103.0;return handle
+        with patch.object(collector.subprocess,'Popen',side_effect=start)as popen,patch.object(self.role.time,'monotonic',side_effect=lambda:now[0]):
+            response=client.execute(self.command(),timeout_seconds=10,call_deadline=110.0)
+        self.assertEqual(popen.call_count,1);self.assertEqual(handle.waits,[5.0]);self.assertEqual(response.stdout,'SQLPERF_SUMMARY|PASS|OK')
+        capture=client.captures[0];self.assertEqual(capture['Budget']['AbsoluteDeadline'],110.0);self.assertEqual(capture['Budget']['PrimaryWaitSeconds'],5.0)
+        self.assertEqual((capture['Pid'],capture['FinalPoll'],capture['ReturnCode']),(123,0,0));self.assertFalse(capture['UnknownSticky']);self.assertFalse(capture['Budget']['ObservedOverrun'])
+        self.assertEqual(capture['SourceBefore'],capture['SourceAfter']);self.assertEqual(capture['CollectorMode'],'FIXED_ABSOLUTE_CALL_DEADLINE')
+        self.assertTrue(capture['Budget']['ChannelsObserved']);self.assertFalse(client.inputs[0]['Retained'])
+    def test_timeout_reap_failure_and_late_known_poll_never_clear_unknown_or_privacy(self):
+        import sqlcmd_process as collector
+        secret_output=self.ADMIN
+        for fault in ('timeout_known','reap_failure','secret','overrun','unknown_poll'):
+            now=[100.0]
+            class Handle:
+                pid=123;returncode=0
+                def __init__(self):self.waits=[];self.kills=0
+                def poll(self):return None if fault=='unknown_poll'or not self.waits else 0
+                def kill(self):self.kills+=1
+                def communicate(self,timeout):
+                    self.waits.append(timeout)
+                    if len(self.waits)==1 and fault in ('timeout_known','reap_failure','secret'):
+                        now[0]=108.0;raise collector.subprocess.TimeoutExpired('PURE_FAKE',timeout)
+                    if fault=='reap_failure':raise OSError('PURE_FAKE')
+                    if fault=='overrun':now[0]=111.0
+                    return (secret_output if fault=='secret'else'SQLPERF_SUMMARY|PASS|OK','')
+            handle=Handle();client=self.client()
+            with patch.object(collector.subprocess,'Popen',return_value=handle),patch.object(self.role.time,'monotonic',side_effect=lambda:now[0]),self.assertRaises(profile.ClientEndUnknown):
+                client.execute(self.command(),timeout_seconds=10,call_deadline=110.0)
+            capture=client.captures[0];self.assertTrue(client.unknown);self.assertTrue(capture['UnknownSticky']);self.assertTrue(client.inputs[0]['Retained'])
+            self.assertTrue(all(wait<=8 for wait in handle.waits))
+            if len(handle.waits)==2:self.assertLessEqual(handle.waits[-1],2)
+            if fault=='secret':self.assertEqual(capture['ChannelStatus'],'REJECTED');self.assertIsNone(capture['Stdout'])
+            if fault=='reap_failure':self.assertFalse(capture['Budget']['ChannelsObserved']);self.assertEqual(capture['ChannelStatus'],'UNOBSERVED');self.assertIsNone(capture['Stdout']);self.assertIsNone(capture['Stderr'])
+            if fault=='overrun':self.assertTrue(capture['Budget']['ObservedOverrun'])
+            with patch.object(collector.subprocess,'Popen')as next_start,self.assertRaises(profile.ClientEndUnknown):
+                client.execute(self.command('92_Absence.sql'),timeout_seconds=10,call_deadline=120.0)
+            next_start.assert_not_called()
+    def test_full_controller_shared_window_begins_before_restore_and_parent_keeps_deadline(self):
+        fixture=Client();window=profile.SharedCleanupWindow();observed=[]
+        class HeldRoleClient:
+            unknown=False;captures=[];inputs=[]
+            def execute(self,command,timeout_seconds,call_deadline):
+                name=Path(command[command.index('-i')+1]).name
+                if name in ('90_Restore.sql','91_AttestDrop.sql','92_Absence.sql'):
+                    state=window.snapshot();observed.append(state)
+                    self_outer.assertEqual(state['Status'],'ACTUAL_STARTED');self_outer.assertLessEqual(call_deadline,state['DeadlineMonotonic'])
+                else:self_outer.assertEqual(window.snapshot()['Status'],'NOT_STARTED')
+                return fixture(command,timeout_seconds)
+        self_outer=self;held=HeldRoleClient()
+        with patch.object(self.role,'_RoleClient',return_value=held)as factory:
+            result=profile.run_profile(**self.arguments(window),fault='after_setup')
+        self.assertTrue(factory.call_args.kwargs['budgeted']);self.assertTrue(result.cleanup_ok);self.assertEqual(len(observed),3)
+        self.assertEqual(observed,[observed[0]]*3);self.assertEqual(result.evidence['shared_cleanup_window'],window.snapshot())
+        self.assertEqual(window.begin(),observed[0]);self.assertGreater(window.remaining(10),0)
+        self.assertEqual(result.evidence['role_runtime_qualification'],'NOT_ESTABLISHED')
+    def test_full_controller_restore_unknown_returns_shared_start_and_stops_all_sql(self):
+        fixture=Client();window=profile.SharedCleanupWindow();capture={'Phase':'90_Restore.sql','UnknownSticky':True};retained={'Path':'PURE_OWN_INPUT','Retained':True}
+        class HeldRoleClient:
+            def __init__(self):self.unknown=False;self.captures=[];self.inputs=[]
+            def execute(self,command,timeout_seconds,call_deadline):
+                name=Path(command[command.index('-i')+1]).name
+                if name=='90_Restore.sql':
+                    fixture.files.append(name);self.unknown=True;self.captures.append(capture);self.inputs.append(retained);raise profile.ClientEndUnknown()
+                return fixture(command,timeout_seconds)
+        held=HeldRoleClient()
+        with patch.object(self.role,'_RoleClient',return_value=held):result=profile.run_profile(**self.arguments(window),fault='after_setup')
+        self.assertEqual(fixture.files,['00_Preflight.sql','10_Setup.sql','21_Snapshot.sql','90_Restore.sql'])
+        self.assertEqual((result.outcome,result.code,result.cleanup_ok),('FAIL','FAIL_CLEANUP',False))
+        self.assertEqual(window.snapshot()['Status'],'ACTUAL_STARTED');self.assertEqual(result.evidence['shared_cleanup_window'],window.snapshot())
+        self.assertEqual(result.evidence['client_end'],'UNKNOWN');self.assertEqual(result.evidence['temporary_source_cleanup'],'NOT_ESTABLISHED')
+        self.assertIs(result.evidence['role_captures'],held.captures);self.assertIs(result.evidence['role_inputs'],held.inputs)
+    def test_budget_prestart_boundaries_reject_without_process_and_legacy_uses_original_collector(self):
+        import sqlcmd_process as collector
+        client=self.client()
+        for timeout,end in ((True,110.0),(float('nan'),110.0),(0,110.0),(10,None),(10,float('inf')),(10,99.0),(10,101.0),(10,111.0)):
+            with patch.object(self.role.time,'monotonic',return_value=100.0),patch.object(collector.subprocess,'Popen')as start,self.assertRaises((ValueError,TimeoutError)):
+                client.execute(self.command(),timeout_seconds=timeout,call_deadline=end)
+            start.assert_not_called()
+        self.assertEqual(client.captures,[]);self.assertEqual(client.inputs,[])
+        legacy=self.client(False)
+        class Handle:
+            pid=123;returncode=0
+            def __init__(self):self.waits=[]
+            def poll(self):return 0
+            def communicate(self,timeout):self.waits.append(timeout);return ('SQLPERF_SUMMARY|PASS|OK','')
+        handle=Handle()
+        with patch.object(collector.subprocess,'Popen',return_value=handle):legacy.execute(self.command(),timeout_seconds=10)
+        self.assertEqual(handle.waits,[10]);self.assertNotIn('Budget',legacy.captures[0]);self.assertNotIn('CollectorMode',legacy.captures[0])
+
 if __name__=='__main__':
     unittest.main()

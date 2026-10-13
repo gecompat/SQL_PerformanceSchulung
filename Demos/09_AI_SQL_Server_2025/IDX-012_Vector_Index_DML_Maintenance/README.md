@@ -310,3 +310,11 @@ Nativenachweis. Die historischen zwei Rollenlifecycles qualifizieren ihn nicht
 nachträglich. Kein absoluter Minimalrollen-, allgemeiner Runtime-, Demo- oder
 TP-PERF-PASS. Der konkrete [Rollen-API-Vertrag](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_API_REVIEW.md)
 enthält Abnahmegrenzen und den erforderlichen eigenen Folgeentscheid.
+
+### Gemeinsames Cleanupbudget für einen aufrufenden Parent
+
+Ein aufrufender Parent kann im Rollenmodus ausdrücklich `shared_cleanup_window=SharedCleanupWindow()` an `run_profile` übergeben. Der feste Typ wird vom Controller als `SharedCleanupWindow` exportiert. Der Controller startet dieses Fenster einmal unmittelbar vor seiner Recovery; deren 20 Sekunden liegen innerhalb der gemeinsamen 60 Sekunden. Nach Rückgabe hält der Parent dasselbe Objekt und kann dessen `snapshot()`, `deadline` und `remaining(cap)` für seinen eigenen Principal-/Namespaceabbau nutzen. Ein ungestartetes Fenster wird als `NOT_STARTED` ausgegeben. Nach UNKNOWN ohne Restore darf der Parent erst vor erlaubtem eigenem Namespaceabbau `begin()` verwenden; daraus entsteht keine Erlaubnis für weitere SQL-Clients.
+
+Nur diese Auswahl verwendet im festen Rollenclient eine absolute Callfrist, einschließlich zwei Sekunden reserviertem Kill/Reaping. Startup-/Eingabezeit verbraucht dieselbe Frist; ein Rücklauf oder Reaping startet keine neue volle Wartezeit. Timeout, unbestätigtes Prozessende und beobachtete Überschreitung bleiben UNKNOWN, auch bei späterem Poll0. Sichere tatsächliche Kanäle und gehaltene PID-/Poll-/Returncode-/Input-/Sourcefakten werden vor der Ergebnisklassifikation erhalten. Konfigurierte Fristen garantieren weder Betriebssystem-Wallclock noch Server-/TDS-Enden. Der Parent muss den tatsächlichen Rest vor jedem eigenen Cleanupcall prüfen und bei Überschreitung FAIL melden.
+
+Diese Budget-API ist zunächst SOURCE_ONLY. Die bisherigen Ein-Kontext- und Rollenpfade ohne Budgetauswahl verwenden weiterhin ihren bisherigen Collector. Der globale Frameworkcollector und die festen SQL-/Kontext-/Kostenoracles werden nicht geändert. Ein Reset, freie Callback-/Executorübergaben und ein impliziter Budgetmodus sind nicht vorgesehen. Der neue tatsächliche öffentliche Rollennachweis benötigt weiterhin eigene Quellen-/Admission-/Runtimebelege.
