@@ -377,5 +377,140 @@ class ControllerBoundaries(unittest.TestCase):
                 with self.assertRaises(ValueError):profile.cost_source(FOLDER/'30_CostBoundary.sql')
 
 
+class RoleApiTests(unittest.TestCase):
+    OPERATOR='SyntheticOperator!'+('X'*40)
+    ADMIN='SyntheticAdmin!'+('Y'*40)
+    SID='A'*32
+    def setUp(self):
+        self.environment={'SQLCMDPASSWORD':self.ADMIN,'IDX012_OPERATOR_PASSWORD':self.OPERATOR,'SYSTEMROOT':'synthetic-root','PATH':'synthetic-path','SQLCMDINI':'foreign','ARBITRARY':'foreign'}
+        self.env=patch.dict(os.environ,self.environment,clear=True);self.env.start();self.addCleanup(self.env.stop)
+        self.role=profile.role_profile
+        self.binding=self.role.bind(TOKEN,self.SID,'01',dict(os.environ))
+    def client(self):
+        client=self.role._RoleClient(profile,self.binding,'sqlcmd','localhost,1433')
+        def clean():
+            for item in client.inputs:
+                path=Path(item['Path'])
+                if path.exists():
+                    self.assertEqual(path.parent,ROOT/'Runtime');self.assertTrue(path.name.startswith('idx012-role-'));self.assertEqual(__import__('hashlib').sha256(path.read_bytes()).hexdigest(),item['InputSha256']);path.unlink()
+        self.addCleanup(clean);return client
+    def command(self,name):return profile.phase_command('sqlcmd','localhost,1433','sql',self.binding.operator,FOLDER/name,TOKEN,0)
+    def contexts(self,stage='DML_BOUNDARY',session=12):
+        rows=[]
+        for checkpoint in ('ROLE_START','ADMIN_BUILD','ROLE_RESTORED','ROLE_END'):
+            admin=checkpoint=='ADMIN_BUILD'
+            rows.append(dict(kind='ROLE_CONTEXT',Stage=stage,Checkpoint=checkpoint,LoginName='sa'if admin else self.binding.operator,Sid='0x01'if admin else '0x'+self.SID,OriginalLogin='sa',OriginalSid='0x01',Sysadmin=int(admin),ControlServer=int(admin),AlterAnyLogin=int(admin),SessionId=session,DatabaseId=5,RunToken=TOKEN))
+        frames=[dict(Frame=position,Stage=stage,SessionId=session,DatabaseId=5,RunToken=TOKEN)for position in ('BEFORE','AFTER')]
+        return rows,frames
+    def test_role_mode_and_credentials_reject_free_executor_folder_and_aliases_before_start(self):
+        args=dict(executable='sqlcmd',server='localhost,1433',auth='sql',username=self.binding.operator,token=TOKEN,confirmed=True,high_impact=True,mode='drop-rebuild',capture_storage=True,capture_costs=True,role_mode=self.role.MODE,role_sid=self.SID,admin_sid='01')
+        with patch.object(profile,'start_sqlcmd')as start:
+            for changes in ({'executor':Mock()},{'folder':ROOT},{'username':'sa'},{'auth':'windows'},{'capture_costs':False},{'role_sid':True},{'admin_sid':None},{'role_mode':True},{'server':'foreign'},{'mode':'dml-boundary'}):
+                with self.subTest(change=list(changes)),self.assertRaises(ValueError):profile.run_profile(**(args|changes))
+            start.assert_not_called()
+        for env in (self.environment|{'sqlcmdpassword':self.ADMIN},self.environment|{'IDX012_OPERATOR_PASSWORD':self.ADMIN},self.environment|{'SQLCMDPASSWORD':True}):
+            with self.assertRaises(ValueError):self.role.bind(TOKEN,self.SID,'01',env)
+        for sid in (self.SID[:-1],self.SID+'A','0x'+self.SID,True):
+            with self.assertRaises(ValueError):self.role.bind(TOKEN,sid,'01',self.environment)
+        self.assertNotIn(self.OPERATOR,repr(self.binding));self.assertNotIn(self.ADMIN,repr(self.binding))
+    def test_role_composition_preserves_core_and_rejects_other_build_or_impersonation(self):
+        for name,stage in self.role.STAGES.items():
+            source=profile.cost_source(FOLDER/name);left,right=source.split(self.role.BUILD)
+            rendered=self.role._decorate(source,self.binding,stage)
+            self.assertIn(left,rendered);self.assertIn(right,rendered);self.assertEqual(rendered.count(self.role.BUILD),1)
+            self.assertLess(rendered.index(left),rendered.index(self.role.BUILD));self.assertLess(rendered.index(self.role.BUILD),rendered.index(right))
+            self.assertIn('CREATE TABLE #IDX012CostContext',rendered);self.assertIn("CostFrame BEFORE",rendered);self.assertIn("CostFrame AFTER",rendered)
+            for changed in (source.replace(self.role.BUILD,''),source+self.role.BUILD,source+"\nEXECUTE AS LOGIN=N'foreign';",source+'\nREVERT;',source+'\n'*170000):
+                with self.assertRaises(ValueError):self.role._decorate(changed,self.binding,stage)
+    def test_role_context_schema_sid_privilege_order_and_cost_session_binding(self):
+        for stage in self.role.STAGES.values():
+            rows,frames=self.contexts(stage);self.assertEqual(len(self.role.validate_context(rows,self.binding,stage,5,frames)),4)
+            for index,change in ((0,{'Sid':'0x'+'B'*32}),(1,{'Sid':'0x'+self.SID}),(2,{'OriginalLogin':self.binding.operator}),(3,{'SessionId':13}),(0,{'Sysadmin':False}),(1,{'AlterAnyLogin':False}),(0,{'DatabaseId':True}),(0,{'Extra':1}),(0,{'OriginalSid':'0x02'})):
+                bad=copy.deepcopy(rows);bad[index].update(change)
+                with self.subTest(index=index,change=list(change)),self.assertRaises(ValueError):self.role.validate_context(bad,self.binding,stage,5,frames)
+            for bad in (rows[:-1],rows+rows[:1],list(reversed(rows))):
+                with self.assertRaises(ValueError):self.role.validate_context(bad,self.binding,stage,5,frames)
+            for change in ({'SessionId':13},{'SessionId':True},{'RunToken':'B'*16},{'Frame':'BEFORE'}):
+                bad=copy.deepcopy(frames);bad[1].update(change)
+                with self.assertRaises(ValueError):self.role.validate_context(rows,self.binding,stage,5,bad)
+    def test_role_actual_one_client_cost_routing_private_env_and_source_capture(self):
+        class Handle:
+            pid=123;returncode=0
+            def poll(self):return 0
+            def communicate(self,timeout):return ('SQLPERF_SUMMARY|PASS|OK','')
+        for name in ('00_Preflight.sql','30_CostBoundary.sql','50_CostRebuild.sql'):
+            client=self.client();handle=Handle()
+            import sqlcmd_process as collector
+            with patch.object(collector.subprocess,'Popen',return_value=handle)as start:
+                result=client.execute(self.command(name),timeout_seconds=10)
+                self.assertEqual(start.call_count,1);args,kwargs=start.call_args
+                command=args[0];environment=kwargs['env'];cost=name in self.role.STAGES
+                self.assertEqual(command[command.index('-U')+1],'sa'if cost else self.binding.operator)
+                self.assertEqual(environment['SQLCMDPASSWORD'],self.ADMIN if cost else self.OPERATOR)
+                self.assertEqual(environment['SystemRoot'],'synthetic-root');self.assertNotIn('IDX012_OPERATOR_PASSWORD',environment);self.assertNotIn('SQLCMDINI',environment);self.assertNotIn('ARBITRARY',environment)
+                self.assertNotIn(self.ADMIN,' '.join(command));self.assertNotIn(self.OPERATOR,' '.join(command))
+            cap=client.captures[0];self.assertEqual(cap['Pid'],123);self.assertEqual(cap['FinalPoll'],0);self.assertEqual(cap['ReturnCode'],0);self.assertFalse(cap['UnknownSticky']);self.assertEqual(cap['ServerRequestEnd'],'NOT_ATTESTED')
+            self.assertEqual(cap['SourceBefore'],cap['SourceAfter']);self.assertEqual(cap['Stdout'],result.stdout);self.assertEqual(cap['ChannelStatus'],'SAFE');self.assertFalse(Path(client.inputs[0]['Path']).exists())
+            self.assertNotIn(self.ADMIN,cap['InputText']);self.assertNotIn(self.OPERATOR,cap['InputText'])
+        client=self.client();base=self.command('00_Preflight.sql')
+        for changed in (base+['-Q','SELECT 1;'],base+['-v','RunToken='+('B'*16)],base+['-e'],['foreign-executable',*base[1:]]):
+            with patch.object(collector.subprocess,'Popen')as start,self.assertRaises(ValueError):client.execute(changed,timeout_seconds=10)
+            start.assert_not_called()
+        self.assertEqual(client.captures,[]);self.assertEqual(client.inputs,[])
+    def test_role_unknown_precedes_privacy_and_no_follow_sql_or_input_deletion(self):
+        import sqlcmd_process as collector
+        class Handle:
+            pid=123;returncode=0
+            def __init__(self,poll,output):self.status=poll;self.output=output
+            def poll(self):return self.status
+            def communicate(self,timeout):return (self.output,'')
+        for poll,output in ((None,'SQLPERF_SUMMARY|PASS|OK'),(True,'SQLPERF_SUMMARY|PASS|OK'),(0,self.ADMIN),(0,json.dumps({'MessageHex':self.OPERATOR.encode('utf-16-le').hex().upper()}))):
+            client=self.client()
+            with patch.object(collector.subprocess,'Popen',return_value=Handle(poll,output))as start,self.assertRaises(profile.ClientEndUnknown):client.execute(self.command('00_Preflight.sql'),timeout_seconds=10)
+            self.assertTrue(client.unknown);cap=client.captures[0];self.assertTrue(cap['UnknownSticky']);self.assertTrue(Path(client.inputs[0]['Path']).exists())
+            if poll==0:
+                self.assertEqual(cap['ChannelStatus'],'REJECTED');self.assertIsNone(cap['Stdout']);self.assertIsNone(cap['Stderr'])
+            with patch.object(collector.subprocess,'Popen')as next_start,self.assertRaises(profile.ClientEndUnknown):client.execute(self.command('92_Absence.sql'),timeout_seconds=10)
+            next_start.assert_not_called()
+    def test_role_full_controller_restore_unknown_returns_captures_and_retained_inputs(self):
+        fixture=Client()
+        capture={'Phase':'90_Restore.sql','Pid':123,'FinalPoll':None,'ReturnCode':None,'UnknownSticky':True,'Stdout':'','Stderr':''}
+        retained={'Path':str(ROOT/'Runtime'/'idx012-role-pure-retained.sql'),'InputSha256':'A'*64,'Retained':True}
+        class HeldRoleClient:
+            def __init__(self):
+                self.unknown=False;self.captures=[];self.inputs=[]
+            def execute(self,command,timeout_seconds):
+                name=Path(command[command.index('-i')+1]).name
+                if name=='90_Restore.sql':
+                    fixture.files.append(name);self.unknown=True;self.captures.append(capture);self.inputs.append(retained)
+                    raise profile.ClientEndUnknown()
+                return fixture(command,timeout_seconds)
+        held=HeldRoleClient()
+        with patch.object(self.role,'_RoleClient',return_value=held):
+            result=profile.run_profile(executable='sqlcmd',server='localhost,1433',auth='sql',username=self.binding.operator,
+                token=TOKEN,confirmed=True,high_impact=True,mode='drop-rebuild',capture_storage=True,capture_costs=True,
+                role_mode=self.role.MODE,role_sid=self.SID,admin_sid='01',fault='after_setup')
+        self.assertEqual(fixture.files,['00_Preflight.sql','10_Setup.sql','21_Snapshot.sql','90_Restore.sql'])
+        self.assertEqual((result.outcome,result.code,result.cleanup_ok),('FAIL','FAIL_CLEANUP',False))
+        self.assertEqual(result.evidence['client_end'],'UNKNOWN')
+        self.assertEqual(result.evidence['temporary_source_cleanup'],'NOT_ESTABLISHED')
+        self.assertIs(result.evidence['role_captures'],held.captures);self.assertIs(result.evidence['role_inputs'],held.inputs)
+        self.assertEqual(result.evidence['role_captures'],[capture]);self.assertEqual(result.evidence['role_inputs'],[retained])
+        self.assertEqual(result.phases[-1],('RESTORE','FAIL','FAIL_CLEANUP'));self.assertTrue(held.unknown)
+        self.assertEqual(result.evidence['role_runtime_qualification'],'NOT_ESTABLISHED')
+
+    def test_role_imported_module_api_and_source_binding_before_effect(self):
+        import types,sqlcmd_process as collector
+        foreign=types.ModuleType('sqlcmd_process');foreign.__file__='foreign.py'
+        with patch.dict(sys.modules,{'sqlcmd_process':foreign}),self.assertRaises(ValueError):self.client()
+        with patch.object(profile,'role_profile',types.SimpleNamespace(__file__='foreign.py')),self.assertRaises(ValueError):self.client()
+        with patch.object(profile,'SqlcmdResult',object),self.assertRaises(ValueError):self.client()
+        client=self.client();changed=client.sources|{next(iter(client.sources)):'0'*64}
+        with patch.object(client,'source_map',return_value=changed),patch.object(collector.subprocess,'Popen')as start,self.assertRaises(ValueError):client.execute(self.command('00_Preflight.sql'),timeout_seconds=10)
+        start.assert_not_called();self.assertEqual(client.captures,[])
+        with patch.object(profile,'__name__','__main__'),patch.object(profile,'__spec__',None),patch.dict(sys.modules,{'__main__':profile}):
+            main_client=self.client();self.assertEqual(main_client.sources,client.sources)
+        with patch.object(profile,'__spec__',None),self.assertRaises(ValueError):self.client()
+
 if __name__=='__main__':
     unittest.main()

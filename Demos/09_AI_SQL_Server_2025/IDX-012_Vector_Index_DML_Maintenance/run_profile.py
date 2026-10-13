@@ -24,12 +24,13 @@ FOLDER = Path(__file__).resolve().parent
 ROOT = FOLDER.parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT/'Demos/00_Framework/Tools'))
-from sqlcmd_process import build_sqlcmd_command, collect_process, extract_summary, resolve_sqlcmd, start_sqlcmd
+from sqlcmd_process import SqlcmdResult, build_sqlcmd_command, collect_process, extract_summary, resolve_sqlcmd, start_sqlcmd
 sys.path.insert(0, str(FOLDER))
 from dml_boundary_evidence import validate_dml_boundary
 from lifecycle_evidence import validate_lifecycle
 from storage_evidence import validate_storage
 from cost_evidence import validate_costs
+import role_profile
 
 
 @dataclass(frozen=True)
@@ -304,7 +305,7 @@ def same_snapshot(before, after, *, enable=None, table_names=None, indexes=None)
 
 
 def run_profile(*, executable, server, auth, username, token, confirmed, high_impact,
-                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False, capture_costs=False):
+                folder=FOLDER, executor=execute_client, clock=time.monotonic, fault=None, normal_deadline=None, mode="dml-boundary", capture_storage=False, capture_costs=False, role_mode=None, role_sid=None, admin_sid=None):
     if (confirmed is not True or high_impact is not True or not isinstance(token,str)
             or not re.fullmatch('[A-F0-9]{16}',token) or fault not in (None,'after_setup','after_index_build')
             or mode not in ('dml-boundary','drop-rebuild') or type(capture_storage) is not bool
@@ -312,6 +313,19 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             or (capture_costs and (mode!='drop-rebuild' or not capture_storage))):
         raise ValueError('Lokale YELLOW-Bestätigung und vollständige Tokenbindung erforderlich')
     folder=Path(folder).resolve()
+    role_client=None;role_binding=None
+    if role_mode is not None:
+        if (type(role_mode)is not str or role_mode!=role_profile.MODE or auth!='sql'
+                or folder!=FOLDER.resolve() or executor is not execute_client or mode!='drop-rebuild'
+                or capture_storage is not True or capture_costs is not True
+                or type(server)is not str or not re.fullmatch(r'(?:tcp:)?(?:127\.0\.0\.1|localhost),[1-9][0-9]{0,4}',server)
+                or int(server.rsplit(',',1)[1])>65535):
+            raise ValueError('FIXED_PUBLIC_ROLE_MODE')
+        role_binding=role_profile.bind(token,role_sid,admin_sid,dict(os.environ))
+        if type(username)is not str or username!=role_binding.operator:raise ValueError('FIXED_OPERATOR_USERNAME')
+        role_client=role_profile._RoleClient(sys.modules[__name__],role_binding,executable,server)
+        executor=role_client.execute
+    elif role_sid is not None or admin_sid is not None:raise ValueError('ROLE_ARGUMENT_WITHOUT_MODE')
     regular=Deadline(300,clock)
     if normal_deadline is not None:
         if type(normal_deadline) not in (int,float) or not math.isfinite(normal_deadline):
@@ -380,6 +394,9 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
             actual=validate_costs([r for r in records(output) if r.get('kind')=='PHASE_COST'],
                                   token=token,database_id=database_id,stage=stage,file_ids=own_files)
             evidence.setdefault('phase_costs',[]).append(actual)
+            if role_binding is not None:
+                context=role_profile.validate_context(records(output),role_binding,stage,database_id,actual['frames'])
+                evidence.setdefault('role_contexts',[]).extend(context)
 
     try:
         normal('PREFLIGHT','00_Preflight.sql')
@@ -482,6 +499,9 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
     except KeyboardInterrupt:
         outcome,code='FAIL','FAIL_EXECUTION'
     finally:
+        if role_client is not None and role_client.unknown:
+            client_end_unknown=True;outcome,code='FAIL','FAIL_CLEANUP'
+            evidence.update(client_end='UNKNOWN',temporary_source_cleanup='NOT_ESTABLISHED')
         if started and not client_end_unknown:
             recovery=Deadline(20,clock)
             successes=set()
@@ -501,11 +521,22 @@ def run_profile(*, executable, server, auth, username, token, confirmed, high_im
                     elif marker(output,'ANN_DB')!=['ANN_DB|ABSENT']:
                         continue
                     successes.add(identity)
+                except ClientEndUnknown:
+                    client_end_unknown=True
+                    outcome,code='FAIL','FAIL_CLEANUP'
+                    evidence.update(client_end='UNKNOWN',temporary_source_cleanup='NOT_ESTABLISHED')
+                    phases.append((identity,'FAIL','FAIL_CLEANUP'))
+                    break
                 except (OSError,TimeoutError,ValueError,KeyboardInterrupt):
                     phases.append((identity,'FAIL','FAIL_CLEANUP'))
             cleanup_ok=successes=={'RESTORE','ATTEST_DROP','ABSENCE'} and clock()<=recovery.end
             if not cleanup_ok:
                 outcome,code='FAIL','FAIL_CLEANUP'
+    if role_client is not None:
+        evidence.update(role_profile=role_profile.MODE,role_captures=role_client.captures,role_inputs=role_client.inputs,
+                        role_runtime_qualification='NOT_ESTABLISHED',role_server_request_end='NOT_ATTESTED',
+                        role_cost_scope='WHOLE_PHASE_INCLUDING_CONTEXT_AND_ATTESTATION')
+        if outcome=='WARN' and len(evidence.get('role_contexts',[]))!=8:outcome,code='FAIL','FAIL_RESULT_CONTRACT'
     return Result(outcome,code,tuple(phases),original,cleanup_ok,evidence)
 
 
@@ -521,14 +552,21 @@ def main():
     parser.add_argument('--mode',choices=('dml-boundary','drop-rebuild'),default='dml-boundary')
     parser.add_argument('--capture-storage',action='store_true')
     parser.add_argument('--capture-costs',action='store_true')
-    parser.add_argument('--username',default='sa')
+    parser.add_argument('--username')
+    parser.add_argument('--role-mode',choices=[role_profile.MODE])
+    parser.add_argument('--role-sid')
+    parser.add_argument('--admin-sid')
     parser.add_argument('--run-token',required=True)
     parser.add_argument('--confirm-isolated-lab',action='store_true')
     parser.add_argument('--high-impact-confirmed',action='store_true')
     args=parser.parse_args()
-    result=run_profile(executable=resolve_sqlcmd(args.sqlcmd),server=args.server,auth='sql',username=args.username,
-                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode,capture_storage=args.capture_storage,capture_costs=args.capture_costs)
-    print(json.dumps(result.__dict__,ensure_ascii=False))
+    username=args.username if args.username is not None else ('SQLPERF_IDX012_ROLE_'+args.run_token if args.role_mode else 'sa')
+    result=run_profile(executable=resolve_sqlcmd(args.sqlcmd),server=args.server,auth='sql',username=username,
+                       token=args.run_token,confirmed=args.confirm_isolated_lab,high_impact=args.high_impact_confirmed,mode=args.mode,capture_storage=args.capture_storage,capture_costs=args.capture_costs,role_mode=args.role_mode,role_sid=args.role_sid,admin_sid=args.admin_sid)
+    if args.role_mode:
+        # Vollständige sichere Callerrecords bleiben privat im APIresult; CLI nur begrenzte Felder.
+        print(json.dumps({'outcome':result.outcome,'code':result.code,'phases':len(result.phases),'cleanup_ok':result.cleanup_ok,'role_contexts':len(result.evidence.get('role_contexts',[])),'runtime_qualification':'NOT_ESTABLISHED','server_request_end':'NOT_ATTESTED'},ensure_ascii=False))
+    else:print(json.dumps(result.__dict__,ensure_ascii=False))
     return 1 if result.outcome=='FAIL' else 0
 
 
