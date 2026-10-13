@@ -244,3 +244,10 @@ ersetzen keine neue Schulungs-Runtimequalifikation.
 | ID | Klasse | Quelle | Verwendung | Grenzen | Abruf | Prüfung | Status | Aktualisierung |
 |---|---|---|---|---|---|---|---|---|
 | `SRC-117` | PRIMARY | Microsoft (2026), [FOR JSON Datentypkonvertierung](https://learn.microsoft.com/en-us/sql/relational-databases/json/how-for-json-converts-sql-server-data-types-to-json-data-types-sql-server?view=sql-server-ver17) | Kanonische Base64-Darstellung von binary/varbinary im festen JSON-Record, vollständige UTF16LE-Marker-/Dateinamensbytes | Serializervertrag, kein eigener Request-/Herkunfts-/Native-/Cleanup-PASS; Originalrecord und konkrete Bytebindung getrennt prüfen | 2026-10-13 | 2026-10-13 | ACTIVE | Serializer-/Versions-/Captureformatänderung oder abweichende Evidenz |
+
+## TSK-004 – begrenzte lokale Assembly-Ladediagnose
+
+| ID | Klasse | Quelle | Verwendung | Grenzen | Abruf | Prüfung | Status | Aktualisierung |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-118` | PRIMARY | Microsoft (2026), [Default probing](https://learn.microsoft.com/en-us/dotnet/core/dependency-loading/default-probing) | Depsdateien werden in Host-Suchinformationen umgesetzt; Default-Kontext, Managed-, Ressourcen- und Native-Suche getrennt einordnen | Dokumentierter Suchalgorithmus, kein Befund zur eigenen FileNotFoundException und kein Loader-/SNI-/TDS-/SQL-PASS | 2026-10-13 | 2026-10-13 | ACTIVE | Host-/Runtime-/Deps- oder Probeverfahren geändert |
+| `SRC-119` | PRIMARY | Microsoft (2026), [Managed assembly loading algorithm](https://learn.microsoft.com/en-us/dotnet/core/dependency-loading/loading-managed) | Benannte LoadFromAssemblyName-Probe und Typmetadaten getrennt von statischen Referenzen und deren variabler Ladezeit einordnen | Ein geänderter Probehost reproduziert keine verlorenen Fehlermetadaten des früheren SQL-Clients; keine Securityisolation durch den Load-Kontext behaupten | 2026-10-13 | 2026-10-13 | ACTIVE | AssemblyLoadContext-/Runtime-/Typ- oder Diagnoseverfahren geändert |
