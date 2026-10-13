@@ -1,5 +1,49 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: nativer VECTOR-Caller nach vollständigem PR228-Abschluss
+
+PR228 vollständig geschlossen:8Head/6Main, vollerTree, primaryMain48d4e187,
+FF/Branches/916 hashverifizierte private Dateien/tatsächlicher Worktreearchiv.
+Unmittelbar folgt der [begrenzte Nativecaller](SQL_SERVER_2025_AI_VECTOR_NATIVE_REVIEW.md).
+SourceC1–C3 bleiben gezählt, jetztC4–C6/hard6 ohneReset; höchstens drei zusätzliche
+eigene serielle Container. Gepinnter vorhandener SqlClient6.1.4/net10-Bestand,
+keine neuen Pakete/Restore/globalen Effekte. Konkreter Compilerplan und aktuelle
+Source-/Input-/Oracle-/Request-/Deadline-/Test-/Rootgates vor Nativeadmission.
+Zwei VECTOR(3)-Rows/typedNull/Dimensionnegative/volle Guard-/Restore-/Cleanupbelege,
+300normal/eine60Cleanup. Jetzt null neueNative/Modelle; PoolUNKNOWN gestoppt,
+volle TSK004 und Workstreamabnahme offen.
+
+C4-Compile bestanden (0,5911s, zwei erhaltene CS1701-Warnungen); Root-
+Partialoutput-/Requestend-/Dimensionskorrektur mit vier neuen Methoden normal/-O
+belegt, ohne weiteren Compile. C4 tatsächlicher FAIL vor Create an fehlender
+USERPROFILE-Konfigurationswurzel: zwei CLI-Enden bekannt,0Create/SQL/Client,
+UNKNOWN=false; historischer Ledger closed=false und SQLcleanupNOT_ESTABLISHED.
+Root frische eigene Namens-/Inputabwesenheit unter geändertem ENV belegt, CID
+NOT_CREATED; Temp-WARN und erste zu strenge stderr-Auswertung erhalten, keine
+Abfragewiederholung. C5-Sourcekorrektur und exakter No-create-Proof vor neuer
+Admission, C6 letzte Reserve. Kein stiller Ledgerreset, keine Poolwiederaufnahme.
+
+C5 tatsächlich bekannter FAIL vor typisiertem Client: ein eigener Container,
+acht SQLcmd-Aufrufe, vollständiger erster State mit vier null-Kataloggruppen.
+Root bestätigte Originalrecords und tatsächlichen guarded Drop, frische SQL-/
+CID-/Namensabwesenheit und Inputcleanup; UNKNOWN=false, C5 closed=true.
+C6 korrigiert ausschließlich Producer-Arrayfallbacks, strenges Oracle bleibt.
+Zwei neue pure Methoden nach erhaltenem Fixture-Lesecapfehler bestanden;
+Sourcefreeze/93 C5-Archivdateien gebunden. Native erst nach aktuellen Rootgates.
+Nach C6 STOP dieses Budgets unabhängig vom Ergebnis, anschließend Integration.
+Details: [Native-Nachweis](SQL_SERVER_2025_AI_VECTOR_NATIVE_REVIEW.md).
+
+C6 tatsächlich FAIL_HARD6_UNKNOWN: korrigierter Vollstate bestanden, Child
+bekannt mit rc1/FileNotFoundException beendet, individuelle Requests fehlen.
+UNKNOWN sticky, kein Folge-SQL oder SQLcleanup-PASS, Nativeinput erhalten und
+Ledger closed=false. Genau ein gebundener Namespaceabbau und frische ganze
+CID-/Namensabwesenheit bestätigt. Welle beendet, keine weitere Probe/Fix;
+gesamt zwei eigene Container/14 SQLcmd-Aufrufe/ein .NET-Child/0 neue Modelle.
+Root-Abschlussprüfung bestanden; Integration dieses Fehlercheckpoints folgt.
+Nächster unabhängiger Schnitt: TSK-006, gebundener reiner ANN-DML-/Rollenvertrag
+auf vorhandener Evidenz, zunächst ohne Native-/Provider-/Host-/Modellaufrufe.
+
+
 ## TSK-004: isolierte native VECTOR-Client-Sourcevorbereitung nach PR227
 
 PR227 vollständig geschlossen (8Head/6Main, Tree/FF/Branches/Belege/Archiv).
