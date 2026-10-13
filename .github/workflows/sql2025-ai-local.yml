@@ -32,6 +32,9 @@ on:
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
       - 'Tests/Static/test_idx012_dml_boundary.py'
+      - 'Tests/Static/vector_client_layout_evidence.py'
+      - 'Tests/Static/test_vector_client_layout_evidence.py'
+      - 'Tests/Static/Fixtures/vector_client_layout/**'
       - 'Tests/Static/idx012_dml_role_evidence.py'
       - 'Tests/Static/test_idx012_dml_role_evidence.py'
       - 'Tests/Static/Fixtures/idx012/**'
@@ -83,6 +86,9 @@ on:
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
       - 'Tests/Static/test_idx012_dml_boundary.py'
+      - 'Tests/Static/vector_client_layout_evidence.py'
+      - 'Tests/Static/test_vector_client_layout_evidence.py'
+      - 'Tests/Static/Fixtures/vector_client_layout/**'
       - 'Tests/Static/idx012_dml_role_evidence.py'
       - 'Tests/Static/test_idx012_dml_role_evidence.py'
       - 'Tests/Static/Fixtures/idx012/**'
@@ -172,6 +178,16 @@ jobs:
           python Tests/Static/test_idx012_lifecycle.py
           python Tests/Static/test_idx012_storage.py
           python Tests/Static/test_idx012_costs.py
+      - name: Validate fixed source-only vector client layout
+        env:
+          PYTHONPATH: Tests/Static
+        run: |
+          python Tests/Static/test_vector_client_layout_evidence.py
+          python -O -m unittest \
+            test_vector_client_layout_evidence.LayoutTests.test_full_asset_sha_bootstrap_pins_and_null_bool_metadata \
+            test_vector_client_layout_evidence.LayoutTests.test_fixed_historical_binding_does_not_accept_synthetic_metadata_as_actual \
+            test_vector_client_layout_evidence.LayoutTests.test_contract_claim_count_origin_and_raw_extra_drift_are_rejected \
+            test_vector_client_layout_evidence.LayoutTests.test_plain_types_duplicate_json_and_null_shapes_are_rejected
       - name: Validate pure IDX-012 DML and role records
         env:
           PYTHONPATH: Tests/Static
