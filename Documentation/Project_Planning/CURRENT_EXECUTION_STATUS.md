@@ -1,5 +1,41 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: explizite DB-ID-Projektion und Gesamtcheckpoint3 nach PR236
+
+PR236 vollständig geschlossen: acht Head-/sechs Main-Gates, Main11ec85c1,
+voller Tree/FF/Branches, 125 private Dateien gesichert/eigener Worktree archiviert.
+R1/Gesamt2 bleibt FAIL/UNKNOWN_STOP/SQLcleanup nicht belegt, alte Originale
+und Ressourcen unverändert/kein weiterer Aufruf ihrer gestoppten Pakete.
+Unmittelbar [neue eigene DB-ID-Projektion](SQL_SERVER_2025_AI_DBID_PROJECTION_REVIEW.md):
+CONVERT(int,DB_ID()), eigene geänderte Input-/Receipt-/Scopebindungen,
+beibehaltene tatsächliche Reader-/API-/Eigentums-/Zustands-/Cleanupfloors und
+vor Native geprüfter Dimensions-TRY/CATCH-Ausführungsscope. Source6/CP3/hard6,
+neue Effekte null und getrennte Root-Compiler-/Nativeadmissions vor Ausführung.
+Gemeinsam prior2Compiler/Container/Caller, höchstens vier zusätzliche Gesamt3–6;
+erster Gesamt3 erreicht verpflichtenden Rootcheckpoint, kein Budgetreset.
+Dokumentiertes DB_ID-int und Driver-smallint/Int16 bleiben getrennt, Ursache offen.
+
+Gesamt3 tatsächlich FAIL/UNKNOWN_STOP; Pflichtcheckpoint3 durch unabhängigen
+Rootreview geschlossen. Compiler46412/poll0/rc0/0,712391s, zwei CS1701-WARNs;
+Top57876/poll1/rc1/12,640812s, Child65112/poll0/rc0, kein Timeout.
+Child meldet acht tatsächliche Typfelder einschließlich DB-ID-int/Int32,
+31 vollständig beendete Readerteilschritte und zehn API-Enden, zwei Native-/
+JSON-Vektoren vor/nach unverändert, NULL(3) und spezifische SQL-Abweisung42204
+mit allen sechs Fehlerfeldern. Der Parent verwirft bereits OPEN:
+tatsächliches Encrypt=True, eingefrorenes Oracle erwartet Encrypt=Mandatory.
+Die isolierte In-Memory-Gegenprüfung aller übrigen Recordfloors ist kein
+geänderter tatsächlicher Lauf oder Runtime-PASS; Originale/UNKNOWN bleiben.
+Sechs bekannte SQLcmdenden/ein Vollstate/keine Controls, null Folge-SQL;
+eine volle eigene Containment und frische ganze CID-/Namensabwesenheit.
+SQLcleanup NOT_ESTABLISHED/DB- und Inputabwesenheit false/closed false.
+Alle 71 Sources und Originalbytes erhalten. Kumulativ drei Compiler/Container/
+Caller, drei verbleibende Gesamt4–6; kein automatischer vierter Versuch.
+Aktuelle vollständige PR-/Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktree-
+Integration folgt. Danach ausschließlich neue eigene Source-/Scopebasis mit
+quellengeprüfter präziser OPEN-Auswertung, fortgeführten prior3/rest3 und
+neuen Rootgates; kein Aufruf des gestoppten Pakets oder alter Ressourcen.
+Volle Runtime-/Wire-/TSK-004-/Workstreamabnahme bleibt offen.
+
 ## TSK-004: eigener geänderter Caller mit Sessionreader nach PR235
 
 PR235 vollständig geschlossen: neun Head-/sieben Main-Gates, voller Tree,
