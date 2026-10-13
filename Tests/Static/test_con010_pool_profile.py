@@ -255,4 +255,157 @@ class ProducerTests(unittest.TestCase):
         for changes in ({'InputText':'SELECT 2;'},{'Stdout':'other'},{'Ordinal':True},{'ExpectedError':51003}):
             with self.assertRaises(ValueError):e.validate_call(call|changes)
 
+class RequalificationTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name);self.control=self.root/'Control';self.control.mkdir();self.origin=self.root/'IntegratedRun_PR226';self.origin.mkdir()
+        old=[{'candidate':n,'status':'FAIL','closed':False,'sql_absence':'NOT_ESTABLISHED','name':'synthetic-old-'+str(n),'source_sha256':p.source_map()} for n in (1,2)]
+        self.write(self.origin/'public-ledger.json',old);self.write(self.origin/'wave-stop.json',{'status':'STOPPED_NATIVE_UNKNOWN_SOURCE_CORRECTION_ALLOWED','native_candidates_consumed':2,'new_own_containers':1,'sqlcmd_calls':0,'pool_children':0,'cleanup_request_end':'UNKNOWN_STICKY','actual_cid_name_input_absent':True});self.write(self.origin/'candidate2/namespace-recovery-unknown.json',{'status':'RESOURCE_ABSENT_REQUEST_END_UNKNOWN','mutative_request_end':'UNKNOWN_STICKY'})
+        pins={v.relative_to(self.origin).as_posix():p.digest(v) for v in self.origin.rglob('*') if v.is_file()}
+        for name,value in [('REQUAL_CONTROL',self.control),('OLD_HISTORY_PINS',pins)]:
+            mock=patch.object(p,name,value);mock.start();self.addCleanup(mock.stop)
+        self.write(self.control/'history.json',{'contract':'CON010_PR226_IMMUTABLE_HISTORY_V1','origin':str(self.origin),'files':pins});self.input(1)
+    def write(self,path,value):
+        path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(e.canonical(value).encode())
+    def input(self,candidate):
+        self.write(self.control/'input.json',{'contract':'CON010_POOL_REQUALIFICATION_INPUT_V1','wave':p.REQUAL_WAVE,'source_candidate':candidate,'candidate':candidate,'overall_native_candidate':2+candidate,'control':'Runtime/AI_POOL_REQUALIFICATION','canonical_scope':p.REQUAL_CANONICAL,'history_sha256':p.digest(self.control/'history.json'),'budget':p.requalification_budget(),'old_request_end':'UNKNOWN_STICKY','old_sql_cleanup':'NOT_ESTABLISHED','old_wave':'STOPPED_NO_C3_AFTER_UNKNOWN'})
+        _,old=p.requalification_history();now=p.source_map();self.write(self.control/'source-delta.json',{'contract':'CON010_C2_CURRENT_SOURCE_DELTA_V1','old_source_sha256':old[1]['source_sha256'],'current_source_sha256':now,'changed':[]})
+        # Purefixture hat absichtlich ein geändertes altes Codepin, kein Nativebeleg.
+        old[1]['source_sha256'][next(k for k in now if k.endswith('.py'))]='0'*64;self.write(self.origin/'public-ledger.json',old);p.OLD_HISTORY_PINS['public-ledger.json']=p.digest(self.origin/'public-ledger.json')
+        history=json.loads((self.control/'history.json').read_bytes());history['files']=p.OLD_HISTORY_PINS;self.write(self.control/'history.json',history)
+        value=json.loads((self.control/'input.json').read_bytes());value['history_sha256']=p.digest(self.control/'history.json');self.write(self.control/'input.json',value)
+        self.write(self.control/'source-delta.json',{'contract':'CON010_C2_CURRENT_SOURCE_DELTA_V1','old_source_sha256':old[1]['source_sha256'],'current_source_sha256':now,'changed':sorted(k for k in now if now[k]!=old[1]['source_sha256'][k])})
+        self.write(self.control/'root-review.json',{'status':'SOURCE_REVIEW_CLOSED','source_sha256':now});self.write(self.control/'source-proof.json',{'status':'REGISTERED','source_sha256':now});self.write(self.control/'budget.json',p.requalification_budget())
+    def admission(self,candidate):
+        value=p.requalification_input(candidate)
+        return {'status':'ADMITTED','candidate':candidate,'source_candidate':value['source_candidate'],'wave':p.REQUAL_WAVE,'scope':'CON010_OPT_IN_RED_POOL_REQUALIFICATION','allow_red':True,'confirm_isolated_lab':True,'canonical_scope':p.REQUAL_CANONICAL,'canonical_scope_sha256':p.digest(ROOT/p.REQUAL_CANONICAL),'source_sha256':p.source_map(),'input_sha256':p.digest(self.control/'input.json'),'history_sha256':p.digest(self.control/'history.json'),'delta_sha256':p.digest(self.control/'source-delta.json'),'root_review_sha256':p.digest(self.control/'root-review.json'),'source_proof_sha256':p.digest(self.control/'source-proof.json'),'budget_sha256':p.digest(self.control/'budget.json'),'checkpoint_overall3_sha256':p.digest(self.control/'checkpoint-overall3.json') if candidate>1 else None,'source_checkpoint3_sha256':None}
+    def test_explicit_wave_admission_preserves_unknown_history_and_requires_input(self):
+        original=(self.origin/'wave-stop.json').read_bytes();self.assertEqual(p.admitted_requalification(1,self.admission(1),[]),p.source_map());self.assertEqual((self.origin/'wave-stop.json').read_bytes(),original)
+        value=json.loads((self.control/'input.json').read_bytes());value['source_candidate']=2;self.write(self.control/'input.json',value)
+        self.assertEqual(p.admitted_requalification(1,self.admission(1),[]),p.source_map())
+        wrong=self.admission(1)|{'source_candidate':1}
+        with self.assertRaises(p.Failure):p.admitted_requalification(1,wrong,[])
+        with patch.object(p.subprocess,'Popen') as start:
+            (self.control/'history.json').unlink()
+            with self.assertRaises((p.Failure,FileNotFoundError)):p.admitted_requalification(1,{},[])
+            start.assert_not_called()
+    def test_shared_budget_bool_alias_reset_and_forged_closure_reject(self):
+        raw=(self.control/'input.json').read_bytes();base=json.loads(raw)
+        for key,bad in [('source_candidate',True),('overall_native_candidate',1),('old_request_end','KNOWN'),('control','Runtime/AI_POOL_PUBLIC')]:
+            self.write(self.control/'input.json',base|{key:bad})
+            with self.assertRaises(p.Failure):p.requalification_input(1)
+        for key,bad in [('native_prior',0),('containers_prior',0),('native_total_max',True),('native_additional_max',5),('containers_total_max',6),('actual_checkpoint',True)]:
+            value=copy.deepcopy(base);value['budget'][key]=bad;self.write(self.control/'input.json',value)
+            with self.assertRaises(p.Failure):p.requalification_input(1)
+        (self.control/'input.json').write_bytes(raw)
+        with self.assertRaises(p.Failure):p.requalification_input(5)
+        self.write(self.origin/'candidate2/namespace-recovery-unknown.json',{'status':'PASS','mutative_request_end':'KNOWN'})
+        with self.assertRaises(p.Failure):p.requalification_history()
+    def test_live_reservation_and_overall3_checkpoint_before_second_new_attempt(self):
+        admission=self.admission(1);now=p.source_map();value=p.requalification_input(1)
+        reservation={'candidate':1,'overall_native_candidate':3,'wave':p.REQUAL_WAVE,'source_candidate':value['source_candidate'],'input_sha256':p.digest(self.control/'input.json'),'status':'RESERVED','closed':False,'unknown':False,'namespace_absent':False,'inputs_absent':False,'source_sha256':now}
+        self.write(self.control/'public-ledger.json',[reservation]);self.assertEqual(p.admitted_requalification(1,admission,[]),now)
+        self.write(self.control/'public-ledger.json',[reservation|{'overall_native_candidate':1}])
+        with self.assertRaises(p.Failure):p.admitted_requalification(1,admission,[])
+        first=reservation|{'status':'FAIL','closed':True,'namespace_absent':True,'inputs_absent':True,'image':p.IMAGE,'owner':p.OWNER,'containers_created':1,'container_slots_reserved':1,'namespace_request_unknown':False,'source_sha256':now|{next(k for k in now if k.endswith('.py')):'0'*64}}
+        self.input(2);self.write(self.control/'public-ledger.json',[first])
+        with self.assertRaises((p.Failure,FileNotFoundError)):p.admitted_requalification(2,self.admission(2),[first])
+        actual={'candidate':1,'status':'FAIL','public_counts':{'unknown':False},'source_sha256':first['source_sha256']};self.write(self.control/'candidate1/actual-result.json',actual)
+        review={'contract':'CON010_POOL_ACTUAL_CHECKPOINT3_REVIEW_V1','status':'ACTUAL_CHECKPOINT3_KNOWN_FAIL_CLOSED','overall_native':3,'first_new_entry_sha256':hashlib.sha256(e.canonical(first).encode()).hexdigest(),'history_sha256':p.digest(self.control/'history.json'),'result_sha256':p.digest(self.control/'candidate1/actual-result.json'),'unknown':False,'stop':False};self.write(self.control/'candidate1/root-result-review.json',review)
+        cp={'contract':'CON010_POOL_OVERALL_CHECKPOINT3_V1','status':'REGISTERED','overall_native':3,'history_sha256':p.digest(self.control/'history.json'),'first_new_entry_sha256':hashlib.sha256(e.canonical(first).encode()).hexdigest(),'root_result_review_sha256':p.digest(self.control/'candidate1/root-result-review.json'),'actual_result_sha256':p.digest(self.control/'candidate1/actual-result.json')};self.write(self.control/'checkpoint-overall3.json',cp)
+        self.assertEqual(p.admitted_requalification(2,self.admission(2),[first]),now)
+        for change in [{'status':'PURE_FIXTURE_ONLY'},{'status':'PASS_STOP'},{'status':'UNKNOWN'},{'unknown':True},{'stop':True},{'overall_native':True},{'first_new_entry_sha256':'0'*64},{'history_sha256':'0'*64}]:
+            self.write(self.control/'candidate1/root-result-review.json',review|change);self.write(self.control/'checkpoint-overall3.json',cp|{'root_result_review_sha256':p.digest(self.control/'candidate1/root-result-review.json')})
+            with self.assertRaisesRegex(p.Failure,'FAIL_ACTUAL_CHECKPOINT'):p.admitted_requalification(2,self.admission(2),[first])
+        self.write(self.control/'candidate1/root-result-review.json',review);self.write(self.control/'checkpoint-overall3.json',cp)
+        self.write(self.control/'candidate1/actual-result.json',actual|{'status':'WARN'})
+        new_sha=p.digest(self.control/'candidate1/actual-result.json');self.write(self.control/'candidate1/root-result-review.json',review|{'result_sha256':new_sha});self.write(self.control/'checkpoint-overall3.json',cp|{'actual_result_sha256':new_sha,'root_result_review_sha256':p.digest(self.control/'candidate1/root-result-review.json')})
+        with self.assertRaisesRegex(p.Failure,'FAIL_ACTUAL_CHECKPOINT'):p.admitted_requalification(2,self.admission(2),[first])
+        self.write(self.control/'candidate1/actual-result.json',actual);self.write(self.control/'candidate1/root-result-review.json',review);self.write(self.control/'checkpoint-overall3.json',cp)
+        pinned=self.admission(2);self.write(self.control/'checkpoint-overall3.json',cp|{'overall_native':True})
+        with self.assertRaises(p.Failure):p.admitted_requalification(2,pinned,[first])
+        self.write(self.control/'checkpoint-overall3.json',cp)
+        self.write(self.control/'public-ledger.json',[first|{'unknown':True}])
+        with self.assertRaises(p.Failure):p.admitted_requalification(2,self.admission(2),[first|{'unknown':True}])
+        self.input(1);(self.control/'public-ledger.json').unlink();value=json.loads((self.control/'input.json').read_bytes());value['source_candidate']=4;self.write(self.control/'input.json',value)
+        with self.assertRaises((p.Failure,FileNotFoundError)):p.admitted_requalification(1,self.admission(1),[])
+    def held(self,handle,*,clock=None):
+        q=p.Producer.__new__(p.Producer);q.wave=p.REQUAL_WAVE;q.sources=p.source_map();q.gate=lambda:None;q.cli='PURE_FAKE_NAMESPACE';q.values=SECRETS;q.namespace_calls=[];q.remove_attempted=False;q.create_attempts=0;q.create_unknown=False;q.remove_unknown=False;q.unknown=False;q.remaining=lambda cleanup=False:60
+        return q
+    def test_namespace_actual_held_pid_nonzero_source_before_after(self):
+        class Process:
+            pid=123;returncode=125
+            def communicate(self,timeout):return b'',b'PURE_KNOWN_CLI_FAILURE'
+            def poll(self):return 125
+        q=self.held(Process())
+        with patch.object(p.subprocess,'Popen',return_value=Process()),self.assertRaises(p.Failure):q.podman_held(['ps','--no-trunc'],3)
+        self.assertFalse(q.unknown);call=q.namespace_calls[0];self.assertEqual(call['Pid'],123);self.assertEqual(call['FinalPoll'],125);self.assertEqual(call['SourceBefore'],call['SourceAfter']);e.validate_namespace_call(call)
+        for change in [{'Pid':True},{'FinalPoll':True},{'SourceAfter':call['SourceAfter']|{next(iter(call['SourceAfter'])):'0'*64}},{'ProcessEnd':'SUBPROCESS_RUN_RETURNED'}]:
+            with self.assertRaises(ValueError):e.validate_namespace_call(call|change)
+    def test_namespace_unknown_precedes_privacy_and_reap_uses_absolute_cap(self):
+        clock=[100.0]
+        class Process:
+            pid=123;returncode=0
+            def __init__(self):self.calls=[];self.kills=0
+            def communicate(self,timeout):
+                self.calls.append(timeout)
+                if len(self.calls)==1:
+                    clock[0]+=timeout
+                    raise p.subprocess.TimeoutExpired('PURE',1)
+                return SECRETS[0].encode(),b''
+            def kill(self):self.kills+=1
+            def poll(self):return 0
+        process=Process();q=self.held(process)
+        with patch.object(p.subprocess,'Popen',return_value=process),patch.object(p.time,'monotonic',side_effect=lambda:clock[0]),self.assertRaises(p.Failure):q.podman_held(['rm','--time=0','a'*64],8,True)
+        self.assertTrue(q.unknown);self.assertTrue(q.remove_unknown);self.assertEqual(process.kills,1);self.assertEqual(process.calls,[6,2]);self.assertNotIn('Stdout',q.namespace_calls[0]);self.assertEqual(q.namespace_calls[0]['ProcessEnd'],'UNKNOWN_STICKY')
+        with self.assertRaises(p.Unknown):q.podman_held(['rm','--time=0','a'*64],8,True)
+    def test_wave_binding_types_and_old_resource_target_reject(self):
+        q=self.held(None);q.candidate=1;value=q.wave_binding();self.assertEqual(e.validate_wave_binding(value)['OverallNativeCandidate'],3)
+        for change in [{'PriorNativeAttempts':0},{'PriorContainers':True},{'PriorSqlcmd':False},{'NativeCandidate':True},{'OverallNativeCandidate':1},{'OldRequestEnd':'KNOWN'},{'InputSha256':'invalid'}]:
+            with self.assertRaises(ValueError):e.validate_wave_binding(value|change)
+        with patch.object(p.subprocess,'Popen') as start,self.assertRaises(p.Failure):q.podman_held(['inspect','synthetic-old-2'],3,True)
+        start.assert_not_called()
+    def test_finally_persists_default_and_new_ledger_even_on_raised_failure(self):
+        from types import SimpleNamespace
+        for wave in [None,p.REQUAL_WAVE]:
+            for raised in [False,True]:
+                directory=self.control if wave else self.root/'Legacy';directory.mkdir(exist_ok=True)
+                path=directory/'public-ledger.json'
+                if path.exists():path.unlink()
+                fake=SimpleNamespace(values=SECRETS,sources=p.source_map(),cid=None,no_create_witness={'State':'PURE_ONLY'},namespace_absent=True,inputs_absent=True,unknown=False,name='synthetic-new',sql_absent=False,namespace_calls=[],create_attempts=0,create_unknown=False,remove_unknown=False)
+                fake.run=Mock(side_effect=p.Failure('PURE_FAILURE')) if raised else Mock(return_value=p.Result('FAIL','PURE_ONLY',{}))
+                with patch.object(p,'CONTROL',directory),patch.object(p,'provider_available',return_value=True),patch.object(p,'Producer',return_value=fake):
+                    if raised:
+                        with self.assertRaises(p.Failure):p.run(1,{},wave=wave)
+                    else:self.assertEqual(p.run(1,{},wave=wave).status,'FAIL')
+                recorded=json.loads(path.read_bytes());self.assertEqual(recorded[0]['status'],'FAIL');self.assertTrue(recorded[0]['closed']);self.assertEqual(len(recorded),1)
+                if wave:self.assertEqual(recorded[0]['overall_native_candidate'],3)
+    def test_new_wave_rejects_legacy_namespace_records_before_summary(self):
+        old={'Command':['PURE_FAKE_NAMESPACE','ps'],'ReturnCode':0,'Stdout':'','Stderr':'','ProcessEnd':'SUBPROCESS_RUN_RETURNED','DurationSeconds':.1}
+        self.assertEqual(e.validate_namespace_calls([old]),[old])
+        with self.assertRaisesRegex(ValueError,'individuelle Namespaceenden'):e.validate_namespace_calls([old],True)
+
+class SetupChannelTests(unittest.TestCase):
+    def record(self,stdout,stderr,*,rc=0,timed=False,input_text=None):
+        text=s.setup(SIDS) if input_text is None else input_text
+        result=p.capture.collector_type()(('PURE_FAKE_SQLCMD',),rc,stdout,stderr,timed,.1)
+        captured=p.capture.capture_sqlcmd(result,ordinal=3,pid=123,final_poll=rc,input_bytes=text.encode('utf-8'),secret_values=SECRETS,source_binding=p.capture.sources())
+        return {'Ordinal':3,'Phase':'SETUP','InputText':text,'Stdout':stdout,'Stderr':stderr,'Capture':captured,'ExpectedError':None}
+    def test_setup_separate_actual_context_and_unexpected_or_duplicate_diagnostics(self):
+        first='POOLPUBLIC_ALL|ABSENT';last='SQLPERF_SUMMARY|PASS|OK';context="Changed database context to '"+s.DATABASE+"'."
+        for stdout,stderr in ((first+'\r\n'+last+'\r\n',context+'\r\n'),(first+'\n'+last,''),(first+'\n'+context+'\n'+last,'')):
+            call=self.record(stdout,stderr);before=copy.deepcopy(call)
+            self.assertIs(p.setup_channels(call,s.setup(SIDS)),call);self.assertEqual(call,before)
+        for stdout,stderr in ((first+'\n'+last,context+'\n'+context),(first+'\n'+last,context+'\nMsg 51003, Level 16, State 1'),(first+'\n'+last,'foreign'),(first+'\n'+context+'\n'+last,context),(first+'\n'+last,context.replace(s.DATABASE,'FOREIGN')),(first+'\n'+last+'\n'+last,''),(last+'\n'+first,''),(first,''),(first+'\n'+last+'\n'+context,''),(first+'\n '+last,'')):
+            with self.subTest(stdout=stdout,stderr=stderr),self.assertRaises(p.Failure):p.setup_channels(self.record(stdout,stderr),s.setup(SIDS))
+    def test_setup_capture_input_returncode_and_unknown_are_not_marker_aliases(self):
+        stdout='POOLPUBLIC_ALL|ABSENT\nSQLPERF_SUMMARY|PASS|OK';context="Changed database context to '"+s.DATABASE+"'."
+        for call in (self.record(stdout,context,rc=1),self.record(stdout,context,timed=True),self.record(stdout,context,input_text='SET NOCOUNT ON;SELECT 1;')):
+            with self.assertRaises(p.Failure):p.setup_channels(call,s.setup(SIDS))
+        for change in ({'Phase':'STATE'},{'ExpectedError':51004},{'Ordinal':4},{'Stdout':stdout+'\nforeign'}):
+            call=self.record(stdout,context);call.update(change)
+            with self.assertRaises(ValueError):p.setup_channels(call,s.setup(SIDS))
+        for change in ({'ReturnCode':True},{'FinalPoll':None},{'UnknownSticky':True},{'InputFileSha256':'0'*64},{'StderrTextSha256':'0'*64}):
+            call=self.record(stdout,context);call['Capture'].update(change)
+            with self.assertRaises(ValueError):p.setup_channels(call,s.setup(SIDS))
+
 if __name__=='__main__':unittest.main()

@@ -317,8 +317,7 @@ def validate_actual(record):
     if type(actual) is not dict or set(actual)!=fields or type(actual['SqlCalls']) is not list or not 1<=len(actual['SqlCalls'])<=64:raise ValueError('Vollständiger Callerrecord fehlt')
     calls=actual['NamespaceCalls']
     if type(calls) is not list or not calls:raise ValueError('Tatsächliche NamespaceCLIrecords fehlen')
-    for call in calls:
-        if type(call) is not dict or set(call)!={'Command','ReturnCode','Stdout','Stderr','ProcessEnd','DurationSeconds'} or type(call['Command']) is not list or not call['Command'] or any(type(v) is not str for v in call['Command']) or type(call['ReturnCode']) is not int or type(call['Stdout']) is not str or type(call['Stderr']) is not str or call['ProcessEnd']!='SUBPROCESS_RUN_RETURNED' or type(call['DurationSeconds']) not in (int,float) or not math.isfinite(call['DurationSeconds']) or call['DurationSeconds']<0:raise ValueError('Vollständiger NamespaceCLIreturn fehlt')
+    validate_namespace_calls(calls,'WaveBinding'in record)
     ordinals=[]
     for call in actual['SqlCalls']:validate_call(call);ordinals.append(call['Ordinal'])
     if ordinals!=list(range(len(ordinals))):raise ValueError('Vollständige Clientcallpopulation fehlt')
@@ -339,6 +338,23 @@ def validate_actual(record):
     # Jede tatsächliche Cleanupcallphase bleibt vollständig im Callrecord erhalten.
     if actual['SqlCalls'][-2]['Phase']!='DROP_DATABASE' or actual['SqlCalls'][-1]['Phase']!='SQL_ABSENCE' or actual['SqlCalls'][-2]['Capture']['ReturnCode']!=0 or actual['SqlCalls'][-1]['Capture']['ReturnCode']!=0 or actual['SqlCalls'][-1]['Stdout'].strip()!='POOLPUBLIC_ALL|ABSENT':raise ValueError('Neue tatsächliche SQLclosure fehlt')
     return actual
+def validate_namespace_call(call):
+    legacy={'Command','ReturnCode','Stdout','Stderr','ProcessEnd','DurationSeconds'}
+    held=legacy|{'Pid','FinalPoll','TimedOut','CollectorFailed','ConfiguredCapSeconds','SourceBefore','SourceAfter'}
+    if type(call)is not dict or set(call)not in (legacy,held) or type(call['Command'])is not list or not call['Command'] or any(type(v)is not str for v in call['Command']) or type(call['ReturnCode'])is not int or type(call['Stdout'])is not str or type(call['Stderr'])is not str or type(call['DurationSeconds'])not in (int,float) or not math.isfinite(call['DurationSeconds']) or call['DurationSeconds']<0:raise ValueError('Vollständiger NamespaceCLIreturn fehlt')
+    if set(call)==legacy:
+        if call['ProcessEnd']!='SUBPROCESS_RUN_RETURNED':raise ValueError('Historische Namespacegrenze abweichend')
+    else:
+        if type(call['Pid'])is not int or call['Pid']<1 or type(call['FinalPoll'])is not int or call['FinalPoll']!=call['ReturnCode'] or call['FinalPoll']<0 or call['TimedOut']is not False or call['CollectorFailed']is not False or call['ProcessEnd']!='HELD_PROCESS_RETURNED':raise ValueError('Gehaltenes Namespaceende fehlt')
+        if type(call['ConfiguredCapSeconds'])not in (int,float) or not math.isfinite(call['ConfiguredCapSeconds']) or not 0<call['ConfiguredCapSeconds']<=20 or call['DurationSeconds']>call['ConfiguredCapSeconds']:raise ValueError('Absolutes Namespacebudget fehlt')
+        profile_sources(call['SourceBefore']);same(call['SourceBefore'],call['SourceAfter'])
+    return call
+def validate_namespace_calls(calls,new_wave=False):
+    if type(calls)is not list or not calls:raise ValueError('Tatsächliche NamespaceCLIrecords fehlen')
+    for call in calls:
+        validate_namespace_call(call)
+        if new_wave and call['ProcessEnd']!='HELD_PROCESS_RETURNED':raise ValueError('Neue Welle verlangt individuelle Namespaceenden')
+    return calls
 
 def fixed_contract():
     path=HERE/'Expected/pool-profile-contract.json'
@@ -351,7 +367,8 @@ def fixed_contract():
 def summary(record):
     fixed_contract()
     fields={'PoolReceipt','Child','Baseline','After','DatabaseId','ObjectId','Sids','Token','Controls','PhysicalAbsence','SqlAbsence','NamespaceAbsence','InputsAbsent','Actual','ContainerId','Port'}
-    if type(record) is not dict or set(record)!=fields:raise ValueError('Vollständiger öffentlicher Poolprofilrecord fehlt')
+    if type(record) is not dict or set(record)not in (fields,fields|{'WaveBinding'}):raise ValueError('Vollständiger öffentlicher Poolprofilrecord fehlt')
+    if 'WaveBinding'in record:validate_wave_binding(record['WaveBinding'])
     dbid,oid=record['DatabaseId'],record['ObjectId']
     if type(dbid) is not int or dbid<5 or type(oid) is not int or oid<5 or type(record['Sids']) is not dict or set(record['Sids'])!=set(LOGINS):raise ValueError('Unabhängige vollständige Identitäten fehlen')
     for value in record['Sids'].values():sid(value)
@@ -362,3 +379,14 @@ def summary(record):
     if record['PhysicalAbsence']!='ACTUAL_NEW_OWNER_QUERY' or record['SqlAbsence']!='ACTUAL_NEW_DB_AND_PRINCIPAL_QUERY' or record['NamespaceAbsence']!='ACTUAL_FULL_CID_AND_NAME_QUERY' or record['InputsAbsent'] is not True:raise ValueError('Tatsächliche vollständige Cleanuprecords fehlen')
     validate_actual(record)
     return {'status':'WARN','record_validation':'PASS','checkouts':6,'physical_reuses':3,'dotnet_api_records':57,'control_records':7,'runtime_generalization':'NOT_ESTABLISHED','tds_request_attestation':'NOT_ESTABLISHED','tp_con':'NOT_ESTABLISHED','password_integrity':'NOT_CAPTURED'}
+def validate_wave_binding(value):
+    fields={'Wave','SourceCandidate','NativeCandidate','OverallNativeCandidate','Control','InputSha256','HistorySha256','PriorNativeAttempts','PriorContainers','PriorSqlcmd','PriorPoolchildren','OldRequestEnd'}
+    if type(value)is not dict or set(value)!=fields:raise ValueError('Neue Wavebindung fehlt')
+    for key,ref in [('Wave','PR226_REQUALIFICATION_V1'),('Control','Runtime/AI_POOL_REQUALIFICATION'),('OldRequestEnd','UNKNOWN_STICKY')]:
+        if type(value[key])is not str or value[key]!=ref:raise ValueError('Neue Wavebindung abweichend')
+    for key,ref in [('PriorNativeAttempts',2),('PriorContainers',1),('PriorSqlcmd',0),('PriorPoolchildren',0)]:integer(value[key],ref)
+    if type(value['SourceCandidate'])is not int or not 1<=value['SourceCandidate']<=6 or type(value['NativeCandidate'])is not int or not 1<=value['NativeCandidate']<=4:raise ValueError('Gemeinsame Wavebudgetbindung fehlt')
+    integer(value['OverallNativeCandidate'],value['NativeCandidate']+2)
+    for key in ['InputSha256','HistorySha256']:
+        if type(value[key])is not str or not re.fullmatch('[a-f0-9]{64}',value[key]):raise ValueError('Vollständige eigene Input-/Historybytes fehlen')
+    return value
