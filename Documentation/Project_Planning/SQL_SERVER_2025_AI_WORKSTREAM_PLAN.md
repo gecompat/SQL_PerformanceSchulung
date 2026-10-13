@@ -11,6 +11,26 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: unabhängiger reiner Sessionreader-/Fehlervertrag nach PR234
+
+PR234 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main24478d42,
+voller Tree/FF/Branches, 122 private Belegfiles gesichert/eigener Worktree archiviert.
+VECTOR-C1 bleibt FAIL/UNKNOWN_STOP, keine weitere SQL-/Cleanupaktion oder C2.
+Der [reine Sessionreader-/Fehlervertrag](SQL_SERVER_2025_AI_SESSION_READER_REVIEW.md)
+prüft alle acht SQL-Projektionen/strikten Getter und sichere Readerfehler-
+Beobachtbarkeit anhand aktueller Primärquellen, unveränderter Akten und neuer
+eigener Source/Fixtures. Sechs Sourcekandidaten/Checkpoint3/hard6, erster
+kohärenter Sourceabschluss stoppt. Öffentliche Lesehilfe und neue gezielte
+Purechecks, keine Compiler-/CLR-/SQL-/Container-/Modell-/Hosteffekte.
+Source-/Privacy-/Rootabschluss und aktuelle vollständige Integration folgen;
+Sourcekorrektur ist kein ursprünglicher Exceptionbeweis oder Native-PASS.
+C1 SOURCE_ONLY kohärent: acht Projektions-/Getter-/NULLbindungen und getrennte
+Read-/Projektions-/Dispose-/Fehler-/UNKNOWN-Grenzen, sieben neue normale/fünf
+geschützte Puremethoden mit tatsächlichen Raw-/PIDenden, 16 Guidelinks und
+enger unabhängiger Rootreview bestätigt. Originale8Pins unverändert,
+alle Runtimeeffekte null; Source-STOP nach C1, aktuelle vollständige Integration
+folgt. Alte Ursache UNPROVEN/volle TSK-004-Abnahme offen.
+
 ## TSK-004: neue begrenzte VECTOR-Transportwelle nach PR233
 
 PR233 vollständig geschlossen: acht Head-/sechs Main-Gates, Main 266e7298,
