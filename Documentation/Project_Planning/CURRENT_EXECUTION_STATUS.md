@@ -1,5 +1,28 @@
 # Aktueller Ausführungsstand
 
+## TSK-006: reiner ANN-DML-/Rollenrecordvertrag nach PR229
+
+PR229 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main d28761f2,
+voller Tree, FF/Branches und 391 hashverifiziert gesicherte private Dateien.
+Worktree tatsächlich archiviert; initialer App-Anhanglimitfehler erhalten.
+VECTOR-Welle bleibt FAIL_HARD6_UNKNOWN/SQLcleanup NOT_ESTABLISHED, kein Retry.
+Unmittelbar [reiner IDX-012-Recordvertrag](SQL_SERVER_2025_AI_IDX012_RECORD_CONTRACT_REVIEW.md):
+ein Implementer/enger Rootreview,6/CP3/hard6,0 neue SQL/Container/Provider/Modelle/
+Hosteffects. Vorhandene DML-/Rollenakten, feste Counts/Reihenfolge/SID-/Guard-/
+Restore-/Cleanupgrenzen; Callerflags ausdrücklich nur deklariert. Source-/Tests/
+Privacy vor einem gebundenen historischen Offline-Durchlauf, fehlende individuelle
+Captures nicht rekonstruieren. Runtimejob/Selector unverändert; volle Abnahme offen.
+
+C1-Offline-FAIL bekannt beendet,0 completed_reports; erste Exception und erreichte
+Aufrufversuche nicht erfasst. Root-/Owner-Byteeinsicht: ursprüngliche Marker sind
+Base64, Handfixture/Consumer erwarteten Hex. C2 nach explizitem kumulativem
+2-Prozess/4-Reportbudget: vollständige Base64-Marker-/Dateinamenbindung, alle
+anderen Oracles/Expected/Workflow unverändert;13normal/3protected-O bestanden.
+C2 tatsächlich2 Reports COHERENT/WARN/PIDend0/0,2396s;80 Aktenfiles/Source5/
+Prepared2/Manifest vor/nach identisch,0Native. Fehlende Captures NOT_ESTABLISHED,
+kein neuer Runtime-/TP-PERF-Claim. C1-FAIL erhalten, Paket STOPPED_AFTER_C2;
+aktuelle Integration und anschließender unabhängiger statischer Driver-Pfadplan.
+
 ## TSK-004: nativer VECTOR-Caller nach vollständigem PR228-Abschluss
 
 PR228 vollständig geschlossen:8Head/6Main, vollerTree, primaryMain48d4e187,

@@ -11,6 +11,27 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-006: reiner ANN-DML-/Rollenrecordvertrag nach PR229
+
+PR229 vollständig geschlossen (7Head/5Main/Main d28761f2/Tree/FF/Branches/
+391 gesicherte private Dateien/eigener tatsächlicher Worktreearchiv).
+VECTOR FAIL_HARD6_UNKNOWN bleibt gestoppt, SQLcleanup NOT_ESTABLISHED.
+Unmittelbar [reiner IDX-012-Recordvertrag](SQL_SERVER_2025_AI_IDX012_RECORD_CONTRACT_REVIEW.md):
+6/CP3/hard6, ein Implementer/enger Rootreview,0 neue Laufzeit-/Host-/Modelleffekte.
+Feste DML-/Rollen-/SID-/Restore-/Cleanuprecordgrenzen auf vorhandener Evidenz;
+Callerflags nur deklariert, keine rekonstruierte End-/Serverrequestattestation.
+Nach Sourceabschluss maximal ein historischer gebundener Offline-Durchlauf,
+keine Producer-/Runtimejob-/Selectoränderung oder volle TSK-006-Abnahme.
+
+C1 bekannter Offline-FAIL und fehlende Exception-/Attemptfelder erhalten.
+Konkrete Sourceabweichung Base64 versus Handfixture-Hex; C2 mit dokumentiertem
+kumulativem2-Prozess/4-Reportbudget, vollständiger Marker-/Dateinamensbytebindung
+und13normal/3protected-O. Beide historischen Akten danach tatsächlich COHERENT/
+WARN, Prozessende bekannt/0,2396s,80 Aktenfiles/ProduktSource5/Prepared2/Manifest
+unverändert.0 neueNativewirkungen; Capturelücken offen, keine Runtimepromotion.
+Paket STOPPED_AFTER_C2; aktuelle Integration, dann unabhängiger statischer
+Dependency-Pfadplan auf bereits gesicherten VECTOR-Bytes.
+
 ## TSK-004: nativer VECTOR-Caller nach vollständigem PR228-Abschluss
 
 PR228 vollständig geschlossen:8Head/6Main, vollerTree, primaryMain48d4e187,

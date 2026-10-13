@@ -238,3 +238,9 @@ ersetzen keine neue Schulungs-Runtimequalifikation.
 | ID | Klasse | Quelle | Verwendung | Grenzen | Abruf | Prüfung | Status | Aktualisierung |
 |---|---|---|---|---|---|---|---|---|
 | `SRC-116` | PRIMARY | Microsoft (2026), [Microsoft.Data.SqlClient6.1.4 NuGetpaket](https://www.nuget.org/packages/Microsoft.Data.SqlClient/6.1.4) und [StableReleasev6.1.4](https://github.com/dotnet/SqlClient/releases/tag/v6.1.4) | Gepinnte projektlokale Laufzeitabhängigkeit, Paket-/Lizenz-/Framework-/Releasevertrag für begrenzte native float32-Clientqualifikation | Dokumentierter Paket-/MIT-/Supportvertrag, kein eigener Assembly-/Typ-/TDS-/SQL-/Qualitätsnachweis; transitive Pakete/Audit und tatsächlichen Scope separat prüfen | 2026-10-13 | 2026-10-13 | ACTIVE | Paket-/Lizenz-/Dependency-/Audit-/API-/Supportänderung oder abweichende Evidenz |
+
+## Binärwerte im gebundenen IDX-012-Recordvertrag
+
+| ID | Klasse | Quelle | Verwendung | Grenzen | Abruf | Prüfung | Status | Aktualisierung |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-117` | PRIMARY | Microsoft (2026), [FOR JSON Datentypkonvertierung](https://learn.microsoft.com/en-us/sql/relational-databases/json/how-for-json-converts-sql-server-data-types-to-json-data-types-sql-server?view=sql-server-ver17) | Kanonische Base64-Darstellung von binary/varbinary im festen JSON-Record, vollständige UTF16LE-Marker-/Dateinamensbytes | Serializervertrag, kein eigener Request-/Herkunfts-/Native-/Cleanup-PASS; Originalrecord und konkrete Bytebindung getrennt prüfen | 2026-10-13 | 2026-10-13 | ACTIVE | Serializer-/Versions-/Captureformatänderung oder abweichende Evidenz |

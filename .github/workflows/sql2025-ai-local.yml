@@ -32,6 +32,9 @@ on:
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
       - 'Tests/Static/test_idx012_dml_boundary.py'
+      - 'Tests/Static/idx012_dml_role_evidence.py'
+      - 'Tests/Static/test_idx012_dml_role_evidence.py'
+      - 'Tests/Static/Fixtures/idx012/**'
       - 'Tests/Static/test_idx012_lifecycle.py'
       - 'Tests/Static/test_idx012_storage.py'
       - 'Tests/Static/test_idx012_costs.py'
@@ -80,6 +83,9 @@ on:
       - 'Tests/Static/test_idx011_plan.py'
       - 'Tests/Static/test_idx012_profile.py'
       - 'Tests/Static/test_idx012_dml_boundary.py'
+      - 'Tests/Static/idx012_dml_role_evidence.py'
+      - 'Tests/Static/test_idx012_dml_role_evidence.py'
+      - 'Tests/Static/Fixtures/idx012/**'
       - 'Tests/Static/test_idx012_lifecycle.py'
       - 'Tests/Static/test_idx012_storage.py'
       - 'Tests/Static/test_idx012_costs.py'
@@ -166,6 +172,16 @@ jobs:
           python Tests/Static/test_idx012_lifecycle.py
           python Tests/Static/test_idx012_storage.py
           python Tests/Static/test_idx012_costs.py
+      - name: Validate pure IDX-012 DML and role records
+        env:
+          PYTHONPATH: Tests/Static
+        run: |
+          python Tests/Static/test_idx012_dml_role_evidence.py
+          python -O -m unittest \
+            test_idx012_dml_role_evidence.RecordTests.test_missing_extra_schema_nonbuiltin_and_source_binding_fail_closed \
+            test_idx012_dml_role_evidence.RecordTests.test_principal_audit_permission_tuples_revocation_and_restore \
+            test_idx012_dml_role_evidence.RecordTests.test_missing_capture_cannot_be_replaced_by_flags_or_fake_ends \
+            test_idx012_dml_role_evidence.RecordTests.test_rebound_contract_claim_count_extra_raw_and_input_pin_drift
       - name: Validate source-only CON-010 pool producer and protected cleanup deltas
         env:
           PYTHONPATH: Tests/Static
