@@ -11,6 +11,39 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004/TSK-012: öffentliche VECTOR-Clientlesehilfe nach begrenztem PASS
+
+Aktueller Schnitt: [VECTOR-Clientlesehilfe](SQL_SERVER_2025_AI_VECTOR_CLIENT_GUIDE_REVIEW.md).
+PR238 vollständig geschlossen: sieben Head-/fünf Main-Gates, Maind0528ad4,
+voller Tree/FF/Branches, 129 private Dateien gesichert/eigener Worktree archiviert.
+Begrenzter Gesamt4-Roundtrip-PASS gestoppt, keine weiteren Proben; alte UNKNOWN
+und Wire-/volle Abnahmegrenzen erhalten. Öffentliche Lesehilfe beginnt mit
+Begriffen und Datenfluss, erklärt synthetische VECTOR-Zahlen, native API
+gegenüber JSON, Voraussetzungen, NULL/Dimension und TLS-/Versionsgrenzen.
+Bestehende Kompatibilitäts-/Sessionreadertexte an tatsächlichen neuen Beleg
+anpassen, keine alte UNKNOWN-Auflösung oder pauschale Qualification.
+Ein Implementer/enger Rootreview, höchstens sechs Textkandidaten/Checkpoint3,
+Stop nach kohärentem Sourceabschluss; keine neuen Runtime-/Modell-/Hosteffekte.
+
+SOURCE_ONLY abgeschlossen nach zwei Textkandidaten. Neue anwendergerechte
+VECTOR-Clientlesehilfe mit Begriffen/Datenfluss und nummeriertem Offline-
+Einstieg vor drei ausdrücklich gekennzeichneten APIfragmenten; drei Lese-
+Entscheidungsfälle. Bestehende Kompatibilitäts-/Sessionreadertexte unterscheiden
+jetzt den tatsächlich belegten API-/SQL-Roundtrip vom fehlenden unabhängigen
+Wire-/TLS-/vollen TSK-004-Beleg. Ausdrückliche DB-ID-int-Projektion und heutiger
+int/Int32-Befund ohne Umdeutung früherer Fehlerursachen oder UNKNOWN-Akten.
+SRC-121 bindet Herstellerquellstand6.1.4/API6.1 für Mandatory/True.
+49 gezielte Links/30 lokale Targets, Originale129 readonly einmal byteverifiziert;
+enger unabhängiger Root-Aussage-/Code-/Versions-/TLS-/Belegreview und Privacy
+aller acht öffentlichen Dateien bestanden. C1-Originale und einziges kleine
+C2-Sprachdelta erhalten. Keine Textspiegeltests/alten Suiten oder neue Compiler-/
+CLR-/SQL-/Container-/Provider-/Modell-/Download-/Hosteffekte. Source-STOP,
+aktuelle vollständige PR-/Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktree-
+Integration folgt. Danach schmale read-only Bestandsprüfung für einen anderen
+bereits vorhandenen öffentlichen lokalen Completionpfad; alte Qwen-Hard6-
+Generationswelle bleibt gestoppt. Keine Inferenz aus Katalog-/Metadatenbefund,
+keine Downloads oder Cloudfallbacks; neue Admission vor späterer Inferenz.
+
 ## TSK-004: präzise OPEN-Serialisierung im gemeinsamen Restbudget
 
 Aktueller TSK-004-Schnitt: [präzise OPEN-Serialisierung](SQL_SERVER_2025_AI_OPEN_SERIALIZATION_REVIEW.md).

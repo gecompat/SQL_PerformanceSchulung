@@ -72,9 +72,22 @@ wurden vier vollständige VECTOR(768)-Records über JSON zurückgelesen, alle
 Koordinaten geprüft und die drei Dokument-Cosines unabhängig innerhalb der vorab
 festgelegten 1e-5-Toleranz nachgerechnet. Das belegt diesen begrenzten Roundtrip.
 Ein JSON-Hash bindet die Darstellung, nicht automatisch die physischen VECTORbits
-oder den nativen Binärtransport einer Clientbibliothek. Dieser bleibt empirisch
-UNQUALIFIED. Das bedeutet: Dieser konkrete Pfad wurde hier bisher nicht geprüft.
-Die dokumentierte Unterstützung bleibt davon getrennt.
+oder den Übertragungspfad einer Clientbibliothek.
+
+Inzwischen belegt der separate
+[Client-Roundtrip](../Project_Planning/SQL_SERVER_2025_AI_OPEN_SERIALIZATION_REVIEW.md)
+einen begrenzten nativen float32-API-Pfad: Microsoft.Data.SqlClient-Paket 6.1.4
+unter Windows/.NET 10.0.12 gegen SQL Server Build 17.0.5005.3/Linux/Developer,
+CL 170. Zwei VECTOR(3)-Rows wurden typisiert übertragen und vollständig native/
+JSON-zurückgelesen; NULL(3), spezifische Dimensionsabwehr und der eigene Cleanup
+bestanden. Die [Client-Lesehilfe](SQL_SERVER_2025_AI_VECTOR_CLIENT.md) erklärt
+die APIs und den konkreten Nachweis ohne neue Ausführung.
+
+Die Anwendungsschnittstelle ist damit für diese Kombination tatsächlich geprüft.
+Ein unabhängiger Mitschnitt der binären Wire-/TDS-Übertragung und eine separate
+Attestierung ausgehandelter TLS-Eigenschaften bleiben UNQUALIFIED: Diese
+konkreten Belege fehlen hier weiterhin. Dokumentierte native Treiberunterstützung
+und beobachteter API-Roundtrip ersetzen sie nicht.
 
 ## Mit vorhandenen Übungen weiterlernen
 
@@ -87,8 +100,8 @@ können Sie die entsprechenden Aufgaben und die optionale Evidenzleseaufgabe E1
 anhand vorhandener Ergebnisse bearbeiten. Ein gespeichertes Ergebnis ist kein
 neuer eigener Lauf; die Ausführungsbedingungen stehen jeweils bei der Demo.
 
-Float16, weitere Builds/Editionen, native binäre Treiberbindung und die vollständige
-TSK-004-Abnahme bleiben offen. Dieser Abgleich belegt keine allgemeine Suchqualität,
+Float16, weitere Builds/Editionen/OS, unabhängige Wire-/TLS-Attestierung und die
+vollständige TSK-004-Abnahme bleiben offen. Dieser Abgleich belegt keine allgemeine Suchqualität,
 Live-RAG-, Provider-, Modell- oder Performanceabnahme.
 
 ## Quellenstand
