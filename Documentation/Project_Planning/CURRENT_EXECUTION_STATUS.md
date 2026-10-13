@@ -1,5 +1,31 @@
 # Aktueller Ausführungsstand
 
+## Benutzerabschluss der Entwicklungswelle: keine autonome Fortsetzung
+
+Am 14. Oktober 2026 hat der Benutzer ausdrücklich angeordnet, die aktuelle
+Entwicklungswelle vollständig abzuschließen, keine neue Welle zu starten und
+nach der Integration nach origin/main den Orchestrator-Chat zu beenden.
+Diese Anweisung beendet die bisherige autonome Fortsetzung. Der zugehörige
+Heartbeat ist tatsächlich PAUSED; andere Automationen bleiben unverändert.
+
+Der letzte fachliche Schnitt ist über PR248 vollständig geschlossen:
+Main9ab1c2255cc0c4a8b9f3b45a094bd2863b961fc7, acht erfolgreiche Head- und
+sechs erfolgreiche Main-Checks, vollständiger gleicher Tree, synchrones
+sauberes Main und eigene Branches entfernt.148 private Belegdateien sind
+bytegenau gesichert und nach tatsächlicher Worktreearchivierung erneut geprüft.
+Der historische öffentliche V2-Record ist kohärent mit WARN; der frühere FAIL
+und sämtliche offenen Qualifikationsgrenzen bleiben unverändert erhalten.
+
+Der ausschließlich leer vorbereitete Float16-Worktree erhält keine fachliche
+Implementierung oder Runtimeadmission. Er dient nur dieser abschließenden
+Stoppdokumentation und wird nach deren PR-Integration vollständig bereinigt.
+Keine neuen SQL-, Container-, Modell-, Provider-, Compiler- oder Hosteffekte.
+Keine neue Entwicklungswelle, keine automatische Wiederaufnahme. Offene
+TSK-004–TSK-014-/Release- und Humanqualifikationen bleiben im Backlog offen;
+dieser Benutzerabschluss erklärt sie nicht nachträglich als bestanden.
+
+[Letzter fachlicher Nachweis und verbleibende Grenzen](SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md).
+
 ## C1: historischer öffentlicher V2-Record kohärent mit WARN
 
 Der erste neue Kandidat hat den unveränderten tatsächlich gesicherten C3-Record
