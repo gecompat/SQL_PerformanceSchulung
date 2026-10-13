@@ -1,5 +1,29 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: neue begrenzte VECTOR-Transportwelle nach PR233
+
+PR233 vollständig geschlossen: acht Head-/sechs Main-Gates, voller Tree,
+Main 266e7298/FF-Synchronisierung, eigene Branches entfernt, 142 private Dateien
+gesichert und eigener Worktree tatsächlich archiviert. Loader-/Typmetadaten-PASS,
+Checkpoint3/STOP; alte VECTOR-Hard6/UNKNOWN-Welle unverändert und nicht wieder aufgenommen.
+Unmittelbar [neue Transportwelle](SQL_SERVER_2025_AI_VECTOR_TRANSPORT_REVIEW.md):
+geänderte gepinnte Caller-/Assetbasis, maximal sechs Kandidaten/eigene serielle
+Container, zwei VECTOR(3)/FLOAT32-Rows, NULL-/Dimensionskontrolle, vollständige
+Request-/Eigentums-/Zustands-/Cleanupwitnesses. Beginn mit Sourcevorbereitung,
+Compiler/Container/SQL/Caller zunächst null und Rootgates vor jedem Effekt.
+
+C1 tatsächlich FAIL/UNKNOWN_STOP: Compiler PID40932/poll0/rc0/0,586720s,
+zwei CS1701-WARNs erhalten; Top PID55512/poll1/rc1/11,305835s, Child57608/
+poll1/rc1, kein Timeout. Ein Container/sechs bekannte SQLcmdenden/ein Vollstate,
+OPEN API_RETURNED, Sessionreader ohne vollständiges Ende/ursprünglicher
+Exceptiontyp UNKNOWN_OR_UNCLASSIFIED. Danach null SQL und genau einmal volle
+eigene Namespacecontainment; frische ganze CID-/Namensabwesenheit bestätigt.
+SQLcleanup NOT_ESTABLISHED/DatabaseAbsent false/InputsAbsent false/closed false,
+alle 68 Sources und Originale erhalten. Keine typed/NULL/Dimensions-/Controls-
+Qualification; keine weiteren C2–C6 dieser Welle. Aktuelle Integration mit
+Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktreeclosure folgt; anschließend
+nur unabhängiger quellengebundener Sessionreader-/Fehlervertrag ohne Runtime.
+
 ## TSK-004: geänderte Loader-Auflösungsgegenprobe nach PR232
 
 PR232 vollständig geschlossen: neun Head-/sieben Main-Gates, voller Tree,

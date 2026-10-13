@@ -2,6 +2,21 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller TSK-004-Schnitt: [neue begrenzte VECTOR-Transportwelle](../Documentation/Project_Planning/SQL_SERVER_2025_AI_VECTOR_TRANSPORT_REVIEW.md).
+PR233 vollständig geschlossen, 142 private Dateien gesichert, eigener Worktree
+tatsächlich archiviert. Loader-/Typmetadaten-PASS nach Checkpoint3 bleibt
+gestoppt, alte VECTOR-Hard6/UNKNOWN-Welle unverändert. Neue geänderte Callerbasis
+mit fünf literal Assetpfaden; sechs Kandidaten/Checkpoint nach drei, maximal
+sechs eigene serielle Container, zwei synthetische Rows und native FLOAT32-/
+NULL-/Dimensionskontrollen. Initiale Sourcevorbereitung vor Rootadmissions;
+C1 danach tatsächlicher FAIL/UNKNOWN_STOP: ein Compile mit zwei CS1701-WARNs,
+ein Container/sechs bekannte SQLcmdenden/ein Client, OPEN beendet,
+Sessionreader-Ende unvollständig. Null Folge-SQL, einmal eigene gebundene
+Containment und frische ganze CID-/Namensabwesenheit; SQLcleanup nicht belegt,
+DB-/Inputabwesenheit false/closed false. Source-/Originalpins unverändert,
+typed/NULL/Dimensions-/Controls nicht qualifiziert. Keine weiteren C2–C6;
+vollständige Integration und danach unabhängiger reiner Reader-/Fehlervertrag.
+
 Aktueller TSK-004-Folgeschnitt: [geänderte Loader-Auflösungsgegenprobe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_LOADER_RESOLUTION_REVIEW.md).
 PR232 vollständig geschlossen, 84 private Dateien gesichert, eigener Worktree
 tatsächlich archiviert. C1 bekannter Loader-FAIL bleibt erhalten. Sichtbarer
