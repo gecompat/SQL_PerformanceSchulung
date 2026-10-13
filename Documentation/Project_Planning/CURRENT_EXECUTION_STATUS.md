@@ -1,5 +1,63 @@
 # Aktueller Ausführungsstand
 
+## TSK-007/008: anderer vorhandener lokaler Completionpfad nach PR239
+
+Aktueller Schnitt: [lokaler Completionbestand](SQL_SERVER_2025_AI_COMPLETION_ROUTE_REVIEW.md).
+PR239 vollständig geschlossen: neun Head-/sieben Main-Gates, Main63640639,
+voller Tree/FF/Branches, 36 private Dateien gesichert/eigener Worktree archiviert.
+Öffentliche VECTOR-Lesehilfen fertig; alte Qwen-Hard6-Welle bleibt gestoppt.
+Aktueller öffentlicher Lab-Katalog bietet zusätzlich die lokale generation-Route
+ollama-gemma3-1b-local; bisher nur Quellenbefund, keine Live-/Antwortqualifikation.
+Neue gebundene read-only Bestandsprüfung, zuerst Sourcevorbereitung mit null
+neuen Effekten. Nach eigener Rootadmission maximal drei Loopback-Metadata-
+Requests/ein lokaler WhatIf-Plan, keine Inferenz/Downloads/Hoständerungen.
+Source6/Checkpoint3/hard6, UNKNOWNStop, Lizenz-/Capability-/Livegrenzen offen.
+
+C1-Sourcefreeze erreicht das Ausführungsgate nicht: unabhängige Root-
+Byteprüfung meldet tatsächlichen Source-Drift vor Admission. Der fremde
+Lab-Arbeitsstand wurde parallel weiterentwickelt; drei loadergebundene
+SMTP-Quellen unterscheiden sich, aktueller fremder Arbeitsstand ist sauber.
+Keine Rootadmission, keine Metadaten-/WhatIf-/Inferenzaufrufe. C1-Sourcekarte,
+Raws und ursprüngliche Bindungen bleiben unverändert; ursprüngliche individuelle
+PID der Root-Validierung nicht erfasst, keine Rekonstruktion.
+
+C2 verändert ausschließlich die Abhängigkeitsbindung: eine eigene unveränderte
+Kopie des ausgewählten committed Lab-Trees statt Import aus einem fremden
+veränderlichen Arbeitsbaum. Read-only Git-Export in eigenes ignoriertes Runtime,
+maximal30MB/2000Files, keine Fremdrepo-/Gitconfigänderung. Vor Extraktion sichere
+Pfade, keine Links/Casekollisionen/zusätzlichen Dateien; vollständige Git-Blob-/
+SHA-/Byte-/Datei-/Directorypopulation binden und vor jedem Domainaufruf erneut
+prüfen. Öffentliche CommandInfo-/Modul-/Scriptpfade aus genau dieser eigenen
+Kopie, keine Bearbeitung exportierter Bibliotheksbytes. Die ausgewählte
+Commit-/Treeidentität wird bei Export belegt; eine spätere fremde HEAD-Bewegung
+ändert die eingefrorene Kopie nicht. Kein nachträglicher alter Qwen-Replay.
+Aktuelle relevante API-/Catalog-/Schema-/Loaderdeltas prüfen, belegte identische
+Quellenanalyse wiederverwenden. Nur neue Snapshot-/Sourcebinding-Gegenfälle,
+alte grüne Suiten nicht wiederholen. Source2/6, Checkpoint3/hard6; Domainbudget
+höchstens drei Metadata/ein lokaler WhatIf, Inferenz0 unverändert. Neue Root-
+Admission nach aktuellem Freeze/Privacy/engem Risikoreview, keine Effekte vorher.
+
+C2 tatsächlich COHERENT_DIAGNOSTIC_ONLY/UNAVAILABLE; Stop ohne Retry.
+Top48172/poll0/rc0/3,066943s und PS-Child67040/poll0/rc0/2,603143s,
+kein Timeout/Collectorfehler/UNKNOWN. Zwei tatsächliche Metadatenrequests
+version/tags, beide HTTP200/RESPONSE_RECEIVED; Show0/WhatIf0/Inferenz0.
+SelectedIdentity und Plan null, keine vollständige Inventarpersistenz.
+Die UNAVAILABLE-Verzweigung fasst fehlenden Tag und unterschrittene Mindest-
+version zusammen; der Receipt unterscheidet diese Ursachen nicht. Weder
+„Gemma fehlt“ noch konkrete Liveversion wird nachträglich rekonstruiert.
+Lizenzinferenz NOT_ADMITTED/Gewichtsattestation offen/Tokenverbrauch UNKNOWN.
+Zehn Callerquellen und gesamter eigener Snapshot1404Files/19.529.256Bytes
+vor/nach identisch; C1-Drift/Originale erhalten. RootactualReview von Raws,
+individuellen Antwort-/Prozessenden und aktuellen Bindungen bestanden.
+Aktuelle vollständige Integration/Head-/Main-/Tree-/FF-/Branches/Belegsicherung/
+Worktreearchiv folgt. Danach ausschließlich neuer beobachtbarer Versions-/
+Tag-/Ursachenvertrag für gezielte Diagnose. Beide tatsächlichen alten Metadata-
+Calls zählen weiter; konkrete geänderte Folgegrundlage mit maximal drei weiteren
+Metadata, Gesamtmax5 statt ursprünglichemMax3 explizit vor Admission, kein
+stiller Reset. Sourcekandidat3 erreicht verpflichtenden Rootcheckpoint3.
+Keine alte Paketausführung oder Inferenz aus unbekannter Ursache; Download,
+Lizenzinferenz und Host-/Cloud-/ONNX-/Antwortgates bleiben unverändert offen.
+
 ## TSK-004/TSK-012: öffentliche VECTOR-Clientlesehilfe nach PR238
 
 Aktueller Schnitt: [VECTOR-Clientlesehilfe](SQL_SERVER_2025_AI_VECTOR_CLIENT_GUIDE_REVIEW.md).
