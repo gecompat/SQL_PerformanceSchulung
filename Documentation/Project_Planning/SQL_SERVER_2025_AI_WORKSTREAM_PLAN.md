@@ -11,6 +11,45 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: präzise OPEN-Serialisierung im gemeinsamen Restbudget
+
+Aktueller TSK-004-Schnitt: [präzise OPEN-Serialisierung](SQL_SERVER_2025_AI_OPEN_SERIALIZATION_REVIEW.md).
+PR237 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main7b9e1908,
+voller Tree/FF/Branches, 128 private Dateien gesichert/eigener Worktree archiviert.
+Gesamt3 bleibt UNKNOWN_STOP; Pflichtcheckpoint3 anhand tatsächlicher Originale
+unabhängig geschlossen. Neue eigene V4-Grundlage korrigiert nur den erwarteten
+OPEN-Encrypt-Serialisierungswert der gepinnten SqlClient6.1.4-Bytes auf True.
+Herstellerquelle/6.1-Dokumentation stützen die Zuordnung; falsche/fehlende/
+doppelte/zusätzliche Werte weiterhin ablehnen, TLS unverändert. Drei vorherige
+Compiler/Container/Caller zählen weiter, höchstens drei zusätzliche Gesamt4–6.
+Source6/Checkpoint3/hard6, zunächst null neue Effekte, getrennte Rootgates
+vor Compiler/Native. Alte gestoppte Pakete/Ressourcen nie replay, UNKNOWN
+bleibt sticky; volle Wire-/Runtime-/TSK-004-Abnahme offen.
+
+Gesamt4 tatsächlich BOUNDED_ROUNDTRIP_PASS; STOP_AFTER_ROUNDTRIP_PASS,
+keine fünfte oder sechste Probe. Compiler57768/poll0/rc0/0,648789s,
+91.136-Byte-Artefakt und zwei erhaltene CS1701-WARNs. Top36268/poll0/rc0/
+33,569191s und Child63688/poll0/rc0, kein Timeout oder UNKNOWN.
+Acht tatsächliche SQL-/CLRtypfelder, 31 vollständig beendete Readerteilschritte
+und zehn API-Enden; zwei Native-/JSON-FLOAT32-Vektoren vor/nach unverändert,
+NULL(3) und spezifischer SQL-Dimensionsfehler42204/16/1/Line1/ProcedureNULL
+mit vollständiger Nachricht. 52 bekannte SQLcmdenden/24 Vollstates,
+Source-delete51003/Restore und vier vollständige bytegenaue Markercontrols:
+je tatsächliche DML- und Cleanup-Abweisung51004, unveränderte Vollstates
+nach Abweisung und vollständiger Restore. Echte markergebundene DB-Löschung,
+frische DB-/ganze CID-/Name-/Inputabwesenheit; SQLcleanup
+ACTUAL_DROP_AND_FRESH_ABSENCE, UNKNOWNfalse/Ledgerclosedtrue.
+Alle 71 Quellen vor/nach identisch und unabhängiger Root-Originalreview bestanden.
+Nachgelagerte reine Recordlese scheiterte an 1-MB-Grenze; dieser Befund bleibt
+erhalten. Ausschließlich geänderte begrenzte 10-MB-Lese, kein neuer Nativeaufruf,
+unverändertes 6.461.458-Byte-Original. Kumulativ vier Compiler/Container/Caller;
+zwei ungenutzte Kandidaten werden nach dem ersten kohärenten PASS nicht verbraucht.
+Alte UNKNOWN/fehlende SQLcleanups und geschlossener Pflichtcheckpoint3 bleiben.
+Wire-/ausgehandelte TLS-/allgemeine Runtime-/float16-/TSK-004-Abnahme offen.
+Aktuelle vollständige PR-/Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktree-
+Integration folgt. Danach unabhängige öffentliche Lesehilfe für den tatsächlich
+belegten Clientweg und seine Versions-/TLS-/Abnahmegrenzen, ohne neue Runtime.
+
 ## TSK-004: explizite DB-ID-Projektion im gemeinsamen Restbudget nach PR236
 
 PR236 vollständig geschlossen: acht Head-/sechs Main-Gates, Main11ec85c1,
