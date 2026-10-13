@@ -197,7 +197,14 @@ jobs:
             test_idx012_dml_role_evidence.RecordTests.test_missing_extra_schema_nonbuiltin_and_source_binding_fail_closed \
             test_idx012_dml_role_evidence.RecordTests.test_principal_audit_permission_tuples_revocation_and_restore \
             test_idx012_dml_role_evidence.RecordTests.test_missing_capture_cannot_be_replaced_by_flags_or_fake_ends \
-            test_idx012_dml_role_evidence.RecordTests.test_rebound_contract_claim_count_extra_raw_and_input_pin_drift
+            test_idx012_dml_role_evidence.RecordTests.test_rebound_contract_claim_count_extra_raw_and_input_pin_drift \
+            test_idx012_profile.RoleApiTests.test_role_mode_and_credentials_reject_free_executor_folder_and_aliases_before_start \
+            test_idx012_profile.RoleApiTests.test_role_composition_preserves_core_and_rejects_other_build_or_impersonation \
+            test_idx012_profile.RoleApiTests.test_role_context_schema_sid_privilege_order_and_cost_session_binding \
+            test_idx012_profile.RoleApiTests.test_role_actual_one_client_cost_routing_private_env_and_source_capture \
+            test_idx012_profile.RoleApiTests.test_role_unknown_precedes_privacy_and_no_follow_sql_or_input_deletion \
+            test_idx012_profile.RoleApiTests.test_role_imported_module_api_and_source_binding_before_effect \
+            test_idx012_profile.RoleApiTests.test_role_full_controller_restore_unknown_returns_captures_and_retained_inputs
       - name: Validate source-only CON-010 pool producer and protected cleanup deltas
         env:
           PYTHONPATH: Tests/Static

@@ -1,5 +1,34 @@
 # Aktueller Ausführungsstand
 
+## TSK-006: öffentlicher IDX-012-Rollenmodus in Vorbereitung
+
+PR243 vollständig geschlossen: 14 Head-/acht Main-Gates, Maine63cd1fc,
+voller Tree, FF/sauberes Main, eigene Branches entfernt, 81 private Dateien
+gesichert und Worktree tatsächlich archiviert. Poolsource Hard6 bleibt
+gestoppt; alte UNKNOWNs und Ursachen UNPROVEN werden nicht geändert.
+
+Nächster unabhängiger Schnitt: [öffentlicher Rollenmodus](SQL_SERVER_2025_AI_IDX012_ROLE_API_REVIEW.md).
+Der vorhandene historische IDX-012-Rollensplit wird als ausdrücklich gewählte
+öffentliche API vorbereitet: feste Credentials-/SID-/Kontextbindung, je
+Kostenphase dieselbe Session, Admin nur am Build, danach gleicher Operator.
+SOURCE_ONLY, sechs Quellenkandidaten/Checkpoint3/Hard6, keine Runtimezulassung
+oder Rechtevergabe. Betroffene Gegenfälle und enger Rootreview vor Integration;
+volle TSK-006-/Runtime-/TP-PERF-Abnahme offen, Tokenverbrauch UNKNOWN.
+
+Aktueller Quellenstand: Labels Source1–4, insgesamt fünf tatsächlich geprüfte
+Zustände einschließlich initialem Syntaxpreflight-FAIL mit abweichenden Bytes.
+Die Zählung wurde korrigiert; Rootcheckpoint3 wurde tatsächlich nach vier
+Zuständen und vor dem fünften geschlossen, ohne rückwirkenden Rechtzeitigkeitsclaim.
+Vorherige 18 reine Methodeninvokationen/ sechs gehaltene Pythonprozesse bleiben
+unverändert. Source4 schließt den konkreten Cleanup-UNKNOWN-Rückgabeverlust mit
+nur einem neuen vollständigen Controllergegenfall normal und unter `-O`:
+beide bestanden, insgesamt 20 Invokationen/acht gehaltene Prozesse. UNKNOWN im
+Restore liefert FAIL_CLEANUP und NOT_ESTABLISHED mit vollständigen sicheren
+Captures/zurückgehaltenen Inputs zurück; kein weiterer Recovery-SQLclient.
+Fünf von maximal sechs Quellenständen verbraucht; einer verbleibt. Root hat Source4/overall5 semantisch und mechanisch abgeschlossen;
+CLEANUP_UNKNOWN_RESULT_LOST ist geschlossen. Der Quellenstand wird über PR
+integriert; Native-/Server-/TDS-Abnahme bleibt offen, Domainaufrufe bleiben null.
+
 ## TSK-009: reiner Poolchild-Capture nach vollständigem PR242-Abschluss
 
 PR242 geschlossen: 14 Head-/acht Main-Gates, Mainee3777fd, Tree/FF/Branches,

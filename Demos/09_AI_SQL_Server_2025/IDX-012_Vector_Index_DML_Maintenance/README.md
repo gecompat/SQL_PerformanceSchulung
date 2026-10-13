@@ -54,8 +54,8 @@ Passwörter ausschließlich als SQLCMDPASSWORD-ENV bereitstellen. Der
 belegt nach zwei erhaltenen FAIL-Kandidaten mit zwei vollständigen C3-
 Lifecycles im selben erweiterten Ledger die feste lokale Trennung: ausschließlich die beiden Indexbuilds unter Admin, DML und
 Beobachtung vor/nach ihnen unter tatsächlich attestiertem Operator. Dies ist
-ein begrenzter lokaler Nachweis mit eigener literaler Eingabe; der öffentliche
-Einzel-Login-Controller besitzt noch keine entsprechende Multi-Login-API.
+ein begrenzter lokaler Nachweis mit eigener literaler Eingabe; der neue feste öffentliche
+Rollenmodus ist zunächst ein getrennt vorbereiteter Quellenstand.
 Beide einzeln entzogenen Rechte halten tatsächlich vor Setup an; Grantrestore,
 eigene Ownerbindung, acht geordnete Kontext-/SID-Records, alle DML-/Rebuild-/
 Source-/Storage-/Kostenkontrollen und unabhängiger DB-/Login-/Containercleanup
@@ -266,3 +266,47 @@ derselben 60-s-Deadline ab vor Kill. Öffentliche kontrollierte FAILs bleiben
 FAIL; der Parent attestiert nur diesen eigenen Containerabbruch mit Recovery.
 Abbruch während aktiver Build-/DML-/Rebuildphase und vollständige
 Hard-Abort-/Runtime-/TP-PERF-Abnahme bleiben offen.
+
+## Fester öffentlicher Rollenmodus: Quellenstand
+
+DML und Indexbau benötigen in diesem festen Profil unterschiedliche Rechte.
+Der ausdrücklich gewählte Modus `operator-admin-build` erhält deshalb die
+Kostenphasen als jeweils einen Client und eine Session. Sie starten mit dem
+gehaltenen Adminlogin `sa`, wechseln sofort zum festen Operator und kehren nur
+für den einen eigenen Indexbuild zu `sa` zurück. Danach folgt derselbe Operator.
+Alle übrigen Phasen authentifizieren direkt als Operator. Dies ist keine
+Aufteilung von BEFORE/Build/AFTER auf verschiedene Verbindungen.
+
+Der Modus verlangt `drop-rebuild`, Storage und Kostenaufnahme. Operatorname ist
+`SQLPERF_IDX012_ROLE_<RUN_TOKEN>`; vollständige gehaltene Operator-SID (16 Bytes)
+und tatsächliche Admin-SID werden mit `--role-sid`/`--admin-sid` gebunden.
+Es gibt keinen geratenen Admin-SID-Default. Der Aufrufer benötigt bereits die
+beiden eigenen vorbereiteten Identitäten im isolierten Lab. Loginanlage und
+Rechtevergabe gehören nicht zu dieser API.
+
+`IDX012_OPERATOR_PASSWORD` enthält ausschließlich privat das Operatorcredential,
+`SQLCMDPASSWORD` das Admincredential. Beide müssen unterschiedlich sein und aus
+40–80 ASCII-Buchstaben/Ziffern beziehungsweise `!` bestehen. Die neue Auswahl
+setzt pro Client ausschließlich das passende SQLCMDPASSWORD; keine Passwörter
+als Argument, Connectionstring oder Quelldatei. SQLCMDINI und fremde ENV-Werte
+werden nicht übernommen. Fehlende/widersprüchliche Rollenparameter, andere
+Ziele als eigenes Loopback und freie Executor-/Ordneroverrides werden abgewiesen.
+Ohne Rollenmodus bleiben die bisherigen Ein-Kontext-Aufrufe bestehen.
+
+Je Kostenphase prüfen vier geordnete Records Operatorstart, Adminbuild,
+Operatorrückkehr und Operatorende. Vollständige Login-/SID-/OriginalLogin-/
+Privileg-/DB-/Sessionbindung muss zu beiden Kostenframes passen. DML-, Rebuild-,
+Marker-, Source- und Restoreoracles bleiben erforderlich. Die Kosten und Buildzeit
+enthalten Rollenwrapper und Attestation; sie sind keine isolierten DDL-/Workerkosten.
+
+Der APIresult erhält nur nach Credentialprüfung sichere tatsächliche Clientkanäle
+und Input-/Sourcebindungen; diese vollständigen Records bleiben privat. Die CLI
+meldet begrenzte Status-/Phasen-/Contextcounts. Unbestätigtes Clientende bleibt
+UNKNOWN, kein weiterer SQL- oder Principalcleanup; eigene Recoveryeingaben bleiben
+erhalten. Ein bekanntes Prozessende ist kein Server-/TDS-Endbeleg.
+
+Dieser neue öffentliche Modus ist SOURCE_ONLY und besitzt noch keinen eigenen
+Nativenachweis. Die historischen zwei Rollenlifecycles qualifizieren ihn nicht
+nachträglich. Kein absoluter Minimalrollen-, allgemeiner Runtime-, Demo- oder
+TP-PERF-PASS. Der konkrete [Rollen-API-Vertrag](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_API_REVIEW.md)
+enthält Abnahmegrenzen und den erforderlichen eigenen Folgeentscheid.
