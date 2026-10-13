@@ -2,6 +2,17 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller TSK-004-Schnitt: [getrennte lokale Assembly-Ladediagnose](../Documentation/Project_Planning/SQL_SERVER_2025_AI_LOADER_DIAGNOSIS_REVIEW.md).
+PR231 vollständig integriert, synchronisiert und bereinigt; 138 private Dateien
+gesichert und eigener Worktree tatsächlich archiviert. Neuer eigener Probehost
+prüft ausschließlich benannte Assembly-/Typmetadaten, ohne SQL-Verbindung.
+Sechs neue Diagnosekandidaten mit Checkpoint nach drei; frühere Hardstops bleiben
+erhalten. Der Schnitt begann mit Sourcevorbereitung und getrennten Ausführungsgates.
+C1 tatsächlich beendet: ein Compiler PASS und eine CLR-Probe mit bekanntem
+Loader-FAIL/FileNotFoundException bei LOAD_SQLCLIENT, MissingAssembly UNKNOWN.
+Runtime .NET 10.0.12 attestiert, Typprüfungen nicht erreicht, SQL null;
+COHERENT_DIAGNOSIS_STOP, ursprüngliche C6-Ursache UNPROVEN. Keine volle Abnahme.
+
 Aktueller unabhängiger TSK-004-Schnitt: [reiner Clientlayoutvertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_CLIENT_LAYOUT_REVIEW.md).
 PR230 ist vollständig integriert, synchronisiert und bereinigt; 121 private
 Dateien sind gesichert und der eigene Worktree tatsächlich archiviert.

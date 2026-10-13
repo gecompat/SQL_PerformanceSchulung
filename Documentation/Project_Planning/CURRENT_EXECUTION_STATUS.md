@@ -1,5 +1,23 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: getrennte Assembly-Ladediagnose nach PR231
+
+PR231 vollständig geschlossen: zehn erfolgreiche Head-Gates/Runtime-SKIP,
+sieben erfolgreiche Main-Workflows/bestätigter Runtime-SKIP, voller Tree,
+Main ee6e0cec/FF-Synchronisierung, eigene Branches entfernt, 138 private Dateien
+gesichert und eigener Worktree tatsächlich archiviert. Layout COHERENT/WARN,
+STOPPED_AFTER_C2; alte FileNotFound-Ursache UNPROVEN.
+Unmittelbar [getrennte lokale Assembly-Ladediagnose](SQL_SERVER_2025_AI_LOADER_DIAGNOSIS_REVIEW.md):
+eigener Probehost, feste Assembly-/Typmetadaten, sechs relevante Kandidaten,
+Checkpoint nach drei, keine SQL-/Container-/Modell-/Hoständerungen.
+Quellen, Tests, Pins und getrennte Rootadmissions wurden vor den Prozessen geprüft.
+C1 ist tatsächlich gestoppt: Compiler PID 38628/poll 0/rc 0, Probe
+PID 68400/poll 1/rc 1, kein Timeout/UNKNOWN. .NET 10.0.12/Main attestiert,
+LOAD_SQLCLIENT/FileNotFoundException/THREW erfasst, MissingAssembly UNKNOWN;
+Typprüfungen nicht erreicht. Bekannter Loader-FAIL, COHERENT_DIAGNOSIS_STOP,
+SQL null und alte C6-Ursache weiterhin UNPROVEN. Folgeschritt nur mit geänderten
+relevanten Eingaben und sichtbarem eigenen Vertrag; volle TSK-004-Abnahme offen.
+
 ## TSK-004: reiner Clientlayoutvertrag nach PR230
 
 PR230 ist vollständig geschlossen: elf erfolgreiche Head-Gates und ein
