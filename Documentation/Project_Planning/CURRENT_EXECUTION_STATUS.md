@@ -1,5 +1,29 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: eigener geänderter Caller mit Sessionreader nach PR235
+
+PR235 vollständig geschlossen: neun Head-/sieben Main-Gates, voller Tree,
+Maind5ee1864/FF/Branches, 39 private Dateien gesichert/eigener Worktree archiviert.
+Reiner Readervertrag kohärent gestoppt, keine Nativefreigabe aus Source-PASS.
+Unmittelbar [geänderter eigener Caller](SQL_SERVER_2025_AI_READER_TRANSPORT_REVIEW.md):
+neue V2-Source-/Receiptbasis und tatsächliche acht Readerfeld-/Read-/Projektions-/
+Disposeenden, alte UNKNOWN-Originale und Ressourcen unverändert/nicht wiederaufgenommen.
+Gemeinsames Nativebudget zählt alten Transport-C1 weiter: höchstens fünf
+zusätzliche eigene Kandidaten/Container/Compiles/Caller, Gesamtcheckpoint3/hard6.
+Source6/CP3/hard6; zusätzliche Effekte zunächst null, getrennte Rootadmissions
+vor Compiler/Native. Alle alten FAIL/UNKNOWN- und Qualificationgrenzen erhalten.
+R1/Gesamt2 tatsächlicher FAIL/UNKNOWN_STOP: Compiler29456/0/0,637039s/zweiWARN,
+Top62976/1/11,574684s/Child35344/1/kein Timeout. Acht Driver-Typmetadaten,
+GetInt32(1) wirft in Readerstep21 InvalidCastException bei DB_ID-Meldung
+smallint/System.Int16; DisposeStep22 endet, ServerUnknown bleibt true.
+Microsoft dokumentiert int: Grenze offen, keine allgemeine Server-/Wireursache.
+Sechs bekannte SQLcmdenden/ein Vollstate, null Folge-SQL; einmal volle eigene
+Containment/frische CID-/Namensabwesenheit, SQLcleanup NOT_ESTABLISHED/
+DB-/Inputabwesenheit false/closed false. 71 Sources und Originale erhalten,
+keine typed/Controls-Qualification. Vollständige aktuelle Integration folgt;
+danach geänderte eigene DB_ID-int-Projektion innerhalb vier verbleibender
+Gesamt3–6-Kandidaten, nächster Gesamt3 ist Checkpoint. Alte Pakete bleiben gestoppt.
+
 ## TSK-004: unabhängiger reiner Sessionreader-/Fehlervertrag nach PR234
 
 PR234 vollständig geschlossen: sieben Head-/fünf Main-Gates, voller Tree,

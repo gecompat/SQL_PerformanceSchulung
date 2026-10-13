@@ -11,6 +11,30 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: eigener geänderter Caller mit Sessionreader nach PR235
+
+PR235 vollständig geschlossen: neun Head-/sieben Main-Gates, Maind5ee1864,
+Tree/FF/Branches, 39 private Belegfiles gesichert/eigener Worktree archiviert.
+Reiner Reader-PASS bleibt SOURCE_ONLY, alte Native-C1-UNKNOWN-Welle gestoppt.
+Die [geänderte eigene Callerbasis](SQL_SERVER_2025_AI_READER_TRANSPORT_REVIEW.md)
+übernimmt neue V2-Input-/Receiptbindungen und acht tatsächliche Readerfelder/
+Read-/Projektions-/Disposeenden; keine Aktion gegen alte Ressourcen.
+Das gemeinsame Nativebudget zählt Transport-C1 weiter, maximal fünf zusätzliche
+eigene Kandidaten/Container/Compiles/Caller, Gesamtcheckpoint3/hard6 ohne Reset.
+Source6/CP3/hard6, zusätzliche Effekte zunächst null; aktuelle Source-/Pure-/
+Pin-/Privacy-/Rootgates und getrennte Compiler-/Nativeadmissions vor Ausführung.
+Alle bisherigen FAIL/UNKNOWN und offene volle Qualification bleiben erhalten.
+R1/Gesamt2 endet tatsächlich FAIL/UNKNOWN_STOP: zwei Compiler/Container/Caller
+kumulativ, zwei neue erhaltene CS1701-WARNs, Top/Child knownEnds/kein Timeout.
+Acht tatsächliche Driver-Typmetadaten und 22 Readersteps, InvalidCastException
+bei GetInt32(1)/gemeldetem DB_ID-smallint/System.Int16; Herstellerdokumentation
+nennt int, Unterschied ohne Server-/Wireursachenclaim offen. Kein typed/Controls-
+PASS und null Folge-SQL; einmal eigene volle Containment/frische CID-/
+Namensabwesenheit, SQLcleanup nicht belegt/DB-/Inputabwesenheit false/closed false.
+71 Sources/Originale erhalten, aktuelle vollständige Integration folgt.
+Danach nur geänderte Source-/Admitbasis für explizites DB_ID-int innerhalb
+vier verbleibender Gesamt3–6-Kandidaten/Checkpoint Gesamt3, kein Budgetreset.
+
 ## TSK-004: unabhängiger reiner Sessionreader-/Fehlervertrag nach PR234
 
 PR234 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main24478d42,
