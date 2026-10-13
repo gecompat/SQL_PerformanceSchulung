@@ -11,6 +11,28 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: isolierte native VECTOR-Client-Sourcevorbereitung nach PR227
+
+PR227 vollständig geschlossen (8Head/6Main, Tree/FF/Branches/Belege/Archiv).
+Der [neue begrenzte Clientpfad](SQL_SERVER_2025_AI_VECTOR_CLIENT_REVIEW.md) nutzt
+vorhandenes SDK10.0.401 und projektlokal gepinntes SqlClient6.1.4 ohne globale
+Installation/Hoständerung. MATERIAL-Dependency-/Lizenz-/Hash-/Lock-/Auditprüfung
+und Codevorbereitung vor tatsächlichem CLRprovider-/SQL-/Containerlauf; ein
+initialer Restore/max120s/40Pakete/150MB, einCompile/max90s.6/CP3/hard6,
+später max6 eigene serielle Container/einer je Kandidat nur nach aktuellen
+Source-/Privacy-/Tests-/Rootgates.0Native/Modelle jetzt, PoolUNKNOWN nichtresumiert,
+volle Typ-/Wire-/Treiber-/TSK004-Abnahme offen; andereRepos unverändert.
+
+Checkpoint3: C1-Konfigurations- und C2-150MB-FAIL erhalten. C2-SDK-Ende nur
+quellengestützt gebunden; fehlende PID-/Returncode-/poll-Felder bleiben fehlend.
+C3 unter geändertem eigenen300MB-Scope: ein tatsächlicher Compile ohne Restore
+in3,3033s/poll0/rc0,31 gehaltene/27 ausgewählte Pakete, vollständige Dependency-/
+Lizenz-/Audit-/Hashbindung und vier reine Gegenfälle normal/-O/enger Rootreview.
+Private Library SOURCE_ONLY, null Provider-/SQL-/Container-/Modellaufrufe.
+Aktuelle Integrationsgates folgen; unmittelbarer Nativecaller benötigt eigene
+Oracles/Request-/Source-/Input-/Deadline-/Cleanupadmission. Volle TSK004 offen.
+
+
 ## TSK-004: Engine-/CL-/Client-Lesehilfe nach vollständigem PR226-Abschluss
 
 PR226 vollständig geschlossen (10Head/8Main/Runtime, Tree/FF/Branches, gesicherte

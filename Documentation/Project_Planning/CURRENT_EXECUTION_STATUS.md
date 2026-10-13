@@ -1,5 +1,29 @@
 # Aktueller Ausführungsstand
 
+## TSK-004: isolierte native VECTOR-Client-Sourcevorbereitung nach PR227
+
+PR227 vollständig geschlossen (8Head/6Main, Tree/FF/Branches/Belege/Archiv).
+Der [neue begrenzte Clientpfad](SQL_SERVER_2025_AI_VECTOR_CLIENT_REVIEW.md) nutzt
+vorhandenes SDK10.0.401 und projektlokal gepinntes SqlClient6.1.4 ohne globale
+Installation/Hoständerung. MATERIAL-Dependency-/Lizenz-/Hash-/Lock-/Auditprüfung
+und Codevorbereitung vor tatsächlichem CLRprovider-/SQL-/Containerlauf; ein
+initialer Restore/max120s/40Pakete/150MB, einCompile/max90s.6/CP3/hard6,
+später max6 eigene serielle Container/einer je Kandidat nur nach aktuellen
+Source-/Privacy-/Tests-/Rootgates.0Native/Modelle jetzt, PoolUNKNOWN nichtresumiert,
+volle Typ-/Wire-/Treiber-/TSK004-Abnahme offen; andereRepos unverändert.
+
+Checkpoint3: C1 FAIL an der isolierten NuGet-Konfigurationswurzel; C2 erreichte
+31 Pakete, überschritt jedoch150MB und bleibt FAIL. Sein SDK-Ende ist nur durch
+den geprüften communicate-/wait-Quellenpfad gebunden; fehlende individuelle
+PID-/Returncode-/poll-Felder werden nicht rekonstruiert. Geänderter C3 mit300MB
+bestand in einem Compile ohne Restore (3,3033s, tatsächliche PID/poll0/rc0).
+31 gehaltene/27 ausgewählte Pakete, Lock-/Dateihashes, Lizenzen und Auditkanäle
+getrennt geprüft; vier neue reine Gegenfälle normal/-O und enger Rootreview PASS.
+Die private Library wurde nicht ausgeführt. Aktuelle Privacy-/PR-/Main-/Tree-/FF-/
+Branch-/Belegsicherungs-/Worktreegates vor Integration; Nativecaller und volle
+TSK004-Abnahme offen. Pool-UNKNOWN wird nicht wiederaufgenommen.
+
+
 ## TSK-004: Engine-/CL-/Client-Lesehilfe nach vollständigem PR226-Abschluss
 
 PR226 vollständig geschlossen (10Head/8Main/Runtime, Tree/FF/Branches, gesicherte
