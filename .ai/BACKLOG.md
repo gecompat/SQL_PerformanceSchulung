@@ -1,5 +1,45 @@
 # Initialer Backlog
 
+## TSK-006: gemeinsames öffentliches Cleanupbudget vor Runtime
+
+Vier Quellenstände sind gezielt geprüft: 18 Methodeninvokationen in sieben
+gehaltenen Prozessen, 17 PASS und ein archivierter Source1-Fixture-FAIL.
+Der tatsächliche unabhängige Checkpoint3 verlangte Korrekturen für erneute
+Windowinitialisierung und veränderbare Fristenkonstanten. Source4 schließt beide
+mit einem neuen Gegenfall normal und optimiert; frühere grüne Suiten wurden
+lokal nicht wiederholt. Domainaufrufe0. Aktuelle PR-/Head-/Main-Integration,
+Synchronisierung und eigene Archivierung folgen vor neuer Calleradmission.
+
+Der öffentliche Rollennachweis ist vor Callerumsetzung zurückgestellt: seine
+20s-Recovery meldet keinen Cleanupstart, konfigurierte Windows-Nachläufe passen
+nicht in eine ehrlich gekoppelte äußere60s-Uhr. Boundaryproof erhalten,
+Caller/Pure/Native/Domain0, historische3Rollenkandidaten/4Container unverändert.
+
+Aktueller unabhängiger Schnitt: [typisierte Budgetübergabe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_CLEANUP_BUDGET_REVIEW.md).
+Einmaliger tatsächlicher Cleanupstart, gemeinsame absolute Deadline und fester
+Collector mit Kill-/Reapreserve; keine freien Callbacks oder globalen Collector-/
+Hoständerungen. SOURCE_ONLY, neue6Quellenstände/Checkpoint3/Hard6; vorherige
+RoleSourceHard6 unverändert gestoppt. Enger Rootreview und betroffene Gegenfälle
+vor PR/Head/Main/Tree/FF/eigenem Cleanup. Danach aktuellen Caller fortsetzen,
+vor Native neue Admission; Runtime-/TP-PERF-Abnahme und Tokens UNKNOWN.
+
+## TSK-006: öffentliche Rollen-API, tatsächlicher Nachweis in Vorbereitung
+
+PR244 geschlossen: aktueller Head13/Main7, Main3a558cf0, voller Tree/FF/
+sauberes Main, eigene Branches entfernt, 327 private Dateien gesichert und
+Worktree tatsächlich archiviert. SourceHard6 bleibt gestoppt; alte Syntax-,
+CI-FAIL- und UNKNOWN-Records unverändert. Der historische Squash-Commit
+verfehlte das Codex-Präfix; Abweichung erhalten, keine Historienumschreibung.
+
+Aktueller Schnitt: [begrenzter öffentlicher Rollennachweis](../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+Zunächst private Caller-/Capturevorbereitung ohne Domainaufrufe; unveränderte
+öffentliche API, vollständige Credentials-/SID-/Principal-/Session-/Marker-/
+Restore-/Cleanupbindung. Historische drei Rollenkandidaten/vier Container plus
+höchstens drei neue Kandidaten/je einen eigenen Container = maximal6/7.
+Stop nach erstem kohärenten öffentlichen API-Teilnachweis oder sofort UNKNOWN.
+Sechs getrennte Callerquellenstände/Checkpoint3/Hard6; aktuelle Rootadmission
+vor Native bleibt erforderlich, volle Runtime-/TP-PERF-Abnahme offen.
+
 ## TSK-006: öffentlicher IDX-012-Rollenmodus in Vorbereitung
 
 PR243 vollständig geschlossen: 14 Head-/acht Main-Gates, Maine63cd1fc,

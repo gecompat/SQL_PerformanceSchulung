@@ -204,7 +204,15 @@ jobs:
             test_idx012_profile.RoleApiTests.test_role_actual_one_client_cost_routing_private_env_and_source_capture \
             test_idx012_profile.RoleApiTests.test_role_unknown_precedes_privacy_and_no_follow_sql_or_input_deletion \
             test_idx012_profile.RoleApiTests.test_role_imported_module_api_and_source_binding_before_effect \
-            test_idx012_profile.RoleApiTests.test_role_full_controller_restore_unknown_returns_captures_and_retained_inputs
+            test_idx012_profile.RoleApiTests.test_role_full_controller_restore_unknown_returns_captures_and_retained_inputs \
+            test_idx012_profile.CleanupBudgetTests.test_cleanup_window_typed_single_start_readonly_and_no_reset \
+            test_idx012_profile.CleanupBudgetTests.test_window_reinitialization_and_constant_tampering_cannot_restart_or_start_clients \
+            test_idx012_profile.CleanupBudgetTests.test_shared_window_foreign_property_reset_and_module_callbacks_rejected_before_start \
+            test_idx012_profile.CleanupBudgetTests.test_absolute_collector_keeps_one_handle_and_subtracts_startup_from_primary_wait \
+            test_idx012_profile.CleanupBudgetTests.test_timeout_reap_failure_and_late_known_poll_never_clear_unknown_or_privacy \
+            test_idx012_profile.CleanupBudgetTests.test_full_controller_shared_window_begins_before_restore_and_parent_keeps_deadline \
+            test_idx012_profile.CleanupBudgetTests.test_full_controller_restore_unknown_returns_shared_start_and_stops_all_sql \
+            test_idx012_profile.CleanupBudgetTests.test_budget_prestart_boundaries_reject_without_process_and_legacy_uses_original_collector
       - name: Validate source-only CON-010 pool producer and protected cleanup deltas
         env:
           PYTHONPATH: Tests/Static

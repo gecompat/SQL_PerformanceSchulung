@@ -1,7 +1,8 @@
 """Feste Rollen-/Sessionkomposition; keine SQL-Ausführung beim Import."""
 from dataclasses import dataclass,field
-import hashlib,json,math,os,re,sys,tempfile,time,types
+import hashlib,json,math,os,re,subprocess,sys,tempfile,time,types
 from pathlib import Path
+import cleanup_budget
 
 FOLDER=Path(__file__).resolve().parent;ROOT=FOLDER.parents[2]
 MODE='operator-admin-build'
@@ -158,30 +159,91 @@ def _module_guard(module,path,names):
         actual=getattr(module,name,None)
         if len(expected)!=1 or type(actual)is not types.FunctionType or actual.__code__!=expected[0] or actual.__globals__ is not module.__dict__ or Path(actual.__code__.co_filename).resolve()!=path:raise ValueError('ROLE_IMPORTED_MODULE_BYTES')
 
-def imported_guard(controller):
+def _class_guard(module,path,name,methods):
+    code=compile(path.read_bytes(),str(path),'exec',dont_inherit=True)
+    definitions=[c for c in code.co_consts if type(c)is types.CodeType and c.co_name==name]
+    actual=getattr(module,name,None)
+    if len(definitions)!=1 or type(actual)is not type or actual.__module__!=module.__name__:raise ValueError('ROLE_IMPORTED_TYPE')
+    if name=='SharedCleanupWindow'and 'reset'in actual.__dict__:raise ValueError('ROLE_IMPORTED_TYPE_RESET')
+    for method in methods:
+        expected=[c for c in definitions[0].co_consts if type(c)is types.CodeType and c.co_name==method]
+        function=actual.__dict__.get(method)
+        if type(function)is property:
+            if function.fset is not None or function.fdel is not None:raise ValueError('ROLE_IMPORTED_TYPE_SETTER')
+            function=function.fget
+        if len(expected)!=1 or type(function)is not types.FunctionType or function.__code__!=expected[0]or function.__globals__ is not module.__dict__:raise ValueError('ROLE_IMPORTED_TYPE_BYTES')
+
+def imported_guard(controller,budgeted=False):
     own=sys.modules.get(__name__);collector=sys.modules.get('sqlcmd_process')
     _module_guard(controller,FOLDER/'run_profile.py',('run_profile','cost_source','phase_command','execute_client','records'))
     _module_guard(own,FOLDER/'role_profile.py',('bind','_decorate','validate_context','safe_texts'))
     _module_guard(collector,ROOT/'Demos/00_Framework/Tools/sqlcmd_process.py',('start_sqlcmd','collect_process','build_sqlcmd_command'))
     if getattr(controller,'role_profile',None)is not own or getattr(controller,'SqlcmdResult',None)is not collector.SqlcmdResult or any(getattr(controller,name,None)is not getattr(collector,name,None)for name in ('start_sqlcmd','collect_process','build_sqlcmd_command')):raise ValueError('ROLE_IMPORTED_API_IDENTITY')
+    if budgeted:
+        budget=sys.modules.get('cleanup_budget')
+        _module_guard(budget,FOLDER/'cleanup_budget.py',('guard_constants','number','validate_window','validate_call'))
+        budget.guard_constants()
+        _class_guard(budget,FOLDER/'cleanup_budget.py','SharedCleanupWindow',('__init__','__setattr__','snapshot','begin','remaining','deadline'))
+        _class_guard(own,FOLDER/'role_profile.py','_RoleClient',('__init__','source_map','execute','_collect_budgeted'))
+        if budget is not cleanup_budget or getattr(controller,'cleanup_budget',None)is not budget or getattr(controller,'SharedCleanupWindow',None)is not budget.SharedCleanupWindow:raise ValueError('ROLE_IMPORTED_BUDGET_IDENTITY')
 
 class _RoleClient:
-    def __init__(self,controller,binding,executable,server):
+    def __init__(self,controller,binding,executable,server,*,budgeted=False):
         if Path(controller.__file__).resolve()!=FOLDER/'run_profile.py' or type(binding)is not Binding:raise ValueError('FIXED_ROLE_IMPLEMENTATION')
         if type(executable)is not str or Path(executable).name not in ('sqlcmd','sqlcmd.exe') or type(server)is not str or not re.fullmatch(r'(?:tcp:)?(?:127\.0\.0\.1|localhost),[1-9][0-9]{0,4}',server)or int(server.rsplit(',',1)[1])>65535:raise ValueError('FIXED_ROLE_CLIENT_TARGET')
-        self.executable=executable;self.server=server
-        imported_guard(controller)
+        if type(budgeted)is not bool:raise ValueError('FIXED_ROLE_BUDGET_CHOICE')
+        self.budgeted=budgeted;self.executable=executable;self.server=server
+        imported_guard(controller,budgeted)
         self.controller=controller;self.binding=binding;self.unknown=False;self.captures=[];self.inputs=[]
         self.sources=self.source_map()
     def source_map(self):
         files=[FOLDER/n for n in ('run_profile.py','role_profile.py','dml_boundary_evidence.py','lifecycle_evidence.py','storage_evidence.py','cost_evidence.py')]+sorted(FOLDER.glob('*.sql'))+[ROOT/'Demos/00_Framework/Tools/sqlcmd_process.py']
+        if self.budgeted:files.append(FOLDER/'cleanup_budget.py')
         if any(p.is_symlink()or not p.resolve().is_relative_to(ROOT)for p in files):raise ValueError('ROLE_SOURCE_PATH')
         return {str(p.relative_to(ROOT)).replace('\\','/'):hashlib.sha256(p.read_bytes()).hexdigest()for p in files}
-    def execute(self,command,*,timeout_seconds):
+    def _collect_budgeted(self,process,command,deadline):
+        p=self.controller;out=err='';timed_out=False;failed=False;code=None
+        detail={'AbsoluteDeadline':deadline,'ReapReserveSeconds':cleanup_budget.REAP_SECONDS,'PrimaryWaitSeconds':None,'ObservedOverrun':False,'ChannelsObserved':False}
+        remaining=deadline-cleanup_budget.REAP_SECONDS-time.monotonic()
+        if remaining<=0:
+            timed_out=True;self.unknown=True;code='PRIMARY_WINDOW_EXHAUSTED'
+        else:
+            detail['PrimaryWaitSeconds']=remaining
+            try:
+                out,err=process.communicate(timeout=remaining);detail['ChannelsObserved']=True
+            except BaseException as error:
+                timed_out=isinstance(error,subprocess.TimeoutExpired)
+                failed=not timed_out;self.unknown=True;code='PRIMARY_TIMEOUT'if timed_out else'COLLECTOR_FAILED'
+        try:
+            observed=process.poll();returncode=process.returncode
+            detail['PreReapPoll']=observed if type(observed)is int else None
+            if type(observed)is not int or type(returncode)is not int or observed!=returncode or observed<0:
+                self.unknown=True;code=code or 'PROCESS_END_UNCONFIRMED'
+        except BaseException:
+            self.unknown=True;failed=True;code='POLL_FAILED';detail['PreReapPoll']=None
+        if self.unknown:
+            reap_end=min(deadline,time.monotonic()+cleanup_budget.REAP_SECONDS)
+            try:
+                if time.monotonic()<reap_end and process.poll()is None:process.kill()
+            except BaseException:failed=True;code='KILL_FAILED'
+            try:
+                rest=reap_end-time.monotonic()
+                if rest<=0:raise TimeoutError('ROLE_REAP_WINDOW_EXHAUSTED')
+                out,err=process.communicate(timeout=rest);detail['ChannelsObserved']=True
+            except BaseException:failed=True;code='REAP_FAILED'
+        if time.monotonic()>=deadline:self.unknown=True;detail['ObservedOverrun']=True;code='OBSERVED_DEADLINE_OVERRUN'
+        detail.update(CollectorFailed=failed,CollectorCode=code)
+        rc=process.returncode if type(process.returncode)is int else -1
+        return p.SqlcmdResult(tuple(command),rc,out,err,timed_out,0.0),detail
+
+    def execute(self,command,*,timeout_seconds,call_deadline=None):
         p=self.controller;b=self.binding
         if self.unknown:raise p.ClientEndUnknown('ROLE_CLIENT_END_UNKNOWN')
-        imported_guard(p)
+        imported_guard(p,self.budgeted)
         if self.source_map()!=self.sources:raise ValueError('ROLE_SOURCE_CHANGED')
+        if self.budgeted:
+            cleanup_budget.validate_call(call_deadline,timeout_seconds)
+        elif call_deadline is not None:raise ValueError('BUDGET_DEADLINE_WITHOUT_MODE')
         script=Path(command[command.index('-i')+1]).resolve()
         if script.parent!=FOLDER or script.name not in PHASES or command[command.index('-U')+1]!=b.operator or '-P'in command:raise ValueError('FIXED_ROLE_COMMAND')
         variables=[{'StorageStage':stage}for stage in ('BASELINE','INDEXED','REBUILT')]if script.name=='22_Storage.sql'else [None]
@@ -191,6 +253,8 @@ class _RoleClient:
         raw=source.encode('utf-8');safe_texts(b,source,*command)
         if len(raw)>160000:raise ValueError('ROLE_INPUT_CAP')
         process=None;response=None;poll=None;collector_failed=False;collector_code=None;capture=None;own=None
+        attempted=False
+        budget_capture=({'AbsoluteDeadline':call_deadline,'ReapReserveSeconds':cleanup_budget.REAP_SECONDS,'PrimaryWaitSeconds':None,'ObservedOverrun':False,'ChannelsObserved':False}if self.budgeted else None)
         actual=list(command);environment=private_environment(b,os.environ,stage is not None)
         try:
             runtime=ROOT/'Runtime';runtime.mkdir(exist_ok=True)
@@ -198,12 +262,17 @@ class _RoleClient:
             self.inputs.append({'Path':str(own),'InputSha256':hashlib.sha256(raw).hexdigest(),'Retained':True})
             actual[actual.index('-i')+1]=str(own);actual[actual.index('-U')+1]='sa'if stage else b.operator
             safe_texts(b,*actual)
-            imported_guard(p)
+            imported_guard(p,self.budgeted)
             if self.source_map()!=self.sources:raise ValueError('ROLE_SOURCE_CHANGED')
             started=time.monotonic()
+            if self.budgeted:cleanup_budget.validate_call(call_deadline,timeout_seconds)
             try:
-                process=p.start_sqlcmd(actual,environment=environment)
-                response=p.collect_process(process,actual,timeout_seconds=timeout_seconds)
+                attempted=True;process=p.start_sqlcmd(actual,environment=environment)
+                if self.budgeted:
+                    response,budget_capture=self._collect_budgeted(process,actual,call_deadline)
+                    collector_failed=budget_capture['CollectorFailed'];collector_code=budget_capture['CollectorCode']
+                    response=p.SqlcmdResult(response.command,response.returncode,response.stdout,response.stderr,response.timed_out,time.monotonic()-started)
+                else:response=p.collect_process(process,actual,timeout_seconds=timeout_seconds)
             except BaseException:
                 self.unknown=True;collector_failed=True;collector_code='COLLECTOR_FAILED'
             finally:
@@ -217,6 +286,8 @@ class _RoleClient:
             duration=response.duration_seconds if valid and type(response.duration_seconds)in (int,float)and math.isfinite(response.duration_seconds)and response.duration_seconds>=0 else None
             if type(pid)is not int or pid<1 or type(poll)is not int or type(rc)is not int or poll!=rc or collector_failed or not valid or timed_out is not False or result_rc!=poll or result_rc is None or result_rc<0 or duration is None or type(response.command)is not tuple or response.command!=tuple(actual):self.unknown=True
             capture={'Phase':script.name,'Auth':'ADMIN_ORIGINAL_OPERATOR_CONTEXT'if stage else 'OPERATOR_AUTH','Pid':pid if type(pid)is int and pid>0 else None,'FinalPoll':poll if type(poll)is int else None,'ProcessReturnCode':rc if type(rc)is int else None,'ReturnCode':result_rc,'TimedOut':timed_out,'CollectorDurationSeconds':duration,'ElapsedSeconds':time.monotonic()-started,'CollectorFailed':collector_failed,'CollectorCode':collector_code,'UnknownSticky':self.unknown,'ServerRequestEnd':'NOT_ATTESTED','SourceBefore':self.sources,'SourceAfter':None,'InputText':None,'InputSha256':None,'Stdout':None,'Stderr':None,'ChannelStatus':'UNOBSERVED','RejectCode':None}
+            if self.budgeted:
+                capture.update(CollectorMode='FIXED_ABSOLUTE_CALL_DEADLINE',Budget=budget_capture,ProcessStartAttempted=attempted,ProcessStarted=process is not None)
             self.captures.append(capture)
             try:capture['SourceAfter']=self.source_map()
             except BaseException:self.unknown=True;capture['UnknownSticky']=True
@@ -224,13 +295,15 @@ class _RoleClient:
             try:
                 safe_texts(b,source)
                 capture.update(InputText=source,InputSha256=hashlib.sha256(raw).hexdigest())
-                if valid:
+                if valid and (not self.budgeted or budget_capture['ChannelsObserved']):
                     if type(response.stdout)is not str or type(response.stderr)is not str or len(response.stdout.encode())+len(response.stderr.encode())>1000000:raise ValueError('ROLE_CHANNEL_CAP_TYPE')
                     safe_texts(b,response.stdout,response.stderr)
                     capture.update(Stdout=response.stdout,Stderr=response.stderr,ChannelStatus='SAFE')
             except (ValueError,UnicodeError):
                 capture.update(ChannelStatus='REJECTED',RejectCode='FAIL_CREDENTIAL_OR_CHANNEL_SAFETY');self.unknown=True;capture['UnknownSticky']=True
                 raise p.ClientEndUnknown('ROLE_CHANNEL_NOT_SAFE')from None
+            if self.budgeted and time.monotonic()>=call_deadline:
+                self.unknown=True;capture['UnknownSticky']=True;capture['Budget']['ObservedOverrun']=True;capture['CollectorCode']='OBSERVED_DEADLINE_OVERRUN'
             if self.unknown:raise p.ClientEndUnknown('ROLE_CLIENT_END_UNKNOWN')
             return response
         finally:
