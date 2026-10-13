@@ -1,0 +1,14 @@
+{
+  "contract": "IDX012_PUBLIC_ROLE_RECORD_V2",
+  "execution_source_count": 24,
+  "counts": {"profiles": 3, "client_captures": 25, "role_contexts": 8, "cost_pairs": 2, "permission_negatives": 2, "positive_dml": 4, "rejected_dml": 4},
+  "claims": {
+    "owner_query": "NOT_ESTABLISHED", "server_request_end": "NOT_ESTABLISHED",
+    "dml_full_error_capture": "NOT_ESTABLISHED", "runtime_qualification": "NOT_ESTABLISHED",
+    "tp_perf": "NOT_ESTABLISHED", "principal_cleanup": "NOT_ESTABLISHED", "namespace_cleanup": "NOT_ESTABLISHED",
+    "generation": "UNKNOWN", "caller_provenance": "DECLARED_NOT_INDEPENDENTLY_ATTESTED",
+    "credential_list_completeness": "DECLARED_NOT_INDEPENDENTLY_ATTESTED",
+    "sql_cleanup": "TEXTS_COHERENT_NOT_INDEPENDENTLY_ATTESTED"
+  },
+  "record_max_utf8_bytes": 4194304
+}

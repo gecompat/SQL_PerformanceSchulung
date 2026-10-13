@@ -36,6 +36,8 @@ on:
       - 'Tests/Static/test_vector_client_layout_evidence.py'
       - 'Tests/Static/Fixtures/vector_client_layout/**'
       - 'Tests/Static/idx012_dml_role_evidence.py'
+      - 'Tests/Static/idx012_public_role_evidence_v2.py'
+      - 'Tests/Static/Fixtures/idx012/IDX012_PUBLIC_ROLE.result-contract-v2.json'
       - 'Tests/Static/test_idx012_dml_role_evidence.py'
       - 'Tests/Static/Fixtures/idx012/**'
       - 'Tests/Static/test_idx012_lifecycle.py'
@@ -90,6 +92,8 @@ on:
       - 'Tests/Static/test_vector_client_layout_evidence.py'
       - 'Tests/Static/Fixtures/vector_client_layout/**'
       - 'Tests/Static/idx012_dml_role_evidence.py'
+      - 'Tests/Static/idx012_public_role_evidence_v2.py'
+      - 'Tests/Static/Fixtures/idx012/IDX012_PUBLIC_ROLE.result-contract-v2.json'
       - 'Tests/Static/test_idx012_dml_role_evidence.py'
       - 'Tests/Static/Fixtures/idx012/**'
       - 'Tests/Static/test_idx012_lifecycle.py'
@@ -198,6 +202,14 @@ jobs:
             test_idx012_dml_role_evidence.RecordTests.test_principal_audit_permission_tuples_revocation_and_restore \
             test_idx012_dml_role_evidence.RecordTests.test_missing_capture_cannot_be_replaced_by_flags_or_fake_ends \
             test_idx012_dml_role_evidence.RecordTests.test_rebound_contract_claim_count_extra_raw_and_input_pin_drift \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_plain_schema_sources_contract_and_extra_fields \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_individual_end_input_channels_and_unknown \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_order_sid_privilege_and_same_cost_session \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_distinct_rights_negatives_cleanup_and_warn \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_negative_window_full_not_started_contract \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_credential_plain_hex_json_and_received_frames \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_pure_helper_fixed_names_paths_and_no_foreign_import \
+            test_idx012_dml_role_evidence.PublicV2Tests.test_public_v2_dml_rollback_source_and_cost_counter_tampering \
             test_idx012_profile.RoleApiTests.test_role_mode_and_credentials_reject_free_executor_folder_and_aliases_before_start \
             test_idx012_profile.RoleApiTests.test_role_composition_preserves_core_and_rejects_other_build_or_impersonation \
             test_idx012_profile.RoleApiTests.test_role_context_schema_sid_privilege_order_and_cost_session_binding \
