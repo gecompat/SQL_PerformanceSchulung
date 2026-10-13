@@ -1,7 +1,7 @@
 # CON-010: eigenes opt-in RED-Poolprofil
 
-Status: SOURCE_PREPARATION_ONLY. Dieser neue Producer wurde noch nicht nativ
-qualifiziert. Das bestehende GREEN-/LOCAL-Manifest, V1/private42 und Default-CI
+Status: NATIVE_PARTIAL_UNKNOWN_STOP. Der neue Producer ist teilweise ausgeführt;
+eine vollständige native Poolqualifikation ist NOT_ESTABLISHED. Das bestehende GREEN-/LOCAL-Manifest, V1/private42 und Default-CI
 führen ihn nicht aus. Kein allgemeiner Provider-, Passwort-, Seitenkanal-,
 Performance-, TSK-009-, CON-010- oder TP-CON-Abnahmeclaim.
 
@@ -97,7 +97,8 @@ SQLcleanup- und Namespacecleanupfehler bleiben separat sichtbar.
 
 Ein positives begrenztes Ergebnis bleibt WARN mit record_validation PASS;
 Runtimegeneralisation und TP-CON bleiben NOT_ESTABLISHED. Quellen-/Marker-/
-HeldSID-Negativen sind echte geplante Nativekontrollen, aktuell noch UNEXECUTED.
+HeldSID-Negativen sind tatsächliche Owner-Kontrollen; ihre begrenzte Ausführung
+belegt keine authentifizierten Poolcheckouts.
 Reine Tests verwenden Fakehandles und synthetische Records und ersetzen keine
 Nativequalifikation, keinen echten Pooltransport oder Providerprobe.
 
@@ -119,6 +120,60 @@ die unterstützte Option --time=0; diese setzt der neue Sourcecode bei unveränd
 read-only CID-/Namensabfragen und Inputprüfung belegten ResourceABSENT, niemals
 RequestEnd oder SQLcleanup-PASS. Kein zweiter Remove, kein Folge-SQL und keine
 Uhrverlängerung. C1/C2-FAILs bleiben unverändert; die Welle ist STOPPED_NO_C3_AFTER_UNKNOWN.
-Der korrigierte Sourcecode wurde nicht nativ ausgeführt. Eine bestehende UNKNOWN-
+In dieser ersten Welle wurde der korrigierte Sourcecode nicht nativ ausgeführt. Eine bestehende UNKNOWN-
 Wellenakte blockiert weitere Nativeadmission; es gibt kein Recovery-Supplement
 als C3-Zulassung. Öffentliche Pool-Runtime-/TP-CON-Abnahme bleibt offen.
+
+## Getrennte neue Qualifikationsgrundlage
+
+Eine neue Welle ist ausdrücklich mit `--wave requalification` auswählbar.
+Sie verwendet einen eigenen festen Controlbereich `Runtime/AI_POOL_REQUALIFICATION`
+und verlangt gebundene Input-, History-, Quellen-, Budget- und Rootreviewdateien.
+Die gewöhnliche Auswahl und ihre alte UNKNOWN-Sperre bleiben bestehen. Ein leeres
+Controlverzeichnis oder eine umbenannte alte Akte genügt nicht. Die neue Auswahl
+endete nach einer begrenzten Teilausführung bei UNKNOWN; eine vollständige
+Poolqualifikation ist weiterhin NOT_ESTABLISHED.
+
+Die unveränderten PR226-Originale, ihr Resourceabschluss und das unbestätigte
+Remove-Ende bleiben read-only gebunden. Zwei alte Nativeversuche/ein Container,
+SQL0/Poolchild0 zählen weiter: höchstens vier zusätzliche Versuche/Container,
+insgesamt sechs Versuche/fünf Container. Vor dem zweiten neuen Versuch muss der
+tatsächliche Gesamtcheckpoint3 geschlossen sein. PASS oder neues UNKNOWN stoppt;
+ein weiterer bekannter FAIL verlangt relevante geänderte Quellen und neue Zulassung.
+Keine Aktionen gegen die alten Ressourcen, kein C3 der gestoppten alten Welle.
+
+Neue Namespacecalls halten dasselbe eigene Prozessobjekt bis zum tatsächlichen
+PID/poll/rc-Endrecord. Initiales Warten und einmaliges Reaping teilen denselben
+absoluten Cap und das verbleibende Profilbudget. Timeout/Signal/unklares Ende
+bleiben bereits vor Privacy- oder Capturefehlern UNKNOWN; zweiter Remove und
+Folge-SQL sind dann gesperrt. Sourcepins vor/nach und sichere tatsächliche Kanäle
+werden privat erhalten. Alte `SUBPROCESS_RUN_RETURNED`-Records werden nicht
+nachträglich zu individuell gehaltenen Endbelegen umgedeutet.
+
+Provider-/Lab-/RED-Zulassung sowie alle fachlichen Eigentums-, Rollen-, State-,
+Reset- und Cleanupgates bleiben erforderlich. Die Rootdateien deklarieren eine
+eng freigegebene lokale Welle, kein allgemeines Attestierungs- oder Rechte-System.
+GREEN/LOCAL und Default-CI starten diesen RED-Pfad nicht.
+
+## Was die aktuelle Teilausführung zeigt
+
+Die getrennte [Poolqualifikationswelle](../Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md)
+endet mit UNKNOWN_STOP. Der erste neue Versuch scheiterte an der erfassten
+Setupkanalreihenfolge; eine gezielte Korrektur akzeptiert nun die beiden bekannten
+Erfolgsmarker und genau die bekannte separate Kontextmeldung, keine beliebigen
+Diagnosen. Im zweiten Versuch sind Setup, Logins, Baseline und sechs tatsächliche
+Owner-Abweisungen für Quelle, gehaltene SID und vier Eigentumsmarker samt Restores
+belegt. Fünf vollständige Zustandsvergleiche sichern diese Ownerkontrollen.
+
+Für die sechs authentifizierten A/B/U-Checkouts, einzelne .NET-Enden und physische
+Poolreuse fehlt ein vollständiger Childnachweis. Die ursprüngliche Ursache ist
+unbewiesen. Ein bekannter eigener Prozessabschluss hebt inneres UNKNOWN nicht auf.
+Nach UNKNOWN wurde kein weiteres SQL ausgeführt. Der eigene Container ist nach
+einem gebundenen Remove und frischen CID-/Namensabfragen abwesend; SQLcleanup ist
+NOT_ESTABLISHED, ein Childplan bleibt privat erhalten. Deshalb ist die Welle
+gestoppt und liefert keinen vollständigen Pool-Runtime- oder TP-CON-PASS.
+
+Diese Dokumentergänzung beschreibt vorhandene Belege. Ursprüngliche Source- und
+Ausführungspins bleiben unverändert; die bisherigen Zustände werden nicht erneut
+ausgeführt. Der nächste getrennte Schritt bereitet zunächst nur vollständiges
+sicheres Childcapturing vor einer fehlgeschlagenen Ergebniszuordnung vor.

@@ -1,5 +1,58 @@
 # Aktueller Ausführungsstand
 
+## TSK-009: begrenzter Owner-Teilnachweis, Poolwelle bei UNKNOWN gestoppt
+
+Aktueller Schnitt: [Poolqualifikationswelle](SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md).
+Vier Sourcezustände sind ehrlich gezählt: initial neun betroffene Methoden,
+Checkpoint-Dateibindung zwei, tatsächlicher Checkpointvertrag zwei und getrennte
+Setupkanäle zwei, jeweils normal/-O mit gehaltenen Enden und sicheren Raws.
+Sourcecheckpoint3 geschlossen und für Source4 ausdrücklich neu gebunden;
+keine alte grüne Vollsuite wiederholt. Standard-UNKNOWN-Sperre unverändert.
+
+Native1/insgesamt3 bleibt bekannt FAIL_SETUP_SUMMARY + FAIL_SQL_CLEANUP,
+UNKNOWNfalse: vier SQLcmd- und dreizehn gehaltene Namespaceenden. Frische
+CID-/Namens-/Inputabwesenheit belegt Resourceclosure; SQLcleanup NOT_ESTABLISHED.
+Der unabhängige verpflichtende Nativegesamtcheckpoint3 ist geschlossen.
+Source4 korrigierte den konkret erfassten getrennten Setupkanal.
+
+Native2/insgesamt4 endet UNKNOWN_STOP. 39 bekannte SQLcmd-Enden, 48 gehaltene
+Namespaceenden, Setup/Logins/Baseline sowie sechs tatsächliche Owner-SQLabweisungen,
+fünf vollständige Negativzustandswitnesses und sieben geordnete Controls sind
+belegt. Einzelne Poolchild-/.NET-Enden, A/B/U-Checkouts, physische Poolreuse und
+Ursache bleiben NOT_ESTABLISHED beziehungsweise UNPROVEN. Nach UNKNOWN kein
+Folge-SQL; genau ein vollständig gebundener eigener Remove und frische leere
+CID-/Namensabfragen. SQLcleanup NOT_ESTABLISHED; ein ursprünglicher Childplan
+bleibt erhalten, inputsAbsentfalse und ledgerClosedfalse. Kein zweiter Remove.
+
+Kumulativ vier Nativeversuche/drei Container einschließlich der unveränderten
+PR226-Welle. Aktuelle Welle STOP; keine Native3-Zulassung trotz verbleibender
+rechnerischer Slots. Kein Runtime-/TSK-009-/TP-CON-PASS. Quellen, Hostbytes,
+Authorities und ursprüngliche Ausführungssnapshots bleiben erhalten;
+Dokumentstatusänderungen sind getrennte DocOnly-Deltas, keine rückwirkend neuen
+Ausführungspins. Head-/Main-Gates, Integration und eigener Branch-/Worktreeabschluss
+folgen durch Root. Modell-/Tokenverbrauch UNKNOWN.
+
+Nach vollständiger Integration folgt ausschließlich ein unabhängiger SOURCE_ONLY-
+Capturevertrag: vollständige sichere Poolchild-Kanäle und individuelle Endrecords
+vor Malformed-/UNKNOWN-Klassifikation erhalten. Keine Wiederaufnahme dieser oder
+älterer UNKNOWN-Wellen, kein Native-/Ressourcenreplay und kein Ursachennachweis
+allein aus neuer Source.
+
+## TSK-009: neue eigene öffentliche Poolqualifikation nach PR241
+
+PR241 vollständig geschlossen: sieben Head-/fünf Main-Gates, Mainaf7d3d3a,
+Tree/FF/Branches, 1467 private Dateien gesichert und Worktree tatsächlich archiviert.
+Aktueller Schnitt: [neue Poolqualifikationsgrundlage](SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md).
+Alte PR226-Welle bleibt STOPPED_NATIVE_UNKNOWN, zwei Nativeversuche/einContainer/
+SQL0/Poolchild0; aktuelle korrigierte Sources werden an neue eigene Wave-/Input-/
+Control-/Historybindungen gebunden. Kein Replay, alte UNKNOWN niemals löschen.
+Zunächst SOURCE_ONLY ohne Effekte. Neue Nativeadmission nur nach aktuellem Review;
+alte zwei Versuche plus höchstens vier neue Gesamtmax6, alte einContainer plus
+höchstens vier neue Gesamtmax5, seriell. Erster neuer Nativeversuch verlangt
+Gesamtcheckpoint3. Eigene Marker-/SID-/Credential-/Requestende-/RLS-/Cleanupfloors
+und unveränderte Host-/Cloud-/ONNX-/Releasegrenzen; Tokenverbrauch UNKNOWN.
+
+
 ## TSK-007/008: getrennte lokale Routeignung und Gesamtcheckpoint3
 
 Aktueller Schnitt: [beobachtbare Routeignung](SQL_SERVER_2025_AI_ROUTE_ELIGIBILITY_REVIEW.md).

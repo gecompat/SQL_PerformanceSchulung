@@ -207,7 +207,17 @@ jobs:
             test_con010_pool_profile.ProducerTests.test_supported_container_id_case_full_ps_and_immediate_rm_argv \
             test_con010_pool_profile.ProducerTests.test_mutative_remove_missing_end_is_sticky_and_no_second_remove_or_sql \
             test_con010_pool_profile.ProducerTests.test_recorded_unknown_wave_stop_cannot_admit_native_candidate \
-            test_con010_pool_profile.ProducerTests.test_actual_namespace_cleanup_preserves_full_inspect_and_two_absence_outputs
+            test_con010_pool_profile.ProducerTests.test_actual_namespace_cleanup_preserves_full_inspect_and_two_absence_outputs \
+            test_con010_pool_profile.RequalificationTests.test_explicit_wave_admission_preserves_unknown_history_and_requires_input \
+            test_con010_pool_profile.RequalificationTests.test_shared_budget_bool_alias_reset_and_forged_closure_reject \
+            test_con010_pool_profile.RequalificationTests.test_live_reservation_and_overall3_checkpoint_before_second_new_attempt \
+            test_con010_pool_profile.RequalificationTests.test_namespace_actual_held_pid_nonzero_source_before_after \
+            test_con010_pool_profile.RequalificationTests.test_namespace_unknown_precedes_privacy_and_reap_uses_absolute_cap \
+            test_con010_pool_profile.RequalificationTests.test_wave_binding_types_and_old_resource_target_reject \
+            test_con010_pool_profile.RequalificationTests.test_finally_persists_default_and_new_ledger_even_on_raised_failure \
+            test_con010_pool_profile.RequalificationTests.test_new_wave_rejects_legacy_namespace_records_before_summary \
+            test_con010_pool_profile.SetupChannelTests.test_setup_separate_actual_context_and_unexpected_or_duplicate_diagnostics \
+            test_con010_pool_profile.SetupChannelTests.test_setup_capture_input_returncode_and_unknown_are_not_marker_aliases
       - name: Validate bounded RES-008 consumer and evidence
         run: |
           python Tests/Static/test_res008_profile.py

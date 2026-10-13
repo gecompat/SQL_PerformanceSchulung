@@ -1,5 +1,5 @@
 """Expliziter RED-Poolproducer für genau einen neuen eigenen Wegwerfnamespace."""
-import argparse,hashlib,json,os,re,secrets,shutil,subprocess,sys,time,uuid
+import argparse,hashlib,json,math,os,re,secrets,shutil,subprocess,sys,time,uuid
 from dataclasses import dataclass
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2]
@@ -13,6 +13,10 @@ IMAGE='78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726'
 OWNER='CON010-Pool-Public'
 CANONICAL='Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md'
 CONTROL=ROOT/'Runtime/AI_POOL_PUBLIC'
+REQUAL_CONTROL=ROOT/'Runtime/AI_POOL_REQUALIFICATION'
+REQUAL_CANONICAL='Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md'
+REQUAL_WAVE='PR226_REQUALIFICATION_V1'
+OLD_HISTORY_PINS={'wave-stop.json': '8845f53d2a3c59fc32b620b507d46134c0327ddabf01066481ebf7c7ecd49676', 'public-ledger.json': '9ec27984871e0eb93d69ce27ec4410cbddbe9f4f910276787c5e59c859ef0d4c', 'candidate1/actual-result.json': 'c43269371c67dadd111907dd98d37ce313092db55d7db1af873ccc760d876067', 'candidate2/actual-result.json': 'd228ef221fd40832c38b29b91b97c34052b3d0b82fa9323aa49ac746c26f788d', 'candidate2/namespace-recovery-unknown.json': '3ac66de964b49b1ad5f7359dcbd861131db5241e54a9c0c2916660491250c693', 'candidate2/namespace-recovery-intent.json': '6003dc061b9ebb10df770c159434480d34ba7d419c6b98f94ae0359520c54299', 'closure.json': '911ea59e3e87d429687e5f74b72e3255973ceed43f3532e8b5f198591e296cc8', 'integration-proof.json': '51f2b088ce37699fdc824a8936ba47fd0044c1967b77111e889ae74820a4ca77', 'archive-proof.json': 'b1e7f2735f510c21e08dfe27f93ef97c5887a1069d6314277bb9221ebd7b8c63', 'candidate2/source-archive/Tests/Static/con010_pool_capture.py': '7c58915b1c3287d55570b8ab2190ff3d656168236632f7588d31f33eafcae4fb', 'candidate2/source-archive/Tests/Static/test_con010_pool_capture.py': '5da8a96dfe70c8c0a5eca543fa15b5e25dc86392635bd4819569f33aef2b012c', 'candidate2/source-archive/Tests/Static/Fixtures/con010/pool-capture-contract-v2.json': '73f6202c1763470262370682276254fb829c16f9725cfe5612362c00c0d283fc', 'candidate2/source-archive/Documentation/HowTo/SQL_SERVER_2025_AI_POOL_CAPTURE_V2.md': 'a06059df5226645942559b9831cd37f90c9a4df7383f9f696afb3975d4a9dbb1', 'candidate2/source-archive/Demos/00_Framework/Tools/sqlcmd_process.py': 'd8b553419bb34e4bafe7d0a7baee55ca28a5b97d1ad64710e131674aa6ca9757', 'candidate2/source-archive/Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/pool_client.py': '3549592a6eb3ea30fc366394504a83bf7739de6116252592647a66d9e05c6232', 'candidate2/source-archive/Tests/Static/test_con010_pool_client.py': 'bfea086d28627d9be0d27c34beb9c53abb00f61b550ec8267bdae52aca2a6da3', 'candidate2/source-archive/Documentation/HowTo/SQL_SERVER_2025_AI_POOL_CLIENT.md': '5dbea159638ef105614834e626c40f36f9621b0304319c73fbc05c17df658957', 'candidate2/source-archive/Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/run_pool_profile.py': '289aab5f9f308936ac047ca4c6a4c72e35e24da8a59907f007c61a8830cf479d', 'candidate2/source-archive/Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/pool_profile_inputs.py': '99fde1c8a9703d4d984fecf05a008a761dbc1ce733fe73ff584f7c0907d53a62', 'candidate2/source-archive/Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/pool_profile_evidence.py': '40cf7a947269f70bdcd5dc977c45fdfe73439011ec7ddd1cb34847ec545e717b', 'candidate2/source-archive/Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/pool_profile.ps1': '14b78abe8a0c963b3b5d000b1dc886233dd75b7358f9228232192865589fa698', 'candidate2/source-archive/Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/Expected/pool-profile-contract.json': '3d9696d86a611a760290d69ddefa094dfc7ea3cf1bd75b8f6e2073f95a82c33b', 'candidate2/source-archive/Tests/Static/test_con010_pool_profile.py': '8252ead5633f1eccd474ae20a7eb02fabdcd03bc6d0fe13f78546d99834f76f2', 'candidate2/source-archive/Documentation/HowTo/SQL_SERVER_2025_AI_POOL_PUBLIC.md': '47d7c79c3753ee69e3897d0dd1e40a4ffc8d2a4df669e7fc82e3b6b79861c4d0'}
 DLL=Path('C:/Program Files/PowerShell/7/System.Data.SqlClient.dll')
 PWSH=Path('C:/Program Files/PowerShell/7/pwsh.exe')
 DLL_SHA='c37a712c5e0b4f2d388611b0ceb9bceca902fe8751075aba4f5dcdcc291eda03'
@@ -32,6 +36,69 @@ class Failure(ValueError):
     def __init__(self,code):super().__init__(code)
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def source_map():return {name:digest(ROOT/name) for name in SOURCE_KEYS}
+def _read_bound(path,cap=100000):
+    if not path.is_file() or path.is_symlink() or path.stat().st_size>cap:raise Failure('FAIL_WAVE_FILE')
+    return json.loads(path.read_bytes().decode('utf-8'),object_pairs_hook=evidence.unique)
+def requalification_budget():
+    return {'source_max':6,'source_checkpoint':3,'source_hard_stop':6,'native_prior':2,'native_additional_max':4,'native_total_max':6,'containers_prior':1,'containers_additional_max':4,'containers_total_max':5,'containers_per_candidate':1,'actual_checkpoint':3,'normal_seconds':300,'cleanup_seconds':60,'namespace_reserve_seconds':20,'namespace_reap_seconds':2,'child_cap_seconds':40,'cleanup_starts_before_child':True,'database':inputs.DATABASE,'run_token':'POOLPUBLIC','image':IMAGE,'build':'17.0.5005.3','model_calls':0,'max_logins':3,'rows':2,'dimension':3,'checkouts':6}
+def requalification_history():
+    data=_read_bound(REQUAL_CONTROL/'history.json')
+    if type(data)is not dict or set(data)!={'contract','origin','files'} or data['contract']!='CON010_PR226_IMMUTABLE_HISTORY_V1' or type(data['origin'])is not str or not Path(data['origin']).is_absolute() or type(data['files'])is not dict or evidence.canonical(data['files'])!=evidence.canonical(OLD_HISTORY_PINS):raise Failure('FAIL_WAVE_HISTORY')
+    if data['origin'].startswith(('\\\\','//')) or Path(data['origin']).is_symlink() or Path(data['origin']).name!='IntegratedRun_PR226':raise Failure('FAIL_WAVE_HISTORY')
+    origin=Path(data['origin']).resolve()
+    for name,value in OLD_HISTORY_PINS.items():
+        path=origin/name
+        if not path.resolve().is_relative_to(origin) or path.is_symlink() or digest(path)!=value:raise Failure('FAIL_WAVE_HISTORY')
+    stopped=_read_bound(origin/'wave-stop.json');recovery=_read_bound(origin/'candidate2/namespace-recovery-unknown.json');old=_read_bound(origin/'public-ledger.json')
+    if stopped['status']!='STOPPED_NATIVE_UNKNOWN_SOURCE_CORRECTION_ALLOWED' or recovery['status']!='RESOURCE_ABSENT_REQUEST_END_UNKNOWN' or recovery['mutative_request_end']!='UNKNOWN_STICKY' or stopped['cleanup_request_end']!='UNKNOWN_STICKY' or stopped['actual_cid_name_input_absent']is not True:raise Failure('FAIL_WAVE_HISTORY')
+    for key,wanted in [('native_candidates_consumed',2),('new_own_containers',1),('sqlcmd_calls',0),('pool_children',0)]:
+        if type(stopped[key])is not int or stopped[key]!=wanted:raise Failure('FAIL_WAVE_HISTORY')
+    if type(old)is not list or len(old)!=2:raise Failure('FAIL_WAVE_HISTORY')
+    for n,entry in enumerate(old,1):
+        if type(entry)is not dict or type(entry['candidate'])is not int or entry['candidate']!=n or entry['status']!='FAIL' or entry['closed']is not False or entry['sql_absence']!='NOT_ESTABLISHED':raise Failure('FAIL_WAVE_HISTORY')
+    return data,old
+def requalification_input(candidate):
+    if type(candidate)is not int or not 1<=candidate<=4:raise Failure('FAIL_WAVE_BUDGET')
+    value=_read_bound(REQUAL_CONTROL/'input.json')
+    if type(value)is not dict or type(value.get('source_candidate'))is not int or not 1<=value['source_candidate']<=6:raise Failure('FAIL_WAVE_INPUT')
+    expected={'contract':'CON010_POOL_REQUALIFICATION_INPUT_V1','wave':REQUAL_WAVE,'source_candidate':value['source_candidate'],'candidate':candidate,'overall_native_candidate':2+candidate,'control':'Runtime/AI_POOL_REQUALIFICATION','canonical_scope':REQUAL_CANONICAL,'history_sha256':digest(REQUAL_CONTROL/'history.json'),'budget':requalification_budget(),'old_request_end':'UNKNOWN_STICKY','old_sql_cleanup':'NOT_ESTABLISHED','old_wave':'STOPPED_NO_C3_AFTER_UNKNOWN'}
+    if evidence.canonical(value)!=evidence.canonical(expected):raise Failure('FAIL_WAVE_INPUT')
+    return value
+def admitted_requalification(candidate,admission,ledger):
+    value=requalification_input(candidate);history,old=requalification_history();now=source_map()
+    if type(admission)is not dict or admission.get('status')!='ADMITTED' or type(admission.get('candidate'))is not int or admission['candidate']!=candidate or admission.get('wave')!=REQUAL_WAVE or admission.get('scope')!='CON010_OPT_IN_RED_POOL_REQUALIFICATION' or admission.get('allow_red')is not True or admission.get('confirm_isolated_lab')is not True:raise Failure('FAIL_ROOT_ADMISSION')
+    expected={'status':'ADMITTED','candidate':candidate,'source_candidate':value['source_candidate'],'wave':REQUAL_WAVE,'scope':'CON010_OPT_IN_RED_POOL_REQUALIFICATION','allow_red':True,'confirm_isolated_lab':True,'canonical_scope':REQUAL_CANONICAL,'canonical_scope_sha256':digest(ROOT/REQUAL_CANONICAL),'source_sha256':now,'input_sha256':digest(REQUAL_CONTROL/'input.json'),'history_sha256':digest(REQUAL_CONTROL/'history.json'),'delta_sha256':digest(REQUAL_CONTROL/'source-delta.json'),'root_review_sha256':digest(REQUAL_CONTROL/'root-review.json'),'source_proof_sha256':digest(REQUAL_CONTROL/'source-proof.json'),'budget_sha256':digest(REQUAL_CONTROL/'budget.json')}
+    expected['checkpoint_overall3_sha256']=digest(REQUAL_CONTROL/'checkpoint-overall3.json') if candidate>1 else None
+    expected['source_checkpoint3_sha256']=digest(REQUAL_CONTROL/'source-checkpoint3.json') if value['source_candidate']>=4 else None
+    if evidence.canonical(admission)!=evidence.canonical(expected):raise Failure('FAIL_ROOT_ADMISSION')
+    review=_read_bound(REQUAL_CONTROL/'root-review.json');proof=_read_bound(REQUAL_CONTROL/'source-proof.json');budget=_read_bound(REQUAL_CONTROL/'budget.json');delta=_read_bound(REQUAL_CONTROL/'source-delta.json')
+    if review.get('status')!='SOURCE_REVIEW_CLOSED' or proof.get('status')!='REGISTERED' or review.get('source_sha256')!=now or proof.get('source_sha256')!=now or evidence.canonical(budget)!=evidence.canonical(requalification_budget()):raise Failure('FAIL_ROOT_ADMISSION')
+    expected_delta={'contract':'CON010_C2_CURRENT_SOURCE_DELTA_V1','old_source_sha256':old[1]['source_sha256'],'current_source_sha256':now,'changed':sorted(k for k in now if now[k]!=old[1]['source_sha256'].get(k))}
+    if evidence.canonical(delta)!=evidence.canonical(expected_delta) or not any(Path(k).suffix in ('.py','.ps1','.sql') for k in delta['changed']):raise Failure('FAIL_WAVE_DELTA')
+    if type(ledger)is not list or len(ledger)!=candidate-1:raise Failure('FAIL_SERIAL_BUDGET')
+    disk=REQUAL_CONTROL/'public-ledger.json'
+    live=_read_bound(disk) if disk.exists() else []
+    if evidence.canonical(live)!=evidence.canonical(ledger):
+        reservation={'candidate':candidate,'overall_native_candidate':2+candidate,'wave':REQUAL_WAVE,'source_candidate':value['source_candidate'],'input_sha256':expected['input_sha256'],'status':'RESERVED','closed':False,'unknown':False,'namespace_absent':False,'inputs_absent':False,'source_sha256':now}
+        if evidence.canonical(live)!=evidence.canonical([*ledger,reservation]):raise Failure('FAIL_SERIAL_BUDGET')
+    for n,entry in enumerate(ledger,1):
+        if type(entry)is not dict or entry.get('unknown')is not False:raise Failure('FAIL_NEW_WAVE_UNKNOWN_STOP')
+        if type(entry.get('candidate'))is not int or entry['candidate']!=n or type(entry.get('overall_native_candidate'))is not int or entry['overall_native_candidate']!=n+2 or entry.get('wave')!=REQUAL_WAVE or entry.get('status')!='FAIL' or entry.get('closed')is not True or entry.get('namespace_absent')is not True or entry.get('inputs_absent')is not True or entry.get('image')!=IMAGE or entry.get('owner')!=OWNER:raise Failure('FAIL_SERIAL_BUDGET')
+        if type(entry.get('containers_created'))is not int or not 0<=entry['containers_created']<=1 or type(entry.get('container_slots_reserved'))is not int or entry['container_slots_reserved']!=1 or entry.get('namespace_request_unknown')is not False:raise Failure('FAIL_SERIAL_BUDGET')
+    if ledger and {k:v for k,v in ledger[-1]['source_sha256'].items() if Path(k).suffix in ('.py','.ps1','.sql')}=={k:v for k,v in now.items() if Path(k).suffix in ('.py','.ps1','.sql')}:raise Failure('FAIL_UNCHANGED_RETRY')
+    if candidate>1:
+        cp=_read_bound(REQUAL_CONTROL/'checkpoint-overall3.json')
+        result_path=REQUAL_CONTROL/'candidate1/actual-result.json';review_path=REQUAL_CONTROL/'candidate1/root-result-review.json';actual=_read_bound(result_path,10*1024**2);actual_review=_read_bound(review_path)
+        entry_sha=hashlib.sha256(evidence.canonical(ledger[0]).encode()).hexdigest();result_sha=digest(result_path)
+        expected_review={'contract':'CON010_POOL_ACTUAL_CHECKPOINT3_REVIEW_V1','status':'ACTUAL_CHECKPOINT3_KNOWN_FAIL_CLOSED','overall_native':3,'first_new_entry_sha256':entry_sha,'history_sha256':expected['history_sha256'],'result_sha256':result_sha,'unknown':False,'stop':False}
+        if evidence.canonical(actual_review)!=evidence.canonical(expected_review) or type(actual)is not dict or type(actual.get('candidate'))is not int or actual['candidate']!=1 or actual.get('status')!='FAIL' or type(actual.get('public_counts'))is not dict or actual['public_counts'].get('unknown')is not False or actual.get('source_sha256')!=ledger[0]['source_sha256']:raise Failure('FAIL_ACTUAL_CHECKPOINT')
+        expected_cp={'contract':'CON010_POOL_OVERALL_CHECKPOINT3_V1','status':'REGISTERED','overall_native':3,'history_sha256':expected['history_sha256'],'first_new_entry_sha256':entry_sha,'root_result_review_sha256':digest(review_path),'actual_result_sha256':result_sha}
+        if evidence.canonical(cp)!=evidence.canonical(expected_cp):raise Failure('FAIL_CHECKPOINT')
+    if value['source_candidate']>=4:
+        cp=_read_bound(REQUAL_CONTROL/'source-checkpoint3.json')
+        ref={'contract':'CON010_POOL_SOURCE_CHECKPOINT3_V1','status':'REGISTERED','source_candidates_used':3,'source_ledger_sha256':digest(REQUAL_CONTROL/'source-ledger.json')}
+        if evidence.canonical(cp)!=evidence.canonical(ref):raise Failure('FAIL_CHECKPOINT')
+    return now
 def provider_available():
     # Nur vorhandene feste Dateien prüfen; keine CLR-/Transportprobe oder Installation.
     return os.name=='nt' and DLL.is_file() and PWSH.is_file() and digest(DLL)==DLL_SHA and digest(PWSH)==PWSH_SHA and shutil.which('sqlcmd') is not None and shutil.which('podman') is not None
@@ -133,10 +200,26 @@ def startup_retry(stdout,stderr):
             count+=1;dot='TCP Provider:' in line
     return count>0
 
+def setup_channels(call,expected_input):
+    """Nur vollständige bekannte SETUP-Kanäle und deren tatsächliche Captures."""
+    evidence.validate_call(call)
+    if type(expected_input)is not str or type(call['Phase'])is not str or call['Phase']!='SETUP' or call['InputText']!=expected_input or call['ExpectedError']is not None:raise Failure('FAIL_SETUP_SUMMARY')
+    captured=call['Capture']
+    if captured['ReturnCode']!=0 or captured['UnknownSticky']is not False or captured['ClientProcessEnd']!='KNOWN':raise Failure('FAIL_SETUP_SUMMARY')
+    stdout=[line for line in call['Stdout'].splitlines() if line]
+    stderr=[line for line in call['Stderr'].splitlines() if line]
+    first='POOLPUBLIC_ALL|ABSENT';last='SQLPERF_SUMMARY|PASS|OK'
+    context="Changed database context to '"+inputs.DATABASE+"'."
+    # Actual Native1: zwei stdout-Marker und genau eine separate stderr-Info.
+    # Der zuvor fest erlaubte Kontext vor PASS im stdout bleibt explizit erlaubt.
+    if (stdout,stderr) not in (([first,last],[]),([first,last],[context]),([first,context,last],[])):raise Failure('FAIL_SETUP_SUMMARY')
+    return call
+
 class Producer:
-    def __init__(self,candidate,admission,ledger):
-        self.candidate=candidate;self.admission=admission;self.ledger=ledger
-        self.sources=admitted(candidate,admission,ledger)
+    def __init__(self,candidate,admission,ledger,*,wave=None):
+        if wave not in (None,REQUAL_WAVE):raise Failure('FAIL_WAVE_INPUT')
+        self.candidate=candidate;self.admission=admission;self.ledger=ledger;self.wave=wave
+        self.sources=admitted(candidate,admission,ledger) if wave is None else admitted_requalification(candidate,admission,ledger)
         self.normal_end=time.monotonic()+300;self.cleanup_end=None;self.unknown=False;self.deadline_failed=False
         self.token=uuid.uuid4().hex[:16].upper();self.name='sqlperf-pool-public-'+self.token.lower();self.cid=None;self.port=None
         self.values=tuple(secrets.token_hex(32)+'!' for _ in range(4))
@@ -145,8 +228,16 @@ class Producer:
         self.dbid=None;self.oid=None;self.held=None;self.baseline=None;self.pool_ready=False;self.record=None;self.controls=[]
         self.transcripts=[];self.negative_states=[];self.namespace_witness=None;self.bound_at_start=None;self.create_unknown=False;self.remove_unknown=False;self.remove_attempted=False;self.create_attempts=0;self.namespace_calls=[];self.no_create_witness=None;self.child_evidence=None;self.sql_absent=False;self.namespace_absent=False;self.inputs_absent=False;self.started=False;self.cli=shutil.which('podman');self.sqlcmd=Path(shutil.which('sqlcmd') or '')
     def gate(self):
-        if admitted(self.candidate,self.admission,self.ledger)!=self.sources:raise Failure('FAIL_SOURCE_BINDING')
+        if getattr(self,'wave',None) is None:current=admitted(self.candidate,self.admission,self.ledger)
+        else:
+            current=admitted_requalification(self.candidate,self.admission,self.ledger)
+            _,old=requalification_history()
+            if any(entry['name']==self.name for entry in old):raise Failure('FAIL_OLD_RESOURCE_BINDING')
+        if current!=self.sources:raise Failure('FAIL_SOURCE_BINDING')
         if self.unknown:raise Unknown()
+    def wave_binding(self):
+        value=requalification_input(self.candidate)
+        return {'Wave':REQUAL_WAVE,'SourceCandidate':value['source_candidate'],'NativeCandidate':self.candidate,'OverallNativeCandidate':self.candidate+2,'Control':'Runtime/AI_POOL_REQUALIFICATION','InputSha256':digest(REQUAL_CONTROL/'input.json'),'HistorySha256':digest(REQUAL_CONTROL/'history.json'),'PriorNativeAttempts':2,'PriorContainers':1,'PriorSqlcmd':0,'PriorPoolchildren':0,'OldRequestEnd':'UNKNOWN_STICKY'}
     def begin_cleanup(self):
         if self.cleanup_end is None:self.cleanup_end=time.monotonic()+60
         return self.cleanup_end
@@ -156,6 +247,7 @@ class Producer:
         if value<=0:raise Failure('FAIL_DEADLINE')
         return value
     def podman(self,args,cap,cleanup=False,*,creating=False):
+        if getattr(self,'wave',None)==REQUAL_WAVE:return self.podman_held(args,cap,cleanup,creating=creating)
         # Ausschließlich feste eigene CLIoperationen; keine Inspect-ENV/Rawpersistenz.
         if source_map()!=self.sources:raise Failure('FAIL_SOURCE_BINDING')
         if not cleanup:self.gate()
@@ -179,6 +271,55 @@ class Producer:
             if creating:self.create_unknown=True
             if args[0]=='rm':self.remove_unknown=True
             raise Failure('FAIL_NAMESPACE_COMMAND') from None
+    def podman_held(self,args,cap,cleanup=False,*,creating=False):
+        # Nur die neue Welle: dasselbe tatsächliche Objekt bis final_poll halten.
+        if source_map()!=self.sources:raise Failure('FAIL_SOURCE_BINDING')
+        if not cleanup:self.gate()
+        if type(cap)not in (int,float) or not math.isfinite(cap) or not 0<cap<=20 or type(args)is not list or not args or any(type(x)is not str for x in args):raise Failure('FAIL_NAMESPACE_COMMAND')
+        _,old=requalification_history()
+        if any(any(entry['name']in arg for entry in old) for arg in args):raise Failure('FAIL_OLD_RESOURCE_BINDING')
+        began=time.monotonic();end=began+min(cap,self.remaining(cleanup));environment=namespace_environment(dict(os.environ));command=[self.cli,*args]
+        if creating:environment['MSSQL_SA_PASSWORD']=self.values[0]
+        if args[0]=='rm':
+            if self.remove_attempted:raise Unknown()
+            self.remove_attempted=True
+        if creating:self.create_attempts+=1
+        process=None;out=err=b'';poll=None;unknown=False;timeout=False;collector=False
+        try:
+            process=subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=environment)
+            try:out,err=process.communicate(timeout=max(0,end-2-time.monotonic()))
+            except BaseException as failure:
+                unknown=True;collector=True;timeout=isinstance(failure,subprocess.TimeoutExpired)
+                try:process.kill()
+                except BaseException:pass
+                try:out,err=process.communicate(timeout=max(0,end-time.monotonic()))
+                except BaseException:pass
+            try:poll=process.poll()
+            except BaseException:unknown=True
+            if type(process.pid)is not int or process.pid<1 or type(poll)is not int or poll<0 or type(process.returncode)is not int or process.returncode!=poll:unknown=True
+        except BaseException:unknown=True;collector=True
+        duration=time.monotonic()-began
+        if duration>end-began:unknown=True
+        if unknown:
+            self.unknown=True
+            if creating:self.create_unknown=True
+            if args[0]=='rm':self.remove_unknown=True
+        # Ende zuerst kleben; Privacy-/UTF8-/Sourcefehler dürfen UNKNOWN nicht löschen.
+        rc=process.returncode if process and type(process.returncode)is int else None
+        witness={'Command':command,'Pid':process.pid if process else None,'FinalPoll':poll,'ReturnCode':rc,'TimedOut':timeout,'CollectorFailed':collector,'ProcessEnd':'UNKNOWN_STICKY' if unknown else 'HELD_PROCESS_RETURNED','DurationSeconds':duration,'ConfiguredCapSeconds':end-began,'SourceBefore':self.sources,'SourceAfter':None}
+        self.namespace_calls.append(witness)
+        try:
+            text=out.decode('utf-8');diagnostic=err.decode('utf-8')
+            capture.credential_gate('',text,diagnostic,tuple(command),self.values)
+            witness.update(Stdout=text,Stderr=diagnostic)
+        except capture.CredentialOutputRejected:raise Failure('FAIL_CREDENTIAL_OUTPUT') from None
+        except BaseException:self.unknown=True;witness['ProcessEnd']='UNKNOWN_STICKY';raise Unknown() from None
+        witness['SourceAfter']=source_map()
+        if witness['SourceAfter']!=self.sources:raise Failure('FAIL_SOURCE_BINDING')
+        if unknown:raise Unknown()
+        if rc!=0:raise Failure('FAIL_NAMESPACE_COMMAND')
+        self.remaining(cleanup)
+        return text
     def inspect(self,cleanup=False):
         text=self.podman(['inspect','--format',INSPECT,self.name],3 if cleanup else 10,cleanup)
         data=json.loads(text,object_pairs_hook=evidence.unique);cid,port=projected_container(data,self.name,self.cid,self.port)
@@ -235,9 +376,9 @@ class Producer:
             time.sleep(min(2,self.remaining()))
         else:raise Failure('FAIL_STARTUP')
         if self.sql(inputs.absence(self.sids),'PREFLIGHT').strip()!='POOLPUBLIC_ALL|ABSENT':raise Failure('FAIL_INITIAL_ABSENCE')
-        output=self.sql(inputs.setup(self.sids),'SETUP')
-        lines=[v.strip() for v in output.splitlines() if v.strip()]
-        if lines!=['POOLPUBLIC_ALL|ABSENT',"Changed database context to '"+inputs.DATABASE+"'.",'SQLPERF_SUMMARY|PASS|OK'] and lines!=['POOLPUBLIC_ALL|ABSENT','SQLPERF_SUMMARY|PASS|OK']:raise Failure('FAIL_SETUP_SUMMARY')
+        setup_input=inputs.setup(self.sids);self.sql(setup_input,'SETUP')
+        if not self.transcripts:raise Failure('FAIL_SETUP_SUMMARY')
+        setup_channels(self.transcripts[-1],setup_input)
         identity=self.scalar(inputs.creator()+"DECLARE @J nvarchar(max)=(SELECT DB_ID() DatabaseId,OBJECT_ID(N'lab.Documents',N'U') ObjectId FOR JSON PATH,WITHOUT_ARRAY_WRAPPER,INCLUDE_NULL_VALUES);"+inputs.OUTPUT)
         if type(identity) is not dict or set(identity)!={'DatabaseId','ObjectId'}:raise Failure('FAIL_IDENTITY')
         self.dbid=identity['DatabaseId'];self.oid=identity['ObjectId'];inputs.checked(self.dbid);inputs.checked(self.oid)
@@ -364,15 +505,23 @@ class Producer:
             if self.namespace_witness is not None:self.namespace_witness['InputFiles']=remaining_inputs
         if primary is None and sql_failure is None and namespace_failure is None and input_failure is None and self.sql_absent and self.namespace_absent and self.inputs_absent:
             record={'PoolReceipt':pool,'Child':child,'Baseline':self.baseline,'After':after,'DatabaseId':self.dbid,'ObjectId':self.oid,'Sids':self.sids,'Token':self.token,'Controls':self.controls,'PhysicalAbsence':'ACTUAL_NEW_OWNER_QUERY','SqlAbsence':'ACTUAL_NEW_DB_AND_PRINCIPAL_QUERY','NamespaceAbsence':'ACTUAL_FULL_CID_AND_NAME_QUERY','InputsAbsent':self.inputs_absent,'ContainerId':self.cid,'Port':self.port,'Actual':{'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'ChildInputText':self.child_evidence['InputText'],'ChildStdout':self.child_evidence['Stdout'],'ChildStderr':self.child_evidence['Stderr'],'SourceSha256':self.sources,'Namespace':self.namespace_witness,'NamespaceCalls':self.namespace_calls}}
+            if getattr(self,'wave',None)==REQUAL_WAVE:record['WaveBinding']=self.wave_binding()
             return Result('WARN','BOUNDED_POOL_PROFILE',evidence.summary(record),record)
-        return Result('FAIL',input_failure or namespace_failure or sql_failure or primary or 'FAIL_CLOSURE',{'primary_code':primary,'sql_cleanup_code':sql_failure,'namespace_cleanup_code':namespace_failure,'input_cleanup_code':input_failure,'runtime_qualification':'NOT_ESTABLISHED','sql_absence':'ACTUAL_NEW_QUERY' if self.sql_absent else 'NOT_ESTABLISHED','namespace_absence':self.namespace_absent,'remove_end':'UNKNOWN' if self.remove_unknown else 'RETURNED_TO_CALLER' if self.remove_attempted else 'NOT_STARTED','create_end':'UNKNOWN' if self.create_unknown else 'NOT_STARTED' if self.create_attempts==0 else 'RETURNED_TO_CALLER','unknown':self.unknown},{'SqlCaptures':self.captures,'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'Child':self.child_evidence,'Namespace':self.namespace_witness,'Baseline':self.baseline,'NamespaceCalls':self.namespace_calls,'NoCreate':self.no_create_witness})
+        failed={'SqlCaptures':self.captures,'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'Child':self.child_evidence,'Namespace':self.namespace_witness,'Baseline':self.baseline,'NamespaceCalls':self.namespace_calls,'NoCreate':self.no_create_witness}
+        if getattr(self,'wave',None)==REQUAL_WAVE:failed['WaveBinding']=self.wave_binding()
+        return Result('FAIL',input_failure or namespace_failure or sql_failure or primary or 'FAIL_CLOSURE',{'primary_code':primary,'sql_cleanup_code':sql_failure,'namespace_cleanup_code':namespace_failure,'input_cleanup_code':input_failure,'runtime_qualification':'NOT_ESTABLISHED','sql_absence':'ACTUAL_NEW_QUERY' if self.sql_absent else 'NOT_ESTABLISHED','namespace_absence':self.namespace_absent,'remove_end':'UNKNOWN' if self.remove_unknown else 'RETURNED_TO_CALLER' if self.remove_attempted else 'NOT_STARTED','create_end':'UNKNOWN' if self.create_unknown else 'NOT_STARTED' if self.create_attempts==0 else 'RETURNED_TO_CALLER','unknown':self.unknown},failed)
 
-def run(candidate,admission):
+def run(candidate,admission,*,wave=None):
+    if wave not in (None,REQUAL_WAVE):raise Failure('FAIL_WAVE_INPUT')
     # Fehlender Provider vor Dateianlage, Container-/Login-/SQLeffekten.
     if not provider_available():return Result('SKIP','SKIP_PROVIDER_UNAVAILABLE',{'native_sql':0,'containers':0})
-    ledger_path=CONTROL/'public-ledger.json';ledger=json.loads(ledger_path.read_bytes().decode('utf-8')) if ledger_path.exists() else []
-    producer=Producer(candidate,admission,ledger)
+    control=CONTROL if wave is None else REQUAL_CONTROL
+    ledger_path=control/'public-ledger.json';ledger=json.loads(ledger_path.read_bytes().decode('utf-8'),object_pairs_hook=evidence.unique) if ledger_path.exists() else []
+    producer=Producer(candidate,admission,ledger,wave=wave)
     entry={'candidate':candidate,'status':'RESERVED','closed':False,'unknown':False,'namespace_absent':False,'inputs_absent':False,'source_sha256':producer.sources}
+    if wave is not None:
+        value=requalification_input(candidate)
+        entry.update(overall_native_candidate=2+candidate,wave=wave,source_candidate=value['source_candidate'],input_sha256=digest(control/'input.json'))
     if candidate==1:
         with ledger_path.open('x',encoding='utf-8') as stream:json.dump([entry],stream)
     else:
@@ -385,20 +534,27 @@ def run(candidate,admission):
         if had:os.environ['SQLCMDPASSWORD']=previous
         else:os.environ.pop('SQLCMDPASSWORD',None)
         entry.update(status=result.status if 'result' in locals() else 'FAIL',closed=(producer.cid is not None or producer.no_create_witness is not None) and producer.namespace_absent and producer.inputs_absent and not producer.unknown,unknown=producer.unknown,cid=producer.cid,name=producer.name,image=IMAGE,owner=OWNER,namespace_absent=producer.namespace_absent,inputs_absent=producer.inputs_absent,sql_absence='ACTUAL_NEW_QUERY' if producer.sql_absent else 'NOT_ESTABLISHED')
+        if wave is not None:
+            created=sum(1 for call in producer.namespace_calls if call['Command'][1]=='run' and call.get('ReturnCode')==0 and type(call.get('Stdout'))is str and re.fullmatch('[a-f0-9]{64}',call['Stdout'].strip()))
+            entry.update(create_attempts=producer.create_attempts,containers_created=created,container_slots_reserved=1,namespace_request_unknown=producer.create_unknown or producer.remove_unknown)
         ledger_path.write_text(json.dumps([*ledger,entry]),encoding='utf-8')
     return result
+def run_requalification(candidate,admission):
+    """Neue explizite Welle; keine Umdeklaration oder Leerung der gestoppten Akte."""
+    return run(candidate,admission,wave=REQUAL_WAVE)
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description='Explizites eigenes RED-Poolprofil; Default führt es nicht aus.')
-    parser.add_argument('--allow-red',action='store_true');parser.add_argument('--confirm-isolated-lab',action='store_true');parser.add_argument('--candidate',type=int);parser.add_argument('--source-manifest',action='store_true')
+    parser.add_argument('--allow-red',action='store_true');parser.add_argument('--confirm-isolated-lab',action='store_true');parser.add_argument('--candidate',type=int);parser.add_argument('--source-manifest',action='store_true');parser.add_argument('--wave',choices=['requalification'])
     args=parser.parse_args(argv)
     if args.source_manifest:print(json.dumps(source_map(),indent=2));return 0
     if not args.allow_red or not args.confirm_isolated_lab or args.candidate is None:parser.error('Explizite RED-/Lab-/Kandidatenzulassung erforderlich')
     try:
-        path=CONTROL/'Root-admission.json'
+        control=REQUAL_CONTROL if args.wave=='requalification' else CONTROL
+        path=control/'Root-admission.json'
         if not path.is_file() or path.stat().st_size>100000:raise Failure('FAIL_ROOT_ADMISSION')
         admission=json.loads(path.read_bytes().decode('utf-8'),object_pairs_hook=evidence.unique)
-        result=run(args.candidate,admission);print(json.dumps({'status':result.status,'code':result.code,'counts':result.counts},sort_keys=True));return 1 if result.status=='FAIL' else 0
+        result=run_requalification(args.candidate,admission) if args.wave=='requalification' else run(args.candidate,admission);print(json.dumps({'status':result.status,'code':result.code,'counts':result.counts},sort_keys=True));return 1 if result.status=='FAIL' else 0
     except BaseException:
         print('SQLPERF_SUMMARY|FAIL|FAIL_POOL_PROFILE');return 1
 if __name__=='__main__':raise SystemExit(main())
