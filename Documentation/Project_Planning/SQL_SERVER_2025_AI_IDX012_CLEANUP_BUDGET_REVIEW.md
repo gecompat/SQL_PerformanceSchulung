@@ -1,5 +1,46 @@
 # TSK-006: öffentliche Übergabe eines gemeinsamen Cleanupbudgets
 
+Der öffentliche Budgetvertrag ist nun tatsächlich im begrenzten Rollenlauf
+verwendet: C3/insgesamt6 bestand den API-Teilnachweis, Produktstatus weiterhinWARN.
+Dieselbe einmalige60s-Uhr begrenzte öffentliche Restore-/Drop-/Abwesenheitsclients,
+held Principalcleanup und Namespacecleanup. DB/Login/CID/Name/Inputs frisch abwesend,
+Closedtrue/Unknownfalse. Sechs Callerquellenstände sind verbraucht; Welle beendet,
+keine Wiederholung oder allgemeine Runtime-/TP-PERF-Abnahme. [Aktueller vollständiger Befund](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
+Aktueller Callerstand: C2 bekannt FAIL vor Create und geschlossen, tatsächliche
+volle bare Image-ID aufgenommen. Source6 enger Formatvergleich mit neuem N/O-
+Gegenfall bestanden; keine Änderung öffentlicher Budgetbytes. Sechs Quellenstände
+verbraucht, letzter NativeC3 erst nach frischer Rootadmission. Original-C1-FAIL
+und historische Dokumentprovenienz-WARN bleiben. [Aktueller Rollennachweis](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
+## Vollständiger Integrationsabschluss
+
+PR245 ist nach 13 aktuellen Head- und sieben Main-Checks vollständig integriert.
+Main1fbd339fb6790318291b50e4fe992f0710aac8a6 hat denselben vollständigen Tree;
+primärer Main ist synchron und sauber, eigene lokale und entfernte Branches
+sind entfernt. 585 private Dateien einschließlich der ursprünglichen
+Callerboundary wurden bytegenau gesichert. Der eigene Worktree ist tatsächlich
+archiviert. Ein anfänglicher App-Archivierungsfehler am 100-Anhänge-Limit wurde
+durch Lösen des eigenen abgeschlossenen PR-Verweises behoben; der GitHub-PR
+bleibt erhalten. Der unten dokumentierte ausstehende Integrationsstand ist
+der erhaltene Vorabschlusszustand.
+
+Der Quellenstand endet kohärent nach vier Kandidaten; verbleibende zwei
+Quellenplätze werden nicht mit identischen grünen Läufen ausgeschöpft.
+Neue Runtimeadmission erfolgt ausschließlich über den aktuellen
+[Caller-/Rollennachweis](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
+Die aktuelle private Callergrundlage ist nach vier gezielten Quellenständen
+rein geprüft: 24 Methodeninvokationen, sieben bekannte Testenden, 22 PASS
+und zwei erhaltene ursprüngliche ERROR. Ihr tatsächlicher Checkpoint3 führte
+zu einer festen Namespace-Countreserve; Source4 bestand mit einer neuen
+Erschöpfungsgegenprobe normal und optimiert. Öffentliche Budget-/Rollenbytes
+bleiben unverändert. Dieser Absatz beschreibt den erhaltenen Source4-Vorstand.
+Der erste danach zugelassene Caller endete bekannt FAIL vor Domainaufrufen;
+Source5 korrigiert gezielt die Input-/Output-Privacytrennung. OriginalClosedfalse
+bleibt erhalten; eine spätere separate Prüfung schließt nur den aktuell
+kontextlosen Ressourcenstand. [Aktueller Nachweis und Grenzen](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
 ## Tatsächlicher Quellenstand vor Integration
 
 Vier Quellenstände wurden gezielt geprüft. Source1 hatte fünf bestandene und

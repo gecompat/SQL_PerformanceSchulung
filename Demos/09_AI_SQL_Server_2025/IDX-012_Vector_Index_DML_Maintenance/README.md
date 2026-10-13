@@ -267,7 +267,7 @@ FAIL; der Parent attestiert nur diesen eigenen Containerabbruch mit Recovery.
 Abbruch während aktiver Build-/DML-/Rebuildphase und vollständige
 Hard-Abort-/Runtime-/TP-PERF-Abnahme bleiben offen.
 
-## Fester öffentlicher Rollenmodus: Quellenstand
+## Fester öffentlicher Rollenmodus: begrenzter tatsächlicher Nachweis
 
 DML und Indexbau benötigen in diesem festen Profil unterschiedliche Rechte.
 Der ausdrücklich gewählte Modus `operator-admin-build` erhält deshalb die
@@ -305,11 +305,21 @@ meldet begrenzte Status-/Phasen-/Contextcounts. Unbestätigtes Clientende bleibt
 UNKNOWN, kein weiterer SQL- oder Principalcleanup; eigene Recoveryeingaben bleiben
 erhalten. Ein bekanntes Prozessende ist kein Server-/TDS-Endbeleg.
 
-Dieser neue öffentliche Modus ist SOURCE_ONLY und besitzt noch keinen eigenen
-Nativenachweis. Die historischen zwei Rollenlifecycles qualifizieren ihn nicht
-nachträglich. Kein absoluter Minimalrollen-, allgemeiner Runtime-, Demo- oder
-TP-PERF-PASS. Der konkrete [Rollen-API-Vertrag](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_API_REVIEW.md)
-enthält Abnahmegrenzen und den erforderlichen eigenen Folgeentscheid.
+Der öffentliche Modus ist inzwischen auf einem eigenen SQL-Server-2025-Container
+mit Build17.0.5005.3 tatsächlich begrenzt geprüft. Zwei einzelne Rechteentzüge
+führten zu den erwarteten Preflight-SKIPs, anschließend wurden die Rechte
+wiederhergestellt. Der positive Lauf hatte acht vollständige Rollenkontexte,
+zwei Kostenclients und vollständige DML-/Rebuild-/Sourcevergleiche. Preview und
+MAXDOP wurden restauriert; Datenbank, Login, Container und Eingaben sind nachweislich
+abwesend. Der positive Produktstatus bleibt WARN_OPTIONAL_EVIDENCE_SKIPPED.
+
+Dieser Teilnachweis begründet keinen absoluten Minimalrollen-, allgemeinen
+Runtime-, Demo- oder TP-PERF-PASS. Generation bleibt UNKNOWN; ein separater
+Owner-SID-Queryreceipt und Server-/TDS-Endbelege fehlen weiterhin. Frühere
+fehlgeschlagene Caller und die dokumentierte historische Beleglücke bleiben
+erhalten. Der [tatsächliche Rollennachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md)
+beschreibt den geprüften Umfang und seine Grenzen; der [Rollen-API-Vertrag](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_API_REVIEW.md)
+bleibt für Aufrufparameter und Sicherheitsgrenzen maßgeblich.
 
 ### Gemeinsames Cleanupbudget für einen aufrufenden Parent
 
@@ -317,4 +327,4 @@ Ein aufrufender Parent kann im Rollenmodus ausdrücklich `shared_cleanup_window=
 
 Nur diese Auswahl verwendet im festen Rollenclient eine absolute Callfrist, einschließlich zwei Sekunden reserviertem Kill/Reaping. Startup-/Eingabezeit verbraucht dieselbe Frist; ein Rücklauf oder Reaping startet keine neue volle Wartezeit. Timeout, unbestätigtes Prozessende und beobachtete Überschreitung bleiben UNKNOWN, auch bei späterem Poll0. Sichere tatsächliche Kanäle und gehaltene PID-/Poll-/Returncode-/Input-/Sourcefakten werden vor der Ergebnisklassifikation erhalten. Konfigurierte Fristen garantieren weder Betriebssystem-Wallclock noch Server-/TDS-Enden. Der Parent muss den tatsächlichen Rest vor jedem eigenen Cleanupcall prüfen und bei Überschreitung FAIL melden.
 
-Diese Budget-API ist zunächst SOURCE_ONLY. Die bisherigen Ein-Kontext- und Rollenpfade ohne Budgetauswahl verwenden weiterhin ihren bisherigen Collector. Der globale Frameworkcollector und die festen SQL-/Kontext-/Kostenoracles werden nicht geändert. Ein Reset, freie Callback-/Executorübergaben und ein impliziter Budgetmodus sind nicht vorgesehen. Der neue tatsächliche öffentliche Rollennachweis benötigt weiterhin eigene Quellen-/Admission-/Runtimebelege.
+Diese Budget-API wurde im oben beschriebenen begrenzten öffentlichen Rollenlauf tatsächlich mitgeprüft. Dessen Quellen-, Admission-, Client- und Cleanupbelege sind im Rollennachweis gebunden; allgemeine Runtime-, Betriebssystem- und Server-/TDS-Qualifikation bleiben offen. Die bisherigen Ein-Kontext- und Rollenpfade ohne Budgetauswahl verwenden weiterhin ihren bisherigen Collector. Der globale Frameworkcollector und die festen SQL-/Kontext-/Kostenoracles werden nicht geändert. Ein Reset, freie Callback-/Executorübergaben und ein impliziter Budgetmodus sind nicht vorgesehen.

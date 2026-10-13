@@ -1,5 +1,74 @@
 # Aktueller Ausführungsstand
 
+## TSK-006: öffentlicher Rollenmodus tatsächlich begrenzt bestanden
+
+C3/insgesamt Rollenkandidat6 bestand den abgegrenzten öffentlichen APIvertrag
+auf 17.0.5005.3/Engine3/Linux. 39 bestätigte SQLprozessenden, davon drei erwartete
+Startupverbindungs-FAILs vor Bootstrap; 25 bekannte Namespaceprozesse, ein eigener
+Container angelegt und entfernt. Zwei tatsächliche Rechteentzüge führten exakt
+zu PREFLIGHT/SKIP_PERMISSION, frische DBabwesenheit und vollständiger Grantrestore.
+Positiver Produktstatus bleibt WARN_OPTIONAL_EVIDENCE_SKIPPED: 23 Phasen,
+acht Rollenkontexte, zwei Kostenclients, drei Storageaufnahmen und vollständiger
+999-Row-Text-/Distanz-/Rebuildvergleich. Preview/MAXDOP zurückgesetzt, DB/Login/
+CID/Name/Inputs frisch abwesend; Closedtrue/Unknownfalse. RootactualReview bestanden.
+Sechs Quellenstände/28 Invokationen/26 PASS/zwei erhaltene ERROR und elf bekannte
+Testenden. C1/C2-FAILs bleiben unverändert; Welle nach finalem Teilnachweis gestoppt.
+Generation UNKNOWN, separater Ownerreceipt und Server-/TDS-Enden unqualifiziert;
+Runtime/TP-PERF/Release offen, historische Dokumentprovenienz-WARN erhalten.
+[Originalbefund, aktuelle Grenzen und Abschlussvertrag](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
+## TSK-006: C2 geschlossen FAIL, Source6 letzter Quellenstand
+
+C2/insgesamt Rollenkandidat5 endete vor Create bekannt FAIL und geschlossen:
+drei sichere Namespaceclients bestätigt, null Container/SQL/Profile/Inputs;
+eigener Name frisch abwesend, keine SQL-/Principalabwesenheitsattestation.
+Die tatsächliche volle Image-ID ohne sha256-Präfix stimmt exakt mit der
+freigegebenen ID überein; Source6 erlaubt ausschließlich beide vollständigen
+Darstellungen derselben ID. Neuer Gegenfall normal/optimiert bestanden.
+Sechs Quellenstände, 28 Invokationen, 26 PASS/zwei erhaltene ERROR, elf bekannte
+Testenden. Originale und aktuelle Canonicalbytes vorher gesichert; historische
+Dokumentprovenienz-WARN bleibt. C3/insgesamt6 ist nach frischer Rootadmission
+der letzte Nativekandidat; kein Source7/Native4. [Nachweis und Grenzen](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
+## TSK-006: öffentlicher Rollenlauf C1-FAIL, gezielte Source5-Korrektur
+
+NativeC1/insgesamt Rollenkandidat4 ist bekannt FAIL vor Domainaufrufen,
+null neue Container/SQLkontexte. OriginalClosedfalse und UrsacheUNPROVEN bleiben.
+Eine separate spätere schreibgeschützte Prüfung bestätigt den aktuell abwesenden
+eigenen Namen und schließt ausschließlich den aktuellen kontextlosen Stand;
+kein ursprünglicher Cleanupfenster-/SQL-Abwesenheits-PASS und kein Zählerreset.
+Source5 trennt feste Command-/SQLinputs von strikten empfangenen JSON-/Wirekanälen;
+neuer Gegenfall normal/optimiert bestanden. Fünf Quellenstände, 26 Invokationen,
+24 PASS/zwei erhaltene ERROR. Neue Rootadmission nach aktuellem Freeze steht aus.
+Historische Dokumentprovenienz-WARN bleibt sichtbar; Originale und aktuelle
+Dokumente vor Änderung gesichert. [Konkreter Nachweis](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md).
+
+## TSK-006: öffentliche Rollenprobe nach abgeschlossenem Budget-Schnitt
+
+Der private Caller hat vier gezielt geprüfte Quellenstände: 24 Methoden-
+invokationen in sieben bekannten Testprozessen, 22 PASS und zwei erhaltene
+Source1-ERROR. Der tatsächliche unabhängige Checkpoint3 verlangte eine
+Namespace-Countreserve für Cleanup. Source4 reserviert sechs der insgesamt
+32 Aufrufe; Normalaufrufe enden bei26 ohne Zählerreset. Die neue Gegenprobe
+bestand normal und optimiert. Öffentliche API unverändert, Domainaufrufe0;
+aktueller Doc-/Host-/Quellenabschluss und ausdrückliche Root-Nativeadmission
+stehen vor jeder Runtimewirkung noch aus.
+
+PR245 ist vollständig geschlossen: 13 Head- und sieben Main-Checks bestanden,
+Main1fbd339f, voller Tree, synchrones sauberes Main und eigene Branches entfernt.
+585 private Belegdateien sind bytegenau gesichert, der Worktree tatsächlich
+archiviert. Vier Quellenstände mit 18 Methodeninvokationen in sieben Prozessen;
+17 PASS und ein archivierter ursprünglicher Fixture-FAIL bleiben sichtbar.
+
+Der [öffentliche Rollennachweis](SQL_SERVER_2025_AI_IDX012_ROLE_NATIVE_REVIEW.md) wird im neuen eigenen Worktree zunächst
+als private Callergrundlage umgesetzt. Aktuelle öffentliche API einschließlich
+SharedCleanupWindow unverändert; neue Quellen-/Input-/History-/Hostbindung und
+unabhängiges Rootreview vor Nativeadmission. CallerSource6/Checkpoint3/Hard6,
+historische drei Rollenkandidaten/vier Container plus höchstens drei neue
+geänderte Kandidaten mit je einem eigenen Container. Noch keine neuen Caller-
+oder Domainaufrufe; volle Runtime-/TP-PERF-Abnahme und Tokenverbrauch bleiben offen.
+
+
 ## TSK-006: gemeinsames öffentliches Cleanupbudget vor Runtime
 
 Vier Quellenstände sind gezielt geprüft: 18 Methodeninvokationen in sieben
