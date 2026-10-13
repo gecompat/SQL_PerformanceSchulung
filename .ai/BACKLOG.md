@@ -2,6 +2,20 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller TSK-004-Schnitt: [unabhängiger Sessionreader-/Fehlervertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_SESSION_READER_REVIEW.md).
+PR234 vollständig geschlossen: sieben Head-/fünf Main-Gates, Main24478d42,
+voller Tree/FF/Branches, 122 private Dateien gesichert/eigener Worktree archiviert.
+VECTOR-C1 bleibt FAIL/UNKNOWN_STOP/SQLcleanup nicht belegt, kein weiterer Lauf.
+Jetzt ausschließlich Quellen-/Source-/Fixtureprüfung für acht strikte Reader-
+Typbindungen und sichere Fehlerenden; sechs Sourcekandidaten/Checkpoint3,
+keine Compiler-/CLR-/SQL-/Container-/Modell- oder Hosteffekte. Öffentliche
+Lesehilfe und gezielte Purekontrollen vor Rootreview/Privacy/Integration.
+C1 SOURCE_ONLY kohärent: acht Projektions-/Getter-/NULLbindungen,
+sieben neue normale/fünf geschützte Puremethoden mit bekannten PID-/Rawenden,
+16 Guidelinks und enger unabhängiger Rootreview bestanden. Originale8Pins
+unverändert, keine neuen Runtimeeffekte oder Rekonstruktion alter Exception.
+STOP_AFTER_COHERENT_SOURCE_ONLY_PASS; Privacy und vollständige Integration folgen.
+
 Aktueller TSK-004-Schnitt: [neue begrenzte VECTOR-Transportwelle](../Documentation/Project_Planning/SQL_SERVER_2025_AI_VECTOR_TRANSPORT_REVIEW.md).
 PR233 vollständig geschlossen, 142 private Dateien gesichert, eigener Worktree
 tatsächlich archiviert. Loader-/Typmetadaten-PASS nach Checkpoint3 bleibt
