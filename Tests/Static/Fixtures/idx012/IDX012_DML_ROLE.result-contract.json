@@ -1,0 +1,34 @@
+{
+  "contract": "IDX012_DML_ROLE_RECORD_V1",
+  "profile": {
+    "build": "17.0.5005.3",
+    "engine": 3,
+    "os": "Linux",
+    "cl": 170,
+    "rows": 999,
+    "peak_rows": 1000,
+    "dimension": 3,
+    "base_type": "float32",
+    "metric": "COSINE",
+    "generation": "UNKNOWN",
+    "stale_option": "ABSENT"
+  },
+  "expected_counts": {
+    "positive_dml": 4,
+    "rejected_dml": 4,
+    "role_contexts": 8,
+    "permission_negatives": 2,
+    "principal_audits": 5,
+    "source_rows_per_readback": 999
+  },
+  "claims": {
+    "runtime_qualification": "NOT_ESTABLISHED",
+    "tp_perf": "NOT_ESTABLISHED",
+    "minimum_roles": "NOT_ESTABLISHED",
+    "non_sysadmin_build": "NOT_ESTABLISHED",
+    "public_multi_login_producer": "NOT_ESTABLISHED",
+    "generation": "UNKNOWN",
+    "freshness": "NOT_ESTABLISHED_BY_THIS_CONTRACT",
+    "caller_provenance": "DECLARED_NOT_INDEPENDENTLY_ATTESTED"
+  }
+}

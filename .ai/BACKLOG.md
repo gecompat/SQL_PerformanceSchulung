@@ -2,6 +2,20 @@
 
 ## Eigenständiger KI-Workstream – Planung vom 2026-10-11
 
+Aktueller unabhängiger TSK-006-Schnitt: [reiner IDX-012-DML-/Rollenrecordvertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_RECORD_CONTRACT_REVIEW.md).
+PR229 vollständig integriert/synchronisiert/bereinigt, tatsächlicher eigener
+Worktreearchiv nach 391 gesicherten privaten Dateien. VECTOR Hard6UNKNOWN bleibt
+gestoppt. Neuer Sourcevertrag6/CP3/hard6/0 neue Laufzeiteffekte; vorhandene Records
+streng binden und fehlende Captures sichtbar lassen. Runtimejob/Selector unverändert,
+volle TSK-006-/Workstreamabnahme offen.
+
+C1-Offline-FAIL erhalten; C2 nach ausdrücklicher kumulativer Budgeterweiterung
+bindet Base64-Marker-/Dateinamensbytes korrekt.13normal/3protected-O, anschließend
+zwei historische Akten tatsächlich COHERENT/WARN;80Aktenfiles/Source5/Prepared2
+unverändert,0Native. Captures NOT_ESTABLISHED, Paket STOPPED_AFTER_C2, keine
+Runtimepromotion. Aktuelle Integration, danach unabhängiger statischer Driver-
+Dependency-Pfadplan; volle TSK-004/006-Abnahmen offen.
+
 `TSK-003` ist der gesondert autorisierte Planungsschnitt. Der Folgeauftrag autorisiert
 die Umsetzung des Workstreams; konkrete Teilnachweise und offene Gates stehen in den
 folgenden Einträgen und im kanonischen Ausführungsstand. Allgemeine Entwicklung bleibt `PAUSED`.
