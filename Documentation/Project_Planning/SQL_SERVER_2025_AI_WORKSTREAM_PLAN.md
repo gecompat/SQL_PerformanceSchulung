@@ -11,6 +11,45 @@
 
 ## Aktueller Implementierungsstand
 
+## TSK-004: nativer VECTOR-Caller nach vollständigem PR228-Abschluss
+
+PR228 vollständig geschlossen:8Head/6Main, vollerTree, primaryMain48d4e187,
+FF/Branches/916 hashverifizierte private Dateien/tatsächlicher Worktreearchiv.
+Unmittelbar folgt der [begrenzte Nativecaller](SQL_SERVER_2025_AI_VECTOR_NATIVE_REVIEW.md).
+SourceC1–C3 bleiben gezählt, jetztC4–C6/hard6 ohneReset; höchstens drei zusätzliche
+eigene serielle Container. Gepinnter vorhandener SqlClient6.1.4/net10-Bestand,
+keine neuen Pakete/Restore/globalen Effekte. Konkreter Compilerplan und aktuelle
+Source-/Input-/Oracle-/Request-/Deadline-/Test-/Rootgates vor Nativeadmission.
+Zwei VECTOR(3)-Rows/typedNull/Dimensionnegative/volle Guard-/Restore-/Cleanupbelege,
+300normal/eine60Cleanup. Jetzt null neueNative/Modelle; PoolUNKNOWN gestoppt,
+volle TSK004 und Workstreamabnahme offen.
+
+C4: ein Compile0,5911s mit zwei CS1701-Warnungen; geänderte Partialend-/
+Dimensionoracles normal/-O bestanden. Nativeversuch endete vorCreate mit
+zwei bekannten CLI-FAILs wegen Namespace-Konfigurationswurzel;0SQL/Client,
+UNKNOWN=false, ursprüngliches closed=false/SQLcleanupNOT_ESTABLISHED erhalten.
+Root frische Namens-/Inputabwesenheit getrennt belegt (Temp-WARN erhalten,
+CID NOT_CREATED). C5 nur geänderte ENV-/No-create-Proof-Source nach aktuellen
+Gates; C6 letzte Reserve, keine neue Compilation oder Pool-UNKNOWN-Wiederaufnahme.
+
+C5 bekannter State-FAIL vor typisiertem Client: ein Container/acht SQLcmd-
+Aufrufe, vier null-Kataloggruppen im vollständigen State. Eigener DB-Drop und
+frische SQL-/CID-/Namens-/Inputabwesenheit tatsächlich bestanden, UNKNOWN=false.
+C6 ändert nur Producer-Arrayfallbacks; zwei gezielte pure Methoden nach erhaltenem
+Fixture-Lesecapfehler bestanden, vollständiger C5-Archiv-/Sourceabschluss gebunden.
+Oracle/Guards/C#/Compile unverändert; Native vor Rootadmission gesperrt.
+Anschließend STOP dieses Sechserbudgets und vollständige PR-Integration.
+
+C6 tatsächlich FAIL_HARD6_UNKNOWN: korrigierter Vollstate bestanden, Child
+bekannt rc1/FileNotFoundException, individuelle Requestenden fehlen. Kein
+Folge-SQL; SQLcleanup/DB-Abwesenheit NOT_ESTABLISHED, Nativeinput erhalten,
+Ledger closed=false. Ein eigener gebundener Namespaceabbau mit frischer ganzer
+CID-/Namensabwesenheit bestätigt. Zwei Container/14 SQLcmd-Aufrufe/ein Child,
+0 neue Modellcalls; keine weitere Probe/Fix dieser Welle. Fehlercheckpoint wird
+integriert; unabhängig folgt reiner TSK-006-ANN-DML-/Rollenvertrag auf vorhandener
+Evidenz vor jeder neuen Laufzeitwirkung. Volle TSK-004-Abnahme bleibt offen.
+
+
 ## TSK-004: isolierte native VECTOR-Client-Sourcevorbereitung nach PR227
 
 PR227 vollständig geschlossen (8Head/6Main, Tree/FF/Branches/Belege/Archiv).
