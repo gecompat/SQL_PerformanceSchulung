@@ -35,7 +35,7 @@ def receipt():
     return result
 class Handle:
     pid=123
-    def __init__(self,status=0):self.status=status;self.polls=0
+    def __init__(self,status=0):self.status=status;self.returncode=status if type(status)is int else None;self.polls=0
     def poll(self):
         self.polls+=1
         if isinstance(self.status,BaseException):raise self.status
@@ -407,5 +407,81 @@ class SetupChannelTests(unittest.TestCase):
         for change in ({'ReturnCode':True},{'FinalPoll':None},{'UnknownSticky':True},{'InputFileSha256':'0'*64},{'StderrTextSha256':'0'*64}):
             call=self.record(stdout,context);call['Capture'].update(change)
             with self.assertRaises(ValueError):p.setup_channels(call,s.setup(SIDS))
+
+class ChildTransportTests(unittest.TestCase):
+    setUp=ProducerTests.setUp
+    producer=ProducerTests.producer
+    child_response=ProducerTests.child_response
+    def test_malformed_safe_channels_preserved_before_unknown_and_no_sql(self):
+        for stdout in ('not-json','{','[]'):
+            q=self.producer();handle=Handle()
+            response=lambda process,command,**kwargs:self.collector.SqlcmdResult(tuple(command),0,stdout,'',False,.1)
+            with patch.object(self.collector,'start_sqlcmd',return_value=handle),patch.object(self.collector,'collect_process',side_effect=response),self.assertRaises(p.Unknown):q.child()
+            item=q.child_transport;e.validate_child_transport(item)
+            self.assertEqual(item['Stdout'],stdout);self.assertEqual(item['ChannelStatus'],'SAFE');self.assertEqual(item['ClientProcessEnd'],'KNOWN');self.assertEqual(item['ServerRequestEnd'],'NOT_ATTESTED');self.assertTrue(item['UnknownSticky']);self.assertIsNone(q.child_evidence)
+            with self.assertRaises(p.Unknown):q.sql('SELECT 1;')
+    def test_collector_failure_late_poll_zero_signal_and_unobserved_values_stay_unknown(self):
+        for failure,code in ((OSError(SECRETS[0]),'OSERROR'),(KeyboardInterrupt(),'INTERRUPTED'),(p.subprocess.TimeoutExpired('synthetic',1),'TIMEOUT')):
+            q=self.producer();handle=Handle()
+            with patch.object(self.collector,'start_sqlcmd',return_value=handle),patch.object(self.collector,'collect_process',side_effect=failure),self.assertRaises(p.Unknown):q.child()
+            item=q.child_transport;e.validate_child_transport(item);self.assertEqual(item['CollectorError'],code);self.assertIsNone(item['TimedOut']);self.assertIsNone(item['ReturnCode']);self.assertEqual(item['FinalPoll'],0);self.assertEqual(item['ProcessReturnCode'],0);self.assertEqual(item['ClientProcessEnd'],'KNOWN');self.assertTrue(item['UnknownSticky']);self.assertIsNone(item['StdoutSha256'])
+        q=self.producer()
+        with patch.object(self.collector,'start_sqlcmd',side_effect=OSError('synthetic')),self.assertRaises(p.Unknown):q.child()
+        item=q.child_transport;e.validate_child_transport(item);self.assertTrue(item['Attempted']);self.assertFalse(item['HandleObserved']);self.assertIsNone(item['Pid']);self.assertIsNone(item['FinalPoll'])
+        q=self.producer();handle=Handle(-9)
+        response=lambda process,command,**kwargs:self.collector.SqlcmdResult(tuple(command),-9,json.dumps(receipt()),'',False,.1)
+        with patch.object(self.collector,'start_sqlcmd',return_value=handle),patch.object(self.collector,'collect_process',side_effect=response),self.assertRaises(p.Unknown):q.child()
+        e.validate_child_transport(q.child_transport);self.assertEqual(q.child_transport['ReturnCode'],-9);self.assertTrue(q.child_transport['UnknownSticky'])
+        for response in (None,{'returncode':0}):
+            q=self.producer()
+            with patch.object(self.collector,'start_sqlcmd',return_value=Handle()),patch.object(self.collector,'collect_process',return_value=response),self.assertRaises(p.Unknown):q.child()
+            item=q.child_transport;e.validate_child_transport(item);self.assertTrue(item['CollectorReturned']);self.assertFalse(item['CollectorResultTyped']);self.assertIsNone(item['ReturnCode']);self.assertTrue(item['UnknownSticky'])
+    def test_privacy_rejection_no_unsafe_channels_or_digests_and_nested_frames(self):
+        secret=SECRETS[0];payload=json.dumps({'RequestEnd':'UNKNOWN','MessageHex':secret.encode('utf-16-le').hex().upper()});units=len(payload.encode('utf-16-le'))//2;count=(units+199)//200;raw=payload.encode('utf-16-le')
+        frame='\n'.join(f'CON010_POOL_CAPTURE_PART|{n+1}|{count}|{units}|'+raw[n*400:(n+1)*400].hex().upper() for n in range(count))+'\nSQLPERF_SUMMARY|PASS|OK'
+        outputs=(secret,secret.encode().hex(),payload,frame,json.dumps({'RequestEnd':'UNKNOWN','Message':secret}).replace(secret,''.join('\\u%04x'%ord(c) for c in secret)))
+        for stdout in outputs:
+            q=self.producer();response=lambda process,command,**kwargs:self.collector.SqlcmdResult(tuple(command),0,stdout,'',False,.1)
+            with patch.object(self.collector,'start_sqlcmd',return_value=Handle()),patch.object(self.collector,'collect_process',side_effect=response),self.assertRaises(ValueError):q.child()
+            item=q.child_transport;e.validate_child_transport(item);self.assertEqual(item['ChannelStatus'],'REJECTED');self.assertEqual(item['RejectCode'],'FAIL_CREDENTIAL_OUTPUT');self.assertEqual(item['ClientProcessEnd'],'KNOWN');self.assertTrue(item['UnknownSticky'])
+            for key in ('Stdout','StdoutSha256','Stderr','StderrSha256'):self.assertIsNone(item[key])
+            with self.assertRaises(p.Unknown):q.sql('SELECT 1;')
+        q=self.producer();response=self.collector.SqlcmdResult(('synthetic',),0,'{}','',False,.1)
+        with self.assertRaises(ValueError):q.capture_child_transport(secret.encode(),(),Handle(),True,response,0,True,False,True,None)
+        e.validate_child_transport(q.child_transport)
+        for key in ('InputText','InputSha256','Stdout','StdoutSha256','Stderr','StderrSha256'):self.assertIsNone(q.child_transport[key])
+        escaped=json.dumps({'Message':secret}).replace(secret,''.join('\\u%04x'%ord(c) for c in secret))
+        q=self.producer();response=lambda process,command,**kwargs:self.collector.SqlcmdResult(tuple(command),0,json.dumps(receipt()),escaped,True,.1)
+        with patch.object(self.collector,'start_sqlcmd',return_value=Handle()),patch.object(self.collector,'collect_process',side_effect=response),self.assertRaises(ValueError):q.child()
+        e.validate_child_transport(q.child_transport);self.assertTrue(q.unknown);self.assertTrue(q.child_transport['TimedOut']);self.assertIsNone(q.child_transport['StderrSha256']);self.assertEqual(q.child_transport['RejectCode'],'FAIL_CREDENTIAL_OUTPUT')
+    def test_typed_source_input_capture_and_validated_api_envelope_are_separate(self):
+        q=self.producer();a,b=self.child_response(q,receipt())
+        with a,b:returned,envelope=q.child()
+        item=q.child_transport;e.validate_child_transport(item);e.validate_child(envelope,returned);self.assertFalse(item['UnknownSticky']);self.assertEqual(item['ServerRequestEnd'],'NOT_ATTESTED');self.assertEqual(item['StdoutSha256'],envelope['StdoutSha256'])
+        for change in ({'Pid':True},{'FinalPoll':0.0},{'ProcessReturnCode':False},{'TimedOut':'false'},{'DurationSeconds':True},{'CollectorReturned':False},{'ServerRequestEnd':'TDS_CONFIRMED'},{'StdoutSha256':'0'*64},{'InputSha256':'0'*64},{'Extra':[]},{'ChannelStatus':'REJECTED'}):
+            with self.subTest(change=list(change)),self.assertRaises(ValueError):e.validate_child_transport(item|change)
+        bad=copy.deepcopy(item);bad['SourceAfter'][next(iter(bad['SourceAfter']))]='0'*64
+        with self.assertRaises(ValueError):e.validate_child_transport(bad)
+        q=self.producer();q.capture_child_transport(b'{}',(),None,False,None,None,False,False,False,None)
+        e.validate_child_transport(q.child_transport);self.assertEqual(q.child_transport['ClientProcessEnd'],'NOT_STARTED');self.assertIsNone(q.child_transport['Pid']);self.assertFalse(q.child_transport['UnknownSticky'])
+        q=self.producer();bad=receipt();bad['Records'][0]['Before']['Context']=2;a,b=self.child_response(q,bad)
+        with a,b,self.assertRaises(ValueError):q.child()
+        e.validate_child_transport(q.child_transport);self.assertFalse(q.unknown);self.assertEqual(q.child_evidence['Receipt'],bad);self.assertEqual(q.child_transport['ChannelStatus'],'SAFE')
+        for observed in (OSError('synthetic'),p.source_map()|{next(iter(p.source_map())):'0'*64}):
+            q=self.producer();a,b=self.child_response(q,receipt())
+            effect=patch.object(p,'source_map',side_effect=observed) if isinstance(observed,BaseException) else patch.object(p,'source_map',return_value=observed)
+            with a,b,effect,self.assertRaises(p.Unknown):q.child()
+            item=q.child_transport;e.validate_child_transport(item);self.assertEqual(item['Pid'],123);self.assertEqual(item['FinalPoll'],0);self.assertEqual(item['ClientProcessEnd'],'KNOWN');self.assertTrue(item['UnknownSticky']);self.assertEqual(item['Stdout'],json.dumps(receipt()))
+            self.assertEqual(item['SourceStatus'],'READ_FAILED' if isinstance(observed,BaseException) else 'CHANGED');self.assertEqual(item['SourceAfter'],None if isinstance(observed,BaseException) else observed)
+            with self.assertRaises(p.Unknown):q.sql('SELECT 1;')
+        q=self.producer();patcher=patch.object(p.capture,'collector_type',side_effect=OSError('synthetic-source-read'));installed=[]
+        def returned_held_type(process,command,**kwargs):
+            patcher.start();installed.append(True)
+            return self.collector.SqlcmdResult(tuple(command),0,json.dumps(receipt()),'',False,.1)
+        try:
+            with patch.object(self.collector,'start_sqlcmd',return_value=Handle()),patch.object(self.collector,'collect_process',side_effect=returned_held_type):q.child()
+        finally:
+            if installed:patcher.stop()
+        e.validate_child_transport(q.child_transport);self.assertFalse(q.unknown);self.assertTrue(q.child_transport['CollectorResultTyped']);self.assertEqual(q.child_transport['FinalPoll'],0)
 
 if __name__=='__main__':unittest.main()

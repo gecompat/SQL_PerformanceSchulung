@@ -217,7 +217,11 @@ jobs:
             test_con010_pool_profile.RequalificationTests.test_finally_persists_default_and_new_ledger_even_on_raised_failure \
             test_con010_pool_profile.RequalificationTests.test_new_wave_rejects_legacy_namespace_records_before_summary \
             test_con010_pool_profile.SetupChannelTests.test_setup_separate_actual_context_and_unexpected_or_duplicate_diagnostics \
-            test_con010_pool_profile.SetupChannelTests.test_setup_capture_input_returncode_and_unknown_are_not_marker_aliases
+            test_con010_pool_profile.SetupChannelTests.test_setup_capture_input_returncode_and_unknown_are_not_marker_aliases \
+            test_con010_pool_profile.ChildTransportTests.test_malformed_safe_channels_preserved_before_unknown_and_no_sql \
+            test_con010_pool_profile.ChildTransportTests.test_collector_failure_late_poll_zero_signal_and_unobserved_values_stay_unknown \
+            test_con010_pool_profile.ChildTransportTests.test_privacy_rejection_no_unsafe_channels_or_digests_and_nested_frames \
+            test_con010_pool_profile.ChildTransportTests.test_typed_source_input_capture_and_validated_api_envelope_are_separate
       - name: Validate bounded RES-008 consumer and evidence
         run: |
           python Tests/Static/test_res008_profile.py
