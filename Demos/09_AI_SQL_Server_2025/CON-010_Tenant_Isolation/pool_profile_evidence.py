@@ -259,6 +259,54 @@ def validate_operations(records):
         elif digest is not None or record['TextScope']!='NOT_APPLICABLE':raise ValueError('Open/Close enthalten keinen SQLtextdigest')
     return records
 
+def validate_child_transport(item):
+    fields={'Contract','Kind','Attempted','HandleObserved','CollectorReturned','CollectorResultTyped','CollectorFailed','CollectorError','PollAttempted','Pid','ProcessReturnCode','FinalPoll','ReturnCode','TimedOut','DurationSeconds','ClientProcessEnd','ServerRequestEnd','UnknownSticky','SourceBefore','SourceAfter','SourceStatus','ScriptSha256','InputText','InputBytes','InputSha256','Stdout','StdoutBytes','StdoutSha256','Stderr','StderrBytes','StderrSha256','ChannelStatus','RejectCode'}
+    if type(item)is not dict or set(item)!=fields:raise ValueError('Vollständiger separater Childtransport fehlt')
+    for key in ('Attempted','HandleObserved','CollectorReturned','CollectorResultTyped','CollectorFailed','PollAttempted','UnknownSticky'):
+        if type(item[key])is not bool:raise ValueError('Typisierte tatsächliche Beobachtungsflags fehlen')
+    for key in ('Pid','ProcessReturnCode','FinalPoll','ReturnCode'):
+        if item[key]is not None and type(item[key])is not int:raise ValueError('Keine Bool-/Floatalias-Endwerte')
+    if item['Pid']is not None and item['Pid']<=0:raise ValueError('Positive tatsächliche PID fehlt')
+    if item['TimedOut']is not None and type(item['TimedOut'])is not bool:raise ValueError('Timeout unbeobachtet oder tatsächlicher Bool')
+    if item['DurationSeconds']is not None and (type(item['DurationSeconds'])not in (int,float) or not math.isfinite(item['DurationSeconds']) or item['DurationSeconds']<0):raise ValueError('Tatsächliche endliche Dauer fehlt')
+    if not item['Attempted'] and (item['HandleObserved'] or item['CollectorReturned'] or item['PollAttempted'] or any(item[k]is not None for k in ('Pid','ProcessReturnCode','FinalPoll','ReturnCode','TimedOut','DurationSeconds'))):raise ValueError('Nicht gestartete Beobachtung erfunden')
+    if not item['HandleObserved'] and (item['Pid']is not None or item['ProcessReturnCode']is not None or item['PollAttempted']):raise ValueError('Kein gehaltener Handlebezug')
+    if not item['PollAttempted'] and item['FinalPoll']is not None:raise ValueError('Unbeobachteter Poll ist nicht null')
+    if item['CollectorReturned'] and not item['HandleObserved'] or item['CollectorResultTyped'] and not item['CollectorReturned']:raise ValueError('Collectorbezug fehlt')
+    if item['CollectorError']not in (None,'TIMEOUT','INTERRUPTED','OSERROR','OTHER') or item['CollectorFailed']!=(item['CollectorError']is not None):raise ValueError('Feste beobachtete Collectorfailure fehlt')
+    if not item['CollectorResultTyped'] and any(item[k]is not None for k in ('ReturnCode','TimedOut','DurationSeconds')):raise ValueError('Unbeobachteter Collectorwert erfunden')
+    known=item['Pid']is not None and item['PollAttempted'] and item['FinalPoll']is not None and item['ProcessReturnCode']==item['FinalPoll']
+    end='NOT_STARTED' if not item['Attempted'] else 'KNOWN' if known else 'UNKNOWN'
+    unconfirmed=item['Attempted'] and (not known or not item['CollectorResultTyped'] or item['CollectorFailed'] or item['TimedOut']is not False or item['DurationSeconds']is None or item['ReturnCode']is None or item['ReturnCode']!=item['FinalPoll'] or item['ReturnCode']<0)
+    if item['Contract']!='CON010_POOL_CHILD_TRANSPORT_V1' or item['Kind']!='POWERSHELL_POOL_CHILD_TRANSPORT' or item['ClientProcessEnd']!=end or item['ServerRequestEnd']!='NOT_ATTESTED' or unconfirmed and not item['UnknownSticky']:raise ValueError('Processende ersetzt kein API-/TDS-Ende')
+    profile_sources(item['SourceBefore'])
+    if item['ScriptSha256']!=item['SourceBefore']['Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/pool_profile.ps1']:raise ValueError('Tatsächliche Childscriptbindung fehlt')
+    if item['SourceStatus']=='OBSERVED':
+        profile_sources(item['SourceAfter'])
+        if item['SourceBefore']!=item['SourceAfter']:raise ValueError('Tatsächliche Childsourcebindung fehlt')
+    elif item['SourceStatus']=='READ_FAILED':
+        if item['SourceAfter']is not None or not item['UnknownSticky']:raise ValueError('Unbeobachtete Sourcekarte darf nicht erfunden werden')
+    elif item['SourceStatus']=='CHANGED':
+        after=item['SourceAfter']
+        if type(after)is not dict or set(after)!=set(PROFILE_SOURCE_KEYS) or any(type(v)is not str or not re.fullmatch('[a-f0-9]{64}',v) for v in after.values()) or after==item['SourceBefore'] or not item['UnknownSticky']:raise ValueError('Veränderte tatsächliche Sourcekarte fehlt')
+    else:raise ValueError('Sourcebeobachtung fehlt')
+    if item['InputText']is None:
+        if item['InputBytes']is not None or item['InputSha256']is not None or item['ChannelStatus']!='REJECTED':raise ValueError('Fehlende sichere Inputbindung')
+    else:
+        if type(item['InputText'])is not str or type(item['InputBytes'])is not int or not 1<=item['InputBytes']<=160000 or len(item['InputText'].encode())!=item['InputBytes'] or item['InputSha256']!=hashlib.sha256(item['InputText'].encode()).hexdigest():raise ValueError('Vollständige Originalinputbytes fehlen')
+    if item['ChannelStatus']=='SAFE':
+        if not item['CollectorResultTyped'] or item['InputText']is None or item['RejectCode']is not None:raise ValueError('Sichere Kanäle ohne Beobachtung')
+        total=0
+        for key in ('Stdout','Stderr'):
+            if type(item[key])is not str or type(item[key+'Bytes'])is not int or item[key+'Bytes']!=len(item[key].encode()) or item[key+'Sha256']!=hashlib.sha256(item[key].encode()).hexdigest():raise ValueError('Unveränderte sichere Kanäle fehlen')
+            total+=item[key+'Bytes']
+        if total>1000000:raise ValueError('Childkanalcap überschritten')
+    elif item['ChannelStatus']in ('UNOBSERVED','REJECTED'):
+        if any(item[k]is not None for k in ('Stdout','StdoutBytes','StdoutSha256','Stderr','StderrBytes','StderrSha256')):raise ValueError('Unsichere/unbeobachtete Rawbytes oder Digests verboten')
+        if item['ChannelStatus']=='UNOBSERVED' and item['RejectCode']is not None or item['ChannelStatus']=='REJECTED' and (item['RejectCode']not in ('FAIL_CREDENTIAL_OUTPUT','FAIL_CHILD_CHANNEL_SAFETY') or not item['UnknownSticky']):raise ValueError('Fester Safetyreject fehlt')
+    else:raise ValueError('Feste Kanalklassifikation fehlt')
+    return item
+
 def validate_child(envelope,receipt):
     fields={'Kind','Pid','ReturnCode','FinalPoll','TimedOut','DurationSeconds','InputBytes','InputSha256','StdoutBytes','StdoutSha256','StderrBytes','StderrSha256','ScriptSha256','ClientProcessEnd','ServerRequestEnd','CredentialSafety'}
     if type(envelope) is not dict or set(envelope)!=fields or envelope['Kind']!='POWERSHELL_POOL_CHILD':raise ValueError('Eigener vollständiger Childenvelope fehlt')
@@ -313,7 +361,7 @@ def validate_namespace(closure,token,cid,port):
 
 def validate_actual(record):
     actual=record['Actual']
-    fields={'SqlCalls','NegativeStates','ChildInputText','ChildStdout','ChildStderr','SourceSha256','Namespace','NamespaceCalls'}
+    fields={'SqlCalls','NegativeStates','ChildInputText','ChildStdout','ChildStderr','ChildTransport','SourceSha256','Namespace','NamespaceCalls'}
     if type(actual) is not dict or set(actual)!=fields or type(actual['SqlCalls']) is not list or not 1<=len(actual['SqlCalls'])<=64:raise ValueError('Vollständiger Callerrecord fehlt')
     calls=actual['NamespaceCalls']
     if type(calls) is not list or not calls:raise ValueError('Tatsächliche NamespaceCLIrecords fehlen')
@@ -334,6 +382,12 @@ def validate_actual(record):
         raw=actual[field].encode('utf-8');integer(record['Child'][nkey],len(raw))
         if record['Child'][skey]!=hashlib.sha256(raw).hexdigest():raise ValueError('ActualChildbytebindung fehlt')
     same(json.loads(actual['ChildStdout'],object_pairs_hook=unique),record['PoolReceipt'])
+    transport=validate_child_transport(actual['ChildTransport'])
+    if transport['UnknownSticky'] or transport['SourceStatus']!='OBSERVED' or transport['ChannelStatus']!='SAFE' or transport['ClientProcessEnd']!='KNOWN':raise ValueError('Unbekannter Transport erlaubt keinen positiven APIrecord')
+    for key in ('Pid','ReturnCode','FinalPoll','TimedOut','DurationSeconds','InputBytes','InputSha256','StdoutBytes','StdoutSha256','StderrBytes','StderrSha256','ScriptSha256'):
+        if type(transport[key])is not type(record['Child'][key]) or transport[key]!=record['Child'][key]:raise ValueError('Transport-/57APIenvelopebindung fehlt')
+    for key,actualkey in [('InputText','ChildInputText'),('Stdout','ChildStdout'),('Stderr','ChildStderr')]:
+        if transport[key]!=actual[actualkey]:raise ValueError('Unveränderte Transportkanäle fehlen')
     validate_namespace(actual['Namespace'],record['Token'],record['ContainerId'],record['Port'])
     # Jede tatsächliche Cleanupcallphase bleibt vollständig im Callrecord erhalten.
     if actual['SqlCalls'][-2]['Phase']!='DROP_DATABASE' or actual['SqlCalls'][-1]['Phase']!='SQL_ABSENCE' or actual['SqlCalls'][-2]['Capture']['ReturnCode']!=0 or actual['SqlCalls'][-1]['Capture']['ReturnCode']!=0 or actual['SqlCalls'][-1]['Stdout'].strip()!='POOLPUBLIC_ALL|ABSENT':raise ValueError('Neue tatsächliche SQLclosure fehlt')

@@ -175,5 +175,12 @@ gestoppt und liefert keinen vollständigen Pool-Runtime- oder TP-CON-PASS.
 
 Diese Dokumentergänzung beschreibt vorhandene Belege. Ursprüngliche Source- und
 Ausführungspins bleiben unverändert; die bisherigen Zustände werden nicht erneut
-ausgeführt. Der nächste getrennte Schritt bereitet zunächst nur vollständiges
-sicheres Childcapturing vor einer fehlgeschlagenen Ergebniszuordnung vor.
+ausgeführt. Der aktuelle Quellenstand erhält einen separaten Childtransport vor der
+Ergebniszuordnung. Er enthält tatsächlich beobachtete Prozessmetadaten und
+sichere getrennte Ausgabekanäle auch bei einem ungültigen Receipt. Unbeobachtete
+Werte bleiben null. Credentialausgaben werden vor Rawdaten und Digests abgewiesen;
+nur sichere Metadaten und feste Fehlercodes bleiben erhalten. Ein bekanntes
+Prozessende belegt weder einzelne .NET-Enden noch das Server-/TDS-Ende. Die
+geprüften 57 API-Records bleiben ein eigener Nachweis. Diese Änderung ist rein
+mit synthetischen Fakehandles geprüft; sie erklärt oder qualifiziert die
+gestoppte Teilausführung nicht nachträglich.

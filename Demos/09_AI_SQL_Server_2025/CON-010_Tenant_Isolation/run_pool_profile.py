@@ -226,7 +226,7 @@ class Producer:
         self.sids={lane:secrets.token_hex(16).upper() for lane in evidence.LOGINS}
         self.folder=client.INPUT_ROOT/self.token;self.ordinal=0;self.captures=[];self.clients=[];self.extra_inputs=[]
         self.dbid=None;self.oid=None;self.held=None;self.baseline=None;self.pool_ready=False;self.record=None;self.controls=[]
-        self.transcripts=[];self.negative_states=[];self.namespace_witness=None;self.bound_at_start=None;self.create_unknown=False;self.remove_unknown=False;self.remove_attempted=False;self.create_attempts=0;self.namespace_calls=[];self.no_create_witness=None;self.child_evidence=None;self.sql_absent=False;self.namespace_absent=False;self.inputs_absent=False;self.started=False;self.cli=shutil.which('podman');self.sqlcmd=Path(shutil.which('sqlcmd') or '')
+        self.transcripts=[];self.negative_states=[];self.namespace_witness=None;self.bound_at_start=None;self.create_unknown=False;self.remove_unknown=False;self.remove_attempted=False;self.create_attempts=0;self.namespace_calls=[];self.no_create_witness=None;self.child_evidence=None;self.child_transport=None;self.sql_absent=False;self.namespace_absent=False;self.inputs_absent=False;self.started=False;self.cli=shutil.which('podman');self.sqlcmd=Path(shutil.which('sqlcmd') or '')
     def gate(self):
         if getattr(self,'wave',None) is None:current=admitted(self.candidate,self.admission,self.ledger)
         else:
@@ -395,6 +395,56 @@ class Producer:
             self.sql(inputs.source_delete(self.dbid),expected=51004)
             after=self.state(values);evidence.same(before,after)
             self.ok(inputs.marker_restore(self.dbid,key));restored=self.state();evidence.same(self.baseline,restored);self.negative_states.append({'Before':before,'After':after,'Restored':restored});self.controls.append(f'MARKER_{n}_51004')
+    def capture_child_transport(self,raw,command,process,attempted,response,poll,poll_attempted,collector_failed,collector_returned,collector_error):
+        """Prozessfakten vor Klassifikation; Raw erst nach konkreter Credentialprüfung."""
+        observed=capture._collector is not None and type(response)is capture._collector.SqlcmdResult
+        try:pid=process.pid if process is not None else None;process_rc=process.returncode if process is not None else None
+        except BaseException:pid=None;process_rc=None;self.unknown=True
+        pid=pid if type(pid)is int and pid>0 else None
+        process_rc=process_rc if type(process_rc)is int else None
+        final_poll=poll if type(poll)is int else None
+        rc=response.returncode if observed and type(response.returncode)is int else None
+        timeout=response.timed_out if observed and type(response.timed_out)is bool else None
+        duration=response.duration_seconds if observed and type(response.duration_seconds)in (int,float) and math.isfinite(response.duration_seconds) and response.duration_seconds>=0 else None
+        known=pid is not None and poll_attempted and final_poll is not None and process_rc==final_poll
+        if attempted and (not known or not observed or collector_failed or timeout is not False or duration is None or rc is None or rc!=final_poll or rc<0):self.unknown=True
+        item={'Contract':'CON010_POOL_CHILD_TRANSPORT_V1','Kind':'POWERSHELL_POOL_CHILD_TRANSPORT','Attempted':attempted,'HandleObserved':process is not None,'CollectorReturned':collector_returned,'CollectorResultTyped':observed,'CollectorFailed':collector_failed,'PollAttempted':poll_attempted,'Pid':pid,'ProcessReturnCode':process_rc,'FinalPoll':final_poll,'ReturnCode':rc,'TimedOut':timeout,'DurationSeconds':duration,'ClientProcessEnd':'NOT_STARTED' if not attempted else 'KNOWN' if known else 'UNKNOWN','ServerRequestEnd':'NOT_ATTESTED','UnknownSticky':self.unknown,'SourceBefore':self.sources,'SourceAfter':None,'SourceStatus':'UNOBSERVED','ScriptSha256':self.sources['Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/pool_profile.ps1'],'InputText':None,'InputBytes':None,'InputSha256':None,'Stdout':None,'StdoutBytes':None,'StdoutSha256':None,'Stderr':None,'StderrBytes':None,'StderrSha256':None,'ChannelStatus':'UNOBSERVED','RejectCode':None}
+        self.child_transport=item
+        item['CollectorError']=collector_error
+        try:
+            item['SourceAfter']=source_map()
+            item['SourceStatus']='OBSERVED' if item['SourceAfter']==self.sources else 'CHANGED'
+            if item['SourceStatus']=='CHANGED':self.unknown=True;item['UnknownSticky']=True
+        except BaseException:
+            self.unknown=True;item['UnknownSticky']=True;item['SourceStatus']='READ_FAILED'
+        try:
+            text=raw.decode('utf-8');capture.credential_gate(text,'','',tuple(command),self.values)
+            item.update(InputText=text,InputBytes=len(raw),InputSha256=hashlib.sha256(raw).hexdigest())
+            if not observed:return None
+            if type(response.stdout)is not str or type(response.stderr)is not str:raise ValueError('UNSAFE_CHANNEL_TYPE')
+            stdout=response.stdout;stderr=response.stderr
+            if len(stdout.encode())+len(stderr.encode())>1000000:raise ValueError('UNSAFE_CHANNEL_CAP')
+            capture.credential_gate(text,stdout,stderr,tuple(command),self.values)
+            try:receipt=json.loads(stdout,object_pairs_hook=evidence.unique)
+            except (ValueError,UnicodeError):
+                receipt=None;self.unknown=True;item['UnknownSticky']=True
+                # JSON-Escapes ohne vollständig dekodierbares JSON sind nicht sicher prüfbar.
+                if '\\' in stdout:raise ValueError('UNSAFE_JSON_ENCODING') from None
+            if type(receipt)is dict and receipt.get('RequestEnd')!='RESPONSE_RECEIVED':self.unknown=True;item['UnknownSticky']=True
+            if receipt is not None:evidence.credential_safe(receipt,self.values)
+            # Auch der Diagnosekanal darf keine durch JSON-Escapes verdeckten Werte halten.
+            if '\\' in stderr:
+                try:diagnostic=json.loads(stderr,object_pairs_hook=evidence.unique)
+                except (ValueError,UnicodeError):raise ValueError('UNSAFE_JSON_ENCODING') from None
+                evidence.credential_safe(diagnostic,self.values)
+            item.update(Stdout=stdout,StdoutBytes=len(stdout.encode()),StdoutSha256=hashlib.sha256(stdout.encode()).hexdigest(),Stderr=stderr,StderrBytes=len(stderr.encode()),StderrSha256=hashlib.sha256(stderr.encode()).hexdigest(),ChannelStatus='SAFE')
+            return receipt
+        except capture.CredentialOutputRejected:
+            self.unknown=True;item['UnknownSticky']=True;item['ChannelStatus']='REJECTED';item['RejectCode']='FAIL_CREDENTIAL_OUTPUT';raise
+        except BaseException as failure:
+            self.unknown=True;item['UnknownSticky']=True
+            item['ChannelStatus']='REJECTED';item['RejectCode']='FAIL_CREDENTIAL_OUTPUT' if str(failure)=='FAIL_CREDENTIAL_OUTPUT' else 'FAIL_CHILD_CHANNEL_SAFETY'
+            raise Failure(item['RejectCode']) from None
     def child(self):
         self.gate();end=self.begin_cleanup();now=time.monotonic()
         phase_end=min(end-NAMESPACE_RESERVE,now+40)
@@ -405,30 +455,31 @@ class Producer:
         capture.credential_gate(raw.decode(),'','',(),self.values)
         with path.open('xb') as stream:stream.write(raw)
         self.extra_inputs.append((path,hashlib.sha256(raw).hexdigest()))
-        capture.collector_type();collector=capture._collector;process=None;attempted=False;response=None;poll=None;error=False
-        command=[str(PWSH),'-NoProfile','-File',str(HERE/'pool_profile.ps1'),'-Admission',str(path),'-AdmissionSha',hashlib.sha256(raw).hexdigest()]
+        capture.collector_type();collector=capture._collector;process=None;attempted=False;response=None;poll=None;error=False;collector_returned=False;collector_error=None
+        command=[str(PWSH),'-NoProfile','-File',str(HERE/'pool_profile.ps1'),'-Admission',str(path),'-AdmissionSha',hashlib.sha256(raw).hexdigest()];poll_attempted=False
         self.gate()
         try:
             attempted=True;process=collector.start_sqlcmd(command,environment=client._private_environment(self.values))
             wait=max(0,min(primary,phase_end-time.monotonic()-26))
             if wait<=0:self.unknown=True
             response=collector.collect_process(process,command,timeout_seconds=wait)
-        except BaseException:error=True;self.unknown=True
+            collector_returned=True
+        except BaseException as failure:
+            error=True;self.unknown=True;collector_error='TIMEOUT' if isinstance(failure,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(failure,KeyboardInterrupt) else 'OSERROR' if isinstance(failure,OSError) else 'OTHER'
         finally:
             if process is not None:
                 try:
+                    poll_attempted=True
                     poll=process.poll()
                     if type(poll) is not int:self.unknown=True
                 except BaseException:self.unknown=True
             elif attempted:self.unknown=True
-        if response is None:self.unknown=True
-        if response is not None and (type(response.returncode) is not int or type(response.timed_out) is not bool or response.timed_out or response.returncode<0 or response.returncode!=poll):self.unknown=True
         if time.monotonic()>phase_end:self.deadline_failed=True
+        receipt=self.capture_child_transport(raw,command,process,attempted,response,poll,poll_attempted,error,collector_returned,collector_error)
+        evidence.validate_child_transport(self.child_transport)
         if self.unknown:raise Unknown()
-        if len(response.stdout.encode())+len(response.stderr.encode())>1000000:self.unknown=True;raise Unknown()
-        try:receipt=json.loads(response.stdout,object_pairs_hook=evidence.unique)
-        except (ValueError,UnicodeError):self.unknown=True;raise Unknown() from None
-        if type(receipt) is not dict or receipt.get('RequestEnd')!='RESPONSE_RECEIVED':self.unknown=True
+        if receipt is None:self.unknown=True;self.child_transport['UnknownSticky']=True;raise Unknown() from None
+        if type(receipt) is not dict or receipt.get('RequestEnd')!='RESPONSE_RECEIVED':self.unknown=True;self.child_transport['UnknownSticky']=True
         capture.credential_gate(raw.decode(),response.stdout,response.stderr,tuple(command),self.values)
         evidence.credential_safe(receipt,self.values)
         if self.unknown:raise Unknown()
@@ -504,10 +555,10 @@ class Producer:
             self.inputs_absent=remaining_inputs==[]
             if self.namespace_witness is not None:self.namespace_witness['InputFiles']=remaining_inputs
         if primary is None and sql_failure is None and namespace_failure is None and input_failure is None and self.sql_absent and self.namespace_absent and self.inputs_absent:
-            record={'PoolReceipt':pool,'Child':child,'Baseline':self.baseline,'After':after,'DatabaseId':self.dbid,'ObjectId':self.oid,'Sids':self.sids,'Token':self.token,'Controls':self.controls,'PhysicalAbsence':'ACTUAL_NEW_OWNER_QUERY','SqlAbsence':'ACTUAL_NEW_DB_AND_PRINCIPAL_QUERY','NamespaceAbsence':'ACTUAL_FULL_CID_AND_NAME_QUERY','InputsAbsent':self.inputs_absent,'ContainerId':self.cid,'Port':self.port,'Actual':{'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'ChildInputText':self.child_evidence['InputText'],'ChildStdout':self.child_evidence['Stdout'],'ChildStderr':self.child_evidence['Stderr'],'SourceSha256':self.sources,'Namespace':self.namespace_witness,'NamespaceCalls':self.namespace_calls}}
+            record={'PoolReceipt':pool,'Child':child,'Baseline':self.baseline,'After':after,'DatabaseId':self.dbid,'ObjectId':self.oid,'Sids':self.sids,'Token':self.token,'Controls':self.controls,'PhysicalAbsence':'ACTUAL_NEW_OWNER_QUERY','SqlAbsence':'ACTUAL_NEW_DB_AND_PRINCIPAL_QUERY','NamespaceAbsence':'ACTUAL_FULL_CID_AND_NAME_QUERY','InputsAbsent':self.inputs_absent,'ContainerId':self.cid,'Port':self.port,'Actual':{'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'ChildInputText':self.child_evidence['InputText'],'ChildStdout':self.child_evidence['Stdout'],'ChildStderr':self.child_evidence['Stderr'],'ChildTransport':self.child_transport,'SourceSha256':self.sources,'Namespace':self.namespace_witness,'NamespaceCalls':self.namespace_calls}}
             if getattr(self,'wave',None)==REQUAL_WAVE:record['WaveBinding']=self.wave_binding()
             return Result('WARN','BOUNDED_POOL_PROFILE',evidence.summary(record),record)
-        failed={'SqlCaptures':self.captures,'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'Child':self.child_evidence,'Namespace':self.namespace_witness,'Baseline':self.baseline,'NamespaceCalls':self.namespace_calls,'NoCreate':self.no_create_witness}
+        failed={'SqlCaptures':self.captures,'SqlCalls':self.transcripts,'NegativeStates':self.negative_states,'Child':self.child_evidence,'ChildTransport':getattr(self,'child_transport',None),'Namespace':self.namespace_witness,'Baseline':self.baseline,'NamespaceCalls':self.namespace_calls,'NoCreate':self.no_create_witness}
         if getattr(self,'wave',None)==REQUAL_WAVE:failed['WaveBinding']=self.wave_binding()
         return Result('FAIL',input_failure or namespace_failure or sql_failure or primary or 'FAIL_CLOSURE',{'primary_code':primary,'sql_cleanup_code':sql_failure,'namespace_cleanup_code':namespace_failure,'input_cleanup_code':input_failure,'runtime_qualification':'NOT_ESTABLISHED','sql_absence':'ACTUAL_NEW_QUERY' if self.sql_absent else 'NOT_ESTABLISHED','namespace_absence':self.namespace_absent,'remove_end':'UNKNOWN' if self.remove_unknown else 'RETURNED_TO_CALLER' if self.remove_attempted else 'NOT_STARTED','create_end':'UNKNOWN' if self.create_unknown else 'NOT_STARTED' if self.create_attempts==0 else 'RETURNED_TO_CALLER','unknown':self.unknown},failed)
 

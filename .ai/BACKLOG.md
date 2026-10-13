@@ -1,5 +1,45 @@
 # Initialer Backlog
 
+## TSK-009: reiner Poolchild-Capture nach vollständigem PR242-Abschluss
+
+PR242 geschlossen: 14 Head-/acht Main-Gates, Mainee3777fd, Tree/FF/Branches,
+338 private Dateien gesichert und Worktree tatsächlich archiviert. Aktueller
+Schnitt: [Poolchild-Capturevertrag](../Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_CHILD_CAPTURE_REVIEW.md). Source5/6, geschlossenerSourceCP3,
+hard6 ohne Reset. Sichere tatsächliche Child-Prozess-/Kanalbelege vor fehlerhafter
+Klassifikation erhalten, Privacy vor Raw/Digests; unbeobachtete Werte nicht
+erfinden und alte UNKNOWN-Ursache nicht rekonstruieren. Nur neue Puregegenfälle
+normal/-O, keine lokale Native-/Provider-/SQL-/Container-/Modellprobe.
+Gestoppte Welle bleibt bei insgesamt vier Nativeversuchen/drei Containern;
+SQLcleanup/Inputs/Poolchildqualifikation offen, vorhandene Originale read-only.
+Aktuelle PR-/Head-/Main-/Tree-/FF-/Branch-/Beleg-/Archivgates vollständig schließen.
+Tokenverbrauch UNKNOWN.
+
+Source5 ist rein mit vier neuen Methoden normal und vier unter `-O` bestanden.
+Source6 beseitigt einen verbliebenen Source-read vor der Transportzuweisung:
+der tatsächlich vor Start gehaltene öffentliche Collector-Returntyp wird verwendet.
+Nur die betroffene Methode wurde normal und unter `-O` erneut geprüft; beide
+Läufe bestanden. Tatsächliche Prozessenden und unveränderte Rawkanäle sind privat
+gebunden. Source5-Bytes und sämtliche früheren Prüfbelege bleiben archiviert;
+keine alte grüne Suite oder Runtime wurde wiederholt.
+
+Der separate Childtransport hält bekannte Prozessfakten vor Ergebniszuordnung,
+auch bei malformed Receipt, fehlgeschlagener Sourcebeobachtung oder UNKNOWN.
+Unsichere Kanäle erhalten keine Rawdaten oder Digests. Unbeobachtete Werte bleiben
+null; bekannte Prozessenden ersetzen weder die 57 API-Records noch Server-/TDS-
+Endbelege. Der unabhängige Rootreview hat den konkreten Capture-/Privacy-/
+Endtrennungsdelta ohne offenes semantisches Finding gelesen. Mechanische
+Freezeprüfung und aktuelle Integrationsgates stehen noch aus.
+
+Hard6 ist erreicht, Sourceentwicklung gestoppt; keine neue Native-, Provider-,
+CLR-, Compiler-, SQL-, Container-, Modell- oder Metadatenausführung. Bestehender
+Sourcecheckpoint3 bleibt geschlossen, alte UNKNOWNs und Ursache UNPROVEN bleiben
+unverändert. Kumulativ weiterhin vier Nativeversuche/drei Container, keine neue
+Zulassung der gestoppten Welle. Runtime-/Pooling-/TSK-009-/TP-CON-Abnahme bleibt
+NOT_ESTABLISHED. CI erweitert nur den bestehenden statischen Schritt um vier
+Schutzmethoden: 39 normal/18 optimiert in denselben zwei Pythonprozessen;
+Runtimejob und Selector sind bytegleich, Default-CI startet kein RED-Profil.
+
+
 ## TSK-009: begrenzter Owner-Teilnachweis, Poolwelle bei UNKNOWN gestoppt
 
 Aktueller Schnitt: [Poolqualifikationswelle](../Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md).
