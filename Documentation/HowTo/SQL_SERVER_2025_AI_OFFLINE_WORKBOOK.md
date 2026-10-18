@@ -1,5 +1,12 @@
 # KI mit SQL Server 2025 – Arbeitsheft für den Offlinepfad
 
+Der [VERTIEFUNG-Zweitageskurs](SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md) verwendet
+an Tag 1 dieselben acht Offline-Aufgaben. Der neue Abschnitt
+[VERTIEFUNG Tag 2](#vertiefung-tag-2-aufgaben) ergänzt konkrete Beleg-, Rechen-
+und Entwurfsaufgaben mit Musterlösungen in diesem Arbeitsheft. Diese Tag-2-
+Aufgaben einschließlich RES-008 bleiben im Kurs unbewertet und starten keine
+neuen SQL- oder Modellpfade.
+
 Der [STANDARD-Tageskurs](SQL_SERVER_2025_AI_STANDARD_COURSE.md) verwendet alle
 acht Offline-Aufgaben und die bestehende Gesamtwertung bis 16 Punkte.
 Der [Generalprobenachweis](../Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
@@ -321,6 +328,110 @@ tatsächliche Login-/DB-Drops und neue SQL-Abwesenheit. Begründen Sie, warum de
 positive C5-Fall weder Pooling, Passwortintegrität noch die vollständige öffentliche
 authentifizierte CON-010- oder TSK-009-Abnahme belegt.
 
+## VERTIEFUNG Tag 2 Aufgaben
+
+Diese Aufgaben gehören zum [VERTIEFUNG-Zweitageskurs](SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md).
+Sie verwenden veröffentlichte Zusammenfassungen und ausdrücklich synthetische
+Rechenfixtures, keine privaten Receipts oder neuen SQL-/Modellaufrufe. Tag 1
+behält seine acht Aufgaben und höchstens 16 Punkte. Alle folgenden Tag-2-Aufgaben
+sind unbewertet; auch RES-008 wird hier ohne optionale Zusatzpunktwertung verwendet.
+Für die Besprechung jeweils Zweck, vorherige Erwartung, konkreten Beleg und
+offene Schlussfolgerung notieren. Lösungen stehen im nachfolgenden Trainerabschnitt.
+
+### ANN und Lifecycle
+
+Material: [öffentlicher V2-Teilnachweis](../Project_Planning/SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md)
+und [DML-/Rollenvertrag](SQL_SERVER_2025_AI_IDX012_DML_ROLE_RECORDS.md).
+Rechenfixture, ausdrücklich DIDAKTISCH und keine gemessene Suchausgabe:
+gleiche erlaubte Kandidaten 1–8, Cosine, k=5; Exact liefert 1/2/3/4/5,
+ANN liefert 1/2/6/7/8. Berechnen Sie Recall@5 und nennen Sie die gemeinsamen
+Treffer. Erklären Sie, warum doppelte IDs oder eine fremde Tenantpopulation
+den Vergleich ungültig machen und die Formel keine Sprachrelevanz misst.
+
+Lesen Sie anschließend die 25 Clientcaptures und acht Rollenkontexte des
+begrenzten V2-Records. Trennen Sie COHERENT_PUBLIC_V2 von Generation UNKNOWN,
+SQLcleanup TEXTS_COHERENT und voller TP-PERF-Abnahme. Ordnen Sie UPDATE/DELETE/
+INSERT/MERGE ohne beziehungsweise mit Index den beobachteten Ergebnissen zu.
+Legen Sie eine nächste Prüfung mit unverändertem Build, Kandidaten, tatsächlichem
+Plan, Rollback und unabhängigem Cleanup fest. Starten Sie sie nicht im Kurs.
+
+Abgabe: Rechnung, zulässige Population, Rollen-/DML-Grenze und begrenzter Prüfauftrag.
+
+### Messgrenzen und Kosten
+
+Bearbeiten Sie die vorhandene [RES-008-Ergebnisleseaufgabe](#ergänzende-ergebnisleseaufgabe-res-008)
+vollständig. Verwenden Sie ausschließlich deren veröffentlichte Beobachtungen.
+Ergänzen Sie eine Tabelle mit Messbereich, Population, Einheit und offenem
+Nachweis für CPU, Elapsed, Reads, individuelle Querylatenz und Modellqualität.
+Die Null-/AA-/Ausreißerfälle bleiben im Vergleich erhalten. Diese Aufgabe
+führt keine neue Aggregation privater Rohdaten oder SQL-Qualifikation durch.
+
+### Modellpfade und Provenienz
+
+Material: [Modellpfade](SQL_SERVER_2025_AI_MODEL_PATHS.md) und die vorhandene
+DGN-008-Lösung. Entwerfen Sie für die synthetische MOD_A-Wissensbasis eine
+Tabelle mit den Spalten Aufrufer, Transport, erlaubte Daten, Modellbindung,
+Credentials, endliches Budget und noch fehlender Nachweis. Vergleichen Sie
+Controller → lokaler Provider, SQL → HTTPS-Modell, externen Provider und ONNX.
+Markieren Sie, an welcher Grenze Text, Vektor und Antwort verarbeitet würden.
+
+Ein vorhandener WhatIf-READY-Befund ist nur eine Planung. Benennen Sie mindestens
+zwei Bedingungen vor einem tatsächlichen Aufruf und einen sicheren Ausfallpfad
+ohne automatischen Cloudwechsel. Wählen Sie eine passende Offlinealternative,
+wenn die Voraussetzungen fehlen. Keine Installation, Secrets oder neuen Aufrufe.
+
+Abgabe: vier Architekturzeilen mit Provenienz, begrenztem Budget und Freigabebedarf.
+
+### SQL Assistenz und Nettonutzen
+
+Material: [begrenzte Originalreaderplanbeobachtung](../Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md)
+und [getrennte Build-/Dropkosten](../Project_Planning/SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md).
+Ein synthetischer Assistenzvorschlag fordert einen zusätzlichen INCLUDE-Index.
+Lesen Sie die vorhandenen Teilbefunde und erstellen Sie zwei Spalten:
+„tatsächlich belegt“ und „vor Empfehlung noch erforderlich“.
+
+Erklären Sie, warum ein tatsächlicher Reader-Seek und unveränderte Results
+weder den Nettonutzen noch eine allgemeine Laufzeitverbesserung beweisen.
+Formulieren Sie eine widerlegbare Empfehlung für einen begrenzten Workload:
+Welche Lesehäufigkeit, DML-Last, Build-/Drop-/Storagekosten und Gegenkontrolle
+fehlen? Warum dürfen getrennt instrumentierte Zeitbereiche nicht einfach
+addiert werden? Client-Approval ersetzt keine SQL-Berechtigung.
+
+Abgabe: Befund-/Lückentabelle und konkreter nächster Messauftrag ohne Ausführung.
+
+### Betrieb Tenant und Diagnose
+
+Material: [öffentlicher CON-010-Umfang](../Project_Planning/SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md)
+und [offene Poolqualifikation](../Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md).
+Erstellen Sie eine Prüftabelle für EXECUTE AS, neue authentifizierte Verbindung
+und wiederverwendete Poolverbindung. Welche Identität muss jeweils nachgewiesen
+werden, welche erlaubten Rows erwarten Sie und was muss nach Reset gelten?
+Eine erfolgreiche einzelne Session erlaubt noch keine Aussage über die beiden
+anderen Verbindungspfade. Lesen Sie den tatsächlichen Poolstatus, ohne ihn
+aufgrund zerstörter Container oder eines konsistenten Recordformats hochzustufen.
+
+Für RES-009/DGN-011 entwerfen Sie danach ein kleines End-to-End-Protokoll mit
+Requestdauer, Fehlern, Durchsatz und getrennten SQL-/Netz-/Modell-/Retryanteilen.
+Markieren Sie unbekannte Werte als unbekannt. Eine Batchzeit wird nicht als p99
+individueller Requests ausgegeben. RLS, authentifizierte Identität und erlaubter
+Antwortkontext bleiben getrennte Kontrollen.
+
+Abgabe: drei Verbindungsgrenzen und ein begrenzter Diagnoseplan mit Abbruch/Cleanup.
+
+### Angriff Evaluation und Transfer
+
+Beginnen Sie mit der vorhandenen DGN-009-Aufgabe und deren fester Antwort-/
+Toolpolicy. Entwerfen Sie vier getrennte Fälle für die MOD_A-Wissensbasis:
+aktuelle erlaubte Quelle, leerer Kontext, widersprüchliche aktuelle Quellen
+und ein manipulierter Absatz mit einer unzulässigen Zusatzaktion. Legen Sie
+vorab erwartete Quellen-/Antwort-/Toolentscheidung und tatsächlichen
+Rechtebeleg fest. Ein Entwurf ist kein bestandener Test eines Live-Modells.
+
+Die Schlussaufgabe verbindet diese Fälle mit Suchpfad und Kostenentscheidung:
+Geben Sie eine begrenzte Empfehlung, einen möglichen Gegenbeleg und den nächsten
+Prüfauftrag mit Scope, Erwartung, Abbruch und Cleanup ab. Kein neuer Index,
+Provideraufruf oder Wechsel des Unterrichtsmodus entsteht aus dieser Empfehlung.
+
 ## Trainerlösungen und Rückfragen
 
 Die folgende Tabelle ist dieselbe gepflegte Quelle für die Trainerfassung.
@@ -338,6 +449,21 @@ Die vorgeschlagenen Rückfragen prüfen Transfer, keine gemessene Lernwirksamkei
 | DGN-008 | Setup erstellt und besitzt Modellmetadaten. Ingestion schreibt tatsächlich 7→8→7. Retrieval verliert Policy-SELECT und Modell-EXECUTE; Quellen-SELECT bleibt möglich. EXECUTE-Metadaten sind keine Inferenz, SYNTHETIC_NO_SECRET kein Credential. Endpointablehnung prüft Bytes, keine echte Verbindung. | Welche neue Evidenz wäre für einen tatsächlichen Modellaufruf erforderlich? |
 | DGN-009 | Manipulierter Inhalt wird tatsächlich retrievt, seine Anweisungen werden nicht zu SQL. Feste Policy liefert Antworten/Tools je 1 erlaubt, 3 abgelehnt. Nur ReadFact auf Quelle1 wird fest parametrisiert ausgeführt; GRANT/UPDATE scheitern tatsächlich mit 4613/229. Trust wird nicht vom Modell erkannt; kein allgemeiner Injection-/Tenant-/Egressnachweis. | Welche Grenze bleibt trotz dieser erfolgreichen festen Kontrollen offen? |
 | RES-008, getrennte Ergänzung | 20 Warmups plus 3×3×6=54 Messfenster; 20×1+54×100=5420 kontrollierte Queries. Pro Paar/Pfad sechs AB-/BA-Fenster; AA drei getrennte Baselinepaare. CPU/I/O sind eigene Request-Counterdifferenzen vor/nach der 100-Query-Schleife samt Overhead an diesen Messgrenzen. Elapsed misst die UTC-Zeit der Schleife samt Tempresult-Inserts; die Messgrenzen sind nicht identisch. Ein Elapsed-Nullfenster bei positiver CPU belegt keine fehlende Arbeit; Zeitauflösung, Reihenfolge und Streuung begrenzen die Interpretation. n=6 ergibt keinen belastbaren Query-p99 oder Signifikanznachweis. Baseline null ergibt N/A, Ausreißer bleiben in Max/Medianpopulation. 30 numerische Invarianten und repräsentative rohe Planattribute belegen keine volle Worker-/TP-PERF-/Modellabnahme; Gesamt-WARN/PROPOSED bleiben. Vor einer echten Dimensionsreduktion fehlen ein Vergleich tatsächlich erzeugter Embeddings mit gebundener Modellversion und eine fachlich gelabelte Retrieval-/Antwortbewertung desselben Korpus. | Welche zusätzliche Qualitätsmessung wäre vor einer echten Dimensionsreduktion erforderlich? |
+
+### Lösungen zu VERTIEFUNG Tag 2
+
+Diese Tabelle ergänzt dieselbe gepflegte Trainerquelle. Die Kostenrechnung
+verwendet allein die bestehende RES-008-Lösungszeile oben. Es gibt keine neue
+Punktwertung oder Kompetenzzertifizierung für Tag 2.
+
+| Aufgabe | Erwartete Erklärung und Grenze | Rückfrage |
+|---|---|---|
+| ANN und Lifecycle | Gemeinsame IDs 1/2 ergeben 2÷5=0,4 beziehungsweise 40 Prozent Recall@5 der ausdrücklich synthetischen Fixture. Fünf eindeutige Treffer, gleiche erlaubte Kandidaten, k, Modellraum/Metrik und Tie-Regel sind nötig. Keine gemessene ANN- oder Sprachqualität. Im gebundenen SQL-17.0.5005.3-Record stehen vier positive DML-Kontrollen ohne Index vier Fehlern 42231/State1 mit Index gegenüber; Rollback stellt 999 Rows und Transaktionswerte 0/0 her. COHERENT_PUBLIC_V2, 25 Captures und acht Rollenkontexte attestieren keine aktuelle Runtime, Generation oder vollständige TP-PERF. SQLcleanup bleibt TEXTS_COHERENT. | Welcher echte Plan- und Populationsbeleg würde einen ANN-Geschwindigkeitsclaim erst prüfbar machen? |
+| Messgrenzen und Kosten | Vorhandene RES-008-Lösung: 20 Warmups, 54 Messfenster, 74 Requests, 5420 Querykontrollen; n=6 je A/B-Pfad eines Paars. Im ersten 384er-Paar steigt CPU 6,5→7 ms und Reads 615→2415, während Elapsed 8169→6151 µs fällt. Unterschiedliche Messgrenzen, geringe Population und feste Geometrie erlauben keine Dimensionsregel, Query-p99 oder Modellqualitätsaussage. N/A, Nullfenster und Ausreißer erhalten. | Welche Population würde eine individuelle Request-p99 benötigen? |
+| Modellpfade und Provenienz | Controllerseitiger lokaler Modellaufruf und SQL-seitiger HTTPS-Aufruf sind verschiedene Architekturen. Jede Zeile nennt tatsächlichen Caller/Transport, zugelassenen Kontext, Modellversion/Digest/Dimension, Secretgrenze, Request-/Retry-/Zeitbudget und offenen Nachweis. Cloud erfordert getrennte Egress-/Kosten-/Verarbeitungsfreigabe; ONNX hat eigene OS-/Runtime-/Hostgrenzen. WhatIf READY ist keine Inferenz, Modell-EXECUTE kein APIerfolg. Bei fehlender Voraussetzung bleibt der feste Offlinepfad; kein automatischer Cloudfallback. | Welcher Nachweis prüft den Rückgabewert vor dem VECTOR-INSERT? |
+| SQL Assistenz | Gleiche Results und zwei private Originalreaderplanprofile sind begrenzte Belege, kein Indexnettonutzen. Die getrennten Owner-INSERT-/Rollback- und Build-/Dropfenster besitzen eigene Instrumentierung. Vor einer Empfehlung fehlen gleiche Workloadpopulation und Gewichte für Reads/DML, vollständige Kosten und Gegenkontrollen. Keine Addition ungleicher Messgrenzen. Ein konkreter Reader-Seek ist kein allgemeiner Speedup; Runtime-/TP-PERF-/Nettonutzen bleiben NOT_ESTABLISHED. | Welcher Gegenbefund würde die Empfehlung widerlegen? |
+| Betrieb Tenant und Diagnose | EXECUTE AS prüft einen DB-Kontext innerhalb einer Session; frische Anmeldung braucht eigene authentifizierte Verbindungsidentität und Rowkontrolle; Pooling zusätzlich echten Reuse, Reset und wiederholte Identitäts-/Tenantprüfung. Ein fremder Sessionwert darf A nicht zu B machen, Unmapped bekommt keine Rows. Ein begrenzter Owner- oder Recordnachweis schließt die offene Poolqualifikation nicht. SQL-Cleanup, Namespaceabbau und bekanntes Clientende getrennt belegen. End-to-End-Diagnose braucht individuelle Requests, getrennte Fehler-/Zeitanteile und vollständige Population. | Was bleibt nach reinem Containerabbau über SQL-Abwesenheit unbekannt? |
+| Angriff und Transfer | Im Entwurf darf nur aktuelle erlaubte Evidenz eine Antwort tragen. Leerer oder ungelöst widersprüchlicher Kontext verlangt begründete Nichtantwort; ein Quellenabsatz erteilt keine Toolrechte. Die vorhandene DGN-009-Policy und echte GRANT-/UPDATE-Verweigerungen sind feste Kontrollen, keine Live-Modellabnahme. Jede Empfehlung nennt erlaubte Population und Scope, Gegenbeleg sowie endlichen Prüf-/Abbruch-/Cleanupauftrag. Fehlende Ausführung bleibt offen. | Warum ist eine falsche Nichtantwort im positiven Fall kein bestandener Enthaltungstest? |
 
 ### Lösungen zu den drei optionalen Evidenzleseaufgaben
 

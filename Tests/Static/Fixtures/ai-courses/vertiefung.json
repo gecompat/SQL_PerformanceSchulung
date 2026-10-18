@@ -1,0 +1,79 @@
+{
+  "schema": "sql2025-ai-vertiefung-exercises/v1",
+  "source_sha256": {
+    "Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md": "7068363b0a9d1b838cb8a6b556507f4d5f56117ff1c1c083c2beed0078f0147a",
+    "Documentation/HowTo/SQL_SERVER_2025_AI_IDX012_DML_ROLE_RECORDS.md": "1f2f642908ff5db97b6177c3fcab53234bc9474de8b9e983561a6bc4fed182a3",
+    "Documentation/Project_Planning/SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md": "c86072116247884a6f0db9c210a51750383e7fbba61ff2e19cc08e09e40c5ccf",
+    "Documentation/HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md": "b2324b6fb51ad9d42cb2518b97184ba9d9c186c581b2d72618ba7fe66fe364ed",
+    "Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md": "03d116165721d16c4d2ee3e9eb0b1300410b74d52c4f1ad564aa27a14e7819a4",
+    "Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md": "c0d43b8fe61188718fc89d1ec9d04c2017d7dc1c935e1c3b132a6feb0ae7813a",
+    "Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md": "ac9bee65c87fa0d54c3030d05ac1fa94fddf9ecebd23d3e29aa804bd0f2545ac",
+    "Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md": "a994a5864ae542a543ba429c31429dc88c09a95e7411b0f1d76daeee6b7a8b91"
+  },
+  "ann": {
+    "classification": "DIDACTIC_SYNTHETIC",
+    "k": 5,
+    "metric": "cosine",
+    "allowed_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "exact_ids": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "ann_ids": [
+      1,
+      2,
+      6,
+      7,
+      8
+    ]
+  },
+  "resources": {
+    "dimensions": [
+      32,
+      384,
+      768,
+      1536
+    ],
+    "warmups_per_dimension": 5,
+    "pairs": 3,
+    "blocks_per_pair": 3,
+    "orders": [
+      "AB",
+      "BA",
+      "AA"
+    ],
+    "queries_per_window": 100,
+    "cpu_ms": [
+      6.5,
+      7.0
+    ],
+    "elapsed_us": [
+      8169.0,
+      6151.0
+    ],
+    "logical_reads": [
+      615.0,
+      2415.0
+    ]
+  },
+  "boundaries": {
+    "ann_generation": "UNKNOWN",
+    "ann_record": "COHERENT_PUBLIC_V2",
+    "full_performance": "NOT_ESTABLISHED",
+    "full_pooling": "NOT_ESTABLISHED",
+    "new_live_provider_calls": 0,
+    "day2_sql_calls": 0
+  }
+}

@@ -1,5 +1,13 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+Der ausdrücklich beauftragte [VERTIEFUNG-Zweitageskurs](../HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
+ergänzt nach STANDARD/PR251 den vollständigen Unterrichtspfad mit 61 Kursfolien,
+acht Offline-Praxisaufgaben und konkreten Tag-2-Beleg-/Entwurfsaufgaben.
+Die [technische/redaktionelle Generalprobe](SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md)
+ist abgeschlossen; optionaler Full-Text-WARN und Teilnehmerpilot bleiben getrennt.
+Begrenzter TSK-012-/TSK-014-Materialabschluss, keine volle Streamfreigabe oder
+Wiederaufnahme anderer technischer Wellen/Automationen.
+
 Die nächste beauftragte KI-Welle nach BASIS/PR250 ist der
 [STANDARD-Tageskurs](../HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md) mit 45 Folien
 und acht Offline-Aufgaben. Die [technische/redaktionelle Generalprobe](SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)

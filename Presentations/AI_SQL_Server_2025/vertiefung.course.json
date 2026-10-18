@@ -1,0 +1,533 @@
+{
+  "source_slide_count": 61,
+  "source_sha256": {
+    "Presentations/AI_SQL_Server_2025/content.mjs": "5241a6b1f1cffe2a2204349be6ddcac698738d818bb6bed64c4faac6c16e6a3b",
+    "Presentations/AI_SQL_Server_2025/introduction.mjs": "0072667430823b2e4d03ea39fd1b2ebe8cfecee48da36f43e1061f04d63f820b"
+  },
+  "workbook": "Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md",
+  "schema": "sql2025-ai-vertiefung/v1",
+  "course": "KI mit SQL Server 2025 VERTIEFUNG",
+  "subtitle": "Zwei Unterrichtstage · Offlinepraxis, Evidenz und Architekturentscheidungen",
+  "output": "Presentations/SQL_Server_2025_KI_VERTIEFUNG.pptx",
+  "guide": "Documentation/HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md",
+  "duration_minutes": 960,
+  "teaching_minutes": 840,
+  "break_minutes": 120,
+  "practical_demos": [
+    "QRY-014",
+    "QRY-015",
+    "QRY-016",
+    "QRY-017",
+    "QRY-018",
+    "QRY-019",
+    "DGN-008",
+    "DGN-009"
+  ],
+  "scored_tasks": [
+    "QRY-014",
+    "QRY-015",
+    "QRY-016",
+    "QRY-017",
+    "QRY-018",
+    "QRY-019",
+    "DGN-008",
+    "DGN-009"
+  ],
+  "blocks": [
+    {
+      "title": "Vertrauter Wissensbasisfall",
+      "start_minute": 0,
+      "minutes": 10,
+      "activity": "Einstieg",
+      "source_slides": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "title": "KI, Modell und Inferenz",
+      "start_minute": 10,
+      "minutes": 15,
+      "activity": "Erklärung",
+      "source_slides": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "title": "Voraussetzungen und Rechte",
+      "start_minute": 25,
+      "minutes": 15,
+      "activity": "Vorbereitung",
+      "source_slides": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "title": "Drei Vektoren vorhersagen und prüfen",
+      "start_minute": 40,
+      "minutes": 20,
+      "activity": "Read-only-Vorführung",
+      "source_slides": [
+        18,
+        19,
+        20,
+        21
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "title": "Echte Embeddings einordnen",
+      "start_minute": 60,
+      "minutes": 10,
+      "activity": "Erklärung",
+      "source_slides": [
+        22,
+        23
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "title": "Quellen und Antworten prüfen",
+      "start_minute": 70,
+      "minutes": 15,
+      "activity": "Besprechung",
+      "source_slides": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "title": "Übergang zu den Demos",
+      "start_minute": 85,
+      "minutes": 5,
+      "activity": "Vorbereitung",
+      "source_slides": [
+        28
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "start_minute": 90,
+      "minutes": 15,
+      "activity": "Pause",
+      "source_slides": [],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "start_minute": 105,
+      "minutes": 35,
+      "activity": "Typ, Metrik und Normalisierung",
+      "source_slides": [
+        34,
+        35,
+        36,
+        37
+      ],
+      "demos": [
+        "QRY-014",
+        "QRY-015"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 140,
+      "minutes": 30,
+      "activity": "Chunking und Version",
+      "source_slides": [
+        38,
+        39
+      ],
+      "demos": [
+        "QRY-016"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 170,
+      "minutes": 30,
+      "activity": "Suchpfade",
+      "source_slides": [
+        43,
+        44
+      ],
+      "demos": [
+        "QRY-017"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 200,
+      "minutes": 30,
+      "activity": "Belegbare Antworten",
+      "source_slides": [
+        45,
+        46
+      ],
+      "demos": [
+        "QRY-018"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 230,
+      "minutes": 30,
+      "activity": "Pause",
+      "source_slides": [],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "start_minute": 260,
+      "minutes": 30,
+      "activity": "Wertbindung und Rechte",
+      "source_slides": [
+        47,
+        48
+      ],
+      "demos": [
+        "QRY-019"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 290,
+      "minutes": 35,
+      "activity": "Modellpfade und getrennte Rechte",
+      "source_slides": [
+        40,
+        41,
+        42
+      ],
+      "demos": [
+        "DGN-008"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 325,
+      "minutes": 30,
+      "activity": "Manipulierte Quelle",
+      "source_slides": [
+        49
+      ],
+      "demos": [
+        "DGN-009"
+      ],
+      "day": 1
+    },
+    {
+      "start_minute": 355,
+      "minutes": 15,
+      "activity": "Pause",
+      "source_slides": [],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "start_minute": 370,
+      "minutes": 40,
+      "activity": "Gemeinsame Ergebnisbesprechung",
+      "source_slides": [],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "start_minute": 410,
+      "minutes": 20,
+      "activity": "Entscheidung und Transfer",
+      "source_slides": [
+        61
+      ],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "start_minute": 430,
+      "minutes": 50,
+      "activity": "Rückfragen und Reserve",
+      "source_slides": [],
+      "demos": [],
+      "day": 1
+    },
+    {
+      "day": 2,
+      "start_minute": 480,
+      "minutes": 15,
+      "activity": "Rekapitulation",
+      "source_slides": [],
+      "demos": [],
+      "mode": "discussion"
+    },
+    {
+      "day": 2,
+      "start_minute": 495,
+      "minutes": 60,
+      "activity": "ANN und Lifecycle",
+      "source_slides": [
+        51,
+        52,
+        53
+      ],
+      "demos": [],
+      "mode": "record"
+    },
+    {
+      "day": 2,
+      "start_minute": 555,
+      "minutes": 15,
+      "activity": "Pause",
+      "source_slides": [],
+      "demos": [],
+      "mode": "break"
+    },
+    {
+      "day": 2,
+      "start_minute": 570,
+      "minutes": 60,
+      "activity": "Messgrenzen und Kosten",
+      "source_slides": [
+        54,
+        55
+      ],
+      "demos": [],
+      "mode": "record"
+    },
+    {
+      "day": 2,
+      "start_minute": 630,
+      "minutes": 75,
+      "activity": "Modellpfade und Provenienz",
+      "source_slides": [
+        40,
+        41,
+        42
+      ],
+      "demos": [],
+      "mode": "design"
+    },
+    {
+      "day": 2,
+      "start_minute": 705,
+      "minutes": 30,
+      "activity": "Pause",
+      "source_slides": [],
+      "demos": [],
+      "mode": "break"
+    },
+    {
+      "day": 2,
+      "start_minute": 735,
+      "minutes": 45,
+      "activity": "SQL-Assistenz",
+      "source_slides": [
+        57,
+        58,
+        59
+      ],
+      "demos": [],
+      "mode": "record"
+    },
+    {
+      "day": 2,
+      "start_minute": 780,
+      "minutes": 45,
+      "activity": "Betrieb, Tenant und Diagnose",
+      "source_slides": [
+        50,
+        56
+      ],
+      "demos": [],
+      "mode": "record"
+    },
+    {
+      "day": 2,
+      "start_minute": 825,
+      "minutes": 15,
+      "activity": "Pause",
+      "source_slides": [],
+      "demos": [],
+      "mode": "break"
+    },
+    {
+      "day": 2,
+      "start_minute": 840,
+      "minutes": 60,
+      "activity": "Angriff und Evaluation",
+      "source_slides": [
+        49,
+        60
+      ],
+      "demos": [],
+      "mode": "design"
+    },
+    {
+      "day": 2,
+      "start_minute": 900,
+      "minutes": 30,
+      "activity": "Entscheidung und Transfer",
+      "source_slides": [
+        61
+      ],
+      "demos": [],
+      "mode": "discussion"
+    },
+    {
+      "day": 2,
+      "start_minute": 930,
+      "minutes": 30,
+      "activity": "Rückfragen und Reserve",
+      "source_slides": [],
+      "demos": [],
+      "mode": "discussion"
+    }
+  ],
+  "source_titles": {
+    "1": "KI mit und für\nMicrosoft SQL Server 2025",
+    "2": "Einstieg mit bekannten SQL-Grundlagen",
+    "3": "Eine Frage aus der technischen Wissensbasis",
+    "4": "Drei überschaubare Quelldokumente",
+    "5": "Eine vertraute SELECT-Abfrage",
+    "6": "Unterschiedliche Fragen an dieselben Daten",
+    "7": "KI-Anwendungen rund um SQL Server",
+    "8": "KI und Machine Learning in einfachen Worten",
+    "9": "Ein Modell und seine Aufgabe",
+    "10": "Training und Inferenz",
+    "11": "Ein Sprachmodell erzeugt Antworttext",
+    "12": "Tokens und Textlänge",
+    "13": "SQL Server, Modell und Anwendung",
+    "14": "Der erste Offlineeinstieg",
+    "15": "Serverversion und Client sind verschieden",
+    "16": "Version und Datenbankeinstellung lesen",
+    "17": "Eine vorbereitete Testumgebung und passende Rechte",
+    "18": "Ein Vektor als kleine Zahlenliste",
+    "19": "Vorhersage für drei Richtungen",
+    "20": "Eine vollständige read-only Vektorquery",
+    "21": "Ergebnisbesprechung der Vektorquery",
+    "22": "Text als Zahlen: ein Embedding",
+    "23": "Zusätzliche Hürden eines echten Modellpfads",
+    "24": "Ein Textausschnitt braucht seine Herkunft",
+    "25": "Eine Antwort mit abgerufenem Quellenkontext",
+    "26": "Eine belegbare Antwort im Wissensbasisfall",
+    "27": "Falsche und fehlende Antworten erkennen",
+    "28": "Vorbereitung auf die konkreten Demos",
+    "34": "Vektoren und Embeddingräume",
+    "35": "QRY-014: Typ und Modellraum",
+    "36": "Distanz, Norm und Normalisierung",
+    "37": "QRY-015: Rangfolge vor und nach Normalisierung",
+    "38": "Chunking und belegbare Quellen",
+    "39": "QRY-016: Overlap und Dokumentversion",
+    "43": "Suchpfade und Qualitätsfragen",
+    "44": "QRY-017: Suche nach MOD_A",
+    "45": "RAG und die Bindung einer Antwort",
+    "46": "QRY-018: Vier Quellenentscheidungen",
+    "47": "Securitygrenzen im Datenfluss",
+    "48": "QRY-019: Wertbindung und SQL-Struktur",
+    "40": "Modellpfade und ihre Freigaben",
+    "41": "Embedding-Lifecycle",
+    "42": "DGN-008: Getrennte Modellrechte",
+    "49": "DGN-009: Manipulierte Retrievalquelle",
+    "61": "Entscheidung und Transferaufgabe",
+    "51": "Exact Search und ANN",
+    "52": "IDX-011: Recall und gebundene Messung",
+    "53": "IDX-012: Index-Lifecycle und Kosten",
+    "54": "Messbereiche und Gegenproben",
+    "55": "RES-008: Gebundene Dimensionsergebnisse lesen",
+    "57": "KI-Assistenz für SQL-Entwicklung und Analyse",
+    "58": "DGN-010: Indexvorschlag und Gegenmessung",
+    "59": "Copilot in SSMS und Ausführungskontext",
+    "50": "CON-010: Tenant-Isolation vor dem Kontext",
+    "56": "RES-009 und DGN-011: End-to-End-Diagnose",
+    "60": "Neun Entwürfe für die Vertiefung"
+  },
+  "overrides": {
+    "41": {
+      "blocks": [
+        [
+          "Vor Anfrage",
+          "Modell, Dimension, Tokenlimit, Lizenz, TLS und authentifizierten Endpoint prüfen."
+        ],
+        [
+          "Vor dem INSERT",
+          "Resultattyp, Anzahl, Dimension, Truncation und Modellraum kontrollieren."
+        ],
+        [
+          "Nach Änderungen",
+          "Re-Embedding nachvollziehbar versionieren. Request-, Retry-, Netz- und Modellzeit getrennt zählen."
+        ]
+      ],
+      "bottom": "SQL External Model beschreibt den Embeddingzugang. Die generative Antwort bleibt ein Anwendungsschritt."
+    },
+    "61": {
+      "blocks": [
+        [
+          "Suchfrage",
+          "Eine exakte Dokumentkennung und eine inhaltliche Frage brauchen begründete Suchpfade."
+        ],
+        [
+          "Quellenkonflikt",
+          "Zwei aktuelle erlaubte Quellen widersprechen sich. Herkunft und Version am Treffer belegen."
+        ],
+        [
+          "Manipulation",
+          "Ein Quellenabsatz fordert eine Zusatzaktion. Zulässige Antwort und Toolbefugnis getrennt erklären."
+        ]
+      ],
+      "bottom": "Acht Aufgaben: höchstens 16 Punkte nach bestehender Rubrik. Transfer unbewertet; kein Live-Modellaufruf."
+    }
+  },
+  "qualification": "Technische und redaktionelle Kursprobe; Tag 2 Beleglesen/Entwurf, keine neue Qualifikation offener Runtimepfade.",
+  "repeated_source_slides": [
+    40,
+    41,
+    42,
+    49,
+    61
+  ],
+  "standard_course_sha256": "805dcc18f9581222877b52615aeba81329e2dc00394790d855dc963b8aaf26a8",
+  "slide_overrides": {
+    "61": {
+      "blocks": [
+        [
+          "Empfehlung",
+          "Für die synthetische Wissensbasis einen Suchpfad mit erlaubten Quellen und Modellraum begründen."
+        ],
+        [
+          "Gegenbeleg",
+          "Recall, Kosten und aktuelle Rechte prüfen. Begrenzte Teilnachweise begründen keine Gesamtfreigabe."
+        ],
+        [
+          "Prüfauftrag",
+          "Fehlenden Nachweis mit Scope, erwartbarem Ergebnis, Abbruch und Cleanup konkret festlegen."
+        ]
+      ],
+      "bottom": "Tag 2: unbewertete Beleg- und Entwurfsaufgaben. Keine Live-Provider- oder Performancefreigabe."
+    }
+  }
+}

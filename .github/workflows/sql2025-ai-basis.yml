@@ -1,4 +1,4 @@
-name: SQL Server 2025 KI Kurse BASIS und STANDARD
+name: SQL Server 2025 KI Kurse
 
 on:
   pull_request:
@@ -8,6 +8,19 @@ on:
       - 'Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md'
       - 'Documentation/HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md'
       - 'Documentation/HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md'
+      - 'Tests/Static/validate_sql2025_ai_vertiefung.py'
+      - 'Tests/Static/test_sql2025_ai_vertiefung.py'
+      - 'Tests/Static/Fixtures/ai-courses/**'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_IDX012_DML_ROLE_RECORDS.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md'
       - 'Tests/Static/validate_sql2025_ai_basis.py'
       - 'Tests/Static/test_sql2025_ai_basis.py'
       - 'Tests/Static/validate_sql2025_ai_standard.py'
@@ -22,6 +35,19 @@ on:
       - 'Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md'
       - 'Documentation/HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md'
       - 'Documentation/HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md'
+      - 'Tests/Static/validate_sql2025_ai_vertiefung.py'
+      - 'Tests/Static/test_sql2025_ai_vertiefung.py'
+      - 'Tests/Static/Fixtures/ai-courses/**'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_V2_REQUALIFICATION_REVIEW.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_IDX012_DML_ROLE_RECORDS.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_RESOURCE_AGGREGATION_REVIEW.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_BUILD_COST_REVIEW.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md'
+      - 'Documentation/Project_Planning/SQL_SERVER_2025_AI_POOL_REQUALIFICATION_REVIEW.md'
       - 'Tests/Static/validate_sql2025_ai_basis.py'
       - 'Tests/Static/test_sql2025_ai_basis.py'
       - 'Tests/Static/validate_sql2025_ai_standard.py'
@@ -45,4 +71,6 @@ jobs:
       - run: python Tests/Static/test_sql2025_ai_basis.py
       - run: python Tests/Static/validate_sql2025_ai_standard.py
       - run: python Tests/Static/test_sql2025_ai_standard.py
+      - run: python Tests/Static/validate_sql2025_ai_vertiefung.py
+      - run: python Tests/Static/test_sql2025_ai_vertiefung.py
       - run: python Tests/Static/test_ai_presentation_package.py

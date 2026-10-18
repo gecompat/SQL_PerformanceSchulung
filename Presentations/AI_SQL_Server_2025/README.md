@@ -1,5 +1,17 @@
 # KI mit und für Microsoft SQL Server 2025
 
+Für den Zweitageskurs steht die eigenständige
+[VERTIEFUNG-Präsentation mit 61 Kursfolien](../SQL_Server_2025_KI_VERTIEFUNG.pptx) bereit.
+Sie enthält den vollständigen STANDARD-Tag und konkrete Tag-2-Beleg-/Entwurfsaufgaben.
+Fünf Quellfolien werden an Tag 2 gezielt wiederholt; die Fußzeile zeigt Kurs-
+und Quellnummer. [Leitfaden](../../Documentation/HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
+und [technische/redaktionelle Generalprobe](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md)
+trennen tatsächliche Offline-Demos, reine Belegaufgaben und offene Teilnehmererprobung.
+`vertiefung.course.json` bindet Ablauf, Wiederholungen und die beiden unterschiedlichen
+Transferpositionen. `AI_SLIDES_PROFILE=vertiefung` exportiert ausschließlich
+`Presentations/SQL_Server_2025_KI_VERTIEFUNG.pptx`; andere Decks bleiben unverändert.
+840+120 Minuten sind Planwerte, offene Runtimeclaims bleiben erhalten.
+
 Der vollständige Offline-Unterrichtstag steht als eigenständige
 [STANDARD-Präsentation mit 45 Folien](../SQL_Server_2025_KI_STANDARD.pptx) bereit.
 Der [Kursleitfaden](../../Documentation/HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md)
