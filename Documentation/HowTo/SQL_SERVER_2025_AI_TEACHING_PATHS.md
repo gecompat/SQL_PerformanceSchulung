@@ -11,7 +11,13 @@ Für BASIS ist seit dem 18. Oktober 2026 das eigenständige
 Es enthält den konkreten Ablauf, Durchführung, Ausfallpfad und Beobachtungsbogen.
 Die [technische und redaktionelle Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
 ist von einer Teilnehmererprobung und gemessenen Unterrichtszeiten getrennt.
-Die STANDARD-/VERTIEFUNGspfade bleiben weiterführende Planungen.
+Für STANDARD gilt ebenfalls seit dem 18. Oktober der eigenständige
+[Tageskurs mit 45 Folien](SQL_SERVER_2025_AI_STANDARD_COURSE.md) und
+[abgeschlossener technischer/redaktioneller Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md).
+Der optionale Full-Text-WARN und die offene Teilnehmererprobung bleiben sichtbar.
+VERTIEFUNG bleibt eine weiterführende Planung. Die folgenden STANDARD-Nummern
+beziehen sich weiterhin auf die Quellfolien des vollständigen Masterdecks;
+der Kursleitfaden nennt die zugehörigen STANDARD-Folien.
 
 ## Zielgruppe und vorbereiteter Einstieg
 
@@ -78,7 +84,7 @@ und begründete Nichtantwort zugeschnitten. Sie verlangt keine zusätzliche
 Indexentwurfsaufgabe. Quellfoliennummern im übrigen Dokument beziehen sich auf
 das vollständige Masterdeck; die BASIS-Fußzeile zeigt beide Zuordnungen.
 
-## STANDARD: geplanter Unterrichtstag
+## STANDARD: vorbereiteter Unterrichtstag
 
 480 Minuten brutto, davon 420 Nettolehrzeit und 60 Pausenminuten. Der vorbereitete
 Tag enthält alle acht Aufgaben des Offlinearbeitshefts. Die genaue Zuordnung und

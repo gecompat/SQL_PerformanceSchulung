@@ -1,5 +1,19 @@
 # KI mit und für Microsoft SQL Server 2025 – Workstream-Plan
 
+## STANDARD Kurswelle vom 18. Oktober 2026
+
+Der neue Folgeauftrag nach BASIS/PR250 autorisiert die nächste sinnvoll
+abschließbare KI-Welle. Der gewählte [STANDARD-Tageskurs](../HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md)
+liefert 45 Folien und den vollständigen vorhandenen Acht-Aufgaben-Offlinekern
+mit 420+60 Planminuten. Die [technische und redaktionelle Generalprobe](SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
+ist abgeschlossen: 16 vollständige SQL-Lifecycles, 76 erfüllte Ergebnisassertionen,
+eigener unabhängiger Cleanup und PowerPoint-Editier-/Speichertest. Fehlender
+optionaler Full-Text bleibt sichtbar WARN. Der vorhandene Master-/BASIS-Bestand
+und SQL-Code bleiben unverändert. Dies schließt den STANDARD-Materialschnitt
+von TSK-012/TSK-014; reale Teilnehmererprobung und gemessene Lehrzeiten bleiben
+offen. VERTIEFUNG und übrige pausierte Technik-/Providerwellen sowie Automation
+werden nicht automatisch aufgenommen; keine volle Workstreamfreigabe.
+
 ## BASIS Kurswelle vom 18. Oktober 2026
 
 Der neue Auftrag autorisiert gezielt den BASIS-Kurs mit Generalprobe bis zur

@@ -78,7 +78,7 @@ class PresentationPackageTests(unittest.TestCase):
                 self.assertEqual(archive.read('ppt/slides/slide1.xml'), slide)
 
     def test_published_deck_has_resolvable_date_types(self):
-        for filename in ('SQL_Server_2025_KI.pptx', 'SQL_Server_2025_KI_BASIS.pptx'):
+        for filename in ('SQL_Server_2025_KI.pptx', 'SQL_Server_2025_KI_BASIS.pptx', 'SQL_Server_2025_KI_STANDARD.pptx'):
             with self.subTest(filename=filename), ZipFile(ROOT / 'Presentations' / filename) as archive:
                 assert_date_types(self, archive.read('docProps/core.xml'))
 

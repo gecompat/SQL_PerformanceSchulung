@@ -1,10 +1,17 @@
 # KI mit SQL Server 2025 – Trainerleitfaden für den Offlinepfad
 
+Für den vollständigen Offline-Unterrichtstag gilt seit dem 18. Oktober der
+[STANDARD-Kursleitfaden](SQL_SERVER_2025_AI_STANDARD_COURSE.md) mit separater
+45-Folien-Präsentation, acht Aufgaben und 420+60 Planminuten. Die
+[technische/redaktionelle Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
+ist abgeschlossen, einschließlich sichtbar erhaltenem optionalen Full-Text-WARN.
+Lösungen und Rubrik bleiben im Arbeitsheft; reale Teilnehmererprobung steht aus.
+
 Für die Durchführung des vierstündigen BASIS-Kurses verwenden Sie den
 [BASIS-Kursleitfaden](SQL_SERVER_2025_AI_BASIS_COURSE.md) und die separate
 39-Folien-Präsentation. Er wählt QRY-014/QRY-019 praktisch und QRY-018 als
 Leseaufgabe aus diesem Materialvorrat aus. Der nachfolgende vollständige
-Offlinepfad bleibt der weiterführende STANDARD-Entwurf. Der
+Offlinepfad ist im STANDARD-Kurs konkretisiert. Der
 [Generalprobenachweis](../Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
 benennt die tatsächlich geprüften Abläufe und den getrennten Teilnehmerpilot.
 
