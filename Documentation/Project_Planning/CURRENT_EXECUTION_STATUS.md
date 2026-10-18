@@ -1,5 +1,19 @@
 # Aktueller Ausführungsstand
 
+## STANDARD Kurswelle vom 18. Oktober 2026
+
+Nach dem integrierten BASIS-Kurs (PR250, main72b41c8) beauftragt der Benutzer
+die nächste sinnvolle KI-Welle mit vollständigem Abschluss in origin/main.
+Gewählter Umfang ist der [STANDARD-Tageskurs](../HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md):
+45 native Folien, acht Offline-Aufgaben, 420+60 Planminuten und vollständiger
+Durchführungs-/Ausfallpfad. Die [technische und redaktionelle Generalprobe](SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
+ist abgeschlossen: 16 SQL-Lifecycles, 76 erfüllte Ergebnisassertionen,
+unabhängiger DB-/Containercleanup und PowerPoint-Anwendungstest.
+QRY-017 und damit die SQL-Gesamtprobe behalten den vorgesehenen optionalen
+Full-Text-WARN. Teilnehmerpilot und gemessene Lehrzeiten bleiben getrennt offen.
+VERTIEFUNG, übrige technische Wellen und Automation bleiben pausiert;
+volle TSK-012-/TSK-014-/Workstreamabnahme wird nicht behauptet.
+
 ## BASIS Kurswelle vom 18. Oktober 2026
 
 Der neue Benutzerauftrag nimmt ausschließlich den BASIS-Kurs samt Generalprobe

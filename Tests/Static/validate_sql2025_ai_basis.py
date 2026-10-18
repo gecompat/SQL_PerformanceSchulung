@@ -70,19 +70,19 @@ def shape_texts(xml: bytes) -> list[str]:
 def body_texts(xml: bytes) -> list[str]:
     return [t for t in shape_texts(xml)
             if not re.fullmatch(r'\d{2}\s+CUR-\d{3}(?: / CUR-\d{3})*',t)
-            and not re.fullmatch(r'BASIS \d+ · Quellfolie \d+ · CUR-\d{3}(?: / CUR-\d{3})*',t)]
+            and not re.fullmatch(r'(?:BASIS|STANDARD) \d+ · Quellfolie \d+ · CUR-\d{3}(?: / CUR-\d{3})*',t)]
 
 
-def presentation_findings(course: dict) -> list[str]:
+def presentation_findings(course: dict, label: str = 'BASIS') -> list[str]:
     findings = []
     target = ROOT/course['output']
     if not target.is_file():
-        return ['BASIS-Präsentation fehlt']
+        return [label+'-Präsentation fehlt']
     numbers = [n for block in course['blocks'] for n in block['source_slides']]
     with ZipFile(MASTER) as master, ZipFile(target) as basis:
         slides = [n for n in basis.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',n)]
-        if len(slides) != 39:
-            findings.append('BASIS-Datei enthält nicht 39 Folien')
+        if len(slides) != len(numbers):
+            findings.append(label+'-Datei enthält nicht die ausgewählte Folienzahl')
         a = ET.fromstring(master.read('ppt/presentation.xml')).find('p:sldSz',NS)
         b = ET.fromstring(basis.read('ppt/presentation.xml')).find('p:sldSz',NS)
         if (a.get('cx'),a.get('cy')) != (b.get('cx'),b.get('cy')):
@@ -90,24 +90,24 @@ def presentation_findings(course: dict) -> list[str]:
         for index, source in enumerate(numbers,1):
             xml = basis.read(f'ppt/slides/slide{index}.xml')
             if index == 1:
-                if 'BASIS' not in ' '.join(shape_texts(xml)):
-                    findings.append('BASIS-Titelfolie nicht gekennzeichnet')
+                if label not in ' '.join(shape_texts(xml)):
+                    findings.append(label+'-Titelfolie nicht gekennzeichnet')
             else:
                 original = master.read(f'ppt/slides/slide{source}.xml')
                 expected = body_texts(original)
-                if source == 61:
-                    override = course['overrides']['61']
-                    expected = [course['source_titles']['61']] + [t for pair in override['blocks'] for t in pair] + [override['bottom']]
+                if str(source) in course.get('overrides', {}):
+                    override = course['overrides'][str(source)]
+                    expected = [course['source_titles'][str(source)]] + [t for pair in override['blocks'] for t in pair] + [override['bottom']]
                 if body_texts(xml) != expected:
                     findings.append(f'Native Inhalte weichen von Quellfolie {source} ab')
                 if not body_texts(xml) or body_texts(xml)[0] != ' '.join(course['source_titles'][str(source)].split()):
                     findings.append(f'Quellfolgentitel fehlt: {source}')
-                if not any(t.startswith(f'BASIS {index} · Quellfolie {source} · ') for t in shape_texts(xml)):
+                if not any(t.startswith(f'{label} {index} · Quellfolie {source} · ') for t in shape_texts(xml)):
                     findings.append(f'Folienzuordnung fehlt: {index}')
             notes = basis.read(f'ppt/notesSlides/notesSlide{index}.xml')
             text = ' '.join(ET.fromstring(notes).itertext())
             original_notes = ' '.join(ET.fromstring(master.read(f'ppt/notesSlides/notesSlide{source}.xml')).itertext())
-            if 'BASIS-Folie' not in text or ('SRC-' in original_notes and 'SRC-' not in text):
+            if label+'-Folie' not in text or ('SRC-' in original_notes and 'SRC-' not in text):
                 findings.append(f'Moderation oder Quellen fehlen: {index}')
         for name in ('docProps/core.xml','docProps/app.xml'):
             for node in ET.fromstring(basis.read(name)).iter():

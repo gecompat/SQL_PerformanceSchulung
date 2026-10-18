@@ -1,5 +1,12 @@
 # KI mit SQL Server 2025 – Arbeitsheft für den Offlinepfad
 
+Der [STANDARD-Tageskurs](SQL_SERVER_2025_AI_STANDARD_COURSE.md) verwendet alle
+acht Offline-Aufgaben und die bestehende Gesamtwertung bis 16 Punkte.
+Der [Generalprobenachweis](../Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
+belegt die technische/redaktionelle Kursprobe mit erhaltenem optionalen
+Full-Text-WARN; die Teilnehmererprobung bleibt offen. Die ergänzenden RES-008-
+und E1–E3-Aufgaben gehören nicht zu diesem Tageskurs.
+
 Der [BASIS-Kurs](SQL_SERVER_2025_AI_BASIS_COURSE.md) verwendet aus diesem
 Arbeitsheft ausschließlich QRY-014 und QRY-019 als bewertete Aufgaben sowie
 QRY-018 als unbewertete Leseaufgabe. Die beiden vorhandenen 0–2-Punkte-Rubriken

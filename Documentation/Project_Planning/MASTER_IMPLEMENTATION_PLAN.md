@@ -1,5 +1,12 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+Die nächste beauftragte KI-Welle nach BASIS/PR250 ist der
+[STANDARD-Tageskurs](../HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md) mit 45 Folien
+und acht Offline-Aufgaben. Die [technische/redaktionelle Generalprobe](SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
+ist abgeschlossen; optionaler Full-Text-WARN und tatsächlicher Teilnehmerpilot
+bleiben getrennt dokumentiert. Dies ist ein weiterer begrenzter Teilabschluss
+von TSK-012/TSK-014; übrige technische Wellen und Automation bleiben pausiert.
+
 Der gesondert beauftragte [BASIS-Kurs vom 18. Oktober 2026](../HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md)
 ist als begrenztes Teilprodukt von TSK-012/TSK-014 technisch und redaktionell
 geprobt. [Nachweis und verbleibender Teilnehmerpilot](SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)

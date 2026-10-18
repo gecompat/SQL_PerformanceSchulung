@@ -1,5 +1,17 @@
 # KI mit und für Microsoft SQL Server 2025
 
+Der vollständige Offline-Unterrichtstag steht als eigenständige
+[STANDARD-Präsentation mit 45 Folien](../SQL_Server_2025_KI_STANDARD.pptx) bereit.
+Der [Kursleitfaden](../../Documentation/HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md)
+verbindet acht vorhandene Aufgaben mit 420+60 Planminuten und sicherem Ausfallpfad.
+Die [technische/redaktionelle Generalprobe](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md)
+ist abgeschlossen; der optionale Full-Text-WARN und die offene Teilnehmererprobung
+bleiben ausdrücklich erhalten. Lösungen und Rubrik stehen im vorhandenen Arbeitsheft.
+`standard.course.json` bindet Auswahl, Zeitfenster und Praxiszuordnung.
+`AI_SLIDES_PROFILE=standard` exportiert ausschließlich
+`Presentations/SQL_Server_2025_KI_STANDARD.pptx`. BASIS und vollständige
+Präsentation bleiben bei diesem Export unverändert.
+
 Für den vierstündigen Einstieg steht die abgeleitete
 [BASIS-Präsentation mit 39 Folien](../SQL_Server_2025_KI_BASIS.pptx) bereit.
 Der [Kursleitfaden](../../Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md)

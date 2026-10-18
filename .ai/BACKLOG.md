@@ -1,5 +1,15 @@
 # Initialer Backlog
 
+## STANDARD Kurswelle vom 18. Oktober 2026
+
+- [x] STANDARD-Teilprodukt TSK-012: [45-Folien-Tageskurs](../Documentation/HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md) mit acht Offline-Aufgaben, 420+60 Planminuten, Transfer, vorhandener Rubrik und sicherem Ausfallpfad.
+- [x] STANDARD-Teilprodukt TSK-014: [technische und redaktionelle Generalprobe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md), 16 SQL-Lifecycles und 76 Ergebnisassertionen, PowerPoint-Anwendungstest und unabhängiger Cleanup. Optionaler Full-Text-WARN bleibt erhalten.
+- [ ] STANDARD-Teilnehmerpilot: reale Gruppe mit Lehrperson, Soll-/Ist-Zeiten und Verständnisbelegen. Wiederaufnahme bei tatsächlicher moderierter Durchführung; kein eigener offener Codebranch.
+
+Dies ist die im neuen Auftrag ausgewählte Folgewelle nach BASIS/PR250.
+Die übrigen pausierten technischen Arbeiten und Automationen werden nicht
+aktiviert; volle TSK-012-/TSK-014-/Streamfreigabe bleibt offen.
+
 ## BASIS Kurswelle vom 18. Oktober 2026
 
 - [x] BASIS-Teilprodukt TSK-012: [39-Folien-Kurspaket](../Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md), Ablauf, zwei Praxisaufgaben, RAG-Leseaufgabe, Ausfallpfad und Beobachtungsbogen.
