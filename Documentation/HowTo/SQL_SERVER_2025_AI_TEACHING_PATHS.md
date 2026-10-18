@@ -6,6 +6,13 @@ Alle Zeiten sind Vorschläge für eine spätere Generalprobe, keine gemessenen
 Lehrzeiten oder Teilnehmerabnahme. Der [kanonische Workstreamplan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#5-pfade-und-zeitbedarf)
 führt die aktuellen Planfenster; dieser Leitfaden konkretisiert Materialauswahl und Ablauf.
 
+Für BASIS ist seit dem 18. Oktober 2026 das eigenständige
+[Kurspaket mit 39 Folien](SQL_SERVER_2025_AI_BASIS_COURSE.md) maßgeblich.
+Es enthält den konkreten Ablauf, Durchführung, Ausfallpfad und Beobachtungsbogen.
+Die [technische und redaktionelle Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
+ist von einer Teilnehmererprobung und gemessenen Unterrichtszeiten getrennt.
+Die STANDARD-/VERTIEFUNGspfade bleiben weiterführende Planungen.
+
 ## Zielgruppe und vorbereiteter Einstieg
 
 Teilnehmende benötigen keine KI-Erfahrung. Einfache SELECT-Abfragen sind der
@@ -52,10 +59,10 @@ wählt Material aus dem Deck aus; er verlangt nicht alle 61 Folien in vier Stund
 | Baustein | Material | Netto-Planminuten |
 |---|---|---:|
 | Gemeinsamer Einstieg | Folien1–28, obiger Ablauf | 90 |
-| Typ/Modellraum vertiefen | Folien29–35, QRY-014 und zugehörige Arbeitsheftaufgabe | 25 |
+| Typ/Modellraum vertiefen | Quellfolien34–35, BASIS29–30; QRY-014 und zugehörige Arbeitsheftaufgabe | 25 |
 | Parameter und Rechte sehen | Folien47–48, QRY-019 und zugehörige Arbeitsheftaufgabe | 25 |
 | Quelle/Antwort und Grenzen | Folien45–46, QRY-018 als moderierte Ergebnisleseaufgabe | 20 |
-| Fachthemen einordnen | Folien40 sowie51–60 gezielt als Überblick: Modellzugang, ANN, Kosten und Assistenz | 20 |
+| Fachthemen einordnen | Quellfolien40/51/54/57, BASIS35–38: Modellzugang, ANN, Messung und Assistenz | 20 |
 | Entscheidung/Transfer | Folie61, einen Fall begründen und nächsten Nachweis nennen | 15 |
 | Rückfragen/Reserve | Hindernisse klären und offene Fragen festhalten | 15 |
 | **Summe Netto** | | **210** |
@@ -64,6 +71,12 @@ Nur die ausgewählten manifestbasierten Vorführungen werden praktisch geplant;
 die Übersicht über offene Vertiefungsthemen ist keine zusätzliche Liveabnahme.
 Für die zwei bearbeiteten Arbeitsheftaufgaben wird ausschließlich deren vorhandene
 Lösung/Rubrik benutzt. Aus einer Teilmenge entsteht keine Gesamtwertung aller acht Aufgaben.
+
+Die separate BASIS-Datei verwendet die Kursreihenfolge einschließlich Security
+vor der RAG-Leseaufgabe. Die abschließende Transferfolie ist auf Quellenkonflikt
+und begründete Nichtantwort zugeschnitten. Sie verlangt keine zusätzliche
+Indexentwurfsaufgabe. Quellfoliennummern im übrigen Dokument beziehen sich auf
+das vollständige Masterdeck; die BASIS-Fußzeile zeigt beide Zuordnungen.
 
 ## STANDARD: geplanter Unterrichtstag
 

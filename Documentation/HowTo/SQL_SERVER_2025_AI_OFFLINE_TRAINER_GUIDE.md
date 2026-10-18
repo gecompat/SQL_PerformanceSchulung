@@ -1,5 +1,13 @@
 # KI mit SQL Server 2025 – Trainerleitfaden für den Offlinepfad
 
+Für die Durchführung des vierstündigen BASIS-Kurses verwenden Sie den
+[BASIS-Kursleitfaden](SQL_SERVER_2025_AI_BASIS_COURSE.md) und die separate
+39-Folien-Präsentation. Er wählt QRY-014/QRY-019 praktisch und QRY-018 als
+Leseaufgabe aus diesem Materialvorrat aus. Der nachfolgende vollständige
+Offlinepfad bleibt der weiterführende STANDARD-Entwurf. Der
+[Generalprobenachweis](../Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
+benennt die tatsächlich geprüften Abläufe und den getrennten Teilnehmerpilot.
+
 Stand: 2026-10-12. TSK-012, didaktischer Teilentwurf für acht implementierte Demos
 plus getrennte RES-008-Ergebnisleseaufgabe und drei optionale lokale
 Evidenzleseaufgaben. Alle Lösungen bleiben ausschließlich im Arbeitsheft.

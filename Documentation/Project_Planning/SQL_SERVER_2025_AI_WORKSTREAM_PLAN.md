@@ -1,5 +1,16 @@
 # KI mit und für Microsoft SQL Server 2025 – Workstream-Plan
 
+## BASIS Kurswelle vom 18. Oktober 2026
+
+Der neue Auftrag autorisiert gezielt den BASIS-Kurs mit Generalprobe bis zur
+Integration nach origin/main. Das [39-Folien-Kurspaket](../HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md)
+und die [bestandene technische/redaktionelle Generalprobe](SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
+schließen den begrenzten BASIS-Materialschnitt ab. Zwei Praxisaufgaben und eine
+RAG-Leseaufgabe verwenden die vorhandenen Lösungen. Teilnehmerpilot und gemessene
+Lehrzeit bleiben getrennt offen; STANDARD/VERTIEFUNG, übrige technische Wellen
+und volle TSK-012-/TSK-014-Abnahme werden nicht automatisch wiederaufgenommen.
+Der nachfolgende Stopp vom 14. Oktober bleibt die Historie der früheren Welle.
+
 ## Benutzerabschluss der Entwicklungswelle: keine autonome Fortsetzung
 
 Am 14. Oktober 2026 hat der Benutzer ausdrücklich angeordnet, die aktuelle

@@ -1,5 +1,11 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+Der gesondert beauftragte [BASIS-Kurs vom 18. Oktober 2026](../HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md)
+ist als begrenztes Teilprodukt von TSK-012/TSK-014 technisch und redaktionell
+geprobt. [Nachweis und verbleibender Teilnehmerpilot](SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
+trennen Kursbereitstellung und Human-Evidenz. Die Gesamtfreigabe des KI-Streams
+und die übrigen pausierten Wellen bleiben davon unberührt.
+
 | Merkmal | Wert |
 |---|---|
 | Status | `PLANNED` |
