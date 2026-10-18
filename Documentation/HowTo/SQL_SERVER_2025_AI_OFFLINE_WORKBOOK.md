@@ -1,5 +1,11 @@
 # KI mit SQL Server 2025 – Arbeitsheft für den Offlinepfad
 
+Der [BASIS-Kurs](SQL_SERVER_2025_AI_BASIS_COURSE.md) verwendet aus diesem
+Arbeitsheft ausschließlich QRY-014 und QRY-019 als bewertete Aufgaben sowie
+QRY-018 als unbewertete Leseaufgabe. Die beiden vorhandenen 0–2-Punkte-Rubriken
+ergeben zusammen höchstens vier Punkte. Die vollständige Acht-Aufgaben-Wertung
+und alle Musterlösungen bleiben unverändert; der BASIS-Kurs ergänzt keine zweite Lösungssammlung.
+
 Stand: 2026-10-12. TSK-012, Teilentwurf für acht implementierte und lokal qualifizierte
 Demos plus die getrennte RES-008-Ergebnisleseaufgabe und drei optionale
 Evidenzleseaufgaben. Keine vollständige Curriculum- oder Generalprobenabnahme.

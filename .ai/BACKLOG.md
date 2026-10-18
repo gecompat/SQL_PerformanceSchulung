@@ -1,5 +1,14 @@
 # Initialer Backlog
 
+## BASIS Kurswelle vom 18. Oktober 2026
+
+- [x] BASIS-Teilprodukt TSK-012: [39-Folien-Kurspaket](../Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md), Ablauf, zwei Praxisaufgaben, RAG-Leseaufgabe, Ausfallpfad und Beobachtungsbogen.
+- [x] BASIS-Teilprodukt TSK-014: [technische und redaktionelle Generalprobe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md), sechs vollständige SQL-Lifecycles, Rechte-/Markergegenfälle und PowerPoint-Anwendungstest bestanden.
+- [ ] Teilnehmerpilot: tatsächliche Lehrperson/Gruppe, Soll-/Ist-Zeiten und Verständnisbelege. Grund: diese Human-Evidenz entsteht nicht durch den technischen Lauf. Wiederaufnahme bei realer Kursdurchführung; kein eigener offener Codebranch.
+
+Die volle TSK-012-/TSK-014-/Workstreamabnahme bleibt offen. Der neue Auftrag
+gilt für den BASIS-Abschluss; der folgende Stopp vom 14. Oktober ist historisch.
+
 ## Benutzerabschluss der Entwicklungswelle: keine autonome Fortsetzung
 
 Am 14. Oktober 2026 hat der Benutzer ausdrücklich angeordnet, die aktuelle

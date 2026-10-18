@@ -1,5 +1,22 @@
 # KI mit und für Microsoft SQL Server 2025
 
+Für den vierstündigen Einstieg steht die abgeleitete
+[BASIS-Präsentation mit 39 Folien](../SQL_Server_2025_KI_BASIS.pptx) bereit.
+Der [Kursleitfaden](../../Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md)
+enthält den vollständigen Ablauf, zwei praktische Übungen, die RAG-Leseaufgabe,
+Beobachtungsbogen und Ausfallpfad. Die
+[Generalprobe](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
+trennt technische Durchführung und redaktionelle Prüfung von Teilnehmererprobung.
+`basis.course.json` bindet Auswahl und Zeitfenster an die Masterquellen.
+Die letzte Transferfolie wird für BASIS aus dieser Kursdefinition konkretisiert;
+der volle Materialvorrat und seine Masterquelle bleiben unverändert.
+
+Zum reproduzierbaren Export wird in der unten beschriebenen Buildumgebung
+zusätzlich `AI_SLIDES_PROFILE=basis` gesetzt. Ohne diese Variable baut das Skript
+weiterhin ausschließlich den vollständigen Foliensatz. Der BASIS-Export schreibt
+`Presentations/SQL_Server_2025_KI_BASIS.pptx`; die veröffentlichte vollständige
+Präsentation wird dabei nicht überschrieben.
+
 Die [editierbare PowerPoint-Präsentation](../SQL_Server_2025_KI.pptx) enthält
 61 deutschsprachige Folien für `CUR-013` bis `CUR-022`, davon 27 neue
 Einführungsfolien vor den bisherigen Fachmodulen. Texte, Tabellen und

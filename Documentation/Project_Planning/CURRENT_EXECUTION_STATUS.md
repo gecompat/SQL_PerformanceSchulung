@@ -1,5 +1,19 @@
 # Aktueller Ausführungsstand
 
+## BASIS Kurswelle vom 18. Oktober 2026
+
+Der neue Benutzerauftrag nimmt ausschließlich den BASIS-Kurs samt Generalprobe
+und vollständigem PR-/Main-Abschluss wieder auf. Das
+[Kurspaket](../HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md) und der
+[Generalprobenachweis](SQL_SERVER_2025_AI_BASIS_REHEARSAL.md) sind maßgeblich:
+39 native Folien, 210+30 Planminuten, QRY-014/QRY-019 praktisch und QRY-018 als
+Leseaufgabe. Technische und redaktionelle Probe bestanden; sechs vollständige
+SQL-Lifecycles und QRY-019-Gegenfälle einschließlich eigenem Cleanup bestanden.
+Der Teilnehmerpilot mit gemessenen Unterrichtszeiten bleibt ein ausdrücklich
+getrennter Human-Nachweis; Grund und Wiederaufnahmebedingung stehen im Nachweis.
+Die volle TSK-012-/TSK-014-Abnahme bleibt offen. Übrige Wellen und Automation
+bleiben pausiert; der folgende Benutzerabschluss vom 14. Oktober ist historisch.
+
 ## Benutzerabschluss der Entwicklungswelle: keine autonome Fortsetzung
 
 Am 14. Oktober 2026 hat der Benutzer ausdrücklich angeordnet, die aktuelle

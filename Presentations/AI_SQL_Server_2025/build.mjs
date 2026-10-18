@@ -17,12 +17,21 @@ const require = createRequire(path.join(modules, '_presentation_resolver.cjs'));
 const { Presentation, PresentationFile } = await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
 const { finalizePresentation, resolvePresentationFont } = await import(pathToFileURL(path.join(skill, 'container_tools/artifact_tool_utils.mjs')).href);
 const build = path.resolve(root, process.env.AI_SLIDES_BUILD_DIR ?? 'Runtime/Temp/ai-slides');
-const output = path.resolve(root, process.env.AI_SLIDES_OUTPUT ?? 'Presentations/SQL_Server_2025_KI.pptx');
+const profile = process.env.AI_SLIDES_PROFILE ?? 'full';
+if (!['full', 'basis'].includes(profile)) throw new Error('Unbekanntes Lehrprofil.');
+const course = profile === 'basis' ? JSON.parse(await fs.readFile(path.join(here, 'basis.course.json'), 'utf8')) : null;
+const sourceNumbers = course ? course.blocks.flatMap(block => block.source_slides) : deck.slides.map((_, i) => i + 1);
+if (course && (course.source_slide_count !== deck.slides.length || new Set(sourceNumbers).size !== sourceNumbers.length
+    || sourceNumbers.some(n => !Number.isInteger(n) || !deck.slides[n - 1] || deck.slides[n - 1].title !== course.source_titles[String(n)]))) {
+  throw new Error('BASIS-Auswahl stimmt nicht mit der Masterquelle überein.');
+}
+const slides = sourceNumbers.map(n => deck.slides[n - 1]);
+const output = path.resolve(root, process.env.AI_SLIDES_OUTPUT ?? (course ? course.output : 'Presentations/SQL_Server_2025_KI.pptx'));
 for (const target of [build, output]) {
   const relative = path.relative(root, target);
   if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Build und Ausgabe müssen im Workspace liegen.');
 }
-const slideCount = deck.slides.length;
+const slideCount = slides.length;
 await fs.mkdir(build, { recursive: true });
 await fs.mkdir(path.dirname(output), { recursive: true });
 const register = await fs.readFile(path.join(root, 'Documentation/Research/SOURCE_REGISTER.md'), 'utf8');
@@ -46,13 +55,13 @@ function text(slide, value, left, top, width, height, size = 30, bold = false, c
   return box;
 }
 
-for (let i = 0; i < deck.slides.length; i++) {
-  const data = deck.slides[i];
+for (let i = 0; i < slides.length; i++) {
+  const data = { ...slides[i], ...(course?.overrides?.[String(sourceNumbers[i])] ?? {}) };
   const slide = p.slides.add();
   slide.background.fill = colors.bg;
   if (data.cover) {
-    text(slide, data.title, 80, 155, 1120, 220, 64, true);
-    text(slide, data.subtitle, 80, 435, 1100, 95, 32, false, colors.muted);
+    text(slide, course ? 'KI mit SQL Server 2025\nBASIS' : data.title, 80, 155, 1120, 220, 64, true);
+    text(slide, course ? 'Vier Stunden · Grundlagen, sichere SQL-Werte und belegbare Antworten' : data.subtitle, 80, 435, 1100, 95, 32, false, colors.muted);
     text(slide, `Schulungsunterlagen · Stand ${deck.date}`, 80, 610, 1080, 36, 24, false, colors.accent);
   } else {
     text(slide, data.title, 72, 52, 1136, 116, 44, true);
@@ -86,9 +95,10 @@ for (let i = 0; i < deck.slides.length; i++) {
       }
     }
     if (data.bottom) text(slide, data.bottom, 72, 617, 1108, 60, 24, false, colors.muted);
-    text(slide, `${String(i + 1).padStart(2, '0')}  ${data.module}`, 72, 682, 1120, 26, 18, false, colors.muted);
+    text(slide, course ? `BASIS ${i + 1} · Quellfolie ${sourceNumbers[i]} · ${data.module}` : `${String(i + 1).padStart(2, '0')}  ${data.module}`, 72, 682, 1120, 26, 18, false, colors.muted);
   }
   const notes = [data.notes];
+  if (course) notes.push(`BASIS-Folie ${i + 1}, Quellfolie ${sourceNumbers[i]} des 61-Folien-Masterdecks. Ablauf und Beobachtungsbogen: Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md. Lösungen und Rubrik ausschließlich im vorhandenen Offline-Arbeitsheft. Zeitfenster sind Planwerte; SQL-Laufzeiten belegen keine Lehrzeit.`);
   if (data.demo) {
     const demoId = data.demo.slice(0, 7);
     const demoPath = `Demos/09_AI_SQL_Server_2025/${data.demo}`;

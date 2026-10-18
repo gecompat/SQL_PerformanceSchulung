@@ -1,0 +1,38 @@
+name: SQL Server 2025 KI BASIS Kurs
+
+on:
+  pull_request:
+    paths:
+      - 'Presentations/AI_SQL_Server_2025/**'
+      - 'Presentations/SQL_Server_2025_KI*.pptx'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md'
+      - 'Tests/Static/validate_sql2025_ai_basis.py'
+      - 'Tests/Static/test_sql2025_ai_basis.py'
+      - '.github/workflows/sql2025-ai-basis.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Presentations/AI_SQL_Server_2025/**'
+      - 'Presentations/SQL_Server_2025_KI*.pptx'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md'
+      - 'Documentation/HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md'
+      - 'Tests/Static/validate_sql2025_ai_basis.py'
+      - 'Tests/Static/test_sql2025_ai_basis.py'
+      - '.github/workflows/sql2025-ai-basis.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  basis-course:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/validate_sql2025_ai_basis.py
+      - run: python Tests/Static/test_sql2025_ai_basis.py
+      - run: python Tests/Static/test_ai_presentation_package.py

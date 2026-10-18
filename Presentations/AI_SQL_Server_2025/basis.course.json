@@ -1,0 +1,243 @@
+{
+  "schema": "sql2025-ai-basis/v1",
+  "course": "KI mit SQL Server 2025 BASIS",
+  "source_slide_count": 61,
+  "output": "Presentations/SQL_Server_2025_KI_BASIS.pptx",
+  "duration_minutes": 240,
+  "teaching_minutes": 210,
+  "break_minutes": 30,
+  "source_sha256": {
+    "Presentations/AI_SQL_Server_2025/content.mjs": "5241a6b1f1cffe2a2204349be6ddcac698738d818bb6bed64c4faac6c16e6a3b",
+    "Presentations/AI_SQL_Server_2025/introduction.mjs": "0072667430823b2e4d03ea39fd1b2ebe8cfecee48da36f43e1061f04d63f820b"
+  },
+  "source_titles": {
+    "1": "KI mit und für\nMicrosoft SQL Server 2025",
+    "2": "Einstieg mit bekannten SQL-Grundlagen",
+    "3": "Eine Frage aus der technischen Wissensbasis",
+    "4": "Drei überschaubare Quelldokumente",
+    "5": "Eine vertraute SELECT-Abfrage",
+    "6": "Unterschiedliche Fragen an dieselben Daten",
+    "7": "KI-Anwendungen rund um SQL Server",
+    "8": "KI und Machine Learning in einfachen Worten",
+    "9": "Ein Modell und seine Aufgabe",
+    "10": "Training und Inferenz",
+    "11": "Ein Sprachmodell erzeugt Antworttext",
+    "12": "Tokens und Textlänge",
+    "13": "SQL Server, Modell und Anwendung",
+    "14": "Der erste Offlineeinstieg",
+    "15": "Serverversion und Client sind verschieden",
+    "16": "Version und Datenbankeinstellung lesen",
+    "17": "Eine vorbereitete Testumgebung und passende Rechte",
+    "18": "Ein Vektor als kleine Zahlenliste",
+    "19": "Vorhersage für drei Richtungen",
+    "20": "Eine vollständige read-only Vektorquery",
+    "21": "Ergebnisbesprechung der Vektorquery",
+    "22": "Text als Zahlen: ein Embedding",
+    "23": "Zusätzliche Hürden eines echten Modellpfads",
+    "24": "Ein Textausschnitt braucht seine Herkunft",
+    "25": "Eine Antwort mit abgerufenem Quellenkontext",
+    "26": "Eine belegbare Antwort im Wissensbasisfall",
+    "27": "Falsche und fehlende Antworten erkennen",
+    "28": "Vorbereitung auf die konkreten Demos",
+    "34": "Vektoren und Embeddingräume",
+    "35": "QRY-014: Typ und Modellraum",
+    "40": "Modellpfade und ihre Freigaben",
+    "45": "RAG und die Bindung einer Antwort",
+    "46": "QRY-018: Vier Quellenentscheidungen",
+    "47": "Securitygrenzen im Datenfluss",
+    "48": "QRY-019: Wertbindung und SQL-Struktur",
+    "51": "Exact Search und ANN",
+    "54": "Messbereiche und Gegenproben",
+    "57": "KI-Assistenz für SQL-Entwicklung und Analyse",
+    "61": "Entscheidung und Transferaufgabe"
+  },
+  "blocks": [
+    {
+      "title": "Vertrauter Wissensbasisfall",
+      "start_minute": 0,
+      "minutes": 10,
+      "activity": "Einstieg",
+      "source_slides": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "title": "KI, Modell und Inferenz",
+      "start_minute": 10,
+      "minutes": 15,
+      "activity": "Erklärung",
+      "source_slides": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "title": "Voraussetzungen und Rechte",
+      "start_minute": 25,
+      "minutes": 15,
+      "activity": "Vorbereitung",
+      "source_slides": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "title": "Drei Vektoren vorhersagen und prüfen",
+      "start_minute": 40,
+      "minutes": 20,
+      "activity": "Read-only-Vorführung",
+      "source_slides": [
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "title": "Echte Embeddings einordnen",
+      "start_minute": 60,
+      "minutes": 10,
+      "activity": "Erklärung",
+      "source_slides": [
+        22,
+        23
+      ]
+    },
+    {
+      "title": "Quellen und Antworten prüfen",
+      "start_minute": 70,
+      "minutes": 15,
+      "activity": "Besprechung",
+      "source_slides": [
+        24,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "title": "Übergang zu den Demos",
+      "start_minute": 85,
+      "minutes": 5,
+      "activity": "Vorbereitung",
+      "source_slides": [
+        28
+      ]
+    },
+    {
+      "title": "Pause",
+      "start_minute": 90,
+      "minutes": 15,
+      "activity": "Pause",
+      "source_slides": []
+    },
+    {
+      "title": "Typ und Modellraum",
+      "start_minute": 105,
+      "minutes": 25,
+      "activity": "QRY-014",
+      "source_slides": [
+        34,
+        35
+      ]
+    },
+    {
+      "title": "Wertbindung und SQL-Struktur",
+      "start_minute": 130,
+      "minutes": 25,
+      "activity": "QRY-019",
+      "source_slides": [
+        47,
+        48
+      ]
+    },
+    {
+      "title": "Antwort, Ablehnung und Nichtantwort",
+      "start_minute": 155,
+      "minutes": 20,
+      "activity": "QRY-018-Leseaufgabe",
+      "source_slides": [
+        45,
+        46
+      ]
+    },
+    {
+      "title": "Pause",
+      "start_minute": 175,
+      "minutes": 15,
+      "activity": "Pause",
+      "source_slides": []
+    },
+    {
+      "title": "Modellzugang, ANN, Messung und Assistenz",
+      "start_minute": 190,
+      "minutes": 20,
+      "activity": "Überblick",
+      "source_slides": [
+        40,
+        51,
+        54,
+        57
+      ]
+    },
+    {
+      "title": "Entscheidung und Transfer",
+      "start_minute": 210,
+      "minutes": 15,
+      "activity": "Besprechung",
+      "source_slides": [
+        61
+      ]
+    },
+    {
+      "title": "Rückfragen und Reserve",
+      "start_minute": 225,
+      "minutes": 15,
+      "activity": "Reserve",
+      "source_slides": []
+    }
+  ],
+  "practical_demos": [
+    "QRY-014",
+    "QRY-019"
+  ],
+  "reading_demo": "QRY-018",
+  "scored_tasks": [
+    "QRY-014",
+    "QRY-019"
+  ],
+  "workbook": "Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md",
+  "guide": "Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md",
+  "overrides": {
+    "61": {
+      "blocks": [
+        [
+          "Fall",
+          "Zwei aktuelle zugelassene Quellen nennen verschiedene Aufbewahrungsdauern."
+        ],
+        [
+          "Auftrag",
+          "Herkunft, Fassung und erlaubten Kontext prüfen. Den Widerspruch ausdrücklich benennen."
+        ],
+        [
+          "Abgabe",
+          "Eine begründete Nichtantwort und den nächsten fachlichen Klärungsschritt formulieren."
+        ]
+      ],
+      "bottom": "BASIS: zwei Arbeitsheftaufgaben mit höchstens vier Punkten. Die Transferbesprechung ist unbewertet."
+    }
+  },
+  "qualification": "Technische und redaktionelle Generalprobe; Teilnehmererprobung und gemessene Lehrzeit getrennt"
+}
