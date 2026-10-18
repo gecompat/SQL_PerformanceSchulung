@@ -1,5 +1,12 @@
 # KI mit SQL Server 2025 – Trainerleitfaden für den Offlinepfad
 
+Für zwei Tage verwenden Sie den [VERTIEFUNG-Kursleitfaden](SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
+mit eigenständiger 61-Folien-Präsentation. Tag 1 entspricht vollständig STANDARD;
+Tag 2 ergänzt konkrete Beleg-/Entwurfsaufgaben und die zugehörigen Musterlösungen
+im vorhandenen Arbeitsheft. Die [technische/redaktionelle Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md)
+trennt die acht praktischen Offline-Demos von den reinen Tag-2-Aufgaben und
+der offenen Teilnehmererprobung. Tag 2 bleibt unbewertet, ohne neue Liveaufrufe.
+
 Für den vollständigen Offline-Unterrichtstag gilt seit dem 18. Oktober der
 [STANDARD-Kursleitfaden](SQL_SERVER_2025_AI_STANDARD_COURSE.md) mit separater
 45-Folien-Präsentation, acht Aufgaben und 420+60 Planminuten. Die

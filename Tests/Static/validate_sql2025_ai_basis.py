@@ -70,7 +70,7 @@ def shape_texts(xml: bytes) -> list[str]:
 def body_texts(xml: bytes) -> list[str]:
     return [t for t in shape_texts(xml)
             if not re.fullmatch(r'\d{2}\s+CUR-\d{3}(?: / CUR-\d{3})*',t)
-            and not re.fullmatch(r'(?:BASIS|STANDARD) \d+ · Quellfolie \d+ · CUR-\d{3}(?: / CUR-\d{3})*',t)]
+            and not re.fullmatch(r'(?:BASIS|STANDARD|VERTIEFUNG) \d+ · Quellfolie \d+ · CUR-\d{3}(?: / CUR-\d{3})*',t)]
 
 
 def presentation_findings(course: dict, label: str = 'BASIS') -> list[str]:
@@ -95,8 +95,8 @@ def presentation_findings(course: dict, label: str = 'BASIS') -> list[str]:
             else:
                 original = master.read(f'ppt/slides/slide{source}.xml')
                 expected = body_texts(original)
-                if str(source) in course.get('overrides', {}):
-                    override = course['overrides'][str(source)]
+                override = course.get('slide_overrides', {}).get(str(index), course.get('overrides', {}).get(str(source)))
+                if override is not None:
                     expected = [course['source_titles'][str(source)]] + [t for pair in override['blocks'] for t in pair] + [override['bottom']]
                 if body_texts(xml) != expected:
                     findings.append(f'Native Inhalte weichen von Quellfolie {source} ab')

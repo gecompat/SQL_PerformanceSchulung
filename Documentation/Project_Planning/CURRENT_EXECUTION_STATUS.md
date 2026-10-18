@@ -1,5 +1,20 @@
 # Aktueller Ausführungsstand
 
+## VERTIEFUNG Kurswelle vom 18. Oktober 2026
+
+Nach STANDARD/PR251 (maind851638) beauftragt der Benutzer ausdrücklich den
+[VERTIEFUNG-Zweitageskurs](../HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md) samt
+technischer Generalprobe und vollständiger origin/main-Integration.
+61 native Kursfolien verbinden den vollständigen STANDARD-Tag mit konkreten
+Beleg-/Entwurfsaufgaben und Musterlösungen für Tag 2; je 420+60 Planminuten.
+Die [neue technische und redaktionelle Probe](SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md)
+ist abgeschlossen: 16 tatsächliche Offline-Demoläufe, 76 erfüllte Assertions,
+unabhängiger DB-/Containercleanup, reine Tag-2-Rechen-/Belegprüfung und
+PowerPoint-Anwendungstest. Optionaler Full-Text-WARN bleibt erhalten.
+Teilnehmerpilot und gemessene Lehrzeiten bleiben offen; Grund und Wiederaufnahme
+sind im Nachweis dokumentiert. Andere technische Wellen und Automation bleiben
+pausiert. Keine volle TSK-012-/TSK-014-/Runtime-/Workstreamfreigabe.
+
 ## STANDARD Kurswelle vom 18. Oktober 2026
 
 Nach dem integrierten BASIS-Kurs (PR250, main72b41c8) beauftragt der Benutzer

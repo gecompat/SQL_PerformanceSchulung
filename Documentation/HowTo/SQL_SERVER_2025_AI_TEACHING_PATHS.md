@@ -15,7 +15,11 @@ Für STANDARD gilt ebenfalls seit dem 18. Oktober der eigenständige
 [Tageskurs mit 45 Folien](SQL_SERVER_2025_AI_STANDARD_COURSE.md) und
 [abgeschlossener technischer/redaktioneller Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_STANDARD_REHEARSAL.md).
 Der optionale Full-Text-WARN und die offene Teilnehmererprobung bleiben sichtbar.
-VERTIEFUNG bleibt eine weiterführende Planung. Die folgenden STANDARD-Nummern
+VERTIEFUNG steht ebenfalls als eigenständiger
+[Zweitageskurs mit 61 Kursfolien](SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md) und
+[technischer/redaktioneller Generalprobe](../Project_Planning/SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md)
+bereit. Tag 2 liest begrenzte Belege und bearbeitet Architektur-/Evaluationsentwürfe;
+offene Runtimequalifikationen werden dadurch nicht hochgestuft. Die folgenden STANDARD-Nummern
 beziehen sich weiterhin auf die Quellfolien des vollständigen Masterdecks;
 der Kursleitfaden nennt die zugehörigen STANDARD-Folien.
 
@@ -108,12 +112,14 @@ Bei fehlendem optionalem Full-Text bleibt QRY-017 WARN. Erwartete Ausgaben lesen
 ersetzt keine tatsächliche Demoausführung; beides wird im Beobachtungsbogen getrennt.
 Es gibt keine zusätzliche Lösungssammlung oder Bewertungsgrenze in diesem Dokument.
 
-## VERTIEFUNG: zwei geplante Unterrichtstage
+## VERTIEFUNG: zwei vorbereitete Unterrichtstage
 
 960 Minuten brutto, davon 840 Nettolehrzeit und 120 Pausenminuten. Tag1 ist der
 vollständige STANDARD-Pfad. Tag2 verbindet die Fachfolien mit getrennten vorliegenden
 Records, begrenzten qualifizierten Profilen und offen bezeichneten Demoentwürfen.
 Eine Recordleseaufgabe benötigt keinen erneuten unveränderten SQL-Qualifikationslauf.
+Die folgende Tabelle nennt Quellfolien; der eigenständige VERTIEFUNG-Leitfaden
+enthält Kursfoliennummern, alle Zeitblöcke und die konkreten Arbeitsheftaufgaben.
 
 | Tag2-Baustein | Material | Netto-Planminuten |
 |---|---|---:|

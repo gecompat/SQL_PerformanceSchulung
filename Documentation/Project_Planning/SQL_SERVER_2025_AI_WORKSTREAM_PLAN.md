@@ -1,5 +1,21 @@
 # KI mit und für Microsoft SQL Server 2025 – Workstream-Plan
 
+## VERTIEFUNG Kurswelle vom 18. Oktober 2026
+
+Der explizite Folgeauftrag nach STANDARD/PR251 nimmt ausschließlich den
+[VERTIEFUNG-Kurs](../HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md) mit technischer
+Generalprobe und sauberem origin/main-Abschluss auf. Das Zweitagespaket besitzt
+61 Kursfolien, je 420+60 Planminuten, den vollständigen STANDARD-Praxistag und
+konkrete Tag-2-Beleg-/Entwurfsaufgaben mit zentralen Musterlösungen.
+Die [neue technische/redaktionelle Probe](SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md)
+ist abgeschlossen: 16 Demoläufe/76 erfüllte Assertions, unabhängiger eigener
+Cleanup, lokale Tag-2-Rechen-/Quellenprüfung und PowerPoint-Anwendungstest.
+Optionaler Full-Text-WARN und bestehende offene Runtimeclaims bleiben erhalten.
+Dies schließt den begrenzten VERTIEFUNG-Materialschnitt von TSK-012/TSK-014.
+Teilnehmererprobung und gemessene Lehrzeiten bleiben offen; keine Gesamtfreigabe
+von Live-Provider, ANN, Pooling, Performance oder Stream. Andere pausierte
+Entwicklungswellen und Automation werden nicht wiederaufgenommen.
+
 ## STANDARD Kurswelle vom 18. Oktober 2026
 
 Der neue Folgeauftrag nach BASIS/PR250 autorisiert die nächste sinnvoll

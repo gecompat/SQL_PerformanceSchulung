@@ -1,5 +1,14 @@
 # Initialer Backlog
 
+## VERTIEFUNG Kurswelle vom 18. Oktober 2026
+
+- [x] VERTIEFUNG-Teilprodukt TSK-012: [Zweitageskurs mit 61 Folien](../Documentation/HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md), vollständigem STANDARD-Tag, konkreten Tag-2-Beleg-/Entwurfsaufgaben und zentralen Musterlösungen; 840+120 Planminuten.
+- [x] VERTIEFUNG-Teilprodukt TSK-014: [technische/redaktionelle Generalprobe](../Documentation/Project_Planning/SQL_SERVER_2025_AI_VERTIEFUNG_REHEARSAL.md), 16 SQL-Lifecycles/76 erfüllte Assertions, unabhängiger Cleanup, Tag-2-Rechen-/Belegprüfung und PowerPoint-Anwendungstest. Optionaler Full-Text-WARN bleibt erhalten.
+- [ ] VERTIEFUNG-Teilnehmerpilot: tatsächliche Gruppe/Lehrperson, Verständlichkeit, Lernerfolg und Soll-/Ist-Zeiten beider Tage prüfen. Wiederaufnahme bei moderierter Durchführung; kein eigener offener Codebranch.
+
+Der neue Benutzerauftrag betrifft dieses Kurspaket. Andere technische Wellen
+und Automation bleiben pausiert; volle TSK-012-/TSK-014-/Streamfreigabe bleibt offen.
+
 ## STANDARD Kurswelle vom 18. Oktober 2026
 
 - [x] STANDARD-Teilprodukt TSK-012: [45-Folien-Tageskurs](../Documentation/HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md) mit acht Offline-Aufgaben, 420+60 Planminuten, Transfer, vorhandener Rubrik und sicherem Ausfallpfad.

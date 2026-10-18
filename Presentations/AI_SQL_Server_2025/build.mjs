@@ -18,11 +18,13 @@ const { Presentation, PresentationFile } = await import(pathToFileURL(require.re
 const { finalizePresentation, resolvePresentationFont } = await import(pathToFileURL(path.join(skill, 'container_tools/artifact_tool_utils.mjs')).href);
 const build = path.resolve(root, process.env.AI_SLIDES_BUILD_DIR ?? 'Runtime/Temp/ai-slides');
 const profile = process.env.AI_SLIDES_PROFILE ?? 'full';
-if (!['full', 'basis', 'standard'].includes(profile)) throw new Error('Unbekanntes Lehrprofil.');
+if (!['full', 'basis', 'standard', 'vertiefung'].includes(profile)) throw new Error('Unbekanntes Lehrprofil.');
 const course = profile !== 'full' ? JSON.parse(await fs.readFile(path.join(here, `${profile}.course.json`), 'utf8')) : null;
 const courseLabel = profile.toUpperCase();
 const sourceNumbers = course ? course.blocks.flatMap(block => block.source_slides) : deck.slides.map((_, i) => i + 1);
-if (course && (course.source_slide_count !== deck.slides.length || new Set(sourceNumbers).size !== sourceNumbers.length
+const repeatedSources = [...new Set(sourceNumbers.filter((n, i) => sourceNumbers.indexOf(n) !== i))].sort((a, b) => a - b);
+if (course && (course.source_slide_count !== deck.slides.length
+    || JSON.stringify(repeatedSources) !== JSON.stringify(course.repeated_source_slides ?? [])
     || sourceNumbers.some(n => !Number.isInteger(n) || !deck.slides[n - 1] || deck.slides[n - 1].title !== course.source_titles[String(n)]))) {
   throw new Error(`${courseLabel}-Auswahl stimmt nicht mit der Masterquelle überein.`);
 }
@@ -57,7 +59,7 @@ function text(slide, value, left, top, width, height, size = 30, bold = false, c
 }
 
 for (let i = 0; i < slides.length; i++) {
-  const data = { ...slides[i], ...(course?.overrides?.[String(sourceNumbers[i])] ?? {}) };
+  const data = { ...slides[i], ...(course?.overrides?.[String(sourceNumbers[i])] ?? {}), ...(course?.slide_overrides?.[String(i + 1)] ?? {}) };
   const slide = p.slides.add();
   slide.background.fill = colors.bg;
   if (data.cover) {
