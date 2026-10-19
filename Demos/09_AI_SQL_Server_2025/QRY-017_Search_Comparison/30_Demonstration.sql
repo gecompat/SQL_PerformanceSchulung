@@ -26,7 +26,7 @@ SET STATISTICS IO ON; SET STATISTICS TIME ON;
 SELECT TOP(3) Id,Title,VECTOR_DISTANCE('cosine',V,@q) AS Distance FROM lab.SearchDocuments WHERE TenantId='A' ORDER BY Distance,Id;
 SELECT Id,Title FROM lab.SearchDocuments WHERE TenantId='A' AND Content LIKE N'%rot%';
 IF CONVERT(int,SERVERPROPERTY('IsFullTextInstalled'))=1
- EXEC sys.sp_executesql N'SELECT Id,Title FROM lab.SearchDocuments WHERE CONTAINS(Content,N''"rot"'') AND TenantId=''A'';';
+ EXEC sys.sp_executesql N'SELECT Id,Title FROM lab.SearchDocuments WHERE CONTAINS(Content,N''"rote"'') AND TenantId=''A'';';
 PRINT CONCAT('AI_ASSERT|comparison|fulltext_installed|',CONVERT(int,SERVERPROPERTY('IsFullTextInstalled')));
 -- Konstruierte Vektoren sind eine Mechanikfixture, kein Sprachmodell.
 

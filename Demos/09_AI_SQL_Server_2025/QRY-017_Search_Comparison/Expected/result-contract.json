@@ -30,6 +30,16 @@
       "maximum": 1,
       "severity": "FAIL",
       "on_missing": "FAIL"
+    },
+    {
+      "id": "fulltext-checks",
+      "kind": "RANGE",
+      "phase": "comparison",
+      "metric": "fulltext_checks",
+      "minimum": 0,
+      "maximum": 5,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
     }
   ]
 }

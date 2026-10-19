@@ -98,12 +98,73 @@ class EvidenceTests(unittest.TestCase):
             runner.assert_result(output, 0, 17, "QRY-014", self.contract)
         contract = copy.deepcopy(self.contract)
         contract["demo_id"] = "QRY-017"
-        output += "AI_ASSERT|comparison|fulltext_installed|0\n"
+        output += "AI_ASSERT|comparison|fulltext_installed|0\nAI_ASSERT|comparison|fulltext_checks|0\n"
         self.assertEqual(runner.assert_result(output, 0, 17, "QRY-017", contract), 1)
         for wrong in (output.replace("WARN|WARN_OPTIONAL_EVIDENCE_SKIPPED", "PASS|OK"),
                       output.replace("installed|0", "installed|1")):
             with self.assertRaises(runner.AiFailure):
                 runner.assert_result(wrong, 0, 17, "QRY-017", contract)
+
+    def test_fulltext_requires_all_five_search_checks_and_consistent_availability(self):
+        contract = copy.deepcopy(self.contract)
+        contract["demo_id"] = "QRY-017"
+        installed = self.output + "AI_ASSERT|comparison|fulltext_installed|1\nAI_ASSERT|comparison|fulltext_checks|5\n"
+        self.assertEqual(runner.assert_result(installed, 0, 17, "QRY-017", contract), 1)
+        for wrong in (installed.replace("fulltext_checks|5\n", "fulltext_checks|4\n"),
+                      installed.replace("fulltext_checks|5\n", ""),
+                      installed.replace("fulltext_checks|5\n", "fulltext_checks|0\n"),
+                      installed.replace("fulltext_installed|1", "fulltext_installed|0").replace(
+                          "PASS|OK", "WARN|WARN_OPTIONAL_EVIDENCE_SKIPPED")):
+            with self.subTest(output=wrong), self.assertRaises(runner.AiFailure):
+                runner.assert_result(wrong, 0, 17, "QRY-017", contract)
+
+    def test_required_fulltext_rejects_optional_warning(self):
+        stream = io.StringIO()
+        argv = ["runner", "--container", "synthetic-fixture", "--expected-major", "17",
+                "--demo", "QRY-017", "--require-fulltext"]
+        with patch.object(sys, "argv", argv), patch.object(runner.targets, "docker_target"), \
+             patch.object(runner.targets, "require_disposable_instance"), \
+             patch.object(runner.targets, "verify_engine", return_value=17), \
+             patch.object(runner, "run_demo", return_value=("WARN", "WARN_OPTIONAL_EVIDENCE_SKIPPED")), \
+             patch.object(runner, "ownership_controls"), redirect_stdout(stream), redirect_stderr(io.StringIO()):
+            self.assertEqual(runner.main(), 1)
+        self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT", stream.getvalue())
+        self.assertNotIn("AI_LOCAL_QUALIFICATION|PASS", stream.getvalue())
+
+    def test_fulltext_demo_contract_covers_common_and_search_evidence(self):
+        contract = runner.evaluator.load_json(ROOT / "Demos/09_AI_SQL_Server_2025/QRY-017_Search_Comparison/Expected/result-contract.json")
+        output = ("AI_ASSERT|comparison|exact_top_id|1\nAI_ASSERT|comparison|model_calls|0\n"
+                  "AI_ASSERT|comparison|fulltext_installed|1\nAI_ASSERT|comparison|fulltext_checks|5\n"
+                  "SQLPERF_SUMMARY|PASS|OK\n")
+        self.assertEqual(runner.assert_result(output, 0, 17, "QRY-017", contract), 4)
+        unavailable = output.replace("installed|1", "installed|0").replace("checks|5", "checks|0").replace(
+            "PASS|OK", "WARN|WARN_OPTIONAL_EVIDENCE_SKIPPED")
+        self.assertEqual(runner.assert_result(unavailable, 0, 17, "QRY-017", contract), 4)
+
+    def test_required_fulltext_accepts_two_complete_lifecycles_and_controls(self):
+        stream = io.StringIO()
+        argv = ["runner", "--container", "synthetic-fixture", "--expected-major", "17",
+                "--demo", "QRY-017", "--require-fulltext"]
+        with patch.object(sys, "argv", argv), patch.object(runner.targets, "docker_target"), \
+             patch.object(runner.targets, "require_disposable_instance"), \
+             patch.object(runner.targets, "verify_engine", return_value=17), \
+             patch.object(runner, "run_demo", return_value=("PASS", "OK")) as run, \
+             patch.object(runner, "ownership_controls") as controls, redirect_stdout(stream):
+            self.assertEqual(runner.main(), 0)
+        self.assertEqual(run.call_count, 2)
+        controls.assert_called_once()
+        self.assertIn("AI_LOCAL_QUALIFICATION|PASS", stream.getvalue())
+
+    def test_required_fulltext_rejects_version_or_demo_mismatch_before_target_access(self):
+        for major, demo in (("15", "QRY-017"), ("16", "QRY-017"), ("17", "QRY-014")):
+            argv = ["runner", "--container", "synthetic-fixture", "--expected-major", major,
+                    "--demo", demo, "--require-fulltext"]
+            with self.subTest(major=major, demo=demo), patch.object(sys, "argv", argv), \
+                 patch.object(runner.targets, "docker_target") as target, redirect_stderr(io.StringIO()), \
+                 self.assertRaises(SystemExit) as error:
+                runner.main()
+            self.assertEqual(error.exception.code, 2)
+            target.assert_not_called()
 
     def test_cli_aggregate_keeps_warn_and_version_skip_visible(self):
         for major, outcome in ((17, ("WARN", "WARN_OPTIONAL_EVIDENCE_SKIPPED")),

@@ -77,6 +77,8 @@ def assert_result(output: str, returncode: int, major: int, demo_id: str, contra
         installed = evidence["comparison"].get("fulltext_installed")
         if installed not in (Decimal(0), Decimal(1)):
             raise AiFailure("Full-Text-Voraussetzung fehlt oder ist ungueltig")
+        if evidence["comparison"].get("fulltext_checks") != 5 * installed:
+            raise AiFailure("Full-Text-Suchnachweise passen nicht zur gemessenen Voraussetzung")
         expected = (("WARN", "WARN_OPTIONAL_EVIDENCE_SKIPPED") if installed == 0 else ("PASS", "OK"))
         if final != expected:
             raise AiFailure("Full-Text-Ergebnis stimmt nicht mit der gemessenen Voraussetzung ueberein")
@@ -288,6 +290,14 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
             rejected("20_Baseline.sql")
             rejected("30_Demonstration.sql")
         elif demo_id == "QRY-017":
+            if evidence_from_output(phase("30_Demonstration.sql"), demo_id)["comparison"].get("fulltext_installed") == 1:
+                # TenantId ist kein Volltextfeld: Der Gegenfall wirkt ohne
+                # Annahmen ueber den asynchronen Zeitpunkt einer Indexaktualisierung.
+                mutate("UPDATE lab.SearchDocuments SET TenantId='A' WHERE Id=4;")
+                rejected("60_Comparison.sql")
+                mutate("UPDATE lab.SearchDocuments SET TenantId='B' WHERE Id=4;")
+                phase("60_Comparison.sql")
+                print(f"AI_LOCAL|{demo_id}|FULLTEXT_TENANT_NEGATIVE|PASS")
             mutate("DELETE FROM lab.SearchDocuments;")
             rejected("60_Comparison.sql")
     finally:
@@ -306,7 +316,11 @@ def main() -> int:
     parser.add_argument("--expected-major", choices=(15, 16, 17), type=int, required=True)
     parser.add_argument("--confirm-disposable-instance", action="store_true")
     parser.add_argument("--demo", choices=DEMOS)
+    parser.add_argument("--require-fulltext", action="store_true",
+                        help="QRY-017 muss alle fuenf Volltextfaelle ausfuehren; ein optionaler WARN reicht nicht.")
     args = parser.parse_args()
+    if args.require_fulltext and (args.expected_major != 17 or args.demo not in (None, "QRY-017")):
+        parser.error("--require-fulltext erfordert SQL 2025 und QRY-017 im gewaehlten Umfang")
     try:
         target = (targets.docker_target(container=args.container, sqlcmd_path=args.sqlcmd)
                   if args.target == targets.DOCKER else
@@ -316,7 +330,10 @@ def main() -> int:
         outcomes = []
         for demo_id in ([args.demo] if args.demo else DEMOS):
             for repetition in (1, 2):
-                outcomes.append(run_demo(target, major, demo_id, repetition))
+                outcome = run_demo(target, major, demo_id, repetition)
+                if args.require_fulltext and demo_id == "QRY-017" and outcome != ("PASS", "OK"):
+                    raise AiFailure("Erforderlicher Volltextpfad wurde nicht vollstaendig ausgefuehrt")
+                outcomes.append(outcome)
             if major == 17:
                 ownership_controls(target, demo_id)
     except (AiFailure, targets.ExecutionTargetError, evaluator.ContractError,
