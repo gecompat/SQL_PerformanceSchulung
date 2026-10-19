@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## QRY-017: automatisierter Volltextpfad vom 19. Oktober 2026
+
+Der Benutzer beauftragt die Prüfung der automatisierten Lab-Unterstützung,
+die darauf aufbauende Fertigstellung und die saubere Main-Integration samt
+Branchbereinigung. Der [gezielte Volltextnachweis](SQL_SERVER_2025_AI_FULLTEXT_REHEARSAL.md)
+ist nativ bestanden: Lab-Kandidat3560b746, tatsächliche SQL-Engine17.0.4075.5
+mit installierter Komponente, zwei vollständige QRY-017-Lifecycles mit je
+fünf exakten Suchfällen und vier Ergebnisassertionen,48Markergegenfälle,
+Idempotenz, Ergebnisgegenfall und unabhängiger DB-/Container-/Volumecleanup.
+Der native Versuch endete mit Exitcode0 und freigegebenem Runtime-Mutex.
+Ein übersprungener zusätzlicher Tenant-Gegenprobezweig wurde entfernt und
+wird ausdrücklich nicht als geprüft bezeichnet. Lab-PR806 muss mit grüner
+finaler CI vor dem Schulungsmerge in Main liegen. Gegenüber dem getesteten
+Lab-Tree ist ausschließlich die korrigierte Linux-Sperrfehlererwartung in
+der statischen Testfixture zulässig; sämtliche Produkt-/SQL-Quellen müssen
+unverändert sein. Der finale Git-Vergleich ist Teil der Mergeprüfung.
+Die historischen Kursproben behalten ihren optionalen Full-Text-WARN.
+Keine zusätzliche Kurs-, Performance- oder vollständige Streamfreigabe.
+Ausdrücklich zurückgestellte Arbeit und fremde Worktrees bleiben erhalten.
+
+Der Benutzer ordnet anschließend ausdrücklich an: Sobald diese Welle
+konsistent in `origin/main` integriert und bereinigt ist, pausiert die
+autonome Verarbeitung. Keine weitere Welle und keine automatische
+Wiederaufnahme; Fortsetzung erst nach einem neuen Benutzerauftrag.
+
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026
 
 Nach STANDARD/PR251 (maind851638) beauftragt der Benutzer ausdrücklich den
