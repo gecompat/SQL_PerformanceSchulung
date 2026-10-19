@@ -1,5 +1,16 @@
 # Nächste Entwicklungswellen
 
+Der Benutzerauftrag vom 20. Oktober 2026 nimmt nach Bestandsprüfung die
+allgemeine Entwicklung wieder auf. Zuerst folgt der erhaltene interne
+Capture-Vorschnitt gemäß [aktuellem Review](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
+unter DEC-072/v2: maximal drei Kandidaten, Checkpoint nach dem zweiten,
+unabhängiger Quellenreview und aktuelle relevante CI vor Integration.
+Nach Main-Abschluss und eigener Bereinigung ist der separate SESSION_END-
+Entwurf zu §33 der nächste dokumentierte DGN-007-Kandidat; Umfang und frühere
+Limits sind vor Aufnahme erneut zu prüfen. Die folgenden älteren Pausen-/
+G13-Planungsstände sind insoweit historisch. Keine Automationaktivierung und
+keine Erweiterung der ersten Welle um Collector oder operative Worker.
+
 | Merkmal | Wert |
 |---|---|
 | Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |

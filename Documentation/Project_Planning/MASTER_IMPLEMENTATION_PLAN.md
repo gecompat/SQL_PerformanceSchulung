@@ -1,5 +1,15 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+Am 20. Oktober 2026 nimmt der Benutzer die allgemeine Entwicklung nach
+Bestandsprüfung ausdrücklich wieder auf. Die erste begrenzte Welle ist die
+[interne DGN-007-Capture-Rückgabe](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
+auf aktueller v2-Basis nach DEC-072. Ihr Abschluss verlangt Quellenreview,
+relevante aktuelle CI, Main-Integration und sichere Branchbereinigung.
+Danach folgt eine neu begrenzte priorisierte Welle; der separate SESSION_END-
+Entwurf zu §33 bleibt ein eigener Kandidat. Historische Pausenangaben unten
+werden nur in diesem Umfang abgelöst. Automation und operative Provenienz-
+oder Workerfreigaben folgen daraus nicht.
+
 Der ausdrücklich beauftragte [VERTIEFUNG-Zweitageskurs](../HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
 ergänzt nach STANDARD/PR251 den vollständigen Unterrichtspfad mit 61 Kursfolien,
 acht Offline-Praxisaufgaben und konkreten Tag-2-Beleg-/Entwurfsaufgaben.

@@ -190,9 +190,21 @@ def runner_findings(text: str) -> list[str]:
         if not any(isinstance(node.iter, ast.Tuple) and [item.value for item in node.iter.elts if isinstance(item, ast.Constant)] == [1, 2] for node in repetitions):
             findings.append("Runner muss exakt zwei Wiederholungen ausführen")
     if "run_one" in functions:
-        final_checks = [node for block in ast.walk(functions["run_one"]) if isinstance(block, ast.Try) for statement in block.finalbody for node in ast.walk(statement) if isinstance(node, ast.Call)]
-        if not any(isinstance(node.func, ast.Name) and node.func.id == "assert_absent" for node in final_checks):
-            findings.append("Runner muss die unabhängige Cleanup-Prüfung im finally-Pfad ausführen")
+        expected = ast.parse('''_run_one(target, repetition, contract=contract,
+check_capture_projection=check_capture_projection, expected_major=expected_major,
+expected_contract=expected_contract, check_phase_diagnostics=check_phase_diagnostics)
+return RunResult(repetition)''').body
+        wrapper = functions["run_one"].body
+        if wrapper and isinstance(wrapper[0], ast.Expr) and isinstance(wrapper[0].value, ast.Constant) and isinstance(wrapper[0].value.value, str):
+            wrapper = wrapper[1:]
+        if [ast.dump(node) for node in wrapper] != [ast.dump(node) for node in expected]:
+            findings.append("Der öffentliche Runner muss unverändert an den gemeinsamen Lifecyclekern delegieren")
+    core = functions.get("_run_one")
+    lifecycle = next((node for node in core.body if isinstance(node, ast.Try)), None) if core else None
+    final_checks = [node for statement in lifecycle.finalbody for node in ast.walk(statement) if isinstance(node, ast.Call)] if lifecycle else []
+    calls = [node.func.id for node in final_checks if isinstance(node.func, ast.Name)]
+    if calls.count("assert_absent") != 2 or calls.count("recover") != 1:
+        findings.append("Runner muss unabhängige Absenz und begrenzte Recovery im gemeinsamen finally-Pfad ausführen")
     return findings
 
 

@@ -1,5 +1,13 @@
 # DGN-007 – G13-Fehler und Abschluss von PR 68
 
+Aktueller Abgleich vom 20. Oktober 2026: DEC-072 und der integrierte PR132
+haben die unten historisch beschriebene G13-/Zeitquellensperre für den
+begrenzten kontrollierten Capture-Vertrag abgelöst. Der neue Benutzerauftrag
+nimmt die bisher ausgenommene interne Rückgabe wieder auf. Maßgeblich sind
+der [aktuelle Capture-Review](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md) und
+der [Ausführungsstand](CURRENT_EXECUTION_STATUS.md). Die folgenden früheren
+FAILs bleiben FAILs; größere Provenienz-/Collectorentwürfe bleiben getrennt.
+
 | Merkmal | Wert |
 |---|---|
 | Stand | 2026-10-09 |

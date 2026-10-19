@@ -1,5 +1,14 @@
 # DGN-007 – Methodenentscheidungspaket
 
+Aktueller Abgleich vom 20. Oktober 2026: Dieses Paket dokumentiert den
+größeren historischen Methoden-/Provenienzentwurf. DEC-072 hat anschließend
+den begrenzten v2-Schulungspfad entschieden; dessen interne Capture-Rückgabe
+wartet nicht mehr auf die damalige G13-Entscheidung. Der
+[aktuelle Quellenreview](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md) trennt
+diesen wieder aufgenommenen Scope von den weiterhin offenen stärkeren
+Herkunfts-, Kontinuitäts-, Ressourcen- und Coordinatornachweisen. Historische
+Fehler und der v1-Vertrag bleiben erhalten.
+
 | Merkmal | Wert |
 |---|---|
 | Stand / Quellenprüfung | 2026-10-07 |

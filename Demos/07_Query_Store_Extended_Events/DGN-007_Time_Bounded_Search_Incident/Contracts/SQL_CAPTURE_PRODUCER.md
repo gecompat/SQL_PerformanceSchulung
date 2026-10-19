@@ -96,6 +96,16 @@ Coordinator-Prüfung muss zusätzlich den ausführenden Collector binden.
 
 ## Begrenzte Runtime-Prüfung
 
+Die interne API `_run_capture_one` liefert nach der vollständigen bestehenden
+v2-Prüfung den unveränderten Body und die tatsächlich geprüften Phasen in
+einem `_CaptureReceipt`. Die Rückgabe erfolgt erst nach erfolgreichem
+Harness-Cleanup und der ersten unabhängigen Datenbankabwesenheitsprüfung.
+Recovery erzeugt keinen Erfolgsbeleg. Öffentliche Counts, CLI und `RunResult`
+bleiben erhalten; der Body bleibt privat und `runtime_attested=False`.
+Ressourcen, Budgets, Freeze, Reihenfolge und vollständige Herkunft sind damit
+nicht attestiert. Der [Integrationsreview](../../../../Documentation/Project_Planning/DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
+führt den aktuellen Prüfstand und die Abgrenzung zur Coordinator-Folgearbeit.
+
 Der additive Runner-Modus `--check-capture-projection` ist ausschließlich
 für `control-ab`, `control-ba` und `control-aa` vorgesehen. Er übernimmt die
 Frames aus `CONTROL_EVIDENCE` im Speicher, prüft den tatsächlichen Body gegen
