@@ -1,6 +1,8 @@
 # QRY-017 – Relationale, Full-Text- und exakte Vektorsuche
 
-Status: IMPLEMENTED; aktuelle Runtime-/CI-Abnahme noch offen. Zuordnung: CUR-017/CUR-020, TSK-005.
+Status: IMPLEMENTED; gezielte Volltextprobe auf SQL Server 2025/Linux bestanden.
+Umfang und Grenzen stehen im [Abnahmenachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_FULLTEXT_REHEARSAL.md).
+Zuordnung: CUR-017/CUR-020, TSK-005; vollständige Streamabnahme bleibt offen.
 
 ## Lernziel und Aussagegrenze
 
@@ -101,9 +103,8 @@ python Tests/Runtime/run_sql2025_ai_local.py --target docker --container '<eigen
 ```
 
 Der Aufruf führt zwei vollständige Lifecycles sowie Marker-, Idempotenz- und
-Ergebnisgegenfälle aus. Der zusätzliche Tenantgegenfall ändert nur den
-relationalen Tenantwert und benötigt keine zeitliche Annahme über eine
-Volltextindexaktualisierung. Eine fehlende Volltextkomponente ist in diesem
+Ergebnisgegenfälle aus. Die fünf Suchfälle prüfen auch den Tenantfilter.
+Eine fehlende Volltextkomponente ist in diesem
 strengen Modus ein Fehler. Der normale Kursaufruf erhält den optionalen
 WARN-Pfad. Einrichtung und Entfernung der Komponente bleiben Aufgabe von
 `SQL_Server_Lab`; die Demo installiert keine Serverkomponenten.

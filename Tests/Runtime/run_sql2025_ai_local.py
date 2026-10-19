@@ -290,14 +290,6 @@ def ownership_controls(target: targets.ExecutionTarget, demo_id: str) -> None:
             rejected("20_Baseline.sql")
             rejected("30_Demonstration.sql")
         elif demo_id == "QRY-017":
-            if evidence_from_output(phase("30_Demonstration.sql"), demo_id)["comparison"].get("fulltext_installed") == 1:
-                # TenantId ist kein Volltextfeld: Der Gegenfall wirkt ohne
-                # Annahmen ueber den asynchronen Zeitpunkt einer Indexaktualisierung.
-                mutate("UPDATE lab.SearchDocuments SET TenantId='A' WHERE Id=4;")
-                rejected("60_Comparison.sql")
-                mutate("UPDATE lab.SearchDocuments SET TenantId='B' WHERE Id=4;")
-                phase("60_Comparison.sql")
-                print(f"AI_LOCAL|{demo_id}|FULLTEXT_TENANT_NEGATIVE|PASS")
             mutate("DELETE FROM lab.SearchDocuments;")
             rejected("60_Comparison.sql")
     finally:
