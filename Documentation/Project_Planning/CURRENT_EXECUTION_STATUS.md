@@ -11,9 +11,12 @@ fünf exakten Suchfällen und vier Ergebnisassertionen,48Markergegenfälle,
 Idempotenz, Ergebnisgegenfall und unabhängiger DB-/Container-/Volumecleanup.
 Der native Versuch endete mit Exitcode0 und freigegebenem Runtime-Mutex.
 Ein übersprungener zusätzlicher Tenant-Gegenprobezweig wurde entfernt und
-wird ausdrücklich nicht als geprüft bezeichnet. Lab-PR806 muss mit exakt
-diesem getesteten Tree und grüner finaler CI vor dem Schulungsmerge in Main
-liegen. Die historischen Kursproben behalten ihren optionalen Full-Text-WARN.
+wird ausdrücklich nicht als geprüft bezeichnet. Lab-PR806 muss mit grüner
+finaler CI vor dem Schulungsmerge in Main liegen. Gegenüber dem getesteten
+Lab-Tree ist ausschließlich die korrigierte Linux-Sperrfehlererwartung in
+der statischen Testfixture zulässig; sämtliche Produkt-/SQL-Quellen müssen
+unverändert sein. Der finale Git-Vergleich ist Teil der Mergeprüfung.
+Die historischen Kursproben behalten ihren optionalen Full-Text-WARN.
 Keine zusätzliche Kurs-, Performance- oder vollständige Streamfreigabe.
 Ausdrücklich zurückgestellte Arbeit und fremde Worktrees bleiben erhalten.
 

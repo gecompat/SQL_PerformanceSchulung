@@ -20,8 +20,15 @@ integrierte Bereinigungsänderung ist
 Die Probe verwendete den sauberen, eingefrorenen Lab-Kandidaten
 `3560b746506e506e6e4d728a5746b7afeae41211`, Tree
 `75633f60c8f102e912f28c9975bd2944647d92d3`, nach unabhängigem Lab-Review.
-Vor der Schulungsintegration müssen dessen finale Lab-CI und Main-Übernahme
+Vor der Schulungsintegration müssen die finale Lab-CI und Main-Übernahme
 bestätigt sein. Der native Nachweis selbst gilt für diesen exakten Quellstand.
+Die anschließende Linux-CI fand eine veraltete Sperrfehlererwartung in
+`Tests/Static/Fixtures/ResourceChangeGuidanceChecks.ps1`: Die gemeinsame
+Sperre weist den Zugriff bereits mit `SQL_FEATURE_OPERATION_BUSY` ab,
+während die Fixture ausschließlich `RESOURCE_CHANGE_BUSY` erwartet.
+Nur diese statische Fixture darf gegenüber dem nativen Lab-Stand abweichen;
+der finale Git-Vergleich muss alle Produkt-/SQL-Quellen unverändert bestätigen.
+Diese Korrektur einer Testerwartung benötigt keine erneute Consumerprobe.
 
 Tatsächlich gemessen: SQL Server **17.0.4075.5**, Major 17,
 `IsFullTextInstalled=1`. Die eigene Instanz wurde über den öffentlichen
