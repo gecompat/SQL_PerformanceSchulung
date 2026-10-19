@@ -17,6 +17,11 @@ liegen. Die historischen Kursproben behalten ihren optionalen Full-Text-WARN.
 Keine zusätzliche Kurs-, Performance- oder vollständige Streamfreigabe.
 Ausdrücklich zurückgestellte Arbeit und fremde Worktrees bleiben erhalten.
 
+Der Benutzer ordnet anschließend ausdrücklich an: Sobald diese Welle
+konsistent in `origin/main` integriert und bereinigt ist, pausiert die
+autonome Verarbeitung. Keine weitere Welle und keine automatische
+Wiederaufnahme; Fortsetzung erst nach einem neuen Benutzerauftrag.
+
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026
 
 Nach STANDARD/PR251 (maind851638) beauftragt der Benutzer ausdrücklich den
