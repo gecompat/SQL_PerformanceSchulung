@@ -11,9 +11,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_VERSION = "1.21.0"
-EXPECTED_SOURCE_REF = "d720db4f2f0d043756a958d5195d0e62090b1c8f"
-EXPECTED_MANIFEST_SHA256 = "5c4268140ba8cb6c3c38ce42cdd1ebecd8d5c3db23309bb90c77bc8b38ebf2f6"
+EXPECTED_VERSION = "1.24.0"
+EXPECTED_SOURCE_REF = "96391403a1b89e19d4824838806d7190d8033389"
+EXPECTED_MANIFEST_SHA256 = "acddcc5d9c930229279e627f341c5f4afa24ec00f4f77353ede5d137d90b0f48"
 EXPECTED_CACHE_CAPABILITY_SHA256 = (
     "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b"
 )
@@ -53,7 +53,7 @@ def version_tuple(value: str) -> tuple[int, int, int]:
 def main() -> None:
     catalog = load_json(ROOT / ".ai" / "foundation" / "feature_catalog.json")
     assessment = load_json(
-        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_21_0_ASSESSMENT.json"
+        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json"
     )
     registry = load_json(ROOT / ".ai" / "identity" / "registry.json")
     provenance = load_json(
@@ -78,6 +78,7 @@ def main() -> None:
         fail("Foundation ruleset version is stale")
     for required_path in (
         ROOT / ".ai" / "foundation" / "PROCESSING_EFFICIENCY_POLICY.md",
+        ROOT / ".ai" / "foundation" / "TEST_EVIDENCE_REUSE_POLICY.md",
         ROOT / ".ai" / "foundation" / "FOUNDATION_REFERENCE.md",
         ROOT / ".ai" / "foundation" / "runtime" / "processing_efficiency.py",
         ROOT / ".ai" / "foundation" / "schemas" / "processing-budget-request.schema.json",
@@ -95,8 +96,8 @@ def main() -> None:
 
     if assessment.get("schema_version") != 1:
         fail("upgrade assessment schema version must be 1")
-    if assessment.get("installed_version") != "1.20.0":
-        fail("upgrade assessment installed version must be 1.20.0")
+    if assessment.get("installed_version") != "1.21.0":
+        fail("upgrade assessment installed version must be 1.21.0")
     if assessment.get("source_version") != EXPECTED_VERSION:
         fail(f"upgrade assessment source version must be {EXPECTED_VERSION}")
     if assessment.get("source_ref") != EXPECTED_SOURCE_REF:
@@ -135,13 +136,15 @@ def main() -> None:
         fail("upgrade assessment does not contain exactly the complete feature delta")
     assessed_ids = {row.get("feature_id") for row in rows}
     expected_candidates = {
+        'ai-runtime-adapters',
+        'ai-work-execution',
+        'ai-work-orchestration',
         'bounded-processing-efficiency',
         'foundation-baseline',
-        'installed-foundation-provenance',
         'layered-validation',
-        'processing-overhead-assessment',
-        'rules-only-transfer',
-        'semantic-integration',
+        'orchestrator-job-control',
+        'session-lifecycle-management',
+        'test-evidence-reuse',
     }
     if assessed_ids != candidates or candidates != expected_candidates:
         fail(f"unexpected upgrade candidates: {sorted(candidates)}")
@@ -152,18 +155,20 @@ def main() -> None:
         if not row.get("evidence") or not row.get("rationale"):
             fail("upgrade assessment lacks evidence or rationale")
     classifications = {row["feature_id"]: row["classification"] for row in rows}
-    if classifications.get("bounded-processing-efficiency") != "RECOMMENDED":
-        fail("processing efficiency recommendation is missing")
-    efficiency = next(row for row in rows if row["feature_id"] == "bounded-processing-efficiency")
-    if "DEC-071" not in efficiency.get("decision_required", ""):
-        fail("authorized processing choice must resolve through DEC-071")
-    if classifications.get("processing-overhead-assessment") != "APPLY_DEFAULT":
-        fail("actual processing-overhead assessment is missing")
+    if classifications.get("bounded-processing-efficiency") != "APPLY_DEFAULT":
+        fail("processing efficiency integration is missing")
+    if classifications.get("orchestrator-job-control") != "DECISION_REQUIRED":
+        fail("autonomous host activation must remain a separate decision")
+    control = next(row for row in rows if row["feature_id"] == "orchestrator-job-control")
+    if not control.get("decision_required"):
+        fail("future host activation lacks its explicit prerequisite")
+    if classifications.get("test-evidence-reuse") != "RECOMMENDED":
+        fail("test evidence reuse recommendation is missing")
 
     files = provenance.get("files", [])
     targets = [row.get("target") for row in files]
-    if len(files) != 107 or len(set(targets)) != len(files):
-        fail("provenance must contain the complete 107 unique selected target files")
+    if len(files) != 114 or len(set(targets)) != len(files):
+        fail("provenance must contain the complete 114 unique selected target files")
     if set(provenance.get("selection", {}).get("adapters", [])) != {
         "claude-code", "gemini", "github-copilot"
     }:
@@ -190,6 +195,14 @@ def main() -> None:
                 or not row.get("reason")
             ):
                 fail("project discovery override lacks its recorded reason")
+        elif relative.as_posix() == ".ai/foundation/ai_orchestrator/AI_ORCHESTRATOR.md":
+            if (
+                row.get("integration_state") != "INTENTIONAL_OVERRIDE"
+                or row.get("installed_sha256") != "61dc10e5307033df82bcfffe760780c9c0fbae4ab8c613f9e9bab672b38bd9ca"
+                or row.get("source_sha256") != "3ed3e15159f8a8a5e9683e468be03f757879c0f0ebf68d0991cf7e4f8080adab"
+                or row.get("reason") != "Installationslayout: relativen Link zum unveränderten Control-Schema auf ../schemas/ korrigiert; Source-Ref und semantischer Vertrag bleiben unverändert."
+            ):
+                fail("orchestrator guide differs from the reviewed installation-link correction")
         elif (
             row.get("integration_state") != "FOUNDATION_BASELINE"
             or row.get("source_sha256") != row.get("installed_sha256")
@@ -232,7 +245,7 @@ def main() -> None:
     if ignored.returncode != 0:
         fail("configured rule-context cache record path is not ignored by Git")
 
-    for reference in ("DEC-065", "DEC-067", "DEC-070", "DEC-071"):
+    for reference in ("DEC-065", "DEC-067", "DEC-070", "DEC-071", "DEC-075"):
         decision = registry.get("artifacts", {}).get(reference)
         if not isinstance(decision, dict) or decision.get("kind") != "decision":
             fail(f"{reference} is not registered as a decision")
@@ -256,7 +269,7 @@ def main() -> None:
         ("`DEC-065`", ".ai/PROJECT_RULES.md"),
         ("`Runtime/.foundation-rule-cache/`", ".ai/PROJECT_RULES.md"),
         ("`DEC-067`", ".ai/PROJECT_RULES.md"),
-        ("FOUNDATION_UPGRADE_1_21_0_ASSESSMENT.json", ".ai/PROJECT_RULES.md"),
+        ("FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json", ".ai/PROJECT_RULES.md"),
         ("foundation-session-lifecycle/v1", ".ai/PROJECT_RULES.md"),
         ("successor_session_capability: UNKNOWN", ".ai/PROJECT_RULES.md"),
     ):
@@ -276,7 +289,7 @@ def main() -> None:
 
     print(
         "foundation-integration: PASS "
-        "(1.21.0; complete 7-feature delta; 107 installation hashes; "
+        "(1.24.0; complete 9-feature delta; 114 installation hashes; "
         "all local capabilities preserved)"
     )
 
