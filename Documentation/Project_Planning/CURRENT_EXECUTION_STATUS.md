@@ -1,5 +1,22 @@
 # Aktueller Ausführungsstand
 
+## C6-Auswahl nach abgeschlossenem Architektur-PR275
+
+PR275 vollständig Main750844bbfe61f6b12c98354c034ea3441abbde91: sieben finale
+Head-/sechs Base-/fünf frische Main-Gates SUCCESS, unabhängige Designschließung,
+FullTree/Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[PR275-Abschlussnachweis](https://github.com/gecompat/SQL_PerformanceSchulung/pull/275).
+
+Aktiv ausschließlich die [konkrete C6-Auswahl](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md)
+für den unveränderten DESIGNED-Vertrag: ein letzter stabiler Source/Testkandidat,
+ein Owner/Reviewer, gemeinsamer ursprünglicher Stand fünf/max6 und vier geänderte
+Nachläufe, Verbrauch UNKNOWN. Auswahl-PRE vor Implementierung, danach Source/Test-
+PRE und ausdrückliches Fit-vor-Modell-GO. Kein Generatorlauf, Compile/Exec oder
+Modell vor GO, keine weitere Korrekturversion nach hart6. Gemeinsame Objekt-
+Teilergebnisaufnahme, ursprünglicher Rootowner-/Bootstrap-/Helferanker und
+derselbe tatsächliche EOF-/Digest-/Writer-/Budgetpfad; Standalone-Parentfactory
+unverändert. Größenersparnis unbekannt,131072Cap und alle realen Gates offen.
+
 ## Architekturplan nach abgeschlossenem Diagnose-PR274
 
 PR274 ist vollständig in Mainf30aebce18ec2902171210bdcc7f222eaa12d405 integriert:
