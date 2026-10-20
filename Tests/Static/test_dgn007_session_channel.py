@@ -45,6 +45,8 @@ def native_case(name):
     harness.setUp()
     previous = subreaper_value()
     original_launch, original_cleanup = subject._launch, subject._cleanup
+    original_restore, original_check = subject._Reaper.restore, subject._Control.check
+    original_clock = subject.time.monotonic_ns
     provider_sha = harness.provider.sha256
     encoder = sys.modules["json.encoder"].JSONEncoder
     encoder_default = encoder.default
@@ -89,7 +91,10 @@ def native_case(name):
                 if name == "extra_footer": return rows + (rows[-1],), err
                 if name == "truncated": return rows[:-1] + (rows[-1][:-1],), err
                 if name == "bad_hash": return harness.changed_row(rows, -1, 11, "0" * 64), err
-                return harness.changed_row(rows, 0, 2, "0" * 64), err
+                index = next(i for i, row in enumerate(rows) if json.loads(row)[0] == "INPUT_COMPLETE")
+                nonce = json.loads(rows[index])[2]
+                other = ("0" if nonce[0] != "0" else "1") + nonce[1:]
+                return harness.changed_row(rows, index, 2, other), err
             selected = (selection(harness, change=change)[0], selection(harness, 2)[0])
         elif name in ("line1024", "line1025", "records44", "byte_overflow"):
             raw = {"line1024": b"x" * 1023 + b"\n", "line1025": b"x" * 1024 + b"\n",
@@ -127,12 +132,26 @@ def native_case(name):
             def launch(program):
                 raise ValueError("PRIVATE_PAYLOAD")
             subject._launch = launch
+        elif name == "final_post_timeout":
+            phase = dict(restored=False, checks=0)
+            def restore(reaper):
+                result = original_restore(reaper)
+                phase["restored"] = True
+                return result
+            def check(control):
+                original_check(control)
+                if phase["restored"]:
+                    phase["checks"] += 1
+                    if phase["checks"] == 2:
+                        subject.time.monotonic_ns = lambda: original_clock() + 21 * subject.NS
+            subject._Reaper.restore, subject._Control.check = restore, check
         elif name not in ("single",):
             raise AssertionError("UNKNOWN_FIXED_CASE")
         try:
             report = subject.run_session_channels(harness.namespace, selected, limits=limits)
         finally:
-            if name == "restore_raises": subject._Reaper.restore = old_restore
+            subject._Reaper.restore, subject._Control.check = original_restore, original_check
+            subject.time.monotonic_ns = original_clock
             subject._launch, subject._cleanup = original_launch, original_cleanup
             harness.provider.sha256 = provider_sha
             encoder.default = encoder_default
@@ -219,12 +238,18 @@ class PortableTests(unittest.TestCase):
 @unittest.skipUnless(NATIVE, "Native Linux-/CPython-3.12-Gegenproben separat erforderlich")
 class NativeTests(unittest.TestCase):
     def run_case(self, name):
-        completed = subprocess.run([sys.executable, "-I", "-S", "-B", str(Path(__file__).resolve()),
-                                    "--native-case", name], capture_output=True, timeout=12, check=False)
-        self.assertEqual(completed.returncode, 0, "NATIVE_WORKER_FAILED: " + completed.stderr[:2048].decode("utf-8", "replace"))
+        try:
+            completed = subprocess.run([sys.executable, "-I", "-S", "-B", str(Path(__file__).resolve()),
+                                        "--native-case", name], capture_output=True, timeout=12, check=False)
+        except subprocess.TimeoutExpired:
+            raise AssertionError("NATIVE_WORKER_UNKNOWN_TIMEOUT") from None
+        self.assertEqual(completed.returncode, 0, "NATIVE_WORKER_FAILED")
         self.assertLessEqual(len(completed.stdout), 4096)
-        report = json.loads(completed.stdout)
-        self.assertNotIn("PRIVATE_PAYLOAD", completed.stdout.decode())
+        try:
+            report = json.loads(completed.stdout)
+        except (ValueError, UnicodeError):
+            raise AssertionError("NATIVE_REPORT_FORM") from None
+        self.assertFalse(b"PRIVATE_PAYLOAD" in completed.stdout, "NATIVE_REPORT_PRIVATE")
         self.assertEqual(report["validation_scope"], "PROJECT_SEMANTIC")
         for field in ("runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved"):
             self.assertIs(report[field], False)
@@ -306,6 +331,13 @@ class NativeTests(unittest.TestCase):
         self.assertEqual((r["issue"], r["first_issue"], r["start_attempts"], r["started"]),
                          ("CHANNEL_CLEANUP", "CHANNEL_START_UNKNOWN", 1, 0))
         self.assertFalse(r["cleanup_complete"])
+
+    def test_deadline_is_rechecked_after_last_real_binding_check(self):
+        r = self.run_case("final_post_timeout")
+        self.assertEqual((r["status"], r["issue"], r["first_issue"]),
+                         ("REJECTED_SESSION_CHANNELS", "CHANNEL_TIMEOUT", "CHANNEL_TIMEOUT"))
+        self.assertEqual((r["started"], r["matched"], r["cleanup_attempts"]), (1, 1, 1))
+        self.assertTrue(r["cleanup_complete"])
 
 
 if __name__ == "__main__":

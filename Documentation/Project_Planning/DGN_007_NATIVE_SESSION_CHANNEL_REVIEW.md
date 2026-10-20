@@ -145,6 +145,14 @@ getrennte echte EOF/Exitbeobachtung, kumulative Budgets, eigene Selbstbeendigung
 Subreaper-Restore und getrennte Absenz-/Pipebeweise. Der konkrete Quellen-/Test-
 PRE mit ausdrücklichem Lauf-GO steht aus. Keine neue Suite oder native Probe
 ausgeführt. C1 ist der erste neue Quellen-/Testkandidat; Kosten/Token unbekannt.
+
+C1 `a6152d6827c28cebfda2172a376c8e7d3efd1dfc` erhielt vier P2, kein Lauf-GO:
+letzte POST-Deadline fehlte, Noncegegenprobe änderte stattdessen eine Länge,
+äußere Workerfehlermeldung enthielt rohes stderr und sechs transitive
+Harnessimporte fehlten im Workflowselector. C2 bündelt die Korrekturen und
+eine native letzte-POST-Zeitgegenprobe nach realem Lauf und Cleanup mit
+kontrolliert um 21 Sekunden fortgerückter Uhr. Kein unveränderter Test wurde
+wiederholt; weiterhin vor erstem Lauf. Gezielt unabhängiger C2-Delta-PRE nötig.
 Produktions-Worker, Start-/Command-/Bodyintegration, tatsächliche Import-/Loader-
 Provenienz, Fünf-Formen-/operative Inventur und SQL-/Incidentmethoden bleiben
 Folgearbeit mit ihren eigenen Abnahmegates.

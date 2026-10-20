@@ -445,6 +445,8 @@ def run_session_channels(control_namespace, selections, *, limits=ChannelLimits(
     if control is not None:
         try:
             control.check()
+            if budget is not None:
+                budget.check()
         except BaseException as error:
             post = _issue(error)
             if first == "NONE": first = post
