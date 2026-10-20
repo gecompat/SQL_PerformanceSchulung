@@ -1,7 +1,7 @@
 # DGN-007 – codefreie kontrollierte Parentregistrierung
 
 Stand: 20. Oktober 2026. Basis `4a165c20840193e26b05a789d8e6e067c0bca7b9`.
-Status `C1_SOURCE_TEST_PRE_PENDING`; Source/Teststand noch nicht ausgeführt.
+Status `C2_DELTA_PRE_PENDING`; Source/Teststand noch nicht ausgeführt.
 
 ## Priorität und endlicher Umfang
 
@@ -132,3 +132,20 @@ Lauf-GO ausstehend. Danach enge CI mit genau vier eigenen Abhängigkeiten;
 keine alten Consumer betroffen, keine doppelten lokalen grünen Suites oder
 Privacyvollscans. Ein Owner/ein Reviewer, begrenzte private Logs. Erforderliche
 frische Head-/Base-/Main-Gates und vollständiger Integrationsabschluss bleiben.
+
+## C2 – begrenzte Erfassung vor Kopie und dominante Guardoracle
+
+C1 2f58dc10f57755f1d29899365a1957f0a1508330 unabhängig mit zwei P3 ohne
+Lauf-GO: Klassenmapping vor Kopie begrenzen; die dauerhaft falsche Guardrückgabe
+scheitert auch beim abschließenden close und muss deshalb BINDING erwarten.
+Keine offenen P1/P2, keine Kandidatenimporte oder Ausführung.
+
+C2 prüft exakten Mappingproxytyp, maximal128 Einträge und primitive begrenzte
+Keys vor dict(view). Eine tatsächlich erreichte zusätzliche Klassenmutation
+nach dem ersten BEGIN überschreitet diese Grenze; dieselbe Methode prüft
+BINDING, ein bestätigtes Recordbytepräfix und eigene sichere Bereinigung,
+danach exakte Rücknahme aller eigenen synthetischen Klassenattribute.
+Guard-False erwartet ausschließlich den korrekten dominanten BINDING-Issue.
+Weiterhin zwölf Methoden, keine schwächere Oracle. Zwei Kandidaten/max4,
+ein Nachlauf, Verbrauch UNKNOWN. Gezielter unabhängiger Delta-PRE und
+ausdrückliches einmaliges Lauf-GO weiter erforderlich; keine Probe bisher.

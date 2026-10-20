@@ -1,6 +1,6 @@
 """Vorbereitende codefreie Parentkomponente; keine operative Workerattestation."""
 from importlib.machinery import ModuleSpec
-from types import ModuleType
+from types import MappingProxyType, ModuleType
 
 
 def make_codefree_parent_registry(*, module_type, spec_type, cache,
@@ -54,8 +54,12 @@ def make_codefree_parent_registry(*, module_type, spec_type, cache,
 
     def class_state(cls):
         need(type(cls) is type)
-        raw = dict(type.__getattribute__(cls, "__dict__"))
-        dictionary(raw, 128)
+        view = type.__getattribute__(cls, "__dict__")
+        need(type(view) is MappingProxyType and len(view) <= 128)
+        for key in view:
+            need(type(key) is str and len(key) <= 4096 and "\0" not in key)
+            need(len(key.encode("utf-8", "strict")) <= 4096)
+        raw = dict(view)
         return (cls.__bases__, cls.__mro__, tuple(raw.items()),
                 tuple(function(value) for value in raw.values() if type(value) is function_type))
 

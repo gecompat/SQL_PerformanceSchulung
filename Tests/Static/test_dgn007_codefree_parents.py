@@ -161,7 +161,7 @@ class CodefreeParentTests(unittest.TestCase):
         self.assertEqual(env["rows"], [])
 
     def test_spec_module_locations_and_class_drift_after_begin(self):
-        for kind in ("spec", "path", "locations", "file", "class"):
+        for kind in ("spec", "path", "locations", "file", "class", "class_limit"):
             reached = []
             def hook(env, row):
                 if len(env["rows"]) == 1:
@@ -171,7 +171,10 @@ class CodefreeParentTests(unittest.TestCase):
                     elif kind == "path": m.__path__ = []
                     elif kind == "locations": m.__path__.append("foreign")
                     elif kind == "file": m.__file__ = "foreign"
-                    else: ModuleSpec._synthetic_parent_drift = None
+                    elif kind == "class": ModuleSpec._synthetic_parent_drift = None
+                    else:
+                        for index in range(128):
+                            setattr(ModuleSpec, "_synthetic_parent_limit_" + str(index), None)
             env = fixture(write_hook=hook)
             try:
                 self.rejected(env, True)
@@ -181,6 +184,10 @@ class CodefreeParentTests(unittest.TestCase):
             finally:
                 if kind == "class" and "_synthetic_parent_drift" in ModuleSpec.__dict__:
                     del ModuleSpec._synthetic_parent_drift
+                if kind == "class_limit":
+                    for index in range(128):
+                        key = "_synthetic_parent_limit_" + str(index)
+                        if key in ModuleSpec.__dict__: delattr(ModuleSpec, key)
 
     def test_completed_parent_and_own_child_binding_remain_checked(self):
         for kind in ("parent", "child"):
@@ -209,7 +216,7 @@ class CodefreeParentTests(unittest.TestCase):
             self.assertEqual(env["cache"], {})
             self.assertNotIn("PRIVATE", repr(result))
         env = fixture(guard_hook=lambda env: False)
-        self.rejected(env, False)
+        self.rejected(env, True)
         self.assertEqual(env["rows"], [])
 
     def test_reentrancy_and_retry_are_sticky(self):
