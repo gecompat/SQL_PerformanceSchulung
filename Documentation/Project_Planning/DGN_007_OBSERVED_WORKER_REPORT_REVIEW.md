@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `84272af549d1c7c1320b5b1c77a55a4b721f8d18` nach vollständig geschlossenem PR267.
-Status `C1_SOURCE_TEST_PRE_PENDING`.
+Status `C2_DELTA_PRE_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -114,3 +114,34 @@ gesamter alter16-Generatorpräfix und diff-check PASS; noch keine neuen Suite-
 importe, Compile-/Execproben oder Tests. Unabhängiger Source/Test-PRE und
 ausdrückliches Lauf-GO ausstehend. Ein Source/Testkandidat/max6, kein Nachlauf,
 Verbrauch UNKNOWN; operative Grenzen unverändert.
+
+## C2: Builtin-Klassen und separat versiegelte Entryautorität
+
+C1 `7a8140f92db33312f9491fc828e6b0887121a0f9` unabhängig mit zwei P2,
+ohne Lauf-GO: fehlender eigener `__module__`-Slot von `PyModule_Type` und eine
+ersetzbare Globalzelle, die ihre eigene Checkautorität bestimmt. Keine weiteren
+offenen P1/P2/P3. Primärgrundlagen für den Builtinfall sind CPython
+[3.12.3](https://raw.githubusercontent.com/python/cpython/v3.12.3/Objects/moduleobject.c)
+und [3.14.7](https://raw.githubusercontent.com/python/cpython/v3.14.7/Objects/moduleobject.c).
+
+C2 überspringt ausschließlich Klassen ohne eigenen `__module__`-Slot; vorhandene
+Slots werden weiterhin vor Vergleich exakt typisiert. Eigene Scriptklassen
+bleiben vollständig gebunden und ihre späteren Namespaceänderungen scheitern.
+
+Einmalige Initialisierung erzeugt nun eine private Entryclosure und versiegelt
+darin die ursprünglichen Kontroll-/Provider-/Encoder-/Scriptanker sowie die
+ursprüngliche Markeridentität. Der lokale Sealer wird nicht veröffentlicht.
+Ein eigener einmalig gefüllter privater Scripthalter erlaubt den Selbstbezug
+der vollständig geprüften Entryclosure; er wird vor Zugriff exakt typisiert,
+nicht aus der Globalzelle übernommen und nicht in deren Marker veröffentlicht.
+Die Globalzelle ist ausschließlich ein identitätsgeprüfter Marker, keine
+Dispatchautorität. Ein neuer sechsteiliger Marker mit sämtlichen ursprünglichen
+Checkobjekten scheitert ebenso vor Feld-/Attributzugriff und Receiver wie ein
+Marker mit fremdem Checkgetter. Der Closure-Runner hält ursprüngliches Code- und
+Globalsobjekt; kein späterer globaler Runneraustausch wird ausgeführt.
+
+Die bestehende Gegenprobe enthält beide Markerersatzfälle mit extern geprüften
+null Getter-/Call-/Profilreadzählern sowie zusätzliche Runner-/Factoryersatzfälle.
+Weiterhin16Methoden, keine Test-/Compile-/Execausführung. Checkpoint2 erreicht:
+zwei Source/Testkandidaten/max6, ein gebündelter Befundnachlauf. Delta-PRE und
+ausdrückliches Lauf-GO ausstehend. Verbrauch UNKNOWN; operative Grenzen erhalten.

@@ -2661,6 +2661,9 @@ def _worker_report_script():
             functions.append(_worker_profile_function(value, budget))
         elif type(value) is type:
             members = _semantic_class_namespace(value)
+            # Statische Builtin-Klassen besitzen keinen eigenen __module__-Slot.
+            if "__module__" not in members:
+                continue
             module_name = members.get("__module__")
             _inline_need(type(module_name) is str, "WORKER_REPORT_BINDING")
             if module_name != namespace.get("__name__"):
@@ -2705,12 +2708,12 @@ def _worker_report_script_check(before):
                      "WORKER_REPORT_BINDING")
 
 
-def _worker_report_check(held, used):
+def _worker_report_check(held, marker, used):
     script_check, code = held[5]
     if script_check.__code__ is not code:
         raise RuntimeError()
-    script_check(held[0])
-    _inline_need(_WORKER_REPORT_BINDING is held and _WORKER_REPORT_INITIALIZED is True
+    script_check(held[0][0])
+    _inline_need(_WORKER_REPORT_BINDING is marker and _WORKER_REPORT_INITIALIZED is True
                  and _WORKER_REPORT_USED is used, "WORKER_REPORT_BINDING")
     _worker_profile_check(held[1])
     _semantic_provider_check(held[2])
@@ -2718,7 +2721,7 @@ def _worker_report_check(held, used):
 
 
 def _initialize_worker_report_control():
-    global _WORKER_REPORT_INITIALIZED, _WORKER_REPORT_BINDING
+    global _WORKER_REPORT_INITIALIZED, _WORKER_REPORT_BINDING, _inline_observed_worker_report
     if _WORKER_REPORT_INITIALIZED is not False:
         _WORKER_REPORT_BINDING = None
         return ("REJECTED_WORKER_REPORT_CONTROL", "WORKER_REPORT_ALREADY_INITIALIZED")
@@ -2727,32 +2730,75 @@ def _initialize_worker_report_control():
         profile = _WORKER_PROFILE_BINDING
         _worker_profile_check(profile)
         provider, encoder = _semantic_provider_anchor(), _report_encoder_anchor()
-        script = _worker_report_script()
+        entry, seal = _worker_report_entry_factory()
+        _inline_observed_worker_report = entry
+        # Ein eigener einmalig gefüllter Halter löst den Selbstbezug zwischen
+        # Entryclosure und deren vollständiger Scriptsnapshot auf. Kein Setter
+        # wird veröffentlicht, und spätere Aufrufe erhalten keine neue Baseline.
+        script = []
         held = (script, profile, provider, encoder,
                 (_worker_report_check, _worker_report_check.__code__),
                 (_worker_report_script_check, _worker_report_script_check.__code__))
-        _WORKER_REPORT_BINDING = held
-        _worker_report_check(held, False)
+        # Die Globalzelle exponiert weder den privaten Scripthalter noch eine
+        # Dispatchautorität; ausschließlich ihre ursprüngliche Identität zählt.
+        marker = ("WORKER_REPORT_BINDING",) + held[1:]
+        seal(held, marker)
+        _WORKER_REPORT_BINDING = marker
+        script.append(_worker_report_script())
+        _worker_report_check(held, marker, False)
         return ("BOUND_WORKER_REPORT_CONTROL", "NONE")
     except BaseException:
         _WORKER_REPORT_BINDING = None
         return ("REJECTED_WORKER_REPORT_CONTROL", "WORKER_REPORT_BINDING")
 
 
+def _worker_report_entry_factory():
+    expected = None
+    run, code, namespace = _worker_report_run, _worker_report_run.__code__, globals()
+    def entry(metadata_chunks, *, token, separately_known_filefinder_hook):
+        if run.__code__ is not code or run.__globals__ is not namespace:
+            namespace["_WORKER_REPORT_USED"] = True
+            namespace["_WORKER_REPORT_BINDING"] = None
+            return ("REJECTED_OBSERVED_WORKER_REPORT", "WORKER_REPORT_BINDING", None)
+        return run(expected[0], expected[1], metadata_chunks, token=token,
+                   separately_known_filefinder_hook=separately_known_filefinder_hook)
+    def seal(value, marker):
+        nonlocal expected
+        if expected is not None:
+            raise RuntimeError()
+        expected = (value, marker)
+    return entry, seal
+
+
 def _inline_observed_worker_report(metadata_chunks, *, token, separately_known_filefinder_hook):
     global _WORKER_REPORT_USED, _WORKER_REPORT_BINDING
-    held, check = _WORKER_REPORT_BINDING, None
+    # Bis zur erfolgreichen einmaligen Initialisierung existiert kein Dispatch.
+    _WORKER_REPORT_USED, _WORKER_REPORT_BINDING = True, None
+    return ("REJECTED_OBSERVED_WORKER_REPORT", "WORKER_REPORT_BINDING", None)
+
+
+def _worker_report_run(held, marker, metadata_chunks, *, token, separately_known_filefinder_hook):
+    global _WORKER_REPORT_USED, _WORKER_REPORT_BINDING
+    check = None
     issue, value = "WORKER_REPORT_REJECTED", None
     if _WORKER_REPORT_USED is not False:
         _WORKER_REPORT_BINDING = None
         return ("REJECTED_OBSERVED_WORKER_REPORT", "WORKER_REPORT_ALREADY_ATTEMPTED", None)
     # Auch malformed Metadata und ein reentranter Aufruf verbrauchen den Versuch.
     _WORKER_REPORT_USED = True
+    # Erwartete Identität stammt ausschließlich aus der versiegelten Entryclosure;
+    # eine fremde Globalzelle wird vor jedem Feld-/Attributzugriff abgewiesen.
+    if _WORKER_REPORT_BINDING is not marker or type(held) is not tuple or len(held) != 6:
+        _WORKER_REPORT_BINDING = None
+        return ("REJECTED_OBSERVED_WORKER_REPORT", "WORKER_REPORT_BINDING", None)
     def close():
-        if (check is None or check.__code__ is not held[4][1]
-                or check.__globals__ is not held[0][0]):
+        if (type(held[0]) is not list or len(held[0]) != 1
+                or type(held[0][0]) is not tuple or len(held[0][0]) != 4
+                or type(held[0][0][0]) is not dict
+                or check is None or check.__code__ is not held[4][1]
+                or check.__globals__ is not held[0][0][0]):
             raise RuntimeError()
-        check(held, True)
+        check(held, marker, True)
     try:
         _inline_need(type(held) is tuple and len(held) == 6, "WORKER_REPORT_BINDING")
         check, code = held[4]

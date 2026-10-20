@@ -245,10 +245,32 @@ class ObservedWorkerReportTests(unittest.TestCase):
         def foreign(*args, **kwargs): called.append(1); return None
         for name in ("_inline_receive_metadata_chunks", "_inline_profile_report",
                      "_inline_observe_selected_worker_profile", "_worker_profile_state",
-                     "_report_encoder_check", "_worker_report_check", "_worker_report_script_check"):
+                     "_report_encoder_check", "_worker_report_check", "_worker_report_script_check",
+                     "_worker_report_run", "_worker_report_entry_factory"):
             env = model()
             env["ns"][name] = foreign
             self.rejected(env)
+        class ForeignCheck:
+            @property
+            def __code__(self):
+                called.append("CODE")
+                raise AssertionError()
+            def __call__(self, *args):
+                called.append("CALL")
+                raise AssertionError()
+        for foreign_check in (False, True):
+            env = model()
+            self.ready(env)
+            original = env["ns"]["_WORKER_REPORT_BINDING"]
+            replacement = list(original)
+            if foreign_check:
+                replacement[4] = (ForeignCheck(), original[4][1])
+            env["ns"]["_WORKER_REPORT_BINDING"] = tuple(replacement)
+            reads = []
+            env["filesystem"].path.realpath = lambda path: reads.append(path) or path
+            self.assertIsNot(env["ns"]["_WORKER_REPORT_BINDING"], original)
+            self.rejected(env)
+            self.assertEqual(reads, [])
         self.assertEqual(called, [])
 
     def test_code_defaults_keyword_contents_and_class_drift(self):

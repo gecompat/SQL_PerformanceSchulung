@@ -13,8 +13,11 @@ und Workerreport verbinden](DGN_007_OBSERVED_WORKER_REPORT_REVIEW.md), eigener
 Branch `codex/dgn007-observed-worker-report`, ein Owner/max6/Checkpoint2/hart6.
 Auswahl-PRE unabhängig ohne Befunde freigegeben. C1 verbindet vollständigen
 Empfang, echte Aufnahme und Reporter mit vorab gehaltenen äußeren Ankern und
-einmaliger Reservierung;16neue Modellmethoden. Source/Test-PRE und ausdrückliches
-Lauf-GO ausstehend, noch keine Suiteimporte oder Läufe. Ein Kandidat/max6.
+einmaliger Reservierung;16neue Modellmethoden. C1 unabhängig mit zwei P2 ohne
+Lauf-GO. C2 schließt Builtinslot und selbstgewählte Bindingautorität durch eine
+separat versiegelte private Entryclosure und zwei Markerersatz-Gegenproben.
+Checkpoint2/zwei Kandidaten/ein Nachlauf; Delta-PRE/Lauf-GO ausstehend,
+noch keine Suiteimporte oder Läufe.
 Keine operative Script-/Pipeausführung, Inventur oder SQL. Alle tatsächlichen
 Worker-/Import-/Trust-/Methodengates bleiben offen. Verbrauch UNKNOWN.
 
