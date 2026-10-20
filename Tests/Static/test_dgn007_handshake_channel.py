@@ -165,7 +165,7 @@ def native_case(name):
             "body_end_reserved", "body_end_sent", "import_release_reserved", "import_release_sent", "stdin_closed",
             "validation_scope", "runtime_attested", "trust_attested", "import_used_bytes_attested", "method_approved")}
         result.update({key: getattr(report.channels, key) for key in (
-            "start_attempts", "started", "matched", "closed", "observed_bytes", "io_steps", "cleanup_complete",
+            "start_attempts", "started", "matched", "closed", "observed_bytes", "io_steps", "child_io_reserved", "cleanup_complete",
             "stdout_eofs", "stderr_eofs", "zero_exits", "eof_before_exit", "exit_before_eofs")})
         result["expected_bytes"] = sum(pair[1] for pair in pairs)
         result["nested"] = nested
@@ -240,6 +240,8 @@ class NativeTests(unittest.TestCase):
                             "import_release_reserved", "import_release_sent", "stdin_closed", "stdout_eofs", "stderr_eofs", "zero_exits"):
                     self.assertEqual(r[key], count)
                 self.assertTrue(r["cleanup_complete"])
+                self.assertEqual(r["child_io_reserved"], count * 1088)
+                self.assertLessEqual(r["io_steps"] + r["child_io_reserved"], 4096)
 
     def test_wrong_profile_and_input_nonce_never_advance_or_restart(self):
         for name in ("bad_profile", "bad_nonce"):
@@ -269,6 +271,9 @@ class NativeTests(unittest.TestCase):
                 r = self.run_case(name)
                 self.assertEqual(r["issue"], issue)
                 self.assertTrue(r["cleanup_complete"])
+                if name == "io_limit":
+                    self.assertEqual((r["start_attempts"], r["started"], r["io_steps"],
+                                      r["child_io_reserved"]), (0, 0, 0, 0))
 
     def test_real_eof_exit_orderings_and_inherited_pipes(self):
         for name, field in (("eof_first", "eof_before_exit"), ("exit_first", "exit_before_eofs")):

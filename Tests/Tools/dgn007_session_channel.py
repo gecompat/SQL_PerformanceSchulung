@@ -53,6 +53,7 @@ class ChannelReport:
     closed: int = 0
     observed_bytes: int = 0
     io_steps: int = 0
+    child_io_reserved: int = 0
     cleanup_attempts: int = 0
     cleanup_complete: bool = True
     stdout_eofs: int = 0
@@ -183,20 +184,38 @@ class _Budget:
     def __init__(self, limits, start):
         self.limits, self.deadline = limits, start + limits.regular_ns
         self.bytes = self.io = self.quiet = self.cleanup = 0
+        self.child_io_reserved = 0
+        self.reservation_attempted = self.reservation_failed = False
 
     def check(self):
         _need(time.monotonic_ns() < self.deadline, "CHANNEL_TIMEOUT")
+        _need(self.reservation_failed is False, "CHANNEL_IO")
+
+    def reserve_worker_io(self, slots):
+        try:
+            self.check()
+            _need(self.reservation_attempted is False and self.io == 0, "CHANNEL_IO")
+            self.reservation_attempted = True
+            _need(type(slots) is int and 1 <= slots <= 3, "CHANNEL_IO")
+            reserved = slots * 1088
+            _need(reserved < self.limits.io_steps, "CHANNEL_IO")
+            self.child_io_reserved = reserved
+        except BaseException:
+            self.reservation_failed = True
+            raise
 
     def step(self):
         self.check()
-        _need(self.io < self.limits.io_steps, "CHANNEL_IO")
+        _need(self.io + self.child_io_reserved < self.limits.io_steps, "CHANNEL_IO")
         self.io += 1
 
     def book(self, data):
+        _need(self.reservation_failed is False, "CHANNEL_IO")
         self.bytes += len(data)
         _need(self.bytes <= self.limits.output_bytes, "CHANNEL_BYTES")
 
     def progress(self, progress):
+        _need(self.reservation_failed is False, "CHANNEL_IO")
         self.quiet = 0 if progress else self.quiet + 1
         _need(self.quiet < self.limits.no_progress, "CHANNEL_STALLED")
 
@@ -417,6 +436,9 @@ def _run_owned_channels(control_namespace, selections, limits, driver, lease, st
         else:
             selections = driver.prepare(control, selections, limits)
         budget = _Budget(limits, start)
+        if driver is not None:
+            control.check(); budget.check()
+            driver.reserve(budget)
         control.check(); budget.check(); _platform()
         for selection in selections:
             budget.check(); control.check(); _need(_no_children(), "CHANNEL_ISOLATION")
@@ -504,6 +526,7 @@ def _run_owned_channels(control_namespace, selections, limits, driver, lease, st
         issue=issue, first_issue=first, start_attempts=start_attempts, started=started,
         matched=len(matches), closed=closed, observed_bytes=0 if budget is None else budget.bytes,
         io_steps=0 if budget is None else budget.io, cleanup_attempts=attempts, cleanup_complete=cleanup_ok,
+        child_io_reserved=0 if budget is None else budget.child_io_reserved,
         stdout_eofs=sum(row["stdout"] for row in observations),
         stderr_eofs=sum(row["stderr"] for row in observations),
         zero_exits=sum(row["zero_exit"] for row in observations),

@@ -74,6 +74,10 @@ class _Driver:
     def launch(program):
         return channel._launch(program, stdin=channel.subprocess.PIPE)
 
+    def reserve(self, budget):
+        channel._need(type(self.base) is tuple and 1 <= len(self.base) <= 3, "CHANNEL_OWNER")
+        budget.reserve_worker_io(len(self.base))
+
     def bind(self, selection, process, selector, budget, control):
         index = selection.context[5] - 1
         channel._need(index == self.bound and self.base[index] is selection, "CHANNEL_OWNER")

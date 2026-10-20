@@ -1,0 +1,42 @@
+name: DGN-007 Gemeinsame Child-I/O-Reserve
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_handshake_channel.py'
+      - 'Tests/Tools/dgn007_handshake_input_plan.py'
+      - 'Tests/Tools/dgn007_worker_input_source.py'
+      - 'Tests/Static/test_dgn007_child_io_reservation.py'
+      - 'Documentation/Project_Planning/DGN_007_CHILD_IO_RESERVATION_REVIEW.md'
+      - '.github/workflows/dgn007-child-io-reservation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_handshake_channel.py'
+      - 'Tests/Tools/dgn007_handshake_input_plan.py'
+      - 'Tests/Tools/dgn007_worker_input_source.py'
+      - 'Tests/Static/test_dgn007_child_io_reservation.py'
+      - 'Documentation/Project_Planning/DGN_007_CHILD_IO_RESERVATION_REVIEW.md'
+      - '.github/workflows/dgn007-child-io-reservation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-child-io-reservation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  child-io-reservation:
+    name: DGN-007 Gemeinsame Budgetmodelle ohne native Prozesse
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Einmalige Vorbuchung und getrennte Parentzählung prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_child_io_reservation.py

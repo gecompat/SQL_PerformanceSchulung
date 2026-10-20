@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `dcc5893af0c50c88aa0f848c3c908733c15dcbdc` nach vollständig geschlossenem PR268.
-Status `C3_LOCAL_PASS_HEAD_GATES_PENDING`.
+Status `CLOSED_PR269`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -246,3 +246,16 @@ Unveränderte Produkt-/Suitequellen bleiben an C3 gebunden. Nur Ergebnisdokument
 ergänzt; aktuelle Head-/Base-Gates, reguläre Integration, frische Main-Gates,
 FullTree/Sync und eigene Branchbereinigung folgen. Drei Kandidaten/zwei Nachläufe
 im bestehenden Rahmen, Verbrauch UNKNOWN. Keine weitere unveränderte Lokalprobe.
+
+## Regulärer Abschluss
+
+PR269 regulär in `e456c535bc7a75d72d5034587657f6bcb46a27dd` integriert:
+neun finale PR-Checks SUCCESS/CLEAN an Headce35936 und unveränderter grüner
+Basisdcc5893 mit elf Main-Workflows SUCCESS. Sieben frische Main-Workflows
+SUCCESS, neue16 in24.385s und bestehende Report16 in3.514s ohne SKIP PASS.
+Vollständiger Baumvergleich, sauberer Main-/origin-Sync und eindeutig eigene
+lokale/Remote-Branchabwesenheit frisch bestätigt.
+[Vollständige Abschlussbindung](https://github.com/gecompat/SQL_PerformanceSchulung/pull/269).
+Drei Kandidaten/zwei Nachläufe geschlossen; kein nativer Erfolgsclaim. Die
+offene gemeinsame Parentreserve wird separat endlich gewählt, kein Reset dieses
+oder früherer Scopes. Sämtliche offenen nativen Gesamtgates bleiben erhalten.
