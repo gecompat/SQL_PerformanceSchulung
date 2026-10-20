@@ -14,8 +14,13 @@ privater ursprünglicher Parentfactorycode/Namespace vor Reportsnapshot,
 geschlossene Importkanten und volle gehaltene Bindungen. Eigener Branch
 codex/dgn007-runner-loader-source, ein Owner/max6/Checkpoint2/hart6 einschließlich
 aller Reviews, Fit-/Transformationskorrekturen, Tests, Koordination und vollständigem
-Integrationsabschluss; Verbrauch UNKNOWN. Auswahl-PRE offen; keine neue
-Implementierung, Generierung oder Probe. Fünf Importe/ganzer Raw/131072Cap
+Integrationsabschluss; Verbrauch UNKNOWN. Auswahl-PRE unabhängig freigegeben:
+Originalanker vor Reportsnapshot, tatsächlicher Digest erst nach EOF, neue
+Run-Closure ausschließlich in privaten vorhandenen Haltern, kompletter Parent-AST
+von allen Alpha-Pässen ausgenommen. C1 mit additiver Quelle/16 Methoden, geschlossenen
+Projekt-/Stdlibkanten, getrenntem Parentnamespace und unabhängiger Gesamt-AST-
+Rückführung. Source/Test-PRE und gestuftes Lauf-GO offen; keine Generierung oder
+Kandidatenprobe. Ein/max6 Kandidaten, keine Nachläufe. Fünf Importe/ganzer Raw/131072Cap
 unverändert. Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
 
 ## Codefreie Parentregistrierung vom 20. Oktober 2026

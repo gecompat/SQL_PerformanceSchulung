@@ -1,7 +1,7 @@
 # DGN-007 – vollständige gehaltene Runner-Quellenfolge
 
 Stand: 20. Oktober 2026. Basis `b00418ca74cd6ff4a0d194f8276ca365f9558f56`.
-Status `SELECTION_PRE_PENDING`; keine Implementierung oder neue Probe.
+Status `C1_SOURCE_TEST_PRE_PENDING`; noch kein Kandidatenimport oder neue Probe.
 
 ## Abschlussbindung und endlicher Umfang
 
@@ -62,8 +62,15 @@ Pythonmember oder erneute Globalsbaseline. Damit bleibt der Parentnamespace
 nach Initialisierung unverändert, während legitime spätere Input-/Report-
 Initialisierung die separaten Scriptglobals vervollständigt.
 
-Parentfactory und eigener Aufruf werden vor Reportsnapshot gehalten. Tatsächlicher
-Aufruf ausschließlich beim einmal reservierten Root0→Source6-Import nach den
+Factorycode, privater Namespace, Klassen und ursprüngliche Guard-/Writerzustände
+werden vor Reportsnapshot gehalten. Der tatsächliche Kontextdigest steht erst
+nach geprüftem Input/EOF fest. Ausschließlich daraus wird beim einmaligen
+Factoryaufruf eine neue private Run-Closure erzeugt, nach erneutem Vergleich aller
+Originalanker und mit geschlossenen PRE/POSTs. Vor ihrem ersten Dispatch exakten
+Funktionstyp, den zuvor gehaltenen verschachtelten Run-Code und denselben privaten
+Globalsnamespace prüfen und halten. Ablage nur in schon angelegten privaten
+Haltern, keine späte Global-/Closurezellbaseline. Tatsächlicher Run-Aufruf
+ausschließlich beim einmal reservierten Root0→Source6-Import nach den
 bereits abgeschlossenen Sources1/5/3/4, mit aktivem ursprünglichen Root0-Exec.
 Privater exklusiver Parentaufruf umschließt ausschließlich die gehaltene originale
 Parententry; tatsächlicher Callbackguard prüft aktive Rootinvocation und alle
@@ -96,6 +103,11 @@ ursprünglichen bindenden/freien Namen und sämtlichen Attribut-/Stringreferenze
 Keine Aliaszellen oder zusätzlichen Namespaceeinträge. Nicht geeignete Definitionen
 werden nicht gekürzt; keine Änderung an Funktionskörpern oder Operationen.
 
+Der ganze Parentfactory-AST einschließlich sämtlicher verschachtelter Funktionen
+bleibt von globaler und lokaler Kürzung ausgenommen; unveränderte Übernahme separat
+beweisen. Codeidentität bezeichnet das vorab gehaltene eingebettete Codeobjekt,
+keine Identität mit dem separat kompilierten Standalone-Modul.
+
 Die getrennte Oracle rekonstruiert die erwartete ganze AST samt genau beschriebenem
 Runner-/Parentadapter und beweist eine bijektive globale Def-/Loadzuordnung,
 verbietet jede weitere Bindungs-/Reflexionsänderung, führt diese zurück und danach
@@ -125,3 +137,61 @@ Keine tatsächlichen DGN-Quellen, Worker, neuen Imports, nativen Prozesse, SQL
 oder Ressourcenwirkungen. Vollständiger Runtime-/Usedbytes-/Trust-/Methoden-/
 SESSION_END-/Gesamtclaim bleibt offen. Der Schnitt belegt zunächst ausschließlich
 Quellenfit und eigene synthetische Runner-/Parentmodelle, keine operative Admission.
+
+## Unabhängige Auswahlbindung
+
+Plan89c62c75dfeab74191960f1727f5a34f38d1d111 unabhängig freigegeben mit den
+vorstehend eingearbeiteten verbindlichen Präzisierungen: Digest erst nach
+tatsächlichem geprüftem Input, ursprüngliche Factory-/Provideranker davor halten;
+neu erzeugte Run-Closure vor Dispatch an ursprünglichen eingebetteten Code und
+privaten Namespace binden, vorhandene private Halter; kompletter Parent-AST
+von sämtlichen Alpha-Pässen ausnehmen. Temporäre Parentfreigabe ausschließlich
+in der tatsächlichen originalen Invocation, alle Source-Abwesenheitsregeln
+weiter aktiv, danach volle Parent-/Childbindung. Kein Teilaufnahme- oder Cleanup-
+Gesamtclaim bei Fehler. Kein weiterer Auswahlreview nötig, noch kein Lauf-GO.
+
+## C1 – konkrete Quelle und Testauswahl
+
+C1 ergänzt die additive Runnerquelle und16 eigene Methoden. Sechs vorhandene
+Proxyhelfer werden über den bewiesenen Harnessadapter übernommen, eigene private
+Runnernamen und vollständiger Parentguard ergänzt. Tatsächliche Compilerinvocation
+bleibt unverändert aus dem tatsächlichen privaten Sourceframe. Geschlossene16
+Projektkanten folgen den statisch gelesenen tatsächlichen Top-Level-Imports;
+Stdlibtabelle separat pro Source. Keine Änderungen an bestehenden Generatoren,
+Parentfactory oder Fixturedateien.
+
+Originale Parentfactory-AST wird separat aus ihren vollständigen eigenen
+Dateibytes gewählt und nach beiden Alpha-Pässen unverändert eingefügt. Alle
+ursprünglichen Parentbezeichner bleiben bei globaler Kollisionsprüfung belegt.
+Private Klasse-/Builtin-/Factoryselbstbindungen vor Reportsnapshot, tatsächlicher
+K-Digest erst nach EOF; Factory-/Run-Code und eigener Namespace bleiben getrennt
+vom Standalone-Modulcode. Neu erzeugte Run-Closure nur in vorab angelegtem
+privatem Halter. Ausschließlich aktive originale Root0→Source6-Parentinvocation
+gestattet noch nicht zurückgegebene Parentobjekte; Source-Abwesenheitsregeln
+bleiben dabei aktiv und zurückgegebene Parent-/Childobjekte danach voll geprüft.
+
+Globaler Alpha-Pass wählt nur interne Helperpräfixe und geschlossene Def-/Load-
+Formen, erhält ausdrücklich externe Entry-/Fixture-/Kernel-/Sealnamen. Ganze
+ursprüngliche Identifikator-/Attribut-/Stringmengen einschließlich Parentfactory
+sperren Kollisionen; Parentreferenzen sperren eine solche Helperkürzung vollständig.
+Keine Namen-/Aliasliste wird als Runtimebaseline eingeführt. Unabhängige Oracle
+rekonstruiert den ganzen Basis-/Helper-/Runner-/Parent-AST getrennt, beweist jede
+globale Umbenennung, führt diese und lokale Alpha-Zuordnungen zurück und vergleicht
+alles. Voller unveränderter Parent-AST wird zusätzlich exakt verglichen.
+
+Nach Source/Test-PRE ausschließlich Fitmethode Windows3.14.7/Linux3.12.3 mit
+vollständigem CRLF-/LF-Raw. Erst bei beidseitigem PASS die übrigen15 Methoden
+einmal je Plattform: volle20-Recordfolge, acht Raw-/Code-/Namespaceidentitäten,
+Codefreie Parents/Childlinks, originaler Factory-/Digesthandoff, geschlossene
+Kanten und Delegation, Rollen/EOF, fremde frühe/späte Slots, originale Parent-
+Factory-/Namespace-/Callback-/Run-Codepins, Parent-/Childdrift, Compile-/Execfehler,
+ursprüngliche Provider, Teilwrites/Budgethalter, erreichte Fremdtypen, Reentranz/
+Retry, Cacheersatz und fehlende Attribute ohne Getterfallback.
+
+Ein Source/Testkandidat/max6, keine Nachläufe, Verbrauch UNKNOWN. Nur Text-AST-
+Syntaxprüfung vor Review; keine Generierung, Candidateimporte oder Modelle.
+Neue CI mit allen tatsächlichen direkten/transitiven Abhängigkeiten; zehn Minuten
+äußerer Jobbound für die ausführliche synthetische acht-Source-Suite, kein geänderter
+nativer20-s- oder anderer Laufzeitclaim. Keine unveränderten alten lokalen Suites,
+keine doppelten Privacyvollscans, begrenzte private Logs, ein Owner/ein Reviewer.
+Unabhängiger Source/Test-PRE und ausdrücklich gestuftes einmaliges Lauf-GO offen.
