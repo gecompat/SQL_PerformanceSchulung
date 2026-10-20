@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `84272af549d1c7c1320b5b1c77a55a4b721f8d18` nach vollständig geschlossenem PR267.
-Status `C4_EXISTING_BUILDER_ORACLE_DELTA_PENDING`.
+Status `C4_REVIEWED_LOCAL_PASS_FINAL_GATES_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -208,3 +208,11 @@ diese geänderte Methode Windows/Linux stehen aus; danach frische reguläre CI
 gegen neuen Head. Keine Wiederholung unveränderter lokaler neuer16 oder grüner
 alter Methoden. Vier Source/Testkandidaten/max6, drei gebündelte Nachläufe,
 Verbrauch UNKNOWN. Kein Merge mit fehlerhaftem Gate; operative Grenzen erhalten.
+
+C4 `d4397c3dc7c107be8c58490f6a65b06dc74fce04` unabhängig ohne offene
+P1/P2/P3 bestätigt; Oracleanpassung als zulässige Erhaltung des eigenen Claims
+beurteilt. Ausdrückliches einmaliges Lauf-GO ausschließlich für die geänderte
+Methode Windows/Linux und anschließend frische reguläre CI. Danach genau diese
+Methode Windows in0.008s und Linux in0.011s PASS, ohne SKIP. Unveränderte lokale
+neue16/alte14 wurden nicht wiederholt; C3-PASS bleibt an unveränderte relevante
+Quellen/Inputs gebunden. Finale Headgates und regulärer Abschluss folgen.

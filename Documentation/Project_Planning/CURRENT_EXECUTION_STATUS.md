@@ -26,7 +26,9 @@ ohne SKIP PASS einschließlich vollständigem neuen Quellenfit und AST-Erhalt.
 PR268: neue16 in CI PASS, zwölf Checks SUCCESS; alte15 mit einem zu strengen
 globalen Builderzählungsfehler FAIL. C4 bindet die alte Prüfung an ihren eigenen
 sechzehnten Index/eindeutigen API-Namen/festen Unterbau; Produktcode und neue16
-unverändert. Vier Kandidaten/drei Nachläufe, enger Delta-PRE/Lauf-GO ausstehend.
+unverändert. C4 unabhängig ohne offene Befunde mit gezieltem Lauf-GO; geänderte
+einzelne Methode Windows/Linux ohne SKIP PASS. Vier Kandidaten/drei Nachläufe;
+frische finale Headgates und reguläre Integration folgen.
 Kein Merge mit fehlerhaftem Gate und kein Capwechsel oder alter Fitretry.
 Keine operative Script-/Pipeausführung, Inventur oder SQL. Alle tatsächlichen
 Worker-/Import-/Trust-/Methodengates bleiben offen. Verbrauch UNKNOWN.

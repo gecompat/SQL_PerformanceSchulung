@@ -13,7 +13,8 @@ Wegfall reiner Kommentar-/Leerzeilen. C3 unabhängig geschlossen mit Lauf-GO;
 neue16 Windows/Linux ohne SKIP, Quellenfit und vollständiger AST-Erhalt PASS.
 PR268 neue16/zwölf Gates PASS, eine alte Builderzählungsoracle FAIL. C4 korrigiert
 nur die eigene sechzehnte Position/eindeutige API/festen Unterbau dieser Methode;
-vier Kandidaten, enger Delta-PRE/Lauf-GO und frische Headgates folgen,
+vier Kandidaten. C4 unabhängig geschlossen mit gezieltem Lauf-GO; eine
+geänderte Methode Windows/Linux PASS, frische finale Headgates folgen,
 keine operative Ausführung oder Inventur.
 
 PR266 vollständig in Main `ded09f685f747bb614c68c0fa78a6e54be7514be`
