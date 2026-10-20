@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `dcc5893af0c50c88aa0f848c3c908733c15dcbdc` nach vollständig geschlossenem PR268.
-Status `C1_SOURCE_TEST_PRE_PENDING`.
+Status `C2_SOURCE_TEST_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -183,3 +183,27 @@ gegen Basis byteidentisch. Noch keine neuen Suiteimporte oder Generierungs-/
 Compile-/Exec-/Modellläufe. Unabhängiger Source/Test-PRE und ausdrückliches
 Lauf-GO ausstehend. Ein Source/Testkandidat/max6, kein Nachlauf, Verbrauch UNKNOWN.
 Keine echte OS-I/O/Main-/Worker-/Inventur-/SQLprobe; alle offenen Gates erhalten.
+
+## C2 – geschlossener I/O-Providernamespace und Checkpoint2
+
+C1 `b60ffcbacec68c006831b0a5bb4574d3c8757145` unabhängig vollständig geprüft:
+ein P2, kein Lauf-GO. Die OS-Namespace wurde vor read/write-Lookups nicht auf
+sämtliche Schlüssel geschlossen; ein kollidierender Fremdkey konnte fremden
+Vergleich aufrufen. Nach einem Providercallback fehlte vor __dict__ außerdem
+die erneute exakte Modultypprüfung bei veränderbarer ModuleType-Klasse.
+Keine weiteren offenen Befunde, keine Suiteimporte oder Proben.
+
+C2 prüft vor jedem solchen Namespacezugriff den exakten Modultyp und danach
+exaktesdict, höchstens16368Einträge und alle exakten UTF8-/NUL-freien str-Keys
+mit höchstens4096Bytes vor irgendeinem Lookup. Vorhandene 256er-Dictionary-
+Grenzen werden nicht auf vollständige OS-Namespaces übertragen. Die bestehende
+Methode erhält PRE- und Callback-POST-Gegenproben für Modulunterklasse und
+jeweils read/write-kollidierenden Fremdkey: externe EQ-/Getattribute-Zähler null,
+erreichte Mutation und null beziehungsweise genau ein I/O-Aufruf vor Ablehnung.
+Weiterhin16Methoden, keine neue Fixture-/Workflowabhängigkeit.
+
+Checkpoint2: zwei stabile Kandidaten/max6, ein gebündelter geänderter Nachlauf,
+kein Lauf eines Kandidaten. Scope, Pflichtgates und offene native Grenzen
+unverändert; unabhängiger Delta-PRE und ausdrückliches einmaliges Lauf-GO für
+die neue16 auf Windows/Linux sowie selektierte CI ausstehend. Verbrauch UNKNOWN.
+Keine Quellencapänderung, keine neue Ausschlussliste oder Baselineerneuerung.

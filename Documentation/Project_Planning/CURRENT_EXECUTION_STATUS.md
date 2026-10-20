@@ -14,8 +14,12 @@ Branch `codex/dgn007-worker-input-source`, ein Owner/max6/Checkpoint2/hart6.
 Auswahl-PRE unabhängig mit stabilen Haltern und vollständigen Triggerabhängigkeiten
 freigegeben. C1 ergänzt vollständige Quellenfolge und16eigene I/O-Modellmethoden.
 Direkter tatsächlicher Kernelhandoff vor Scriptsnapshot, keine spätere
-Rebaseline oder neue Ausschlussliste. Ein Kandidat/max6; Source/Test-PRE und
-ausdrückliches Lauf-GO ausstehend, keine Suiteimporte oder Proben.
+Rebaseline oder neue Ausschlussliste. C1 unabhängig mit einem P2 ohne Lauf-GO:
+OS-Namespacekeys und veränderbarer Modultyp vor Lookup/Attributzugriff schließen.
+C2 ergänzt den vollständigen Schlüsselvorlauf und PRE-/Callback-POST-Gegenproben
+mit externen Fremdaufruf-/Dispatchzählern. Checkpoint2: zwei Kandidaten/max6,
+ein geänderter Nachlauf; Delta-PRE und ausdrückliches Lauf-GO ausstehend,
+weiterhin keine Suiteimporte oder Proben.
 Keine echten OS-I/O/Main-/Worker-
 ausführungen, operative Inventur oder SQL. Die geplante Child-I/O-Teilreserve
 aus dem vorhandenen Globalbudget ist noch nicht im Parent gebucht; operative

@@ -12,6 +12,17 @@ _WORKER_INPUT_IO_CAP = 1088
 _WORKER_INPUT_BYTE_CAP = 1064960
 
 
+def _worker_input_namespace(module):
+    _inline_need(type(module) is _MODULE_CLASS, "WORKER_INPUT_BINDING")
+    namespace = module.__dict__
+    _inline_need(type(namespace) is dict and len(namespace) <= 16368, "WORKER_INPUT_BINDING")
+    for key in namespace:
+        _inline_need(type(key) is str and len(key) <= 4096 and "\0" not in key,
+                     "WORKER_INPUT_BINDING")
+        _inline_need(len(key.encode("utf-8", "strict")) <= 4096, "WORKER_INPUT_BINDING")
+    return namespace
+
+
 def _worker_input_function(function, namespace):
     if type(function) is type(_worker_input_function):
         _inline_need(function.__globals__ is namespace, "WORKER_INPUT_BINDING")
@@ -55,10 +66,10 @@ def _initialize_worker_input_control():
         _worker_profile_check(profile)
         namespace = globals()
         filesystem = profile[1].get("os")
-        _inline_need(type(filesystem) is _MODULE_CLASS, "WORKER_INPUT_BINDING")
-        reads, writes = filesystem.__dict__.get("read"), filesystem.__dict__.get("write")
-        read_state = _worker_input_function(reads, filesystem.__dict__)
-        write_state = _worker_input_function(writes, filesystem.__dict__)
+        filesystem_namespace = _worker_input_namespace(filesystem)
+        reads, writes = filesystem_namespace.get("read"), filesystem_namespace.get("write")
+        read_state = _worker_input_function(reads, filesystem_namespace)
+        write_state = _worker_input_function(writes, filesystem_namespace)
         _inline_need(type(reads.__name__) is str and reads.__name__ == "read"
                      and type(writes.__name__) is str and writes.__name__ == "write", "WORKER_INPUT_BINDING")
         hooks = sys.__dict__.get("path_hooks")
@@ -141,8 +152,9 @@ def _worker_input_run(owner, frame):
         _inline_need(sys.__dict__.get("path_hooks") is owner[9]
                      and len(owner[9]) == 2 and owner[9][0] is owner[10]
                      and owner[9][1] is owner[11], "WORKER_INPUT_BINDING")
-        _worker_input_function_check(owner[7], filesystem.__dict__.get("read"), filesystem.__dict__)
-        _worker_input_function_check(owner[8], filesystem.__dict__.get("write"), filesystem.__dict__)
+        filesystem_namespace = _worker_input_namespace(filesystem)
+        _worker_input_function_check(owner[7], filesystem_namespace.get("read"), filesystem_namespace)
+        _worker_input_function_check(owner[8], filesystem_namespace.get("write"), filesystem_namespace)
         _inline_need(type(state[3]) is int and 0 <= state[3] <= _WORKER_INPUT_IO_CAP
                      and type(state[4]) is int and 0 <= state[4] <= _WORKER_INPUT_BYTE_CAP
                      and type(state[5]) is int and 0 <= state[5] <= 65536, "WORKER_INPUT_BINDING")

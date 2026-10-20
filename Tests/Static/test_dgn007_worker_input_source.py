@@ -68,7 +68,7 @@ def wire(payload, bodies):
     return metadata, commands, complete
 
 
-def model(*, ordinal=1, bodies=DEFAULT_BODIES, seal=True):
+def model(*, ordinal=1, bodies=DEFAULT_BODIES, seal=True, before_io=None):
     io = IO()
     def setup(env):
         filesystem, row = f.own_module("os", "SOURCE")
@@ -83,6 +83,8 @@ def model(*, ordinal=1, bodies=DEFAULT_BODIES, seal=True):
         env["chunks"] = fixture.chunks(env["payload"])
     env = fixture.model(ordinal=ordinal, initialize=False,
                         builder=subject.build_worker_input_control_bootstrap, setup=setup)
+    if before_io is not None:
+        before_io(env)
     env["io_initial"] = env["ns"]["_initialize_worker_input_control"]()
     env["report_initial"] = env["ns"]["_initialize_worker_report_control"]()
     env["sealed"] = env["ns"]["_worker_input_seal"]() if seal else None
@@ -300,6 +302,37 @@ class WorkerInputSourceTests(unittest.TestCase):
             self.rejected(env)
             self.assertEqual(env["io"].events, [])
         self.assertEqual(calls, [])
+        class ForeignModule(f.ModuleType):
+            def __getattribute__(self, name): calls.append("GETATTRIBUTE"); raise AssertionError()
+        for phase in ("PRE", "POST"):
+            for kind in ("module", "read", "write"):
+                reached = []
+                class Key:
+                    def __hash__(self): return hash(kind)
+                    def __eq__(self, other): calls.append("EQ"); raise AssertionError()
+                def mutate(env):
+                    reached.append(1)
+                    filesystem = env["filesystem"]
+                    if kind == "module":
+                        filesystem.__class__ = ForeignModule
+                    else:
+                        namespace = filesystem.__dict__
+                        value = namespace.pop(kind)
+                        namespace[Key()] = value
+                env = model(before_io=mutate if phase == "PRE" else None)
+                if phase == "PRE":
+                    self.assertEqual(env["io_initial"],
+                                     ("REJECTED_WORKER_INPUT", "WORKER_INPUT_BINDING", None))
+                else:
+                    self.ready(env)
+                    def callback(io, operation):
+                        if not reached: mutate(env)
+                    env["io"].callback = callback
+                result = self.rejected(env)
+                self.assertEqual(result[1], "WORKER_INPUT_BINDING")
+                self.assertEqual(reached, [1])
+                self.assertEqual(len(env["io"].events), 0 if phase == "PRE" else 1)
+                self.assertEqual(calls, [])
 
     def test_global_markers_script_helpers_and_runner_code_cannot_replace_authority(self):
         calls = []
