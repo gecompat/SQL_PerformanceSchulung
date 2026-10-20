@@ -19,7 +19,10 @@ NS = 1_000_000_000
 _ISSUES = frozenset(("CHANNEL_FORM", "CHANNEL_OWNER", "CHANNEL_PLATFORM", "CHANNEL_ISOLATION",
     "CHANNEL_BYTES", "CHANNEL_LINE", "CHANNEL_RECORDS", "CHANNEL_LINE_EOF", "CHANNEL_IO",
     "CHANNEL_STALLED", "CHANNEL_TIMEOUT", "CHANNEL_EXIT", "CHANNEL_MATCH", "CHANNEL_START_UNKNOWN",
-    "CHANNEL_CLEANUP", "CHANNEL_INTERNAL", "HASH_PROVIDER_BINDING", "REPORT_ENCODER_BINDING"))
+    "CHANNEL_CLEANUP", "CHANNEL_INTERNAL", "CHANNEL_PHASE", "CHANNEL_INPUT", "CHANNEL_REENTRANT",
+    "HASH_PROVIDER_BINDING", "REPORT_ENCODER_BINDING"))
+_OWNER_LOCK = threading.Lock()
+_ACTIVE_OWNER = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,7 +108,8 @@ def _same_mapping(mapping, snapshot):
 
 
 class _Control:
-    def __init__(self, namespace):
+    def __init__(self, namespace, guard=None):
+        self.guard = guard
         self.namespace = namespace
         self.snapshot = _mapping(namespace)
         required = ("_inline_match_session_end", "_report_shape", "_command_context", "_semantic_worker",
@@ -162,6 +166,17 @@ class _Control:
             except BaseException:
                 raise _Rejected("HASH_PROVIDER_BINDING") from None
         _need(not encoder_lost, "REPORT_ENCODER_BINDING")
+        if self.guard is not None:
+            self.guard.check()
+
+
+class _OwnerLease:
+    def __init__(self):
+        self.issue = "NONE"
+
+    def check(self):
+        _need(_ACTIVE_OWNER is self, "CHANNEL_OWNER")
+        _need(self.issue == "NONE", self.issue)
 
 
 class _Budget:
@@ -221,9 +236,9 @@ class _Reaper:
         return self.libc.prctl(37, ctypes.byref(observed), 0, 0, 0) == 0 and observed.value == self.previous
 
 
-def _launch(program):
+def _launch(program, *, stdin=subprocess.DEVNULL):
     return subprocess.Popen([sys.executable, "-I", "-S", "-B", "-u", "-c", program],
-        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0,
+        stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0,
         shell=False, start_new_session=True, env={"LANG": "C", "LC_ALL": "C"})
 
 
@@ -264,24 +279,29 @@ def _cleanup(process, selector, deadline):
     except BaseException:
         pass
     finally:
+        pipes = True
         try:
             if selector is not None:
                 selector.close()
-            if process is not None:
-                process.stdout.close(); process.stderr.close()
-                pipes = process.stdout.closed and process.stderr.closed
-            else:
-                pipes = True
         except BaseException:
-            pass
+            pipes = False
+        if process is not None:
+            for stream in (process.stdin, process.stdout, process.stderr):
+                if stream is not None:
+                    try:
+                        stream.close()
+                        pipes &= stream.closed
+                    except BaseException:
+                        pipes = False
     return stopped and reaped and absent and pipes
 
 
-def _drain(process, selector, budget, control, observed):
+def _drain(process, selector, budget, control, observed, protocol=None):
     rows, pending, err = [], bytearray(), bytearray()
     eof = {"stdout": False, "stderr": False}
     seen_exit = None
     early_eof = early_exit = False
+    pending_phase = None
     while True:
         budget.check(); control.check()
         budget.step()
@@ -301,6 +321,11 @@ def _drain(process, selector, budget, control, observed):
             time.sleep(min(.02, max(0, (budget.deadline - time.monotonic_ns()) / NS)))
         for key, _ in events:
             budget.step()
+            if key.data == "stdin":
+                _need(protocol is not None, "CHANNEL_OWNER")
+                progress |= protocol.write()
+                control.check(); budget.check()
+                continue
             maximum = min(budget.limits.read_bytes, budget.limits.output_bytes - budget.bytes + 1)
             try:
                 data = os.read(key.fd, maximum)
@@ -319,16 +344,29 @@ def _drain(process, selector, budget, control, observed):
             if key.data == "stderr":
                 err.extend(data)
             else:
+                phase = None if protocol is None else protocol.read_phase()
+                if pending:
+                    _need(pending_phase == phase, "CHANNEL_PHASE")
                 for byte in data:
+                    if protocol is not None:
+                        _need(protocol.read_phase() == phase, "CHANNEL_PHASE")
+                    if not pending:
+                        pending_phase = phase
                     _need(len(pending) < 1024, "CHANNEL_LINE")
                     pending.append(byte)
                     if byte == 10:
                         _need(len(rows) < 43, "CHANNEL_RECORDS")
-                        rows.append(bytes(pending)); pending.clear()
+                        line = bytes(pending)
+                        rows.append(line); pending.clear()
+                        if protocol is not None:
+                            protocol.record(rows, line, pending_phase)
+                        pending_phase = None
         early_eof |= all(eof.values()) and seen_exit is None
         observed["eof_before_exit"] = early_eof
         budget.progress(progress)
     control.check(); budget.check()
+    if protocol is not None:
+        protocol.finished()
     received = tuple(rows)
     result = control.namespace["_inline_match_session_end"](received, bytes(err), expected_format=
         "pooled-combined-input-design/v1", expected_phase="AWAIT_SESSION_END",
@@ -365,18 +403,19 @@ def _prepare(control, selections, limits):
         _need(item.context[:5] == selections[0].context[:5])
 
 
-def run_session_channels(control_namespace, selections, *, limits=ChannelLimits()):
-    """Ein eigener serieller Abschlussversuch; keine öffentliche Ledger-Receipt-API."""
-    start = time.monotonic_ns()
+def _run_owned_channels(control_namespace, selections, limits, driver, lease, start):
     control = budget = None
     first = issue = "NONE"
     start_attempts = started = closed = attempts = 0
     cleanup_ok = True
     matches, observations = [], []
     try:
-        control = _Control(control_namespace)
+        control = _Control(control_namespace, guard=lease)
         control.capture()
-        _prepare(control, selections, limits)
+        if driver is None:
+            _prepare(control, selections, limits)
+        else:
+            selections = driver.prepare(control, selections, limits)
         budget = _Budget(limits, start)
         control.check(); budget.check(); _platform()
         for selection in selections:
@@ -393,14 +432,19 @@ def run_session_channels(control_namespace, selections, *, limits=ChannelLimits(
                 reaper.enable()
                 budget.check(); control.check()
                 attempted = True; start_attempts += 1  # Reservierung vor Launcher.
-                process = _launch(selection.program.decode("utf-8", "strict"))
+                program = selection.program.decode("utf-8", "strict")
+                process = _launch(program) if driver is None else driver.launch(program)
                 started += 1
                 control.check(); budget.check()
                 selector = selectors.DefaultSelector()
                 for stream, channel in ((process.stdout, "stdout"), (process.stderr, "stderr")):
                     os.set_blocking(stream.fileno(), False)
                     selector.register(stream, selectors.EVENT_READ, channel)
-                matches.append(_drain(process, selector, budget, control, observed))
+                if driver is None:
+                    matches.append(_drain(process, selector, budget, control, observed))
+                else:
+                    protocol = driver.bind(selection, process, selector, budget, control)
+                    matches.append(_drain(process, selector, budget, control, observed, protocol=protocol))
             except BaseException as error:
                 failure = _issue(error)
                 if attempted and process is None:
@@ -426,6 +470,8 @@ def run_session_channels(control_namespace, selections, *, limits=ChannelLimits(
                 complete = (physical and restored and absent and budget.cleanup <= limits.cleanup_ns
                             and not (attempted and process is None))
                 cleanup_ok &= complete
+                if lease.issue != "NONE" and first == "NONE":
+                    first = lease.issue
                 if failure is not None and first == "NONE":
                     first = failure
                 issue = failure or "NONE"
@@ -441,6 +487,7 @@ def run_session_channels(control_namespace, selections, *, limits=ChannelLimits(
             closed += 1
     except BaseException as error:
         issue = _dominant(issue, _issue(error, "CHANNEL_FORM"))
+        if lease.issue != "NONE" and first == "NONE": first = lease.issue
         if first == "NONE": first = issue
     if control is not None:
         try:
@@ -462,3 +509,25 @@ def run_session_channels(control_namespace, selections, *, limits=ChannelLimits(
         zero_exits=sum(row["zero_exit"] for row in observations),
         eof_before_exit=sum(row["eof_before_exit"] for row in observations),
         exit_before_eofs=sum(row["exit_before_eofs"] for row in observations), matches=tuple(matches))
+
+
+def _run_session_channels(control_namespace, selections, limits, *, driver=None, start=None):
+    global _ACTIVE_OWNER
+    start = time.monotonic_ns() if start is None else start
+    with _OWNER_LOCK:
+        if _ACTIVE_OWNER is not None:
+            if _ACTIVE_OWNER.issue == "NONE": _ACTIVE_OWNER.issue = "CHANNEL_REENTRANT"
+            return ChannelReport("REJECTED_SESSION_CHANNELS", "CHANNEL_REENTRANT", "CHANNEL_REENTRANT")
+        lease = _OwnerLease()
+        _ACTIVE_OWNER = lease
+    try:
+        return _run_owned_channels(control_namespace, selections, limits, driver, lease, start)
+    finally:
+        with _OWNER_LOCK:
+            if _ACTIVE_OWNER is lease:
+                _ACTIVE_OWNER = None
+
+
+def run_session_channels(control_namespace, selections, *, limits=ChannelLimits()):
+    """Ein eigener serieller Abschlussversuch; keine öffentliche Ledger-Receipt-API."""
+    return _run_session_channels(control_namespace, selections, limits, start=time.monotonic_ns())

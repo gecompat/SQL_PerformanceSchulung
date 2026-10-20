@@ -1,0 +1,65 @@
+name: DGN-007 Bidirektionaler Handshake
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_handshake_channel.py'
+      - 'Tests/Tools/dgn007_handshake_input_plan.py'
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_handshake_channel.py'
+      - 'Tests/Static/test_dgn007_handshake_input_plan.py'
+      - 'Tests/Static/test_dgn007_session_channel.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Documentation/Project_Planning/DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md'
+      - '.github/workflows/dgn007-handshake-channel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_handshake_channel.py'
+      - 'Tests/Tools/dgn007_handshake_input_plan.py'
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_handshake_channel.py'
+      - 'Tests/Static/test_dgn007_handshake_input_plan.py'
+      - 'Tests/Static/test_dgn007_session_channel.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Documentation/Project_Planning/DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md'
+      - '.github/workflows/dgn007-handshake-channel.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-handshake-channel-${{ github.workflow }}-${{ github.ref }}
+  # Regulärer Abbau eigener nativer Gruppen bleibt nötig.
+  cancel-in-progress: false
+
+jobs:
+  handshake-channel:
+    name: DGN-007 Native bidirektionale Phasengegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Echte Bytes und einmalige Phasen mit eigenen Testworkern prüfen
+        run: python -B Tests/Static/test_dgn007_handshake_channel.py
