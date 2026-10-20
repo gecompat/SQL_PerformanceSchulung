@@ -1,5 +1,29 @@
 # Aktueller Ausführungsstand
 
+## Erste direkte Quelleninvocation nach EOF vom 20. Oktober 2026
+
+PR270 vollständig in `20549ae4e7dbb31c2ffb4d5b051395b8033db18e` integriert:
+zwölf finale PR-Checks/zehn frische Main-Workflows SUCCESS, neue12 und bestehende
+Handshake12/28Native, Session16/Workerinput16 ohne SKIP PASS, unabhängiger Review,
+FullTree/Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[Abschlussbindung PR270](https://github.com/gecompat/SQL_PerformanceSchulung/pull/270).
+
+Nächster endlicher Schnitt: [erste direkte Proxy-SOURCE-Invocation nach tatsächlichem EOF](DGN_007_PROXY_LOADER_SOURCE_REVIEW.md), eigener Branch
+`codex/dgn007-proxy-loader-source`, ein Owner/max6/Checkpoint2/hart6.
+Auswahl-PRE unabhängig mit präziser Handoff-/Wire-/Cacheauflage freigegeben.
+C1 ergänzt additive Quelle und16eigene Modelle, nur optionale sichere Builder-
+Fixtureerweiterung. Noch keine Suiteimporte oder Generierungs-/Compile-/Execproben;
+Source/Test-PRE und ausdrückliches Lauf-GO ausstehend. Ein Kandidat/max6, kein
+Nachlauf. Additive
+Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
+Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE
+nach tatsächlichem Exec und kohärenten POSTs. Keine öffentlichen Receipts als
+Authority, keine neue Reserve/Globals-/Closurebaseline. Eigene synthetische
+Modelle erst nach unabhängigem Source/Test-PRE mit ausdrücklichem Lauf-GO.
+Keine operative Quellenwahl, DGN-Rawexecution, native Inventur oder SQL; Runner/
+Harness, Parents, Footer/gesamte Importfolge und übrige Gesamtgates bleiben offen.
+Verbrauch UNKNOWN; frühere Scopes abgeschlossen, kein Reset.
+
 ## Gemeinsame Child-I/O-Reserve vom 20. Oktober 2026
 
 PR269 vollständig in `e456c535bc7a75d72d5034587657f6bcb46a27dd` integriert:

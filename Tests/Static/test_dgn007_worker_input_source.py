@@ -72,7 +72,8 @@ def wire(payload, bodies):
     return metadata, commands, complete
 
 
-def model(*, ordinal=1, bodies=DEFAULT_BODIES, seal=True, before_io=None):
+def model(*, ordinal=1, bodies=DEFAULT_BODIES, seal=True, before_io=None,
+          builder=subject.build_worker_input_control_bootstrap):
     io = IO()
     def setup(env):
         filesystem, row = f.own_module("os", "SOURCE")
@@ -86,7 +87,7 @@ def model(*, ordinal=1, bodies=DEFAULT_BODIES, seal=True, before_io=None):
         env["worker"], env["payload"] = worker, full_payload(worker, bodies)
         env["chunks"] = fixture.chunks(env["payload"])
     env = fixture.model(ordinal=ordinal, initialize=False,
-                        builder=subject.build_worker_input_control_bootstrap, setup=setup)
+                        builder=builder, setup=setup)
     if before_io is not None:
         before_io(env)
     env["io_initial"] = env["ns"]["_initialize_worker_input_control"]()

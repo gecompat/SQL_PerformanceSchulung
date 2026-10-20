@@ -1,5 +1,14 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+PR270 vollständig in Main `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`
+geschlossen: zwölf PR-/zehn Main-Checks SUCCESS, neue12/Handshake12/28Native/
+Session16/Workerinput16 ohne SKIP, unabhängiger Review, FullTree/Sync/Branchcleanup.
+Nächster begrenzter Schnitt: [erste direkte Proxyquelleninvocation](DGN_007_PROXY_LOADER_SOURCE_REVIEW.md), ein Owner/max6/Checkpoint2/hart6,
+Auswahl-PRE freigegeben, C1 mit additiver Quelle und16eigenen sicheren Modellen,
+Source/Test-PRE/Lauf-GO ausstehend, keine Suiteimporte/Proben. EOF-/Raw-/Code-/
+Objektpfad zunächst nur Proxy2/Index2 mit eigenen synthetischen Modellen; übrige
+Worker/Parents/Footer/Gesamtnachweise, operative Inventur und SQL bleiben offen.
+
 PR269 vollständig in Main `e456c535bc7a75d72d5034587657f6bcb46a27dd`
 geschlossen: neun PR-/sieben Main-Checks SUCCESS, neue16 Windows/Linux/Main
 und Report16 ohne SKIP, unabhängige Befundschließung, FullTree/Sync/Branchcleanup.
