@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## Architekturplan nach abgeschlossenem Diagnose-PR274
+
+PR274 ist vollständig in Mainf30aebce18ec2902171210bdcc7f222eaa12d405 integriert:
+acht finale Head-/sieben Base-/sechs frische Main-Gates SUCCESS, unabhängige
+Schließung, FullTree/Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[PR274-Abschlussnachweis](https://github.com/gecompat/SQL_PerformanceSchulung/pull/274).
+
+Nächster endlich begrenzter Schritt ist ausschließlich der [Architekturplan
+für einen gemeinsamen Rootkontrollanker](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md):
+ein Owner/ein unabhängiger Reviewer, ein Entwurf/höchstens eine geänderte
+Entwurfsnacharbeit einschließlich vollständigem Dokumentationsabschluss,
+Verbrauch UNKNOWN. Die fünf/max6 ursprünglichen Source/Testkandidaten bleiben
+verbraucht, kein Reset oder weiterer Quellenversuch. Standalone-Parentfactory
+bleibt erhalten; alternative Route soll Sources/Parents durch denselben
+ursprünglichen Anker prüfen, sämtliche Helfer vor Reportsnapshot erzeugen und
+späte Graphaufnahme vermeiden. Tatsächliche Einsparung unbekannt. Design-PRE
+ergab P2 für konkrete Dominanz-/Zwischenzustände und P3 für Methodenwortlaut.
+Einzige Entwurfsnacharbeit ergänzt Pin→Prüfstelle, alle Modul-/Spec-/Record-
+Unterzustände, vollständige Metadaten, finally-POSTs, Fehlerpriorität und
+sicheren aktiven Fehlerabschluss. Zwei/hartzwei Entwurfsstände; unabhängiger
+Delta-PRE210f8e2 schließt P2/P3 ohne offene priorisierte Designbefunde.
+DESIGNED ausschließlich Architektur, Dokumentationsintegration noch offen;
+keine Source-/Test-/Generierungs-/Lauf-/Native-/SQLfreigabe.131072Cap und vollständige
+Raw-/Kontroll-/Methoden-/Trust-/Usedbytesgates bleiben unverändert.
+
 ## Runner-Quellenfit-Diagnose vom 21. Oktober 2026
 
 Die [vollständige Runnerroute](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md) ist als
