@@ -138,9 +138,12 @@ class SessionMatchTests(unittest.TestCase):
         return rows[:-1] + (line(footer),)
 
     def changed_row(self, rows, index, field, value, seal=True):
+        if index < 0:
+            index += len(rows)
+        self.assertTrue(0 <= index < len(rows))
         row = json.loads(rows[index]); row[field] = value
         rows = rows[:index] + (line(row),) + rows[index + 1:]
-        return self.reseal(rows) if seal and index != len(rows) - 1 and index != -1 else rows
+        return self.reseal(rows) if seal and index != len(rows) - 1 else rows
 
     def call(self, rows=OMITTED, stderr=OMITTED, *, reported=OMITTED, context=OMITTED,
              format=FORMAT, phase="AWAIT_SESSION_END"):
@@ -175,6 +178,15 @@ class SessionMatchTests(unittest.TestCase):
         self.assertEqual(self.call(), self.call())
         self.assertEqual(self.provider._HASH_CALLS, 6)
         self.assertIs(type(self.call()), tuple)
+
+    def test_fixture_last_row_replacement_preserves_the_whole_prefix_and_count(self):
+        negative = self.changed_row(self.rows, -1, 2, "f" * 64)
+        positive = self.changed_row(self.rows, len(self.rows) - 1, 2, "f" * 64)
+        self.assertEqual(negative, positive)
+        self.assertEqual(len(negative), len(self.rows))
+        self.assertTrue(all(a is b for a, b in zip(negative[:-1], self.rows[:-1])))
+        expected = json.loads(self.rows[-1]); expected[2] = "f" * 64
+        self.assertEqual(json.loads(negative[-1]), expected)
 
     def test_all_outer_types_before_dispatch_and_parser(self):
         class Bytes(bytes):
