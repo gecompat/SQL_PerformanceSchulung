@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `ded09f685f747bb614c68c0fa78a6e54be7514be` nach vollständig geschlossenem PR266.
-Status `C2_DELTA_PRE_PENDING`.
+Status `C2_REVIEWED_LOCAL_PASS_INTEGRATION_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -153,6 +153,19 @@ Klassenkeys mit außerhalb geprüften Callbackzählern, Annotationträger und da
 gemeinsame Limit; insgesamt15Methoden. Nur fixtureeigene Methoden werden
 mutiert, keine geteilten Stdlibfunktionen.
 
-Checkpoint2: zwei Source/Testkandidaten/max6, ein gebündelter Befundnachlauf;
-keine Suiteimporte oder Läufe. Unabhängige Delta-Schließung und ausdrückliches
-Lauf-GO ausstehend. Verbrauch UNKNOWN; alle operativen Grenzen unverändert.
+Checkpoint2: zwei Source/Testkandidaten/max6, ein gebündelter Befundnachlauf.
+C2 `c794aa395201d912bf137940cb1b9f69cc411902` unabhängig ohne offene
+P1/P2/P3 bestätigt; beide P2 geschlossen. Ausdrückliches einmaliges Source/Test-
+Lauf-GO umfasst die neue Suite unter Windows3.14.7/Linux3.12.3 und reguläre CI
+mit bestehenden Consumern, einschließlich eigener Modell-Compile-/Execpfade
+und neuem vollständigem Quellenfit. Keine generierte Mainausführung,
+operative Workerinventur oder Wiederholung der abgelehnten alten Route.
+
+Danach neue15 unter Windows in3.901s und Linux in3.067s jeweils ohne SKIP PASS.
+Der vollständige Arbeitsdatei-Input passt in das unveränderte131072-Byte-Cap;
+Rawliteralgleichheit und negative Formen geprüft. Windows meldet bei der
+absichtlich fremden Klassenkey-Fixture eine RuntimeWarning; deren externe
+Callbackzähler bleiben null. Kein Produktfehler und kein Wiederholungslauf.
+Kanonische Gitbytes werden separat durch die neue CI-Suite geprüft.
+Aktuelle Head-/Base-/Main-Gates und reguläre Integration folgen.
+Verbrauch UNKNOWN; alle operativen Grenzen unverändert.

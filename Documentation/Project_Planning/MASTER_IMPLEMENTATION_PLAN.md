@@ -5,8 +5,10 @@ abgeschlossen: sieben PR-/fünf Main-Checks SUCCESS, unabhängige Einordnung,
 FullTree/Sync/Branchcleanup. Neuer tatsächlicher Änderungsscope:
 [Workerquelle mit gebundener Aufnahme](DGN_007_WORKER_PROFILE_SOURCE_REVIEW.md),
 max6/Checkpoint2, Auswahl-PRE freigegeben; C2 schließt Annotation-/Key-P2 mit
-15Modellmethoden, gemeinsamer Zustandsgrenze und einem Nachlauf. Delta-PRE/
-Lauf-GO ausstehend. Alte abgelehnte Vollroute bleibt FAIL;
+15Modellmethoden, gemeinsamer Zustandsgrenze und einem Nachlauf. C2 unabhängig
+ohne offene Befunde mit Lauf-GO; neue15 Windows/Linux ohne SKIP und neuer
+vollständiger Arbeitsdatei-Quellenfit PASS. Reguläre Integration folgt.
+Alte abgelehnte Vollroute bleibt FAIL;
 neue Workerzusammensetzung behält alle Caps und Workerprüfungen.
 
 PR265 vollständig in Main `966f2251bc301a1ac80997c591962f929a7a136c`

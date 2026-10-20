@@ -18,8 +18,11 @@ Auswahl-PRE unabhängig mit vollständiger Kontrollpfadbindung als Auflage
 freigegeben; C1 ergänzt neue Workerroute und zwölf eigene Modellmethoden.
 Source/Test-PRE C1 mit zwei P2 (3.14-Annotationträger/Keyvorlauf) ohne Lauf-GO.
 C2 schließt beide, ergänzt gemeinsamen Zustandsrahmen und drei Gegenproben:
-15Methoden, Checkpoint2/zwei Kandidaten/ein Nachlauf. Delta-PRE/Lauf-GO
-ausstehend, noch keine Suiteimporte oder Läufe.
+15Methoden, Checkpoint2/zwei Kandidaten/ein Nachlauf. C2 unabhängig ohne
+offene P1/P2/P3 und mit einmaligem Source/Test-Lauf-GO bestätigt.
+Neue15 unter Windows3.14.7/Linux3.12.3 ohne SKIP PASS; vollständiger neuer
+Arbeitsdatei-Quellenfit innerhalb des unveränderten Caps bestätigt.
+Reguläre aktuelle Head-/Base-/Main-Gates und Integration folgen.
 Caps und vollständige Workerprüfungen bleiben erhalten; keine operative
 Inventur, Kandidatenimporte oder SQL, Attestationsgrenzen offen. Verbrauch UNKNOWN.
 
