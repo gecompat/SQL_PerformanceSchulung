@@ -2,7 +2,7 @@
 
 ## Menschlicher Projekteinstieg und Lehrmaßstab vom 20. Oktober 2026
 
-- [ ] [README und menschliche Einstiege](../Documentation/Project_Planning/PROJECT_ENTRY_AND_TEACHING_SCOPE_REVIEW.md) mit Lernwegen, Unterlagen und verständlichen Ausführungspfaden; fehlende eigene Benchmarks sind kein allgemeines Aufnahmehindernis für Erklärungen/Lösungsmuster. Historische Archiv-/Migrationsentscheidungen einschließlich SRC-LEGACY-015 korrekt einordnen. Ein Owner/max4/Checkpoint1/hart4, unabhängiger Review und reguläre lokale/Gate-/Main-Abnahme.
+- [x] [README und menschliche Einstiege](../Documentation/Project_Planning/PROJECT_ENTRY_AND_TEACHING_SCOPE_REVIEW.md): PR264 in Main5bf9d14,13PR-/11Main-Checks SUCCESS, unabhängiger Review und FullTree/Sync/Branchcleanup. Keine allgemeine Benchmarkpflicht; erhaltene Archivquellen und historische Migrationskennzeichnungen klar eingeordnet.
 
 ## DGN-007: kontinuierlicher operativer Auftrag vom 20. Oktober 2026
 
@@ -11,8 +11,9 @@
 - [x] [Gehaltener Handshakeeingang](../Documentation/Project_Planning/DGN_007_HANDSHAKE_INPUT_PLAN_REVIEW.md): PR261 in Main0d851dc, acht PR-/sechs Main-Gates SUCCESS,16/16 neue Methoden Windows/Linux/Main ohne SKIP, unabhängiger Review und FullTree/Sync/Branchcleanup; ein Quellenstand, keine Nachläufe.
 - [x] [Nativer bidirektionaler Phasenowner](../Documentation/Project_Planning/DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md): PR262 in Main9938091, zehn PR-/acht Main-Gates SUCCESS, neue12/alte Kanal16/pure Eingangsplan16 ohne SKIP in CI/Main, unabhängiger Review und FullTree/Sync/Branchcleanup. Ein Quellenstand, keine Nachläufe; echte Import-/Loaderclaims offen.
 - [x] [Vollständige Profilauswahl an lokale Anker](../Documentation/Project_Planning/DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md): PR263 in Main4a8d5aa, neun PR-/sieben Main-Gates SUCCESS, unabhängiger Review, FullTree/Sync/Branchcleanup; neue16 Windows/Linux und alte57 Linux ohne SKIP PASS. Historischer alter Windows57-Fixture-FAIL erhalten. Keine operative Aufnahme.
+- [ ] [Vorgewählte Profilanker und frische lokale Aufnahme](../Documentation/Project_Planning/DGN_007_SELECTED_PROFILE_OBSERVATION_REVIEW.md): ein Owner/max6/Checkpoint2/hart6, C2 unabhängig ohne offene Befunde und mit Lauf-GO. Zwei Kandidaten/ein Nachlauf; neue16/Binder16 Windows/Linux ohne SKIP PASS. Aktuelle Gates und regulärer Abschluss ausstehend; keine operative Installation/Workerbaseline.
 - [ ] Danach frische Workerprofile und tatsächliche Quellenloader-/Importprovenienz. Kontinuierlicher Auftrag und bestehender30-Minuten-Heartbeat aktiv; echte Freigabegrenzen und historische Stops gelten weiter.
-- [ ] Neue menschliche Priorität nach dem laufenden eigenen Profilankerabschluss: README als Projekteinstieg für Menschen mit Lernwegen/Unterlagen/Beispielen neu aufbauen; interne Entwicklungsstände auslagern und `REMOVE` als Nichtmigration bei erhaltenem Referenzarchiv eindeutig erklären. Vor der nächsten operativen technischen Welle durchführen.
+- [x] Menschliche Priorität vor der nächsten technischen Welle: README als Projekteinstieg mit Lernwegen/Unterlagen/Beispielen, interne Entwicklungsstände ausgelagert und erhaltenes Referenzarchiv erläutert. PR264 abgeschlossen; fehlende Messbarkeit ist kein allgemeines Ausschlusskriterium.
 
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026
 
