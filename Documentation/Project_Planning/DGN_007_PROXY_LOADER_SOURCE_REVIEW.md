@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `C5_FIXTURE_DELTA_PRE_PENDING`.
+Status `C6_FIXTURE_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -294,3 +294,31 @@ und keine schwächere Produktoracle. Produktquelle und Alpha-Transformer unverä
 Fünf Kandidaten/max6, vier geänderte Nachläufe, Verbrauch UNKNOWN. Gezielter
 unabhängiger Fixture-Delta-PRE und ausdrückliches einmaliges Lauf-GO für neue16
 Windows/Linux sowie betroffene kleine Consumer/selektierte CI ausstehend.
+
+## C6 – fertige Map für den eigenen Spec-Splitdict
+
+C5 `d933c46929a64a8db05995711efe4015b47444a9` unabhängig ohne offene Befunde
+mit gezieltem einmaligem Lauf-GO nur für die geänderte Methode. Linux3.12.3:
+eine Methode/5.495s PASS. Windows3.14.7: eine Methode/4.639s FAIL, weiterhin ein
+Setup-EQ; der neue Erreichtmarker blieb korrekterweise leer. Reine eigene
+Standardbibliotheksdiagnose lokalisiert ihn ausschließlich auf update der
+geleerten Spec-Splitdict. Kein SUT-Vergleich daraus nachgewiesen.
+
+Letzter Kandidat C6 setzt nur beim Spec die schon fertig aufgebaute kombinierte
+Map als dessen __dict__ ein. Specobjekt, exakte Specklasse und sämtliche übrigen
+Attributwerte bleiben dieselben; die eigene Instanznamespace erhält ausdrücklich
+eine neue Mapidentität. Der Produktvertrag pinnt die Instanz/Attribute und prüft
+Namespacekeys vor Lookups, nicht eine frühere Specdictidentität. Es gibt keine
+vorgeschaltete Specdictidentitätsablehnung, die den Schlüsseltest verdecken würde.
+Die drei übrigen Mutationen erhalten ihre bisherigen Namespaceidentitäten.
+Eine kleine eigene Windows-Standardbibliotheksprobe bestätigt exakt dieselbe
+Specinstanz/-klasse, fertige Mapidentität, einen Fremdkey und null Setup-EQ.
+Kein Kandidatenimport oder neue Generierung bei diesen Diagnosen.
+
+Die Gegenprobe prüft die tatsächlich eingesetzte Map/Specidentität vor dem
+Erreichtmarker und weiterhin null EQ über vollständiges Setup und SUT. Kein
+Zählerreset oder tolerierter Fremdaufruf. Produktquelle unverändert.
+Sechs Kandidaten/hart6, fünf geänderte Nachläufe; Verbrauch UNKNOWN. Kein weiterer
+Source/Testkandidat in diesem Scope zulässig. Letzter unabhängiger Fixture-PRE
+und gezieltes einmaliges Windows/Linux-Lauf-GO ausstehend; regulär selektierte
+vollständige CI, Integration/Main-Gates und sicherer Cleanup bleiben erforderlich.

@@ -28,7 +28,12 @@ SKIP PASS einschließlich Fit/Alpha-AST. Windows genau eine Gegenprobe wegen
 eines bereits beim eigenen Splitdict-Fixtureaufbau ausgelösten EQ fehlgeschlagen.
 C5 installiert dieselbe Fremdschlüsselmutation vollständig vor Erreichtmarker,
 Namespaceidentität und Null-EQ-Oracle erhalten; Produkt unverändert.
-Fünf Kandidaten/max6, vier Nachläufe; Fixture-Delta-PRE und Lauf-GO ausstehend. Additive
+C5 gezielt Linux PASS, Windows weiterhin Setup-EQ beim clear/update der Spec-
+Splitdict, Erreichtmarker korrekterweise leer. C6 setzt nur beim Spec die fertige
+Map bei gleicher Specinstanz/-klasse ein; Instanznamespace-Mapidentität hier
+ausdrücklich geändert, übrige drei Namespaceidentitäten erhalten. Null-EQ-Oracle
+und Produkt unverändert. Sechs Kandidaten/hart6, fünf Nachläufe; letzter Fixture-
+Delta-PRE und gezieltes Lauf-GO ausstehend. Kein weiterer Kandidat zulässig. Additive
 Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
 Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE
 nach tatsächlichem Exec und kohärenten POSTs. Keine öffentlichen Receipts als

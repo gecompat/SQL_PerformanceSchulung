@@ -356,12 +356,19 @@ class ProxyLoaderSourceTests(unittest.TestCase):
                 if phase != "executed": return
                 target = {"module": namespace, "spec": namespace["__spec__"].__dict__,
                           "builtins": env["ns"]["__builtins__"], "cache": env["cache"]}[kind]
-                # Eine frische kombinierte Map vermeidet Vergleiche beim Aufbau
-                # einer Splitdict-Fixture; Zielnamespace und Gegenprobe bleiben.
+                # Den eigenen Spec-Splitdict durch die fertig aufgebaute Map
+                # ersetzen: auch clear/update behält dort geteilte Schlüssel.
                 replacement = {key: value for key, value in target.items() if key != keyname}
                 replacement[Key()] = target[keyname]
-                target.clear()
-                target.update(replacement)
+                if kind == "spec":
+                    spec = namespace["__spec__"]
+                    spec.__dict__ = replacement
+                    self.assertIs(spec.__dict__, replacement)
+                    self.assertIs(namespace["__spec__"], spec)
+                    target = replacement
+                else:
+                    target.clear()
+                    target.update(replacement)
                 self.assertTrue(any(type(key) is Key for key in target))
                 reached.append(1)
             env["hooks"][0] = callback
