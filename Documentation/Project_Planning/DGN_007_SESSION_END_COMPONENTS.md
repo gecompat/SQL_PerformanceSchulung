@@ -1,7 +1,7 @@
 # DGN-007 – reine SESSION_END-Komponenten
 
 Stand: 2026-10-20. Basis `131e19651c57a829080093cbe2b6767a0ab462d8` nach
-PR256. Status: `B_IMPLEMENTED_REVIEW_PENDING`. Maßgeblich bleibt
+PR256. Status: `A_B_IMPLEMENTED_REVIEWED`. Maßgeblich bleibt
 [§34 des Profilbindungsentwurfs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild).
 
 ## Abgegrenzte Wellen und Auswahl vor Implementierung
@@ -119,8 +119,16 @@ unveränderte opake Rohbytes, gemeinsame Grenze und frühe Typ-/Boundsabweisung
 sowie private Providerfehler sind enthalten. Ein Digest attestiert weder
 Providerherkunft noch EOF, Kontext oder tatsächliche Übertragung.
 Checkpoint B: Kandidat 1 von höchstens 2, insgesamt zwei von vier verbraucht;
-Modellverbrauch unbekannt. Eigener unabhängiger Implementierungsreview,
-aktuelle PR-/Main-Gates und Main-Integration samt Bereinigung stehen aus.
+keine Quellenkorrektur erforderlich, Modellverbrauch unbekannt. Der unabhängige
+Implementierungsreview zu Base `5466a44…` und Head
+`7cd88de3fc34802a076e698e650d08484d1be9d2` schließt ohne offene P1/P2/P3-Befunde.
+Alle acht CI-Gates dieses Stands bestehen, einschließlich der
+[Komponentensuite](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39402983455).
+Die Abschlussrevision ergänzt ausschließlich Evidenz; Quelle, Suite und
+Workflow bleiben zum reviewten Quellenstand unverändert.
+[PR258](https://github.com/gecompat/SQL_PerformanceSchulung/pull/258) bindet
+finale Head-/Base-Gates, Main-Integration und eigene Branchbereinigung.
+Diese bleiben vor dem vollständigen Integrationsabschluss notwendig.
 
 ## Offene vollständige Abnahme
 

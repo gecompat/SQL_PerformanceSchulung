@@ -24,7 +24,12 @@ Darauf beginnt die Kanalhashfunktion auf `codex/dgn007-session-channel-digest`.
 Ihr erster Quellenkandidat besteht mit den 13 erhaltenen Footer- und neun neuen
 Kanalhashmethoden insgesamt 22 lokale isolierte Methoden unter Python 3.12/3.14
 ohne SKIP. Checkpoint 1/2, insgesamt zwei von vier Quellenkandidaten;
-unabhängiger Implementierungsreview und aktuelle PR-/Main-Gates stehen aus.
+unabhängiger Implementierungsreview zu `7cd88de…` ohne offene Befunde und alle
+acht CI-Gates dieses Stands erfolgreich. Die Abschlussrevision von
+[PR258](https://github.com/gecompat/SQL_PerformanceSchulung/pull/258) ergänzt nur
+Evidenz und bindet finale Head-/Base-Gates, Main-Integration und Bereinigung.
+Die zwei ausgewählten Implementierungsschnitte sind damit lokal geprüft und
+unabhängig reviewt; der Integrationsabschluss bleibt bis zu diesen Gates offen.
 Beide Schnitte liegen außerhalb der
 neun Runtimequellen und liefern keinen vollständigen Trace-/Kanal-/EOF- oder
 Runtime-/Trustnachweis. Keine Wiederaufnahme ausgeschöpfter Wellen und keine
