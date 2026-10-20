@@ -1,5 +1,38 @@
 # Aktueller Ausführungsstand
 
+## Runner-Quellenfit-Diagnose vom 21. Oktober 2026
+
+Die [vollständige Runnerroute](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md) ist als
+CLOSED_REJECTED_SOURCE_FIT sachlich verworfen. Fünf/max6 Kandidaten, vier
+Nachläufe, Verbrauch UNKNOWN; keine behauptete Budgeterschöpfung. Letzter
+zulässiger Größenbefund C4:140097Bytes,9025 über unverändertem131072Cap.
+Windows-/Linux-Fits stoppten am Limit. C5 stoppte an TEMPLATE_FORM: Der für eine
+Auslassung ausgewählte Parentmatcher ist bereits aus der Workerbasis ausgespart.
+Diese Auswahlannahme war falsch und ist unabhängig berichtigt. Keine erfolgreiche
+Ganz-AST-/Runner-Modellabnahme, übrige15 Modelle nicht gestartet.
+
+Unabhängiges Dispositions-GO: neue Runnerquelle, ihre16 Tests und Workflow aus
+finalem Diff entfernt; bestehende Komponenten unverändert. Nur begründeter
+Diagnoseabschluss und belegter PR273-Abschluss werden integriert. Branch
+codex/dgn007-runner-loader-source, [Diagnose-PR274](https://github.com/gecompat/SQL_PerformanceSchulung/pull/274).
+Lokale Privacy1256/600 relative Markdownziele/Whitespace PASS; unabhängiger
+Abschlussreview526e636 ohne offene P1/P2/P3, Integrations-GO für reinen
+Dokumentationsabschluss. Aktuelle finale Head-/Base-/Main-Gates, regulärer
+Merge, FullTree/Sync und eigene lokale/Remote-Bereinigung noch offen; der
+PR-Abschlussnachweis hält nach erfolgter Integration die tatsächlichen IDs.
+
+Offener Quellenarchitekturblocker: vollständige Runnerkomposition innerhalb
+bestehendem Scriptlimit fehlt. Wiederaufnahme verlangt konkreten unabhängig
+geprüften Architekturplan und nachvollziehbaren gemeinsamen Quellen-/Versuchsrahmen,
+anschließend Source/Test-PRE und ausdrückliches Lauf-GO. Kein Scope-/Budgetreset,
+keine Capanhebung oder unveränderte Wiederholungsprobe. Tatsächliche DGN-Raw-/
+Native-/Trust-/Usedbytes-/Methoden-/SQL- und Gesamtgates bleiben offen.
+
+PR273 ist vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 integriert:
+neun PR-/sieben frische Main-Gates SUCCESS, Parent12/Harness16 ohne SKIP,
+unabhängige Schließung, FullTree/Sync und eigene Branchabwesenheit bestätigt.
+[PR273-Abschlussbindung](https://github.com/gecompat/SQL_PerformanceSchulung/pull/273).
+
 ## Codefreie Parentregistrierung vom 20. Oktober 2026
 
 PR272 vollständig in Main4a165c20840193e26b05a789d8e6e067c0bca7b9 integriert:

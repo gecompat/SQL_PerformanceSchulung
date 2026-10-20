@@ -1,7 +1,7 @@
 # DGN-007 – codefreie kontrollierte Parentregistrierung
 
 Stand: 20. Oktober 2026. Basis `4a165c20840193e26b05a789d8e6e067c0bca7b9`.
-Status `LOCAL_PASS_CI_PENDING`; C3-Fixture geschlossen, lokale Abnahme vollständig.
+Status `CLOSED_MERGED`; PR273 vollständig integriert und bereinigt.
 
 ## Priorität und endlicher Umfang
 
@@ -181,3 +181,16 @@ Claimschließung vollständig, reguläre CI und Integration unter ihren Gates
 freigegeben. Drei Kandidaten/zwei Nachläufe innerhalb Hard4, Verbrauch UNKNOWN.
 Volle zwölf frische CI-/Main-Methoden, aktuelle Head-/Base-Gates, regulärer Merge,
 FullTree/Sync und eigene Branchbereinigung bleiben offen. Kein operativer Claim.
+
+## Vollständiger Integrationsabschluss
+
+[PR273](https://github.com/gecompat/SQL_PerformanceSchulung/pull/273) am20.Oktober2026
+um21:40:46Z nach neun finalen SUCCESS-PR-Checks gegen grüne aktuelle Base4a165c2
+regulär integriert. Head4ec82884019dbdecf2514668e75d84222e3c02a4,
+Mergeb00418ca74cd6ff4a0d194f8276ca365f9558f56. Sieben frische Main-Workflows
+SUCCESS:39502303812,39502303811,39502303816,39502303917,39502303903,39502304187,
+39502304147. Neue12/Main0.098s und unveränderte Harness16/Main95.318s ohne SKIP
+PASS, PR0.052s/50.740s. Vollständiger Head-/Mergetreevergleich, sauberes synchrones
+Main und Abwesenheit des eigenen lokalen/Remote-Branches bestätigt. Drei
+Source/Testkandidaten/zwei Nachläufe erfolgreich geschlossen, Verbrauch UNKNOWN.
+Offene operative Anbindungen und Gesamtgates bleiben offen.
