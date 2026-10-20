@@ -1,7 +1,7 @@
 # DGN-007 – vorgewählte Profilanker und frische lokale Aufnahme verbinden
 
 Stand20.Oktober2026, Basis `5bf9d14a46b0fba1184f6a5a6dc3772c6278cb17` nach
-vollständig abgeschlossenem PR264. Status `C1_SOURCE_TEST_PRE_PENDING`.
+vollständig abgeschlossenem PR264. Status `C2_DELTA_PRE_PENDING`.
 Der kontinuierliche menschliche Auftrag gilt weiter; die korrigierten
 didaktischen Regeln bleiben unverändert. Dieser technische Schnitt beansprucht
 eine begrenzte lokale Aufnahmefunktion, keine neue Schulungs- oder Importabnahme.
@@ -105,3 +105,25 @@ Methoden unter Linux3.12 aus. Bestehende Bindungs-/Sourceconsumer-Gates bleiben
 erhalten. Keine SQL-/Kanal- oder Scanner-Selbsttests werden neu ausgewählt;
 lokale Windows-/Linuxläufe prüfen die portable Modellgrenze, keine zusätzliche
 Reviewkette, kein voller Logtransfer oder Telemetrieaufbau.
+
+## C2: letzter Runtime-POST und gezielte Gegenproben
+
+C1-Source/Test-PRE `b3327113391002cf7c47e34f2f80e38ab58496dc` findet einen
+P2: Nach dem dritten Capture fehlen direkte Syswerte im letzten POST. Ein P3
+betrifft getrennte Code-/Detailsidentitäts-Gegenproben. Noch kein Lauf-GO und
+keine Suiteimporte. C2 schließt direkte Syswerte callbackfrei: exakte native
+Version-/Flagtypen oder ausdrücklich begrenzte tuple-/SimpleNamespace-Modelle,
+Typprüfung vor Getter/Iteration/Integerkonvertierung; Plattform, Implementation,
+Version, Executable, vier Prefixe, sechs Flags und aktuelle Pfadwerte werden
+gegen dasselbe gehaltene Profil geprüft. Keine neue OS-/Sysconfig-Schleife.
+
+Gegenproben greifen nun zusätzlich nach Erstellung des dritten Capture-
+Ergebnisses ein: primitive Runtimewerte, fremde Modelltypen, Cache-/Container-
+und Providerwechsel. Außerhalb der Fehlerhülle werden das Erreichen des
+Mutationspunkts und ausbleibende fremde Callbacks geprüft. Getrennte Factory-/
+Hook-Codeobjektwechsel und gleichwertiges neues Closure-Detailtupel werden
+anschließend exakt restauriert. Methodenoberfläche bleibt16.
+
+Checkpoint2 erreicht: zwei Kandidaten/max6, ein gebündelter Befundnachlauf;
+harte Grenze6 einschließlich aller verbleibenden Tests/Gates/Integration.
+Verbrauch UNKNOWN. Unabhängige Delta-Schließung und Lauf-GO ausstehend.

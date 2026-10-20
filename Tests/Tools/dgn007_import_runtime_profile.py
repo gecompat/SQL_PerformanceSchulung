@@ -10,7 +10,7 @@ from importlib.machinery import (BuiltinImporter, FrozenImporter, PathFinder,
 import os
 import sys
 import sysconfig
-from types import ModuleType, FunctionType
+from types import ModuleType, FunctionType, SimpleNamespace
 from zipimport import zipimporter
 
 MAX_RECORDS = 256
@@ -18,6 +18,8 @@ MAX_FIELD = 4096
 MAX_FILE = 32 * 1024 * 1024
 MAX_TOTAL = 64 * 1024 * 1024
 ASSUMPTION = "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME"
+_NATIVE_VERSION_INFO_TYPE = type(sys.version_info)
+_NATIVE_FLAGS_TYPE = type(sys.flags)
 # Feste CPython-3.12-Bootstrapcachealiases; keine Kandidaten-/freien Aliase.
 FROZEN_NAMES = {
     "_frozen_importlib": ("importlib._bootstrap", "_frozen_importlib"),
@@ -777,10 +779,51 @@ def _selected_containers(runtime, keys):
     return cache, finders, hooks
 
 
+def _selected_runtime_post(runtime, expected, keys):
+    # Direkte Syswerte ohne erneute OS-/Sysconfig- oder fremde Modellcallbacks.
+    namespace = _selected_namespace(runtime, keys)
+    implementation = namespace.get("implementation")
+    _need(type(implementation) is SimpleNamespace, "ANCHOR_FORM")
+    implementation = _selected_namespace(implementation, keys).get("name")
+    _scalar_text(implementation)
+    version = namespace.get("version_info")
+    _need((type(version) is tuple and len(version) == 3)
+          or (type(version) is _NATIVE_VERSION_INFO_TYPE and len(version) == 5), "ANCHOR_FORM")
+    version = tuple(version[:3])
+    _need(all(type(number) is int and 0 <= number <= 999 for number in version), "ANCHOR_FORM")
+    flags = namespace.get("flags")
+    names = ("isolated", "no_site", "ignore_environment", "safe_path", "optimize")
+    if type(flags) is SimpleNamespace:
+        flags = _selected_namespace(flags, keys)
+        values = tuple(flags.get(name) for name in names)
+    else:
+        _need(type(flags) is _NATIVE_FLAGS_TYPE, "ANCHOR_FORM")
+        values = tuple(getattr(flags, name) for name in names)
+    _need(all(type(number) is int for number in values[:3] + values[4:])
+          and type(values[3]) in (int, bool), "ANCHOR_FORM")
+    _need(all(0 <= number <= 1 for number in values), "ANCHOR_FORM")
+    bytecode = namespace.get("dont_write_bytecode")
+    _need(type(bytecode) in (int, bool) and 0 <= bytecode <= 1, "ANCHOR_FORM")
+    flags = (values[0], values[1], int(bytecode), values[2], int(values[3]), values[4])
+    paths = namespace.get("path")
+    _need(type(paths) in (list, tuple) and len(paths) <= MAX_RECORDS, "ANCHOR_FORM")
+    for path in paths:
+        _scalar_text(path)
+    paths = tuple(paths)
+    values = tuple(namespace.get(name) for name in
+                   ("platform", "executable", "prefix", "exec_prefix", "base_prefix", "base_exec_prefix"))
+    for value in values:
+        _scalar_text(value)
+    _need((values[0], implementation, version, values[1], values[2:], flags, paths) ==
+          ("linux", expected.implementation, expected.version, expected.executable,
+           expected.prefixes, (1, 1, 1, 1, 1, 0), expected.paths), "PROFILE_MISMATCH")
+
+
 def _selected_post(expected, runtime, cache, finders, hooks, providers):
     _need(sys is runtime and os is providers[0] and sysconfig is providers[1], "PROVIDER_MISMATCH")
     keys = [0]
     current = _selected_containers(runtime, keys)
+    _selected_runtime_post(runtime, expected, keys)
     _need(all(a is b for a, b in zip(current, (cache, finders, hooks))), "CACHE_MISMATCH")
     _need(all(a is b for a, b in zip(finders, expected.finders))
           and all(a is b for a, b in zip(hooks, expected.hooks)), "HOOK_MISMATCH")

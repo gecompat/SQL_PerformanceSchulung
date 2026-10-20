@@ -105,12 +105,26 @@ class SelectedObservationTests(unittest.TestCase):
 
     def after_inner(self, change):
         original = m.observe_current_interpreter_scalars
+        reached = []
         def observed(expected, known):
             result = original(expected, known)
-            self.assertIsNotNone(result.scalars, result.report)
+            reached.append(result.scalars is not None)
             change(expected)
             return result
+        self.addCleanup(self.assertEqual, reached, [True])
         return patch.object(m, "observe_current_interpreter_scalars", observed)
+
+    def after_final_capture(self, change):
+        original, reached = m._capture, []
+        def capture(expected, files):
+            result = original(expected, files)
+            reached.append(result)
+            if len(reached) == 3:
+                change(expected)
+            return result
+        # Außerhalb der festen Fehlerhülle: genau der dritte Capture war erreicht.
+        self.addCleanup(lambda: self.assertEqual(len(reached), 3))
+        return patch.object(m, "_capture", capture)
 
     def test_actual_capture_complete_scalars_same_profile_and_no_io(self):
         captured, original = [], m._capture
@@ -196,19 +210,20 @@ class SelectedObservationTests(unittest.TestCase):
             self.accepted()
 
     def test_cache_exchange_accession_and_coherent_module_replacement_after_inner(self):
-        for change in ("exchange", "accession", "replacement"):
-            def mutate(expected):
-                if change == "exchange":
-                    self.runtime.modules = self.cache.copy()
-                elif change == "accession":
-                    self.cache["extra"] = f.own_module("extra", "BUILTIN", file="")[0]
-                else:
-                    self.cache["sys"] = f.own_module("sys", "BUILTIN", file="")[0]
-            with self.subTest(change=change), self.after_inner(mutate):
-                self.rejected()
-            self.runtime.modules = self.cache
-            self.cache.pop("extra", None)
-            self.cache["sys"] = self.runtime
+        for point in (self.after_inner, self.after_final_capture):
+            for change in ("exchange", "accession", "replacement"):
+                def mutate(expected):
+                    if change == "exchange":
+                        self.runtime.modules = self.cache.copy()
+                    elif change == "accession":
+                        self.cache["extra"] = f.own_module("extra", "BUILTIN", file="")[0]
+                    else:
+                        self.cache["sys"] = f.own_module("sys", "BUILTIN", file="")[0]
+                with self.subTest(point=point.__name__, change=change), point(mutate):
+                    self.rejected()
+                self.runtime.modules = self.cache
+                self.cache.pop("extra", None)
+                self.cache["sys"] = self.runtime
 
     def test_module_spec_loader_metadata_drift_after_inner(self):
         module = self.cache["package"]
@@ -223,24 +238,42 @@ class SelectedObservationTests(unittest.TestCase):
             setattr(target, attribute, old)
 
     def test_runtime_scalar_drift_after_inner_is_freshly_checked(self):
-        for attribute, value in (("version_info", (3, 12, 99)), ("executable", "/synthetic/other"),
-                                 ("prefix", "/other"), ("path", self.runtime.path[::-1])):
-            old = getattr(self.runtime, attribute)
-            with self.after_inner(lambda expected: setattr(self.runtime, attribute, value)):
-                self.rejected()
-            setattr(self.runtime, attribute, old)
+        accessed = []
+        class Foreign:
+            def __getattr__(self, name):
+                accessed.append("GETTER")
+                raise AssertionError("FOREIGN_GETTER")
+            def __iter__(self):
+                accessed.append("ITERATOR")
+                raise AssertionError("FOREIGN_ITERATOR")
+            def __int__(self):
+                accessed.append("INTEGER")
+                raise AssertionError("FOREIGN_INTEGER")
+        for point in (self.after_inner, self.after_final_capture):
+            for attribute, value in (("version_info", (3, 12, 99)), ("executable", "/synthetic/other"),
+                    ("prefix", "/other"), ("path", self.runtime.path[::-1]), ("platform", "win32"),
+                    ("flags", SimpleNamespace(isolated=1, no_site=1, ignore_environment=1, safe_path=True, optimize=1)),
+                    ("implementation", Foreign()), ("version_info", Foreign()), ("flags", Foreign()),
+                    ("path", Foreign()), ("dont_write_bytecode", Foreign())):
+                old = getattr(self.runtime, attribute)
+                with self.subTest(point=point.__name__, attribute=attribute), \
+                     point(lambda expected: setattr(self.runtime, attribute, value)):
+                    self.rejected()
+                setattr(self.runtime, attribute, old)
+        self.assertEqual(accessed, [])
         with self.after_inner(lambda expected: setattr(self.config, "get_config_var", lambda name: "other")):
             self.rejected()
 
     def test_finder_hook_container_identity_and_content_post(self):
-        for attribute in ("meta_path", "path_hooks"):
-            old = getattr(self.runtime, attribute)
-            with self.after_inner(lambda expected: setattr(self.runtime, attribute, list(old))):
-                self.rejected()
-            setattr(self.runtime, attribute, old)
-            with self.after_inner(lambda expected: old.reverse()):
-                self.rejected()
-            old.reverse()
+        for point in (self.after_inner, self.after_final_capture):
+            for attribute in ("meta_path", "path_hooks"):
+                old = getattr(self.runtime, attribute)
+                with point(lambda expected: setattr(self.runtime, attribute, list(old))):
+                    self.rejected()
+                setattr(self.runtime, attribute, old)
+                with point(lambda expected: old.reverse()):
+                    self.rejected()
+                old.reverse()
 
     def test_hook_factory_code_closure_and_suffix_anchors_precede_observation(self):
         namespace = self.cache["_frozen_importlib_external"].__dict__
@@ -254,6 +287,16 @@ class SelectedObservationTests(unittest.TestCase):
         with self.after_inner(mutate):
             self.rejected()
         finder.path_hook = descriptor
+        for function in (descriptor.__func__, self.hook):
+            code = function.__code__
+            with self.after_inner(lambda expected: setattr(function, "__code__", code.replace())):
+                self.rejected()
+            function.__code__ = code
+        cell = self.hook.__closure__[1]
+        original_details = cell.cell_contents
+        with self.after_inner(lambda expected: setattr(cell, "cell_contents", tuple(list(original_details)))):
+            self.rejected()
+        cell.cell_contents = original_details
         configured = namespace["SOURCE_SUFFIXES"]
         details = self.hook.__closure__[1].cell_contents
         with self.after_inner(lambda expected: (configured.append(".other"), details[1][1].append(".other"))):
@@ -262,11 +305,12 @@ class SelectedObservationTests(unittest.TestCase):
         self.rejected(separately_known_filefinder_hook=f.hook)
 
     def test_provider_exchange_after_inner_does_not_accept_held_receipt(self):
-        for name in ("sys", "os", "sysconfig"):
-            old = getattr(m, name)
-            with self.after_inner(lambda expected: setattr(m, name, SimpleNamespace())):
-                self.rejected()
-            setattr(m, name, old)
+        for point in (self.after_inner, self.after_final_capture):
+            for name in ("sys", "os", "sysconfig"):
+                old = getattr(m, name)
+                with point(lambda expected: setattr(m, name, SimpleNamespace())):
+                    self.rejected()
+                setattr(m, name, old)
 
     def test_unknown_exception_is_fixed_and_has_no_partial_payload(self):
         with patch.object(m, "observe_current_interpreter_scalars", side_effect=RuntimeError("/synthetic/private")):
@@ -310,7 +354,7 @@ class SelectedObservationTests(unittest.TestCase):
     def test_new_bridge_has_no_execution_import_file_or_hash_calls(self):
         tree = ast.parse(f.PATH.read_bytes())
         selected = {"observe_selected_profile_scalars", "_selected_containers", "_selected_post",
-                    "_selected_hook_post", "_bind_selected"}
+                    "_selected_runtime_post", "_selected_hook_post", "_bind_selected"}
         nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in selected]
         self.assertEqual(len(nodes), len(selected))
         calls = {node.func.id for root in nodes for node in ast.walk(root)
