@@ -19,6 +19,8 @@ on:
       - 'Tests/Static/test_dgn007_pooled_combined_input.py'
       - 'Tests/Tools/dgn007_control_bootstrap_source.py'
       - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Documentation/Project_Planning/DGN_007_SESSION_END_MATCHER_REVIEW.md'
       - 'Tests/Tools/dgn007_parent_ledger.py'
       - 'Tests/Static/test_dgn007_parent_ledger.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
@@ -81,6 +83,8 @@ on:
       - 'Tests/Static/test_dgn007_pooled_combined_input.py'
       - 'Tests/Tools/dgn007_control_bootstrap_source.py'
       - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Documentation/Project_Planning/DGN_007_SESSION_END_MATCHER_REVIEW.md'
       - 'Tests/Tools/dgn007_parent_ledger.py'
       - 'Tests/Static/test_dgn007_parent_ledger.py'
       - 'Documentation/Project_Planning/DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md'
@@ -165,5 +169,7 @@ jobs:
         run: python -I -S -B Tests/Static/test_dgn007_pooled_combined_input.py
       - name: Gehaltene Kontrollbootstrapquellen und synthetische Byteausführung prüfen
         run: python -I -S -B Tests/Static/test_dgn007_control_bootstrap_source.py
+      - name: Vollständige deklarative SESSION_END-Folgen und Rohbytebindung prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_session_match.py
       - name: Exklusive Parent-Ledger-Zustände und synthetische Adapter prüfen
         run: python -I -S -B -X utf8 Tests/Static/test_dgn007_parent_ledger.py

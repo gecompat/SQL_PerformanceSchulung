@@ -1,5 +1,14 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+Nach abgeschlossenen PR257/258 folgt auf ausdrücklichen Benutzerauftrag der
+[vollständige deklarative SESSION_END-Matcher](DGN_007_SESSION_END_MATCHER_REVIEW.md).
+Additive fünfzehnte Kontrollquellenroute, ganze Profil-/INPUT_COMPLETE-/Loader-/
+Footerfolge und Rohbytebindung gegen separates vollständiges R4/K8; keine
+operative Kanal-/EOF-/Exit-/Cleanupattestation. Unabhängiger Auswahl-PRE ohne
+Befunde; erster Quellen-/Teststand von höchstens drei, noch kein Suitelauf.
+Quellen-/Test-PRE mit Lauf-GO sowie lokale Tests und aktuelle Integrationsgates
+bleiben erforderlich.
+
 Am 20. Oktober 2026 nimmt der Benutzer die allgemeine Entwicklung nach
 Bestandsprüfung ausdrücklich wieder auf. Die
 [interne DGN-007-Capture-Rückgabe](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
