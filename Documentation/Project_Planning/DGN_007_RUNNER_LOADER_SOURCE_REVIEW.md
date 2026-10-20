@@ -374,3 +374,22 @@ vollständiger Raw/Parent und fünf Importe. Keine Compiler-/Exec-/I/O-/Loader-
 oder Runtime-Datenänderung. C4-Alpha-/Literalcode bleibt gleich. Vor Umsetzung
 unabhängiges Auswahl-GO; danach stabiler Source/Test-PRE und Fit zuerst. Vier/max6
 bisherige Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; kein neuer Scope/Reset.
+
+## C5 – konkrete Workerkomposition vor Source/Test-PRE
+
+Auswahl5e535855e9a7cff51e45af888dc817efd0aa1c8c unabhängig freigegeben:
+elf exakte einmalige Knoten, volle verbleibende Referenzprüfung einschließlich
+Runnerhelfern/geschütztem Parent vor allen Alpha-Pässen, getrennte Oracle,
+keine Ausweitung. C5 setzt genau diese Komposition um. Selektor prüft die
+vollständige kanonische Elf-Knoten-Liste und jeden ganzen AST, anschließend
+alle verbleibenden Binding-/Deklarations-/Alias-/Import-/Attribut-/Keyword-/
+Patternfelder und Stringbezüge. Erst danach bisherige Alpha-/Literalpässe.
+
+Getrennte Expectedoracle entfernt selbst die elf statisch bezeichneten exakten
+Knoten, tatsächliche Ausgabe muss sämtliche elf Bindungen auslassen. Eigener
+positiver kleiner Baum behält den Bodyreceiver; negative fehlende/doppelte/
+abweichende Knoten sowie direkter Name, Stringdispatch, reine Globaldeklaration
+und geschützter Parentreferenz werden abgelehnt. Keine neue Runtimebindung,
+keine andere Auslassung oder Änderung bestehender Routen/Tests. Weiter16 Methoden.
+Fünf/max6 Kandidaten, vier Nachläufe, Verbrauch UNKNOWN; enger Source/Test-PRE
+und ausdrückliches gestuftes Fit-GO offen, noch keine C5-Generierung/Modelle.

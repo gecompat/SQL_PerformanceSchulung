@@ -181,6 +181,28 @@ class RunnerLoaderSourceTests(unittest.TestCase):
         return mapping
 
     def test_actual_source_fit_full_raw_parent_and_independent_alpha_ast(self):
+        removed = ("_SESSION_SHAPES", "_SESSION_TRACES", "_SESSION_COUNTS", "_SESSION_ISSUES",
+                   "_session_parse", "_session_report", "_session_semantics", "_session_order",
+                   "_session_channel_sha", "_session_issue", "_inline_match_session_end")
+        parent_block = subject.base.base.inputs.base._INLINE_SESSION_END_MATCH
+        canonical = ast.parse(parent_block).body
+        fixed = ast.parse("def fixed_parent(): return None").body[0]
+        receiver = "\ndef _inline_receive_declared_bodies(): return 7\n"
+        minimal = ast.parse(parent_block + receiver)
+        selected = subject._runner_worker_tree(minimal, fixed)
+        self.assertEqual(ast.dump(selected), ast.dump(ast.parse(receiver)))
+        for mutation in ("missing", "duplicate", "body", "name", "string", "declaration", "parent"):
+            candidate = ast.parse(parent_block + receiver)
+            protected = ast.parse(ast.unparse(fixed)).body[0]
+            if mutation == "missing": candidate.body.pop(0)
+            elif mutation == "duplicate": candidate.body += ast.parse(ast.unparse(canonical[0])).body
+            elif mutation == "body": candidate.body[-2].body.append(ast.Pass())
+            elif mutation == "name": candidate.body += ast.parse("probe = _session_parse").body
+            elif mutation == "string": candidate.body += ast.parse("probe = '_session_parse'").body
+            elif mutation == "declaration": candidate.body += ast.parse("def f():\n global _SESSION_COUNTS\n pass").body
+            else: protected.body = ast.parse("return _session_parse").body
+            with self.assertRaises(subject.base.base.inputs.base.BootstrapSourceRejected):
+                subject._runner_worker_tree(candidate, protected)
         # Kleines eigenes Alpha-Modell: Globalgleichnamigkeit, Defaults,
         # Erstiterable, Closures/Shadowing, Keywords, Methoden und Reflexion.
         sample = '''global_value = 7
@@ -243,6 +265,9 @@ class Example:
                 and any(isinstance(t, ast.Name) and t.id == "_EXPECTED_PROFILE_RAW" for t in n.targets)), raw)
             held_parent = next(n for n in actual.body if isinstance(n, ast.FunctionDef) and n.name == parent.name)
             self.assertEqual(ast.dump(held_parent), ast.dump(parent))
+            self.assertTrue(all(not (isinstance(n, ast.Name) and n.id in removed)
+                                and not (isinstance(n, ast.FunctionDef) and n.name in removed)
+                                for n in ast.walk(actual)))
             expected = ast.parse(subject.base.base.inputs.build_worker_input_control_bootstrap(raw, **OPTIONS).source)
             init = next(n for n in expected.body if isinstance(n, ast.FunctionDef) and n.name == "_initialize_worker_input_control")
             block = next(n for n in init.body if isinstance(n, ast.Try)).body
@@ -286,6 +311,14 @@ _rl_original(owner[19], namespace)(owner, packet)
             main.body.insert(2, ast.parse("_initialize_rl_control()").body[0])
             main.body[-1] = ast.parse("_rl_main()").body[0]
             expected.body = [n for n in expected.body if n is not main] + helpers + kept + added + [parent, main]
+            # Separate, ausdrücklich elfknotige Komposition; kein Produktselektor.
+            for name, template_node in zip(removed, canonical):
+                found = [n for n in expected.body if (isinstance(n, ast.FunctionDef) and n.name == name)
+                         or (isinstance(n, ast.Assign) and len(n.targets) == 1
+                             and isinstance(n.targets[0], ast.Name) and n.targets[0].id == name)]
+                self.assertEqual(len(found), 1)
+                self.assertEqual(ast.dump(found[0]), ast.dump(template_node))
+                expected.body.remove(found[0])
             definitions = [n for n in expected.body if isinstance(n, ast.FunctionDef)]
             observed = [n for n in actual.body if isinstance(n, ast.FunctionDef)]
             self.assertEqual(len(definitions), len(observed))

@@ -503,6 +503,38 @@ _PRESERVED = {"_worker_input_seal", "_worker_input_entry", "_worker_profile_stat
               "_inline_observe_selected_worker_profile", "_inline_kernel_check"}
 
 
+def _runner_worker_tree(tree, protected):
+    """Nur den elfknotigen Parentabgleich aus dieser Workerkomposition auslassen."""
+    control = base.base.inputs.base
+    names = ("_SESSION_SHAPES", "_SESSION_TRACES", "_SESSION_COUNTS", "_SESSION_ISSUES",
+             "_session_parse", "_session_report", "_session_semantics", "_session_order",
+             "_session_channel_sha", "_session_issue", "_inline_match_session_end")
+    def binding(node):
+        if isinstance(node, ast.FunctionDef): return node.name
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            return node.targets[0].id
+        return None
+    canonical = ast.parse(control._INLINE_SESSION_END_MATCH).body
+    control._need(len(canonical) == 11 and tuple(binding(n) for n in canonical) == names, "TEMPLATE_FORM")
+    selected = []
+    for name, original in zip(names, canonical):
+        matches = [n for n in tree.body if binding(n) == name]
+        control._need(len(matches) == 1 and ast.dump(matches[0]) == ast.dump(original), "TEMPLATE_FORM")
+        selected.append(matches[0])
+    remaining = [n for n in tree.body if not any(n is old for old in selected)]
+    for root in remaining + [protected]:
+        for node in ast.walk(root):
+            values = [getattr(node, field, None) for field in ("id", "arg", "name", "asname", "rest", "attr", "module")]
+            if isinstance(node, (ast.Global, ast.Nonlocal)): values += node.names
+            if isinstance(node, ast.keyword): values.append(node.arg)
+            if isinstance(node, ast.MatchClass): values += node.kwd_attrs
+            if isinstance(node, ast.Constant) and type(node.value) is str:
+                control._need(all(name not in node.value for name in names), "TEMPLATE_FORM")
+            control._need(not any(value in names for value in values), "TEMPLATE_FORM")
+    tree.body = remaining
+    return tree
+
+
 def _shorten_globals(tree, protected):
     protected_nodes = tuple(ast.walk(protected))
     nodes = tuple(ast.walk(tree)) + protected_nodes
@@ -651,6 +683,7 @@ def build_runner_loader_control_bootstrap(profile_raw, *, logical_profile,
     main.body[-1] = ast.parse("_rl_main()").body[0]
     parent = _parent_ast()
     tree.body = [n for n in tree.body if n is not main] + _helpers() + _runner_nodes() + [main]
+    tree = _runner_worker_tree(tree, parent)
     tree = _shorten_globals(tree, parent)
     tree = base.base._compact_locals(_shorten_uniform_locals(tree, parent))
     tree.body.insert(len(tree.body) - 1, parent)
