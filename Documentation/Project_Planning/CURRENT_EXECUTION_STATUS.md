@@ -1,5 +1,24 @@
 # Aktueller Ausführungsstand
 
+## Vollständige Profilauswahl an lokale Anker vom 20. Oktober 2026
+
+PR262 vollständig in `9938091d7de38bb95152cc06e055470e5fb8b7cc` integriert:
+zehn finale PR-Gates, acht Main-Workflows SUCCESS, neue12/12, alte Kanal16/16
+und pure Eingangsplan16/16 Methoden in CI/Main ohne SKIP. Unabhängiger Review,
+FullTree/Sync und eigene lokale/Remote-Branchbereinigung bestätigt; ein
+Quellen-/Teststand, keine Befundnachläufe. [Abschlussbindung PR262](https://github.com/gecompat/SQL_PerformanceSchulung/pull/262).
+
+Nächster endlicher Schnitt: [vollständige separat gewählte S15-/P11-Felder an
+explizite lokale Anker binden](DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md).
+Ein Owner, max6/Checkpoint2/hart6 einschließlich Review/Tests/CI; Auswahl-PRE
+ausdrücklich freigegeben. C1 implementiert additive Brücke und engen gefundenen
+Frozen-/Mixed-Guardfix mit15 vollständig synthetischen portablen Methoden.
+Reine Brücke vor späterer frischer Aufnahme, keine Selbstbaseline oder neuen
+I/O/Hash/Hook-/Observation-/Prozessaufrufe. Source/Test-PRE mit Lauf-GO vor
+Suiteimporten/-läufen offen. Eigener Branch `codex/dgn007-selected-profile-anchors`.
+Operative Auswahl/Inventur, Fünf-Formen-Gate und echte Loader-/Importprovenienz
+bleiben offen. Verbrauch UNKNOWN; kontinuierlicher Auftrag/30-Minuten-Heartbeat aktiv.
+
 ## Bidirektionaler Phasenowner vom 20. Oktober 2026
 
 PR261 vollständig in `0d851dc9f87915a4952ad6fae1fe0f269f94d5e7` integriert:
