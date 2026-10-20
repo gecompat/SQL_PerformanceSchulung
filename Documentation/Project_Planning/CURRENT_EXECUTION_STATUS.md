@@ -1,25 +1,31 @@
 # Aktueller Ausführungsstand
 
-## Wiederaufnahme vom 20. Oktober 2026: interne DGN-007-Capture-Rückgabe
+## Wiederaufnahme vom 20. Oktober 2026: Capture integriert, SESSION_END-Entwurf
 
-Der neue ausdrückliche Benutzerauftrag hebt die frühere allgemeine
-Entwicklungspause auf. Zuerst wird der erhaltene lokale Entwurf
-`codex/dgn007-internal-capture-receipt` bei `83f08fb71446445e70fb6227e442ed7109637de6`
-gegen Main `52351588632c3ad7bbc33cd46cbc5e0d959fe354` geprüft und auf dem neuen
-Branch `codex/dgn007-capture-receipt-v2` bearbeitet. Kein offener PR, nur dieser
-alte lokale Branch neben Main und kein weiterer Worktree waren vorhanden.
-DEC-072/PR132 haben die ältere G13-/Zeitquellensperre dieses begrenzten Scopes
-abgelöst. Historische FAILs und größere noch offene Methodengates bleiben erhalten.
+Der ausdrückliche Benutzerauftrag hebt die frühere allgemeine Entwicklungspause
+auf. Die interne Rückgabe aus dem erhaltenen Entwurf `83f08fb…` ist nach
+unabhängigem Quellenreview ohne offene Befunde und allen 14 grünen PR-Gates
+über [PR255](https://github.com/gecompat/SQL_PerformanceSchulung/pull/255) in
+Main `b3f023ad66f8c4aa16a7c6fe73e42615818cbd90` integriert. Vollständiger
+Treevergleich, lokale Main-Synchronisierung und sichere Entfernung beider
+lokalen Capture-Branches sowie des eigenen Remote-Branches sind abgeschlossen.
+Der [Capture-Nachweis](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md) bindet Tests,
+Review, SQL2019/2022/2025 und Cleanup. Der automatisch gestartete Main-Lauf
+bleibt als eigener aktueller Nachweis bis zu seinem Ergebnis offen.
+DEC-072/PR132 haben die ältere G13-/Zeitquellensperre dieses Scopes abgelöst;
+historische FAILs und größere offene Methodengates bleiben erhalten.
 
-Der [aktuelle Quellenabgleich und Integrationsplan](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
-begrenzt die erste Welle auf interne Body-/Phasenrückgabe mit vollständigen
-Oracles, erfolgreichem Lifecycle und erster unabhängiger Datenbankabwesenheit.
-Ein Owner, maximal drei Kandidaten und Checkpoint nach dem zweiten;
-unabhängiger Review sowie aktuelle PR-/Base-CI und Integration noch offen.
-Der alte Branch wird erst nach bestätigter vollständiger Übernahme bereinigt.
-SESSION_END, Collector und operative Provenienzarchitektur gehören nicht zu
-dieser ersten Welle. Die nächste ausführbare priorisierte Welle folgt erst
-nach deren Abschluss mit eigener Begrenzung und Prüfung früherer Limits.
+Nach diesem Abschluss ist auf `codex/dgn007-session-end-design` ausschließlich
+der [SESSION_END-Vertragsentwurf §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild)
+aufgenommen: ein Owner, höchstens zwei Entwurfsstände, Checkpoint nach dem
+ersten und ein unabhängiger Designreview. Recordform, rollengenaue Counts,
+Rohbytepräbild ohne Selbstbezug und unveränderte Kanalreserve sind ausgearbeitet;
+57 Literalrechnungen und eine synthetische Hashreferenz sind nachgerechnet.
+Unabhängiger Designreview, aktuelle Dokumentationsgates und Integration sind
+offen. Kein Parser-/Builder-/Kanal-/Loader-/Worker- oder SQLlauf, keine neue
+Admission für frühere ausgeschöpfte Import-/Generator-/Quellwellen.
+Collector, operative Provenienzarchitektur und frische prospektive
+Bestätigungsläufe bleiben eigene Aufgaben mit ihren offenen Gates.
 Keine neue Scheduler-/Heartbeat-/Cloud-/Modell-/Credential-/Trustkonfiguration;
 laufende Lab-CI und fremde Ressourcen bleiben geschützt. Die folgenden
 Pausen- und Methodenstände sind historisch, soweit dieser aktuelle Auftrag

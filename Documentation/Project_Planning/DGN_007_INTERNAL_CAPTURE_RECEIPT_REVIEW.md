@@ -7,7 +7,7 @@
 | erhaltener Entwurf | `codex/dgn007-internal-capture-receipt`, `83f08fb71446445e70fb6227e442ed7109637de6` |
 | Umfang | interne Body-/Phasenrückgabe; bestehender DGN-007-Backlogpunkt |
 | Integrationsentscheidung | fünf brauchbare Entwurfsänderungen auf aktueller Basis übernehmen und gegen v2 prüfen; kein unveränderter Branchmerge |
-| aktuelles Gate | unabhängiger Quellenreview, aktuelle PR-/Base-CI und Integration offen |
+| aktueller Abschluss | [PR255](https://github.com/gecompat/SQL_PerformanceSchulung/pull/255) integriert; Main `b3f023ad66f8c4aa16a7c6fe73e42615818cbd90`; beide lokalen Capture-Branches und eigener Remote-Branch bereinigt |
 
 Der Benutzerauftrag vom 20. Oktober 2026 nimmt die allgemeine Entwicklung nach
 Bestandsprüfung ausdrücklich wieder auf. Zu Beginn waren Main und origin/main
@@ -91,8 +91,36 @@ Kennungsregistrierung, Repositorykontinuität und `git diff --check` bestanden.
 Alle 14 geänderten Dateien bestanden die Privacy-Prüfung. Der lokale Vollscan
 brach an einer ungültigen URL ab; daraus wird kein Privacy-PASS abgeleitet.
 Der frische CI-Checkout bleibt für den vollständigen Scan maßgeblich.
-Commitgebundene Offline-Gegenproben, unabhängiger Review und SQL-Matrix stehen
-noch aus.
+Die Prüfung des gesamten versionierbaren Bestands bestand anschließend für
+1205 Dateien. Die vollständige
+[Privacy-CI](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39339866436)
+und die [commitgebundenen Offline-Gegenproben](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39339866471)
+bestanden am aktuellen PR-Head.
+
+Der ausdrücklich autorisierte unabhängige lesende Quellenreview bestätigte
+Basis `5235158…` → Head `e43111d083162a5b10ca5cc7e99653ca48e313bb` ohne offene
+P1/P2/P3-Befunde. Alle 18 hinzugefügten/geänderten AST-Knoten der fünf alten
+Entwurfsdateien und erforderliche Imports sind unverändert übernommen;
+spätere Diagnosepfade bleiben erhalten. Alle neun AST-Digests wurden unter
+CPython 3.12 unabhängig nachgerechnet; acht Pythonquellen, SQL, Manifeste und
+Akzeptanzvertrag sind gegenüber der Basis identisch.
+
+Alle 14 PR-Gates einschließlich
+[SQL2019/2022/2025](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39339866415)
+bestanden: je zwei Lifecycles aller sechs Scopes, unabhängige DB-Prüfung und
+eigener erfolgreicher Container-/Volumecleanup. Die Compatibility-Gegenprobe
+gilt nur für 2025 und bestand dort; die vorgesehenen 2019-/2022-SKIPs sind
+keine zusätzliche Versionsqualifikation.
+
+Der serverseitige Squash-Merge ist bestätigt. Vollständiger Treevergleich
+`e43111d…` gegen `b3f023ad…`, Main-FF und saubere Synchronität bestanden.
+Vor der Entfernung wurden beide exakten Branchstände und der einzige eigene
+Worktree erneut geprüft. Der Altbranch enthielt genau einen zusätzlichen
+Commit; seine vollständige Übernahme ist unabhängig bestätigt. Beide lokalen
+Capture-Branches und `origin/codex/dgn007-capture-receipt-v2` sind entfernt.
+Der automatisch gestartete
+[Main-Lauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39387949894)
+bleibt eigener aktueller Nachweis; sein endgültiges Ergebnis ist noch offen.
 
 Die bestehende DGN-007-CI führt für den betroffenen Runner die 2019-/2022-/2025-
 Matrix mit je zwei Lifecycles der sechs vorhandenen Scopes, unabhängigen
@@ -102,9 +130,10 @@ Erforderliche Registry-, Governance- und Privacy-Gates bleiben erhalten.
 
 ## Anschließender Scope
 
-Nach vollständiger Integration und sicherer Branchbereinigung wird die nächste
-priorisierte ausführbare Welle erneut begrenzt. Der dokumentierte nächste
-DGN-007-Schnitt ist der separate SESSION_END-Entwurf zu Loaderrecordvertrag §33.
-Er wird erst danach anhand seines aktuellen Vertrags und früherer Limits
-geplant. Collector, operative Workerfreigabe und frische prospektive
-Bestätigungsläufe bleiben eigene Aufgaben mit ihren offenen Gates.
+Nach Integration und sicherer Branchbereinigung ist ausschließlich der separate
+[SESSION_END-Entwurf §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild)
+zu Loaderrecordvertrag §33 aufgenommen: ein Owner, höchstens zwei
+Entwurfsstände und ein unabhängiger Designreview. Frühere ausgeschöpfte
+Runtime-/Quellwellen erhalten keine neuen Versuche. Collector, operative
+Workerfreigabe und frische prospektive Bestätigungsläufe bleiben eigene
+Aufgaben mit ihren offenen Gates.
