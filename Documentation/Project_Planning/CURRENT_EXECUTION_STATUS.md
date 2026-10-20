@@ -17,10 +17,14 @@ Metadata/Profil/BODY_RELEASE/neun Bodies/BODY_END/INPUT_COMPLETE/IMPORT_RELEASE
 und stdin-Schluss werden innerhalb derselben geteilten Budgets an echte
 I/O-Rückgaben und volle Caller gebunden. Kein echter DGN-Import-/Loader- oder
 frischer S15/P11-Beleg; feste selbstbeendende eigene Native-Testprogramme.
-C1 Source/Test-PRE/Lauf-GO ausstehend, neue Suite12Methoden/28Nativefälle und
-alte16-Kanalregressionen vor Lauf gesperrt. Noch keine Kandidatenimporte oder
-Nativeprobe. Eigener Branch `codex/dgn007-bidirectional-handshake` auf aktuellem
-Main; historische Stops bleiben erhalten. Verbrauch UNKNOWN.
+C1 `83d9f325abd539b60834312abbaf7746cb529981` unabhängig vollständig ohne
+offene P1/P2/P3-Befunde und mit ausdrücklichem Source/Test-Lauf-GO bestätigt.
+Lokale Linux3.12.3-Läufe: neue12/12 Methoden mit28 festen Nativefällen und
+alte16/16 ohne SKIP PASS. Windows3.14.7: drei/fünf portable PASS und neun/elf
+native SKIP. Ein Kandidat, keine Befundnachläufe; pure Plansuite lokal nicht
+wiederholt. Aktuelle Head-/Base-/Main-Gates und FullTree/Sync/Branchcleanup
+folgen vor Abschluss. Eigener Branch `codex/dgn007-bidirectional-handshake`;
+historische Stops bleiben erhalten. Verbrauch UNKNOWN.
 
 ## Gehaltener Handshakeeingang vom 20. Oktober 2026
 

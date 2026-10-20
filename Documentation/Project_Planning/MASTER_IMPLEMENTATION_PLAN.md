@@ -5,8 +5,11 @@ acht PR-/sechs Main-Gates grün,16/16 neue Methoden Windows/Linux/Main ohne
 SKIP, unabhängiger Review und FullTree/Sync/Branchcleanup. Danach unabhängig
 ausgewählt: [nativer bidirektionaler Phasenowner](DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md),
 ein Owner/max8/Checkpoint2/hart8. C1 mit gemeinsamer nativer Ownersperre,
-gehaltenen tatsächlichen Writes/Reads und einmaligen Freigaben wartet vor
-neuen12 und alten16 Methoden auf Source/Test-PRE mit ausdrücklichem Lauf-GO.
+gehaltenen tatsächlichen Writes/Reads und einmaligen Freigaben ist unabhängig
+ohne offene Befunde und mit ausdrücklichem Source/Test-Lauf-GO bestätigt.
+Lokal Linux neue12/12 und alte16/16 Methoden ohne SKIP PASS; Windows drei/fünf
+portable PASS, neun/elf native SKIP. Ein Kandidat, keine Befundnachläufe;
+aktuelle PR-/Main-Gates und FullTree/Sync/Branchcleanup folgen vor Abschluss.
 Reale Workerprofile, Loader-/Importprovenienz und SQL-/Methodenbelege offen.
 
 PR260 vollständig abgeschlossen in `256e43d6d4ca4ac7a248dadbe4c88e6923577ef4`:

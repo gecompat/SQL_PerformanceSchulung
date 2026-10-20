@@ -1,7 +1,7 @@
 # DGN-007 – nativer bidirektionaler Phasenowner
 
 Stand20.Oktober2026, Basis `0d851dc9f87915a4952ad6fae1fe0f269f94d5e7` nach
-vollständig abgeschlossenem PR261. Status `SOURCE_TEST_PRE_PENDING`.
+vollständig abgeschlossenem PR261. Status `LOCAL_PASS_PR_GATES_PENDING`.
 Der menschliche kontinuierliche Auftrag autorisiert diese nächste eigene
 endliche operative Welle; frühere geschlossene oder ausgeschöpfte Scopes
 bleiben erhalten. PR261: acht finale PR-Gates und sechs Main-Workflows SUCCESS,
@@ -146,7 +146,16 @@ driver und12Methoden mit28festen Nativefällen. Die Fixture begrenzt eigene
 Pipepuffer erst nach gehaltenem Popen-Handle; eine erste gelesene Metadatabyte
 verhindert dabei die Race zur anfänglichen stderr-Ausgabe. Ganze Eingänge,
 Commands, Bodies und wirkliches Worker-stdin-EOF werden separat verglichen.
-Noch kein Source/Test-Lauf-GO und keine neue Suite/Kandidatenimports/Nativeprobe.
+C1 `83d9f325abd539b60834312abbaf7746cb529981` gegen obige Basis ist unabhängig
+vollständig ohne offene P1/P2/P3-Befunde geprüft und mit ausdrücklichem
+einmaligem Source/Test-Lauf-GO bestätigt. Ein Quellen-/Testkandidat verbraucht,
+keine Befundnachläufe. Die freigegebenen lokalen Läufe sind abgeschlossen:
+Windows3.14.7 neue Suite drei portable PASS/neun native SKIP in0,345s und
+alte Kanalsuite fünf portable PASS/elf native SKIP in0,204s; Linux3.12.3 neue
+12/12 Methoden mit28 festen Nativefällen ohne SKIP in31,450s und alte16/16
+ohne SKIP in22,584s PASS. Unveränderte pure Plansuite lokal nicht wiederholt.
+Aktuelle finale Head-/Base-Gates, reguläre Integration, frische Main-Gates,
+FullTree/Sync und eigene Branchbereinigung folgen vor vollständigem Abschluss.
 
 Primärquellen, geprüft20.Oktober2026:
 [CPython3.12 os.write](https://docs.python.org/3.12/library/os.html#os.write),

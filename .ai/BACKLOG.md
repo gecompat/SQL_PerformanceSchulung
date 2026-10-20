@@ -5,7 +5,7 @@
 - [x] Vollständiger deklarativer SESSION_END-Matcher aus PR259: Main `d4151093bdd4de115b660352345f3e5c47e9b650`, acht PR-/sechs Main-Gates grün, FullTree/Sync/Branchcleanup bestätigt.
 - [x] [Operativer Abschlussweg](../Documentation/Project_Planning/DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md): PR260 in Main256e43d, acht PR-/sechs Main-Gates SUCCESS, native16/16 ohne SKIP, FullTree/Sync/Branchcleanup bestätigt. Historische C3-FAIL und ausdrückliche C4-Freigabe erhalten.
 - [x] [Gehaltener Handshakeeingang](../Documentation/Project_Planning/DGN_007_HANDSHAKE_INPUT_PLAN_REVIEW.md): PR261 in Main0d851dc, acht PR-/sechs Main-Gates SUCCESS,16/16 neue Methoden Windows/Linux/Main ohne SKIP, unabhängiger Review und FullTree/Sync/Branchcleanup; ein Quellenstand, keine Nachläufe.
-- [ ] [Nativer bidirektionaler Phasenowner](../Documentation/Project_Planning/DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md): unabhängig ausgewählt, max8/Checkpoint2/hart8, C1 Source/Test-PRE vor neuen12/alten16 Methoden und28neuen Nativefällen ausstehend; keine echten Import-/Loaderclaims.
+- [ ] [Nativer bidirektionaler Phasenowner](../Documentation/Project_Planning/DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md): max8/Checkpoint2/hart8, C1 unabhängig ohne offene Befunde mit Lauf-GO; lokal Linux neue12/alte16 ohne SKIP PASS, Windows drei/fünf portable PASS und neun/elf native SKIP. Ein Kandidat, keine Nachläufe; aktuelle Gates/Integration/Branchcleanup folgen. Keine echten Import-/Loaderclaims.
 - [ ] Danach frische Workerprofile und tatsächliche Quellenloader-/Importprovenienz. Kontinuierlicher Auftrag und bestehender30-Minuten-Heartbeat aktiv; echte Freigabegrenzen und historische Stops gelten weiter.
 
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026
