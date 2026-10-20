@@ -57,6 +57,8 @@ def _proxy_guard(owner, packet):
     check, code = io_owner[12:]
     if check.__code__ is not code or check.__globals__ is not namespace:
         raise RuntimeError()
+    if io_owner[2][6] is not True:
+        raise RuntimeError()
     check(packet[1][0], packet[1][1], True)
     _inline_need(namespace.get("_PROXY_SOURCE_MARKER") is marker and state[0] is True
                  and state[1] is False and state[2] is False, "PROXY_SOURCE_BINDING")
@@ -88,6 +90,7 @@ def _proxy_guard(owner, packet):
                  and all(_worker_profile_function_equal(a, b) for a, b in zip(before[4], after[4])),
                  "PROXY_SOURCE_BINDING")
     _inline_need(type(io_owner[2][3]) is int and 0 <= io_owner[2][3] <= _WORKER_INPUT_IO_CAP
+                 and type(io_owner[2][4]) is int and 0 <= io_owner[2][4] <= _WORKER_INPUT_BYTE_CAP
                  and type(io_owner[2][5]) is int and 0 <= io_owner[2][5] <= 65536,
                  "PROXY_SOURCE_BINDING")
     if state[5]:

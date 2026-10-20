@@ -321,6 +321,22 @@ class ProxyLoaderSourceTests(unittest.TestCase):
         self.assertEqual(reached, [1])
         self.assertTrue(bytes(env["io"].output).endswith(env["source_complete"]))
         self.assertEqual(len(self.events(env, "EXEC_RETURN")), 1)
+        calls = []
+        class Foreign:
+            def __getattribute__(self, key): calls.append(key); raise AssertionError()
+            def __le__(self, other): calls.append("COMPARE"); raise AssertionError()
+        for slot, value in ((4, True), (4, -1), (4, 1064961), (4, Foreign()),
+                            (6, False), (6, 1), (6, Foreign())):
+            env, reached = model(), []
+            def callback(io, operation):
+                if not reached and operation == "write" and bytes(io.output).endswith(env["source_begin"]):
+                    reached.append(1)
+                    fixture.owner(env)[2][slot] = value
+            env["io"].callback = callback
+            self.assertEqual(self.reject(env)[1], "PROXY_SOURCE_BINDING")
+            self.assertEqual((reached, calls), ([1], []))
+            self.assertTrue(bytes(env["io"].output).endswith(env["source_complete"]))
+            self.assertEqual(len(self.events(env, "EXEC_RETURN")), 1)
 
     def test_reentrancy_entry_and_direct_loader_before_begin_are_sticky(self):
         for phase in ("read", "compiled", "executed", "loader"):

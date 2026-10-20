@@ -13,8 +13,11 @@ Nächster endlicher Schnitt: [erste direkte Proxy-SOURCE-Invocation nach tatsäc
 Auswahl-PRE unabhängig mit präziser Handoff-/Wire-/Cacheauflage freigegeben.
 C1 ergänzt additive Quelle und16eigene Modelle, nur optionale sichere Builder-
 Fixtureerweiterung. Noch keine Suiteimporte oder Generierungs-/Compile-/Execproben;
-Source/Test-PRE und ausdrückliches Lauf-GO ausstehend. Ein Kandidat/max6, kein
-Nachlauf. Additive
+C1 unabhängig mit einem P2 ohne Lauf-GO: ursprüngliche I/O-Report-used-/
+Eingangsbytezählerbindung vollständig fortsetzen. C2 schließt die Prüfungen und
+ergänzt sieben späte Writer-Gegenproben ohne Wire-Rücknahmebehauptung.
+Checkpoint2: zwei Kandidaten/max6, ein Nachlauf; Delta-PRE und ausdrückliches
+Lauf-GO ausstehend, Quellenfit und Modelle weiterhin ungeprüft. Additive
 Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
 Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE
 nach tatsächlichem Exec und kohärenten POSTs. Keine öffentlichen Receipts als

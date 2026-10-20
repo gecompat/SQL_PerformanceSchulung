@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `C1_SOURCE_TEST_PRE_PENDING`.
+Status `C2_SOURCE_TEST_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -185,3 +185,23 @@ Cachepublikation vor Exec und Entfernung des fehlgeschlagenen Moduls;
 [compile/exec](https://docs.python.org/3.12/library/functions.html#compile)
 beschreibt gehaltene Bytes als Compileinput und Codeobjekte zur Ausführung.
 Die engeren Handoffs/Identitäts-/Budget-/Recordbedingungen sind Projektvertrag.
+
+## C2 und Checkpoint2
+
+C1 `3934b44d783dd826f7beed586ac1625c7a590ed6` unabhängig vollständig geprüft:
+ein P2, kein Lauf-GO. Der fortgesetzte I/O-Guard prüfte den ursprünglichen
+Report-used-Zustand[6] und Eingangsbytezähler[4] nicht vollständig. Keine weiteren
+offenen Befunde; weder Generator-/Suiteimporte noch Proben ausgeführt.
+
+C2 prüft[6] vor Kernel-Dispatch mit isTrue und[4] als exakten Integer innerhalb
+0..1064960. Dieselbe bestehende Post-Wire-Methode ergänzt sieben späte eigene
+Callbackmutationen für Bool/negative/überschrittene/fremde Bytezähler sowie
+falsche/fremde Report-used-Zustände. Mutation tatsächlich erreicht, private
+Bindingablehnung und null Fremdgetter/-vergleich; bereits tatsächlich vollständig
+geschriebene COMPLETE-Bytes bleiben erhalten. Kein zusätzlicher Source- oder
+Wireerfolg daraus. Weiterhin16Methoden; keine neue Quell-/Workflowabhängigkeit.
+
+Checkpoint2: zwei Kandidaten/max6, ein geänderter Nachlauf, Verbrauch UNKNOWN.
+Unabhängiger Delta-PRE und ausdrückliches einmaliges Lauf-GO ausstehend; aktueller
+vollständiger Quellenfit und sämtliche inneren Modelle weiterhin ungeprüft.
+Kein Capwechsel, kein alter Scope-/Testrerun oder nativer/DGN-/SQLlauf.
