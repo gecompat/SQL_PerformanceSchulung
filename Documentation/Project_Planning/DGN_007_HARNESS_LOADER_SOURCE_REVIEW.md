@@ -1,7 +1,7 @@
 # DGN-007 – gebundene verschachtelte Harness-Quellenfolge
 
 Stand: 20. Oktober 2026. Basis `3387e308c8ae4f45d1cf8eb56176666e9e9355d4`.
-Status `LOCAL_PASS_CI_PENDING`; C4 unabhängig freigegeben und lokal bestanden.
+Status `CLOSED_MERGED`; PR272 vollständig integriert und bereinigt.
 
 ## Abgeschlossener Vorgänger und endlicher Umfang
 
@@ -277,3 +277,17 @@ die beschriebenen negativen Binding-/Gateway-/Cleanupgrenzen. Keine Ausführung
 der tatsächlichen DGN-Projektquellen oder nativer Worker. Vier Source/Testkandidaten,
 drei Nachläufe; gemeinsamer Verbrauch UNKNOWN. Frische CI-/Head-/Base-Gates,
 reguläre Integration, Main-Gates und FullTree/Sync/Branchcleanup bleiben offen.
+
+## Vollständiger Integrationsabschluss
+
+[PR272](https://github.com/gecompat/SQL_PerformanceSchulung/pull/272) regulär
+am20.Oktober2026 um21:19:05Z nach neun grünen finalen Headchecks gegen aktuelle
+grüne Base3387e308 integriert. Head86066ffa89102c0c6c8eb621b0c747a2f12a5b50,
+Merge4a165c20840193e26b05a789d8e6e067c0bca7b9. Unabhängige Ergebnis-/
+Claimschließung ohne offene Befunde. Sieben frische Main-Workflows SUCCESS:
+39499366554,39499366082,39499366059,39499366107,39499366047,39499366161,39499366105.
+Neue16/Main53.826s und unveränderte Proxy16/Main57.417s ohne SKIP PASS;
+PR93.974s/73.712s. Vollständiger Head-/Mergetreevergleich PASS, sauberes
+synchrones Main und Abwesenheit beider eindeutig eigener Branches bestätigt.
+Vier Source/Testkandidaten/drei Nachläufe erfolgreich geschlossen, Verbrauch
+UNKNOWN. Reale Runtime-/Quellen-/Trust-/Methoden-/Gesamtgates bleiben offen.

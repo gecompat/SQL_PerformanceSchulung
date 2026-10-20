@@ -1,5 +1,22 @@
 # Aktueller Ausführungsstand
 
+## Codefreie Parentregistrierung vom 20. Oktober 2026
+
+PR272 vollständig in Main4a165c20840193e26b05a789d8e6e067c0bca7b9 integriert:
+neun finale PR-/sieben frische Main-Gates SUCCESS, neue Harness16 und unveränderte
+Proxy16 ohne SKIP PASS, unabhängige Befundschließung, FullTree/Sync und eigene
+lokale/Remote-Branchabwesenheit bestätigt. Vier Kandidaten/drei Nachläufe
+erfolgreich geschlossen; [Abschlussbindung PR272](https://github.com/gecompat/SQL_PerformanceSchulung/pull/272).
+
+Nächster priorisierter begrenzter Schnitt: [codefreie Parentregistrierung](DGN_007_CODEFREE_PARENT_REGISTRATION_REVIEW.md)
+für die noch fehlende Runnerfolge. Eigenständige vorbereitende Komponente für
+Tests/Tests.Contracts, PARENT0/1 mit festen Slots6/7 und9/10, keine Compile-/Exec-
+Invocation. Eigener Branch codex/dgn007-codefree-parents, ein Owner/max4/
+Checkpoint1/hart4 einschließlich Review/Test/Integration/Cleanup; Verbrauch
+UNKNOWN. Auswahl-PRE ausstehend; keine neue Implementierung oder Probe.
+Tatsächliche Runner-/Kontrollanker-/I/O-Anbindung, vollständiger Scriptfit und
+sämtliche realen Gesamtgates bleiben offen; keine Native-/DGN-Raw-/SQL-Freigabe.
+
 ## Verschachtelte Harness-Quellenfolge vom 20. Oktober 2026
 
 PR271 vollständig in `3387e308c8ae4f45d1cf8eb56176666e9e9355d4` integriert:
