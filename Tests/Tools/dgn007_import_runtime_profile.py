@@ -708,40 +708,134 @@ def _selected_cache(cache, names, budget):
     _need(tuple(sorted(cache)) == names, "CACHE_MISMATCH")
 
 
+def _bind_selected(installation, controls, modules, token, cache, finders, hooks,
+                   fingerprints, keys):
+    # Nur nach vollständigem _selected_shapes; auch vom reinen Binder verwendet.
+    names = tuple(row[0] for row in modules)
+    _selected_cache(cache, names, keys)
+    _need(type(finders) is tuple and len(finders) == 3
+          and all(a is b for a, b in zip(finders, (BuiltinImporter, FrozenImporter, PathFinder))),
+          "ANCHOR_FORM")
+    _need(type(hooks) is tuple and len(hooks) == 2 and hooks[0] is zipimporter
+          and type(hooks[1]) is FunctionType, "ANCHOR_FORM")
+    held, rows = cache.copy(), []
+    for row in modules:
+        module = held[row[0]]
+        spec, loader = _selected_local(module, keys)
+        rows.append(ModuleRecord(row[0], row[3], row[4], row[5], row[6], module, spec, loader))
+    s = installation
+    expected = DeclaredProfile(s[0], token, s[2], s[3], s[4], s[5], s[6], s[7], s[8],
+                              s[9], s[10], controls, finders, hooks, tuple(rows), fingerprints)
+    _shape(expected, True)
+    observation = Observation(token, s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[11],
+                              s[8], finders, hooks, expected.modules, fingerprints)
+    _need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")
+    # Keine atomare Snapshotgarantie; überprüfter lokaler Abschluss vor Rückgabe.
+    keys = [0]
+    _selected_cache(cache, names, keys)
+    _need(all(cache[name] is held[name] for name in names), "CACHE_MISMATCH")
+    for row in expected.modules:
+        _selected_local(row.module, keys)
+    _shape(expected, True)
+    _need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")
+    return expected, observation
+
+
 def bind_selected_profile(installation, controls, modules, *, token, cache, finders, hooks):
     """Bindet vollständige Auswahl an explizite Anker, ohne Istaufnahme oder I/O."""
     try:
         fingerprints = _selected_shapes(installation, controls, modules, token)
-        names = tuple(row[0] for row in modules)
-        keys = [0]
-        _selected_cache(cache, names, keys)
-        _need(type(finders) is tuple and len(finders) == 3
-              and all(a is b for a, b in zip(finders, (BuiltinImporter, FrozenImporter, PathFinder))),
-              "ANCHOR_FORM")
-        _need(type(hooks) is tuple and len(hooks) == 2 and hooks[0] is zipimporter
-              and type(hooks[1]) is FunctionType, "ANCHOR_FORM")
-        held, rows = cache.copy(), []
-        for row in modules:
-            module = held[row[0]]
-            spec, loader = _selected_local(module, keys)
-            rows.append(ModuleRecord(row[0], row[3], row[4], row[5], row[6], module, spec, loader))
-        s = installation
-        expected = DeclaredProfile(s[0], token, s[2], s[3], s[4], s[5], s[6], s[7], s[8],
-                                  s[9], s[10], controls, finders, hooks, tuple(rows), fingerprints)
-        _shape(expected, True)
-        observation = Observation(token, s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[11],
-                                  s[8], finders, hooks, expected.modules, fingerprints)
-        _need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")
-        # Keine atomare Snapshotgarantie; überprüfter lokaler Abschluss vor Rückgabe.
-        keys = [0]
-        _selected_cache(cache, names, keys)
-        _need(all(cache[name] is held[name] for name in names), "CACHE_MISMATCH")
-        for row in expected.modules:
-            _selected_local(row.module, keys)
-        _shape(expected, True)
-        _need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")
+        expected, _ = _bind_selected(installation, controls, modules, token, cache, finders,
+                                     hooks, fingerprints, [0])
     except _Failure as error:
         return BoundProfileResult(ProfileReport("REJECTED_SELECTED_PROFILE", str(error)))
     except (AttributeError, TypeError, ValueError, UnicodeError):
         return BoundProfileResult(ProfileReport("REJECTED_SELECTED_PROFILE", "PROFILE_BINDING_FAILED"))
     return BoundProfileResult(ProfileReport("BOUND_SELECTED_PROFILE", "NONE", True), expected)
+
+
+@dataclass(frozen=True, slots=True, repr=False)
+class SelectedScalarObservationResult:
+    """Private lokale Aufnahme gegen gewählte Anker; keine Workerattestation."""
+    report: ProfileReport
+    profile: DeclaredProfile | None = field(default=None, repr=False)
+    scalars: tuple | None = field(default=None, repr=False)
+    validation_scope: str = field(default="PROJECT_SEMANTIC", init=False)
+
+    def __repr__(self):
+        return "SelectedScalarObservationResult(PROJECT_SEMANTIC)"
+
+
+def _selected_containers(runtime, keys):
+    _need(type(runtime) is ModuleType, "ANCHOR_FORM")
+    namespace = _selected_namespace(runtime, keys)
+    cache = namespace.get("modules")
+    finders, hooks = namespace.get("meta_path"), namespace.get("path_hooks")
+    _need(type(cache) is dict and len(cache) <= MAX_RECORDS, "ANCHOR_FORM")
+    _need(type(finders) in (tuple, list) and len(finders) == 3
+          and type(hooks) in (tuple, list) and len(hooks) == 2, "ANCHOR_FORM")
+    return cache, finders, hooks
+
+
+def _selected_post(expected, runtime, cache, finders, hooks, providers):
+    _need(sys is runtime and os is providers[0] and sysconfig is providers[1], "PROVIDER_MISMATCH")
+    keys = [0]
+    current = _selected_containers(runtime, keys)
+    _need(all(a is b for a, b in zip(current, (cache, finders, hooks))), "CACHE_MISMATCH")
+    _need(all(a is b for a, b in zip(finders, expected.finders))
+          and all(a is b for a, b in zip(hooks, expected.hooks)), "HOOK_MISMATCH")
+    names = tuple(row.name for row in expected.modules)
+    _selected_cache(cache, names, keys)
+    _need(all(cache[row.name] is row.module for row in expected.modules), "CACHE_MISMATCH")
+    for row in expected.modules:
+        _selected_local(row.module, keys)
+    _shape(expected, True)
+
+
+def _selected_hook_post(before, after):
+    _need(all(a is b for a, b in zip(before[:7], after[:7]))
+          and all(a[0] is b[0] and a[1] is b[1] and a[2] == b[2]
+                  for a, b in zip(before[7], after[7])), "FILEFINDER_BINDING")
+
+
+def observe_selected_profile_scalars(installation, controls, modules, *, token,
+                                     separately_known_filefinder_hook):
+    """Bindet Auswahl und frische Aufnahme ohne Nachführung der erwarteten Werte.
+
+    Begrenzte lokale POSTs sind kein dauerhafter atomarer Snapshot. Physische
+    Reads bleiben im bestehenden Beobachter und dessen separat gewählten F3.
+    """
+    try:
+        fingerprints = _selected_shapes(installation, controls, modules, token)
+        runtime, providers, keys = sys, (os, sysconfig), [0]
+        cache, finders, hooks = _selected_containers(runtime, keys)
+        expected, held = _bind_selected(installation, controls, modules, token, cache,
+                                       tuple(finders), tuple(hooks), fingerprints, keys)
+        hook = _filefinder_hook(held, separately_known_filefinder_hook)
+        _selected_post(expected, runtime, cache, finders, hooks, providers)
+        actual = observe_current_interpreter_scalars(expected, separately_known_filefinder_hook)
+        _need(type(actual) is ScalarObservationResult and type(actual.report) is ProfileReport)
+        report = actual.report
+        _need(type(report.status) is str and report.status == "MATCHED_DECLARED_BASELINE"
+              and type(report.issue) is str and report.issue == "NONE"
+              and report.trust_assumed is True)
+        _selected_tree(actual.scalars)
+        s = installation
+        selected = ((s[0], s[9], s[10], controls),
+                    (s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[11], s[8], s[12], s[13], s[14]),
+                    modules)
+        _need(actual.scalars == selected, "PROFILE_MISMATCH")
+        _selected_post(expected, runtime, cache, finders, hooks, providers)
+        # Erneute reine Metadatenaufnahme nach der letzten inneren Aufnahme;
+        # keine zusätzliche Dateiöffnung oder Digestbildung.
+        final = _capture(expected, expected.files)
+        _compare(expected, final)
+        _need(_project_scalars(expected, final) == selected, "PROFILE_MISMATCH")
+        _selected_hook_post(hook, _filefinder_hook(final, separately_known_filefinder_hook))
+        _selected_post(expected, runtime, cache, finders, hooks, providers)
+    except Exception:
+        # Auch fremde Ausnahmen geben weder Rohfehler noch Teilwerte frei.
+        return SelectedScalarObservationResult(
+            ProfileReport("REJECTED_SELECTED_OBSERVATION", "SELECTED_OBSERVATION_FAILED"))
+    return SelectedScalarObservationResult(
+        ProfileReport("MATCHED_SELECTED_PROFILE", "NONE", True), expected, actual.scalars)

@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Gewählte Profilanker und lokale Aufnahme vom 20. Oktober 2026
+
+PR264 vollständig in `5bf9d14a46b0fba1184f6a5a6dc3772c6278cb17` integriert:
+13finalePR-Checkruns und11Main-Workflows SUCCESS, unabhängige Befundschließung,
+lokale relevante Vertrags-/Linkprüfungen, FullTree/Sync und eigene lokale/
+Remote-Branchbereinigung bestätigt. [Abschlussbindung PR264](https://github.com/gecompat/SQL_PerformanceSchulung/pull/264).
+Der menschliche Projekteinstieg und korrigierte Lehrmaßstab sind damit
+abgeschlossen; Root-README erhält keine internen Streamstatusnachträge.
+
+Nächster endlicher Schnitt: [vorgewählte Profilanker und frische lokale Aufnahme
+verbinden](DGN_007_SELECTED_PROFILE_OBSERVATION_REVIEW.md), ein Owner/max6/
+Checkpoint2/hart6 einschließlich Reviews/Tests/CI/Integration. Auswahl-PRE
+unabhängig freigegeben; C1 implementiert additive Aufnahme mit16 eigenen
+Modellmethoden. Source/Test-PRE samt Lauf-GO ausstehend, keine Suiteimporte.
+Ein Kandidat/max6, kein Nachlauf. Eigener Branch
+`codex/dgn007-selected-profile-observation`. Neue Tests ausschließlich eigene
+synthetische Runtime-Modellumgebung, keine operative Installation/Workerinventur.
+Tatsächliche Worker-/Loader-/Importprovenienz und physische Auswahl bleiben
+offen; keine Attestation aus Modell-PASS. Verbrauch UNKNOWN.
+
 ## Menschlicher Projekteinstieg und Lehrmaßstab vom 20. Oktober 2026
 
 PR263 vollständig in `4a8d5aa2e6252803d7773b9e075c1bbfc4d8e5df` integriert:
