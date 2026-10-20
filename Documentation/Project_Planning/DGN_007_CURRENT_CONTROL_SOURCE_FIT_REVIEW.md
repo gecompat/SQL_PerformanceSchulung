@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `966f2251bc301a1ac80997c591962f929a7a136c`, PR265 vollständig abgeschlossen.
-Status `SELECTION_RUN_PRE_PENDING`.
+Status `CURRENT_FULL_SOURCE_SCRIPT_LIMIT`.
 
 ## Gewählter endlicher Schnitt
 
@@ -66,3 +66,47 @@ Nur Planungs-/Nachweisdocs werden versioniert. Nach dem lokalen Versuch
 unabhängige Einordnung des kompakten Resultats, danach aktuelle reguläre
 Pflichtgates und Main-Abschluss. Kein erneuter Lauf unveränderter grüner
 Profil-/Kanaltests; keine neue CI-Runtimesuite für reine Nachweisdocs.
+
+## Tatsächlicher Größenbefund
+
+Unabhängige Auswahl-/Source-/Versuchs-PRE auf Plan-SHA256
+`390c55bc32d6b0b72cdd625cd0dad9c882c8cb5b0f1370bde30a066f6b0e8bde`,
+Dokumentationsstand `a15713781722a051fa7535c6a40b9894b4ec9b27`:
+keine offenen P1/P2/P3, ausdrückliches einmaliges Lauf-GO. Der gelesene
+Generatorpfad verarbeitet Bytes und Templates, enthaltenes compile/exec bleibt
+erzeugter Text. Keine eigenen Versuche des Reviewers.
+
+Ein lokaler Python3.14.7-Aufruf am20.Oktober2026, bestehende API,
+unveränderte Generator-/Profilquelle von Basis966f225, feste oben ausgewählte
+synthetische Locator-/Configinputs:
+
+| Input | Profilbytes | Tatsächliches Ergebnis |
+|---|---:|---|
+| Tiny `pass` plus LF |5 |BUILT; vollständige Quelle100245Bytes, innerhalb131072 |
+| Größe131073 |131073 |REJECTED / PROFILE_SIZE |
+| Arbeitsdatei mit CRLF |44542 |REJECTED / SCRIPT_LIMIT |
+| Kanonischer Gitblob mit LF |43658 |REJECTED / SCRIPT_LIMIT |
+
+Gebundene SHA256:
+
+- Tinyprofil: `9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2`.
+- Tatsächlich erzeugte Tinyquelle: `9b93712dfdd65bb96df690609f63c94ba2d44ed30cbb91802721509a439ed7f7`.
+- Oversizeprofil: `0c5c5c759aa8164f9fb53c471ff060903c99edcb520fb7d9cb4bf7a45755f1c2`.
+- Arbeitsdateiprofil: `c920bd0fff6376ad23eba75a0589962f876fbf0a47bcb2bc5a917229f1f9a760`.
+- Gitblobprofil: `612d5dc648deb43d7f9993a0b6bde4d50d0cc1276231833f2d336488bb61e8f7`.
+
+Die beiden vollständigen Darstellungen sind byteverschieden und wurden je
+genau einmal geprüft; keine Normalisierung oder nachträgliche Auswahlkorrektur.
+Die beiden konkreten Fitergebnisse sind FAIL für eine operative Folgequelle.
+Der Prozess beendet seine Größen-/Ablehnungsprüfung regulär mit Exit0; das ist
+kein operativer PASS. Bereits eine Zwischenstufe kann abgelehnt haben, daher
+werden für diese Inputs weder Gesamtlänge noch erzeugte Quellen-SHA behauptet.
+Keine Profilquelle oder generierte Quelle importiert/kompiliert/ausgeführt,
+keine Worker, neue Installation oder SQL-Ressourcen angelegt.
+
+Checkpoint1 nach dem ersten gebündelten Versuch erreicht. Nun zwei stabile
+Dokumentationsstände/max3, kein geänderter Eingabeversuch oder Rerun. Verbrauch
+UNKNOWN. Die unabhängige semantische Einordnung des neuen Fit-FAIL und die
+reguläre Integration dieses begrenzten Nachweises stehen aus. Nächste mögliche
+technische Arbeit ist eine endlich gewählte Quellenarchitekturkorrektur bei
+unverändertem Cap; sie wird hier weder implementiert noch vorab freigegeben.

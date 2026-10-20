@@ -11,10 +11,16 @@ Schließung, FullTree/Sync und eigene lokale/Remote-Branchbereinigung bestätigt
 Nächster endlicher Schnitt: [vollständige aktuelle Profilbytes im bestehenden
 Inlinegenerator prüfen](DGN_007_CURRENT_CONTROL_SOURCE_FIT_REVIEW.md).
 Ein Owner/max3/Checkpoint1/hart3 einschließlich Review/Rechnung/Gates/Integration.
-Auswahl-/Source-/Lauf-PRE ausstehend; noch kein Generatorimport oder Versuch.
-Eigener Branch `codex/dgn007-control-source-fit`. Nur reine bestehende Erzeugung,
-keine generierte Ausführung, Workerinventur, SQL oder Capänderung. Verbrauch
-UNKNOWN. Historische Stops und sämtliche operativen Provenienzgrenzen erhalten.
+Auswahl-/Source-/Lauf-PRE unabhängig ohne Befunde freigegeben. Ein gebündelter
+lokaler Aufruf: Tiny5Bytes erzeugt vollständige100245Bytes; Oversize131073
+scheitert PROFILE_SIZE. Vollständige aktuelle Arbeitsdatei44542Bytes und
+Gitblob43658Bytes scheitern beide SCRIPT_LIMIT. Konkreter operativer Fit FAIL;
+keine erzeugte Gesamtlänge/-SHA für abgelehnte Inputs behauptet. Checkpoint1,
+zwei Dokumentationsstände/max3, kein Rerun; unabhängige Einordnung/Integration
+des Nachweises ausstehend. Eigener Branch `codex/dgn007-control-source-fit`.
+Keine generierte Ausführung, Workerinventur, SQL oder Capänderung. Verbrauch
+UNKNOWN. Quellenarchitekturkorrektur ist möglicher getrennter Folgeschnitt,
+hier noch nicht ausgewählt. Historische Stops und Provenienzgrenzen erhalten.
 
 ## Gewählte Profilanker und lokale Aufnahme vom 20. Oktober 2026
 
