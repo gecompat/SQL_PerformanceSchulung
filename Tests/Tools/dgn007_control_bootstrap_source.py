@@ -2150,3 +2150,282 @@ def build_inline_profile_records_match_control_bootstrap(profile_raw, *, logical
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_SESSION_END_MATCH = r'''
+_SESSION_SHAPES = {
+    "PROFILE_BEGIN": ("t", "n", "n", "n"),
+    "PROFILE_END": ("t", "n", "n", "n", "t"),
+    "INPUT_COMPLETE": ("t", "n", "t", "t"),
+    "BEGIN": ("t", "n", "n", "t", "n", "t", "z", "n", "n"),
+    "COMPLETE": ("t", "n", "n", "t", "n", "t", "z", "n", "n"),
+    "SESSION_END": ("t", "n", "t", "n", "n", "n", "n", "n", "n", "n", "n", "t"),
+}
+_SESSION_TRACES = (
+    (("BEGIN", "SOURCE", 0, 1), ("BEGIN", "SOURCE", 1, 2),
+     ("BEGIN", "SOURCE", 5, 3), ("COMPLETE", "SOURCE", 5, 3),
+     ("COMPLETE", "SOURCE", 1, 2), ("BEGIN", "SOURCE", 3, 4),
+     ("BEGIN", "SOURCE", 4, 5), ("COMPLETE", "SOURCE", 4, 5),
+     ("COMPLETE", "SOURCE", 3, 4), ("BEGIN", "PARENT", 0, 6),
+     ("COMPLETE", "PARENT", 0, 6), ("BEGIN", "PARENT", 1, 7),
+     ("COMPLETE", "PARENT", 1, 7), ("BEGIN", "SOURCE", 6, 8),
+     ("BEGIN", "SOURCE", 7, 9), ("BEGIN", "SOURCE", 8, 10),
+     ("COMPLETE", "SOURCE", 8, 10), ("COMPLETE", "SOURCE", 7, 9),
+     ("COMPLETE", "SOURCE", 6, 8), ("COMPLETE", "SOURCE", 0, 1)),
+    (("BEGIN", "SOURCE", 2, 1), ("COMPLETE", "SOURCE", 2, 1)),
+    (("BEGIN", "SOURCE", 3, 1), ("BEGIN", "SOURCE", 4, 2),
+     ("BEGIN", "SOURCE", 5, 3), ("COMPLETE", "SOURCE", 5, 3),
+     ("COMPLETE", "SOURCE", 4, 2), ("COMPLETE", "SOURCE", 3, 1)),
+)
+_SESSION_COUNTS = ((8, 2, 24), (1, 0, 6), (3, 0, 10))
+_SESSION_ISSUES = frozenset((
+    "SESSION_END_TYPE", "SESSION_END_LIMIT", "SESSION_END_FORM", "SESSION_END_CANONICAL",
+    "SESSION_END_BINDING", "SESSION_END_COUNTS", "SESSION_END_CHANNEL", "SESSION_END_ORDER",
+    "SESSION_END_MISSING", "SESSION_END_INTERNAL", "FORMAT_SELECTION", "PHASE_SELECTION",
+    "SCALAR_FORM", "TEXT_LIMIT", "NODE_LIMIT", "DEPTH_LIMIT", "CONTEXT_FORM",
+    "HASH_PROVIDER_BINDING", "HASH_PROVIDER_OBJECT", "HASH_PROVIDER_CALL",
+    "REPORT_ENCODER_BINDING", "REPORT_ENCODER_CALL"))
+
+
+def _session_parse(records):
+    rows = []
+    for line in records:
+        _inline_need(line[-1] == 10 and all(0 < byte < 128 and byte not in (10, 13)
+                     for byte in line[:-1]), "SESSION_END_FORM")
+        if line.startswith(b"P|"):
+            fields = line[:-1].split(b"|", 4)
+            _inline_need(len(fields) == 5, "SESSION_END_FORM")
+            numbers = tuple(_reassemble_decimal(token) for token in fields[1:4])
+            rows.append(("P",) + numbers + (fields[4],))
+        else:
+            _inline_need(len(line) <= 256, "SESSION_END_LIMIT")
+            parser = _InlineParser(line[:-1])
+            row = parser.value()
+            _inline_need(parser.pos == len(parser.data), "SESSION_END_FORM")
+            _inline_need(type(row) is tuple and len(row) > 0 and type(row[0]) is str,
+                         "SESSION_END_FORM")
+            _inline_need(row[0] in _SESSION_SHAPES, "SESSION_END_FORM")
+            _report_shape(_SESSION_SHAPES[row[0]], row)
+            rows.append(row)
+    return tuple(rows)
+
+
+def _session_report(rows):
+    # Alle Recordprimitive sind bereits geschlossen; noch kein Callercompare/SHA.
+    pieces = tuple(row[4] for row in rows if row[0] == "P")
+    _inline_need(1 <= len(pieces) <= 19, "SESSION_END_MISSING")
+    _inline_need(all(1 <= len(piece) <= 896 for piece in pieces), "SESSION_END_LIMIT")
+    _inline_need(sum(len(piece) for piece in pieces) <= 16368, "SESSION_END_LIMIT")
+    data = b"".join(pieces)
+    parser = _InlineParser(data)
+    form = parser.value()
+    _inline_need(parser.pos == len(data), "SESSION_END_FORM")
+    actual = _profile_resolve(form)
+    _report_shape(_REPORT_R, actual)
+    return actual, data, len(pieces)
+
+
+def _session_semantics(rows, actual, expected_reported, expected_context):
+    # Sämtliche vollständigen R4/K8/D9-Semantiken vor Crossbindungen.
+    for reported in (actual, expected_reported):
+        _command_context(reported[0])
+        _semantic_worker(reported[0][5:] + reported[1:])
+    _command_context(expected_context)
+    for row in rows:
+        tag = row[0]
+        _inline_need(1 <= row[1] <= 3, "SESSION_END_FORM")
+        if tag in ("PROFILE_BEGIN", "PROFILE_END"):
+            _inline_need(1 <= row[2] <= 16368 and 1 <= row[3] <= 19, "SESSION_END_FORM")
+            if tag == "PROFILE_END":
+                _semantic_hex(row[4], 64)
+        elif tag == "P":
+            _inline_need(1 <= row[2] <= 19 and 1 <= row[3] <= 19, "SESSION_END_FORM")
+        elif tag == "INPUT_COMPLETE":
+            _semantic_hex(row[2], 64)
+            _semantic_hex(row[3], 64)
+        elif tag in ("BEGIN", "COMPLETE"):
+            _inline_need(1 <= row[2] <= 10 and row[8] == row[2], "SESSION_END_FORM")
+            _semantic_hex(row[5], 64)
+            _inline_need(row[3] in ("SOURCE", "PARENT"), "SESSION_END_FORM")
+            if row[3] == "SOURCE":
+                _inline_need(0 <= row[4] <= 8 and row[7] == row[4], "SESSION_END_FORM")
+                _inline_need(type(row[6]) is str, "SESSION_END_FORM")
+                _semantic_hex(row[6], 64)
+            else:
+                _inline_need(0 <= row[4] <= 1 and row[7] == 9 + row[4]
+                             and row[6] is None, "SESSION_END_FORM")
+        else:
+            _semantic_hex(row[2], 64)
+            _semantic_hex(row[11], 64)
+            _inline_need(1 <= row[3] <= 19, "SESSION_END_COUNTS")
+            sources, parents, offset = _SESSION_COUNTS[row[1] - 1]
+            _inline_need(row[4:9] == (sources, sources, parents, parents, row[3] + offset),
+                         "SESSION_END_COUNTS")
+            _inline_need(row[9] <= 65536 and row[10] <= 65536, "SESSION_END_LIMIT")
+
+
+def _session_order(rows, actual, data, fragments):
+    for tag in ("PROFILE_BEGIN", "PROFILE_END", "INPUT_COMPLETE", "SESSION_END"):
+        count = sum(row[0] == tag for row in rows)
+        _inline_need(count > 0, "SESSION_END_MISSING")
+        _inline_need(count == 1, "SESSION_END_ORDER")
+    ordinal = actual[0][5]
+    trace = _SESSION_TRACES[ordinal - 1]
+    tags = (("PROFILE_BEGIN",) + ("P",) * fragments + ("PROFILE_END", "INPUT_COMPLETE")
+            + tuple(event[0] for event in trace) + ("SESSION_END",))
+    _inline_need(tuple(row[0] for row in rows) == tags, "SESSION_END_ORDER")
+    begin, end = rows[0], rows[fragments + 1]
+    _inline_need(begin[1:] == end[1:4] == (ordinal, len(data), fragments), "SESSION_END_BINDING")
+    _inline_need(fragments == (len(data) + 895) // 896, "SESSION_END_COUNTS")
+    for index, row in enumerate(rows[1:fragments + 1], 1):
+        _inline_need(row[1:4] == (ordinal, index, fragments), "SESSION_END_ORDER")
+        size = 896 if index < fragments else len(data) - 896 * (fragments - 1)
+        _inline_need(len(row[4]) == size, "SESSION_END_COUNTS")
+    loaders = rows[fragments + 3:-1]
+    stack, seen = [], set()
+    for row in loaders:
+        if row[0] == "BEGIN":
+            key = (row[3], row[4])
+            _inline_need(key not in seen and len(stack) < 10, "SESSION_END_ORDER")
+            seen.add(key)
+            stack.append(row)
+        else:
+            _inline_need(len(stack) > 0 and row[1:] == stack[-1][1:], "SESSION_END_ORDER")
+            stack.pop()
+    _inline_need(not stack, "SESSION_END_MISSING")
+    _inline_need(tuple((row[0], row[3], row[4], row[2]) for row in loaders) == trace,
+                 "SESSION_END_ORDER")
+    return loaders
+
+
+def _session_channel_sha(records, stderr, context_digest, ordinal, encoder_anchor, anchor):
+    issue, result = None, None
+    try:
+        _profile_records_check(encoder_anchor, anchor)
+        obj = anchor[4]()
+        _profile_records_check(encoder_anchor, anchor)
+        _inline_need(type(obj) is anchor[6], "HASH_PROVIDER_OBJECT")
+        update, finish = obj.update, obj.hexdigest
+        _inline_need(type(update) is type(struct.pack) and update.__self__ is obj
+                     and type(finish) is type(struct.pack) and finish.__self__ is obj,
+                     "HASH_PROVIDER_OBJECT")
+        prefix_size = sum(len(line) for line in records[:-1])
+        parts = ((b"DGN007-SESSION-CHANNEL/v1\0", bytes((ordinal,)), bytes.fromhex(context_digest),
+                  prefix_size.to_bytes(4, "big")) + records[:-1]
+                 + (len(stderr).to_bytes(4, "big"), stderr))
+        for part in parts:
+            _profile_records_check(encoder_anchor, anchor)
+            update(part)
+            _profile_records_check(encoder_anchor, anchor)
+        result = finish()
+        _semantic_hex(result, 64)
+    except _InlineSyntaxRejected as error:
+        issue = _session_issue(error)
+    except BaseException:
+        issue = "HASH_PROVIDER_CALL"
+    _profile_records_check(encoder_anchor, anchor)
+    if issue is not None:
+        raise _InlineSyntaxRejected(issue) from None
+    return result
+
+
+def _session_issue(error):
+    args = BaseException.__dict__["args"].__get__(error, BaseException)
+    if (type(args) is tuple and len(args) == 1 and type(args[0]) is str
+            and len(args[0]) <= 32 and args[0] in _SESSION_ISSUES):
+        return args[0]
+    return "SESSION_END_FORM"
+
+
+def _inline_match_session_end(records, stderr, *, expected_format, expected_phase,
+                              expected_reported, expected_context):
+    """Vollständige deklarierte Folge/Rohbytes; kein EOF, Exit oder Ledgerverbrauch."""
+    anchor, encoder_anchor = None, None
+    try:
+        _inline_need(type(records) is tuple and type(stderr) is bytes
+                     and type(expected_format) is str and type(expected_phase) is str,
+                     "SESSION_END_TYPE")
+        _inline_need(1 <= len(records) <= 43, "SESSION_END_LIMIT")
+        for line in records:
+            _inline_need(type(line) is bytes, "SESSION_END_TYPE")
+        _report_shape(_REPORT_R, expected_reported)
+        _report_shape(_INLINE_K, expected_context)
+        _inline_need(expected_format == _COMMAND_FORMAT, "FORMAT_SELECTION")
+        _inline_need(expected_phase == "AWAIT_SESSION_END", "PHASE_SELECTION")
+        sizes = tuple(len(line) for line in records)
+        _inline_need(all(0 < size <= 1024 for size in sizes), "SESSION_END_LIMIT")
+        _inline_need(sum(sizes) + len(stderr) <= 65536, "SESSION_END_LIMIT")
+        rows = _session_parse(records)
+        actual, data, fragments = _session_report(rows)
+        _session_semantics(rows, actual, expected_reported, expected_context)
+        loaders = _session_order(rows, actual, data, fragments)
+        footer = rows[-1]
+        _inline_need(footer[9] + footer[10] + sizes[-1] <= 65536, "SESSION_END_LIMIT")
+        encoder_anchor = _report_encoder_anchor()
+        anchor = _semantic_provider_anchor()
+        for row, line in zip(rows, records):
+            if row[0] != "P":
+                encoded = _profile_records_encode(row, encoder_anchor, anchor) + b"\n"
+                _inline_need(encoded == line, "SESSION_END_CANONICAL")
+        encoded = _profile_records_encode(_report_pack(actual), encoder_anchor, anchor)
+        _inline_need(encoded == data, "SESSION_END_CANONICAL")
+        profile_digest = _report_sha(data, anchor)
+        _profile_records_check(encoder_anchor, anchor)
+        context_bytes = _command_k_json(expected_context, encoder_anchor)
+        _profile_records_check(encoder_anchor, anchor)
+        context_digest = _report_sha(context_bytes, anchor)
+        _profile_records_check(encoder_anchor, anchor)
+        channel_digest = _session_channel_sha(records, stderr, context_digest, expected_context[5],
+                                              encoder_anchor, anchor)
+        _inline_need(actual == expected_reported and actual[0] == expected_context,
+                     "SESSION_END_BINDING")
+        ordinal = expected_context[5]
+        _inline_need(rows[fragments + 1][4] == profile_digest, "SESSION_END_BINDING")
+        _inline_need(rows[fragments + 2] == ("INPUT_COMPLETE", ordinal, expected_context[3], context_digest),
+                     "SESSION_END_BINDING")
+        for row in loaders:
+            _inline_need(row[1] == ordinal and row[5] == context_digest, "SESSION_END_BINDING")
+            if row[3] == "SOURCE":
+                _inline_need(row[6] == expected_context[4][row[4]][4], "SESSION_END_BINDING")
+        _inline_need(footer[1:4] == (ordinal, context_digest, fragments), "SESSION_END_BINDING")
+        _inline_need(footer[8] == len(records), "SESSION_END_COUNTS")
+        _inline_need(footer[9:11] == (sum(sizes[:-1]), len(stderr)), "SESSION_END_CHANNEL")
+        _inline_need(footer[11] == channel_digest, "SESSION_END_CHANNEL")
+        _profile_records_check(encoder_anchor, anchor)
+        return ("MATCHED_DECLARED_SESSION_END", "NONE", (records[-1], footer))
+    except _InlineSyntaxRejected as error:
+        issue = _session_issue(error)
+    except UnicodeError:
+        issue = "TEXT_LIMIT"
+    except BaseException:
+        issue = "SESSION_END_INTERNAL"
+    # Auch nach Fehlern gelten dieselben Außenanker, Providerverlust dominiert.
+    if encoder_anchor is not None:
+        try:
+            _report_encoder_check(encoder_anchor)
+        except BaseException:
+            issue = "REPORT_ENCODER_BINDING"
+    if anchor is not None:
+        try:
+            _semantic_provider_check(anchor)
+        except BaseException:
+            issue = "HASH_PROVIDER_BINDING"
+    return ("REJECTED_SESSION_END", issue, None)
+'''
+
+
+def build_inline_session_end_control_bootstrap(profile_raw, *, logical_profile,
+                                              expected_soabi, expected_destshared) -> BootstrapSource:
+    """Fünfzehnte additive Route für vollständigen deklarativen SESSION_END-Abgleich."""
+    selected = build_inline_profile_records_match_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    text = text.replace(old, '\n' + _INLINE_SESSION_END_MATCH + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
