@@ -1,7 +1,7 @@
 # DGN-007 – codefreie kontrollierte Parentregistrierung
 
 Stand: 20. Oktober 2026. Basis `4a165c20840193e26b05a789d8e6e067c0bca7b9`.
-Status `C2_DELTA_PRE_PENDING`; Source/Teststand noch nicht ausgeführt.
+Status `C3_FIXTURE_DELTA_PRE_PENDING`; C2-Ergebnis mit Fixturefehler erhalten.
 
 ## Priorität und endlicher Umfang
 
@@ -149,3 +149,22 @@ Guard-False erwartet ausschließlich den korrekten dominanten BINDING-Issue.
 Weiterhin zwölf Methoden, keine schwächere Oracle. Zwei Kandidaten/max4,
 ein Nachlauf, Verbrauch UNKNOWN. Gezielter unabhängiger Delta-PRE und
 ausdrückliches einmaliges Lauf-GO weiter erforderlich; keine Probe bisher.
+
+## C2-Ergebnis und C3-Fixturekorrektur
+
+C2 ac908b36e94c9d94cbb16e9088bc5cf582ad823a unabhängig ohne offene Befunde
+mit einmaligem Lauf-GO. Zwölf Methoden Windows3.14.7/0.126s und
+Linux3.12.3/0.116s: jeweils genau ein FAIL, übrige elf PASS, kein SKIP.
+Fehler ausschließlich im tearDown der strukturellen AST-Methode: ihr eigener
+read_text(encoding='utf-8-sig') lädt encodings.utf_8_sig nach. Die strenge
+ursprüngliche Modulcache-Key-/Identitätsoracle erkennt dies korrekt. Kein
+Produktfehler oder privater Ressourcenrest; isolierte Testprozesse beendet.
+
+C3 ändert ausschließlich diesen Fixturezugriff zu read_bytes; ast.parse erhält
+die ursprünglichen eigenen Sourcebytes. Keine zusätzliche Importbaseline,
+Whitelist, Rücknahme fremder Module oder Abschwächung der Cacheoracle. Produkt
+und übrige elf Methoden unverändert. Drei Source/Testkandidaten/max4, zwei
+Nachläufe, Verbrauch UNKNOWN. Enger unabhängiger Fixture-Delta-PRE und gezieltes
+einmaliges Lauf-GO nur für die fehlgeschlagene Methode je Plattform erforderlich.
+Elf unveränderte grüne lokale Methoden werden nicht wiederholt; volle zwölf
+bleiben frische erforderliche CI-/Main-Gates.

@@ -19,7 +19,12 @@ zwölf isolierten Methoden, Checkpoint1. C1 unabhängig mit zwei P3 ohne Lauf-GO
 Klassenlimit erst nach Kopie und falscher Guard-False-Issue. C2 begrenzt rohe
 Mappingproxy/Keys vor Kopie und ergänzt erreichte Klassenlimitprobe; dauerhafter
 Guardfehler erwartet dominantes BINDING. Zwei/max4 Kandidaten, ein Nachlauf;
-Delta-PRE und ausdrückliches Lauf-GO offen, keine Probe.
+Delta-PRE geschlossen und einmaliges Lauf-GO. C2 zwölf Methoden Windows/Linux
+jeweils elf PASS/ein Fixture-FAIL ohne SKIP: eigener UTF8-SIG-Dateiread lädt
+Codec nach, strenge Modulcacheoracle erkennt dies. C3 ausschließlich read_bytes
+für diese AST-Probe, keine neue Importbaseline/Whitelist oder Produktauswirkung.
+Drei/max4 Kandidaten, zwei Nachläufe; enger Fixture-PRE und gezieltes Lauf-GO
+für genau die fehlgeschlagene Methode ausstehend; übrige elf unverändert grün.
 Tatsächliche Runner-/Kontrollanker-/I/O-Anbindung, vollständiger Scriptfit und
 sämtliche realen Gesamtgates bleiben offen; keine Native-/DGN-Raw-/SQL-Freigabe.
 

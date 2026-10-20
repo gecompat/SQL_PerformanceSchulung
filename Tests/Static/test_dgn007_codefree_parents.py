@@ -76,7 +76,7 @@ class CodefreeParentTests(unittest.TestCase):
         self.assertTrue(all(len(row) <= 256 for row in env["rows"]))
 
     def test_component_has_no_compile_exec_import_or_native_dispatch(self):
-        tree = ast.parse(Path(subject.__file__).read_text(encoding="utf-8-sig"))
+        tree = ast.parse(Path(subject.__file__).read_bytes())
         factory = next(n for n in tree.body if isinstance(n, ast.FunctionDef))
         self.assertFalse(any(isinstance(n, (ast.Import, ast.ImportFrom)) for n in ast.walk(factory)))
         forbidden = {"compile", "exec", "eval", "__import__", "open", "get_code", "exec_module", "read", "write"}
