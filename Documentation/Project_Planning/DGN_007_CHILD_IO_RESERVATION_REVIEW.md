@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `e456c535bc7a75d72d5034587657f6bcb46a27dd`, PR269 vollständig geschlossen.
-Status `C1_LOCAL_PASS_HEAD_GATES_PENDING`.
+Status `CLOSED_PR270`.
 
 ## Priorität und endlicher gemeinsamer Rahmen
 
@@ -137,3 +137,15 @@ Ein Sourcekandidat/keine Nachläufe; Produkt/Suite unverändert. Nur Ergebnissta
 ergänzt. Aktuelle Head-/Base-Gates, regulärer Merge, frische Main-Gates,
 FullTree/Sync und eigene Branchbereinigung folgen. Verbrauch UNKNOWN. Keine
 unveränderte Lokalwiederholung oder pauschale Runtime-/SQLfreigabe.
+
+## Regulärer Abschluss
+
+PR270 regulär in `20549ae4e7dbb31c2ffb4d5b051395b8033db18e` integriert:
+zwölf finale PR-Checks SUCCESS/CLEAN an Headf688121 und unveränderter grüner
+Basise456c53 mit sieben Main-Workflows SUCCESS. Zehn frische Main-Workflows
+SUCCESS, neue12 in0.008s, Handshake12/28Native in21.813s, Session16 in15.183s
+und Workerinput16 in13.950s ohne SKIP PASS. Vollständiger Baumvergleich,
+sauberer Main-/origin-Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[Vollständige Abschlussbindung](https://github.com/gecompat/SQL_PerformanceSchulung/pull/270).
+Ein Sourcekandidat/keine Nachläufe geschlossen, sämtliche übrigen Gesamtgates
+erhalten. Erste direkte Quelleninvocation wird getrennt endlich gewählt.

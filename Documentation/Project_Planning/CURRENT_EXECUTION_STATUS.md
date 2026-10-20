@@ -1,5 +1,52 @@
 # Aktueller Ausführungsstand
 
+## Erste direkte Quelleninvocation nach EOF vom 20. Oktober 2026
+
+PR270 vollständig in `20549ae4e7dbb31c2ffb4d5b051395b8033db18e` integriert:
+zwölf finale PR-Checks/zehn frische Main-Workflows SUCCESS, neue12 und bestehende
+Handshake12/28Native, Session16/Workerinput16 ohne SKIP PASS, unabhängiger Review,
+FullTree/Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[Abschlussbindung PR270](https://github.com/gecompat/SQL_PerformanceSchulung/pull/270).
+
+Nächster endlicher Schnitt: [erste direkte Proxy-SOURCE-Invocation nach tatsächlichem EOF](DGN_007_PROXY_LOADER_SOURCE_REVIEW.md), eigener Branch
+`codex/dgn007-proxy-loader-source`, ein Owner/max6/Checkpoint2/hart6.
+Auswahl-PRE unabhängig mit präziser Handoff-/Wire-/Cacheauflage freigegeben.
+C1 ergänzt additive Quelle und16eigene Modelle, nur optionale sichere Builder-
+Fixtureerweiterung. Noch keine Suiteimporte oder Generierungs-/Compile-/Execproben;
+C1 unabhängig mit einem P2 ohne Lauf-GO: ursprüngliche I/O-Report-used-/
+Eingangsbytezählerbindung vollständig fortsetzen. C2 schließt die Prüfungen und
+ergänzt sieben späte Writer-Gegenproben ohne Wire-Rücknahmebehauptung.
+Checkpoint2 abgeschlossen: C2 unabhängig geschlossen und Lauf-GO erteilt;
+neue16 Windows/Linux jeweils16SCRIPT_LIMIT-Fehler vor Modellsemantik.
+C3 mit unabhängigem GO danach ebenfalls16SCRIPT_LIMIT auf Windows/Linux.
+Einmalige freigegebene Größendiagnose:138588Bytes,7516über Cap; keine entbehrlichen
+Definitionen im nötigen Umfang. C4 nach unabhängig präzisiertem Auswahl-GO:
+ausschließlich nicht eingefangene lokale Körperbindungen kürzen, Schnittstellen/
+Closures/Comprehensions sperren, bijektiv unabhängig rückführen und danach volle
+AST-/Literal-/Operationsgleichheit. C4 unabhängig mit Lauf-GO, neue16 Linux ohne
+SKIP PASS einschließlich Fit/Alpha-AST. Windows genau eine Gegenprobe wegen
+eines bereits beim eigenen Splitdict-Fixtureaufbau ausgelösten EQ fehlgeschlagen.
+C5 installiert dieselbe Fremdschlüsselmutation vollständig vor Erreichtmarker,
+Namespaceidentität und Null-EQ-Oracle erhalten; Produkt unverändert.
+C5 gezielt Linux PASS, Windows weiterhin Setup-EQ beim clear/update der Spec-
+Splitdict, Erreichtmarker korrekterweise leer. C6 setzt nur beim Spec die fertige
+Map bei gleicher Specinstanz/-klasse ein; Instanznamespace-Mapidentität hier
+ausdrücklich geändert, übrige drei Namespaceidentitäten erhalten. Null-EQ-Oracle
+und Produkt unverändert. C6 unabhängig ohne offene P1/P2/P3 mit gezieltem GO;
+geänderte Methode danach Windows8.169s/Linux5.716s ohne SKIP PASS, übrige15
+lokale Ergebnisse unverändert gültig. Vollständige neue16/alter Eingangsconsumer
+folgen in selektierter CI. Sechs Kandidaten/hart6, fünf Nachläufe geschlossen;
+kein weiterer Kandidat. Reservierter regulärer Head-/Base-/Main-Gate-, Integrations-
+und Bereinigungsabschluss folgt. Additive
+Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
+Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE
+nach tatsächlichem Exec und kohärenten POSTs. Keine öffentlichen Receipts als
+Authority, keine neue Reserve/Globals-/Closurebaseline. Eigene synthetische
+Modelle erst nach unabhängigem Source/Test-PRE mit ausdrücklichem Lauf-GO.
+Keine operative Quellenwahl, DGN-Rawexecution, native Inventur oder SQL; Runner/
+Harness, Parents, Footer/gesamte Importfolge und übrige Gesamtgates bleiben offen.
+Verbrauch UNKNOWN; frühere Scopes abgeschlossen, kein Reset.
+
 ## Gemeinsame Child-I/O-Reserve vom 20. Oktober 2026
 
 PR269 vollständig in `e456c535bc7a75d72d5034587657f6bcb46a27dd` integriert:
