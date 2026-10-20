@@ -330,3 +330,47 @@ auf. Eigene positive Gegenprobe mit global z0 ohne weitere Bindung und absichtli
 ungültigem Parametertausch nach z0: Oracle muss den Mutanten ablehnen. Weiter16
 Methoden, vier/max6 Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; enger Delta-PRE
 und ausdrückliches gestuftes Fit-GO offen. Noch keine neue Generierung/Modelle.
+
+## C4-Fitbefund und C5-Auswahl: Parentmatcher nicht in Worker kopieren
+
+66d1aec80da0190b835c03da72dae7587982894c unabhängig mit geschlossenem P2 und
+ausdrücklichem gestuftem Lauf-GO. Fit Windows1/4,043s, Linux1/2,751s jeweils
+SCRIPT_LIMIT; kleine neue Alpha-/Literal-/Kollisionsoracles bis zum tatsächlichen
+Fit ohne Fehler, übrige15 Methoden nicht gestartet. Genau eine separat
+freigegebene reine Windowsdiagnose: Quelle140097, Exzess9025, Raw44542,
+Basis128046. Obergrenze für bis64 feste Labelaliase3623 Bytes, zusätzlich sichere
+OP/OP810 und NAME/STRING10 Bytes; reicht nicht. Keine dieser Alternativen gewählt
+oder umgesetzt, keine verworfene Quelle gespeichert/verwendet/ausgeführt.
+
+Neue konkrete C5-Auswahl innerhalb unverändertem max6-Rahmen: ausschließlich
+aus der additiven Runner-Workerquelle den geerbten Parent-only-Block
+_INLINE_SESSION_END_MATCH auslassen. Der bestehende vollständige Matcher, alte
+Generatorrouten und Tests bleiben unverändert vorhanden. Die Workerroute nimmt
+Inputs auf und führt eigene Quellen aus; sie ruft diesen Parentabgleich nicht
+auf. SESSION_END-/Native-/Gesamtfreigabe bleibt weiterhin offen.
+
+Exakt11 vollständige kanonische ASTknoten: _SESSION_SHAPES, _SESSION_TRACES,
+_SESSION_COUNTS, _SESSION_ISSUES, _session_parse, _session_report,
+_session_semantics, _session_order, _session_channel_sha, _session_issue und
+_inline_match_session_end. Reine statische Templateanalyse: zusammen12485
+formatierte ASTbytes; tatsächliche Fitersparnis noch unbekannt. Jeder Knoten
+muss genau einmal und mit vollständiger kanonischer ASTidentität vorliegen;
+sonst failclosed. Keine allgemeine Präfix-/Deadcodekürzung. Alle übrigen
+Basis-/Input-/Runner-/Parentknoten bleiben erhalten, insbesondere der tatsächlich
+über Stringdispatch erreichte Bodyreceiver.
+
+Vor Auslassung sämtliche verbleibenden Knoten einschließlich geschütztem Parent
+auf Name-/Deklarations-/Alias-/Attribut-/Stringbezüge zu den11 entfernten Bindungen
+prüfen. Feste tatsächliche Inputdispatchs bleiben vollständig vorhanden. Snapshot-
+Enumeration attestiert den tatsächlichen Worker-Namespace und ersetzt keine
+fehlende Abhängigkeitsprüfung. Neue enge Gegenproben für fremde ASTabweichung,
+fehlende/doppelte kanonische Knoten und verbleibenden direkten/dynamischen Bezug.
+
+Getrennte Oracle rekonstruiert den erwarteten ganzen Eingang wie bisher und
+entfernt selbst ausschließlich diese11 bezeichneten kanonischen ASTknoten,
+ohne Produktselektor aufzurufen. Verbleibende volle ASTgleichheit nach bereits
+geprüften Alpha-Inversen, tatsächliche Abwesenheit aller11 Workerbindings,
+vollständiger Raw/Parent und fünf Importe. Keine Compiler-/Exec-/I/O-/Loader-
+oder Runtime-Datenänderung. C4-Alpha-/Literalcode bleibt gleich. Vor Umsetzung
+unabhängiges Auswahl-GO; danach stabiler Source/Test-PRE und Fit zuerst. Vier/max6
+bisherige Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; kein neuer Scope/Reset.

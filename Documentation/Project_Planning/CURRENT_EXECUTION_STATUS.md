@@ -34,8 +34,13 @@ compilerbestimmte globale Ursprünge/Methoden/Keywords/Reflexion gesperrt,
 unabhängige inverse Gesamt-ASToracle und einzelne wertgleiche Rawliteralform.
 C3 ohne Lauf-GO wegen P2 für reine Deklarationskollision; C4 schützt alle
 Deklarations-/Symbolnamen, getrennte Oracle verwirft absichtlichen z0-Mutanten.
-Vier/max6 Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; enger Delta-PRE und
-gestuftes Fit-GO offen, noch keine neue Generierung/Modelle. Fünf Importe/ganzer Raw/Cap unverändert.
+Vier/max6 Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; P2 unabhängig geschlossen,
+genehmigte Fits Windows/Linux erneut SCRIPT_LIMIT. Genau eine freigegebene reine
+Diagnose:140097Bytes/Exzess9025. Keine weiteren15 Modelle gestartet. C5-Auswahl
+offen: exakt geerbten11-Knoten-Parentmatcherblock ausschließlich aus neuer
+Workerquelle auslassen, alte vollständige SESSION_END-Route/Tests erhalten;
+vollständige AST-/Abhängigkeitsbeweise Pflicht. Noch keine C5-Umsetzung oder
+Lauf-GO. Fünf Importe/ganzer Raw/Cap unverändert.
 Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
 
 ## Codefreie Parentregistrierung vom 20. Oktober 2026
