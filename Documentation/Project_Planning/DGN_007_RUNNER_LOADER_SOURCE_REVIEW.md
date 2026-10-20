@@ -232,6 +232,56 @@ Positive Namespaceoracle sortiert primitive Keys und prüft Wertidentitäten.
 Source2-Member zu Tests/Runtime/docker_sqlcmd_proxy.py korrigiert.
 
 Weiterhin16 Methoden, zwei Source/Testkandidaten/max6, ein Nachlauf, Verbrauch
-UNKNOWN. Checkpoint2; enger unabhängiger Delta-PRE und ausdrücklich gestuftes
-einmaliges Fit-vor-Modell-GO offen. Bisher nur Text-/Inline-AST/Privacy, keine
-Generierung, Compile-/Exec- oder Kandidatenprobe. Harte Grenze6 unverändert.
+UNKNOWN. Checkpoint2; unabhängiger Delta-PRE hat die vier Befunde geschlossen
+und das gestufte einmalige Fit-vor-Modell-GO für
+6a66a8661e7a9bf8b6332519104f3530ba52b421 erteilt. Harte Grenze6 unverändert.
+
+## C2-Fitbefund und Auswahl der C3-Korrektur vom 21. Oktober 2026
+
+Einmalige Fitprobe Windows1/2,939s und Linux1/4,136s jeweils SCRIPT_LIMIT.
+Die übrigen15 Methoden wurden nicht gestartet. Eine separat unabhängig
+freigegebene einmalige reine Windows-Generatordiagnose hat ausschließlich
+eigene verworfene Generatorframes ausgewertet: tatsächlicher Profilraw44542,
+Basisquelle128046, neue Quelle143162, Exzess12090 Bytes. Keine verworfene
+Quelle verwendet, kompiliert oder ausgeführt; keine zusätzlichen Modelle.
+Tokenaggregate: STRING67288 (davon Raw-repr46477), NAME49534. Eine weitere
+gewöhnliche Helperkürzung allein reicht voraussichtlich nicht aus. Der
+Receiver ohne statische Namensreferenz ist über Stringdispatch tatsächlich
+gebunden und bleibt erhalten. Keine vermeintliche Deadcodeentfernung.
+
+Zur unabhängigen Auswahl steht eine ausschließlich reversible Alpha-/Literal-
+Kürzung innerhalb derselben Welle, ohne neue Runtime-Datenslots. Der vorhandene
+globale Def-/Loadpass darf zusätzlich interne _rl_-/ _worker_report_-Helper
+und die genau bezeichneten _require/_dictionary erfassen; sämtliche bisherigen
+Schnittstellen-, Binding-, Attribut-, Keyword- und Reflexionssperren bleiben.
+
+Zusätzlich eine uniforme bijektive Schreibweisenmap für lokale Name-/Argument-/
+ExceptHandler-/Nonlocalfelder über alle Scopes außerhalb der vollständig
+unveränderten Parentfactory. Nur Schreibweisen ab vier Zeichen. Globale
+Ursprünge/Modulbindungen, Funktions-/Klassennamen, Importalias-/Pattern-/
+TypeAliasfelder, Attribute, Keywordparameter und sämtliche in Stringliteralen
+referenzierten Schreibweisen bleiben gesperrt. Bei dynamischer Namensreflexion
+(locals/vars/eval/exec) sämtliche betroffenen Identifier ausschließen.
+Neue Ziele müssen gegen alle ursprünglichen Identifier, Attribute, Keywords
+und Strings einschließlich Parent disjunkt sein. Keine partiellen gleichnamigen
+Scopeänderungen: eine uniforme Map und vollständige inverse ASToracle müssen
+Capture, Shadowing und Closurebindungen erhalten. Externe Schnittstellen und
+ursprüngliche gehaltene Objekt-/Code-/Globals-/Closurezustände bleiben gleich.
+
+Optional rein lexikalische Darstellung des einen vollständigen Raw-Bytesliterals:
+kürzeste zulässige repr-/Triplequoteform, tatsächliche LF erlaubt, CR immer
+escaped, ebenso Backslash, Delimiter und Nicht-ASCIIbytes. Nach Einrückung und
+vor Tokengap-Kürzung einsetzen; einzelner gleicher ast.Constant(bytes) und
+vollständige ASTgleichheit sind Pflicht. Kein encode/decode, keine Kompression,
+kein zusätzlicher Runtimecall. Rawbytes, Parent-AST, fünf Importe und131072Cap
+bleiben unverändert. Grundlagen: [Python-Bytesliterale](https://docs.python.org/3.12/reference/lexical_analysis.html#string-and-bytes-literals).
+
+Getrennte Testoracle darf weder die Produktmaps noch deren Auswahlhelfer
+aufrufen. Maps aus erwarteter/tatsächlicher Struktur ableiten, alle Sperren
+separat beweisen, exakt zurückführen und ganzen AST vergleichen. Neue enge
+Gegenproben müssen Keywords, reflektierte Namen, Closures, Shadowing und
+Comprehensions sowie CRLF/LF und Literal-Escapes erfassen. Vor Umsetzung
+unabhängige Auswahlfreigabe; danach stabiler Source/Test-PRE mit ausdrücklichem
+Lauf-GO. Weiter zuerst Fit Windows/Linux je einmal, erst beide PASS erlauben
+die übrigen15. Zwei/max6 bisherige Kandidaten, ein Nachlauf, Verbrauch UNKNOWN;
+keine Budgeterneuerung und keine unveränderten Testwiederholungen.

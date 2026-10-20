@@ -25,9 +25,13 @@ C2 hält nur tatsächliche neue private Helferkette an ursprünglichen eingebett
 Codeobjekten begrenzt und dominant, ursprüngliche Provider nicht neu gebaselined;
 Zell-/Helfercode-Gegenproben, Rootpräcondition vor Factory/Entry mit tatsächlichem
 Callprofil und sicherem Restore, sortierte Identitätsoracle, Member korrigiert.
-Checkpoint2: zwei/max6 Kandidaten, ein Nachlauf, Verbrauch UNKNOWN. Delta-PRE und
-gestuftes Lauf-GO offen; keine Generierung oder Kandidatenprobe. Fünf Importe/ganzer Raw/131072Cap
-unverändert. Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
+Checkpoint2: zwei/max6 Kandidaten, ein Nachlauf, Verbrauch UNKNOWN. Unabhängiger
+Delta-PRE schließt vier Befunde und erlaubt gestuft nur Fit zuerst. Windows und
+Linux jeweils SCRIPT_LIMIT; übrige15 nicht gestartet. Genau eine unabhängig
+freigegebene reine Generatordiagnose:143162 Bytes,12090 über131072Cap. Gezielte
+reversible Alpha-/Bytesliteral-Kürzung für C3 zur unabhängigen Auswahl, noch
+keine Umsetzung oder neues Lauf-GO. Fünf Importe/ganzer Raw/Cap unverändert.
+Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
 
 ## Codefreie Parentregistrierung vom 20. Oktober 2026
 
