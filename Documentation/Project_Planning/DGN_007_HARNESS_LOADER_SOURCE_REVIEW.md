@@ -1,7 +1,7 @@
 # DGN-007 – gebundene verschachtelte Harness-Quellenfolge
 
 Stand: 20. Oktober 2026. Basis `3387e308c8ae4f45d1cf8eb56176666e9e9355d4`.
-Status `C3_SOURCE_TEST_DELTA_PRE_PENDING`; innere Modelle noch nicht ausgeführt.
+Status `C4_FIXTURE_DELTA_PRE_PENDING`; innere Modelle noch nicht ausgeführt.
 
 ## Abgeschlossener Vorgänger und endlicher Umfang
 
@@ -238,3 +238,21 @@ Drei Source/Testkandidaten/max6, zwei geänderte Nachläufe; Verbrauch UNKNOWN.
 Noch keine C3-Import-/Generierungs-/Compile-/Execprobe. Gezielter unabhängiger
 Source/Test-Delta-PRE und erneut gestuftes einmaliges Lauf-GO ausstehend; aktueller
 Fit und sämtliche inneren Modelle weiter offen. Keine Capanhebung.
+
+## C4 – erreichte Transformationsrandproben
+
+C3 `03ea28e2a26ab932ce87589b622ed0f6e017d17f` unabhängig geprüft: Produkt und
+globale Rückführung nachvollziehbar, ein P3 ohne Lauf-GO. Fünf negative kleine
+ASTs besaßen keine gültige Loadreferenz; die Nichtleerheits-Vorbedingung verdeckte
+die eigentlich beabsichtigten Kollisions-/String-/Attribut-/Parameter-/Globalgrenzen.
+Keine C3-Generierung oder Modelle ausgeführt.
+
+C4 gibt jeder solchen negativen Probe eine gültige Definition mit Load als
+gemeinsame Basis. Fehlende Definition bleibt separat; Store und doppelte
+Definition werden zusätzlich kontrolliert. Eine positive kleine AST-Probe
+vergleicht exakt ausschließlich umbenannte Def/Load bei unverändertem Byte-
+Literal b'_inline_need'. Kein allgemeines Normalisieren und kein schwächerer
+Fehlertyp. Produktquelle seit C3 unverändert; weiterhin16Methoden.
+Vier Source/Testkandidaten/max6, drei Nachläufe, Verbrauch UNKNOWN. Enger
+unabhängiger Fixture-PRE und gestuftes einmaliges Lauf-GO ausstehend. Kein
+Kandidatenimport/Generierung/Compile/Exec seit C2-Fitdiagnose.

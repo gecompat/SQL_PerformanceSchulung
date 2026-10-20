@@ -82,11 +82,14 @@ class HarnessLoaderSourceTests(unittest.TestCase):
     def events(self, env, kind): return [e for e in env["trace"] if e[0] == kind]
 
     def test_actual_source_fit_raw_imports_and_independent_alpha_ast(self):
-        for bad in ("pass", "def _inline_need(ok, issue): pass\n_n = 1\n",
-                    "def _inline_need(ok, issue): pass\nx = '_inline_need'\n",
-                    "def _inline_need(ok, issue): pass\nx._inline_need(1, 2)\n",
-                    "def _inline_need(ok, issue): pass\ndef bad(_inline_need): pass\n",
-                    "def _inline_need(ok, issue): pass\ndef bad():\n global _inline_need\n"):
+        prefix = "def _inline_need(ok, issue): pass\n_inline_need(True, 'X')\n"
+        positive = subject._shorten_need(ast.parse(prefix + "held = b'_inline_need'\n"))
+        self.assertEqual(ast.dump(positive), ast.dump(ast.parse(
+            "def _n(ok, issue): pass\n_n(True, 'X')\nheld = b'_inline_need'\n")))
+        for bad in ("pass", prefix + "_n = 1\n", prefix + "x = '_inline_need'\n",
+                    prefix + "x._inline_need(1, 2)\n", prefix + "def bad(_inline_need): pass\n",
+                    prefix + "def bad():\n global _inline_need\n",
+                    prefix + "_inline_need = 1\n", prefix + "def _inline_need(ok, issue): pass\n"):
             with self.assertRaises(subject.base.inputs.base.BootstrapSourceRejected):
                 subject._shorten_need(ast.parse(bad))
         for raw in (RAW, RAW.replace(b"\r\n", b"\n")):

@@ -27,8 +27,11 @@ freigegebene reine Größendiagnose:133517Bytes,2445über Cap; zusätzliche kurz
 Locals nur geschätzt415Bytes. C3-Auswahl-PRE für genau eine private globale
 Helperumbenennung unabhängig freigegeben. C3 setzt genau diese Umbenennung mit
 geschlossenen Vorbedingungen und gesonderter unabhängiger Rückführung um, neue
-Kollisions-/Binding-AST-Gegenproben. Drei/max6 Kandidaten, zwei Nachläufe;
-Source/Test-Delta-PRE und gestuftes Lauf-GO ausstehend, noch keine C3-Probe.
+Kollisions-/Binding-AST-Gegenproben. C3 unabhängig mit einem P3 ohne Lauf-GO:
+negative ASTs wurden bereits durch fehlenden gültigen Load verdeckt. C4 ergänzt
+gültige Basisloads und exakte positive Def-/Load-/Byte-Literaloracle, Produkt
+unverändert. Vier/max6 Kandidaten, drei Nachläufe; Fixture-Delta-PRE und gestuftes
+Lauf-GO ausstehend, keine C3-/C4-Probe.
 Nur eigene sichere Modelle nach separatem
 Source/Test-PRE und explizitem Lauf-GO; neue echte Imports/Native-/DGN-Raw-/SQL-
 Wirkungen und Gesamtgates bleiben offen. Proxyroute und alle älteren Scopes erhalten.
