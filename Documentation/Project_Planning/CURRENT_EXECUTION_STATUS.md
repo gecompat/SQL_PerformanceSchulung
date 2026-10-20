@@ -16,8 +16,9 @@ lokaler Aufruf: Tiny5Bytes erzeugt vollständige100245Bytes; Oversize131073
 scheitert PROFILE_SIZE. Vollständige aktuelle Arbeitsdatei44542Bytes und
 Gitblob43658Bytes scheitern beide SCRIPT_LIMIT. Konkreter operativer Fit FAIL;
 keine erzeugte Gesamtlänge/-SHA für abgelehnte Inputs behauptet. Checkpoint1,
-zwei Dokumentationsstände/max3, kein Rerun; unabhängige Einordnung/Integration
-des Nachweises ausstehend. Eigener Branch `codex/dgn007-control-source-fit`.
+drei Dokumentationsstände/max3, kein Rerun; unabhängige Einordnung ohne offene
+P1/P2/P3 bestätigt, reguläre Integration des Nachweises ausstehend. Keine neue
+Arbeit in diesem ausgeschöpften Scope. Eigener Branch `codex/dgn007-control-source-fit`.
 Keine generierte Ausführung, Workerinventur, SQL oder Capänderung. Verbrauch
 UNKNOWN. Quellenarchitekturkorrektur ist möglicher getrennter Folgeschnitt,
 hier noch nicht ausgewählt. Historische Stops und Provenienzgrenzen erhalten.

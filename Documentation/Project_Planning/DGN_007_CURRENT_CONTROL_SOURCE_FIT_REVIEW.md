@@ -106,7 +106,16 @@ keine Worker, neue Installation oder SQL-Ressourcen angelegt.
 
 Checkpoint1 nach dem ersten gebündelten Versuch erreicht. Nun zwei stabile
 Dokumentationsstände/max3, kein geänderter Eingabeversuch oder Rerun. Verbrauch
-UNKNOWN. Die unabhängige semantische Einordnung des neuen Fit-FAIL und die
-reguläre Integration dieses begrenzten Nachweises stehen aus. Nächste mögliche
+UNKNOWN. Die unabhängige semantische Einordnung des neuen Fit-FAIL ist
+bestätigt; die reguläre Integration dieses begrenzten Nachweises steht aus. Nächste mögliche
 technische Arbeit ist eine endlich gewählte Quellenarchitekturkorrektur bei
 unverändertem Cap; sie wird hier weder implementiert noch vorab freigegeben.
+
+Unabhängiger Dokumentationsdelta-Review auf
+`c607d09669aa14fb64070a198686c15d74816cf5`: Nachweis konsistent, keine offenen
+P1/P2/P3, reguläre Gates/Integration freigegeben. Keine Versuche wiederholt.
+Der reine Nachweisschnitt ist sachlich geschlossen; die operative Route bleibt
+wegen des belegten Fit-FAIL offen. Dritter reiner Abschlussdokumentationsstand,
+max3 erreicht, kein neuer Input oder Versuch; nur noch reservierter regulärer
+Gate-/Integrations-/Cleanupabschluss dieses Scopes. Keine grüne Profil-/
+Kanalsuite wird deshalb lokal wiederholt.
