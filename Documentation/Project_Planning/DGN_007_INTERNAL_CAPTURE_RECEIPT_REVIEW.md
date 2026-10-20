@@ -120,7 +120,11 @@ Commit; seine vollständige Übernahme ist unabhängig bestätigt. Beide lokalen
 Capture-Branches und `origin/codex/dgn007-capture-receipt-v2` sind entfernt.
 Der automatisch gestartete
 [Main-Lauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39387949894)
-bleibt eigener aktueller Nachweis; sein endgültiges Ergebnis ist noch offen.
+bestand am Mergecommit `b3f023ad…` erneut vollständig: 36 Lifecycles über
+2019/2022/2025, sämtliche DB-Prüfungen und eigener Container-/Volumecleanup.
+Die 2025-spezifische Compatibility-Gegenprobe bestand dort; ihre beiden
+vorgesehenen SKIPs bleiben versionsgebunden. Alle acht automatisch gestarteten
+Main-Workflows sind erfolgreich. Es gab keinen unveränderten Wiederholungsversuch.
 
 Die bestehende DGN-007-CI führt für den betroffenen Runner die 2019-/2022-/2025-
 Matrix mit je zwei Lifecycles der sechs vorhandenen Scopes, unabhängigen

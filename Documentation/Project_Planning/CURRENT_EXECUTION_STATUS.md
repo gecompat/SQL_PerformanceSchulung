@@ -10,8 +10,10 @@ Main `b3f023ad66f8c4aa16a7c6fe73e42615818cbd90` integriert. Vollständiger
 Treevergleich, lokale Main-Synchronisierung und sichere Entfernung beider
 lokalen Capture-Branches sowie des eigenen Remote-Branches sind abgeschlossen.
 Der [Capture-Nachweis](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md) bindet Tests,
-Review, SQL2019/2022/2025 und Cleanup. Der automatisch gestartete Main-Lauf
-bleibt als eigener aktueller Nachweis bis zu seinem Ergebnis offen.
+Review, SQL2019/2022/2025 und Cleanup. Der automatisch gestartete
+[Main-Lauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39387949894)
+bestand erneut mit 36 Lifecycles, unabhängigen DB-Prüfungen und vollständigem
+eigenem Container-/Volumecleanup. Alle acht Main-Workflows sind erfolgreich.
 DEC-072/PR132 haben die ältere G13-/Zeitquellensperre dieses Scopes abgelöst;
 historische FAILs und größere offene Methodengates bleiben erhalten.
 
@@ -21,8 +23,14 @@ aufgenommen: ein Owner, höchstens zwei Entwurfsstände, Checkpoint nach dem
 ersten und ein unabhängiger Designreview. Recordform, rollengenaue Counts,
 Rohbytepräbild ohne Selbstbezug und unveränderte Kanalreserve sind ausgearbeitet;
 57 Literalrechnungen und eine synthetische Hashreferenz sind nachgerechnet.
-Unabhängiger Designreview, aktuelle Dokumentationsgates und Integration sind
-offen. Kein Parser-/Builder-/Kanal-/Loader-/Worker- oder SQLlauf, keine neue
+Der unabhängige Designreview bestätigt den Erststand `a6ca3f5…` ohne offene
+P1/P2/P3-Befunde; alle acht Dokumentationsgates dieses Stands sind grün.
+Die Abschlussrevision von [PR256](https://github.com/gecompat/SQL_PerformanceSchulung/pull/256)
+führt ausschließlich Evidenz-/Planungsstände nach; Footer-, Count- und
+Präbildvertrag bleiben gegenüber dem reviewten Erststand unverändert.
+PR256 ist der belegführende Abschluss dieser Designwelle und bindet die
+aktuellen Head-/Base-Gates, Main-Übernahme und eigene Branchbereinigung.
+Kein Parser-/Builder-/Kanal-/Loader-/Worker- oder SQLlauf dieser Designwelle, keine neue
 Admission für frühere ausgeschöpfte Import-/Generator-/Quellwellen.
 Collector, operative Provenienzarchitektur und frische prospektive
 Bestätigungsläufe bleiben eigene Aufgaben mit ihren offenen Gates.

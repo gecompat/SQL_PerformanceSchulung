@@ -8,8 +8,10 @@ ist nach unabhängigem Review und 14 grünen PR-Gates über PR255 in Main
 Die nächste begrenzte Welle ist ausschließlich der
 [SESSION_END-Entwurf §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild)
 mit exakten Counts und nicht selbstreferentiellem Kanalhashpräbild. Zwei
-Entwurfsstände, Checkpoint nach dem ersten und unabhängiger Designreview;
-Review und aktuelle Dokumentationsgates vor Integration noch offen.
+Entwurfsstände, Checkpoint nach dem ersten; unabhängiger Designreview ohne
+Befunde und acht grüne Dokumentationsgates zum Erststand. Die Abschlussrevision
+von PR256 führt nur Evidenz nach; aktuelle Head-/Base-Gates, Main-Übernahme
+und eigene Bereinigung bleiben vor Arbeitsabschluss erforderlich.
 Historische Pausenangaben unten werden nur in diesem Umfang abgelöst.
 Automation und operative Provenienz- oder Workerfreigaben folgen daraus nicht.
 

@@ -8,6 +8,10 @@ allgemeine Entwicklung wieder auf. Der interne Capture-Vorschnitt ist nach
 aufgenommen: maximal zwei Entwurfsstände, Checkpoint nach dem ersten,
 ein unabhängiger Designreview und aktuelle Dokumentationsgates. Frühere
 ausgeschöpfte Quell-/Import-/Generatorwellen erhalten keine neuen Versuche.
+Der Erststand `a6ca3f5…` ist unabhängig ohne Befunde geprüft, alle acht
+Dokumentationsgates sind grün. PR256 führt den endgültigen Head-/Base- und
+Main-Abschluss; der nächste Implementierungskandidat wäre erst danach ein
+separat gewählter reiner Footer-/Trace-Matcher mit eigenen Quellen- und Testgates.
 Die folgenden älteren Pausen-/G13-Planungsstände sind insoweit historisch.
 Keine Automationaktivierung und keine operative Kanal-/Loader-/Worker- oder
 SQLimplementierung in dieser Designwelle.

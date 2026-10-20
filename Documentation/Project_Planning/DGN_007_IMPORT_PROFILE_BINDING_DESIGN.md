@@ -4303,13 +4303,23 @@ und die gemeinsame Deadline sind damit noch nicht erbracht.
 
 Drei serielle Workers, gemeinsame 20-s-Deadline, kumulativ zehn Sekunden
 Cleanup, 4096 I/O-Schritte und 64 No-progress-Schritte bleiben unverändert.
-Diese Welle hat ausschließlich die Record-/Count-/Präbildrechnung ausgeführt;
-keine neue oder historische Suite, Profil-/Nonceaufnahme, Worker- oder SQLprobe.
+Lokal hat diese Welle ausschließlich die Record-/Count-/Präbildrechnung
+ausgeführt; keine neue oder historische Suite, Profil-/Nonceaufnahme,
+Worker- oder SQLprobe wurde lokal wiederholt. Die regulären Offline- und
+Dokumentationschecks der CI sind davon getrennte aktuelle Gates.
 57 Literalrechnungen für drei Rollen und alle 19 Fragmentzahlen bestätigten
 die Footerbreite. Die reine Hashreferenz sowie getrennte Kanaltausch-, CRLF-
 und nicht-UTF8-Byteänderungen wurden ohne DGN-Import oder Worker nachgerechnet.
-Der unabhängige Designreview und die aktuellen Dokumentationsgates stehen vor
-Integration aus; Ausführungsstand und Abschlussbelege werden dort nachgeführt.
+Der unabhängige Designreview zu Basis `b3f023a…` und Erststand
+`a6ca3f591cfd7f270129a1c0944cfec7a91257d4` schloss ohne offene P1/P2/P3-Befunde.
+Counts, alle 57 Literalrechnungen, Footerbreite und die genaue 71-Byte-
+Hashreferenz wurden unabhängig nachgerechnet. Alle acht Dokumentationsgates
+des Erststands bestanden, einschließlich der vollständigen Offline-Gegenproben.
+Die abschließende Revision führt nur Evidenz-/Planungsstände nach und präzisiert
+die lokale Abgrenzung der Suiteaussage; Footer-, Count- und Präbildvertrag
+bleiben unverändert. Aktuelle Head-/Base-Gates und Main-Abschluss stehen in
+[PR256](https://github.com/gecompat/SQL_PerformanceSchulung/pull/256) und im
+[Ausführungsstand](CURRENT_EXECUTION_STATUS.md); sie bleiben vor Merge Pflicht.
 
 Spätere synthetische Gegenproben müssen alle drei vollständigen Erfolgsfolgen
 mit unabhängiger Count-/Literal-/Hashoracle, sämtliche Feldänderungen,
