@@ -1,7 +1,7 @@
 # DGN-007 – vorgewählte Profilanker und frische lokale Aufnahme verbinden
 
 Stand20.Oktober2026, Basis `5bf9d14a46b0fba1184f6a5a6dc3772c6278cb17` nach
-vollständig abgeschlossenem PR264. Status `C2_DELTA_PRE_PENDING`.
+vollständig abgeschlossenem PR264. Status `C2_LOCAL_PASS_CI_PENDING`.
 Der kontinuierliche menschliche Auftrag gilt weiter; die korrigierten
 didaktischen Regeln bleiben unverändert. Dieser technische Schnitt beansprucht
 eine begrenzte lokale Aufnahmefunktion, keine neue Schulungs- oder Importabnahme.
@@ -126,4 +126,26 @@ anschließend exakt restauriert. Methodenoberfläche bleibt16.
 
 Checkpoint2 erreicht: zwei Kandidaten/max6, ein gebündelter Befundnachlauf;
 harte Grenze6 einschließlich aller verbleibenden Tests/Gates/Integration.
-Verbrauch UNKNOWN. Unabhängige Delta-Schließung und Lauf-GO ausstehend.
+Verbrauch UNKNOWN. Unabhängige Delta-Schließung und Lauf-GO bestätigt.
+
+## Tatsächliche C2-Nachweise
+
+Unabhängiger Delta-PRE auf
+`1644ba45f12a1af2313ff908cbcbc5977679e54d`: P2/P3 geschlossen, keine neuen
+offenen P1/P2/P3. Ausdrückliches einmaliges Lauf-GO für neue16/bestehende
+Binder16 jeweils unter Windows/Linux und anschließende reguläre CI mit alten57
+ausschließlich unter Linux. Reviewer führt selbst keine Tests oder Imports aus.
+
+Lokale Läufe am20.Oktober2026 gegen unveränderte C2-Quelle/Testoberfläche:
+
+| Suite | Windows3.14.7 | Linux3.12.3 unter WSL |
+|---|---|---|
+| Neue gewählte Aufnahme |16/16 PASS,0SKIP,0,354s |16/16 PASS,0SKIP,0,148s |
+| Bestehender reiner Binder |16/16 PASS,0SKIP,0,141s |16/16 PASS,0SKIP,0,073s |
+
+Aufruf jeweils `python -I -S -B Tests/Static/test_dgn007_selected_observation.py`
+beziehungsweise `test_dgn007_selected_profile.py`; unter WSL mit dortigem
+`python3`. AST und16-Methodenzählung, Datenschutz aller Commitänderungen und
+`git diff --check` PASS. Kein alter Windows57-Fixtureretry oder neuer physischer
+Aufnahmelauf. Zwei Source/Testkandidaten, ein Befundnachlauf; reguläre aktuelle
+PR-/Base-/Main-Gates, FullTree/Sync und Branchcleanup noch ausstehend.

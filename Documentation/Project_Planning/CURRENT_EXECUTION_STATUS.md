@@ -15,8 +15,10 @@ Checkpoint2/hart6 einschließlich Reviews/Tests/CI/Integration. Auswahl-PRE
 unabhängig freigegeben; C1 unabhängig mit Runtime-POST-P2 und Hooktest-P3,
 ohne Lauf-GO. C2 bündelt callbackfreien letzten Syswert-POST und Gegenproben
 nach drittem Capture sowie Code-/Closure-Identitäten, weiterhin16Methoden.
-Checkpoint2: zwei Kandidaten/max6, ein Nachlauf; Delta-PRE/Lauf-GO ausstehend,
-keine Suiteimporte. Eigener Branch
+Checkpoint2: zwei Kandidaten/max6, ein Nachlauf; C2 unabhängig ohne offene
+P1/P2/P3 und mit Lauf-GO. Neue16/Binder16 unter Windows/Linux jeweils ohne SKIP
+PASS; aktuelle PR-/Base-/Main-Gates, FullTree/Sync/Branchcleanup ausstehend.
+Eigener Branch
 `codex/dgn007-selected-profile-observation`. Neue Tests ausschließlich eigene
 synthetische Runtime-Modellumgebung, keine operative Installation/Workerinventur.
 Tatsächliche Worker-/Loader-/Importprovenienz und physische Auswahl bleiben

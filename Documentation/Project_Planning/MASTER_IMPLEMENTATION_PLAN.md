@@ -6,7 +6,8 @@ eigener Branchcleanup. Der korrigierte menschliche Projekteinstieg bleibt
 maßgeblich. Danach folgt der endlich gewählte [lokale Auswahl-/Aufnahmeweg](DGN_007_SELECTED_PROFILE_OBSERVATION_REVIEW.md)
 mit einem Owner/max6/Checkpoint2/hart6. Auswahl-PRE unabhängig freigegeben;
 C2 schließt Runtime-POST-P2 und Hooktest-P3 mit16 eigenen Modellmethoden;
-Checkpoint2 erreicht, Delta-PRE/Lauf-GO ausstehend, keine Suiteimporte.
+Checkpoint2 erreicht, unabhängig ohne offene Befunde und mit Lauf-GO;
+neue16/Binder16 unter Windows/Linux ohne SKIP PASS. Reguläre Gates folgen.
 Kein neuer operativer Installations-/Worker-/Loaderbeleg.
 
 PR263 vollständig in Main `4a8d5aa2e6252803d7773b9e075c1bbfc4d8e5df`
