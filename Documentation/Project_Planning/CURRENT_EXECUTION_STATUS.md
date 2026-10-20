@@ -1,5 +1,29 @@
 # Aktueller Ausführungsstand
 
+## Gemeinsame Child-I/O-Reserve vom 20. Oktober 2026
+
+PR269 vollständig in `e456c535bc7a75d72d5034587657f6bcb46a27dd` integriert:
+neun finale PR-Checks/sieben frische Main-Workflows SUCCESS, neue16 Windows/
+Linux/Main und bestehende Report16 ohne SKIP PASS, unabhängige Befundschließung,
+FullTree/Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[Abschlussbindung PR269](https://github.com/gecompat/SQL_PerformanceSchulung/pull/269).
+
+Nächster endlicher Schnitt: [Child-I/O-Vorbuchung aus dem gemeinsamen Parentbudget](DGN_007_CHILD_IO_RESERVATION_REVIEW.md), eigener Branch
+`codex/dgn007-child-io-reservation`, ein Owner/max4/Checkpoint1/hart4.
+Auswahl-PRE unabhängig freigegeben. C1 ergänzt einmalige sticky Vorbuchung,
+getrennte Reportdiagnose, zwölf eigene portable Budget-/Ownerordnungsmodelle
+und strengere native io_limit-Gegenprobe. Checkpoint1: ein Kandidat/max4,
+keine Nachläufe; Source/Test-PRE unabhängig ohne offene Befunde mit ausdrücklichem
+Lauf-GO. Danach neue12 Windows3.14.7/Linux3.12.3 und bestehende Linux-Handshake12
+mit28Nativefällen/Session16 ohne SKIP PASS. Produkt/Suite unverändert, nur
+Ergebnisstand ergänzt. Head-/Base-/Main-Gates und regulärer Abschluss folgen. Die feste
+1088-je-Slot-Reserve soll vor erster nativer Wirkung aus4096Globaloperationen
+gebucht werden; tatsächliche Parentoperationen separat. Keine operative Auswahl
+der PR269-Quelle, keine neue Workerquelle und keine tatsächliche Inventur/SQL.
+Bestehende genaue Linux-Nativefixtures erst nach unabhängigem Source/Test-PRE
+mit ausdrücklichem Lauf-GO. Sämtliche übrigen offenen Gesamtlauf-/Loader-/Trust-
+und Methodengates bleiben erhalten. Verbrauch UNKNOWN.
+
 ## Workerquelle für die vollständige Eingangsfolge vom 20. Oktober 2026
 
 PR268 vollständig in `dcc5893af0c50c88aa0f848c3c908733c15dcbdc` integriert:
