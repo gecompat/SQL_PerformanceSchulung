@@ -8,6 +8,7 @@
 - [x] [Nativer bidirektionaler Phasenowner](../Documentation/Project_Planning/DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md): PR262 in Main9938091, zehn PR-/acht Main-Gates SUCCESS, neue12/alte Kanal16/pure Eingangsplan16 ohne SKIP in CI/Main, unabhängiger Review und FullTree/Sync/Branchcleanup. Ein Quellenstand, keine Nachläufe; echte Import-/Loaderclaims offen.
 - [ ] [Vollständige Profilauswahl an lokale Anker](../Documentation/Project_Planning/DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md): ein Owner/max6/Checkpoint2/hart6, Auswahl-PRE freigegeben; C1 reine API/enger Aliasguardfix/15 portable Methoden, Source/Test-PRE mit Lauf-GO offen. Keine eigene Sollbaseline oder operative Aufnahme.
 - [ ] Danach frische Workerprofile und tatsächliche Quellenloader-/Importprovenienz. Kontinuierlicher Auftrag und bestehender30-Minuten-Heartbeat aktiv; echte Freigabegrenzen und historische Stops gelten weiter.
+- [ ] Neue menschliche Priorität nach dem laufenden eigenen Profilankerabschluss: README als Projekteinstieg für Menschen mit Lernwegen/Unterlagen/Beispielen neu aufbauen; interne Entwicklungsstände auslagern und `REMOVE` als Nichtmigration bei erhaltenem Referenzarchiv eindeutig erklären. Vor der nächsten operativen technischen Welle durchführen.
 
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026
 

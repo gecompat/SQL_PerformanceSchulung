@@ -663,22 +663,30 @@ def _selected_shapes(installation, controls, modules, token):
     return tuple(fingerprints)
 
 
-def _selected_namespace(value):
+def _selected_keys(namespace, budget):
+    _need(budget[0] + len(namespace) <= 16368, "ANCHOR_LIMIT")
+    for key in namespace:
+        budget[0] += 1
+        _need(type(key) is str, "ANCHOR_FORM")
+        _scalar_text(key)
+
+
+def _selected_namespace(value, budget):
     namespace = value.__dict__
-    _need(type(namespace) is dict and len(namespace) <= 16368
-          and all(type(key) is str for key in namespace), "ANCHOR_FORM")
+    _need(type(namespace) is dict and len(namespace) <= 16368, "ANCHOR_FORM")
+    _selected_keys(namespace, budget)
     return namespace
 
 
-def _selected_local(module):
+def _selected_local(module, budget):
     _need(type(module) is ModuleType, "ANCHOR_FORM")
-    namespace = _selected_namespace(module)
+    namespace = _selected_namespace(module, budget)
     for key in ("__name__", "__file__"):
         _scalar_text(namespace.get(key, ""))
     spec, loader = namespace.get("__spec__"), namespace.get("__loader__")
     _need(spec is None or type(spec) is ModuleSpec, "ANCHOR_FORM")
     if spec is not None:
-        selected = _selected_namespace(spec)
+        selected = _selected_namespace(spec, budget)
         _scalar_text(selected.get("name")); _scalar_text(selected.get("origin"))
         locations = selected.get("submodule_search_locations")
         _need(locations is None or (type(locations) in (tuple, list)
@@ -689,14 +697,14 @@ def _selected_local(module):
     _need(loader is None or loader is BuiltinImporter or loader is FrozenImporter
           or type(loader) in (SourceFileLoader, ExtensionFileLoader), "ANCHOR_FORM")
     if type(loader) in (SourceFileLoader, ExtensionFileLoader):
-        selected = _selected_namespace(loader)
+        selected = _selected_namespace(loader, budget)
         _scalar_text(selected.get("name")); _scalar_text(selected.get("path"))
     return spec, loader
 
 
-def _selected_cache(cache, names):
-    _need(type(cache) is dict and len(cache) == len(names)
-          and all(type(key) is str for key in cache), "ANCHOR_FORM")
+def _selected_cache(cache, names, budget):
+    _need(type(cache) is dict and len(cache) == len(names), "ANCHOR_FORM")
+    _selected_keys(cache, budget)
     _need(tuple(sorted(cache)) == names, "CACHE_MISMATCH")
 
 
@@ -705,7 +713,8 @@ def bind_selected_profile(installation, controls, modules, *, token, cache, find
     try:
         fingerprints = _selected_shapes(installation, controls, modules, token)
         names = tuple(row[0] for row in modules)
-        _selected_cache(cache, names)
+        keys = [0]
+        _selected_cache(cache, names, keys)
         _need(type(finders) is tuple and len(finders) == 3
               and all(a is b for a, b in zip(finders, (BuiltinImporter, FrozenImporter, PathFinder))),
               "ANCHOR_FORM")
@@ -714,7 +723,7 @@ def bind_selected_profile(installation, controls, modules, *, token, cache, find
         held, rows = cache.copy(), []
         for row in modules:
             module = held[row[0]]
-            spec, loader = _selected_local(module)
+            spec, loader = _selected_local(module, keys)
             rows.append(ModuleRecord(row[0], row[3], row[4], row[5], row[6], module, spec, loader))
         s = installation
         expected = DeclaredProfile(s[0], token, s[2], s[3], s[4], s[5], s[6], s[7], s[8],
@@ -724,10 +733,11 @@ def bind_selected_profile(installation, controls, modules, *, token, cache, find
                                   s[8], finders, hooks, expected.modules, fingerprints)
         _need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")
         # Keine atomare Snapshotgarantie; überprüfter lokaler Abschluss vor Rückgabe.
-        _selected_cache(cache, names)
+        keys = [0]
+        _selected_cache(cache, names, keys)
         _need(all(cache[name] is held[name] for name in names), "CACHE_MISMATCH")
         for row in expected.modules:
-            _selected_local(row.module)
+            _selected_local(row.module, keys)
         _shape(expected, True)
         _need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")
     except _Failure as error:

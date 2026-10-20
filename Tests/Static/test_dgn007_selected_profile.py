@@ -315,6 +315,47 @@ class SelectedProfileTests(unittest.TestCase):
         self.assertFalse(any(isinstance(node, ast.Name) and node.id in ("sys", "os", "hashlib")
                              for node in ast.walk(bridge)))
 
+    def test_key_caps_precede_sort_lookup_and_share_one_pass_budget(self):
+        actual_sorted = sorted
+        for key in ("x" * 4097, "é" * 2049, "bad\0key"):
+            cache = {key + str(i): value for i, value in enumerate(self.cache.values())}
+            self.assertEqual(len(cache), len(self.cache))
+            def sort_guard(value, *args, **kwargs):
+                if value is cache:
+                    raise AssertionError("UNBOUNDED_CACHE_SORT")
+                return actual_sorted(value, *args, **kwargs)
+            with patch.dict(m.__dict__["__builtins__"], sorted=sort_guard):
+                self.rejected(cache=cache)
+            _, _, _, cache = fixture()
+            sentinel = object()
+            cache["package"].__dict__.update({key: None, "__name__": sentinel})
+            original_text = m._scalar_text
+            def lookup_guard(value):
+                if value is sentinel:
+                    raise AssertionError("EARLY_NAMESPACE_LOOKUP")
+                return original_text(value)
+            with patch.object(m, "_scalar_text", lookup_guard):
+                self.rejected(cache=cache)
+        # Unbenutzte Globalvalues bleiben opak; echte erneute Aliasscans zählen.
+        for extra, expected in ((3200, "BOUND_SELECTED_PROFILE"), (4000, "REJECTED_SELECTED_PROFILE")):
+            _, _, _, cache = fixture()
+            for module in cache.values():
+                module.__dict__.update(("filler_" + str(i), object()) for i in range(extra))
+            result = self.call(cache=cache)
+            self.assertEqual(result.report.status, expected)
+            if extra == 4000:
+                self.assertEqual(result.report.issue, "ANCHOR_LIMIT")
+        _, _, _, cache = fixture()
+        for module in cache.values():
+            module.__dict__.update(("filler_" + str(i), object()) for i in range(2000))
+        module, row = own_module("posixpath", "FROZEN")
+        module.__dict__.update(("filler_" + str(i), object()) for i in range(4000))
+        pair = ("os.path", "posixpath")
+        rows = tuple(sorted(self.rows + (replace_at(replace_at(row, 0, "os.path"), 10, pair),
+                                        replace_at(row, 10, pair))))
+        cache.update({name: module for name in pair})
+        self.rejected("ANCHOR_LIMIT", modules=rows, cache=cache)
+
 
 if __name__ == "__main__":
     unittest.main()

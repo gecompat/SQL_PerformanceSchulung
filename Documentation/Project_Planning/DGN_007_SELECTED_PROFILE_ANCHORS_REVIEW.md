@@ -94,6 +94,21 @@ den Worker sowie tatsächliche Loader-/Import-/UsedBytes-Provenienz offen.
 
 Die primitive Vorprüfung hält die bestehenden E4-Obergrenzen16368 Knoten,
 Tiefe8, Sequenz256 und4096UTF-8-Bytes je Text. Sie ist kein Fünf-Formen-Fitbeleg.
+
+C1 `07daf827ab9025b546687940c839a3d3463ed677` unabhängig vollständig geprüft:
+Aliasguard-P2 geschlossen, ein neuer P2 zu unbeschränkten lokalen Keytexten;
+kein Lauf-GO und keine Testausführung. C2 schließt diesen Befund gebündelt:
+Cache-/Modul-/Spec-/Loaderkeys vor Sort/Lookup bis4096UTF-8-Bytes ohne NUL,
+gemeinsam höchstens16368 tatsächlich geprüfte Keys je Bindungs-/POST-Pass.
+Erneute physische Scans gemeinsamer Aliasnamespaces zählen erneut; POST hat
+einen eigenen begrenzten Counter. Keine fremden Globalvalues traversiert.
+Das ist eine zusätzliche lokale Ankergrenze, kein E4-/Fünf-Formen-Fit und keine
+Qualifikation einer realen Inventur. Die16.Methoden-Gegenprobe hält Cachecounts
+konstant, trägt Sort-/Lookup-Traps und prüft globale Grenze, Aliasmehrfachscan
+und den separat begrenzten POST. Checkpoint2: zwei Kandidaten, ein gebündelter
+Befundnachlauf; harte Grenze6 unverändert, Verbrauch UNKNOWN. C2-Delta-PRE
+mit ausdrücklichem Lauf-GO vor ersten Suiteimporten/-läufen ausstehend.
+
 Primärquellen, geprüft20.Oktober2026: [CPython3.12 ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec),
 [Modulcache](https://docs.python.org/3.12/reference/import.html#the-module-cache),
 [ModuleType](https://docs.python.org/3.12/library/types.html#types.ModuleType).

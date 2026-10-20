@@ -8,6 +8,11 @@ binden](DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md), ein Owner/max6/Checkpoint2/
 Auswahl-PRE ausdrücklich freigegeben. C1 ergänzt reine API, engen Frozen-/
 Mixed-Guardfix und15 portable Methoden; Source/Test-PRE mit Lauf-GO vor Läufen
 offen. Keine native Auswahl oder frische operative Aufnahme dadurch behauptet.
+C1-Keygrenzen-P2 wird im gebündelten C2 mit16.Methoden-Gegenprobe geschlossen;
+Checkpoint2/hart6 und ausdrücklicher Delta-PRE/Lauf-GO bleiben maßgeblich.
+Danach hat der menschlich neu priorisierte anwenderorientierte Projekteinstieg
+mit verständlicher README und Archiv-/Migrationsklärung Vorrang vor der nächsten
+operativen Profilaufnahme.
 
 PR261 vollständig in `0d851dc9f87915a4952ad6fae1fe0f269f94d5e7` abgeschlossen:
 acht PR-/sechs Main-Gates grün,16/16 neue Methoden Windows/Linux/Main ohne
