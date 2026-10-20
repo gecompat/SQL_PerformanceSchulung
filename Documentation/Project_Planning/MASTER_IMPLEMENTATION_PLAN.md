@@ -11,11 +11,13 @@ unabhängiger Auswahl- und Quellen-/Test-PRE vor dem ersten Lauf. Danach genau
 eine neue priorisierte endliche Folgewelle; reale Import-/Loaderprovenienz
 und vollständige Start-/Body-/Commandintegration bleiben eigene Abnahmegrenzen.
 
-Aktueller Blocker dieser Welle: C3 ist unabhängig laufzulässig, Windows portable
+C3-Stop dieser Welle: C3 ist unabhängig laufzulässig, Windows portable
 grün, Linux15/16 Methoden PASS; `bad_nonce` scheitert vor Start an einer JSON-
-Suche über P-Fragmente. Max3 und beide Nachläufe verbraucht. Eine gezielte
-C4-Erweiterung braucht ausdrückliche Freigabe; kein Merge/neue Welle bis zur
-Korrektur und vollständigen grünen Abnahme. Branch erhalten, Main unverändert.
+Suche über P-Fragmente. Max3 und beide Nachläufe verbraucht. Der Mensch hat
+genau eine gezielte C4-Fixturekorrektur samt unabhängigem Delta-PRE/Lauf-GO,
+lokalem Ziellauf und aktueller vollständiger CI/Main-Integration/Branchcleanup
+ausdrücklich freigegeben. Danach nächste priorisierte endliche Welle autonom.
+Status C4-PRE ausstehend; Branch erhalten, Main unverändert.
 
 Nach abgeschlossenen PR257/258 folgt auf ausdrücklichen Benutzerauftrag der
 [vollständige deklarative SESSION_END-Matcher](DGN_007_SESSION_END_MATCHER_REVIEW.md).

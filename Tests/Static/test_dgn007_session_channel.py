@@ -91,7 +91,7 @@ def native_case(name):
                 if name == "extra_footer": return rows + (rows[-1],), err
                 if name == "truncated": return rows[:-1] + (rows[-1][:-1],), err
                 if name == "bad_hash": return harness.changed_row(rows, -1, 11, "0" * 64), err
-                index = next(i for i, row in enumerate(rows) if json.loads(row)[0] == "INPUT_COMPLETE")
+                index = next(i for i, row in enumerate(rows) if row.startswith(b'["INPUT_COMPLETE",'))
                 nonce = json.loads(rows[index])[2]
                 other = ("0" if nonce[0] != "0" else "1") + nonce[1:]
                 changed = harness.changed_row(rows, index, 2, other, seal=False)

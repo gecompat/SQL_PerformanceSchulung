@@ -1,7 +1,7 @@
 # DGN-007 – operative Kanal-, EOF-, Exit- und Cleanup-Anbindung
 
 Stand: 2026-10-20, Basis `d4151093bdd4de115b660352345f3e5c47e9b650` nach
-abgeschlossenem PR259. Status `BLOCKED_BUDGET_AFTER_C3_TEST_FAIL`. Der Benutzer beauftragt
+abgeschlossenem PR259. Status `C4_SOURCE_TEST_PRE_PENDING`. Der Benutzer beauftragt
 die operative Folgewelle und kontinuierliche autonome Weiterentwicklung mit
 unabhängigem Review, lokalen Tests, aktuellen grünen Gates, Main-Integration
 und Branchbereinigung. Alte geschlossene oder ausgeschöpfte Wellen werden
@@ -189,6 +189,19 @@ Eigener Branch `codex/dgn007-native-session-channel` bleibt erhalten; Main
 unverändert `d4151093bdd4de115b660352345f3e5c47e9b650`. Kontinuierlicher Auftrag
 und 30-Minuten-Heartbeat bleiben aktiv, dürfen diese Grenze aber nicht umgehen;
 unveränderter Blocker bleibt still. Kosten-/Tokenverbrauch unbekannt.
+
+Der Mensch hat C4 am 20. Oktober 2026 ausdrücklich freigegeben: genau eine
+gezielte Fixturekorrektur, ein unabhängiger Delta-PRE mit Lauf-GO, der betroffene
+lokale Linux-Test und aktuelle vollständige PR-/Main-Gates mit regulärem Merge
+und Branchcleanup. Der historische C3-Stop wird nicht zurückgesetzt. C4 wählt
+die kanonische INPUT_COMPLETE-Zeile an ihrem festen Bytepräfix aus, bevor
+deren Noncefeld als JSON gelesen wird; P-Fragmente werden nicht dekodiert.
+Die Quellen-/Matcher-/Cleanupimplementierung bleibt bytegleich zu C3.
+Der lokale Ziellauf enthält alle fünf negativen Kanal-/Footerfälle der
+betroffenen Testmethode; die CI führt alle 16 Methoden aus. Unveränderte
+portable Windows- und übrige lokale Linuxprüfungen werden nicht wiederholt.
+Nach diesem vollständigen Abschluss ist die nächste priorisierte endliche
+Welle erneut ausdrücklich autorisiert. Verbrauch UNKNOWN.
 
 Produktions-Worker, Start-/Command-/Bodyintegration, tatsächliche Import-/Loader-
 Provenienz, Fünf-Formen-/operative Inventur und SQL-/Incidentmethoden bleiben

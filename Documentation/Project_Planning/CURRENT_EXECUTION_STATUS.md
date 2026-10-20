@@ -17,12 +17,15 @@ C3 letzter Nonce-P2 geschlossen; unabhängiges ausdrückliches Lauf-GO vorhanden
 Windows: fünf portable PASS/elf native SKIP. Linux: 16 Methoden, 15 PASS/ein
 Fixture-FAIL `bad_nonce`: INPUT_COMPLETE-Suche dekodiert vorherige `P|`-Fragmente
 als JSON und bricht vor dessen Workerstart ab. Drei Kandidaten und zwei
-gezielte Nachläufe verbraucht; Status `BLOCKED_BUDGET_AFTER_C3_TEST_FAIL`.
-Keine weitere Implementierung oder Testwiederholung ohne ausdrückliche
-Erweiterung um eine gezielte C4-Fixturekorrektur, engen Delta-PRE/Lauf-GO und
-betroffenen Linux-Test; danach aktuelle CI/Main-Integration/Tree/Branchcleanup.
-Kein PR/Push/Merge, eigener Branch `codex/dgn007-native-session-channel`
-bleibt erhalten. Der unveränderte Blocker autorisiert keine Folgewelle.
+gezielte Nachläufe verbraucht; historischer Stop `BLOCKED_BUDGET_AFTER_C3_TEST_FAIL`.
+Der Mensch hat C4 ausdrücklich freigegeben: eine Fixturekorrektur, ein enger
+unabhängiger Delta-PRE/Lauf-GO und der betroffene Linux-Test; danach aktuelle
+vollständige CI/Main-Integration/Tree/Branchcleanup. C4 wählt INPUT_COMPLETE
+am kanonischen Bytepräfix vor dessen JSON-Dekodierung; alle operativen Quellen
+bleiben unverändert. Status `C4_SOURCE_TEST_PRE_PENDING`. Noch kein PR/Push/Merge,
+eigener Branch `codex/dgn007-native-session-channel` bleibt erhalten.
+Die nächste priorisierte endliche Welle ist nach vollständigem Abschluss
+erneut ausdrücklich autorisiert; keine Wiederholung des ausgeschöpften C3.
 Native Abnahme ausschließlich mit festen selbstbeendenden eigenen Linux-
 Testworkern und synthetischen vollständigen Traces, keine reale Importfreigabe.
 Bestehender Heartbeat aktiv alle 30 Minuten auf denselben kontinuierlichen
