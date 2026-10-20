@@ -17,7 +17,9 @@ Suche über P-Fragmente. Max3 und beide Nachläufe verbraucht. Der Mensch hat
 genau eine gezielte C4-Fixturekorrektur samt unabhängigem Delta-PRE/Lauf-GO,
 lokalem Ziellauf und aktueller vollständiger CI/Main-Integration/Branchcleanup
 ausdrücklich freigegeben. Danach nächste priorisierte endliche Welle autonom.
-Status C4-PRE ausstehend; Branch erhalten, Main unverändert.
+Status C4 unabhängig ohne offene Befunde/Lauf-GO bestätigt, lokaler Linux-
+Ziellauf mit fünf Fällen PASS; aktuelle vollständige CI16 und Main-Abschluss
+folgen. Branch erhalten, Main unverändert.
 
 Nach abgeschlossenen PR257/258 folgt auf ausdrücklichen Benutzerauftrag der
 [vollständige deklarative SESSION_END-Matcher](DGN_007_SESSION_END_MATCHER_REVIEW.md).

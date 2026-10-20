@@ -22,8 +22,11 @@ Der Mensch hat C4 ausdrücklich freigegeben: eine Fixturekorrektur, ein enger
 unabhängiger Delta-PRE/Lauf-GO und der betroffene Linux-Test; danach aktuelle
 vollständige CI/Main-Integration/Tree/Branchcleanup. C4 wählt INPUT_COMPLETE
 am kanonischen Bytepräfix vor dessen JSON-Dekodierung; alle operativen Quellen
-bleiben unverändert. Status `C4_SOURCE_TEST_PRE_PENDING`. Noch kein PR/Push/Merge,
-eigener Branch `codex/dgn007-native-session-channel` bleibt erhalten.
+bleiben unverändert. C4 `41e188d66e62d81e483d5765784fd21ea7a5a490` ist unabhängig
+ohne offene Befunde und mit ausdrücklichem Lauf-GO bestätigt; lokaler Linux-
+Ziellauf mit allen fünf negativen Kanal-/Footerfällen PASS in 3,025 Sekunden.
+Status `PR_GATES_PENDING`. Vollständige aktuelle CI16 und Main-Abschluss folgen;
+eigener Branch `codex/dgn007-native-session-channel` bleibt bis zum Nachweis erhalten.
 Die nächste priorisierte endliche Welle ist nach vollständigem Abschluss
 erneut ausdrücklich autorisiert; keine Wiederholung des ausgeschöpften C3.
 Native Abnahme ausschließlich mit festen selbstbeendenden eigenen Linux-

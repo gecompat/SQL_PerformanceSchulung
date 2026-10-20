@@ -1,7 +1,7 @@
 # DGN-007 – operative Kanal-, EOF-, Exit- und Cleanup-Anbindung
 
 Stand: 2026-10-20, Basis `d4151093bdd4de115b660352345f3e5c47e9b650` nach
-abgeschlossenem PR259. Status `C4_SOURCE_TEST_PRE_PENDING`. Der Benutzer beauftragt
+abgeschlossenem PR259. Status `PR_GATES_PENDING`. Der Benutzer beauftragt
 die operative Folgewelle und kontinuierliche autonome Weiterentwicklung mit
 unabhängigem Review, lokalen Tests, aktuellen grünen Gates, Main-Integration
 und Branchbereinigung. Alte geschlossene oder ausgeschöpfte Wellen werden
@@ -202,6 +202,17 @@ betroffenen Testmethode; die CI führt alle 16 Methoden aus. Unveränderte
 portable Windows- und übrige lokale Linuxprüfungen werden nicht wiederholt.
 Nach diesem vollständigen Abschluss ist die nächste priorisierte endliche
 Welle erneut ausdrücklich autorisiert. Verbrauch UNKNOWN.
+
+C4 `41e188d66e62d81e483d5765784fd21ea7a5a490`: unabhängiger Delta-PRE ohne
+offene Befunde; ausdrückliches einmaliges Lauf-GO für den lokalen Linux-
+Ziellauf und vollständige CI mit 16 Methoden. Der lokale Ziellauf unter
+CPython3.12.3 bestand am 20. Oktober 2026: eine Methode mit allen fünf festen
+negativen Kanal-/Footerfällen, 3,025 Sekunden, Exit0. Der Noncefall erzeugte
+nun seinen echten Nativebericht einschließlich Cleanup, frischer Kinderabsenz
+und Subreaper-Restore. Keine offenen Reviewbefunde. Die übrigen lokalen
+C3-PASS bleiben bei unveränderter operativer Quelle und unabhängiger gezielter
+Deltafreigabe getrennte Evidenz. Vollständige aktuelle PR-CI, Main-Integration,
+Main-Gates und Tree-/Branchabschluss folgen am finalen Evidenzhead.
 
 Produktions-Worker, Start-/Command-/Bodyintegration, tatsächliche Import-/Loader-
 Provenienz, Fünf-Formen-/operative Inventur und SQL-/Incidentmethoden bleiben
