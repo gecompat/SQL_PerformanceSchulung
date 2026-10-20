@@ -1,5 +1,21 @@
 # Aktueller Ausführungsstand
 
+## Vollständiger aktueller Kontrollquellen-Fit vom 20. Oktober 2026
+
+PR265 vollständig in `966f2251bc301a1ac80997c591962f929a7a136c` integriert:
+zehn finale PR-Checks/acht Main-Workflows SUCCESS; neue16/Binder16 unter
+Windows/Linux und alte57 unter Linux ohne SKIP PASS, unabhängige P2/P3-
+Schließung, FullTree/Sync und eigene lokale/Remote-Branchbereinigung bestätigt.
+[Abschlussbindung PR265](https://github.com/gecompat/SQL_PerformanceSchulung/pull/265).
+
+Nächster endlicher Schnitt: [vollständige aktuelle Profilbytes im bestehenden
+Inlinegenerator prüfen](DGN_007_CURRENT_CONTROL_SOURCE_FIT_REVIEW.md).
+Ein Owner/max3/Checkpoint1/hart3 einschließlich Review/Rechnung/Gates/Integration.
+Auswahl-/Source-/Lauf-PRE ausstehend; noch kein Generatorimport oder Versuch.
+Eigener Branch `codex/dgn007-control-source-fit`. Nur reine bestehende Erzeugung,
+keine generierte Ausführung, Workerinventur, SQL oder Capänderung. Verbrauch
+UNKNOWN. Historische Stops und sämtliche operativen Provenienzgrenzen erhalten.
+
 ## Gewählte Profilanker und lokale Aufnahme vom 20. Oktober 2026
 
 PR264 vollständig in `5bf9d14a46b0fba1184f6a5a6dc3772c6278cb17` integriert:
