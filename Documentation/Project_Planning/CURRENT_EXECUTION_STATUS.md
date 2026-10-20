@@ -24,7 +24,11 @@ Windows zusätzlich verzögert geladenes Stdlib-_ast_unparse im Cache-Orakel.
 C3 verkürzt nur tokengeprüfte Codeeinrückung der neuen Ausgabe bei vollständigem
 AST-/Literalerhalt und bereitet den neutralen Stdlibdarsteller vor Testbaseline
 vor. Drei Kandidaten/max6, zwei Nachläufe; unabhängiger Delta-PRE und Lauf-GO
-vor neuer Probe ausstehend. Keine Capänderung oder alten Routenänderungen.
+erteilt; C3 danach neue16 Windows3.14.7 in36.223s und Linux3.12.3 in25.617s
+ohne SKIP PASS. Vollständiger Quellenfit/AST-/Literalerhalt, alle drei Rollen
+und sämtliche eigenen negativen I/O-Modelle bestätigt. Produkt/Suite unverändert,
+nur Ergebnisdokumentation ergänzt; aktuelle Head-/Base-/Main-Gates, Integration
+und eigener Branchcleanup folgen. Keine Capänderung oder alten Routenänderungen.
 Keine echten OS-I/O/Main-/Worker-
 ausführungen, operative Inventur oder SQL. Die geplante Child-I/O-Teilreserve
 aus dem vorhandenen Globalbudget ist noch nicht im Parent gebucht; operative

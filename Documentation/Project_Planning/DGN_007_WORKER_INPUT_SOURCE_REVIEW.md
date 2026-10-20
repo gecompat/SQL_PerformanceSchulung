@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `dcc5893af0c50c88aa0f848c3c908733c15dcbdc` nach vollständig geschlossenem PR268.
-Status `C3_SOURCE_TEST_DELTA_PRE_PENDING`.
+Status `C3_LOCAL_PASS_HEAD_GATES_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -231,3 +231,18 @@ Ausnahme und kein Worker-/Kandidatenimport.
 Drei Kandidaten/max6, zwei geänderte Nachläufe. Gezielter unabhängiger C3-Delta-
 PRE und einmaliges Lauf-GO vor jeder neuen Probe ausstehend. Verbrauch UNKNOWN;
 sämtliche nativen offenen Gates bleiben unverändert. Kein unveränderter Retry.
+
+C3 `e2760c84bef51c8fd0c2c1b0017bf95bc7aea652` unabhängig ohne offene
+Deltabefunde mit ausdrücklichem einmaligem Lauf-GO. Danach neue16 unter
+Windows3.14.7 in36.223s und Linux3.12.3 in25.617s ohne SKIP PASS. Tatsächlicher
+vollständiger Quellenfit höchstens131072Bytes, aktuelle vollständige Rawliteral-
+gleichheit, alle fünf direkten Imports, ganze AST-Erhaltung einschließlich
+mehrzeiligem Docstring, alle drei Rollen, echte bestätigte Fakeprovider-Teil-
+transfers, frische zweite Aufnahme und sämtliche negativen Modelle ausgeführt.
+Die sechs PRE-/POST-Modultyp-/Schlüsselgegenproben erreichen ihre Mutation bei
+null Fremdvergleich/Getattribute und keinem Folgedispatch. Kein nativer Nachweis.
+
+Unveränderte Produkt-/Suitequellen bleiben an C3 gebunden. Nur Ergebnisdokumentation
+ergänzt; aktuelle Head-/Base-Gates, reguläre Integration, frische Main-Gates,
+FullTree/Sync und eigene Branchbereinigung folgen. Drei Kandidaten/zwei Nachläufe
+im bestehenden Rahmen, Verbrauch UNKNOWN. Keine weitere unveränderte Lokalprobe.
