@@ -16,7 +16,10 @@ Fixtureerweiterung. Noch keine Suiteimporte oder Generierungs-/Compile-/Execprob
 C1 unabhängig mit einem P2 ohne Lauf-GO: ursprüngliche I/O-Report-used-/
 Eingangsbytezählerbindung vollständig fortsetzen. C2 schließt die Prüfungen und
 ergänzt sieben späte Writer-Gegenproben ohne Wire-Rücknahmebehauptung.
-Checkpoint2: zwei Kandidaten/max6, ein Nachlauf; Delta-PRE und ausdrückliches
+Checkpoint2 abgeschlossen: C2 unabhängig geschlossen und Lauf-GO erteilt;
+neue16 Windows/Linux jeweils16SCRIPT_LIMIT-Fehler vor Modellsemantik.
+C3 entfernt nur horizontale Tokenabstände mit vollständigem Token-/AST-/
+Literalerhalt. Drei Kandidaten/max6, zwei Nachläufe; Delta-PRE und ausdrückliches
 Lauf-GO ausstehend, Quellenfit und Modelle weiterhin ungeprüft. Additive
 Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
 Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE

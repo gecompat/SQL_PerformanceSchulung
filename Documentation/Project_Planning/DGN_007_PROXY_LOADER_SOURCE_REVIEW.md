@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `C2_SOURCE_TEST_DELTA_PRE_PENDING`.
+Status `C3_SOURCE_TEST_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -205,3 +205,25 @@ Checkpoint2: zwei Kandidaten/max6, ein geänderter Nachlauf, Verbrauch UNKNOWN.
 Unabhängiger Delta-PRE und ausdrückliches einmaliges Lauf-GO ausstehend; aktueller
 vollständiger Quellenfit und sämtliche inneren Modelle weiterhin ungeprüft.
 Kein Capwechsel, kein alter Scope-/Testrerun oder nativer/DGN-/SQLlauf.
+
+## C3 – horizontale Darstellung nach bestätigtem Fitfehler
+
+C2 `0b2b360953dea8a73a2ddb84ddb8a6e1afbf27b4` unabhängig ohne offene Befunde
+mit einmaligem Source/Test-Lauf-GO. Danach neue16 unter Windows3.14.7 in4.588s
+und Linux3.12.3 in3.895s jeweils16SCRIPT_LIMIT-Fehler vor Modellsemantik.
+Kein semantischer PASS und keine tatsächlich erzeugte Sourceabnahme.
+
+C3 entfernt ausschließlich überflüssige horizontale Abstände zwischen Tokens
+in der neuen Ausgabe. Wort-/Zahl-/Stringnachbarn, Operatornachbarn sowie Zahl/
+Punkt bleiben getrennt. Einrückungen, Zeilen, sämtliche Lexeme und Literale
+bleiben erhalten; vollständige erneute Tokenisierung muss dieselben Typ-/Text-
+Paare ergeben. Die vorhandene ganze unabhängige AST-/Rawliteraloracle bleibt
+unverändert. Die bestehende Fitmethode ergänzt eine kleine eigene Gegenprobe
+mit Zahl/Punkt, unären Operatoren, benachbarten Strings, Bytes und NULliteral.
+Keine Funktions-/Variablenumbenennung, kein entfernter Prüfcode und kein Capwechsel.
+
+Drei Kandidaten/max6, zwei geänderte Nachläufe; Verbrauch UNKNOWN. Erneuter
+unabhängiger Delta-PRE und ausdrückliches einmaliges Lauf-GO ausstehend.
+Quellenfit und innere Modelle bleiben ungeprüft. Keine alten Routen-/Native-/
+DGN-Raw-/SQLläufe. Python-tokenize ist nur Generatorwerkzeug; die fünf Imports
+im erzeugten Script und sämtliche Workflowabhängigkeiten bleiben unverändert.

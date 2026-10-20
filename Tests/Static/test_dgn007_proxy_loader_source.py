@@ -73,6 +73,11 @@ class ProxyLoaderSourceTests(unittest.TestCase):
         return [event for event in env["trace"] if event[0] == kind]
 
     def test_actual_source_fit_raw_five_imports_and_independent_whole_ast(self):
+        text = ('def sample(value):\n'
+                ' return (value + -1, 1 .real, .5, "a" "b", b"a b", "\\0", {"x": 1})\n')
+        compacted = subject._compact_token_gaps(text)
+        self.assertLess(len(compacted), len(text))
+        self.assertEqual(ast.dump(ast.parse(compacted)), ast.dump(ast.parse(text)))
         built = subject.build_proxy_loader_control_bootstrap(RAW, **OPTIONS)
         self.assertEqual((built.source_size, built.source_sha256),
                          (len(built.source), hashlib.sha256(built.source).hexdigest()))

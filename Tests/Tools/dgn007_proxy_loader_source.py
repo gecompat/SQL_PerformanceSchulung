@@ -1,6 +1,7 @@
 """Additive Proxy-Loaderquelle; beim Erzeugen keine Kandidatenausführung."""
 import ast
 import hashlib
+import tokenize
 
 import dgn007_worker_input_source as inputs
 
@@ -357,6 +358,38 @@ def _proxy_source_main():
 '''
 
 
+def _compact_token_gaps(text):
+    """Nur horizontale Tokenabstände; Lexeme und Einrückung bleiben erhalten."""
+    lines = text.splitlines(keepends=True)
+    tokens = tuple(tokenize.generate_tokens(iter(lines).__next__))
+    ignored = (tokenize.INDENT, tokenize.DEDENT, tokenize.NEWLINE,
+               tokenize.NL, tokenize.ENDMARKER, tokenize.ENCODING)
+    words = (tokenize.NAME, tokenize.NUMBER, tokenize.STRING)
+    edits, previous = {}, None
+    for current in tokens:
+        if current.type in ignored:
+            continue
+        if previous is not None and previous.end[0] == current.start[0]:
+            row, start = current.start
+            end = previous.end[1]
+            gap = lines[row - 1][end:start]
+            separated = ((previous.type in words and current.type in words)
+                         or (previous.type == tokenize.OP and current.type == tokenize.OP)
+                         or (previous.type == tokenize.NUMBER and current.string == ".")
+                         or (previous.string == "." and current.type == tokenize.NUMBER))
+            if gap and not gap.strip() and not separated:
+                edits.setdefault(row - 1, []).append((end, start))
+        previous = current
+    for row, intervals in edits.items():
+        for start, end in reversed(intervals):
+            lines[row] = lines[row][:start] + lines[row][end:]
+    result = "".join(lines)
+    actual = tuple(tokenize.generate_tokens(iter(result.splitlines(keepends=True)).__next__))
+    inputs.base._need(tuple((t.type, t.string) for t in actual)
+                      == tuple((t.type, t.string) for t in tokens), "TEMPLATE_FORM")
+    return result
+
+
 def build_proxy_loader_control_bootstrap(profile_raw, *, logical_profile,
                                           expected_soabi, expected_destshared):
     selected = inputs.build_worker_input_control_bootstrap(profile_raw,
@@ -381,7 +414,8 @@ def build_proxy_loader_control_bootstrap(profile_raw, *, logical_profile,
     main.body.insert(2, ast.parse("_initialize_proxy_source_control()").body[0])
     main.body[-1] = ast.parse("_proxy_source_main()").body[0]
     tree.body = [node for node in tree.body if node is not main] + ast.parse(_INLINE_PROXY_SOURCE).body + [main]
-    source = inputs._compact_indentation(ast.unparse(ast.fix_missing_locations(tree)) + "\n").encode("utf-8", "strict")
+    formatted = inputs._compact_indentation(ast.unparse(ast.fix_missing_locations(tree)) + "\n")
+    source = _compact_token_gaps(formatted).encode("utf-8", "strict")
     inputs.base._need(len(source) <= inputs.base.MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
     return inputs.base.BootstrapSource(source, profile_raw, logical_profile,
         hashlib.sha256(source).hexdigest(), hashlib.sha256(profile_raw).hexdigest(), len(source))
