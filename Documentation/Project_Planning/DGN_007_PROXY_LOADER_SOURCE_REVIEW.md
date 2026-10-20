@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `LOCAL_PASS_CI_PENDING`.
+Status `CLOSED_MERGED`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -338,3 +338,18 @@ hart6 einschließlich unabhängiger Auswahl-/Source-/Test-/Deltareviews geschlos
 keine weiteren Kandidaten. Reservierter regulärer Abschluss bleibt: aktuelle
 Head-/Base-Gates, normale Integration, frische Main-Gates, FullTree/Sync und
 eindeutige eigene lokale/Remote-Branchbereinigung. Verbrauch UNKNOWN.
+
+## Vollständiger regulärer Abschluss
+
+[PR271](https://github.com/gecompat/SQL_PerformanceSchulung/pull/271): finale Basis
+`20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, finaler Head
+`b9d01d3776b5abf3111263d44d00262e7a66d47c`. Zehn finale PR-Checks und zehn
+Basis-Main-Workflows SUCCESS; normale Integration bei CLEAN am20.Oktober2026
+um20:30:10Z in `3387e308c8ae4f45d1cf8eb56176666e9e9355d4`.
+Alle acht frischen Main-Workflows SUCCESS. Neue16 im PR39.611s/Main49.029s,
+Eingangs16 im PR24.175s/Main15.180s, Budget12 im PR0.005s/Main0.008s ohne SKIP PASS.
+Vollständiger Head-/Mergetreevergleich, sauberes synchrones lokales main/origin/main
+und eigene lokale/Remote-Branchabwesenheit nach geprüftem Head und Worktreefreiheit
+bestätigt. Vollständige Workflow-/Ownershipbindung im PR-Abschluss. Sechs Kandidaten
+geschlossen, keine weiteren Versuche in diesem Scope; Verbrauch UNKNOWN.
+Sämtliche offenen Modell-/Gesamtgrenzen bleiben bestehen.

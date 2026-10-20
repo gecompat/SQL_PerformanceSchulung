@@ -1,5 +1,28 @@
 # Aktueller Ausführungsstand
 
+## Verschachtelte Harness-Quellenfolge vom 20. Oktober 2026
+
+PR271 vollständig in `3387e308c8ae4f45d1cf8eb56176666e9e9355d4` integriert:
+zehn finale PR-Checks und acht frische Main-Workflows SUCCESS; neue16, bestehende
+Eingangs16 und Budget12 ohne SKIP PASS. Unabhängige Befundschließung, FullTree/
+Sync und Abwesenheit eigener lokaler/Remote-Branches bestätigt.
+[Abschlussbindung PR271](https://github.com/gecompat/SQL_PerformanceSchulung/pull/271).
+Der Sechserumfang ist geschlossen; kein weiterer Versuch oder Reset dort.
+
+Nächster endlich gewählter Funktionsschnitt: [verschachtelte Harness-Quellenfolge](DGN_007_HARNESS_LOADER_SOURCE_REVIEW.md)
+für Worker3 mit SOURCE-BEGIN3/4/5 und COMPLETE5/4/3, ohne Parents. Eigener Branch
+`codex/dgn007-harness-loader-source`, ein Implementierungsowner, derselbe
+unabhängige Reviewer, max6/Checkpoint2/hart6 einschließlich Reviews, Tests und
+vollständigem Integrationsabschluss; Verbrauch UNKNOWN. Auswahl-PRE mit geschlossenen
+Source-/Namen-/Fromlistkanten, reservierten Wirkungen und Getterfreiheit freigegeben.
+C1 ergänzt additive Quelle/16 eigene Methoden; originale Writer-/Budgethalter und
+alle abgeschlossenen Sourcebindungen bleiben erhalten. Ein Kandidat/max6,
+keine Nachläufe; Source/Test-PRE und gestuftes Lauf-GO ausstehend: zuerst nur
+Quellenfit/Ganz-AST Windows/Linux, erst bei beidseitigem PASS übrige15 Modelle.
+Keine Kandidatenimporte, Generierung oder Compile-/Execproben. Nur eigene sichere Modelle nach separatem
+Source/Test-PRE und explizitem Lauf-GO; neue echte Imports/Native-/DGN-Raw-/SQL-
+Wirkungen und Gesamtgates bleiben offen. Proxyroute und alle älteren Scopes erhalten.
+
 ## Erste direkte Quelleninvocation nach EOF vom 20. Oktober 2026
 
 PR270 vollständig in `20549ae4e7dbb31c2ffb4d5b051395b8033db18e` integriert:
