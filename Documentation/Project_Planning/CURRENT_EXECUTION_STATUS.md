@@ -23,8 +23,11 @@ Delta-PRE geschlossen und einmaliges Lauf-GO. C2 zwölf Methoden Windows/Linux
 jeweils elf PASS/ein Fixture-FAIL ohne SKIP: eigener UTF8-SIG-Dateiread lädt
 Codec nach, strenge Modulcacheoracle erkennt dies. C3 ausschließlich read_bytes
 für diese AST-Probe, keine neue Importbaseline/Whitelist oder Produktauswirkung.
-Drei/max4 Kandidaten, zwei Nachläufe; enger Fixture-PRE und gezieltes Lauf-GO
-für genau die fehlgeschlagene Methode ausstehend; übrige elf unverändert grün.
+Drei/max4 Kandidaten, zwei Nachläufe; enger Fixture-PRE ohne offene Befunde und
+gezieltes Lauf-GO. Fehlgeschlagene Methode danach Windows/Linux1/1 ohne SKIP
+PASS; mit unveränderten elf C2-PASSs lokale zwölf vollständig und unabhängige
+Schließung belegt. CI-/Head-/Base-Gates, reguläre Integration, frisches Main,
+FullTree/Sync und eigene Branchbereinigung stehen noch aus.
 Tatsächliche Runner-/Kontrollanker-/I/O-Anbindung, vollständiger Scriptfit und
 sämtliche realen Gesamtgates bleiben offen; keine Native-/DGN-Raw-/SQL-Freigabe.
 

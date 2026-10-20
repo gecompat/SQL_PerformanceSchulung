@@ -4,8 +4,10 @@ PR272 vollständig in Main4a165c20840193e26b05a789d8e6e067c0bca7b9 geschlossen:
 neun PR-/sieben Main-Gates SUCCESS, neue Harness16/Proxy16 ohne SKIP PASS,
 unabhängige Befundschließung, FullTree/Sync und eigene Branchbereinigung.
 Nächster priorisierter begrenzter Schnitt: [codefreie Parentregistrierung](DGN_007_CODEFREE_PARENT_REGISTRATION_REVIEW.md),
-ein Owner/max4/Checkpoint1/hart4, Auswahl-PRE freigegeben, C1 mit Factory und zwölf
-isolierten Methoden. Source/Test-PRE/Lauf-GO offen, keine Probe. Eigenständige vorbereitende
+ein Owner/max4/Checkpoint1/hart4, Auswahl-/Source-/Test-/Fixture-PRE geschlossen,
+drei Kandidaten/zwei Nachläufe. Zwölf Methoden Windows/Linux lokal ohne SKIP
+belegt; C2-Codec-Fixturefehler in C3 gezielt korrigiert, keine grüne Vollsuite
+wiederholt. CI und vollständige Integration offen. Eigenständige vorbereitende
 Komponente für Tests/Tests.Contracts; tatsächliche Runner-/Kontrollanker-/I/O-
 Anbindung, vollständiger Scriptfit und reale Gesamtgates bleiben offen.
 

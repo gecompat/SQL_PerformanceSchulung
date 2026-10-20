@@ -1,7 +1,7 @@
 # DGN-007 – codefreie kontrollierte Parentregistrierung
 
 Stand: 20. Oktober 2026. Basis `4a165c20840193e26b05a789d8e6e067c0bca7b9`.
-Status `C3_FIXTURE_DELTA_PRE_PENDING`; C2-Ergebnis mit Fixturefehler erhalten.
+Status `LOCAL_PASS_CI_PENDING`; C3-Fixture geschlossen, lokale Abnahme vollständig.
 
 ## Priorität und endlicher Umfang
 
@@ -168,3 +168,16 @@ Nachläufe, Verbrauch UNKNOWN. Enger unabhängiger Fixture-Delta-PRE und gezielt
 einmaliges Lauf-GO nur für die fehlgeschlagene Methode je Plattform erforderlich.
 Elf unveränderte grüne lokale Methoden werden nicht wiederholt; volle zwölf
 bleiben frische erforderliche CI-/Main-Gates.
+
+## C3-Schließung und lokale Abnahme
+
+C3 ce9308e2e86bc43cd3e2e8272421e255358fc0df unabhängig ohne offene Befunde;
+C2-Logs auf ausschließlich den benannten Fixturefehler geprüft. Gezieltes
+einmaliges GO für die eine AST-Methode, lokale Abnahme bei beidseitigem PASS.
+Windows3.14.7/0.005s und Linux3.12.3/0.009s jeweils1/1 ohne SKIP PASS. Damit
+alle zwölf Methoden je Plattform lokal belegt; elf unveränderte C2-PASSs
+beibehalten und keine grüne lokale Vollsuite wiederholt. Unabhängige Befund-/
+Claimschließung vollständig, reguläre CI und Integration unter ihren Gates
+freigegeben. Drei Kandidaten/zwei Nachläufe innerhalb Hard4, Verbrauch UNKNOWN.
+Volle zwölf frische CI-/Main-Methoden, aktuelle Head-/Base-Gates, regulärer Merge,
+FullTree/Sync und eigene Branchbereinigung bleiben offen. Kein operativer Claim.
