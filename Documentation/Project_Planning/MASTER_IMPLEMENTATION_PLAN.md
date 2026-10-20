@@ -1,5 +1,13 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+PR266 vollständig in Main `ded09f685f747bb614c68c0fa78a6e54be7514be`
+abgeschlossen: sieben PR-/fünf Main-Checks SUCCESS, unabhängige Einordnung,
+FullTree/Sync/Branchcleanup. Neuer tatsächlicher Änderungsscope:
+[Workerquelle mit gebundener Aufnahme](DGN_007_WORKER_PROFILE_SOURCE_REVIEW.md),
+max6/Checkpoint2, Auswahl-PRE freigegeben; C1 mit zwölf Modellmethoden wartet
+auf Source/Test-PRE/Lauf-GO. Alte abgelehnte Vollroute bleibt FAIL;
+neue Workerzusammensetzung behält alle Caps und Workerprüfungen.
+
 PR265 vollständig in Main `966f2251bc301a1ac80997c591962f929a7a136c`
 abgeschlossen: zehn PR-/acht Main-Checks SUCCESS, unabhängige Befundschließung,
 FullTree/Sync/Branchcleanup. Nächster endlicher Schritt ist der

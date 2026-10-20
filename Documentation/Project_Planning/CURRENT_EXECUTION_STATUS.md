@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Workerquelle und gebundene Profilaufnahme vom 20. Oktober 2026
+
+PR266 vollständig in `ded09f685f747bb614c68c0fa78a6e54be7514be` integriert:
+sieben finale PR-Checks/fünf Main-Workflows SUCCESS, unabhängige Einordnung,
+FullTree/Sync und eigene lokale/Remote-Branchbereinigung bestätigt.
+[Abschlussbindung PR266](https://github.com/gecompat/SQL_PerformanceSchulung/pull/266).
+Der operative Fit der bisherigen vollständigen fünfzehnten Route bleibt FAIL;
+deren ausgeschöpfter Nachweisscope wird nicht wiederholt oder neu benannt.
+
+Nächste tatsächliche Implementierung: [Workerquelle mit gebundener
+Profilaufnahme](DGN_007_WORKER_PROFILE_SOURCE_REVIEW.md), eigener Branch
+`codex/dgn007-worker-profile-source`, ein Owner/max6/Checkpoint2/hart6.
+Additive rollenbezogene Zusammensetzung aus bestehendem vollständigem
+Workerunterbau und neuer Inline-Profilverbindung; Parentmatcher unverändert.
+Auswahl-PRE unabhängig mit vollständiger Kontrollpfadbindung als Auflage
+freigegeben; C1 ergänzt neue Workerroute und zwölf eigene Modellmethoden.
+Source/Test-PRE/Lauf-GO ausstehend, noch keine Suiteimporte oder Läufe.
+Caps und vollständige Workerprüfungen bleiben erhalten; keine operative
+Inventur, Kandidatenimporte oder SQL, Attestationsgrenzen offen. Verbrauch UNKNOWN.
+
 ## Vollständiger aktueller Kontrollquellen-Fit vom 20. Oktober 2026
 
 PR265 vollständig in `966f2251bc301a1ac80997c591962f929a7a136c` integriert:
