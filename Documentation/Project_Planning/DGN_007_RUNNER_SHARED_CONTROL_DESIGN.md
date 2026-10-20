@@ -1,7 +1,7 @@
 # DGN-007 – gemeinsamer Kontrollanker für Sources und Parents
 
 Stand: 21. Oktober 2026. Basis f30aebce18ec2902171210bdcc7f222eaa12d405.
-Status DESIGN_DELTA_PRE_PENDING; ausschließlich Architekturplan, keine Implementierung.
+Status DESIGNED; ausschließlich Architekturplan, keine Implementierung.
 
 ## Anlass, Abschluss und gemeinsamer Rahmen
 
@@ -253,4 +253,11 @@ Entwurfsnacharbeit ergänzt genau diese verbindlichen Regeln und berichtigt
 die3065-Byte-Zuordnung. Checkpoint erster Review erreicht; zwei/hartzwei
 Entwurfsstände einschließlich gemeinsamer Koordination/Abschluss, Verbrauch
 UNKNOWN. Ursprünglicher Sourceversuchsstand unverändert fünf/max6. Enger
-unabhängiger Delta-PRE offen; keine Implementierung, Generierung oder Probe.
+unabhängiger Delta-PRE210f8e2cdd550b45e24f259039903e41875ed37b schließt P2/P3;
+keine offenen priorisierten Designbefunde. DESIGNED-GO ausschließlich für den
+Architekturentwurf und regulären reinen Dokumentationsabschluss. Keine Source-,
+Test-, Generierungs- oder Lauf-Freigabe; tatsächlicher Fit weiter unbekannt.
+Lokale Privacy aller vier betroffenen Dokumente sowie zwei Dokumentationsdeltas
+PASS, fünf neue relative Markdownziele vorhanden, Whitespace PASS. Unveränderte
+Runtime-/SQLtests nicht wiederholt. Aktuelle Head-/Base-/Main-Gates, Merge,
+FullTree/Sync und eigene Branchbereinigung bis zum tatsächlichen Nachweis offen.
