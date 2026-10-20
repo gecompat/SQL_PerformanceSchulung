@@ -6,8 +6,11 @@ in CI/Main ohne SKIP, unabhängiger Review und FullTree/Sync/Branchcleanup.
 Nächste endliche Welle: [separat gewählte volle Profilauswahl an lokale Anker
 binden](DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md), ein Owner/max6/Checkpoint2/hart6,
 Auswahl-PRE ausdrücklich freigegeben. C1 ergänzt reine API, engen Frozen-/
-Mixed-Guardfix und15 portable Methoden; Source/Test-PRE mit Lauf-GO vor Läufen
-offen. Keine native Auswahl oder frische operative Aufnahme dadurch behauptet.
+Mixed-Guardfix; C2 ergänzt die16.Methoden-Gegenprobe und schließt den Key-P2.
+Unabhängiger Delta-PRE ohne offene Befunde/Lauf-GO; neue16/16 Windows/Linux
+und alte57/57 Linux isoliert ohne SKIP PASS. Historischer alter Windows57-FAIL
+aufgrund unveränderter POSIX-isabs-Fixture bleibt erhalten. Aktuelle Gates und
+FullTree/Sync/Branchcleanup folgen. Keine operative Aufnahme dadurch behauptet.
 C1-Keygrenzen-P2 wird im gebündelten C2 mit16.Methoden-Gegenprobe geschlossen;
 Checkpoint2/hart6 und ausdrücklicher Delta-PRE/Lauf-GO bleiben maßgeblich.
 Danach hat der menschlich neu priorisierte anwenderorientierte Projekteinstieg

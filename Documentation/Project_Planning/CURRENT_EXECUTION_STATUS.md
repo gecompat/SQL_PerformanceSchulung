@@ -14,14 +14,20 @@ Ein Owner, max6/Checkpoint2/hart6 einschließlich Review/Tests/CI; Auswahl-PRE
 ausdrücklich freigegeben. C1 implementiert additive Brücke und engen gefundenen
 Frozen-/Mixed-Guardfix mit15 vollständig synthetischen portablen Methoden.
 Reine Brücke vor späterer frischer Aufnahme, keine Selbstbaseline oder neuen
-I/O/Hash/Hook-/Observation-/Prozessaufrufe. Source/Test-PRE mit Lauf-GO vor
-Suiteimporten/-läufen offen. Eigener Branch `codex/dgn007-selected-profile-anchors`.
+I/O/Hash/Hook-/Observation-/Prozessaufrufe. Eigener Branch
+`codex/dgn007-selected-profile-anchors`.
 C1 unabhängig mit einem Keygrenzen-P2, ohne Lauf-GO; C2 bündelt dessen
 Schließung mit gemeinsamer begrenzter Keyverarbeitung und16.Methoden-Gegenprobe.
 Checkpoint2 erreicht: zwei Kandidaten, ein Nachlauf, hart6 unverändert. C2-
-Delta-PRE/Lauf-GO vor ersten Tests offen. Anschließend priorisiert der neue
+Delta-PRE ohne offene Befunde und mit ausdrücklichem Lauf-GO bestätigt:
+neue16/16 unter Windows/Linux ohne SKIP PASS. Alte Windows57 FAIL (24Fehler,
+fünfERROR/dreiSKIP) durch unveränderte POSIX-isabs-Fixture auf Windows3.14;
+historisch erhalten, unabhängig eingeordnet und einmalige Plattformkorrektur
+freigegeben. Alte57/57 unter Linux3.12 isoliert ohne SKIP PASS. Aktuelle Gates,
+reguläre Integration und FullTree/Sync/Branchcleanup folgen. Anschließend priorisiert der neue
 Benutzerhinweis eine anwenderorientierte README und eindeutige Archiv-/
-Migrationsbegriffe; weitere technische Aufnahme folgt erst nach diesem Einstiegsschnitt.
+Migrationsbegriffe und einen maßgeblichen Lehrmaßstab ohne pauschale Messpflicht;
+weitere technische Aufnahme folgt erst nach diesem Einstiegsschnitt.
 Operative Auswahl/Inventur, Fünf-Formen-Gate und echte Loader-/Importprovenienz
 bleiben offen. Verbrauch UNKNOWN; kontinuierlicher Auftrag/30-Minuten-Heartbeat aktiv.
 

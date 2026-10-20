@@ -1,7 +1,7 @@
 # DGN-007 – vollständige Profilauswahl an lokale Anker binden
 
 Stand 20. Oktober 2026, Basis `9938091d7de38bb95152cc06e055470e5fb8b7cc`
-nach vollständig abgeschlossenem PR262. Status `SOURCE_TEST_PRE_PENDING`.
+nach vollständig abgeschlossenem PR262. Status `LOCAL_PASS_PR_GATES_PENDING`.
 Kontinuierlicher menschlicher Auftrag; ein Implementierungsowner, unabhängiger
 Auswahl- und Source/Test-PRE mit ausdrücklichem Lauf-GO. Höchstens sechs stabile
 Quellen-/Testkandidaten, Checkpoint nach zwei, harte Grenze sechs einschließlich
@@ -106,8 +106,23 @@ Das ist eine zusätzliche lokale Ankergrenze, kein E4-/Fünf-Formen-Fit und kein
 Qualifikation einer realen Inventur. Die16.Methoden-Gegenprobe hält Cachecounts
 konstant, trägt Sort-/Lookup-Traps und prüft globale Grenze, Aliasmehrfachscan
 und den separat begrenzten POST. Checkpoint2: zwei Kandidaten, ein gebündelter
-Befundnachlauf; harte Grenze6 unverändert, Verbrauch UNKNOWN. C2-Delta-PRE
-mit ausdrücklichem Lauf-GO vor ersten Suiteimporten/-läufen ausstehend.
+Befundnachlauf; harte Grenze6 unverändert, Verbrauch UNKNOWN.
+
+C2 `a5bfb11c1484913f804a88d368dcfb50793948cf` unabhängig ohne offene P1/P2/P3
+mit ausdrücklichem einmaligem Lauf-GO bestätigt. Neue16/16 Methoden unter
+Windows3.14.7 in0,162s und Linux3.12.3 in0,079s ohne SKIP PASS.
+Der freigegebene alte Windows57-Lauf scheitert mit24 FAIL/fünf ERROR/drei SKIP
+an der unveränderten POSIX-Pfadfixture: `ntpath.isabs('/declared/lib')` ist seit
+Python3.13 auf Windows false. Basiscode und Fixture sind diesbezüglich unverändert;
+kein Produktions-/Oraclefix oder grüner Wiederholungslauf. Unabhängige Diagnose
+und ausdrückliches einmaliges Plattform-Lauf-GO für unveränderten C2: bestehende
+57/57 Methoden lokal unter WSL/Linux3.12.3 mit `-I -S -B` in0,067s ohne SKIP
+PASS. Die historische Kontrollcharakterisierung wird nicht zur operativen
+Workerbaseline. [CPython-isabs-Änderung](https://docs.python.org/3.14/library/os.path.html#os.path.isabs),
+geprüft20.Oktober2026. Die neue portable API ist auf beiden Plattformen geprüft;
+die vorhandene physische Profilaufnahme und ihr CI-Gate bleiben Linux3.12.
+Aktuelle finale PR-/Main-Gates, reguläre Integration, FullTree/Sync und eigene
+Branchbereinigung folgen vor Abschluss.
 
 Primärquellen, geprüft20.Oktober2026: [CPython3.12 ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec),
 [Modulcache](https://docs.python.org/3.12/reference/import.html#the-module-cache),
