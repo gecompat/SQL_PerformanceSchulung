@@ -4,7 +4,7 @@
 
 - [x] Vollständiger deklarativer SESSION_END-Matcher aus PR259: Main `d4151093bdd4de115b660352345f3e5c47e9b650`, acht PR-/sechs Main-Gates grün, FullTree/Sync/Branchcleanup bestätigt.
 - [x] [Operativer Abschlussweg](../Documentation/Project_Planning/DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md): PR260 in Main256e43d, acht PR-/sechs Main-Gates SUCCESS, native16/16 ohne SKIP, FullTree/Sync/Branchcleanup bestätigt. Historische C3-FAIL und ausdrückliche C4-Freigabe erhalten.
-- [ ] [Gehaltener Handshakeeingang](../Documentation/Project_Planning/DGN_007_HANDSHAKE_INPUT_PLAN_REVIEW.md): unabhängig ausgewählter reiner Vor-Start-Plan mit ganzen I/W/K/R, neun Rawbodies, fünf E4-Formen und drei Commands innerhalb gemeinsamer Caps; max6/Checkpoint2/hart6, C1 Source/Test-PRE vor erstem Lauf ausstehend.
+- [ ] [Gehaltener Handshakeeingang](../Documentation/Project_Planning/DGN_007_HANDSHAKE_INPUT_PLAN_REVIEW.md): unabhängig ausgewählter reiner Vor-Start-Plan mit ganzen I/W/K/R, neun Rawbodies, fünf E4-Formen und drei Commands innerhalb gemeinsamer Caps; C1 ohne offene Befunde/Lauf-GO,16/16 neue lokale Methoden Windows/Linux ohne SKIP PASS. Aktuelle PR-/Main-Gates und Integrations-/Branchabschluss folgen; ein Kandidat verbraucht.
 - [ ] Anschließend tatsächlich nichtblockierende bidirektionale Start-/Metadata-/Body-/Commandanbindung und einmalige Phasenübergänge vor realer Import-/Loaderprovenienz. Kontinuierlicher Auftrag und bestehender 30-Minuten-Heartbeat aktiv; echte Freigabegrenzen und historische Stops gelten weiter.
 
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026

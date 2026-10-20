@@ -1,7 +1,7 @@
 # DGN-007 – gehaltener vollständiger Handshakeeingang vor Start
 
 Stand: 20. Oktober 2026. Basis `256e43d6d4ca4ac7a248dadbe4c88e6923577ef4`
-nach vollständig abgeschlossenem PR260. Status `SOURCE_TEST_PRE_PENDING`.
+nach vollständig abgeschlossenem PR260. Status `PR_GATES_PENDING`.
 Der menschliche kontinuierliche Auftrag autorisiert diese eigene priorisierte
 Voraussetzung für die spätere operative stdin-Anbindung. Der neue Schnitt
 setzt weder historische C3/C4-Grenzen zurück noch wiederholt deren Tests.
@@ -110,3 +110,14 @@ im [PR260](https://github.com/gecompat/SQL_PerformanceSchulung/pull/260).
 Nachfolgend bleiben der tatsächlich nichtblockierende bidirektionale
 Phasenowner, einmaliger Verbrauch, frische Workerprofile, echte Quellenloader-
 Records und tatsächliche Import-/UsedBytesprovenienz eigene Abnahmegrenzen.
+
+C1 `77687b1431a874863890edb6a4643c5840ab7c59`: vollständiger unabhängiger
+Source/Test-PRE ohne offene P1/P2/P3; ausdrückliches einmaliges Lauf-GO.
+Erste lokale isolierte Läufe am 20. Oktober 2026: Windows/CPython3.14.7
+16/16 PASS ohne SKIP in5,269Sekunden und Linux/CPython3.12.3 16/16 PASS
+ohne SKIP in3,116Sekunden. Echte Transfergrenze1064960/+1 einschließlich
+drei Commands bestanden; Formgrößen-Injektion bleibt ausdrücklich synthetisch.
+Fixture-/Realcache-/Encoderrestore geprüft. Ein Quellen-/Testkandidat verbraucht,
+kein geänderter Befundnachlauf oder unveränderter grüner Wiederholungslauf.
+Aktuelle PR-/Main-Gates, reguläre Integration, FullTree/Sync/Branchcleanup
+stehen vor Abschluss aus; finale Evidenzrevision ändert ausschließlich Doku.

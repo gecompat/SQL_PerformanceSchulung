@@ -15,8 +15,11 @@ Quellen-/Testkandidaten, Checkpoint2/hart6 einschließlich Reviews/Tests/CI.
 Primitive Caller-/Transportvorläufe aller Slots vor Encoder/SHA, vorhandener
 Bodyguard je Slot, separate ganze R4-Bindung, fünf tatsächliche E4-Formen und
 drei Commands gemeinsam im Transfercap. Reiner atomarer Plan, keine native
-I/O-/Start-/Verbrauchs-/Importattestation. C1 wartet auf unabhängigen Source/
-Test-PRE mit ausdrücklichem Lauf-GO; noch keine Suite oder native Probe.
+I/O-/Start-/Verbrauchs-/Importattestation. C1 `77687b1431a874863890edb6a4643c5840ab7c59`
+ist unabhängig ohne offene Befunde und mit ausdrücklichem Source/Test-Lauf-GO
+bestätigt. Erste lokale isolierte Suite16/16 ohne SKIP auf Windows3.14.7
+und Linux3.12.3 bestanden. Ein Kandidat verbraucht; aktuelle PR-/Main-Gates,
+reguläre Integration und FullTree/Sync/Branchcleanup folgen vor Abschluss.
 Bestehende Builder, native Kanalquelle und Runtime-/SQLquellen unverändert.
 Branch `codex/dgn007-held-handshake-input`, Basis identisch mit origin/main.
 Verbrauch UNKNOWN, bestehender 30-Minuten-Heartbeat bleibt kontinuierlich aktiv.
