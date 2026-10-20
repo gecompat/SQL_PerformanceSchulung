@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `C6_FIXTURE_DELTA_PRE_PENDING`.
+Status `LOCAL_PASS_CI_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -322,3 +322,19 @@ Sechs Kandidaten/hart6, fünf geänderte Nachläufe; Verbrauch UNKNOWN. Kein wei
 Source/Testkandidat in diesem Scope zulässig. Letzter unabhängiger Fixture-PRE
 und gezieltes einmaliges Windows/Linux-Lauf-GO ausstehend; regulär selektierte
 vollständige CI, Integration/Main-Gates und sicherer Cleanup bleiben erforderlich.
+
+## Lokale Befundschließung und Integrations-Gates
+
+C6 `413b44b5e52cdc41efb8c88197890240bc2c3e25` unabhängig ohne offene P1/P2/P3,
+gezieltes einmaliges Lauf-GO. Geänderte Fremdschlüssel-Methode danach Windows3.14.7
+in8.169s und Linux3.12.3 in5.716s ohne SKIP PASS. Alle vier Namespacevarianten
+erreicht, durchgehend null EQ aus Setup/SUT. Unveränderte übrige15 lokale
+Ergebnisse aus C4 bleiben gebunden; Linux-C4 hatte bereits alle16 ohne SKIP
+bestanden. Keine zusätzliche vollständige lokale Wiederholung; reguläre CI prüft
+alle16 am finalen Head und die tatsächlich betroffene alte Eingangsfixture.
+
+Produktquelle seit C4, endgültige Fixture seit C6 unverändert. Sechs Kandidaten/
+hart6 einschließlich unabhängiger Auswahl-/Source-/Test-/Deltareviews geschlossen;
+keine weiteren Kandidaten. Reservierter regulärer Abschluss bleibt: aktuelle
+Head-/Base-Gates, normale Integration, frische Main-Gates, FullTree/Sync und
+eindeutige eigene lokale/Remote-Branchbereinigung. Verbrauch UNKNOWN.
