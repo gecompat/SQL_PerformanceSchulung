@@ -15,9 +15,13 @@ für Worker3 mit SOURCE-BEGIN3/4/5 und COMPLETE5/4/3, ohne Parents. Eigener Bran
 unabhängige Reviewer, max6/Checkpoint2/hart6 einschließlich Reviews, Tests und
 vollständigem Integrationsabschluss; Verbrauch UNKNOWN. Auswahl-PRE mit geschlossenen
 Source-/Namen-/Fromlistkanten, reservierten Wirkungen und Getterfreiheit freigegeben.
-C1 ergänzt additive Quelle/16 eigene Methoden; originale Writer-/Budgethalter und
-alle abgeschlossenen Sourcebindungen bleiben erhalten. Ein Kandidat/max6,
-keine Nachläufe; Source/Test-PRE und gestuftes Lauf-GO ausstehend: zuerst nur
+C1 ergänzt additive Quelle/16 eigene Methoden. Unabhängiger PRE mit einem P2
+für spätere Fremdbelegung eines noch ausstehenden Slots und einem P3 für
+nicht eindeutig erreichte Typgrenzen, kein Lauf-GO. C2 prüft alle noch nicht
+veröffentlichten Kandidaten-/Parentslots auf Abwesenheit; späte Slot4/5-Callbacks
+und Fremdname-/Falselevel-Gegenproben mit Len-Trap. Originale Budgethalter und
+abgeschlossene Sourcebindungen bleiben erhalten. Checkpoint2: zwei/max6 Kandidaten,
+ein Nachlauf; Delta-PRE und gestuftes Lauf-GO ausstehend: zuerst nur
 Quellenfit/Ganz-AST Windows/Linux, erst bei beidseitigem PASS übrige15 Modelle.
 Keine Kandidatenimporte, Generierung oder Compile-/Execproben. Nur eigene sichere Modelle nach separatem
 Source/Test-PRE und explizitem Lauf-GO; neue echte Imports/Native-/DGN-Raw-/SQL-

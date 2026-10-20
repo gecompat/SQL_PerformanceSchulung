@@ -1,7 +1,7 @@
 # DGN-007 – gebundene verschachtelte Harness-Quellenfolge
 
 Stand: 20. Oktober 2026. Basis `3387e308c8ae4f45d1cf8eb56176666e9e9355d4`.
-Status `C1_SOURCE_TEST_PRE_PENDING`; noch kein Kandidatenimport oder Lauf.
+Status `C2_SOURCE_TEST_DELTA_PRE_PENDING`; noch kein Kandidatenimport oder Lauf.
 
 ## Abgeschlossener Vorgänger und endlicher Umfang
 
@@ -163,3 +163,30 @@ trennt Importaufruf und Namensbindung;
 [__import__](https://docs.python.org/3.12/library/functions.html#__import__)
 beschreibt Globals/Locals/Fromlist/Level. Die engere geschlossene Auswahl und
 die tatsächlichen Code-/Raw-/Recordbindungen sind Projektvertrag.
+
+## C2 und Checkpoint2
+
+C1 `2dec1b3164edb074fce25bb755078b2ccd9760cb` unabhängig geprüft, noch kein
+Lauf-GO: ein P2 für späte Fremdbelegung noch nicht veröffentlichter Slots4/5 und
+ein P3 für nicht eindeutig erreichte Primitive-Typgrenzen. Sonstige Source-/
+Gateway-/Wire-/Budget-/Oraclebedingungen nachvollziehbar; keine Proben ausgeführt.
+
+C2 prüft in jedem Guard zusätzlich die Abwesenheit sämtlicher neun Kandidaten
+und beider Parents, soweit nicht dieselbe tatsächliche eigene Invocation bereits
+veröffentlicht wurde. Veröffentlichte Invocations müssen weiter die vollständige
+eigene Modul-/Spec-/Loader-/Cachebindung erfüllen. Dadurch wird eine spätere
+Fremdbelegung vor weiteren Wirkungen erkannt und niemals überschrieben.
+Die bestehende Auswahl-/Cachemethode ergänzt tatsächliche Compilecallbacks nach
+bestätigtem BEGIN3 beziehungsweise BEGIN4: Fremdslot4/5 gesetzt, vor dessen Compile
+abgelehnt, exakte frühere Compileanzahl und fremde Eintragsidentität erhalten.
+
+Primitive-Gegenproben übergeben den Fremdnamen mit gültigem Caller und Fromlist;
+ein externer __len__-Trap bleibt ebenso wie Getter/EQ unaufgerufen. levelFalse
+statt True beweist die exakte Integerprüfung unabhängig vom Wertvergleich0.
+Das ursprüngliche Source-EXEC muss tatsächlich erreicht sein. Keine schwächere
+Oracle und kein Zählerreset; weiterhin16Methoden. Ganze AST-Oracle um genau die
+zusätzliche Abwesenheitsinvariante ergänzt.
+
+Checkpoint2: zwei Source/Testkandidaten/max6, ein geänderter Nachlauf, Verbrauch
+UNKNOWN. Gezielter unabhängiger Delta-PRE und ausdrücklich gestuftes Lauf-GO
+ausstehend; vollständiger Fit und innere Modelle weiterhin ungeprüft.

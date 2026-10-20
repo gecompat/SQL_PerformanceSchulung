@@ -312,6 +312,8 @@ _inline_need(f.__code__ is c and f.__globals__ is namespace
     and _worker_profile_function_equal(held, _worker_profile_function(f, [0])), "HARNESS_SOURCE_BINDING")
 for invocation in state[5]:
     _hl_original(owner[16], namespace)(owner, invocation)
+published = tuple(v[1][1] for v in state[5] if v[8] is True)
+_inline_need(all(name not in owner[11] for name in _HL_OWN if name not in published), "HARNESS_SOURCE_BINDING")
 ''').body
     execute = next(node for node in nodes if node.name == "_hl_execute")
     bindings = [node for node in execute.body if isinstance(node, ast.Assign)

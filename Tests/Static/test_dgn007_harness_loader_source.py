@@ -121,6 +121,8 @@ _inline_need(f.__code__ is c and f.__globals__ is namespace
     and _worker_profile_function_equal(held, _worker_profile_function(f, [0])), "HARNESS_SOURCE_BINDING")
 for invocation in state[5]:
     _hl_original(owner[16], namespace)(owner, invocation)
+published = tuple(v[1][1] for v in state[5] if v[8] is True)
+_inline_need(all(name not in owner[11] for name in _HL_OWN if name not in published), "HARNESS_SOURCE_BINDING")
 ''').body
                 if node.name == "_hl_execute":
                     assignment = next(n for n in node.body if isinstance(n, ast.Assign)
@@ -190,6 +192,18 @@ for invocation in state[5]:
             self.reject(env)
             self.assertEqual(self.events(env, "COMPILE"), [])
             if kind == "cache": self.assertIs(env["cache"][NAMES[2]], foreign)
+        for index in (4, 5):
+            env, reached, foreign = model(), [], object()
+            def hook(phase, code, namespace):
+                if phase == "compiled" and code.co_filename == "/dgn007/source/" + str(index - 1) + ".py":
+                    reached.append(1)
+                    env["cache"][NAMES[index - 3]] = foreign
+            env["hooks"][0] = hook
+            self.assertEqual(self.reject(env)[1], "HARNESS_SOURCE_BINDING")
+            self.assertEqual(reached, [1])
+            self.assertEqual(len(self.events(env, "COMPILE")), index - 3)
+            self.assertIs(env["cache"][NAMES[index - 3]], foreign)
+            self.assertIn(env["source_rows"][index - 4], env["io"].output)
 
     def test_closed_project_routes_and_fromlists(self):
         for raw in (b"import orchestrate_sessions\n", b"from orchestrate_sessions import other\n",
@@ -201,13 +215,16 @@ for invocation in state[5]:
             self.assertEqual(self.events(env, "DELEGATE"), [])
 
     def test_foreign_gateway_arguments_precede_dispatch(self):
-        for expression in ("_foreign", "'orchestrate_sessions', _foreign", "'orchestrate_sessions', globals(), locals(), (_foreign,)",
-                           "'orchestrate_sessions', globals(), locals(), ('run_manifest',), True"):
+        for expression in ("_foreign, globals(), locals(), ('run_manifest',), 0",
+                           "'orchestrate_sessions', _foreign, None, ('run_manifest',), 0",
+                           "'orchestrate_sessions', globals(), locals(), (_foreign,), 0",
+                           "'orchestrate_sessions', globals(), locals(), ('run_manifest',), False"):
             raw = ("__import__(" + expression + ")\n").encode()
             calls = []
             class Foreign:
                 def __getattribute__(self, key): calls.append(key); raise AssertionError()
                 def __eq__(self, other): calls.append("EQ"); raise AssertionError()
+                def __len__(self): calls.append("LEN"); raise AssertionError()
             env = model(bodies=(raw,) + BODIES[1:], extras={"_foreign": Foreign()})
             self.reject(env)
             self.assertEqual((calls, self.events(env, "DELEGATE")), ([], []))
