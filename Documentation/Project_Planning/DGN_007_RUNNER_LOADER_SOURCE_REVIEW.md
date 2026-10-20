@@ -437,4 +437,9 @@ versionierbaren aktuellen Inhalte PASS (1256 Dateien,1237 Text,5 Office,
 Runtime-Evidence bleibt erhalten und außerhalb dieses Git-Inhaltsnachweises.
 Alle600 relativen Markdownziele der fünf betroffenen Dokumente vorhanden;
 git diff --check PASS. Keine unveränderten Runtime-/SQL-Suiten wiederholt.
-Abschließender unabhängiger Review und reguläre Git-/CI-Integration offen.
+Abschließender unabhängiger Review526e636f3b88ec6a91f4c47b9842370a9baebebb
+gegen Mainb00418c ohne offene P1/P2/P3; Integrations-GO für diesen reinen
+Dokumentationsabschluss. [PR274](https://github.com/gecompat/SQL_PerformanceSchulung/pull/274)
+enthält ausschließlich fünf Markdowndateien. Reguläre finale Git-/CI-Integration
+noch offen; tatsächliche Head-/Base-/Main-IDs und Bereinigungsnachweise werden
+nach erfolgreichem Abschluss im PR hinterlegt.

@@ -14,9 +14,12 @@ Ganz-AST-/Runner-Modellabnahme, übrige15 Modelle nicht gestartet.
 Unabhängiges Dispositions-GO: neue Runnerquelle, ihre16 Tests und Workflow aus
 finalem Diff entfernt; bestehende Komponenten unverändert. Nur begründeter
 Diagnoseabschluss und belegter PR273-Abschluss werden integriert. Branch
-codex/dgn007-runner-loader-source; lokale relevante Dokumentations-/Privacyprüfung,
-Abschlussreview, aktuelle Head-/Base-/Main-Gates, regulärer Merge, FullTree/Sync
-und eigene lokale/Remote-Bereinigung noch offen.
+codex/dgn007-runner-loader-source, [Diagnose-PR274](https://github.com/gecompat/SQL_PerformanceSchulung/pull/274).
+Lokale Privacy1256/600 relative Markdownziele/Whitespace PASS; unabhängiger
+Abschlussreview526e636 ohne offene P1/P2/P3, Integrations-GO für reinen
+Dokumentationsabschluss. Aktuelle finale Head-/Base-/Main-Gates, regulärer
+Merge, FullTree/Sync und eigene lokale/Remote-Bereinigung noch offen; der
+PR-Abschlussnachweis hält nach erfolgter Integration die tatsächlichen IDs.
 
 Offener Quellenarchitekturblocker: vollständige Runnerkomposition innerhalb
 bestehendem Scriptlimit fehlt. Wiederaufnahme verlangt konkreten unabhängig
