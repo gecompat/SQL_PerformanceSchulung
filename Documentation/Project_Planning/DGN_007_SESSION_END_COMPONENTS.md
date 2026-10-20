@@ -1,7 +1,7 @@
 # DGN-007 – reine SESSION_END-Komponenten
 
 Stand: 2026-10-20. Basis `131e19651c57a829080093cbe2b6767a0ab462d8` nach
-PR256. Status: `A_IMPLEMENTED_REVIEW_PENDING`. Maßgeblich bleibt
+PR256. Status: `A_REVIEWED_CI_GREEN`. Maßgeblich bleibt
 [§34 des Profilbindungsentwurfs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild).
 
 ## Abgegrenzte Wellen und Auswahl vor Implementierung
@@ -84,8 +84,15 @@ Schnitt A, erster Quellenkandidat: 13 Testmethoden bestehen lokal isoliert unter
 Windows/Python 3.14.7 und Linux/Python 3.12.3 ohne SKIP. Enthalten sind alle 57
 Rollen-/Fragmentkombinationen, tatsächliche Footerbreite im gemeinsamen
 Einzelworkerlimit, Typen vor fremdem Dispatch und Fehler ohne private Ketten.
-Checkpoint: Kandidat 1 von höchstens 2; unabhängiger Implementierungsreview,
-aktuelle PR-/Main-Gates und Integration samt Bereinigung stehen noch aus.
+Checkpoint: Kandidat 1 von höchstens 2, keine Quellenkorrektur erforderlich.
+Der unabhängige Implementierungsreview zu Base `131e196…` und Head
+`aa71d354583cef894199823373f778d22b27bf38` schließt ohne offene P1/P2/P3-Befunde.
+Alle acht CI-Gates dieses Stands bestehen, einschließlich der eigenen
+[Komponentensuite](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39402165136).
+Die Abschlussrevision führt ausschließlich Evidenz nach; Quelle und Suite
+bleiben gegenüber dem reviewten Stand unverändert. [PR257](https://github.com/gecompat/SQL_PerformanceSchulung/pull/257)
+bindet finale Head-/Base-Gates, Main-Integration und eigene Branchbereinigung;
+diese bleiben vor Abschluss notwendig.
 Schnitt B ist noch nicht implementiert; sein eigener Implementierungsreview
 bleibt erforderlich. Die Implementierungsquelle wird erst nach Abschluss A
 erweitert.

@@ -14,8 +14,12 @@ anschließend Kanalhashfunktion. Ein Implementierungsowner, höchstens zwei
 Quellenkandidaten je Schnitt, Checkpoint jeweils nach dem ersten und ein
 unabhängiger Implementierungsreview je Schnitt. Der Footer-Erststand besteht
 13 lokale isolierte Testmethoden unter Windows/Python 3.14.7 und
-Linux/Python 3.12.3 ohne SKIP. Review und aktuelle PR-/Main-Gates stehen aus;
-Branch `codex/dgn007-session-end-footer`. Beide Schnitte liegen außerhalb der
+Linux/Python 3.12.3 ohne SKIP. Der unabhängige Implementierungsreview zu
+`aa71d35…` schließt ohne offene Befunde; alle acht CI-Gates dieses Stands sind
+grün. Die Abschlussrevision von [PR257](https://github.com/gecompat/SQL_PerformanceSchulung/pull/257)
+führt ausschließlich Evidenz nach und bindet finale Head-/Base-Gates,
+Main-Integration und Branchbereinigung; diese bleiben vor Abschluss erforderlich.
+Beide Schnitte liegen außerhalb der
 neun Runtimequellen und liefern keinen vollständigen Trace-/Kanal-/EOF- oder
 Runtime-/Trustnachweis. Keine Wiederaufnahme ausgeschöpfter Wellen und keine
 zusätzliche operative Konfiguration.
