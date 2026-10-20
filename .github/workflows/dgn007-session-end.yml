@@ -33,5 +33,5 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Begrenzte Footerfixtures prüfen
+      - name: Begrenzte Footer- und Kanalhashfixtures prüfen
         run: python -I -S -B Tests/Static/test_dgn007_session_end.py

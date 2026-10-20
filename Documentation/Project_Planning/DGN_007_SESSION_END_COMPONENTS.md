@@ -1,7 +1,7 @@
 # DGN-007 – reine SESSION_END-Komponenten
 
 Stand: 2026-10-20. Basis `131e19651c57a829080093cbe2b6767a0ab462d8` nach
-PR256. Status: `A_REVIEWED_CI_GREEN`. Maßgeblich bleibt
+PR256. Status: `B_IMPLEMENTED_REVIEW_PENDING`. Maßgeblich bleibt
 [§34 des Profilbindungsentwurfs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild).
 
 ## Abgegrenzte Wellen und Auswahl vor Implementierung
@@ -93,9 +93,34 @@ Die Abschlussrevision führt ausschließlich Evidenz nach; Quelle und Suite
 bleiben gegenüber dem reviewten Stand unverändert. [PR257](https://github.com/gecompat/SQL_PerformanceSchulung/pull/257)
 bindet finale Head-/Base-Gates, Main-Integration und eigene Branchbereinigung;
 diese bleiben vor Abschluss notwendig.
-Schnitt B ist noch nicht implementiert; sein eigener Implementierungsreview
-bleibt erforderlich. Die Implementierungsquelle wird erst nach Abschluss A
-erweitert.
+PR257 ist mit acht verschiedenen grünen finalen PR-Gates in
+`5466a445574f283b1a3b43c55449cc79fb551234` integriert. Vollständiger Treevergleich
+zum finalen Head `cf8ba1de695a2d709d1b5a68ae357b55456e540b` ohne Unterschied;
+lokales Main synchron/sauber und beide eigenen Arbeitsbranches gelöscht.
+Alle sechs Main-Workflows erfolgreich, einschließlich der
+[Komponentensuite](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39402587807).
+
+## Kanalhash: erster Quellencheckpoint
+
+Schnitt B beginnt erst auf diesem integrierten Mainstand. `channel_digest`
+hasht das feste Domain-/Ordinal-/Kontext-/Längenpräbild inkrementell mit den
+übergebenen Rohbytes. Alle vier exakten primitiven Typen gehen Bounds und
+Hashprovideraufruf voraus; die gemeinsame übergebene Rohbytezahl ist auf
+65536 begrenzt. Footerbytes und drei Workers muss der Caller zusätzlich buchen.
+Das Ergebnis ist nur ein exakter 64-stelliger Lowerhex-String. Eigene feste
+`ChannelRejected`-Fehler behalten keine privaten Ursachen oder Kontexte.
+Die gemeinsame Fehlerhülle des Footer-Codecs erhält dafür einen internen
+Ausnahmetypparameter; dessen öffentliche APIs und Prüfsemantik bleiben erhalten.
+
+22 Testmethoden bestehen isoliert unter Windows/Python 3.14.7 und
+Linux/Python 3.12.3 ohne SKIP: die 13 Footer- und neun Kanalhashmethoden.
+Die genaue 71-Byte-Referenz, alle Ordinals, getrennte Kanal-/Längenbindung,
+unveränderte opake Rohbytes, gemeinsame Grenze und frühe Typ-/Boundsabweisung
+sowie private Providerfehler sind enthalten. Ein Digest attestiert weder
+Providerherkunft noch EOF, Kontext oder tatsächliche Übertragung.
+Checkpoint B: Kandidat 1 von höchstens 2, insgesamt zwei von vier verbraucht;
+Modellverbrauch unbekannt. Eigener unabhängiger Implementierungsreview,
+aktuelle PR-/Main-Gates und Main-Integration samt Bereinigung stehen aus.
 
 ## Offene vollständige Abnahme
 

@@ -16,9 +16,12 @@ Benutzerauftrag folgen die [reinen SESSION_END-Komponenten](DGN_007_SESSION_END_
 zuerst Footer-Codec, danach Kanalhash, je höchstens zwei Quellenkandidaten und
 Checkpoint nach dem ersten. Gemeinsamer unabhängiger Auswahl-PRE ohne Befunde;
 Footer-Erststand mit 13 lokalen isolierten Testmethoden auf Python 3.12/3.14
-bestanden. Unabhängiger Implementierungsreview ohne Befunde und acht grüne
-CI-Gates zum Erststand; die Evidenzrevision von PR257 bindet finale
-Integrationsgates und Bereinigung. Vollständiger Matcher und operative
+bestanden. PR257 ist nach unabhängigem Implementierungsreview ohne Befunde
+und acht verschiedenen grünen finalen PR-Gates in Main `5466a44…` integriert;
+alle sechs Main-Workflows, Treevergleich und eigene Branchbereinigung bestätigt.
+Der erste Kanalhashkandidat besteht 22 isolierte Testmethoden auf Python
+3.12/3.14 einschließlich aller Footergegenproben. Sein unabhängiger Review und
+aktuelle Integrationsgates stehen aus. Vollständiger Matcher und operative
 Provenienz bleiben offen.
 Historische Pausenangaben unten werden nur in diesem Umfang abgelöst.
 Automation und operative Provenienz- oder Workerfreigaben folgen daraus nicht.

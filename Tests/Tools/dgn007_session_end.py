@@ -1,15 +1,18 @@
-"""Reiner Footer-Codec; kein vollständiger SESSION_END-Matcher.
+"""Reine Footer-/Kanalhashkomponenten; kein vollständiger SESSION_END-Matcher.
 
-Geprüft werden deklarierte Felder und notwendige Bounds. Trace, K8/D9,
-Kanalbytes, Providerbindung, EOF und Ressourcen bleiben ungeprüft.
+Geprüft werden deklarierte Felder und Bounds; übergebene Kanalbytes werden
+gehasht. Tatsächliche Aufnahme, Trace, K8/D9, Providerbindung, EOF und
+Ressourcen bleiben ungeprüft.
 Die Standardbibliothek ist eine Kontrollannahme, keine Trustattestation.
 """
 from dataclasses import dataclass, field
+import hashlib
 import json
 
 MAX_FOOTER_BYTES = 256
 MAX_CHANNEL_BYTES = 65536
 _ROLES = ((8, 2, 24), (1, 0, 6), (3, 0, 10))
+_CHANNEL_DOMAIN = b"DGN007-SESSION-CHANNEL/v1\x00"
 _ISSUES = frozenset(("SESSION_END_TYPE", "SESSION_END_LIMIT", "SESSION_END_FORM",
                      "SESSION_END_CANONICAL", "SESSION_END_COUNTS"))
 
@@ -34,6 +37,10 @@ class DecodedFooter:
 
 class FooterRejected(ValueError):
     """Ausschließlich ein fester Issue ohne private Fehlerkette."""
+
+
+class ChannelRejected(ValueError):
+    """Ausschließlich ein fester Issue ohne private Kanal- oder Fehlerwerte."""
 
 
 class _Rejected(Exception):
@@ -98,7 +105,7 @@ def _decode(line):
     return DecodedFooter(line, values)
 
 
-def _public(operation, value):
+def _public(operation, value, rejection=FooterRejected):
     issue = "SESSION_END_FORM"
     try:
         return operation(value)
@@ -108,7 +115,7 @@ def _public(operation, value):
     except Exception:
         pass
     # Außerhalb des except-Blocks: weder Cause noch privater Context.
-    raise FooterRejected(issue) from None
+    raise rejection(issue) from None
 
 
 def encode_footer(values):
@@ -119,3 +126,35 @@ def encode_footer(values):
 def decode_footer(line):
     """Nur Footerfelder prüfen; keine Caller-, Trace-, Kanal- oder EOF-Abnahme."""
     return _public(_decode, line)
+
+
+def _channel(arguments):
+    ordinal, context_digest, stdout_prefix, stderr = arguments
+    # Alle vier exakten Typen vor Bounds, Vergleich oder Hashprovideraufruf.
+    _need(type(ordinal) is int and type(context_digest) is str
+          and type(stdout_prefix) is bytes and type(stderr) is bytes,
+          "SESSION_END_TYPE")
+    _need(1 <= ordinal <= 3, "SESSION_END_COUNTS")
+    _need(len(context_digest) == 64
+          and all(c in "0123456789abcdef" for c in context_digest))
+    out_size, err_size = len(stdout_prefix), len(stderr)
+    _need(out_size + err_size <= MAX_CHANNEL_BYTES, "SESSION_END_LIMIT")
+    # Inkrementell: keine zusätzliche vollständige Payloadkonkatenation.
+    digest = hashlib.sha256()
+    for part in (_CHANNEL_DOMAIN, bytes((ordinal,)), bytes.fromhex(context_digest),
+                 out_size.to_bytes(4, "big"), stdout_prefix,
+                 err_size.to_bytes(4, "big"), stderr):
+        digest.update(part)
+    result = digest.hexdigest()
+    _need(type(result) is str, "SESSION_END_FORM")
+    _need(len(result) == 64 and all(c in "0123456789abcdef" for c in result))
+    return result
+
+
+def channel_digest(ordinal, context_digest, stdout_prefix, stderr):
+    """Nur übergebene Rohbytes hashen; Caller bucht zusätzlich Footer/Workers.
+
+    Keine Pipeaufnahme, EOF-, Kontext-, Provider- oder vollständige Kanalprüfung.
+    """
+    return _public(_channel, (ordinal, context_digest, stdout_prefix, stderr),
+                   ChannelRejected)
