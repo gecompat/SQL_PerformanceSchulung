@@ -1,0 +1,37 @@
+name: DGN-007 SESSION_END-Komponenten
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_session_end.py'
+      - 'Tests/Static/test_dgn007_session_end.py'
+      - 'Documentation/Project_Planning/DGN_007_SESSION_END_COMPONENTS.md'
+      - '.github/workflows/dgn007-session-end.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_session_end.py'
+      - 'Tests/Static/test_dgn007_session_end.py'
+      - 'Documentation/Project_Planning/DGN_007_SESSION_END_COMPONENTS.md'
+      - '.github/workflows/dgn007-session-end.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-session-end-${{ github.workflow }}-${{ github.ref }}
+  # Reine begrenzte Scalarfixtures ohne externe Ressourcen.
+  cancel-in-progress: true
+
+jobs:
+  session-end:
+    name: DGN-007 Reine SESSION_END-Komponenten
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Begrenzte Footerfixtures prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_session_end.py
