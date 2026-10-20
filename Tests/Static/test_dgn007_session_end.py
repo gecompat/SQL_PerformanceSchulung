@@ -1,5 +1,6 @@
-"""Unabhängige skalare Footeroracles; keine Runtimekandidaten oder Worker."""
+"""Unabhängige Footer-/Kanalhashoracles; keine Runtimekandidaten oder Worker."""
 from dataclasses import FrozenInstanceError
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -174,6 +175,125 @@ class FooterTests(unittest.TestCase):
                 self.rejected(literal(fields()), "SESSION_END_FORM")
         with patch.object(footer.json, "dumps", side_effect=RuntimeError("private_probe")):
             self.rejected(fields(), "SESSION_END_FORM", encode=True)
+
+
+def channel_preimage(ordinal, context, out, err):
+    # Eigene binäre Literaloracle, keine Konstanten der Hilfsquelle.
+    worker = {1: b"\x01", 2: b"\x02", 3: b"\x03"}[ordinal]
+    return (b"DGN007-SESSION-CHANNEL/v1\0" + worker + bytes.fromhex(context)
+            + len(out).to_bytes(4, "big") + out
+            + len(err).to_bytes(4, "big") + err)
+
+
+class ChannelTests(unittest.TestCase):
+    def rejected(self, values, issue):
+        with self.assertRaises(footer.ChannelRejected) as caught:
+            footer.channel_digest(*values)
+        error = caught.exception
+        self.assertEqual(str(error), issue)
+        self.assertIsNone(error.__cause__)
+        self.assertIsNone(error.__context__)
+        self.assertNotIn("private_probe", repr(error))
+
+    def test_fixed_71_byte_reference(self):
+        values = (1, "0" * 64, b"A\n", b"B\n")
+        expected = "6a683f6b86ee79fcab1c9756203ccc08ab88e179e66657cb32186602bc5af489"
+        raw = channel_preimage(*values)
+        self.assertEqual(len(raw), 71)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), expected)
+        self.assertEqual(footer.channel_digest(*values), expected)
+
+    def test_all_ordinals_contexts_and_opaque_channel_forms(self):
+        for ordinal in (1, 2, 3):
+            for context in ("0" * 64, "ab" * 32):
+                for out, err in ((b"", b""), (b"A\n", b"B\n"),
+                                 (b"A\r\n", b"\xff\x00\xfe"), (b"\x00\xff", b"")):
+                    values = ordinal, context, out, err
+                    with self.subTest(ordinal=ordinal, context=context[:2], out=out, err=err):
+                        result = footer.channel_digest(*values)
+                        self.assertIs(type(result), str)
+                        self.assertEqual(result, hashlib.sha256(channel_preimage(*values)).hexdigest())
+                        # Ein Digestwert enthält keine Status-/Attestationsflags.
+                        self.assertEqual(len(result), 64)
+                        self.assertFalse(hasattr(result, "runtime_attested"))
+
+    def test_each_binding_dimension_changes_the_hash_without_normalization(self):
+        original = footer.channel_digest(1, "0" * 64, b"A\n", b"B\n")
+        variants = ((2, "0" * 64, b"A\n", b"B\n"),
+                    (1, "1" + "0" * 63, b"A\n", b"B\n"),
+                    (1, "0" * 64, b"B\n", b"A\n"),
+                    (1, "0" * 64, b"A\r\n", b"B\n"),
+                    (1, "0" * 64, b"A\n", b"B\r\n"),
+                    (1, "0" * 64, b"A", b"B\n"),
+                    (1, "0" * 64, b"A\n", b"B\n\x00"),
+                    (1, "0" * 64, b"A\n", b"\xff\n"))
+        for values in variants:
+            self.assertNotEqual(footer.channel_digest(*values), original)
+
+    def test_channel_lengths_separate_the_same_concatenated_bytes(self):
+        # Ohne beide Längen wären diese Kanalaufteilungen identisch.
+        outputs = {footer.channel_digest(1, "0" * 64, out, err)
+                   for out, err in ((b"AB", b"C"), (b"A", b"BC"), (b"", b"ABC"))}
+        self.assertEqual(len(outputs), 3)
+
+    def test_shared_raw_channel_boundary_without_footer_or_three_worker_claim(self):
+        for out, err in ((b"x" * 65536, b""), (b"", b"y" * 65536),
+                         (b"x" * 32768, b"y" * 32768)):
+            values = 3, "f" * 64, out, err
+            self.assertEqual(footer.channel_digest(*values),
+                             hashlib.sha256(channel_preimage(*values)).hexdigest())
+            self.rejected((3, "f" * 64, out, err + b"!"), "SESSION_END_LIMIT")
+        with patch.object(footer.hashlib, "sha256") as provider:
+            self.rejected((1, "a" * 64, b"x" * 65537, b""), "SESSION_END_LIMIT")
+            provider.assert_not_called()
+
+    def test_all_exact_types_precede_foreign_dispatch(self):
+        class Foreign:
+            def __len__(self): raise AssertionError("fremdes len")
+            def __eq__(self, other): raise AssertionError("fremdes eq")
+        class Integer(int):
+            def __le__(self, other): raise AssertionError("fremder Vergleich")
+        class Text(str):
+            def __len__(self): raise AssertionError("fremdes len")
+        class Bytes(bytes):
+            def __len__(self): raise AssertionError("fremdes len")
+        values = (1, "0" * 64, b"", b"")
+        bad_fields = ((True, 1.0, None, Foreign(), Integer(1)),
+                      (None, Foreign(), Text("0" * 64), b"0" * 64),
+                      (None, Foreign(), Bytes(b""), bytearray(), memoryview(b"")),
+                      (None, Foreign(), Bytes(b""), bytearray(), memoryview(b"")))
+        with patch.object(footer.hashlib, "sha256") as provider:
+            for index, bads in enumerate(bad_fields):
+                for bad in bads:
+                    changed = list(values); changed[index] = bad
+                    self.rejected(changed, "SESSION_END_TYPE")
+            # Frühe gültig typisierte Semantikfehler verdecken keinen späten Typfehler.
+            self.rejected((0, "wrong", b"", Foreign()), "SESSION_END_TYPE")
+            provider.assert_not_called()
+
+    def test_ordinal_and_lowerhex_form_precede_provider(self):
+        with patch.object(footer.hashlib, "sha256") as provider:
+            for ordinal in (-1, 0, 4, 10 ** 100):
+                self.rejected((ordinal, "0" * 64, b"", b""), "SESSION_END_COUNTS")
+            for context in ("", "0" * 63, "0" * 65, "A" * 64, "g" * 64, "é" * 64):
+                self.rejected((1, context, b"", b""), "SESSION_END_FORM")
+            provider.assert_not_called()
+
+    def test_private_provider_exceptions_do_not_escape(self):
+        with patch.object(footer.hashlib, "sha256", side_effect=ValueError("private_probe")):
+            self.rejected((1, "0" * 64, b"private_probe", b""), "SESSION_END_FORM")
+        for operation in ("update", "hexdigest"):
+            with patch.object(footer.hashlib, "sha256") as provider:
+                getattr(provider.return_value, operation).side_effect = RuntimeError("private_probe")
+                self.rejected((1, "0" * 64, b"", b"private_probe"), "SESSION_END_FORM")
+
+    def test_invalid_provider_result_form_is_not_an_attestation(self):
+        class Foreign:
+            def __len__(self): raise AssertionError("fremdes len")
+        for result in (None, Foreign(), b"a" * 64, "a" * 63, "A" * 64, "g" * 64):
+            with patch.object(footer.hashlib, "sha256") as provider:
+                provider.return_value.hexdigest.return_value = result
+                self.rejected((1, "0" * 64, b"", b""), "SESSION_END_FORM")
 
 
 if __name__ == "__main__":
