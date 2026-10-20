@@ -12,7 +12,7 @@ Exception-Texte verlassen den Prozess nicht und werden nicht persistiert.
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 import os
 from pathlib import Path
@@ -38,6 +38,7 @@ from sqlcmd_process import SqlcmdResult, build_sqlcmd_command, run_sqlcmd  # noq
 from sqlcmd_process import start_sqlcmd, _terminate_process_tree  # noqa: E402
 from sqlcmd_process import _linux_descendants, _linux_process_identity  # noqa: E402
 from Tests.Contracts.dgn007_capture_projection import decode_projection, ProjectionError  # noqa: E402
+from Tests.Contracts.dgn007_collector_transport import CaptureBody  # noqa: E402
 from Tests.Contracts.dgn007_prospective_acceptance import contract_from_mapping  # noqa: E402
 
 AUTOMATED = (ROOT / "Demos" / "07_Query_Store_Extended_Events"
@@ -176,6 +177,29 @@ class RunResult:
     repetition: int
     outcome: str = "PASS"
     code: str = "OK"
+
+
+@dataclass(frozen=True, slots=True)
+class _CheckedCapture:
+    """Unverkürzter Body und ausgelesene, geprüfte Harness-Phasenstatus."""
+
+    body: CaptureBody = field(repr=False)
+    phases: tuple[tuple[str, str, str], ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _CaptureReceipt:
+    """Interner Erfolgsbeleg nach Cleanup und erster unabhängiger Absenz.
+
+    Keine Ressourcen-, Budget-, Freeze- oder Lifecycle-Reihenfolgeattestation.
+    Der enthaltene CaptureBody bleibt PROJECT_SEMANTIC/runtime_attested=False.
+    """
+
+    repetition: int
+    body: CaptureBody = field(repr=False)
+    phases: tuple[tuple[str, str, str], ...]
+    first_absence_outcome: str
+    first_absence_code: str
 
 
 def validate_manifest(*, contract: RunContract = DATA_MODEL_CONTRACT) -> None:
@@ -590,14 +614,16 @@ def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) 
     return tuple(diagnostics)
 
 
-def check_capture(result: SqlcmdResult, *, contract: RunContract, expected_major: int,
-                  expected_contract) -> tuple[int, int, int, int, int]:
+def _check_capture_body(result: SqlcmdResult, *, contract: RunContract, expected_major: int,
+                        expected_contract) -> _CheckedCapture:
     """Nur CONTROL_EVIDENCE-stderr-Frames decodieren; keine RunRecords bilden.
 
     Der Harness verpackt jede SQL-Zeile mit Phase und Kanal. Alle zusätzlichen
     SQL-Summaries werden exakt an ihre Phase gebunden und ebenfalls geprüft.
-    Der Body bleibt lokal; ausgegeben werden ausschließlich feste Counts.
+    Rückgabe ausschließlich für unveränderte bekannte Kontrollverträge.
     """
+    if contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES:
+        raise RunnerFailure("FAIL_CONTRACT")
     combined = "\n".join((result.stdout, result.stderr)).replace("\r\n", "\n")
     # Die bestehende Terminalprüfung bewahrt Cleanup-/Timeoutpriorität.
     raw_summaries = []
@@ -666,7 +692,22 @@ def check_capture(result: SqlcmdResult, *, contract: RunContract, expected_major
     if (body.major != expected_major or body.compatibility != expected_major * 10
             or body.scope != contract.scope or not body.row_evidence_complete):
         raise RunnerFailure("FAIL_RESULT_CONTRACT")
+    # Genau dieselben ausgelesenen Statusfelder, die check_harness geprüft hat;
+    # keine Ersatzphasen aus dem erwarteten Vertrag herstellen.
+    phases = tuple(PHASE.findall(combined))
+    return _CheckedCapture(body, phases)
+
+
+def _capture_counts(body: CaptureBody) -> tuple[int, int, int, int, int]:
     return (len(body.windows), len(body.requests), len(body.families), len(body.plans), len(body.plan_union))
+
+
+def check_capture(result: SqlcmdResult, *, contract: RunContract, expected_major: int,
+                  expected_contract) -> tuple[int, int, int, int, int]:
+    """Bestehender Counts-Vertrag; dieselbe gemeinsame Bodyprüfung verwenden."""
+    capture = _check_capture_body(result, contract=contract, expected_major=expected_major,
+                                  expected_contract=expected_contract)
+    return _capture_counts(capture.body)
 
 
 def check_harness(result: SqlcmdResult, *, contract: RunContract = DATA_MODEL_CONTRACT) -> None:
@@ -704,22 +745,27 @@ def recover(target: ExecutionTarget) -> None:
         raise RunnerFailure("FAIL_CLEANUP")
 
 
-def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract = DATA_MODEL_CONTRACT,
-            check_capture_projection: bool = False, expected_major: int | None = None,
-            expected_contract=None, check_phase_diagnostics: bool = False) -> RunResult:
+def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract = DATA_MODEL_CONTRACT,
+             check_capture_projection: bool = False, expected_major: int | None = None,
+             expected_contract=None, check_phase_diagnostics: bool = False) -> _CaptureReceipt | None:
+    """Ein gemeinsamer Lifecycle einschließlich unveränderter Ausgabe/Recovery."""
     failure: RunnerFailure | None = None
     result: SqlcmdResult | None = None
+    capture: _CheckedCapture | None = None
+    first_absence_confirmed = False
     try:
         if check_capture_projection:
-            if contract.scope not in CONTROL_SCOPES or expected_major not in (15, 16, 17) or expected_contract is None:
+            if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
+                    or expected_major not in (15, 16, 17) or expected_contract is None):
                 raise RunnerFailure("FAIL_CONTRACT")
             if check_phase_diagnostics:
                 result = run_harness(target, contract=contract, check_capture_projection=True,
                                      check_phase_diagnostics=True)
             else:
                 result = run_harness(target, contract=contract, check_capture_projection=True)
-            counts = check_capture(result, contract=contract, expected_major=expected_major,
-                                   expected_contract=expected_contract)
+            capture = _check_capture_body(result, contract=contract, expected_major=expected_major,
+                                          expected_contract=expected_contract)
+            counts = _capture_counts(capture.body)
             print(f"DGN007_CAPTURE|{contract.scope}|RUN_{repetition}|PASS|OK|windows={counts[0]}; requests={counts[1]}; families={counts[2]}; plans={counts[3]}; union={counts[4]}")
         else:
             if check_phase_diagnostics:
@@ -737,6 +783,7 @@ def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract =
         cleanup_failed = False
         try:
             assert_absent(target)
+            first_absence_confirmed = True
         except (RunnerFailure, ExecutionTargetError, OSError, ValueError, subprocess.TimeoutExpired, KeyboardInterrupt):
             cleanup_failed = True
             # Auch bei fehlgeschlagener Recovery die unabhängige Prüfung ausführen.
@@ -760,7 +807,34 @@ def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract =
         print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|FAIL|{failure.code}")
         raise failure
     print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|PASS|OK")
+    if capture is not None and first_absence_confirmed:
+        return _CaptureReceipt(repetition, capture.body, capture.phases, "PASS", "OK")
+    return None
+
+
+def run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract = DATA_MODEL_CONTRACT,
+            check_capture_projection: bool = False, expected_major: int | None = None,
+            expected_contract=None, check_phase_diagnostics: bool = False) -> RunResult:
+    """Bestehende öffentliche Rückgabe; interne Capture-Daten nicht ausgeben."""
+    _run_one(target, repetition, contract=contract, check_capture_projection=check_capture_projection,
+             expected_major=expected_major, expected_contract=expected_contract,
+             check_phase_diagnostics=check_phase_diagnostics)
     return RunResult(repetition)
+
+
+def _run_capture_one(target: ExecutionTarget, repetition: int, *, contract: RunContract,
+                     expected_major: int, expected_contract,
+                     check_phase_diagnostics: bool = False) -> _CaptureReceipt:
+    """Interne Producer-Rückgabe; ein Fehler liefert niemals einen Erfolgsbeleg."""
+    if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
+            or expected_major not in (15, 16, 17) or expected_contract is None):
+        raise RunnerFailure("FAIL_CONTRACT")
+    receipt = _run_one(target, repetition, contract=contract, check_capture_projection=True,
+                       expected_major=expected_major, expected_contract=expected_contract,
+                       check_phase_diagnostics=check_phase_diagnostics)
+    if receipt is None:
+        raise RunnerFailure("FAIL_CONTRACT")
+    return receipt
 
 
 def build_parser() -> argparse.ArgumentParser:

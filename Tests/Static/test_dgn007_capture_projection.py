@@ -9,7 +9,7 @@ Es entstehen keine RunRecord-, Freeze- oder Incidentattestationen.
 from __future__ import annotations
 from contextlib import closing,redirect_stdout,redirect_stderr
 from copy import deepcopy
-from dataclasses import replace
+from dataclasses import FrozenInstanceError,replace
 from datetime import date
 from decimal import Decimal,localcontext
 import io
@@ -220,6 +220,168 @@ class ProjectionTests(unittest.TestCase):
             result=harness(frames(self.value),contract)
             with self.assertRaisesRegex(runner.RunnerFailure,'FAIL_RESULT_CONTRACT'):
                 runner.check_capture(result,contract=contract,expected_major=major,expected_contract=self.contract)
+
+    def test_checked_capture_preserves_full_body_and_actual_validated_phases(self):
+        for major in (15,16,17):
+            for sequence,contract in (('AB',runner.CONTROL_AB_CONTRACT),
+                                      ('BA',runner.CONTROL_BA_CONTRACT),
+                                      ('AA',runner.CONTROL_AA_CONTRACT)):
+                value=payload(self.contract,major,sequence)
+                result=harness(frames(value),contract)
+                decoded=transport.decode_capture(encode(value),self.contract)
+                with patch.object(runner,'decode_projection',wraps=projection.decode_projection) as decode:
+                    checked=runner._check_capture_body(result,contract=contract,
+                        expected_major=major,expected_contract=self.contract)
+                decode.assert_called_once()
+                self.assertEqual(checked.body,decoded)
+                self.assertEqual(checked.phases,tuple(runner.PHASE.findall(result.stdout+'\n'+result.stderr)))
+                self.assertEqual(runner.check_capture(result,contract=contract,
+                    expected_major=major,expected_contract=self.contract),runner._capture_counts(decoded))
+                self.assertFalse(checked.body.runtime_attested)
+                self.assertNotIn('123.45678901234567',repr(checked))
+                with self.assertRaises(FrozenInstanceError): checked.body=decoded
+                with self.assertRaises(FrozenInstanceError): checked.body.major=major
+
+    def test_body_helper_rejects_modified_contracts_and_incomplete_actual_phases_before_decode(self):
+        canonical=runner.CONTROL_AB_CONTRACT
+        good=harness(frames(self.value))
+        contracts=(runner.DATA_MODEL_CONTRACT,runner.QUERY_STORE_WINDOWS_CONTRACT,runner.PROFILE_COMPARISON_CONTRACT,
+                   replace(canonical,manifest=Path('foreign.manifest.json')),
+                   replace(canonical,phase_specs=canonical.phase_specs[:-1]),
+                   replace(canonical,scope='DGN-007_CONTROL_FOREIGN'))
+        bad_outputs=(good.stdout.replace('CONTROL_EVIDENCE: PASS/OK (0.001s)',''),
+                     good.stdout+'\nCONTROL_EVIDENCE: PASS/OK (0.001s)',
+                     good.stdout.replace('PREFLIGHT:','UNKNOWN:'),
+                     good.stdout.replace('PREFLIGHT: PASS/OK','PREFLIGHT: SKIP/SKIP_EVIDENCE_MISSING'),
+                     '\n'.join(reversed(good.stdout.splitlines())))
+        with patch.object(runner,'decode_projection') as decode:
+            for contract in contracts:
+                with self.subTest(contract=contract.scope),self.assertRaisesRegex(runner.RunnerFailure,'FAIL_CONTRACT'):
+                    runner._check_capture_body(good,contract=contract,expected_major=15,expected_contract=self.contract)
+            for stdout in bad_outputs:
+                with self.subTest(stdout=stdout),self.assertRaisesRegex(runner.RunnerFailure,'FAIL_CONTRACT'):
+                    runner._check_capture_body(replace(good,stdout=stdout),contract=canonical,
+                        expected_major=15,expected_contract=self.contract)
+            decode.assert_not_called()
+
+    def test_internal_v2_receipt_preserves_diagnostic_clock_mismatch_for_all_controls(self):
+        for major in (15,16,17):
+            for sequence in ('AB','BA','AA'):
+                contract=runner.scope_contract('control-'+sequence.lower())
+                value=payload(self.contract,major,sequence)
+                value['plans'][0]['first_execution_ticks']=1099
+                value['plans'][0]['last_execution_ticks']=1201
+                result=harness(frames(value),contract)
+                with patch.object(runner,'run_harness',return_value=result), \
+                     patch.object(runner,'assert_absent'),redirect_stdout(io.StringIO()):
+                    receipt=runner._run_capture_one(object(),1,contract=contract,
+                        expected_major=major,expected_contract=self.contract)
+                self.assertEqual(receipt.body,transport.decode_capture(encode(value),self.contract))
+                self.assertEqual((receipt.body.plans[0].first_execution_ticks,
+                                  receipt.body.plans[0].last_execution_ticks),(1099,1201))
+                self.assertEqual(receipt.body.schema,'dgn007-capture-body/v2')
+                self.assertFalse(receipt.body.runtime_attested)
+
+    def test_internal_receipt_rejects_result_oracles_even_after_successful_absence(self):
+        for mutate in (
+                lambda v: v['requests'][0].update(returned_rows=229),
+                lambda v: v['requests'][0].update(returned_rows=None,row_evidence='NOT_CAPTURED'),
+                lambda v: v['plans'][0].update(execution_count=3),
+                lambda v: v['plans'][0].update(interval_id=11)):
+            value=deepcopy(self.value);mutate(value)
+            with patch.object(runner,'run_harness',return_value=harness(frames(value))), \
+                 patch.object(runner,'assert_absent') as absent,patch.object(runner,'recover') as recover, \
+                 patch.object(runner,'_CaptureReceipt') as receipt,redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(runner.RunnerFailure,'FAIL_RESULT_CONTRACT'):
+                    runner._run_capture_one(object(),1,contract=runner.CONTROL_AB_CONTRACT,
+                        expected_major=15,expected_contract=self.contract)
+            absent.assert_called_once();recover.assert_not_called();receipt.assert_not_called()
+
+    def test_internal_receipt_returns_only_after_first_absence_and_decodes_once_for_both_flags(self):
+        target=object();result=harness(frames(self.value));body=projection.decode_projection(frames(self.value),self.contract)
+        constructor=runner._CaptureReceipt
+        for diagnostics in (False,True):
+            events=[]
+            def make_receipt(*args):
+                self.assertEqual(events,['harness','decode','absence'])
+                events.append('receipt')
+                return constructor(*args)
+            def read_harness(*args,**kwargs): events.append('harness');return result
+            def decode_body(*args): events.append('decode');return body
+            with patch.object(runner,'run_harness',side_effect=read_harness) as harness_call, \
+                 patch.object(runner,'decode_projection',side_effect=decode_body) as decode, \
+                 patch.object(runner,'assert_absent',side_effect=lambda target: events.append('absence')) as absent, \
+                 patch.object(runner,'recover') as recover,patch.object(runner,'_CaptureReceipt',side_effect=make_receipt), \
+                 redirect_stdout(io.StringIO()) as out:
+                receipt=runner._run_capture_one(target,2,contract=runner.CONTROL_AB_CONTRACT,
+                    expected_major=15,expected_contract=self.contract,check_phase_diagnostics=diagnostics)
+            decode.assert_called_once();absent.assert_called_once_with(target);recover.assert_not_called()
+            self.assertIs(receipt.body,body)
+            self.assertEqual(receipt.phases,tuple(runner.PHASE.findall(result.stdout+'\n'+result.stderr)))
+            self.assertEqual((receipt.repetition,receipt.first_absence_outcome,receipt.first_absence_code),(2,'PASS','OK'))
+            self.assertFalse(receipt.body.runtime_attested)
+            with self.assertRaises(FrozenInstanceError): receipt.first_absence_code='OTHER'
+            self.assertNotIn('123.45678901234567',repr(receipt))
+            expected_kwargs={'contract':runner.CONTROL_AB_CONTRACT,'check_capture_projection':True}
+            if diagnostics: expected_kwargs['check_phase_diagnostics']=True
+            harness_call.assert_called_once_with(target,**expected_kwargs)
+            expected_output=('DGN007_CAPTURE|DGN-007_CONTROL_AB|RUN_2|PASS|OK|windows=2; requests=8; families=1; plans=2; union=2\n'
+                             'DGN007_CLEANUP|RUN_2|PASS|OK\nDGN007_STAGE|DGN-007_CONTROL_AB|RUN_2|PASS|OK\n')
+            self.assertEqual(out.getvalue(),expected_output)
+            # The public path retains its original result and identical output.
+            with patch.object(runner,'run_harness',return_value=result),patch.object(runner,'assert_absent'), \
+                 patch.object(runner,'decode_projection',return_value=body) as decode,redirect_stdout(io.StringIO()) as public_out:
+                public=runner.run_one(target,2,contract=runner.CONTROL_AB_CONTRACT,check_capture_projection=True,
+                    expected_major=15,expected_contract=self.contract,check_phase_diagnostics=diagnostics)
+            self.assertEqual(public,runner.RunResult(2));self.assertEqual(public_out.getvalue(),expected_output)
+            decode.assert_called_once()
+
+    def test_internal_receipt_never_survives_failed_first_absence_or_harness_cleanup(self):
+        good=harness(frames(self.value))
+        cleanup=replace(good,stdout=good.stdout.replace('CLEANUP: PASS/OK','CLEANUP: FAIL/FAIL_CLEANUP'))
+        invalid=harness(())
+        cases=((good,[runner.RunnerFailure('FAIL_CLEANUP'),None],'FAIL_CLEANUP',True),
+               (cleanup,[None],'FAIL_CLEANUP',False),
+               (replace(good,timed_out=True),[None],'FAIL_TIMEOUT',False),
+               (invalid,[None],'FAIL_CONTRACT',False))
+        for result,absence,code,recovery in cases:
+            with self.subTest(code=code,recovery=recovery),patch.object(runner,'run_harness',return_value=result), \
+                 patch.object(runner,'assert_absent',side_effect=absence) as absent,patch.object(runner,'recover') as recover, \
+                 patch.object(runner,'_CaptureReceipt') as receipt,redirect_stdout(io.StringIO()) as out:
+                with self.assertRaisesRegex(runner.RunnerFailure,code):
+                    runner._run_capture_one(object(),1,contract=runner.CONTROL_AB_CONTRACT,
+                        expected_major=15,expected_contract=self.contract)
+            receipt.assert_not_called();self.assertEqual(absent.call_count,2 if recovery else 1)
+            self.assertEqual(recover.call_count,int(recovery))
+            self.assertIn('DGN007_STAGE|DGN-007_CONTROL_AB|RUN_1|FAIL|'+code,out.getvalue())
+            if recovery:
+                self.assertLess(out.getvalue().index('DGN007_CAPTURE'),out.getvalue().index('DGN007_CLEANUP'))
+                self.assertIn('DGN007_CLEANUP|RUN_1|FAIL|FAIL_CLEANUP',out.getvalue())
+
+    def test_phase_diagnostics_alone_never_decodes_or_returns_a_capture_receipt(self):
+        for contract in runner.KNOWN_CONTRACTS:
+            result=replace(harness((),contract),stderr='')
+            with patch.object(runner,'run_harness',return_value=result) as read,patch.object(runner,'assert_absent'), \
+                 patch.object(runner,'decode_projection') as decode,patch.object(runner,'_CaptureReceipt') as receipt, \
+                 redirect_stdout(io.StringIO()) as out:
+                returned=runner._run_one(object(),1,contract=contract,check_phase_diagnostics=True)
+            self.assertIsNone(returned);decode.assert_not_called();receipt.assert_not_called()
+            self.assertTrue(read.call_args.kwargs['check_phase_diagnostics'])
+            self.assertNotIn('DGN007_CAPTURE',out.getvalue())
+
+    def test_direct_capture_api_rejects_invalid_inputs_without_target_operations(self):
+        canonical=runner.CONTROL_AB_CONTRACT
+        invalid=((runner.DATA_MODEL_CONTRACT,15,self.contract),
+                 (replace(canonical,manifest=Path('foreign.manifest.json')),15,self.contract),
+                 (replace(canonical,phase_specs=canonical.phase_specs[:-1]),15,self.contract),
+                 (replace(canonical,scope='DGN-007_CONTROL_FOREIGN'),15,self.contract),
+                 (canonical,14,self.contract),(canonical,15,None))
+        with patch.object(runner,'_run_one') as core,patch.object(runner,'run_harness') as read, \
+             patch.object(runner,'assert_absent') as absent,patch.object(runner,'recover') as recover:
+            for contract,major,expected in invalid:
+                with self.subTest(contract=contract.scope,major=major),self.assertRaisesRegex(runner.RunnerFailure,'FAIL_CONTRACT'):
+                    runner._run_capture_one(object(),1,contract=contract,expected_major=major,expected_contract=expected)
+            for operation in (core,read,absent,recover): operation.assert_not_called()
 
     def test_foreign_line_partial_frame_and_skip_warn_fail(self):
         good=harness(frames(self.value))
@@ -576,6 +738,17 @@ class ExtractedSqlTests(unittest.TestCase):
             'if check_capture_projection or check_phase_diagnostics:', 'if True:')))
         self.assertTrue(validator.runner_projection_findings(source.replace(
             'or (check_capture_projection and contract.scope not in CONTROL_SCOPES)', 'or False')))
+        for before,after in (
+                ('phases = tuple(PHASE.findall(combined))',
+                 'phases = tuple((phase,"PASS","OK") for phase in contract.expected_phases)'),
+                ('first_absence_confirmed = True','first_absence_confirmed = False'),
+                ('capture is not None and first_absence_confirmed','capture is not None'),
+                ('contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES','False'),
+                ('receipt = _run_one(target, repetition','receipt = run_one(target, repetition'),
+                ('capture = _check_capture_body(result','capture = check_capture(result')):
+            with self.subTest(before=before):
+                self.assertIn(before,source)
+                self.assertTrue(validator.runner_projection_findings(source.replace(before,after)))
         for scope in ('data-model','query-store-windows','profile-comparison'):
             self.assertTrue(validator.workflow_findings(workflow.replace(
                 '--scope '+scope+' --check-phase-diagnostics','--scope '+scope)))

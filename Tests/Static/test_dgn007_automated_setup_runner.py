@@ -17,6 +17,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Tests" / "Runtime"))
 import run_dgn007_automated_setup as runner  # noqa: E402
+import validate_dgn007_automated_setup as validator  # noqa: E402
 
 
 def harness_result(*, contract=runner.DATA_MODEL_CONTRACT, phases=None, summary="PASS|OK", returncode=0, timed_out=False):
@@ -33,6 +34,20 @@ def target():
 
 
 class HarnessContractTests(unittest.TestCase):
+    def test_static_cleanup_contract_tracks_only_the_shared_core_and_real_public_delegation(self):
+        source=validator.RUNNER.read_text(encoding="utf-8")
+        self.assertEqual(validator.runner_findings(source),[])
+        for before,after in (
+                ('_run_one(target, repetition, contract=contract, check_capture_projection=check_capture_projection',
+                 '_unrelated_core(target, repetition, contract=contract, check_capture_projection=check_capture_projection'),
+                ('def _run_one(', 'def _unrelated_core('),
+                ('assert_absent(target)', 'unrelated_probe(target)'),
+                ('recover(target)', 'unrelated_recovery(target)'),
+                ('expected_major=expected_major', 'expected_major=17')):
+            with self.subTest(before=before):
+                self.assertIn(before,source)
+                self.assertTrue(validator.runner_findings(source.replace(before,after)))
+
     def test_complete_pass_only(self):
         runner.check_harness(harness_result())
 

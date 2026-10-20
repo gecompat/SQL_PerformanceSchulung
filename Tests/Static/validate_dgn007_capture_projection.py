@@ -239,8 +239,36 @@ def runner_projection_findings(source):
                    'reported_capture_failure(result.stdout, result.stderr, contract=contract)',
                    'HARNESS_TIMEOUT = 180 + 60 + 20'):
         if marker not in source: findings.append('Producer-Runner-Vertrag fehlt: '+marker)
-    for name in ('collect_capture_process','check_capture'):
+    for name in ('collect_capture_process','check_capture','_check_capture_body','_capture_counts',
+                 '_run_one','run_one','_run_capture_one'):
         if name not in functions: findings.append('Private Producer-Prozessgrenze fehlt')
+    body_helper=functions.get('_check_capture_body')
+    direct=functions.get('_run_capture_one')
+    exact_guard=ast.dump(ast.parse('contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES',mode='eval').body)
+    if not body_helper or not any(isinstance(n,ast.If) and ast.dump(n.test)==exact_guard for n in body_helper.body):
+        findings.append('Der Bodyhelper benötigt den unveränderten bekannten Kontrollvertrag')
+    if not body_helper or not any(isinstance(n,ast.Assign) and ast.unparse(n)=='phases = tuple(PHASE.findall(combined))' for n in body_helper.body):
+        findings.append('Capturephasen müssen aus den tatsächlich geprüften Harnessstatus stammen')
+    direct_guard=ast.dump(ast.parse('contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES or expected_major not in (15,16,17) or expected_contract is None',mode='eval').body)
+    first=next((n for n in direct.body if not isinstance(n,ast.Expr)),None) if direct else None
+    if not isinstance(first,ast.If) or ast.dump(first.test)!=direct_guard:
+        findings.append('Die direkte Capture-API muss ungültige Eingaben vor Zieloperationen ablehnen')
+    core=functions.get('_run_one')
+    confirmed=[n for n in ast.walk(core) if isinstance(n,ast.Assign) and ast.unparse(n)=='first_absence_confirmed = True'] if core else []
+    lifecycle=next((n for n in core.body if isinstance(n,ast.Try)),None) if core else None
+    absence=next((n for n in lifecycle.finalbody if isinstance(n,ast.Try)),None) if lifecycle else None
+    if (len(confirmed)!=1 or not absence or len(absence.body)!=2
+            or ast.unparse(absence.body[0])!='assert_absent(target)' or absence.body[1] is not confirmed[0]):
+        findings.append('Nur die erste erfolgreiche unabhängige Absenzprüfung darf den Capturebeleg freigeben')
+    receipt_guard=ast.dump(ast.parse('capture is not None and first_absence_confirmed',mode='eval').body)
+    receipt_returns=[n for n in ast.walk(core) if isinstance(n,ast.Return) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Name) and n.value.func.id=='_CaptureReceipt'] if core else []
+    gated=[n for block in core.body if isinstance(block,ast.If) and ast.dump(block.test)==receipt_guard for n in ast.walk(block) if isinstance(n,ast.Return)] if core else []
+    if len(receipt_returns)!=1 or receipt_returns[0] not in gated:
+        findings.append('Ein Capturebeleg ist nur nach erfolgreichem Lifecycle und erster Absenz zulässig')
+    for name,callee in (('check_capture','_check_capture_body'),('run_one','_run_one'),('_run_capture_one','_run_one'),('_run_one','_check_capture_body')):
+        node=functions.get(name)
+        calls=[n for n in ast.walk(node) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id==callee] if node else []
+        if len(calls)!=1: findings.append('Counts und Capturebeleg benötigen dieselbe einmalige Prüfung: '+name)
     return findings
 
 

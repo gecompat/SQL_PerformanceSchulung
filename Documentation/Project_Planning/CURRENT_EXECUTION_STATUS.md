@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## Wiederaufnahme vom 20. Oktober 2026: interne DGN-007-Capture-Rückgabe
+
+Der neue ausdrückliche Benutzerauftrag hebt die frühere allgemeine
+Entwicklungspause auf. Zuerst wird der erhaltene lokale Entwurf
+`codex/dgn007-internal-capture-receipt` bei `83f08fb71446445e70fb6227e442ed7109637de6`
+gegen Main `52351588632c3ad7bbc33cd46cbc5e0d959fe354` geprüft und auf dem neuen
+Branch `codex/dgn007-capture-receipt-v2` bearbeitet. Kein offener PR, nur dieser
+alte lokale Branch neben Main und kein weiterer Worktree waren vorhanden.
+DEC-072/PR132 haben die ältere G13-/Zeitquellensperre dieses begrenzten Scopes
+abgelöst. Historische FAILs und größere noch offene Methodengates bleiben erhalten.
+
+Der [aktuelle Quellenabgleich und Integrationsplan](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
+begrenzt die erste Welle auf interne Body-/Phasenrückgabe mit vollständigen
+Oracles, erfolgreichem Lifecycle und erster unabhängiger Datenbankabwesenheit.
+Ein Owner, maximal drei Kandidaten und Checkpoint nach dem zweiten;
+unabhängiger Review sowie aktuelle PR-/Base-CI und Integration noch offen.
+Der alte Branch wird erst nach bestätigter vollständiger Übernahme bereinigt.
+SESSION_END, Collector und operative Provenienzarchitektur gehören nicht zu
+dieser ersten Welle. Die nächste ausführbare priorisierte Welle folgt erst
+nach deren Abschluss mit eigener Begrenzung und Prüfung früherer Limits.
+Keine neue Scheduler-/Heartbeat-/Cloud-/Modell-/Credential-/Trustkonfiguration;
+laufende Lab-CI und fremde Ressourcen bleiben geschützt. Die folgenden
+Pausen- und Methodenstände sind historisch, soweit dieser aktuelle Auftrag
+und DEC-072 sie ausdrücklich abgelöst haben.
+
 ## QRY-017: automatisierter Volltextpfad vom 19. Oktober 2026
 
 Der Benutzer beauftragt die Prüfung der automatisierten Lab-Unterstützung,
