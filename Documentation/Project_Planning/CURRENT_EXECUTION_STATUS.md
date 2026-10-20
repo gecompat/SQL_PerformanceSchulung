@@ -1,5 +1,23 @@
 # Aktueller Ausführungsstand
 
+## Vollständige Runner-Quellenfolge vom 20. Oktober 2026
+
+PR273 vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 integriert:
+neun PR-/sieben frische Main-Gates SUCCESS, neue Parent12/Harness16 ohne SKIP,
+unabhängige Schließung, FullTree/Sync und eigene Branchabwesenheit bestätigt.
+Drei Kandidaten/zwei Nachläufe erfolgreich geschlossen; [PR273-Abschlussbindung](https://github.com/gecompat/SQL_PerformanceSchulung/pull/273).
+
+Nächster priorisierter begrenzter Schnitt: [vollständige Runner-Quellenfolge](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md)
+mit acht tatsächlichen eigenen synthetischen Sourceinvocations und zwei
+codefreien Parents. Additive neue Route auf unverändertem Eingangsunterbau,
+privater ursprünglicher Parentfactorycode/Namespace vor Reportsnapshot,
+geschlossene Importkanten und volle gehaltene Bindungen. Eigener Branch
+codex/dgn007-runner-loader-source, ein Owner/max6/Checkpoint2/hart6 einschließlich
+aller Reviews, Fit-/Transformationskorrekturen, Tests, Koordination und vollständigem
+Integrationsabschluss; Verbrauch UNKNOWN. Auswahl-PRE offen; keine neue
+Implementierung, Generierung oder Probe. Fünf Importe/ganzer Raw/131072Cap
+unverändert. Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
+
 ## Codefreie Parentregistrierung vom 20. Oktober 2026
 
 PR272 vollständig in Main4a165c20840193e26b05a789d8e6e067c0bca7b9 integriert:
