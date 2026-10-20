@@ -2429,3 +2429,216 @@ def build_inline_session_end_control_bootstrap(profile_raw, *, logical_profile,
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_WORKER_PROFILE = r'''
+_WORKER_PROFILE_ATTEMPTED = False
+_WORKER_PROFILE_BINDING = None
+
+
+def _worker_profile_take(budget, size):
+    _inline_need(budget[0] + size <= 16368, "WORKER_PROFILE_BINDING")
+    budget[0] += size
+
+
+def _worker_profile_items(namespace, budget):
+    _inline_need(type(namespace) is dict and len(namespace) <= 256, "WORKER_PROFILE_BINDING")
+    _worker_profile_take(budget, len(namespace))
+    _inline_need(_dictionary(namespace), "WORKER_PROFILE_BINDING")
+    return tuple(sorted(namespace.items()))
+
+
+def _worker_profile_plain_function(function, budget):
+    _inline_need(type(function) is type(_worker_profile_function), "WORKER_PROFILE_BINDING")
+    defaults, keywords, closure = function.__defaults__, function.__kwdefaults__, function.__closure__
+    _inline_need(defaults is None or (type(defaults) is tuple and len(defaults) <= 256),
+                 "WORKER_PROFILE_BINDING")
+    _inline_need(closure is None or (type(closure) is tuple and len(closure) <= 256),
+                 "WORKER_PROFILE_BINDING")
+    _worker_profile_take(budget, (0 if defaults is None else len(defaults))
+                         + (0 if closure is None else len(closure)))
+    annotate = getattr(function, "__annotate__", None)
+    _inline_need(annotate is None or type(annotate) is type(function), "WORKER_PROFILE_BINDING")
+    return (function, function.__code__, function.__globals__, defaults, keywords,
+            () if keywords is None else _worker_profile_items(keywords, budget), closure,
+            () if closure is None else tuple(cell.cell_contents for cell in closure), annotate)
+
+
+def _worker_profile_function(function, budget):
+    state = _worker_profile_plain_function(function, budget)
+    # Compilerannotatoren und erzeugte Stdlib-Methodenannotatoren getrennt halten;
+    # keine Annotation auswerten und keine Funktion __annotations__ lesen.
+    return state + (None if state[8] is None else _worker_profile_plain_function(state[8], budget),)
+
+
+def _worker_profile_plain_equal(before, after):
+    return (all(before[index] is after[index] for index in (0, 1, 2, 3, 4, 6, 8))
+            and len(before[5]) == len(after[5])
+            and all(a[0] == b[0] and a[1] is b[1] for a, b in zip(before[5], after[5]))
+            and len(before[7]) == len(after[7])
+            and all(a is b for a, b in zip(before[7], after[7])))
+
+
+def _worker_profile_function_equal(before, after):
+    return (_worker_profile_plain_equal(before, after)
+            and ((before[9] is None and after[9] is None)
+                 or (before[9] is not None and after[9] is not None
+                     and _worker_profile_plain_equal(before[9], after[9]))))
+
+
+def _worker_profile_state():
+    a = _SEMANTIC_CONTROL_ANCHOR
+    _inline_need(type(a) is tuple and len(a) == 12, "WORKER_PROFILE_BINDING")
+    _coherent(*a)
+    module, code = a[0], a[8]
+    _inline_need(type(module) is _MODULE_CLASS and type(code) is type(_worker_profile_state.__code__),
+                 "WORKER_PROFILE_BINDING")
+    namespace = module.__dict__
+    budget = [0]
+    items = _worker_profile_items(namespace, budget)
+    _inline_need(len(code.co_consts) <= 256, "WORKER_PROFILE_BINDING")
+    _worker_profile_take(budget, len(code.co_consts))
+    functions, classes, annotations = [], [], []
+    for constant in code.co_consts:
+        if type(constant) is not type(code):
+            continue
+        if constant.co_name == "__annotate__":
+            annotations.append(constant)
+            continue
+        value = namespace.get(constant.co_name)
+        if constant.co_flags & 3 == 3:
+            _inline_need(type(value) is type(_worker_profile_state)
+                         and value.__code__ is constant and value.__globals__ is namespace,
+                         "WORKER_PROFILE_BINDING")
+            functions.append(_worker_profile_function(value, budget))
+        else:
+            _inline_need(type(value) is type and type(value.__dict__) is type(type.__dict__)
+                         and len(value.__dict__) <= 256, "WORKER_PROFILE_BINDING")
+            _worker_profile_take(budget, len(value.__dict__))
+            # Mappingproxy und sämtliche Keys zuerst prüfen, erst danach kopieren.
+            member_namespace = _semantic_class_namespace(value)
+            members = _worker_profile_items(dict(member_namespace), budget)
+            _inline_need(len(constant.co_consts) <= 256, "WORKER_PROFILE_BINDING")
+            _worker_profile_take(budget, len(constant.co_consts))
+            for method_code in constant.co_consts:
+                if type(method_code) is type(code):
+                    # CPython3.14 legt den Compiler-Klassenannotator unter diesem
+                    # Slot ab; dataclass(slots=True) kopiert ihn in die neue Klasse.
+                    name = "__annotate_func__" if method_code.co_name == "__annotate__" else method_code.co_name
+                    method = member_namespace.get(name)
+                    _inline_need(type(method) is type(_worker_profile_state)
+                                 and method.__code__ is method_code and method.__globals__ is namespace,
+                                 "WORKER_PROFILE_BINDING")
+            methods = tuple(_worker_profile_function(member, budget) for _, member in members
+                            if type(member) is type(_worker_profile_state))
+            classes.append((value, value.__bases__, value.__mro__, members, methods))
+    # CPython3.14 hängt direkte Funktionsannotatoren an das Funktionsobjekt.
+    # Jede solche Codekonstante muss genau einen gebundenen Quellenowner haben.
+    for annotation_code in annotations:
+        owners = [state[8] for state in functions if state[8] is not None
+                  and state[8].__code__ is annotation_code and state[8].__globals__ is namespace]
+        _inline_need(len(owners) == 1, "WORKER_PROFILE_BINDING")
+    frozen = namespace.get("FROZEN_NAMES")
+    frozen_items = _worker_profile_items(frozen, budget)
+    for _, pair in frozen_items:
+        _inline_need(type(pair) is tuple and len(pair) == 2, "WORKER_PROFILE_BINDING")
+        for text in pair:
+            _inline_need(type(text) is str and len(text) <= 4096 and "\0" not in text
+                         and len(text.encode("utf-8", "strict")) <= 4096, "WORKER_PROFILE_BINDING")
+    return (a, namespace, items, tuple(functions), tuple(classes), frozen_items)
+
+
+def _worker_profile_check(before):
+    after = _worker_profile_state()
+    _inline_need(before[0] is after[0] and before[1] is after[1]
+                 and len(before[2]) == len(after[2])
+                 and all(a[0] == b[0] and a[1] is b[1] for a, b in zip(before[2], after[2]))
+                 and len(before[3]) == len(after[3])
+                 and all(_worker_profile_function_equal(a, b) for a, b in zip(before[3], after[3]))
+                 and len(before[4]) == len(after[4]) and before[5] == after[5], "WORKER_PROFILE_BINDING")
+    for a, b in zip(before[4], after[4]):
+        _inline_need(all(a[index] is b[index] for index in range(3))
+                     and len(a[3]) == len(b[3])
+                     and all(x[0] == y[0] and x[1] is y[1] for x, y in zip(a[3], b[3]))
+                     and len(a[4]) == len(b[4])
+                     and all(_worker_profile_function_equal(x, y) for x, y in zip(a[4], b[4])),
+                     "WORKER_PROFILE_BINDING")
+    _inline_need(_WORKER_PROFILE_BINDING is before, "WORKER_PROFILE_BINDING")
+
+
+def _initialize_worker_profile_control():
+    global _WORKER_PROFILE_ATTEMPTED, _WORKER_PROFILE_BINDING
+    if _WORKER_PROFILE_ATTEMPTED is not False:
+        _WORKER_PROFILE_BINDING = None
+        return ("REJECTED_WORKER_PROFILE_CONTROL", "WORKER_PROFILE_ALREADY_ATTEMPTED")
+    _WORKER_PROFILE_ATTEMPTED = True
+    try:
+        _WORKER_PROFILE_BINDING = _worker_profile_state()
+        _worker_profile_check(_WORKER_PROFILE_BINDING)
+    except BaseException:
+        _WORKER_PROFILE_BINDING = None
+        return ("REJECTED_WORKER_PROFILE_CONTROL", "WORKER_PROFILE_BINDING")
+    return ("BOUND_WORKER_PROFILE_CONTROL", "NONE")
+
+
+def _inline_observe_selected_worker_profile(worker, *, token, separately_known_filefinder_hook):
+    global _WORKER_PROFILE_BINDING
+    held = _WORKER_PROFILE_BINDING
+    issue, result, admitted = "WORKER_PROFILE_REJECTED", None, False
+    try:
+        _report_shape(_INLINE_W, worker)
+        _semantic_worker(worker)
+        _inline_need(type(token) is bytes and len(token) == 32
+                     and type(separately_known_filefinder_hook) is type(_worker_profile_state),
+                     "WORKER_PROFILE_FORM")
+        admitted = True
+        _inline_need(type(held) is tuple and len(held) == 6, "WORKER_PROFILE_BINDING")
+        _worker_profile_check(held)
+        namespace = held[1]
+        function = namespace.get("observe_selected_profile_scalars")
+        _inline_need(type(function) is type(_worker_profile_state), "WORKER_PROFILE_BINDING")
+        result = function(worker[3], worker[4], worker[5], token=token,
+                          separately_known_filefinder_hook=separately_known_filefinder_hook)
+        _worker_profile_check(held)
+        _inline_need(type(result) is namespace.get("SelectedScalarObservationResult"), "WORKER_PROFILE_RESULT")
+        report, profile, scalars = result.report, result.profile, result.scalars
+        _inline_need(type(report) is namespace.get("ProfileReport")
+                     and type(profile) is namespace.get("DeclaredProfile"), "WORKER_PROFILE_RESULT")
+        _inline_need(type(report.status) is str and report.status == "MATCHED_SELECTED_PROFILE"
+                     and type(report.issue) is str and report.issue == "NONE", "WORKER_PROFILE_RESULT")
+        _report_shape(_REPORT_SCALARS, scalars)
+        s = worker[3]
+        selected = ((s[0], s[9], s[10], worker[4]),
+                    (s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[11], s[8], s[12], s[13], s[14]),
+                    worker[5])
+        _inline_need(scalars == selected, "WORKER_PROFILE_RESULT")
+        _worker_profile_check(held)
+        return ("OBSERVED_SELECTED_WORKER_PROFILE", "NONE", result)
+    except BaseException:
+        pass
+    if admitted and held is not None:
+        try:
+            _worker_profile_check(held)
+        except BaseException:
+            issue = "WORKER_PROFILE_BINDING"
+    # Keine neue Aufnahme der Kontrollanker nach einer Abweichung.
+    _WORKER_PROFILE_BINDING = None
+    return ("REJECTED_SELECTED_WORKER_PROFILE", issue, None)
+'''
+
+
+def build_inline_worker_profile_control_bootstrap(profile_raw, *, logical_profile,
+                                                 expected_soabi, expected_destshared) -> BootstrapSource:
+    """Workerunterbau und private Profilaufnahme; Parentmatcher verbleiben beim Parent."""
+    selected = build_inline_body_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    main = old + '    _WORKER_PROFILE_INIT_RESULT = _initialize_worker_profile_control()\n'
+    source = text.replace(old, '\n' + _INLINE_WORKER_PROFILE + main, 1).encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))

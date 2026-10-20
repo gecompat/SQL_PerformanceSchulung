@@ -1,0 +1,42 @@
+name: DGN-007 Workerquelle und Profilaufnahme
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_selected_profile.py'
+      - 'Tests/Static/test_dgn007_selected_observation.py'
+      - 'Tests/Static/test_dgn007_worker_profile_source.py'
+      - 'Documentation/Project_Planning/DGN_007_WORKER_PROFILE_SOURCE_REVIEW.md'
+      - '.github/workflows/dgn007-worker-profile-source.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_selected_profile.py'
+      - 'Tests/Static/test_dgn007_selected_observation.py'
+      - 'Tests/Static/test_dgn007_worker_profile_source.py'
+      - 'Documentation/Project_Planning/DGN_007_WORKER_PROFILE_SOURCE_REVIEW.md'
+      - '.github/workflows/dgn007-worker-profile-source.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-worker-profile-source-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  worker-profile:
+    name: DGN-007 Workerquelle und gebundene Kontrollpfade
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Vollständigen Quellenfit und eigene Kontrollpfadmodelle prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_worker_profile_source.py
