@@ -13,7 +13,10 @@ für die noch fehlende Runnerfolge. Eigenständige vorbereitende Komponente für
 Tests/Tests.Contracts, PARENT0/1 mit festen Slots6/7 und9/10, keine Compile-/Exec-
 Invocation. Eigener Branch codex/dgn007-codefree-parents, ein Owner/max4/
 Checkpoint1/hart4 einschließlich Review/Test/Integration/Cleanup; Verbrauch
-UNKNOWN. Auswahl-PRE ausstehend; keine neue Implementierung oder Probe.
+UNKNOWN. Auswahl-PRE unabhängig freigegeben mit geschlossenen späten Kindslots
+und begrenzten ursprünglichen Kwdefaults-/Closurezellwerten. C1 mit Factory und
+zwölf isolierten Methoden, Checkpoint1. Source/Test-PRE und ausdrückliches
+einmaliges Lauf-GO ausstehend; kein Kandidatenimport oder neue Probe.
 Tatsächliche Runner-/Kontrollanker-/I/O-Anbindung, vollständiger Scriptfit und
 sämtliche realen Gesamtgates bleiben offen; keine Native-/DGN-Raw-/SQL-Freigabe.
 

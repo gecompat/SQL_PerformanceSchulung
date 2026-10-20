@@ -1,7 +1,7 @@
 # DGN-007 – codefreie kontrollierte Parentregistrierung
 
 Stand: 20. Oktober 2026. Basis `4a165c20840193e26b05a789d8e6e067c0bca7b9`.
-Status `SELECTION_PRE_PENDING`; keine Implementierung oder neue Probe.
+Status `C1_SOURCE_TEST_PRE_PENDING`; Source/Teststand noch nicht ausgeführt.
 
 ## Priorität und endlicher Umfang
 
@@ -99,3 +99,36 @@ behandelt Namespacepackages ohne reguläre Sourceexecution.
 [ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec)
 beschreibt Origin und PackageLocations; Modul- und Specattribute müssen separat
 geprüft werden. Die engere codefreie Registrierung bleibt Projektvertrag.
+
+## Auswahl-GO und C1
+
+Plancommit b75eded84ac706cea402169383f4b5f77af80d05 unabhängig freigegeben,
+mit zwei verbindlichen Präzisierungen: Kindslot Contracts am eigenen Tests-Modul
+vor eigener Bindung abwesend, danach exakt gehaltenes eigenes Kind; späte fremde
+Kindbelegung ablehnen und erhalten. Providerzustände vor Fremddispatch begrenzen,
+Kwdefaults-Einträge und Closurezellinhalte zusätzlich zu Containeridentitäten
+halten. Mutable Inhalte hinter gehaltenen Objekten bleiben Vertrauensannahmen.
+Keine transitive Providerattestation; None bestätigt nur den Providervertrag.
+
+C1 ergänzt Factory und zwölf isolierte Methoden. Providergrenzen32 Defaults/
+Kwdefaults/Closurezellen, Namespace256 und Klassenrohattribute128; exakte Typen/
+primitive Keys vor Vergleich/Dispatch. Eigene Modul-/Spec-/Locations- und
+Kindbindung werden durchgehend geprüft. Fremde Callbacktexte bleiben privat.
+Cleanup dispatcht nur in noch primitiven begrenzten eigenen Dictionaries;
+bei fremden unzulässigen Keys bleibt der nicht sicher bereinigbare Zustand
+abgelehnt, ohne behaupteten vollständigen Ressourcenabschluss.
+
+Testoracles verwenden tatsächliche eigene Module/Specs und getrennte Caches,
+unabhängige kanonische JSONbytes, erreichte späte Cache-/Kind-/Spec-/Locations-/
+Klassen-/Code-/Kwdefaults-/Closureänderungen, Fehler/Returnwerte, Reentranz und
+Retry. Eigener ursprünglicher sys.modules-Stand wird je Methode auf Keys und
+Objektidentitäten geprüft. Kein Compile/Exec/Finder oder nativer I/O-Call in der
+Komponente; ein AST-Negativcheck belegt diesen engen strukturellen Claim.
+
+Checkpoint1: ein Source/Testkandidat/max4, keine Nachläufe, Verbrauch UNKNOWN.
+Nur Text-AST-Syntaxprüfung vorgesehen; kein Kandidatenimport oder neue Probe.
+Unabhängiger Source/Test-PRE und ausdrückliches einmaliges Windows-/Linux-
+Lauf-GO ausstehend. Danach enge CI mit genau vier eigenen Abhängigkeiten;
+keine alten Consumer betroffen, keine doppelten lokalen grünen Suites oder
+Privacyvollscans. Ein Owner/ein Reviewer, begrenzte private Logs. Erforderliche
+frische Head-/Base-/Main-Gates und vollständiger Integrationsabschluss bleiben.

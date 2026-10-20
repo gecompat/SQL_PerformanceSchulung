@@ -1,0 +1,36 @@
+name: DGN-007 Codefreie Parentregistrierung
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_codefree_parents.py'
+      - 'Tests/Static/test_dgn007_codefree_parents.py'
+      - 'Documentation/Project_Planning/DGN_007_CODEFREE_PARENT_REGISTRATION_REVIEW.md'
+      - '.github/workflows/dgn007-codefree-parents.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_codefree_parents.py'
+      - 'Tests/Static/test_dgn007_codefree_parents.py'
+      - 'Documentation/Project_Planning/DGN_007_CODEFREE_PARENT_REGISTRATION_REVIEW.md'
+      - '.github/workflows/dgn007-codefree-parents.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-codefree-parents-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  codefree-parents:
+    name: DGN-007 Eigene codefreie Parentmodelle
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Registrierungsobjekte, feste Wirebytes und Fehlergrenzen prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_codefree_parents.py
