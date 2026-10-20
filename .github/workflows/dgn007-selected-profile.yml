@@ -1,0 +1,36 @@
+name: DGN-007 Gewählte Profilanker
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_selected_profile.py'
+      - 'Documentation/Project_Planning/DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md'
+      - '.github/workflows/dgn007-selected-profile.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_import_runtime_profile.py'
+      - 'Tests/Static/test_dgn007_selected_profile.py'
+      - 'Documentation/Project_Planning/DGN_007_SELECTED_PROFILE_ANCHORS_REVIEW.md'
+      - '.github/workflows/dgn007-selected-profile.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-selected-profile-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  selected-profile:
+    name: DGN-007 Vollständige Auswahl und lokale Profilanker
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reine Bindung und synthetische Metadatendrifts prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_selected_profile.py
