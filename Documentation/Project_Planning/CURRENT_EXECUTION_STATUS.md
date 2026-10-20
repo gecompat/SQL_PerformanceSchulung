@@ -1,5 +1,42 @@
 # Aktueller Ausführungsstand
 
+## Operative Abschlusswelle und kontinuierlicher Auftrag vom 20. Oktober 2026
+
+PR259 ist vollständig in `d4151093bdd4de115b660352345f3e5c47e9b650` integriert:
+acht finale PR-Gates, sechs Main-Workflows, unabhängiger Review, vollständiger
+Treevergleich, Main-Synchronisierung und eigene lokale/Remote-Branchbereinigung
+sind bestätigt. Historische C1/C2-Befunde und das ausgeschöpfte C3-Budget bleiben
+im [Matcher-Nachweis](DGN_007_SESSION_END_MATCHER_REVIEW.md) erhalten.
+
+Der neue ausdrückliche Benutzerauftrag autorisiert die operative Kanal-/EOF-/
+Exit-/Cleanup-Anbindung und anschließend kontinuierliche autonome Entwicklung.
+Der [erste operative Abschlussweg](DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md)
+besitzt einen eigenen endlichen Rahmen: ein Owner, höchstens drei neue Quellen-/
+Teststände, Checkpoint C1 und harte Grenze C3. C1 vier P2, C2 drei geschlossen,
+C3 letzter Nonce-P2 geschlossen; unabhängiges ausdrückliches Lauf-GO vorhanden.
+Windows: fünf portable PASS/elf native SKIP. Linux: 16 Methoden, 15 PASS/ein
+Fixture-FAIL `bad_nonce`: INPUT_COMPLETE-Suche dekodiert vorherige `P|`-Fragmente
+als JSON und bricht vor dessen Workerstart ab. Drei Kandidaten und zwei
+gezielte Nachläufe verbraucht; historischer Stop `BLOCKED_BUDGET_AFTER_C3_TEST_FAIL`.
+Der Mensch hat C4 ausdrücklich freigegeben: eine Fixturekorrektur, ein enger
+unabhängiger Delta-PRE/Lauf-GO und der betroffene Linux-Test; danach aktuelle
+vollständige CI/Main-Integration/Tree/Branchcleanup. C4 wählt INPUT_COMPLETE
+am kanonischen Bytepräfix vor dessen JSON-Dekodierung; alle operativen Quellen
+bleiben unverändert. C4 `41e188d66e62d81e483d5765784fd21ea7a5a490` ist unabhängig
+ohne offene Befunde und mit ausdrücklichem Lauf-GO bestätigt; lokaler Linux-
+Ziellauf mit allen fünf negativen Kanal-/Footerfällen PASS in 3,025 Sekunden.
+Status `PR_GATES_PENDING`. Vollständige aktuelle CI16 und Main-Abschluss folgen;
+eigener Branch `codex/dgn007-native-session-channel` bleibt bis zum Nachweis erhalten.
+Die nächste priorisierte endliche Welle ist nach vollständigem Abschluss
+erneut ausdrücklich autorisiert; keine Wiederholung des ausgeschöpften C3.
+Native Abnahme ausschließlich mit festen selbstbeendenden eigenen Linux-
+Testworkern und synthetischen vollständigen Traces, keine reale Importfreigabe.
+Bestehender Heartbeat aktiv alle 30 Minuten auf denselben kontinuierlichen
+Auftrag begrenzt; keine zusätzliche Automation und kein zweiter Owner.
+Nach vollständiger Integration folgt genau die nächste priorisierte endlich
+abgegrenzte Welle. Echte Blocker, unverbrauchte fremde Freigabegrenzen und
+historische Stops bleiben wirksam. Token-/Kostenverbrauch unbekannt.
+
 ## Matcherwelle vom 20. Oktober 2026
 
 PR258 ist in `d0c453f212523fa30c8d74ee47fcbb15f84b8b54` integriert; acht grüne

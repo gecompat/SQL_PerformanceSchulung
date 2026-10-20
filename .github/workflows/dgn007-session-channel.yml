@@ -1,0 +1,57 @@
+name: DGN-007 Operativer Sessionabschluss
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Static/test_dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Documentation/Project_Planning/DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md'
+      - '.github/workflows/dgn007-session-channel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Static/test_dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Documentation/Project_Planning/DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md'
+      - '.github/workflows/dgn007-session-channel.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-session-channel-${{ github.workflow }}-${{ github.ref }}
+  # Native Gruppen werden regulär abgebaut; Cancellation ist kein Absenznachweis.
+  cancel-in-progress: false
+
+jobs:
+  session-channel:
+    name: DGN-007 Native Kanal- und Cleanupgegenproben
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Portable Grenzen und isolierte native Abschlussfälle prüfen
+        run: python -B Tests/Static/test_dgn007_session_channel.py

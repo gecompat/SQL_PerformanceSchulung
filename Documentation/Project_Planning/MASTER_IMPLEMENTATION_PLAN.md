@@ -1,5 +1,26 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+PR259 ist vollständig in `d4151093bdd4de115b660352345f3e5c47e9b650` integriert,
+einschließlich grüner PR-/Main-Gates, FullTree, Sync und Branchcleanup.
+Auf ausdrücklichen kontinuierlichen Benutzerauftrag folgt der
+[operative Linux-Abschlussweg](DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md):
+echte getrennte Pipes, EOF, Exit0 und eigenes Cleanup für feste kontrollierte
+Testworker; gemeinsame Budgets und unveränderte deklarative Matcherbasis.
+Ein Owner, höchstens drei Quellen-/Teststände, Checkpoint C1/hart C3,
+unabhängiger Auswahl- und Quellen-/Test-PRE vor dem ersten Lauf. Danach genau
+eine neue priorisierte endliche Folgewelle; reale Import-/Loaderprovenienz
+und vollständige Start-/Body-/Commandintegration bleiben eigene Abnahmegrenzen.
+
+C3-Stop dieser Welle: C3 ist unabhängig laufzulässig, Windows portable
+grün, Linux15/16 Methoden PASS; `bad_nonce` scheitert vor Start an einer JSON-
+Suche über P-Fragmente. Max3 und beide Nachläufe verbraucht. Der Mensch hat
+genau eine gezielte C4-Fixturekorrektur samt unabhängigem Delta-PRE/Lauf-GO,
+lokalem Ziellauf und aktueller vollständiger CI/Main-Integration/Branchcleanup
+ausdrücklich freigegeben. Danach nächste priorisierte endliche Welle autonom.
+Status C4 unabhängig ohne offene Befunde/Lauf-GO bestätigt, lokaler Linux-
+Ziellauf mit fünf Fällen PASS; aktuelle vollständige CI16 und Main-Abschluss
+folgen. Branch erhalten, Main unverändert.
+
 Nach abgeschlossenen PR257/258 folgt auf ausdrücklichen Benutzerauftrag der
 [vollständige deklarative SESSION_END-Matcher](DGN_007_SESSION_END_MATCHER_REVIEW.md).
 Additive fünfzehnte Kontrollquellenroute, ganze Profil-/INPUT_COMPLETE-/Loader-/
