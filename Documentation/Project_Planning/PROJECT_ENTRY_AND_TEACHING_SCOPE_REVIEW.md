@@ -71,3 +71,12 @@ C1/Checkpoint1: menschliche Einstiege und maßgebliche Lehrregeln konsistent
 technischer Suites. 71 neue relative Links/Anker und Privacy16Textdateien PASS.
 Unabhängiger inhaltlicher Review folgt vor Integration. Abschluss erfordert aktuelle grüne Gates, regulären
 Merge, frische Main-Gates, FullTree/Sync und sichere eigene Branchbereinigung.
+
+C1 `83b5bcd05c38adbd9faad0204579f7bf89c4538e` vollständig unabhängig geprüft:
+keine P1/P2, ein P3 zu einem verbliebenen pauschalen Evidenzsatz in
+PROJECT_CONTEXT. C2 begrenzt diesen Satz auf lernzielgerechte Erklärungen/
+Beispiele/Nachweise; Plan-/DMV-/Query-Store-/XE-/OS-Instrumentierung ist nur
+für passende Diagnose-/Messlerneinheiten vorgesehen. Der übrige Schnitt ist
+freigabefähig, nach dieser engen Korrektur Freigabe für reguläre Gates und
+Integration; kein weiterer Vollreview erforderlich. Zwei Kandidaten, ein
+enger Befundnachlauf, harte Grenze4 unverändert, Verbrauch UNKNOWN.

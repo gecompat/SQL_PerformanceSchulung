@@ -13,7 +13,11 @@ Das Projekt bereitet Schulungsthemen auf. Es baut kein Lab für ein SQL-Server-A
 - Datenbankadministratoren
 - Performance Engineers
 
-Jede Lerneinheit beginnt verständlich, führt aber bis zur technischen Evidenz über Execution Plans, DMVs, Query Store, Extended Events oder Betriebssystemmetriken.
+Jede Lerneinheit bietet zum Lernziel passende Erklärungen, Beispiele oder
+Nachweise. Diagnose- und Messlerneinheiten beziehen geeignete technische
+Evidenz ein, etwa Execution Plans, DMVs, Query Store, Extended Events oder
+Betriebssystemmetriken. Für Syntaxverständnis und Lösungsmuster ist diese
+Art von Instrumentierung keine allgemeine Voraussetzung.
 
 ## Plattformen
 

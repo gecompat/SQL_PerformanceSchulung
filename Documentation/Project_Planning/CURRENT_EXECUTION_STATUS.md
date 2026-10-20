@@ -15,7 +15,10 @@ aller Checks, Gates und Integration. C1 überarbeitet die menschlichen Einstiege
 grenzt Messdemos von Erklärungen/Lösungsmustern ab und klärt die erhaltenen
 Archivquellen sowie die damalige REMOVE-Kennzeichnung. Keine neue SQL-/Runtime-
 Ausführung, keine Gateabsenkung bestehender Demopakete und keine neue Messbehauptung.
-Branch `codex/human-project-entry`; erste unabhängige Abnahme steht noch aus.
+Branch `codex/human-project-entry`; C1 unabhängig ohne P1/P2 und mit einem P3.
+C2 schließt den verbliebenen pauschalen Evidenzsatz lernzielbezogen. Übriger
+Schnitt freigegeben; lokale Vertragsprüfungen und71neueLinks/Anker PASS.
+Zwei Kandidaten/max4, ein enger Nachlauf; reguläre aktuelle Gates folgen.
 Danach bleibt die autonome technische Fortsetzung im bereits autorisierten
 Rahmen möglich; zuerst diesen priorisierten Schnitt vollständig abschließen.
 Verbrauch UNKNOWN, bestehender30-Minuten-Heartbeat unverändert aktiv.
