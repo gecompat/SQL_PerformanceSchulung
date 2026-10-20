@@ -2642,3 +2642,171 @@ def build_inline_worker_profile_control_bootstrap(profile_raw, *, logical_profil
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),
                            hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+_INLINE_WORKER_REPORT = r'''
+_WORKER_REPORT_INITIALIZED = False
+_WORKER_REPORT_USED = False
+_WORKER_REPORT_BINDING = None
+
+
+def _worker_report_script():
+    namespace, budget = globals(), [0]
+    values = _worker_profile_items(namespace, budget)
+    excluded = ("_WORKER_REPORT_INITIALIZED", "_WORKER_REPORT_USED", "_WORKER_REPORT_BINDING")
+    items = tuple(item for item in values if item[0] not in excluded)
+    functions, classes = [], []
+    for _, value in items:
+        if type(value) is type(_worker_report_script) and value.__globals__ is namespace:
+            functions.append(_worker_profile_function(value, budget))
+        elif type(value) is type:
+            members = _semantic_class_namespace(value)
+            module_name = members.get("__module__")
+            _inline_need(type(module_name) is str, "WORKER_REPORT_BINDING")
+            if module_name != namespace.get("__name__"):
+                continue
+            _worker_profile_take(budget, len(members))
+            held = _worker_profile_items(dict(members), budget)
+            methods = tuple(_worker_profile_function(member, budget) for _, member in held
+                            if type(member) is type(_worker_report_script))
+            classes.append((value, value.__bases__, value.__mro__, held, methods))
+    return (namespace, items, tuple(functions), tuple(classes))
+
+
+def _worker_report_script_check(before):
+    namespace, items, functions, classes = before
+    # Vor jedem wiederverwendeten Scripthelfer nur exakte primitive Identitäten.
+    if type(namespace) is not dict or len(namespace) != len(items) + 3:
+        raise RuntimeError()
+    for key in namespace:
+        if type(key) is not str or len(key) > 4096 or "\0" in key:
+            raise RuntimeError()
+    for name, value in items:
+        if namespace.get(name) is not value:
+            raise RuntimeError()
+    for state in functions:
+        function = state[0]
+        if (function.__code__ is not state[1] or function.__globals__ is not state[2]
+                or function.__defaults__ is not state[3] or function.__kwdefaults__ is not state[4]
+                or function.__closure__ is not state[6]):
+            raise RuntimeError()
+    after = _worker_report_script()
+    _inline_need(after[0] is namespace and len(after[1]) == len(items)
+                 and all(a[0] == b[0] and a[1] is b[1] for a, b in zip(items, after[1]))
+                 and len(functions) == len(after[2])
+                 and all(_worker_profile_function_equal(a, b) for a, b in zip(functions, after[2]))
+                 and len(classes) == len(after[3]), "WORKER_REPORT_BINDING")
+    for a, b in zip(classes, after[3]):
+        _inline_need(all(a[index] is b[index] for index in range(3))
+                     and len(a[3]) == len(b[3])
+                     and all(x[0] == y[0] and x[1] is y[1] for x, y in zip(a[3], b[3]))
+                     and len(a[4]) == len(b[4])
+                     and all(_worker_profile_function_equal(x, y) for x, y in zip(a[4], b[4])),
+                     "WORKER_REPORT_BINDING")
+
+
+def _worker_report_check(held, used):
+    script_check, code = held[5]
+    if script_check.__code__ is not code:
+        raise RuntimeError()
+    script_check(held[0])
+    _inline_need(_WORKER_REPORT_BINDING is held and _WORKER_REPORT_INITIALIZED is True
+                 and _WORKER_REPORT_USED is used, "WORKER_REPORT_BINDING")
+    _worker_profile_check(held[1])
+    _semantic_provider_check(held[2])
+    _report_encoder_check(held[3])
+
+
+def _initialize_worker_report_control():
+    global _WORKER_REPORT_INITIALIZED, _WORKER_REPORT_BINDING
+    if _WORKER_REPORT_INITIALIZED is not False:
+        _WORKER_REPORT_BINDING = None
+        return ("REJECTED_WORKER_REPORT_CONTROL", "WORKER_REPORT_ALREADY_INITIALIZED")
+    _WORKER_REPORT_INITIALIZED = True
+    try:
+        profile = _WORKER_PROFILE_BINDING
+        _worker_profile_check(profile)
+        provider, encoder = _semantic_provider_anchor(), _report_encoder_anchor()
+        script = _worker_report_script()
+        held = (script, profile, provider, encoder,
+                (_worker_report_check, _worker_report_check.__code__),
+                (_worker_report_script_check, _worker_report_script_check.__code__))
+        _WORKER_REPORT_BINDING = held
+        _worker_report_check(held, False)
+        return ("BOUND_WORKER_REPORT_CONTROL", "NONE")
+    except BaseException:
+        _WORKER_REPORT_BINDING = None
+        return ("REJECTED_WORKER_REPORT_CONTROL", "WORKER_REPORT_BINDING")
+
+
+def _inline_observed_worker_report(metadata_chunks, *, token, separately_known_filefinder_hook):
+    global _WORKER_REPORT_USED, _WORKER_REPORT_BINDING
+    held, check = _WORKER_REPORT_BINDING, None
+    issue, value = "WORKER_REPORT_REJECTED", None
+    if _WORKER_REPORT_USED is not False:
+        _WORKER_REPORT_BINDING = None
+        return ("REJECTED_OBSERVED_WORKER_REPORT", "WORKER_REPORT_ALREADY_ATTEMPTED", None)
+    # Auch malformed Metadata und ein reentranter Aufruf verbrauchen den Versuch.
+    _WORKER_REPORT_USED = True
+    def close():
+        if (check is None or check.__code__ is not held[4][1]
+                or check.__globals__ is not held[0][0]):
+            raise RuntimeError()
+        check(held, True)
+    try:
+        _inline_need(type(held) is tuple and len(held) == 6, "WORKER_REPORT_BINDING")
+        check, code = held[4]
+        if check.__code__ is not code:
+            raise RuntimeError()
+        close()
+        received = _inline_receive_metadata_chunks(metadata_chunks, expected_format=_RECEIVE_FORMAT)
+        close()
+        _inline_need(type(received) is tuple and len(received) == 3
+                     and received[:2] == ("VALID_RECEIVED_METADATA", "NONE"), "WORKER_REPORT_REJECTED")
+        header, metadata, actual = received[2]
+        observed = _inline_observe_selected_worker_profile(actual[1], token=token,
+            separately_known_filefinder_hook=separately_known_filefinder_hook)
+        close()
+        _inline_need(type(observed) is tuple and len(observed) == 3
+                     and observed[:2] == ("OBSERVED_SELECTED_WORKER_PROFILE", "NONE"),
+                     "WORKER_REPORT_REJECTED")
+        observation = observed[2]
+        formatted = _inline_profile_report(header, metadata, observation.scalars)
+        close()
+        _inline_need(type(formatted) is tuple and len(formatted) == 3
+                     and formatted[:2] == ("FORMATTED_PROFILE_REPORT", "NONE")
+                     and type(formatted[2]) is tuple and 3 <= len(formatted[2]) <= 21,
+                     "WORKER_REPORT_REJECTED")
+        for record in formatted[2]:
+            _inline_need(type(record) is bytes and 0 < len(record) <= 1024, "WORKER_REPORT_REJECTED")
+        value = (header, metadata, actual, observation, formatted[2])
+    except BaseException:
+        pass
+    # Der gehaltene Check wird niemals aus einem späten Namespace neu ausgewählt.
+    try:
+        close()
+    except BaseException:
+        issue, value = "WORKER_REPORT_BINDING", None
+    if value is not None:
+        return ("OBSERVED_WORKER_REPORT", "NONE", value)
+    _WORKER_REPORT_BINDING = None
+    return ("REJECTED_OBSERVED_WORKER_REPORT", issue, None)
+'''
+
+
+def build_inline_worker_report_control_bootstrap(profile_raw, *, logical_profile,
+                                                expected_soabi, expected_destshared) -> BootstrapSource:
+    """Vollständige Metadata mit tatsächlicher Aufnahme und privatem Report verbinden."""
+    selected = build_inline_worker_profile_control_bootstrap(
+        profile_raw, logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old = ('\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+           '    _WORKER_PROFILE_INIT_RESULT = _initialize_worker_profile_control()\n')
+    _need(text.count(old) == 1, "TEMPLATE_FORM")
+    main = old + '    _initialize_worker_report_control()\n'
+    source = text.replace(old, '\n' + _INLINE_WORKER_REPORT + main, 1).encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))

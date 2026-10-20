@@ -26,7 +26,7 @@ OPTIONS = dict(logical_profile="/synthetic/control.py", expected_soabi="cpython-
 RAW = PROFILE_PATH.read_bytes()
 
 
-def model(*, initialize=True):
+def model(*, initialize=True, builder=generator.build_inline_worker_profile_control_bootstrap):
     install, controls, rows, cache, runtime, filesystem, config, hook = fixtures.fixture()
     previous = cache["dgn007_import_runtime_profile"]
     control = ModuleType("dgn007_import_runtime_profile")
@@ -37,7 +37,7 @@ def model(*, initialize=True):
     exec(code, control.__dict__)
     control.__dict__.update(sys=runtime, os=filesystem, sysconfig=config)
     cache[control.__name__] = control
-    source = generator.build_inline_worker_profile_control_bootstrap(RAW, **OPTIONS)
+    source = builder(RAW, **OPTIONS)
     tree = ast.parse(source.source)
     definitions = ast.Module(body=[node for node in tree.body
         if not isinstance(node, (ast.Import, ast.ImportFrom, ast.If))], type_ignores=[])
