@@ -11,6 +11,29 @@
 
 ## 1. Bewertungsmaßstab
 
+### Heutige Einordnung vom 20. Oktober 2026
+
+**Die historischen Beispiele wurden nicht gelöscht.** Sie sind weiterhin im
+[Referenzarchiv](../../Presentations/old/Performance%20Grundlagen%20V-2024.zip)
+enthalten. `REMOVE` ist eine historische Migrationskennzeichnung: Das konkrete
+alte Skript sollte nicht als aktives Demopaket übernommen werden. Sie bedeutet
+weder eine Löschung noch ein Verbot seines fachlichen Themas.
+
+Der damalige Maßstab war für einige Quellen zu eng: Fehlende A/B-Messungen,
+ein syntaktischer Schwerpunkt oder das Fehlen einer Performancehypothese sind
+für sich genommen keine Gründe, einen nützlichen Schulungsinhalt auszuscheiden.
+SQL-Techniken, Lösungsmuster und erläuternde Beispiele gehören ausdrücklich zur
+Schulung. Ob eine Messung nötig ist, richtet sich nach der konkreten Aussage.
+
+Die nachfolgende Matrix und ihre maschinenlesbare Fassung dokumentieren die
+Migrationsentscheidung vom 25. Juli 2026; ihre Kennungen und Archivhashes bleiben
+als historische Nachweise erhalten. Für heutige Inhaltsentscheidungen gilt der
+[aktuelle Lehrmaßstab](../../.ai/PROJECT_CONTEXT.md#didaktik), insbesondere die
+Neubewertung unter `SRC-LEGACY-015`. Die historische Matrix ist keine Themen-
+oder Aufnahmebeschränkung für neue Erklärungen und Beispiele.
+
+### Historischer Maßstab vom 25. Juli 2026
+
 `REUSE` bezeichnet eine fachlich und technisch weitgehend übernehmbare Quelle, die nur in den aktuellen Demo-Vertrag eingebettet werden muss. `REFACTOR` erhält den Kerncode, korrigiert jedoch Struktur, Scope oder Objektplatzierung. `REBUILD` übernimmt ausschließlich Lernziel und Ursache-Wirkungs-Idee. `DIAGNOSTIC_ONLY` kennzeichnet read-only Diagnosequellen, die nicht als Workload-Demo behandelt werden. `REMOVE` bedeutet, dass das Artefakt nicht in den aktiven Demo-Bestand migriert wird.
 
 Die Klassifikation ist eine Inhalts- und Migrationsentscheidung. Sie ist keine Runtime-Freigabe der historischen Skripte. Kein Skript des Referenzarchivs darf direkt gegen eine SQL-Server-Instanz ausgeführt werden.
@@ -27,7 +50,11 @@ Die Klassifikation ist eine Inhalts- und Migrationsentscheidung. Sie ist keine R
 
 Es existiert kein direkter `REUSE`-Kandidat. Jedes Bestandsbeispiel verletzt mindestens eine aktuelle Projektgrenze: fehlender Demo-Lifecycle, externe Datenbankabhängigkeit, nichtdeterministische Daten, globale Cache- oder Instanzeingriffe, fehlender Cleanup, nicht eingegrenzte Diagnoseausgabe oder fehlende Versions-/Berechtigungsbehandlung.
 
-Die fachlichen Kerne bleiben überwiegend relevant. Vierzehn Beispiele werden neu aufgebaut, ein kompaktes APPLY-Beispiel wird refaktoriert, vier DMV-Abfragen werden ausschließlich als Diagnosequellen weitergeführt und vier unscharfe oder fachfremde Sammelskripte werden entfernt.
+Die damalige Planung sah vor, vierzehn Beispiele neu aufzubauen, ein APPLY-
+Beispiel zu refaktorieren und vier DMV-Abfragen als Diagnosequellen zu führen.
+Vier Skripte sollten nicht in aktive Demopakete migriert werden. Alle bleiben
+im Referenzarchiv erhalten; ihr didaktischer Nutzen wird dadurch nicht pauschal
+verneint.
 
 ## 3. Klassifikationsmatrix
 
@@ -187,6 +214,19 @@ Die fachlichen Kerne bleiben überwiegend relevant. Vierzehn Beispiele werden ne
 - Cross-reference session/request wait evidence and avoid clearing server-wide counters.
 
 ### SRC-LEGACY-015 – Beispiele/for xml path.sql
+
+**Neubewertung vom 20. Oktober 2026:** Ein Beispiel zur Stringbildung mit
+`FOR XML PATH`, XML-Escaping sowie `TYPE`/`value` ist als erklärendes SQL-
+Lösungsmuster sinnvoll. Ein eigener Performancebenchmark ist dafür keine
+Voraussetzung. Die damaligen Hinweise auf fehlende Performancehypothese und
+A/B-Messung tragen den Ausschluss als Lerninhalt nicht und sind insoweit
+überholt. Für eine eigenständige Neuaufbereitung sind ein klar beschriebenes
+Problem, verständliche Eingaben und Ergebnisse sowie Grenzen und Alternativen
+entscheidend. Quantitative Kostenaussagen benötigen zusätzlich ihre Messbasis.
+
+Das alte Skript ist mit seinen ursprünglichen Bytes archiviert. Die folgende
+Kennzeichnung bewahrt die historische Entscheidung zur damaligen Demo-
+Migration; sie gilt nicht als Ablehnung des Themas oder als Ausführungsfreigabe.
 
 **Entscheidung:** `REMOVE`  
 **Ziel:** `QRY-012`  
@@ -488,6 +528,13 @@ Diese Gruppe besitzt höheren Internals- oder Umstrukturierungsaufwand: `SRC-LEG
 ### Keine Migration
 
 `SRC-LEGACY-015`, `016`, `021` und `024` werden nicht in aktive Demo-Pfade übernommen. Einzelne fachliche Aspekte dürfen in einer neuen Demo neu formuliert werden; die historischen Dateien bleiben ausschließlich Quellen.
+
+Diese Aussage beschreibt die damalige Übernahme der konkreten Skripte.
+Heute können ihre Inhalte auch als Erklärungen, SQL-Techniken oder Referenz-
+beispiele aufbereitet werden. Eine Messdemo ist dafür keine vorgeschriebene
+Zielform; die Quellen bleiben erhalten. Bei `016` ist der thematische Mix zu
+gliedern, bei `021` die lange Aufzählung auf das Lernziel zu verdichten und bei
+`024` das jeweilige Verfahren samt Voraussetzungen verständlich abzugrenzen.
 
 ## 6. Auswirkungen auf W2-002 bis W2-006
 

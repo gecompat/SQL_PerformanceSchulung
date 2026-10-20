@@ -29,7 +29,17 @@ und VALIDATED-Metadaten beschreiben weiterhin das bestehende Curriculum.
 
 Nach Abschluss des gemeinsamen Kernpfads sollen SQL-Server-Developer und Analysten mit T-SQL-Grundkenntnissen ein Performanceproblem als überprüfbare Diagnoseaufgabe strukturieren, geeignete Evidenz auswählen, technische Ursache und bloße Korrelation unterscheiden und die Wirkung genau einer begründeten Änderung unter vergleichbaren Bedingungen nachweisen können.
 
-Die Schulung vermittelt keine Sammlung allgemeiner Tuningregeln. Technische Detailkenntnisse werden nur dann als Lernziel aufgenommen, wenn sie eine beobachtbare Diagnose- oder Entwurfsentscheidung ermöglichen. Produktverhalten, empirische Beobachtung und didaktische Methode bleiben getrennte Aussageklassen.
+Die Schulung verbindet technische Zusammenhänge mit bewährten Lösungsmustern,
+SQL-Techniken, praktischen Hinweisen und nachvollziehbarer Diagnose. Inhalte
+werden nach Problembezug und didaktischem Nutzen ausgewählt. Eine eigene
+Messung oder messbare Performancewirkung ist keine allgemeine Voraussetzung
+für ihre Aufnahme. Auch Syntaxverständnis, die Erklärung eines Verfahrens oder
+eine begründete Entwurfsentscheidung sind eigenständige Lernziele.
+
+Beobachtbare Lernziele machen erkennbar, was Teilnehmende verstehen oder
+anwenden können; sie verlangen nicht für jeden Inhalt einen Performancebenchmark.
+Produktverhalten, fachliche Herleitung und empirische Beobachtung bleiben
+unterscheidbar. Konkrete Messwerte werden mit ihren Bedingungen vermittelt.
 
 ## 2. Zielgruppen und Vorwissen
 

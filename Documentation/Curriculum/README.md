@@ -1,11 +1,49 @@
-# Curriculum
+# Themen und Lernwege
 
-Hier wird die didaktische Abfolge der Schulung gepflegt.
+Die Schulung verbindet verständliche Grundlagen mit praktischen
+Entscheidungen beim Schreiben, Analysieren und Verbessern von SQL-Code.
+Grundkenntnisse in `SELECT`, `JOIN`, Filtern und Aggregationen helfen beim Einstieg.
 
-Die eigenständig geplante Erweiterung
-[„KI mit und für Microsoft SQL Server 2025“](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md)
-führt zehn Modulverträge `CUR-013`–`CUR-022`. Sie ist noch keine aktive Präsentationsfassung.
+## Einen Lernweg wählen
 
-Jeder Abschnitt beschreibt Zielgruppe, notwendiges Vorwissen, Lernziele, Schlüsselbegriffe, zugehörige Demos, Vertiefungen und Erfolgskriterien. Einsteigerpfad und Expertenvertiefung müssen unterscheidbar bleiben, ohne einander fachlich zu widersprechen.
+| Lernweg | Für wen? | Schwerpunkt |
+|---|---|---|
+| BASIS | Einstieg in SQL-Server-Performance | Abfragen und Pläne lesen, Statistiken und Zugriffspfade verstehen, erste typische Probleme erkennen |
+| STANDARD | Entwickler und Administratoren mit Praxiserfahrung | Query Patterns, Indizes, Parameter, Blocking und die wichtigsten Diagnosewerkzeuge |
+| VERTIEFUNG | Fortgeschrittene und Performance Engineers | komplexere Plan- und Ressourcenfragen, versionsabhängiges Verhalten und die Grenzen von Diagnose und Optimierung |
 
-Die [Architektur](CURRICULUM_ARCHITECTURE.md) und die [Traceability-Matrix](TRACEABILITY_MATRIX.md) ordnen Lernziele und Lehrartefakte zu. Für die praktische Prüfung von Verständlichkeit und selbstständigem Transfer ist die [Generalprobe mit Teilnehmenden](../Project_Planning/PRS_010_REHEARSAL_PLAN.md) vorbereitet. Sie enthält Aufgaben und Musterantworten zu `OPT-002`, `QRY-001`, `QRY-004` und `CON-004`; ihre Vorbereitung ist kein empirischer Wirksamkeitsnachweis.
+Die zugehörigen [Präsentationen](../../Presentations/README.md) und die
+[Variantenanleitung](../HowTo/PRESENTATION_VARIANTS.md) helfen bei der Auswahl
+des passenden Umfangs.
+
+## Fachliche Themen
+
+- Speicher, Pages und Transaktionslog
+- Optimizer, Statistiken und Ausführungspläne
+- Query Patterns und nützliche SQL-Lösungsmuster
+- Rowstore- und Columnstore-Indizes
+- Concurrency, Isolation und TempDB
+- CPU, Speicher, I/O und Waits
+- Query Store, Extended Events und Diagnose
+
+Sie können die Themen der Reihe nach bearbeiten oder ein konkretes Problem
+als Einstieg wählen. Kurze Erklärungen und SQL-Techniken ergänzen die
+ausführlichen Messdemos; ein eigener Benchmark ist keine Voraussetzung für
+ihren didaktischen Wert.
+
+## Praktisch weiterarbeiten
+
+Beginnen Sie mit einer [erklärten Fachdemonstration](../HowTo/DEMO_WALKTHROUGHS.md).
+Für die eigene Ausführung beschreibt der
+[Leitfaden](../HowTo/DEMO_EXECUTION_GUIDE.md) Voraussetzungen, Schritte und Cleanup.
+
+Ein ergänzender [Kurs zu KI mit SQL Server 2025](../../Presentations/AI_SQL_Server_2025/README.md)
+behandelt Vektoren, Suche und weitere Anwendungsmuster.
+
+## Für die Unterrichtsplanung
+
+Die [Curriculumarchitektur](CURRICULUM_ARCHITECTURE.md) enthält die detaillierten
+Lernziele; die [Traceability-Matrix](TRACEABILITY_MATRIX.md) ordnet sie den
+Lehrartefakten zu. Der
+[Generalprobenplan](../Project_Planning/PRS_010_REHEARSAL_PLAN.md) bietet Aufgaben
+und Musterantworten für eine moderierte Durchführung.

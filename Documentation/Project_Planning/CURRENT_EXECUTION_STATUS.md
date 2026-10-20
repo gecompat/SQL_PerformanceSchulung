@@ -1,5 +1,28 @@
 # Aktueller Ausführungsstand
 
+## Menschlicher Projekteinstieg und Lehrmaßstab vom 20. Oktober 2026
+
+PR263 vollständig in `4a8d5aa2e6252803d7773b9e075c1bbfc4d8e5df` integriert:
+neun PR-/sieben Main-Gates SUCCESS, neue16/alte57 unter Linux ohne SKIP,
+unabhängiger Review, FullTree/Sync und eigene lokale/Remote-Branchbereinigung
+bestätigt. Historischer Windows57-Fixture-FAIL bleibt im Nachweis erhalten.
+[Abschlussbindung PR263](https://github.com/gecompat/SQL_PerformanceSchulung/pull/263).
+
+Der neu priorisierte menschliche Auftrag führt zum [anwenderorientierten
+Projekteinstieg und korrigierten Lehrmaßstab](PROJECT_ENTRY_AND_TEACHING_SCOPE_REVIEW.md).
+Ein Owner, unabhängiger inhaltlicher Review, max4/Checkpoint1/hart4 einschließlich
+aller Checks, Gates und Integration. C1 überarbeitet die menschlichen Einstiege,
+grenzt Messdemos von Erklärungen/Lösungsmustern ab und klärt die erhaltenen
+Archivquellen sowie die damalige REMOVE-Kennzeichnung. Keine neue SQL-/Runtime-
+Ausführung, keine Gateabsenkung bestehender Demopakete und keine neue Messbehauptung.
+Branch `codex/human-project-entry`; C1 unabhängig ohne P1/P2 und mit einem P3.
+C2 schließt den verbliebenen pauschalen Evidenzsatz lernzielbezogen. Übriger
+Schnitt freigegeben; lokale Vertragsprüfungen und71neueLinks/Anker PASS.
+Zwei Kandidaten/max4, ein enger Nachlauf; reguläre aktuelle Gates folgen.
+Danach bleibt die autonome technische Fortsetzung im bereits autorisierten
+Rahmen möglich; zuerst diesen priorisierten Schnitt vollständig abschließen.
+Verbrauch UNKNOWN, bestehender30-Minuten-Heartbeat unverändert aktiv.
+
 ## Vollständige Profilauswahl an lokale Anker vom 20. Oktober 2026
 
 PR262 vollständig in `9938091d7de38bb95152cc06e055470e5fb8b7cc` integriert:

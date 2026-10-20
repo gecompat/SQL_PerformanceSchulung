@@ -1,92 +1,74 @@
 # SQL Server Performance Schulung
 
-Dieses Repository enthält herstellernahe, reproduzierbare Schulungsunterlagen und Demonstrationen zur Performanceanalyse und -optimierung mit Microsoft SQL Server.
+Schulungsunterlagen, SQL-Beispiele und praktische Übungen zum Verstehen,
+Analysieren und Verbessern von Microsoft-SQL-Server-Anwendungen.
 
-## Ziel
+Die Schulung richtet sich an Entwickler, Datenbankadministratoren und
+Analysten mit T-SQL-Grundkenntnissen. Sie verbindet technische Erklärungen mit
+bewährten Lösungsmustern und nachvollziehbaren Demonstrationen. Sie können
+die Unterlagen zum Selbststudium, zur Vorbereitung einer Schulung oder zum
+gezielten Nachschlagen verwenden.
 
-Die Schulung soll technische Ursache-Wirkungs-Zusammenhänge sichtbar machen. Jede Demonstration verbindet ein klar definiertes Lernziel mit reproduzierbarem Setup, messbarer Baseline, kontrollierter Problemursache, Diagnose-Evidenz, Gegenmaßnahme und Cleanup.
+## Hier einsteigen
 
-## Zielplattformen
-
-- SQL Server 2019
-- SQL Server 2022
-- SQL Server 2025 als primäre Entwicklungs- und Demonstrationsplattform
-
-Versions-, Compatibility-Level- und Edition-Abhängigkeiten werden je Demo ausdrücklich dokumentiert.
-
-## Grundsätze
-
-- T-SQL ist das bevorzugte Demonstrationsmittel.
-- Infrastruktur wird nur eingesetzt, wenn T-SQL den Effekt nicht realistisch erzeugen kann.
-- Alle Beispiele verwenden ausschließlich synthetische Labordaten.
-- Präsentationen und weitere Schulungsartefakte enthalten keine nicht freigegebenen Firmeninformationen, Logos, Kontaktdaten oder internen Systembezeichnungen.
-- Nur `Gerhard Pisch` ist als ausdrücklich freigegebene reale Namensangabe zulässig.
-- Der verpflichtende Foundation-Herkunftsnachweis unter `.ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md` ist eine eng begrenzte lizenzrechtliche Ausnahme und erweitert keine allgemeine Namensfreigabe.
-- Bildbasierte Logos und Markenkennzeichen werden zusätzlich zur Text- und Metadatensuche visuell geprüft.
-- Risikoreiche Eingriffe sind eindeutig gekennzeichnet und ausschließlich für isolierte Laborsysteme vorgesehen.
-- Aussagen werden gegen aktuelle Primärdokumentation geprüft; versionsabhängige Aussagen werden nicht pauschalisiert.
-
-## Verbindliche Planung
-
-- [Master-Umsetzungsplan](Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md)
-- [Gate-A-Review](Documentation/Project_Planning/GATE_A_REVIEW.md)
-- [Gate-B-Review](Documentation/Project_Planning/GATE_B_REVIEW.md)
-- [W2-001-Review der Bestandsbeispiel-Klassifikation](Documentation/Project_Planning/W2_001_EXAMPLE_CLASSIFICATION_REVIEW.md)
-- [W2-007-Review der vier präzisierten Claims](Documentation/Project_Planning/W2_007_REFINE_CLAIMS_REVIEW.md)
-- [Review der Welle-1-Framework-Basis](Documentation/Project_Planning/WAVE_1_FRAMEWORK_FOUNDATION_REVIEW.md)
-- [Review der Welle-1-Daten-, Mess- und Ergebnisbasis](Documentation/Project_Planning/WAVE_1_DATA_MEASUREMENT_REVIEW.md)
-- [Review der Welle-1-Orchestrierungs-, Telemetrie- und Runtimebasis](Documentation/Project_Planning/WAVE_1_ORCHESTRATION_RUNTIME_REVIEW.md)
-- [Review der SQL-Server-Runtime-Matrix](Documentation/Project_Planning/SQL_SERVER_RUNTIME_MATRIX_REVIEW.md)
-- [Konflikt- und Entscheidungslog](Documentation/Project_Planning/CONFLICT_AND_DECISION_LOG.md)
-- [Planergänzung zur Qualität der Schulungsunterlagen](Documentation/Project_Planning/PRESENTATION_QUALITY_INTEGRATION_PLAN.md)
-- [Baseline-Review der vorhandenen Präsentationen](Documentation/Reviews/PRESENTATION_BASELINE_REVIEW_2024.md)
-- [Priorisierte Inhalts- und Evidenzlücken](Documentation/Reviews/CONTENT_GAP_ANALYSIS.md)
-- [Quellenmanifest der Schulungsartefakte](Documentation/Inventories/SOURCE_MANIFEST.md)
-- [Klassifikation der historischen SQL- und Diagnosebeispiele](Documentation/Inventories/LEGACY_EXAMPLE_CLASSIFICATION.md)
-- [Folien- und Aussagenregister](Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md)
-- [Curriculumarchitektur und Lernzielmodell](Documentation/Curriculum/CURRICULUM_ARCHITECTURE.md)
-- [Traceability-Matrix](Documentation/Curriculum/TRACEABILITY_MATRIX.md)
-- [Gate-B-Ausführungs-Traceability](Documentation/Curriculum/GATE_B_TRACEABILITY.md)
-- [Kritische Aussagenprüfung](Documentation/Reviews/CRITICAL_CLAIMS_REVIEW.md)
-- [Projektweites Quellenregister](Documentation/Research/SOURCE_REGISTER.md)
-- [Primärquellenregister für W0](Documentation/Research/PRIMARY_SOURCES_W0.md)
-- [Primärquellen für die Welle-1-Framework-Basis](Documentation/Research/FRAMEWORK_SOURCES_W1.md)
-- [Quellenbasis der SQL-Server-Runtime-Matrix](Documentation/Research/SQL_SERVER_RUNTIME_MATRIX_SOURCES.md)
-- [Primärquellen der Gate-B-Pilotdemos](Documentation/Research/GATE_B_PILOT_SOURCES.md)
-- [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md)
-- [Privacy- und Metadaten-Prüfverfahren](Documentation/Quality/PRIVACY_METADATA_REVIEW_PROCEDURE.md)
-
-## Repository-Struktur
-
-| Pfad | Zweck |
+| Ich möchte … | Einstieg |
 |---|---|
-| `.ai/` | Verbindlicher Projektkontext, Entscheidungen, Roadmap und AI-Arbeitsregeln |
-| `Assets/` | Firmenneutrale, wiederverwendbare Abbildungen und Quelldateien |
-| `Documentation/` | Curriculum, fachliche Vertiefungen, Demo-Katalog, Reviews und Recherche |
-| `Demos/` | Modulare, bevorzugt T-SQL-basierte Demonstrationen |
-| `Infrastructure/` | Reproduzierbare Docker-, Podman- und Hyper-V-Laborszenarien |
-| `Presentations/` | Firmenneutrale Präsentationsquellen und Exporte |
-| `Tests/` | Statische Prüfungen und SQL-Server-Versionsmatrix |
-| `Tools/` | Unterstützende, nicht demo-spezifische Werkzeuge |
+| die Schulungsfolien ansehen | [Präsentationen und Lernumfang](Presentations/README.md) |
+| einen passenden Lernweg wählen | [Themen und Lernwege](Documentation/Curriculum/README.md) |
+| ein SQL-Beispiel Schritt für Schritt verstehen | [Erklärungen zu den Fachdemos](Documentation/HowTo/DEMO_WALKTHROUGHS.md) |
+| eine Demo selbst ausführen | [Ausführungsleitfaden](Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und [Demo-Auswahl](Documentation/Demo_Catalog/README.md) |
+| eine Übungsumgebung vorbereiten | [Vorhandene SQL-Server-Instanz verwenden](Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md) oder [Container einrichten](Documentation/HowTo/CONTAINER_QUICKSTART.md) |
+| eine Anleitung oder Vertiefung finden | [Dokumentationsübersicht](Documentation/README.md) |
 
-## Sicherheitsstufen für Demos
+Zum ersten Kennenlernen benötigen Sie keine laufende SQL-Server-Instanz.
+Lesen Sie die Folien und die Erklärungen zu den Beispielen. Für eigene
+Ausführungen führen die Anleitungen durch Vorbereitung, Ablauf und Aufräumen.
 
-- **Grün:** normale, lokal begrenzte T-SQL-Demo.
-- **Gelb:** kontrollierte CPU-, RAM-, TempDB-, I/O- oder Concurrency-Last.
-- **Rot:** Instanzkonfiguration, Cache-Eingriff, Dienstneustart oder Infrastrukturmanipulation; nur in einer isolierten Lab-Instanz.
+## Was Sie hier lernen
 
-## Status
+- Abfragen, Ausführungspläne und Statistiken verstehen.
+- Passende Query Patterns und Indexstrukturen für ein konkretes Problem wählen.
+- Speicher, Pages, Transaktionslog und Columnstore einordnen.
+- Blocking, Isolation, Deadlocks und TempDB untersuchen.
+- CPU-, Speicher- und I/O-Verbrauch sowie Waits richtig interpretieren.
+- Query Store, Extended Events und weitere Diagnosewerkzeuge einsetzen.
+- Änderungen mit ihren Voraussetzungen, Vorteilen und Grenzen beurteilen.
 
-Welle 0, Gate A und Gate B sind validiert. Die Framework-Arbeitspakete `FWK-001` bis `FWK-012` sind in offiziellen Microsoft-Linux-Containern auf SQL Server 2019, 2022 und 2025 mit Compatibility Levels 150, 160 und 170 runtime-validiert.
+Ein ergänzendes [Kursangebot zu KI mit SQL Server 2025](Presentations/AI_SQL_Server_2025/README.md)
+behandelt unter anderem Vektoren, Suche und den Umgang mit SQL-Ausgaben von
+Sprachmodellen.
 
-Gate B umfasst die validierten Piloten `QRY-001`, `OPT-002`, `CON-004` und `OPT-013`. Der Workflowlauf `30108023315` führte jede Demo je Version zweimal vollständig aus und bestätigte 24 erfolgreiche Demoläufe einschließlich markergeprüftem Cleanup nach jedem Lauf.
+## Beispiele und Leistungsangaben
 
-`W2-007` ist validiert: Die Folien 32, 34, 42 und 43 unterscheiden Cache-Schlüssel von Invalidierung, führen IQP-Voraussetzungen versions- und konfigurationsbezogen, vermeiden eine feste Table-Variable-Größenheuristik und berücksichtigen Interleaved Execution sowie Scalar UDF Inlining. Sichtbarer Text, Speaker Notes, Quellen und Traceability sind synchronisiert.
+Zum Lehrmaterial gehören auch kurze SQL-Techniken, Lösungsmuster und
+erklärende Beispiele. Ihr Nutzen hängt nicht davon ab, ob ein eigener
+Vorher-/Nachher-Benchmark vorliegt. Entscheidend ist, welches Problem sie
+lösen, wann sie passen und welche Einschränkungen sie haben.
 
-`W2-001` ist validiert: Alle 19 historischen SQL-Dateien und vier Diagnoseabfragen sind inhaltlich und hashbasiert klassifiziert. Es existiert kein direkter `REUSE`-Kandidat; 14 Quellen werden neu aufgebaut, eine wird refaktoriert, vier werden ausschließlich als Diagnosequellen weitergeführt und vier werden nicht migriert.
+Messdemos zeigen zusätzlich, wie sich eine Wirkung unter bestimmten
+Bedingungen untersuchen lässt. Konkrete Messwerte gelten für die jeweils
+beschriebene Umgebung und sind keine allgemeingültigen Leistungsversprechen.
 
-Der nächste kritische Pfad ist `W2-002`: feste Datenbank-, Objekt- und Umgebungsabhängigkeiten der priorisierten Migrationskandidaten entfernen. Parallel bleiben Query-Store-/Extended-Events-Diagnosepfade, Teilnehmerunterlagen und weitere Curriculum-Demos offen. Der Gesamtstatus des Projekts bleibt bis zur vollständigen Inhalts- und Releaseabnahme `PLANNED`.
+Historische Beispiele sind im [Referenzarchiv](Presentations/old/Performance%20Grundlagen%20V-2024.zip)
+erhalten. Die [Einordnung der Altbeispiele](Documentation/Inventories/LEGACY_EXAMPLE_CLASSIFICATION.md)
+erklärt ihre weitere Verwendung und die Bedeutung der damaligen Migrationsentscheidungen.
 
-## Lizenz
+## Voraussetzungen für die Praxis
 
-Dieses Projekt verwendet eine eigene Lizenz und ist nicht als Open-Source-Projekt lizenziert. Maßgeblich ist [LICENCE.md](LICENCE.md).
+Die Unterlagen behandeln SQL Server 2019, 2022 und 2025. Welche Version,
+Edition, Konfiguration und Rechte ein Beispiel benötigt, steht bei der
+jeweiligen Demo. Zusätzliche Voraussetzungen für SQL Server 2025 werden
+gesondert beschrieben.
+
+Verwenden Sie für die Übungen eine geeignete Testumgebung mit synthetischen
+Daten. Lesen Sie vor dem Start die jeweilige Anleitung. Beispiele mit
+Last, Konfigurationsänderungen oder Cacheeingriffen benötigen eine dafür
+vorgesehene isolierte Umgebung.
+
+## Mitwirken und Lizenz
+
+Hinweise zu fachlichen Korrekturen und Beiträgen stehen in
+[CONTRIBUTING.md](CONTRIBUTING.md). Interne Entwicklungsplanung ist über die
+[Projektpflege](Documentation/README.md#projektpflege) erreichbar.
+
+Für Nutzung und Weitergabe gilt [LICENCE.md](LICENCE.md).

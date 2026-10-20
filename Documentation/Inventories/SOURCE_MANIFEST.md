@@ -23,6 +23,12 @@ Die ursprünglichen, nicht neutralisierten Uploads sind keine Repository-Quellen
 
 ## 3. Inhaltsübersicht des Referenzarchivs
 
+Die historischen Kennzeichnungen `REMOVE`, `REBUILD` und `REFACTOR` betreffen
+die damalige Migration der konkreten Dateien. `REMOVE` bedeutet keine Löschung
+aus diesem Archiv und keine dauerhafte Ablehnung des Themas. Die
+[aktuelle Einordnung der Beispiele](LEGACY_EXAMPLE_CLASSIFICATION.md#1-bewertungsmaßstab)
+stellt den didaktischen Nutzen auch ohne eigenen Benchmark klar.
+
 | Artefaktgruppe | Anzahl | Projektrolle |
 |---|---:|---|
 | Präsentationsmodule | 5 | historische Themen- und Aussagenquelle; durch `SRC-DECK-001` ersetzt |
