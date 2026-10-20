@@ -7,7 +7,9 @@ Branchcleanup. Nächster Schnitt: [empfangene Metadata und tatsächlichen
 Workerreport verbinden](DGN_007_OBSERVED_WORKER_REPORT_REVIEW.md),
 max6/Checkpoint2, Auswahl-PRE freigegeben; C1 mit16Modellmethoden und privaten
 äußeren Ankern/einmaligem Versuch. C2 schließt zwei P2 zu Builtinslot und
-Bindingautorität, Checkpoint2; Delta-PRE/Lauf-GO ausstehend,
+Bindingautorität, Checkpoint2; C2-Läufe stoppen am SCRIPT_LIMIT. C3 wählt nur
+in der neuen Route benötigte Funktionen und erhält deren gesamten AST bei
+Wegfall reiner Kommentar-/Leerzeilen; erneuter Delta-PRE/Lauf-GO ausstehend,
 keine operative Ausführung oder Inventur.
 
 PR266 vollständig in Main `ded09f685f747bb614c68c0fa78a6e54be7514be`

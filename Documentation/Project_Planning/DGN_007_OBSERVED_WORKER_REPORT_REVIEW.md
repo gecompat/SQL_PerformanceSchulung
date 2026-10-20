@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `84272af549d1c7c1320b5b1c77a55a4b721f8d18` nach vollständig geschlossenem PR267.
-Status `C2_DELTA_PRE_PENDING`.
+Status `C3_SOURCE_FIT_CORRECTION_PRE_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -145,3 +145,33 @@ null Getter-/Call-/Profilreadzählern sowie zusätzliche Runner-/Factoryersatzf�
 Weiterhin16Methoden, keine Test-/Compile-/Execausführung. Checkpoint2 erreicht:
 zwei Source/Testkandidaten/max6, ein gebündelter Befundnachlauf. Delta-PRE und
 ausdrückliches Lauf-GO ausstehend. Verbrauch UNKNOWN; operative Grenzen erhalten.
+
+## C2-Lauf und C3: aktuelle neue Route am Scriptcap
+
+C2 `ca633a2d027556ab79cc9dd5c8b3a56719d1f9df` unabhängig ohne offene
+P1/P2/P3 im Delta bestätigt; beide P2 geschlossen, einmaliges Source/Test-Lauf-GO
+für genau diesen Stand. Danach neue16 Windows in0.481s und Linux in0.399s:
+jeweils15Fehler mit derselben Ursache SCRIPT_LIMIT, eine negative Formmethode
+PASS. Die eigentlichen Aufnahme-/Reportfälle kamen nicht über den Quellenbau.
+Kein neuer Gesamtlängen-/SHAwert für abgelehnte Quellen, keine semantische
+Abnahme und kein unveränderter Wiederholungslauf.
+
+C3 korrigiert ausschließlich die neue siebzehnte Zusammensetzung: der dort
+unbenutzte parentseitige `_inline_match_metadata_chunks` entfällt vollständig,
+seine drei gemeinsamen Intake-/Intrinsichelfer sowie sämtliche Rawbody-/Command-
+Prüfer bleiben erhalten. Die Entfernung prüft genau einen festen Funktionsanfang,
+keine weiteren Top-Level-Funktionen im entfernten Tail und genau ein Vorkommen
+in der Quelle; Abweichung ist TEMPLATE_FORM.
+
+Nur in dieser neuen Route entfallen anschließend reine Kommentar-/Leerzeilen.
+Die festen Templates haben einzeilige Literale/Docstrings; variable vollständige
+Profilbytes und Configtexte sind einzeiliges repr. Ein unabhängiger AST-Vergleich
+prüft sämtliche verbleibenden Definitionen, Literale und Mainaufrufe gegen die
+unveränderte sechzehnte Quelle plus neues Fragment und gezielte Matcherentfernung.
+Keine ausführbare Operation, kein Kontrollrawbyte und kein Cap entfallen.
+Alte16-Routen bleiben byteidentisch. Die eigentliche Quellenfitmessung und
+semantische Suite folgen erst nach erneutem unabhängigem Delta-/Lauf-PRE.
+
+Drei Source/Testkandidaten/max6, zwei gebündelte Nachläufe; weiterhin16Methoden.
+Verbrauch UNKNOWN. C2-Fehler bleibt aktuelle historische Evidenz, operative
+Grenzen und offene Inventur-/Worker-/Import-/Trust-/Methodengates unverändert.

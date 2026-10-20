@@ -16,8 +16,12 @@ Empfang, echte Aufnahme und Reporter mit vorab gehaltenen äußeren Ankern und
 einmaliger Reservierung;16neue Modellmethoden. C1 unabhängig mit zwei P2 ohne
 Lauf-GO. C2 schließt Builtinslot und selbstgewählte Bindingautorität durch eine
 separat versiegelte private Entryclosure und zwei Markerersatz-Gegenproben.
-Checkpoint2/zwei Kandidaten/ein Nachlauf; Delta-PRE/Lauf-GO ausstehend,
-noch keine Suiteimporte oder Läufe.
+Checkpoint2: C2 unabhängig geschlossen und mit Lauf-GO, danach neue16 auf
+Windows/Linux jeweils15SCRIPT_LIMIT-Fehler und eine negative Methode PASS;
+eigentliche Reportfälle noch nicht ausgeführt. C3 entfernt nur in der neuen
+Route einen unbenutzten Parentmatcher und reine Kommentar-/Leerzeilen bei
+vollständigem unabhängigen AST-Erhaltcheck. Drei Kandidaten/zwei Nachläufe,
+erneuter Delta-PRE/Lauf-GO ausstehend; kein Capwechsel oder alter Fitretry.
 Keine operative Script-/Pipeausführung, Inventur oder SQL. Alle tatsächlichen
 Worker-/Import-/Trust-/Methodengates bleiben offen. Verbrauch UNKNOWN.
 

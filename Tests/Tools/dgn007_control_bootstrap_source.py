@@ -2850,8 +2850,21 @@ def build_inline_worker_report_control_bootstrap(profile_raw, *, logical_profile
     old = ('\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
            '    _WORKER_PROFILE_INIT_RESULT = _initialize_worker_profile_control()\n')
     _need(text.count(old) == 1, "TEMPLATE_FORM")
+    # Nur der Parent benötigt den Vollvergleich gegen eine getrennte M-Auswahl.
+    # Die drei gemeinsamen Intake-/Intrinsichelfer bleiben für Rawbodies erhalten.
+    prefix = '\ndef _inline_match_metadata_chunks('
+    _need(_INLINE_MATCH.count(prefix) == 1, "TEMPLATE_FORM")
+    unused = prefix + _INLINE_MATCH.split(prefix, 1)[1]
+    _need(unused.count('\ndef ') == 1 and text.count(unused) == 1, "TEMPLATE_FORM")
+    text = text.replace(unused, '\n', 1)
     main = old + '    _initialize_worker_report_control()\n'
-    source = text.replace(old, '\n' + _INLINE_WORKER_REPORT + main, 1).encode("utf-8", "strict")
+    text = text.replace(old, '\n' + _INLINE_WORKER_REPORT + main, 1)
+    # Feste Templates haben nur einzeilige Literale/Docstrings; variable Bytes
+    # und Texte werden als einzeiliges repr eingebettet. AST-Gleichheit wird
+    # unabhängig geprüft. Keine Profilrawbytes oder ausführbare Zeile ändern.
+    text = '\n'.join(row for row in text.splitlines()
+                     if row.strip() and not row.lstrip().startswith('#')) + '\n'
+    source = text.encode("utf-8", "strict")
     _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
     return BootstrapSource(source, profile_raw, logical_profile,
                            hashlib.sha256(source).hexdigest(),

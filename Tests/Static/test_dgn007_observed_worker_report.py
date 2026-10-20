@@ -165,6 +165,19 @@ class ObservedWorkerReportTests(unittest.TestCase):
         calls = [node.value.func.id for node in main.body]
         self.assertEqual(calls, ["_load_bound_control", "_initialize_worker_profile_control",
                                  "_initialize_worker_report_control"])
+        base = ast.parse(g.build_inline_worker_profile_control_bootstrap(fixture.RAW, **fixture.OPTIONS).source)
+        original_main = next(node for node in base.body if isinstance(node, ast.If))
+        original_main.body.append(ast.Expr(value=ast.Call(
+            func=ast.Name(id="_initialize_worker_report_control", ctx=ast.Load()), args=[], keywords=[])))
+        retained = [node for node in base.body if node is not original_main
+                    and not (isinstance(node, ast.FunctionDef) and node.name == "_inline_match_metadata_chunks")]
+        expected = ast.Module(body=retained + ast.parse(g._INLINE_WORKER_REPORT).body + [original_main],
+                              type_ignores=[])
+        self.assertEqual(ast.dump(tree, include_attributes=False), ast.dump(expected, include_attributes=False))
+        names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
+        self.assertNotIn("_inline_match_metadata_chunks", names)
+        self.assertTrue({"_match_intake", "_match_original", "_match_intrinsic",
+                         "_inline_receive_declared_bodies", "_inline_command_match"} <= names)
         self.assertFalse(source.runtime_attested or source.trust_attested
                          or source.import_used_bytes_attested or source.method_approved)
 
