@@ -2,6 +2,7 @@
 import ast
 import hashlib
 from pathlib import Path
+import symtable
 
 import dgn007_harness_loader_source as base
 import dgn007_codefree_parents as parents
@@ -512,7 +513,8 @@ def _shorten_globals(tree, protected):
     for definition in tree.body:
         if not isinstance(definition, ast.FunctionDef): continue
         name = definition.name
-        if not name.startswith(("_inline_", "_semantic_", "_worker_profile_", "_worker_input_", "_report_")) or name in _PRESERVED: continue
+        if not (name.startswith(("_inline_", "_semantic_", "_worker_profile_", "_worker_input_", "_report_", "_rl_", "_worker_report_"))
+                or name in ("_require", "_dictionary")) or name in _PRESERVED: continue
         references = [n for n in nodes if isinstance(n, ast.Name) and n.id == name]
         if any(isinstance(n, ast.Name) and n.id == name for n in protected_nodes): continue
         if not references or any(not isinstance(n.ctx, ast.Load) for n in references): continue
@@ -531,6 +533,97 @@ def _shorten_globals(tree, protected):
         definition.name = target
         for reference in references: reference.id = target
     return tree
+
+
+def _shorten_uniform_locals(tree, protected):
+    """Uniforme Bijection; compilerbestimmte globale Ursprünge bleiben gesperrt."""
+    nodes = tuple(ast.walk(tree)) + tuple(ast.walk(protected))
+    occupied = {getattr(n, f, None) for n in nodes
+                for f in ("id", "arg", "name", "asname", "rest", "attr")
+                if isinstance(getattr(n, f, None), str)}
+    texts = tuple(n.value for n in nodes if isinstance(n, ast.Constant) and type(n.value) is str)
+    forbidden = {n.attr for n in nodes if isinstance(n, ast.Attribute)}
+    forbidden.update(n.arg for n in nodes if isinstance(n, ast.keyword) and n.arg)
+    forbidden.update(n.name for n in nodes if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)))
+    forbidden.update(n.name for n in nodes if isinstance(n, ast.alias))
+    forbidden.update(n.asname for n in nodes if isinstance(n, ast.alias) and n.asname)
+    # Symboltabellen erfassen auch Defaults und das äußere erste Comp-Iterable.
+    table = symtable.symtable(ast.unparse(tree) + "\n" + ast.unparse(protected), "<runner-alpha>", "exec")
+    pending = [table]
+    while pending:
+        scope = pending.pop()
+        for symbol in scope.get_symbols():
+            if symbol.is_global() or scope.get_type() == "class": forbidden.add(symbol.get_name())
+        pending.extend(scope.get_children())
+    scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
+    public = _PRESERVED | {"entry", "seal", "handoff", "gateway", "input_handoff", "eof_handoff",
+                           "parent_guard", "parent_write", "create_module", "exec_module"}
+    def inspect(node, ancestors=()):
+        chain = ancestors + ((node,) if isinstance(node, scopes) else ())
+        if isinstance(node, ast.ClassDef):
+            for member in node.body:
+                if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    forbidden.update(n.arg for n in ast.walk(member.args) if isinstance(n, ast.arg))
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in public:
+            forbidden.update(n.arg for n in ast.walk(node.args) if isinstance(n, ast.arg))
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in ("locals", "vars", "eval", "exec")):
+            # Reflexion kann auch äußere Closure-/Defaultnamen beobachten.
+            selected = chain[0] if chain else tree
+            forbidden.update(getattr(n, f, None) for n in ast.walk(selected)
+                             for f in ("id", "arg", "name", "asname", "rest"))
+        if isinstance(node, (ast.Match, ast.TypeAlias)):
+            forbidden.update(getattr(n, f, None) for n in ast.walk(node)
+                             for f in ("id", "arg", "name", "asname", "rest"))
+        for child in ast.iter_child_nodes(node): inspect(child, chain)
+    inspect(tree)
+    chosen, ordinal = {}, 0
+    names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+    names.update(n.arg for n in ast.walk(tree) if isinstance(n, ast.arg))
+    for name in sorted(names):
+        if len(name) < 4 or name.startswith("__") or name in forbidden or any(name in s for s in texts): continue
+        while True:
+            short = "z" + str(ordinal)
+            ordinal += 1
+            if short not in occupied and not any(short in s for s in texts): break
+        chosen[name] = short
+        occupied.add(short)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name): node.id = chosen.get(node.id, node.id)
+        elif isinstance(node, ast.arg): node.arg = chosen.get(node.arg, node.arg)
+        elif isinstance(node, ast.ExceptHandler): node.name = chosen.get(node.name, node.name)
+        elif isinstance(node, ast.Nonlocal): node.names = [chosen.get(n, n) for n in node.names]
+    return tree
+
+
+def _compact_raw_literal(text, raw):
+    """Ein einziges wertgleiches Bytesliteral; keinerlei Runtime-Dekodierung."""
+    before = ast.parse(text)
+    values = [n.value for n in before.body if isinstance(n, ast.Assign)
+              and any(isinstance(t, ast.Name) and t.id == "_EXPECTED_PROFILE_RAW" for t in n.targets)]
+    base.base.inputs.base._need(len(values) == 1 and isinstance(values[0], ast.Constant)
+        and values[0].value == raw and type(raw) is bytes, "TEMPLATE_FORM")
+    alternatives = [repr(raw).encode("ascii")]
+    for quote in (34, 39):
+        chunks = [b"b" + bytes([quote]) * 3]
+        for value in raw:
+            if value == 10: chunks.append(b"\n")
+            elif value == 13: chunks.append(b"\\r")
+            elif value in (92, quote): chunks.append(b"\\" + bytes([value]))
+            elif 32 <= value < 127: chunks.append(bytes([value]))
+            else: chunks.append(("\\x%02x" % value).encode("ascii"))
+        chunks.append(bytes([quote]) * 3)
+        alternatives.append(b"".join(chunks))
+    literal = min(alternatives, key=len)
+    base.base.inputs.base._need(ast.literal_eval(literal.decode("ascii")) == raw, "TEMPLATE_FORM")
+    value = values[0]
+    lines = text.encode("utf-8").splitlines(keepends=True)
+    start = sum(map(len, lines[:value.lineno - 1])) + value.col_offset
+    end = sum(map(len, lines[:value.end_lineno - 1])) + value.end_col_offset
+    data = text.encode("utf-8")
+    result = (data[:start] + literal + data[end:]).decode("utf-8")
+    base.base.inputs.base._need(ast.dump(ast.parse(result)) == ast.dump(before), "TEMPLATE_FORM")
+    return result
 
 
 def build_runner_loader_control_bootstrap(profile_raw, *, logical_profile,
@@ -555,10 +648,11 @@ def build_runner_loader_control_bootstrap(profile_raw, *, logical_profile,
     main.body[-1] = ast.parse("_rl_main()").body[0]
     parent = _parent_ast()
     tree.body = [n for n in tree.body if n is not main] + _helpers() + _runner_nodes() + [main]
-    tree = base.base._compact_locals(_shorten_globals(tree, parent))
+    tree = _shorten_globals(tree, parent)
+    tree = base.base._compact_locals(_shorten_uniform_locals(tree, parent))
     tree.body.insert(len(tree.body) - 1, parent)
     text = inputs._compact_indentation(ast.unparse(ast.fix_missing_locations(tree)) + "\n")
-    source = base.base._compact_token_gaps(text).encode("utf-8", "strict")
+    source = base.base._compact_token_gaps(_compact_raw_literal(text, profile_raw)).encode("utf-8", "strict")
     inputs.base._need(len(source) <= inputs.base.MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
     return inputs.base.BootstrapSource(source, profile_raw, logical_profile,
         hashlib.sha256(source).hexdigest(), hashlib.sha256(profile_raw).hexdigest(), len(source))

@@ -285,3 +285,35 @@ unabhängige Auswahlfreigabe; danach stabiler Source/Test-PRE mit ausdrückliche
 Lauf-GO. Weiter zuerst Fit Windows/Linux je einmal, erst beide PASS erlauben
 die übrigen15. Zwei/max6 bisherige Kandidaten, ein Nachlauf, Verbrauch UNKNOWN;
 keine Budgeterneuerung und keine unveränderten Testwiederholungen.
+
+## C3 – stabile Quelle vor Source/Test-PRE
+
+Unabhängiges Auswahl-GO für d4eba79: ausschließlich Alpha-/Literal-Kürzung,
+keine Fehlerlabel-Aliases oder sonstigen Runtime-Datenbindungen. Compiler-
+Symboltabellen bestimmen globale Ursprünge einschließlich Defaults und erstem
+Comprehension-Iterable; globale Symbole sämtlicher Scopes und sämtliche
+Klassensymbole bleiben gesperrt. Externe Entry-/Callback-/Methodenargumente,
+__-Namen, Attribute, Keywords, Alias-/Pattern-/Reflexionsfelder und Stringbezüge
+bleiben zusätzlich ausgeschlossen. Unklare Fälle bleiben unverändert.
+Grundlage: [Python-Symboltabellen](https://docs.python.org/3.12/library/symtable.html).
+
+Transformationsreihenfolge: begrenzte globale Def-/Loadmap, uniforme lokale
+Map mit neuen disjunkten zN-Namen, bisherige konservative lokale Alpha,
+vollständig unveränderte Parentfactory einsetzen. Separate Oracle führt
+globale Map zurück, leitet uniforme Map aus gepaarten Feldern ab und beweist
+Uniformität/Auswahlsperren/Kollisionen; danach bestehende unabhängige lokale
+Rückführung und kompletter ASTvergleich. Parentlokale sind eigenständig,
+ihre globalen Ursprünge und sämtlichen Originalnamen bleiben geschützt.
+Eigenes kleines Modell prüft Global-/Lokalschreibweise, Defaults, Erstiterable,
+Closure/Nonlocal/Shadowing, Keywords, Methoden/Klassenslots und Reflexion.
+
+Ein einzelnes kürzestes repr-/Triplequote-Rawliteral ersetzt nur den tatsächlichen
+AST-Constantbereich nach Einrückung. Byteoffsets statt Unicode-Spaltenannahmen;
+NUL, sonstige Steuerbytes außer LF, CR, Delimiter, Backslash und Nicht-ASCII
+werden escaped. Unabhängige CRLF/LF-/Quote-/Escape-Randfälle und voller Raw-/
+Ganz-ASTvergleich. Kein zusätzlicher Scriptimport oder Runtimecall.
+
+Weiterhin16 Methoden. C3 ist der dritte Source/Testkandidat/max6, zweiter
+Nachlauf, Verbrauch UNKNOWN. Nur Text-ASTprüfung und Privacy vor Commit.
+Stabiler unabhängiger Source/Test-PRE und ausdrückliches gestuftes Fit-GO offen;
+keine neue Generierung oder Modelle vor Freigabe. Harte Grenze6 bleibt gleich.

@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import symtable
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -110,7 +111,113 @@ class RunnerLoaderSourceTests(unittest.TestCase):
         self.assertIsNone(result[2])
         return result
 
+    def inverse_uniform(self, expected, actual):
+        # Aus gepaarten Bäumen abgeleitet; keine Produktmap/-Auswahl verwenden.
+        left, right = tuple(ast.walk(expected)), tuple(ast.walk(actual))
+        self.assertEqual([type(n) for n in left], [type(n) for n in right])
+        parent_nodes = {id(n) for p in expected.body if isinstance(p, ast.FunctionDef)
+                        and p.name == "make_codefree_parent_registry" for n in ast.walk(p)}
+        pairs = []
+        for a, b in zip(left, right):
+            if id(a) in parent_nodes: continue
+            if isinstance(a, ast.Name): pairs.append((a.id, b.id))
+            elif isinstance(a, ast.arg): pairs.append((a.arg, b.arg))
+            elif isinstance(a, ast.ExceptHandler) and a.name: pairs.append((a.name, b.name))
+            elif isinstance(a, ast.Nonlocal):
+                self.assertEqual(len(a.names), len(b.names))
+                pairs.extend(zip(a.names, b.names))
+        mapping = {}
+        for old, new in pairs:
+            if old != new and new.startswith("z") and new[1:].isdigit():
+                self.assertEqual(mapping.setdefault(old, new), new)
+        self.assertEqual(len(mapping), len(set(mapping.values())))
+        originals = {getattr(n, f, None) for n in left for f in ("id", "arg", "name", "asname", "rest", "attr")}
+        texts = [n.value for n in left if isinstance(n, ast.Constant) and type(n.value) is str]
+        tables = [symtable.symtable(ast.unparse(expected), "<independent-alpha-oracle>", "exec")]
+        blocked = set()
+        while tables:
+            table = tables.pop(0)
+            blocked.update(s.get_name() for s in table.get_symbols() if s.is_global() or table.get_type() == "class")
+            tables += table.get_children()
+        public = {"_worker_input_seal", "_worker_input_entry", "_worker_profile_state",
+                  "_inline_observe_selected_worker_profile", "_inline_kernel_check", "entry", "seal",
+                  "handoff", "gateway", "input_handoff", "eof_handoff", "parent_guard", "parent_write",
+                  "create_module", "exec_module"}
+        def boundary(node, enclosing=()):
+            path = enclosing + ((node,) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)) else ())
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if node.name in public or (enclosing and isinstance(enclosing[-1], ast.ClassDef)):
+                    blocked.update(a.arg for a in ast.walk(node.args) if isinstance(a, ast.arg))
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                    and node.func.id in ("locals", "vars", "eval", "exec")):
+                for n in ast.walk(path[0] if path else expected):
+                    blocked.update(getattr(n, f, None) for f in ("id", "arg", "name", "asname", "rest"))
+            if isinstance(node, (ast.Match, ast.TypeAlias)):
+                for n in ast.walk(node):
+                    blocked.update(getattr(n, f, None) for f in ("id", "arg", "name", "asname", "rest"))
+            for child in ast.iter_child_nodes(node): boundary(child, path)
+        boundary(expected)
+        for n in left:
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.alias)): blocked.add(n.name)
+            if isinstance(n, ast.alias): blocked.add(n.asname)
+            if isinstance(n, ast.Attribute): blocked.add(n.attr)
+            if isinstance(n, ast.keyword): blocked.add(n.arg)
+        for old, new in mapping.items():
+            self.assertGreaterEqual(len(old), 4)
+            self.assertFalse(old.startswith("__"))
+            self.assertNotIn(old, blocked)
+            self.assertNotIn(new, originals)
+            self.assertTrue(all(old not in s and new not in s for s in texts))
+        for old, new in pairs:
+            if old in mapping: self.assertEqual(new, mapping[old])
+        inverse = {new: old for old, new in mapping.items()}
+        for n in right:
+            if isinstance(n, ast.Name): n.id = inverse.get(n.id, n.id)
+            elif isinstance(n, ast.arg): n.arg = inverse.get(n.arg, n.arg)
+            elif isinstance(n, ast.ExceptHandler): n.name = inverse.get(n.name, n.name)
+            elif isinstance(n, ast.Nonlocal): n.names = [inverse.get(s, s) for s in n.names]
+        return mapping
+
     def test_actual_source_fit_full_raw_parent_and_independent_alpha_ast(self):
+        # Kleines eigenes Alpha-Modell: Globalgleichnamigkeit, Defaults,
+        # Erstiterable, Closures/Shadowing, Keywords, Methoden und Reflexion.
+        sample = '''global_value = 7
+def outer(argument_long, keyword_kept=1):
+ captured_long = argument_long
+ def inner(shadow_long):
+  nonlocal captured_long
+  captured_long += shadow_long
+  return captured_long
+ sequence_long = [element_long for element_long in range(argument_long)]
+ try:
+  temporary_long = inner(argument_long)
+ except ValueError as failure_long:
+  temporary_long = failure_long
+ return sequence_long, temporary_long, keyword_kept
+def global_reader(): return global_value
+def local_writer(global_value): return global_value
+def default_reader(another_long=global_value): return another_long
+def comp_reader(): return [global_value for global_value in global_value]
+def keyword_user(): return outer(1, keyword_kept=2)
+def reflected(reflected_long): return locals()
+class Example:
+ class_slot_long = 1
+ def method(self, method_argument): return method_argument
+'''
+        parent_model = ast.parse("def fixed_parent(): return None").body[0]
+        before = ast.parse(sample)
+        changed = subject._shorten_uniform_locals(ast.parse(sample), parent_model)
+        mapping = self.inverse_uniform(before, changed)
+        self.assertIn("argument_long", mapping)
+        self.assertIn("captured_long", mapping)
+        self.assertIn("element_long", mapping)
+        self.assertTrue(all(n not in mapping for n in ("global_value", "keyword_kept", "reflected_long", "method_argument", "class_slot_long")))
+        self.assertEqual(ast.dump(before), ast.dump(changed))
+        for raw_sample in (b"a\nb\r\n", b"'''\"\"\"\\\0\t\x0b\x0c\x7f\xff\n", b"\n" * 40):
+            text = "_EXPECTED_PROFILE_RAW = " + repr(raw_sample) + "\n"
+            rendered = subject._compact_raw_literal(text, raw_sample)
+            self.assertEqual(ast.dump(ast.parse(text)), ast.dump(ast.parse(rendered)))
+            self.assertLessEqual(len(rendered.encode()), len(text.encode()))
         parent = next(n for n in ast.parse(Path(subject.parents.__file__).read_bytes()).body if isinstance(n, ast.FunctionDef))
         for raw in (RAW, RAW.replace(b"\r\n", b"\n")):
             built = subject.build_runner_loader_control_bootstrap(raw, **OPTIONS)
@@ -180,7 +287,7 @@ _rl_original(owner[19], namespace)(owner, packet)
             for before, after in zip(definitions, observed):
                 if before.name == after.name: continue
                 old, new = before.name, after.name
-                self.assertTrue(old.startswith(("_inline_", "_semantic_", "_worker_profile_", "_worker_input_", "_report_")))
+                self.assertTrue(old.startswith(("_inline_", "_semantic_", "_worker_profile_", "_worker_input_", "_report_", "_rl_", "_worker_report_")) or old in ("_require", "_dictionary"))
                 self.assertNotIn(old, preserved)
                 self.assertNotIn(new, identifiers)
                 self.assertTrue(all(old not in t and new not in t for t in strings))
@@ -205,6 +312,7 @@ _rl_original(owner[19], namespace)(owner, packet)
                     self.assertNotIn(getattr(node, field, None), inverse)
                 if isinstance(node, (ast.Global, ast.Nonlocal)):
                     self.assertTrue(all(n not in inverse for n in node.names))
+            self.assertTrue(self.inverse_uniform(expected, actual))
             self.assert_local_alpha(expected, actual)
             print("RUNNER_SOURCE_BYTES=" + str(built.source_size))
 

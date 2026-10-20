@@ -29,8 +29,11 @@ Checkpoint2: zwei/max6 Kandidaten, ein Nachlauf, Verbrauch UNKNOWN. Unabhängige
 Delta-PRE schließt vier Befunde und erlaubt gestuft nur Fit zuerst. Windows und
 Linux jeweils SCRIPT_LIMIT; übrige15 nicht gestartet. Genau eine unabhängig
 freigegebene reine Generatordiagnose:143162 Bytes,12090 über131072Cap. Gezielte
-reversible Alpha-/Bytesliteral-Kürzung für C3 zur unabhängigen Auswahl, noch
-keine Umsetzung oder neues Lauf-GO. Fünf Importe/ganzer Raw/Cap unverändert.
+reversible Alpha-/Bytesliteral-Kürzung für C3 unabhängig ausgewählt und umgesetzt:
+compilerbestimmte globale Ursprünge/Methoden/Keywords/Reflexion gesperrt,
+unabhängige inverse Gesamt-ASToracle und einzelne wertgleiche Rawliteralform.
+Drei/max6 Kandidaten, zwei Nachläufe, Verbrauch UNKNOWN; Source/Test-PRE und
+gestuftes Fit-GO offen, noch keine neue Generierung/Modelle. Fünf Importe/ganzer Raw/Cap unverändert.
 Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
 
 ## Codefreie Parentregistrierung vom 20. Oktober 2026
