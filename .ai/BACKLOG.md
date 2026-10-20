@@ -3,7 +3,7 @@
 ## DGN-007: kontinuierlicher operativer Auftrag vom 20. Oktober 2026
 
 - [x] Vollständiger deklarativer SESSION_END-Matcher aus PR259: Main `d4151093bdd4de115b660352345f3e5c47e9b650`, acht PR-/sechs Main-Gates grün, FullTree/Sync/Branchcleanup bestätigt.
-- [ ] [Operativer Abschlussweg](../Documentation/Project_Planning/DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md): echte Kanal-/EOF-/Exit-/Cleanupbeobachtung mit festen eigenen Linux-Testworkern; unabhängiger Auswahl-PRE freigegeben, C1 Quellen-/Test-PRE vor neuen Läufen ausstehend. Maximal drei Kandidaten, kein Reset der alten Matcherwelle.
+- [ ] [Operativer Abschlussweg](../Documentation/Project_Planning/DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md): C3 unabhängig mit Lauf-GO, Windows portable PASS, Linux15/16 PASS; Noncefixture scheitert vor Start an JSON-Suche über P-Fragmente. Max3/beide Nachläufe verbraucht, gezielte C4-Freigabe ausstehend. Kein PR/Merge, Branch erhalten; kein Reset der alten Matcherwelle.
 - [ ] Danach nächste priorisierte endliche operative Welle: vollständige gehaltene Start-/Metadata-/Body-/Commandanbindung vor realer Import-/Loaderprovenienz auswählen und unabhängig prüfen. Kontinuierlicher Auftrag und bestehender 30-Minuten-Heartbeat aktiv; echte Freigabegrenzen und historische Stops gelten weiter.
 
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026

@@ -12,8 +12,17 @@ Der neue ausdrückliche Benutzerauftrag autorisiert die operative Kanal-/EOF-/
 Exit-/Cleanup-Anbindung und anschließend kontinuierliche autonome Entwicklung.
 Der [erste operative Abschlussweg](DGN_007_NATIVE_SESSION_CHANNEL_REVIEW.md)
 besitzt einen eigenen endlichen Rahmen: ein Owner, höchstens drei neue Quellen-/
-Teststände, Checkpoint C1 und harte Grenze C3. Auswahl-PRE ist freigegeben;
-Quellen-/Test-PRE mit Lauf-GO steht vor dem ersten neuen Suitelauf aus.
+Teststände, Checkpoint C1 und harte Grenze C3. C1 vier P2, C2 drei geschlossen,
+C3 letzter Nonce-P2 geschlossen; unabhängiges ausdrückliches Lauf-GO vorhanden.
+Windows: fünf portable PASS/elf native SKIP. Linux: 16 Methoden, 15 PASS/ein
+Fixture-FAIL `bad_nonce`: INPUT_COMPLETE-Suche dekodiert vorherige `P|`-Fragmente
+als JSON und bricht vor dessen Workerstart ab. Drei Kandidaten und zwei
+gezielte Nachläufe verbraucht; Status `BLOCKED_BUDGET_AFTER_C3_TEST_FAIL`.
+Keine weitere Implementierung oder Testwiederholung ohne ausdrückliche
+Erweiterung um eine gezielte C4-Fixturekorrektur, engen Delta-PRE/Lauf-GO und
+betroffenen Linux-Test; danach aktuelle CI/Main-Integration/Tree/Branchcleanup.
+Kein PR/Push/Merge, eigener Branch `codex/dgn007-native-session-channel`
+bleibt erhalten. Der unveränderte Blocker autorisiert keine Folgewelle.
 Native Abnahme ausschließlich mit festen selbstbeendenden eigenen Linux-
 Testworkern und synthetischen vollständigen Traces, keine reale Importfreigabe.
 Bestehender Heartbeat aktiv alle 30 Minuten auf denselben kontinuierlichen

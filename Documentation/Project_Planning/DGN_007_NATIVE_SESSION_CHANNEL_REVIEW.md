@@ -1,7 +1,7 @@
 # DGN-007 – operative Kanal-, EOF-, Exit- und Cleanup-Anbindung
 
 Stand: 2026-10-20, Basis `d4151093bdd4de115b660352345f3e5c47e9b650` nach
-abgeschlossenem PR259. Status `SOURCE_TEST_PRE_PENDING`. Der Benutzer beauftragt
+abgeschlossenem PR259. Status `BLOCKED_BUDGET_AFTER_C3_TEST_FAIL`. Der Benutzer beauftragt
 die operative Folgewelle und kontinuierliche autonome Weiterentwicklung mit
 unabhängigem Review, lokalen Tests, aktuellen grünen Gates, Main-Integration
 und Branchbereinigung. Alte geschlossene oder ausgeschöpfte Wellen werden
@@ -160,6 +160,36 @@ C3 ändert ausschließlich diesen Helperaufruf auf `seal=False` plus anschließe
 Reseal mit tatsächlich gesendetem stderr. Drei Quellen-/Teststände verbraucht,
 keine weitere Implementierung dieser Welle. Gezielter unabhängiger letzter
 Delta-PRE vor dem ersten Lauf erforderlich; keine Suite/native Probe ausgeführt.
+
+C3 `3bd9cf6a3c63199dedf7c554ea9172dbbd1a2158`: gezielter unabhängiger
+Delta-PRE ohne offene P1/P2/P3 und ausdrückliches einmaliges Source/Test-Lauf-GO.
+Erster autorisierter Lauf: Windows/Python3.14.7 fünf portable Methoden PASS,
+elf native Methoden ausdrücklich SKIP. Linux/CPython3.12.3: 16 Methoden,
+15 PASS, ein FAIL in `test_actual_bad_channels_and_footer_never_start_next_slot`
+bei `bad_nonce`; Dauer 18,679 Sekunden. Der äußere feste Bericht nennt
+`NATIVE_WORKER_FAILED`, Exit1; keine rohen Workerdiagnosen exportiert.
+
+Statischer Befund: Die neue Suche nach INPUT_COMPLETE ruft `json.loads(row)`
+auch auf die vorhergehenden Nicht-JSON-`P|`-Fragmente auf. Die Fixturekonstruktion
+bricht damit vor dem nativen Start des Noncefalls ab. Gezielte nächste Änderung
+wäre ausschließlich die Auswahl der kanonischen INPUT_COMPLETE-Zeile vor deren
+JSON-Dekodierung; unveränderte Quellen- und Matcherseman­tik. Die übrigen 29
+festen Native-Fälle haben ihre eigenen Berichte einschließlich frischer
+Kinderabsenz und Subreaper-Restore geliefert. Dies ersetzt den fehlenden
+Noncefall nicht und ist keine vollständig grüne Suite.
+
+Der harte Rahmen C3 und beide gezielten Reviewnachläufe sind verbraucht.
+Gemäß Processing Efficiency Policy, Shared wave budget, keine weitere
+Implementierung, neue Revieweraufgabe oder Wiederholung. Erforderlich ist
+eine ausdrückliche Erweiterung um genau C4: eine Fixturekorrektur, ein enger
+Delta-PRE mit Lauf-GO und der betroffene lokale Linux-Test; danach vollständige
+aktuelle PR-/Main-CI und reguläre Integration/Treevergleich/Branchcleanup.
+Kein PR, Push, Merge oder Cleanup des noch unübernommenen Branches erfolgt.
+Eigener Branch `codex/dgn007-native-session-channel` bleibt erhalten; Main
+unverändert `d4151093bdd4de115b660352345f3e5c47e9b650`. Kontinuierlicher Auftrag
+und 30-Minuten-Heartbeat bleiben aktiv, dürfen diese Grenze aber nicht umgehen;
+unveränderter Blocker bleibt still. Kosten-/Tokenverbrauch unbekannt.
+
 Produktions-Worker, Start-/Command-/Bodyintegration, tatsächliche Import-/Loader-
 Provenienz, Fünf-Formen-/operative Inventur und SQL-/Incidentmethoden bleiben
 Folgearbeit mit ihren eigenen Abnahmegates.
