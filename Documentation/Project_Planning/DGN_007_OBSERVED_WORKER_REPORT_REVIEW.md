@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `84272af549d1c7c1320b5b1c77a55a4b721f8d18` nach vollständig geschlossenem PR267.
-Status `C3_REVIEWED_LOCAL_PASS_INTEGRATION_PENDING`.
+Status `C4_EXISTING_BUILDER_ORACLE_DELTA_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -186,3 +186,25 @@ bestätigt. Auch beide Markerersatzfälle bleiben extern ohne Getter-/Call-/
 Profilreaddispatch. Reguläre aktuelle PR-/Base-/Main-Gates, Integration und
 FullTree/Sync/eigener Branchcleanup folgen. Keine weiteren lokalen grünen
 Wiederholungsläufe; drei Source/Testkandidaten/zwei Nachläufe, Verbrauch UNKNOWN.
+
+## C4: bestehende sechzehnte Strukturprüfung auf ihren eigenen Claim begrenzen
+
+PR268 Head `828924a2dd0b8847cb351de10eef791c8b0a649d` gegen Basis84272af:
+zwölf Checks SUCCESS, bestehende Workerquellen-Suite FAIL. Neue16 in CI in2.960s
+ohne SKIP PASS; alte15 in2.486s mit genau einem Fehler `17 != 16` in
+`test_sixteenth_builder_selects_one_fixed_worker_route`, übrige14 PASS.
+Die alte Prüfung erwartet die sechzehnte Route als global letzten Builder;
+die ausdrücklich additive siebzehnte API widerlegt diese überbreite Annahme.
+
+C4 ändert ausschließlich diese alte Testmethode: mindestens16 Builder,
+unverändert sechzehnter Index15 und genau ein Vorkommen des alten API-Namens;
+weiterhin genau dessen Aufruf zum festen vollständigen Bodyunterbau. Keine
+Oracle zu Ergebnis, Bytes, Formen, Caps oder Verhalten wird gelockert. Die
+neue API bleibt durch eigene Suite und sämtliche alten Consumer abgedeckt.
+Produktcode, neue16 und aktive Fixturefunktionen bleiben unverändert.
+
+Gezielter unabhängiger Delta-PRE und ausdrückliches Lauf-GO für ausschließlich
+diese geänderte Methode Windows/Linux stehen aus; danach frische reguläre CI
+gegen neuen Head. Keine Wiederholung unveränderter lokaler neuer16 oder grüner
+alter Methoden. Vier Source/Testkandidaten/max6, drei gebündelte Nachläufe,
+Verbrauch UNKNOWN. Kein Merge mit fehlerhaftem Gate; operative Grenzen erhalten.

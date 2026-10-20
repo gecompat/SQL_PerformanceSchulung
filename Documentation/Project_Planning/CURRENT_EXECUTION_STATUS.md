@@ -23,7 +23,11 @@ Route einen unbenutzten Parentmatcher und reine Kommentar-/Leerzeilen bei
 vollständigem unabhängigen AST-Erhaltcheck. Drei Kandidaten/zwei Nachläufe,
 C3 unabhängig ohne offene Befunde mit Lauf-GO; danach neue16 Windows/Linux
 ohne SKIP PASS einschließlich vollständigem neuen Quellenfit und AST-Erhalt.
-Reguläre aktuelle Gates und Integration folgen; kein Capwechsel oder alter Fitretry.
+PR268: neue16 in CI PASS, zwölf Checks SUCCESS; alte15 mit einem zu strengen
+globalen Builderzählungsfehler FAIL. C4 bindet die alte Prüfung an ihren eigenen
+sechzehnten Index/eindeutigen API-Namen/festen Unterbau; Produktcode und neue16
+unverändert. Vier Kandidaten/drei Nachläufe, enger Delta-PRE/Lauf-GO ausstehend.
+Kein Merge mit fehlerhaftem Gate und kein Capwechsel oder alter Fitretry.
 Keine operative Script-/Pipeausführung, Inventur oder SQL. Alle tatsächlichen
 Worker-/Import-/Trust-/Methodengates bleiben offen. Verbrauch UNKNOWN.
 
