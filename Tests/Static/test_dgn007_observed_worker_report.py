@@ -70,8 +70,9 @@ def chunks(payload):
     return tuple(raw[n:n + 1024] for n in range(0, len(raw), 1024))
 
 
-def model(*, ordinal=1, initialize=True, encoder_callback=None):
-    env = fixture.model(initialize=False, builder=g.build_inline_worker_report_control_bootstrap)
+def model(*, ordinal=1, initialize=True, encoder_callback=None,
+          builder=g.build_inline_worker_report_control_bootstrap, setup=None):
+    env = fixture.model(initialize=False, builder=builder)
     own = {}
     for name, kind, actual in (("hashlib", "SOURCE", hashlib),
                                ("_hashlib", "EXTENSION", hashlib._hashlib),
@@ -115,6 +116,8 @@ def model(*, ordinal=1, initialize=True, encoder_callback=None):
         tuple(sorted(env["worker"][5])),)
     env.update(own=own, payload=selected(env["worker"]))
     env["chunks"] = chunks(env["payload"])
+    if setup is not None:
+        setup(env)
     env["initial"] = env["ns"]["_initialize_worker_profile_control"]()
     env["report_initial"] = env["ns"]["_initialize_worker_report_control"]() if initialize else None
     return env
