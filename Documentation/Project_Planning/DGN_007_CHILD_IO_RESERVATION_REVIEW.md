@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `e456c535bc7a75d72d5034587657f6bcb46a27dd`, PR269 vollständig geschlossen.
-Status `C1_SOURCE_TEST_PRE_PENDING`.
+Status `C1_LOCAL_PASS_HEAD_GATES_PENDING`.
 
 ## Priorität und endlicher gemeinsamer Rahmen
 
@@ -124,3 +124,16 @@ Exec-/nativen Proben. Unabhängiger Source/Test-PRE und ausdrückliches genaues
 Lauf-GO für neue12 Windows/Linux, alte Handshake12/28Native und Session16 unter
 Linux3.12 sowie entsprechende selektierte CI ausstehend. Keine neue Workerquelle,
 operative PR269-Auswahl, Installation/Inventur, generiertes Main oder SQL.
+
+C1 `ff290853d736bc6eea0d7a2fded1a5a3bb8905e2` unabhängig vollständig ohne
+offene P1/P2/P3 und mit ausdrücklichem einmaligem genauem Lauf-GO. Neue12
+Windows3.14.7 in0.008s und Linux3.12.3 in0.022s PASS; bestehende Handshake12
+mit allen28 festen Nativefällen Linux3.12 in25.993s und Session16 in20.578s
+PASS, jeweils ohne SKIP. Vollständige Kohortvorbuchung, Nullstart bei zu kleinem
+Budget, getrennte Parentzählung und bisherige tatsächliche Cleanup-/Absenz-/
+Restoregegenproben bestätigt. Keine operative PR269-Quelle oder neue Nativequelle.
+
+Ein Sourcekandidat/keine Nachläufe; Produkt/Suite unverändert. Nur Ergebnisstand
+ergänzt. Aktuelle Head-/Base-Gates, regulärer Merge, frische Main-Gates,
+FullTree/Sync und eigene Branchbereinigung folgen. Verbrauch UNKNOWN. Keine
+unveränderte Lokalwiederholung oder pauschale Runtime-/SQLfreigabe.

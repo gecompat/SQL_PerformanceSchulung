@@ -13,8 +13,10 @@ Nächster endlicher Schnitt: [Child-I/O-Vorbuchung aus dem gemeinsamen Parentbud
 Auswahl-PRE unabhängig freigegeben. C1 ergänzt einmalige sticky Vorbuchung,
 getrennte Reportdiagnose, zwölf eigene portable Budget-/Ownerordnungsmodelle
 und strengere native io_limit-Gegenprobe. Checkpoint1: ein Kandidat/max4,
-keine Nachläufe; Source/Test-PRE und ausdrückliches Lauf-GO ausstehend,
-noch keine Suiteimporte oder neuen Proben. Die feste
+keine Nachläufe; Source/Test-PRE unabhängig ohne offene Befunde mit ausdrücklichem
+Lauf-GO. Danach neue12 Windows3.14.7/Linux3.12.3 und bestehende Linux-Handshake12
+mit28Nativefällen/Session16 ohne SKIP PASS. Produkt/Suite unverändert, nur
+Ergebnisstand ergänzt. Head-/Base-/Main-Gates und regulärer Abschluss folgen. Die feste
 1088-je-Slot-Reserve soll vor erster nativer Wirkung aus4096Globaloperationen
 gebucht werden; tatsächliche Parentoperationen separat. Keine operative Auswahl
 der PR269-Quelle, keine neue Workerquelle und keine tatsächliche Inventur/SQL.
