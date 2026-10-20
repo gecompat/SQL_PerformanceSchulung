@@ -5,13 +5,19 @@ Bestandsprüfung ausdrücklich wieder auf. Die
 [interne DGN-007-Capture-Rückgabe](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
 ist nach unabhängigem Review und 14 grünen PR-Gates über PR255 in Main
 `b3f023a…` integriert; Treevergleich und eigene Branchbereinigung sind bestätigt.
-Die nächste begrenzte Welle ist ausschließlich der
+Der abgeschlossene
 [SESSION_END-Entwurf §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild)
-mit exakten Counts und nicht selbstreferentiellem Kanalhashpräbild. Zwei
+legt exakte Counts und das nicht selbstreferentielle Kanalhashpräbild fest. Zwei
 Entwurfsstände, Checkpoint nach dem ersten; unabhängiger Designreview ohne
-Befunde und acht grüne Dokumentationsgates zum Erststand. Die Abschlussrevision
-von PR256 führt nur Evidenz nach; aktuelle Head-/Base-Gates, Main-Übernahme
-und eigene Bereinigung bleiben vor Arbeitsabschluss erforderlich.
+Befunde und acht grüne Dokumentationsgates zum Erststand. PR256 ist mit acht
+verschiedenen grünen finalen PR-Checks in Main `131e196…` integriert; alle sechs
+Main-Workflows und eigene Branchbereinigung sind bestätigt. Auf erneuten
+Benutzerauftrag folgen die [reinen SESSION_END-Komponenten](DGN_007_SESSION_END_COMPONENTS.md):
+zuerst Footer-Codec, danach Kanalhash, je höchstens zwei Quellenkandidaten und
+Checkpoint nach dem ersten. Gemeinsamer unabhängiger Auswahl-PRE ohne Befunde;
+Footer-Erststand mit 13 lokalen isolierten Testmethoden auf Python 3.12/3.14
+bestanden. Unabhängiger Implementierungsreview und aktuelle Integrationsgates
+stehen aus; vollständiger Matcher und operative Provenienz bleiben offen.
 Historische Pausenangaben unten werden nur in diesem Umfang abgelöst.
 Automation und operative Provenienz- oder Workerfreigaben folgen daraus nicht.
 

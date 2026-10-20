@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung vom 20. Oktober 2026: reine SESSION_END-Komponenten
+
+PR256 ist mit acht verschiedenen grünen PR-Checks und sechs erfolgreichen
+Main-Workflows in `131e19651c57a829080093cbe2b6767a0ab462d8` integriert;
+vollständiger Treevergleich und lokale/Remote-Branchbereinigung sind bestätigt.
+Der Benutzer beauftragt erneut den autonomen Abschluss des aktuellen Streams,
+Merge nach lokalen Tests und die nächste priorisierte Welle.
+
+Die [beiden reinen SESSION_END-Komponenten](DGN_007_SESSION_END_COMPONENTS.md)
+sind vor der Implementierung unabhängig ausgewählt: zuerst Footer-Codec,
+anschließend Kanalhashfunktion. Ein Implementierungsowner, höchstens zwei
+Quellenkandidaten je Schnitt, Checkpoint jeweils nach dem ersten und ein
+unabhängiger Implementierungsreview je Schnitt. Der Footer-Erststand besteht
+13 lokale isolierte Testmethoden unter Windows/Python 3.14.7 und
+Linux/Python 3.12.3 ohne SKIP. Review und aktuelle PR-/Main-Gates stehen aus;
+Branch `codex/dgn007-session-end-footer`. Beide Schnitte liegen außerhalb der
+neun Runtimequellen und liefern keinen vollständigen Trace-/Kanal-/EOF- oder
+Runtime-/Trustnachweis. Keine Wiederaufnahme ausgeschöpfter Wellen und keine
+zusätzliche operative Konfiguration.
+
 ## Wiederaufnahme vom 20. Oktober 2026: Capture integriert, SESSION_END-Entwurf
 
 Der ausdrückliche Benutzerauftrag hebt die frühere allgemeine Entwicklungspause
