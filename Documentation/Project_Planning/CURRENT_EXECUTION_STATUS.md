@@ -9,9 +9,17 @@ Benutzerauftrag folgt der [vollständige deklarative SESSION_END-Matcher](DGN_00
 Die API-/Source-/Harnessauswahl ist unabhängig ohne Befunde freigegeben.
 Ein Owner, höchstens drei Quellenstände und Checkpoint nach dem ersten.
 Der Erststand auf `codex/dgn007-session-end-matcher` ergänzt ausschließlich eine
-fünfzehnte kontrollierte Quellenroute und eigene Gegenproben. Der unabhängige
-Quellen-/Testreview mit einmaligem Lauf-GO steht vor dem ersten Suitelauf aus;
-es wird noch kein Testerfolg beansprucht. Vollständiger deklarativer Match
+fünfzehnte kontrollierte Quellenroute und eigene Gegenproben. C1-P2 zur
+Fehlerlabellänge ist in C2 geschlossen; dessen erster Lauf scheiterte an zwei
+Testhelperfällen auf beiden Plattformen. C3 korrigiert ausschließlich den
+negativen Footerindex und ist unabhängig mit gezieltem Lauf-GO bestätigt.
+30 neue isolierte Methoden auf Windows/Python 3.14.7 und Linux/Python 3.12.3
+ohne SKIP bestanden, dazu 460 bisherige Kontrollquellenmethoden unter Windows
+auf unveränderter Quelle. Keine offenen Reviewbefunde, drei Quellenstände
+verbraucht, kein weiterer Implementierungsstand dieser Welle. Die Evidenzrevision
+von [PR259](https://github.com/gecompat/SQL_PerformanceSchulung/pull/259) bindet
+finale Head-/Base-Gates, Main-Integration und Branchbereinigung vor Abschluss.
+Vollständiger deklarativer Match
 ersetzt keine reale Kanalaufnahme, EOF, eigenen Exit oder Ressourcen-Cleanup.
 
 ## Fortsetzung vom 20. Oktober 2026: reine SESSION_END-Komponenten

@@ -1,7 +1,7 @@
 # DGN-007 – vollständiger deklarativer SESSION_END-Matcher
 
 Stand: 2026-10-20. Basis `d0c453f212523fa30c8d74ee47fcbb15f84b8b54` nach
-PR258; Status `C3_FIXTURE_DELTA_RUN_GO_PENDING`. Maßgeblich sind
+PR258; Status `IMPLEMENTED_LOCALLY_VERIFIED_REVIEWED`. Maßgeblich sind
 [§31, §33 und §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild).
 Der Benutzer beauftragt die vollständige Matcherwelle mit unabhängigem Review,
 lokalen Tests, grünen aktuellen Gates, Main-Integration und Branchbereinigung.
@@ -157,8 +157,27 @@ zusätzlicher unabhängiger Harnessdelta-/Lauf-GO-Review ist wegen dieses neuen
 tatsächlich beobachteten Fixturefehlers vor der Wiederholung notwendig. Das ist
 eine begrenzte zusätzliche Reviewausnahme für geänderten Testinput; die harte
 Grenze von drei Quellenständen wird nicht erhöht. Nach C3 keine neuen
-Implementierungsstände. Der Delta-Review und erneute Lauf der nun 30 Methoden
-stehen aus; noch kein Push oder CI-Lauf.
+Implementierungsstände. Der gezielte Delta-Review zu
+`89603ea9c745d3d4318845fceceda45305804e7b` bestätigt die Korrektur ohne offene
+P1/P2/P3-Befunde und erteilt ausdrücklich das einmalige Delta-Lauf-GO.
+
+Danach bestehen alle 30 Methoden isoliert unter Windows/Python 3.14.7 und
+Linux/Python 3.12.3 ohne SKIP, einschließlich aller drei vollständigen Traces,
+exakter 65536-Byte-Grenze und der gezielten Fehler-/Restoregegenfälle. Die 460
+bisherigen Kontrollquellenmethoden bestanden unter Windows bereits auf C2;
+deren Quelle, Harness und Umgebung bleiben in C3 unverändert. Sie werden lokal
+nicht identisch wiederholt; die aktuelle Linux-CI führt ihren regulären
+vollständigen Offline-Vertrag aus. Alle alten Top-Level-Quellknoten sind
+deterministisch unverändert, die fünf Imports und der tatsächliche Scriptfit
+bleiben geprüft. Registry, Kennungen, Foundationintegration, Kontinuität und
+Privacy der jeweils geänderten Dateien sind bestanden.
+
+Die Abschlussrevision ergänzt nur Evidenz und Planungsstände; Quelle, neue
+Suite und Workflow bleiben gegenüber C3 unverändert. [PR259](https://github.com/gecompat/SQL_PerformanceSchulung/pull/259)
+bindet die aktuellen finalen Head-/Base-Gates, Main-Integration, vollständigen
+Treevergleich und lokale/Remote-Branchbereinigung. Diese Gates bleiben vor
+Integrationsabschluss erforderlich. Der Nachweis behauptet keinen erfolgreichen
+C1-/C2-Matcherlauf und entfernt deren Befunde oder FAILs nicht.
 
 Echter Kanal, Loader-/Parentregistrierungsadapter, EOF/eigener Exit, Consumption,
 unabhängiger Ressourcen-Cleanup, operative Inventur, Fünf-Formen-/64-KiB-Gate
