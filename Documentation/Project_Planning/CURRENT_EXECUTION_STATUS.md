@@ -19,8 +19,14 @@ Originalanker vor Reportsnapshot, tatsächlicher Digest erst nach EOF, neue
 Run-Closure ausschließlich in privaten vorhandenen Haltern, kompletter Parent-AST
 von allen Alpha-Pässen ausgenommen. C1 mit additiver Quelle/16 Methoden, geschlossenen
 Projekt-/Stdlibkanten, getrenntem Parentnamespace und unabhängiger Gesamt-AST-
-Rückführung. Source/Test-PRE und gestuftes Lauf-GO offen; keine Generierung oder
-Kandidatenprobe. Ein/max6 Kandidaten, keine Nachläufe. Fünf Importe/ganzer Raw/131072Cap
+Rückführung. C1 unabhängig mit P2 für ungebundene neue Parenthelfer sowie drei P3
+für Oraclesortierung, späte Rootpräcondition und Source2-Member, kein Lauf-GO.
+C2 hält nur tatsächliche neue private Helferkette an ursprünglichen eingebetteten
+Codeobjekten begrenzt und dominant, ursprüngliche Provider nicht neu gebaselined;
+Zell-/Helfercode-Gegenproben, Rootpräcondition vor Factory/Entry mit tatsächlichem
+Callprofil und sicherem Restore, sortierte Identitätsoracle, Member korrigiert.
+Checkpoint2: zwei/max6 Kandidaten, ein Nachlauf, Verbrauch UNKNOWN. Delta-PRE und
+gestuftes Lauf-GO offen; keine Generierung oder Kandidatenprobe. Fünf Importe/ganzer Raw/131072Cap
 unverändert. Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
 
 ## Codefreie Parentregistrierung vom 20. Oktober 2026

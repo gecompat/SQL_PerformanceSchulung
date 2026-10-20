@@ -1,7 +1,7 @@
 # DGN-007 – vollständige gehaltene Runner-Quellenfolge
 
-Stand: 20. Oktober 2026. Basis `b00418ca74cd6ff4a0d194f8276ca365f9558f56`.
-Status `C1_SOURCE_TEST_PRE_PENDING`; noch kein Kandidatenimport oder neue Probe.
+Stand: 21. Oktober 2026. Basis `b00418ca74cd6ff4a0d194f8276ca365f9558f56`.
+Status `C2_DELTA_PRE_PENDING`; noch kein Kandidatenimport oder neue Probe.
 
 ## Abschlussbindung und endlicher Umfang
 
@@ -195,3 +195,43 @@ Neue CI mit allen tatsächlichen direkten/transitiven Abhängigkeiten; zehn Minu
 nativer20-s- oder anderer Laufzeitclaim. Keine unveränderten alten lokalen Suites,
 keine doppelten Privacyvollscans, begrenzte private Logs, ein Owner/ein Reviewer.
 Unabhängiger Source/Test-PRE und ausdrücklich gestuftes einmaliges Lauf-GO offen.
+
+## C2 und Checkpoint2
+
+C1 0bc7d1347597c325269d982d0a402239d6b9d39f unabhängig mit vier Befunden
+ohne Lauf-GO. Ein P2: neu erzeugte Parent-Closurehelfer/Zellen nicht gebunden.
+Drei P3: unsortierte positive Ankeroracle, Rootpräcondition erst nach Factory-
+dispatch und falscher nicht ausgeführter kanonischer Source2-Member. Übriger
+Quellen-/Harnessumfang geprüft; keine Kandidatenimporte oder Ausführung.
+
+C2 nimmt ausschließlich die tatsächlich aus ursprünglichem eingebettetem
+Factorycode erzeugte eigene private Helferkette vor ihrem ersten Dispatch auf.
+Vor Reportsnapshot begrenzte ursprüngliche Codekonstanten (max64, je max256
+Konstanten); nach ursprünglichem Factorycall höchstens16 neu erzeugte eigene
+Funktionen, je höchstens32 Defaults/Kwdefaults/Closurezellen. Worklisten vor
+Erweiterung begrenzen und nach Identität deduplizieren. Nur ursprünglicher
+privater Namespace und ursprüngliche verschachtelte Codeobjekte zulässig.
+Ursprüngliche Factory/Guard/Writer werden nicht spät neu gebaselined; ihre
+bereits gehaltenen Zustände bleiben maßgeblich. Neue tatsächliche Invocation-
+Helfer halten Funktions-/Code-/Globals-/Defaults-/Kwdefaults-/Closurezellwerte
+einmal im vorhandenen privaten Halter. Alle späteren Guards vergleichen diese
+dominant, auch nach Fehler; keine erneute Aufnahme einer mutierten Kette.
+
+Gegenproben im vorhandenen Run-Code-Test tauschen nach tatsächlichem erstem
+Parent-BEGIN-Versuch die close-Zelle beziehungsweise den Code desselben
+Helferobjekts aus; Erreichtmarker, fünf Compileinvocations und Ablehnung vor
+Source6 werden geprüft. Originale komplette Parent-AST bleibt unverändert.
+
+Volle Root0-/bereits abgeschlossene1/5/3/4-Präcondition jetzt vor Factoryaufruf
+und nochmals vor Entrydispatch. Ein temporärer rein prozesseigener Python-
+Profilecallback beobachtet ausschließlich Identitäten der zwei gehaltenen
+Codeobjekte: positiver Fall genau Factory/Run; vorgezogener Source6-Import
+erreicht tatsächlichen Source0-Exec, aber keine dieser beiden Calls. Vorherigen
+Profiler im finally exakt wiederherstellen; keine Runtime-/Auditfreigabe daraus.
+Positive Namespaceoracle sortiert primitive Keys und prüft Wertidentitäten.
+Source2-Member zu Tests/Runtime/docker_sqlcmd_proxy.py korrigiert.
+
+Weiterhin16 Methoden, zwei Source/Testkandidaten/max6, ein Nachlauf, Verbrauch
+UNKNOWN. Checkpoint2; enger unabhängiger Delta-PRE und ausdrücklich gestuftes
+einmaliges Fit-vor-Modell-GO offen. Bisher nur Text-/Inline-AST/Privacy, keine
+Generierung, Compile-/Exec- oder Kandidatenprobe. Harte Grenze6 unverändert.

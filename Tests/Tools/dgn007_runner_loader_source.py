@@ -14,7 +14,7 @@ _RL_NAMES = ("run_dgn007_automated_setup", "execution_target", "docker_sqlcmd_pr
     "run_demo", "orchestrate_sessions", "sqlcmd_process", "Tests.Contracts.dgn007_capture_projection",
     "Tests.Contracts.dgn007_collector_transport", "Tests.Contracts.dgn007_prospective_acceptance")
 _RL_MEMBERS = ("Tests/Runtime/run_dgn007_automated_setup.py", "Tests/Runtime/execution_target.py",
-    "Demos/00_Framework/Tools/docker_sqlcmd_proxy.py", "Demos/00_Framework/Tools/run_demo.py",
+    "Tests/Runtime/docker_sqlcmd_proxy.py", "Demos/00_Framework/Tools/run_demo.py",
     "Demos/00_Framework/Tools/orchestrate_sessions.py", "Demos/00_Framework/Tools/sqlcmd_process.py",
     "Tests/Contracts/dgn007_capture_projection.py", "Tests/Contracts/dgn007_collector_transport.py",
     "Tests/Contracts/dgn007_prospective_acceptance.py")
@@ -57,9 +57,34 @@ _RL_STD = (
      ("fractions", ("Fraction",)), ("hashlib", None), ("json", None)))
 
 
+def _rl_parent_graph(entry, factory, namespace, codes, callbacks):
+    pending, saved = [entry], []
+    budget = [0]
+    while pending:
+        _inline_need(len(pending) <= 64, "RUNNER_SOURCE_BINDING")
+        fn = pending.pop()
+        if any(fn is pair[0] for pair in saved): continue
+        _inline_need(len(saved) < 16 and type(fn) is type(factory) and fn.__globals__ is namespace
+            and any(fn.__code__ is code for code in codes), "RUNNER_SOURCE_BINDING")
+        state = _worker_profile_function(fn, budget)
+        _inline_need((state[3] is None or len(state[3]) <= 32)
+            and len(state[5]) <= 32 and len(state[7]) <= 32, "RUNNER_SOURCE_BINDING")
+        saved.append((fn, state))
+        values = (() if state[3] is None else state[3]) + tuple(v for k, v in state[5]) + state[7]
+        for value in values:
+            if type(value) is not type(factory): continue
+            if value is factory or any(value is pair[0] for pair in callbacks): continue
+            _inline_need(value.__globals__ is namespace and any(value.__code__ is code for code in codes),
+                         "RUNNER_SOURCE_BINDING")
+            if any(value is pair[0] for pair in saved) or any(value is item for item in pending): continue
+            _inline_need(len(saved) + len(pending) < 16, "RUNNER_SOURCE_BINDING")
+            pending.append(value)
+    return tuple(saved)
+
+
 def _rl_parent_binding(o, p):
     st = o[2]
-    factory, code, namespace, items, held, run_code, callbacks = st[13][0]
+    factory, code, namespace, items, held, run_code, callbacks, codes = st[13][0]
     _inline_need(factory.__code__ is code and factory.__globals__ is namespace,
                  "RUNNER_SOURCE_BINDING")
     current = _worker_profile_items(_rl_namespace(namespace), [0])
@@ -72,6 +97,12 @@ def _rl_parent_binding(o, p):
         entry = st[14][2][0]
         _inline_need(type(entry) is type(factory) and entry.__code__ is run_code
             and entry.__globals__ is namespace, "RUNNER_SOURCE_BINDING")
+        _inline_need(len(st[14][4]) == 1 and type(st[14][4][0]) is tuple
+            and 0 < len(st[14][4][0]) <= 16, "RUNNER_SOURCE_BINDING")
+        budget = [0]
+        for fn, saved in st[14][4][0]:
+            _inline_need(_worker_profile_function_equal(saved, _worker_profile_function(fn, budget)),
+                         "RUNNER_SOURCE_BINDING")
     values = st[14][3]
     _inline_need(type(values) is list and len(values) <= 2
         and all(type(v) is tuple and len(v) == 3 for v in values), "RUNNER_SOURCE_BINDING")
@@ -105,17 +136,26 @@ def _rl_parent_binding(o, p):
 def _rl_parents(o, p):
     st, ns = o[2], o[0]
     _inline_need(st[14][0] is False and not st[14][3], "RUNNER_SOURCE_ORDER")
+    _inline_need(len(st[5]) == 5 and tuple(v[1][0] for v in st[5]) == (0, 1, 5, 3, 4)
+        and len(st[8]) == 1 and st[8][0] is st[5][0] and st[8][0][13] is True
+        and st[8][0][6] is not None and st[8][0][7] is None
+        and all(v[9] is True for v in st[5][1:]), "RUNNER_SOURCE_ORDER")
     st[14][0], st[14][1] = True, True
     try:
         _rl_original(o[13], ns)(o, p)
-        factory, code, namespace, items, held, run_code, callbacks = st[13][0]
+        factory, code, namespace, items, held, run_code, callbacks, codes = st[13][0]
         value = factory(module_type=o[9], spec_type=o[10][0], cache=o[11],
             context_digest=st[12][0], guard=callbacks[0][0], write=callbacks[1][0])
         _rl_original(o[13], ns)(o, p)
         _inline_need(type(value) is type(factory) and value.__code__ is run_code
             and value.__globals__ is namespace and not st[14][2], "RUNNER_SOURCE_BINDING")
+        graph = _rl_original(o[21], ns)(value, factory, namespace, codes, callbacks)
+        st[14][4].append(graph)
         st[14][2].append(value)
         _rl_original(o[13], ns)(o, p)
+        _inline_need(len(st[5]) == 5 and len(st[8]) == 1 and st[8][0] is st[5][0]
+            and st[8][0][13] is True and st[8][0][7] is None
+            and all(v[9] is True for v in st[5][1:]), "RUNNER_SOURCE_ORDER")
         result = value()
         _rl_original(o[13], ns)(o, p)
         _inline_need(type(result) is tuple and len(result) == 3
@@ -387,12 +427,13 @@ def _initialize_rl_control():
             zip((compile_fn, exec_fn, import_fn), ("compile", "exec", "__import__"))), "RUNNER_SOURCE_BINDING")
         cache = _rl_namespace(sys.__dict__.get("modules"))
         _RL_MARKER = object()
-        st = [False, False, False, [], [], [], [], [], [], [False] * len(_RL_EDGES), [], [], [], [], [False, False, [], []]]
+        st = [False, False, False, [], [], [], [], [], [], [False] * len(_RL_EDGES), [], [], [], [], [False, False, [], [], []]]
         o = (ns, _RL_MARKER, st, bi, items, compile_fn, exec_fn, fs[0], fs[1],
             _SEMANTIC_CONTROL_ANCHOR[9], _rl_spec_state(_SEMANTIC_CONTROL_ANCHOR[4]), cache,
             _worker_input_run.__code__, (_rl_guard, _rl_guard.__code__), (_rl_write, _rl_write.__code__),
             (_rl_execute, _rl_execute.__code__), (_rl_binding, _rl_binding.__code__), import_fn, fs[2],
-            (_rl_parent_binding, _rl_parent_binding.__code__), (_rl_parents, _rl_parents.__code__))
+            (_rl_parent_binding, _rl_parent_binding.__code__), (_rl_parents, _rl_parents.__code__),
+            (_rl_parent_graph, _rl_parent_graph.__code__))
         _rl_entry, _rl_input_handoff, _rl_eof_handoff, _RL_CLASS, gateway, pg, pw = _rl_factory(o)
         method = _RL_CLASS.__dict__["exec_module"]
         st[6].append((_RL_CLASS, tuple(_RL_CLASS() for _ in range(9)), method, method.__code__))
@@ -403,9 +444,20 @@ def _initialize_rl_control():
         pn["make_codefree_parent_registry"] = pf
         run_codes = tuple(c for c in pf.__code__.co_consts if type(c) is type(pf.__code__) and c.co_name == "run")
         _inline_need(len(run_codes) == 1, "RUNNER_SOURCE_BINDING")
+        codes, pending = [], [pf.__code__]
+        while pending:
+            c = pending.pop()
+            if any(c is old for old in codes): continue
+            _inline_need(len(codes) < 64 and len(c.co_consts) <= 256, "RUNNER_SOURCE_BINDING")
+            codes.append(c)
+            for v in c.co_consts:
+                if type(v) is not type(c) or any(v is old for old in codes) or any(v is old for old in pending): continue
+                _inline_need(len(codes) + len(pending) < 64, "RUNNER_SOURCE_BINDING")
+                pending.append(v)
         st[13].append((pf, pf.__code__, pn, _worker_profile_items(pn, [0]),
             _worker_profile_function(pf, [0]), run_codes[0],
-            ((pg, _worker_profile_function(pg, [0])), (pw, _worker_profile_function(pw, [0])))))
+            ((pg, _worker_profile_function(pg, [0])), (pw, _worker_profile_function(pw, [0]))),
+            tuple(c for c in codes if c is not pf.__code__)))
         return ("BOUND_RUNNER_CONTROL", "NONE")
     except BaseException:
         _RL_MARKER = None

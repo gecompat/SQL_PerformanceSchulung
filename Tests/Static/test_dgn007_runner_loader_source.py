@@ -262,17 +262,44 @@ _rl_original(owner[19], namespace)(owner, packet)
         env = model()
         o = owner(env)
         held = o[2][13][0]
-        self.assertEqual(o[2][14], [False, False, [], []])
+        self.assertEqual(o[2][14], [False, False, [], [], []])
         self.assertIs(held[0].__code__, held[1])
         self.assertIs(held[0].__globals__, held[2])
         self.assertIsNot(held[2], env["ns"])
-        self.assertEqual(self.call(env)[0], "EXECUTED_RUNNER_SOURCES")
+        calls = []
+        def observe(frame, event, arg):
+            if event == "call" and frame.f_code is held[1]: calls.append("factory")
+            if event == "call" and frame.f_code is held[5]: calls.append("run")
+        original = sys.getprofile()
+        try:
+            sys.setprofile(observe)
+            result = self.call(env)
+        finally:
+            sys.setprofile(original)
+        self.assertEqual(result[0], "EXECUTED_RUNNER_SOURCES")
+        self.assertEqual(calls, ["factory", "run"])
         entry = o[2][14][2][0]
         self.assertIs(entry.__code__, held[5])
         self.assertIs(entry.__globals__, held[2])
-        self.assertEqual(tuple(held[2].items()), held[3])
+        current = tuple(sorted(held[2].items()))
+        self.assertEqual(tuple(k for k, v in current), tuple(k for k, v in held[3]))
+        self.assertTrue(all(a[1] is b[1] for a, b in zip(current, held[3])))
         expected = hashlib.sha256(fixture.fixture.pooled((env["payload"][2],), "pooled-profile-binding-context/v1")).hexdigest()
         self.assertTrue(all(json.loads(row)[5] == expected for row in env["source_rows"]))
+        early = b"from Tests.Contracts.dgn007_capture_projection import decode_projection, ProjectionError\n"
+        env = model(bodies=(early + BODIES[0],) + BODIES[1:])
+        held = owner(env)[2][13][0]
+        calls = []
+        original = sys.getprofile()
+        try:
+            sys.setprofile(observe)
+            self.reject(env)
+        finally:
+            sys.setprofile(original)
+        self.assertEqual(calls, [])
+        self.assertEqual(len(self.events(env, "EXEC")), 1)
+        self.assertEqual(owner(env)[2][14], [False, False, [], [], []])
+        self.assertTrue(all(b'"PARENT"' not in row for row in bytes(env["io"].output).splitlines()))
 
     def test_closed_edges_fromlists_and_stdlib_delegate(self):
         for call in (b"import unknown", b"from sqlcmd_process import *", b"from execution_target import Missing"):
@@ -332,18 +359,23 @@ _rl_original(owner[19], namespace)(owner, packet)
             self.assertNotIn("Tests", env["cache"])
 
     def test_returned_parent_run_code_drift_before_first_record(self):
-        env, reached = model(), []
-        def io_hook(io, phase):
-            st = owner(env)[2]
-            if phase == "write" and st[14][2] and not reached:
-                entry = st[14][2][0]
-                entry.__code__ = entry.__code__.replace()
-                reached.append(True)
-        env["io"].callback = io_hook
-        self.reject(env)
-        self.assertEqual(reached, [True])
-        self.assertEqual(len(self.events(env, "COMPILE")), 5)
-        self.assertNotIn(NAMES[6], env["cache"])
+        for kind in ("run", "cell", "helper_code"):
+            env, reached = model(), []
+            def io_hook(io, phase):
+                st = owner(env)[2]
+                if phase == "write" and st[14][2] and not reached:
+                    entry = st[14][2][0]
+                    if kind == "run": entry.__code__ = entry.__code__.replace()
+                    else:
+                        cell = dict(zip(entry.__code__.co_freevars, entry.__closure__))["close"]
+                        if kind == "cell": cell.cell_contents = lambda: None
+                        else: cell.cell_contents.__code__ = cell.cell_contents.__code__.replace()
+                    reached.append(True)
+            env["io"].callback = io_hook
+            self.reject(env)
+            self.assertEqual(reached, [True])
+            self.assertEqual(len(self.events(env, "COMPILE")), 5)
+            self.assertNotIn(NAMES[6], env["cache"])
 
     def test_parent_spec_locations_and_foreign_child_drift(self):
         for kind in ("spec", "locations", "child"):
