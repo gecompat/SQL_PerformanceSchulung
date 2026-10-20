@@ -1,7 +1,9 @@
 # DGN-007 – vollständige gehaltene Runner-Quellenfolge
 
 Stand: 21. Oktober 2026. Basis `b00418ca74cd6ff4a0d194f8276ca365f9558f56`.
-Status `C2_DELTA_PRE_PENDING`; noch kein Kandidatenimport oder neue Probe.
+Status `CLOSED_REJECTED_SOURCE_FIT`. Keine Runnerimplementierung zugelassen.
+Die nachstehenden Kandidaten-/Auswahlabschnitte dokumentieren den historischen
+Versuch; maßgeblich ist die abschließende Disposition am Dokumentende.
 
 ## Abschlussbindung und endlicher Umfang
 
@@ -393,3 +395,46 @@ und geschützter Parentreferenz werden abgelehnt. Keine neue Runtimebindung,
 keine andere Auslassung oder Änderung bestehender Routen/Tests. Weiter16 Methoden.
 Fünf/max6 Kandidaten, vier Nachläufe, Verbrauch UNKNOWN; enger Source/Test-PRE
 und ausdrückliches gestuftes Fit-GO offen, noch keine C5-Generierung/Modelle.
+
+## Abschließende unabhängige Disposition
+
+C5 0419d3d201dd3aab226a4af8f30f90a57a49c259 mit ausdrücklichem gestuftem
+Lauf-GO: Fit Windows1/0,296s, Linux1/0,353s jeweils TEMPLATE_FORM beim exakten
+Elf-Knoten-Selektor. Die übrigen15 Methoden wurden nicht gestartet. Ursache:
+Die Auswahlannahme war falsch. Der tatsächliche Workerprofil-Builder beginnt
+bereits bei build_inline_body_control_bootstrap; der Parentmatcherblock ist
+in dieser Basis schon ausgespart. Die12485 statischen Templatebytes waren
+keine verfügbare Einsparung. Implementierungsowner und unabhängiger Reviewer
+haben die Fehlannahme ausdrücklich berichtigt. Kein fehlender Knoten wurde
+nachträglich als erfolgreicher Ausschluss oder PASS umgedeutet.
+
+Unabhängiges Dispositions-GO: kein weiterer C6-Fitversuch ohne tragfähige Auswahl.
+Letzter hinsichtlich Komposition zulässiger Größenbefund C4:140097 Bytes,
+9025 über unverändertem131072Cap. Keine erfolgreiche Ganz-AST-/Runner-
+Modellabnahme. Fünf von sechs Source/Testkandidaten, vier geänderte Nachläufe;
+keine behauptete Budgeterschöpfung, Verbrauch UNKNOWN. Historische C1–C5-
+Commits und deren Befunde bleiben im PR-Verlauf nachvollziehbar.
+
+Neue Runnerquelle, ihre16 Tests und ihr Workflow sind aus dem finalen Diff
+entfernt. Bestehende Generatoren, Parentfactory, Matcher, Tests und Beispiele
+bleiben unverändert. Dieser Abschluss integriert ausschließlich die begründete
+Verwerfung und den bereits belegten PR273-Abschluss, keine neue operative Route.
+Lokale relevante Dokumentations-/Privacyprüfung, unabhängiger Abschlussreview,
+aktuelle Head-/Base-Gates, regulärer Merge, frische Main-Gates, FullTree/Sync
+und eigene Branchbereinigung bleiben bis zum tatsächlichen Nachweis offen.
+
+Offener Quellenarchitekturblocker: Eine vollständig belegte Runnerkomposition
+innerhalb des bestehenden Scriptlimits fehlt. Wiederaufnahme verlangt einen
+konkreten unabhängig geprüften Architekturplan samt unverändert wahrheitsgemäßem
+Quellen-/Versuchsrahmen, anschließend stabilen Source/Test-PRE und ausdrückliches
+Lauf-GO. Keine neue Implementierungs-/Test-/Capänderungs-/Native-/SQLfreigabe aus
+diesem Diagnoseabschluss, kein Scope- oder Budgetreset. Der kontinuierliche
+Auftrag autorisiert keine blinde Wiederholung dieses unveränderten Zustands.
+
+Lokaler Diagnoseabschluss: zentraler Privacyvollscan ausschließlich aller
+versionierbaren aktuellen Inhalte PASS (1256 Dateien,1237 Text,5 Office,
+1 freigegebener unveränderlicher Herkunftsnachweis); private ignorierte
+Runtime-Evidence bleibt erhalten und außerhalb dieses Git-Inhaltsnachweises.
+Alle600 relativen Markdownziele der fünf betroffenen Dokumente vorhanden;
+git diff --check PASS. Keine unveränderten Runtime-/SQL-Suiten wiederholt.
+Abschließender unabhängiger Review und reguläre Git-/CI-Integration offen.

@@ -1,50 +1,34 @@
 # Aktueller Ausführungsstand
 
-## Vollständige Runner-Quellenfolge vom 20. Oktober 2026
+## Runner-Quellenfit-Diagnose vom 21. Oktober 2026
 
-PR273 vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 integriert:
-neun PR-/sieben frische Main-Gates SUCCESS, neue Parent12/Harness16 ohne SKIP,
+Die [vollständige Runnerroute](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md) ist als
+CLOSED_REJECTED_SOURCE_FIT sachlich verworfen. Fünf/max6 Kandidaten, vier
+Nachläufe, Verbrauch UNKNOWN; keine behauptete Budgeterschöpfung. Letzter
+zulässiger Größenbefund C4:140097Bytes,9025 über unverändertem131072Cap.
+Windows-/Linux-Fits stoppten am Limit. C5 stoppte an TEMPLATE_FORM: Der für eine
+Auslassung ausgewählte Parentmatcher ist bereits aus der Workerbasis ausgespart.
+Diese Auswahlannahme war falsch und ist unabhängig berichtigt. Keine erfolgreiche
+Ganz-AST-/Runner-Modellabnahme, übrige15 Modelle nicht gestartet.
+
+Unabhängiges Dispositions-GO: neue Runnerquelle, ihre16 Tests und Workflow aus
+finalem Diff entfernt; bestehende Komponenten unverändert. Nur begründeter
+Diagnoseabschluss und belegter PR273-Abschluss werden integriert. Branch
+codex/dgn007-runner-loader-source; lokale relevante Dokumentations-/Privacyprüfung,
+Abschlussreview, aktuelle Head-/Base-/Main-Gates, regulärer Merge, FullTree/Sync
+und eigene lokale/Remote-Bereinigung noch offen.
+
+Offener Quellenarchitekturblocker: vollständige Runnerkomposition innerhalb
+bestehendem Scriptlimit fehlt. Wiederaufnahme verlangt konkreten unabhängig
+geprüften Architekturplan und nachvollziehbaren gemeinsamen Quellen-/Versuchsrahmen,
+anschließend Source/Test-PRE und ausdrückliches Lauf-GO. Kein Scope-/Budgetreset,
+keine Capanhebung oder unveränderte Wiederholungsprobe. Tatsächliche DGN-Raw-/
+Native-/Trust-/Usedbytes-/Methoden-/SQL- und Gesamtgates bleiben offen.
+
+PR273 ist vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 integriert:
+neun PR-/sieben frische Main-Gates SUCCESS, Parent12/Harness16 ohne SKIP,
 unabhängige Schließung, FullTree/Sync und eigene Branchabwesenheit bestätigt.
-Drei Kandidaten/zwei Nachläufe erfolgreich geschlossen; [PR273-Abschlussbindung](https://github.com/gecompat/SQL_PerformanceSchulung/pull/273).
-
-Nächster priorisierter begrenzter Schnitt: [vollständige Runner-Quellenfolge](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md)
-mit acht tatsächlichen eigenen synthetischen Sourceinvocations und zwei
-codefreien Parents. Additive neue Route auf unverändertem Eingangsunterbau,
-privater ursprünglicher Parentfactorycode/Namespace vor Reportsnapshot,
-geschlossene Importkanten und volle gehaltene Bindungen. Eigener Branch
-codex/dgn007-runner-loader-source, ein Owner/max6/Checkpoint2/hart6 einschließlich
-aller Reviews, Fit-/Transformationskorrekturen, Tests, Koordination und vollständigem
-Integrationsabschluss; Verbrauch UNKNOWN. Auswahl-PRE unabhängig freigegeben:
-Originalanker vor Reportsnapshot, tatsächlicher Digest erst nach EOF, neue
-Run-Closure ausschließlich in privaten vorhandenen Haltern, kompletter Parent-AST
-von allen Alpha-Pässen ausgenommen. C1 mit additiver Quelle/16 Methoden, geschlossenen
-Projekt-/Stdlibkanten, getrenntem Parentnamespace und unabhängiger Gesamt-AST-
-Rückführung. C1 unabhängig mit P2 für ungebundene neue Parenthelfer sowie drei P3
-für Oraclesortierung, späte Rootpräcondition und Source2-Member, kein Lauf-GO.
-C2 hält nur tatsächliche neue private Helferkette an ursprünglichen eingebetteten
-Codeobjekten begrenzt und dominant, ursprüngliche Provider nicht neu gebaselined;
-Zell-/Helfercode-Gegenproben, Rootpräcondition vor Factory/Entry mit tatsächlichem
-Callprofil und sicherem Restore, sortierte Identitätsoracle, Member korrigiert.
-Checkpoint2: zwei/max6 Kandidaten, ein Nachlauf, Verbrauch UNKNOWN. Unabhängiger
-Delta-PRE schließt vier Befunde und erlaubt gestuft nur Fit zuerst. Windows und
-Linux jeweils SCRIPT_LIMIT; übrige15 nicht gestartet. Genau eine unabhängig
-freigegebene reine Generatordiagnose:143162 Bytes,12090 über131072Cap. Gezielte
-reversible Alpha-/Bytesliteral-Kürzung für C3 unabhängig ausgewählt und umgesetzt:
-compilerbestimmte globale Ursprünge/Methoden/Keywords/Reflexion gesperrt,
-unabhängige inverse Gesamt-ASToracle und einzelne wertgleiche Rawliteralform.
-C3 ohne Lauf-GO wegen P2 für reine Deklarationskollision; C4 schützt alle
-Deklarations-/Symbolnamen, getrennte Oracle verwirft absichtlichen z0-Mutanten.
-Vier/max6 Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; P2 unabhängig geschlossen,
-genehmigte Fits Windows/Linux erneut SCRIPT_LIMIT. Genau eine freigegebene reine
-Diagnose:140097Bytes/Exzess9025. Keine weiteren15 Modelle gestartet. C5-Auswahl
-unabhängig freigegeben: exakt geerbten11-Knoten-Parentmatcherblock ausschließlich aus neuer
-Workerquelle auslassen, alte vollständige SESSION_END-Route/Tests erhalten;
-vollständige AST-/Abhängigkeitsbeweise Pflicht. C5 umgesetzt mit exakter
-Knotenauswahl, voller verbleibender Referenzprüfung vor Alpha und getrennten
-positiven/negativen Oracles. Fünf/max6 Kandidaten, vier Nachläufe, Verbrauch
-UNKNOWN; Source/Test-PRE und gestuftes Fit-GO offen, noch keine C5-Generierung.
-Fünf Importe/ganzer Raw/Cap unverändert.
-Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
+[PR273-Abschlussbindung](https://github.com/gecompat/SQL_PerformanceSchulung/pull/273).
 
 ## Codefreie Parentregistrierung vom 20. Oktober 2026
 

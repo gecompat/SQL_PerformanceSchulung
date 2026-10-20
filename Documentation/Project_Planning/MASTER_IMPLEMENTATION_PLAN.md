@@ -3,10 +3,15 @@
 PR273 vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 geschlossen:
 neun PR-/sieben Main-Gates SUCCESS, Parent12/Harness16 ohne SKIP, unabhängige
 Befundschließung, FullTree/Sync und eigene Branchbereinigung. Drei Kandidaten/
-zwei Nachläufe geschlossen. Nächster begrenzter Schnitt: [vollständige Runnerfolge](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md),
-ein Owner/max6/Checkpoint2/hart6 einschließlich Quellenfit und vollständigem
-Abschluss. Auswahl-PRE offen; keine neue Implementierung oder Probe. Keine
-tatsächliche DGN-Raw-/Native-/SQL- oder Gesamtfreigabe.
+zwei Nachläufe geschlossen. [Runner-Quellenfit-Diagnose](DGN_007_RUNNER_LOADER_SOURCE_REVIEW.md)
+sachlich als CLOSED_REJECTED_SOURCE_FIT verworfen: fünf/max6 Kandidaten, vier
+Nachläufe, Verbrauch UNKNOWN. C4 weiterhin140097Bytes/9025überCap; C5-Auswahl
+scheitert an bereits ausgespartem Parentmatcher, Fehlannahme berichtigt. Neue
+Quelle/Tests/Workflow aus finalem Diff entfernt, keine Runnerabnahme. Unabhängige
+Disposition bestätigt, Dokumentationsintegration/Bereinigung noch offen.
+Quellenarchitekturblocker verlangt konkreten unabhängig geprüften Plan und
+gebundenen Versuchsrahmen vor Wiederaufnahme; kein Reset oder blinder C6-Versuch.
+Keine tatsächliche DGN-Raw-/Native-/SQL- oder Gesamtfreigabe.
 
 PR272 vollständig in Main4a165c20840193e26b05a789d8e6e067c0bca7b9 geschlossen:
 neun PR-/sieben Main-Gates SUCCESS, neue Harness16/Proxy16 ohne SKIP PASS,
