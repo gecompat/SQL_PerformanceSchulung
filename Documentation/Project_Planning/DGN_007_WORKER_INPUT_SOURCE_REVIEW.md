@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `dcc5893af0c50c88aa0f848c3c908733c15dcbdc` nach vollständig geschlossenem PR268.
-Status `C2_SOURCE_TEST_DELTA_PRE_PENDING`.
+Status `C3_SOURCE_TEST_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -207,3 +207,27 @@ kein Lauf eines Kandidaten. Scope, Pflichtgates und offene native Grenzen
 unverändert; unabhängiger Delta-PRE und ausdrückliches einmaliges Lauf-GO für
 die neue16 auf Windows/Linux sowie selektierte CI ausstehend. Verbrauch UNKNOWN.
 Keine Quellencapänderung, keine neue Ausschlussliste oder Baselineerneuerung.
+
+## C3 – reine Einrückungsdarstellung nach tatsächlichem Fitfehler
+
+C2 `33cc349a6f347e955919460732dfb9649ebfbcd8` unabhängig: P2 geschlossen,
+keine offenen Deltabefunde, ausdrückliches einmaliges Lauf-GO. Danach neue16
+Windows3.14.7 in1.599s mit16SCRIPT_LIMIT-Fehlern und einem zusätzlichen
+Cache-Oraclefehler; Linux3.12.3 in1.488s mit16SCRIPT_LIMIT-Fehlern. Sämtliche
+Modellfälle scheiterten bereits beim Quellenbau, keine innere Semantik abgenommen.
+Der zusätzliche Windowsfehler stammt vom erstmals verzögert geladenen
+Stdlibmodul _ast_unparse. Kein erfolgreich generierter Größen-/SHAwert behauptet.
+
+C3 verkürzt ausschließlich führende Codeeinrückungen der neuen Ausgabe nach
+AST-Darstellung von vier auf ein Space je Level. Der Tokenvorlauf bearbeitet
+nur die erste Tokenstartposition einer Codezeile; Inhalte mehrzeiliger
+STRING-Token bleiben unverändert. Alle AST-Operationen und Literale bleiben
+über die vollständige unabhängige Oracle verpflichtend; zusätzliche eigene
+mehrzeilige Docstring-Gegenprobe. Keine Capanhebung oder Änderung früherer
+Quellenrouten. Vor der unveränderten Testcachebaseline bereitet ein neutrales
+ast.Constant-Objekt den Standardbibliotheksdarsteller vor, keine neue Modulcache-
+Ausnahme und kein Worker-/Kandidatenimport.
+
+Drei Kandidaten/max6, zwei geänderte Nachläufe. Gezielter unabhängiger C3-Delta-
+PRE und einmaliges Lauf-GO vor jeder neuen Probe ausstehend. Verbrauch UNKNOWN;
+sämtliche nativen offenen Gates bleiben unverändert. Kein unveränderter Retry.

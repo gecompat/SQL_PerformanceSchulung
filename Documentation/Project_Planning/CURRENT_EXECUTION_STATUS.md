@@ -18,8 +18,13 @@ Rebaseline oder neue Ausschlussliste. C1 unabhängig mit einem P2 ohne Lauf-GO:
 OS-Namespacekeys und veränderbarer Modultyp vor Lookup/Attributzugriff schließen.
 C2 ergänzt den vollständigen Schlüsselvorlauf und PRE-/Callback-POST-Gegenproben
 mit externen Fremdaufruf-/Dispatchzählern. Checkpoint2: zwei Kandidaten/max6,
-ein geänderter Nachlauf; Delta-PRE und ausdrückliches Lauf-GO ausstehend,
-weiterhin keine Suiteimporte oder Proben.
+ein geänderter Nachlauf; C2 unabhängig geschlossen und mit Lauf-GO. Neue16
+Windows/Linux danach jeweils16SCRIPT_LIMIT-Fehler vor innerer Modellsemantik,
+Windows zusätzlich verzögert geladenes Stdlib-_ast_unparse im Cache-Orakel.
+C3 verkürzt nur tokengeprüfte Codeeinrückung der neuen Ausgabe bei vollständigem
+AST-/Literalerhalt und bereitet den neutralen Stdlibdarsteller vor Testbaseline
+vor. Drei Kandidaten/max6, zwei Nachläufe; unabhängiger Delta-PRE und Lauf-GO
+vor neuer Probe ausstehend. Keine Capänderung oder alten Routenänderungen.
 Keine echten OS-I/O/Main-/Worker-
 ausführungen, operative Inventur oder SQL. Die geplante Child-I/O-Teilreserve
 aus dem vorhandenen Globalbudget ist noch nicht im Parent gebucht; operative

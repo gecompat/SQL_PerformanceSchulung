@@ -12,6 +12,10 @@ import test_dgn007_observed_worker_report as fixture
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Tools"))
 import dgn007_worker_input_source as subject
 
+# Python3.14 lädt seinen AST-Darsteller verzögert; vor dem unveränderten
+# Modulcache-Orakel nur die Standardbibliothek mit einem neutralen AST vorbereiten.
+ast.unparse(ast.Constant(value=None))
+
 f = fixture.f
 RAW, OPTIONS = fixture.fixture.RAW, fixture.fixture.OPTIONS
 KINDS = ("BODY_RELEASE", "BODY_END", "IMPORT_RELEASE")
@@ -127,6 +131,10 @@ class WorkerInputSourceTests(unittest.TestCase):
         return result
 
     def test_actual_full_source_fit_raw_five_imports_and_independent_whole_ast(self):
+        sample = 'def literal():\n    """first\n    keep literal indentation\n    last"""\n    return 1\n'
+        compact = subject._compact_indentation(sample)
+        self.assertIn('    keep literal indentation', compact)
+        self.assertEqual(ast.dump(ast.parse(compact)), ast.dump(ast.parse(sample)))
         result = subject.build_worker_input_control_bootstrap(RAW, **OPTIONS)
         self.assertLessEqual(result.source_size, 131072)
         self.assertEqual(result.source_size, len(result.source))

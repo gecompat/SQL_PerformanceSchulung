@@ -1,6 +1,7 @@
 """Reine Workerquellenfolge; keine OS-I/O oder Workerausführung beim Erzeugen."""
 import ast
 import hashlib
+import tokenize
 
 import dgn007_control_bootstrap_source as base
 
@@ -285,6 +286,23 @@ def _worker_input_main():
 '''
 
 
+def _compact_indentation(text):
+    original = tuple(text.splitlines(keepends=True))
+    lines, seen = list(original), set()
+    ignored = (tokenize.INDENT, tokenize.DEDENT, tokenize.NEWLINE,
+               tokenize.NL, tokenize.ENDMARKER, tokenize.ENCODING)
+    for token in tokenize.generate_tokens(iter(original).__next__):
+        if token.type in ignored or token.start[0] in seen:
+            continue
+        row, column = token.start
+        seen.add(row)
+        prefix = original[row - 1][:column]
+        if prefix and not prefix.strip():
+            base._need(set(prefix) == {" "} and column % 4 == 0, "TEMPLATE_FORM")
+            lines[row - 1] = " " * (column // 4) + original[row - 1][column:]
+    return "".join(lines)
+
+
 def build_worker_input_control_bootstrap(profile_raw, *, logical_profile,
                                          expected_soabi, expected_destshared):
     """Neue Quellenroute ohne zusätzliche Scriptimporte oder Lauf-/Trustattestation."""
@@ -306,7 +324,8 @@ def build_worker_input_control_bootstrap(profile_raw, *, logical_profile,
         '    _worker_input_seal()\n    _worker_input_main()\n')
     text = text.replace(old, '\n' + _INLINE_WORKER_INPUT + main, 1)
     # Ausschließlich die neue Ausgabe; keine Änderung vorhandener Quellenrouten.
-    source = (ast.unparse(ast.parse(text)) + '\n').encode("utf-8", "strict")
+    formatted = ast.unparse(ast.parse(text)) + '\n'
+    source = _compact_indentation(formatted).encode("utf-8", "strict")
     base._need(len(source) <= base.MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
     return base.BootstrapSource(source, profile_raw, logical_profile,
                                 hashlib.sha256(source).hexdigest(),
