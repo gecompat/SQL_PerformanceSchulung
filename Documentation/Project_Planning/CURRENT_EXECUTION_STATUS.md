@@ -1,5 +1,31 @@
 # Aktueller Ausführungsstand
 
+## Bidirektionaler Phasenowner vom 20. Oktober 2026
+
+PR261 vollständig in `0d851dc9f87915a4952ad6fae1fe0f269f94d5e7` integriert:
+acht finale PR-Gates, sechs Main-Workflows SUCCESS,16/16 neue Methoden ohne
+SKIP auf Windows/Linux und Main-CI, unabhängiger Review, FullTree/Sync und
+eigene lokale/Remote-Branchbereinigung bestätigt. Ein Quellen-/Teststand,
+keine Befundnachläufe; [Abschlussbindung im PR261](https://github.com/gecompat/SQL_PerformanceSchulung/pull/261).
+
+Der kontinuierliche menschliche Auftrag und bestehende30-Minuten-Heartbeat
+führen nun zum [nativen bidirektionalen Phasenowner](DGN_007_BIDIRECTIONAL_HANDSHAKE_REVIEW.md).
+Auswahl-PRE ohne offene Befunde freigegeben; ein Owner, maximal acht neue
+Quellen-/Testkandidaten, Checkpoint2/hart8 einschließlich Reviews/Tests/CI.
+Private gemeinsame Owner-/Cleanupseams erhalten die alte öffentliche API.
+Metadata/Profil/BODY_RELEASE/neun Bodies/BODY_END/INPUT_COMPLETE/IMPORT_RELEASE
+und stdin-Schluss werden innerhalb derselben geteilten Budgets an echte
+I/O-Rückgaben und volle Caller gebunden. Kein echter DGN-Import-/Loader- oder
+frischer S15/P11-Beleg; feste selbstbeendende eigene Native-Testprogramme.
+C1 `83d9f325abd539b60834312abbaf7746cb529981` unabhängig vollständig ohne
+offene P1/P2/P3-Befunde und mit ausdrücklichem Source/Test-Lauf-GO bestätigt.
+Lokale Linux3.12.3-Läufe: neue12/12 Methoden mit28 festen Nativefällen und
+alte16/16 ohne SKIP PASS. Windows3.14.7: drei/fünf portable PASS und neun/elf
+native SKIP. Ein Kandidat, keine Befundnachläufe; pure Plansuite lokal nicht
+wiederholt. Aktuelle Head-/Base-/Main-Gates und FullTree/Sync/Branchcleanup
+folgen vor Abschluss. Eigener Branch `codex/dgn007-bidirectional-handshake`;
+historische Stops bleiben erhalten. Verbrauch UNKNOWN.
+
 ## Gehaltener Handshakeeingang vom 20. Oktober 2026
 
 PR260 ist vollständig in `256e43d6d4ca4ac7a248dadbe4c88e6923577ef4` integriert:
