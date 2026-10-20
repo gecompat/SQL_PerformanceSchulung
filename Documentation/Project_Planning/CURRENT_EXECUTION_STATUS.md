@@ -1,5 +1,38 @@
 # Aktueller Ausführungsstand
 
+## Empfangene Metadata und aufgenommener Workerreport vom 20. Oktober 2026
+
+PR267 vollständig in `84272af549d1c7c1320b5b1c77a55a4b721f8d18` integriert:
+zwölf finale PR-Checks/zehn frische Main-Workflows SUCCESS, neue15 Windows/Linux
+und bestehende Consumer ohne SKIP PASS, unabhängige P2-Schließung,
+FullTree/Sync und eigener lokaler/Remote-Branchcleanup bestätigt.
+[Abschlussbindung PR267](https://github.com/gecompat/SQL_PerformanceSchulung/pull/267).
+
+Nächster endlicher Schnitt: [vollständige Metadata mit tatsächlicher Aufnahme
+und Workerreport verbinden](DGN_007_OBSERVED_WORKER_REPORT_REVIEW.md), eigener
+Branch `codex/dgn007-observed-worker-report`, ein Owner/max6/Checkpoint2/hart6.
+Auswahl-PRE unabhängig ohne Befunde freigegeben. C1 verbindet vollständigen
+Empfang, echte Aufnahme und Reporter mit vorab gehaltenen äußeren Ankern und
+einmaliger Reservierung;16neue Modellmethoden. C1 unabhängig mit zwei P2 ohne
+Lauf-GO. C2 schließt Builtinslot und selbstgewählte Bindingautorität durch eine
+separat versiegelte private Entryclosure und zwei Markerersatz-Gegenproben.
+Checkpoint2: C2 unabhängig geschlossen und mit Lauf-GO, danach neue16 auf
+Windows/Linux jeweils15SCRIPT_LIMIT-Fehler und eine negative Methode PASS;
+eigentliche Reportfälle noch nicht ausgeführt. C3 entfernt nur in der neuen
+Route einen unbenutzten Parentmatcher und reine Kommentar-/Leerzeilen bei
+vollständigem unabhängigen AST-Erhaltcheck. Drei Kandidaten/zwei Nachläufe,
+C3 unabhängig ohne offene Befunde mit Lauf-GO; danach neue16 Windows/Linux
+ohne SKIP PASS einschließlich vollständigem neuen Quellenfit und AST-Erhalt.
+PR268: neue16 in CI PASS, zwölf Checks SUCCESS; alte15 mit einem zu strengen
+globalen Builderzählungsfehler FAIL. C4 bindet die alte Prüfung an ihren eigenen
+sechzehnten Index/eindeutigen API-Namen/festen Unterbau; Produktcode und neue16
+unverändert. C4 unabhängig ohne offene Befunde mit gezieltem Lauf-GO; geänderte
+einzelne Methode Windows/Linux ohne SKIP PASS. Vier Kandidaten/drei Nachläufe;
+frische finale Headgates und reguläre Integration folgen.
+Kein Merge mit fehlerhaftem Gate und kein Capwechsel oder alter Fitretry.
+Keine operative Script-/Pipeausführung, Inventur oder SQL. Alle tatsächlichen
+Worker-/Import-/Trust-/Methodengates bleiben offen. Verbrauch UNKNOWN.
+
 ## Workerquelle und gebundene Profilaufnahme vom 20. Oktober 2026
 
 PR266 vollständig in `ded09f685f747bb614c68c0fa78a6e54be7514be` integriert:

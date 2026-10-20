@@ -1,5 +1,22 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+PR267 vollständig in Main `84272af549d1c7c1320b5b1c77a55a4b721f8d18`
+geschlossen: zwölf PR-/zehn Main-Checks SUCCESS, unabhängige Befundschließung,
+neue15 Windows/Linux und bestehende Consumer ohne SKIP PASS, FullTree/Sync/
+Branchcleanup. Nächster Schnitt: [empfangene Metadata und tatsächlichen
+Workerreport verbinden](DGN_007_OBSERVED_WORKER_REPORT_REVIEW.md),
+max6/Checkpoint2, Auswahl-PRE freigegeben; C1 mit16Modellmethoden und privaten
+äußeren Ankern/einmaligem Versuch. C2 schließt zwei P2 zu Builtinslot und
+Bindingautorität, Checkpoint2; C2-Läufe stoppen am SCRIPT_LIMIT. C3 wählt nur
+in der neuen Route benötigte Funktionen und erhält deren gesamten AST bei
+Wegfall reiner Kommentar-/Leerzeilen. C3 unabhängig geschlossen mit Lauf-GO;
+neue16 Windows/Linux ohne SKIP, Quellenfit und vollständiger AST-Erhalt PASS.
+PR268 neue16/zwölf Gates PASS, eine alte Builderzählungsoracle FAIL. C4 korrigiert
+nur die eigene sechzehnte Position/eindeutige API/festen Unterbau dieser Methode;
+vier Kandidaten. C4 unabhängig geschlossen mit gezieltem Lauf-GO; eine
+geänderte Methode Windows/Linux PASS, frische finale Headgates folgen,
+keine operative Ausführung oder Inventur.
+
 PR266 vollständig in Main `ded09f685f747bb614c68c0fa78a6e54be7514be`
 abgeschlossen: sieben PR-/fünf Main-Checks SUCCESS, unabhängige Einordnung,
 FullTree/Sync/Branchcleanup. Neuer tatsächlicher Änderungsscope:
