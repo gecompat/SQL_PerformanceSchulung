@@ -2331,7 +2331,8 @@ def _session_channel_sha(records, stderr, context_digest, ordinal, encoder_ancho
 
 def _session_issue(error):
     args = BaseException.__dict__["args"].__get__(error, BaseException)
-    if type(args) is tuple and len(args) == 1 and type(args[0]) is str and args[0] in _SESSION_ISSUES:
+    if (type(args) is tuple and len(args) == 1 and type(args[0]) is str
+            and len(args[0]) <= 32 and args[0] in _SESSION_ISSUES):
         return args[0]
     return "SESSION_END_FORM"
 

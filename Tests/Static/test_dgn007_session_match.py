@@ -439,6 +439,16 @@ class SessionMatchTests(unittest.TestCase):
             except ValueError:
                 self.reject(self.call(), "SESSION_END_FORM")
 
+    def test_issue_length_is_bounded_before_whitelist_membership(self):
+        class NoMembership:
+            def __contains__(self, value):
+                raise AssertionError("UNBOUNDED_MEMBERSHIP")
+        def fail(*args):
+            raise self.namespace["_InlineSyntaxRejected"]("PRIVATE_PAYLOAD" * 1000)
+        with patch.dict(self.namespace, {"_session_parse": fail, "_SESSION_ISSUES": NoMembership()}):
+            self.reject(self.call(), "SESSION_END_FORM")
+        self.assertEqual(self.provider._HASH_CALLS, 0)
+
     def test_no_public_inner_rebaseline_or_runtime_adapter_delegation(self):
         keys = ("_inline_match_profile_records", "_inline_match_input_complete", "_inline_context_digest",
                 "_inline_match_profile_report", "_inline_reassemble_profile_records", "_semantic_original_digest")

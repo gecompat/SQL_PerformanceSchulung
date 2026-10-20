@@ -1,7 +1,7 @@
 # DGN-007 – vollständiger deklarativer SESSION_END-Matcher
 
 Stand: 2026-10-20. Basis `d0c453f212523fa30c8d74ee47fcbb15f84b8b54` nach
-PR258; Status `C1_SOURCE_TEST_PRE_PENDING`. Maßgeblich sind
+PR258; Status `C2_TARGETED_RUN_GO_PENDING`. Maßgeblich sind
 [§31, §33 und §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild).
 Der Benutzer beauftragt die vollständige Matcherwelle mit unabhängigem Review,
 lokalen Tests, grünen aktuellen Gates, Main-Integration und Branchbereinigung.
@@ -130,8 +130,18 @@ Der Erststand enthält Source und eigene Gegenproben. Es wurde noch keine neue
 Suite ausgeführt. Der bereits budgetierte unabhängige Quellen-/Testreview
 erfüllt vor dem ersten Lauf zugleich den Source/Test-PRE aus §31.4; sein
 ausdrückliches einmaliges Lauf-GO bleibt vor Testausführung und CI erforderlich.
-Checkpoint: erster Quellenstand von höchstens drei; relevante alte Quellen und
-neue Syntax werden zunächst rein statisch geprüft.
+Checkpoint C1 `5fc4184bb46058a0305650c2616d7ba7c8f339d9`: alle bisherigen
+Top-Level-Quellknoten unverändert, statische Syntax, Privacy aller sieben Dateien,
+Registry, Kennungen, Foundationintegration und Kontinuität bestanden. Kein
+Suitelauf. Der unabhängige vollständige Quellen-/Testreview fand ausschließlich
+einen P2-Befund: vor dem Whitelistlookup fehlte eine feste Fehlerlabellänge.
+Kein Lauf-GO für C1; dessen Befund bleibt als solcher erhalten.
+
+C2 ergänzt nur `len(issue) <= 32` vor Membership und eine gezielte neue
+Gegenprobe mit verbotener Membership für einen langen privaten Issue. Sonst
+bleiben Matcher und die 28 bisherigen Testmethoden unverändert. Der reservierte
+gezielte Delta-/Lauf-GO-Nachlauf zu diesem zweiten von höchstens drei
+Quellenständen steht noch aus; weiterhin kein neuer Suitelauf oder Push.
 
 Echter Kanal, Loader-/Parentregistrierungsadapter, EOF/eigener Exit, Consumption,
 unabhängiger Ressourcen-Cleanup, operative Inventur, Fünf-Formen-/64-KiB-Gate
