@@ -1,7 +1,7 @@
 # DGN-007 – gebundene verschachtelte Harness-Quellenfolge
 
 Stand: 20. Oktober 2026. Basis `3387e308c8ae4f45d1cf8eb56176666e9e9355d4`.
-Status `C4_FIXTURE_DELTA_PRE_PENDING`; innere Modelle noch nicht ausgeführt.
+Status `LOCAL_PASS_CI_PENDING`; C4 unabhängig freigegeben und lokal bestanden.
 
 ## Abgeschlossener Vorgänger und endlicher Umfang
 
@@ -256,3 +256,24 @@ Fehlertyp. Produktquelle seit C3 unverändert; weiterhin16Methoden.
 Vier Source/Testkandidaten/max6, drei Nachläufe, Verbrauch UNKNOWN. Enger
 unabhängiger Fixture-PRE und gestuftes einmaliges Lauf-GO ausstehend. Kein
 Kandidatenimport/Generierung/Compile/Exec seit C2-Fitdiagnose.
+
+## C4 – unabhängige Schließung und lokale Ergebnisse
+
+C4 `371d389006da3a9884a41759c228539d4979019f` unabhängig ohne offene
+P1/P2/P3-Befunde; der Fixture-P3 ist geschlossen. Explizites gestuftes einmaliges
+Lauf-GO: ausschließlich Fit unter beiden Plattformen, erst nach beidseitigem
+PASS die übrigen15 Methoden, danach regulär selektierte CI.
+
+Fit unter Windows3.14.7/1.901s und Linux3.12.3/1.954s ohne SKIP PASS. Vollständiger
+CRLF-Profilraw ergibt130337Bytes, die separate LF-Variante128569Bytes, beide
+unter unverändertem131072-Byte-Cap. Ganze unabhängige AST-/Literal-/Alphaoracle
+und genaue Rückführung der einen privaten globalen Umbenennung bestanden.
+Danach die übrigen15 Methoden einmal je Plattform: Windows102.912s und
+Linux79.094s, jeweils ohne SKIP PASS. Kein lokaler Fit-Rerun in einer Gesamtsuite.
+
+Damit16/16 Methoden je Plattform grün. Die tatsächlichen eigenen Modelle belegen
+verschachtelte gehaltene Raw-/Code-/Namespacepfade, Wireordnung, Cachehit5 und
+die beschriebenen negativen Binding-/Gateway-/Cleanupgrenzen. Keine Ausführung
+der tatsächlichen DGN-Projektquellen oder nativer Worker. Vier Source/Testkandidaten,
+drei Nachläufe; gemeinsamer Verbrauch UNKNOWN. Frische CI-/Head-/Base-Gates,
+reguläre Integration, Main-Gates und FullTree/Sync/Branchcleanup bleiben offen.

@@ -30,8 +30,12 @@ geschlossenen Vorbedingungen und gesonderter unabhängiger Rückführung um, neu
 Kollisions-/Binding-AST-Gegenproben. C3 unabhängig mit einem P3 ohne Lauf-GO:
 negative ASTs wurden bereits durch fehlenden gültigen Load verdeckt. C4 ergänzt
 gültige Basisloads und exakte positive Def-/Load-/Byte-Literaloracle, Produkt
-unverändert. Vier/max6 Kandidaten, drei Nachläufe; Fixture-Delta-PRE und gestuftes
-Lauf-GO ausstehend, keine C3-/C4-Probe.
+unverändert. Vier/max6 Kandidaten, drei Nachläufe; C4 unabhängig ohne offene
+Befunde mit gestuftem einmaligem Lauf-GO. Fit Windows/Linux PASS, tatsächliche
+CRLF-/LF-Quellen130337/128569Bytes unter unverändertem131072Cap; ganze AST-/
+Literal-/Alphaoracle bestanden. Danach übrige15 Methoden je Plattform ohne
+SKIP PASS, damit16/16 lokal grün. Reguläre CI-/Head-/Base-Gates und Integration
+einschließlich frischem Main/FullTree/Sync/Branchcleanup bleiben offen.
 Nur eigene sichere Modelle nach separatem
 Source/Test-PRE und explizitem Lauf-GO; neue echte Imports/Native-/DGN-Raw-/SQL-
 Wirkungen und Gesamtgates bleiben offen. Proxyroute und alle älteren Scopes erhalten.
