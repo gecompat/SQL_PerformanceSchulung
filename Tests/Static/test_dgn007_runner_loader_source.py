@@ -132,11 +132,13 @@ class RunnerLoaderSourceTests(unittest.TestCase):
                 self.assertEqual(mapping.setdefault(old, new), new)
         self.assertEqual(len(mapping), len(set(mapping.values())))
         originals = {getattr(n, f, None) for n in left for f in ("id", "arg", "name", "asname", "rest", "attr")}
+        originals.update(name for n in left if isinstance(n, (ast.Global, ast.Nonlocal)) for name in n.names)
         texts = [n.value for n in left if isinstance(n, ast.Constant) and type(n.value) is str]
         tables = [symtable.symtable(ast.unparse(expected), "<independent-alpha-oracle>", "exec")]
         blocked = set()
         while tables:
             table = tables.pop(0)
+            originals.update(table.get_identifiers())
             blocked.update(s.get_name() for s in table.get_symbols() if s.is_global() or table.get_type() == "class")
             tables += table.get_children()
         public = {"_worker_input_seal", "_worker_input_entry", "_worker_profile_state",
@@ -200,6 +202,9 @@ def default_reader(another_long=global_value): return another_long
 def comp_reader(): return [global_value for global_value in global_value]
 def keyword_user(): return outer(1, keyword_kept=2)
 def reflected(reflected_long): return locals()
+def collision_long(longer_local):
+ global z0
+ return longer_local
 class Example:
  class_slot_long = 1
  def method(self, method_argument): return method_argument
@@ -212,7 +217,13 @@ class Example:
         self.assertIn("captured_long", mapping)
         self.assertIn("element_long", mapping)
         self.assertTrue(all(n not in mapping for n in ("global_value", "keyword_kept", "reflected_long", "method_argument", "class_slot_long")))
+        self.assertNotIn("z0", mapping.values())
         self.assertEqual(ast.dump(before), ast.dump(changed))
+        collision = ast.parse("def f(longer_local):\n global z0\n return longer_local\n")
+        invalid = ast.parse(ast.unparse(collision))
+        invalid.body[0].args.args[0].arg = "z0"
+        invalid.body[0].body[1].value.id = "z0"
+        with self.assertRaises(AssertionError): self.inverse_uniform(collision, invalid)
         for raw_sample in (b"a\nb\r\n", b"'''\"\"\"\\\0\t\x0b\x0c\x7f\xff\n", b"\n" * 40):
             text = "_EXPECTED_PROFILE_RAW = " + repr(raw_sample) + "\n"
             rendered = subject._compact_raw_literal(text, raw_sample)
@@ -280,6 +291,7 @@ _rl_original(owner[19], namespace)(owner, packet)
             self.assertEqual(len(definitions), len(observed))
             original_nodes = tuple(ast.walk(expected))
             identifiers = {getattr(n, f, None) for n in original_nodes for f in ("id", "arg", "name", "asname", "rest", "attr")}
+            identifiers.update(s for n in original_nodes if isinstance(n, (ast.Global, ast.Nonlocal)) for s in n.names)
             strings = [n.value for n in original_nodes if isinstance(n, ast.Constant) and type(n.value) is str]
             inverse = {}
             preserved = {"_worker_input_seal", "_worker_input_entry", "_worker_profile_state",

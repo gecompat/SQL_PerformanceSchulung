@@ -32,7 +32,9 @@ freigegebene reine Generatordiagnose:143162 Bytes,12090 über131072Cap. Gezielte
 reversible Alpha-/Bytesliteral-Kürzung für C3 unabhängig ausgewählt und umgesetzt:
 compilerbestimmte globale Ursprünge/Methoden/Keywords/Reflexion gesperrt,
 unabhängige inverse Gesamt-ASToracle und einzelne wertgleiche Rawliteralform.
-Drei/max6 Kandidaten, zwei Nachläufe, Verbrauch UNKNOWN; Source/Test-PRE und
+C3 ohne Lauf-GO wegen P2 für reine Deklarationskollision; C4 schützt alle
+Deklarations-/Symbolnamen, getrennte Oracle verwirft absichtlichen z0-Mutanten.
+Vier/max6 Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; enger Delta-PRE und
 gestuftes Fit-GO offen, noch keine neue Generierung/Modelle. Fünf Importe/ganzer Raw/Cap unverändert.
 Tatsächliche DGN-Raw-/Native-/SQL-/Gesamtgates bleiben offen.
 

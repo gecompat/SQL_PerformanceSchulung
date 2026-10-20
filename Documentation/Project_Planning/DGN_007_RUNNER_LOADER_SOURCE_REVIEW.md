@@ -317,3 +317,16 @@ Weiterhin16 Methoden. C3 ist der dritte Source/Testkandidat/max6, zweiter
 Nachlauf, Verbrauch UNKNOWN. Nur Text-ASTprüfung und Privacy vor Commit.
 Stabiler unabhängiger Source/Test-PRE und ausdrückliches gestuftes Fit-GO offen;
 keine neue Generierung oder Modelle vor Freigabe. Harte Grenze6 bleibt gleich.
+
+## C4 – reine Deklarationskollision schließen
+
+C3 b11c64567c4dacaa9136ea0f6982764506ee5872 unabhängig ohne Lauf-GO: ein P2,
+neue Zielnamen waren nicht gegen reine Global-/Nonlocaldeklarationen geschützt;
+die Oracle hatte dieselbe Lücke. Übriges C3-Delta ohne weitere offene Befunde,
+keine Generierung oder Tests. C4 ergänzt sämtliche Deklarationsnamen in beiden
+Alpha-Zielsperren und sämtliche compilerbestimmten Symbolnamen in der uniformen
+Zielsperre. Getrennte Oracle nimmt Deklarations-/Symboltabellennamen unabhängig
+auf. Eigene positive Gegenprobe mit global z0 ohne weitere Bindung und absichtlich
+ungültigem Parametertausch nach z0: Oracle muss den Mutanten ablehnen. Weiter16
+Methoden, vier/max6 Kandidaten, drei Nachläufe, Verbrauch UNKNOWN; enger Delta-PRE
+und ausdrückliches gestuftes Fit-GO offen. Noch keine neue Generierung/Modelle.

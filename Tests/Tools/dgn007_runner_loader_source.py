@@ -508,6 +508,7 @@ def _shorten_globals(tree, protected):
     nodes = tuple(ast.walk(tree)) + protected_nodes
     occupied = {getattr(n, field, None) for n in nodes for field in ("id", "arg", "name", "asname", "rest", "attr")
                 if isinstance(getattr(n, field, None), str)}
+    occupied.update(name for n in nodes if isinstance(n, (ast.Global, ast.Nonlocal)) for name in n.names)
     texts = [n.value for n in nodes if isinstance(n, ast.Constant) and type(n.value) is str]
     mapping = {}
     for definition in tree.body:
@@ -541,6 +542,7 @@ def _shorten_uniform_locals(tree, protected):
     occupied = {getattr(n, f, None) for n in nodes
                 for f in ("id", "arg", "name", "asname", "rest", "attr")
                 if isinstance(getattr(n, f, None), str)}
+    occupied.update(name for n in nodes if isinstance(n, (ast.Global, ast.Nonlocal)) for name in n.names)
     texts = tuple(n.value for n in nodes if isinstance(n, ast.Constant) and type(n.value) is str)
     forbidden = {n.attr for n in nodes if isinstance(n, ast.Attribute)}
     forbidden.update(n.arg for n in nodes if isinstance(n, ast.keyword) and n.arg)
@@ -553,6 +555,7 @@ def _shorten_uniform_locals(tree, protected):
     while pending:
         scope = pending.pop()
         for symbol in scope.get_symbols():
+            occupied.add(symbol.get_name())
             if symbol.is_global() or scope.get_type() == "class": forbidden.add(symbol.get_name())
         pending.extend(scope.get_children())
     scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
