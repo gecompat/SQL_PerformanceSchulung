@@ -1,5 +1,15 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+PR268 vollständig in Main `dcc5893af0c50c88aa0f848c3c908733c15dcbdc`
+geschlossen: dreizehn PR-/elf Main-Checks SUCCESS, neue16/alte15 ohne SKIP,
+unabhängiger Review/FullTree/Sync/Branchcleanup. Nächste Sourcearbeit:
+[vollständige Worker-Eingangsfolge](DGN_007_WORKER_INPUT_SOURCE_REVIEW.md),
+ein Owner/max6/Checkpoint2, Auswahl-PRE freigegeben. C1 mit16I/O-Modellmethoden
+und tatsächlichem Kernelhandoff vor Snapshot; Source/Test-PRE/Lauf-GO ausstehend.
+Nur eigene I/O-Modelle,
+keine nativen Starts; Childreserve muss vor späterer Parent-Admission aus dem
+bisherigen Globalbudget gebucht werden. Inventur-/Loader-/Gesamtgates offen.
+
 PR267 vollständig in Main `84272af549d1c7c1320b5b1c77a55a4b721f8d18`
 geschlossen: zwölf PR-/zehn Main-Checks SUCCESS, unabhängige Befundschließung,
 neue15 Windows/Linux und bestehende Consumer ohne SKIP PASS, FullTree/Sync/

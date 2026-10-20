@@ -1,5 +1,41 @@
 # Aktueller Ausführungsstand
 
+## Workerquelle für die vollständige Eingangsfolge vom 20. Oktober 2026
+
+PR268 vollständig in `dcc5893af0c50c88aa0f848c3c908733c15dcbdc` integriert:
+dreizehn finale PR-Checks/elf frische Main-Workflows SUCCESS, neue16 und alte15
+ohne SKIP PASS, unabhängige Befundschließung, FullTree/Sync und eigene lokale/
+Remote-Branchbereinigung bestätigt.
+[Abschlussbindung PR268](https://github.com/gecompat/SQL_PerformanceSchulung/pull/268).
+
+Nächster endlicher Schnitt: [Workerquelle für die vollständige Eingangsfolge
+bis IMPORT_RELEASE und EOF](DGN_007_WORKER_INPUT_SOURCE_REVIEW.md), eigener
+Branch `codex/dgn007-worker-input-source`, ein Owner/max6/Checkpoint2/hart6.
+Auswahl-PRE unabhängig mit stabilen Haltern und vollständigen Triggerabhängigkeiten
+freigegeben. C1 ergänzt vollständige Quellenfolge und16eigene I/O-Modellmethoden.
+Direkter tatsächlicher Kernelhandoff vor Scriptsnapshot, keine spätere
+Rebaseline oder neue Ausschlussliste. C1 unabhängig mit einem P2 ohne Lauf-GO:
+OS-Namespacekeys und veränderbarer Modultyp vor Lookup/Attributzugriff schließen.
+C2 ergänzt den vollständigen Schlüsselvorlauf und PRE-/Callback-POST-Gegenproben
+mit externen Fremdaufruf-/Dispatchzählern. Checkpoint2: zwei Kandidaten/max6,
+ein geänderter Nachlauf; C2 unabhängig geschlossen und mit Lauf-GO. Neue16
+Windows/Linux danach jeweils16SCRIPT_LIMIT-Fehler vor innerer Modellsemantik,
+Windows zusätzlich verzögert geladenes Stdlib-_ast_unparse im Cache-Orakel.
+C3 verkürzt nur tokengeprüfte Codeeinrückung der neuen Ausgabe bei vollständigem
+AST-/Literalerhalt und bereitet den neutralen Stdlibdarsteller vor Testbaseline
+vor. Drei Kandidaten/max6, zwei Nachläufe; unabhängiger Delta-PRE und Lauf-GO
+erteilt; C3 danach neue16 Windows3.14.7 in36.223s und Linux3.12.3 in25.617s
+ohne SKIP PASS. Vollständiger Quellenfit/AST-/Literalerhalt, alle drei Rollen
+und sämtliche eigenen negativen I/O-Modelle bestätigt. Produkt/Suite unverändert,
+nur Ergebnisdokumentation ergänzt; aktuelle Head-/Base-/Main-Gates, Integration
+und eigener Branchcleanup folgen. Keine Capänderung oder alten Routenänderungen.
+Keine echten OS-I/O/Main-/Worker-
+ausführungen, operative Inventur oder SQL. Die geplante Child-I/O-Teilreserve
+aus dem vorhandenen Globalbudget ist noch nicht im Parent gebucht; operative
+Admission deshalb ausdrücklich offen. Vollständige Installations-/S15/P11-/
+Fünf-Formen-/Loader-/SESSION_END-/Trust-/Methodengates bleiben offen.
+Verbrauch UNKNOWN; bisherige ausgeschöpfte Scopes bleiben geschlossen.
+
 ## Empfangene Metadata und aufgenommener Workerreport vom 20. Oktober 2026
 
 PR267 vollständig in `84272af549d1c7c1320b5b1c77a55a4b721f8d18` integriert:
