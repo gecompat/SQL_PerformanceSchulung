@@ -1,0 +1,58 @@
+name: DGN-007 Gehaltener Handshakeeingang
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Tools/dgn007_handshake_input_plan.py'
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_handshake_input_plan.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Documentation/Project_Planning/DGN_007_HANDSHAKE_INPUT_PLAN_REVIEW.md'
+      - '.github/workflows/dgn007-handshake-input.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Tools/dgn007_handshake_input_plan.py'
+      - 'Tests/Tools/dgn007_session_channel.py'
+      - 'Tests/Tools/dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_pooled_profile_codec.py'
+      - 'Tests/Tools/dgn007_pooled_profile_sizing.py'
+      - 'Tests/Tools/dgn007_compact_profile_sizing.py'
+      - 'Tests/Tools/dgn007_import_profile_binding.py'
+      - 'Tests/Tools/dgn007_import_probe_input.py'
+      - 'Tests/Tools/dgn007_source_bundle.py'
+      - 'Tests/Tools/dgn007_execution_edges.py'
+      - 'Tests/Static/test_dgn007_handshake_input_plan.py'
+      - 'Tests/Static/test_dgn007_session_match.py'
+      - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Documentation/Project_Planning/DGN_007_HANDSHAKE_INPUT_PLAN_REVIEW.md'
+      - '.github/workflows/dgn007-handshake-input.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-handshake-input-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  handshake-input:
+    name: DGN-007 Handshakeeingang und Transfergrenzen
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Gehaltene Inputs und negative Transfergegenproben prüfen
+        run: python -I -S -B Tests/Static/test_dgn007_handshake_input_plan.py
