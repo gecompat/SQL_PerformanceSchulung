@@ -16,7 +16,10 @@ Additive rollenbezogene Zusammensetzung aus bestehendem vollständigem
 Workerunterbau und neuer Inline-Profilverbindung; Parentmatcher unverändert.
 Auswahl-PRE unabhängig mit vollständiger Kontrollpfadbindung als Auflage
 freigegeben; C1 ergänzt neue Workerroute und zwölf eigene Modellmethoden.
-Source/Test-PRE/Lauf-GO ausstehend, noch keine Suiteimporte oder Läufe.
+Source/Test-PRE C1 mit zwei P2 (3.14-Annotationträger/Keyvorlauf) ohne Lauf-GO.
+C2 schließt beide, ergänzt gemeinsamen Zustandsrahmen und drei Gegenproben:
+15Methoden, Checkpoint2/zwei Kandidaten/ein Nachlauf. Delta-PRE/Lauf-GO
+ausstehend, noch keine Suiteimporte oder Läufe.
 Caps und vollständige Workerprüfungen bleiben erhalten; keine operative
 Inventur, Kandidatenimporte oder SQL, Attestationsgrenzen offen. Verbrauch UNKNOWN.
 

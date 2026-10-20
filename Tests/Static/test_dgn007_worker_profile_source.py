@@ -286,6 +286,69 @@ class WorkerProfileSourceTests(unittest.TestCase):
                     and isinstance(node.func, ast.Name) and node.func.id.startswith("build_")]
         self.assertEqual(builders, ["build_inline_body_control_bootstrap"])
 
+    def test_foreign_class_keys_are_checked_before_copy_or_callbacks(self):
+        environment = model()
+        self.initialized(environment)
+        calls = []
+        class Foreign:
+            def __hash__(self):
+                calls.append("HASH")
+                return 0
+            def __eq__(self, other):
+                calls.append("EQ")
+                return False
+        replacement = type("ProfileReport", (), {Foreign(): None})
+        environment["control"].ProfileReport = replacement
+        calls.clear()  # Fixtureanlage darf hashen, Kandidatenaufruf darf es nicht.
+        self.rejected(environment)
+        self.assertEqual(calls, [])
+
+    def test_compiler_and_generated_annotations_are_bound_without_evaluation(self):
+        for kind in ("function", "class", "generated"):
+            environment = model()
+            self.initialized(environment)
+            control = environment["control"]
+            if kind == "class":
+                owner = control.SelectedScalarObservationResult
+                annotation = owner.__dict__.get("__annotate_func__")
+            else:
+                owner = control.validate_profile if kind == "function" else control.ProfileReport.__init__
+                annotation = getattr(owner, "__annotate__", None)
+            if annotation is None:
+                # 3.12 kennt diese Compilerträger nicht; fremde neue Metadaten
+                # werden ebenfalls abgelehnt, ohne Annotationaufruf.
+                def foreign(format):
+                    raise AssertionError("ANNOTATION_MUST_NOT_RUN")
+                if kind == "class":
+                    owner.__annotate_func__ = foreign
+                else:
+                    owner.__annotate__ = foreign
+            else:
+                annotation.__code__ = annotation.__code__.replace()
+            self.rejected(environment)
+
+    def test_shared_state_budget_precedes_collection_and_has_no_provider_traversal(self):
+        environment = model(initialize=False)
+        control = environment["control"]
+        functions = [value for value in control.__dict__.values()
+                     if type(value) is type(model) and value.__module__ == control.__name__]
+        for value in control.__dict__.values():
+            if type(value) is type and value.__module__ == control.__name__:
+                functions.extend(member for member in value.__dict__.values()
+                                 if type(member) is type(model) and member.__module__ == control.__name__)
+        for function in {id(value): value for value in functions}.values():
+            function.__kwdefaults__ = {"opaque_" + str(index): object() for index in range(200)}
+        requested = []
+        original = environment["ns"]["_worker_profile_take"]
+        def reserve(budget, size):
+            requested.append((budget[0], size))
+            return original(budget, size)
+        environment["ns"]["_worker_profile_take"] = reserve
+        self.assertEqual(environment["ns"]["_initialize_worker_profile_control"](),
+                         ("REJECTED_WORKER_PROFILE_CONTROL", "WORKER_PROFILE_BINDING"))
+        self.assertTrue(any(before + size > 16368 for before, size in requested))
+        self.assertTrue(all(size <= 256 for _, size in requested))
+
 
 if __name__ == "__main__":
     unittest.main()

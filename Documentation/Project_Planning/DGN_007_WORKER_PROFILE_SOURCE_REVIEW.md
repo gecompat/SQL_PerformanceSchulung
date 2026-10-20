@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `ded09f685f747bb614c68c0fa78a6e54be7514be` nach vollständig geschlossenem PR266.
-Status `C1_SOURCE_TEST_PRE_PENDING`.
+Status `C2_DELTA_PRE_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -123,3 +123,36 @@ neue Suite, konkreten Plan und sich selbst. Er führt ausschließlich neue zwöl
 Methoden aus. Bestehende Bootstrap-/Sourceconsumer-Gates bleiben erhalten;
 keine SQL-/Kanal-Suite oder Scanner-Selbsttestauswahl und keine weitere
 Reviewkette. Keine vollständigen grünen Logs oder Telemetrie.
+
+## C2: explizite Annotationträger und Keyvorlauf
+
+C1 `7fd3be823bbbb30211d2e05179f7367a31a05c18` unabhängig mit zwei P2,
+ohne Lauf-GO: Compilerannotations-Codekonstanten haben unter CPython3.14
+andere Träger als globale gleichnamige Funktionen oder Klassenmethoden;
+außerdem müssen Klassenkeys vor der Mappingproxykopie geprüft werden.
+
+C2 ordnet jede direkte `__annotate__`-Codekonstante genau einem bereits
+quellengebundenen Funktionsobjekt über dessen `__annotate__` zu, mit exakter
+Code-/Globalsbindung. Compiler-Klassenannotatoren werden explizit über den
+geschlossenen `__annotate_func__`-Slot geprüft. Keine unbekannte Codekonstante
+wird pauschal ignoriert. Separat erzeugte Stdlib-Methodenannotatoren werden
+mit eigenem Code-/Defaults-/Closurezustand gehalten, ohne Annotationauswertung
+oder Zugriff auf die lazy Funktionseigenschaft `__annotations__`.
+
+Primärgrundlagen: [CPython3.14.7 Compiler](https://raw.githubusercontent.com/python/cpython/v3.14.7/Python/codegen.c)
+und [CPython3.14.7 dataclasses](https://raw.githubusercontent.com/python/cpython/v3.14.7/Lib/dataclasses.py).
+Die lokale native3.14.7-Stdlib bestätigt die Klassendictionarykopie und die
+gezielte Korrektur erzeugter Methodenannotator-Closures bei `slots=True`.
+Das begründet keine operative3.14-Workerfreigabe; Ziel bleibt Linux3.12.
+
+Exakte Klassenmappingproxy samt allen Keys wird vor der Kopie geschlossen
+geprüft. Ein gemeinsames16368-Zustandslimit je State-/POST-Aufnahme reserviert
+Keys, Codekonstanten, Defaults und Closurezellen vor Sammlung; opake Provider-
+werte werden nicht transitiv traversiert. Drei zusätzliche Methoden für fremde
+Klassenkeys mit außerhalb geprüften Callbackzählern, Annotationträger und das
+gemeinsame Limit; insgesamt15Methoden. Nur fixtureeigene Methoden werden
+mutiert, keine geteilten Stdlibfunktionen.
+
+Checkpoint2: zwei Source/Testkandidaten/max6, ein gebündelter Befundnachlauf;
+keine Suiteimporte oder Läufe. Unabhängige Delta-Schließung und ausdrückliches
+Lauf-GO ausstehend. Verbrauch UNKNOWN; alle operativen Grenzen unverändert.
