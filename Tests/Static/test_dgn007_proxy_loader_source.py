@@ -354,11 +354,16 @@ class ProxyLoaderSourceTests(unittest.TestCase):
                 def __eq__(self, other): calls.append("EQ"); raise AssertionError()
             def callback(phase, code, namespace):
                 if phase != "executed": return
-                reached.append(1)
                 target = {"module": namespace, "spec": namespace["__spec__"].__dict__,
                           "builtins": env["ns"]["__builtins__"], "cache": env["cache"]}[kind]
-                value = target.pop(keyname)
-                target[Key()] = value
+                # Eine frische kombinierte Map vermeidet Vergleiche beim Aufbau
+                # einer Splitdict-Fixture; Zielnamespace und Gegenprobe bleiben.
+                replacement = {key: value for key, value in target.items() if key != keyname}
+                replacement[Key()] = target[keyname]
+                target.clear()
+                target.update(replacement)
+                self.assertTrue(any(type(key) is Key for key in target))
+                reached.append(1)
             env["hooks"][0] = callback
             self.reject(env)
             self.assertEqual((reached, calls), ([1], []))

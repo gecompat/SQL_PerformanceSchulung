@@ -23,8 +23,12 @@ Einmalige freigegebene Größendiagnose:138588Bytes,7516über Cap; keine entbehr
 Definitionen im nötigen Umfang. C4 nach unabhängig präzisiertem Auswahl-GO:
 ausschließlich nicht eingefangene lokale Körperbindungen kürzen, Schnittstellen/
 Closures/Comprehensions sperren, bijektiv unabhängig rückführen und danach volle
-AST-/Literal-/Operationsgleichheit. Vier Kandidaten/max6, drei Nachläufe;
-Source/Test-Delta-PRE und ausdrückliches Lauf-GO ausstehend, Fit/Modelle offen. Additive
+AST-/Literal-/Operationsgleichheit. C4 unabhängig mit Lauf-GO, neue16 Linux ohne
+SKIP PASS einschließlich Fit/Alpha-AST. Windows genau eine Gegenprobe wegen
+eines bereits beim eigenen Splitdict-Fixtureaufbau ausgelösten EQ fehlgeschlagen.
+C5 installiert dieselbe Fremdschlüsselmutation vollständig vor Erreichtmarker,
+Namespaceidentität und Null-EQ-Oracle erhalten; Produkt unverändert.
+Fünf Kandidaten/max6, vier Nachläufe; Fixture-Delta-PRE und Lauf-GO ausstehend. Additive
 Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
 Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE
 nach tatsächlichem Exec und kohärenten POSTs. Keine öffentlichen Receipts als

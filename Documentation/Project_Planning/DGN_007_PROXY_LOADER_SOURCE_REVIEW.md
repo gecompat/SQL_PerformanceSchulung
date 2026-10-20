@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `C4_SOURCE_TEST_DELTA_PRE_PENDING`.
+Status `C5_FIXTURE_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -270,3 +270,27 @@ und sämtliche inneren Modelle weiter offen. Stabiler Source/Test-Delta-PRE und
 ausdrückliches einmaliges Lauf-GO für neue16 Windows/Linux ausstehend. Caps,
 Profilrawbytes, ältere Quellenrouten und fünf Scriptimporte bleiben unverändert.
 Keine operative/nativ wirkende Erweiterung; Gesamtgates bleiben offen.
+
+## C5 – vollständig installierte Fremdschlüssel-Fixture
+
+C4 `59a9c2a224e70064ef25213ed5ff696e6a1b7fbe` unabhängig ohne offene Befunde
+mit einmaligem Lauf-GO. Linux3.12.3: neue16 in64.940s ohne SKIP PASS, einschließlich
+aktuellem Quellenfit und vollständiger unabhängiger Alpha-/AST-/Literaloracle.
+Windows3.14.7:16 in81.332s, genau ein Fehler der Fremdschlüssel-Gegenprobe.
+Die eigene ModuleSpec-Splitdict-Fixture löste bereits beim Einsetzen des
+angreifenden Schlüssels einen EQ aus; die Mutation war nicht vollständig installiert.
+Eine kleine reine Standardbibliotheksdiagnose mit eigenen vier Namespaces bestätigt
+unter Windows ausschließlich beim Spec: ein Einsetz-EQ und null Fremdschlüssel.
+Kein Kandidatenimport/-lauf oder neue Quellengenerierung bei dieser Diagnose.
+
+C5 baut die Ersatzmap aus unveränderten eigenen Schlüssel-/Wertpaaren in einer
+frischen kombinierten Map auf, ersetzt genau den ausgewählten Schlüssel durch
+denselben kollidierenden Fremdtyp und aktualisiert den geleerten ursprünglichen
+Namespace. Seine Identität bleibt erhalten. Erst nach überprüft tatsächlichem
+Fremdschlüssel markiert die Fixture das Erreichen. Der ursprüngliche EQ-Zähler
+bleibt unverändert null gefordert; kein Reset, keine tolerierten Fremdaufrufe
+und keine schwächere Produktoracle. Produktquelle und Alpha-Transformer unverändert.
+
+Fünf Kandidaten/max6, vier geänderte Nachläufe, Verbrauch UNKNOWN. Gezielter
+unabhängiger Fixture-Delta-PRE und ausdrückliches einmaliges Lauf-GO für neue16
+Windows/Linux sowie betroffene kleine Consumer/selektierte CI ausstehend.
