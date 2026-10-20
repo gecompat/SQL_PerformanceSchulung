@@ -94,7 +94,8 @@ def native_case(name):
                 index = next(i for i, row in enumerate(rows) if json.loads(row)[0] == "INPUT_COMPLETE")
                 nonce = json.loads(rows[index])[2]
                 other = ("0" if nonce[0] != "0" else "1") + nonce[1:]
-                return harness.changed_row(rows, index, 2, other), err
+                changed = harness.changed_row(rows, index, 2, other, seal=False)
+                return harness.reseal(changed, err), err
             selected = (selection(harness, change=change)[0], selection(harness, 2)[0])
         elif name in ("line1024", "line1025", "records44", "byte_overflow"):
             raw = {"line1024": b"x" * 1023 + b"\n", "line1025": b"x" * 1024 + b"\n",

@@ -153,6 +153,13 @@ Harnessimporte fehlten im Workflowselector. C2 bündelt die Korrekturen und
 eine native letzte-POST-Zeitgegenprobe nach realem Lauf und Cleanup mit
 kontrolliert um 21 Sekunden fortgerückter Uhr. Kein unveränderter Test wurde
 wiederholt; weiterhin vor erstem Lauf. Gezielt unabhängiger C2-Delta-PRE nötig.
+
+C2 `4477e8dd5976f6b7d1efc5778fc66474ecfc68d5`: drei P2 geschlossen, der
+Nonce-P2 blieb wegen implizit leerem stderr beim Reseal offen; kein Lauf-GO.
+C3 ändert ausschließlich diesen Helperaufruf auf `seal=False` plus anschließendes
+Reseal mit tatsächlich gesendetem stderr. Drei Quellen-/Teststände verbraucht,
+keine weitere Implementierung dieser Welle. Gezielter unabhängiger letzter
+Delta-PRE vor dem ersten Lauf erforderlich; keine Suite/native Probe ausgeführt.
 Produktions-Worker, Start-/Command-/Bodyintegration, tatsächliche Import-/Loader-
 Provenienz, Fünf-Formen-/operative Inventur und SQL-/Incidentmethoden bleiben
 Folgearbeit mit ihren eigenen Abnahmegates.
