@@ -1,7 +1,7 @@
 # DGN-007 – gemeinsamer Kontrollanker für Sources und Parents
 
 Stand: 21. Oktober 2026. Basis f30aebce18ec2902171210bdcc7f222eaa12d405.
-Status DESIGN_PRE_PENDING; ausschließlich Architekturplan, keine Implementierung.
+Status DESIGN_DELTA_PRE_PENDING; ausschließlich Architekturplan, keine Implementierung.
 
 ## Anlass, Abschluss und gemeinsamer Rahmen
 
@@ -27,8 +27,8 @@ bleibt der Architekturblocker offen; kein neuer Name schafft einen neuen Versuch
 ## Geprüfte Ausgangslage
 
 Der letzte zulässige Größenbefund C4 beträgt140097Bytes, also9025 über dem
-unveränderten131072-Byte-Scriptlimit. Seine neuen lokalen Namenskürzungen und
-Raw-Literalform sparten zusammen nur3065Bytes gegenüber C2. Reine Fehlerlabel-
+unveränderten131072-Byte-Scriptlimit. Seine globalen/lokalen Alpha- und
+Raw-Literaländerungen sparten zusammen nur3065Bytes gegenüber C2. Reine Fehlerlabel-
 Aliase und zusätzliche sichere Tokenabstände boten zusammen höchstens4443Bytes.
 Der Parent-SESSION_END-Matcher steht bereits außerhalb der Workerbasis; dessen
 Auslassung kann keine weitere Einsparung liefern. Keine Wiederholung zur Bestätigung.
@@ -96,7 +96,9 @@ Parent1 BEGIN/COMPLETE mit Sequenz7; Sources BEGIN6/7/8, COMPLETE8/7/6/0.
 Die vollständigen20 Records bleiben durch tatsächlichen Input-/EOF-/K-Digest,
 bestätigten ursprünglichen Writer und dieselben I/O-/Bytezähler gebunden.
 Parentrecords enthalten null statt Rawhash, Source-/Parentorigin und -seq
-bleiben getrennt. Kein Parentcompile oder -exec und keine Methodeninvocation.
+bleiben getrennt. Kein Parentcompile oder -exec und keine DGN-Methodenabnahme.
+Die vertrauensabhängigen Providerkonstruktoren bleiben tatsächliche Aufrufe;
+ihre Voraussetzungen und PRE/POST-Bindungen gelten weiterhin.
 
 Parents haben exakt eigene Module-/Specobjekte, origin/loader None, dieselbe
 private leere Liste in __path__/submodule_search_locations, keine __file__/
@@ -117,12 +119,10 @@ der vollständig expandierten Quelle wäre eine andere Vertragsentscheidung.
 
 ## Noch zu beweisender Quellen- und Testplan
 
-Vor Sourceauswahl benötigt der Entwurf eine unabhängige vollständige Prüfung
-der Zustandsübergänge und dominanten PRE/POST-/Fehlerpfade. Eine kürzere Quelle
-darf keine doppelte Sicherheitsprüfung bloß unbewiesen als überflüssig erklären.
-Jeder ursprüngliche Pin muss genau einem tatsächlich dominanten Prüfort
-zugeordnet sein. Erst dann ist ein konkreter C6-Source/Testkandidat auswählbar.
-Kein behaupteter Fit aus formatierten Templategrößen oder neuer Benennung.
+Die am Dokumentende konkretisierten Pin-/Zustands-/Dominanzregeln sind bereits
+verbindlicher Entwurfsteil. Ein Source/Test-PRE muss ihre vollständige Umsetzung
+nachweisen. Eine kürzere Quelle darf keine Prüfung unbewiesen als überflüssig
+erklären. Kein behaupteter Fit aus Templategrößen oder neuer Benennung.
 
 Eine künftige unabhängige Ganz-ASToracle müsste den neuen Parentadapter selbst
 aus dem ausgewählten festen Template rekonstruieren; alle übrigen Source-/
@@ -151,3 +151,106 @@ oder SQLabnahme. Tatsächliche DGN-Quellen, Worker, EOF/Exit/Cleanup im nativen
 Lauf und übrige reale Gates bleiben offen. Der nächste Schritt ist genau der
 unabhängige Design-PRE, keine Probe. Der verbleibende C6-Versuch wird ohne
 konkretes Folge-GO nicht verbraucht.
+
+## Konkrete Pinbindung und dominante Prüforte
+
+Die folgenden Prüforte bezeichnen verbindliche Rollen im künftigen Code,
+keine bereits implementierten Funktionen. Exakte primitive Typen, bool ist
+kein int. Frühe Erzeugung allein beweist keine Bindung eines Closurehelfers.
+
+| Ursprünglich gehaltener Pin | Dominante Prüfung vor Dispatch und nach Rückkehr |
+| --- | --- |
+| Rootentry/Rootguard und sämtliche tatsächlich verwendeten Closurehelfer: Funktion, Code, Globals, Defaults, vollständige primitive Kwdefaults, Closuretuple und Zellinhaltsidentitäten | Vor Reportsnapshot einmal halten. Gehaltener Caller prüft Entry vor Dispatch; aktive ursprüngliche Entry prüft ursprüngliche Guard-/Helferbindungen vor jedem Folgedispatch. Jeder Guard startet mit geschlossenem Bootstrap vor weiterer Scripthelperauswahl. Keine bloße nachträgliche Prüfung. |
+| Guardbootstrap: ursprüngliche type/len, erforderliche dict-/tuple-/str-Primitiven, Funktions-/Code-/Celltypen und Builtinsdict samt Einträgen | Privat gehaltene primitive Referenzen verwenden. Erst tatsächlichen Dict-/Keytyp und endliche Schlüsselmenge prüfen, danach Lookups. Keine ForeignKey-Hash/Equality oder Fremdgetter. Builtins vor originalem Kernelcheck prüfen; keine primitive Auswahl aus spätem Namespace. |
+| Ursprünglicher Inputowner, Kernel-Funktion/Code/Globals/Defaults/Closure, tatsächliche Reportentry und Scriptsnapshot | Bootstrap prüft volle Kernelbindung vor Dispatch; derselbe originale Kernel prüft Originalsnapshot/Provider. Danach ursprüngliche Inputentry/Owner/Reporthandshake vor und nach jedem äußeren Aufruf. Keine späte Kernel-/Reportauswahl. |
+| Compiler, Exec, Importer, tatsächlicher Writer und ursprünglicher I/O-Owner | Ursprüngliche Funktionszustände vor Reportsnapshot; Rootguard vor jedem Call und finally-POST auch bei Exception oder ungültiger Rückgabe. Writer ausschließlich ursprünglicher durch Input bestätigter Kanal, gleiche Budgethalter. |
+| ModuleType/ModuleSpec, MRO/Bases, Klassendicts/Deskriptoren, Methoden-/Closurezustände und Encoder-/Provideranker | Nach originalem Kernelcheck ursprüngliche Klassen-/Providerpins vor Konstruktor und Feldzugriff prüfen; POST prüft sie vor Zugriff auf Rückgabeobjekte. Erst genaue Typen/gebundene Deskriptoren, danach eigene Namespaces; keine Getterauswahl aus mutierter Klasse. |
+| ActualInput-/EOFpaket, ursprüngliche private Handoffs, tatsächlicher K-Digest | Handoff-Funktion/Code vor Reportsnapshot halten. Einmaliges Paket ausschließlich aus tatsächlichem vollständigem Input/EOF; Digest erst danach im vorherigen Halter. Rootguard vergleicht tatsächlichen Owner-/Paket-/Digestszustand vor Parent-/Sourceinvocation; Callerreceipts/Statuswerte sind keine Authority. |
+| Tatsächlicher Source-/Importstack und Parentpräcondition | Vor erster Konstruktion und jedem weiteren Record/Effekt: ursprüngliche Root0-Exec aktiv, tatsächliche Kante0→6, Sources1/5/3/4 vollständig und zulässiger nächster Parentzustand. Reentranz eröffnet keinen zweiten Pfad. |
+| Zurückgegebene Module/Specs, eigene Locations-/Namespacedicts, Cache-/Parent-/Childlinks | Rückgabe sofort vor nächstem äußeren Call aufnehmen, auch ohne Partnerobjekt. Phasengenauer Parentcheck vor/nach Folgeschritt und in allen anderen Sourceguards. Freie Slots bleiben frei; veröffentlichte Slots halten eigene ursprüngliche Identitäten. |
+| Ursprüngliche I/O-/Inbytes-/Outbytes-/Offset-/Source-/Parentzähler und Einmal-/Fehlerflags | Root-/Inputguard vor Budgetreservierung und nach äußeren Calls; bestehende1088/4096-/Bytegrenzen und endliche Schritt-/Offsetformen. Nur bestätigte Writes verbrauchen Offset, keine Ersatzhalter oder Wiederholung nach Fehler. |
+
+Die reine Parentprüfung ruft weder Rootguard noch Provider/Writer zurück.
+Auch sie und jeder verwendete private Closurehelfer werden vor Dispatch an
+ihre ursprünglichen Zustände gebunden geprüft. Unveränderte Halteridentität
+attestiert nicht deren veränderliche Inhalte.
+
+## Endliche Parent-Unterzustände
+
+Jeder Parent besitzt vorab eigene Halter für Modul, Spec, beide Namespaces und
+Locations sowie genaue Schritt-/Recordoffset-/Fehlerflags. Ausschließlich diese
+Übergänge sind in fester Parent0-/Parent1-Reihenfolge zulässig; jeder Fehler
+führt nach FAILED und bleibt dort.
+
+| Zustand | Zulässiger Inhalt und nächster Schritt |
+| --- | --- |
+| WAIT | Keine Objekte, eigene Cache-/Childslots frei. Tatsächliche Rootpräcondition prüfen und einzigen Konstruktionsversuch reservieren. |
+| MODULE_CALL | Ursprünglicher ModuleType-Konstruktor läuft, kein Specaufruf oder veröffentlichter Slot. |
+| MODULE_HELD | Modulrückgabe sofort halten, Spec ausstehend. POST zuerst Klassen, dann tatsächlichen Modul-/Namespacezustand prüfen; erst danach Specversuch reservieren. |
+| SPEC_CALL | Spec-Konstruktor läuft; ursprüngliches Modul bleibt in zulässigem unveröffentlichtem Zustand gebunden. |
+| BOTH_HELD | Specrückgabe sofort halten. POST zuerst Klassen, dann beide Objekte; Locations nur aus eigenem geprüften Spec oder eigener vorheriger Liste aufnehmen. Noch kein Cache-/Childlink. |
+| PREPARED | Vollständige endgültige Metadaten geprüft, Locations genau eigene leere Liste; Cache-/Childslots frei. |
+| PUBLISHED | Eigenes Modul im zuvor freien eigenen Cache-Namen, weiterhin vollständig gebunden. |
+| LINKED | Parent1 nur am eigenen bereits vollständig registrierten Parent0.Contracts verknüpft. Parent0 hat keinen Vorgängerlink. Alle weiteren Childslots phasengenau frei/eigen. |
+| BEGIN_PENDING / BEGIN_CALL / BEGIN_PARTIAL / BEGIN_DONE | Fester kanonischer BEGIN, Offset0 / laufender Write / bestätigter Offset zwischen0 und Länge / genau volle Länge. POST vor Übernahme der Rückgabe. Kein COMPLETE vor BEGIN_DONE. |
+| COMPLETE_PENDING / COMPLETE_CALL / COMPLETE_PARTIAL / COMPLETE_DONE | Derselbe tatsächliche Writer, fester COMPLETE und bestätigte Offsets. Kein weiterer Parent/Source vor vollständig bestätigtem COMPLETE. |
+| REGISTERED | Vollständige Records und unveränderte Objekte/Links. Beide Parents müssen REGISTERED sein, bevor Source6 beginnen darf. |
+| FAILED | Sticky Fehler; kein neuer Konstruktor/Record/Import-/Sourceversuch, ausschließlich sicherer identitätsbezogener Fehlerabschluss. |
+
+Jedes zurückgegebene Teilobjekt wird vor einem weiteren Provider-/Writeraufruf
+gehalten. Bei gescheitertem POST bleibt es nur für sichere eigene Bereinigung
+erfasst, nicht als gültig zugelassen. Vorbereitungszustände dürfen nur tatsächlich
+noch nicht gesetzte endgültige Felder offen lassen; Typ, eigener Namespace,
+vorgesehener Name und bereits gesetzte Felder bleiben geprüft. Konstruktorinterne
+Anfangswerte verlangen eine getrennte Zustandsoracle im Source/Test-PRE,
+keine globale Lockerung aller Parentprüfungen.
+
+## Vollständige Metadaten, POST und Fehlerabschluss
+
+Ab PREPARED gelten Modul.__name__ und spec.name genau Tests beziehungsweise
+Tests.Contracts; __package__ ist derselbe Paketname, __spec__ das eigene Spec,
+__loader__ None. spec.origin/loader/loader_state sind None, _set_fileattr False.
+__path__ und submodule_search_locations sind dieselbe eigene Liste mit genauer
+list-Klasse und Länge0. Modul.__file__/__cached__ fehlen; Speccache höchstens
+der geprüfte unveränderte Nonewert. Eigene Namespacedicts haben nur primitive
+begrenzte Stringkeys; Klassen-/Getter-/Keyprüfung geht jedem Lookup voraus.
+
+Contracts ist vor Parent1-Link am eigenen Parent0 frei, danach genau eigener
+Parent1. Die drei Source6/7/8-Kindnamen am Parent1 bleiben bis ihrer jeweiligen
+ursprünglichen Quellenveröffentlichung frei, danach jeweils tatsächliches eigenes
+gebundenes Modul. Kein Getter-/Importfallback oder Ersatzlink. Jeder Rootguard
+prüft alle bereits veröffentlichten Objekte/Links und noch ausstehenden Slots.
+
+Jeder Konstruktor-/Writer-/Compiler-/Exec-/Importercall hat denselben originalen
+endlich gebundenen POST im finally-Pfad, auch bei Exception, falschem Typ,
+Zero-/Teil-/Overflowwrite oder Unterbruch. Rückgabe vor Folgedispatch halten;
+erst erfolgreicher POST und streng gültige Rückgabe erlauben Zustands-/Offset-
+fortschritt. Fehlgeschlagener Teilwrite ist kein bestätigter BEGIN/COMPLETE.
+
+Bindungsverlust dominiert mit festem RUNNER_SOURCE_BINDING; andernfalls führen
+Providerfehler, ungültige Rückgabe oder Limitverletzung zu festem
+RUNNER_SOURCE_REJECTED. Öffentliche Ablehnung ohne private Fehlermeldung und
+Teilresultat. Keine Reparatur/Rebaseline durch weiteren normalen Helperaufruf,
+kein Reentranz-/Retrypfad nach sticky Fehler.
+
+Fehlerabschluss ausschließlich mit bereits im aktiven ursprünglichen Frame
+gehaltenen primitiven Referenzen und eigenen Objekt-/Namespaceidentitäten;
+kein Dispatch möglicherweise veränderter normaler Cleanup-/Guardhelfer. Die
+Primitiven dürfen keine später fremd ersetzbaren Closure-/Globalwerte sein.
+Cache-/Linklöschung nur bei exaktem Dict, zuvor vollständig geprüften primitiven
+Keys und aktuell identischem eigenen Wert, rückwärts Source-/Child-/Parent1-/
+Parent0-bezogen. Fremde Werte erhalten. Bei ungültigem Cache oder verlorener
+sicherer Primitive keine riskante Lookup-/Getteroperation und kein Cleanup-
+Gesamtclaim. Daraus folgt kein nativer Exit-/Gruppen-/Ressourcenabschluss.
+
+## Unabhängiger Design-PRE und einzige Nacharbeit
+
+Entwurf1dac51cbc3cc7244f6807a97392e61ac35fb1dbe unabhängig grundsätzlich tragfähig
+und mit §33 vereinbar, aber noch nicht vollständig DESIGNED: P2 für konkrete
+Pin-/Dominanz-/Zwischenzustands-/POST-/Metadatenregeln, P3 für Trennung von
+DGN-Methodenabnahme und tatsächlichen Provideraufrufen. Die einzige zulässige
+Entwurfsnacharbeit ergänzt genau diese verbindlichen Regeln und berichtigt
+die3065-Byte-Zuordnung. Checkpoint erster Review erreicht; zwei/hartzwei
+Entwurfsstände einschließlich gemeinsamer Koordination/Abschluss, Verbrauch
+UNKNOWN. Ursprünglicher Sourceversuchsstand unverändert fünf/max6. Enger
+unabhängiger Delta-PRE offen; keine Implementierung, Generierung oder Probe.

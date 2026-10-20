@@ -16,7 +16,11 @@ verbraucht, kein Reset oder weiterer Quellenversuch. Standalone-Parentfactory
 bleibt erhalten; alternative Route soll Sources/Parents durch denselben
 ursprünglichen Anker prüfen, sämtliche Helfer vor Reportsnapshot erzeugen und
 späte Graphaufnahme vermeiden. Tatsächliche Einsparung unbekannt. Design-PRE
-offen, keine Source-/Lauf-/Native-/SQLfreigabe;131072Cap und vollständige
+mit P2 für konkrete Dominanz-/Zwischenzustände und P3 für Methodenwortlaut.
+Einzige Entwurfsnacharbeit ergänzt Pin→Prüfstelle, alle Modul-/Spec-/Record-
+Unterzustände, vollständige Metadaten, finally-POSTs, Fehlerpriorität und
+sicheren aktiven Fehlerabschluss. Zwei/hartzwei Entwurfsstände, enger Delta-PRE
+offen; keine Source-/Lauf-/Native-/SQLfreigabe;131072Cap und vollständige
 Raw-/Kontroll-/Methoden-/Trust-/Usedbytesgates bleiben unverändert.
 
 ## Runner-Quellenfit-Diagnose vom 21. Oktober 2026
