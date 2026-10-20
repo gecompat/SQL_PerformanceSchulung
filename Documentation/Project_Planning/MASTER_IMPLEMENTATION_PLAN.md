@@ -1,14 +1,19 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
 Am 20. Oktober 2026 nimmt der Benutzer die allgemeine Entwicklung nach
-Bestandsprüfung ausdrücklich wieder auf. Die erste begrenzte Welle ist die
+Bestandsprüfung ausdrücklich wieder auf. Die
 [interne DGN-007-Capture-Rückgabe](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
-auf aktueller v2-Basis nach DEC-072. Ihr Abschluss verlangt Quellenreview,
-relevante aktuelle CI, Main-Integration und sichere Branchbereinigung.
-Danach folgt eine neu begrenzte priorisierte Welle; der separate SESSION_END-
-Entwurf zu §33 bleibt ein eigener Kandidat. Historische Pausenangaben unten
-werden nur in diesem Umfang abgelöst. Automation und operative Provenienz-
-oder Workerfreigaben folgen daraus nicht.
+ist nach unabhängigem Review und 14 grünen PR-Gates über PR255 in Main
+`b3f023a…` integriert; Treevergleich und eigene Branchbereinigung sind bestätigt.
+Die nächste begrenzte Welle ist ausschließlich der
+[SESSION_END-Entwurf §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild)
+mit exakten Counts und nicht selbstreferentiellem Kanalhashpräbild. Zwei
+Entwurfsstände, Checkpoint nach dem ersten; unabhängiger Designreview ohne
+Befunde und acht grüne Dokumentationsgates zum Erststand. Die Abschlussrevision
+von PR256 führt nur Evidenz nach; aktuelle Head-/Base-Gates, Main-Übernahme
+und eigene Bereinigung bleiben vor Arbeitsabschluss erforderlich.
+Historische Pausenangaben unten werden nur in diesem Umfang abgelöst.
+Automation und operative Provenienz- oder Workerfreigaben folgen daraus nicht.
 
 Der ausdrücklich beauftragte [VERTIEFUNG-Zweitageskurs](../HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
 ergänzt nach STANDARD/PR251 den vollständigen Unterrichtspfad mit 61 Kursfolien,

@@ -1,5 +1,12 @@
 # DGN-007 – Entwurf der Parent-/Worker-Profilbindung
 
+Die Wiederaufnahme vom 20. Oktober 2026 schließt nach PR255 ausschließlich
+den separaten SESSION_END-Entwurf in [§34](#34-session_end-counts-und-kanalhashpräbild).
+Die älteren Pausen- und G13-Angaben unten bleiben historische Zustände;
+DEC-072 und der aktuelle Ausführungsstand bestimmen den begrenzten v2-Pfad.
+Loaderrecords aus §33, Kanal, Worker und operative Freigaben werden hierdurch
+nicht implementiert oder als ausgeführt bestätigt.
+
 | Merkmal | Wert |
 |---|---|
 | Stand | 2026-10-07 |
@@ -4119,3 +4126,212 @@ kein Runtime-, Trust-, Deadline-, Incident-, Szenario- oder Capstoneclaim.
 G13, v1, DEC-068, geschützte PR68, interne Capturearbeit und External-/Graph-P2
 bleiben erhalten. Dieser lokale DESIGN-Pfad führt keine neue oder alte lokale
 Suite, private Profil-/Prepare-/Nonceaufnahme, Worker- oder SQLprobe aus.
+
+## 34. SESSION_END: Counts und Kanalhashpräbild
+
+Status: `DESIGNED`, Aussagebereich `PROJECT_SEMANTIC`. Der ausdrückliche
+Wiederaufnahmeauftrag vom 20. Oktober 2026 hebt die frühere Pause für diesen
+getrennten Entwurf auf. Basis ist Main `b3f023ad66f8c4aa16a7c6fe73e42615818cbd90`
+nach [PR255](https://github.com/gecompat/SQL_PerformanceSchulung/pull/255).
+Die Welle hat einen Implementierungsowner, höchstens zwei Entwurfsstände,
+Checkpoint nach dem ersten und einen unabhängigen Quellenreview mit gezielter
+Befundnachprüfung. Modellverbrauch ist nicht verlässlich messbar. Frühere
+ausgeschöpfte Quell-/Import-/Generatorversuche werden nicht neu zugelassen.
+Kein Parser, Builder, Sender, Kanal, Loader, Worker oder SQL wird implementiert.
+
+### 34.1 Vollständige Footerform und exakte Mengen
+
+Der entworfene Erfolgsfooter ist genau eine kanonische ASCII-JSON-Arrayzeile
+mit zwölf Feldern und einem abschließenden LF, höchstens 256 Bytes insgesamt:
+
+```text
+["SESSION_END",ordinal,context_digest,profile_fragments,source_begin,source_complete,parent_begin,parent_complete,record_count,stdout_prefix_bytes,stderr_bytes,channel_sha256]
+```
+
+Die Feldnamen sind Erläuterungen, keine wörtlichen Wirewerte. Tag ist exakt
+`SESSION_END`; Ordinal ist exakt 1, 2 oder 3. Beide Digests sind exakt 64
+Lowerhexzeichen. `context_digest` bleibt der vollständige eigene E4-K-Digest
+aus §24 mit Rolle `pooled-profile-binding-context/v1` und Format
+`pooled-combined-input-design/v1`, getrennt vom Original-Input82-Digest.
+Alle Zähler sind exakte nichtnegative Integer, keine Boolwerte oder Subklassen.
+Beide Bytezähler sind einzeln höchstens 65536; zusätzlich gilt immer die
+gemeinsame tatsächliche 65536-Byte-Kappe einschließlich sämtlicher Footer.
+Es gibt keine zusätzlichen Felder, Leerzeichen, CRLF, alternativen Escapes,
+zweite Zeile oder Teilrückgabe. Der Footer ist der letzte stdout-Record.
+
+Vor ihm liegen exakt ein PROFILE_BEGIN, `f` P-Fragmente, ein PROFILE_END,
+ein INPUT_COMPLETE und die vollständige geordnete BEGIN-/COMPLETE-Folge aus
+§33. `f` ist die tatsächliche Fragmentanzahl des vollständig rekonstruierten
+und geprüften Reports: `ceil(JSONbytes/896)`, mindestens 1 und höchstens 19.
+Die drei Commands gehören zu stdin und sind keine stdout-Records.
+
+| Worker | SOURCE BEGIN / COMPLETE | PARENT BEGIN / COMPLETE | Records vor Footer | `record_count` einschließlich genau eines Footers |
+|---|---:|---:|---:|---:|
+| 1, Runner | 8 / 8 | 2 / 2 | `f+23` | `f+24`, höchstens 43 |
+| 2, Proxy | 1 / 1 | 0 / 0 | `f+5` | `f+6`, höchstens 25 |
+| 3, Harness | 3 / 3 | 0 / 0 | `f+9` | `f+10`, höchstens 29 |
+
+Damit ergeben sich zwölf SOURCE- und zwei codefreie PARENT-Paare, 28
+Loaderrecords, sechs Profil-Controlrecords, drei INPUT_COMPLETE und drei
+Footer: insgesamt `f1+f2+f3+40`, höchstens 97 stdout-Records. Ein gleicher
+Count bei falschen Quellen, Slots, Reihenfolgen, Paaren oder Kontexten
+erfüllt den Vertrag nicht. Alle vollständigen §33-Prüfungen bleiben nötig.
+Die reservierten festen Fehlerrecords gehören auf stdout. Ein solcher Record
+gehört nicht zur Erfolgsfolge und verhindert deren Abschluss; seine spätere
+konkrete Form wird hier nicht implementiert. stderr bleibt opaker privater
+Byteoutput und wird nicht als Statusquelle interpretiert. Die konservative
+Fehlerreserve bleibt bestehen.
+
+### 34.2 Rohbytepräbild ohne Selbstbezug und ohne Pipe-Gesamtreihenfolge
+
+`B_out` sind exakt die tatsächlich übernommenen stdout-Bytes vor dem ersten
+Byte des eindeutig erkannten Footers, einschließlich sämtlicher vorheriger
+LF, Envelope-, Profil- und Loaderrecordbytes. Der ganze Footer einschließlich
+seines LF ist ausgeschlossen. `B_err` sind sämtliche tatsächlichen stderr-
+Bytes dieses Workers bis zum bestätigten EOF, ohne Dekodierung, Trimmen,
+EOL-Normalisierung oder Zusammenlegung mit stdout. `stdout_prefix_bytes`
+und `stderr_bytes` sind die jeweiligen tatsächlichen Längen. Kein Footerfeld
+bestimmt nachträglich, welche Bytes der Parent zum Präfix zählt.
+
+Das vollständige SHA-256-Präbild ist diese binäre Konkatenation:
+
+```text
+D = ASCII("DGN007-SESSION-CHANNEL/v1") || 0x00
+D || U8(ordinal) || H32(context_digest)
+  || U32BE(len(B_out)) || B_out || U32BE(len(B_err)) || B_err
+```
+
+`D` hat genau 26 Bytes. `U8` ist genau ein Byte; `U32BE` genau vier Bytes in
+Big-Endian-Reihenfolge. `H32` dekodiert den zuvor vollständig geprüften
+Lowerhex-Kontextdigest zu genau 32 Bytes. `channel_sha256` ist der Lowerhex-
+SHA-256 dieses vollständigen Präbilds. Es gibt keinen LF, JSON-Header oder
+weiteren Separator im Präbild außer den ausdrücklich genannten Bytes.
+Die Längen binden die beiden Kanäle eindeutig. Der Kontext bindet Ordinal,
+Nonce, Einstieg, Phase und den vollständigen K8; das ist keine Authentisierung
+des Senders. Die reine Konkatenationsdefinition fordert keine zusätzliche
+vollständige Payloadkopie im späteren Prüfer.
+
+Eine rein synthetische Hashreferenz verwendet Ordinal 1, einen Nullkontext
+von 32 Bytes, `B_out=41 0a` und `B_err=42 0a` in Hexdarstellung. Das genaue
+Präbild ergibt `6a683f6b86ee79fcab1c9756203ccc08ab88e179e66657cb32186602bc5af489`.
+Dies ist keine gültige Profil-/Loaderfolge und kein erfolgreicher Workerrecord.
+
+Der Worker darf den Footer nur nach vollständigem eigenen erfolgreichen
+Abschluss aller vorgeschriebenen Records und seiner begrenzten Ausgaben
+bilden. Seine Sender-/Partial-Write-/stderr-Bindung ist erst operativ zu
+implementieren und unabhängig zu prüfen; deklarierte Schreibversuche sind
+kein Nachweis tatsächlich übertragener Bytes. Der Parent bildet den Hash
+aus den selbst übernommenen Kanalbytes und seinem separat gehaltenen Kontext.
+Ein zusätzlicher, verlorener, gekürzter oder veränderter Bytewert scheitert.
+
+Zwischen stdout und stderr wird keine globale Ankunftsreihenfolge behauptet.
+Vor dem Footer geschriebene stderr-Bytes dürfen der Parentaufnahme erst
+nach dem Footer zugänglich werden. Ihr Hashvergleich wird deshalb erst bei
+vollständigem stderr-EOF abgeschlossen. Nach dem Footer ist kein weiterer
+stdout-Bytewert zulässig; ein zweiter Footer oder zusätzliche Zeile scheitert.
+Zusätzliche tatsächliche stderr-Bytes bleiben bis EOF vollständig gebucht und
+müssen zum deklarierten Hash und Count passen. Ein Footer allein schließt
+keinen Kanal und bestätigt keinen Prozessabschluss oder Ressourcen-Cleanup.
+
+### 34.3 Prüfphasen, Ledger und Fehler
+
+Der künftige Prüfer begrenzt zuerst tatsächliche Kanalbytes und Recordlängen
+innerhalb derselben gemeinsamen Kappe. Vor Parser, Kopie oder Vergleich
+gehen relevante exakte Typen und Bounds; nach der begrenzten Aufnahme gehen
+sämtliche Actual-/Callerprimitive und vollständige eigene K8-/D9-Semantiken
+einem Bindungsvergleich vor. Der Footer wird vollständig geparst und kanonisch
+zurückkodiert. Die ganze Profil-/Loaderfolge wird nach §31 und §33 geprüft,
+einschließlich offener Stacks, tatsächlicher Mengen und vollständiger Reihenfolge.
+Erst danach folgen Caller-, Kontext-, Count- und Rohbytehashabgleich.
+Ein früher gültiger Callerunterschied verdeckt keinen späten Formfehler.
+
+Bis zur vollständigen Aufnahme beider Kanäle darf ein gelesener Footer nur
+provisorisch gehalten werden. Er verbraucht keinen Ledgerübergang und liefert
+kein Match. Ein vollständiger deklarativer Erfolg liefert atomar nur den
+gehaltenen Footer und seine vollständig geprüften Felder, ohne Ergänzung
+aus Callerwerten. Die geplante Erfolgskennung ist
+`MATCHED_DECLARED_SESSION_END`; kein Runtime-/UsedBytes- oder Trustflag wird gesetzt.
+
+`SESSION_COMPLETE` aus §32 darf erst nach vollständigem Profil-, Loader-,
+Footer- und Kanalhashabgleich von `AWAIT_SESSION_END` nach `AWAIT_DRAIN_EXIT`
+führen. stdout-/stderr-EOF und eigener erfolgreicher Exit bleiben getrennte
+Nachweise für `DRAIN_EXIT`; bereits beobachtete EOFs werden dabei erneut
+gebunden geprüft, nicht durch neue Leseereignisse ersetzt. Ein zuvor
+beobachteter Exitcode allein ersetzt keinen vollständigen Drain. Erst danach
+folgen `AWAIT_CLEANUP` und unabhängiger eigener Ressourcen-Cleanup. Die
+synthetische Ledgerkomponente enthält hierfür weiterhin nur einen Fakeadapter.
+
+Fehlender/zusätzlicher Footer, offene Paare, falsche Counts, Kanalbytes oder
+Kontexte liefern keinen Teilmatch und keine erfolgreiche Recovery.
+Vorgesehen sind die festen Issues `SESSION_END_TYPE`, `SESSION_END_LIMIT`,
+`SESSION_END_FORM`, `SESSION_END_CANONICAL`, `SESSION_END_BINDING`,
+`SESSION_END_COUNTS`, `SESSION_END_CHANNEL`, `SESSION_END_ORDER` und
+`SESSION_END_MISSING`. Tatsächlicher Hashprovider-Bindungsverlust dominiert
+Encoder-Bindungsverlust; beide dominieren sonstige feste Issues gemäß §33.
+Private Payloads, stderr- und Exceptiontexte werden nicht veröffentlicht.
+Konkrete API, Source-, Owner- und Harnesswahl sowie deren unabhängiger PRE
+gehen einer späteren Implementierung ausdrücklich voraus.
+
+### 34.4 Größenrechnung, Nachweisgrenze und nächste Gegenproben
+
+Unabhängige Literal-/Schemarechnung mit beiden 64-stelligen Digests,
+`f=19`, den rollengenauen Mengen, maximalem `record_count` und beiden
+fünfstelligen Bytezählern ergibt 178 Bytes je Footer einschließlich LF.
+Die gleichzeitige Wahl beider Bytezähler als 65536 ist ausschließlich eine
+konservative Feldbreitenrechnung, kein zulässiger tatsächlicher Kanalzustand.
+Drei Footer benötigen damit höchstens 534 der unverändert reservierten
+768 Bytes. Diese Ersparnis erweitert weder stderr noch ein anderes Cap.
+
+Der vollständige konservative Nachweis aus §16.4 bleibt exakt:
+
+```text
+3*(16368+19*32) + 1536 + 768 + 6144 + 3072 + 768 + 768 = 63984
+65536 - 63984 = 1552
+```
+
+Alle tatsächlichen stdout-/stderr-Bytes einschließlich Footern, Fehlern und
+unvollständigen Ausgaben werden vor weiterer Pufferung/Decode gebucht.
+Der gesamte Rückkanal bleibt auf 65536 Bytes begrenzt. Das Hashpräbild fügt
+pro Worker 67 rechnerische Bytes hinzu: Domain 26, Ordinal 1, Kontext 32 und
+zwei Längen zu je vier Bytes. Drei einmalige Kanalhashes verarbeiten daher
+konservativ höchstens `65536+3*67 = 65737` Präbildbytes; tatsächliche Footer
+werden dabei nicht mitgehasht. Dies ist Rechenaufwand, kein zusätzlicher
+Transfer und keine Erlaubnis für größere Puffer. Drei Footerparser mit je
+höchstens 255 JSONbytes und drei kanonische Repacks kommen zu den bestehenden
+Profil-/Loader-/K-Prüfungen hinzu. Der vollständige operative Kostenbeleg
+und die gemeinsame Deadline sind damit noch nicht erbracht.
+
+Drei serielle Workers, gemeinsame 20-s-Deadline, kumulativ zehn Sekunden
+Cleanup, 4096 I/O-Schritte und 64 No-progress-Schritte bleiben unverändert.
+Lokal hat diese Welle ausschließlich die Record-/Count-/Präbildrechnung
+ausgeführt; keine neue oder historische Suite, Profil-/Nonceaufnahme,
+Worker- oder SQLprobe wurde lokal wiederholt. Die regulären Offline- und
+Dokumentationschecks der CI sind davon getrennte aktuelle Gates.
+57 Literalrechnungen für drei Rollen und alle 19 Fragmentzahlen bestätigten
+die Footerbreite. Die reine Hashreferenz sowie getrennte Kanaltausch-, CRLF-
+und nicht-UTF8-Byteänderungen wurden ohne DGN-Import oder Worker nachgerechnet.
+Der unabhängige Designreview zu Basis `b3f023a…` und Erststand
+`a6ca3f591cfd7f270129a1c0944cfec7a91257d4` schloss ohne offene P1/P2/P3-Befunde.
+Counts, alle 57 Literalrechnungen, Footerbreite und die genaue 71-Byte-
+Hashreferenz wurden unabhängig nachgerechnet. Alle acht Dokumentationsgates
+des Erststands bestanden, einschließlich der vollständigen Offline-Gegenproben.
+Die abschließende Revision führt nur Evidenz-/Planungsstände nach und präzisiert
+die lokale Abgrenzung der Suiteaussage; Footer-, Count- und Präbildvertrag
+bleiben unverändert. Aktuelle Head-/Base-Gates und Main-Abschluss stehen in
+[PR256](https://github.com/gecompat/SQL_PerformanceSchulung/pull/256) und im
+[Ausführungsstand](CURRENT_EXECUTION_STATUS.md); sie bleiben vor Merge Pflicht.
+
+Spätere synthetische Gegenproben müssen alle drei vollständigen Erfolgsfolgen
+mit unabhängiger Count-/Literal-/Hashoracle, sämtliche Feldänderungen,
+Bool-/Subclass-/Foreignformen, falsche K-/Noncebindung, offene/doppelte/
+vertauschte Paare, falsche aber gleiche Counts, alternative JSONformen,
+CRLF/zweites LF/257 Bytes, leere und begrenzte auch nicht als UTF-8
+interpretierbare stderr-Bytes, verlorene/zusätzliche
+Bytes, Trunkierung und dieselben Bytes bei anderer Chunk- oder Pipe-Lesereihenfolge
+prüfen. Footer im Profilpayload ist kein äußerer Abschluss. Doppelter/verfrühter
+Footer, stdout nach Footer oder nicht zum Footer gebundene nachlaufende
+stderr-Bytes liefern keinen Match. Exit vor Drain sowie Timeout-/Provider-/
+Encoder- und Cleanupfehler liefern keine Attestation. Erst ein separat gewählter reiner
+Footer-/Trace-Matcher wäre ein nächster Implementierungskandidat; tatsächlicher
+Kanal, Loader-/Parentadapter, operative Inventur, Fünf-Formen-/64-KiB-Gate,
+Consumption, Replayfreiheit und unabhängiger Worker-Cleanup bleiben offen.
