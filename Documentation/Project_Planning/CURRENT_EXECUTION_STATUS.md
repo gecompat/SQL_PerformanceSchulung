@@ -21,7 +21,9 @@ Windows/Linux jeweils15SCRIPT_LIMIT-Fehler und eine negative Methode PASS;
 eigentliche Reportfälle noch nicht ausgeführt. C3 entfernt nur in der neuen
 Route einen unbenutzten Parentmatcher und reine Kommentar-/Leerzeilen bei
 vollständigem unabhängigen AST-Erhaltcheck. Drei Kandidaten/zwei Nachläufe,
-erneuter Delta-PRE/Lauf-GO ausstehend; kein Capwechsel oder alter Fitretry.
+C3 unabhängig ohne offene Befunde mit Lauf-GO; danach neue16 Windows/Linux
+ohne SKIP PASS einschließlich vollständigem neuen Quellenfit und AST-Erhalt.
+Reguläre aktuelle Gates und Integration folgen; kein Capwechsel oder alter Fitretry.
 Keine operative Script-/Pipeausführung, Inventur oder SQL. Alle tatsächlichen
 Worker-/Import-/Trust-/Methodengates bleiben offen. Verbrauch UNKNOWN.
 

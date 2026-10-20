@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `84272af549d1c7c1320b5b1c77a55a4b721f8d18` nach vollständig geschlossenem PR267.
-Status `C3_SOURCE_FIT_CORRECTION_PRE_PENDING`.
+Status `C3_REVIEWED_LOCAL_PASS_INTEGRATION_PENDING`.
 
 ## Priorität und endlicher Rahmen
 
@@ -175,3 +175,14 @@ semantische Suite folgen erst nach erneutem unabhängigem Delta-/Lauf-PRE.
 Drei Source/Testkandidaten/max6, zwei gebündelte Nachläufe; weiterhin16Methoden.
 Verbrauch UNKNOWN. C2-Fehler bleibt aktuelle historische Evidenz, operative
 Grenzen und offene Inventur-/Worker-/Import-/Trust-/Methodengates unverändert.
+
+C3 `aef1441e22a3c5965fdb02ccada742317f02d419` unabhängig ohne offene
+P1/P2/P3 im Delta bestätigt; ausdrückliches einmaliges Source/Test-Lauf-GO für
+genau diesen Stand einschließlich neuer vollständiger Quellenfit-/Modellpfade.
+Danach neue16 Windows3.14.7 in5.426s und Linux3.12.3 in3.892s ohne SKIP PASS.
+Vollständige aktuelle Profilrawbytes, tatsächlicher neuer131072-Byte-Fit,
+unabhängige gesamte AST-Oracle und vollständige R4-Byteoracle aller drei Rollen
+bestätigt. Auch beide Markerersatzfälle bleiben extern ohne Getter-/Call-/
+Profilreaddispatch. Reguläre aktuelle PR-/Base-/Main-Gates, Integration und
+FullTree/Sync/eigener Branchcleanup folgen. Keine weiteren lokalen grünen
+Wiederholungsläufe; drei Source/Testkandidaten/zwei Nachläufe, Verbrauch UNKNOWN.
