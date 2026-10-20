@@ -51,7 +51,18 @@
 - Technische Aussagen gegen aktuelle Primärquellen prüfen.
 - Version, Compatibility Level und Edition nicht vermischen.
 - Dokumentierte Fakten, empirische Beobachtungen und Vermutungen klar unterscheiden.
-- Keine pauschalen Tuning-Regeln ohne Voraussetzungen, Messmethode und Trade-offs.
+- Erklärungen, SQL-Techniken, Lösungsmuster und qualifizierte Faustregeln sind
+  eigenständige Lehrinhalte. Ihr Problembezug, ihre Voraussetzungen, Grenzen und
+  Trade-offs müssen nachvollziehbar sein; ein eigener Benchmark ist kein
+  allgemeines Aufnahmekriterium.
+- Aussage und Nachweis müssen zusammenpassen. Für qualitative Erklärungen oder
+  Empfehlungen können Primärquellen und fachliche Herleitungen ausreichen.
+  Quantitative Leistungsangaben und als gemessen behauptete Wirkungen benötigen
+  die entsprechende Messgrundlage. Ein Einzelergebnis wird nicht verallgemeinert.
+- Der vollständige Messdemo-Lifecycle gilt für die dafür vorgesehenen Demopakete.
+  Er wird nicht auf jeden Abschnitt, jedes SQL-Sprachbeispiel oder jeden
+  Lösungshinweis der Schulung übertragen. Sicherheits-, Datenschutz- und
+  zutreffende Ausführungs-/Qualifikationsgates bleiben verbindlich.
 - Veraltete Aussagen korrigieren, nicht aus Kompatibilitätsgründen konservieren.
 
 ## Sprachstil und Übersetzungen

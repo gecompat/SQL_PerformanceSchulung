@@ -45,7 +45,18 @@ Edition, Betriebssystem, Compatibility Level und Feature-Voraussetzungen sind pr
 
 ## Didaktik
 
-Eine Demo zeigt nicht nur einen Effekt. Sie verbindet Ursache, Messwert, technische Erklärung, Gegenmaßnahme und erneute Messung. Abweichungen durch Hardware, Datenmenge, Edition oder Version müssen benannt werden.
+Die Schulung vermittelt technische Zusammenhänge, bewährte Lösungsmuster,
+SQL-Techniken, Entwurfsentscheidungen und praktische Diagnose. Erklärungen,
+Faustregeln mit benannten Grenzen und kurze Beispiele besitzen auch ohne
+eigenen Benchmark didaktischen Wert. Eine fehlende Messung ist kein allgemeines
+Ausschlusskriterium für Schulungsinhalte.
+
+Die Begründung passt zur Aussage: dokumentiertes Produktverhalten und
+nachvollziehbare Herleitungen tragen qualitative Erklärungen; konkrete
+Messwerte und behauptete Leistungsgewinne brauchen einen passenden Nachweis
+mit seinen Bedingungen. Messdemos verbinden Ursache, technische Erklärung,
+Beobachtung und Vergleich. Hardware, Datenmenge, Edition und Version begrenzen
+die Übertragbarkeit ihrer Ergebnisse.
 
 ## Sprache
 

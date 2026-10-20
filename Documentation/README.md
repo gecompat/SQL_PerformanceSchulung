@@ -1,25 +1,49 @@
-# Documentation
+# Dokumentation
 
-Dieser Bereich enthält die lehrgangsweite fachliche Dokumentation.
+Hier finden Sie Lernwege, Erklärungen und Anleitungen zur Schulung über
+SQL-Server-Performance. Der [Projekteinstieg](../README.md) bietet den Überblick.
 
-| Ordner | Inhalt |
+## Lernen und Nachschlagen
+
+| Anliegen | Dokument |
 |---|---|
-| `Architecture/` | Architekturverträge für interaktive Schulungsszenarien, SQL_Server_Lab-Integration und technische Qualitätssicherung |
-| `Project_Planning/` | Master-Umsetzungsplan, aktueller Ausführungsstatus, quellenbasierte Vertiefungspläne, Masterdeck-Variantenarchitektur, Arbeitspakete, Abhängigkeiten, Gates und Wiederaufnahmeverfahren |
-| `Curriculum/` | Lernpfade, Zielgruppen, Voraussetzungen und Reihenfolge |
-| `Demo_Catalog/` | Zuordnung von Themen, Folien, Demos, Versionen und Sicherheitsstufen |
-| `HowTo/` | Bedienanleitungen für die Ausführung der Schulungsdemos, insbesondere die lokale Testumgebung; `DEMO_WALKTHROUGHS.md` erklärt alle 22 Fachdemos Schritt für Schritt |
-| `Research/` | Quellenbasierte Fachprüfung, Claim-/Quellenmatrizen und dokumentierte Recherche |
-| `Standards/` | verbindliche Terminologie-, Schreib-, Präsentations- und Manifestverträge |
+| Themen und Lernumfang wählen | [Curriculum und Lernwege](Curriculum/README.md) |
+| Folien finden | [Präsentationen](../Presentations/README.md) |
+| Beispiele verstehen | [Schritt-für-Schritt-Erklärungen der Fachdemos](HowTo/DEMO_WALKTHROUGHS.md) |
+| Eine geeignete Demo auswählen | [Demo-Katalog](Demo_Catalog/README.md) |
+| Demos ausführen und Ergebnisse einordnen | [Ausführungsleitfaden](HowTo/DEMO_EXECUTION_GUIDE.md) |
+| Eine vorhandene Instanz vorbereiten | [Lokale Testumgebung](HowTo/LOCAL_TEST_ENVIRONMENT.md) |
+| SQL Server in einem Container bereitstellen | [Container-Quickstart](HowTo/CONTAINER_QUICKSTART.md) |
+| Historische Beispiele wiederfinden | [Altbeispiele und ihre Einordnung](Inventories/LEGACY_EXAMPLE_CLASSIFICATION.md) |
 
-Der verbindliche langfristige Gesamtplan liegt in [`Project_Planning/MASTER_IMPLEMENTATION_PLAN.md`](Project_Planning/MASTER_IMPLEMENTATION_PLAN.md). Der aktuelle operative Fortschritt und der nächste Einstiegspunkt stehen in [`Project_Planning/CURRENT_EXECUTION_STATUS.md`](Project_Planning/CURRENT_EXECUTION_STATUS.md); dieses Dokument korrigiert veraltete historische Fortschrittsmarker des Masterplans.
+Voraussetzungen und Versionsgrenzen stehen bei der jeweiligen Anleitung oder
+Demo. Eine technische Erklärung oder ein Lösungsmuster benötigt keinen eigenen
+Benchmark, um als Lerninhalt nützlich zu sein. Bei konkreten Leistungsangaben
+finden Sie die zugehörigen Bedingungen und Nachweise.
 
-Der kanonische Zielvertrag für auswählbare, vollständig vorbereitete und interaktiv nutzbare Schulungsumgebungen auf Docker, Podman, Hyper-V oder gemischten Topologien liegt in [`Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md). Die automatisierte Testmatrix ist als nachgeordnete Qualitätssicherung in [`Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md`](Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md) beschrieben.
+## Für Lehrende
 
-Die priorisierten sofortigen, bedingten und zukünftigen Kandidaten für weitere `LABSCN-005`-Szenarien sind in [`Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md`](Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md) gesammelt. Die Analyse ist ein späterer Planungs- und Entwicklungsvorrat und ändert die aktuelle operative Reihenfolge nicht.
+Die [Curriculumarchitektur](Curriculum/CURRICULUM_ARCHITECTURE.md) beschreibt
+Zielgruppen und Lernziele. Die [Variantenanleitung](HowTo/PRESENTATION_VARIANTS.md)
+erklärt Auswahl und Erzeugung der Präsentationen. Das
+[Quellenregister](Research/SOURCE_REGISTER.md) dient der fachlichen Vertiefung.
+Die ausführlichen Kursanleitungen für
+[BASIS](HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md),
+[STANDARD](HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md) und
+[VERTIEFUNG](HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
+gehören zum ergänzenden Kurs zu KI mit SQL Server 2025.
 
-Der modulübergreifende Plan für vertiefende Query-Processing-, Execution-Plan-, Parameter-Sensitivity-, Memory-, IQP- und Incident-LABs liegt in [`Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md`](Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md). Die zugehörige verbindliche Claim- und Quellenmatrix liegt in [`Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md`](Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md).
+## Projektpflege
 
-Die Ableitung der Tiefenprofile `BASIS`, `STANDARD` und `VERTIEFUNG` aus dem kanonischen PowerPoint-Masterdeck wird in [`Project_Planning/MASTER_DECK_VARIANT_ARCHITECTURE.md`](Project_Planning/MASTER_DECK_VARIANT_ARCHITECTURE.md) geregelt. Der konkrete SlideKey- und Variantenmanifest-Vertrag liegt in [`Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md`](Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md); das maschinenlesbare Schema liegt unter [`../Presentations/variants/presentation_variants.schema.json`](../Presentations/variants/presentation_variants.schema.json).
+Für Beiträge gilt [CONTRIBUTING.md](../CONTRIBUTING.md).
+Die interne Planung liegt in [Project_Planning/](Project_Planning/);
+der [aktuelle Ausführungsstand](Project_Planning/CURRENT_EXECUTION_STATUS.md)
+und der [Masterplan](Project_Planning/MASTER_IMPLEMENTATION_PLAN.md) dienen
+der Entwicklungskoordination.
 
-Objektspezifische Bedienungs- und Interpretationshinweise verbleiben bei der jeweiligen Demo. Übergreifende Erklärungen werden hier zentral geführt und nicht unkontrolliert dupliziert.
+Technische Verträge stehen unter [Architecture/](Architecture/), Schreib-
+und Präsentationsregeln unter [Standards/](Standards/), fachliche Recherchen
+unter [Research/](Research/README.md). Der
+[Szenariovertrag](Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) und der
+[Testautomationsvertrag](Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md) beschreiben
+die unterstützende Laborinfrastruktur.

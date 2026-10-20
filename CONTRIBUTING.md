@@ -2,7 +2,16 @@
 
 ## Inhaltlicher Maßstab
 
-Beiträge müssen eine fachlich belastbare, reproduzierbare und versionsbewusste SQL-Server-Schulung unterstützen. Pauschale Performance-Regeln ohne dokumentierte Voraussetzungen oder Messung sind nicht zulässig.
+Beiträge unterstützen eine fachlich belastbare, nachvollziehbare und
+versionsbewusste SQL-Server-Schulung. Dazu gehören Erklärungen, SQL-Techniken,
+Lösungsmuster, praktische Hinweise und reproduzierbare Messdemos.
+
+Ein eigener Benchmark ist keine Voraussetzung für die Aufnahme eines Themas.
+Beschreiben Sie, welches Problem ein Ansatz löst, wann er geeignet ist und
+welche Grenzen er hat. Qualitative Aussagen können durch dokumentiertes
+Produktverhalten oder eine nachvollziehbare fachliche Herleitung begründet
+werden. Konkrete Messwerte und behauptete Leistungsgewinne benötigen einen
+passenden Nachweis; dessen Bedingungen und Übertragungsgrenzen gehören dazu.
 
 ## Datenschutz und Vertraulichkeit
 

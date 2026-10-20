@@ -1,5 +1,26 @@
 # Demo-Vertrag
 
+## Geltungsbereich und Lehrformen
+
+Die Schulung umfasst auch erklärende Beispiele, SQL-Techniken, Lösungsmuster
+und praktische Hinweise. Dafür ist kein eigener Benchmark vorgeschrieben.
+Ein Lernziel kann beispielsweise das Verstehen einer Syntax, die Auswahl eines
+geeigneten Verfahrens oder das Erkennen einer Einschränkung sein.
+
+Der nachfolgende Framework-Lifecycle beschreibt die paketierten ausführbaren
+Demos, insbesondere Mess- und Diagnoseversuche. Seine Baseline-/Problem-/
+Gegenmaßnahmen-/Vergleichsphasen sind kein Aufnahmezwang für jeden Lerninhalt.
+Kurze Erläuterungsbeispiele auf Folien oder in Dokumenten werden dadurch nicht
+automatisch zu vollständigen Frameworkpaketen. Bei bestehenden Demopaketen
+bleiben ihre Verträge, Manifeste und Qualifikationsgates unverändert maßgeblich.
+
+Auch ein kleines ausführbares Beispiel benötigt zutreffende Versionsangaben,
+synthetische Daten und eine seinem Verhalten angemessene sichere Ausführung
+und Bereinigung. Eine Erklärung ist keine Ausführungsfreigabe historischer
+Skripte. Quantitative Leistungsangaben und behauptete Messerfolge benötigen
+ihre tatsächliche Messgrundlage; qualitative Begründungen können sich auf
+Produktdokumentation und nachvollziehbare Herleitung stützen.
+
 ## Verbindliche Framework-Basis
 
 Jede ausführbare Demo verwendet die Verträge aus `Demos/00_Framework/`:
@@ -144,7 +165,9 @@ Der Harness verwendet ein globales Zeitbudget für reguläre Phasen und ein sepa
 - Keine realen Diagnosedaten oder Screenshots als Repository-Artefakt.
 - Keine globalen Eingriffe ohne rote Kennzeichnung und Preflight.
 - Keine verschleierten Abhängigkeiten von nicht mitgelieferten Datenbanken.
-- Keine Erfolgsaussage ohne messbare Evidenz.
+- Keine als gemessen oder empirisch bestätigt ausgegebene Wirkung ohne
+  entsprechenden Nachweis. Diese Regel ist keine allgemeine Messpflicht für
+  erklärende Beispiele, Lösungsmuster oder fachlich begründete Empfehlungen.
 - Kein `DROP DATABASE` aufgrund eines Namens allein.
 - Keine Beendigung fremder Sessions allein nach Loginname, Application Name oder Hostname.
 - Keine festen, maschinenunabhängig behaupteten Laufzeit- oder Ressourcenschwellen.
