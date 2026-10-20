@@ -82,6 +82,13 @@ class HarnessLoaderSourceTests(unittest.TestCase):
     def events(self, env, kind): return [e for e in env["trace"] if e[0] == kind]
 
     def test_actual_source_fit_raw_imports_and_independent_alpha_ast(self):
+        for bad in ("pass", "def _inline_need(ok, issue): pass\n_n = 1\n",
+                    "def _inline_need(ok, issue): pass\nx = '_inline_need'\n",
+                    "def _inline_need(ok, issue): pass\nx._inline_need(1, 2)\n",
+                    "def _inline_need(ok, issue): pass\ndef bad(_inline_need): pass\n",
+                    "def _inline_need(ok, issue): pass\ndef bad():\n global _inline_need\n"):
+            with self.assertRaises(subject.base.inputs.base.BootstrapSourceRejected):
+                subject._shorten_need(ast.parse(bad))
         for raw in (RAW, RAW.replace(b"\r\n", b"\n")):
             built = subject.build_harness_loader_control_bootstrap(raw, **OPTIONS)
             self.assertEqual(built.source_size, len(built.source))
@@ -133,6 +140,27 @@ _inline_need(all(name not in owner[11] for name in _HL_OWN if name not in publis
             main.body.insert(2, ast.parse("_initialize_hl_control()").body[0])
             main.body[-1] = ast.parse("_hl_main()").body[0]
             expected.body = [n for n in expected.body if n is not main] + helpers + ast.parse(subject._INLINE_HARNESS).body + [main]
+            # Genau diese globale Umbenennung unabhängig rückführen; keine
+            # lokale Bindung, zusätzliche Definition oder reflektive Referenz.
+            renamed = [n for n in actual.body if isinstance(n, ast.FunctionDef) and n.name == "_n"]
+            self.assertEqual(len(renamed), 1)
+            self.assertEqual(sum(isinstance(n, ast.FunctionDef) and n.name == "_n" for n in ast.walk(actual)), 1)
+            expected_loads = [n for n in ast.walk(expected) if isinstance(n, ast.Name) and n.id == "_inline_need"]
+            actual_loads = [n for n in ast.walk(actual) if isinstance(n, ast.Name) and n.id == "_n"]
+            self.assertEqual(len(actual_loads), len(expected_loads))
+            self.assertTrue(all(isinstance(n.ctx, ast.Load) for n in actual_loads))
+            for node in ast.walk(actual):
+                for field in ("arg", "name", "asname", "rest"):
+                    if node is not renamed[0]: self.assertNotEqual(getattr(node, field, None), "_n")
+                if isinstance(node, (ast.Global, ast.Nonlocal)):
+                    self.assertNotIn("_n", node.names)
+                if isinstance(node, ast.Name): self.assertNotEqual(node.id, "_inline_need")
+                if isinstance(node, ast.Attribute): self.assertNotIn(node.attr, ("_n", "_inline_need"))
+                if isinstance(node, ast.Constant) and type(node.value) is str:
+                    self.assertNotIn("_inline_need", node.value)
+                    self.assertNotEqual(node.value, "_n")
+            renamed[0].name = "_inline_need"
+            for node in actual_loads: node.id = "_inline_need"
             self.assert_local_alpha(expected, actual)
             print("HARNESS_SOURCE_BYTES=" + str(built.source_size))
 

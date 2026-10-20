@@ -323,6 +323,32 @@ _inline_need(all(name not in owner[11] for name in _HL_OWN if name not in publis
     return nodes
 
 
+def _shorten_need(tree):
+    """Eine kollisionsfreie private globale Definition samt direkten Loads."""
+    nodes = tuple(ast.walk(tree))
+    selected = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_inline_need"]
+    base.inputs.base._need(len(selected) == 1 and sum(isinstance(n, ast.FunctionDef)
+        and n.name == "_inline_need" for n in nodes) == 1, "TEMPLATE_FORM")
+    references = [n for n in nodes if isinstance(n, ast.Name) and n.id == "_inline_need"]
+    base.inputs.base._need(references and all(isinstance(n.ctx, ast.Load) for n in references), "TEMPLATE_FORM")
+    for node in nodes:
+        for field in ("id", "arg", "name", "asname", "rest"):
+            value = getattr(node, field, None)
+            base.inputs.base._need(value != "_n", "TEMPLATE_FORM")
+            if field != "id" and node is not selected[0]:
+                base.inputs.base._need(value != "_inline_need", "TEMPLATE_FORM")
+        if isinstance(node, (ast.Global, ast.Nonlocal)):
+            base.inputs.base._need(not any(n in ("_inline_need", "_n") for n in node.names), "TEMPLATE_FORM")
+        if isinstance(node, ast.Attribute):
+            base.inputs.base._need(node.attr not in ("_inline_need", "_n"), "TEMPLATE_FORM")
+        if isinstance(node, ast.Constant) and type(node.value) is str:
+            base.inputs.base._need("_inline_need" not in node.value and node.value != "_n", "TEMPLATE_FORM")
+    selected[0].name = "_n"
+    for node in references:
+        node.id = "_n"
+    return tree
+
+
 def build_harness_loader_control_bootstrap(profile_raw, *, logical_profile,
                                            expected_soabi, expected_destshared):
     options = dict(logical_profile=logical_profile, expected_soabi=expected_soabi,
@@ -345,7 +371,7 @@ def build_harness_loader_control_bootstrap(profile_raw, *, logical_profile,
     main.body.insert(2, ast.parse("_initialize_hl_control()").body[0])
     main.body[-1] = ast.parse("_hl_main()").body[0]
     tree.body = [n for n in tree.body if n is not main] + _helpers() + ast.parse(_INLINE_HARNESS).body + [main]
-    tree = base._compact_locals(tree)
+    tree = base._compact_locals(_shorten_need(tree))
     text = base.inputs._compact_indentation(ast.unparse(ast.fix_missing_locations(tree)) + "\n")
     source = base._compact_token_gaps(text).encode("utf-8", "strict")
     base.inputs.base._need(len(source) <= base.inputs.base.MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")

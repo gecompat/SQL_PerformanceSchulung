@@ -1,7 +1,7 @@
 # DGN-007 – gebundene verschachtelte Harness-Quellenfolge
 
 Stand: 20. Oktober 2026. Basis `3387e308c8ae4f45d1cf8eb56176666e9e9355d4`.
-Status `C2_SOURCE_TEST_DELTA_PRE_PENDING`; noch kein Kandidatenimport oder Lauf.
+Status `C3_SOURCE_TEST_DELTA_PRE_PENDING`; innere Modelle noch nicht ausgeführt.
 
 ## Abgeschlossener Vorgänger und endlicher Umfang
 
@@ -190,3 +190,51 @@ zusätzliche Abwesenheitsinvariante ergänzt.
 Checkpoint2: zwei Source/Testkandidaten/max6, ein geänderter Nachlauf, Verbrauch
 UNKNOWN. Gezielter unabhängiger Delta-PRE und ausdrücklich gestuftes Lauf-GO
 ausstehend; vollständiger Fit und innere Modelle weiterhin ungeprüft.
+
+## Quellenfit und Größenentscheidung nach C2
+
+C2 `436fdb0a57d1905ae7691a30edf5cb7302e8f05e` unabhängig ohne offene Befunde,
+gestuftes Lauf-GO. Ausschließlich Fitmethode: Windows3.14.7/0.542s und
+Linux3.12.3/0.514s jeweils SCRIPT_LIMIT vor AST-/innerer Modellabnahme. Die
+übrigen15 Methoden wurden ausdrücklich nicht ausgeführt.
+
+Unabhängig freigegebene einmalige reine Windows-Generatordiagnose am selben
+Kandidaten: tatsächlicher Profilraw44542, Basis128046, formatiert138118,
+tokenkompakt133517Bytes, Exzess2445. Nur eigene Generatorframegrößen ausgewertet;
+keine abgelehnte Quelle verwendet oder ausgeführt. Weitere konservativ zulässige
+lokale Bindungen mit drei/vier Zeichen bieten nur geschätzt415Bytes, kein Fitbeleg.
+
+Konkrete C3-Auswahl zum unabhängigen PRE: ausschließlich die eine private globale
+Definition _inline_need und sämtliche direkten Name(Load)-Referenzen im neuen
+endgültigen Harnessscript konsistent zu _n umbenennen, vor lokalem Alpha-Pass.
+Keine Aliaszelle, Parameter-/Funktionskörper-/Literal-/Operationsänderung und
+kein neuer Namespaceeintrag. Geschlossene Kollisions-/Binding-/String-/Attribut-
+Vorbedingungen und unabhängige genaue Rückführung dieser einzigen Umbenennung,
+danach bestehende lokale Alpha-/Ganz-AST-Oracle. Tatsächliche neue Funktionsnamen/
+Codeobjekte bleiben vollständig Gegenstand der ursprünglichen PRE-/POST-Pins.
+Altquellen und Sharedhelper unverändert. Einsparung nur geschätzt; Fit offen.
+Noch keine C3-Implementierung oder Probe, kein neuer Scope; Verbrauch UNKNOWN.
+
+## C3 – eine private globale Definition
+
+Die vorstehende C3-Auswahl ist unabhängig freigegeben, einschließlich vollständiger
+Vorbedingungen, genauer unabhängiger Rückführung und Belegung des neuen Namens
+vor dem lokalen Alpha-Pass. C3 prüft exakt eine Top-Level-Definition und keine
+weitere gleichnamige Definition, ausschließlich direkte Loads und keine fremden
+Bindungs-/Argument-/Attribut-/Stringreferenzen. Der neue Name kollidiert mit keinem
+ursprünglichen bindenden oder freien Bezeichner. Rawliteral und alle übrigen
+AST-Felder bleiben erhalten. Kein Alias oder zusätzlicher Namespaceeintrag.
+
+Die unabhängige Fitmethode prüft genau eine neue Definition, identische gesamte
+Loadanzahl, ausschließlich globale Loads und keine lokalen/deklarierten/reflektiven
+Referenzen. Sie führt nur diese globale Umbenennung zurück, danach die bisherigen
+konservativen lokalen Umbenennungen, dann vollständige AST-/Literalgleichheit.
+Eigene kleine negative ASTs prüfen fehlende Definition, Kollision, String-/
+Attribut-/Parameter-/Globalreferenz. Tatsächliche neue co_name-/Codezustände bleiben
+voll gebunden; Schnittstellen und Operationen unverändert. Ältere Routen und
+gemeinsame Transformerdateien wurden nicht verändert.
+
+Drei Source/Testkandidaten/max6, zwei geänderte Nachläufe; Verbrauch UNKNOWN.
+Noch keine C3-Import-/Generierungs-/Compile-/Execprobe. Gezielter unabhängiger
+Source/Test-Delta-PRE und erneut gestuftes einmaliges Lauf-GO ausstehend; aktueller
+Fit und sämtliche inneren Modelle weiter offen. Keine Capanhebung.

@@ -21,9 +21,15 @@ nicht eindeutig erreichte Typgrenzen, kein Lauf-GO. C2 prüft alle noch nicht
 veröffentlichten Kandidaten-/Parentslots auf Abwesenheit; späte Slot4/5-Callbacks
 und Fremdname-/Falselevel-Gegenproben mit Len-Trap. Originale Budgethalter und
 abgeschlossene Sourcebindungen bleiben erhalten. Checkpoint2: zwei/max6 Kandidaten,
-ein Nachlauf; Delta-PRE und gestuftes Lauf-GO ausstehend: zuerst nur
-Quellenfit/Ganz-AST Windows/Linux, erst bei beidseitigem PASS übrige15 Modelle.
-Keine Kandidatenimporte, Generierung oder Compile-/Execproben. Nur eigene sichere Modelle nach separatem
+ein Nachlauf. C2 unabhängig geschlossen und gestuftes GO; nur Fitmethode danach
+Windows/Linux jeweils SCRIPT_LIMIT, übrige15 nicht ausgeführt. Einmalige separat
+freigegebene reine Größendiagnose:133517Bytes,2445über Cap; zusätzliche kurze
+Locals nur geschätzt415Bytes. C3-Auswahl-PRE für genau eine private globale
+Helperumbenennung unabhängig freigegeben. C3 setzt genau diese Umbenennung mit
+geschlossenen Vorbedingungen und gesonderter unabhängiger Rückführung um, neue
+Kollisions-/Binding-AST-Gegenproben. Drei/max6 Kandidaten, zwei Nachläufe;
+Source/Test-Delta-PRE und gestuftes Lauf-GO ausstehend, noch keine C3-Probe.
+Nur eigene sichere Modelle nach separatem
 Source/Test-PRE und explizitem Lauf-GO; neue echte Imports/Native-/DGN-Raw-/SQL-
 Wirkungen und Gesamtgates bleiben offen. Proxyroute und alle älteren Scopes erhalten.
 
