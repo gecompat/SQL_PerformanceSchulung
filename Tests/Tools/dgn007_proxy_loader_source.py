@@ -390,6 +390,64 @@ def _compact_token_gaps(text):
     return result
 
 
+def _compact_locals(tree):
+    """Nur nicht eingefangene lokale Bindungen; sämtliche Schnittstellen erhalten."""
+    scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda,
+              ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
+    def identifiers(nodes):
+        result = set()
+        for node in nodes:
+            for field in ("id", "arg", "name", "asname", "rest"):
+                value = getattr(node, field, None)
+                if isinstance(value, str):
+                    result.add(value)
+            if isinstance(node, (ast.Global, ast.Nonlocal)):
+                result.update(node.names)
+        return result
+    original = identifiers(ast.walk(tree))
+    functions = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+    for function in functions:
+        own, nested = [], []
+        def collect(node):
+            if isinstance(node, scopes):
+                nested.append(node)
+                return
+            own.append(node)
+            for child in ast.iter_child_nodes(node):
+                collect(child)
+        for statement in function.body:
+            collect(statement)
+        unsupported = (ast.NamedExpr, ast.Import, ast.ImportFrom, ast.Match, ast.TypeAlias)
+        if (any(isinstance(node, unsupported) for node in own)
+                or any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                    and node.func.id in ("locals", "eval", "exec", "vars") for node in own)):
+            continue
+        excluded = identifiers(ast.walk(function.args))
+        excluded.update(name for node in own if isinstance(node, (ast.Global, ast.Nonlocal))
+                        for name in node.names)
+        for child in nested:
+            excluded.update(identifiers(ast.walk(child)))
+        bindings = {node.id for node in own if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store)}
+        bindings.update(node.name for node in own if isinstance(node, ast.ExceptHandler) and node.name)
+        chosen, ordinal = {}, 0
+        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        for name in sorted(bindings - excluded):
+            if len(name) < 5 or name.startswith("__"):
+                continue
+            while True:
+                short = "_" + (letters[ordinal] if ordinal < len(letters) else "a" + str(ordinal - len(letters)))
+                ordinal += 1
+                if short not in original and short not in chosen.values():
+                    break
+            chosen[name] = short
+        for node in own:
+            if isinstance(node, ast.Name):
+                node.id = chosen.get(node.id, node.id)
+            elif isinstance(node, ast.ExceptHandler):
+                node.name = chosen.get(node.name, node.name)
+    return tree
+
+
 def build_proxy_loader_control_bootstrap(profile_raw, *, logical_profile,
                                           expected_soabi, expected_destshared):
     selected = inputs.build_worker_input_control_bootstrap(profile_raw,
@@ -414,6 +472,7 @@ def build_proxy_loader_control_bootstrap(profile_raw, *, logical_profile,
     main.body.insert(2, ast.parse("_initialize_proxy_source_control()").body[0])
     main.body[-1] = ast.parse("_proxy_source_main()").body[0]
     tree.body = [node for node in tree.body if node is not main] + ast.parse(_INLINE_PROXY_SOURCE).body + [main]
+    tree = _compact_locals(tree)
     formatted = inputs._compact_indentation(ast.unparse(ast.fix_missing_locations(tree)) + "\n")
     source = _compact_token_gaps(formatted).encode("utf-8", "strict")
     inputs.base._need(len(source) <= inputs.base.MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")

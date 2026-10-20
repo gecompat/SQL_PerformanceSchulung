@@ -18,9 +18,13 @@ Eingangsbytezählerbindung vollständig fortsetzen. C2 schließt die Prüfungen 
 ergänzt sieben späte Writer-Gegenproben ohne Wire-Rücknahmebehauptung.
 Checkpoint2 abgeschlossen: C2 unabhängig geschlossen und Lauf-GO erteilt;
 neue16 Windows/Linux jeweils16SCRIPT_LIMIT-Fehler vor Modellsemantik.
-C3 entfernt nur horizontale Tokenabstände mit vollständigem Token-/AST-/
-Literalerhalt. Drei Kandidaten/max6, zwei Nachläufe; Delta-PRE und ausdrückliches
-Lauf-GO ausstehend, Quellenfit und Modelle weiterhin ungeprüft. Additive
+C3 mit unabhängigem GO danach ebenfalls16SCRIPT_LIMIT auf Windows/Linux.
+Einmalige freigegebene Größendiagnose:138588Bytes,7516über Cap; keine entbehrlichen
+Definitionen im nötigen Umfang. C4 nach unabhängig präzisiertem Auswahl-GO:
+ausschließlich nicht eingefangene lokale Körperbindungen kürzen, Schnittstellen/
+Closures/Comprehensions sperren, bijektiv unabhängig rückführen und danach volle
+AST-/Literal-/Operationsgleichheit. Vier Kandidaten/max6, drei Nachläufe;
+Source/Test-Delta-PRE und ausdrückliches Lauf-GO ausstehend, Fit/Modelle offen. Additive
 Quelle bindet ausschließlich Proxy2/Index2 an tatsächliche I/O-/Payload-/Writer-
 Handoffs und dieselben Budgethalter, BEGIN vor gehaltenem Rawcompile, COMPLETE
 nach tatsächlichem Exec und kohärenten POSTs. Keine öffentlichen Receipts als

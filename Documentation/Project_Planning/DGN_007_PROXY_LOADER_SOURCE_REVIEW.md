@@ -2,7 +2,7 @@
 
 Stand: 20. Oktober 2026. Basis
 `20549ae4e7dbb31c2ffb4d5b051395b8033db18e`, PR270 vollständig geschlossen.
-Status `C3_SOURCE_TEST_DELTA_PRE_PENDING`.
+Status `C4_SOURCE_TEST_DELTA_PRE_PENDING`.
 
 ## Priorität und gemeinsamer endlicher Rahmen
 
@@ -37,7 +37,9 @@ Scriptimport: importlib.util/sys/sysconfig/json/struct bleiben die fünf Imports
 Neue endgültige Quelle mit vollständigem aktuellem Profilrawliteral muss weiterhin
 höchstens131072Bytes umfassen. Ganze unabhängige AST-Oracle beschreibt exakt
 das bisherige Script plus neue Definitionen und ausdrücklich folgende Handoffs/
-Mainfolge; Literale und sonstige Operationen bleiben erhalten.
+Mainfolge; Literale und sonstige Operationen bleiben erhalten. Ab C4 darf die
+unten ausdrücklich begrenzte lokale Alpha-Umbenennung unabhängig rückgeführt
+werden, bevor die vollständigen ASTs verglichen werden.
 
 Vor I/O-Initialisierung erzeugt die neue Sourceinitialisierung einen privaten
 einmaligen Sourceowner mit gebundenen ursprünglichen Compile-/Execprovidern,
@@ -227,3 +229,44 @@ unabhängiger Delta-PRE und ausdrückliches einmaliges Lauf-GO ausstehend.
 Quellenfit und innere Modelle bleiben ungeprüft. Keine alten Routen-/Native-/
 DGN-Raw-/SQLläufe. Python-tokenize ist nur Generatorwerkzeug; die fünf Imports
 im erzeugten Script und sämtliche Workflowabhängigkeiten bleiben unverändert.
+
+## C4 – begrenzte lokale Alpha-Umbenennung
+
+C3 `6eb4a194a15e42e3e77684eb6a91d9cce250b92d` unabhängig ohne offene Befunde
+mit einmaligem Lauf-GO. Neue16 danach Windows3.14.7 in5.353s/Linux3.12.3
+in4.763s jeweils16SCRIPT_LIMIT-Fehler vor Modellsemantik. Separates unabhängiges
+einmaliges Windows-Diagnose-GO für reine Generierung und Größen aus dem eigenen
+abgelehnten Generatorframe: Basis128046, formatiert142978, tokenverdichtet138588,
+Überschreitung7516Bytes; Token-/Einrückungs-/Zeilenlexeme bereits133859Bytes.
+Keine abgelehnte Quelle ausgeführt oder als erfolgreiche Ausgabe verwendet.
+Statische Referenzsuche findet keine entbehrlichen Definitionen im nötigen Umfang.
+
+Unabhängiger C4-Auswahl-PRE erlaubt deshalb ausschließlich nicht eingefangene
+lokale Bindungen in Funktionskörpern der neuen endgültigen Ausgabe zu kürzen.
+Das ist eine begrenzte AST-Transformation mit Alpha-Äquivalenz. Parameter,
+Defaults, Dekoratoren, Annotationen, Funktions-/Klassen-/Attributnamen,
+freie/globale/nonlocal Namen und sämtliche Literale bleiben unverändert.
+Innere Function/Class/Lambda-Scopes und sämtliche Comprehensions werden beim
+jeweiligen Körper nicht betreten; alle dort vorkommenden oder deklarierten Namen
+sind für die äußere Umbenennung gesperrt. Das gilt ausdrücklich auch für bloße
+Nonlocaldeklarationen und innerhalb von Comprehensions eingefangene Namen.
+Funktionen mit Imports, Pattern-Matches, TypeAlias, NamedExpr oder direktem
+locals/eval/exec/vars-Aufruf werden vollständig ausgelassen. Nur eigene lokale
+Name(Store)- und ExceptHandler-Bindungen ab fünf Zeichen werden konsistent in
+Load/Store/Del/Handlernamen ersetzt. Neue gültige kurze Namen kollidieren mit
+keinem ursprünglichen Bezeichner des ganzen Scripts. Keine entfernte Operation.
+
+Die unabhängige Oracle leitet pro Funktionsscope eine bijektive Zuordnung aus
+beiden ASTs ab, prüft zulässige lokale Bindung, sämtliche Sperren und konsistente
+Vorkommen, führt ausschließlich diese Namen zurück und vergleicht danach die
+vollständigen ASTs. Sie verwendet weder den produktiven Transformer noch dessen
+Auswahl oder Mapping. Eigene kleine Randprobe deckt äußere Bindung, bloßes
+Nonlocal, Comprehension, Exceptionhandler und ausgeschlossenen Import ab.
+Alle bestehenden PRE-/POSTs halten die tatsächlich transformierten Codeobjekte
+einschließlich co_varnames; keine Rebaseline oder neue Ausschlussliste.
+
+Vier Kandidaten/max6, drei geänderte Nachläufe, Verbrauch UNKNOWN. Quellenfit
+und sämtliche inneren Modelle weiter offen. Stabiler Source/Test-Delta-PRE und
+ausdrückliches einmaliges Lauf-GO für neue16 Windows/Linux ausstehend. Caps,
+Profilrawbytes, ältere Quellenrouten und fünf Scriptimporte bleiben unverändert.
+Keine operative/nativ wirkende Erweiterung; Gesamtgates bleiben offen.

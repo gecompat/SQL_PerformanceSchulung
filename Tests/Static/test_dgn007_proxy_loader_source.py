@@ -72,12 +72,95 @@ class ProxyLoaderSourceTests(unittest.TestCase):
     def events(self, env, kind):
         return [event for event in env["trace"] if event[0] == kind]
 
+    def assert_local_alpha(self, expected, actual):
+        # Unabhängige Rückführung: Zuordnung aus beiden ASTs ableiten, nicht aus
+        # dem produktiven Transformer oder dessen Auswahl übernehmen.
+        actual = ast.parse(ast.unparse(actual))
+        originals = {value for node in ast.walk(expected) for value in
+                     ([node.id] if isinstance(node, ast.Name) else
+                      [node.arg] if isinstance(node, ast.arg) else
+                      node.names if isinstance(node, (ast.Global, ast.Nonlocal)) else
+                      [node.name] if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.ExceptHandler)) and node.name else [])}
+        functions = lambda tree: [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+        before, after = functions(expected), functions(actual)
+        self.assertEqual(len(before), len(after))
+        boundaries = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda,
+                      ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
+        def body_nodes(function):
+            found, children = [], []
+            pending = list(reversed(function.body))
+            while pending:
+                node = pending.pop()
+                if isinstance(node, boundaries):
+                    children.append(node)
+                else:
+                    found.append(node)
+                    pending.extend(reversed(list(ast.iter_child_nodes(node))))
+            return found, children
+        for original, transformed in zip(before, after):
+            old, children = body_nodes(original)
+            new, _ = body_nodes(transformed)
+            self.assertEqual([type(node) for node in old], [type(node) for node in new])
+            pairs = [(a.id, b.id) for a, b in zip(old, new) if isinstance(a, ast.Name)]
+            pairs += [(a.name, b.name) for a, b in zip(old, new) if isinstance(a, ast.ExceptHandler)]
+            mapping = {}
+            for left, right in pairs:
+                if left != right:
+                    self.assertEqual(mapping.setdefault(left, right), right)
+            if mapping:
+                self.assertFalse(any(isinstance(node, (ast.NamedExpr, ast.Import, ast.ImportFrom, ast.Match, ast.TypeAlias)) for node in old))
+                self.assertFalse(any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                                     and node.func.id in ("locals", "eval", "exec", "vars") for node in old))
+            self.assertEqual(len(set(mapping.values())), len(mapping))
+            bound = {node.id for node in old if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store)}
+            bound.update(node.name for node in old if isinstance(node, ast.ExceptHandler) and node.name)
+            forbidden = {node.arg for node in ast.walk(original.args) if isinstance(node, ast.arg)}
+            forbidden.update(name for node in old if isinstance(node, (ast.Global, ast.Nonlocal)) for name in node.names)
+            for child in children:
+                for node in ast.walk(child):
+                    if isinstance(node, ast.Name): forbidden.add(node.id)
+                    if isinstance(node, ast.arg): forbidden.add(node.arg)
+                    if isinstance(node, (ast.Global, ast.Nonlocal)): forbidden.update(node.names)
+                    if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.ExceptHandler)) and node.name: forbidden.add(node.name)
+            for left, right in mapping.items():
+                self.assertIn(left, bound - forbidden)
+                self.assertGreaterEqual(len(left), 5)
+                self.assertFalse(left.startswith("__"))
+                self.assertTrue(right.isidentifier())
+                self.assertNotIn(right, originals)
+            for left, right in pairs:
+                self.assertEqual(right, mapping.get(left, left))
+            reverse = {value: key for key, value in mapping.items()}
+            for node in new:
+                if isinstance(node, ast.Name): node.id = reverse.get(node.id, node.id)
+                elif isinstance(node, ast.ExceptHandler): node.name = reverse.get(node.name, node.name)
+        self.assertEqual(ast.dump(actual), ast.dump(expected))
+
     def test_actual_source_fit_raw_five_imports_and_independent_whole_ast(self):
         text = ('def sample(value):\n'
                 ' return (value + -1, 1 .real, .5, "a" "b", b"a b", "\\0", {"x": 1})\n')
         compacted = subject._compact_token_gaps(text)
         self.assertLess(len(compacted), len(text))
         self.assertEqual(ast.dump(ast.parse(compacted)), ast.dump(ast.parse(text)))
+        sample = ('def outer(argument):\n'
+                  ' captured = argument\n'
+                  ' def inner():\n'
+                  '  nonlocal captured\n'
+                  '  return 1\n'
+                  ' sequence = [argument for target in range(argument)]\n'
+                  ' temporary = argument\n'
+                  ' try:\n'
+                  '  temporary += 1\n'
+                  ' except ValueError as failure:\n'
+                  '  temporary = str(failure)\n'
+                  ' return captured, temporary, sequence, inner\n'
+                  'def skipped(argument):\n'
+                  ' imported = argument\n'
+                  ' import sys\n'
+                  ' return imported\n')
+        renamed = subject._compact_locals(ast.parse(sample))
+        self.assertNotEqual(ast.dump(renamed), ast.dump(ast.parse(sample)))
+        self.assert_local_alpha(ast.parse(sample), renamed)
         built = subject.build_proxy_loader_control_bootstrap(RAW, **OPTIONS)
         self.assertEqual((built.source_size, built.source_sha256),
                          (len(built.source), hashlib.sha256(built.source).hexdigest()))
@@ -99,7 +182,7 @@ class ProxyLoaderSourceTests(unittest.TestCase):
         main.body[-1] = ast.parse("_proxy_source_main()").body[0]
         expected.body = [node for node in expected.body if node is not main]
         expected.body += ast.parse(subject._INLINE_PROXY_SOURCE).body + [main]
-        self.assertEqual(ast.dump(actual, include_attributes=False), ast.dump(expected, include_attributes=False))
+        self.assert_local_alpha(expected, actual)
         self.assertEqual([alias.name for node in actual.body if isinstance(node, ast.Import) for alias in node.names],
                          ["importlib.util", "sys", "sysconfig", "json", "struct"])
         literal = next(node.value.value for node in actual.body if isinstance(node, ast.Assign)
