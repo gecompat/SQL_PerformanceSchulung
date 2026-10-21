@@ -15,10 +15,11 @@
 
 Die Matrix ist der historische Befund vom 2026-08-28. Für den neuen Vector/KI-Planungsscope
 gilt zusätzlich §6; die damalige Zeile bleibt erhalten.
+CE steht für Cardinality Estimation, die Schätzung der Zeilenanzahl; XE steht für Extended Events, die gezielte Ereigniserfassung in SQL Server.
 
 | Funktion | Quellen | bestehender Bezug | Entscheidung | Begründung und nächste Bedingung |
 |---|---|---|---|---|
-| CE (Cardinality Estimation; Schätzung der Zeilenanzahl) Feedback für Ausdrücke | `SRC-058`, `SRC-061` (CE feedback for expressions) | `OPT-006`, `ADV-CLM-033` | `ADOPT` | SQL Server 2025, CL 160+, Datenbankkonfiguration, wiederkehrende Ausdrucksmuster und tatsächliche Feedbackevidenz. Keine neue Demo; ein späterer `OPT-006`-Schnitt prüft Showplan-, XE- oder Cacheevidenz und Regression Protection. |
+| CE Feedback für Ausdrücke | `SRC-058`, `SRC-061` (CE feedback for expressions) | `OPT-006`, `ADV-CLM-033` | `ADOPT` | SQL Server 2025, CL 160+, Datenbankkonfiguration, wiederkehrende Ausdrucksmuster und tatsächliche Feedbackevidenz. Keine neue Demo; ein späterer `OPT-006`-Schnitt prüft Showplan-, XE- oder Cacheevidenz und Regression Protection. |
 | Optimiertes `sp_executesql` | `SRC-058`, `SRC-059` (sp_executesql – OPTIMIZED_SP_EXECUTESQL) | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `ADV-CLM-018` | `DEFER` | Die Option ist standardmäßig aus und adressiert konkurrierende Compilation identischer Batches. `QRY-004` ist inzwischen runtimevalidiert; ein eigener Concurrent-Compile-Designschnitt darf nun bewertet werden, bleibt aber bis zu dieser Detailanalyse zurückgestellt. |
 | Zeitgebundene XE-Sessions | `SRC-058`, `SRC-060` (Extended Events sessions – time-bound sessions) | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events), `ADV-CLM-036` | `ADOPT` | `MAX_DURATION` wird als optionaler, auf Engine 17 begrenzter Schutzpfad an `DGN-005` gebunden. Der Basispfad behält explizites Stoppen, `STARTUP_STATE = OFF`, Ring-Buffer-Limit und Cleanup. |
 | TempDB Space Resource Governance | `SRC-058`, `SRC-062` | `CON-009` (Kosten in tempdb unterscheiden), `RES-004`, `ADV-CLM-027` | `DEFER` | Resource Governor verändert Instanzzustand und kann Requests mit Fehler 1138 abbrechen. Erforderlich sind Editionstest, rotes Safety-Design, dedizierte Wegwerfinstanz, Recovery und getrennte Behandlung von Datenfiles, Log und Version Store. |
