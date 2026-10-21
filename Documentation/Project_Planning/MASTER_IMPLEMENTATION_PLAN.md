@@ -1,5 +1,27 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Aktueller Einstieg nach funktionalem Runnerabschluss
+
+[PR281](https://github.com/gecompat/SQL_PerformanceSchulung/pull/281) ist vollständig
+in Main `f143c968f5fec26c60fcc8b32e8baac637fdbcd1` integriert. Der unabhängige
+Review, je 21 lokale Windows-/Linuxmethoden, aktuelle grüne PR-/Main-Prüfungen,
+vollständige Baumübernahme und eigene Branchbereinigung sind abgeschlossen.
+Die [synthetische vollständige Runnerroute](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#abschluss-des-funktionalen-schnitts)
+passt mit vollständiger Profilfixture in das unveränderte 131072-Byte-Limit.
+Damit ist der frühere Quellenarchitekturblocker für diese Fixture geschlossen;
+eine tatsächliche Workerinstallation oder echte Quellenverwendung ist nicht belegt.
+
+Nächster vorbereitender Schnitt ist der [Auswahlplan für frische Workerprofile](DGN_007_WORKER_PROFILE_SELECTION_PLAN.md):
+ein Plan mit höchstens einer Entwurfsnacharbeit, ein Owner/ein unabhängiger
+Reviewer, Verbrauch UNKNOWN, einschließlich lokalem Dokumentationscheck und
+vollständigem Integrationsabschluss. Kein Probeaufruf, Workerstart oder SQL-Lauf.
+Anschließend das konkrete quellenbegründete Auswahlpaket unter eigenem endlichen
+Rahmen prüfen; native Ausführung erst nach Quellen-/Testprüfung und konkretem
+Lauf-GO. Die folgenden Stände sind historische Evidenz und keine aktuellen
+C6-/C7-/C8-Sperren. Maßgeblich bleibt der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
+
+## Historische Runner- und Kompositionsstände
+
 PR275 ist vollständig in Main750844bbfe61f6b12c98354c034ea3441abbde91
 integriert: sieben Head-/sechs Base-/fünf frische Main-Gates SUCCESS,
 unabhängige Schließung, FullTree/Sync und eigene Branchbereinigung.
