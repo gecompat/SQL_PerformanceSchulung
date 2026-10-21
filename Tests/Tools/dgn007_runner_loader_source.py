@@ -2,6 +2,7 @@
 import ast
 from collections import Counter
 import hashlib
+import keyword
 from pathlib import Path
 import symtable
 
@@ -1017,15 +1018,17 @@ def _shorten_uniform_locals(tree, protected):
         for child in ast.iter_child_nodes(node): inspect(child, chain)
     inspect(tree)
     chosen, ordinal = {}, 0
+    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     forbidden.add("owner")
     names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
     names.update(n.arg for n in ast.walk(tree) if isinstance(n, ast.arg))
     for name in sorted(names):
         if len(name) < 4 or name.startswith("__") or name in forbidden or any(name in s for s in texts): continue
         while True:
-            short = "z" + str(ordinal)
+            base.base.inputs.base._need(ordinal < len(letters) ** 2, 'TEMPLATE_FORM')
+            short = letters[ordinal // len(letters)] + letters[ordinal % len(letters)]
             ordinal += 1
-            if short not in occupied and not any(short in s for s in texts): break
+            if short not in occupied and not keyword.iskeyword(short) and not any(short in s for s in texts): break
         chosen[name] = short
         occupied.add(short)
     for node in ast.walk(tree):

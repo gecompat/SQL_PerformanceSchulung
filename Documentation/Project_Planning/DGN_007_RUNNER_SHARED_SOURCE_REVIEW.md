@@ -73,6 +73,22 @@ prüfen unter anderem ungültige Poolindizes und geschützte Literal-Kontexte.
 Größenwirkung noch unbekannt; stabiler Quellen-/Test-PRE vor jeder Generierung.
 Das erneute Lauf-GO bleibt auf Fit/Ganz-AST vor sämtlichen Modellen gestuft.
 
+### Weitere gebundene Darstellungskorrektur
+
+Der unabhängig freigegebene Fit an 17b676f stoppt auf beiden Plattformen bei
+135236 Bytes, also 4164 Bytes über dem unveränderten Limit. Er spart 10113 Bytes;
+keine Modellstufe gestartet. Die kleinen Pool-/Alpha-/Suitegegenfälle erreichten
+diesen Größencheck ohne eigenen Fehler. Das anschließende unabhängige Auswahl-GO
+betrifft ausschließlich zwei ASCII-Buchstaben als Ziele der bisherigen uniformen
+lokalen Alpha statt z0 bis zN. Alle bisherigen Scope-/Reflexions-/Schnittstellen-
+sperren bleiben erhalten; echte Schlüsselwörter, vorhandene Namen, Deklarationen,
+Stringreferenzen und andere Alpha-Ziele bleiben ausgeschlossen. Die Auswahl ist
+endlich und lehnt bei erschöpftem Namensraum fest ab. Die unabhängige Rückführung
+prüft diese Ziele und den vollständigen AST-/Rawvergleich; kleine Gegenfälle
+prüfen Namenskollision und erschöpften Namensraum. Keine Unicode-Variante oder
+neue Runtimeabhängigkeit ausgewählt. Größenwirkung noch unbekannt; stabiler
+Quellen-/Test-PRE und gestuftes Fit-GO bleiben erforderlich.
+
 ## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 
 Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich

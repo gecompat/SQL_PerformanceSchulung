@@ -216,7 +216,8 @@ class RunnerLoaderSourceTests(unittest.TestCase):
                 pairs.extend(zip(a.names, b.names))
         mapping = {}
         for old, new in pairs:
-            if old != new and new.startswith("z") and new[1:].isdigit():
+            if old != new and len(new) == 2 and new.isascii() and new.isalpha():
+                self.assertNotIn(new, ('as', 'if', 'in', 'is', 'or'))
                 self.assertEqual(mapping.setdefault(old, new), new)
         self.assertEqual(len(mapping), len(set(mapping.values())))
         originals = {getattr(n, f, None) for n in left for f in ("id", "arg", "name", "asname", "rest", "attr")}
@@ -320,7 +321,7 @@ def comp_reader(): return [global_value for global_value in global_value]
 def keyword_user(): return outer(1, keyword_kept=2)
 def reflected(reflected_long): return locals()
 def collision_long(longer_local):
- global z0
+ global aa
  return longer_local
 class Example:
  class_slot_long = 1
@@ -334,13 +335,20 @@ class Example:
         self.assertIn("captured_long", mapping)
         self.assertIn("element_long", mapping)
         self.assertTrue(all(n not in mapping for n in ("global_value", "keyword_kept", "reflected_long", "method_argument", "class_slot_long")))
-        self.assertNotIn("z0", mapping.values())
+        self.assertNotIn("aa", mapping.values())
         self.assertEqual(ast.dump(before), ast.dump(changed))
-        collision = ast.parse("def f(longer_local):\n global z0\n return longer_local\n")
+        collision = ast.parse("def f(longer_local):\n global aa\n return longer_local\n")
         invalid = ast.parse(ast.unparse(collision))
-        invalid.body[0].args.args[0].arg = "z0"
-        invalid.body[0].body[1].value.id = "z0"
+        invalid.body[0].args.args[0].arg = "aa"
+        invalid.body[0].body[1].value.id = "aa"
         with self.assertRaises(AssertionError): self.inverse_uniform(collision, invalid)
+        exhausted = ast.parse('def f(longer_local): return longer_local\n')
+        alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        exhausted.body.insert(0, ast.Assign(targets=[ast.Name(id='blocked_text', ctx=ast.Store())],
+            value=ast.Constant(value=' '.join(a + b for a in alphabet for b in alphabet))))
+        ast.fix_missing_locations(exhausted)
+        with self.assertRaisesRegex(subject.base.base.inputs.base.BootstrapSourceRejected, '^TEMPLATE_FORM$'):
+            subject._shorten_uniform_locals(exhausted, parent_model)
         for raw_sample in (b"a\nb\r\n", b"'''\"\"\"\\\0\t\x0b\x0c\x7f\xff\n", b"\n" * 40):
             text = "_EXPECTED_PROFILE_RAW = " + repr(raw_sample) + "\n"
             rendered = subject._compact_raw_literal(text, raw_sample)
