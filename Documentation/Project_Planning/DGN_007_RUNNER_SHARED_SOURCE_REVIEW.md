@@ -38,10 +38,64 @@ und belegter regulärer Abschluss. Nach erfolgreichem Ergebnisreview folgen
 aktuelle Head-/Base-Gates, regulärer Merge, frische Main-Gates, vollständige
 Übernahme, Sync und sichere Bereinigung genau des eigenen Branches.
 
-Aktueller Stand: Auswahlprüfung offen; noch keine neue Implementierung, kein
-stabiler C8, keine Generierung und kein Lauf-GO. Eigener Branch
-`codex/dgn007-runner-c8`. Die historische C7-Sperre unten ist ausschließlich
-für diesen ausdrücklich begrenzten C8-Schnitt erweitert.
+### Unabhängiges Auswahl-No-GO: synchroner ABI-Einstieg
+
+Auswahlbindung 841b3953ec96eb7cd01b5a9ac70e56e3efcce9b4: Der unabhängige
+Reviewer bestätigt einen konkreten ABI-/Trustblocker (ABI: Application Binary
+Interface; hier die feste Aufrufschnittstelle des Python-Importmechanismus).
+Status BLOCKED_SELECTION_ABI_TRUST. Noch kein C8-Quellenfreeze und kein Lauf-GO;
+C8 ist als Quellen-/Testkandidat nicht verbraucht. Der tatsächliche Verbrauch
+bleibt sieben Kandidaten/sechs geänderte Nachläufe, UNKNOWN.
+
+Ein ursprünglicher Controllerframe könnte Primitiven, vollständige Kernelpins
+und ursprünglichen Inputframe von der Initialisierung bis zum Fehlerabschluss
+lokal halten und vor eigenen Dispatchs ausdrücklich weitergeben. Das reicht
+für die synchrone Importkante nicht: Während der Controller in `exec` wartet,
+kann der Sourcebody direkt den Python-Importmechanismus auslösen. Dessen
+`__import__`-Aufruf hat keine zusätzlichen Autoritätsargumente des Controllers.
+Wählt das Gateway sie aus Closure, Defaults oder Globals, bleibt der erste
+Zugriff unbewiesen. Eine lokale Kopie entsteht erst nach diesem Zugriff.
+
+Bereits der Gatewaydispatch müsste dominant geschützt sein. Wird der Python-
+Gatewaycode vor dem ABI-Einstieg geändert, kann seine eigene Prüfung vollständig
+entfallen. Ein äußerer finally-POST erkennt die Änderung erst nach möglichen
+Wirkungen. Dasselbe Problem betrifft entsprechende Loader-Dispatchs. Eine
+zweite Kontextzelle, ein weiterer Python-Wrapper oder ein zusätzlicher
+Kontextspeicher liefern für sich keine unveränderbare Vertrauenswurzel.
+
+Der gewählte unveränderte DESIGNED-Vertrag verlangt diese ursprüngliche
+Bindung vor Dispatch. Eine vollständige Übergabekette ist für die ABI-Kante
+nicht belegt. Neue Runtimevermittlung oder eine bewusste Einschränkung des
+Manipulationsmodells wären Vertrags-/Architekturänderungen; die C8-Freigabe
+entscheidet keine dieser Alternativen und wird dafür nicht umgedeutet.
+
+### Entscheidung und sichere Disposition
+
+Zur Wiederaufnahme ist eine ausdrückliche fachliche Entscheidung nötig:
+
+- Das Manipulationsmodell für vertrauenswürdige Schulungsquellen und die
+  synchronen ABI-Einstiege begrenzen. Die dann tatsächlich bewiesene Integrität
+  und verbleibenden Grenzen müssten präzise im Vertrag und in Tests stehen;
+  keine Sandbox-, Host- oder Trustattestation daraus ableiten.
+- Einen vor dem ABI-Einstieg wirksamen, unabhängig vertrauenswürdigen Vermittler
+  als gesonderten Architektur-/Runtimescope auswählen und qualifizieren. Ein
+  weiterer ungeschützter Python-Wrapper wäre dafür kein Nachweis.
+
+Bis zu dieser Entscheidung keine Umsetzung, kein Quellenfreeze, kein Import,
+keine Kandidatengenerierung, AST-Analyse, Kompilierung, Ausführung oder Modell-
+beziehungsweise Fitlauf. Es gibt keine neuen Source-/Test-/Workflowdateien im
+finalen Diff. Historische C7-Quellen wurden ausschließlich privat aus ihren
+Gitbytes gelesen; private Evidence, bestehende Komponenten und fremde Ressourcen
+bleiben erhalten. Der DESIGNED-Vertrag wird durch diesen Diagnoseeintrag nicht
+geändert. Sämtliche Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates
+und das Scriptlimit bleiben offen beziehungsweise unverändert.
+
+Der reine Auswahl-/Diagnoseabschluss auf `codex/dgn007-runner-c8` wird unabhängig
+geprüft, lokal als Dokumentation validiert und mit aktuellen grünen Head-/Base-
+und frischen Main-Gates regulär integriert. Der spätere PR-Abschlussnachweis
+bindet die tatsächlichen Ergebnisse einschließlich vollständiger Übernahme,
+Sync und eigener lokaler/Remote-Branchbereinigung. Ein unveränderter Heartbeat
+startet weder dieselbe Auswahlprüfung erneut noch einen Quellenversuch.
 
 ## C7: abgelehnt; erweiterte harte Grenze erreicht
 

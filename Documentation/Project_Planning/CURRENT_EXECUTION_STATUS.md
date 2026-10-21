@@ -1,19 +1,33 @@
 # Aktueller Ausführungsstand
 
-## C8 zur Bootstrap-Korrektur freigegeben; unabhängige Auswahl offen
+## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
 
-Der Mensch hat am 21. Oktober 2026 genau einen stabilen C8 freigegeben.
-Der [gemeinsame konkrete Rahmen](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c8-ausdrückliche-freigabe-zur-bootstrap-korrektur)
-bindet ihn an die fehlende ursprüngliche Bootstrapautorität aus dem C7-Befund
-und eine Gegenprobe für die vor Aufruf ersetzte Kontextkopie. Basis ist
-095c813 nach regulär abgeschlossenem PR278: Main grün, vollständige Übernahme,
-Sync und eigene lokale/Remote-Branchabwesenheit bestätigt. Ein Owner root,
-derselbe unabhängige Reviewer, eigener Branch `codex/dgn007-runner-c8`.
-Verbrauch UNKNOWN; bisher sieben Kandidaten/sechs geänderte Nachläufe, mit
-stabilem C8 harte Grenze acht/sieben. Kein C9, kein Scope-/Budgetreset.
-Noch keine neue Implementierung und kein Generierungs-/Lauf-GO. Zuerst
-unabhängige konkrete Auswahl, dann stabiler Quellen-/Test-PRE und gestufte
-Windows-/Linuxprüfung; tatsächliche Runtime-/Trust-/Methoden-/SQL-Gates offen.
+Die ausdrückliche Freigabe umfasst genau einen stabilen C8 zur Bootstrap-
+Korrektur. Die unabhängige Auswahlprüfung an 841b395 hat vor Umsetzung einen
+konkreten [ABI-/Trustblocker und die Entscheidungsalternativen](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#unabhängiges-auswahl-no-go-synchroner-abi-einstieg)
+belegt: Der synchrone Python-Importmechanismus übergibt keine ursprünglichen
+Kontrollreferenzen an das Gateway. Dessen zuvor veränderter Code könnte jede
+eigene Prüfung umgehen; der äußere Nachcheck kommt erst nach möglichen
+Wirkungen. Ein weiterer Python-Wrapper schließt diese Lücke nicht.
+
+C8 ist noch nicht als Quellen-/Testkandidat verbraucht. Bisher sieben Kandidaten
+und sechs geänderte Nachläufe, Verbrauch UNKNOWN; die einzelne C8-Freigabe ist
+kein C9 oder Reset. Keine Implementierung, kein Quellenfreeze, keine Generierung
+oder Kandidaten-/Modell-/Fitläufe. Der unveränderte DESIGNED-Vertrag bietet
+bisher keine vollständig belegte Übergabekette für diesen Einstieg.
+
+Nächste Umsetzung benötigt eine ausdrückliche Entscheidung über ein begrenztes
+Manipulationsmodell für vertrauenswürdige Schulungsquellen oder eine gesonderte
+vertrauenswürdige Runtimevermittlung. Das sind Vertrags-/Architekturentscheidungen,
+keine routinemäßige Implementierungs- oder Mergefreigabe. Tatsächliche Runtime-,
+Trust-, Usedbytes-, Methoden-, SESSION_END- und SQL-Gates bleiben offen.
+
+Der reine Diagnoseabschluss auf `codex/dgn007-runner-c8` wird bis zur unabhängigen
+Disposition, lokalen Dokumentationsprüfung, grünen Head-/Base-/Main-Gates,
+regulären Integration, vollständigen Übernahme, Sync und sicheren eigenen
+Branchbereinigung verfolgt. Der PR-Abschlussnachweis bindet die tatsächlichen
+Ergebnisse. Private Evidence und fremde Ressourcen bleiben erhalten.
+Unveränderte Heartbeats starten keine Wiederholungsanalyse oder Kandidaten.
 
 ## C7 abgelehnt; erweiterte harte Grenze erreicht
 
