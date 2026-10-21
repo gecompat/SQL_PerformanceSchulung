@@ -88,6 +88,18 @@
 - Globale Cache-, Konfigurations- und Neustart-Eingriffe ausschließlich in isolierten Laborinstanzen.
 - Keine produktiven Zugangsdaten oder Secrets im Repository.
 
+## Vertrauenswürdige Schulungsquellen im DGN-007-Runner
+
+`DEC-076` (Runner ohne Manipulationsisolation) setzt für die vollständige
+DGN-007-Quellenroute vertrauenswürdige Schulungsquellen und vertrauenswürdigen
+Kontrollcode voraus. Gezielte Änderungen an Kontrollfunktionen, ihrem Code,
+Defaults, Closures, primitiven Referenzen und nichtöffentlichen Kontrollankern
+sind vom Prüfversprechen ausgeschlossen. Der [konkrete Kontrollvertrag](../Documentation/Project_Planning/DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md#vertrauensmodell-für-schulungsquellen-dec-076)
+trennt diese Vertrauensannahme von weiterhin erforderlichen Daten-, Reihenfolge-,
+Identitäts-, Budget-, Fehler- und Eigentumsprüfungen. Diagnosefälle zu erkannten
+Kontrolländerungen begründen keine allgemeine Manipulationssicherheit. Daraus
+folgen weder Sandbox-/Hostattestation noch reale Runtime-/Trust-/SQL-Freigaben.
+
 ## KI-generierte Commit Messages
 
 - Jede vollständig oder überwiegend von einer KI erstellte Commit Message beginnt mit dem Namen der tatsächlich verwendeten KI und einem Doppelpunkt, beispielsweise `ChatGPT:`, `Codex:`, `Gemini:`, `Claude:` oder `Genie:`.

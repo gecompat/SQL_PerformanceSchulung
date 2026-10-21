@@ -1,5 +1,23 @@
 # Aktueller Ausführungsstand
 
+## C8: Vertrauensmodell entschieden; unabhängige Auswahl der Korrektur offen
+
+Der Mensch hat vertrauenswürdige Schulungsquellen ausdrücklich gewählt und
+gezielte Manipulationen der Kontrollfunktionen vom Prüfversprechen ausgeschlossen.
+[DEC-076 und konkrete C8-Auswahl](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c8-fortgesetzt-vertrauenswürdige-quellen-nach-dec-076)
+binden die Vertragskorrektur an weiterhin genaue Daten-, Provider-, Reihenfolge-,
+Identitäts-, Budget-, Fehler- und Cleanupprüfungen. Keine Sandbox-, Host-, Trust-
+oder reale SQL-Freigabe. Die frühere ABI-Auswahlsperre unten ist historisch;
+die Entscheidung ist keine erfolgreiche Quellen-/Testabnahme.
+
+Fortsetzung desselben unverbrauchten C8 auf Basis 4e738ae nach abgeschlossenem
+PR279. Ein Owner root und derselbe unabhängige Reviewer; eigener Branch
+`codex/dgn007-trusted-sources-c8`. Sieben bisherige Kandidaten/sechs geänderte
+Nachläufe, Verbrauch UNKNOWN; ein stabiler C8 erreicht harte Grenze acht/sieben.
+Kein C9, kein Scope-/Budgetreset. Zuerst unabhängige konkrete Auswahl-/Vertrags-
+prüfung, dann ein stabiler Quellen-/Teststand und ausdrückliches gestuftes
+Windows-/Linux-Lauf-GO. Noch keine neue Implementierung oder Generierung.
+
 ## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
 
 Die ausdrückliche Freigabe umfasst genau einen stabilen C8 zur Bootstrap-
@@ -282,7 +300,7 @@ Auswahl-PRE unabhängig freigegeben. C1 ergänzt einmalige sticky Vorbuchung,
 getrennte Reportdiagnose, zwölf eigene portable Budget-/Ownerordnungsmodelle
 und strengere native io_limit-Gegenprobe. Checkpoint1: ein Kandidat/max4,
 keine Nachläufe; Source/Test-PRE unabhängig ohne offene Befunde mit ausdrücklichem
-Lauf-GO. Danach neue12 Windows3.14.7/Linux3.12.3 und bestehende Linux-Handshake12
+Lauf-GO. Danach neue12 Windows 3.14.7/Linux 3.12.3 und bestehende Linux-Handshake12
 mit28Nativefällen/Session16 ohne SKIP PASS. Produkt/Suite unverändert, nur
 Ergebnisstand ergänzt. Head-/Base-/Main-Gates und regulärer Abschluss folgen. Die feste
 1088-je-Slot-Reserve soll vor erster nativer Wirkung aus4096Globaloperationen
@@ -381,7 +399,7 @@ Source/Test-PRE C1 mit zwei P2 (3.14-Annotationträger/Keyvorlauf) ohne Lauf-GO.
 C2 schließt beide, ergänzt gemeinsamen Zustandsrahmen und drei Gegenproben:
 15Methoden, Checkpoint2/zwei Kandidaten/ein Nachlauf. C2 unabhängig ohne
 offene P1/P2/P3 und mit einmaligem Source/Test-Lauf-GO bestätigt.
-Neue15 unter Windows3.14.7/Linux3.12.3 ohne SKIP PASS; vollständiger neuer
+Neue15 unter Windows 3.14.7/Linux 3.12.3 ohne SKIP PASS; vollständiger neuer
 Arbeitsdatei-Quellenfit innerhalb des unveränderten Caps bestätigt.
 Reguläre aktuelle Head-/Base-/Main-Gates und Integration folgen.
 Caps und vollständige Workerprüfungen bleiben erhalten; keine operative

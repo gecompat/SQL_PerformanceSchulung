@@ -3,6 +3,40 @@
 Stand: 21. Oktober 2026. Basis f30aebce18ec2902171210bdcc7f222eaa12d405.
 Status DESIGNED; ausschließlich Architekturplan, keine Implementierung.
 
+## Vertrauensmodell für Schulungsquellen (DEC-076)
+
+Am 21. Oktober 2026 hat der Mensch ausdrücklich vertrauenswürdige Schulungsquellen
+gewählt und gezielte Manipulationen der Kontrollfunktionen vom Prüfversprechen
+ausgeschlossen. `DEC-076` dokumentiert diese Entscheidung. Diese aktuelle
+Präzisierung geht den weiter unten erhaltenen historischen Designaussagen zum
+Schutz vor beliebig ausgetauschtem Kontrollcode vor.
+
+Vertrauensbasis sind die vorgesehenen Schulungsquellen, der erzeugte Python-
+Kontrollcode, seine ursprünglichen Funktionen und primitiven Referenzen sowie
+die nichtöffentlichen Kontrollanker. Gezieltes Verändern von Code, Defaults,
+Closures, Globals mit Kontrollautorität oder diesen Ankern vor beziehungsweise
+während eines synchronen Import-/Loaderaufrufs ist ausgeschlossen. Ein gemeinsamer
+Python-Checkpoint darf diese vertrauenswürdigen Referenzen verwenden und vor
+Reportsnapshot entstehen. Eine selbstauthentisierende erste Prüfung gegenüber
+bereits ausgetauschtem Kontrollcode oder eine durchgehend unveränderbare
+Importvermittlung werden in diesem Modell nicht behauptet.
+
+Weiterhin erforderlich sind genaue Form-/Typprüfungen der verarbeiteten Daten
+und Providerergebnisse vor Gettern oder Fremdoperationen, geschlossene Rollen
+und Reihenfolgen, vollständige Raw-/Code-/Namespaceidentitäten, acht Sources,
+zwei Parents, dieselben 20 bestätigten Records, unveränderte Limits und Budgets,
+Fehlerpriorität, Reentranz-/Retryregeln und eigener identitätsbezogener Cleanup.
+Aktive Frames halten ihre Referenzen über Callbacks hinweg. Vertrauenswürdiger
+Code allein macht einen fehlerhaften Eingang oder fremden Cachewert nicht gültig.
+
+Vorhandene Metadatenvergleiche und gezielte Negativfälle können erkannte
+Kontrolldrift diagnostizieren. Ein solcher PASS belegt nur den konkret geprüften
+Fall; er ist kein Schutzversprechen gegenüber allen Kontrollmanipulationen.
+Kein dynamisches Rebaseline von Raw, Provider, Budget oder Ergebnisidentität.
+Keine Sandbox-, Host- oder Trustattestation, keine neue native Runtimevermittlung
+und keine reale Methoden-, SESSION_END- oder SQL-Freigabe. Eine spätere Aufnahme
+nicht vertrauenswürdiger Quellen benötigt eine eigene Vertragsentscheidung.
+
 ## Anlass, Abschluss und gemeinsamer Rahmen
 
 [PR274](https://github.com/gecompat/SQL_PerformanceSchulung/pull/274) ist regulär

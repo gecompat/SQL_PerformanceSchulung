@@ -1,5 +1,80 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## C8 fortgesetzt: vertrauenswürdige Quellen nach DEC-076
+
+Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich
+entschieden: vertrauenswürdige Schulungsquellen; gezielte Kontrollmanipulationen
+sind vom Prüfversprechen ausgeschlossen. [DEC-076 im Kontrollvertrag](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md#vertrauensmodell-für-schulungsquellen-dec-076)
+präzisiert diese Grenze und erhält die Daten-/Provider-/Reihenfolge-/Identitäts-/
+Budget-/Fehler-/Cleanupanforderungen. Die historischen Auswahl-No-GOs unten
+bleiben als Befunde des früheren stärkeren Manipulationsmodells erhalten.
+
+Fortsetzung des unverbrauchten einzelnen C8, kein neuer Versuch oder Reset:
+Basis 4e738ae nach vollständig abgeschlossenem PR279, ein Owner root und derselbe
+unabhängige Reviewer. Bisher sieben Kandidaten/sechs geänderte Nachläufe,
+Verbrauch UNKNOWN; ein stabiler C8 erreicht acht/hartacht und sieben Nachläufe.
+Kein C9. Der gemeinsame Rahmen umfasst Vertragskorrektur, Auswahl, Umsetzung,
+alle Reviews, Koordination, lokale Tests, CI (Continuous Integration;
+automatisierte Integrationsprüfungen), reguläre Integration und eigene Bereinigung.
+
+### Konkrete Auswahl und Prüfversprechen
+
+Die bisher inline vervielfältigten Checkpoints werden einmal als gemeinsamer
+Python-Helfer vor Reportsnapshot definiert. Unter der ausdrücklich gewählten
+Vertrauensannahme darf dieser ursprüngliche Helfer als Kontrollcode aufgerufen
+werden; er behauptet keine Selbstabsicherung gegen vorher veränderten eigenen
+Code. Die tatsächlich ausgeführten PRE-/finally-POST-Stellen bleiben bestehen.
+Aktive Frames halten Kontext, Primitiven und D1-Record lokal; D1 bezeichnet den
+vor Reportsnapshot einmal versiegelten Zustand.
+
+Ursprüngliche Primitiven werden bei Initialisierung getrennt vom zu prüfenden
+`_kernel`-Kontext gehalten und an die Wrapper/Fabrik übergeben. Der gemeinsame
+Checkpoint erhält beide gehaltenen Referenzen ausdrücklich. Zuerst prüft er
+Kontexttyp, Länge und Identität des primitiven Teilankers; erst danach verwendet
+er Kontextfelder. Die C7-Kontextkopie mit fremdem Feld0 darf keinen Iterator
+aufrufen. Das ist eine gezielte Integritätsdiagnose unter vertrauenswürdigem
+Kontrollcode, kein wieder eingeführtes Versprechen gegen gleichzeitiges Fälschen
+aller Kontrollanker. Ganze Root-/Input-/Providerprüfungen und endliche
+Versiegelung bleiben vorhanden. Es gibt keine späte Baseline oder Rawauslassung.
+
+Die unabhängige Ganz-AST-Oracle (AST: Abstract Syntax Tree; abstrakter Syntaxbaum)
+rekonstruiert den einmaligen festen Checkpoint und seine tatsächlichen Aufruf-
+und Framebindungen getrennt vom produktiven Transformationshelfer. Alle übrigen
+fest ausgewählten Source-/Parent-/Inputknoten bleiben vollständig. Die eigenen
+positiven und negativen Modelle einschließlich tatsächlich erreichter Daten-/
+Provider-/Cache-/Child-/Write-/Limit-/Fehlerfälle bleiben erhalten. Fälle mit
+Code-/Closure-/Defaultaustausch sind ausschließlich begrenzte Diagnosefälle.
+Kein allgemeiner Foreignoperations- oder Manipulationssicherheitsclaim für
+gezielt veränderten Kontrollcode.
+
+### Checkpoints, Aufwand und harte Grenze
+
+Vor Umsetzung unabhängige Auswahl-/Vertragsprüfung. Danach genau ein stabiler
+Quellen-/Teststand und unabhängiger PRE vor Kandidatenimport, Generierung,
+Kompilierung oder Ausführung. Nur ausdrückliches gestuftes Lauf-GO erlaubt
+Fit/Ganz-AST genau einmal auf Windows 3.14.7/Linux 3.12.3 mit -I -S -B; nur
+beidseitiges vollständiges PASS erlaubt die übrigen eigenen Modelle einmal je
+Plattform. Ein weiterer notwendiger Quellen-/Fixturefix nach stabilem C8 oder
+ein Fitfehler bedeutet STOP, sichere Disposition und regulären Abschluss;
+kein C9 oder Capanhebung. Reale DGN-Bodies, native Worker und SQL werden nicht
+ausgeführt. Ergebnisreview und aktuelle grüne Head-/Base-/Main-Gates bleiben
+vor Abschluss erforderlich.
+
+Aufwandsbewertung dieser Vertragskorrektur: ein Implementer, derselbe unabhängige
+Reviewer mit getrennten Auswahl-, Quellen-/Test- und Ergebnisfragen; keine
+zusätzliche Modellkette. Die gemeinsame Funktion vermeidet vervielfältigten
+Kontrollcode, keine Sicherheitsdatenprüfung. Unveränderte alte lokale Suiten
+werden nicht wiederholt; die neue enge CI-Suite enthält sämtliche direkten und
+transitiven Abhängigkeiten und führt ihre positiven/negativen Modelle aus.
+Lokale und CI-Läufe bleiben mangels geschützter Evidenzanerkennung getrennte
+Nachweise. Verbrauch UNKNOWN; keine behauptete Einsparungsmessung. Neue globale
+Regel-/Registryänderungen durchlaufen zusätzlich die regulären Governance-Gates.
+
+Aktueller Stand: neue unabhängige Auswahlprüfung offen. Noch kein stabiler C8,
+keine Kandidatengenerierung und kein Lauf-GO. Eigener Branch
+`codex/dgn007-trusted-sources-c8`. Die alte ABI-Auswahlsperre wird nur durch die
+hier ausdrücklich getroffene Vertragsentscheidung behandelt.
+
 ## C8: ausdrückliche Freigabe zur Bootstrap-Korrektur
 
 Am 21. Oktober 2026 hat der Mensch genau einen weiteren stabilen C8
@@ -270,7 +345,7 @@ Reflexion und globale Ursprünge bleiben gesperrt. Keine weitere Namenskürzung
 ohne geprüften inversen Nachweis. Profilraw bleibt ein einzelnes wertgleiches
 Bytesliteral, keine Inlinekodierung oder Änderung seiner ursprünglichen Bytes.
 
-Zuerst ausschließlich Fit-/Ganz-AST-Methode je einmal Windows3.14.7/Linux3.12.3
+Zuerst ausschließlich Fit-/Ganz-AST-Methode je einmal Windows 3.14.7/Linux 3.12.3
 mit -I -S -B nach ausdrücklichem Source/Test-GO. Die eine Fitmethode darf bei
 SCRIPT_LIMIT ausschließlich im eigenen verworfenen Generatorframe Quellenlänge/
 Exzess aggregieren und dann unverändert fehlschlagen; kein separater Nachlauf,
