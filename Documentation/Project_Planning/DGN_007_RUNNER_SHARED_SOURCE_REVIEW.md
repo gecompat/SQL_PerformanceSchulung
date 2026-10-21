@@ -1,4 +1,42 @@
-# DGN-007 – C6-Auswahl des gemeinsamen Runnerkontrollankers
+# DGN-007 – Quellenprüfung der vollständigen Runnerroute
+
+## C7: ausdrückliche Freigabe und gemeinsame Grenze
+
+Am 21. Oktober 2026 hat der Mensch ausdrücklich genau einen weiteren stabilen
+Kandidaten C7 mit unabhängigem Review, lokalen Tests, grünen Gates, regulärem
+Merge und eigener Branchbereinigung freigegeben. Ausgangsbasis ist
+347c231bcc5d5318a779100e0677cde2e49e3adb nach abgeschlossenem
+[PR277](https://github.com/gecompat/SQL_PerformanceSchulung/pull/277).
+
+Aktueller Stand: Auswahl-PRE (unabhängige Prüfung vor der Umsetzung) offen;
+noch kein stabil vorgelegter C7 und kein Generierungs- oder Lauf-GO.
+Der bisherige Verbrauch bleibt sechs Kandidaten/fünf geänderte Nachläufe.
+Mit dem einzigen stabilen C7 wird die erweiterte harte Grenze sieben
+Kandidaten/sechs geänderte Nachläufe erreicht. Ein Implementierungsowner root
+und derselbe unabhängige Reviewer; gesamter Quellen-/Versuchsverbrauch UNKNOWN.
+Auswahl, Umsetzung, Quellen-/Testprüfung, Koordination, lokale Prüfungen,
+CI, Integration und sichere Bereinigung zählen gemeinsam zu diesem Schnitt.
+
+Die Freigabe übernimmt ausschließlich den unten dokumentierten Korrekturschnitt:
+drei C6-Befunde und UTF-8-Textkorruption, dazu eigene tatsächlich erreichte
+Negativfälle für Guard-Slotersetzung und Closureaustausch. Die bestehende
+Architektur, vollständiger Rawumfang, Scriptlimit und sämtliche fachlichen
+Gates bleiben verbindlich. Der Übergang Initialisierung → Einfrieren vor dem
+Reportsnapshot benötigt einen ursprünglich privaten Bootstrapanker; Daten
+aus dem veränderbaren Guard-Slot sind keine Autorität für dessen Prüfung.
+
+Checkpoints: unabhängige Auswahlfreigabe vor Umsetzung; danach genau ein
+stabiler Quellen-/Teststand und unabhängiger PRE vor jeder Generierung.
+Nur ausdrückliches gestuftes Lauf-GO erlaubt die Fit-/Ganz-AST-Methode jeweils
+einmal auf Windows und Linux. Nur beidseitiges PASS erlaubt einmal die übrigen
+ausgewählten synthetischen Modelle je Plattform. Kein nativer DGN-Body oder
+SQL-Lauf. Bei weiterem notwendigem Quellen-/Fixturefix oder fehlgeschlagenem
+Fit kein C8 und kein Reset: sichere Disposition sowie belegter Abschluss des
+begonnenen Schnitts. Eine spätere Dokumentationskorrektur ist kein weiterer
+Quellenversuch. Der unabhängige Ergebnisreview prüft die Befundschließung und
+die tatsächlich erreichten Claims; ein historisches PASS ersetzt keine Gate.
+
+## Historischer C6-Auswahl- und Ablehnungsstand
 
 Stand: 21. Oktober 2026. Basis750844bbfe61f6b12c98354c034ea3441abbde91.
 Status CLOSED_REJECTED_C6_PRE. Auswahl37f27e4 war unabhängig freigegeben;

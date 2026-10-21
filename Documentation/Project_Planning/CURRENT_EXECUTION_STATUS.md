@@ -1,5 +1,19 @@
 # Aktueller Ausführungsstand
 
+## C7 ausdrücklich freigegeben; unabhängige Auswahlprüfung offen
+
+Der Mensch hat am 21. Oktober 2026 genau einen weiteren stabilen C7 freigegeben.
+Der [konkrete gemeinsame Rahmen](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c7-ausdrückliche-freigabe-und-gemeinsame-grenze)
+begrenzt den Schnitt auf die drei C6-Befunde, UTF-8-Korrektur und passende
+Negativfälle. Ausgangsbasis347c231 nach abgeschlossenem PR277; Main grün,
+vollständige Übernahme/Sync und eigene Branchabwesenheit zuvor bestätigt.
+Aktiver eigener Branch `codex/dgn007-runner-c7`, ein Implementierungsowner root
+und derselbe unabhängige Reviewer. Verbrauch UNKNOWN; bisher sechs Kandidaten
+und fünf geänderte Nachläufe, mit stabilem C7 höchstens sieben/sechs.
+Noch kein C7-Quellenfreeze, Generierungs- oder Lauf-GO. Kein C8 bei weiterem
+notwendigem Fix oder fehlgeschlagenem Fit. Alle tatsächlichen Runtime-, Trust-,
+Methoden- und SQL-Freigaben bleiben offen.
+
 ## C6 im Source-/Test-PRE abgelehnt; konkrete Sourcegrenze erreicht
 
 PR275 vollständig Main750844bbfe61f6b12c98354c034ea3441abbde91: sieben finale
