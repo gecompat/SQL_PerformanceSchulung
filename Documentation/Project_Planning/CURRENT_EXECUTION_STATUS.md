@@ -1,5 +1,22 @@
 # Aktueller Ausführungsstand
 
+## Nächster vorbereitender Schnitt: frische Workerprofile auswählen
+
+[PR281](https://github.com/gecompat/SQL_PerformanceSchulung/pull/281) ist in
+`f143c968f5fec26c60fcc8b32e8baac637fdbcd1` vollständig abgeschlossen: unabhängiger
+Review, lokale Windows-/Linuxmodelle, grüne PR-/Main-Prüfungen, vollständige
+Baumübernahme und eigene Branchbereinigung. Der kontinuierliche menschliche
+Auftrag gilt weiter; die historischen C6-/C7-/C8-Sperren unten sind überholt.
+
+Der [Auswahlplan für frische Workerprofile](DGN_007_WORKER_PROFILE_SELECTION_PLAN.md)
+begrenzt den nächsten vorbereitenden Schnitt auf einen Entwurf mit höchstens
+einer Entwurfsnacharbeit, einen Owner und einen unabhängigen Reviewer;
+Verbrauch UNKNOWN. Eigener Branch `codex/dgn007-worker-profile-plan`. Ausschließlich
+Plan und drei Einstiege werden bearbeitet, keine Probequelle oder native
+Ausführung. Der Plan trennt vollständige Vorwahl, frische Aufnahme, Quellenfit
+und die anschließend nötigen Quellen-/Test-/Lauffreigaben. Nach seiner
+vollständigen Integration folgt das konkrete quellenbegründete Auswahlpaket.
+
 ## Reentranzfehler im vollständigen Runner behoben
 
 Der gemeinsame Kontrollcheck stoppt den normalen Ablauf nach einem reentranten
