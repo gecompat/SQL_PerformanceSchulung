@@ -1,5 +1,36 @@
 # Aktueller Ausführungsstand
 
+## C7 abgelehnt; erweiterte harte Grenze erreicht
+
+Der ausdrücklich freigegebene einzelne C7 ist im unabhängigen Quellen-/Test-PRE
+(Prüfung vor dem Lauf) abgelehnt. Stabile Bindung 559f09cc35dd22a2fd073641401c23517114e031:
+Eine 17-elementige Ersatzkopie der `_kernel`-Closure könnte vor dem ursprünglichen
+Kernelcheck eine fremde Iteration auslösen. Die Gegenprobe deckt diesen Einstieg
+nicht ab. Prüfung am zwingenden STOP beendet, keine vollständige Befundschließung.
+[Konkreter Befund, gemeinsamer Rahmen und Disposition](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md).
+
+Sieben/hartsieben Kandidaten, sechs geänderte Nachläufe, Verbrauch UNKNOWN.
+Kein Kandidatenimport, keine Generierung, kein Fit-, Compile-/Exec- oder Modelllauf.
+Die neue Runnerquelle, ihre 19 Testmethoden und der Workflow sind aus dem finalen
+Diff entfernt; der verworfene Stand ist privat in einem geprüften Gitbundle
+bewahrt. Bestehende Komponenten und fremde Ressourcen bleiben erhalten.
+
+Der reine Diagnoseabschluss gehört zu
+[PR278](https://github.com/gecompat/SQL_PerformanceSchulung/pull/278), eigener
+Branch `codex/dgn007-runner-c7`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates,
+den regulären Merge, frische Main-Gates, FullTree/Sync (vollständige Baumübernahme
+und Synchronisation) sowie die eigene lokale/Remote-Branchbereinigung an die
+tatsächlich belegten Ergebnisse.
+
+Nächste Quellenarbeit ist bis zur ausdrücklichen neuen begrenzten Entscheidung
+zur Bootstrap-Korrektur blockiert. Kein C8 oder Scope-/Budgetreset. Die frühere
+kontinuierliche Fortsetzung hebt die ausdrücklich gesetzte C7-Grenze nicht auf.
+Unveränderte Heartbeats starten keine neue Analyse oder Wiederholungsprüfung.
+Alle tatsächlichen Runtime-, Trust-, Usedbytes-, Methoden-, SESSION_END- und
+SQL-Freigaben bleiben offen. Die historische C6-Grenze unten wurde ausschließlich
+für genau C7 erweitert; sie ist keine aktuelle weitere Freigabe.
+
 ## C6 im Source-/Test-PRE abgelehnt; konkrete Sourcegrenze erreicht
 
 PR275 vollständig Main750844bbfe61f6b12c98354c034ea3441abbde91: sieben finale

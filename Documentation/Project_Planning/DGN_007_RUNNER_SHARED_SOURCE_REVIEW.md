@@ -1,4 +1,88 @@
-# DGN-007 – C6-Auswahl des gemeinsamen Runnerkontrollankers
+# DGN-007 – Quellenprüfung der vollständigen Runnerroute
+
+## C7: abgelehnt; erweiterte harte Grenze erreicht
+
+Stand: 21. Oktober 2026. Ausgangsbasis 347c231bcc5d5318a779100e0677cde2e49e3adb
+nach abgeschlossenem [PR277](https://github.com/gecompat/SQL_PerformanceSchulung/pull/277).
+Status CLOSED_REJECTED_C7_PRE: Der stabile Quellen-/Testkandidat
+559f09cc35dd22a2fd073641401c23517114e031 wurde unabhängig vor jeder Generierung
+abgelehnt. Es gab keinen Kandidatenimport, keine Generierung, keinen Fitlauf,
+keine AST-Analyse (Abstract Syntax Tree; abstrakter Syntaxbaum), Kompilierung,
+Ausführung oder Modelllauf. Größenfit und übrige Befundschließung sind unbekannt.
+Die Prüfung endete am zwingenden STOP; es liegt keine vollständige Abnahme vor.
+
+### Freigabe und gemeinsamer Verbrauch
+
+Der Mensch hat am 21. Oktober 2026 genau einen weiteren stabilen Kandidaten C7
+(den siebten Quellen-/Teststand)
+freigegeben: Korrektur der drei C6-Befunde und der UTF-8-Textkorruption, passende
+Negativfälle, unabhängiges Review, lokale Tests, grüne Gates, regulärer Merge
+und eigene Branchbereinigung. Ein Implementierungsverantwortlicher root und
+derselbe unabhängige Reviewer. Der gemeinsame Rahmen umfasst Auswahl,
+Umsetzung, Quellen-/Testprüfung, Koordination, lokale Prüfungen, CI (Continuous
+Integration; automatisierte Integrationsprüfungen), Integration und Bereinigung.
+Quellen-/Versuchsverbrauch UNKNOWN; sieben/hartsieben stabile Kandidaten und
+sechs geänderte Nachläufe sind erreicht. Keine erfundene Verbrauchsmessung.
+
+Unabhängiges Auswahl-GO auf Basis 347c231 erlaubte die Umsetzung, aber keinen
+Lauf. Vor Generierung war ein stabiler Quellen-/Test-PRE (unabhängige Prüfung
+vor dem Lauf) mit ausdrücklichem gestuftem Lauf-GO erforderlich: zuerst die
+Fit-/Ganz-AST-Methode jeweils einmal auf Windows 3.14.7 und Linux 3.12.3 mit
+-I -S -B; nur beidseitiges PASS hätte einmal die übrigen eigenen Modelle je
+Plattform erlaubt. Die Interpreterversionen wurden lesend bestätigt. Wegen
+des Quellenbefunds wurde keine dieser Methoden gestartet.
+
+### Konkreter unabhängiger Befund
+
+P2 – Der Bootstrap übernimmt seine Primitiven erneut aus einer veränderbaren
+Closurezelle. Im verworfenen Stand prüft die Callfunktion `_kernel` lediglich
+auf exaktes Tuple und Länge 17 (Sourcezeile 500). Der eingefügte Frameprefix
+übernimmt diesen Zellinhalt; der Checkpoint entpackt dessen Feld 0 vor dem
+ursprünglichen Kernelcheck (Sourcezeile 720).
+
+Statischer Gegenfall: Vor dem Aufruf wird die `_kernel`-Zelle durch eine
+17-elementige Kontextkopie ersetzt, deren Feld 0 ein fremdes Objekt mit
+Iterationssentinel enthält. Die Vorprüfung passiert; das Entpacken würde den
+fremden Iterator aufrufen. Eine spätere feste Ablehnung beseitigt die bereits
+erfolgte Fremdoperation nicht. Die neue Closuregegenprobe verändert `_kernel`
+erst während Parent-BEGIN (Testzeile 901); dieser Einstiegspfad fehlt.
+
+Erforderlich wäre eine vor Kontextzugriff unabhängig gebundene ursprüngliche
+Kontext-/Primitivenautorität und eine Gegenprobe genau dieses Einstiegspfads.
+Das verlangt einen weiteren Quellen-/Fixturefix. Der unabhängige Review hat
+559f09c deshalb ausdrücklich ohne Fit-GO abgelehnt und am STOP beendet.
+Die übrigen C7-Änderungen sind damit weder vollständig geprüft noch freigegeben.
+
+### Sichere Disposition und Abschluss
+
+Der verworfene Stand enthielt eine neue Runnerquelle, 19 eigene Testmethoden
+(eine Fit-/Ganz-AST-Methode und 18 synthetische Positiv-/Negativmethoden) und
+einen engen Workflow. Diese drei neuen Dateien sind aus dem finalen Diff
+entfernt. Vorhandene Workerinput-, Proxy-, Harness- und Parentkomponenten samt
+Tests bleiben erhalten. Kein nativer DGN-Body, Worker oder SQL-Lauf wurde
+hierdurch gestartet; keine Plattform-, Trust-, Methoden- oder SQL-Freigabe.
+Das unveränderte Scriptlimit 131072 und der volle Rawumfang werden nicht
+abgeschwächt. Größenersparnis und Laufzeitverhalten bleiben unbekannt.
+
+Der abgelehnte Commit ist vor dem Entfernen in einem privaten, lokal geprüften
+vollständigen Gitbundle gesichert. Private Evidence und fremde Ressourcen
+bleiben erhalten. Die Versionshistorie ist kein ausführbarer Freigabestand.
+Der [DESIGNED-Vertrag](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md) bleibt unverändert.
+Der reine Diagnoseabschluss gehört zu
+[PR278](https://github.com/gecompat/SQL_PerformanceSchulung/pull/278), eigener
+Branch `codex/dgn007-runner-c7`. Der dortige Abschlussnachweis bindet den
+unabhängigen Dispositionsreview, lokale Dokumentationsprüfungen, aktuelle
+Head-/Base-Gates, reguläre Integration, frische Main-Gates, vollständige Übernahme
+und sichere eigene Branchbereinigung an die tatsächlich belegten Ergebnisse.
+
+Nächste Quellenarbeit ist blockiert. Kein C8, kein Budget-/Scope-/Namensreset
+und kein weiterer Lauf innerhalb dieser Freigabe. Eine Wiederaufnahme benötigt
+eine ausdrückliche neue begrenzte Entscheidung zur vor Kontextzugriff tragfähigen
+Bootstrap-Korrektur sowie erneut unabhängige Auswahl-/Quellen-/Testprüfung und
+Lauf-GO. Unveränderte Heartbeats starten keine Wiederholungsanalyse. Tatsächliche
+Runtime-, Trust-, Usedbytes-, Methoden-, SESSION_END- und SQL-Gates bleiben offen.
+
+## Historischer C6-Auswahl- und Ablehnungsstand
 
 Stand: 21. Oktober 2026. Basis750844bbfe61f6b12c98354c034ea3441abbde91.
 Status CLOSED_REJECTED_C6_PRE. Auswahl37f27e4 war unabhängig freigegeben;
