@@ -1,5 +1,25 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Erste native Runnerprofilaufnahme als getrennte Folge planen
+
+[PR286](https://github.com/gecompat/SQL_PerformanceSchulung/pull/286) ist mit
+unabhängigen Reviews, vollständigem lokalem Auswahlpaket, sieben grünen Head-,
+fünf Base- und fünf frischen Main-Prüfungen, vollständiger Übernahme und eigener
+Branchbereinigung in `a714c7d578a18d2fa31fe862bc1e184ed1037444` abgeschlossen.
+Der Auswahlrahmen mit acht von hart acht Ständen bleibt geschlossen.
+
+Der [neue Beobachtungsplan](DGN_007_NATIVE_PROFILE_OBSERVATION_PLAN.md)
+bereitet ausschließlich die erste frische Runneraufnahme vor; Runner bezeichnet
+die vollständige Ausführungssteuerung. Ein Owner, derselbe unabhängige Reviewer,
+Checkpoint am Entwurf, harte Grenze zwei Dokumentationsstände einschließlich
+Nacharbeit, Tests, Koordination und Integration; Verbrauch UNKNOWN, nicht
+verlässlich gemessen. Keine Implementierung oder native Ausführung in diesem
+Schnitt. Die vollständige Aufnahme gegen unveränderte Felder, der Halt vor
+Body-/Importfreigabe und unabhängiger eigener Linux-Cleanup benötigen später
+einen konkreten endlichen Quellen-/Test-/Aufrufrahmen und ausdrückliches Lauf-GO.
+Ein reiner Plan oder passender Teilreport belegt keinen vollständigen Worker,
+keine tatsächlich verwendeten Kandidatenbytes und keine Runtime-/SQL-Abnahme.
+
 ## Vollständiges Auswahlpaket im achten Stand lokal bestanden
 
 Der Mensch hat den [vorhandenen Poolvergleich samt Gegenproben und offenen

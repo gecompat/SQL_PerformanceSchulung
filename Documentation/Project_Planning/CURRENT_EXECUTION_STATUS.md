@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## Nächster Schnitt: erste native Profilbeobachtung vorbereiten
+
+Das Auswahlpaket ist über [PR286](https://github.com/gecompat/SQL_PerformanceSchulung/pull/286)
+vollständig in Main `a714c7d578a18d2fa31fe862bc1e184ed1037444` integriert:
+unabhängige Reviews, lokale positive/negative Prüfungen, sieben grüne Head-,
+fünf grüne Base- und fünf frische Main-Prüfungen, vollständige Übernahme,
+Synchronisation und eigene Branchbereinigung. Sein Rahmen mit acht von hart
+acht Ständen ist geschlossen; keine Auswahlkorrektur oder Wiederholung.
+
+Der kontinuierliche Auftrag führt zum [Plan für genau die erste frische
+Runnerprofilaufnahme](DGN_007_NATIVE_PROFILE_OBSERVATION_PLAN.md). Runner
+bezeichnet die vollständige Ausführungssteuerung. Dieser eigene Schnitt
+ändert nur vier Dokumente: ein Implementierungsverantwortlicher und derselbe
+unabhängige Reviewer, Checkpoint am eingefrorenen Entwurf, höchstens eine
+Nacharbeit und harte Grenze zwei Entwurfsstände einschließlich Reviews,
+Prüfungen und vollständiger Integration; Verbrauch UNKNOWN, nicht verlässlich
+gemessen. Keine Codegenerierung, Importe oder native Aufrufe.
+
+Die spätere Aufnahme soll das unveränderte Auswahlpaket verwenden, nur den
+vollständigen PRE_IMPORT-Report vor Kandidatenimports erfassen und gegen alle
+vorgewählten Felder prüfen. Keine Body-/Importfreigabe; geplanter eigener Stop
+und unabhängiger Linux-Cleanup bleiben vor einem konkreten Lauf-GO zu lösen.
+Der Plan erteilt dieses GO nicht. Eigenständiger endlicher Quellen-/Test- und
+Aufrufrahmen erforderlich; keine Runtime-, Trust-, Importbyte- oder SQL-Abnahme.
+
 ## Achter Stand: vollständiges Auswahlpaket mit Poolvergleich bestanden
 
 Der Mensch hat den [achten Quellen-/Teststand für Poolvergleich, Gegenproben
