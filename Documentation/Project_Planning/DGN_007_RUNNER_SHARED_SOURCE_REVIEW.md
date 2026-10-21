@@ -1,89 +1,94 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
-## C8 fortgesetzt: vertrauenswürdige Quellen nach DEC-076
+## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 
 Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich
 entschieden: vertrauenswürdige Schulungsquellen; gezielte Kontrollmanipulationen
 sind vom Prüfversprechen ausgeschlossen. [DEC-076 im Kontrollvertrag](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md#vertrauensmodell-für-schulungsquellen-dec-076)
-präzisiert diese Grenze und erhält die Daten-/Provider-/Reihenfolge-/Identitäts-/
-Budget-/Fehler-/Cleanupanforderungen. Die historischen Auswahl-No-GOs unten
-bleiben als Befunde des früheren stärkeren Manipulationsmodells erhalten.
+erhält die Daten-/Provider-/Reihenfolge-/Identitäts-/Budget-/Fehler-/Cleanup-
+anforderungen. Diese Entscheidung bleibt unabhängig vom folgenden funktionalen
+Quellenbefund bestehen; keine Sandbox-, Host- oder Trustattestation.
 
-Fortsetzung des unverbrauchten einzelnen C8, kein neuer Versuch oder Reset:
-Basis 4e738ae nach vollständig abgeschlossenem PR279, ein Owner root und derselbe
-unabhängige Reviewer. Bisher sieben Kandidaten/sechs geänderte Nachläufe,
-Verbrauch UNKNOWN; ein stabiler C8 erreicht acht/hartacht und sieben Nachläufe.
-Kein C9. Der gemeinsame Rahmen umfasst Vertragskorrektur, Auswahl, Umsetzung,
-alle Reviews, Koordination, lokale Tests, CI (Continuous Integration;
-automatisierte Integrationsprüfungen), reguläre Integration und eigene Bereinigung.
+### Gemeinsamer Rahmen und tatsächlicher Prüfstand
 
-### Konkrete Auswahl und Prüfversprechen
+Fortsetzung des zuvor unverbrauchten einzelnen C8, kein neuer Versuch oder
+Reset. Basis 4e738ae nach vollständig abgeschlossenem PR279, ein Owner root und
+derselbe unabhängige Reviewer. Auswahl-/Vertrags-GO an 408691b ohne offene
+priorisierte Auswahlbefunde. Der stabile Quellen-/Testkandidat
+`e6184befeaeda00d6ac784038a8b3b6f8b7ed119` erreicht acht/hartacht Kandidaten
+und sieben geänderte Nachläufe. Verbrauch UNKNOWN. Vertragskorrektur, Auswahl,
+Umsetzung, alle Reviews, Koordination, lokale Tests, CI (Continuous Integration;
+automatisierte Integrationsprüfungen), Integration und eigene Bereinigung zählen
+gemeinsam. Kein C9 oder Quellen-/Fixturefix nach diesem Freeze.
 
-Die bisher inline vervielfältigten Checkpoints werden einmal als gemeinsamer
-Python-Helfer vor Reportsnapshot definiert. Unter der ausdrücklich gewählten
-Vertrauensannahme darf dieser ursprüngliche Helfer als Kontrollcode aufgerufen
-werden; er behauptet keine Selbstabsicherung gegen vorher veränderten eigenen
-Code. Die tatsächlich ausgeführten PRE-/finally-POST-Stellen bleiben bestehen.
-Aktive Frames halten Kontext, Primitiven und D1-Record lokal; D1 bezeichnet den
-vor Reportsnapshot einmal versiegelten Zustand.
+Der Kandidat enthielt einen gemeinsamen vor Reportsnapshot definierten
+Checkpoint, separat übergebene ursprüngliche Primitiven und lokal gehaltene
+Kontext-/D1-Referenzen. D1 bezeichnet den einmal versiegelten Zustand. Exakter
+Kontexttyp, Länge 17 und Identität des primitiven Teilankers wurden vor weiteren
+Feldzugriffen geprüft. Der gezielte C7-Feld-0-Gegenfall ist im unabhängigen
+Quellenreview unter DEC-076 geschlossen. Das ist ein statisches Ergebnis unter
+der gewählten Vertrauensannahme, kein ausgeführtes Modell oder allgemeines
+Manipulationssicherheitsversprechen.
 
-Ursprüngliche Primitiven werden bei Initialisierung getrennt vom zu prüfenden
-`_kernel`-Kontext gehalten und an die Wrapper/Fabrik übergeben. Der gemeinsame
-Checkpoint erhält beide gehaltenen Referenzen ausdrücklich. Zuerst prüft er
-Kontexttyp, Länge und Identität des primitiven Teilankers; erst danach verwendet
-er Kontextfelder. Die C7-Kontextkopie mit fremdem Feld0 darf keinen Iterator
-aufrufen. Das ist eine gezielte Integritätsdiagnose unter vertrauenswürdigem
-Kontrollcode, kein wieder eingeführtes Versprechen gegen gleichzeitiges Fälschen
-aller Kontrollanker. Ganze Root-/Input-/Providerprüfungen und endliche
-Versiegelung bleiben vorhanden. Es gibt keine späte Baseline oder Rawauslassung.
+Die 20 Methoden umfassten eine Fit-/Ganz-AST-Methode und 19 eigene synthetische
+Modelle beziehungsweise begrenzte Diagnosen. AST bedeutet Abstract Syntax Tree
+(abstrakter Syntaxbaum). Source, sämtliche Methoden und Workflow wurden rein
+lesend unabhängig geprüft; ein funktionaler P2 bleibt offen. Kein Quellen-/
+Test- oder Lauf-GO. Kein Kandidatenimport, keine Generierung, AST-Analyse,
+Kompilierung, Ausführung, Fit- oder Modelllauf. Quellenfit und tatsächliches
+Laufzeitverhalten sind unbekannt.
 
-Die unabhängige Ganz-AST-Oracle (AST: Abstract Syntax Tree; abstrakter Syntaxbaum)
-rekonstruiert den einmaligen festen Checkpoint und seine tatsächlichen Aufruf-
-und Framebindungen getrennt vom produktiven Transformationshelfer. Alle übrigen
-fest ausgewählten Source-/Parent-/Inputknoten bleiben vollständig. Die eigenen
-positiven und negativen Modelle einschließlich tatsächlich erreichter Daten-/
-Provider-/Cache-/Child-/Write-/Limit-/Fehlerfälle bleiben erhalten. Fälle mit
-Code-/Closure-/Defaultaustausch sind ausschließlich begrenzte Diagnosefälle.
-Kein allgemeiner Foreignoperations- oder Manipulationssicherheitsclaim für
-gezielt veränderten Kontrollcode.
+### Konkreter unabhängiger Befund
 
-### Checkpoints, Aufwand und harte Grenze
+P2 – weitere Providerwirkung trotz sticky Reentranzfehler. Der reentrante Entry
+setzt `state[2] = True` (verworfene Sourcezeile 452). Der angepasste Guard
+akzeptiert das Flag weiterhin als Boolwert (Sourcezeile 805). Erfolgt die
+Reentranz im Compilecallback, passiert dessen finally-POST. Anschließend ruft
+`_rl_execute` noch den Exec-Provider auf (Sourcezeile 708). Das verletzt den
+weiterhin geltenden FAILED-Zustand ohne weitere Sourcewirkung und ist von der
+ausgeschlossenen gezielten Kontrollmanipulation unabhängig.
 
-Vor Umsetzung unabhängige Auswahl-/Vertragsprüfung. Danach genau ein stabiler
-Quellen-/Teststand und unabhängiger PRE vor Kandidatenimport, Generierung,
-Kompilierung oder Ausführung. Nur ausdrückliches gestuftes Lauf-GO erlaubt
-Fit/Ganz-AST genau einmal auf Windows 3.14.7/Linux 3.12.3 mit -I -S -B; nur
-beidseitiges vollständiges PASS erlaubt die übrigen eigenen Modelle einmal je
-Plattform. Ein weiterer notwendiger Quellen-/Fixturefix nach stabilem C8 oder
-ein Fitfehler bedeutet STOP, sichere Disposition und regulären Abschluss;
-kein C9 oder Capanhebung. Reale DGN-Bodies, native Worker und SQL werden nicht
-ausgeführt. Ergebnisreview und aktuelle grüne Head-/Base-/Main-Gates bleiben
-vor Abschluss erforderlich.
+Die vorhandene Reentranzprobe (Testzeile 757) prüft Ablehnung und Retry, jedoch
+keine ausbleibende Execwirkung nach dem Fehler. Erforderlich wäre eine vor jedem
+weiteren Providerdispatch wirksame Fehlerflagprüfung und eine tatsächlich
+erreichte Compilecallback-Reentranzprobe mit null anschließendem Execdispatch.
+Das verlangt einen weiteren Quellen-/Fixturefix; die erreichte harte Grenze
+erlaubt ihn nicht. Kein Fitlauf zur Umgehung des offenen Befunds.
 
-Aufwandsbewertung dieser Vertragskorrektur: ein Implementer, derselbe unabhängige
-Reviewer mit getrennten Auswahl-, Quellen-/Test- und Ergebnisfragen; keine
-zusätzliche Modellkette. Die gemeinsame Funktion vermeidet vervielfältigten
-Kontrollcode, keine Sicherheitsdatenprüfung. Unveränderte alte lokale Suiten
-werden nicht wiederholt; die neue enge CI-Suite enthält sämtliche direkten und
-transitiven Abhängigkeiten und führt ihre positiven/negativen Modelle aus.
-Lokale und CI-Läufe bleiben mangels geschützter Evidenzanerkennung getrennte
-Nachweise. Verbrauch UNKNOWN; keine behauptete Einsparungsmessung. Neue globale
-Regel-/Registryänderungen durchlaufen zusätzlich die regulären Governance-Gates.
+### Sichere Disposition und Wiederaufnahmegrenze
 
-Auswahl-/Vertrags-GO an 408691b ohne offene priorisierte Befunde erteilt.
-Der jetzt stabil vorgelegte C8 enthält 20 Methoden: eine Fit-/Ganz-AST-Methode
-und 19 eigene synthetische Modelle beziehungsweise begrenzte Diagnosen. Der
-gezielte C7-Feld-0-Fall hält seinen Reachedmarker außerhalb des Kandidaten und
-verlangt null Fremdoperationen. Genau ein gemeinsam genutzter Checkpoint und
-alle Callassignments/Frameprefixe werden vollständig rekonstruiert. Die übrige
-C7-Semantik benötigt weiterhin den vollständigen unabhängigen Quellen-/Test-PRE.
+Die neue Runnerquelle, ihre 20 Testmethoden und der neue Workflow sind aus dem
+finalen Diff entfernt. Der abgelehnte Commit ist vor dem Entfernen in einem
+privaten vollständigen Gitbundle gesichert; dessen Inhalt und exakte Referenz
+wurden lokal geprüft. Bestehende Workerinput-, Proxy-, Harness- und Parent-
+komponenten sowie private Evidence und fremde Ressourcen bleiben erhalten.
 
-Damit sind acht/hartacht Quellen-/Testkandidaten und sieben geänderte Nachläufe
-erreicht, Verbrauch UNKNOWN. Quellen-/Test-GO sowie jedes Generierungs-/Lauf-GO
-sind noch offen. Bisher kein Kandidatenimport, keine Generierung, AST-Analyse,
-Kompilierung, Ausführung oder Modelle. Eigener Branch
-`codex/dgn007-trusted-sources-c8`. Die alte ABI-Auswahlsperre wird nur durch die
-hier ausdrücklich getroffene Vertragsentscheidung behandelt.
+Integriert werden ausschließlich DEC-076, dessen kanonische Registrierung und
+die belegte Diagnose. Das Scriptlimit 131072, volle Rawprofil, sämtliche echten
+Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates und der funktionale
+FAILED-Vertrag bleiben erhalten. Keine native Runtimevermittlung, kein nativer
+DGN-Body, Worker oder SQL-Lauf.
+
+Eine Wiederaufnahme benötigt eine ausdrückliche neue begrenzte Entscheidung
+für den funktionalen Fehlerabschluss und seine fehlende Folgeeffektprobe. Die
+Vertrauensfrage ist entschieden und wird nicht erneut geöffnet. Kein C9,
+Namens-/Scope-/Budgetreset oder automatischer Nachlauf aus einem Heartbeat.
+
+### Aufwand und regulärer Abschluss
+
+Ein Implementer und derselbe unabhängige Reviewer mit getrennten Auswahl-,
+Quellen-/Test- und Dispositionsfragen; keine zusätzliche Modellkette. Keine
+unveränderten alten lokalen Suiten wiederholt. Registry-/Kennungsprüfungen und
+gezielte Dokumentationschecks bleiben als lokale Nachweise vom nicht erteilten
+Quellenlauf-GO getrennt. Der neue Runnerworkflow wird nicht aufgenommen; die
+Vertrags-/Registryänderung durchläuft die regulären Governance-Gates. Verbrauch
+UNKNOWN; keine behauptete Einsparungsmessung.
+
+Der reine Vertrags-/Diagnoseabschluss auf `codex/dgn007-trusted-sources-c8` wird
+unabhängig geprüft und mit aktuellen grünen Head-/Base-Gates regulär integriert.
+Der PR-Abschlussnachweis bindet die tatsächlich belegten Ergebnisse einschließlich
+frischer Main-Gates, vollständiger Übernahme, Synchronisation und eigener
+lokaler/Remote-Branchbereinigung. Private Evidence bleibt erhalten.
 
 ## C8: ausdrückliche Freigabe zur Bootstrap-Korrektur
 

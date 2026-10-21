@@ -1,24 +1,37 @@
 # Aktueller Ausführungsstand
 
-## C8: Auswahl bestätigt; stabiler Quellen-/Teststand zur Prüfung
+## C8 abgelehnt: Folgeeffekt nach Reentranz; Vertrauensmodell entschieden
 
-Der Mensch hat vertrauenswürdige Schulungsquellen ausdrücklich gewählt und
-gezielte Manipulationen der Kontrollfunktionen vom Prüfversprechen ausgeschlossen.
-[DEC-076 und konkrete C8-Auswahl](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c8-fortgesetzt-vertrauenswürdige-quellen-nach-dec-076)
-binden die Vertragskorrektur an weiterhin genaue Daten-, Provider-, Reihenfolge-,
-Identitäts-, Budget-, Fehler- und Cleanupprüfungen. Keine Sandbox-, Host-, Trust-
-oder reale SQL-Freigabe. Die frühere ABI-Auswahlsperre unten ist historisch;
-die Entscheidung ist keine erfolgreiche Quellen-/Testabnahme.
+Der Mensch hat vertrauenswürdige Schulungsquellen gewählt und gezielte
+Kontrollmanipulationen vom Prüfversprechen ausgeschlossen. DEC-076 dokumentiert
+diese Entscheidung. Der stabile C8 `e6184befeaeda00d6ac784038a8b3b6f8b7ed119`
+ist unabhängig ohne Lauf-GO abgelehnt: Bei Reentranz im Compilecallback kann
+der Exec-Provider trotz gesetztem Fehlerflag noch aufgerufen werden. Die
+Reentranzprobe deckt diese Folgeeffekte nicht ab. Dieser funktionale Befund
+bleibt unter dem gewählten Vertrauensmodell erforderlich.
+[Konkreter Befund, Vertragsgrenze und Disposition](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c8-unter-dec-076-abgelehnt-funktionaler-reentranzbefund).
 
-Fortsetzung desselben unverbrauchten C8 auf Basis 4e738ae nach abgeschlossenem
-PR279. Ein Owner root und derselbe unabhängige Reviewer; eigener Branch
-`codex/dgn007-trusted-sources-c8`. Sieben bisherige Kandidaten/sechs geänderte
-Nachläufe, Verbrauch UNKNOWN; ein stabiler C8 erreicht harte Grenze acht/sieben.
-Kein C9, kein Scope-/Budgetreset. Zuerst unabhängige konkrete Auswahl-/Vertrags-
-prüfung, dann ein stabiler Quellen-/Teststand und ausdrückliches gestuftes
-Windows-/Linux-Lauf-GO. Auswahl-/Vertrags-GO an 408691b erteilt; stabiler C8 mit 20 Methoden vorgelegt.
-Harte Grenze acht Kandidaten/sieben Nachläufe erreicht, Verbrauch UNKNOWN.
-Quellen-/Test-PRE und jedes Generierungs-/Lauf-GO offen; kein Kandidatenlauf.
+Die gezielte Bootstrap-Feld-0-Korrektur ist im Quellenreview unter DEC-076
+statisch geschlossen. Kein allgemeiner Manipulationssicherheitsclaim. Acht/
+hartacht Kandidaten, sieben geänderte Nachläufe, Verbrauch UNKNOWN. Kein
+Kandidatenimport, keine Generierung, AST-Analyse, Kompilierung, Ausführung,
+Fit- oder Modelllauf. Die neue Runnerquelle, 20 Methoden und der Workflow sind
+aus dem finalen Diff entfernt; der abgelehnte Stand ist privat in einem
+vollständigen geprüften Gitbundle bewahrt. Bestehende Komponenten bleiben erhalten.
+
+Nächste Quellenarbeit ist bis zu einer ausdrücklichen neuen begrenzten
+Entscheidung zum funktionalen Fehlerabschluss und dessen Folgeeffektprobe
+blockiert. Kein C9, Scope-/Budgetreset oder unveränderter automatischer Nachlauf.
+Die Vertrauensfrage ist entschieden. Tatsächliche Runtime-, Trust-, Usedbytes-,
+Methoden-, SESSION_END- und SQL-Gates bleiben offen.
+
+Der reine Vertrags-/Diagnoseabschluss auf `codex/dgn007-trusted-sources-c8`
+verfolgt unabhängige Disposition, lokale Dokumentations-/Registryprüfung,
+aktuelle grüne Head-/Base-/Main-Gates, reguläre Integration, vollständige Übernahme,
+Synchronisation und sichere eigene Branchbereinigung. Der PR-Abschlussnachweis
+bindet die tatsächlichen Ergebnisse. Private Evidence und fremde Ressourcen
+bleiben erhalten. Die frühere ABI-Auswahlsperre unten ist historisch und durch
+DEC-076 behandelt; sie ist kein weiterer offener Entscheidungsbedarf.
 
 ## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
 
