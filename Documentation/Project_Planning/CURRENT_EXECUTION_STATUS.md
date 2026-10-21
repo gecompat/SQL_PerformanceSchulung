@@ -1,5 +1,36 @@
 # Aktueller Ausführungsstand
 
+## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
+
+Die ausdrückliche Freigabe umfasst genau einen stabilen C8 zur Bootstrap-
+Korrektur. Die unabhängige Auswahlprüfung an 841b395 hat vor Umsetzung einen
+konkreten [ABI-/Trustblocker und die Entscheidungsalternativen](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#unabhängiges-auswahl-no-go-synchroner-abi-einstieg)
+belegt: Der synchrone Python-Importmechanismus übergibt keine ursprünglichen
+Kontrollreferenzen an das Gateway. Dessen zuvor veränderter Code könnte jede
+eigene Prüfung umgehen; der äußere Nachcheck kommt erst nach möglichen
+Wirkungen. Ein weiterer Python-Wrapper schließt diese Lücke nicht.
+
+C8 ist noch nicht als Quellen-/Testkandidat verbraucht. Bisher sieben Kandidaten
+und sechs geänderte Nachläufe, Verbrauch UNKNOWN; die einzelne C8-Freigabe ist
+kein C9 oder Reset. Keine Implementierung, kein Quellenfreeze, keine Generierung
+oder Kandidaten-/Modell-/Fitläufe. Der unveränderte DESIGNED-Vertrag bietet
+bisher keine vollständig belegte Übergabekette für diesen Einstieg.
+
+Nächste Umsetzung benötigt eine ausdrückliche Entscheidung über ein begrenztes
+Manipulationsmodell für vertrauenswürdige Schulungsquellen oder eine gesonderte
+vertrauenswürdige Runtimevermittlung. Das sind Vertrags-/Architekturentscheidungen,
+keine routinemäßige Implementierungs- oder Mergefreigabe. Tatsächliche Runtime-,
+Trust-, Usedbytes-, Methoden-, SESSION_END- und SQL-Gates bleiben offen.
+
+Der reine Diagnoseabschluss gehört zu
+[PR279](https://github.com/gecompat/SQL_PerformanceSchulung/pull/279), eigener
+Branch `codex/dgn007-runner-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates,
+den regulären Merge, frische Main-Gates, vollständige Übernahme, Synchronisation
+und eigene lokale/Remote-Branchbereinigung an die tatsächlich belegten Ergebnisse.
+Private Evidence und fremde Ressourcen bleiben erhalten. Unveränderte Heartbeats
+starten keine Wiederholungsanalyse oder Kandidaten.
+
 ## C7 abgelehnt; erweiterte harte Grenze erreicht
 
 Der ausdrücklich freigegebene einzelne C7 ist im unabhängigen Quellen-/Test-PRE

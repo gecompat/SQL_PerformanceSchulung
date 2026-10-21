@@ -1,5 +1,104 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## C8: ausdrückliche Freigabe zur Bootstrap-Korrektur
+
+Am 21. Oktober 2026 hat der Mensch genau einen weiteren stabilen C8
+(den achten Quellen-/Testkandidaten) zur Bootstrap-Korrektur freigegeben.
+Ausgangsbasis ist 095c813605bec4ce4e06ebfdf6652cbc8370565a nach abgeschlossenem
+[PR278](https://github.com/gecompat/SQL_PerformanceSchulung/pull/278).
+Ein Implementierungsverantwortlicher root und derselbe unabhängige Reviewer;
+Auswahl, Umsetzung, Quellen-/Testprüfung, Koordination, lokale Tests, CI
+(Continuous Integration; automatisierte Integrationsprüfungen), Integration
+und sichere Bereinigung gehören zu diesem gemeinsamen Schnitt. Verbrauch
+UNKNOWN. Bisher sieben Kandidaten/sechs geänderte Nachläufe; mit stabilem C8
+höchstens acht Kandidaten/sieben geänderte Nachläufe. Kein C9 oder Reset.
+
+Der konkrete Schnitt korrigiert ausschließlich die vor jedem Kontextzugriff
+fehlende unabhängige ursprüngliche Bootstrapautorität aus C7 und ergänzt die
+passende tatsächlich erreichte Gegenprobe: vor Aufruf ersetzte 17-elementige
+Kontextkopie mit fremdem Feld0 samt Iterationssentinel. Eine zweite veränderbare
+Zelle mit bloßer Formprüfung wäre keine Lösung. Ursprüngliche Primitiven und
+ursprünglicher Kernel samt vollständigen Metadaten müssen unabhängig vom zu
+prüfenden Kontext gehalten und vor dessen Verwendung geschlossen werden.
+Aktive Frames behalten ihre ursprünglichen Referenzen über Callbacks hinweg.
+Der vollständige DESIGNED-Vertrag bleibt unverändert; die übrigen C7-Änderungen
+sind wegen dessen frühem STOP weiterhin nicht vollständig abgenommen.
+
+Checkpoint vor Umsetzung: genau eine konkrete Auswahl unabhängig prüfen.
+Danach genau ein stabiler Quellen-/Teststand und unabhängiger PRE (Prüfung
+vor dem Lauf) vor jedem Kandidatenimport, jeder Generierung, AST-Analyse
+(Abstract Syntax Tree; abstrakter Syntaxbaum), Kompilierung oder Ausführung.
+Nur ausdrückliches gestuftes Lauf-GO erlaubt die Fit-/Ganz-AST-Methode jeweils
+einmal auf Windows 3.14.7 und Linux 3.12.3 mit -I -S -B. Nur beidseitiges PASS
+erlaubt einmal die übrigen ausgewählten eigenen synthetischen Modelle je
+Plattform. Kein nativer DGN-Body, Worker oder SQL-Lauf; keine Capanhebung oder
+Rawauslassung. Bei weiterer notwendiger Quellen-/Fixturekorrektur nach dem
+stabilen C8 oder fehlgeschlagenem Fit: kein C9, sondern sichere Disposition
+und belegter regulärer Abschluss. Nach erfolgreichem Ergebnisreview folgen
+aktuelle Head-/Base-Gates, regulärer Merge, frische Main-Gates, vollständige
+Übernahme, Sync und sichere Bereinigung genau des eigenen Branches.
+
+### Unabhängiges Auswahl-No-GO: synchroner ABI-Einstieg
+
+Auswahlbindung 841b3953ec96eb7cd01b5a9ac70e56e3efcce9b4: Der unabhängige
+Reviewer bestätigt einen konkreten ABI-/Trustblocker (ABI: Application Binary
+Interface; hier die feste Aufrufschnittstelle des Python-Importmechanismus).
+Status BLOCKED_SELECTION_ABI_TRUST. Noch kein C8-Quellenfreeze und kein Lauf-GO;
+C8 ist als Quellen-/Testkandidat nicht verbraucht. Der tatsächliche Verbrauch
+bleibt sieben Kandidaten/sechs geänderte Nachläufe, UNKNOWN.
+
+Ein ursprünglicher Controllerframe könnte Primitiven, vollständige Kernelpins
+und ursprünglichen Inputframe von der Initialisierung bis zum Fehlerabschluss
+lokal halten und vor eigenen Dispatchs ausdrücklich weitergeben. Das reicht
+für die synchrone Importkante nicht: Während der Controller in `exec` wartet,
+kann der Sourcebody direkt den Python-Importmechanismus auslösen. Dessen
+`__import__`-Aufruf hat keine zusätzlichen Autoritätsargumente des Controllers.
+Wählt das Gateway sie aus Closure, Defaults oder Globals, bleibt der erste
+Zugriff unbewiesen. Eine lokale Kopie entsteht erst nach diesem Zugriff.
+
+Bereits der Gatewaydispatch müsste dominant geschützt sein. Wird der Python-
+Gatewaycode vor dem ABI-Einstieg geändert, kann seine eigene Prüfung vollständig
+entfallen. Ein äußerer finally-POST erkennt die Änderung erst nach möglichen
+Wirkungen. Dasselbe Problem betrifft entsprechende Loader-Dispatchs. Eine
+zweite Kontextzelle, ein weiterer Python-Wrapper oder ein zusätzlicher
+Kontextspeicher liefern für sich keine unveränderbare Vertrauenswurzel.
+
+Der gewählte unveränderte DESIGNED-Vertrag verlangt diese ursprüngliche
+Bindung vor Dispatch. Eine vollständige Übergabekette ist für die ABI-Kante
+nicht belegt. Neue Runtimevermittlung oder eine bewusste Einschränkung des
+Manipulationsmodells wären Vertrags-/Architekturänderungen; die C8-Freigabe
+entscheidet keine dieser Alternativen und wird dafür nicht umgedeutet.
+
+### Entscheidung und sichere Disposition
+
+Zur Wiederaufnahme ist eine ausdrückliche fachliche Entscheidung nötig:
+
+- Das Manipulationsmodell für vertrauenswürdige Schulungsquellen und die
+  synchronen ABI-Einstiege begrenzen. Die dann tatsächlich bewiesene Integrität
+  und verbleibenden Grenzen müssten präzise im Vertrag und in Tests stehen;
+  keine Sandbox-, Host- oder Trustattestation daraus ableiten.
+- Einen vor dem ABI-Einstieg wirksamen, unabhängig vertrauenswürdigen Vermittler
+  als gesonderten Architektur-/Runtimescope auswählen und qualifizieren. Ein
+  weiterer ungeschützter Python-Wrapper wäre dafür kein Nachweis.
+
+Bis zu dieser Entscheidung keine Umsetzung, kein Quellenfreeze, kein Import,
+keine Kandidatengenerierung, AST-Analyse, Kompilierung, Ausführung oder Modell-
+beziehungsweise Fitlauf. Es gibt keine neuen Source-/Test-/Workflowdateien im
+finalen Diff. Historische C7-Quellen wurden ausschließlich privat aus ihren
+Gitbytes gelesen; private Evidence, bestehende Komponenten und fremde Ressourcen
+bleiben erhalten. Der DESIGNED-Vertrag wird durch diesen Diagnoseeintrag nicht
+geändert. Sämtliche Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates
+und das Scriptlimit bleiben offen beziehungsweise unverändert.
+
+Der reine Auswahl-/Diagnoseabschluss gehört zu
+[PR279](https://github.com/gecompat/SQL_PerformanceSchulung/pull/279), eigener
+Branch `codex/dgn007-runner-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates,
+den regulären Merge, frische Main-Gates, vollständige Übernahme, Synchronisation
+und eigene lokale/Remote-Branchbereinigung an die tatsächlich belegten Ergebnisse.
+Ein unveränderter Heartbeat startet weder dieselbe Auswahlprüfung erneut noch
+einen Quellenversuch.
+
 ## C7: abgelehnt; erweiterte harte Grenze erreicht
 
 Stand: 21. Oktober 2026. Ausgangsbasis 347c231bcc5d5318a779100e0677cde2e49e3adb
