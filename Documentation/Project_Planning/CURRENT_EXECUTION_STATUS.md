@@ -1,5 +1,35 @@
 # Aktueller Ausführungsstand
 
+## C6 im Source-/Test-PRE abgelehnt; konkrete Sourcegrenze erreicht
+
+PR275 vollständig Main750844bbfe61f6b12c98354c034ea3441abbde91: sieben finale
+Head-/sechs Base-/fünf frische Main-Gates SUCCESS, unabhängige Designschließung,
+FullTree/Sync und eigene lokale/Remote-Branchabwesenheit bestätigt.
+[PR275-Abschlussnachweis](https://github.com/gecompat/SQL_PerformanceSchulung/pull/275).
+
+Der letzte stabile C6 d0470fcaf3445a9ea68ef253a08930669a69424d ist unabhängig
+im Source-/Test-PRE mit drei P2 abgelehnt: `parent` vor Zuweisung, ungeprüfte
+Guard-Slotinhalte vor Bootstrap und erneut gelesene veränderbare Closurezellen
+im Cleanup. Keine Generierung, kein Fit oder Modelllauf; Größenersparnis
+weiter unbekannt. Eigene UTF-8-Textkorruption ist als zusätzlicher Befund
+benannt; Planungsdokumente aus ursprünglichen Gitbytes wiederhergestellt.
+[Konkreter Befund-/Dispositions- und Entscheidungseintrag](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md).
+
+Sechs/hartsechs Source-/Testkandidaten, fünf geänderte Nachläufe, Verbrauch
+UNKNOWN. Kein stiller C7 oder Quellen-/Scope-/Budgetreset. Verworfene neue
+Runnerquelle, ihre16 Tests und Workflow aus finalem Diff entfernt; bestehende
+Komponenten bleiben erhalten. Der reine Dokumentationsabschluss gehört zu
+[PR276](https://github.com/gecompat/SQL_PerformanceSchulung/pull/276). Dessen
+Abschlussnachweis hält die tatsächlichen Review-/Head-/Base-/Main-Gates,
+FullTree/Sync und eigene lokale/Remote-Branchbereinigung fest; daraus folgt
+keine Sourcefreigabe.
+
+Nächste Sourcearbeit ist blockiert, bis die im Befundeintrag konkret vorgeschlagene
+Erweiterung um genau einen weiteren stabilen C7 ausdrücklich entschieden wird.
+Der Vorschlag wahrt den DESIGNED-Vertrag und alle Gates, ist keine Freigabe.
+Unveränderte Heartbeats starten keine Wiederholungsanalyse oder nächste Welle.
+Alle realen Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates bleiben offen.
+
 ## Architekturplan nach abgeschlossenem Diagnose-PR274
 
 PR274 ist vollständig in Mainf30aebce18ec2902171210bdcc7f222eaa12d405 integriert:
@@ -21,7 +51,7 @@ Einzige Entwurfsnacharbeit ergänzt Pin→Prüfstelle, alle Modul-/Spec-/Record-
 Unterzustände, vollständige Metadaten, finally-POSTs, Fehlerpriorität und
 sicheren aktiven Fehlerabschluss. Zwei/hartzwei Entwurfsstände; unabhängiger
 Delta-PRE210f8e2 schließt P2/P3 ohne offene priorisierte Designbefunde.
-DESIGNED ausschließlich Architektur, Dokumentationsintegration noch offen;
+DESIGNED ausschließlich Architektur; PR275 inzwischen vollständig integriert,
 keine Source-/Test-/Generierungs-/Lauf-/Native-/SQLfreigabe.131072Cap und vollständige
 Raw-/Kontroll-/Methoden-/Trust-/Usedbytesgates bleiben unverändert.
 

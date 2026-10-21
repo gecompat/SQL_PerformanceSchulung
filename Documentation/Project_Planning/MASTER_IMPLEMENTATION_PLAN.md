@@ -1,15 +1,26 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-PR274 Mainf30aebce18ec2902171210bdcc7f222eaa12d405 vollständig geschlossen:
-acht Head-/sieben Base-/sechs frische Main-Gates SUCCESS, unabhängiger Review,
-FullTree/Sync/eigene lokale und Remote-Branchbereinigung. Nächster begrenzter
-Schritt ausschließlich [Architekturplan gemeinsamer Rootkontrollanker](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md):
-ein Entwurf/höchstens eine geänderte Entwurfsnacharbeit einschließlich Review
-und vollständigem Dokumentationsabschluss, Verbrauch UNKNOWN. Ursprüngliche
-fünf/max6 Source/Testkandidaten bleiben verbraucht; kein neuer Versuch/Reset.
-DESIGNED durch unabhängigen Delta-PRE210f8e2, P2/P3 geschlossen, zwei/hartzwei
-Entwurfsstände verbraucht. Dokumentationsintegration offen; keine Source-/Test-/
-Generierungs-/Lauf-/Native-/SQLfreigabe.
+PR275 ist vollständig in Main750844bbfe61f6b12c98354c034ea3441abbde91
+integriert: sieben Head-/sechs Base-/fünf frische Main-Gates SUCCESS,
+unabhängige Schließung, FullTree/Sync und eigene Branchbereinigung.
+Der [gemeinsame Rootkontrollanker](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md)
+bleibt ausschließlich DESIGNED, zwei/hartzwei Entwurfsstände geschlossen.
+PR274-Quellenfit-Diagnose ist ebenfalls vollständig integriert.
+
+Der letzte [C6-Source-/Testkandidat](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md)
+d0470fc ist unabhängig mit drei P2 abgelehnt: `parent` vor Zuweisung,
+ungeprüfter Guard-Slot vor Bootstrap, veränderbare Closurezellen im Cleanup.
+Keine Generierung/Tests/Nativeexecution, Fit weiterhin unbekannt. Zusätzliche
+Textkorruption ist benannt, reine Doc-Recovery erfolgt aus UTF-8-Gitbytes.
+Neue Runnerquelle/Tests/Workflow aus finalem Diff entfernt; nur belegter
+Befundabschluss wird integriert. Sechs/hartsechs, fünf geänderte Nachläufe,
+Verbrauch UNKNOWN. Der konkrete Vorschlag einer ausdrücklich zu entscheidenden
+Erweiterung um genau einen C7 ist keine Freigabe oder Budgetreset.
+Bis zu dieser Entscheidung keine weitere Sourcewelle oder Wiederholungsprobe.
+Der reine Dokumentationsabschluss mit Review, tatsächlichen grünen Head-/Base-/
+Main-Gates, FullTree/Sync und eigener Branchbereinigung wird über
+[PR276](https://github.com/gecompat/SQL_PerformanceSchulung/pull/276) gebunden.
+Echte Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates bleiben offen.
 
 PR273 vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 geschlossen:
 neun PR-/sieben Main-Gates SUCCESS, Parent12/Harness16 ohne SKIP, unabhängige
