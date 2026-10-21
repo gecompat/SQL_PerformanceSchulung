@@ -1,6 +1,98 @@
 # DGN-007 – quellenbegründete Auswahl frischer Workerprofile
 
+## Achter Stand: Poolvergleich mit unabhängiger Erwartung
+
+Der Mensch hat den achten Quellen-/Teststand ausdrücklich für den vorhandenen
+Poolvergleich, Gegenproben und die offenen Paketprüfungen freigegeben. Derselbe
+Implementierungsverantwortliche root und derselbe unabhängige Reviewer führen
+den bestehenden Rahmen weiter: acht von hart acht Ständen einschließlich
+Review, Tests, Koordination und vollständiger Integration; Verbrauch UNKNOWN.
+Der Diagnoseabschluss aus [PR285](https://github.com/gecompat/SQL_PerformanceSchulung/pull/285)
+ist mit sieben grünen Head-, fünf grünen Base- und fünf frischen grünen
+Main-Prüfungen, vollständiger Baumübernahme, Synchronisation und eigener
+Branchbereinigung in `0ae7cb735cc7961fffbac79c7837b4c60dae1cd5` abgeschlossen.
+Frühere Fehler und Quellen bleiben privat erhalten. Die unten bewahrten
+Freigabevorbehalte des siebten Standes sind durch diesen Auftrag überholt.
+
+Der Helfer verwendet den bestehenden öffentlichen
+[Poolcodec](../../Tests/Tools/dgn007_pooled_profile_codec.py), der wiederkehrende
+Texte einmal speichert und gebundene Referenzen überträgt. Der bestehende
+[unabhängige Testencoder](../../Tests/Static/test_dgn007_pooled_profile_codec.py)
+erzeugt die empfangenen Profilreports aus benannten Feldern. Als zusätzliche
+22. Repositoryquelle wird er vor dem ersten Projektimport und vor der Ausgabe
+an tatsächliche Quellenbytes und den festen Basiscommit gebunden. Das positive
+Reportframe muss bytegleich zum Produktionsencoder sein; sein Decodergebnis
+muss sämtliche ursprünglichen Felder enthalten. Ein Frame ist hier ein
+begrenzter Protokolldatensatz.
+
+Negative Fälle verändern ausschließlich das empfangene Reportframe. Die
+anderen vier Frames und die separat gehaltene Eltern-/Workererwartung bleiben
+unverändert. Die acht bisherigen Profilabweichungen je Worker bleiben erhalten;
+zusätzlich wird je ein formal gültiger, aber falsch gebundener Kontext geprüft.
+Jeder Fall muss innerhalb der unveränderten Frame-/Gesamtgrenzen semantisch
+abgelehnt werden. Eine reine Größenüberschreitung genügt dafür nicht.
+Mit zwölf weiteren Form-/Größengegenproben und einer Kontrollbyte-Pinprobe
+ergeben sich 40 Datengegenproben. Alle drei positiven Fünfformenvergleiche und
+die drei ursprünglichen Ganz-AST-/Fitmethoden bleiben erforderlich; AST
+bedeutet Abstract Syntax Tree, abstrakter Syntaxbaum. Runner und Harness
+prüfen zusätzlich LF-Zeilenenden (Line Feed), Proxy seine ursprünglichen Rohbytes.
+Originalprofilbytes, feste 3.12-Hashes, Oracles und alle Bytegrenzen bleiben
+unverändert. Kompakte private Zwischenbelege bewahren Größen und Fallzahlen.
+
+Der unabhängige Quellen-/Testreview schloss den eingefrorenen Stand ohne offene
+priorisierte Befunde und erteilte genau ein gestuftes Lauf-GO. Die unveränderten
+Deadline-, Cleanup-, Argument- und Interpretergegenproben gingen dem einzigen
+Paketlauf voraus. Sämtliche Stufen bestanden; es gab keinen Wiederholungslauf.
+
+### Ergebnis des achten Standes: vollständiges Auswahlpaket
+
+Die isolierte Windows-Prüflaufzeit CPython 3.12.14 bestand die frühe
+Interpreterzulassung. Zwei falsche Argumentformen wurden abgelehnt, beide
+Provider-Testmethoden liefen mit neun abgelehnten Konfigurationen und positivem
+Syntaxbaum-Sentinel ohne Fehler oder Skip. Beide synthetischen Cleanupfälle
+endeten wie erwartet mit Fehler beziehungsweise sticky Timeout, also einem
+auch nach Prozessende erhaltenen Zeitfehler. Das sind bestandene Gegenproben.
+Alle vier begonnenen Jobs endeten mit beendetem Hauptprozess, abgeschlossenem
+Reader und geprüft null aktiven Jobprozessen.
+
+Der Pakethelfer bestätigte sämtliche 22 Quellenpins vor dem ersten Projektimport,
+las die ausgewählten Installationsquellen und 27 Git-Rohdateien und bestand die
+vollständige Eingangsprüfung. Danach bestanden alle drei positiven
+Fünfformenvergleiche sowie sämtliche 40 negativen Datenfälle. Die positiven
+Reportframes waren bytegleich zum unabhängigen Referenzencoder und wurden mit
+allen ursprünglichen Feldern rekonstruiert. Sämtliche Profilgegenproben wurden
+innerhalb der Bytegrenzen semantisch abgelehnt. Die drei ursprünglichen
+Ganz-AST-/Fitmethoden bestanden mit unveränderten Oracles; Runner und Harness
+zusätzlich mit LF-Zeilenenden, Proxy mit seinen ursprünglichen Rohbytes.
+
+| Workerroute | Fünf Einzelrahmen in Bytes | Summe in Bytes | Script in Bytes |
+| --- | --- | ---: | ---: |
+| Runner, vollständige Ausführungssteuerung | 9366 / 9056 / 638 / 7386 / 1746 | 28192 | 129807 |
+| Proxy, vorgeschaltete Vermittlung | 9366 / 9056 / 638 / 7379 / 1746 | 28185 | 130693 |
+| Harness, Prüfrahmen | 9366 / 9056 / 638 / 7368 / 1746 | 28174 | 130415 |
+
+Damit liegen alle Einzelrahmen unter 16384 Bytes, jeder Fünfformensatz unter
+65536 Bytes und jedes Script unter 131072 Bytes. Die ursprünglichen
+Profilbytes bleiben unverändert. Erst nach allen Prüfungen und erneuter
+Bestätigung sämtlicher 22 Quellenpins entstanden drei neue private Scripts und
+der vollständige Paketbericht. Quellen, Rohdateien, Fehlerstände und
+Originalprotokolle bleiben privat erhalten; veröffentlichte Zahlen enthalten
+keine ausgewählten Hostpfade oder Installationsdaten.
+
+Diese Scripts wurden nicht ausgeführt. Ergebnis ist ausschließlich
+`SOURCE_SELECTED_DECLARATIONS_ONLY`, also quellenbegründete Deklarationsauswahl.
+Keine Linux-/WSL-, Worker-, Demo- oder SQL-Ausführung, keine Installation und
+keine operative Freigabe. Runtime-, Trust-, tatsächlich verwendete Importbytes
+und Methodenfreigabe bleiben unbestätigt. Der zugehörige Pull Request bindet
+unabhängigen Ergebnis-/Dokumentationsabschluss, aktuelle Head-/Base-/Main-Gates,
+vollständige Baumübernahme, Synchronisation und eigene Branchbereinigung.
+Acht von hart acht; kein neunter Stand oder Retry in diesem ausgeschöpften Rahmen.
+
 ## Aktueller siebter Stand: bereinigte Argumentübergabe
+
+Historischer Stand: Der oben freigegebene achte Stand ersetzt dessen damaligen
+Entscheidungsvorbehalt; die Fehlerdiagnose und nicht ausgeführten Prüfungen
+bleiben unverändert dokumentiert.
 
 Der Mensch hat genau den siebten Quellen-/Teststand für die Argumentkorrektur,
 Gegenprobe und offenen Paketprüfungen ausdrücklich freigegeben. Derselbe

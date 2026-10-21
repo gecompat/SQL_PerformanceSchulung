@@ -1,5 +1,41 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Vollständiges Auswahlpaket im achten Stand lokal bestanden
+
+Der Mensch hat den [vorhandenen Poolvergleich samt Gegenproben und offenen
+Paketprüfungen](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#achter-stand-poolvergleich-mit-unabhängiger-erwartung)
+als achten Quellen-/Teststand freigegeben. Ein Implementierungsverantwortlicher
+und derselbe unabhängige Reviewer; acht/hart acht einschließlich Tests,
+Koordination und vollständiger Integration, Verbrauch UNKNOWN. PR285 ist
+vollständig in Main `0ae7cb735cc7961fffbac79c7837b4c60dae1cd5` integriert,
+eigene Branches bereinigt. Die folgenden früheren Grenzen sind historisch.
+
+Der private Helfer ersetzt den flachen Vergleich durch den vorhandenen
+Fünfformenvergleich mit Stringpools, also Referenzen auf einmal gespeicherte
+Texte. Die separat gehaltene Erwartung bleibt bei Gegenproben unverändert.
+Alle bisherigen 37 und drei neue gültige Kontextabweichungen, sämtliche
+Fünfformenprüfungen und drei unveränderte Ganz-AST-/Fitmethoden bleiben
+erforderlich; AST bezeichnet den abstrakten Syntaxbaum. Bytegrenzen,
+Originalprofilbytes und feste Hashes ändern sich nicht. Der zusätzliche
+unabhängige Testencoder wird als 22. Quelle vor Import und Ausgabe geprüft.
+Der unabhängige Quellen-/Testreview schloss den Stand ohne offene priorisierte
+Befunde und erteilte genau ein gestuftes Lauf-GO. Der einmalige Windows-Lauf
+bestand alle 40 Datengegenproben, die drei Fünfformensätze und alle drei
+ursprünglichen Ganz-AST-/Fitmethoden. Beide Argumentgegenproben, zwei
+Provider-Testmethoden mit neun negativen Konfigurationen und zwei
+Cleanup-Gegenproben bestanden; alle vier Jobs sind bereinigt.
+Quellenpins vor Import und nach Prüfung bestätigt. Die drei erzeugten Scripts
+passen mit 129807/130693/130415 Bytes unter 131072; die fünf Formen zusammen
+jeweils 28192/28185/28174 unter 65536 und einzeln unter 16384 Bytes.
+
+Das Paket ist vollständig, bleibt aber ausschließlich quellenbegründete
+Deklarationsauswahl (`SOURCE_SELECTED_DECLARATIONS_ONLY`). Kein Linux-/Worker-/
+SQL-Start; Runtime-, Trust-, tatsächlicher Importbyte- und Methodennachweis
+bleiben offen. Frühere Fehler und private Evidenz bleiben erhalten. Der
+zugehörige Pull Request bindet unabhängigen Ergebnisabschluss, aktuelle
+Head-/Base-/Main-Gates und vollständige Integration samt eigener Bereinigung.
+Kein neunter Stand oder Retry in diesem ausgeschöpften Rahmen.
+
 ## Argumentkorrektur bestätigt, Paketvergleich am Einzelrahmenlimit gestoppt
 
 Der Mensch hat die [siebte Fortsetzung im bestehenden Auswahlrahmen](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#aktueller-siebter-stand-bereinigte-argumentübergabe)

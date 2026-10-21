@@ -1,5 +1,46 @@
 # Aktueller Ausführungsstand
 
+## Achter Stand: vollständiges Auswahlpaket mit Poolvergleich bestanden
+
+Der Mensch hat den [achten Quellen-/Teststand für Poolvergleich, Gegenproben
+und offene Paketprüfungen](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#achter-stand-poolvergleich-mit-unabhängiger-erwartung)
+ausdrücklich freigegeben. Derselbe Implementierungsverantwortliche root und
+derselbe unabhängige Reviewer führen den bestehenden Rahmen weiter: acht von
+hart acht Ständen einschließlich Reviews, Tests, Koordination und Integration;
+Verbrauch UNKNOWN, kein Neustart der Zählung. PR285 ist vollständig in Main
+`0ae7cb735cc7961fffbac79c7837b4c60dae1cd5` integriert: sieben grüne Head-, fünf
+grüne Base- und fünf frische grüne Main-Prüfungen, vollständige Übernahme,
+Synchronisation und eigene Branchbereinigung. Die folgenden früheren
+Freigabegrenzen und Stopps sind historische Evidenz.
+
+Der Helfer verwendet den bestehenden Fünfformenvergleich mit Stringpools,
+also einmal gespeicherten Texten mit gebundenen Referenzen. Die Gegenproben
+ändern nur den empfangenen Report; die separat gehaltene Erwartung bleibt
+unverändert. Alle bisherigen Fälle sowie je ein formal gültiger, aber falsch
+gebundener Kontext müssen unter unveränderten Bytegrenzen geprüft werden:
+insgesamt 40 negative Datenfälle und drei unveränderte Ganz-AST-/Fitmethoden
+(AST: Abstract Syntax Tree; abstrakter Syntaxbaum). Der zusätzliche unabhängige
+Testencoder ist als 22. Repositoryquelle vor Import und vor Ausgabe gepinnt.
+Der unabhängige Quellen-/Testreview schloss den eingefrorenen Stand ohne offene
+priorisierte Befunde und erteilte genau ein gestuftes Lauf-GO. Der einmalige
+Windows-Lauf unter vorhandenem CPython 3.12 bestand vollständig: alle 40
+Datengegenproben, drei Fünfformenvergleiche und drei ursprünglichen Ganz-AST-/
+Fitmethoden. Beide Argumentformen wurden abgelehnt, beide Provider-Testmethoden
+mit neun negativen Konfigurationen und beide Cleanup-Gegenproben bestanden;
+alle vier Jobs endeten mit null aktiven Prozessen. Die 22 Quellenpins wurden
+vor Import und nach den Paketprüfungen erneut bestätigt.
+
+Die drei Scriptgrößen betragen 129807/130693/130415 Bytes unter unverändertem
+131072-Byte-Limit; die fünf Formen zusammen jeweils 28192/28185/28174 Bytes
+unter 65536, jeder Einzelrahmen unter 16384 Bytes. Drei private Scripts,
+27 Rohdateien und der Paketbericht sind vollständig erhalten. Ergebnis bleibt
+`SOURCE_SELECTED_DECLARATIONS_ONLY`, also ausschließlich quellenbegründete
+Deklarationsauswahl. Keine neue Installation oder Linux-/Worker-/SQL-Ausführung;
+Runtime, Trust, verwendete Importbytes und Methode sind weiterhin unbestätigt.
+Der zugehörige Pull Request weist Reviewabschluss, exakte Head-/Base-/Main-Gates,
+vollständige Übernahme, Synchronisation und eigene Branchbereinigung nach.
+Kein neunter Stand oder Wiederholungsversuch in diesem ausgeschöpften Rahmen.
+
 ## Siebter Stand: Argumentkorrektur bestätigt, Paketvergleich zu groß
 
 Der Mensch hat genau den siebten Stand für die
