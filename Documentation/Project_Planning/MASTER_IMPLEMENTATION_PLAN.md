@@ -1,5 +1,31 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Interpreterkorrektur am Aufruffehler gestoppt
+
+Nach dem vollständig abgeschlossenen Diagnose-PR283 in Main
+`e0cec9842971d0ecdf3f1604cdd5f59f3109a946` hat der Mensch den bestehenden
+[Auswahlrahmen](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#freigegebene-interpreterkorrektur-nach-dem-diagnoseabschluss)
+auf höchstens sechs Quellen-/Teststände mit Checkpoint nach fünf erweitert.
+Ein Owner/ein unabhängiger Reviewer einschließlich Tests, Koordination und
+vollständigem Integrationsabschluss; Verbrauch UNKNOWN, kein Scope-Reset.
+Die Korrektur legt den tatsächlichen Windows-Prüfinterpreter auf
+CPython 3.12 fest und ergänzt die frühe Ablehnung falscher Provider samt Gegenprobe.
+Eine vorhandene gebündelte Laufzeit genügt, kein Linux-Prozess oder neue
+Installation. Der Checkpoint nach fünf schloss die Interpreterkorrektur statisch,
+lehnte den Aufruf aber wegen zweier Befunde an Fehlercleanup und Zeitgrenzen
+des Windows-Owners ab. Kein fünfter Lauf. Der sechste Stand bündelt den
+Abschluss beider Befunde und vorgeschaltete Fehler-/Timeout-Gegenproben;
+der unabhängige Review schloss beide Befunde und gab genau einen gestuften
+Aufruf frei. Beide Cleanup-Gegenproben bestanden mit Jobabsenz. Anschließend
+scheiterte die Provider-Testauswahl an der zusätzlichen Zielpfadangabe in
+`sys.argv`; kein Provider-Testmethoden- oder Paketlauf. Alle drei begonnenen
+Windows-Jobs sind bereinigt, keine neuen Workerartefakte oder Linux-/SQL-Ausführung.
+Sechs/hartsechs, kein siebter Stand oder Retry ohne neue ausdrückliche
+Erweiterung für Argumentübergabe/Gegenprobe. Die noch offenen Paketprüfungen bleiben vollständig
+erforderlich, Hashes und Bytegrenzen unverändert. Die nachfolgenden Stopps
+sind historische Evidenz; aktueller Einstieg ist der
+[Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
+
 ## Aktueller Einstieg nach funktionalem Runnerabschluss
 
 [PR281](https://github.com/gecompat/SQL_PerformanceSchulung/pull/281) ist vollständig
