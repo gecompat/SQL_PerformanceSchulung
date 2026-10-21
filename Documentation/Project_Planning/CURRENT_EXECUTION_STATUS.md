@@ -1,5 +1,20 @@
 # Aktueller Ausführungsstand
 
+## C8 zur Bootstrap-Korrektur freigegeben; unabhängige Auswahl offen
+
+Der Mensch hat am 21. Oktober 2026 genau einen stabilen C8 freigegeben.
+Der [gemeinsame konkrete Rahmen](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c8-ausdrückliche-freigabe-zur-bootstrap-korrektur)
+bindet ihn an die fehlende ursprüngliche Bootstrapautorität aus dem C7-Befund
+und eine Gegenprobe für die vor Aufruf ersetzte Kontextkopie. Basis ist
+095c813 nach regulär abgeschlossenem PR278: Main grün, vollständige Übernahme,
+Sync und eigene lokale/Remote-Branchabwesenheit bestätigt. Ein Owner root,
+derselbe unabhängige Reviewer, eigener Branch `codex/dgn007-runner-c8`.
+Verbrauch UNKNOWN; bisher sieben Kandidaten/sechs geänderte Nachläufe, mit
+stabilem C8 harte Grenze acht/sieben. Kein C9, kein Scope-/Budgetreset.
+Noch keine neue Implementierung und kein Generierungs-/Lauf-GO. Zuerst
+unabhängige konkrete Auswahl, dann stabiler Quellen-/Test-PRE und gestufte
+Windows-/Linuxprüfung; tatsächliche Runtime-/Trust-/Methoden-/SQL-Gates offen.
+
 ## C7 abgelehnt; erweiterte harte Grenze erreicht
 
 Der ausdrücklich freigegebene einzelne C7 ist im unabhängigen Quellen-/Test-PRE

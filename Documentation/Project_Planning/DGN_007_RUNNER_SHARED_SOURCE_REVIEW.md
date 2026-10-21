@@ -1,5 +1,48 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## C8: ausdrückliche Freigabe zur Bootstrap-Korrektur
+
+Am 21. Oktober 2026 hat der Mensch genau einen weiteren stabilen C8
+(den achten Quellen-/Testkandidaten) zur Bootstrap-Korrektur freigegeben.
+Ausgangsbasis ist 095c813605bec4ce4e06ebfdf6652cbc8370565a nach abgeschlossenem
+[PR278](https://github.com/gecompat/SQL_PerformanceSchulung/pull/278).
+Ein Implementierungsverantwortlicher root und derselbe unabhängige Reviewer;
+Auswahl, Umsetzung, Quellen-/Testprüfung, Koordination, lokale Tests, CI
+(Continuous Integration; automatisierte Integrationsprüfungen), Integration
+und sichere Bereinigung gehören zu diesem gemeinsamen Schnitt. Verbrauch
+UNKNOWN. Bisher sieben Kandidaten/sechs geänderte Nachläufe; mit stabilem C8
+höchstens acht Kandidaten/sieben geänderte Nachläufe. Kein C9 oder Reset.
+
+Der konkrete Schnitt korrigiert ausschließlich die vor jedem Kontextzugriff
+fehlende unabhängige ursprüngliche Bootstrapautorität aus C7 und ergänzt die
+passende tatsächlich erreichte Gegenprobe: vor Aufruf ersetzte 17-elementige
+Kontextkopie mit fremdem Feld0 samt Iterationssentinel. Eine zweite veränderbare
+Zelle mit bloßer Formprüfung wäre keine Lösung. Ursprüngliche Primitiven und
+ursprünglicher Kernel samt vollständigen Metadaten müssen unabhängig vom zu
+prüfenden Kontext gehalten und vor dessen Verwendung geschlossen werden.
+Aktive Frames behalten ihre ursprünglichen Referenzen über Callbacks hinweg.
+Der vollständige DESIGNED-Vertrag bleibt unverändert; die übrigen C7-Änderungen
+sind wegen dessen frühem STOP weiterhin nicht vollständig abgenommen.
+
+Checkpoint vor Umsetzung: genau eine konkrete Auswahl unabhängig prüfen.
+Danach genau ein stabiler Quellen-/Teststand und unabhängiger PRE (Prüfung
+vor dem Lauf) vor jedem Kandidatenimport, jeder Generierung, AST-Analyse
+(Abstract Syntax Tree; abstrakter Syntaxbaum), Kompilierung oder Ausführung.
+Nur ausdrückliches gestuftes Lauf-GO erlaubt die Fit-/Ganz-AST-Methode jeweils
+einmal auf Windows 3.14.7 und Linux 3.12.3 mit -I -S -B. Nur beidseitiges PASS
+erlaubt einmal die übrigen ausgewählten eigenen synthetischen Modelle je
+Plattform. Kein nativer DGN-Body, Worker oder SQL-Lauf; keine Capanhebung oder
+Rawauslassung. Bei weiterer notwendiger Quellen-/Fixturekorrektur nach dem
+stabilen C8 oder fehlgeschlagenem Fit: kein C9, sondern sichere Disposition
+und belegter regulärer Abschluss. Nach erfolgreichem Ergebnisreview folgen
+aktuelle Head-/Base-Gates, regulärer Merge, frische Main-Gates, vollständige
+Übernahme, Sync und sichere Bereinigung genau des eigenen Branches.
+
+Aktueller Stand: Auswahlprüfung offen; noch keine neue Implementierung, kein
+stabiler C8, keine Generierung und kein Lauf-GO. Eigener Branch
+`codex/dgn007-runner-c8`. Die historische C7-Sperre unten ist ausschließlich
+für diesen ausdrücklich begrenzten C8-Schnitt erweitert.
+
 ## C7: abgelehnt; erweiterte harte Grenze erreicht
 
 Stand: 21. Oktober 2026. Ausgangsbasis 347c231bcc5d5318a779100e0677cde2e49e3adb
