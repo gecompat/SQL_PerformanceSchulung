@@ -15,11 +15,13 @@ Die neue Runnerquelle, ihre 19 Testmethoden und der Workflow sind aus dem finale
 Diff entfernt; der verworfene Stand ist privat in einem geprüften Gitbundle
 bewahrt. Bestehende Komponenten und fremde Ressourcen bleiben erhalten.
 
-Reiner Diagnoseabschluss auf `codex/dgn007-runner-c7`: unabhängige Disposition,
-lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates, regulärer Merge,
-frische Main-Gates, FullTree/Sync (vollständige Baumübernahme und Synchronisation)
-und eigene lokale/Remote-Branchbereinigung werden noch verfolgt. Der spätere
-PR-Abschlussnachweis bindet die tatsächlichen Ergebnisse.
+Der reine Diagnoseabschluss gehört zu
+[PR278](https://github.com/gecompat/SQL_PerformanceSchulung/pull/278), eigener
+Branch `codex/dgn007-runner-c7`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates,
+den regulären Merge, frische Main-Gates, FullTree/Sync (vollständige Baumübernahme
+und Synchronisation) sowie die eigene lokale/Remote-Branchbereinigung an die
+tatsächlich belegten Ergebnisse.
 
 Nächste Quellenarbeit ist bis zur ausdrücklichen neuen begrenzten Entscheidung
 zur Bootstrap-Korrektur blockiert. Kein C8 oder Scope-/Budgetreset. Die frühere

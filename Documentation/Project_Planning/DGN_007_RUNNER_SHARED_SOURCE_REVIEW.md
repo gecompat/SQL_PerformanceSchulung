@@ -68,11 +68,12 @@ Der abgelehnte Commit ist vor dem Entfernen in einem privaten, lokal geprüften
 vollständigen Gitbundle gesichert. Private Evidence und fremde Ressourcen
 bleiben erhalten. Die Versionshistorie ist kein ausführbarer Freigabestand.
 Der [DESIGNED-Vertrag](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md) bleibt unverändert.
-Eigener Branch `codex/dgn007-runner-c7`; unabhängiger Dispositionsreview,
-lokale Dokumentationsprüfungen, aktuelle Head-/Base-Gates, reguläre Integration,
-frische Main-Gates, vollständige Übernahme und sichere eigene Branchbereinigung
-werden für diesen reinen Diagnoseabschluss verfolgt. Der PR-Abschlussnachweis
-hält die nach Integration tatsächlich belegten Ergebnisse fest.
+Der reine Diagnoseabschluss gehört zu
+[PR278](https://github.com/gecompat/SQL_PerformanceSchulung/pull/278), eigener
+Branch `codex/dgn007-runner-c7`. Der dortige Abschlussnachweis bindet den
+unabhängigen Dispositionsreview, lokale Dokumentationsprüfungen, aktuelle
+Head-/Base-Gates, reguläre Integration, frische Main-Gates, vollständige Übernahme
+und sichere eigene Branchbereinigung an die tatsächlich belegten Ergebnisse.
 
 Nächste Quellenarbeit ist blockiert. Kein C8, kein Budget-/Scope-/Namensreset
 und kein weiterer Lauf innerhalb dieser Freigabe. Eine Wiederaufnahme benötigt
