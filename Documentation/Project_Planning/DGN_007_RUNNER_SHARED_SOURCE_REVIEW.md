@@ -84,11 +84,13 @@ Quellenlauf-GO getrennt. Der neue Runnerworkflow wird nicht aufgenommen; die
 Vertrags-/Registryänderung durchläuft die regulären Governance-Gates. Verbrauch
 UNKNOWN; keine behauptete Einsparungsmessung.
 
-Der reine Vertrags-/Diagnoseabschluss auf `codex/dgn007-trusted-sources-c8` wird
-unabhängig geprüft und mit aktuellen grünen Head-/Base-Gates regulär integriert.
-Der PR-Abschlussnachweis bindet die tatsächlich belegten Ergebnisse einschließlich
-frischer Main-Gates, vollständiger Übernahme, Synchronisation und eigener
-lokaler/Remote-Branchbereinigung. Private Evidence bleibt erhalten.
+Der reine Vertrags-/Diagnoseabschluss gehört zu
+[PR280](https://github.com/gecompat/SQL_PerformanceSchulung/pull/280), eigener
+Branch `codex/dgn007-trusted-sources-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokalen Dokumentations-/Registryprüfungen, aktuellen
+Head-/Base-Gates, den regulären Merge, frische Main-Gates, vollständige Übernahme,
+Synchronisation und eigene lokale/Remote-Branchbereinigung an tatsächlich belegte
+Ergebnisse. Private Evidence bleibt erhalten.
 
 ## C8: ausdrückliche Freigabe zur Bootstrap-Korrektur
 

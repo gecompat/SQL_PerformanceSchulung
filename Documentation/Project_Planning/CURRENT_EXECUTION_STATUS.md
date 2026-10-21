@@ -25,13 +25,15 @@ blockiert. Kein C9, Scope-/Budgetreset oder unveränderter automatischer Nachlau
 Die Vertrauensfrage ist entschieden. Tatsächliche Runtime-, Trust-, Usedbytes-,
 Methoden-, SESSION_END- und SQL-Gates bleiben offen.
 
-Der reine Vertrags-/Diagnoseabschluss auf `codex/dgn007-trusted-sources-c8`
-verfolgt unabhängige Disposition, lokale Dokumentations-/Registryprüfung,
-aktuelle grüne Head-/Base-/Main-Gates, reguläre Integration, vollständige Übernahme,
-Synchronisation und sichere eigene Branchbereinigung. Der PR-Abschlussnachweis
-bindet die tatsächlichen Ergebnisse. Private Evidence und fremde Ressourcen
-bleiben erhalten. Die frühere ABI-Auswahlsperre unten ist historisch und durch
-DEC-076 behandelt; sie ist kein weiterer offener Entscheidungsbedarf.
+Der reine Vertrags-/Diagnoseabschluss gehört zu
+[PR280](https://github.com/gecompat/SQL_PerformanceSchulung/pull/280), eigener
+Branch `codex/dgn007-trusted-sources-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokalen Dokumentations-/Registryprüfungen, aktuellen
+Head-/Base-Gates, den regulären Merge, frische Main-Gates, vollständige Übernahme,
+Synchronisation und eigene lokale/Remote-Branchbereinigung an tatsächlich belegte
+Ergebnisse. Private Evidence und fremde Ressourcen bleiben erhalten. Die frühere
+ABI-Auswahlsperre unten ist historisch und durch DEC-076 behandelt; sie ist kein
+weiterer offener Entscheidungsbedarf.
 
 ## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
 
