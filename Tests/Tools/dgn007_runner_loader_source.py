@@ -832,6 +832,12 @@ _DATA_PRESERVED = {"_EXPECTED_PROFILE_RAW", "_SEMANTIC_CONTROL_ANCHOR", "_WORKER
                    "_WORKER_REPORT_BINDING", "_WORKER_REPORT_USED", "_WORKER_INPUT_MARKER"}
 
 
+def _short_names(*, single=False):
+    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    return ([a for a in letters] if single else []) + [a + b for a in letters for b in letters
+                                                      if not keyword.iskeyword(a + b)]
+
+
 def _pool_strings(tree):
     # Nur festes Kontrollvokabular; weder Eingabebytes noch neue Laufzeitquelle.
     class Contexts(ast.NodeTransformer):
@@ -865,10 +871,11 @@ def _pool_strings(tree):
     Count().visit(tree)
     occupied = {getattr(n, f, None) for n in ast.walk(tree)
                 for f in ('id', 'arg', 'name', 'asname', 'rest', 'attr')}
+    occupied.update(s for n in ast.walk(tree) if isinstance(n, (ast.Global, ast.Nonlocal)) for s in n.names)
+    occupied.update(n.asname or n.name.split('.')[0] for n in ast.walk(tree) if isinstance(n, ast.alias))
     texts = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and type(n.value) is str]
-    ordinal = 0
-    while '_c' + str(ordinal) in occupied or any('_c' + str(ordinal) in s for s in texts): ordinal += 1
-    name = '_c' + str(ordinal)
+    name = next((n for n in _short_names(single=True) if n not in occupied and n not in texts), None)
+    base.base.inputs.base._need(name is not None, 'TEMPLATE_FORM')
     values = []
     for value, count in sorted(counts.items()):
         reference_size = len(name) + len(str(len(values))) + 2
@@ -903,14 +910,15 @@ def _shorten_data_globals(tree):
         tables.extend(scope.get_children())
     assigned = {n.id for statement in tree.body if isinstance(statement, ast.Assign)
                 for target in statement.targets for n in ast.walk(target) if isinstance(n, ast.Name)}
-    mapping, ordinal = {}, 0
+    mapping, available = {}, iter(_short_names())
     for name in sorted(assigned):
         if (not name.startswith(('_WORKER_', '_INLINE_', '_SEMANTIC_', '_EXPECTED_', '_COMMAND_',
                                  '_RECEIVE_', '_REPORT_', '_CONTROL_', '_MODULE_', '_SOURCE_'))
                 or name in blocked or any(name in s for s in strings)): continue
-        while '_d' + str(ordinal) in occupied or any('_d' + str(ordinal) in s for s in strings): ordinal += 1
-        target = '_d' + str(ordinal)
-        ordinal += 1
+        while True:
+            target = next(available, None)
+            base.base.inputs.base._need(target is not None, 'TEMPLATE_FORM')
+            if target not in occupied and not any(target in s for s in strings): break
         mapping[name] = target
         occupied.add(target)
     for n in nodes:
@@ -948,6 +956,7 @@ def _shorten_globals(tree, protected):
     occupied.update(name for n in nodes if isinstance(n, (ast.Global, ast.Nonlocal)) for name in n.names)
     texts = [n.value for n in nodes if isinstance(n, ast.Constant) and type(n.value) is str]
     mapping = {}
+    available = iter(_short_names())
     for definition in tree.body:
         if not isinstance(definition, ast.FunctionDef): continue
         name = definition.name
@@ -961,11 +970,10 @@ def _shorten_globals(tree, protected):
         if any(isinstance(n, (ast.Global, ast.Nonlocal)) and name in n.names for n in nodes): continue
         if any(isinstance(n, ast.Attribute) and n.attr == name for n in nodes): continue
         if any(n is not definition and any(getattr(n, f, None) == name for f in ("arg", "name", "asname", "rest")) for n in nodes): continue
-        number = len(mapping)
-        target = "_g" + str(number)
-        while target in occupied or any(target in text for text in texts):
-            number += 1
-            target = "_g" + str(number)
+        while True:
+            target = next(available, None)
+            base.base.inputs.base._need(target is not None, 'TEMPLATE_FORM')
+            if target not in occupied and not any(target in text for text in texts): break
         occupied.add(target)
         mapping[name] = target
         definition.name = target

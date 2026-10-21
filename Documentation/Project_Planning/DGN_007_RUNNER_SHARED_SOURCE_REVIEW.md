@@ -89,6 +89,22 @@ prüfen Namenskollision und erschöpften Namensraum. Keine Unicode-Variante oder
 neue Runtimeabhängigkeit ausgewählt. Größenwirkung noch unbekannt; stabiler
 Quellen-/Test-PRE und gestuftes Fit-GO bleiben erforderlich.
 
+
+Der Fit an d245a6d stoppt beidseitig bei 132601 Bytes, 1529 Bytes über dem
+Limit; keine Modellstufe. Die danach unabhängig ausgewählte Namenskorrektur
+verwendet auch für interne Funktions-/Datenziele zwei ASCII-Buchstaben. Der
+zusätzliche Poolname nutzt einen freien ASCII-Buchstaben, sonst zwei. Hier
+werden alle ursprünglichen Bezeichnerfelder einschließlich Importbindungen und
+Deklarationen sowie exakt gleiche Stringwerte gesperrt. Für die Umbenennung
+bestehender Funktionen/Daten bleiben die stärkeren Substring-Sperren erhalten.
+Die berechneten Kontroll-Namespace-Zugriffe verwenden die fest vorgegebenen
+langen Funktionsnamen beziehungsweise ursprünglich aufgenommene Namespacekeys;
+die neue Poolbindung ersetzt keinen solchen ursprünglichen Schlüssel. Alle
+Zielnamen sperren sich gegenseitig. Die unabhängige Oracle erkennt den Pool
+strukturell, prüft ihn gegen den vollständigen Expected-AST und erreicht eine
+Gegenprobe mit eingefangenem Funktionsparameter. Kein Lauf vor Source-/Test-PRE;
+Einsparung noch unbekannt.
+
 ## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 
 Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich

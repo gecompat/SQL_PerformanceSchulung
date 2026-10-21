@@ -115,12 +115,14 @@ class RunnerLoaderSourceTests(unittest.TestCase):
         return result
 
     def inverse_pool(self, tree):
-        pools = [n for n in tree.body if isinstance(n, ast.Assign) and len(n.targets) == 1
-                 and isinstance(n.targets[0], ast.Name) and n.targets[0].id.startswith('_c')
-                 and n.targets[0].id[2:].isdigit()]
-        self.assertEqual(len(pools), 1)
-        assignment = pools[0]
+        candidates = [n for n in tree.body if isinstance(n, ast.Assign)]
+        self.assertTrue(candidates)
+        assignment = candidates[0]
+        self.assertEqual(len(assignment.targets), 1)
+        self.assertIsInstance(assignment.targets[0], ast.Name)
         name = assignment.targets[0].id
+        self.assertTrue(1 <= len(name) <= 2 and name.isascii() and name.isalpha())
+        self.assertNotIn(name, ('as', 'if', 'in', 'is', 'or'))
         self.assertIsInstance(assignment.value, ast.Tuple)
         values = []
         for n in assignment.value.elts:
@@ -138,6 +140,12 @@ class RunnerLoaderSourceTests(unittest.TestCase):
                     and isinstance(n.value, ast.Name) and n.value.id == name]
         self.assertEqual(len(references), len(accesses) + 1)
         for node in ast.walk(tree):
+            if not isinstance(node, ast.Name):
+                for field in ('arg', 'name', 'asname', 'rest', 'attr'):
+                    self.assertNotEqual(getattr(node, field, None), name)
+            if isinstance(node, (ast.Global, ast.Nonlocal)): self.assertNotIn(name, node.names)
+            if isinstance(node, ast.alias): self.assertNotEqual(node.asname or node.name.split('.')[0], name)
+            if isinstance(node, ast.Constant) and type(node.value) is str: self.assertNotEqual(node.value, name)
             excluded = []
             if isinstance(node, (ast.Match, ast.JoinedStr, ast.TypeAlias)): excluded.append(node)
             if isinstance(node, ast.arg) and node.annotation: excluded.append(node.annotation)
@@ -163,6 +171,7 @@ class RunnerLoaderSourceTests(unittest.TestCase):
         tree.body.remove(assignment)
         Expand().visit(tree)
         self.assertTrue(all(n > 1 for n in used))
+        return name
 
     def inverse_data_globals(self, expected, actual):
         before = [n for n in expected.body if isinstance(n, ast.Assign)]
@@ -180,7 +189,8 @@ class RunnerLoaderSourceTests(unittest.TestCase):
                 self.assertTrue(old.id.startswith(('_WORKER_', '_INLINE_', '_SEMANTIC_', '_EXPECTED_', '_COMMAND_',
                                                   '_RECEIVE_', '_REPORT_', '_CONTROL_', '_MODULE_', '_SOURCE_')))
                 self.assertNotIn(old.id, preserved)
-                self.assertTrue(new.id.startswith('_d') and new.id[2:].isdigit())
+                self.assertTrue(len(new.id) == 2 and new.id.isascii() and new.id.isalpha())
+                self.assertNotIn(new.id, ('as', 'if', 'in', 'is', 'or'))
                 self.assertNotIn(new.id, identifiers)
                 self.assertTrue(all(old.id not in s and new.id not in s for s in strings))
                 self.assertNotIn(new.id, inverse)
@@ -291,6 +301,12 @@ def sample(x: "LONG_SHARED_CONTROL_VALUE") -> "LONG_SHARED_CONTROL_VALUE":
         next(n for n in ast.walk(invalid) if isinstance(n, ast.Subscript)
              and isinstance(n.value, ast.Name) and n.value.id == pool_name).slice = ast.Constant(value=-1)
         with self.assertRaises(AssertionError): self.inverse_pool(invalid)
+        shadowed = ast.parse(ast.unparse(pooled))
+        shadowed.body[1].targets[0].id = 'x'
+        for node in ast.walk(shadowed):
+            if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name) and node.value.id == pool_name:
+                node.value.id = 'x'
+        with self.assertRaises(AssertionError): self.inverse_pool(shadowed)
         self.inverse_pool(pooled)
         self.assertEqual(ast.dump(pooled), ast.dump(ast.parse(pooled_sample)))
         data_sample = '_INLINE_CONSTANT = 7\n_EXPECTED_PROFILE_RAW = b"raw"\ndef f():\n global _INLINE_CONSTANT\n _INLINE_CONSTANT += 1\n return _INLINE_CONSTANT\n'
@@ -374,7 +390,7 @@ class Example:
             self.assertEqual(built.source_sha256, hashlib.sha256(built.source).hexdigest())
             self.assertFalse(built.runtime_attested or built.import_used_bytes_attested or built.trust_attested or built.method_approved)
             actual = ast.parse(built.source)
-            self.inverse_pool(actual)
+            pool_name = self.inverse_pool(actual)
             self.assertEqual([a.name for n in actual.body if isinstance(n, ast.Import) for a in n.names],
                              ["importlib.util", "sys", "sysconfig", "json", "struct"])
             self.assertEqual(next(n.value.value for n in actual.body if isinstance(n, ast.Assign)
@@ -506,6 +522,11 @@ _rl_original(owner[19], namespace)(owner, packet)
             self.assertEqual(shared[0].name, "_rl_checkpoint")
             expected.body.insert(len(expected.body) - 1, shared[0])
             ast.fix_missing_locations(expected)
+            self.assertFalse(any(getattr(n, f, None) == pool_name for n in ast.walk(expected)
+                                 for f in ('id', 'arg', 'name', 'asname', 'rest', 'attr')))
+            self.assertFalse(any(pool_name in n.names for n in ast.walk(expected) if isinstance(n, (ast.Global, ast.Nonlocal))))
+            self.assertFalse(any((n.asname or n.name.split('.')[0]) == pool_name for n in ast.walk(expected) if isinstance(n, ast.alias)))
+            self.assertFalse(any(isinstance(n, ast.Constant) and type(n.value) is str and n.value == pool_name for n in ast.walk(expected)))
             self.assertTrue(self.inverse_data_globals(expected, actual))
             definitions = [n for n in expected.body if isinstance(n, ast.FunctionDef)]
             observed = [n for n in actual.body if isinstance(n, ast.FunctionDef)]
@@ -520,6 +541,8 @@ _rl_original(owner[19], namespace)(owner, packet)
             for before, after in zip(definitions, observed):
                 if before.name == after.name: continue
                 old, new = before.name, after.name
+                self.assertTrue(len(new) == 2 and new.isascii() and new.isalpha())
+                self.assertNotIn(new, ('as', 'if', 'in', 'is', 'or'))
                 self.assertTrue(old.startswith(("_inline_", "_semantic_", "_worker_profile_", "_worker_input_", "_report_", "_rl_", "_worker_report_")) or old in ("_require", "_dictionary"))
                 self.assertNotIn(old, preserved)
                 self.assertNotIn(new, identifiers)
