@@ -2,7 +2,7 @@
 
 ## C7: abgelehnt; erweiterte harte Grenze erreicht
 
-Stand: 21. Oktober 2026. Ausgangsbasis347c231bcc5d5318a779100e0677cde2e49e3adb
+Stand: 21. Oktober 2026. Ausgangsbasis 347c231bcc5d5318a779100e0677cde2e49e3adb
 nach abgeschlossenem [PR277](https://github.com/gecompat/SQL_PerformanceSchulung/pull/277).
 Status CLOSED_REJECTED_C7_PRE: Der stabile Quellen-/Testkandidat
 559f09cc35dd22a2fd073641401c23517114e031 wurde unabhängig vor jeder Generierung
@@ -14,6 +14,7 @@ Die Prüfung endete am zwingenden STOP; es liegt keine vollständige Abnahme vor
 ### Freigabe und gemeinsamer Verbrauch
 
 Der Mensch hat am 21. Oktober 2026 genau einen weiteren stabilen Kandidaten C7
+(den siebten Quellen-/Teststand)
 freigegeben: Korrektur der drei C6-Befunde und der UTF-8-Textkorruption, passende
 Negativfälle, unabhängiges Review, lokale Tests, grüne Gates, regulärer Merge
 und eigene Branchbereinigung. Ein Implementierungsverantwortlicher root und
@@ -23,10 +24,10 @@ Integration; automatisierte Integrationsprüfungen), Integration und Bereinigung
 Quellen-/Versuchsverbrauch UNKNOWN; sieben/hartsieben stabile Kandidaten und
 sechs geänderte Nachläufe sind erreicht. Keine erfundene Verbrauchsmessung.
 
-Unabhängiges Auswahl-GO auf Basis347c231 erlaubte die Umsetzung, aber keinen
+Unabhängiges Auswahl-GO auf Basis 347c231 erlaubte die Umsetzung, aber keinen
 Lauf. Vor Generierung war ein stabiler Quellen-/Test-PRE (unabhängige Prüfung
 vor dem Lauf) mit ausdrücklichem gestuftem Lauf-GO erforderlich: zuerst die
-Fit-/Ganz-AST-Methode jeweils einmal auf Windows3.14.7 und Linux3.12.3 mit
+Fit-/Ganz-AST-Methode jeweils einmal auf Windows 3.14.7 und Linux 3.12.3 mit
 -I -S -B; nur beidseitiges PASS hätte einmal die übrigen eigenen Modelle je
 Plattform erlaubt. Die Interpreterversionen wurden lesend bestätigt. Wegen
 des Quellenbefunds wurde keine dieser Methoden gestartet.
@@ -35,16 +36,16 @@ des Quellenbefunds wurde keine dieser Methoden gestartet.
 
 P2 – Der Bootstrap übernimmt seine Primitiven erneut aus einer veränderbaren
 Closurezelle. Im verworfenen Stand prüft die Callfunktion `_kernel` lediglich
-auf exaktes Tuple und Länge17 (Sourcezeile500). Der eingefügte Frameprefix
-übernimmt diesen Zellinhalt; der Checkpoint entpackt dessen Feld0 vor dem
-ursprünglichen Kernelcheck (Sourcezeile720).
+auf exaktes Tuple und Länge 17 (Sourcezeile 500). Der eingefügte Frameprefix
+übernimmt diesen Zellinhalt; der Checkpoint entpackt dessen Feld 0 vor dem
+ursprünglichen Kernelcheck (Sourcezeile 720).
 
 Statischer Gegenfall: Vor dem Aufruf wird die `_kernel`-Zelle durch eine
-17-elementige Kontextkopie ersetzt, deren Feld0 ein fremdes Objekt mit
+17-elementige Kontextkopie ersetzt, deren Feld 0 ein fremdes Objekt mit
 Iterationssentinel enthält. Die Vorprüfung passiert; das Entpacken würde den
 fremden Iterator aufrufen. Eine spätere feste Ablehnung beseitigt die bereits
 erfolgte Fremdoperation nicht. Die neue Closuregegenprobe verändert `_kernel`
-erst während Parent-BEGIN (Testzeile901); dieser Einstiegspfad fehlt.
+erst während Parent-BEGIN (Testzeile 901); dieser Einstiegspfad fehlt.
 
 Erforderlich wäre eine vor Kontextzugriff unabhängig gebundene ursprüngliche
 Kontext-/Primitivenautorität und eine Gegenprobe genau dieses Einstiegspfads.
@@ -54,13 +55,13 @@ Die übrigen C7-Änderungen sind damit weder vollständig geprüft noch freigege
 
 ### Sichere Disposition und Abschluss
 
-Der verworfene Stand enthielt eine neue Runnerquelle,19 eigene Testmethoden
-(eine Fit-/Ganz-AST-Methode und18 synthetische Positiv-/Negativmethoden) und
+Der verworfene Stand enthielt eine neue Runnerquelle, 19 eigene Testmethoden
+(eine Fit-/Ganz-AST-Methode und 18 synthetische Positiv-/Negativmethoden) und
 einen engen Workflow. Diese drei neuen Dateien sind aus dem finalen Diff
 entfernt. Vorhandene Workerinput-, Proxy-, Harness- und Parentkomponenten samt
 Tests bleiben erhalten. Kein nativer DGN-Body, Worker oder SQL-Lauf wurde
 hierdurch gestartet; keine Plattform-, Trust-, Methoden- oder SQL-Freigabe.
-Das unveränderte Scriptlimit131072 und der volle Rawumfang werden nicht
+Das unveränderte Scriptlimit 131072 und der volle Rawumfang werden nicht
 abgeschwächt. Größenersparnis und Laufzeitverhalten bleiben unbekannt.
 
 Der abgelehnte Commit ist vor dem Entfernen in einem privaten, lokal geprüften

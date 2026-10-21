@@ -3,15 +3,15 @@
 ## C7 abgelehnt; erweiterte harte Grenze erreicht
 
 Der ausdrücklich freigegebene einzelne C7 ist im unabhängigen Quellen-/Test-PRE
-(Prüfung vor dem Lauf) abgelehnt. Stabile Bindung559f09cc35dd22a2fd073641401c23517114e031:
-Eine17-elementige Ersatzkopie der `_kernel`-Closure könnte vor dem ursprünglichen
+(Prüfung vor dem Lauf) abgelehnt. Stabile Bindung 559f09cc35dd22a2fd073641401c23517114e031:
+Eine 17-elementige Ersatzkopie der `_kernel`-Closure könnte vor dem ursprünglichen
 Kernelcheck eine fremde Iteration auslösen. Die Gegenprobe deckt diesen Einstieg
 nicht ab. Prüfung am zwingenden STOP beendet, keine vollständige Befundschließung.
 [Konkreter Befund, gemeinsamer Rahmen und Disposition](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md).
 
 Sieben/hartsieben Kandidaten, sechs geänderte Nachläufe, Verbrauch UNKNOWN.
 Kein Kandidatenimport, keine Generierung, kein Fit-, Compile-/Exec- oder Modelllauf.
-Die neue Runnerquelle, ihre19 Testmethoden und der Workflow sind aus dem finalen
+Die neue Runnerquelle, ihre 19 Testmethoden und der Workflow sind aus dem finalen
 Diff entfernt; der verworfene Stand ist privat in einem geprüften Gitbundle
 bewahrt. Bestehende Komponenten und fremde Ressourcen bleiben erhalten.
 
