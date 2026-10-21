@@ -8,8 +8,9 @@ Merge und eigener Branchbereinigung freigegeben. Ausgangsbasis ist
 347c231bcc5d5318a779100e0677cde2e49e3adb nach abgeschlossenem
 [PR277](https://github.com/gecompat/SQL_PerformanceSchulung/pull/277).
 
-Aktueller Stand: Auswahl-PRE (unabhängige Prüfung vor der Umsetzung) offen;
-noch kein stabil vorgelegter C7 und kein Generierungs- oder Lauf-GO.
+Aktueller Stand: unabhängiges Auswahl-GO auf Basis347c231 erteilt. C7 wird
+als genau ein stabiler Quellen-/Teststand vorgelegt; Quellen-/Test-PRE und
+jedes Generierungs-/Lauf-GO bleiben bis zu dessen ausdrücklichem Ergebnis offen.
 Der bisherige Verbrauch bleibt sechs Kandidaten/fünf geänderte Nachläufe.
 Mit dem einzigen stabilen C7 wird die erweiterte harte Grenze sieben
 Kandidaten/sechs geänderte Nachläufe erreicht. Ein Implementierungsowner root
@@ -35,6 +36,49 @@ Fit kein C8 und kein Reset: sichere Disposition sowie belegter Abschluss des
 begonnenen Schnitts. Eine spätere Dokumentationskorrektur ist kein weiterer
 Quellenversuch. Der unabhängige Ergebnisreview prüft die Befundschließung und
 die tatsächlich erreichten Claims; ein historisches PASS ersetzt keine Gate.
+
+## C7: stabile Vorlage zur unabhängigen Quellen- und Testprüfung
+
+Der Entwurf schließt die drei C6-Befunde durch folgende Änderungen:
+
+- Source-/Parentdeskriptoren erhalten zuerst eine genaue Form-/Indexprüfung;
+  erst danach wird die Parentrolle zugewiesen und verwendet.
+- Der aktive Kontrollframe hält den ursprünglichen äußeren Reportkernel und
+  seine Metadaten getrennt vom veränderbaren Guard-Slot. Der Kernel schließt
+  den ursprünglichen D1-Träger, bevor dessen Inhalt oder der Slot verwendet
+  wird. Auch eine ersetzte Recordkopie mit ursprünglichen Prüffunktionen ist
+  keine neue Autorität. D0 bezeichnet den ursprünglichen Initialisierungsstand,
+  D1 den einmal versiegelten Zustand vor dem Reportsnapshot.
+- Eine einmalige Versiegelung schließt zuerst die ursprünglichen D0-Funktionen.
+  Ausschließlich die vorher benannten Kernelzellen wechseln von None zum
+  ursprünglichen Kontext. Der Gateway-Metadatensatz übernimmt genau diesen
+  geprüften Übergang. Sealer, D1-Träger und Inputträger werden vom äußeren
+  Scriptsnapshot vollständig gebunden; sie stehen nicht in ihrer eigenen
+  inneren Prüfliste. Dies vermeidet den in der Auswahlkoordination geprüften
+  Selbstbezug. Keine frei gewählte späte Quellenbaseline.
+- Entry, Gateway und Loader halten Owner-/Zustandsreferenzen im aktiven Frame.
+  Der Entry hält außerdem den ursprünglichen Cache und die vor Callbackwirkung
+  gesammelten eigenen Namespacereferenzen für den Fehlerabschluss. Der Cleanup
+  liest keinen ausgetauschten Owner-/Zustandszellinhalt erneut als Autorität.
+- UTF-8-Textkorruption aus dem verworfenen C6 ist anhand seiner ursprünglichen
+  Gitbytes berichtigt. Vorhandene andere Generatoren, Fixtures und Tests bleiben
+  unverändert.
+
+Die19 eigenen Testmethoden enthalten den vollständigen Fit-/AST-Nachweis
+(AST: Abstract Syntax Tree; abstrakter Syntaxbaum) und18 synthetische
+Positiv-/Negativmodelle. Neue Fälle prüfen tatsächlich erreichte Ersetzung
+von Slot, Record, D1-Träger und Inputrecord, D0-Drift und wiederholte
+Versiegelung sowie Closureaustausch während des Parent-BEGIN-Callbacks mit
+anschließendem Fehler. Reachedmarker liegen außerhalb des Kandidaten; fremde
+Getter-, Index-, Iterations-, Hash-, Equality-, Len- und Calloperationen müssen
+unerreicht bleiben. Keine Kandidatenimporte, Generierung, AST-Analyse,
+Kompilierung, Ausführung oder Modellläufe vor Quellen-/Test-GO. Größenfit
+und Befundschließung sind noch nicht belegt.
+
+Der stabile C7 erreicht sieben/hartsieben Kandidaten und sechs geänderte
+Nachläufe. Verbrauch UNKNOWN. Eine notwendige weitere Quellen-/Fixturekorrektur
+oder ein fehlgeschlagener Fit erlaubt keinen C8; dann folgt ausschließlich
+die sichere Disposition und deren regulärer Integrationsabschluss.
 
 ## Historischer C6-Auswahl- und Ablehnungsstand
 
