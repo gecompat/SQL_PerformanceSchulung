@@ -4,7 +4,7 @@
 |---|---|
 | Status | `COMPLETED` |
 | Stand | 2026-08-28 |
-| Quellen | `SRC-058` bis `SRC-065` |
+| Quellen | `SRC-058` (What's new in SQL Server 2025) bis `SRC-065` (Vector data type) |
 | Umfang | Quellen-, Claim- und Entscheidungsgrundlage; keine neue Featuredemo |
 
 ## 1. Entscheidungsregel
@@ -18,12 +18,12 @@ gilt zusätzlich §6; die damalige Zeile bleibt erhalten.
 
 | Funktion | Quellen | bestehender Bezug | Entscheidung | Begründung und nächste Bedingung |
 |---|---|---|---|---|
-| CE Feedback für Ausdrücke | `SRC-058`, `SRC-061` | `OPT-006`, `ADV-CLM-033` | `ADOPT` | SQL Server 2025, CL 160+, Datenbankkonfiguration, wiederkehrende Ausdrucksmuster und tatsächliche Feedbackevidenz. Keine neue Demo; ein späterer `OPT-006`-Schnitt prüft Showplan-, XE- oder Cacheevidenz und Regression Protection. |
-| Optimiertes `sp_executesql` | `SRC-058`, `SRC-059` | `QRY-004`, `ADV-CLM-018` | `DEFER` | Die Option ist standardmäßig aus und adressiert konkurrierende Compilation identischer Batches. `QRY-004` ist inzwischen runtimevalidiert; ein eigener Concurrent-Compile-Designschnitt darf nun bewertet werden, bleibt aber bis zu dieser Detailanalyse zurückgestellt. |
-| Zeitgebundene XE-Sessions | `SRC-058`, `SRC-060` | `DGN-005`, `ADV-CLM-036` | `ADOPT` | `MAX_DURATION` wird als optionaler, auf Engine 17 begrenzter Schutzpfad an `DGN-005` gebunden. Der Basispfad behält explizites Stoppen, `STARTUP_STATE = OFF`, Ring-Buffer-Limit und Cleanup. |
-| TempDB Space Resource Governance | `SRC-058`, `SRC-062` | `CON-009`, `RES-004`, `ADV-CLM-027` | `DEFER` | Resource Governor verändert Instanzzustand und kann Requests mit Fehler 1138 abbrechen. Erforderlich sind Editionstest, rotes Safety-Design, dedizierte Wegwerfinstanz, Recovery und getrennte Behandlung von Datenfiles, Log und Version Store. |
-| Ordered nonclustered Columnstore | `SRC-058`, `SRC-063` | `IDX-010` | `DEFER` | Nutzen hängt von Segmentüberlappung, Datenverteilung, DOP, Online-/Offline-Build, TempDB-Platz und Edition ab. Erst nach einem gelben Detaildesign mit `sys.column_store_segments` übernehmen. |
-| Query Store auf lesbaren Secondary Replicas | `SRC-058`, `SRC-064` | kein unmittelbarer Slice | `DEFER` | Das Feature bleibt Preview und benötigt eine Always-On-Availability-Group-Topologie. Es wird weder `DGN-003` noch `DGN-007` zugeschlagen, solange Mehrinstanz-Infrastruktur und Preview-Freigabe fehlen. |
+| CE (Cardinality Estimation; Schätzung der Zeilenanzahl) Feedback für Ausdrücke | `SRC-058`, `SRC-061` (CE feedback for expressions) | `OPT-006`, `ADV-CLM-033` | `ADOPT` | SQL Server 2025, CL 160+, Datenbankkonfiguration, wiederkehrende Ausdrucksmuster und tatsächliche Feedbackevidenz. Keine neue Demo; ein späterer `OPT-006`-Schnitt prüft Showplan-, XE- oder Cacheevidenz und Regression Protection. |
+| Optimiertes `sp_executesql` | `SRC-058`, `SRC-059` (sp_executesql – OPTIMIZED_SP_EXECUTESQL) | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `ADV-CLM-018` | `DEFER` | Die Option ist standardmäßig aus und adressiert konkurrierende Compilation identischer Batches. `QRY-004` ist inzwischen runtimevalidiert; ein eigener Concurrent-Compile-Designschnitt darf nun bewertet werden, bleibt aber bis zu dieser Detailanalyse zurückgestellt. |
+| Zeitgebundene XE-Sessions | `SRC-058`, `SRC-060` (Extended Events sessions – time-bound sessions) | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events), `ADV-CLM-036` | `ADOPT` | `MAX_DURATION` wird als optionaler, auf Engine 17 begrenzter Schutzpfad an `DGN-005` gebunden. Der Basispfad behält explizites Stoppen, `STARTUP_STATE = OFF`, Ring-Buffer-Limit und Cleanup. |
+| TempDB Space Resource Governance | `SRC-058`, `SRC-062` | `CON-009` (Kosten in tempdb unterscheiden), `RES-004`, `ADV-CLM-027` | `DEFER` | Resource Governor verändert Instanzzustand und kann Requests mit Fehler 1138 abbrechen. Erforderlich sind Editionstest, rotes Safety-Design, dedizierte Wegwerfinstanz, Recovery und getrennte Behandlung von Datenfiles, Log und Version Store. |
+| Ordered nonclustered Columnstore | `SRC-058`, `SRC-063` (Performance tuning with ordered columnstore indexes) | `IDX-010` (Columnstore-Segmente gezielt überspringen) | `DEFER` | Nutzen hängt von Segmentüberlappung, Datenverteilung, DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Online-/Offline-Build, TempDB-Platz und Edition ab. Erst nach einem gelben Detaildesign mit `sys.column_store_segments` übernehmen. |
+| Query Store auf lesbaren Secondary Replicas | `SRC-058`, `SRC-064` (Query Store for secondary replicas) | kein unmittelbarer Slice | `DEFER` | Das Feature bleibt Preview und benötigt eine Always-On-Availability-Group-Topologie. Es wird weder `DGN-003` (Abfragehistorie mit Query Store) noch `DGN-007` (Zeitabhängige Regression eines Suchworkloads) zugeschlagen, solange Mehrinstanz-Infrastruktur und Preview-Freigabe fehlen. |
 | Vector- und KI-Funktionen | `SRC-058`, `SRC-065` | kein bestehendes Lernziel | `OUT_OF_SCOPE` | Datentyp, Suche, Modelle und externe KI-Integration bilden einen eigenen Lehrstrang. Keine Featuredemo und kein neues Modul. |
 
 ## 3. Claim-Fortschreibung
@@ -46,10 +46,10 @@ Der Delta-Review übernimmt zwei Aussagen, stellt vier Funktionen zurück und kl
 
 ## 6. Ergänzende Curriculumentscheidung vom 2026-10-11
 
-Der ausdrückliche Benutzerauftrag und `DEC-073` lösen die frühere Vector/KI-Scopegrenze für
+Der ausdrückliche Benutzerauftrag und `DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze) lösen die frühere Vector/KI-Scopegrenze für
 die **zukünftige Planung** ab. Der historische OUT_OF_SCOPE-Befund bleibt unverändert lesbar.
 Der [KI-Workstream-Plan](SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md) mit Featurematrix und
-Demoentwurf definiert den neuen Lehrstrang. Quellen `SRC-072`–`SRC-100` ersetzen keinen
+Demoentwurf definiert den neuen Lehrstrang. Quellen `SRC-072` (Vector data type)–`SRC-100` (Full-Text Search) ersetzen keinen
 Runtimebeleg. SQL Server 2025 Preview, Azure-Freigaben, Indexgenerationen und SSMSfunktionen
 werden getrennt geführt. Andere ADOPT-/DEFER-Entscheidungen und bestehende Reihenfolge bleiben
 erhalten; Demoimplementierung und Präsentationsarbeit benötigen einen eigenen Auftrag.

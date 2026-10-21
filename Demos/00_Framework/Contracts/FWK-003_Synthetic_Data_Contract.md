@@ -4,7 +4,7 @@
 |---|---|
 | Status | `IMPLEMENTED` |
 | Vertragsversion | 1.0 |
-| Geltungsbereich | deterministischer Datenaufbau innerhalb einer durch `FWK-002` markierten Testdatenbank |
+| Geltungsbereich | deterministischer Datenaufbau innerhalb einer durch `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) markierten Testdatenbank |
 
 ## 1. Zweck
 

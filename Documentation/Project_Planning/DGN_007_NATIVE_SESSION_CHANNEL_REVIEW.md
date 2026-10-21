@@ -24,7 +24,7 @@ synthetische Parent-Ledger bleiben unverändert. Der neue Owner bindet zunächst
 den Abschlussweg ab der gehaltenen Workerwahl; er ersetzt keine vollständige
 Start-/Metadata-/Body-/Command-/Import- oder S15/P11-Inventur.
 
-Die neue kontrollseitige API ist
+Die neue kontrollseitige API (Application Programming Interface; Programmierschnittstelle) ist
 `run_session_channels(control_namespace, selections, *, limits=ChannelLimits())`.
 Eine Auswahl enthält exakte gehaltene `program: bytes`, vollständiges
 `reported: tuple` und separat vollständiges `context: tuple`. Ein bis drei
@@ -40,7 +40,7 @@ isolierten Linux-/CPython-3.12-Testworker mit `-I -S -B`, einem Thread,
 SIGCHLD-Default und ohne vorhandene Kinder. Die Native-Abnahme verwendet nur
 feste harmlose eigene Workerprogramme mit synthetischen vollständigen Traces.
 Windows erhält portable Ablehnungs-/Form-/Budgetprüfungen; die Linuxfälle
-laufen lokal unter WSL und nativ in der Linux-CI. Windows-Pipe- oder SQL-
+laufen lokal unter WSL und nativ in der Linux-CI (Continuous Integration; automatisierte Integrationsprüfungen). Windows-Pipe- oder SQL-
 Qualifikation wird nicht beansprucht.
 
 ## Tatsächliche Beobachtung und einmaliger Abschluss
@@ -62,7 +62,7 @@ Der gehaltene Handle folgt unmittelbar auf Popen, ohne Kontextmanager,
 poll/wait/communicate vor dem gebundenen Gruppenstop. Alle festen Programme
 setzen einen eigenen Drei-Sekunden-Alarm, auch jedes Forkkind separat.
 
-EOF wird ausschließlich aus tatsächlichem `os.read(...) == b""` für die
+EOF (End of File; Ende eines Eingabestroms) wird ausschließlich aus tatsächlichem `os.read(...) == b""` für die
 jeweilige gehaltene Pipe abgeleitet. Root-Exit wird mit `waitid`/WNOWAIT
 beobachtet und nicht vor Cleanup gereapt. Ein Exit oder Footer ersetzt weder
 zweites EOF noch Drain. Nach beiden EOFs und beobachtetem Exit0 wird der
@@ -84,7 +84,7 @@ fehlender Abschluss bleibt UNKNOWN und liefert keinen Cleanup-PASS.
 
 Nur der private neue Testworker aktiviert prozesslokal Subreaper, sichert den
 Vorwert und restauriert ihn mit Readback. Der eigene Leader bleibt bis zum
-genau zugeordneten Gruppenstop unreaped, damit sein PID/PGID-Anker erhalten
+genau zugeordneten Gruppenstop unreaped, damit sein PID (Process Identifier; Prozesskennung)/PGID-Anker erhalten
 bleibt. Nach dem Reap erfolgen nur noch Absenzprüfungen, keine weiteren
 Gruppensignale. Nur eigene adoptierte Kinder derselben Gruppe werden gereapt;
 keine Namens-/PID-Suche und keine fremden Prozesse. Die festen Testkinder
@@ -195,7 +195,7 @@ gezielte Fixturekorrektur, ein unabhängiger Delta-PRE mit Lauf-GO, der betroffe
 lokale Linux-Test und aktuelle vollständige PR-/Main-Gates mit regulärem Merge
 und Branchcleanup. Der historische C3-Stop wird nicht zurückgesetzt. C4 wählt
 die kanonische INPUT_COMPLETE-Zeile an ihrem festen Bytepräfix aus, bevor
-deren Noncefeld als JSON gelesen wird; P-Fragmente werden nicht dekodiert.
+deren Noncefeld als JSON (JavaScript Object Notation; strukturiertes Textformat) gelesen wird; P-Fragmente werden nicht dekodiert.
 Die Quellen-/Matcher-/Cleanupimplementierung bleibt bytegleich zu C3.
 Der lokale Ziellauf enthält alle fünf negativen Kanal-/Footerfälle der
 betroffenen Testmethode; die CI führt alle 16 Methoden aus. Unveränderte

@@ -25,7 +25,7 @@ Modell-/Tokenverbrauch bleibt unbekannt. Gewöhnliche Folgeschritte sind freigeg
 
 [run_cost_profile.py](../../Demos/09_AI_SQL_Server_2025/DGN-010_Index_Advice/run_cost_profile.py)
 provisioniert nichts. Zwei YELLOW-Bestätigungen und bestehender read-only Preflight
-gelten vor Setup. Nur eigene neue SQL17.0.5005.3/Developer/CL170-Instanz, vier CPU/
+gelten vor Setup. Nur eigene neue SQL17.0.5005.3/Developer/CL170-Instanz, vier CPU (Central Processing Unit; Prozessor)/
 sechs GiB, 1000 synthetische Rows und unveränderte bestehende Konfigurationsgrenzen.
 Keine neuen Provider-/Cloud-/ONNX-/Hosteffekte.
 
@@ -35,7 +35,7 @@ Setup und erneute Sourceaufnahme. Tatsächliche Löschung von Row1000 muss die e
 wird separat gelesen. Erster markergebundener Vollstate liefert die tatsächliche
 Source-OID; alle folgenden Vollstates/DDL-Eingaben sind an beide IDs gebunden.
 
-Eine separate feste DROP-Abwesenheitsprobe verlangt tatsächliches 51003 vor DDL.
+Eine separate feste DROP-Abwesenheitsprobe verlangt tatsächliches 51003 vor DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten).
 Die neue `drop_absent_sql` akzeptiert ausschließlich DB-/Source-ID und erzeugt
 fest DROP/Cycle1/EMPTY. Kein frei schaltbarer Negativeparameter oder Fremdtext.
 Before-/After-Vollstate dieser Probe muss identisch bleiben. Erst nach tatsächlichen

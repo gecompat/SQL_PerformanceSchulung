@@ -11,8 +11,8 @@ bleibt für feste Population, Ergebnisdigests und numerische FWK-Invarianten ma�
 Nur feste eigene SQLphasen, keine freien Queries/Modellausgabe, keine Provider-,
 Cloud-, ONNX-, Host- oder anderen Repositoryeffekte. SQL17.0.5005.3, CL170,
 Developer Enterprise mit dokumentierter EditionID -2117995310/EngineEdition3,
-vier CPU/sechs GiB, 1000 synthetische Rows, 100 F-Payloadbytes, SIMPLE 256/64 MB,
-unveränderte MAXDOP/PREVIEW_FEATURES=0. Native Scopegrenzen sind keine isolierten
+vier CPU (Central Processing Unit; Prozessor)/sechs GiB, 1000 synthetische Rows, 100 F-Payloadbytes, SIMPLE 256/64 MB,
+unveränderte MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES=0. Native Scopegrenzen sind keine isolierten
 Query-/Worker-/Indexkosten. Keine garantierte Indexnutzung, Signifikanz oder
 vollständige TP-PERF-/Nettonutzen-/Modulabnahme.
 
@@ -20,7 +20,7 @@ Setup und jede Mutation/Drop verlangen alle vier vollständigen bytegenauen
 Eigentumsmarker. Vorhandene Datenbanken werden abgewiesen. Öffentlich kein
 Rawexport oder Provisioning; nur geprüfte begrenzte Aggregate nach bekanntem
 Clientende und tatsächlichem Cleanup. Native Manipulationsgegenproben der
-vollständigen Marker und harte Unterbrechung während Build/DML bleiben separat
+vollständigen Marker und harte Unterbrechung während Build/DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) bleiben separat
 offen. Dieser Schnitt beansprucht ausschließlich regulären Lifecycle und
 kontrollierten Fehler unmittelbar nach PASS-Setup mit anschließender Recovery.
 
@@ -62,7 +62,7 @@ FWK-PASSs werden weiterhin von Gesamt-WARN und NOT_ESTABLISHED getrennt.
 
 Ein Owner, ein Reviewer für konkrete Risiken mit enger Closure nach geänderten
 Inputs. SQL- und Ergebnisquellen aus den bereits geprüften getrennten privaten
-Scopes übernommen; gemeinsame Prozess-/Container-API bleibt unverändert.
+Scopes übernommen; gemeinsame Prozess-/Container-API (Application Programming Interface; Programmierschnittstelle) bleibt unverändert.
 Neue Produktionsabhängigkeiten unter Tests/Static und ihre beiden Fixtures
 wählen jetzt ausdrücklich die native KI-Matrix. Ein alleiniger Controller-
 Testdateiwechsel bleibt statisch; andere Workflowentscheidungen unverändert.

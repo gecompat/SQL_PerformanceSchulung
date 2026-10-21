@@ -19,7 +19,7 @@ Korrigiertes Masterdeck: SHA-256
 | 16 | Gegenläufige Commit-Kette, voller Log Buffer als vermeintliche Voraussetzung, Checkpoint als Pflichtschritt nach Commit | Log Buffer nimmt Records auf, vollständige Durability ausdrücklich benannt, Checkpoint separat dargestellt |
 | 27 | Gegenläufiger Datenfluss und lineare Seek/Lookup-Kette | Seek als Outer Input und Lookup als Inner Input führen getrennt in Nested Loops, anschließend in SELECT |
 | 50 | Baumkanten zeigen von Child Pages zum Parent | Navigationsrichtung Root zum Leaf korrigiert und beschriftet |
-| 51 | Lookup-Verweise zeigen zurück zum Nonclustered Index | Navigation zum Heap beziehungsweise Clustered Index korrigiert, RID Lookup und Key Lookup beschriftet |
+| 51 | Lookup-Verweise zeigen zurück zum Nonclustered Index | Navigation zum Heap beziehungsweise Clustered Index korrigiert, RID (Row Identifier; physischer Zeilenverweis) Lookup und Key Lookup beschriftet |
 | 66 | Richtige Wartekanten können als falsch gerichteter Datenfluss gelesen werden | Richtung unverändert, Legende erklärt wartende Session zur blockierenden Session |
 | 17 | IFI für Logwachstum pauschal ausgeschlossen | Ausnahme für Log-Autogrowth bis einschließlich 64 MB seit SQL Server 2022 ergänzt |
 | 29 | Used Memory und Spill als Alternativen, Spill und Concurrency-Verlust als sichere Folgen dargestellt | Used Memory und Spill getrennt prüfen, Undergrant als Spill-Risiko und Overgrant als gebundenen Workspace beschreiben |
@@ -39,11 +39,11 @@ Dokumenteigenschaften, Master, Layouts, Beziehungen und Custom Shows.
 Die am 2026-10-05 geprüften Primärquellen bestätigen:
 
 - [Instant File Initialization](https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-instant-file-initialization?view=sql-server-ver17):
-  die seit SQL Server 2022 vorhandene Log-Autogrowth-Ausnahme und ihre 64-MB-Grenze (`SRC-034`).
+  die seit SQL Server 2022 vorhandene Log-Autogrowth-Ausnahme und ihre 64-MB-Grenze (`SRC-034` (Database instant file initialization)).
 - [Transaction Durability](https://learn.microsoft.com/en-us/sql/relational-databases/logs/control-transaction-durability?view=sql-server-ver17):
   Commit-Bestätigung nach Log-Persistierung bei vollständiger Durability und die getrennte Delayed-Durability-Semantik.
 - [Transaction Log Architecture](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-log-architecture-and-management-guide?view=sql-server-ver17):
-  WAL, Log Flush und Checkpoint als unterschiedliche Vorgänge (`SRC-033`).
+  WAL, Log Flush und Checkpoint als unterschiedliche Vorgänge (`SRC-033` (The transaction log)).
 - [Joins](https://learn.microsoft.com/en-us/sql/relational-databases/performance/joins?view=sql-server-ver17):
   getrennte Outer- und Inner-Inputs für Nested Loops.
 

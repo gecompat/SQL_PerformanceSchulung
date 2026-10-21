@@ -41,7 +41,7 @@ Die grüne Demo erzeugt ausschließlich die synthetische Datenbank `SQLPERF_LAB_
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-006` auswählen, den manifestbasierten Aufruf ausführen und je Phase `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Nach Abbruch ausschließlich den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-006` (NULL bei NOT IN und NOT EXISTS) auswählen, den manifestbasierten Aufruf ausführen und je Phase `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Nach Abbruch ausschließlich den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -69,7 +69,7 @@ Für Parent-Werte ohne passende Child-Zeile wird der Vergleich mit der `NULL`-Ze
 
 ## 11. Tests
 
-`Tests/Static/validate_qry006_null_semantics_design.py` prüft den implementierten Bündelvertrag, die feste Datenmenge, die Ergebnisassertion, den bewussten Verzicht auf Mitigation sowie das Fehlen von Performance-, Index- und Planformbehauptungen. Die lokale Runtime-Matrix auf SQL Server 2019/150, 2022/160 und 2025/170 ist mit je zwei vollständigen Manifestläufen bestanden. Die Evidenz steht in [`QRY_006_RUNTIME_EVIDENCE.md`](../../../Documentation/Project_Planning/QRY_006_RUNTIME_EVIDENCE.md). Der Status bleibt bis zum vorgesehenen Runtime-Gate `IMPLEMENTED`, nicht `VALIDATED`; ein GitHub-Actions-Lauf und eine SQL_Server_Lab-Szenariopromotion sind damit nicht behauptet.
+`Tests/Static/validate_qry006_null_semantics_design.py` prüft den implementierten Bündelvertrag, die feste Datenmenge, die Ergebnisassertion, den bewussten Verzicht auf Mitigation sowie das Fehlen von Performance-, Index- und Planformbehauptungen. Die lokale Runtime-Matrix auf SQL Server 2019/150, 2022/160 und 2025/170 ist mit je zwei vollständigen Manifestläufen bestanden. Die Evidenz steht in [QRY-006 – lokaler Runtime-Nachweis](../../../Documentation/Project_Planning/QRY_006_RUNTIME_EVIDENCE.md). Der Status bleibt bis zum vorgesehenen Runtime-Gate `IMPLEMENTED`, nicht `VALIDATED`; ein GitHub-Actions-Lauf und eine SQL_Server_Lab-Szenariopromotion sind damit nicht behauptet.
 
 ## 12. Bekannte Grenzen
 
@@ -79,9 +79,9 @@ Die Demo beweist nur den festgelegten kleinen NULL-Gegenfall. Sie bewertet weder
 
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
-| `SRC-069` | `IN` und `NOT IN` bei `NULL`-Rückgabewerten | SQL Server 2019–2025 | 2026-09-19 |
-| `SRC-070` | `EXISTS` und `NOT EXISTS` als Existenzprüfung | SQL Server 2019–2025 | 2026-09-19 |
-| `SRC-071` | dreiwertige Logik mit `NULL` und `UNKNOWN` | SQL Server 2019–2025 | 2026-09-19 |
+| `SRC-069` (IN (Transact-SQL)) | `IN` und `NOT IN` bei `NULL`-Rückgabewerten | SQL Server 2019–2025 | 2026-09-19 |
+| `SRC-070` (EXISTS (Transact-SQL)) | `EXISTS` und `NOT EXISTS` als Existenzprüfung | SQL Server 2019–2025 | 2026-09-19 |
+| `SRC-071` (NULL and UNKNOWN (Transact-SQL)) | dreiwertige Logik mit `NULL` und `UNKNOWN` | SQL Server 2019–2025 | 2026-09-19 |
 
 ## 14. Traceability
 

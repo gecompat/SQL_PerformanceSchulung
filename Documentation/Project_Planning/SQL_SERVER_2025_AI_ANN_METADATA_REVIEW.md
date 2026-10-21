@@ -10,7 +10,7 @@ Keine Korrekturwelle; ausgeführte Quellen unverändert.
 Am vollständig gebundenen eigenen Image SQL 17.0.5005.3/EngineEdition 3/Linux
 Ubuntu 24.04 bestanden vier CPUs/sechs GiB, eigene Loopbackbindung, CL170/SIMPLE,
 256/64-MB-Dateilimits und volle bytegenaue Marker. Genau eine persistente
-tokengebundene Baseline erfasste tatsächlich Preview 0 und DB-scoped MAXDOP 0.
+tokengebundene Baseline erfasste tatsächlich Preview 0 und DB-scoped MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0.
 Geschlossene Setclients und getrennte neue DB-Clients attestierten Preview 1,
 MAXDOP 1. Die eigene Buildsession bestätigte QUOTED_IDENTIFIER 1.
 
@@ -25,7 +25,7 @@ aufgenommen, vor/nach Capture vollständig bytegenau verglichen.
 | type / type_desc | 8 / VECTOR |
 | vector_index_type | DiskANN |
 | distance_metric | COSINE |
-| build_parameters | gültiges JSON mit Schlüsseln StartId, L, M, R |
+| build_parameters | gültiges JSON (JavaScript Object Notation; strukturiertes Textformat) mit Schlüsseln StartId, L, M, R |
 | JSON_VALUE(build_parameters, '$.Version') | NULL; Schlüssel Version fehlt |
 | TRY_CONVERT(int, Versiontext) | NULL |
 
@@ -33,7 +33,7 @@ Damit ist der fehlende Versionsschlüssel in dieser konkreten Metadatenaufnahme
 belegt. Der frühere zweite Buildkandidat hatte die Metadaten nicht ausgegeben;
 dessen exakter Rohwert bleibt historisch unbekannt. Keine numerische Generation
 erraten und keine stabile öffentliche Struktur der internen Buildparameter behaupten.
-[SRC-097](../Research/SOURCE_REGISTER.md) bezeichnet build_parameters als „Internal usage only“;
+[SRC-097 – sys.vector_indexes](../Research/SOURCE_REGISTER.md) bezeichnet build_parameters als „Internal usage only“;
 das Migrationsbeispiel in SRC-077 ersetzt die fehlende aktuelle Versionsangabe nicht.
 
 Vier volle Snapshots verglichen je 107 Host- und 41 DB-scoped-Konfigurationsrows,

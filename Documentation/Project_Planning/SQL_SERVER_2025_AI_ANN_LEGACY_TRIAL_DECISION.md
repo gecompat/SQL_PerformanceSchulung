@@ -46,7 +46,7 @@ Loopbackport, volle CID-/Image-/Ownerbindung, eigene voll markierte DB,
 CL170/SIMPLE und 256/64-MB-Dateilimits. Höchstens 1000 VECTOR(3)-float32-Rows,
 cosine, K=5, eine aktive SQL-Session, keine Provider-/Modellcalls.
 
-Nur eigene PREVIEW_FEATURES=ON/MAXDOP=1 nach vollständiger tatsächlicher persistenter
+Nur eigene PREVIEW_FEATURES=ON/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)=1 nach vollständiger tatsächlicher persistenter
 Baseline 0/1 und MAXDOP 0. Getrennte Setclients und frische Attestierung beider Werte,
 QUOTED_IDENTIFIER ON in eigener Buildsession. Kein Host-/Cloud-/TLS-/ONNX- oder
 ALLOW_STALE_VECTOR_INDEX-Effekt. Beide tatsächlichen Restores und neue Attestierung

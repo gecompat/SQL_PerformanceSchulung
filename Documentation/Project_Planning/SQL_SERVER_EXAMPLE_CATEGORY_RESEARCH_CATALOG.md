@@ -56,11 +56,11 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 |---|---|---|---|
 | Zeilenbreite, NULL-Bitmap, variable Spalten und Slot Array | Gleiche Fachzeilen mit schmalem und breitem Layout; Pages und Reads vergleichen | `STL-001` | `BESTAND` |
 | In-Row, Row-Overflow und LOB | Wertgröße über die Speichergrenze verändern und Page-Kette beobachten | `STL-002` | `BESTAND` |
-| Heap, RID und Forwarded Records | Variable Heapzeile vergrößern, Fetches nachweisen und Rebuild gegenprüfen | `STL-003` | `BESTAND` |
+| Heap, RID (Row Identifier; physischer Zeilenverweis) und Forwarded Records | Variable Heapzeile vergrößern, Fetches nachweisen und Rebuild gegenprüfen | `STL-003` | `BESTAND` |
 | Allocation Units, Extents und Page-Metadaten | Kleine Objekte wachsen lassen und Zuordnung ohne undokumentierte Befehle erklären | `STL-004` | `BESTAND` |
 | Files, Filegroups, Proportional Fill und Autogrowth | Gleichmäßig beziehungsweise ungünstig konfigurierte Dateien logisch vergleichen | `STL-005` | `BESTAND` |
 | Cold/Warm Cache, Read-ahead und Buffer-Pool-Wirkung | Identische Abfrage mit kaltem und warmem Datenbestand; logische und physische Reads trennen | `STL-006` | `ERWEITERN` |
-| Page- und Row-Compression | Größe, CPU und I/O bei gleicher Ergebnismenge gegenüberstellen | `STL-010`, `IDX-008` | `BESTAND` |
+| Page- und Row-Compression | Größe, CPU (Central Processing Unit; Prozessor) und I/O (Input/Output; Ein- und Ausgabezugriffe) bei gleicher Ergebnismenge gegenüberstellen | `STL-010`, `IDX-008` | `BESTAND` |
 | Sparse Columns und breite, dünn besetzte Tabellen | Speicherersparnis gegen Zugriff, Metadaten und Eignungsgrenze vergleichen | späteren Eigentümer prüfen | `EIGENTÜMER_PRÜFEN` |
 | Buffer Pool Extension und persistenter Cache | Historisch beziehungsweise plattformspezifisch einordnen, nicht als Standardempfehlung lehren | kein Kernowner | `AUSSERHALB` |
 
@@ -69,8 +69,8 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 | Kategorie | Verständlicher späterer Beispielschnitt | Eigentümer oder Entscheidung | Einordnung |
 |---|---|---|---|
 | Log Records, Commit, Rollback und Checkpoint | Kleine Transaktion, Rollback und Checkpoint mit Log- und Wiederherstellungssicht | `STL-007` | `BESTAND` |
-| VLF und Logwachstum | Vorab dimensioniertes gegen kleinteilig wachsendes Log | `STL-008` | `BESTAND` |
-| Einzelcommit, Batch-Commit und Group Commit | Gleiche DML-Menge mit unterschiedlicher Commitgranularität | `STL-009` | `BESTAND` |
+| VLF (Virtual Log File; interner Abschnitt einer Transaktionslogdatei) und Logwachstum | Vorab dimensioniertes gegen kleinteilig wachsendes Log | `STL-008` (Transaktionslog und Dateiwachstum) | `BESTAND` |
+| Einzelcommit, Batch-Commit und Group Commit | Gleiche DML-Menge mit unterschiedlicher Commitgranularität | `STL-009` (Mehrere Änderungen gemeinsam bestätigen) | `BESTAND` |
 | Delayed Durability | Commitlatenz und Log-I/O gegen ausdrücklich reduzierte Durabilitätsgarantie abgrenzen | `STL-009` | `ERWEITERN` |
 | Minimally Logged Bulk Load | Recovery Model, leere/belegte Zielstruktur, `TABLOCK` und protokollierte Extent-Zuordnung vergleichen | `STL-007`, mit Verweis auf `IDX-009` | `ERWEITERN` |
 | Log Truncation und Wiederverwendungsblocker | Aktive Transaktion, Logbackup- beziehungsweise Recovery-Model-Grenze und Freigabe des Logs | `STL-008` | `ERWEITERN` |
@@ -83,9 +83,9 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 |---|---|---|---|
 | Compilation, Recompilation und Plan Reuse | Objekt- oder Statistikänderung löst nachvollziehbar Wiederverwendung beziehungsweise Recompile aus | `OPT-007` | `BESTAND` |
 | Ad-hoc-Cache-Pollution und Plan Stubs | viele literalverschiedene Einmalabfragen mit und ohne `optimize for ad hoc workloads` | `OPT-007` | `ERWEITERN` |
-| Simple und Forced Parameterization | gleiche Literalvarianten, Cacheeinträge und Planwiederverwendung; Sensitivitätsrisiko gegenprüfen | `OPT-007`, Vertiefung in `OPT-008`/`OPT-009` | `ERWEITERN` |
-| `sp_executesql`, Stored Procedure und unparametrisiertes SQL | Text-, Parameter- und Cacheidentität vergleichen | `OPT-007`, Verweis auf `QRY-004` | `ERWEITERN` |
-| Parameter Sniffing und Parameter Sensitivity | heiße und kalte Werte bei identischem Statement | `OPT-008`, `OPT-009`, `OPT-010` | `BESTAND` |
+| Simple und Forced Parameterization | gleiche Literalvarianten, Cacheeinträge und Planwiederverwendung; Sensitivitätsrisiko gegenprüfen | `OPT-007`, Vertiefung in `OPT-008`/`OPT-009` (Parametersensitive Planoptimierung) | `ERWEITERN` |
+| `sp_executesql`, Stored Procedure und unparametrisiertes SQL | Text-, Parameter- und Cacheidentität vergleichen | `OPT-007`, Verweis auf `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) | `ERWEITERN` |
+| Parameter Sniffing und Parameter Sensitivity | heiße und kalte Werte bei identischem Statement | `OPT-008`, `OPT-009`, `OPT-010` (Planoptimierung für optionale Parameter) | `BESTAND` |
 | Compile Lock und Compile Storm | viele gleichzeitige identische Kompilierungen; optimiertes `sp_executesql` nur im 2025-Pfad | `OPT-007`, SQL-2025-Delta | `INFRASTRUKTUR` |
 | Trivial Plan, Full Optimization und Early Abort | Planproperties an kleinen und kombinatorisch größeren Abfragen erklären, ohne feste Planform zu versprechen | `OPT-001`, `OPT-007` | `ERWEITERN` |
 | Plan Guides | selektive Parameterisierung oder Hint ohne Codeänderung; Wartungsrisiko sichtbar machen | `DGN-004` | `ERWEITERN` |
@@ -96,38 +96,38 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 
 | Kategorie | Verständlicher späterer Beispielschnitt | Eigentümer oder Entscheidung | Einordnung |
 |---|---|---|---|
-| Histogramm, Density und Schätzfehler | kontrollierte Verteilung mit Estimated/Actual-Vergleich | `OPT-001`, `OPT-002` | `BESTAND` |
-| Sampling, Fullscan, Skew und Histogrammgrenzen | identische Daten mit unterschiedlicher Statistikqualität | `OPT-003` | `BESTAND` |
+| Histogramm, Density und Schätzfehler | kontrollierte Verteilung mit Estimated/Actual-Vergleich | `OPT-001`, `OPT-002` (Statistiken lesen) | `BESTAND` |
+| Sampling, Fullscan, Skew und Histogrammgrenzen | identische Daten mit unterschiedlicher Statistikqualität | `OPT-003` (Stichproben und ungleiche Datenverteilung) | `BESTAND` |
 | Spaltenkorrelation, Constraints und Eindeutigkeit | Einzel- gegen Mehrspaltenwissen und Constraint-basierte Vereinfachung | `OPT-004` | `BESTAND` |
-| Ascending Key und synchrone/asynchrone Pflege | neu angefügte Werte sowie Blockierungsgrenze der Statistikaktualisierung | `OPT-005` | `BESTAND` |
+| Ascending Key und synchrone/asynchrone Pflege | neu angefügte Werte sowie Blockierungsgrenze der Statistikaktualisierung | `OPT-005` (Wachsende Schlüssel und Statistikpflege) | `BESTAND` |
 | Asynchrone Statistikpflege mit Low-Priority-Warten | SQL Server 2022+ gegen reguläre asynchrone Pflege | `OPT-005` | `ERWEITERN` |
 | Filtered Statistics | relevante Teilmenge gegen Gesamtverteilung, einschließlich Predicate-Implikation | `OPT-004`, Verweis auf `QRY-011` | `ERWEITERN` |
 | Incremental Statistics auf Partitionen | betroffene Partition aktualisieren und globale Sicht erklären | `OPT-005`, Verweis auf `QRY-012` | `ERWEITERN` |
 | Persisted Sample Percent | automatische Folgeaktualisierung mit stabiler Stichprobe gegen Standardverhalten | `OPT-003` | `ERWEITERN` |
 | CE-Modelle und CE Feedback | Compatibility-Level- und versionsgebundene Schätzung | `OPT-006` | `BESTAND` |
-| DOP Feedback | wiederholte parallele Abfrage, Query Store, Wait- und DOP-Entwicklung ab SQL Server 2022 | `OPT-017`, Verweis auf `OPT-006` | `ERWEITERN` |
+| DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) Feedback | wiederholte parallele Abfrage, Query Store, Wait- und DOP-Entwicklung ab SQL Server 2022 | `OPT-017` (Ungleich verteilte parallele Arbeit), Verweis auf `OPT-006` | `ERWEITERN` |
 | Memory Grant Feedback | Grant, Spill, Oszillation sowie persistentes/perzentilbasiertes Feedback | `OPT-014`, `RES-004` | `BESTAND` |
 | Batch Mode on Rowstore | gleiche analytische Abfrage mit eligibility-gebundener Row-/Batch-Mode-Evidenz | `OPT-006`, Verweis auf `OPT-017` | `ERWEITERN` |
-| Adaptive Join, Interleaved Execution, Table Variable Deferred Compilation und UDF Inlining | jeweils bestehende Baseline mit versionsgebundener adaptiver Variante | `OPT-012`, `QRY-008`, `QRY-009` | `BESTAND` |
+| Adaptive Join, Interleaved Execution, Table Variable Deferred Compilation und UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining | jeweils bestehende Baseline mit versionsgebundener adaptiver Variante | `OPT-012`, `QRY-008`, `QRY-009` | `BESTAND` |
 | Approximate Query Processing | exakte gegen approximative Aggregation mit Fehlergrenze, CPU und Laufzeit | späteren Eigentümer prüfen | `EIGENTÜMER_PRÜFEN` |
 
 ### 3.5 Abfragemuster und Programmierkonstrukte
 
 | Kategorie | Verständlicher späterer Beispielschnitt | Eigentümer oder Entscheidung | Einordnung |
 |---|---|---|---|
-| SARGability, Konvertierungen und Datumsintervalle | Indexzugriff und Ergebnisgrenzen bei gleicher Fachfrage | `QRY-001` bis `QRY-003` | `BESTAND` |
+| SARGability, Konvertierungen und Datumsintervalle | Indexzugriff und Ergebnisgrenzen bei gleicher Fachfrage | `QRY-001` (Indexfreundliche Suchbedingungen) bis `QRY-003` | `BESTAND` |
 | Optionale Parameter und dynamische Suche | statisch, Recompile, dynamisch und adaptive Varianten | `QRY-004` | `BESTAND` |
 | OR, `UNION ALL`, `UNION` und Duplikatsemantik | fachlich gleiche und absichtlich nicht gleiche Teilmengen | `QRY-005`, `QRY-007` | `BESTAND` |
-| NULL, Semi und Anti Semi Join | `NOT IN`-Falle gegen `NOT EXISTS` | `QRY-006` | `BESTAND` |
-| CTE, Temp Table und Table Variable | Materialisierung, Statistik und Deferred Compilation trennen | `QRY-008` | `BESTAND` |
+| NULL, Semi und Anti Semi Join | `NOT IN`-Falle gegen `NOT EXISTS` | `QRY-006` (NULL bei NOT IN und NOT EXISTS) | `BESTAND` |
+| CTE (Common Table Expression; benannter Abfrageausdruck innerhalb einer Anweisung), Temp Table und Table Variable | Materialisierung, Statistik und Deferred Compilation trennen | `QRY-008` | `BESTAND` |
 | Rekursive CTE und `MAXRECURSION` | begrenzte Hierarchie gegen Zyklus beziehungsweise explosionsartiges Wachstum | `QRY-008` | `ERWEITERN` |
-| Inline TVF, MSTVF und Scalar UDF | Schätzung, Inlining und Planintegration | `QRY-009` | `BESTAND` |
+| Inline TVF (Table-Valued Function; tabellenliefernde Funktion), MSTVF (Multi-Statement Table-Valued Function; tabellenliefernde Funktion mit mehreren Anweisungen) und Scalar UDF | Schätzung, Inlining und Planintegration | `QRY-009` | `BESTAND` |
 | Cursor, set-based Verarbeitung, `APPLY` und Window Functions | gleiche Fachlogik mit unterschiedlicher Ausführungsform | `QRY-010` | `BESTAND` |
 | Pagination | `OFFSET/FETCH` bei tiefen Seiten gegen Keyset/Seek-Fortsetzung | `QRY-001`, mit `QRY-003` für stabilen Schlüssel | `ERWEITERN` |
 | Multi-Value-Filter | große `IN`-Liste, Table-Valued Parameter, Temp Table und JSON-Eingabe fachlich gleich vergleichen | `QRY-004`, mit `QRY-008`/`QRY-012` | `ERWEITERN` |
 | Computed Column und Predicate Implication | deterministische berechnete Spalte und gefilterter Index | `QRY-011` | `BESTAND` |
 | Partition Elimination | statische und dynamische Elimination sowie nicht passende Prädikatform | `QRY-012` | `BESTAND` |
-| JSON, XML und Stringverarbeitung | Parse-, Extraktions- und relationale Gegenprobe mit gleicher Ergebnismenge | `QRY-012` | `BESTAND` |
+| JSON (JavaScript Object Notation; strukturiertes Textformat), XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) und Stringverarbeitung | Parse-, Extraktions- und relationale Gegenprobe mit gleicher Ergebnismenge | `QRY-012` | `BESTAND` |
 | Leading-Wildcard-Suche und Full-Text Search | `LIKE '%x%'` gegen geeignete Volltextsuche, inklusive Aktualisierungs- und Fragmentkosten | späteren Eigentümer prüfen | `EIGENTÜMER_PRÜFEN` |
 | Indexed Views | Aggregation zur Laufzeit gegen materialisierte Sicht und DML-Pflegekosten | späteren Eigentümer prüfen | `EIGENTÜMER_PRÜFEN` |
 | `MERGE` und getrennte DML-Anweisungen | Plan-, Locking- und Ergebnisverhalten nur mit klarer Korrektheitsgrenze | kein Kernowner | `AUSSERHALB` |
@@ -138,11 +138,11 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 |---|---|---|---|
 | Heap/Clustered, Schlüsselbreite, Abdeckung und Lookup | vorhandene Rowstore-Schnitte und Operatoren-Labor | `IDX-001` bis `IDX-004` | `BESTAND` |
 | Redundante Indizes und DML-Kosten | Lesegewinn gegen Schreib-, Speicher- und Wartungskosten | `IDX-005` | `BESTAND` |
-| Page Split, Density, Fragmentation und Fill Factor | kontrollierte Insertreihenfolge und sachgerechte Gegenmaßnahme | `IDX-006` | `BESTAND` |
+| Page Split, Density, Fragmentation und Fill Factor | kontrollierte Insertreihenfolge und sachgerechte Gegenmaßnahme | `IDX-006` (Seitenaufteilungen und Seitenbelegung) | `BESTAND` |
 | Last-Page-Contention | parallele sequenzielle Inserts mit geeigneter Gegenprobe | `IDX-007` | `BESTAND` |
 | Online und Resumable Index Operations | Blockierungsphasen, Pause/Resume und Edition-/Versionsgrenzen | `IDX-006` | `ERWEITERN` |
-| `WAIT_AT_LOW_PRIORITY` bei Indexoperationen | konkurrierende Session und begrenztes Low-Priority-Zeitfenster | `IDX-006`, Verweis auf `CON-004` | `ERWEITERN` |
-| Partition Switching und Alignment | metadata-only Wechsel bei passender Struktur gegen bewusst unpassende Definition | `QRY-012`, Verweis auf `IDX-010` | `ERWEITERN` |
+| `WAIT_AT_LOW_PRIORITY` bei Indexoperationen | konkurrierende Session und begrenztes Low-Priority-Zeitfenster | `IDX-006`, Verweis auf `CON-004` (Blockierungsketten verfolgen) | `ERWEITERN` |
+| Partition Switching und Alignment | metadata-only Wechsel bei passender Struktur gegen bewusst unpassende Definition | `QRY-012`, Verweis auf `IDX-010` (Columnstore-Segmente gezielt überspringen) | `ERWEITERN` |
 | Columnstore-Ladepfad und Rowgroups | kleine gegen Direct-Compressed Loads, Delete Bitmap und Segment Elimination | `IDX-009`, `IDX-010` | `BESTAND` |
 | XML Index | ungeindexierte Extraktion gegen Primary/Secondary XML Index und DML-Kosten | `QRY-012` oder neuer Spezialowner nach Detaildesign | `EIGENTÜMER_PRÜFEN` |
 | Spatial Index | räumliches Prädikat mit und ohne geeignete Tessellation; false positives erklären | neuer Spezialowner nur bei Curriculumbedarf | `EIGENTÜMER_PRÜFEN` |
@@ -155,13 +155,13 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 | Kategorie | Verständlicher späterer Beispielschnitt | Eigentümer oder Entscheidung | Einordnung |
 |---|---|---|---|
 | Anomalien und Isolation Levels | Dirty/Non-repeatable/Phantom/Lost Update sowie Key-Range Locks | `CON-001`, `CON-002` | `BESTAND` |
-| RCSI und SNAPSHOT | Statement-/Transaktionssicht und Updatekonflikt | `CON-003` | `BESTAND` |
+| RCSI (Read Committed Snapshot Isolation; zeilenversionierte Variante von READ COMMITTED) und SNAPSHOT | Statement-/Transaktionssicht und Updatekonflikt | `CON-003` | `BESTAND` |
 | Blocking Chain und Head Blocker | vier Rollen mit messbarer Wartezeit | `CON-004` | `BESTAND` |
 | Lock Escalation, Schema Locks und Metadaten | Schwellen- beziehungsweise druckabhängige Eskalation und DDL-Blockade | `CON-005` | `BESTAND` |
-| Deadlockvarianten | Zugriffreihenfolge und Deadlock Graph | `CON-006` | `BESTAND` |
+| Deadlockvarianten | Zugriffreihenfolge und Deadlock Graph | `CON-006` (Zyklische Sperrkonflikte erkennen) | `BESTAND` |
 | Conversion Deadlock | konkurrierende Shared-to-Exclusive-Konvertierung als eigene Phase | `CON-006` | `ERWEITERN` |
 | Application Locks | fachliche Ressource mit `sp_getapplock` gegen Tabellenlock-Missbrauch | `CON-004` oder `CON-006` nach Detaildesign | `EIGENTÜMER_PRÜFEN` |
-| Optimized Locking | TID Locks und Lock After Qualification im 2025-Pfad | `CON-008` | `BESTAND` |
+| Optimized Locking | TID (Transaction ID; Transaktionskennung) Locks und Lock After Qualification im 2025-Pfad | `CON-008` | `BESTAND` |
 | Latch, Lock und Spinlock | dieselbe Warteanalyse korrekt nach Synchronisationsart trennen | `RES-005`, Verweis auf `CON-004` | `ERWEITERN` |
 | Distributed Transactions | lokale gegen verteilte Commitgrenze und externe Koordinatorabhängigkeit | kein Kernowner | `INFRASTRUKTUR` |
 
@@ -170,9 +170,9 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 | Kategorie | Verständlicher späterer Beispielschnitt | Eigentümer oder Entscheidung | Einordnung |
 |---|---|---|---|
 | Temp Table und Table Variable | Statistik-, Kompilierungs- und Scopeunterschiede | `QRY-008` | `BESTAND` |
-| Worktables, Workfiles und Spills | Sort-/Hash-Spill als TempDB-Verbraucher | `OPT-013` | `BESTAND` |
+| Worktables, Workfiles und Spills | Sort-/Hash-Spill als TempDB-Verbraucher | `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) | `BESTAND` |
 | Version Store und Persisted Version Store | lang laufender Reader beziehungsweise ADR-Rollback | `CON-007` | `BESTAND` |
-| Allocation- und Metadaten-Contention | hohe Sessionzahl, Dateilayout und Memory-optimized TempDB Metadata | `CON-009` | `BESTAND` |
+| Allocation- und Metadaten-Contention | hohe Sessionzahl, Dateilayout und Memory-optimized TempDB Metadata | `CON-009` (Kosten in tempdb unterscheiden) | `BESTAND` |
 | Temp Table Caching und Deferred Drop | wiederholte Proc-Ausführung gegen wechselnde Definitionen und Metadatenlast | `CON-009`, Verweis auf `QRY-008` | `ERWEITERN` |
 | TempDB-Dateigröße und Autogrowth | kontrolliertes Dateilayout und Wachstumsereignis ohne Storage-Latenzbehauptung | `CON-009`, Verweis auf `STL-005` | `ERWEITERN` |
 | TempDB Space Governance | SQL Server 2025 mit Resource-Governor-Klassifizierung und vollständiger Rücknahme | bestehender SQL-2025-Delta-Pfad | `BESTAND` |
@@ -184,7 +184,7 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 |---|---|---|---|
 | CPU-bound Query und Scheduler Yield | rechenintensive Abfrage mit Scheduler- und Wait-Sicht | `RES-001` | `BESTAND` |
 | Parallelism, Exchanges und Skew | balancierte gegen konzentrierte Verteilung und serielle Gegenprobe | `OPT-017`, `RES-002` | `BESTAND` |
-| Cost Threshold und MAXDOP | querylokale, datenbank- und instanzweite Grenze sauber auseinanderhalten | `RES-002` | `ERWEITERN` |
+| Cost Threshold und MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) | querylokale, datenbank- und instanzweite Grenze sauber auseinanderhalten | `RES-002` | `ERWEITERN` |
 | Worker Starvation und `THREADPOOL` | viele blockierte oder lang laufende Requests und DAC-/Recovery-Grenze | `RES-001`, mit `DGN-006` | `INFRASTRUKTUR` |
 | NUMA, Scheduler- und Memory-Node-Lokalität | ungleich belastete Scheduler/Nodes beobachten, keine Hardwareempfehlung simulieren | `RES-001` | `INFRASTRUKTUR` |
 | Buffer Pool, Plan Cache, Lock Memory und Clerks | `max server memory` gegen tatsächliche Clerk- und Prozesssicht | `RES-003` | `ERWEITERN` |
@@ -199,10 +199,10 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 |---|---|---|---|
 | Page-I/O-Latch gegen Page-Latch | physische I/O-Latenz und In-Memory-Contention diagnostisch trennen | `RES-005` | `BESTAND` |
 | Daten- und Logfile-Latenz | DMV-Deltas, `WRITELOG` und kontrollierte Storageprofile | `RES-006` | `BESTAND` |
-| Wait-Scope und Netzwerkverbrauch | Request-/Task-/Instanzdelta sowie langsamer Client | `RES-007` | `BESTAND` |
+| Wait-Scope und Netzwerkverbrauch | Request-/Task-/Instanzdelta sowie langsamer Client | `RES-007` (Wartezeiten im richtigen Messbereich) | `BESTAND` |
 | Read-ahead und Prefetch | große Range-Abfrage, Cachezustand und I/O-Muster | `STL-006`, Verweis auf `RES-006` | `ERWEITERN` |
 | Remote Query und Pushdown | lokale Filterung gegen providergebundenes Remote-Pushdown | `QRY-012` | `BESTAND` |
-| Provider, Collation, TLS und Netzwerkgrenze | zwei Instanzen mit expliziter Provider- und Zertifikatskonfiguration | `QRY-012` | `INFRASTRUKTUR` |
+| Provider, Collation, TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen) und Netzwerkgrenze | zwei Instanzen mit expliziter Provider- und Zertifikatskonfiguration | `QRY-012` | `INFRASTRUKTUR` |
 | Client Fetch Size und Chatty Access | gleiche Ergebnismenge mit gebündeltem gegen zeilenweisem Abruf | `DGN-006`, Verweis auf `RES-007` | `INFRASTRUKTUR` |
 
 ### 3.11 Diagnose, Historie und methodischer Vergleich
@@ -211,12 +211,12 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 |---|---|---|---|
 | `STATISTICS IO/TIME`, Actual Plan und A/B | identische Ergebnisassertion, geänderte Maßnahme und Delta | `DGN-001` | `BESTAND` |
 | Sessions, Requests, Tasks und Live Query Statistics | gleiche laufende Anfrage auf mehreren Beobachtungsebenen | `DGN-002` | `BESTAND` |
-| Query Store | Query-, Plan-, Runtime- und verfügbare Wait-Historie | `DGN-003` | `BESTAND` |
-| Extended Events | Deadlock, Blocking, Spill, Recompile und Fehler mit begrenztem Target | `DGN-005` | `BESTAND` |
+| Query Store | Query-, Plan-, Runtime- und verfügbare Wait-Historie | `DGN-003` (Abfragehistorie mit Query Store) | `BESTAND` |
+| Extended Events | Deadlock, Blocking, Spill, Recompile und Fehler mit begrenztem Target | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) | `BESTAND` |
 | Workload-Treiber und OS-Metriken | Baseline, kontrollierte Last, Stop und Wiederholung | `DGN-006` | `BESTAND` |
 | Lightweight Query Profiling und operatorbezogene Laufzeit | Profiling-Evidenz gegen Mess-Overhead und tatsächlichen Plan | `DGN-002` | `ERWEITERN` |
 | Query- und Plan-Hash | textverschiedene beziehungsweise planverschiedene Abfragen gruppieren | `DGN-003` | `ERWEITERN` |
-| Memory Clerks, Scheduler-, Latch- und Spinlock-DMVs | vom Symptom zur zuständigen internen Ressource navigieren | `DGN-002`, mit `RES-001`/`RES-003`/`RES-005` | `ERWEITERN` |
+| Memory Clerks, Scheduler-, Latch- und Spinlock-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) | vom Symptom zur zuständigen internen Ressource navigieren | `DGN-002`, mit `RES-001`/`RES-003`/`RES-005` | `ERWEITERN` |
 | SQL Trace und Profiler | nur als abgelöste Diagnosewege einordnen; keine neue Demo | `DGN-005` zeigt den XE-Ersatz | `AUSSERHALB` |
 | Drittanbieter-Monitoring | mögliche Transferdiskussion, aber keine Voraussetzung oder Repositoryintegration | kein Owner | `AUSSERHALB` |
 
@@ -239,7 +239,7 @@ SQL-Server-Verhalten, fachlich richtige Gegenprobe und unabhängiges Cleanup.
 
 | Kategorie | Verständlicher späterer Beispielschnitt | Eigentümer oder Entscheidung | Einordnung |
 |---|---|---|---|
-| Disk-based gegen Memory-optimized OLTP | latch-/locklastige Transaktionsarbeit bei gleicher Fachlogik | neuer In-Memory-Owner erforderlich | `EIGENTÜMER_PRÜFEN` |
+| Disk-based gegen Memory-optimized OLTP (Online Transaction Processing; transaktionsorientierte Datenverarbeitung) | latch-/locklastige Transaktionsarbeit bei gleicher Fachlogik | neuer In-Memory-Owner erforderlich | `EIGENTÜMER_PRÜFEN` |
 | Interpretiertes gegen nativ kompiliertes T-SQL | CPU und unterstützte Planformen bei identischer Operation | neuer In-Memory-Owner erforderlich | `EIGENTÜMER_PRÜFEN` |
 | Durable gegen SCHEMA_ONLY Memory-optimized | Wiederanlauf- und Persistenzgrenze sichtbar machen | neuer In-Memory-Owner erforderlich | `EIGENTÜMER_PRÜFEN` |
 | TDE | Daten-/Log-I/O, CPU und Backup-Kompression nur in isolierter Messung vergleichen | neuer Security-Owner nur bei Curriculumbedarf | `INFRASTRUKTUR` |

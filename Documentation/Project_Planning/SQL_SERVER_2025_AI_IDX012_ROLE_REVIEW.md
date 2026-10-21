@@ -7,7 +7,7 @@ im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
 
 ## Methode und Effektgrenze
 
-Der öffentliche Preflight prüft nach Versionsausschluss und vor der Host-DMV
+Der öffentliche Preflight prüft nach Versionsausschluss und vor der Host-DMV (Dynamic Management View; dynamische Verwaltungssicht für Diagnoseinformationen)
 VIEW SERVER PERFORMANCE STATE. Fehlt dieses Recht, liefert er SKIP_PERMISSION
 mit MISSING_SERVER_PERFORMANCE_STATE; fehlendes DB-Erstellungsrecht erhält
 MISSING_CREATE_DATABASE. Beide halten vor Setup an. 2019/2022 bleiben vor
@@ -28,7 +28,7 @@ Vor dem positiven Lauf entzieht der Admin beide Rechte einzeln tatsächlich.
 Je Negativfall: frischer öffentlicher Client ausschließlich PREFLIGHT/
 SKIP_PERMISSION, kein Setup/SQL-Restoreclaim, tatsächliche neue read-only
 DB-Abwesenheit; danach tatsächlicher Grantrestore und Login-Gegenprüfung.
-Im aktuellen lokalen Split laufen DML, Drop/Commit, Beobachtung und Kosten-
+Im aktuellen lokalen Split laufen DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten), Drop/Commit, Beobachtung und Kosten-
 frames im eingeschränkten Kontext. Genau die beiden CREATE VECTOR INDEX-
 Aufrufe wechseln im festen nativen Input kurz in den Admin-Kontext; die
 übrigen Clients authentifizieren unmittelbar als Operator. Nach Setup wird sein eigener
@@ -47,7 +47,7 @@ zum Principalcleanup gestartet: NOT_ESTABLISHED_CLIENT_END_UNKNOWN und
 role_absent=false bleiben sichtbar, nur gebundener eigener Containerabbau.
 Der öffentliche und der Rollenclaim bleiben FAIL.
 
-Eigener unveränderlicher 17.0.5005.3-Container/4 CPUs/6 GiB, Preview/MAXDOP
+Eigener unveränderlicher 17.0.5005.3-Container/4 CPUs/6 GiB, Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)
 nur eigene DB, 999–1000 VECTOR(3)-Rows; 300 s einschließlich Startup,
 20 s SQL-Recovery innerhalb 60 s gesamtem Cleanup ab erstem Restore,
 einschließlich anschließendem Login- und Containercleanup. Keine Pulls,
@@ -156,7 +156,7 @@ kein unveränderter öffentlicher Einzel-Login-Aufruf. Der öffentliche Controll
 und die öffentlichen SQL-Quellen bleiben außerhalb des Preflightdeltas gleich.
 
 Das belegt gegebenenfalls eine begrenzte lokale Aufgabentrennung, keinen
-vollständigen Nicht-sysadmin-Build und keine öffentliche Multi-Login-API.
+vollständigen Nicht-sysadmin-Build und keine öffentliche Multi-Login-API (Application Programming Interface; Programmierschnittstelle).
 Phasenkosten/Buildzeiten enthalten zusätzlich die Kontextinstrumentierung,
 kein isolierter Performancevergleich. Die alte C1-FAILquelle bleibt erhalten;
 neue Admission erst nach engem Delta-Review. Drei neue synthetische
@@ -168,7 +168,7 @@ Aktuelle C2 SHA256: Parent F0341668E58E5FD6C0E00E09DA21579F5B694D8F6C2E44A0944C7
 feste Kontextquelle E320B1D61E1599C6A63017D15D40575D19D1548FFB5DA0DF42F61272979E3E76.
 
 Enge unabhängige C2-Quellenclosure vor Admission erteilt, keine P1/P2:
-privilegierter Kontext ausschließlich der einmal exakt erkannte Index-DDL;
+privilegierter Kontext ausschließlich der einmal exakt erkannte Index-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten);
 DML/übrige Guards im Operator-Kontext und geordnete tatsächliche Rückkehr-
 records, feste Token-/SID-/Secretbindung, 160000-Byte-Limit und bestehender
 Leasevertrag bestätigt. Beide aktuellen Hashes bestätigt; keine Runtime

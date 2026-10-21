@@ -11,7 +11,7 @@ Historische Budgets/FAILs bleiben erhalten; keine numerische Generation ableiten
 ## Erster Kandidat
 
 Genau ein neuer eigener Container/Lifecycle. Die beiden tatsächlichen Baselines
-waren Preview 0 und DB-scoped MAXDOP 0; neue Clients attestierten nach getrennten
+waren Preview 0 und DB-scoped MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0; neue Clients attestierten nach getrennten
 Setclients die Werte 1/1. Buildsession QUOTED_IDENTIFIER 1. CREATE VECTOR INDEX
 lieferte die vollständige eigene Metadatenrow mit Typ 8/VECTOR, DiskANN/COSINE,
 gültigen Buildparametern ohne Versionsschlüssel.
@@ -77,7 +77,7 @@ Zwei Kandidaten und drei Container/Lifecycles verbraucht. Kein weiterer Lauf
 dieses Diagnoseumfangs erforderlich. Der nächste eigene
 [Planausgabeschnitt](SQL_SERVER_2025_AI_ANN_PLAN_DECISION.md) trennt tatsächliche
 Planbeobachtung und Indexnutzung von diesem Ergebnisnachweis. Vollständige
-IDX-011-/IDX-012-Abnahme, gefilterte Queries, Laufzeit-/IO-/CPUvergleich und DML
+IDX-011-/IDX-012-Abnahme, gefilterte Queries, Laufzeit-/IO-/CPUvergleich und DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten)
 bleiben offen; keine Azure-/andere Buildqualifikation.
 
 Ein Implementierungsverantwortlicher, ein erforderlicher Reviewer; unveränderte

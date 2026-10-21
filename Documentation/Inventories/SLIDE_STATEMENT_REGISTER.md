@@ -4,8 +4,8 @@
 **Status:** VALIDATED  
 **Prüfdatum:** 2026-07-24  
 **Aktiver Foliensatz:** `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx`  
-**SHA-256:** `f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5`
-**Folienumfang:** 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 Vertiefungsfolien aus `ADV-010` und `ADV-011`)  
+**SHA-256:** `17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787`
+**Folienumfang:** 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07), je 4 Vertiefungsfolien aus `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) und `ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization))<br>
 **Aktuelle Bestandskorrektur:** [Diagrammreview vom 2026-10-05](../Reviews/PRESENTATION_DIAGRAM_REVIEW_2026_10_05.md)
 **Quellenbasis:** [Primärquellenregister W0](../Research/PRIMARY_SOURCES_W0.md)  
 **Vertiefung:** [Kritische Aussagenprüfung](../Reviews/CRITICAL_CLAIMS_REVIEW.md)
@@ -28,9 +28,9 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-002 | 2 | sl/2ga0dd | Einstieg | METHOD | Erst beobachten und messen, dann gezielt verändern | versionsneutral | SRC-028 | KEEP | – |
 | CLM-003 | 3 | sl/4lobkv | Einstieg | METHOD | Performance als Zusammenspiel von Latenz, Durchsatz, Ressourcen und Nebenläufigkeit bewerten | versionsneutral | SRC-028 | KEEP | – |
 | CLM-004 | 4 | sl/vorwd3 | Einstieg | METHOD | Diagnosezyklus: Symptom, Engpass, Plan, Änderung, Nachweis | versionsneutral | SRC-027, SRC-028 | KEEP | – |
-| CLM-005 | 5 | sl/rolfsq | Einstieg | DOCUMENTED | Plan, DMVs, Query Store, Extended Events und OS-Metriken beantworten unterschiedliche Fragen | 2019–2025 | SRC-027, SRC-028 | KEEP | – |
+| CLM-005 | 5 | sl/rolfsq | Einstieg | DOCUMENTED | Plan, DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), Query Store, Extended Events und OS-Metriken beantworten unterschiedliche Fragen | 2019–2025 | SRC-027, SRC-028 | KEEP | – |
 | CLM-006 | 6 | sl/an179p | Einstieg | DOCUMENTED | IQP-Funktionen hängen von Engine-Version, Kompatibilitätsstufe und teils Konfiguration ab | 2019–2025; CL 140–170 | SRC-007, SRC-025, SRC-026 | KEEP | – |
-| CLM-007 | 7 | sl/6zxqml | Storage | DIDACTIC | Modulnavigation zu Storage und I/O | – | – | KEEP | – |
+| CLM-007 | 7 | sl/6zxqml | Storage | DIDACTIC | Modulnavigation zu Storage und I/O (Input/Output; Ein- und Ausgabezugriffe) | – | – | KEEP | – |
 | CLM-008 | 8 | sl/b5b7hl | Storage | DOCUMENTED | Daten- und Logdateien haben unterschiedliche Rollen und I/O-Muster | 2019–2025 | SRC-003, SRC-033 | KEEP | STL-005 |
 | CLM-009 | 9 | sl/ifx81i | Storage | DOCUMENTED | Filegroups sind Verwaltungs-/Platzierungseinheiten; Performance folgt nicht automatisch | 2019–2025 | SRC-003 | KEEP | – |
 | CLM-010 | 10 | sl/sepwd6 | Storage | DOCUMENTED | SQL Server organisiert Datenseiten in Extents; die Struktur erklärt Zugriffsmuster | 2019–2025 | SRC-002 | KEEP | STL-004 |
@@ -64,9 +64,9 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-038 | 38 | sl/n587oc | Query Patterns | DOCUMENTED | Datentyppräzedenz kann implizite Konvertierung an der Spalte und damit Plan-/Zugriffsfolgen erzeugen | 2019–2025 | SRC-030, SRC-031 | KEEP | QRY-002 |
 | CLM-039 | 39 | sl/e1wq25 | Query Patterns | DOCUMENTED | Halb offene Datumsintervalle vermeiden Zeitanteilsfehler und bleiben suchbar | 2019–2025 | SRC-012 | KEEP | QRY-003 |
 | CLM-040 | 40 | sl/2th1fh | Query Patterns | DOCUMENTED | Optionale Prädikate können planempfindlich sein; OPPO erzeugt ab SQL Server 2025 geeignete Varianten unter Voraussetzungen | 2025/CL 170 für OPPO | SRC-026 | KEEP | QRY-004 |
-| CLM-041 | 41 | sl/n34ud6 | Query Patterns | DOCUMENTED | Eine CTE ist eine logische Abfrageform ohne Materialisierungsgarantie | 2019–2025 | SRC-011, SRC-001 | KEEP | QRY-008 |
+| CLM-041 | 41 | sl/n34ud6 | Query Patterns | DOCUMENTED | Eine CTE (Common Table Expression; benannter Abfrageausdruck innerhalb einer Anweisung) ist eine logische Abfrageform ohne Materialisierungsgarantie | 2019–2025 | SRC-011, SRC-001 | KEEP | QRY-008 |
 | CLM-042 | 42 | sl/hv65ke | Query Patterns | DOCUMENTED / EMPIRICAL | Temp Tables können Spaltenstatistiken besitzen; Table Variable Deferred Compilation nutzt bei CL 150 die erste Zeilenzahl, ersetzt aber keine Verteilungsstatistiken oder workloadbezogene Eignungsprüfung | 2019+, TVDC CL 150; empirische Wahl ohne feste Zeilengrenze | SRC-007, SRC-008 | KEEP | QRY-008 |
-| CLM-043 | 43 | sl/240x87 | Query Patterns | DOCUMENTED | Inline TVFs sind relational integrierbar; Interleaved Execution kann geeignete MSTVFs ab CL 140 mit erster Ist-Kardinalität optimieren; Scalar UDF Inlining bleibt eligibility- und planabhängig | 2017+, CL 140 für Interleaved Execution; 2019+, CL 150 für Scalar UDF Inlining | SRC-007, SRC-008 | KEEP | QRY-009 |
+| CLM-043 | 43 | sl/240x87 | Query Patterns | DOCUMENTED | Inline TVFs sind relational integrierbar; Interleaved Execution kann geeignete MSTVFs ab CL 140 mit erster Ist-Kardinalität optimieren; Scalar UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining bleibt eligibility- und planabhängig | 2017+, CL 140 für Interleaved Execution; 2019+, CL 150 für Scalar UDF Inlining | SRC-007, SRC-008 | KEEP | QRY-009 |
 | CLM-044 | 44 | sl/thzv62 | Query Patterns | DOCUMENTED | Partition Elimination folgt passenden Prädikaten und Grenzen; Partitionierung ersetzt keinen selektiven Index | 2019–2025 | SRC-018 | KEEP | QRY-012 |
 | CLM-045 | 45 | sl/kiz4xp | Query Patterns | DOCUMENTED | Remote Pushdown hängt von Provider, Collation, Ausdruck und Plan ab; SQL Server 2025 ändert Treibervoraussetzungen | 2019–2025; Providerabhängigkeit | SRC-020, SRC-021, SRC-022 | KEEP | QRY-012 |
 | CLM-046 | 46 | sl/hsj9bd | Query Patterns | DOCUMENTED | Datentypen und Modellierung beeinflussen Zeilenbreite, Konvertierungen, Schätzungen und Indizierbarkeit | 2019–2025 | SRC-002, SRC-005, SRC-030 | KEEP | – |
@@ -92,12 +92,12 @@ Die stabile Folien-ID stammt aus der internen Folienkennung des geprüften Offic
 | CLM-066 | 66 | sl/6x4hov | Concurrency | METHOD | Blocking ist als Kette von wartender Session zur blockierenden Wurzel zu untersuchen | 2019–2025 | SRC-036 | KEEP | CON-004 |
 | CLM-067 | 67 | sl/1ftcr8 | Concurrency | DOCUMENTED | Blocking ist Warten; Deadlock ist ein Zyklus, den die Engine durch Abbruch eines Opfers auflöst | 2019–2025 | SRC-004 | KEEP | CON-006 |
 | CLM-068 | 68 | sl/qa7yug | Concurrency | DOCUMENTED | `tempdb` trägt temporäre Objekte, Worktables/Spills und je nach Konfiguration Versionsspeicher | 2019–2025 | SRC-029, SRC-004 | KEEP | CON-009 |
-| CLM-069 | 69 | sl/ia6lp2 | Concurrency | DOCUMENTED | Optimized Locking reduziert bestimmte Sperrkosten mit TID/LAQ, verlangt aber ADR/RCSI-konforme Voraussetzungen | 2025; Datenbankkonfiguration | SRC-025 | KEEP | CON-008 |
+| CLM-069 | 69 | sl/ia6lp2 | Concurrency | DOCUMENTED | Optimized Locking reduziert bestimmte Sperrkosten mit TID (Transaction ID; Transaktionskennung)/LAQ (Lock After Qualification; Sperren erst nach Prüfung der Zeilenqualifikation), verlangt aber ADR (Accelerated Database Recovery; beschleunigte Datenbankwiederherstellung)/RCSI-konforme Voraussetzungen | 2025; Datenbankkonfiguration | SRC-025 | KEEP | CON-008 |
 | CLM-070 | 70 | sl/dbcybv | Concurrency | DIDACTIC | Wissenssicherung zu Isolation und Blocking | – | – | KEEP | – |
 | CLM-071 | 71 | sl/filv67 | Diagnose | DIDACTIC | Modulnavigation zu Diagnosewerkzeugen | – | – | KEEP | – |
 | CLM-072 | 72 | sl/4yq8ci | Diagnose | METHOD | Hohe CPU-Auslastung und CPU-bezogene Waits sind unterschiedliche Signale und brauchen Zeitkorrelation | 2019–2025 | SRC-028, SRC-035 | KEEP | RES-001 |
 | CLM-073 | 73 | sl/jolrz3 | Diagnose | DOCUMENTED | Instanzweite kumulative Waits und aktuelle Task-Waits haben unterschiedliche Geltungsbereiche | 2019–2025 | SRC-035, SRC-036 | KEEP | RES-007 |
-| CLM-074 | 74 | sl/n3gaqp | Diagnose | DOCUMENTED | `RESOURCE_SEMAPHORE` kann auf wartende Query Memory Grants hinweisen; Grant-DMV trennt Anforderung und Zuteilung | 2019–2025 | SRC-010, SRC-035 | KEEP | RES-003 |
+| CLM-074 | 74 | sl/n3gaqp | Diagnose | DOCUMENTED | `RESOURCE_SEMAPHORE` kann auf wartende Query Memory Grants hinweisen; Grant-DMV (Dynamic Management View; dynamische Verwaltungssicht für Diagnoseinformationen) trennt Anforderung und Zuteilung | 2019–2025 | SRC-010, SRC-035 | KEEP | RES-003 |
 | CLM-075 | 75 | sl/2adnro | Diagnose | METHOD | Wait-Kategorien priorisieren Hypothesen, ersetzen aber nicht Plan-/Workloadbezug | 2019–2025 | SRC-035, SRC-036 | KEEP | – |
 | CLM-076 | 76 | sl/6qcm2e | Diagnose | DOCUMENTED | Query Store speichert Query-, Plan- und Laufzeithistorie und unterstützt Regressionsanalyse/Steuerung | 2019–2025; Konfiguration/Status prüfen | SRC-027 | KEEP | DGN-003 |
 | CLM-077 | 77 | sl/375xu5 | Diagnose | DOCUMENTED | Extended Events und DMVs ergänzen Query Store für Ereignis- und Livezustände | 2019–2025 | SRC-027, SRC-028 | KEEP | DGN-005 |
@@ -117,10 +117,10 @@ Der Block ist additiv und schließt unmittelbar vor der Schlussfolie an. Er setz
 
 | Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
 |---|---:|---|---|---|---|---|---|---|---|---|
-| SLD-M03-101 | 84 | `slide84.xml` | `ADV-CLM-014` | Query Patterns | METHOD | Die Differenz zwischen zwei Clients ist ein Evidenzproblem und erfordert eine mehrdimensionale Kontextdiagnose | 2019–2025 | SRC-001, SRC-027, SRC-046 | KEEP | `QRY-013` |
+| SLD-M03-101 | 84 | `slide84.xml` | `ADV-CLM-014` | Query Patterns | METHOD | Die Differenz zwischen zwei Clients ist ein Evidenzproblem und erfordert eine mehrdimensionale Kontextdiagnose | 2019–2025 | SRC-001, SRC-027, SRC-046 | KEEP | `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) |
 | SLD-M03-102 | 85 | `slide85.xml` | `ADV-CLM-013` | Query Patterns | DOCUMENTED | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge für dasselbe Objekt erzeugen | 2019–2025 | SRC-001, SRC-040, SRC-046 | KEEP | `QRY-013` |
 | SLD-M03-103 | 86 | `slide86.xml` | `ADV-CLM-015` | Query Patterns | DOCUMENTED | Parameter Sensitivity folgt der Planwiederverwendung bei unterschiedlicher Verteilung | 2019–2025 | SRC-007, SRC-047 | KEEP | `QRY-013` |
-| SLD-M03-104 | 87 | `slide87.xml` | `ADV-CLM-016` | Query Patterns | DOCUMENTED | Parameter, Variablen, Literale und `OPTION (RECOMPILE)` liefern dem Optimierer unterschiedliche Information | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-046 | KEEP | `QRY-004` |
+| SLD-M03-104 | 87 | `slide87.xml` | `ADV-CLM-016` | Query Patterns | DOCUMENTED | Parameter, Variablen, Literale und `OPTION (RECOMPILE)` liefern dem Optimierer unterschiedliche Information | 2019–2025 | SRC-001, SRC-007, SRC-045, SRC-046 | KEEP | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) |
 | SLD-M03-105 | 88 | `slide88.xml` | `ADV-CLM-013`, `ADV-CLM-014`, `ADV-CLM-015`, `ADV-CLM-016` | Query Patterns | METHOD | Die Diagnose ist erst abgeschlossen, wenn jede Dimension belegt oder ausgeschlossen ist | versionsneutral | SRC-001, SRC-027, SRC-040, SRC-046 | KEEP | `QRY-013` |
 | SLD-M03-111 | 89 | `slide89.xml` | – | Query Patterns | DOCUMENTED | Ein statischer Querytext mit optionalen Prädikaten bindet sich an eine einzige Planform | 2019–2025 | SRC-001, SRC-045, SRC-049 | KEEP | `QRY-004` |
 | SLD-M03-112 | 90 | `slide90.xml` | `ADV-CLM-017` | Query Patterns | DOCUMENTED | `OPTION (RECOMPILE)` ermöglicht laufzeitnahe Optimierung und gibt dafür die Planwiederverwendung auf | 2019–2025 | SRC-001, SRC-045 | KEEP | `QRY-004` |
@@ -149,7 +149,7 @@ Der Block ist additiv und schließt unmittelbar an den Block `ADV-010` an; die S
 
 | Stabile ID | Folie | Folienteil | Claim | Modul | Evidenz | Kernaussage | Version / Grenze | Quellen | Entscheidung | Kanonische Demo |
 |---|---:|---|---|---|---|---|---|---|---|---|
-| SLD-M03-131 | 98 | `slide98.xml` | – | Query Patterns | DOCUMENTED | Ein optionales Parameterprädikat erzwingt eine Planform, die für belegte und offene Parameter zugleich gültig sein muss; eine Suchplanform existiert dafür nicht | 2019–2025 | SRC-001, SRC-049 | KEEP | `OPT-010` |
+| SLD-M03-131 | 98 | `slide98.xml` | – | Query Patterns | DOCUMENTED | Ein optionales Parameterprädikat erzwingt eine Planform, die für belegte und offene Parameter zugleich gültig sein muss; eine Suchplanform existiert dafür nicht | 2019–2025 | SRC-001, SRC-049 | KEEP | `OPT-010` (Planoptimierung für optionale Parameter) |
 | SLD-M03-132 | 99 | `slide99.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Optional Parameter Plan Optimization erzeugt einen Dispatcherplan mit optionalem Parameterprädikat und je NULL-Zustand eine Query Variant | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |
 | SLD-M03-133 | 100 | `slide100.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Das Verfahren setzt SQL Server 2025 und Compatibility Level 170 voraus und entfällt bei lokalen Variablen, OPTION (RECOMPILE), ANSI_NULLS OFF und Autoparametrisierung | 2025 | SRC-007, SRC-026 | KEEP | `OPT-010` |
 | SLD-M03-134 | 101 | `slide101.xml` | `ADV-CLM-020` | Query Patterns | DOCUMENTED | Die Optimierung ist über die Datenbankeinstellung und über den Abfragehinweis steuerbar; sie grenzt sich in der Auswahlbedingung von der parametersensitiven Planoptimierung ab | 2025 | SRC-026, SRC-049 | KEEP | `OPT-010` |

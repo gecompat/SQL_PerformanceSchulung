@@ -14,15 +14,15 @@ entfernt. Frühere Quellen- und Mess-FAILs bleiben in ihren Nachweisen erhalten.
 Ein Owner, sechs Kandidaten und höchstens zwölf serielle eigene Container.
 Drei Container aus dem gecachten Image
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`
-meldeten exakt SQL 17.0.5005.3. Unverändert vier CPU/sechs GiB, Loopback,
+meldeten exakt SQL 17.0.5005.3. Unverändert vier CPU (Central Processing Unit; Prozessor)/sechs GiB, Loopback,
 Passwort nur Umgebung, 300 Sekunden reguläres Gesamtbudget und dieselbe separate
 60-Sekunden-Cleanupdeadline ohne Reset. Eigene CL170-/SIMPLE-Datenbank mit
 256/64-MB-Dateilimits, vollständigen bytegenauen Eigentumsmarkern und vier
 float32-Populationen mit je 100 Rows `[Id,1,0,...,0]` in Dimension 32/384/768/1536.
-DB-MAXDOP/PREVIEW_FEATURES tatsächlich 0/0; nur Statement-OPTION(MAXDOP 1).
+DB-MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES tatsächlich 0/0; nur Statement-OPTION(MAXDOP 1).
 
 Der stabile C2 bestand zwei vollständige Lifecycles. Je Dimension wurde ein
-fester Exact-Cosine-Top1-Request unter STATISTICS XML ON/OFF in der eigenen
+fester Exact-Cosine-Top1-Request unter STATISTICS XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) ON/OFF in der eigenen
 Session ausgeführt. Die tatsächliche eigene zweispaltige Ergebnisrow musste
 genau Id 1/Distanz 0 liefern. Das vollständige tatsächliche XML war an Build,
 Namespace und exakten Statementtext gebunden, höchstens 120k UTF8 und 100 Operatoren;
@@ -34,7 +34,7 @@ DB-/Schema-/Tabellenscan musste tatsächlich 100 Rows liefern.
 In allen acht tatsächlichen Plänen war Node 0 Sort/TopN Sort mit 1 tatsächlicher
 Row, Node 1 Compute Scalar ohne erfasste RuntimeRows und Node 2 eigener Clustered
 Index Scan mit 100 tatsächlichen Rows. Fehlende Compute-Scalar-Zähler bleiben
-NOT_CAPTURED, keine Null. Roher Statement-DOP war 0, NonParallelPlanReason
+NOT_CAPTURED, keine Null. Roher Statement-DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) war 0, NonParallelPlanReason
 `MaxDOPSetToOne`; DOP 0 wird nicht als gemessener Workerwert 1 umgedeutet.
 Die Pläne gelten ausschließlich den vier repräsentativen Statements je Lauf,
 nicht den 54 Messfenstern oder allen 5420 Queries des vorherigen Messschnitts.

@@ -19,7 +19,7 @@ Der Block ist kein vollständiges Operatorlexikon. Operatoren werden nur dort ve
 
 ## 2. Didaktische Reihenfolge
 
-`OPT-001` → `OPT-015` → `OPT-012` → `OPT-016` → `OPT-011` → `QRY-006` → `OPT-013` → `OPT-017`
+`OPT-001` → `OPT-015` (Ausführungspläne systematisch lesen) → `OPT-012` → `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung) → `OPT-011` → `QRY-006` (NULL bei NOT IN und NOT EXISTS) → `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) → `OPT-017` (Ungleich verteilte parallele Arbeit)
 
 Die vorhandenen Demos liefern Kardinalitäts-, Join-, Row-Goal-, Semi-/Anti-Join- und Spill-Kontext. `OPT-015` bis `OPT-017` ergänzen die bisher fehlende planweite und operatorübergreifende Evidenz. Die Serie wird als vollständiger Block auf 80 bis 110 Minuten geplant. Einzelne Demos bleiben separat ausführbar.
 
@@ -46,18 +46,18 @@ Die Baseline verwendet eine selektive, statistisch plausible Abfrage. Der Proble
 
 ### 4.3 Verbindliche Evidenz
 
-- Actual Plan und Plan XML derselben Ausführung,
+- Actual Plan und Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) derselben Ausführung,
 - Statementmarker und Query Hash,
 - Estimated Rows, Actual Rows, Actual Rows Read und Number of Executions,
 - Statistics Usage und kompilierte Parameterwerte, soweit im Plan vorhanden,
-- Logical Reads, CPU, Duration und Result Checksum,
+- Logical Reads, CPU (Central Processing Unit; Prozessor), Duration und Result Checksum,
 - explizite Trennung von Estimated Cost und gemessenen Laufzeitwerten.
 
 ### 4.4 Abnahme
 
 Die Demo gilt fachlich als bestanden, wenn ein unbekannter Plan anhand der ersten relevanten Abweichung entlang des Datenflusses eingeordnet werden kann. Ein Test darf nicht verlangen, dass ein bestimmter Operator den höchsten grafischen Kostenanteil besitzt.
 
-**Sicherheitsstufe:** Grün. **Sessions:** 1. **Mindestprofil:** 2 logische CPU-Kerne, 4 GB SQL-Server-Speicher. **Quellen:** `SRC-001`, `SRC-031`, `SRC-037` bis `SRC-040`.
+**Sicherheitsstufe:** Grün. **Sessions:** 1. **Mindestprofil:** 2 logische CPU-Kerne, 4 GB SQL-Server-Speicher. **Quellen:** `SRC-001` (Query processing architecture guide), `SRC-031` (Display an actual execution plan), `SRC-037` (SQL Server Execution Plan Reference) bis `SRC-040` (Plan properties).
 
 ## 5. OPT-016 – Rebind, Rewind, Outer References und Spools
 
@@ -82,13 +82,13 @@ Da der Optimizer keine konkrete Spoolform garantiert, besitzt die Demo einen pla
 - Reads, CPU, Duration und identische Ergebnischecksumme,
 - Vergleich der tatsächlichen inneren Arbeit bei hohem und niedrigem Schlüsselwiederholungsgrad.
 
-**Sicherheitsstufe:** Grün. **Sessions:** 1. **Mindestprofil:** 2 Kerne, 4 GB. **Quellen:** `SRC-039`, `SRC-042`; Produktgrenzen zusätzlich über `SRC-001` und Runtime-Evidenz.
+**Sicherheitsstufe:** Grün. **Sessions:** 1. **Mindestprofil:** 2 Kerne, 4 GB. **Quellen:** `SRC-039` (Common properties), `SRC-042` (Nested Loops Joins and Performance Spools); Produktgrenzen zusätzlich über `SRC-001` und Runtime-Evidenz.
 
 ## 6. OPT-017 – Parallele Planbereiche, Exchanges und Operatorzeiten
 
 ### 6.1 Lernziel
 
-Die Demo untersucht parallele Branches, Exchanges, DOP, Threadverteilung und Parallel Skew. Operatorbezogene CPU- und Elapsed-Werte werden nicht ungeprüft summiert oder mit der gesamten Querydauer gleichgesetzt.
+Die Demo untersucht parallele Branches, Exchanges, DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Threadverteilung und Parallel Skew. Operatorbezogene CPU- und Elapsed-Werte werden nicht ungeprüft summiert oder mit der gesamten Querydauer gleichgesetzt.
 
 ### 6.2 Design
 
@@ -111,7 +111,7 @@ Die Gegenmaßnahme ist keine pauschale DOP-Reduktion. Abhängig von der erzeugte
 - CPU, Duration, Reads und Ergebnisequivalenz,
 - serieller Vergleich nur als kontrollierte Gegenprobe.
 
-**Sicherheitsstufe:** Gelb. **Sessions:** 1. **Mindestprofil:** 4 Kerne und 8 GB empfohlen. **Quellen:** `SRC-001`, `SRC-031`, `SRC-043`, `SRC-044`.
+**Sicherheitsstufe:** Gelb. **Sessions:** 1. **Mindestprofil:** 4 Kerne und 8 GB empfohlen. **Quellen:** `SRC-001`, `SRC-031`, `SRC-043` (Parallel Execution Plans – Branches and Threads), `SRC-044` (Understanding Execution Plan Operator Timings).
 
 ## 7. Phasenvertrag je neuer Demo
 
@@ -151,4 +151,4 @@ Jeder Schnitt bleibt ein eigener Pull Request oder ein klar isolierter Commit mi
 
 ## 10. Designfreigabe
 
-`ADV-004` erreicht `VALIDATED`, wenn dieses Design, der maschinenlesbare Vertrag und die statische Prüfung konsistent sind. Dies ist keine Runtimefreigabe der späteren SQL-Demos. Die Runtimefreigabe erfolgt erst in `ADV-008` und Gate V3.
+`ADV-004` erreicht `VALIDATED`, wenn dieses Design, der maschinenlesbare Vertrag und die statische Prüfung konsistent sind. Dies ist keine Runtimefreigabe der späteren SQL-Demos. Die Runtimefreigabe erfolgt erst in `ADV-008` (Review QRY-004) und Gate V3.

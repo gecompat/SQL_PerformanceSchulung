@@ -5,7 +5,7 @@
 | Status | `IMPLEMENTED` |
 | Stand | 2026-07-24 |
 | Basis-Commit | `1a4156678f06e76f7f19a402cdd4594f5bbf0fd8` |
-| Arbeitspakete | `FWK-003`, `FWK-004`, `FWK-005`, `FWK-011` |
+| Arbeitspakete | `FWK-003` (Vertrag für synthetische Testdaten), `FWK-004` (Messvertrag), `FWK-005` (Vertrag für Plan- und Statistikevidenz), `FWK-011` (Ergebnisnormalisierungs- und Erwartungsvertrag) |
 | Runtime-Validierung | offen; derzeit steht kein SQL-Server-Host zur Verfügung |
 
 ## 1. Umfang
@@ -28,7 +28,7 @@ Diese Stufe ergänzt die vorhandene Sicherheits- und Lifecycle-Basis um:
 
 ## 3. Sicherheits- und Datenschutzprüfung
 
-Die SQL-Referenzen prüfen vor Änderungen die Marker aus `FWK-002`. Es werden keine Server-, Host-, Login-, Programm- oder Dateipfadwerte persistiert. Der Generator verwendet keine realen Daten, keine öffentlichen Beispieldatenbanken und keine nicht deterministischen Zufallsquellen. Plan-XML wird nur interaktiv ausgegeben; ein Export bleibt ein gesondert zu prüfendes Artefakt.
+Die SQL-Referenzen prüfen vor Änderungen die Marker aus `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken). Es werden keine Server-, Host-, Login-, Programm- oder Dateipfadwerte persistiert. Der Generator verwendet keine realen Daten, keine öffentlichen Beispieldatenbanken und keine nicht deterministischen Zufallsquellen. Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) wird nur interaktiv ausgegeben; ein Export bleibt ein gesondert zu prüfendes Artefakt.
 
 Die Repository-Artefakte enthalten ausschließlich synthetische Kennungen und Werte. Es wurden keine Screenshots, Office-Dateien, Logs oder realen Diagnoseausgaben ergänzt.
 
@@ -63,9 +63,9 @@ Daher lautet der Status `IMPLEMENTED`, nicht `VALIDATED`.
 
 Als nächste abhängige Stufe folgen:
 
-1. `FWK-006` Multi-Session-Orchestrierung,
-2. `FWK-007` Query-Store- und Extended-Events-Helfer,
-3. `FWK-010` vollständiger Runtime-Harness,
+1. `FWK-006` (Multi-Session-Orchestrierungsvertrag) Multi-Session-Orchestrierung,
+2. `FWK-007` (Query-Store- und Extended-Events-Vertrag) Query-Store- und Extended-Events-Helfer,
+3. `FWK-010` (Runtime-Harness-Vertrag) vollständiger Runtime-Harness,
 4. anschließend SQL-Server-Matrix und vier Gate-B-Pilotdemos.
 
 Gate B ist mit diesem Stand noch nicht erreicht.

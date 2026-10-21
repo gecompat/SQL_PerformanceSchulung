@@ -1,7 +1,7 @@
 # CON-010: eigenes opt-in RED-Poolprofil
 
 Status: NATIVE_PARTIAL_UNKNOWN_STOP. Der neue Producer ist teilweise ausgeführt;
-eine vollständige native Poolqualifikation ist NOT_ESTABLISHED. Das bestehende GREEN-/LOCAL-Manifest, V1/private42 und Default-CI
+eine vollständige native Poolqualifikation ist NOT_ESTABLISHED. Das bestehende GREEN-/LOCAL-Manifest, V1/private42 und Default-CI (Continuous Integration; automatisierte Integrationsprüfungen)
 führen ihn nicht aus. Kein allgemeiner Provider-, Passwort-, Seitenkanal-,
 Performance-, TSK-009-, CON-010- oder TP-CON-Abnahmeclaim.
 
@@ -12,7 +12,7 @@ SQL17.0.5005.3, vorhandenes Image mit voller ID
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`,
 vier CPUs/sechs GiB, eigener zufälliger Loopbackport, keine Mounts oder fremden
 Namespaces. Kein Download, kein Hosttrustwechsel, keine Cloud-/ONNX-/Modellroute.
-CREATE/DROP LOGIN ist instanzweites RED-DDL innerhalb genau dieses Containers.
+CREATE/DROP LOGIN ist instanzweites RED-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) innerhalb genau dieses Containers.
 Drei neue Logins mit vorher festgelegten verschiedenen 16-Byte-SIDs; ausschließlich
 CONNECT SQL und die beiden eigenen DBrechte CONNECT/Objekt-SELECT. Zwei
 synthetische Rows mit VECTOR(3), feste RLS-/Quellen- und volle Principalmetadaten.
@@ -73,7 +73,7 @@ Outputbytes sind vom Collector dekodiert und erneut UTF-8-kodiert. Der eigene
 PowerShell-Child wird ausdrücklich nicht als SQLcmd-Capture umdeklariert.
 Privacy vor jedem Digest/Callerreturn umfasst Klartext, UTF-8-/UTF-16-Hex und
 vollständig dekodierte gebundene Outerframes/innere Hexfelder. Inspect fragt
-nur FullCID/Image/Owner/Mounts/Ports/CPU/RAM ab, niemals Config.Env.
+nur FullCID/Image/Owner/Mounts/Ports/CPU (Central Processing Unit; Prozessor)/RAM (Random Access Memory; Arbeitsspeicher) ab, niemals Config.Env.
 
 300s absolute Normaluhr und einmal60s Cleanup ab vor Child, kein Reset. 40s ist
 höchstens ein Phasenendpunkt: 26 konfigurierte Collector-Nachlaufsekunden zählen
@@ -143,7 +143,7 @@ ein weiterer bekannter FAIL verlangt relevante geänderte Quellen und neue Zulas
 Keine Aktionen gegen die alten Ressourcen, kein C3 der gestoppten alten Welle.
 
 Neue Namespacecalls halten dasselbe eigene Prozessobjekt bis zum tatsächlichen
-PID/poll/rc-Endrecord. Initiales Warten und einmaliges Reaping teilen denselben
+PID (Process Identifier; Prozesskennung)/poll/rc-Endrecord. Initiales Warten und einmaliges Reaping teilen denselben
 absoluten Cap und das verbleibende Profilbudget. Timeout/Signal/unklares Ende
 bleiben bereits vor Privacy- oder Capturefehlern UNKNOWN; zweiter Remove und
 Folge-SQL sind dann gesperrt. Sourcepins vor/nach und sichere tatsächliche Kanäle

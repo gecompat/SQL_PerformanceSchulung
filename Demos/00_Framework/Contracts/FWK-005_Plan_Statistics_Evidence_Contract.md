@@ -49,7 +49,7 @@ Die Vorlage arbeitet ausschließlich in der aktuellen markierten Testdatenbank. 
 
 - Marker und Zielobjekt prüft,
 - Statistikproperties und Histogramm über dokumentierte Systemobjekte abfragt,
-- Actual-Plan-XML für eine synthetische Referenzabfrage ausgibt,
+- Actual-Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) für eine synthetische Referenzabfrage ausgibt,
 - fehlende Statistik- oder SHOWPLAN-Voraussetzungen eindeutig meldet,
 - Estimated, Actual, Cache und Query Store begrifflich trennt,
 - keine Plan- oder Statistikdatei automatisch persistiert.

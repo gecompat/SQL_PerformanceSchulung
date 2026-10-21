@@ -20,7 +20,7 @@ integrierte Bereinigungsänderung ist
 Die Probe verwendete den sauberen, eingefrorenen Lab-Kandidaten
 `3560b746506e506e6e4d728a5746b7afeae41211`, Tree
 `75633f60c8f102e912f28c9975bd2944647d92d3`, nach unabhängigem Lab-Review.
-Vor der Schulungsintegration müssen die finale Lab-CI und Main-Übernahme
+Vor der Schulungsintegration müssen die finale Lab-CI (Continuous Integration; automatisierte Integrationsprüfungen) und Main-Übernahme
 bestätigt sein. Der native Nachweis selbst gilt für diesen exakten Quellstand.
 Die anschließende Linux-CI fand eine veraltete Sperrfehlererwartung in
 `Tests/Static/Fixtures/ResourceChangeGuidanceChecks.ps1`: Die gemeinsame

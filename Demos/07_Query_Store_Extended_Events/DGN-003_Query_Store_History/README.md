@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Demo-ID | `DGN-003` |
+| Demo-ID | `DGN-003` (Abfragehistorie mit Query Store) |
 | Status | `VALIDATED` |
 | Sicherheitsstufe | `GREEN` |
 | Versionen | SQL Server 2019, 2022 und 2025 |
@@ -10,7 +10,7 @@
 
 ## 1. Lernziel
 
-Query-, Plan-, Runtime- und verfügbare Wait-Historie aus Query Store zeitlich und semantisch von Live-DMVs unterscheiden.
+Query-, Plan-, Runtime- und verfügbare Wait-Historie aus Query Store zeitlich und semantisch von Live-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) unterscheiden.
 
 ## 2. Fachliche Kernaussage
 
@@ -22,7 +22,7 @@ Plan Forcing und Query Store Hints gehören zu `DGN-004`; diese Demo verändert 
 
 ## 4. Voraussetzungen
 
-Eine markergebundene Wegwerfdatenbank, Berechtigung zum Erstellen einer Datenbank und SQL Server 2019 bis 2025. Empfohlen sind zwei Kerne, 4 GB RAM und 2 GB freier Speicher.
+Eine markergebundene Wegwerfdatenbank, Berechtigung zum Erstellen einer Datenbank und SQL Server 2019 bis 2025. Empfohlen sind zwei Kerne, 4 GB RAM (Random Access Memory; Arbeitsspeicher) und 2 GB freier Speicher.
 
 ## 5. Sicherheits- und Abbruchrahmen
 
@@ -36,7 +36,7 @@ Query Store wird nur in der neu erzeugten Testdatenbank aktiviert und zusammen m
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-003` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Query-Store-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-003` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Query-Store-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 Preflight und Setup aktivieren einen begrenzten Query Store. Baseline und Demonstration führen dieselbe Prozedur mit unterschiedlicher Selektivität aus. Observation liest ausschließlich markerbezogene Query-Store-Zeilen; Comparison prüft den Ausführungsvertrag.
 
@@ -62,8 +62,8 @@ Query-Store-Flush und Optimizerplanwahl sind empirisch. Exakte Zeit-, Plan-ID- o
 
 ## 13. Quellen
 
-- `SRC-027`, Microsoft Learn: Query Store, Abrufdatum 2026-07-24.
-- `SRC-035` und `SRC-036`, Microsoft Learn: Wait-Statistiken, Abrufdatum 2026-07-24.
+- `SRC-027` (Monitor performance by using the Query Store), Microsoft Learn: Query Store, Abrufdatum 2026-07-24.
+- `SRC-035` (sys.dm_os_wait_stats) und `SRC-036` (sys.dm_os_waiting_tasks), Microsoft Learn: Wait-Statistiken, Abrufdatum 2026-07-24.
 
 ## 14. Traceability
 

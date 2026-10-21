@@ -97,7 +97,7 @@ nur bei geändertem Input oder neuer konkreter Evidenz wiederholt.
 
 Kein Live-LLM-, allgemeiner Entailment-, Egress-, Tenant- oder Prompt-Injection-
 Sicherheitsnachweis. Serverlogins, mehrere Sessions, DGN-008-External-Models,
-Endpoint-/Credentialrechte und Providerabnahme bleiben UNQUALIFIED. Lokales Lab-RAG
+Endpoint-/Credentialrechte und Providerabnahme bleiben UNQUALIFIED. Lokales Lab-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen)
 bleibt am DEC-033-Secretgate; Cloud-/Bezahl-, ONNX- und rote Hoständerungen sind nicht
 freigegeben. Nach erfolgreicher Integration folgt ein unabhängiger kleiner DGN-008-
 Offline-Rechteschnitt; ein angehaltener CON-010-Slice wird nicht unverändert wiederholt.

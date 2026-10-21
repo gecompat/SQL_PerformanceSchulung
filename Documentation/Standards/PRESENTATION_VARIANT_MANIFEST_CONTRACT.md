@@ -186,4 +186,4 @@ TST-011 darf das PowerPoint-Paket nur lesen und nicht neu serialisieren.
 
 ## 12. Abnahme PRS-011
 
-`PRS-011` ist abgeschlossen, wenn dieser Vertrag und das maschinenlesbare JSON Schema vorliegen, Tiefenprofile und Rollen vollständig definiert sind, die Abhängigkeits- und Buildregeln eindeutig sind und `PRS-012` sowie `TST-011` ohne weitere Grundsatzentscheidung beginnen können. Diese Kriterien sind erfüllt.
+`PRS-011` ist abgeschlossen, wenn dieser Vertrag und das maschinenlesbare JSON (JavaScript Object Notation; strukturiertes Textformat) Schema vorliegen, Tiefenprofile und Rollen vollständig definiert sind, die Abhängigkeits- und Buildregeln eindeutig sind und `PRS-012` sowie `TST-011` ohne weitere Grundsatzentscheidung beginnen können. Diese Kriterien sind erfüllt.

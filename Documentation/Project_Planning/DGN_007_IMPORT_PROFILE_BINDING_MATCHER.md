@@ -79,7 +79,7 @@ Consumption und Replayabwehr werden damit ausdrücklich nicht attestiert.
 Die synthetischen Gegenproben liegen in
 [`test_dgn007_import_profile_binding.py`](../../Tests/Static/test_dgn007_import_profile_binding.py).
 Lokal bestanden unter Python 3.12.14 alle 38 Testmethoden ohne SKIP
-(0.092 s). Unabhängiger Review, Projektvalidatoren und CI werden vor Integration
+(0.092 s). Unabhängiger Review, Projektvalidatoren und CI (Continuous Integration; automatisierte Integrationsprüfungen) werden vor Integration
 am finalen Stand getrennt geprüft; ihre konkreten Ergebnisse werden im Pull Request dokumentiert.
 
 ```powershell
@@ -98,7 +98,7 @@ Anschließend folgen Quellenauflösung, tatsächliche DGN-Loaderverwendung und
 Importabschluss sowie begrenzte eigene Worker mit unabhängig geprüftem Cleanup.
 Die gemeinsamen 20-s-Proben- und kumulativ 10-s-Cleanupgrenzen sind dadurch
 noch nicht ausgeführt oder belegt. G13, v1, DEC-068, historische FAILs, offene
-PR68 und die zurückgestellte Capture-API bleiben unverändert.
+PR68 und die zurückgestellte Capture-API (Application Programming Interface; Programmierschnittstelle) bleiben unverändert.
 
 Primärquellen, geprüft am 2026-10-07: Python 3.12
 [JSONEncoder und kanonische Darstellungsparameter](https://docs.python.org/3.12/library/json.html#json.JSONEncoder.iterencode)

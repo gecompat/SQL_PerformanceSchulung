@@ -15,11 +15,11 @@
 
 LAB-VP2 trennt Datenverteilung, Compilekontext, Planwiederverwendung, Client- beziehungsweise Sessionkontext und versionsabhängige adaptive Funktionen. Die Lernenden wählen keine pauschale Maßnahme gegen Parameter Sensitivity, sondern begründen zwischen wiederverwendetem Plan, `OPTION (RECOMPILE)`, sicher parameterisiertem dynamischem SQL, Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization.
 
-Die Reihe behauptet nicht, dass SSMS, ein bestimmter Treiber oder `ARITHABORT` allein eine Laufzeitdifferenz verursachen. Der Anwendungskontext wird durch explizit dokumentierte Sessionprofile simuliert. Proprietäre Treiber, reale Anwendungscodes, globale Cacheleerung und Stringkonkatenation von Eingabewerten sind ausgeschlossen.
+Die Reihe behauptet nicht, dass SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug), ein bestimmter Treiber oder `ARITHABORT` allein eine Laufzeitdifferenz verursachen. Der Anwendungskontext wird durch explizit dokumentierte Sessionprofile simuliert. Proprietäre Treiber, reale Anwendungscodes, globale Cacheleerung und Stringkonkatenation von Eingabewerten sind ausgeschlossen.
 
 ## 2. Didaktische Reihenfolge
 
-`OPT-007` → `OPT-008` → `QRY-013` → `QRY-004` → `OPT-009` → `OPT-010`
+`OPT-007` → `OPT-008` → `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) → `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) → `OPT-009` (Parametersensitive Planoptimierung) → `OPT-010` (Planoptimierung für optionale Parameter)
 
 `OPT-007` und `OPT-008` liefern Plan-Cache- und klassische Parameter-Sensitivity-Grundlagen. `QRY-013` verbindet diese Grundlagen mit dem Clientkontext. `QRY-004` vergleicht sichere Implementierungsstrategien. `OPT-009` und `OPT-010` ordnen PSP und OPPO in die Versionen 2022 beziehungsweise 2025 ein. Die gesamte Serie wird auf 90 bis 125 Minuten geplant.
 
@@ -55,7 +55,7 @@ Die Profile heißen bewusst nicht `SSMS` oder `APPLICATION`, weil konkrete Clien
 - Jede Demo verwendet eine dedizierte Prozedur und eindeutige Marker.
 - Cachebereinigung erfolgt ausschließlich objektbezogen, beispielsweise durch `sp_recompile` auf das Demoobjekt oder durch Neuanlage im markergebundenen Setup.
 - `DBCC FREEPROCCACHE` ohne spezifischen Planbezug ist verboten.
-- `sys.dm_exec_plan_attributes`, Query Stats und Plan XML werden nur für die markierten synthetischen Statements ausgewertet.
+- `sys.dm_exec_plan_attributes`, Query Stats und Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) werden nur für die markierten synthetischen Statements ausgewertet.
 
 ### 4.4 Verbindliche Evidenz
 
@@ -64,14 +64,14 @@ Die Profile heißen bewusst nicht `SSMS` oder `APPLICATION`, weil konkrete Clien
 - Plan Handle beziehungsweise Planidentität,
 - `set_options` und weitere relevante Planattribute,
 - kompilierter und ausgeführter Parameterwert, soweit im Plan verfügbar,
-- Estimated/Actual Rows, Reads, CPU, Duration und Ergebnischecksumme,
+- Estimated/Actual Rows, Reads, CPU (Central Processing Unit; Prozessor), Duration und Ergebnischecksumme,
 - Zuordnung, ob die Abweichung aus getrenntem Cacheeintrag, Compilewert, Datenzustand oder einer anderen beobachteten Dimension folgt.
 
 ### 4.5 Abnahme
 
 Die Demo gilt als bestanden, wenn sie zeigt, dass gleiche Querytexte allein keine identischen Ausführungsbedingungen garantieren. Sie darf nicht mit der Aussage enden, eine einzelne SET-Option sei allgemein die Ursache oder Lösung.
 
-**Sicherheitsstufe:** Grün. **Sessions:** 2 nacheinander oder kontrolliert parallel. **Mindestprofil:** 2 Kerne, 4 GB. **Berechtigungen:** versionsbewusst `VIEW SERVER STATE` beziehungsweise `VIEW SERVER PERFORMANCE STATE`, sofern Cache-DMVs ausgewertet werden; sonst begründeter Skip. **Quellen:** `SRC-001`, `SRC-027`, `SRC-040`, `SRC-046`.
+**Sicherheitsstufe:** Grün. **Sessions:** 2 nacheinander oder kontrolliert parallel. **Mindestprofil:** 2 Kerne, 4 GB. **Berechtigungen:** versionsbewusst `VIEW SERVER STATE` beziehungsweise `VIEW SERVER PERFORMANCE STATE`, sofern Cache-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) ausgewertet werden; sonst begründeter Skip. **Quellen:** `SRC-001` (Query processing architecture guide), `SRC-027` (Monitor performance by using the Query Store), `SRC-040` (Plan properties), `SRC-046` (Slow in the Application, Fast in SSMS?).
 
 ## 5. Erweiterung QRY-004 – Optionale Parameter und Strategieauswahl
 
@@ -152,7 +152,7 @@ Die Bewertung verwendet Richtungen und Verhältnisse, keine universellen Millise
 
 ## 7. Preflight, Sicherheit und Cleanup
 
-Der Preflight prüft Engine-Version, Compatibility Level, Query Store, Datenbankkonfiguration, Cache-DMV-Berechtigungen und verfügbaren Speicher. Query Store darf nur über `FWK-007` mit rekonstruierbarem Ausgangszustand aktiviert werden. Cleanup stellt die ursprüngliche Query-Store- und Datenbankkonfiguration wieder her und entfernt die markergebundene Testdatenbank.
+Der Preflight prüft Engine-Version, Compatibility Level, Query Store, Datenbankkonfiguration, Cache-DMV-Berechtigungen und verfügbaren Speicher. Query Store darf nur über `FWK-007` (Query-Store- und Extended-Events-Vertrag) mit rekonstruierbarem Ausgangszustand aktiviert werden. Cleanup stellt die ursprüngliche Query-Store- und Datenbankkonfiguration wieder her und entfernt die markergebundene Testdatenbank.
 
 Verboten sind:
 
@@ -188,4 +188,4 @@ Jeder Schnitt erhält vollständige Demo-Metadaten, statische Prüfung, Runtime-
 
 ## 10. Designfreigabe
 
-`ADV-005` erreicht `VALIDATED`, wenn Design, maschinenlesbarer Vertrag und statische Prüfung konsistent sind. Der Status bestätigt keine implementierte SQL-Demo. Runtimefreigabe und Planvariantennachweis folgen in `ADV-008` und Gate V3.
+`ADV-005` erreicht `VALIDATED`, wenn Design, maschinenlesbarer Vertrag und statische Prüfung konsistent sind. Der Status bestätigt keine implementierte SQL-Demo. Runtimefreigabe und Planvariantennachweis folgen in `ADV-008` (Review QRY-004) und Gate V3.

@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Paket | `ADV-008` (Demo `QRY-013`), `ADV-009` (Folienspezifikation M03) |
+| Paket | `ADV-008` (Review QRY-004) (Demo `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell)), `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) (Folienspezifikation M03) |
 | Status | `VALIDATED` |
 | Lernziel | `LO-M03-07` |
 | Kanonische Demo | `QRY-013` |

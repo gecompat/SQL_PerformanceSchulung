@@ -19,8 +19,8 @@ Die Lehrperson stellt eine eigene SQL-2025-Testinstanz mit CL 170 und einen
 getesteten Client bereit. Engine, Client und Datenbankeinstellung werden
 getrennt geprüft. Für den tatsächlich erprobten Linux-/Dockerpfad, Rechte,
 Authentifizierung und Recovery gelten der [Ausführungsleitfaden](DEMO_EXECUTION_GUIDE.md)
-und die READMEs von [QRY-014](../../Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type/README.md)
-und [QRY-019](../../Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/README.md).
+und die READMEs von [QRY-014 – Vektortypen und Dimensionen](../../Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type/README.md)
+und [QRY-019 – Feste SQL-Struktur und getrennte Parameterwerte](../../Demos/09_AI_SQL_Server_2025/QRY-019_SQL_Input_Policy/README.md).
 Setup und Cleanup führt die Lehrperson mit dem vorbereiteten Ownerkonto aus.
 Die eingeschränkten Rechte im QRY-019-Harness werden nicht als allgemeiner
 Teilnehmerzugang ausgegeben. Die SQL-2019-/2022-Pfade ersetzen keine SQL-2025-Durchführung.
@@ -46,7 +46,7 @@ mit einer Teilnehmergruppe gemessene Lehrzeit.
 | Zeit | BASIS-Folien | Durchführung und sichtbares Ergebnis |
 |---|---|---|
 | 00–10 | 1–7 | Wissensbasisfall lesen. Erwartete Quelle und Antwort zur bekannten SQL-Frage nennen lassen. |
-| 10–25 | 8–13 | KI, Modell, Training, Inferenz und Token an demselben Fall erklären. Teilnehmende ordnen eine Aufgabe einem Modell zu. |
+| 10–25 | 8–13 | KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen), Modell, Training, Inferenz und Token an demselben Fall erklären. Teilnehmende ordnen eine Aufgabe einem Modell zu. |
 | 25–40 | 14–17 | Engine, Client, CL und Rechte unterscheiden. Bei einem vorbereiteten Fehler den passenden nächsten Schritt nennen lassen. |
 | 40–60 | 18–21 | Rangfolge der drei Vektoren vorhersagen, die vollständige read-only Query zeigen und die beobachteten Distanzen besprechen. |
 | 60–70 | 22–23 | Handgesetzte Geometrievektoren von echten Textembeddings unterscheiden. Die zusätzlich benötigten Modellvoraussetzungen nennen lassen. |
@@ -57,7 +57,7 @@ mit einer Teilnehmergruppe gemessene Lehrzeit.
 | 130–155 | 31–32 | QRY-019 vorführen und die gleichnamige Arbeitsheftaufgabe bearbeiten. Literal-Treffer, abgelehnte Struktur und echte Rechteverweigerung getrennt begründen lassen. |
 | 155–175 | 33–34 | QRY-018 als moderierte Leseaufgabe: stützende Quelle, unzulässiges Zitat, fehlender Kontext und widersprüchliche Quellen unterscheiden. |
 | 175–190 | – | Pause. |
-| 190–210 | 35–38 | Modellzugang, ANN, Messung und SQL-Assistenz einordnen. Je Thema Zweck und zusätzlich benötigten Nachweis nennen lassen. Keine zusätzliche Livevorführung. |
+| 190–210 | 35–38 | Modellzugang, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Messung und SQL-Assistenz einordnen. Je Thema Zweck und zusätzlich benötigten Nachweis nennen lassen. Keine zusätzliche Livevorführung. |
 | 210–225 | 39 | Transferfall bearbeiten und die Entscheidung mit Quelle, Zugriffsgrenze und nächstem Prüfschritt begründen. |
 | 225–240 | – | Offene Begriffe klären; bei Bedarf dieselbe Aufgabe erneut erklären. |
 

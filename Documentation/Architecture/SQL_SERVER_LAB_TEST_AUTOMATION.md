@@ -5,7 +5,7 @@
 | Arbeitspakete | `LABINT-001` bis `LABINT-004` |
 | Status | `VALIDATED`, nachgeordnet zu `LABSCN-001` |
 | Stand | 2026-07-27 |
-| Primärer Szenariovertrag | [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](./SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) |
+| Primärer Szenariovertrag | [Interaktive Schulungsszenarien mit SQL_Server_Lab](./SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) |
 | Schulungsrepository | `gecompat/SQL_PerformanceSchulung` |
 | Provisionierungsframework | `gecompat/SQL_Server_Lab` |
 
@@ -89,8 +89,8 @@ Eine fehlende Fähigkeit wird erst anhand eines konkreten Szenarios als Anforder
 | ID | Arbeit | Einordnung |
 |---|---|---|
 | `LABINT-001` | Testkatalog und statische Vollständigkeitsprüfung | abgeschlossen |
-| `LABINT-002` | automatisierten Smoke-/Core-Test für Aufbau und Abbau implementieren | abgeschlossen für `CON-004` |
-| `LABINT-003` | Docker-/Podman-Parität prüfen | abgeschlossen für die freigegebenen Slices `QRY-001`, `CON-004` und `DGN-005` |
+| `LABINT-002` | automatisierten Smoke-/Core-Test für Aufbau und Abbau implementieren | abgeschlossen für `CON-004` (Blockierungsketten verfolgen) |
+| `LABINT-003` | Docker-/Podman-Parität prüfen | abgeschlossen für die freigegebenen Slices `QRY-001` (Indexfreundliche Suchbedingungen), `CON-004` und `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) |
 | `LABINT-004` | gelbe und vollständige Container-Matrix aktivieren | nach Safety- und Szenariofreigabe |
 
 ## 8. Nächster Schritt

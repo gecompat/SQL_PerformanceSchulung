@@ -48,7 +48,7 @@ alten Runtime-/Dependency-/ANNtests oder Vollanalyse.
 ## C1-FAIL und konkreter Sourcefolgeentscheid
 
 Die einmalige Root-admittierte Bestandsauswertung endete mit FAIL_OFFLINE_LAYOUT:
-PID 36800, final poll/Returncode 1, 0,199760 Sekunden, kein Timeout und kein
+PID (Process Identifier; Prozesskennung) 36800, final poll/Returncode 1, 0,199760 Sekunden, kein Timeout und kein
 UNKNOWN. Ein Report wurde versucht, keiner abgeschlossen; Fehlercode
 FIXED_PACKAGE_ASSET_SCHEMA. Alle 31 Appdateien, Compilerproof, Preparedmetadaten,
 Manifest und Admission sind vor/nach identisch. Es gab keine Nativeaufrufe.
@@ -79,7 +79,7 @@ Rawkanäle). Die unveränderte Zwölfersuite wurde lokal nicht erneut ausgeführ
 Der unabhängige Rootreview bestätigt den engen Ressourcenunterschied und alle
 bisherigen Grenzen. Der bestehende Workflow erhält nur drei statische Trigger
 je Event und zwei Pythonprozesse; Runtimebody und Selector bleiben unverändert.
-CI führt 14 normale und vier geschützte Methoden aus. Modellverbrauch ist unbekannt.
+CI (Continuous Integration; automatisierte Integrationsprüfungen) führt 14 normale und vier geschützte Methoden aus. Modellverbrauch ist unbekannt.
 
 Die tatsächlich Root-admittierte zweite und letzte Bestandsauswertung endete
 bekannt: PID 62428, final poll/Returncode 0, 0,141996 Sekunden, kein Timeout und

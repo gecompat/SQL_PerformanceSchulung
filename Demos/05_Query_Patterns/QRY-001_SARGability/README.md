@@ -38,11 +38,11 @@ Für den vollständigen automatisierten Lauf werden `CREATE DATABASE`, `SHOWPLAN
 
 ### 4.3 Mindestanforderungen an die Host-Hardware
 
-Mindestens 2 logische CPU-Kerne, 2 GB RAM und 300 MB freier Datenträgerspeicher. Es ist nur eine SQL-Server-Instanz erforderlich.
+Mindestens 2 logische CPU-Kerne, 2 GB RAM (Random Access Memory; Arbeitsspeicher) und 300 MB freier Datenträgerspeicher. Es ist nur eine SQL-Server-Instanz erforderlich.
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer eigenen markierten Testdatenbank. Das Harness-Zeitbudget beträgt 240 Sekunden. Abbruch und Recovery erfolgen über `FWK-010`; die Datenbank wird ausschließlich nach vollständiger Markerprüfung entfernt.
+Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer eigenen markierten Testdatenbank. Das Harness-Zeitbudget beträgt 240 Sekunden. Abbruch und Recovery erfolgen über `FWK-010` (Runtime-Harness-Vertrag); die Datenbank wird ausschließlich nach vollständiger Markerprüfung entfernt.
 
 ## 6. Synthetisches Datenmodell
 
@@ -52,7 +52,7 @@ Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer eigenen mar
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -89,8 +89,8 @@ Planentscheidungen hängen von Datenmenge, Selektivität, Indexbreite und Kosten
 
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
-| `SRC-012` | Indexdesign und Suchprädikate | SQL Server 2019–2025 | 2026-07-24 |
-| Microsoft Learn: Troubleshoot high CPU | Funktionen auf Prädikatspalten und SARGability | unterstützte SQL-Server-Versionen | 2026-07-24 |
+| `SRC-012` (SQL Server index design guide) | Indexdesign und Suchprädikate | SQL Server 2019–2025 | 2026-07-24 |
+| Microsoft Learn: Troubleshoot high CPU (Central Processing Unit; Prozessor) | Funktionen auf Prädikatspalten und SARGability | unterstützte SQL-Server-Versionen | 2026-07-24 |
 
 ## 14. Traceability
 

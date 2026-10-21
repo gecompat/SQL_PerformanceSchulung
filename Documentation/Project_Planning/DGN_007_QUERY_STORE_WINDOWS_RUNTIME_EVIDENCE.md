@@ -119,16 +119,16 @@ Budget bleibt 180 Sekunden, die Fensterphase 150 Sekunden mit interner
 145-Sekunden-Grenze, Cleanup unabhängig 60 Sekunden. 26 Runner-Selbsttests und
 statische Negativkontrollen prüfen unter anderem Scope-Dispatch, fehlende oder
 doppelte Phasen, Warnungen, Timeouts, Eigentumsgrenzen und Cleanupvorrang.
-Der Prozessabbruchtest mit Linux-Nachfahren läuft im CI; die lokalen Prüfungen
+Der Prozessabbruchtest mit Linux-Nachfahren läuft im CI (Continuous Integration; automatisierte Integrationsprüfungen); die lokalen Prüfungen
 laufen auf Windows. Harte Host-Abbrüche sind kein Cleanupnachweis.
 
 Die Labtabellen enthalten nur Konfiguration, IDs, Zeitgrenzen, Counts und
 skalare Metriken. Keine Zugangsdaten, Hostnamen, Rohoutputs, Querytexte oder
-Plan-XML werden als Repository-Artefakte gespeichert. Bereits vorhandene
+Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) werden als Repository-Artefakte gespeichert. Bereits vorhandene
 Ressourcen sind keine Testziele.
 
 Ein PASS belegt keine unterschiedlichen Pläne, Planregression, Performance-
-verschlechterung oder Incidentreproduktion. PSP bleibt aktiviert. T2,
+verschlechterung oder Incidentreproduktion. PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) bleibt aktiviert. T2,
 Alternativhypothesen, reversible Mitigation, Vergleich, XE-Abnahme und die
 vollständige Capstone-Matrix bleiben offen. Der übergeordnete DGN-007-Status
 bleibt `IMPLEMENTED_STATIC_SLICE_B`; keine Szenariopromotion,

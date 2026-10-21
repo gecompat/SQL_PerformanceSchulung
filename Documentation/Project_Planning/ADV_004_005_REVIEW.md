@@ -6,7 +6,7 @@
 | Stand | 2026-07-26 |
 | Pull Request | `#18` |
 | Ausgangscommit auf `origin/main` | `1849e2207c67a062cd33e91b184cdc192a784a37` |
-| Arbeitspakete | `ADV-004`, `ADV-005` |
+| Arbeitspakete | `ADV-004` (Design LAB-VP1: Planmechanik und Operatorinteraktion), `ADV-005` (Design LAB-VP2: Parameter Sensitivity und dynamische Suchbedingungen) |
 | PowerPoint geändert | nein |
 | SQL-Demos geändert | nein |
 
@@ -18,10 +18,10 @@ Die Welle entwirft die beiden priorisierten Vertiefungsserien LAB-VP1 und LAB-VP
 
 Der Designvertrag umfasst:
 
-- die didaktische Reihenfolge von `OPT-001` bis `OPT-017`,
+- die didaktische Reihenfolge von `OPT-001` bis `OPT-017` (Ungleich verteilte parallele Arbeit),
 - ein gemeinsames deterministisches Datenmodell für Planmechanik,
-- `OPT-015` für planweite und operatorbezogene Eigenschaften,
-- `OPT-016` für Rebind, Rewind, Outer References und Spools,
+- `OPT-015` (Ausführungspläne systematisch lesen) für planweite und operatorbezogene Eigenschaften,
+- `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung) für Rebind, Rewind, Outer References und Spools,
 - `OPT-017` für parallele Planbereiche, Exchanges und Threadverteilung,
 - planformabhängige Skip-Regeln statt erzwungener Optimizerentscheidungen,
 - grüne Verträge für `OPT-015` und `OPT-016` sowie ein gelbes Ressourcenprofil für `OPT-017`.
@@ -30,10 +30,10 @@ Der Designvertrag umfasst:
 
 Der Designvertrag umfasst:
 
-- die didaktische Reihenfolge von `OPT-007` bis `OPT-010`,
+- die didaktische Reihenfolge von `OPT-007` bis `OPT-010` (Planoptimierung für optionale Parameter),
 - eine deterministische, schiefe Suchdatenverteilung,
-- `QRY-013` mit neutralen Clientprofilen statt behaupteter SSMS-/Treiberdefaults,
-- die Trennung von Catch-all, `OPTION (RECOMPILE)`, sicher parameterisiertem dynamischem SQL, PSP und OPPO,
+- `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) mit neutralen Clientprofilen statt behaupteter SSMS-/Treiberdefaults,
+- die Trennung von Catch-all, `OPTION (RECOMPILE)`, sicher parameterisiertem dynamischem SQL, PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) und OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter),
 - kontrollierte Feature- und Eligibility-Skips für SQL Server 2019, 2022 und 2025,
 - das Verbot globaler Cacheleerung und unparametrisierter Wertkonkatenation.
 
@@ -49,7 +49,7 @@ Die statische Prüfung validiert:
 - Reihenfolge der LAB-Serien,
 - Ressourcen-, Risiko- und Versionsverträge,
 - verpflichtende Evidenz und Skip-Codes,
-- die vollständige Strategieauswahl für `QRY-004`,
+- die vollständige Strategieauswahl für `QRY-004` (Optionale Filter, Recompile und dynamisches SQL),
 - verbotene globale oder datenschutzkritische Aktionen,
 - Backlog- und Dokumentationskonsistenz.
 
@@ -62,7 +62,7 @@ Final erfolgreich:
 
 ## 6. Nicht durchgeführte Prüfungen
 
-Eine SQL-Server-Runtime-Matrix wurde nicht ausgeführt, weil keine SQL-Datei und keine ausführbare Demo implementiert wurde. Ein PowerPoint-Render war nicht erforderlich, weil das Masterdeck unverändert blieb. Runtime-, Planform- und Ressourcenvalidierung folgen erst während `ADV-008`.
+Eine SQL-Server-Runtime-Matrix wurde nicht ausgeführt, weil keine SQL-Datei und keine ausführbare Demo implementiert wurde. Ein PowerPoint-Render war nicht erforderlich, weil das Masterdeck unverändert blieb. Runtime-, Planform- und Ressourcenvalidierung folgen erst während `ADV-008` (Review QRY-004).
 
 ## 7. Statusgrenze
 
@@ -70,4 +70,4 @@ Zum Zeitpunkt dieses Reviews waren die nachfolgenden ADV-008-Schnitte noch gepla
 
 ## 8. Nächste fachliche Schritte
 
-`ADV-006` und `ADV-007` können beginnen. Erste SQL-Implementierungen werden anschließend in kleinen, voneinander unabhängigen Schnitten unter `ADV-008` umgesetzt. Parallel bleiben `PRS-012`/`TST-011`, W2-002-Teilpakete und die Query-Store-/XE-Pilotvalidierung offen.
+`ADV-006` (Design LAB-VP3 und LAB-VP4) und `ADV-007` (Design LAB-VP5 und DGN-007) können beginnen. Erste SQL-Implementierungen werden anschließend in kleinen, voneinander unabhängigen Schnitten unter `ADV-008` umgesetzt. Parallel bleiben `PRS-012`/`TST-011`, W2-002-Teilpakete und die Query-Store-/XE-Pilotvalidierung offen.

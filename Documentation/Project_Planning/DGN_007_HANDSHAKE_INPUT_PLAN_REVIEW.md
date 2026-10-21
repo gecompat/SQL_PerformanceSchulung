@@ -92,7 +92,7 @@ vollständige tatsächliche Importclosure einschließlich gemeinsamem _Control.
 Keine Erweiterung der alten Offline-/SQL-Selektoren; zentrale Registry,
 Governance und Privacy bleiben. Reine eigene Syntax-/Datenverarbeitung erlaubt
 cancel-in-progress:true. Lokale vollständige neue Suite einmal auf Windows
-und Linux3.12 nach unabhängigem Lauf-GO; CI am aktuellen Head/Base und Main
+und Linux3.12 nach unabhängigem Lauf-GO; CI (Continuous Integration; automatisierte Integrationsprüfungen) am aktuellen Head/Base und Main
 bleibt frisch erforderlich. Keine zusätzliche Automation oder Reviewkette.
 
 ## Nachweis

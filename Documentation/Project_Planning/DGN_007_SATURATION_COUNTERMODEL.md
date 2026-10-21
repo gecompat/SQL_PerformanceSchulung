@@ -16,7 +16,7 @@ den expliziten Zählschluss aus PR74. Es ergänzt das unveränderte
 [deklarative Voraussetzungenmodell](DGN_007_ASSIGNMENT_PREREQUISITES_MODEL.md).
 Das neue Modell verwendet synthetische Ausführungstokens als unabhängig
 deklarierte Ground Truth. Reale QS-RuntimeStats liefern keine individuellen
-Ausführungstokens; diese API ist kein Collector- oder Decoderformat.
+Ausführungstokens; diese API (Application Programming Interface; Programmierschnittstelle) ist kein Collector- oder Decoderformat.
 
 `evaluate_countermodel(case, expected_binding)` liefert ein unveränderliches
 `CounterResult`. Callerfassung, kollektive Bucketzuordnung und kontinuierlicher
@@ -63,7 +63,7 @@ Unbekannte frühere Zero-/Varianten-Coverage bleibt unbekannt. Sie verhindert
 den vollständigen Familien-/Bucketclaim; bereits korrekt gesättigte positive
 Oracleeinheiten können trotzdem den engeren Callerfassungsclaim tragen.
 
-Die vier gelieferten Mittelwerte Duration, CPU, Reads und Rows werden über
+Die vier gelieferten Mittelwerte Duration, CPU (Central Processing Unit; Prozessor), Reads und Rows werden über
 `Fraction(Decimal)` exakt gewichtet. Frühere Gruppen behalten Counts, die
 vier Metriken und positive First-/Last-Extrema. Gleiche Counts bei verändertem
 Profil oder Extrema erfüllen die konservative Modellstabilität nicht.

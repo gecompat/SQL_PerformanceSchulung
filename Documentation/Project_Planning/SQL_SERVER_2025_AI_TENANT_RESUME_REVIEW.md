@@ -38,8 +38,8 @@ Alle acht SQL-Phasen binden vier vollständige Marker mit Unicodebytes und
 DATALENGTH der Namen/Werte plus class=0/major_id=0/minor_id=0. Demo-/Token-/
 Zielinput wird vor begrenzter Typkonversion vollständig geprüft. Setup wird
 im tatsächlichen Lifecycle zweimal aufgerufen, Folgefixture erneut vollständig
-geprüft. Kein Preview, MAXDOP, Login, externe Credentials, Modelle, Internet,
-Inferenz, ANN oder Hoständerung. Keine echten Verbindungspools oder mehrere
+geprüft. Kein Preview, MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad), Login, externe Credentials, Modelle, Internet,
+Inferenz, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) oder Hoständerung. Keine echten Verbindungspools oder mehrere
 Sessions, keine allgemeine Seitenkanalfreiheit. Nur aktuelle Offlinekontrolle.
 
 Private Qualification verwendet unveränderte öffentliche FWK-010/-011-APIs

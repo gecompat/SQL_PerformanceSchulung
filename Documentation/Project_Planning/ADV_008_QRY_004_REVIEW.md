@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Paket | `ADV-008` |
+| Paket | `ADV-008` (Review QRY-004) |
 | Schnitt | `QRY-004_CLASSIC_AND_DYNAMIC` |
 | Status | `VALIDATED` |
 | Lernziel | `LO-M03-08` |
@@ -12,7 +12,7 @@
 
 ## 1. Umfang
 
-Der Schnitt liefert die Demo `QRY-004` als vollständiges Bündel nach `FWK-001`, den parallel ausgearbeiteten Folienteil zu `LO-M03-08` als Spezifikation sowie die zugehörige statische und laufzeitbezogene Prüfstrecke.
+Der Schnitt liefert die Demo `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) als vollständiges Bündel nach `FWK-001` (Preflight-Vertrag), den parallel ausgearbeiteten Folienteil zu `LO-M03-08` als Spezifikation sowie die zugehörige statische und laufzeitbezogene Prüfstrecke.
 
 | Artefakt | Pfad |
 |---|---|
@@ -24,7 +24,7 @@ Der Schnitt liefert die Demo `QRY-004` als vollständiges Bündel nach `FWK-001`
 
 ## 2. Fachliche Abgrenzung
 
-Verglichen werden genau drei Strategien für optionale Suchbedingungen: der statische Catch-all-Querytext, derselbe Text mit `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization bleiben `OPT-009` und `OPT-010` vorbehalten; die Trennung ist als `DEC-056` festgehalten.
+Verglichen werden genau drei Strategien für optionale Suchbedingungen: der statische Catch-all-Querytext, derselbe Text mit `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization bleiben `OPT-009` (Parametersensitive Planoptimierung) und `OPT-010` (Planoptimierung für optionale Parameter) vorbehalten; die Trennung ist als `DEC-056` festgehalten.
 
 Der Vergleich stellt keine Rangfolge auf. Er belegt drei voneinander unabhängige Eigenschaften: die Bindung des Catch-all-Texts an eine einzige Planform, den Tausch von Wiederverwendung gegen Compilearbeit bei `OPTION (RECOMPILE)` und die Begrenzung der Statementformen bei parameterisiertem dynamischem SQL.
 
@@ -38,7 +38,7 @@ Dynamisches SQL wird ausschließlich aus der Positivliste `lab.Qry004AllowedFilt
 |---|---|---|
 | BASELINE | genau eine Planform über drei Selektivitäten; 20, 19 980 und 4 000 Zeilen | `SKIP_EVIDENCE_MISSING`, `THROW 51006` |
 | DEMONSTRATION | Ergebnis- und Prüfsummenequivalenz zur Baseline; geringere Lesevorgänge für den selektiven Wert | `WARN_EMPIRICAL_VARIANCE` |
-| OBSERVATION | je 25 gezählte Ausführungen bei identischer Arbeitsmenge; höhere CPU je Ausführung der neu optimierten Variante | `WARN_EMPIRICAL_VARIANCE` |
+| OBSERVATION | je 25 gezählte Ausführungen bei identischer Arbeitsmenge; höhere CPU (Central Processing Unit; Prozessor) je Ausführung der neu optimierten Variante | `WARN_EMPIRICAL_VARIANCE` |
 | MITIGATION | zwei Statementformen für drei Ausführungen; literalfreier Statementtext; abgewiesene Positivlistenverletzung | `THROW 51006` |
 | COMPARISON | durchgängige Ergebnisgleichheit; unveränderte Catch-all-Planform | `THROW 51006` |
 

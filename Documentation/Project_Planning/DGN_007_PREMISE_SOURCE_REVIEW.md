@@ -90,8 +90,8 @@ erfindet daraus keine zusätzlichen v1-Vertragsfehler.
 | [Runner](../../Tests/Runtime/run_dgn007_automated_setup.py), 181–196, 507–583 | feste Manifest-/Script-/Selector-/Budgetmetadaten, geordnete Pflichtsummaries und Captureframing ausschließlich aus CONTROL_EVIDENCE/stderr, Bodyversion und MEASURED-Bindung | vollständiger geschlossener Ausführungsumfang oder Ausschluss zusätzlicher Clients |
 | [Harness](../../Demos/00_Framework/Tools/run_demo.py), 214–255, 290–351 | eigene Phasen seriell; Ergebnis an Phase gebunden; monotones Hostbudget, Stop bei FAIL/Pflicht-SKIP und eigenes Cleanup | durchgehend identische SQL-Session; jede SQL-Phase nutzt eine neue Verbindung. Serieller eigener Client beweist keine Exklusivität. |
 | [Quellenvalidator](../../Tests/Static/validate_dgn007_prospective_acceptance.py), 33–43; Runner 714 | statischer Vergleich von 14 tatsächlichen SQL-/Manifesthashes; Runtime lädt den erwarteten Vertrag | unveränderlicher, vor Ausführung geprüfter Runtimefreeze einschließlich ausführender Helfer. Vertragsdigests und extern ergänzte Capture-Digests sind Bindungen, keine Ausführungsattestation. |
-| [CI-Workflow](../../.github/workflows/dgn007-automated-setup.yml), 126–168 | eigene rungebundene CID/Labels, vier CPU und 8 GiB als Containerlimits, keine veröffentlichten Ports oder Mounts | gemessene Host-/Ressourcenuntergrenze und physische Gesamtbelegung. Drei Versionsjobs und konfigurierbarer Runner bilden keinen Hostlock. |
-| Runner 650–677; CI 260–274 | erste unabhängige DBabwesenheit; Recovery heilt deren Fehler nicht. Eigene CID wird separat entfernt und Abwesenheit geprüft. | positive Herkunft durch späteres Cleanup oder Cleanupgarantie bei harter Unterbrechung |
+| [CI-Workflow](../../.github/workflows/dgn007-automated-setup.yml), 126–168 | eigene rungebundene CID/Labels, vier CPU (Central Processing Unit; Prozessor) und 8 GiB als Containerlimits, keine veröffentlichten Ports oder Mounts | gemessene Host-/Ressourcenuntergrenze und physische Gesamtbelegung. Drei Versionsjobs und konfigurierbarer Runner bilden keinen Hostlock. |
+| Runner 650–677; CI (Continuous Integration; automatisierte Integrationsprüfungen) 260–274 | erste unabhängige DBabwesenheit; Recovery heilt deren Fehler nicht. Eigene CID wird separat entfernt und Abwesenheit geprüft. | positive Herkunft durch späteres Cleanup oder Cleanupgarantie bei harter Unterbrechung |
 
 Fester Datenbankname und wiederverwendeter `AUTO`-Marker sind keine eindeutige
 Lifecycle-/DBgeneration. Der bestehende Body enthält keine CID-/Generation-/
@@ -101,7 +101,7 @@ Hostbudgets und verlustfreie SQL-Ticks sind getrennte Belege.
 Der Body entsteht vor Cleanup in SQL35 und durchläuft die tatsächliche
 Phasen-/Kanalbindung. Der Runner decodiert die gepufferte Ausgabe nach Ende
 des Kindprozesses; er liest die entfernte Datenbank nicht erneut. Die lokale,
-unveröffentlichte API am Branchstand `83f08fb…` kann diesen Body mit geprüften
+unveröffentlichte API (Application Programming Interface; Programmierschnittstelle) am Branchstand `83f08fb…` kann diesen Body mit geprüften
 Phasen und erstem erfolgreichem Abwesenheitscheck erhalten. Sie ergänzt keine
 Freeze-, Ressourcen-, Exklusivitäts- oder Herkunftsattestation und bleibt bis
 zur G13-Messvertragsklärung zurückgestellt.

@@ -107,7 +107,7 @@ TP-PERF oder vollständige Demoabnahme. Anwender:innen brauchen für diese
 Leseaufgabe keine Logins anzulegen, keine roten DDL-Befehle auszuführen und
 keinen Provider zu installieren.
 
-Fachliche Grundlage sind [DEC-074](../Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md),
+Fachliche Grundlage sind [DEC-074 – Gebundenes ANN-Legacyprofil mit Generation UNKNOWN/WARN](../Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md),
 der [DML-Grenznachweis](../Project_Planning/SQL_SERVER_2025_AI_IDX012_DML_BOUNDARY_REVIEW.md)
 und der [begrenzte Rollensplit](../Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md).
 Die Herstellergrenze beschreibt [CREATE VECTOR INDEX](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql?view=sql-server-ver17)
@@ -117,7 +117,7 @@ Die binäre JSON-Darstellung erläutert [FOR JSON: Datentypkonvertierung](https:
 
 ## V2: Resultate der öffentlichen Rollen-API lesen
 
-Die öffentliche Rollen-API liefert inzwischen individuelle Clientcaptures.
+Die öffentliche Rollen-API (Application Programming Interface; Programmierschnittstelle) liefert inzwischen individuelle Clientcaptures.
 Dafür gibt es einen getrennten V2-Vertrag. V1 und seine beiden historischen
 Inputpins bleiben erhalten: fehlende Captures werden dort weiterhin nicht ergänzt.
 
@@ -146,7 +146,7 @@ keinen frei wählbaren Dateipfad oder SQL-Executor. Der Consumer liest nur
 seinen festen Expectedvertrag, V1-Helfer und die öffentlichen reinen
 Evidenzfunktionen; er startet keine Clients. Die Prüfung verbindet 25
 Clientrecords mit tatsächlichen Inputtexten, UTF-8-Digests, getrennten
-Kanälen, PID/Poll/Returncode und Quellen vor/nach den Aufrufen.
+Kanälen, PID (Process Identifier; Prozesskennung)/Poll/Returncode und Quellen vor/nach den Aufrufen.
 Die Inputbindung betrifft konfigurierte Texte vor ENV-Erweiterung, keine
 unabhängig attestierten serverseitig ausgeführten SQLbytes.
 
@@ -168,7 +168,7 @@ Principalcleanup-Records; diese Claims bleiben NOT_ESTABLISHED. Das gilt
 auch für den unabhängigen Ownerquery, vollständige DML-Errorfelder,
 allgemeine Runtimequalifikation und TP-PERF; die Indexgeneration bleibt UNKNOWN.
 Für diese Leseaufgabe sind keine neue SQL-Ausführung, Installation oder
-Login-DDL nötig. Der [V2-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md)
+Login-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) nötig. Der [V2-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_IDX012_PUBLIC_RECORD_V2_REVIEW.md)
 beschreibt die abgegrenzte Source- und spätere Offlineprüfung.
 
 Der erste einmalige historische V2-Abgleich endete mit bekanntem FAIL:

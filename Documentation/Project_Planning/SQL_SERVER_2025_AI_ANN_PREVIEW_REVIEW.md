@@ -13,13 +13,13 @@ vorhandenen Tag 2025-CU9-ubuntu-24.04, Build 17.0.5005.3, Enterprise Developer,
 EngineEdition 3/Ubuntu 24.04 und die vollständige lokale Image-ID
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`.
 Der Helper band diese ID vor Create, Containerimage/Owner nach Create und den
-eigenen Loopbackport. 4 CPU/6 GB und native SQLCMD mit SQLCMDPASSWORD nur in der
+eigenen Loopbackport. 4 CPU (Central Processing Unit; Prozessor)/6 GB und native SQLCMD mit SQLCMDPASSWORD nur in der
 Umgebung blieben erhalten. Eigene DB: SQLPERF_LAB_IDX011_PROBE, vier vollständige
 Marker, CL170, SIMPLE, 256/64-MB-Dateilimits. Keine fremde Instanz oder Hostoption
 wurde verändert; keine Cloud-, Modell- oder ONNX-Aufrufe wurden ausgeführt.
 
 1. Erstversuch: SQL-Parserfehler 343, unbekannter Objekttyp VECTOR in CREATE.
-   Kein Indexbuildnachweis. Welle 1 verschob die feste Index-DDL in dynamisches SQL
+   Kein Indexbuildnachweis. Welle 1 verschob die feste Index-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) in dynamisches SQL
    nach dem vorgesehenen Preview-Enable und ergänzte SQL-Recovery.
 2. Danach: Fehler 257, implizite sql_variant-Konvertierung nach int unzulässig.
    SQL-Recovery schlug ebenfalls fehl und unterbrach den Container-finally-Ablauf.

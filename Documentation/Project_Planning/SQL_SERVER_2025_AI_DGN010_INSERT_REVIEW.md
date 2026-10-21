@@ -31,7 +31,7 @@ Tokenverbrauch unbekannt, kein behauptetes Account-/Geldbudget.
 
 Fixes bereits verfügbares SQL-17.0.5005.3-Image, aktueller öffentlicher Versions-/
 Editions-/Permissions-/Bestätigungs-/DB-Abwesenheitspreflight, eigener Container
-mit voller Owner-/CID-/Name-/Imagebindung und vier CPU/sechs GiB/Loopback.
+mit voller Owner-/CID-/Name-/Imagebindung und vier CPU (Central Processing Unit; Prozessor)/sechs GiB/Loopback.
 Ausschließlich synthetische eigene Fixture und voller bytegenauer Viermarker-
 DB-Guard. ENV-Passwort ohne -P. Keine Cloud-/Bezahl-/ONNX-/Host-/anderen Repoeffekte.
 
@@ -66,12 +66,12 @@ kein Mischen von Control und Benchmarksumme. Acht echte Create-/Droptransitions
 und46 vollständige Source-/Reader-/Indexproben gebunden. Für jedes positive
 Fenster vollständige13-Key-Stateaufnahme vor/nach (29Paare/58Aufnahmen), alle1000
 Rows/configVarianttyp/fullBytes/NULL/files/metadata/rights/roles/properties
-vollständig gleich. Candidate-DDL ausschließlich außerhalb der Messfenster.
+vollständig gleich. Candidate-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) ausschließlich außerhalb der Messfenster.
 
 Die Messintervalle enthalten OUTPUT, tatsächliche Row-/Abwesenheitsoracles und
 je Statement BEGIN/ROLLBACK. Diese Prüf- und Rollbackkosten sind ausdrücklich
 Teil der beobachteten Batchkosten; keine reine INSERTcpu, Commitdauer, gesamte
-Worker-I/O oder allgemeine Produktions-/Nettonutzenempfehlung. SYSrequestWrites0
+Worker-I/O (Input/Output; Ein- und Ausgabezugriffe) oder allgemeine Produktions-/Nettonutzenempfehlung. SYSrequestWrites0
 beweist keine Log-I/O-Abwesenheit. Vollständige TP-PERF-/Modulabnahme offen.
 
 ## Verarbeitung und Abnahme

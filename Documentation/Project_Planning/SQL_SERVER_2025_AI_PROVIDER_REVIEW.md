@@ -11,7 +11,7 @@ Offline-Demos ab; kein Nachweis für alle 18 Entwürfe, Live-Modelle oder eine
 
 Der bereits laufende öffentliche Podman-CLI-Dienst meldete crun/linux/amd64.
 Vorhandene Microsoft-SQL-Images wurden mit --pull=never benutzt. Jede Instanz bekam
-einen neuen eigenen Namen, Ownerlabel TSK004-Podman-qualification, 4 CPU, 6 GB und
+einen neuen eigenen Namen, Ownerlabel TSK004-Podman-qualification, 4 CPU (Central Processing Unit; Prozessor), 6 GB und
 eine zufällige ausschließlich an 127.0.0.1 gebundene Portzuordnung. Vollständige lokale
 Image-ID und Ownerlabel wurden am tatsächlich erzeugten Container geprüft. Es wurde
 keine vorhandene Instanz übernommen oder eine Podman-Maschine gestartet/umkonfiguriert.
@@ -24,7 +24,7 @@ keine Passwortwerte in Prozessargumenten. -C vertraute dem Zertifikat ausschlie�
 dieses lokalen Laborendpunkts; dies ist kein allgemeiner TLS-/Providerfreigabebeleg.
 SQL_Server_Lab und andere Repositories wurden nicht verändert oder aufgerufen.
 
-| Engine | Tatsächlicher Build / Edition / OS | Lokale Image-ID | Beobachtung |
+| Engine | Tatsächlicher Build / Edition / OS (Operating System; Betriebssystem) | Lokale Image-ID | Beobachtung |
 |---|---|---|---|
 | 17.x | 17.0.5005.3 / Enterprise Developer, EngineEdition 3 / Linux Ubuntu 24.04 | `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726` | zwei QRY-014-Lifecycles, je drei Assertions PASS |
 | 15.x | 15.0.4490.9 / Developer, EngineEdition 3 / Linux Ubuntu 20.04 | `aa00fc4a3e14cc8baf6ce7447e738023aab84b90f3bf913304729201a8d80556` | zwei SKIP_VERSION vor SETUP, keine fachlichen Assertions |
@@ -67,7 +67,7 @@ dem ignorierten Runtime-Verzeichnis, kein zweiter Backlog oder öffentlicher neu
 Ein Owner, ein erforderlicher Review und eine von maximal zwei kohärenten Korrekturwellen
 bilden diesen endlichen Slice. Modell-/Tokenverbrauch des Orchestrators bleibt unbekannt.
 TSK-004 bleibt offen für weitere Syntax-/Treiber-/Feature- und Providerpfade; der reale
-lokale Modellpfad bleibt am DEC-033-Secretgate. Preview/ANN, Cloud-/Bezahl-, ONNX- und
+lokale Modellpfad bleibt am DEC-033-Secretgate. Preview/ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Cloud-/Bezahl-, ONNX- und
 rote Hoständerungen werden durch diesen Providerbeleg nicht freigegeben.
 
 ## Integration des Checkpoints

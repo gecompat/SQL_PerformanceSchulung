@@ -9,7 +9,7 @@ des SQL Servers aus. Für Anwender:innen hilft die folgende Reihenfolge:
 |---|---|---|
 | Dateibestand | Sind die erwarteten Dateien und Versionen vorhanden? | Vollständige Originaldatei- und SHA-Bindung |
 | Runtime und Laden | Läuft der passende Host und findet er die Bibliothek? | Tatsächliche Runtimeversion, Load-Aufruf und dessen Ende |
-| Typen und lokale API | Sind die benötigten Typen verfügbar und funktioniert die konkrete API? | Typmetadaten und anschließend getrennte API-Ergebnisprüfung |
+| Typen und lokale API (Application Programming Interface; Programmierschnittstelle) | Sind die benötigten Typen verfügbar und funktioniert die konkrete API? | Typmetadaten und anschließend getrennte API-Ergebnisprüfung |
 | SQL-Transport | Erreicht der Client die eigene Testdatenbank mit den richtigen Parametern? | Tatsächliche Client-/Serverenden, Typ- und Ergebnisnachweis |
 
 Ein Dateiname im Programmordner beantwortet nur die erste Frage teilweise.
@@ -66,7 +66,7 @@ Empirisch funktioniert dieses konkrete relative Layout für den benannten
 Probehost. Das ist keine allgemeine Deploymentempfehlung: andere Publishes,
 Runtime- und Paketgraphen können andere Suchinformationen erzeugen. Der
 erfolgreiche Typnachweis führt noch keine SqlVector-Konstruktion oder
-SQL-Parameterübertragung aus. Native SNI, TDS und SQL bleiben ungeprüft.
+SQL-Parameterübertragung aus. Native SNI, TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) und SQL bleiben ungeprüft.
 Die verlorenen Fehlermetadaten des ursprünglichen C6-Clients werden nicht
 nachträglich als bestätigt dargestellt.
 

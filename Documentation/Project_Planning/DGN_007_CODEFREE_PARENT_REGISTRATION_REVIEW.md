@@ -19,7 +19,7 @@ genau diese Komponente, bevor der vollständige Runnerloader sie anbinden kann.
 Ein Implementierungsowner root, derselbe unabhängige Reviewer, höchstens vier
 stabile Source/Testkandidaten, Checkpoint1, harte Grenze4 und höchstens drei
 geänderte Nachläufe. Auswahl-/Source-/Test-/Deltareviews, ausdrückliche Lauf-GOs,
-lokale Tests, Koordination, CI, regulärer Merge, Main-Gates, FullTree/Sync und
+lokale Tests, Koordination, CI (Continuous Integration; automatisierte Integrationsprüfungen), regulärer Merge, Main-Gates, FullTree/Sync und
 eigene Branchbereinigung gehören zum gemeinsamen Umfang. Verbrauch UNKNOWN.
 An der harten Grenze keine neuen Kandidaten oder Umbenennung des Scopes.
 

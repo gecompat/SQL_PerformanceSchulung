@@ -34,13 +34,13 @@ tatsächlichen Werten und Verhältnissen. Median/Min/Max/Stichprobengröße und
 Nullzählung enthalten alle aufgenommenen Fenster, auch Ausreißer. Nullbaseline
 ergibt N/A statt Division oder erfundenem Nullverhältnis. Sechs Batchfenster
 belegen keine individuellen Querylatenzen, belastbaren Tails oder Signifikanz.
-CPU/I/O sind LIVE_REQUEST-Differenzen vor/nach der 100-Query-Schleife einschließlich
+CPU (Central Processing Unit; Prozessor)/I/O (Input/Output; Ein- und Ausgabezugriffe) sind LIVE_REQUEST-Differenzen vor/nach der 100-Query-Schleife einschließlich
 des Overheads an den Counter-Messgrenzen. Elapsed umfasst die UTC-Zeit der Schleife
 einschließlich Tempresult-Inserts. Die Messgrenzen sind nicht identisch;
 vollständige Worker-I/O bleibt NOT_ESTABLISHED.
 
 Vier repräsentative Planrecords bleiben an Dimension/Build/Quellenobjekt und
-Scan100/Root1 gebunden. Nur numerische rohe Memoryattribute und roher DOP werden
+Scan100/Root1 gebunden. Nur numerische rohe Memoryattribute und roher DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) werden
 ausgegeben; DOP 0 bleibt 0. Fehlendes Attribut bleibt None, keine Nullmessung.
 Waits/Spills werden hier nicht ausgewertet. Keine Rawidentitäten, UTC-/Request-
 oder Connectionwerte, Querytexte, Quellen-/Planstrings oder XMLs im Export.
@@ -91,7 +91,7 @@ Keine weiteren konkreten P1/P2; Quellenclosure, keine Reviewer-Runtime oder
 Reviewer-Tests. Historische SQL-/Zeit-/Plan-/CI-FAILs bleiben erhalten.
 
 Ein Owner, höchstens sechs kohärente Kandidaten für diesen reinen Folgeschritt;
-keine zusätzlichen lokalen SQL-Qualifikationscontainer. Neue CI bewertet die
+keine zusätzlichen lokalen SQL-Qualifikationscontainer. Neue CI (Continuous Integration; automatisierte Integrationsprüfungen) bewertet die
 Aggregation an tatsächlich aufgenommenen Daten des öffentlichen Consumerpfads
 und behält zwei Lifecycles/Versions-SKIPs/Setupfault/Cleanup. Bestehende Native-
 Inputs und SQL-/Quellen-/Mess-/Planvalidatoren unverändert; kein unveränderter

@@ -61,28 +61,28 @@ verneint.
 | Quelle | Kurzthema | Entscheidung | Ziel-Demo(s) | Migrationswelle | Sicherheitsrahmen |
 |---|---|---|---|---|---|
 | `SRC-LEGACY-008` / `tsql_isolation_demo.sql` | READ COMMITTED blocking, SNAPSHOT update conflict and SERIALIZABLE range locks | `REBUILD` | `CON-001`, `CON-002`, `CON-003` | `W2-A` | `YELLOW` |
-| `SRC-LEGACY-009` / `Beispiele/Apply.sql` | CROSS/OUTER APPLY compared with joins and an inline TVF | `REFACTOR` | `QRY-009`, `QRY-010` | `W2-C` | `GREEN` |
+| `SRC-LEGACY-009` / `Beispiele/Apply.sql` | CROSS/OUTER APPLY compared with joins and an inline TVF (Table-Valued Function; tabellenliefernde Funktion) | `REFACTOR` | `QRY-009`, `QRY-010` | `W2-C` | `GREEN` |
 | `SRC-LEGACY-010` / `Beispiele/BufferPool füllt sich.sql` | Cold and warm cache behavior in the buffer pool | `REBUILD` | `STL-006`, `DGN-001` | `W2-B` | `RED` |
 | `SRC-LEGACY-011` / `Beispiele/DMV_Count_Rows_in_Table.txt` | Catalog-based row-count estimate for a heap or clustered table | `DIAGNOSTIC_ONLY` | `DGN-002`, `STL-004` | `W2-A` | `GREEN` |
 | `SRC-LEGACY-012` / `Beispiele/DMV_MemoryGrant.txt` | Current query memory grants and associated request text | `DIAGNOSTIC_ONLY` | `DGN-002`, `OPT-014`, `RES-004` | `W2-A` | `GREEN` |
 | `SRC-LEGACY-013` / `Beispiele/DMV_Requests_text.txt` | Current requests with resource counters, blocking and SQL text | `DIAGNOSTIC_ONLY` | `DGN-002` | `W2-A` | `GREEN` |
-| `SRC-LEGACY-014` / `Beispiele/DMV_WaitStats.txt` | Top server-wide waits | `DIAGNOSTIC_ONLY` | `RES-007`, `DGN-002` | `W2-A` | `GREEN` |
-| `SRC-LEGACY-015` / `Beispiele/for xml path.sql` | FOR XML PATH string concatenation recipe | `REMOVE` | `QRY-012` | `NONE` | `NOT_APPLICABLE` |
-| `SRC-LEGACY-016` / `Beispiele/functions_1.sql` | General T-SQL function notebook | `REMOVE` | – | `NONE` | `NOT_APPLICABLE` |
+| `SRC-LEGACY-014` / `Beispiele/DMV_WaitStats.txt` | Top server-wide waits | `DIAGNOSTIC_ONLY` | `RES-007` (Wartezeiten im richtigen Messbereich), `DGN-002` | `W2-A` | `GREEN` |
+| `SRC-LEGACY-015` / `Beispiele/for xml path.sql` | FOR XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) PATH string concatenation recipe | `REMOVE` | `QRY-012` | `NONE` | `NOT_APPLICABLE` |
+| `SRC-LEGACY-016` / `Beispiele/functions_1.sql` | General T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) function notebook | `REMOVE` | – | `NONE` | `NOT_APPLICABLE` |
 | `SRC-LEGACY-017` / `Beispiele/Index_usage_partition.sql` | Partition-aware MAX query and partition elimination | `REBUILD` | `QRY-012` | `W2-B` | `GREEN` |
 | `SRC-LEGACY-018` / `Beispiele/Join Typen.sql` | Nested Loops, Merge, Hash and bitmap filtering examples | `REBUILD` | `OPT-012` | `W2-A` | `GREEN` |
-| `SRC-LEGACY-019` / `Beispiele/json_parallel.sql` | JSON scalar extraction and OPENJSON in a join | `REBUILD` | `QRY-012`, `RES-002` | `W2-C` | `YELLOW` |
-| `SRC-LEGACY-020` / `Beispiele/NON-Sargable.sql` | Implicit conversion, functions on columns, optional predicates and non-searchable expressions | `REBUILD` | `QRY-001`, `QRY-002`, `QRY-003`, `QRY-004` | `W2-A` | `GREEN` |
+| `SRC-LEGACY-019` / `Beispiele/json_parallel.sql` | JSON (JavaScript Object Notation; strukturiertes Textformat) scalar extraction and OPENJSON in a join | `REBUILD` | `QRY-012`, `RES-002` | `W2-C` | `YELLOW` |
+| `SRC-LEGACY-020` / `Beispiele/NON-Sargable.sql` | Implicit conversion, functions on columns, optional predicates and non-searchable expressions | `REBUILD` | `QRY-001` (Indexfreundliche Suchbedingungen), `QRY-002`, `QRY-003`, `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) | `W2-A` | `GREEN` |
 | `SRC-LEGACY-021` / `Beispiele/Page Größe bzw. Max Spalten.sql` | Maximum result/table column counts and oversized rows | `REMOVE` | `STL-001` | `NONE` | `NOT_APPLICABLE` |
-| `SRC-LEGACY-022` / `Beispiele/Parameter Sniffing.sql` | Skew-sensitive parameter compilation and plan reuse | `REBUILD` | `OPT-008`, `OPT-009` | `W2-A` | `YELLOW` |
+| `SRC-LEGACY-022` / `Beispiele/Parameter Sniffing.sql` | Skew-sensitive parameter compilation and plan reuse | `REBUILD` | `OPT-008`, `OPT-009` (Parametersensitive Planoptimierung) | `W2-A` | `YELLOW` |
 | `SRC-LEGACY-023` / `Beispiele/Partition Elimination.sql` | Partition elimination and actual rows read | `REBUILD` | `QRY-012`, `RES-002` | `W2-B` | `GREEN` |
 | `SRC-LEGACY-024` / `Beispiele/Partition Views.sql` | Partitioned tables and partitioned UNION ALL views | `REMOVE` | `QRY-012` | `NONE` | `NOT_APPLICABLE` |
 | `SRC-LEGACY-025` / `Beispiele/perfSubsel.sql` | Correlated scalar subquery versus pre-aggregation and set-based rewrite | `REBUILD` | `QRY-005`, `QRY-010` | `W2-B` | `YELLOW` |
-| `SRC-LEGACY-026` / `Beispiele/schnell ist nicht immer Ressourcen schonend.sql` | Elapsed time versus CPU/resource consumption and predicate placement | `REBUILD` | `RES-002`, `QRY-001` | `W2-B` | `YELLOW` |
-| `SRC-LEGACY-027` / `Beispiele/SearchNull.sql` | NULL predicates, OR/IN combinations and index access | `REBUILD` | `QRY-006`, `IDX-003` | `W2-B` | `GREEN` |
+| `SRC-LEGACY-026` / `Beispiele/schnell ist nicht immer Ressourcen schonend.sql` | Elapsed time versus CPU (Central Processing Unit; Prozessor)/resource consumption and predicate placement | `REBUILD` | `RES-002`, `QRY-001` | `W2-B` | `YELLOW` |
+| `SRC-LEGACY-027` / `Beispiele/SearchNull.sql` | NULL predicates, OR/IN combinations and index access | `REBUILD` | `QRY-006` (NULL bei NOT IN und NOT EXISTS), `IDX-003` | `W2-B` | `GREEN` |
 | `SRC-LEGACY-028` / `Beispiele/Tipping Point AdventureWorks2022.sql` | Lookup-to-scan tipping point | `REBUILD` | `IDX-004` | `W2-A` | `GREEN` |
 | `SRC-LEGACY-029` / `Beispiele/uniquifier.sql` | Uniquifier storage and increment behavior for nonunique clustered indexes | `REBUILD` | `IDX-002`, `STL-001` | `W2-C` | `YELLOW` |
-| `SRC-LEGACY-030` / `Beispiele/Was_weiß_der_Optimizer_TagID.sql` | Optimizer knowledge from indexes, statistics and uniqueness constraints | `REBUILD` | `OPT-002`, `OPT-003`, `OPT-004` | `W2-B` | `YELLOW` |
+| `SRC-LEGACY-030` / `Beispiele/Was_weiß_der_Optimizer_TagID.sql` | Optimizer knowledge from indexes, statistics and uniqueness constraints | `REBUILD` | `OPT-002` (Statistiken lesen), `OPT-003` (Stichproben und ungleiche Datenverteilung), `OPT-004` | `W2-B` | `YELLOW` |
 
 ## 4. Einzelbefunde
 
@@ -166,10 +166,10 @@ verneint.
 
 **Befunde**
 
-- A hard-coded RAM percentage and the maximum-allocation formula are not portable; the conditional cap logic is not a safe general model.
+- A hard-coded RAM (Random Access Memory; Arbeitsspeicher) percentage and the maximum-allocation formula are not portable; the conditional cap logic is not a safe general model.
 - Login, program, context information and SQL text can contain sensitive data.
 - Permissions and SQL Server 2022+ VIEW SERVER PERFORMANCE STATE requirements are not handled.
-- Reading and sorting diagnostic DMVs can itself consume resources and must be bounded.
+- Reading and sorting diagnostic DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) can itself consume resources and must be bounded.
 
 **Erforderliche Folgearbeit**
 
@@ -325,7 +325,7 @@ Migration; sie gilt nicht als Ablehnung des Themas oder als Ausführungsfreigabe
 - It modifies indexes in a public sample database and embeds fixed read counts.
 - The end-of-year BETWEEN boundary is not safe for all temporal precisions; the replacement must use a half-open interval.
 - Four distinct learning objectives are mixed in one script.
-- Optional-parameter behavior is not version-aware for PSP/OPPO.
+- Optional-parameter behavior is not version-aware for PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte)/OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter).
 
 **Erforderliche Folgearbeit**
 
@@ -343,7 +343,7 @@ Migration; sie gilt nicht als Ablehnung des Themas oder als Ausführungsfreigabe
 
 - The 149 KB manually enumerated statement is not maintainable or didactically proportional.
 - Most sections test parser/result-set limits rather than SQL Server performance.
-- Cursor and 4096-column fragments do not provide a controlled storage or I/O experiment.
+- Cursor and 4096-column fragments do not provide a controlled storage or I/O (Input/Output; Ein- und Ausgabezugriffe) experiment.
 
 **Erforderliche Folgearbeit**
 
@@ -358,7 +358,7 @@ Migration; sie gilt nicht als Ablehnung des Themas oder als Ausführungsfreigabe
 
 **Befunde**
 
-- The script creates and drops a fixed database, uses non-deterministic data, system-catalog row sources, high MAXDOP and DBCC FREEPROCCACHE.
+- The script creates and drops a fixed database, uses non-deterministic data, system-catalog row sources, high MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) and DBCC FREEPROCCACHE.
 - It changes database-scoped PARAMETER_SNIFFING configuration and does not provide a contract-based restore path.
 - It is not separated into classic behavior and SQL Server 2022 PSP behavior.
 
@@ -436,7 +436,7 @@ Migration; sie gilt nicht als Ablehnung des Themas oder als Ausführungsfreigabe
 **Erforderliche Folgearbeit**
 
 - Split parallel-efficiency evidence from predicate-rewrite evidence.
-- Use a bounded DOP derived from the test profile and compare elapsed time, CPU, reads and worker distribution.
+- Use a bounded DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) derived from the test profile and compare elapsed time, CPU, reads and worker distribution.
 - Run only in an isolated yellow profile.
 
 ### SRC-LEGACY-027 – Beispiele/SearchNull.sql

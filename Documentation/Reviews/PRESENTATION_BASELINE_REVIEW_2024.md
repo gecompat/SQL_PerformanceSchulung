@@ -42,9 +42,9 @@ Die Unterlagen besitzen eine brauchbare fachliche Basis in den Themenbereichen S
 
 ### 5.1 Fachlich zu korrigierende oder zu präzisierende Aussagen
 
-- CTE: keine garantierte Materialisierung; Spools sind Optimizer-Entscheidungen und keine allgemeine Eigenschaft eines CTE.
+- CTE (Common Table Expression; benannter Abfrageausdruck innerhalb einer Anweisung): keine garantierte Materialisierung; Spools sind Optimizer-Entscheidungen und keine allgemeine Eigenschaft eines CTE.
 - Table Variables: pauschale Aussagen zu Statistiken und Parallelität sind nicht belastbar; Deferred Compilation, Compatibility Level und konkrete Operatoren sind zu berücksichtigen.
-- Heap-Tabellen: Zugriffe müssen nicht grundsätzlich alle Pages durchsuchen; Heap Scan, RID Lookup und Forwarded Records sind zu unterscheiden.
+- Heap-Tabellen: Zugriffe müssen nicht grundsätzlich alle Pages durchsuchen; Heap Scan, RID (Row Identifier; physischer Zeilenverweis) Lookup und Forwarded Records sind zu unterscheiden.
 - Filegroups: zusätzliche Files oder Filegroups erzeugen nicht automatisch zusätzliche I/O-Leistung; logische Verwaltung und physische Storage-Pfade sind getrennt zu behandeln.
 - Plan Cache: vereinfachte historische Aging-Formeln sind kein stabiler, versionsunabhängiger Vertrag.
 - Adaptive Join: Batch Mode und aktuelle Varianten einschließlich Batch Mode on Rowstore sind zu berücksichtigen.
@@ -74,11 +74,11 @@ Mit hoher Priorität zu ergänzen oder zu vertiefen sind:
 - Cardinality Estimation Feedback,
 - Degree of Parallelism Feedback,
 - Batch Mode on Rowstore,
-- Scalar UDF Inlining,
+- Scalar UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining,
 - Interleaved Execution,
 - Deferred Compilation für Table Variables,
 - TempDB-Contention und Version Store,
-- Isolation Levels, RCSI und SNAPSHOT,
+- Isolation Levels, RCSI (Read Committed Snapshot Isolation; zeilenversionierte Variante von READ COMMITTED) und SNAPSHOT,
 - Plan Warnings wie Spill, Implicit Conversion und Residual Predicate,
 - Row Goals,
 - Key Lookup Tipping Point,
@@ -93,7 +93,7 @@ Mit hoher Priorität zu ergänzen oder zu vertiefen sind:
 Die überarbeitete Schulung folgt modulübergreifend demselben Diagnoseablauf:
 
 1. Symptom, Bezugszeitraum und betroffene Workload bestimmen.
-2. CPU, Duration, Logical Reads, Physical Reads, Writes, Rows und Waits erfassen.
+2. CPU (Central Processing Unit; Prozessor), Duration, Logical Reads, Physical Reads, Writes, Rows und Waits erfassen.
 3. Blocking, Ressourcenengpässe und externe Warteursachen klassifizieren.
 4. Actual Execution Plan und tatsächliche Kardinalitäten prüfen.
 5. Schätzfehler, Zugriffspfade, Memory Grants, Parallelität und Spills untersuchen.

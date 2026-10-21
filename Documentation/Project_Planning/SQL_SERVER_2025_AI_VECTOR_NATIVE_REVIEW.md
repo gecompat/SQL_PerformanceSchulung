@@ -32,7 +32,7 @@ aus dem tatsächlichen Lock-/Assetsgraph gewählte Windows-Runtime- und SNI-x64-
 Dateien werden vor und nach der lokalen Übernahme gegen ihre Hashes geprüft.
 Compilerzulassung ist Sourcevorbereitung; der Client darf damit noch nicht laufen.
 
-C4 bestand in genau einem Offline-Compile: gehaltene PID/finales poll0/rc0 und
+C4 bestand in genau einem Offline-Compile: gehaltene PID (Process Identifier; Prozesskennung)/finales poll0/rc0 und
 0,5911s sind erfasst. Zwei CS1701-Warnungen für net9-Referenzen gegen net10
 bleiben sichtbar; die Runtimebindung ist erst im folgenden eigenen Lauf prüfbar.
 65 aktuelle eigene Dateien,168 Referenzen und28 kopierte Runtimeassets sind
@@ -58,7 +58,7 @@ schließen Sourceadmission; tatsächliche Ergebnisse und Cleanup folgen getrennt
 Der Caller benötigt tatsächliche individuelle Requeststart-/End-, Source-/
 Input- und Deadlinebindung. Erfolgsoracle: zwei kleine synthetische float32-
 VECTOR(3)-Rows, typisierte Parameter und Reader sowie alle sechs Koordinaten
-gegen JSON. Zusätzlich tatsächlicher typisierter Nullwert der Dimension3,
+gegen JSON (JavaScript Object Notation; strukturiertes Textformat). Zusätzlich tatsächlicher typisierter Nullwert der Dimension3,
 Dimensionsabweisung mit vollständigen Fehlerfeldern und unverändertem Vollstate.
 Ein akzeptierter und zurückgerollter Dimensionsfall ist kein Negativ-PASS.
 

@@ -21,14 +21,14 @@ SQLimplementierung in dieser Designwelle.
 | Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
 | Stand | 2026-10-08 |
 | Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64 sowie begrenzter SQL-Producer aus Pull Request 65; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
-| Bezug | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
+| Bezug | [Aktueller Ausführungsstand](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |
 
 ## 1. Planungsgrundlagen
 
 Der gezielte Benutzerauftrag vom 2026-10-09 betrifft Prüfung und Abschluss von
 PR 68 sowie DEC-069; der [G13-/PR-Review](DGN_007_G13_PR_REVIEW.md) führt diesen
-isolierten Diagnoseschnitt. Er verlangt erfolgreiche relevante aktuelle CI,
+isolierten Diagnoseschnitt. Er verlangt erfolgreiche relevante aktuelle CI (Continuous Integration; automatisierte Integrationsprüfungen),
 ohne G13 oder die offene Methodenentscheidung zu ändern. Die nachfolgende
 allgemeine Folgeplanung und die interne Capture-Rückgabe bleiben ausdrücklich
 zurückgestellt.
@@ -78,7 +78,7 @@ Loader, Consumption, Replay und unabhängig bereinigte eigene Worker bleiben
 getrennte Gates; die charakterisierte Fixture ist keine operative Workerbaseline.
 Die Wiederaufnahme ändert keine fachliche Freigabe oder offenen Methodengates.
 
-- `QRY-004`, `DGN-003`, `DGN-005`, `OPT-017` und alle neun Demos aus `W-COV-001` besitzen aktuelle Matrixnachweise aus GitHub Actions.
+- `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `DGN-003` (Abfragehistorie mit Query Store), `DGN-005` (Gezielte Ereigniserfassung mit Extended Events), `OPT-017` (Ungleich verteilte parallele Arbeit) und alle neun Demos aus `W-COV-001` besitzen aktuelle Matrixnachweise aus GitHub Actions.
 - `WARN_EMPIRICAL_VARIANCE` ist nur dort als Freigabeausgang zulässig, wo der Demo-Vertrag die empirische Abweichung ausdrücklich beschreibt und alle invarianten Ergebnis-, Sicherheits- und Cleanup-Verträge erfüllt sind.
 - Die Curriculum-Analyse verlangt kein neues Hauptmodul. Neue Arbeit erweitert deshalb nur bestehende Lernziele und Demo-IDs.
 - Jede Welle ist ein eigenständiger, kleiner Pull Request mit klarer Runtime-, Quellen- und Safety-Grenze. Öffentliche Herstellerdokumentation wird erst nach dem Source-Register-Delta-Review zu Lehrinhalt.
@@ -129,7 +129,7 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 
 | Reihenfolge | Welle | Ziel und abgegrenzter Umfang | Akzeptanzkriterium |
 |---:|---|---|---|
-| 1 | `LABSCN-005/DGN-007` | Capstone erst als eigenen Schnitt planen, nachdem Query-Store-/XE-Pilot und `CON-006` praktisch wiederverwendbare Evidenz- und Mehrsession-Verträge liefern. | Incident, Alternativhypothesen, Zeitfenster, Reset, Quellen und Teilnehmerübergabe sind vollständig; keine versteckte Lösung in Teilnehmerartefakten. |
+| 1 | `LABSCN-005/DGN-007` | Capstone erst als eigenen Schnitt planen, nachdem Query-Store-/XE-Pilot und `CON-006` (Zyklische Sperrkonflikte erkennen) praktisch wiederverwendbare Evidenz- und Mehrsession-Verträge liefern. | Incident, Alternativhypothesen, Zeitfenster, Reset, Quellen und Teilnehmerübergabe sind vollständig; keine versteckte Lösung in Teilnehmerartefakten. |
 | 2 | nächster `LABSCN-005`-Einzelslice | Nur einen Kandidaten mit eigenem Quellen-, Safety- und Detailreview auswählen; keine pauschale Infrastrukturwelle. | Lernmehrwert, Providerbedarf, Reset, Cleanup und versionsgebundene Aussage sind vor Implementierung eindeutig. |
 | 3 | weitere `LABINT-004`-Matrix | Nur für einen neu freigegebenen gelben Szenarioslice aktivieren. | Matrix und Cleanup prüfen ausschließlich die neue freigegebene Aussage. |
 
@@ -137,22 +137,22 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 
 | Welle | Status | Evidenzgrenze |
 |---|---|---|
-| `TSK-002` | `DECIDED_PLANNING` | Detailreview [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md) entscheidet den Capstone-Planungsschnitt; daraus folgt kein Implementierungsauftrag und kein Runtimestatus. |
+| `TSK-002` (Detailreview LABSCN-005/DGN-007: Capstone-Planungsschnitt mit Incident-, Hypothesen-, Zeitfenster-, Reset- und Teilnehmeruebergabevertrag) | `DECIDED_PLANNING` | Detailreview [LABSCN-005 – Detailreview DGN-007 (Planungsschnitt)](LABSCN_005_DGN_007_DETAIL_REVIEW.md) entscheidet den Capstone-Planungsschnitt; daraus folgt kein Implementierungsauftrag und kein Runtimestatus. |
 |---|---|---|
 | `W-STA-001` | `VALIDATED` | Lauf 33222989681 belegt die vollständige Matrix einschließlich der erwarteten empirischen Warnungen. |
 | `W-DGN-001` | `VALIDATED` | Lauf 33222989682 belegt alle zwölf Query-Store-/XE-Pilotläufe mit `PASS/OK`. |
 | `W-SCN-001` | `VALIDATED` | Project Adapter `0.1` und vollständiger SQL-Server-2025-Lifecycle sind auf Docker und Podman praktisch validiert. |
-| `W-ADV-017` | `VALIDATED` | Lauf 33447840232 belegt Actual DOP, Exchange, positive Threadarbeit und Cleanup auf allen drei Zielversionen. |
+| `W-ADV-017` | `VALIDATED` | Lauf 33447840232 belegt Actual DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Exchange, positive Threadarbeit und Cleanup auf allen drei Zielversionen. |
 | `W-SQL25-001` | `VALIDATED` | Quellen-, Claim- und Entscheidungsgrundlage ist abgeschlossen; daraus folgt keine neue Featuredemo. |
 | `W-PRS-001` | `VALIDATED` | 102 SlideKeys, drei Custom Shows, Build 41/66/102 und vollständige Master-/Profilrender liegen vor. |
-| `W-COV-001` | `VALIDATED` | Lauf 33222989644 belegt alle neun Demos; `CON-009` endet auch auf SQL Server 2019 zweimal mit `PASS/OK`. |
+| `W-COV-001` | `VALIDATED` | Lauf 33222989644 belegt alle neun Demos; `CON-009` (Kosten in tempdb unterscheiden) endet auch auf SQL Server 2019 zweimal mit `PASS/OK`. |
 | `W2-002` | `VALIDATED` | Neun `W2-A`-Altquellen sind nicht ausführbar; vier aktive Ersatzdemos und alle künftigen Neuaufbauten sind an synthetische, neutrale Datenverträge gebunden. |
-| `ADV-009` | `VALIDATED` | Runtimewarnung, Masterdeck, Notes, Hashbindung, vollständiger Render und Privacy-Freigabe sind synchron. |
-| `ADV-010` | `VALIDATED` | Fachliche, didaktische und technische Endabnahme grenzt verbleibende Designs ausdrücklich als Folgearbeit ab. |
+| `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) | `VALIDATED` | Runtimewarnung, Masterdeck, Notes, Hashbindung, vollständiger Render und Privacy-Freigabe sind synchron. |
+| `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) | `VALIDATED` | Fachliche, didaktische und technische Endabnahme grenzt verbleibende Designs ausdrücklich als Folgearbeit ab. |
 | `LABSCN-002` | `VALIDATED` | 22 produktive Demos sind vollständig mit Lifecycle, Provider, Ressourcen, Versionen, Reset und Evidenz inventarisiert. |
 | `LABSCN-004` | `VALIDATED` | Der generische Benutzerablauf für Auswahl, Start, Übergabe, Reset und Remove ist dokumentiert und statisch geprüft. |
 | `INF-002`/`INF-003` | `VALIDATED` | Docker und Podman melden `RESOURCE_OK`; der kompakte SQL-Server-2025-Lifecycle und Recovery-Pfad sind dokumentiert. |
-| `LABINT-003` | `VALIDATED` | Provider-Parität ist für `QRY-001`, `CON-004` und `DGN-005` praktisch belegt. |
+| `LABINT-003` | `VALIDATED` | Provider-Parität ist für `QRY-001` (Indexfreundliche Suchbedingungen), `CON-004` (Blockierungsketten verfolgen) und `DGN-005` praktisch belegt. |
 | `LABSCN-005/DGN-005` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `d5143f2a-…` und Podman-Run `82791985-…` führten die Teilnehmerphasen aus und endeten nach Start und Reset vollständig als `REMOVED`. |
 | `LABSCN-005/CON-006` | `VALIDATED` | Project Adapter `0.1`; Docker-Run `76cff6ed-…` und Podman-Run `6d2d0a51-…` belegten Opfer 1205, Survivor, Deadlock-Graph, geordnete Gegenprobe, Reset und `REMOVED`. |
 | `LABSCN-005/DGN-007` | `IMPLEMENTED_STATIC_SLICE_B` | Der nicht-promotende statische Teilnehmerfluss bestand am 2026-09-19 auf SQL Server 2025/Linux mit Docker (`ea802c20-…`) und Podman (`fba84720-…`): Adapter-Preflight, Install/Validate, alle sechs Teilnehmerstufen, Cleanup und Lab-Remove (`PASS`/`REMOVED`). Kontrollierte Negativtests auf Docker mit SQL Server 2019 (`5a12e48a-46df-471a-a266-4646ba3a02e2`) und 2022 (`139c68d8-8a22-42fb-ba19-b51059f21f2b`) ergaben kanonisch `ADAPTER_UNSUPPORTED_SQL_VERSION`, im Lab-Core `ADAPTER_UNSUPPORTED_CONTRACT`, keine DGN-Datenbank und `REMOVED`. Das ist keine 2019/2022-Fachunterstützung und keine Promotion, sondern ausschließlich der erwartete 2025-only-Skip-/Cleanup-Nachweis. Weiterhin keine `READY_FOR_USER`-Übergabe, keine Szenariopromotion und kein Nachweis für `scenario.json`, Manifest, Inventar oder vollständige Lifecycle-/Versionsmatrix. |
@@ -161,7 +161,7 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 | `DGN-007_QUERY_STORE_WINDOWS` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-06 bestanden je zwei vollständige Docker-Lifecycles auf 2019/150, 2022/160 und 2025/170; zwei disjunkte Katalogintervalle, gleiche Parameterlast, je vier Suchausführungen und unabhängiger Cleanup. [Nachweis](DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md). Runner und CI prüfen diesen Scope getrennt; kein Incident- oder Regressionsnachweis. |
 | `DGN-007_PROFILE_COMPARISON` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden gewichtete T0/T1-Metrikvergleiche auf allen drei Versionen je zweimal, einschließlich unabhängigem Cleanup. [Nachweis](DGN_007_PROFILE_COMPARISON_RUNTIME_EVIDENCE.md). Ohne Richtungsgate oder Incidentpromotion. |
 | `DGN-007_CONTROL_AB` / `BA` / `AA` | `IMPLEMENTED` mit lokalem Runtime-Nachweis | Am 2026-10-07 bestanden alle drei neutralen Kontrollfolgen auf jeder Version je zweimal; vollständige neue Reihenfolge mit 36 Lifecycles und unabhängigem Abbau aller drei eigenen Instanzen. Tatsächliche Requestfolge, aktive Plan-ID-/Hash-Union und Variation im [Nachweis](DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md). Ein 2019-BA-Duration-Kontrast liegt innerhalb beobachteter AA-Variation; keine Incidentfreigabe. |
-| prospektiver `DGN-007`-Prüfvertrag | `STATIC_PROSPECTIVE_CONTRACT` | `DEC-068`, reine Record-/Separationsprüfung, 34 synthetische Tests und Quellenvalidator lokal PASS. [Vertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md). Keine SQL-Runtime-Abnahme; Collector und frische Bestätigungsläufe bleiben offen. |
+| prospektiver `DGN-007` (Zeitabhängige Regression eines Suchworkloads)-Prüfvertrag | `STATIC_PROSPECTIVE_CONTRACT` | `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen), reine Record-/Separationsprüfung, 34 synthetische Tests und Quellenvalidator lokal PASS. [Vertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md). Keine SQL-Runtime-Abnahme; Collector und frische Bestätigungsläufe bleiben offen. |
 | skalarer `DGN-007`-Collector-Transport | `STATIC_COLLECTOR_TRANSPORT` | Reiner JSON-Decoder mit genauer Decimal-/100-ns-Darstellung, 19 Transporttests und beide Validatoren lokal PASS; 34 Prospektivtests bleiben grün. [Transportgrenze](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/COLLECTOR_TRANSPORT.md). Keine SQL-Erfassung oder vollständigen RunRecords; fehlende Request-Ergebniszeilen bleiben `NOT_CAPTURED`/`None`. |
 
 ## 3. SQL-Server-2025-Delta: abgeschlossene Entscheidungen
@@ -174,7 +174,7 @@ Der abgeschlossene Delta-Review dokumentiert folgende Zuordnung:
 | Optimiertes `sp_executesql` | `QRY-004`, `OPT-007` | `DEFER`; eine spätere Concurrent-Compile-Detailanalyse ist nach der nun belegten `QRY-004`-Freigabe zulässig |
 | zeitgebundene Extended-Events-Sessions | `DGN-005` | `ADOPT`; optionaler Engine-17-Schutzpfad |
 | TempDB Space Resource Governance | `CON-009`, `RES-004` | `DEFER`; roter Safety- und Infrastrukturvertrag erforderlich |
-| Ordered nonclustered Columnstore | `IDX-010` | `DEFER`; gelbes Detaildesign erforderlich |
+| Ordered nonclustered Columnstore | `IDX-010` (Columnstore-Segmente gezielt überspringen) | `DEFER`; gelbes Detaildesign erforderlich |
 | Query Store auf lesbaren Secondary Replicas | kein unmittelbarer Slice | `DEFER`; Preview- und Mehrinstanzabhängigkeit |
 
 Vector- und KI-Funktionen liegen außerhalb des derzeitigen Curriculumzuschnitts. Der Review verwendet als Ausgangspunkt die offiziellen Microsoft-Dokumentationen zu [SQL Server 2025](https://learn.microsoft.com/sql/sql-server/what-s-new-in-sql-server-2025?view=sql-server-ver17), [Extended Events](https://learn.microsoft.com/sql/relational-databases/extended-events/sql-server-extended-events-sessions?view=sql-server-ver17) und [Query Store auf Secondary Replicas](https://learn.microsoft.com/sql/relational-databases/performance/query-store-for-secondary-replicas?view=sql-server-ver17); vor einer Inhaltsübernahme muss der Projekt-Quellenregisterprozess durchlaufen werden.
@@ -306,7 +306,7 @@ Fixtures PASS; sechs Präfix-Lifecycles PASS, AB1 FAIL mit sofortigem Stop,
 keine AB2/BA/AA oder erfolgreiche AB-Capture. Sieben erste DB-Abwesenheits-
 prüfungen, vier Gruppen-Leerheitsprüfungen und eigener Containerabbau PASS;
 CID/Name unabhängig abwesend, Freeze mit 27 Dateien unverändert. Zusätzliche
-Projektion/DML sind Beobachterinstrumentierung, keine identische kanonische
+Projektion/DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) sind Beobachterinstrumentierung, keine identische kanonische
 Timingprüfung und kein historischer CI-Ursachenbeweis.
 
 Der quellenbasierte [Mess-/Zuordnungsgegenentwurf](DGN_007_CAPTURE_ASSIGNMENT_DESIGN.md)
@@ -348,7 +348,7 @@ Kein Token ist eine reale QS-Einzelidentität. Das konkrete
 [Methodenentscheidungspaket](DGN_007_METHOD_DECISION_PACKAGE.md) ist vorbereitet:
 Gate-Matrix mit Acquisition-/Count- und konservativem Floatkandidaten, tatsächlicher
 Freeze-/Actor-/CID-/Host-/Zugangsgrenze und Kostenplan innerhalb 145/180/60 Sekunden
-und 4 CPU/8 GiB. Alle Methodengates bleiben offen; Einzelmaxima sind keine
+und 4 CPU (Central Processing Unit; Prozessor)/8 GiB. Alle Methodengates bleiben offen; Einzelmaxima sind keine
 gemeinsame Machbarkeitsevidenz. Der [Offline-Quellenbundle-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md)
 ist statisch implementiert: feste 27 Mitglieder, Gitblob-/Rohbytebindung,
 separate LF-Äquivalenz und deklarierte AST-Imports samt Manipulationsfixtures.
@@ -410,7 +410,7 @@ interaktive Docker-/Podman-Abnahme; deren offene Gates bleiben bestehen.
 
 Der Capstone-Planungsschnitt ist mit `TSK-002` entschieden
 (`DECIDED_PLANNING`, Detailreview
-[`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](LABSCN_005_DGN_007_DETAIL_REVIEW.md)).
+[LABSCN-005 – Detailreview DGN-007 (Planungsschnitt)](LABSCN_005_DGN_007_DETAIL_REVIEW.md)).
 Implementierungsschnitt A (Project Adapter `0.1` mit Datenaufbau,
 Query-Store-Zeitfenstern und Incident-Erzeugung ohne Mitigationsmarker) besitzt
 seit dem 2026-09-14 die praktische Docker-/Podman-Lifecycle-Abnahme: Docker-Run

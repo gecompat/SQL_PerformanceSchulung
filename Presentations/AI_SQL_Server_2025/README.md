@@ -27,7 +27,7 @@ Präsentation bleiben bei diesem Export unverändert.
 Für den vierstündigen Einstieg steht die abgeleitete
 [BASIS-Präsentation mit 39 Folien](../SQL_Server_2025_KI_BASIS.pptx) bereit.
 Der [Kursleitfaden](../../Documentation/HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md)
-enthält den vollständigen Ablauf, zwei praktische Übungen, die RAG-Leseaufgabe,
+enthält den vollständigen Ablauf, zwei praktische Übungen, die Leseaufgabe zu quellengestützter Antworterzeugung (Retrieval-Augmented Generation, RAG),
 Beobachtungsbogen und Ausfallpfad. Die
 [Generalprobe](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_BASIS_REHEARSAL.md)
 trennt technische Durchführung und redaktionelle Prüfung von Teilnehmererprobung.
@@ -42,7 +42,7 @@ weiterhin ausschließlich den vollständigen Foliensatz. Der BASIS-Export schrei
 Präsentation wird dabei nicht überschrieben.
 
 Die [editierbare PowerPoint-Präsentation](../SQL_Server_2025_KI.pptx) enthält
-61 deutschsprachige Folien für `CUR-013` bis `CUR-022`, davon 27 neue
+61 deutschsprachige Folien für `CUR-013` (KI-Grundlagen für SQL-Server-Fachleute) bis `CUR-022` (Architektur, Kosten und kontrollierte Agenten), davon 27 neue
 Einführungsfolien vor den bisherigen Fachmodulen. Texte, Tabellen und
 Sprechernotizen sind native PowerPoint-Objekte. Die Notizen enthalten
 Moderation, konkrete Demoaufrufe und Quellen aus dem bestehenden Quellenregister.
@@ -57,7 +57,7 @@ und sein Variantenmanifest bleiben eigenständige bestehende Artefakte.
 
 Der gemeinsame Einstieg setzt keine KI-Erfahrung voraus. Ein synthetischer
 Wissensbasisfall führt von einer bekannten SQL-Abfrage zu einer Frage in
-Alltagssprache. Die Einführung erklärt KI, Modell, Training, Inferenz,
+Alltagssprache. Die Einführung erklärt KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen), Modell, Training, Inferenz,
 Sprachmodell und Embedding jeweils vor der ersten Verwendung in der Übung.
 Sichtbare Voraussetzungen, typische Hindernisse und nächste Schritte helfen
 bei Version, Client, eigener Labinstanz, Rechten und späterem Modellzugang.
@@ -77,14 +77,14 @@ keine gemessene Kursdauer. Die bisherigen Zeitplanungen von 150/390/640 Minuten
 belegen keine Lehrdauer der erweiterten Fassung. Die angeleitete Vorführung
 führt keine neue bewertete Arbeitsheftaufgabe oder Rubrik ein.
 
-Die Reihenfolge deckt Grundlagen, Vektoren, Chunking, Modellpfade, Suche/RAG,
-Security, ANN, Performance, SQL-Assistenz und Entscheidung ab. Neun
+Die Reihenfolge deckt Grundlagen, Vektoren, Chunking, Modellpfade, Suche/RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen),
+Security, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Performance, SQL-Assistenz und Entscheidung ab. Neun
 IMPLEMENTED-Demos und neun PROPOSED-Entwürfe sind ausdrücklich getrennt.
 Die vorgeschlagenen Lehrzeiten sind nicht erprobt. Vollständige Lehrpfad-,
-TP-PERF-, Teilnehmer- und Generalprobenabnahme stehen weiterhin aus.
+Performance-Testprofil-, Teilnehmer- und Generalprobenabnahme stehen weiterhin aus.
 
 Die [konkreten Teaching Paths](../../Documentation/HowTo/SQL_SERVER_2025_AI_TEACHING_PATHS.md)
-planen90 Netto-Minuten für den gemeinsamen Einstieg. Die aktuellen kanonischen
+planen 90 Netto-Minuten für den gemeinsamen Einstieg. Die aktuellen kanonischen
 Bruttofenster betragen vier Stunden für BASIS, einen Unterrichtstag für STANDARD
 und zwei Tage für VERTIEFUNG; Pausen und Nettolehrzeit sind getrennt.
 STANDARD enthält den vorbereiteten Offlinekern mit acht Arbeitsheftaufgaben.
@@ -102,12 +102,12 @@ ergänzt die Durchführung. Lösungen und Rubrik bleiben ausschließlich im
 [Arbeitsheft](../../Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md).
 
 Die lokale Offlinequalifikation betrifft Linux/Docker und den ergänzenden
-Podmanpfad der acht Basisdemos. `CON-010` besitzt einen eigenen begrenzten
+Podmanpfad der acht Basisdemos. `CON-010` (Daten verschiedener Mandanten trennen) besitzt einen eigenen begrenzten
 Consumer-/Versionsnachweis. Windows, andere Editionen, Serverlogins und
 Verbindungspooling werden daraus nicht abgeleitet. Live-Provider, Cloud und
-ONNX besitzen eigene Freigaben. Der öffentliche Provider-Livepfad bleibt
-wegen `DEC-033`/SQLcmd-P blockiert. Zwei private DGN-010-Original-Readerplanprofile
-sind belegt. Vollständige Runtime-/TP-PERF-Abnahme und Indexnettonutzen bleiben
+ONNX (Open Neural Network Exchange; Austauschformat für Modelle) besitzen eigene Freigaben. Der öffentliche Provider-Livepfad bleibt
+wegen der dokumentierten Entscheidung zur Kennwortübergabe (`DEC-033`) und der Sicherheitsgrenze des SQLcmd-Pfads blockiert. Zwei private Original-Readerplanprofile der Indexberatung (DGN-010)
+sind belegt. Vollständige Runtime-/Performance-Testprofil-Abnahme und Indexnettonutzen bleiben
 `NOT_ESTABLISHED`.
 
 Die fachliche Recherchebindung des Decks ist `origin/main` bei
@@ -116,7 +116,7 @@ Readerplanaussage auf Folie 58 ist auf main
 `4bfb1914623c3c49fcc287ee8079013a0fad6ddb` aktualisiert. Der integrierte
 [Readerplan-UTC-Nachweis](../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_READER_CLOCK_REVIEW.md)
 belegt zwei private vollständige Original-Readerplanprofile.
-Die öffentlichen Producer und vollständige Runtime-/TP-PERF-/Nettonutzengates
+Die öffentlichen Producer und vollständige Gates für Runtime, Performance-Testprofile und Nettonutzen
 bleiben davon getrennt. Dieser zusätzliche Nachweis hebt die allgemeine
 Unterrichts- oder Performancegrenze des Decks nicht auf.
 
@@ -162,7 +162,7 @@ Geometrie und finaler Import werden weiter am vollständigen Deck geprüft.
 
 Die Neutralisierung erhält den Namespacepräfix `dcterms` auch für den
 Attributwert `xsi:type="dcterms:W3CDTF"` in den Datumsmetadaten. Wohlgeformtes
-XML und ein erfolgreicher Rendererimport reichen dafür nicht: ein ungebundener
+XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) und ein erfolgreicher Rendererimport reichen dafür nicht: ein ungebundener
 Präfix in diesem Attributwert führte beim ersten Export zur Ablehnung durch
 PowerPoint. Der Regressionstest `Tests/Static/test_ai_presentation_package.py`
 prüft die auflösbaren Datums-QNames am synthetischen Export und am veröffentlichten

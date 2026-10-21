@@ -13,7 +13,7 @@ Der öffentliche Default bleibt unverändert. Nur die feste Python-API-Option
 fault='after_setup' oder fault='after_index_build' aktiviert einen
 kontrollierten PhaseStop/FAIL_EXECUTION; keine freie Callback- oder SQL-Eingabe.
 Nach Setup ist die eigene DB-ID, persistierte Originalbaseline und vollständige
-Snapshotbindung geprüft; Preview/MAXDOP wurden noch nicht aktiviert.
+Snapshotbindung geprüft; Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) wurden noch nicht aktiviert.
 Nach Indexbau steht der Fehlerpunkt erst nach vier positiven DML-Kontrollen,
 vier tatsächlichen 42231-Verweigerungen, vollständigen eigenen Indexmetadaten,
 aktuellem Snapshot und unabhängiger 999-Row-Quellen-/Distanzprüfung.

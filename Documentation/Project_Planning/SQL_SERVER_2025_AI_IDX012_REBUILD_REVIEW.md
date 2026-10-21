@@ -23,7 +23,7 @@ Beide Läufe: 17.0.5005.3, eigene IDX-012-DB/Marker, 999 VECTOR(3)-Rows,
 vier CPUs/sechs GiB, gleiches vorhandenes Image wie im DML-Grenzenbefund.
 Die vorangehenden vier erfolgreichen DML-Kontrollen ohne Index und vier
 tatsächlichen Verweigerungen mit Index bestanden. Beide Originalbaselines
-Preview/MAXDOP 0/0 tatsächlich restauriert; separate DB- sowie eigene CID-/
+Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0/0 tatsächlich restauriert; separate DB- sowie eigene CID-/
 Namensabwesenheit bestanden. Beide Admissionen geschlossen mit tatsächlichem FAIL.
 
 Kandidat 2 änderte ausschließlich [RowCount]/[IndexCount]. Enger unabhängiger
@@ -31,7 +31,7 @@ Review bestätigte unveränderte JSON-Felder und Wirkungen. Seine SQL-SHA256:
 0cc40dad6b3c661e83ae7208864e73234d0588161189ff5d346e42d410042b2d.
 Der Rohoutput enthält keine abgeschlossene Lifecycleaufnahme. Ob der Drop vor
 42231 tatsächlich ausgeführt wurde, ist mit dieser Ausgabe nicht attestiert.
-Eine Bindung der statischen DML an den vorher vorhandenen Index ist eine
+Eine Bindung der statischen DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) an den vorher vorhandenen Index ist eine
 Hypothese; das tatsächliche Compile-/Dropverhalten bleibt zu diagnostizieren.
 Generation UNKNOWN, Freshness NOT_ESTABLISHED, keine Rebuild-/TP-PERF-Abnahme.
 
@@ -119,7 +119,7 @@ Alle fünf Suchkontrollen stimmen in beiden Läufen überein:
 
 | Phase/Pfad | tatsächliche distanzgeprüfte Top-5-IDs |
 |---|---|
-| Baseline Exact und ANN | 23, 40, 6, 63, 46 |
+| Baseline Exact und ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) | 23, 40, 6, 63, 46 |
 | nach Änderung ohne Index, Exact | 999, 23, 40, 6, 63 |
 | nach Rebuild, Exact und ANN | 999, 23, 40, 6, 63 |
 

@@ -24,13 +24,13 @@ Nicht Bestandteil sind universelle Grant-Schwellen, feste Spill-Mengen, eine pau
 
 ### 2.1 LAB-VP3 – Workspace Memory und Spills
 
-`OPT-014` → `OPT-013` → `RES-004` → `RES-003` → `RES-007` → `DGN-005`
+`OPT-014` → `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) → `RES-004` → `RES-003` → `RES-007` (Wartezeiten im richtigen Messbereich) → `DGN-005` (Gezielte Ereigniserfassung mit Extended Events)
 
 Der reguläre Schulungspfad umfasst `OPT-014`, `OPT-013`, `RES-004`, `RES-007` und `DGN-005`. `RES-003` ist eine rote, optionale Erweiterung. Sie darf nur auf einer dedizierten, wegwerfbaren Instanz mit begrenztem Ressourcenprofil ausgeführt werden. Die Serie wird ohne roten Teil auf 75 bis 105 Minuten und mit rotem Teil auf 105 bis 145 Minuten geplant.
 
 ### 2.2 LAB-VP4 – Intelligent Query Processing 2019–2025
 
-`QRY-008` → `QRY-009` → `OPT-014` → `OPT-009` → `OPT-006` → `RES-002` → `OPT-010`
+`QRY-008` → `QRY-009` → `OPT-014` → `OPT-009` (Parametersensitive Planoptimierung) → `OPT-006` → `RES-002` → `OPT-010` (Planoptimierung für optionale Parameter)
 
 Die Serie verwendet getrennte Queryfamilien und Datenmodelle. Sie ist kein einzelner überladener Featurevergleich. Abhängig von Version und Eligibility entstehen `PASS`, `SKIP_FEATURE_UNAVAILABLE`, `SKIP_FEATURE_DISABLED`, `SKIP_FEATURE_NOT_ELIGIBLE` oder `SKIP_QUERY_STORE_REQUIRED`. Die geplante Dauer beträgt 95 bis 140 Minuten.
 
@@ -51,7 +51,7 @@ LAB-VP4 verwendet pro Featurefamilie ein eigenes minimales Datenmodell. Gemeinsa
 
 ### 4.1 OPT-014 – Grantstufen und Memory Grant Feedback
 
-Die Demo misst Required, Desired, Requested, Granted und Max Used Memory derselben markierten Ausführung. Plan XML und `sys.dm_exec_query_memory_grants` werden zeitlich und über Session-/Requestbezug korreliert. Wiederholte Ausführungen prüfen, ob und wie sich der Grant verändert.
+Die Demo misst Required, Desired, Requested, Granted und Max Used Memory derselben markierten Ausführung. Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) und `sys.dm_exec_query_memory_grants` werden zeitlich und über Session-/Requestbezug korreliert. Wiederholte Ausführungen prüfen, ob und wie sich der Grant verändert.
 
 Verbindliche Evidenz:
 
@@ -59,13 +59,13 @@ Verbindliche Evidenz:
 - Requested, Granted und Used Memory,
 - Estimated und Actual Rows,
 - Spill-Warnings, soweit vorhanden,
-- Logical Reads, CPU, Duration und Ergebnischecksumme,
+- Logical Reads, CPU (Central Processing Unit; Prozessor), Duration und Ergebnischecksumme,
 - Ausführungsnummer und Query-Store-Zustand,
 - versionsbezogener Feedbackmodus.
 
 Eine Grantänderung ist kein stabiler Golden Value. Bewertet werden Richtung, Stabilisierung und Nebenwirkung. Bleibt Feedback wegen fehlender Eligibility aus, endet der Teil mit `SKIP_FEATURE_NOT_ELIGIBLE`.
 
-**Sicherheitsstufe:** Gelb. **Sessions:** 1. **Mindestprofil:** 2 Kerne, 4 GB. **Quellen:** `SRC-009`, `SRC-010`, `SRC-050`.
+**Sicherheitsstufe:** Gelb. **Sessions:** 1. **Mindestprofil:** 2 Kerne, 4 GB. **Quellen:** `SRC-009`, `SRC-010`, `SRC-050` (A Little About Memory Grants in SQL Server Query Plans).
 
 ### 4.2 OPT-013 – operatorbezogener Spill
 
@@ -148,16 +148,16 @@ Erfasst werden nur synthetische Querymarker und die für den LAB-Schritt benöti
 
 | Feature | Erste Zielversion | Mindest-CL | Datenbankkonfiguration | Query Store | Demo | Erwartung älterer Versionen |
 |---|---:|---:|---|---|---|---|
-| Interleaved Execution für MSTVF | 2019 | 140 | featurebezogene Konfiguration nicht deaktiviert | nicht als Featurevoraussetzung | `QRY-009` | in allen Zielversionen prüfbar |
+| Interleaved Execution für MSTVF (Multi-Statement Table-Valued Function; tabellenliefernde Funktion mit mehreren Anweisungen) | 2019 | 140 | featurebezogene Konfiguration nicht deaktiviert | nicht als Featurevoraussetzung | `QRY-009` | in allen Zielversionen prüfbar |
 | Table Variable Deferred Compilation | 2019 | 150 | Deferred Compilation nicht deaktiviert | nicht als Featurevoraussetzung | `QRY-008`, `OPT-013` | `SKIP_FEATURE_DISABLED` bei deaktivierter Konfiguration |
-| Scalar UDF Inlining | 2019 | 150 | UDF Inlining nicht deaktiviert | nicht als Featurevoraussetzung | `QRY-009` | `SKIP_FEATURE_NOT_ELIGIBLE` bei nicht inlinebarer Ausprägung |
+| Scalar UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining | 2019 | 150 | UDF Inlining nicht deaktiviert | nicht als Featurevoraussetzung | `QRY-009` | `SKIP_FEATURE_NOT_ELIGIBLE` bei nicht inlinebarer Ausprägung |
 | Batch Mode on Rowstore | 2019 | 150 | Batch Mode on Rowstore nicht deaktiviert | nicht als Featurevoraussetzung | `OPT-006`, `RES-002` | keine Performancezusage; Eligibility nachweisen |
 | Row-Mode Memory Grant Feedback | 2019 | 150 | MGF nicht deaktiviert | für Basismodus nicht zwingend | `OPT-014` | Feedbackzustand und Wiederholungen dokumentieren |
 | persistentes/perzentilbasiertes MGF | 2022 | 160 | MGF nicht deaktiviert | `READ_WRITE` erforderlich | `OPT-014` | 2019: `SKIP_FEATURE_UNAVAILABLE` |
 | Parameter Sensitive Plan Optimization | 2022 | 160 | PSP nicht deaktiviert | für Historienevidenz aktiviert | `OPT-009` | 2019: `SKIP_FEATURE_UNAVAILABLE` |
-| Cardinality Estimation Feedback | 2022 | 160 | Feature nicht deaktiviert | `READ_WRITE` erforderlich | `OPT-006`, `DGN-003` | 2019: `SKIP_FEATURE_UNAVAILABLE` |
+| Cardinality Estimation Feedback | 2022 | 160 | Feature nicht deaktiviert | `READ_WRITE` erforderlich | `OPT-006`, `DGN-003` (Abfragehistorie mit Query Store) | 2019: `SKIP_FEATURE_UNAVAILABLE` |
 | Degree of Parallelism Feedback | 2022 | 160 | Feature nicht deaktiviert | `READ_WRITE` erforderlich | `RES-002`, `DGN-003` | 2019: `SKIP_FEATURE_UNAVAILABLE` |
-| Optional Parameter Plan Optimization | 2025 | 170 | OPPO aktiviert | für Variantenhistorie aktiviert | `OPT-010`, `QRY-004` | 2019/2022: `SKIP_FEATURE_UNAVAILABLE` |
+| Optional Parameter Plan Optimization | 2025 | 170 | OPPO aktiviert | für Variantenhistorie aktiviert | `OPT-010`, `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) | 2019/2022: `SKIP_FEATURE_UNAVAILABLE` |
 
 Die konkreten Konfigurationsnamen werden während der Implementierung aus der Zielversion ermittelt und gegen die Microsoft-Primärquellen im Quellenregister geprüft. Die Tabelle beschreibt den Designvertrag, nicht die Erlaubnis, Konfigurationen auf fremden Datenbanken zu verändern.
 
@@ -229,7 +229,7 @@ Kein roter Schnitt darf gemeinsam mit grünen oder gelben Demos in einen Pull Re
 
 ## 10. Quellen
 
-Verbindliche Primärquellen: `SRC-001`, `SRC-007` bis `SRC-010`, `SRC-026`, `SRC-027`, `SRC-029`, `SRC-031`, `SRC-035`, `SRC-036`. Ergänzende Fachquellen: `SRC-043`, `SRC-050`, `SRC-051`. Community-Quellen begründen keine Featureverfügbarkeit oder universelle Schwellenwerte.
+Verbindliche Primärquellen: `SRC-001` (Query processing architecture guide), `SRC-007` bis `SRC-010`, `SRC-026`, `SRC-027` (Monitor performance by using the Query Store), `SRC-029` (tempdb database), `SRC-031` (Display an actual execution plan), `SRC-035` (sys.dm_os_wait_stats), `SRC-036` (sys.dm_os_waiting_tasks). Ergänzende Fachquellen: `SRC-043` (Parallel Execution Plans – Branches and Threads), `SRC-050`, `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents). Community-Quellen begründen keine Featureverfügbarkeit oder universelle Schwellenwerte.
 
 ## 11. Statusgrenze
 

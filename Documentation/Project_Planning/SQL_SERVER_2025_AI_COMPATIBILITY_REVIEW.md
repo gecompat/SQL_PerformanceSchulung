@@ -10,7 +10,7 @@ Drei neue eigene Podmancontainer verwendeten den vorhandenen Tag
 2025-CU9-ubuntu-24.04 mit vollständiger lokaler Image-ID
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`.
 SQL meldete jeweils 17.0.5005.3, Enterprise Developer/EngineEdition 3, Ubuntu 24.04.
-4 CPU/6 GB, eigener Loopbackport, zeitbegrenzte native SQLCMD-Aufrufe und
+4 CPU (Central Processing Unit; Prozessor)/6 GB, eigener Loopbackport, zeitbegrenzte native SQLCMD-Aufrufe und
 SQLCMDPASSWORD ausschließlich in der Umgebung begrenzten die private Probe.
 Nur die eigene frische Datenbank SQLPERF_AI_CL_PROBE wurde verändert: SIMPLE,
 256/64-MB-Dateilimits und vier vollständige Eigentumsmarker. Kein Preview,

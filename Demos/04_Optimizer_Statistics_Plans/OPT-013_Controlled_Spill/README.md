@@ -28,11 +28,11 @@ Die Demo definiert keinen universellen Memory-Grant-Schwellenwert und empfiehlt 
 
 ## 4. Voraussetzungen
 
-SQL Server 2019 bis 2025, Compatibility Level 150 bis 170, `CREATE DATABASE` und versionsgerechte Server-State-Sichtbarkeit. Mindestanforderungen sind 2 logische CPU-Kerne, 3 GB RAM und 700 MB freier Datenträgerspeicher. Es ist nur eine Instanz erforderlich.
+SQL Server 2019 bis 2025, Compatibility Level 150 bis 170, `CREATE DATABASE` und versionsgerechte Server-State-Sichtbarkeit. Mindestanforderungen sind 2 logische CPU-Kerne, 3 GB RAM (Random Access Memory; Arbeitsspeicher) und 700 MB freier Datenträgerspeicher. Es ist nur eine Instanz erforderlich.
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-Die Demo ist gelb, weil 300.000 breite Zeilen mehrfach sortiert und ein kontrollierter TempDB-Spill erzeugt werden. Das Harness verlangt `--confirm-isolated-lab`; die maximale Laufzeit beträgt 360 Sekunden. Jede Workloadabfrage verwendet `MAXDOP 1`. Es werden keine globalen Caches geleert, keine Serveroptionen verändert und keine fremden Objekte bearbeitet. Timeout und Cleanup folgen `FWK-008` und `FWK-010`.
+Die Demo ist gelb, weil 300.000 breite Zeilen mehrfach sortiert und ein kontrollierter TempDB-Spill erzeugt werden. Das Harness verlangt `--confirm-isolated-lab`; die maximale Laufzeit beträgt 360 Sekunden. Jede Workloadabfrage verwendet `MAXDOP 1`. Es werden keine globalen Caches geleert, keine Serveroptionen verändert und keine fremden Objekte bearbeitet. Timeout und Cleanup folgen `FWK-008` (Sicherheits- und Abbruchvertrag) und `FWK-010` (Runtime-Harness-Vertrag).
 
 ## 6. Synthetisches Datenmodell
 
@@ -53,7 +53,7 @@ Die Demo ist gelb, weil 300.000 breite Zeilen mehrfach sortiert und ein kontroll
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-013`.
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher).
 2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `YELLOW`. Bestätigen Sie vor dem Start die isolierte Laborinstanz mit `-ConfirmIsolatedLab`.
 3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-013 -Server $server -Authentication $authentication -Username $username -ConfirmIsolatedLab` aus.
 4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
@@ -84,8 +84,8 @@ Die konkrete Spill-Seitenzahl hängt von verfügbarem Speicher, Engine-Build und
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
 | `SRC-007` | Intelligent Query Processing und Table Variable Deferred Compilation | SQL Server 2019–2025; CL 150+ | 2026-07-24 |
-| `SRC-008` | Detailgrenzen der Table Variable Deferred Compilation | versions- und CL-abhängig | 2026-07-24 |
-| `SRC-029` | TempDB- und Spill-Evidenz | SQL Server 2019–2025 | 2026-07-24 |
+| `SRC-008` (Intelligent query processing features in detail) | Detailgrenzen der Table Variable Deferred Compilation | versions- und CL-abhängig | 2026-07-24 |
+| `SRC-029` (tempdb database) | TempDB- und Spill-Evidenz | SQL Server 2019–2025 | 2026-07-24 |
 | Microsoft Learn: `sys.dm_exec_query_stats` | Grant- und Spillzähler | SQL Server 2019–2025 | 2026-07-24 |
 
 ## 14. Traceability

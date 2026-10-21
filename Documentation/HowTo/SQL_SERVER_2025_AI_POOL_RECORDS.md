@@ -77,6 +77,6 @@ C3-PASS und die Grenze des aktuellen Consumers stehen im
 Für diesen statischen Schnitt werden keine Modelle, Dienste, Container oder SQL
 aufgerufen. Ein einmaliger Konsum vorhandener unveränderter C3-Belege erfolgt erst
 nach dem engen Quellenreview. Ein öffentlicher authentifizierter Poolproducer mit
-RED-isolated-Login-DDL, tatsächlichen Capture-/Admission-/Recoverygates ist ein
+RED-isolated-Login-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten), tatsächlichen Capture-/Admission-/Recoverygates ist ein
 separater Folgeumfang. Keine TLS-/Passwort-/Seitenkanal-/Performance- oder allgemeine
 TSK-009-Abnahme folgt aus diesen Zahlen.

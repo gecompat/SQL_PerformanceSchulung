@@ -22,7 +22,7 @@ Gleicher Querytext garantiert keine identischen Ausführungsbedingungen. Ein abw
 
 ## 3. Nichtziel
 
-Die Demo behauptet nicht, dass ein bestimmter Client, Treiber oder SSMS die Ursache ist, und sie prüft keine realen Applikationen oder Treiberdefaults. Sie leitet keine pauschale Empfehlung wie „ARITHABORT immer auf ON setzen" ab. Die Profile heißen deshalb `CLIENT_PROFILE_A` und `CLIENT_PROFILE_B` und setzen ihre Optionen ausschließlich explizit.
+Die Demo behauptet nicht, dass ein bestimmter Client, Treiber oder SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) die Ursache ist, und sie prüft keine realen Applikationen oder Treiberdefaults. Sie leitet keine pauschale Empfehlung wie „ARITHABORT immer auf ON setzen" ab. Die Profile heißen deshalb `CLIENT_PROFILE_A` und `CLIENT_PROFILE_B` und setzen ihre Optionen ausschließlich explizit.
 
 ## 4. Voraussetzungen
 
@@ -43,7 +43,7 @@ Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `S
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-013` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Sessionprofil-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Sessionprofil-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -84,10 +84,10 @@ Die Zuordnung eines Cacheeintrags zu einem Sessionkontext ist nur solange auswer
 
 | Quellen-ID | Aussagebezug |
 |---|---|
-| `SRC-001` | Ausführungspläne und Sessionkontext |
-| `SRC-027` | Kompilierung und Parameterverhalten |
-| `SRC-040` | Planattribute und Cacheschlüssel |
-| `SRC-046` | Unterschiedliche Laufzeit zwischen Anwendung und Werkzeug |
+| `SRC-001` (Query processing architecture guide) | Ausführungspläne und Sessionkontext |
+| `SRC-027` (Monitor performance by using the Query Store) | Kompilierung und Parameterverhalten |
+| `SRC-040` (Plan properties) | Planattribute und Cacheschlüssel |
+| `SRC-046` (Slow in the Application, Fast in SSMS?) | Unterschiedliche Laufzeit zwischen Anwendung und Werkzeug |
 
 ## 14. Traceability
 

@@ -39,7 +39,7 @@ Alle 13 Statebereiche, vollständigen Feldmengen, Populationen und skalaren Type
 werden geprüft. Nullable Felder verlangen ihren konkreten SQL-Ausgabetyp oder NULL;
 Bool-/Floataliaswerte gelten nicht als Integer. Markername und -wert werden aus
 vollständigen UTF-16-Bytes mit tatsächlichen Längen geprüft. Sourcewerte/-bytes,
-Original-PK, Konfiguration, Dateien, Rechte und Reader bleiben gebunden.
+Original-PK (Primary Key; Primärschlüssel), Konfiguration, Dateien, Rechte und Reader bleiben gebunden.
 
 Jeder DDL-Record bindet den UTF-16-Digest des festen tatsächlich ausgeführten Texts,
 Cycle, DB/Source, vollständige gehaltene Index-/Spalten-Lease und dieselbe fünfteilige
@@ -59,7 +59,7 @@ bleiben FAIL. Vorhandene Nativequellen und deren frühere Prüfungen werden nich
 
 Je CREATE/DROP werden beide Samples, n2, Min/Max, Nullanzahl und exakter dezimaler
 Mediantext für ElapsedUs und die vier Requestcounter erhalten. Große gültige
-int64-Samples werden nicht durch Floatmediane gerundet. CPU/I/O umfasst die eigenen
+int64-Samples werden nicht durch Floatmediane gerundet. CPU (Central Processing Unit; Prozessor)/I/O (Input/Output; Ein- und Ausgabezugriffe) umfasst die eigenen
 Countergrenzen; UTC begrenzt den EXEC-Bereich. Keine isolierten Worker-, Compile-,
 Log-, Commit- oder vollständigen Lifecyclekosten daraus ableiten.
 

@@ -25,7 +25,7 @@ Jede Demo setzt im Preflight mindestens folgende Werte:
 | `@MinimumCompatibilityLevel` / `@MaximumCompatibilityLevel` | unterstützte Datenbank-Compatibility-Level |
 | `@TargetDatabase` | erwartete synthetische Testdatenbank, sofern vorhanden |
 | Berechtigungsflags | nur tatsächlich benötigte Server- und Datenbankberechtigungen |
-| Sicherheitsbestätigungen | abhängig von `FWK-008` |
+| Sicherheitsbestätigungen | abhängig von `FWK-008` (Sicherheits- und Abbruchvertrag) |
 | Ressourcenlimits | nur wenn die Kernaussage eine definierte Mindest- oder Maximalressource benötigt |
 
 Nicht benötigte Prüfungen bleiben deaktiviert. Ein Preflight darf keine pauschalen Administratorrechte verlangen, wenn eine engere Berechtigung ausreicht.
@@ -38,7 +38,7 @@ Nicht benötigte Prüfungen bleiben deaktiviert. Ein Preflight darf keine pausch
 4. erforderliche Berechtigungen.
 5. Sicherheitsfreigaben gemäß `FWK-008`.
 6. optionaler Ressourcen- und Freispeichercheck.
-7. konsolidiertes Ergebnis gemäß `FWK-012`.
+7. konsolidiertes Ergebnis gemäß `FWK-012` (Status-, Fehler- und Skip-Vertrag).
 
 Die Reihenfolge verhindert, dass ein späterer Check bereits voraussetzt, was ein früherer Check erst bestätigen soll.
 
@@ -58,7 +58,7 @@ Wenn eine Ziel-Datenbank erforderlich ist, werden mindestens Existenz, `ONLINE`-
 
 Berechtigungen werden mit `HAS_PERMS_BY_NAME` oder einer gleichwertigen dokumentierten Prüfung bewertet. Fehlende optionale Diagnoseberechtigungen führen zu `SKIP_PERMISSION`, nicht zu einer behaupteten fachlichen Fehlfunktion der Engine.
 
-SQL Server 2022 und neuer können für bestimmte DMVs `VIEW SERVER PERFORMANCE STATE` anstelle älterer, weiter gefasster Berechtigungen verlangen. Die Demo benennt exakt die von ihr verwendeten Objekte und prüft nur die dafür dokumentierte Berechtigung.
+SQL Server 2022 und neuer können für bestimmte DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) `VIEW SERVER PERFORMANCE STATE` anstelle älterer, weiter gefasster Berechtigungen verlangen. Die Demo benennt exakt die von ihr verwendeten Objekte und prüft nur die dafür dokumentierte Berechtigung.
 
 ### 4.4 Ressourcen
 

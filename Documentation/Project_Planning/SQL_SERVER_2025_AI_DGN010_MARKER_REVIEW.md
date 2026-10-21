@@ -23,7 +23,7 @@ Modell-/Tokenverbrauch unbekannt. Kein Provider-, Cloud-, ONNX-, roter Host- ode
 anderer Repositoryeffekt; nur bestehende ausdrückliche lokale Wellenfreigabe.
 
 Eigenes fixes Image, neue UUID-Namen, voller CID/Name/Image/Ownerlabel sowie
-vier CPU/sechs GiB vor Abbau gebunden; Loopback und Passwort ausschließlich ENV.
+vier CPU (Central Processing Unit; Prozessor)/sechs GiB vor Abbau gebunden; Loopback und Passwort ausschließlich ENV.
 1000 synthetische Rows, eigene DB SQLPERF_LAB_DGN010_LOCAL mit vier vollständigen
 Unicode-Eigentumsmarkern. Keine DB-Preview-/MAXDOPänderung, keine fremde Adoption.
 Regulär 300 Sekunden einschließlich Startup; eine gemeinsame Recoverydeadline
@@ -63,7 +63,7 @@ Native Ergebnisse folgen erst nach tatsächlicher Ausführung.
 
 ## Verarbeitungsaufwand und CI
 
-Eigene zwei Wiederholungen lokal qualifizieren denselben Quellenkandidaten; CI
+Eigene zwei Wiederholungen lokal qualifizieren denselben Quellenkandidaten; CI (Continuous Integration; automatisierte Integrationsprüfungen)
 verwendet seriell die drei bestehenden Instanzen, keinen zusätzlichen Container
 je Marker. Nur SQL2025 führt einmal die komplette feste Markerabnahme aus;
 SQL2019/2022 liefern read-only SKIP_VERSION vor Setup. Der neue eng ausgelöste
@@ -130,7 +130,7 @@ C3 Token 9DDD496226A14E9E erfasste den vollständigen Konfig-/Row-Snapshot nativ
 176067 UTF-16-Einheiten in 881 vollständigen Frames, keine Trunkierung,
 1000 Source-Rows und 41 Konfigurationen mit vollständigen Variantbytes.
 Qualifikation FAIL am fehlenden Rollenkey: die tatsächlich leere Rollen-Subquery
-wurde NULL und vom äußeren FOR JSON ausgelassen. Zehn Nativecalls/null Markerproben,
+wurde NULL und vom äußeren FOR JSON (JavaScript Object Notation; strukturiertes Textformat) ausgelassen. Zehn Nativecalls/null Markerproben,
 eigener SQLcleanup und neue DB-/CID-/Namensabwesenheit bestanden, Cleanup
 13,0374421 Sekunden, kein unbekannter Endstatus. Drei unverändert erhaltene
 geschlossene FAILs; C4–C6 sind weiterhin autorisierte neue Quellenkandidaten,

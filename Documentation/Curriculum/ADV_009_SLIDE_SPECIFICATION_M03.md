@@ -2,13 +2,13 @@
 
 | Merkmal | Wert |
 |---|---|
-| Paket | `ADV-009` |
+| Paket | `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) |
 | Status | `INTEGRATED` |
 | Deckpositionen | 84 bis 88 (Folienteile `slide85.xml` bis `slide89.xml`) |
 | Modul | M03 – Optimizer, Statistiken und Pläne |
 | Lernziel | `LO-M03-07` |
 | Claims | `ADV-CLM-013`, `ADV-CLM-014`, `ADV-CLM-015`, `ADV-CLM-016` |
-| Kanonische Demo | `QRY-013` |
+| Kanonische Demo | `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) |
 | Tiefenprofil | `VERTIEFUNG` |
 | Testprofil | `TP-RUN` |
 
@@ -43,9 +43,9 @@ Die fünf Folien bilden einen zusammenhängenden Vertiefungsbogen: Der Bogen beg
 
 **Sprechernotiz**
 
-`[SLIDE-ID: SLD-M03-101]` Die verbreitete Formulierung „in der Anwendung langsam, in SSMS schnell" beschreibt eine Beobachtung, keine Ursache. Wir benennen bewusst keine Clientdefaults, weil Treiber- und Werkzeugversionen unterschiedliche Vorgaben setzen. Stattdessen arbeiten wir mit zwei explizit gesetzten, neutralen Sessionprofilen. Das Ziel dieser Folie ist die Haltung: erst Kontext erheben, dann Hypothesen bilden. Die Demo `QRY-013` widerlegt später genau eine solche voreilige Hypothese.
+`[SLIDE-ID: SLD-M03-101]` Die verbreitete Formulierung „in der Anwendung langsam, in SSMS schnell" (SSMS: SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) beschreibt eine Beobachtung, keine Ursache. Wir benennen bewusst keine Clientdefaults, weil Treiber- und Werkzeugversionen unterschiedliche Vorgaben setzen. Stattdessen arbeiten wir mit zwei explizit gesetzten, neutralen Sessionprofilen. Das Ziel dieser Folie ist die Haltung: erst Kontext erheben, dann Hypothesen bilden. Die Demo `QRY-013` widerlegt später genau eine solche voreilige Hypothese.
 
-**Quellen:** `SRC-001`, `SRC-027`, `SRC-046` **Demo:** `QRY-013` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001` (Query processing architecture guide), `SRC-027` (Monitor performance by using the Query Store), `SRC-046` (Slow in the Application, Fast in SSMS?) **Demo:** `QRY-013` **Tiefe:** `VERTIEFUNG`
 
 ## 4. Folie `SLD-M03-102` – Cachekontext und SET-Optionen
 
@@ -62,7 +62,7 @@ Die fünf Folien bilden einen zusammenhängenden Vertiefungsbogen: Der Bogen beg
 
 `[SLIDE-ID: SLD-M03-102]` Sichtbar wird das über `sys.dm_exec_plan_attributes`, insbesondere über das Attribut `set_options`, ausgewertet für ein einzelnes Demoobjekt. Wichtig ist die Reihenfolge der Aussagen: Der zusätzliche Cacheeintrag ist eine gesicherte Beobachtung, ein daraus abgeleiteter Laufzeitunterschied ist es nicht. In `QRY-013` unterscheiden sich die beiden Profile ausschließlich in `ARITHABORT`; das Ergebnis bleibt bitgleich, die Anzahl der Cacheeinträge steigt von eins auf zwei. Eine pauschale Empfehlung zu einer einzelnen SET-Option leiten wir daraus nicht ab.
 
-**Quellen:** `SRC-001`, `SRC-040`, `SRC-046` **Demo:** `QRY-013`, `OPT-007` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001`, `SRC-040` (Plan properties), `SRC-046` **Demo:** `QRY-013`, `OPT-007` **Tiefe:** `VERTIEFUNG`
 
 ## 5. Folie `SLD-M03-103` – Parameterwert und Planwiederverwendung
 
@@ -79,7 +79,7 @@ Die fünf Folien bilden einen zusammenhängenden Vertiefungsbogen: Der Bogen beg
 
 `[SLIDE-ID: SLD-M03-103]` Diese Folie ist das Gegengewicht zur vorherigen. In der Demo halten wir das Sessionprofil konstant und ändern nur den Parameterwert von einem seltenen auf einen häufigen Wert. Die logischen Lesevorgänge steigen deutlich, obwohl kein zusätzlicher Cacheeintrag entsteht. Genau hier bricht die Hypothese „es liegt an den SET-Optionen" zusammen. Bleibt die Arbeitsmenge in einer Umgebung wider Erwarten gleich, meldet die Demo `WARN_EMPIRICAL_VARIANCE` statt eine Verschlechterung zu behaupten.
 
-**Quellen:** `SRC-007`, `SRC-047` **Demo:** `QRY-013`, `OPT-008` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-007` (Intelligent query processing), `SRC-047` (What is Parameter Sniffing in SQL Server?) **Demo:** `QRY-013`, `OPT-008` **Tiefe:** `VERTIEFUNG`
 
 ## 6. Folie `SLD-M03-104` – Parameter, Variable, Literal und Recompile
 
@@ -94,9 +94,9 @@ Die fünf Folien bilden einen zusammenhängenden Vertiefungsbogen: Der Bogen beg
 
 **Sprechernotiz**
 
-`[SLIDE-ID: SLD-M03-104]` Die vier Varianten sind keine Rangfolge, sondern ein Tauschverhältnis zwischen Planqualität, Wiederverwendung und Kompilierarbeit. Wer die Diagnose aus Folie 101 ernst nimmt, muss wissen, welche Variante im Verdachtsfall tatsächlich vorliegt: Eine Anwendung sendet häufig parametrisierte Aufrufe, ein Werkzeugfenster häufig Literale. Damit unterscheiden sich beide bereits in der Information, die dem Optimierer zur Verfügung steht – unabhängig von jeder SET-Option. Die belastbare Bewertung von `OPTION (RECOMPILE)` erfolgt in `QRY-004` über mehrere Ausführungen, nicht über eine einzelne schnelle Messung.
+`[SLIDE-ID: SLD-M03-104]` Die vier Varianten sind keine Rangfolge, sondern ein Tauschverhältnis zwischen Planqualität, Wiederverwendung und Kompilierarbeit. Wer die Diagnose aus Folie 101 ernst nimmt, muss wissen, welche Variante im Verdachtsfall tatsächlich vorliegt: Eine Anwendung sendet häufig parametrisierte Aufrufe, ein Werkzeugfenster häufig Literale. Damit unterscheiden sich beide bereits in der Information, die dem Optimierer zur Verfügung steht – unabhängig von jeder SET-Option. Die belastbare Bewertung von `OPTION (RECOMPILE)` erfolgt in `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) über mehrere Ausführungen, nicht über eine einzelne schnelle Messung.
 
-**Quellen:** `SRC-001`, `SRC-007`, `SRC-045`, `SRC-046` **Demo:** `QRY-004`, `OPT-008` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001`, `SRC-007`, `SRC-045` (Dynamic Search Conditions in T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)), `SRC-046` **Demo:** `QRY-004`, `OPT-008` **Tiefe:** `VERTIEFUNG`
 
 ## 7. Folie `SLD-M03-105` – Evidenzkette statt Einzelursache
 

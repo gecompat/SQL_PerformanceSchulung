@@ -44,7 +44,7 @@ Performance-Erwartungswerte.
 ## Datenvertrag und Framework
 
 Die vier Tabellen und die Suchprozedur folgen dem synthetischen Vertrag von
-[`ADV-007`](../../../../Documentation/Project_Planning/ADV_007_LAB_VP5_DESIGN.md).
+[`ADV-007` – Design LAB-VP5 und DGN-007](../../../../Documentation/Project_Planning/ADV_007_LAB_VP5_DESIGN.md).
 Wie im vorhandenen Adapter gibt es zwölf Gruppen: vier mit je 4.000, drei mit
 je 2.000 und fünf mit je 400 Faktzeilen, drei Details je Faktzeile sowie dieselbe
 Statusverteilung. `ItemId` wird explizit aus der laufenden Nummer gebildet;
@@ -55,7 +55,7 @@ Zusätzlich sind die `ItemId`-Domäne 1 bis 24.000, jede Gruppenmenge, feste
 Suchcounts und die vier Request-Parameterpaare geprüft. Die Ausgabeordnung
 des Resultstreams wird durch `INSERT EXEC` nicht nachgewiesen.
 
-`FWK-001`, `FWK-002`, `FWK-003`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`
+`FWK-001` (Preflight-Vertrag), `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken), `FWK-003` (Vertrag für synthetische Testdaten), `FWK-008` (Sicherheits- und Abbruchvertrag), `FWK-010` (Runtime-Harness-Vertrag), `FWK-011` (Ergebnisnormalisierungs- und Erwartungsvertrag) und `FWK-012` (Status-, Fehler- und Skip-Vertrag)
 gelten für den begrenzten Schnitt. Abweichung vom wiederverwendbaren Generator:
 der eigenständige Aufbau verwendet die fachlich benötigten `Case*`-Tabellen
 und prüft deterministische Zuordnung, Zeilenzahlen und Suchergebnisse exakt.
@@ -65,8 +65,8 @@ Zustände werden beim Cleanup sicher abgewiesen und benötigen eine manuelle
 Eigentumsprüfung. Das automatische Nachlöschen einer teilweise markierten
 Datenbank ist bewusst nicht implementiert.
 
-`FWK-004` bis `FWK-006` bleiben für die vollständige Capstone-Abnahme offen.
-`FWK-007` wird im Fenstervertrag durch Konfigurationssnapshot vor Änderung
+`FWK-004` (Messvertrag) bis `FWK-006` (Multi-Session-Orchestrierungsvertrag) bleiben für die vollständige Capstone-Abnahme offen.
+`FWK-007` (Query-Store- und Extended-Events-Vertrag) wird im Fenstervertrag durch Konfigurationssnapshot vor Änderung
 und vollständigen markergebundenen Abbau der frischen Datenbank erfüllt: Der
 ursprüngliche Zustand ist eine abwesende Datenbank ohne Query Store. Das ist
 eine strengere Wegwerfinstanzgrenze; eine Übernahme vorhandener Datenbanken
@@ -217,7 +217,7 @@ an persistenten Labtabellen und Query-Store-Konfiguration. Capture ALL kann
 die Beobachtungsqueries selbst erfassen; sie bleiben außerhalb des Suchscope
 und werden mit der eigenen Datenbank abgebaut.
 
-Je Fenster werden Duration, CPU, Logical Reads und Rows als
+Je Fenster werden Duration, CPU (Central Processing Unit; Prozessor), Logical Reads und Rows als
 `SUM(ExecutionCount * Mittelwert) / SUM(ExecutionCount)` gewichtet. Resultsets
 `DGN007_PROFILE_WINDOW` und `DGN007_PROFILE_METRIC` zeigen die Mittelwerte,
 tatsächlich ausgeführte Plananzahl je Fenster, Delta `T1-T0` und Ratio
@@ -295,9 +295,9 @@ SQL35-Guardkennungen bleiben auf Kontroll-Evidenz beschränkt. Die Option
 aktiviert keine Capture-Abnahme; SQL, Lifecycles und Budgets bleiben gleich.
 
 Ein Fenster- oder Vergleichs-PASS belegt weder unterschiedliche Pläne noch eine Planregression,
-Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP wird
+Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) wird
 nicht deaktiviert. Die Akzeptanzmethodik ist im
-[prospektiven Vertrag](../Contracts/README.md) durch `DEC-068` vorab festgelegt.
+[prospektiven Vertrag](../Contracts/README.md) durch `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen) vorab festgelegt.
 Nach der begrenzten Producer-Prüfung folgt der Collector-Coordinator mit
 verifiziertem Freeze, Ressourcen, Reihenfolge, Budgets und unabhängigem
 Cleanup. Erst danach folgen frische Bestätigungsläufe. Das ist weiterhin
@@ -307,11 +307,11 @@ reversible Mitigation und T2-Vergleich. Szenariopromotion, `READY_FOR_USER`,
 Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an
 `SQL_Server_Lab` bleiben offen.
 
-Quellen und Traceability: bestehender Designvertrag `ADV-007`,
-`SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`, `SRC-035`, `SRC-036`
+Quellen und Traceability: bestehender Designvertrag `ADV-007` (Design LAB-VP5 und DGN-007),
+`SRC-001` (Query processing architecture guide), `SRC-007` (Intelligent query processing), `SRC-027` (Monitor performance by using the Query Store), `SRC-028` (Performance monitoring and tuning tools), `SRC-031` (Display an actual execution plan), `SRC-035` (sys.dm_os_wait_stats), `SRC-036` (sys.dm_os_waiting_tasks)
 mit Abrufdatum gemäß Quellenregister; `LO-M07-04`, `LO-M06-08`, `LO-M03-07`.
 
-Seit `DEC-072` muss der separate feste Pollquery mit dem Marker
+Seit `DEC-072` (DGN-007: beobachtete Intervallzuordnung und diagnostische QS-SYSUTC-Zeitklammer) muss der separate feste Pollquery mit dem Marker
 `DGN007_INTERVAL_PULSE` im ausgewählten Query-Store-Intervall tatsächlich
 regulär erfasst sein. Eine lediglich passend datierte Katalogzeile reicht
 nicht mehr für die Rotation. Die Suchrequests laufen weiterhin nacheinander.

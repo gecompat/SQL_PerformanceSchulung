@@ -62,10 +62,10 @@ ein neuer Lauf benötigt geänderte Eingaben oder einen begründeten neuen Prüf
 Verwenden Sie ausschließlich die mitgelieferten synthetischen Fixtures.
 
 Aktuelle Nachweise: [QRY-014–017](../Project_Planning/SQL_SERVER_2025_AI_LOCAL_IMPLEMENTATION_REVIEW.md),
-[QRY-018](../Project_Planning/SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md),
-[QRY-019](../Project_Planning/SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md),
-[DGN-008](../Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) und
-[DGN-009](../Project_Planning/SQL_SERVER_2025_AI_INJECTION_REVIEW.md).
+[QRY-018 – Quellengestützte Antworten im Offline-Beispiel](../Project_Planning/SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md),
+[QRY-019 – Feste SQL-Struktur und getrennte Parameterwerte](../Project_Planning/SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md),
+[DGN-008 – Modellmetadaten und Zugriffsrechte](../Project_Planning/SQL_SERVER_2025_AI_EXTERNAL_MODEL_REVIEW.md) und
+[DGN-009 – Manipulierte Quellen und erlaubte Werkzeugaufrufe](../Project_Planning/SQL_SERVER_2025_AI_INJECTION_REVIEW.md).
 Diese Abnahmen sind historische, jeweils gebundene Evidenz; dieses Arbeitsheft
 behauptet keinen neuen SQL-Lauf. Anforderungen und zusätzliche offene Pfade stehen
 im [Workstreamplan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md) und der
@@ -82,7 +82,7 @@ Zuordnung: CUR-013/CUR-014. Material:
 Sagen Sie voraus, ob zwei VECTOR(3)-Werte aus GEOMETRY_V1 und GEOMETRY_V2 allein
 wegen gleicher Dimension gemeinsam gesucht werden dürfen. Lesen Sie die fünf Rows,
 Typproperties und Modellraummerkmale. Unterscheiden Sie die abgelehnte falsche
-Dimension beziehungsweise ungültiges JSON von einem syntaktisch gültigen Vektor
+Dimension beziehungsweise ungültiges JSON (JavaScript Object Notation; strukturiertes Textformat) von einem syntaktisch gültigen Vektor
 aus dem falschen Modellraum. Geben Sie zwei zusätzliche Provenienzfelder an.
 
 Abgabe: ein technischer Typbefund, eine fachliche Grenze und zwei Provenienzfelder.
@@ -166,7 +166,7 @@ Ordnen Sie Setup, Ingestion und Retrieval ihre tatsächlichen Tätigkeiten zu.
 Vergleichen Sie die Rechte vor und nach Mitigation: Welche zwei Retrievalgrants
 entfallen, welche erlaubten Reads/Writes bleiben tatsächlich möglich? Unterscheiden
 Sie HAS_PERMS_BY_NAME am External Model von einem Embeddingaufruf. Entscheiden Sie,
-ob die feste Endpoint-Bytepolicy TLS, DNS, Firewall oder echten Datenabfluss geprüft hat.
+ob die feste Endpoint-Bytepolicy TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen), DNS, Firewall oder echten Datenabfluss geprüft hat.
 
 Abgabe: Rollenvergleich, positiver Restbetrieb und zwei offene Providergrenzen.
 
@@ -209,13 +209,13 @@ eigene Instanz und tatsächlich bestätigter Cleanup bleiben Voraussetzungen.
    8169/6151 µs, Logical-Reads-Median 615/2415, jeweils A=32/B=384 und n=6.
    Erklären Sie die unterschiedliche Richtung. Benennen Sie die Batchgröße und
    zwei Grenzen vor einer allgemeinen Aussage zur Dimensionswahl.
-3. Erläutern Sie ein Elapsed-Nullfenster trotz positiver CPU und ein N/A-Verhältnis
+3. Erläutern Sie ein Elapsed-Nullfenster trotz positiver CPU (Central Processing Unit; Prozessor) und ein N/A-Verhältnis
    bei Baseline null. Welche Beobachtung würde verloren gehen, wenn Nullfenster
    oder große Maxima einfach aus dem Datensatz entfernt würden?
 4. Ordnen Sie die 30 numerischen FWK-011-Assertions dem begrenzten Profil zu:
    Source-Rows, Vektorbytes, Fenster- und Queryabdeckung, eine Ergebnisrow.
    Weshalb ändern diese PASSs weder Gesamt-WARN noch PROPOSED? Deuten Sie fehlende
-   Wait-/Spillbelege und rohen Plan-DOP 0 ohne erfundene Null-/Workerwerte.
+   Wait-/Spillbelege und rohen Plan-DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) 0 ohne erfundene Null-/Workerwerte.
 5. Unterscheiden Sie gültige Typdimension, größere tatsächliche Nutzdatenbytes,
    identische synthetische Cosinetreffer und echte Modell-/Antwortqualität.
    Benennen Sie zwei neue fachliche Belege, bevor Zero-Padding oder kleinere
@@ -231,7 +231,7 @@ ausschließlich den dokumentierten begrenzten numerischen Export.
 
 Diese drei Aufgaben ergänzen die acht Basisaufgaben und RES-008 getrennt.
 Sie lesen vorhandene veröffentlichte Teilnachweise; Sie starten dafür weder SQL
-noch ein Modell. Keine Installation, Login-/Rollen-DDL, Cloud-/Provideraufrufe
+noch ein Modell. Keine Installation, Login-/Rollen-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten), Cloud-/Provideraufrufe
 oder Wiederholung privater Qualifikationsskripte. Die Lehrperson verwendet nur die
 unten verlinkten öffentlichen Zusammenfassungen. Private Rawreceipts, Vektoren,
 Verbindungsnamen, Container-IDs, SIDs oder Secrets werden nicht übernommen.
@@ -344,7 +344,7 @@ Material: [öffentlicher V2-Teilnachweis](../Project_Planning/SQL_SERVER_2025_AI
 und [DML-/Rollenvertrag](SQL_SERVER_2025_AI_IDX012_DML_ROLE_RECORDS.md).
 Rechenfixture, ausdrücklich DIDAKTISCH und keine gemessene Suchausgabe:
 gleiche erlaubte Kandidaten 1–8, Cosine, k=5; Exact liefert 1/2/3/4/5,
-ANN liefert 1/2/6/7/8. Berechnen Sie Recall@5 und nennen Sie die gemeinsamen
+ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) liefert 1/2/6/7/8. Berechnen Sie Recall@5 und nennen Sie die gemeinsamen
 Treffer. Erklären Sie, warum doppelte IDs oder eine fremde Tenantpopulation
 den Vergleich ungültig machen und die Formel keine Sprachrelevanz misst.
 
@@ -372,7 +372,7 @@ Material: [Modellpfade](SQL_SERVER_2025_AI_MODEL_PATHS.md) und die vorhandene
 DGN-008-Lösung. Entwerfen Sie für die synthetische MOD_A-Wissensbasis eine
 Tabelle mit den Spalten Aufrufer, Transport, erlaubte Daten, Modellbindung,
 Credentials, endliches Budget und noch fehlender Nachweis. Vergleichen Sie
-Controller → lokaler Provider, SQL → HTTPS-Modell, externen Provider und ONNX.
+Controller → lokaler Provider, SQL → HTTPS-Modell, externen Provider und ONNX (Open Neural Network Exchange; Austauschformat für Modelle).
 Markieren Sie, an welcher Grenze Text, Vektor und Antwort verarbeitet würden.
 
 Ein vorhandener WhatIf-READY-Befund ist nur eine Planung. Benennen Sie mindestens
@@ -413,7 +413,7 @@ aufgrund zerstörter Container oder eines konsistenten Recordformats hochzustufe
 Für RES-009/DGN-011 entwerfen Sie danach ein kleines End-to-End-Protokoll mit
 Requestdauer, Fehlern, Durchsatz und getrennten SQL-/Netz-/Modell-/Retryanteilen.
 Markieren Sie unbekannte Werte als unbekannt. Eine Batchzeit wird nicht als p99
-individueller Requests ausgegeben. RLS, authentifizierte Identität und erlaubter
+individueller Requests ausgegeben. RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle), authentifizierte Identität und erlaubter
 Antwortkontext bleiben getrennte Kontrollen.
 
 Abgabe: drei Verbindungsgrenzen und ein begrenzter Diagnoseplan mit Abbruch/Cleanup.
@@ -448,7 +448,7 @@ Die vorgeschlagenen Rückfragen prüfen Transfer, keine gemessene Lernwirksamkei
 | QRY-019 | Nur kanonisches SQL wird ausgeführt; Werte sind separate Parameter. Quote-/DDL-Text bleibt ein Wert und trifft die synthetische Literalrow. Identifier und Zusatzstatements gehören zur festen Strukturpolicy. Reader hat CONNECT und Objekt-SELECT; dbo-Harness, Serverlogin und Anwendungsservice sind unterschiedliche Grenzen. | Warum sind Policyentscheidung und tatsächlicher Readerfehler zwei Belege? |
 | DGN-008 | Setup erstellt und besitzt Modellmetadaten. Ingestion schreibt tatsächlich 7→8→7. Retrieval verliert Policy-SELECT und Modell-EXECUTE; Quellen-SELECT bleibt möglich. EXECUTE-Metadaten sind keine Inferenz, SYNTHETIC_NO_SECRET kein Credential. Endpointablehnung prüft Bytes, keine echte Verbindung. | Welche neue Evidenz wäre für einen tatsächlichen Modellaufruf erforderlich? |
 | DGN-009 | Manipulierter Inhalt wird tatsächlich retrievt, seine Anweisungen werden nicht zu SQL. Feste Policy liefert Antworten/Tools je 1 erlaubt, 3 abgelehnt. Nur ReadFact auf Quelle1 wird fest parametrisiert ausgeführt; GRANT/UPDATE scheitern tatsächlich mit 4613/229. Trust wird nicht vom Modell erkannt; kein allgemeiner Injection-/Tenant-/Egressnachweis. | Welche Grenze bleibt trotz dieser erfolgreichen festen Kontrollen offen? |
-| RES-008, getrennte Ergänzung | 20 Warmups plus 3×3×6=54 Messfenster; 20×1+54×100=5420 kontrollierte Queries. Pro Paar/Pfad sechs AB-/BA-Fenster; AA drei getrennte Baselinepaare. CPU/I/O sind eigene Request-Counterdifferenzen vor/nach der 100-Query-Schleife samt Overhead an diesen Messgrenzen. Elapsed misst die UTC-Zeit der Schleife samt Tempresult-Inserts; die Messgrenzen sind nicht identisch. Ein Elapsed-Nullfenster bei positiver CPU belegt keine fehlende Arbeit; Zeitauflösung, Reihenfolge und Streuung begrenzen die Interpretation. n=6 ergibt keinen belastbaren Query-p99 oder Signifikanznachweis. Baseline null ergibt N/A, Ausreißer bleiben in Max/Medianpopulation. 30 numerische Invarianten und repräsentative rohe Planattribute belegen keine volle Worker-/TP-PERF-/Modellabnahme; Gesamt-WARN/PROPOSED bleiben. Vor einer echten Dimensionsreduktion fehlen ein Vergleich tatsächlich erzeugter Embeddings mit gebundener Modellversion und eine fachlich gelabelte Retrieval-/Antwortbewertung desselben Korpus. | Welche zusätzliche Qualitätsmessung wäre vor einer echten Dimensionsreduktion erforderlich? |
+| RES-008, getrennte Ergänzung | 20 Warmups plus 3×3×6=54 Messfenster; 20×1+54×100=5420 kontrollierte Queries. Pro Paar/Pfad sechs AB-/BA-Fenster; AA drei getrennte Baselinepaare. CPU/I/O (Input/Output; Ein- und Ausgabezugriffe) sind eigene Request-Counterdifferenzen vor/nach der 100-Query-Schleife samt Overhead an diesen Messgrenzen. Elapsed misst die UTC-Zeit der Schleife samt Tempresult-Inserts; die Messgrenzen sind nicht identisch. Ein Elapsed-Nullfenster bei positiver CPU belegt keine fehlende Arbeit; Zeitauflösung, Reihenfolge und Streuung begrenzen die Interpretation. n=6 ergibt keinen belastbaren Query-p99 oder Signifikanznachweis. Baseline null ergibt N/A, Ausreißer bleiben in Max/Medianpopulation. 30 numerische Invarianten und repräsentative rohe Planattribute belegen keine volle Worker-/TP-PERF-/Modellabnahme; Gesamt-WARN/PROPOSED bleiben. Vor einer echten Dimensionsreduktion fehlen ein Vergleich tatsächlich erzeugter Embeddings mit gebundener Modellversion und eine fachlich gelabelte Retrieval-/Antwortbewertung desselben Korpus. | Welche zusätzliche Qualitätsmessung wäre vor einer echten Dimensionsreduktion erforderlich? |
 
 ### Lösungen zu VERTIEFUNG Tag 2
 
@@ -461,7 +461,7 @@ Punktwertung oder Kompetenzzertifizierung für Tag 2.
 | ANN und Lifecycle | Gemeinsame IDs 1/2 ergeben 2÷5=0,4 beziehungsweise 40 Prozent Recall@5 der ausdrücklich synthetischen Fixture. Fünf eindeutige Treffer, gleiche erlaubte Kandidaten, k, Modellraum/Metrik und Tie-Regel sind nötig. Keine gemessene ANN- oder Sprachqualität. Im gebundenen SQL-17.0.5005.3-Record stehen vier positive DML-Kontrollen ohne Index vier Fehlern 42231/State1 mit Index gegenüber; Rollback stellt 999 Rows und Transaktionswerte 0/0 her. COHERENT_PUBLIC_V2, 25 Captures und acht Rollenkontexte attestieren keine aktuelle Runtime, Generation oder vollständige TP-PERF. SQLcleanup bleibt TEXTS_COHERENT. | Welcher echte Plan- und Populationsbeleg würde einen ANN-Geschwindigkeitsclaim erst prüfbar machen? |
 | Messgrenzen und Kosten | Vorhandene RES-008-Lösung: 20 Warmups, 54 Messfenster, 74 Requests, 5420 Querykontrollen; n=6 je A/B-Pfad eines Paars. Im ersten 384er-Paar steigt CPU 6,5→7 ms und Reads 615→2415, während Elapsed 8169→6151 µs fällt. Unterschiedliche Messgrenzen, geringe Population und feste Geometrie erlauben keine Dimensionsregel, Query-p99 oder Modellqualitätsaussage. N/A, Nullfenster und Ausreißer erhalten. | Welche Population würde eine individuelle Request-p99 benötigen? |
 | Modellpfade und Provenienz | Controllerseitiger lokaler Modellaufruf und SQL-seitiger HTTPS-Aufruf sind verschiedene Architekturen. Jede Zeile nennt tatsächlichen Caller/Transport, zugelassenen Kontext, Modellversion/Digest/Dimension, Secretgrenze, Request-/Retry-/Zeitbudget und offenen Nachweis. Cloud erfordert getrennte Egress-/Kosten-/Verarbeitungsfreigabe; ONNX hat eigene OS-/Runtime-/Hostgrenzen. WhatIf READY ist keine Inferenz, Modell-EXECUTE kein APIerfolg. Bei fehlender Voraussetzung bleibt der feste Offlinepfad; kein automatischer Cloudfallback. | Welcher Nachweis prüft den Rückgabewert vor dem VECTOR-INSERT? |
-| SQL Assistenz | Gleiche Results und zwei private Originalreaderplanprofile sind begrenzte Belege, kein Indexnettonutzen. Die getrennten Owner-INSERT-/Rollback- und Build-/Dropfenster besitzen eigene Instrumentierung. Vor einer Empfehlung fehlen gleiche Workloadpopulation und Gewichte für Reads/DML, vollständige Kosten und Gegenkontrollen. Keine Addition ungleicher Messgrenzen. Ein konkreter Reader-Seek ist kein allgemeiner Speedup; Runtime-/TP-PERF-/Nettonutzen bleiben NOT_ESTABLISHED. | Welcher Gegenbefund würde die Empfehlung widerlegen? |
+| SQL Assistenz | Gleiche Results und zwei private Originalreaderplanprofile sind begrenzte Belege, kein Indexnettonutzen. Die getrennten Owner-INSERT-/Rollback- und Build-/Dropfenster besitzen eigene Instrumentierung. Vor einer Empfehlung fehlen gleiche Workloadpopulation und Gewichte für Reads/DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten), vollständige Kosten und Gegenkontrollen. Keine Addition ungleicher Messgrenzen. Ein konkreter Reader-Seek ist kein allgemeiner Speedup; Runtime-/TP-PERF-/Nettonutzen bleiben NOT_ESTABLISHED. | Welcher Gegenbefund würde die Empfehlung widerlegen? |
 | Betrieb Tenant und Diagnose | EXECUTE AS prüft einen DB-Kontext innerhalb einer Session; frische Anmeldung braucht eigene authentifizierte Verbindungsidentität und Rowkontrolle; Pooling zusätzlich echten Reuse, Reset und wiederholte Identitäts-/Tenantprüfung. Ein fremder Sessionwert darf A nicht zu B machen, Unmapped bekommt keine Rows. Ein begrenzter Owner- oder Recordnachweis schließt die offene Poolqualifikation nicht. SQL-Cleanup, Namespaceabbau und bekanntes Clientende getrennt belegen. End-to-End-Diagnose braucht individuelle Requests, getrennte Fehler-/Zeitanteile und vollständige Population. | Was bleibt nach reinem Containerabbau über SQL-Abwesenheit unbekannt? |
 | Angriff und Transfer | Im Entwurf darf nur aktuelle erlaubte Evidenz eine Antwort tragen. Leerer oder ungelöst widersprüchlicher Kontext verlangt begründete Nichtantwort; ein Quellenabsatz erteilt keine Toolrechte. Die vorhandene DGN-009-Policy und echte GRANT-/UPDATE-Verweigerungen sind feste Kontrollen, keine Live-Modellabnahme. Jede Empfehlung nennt erlaubte Population und Scope, Gegenbeleg sowie endlichen Prüf-/Abbruch-/Cleanupauftrag. Fehlende Ausführung bleibt offen. | Warum ist eine falsche Nichtantwort im positiven Fall kein bestandener Enthaltungstest? |
 
@@ -472,7 +472,7 @@ Sie sind didaktische Vorschläge, keine neue Ausführung oder Teilnehmerabnahme.
 
 | Aufgabe | Erwartete Erklärung zum vorhandenen Befund | Rückfrage |
 |---|---|---|
-| E1 | Corpus-C1 erzeugte vier vollständige Nomic-Vektoren mit je 768 endlichen Koordinaten: drei Dokumente plus eine Frage. Der getrennte SQL-C1 speicherte und las alle vier VECTOR(768)-Records zurück; gesucht wurden die drei Dokumente. Vorab erwartetes und tatsächlich beobachtetes eindeutiges Top1 ist A. Modell- und SQL-Cosines werden unabhängig nachgerechnet und liegen innerhalb der vorher festgelegten 1e-5-Toleranz; SQL-Score für A etwa 0,80313. Score ist keine Wahrheitswahrscheinlichkeit. Der SQL-Schritt verwendete das vorhandene Receipt, keine neue Inferenz. Numerischer Roundtrip belegt keine bitgleichen physischen VECTORbytes, dieser einzelne synthetische englische Fall keine allgemeine Relevanz-/Antwortqualität oder vollständigen Live-RAG. PR215 ist der vorgelagerte Modellkomponentenbeleg; seine zwei separaten Modellaufrufe werden nicht als die vier Corpusaufrufe ausgegeben. | Welcher neue Beleg wäre für eine generierte, tatsächlich quellengestützte Antwort erforderlich? |
+| E1 | Corpus-C1 erzeugte vier vollständige Nomic-Vektoren mit je 768 endlichen Koordinaten: drei Dokumente plus eine Frage. Der getrennte SQL-C1 speicherte und las alle vier VECTOR(768)-Records zurück; gesucht wurden die drei Dokumente. Vorab erwartetes und tatsächlich beobachtetes eindeutiges Top1 ist A. Modell- und SQL-Cosines werden unabhängig nachgerechnet und liegen innerhalb der vorher festgelegten 1e-5-Toleranz; SQL-Score für A etwa 0,80313. Score ist keine Wahrheitswahrscheinlichkeit. Der SQL-Schritt verwendete das vorhandene Receipt, keine neue Inferenz. Numerischer Roundtrip belegt keine bitgleichen physischen VECTORbytes, dieser einzelne synthetische englische Fall keine allgemeine Relevanz-/Antwortqualität oder vollständigen Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen). PR215 ist der vorgelagerte Modellkomponentenbeleg; seine zwei separaten Modellaufrufe werden nicht als die vier Corpusaufrufe ausgegeben. | Welcher neue Beleg wäre für eine generierte, tatsächlich quellengestützte Antwort erforderlich? |
 | E2 | Hard6 endet FAIL; tatsächlich fünf Inferenz- und 31 Metadatenrequests in der Generationwelle, einschließlich genau einer C4-Vorlagendiagnose. Die vorgelagerte Discovery ist separat und wird nicht in diese Counts umgedeutet. Keine richtige positive Antwort; Nichtantworten oder Codefences verfehlten den vorher festgelegten Vertrag. C2 scheiterte bereits am Sourcegate ohne Modellcall. Fail-first verhinderte sämtliche Negativcase-Aufrufe: deshalb weder bestandene Empty-/Conflict-Enthaltung noch allgemeiner Sicherheitsbeleg. Ein erreichbarer Provider und eine erhaltene Rückgabe sind andere Befunde als ein UNAVAILABLE-Pfad ohne Inferenz; keiner liefert für sich Antwortqualität. Interne Ursache und andere Modelle bleiben unbekannt. | Warum darf eine im positiven Fall falsche Nichtantwort nicht als erfolgreiche ABSTAIN-Kontrolle gezählt werden? |
 | E3 | C5 bestätigt drei frische authentifizierte SQL-Loginverbindungen mit passenden Server-/Original-/DBuser-Identitäten und SIDs. A/B erhalten je nur die eigene vollständige Quelle samt VECTOR(3), Unmapped besitzt positive Authentifizierung und null Rows. Der auf B gesetzte Sessionkontext ändert A nicht; Reset und tatsächliche SQL-Verweigerungen sind belegt. 23 Vollstates und fünf Guardfehler begrenzen die Zustands-/Eigentumskontrolle. C1–C3 bleiben FAIL mit SQL-Abwesenheit NOT_ESTABLISHED trotz zerstörter eigener Namespaces; C4/C5 besitzen tatsächliche gehaltene Login-Drops vor DBdrop plus neue getrennte SQL-Abwesenheit. Kein Pooling-, Passwortintegritäts-, Seitenkanal- oder öffentlicher authentifizierter CON-010-/TSK-009-Gesamtnachweis; Owner ist ausdrücklich privilegierter Fixtureharness. | Welche zusätzliche Prüfung wäre für echte wiederverwendete Poolverbindungen nötig? |
 

@@ -33,7 +33,7 @@ Die Prüfungen kontrollieren Pflichtdateien, Statuscodes, Eigentumsmarker, deter
 python Tests/Static/validate_identifier_registration.py
 ```
 
-Die Prüfung sichert die zentrale Registry im Profil `foundation-artifact-registry/v2`, die vollständige Übernahme der 211 historischen Kennungen, die unveränderten UUID-Zuordnungen von `DEC-061` und `DEC-062`, die `TSK-###`-Nomenklatur sowie die Regel, dass neue Wellen nicht als Kennungen alloziert werden. Sie verbietet v1-Zähler, Revisionsfelder und getrennte Artefaktdatensätze. Als `PROJECT_SEMANTIC`-Prüfung ergänzt sie das Foundation-Semantiktool und die Foundation-Integritätsprüfung.
+Die Prüfung sichert die zentrale Registry im Profil `foundation-artifact-registry/v2`, die vollständige Übernahme der 211 historischen Kennungen, die unveränderten UUID-Zuordnungen von `DEC-061` (Foundation 1.4 and durable identifier registration) und `DEC-062` (Zentrale Artefakt-Registry v2 aktivieren), die `TSK-###`-Nomenklatur sowie die Regel, dass neue Wellen nicht als Kennungen alloziert werden. Sie verbietet v1-Zähler, Revisionsfelder und getrennte Artefaktdatensätze. Als `PROJECT_SEMANTIC`-Prüfung ergänzt sie das Foundation-Semantiktool und die Foundation-Integritätsprüfung.
 
 ## Repository-Kontinuität
 
@@ -41,7 +41,7 @@ Die Prüfung sichert die zentrale Registry im Profil `foundation-artifact-regist
 python Tests/Static/validate_repository_continuity.py
 ```
 
-Die Prüfung sichert `DEC-063`, die geschichteten Ruleset-Verträge, den ausschließlich Pull-Request-basierten Actions-Ausfallpfad, die Pflichtfelder der Auditspur und den automatischen Workflow `repository-governance`. Sie prüft Repository-Inhalte; die tatsächlichen GitHub-Rulesets werden zusätzlich über die GitHub API verifiziert.
+Die Prüfung sichert `DEC-063` (GitHub-Regeln und Actions-Ausfallverfahren aktivieren), die geschichteten Ruleset-Verträge, den ausschließlich Pull-Request-basierten Actions-Ausfallpfad, die Pflichtfelder der Auditspur und den automatischen Workflow `repository-governance`. Sie prüft Repository-Inhalte; die tatsächlichen GitHub-Rulesets werden zusätzlich über die GitHub API (Application Programming Interface; Programmierschnittstelle) verifiziert.
 
 ## Curriculum- und Privacy-Prüfung
 
@@ -64,7 +64,7 @@ Runtime-Jobs mit Positiv-, Negativ-, gemeinsamen Abhängigkeits- und
 Unbekannt-Fällen. Bei unklarer Git-Bindung wird die Runtime ausgeführt; eine
 ausgewählte Qualifikationsmatrix behält ihre Versionen und Wiederholungen.
 
-`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sieben Claims sind durch `ADV-009` und `ADV-010` als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 32 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
+`validate_adv_003_curriculum.py` prüft den unveränderten 84-Folien-Kern, die 39 geplanten Vertiefungsclaims, neun neue Vertiefungslernziele und ihre eindeutige Traceability. Sieben Claims sind durch `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) und `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) als Folien im Deck aktiv und werden gegen ihre erwartete Folienliste geprüft; für die übrigen 32 gilt weiterhin, dass eine geplante Claim-Zuordnung keine Runtime- oder Folienfreigabe ist.
 
 `validate_privacy_metadata.py` ist ein User-defined Tool auf Basis der Python-Standardbibliothek. Es prüft Textdateien, Office-Pakete, ZIP-Archive und Medien-Gates. Findings werden ausschließlich als Repository-Pfad, Kategorie und Anzahl ausgegeben; der gefundene Wert erscheint weder im Log noch im kurzlebigen Diagnoseartefakt. Medien, PDFs und andere visuell zu prüfende Binärartefakte werden blockierend gekennzeichnet, sofern kein unveränderter hashgebundener Freigabenachweis vorliegt. Der Scanner ersetzt keine visuelle Einzelprüfung, kein OCR und keinen Rendervergleich.
 
@@ -81,7 +81,7 @@ python3 Tools/build_adv009_slides.py --check
 
 `validate_adv009_deck_integration.py` prüft das Deckarchiv auf Lesbarkeit, die Anzeigereihenfolge gegen `p:sldIdLst`, je Vertiefungsfolie das Modullabel, genau einen Leitabsatz, genau vier Aufzählungsabsätze und die zutreffende Fußzeilenpaginierung, je Notizfolie den unveränderten Folienmarker samt Kennzeichnungs- und Tiefenzeile, die unveränderte Position der 83 Basisfolien und der Schlussfolie sowie die Übereinstimmung von Folien- und Aussagenregister, Traceability-Matrix, Quellenmanifest, Datenschutzfreigabe und beiden Folienspezifikationen.
 
-Die Prüfung bestätigt Zuordnung und Struktur, nicht Layoutqualität, Lesbarkeit im Vortrag oder fachliche Richtigkeit der Aussagen. Die fachliche Abnahme der Folien 84 bis 93 setzt zusätzlich die Runtime-Abnahme von `QRY-013` und `QRY-004` voraus.
+Die Prüfung bestätigt Zuordnung und Struktur, nicht Layoutqualität, Lesbarkeit im Vortrag oder fachliche Richtigkeit der Aussagen. Die fachliche Abnahme der Folien 84 bis 93 setzt zusätzlich die Runtime-Abnahme von `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) und `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) voraus.
 
 `build_adv009_slides.py --check` bestätigt, dass das Deck bereits erweitert ist und ein erneuter Lauf keine zweite Einfügung erzeugt.
 
@@ -98,7 +98,7 @@ python3 Tests/Static/validate_privacy_metadata.py .
 python3 Tools/build_adv010_slides.py --check
 ```
 
-`validate_adv010_deck_integration.py` prüft dieselben Struktur- und Zuordnungseigenschaften wie der Prüfer des Blocks `ADV-009`, zusätzlich die unveränderten Anzeigepositionen des Blocks `ADV-009`, die kanonische Demo `OPT-009` in jeder Sprechernotiz und den Ausgangsfolienumfang im Erzeugungswerkzeug. Das aktive Deck umfasst damit 98 Folien: 84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009` und 4 Vertiefungsfolien aus `ADV-010`.
+`validate_adv010_deck_integration.py` prüft dieselben Struktur- und Zuordnungseigenschaften wie der Prüfer des Blocks `ADV-009`, zusätzlich die unveränderten Anzeigepositionen des Blocks `ADV-009`, die kanonische Demo `OPT-009` (Parametersensitive Planoptimierung) in jeder Sprechernotiz und den Ausgangsfolienumfang im Erzeugungswerkzeug. Das aktive Deck umfasst damit 98 Folien: 84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009` und 4 Vertiefungsfolien aus `ADV-010`.
 
 Die fachliche Abnahme der Folien 94 bis 97 setzt zusätzlich die Runtime-Abnahme von `OPT-009` voraus. Die visuelle Renderprüfung ist nicht Teil der automatisierten Strecke.
 
@@ -198,14 +198,14 @@ python Tests/Runtime/run_gate_b_pilots.py \
   --expected-major <15|16|17>
 ```
 
-Der validierte Lauf `30108023315` führte folgende Piloten je Version zweimal vollständig über `FWK-010` aus:
+Der validierte Lauf `30108023315` führte folgende Piloten je Version zweimal vollständig über `FWK-010` (Runtime-Harness-Vertrag) aus:
 
 | Demo-ID | Sicherheitsstufe | Fokus | Läufe je Version |
 |---|---|---|---:|
-| `QRY-001` | `GREEN` | SARGability, Seek/Scan und statementbezogene Reads | 2 |
-| `OPT-002` | `GREEN` | Statistikheader, Histogramm, Density Vector und Fullscan | 2 |
-| `CON-004` | `YELLOW` | Head–Middle–Leaf-Blocking-Chain und blockierungsfreier Vergleich | 2 |
-| `OPT-013` | `YELLOW` | Table-Variable-Undergrant, Sort-Spill und Staging-Mitigation | 2 |
+| `QRY-001` (Indexfreundliche Suchbedingungen) | `GREEN` | SARGability, Seek/Scan und statementbezogene Reads | 2 |
+| `OPT-002` (Statistiken lesen) | `GREEN` | Statistikheader, Histogramm, Density Vector und Fullscan | 2 |
+| `CON-004` (Blockierungsketten verfolgen) | `YELLOW` | Head–Middle–Leaf-Blocking-Chain und blockierungsfreier Vergleich | 2 |
+| `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) | `YELLOW` | Table-Variable-Undergrant, Sort-Spill und Staging-Mitigation | 2 |
 
 Damit wurden insgesamt 24 vollständige Demoläufe ausgeführt. Nach jedem Lauf prüft der Testtreiber unabhängig über `master`, dass die markierte Testdatenbank nicht mehr vorhanden ist. Statische Verträge, alle Runtimejobs und alle Containerentfernungen waren erfolgreich.
 
@@ -227,7 +227,7 @@ python Tests/Runtime/run_adv008_opt015_opt016.py \
   --expected-major <15|16|17>
 ```
 
-Der validierte Lauf `30218788526` führte `OPT-015` und `OPT-016` je Version zweimal vollständig aus. Damit wurden zwölf Demoläufe validiert. Nach jedem Lauf prüft der Treiber über `master`, dass die markergebundene Testdatenbank entfernt wurde.
+Der validierte Lauf `30218788526` führte `OPT-015` (Ausführungspläne systematisch lesen) und `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung) je Version zweimal vollständig aus. Damit wurden zwölf Demoläufe validiert. Nach jedem Lauf prüft der Treiber über `master`, dass die markergebundene Testdatenbank entfernt wurde.
 
 | Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
 |---|---|---|---:|
@@ -307,7 +307,7 @@ python Tests/Runtime/run_adv008_opt009.py \
   --expected-major <15|16|17>
 ```
 
-Der statische Vertrag `validate_adv008_opt009.py` prüft neben Bündelaufbau, Phasenreihenfolge und lexikalischer Konsistenz drei Besonderheiten dieser Demo: Erstens dürfen ausschließlich die Statuscodes aus `FWK-012` in den Zusammenfassungszeilen stehen, damit funktionsspezifische Eigenerfindungen ausgeschlossen sind. Zweitens muss jede Phase genau ein Vergleichsobjekt ausführen, damit Marker und Evidenz eindeutig zugeordnet bleiben. Drittens sind die Query-Store-Sichten `sys.query_store_plan` und `sys.query_store_query_variant` in den SQL-Dateien verboten, solange deren Pilotabnahme offen ist. Geprüft werden ferner der abgeschaltete Ausgangszustand, die Abwahl auf Abfrageebene, der markergebundene und idempotente Cleanup sowie die Folienspezifikation `Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md`.
+Der statische Vertrag `validate_adv008_opt009.py` prüft neben Bündelaufbau, Phasenreihenfolge und lexikalischer Konsistenz drei Besonderheiten dieser Demo: Erstens dürfen ausschließlich die Statuscodes aus `FWK-012` (Status-, Fehler- und Skip-Vertrag) in den Zusammenfassungszeilen stehen, damit funktionsspezifische Eigenerfindungen ausgeschlossen sind. Zweitens muss jede Phase genau ein Vergleichsobjekt ausführen, damit Marker und Evidenz eindeutig zugeordnet bleiben. Drittens sind die Query-Store-Sichten `sys.query_store_plan` und `sys.query_store_query_variant` in den SQL-Dateien verboten, solange deren Pilotabnahme offen ist. Geprüft werden ferner der abgeschaltete Ausgangszustand, die Abwahl auf Abfrageebene, der markergebundene und idempotente Cleanup sowie die Folienspezifikation `Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md`.
 
 | Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
 |---|---|---|---:|
@@ -337,7 +337,7 @@ Der statische Vertrag `validate_adv008_opt010.py` übernimmt die Prüfachsen des
 
 | Demo-ID | Sicherheitsstufe | Runtime-Vertrag | Läufe je Version |
 |---|---|---|---:|
-| `OPT-010` | `GREEN` | genau eine Planform und reihenfolgeunabhängige Lesekosten ohne die Optimierung, mindestens ein Dispatcherplan mit optionalem Parameterprädikat und mindestens zwei Query Variants bei eingeschalteter Optimierung, kein Dispatcherplan bei ausdrücklicher Abwahl, Ergebnisgleichheit über alle vier Phasen | 2 |
+| `OPT-010` (Planoptimierung für optionale Parameter) | `GREEN` | genau eine Planform und reihenfolgeunabhängige Lesekosten ohne die Optimierung, mindestens ein Dispatcherplan mit optionalem Parameterprädikat und mindestens zwei Query Variants bei eingeschalteter Optimierung, kein Dispatcherplan bei ausdrücklicher Abwahl, Ergebnisgleichheit über alle vier Phasen | 2 |
 
 Der Status ist `IMPLEMENTED`, nicht `VALIDATED`. Auf SQL Server 2019 und 2022 endet die Demo planmäßig mit `SKIP|SKIP_VERSION`; der Runner wertet diesen Ausgang als bestanden. Stuft der Optimierer die Abfrage trotz passender Version nicht als geeignet ein oder fehlt die Plancache-Evidenz, endet die betroffene Phase mit `SKIP|SKIP_EVIDENCE_MISSING`.
 
@@ -402,8 +402,8 @@ python Tests/Static/validate_dgn003_dgn005_pilots.py
 python Tests/Static/validate_privacy_metadata.py .
 ```
 
-Der Workflow `.github/workflows/dgn003-dgn005-pilots.yml` führt `DGN-003` und
-`DGN-005` auf SQL Server 2019, 2022 und 2025 jeweils zweimal aus. Akzeptierte
+Der Workflow `.github/workflows/dgn003-dgn005-pilots.yml` führt `DGN-003` (Abfragehistorie mit Query Store) und
+`DGN-005` (Gezielte Ereigniserfassung mit Extended Events) auf SQL Server 2019, 2022 und 2025 jeweils zweimal aus. Akzeptierte
 Warnungen und kontrollierte Skips bleiben in `DGN_STAGE` und `DGN_SUMMARY`
 sichtbar. [Actions-Lauf 33222989682](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989682) beendete alle zwölf Demoläufe mit `PASS/OK`; beide Piloten sind `VALIDATED`.
 
@@ -414,10 +414,10 @@ python Tests/Static/validate_adv017_opt017.py
 python Tests/Runtime/run_adv017_opt017.py --target docker --container <name> --expected-major <15|16|17>
 ```
 
-Der Runtime-Runner führt `OPT-017` zweimal aus, bestätigt das isolierte gelbe
+Der Runtime-Runner führt `OPT-017` (Ungleich verteilte parallele Arbeit) zweimal aus, bestätigt das isolierte gelbe
 Profil und erhält `PASS`, `WARN_EMPIRICAL_VARIANCE` sowie kontrollierte
 Ressourcen- oder Evidenz-Skips in `OPT017_STAGE` und `OPT017_SUMMARY`. Nur Läufe
-mit Actual DOP, Exchanges und Threadarbeit liefern die Kernevidenz für eine
+mit Actual DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Exchanges und Threadarbeit liefern die Kernevidenz für eine
 Runtimefreigabe. [Actions-Lauf 33447840232](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33447840232) lieferte auf SQL Server 2019, 2022 und 2025 jeweils zweimal `PASS/OK`; `OPT-017` ist `VALIDATED`.
 
 - `LABINT-002`: grüner lokaler Runner über `SQL_Server_Lab`;
@@ -436,6 +436,6 @@ Tests und Reports dürfen keine realen Zugangsdaten oder Umgebungsinformationen 
 python Tests/Static/validate_sql25_delta_review.py
 ```
 
-Der Prüfer bindet `SRC-058` bis `SRC-065`, die sieben Featureentscheidungen,
+Der Prüfer bindet `SRC-058` (What's new in SQL Server 2025) bis `SRC-065` (Vector data type), die sieben Featureentscheidungen,
 die fortgeschriebenen Claims und den ausschließlich auf Engine 17 erzeugten
 `DGN-005`-Pfad mit `MAX_DURATION` zusammen. Er erzeugt keine Runtimefreigabe.

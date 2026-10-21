@@ -5,7 +5,7 @@
 | Status | `STATIC_COLLECTOR_TRANSPORT` |
 | Format | `dgn007-capture-body/v1` |
 | Implementierung | [reiner Decoder](../../../../Tests/Contracts/dgn007_collector_transport.py) |
-| Methodenbezug | [prospektiver Prüfvertrag](README.md), `DEC-068` |
+| Methodenbezug | [prospektiver Prüfvertrag](README.md), `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen) |
 | Abnahmegrenze | synthetischer JSON-Transport und deklarierte Recordbindungen; keine SQL-Runtime-Abnahme |
 
 Der Decoder ist ein begrenzter Teil des noch offenen Collectors. Er nimmt
@@ -52,7 +52,7 @@ Die bestehenden Recordklassen stehen im
 [prospektiven Evaluator](../../../../Tests/Contracts/dgn007_prospective_acceptance.py).
 Der Decoder prüft Requestfolge, IDs, Counts, feste Parameterklassen,
 Fenstergrenzen, Parent-/Variant-Bindung, Planidentität und Union-Konsistenz.
-Ungenutzte historische Planzeilen, Plan XML und freie Querytexte gehören
+Ungenutzte historische Planzeilen, Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) und freie Querytexte gehören
 nicht zum Transportformat. Die festen Objekt- und Statementmarker grenzen
 den erlaubten synthetischen Suchscope ein.
 
@@ -92,7 +92,7 @@ der Query-Store-Aggregation oder vor Übergabe des Texts entstanden ist.
 
 | `row_evidence` | `returned_rows` | Bedeutung |
 |---|---|---|
-| `NOT_CAPTURED` | JSON `null` / Python `None` | Ergebniszeilen je Request wurden nicht geliefert; der Body bleibt in dieser Hinsicht unvollständig |
+| `NOT_CAPTURED` | JSON (JavaScript Object Notation; strukturiertes Textformat) `null` / Python `None` | Ergebniszeilen je Request wurden nicht geliefert; der Body bleibt in dieser Hinsicht unvollständig |
 | `MEASURED` | Integer | Der Caller deklariert einen Messwert; der Decoder prüft ihn gegen den festen Ergebnisvertrag |
 
 Der heutige [Setupvertrag](../Automated/10_Setup.sql) speichert im
@@ -116,7 +116,7 @@ Budgets werden weder ergänzt noch als bestätigt ausgegeben.
 
 `TransportError` enthält ausschließlich `FAIL_CONTRACT` oder
 `FAIL_RESULT_CONTRACT` aus
-[`FWK-012`](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
+[`FWK-012` – Status-, Fehler- und Skip-Vertrag](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
 Schema-, Typ-, Parser- und Digestfehler ergeben `FAIL_CONTRACT`; ungültige
 Werte oder Recordbindungen ergeben `FAIL_RESULT_CONTRACT`. Fehler geben
 weder Payloadteile noch rohe Parserfehlerketten zurück. Der Transport hat
@@ -135,7 +135,7 @@ python Tests/Static/test_dgn007_prospective_acceptance.py
 fünfminütige Statikworkflow prüft diese Grenze im temporären GitHub-Checkout.
 Dieser ursprüngliche Decoder-Nachweis enthält keine SQL-Runtime. Der
 getrennte Producer und seine eigene Prüfung stehen in
-[SQL_CAPTURE_PRODUCER.md](SQL_CAPTURE_PRODUCER.md); der Coordinator bleibt offen.
+[DGN-007 – SQL-Producer der skalaren Capture-Projektion](SQL_CAPTURE_PRODUCER.md); der Coordinator bleibt offen.
 
 ## Nächster ausführbarer Schnitt
 

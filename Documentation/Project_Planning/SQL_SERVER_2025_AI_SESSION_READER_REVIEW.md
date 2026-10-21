@@ -60,7 +60,7 @@ InvalidCast-/SqlExceptionfelder und expliziter Fehlercap verhindern eine
 scheinbar vollständige Fehlermessung. Vier bytegenaue Guards bleiben unverändert.
 Keine Kompilierung, CLR-/SQL-/Container-/Provider-/Modell- oder Hosteffekte.
 
-Sieben neue Puremethoden normal, tatsächlicher PID 61124/poll 0/rc 0 in
+Sieben neue Puremethoden normal, tatsächlicher PID (Process Identifier; Prozesskennung) 61124/poll 0/rc 0 in
 0,253730 Sekunden; fünf geschützte Methoden unter `-O`, PID 51112/poll 0/rc 0
 in 0,168936 Sekunden. Kein Timeout/End-UNKNOWN, ursprüngliche Rawkanäle und
 getestete Sourcebytes erhalten. Acht ursprüngliche Akten-/Source-/Stop-Pins

@@ -2,13 +2,13 @@
 
 | Feld | Wert |
 |---|---|
-| Arbeitspaket | `ADV-008` (Demo), `ADV-010` (Folien) |
+| Arbeitspaket | `ADV-008` (Review QRY-004) (Demo), `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) (Folien) |
 | Status | `VALIDATED` |
 | Datum | 2026-08-03 |
 | Demo | `OPT-009` – `Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans` |
 | Lernziel | `LO-M03-08` |
 | Claim | `ADV-CLM-019` |
-| Quellen | `SRC-001`, `SRC-007`, `SRC-008`, `SRC-048` |
+| Quellen | `SRC-001` (Query processing architecture guide), `SRC-007` (Intelligent query processing), `SRC-008` (Intelligent query processing features in detail), `SRC-048` (PSPO: How SQL Server 2022 Tries to Fix Parameter Sniffing) |
 | Folienspezifikation | `Documentation/Curriculum/ADV_010_SLIDE_SPECIFICATION_M03_LO08_PSP.md` |
 | Deck | 94 → 98 Folien |
 | Werkzeug | `Tools/build_adv010_slides.py` |
@@ -17,9 +17,9 @@
 
 ## 1. Zweck des Schnitts
 
-`QRY-004` endete mit einem ausdrücklichen Ausblick: Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization lösen jeweils eine eigene Problemform und sind an Version, Compatibility Level und Eignung gebunden. Dieser Schnitt löst den ersten Teil ein. Er liefert die Demo `OPT-009`, den zugehörigen statischen und laufzeitbezogenen Prüfvertrag sowie vier Vertiefungsfolien, die als geschlossener Block in das aktive Deck übernommen wurden.
+`QRY-004` (Optionale Filter, Recompile und dynamisches SQL) endete mit einem ausdrücklichen Ausblick: Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization lösen jeweils eine eigene Problemform und sind an Version, Compatibility Level und Eignung gebunden. Dieser Schnitt löst den ersten Teil ein. Er liefert die Demo `OPT-009`, den zugehörigen statischen und laufzeitbezogenen Prüfvertrag sowie vier Vertiefungsfolien, die als geschlossener Block in das aktive Deck übernommen wurden.
 
-Optional Parameter Plan Optimization bleibt `OPT-010` vorbehalten und wird hier weder bewertet noch vorweggenommen.
+Optional Parameter Plan Optimization bleibt `OPT-010` (Planoptimierung für optionale Parameter) vorbehalten und wird hier weder bewertet noch vorweggenommen.
 
 ## 2. Fachlicher Aufbau der Demo
 
@@ -67,7 +67,7 @@ Der Runtime-Runner wertet `SKIP_VERSION`, `SKIP_PERMISSION`, `SKIP_EVIDENCE_MISS
 
 ## 5. Deckübernahme
 
-Vier Folien wurden nach `DEC-058` als geschlossener Block unmittelbar nach dem Block `ADV-009` und vor der Schlussfolie angefügt.
+Vier Folien wurden nach `DEC-058` als geschlossener Block unmittelbar nach dem Block `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) und vor der Schlussfolie angefügt.
 
 | Stabile ID | Anzeigeposition | Folienteil | Claim |
 |---|---|---|---|

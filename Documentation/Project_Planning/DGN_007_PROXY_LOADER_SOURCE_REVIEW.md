@@ -22,13 +22,13 @@ Workerreceipt übernommen noch zu einer Quellenautorität umgedeutet.
 Ein Implementierungsowner root, derselbe unabhängige Reviewer, höchstens sechs
 stabile Source/Testkandidaten mit Checkpoint2 und harter Grenze6, höchstens fünf
 gebündelte geänderte Nachläufe einschließlich Auswahl-, Source-/Testreview,
-Lauf-GO, Tests/Koordination/CI, regulärem Merge, Main-Gates und Branchcleanup.
+Lauf-GO, Tests/Koordination/CI (Continuous Integration; automatisierte Integrationsprüfungen), regulärem Merge, Main-Gates und Branchcleanup.
 Verbrauch UNKNOWN. Kein Reset alter ausgeschöpfter Scopes oder Wiederholen
 unveränderter grüner Tests. Quellenfitfehler gelten als Fehler, kein Capwechsel.
 
 ## Konkrete additive Quelle und Ownerroute
 
-Neue reine Generatorquelle `Tests/Tools/dgn007_proxy_loader_source.py`, API
+Neue reine Generatorquelle `Tests/Tools/dgn007_proxy_loader_source.py`, API (Application Programming Interface; Programmierschnittstelle)
 `build_proxy_loader_control_bootstrap(profile_raw, *, logical_profile,
 expected_soabi, expected_destshared)`. Sie verwendet ausschließlich die bisherige
 vollständige Eingangsquelle aus PR269 und ein festes neues Fragment. Frühere
@@ -52,7 +52,7 @@ Private eigene einmalige Listenhalter dürfen Status/Invocation/Zähler fortschr
 Die neue Mainentry ruft ausschließlich die so gehaltene ursprüngliche I/O-Entry
 einmal auf; keine öffentliche Received-/Loaderreceipt oder Callerstatuswahl.
 Nur am erfolgreichen Ende der tatsächlichen vollständigen I/O-Folge, nach
-IMPORT_RELEASE und bestätigtem exaktem EOF, führt deren eigener Code einen
+IMPORT_RELEASE und bestätigtem exaktem EOF (End of File; Ende eines Eingabestroms), führt deren eigener Code einen
 direkten privaten Handoff der tatsächlichen gehaltenen M-/Body-/Profilwerte
 sowie seines ursprünglichen privaten I/O-Owners und Frames durch. Der Handoff
 bindet ursprüngliche Owneridentität und aktive private einmalige Invocation;
@@ -170,7 +170,7 @@ eigene Kopie; die ursprüngliche Scriptbuiltin-Namespace bleibt separat gepinnt.
 Nur der eigene identische fehlerhafte Cacheeintrag wird entfernt; fremde Slots
 und Bootstrap-__main__ bleiben erhalten. Kein Resolver/Finder/Dateiread/PYC.
 
-Neue16 Modelle mit eigenen Builtinproviderfunktionen, Fakecache/-I/O/-Profilen
+Neue16 Modelle mit eigenen Builtinproviderfunktionen, Fakecache/-I/O (Input/Output; Ein- und Ausgabezugriffe)/-Profilen
 und externen Compile-/Exec-/Wiretraces; nur vorgewählte sichere synthetische
 Body2-Varianten. Bestehende kleine Eingangsfixture erhält nur optionalen Builder,
 Default unverändert. Vollständige unabhängige AST-/Literaloracle und tatsächlicher

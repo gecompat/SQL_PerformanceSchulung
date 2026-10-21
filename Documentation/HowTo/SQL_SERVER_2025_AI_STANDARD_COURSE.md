@@ -47,7 +47,7 @@ bindet Auswahl, Aufgaben und Zeitfenster.
 | Zeit | STANDARD-Folien | Durchführung und Lernbeleg |
 |---|---|---|
 | 00–10 | 1–7 | Wissensbasisfall und bekannte SELECT-Abfrage lesen; erwartete Quelle und Antwort nennen. |
-| 10–25 | 8–13 | KI, Modell, Training, Inferenz und Token einzeln erklären und einer Aufgabe zuordnen. |
+| 10–25 | 8–13 | KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen), Modell, Training, Inferenz und Token einzeln erklären und einer Aufgabe zuordnen. |
 | 25–40 | 14–17 | Engine, Client, CL und Rechte unterscheiden; bei einem Hindernis den vorbereiteten nächsten Schritt wählen. |
 | 40–60 | 18–21 | Id-Reihenfolge und Distanzen vorhersagen; vollständige read-only Query vorführen, geometrische Aussage erklären. |
 | 60–70 | 22–23 | Zahlenzuordnung und Sprach-Embedding unterscheiden; Voraussetzungen eines echten Modellzugangs nennen. |

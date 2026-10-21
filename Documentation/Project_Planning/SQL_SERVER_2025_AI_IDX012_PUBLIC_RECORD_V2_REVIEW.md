@@ -9,7 +9,7 @@ festen Eingangsdateien und acht Authoritydateien blieben vor/nach bytegleich.
 Root hat den Fehler und die Originalkanäle unabhängig geprüft.
 
 Der konkrete Fehler betrifft die beiden Rechtegegenfälle: Die tatsächliche
-öffentliche API liefert für das noch nicht gestartete Cleanupfenster vier
+öffentliche API (Application Programming Interface; Programmierschnittstelle) liefert für das noch nicht gestartete Cleanupfenster vier
 Felder, während Consumer und Fixture nur Status erwarteten. Source5 fordert
 jetzt exakt Status=NOT_STARTED, Seconds als int60 sowie beide Zeitfelder=None.
 Fehlende, zusätzliche und widersprüchliche Felder werden abgewiesen. Der neue
@@ -156,7 +156,7 @@ Enden und behauptete Qualifikation dürfen keine kohärente Warn-Ausgabe erhalte
 
 Die Ausgabe enthält ausschließlich feste Status-/Claimgrenzen und begrenzte Counts.
 Keine Tokens, SIDs, Pfade, Rohkanäle, Vektoren, Zeitstempel oder Credentials exportieren.
-PID/Poll/Returncode/Input-/Sourcekohärenz ist ein Recordcheck, keine unabhängige
+PID (Process Identifier; Prozesskennung)/Poll/Returncode/Input-/Sourcekohärenz ist ein Recordcheck, keine unabhängige
 Attestation seiner Herkunft: DECLARED_NOT_INDEPENDENTLY_ATTESTED bleibt.
 Die private Secretliste ist ein ausdrücklicher Pflichtparameter. Ihre Herkunft
 und Vollständigkeit sind nicht unabhängig attestierbar. Bei leerer Liste bleibt

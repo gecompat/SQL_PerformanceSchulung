@@ -18,14 +18,14 @@ auf Worker3 nach §33.1 des Importprofilvertrags. Genau drei SOURCES beginnen
 in der Reihenfolge3/4/5 und schließen5/4/3; keine Parents. Ein Implementierungsowner
 root, derselbe unabhängige Reviewer, höchstens sechs stabile Source/Testkandidaten,
 Checkpoint2, harte Grenze6 und höchstens fünf geänderte Nachläufe. Auswahl-,
-Source-/Test-/Deltareviews, explizite Lauf-GOs, Tests, Koordination, CI, regulärer
+Source-/Test-/Deltareviews, explizite Lauf-GOs, Tests, Koordination, CI (Continuous Integration; automatisierte Integrationsprüfungen), regulärer
 Merge, Main-Gates und eigene Branchbereinigung gehören zum gemeinsamen Umfang.
 Verbrauch UNKNOWN. Bei ausgeschöpfter Grenze kein neuer Kandidat oder Umbenennen
 des Scopes. Unveränderte erfolgreiche Prüfungen werden nicht wiederholt.
 
 ## Quelle, Handoffs und gehaltene Invocation
 
-Neue additive API `build_harness_loader_control_bootstrap` im eigenen Toolmodul.
+Neue additive API (Application Programming Interface; Programmierschnittstelle) `build_harness_loader_control_bootstrap` im eigenen Toolmodul.
 Unterbau ist die vollständige Eingangsquelle aus PR269; bestehende Proxyroute
 und ältere Generatoren bleiben unverändert. Die neue Ausgabe darf die bereits
 reviewten Tokenabstands-/lokalen Alpha-Transformationen wiederverwenden. Vor

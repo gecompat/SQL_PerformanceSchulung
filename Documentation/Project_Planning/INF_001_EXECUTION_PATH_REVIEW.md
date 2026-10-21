@@ -4,7 +4,7 @@
 |---|---|
 | Status | `IMPLEMENTED_FOR_REVIEW` |
 | Stand | 2026-08-01 |
-| Arbeitspaket | `INF-001` – Ausführungsziele und Testumgebungs-How-to |
+| Arbeitspaket | `INF-001` (Ausführungsziele der Schulungsbeispiele) – Ausführungsziele und Testumgebungs-How-to |
 | Entscheidungen | `DEC-046` bis `DEC-051` |
 | PowerPoint geändert | nein |
 
@@ -72,12 +72,12 @@ Der Arbeitsplatz, auf dem die Umsetzung erfolgte, verfügt weder über Docker no
 
 ## 7. Abgrenzung
 
-Nicht enthalten sind `INF-002` bis `INF-006`, Änderungen an `SQL_Server_Lab`, die Umsetzung von `LABSCN-003` und die fachlichen `ADV-008`-Schnitte.
+Nicht enthalten sind `INF-002` bis `INF-006`, Änderungen an `SQL_Server_Lab`, die Umsetzung von `LABSCN-003` und die fachlichen `ADV-008` (Review QRY-004)-Schnitte.
 
 Die Framework-Matrix bleibt an das Ziel `docker` gebunden, weil sie Query Store und Extended Events auf Serverebene schaltet (`DEC-050`).
 
 ## 8. Nächste Schritte
 
 1. Ergebnis der Runtime-Workflows für `--target docker` prüfen und hier eintragen.
-2. Laufnachweis gegen eine vorhandene Instanz erbringen: `OPT-002` und `QRY-001` je zweimal einschließlich Cleanup-Prüfung.
-3. `CON-004` gegen eine vorhandene Instanz als Risikonachweis für die Mehrsitzungsorchestrierung. Scheitert der Lauf, wird die Demo für das Ziel `host` als nicht unterstützt dokumentiert.
+2. Laufnachweis gegen eine vorhandene Instanz erbringen: `OPT-002` (Statistiken lesen) und `QRY-001` (Indexfreundliche Suchbedingungen) je zweimal einschließlich Cleanup-Prüfung.
+3. `CON-004` (Blockierungsketten verfolgen) gegen eine vorhandene Instanz als Risikonachweis für die Mehrsitzungsorchestrierung. Scheitert der Lauf, wird die Demo für das Ziel `host` als nicht unterstützt dokumentiert.

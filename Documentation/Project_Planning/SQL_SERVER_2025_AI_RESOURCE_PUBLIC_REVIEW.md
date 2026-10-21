@@ -22,7 +22,7 @@ Sechs vorhandene Setup-/Source-/Cleanup-/Guard-/Mess-/Plan-SQLs exakt bytegleich
 DELETE-Gegenprobe. Reine Parser übernehmen vorhandene Source-/Fenster-/Plan-
 oracles ohne private Runtimeimports oder automatische Rohpersistierung.
 Feste Demo-/Run-/DB-Werte und Messvariablenwhitelist; öffentliche sqlcmd-Prozess-
-APIs mit kompatiblen Vollscalaroptionen nur für Planrequests. Gemeinsame API
+APIs mit kompatiblen Vollscalaroptionen nur für Planrequests. Gemeinsame API (Application Programming Interface; Programmierschnittstelle)
 exakt unverändert; kein DGN-007- oder anderer Workstream wiederaufgenommen.
 
 Ein Owner, sechs Kandidaten/maximal 42 zusätzliche serielle eigene Container
@@ -30,7 +30,7 @@ für sieben feste Slots. C1 bestand alle sieben Slots. Kein weiterer unveränder
 grüner Lauf. Ein privater Launcherimportfehler vor Admission wurde korrigiert;
 dabei liefen weder SQL noch Container. Kein nativer FAIL verschwiegen oder Budgetreset.
 Alle sieben Container kamen aus festen bereits gecachten 2019-/2022-/2025-Images,
-vier CPU/sechs GiB, Loopback, Passwort nur ENV, kein Pull. Reguläres Gesamtbudget
+vier CPU (Central Processing Unit; Prozessor)/sechs GiB, Loopback, Passwort nur ENV, kein Pull. Reguläres Gesamtbudget
 300 Sekunden einschließlich Readiness, gleiche 60 Sekunden Cleanup ab Beginn
 der finalen SQL-/Abwesenheitsphase bis unabhängiger DB-/CID-/Namensabwesenheit.
 
@@ -42,7 +42,7 @@ exakt mit gespeicherten Records abgeglichen; je Request tatsächliche vollständ
 Identität/Counters/Chronologie und unabhängig guardattestierte eigene DB-ID.
 Zehn vollständige 400-Row-Aufnahmen über beide Läufe gleich, tatsächliche
 SourceDELETE-/Querymutationsnegative mit exakt 51003, Restore und Setupidempotenz.
-DB-MAXDOP/PREVIEW_FEATURES 0/0 erhalten; eigenes YELLOW-Profil, kein Previeweffekt.
+DB-MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES 0/0 erhalten; eigenes YELLOW-Profil, kein Previeweffekt.
 
 Die tatsächlichen öffentlichen Vollprofile liefern WARN_OPTIONAL_EVIDENCE_SKIPPED:
 fehlende Wait-/Warning-/vollständige Worker-/Spillbeobachtung bleibt offen;
@@ -63,7 +63,7 @@ Pollausnahmen müssen UNKNOWN setzen, der Setupfault muss exakt attestiert sein,
 und auch Versions-SKIPs müssen dieselbe Parent-Cleanupdeadline teilen.
 15 betroffene Controller-, 24 Plan-, 18 Mess-/Transportfälle PASS, darunter
 Collector-/Pollausnahmen, Bool-Endstatus, früher Interrupt, verzögerte
-SKIP-Abwesenheit sowie manipulierte Rows/XML/Identitäts-/Counter-/Chunkdaten.
+SKIP-Abwesenheit sowie manipulierte Rows/XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten)/Identitäts-/Counter-/Chunkdaten.
 Reviewer ohne Tests oder Runtime; keine Reviewkette oder Performanceabnahme.
 Frameworkvalidator und 11 betroffene bestehende Runnerfälle PASS.
 
@@ -88,7 +88,7 @@ und den öffentlichen Prozesspfad: zweimal Profil je tatsächlicher Version,
 danach nur bei vollständig qualifiziertem 2025-Profil der erwartete Setupfault.
 Alle Pflicht-SKIPs/WARNs bleiben im Lauf sichtbar. Neue Source-/Test-/Runnerpfade
 stehen in beiden Workflowpathsets; mutierende CI-Cancellation bleibt false.
-CI ergänzt den tatsächlich anderen Consumer-/Shim-/Plattformpfad; keine lokale
+CI (Continuous Integration; automatisierte Integrationsprüfungen) ergänzt den tatsächlich anderen Consumer-/Shim-/Plattformpfad; keine lokale
 Wiederholung bereits abgeschlossener privater grüner Messschnitte. Statische
 Gegenfälle werden nur bei geänderten Inputs wiederholt. Aktuelle Head-/Main-Gates
 bleiben Pflicht; tatsächliche Auswahl wird aus den betroffenen Pfaden gebunden.

@@ -38,7 +38,7 @@ Unterstützte Assertion-Arten:
 | `RATIO_MIN` | Vergleichswert muss mindestens einen Anteil der Baseline erreichen |
 | `DIRECTION` | `LESS`, `LESS_OR_EQUAL`, `GREATER`, `GREATER_OR_EQUAL` oder `UNCHANGED` |
 
-Absolute Duration-Grenzen sind nur zulässig, wenn das Ressourcenprofil technisch kontrolliert und im Vertrag begründet ist. Für normale Schulungsdemos werden Duration und CPU bevorzugt als Richtung, Verhältnis oder empirische Warnung bewertet.
+Absolute Duration-Grenzen sind nur zulässig, wenn das Ressourcenprofil technisch kontrolliert und im Vertrag begründet ist. Für normale Schulungsdemos werden Duration und CPU (Central Processing Unit; Prozessor) bevorzugt als Richtung, Verhältnis oder empirische Warnung bewertet.
 
 ## 4. Schwere und fehlende Evidenz
 
@@ -73,4 +73,4 @@ Der Evaluator verarbeitet keine Querytexte, Pläne oder Identitätsdaten. Reposi
 - alle fünf Assertion-Arten geprüft werden,
 - NaN, Infinity, Null-Division und inkonsistente Metadaten abgewiesen werden,
 - `PASS`, `WARN`, `SKIP` und `FAIL` technisch unterscheidbar sind,
-- ein positiver und ein negativer Selbsttest in CI ausgeführt werden.
+- ein positiver und ein negativer Selbsttest in CI (Continuous Integration; automatisierte Integrationsprüfungen) ausgeführt werden.

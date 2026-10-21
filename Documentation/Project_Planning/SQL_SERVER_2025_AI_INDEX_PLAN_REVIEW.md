@@ -22,12 +22,12 @@ FF-Synchronisierung/sauberer Stand und eigener lokaler/Remote-Branchcleanup best
 
 C1 zweimal auf jeweils neuer eigener Podmaninstanz, festes bereits vorhandenes
 Image 78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726;
-SQL meldete 17.0.5005.3, EngineEdition 3. Vier CPU/sechs GiB, eigener Loopbackport,
+SQL meldete 17.0.5005.3, EngineEdition 3. Vier CPU (Central Processing Unit; Prozessor)/sechs GiB, eigener Loopbackport,
 300 Sekunden gemeinsames Laufbudget und anschließend insgesamt 60 Sekunden Cleanup.
 SQLCMDPASSWORD ausschließlich über Umgebung; bekanntes tatsächliches Clientende
 bleibt vor jedem Folgecall Voraussetzung. Keine weiteren Clients nach UNKNOWN.
 
-Eigene Datenbank mit CL170/SIMPLE und 256-/64-MB-Dateilimits, MAXDOP/PREVIEW_FEATURES
+Eigene Datenbank mit CL170/SIMPLE und 256-/64-MB-Dateilimits, MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES
 beide 0. Keine Änderung dieser beiden Optionen. 1000 eindeutige IDs 1–1000,
 Value=Id×3 und vollständiger 100-Byte-F-Payload. Setupidempotenz und acht vollständige
 Sourceaufnahmen je Lifecycle, insgesamt 16000 Rows, mit nativen Frame-/Recordbindungen.
@@ -41,7 +41,7 @@ fehlende IDs sind echte SQL-Oracles; REVERT schützt Erfolg und Fehler. Die drei
 zusätzlichen Actual-Pläne werden unter Owner aufgenommen und qualifizieren keine
 Readerpläne, Serverlogins oder minimalen Teilnehmerrollen.
 
-Nur festes eigenes NONCLUSTERED-DDL mit MAXDOP1 erstellt den ID-INCLUDE(Value,Payload)-
+Nur festes eigenes NONCLUSTERED-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) mit MAXDOP1 erstellt den ID-INCLUDE(Value,Payload)-
 Index; danach erfolgt sein tatsächlicher Drop. Drei vollständige native Ownerquery-
 Rowsets je Lifecycle liefern IDs101–110, Value=Id×3 und vollständigen F-Payload.
 XMLs binden Namespace/festen Build, exaktes Statement, eigenen DB-/Schema-/Tabellen-/
@@ -51,7 +51,7 @@ Rawpläne exakt gegen die privaten vollständigen Records gebunden.
 ## Beobachtete repräsentative Pläne und Storage
 
 Die Pagewerte gehören zum genannten tatsächlichen Index aus sys.dm_db_partition_stats.
-Sie sind keine Query-I/O oder RAMgröße. Die 18 PK-Seiten bleiben auch während des
+Sie sind keine Query-I/O (Input/Output; Ein- und Ausgabezugriffe) oder RAMgröße. Die 18 PK-Seiten bleiben auch während des
 Candidateindex bestehen; seine 17 used pages sind zusätzlicher Indexspeicher.
 
 | Lauf | Zustand | Tatsächlicher Operator | Tatsächlich verwendeter Index | Actual Rows | Indexrows | Used / reserved pages |
@@ -64,11 +64,11 @@ Candidateindex bestehen; seine 17 used pages sind zusätzlicher Indexspeicher.
 | 2 | post_drop | Clustered Index Seek | DGN010_OwnPK | 10 | 1000 | 18 / 33 |
 
 In beiden Lifecycles wechselt der tatsächliche Zugriff zum Candidateindex und
-kehrt nach Drop zum Clustered-PK zurück. Beide Strukturen liefern denselben
+kehrt nach Drop zum Clustered-PK (Primary Key; Primärschlüssel) zurück. Beide Strukturen liefern denselben
 vollständigen Rowset. Der Planwechsel und 17 zusätzliche Indexseiten belegen
 allein weder einen Laufzeitgewinn noch eine Performancewiderlegung der Advicefixture.
 
-Roher Plan-DOP 0 bleibt 0, NonParallelPlanReason=MaxDOPSetToOne.
+Roher Plan-DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) 0 bleibt 0, NonParallelPlanReason=MaxDOPSetToOne.
 In diesen sechs Plänen sind SerialRequiredMemory, SerialDesiredMemory, GrantedMemory
 und MaxUsedMemory tatsächlich 0. RequiredMemory, DesiredMemory, RequestedMemory,
 GrantWaitTime, MaxQueryMemory und LastRequestedMemory fehlen und bleiben None;

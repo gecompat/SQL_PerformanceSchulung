@@ -5,7 +5,7 @@
 | Status | `SUPERSEDED_BY_DEC-044` |
 | Stand | 2026-07-27 |
 | Ursprünglicher Pull Request | `#22` |
-| Aktueller Zielvertrag | [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](../Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) |
+| Aktueller Zielvertrag | [Interaktive Schulungsszenarien mit SQL_Server_Lab](../Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md) |
 | Änderungen in SQL_Server_Lab | keine |
 
 ## 1. Historischer Zweck

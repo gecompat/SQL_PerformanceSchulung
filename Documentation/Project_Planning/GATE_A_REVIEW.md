@@ -46,7 +46,7 @@ Gate A bestätigt, dass die fachliche Ausgangsbasis ausreichend inventarisiert, 
 Die folgenden Punkte bleiben offen, widersprechen aber nicht der Gate-A-Abnahme:
 
 1. Die vier Claims mit Status `REFINE` werden in `W2-007` sichtbar und in den Speaker Notes korrigiert. Sie blockieren die Präsentationsfreigabe, nicht den Beginn des Framework-Designs.
-2. Das Namens-, Eigentums- und Schutzschema für synthetische Testdatenbanken wird in `FWK-002` festgelegt. Es blockiert die Implementierung allgemeiner Setup-/Cleanup-Skripte.
+2. Das Namens-, Eigentums- und Schutzschema für synthetische Testdatenbanken wird in `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) festgelegt. Es blockiert die Implementierung allgemeiner Setup-/Cleanup-Skripte.
 3. Runtime-Evidenz, Wiederholbarkeit und Versionsmatrix der 36 folienbezogenen Demo-Bündel sind noch nicht validiert.
 4. Sonderinfrastruktur bleibt zurückgestellt, bis eine konkrete Demo ihre fachliche Notwendigkeit nachweist.
 5. Altbeispiele bleiben bis zur Klassifikation in `W2-001` inaktiv.
@@ -59,10 +59,10 @@ Gate A ist erfüllt. Welle 1 darf beginnen. Die empfohlene Reihenfolge lautet:
 
 1. `FWK-001` Preflight-Vertrag,
 2. `FWK-002` Testdatenbank-Namens- und Lifecycle-Vertrag,
-3. `FWK-008` Sicherheits- und Abbruchrahmen,
+3. `FWK-008` (Sicherheits- und Abbruchvertrag) Sicherheits- und Abbruchrahmen,
 4. `FWK-009` Demo-Dokumentvorlage,
-5. `FWK-012` Fehler- und Skip-Vertrag,
-6. anschließend Messung, Datenaufbau, Orchestrierung und Test-Harness über `FWK-003` bis `FWK-007`, `FWK-010` und `FWK-011`.
+5. `FWK-012` (Status-, Fehler- und Skip-Vertrag) Fehler- und Skip-Vertrag,
+6. anschließend Messung, Datenaufbau, Orchestrierung und Test-Harness über `FWK-003` (Vertrag für synthetische Testdaten) bis `FWK-007` (Query-Store- und Extended-Events-Vertrag), `FWK-010` (Runtime-Harness-Vertrag) und `FWK-011` (Ergebnisnormalisierungs- und Erwartungsvertrag).
 
 Diese Reihenfolge legt zuerst die Sicherheits- und Zielverträge fest. Dadurch werden Datengenerator, Messhelfer und Pilotdemos nicht auf ungesicherten Setup- oder Cleanup-Annahmen aufgebaut.
 

@@ -16,7 +16,7 @@ FAILs bleiben FAILs; größere Provenienz-/Collectorentwürfe bleiben getrennt.
 | aktueller Abgleich nach Foundation-Upgrade | `2f04deb2fed0faf5bedf70101fea3f4b93d46678`, [PR 123](https://github.com/gecompat/SQL_PerformanceSchulung/pull/123) |
 | ursprünglicher Reporter-Head | `27a9b5ce81347beaa6d6bfd8788c62965495f0ca` |
 | aktualisierter Reporter-Kandidat | `f9ec582017c942e4278252427c62695e313d37f9` |
-| aktueller Abschluss | PR 68 fachlich verworfen; finaler Parser-/Methodenschnitt in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132) gemäß `DEC-072`, Integration nur mit aktueller relevanter CI |
+| aktueller Abschluss | PR 68 fachlich verworfen; finaler Parser-/Methodenschnitt in [PR 132](https://github.com/gecompat/SQL_PerformanceSchulung/pull/132) gemäß `DEC-072` (DGN-007: beobachtete Intervallzuordnung und diagnostische QS-SYSUTC-Zeitklammer), Integration nur mit aktueller relevanter CI (Continuous Integration; automatisierte Integrationsprüfungen) |
 | Arbeit | [PR 68](https://github.com/gecompat/SQL_PerformanceSchulung/pull/68), `codex/dgn007-g13-boundary-report` |
 | Ergebnisgrenze | Diagnosepaket; keine G13-Behebung, Methodenwahl oder Incidentfreigabe |
 
@@ -88,7 +88,7 @@ Der Diagnosebericht bleibt nützlich: Ohne ihn berichtet Main bei G13 nur die
 Guard-ID; ein neuer Fehler kann die untere, obere oder beide Grenzen betreffen.
 Die Ausgabe bewahrt exakte gespeicherte Werte, benennt Overflow und fehlende
 Diagnose und erscheint erst nach der unabhängigen Cleanupprüfung. Sie liefert
-keine Querytexte, Plan-XML oder zusätzliche QS-Abfrage.
+keine Querytexte, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) oder zusätzliche QS-Abfrage.
 
 Der Vergleich aller sechs Quell-/Vertragsdateien bestätigte vor der
 Aktualisierung byteidentischen Main-/PR68-Base-Stand und fehlende
@@ -263,7 +263,7 @@ Er rief pro Version genau einmal den bestehenden FWK-Harness mit dem ausgewählt
 Manifest und `--show-output` auf. Die privaten SQL-Ergänzungen sind Diagnose-
 instrumentierung, kein versionsgebundener Bundle-/Gate- oder Importnachweis.
 Die tatsächlichen Suchphase-Grenzen blieben SQL20/21 145 s, Lifecycle 180 s,
-Cleanup 60 s und äußerer Schutz 260 s. Eigene Container hatten vier CPU/8 GiB,
+Cleanup 60 s und äußerer Schutz 260 s. Eigene Container hatten vier CPU (Central Processing Unit; Prozessor)/8 GiB,
 keine Ports oder Mounts; vorhandene fremde Container wurden nicht verändert.
 
 | Version und Scope | tatsächlich beobachtetes Ergebnis | Phasenlaufzeit | gesamte lokale Walltime |

@@ -90,7 +90,7 @@ Umgebung. Anleitungen enthalten keine Passwortwerte oder reale Verbindungsnamen.
 
 Full-Text ist bei QRY-017 optional. Bereiten Sie die Besprechung des sichtbaren WARN
 bei fehlender Komponente vor; eine Installation oder Konfigurationsänderung gehört
-nicht zu dieser Lehreinheit. Live-Embeddings, Cloud, ONNX, ANN und Tenant-/Pooling-
+nicht zu dieser Lehreinheit. Live-Embeddings, Cloud, ONNX (Open Neural Network Exchange; Austauschformat für Modelle), ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) und Tenant-/Pooling-
 Grenzen besitzen eigene offene Gates im
 [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md#autonome-umsetzung-des-ki-workstreams-vom-2026-10-11).
 Die acht Offlineaufgaben ersetzen diese Nachweise nicht.
@@ -147,7 +147,7 @@ Ein späterer begründeter praktischer Versuch folgt ausschließlich der
 mit YELLOW-/Owner-/Build-/Cleanupgrenzen und optional `--summary`.
 
 Lassen Sie zuerst 20/54/74/5420 sowie sechs A/B-Fenster je Pfad/Paar berechnen.
-Zeigen Sie danach, wie CPU, Elapsed und Reads im konkreten Dimensionspaar
+Zeigen Sie danach, wie CPU (Central Processing Unit; Prozessor), Elapsed und Reads im konkreten Dimensionspaar
 unterschiedliche Richtungen besitzen können. Fragen Sie nach Batch- gegenüber
 individueller Querylatenz, AA-Kontrolle, N/A/Nullfenstern und vollständigem
 Beibehalten von Ausreißern. Die UTC-Schleifenzeit einschließlich Tempresult-Inserts
@@ -167,7 +167,7 @@ Die neuen [Aufgaben E1–E3 mit Lösungen](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.m
 lesen bestehende öffentliche Teilnachweise. Sie erfordern keine neue Modell- oder
 SQL-Ausführung. Geben Sie ausschließlich die dort verlinkten öffentlichen
 Zusammenfassungen aus; keine privaten Receipts, Vektoren, Server-/Containernamen,
-IDs, SIDs oder Secrets. Installation, Login-/Rollen-DDL, Cloud-/Provideraufrufe
+IDs, SIDs oder Secrets. Installation, Login-/Rollen-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten), Cloud-/Provideraufrufe
 und private Qualifikationsskripte sind keine Teilnehmeraufgaben.
 
 Leiten Sie Einsteigende je Aufgabe durch **Zweck → vorherige Erwartung → tatsächliche

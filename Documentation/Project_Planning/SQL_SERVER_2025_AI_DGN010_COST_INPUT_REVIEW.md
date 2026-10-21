@@ -34,7 +34,7 @@ Keine freien DDL-, Objekt-, Query- oder Modelltexte. Strings werden SQL-literalg
 
 Der unveränderte vorhandene Markervertrag prüft die tatsächliche DB-ID, vollständigen
 DB-Namensbytes und alle vier vollständigen Markername-/Wertbytes inklusive Längen,
-Scope und Population vor Stateaufnahme oder DDL. Der tatsächliche Source-OID-Guard
+Scope und Population vor Stateaufnahme oder DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten). Der tatsächliche Source-OID-Guard
 weist nun auch OBJECT_ID-NULL ab (`ISNULL(...,-1)`); ein fehlendes Objekt kann den
 SQLvergleich nicht als UNKNOWN umgehen. Gehaltene vollständige Index-/Spalten-Lease
 und tatsächlicher CREATE-/DROP-Prestate werden vor dem EXEC geprüft.
@@ -46,10 +46,10 @@ Request-/Counter-/UTC-/DDLdigest-/Lease-/Chunkgrenzen bleiben erhalten. Die
 Stateaufnahme nutzt den unveränderten bestehenden 13-Key-Snapshotvertrag mit
 vollständigen Source-/Variant-/Markerbytes und begrenztem Transport.
 
-Die API bestätigt keine vorhandene Version, Preflightfreigabe, Vollstatekontinuität,
+Die API (Application Programming Interface; Programmierschnittstelle) bestätigt keine vorhandene Version, Preflightfreigabe, Vollstatekontinuität,
 Negativkontrolle, bekannten Clientendstatus oder Cleanup. Diese Pflichten gehören
 zum späteren Runtimecontroller. Vor einem Aufruf bleiben die bereits dokumentierten
-SQL17.0.5005.3/Developer/CL170-, eigene neue Instanz-, vier CPU/sechs GiB-, 1000-Row-,
+SQL17.0.5005.3/Developer/CL170-, eigene neue Instanz-, vier CPU (Central Processing Unit; Prozessor)/sechs GiB-, 1000-Row-,
 300/60-Sekunden-, Marker-/KnownEnd-/Cleanupgrenzen maßgeblich. Es gibt keinen
 generischen Fremdserver-/Cloud-/ONNX-/Hostpfad und keine neue Runtimefreigabe aus
 einer rein synthetischen Eingabe oder bloßer Recordvalidierung.

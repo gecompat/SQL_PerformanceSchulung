@@ -21,10 +21,10 @@ Damit sind öffentliche Beispieldatenbanken, feste Objekt- oder Session-IDs, fre
 | `SRC-LEGACY-011` | Altquelle ausgeschlossen | – | `DGN-002`, `STL-004` |
 | `SRC-LEGACY-012` | Altquelle ausgeschlossen | – | `DGN-002`, `OPT-014`, `RES-004` |
 | `SRC-LEGACY-013` | Altquelle ausgeschlossen | – | `DGN-002` |
-| `SRC-LEGACY-014` | Altquelle ausgeschlossen | `RES-007` | `DGN-002` |
+| `SRC-LEGACY-014` | Altquelle ausgeschlossen | `RES-007` (Wartezeiten im richtigen Messbereich) | `DGN-002` |
 | `SRC-LEGACY-018` | Altquelle ausgeschlossen | – | `OPT-012` |
-| `SRC-LEGACY-020` | Altquelle ausgeschlossen | `QRY-001`, `QRY-004` | `QRY-002`, `QRY-003` |
-| `SRC-LEGACY-022` | Altquelle ausgeschlossen | `OPT-009` | `OPT-008` |
+| `SRC-LEGACY-020` | Altquelle ausgeschlossen | `QRY-001` (Indexfreundliche Suchbedingungen), `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) | `QRY-002`, `QRY-003` |
+| `SRC-LEGACY-022` | Altquelle ausgeschlossen | `OPT-009` (Parametersensitive Planoptimierung) | `OPT-008` |
 | `SRC-LEGACY-028` | Altquelle ausgeschlossen | – | `IDX-004` |
 
 ## Validierungsgrenzen

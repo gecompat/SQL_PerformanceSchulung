@@ -19,7 +19,7 @@ verbraucht. Der stabil vorgelegte C6 erreicht sechs/hartsechs sowie fünf
 geänderte Nachläufe, Verbrauch UNKNOWN. Genau dieser letzte stabile C6-
 Source/Testkandidat, ein Implementierungsowner root und derselbe unabhängige
 Reviewer. Auswahl-/Source-/Test-/Befundreviews, Koordination, lokale Tests,
-CI, Integration, frische Main-Gates, FullTree/Sync und eigene Branchbereinigung
+CI (Continuous Integration; automatisierte Integrationsprüfungen), Integration, frische Main-Gates, FullTree/Sync und eigene Branchbereinigung
 zählen gemeinsam. Kein siebter Kandidat oder sechster geänderter Nachlauf.
 Bei Source/Testbefund, Fit-/Modell-/CIfehler mit notwendiger Code-/Fixturekorrektur
 nach diesem stabilen C6 gilt die harte Grenze; keine Reparatur unter neuem Namen,
@@ -104,7 +104,7 @@ dominante POSTs tatsächlich erreicht werden. Module-returned/Spec-missing,
 Spec-returned/noch unvorbereitet, Veröffentlichung, Childlink und laufende/
 teilweise/voll bestätigte BEGIN/COMPLETE benötigen eigene Reachedmarker.
 Fremdtypen dürfen keine Getter-/Hash-/Equality-/Len-/Callsentinels erreichen.
-Zusätzlich falsche Rollen/EOF, späte fremde Slots, falsche Typen/Fromlists,
+Zusätzlich falsche Rollen/EOF (End of File; Ende eines Eingabestroms), späte fremde Slots, falsche Typen/Fromlists,
 ursprüngliche Writerteilrückgaben/-fehler, Limits, Reentranz/Retry und sichere
 eigene Bereinigung bei normalem sowie beschädigtem Cache. Kein Raw-DGN-Body
 oder anderer operativer/nativer Prozess in diesen Modellen.

@@ -17,7 +17,7 @@ Buildqualifikation. Docker ist nur nach eigener identischer Build-/Imagequalifik
 zulässig. Vorhandene SQL-Instanzen oder Podman-Maschinen werden nicht verändert.
 
 Pro Demo: eine Session, höchstens 1000 rein synthetische Rows, VECTOR(3) oder VECTOR(32),
-4 CPU/6 GB Containerlimit, MAXDOP 1, Daten-/Loglimits zusammen höchstens 512 MiB.
+4 CPU (Central Processing Unit; Prozessor)/6 GB Containerlimit, MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1, Daten-/Loglimits zusammen höchstens 512 MiB.
 Pro Lifecycle höchstens 300 Sekunden plus 60 Sekunden eigener Cleanup; je zwei
 zusammengehörige Lifecycles und erforderliche Marker-/Resultgegenfixtures. Ein Owner,
 ein erforderlicher enger unabhängiger Review und maximal zwei kohärente Korrekturwellen
@@ -48,7 +48,7 @@ Oracle. Recall, zurückgegebene Rowzahl, Ranking und Ressourcen bleiben Messwert
 ein fehlender erwarteter Top-k-Bestand oder unbekannte Generation ergibt keinen PASS.
 Keine Performanceverbesserung wird vor Messung zugesagt.
 
-Die zu qualifizierende DDL ist:
+Die zu qualifizierende DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) ist:
 
 ```sql
 CREATE VECTOR INDEX IDX011_OwnVector
@@ -74,7 +74,7 @@ aus diesem kleinen synthetischen Profil. Ohne Freigabe bleibt PREVIEW_FEATURES u
 Aktuelle Ressourcenpräzisierung vom 2026-10-11: `SRC-106`,
 [SQL Server 2025 known issues](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-known-issues?view=sql-server-ver17#vector-index),
 dokumentiert einen ignorierten MAXDOP-Parameter bei Vector Index/Search. Die DDL-
-Angabe MAXDOP=1 garantiert deshalb keinen tatsächlichen DOP 1; am ausgewählten
+Angabe MAXDOP=1 garantiert deshalb keinen tatsächlichen DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) 1; am ausgewählten
 Image wurde wegen Parser-FAIL kein Build-/DOP-Beleg erreicht. Die Effekte dieses
 historischen Pakets werden nicht erweitert. Weitere tatsächliche Builds/Suchläufe
 benötigen einen wirksamen freigegebenen DOP-1-Pfad, ein zusätzlicher DB-scoped-

@@ -6,13 +6,13 @@
 | Stand | 2026-07-26 |
 | Pull Request | `#19` |
 | Ausgangscommit auf `origin/main` | `b3597d3c53c98ebf78d1fcf3ee5425f0af3cb5ad` |
-| Arbeitspakete | `ADV-006`, `ADV-007` |
+| Arbeitspakete | `ADV-006` (Design LAB-VP3 und LAB-VP4), `ADV-007` (Design LAB-VP5 und DGN-007) |
 | PowerPoint geändert | nein |
 | SQL-Demos geändert | nein |
 
 ## 1. Umfang
 
-Die Welle schließt die fachliche Designphase des Vertiefungsstrangs ab. Sie entwirft LAB-VP3 und LAB-VP4 für Workspace Memory, Spills und Intelligent Query Processing sowie LAB-VP5 mit `DGN-007` als vollständigen Diagnose- und Capstone-Fall. Es werden noch keine ausführbaren SQL-Demos erzeugt.
+Die Welle schließt die fachliche Designphase des Vertiefungsstrangs ab. Sie entwirft LAB-VP3 und LAB-VP4 für Workspace Memory, Spills und Intelligent Query Processing sowie LAB-VP5 mit `DGN-007` (Zeitabhängige Regression eines Suchworkloads) als vollständigen Diagnose- und Capstone-Fall. Es werden noch keine ausführbaren SQL-Demos erzeugt.
 
 ## 2. ADV-006 – LAB-VP3 und LAB-VP4
 
@@ -22,8 +22,8 @@ Der Designvertrag umfasst:
 - einen normalen gelben LAB-VP3-Pfad und eine optionale rote `RES-003`-Erweiterung,
 - dedizierte Wegwerfinfrastruktur, High-Impact-Bestätigung, 180-Sekunden-Budget und externen Kill-Switch für `RES-003`,
 - Multi-Session-Verträge für `RES-004`,
-- Wait-Scope und zeitbezogene Deltas für `RES-007`,
-- begrenzte, versionsgeprüfte XE-Evidenz für `DGN-005`,
+- Wait-Scope und zeitbezogene Deltas für `RES-007` (Wartezeiten im richtigen Messbereich),
+- begrenzte, versionsgeprüfte XE-Evidenz für `DGN-005` (Gezielte Ereigniserfassung mit Extended Events),
 - eine Featurematrix für SQL Server 2019, 2022 und 2025,
 - getrennte Voraussetzungen für Engine-Version, Compatibility Level, Datenbankkonfiguration, Query Store und Eligibility,
 - begründete Feature- und Ressourcen-Skips anstelle erzwungener Planformen.
@@ -38,7 +38,7 @@ Der Designvertrag umfasst:
 - gestufte Evidenzfreigabe,
 - mindestens drei plausible Hypothesen, von denen mindestens zwei verworfen werden müssen,
 - genau eine querylokale, reversible Referenzänderung,
-- versionsübergreifenden Kernpfad ohne Abhängigkeit von PSP, OPPO oder Query Store Hints,
+- versionsübergreifenden Kernpfad ohne Abhängigkeit von PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte), OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter) oder Query Store Hints,
 - vollständigen Cleanup und Rückfallplan.
 
 ## 4. Maschinenlesbarer Vertrag
@@ -50,7 +50,7 @@ Der Designvertrag umfasst:
 - Demo-Risiken, Ausführungspfade, Sessions und Mindestressourcen,
 - Evidenzfelder und Skip-Codes,
 - verbotene globale, datenschutzkritische oder didaktisch entwertende Aktionen,
-- die Implementierungsschnitte für `ADV-008`.
+- die Implementierungsschnitte für `ADV-008` (Review QRY-004).
 
 ## 5. Automatisierte Abnahme
 
@@ -59,7 +59,7 @@ Die statische Prüfung validiert:
 - vollständige Claim- und Lernzielabdeckung,
 - LAB-VP3-, LAB-VP4- und LAB-VP5-Reihenfolge,
 - Featurematrix für 2019, 2022 und 2025,
-- Query-Store-Anforderungen für persistentes Feedback, CE Feedback und DOP Feedback,
+- Query-Store-Anforderungen für persistentes Feedback, CE (Cardinality Estimation; Schätzung der Zeilenanzahl) Feedback und DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) Feedback,
 - roten Sicherheitsvertrag für `RES-003`,
 - mindestens zwei falsifizierbare Alternativhypothesen für `DGN-007`,
 - neutrale Teilnehmerbezeichnung,
@@ -85,4 +85,4 @@ Eine SQL-Server-Runtime-Matrix wurde in dieser Welle nicht ausgeführt, weil kei
 
 ## 8. Nächster fachlicher Schritt
 
-Der nächste abhängige Schritt ist `ADV-008` mit kleinen, unabhängigen Implementierungsschnitten. Als erste Schnitte sind `OPT-015`, `OPT-016`, `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC` vorgesehen. Query-Store-/XE-Pilotvalidierung erfolgt vor `DGN-007`. `RES-003` bleibt der letzte und separat freizugebende rote Schnitt.
+Der nächste abhängige Schritt ist `ADV-008` mit kleinen, unabhängigen Implementierungsschnitten. Als erste Schnitte sind `OPT-015` (Ausführungspläne systematisch lesen), `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung), `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) und `QRY-004_CLASSIC_AND_DYNAMIC` vorgesehen. Query-Store-/XE-Pilotvalidierung erfolgt vor `DGN-007`. `RES-003` bleibt der letzte und separat freizugebende rote Schnitt.

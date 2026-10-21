@@ -31,7 +31,7 @@ ANN-Recall@5 gegen die jeweilige Exact-Baseline vor/nach Rebuild jeweils1,0.
 Für die Exact-Query selbst ist Recall nicht separat ausgewiesen. Keine Performance-
 oder Generationverallgemeinerung: GenerationUNKNOWN/Freshness nur nach Rebuild.
 
-Preview/MAXDOP wurden tatsächlich auf ihre persistierten Baselines zurückgesetzt:
+Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) wurden tatsächlich auf ihre persistierten Baselines zurückgesetzt:
 ANN_RESTORE und ANN_ATTEST mit aktuellem vollständigem Token und0/0; anschließend
 DROP_CONFIRMED und frische ANN_DB|ABSENT. Danach PrincipalDROP mit held vollständiger
 Lease und frische Loginname-/SID-/OwnerDBabwesenheit. Voll gebundener Container vor
@@ -186,7 +186,7 @@ Budgetvertrag fehlt. Caller/Pure/Native/Domain0; keine Admission. Zunächst
 [separater Budget-API-Schnitt](SQL_SERVER_2025_AI_IDX012_CLEANUP_BUDGET_REVIEW.md),
 danach neue aktuelle Quellen-/Input-/Host-/Historybindung vor Native.
 
-Die Budget-API hat vier gezielt geprüfte Quellenstände, 18 Methodeninvokationen
+Die Budget-API (Application Programming Interface; Programmierschnittstelle) hat vier gezielt geprüfte Quellenstände, 18 Methodeninvokationen
 und sieben gehaltene Testprozesse. Ein ursprünglicher Fixture-FAIL bleibt
 archiviert; nach tatsächlichem Checkpoint3 korrigiert Source4 Uhrreset und
 veränderbare Fristenkonstanten. Das ist ein Quellenstand ohne Domainaufrufe.
@@ -223,7 +223,7 @@ Neue eigene serielle Container: bestehender vollständiger ImageConfigID
 tatsächlich17.0.5005.3/EngineEdition3/EnterpriseDeveloper, vier CPUs/sechs GiB,
 Loopback, keine Mounts/Volumes/Pulls. Vollständige eigene CID/Name/Owner/Image/
 Port-/Capbindung und frischer eigener Token vor jeder Ressourcenoperation.
-Keine Maschine starten, globalen Hosteffekte, Compiler/Downloads, Cloud/ONNX
+Keine Maschine starten, globalen Hosteffekte, Compiler/Downloads, Cloud/ONNX (Open Neural Network Exchange; Austauschformat für Modelle)
 oder Änderungen anderer Repositories. Nur eigene DB Preview/MAXDOP1; Original-
 baselines tatsächlich erfassen, beide tatsächlich restaurieren und attestieren.
 
@@ -240,7 +240,7 @@ Positiv: zwei öffentliche Kostenclients mit je derselben Session und acht
 vollständigen geordneten Kontextrecords. Admin nur am festen Build, danach
 identischer Operator; gleiche Session-/DB-/Tokenbindung der BEFORE/AFTER-Kosten.
 Unveränderte vollständige DML-/Source-/Distanz-/Storage-/Rebuild-/Restoreoracles.
-Gehaltene Top-/SQL-/Namespaceprozesse mit tatsächlichen PID/poll/Returncode,
+Gehaltene Top-/SQL-/Namespaceprozesse mit tatsächlichen PID (Process Identifier; Prozesskennung)/poll/Returncode,
 Timeout-/Collector-/Input-/Source-/separaten Kanalbindungen vor Klassifikation
 erhalten. Prozessenden bleiben getrennt von unbestätigten Server-/TDS-Enden.
 Vollständige eigene Eingaben und sichere Originalrecords, keine Trunkierung;

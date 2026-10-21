@@ -5,7 +5,7 @@
 | Status | `IMPLEMENTED` |
 | Stand | 2026-07-24 |
 | Basis-Commit | `0ce614a39285619c1bc9830382770c9f4822baf4` |
-| Arbeitspakete | `FWK-006`, `FWK-007`, `FWK-010` |
+| Arbeitspakete | `FWK-006` (Multi-Session-Orchestrierungsvertrag), `FWK-007` (Query-Store- und Extended-Events-Vertrag), `FWK-010` (Runtime-Harness-Vertrag) |
 | Runtime-Validierung | offen; derzeit steht kein SQL-Server-Host zur Verfügung |
 
 ## 1. Umfang
@@ -21,7 +21,7 @@ Diese Stufe schließt die Framework-Implementierung mit folgenden Komponenten ab
 
 | Klasse | Bestandteile |
 |---|---|
-| Systemobjekte | SQL-Server-DMVs, Katalogsichten, Query Store und Extended Events |
+| Systemobjekte | SQL-Server-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), Katalogsichten, Query Store und Extended Events |
 | User-defined Tools | `fwk`-Tabellen/Prozeduren, SQL-Lifecycle-Skripte und Python-Module dieses Repositories |
 | Externes Microsoft-Tool | `sqlcmd`; wird vorausgesetzt, nicht installiert |
 
@@ -73,7 +73,7 @@ Der Status lautet deshalb `IMPLEMENTED`, nicht `VALIDATED`.
 
 ## 6. Folgearbeit
 
-Die Framework-Arbeitspakete `FWK-001` bis `FWK-012` sind implementiert. Der nächste kritische Pfad besteht aus:
+Die Framework-Arbeitspakete `FWK-001` (Preflight-Vertrag) bis `FWK-012` (Status-, Fehler- und Skip-Vertrag) sind implementiert. Der nächste kritische Pfad besteht aus:
 
 1. SQL-Server-2019/2022/2025-Parse-, Installations- und Lifecycle-Matrix,
 2. zwei grünen Pilotdemos,

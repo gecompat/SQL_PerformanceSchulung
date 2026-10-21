@@ -10,13 +10,13 @@ und den vollständigen JSON-/XML-Output dieses Profils nicht.
 Das Lernziel ist der Vergleich von Exact Top-5 und approximate cosine-Suche auf
 demselben synthetischen VECTOR(3)-Korpus. Jede Query muss fünf unterschiedliche IDs
 mit tatsächlichen Distanzen liefern. Exact erfüllt die vollständige Ground Truth,
-ANN mindestens Recall@5 0,8. Die zusätzliche enge Postfilterprobe 501–510 liefert
+ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) mindestens Recall@5 0,8. Die zusätzliche enge Postfilterprobe 501–510 liefert
 im gebundenen Profil null ANN-Rows bei fünf Exact-Rows: dieser Qualitätsverlust
 bleibt sichtbar. Ein schneller Lauf mit unzureichender Qualität ist kein Erfolg.
 
 ## Profil, Rechte und Sicherheit
 
-[DEC-074](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md)
+[DEC-074 – Gebundenes ANN-Legacyprofil mit Generation UNKNOWN/WARN](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md)
 begrenzt die Ausführung auf SQL Server 17.0.5005.3, Linux Ubuntu 24.04,
 Developer/EngineEdition 3, Compatibility Level 170. SQL Server 2019 und 2022
 liefern SKIP_VERSION vor Setup; andere 2025-Profile SKIP_CONFIGURATION mit
@@ -25,7 +25,7 @@ PROFILE_UNQUALIFIED. Keine Übertragung auf Azure oder eine numerische Generatio
 Ein eigenes isoliertes, verfügbares Lab ist Voraussetzung. Der Controller
 provisioniert nichts. SQLCMDPASSWORD wird ausschließlich über die Prozessumgebung
 übergeben. Erforderlich sind CREATE DATABASE, Zugriff auf eigene DB-Kataloge und
-DMVs sowie Rechte zum Erstellen, Konfigurieren und Löschen der eigenen Testdatenbank.
+DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) sowie Rechte zum Erstellen, Konfigurieren und Löschen der eigenen Testdatenbank.
 Das Qualifikationsprofil verwendet den eigenen Containeradministrator; eine
 Minimalrollenabnahme bleibt offen. ODBC-sqlcmd muss bereits installiert sein.
 
@@ -63,11 +63,11 @@ Wiederverwendung; Recovery ist wiederholbar, vorhandene fremde Marker verbieten 
 2. 10_Setup erstellt ausschließlich die eigene DB mit vier vollständigen
    Eigentumsmarkern und persistiert beide tatsächlichen Optionsbaselines.
    Ein neuer Client attestiert diese Baselines und die tatsächliche eigene DB-ID.
-3. 11 und 12 aktivieren getrennt PREVIEW_FEATURES und MAXDOP=1 ausschließlich
+3. 11 und 12 aktivieren getrennt PREVIEW_FEATURES und MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)=1 ausschließlich
    in der eigenen DB. Neue Clients vergleichen den vollständigen vorherigen
    Host-/Scoped-/Marker-/Baseline-/Options-/Dateistand mit der erlaubten Änderung.
 4. 20_Baseline erzeugt Id 1–1000, deterministische float32-Vektoren, clustered
-   INT-PK, vollständigen eingefrorenen Quellenbestand und Exact-Oracle. Python
+   INT-PK (Primary Key; Primärschlüssel), vollständigen eingefrorenen Quellenbestand und Exact-Oracle. Python
    prüft unabhängig alle Vektoren und Distanzen; keine Stichprobenabnahme.
    Für ausschließlich dieses gebundene Profil wird die dritte Koordinate vor
    float32 durch die rationale Ganzzahlrechnung floor(((Id*17)%97)*10^6/97)/10^6
@@ -105,7 +105,7 @@ unverändert gesetzt werden. Eine unbekannte Baseline darf nicht geraten werden.
 Die öffentliche vollständige Hard-Abort-/Minimalrollenabnahme bleibt offen.
 
 Der Controller zeigt ausschließlich normalisierte eigene synthetische Ergebnisse;
-Rohoutput, Plan-XML und Geheimnisse werden nicht automatisch gespeichert. Vollständige
+Rohoutput, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) und Geheimnisse werden nicht automatisch gespeichert. Vollständige
 JSON-/XML-Spalten benötigen -y 0 ohne -W/-h; dies ist die begründete stärkere
 FWK-010-Abweichung mit eigenen Gegenproben. Tatsächliche aktive Requestidentitäten,
 Counterdeltas und UTC-Grenzen ersetzen keine vollständige Worker-I/O-, Such-DOP-,
@@ -114,7 +114,7 @@ niemals Null. Ein tatsächlicher eigener Indexoperator beweist nur seine konkret
 repräsentative Query, keine generische Nutzung aller Mess- oder Filterqueries.
 
 statement_metrics enthält ausschließlich rohe Showplanattribute des eindeutig
-gebundenen repräsentativen Suchstatements: direktes MemoryGrantInfo, DOP und
+gebundenen repräsentativen Suchstatements: direktes MemoryGrantInfo, DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) und
 NonParallelPlanReason sowie die Struktur von Warnings/WaitStats. Fehlende Werte
 bleiben null/NOT_CAPTURED; ein vorhandener DOP-Rohwert 0 wird nicht in 1
 umgedeutet. Fehlende Warnings oder WaitStats belegen keine Spill-/Waitfreiheit.

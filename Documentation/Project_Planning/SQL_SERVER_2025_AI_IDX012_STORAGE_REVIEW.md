@@ -33,7 +33,7 @@ Default und früherer DML-Modus erhalten keinen zusätzlichen SQL-Aufruf.
 
 22_Storage.sql prüft vollständige Marker, persistierte Baselines, beide aktuellen
 Optionen und feste volle Stagewerte vor Aufnahme. Tatsächliche Quellenzahl 999,
-Indexcount 0/1/1 und Transaktionswerte 0/0 werden vor JSON erfasst. Alle zwei
+Indexcount 0/1/1 und Transaktionswerte 0/0 werden vor JSON (JavaScript Object Notation; strukturiertes Textformat) erfasst. Alle zwei
 Dateien, sämtliche sys.internal_tables und sys.dm_db_partition_stats der eigenen
 DB werden aufgenommen; bei mehr als 64 internen Tabellen, 128 Partitionen oder
 120000 UTF-16-Outputbytes FAIL statt Abschneiden. Namen/Hostpfade werden nicht
@@ -66,7 +66,7 @@ wiederholt. Der unabhängige Review fand eine P2-Abdeckungslücke: Caps allein
 erkannten fehlende einzelne Katalogrows und eine fehlende eigene Fixturepartition
 nicht. Vor erster Admission wurden tatsächliche drei Katalogcounts vor JSON
 aufgenommen und Parserlängen exakt daran gebunden; genau eine eigene unpartitionierte
-Fixture-PK (object_id, index_id=1, partition_number=1) ist Pflicht. Systempartitionen
+Fixture-PK (Primary Key; Primärschlüssel) (object_id, index_id=1, partition_number=1) ist Pflicht. Systempartitionen
 werden zusätzlich erhalten. Die 13 aktualisierten Speichergegenproben bestanden;
 unveränderte Controller-/Selektortests wurden nicht wiederholt. Enge unabhängige
 Closure ist bestanden, keine weiteren P1/P2; kein Runtimekandidat wurde bis
@@ -95,7 +95,7 @@ kein Index gebaut, keine neue DML-/Suchfolge erreicht. Die Fehlerursache ist
 nicht durch die vorherigen positiven Rebuildläufe bewiesen.
 
 Der Controller meldet FAIL_EXECUTION; der Parent PUBLIC_CONTRACT_NOT_ESTABLISHED.
-Tatsächliche Originalrestores Preview/MAXDOP 0/0, unabhängige Attestation vor
+Tatsächliche Originalrestores Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0/0, unabhängige Attestation vor
 markergebundenem Drop, separate DB-/eigene CID-/Namensabwesenheit bestanden.
 Gesamter Cleanup 12,353 s ab erstem Restore. Admission geschlossen mit FAIL;
 kein zweiter Lifecycle und keine Korrekturwelle in diesem Budget. Rohoutput und

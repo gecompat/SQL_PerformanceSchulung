@@ -1,7 +1,7 @@
 # TSK-004: Engine, Compatibility Level und Clienttransport
 
 PR226 vollständig geschlossen: zehn aktuelle Head-/acht Main-Gates einschließlich
-der bestehenden Runtime-CI PASS, Squash69abfb34e10bd2538190c2759109ab2da827810a.
+der bestehenden Runtime-CI (Continuous Integration; automatisierte Integrationsprüfungen) PASS, Squash69abfb34e10bd2538190c2759109ab2da827810a.
 Voller identischer Tree, primärer Main FF/synchron/sauber, eigener lokaler und
 Remote-Branch entfernt; benötigte ignorierte Belege gesichert, eigener Worktree
 archiviert. Die öffentliche Pool-Nativewelle bleibt nach C1/C2FAIL und getrenntem
@@ -20,7 +20,7 @@ Root hat SRC072/SRC079 am13.10.2026 auf den aktiven Microsoft-Learn-Seiten
 geprüft; übrige Matrixquellen werden nicht pauschal neu datiert. Dokumentierte
 Typ-/CL-/TDS-/Treiberunterstützung und tatsächlich bestandene enge Engine-,
 Scalar-/Chunk- und JSON-Koordinatenfälle bleiben getrennt. Error102 ist kein
-genereller Low-CL-Verfügbarkeitsclaim. JSON belegt keinen nativen Binärtransport.
+genereller Low-CL-Verfügbarkeitsclaim. JSON (JavaScript Object Notation; strukturiertes Textformat) belegt keinen nativen Binärtransport.
 
 15 ausgewählte lokale Links und Privacy der beiden Produktdokumente PASS;
 aktueller enger Rootquellenreview geschlossen. Der abschließende gesamte

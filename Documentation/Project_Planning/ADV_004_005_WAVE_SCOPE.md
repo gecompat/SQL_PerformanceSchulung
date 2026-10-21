@@ -9,14 +9,14 @@
 
 ## Umfang
 
-Die Welle schließt die vollständige fachliche und technische Designplanung für LAB-VP1 und LAB-VP2 ab. Sie definiert die neuen Demos `OPT-015`, `OPT-016`, `OPT-017` und `QRY-013` sowie die Erweiterung von `QRY-004`.
+Die Welle schließt die vollständige fachliche und technische Designplanung für LAB-VP1 und LAB-VP2 ab. Sie definiert die neuen Demos `OPT-015` (Ausführungspläne systematisch lesen), `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung), `OPT-017` (Ungleich verteilte parallele Arbeit) und `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) sowie die Erweiterung von `QRY-004` (Optionale Filter, Recompile und dynamisches SQL).
 
 ## Nicht enthalten
 
 - keine ausführbaren SQL-Skripte,
 - keine PowerPoint-Änderung,
 - keine Query-Store-/XE-Runtimefreigabe,
-- keine Umsetzung von `ADV-006`, `ADV-007` oder `ADV-008`,
+- keine Umsetzung von `ADV-006` (Design LAB-VP3 und LAB-VP4), `ADV-007` (Design LAB-VP5 und DGN-007) oder `ADV-008` (Review QRY-004),
 - keine Neutralisierung historischer Beispiele aus `W2-002`.
 
 ## Abnahme

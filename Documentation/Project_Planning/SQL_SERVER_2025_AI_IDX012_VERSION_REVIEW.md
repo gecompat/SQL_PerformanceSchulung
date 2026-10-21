@@ -66,7 +66,7 @@ codex/sql2025-ai-idx012-versions auf Basis
 im CURRENT_EXECUTION_STATUS gebunden.
 Der vorhandene statische Controllernachweis wird bei identischen Quellen nicht
 erneut ausgeführt. Der enge Review attestiert ausschließlich Quellen; frühere
-IDX-011-SKIPs und bestehende Offline-Demo-CI attestieren IDX-012 nicht.
+IDX-011-SKIPs und bestehende Offline-Demo-CI (Continuous Integration; automatisierte Integrationsprüfungen) attestieren IDX-012 nicht.
 
 Vier begrenzte eigene Proben dienen ausschließlich der Versionsgrenze; keine
 zusätzliche Benchmark-/Provider-/Kosten- oder allgemeine Schulungsabnahme.

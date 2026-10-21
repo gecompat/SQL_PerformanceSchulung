@@ -32,7 +32,7 @@ positive Einquerykontrolle und eine tatsächliche negative Kontrolle. Warmups
 ausgeschlossen, keine nachträgliche Sample-/Ausreißerauswahl.
 
 Vollständige fünfteilige eigene Session-/Request-/Startzeit-/Connection-/DB-Identität
-bindet tatsächliche monotone CPU/Reads/LogicalReads/Writes vor/nach dem Loop.
+bindet tatsächliche monotone CPU (Central Processing Unit; Prozessor)/Reads/LogicalReads/Writes vor/nach dem Loop.
 UTC-Elapsed umfasst EXECUTE AS, Queryloop, Ergebnisbuffer/Transfers/Deletes und
 REVERT; Countergrenzen zusätzlich enthalten. UTC-/CPU-I/O-Grenzen sind nicht
 identisch. Der coarse DMV-datetime-Start ist nur Identität, keine Crossclockordnung;
@@ -50,7 +50,7 @@ Impersonationaufwand, keine reine Einzelquerylatenz oder isolierter Indexgewinn.
 C1 zweimal bestanden, SQL 17.0.5005.3/EngineEdition3, eigener cached Imagehash
 78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726,
 vier CPU/sechs GiB, eigener Loopbackport. CL170/SIMPLE, Dateilimits 256/64 MB,
-MAXDOP/PREVIEW_FEATURES beide 0 unverändert. Normalbudget 300 Sekunden,
+MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES beide 0 unverändert. Normalbudget 300 Sekunden,
 anschließend insgesamt 60 Sekunden Cleanup. Vollständige bytegenaue vier
 Eigentumsmarker vor Mutation/Drop, bekanntes Clientende; UNKNOWN false und keine
 Folgeclients bei UNKNOWN. Passwort allein über Umgebung.
@@ -60,7 +60,7 @@ tatsächliches DELETE Id1000 → 51003/FAIL_RESULT_CONTRACT → voller Restore.
 Querynegative mutiert nach Messende den Ergebnisbuffer Value0 bei Id101/Ordinal1
 und erreicht ebenfalls exakt 51003/FAIL_RESULT_CONTRACT; Source bleibt unverändert.
 Vier tatsächliche eigene Builds und vier Drops pro Profil durch vollständige native
-Indexzustände getrennt bestätigt. Abschließend PK allein und vollständige Quelle.
+Indexzustände getrennt bestätigt. Abschließend PK (Primary Key; Primärschlüssel) allein und vollständige Quelle.
 
 92 vollständige Sourceframes/92000 Rows, 58 positive Fensterframes einschließlich
 zwei separater Kontrollen und vier native Negative exakt an private Rawframes/
@@ -152,7 +152,7 @@ unverändert geprüft; keine vollständige transitive Importattestation:
 Die Messwerte beantworten nur den festen ungezwungenen Readerbatchvergleich
 ohne/mit Candidateindex mit Buffer-/Impersonationaufwand. Eine Advicehypothese
 wird dadurch allein weder allgemein bestätigt noch widerlegt. Indexnutzung der
-aktuellen Fenster, individuelle Latenz, Indexnettonutzen einschließlich DML/Build,
+aktuellen Fenster, individuelle Latenz, Indexnettonutzen einschließlich DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten)/Build,
 isolierte Query-/Index-/vollständige Workerkosten, öffentliche FWK-/Versions-/
 Recoveryqualifikation und volle TP-PERF-/TSK-011-/Modulabnahme bleiben offen.
 DGN-010 PROPOSED; Modell-/Tokenverbrauch unbekannt, Heartbeat aktiv.

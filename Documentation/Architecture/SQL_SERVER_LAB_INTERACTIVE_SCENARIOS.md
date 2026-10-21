@@ -47,7 +47,7 @@ Dieses Repository verantwortet je Beispiel:
 - zu reproduzierende Ausgangssituation;
 - benötigte SQL-Server-Versionen und Compatibility Levels;
 - erforderliche Instanzen, Datenbanken, Sessions und Zusatzkomponenten;
-- Mindestanforderungen an CPU, RAM, Storage und Netzwerk;
+- Mindestanforderungen an CPU (Central Processing Unit; Prozessor), RAM (Random Access Memory; Arbeitsspeicher), Storage und Netzwerk;
 - synthetische Daten und Datenverteilungen;
 - Setup- und Vorbereitungsskripte;
 - interaktive Arbeitsschritte für den Benutzer;
@@ -142,7 +142,7 @@ Nach erfolgreicher Vorbereitung erhält der Benutzer eine kompakte Übergabe mit
 
 Der Benutzer führt die vorgesehenen Schritte selbst aus. Dazu gehören ausdrücklich:
 
-- T-SQL ändern und erneut ausführen;
+- T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) ändern und erneut ausführen;
 - unterschiedliche Parameterwerte testen;
 - Pläne, Waits, Locks, Query Store oder Extended Events untersuchen;
 - Gegenmaßnahmen anwenden und zurücknehmen;
@@ -251,7 +251,7 @@ Ein Schulungsszenario gilt erst als vollständig, wenn folgende Artefakte vorhan
 |---|---:|---|---|---|
 | `LABSCN-001` | P0 | Ziel, Verantwortungsgrenze und Lebenszyklus interaktiver Schulungsszenarien festlegen | bestehende Demo- und Lab-Verträge | diese Architekturentscheidung ist im Repository verankert |
 | `LABSCN-002` | P0 | Szenarioinventar und Schema für Szenariodefinitionen erstellen | `LABSCN-001` | jedes bestehende und geplante Beispiel ist als interaktiv geeignet, nur automatisiert prüfbar oder nicht anwendbar klassifiziert |
-| `LABSCN-003` | P0 | ersten vollständigen Vertical Slice umsetzen | `LABSCN-002` | das gelbe, isolationspflichtige Szenario `CON-004` kann über `SQL_Server_Lab` aufgebaut, vorbereitet, interaktiv genutzt, zurückgesetzt und entfernt werden |
+| `LABSCN-003` | P0 | ersten vollständigen Vertical Slice umsetzen | `LABSCN-002` | das gelbe, isolationspflichtige Szenario `CON-004` (Blockierungsketten verfolgen) kann über `SQL_Server_Lab` aufgebaut, vorbereitet, interaktiv genutzt, zurückgesetzt und entfernt werden |
 | `LABSCN-004` | P1 | Benutzerbedienung und How-to standardisieren | `LABSCN-003` | Auswahl, Start, Übergabe, Reset und Remove sind dokumentiert und praktisch geprüft |
 | `LABSCN-005` | P1 | weitere Container- und Hyper-V-Szenarien umsetzen | `LABSCN-003` | geeignete Beispiele besitzen reproduzierbare Providerprofile |
 | `LABSCN-006` | P2 | gemischte Topologien umsetzen | konkretes Beispiel mit nachgewiesenem Bedarf | mindestens ein fachlich begründetes Mischszenario ist vollständig reproduzierbar |
@@ -259,7 +259,7 @@ Ein Schulungsszenario gilt erst als vollständig, wenn folgende Artefakte vorhan
 ## 11. Nächster Umsetzungsschritt
 
 `LABSCN-002` ist mit 22 vollständigen Inventareinträgen abgeschlossen.
-`CON-004` ist der erste, `DGN-005` der zweite und `CON-006` der dritte
+`CON-004` ist der erste, `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) der zweite und `CON-006` (Zyklische Sperrkonflikte erkennen) der dritte
 vollständige Vertical Slice. Alle drei Szenarien sind `YELLOW`, benötigen eine
 isolierte Wegwerfumgebung und sind auf Docker sowie Podman praktisch validiert.
 Die Umgebung bleibt nach der

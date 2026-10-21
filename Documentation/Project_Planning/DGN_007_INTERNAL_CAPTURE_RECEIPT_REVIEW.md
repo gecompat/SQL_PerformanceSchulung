@@ -14,7 +14,7 @@ Bestandsprüfung ausdrücklich wieder auf. Zu Beginn waren Main und origin/main
 synchron und sauber, kein PR offen und nur der alte lokale Capture-Branch neben
 Main vorhanden. Ein anderer Chat bearbeitete dieses Repository nicht aktiv.
 Die pausierten Scheduler werden durch diesen Auftrag nicht aktiviert. Laufende
-Lab-CI und fremde Ressourcen bleiben unberührt.
+Lab-CI (Continuous Integration; automatisierte Integrationsprüfungen) und fremde Ressourcen bleiben unberührt.
 
 ## Quellenabgleich und Entscheidung
 
@@ -45,7 +45,7 @@ Zeilenevidenz bleiben verpflichtend. Historische FAILs werden nicht umgedeutet.
 
 `_check_capture_body` decodiert einmal und liefert den vollständigen
 unveränderlichen Body sowie die tatsächlich geprüften Harness-Phasenstatus.
-Die bestehende Counts-API verwendet dieselbe Prüfung. `_run_one` führt den
+Die bestehende Counts-API (Application Programming Interface; Programmierschnittstelle) verwendet dieselbe Prüfung. `_run_one` führt den
 gemeinsamen Lifecycle einschließlich unveränderter Fehlerprioritäten aus.
 `run_one` behält die öffentliche `RunResult`-Rückgabe und CLI-Ausgabe.
 

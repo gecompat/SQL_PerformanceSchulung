@@ -26,18 +26,18 @@ unbekannt. Alte Reader-/INSERT-/Folienbudgets werden nicht zurückgesetzt.
 ## Feste Effekte und Messbereiche
 
 Eigenes vorhandenes SQL-17.0.5005.3-Image, tatsächlich Developer/CL170; eigener
-neuer Container mit voller CID-/Name-/Image-/Ownerbindung, vier CPU/sechs GiB,
+neuer Container mit voller CID-/Name-/Image-/Ownerbindung, vier CPU (Central Processing Unit; Prozessor)/sechs GiB,
 Loopbackendpunkt und ENV-Passwort ohne `-P`. Öffentlicher read-only Preflight,
 1000 feste synthetische Rows, Value=Id×3 und 100 F-Payloadbytes. Vorhandene
 DB-/Config-/Datei-/Reader-/Markergrenzen unverändert. Kein Provider, Cloud,
-ONNX oder rote Hoständerung. Insgesamt 300 Sekunden einschließlich Startup;
+ONNX (Open Neural Network Exchange; Austauschformat für Modelle) oder rote Hoständerung. Insgesamt 300 Sekunden einschließlich Startup;
 einmalige gemeinsame 60 Sekunden Recovery einschließlich SQL-90/91, frischer
 DB-Abwesenheit und vollständigem eigenem Container-/CID-Abbau. Tatsächlicher
 Clientendstatus bleibt verbindlich; UNKNOWN erlaubt keine weiteren SQL-Clients.
 
 Je Profil zwei seriell festgelegte CREATE-/DROP-Zyklen, vier DDL-Fenster.
 Fester Candidate: `ON lab.SourceRows(Id) INCLUDE(Value,Payload) WITH(MAXDOP=1)`.
-Keine freie Modell-DDL. Vor CREATE tatsächliche Abwesenheit; vor DROP exakt
+Keine freie Modell-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten). Vor CREATE tatsächliche Abwesenheit; vor DROP exakt
 dieselbe gehaltene native Index-/Spaltendefinition aus dem vorigen CREATE.
 DB-ID, Source-Object-ID und alle vier vollständigen bytegenauen Eigentumsmarker
 vor jedem Fenster binden. Ein passender Name allein autorisiert keinen DROP.
@@ -57,7 +57,7 @@ Acht vollständige Source-/Reader-/Indexaufnahmen je Profil, 8000 Source-Rows.
 Vier vollständige 13-Key-Statepaare um die vier DDLs und ein weiteres Paar um
 die abgewiesene DROP-Gegenprobe: zehn Vollstates/10000 Rows. Nur eigene
 Index-/Spaltenpopulation und `SourceRows.modify_date` dürfen sich durch DDL
-ändern. Ursprünglicher PK, Rows, Spaltendefinitionen, DB/Config, Dateigrößen,
+ändern. Ursprünglicher PK (Primary Key; Primärschlüssel), Rows, Spaltendefinitionen, DB/Config, Dateigrößen,
 Readerrechte/-rollen und Propertybytes bleiben unverändert. Tatsächliche
 native Index-/Spalten-Leases müssen mit den unabhängigen Vollstates übereinstimmen.
 
@@ -122,7 +122,7 @@ ohne neue unveränderte SQLprofile oder allgemeinen Speicher-/Nettonutzenclaim.
 
 ## Primärquellen
 
-- [CREATE INDEX](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver17): feste Rowstore-DDL und MAXDOP. Abruf 2026-10-12.
+- [CREATE INDEX](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver17): feste Rowstore-DDL und MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad). Abruf 2026-10-12.
 - [sys.dm_exec_requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-requests-transact-sql?view=sql-server-ver17): tatsächlicher Request und Countergrenzen. Abruf 2026-10-12.
 
 Diese dokumentierten Funktionen ersetzen keine tatsächliche Scope-/Kostenbeobachtung.

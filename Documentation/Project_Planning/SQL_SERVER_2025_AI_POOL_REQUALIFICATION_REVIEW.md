@@ -62,7 +62,7 @@ laufende Cleanupuhr, Childcap40s und tatsächliche Restreserve/Startup/Reaping
 berücksichtigen. Konfigurierte Caps sind keine Wallclockgarantie. Vollständige
 State-/Principal-/Rechte-/Source-/Markeroracles, echte Rollen-/Spoof-/Reset-
 Negativen mit unverändertem State/Restore. Individuelle bekannte API-/Client-
-Prozessenden, physische Poolreuse über Owner-DMV statt GUID-Ersatzoracle.
+Prozessenden, physische Poolreuse über Owner-DMV (Dynamic Management View; dynamische Verwaltungssicht für Diagnoseinformationen) statt GUID-Ersatzoracle.
 Secrets nur gehaltene Credentialobjekte/ENV, keine CredentialderivedHashes
 oder Passwordconnectionstrings; sichere Raws vor Digests/Persistierung.
 
@@ -72,7 +72,7 @@ Abschluss verlangt eigene ClearPool-/Close-/Dispose-Reihenfolge, frische
 physische Abwesenheit und State vor Login-Drops, Login-Drops vor DB-Drop sowie
 frische SQL-/ganze CID-/Namens-/Inputabwesenheit. Alte UNKNOWN bleibt erhalten.
 
-Keine Änderung der GREEN-/LOCAL-Default-CI, keine Default-RED-Ausführung,
+Keine Änderung der GREEN-/LOCAL-Default-CI (Continuous Integration; automatisierte Integrationsprüfungen), keine Default-RED-Ausführung,
 keine Fremdrepo-/Trust-/Cloud-/Bezahl-/ONNX-/Modell-/globalen Hosteffekte.
 FAIL/WARN/SKIP und fehlende unabhängige TDS-/Wire-/Sidechannel-/Performance-/
 Versions-/volle TSK009-/Releasebelege bleiben sichtbar. Modell-/Tokenverbrauch
@@ -84,7 +84,7 @@ vor Schnittabschluss Pflicht. Danach nächster unabhängiger autorisierter Schri
 
 Der erste neue Versuch ist insgesamt Native3: bekanntes FAIL_SETUP_SUMMARY
 mit getrenntem FAIL_SQL_CLEANUP, UNKNOWNfalse. Der eigene Child endete mit
-PID/poll/rc1, kein Timeout oder Collectorfehler. Vier vollständige SQLcmd-Enden
+PID (Process Identifier; Prozesskennung)/poll/rc1, kein Timeout oder Collectorfehler. Vier vollständige SQLcmd-Enden
 (ein bekannter Startupfehler, danach drei rc0), dreizehn gehaltene Namespace-
 enden mit PID/poll/rc0. Ein neuer Container; kumulativ drei Nativeversuche und
 zwei Container. Baseline, Negativkontrollen und Poolchild nicht erreicht.
@@ -166,7 +166,7 @@ gebunden. Kein erneuter Native-/Purelauf aufgrund von Statusprosa.
 
 Öffentliche Qualifikation bleibt NOT_ESTABLISHED für Poolchild, einzelne .NET-
 Enden, authentifizierte Checkoutpopulation, Poolreuse, vollständigen SQL-/Input-
-Cleanup, TDS, Seitenkanäle, Performance, ganze CON-010-/TSK-009-/TP-CON-Abnahme.
+Cleanup, TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server), Seitenkanäle, Performance, ganze CON-010-/TSK-009-/TP-CON-Abnahme.
 Aktuelle PR-/Head-/Main-/Tree-/FF-/Branch-/Archivgates folgen vor Schnittabschluss.
 Erst nach vollständig geschlossener Integration folgt ein unabhängiger reiner
 SOURCE_ONLY-Capturevertrag für sichere tatsächliche Childkanäle und Endrecords

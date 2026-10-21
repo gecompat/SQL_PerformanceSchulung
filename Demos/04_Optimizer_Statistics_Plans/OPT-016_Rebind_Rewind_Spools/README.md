@@ -36,7 +36,7 @@ Die Demo ist grün. Alle Objekte liegen in einer markergebundenen Testdatenbank.
 
 ## 6. Synthetisches Datenmodell
 
-`lab.WorkItemDetail` enthält 20.000 Detailzeilen in 20 Gruppen. `lab.ProbeRequest` enthält ein Profil `H` mit 5.000 Anforderungen, aber nur zehn unterschiedlichen Gruppenschlüsseln, sowie ein Profil `L` mit 20 jeweils unterschiedlichen Schlüsseln. Die Baseline verwendet den Index `IX_WorkItemDetail_Group_Sequence` und eine kontrollierte `NO_PERFORMANCE_SPOOL`-Gegenprobe. Der Problemzustand entfernt nur diesen Index und verwendet die hintfreie Abfrage; die äußere Eingabe bleibt nach Profil und Gruppe geordnet. Normalisierte Evidenz wird in `lab.Opt016Evidence` gespeichert, Plan XML nicht.
+`lab.WorkItemDetail` enthält 20.000 Detailzeilen in 20 Gruppen. `lab.ProbeRequest` enthält ein Profil `H` mit 5.000 Anforderungen, aber nur zehn unterschiedlichen Gruppenschlüsseln, sowie ein Profil `L` mit 20 jeweils unterschiedlichen Schlüsseln. Die Baseline verwendet den Index `IX_WorkItemDetail_Group_Sequence` und eine kontrollierte `NO_PERFORMANCE_SPOOL`-Gegenprobe. Der Problemzustand entfernt nur diesen Index und verwendet die hintfreie Abfrage; die äußere Eingabe bleibt nach Profil und Gruppe geordnet. Normalisierte Evidenz wird in `lab.Opt016Evidence` gespeichert, Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) nicht.
 
 ## 7. Ablauf
 
@@ -53,7 +53,7 @@ Die Demo ist grün. Alle Objekte liegen in einer markergebundenen Testdatenbank.
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-016`.
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung).
 2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
 3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-016 -Server $server -Authentication $authentication -Username $username` aus.
 4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
@@ -83,10 +83,10 @@ Performance Spools und konkrete Rebind-/Rewind-Zähler sind plan- und buildabhä
 
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
-| `SRC-001` | Nested Loops, Tasks und Planverarbeitung | SQL Server 2019–2025 | 2026-07-26 |
-| `SRC-031` | Actual Execution Plan als Runtime-Evidenz | SQL Server 2019–2025 | 2026-07-26 |
-| `SRC-039` | gemeinsame Planattribute, Rebinds und Rewinds | versionsabhängig empirisch zu prüfen | 2026-07-26 |
-| `SRC-042` | Nested Loops, Apply und Performance Spools | Optimizer-Interna; eigene Reproduktion erforderlich | 2026-07-26 |
+| `SRC-001` (Query processing architecture guide) | Nested Loops, Tasks und Planverarbeitung | SQL Server 2019–2025 | 2026-07-26 |
+| `SRC-031` (Display an actual execution plan) | Actual Execution Plan als Runtime-Evidenz | SQL Server 2019–2025 | 2026-07-26 |
+| `SRC-039` (Common properties) | gemeinsame Planattribute, Rebinds und Rewinds | versionsabhängig empirisch zu prüfen | 2026-07-26 |
+| `SRC-042` (Nested Loops Joins and Performance Spools) | Nested Loops, Apply und Performance Spools | Optimizer-Interna; eigene Reproduktion erforderlich | 2026-07-26 |
 | Microsoft Learn: [`sys.dm_exec_query_plan_stats`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17) | letzter bekannter Actual Plan; datenbankbezogenes opt-in | SQL Server 2019–2025 | 2026-07-26 |
 
 ## 14. Traceability

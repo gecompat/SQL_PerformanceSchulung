@@ -14,11 +14,22 @@
 | Aussagenbasis | [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md) und [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
 | Nachverfolgbarkeit | [Traceability-Matrix](TRACEABILITY_MATRIX.md) |
 
+### Begriffshilfe für diesen Lernplan
+
+| Kürzel | Bedeutung |
+|---|---|
+| T-SQL | Transact-SQL – SQL-Server-Dialekt der Abfragesprache SQL. |
+| DML | Data Manipulation Language – Anweisungen zum Lesen oder Ändern von Daten. |
+| OS | Operating System – Betriebssystem. |
+| CE | Cardinality Estimation – Schätzung der Zeilenanzahl. |
+| ADR | Accelerated Database Recovery – beschleunigte Datenbankwiederherstellung. |
+| RCSI | Read Committed Snapshot Isolation – zeilenversionierte Variante von READ COMMITTED. |
+
 ## 1. Kommunikations- und Kompetenzziel
 
 ### Eigenständig geplanter KI-Workstream
 
-`DEC-073` ergänzt das Curriculum durch `CUR-013`–`CUR-022`. Die vollständigen Modulverträge
+`DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze) ergänzt das Curriculum durch `CUR-013` (KI-Grundlagen für SQL-Server-Fachleute)–`CUR-022` (Architektur, Kosten und kontrollierte Agenten). Die vollständigen Modulverträge
 mit Lernziel, Vorwissen, Theorie, Praxis, Zeit, Beobachtung, Verständnisfragen,
 Fehlinterpretationen, Musterlösungen und Quellen stehen im
 [Workstream-Plan §5–6](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#5-pfade-und-zeitbedarf).
@@ -45,7 +56,7 @@ unterscheidbar. Konkrete Messwerte werden mit ihren Bedingungen vermittelt.
 
 | Profil | Erwartetes Vorwissen | Gemeinsames Ziel | Zusätzliche Vertiefung |
 |---|---|---|---|
-| SQL-Server-Developer | `SELECT`, `JOIN`, Filter, Aggregation, grundlegende Transaktionen | Abfrage-, Plan- und Indexfolgen des eigenen Codes erkennen und messen | Parameter Sensitivity, IQP, Memory Grants, Columnstore |
+| SQL-Server-Developer | `SELECT`, `JOIN`, Filter, Aggregation, grundlegende Transaktionen | Abfrage-, Plan- und Indexfolgen des eigenen Codes erkennen und messen | Parameter Sensitivity, IQP (Intelligent Query Processing; SQL-Server-Funktionen zur intelligenten Abfrageverarbeitung), Memory Grants, Columnstore |
 | Daten- und BI-Analysten | relationale Abfragen und fachliche Datenmodelle | Kosten von Datenmodell, Datentypen, Filterung und Ergebnismenge einordnen | Statistiken, Partition Elimination, Query Store |
 | Datenbankadministration | Datenbankbetrieb, Backup/Restore und grundlegende Konfiguration | Workloadsignale, Blocking, Waits und Ressourcenengpässe methodisch eingrenzen | TempDB, Extended Events, Query Store, versionsabhängige Engine-Funktionen |
 | Performance Engineering | sichere Plan-, DMV- und Workloadanalyse | gemeinsame Terminologie und reproduzierbarer Diagnosevertrag | vollständige Vertiefung einschließlich Messgrenzen und Featurematrix |
@@ -70,7 +81,7 @@ Die neun durch `ADV-003` ergänzten Lernziele sind ausschließlich `VERTIEFUNG`.
 | M03 | Query Patterns | 36–47 | typische Code- und Modellierungsmuster anhand ihrer Planwirkung beurteilen | M02; Zugriffspfad zunächst als fachliches Konzept | ein Rewrite kann als Hypothese mit identischer Messung formuliert werden |
 | M04 | Rowstore- und Columnstore-Indizes | 48–62 | Zugriffspfade physisch erklären und als Workloadentscheidung entwerfen | M01, M02, M03 | Indexnutzen und DML-, Speicher- sowie Wartungskosten sind gemeinsam bewertbar |
 | M05 | Concurrency, Isolation und TempDB | 63–70 | zeitgleiches Systemverhalten und Konflikte untersuchen | M00, M01 | Blocking, Deadlock, Versioning und TempDB-Kosten sind getrennt klassifizierbar |
-| M06 | Ressourcen und Diagnosewerkzeuge | 71–80 | Signale zu einer Outside-in-Diagnosekette verbinden | M00–M05 | CPU, Waits, Pläne und Historie führen zu einer überprüfbaren Hypothese |
+| M06 | Ressourcen und Diagnosewerkzeuge | 71–80 | Signale zu einer Outside-in-Diagnosekette verbinden | M00–M05 | CPU (Central Processing Unit; Prozessor), Waits, Pläne und Historie führen zu einer überprüfbaren Hypothese |
 | M07 | Synthese und Transfer | 81–84 | Methode auf einen neuen Fall übertragen | M00–M06 | nächste Messung, Änderung, Vergleich und Rückfallplan sind begründet |
 
 Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet „passender Zugriffspfad“ als bereits in M02 beobachtbares Planmerkmal. M04 erklärt anschließend die physische Struktur und die Design-Trade-offs. Dadurch entsteht keine Abhängigkeit von B+-Tree-Internals für die erste Beurteilung eines Prädikats.
@@ -83,7 +94,7 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 |---|---|---|---|
 | `LO-M00-01` | KERN | ein Symptom nach Antwortzeit, Durchsatz, Ressourcenverbrauch und Nebenläufigkeit abgrenzen | einen gegebenen Fall mit Bezugszeitraum und betroffenem Workload klassifizieren |
 | `LO-M00-02` | KERN | den Zyklus Symptom → Messung → Hypothese → Änderung → Vergleich anwenden | eine Diagnosefrage ohne vorweggenommene Tuningmaßnahme formulieren |
-| `LO-M00-03` | KERN | Execution Plan, DMVs, Query Store, Extended Events und OS-Metriken nach ihrer Aussageebene auswählen | für drei Diagnosefragen jeweils eine geeignete und eine ungeeignete Evidenzquelle begründen |
+| `LO-M00-03` | KERN | Execution Plan, DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), Query Store, Extended Events und OS-Metriken nach ihrer Aussageebene auswählen | für drei Diagnosefragen jeweils eine geeignete und eine ungeeignete Evidenzquelle begründen |
 | `LO-M00-04` | KERN | Engine-Version, Compatibility Level und Datenbankkonfiguration als getrennte Voraussetzungen prüfen | eine Featureaussage mit allen drei Geltungsgrenzen dokumentieren |
 
 ### M01 – Storage, Pages und Transaction Log
@@ -106,11 +117,11 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | `LO-M02-04` | KERN | Nested Loops, Merge und Hash Join anhand von Eingabegröße, Sortierung und Zugriffspfad vergleichen | eine Joinänderung als Folge geänderter Voraussetzungen statt als pauschale Präferenz erklären |
 | `LO-M02-05` | VERTIEFUNG | Requested, Granted und Used Memory sowie Spill-Evidenz für Sort/Hash unterscheiden | Undergrant, Overgrant und Server-Memory-Pressure nicht miteinander verwechseln |
 | `LO-M02-06` | VERTIEFUNG | Tasks, Workers, Exchanges und Parallel Skew in einem parallelen Plan untersuchen | ungleich verteilte Arbeit anhand operatorbezogener Laufzeitevidenz nachweisen |
-| `LO-M02-07` | VERTIEFUNG | Plan Reuse, Parameter Sensitivity und IQP-Funktionen einschließlich Versionsvoraussetzungen trennen | eine geeignete Strategie auswählen, ohne Recompile, PSP oder Feedback pauschal zu empfehlen |
+| `LO-M02-07` | VERTIEFUNG | Plan Reuse, Parameter Sensitivity und IQP-Funktionen einschließlich Versionsvoraussetzungen trennen | eine geeignete Strategie auswählen, ohne Recompile, PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) oder Feedback pauschal zu empfehlen |
 | `LO-M02-08` | VERTIEFUNG | planweite und operatorbezogene Eigenschaften sowie Kostenmodell und Runtime-Evidenz voneinander unterscheiden | einen unbekannten Actual Plan entlang Datenfluss, Kardinalitäten, Ausführungsanzahl und Warnungen untersuchen, ohne den grafisch teuersten Operator als Beweis zu verwenden |
 | `LO-M02-09` | VERTIEFUNG | Rebinds, Rewinds, Outer References, Spools und parallele Planbereiche als zusammenhängende Planmechanik erklären | Wiederverwendung, Aufbaukosten, Threads und Operatorzeiten anhand eines reproduzierten Plans belegen und pauschale Fehlerurteile verwerfen |
 | `LO-M02-10` | VERTIEFUNG | Row Goals sowie logische Semi-/Anti-Join-Formen von der physischen Planform trennen | ein Row Goal erkennen, seine frühe Trefferannahme mit tatsächlicher Arbeit vergleichen und einen deaktivierenden Hint nur als kontrollierte Gegenprobe verwenden |
-| `LO-M02-11` | VERTIEFUNG | IQP-Verfügbarkeit und -Wirkung nach Engine-Version, Compatibility Level, Konfiguration, Query Store und Eligibility prüfen | für Deferred Compilation, Interleaved Execution, UDF Inlining, Batch Mode und Feedbackmechanismen Voraussetzungen, Planbeleg und erwarteten `SKIP` dokumentieren |
+| `LO-M02-11` | VERTIEFUNG | IQP-Verfügbarkeit und -Wirkung nach Engine-Version, Compatibility Level, Konfiguration, Query Store und Eligibility prüfen | für Deferred Compilation, Interleaved Execution, UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining, Batch Mode und Feedbackmechanismen Voraussetzungen, Planbeleg und erwarteten `SKIP` dokumentieren |
 
 ### M03 – Query Patterns
 
@@ -118,11 +129,11 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 |---|---|---|---|
 | `LO-M03-01` | KERN | SARGability und Implicit Conversion anhand der konvertierten Ausdrucksseite beurteilen | ein Prädikat korrigieren und die Änderung im Plan sowie in Logical Reads prüfen |
 | `LO-M03-02` | KERN | halboffene Datumsintervalle und passende Datentypen ohne Tagesende- oder Präzisionsannahme formulieren | einen zeitlichen Filter für beliebige Zeitanteile korrekt schreiben |
-| `LO-M03-03` | VERTIEFUNG | optionale Parameter mit Recompile, dynamischem SQL, PSP und OPPO versionsbewusst vergleichen | eine Strategie anhand Verteilung, Wiederverwendung und Version begründen |
-| `LO-M03-04` | KERN | CTE, Temp Table, Table Variable, Inline TVF, MSTVF und Scalar UDF nach Optimierersichtbarkeit unterscheiden | Materialisierung, Statistiken und Inlining nicht als ausnahmslose Produkteigenschaft behaupten |
+| `LO-M03-03` | VERTIEFUNG | optionale Parameter mit Recompile, dynamischem SQL, PSP und OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter) versionsbewusst vergleichen | eine Strategie anhand Verteilung, Wiederverwendung und Version begründen |
+| `LO-M03-04` | KERN | CTE (Common Table Expression; benannter Abfrageausdruck innerhalb einer Anweisung), Temp Table, Table Variable, Inline TVF (Table-Valued Function; tabellenliefernde Funktion), MSTVF (Multi-Statement Table-Valued Function; tabellenliefernde Funktion mit mehreren Anweisungen) und Scalar UDF nach Optimierersichtbarkeit unterscheiden | Materialisierung, Statistiken und Inlining nicht als ausnahmslose Produkteigenschaft behaupten |
 | `LO-M03-05` | VERTIEFUNG | Partition Elimination und Remote Pushdown als im tatsächlichen Plan nachzuweisende Eigenschaften prüfen | lokale Restarbeit und tatsächlich reduzierte Remote-/Partitionsarbeit unterscheiden |
 | `LO-M03-06` | KERN | einen Query-Rewrite als einzelne Hypothese mit identischer Baseline und Vergleichsmessung durchführen | Korrektheit, Arbeit pro Ergebnis und Nebenwirkungen gemeinsam bewerten |
-| `LO-M03-07` | VERTIEFUNG | Unterschiede zwischen Anwendung und SSMS über Cachekontext, SET-Optionen, Parameterwerte, Datenbankkontext und Datenzustand untersuchen | mindestens vier Kontextdimensionen vergleichen und eine voreilige Ein-Ursachen-Hypothese anhand widersprechender Evidenz verwerfen |
+| `LO-M03-07` | VERTIEFUNG | Unterschiede zwischen Anwendung und SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) über Cachekontext, SET-Optionen, Parameterwerte, Datenbankkontext und Datenzustand untersuchen | mindestens vier Kontextdimensionen vergleichen und eine voreilige Ein-Ursachen-Hypothese anhand widersprechender Evidenz verwerfen |
 | `LO-M03-08` | VERTIEFUNG | Parameter, lokale Variablen, Literale, Recompile, sicher parameterisiertes dynamisches SQL, PSP und OPPO nach Information, Sicherheit und Wiederverwendung vergleichen | für dieselbe Ergebnismenge eine sichere Strategie auswählen und Compilekosten, Planvarianten sowie Versionsvoraussetzungen nachweisen |
 
 ### M04 – Rowstore- und Columnstore-Indizes
@@ -141,18 +152,18 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |
 |---|---|---|---|
-| `LO-M05-01` | KERN | Isolation Levels, Locking und Row Versioning anhand der geforderten Sichtbarkeit und Konflikte auswählen | RCSI und SNAPSHOT sowie Leser-/Schreiber- und Schreiber-/Schreiber-Konflikte unterscheiden |
+| `LO-M05-01` | KERN | Isolation Levels, Locking und Row Versioning anhand der geforderten Sichtbarkeit und Konflikte auswählen | RCSI (Read Committed Snapshot Isolation; zeilenversionierte Variante von READ COMMITTED) und SNAPSHOT sowie Leser-/Schreiber- und Schreiber-/Schreiber-Konflikte unterscheiden |
 | `LO-M05-02` | KERN | eine Blocking Chain bis zum Head Blocker verfolgen | wartende Session, Ressource, offene Transaktion und blockierende Wurzel zusammenführen |
 | `LO-M05-03` | KERN | Blocking als gerichtetes Warten und Deadlock als Zyklus unterscheiden | für einen Deadlock die benötigte Ereignisevidenz und einen sicheren Recovery-Pfad nennen |
-| `LO-M05-04` | VERTIEFUNG | TempDB-Kosten nach temporären Objekten, Worktables/Spills, Version Store, Allocation und I/O klassifizieren | ein TempDB-Symptom dem passenden Messpfad zuordnen |
-| `LO-M05-05` | VERTIEFUNG | ADR-, RCSI- und Datenbankvoraussetzungen von Optimized Locking prüfen | TID Locking, LAQ und verbleibende Lock-Arten ohne pauschale `NOLOCK`-Empfehlung einordnen |
+| `LO-M05-04` | VERTIEFUNG | TempDB-Kosten nach temporären Objekten, Worktables/Spills, Version Store, Allocation und I/O (Input/Output; Ein- und Ausgabezugriffe) klassifizieren | ein TempDB-Symptom dem passenden Messpfad zuordnen |
+| `LO-M05-05` | VERTIEFUNG | ADR-, RCSI- und Datenbankvoraussetzungen von Optimized Locking prüfen | TID (Transaction ID; Transaktionskennung) Locking, LAQ (Lock After Qualification; Sperren erst nach Prüfung der Zeilenqualifikation) und verbleibende Lock-Arten ohne pauschale `NOLOCK`-Empfehlung einordnen |
 
 ### M06 – Ressourcen und Diagnosewerkzeuge
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |
 |---|---|---|---|
 | `LO-M06-01` | KERN | CPU Time, Elapsed Time, aktuelle Task-Waits und kumulative Wait-Deltas im richtigen Scope korrelieren | aus Zeit- und Scopeangaben eine belastbare erste Engpassklasse bilden |
-| `LO-M06-02` | VERTIEFUNG | `RESOURCE_SEMAPHORE`, wartende Grants, Overgrant und Undergrant unterscheiden | Grant-DMV, Plan und zeitgleichen Workload gemeinsam auswerten |
+| `LO-M06-02` | VERTIEFUNG | `RESOURCE_SEMAPHORE`, wartende Grants, Overgrant und Undergrant unterscheiden | Grant-DMV (Dynamic Management View; dynamische Verwaltungssicht für Diagnoseinformationen), Plan und zeitgleichen Workload gemeinsam auswerten |
 | `LO-M06-03` | KERN | I/O-, Latch-, Log-, Netzwerk- und Scheduler-Waits als Hypothesenstart klassifizieren | eine Wait-Kategorie mit mindestens einer bestätigenden Gegenprobe verbinden |
 | `LO-M06-04` | KERN | Query Store, Extended Events und DMVs nach Historie, Ereignis und Livezustand auswählen | für Regression, Deadlock und aktuelle Blockierung jeweils den geeigneten Pfad wählen |
 | `LO-M06-05` | KERN | eine Outside-in-Diagnose von Nutzerzeit über Systemsignal und Query bis zur Operatorursache durchführen | lokales Query-Tuning bei systemfremder Ursache begründet verwerfen |
@@ -199,6 +210,6 @@ Eine fachliche Kernaussage muss auf der Projektionsfolie korrekt sein. Notes und
 
 Die 84 aktiven Folien sind genau einem Primärmodul und mindestens einem der bisher verwendeten Lernziele zugeordnet. `W2-007` hat alle früheren `REFINE`-Entscheidungen abgeschlossen; der aktive Bestand besitzt 84 `KEEP`-Claims.
 
-`ADV-003` ergänzt neun beobachtbare Vertiefungslernziele und ordnet ihnen alle 39 `ADV-CLM-*`-Claims zu. Diese Claims besitzen noch keine aktive Folie. Ihre Folien-, SlideKey- und Variantenprofilzuordnung erfolgt erst durch `ADV-009` und `PRS-012`. Eine curriculare oder geplante Demo-Zuordnung bewertet weder Demo-Implementierung noch Runtime-Verhalten als bestanden.
+`ADV-003` ergänzt neun beobachtbare Vertiefungslernziele und ordnet ihnen alle 39 `ADV-CLM-*`-Claims zu. Diese Claims besitzen noch keine aktive Folie. Ihre Folien-, SlideKey- und Variantenprofilzuordnung erfolgt erst durch `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) und `PRS-012`. Eine curriculare oder geplante Demo-Zuordnung bewertet weder Demo-Implementierung noch Runtime-Verhalten als bestanden.
 
-`CUR-001` bis `CUR-005`, `CUR-009`, `CUR-010` und `ADV-003` sind für die Planungsbasis `VALIDATED`. Eine empirische Wirksamkeitsprüfung mit Teilnehmenden folgt über `CUR-007`, `CUR-008`, `ADV-010` und die Generalprobe.
+`CUR-001` bis `CUR-005`, `CUR-009`, `CUR-010` und `ADV-003` sind für die Planungsbasis `VALIDATED`. Eine empirische Wirksamkeitsprüfung mit Teilnehmenden folgt über `CUR-007`, `CUR-008`, `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) und die Generalprobe.

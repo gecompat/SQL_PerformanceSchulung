@@ -23,7 +23,7 @@ des passenden Umfangs.
 - Query Patterns und nützliche SQL-Lösungsmuster
 - Rowstore- und Columnstore-Indizes
 - Concurrency, Isolation und TempDB
-- CPU, Speicher, I/O und Waits
+- CPU (Central Processing Unit; Prozessor), Speicher, I/O (Input/Output; Ein- und Ausgabezugriffe) und Waits
 - Query Store, Extended Events und Diagnose
 
 Sie können die Themen der Reihe nach bearbeiten oder ein konkretes Problem

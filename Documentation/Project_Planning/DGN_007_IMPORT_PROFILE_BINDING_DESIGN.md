@@ -42,7 +42,7 @@ Objektidentität.
 [Python 3.12: ModuleSpec](https://docs.python.org/3.12/library/importlib.html#importlib.machinery.ModuleSpec),
 geprüft am 2026-10-07. Die folgenden engeren Bindungsregeln sind Projektentwurf.
 
-Die bisherige Profil-API gibt weiterhin ausschließlich `ProfileReport` zurück.
+Die bisherige Profil-API (Application Programming Interface; Programmierschnittstelle) gibt weiterhin ausschließlich `ProfileReport` zurück.
 Die getrennte Erweiterung `observe_current_interpreter_records` liefert jetzt
 zusätzlich ihre vollständig geprüfte lokale Abschlussaufnahme; bei Ablehnung
 enthält `ObservationResult` keine Observation. Diese Record-Rückgabe attestiert keine
@@ -877,7 +877,7 @@ versionierter Artefakte.
 Der getrennte reine Prüfer
 [`dgn007_compact_profile_sizing.py`](../../Tests/Tools/dgn007_compact_profile_sizing.py)
 prüft zunächst sämtliche DTO- und Kontextformen und zählt dann alle fünf
-vollständigen Entwurfsformen aus §10 inkrementell in kanonischem ASCII-JSON.
+vollständigen Entwurfsformen aus §10 inkrementell in kanonischem ASCII-JSON (JavaScript Object Notation; strukturiertes Textformat).
 Jede Größe enthält 16 Headerbytes, Tags und sämtliche zugehörigen tatsächlichen
 Formfelder. Die gemeinsame Metadata enthält beide vollständigen Neuner-
 Deskriptorarrays; Report und Kontextpräbild enthalten das Kontextarray, Installation
@@ -1710,7 +1710,7 @@ dem Workerreport gewählt; keine dieser Angaben stammt aus dessen eigener Wahl.
    POST-Report und keinen Digestersatz für dessen Felder. Dieser lokale Check
    ist kein zweiter vom Parent vollständig empfangener Beobachtungsbeleg.
 5. Der Parent prüft dieses Abschlussrecord und sendet einmal `IMPORT_RELEASE`.
-   Anschließend schließt er stdin. Der Worker verlangt das erwartete EOF ohne
+   Anschließend schließt er stdin. Der Worker verlangt das erwartete EOF (End of File; Ende eines Eingabestroms) ohne
    Zusatzbytes, bevor eine spätere Kandidatenoperation zulässig wird.
    EOF ist keine zusätzliche Freigabe und ersetzt keines der beiden Commands.
 
@@ -2859,7 +2859,7 @@ Dateien als SHA-256
 Nächster kleiner Offline-Schnitt ist die reine begrenzte Reassemblierung
 bereits gehaltener PROFILE-BEGIN/Fragmente/END-Records nach §16.4.
 Vollständige R-Form, Semantik und Callerbindung folgen getrennt; opake
-Reassemblierung attestiert kein beobachtetes Profil. Tatsächlicher I/O,
+Reassemblierung attestiert kein beobachtetes Profil. Tatsächlicher I/O (Input/Output; Ein- und Ausgabezugriffe),
 gemeinsame operative Kanal-/stderr-Budgets, Freigaben, operative Inventur
 und Fünf-Formen-/64-KiB-Gate sowie Parent-/Worker-, Loader-, Consumption-,
 Replay-, Cleanup- und G13-Methodengates bleiben offen.
@@ -3417,7 +3417,7 @@ Tool RAW SHA-256
 
 Keine private historische Aufnahme, Prepare-, Nonce-, Profil-, Sysconfig-,
 Worker- oder SQLprobe wurde erneut ausgeführt. Quellen- und Testfit,
-synthetische Gegenproben und spätere CI attestieren keine operative
+synthetische Gegenproben und spätere CI (Continuous Integration; automatisierte Integrationsprüfungen) attestieren keine operative
 Fünf-Formen-/64-KiB-Ausgabe, Sender-, Trust-, UsedBytes- oder Methodenfreigabe.
 
 ## 31. Vollständiger deklarativer Profilrecord-Callerabgleich

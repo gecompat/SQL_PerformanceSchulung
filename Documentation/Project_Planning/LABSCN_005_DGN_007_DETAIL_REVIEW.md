@@ -6,8 +6,8 @@
 | Stand | 2026-09-14 |
 | Arbeitspaket | `LABSCN-005` |
 | Kandidat | `DGN-007` – Capstone „Zeitabhängige Regression eines Suchworkloads“ |
-| Task | `TSK-002` |
-| Designgrundlage | [`ADV_007_LAB_VP5_DESIGN.md`](ADV_007_LAB_VP5_DESIGN.md) (`DESIGNED`) |
+| Task | `TSK-002` (Detailreview LABSCN-005/DGN-007: Capstone-Planungsschnitt mit Incident-, Hypothesen-, Zeitfenster-, Reset- und Teilnehmeruebergabevertrag) |
+| Designgrundlage | [ADV-007 – Design LAB-VP5 und DGN-007](ADV_007_LAB_VP5_DESIGN.md) (`DESIGNED`) |
 | interaktive Zielversion | SQL Server 2025 / Compatibility Level 170 |
 | Safety | `YELLOW`, ausschließlich isolierte Wegwerfinstanz |
 | Ausführungspfad | `TSQL_TESTDB`, Stufe 2, `DISPOSABLE_INSTANCE` |
@@ -35,13 +35,13 @@ Teilnehmerübergabe. Die Voraussetzungen sind erfüllt:
 
 - `W-DGN-001` (Query-Store-/XE-Pilot, Lauf 33222989682) und `W-SCN-001`
   (Project Adapter `0.1`, Docker-/Podman-Lifecycle) sind `VALIDATED`.
-- Die `DGN-005`- und `CON-006`-Folgeslices liefern praktisch wiederverwendbare
+- Die `DGN-005` (Gezielte Ereigniserfassung mit Extended Events)- und `CON-006` (Zyklische Sperrkonflikte erkennen)-Folgeslices liefern praktisch wiederverwendbare
   Evidenz-, Mehrsession- und Cleanup-Verträge.
-- Das Design `ADV-007` ist vollständig und durch
+- Das Design `ADV-007` (Design LAB-VP5 und DGN-007) ist vollständig und durch
   `Tests/Static/validate_adv_006_007_designs.py` abgesichert.
 - `SQL_Server_Lab` benötigt keine Änderung: Der Capstone bleibt innerhalb der
   belegten Fähigkeiten (eine isolierte 2025-Einzelinstanz, Query Store,
-  begrenzte XE-Session, Post-Provision-T-SQL).
+  begrenzte XE-Session, Post-Provision-T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)).
 
 ## 3. Lernmehrwert und Abgrenzung
 
@@ -51,11 +51,11 @@ unbekannten Incident; er erzeugt keinen neuen Root Cause:
 | Evidenzquelle | bereits validiert durch | Rolle im Capstone |
 |---|---|---|
 | A/B-Messvertrag | `DGN-001` (Messvertrag) | Baseline, genau eine Änderung, Gegenprobe |
-| Query-Store-Plan-, Runtime- und Wait-Historie | `DGN-003` (Lauf 33222989682) | Zeitfenster T0/T1/T2, Planwechsel |
-| Client-/Sessionkontext | `QRY-013` (Lauf 30699410795) | Hypothese 3 widerlegen |
+| Query-Store-Plan-, Runtime- und Wait-Historie | `DGN-003` (Abfragehistorie mit Query Store) (Lauf 33222989682) | Zeitfenster T0/T1/T2, Planwechsel |
+| Client-/Sessionkontext | `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) (Lauf 30699410795) | Hypothese 3 widerlegen |
 | begrenzte XE-Evidenz | `DGN-005` (Slices) | Wait- und Ereignissignal im Requestscope |
-| Wait-Scope-Deltas | `RES-007` (Lauf 33222989644) | Hypothesenstart statt Ursachenbeweis |
-| Deadlock- und Mehrsession-Verträge | `CON-004`, `CON-006` | Sessiondisziplin, Signale, Timeouts |
+| Wait-Scope-Deltas | `RES-007` (Wartezeiten im richtigen Messbereich) (Lauf 33222989644) | Hypothesenstart statt Ursachenbeweis |
+| Deadlock- und Mehrsession-Verträge | `CON-004` (Blockierungsketten verfolgen), `CON-006` | Sessiondisziplin, Signale, Timeouts |
 
 Der Didaktikmehrwert ist die geprüfte Verknüpfung: Symptom → Historie →
 Kontext → Plan → Systemsignale → Vergleich, mit mindestens zwei anhand
@@ -64,7 +64,7 @@ fehlender oder widersprechender Evidenz verworfenen Alternativhypothesen.
 ## 4. Incident-, Zeitfenster- und Hypothesenvertrag
 
 Der Vertrag folgt unverändert Kapitel 3 bis 8 von
-[`ADV_007_LAB_VP5_DESIGN.md`](ADV_007_LAB_VP5_DESIGN.md). Für den interaktiven
+[ADV-007 – Design LAB-VP5 und DGN-007](ADV_007_LAB_VP5_DESIGN.md). Für den interaktiven
 Slice werden folgende Festlegungen zusätzlich getroffen:
 
 - **Zeitfenster:** `T0_BASELINE`, `T1_INCIDENT`, `T2_COMPARISON` als klar
@@ -152,8 +152,8 @@ Die interaktive Abnahme verlangt je Provider:
 
 ## 8. Quellenstatus
 
-Die Designquellen `SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`,
-`SRC-035`, `SRC-036` sowie ergänzend `SRC-040`, `SRC-046`, `SRC-047`, `SRC-051`
+Die Designquellen `SRC-001` (Query processing architecture guide), `SRC-007` (Intelligent query processing), `SRC-027` (Monitor performance by using the Query Store), `SRC-028` (Performance monitoring and tuning tools), `SRC-031` (Display an actual execution plan),
+`SRC-035` (sys.dm_os_wait_stats), `SRC-036` (sys.dm_os_waiting_tasks) sowie ergänzend `SRC-040` (Plan properties), `SRC-046` (Slow in the Application, Fast in SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug)?), `SRC-047` (What is Parameter Sniffing in SQL Server?), `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents)
 sind registriert und im `ADV_007_LAB_VP5_DESIGN.md` gebunden. Ein zusätzliches
 Quellen-Delta-Review ist für den Planungsschnitt nicht erforderlich; vor der
 Implementierung ist der Projekt-Quellenregisterprozess für neu hinzukommende

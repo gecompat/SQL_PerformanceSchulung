@@ -34,14 +34,14 @@ Sechs private rein synthetische Endstatustests PASS, neun öffentliche Runner-
 Methoden PASS einschließlich falscher/mixed/unzugehöriger nativer Fehler.
 Reviewer ohne Runtime/Testausführung. Modell-/Tokenverbrauch unbekannt.
 
-Aktuelle CI prüft auf PR-HEAD und integriertem main je zweimal öffentliche
+Aktuelle CI (Continuous Integration; automatisierte Integrationsprüfungen) prüft auf PR-HEAD und integriertem main je zweimal öffentliche
 Lifecycles auf drei Versionen und die betroffenen vorhandenen acht Demos.
 Neue Controlsabhängigkeit steht in beiden Workflowpathsets. Mutierende CI
 cancel-in-progress bleibt false; kein Repeat aufgrund eines Timerereignisses.
 32 Demos/372 Runs sind ausschließlich geplanter gesamter Providerkatalog,
 keine Behauptung dieser ganzen Matrixausführung. Kein Vollsuite-Lokaldoppel.
 Die öffentliche Promotion ist keine Runtime-/Release-/TSK-009-Gesamtabnahme;
-Pooling, Serverlogins, ANN, Seitenkanäle und Modellprovider bleiben offen.
+Pooling, Serverlogins, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Seitenkanäle und Modellprovider bleiben offen.
 
 C1 nativer Consumer-FAIL bleibt geschlossen im gemeinsamen Ledger: vier
 Versions-SKIPs PASS und 192 tatsächliche Markerabweisungen PASS; bei der
@@ -131,7 +131,7 @@ Die öffentliche CI auf PR-184-Head 4c28f5d2f0c10efd1cc1af80bc1ea4a35a677a7c
 ist im SQL-AI-Run 38188982540 tatsächlich FAIL. Beide regulären CON-010-
 Lifecycles bestanden; danach scheiterte die neue Consumer-Abwesenheitsprüfung
 vor Setup. Die öffentliche sqlcmd-Option -r 1 routete PRINT nach stderr,
-die API lieferte ausschließlich stdout. Eigener CI-Container tatsächlich
+die API (Application Programming Interface; Programmierschnittstelle) lieferte ausschließlich stdout. Eigener CI-Container tatsächlich
 bereinigt. Dieser Head wurde nicht gemergt; native C2-Positivbelege bleiben
 unverändert und ersetzen keine fehlgeschlagene CI-Qualifikation.
 

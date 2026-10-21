@@ -17,13 +17,13 @@ SQL Server 2025 (17.x), CL 170; float32 ohne Preview. Enterprise Developer auf W
 ist der Entwicklungszielumfang; weitere Editionen und Windows-Runtime sind noch nicht qualifiziert.
 2019/2022 enden vor Setup mit SKIP_VERSION. Grün, eine Session, 180 Sekunden plus 60 Sekunden
 Cleanup. Maximal 1000 synthetische Rows; Datenfile maximal 256 MiB, Logfile maximal 64 MiB.
-Vorgeschlagenes Lab: vier logische CPUs, 16 GiB Host-RAM und 10 GiB Laborplatz.
+Vorgeschlagenes Lab: vier logische CPUs, 16 GiB Host-RAM (Random Access Memory; Arbeitsspeicher) und 10 GiB Laborplatz.
 
 Setup/Cleanup benötigen CREATE DATABASE und Eigentümerrechte an der eigenen Datenbank;
 Teilnehmerabfragen nur SELECT auf lab-Objekte. Keine Server-State-, Modell-, Credential- oder
 externen Endpointrechte. Das separate Setupkonto wird nicht als notwendiges Teilnehmerrecht
 interpretiert. Zeit- und Dateilimits werden durch Harness und SQL-Dateigrenzen erzwungen.
-Float16 und ANN gehören zu separaten Previewpfaden. Fremde Datenbanken, Container, Modelle
+Float16 und ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) gehören zu separaten Previewpfaden. Fremde Datenbanken, Container, Modelle
 und Hostdienste werden weder übernommen noch verändert.
 
 ## Schritt-für-Schritt-Anleitung

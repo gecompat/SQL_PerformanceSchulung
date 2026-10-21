@@ -9,11 +9,11 @@ Kein zweiter Lauf erforderlich; keine unveränderte Wiederholung.
 
 Am voll gebundenen Image SQL 17.0.5005.3/EngineEdition 3/Linux Ubuntu 24.04 mit
 vier CPUs/sechs GiB, eigenem Loopbackport, CL170/SIMPLE und 256/64-MB-Dateilimits
-wurden Preview 0/MAXDOP 0 tatsächlich persistiert, anschließend in neuen Clients
+wurden Preview 0/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0 tatsächlich persistiert, anschließend in neuen Clients
 1/1 attestiert. QUOTED_IDENTIFIER 1 in der eigenen Buildsession. Volle Marker,
 1000 VECTOR(3)-float32-Rows und Indexmetadaten wurden gebunden.
 
-Genau ein fester Legacy-Suchaufruf unter SET STATISTICS XML ON/OFF lieferte
+Genau ein fester Legacy-Suchaufruf unter SET STATISTICS XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) ON/OFF lieferte
 vollständiges begrenztes XML, Build 17.0.5005.3, das exakt gebundene synthetische
 Suchstatement und tatsächliche RunTimeCountersPerThread. Der unabhängige private
 Parser bindet Objektattribute jeweils an den unmittelbar zugehörigen RelOp;
@@ -41,7 +41,7 @@ Eigener Indexdrop und tatsächliche Indexabwesenheit bestanden. Beide tatsächli
 Restores 0/0, neue Attestierung vor DB-Drop und separate SQL-DB-/Containerabwesenheit
 bestanden. Cleanup 12,583 Sekunden, Prozesscode 0. Ausgeführte Quellen unverändert.
 
-Kein CPU-/IO-/Elapsedvergleich, kein empirischer Worker-DOP, keine gefilterte
+Kein CPU-/IO-/Elapsedvergleich, kein empirischer Worker-DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), keine gefilterte
 Query-, DML-, andere Build-/Azure- oder volle IDX-011-/IDX-012-Abnahme. Rohplan
 und Prozessoutput bleiben privat/unversioniert; nur synthetische Zusammenfassung
 und Hashbindung werden übernommen. Nächster eigenständig begrenzter Schnitt ist

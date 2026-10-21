@@ -12,12 +12,12 @@ lokales main FF-synchronisiert und sauber, eigene lokale/Remote-Branches entfern
 
 Unverändert wurden drei neue eigene serielle Container aus dem gecachten Image
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`
-verwendet. Alle meldeten exakt SQL Server 17.0.5005.3; vier CPU, sechs GiB, Loopback,
+verwendet. Alle meldeten exakt SQL Server 17.0.5005.3; vier CPU (Central Processing Unit; Prozessor), sechs GiB, Loopback,
 300 Sekunden reguläres Gesamtbudget und dieselbe separate 60-Sekunden-
 Cleanupdeadline ohne Reset. Die eigene CL170-/SIMPLE-Datenbank hatte
 256/64-MB-Dateilimits, vier vollständig bytegenaue Eigentumsmarker und vier
 float32-VECTOR-Tabellen mit jeweils 100 synthetischen Rows `[Id,1,0,...,0]`.
-Datenbank-MAXDOP/PREVIEW_FEATURES blieben tatsächlich 0/0, nur Suchstatements
+Datenbank-MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES blieben tatsächlich 0/0, nur Suchstatements
 verwendeten OPTION(MAXDOP 1). Kein Cacheleeren oder Concurrencylauf.
 
 Der stabile C2 bestand zwei vollständige Lifecycles. Je Lifecycle liefen
@@ -36,7 +36,7 @@ attestiert. CPU, Reads, LogicalReads und Writes sind tatsächliche monotone
 Live-Request-Deltas; Elapsed folgt exakt den tatsächlichen datetime2(7)-UTC-
 Fenstern. Alle 74 Requests waren eindeutig und zeitlich seriell. Der bounded
 ASCII-Chunktransport verlangt vollständige Reihenfolge/Anzahl/Teil-/Gesamtlänge
-vor JSON-Auswertung; öffentliche SQLCMD-Optionen und gemeinsame API unverändert.
+vor JSON-Auswertung; öffentliche SQLCMD-Optionen und gemeinsame API (Application Programming Interface; Programmierschnittstelle) unverändert.
 
 ## Beobachtete Fensterwerte
 
@@ -46,7 +46,7 @@ wurde das gesamte SQL-Fenster mit temporärer Ergebnisablage, Schleife und
 Countererfassung; Verbindung, Quellenaufbau und Ausgabe liegen außerhalb.
 Diese kleinen Populationen begründen keine universelle Skalierungs- oder
 Speedupaussage. Reads 0 und Millisekundenquantisierung bleiben Beobachtungen,
-kein Beweis vollständiger Worker-I/O oder kostenloser Ausführung.
+kein Beweis vollständiger Worker-I/O (Input/Output; Ein- und Ausgabezugriffe) oder kostenloser Ausführung.
 WARN: Lauf 1 enthält 3 und Lauf 2 1 vollständige Messfenster
 mit tatsächlich Elapsed=0 trotz positiver CPU-Zähler. Diese Werte werden
 weder verworfen noch durch Schätzungen ersetzt; die Timer-/Fenstergrenze

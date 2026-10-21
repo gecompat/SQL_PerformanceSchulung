@@ -28,9 +28,10 @@ bei der Vorbereitung praktischer Beispiele.
 ## Für Bearbeitung und Erzeugung
 
 - Das PowerPoint-Masterdeck unter `Presentations/` ist die einzige fachlich bearbeitete Präsentationsquelle.
-- [`presentation_variants.schema.json`](presentation_variants.schema.json) definiert den Vertrag für das produktive Manifest [`presentation_variants.json`](presentation_variants.json).
+- [Prüfschema für das Variantenmanifest](presentation_variants.schema.json) definiert den Vertrag für das produktive Manifest [Variantenmanifest mit der Folienzuordnung](presentation_variants.json).
 - Das Manifest ordnet alle 102 stabilen SlideKeys den Profilen, Rollen, Claims, Quellen, Lernzielen und Demo-IDs zu.
 - Der Unterordner `build/` ist für reproduzierbar erzeugte Varianten vorgesehen. Dateien dort sind Build- beziehungsweise Releaseartefakte und dürfen nicht manuell gepflegt werden.
-- Die vollständigen fachlichen und technischen Regeln stehen in [`PRESENTATION_VARIANT_MANIFEST_CONTRACT.md`](../../Documentation/Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md).
+- Die vollständigen fachlichen und technischen Regeln stehen in [PRS-011 – Vertrag für SlideKeys und Präsentationsvarianten](../../Documentation/Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md).
 
-`PRS-012` bis `TST-012` sind durch [`W_PRS_001_TEACHING_RELEASE.md`](../../Documentation/Project_Planning/W_PRS_001_TEACHING_RELEASE.md) validiert. Bedienung, Build und Renderprüfung beschreibt [`PRESENTATION_VARIANTS.md`](../../Documentation/HowTo/PRESENTATION_VARIANTS.md).
+Die Arbeitspakete zur fachlichen und technischen Freigabe der Präsentationsvarianten
+(`PRS-012` bis `TST-012`) sind durch [W-PRS-001 – Lehrmittelfreigabe](../../Documentation/Project_Planning/W_PRS_001_TEACHING_RELEASE.md) validiert. Bedienung, Build und Renderprüfung beschreibt [Präsentationsprofile verwenden und erzeugen](../../Documentation/HowTo/PRESENTATION_VARIANTS.md).

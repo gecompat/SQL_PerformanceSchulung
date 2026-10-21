@@ -2,7 +2,7 @@
 
 Stand: 2026-10-11. Privater begrenzter Diagnosescope aus der ausdrücklich erteilten
 weiteren lokalen Wellenfreigabe; vor SQL in
-[CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md) festgelegt. Höchstens
+[Aktueller Ausführungsstand](CURRENT_EXECUTION_STATUS.md) festgelegt. Höchstens
 zwei Kandidaten/vier eigene serielle Container, zwei Lifecycles je positivem
 stabilem Kandidaten. Die früheren FAIL-Checkpoints/Budgets bleiben unverändert.
 
@@ -55,7 +55,7 @@ Tests bestanden; enger Befundnachreview vor SQL schloss ohne offene P1/P2. Kein 
 
 Zwei unveränderte Lifecycles bestanden. Der gültige parameterisierte UPDATE wurde
 jeweils mit tatsächlichem SQL-Fehler 42231/State 1 wegen des Vectorindexes auf der
-eigenen Tabelle verweigert. Der vor JSON gesicherte Transaktionssnapshot enthielt
+eigenen Tabelle verweigert. Der vor JSON (JavaScript Object Notation; strukturiertes Textformat) gesicherte Transaktionssnapshot enthielt
 TransactionCount=0 und TransactionState=0, RolledBack=true. Vollständige Quellbytes
 und Indexmetadaten blieben unverändert. Dies belegt die einzelne UPDATE-Verweigerung
 am festen Build/Profil; kein allgemeiner INSERT-/DELETE-/MERGE- oder numerischer

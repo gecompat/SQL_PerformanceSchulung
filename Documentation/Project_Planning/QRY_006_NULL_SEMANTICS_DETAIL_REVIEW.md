@@ -4,7 +4,7 @@
 |---|---|
 | Status | `DECIDED_PLANNING` |
 | Stand | 2026-09-19 |
-| Kandidat | `QRY-006` – NULL-Semantik bei Anti-Mengen |
+| Kandidat | `QRY-006` (NULL bei NOT IN und NOT EXISTS) – NULL-Semantik bei Anti-Mengen |
 | Safety | `GREEN` |
 | Umsetzung | noch nicht beauftragt; dieses Dokument ist kein Demo- oder Runtime-Artefakt |
 
@@ -22,16 +22,16 @@ Planform.
 
 ## 2. Quellengebundene Semantik
 
-Dokumentiert durch `SRC-069`: Liefert die Unterabfrage von `NOT IN` ein
+Dokumentiert durch `SRC-069` (IN (Transact-SQL)): Liefert die Unterabfrage von `NOT IN` ein
 `NULL`, kann der Vergleich für nicht passende Parent-Werte `UNKNOWN` ergeben.
 Eine `WHERE`-Bedingung gibt nur `TRUE` weiter; deshalb ist die ungefilterte
 `NOT IN`-Abfrage in der festgelegten Gegenprobe leer.
 
-Dokumentiert durch `SRC-070`: `EXISTS` prüft, ob die korrelierte Unterabfrage
+Dokumentiert durch `SRC-070` (EXISTS (Transact-SQL)): `EXISTS` prüft, ob die korrelierte Unterabfrage
 Zeilen liefert. Die Negation `NOT EXISTS` gibt einen Parent-Wert weiter, wenn
 keine passende Child-Zeile existiert.
 
-Dokumentiert durch `SRC-071`: `NULL` und `UNKNOWN` gehören zur dreiwertigen
+Dokumentiert durch `SRC-071` (NULL and UNKNOWN (Transact-SQL)): `NULL` und `UNKNOWN` gehören zur dreiwertigen
 Logik. Die Ergebniserklärung bleibt auf diese logische Grenze beschränkt.
 
 ## 3. Synthetischer Ergebnisvertrag

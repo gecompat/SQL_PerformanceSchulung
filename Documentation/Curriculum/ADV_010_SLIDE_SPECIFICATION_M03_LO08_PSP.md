@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Paket | `ADV-010` |
+| Paket | `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) |
 | Status | `INTEGRATED` |
 | Deckpositionen | 94 bis 97 (Folienteile `slide95.xml` bis `slide98.xml`) |
 | Modul | M03 – Optimizer, Statistiken und Pläne |
@@ -20,7 +20,7 @@ Dieses Dokument bleibt die verbindliche fachliche Quelle des Folieninhalts. Der 
 
 ## 2. Didaktische Einordnung
 
-Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich der drei klassischen Strategien für optionale Suchbedingungen mit einem ausdrücklichen Ausblick auf `OPT-009` und `OPT-010`. Dieser Block löst den ersten Teil dieses Versprechens ein: Er behandelt ausschließlich Parameter Sensitive Plan Optimization. Optional Parameter Plan Optimization bleibt `OPT-010` vorbehalten und wird hier nicht bewertet. Der Bogen ersetzt keine der in `QRY-004` verglichenen Strategien, sondern ordnet ein versionsgebundenes Verfahren daneben ein.
+Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich der drei klassischen Strategien für optionale Suchbedingungen mit einem ausdrücklichen Ausblick auf `OPT-009` und `OPT-010` (Planoptimierung für optionale Parameter). Dieser Block löst den ersten Teil dieses Versprechens ein: Er behandelt ausschließlich Parameter Sensitive Plan Optimization. Optional Parameter Plan Optimization bleibt `OPT-010` vorbehalten und wird hier nicht bewertet. Der Bogen ersetzt keine der in `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) verglichenen Strategien, sondern ordnet ein versionsgebundenes Verfahren daneben ein.
 
 | Reihenfolge | Folien-ID | Claim | Deckposition | Rolle im Bogen |
 |---|---|---|---:|---|
@@ -44,7 +44,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich d
 
 `[SLIDE-ID: SLD-M03-121]` Diese Folie räumt mit der Vorstellung auf, Parameter Sniffing lasse sich durch einen geschickt gewählten ersten Aufruf lösen. Die Demo `OPT-009` misst denselben Querytext in beiden Reihenfolgen: einmal kompiliert der selektive Wert mit fünf Trefferzeilen, einmal der dominante mit 99 000. In beiden Durchläufen bleibt es bei genau einer Planform, und in beiden Durchläufen zahlt genau ein Wert drauf. Die Prüfsummen sind identisch – wir sprechen über Kosten, nicht über Ergebnisse. Erst wenn dieser Befund steht, ist die Diskussion über mehrere Planformen überhaupt sinnvoll.
 
-**Quellen:** `SRC-001`, `SRC-007` **Demo:** `OPT-009` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001` (Query processing architecture guide), `SRC-007` (Intelligent query processing) **Demo:** `OPT-009` **Tiefe:** `VERTIEFUNG`
 
 ## 4. Folie `SLD-M03-122` – Dispatcherplan und Query Variants
 
@@ -59,9 +59,9 @@ Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich d
 
 **Sprechernotiz**
 
-`[SLIDE-ID: SLD-M03-122]` Der Dispatcherplan ist kein Ausführungsplan im gewohnten Sinn, sondern eine Weiche. Er trägt im Plan-XML das Element `ParameterSensitivePredicate` mit den Grenzen, an denen die Bänder getrennt werden. Die eigentliche Arbeit leisten die Varianten; sie werden als vorbereitete Anweisungen zwischengespeichert und tragen den vom Produkt erzeugten Hinweis `PLAN PER VALUE`. Diesen Hinweis kann niemand von Hand schreiben – er ist ein Erzeugnis des Optimierers und ausschließlich Evidenz. In der Demo weisen wir genau das nach: mindestens einen Dispatcherplan, mindestens zwei Varianten und die ausgewiesenen Grenzen.
+`[SLIDE-ID: SLD-M03-122]` Der Dispatcherplan ist kein Ausführungsplan im gewohnten Sinn, sondern eine Weiche. Er trägt im Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) das Element `ParameterSensitivePredicate` mit den Grenzen, an denen die Bänder getrennt werden. Die eigentliche Arbeit leisten die Varianten; sie werden als vorbereitete Anweisungen zwischengespeichert und tragen den vom Produkt erzeugten Hinweis `PLAN PER VALUE`. Diesen Hinweis kann niemand von Hand schreiben – er ist ein Erzeugnis des Optimierers und ausschließlich Evidenz. In der Demo weisen wir genau das nach: mindestens einen Dispatcherplan, mindestens zwei Varianten und die ausgewiesenen Grenzen.
 
-**Quellen:** `SRC-007`, `SRC-008` **Demo:** `OPT-009` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-007`, `SRC-008` (Intelligent query processing features in detail) **Demo:** `OPT-009` **Tiefe:** `VERTIEFUNG`
 
 ## 5. Folie `SLD-M03-123` – Eignung ist nachzuweisen, nicht anzunehmen
 
@@ -78,7 +78,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich d
 
 `[SLIDE-ID: SLD-M03-123]` Hier liegt der häufigste Denkfehler im Umgang mit dieser Funktion: Sie wird eingeschaltet und danach als wirksam vorausgesetzt. Die Demo `OPT-009` behandelt Eignung deshalb als Messgröße. Findet sie trotz passender Version keinen Dispatcherplan, endet die Phase kontrolliert mit `SKIP_EVIDENCE_MISSING` und weist aus, was beobachtet wurde. Sie erzwingt nichts über Ablaufkennzeichen oder undokumentierte Hinweise. Für die Praxis heißt das: Wer die Funktion einsetzt, prüft im Plan, ob sie für die eigene Abfrage überhaupt greift – und plant für den Fall, dass sie es nicht tut.
 
-**Quellen:** `SRC-007`, `SRC-008`, `SRC-048` **Demo:** `OPT-009` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-007`, `SRC-008`, `SRC-048` (PSPO: How SQL Server 2022 Tries to Fix Parameter Sniffing) **Demo:** `OPT-009` **Tiefe:** `VERTIEFUNG`
 
 ## 6. Folie `SLD-M03-124` – Steuerung, Abwahl und Einordnung
 
@@ -105,7 +105,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-115` an. Dort endete der Vergleich d
 4. **Erfüllt.** `Documentation/Inventories/SLIDE_STATEMENT_REGISTER.md` enthält je Folie eine Zeile mit stabiler ID, Anzeigeposition, Folienteil und Evidenzklasse.
 5. **Erfüllt.** [Actions-Lauf 30701731564](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/30701731564) belegt `OPT-009` auf SQL Server 2022 und 2025; SQL Server 2019 endet planmäßig mit `SKIP_VERSION`. Der vollständige PowerPoint-Render und die visuelle Einzelprüfung sind in `Documentation/Project_Planning/ADV_010_FINAL_ACCEPTANCE_REVIEW.md` abgenommen.
 
-Die Übernahme erfolgte additiv über `Tools/build_adv010_slides.py`. Bestehende Folienteile, Anzeigepositionen und Foliennummern der Basisfolien und des Blocks `ADV-009` bleiben unverändert; geändert wurde ausschließlich der Nenner der Fussnotenpaginierung von 94 auf 98.
+Die Übernahme erfolgte additiv über `Tools/build_adv010_slides.py`. Bestehende Folienteile, Anzeigepositionen und Foliennummern der Basisfolien und des Blocks `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) bleiben unverändert; geändert wurde ausschließlich der Nenner der Fussnotenpaginierung von 94 auf 98.
 
 ## 8. Quellenübersicht
 

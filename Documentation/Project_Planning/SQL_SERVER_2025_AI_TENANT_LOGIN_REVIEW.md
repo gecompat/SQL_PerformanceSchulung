@@ -27,26 +27,26 @@ zu Tenant B machen. Rechtegegenproben prüfen Policyänderung, fremde Impersonat
 und tatsächlichen SELECT-Widerruf/Restore. Leere Ergebnisse ersetzen weder
 positive Authentifizierung noch native Rechtefehler.
 
-Echtes Verbindungspooling, ANN/Postfilter, allgemeine Seitenkanäle, Provider,
+Echtes Verbindungspooling, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren)/Postfilter, allgemeine Seitenkanäle, Provider,
 Inferenz, Performance und vollständige TSK-009-/TP-CON-Abnahme bleiben offen.
 Privilegierter Labowner ist ausschließlich Kontrolle, kein Schutz vor sysadmin.
-Die öffentliche Demo und ihre grüne Standard-CI werden durch private Vorbereitung
+Die öffentliche Demo und ihre grüne Standard-CI (Continuous Integration; automatisierte Integrationsprüfungen) werden durch private Vorbereitung
 nicht als Login-/Poolingqualifikation umgedeutet.
 
 ## Effekte, Autorität und gemeinsames Budget
 
 Die ausdrücklich erteilte allgemeine lokale Entwicklungswellenfreigabe einschließlich
 mehr als zwei Testzyklen deckt eigene wegwerfbare Testcontainer und synthetische
-SQL-Sicherheitskontrollen ab. Serverlogin-DDL besitzt Instanzscope und wird für
+SQL-Sicherheitskontrollen ab. Serverlogin-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) besitzt Instanzscope und wird für
 diesen Schnitt ausdrücklich RED-isolated klassifiziert: ausschließlich ein neu
 erzeugter, vollständig gebundener eigener Testcontainer; dokumentierter Reset
 ist dessen begrenzter eigener Abbau. Keine rote Host-/Trust-/Dienst-/Betriebssystem-
-konfiguration, fremde Instanz, Cloud-/Bezahl-API oder ONNX. Kein unbeaufsichtigter
+konfiguration, fremde Instanz, Cloud-/Bezahl-API (Application Programming Interface; Programmierschnittstelle) oder ONNX (Open Neural Network Exchange; Austauschformat für Modelle). Kein unbeaufsichtigter
 Standard-CI-Start dieser roten privaten Komponente.
 
 Höchstens sechs kohärente Kandidaten, Checkpoint nach drei geschlossenen Kandidaten,
 Hardstop sechs; ein eigener serieller Container und ein begrenztes Profil je
-Kandidat, insgesamt maximal sechs. Vier CPU/sechs GiB, festes vorhandenes Image,
+Kandidat, insgesamt maximal sechs. Vier CPU (Central Processing Unit; Prozessor)/sechs GiB, festes vorhandenes Image,
 SQL 17.0.5005.3, Developer/CL170. Höchstens zwei Dokumente/VECTOR(3), drei neue
 eigene SQL-Logins einschließlich Unmapped und drei exakt gebundene DBbenutzer.
 Keine PREVIEW_FEATURES-/MAXDOP-Änderung. 300 Sekunden regulärer Parent-/Profilzeit

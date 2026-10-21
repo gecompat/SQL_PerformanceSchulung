@@ -68,7 +68,7 @@ Volle TSK-006- und Workstreamabnahme offen; Modell-/Tokenverbrauch UNKNOWN.
 
 Consumer, zwölf gezielte Gegenproben, fester Expected-Vertrag und HowTo sind
 vorbereitet. Zwölf Methoden normal und vier Schutzmethoden unter -O bestanden
-mit Originalkanälen, gehaltenen PID/poll0/rc0 und aktuellen Quellenpins. Kein
+mit Originalkanälen, gehaltenen PID (Process Identifier; Prozesskennung)/poll0/rc0 und aktuellen Quellenpins. Kein
 historischer Report oder neuer Nativeaufruf. Ein früher Workflow-LF-Splitfehler
 vor dem Schreibzugriff ist als Sourcefinding erhalten; initialer Rawkanal fehlt.
 Die korrigierte Bearbeitung behält CRLF und den vollständigen Runtimebody bei.
@@ -99,7 +99,7 @@ fünf öffentlichen Sources und beide Preparedrecords sind vor/nach bytegleich.
 Null neue SQL-/Container-/Provider-/Modell-/Hostaufrufe, kein Rawaktenrewrite.
 
 Eine anschließende reine Source-/Byteeinsicht findet einen konkreten Schemafehler:
-SQL FOR JSON hat varbinary-Markerwerte als Base64 erfasst; der Consumer und seine
+SQL FOR JSON (JavaScript Object Notation; strukturiertes Textformat) hat varbinary-Markerwerte als Base64 erfasst; der Consumer und seine
 Handfixture erwarten Hextexte. Der vorhandene Snapshot kann diese Markerprüfung
 daher nicht bestehen. Das ist kein Nachweis der verloren gegangenen ersten Exception.
 Die gelesenen Koordinaten liefern keinen Korrekturgrund für das numerische Oracle.
@@ -136,7 +136,7 @@ aktuelle Privacy aller zehn geänderten Dateien vor Admission.
 Der einmalige C2-Durchlauf endete tatsächlich mit gehaltenem PID/poll0/rc0,
 ohne Timeout oder UNKNOWN, in 0,2396s. Zwei Reports versucht und abgeschlossen,
 reached_stage=COMPLETE, Errorcode NULL. Beide Originalakten sind COHERENT/WARN:
-je vier positive und vier verweigerte DML, acht Kontextrecords, fünf Principal-
+je vier positive und vier verweigerte DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten), acht Kontextrecords, fünf Principal-
 Audits, zwei Rechtegegenproben und vollständige 999-Row-Aufnahmen vor/nach.
 Originale kombinierte Kanäle bleiben kombiniert. Alle 80 historischen Dateien,
 fünf Produktquellen, beide Preparedrecords und Manifest sind vor/nach bytegleich.

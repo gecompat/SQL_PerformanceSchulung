@@ -78,7 +78,7 @@ Wegwerfcontainer.
 
 Dieser Nachweis enthält keine Incident-, Query-Store-, XE-, Hypothesen-,
 Mitigations-, T0/T1/T2- oder Performanceabnahme. Er belegt keine
-Docker-/Podman-Parität und keine Windows-SQL-Server-Runtime. `DGN-007` bleibt
+Docker-/Podman-Parität und keine Windows-SQL-Server-Runtime. `DGN-007` (Zeitabhängige Regression eines Suchworkloads) bleibt
 `IMPLEMENTED_STATIC_SLICE_B`; ein freigegebenes Demo-`manifest.json`,
 `scenario.json`, Inventaraufnahme und interaktive Teilnehmerübergabe bleiben
 offen. Der nächste kleine Schnitt ist die automatisierte Incident- und

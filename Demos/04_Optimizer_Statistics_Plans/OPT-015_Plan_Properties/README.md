@@ -20,7 +20,7 @@ Nach Abschluss kann die lernende Person einen Actual Execution Plan systematisch
 
 **Evidenzklasse:** `DOKUMENTIERT` und `EMPIRISCH`
 
-Geschätzte Kosten und Kardinalitäten entstehen während der Optimierung. Actual-Plan-Informationen ergänzen diese Werte um Daten der betrachteten Ausführung. Die Demo vergleicht deshalb nicht den optisch teuersten Operator, sondern Estimated Rows, Actual Rows, Actual Rows Read, Number of Executions, Statistics Usage, Query Hash, Logical Reads, CPU und Duration derselben markierten Abfrage.
+Geschätzte Kosten und Kardinalitäten entstehen während der Optimierung. Actual-Plan-Informationen ergänzen diese Werte um Daten der betrachteten Ausführung. Die Demo vergleicht deshalb nicht den optisch teuersten Operator, sondern Estimated Rows, Actual Rows, Actual Rows Read, Number of Executions, Statistics Usage, Query Hash, Logical Reads, CPU (Central Processing Unit; Prozessor) und Duration derselben markierten Abfrage.
 
 ## 3. Nichtziel
 
@@ -36,7 +36,7 @@ Die Demo ist grün. Sie erzeugt ausschließlich eine markergebundene Testdatenba
 
 ## 6. Synthetisches Datenmodell
 
-`lab.EntityGroup` enthält 20 neutrale Gruppen. `lab.WorkItem` enthält zunächst 200.000 deterministische Zeilen mit gleichmäßiger Gruppenverteilung. Der Index `IX_WorkItem_EntityGroupId` wird per Fullscan erfasst und zunächst mit `NORECOMPUTE` stabilisiert. Der Problemzustand ergänzt 60.000 Zeilen für die bisher nicht vorhandene Gruppe 999. Baseline und Vergleich besitzen normalisierte Evidenz in `lab.Opt015Evidence`; Plan XML wird nicht persistiert.
+`lab.EntityGroup` enthält 20 neutrale Gruppen. `lab.WorkItem` enthält zunächst 200.000 deterministische Zeilen mit gleichmäßiger Gruppenverteilung. Der Index `IX_WorkItem_EntityGroupId` wird per Fullscan erfasst und zunächst mit `NORECOMPUTE` stabilisiert. Der Problemzustand ergänzt 60.000 Zeilen für die bisher nicht vorhandene Gruppe 999. Baseline und Vergleich besitzen normalisierte Evidenz in `lab.Opt015Evidence`; Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) wird nicht persistiert.
 
 ## 7. Ablauf
 
@@ -53,7 +53,7 @@ Die Demo ist grün. Sie erzeugt ausschließlich eine markergebundene Testdatenba
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-015`.
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-015` (Ausführungspläne systematisch lesen).
 2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
 3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-015 -Server $server -Authentication $authentication -Username $username` aus.
 4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
@@ -83,10 +83,10 @@ Die konkrete Out-of-range-Schätzung, der Zugriffsoperator sowie CPU- und Laufze
 
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
-| `SRC-001` | Query Processing, Optimierung und Plan Cache | SQL Server 2019–2025 | 2026-07-26 |
+| `SRC-001` (Query processing architecture guide) | Query Processing, Optimierung und Plan Cache | SQL Server 2019–2025 | 2026-07-26 |
 | `SRC-005` | Statistik, Histogramm und Aktualität | SQL Server 2019–2025 | 2026-07-26 |
-| `SRC-031` | Actual Execution Plan als Runtime-Evidenz | SQL Server 2019–2025 | 2026-07-26 |
-| `SRC-037` bis `SRC-040` | Planleselogik, gemeinsame und planweite Eigenschaften | versionsabhängig empirisch zu prüfen | 2026-07-26 |
+| `SRC-031` (Display an actual execution plan) | Actual Execution Plan als Runtime-Evidenz | SQL Server 2019–2025 | 2026-07-26 |
+| `SRC-037` (SQL Server Execution Plan Reference) bis `SRC-040` (Plan properties) | Planleselogik, gemeinsame und planweite Eigenschaften | versionsabhängig empirisch zu prüfen | 2026-07-26 |
 | Microsoft Learn: [`sys.dm_exec_query_plan_stats`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17) | letzter bekannter Actual Plan; datenbankbezogenes opt-in | SQL Server 2019–2025 | 2026-07-26 |
 
 ## 14. Traceability

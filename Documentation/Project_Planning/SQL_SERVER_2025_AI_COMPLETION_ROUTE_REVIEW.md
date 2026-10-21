@@ -53,7 +53,7 @@ aktuelle tatsächliche PID-/poll-/rc-/Metadatenenden und Originalbytes erhalten.
 Die alte gestoppte Qwenwelle unverändert, keine Oracles an beobachtete FAILs
 anpassen. Eine spätere neue Inferenzwelle braucht eigene konkret geänderte
 Modell-/Quellen-/Antwortgrundlage, endliches Budget und neue Rootadmission;
-sie ist nicht Teil dieses Diagnosepakets. Allgemeine Antwortqualität, RAG,
+sie ist nicht Teil dieses Diagnosepakets. Allgemeine Antwortqualität, RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen),
 SQL-HTTPS, TSK-007/008 und Release bleiben offen. Cloud-/Bezahl-/ONNX-/rote
 Hostwirkungen bleiben konkret gated. Vollständige aktuelle PR-/Head-/Main-/
 Tree-/FF-/Branch-/Belegsicherungs-/Worktreeintegration bleibt Pflicht.
@@ -66,7 +66,7 @@ Lab-Arbeitsstand wurde parallel weiterentwickelt; drei loadergebundene
 SMTP-Quellen unterscheiden sich, aktueller fremder Arbeitsstand ist sauber.
 Keine Rootadmission, keine Metadaten-/WhatIf-/Inferenzaufrufe. C1-Sourcekarte,
 Raws und ursprüngliche Bindungen bleiben unverändert; ursprüngliche individuelle
-PID der Root-Validierung nicht erfasst, keine Rekonstruktion.
+PID (Process Identifier; Prozesskennung) der Root-Validierung nicht erfasst, keine Rekonstruktion.
 
 C2 verändert ausschließlich die Abhängigkeitsbindung: eine eigene unveränderte
 Kopie des ausgewählten committed Lab-Trees statt Import aus einem fremden

@@ -4,7 +4,7 @@
 |---|---|
 | Status | `VALIDATED` |
 | Stand | 2026-09-01 |
-| Kandidat | `DGN-005` – begrenzte Extended-Events-Evidenz |
+| Kandidat | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) – begrenzte Extended-Events-Evidenz |
 | Provider | Docker und Podman |
 | interaktive Zielversion | SQL Server 2025 / Compatibility Level 170 |
 | Safety | `YELLOW`, ausschließlich isolierte Wegwerfinstanz |
@@ -12,8 +12,8 @@
 ## Freigabegrundlage
 
 `DGN-005` ist der erste autonome Folgeschnitt aus der priorisierten
-LABSCN-005-Kandidatenliste. Der fachliche Demovertrag und die Quellen `SRC-028`
-und `SRC-060` sind bereits registriert. Actions-Lauf 33222989682 validiert die
+LABSCN-005-Kandidatenliste. Der fachliche Demovertrag und die Quellen `SRC-028` (Performance monitoring and tuning tools)
+und `SRC-060` (Extended Events sessions – time-bound sessions) sind bereits registriert. Actions-Lauf 33222989682 validiert die
 automatisierte Demo auf SQL Server 2019, 2022 und 2025 jeweils zweimal mit
 `PASS/OK`. Für den interaktiven Slice wird die kleinere, bereits durch
 `SQL_Server_Lab` unterstützte SQL-Server-2025-Einzelinstanz verwendet; das

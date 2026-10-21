@@ -18,7 +18,7 @@ begründeten Implementierungsumfang; IDX-011/IDX-012 bleiben PROPOSED.
 
 Ziel ist ausschließlich festzustellen, ob die dokumentierte CREATE-VECTOR-INDEX-
 Syntax am freigegebenen Build vor/nach Preview-Enable von einem frischen seriellen
-SQL-Client geparst wird. Die letzte Probe enthielt Enable und dynamische DDL im
+SQL-Client geparst wird. Die letzte Probe enthielt Enable und dynamische DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) im
 gleichen äußeren Batch und erfasste den tatsächlichen Previewwert unmittelbar vor
 DDL nicht separat. Eine Batch-/Sessionursache ist eine Hypothese, kein Befund.
 
@@ -59,7 +59,7 @@ kurzlebigen Client gesetzt, nicht in einer Prozedur oder einem Trigger.
 1. Quellen-/Effektreview vor SQL: tatsächlicher PARSEONLY-Text und Clientauswahl,
    Marker/Baseline und unveränderte gemeinsame Cleanupgrenzen. Vorhandene gültige
    Recovery-/Deadlineanalyse wiederverwenden; neue Deltas eng prüfen.
-2. Genau eine neue eigene Instanz erzeugen, Build/Edition/OS/Image/CID/Owner/Loopback
+2. Genau eine neue eigene Instanz erzeugen, Build/Edition/OS (Operating System; Betriebssystem)/Image/CID/Owner/Loopback
    prüfen. Eigene DB markieren, Baseline persistent sichern und ihre tatsächliche
    0/1 ausgeben. Noch kein Preview-Enable und kein Fixture-/Indexbuild.
 3. Tatsächlichen Previewwert und DB-Kontext in einem separaten neuen Client binden.
@@ -114,7 +114,7 @@ kein empirischer DOP-Befund am ausgewählten Image. Die gescheiterte DDL hat kei
 erfolgreichen Indexbuild oder tatsächlichen DOP-Nachweis geliefert.
 
 Deshalb umfasst dieser Entscheid ausschließlich Parsing. Die DDL-Zeichenfolge
-MAXDOP=1 ist keine Garantie eines späteren Builds mit DOP 1. Ein tatsächlicher
+MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)=1 ist keine Garantie eines späteren Builds mit DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) 1. Ein tatsächlicher
 Indexbuild/Suchlauf bleibt zusätzlich an einen wirksamen freigegebenen DOP-1-Pfad
 gebunden; insbesondere ein zusätzlicher DB-scoped-MAXDOP-Set/Restore-Effekt ist
 jetzt nicht freigegeben. Kein Server-/Host-Workaround wird ausgeführt.

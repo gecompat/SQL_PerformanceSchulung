@@ -23,7 +23,7 @@ Profilcap, fünf vorhandene Imports und Runtimebundle bleiben unverändert.
 Die reinen Footer-/Hashprimitiven aus PR257/258 bleiben unverändert; sie ersetzen
 im vollständigen Pfad keine gehaltenen Provider-/Encoderanker.
 
-Gewählte API der erzeugten Quelle:
+Gewählte API (Application Programming Interface; Programmierschnittstelle) der erzeugten Quelle:
 
 ```python
 _inline_match_session_end(records, stderr, *, expected_format,
@@ -98,7 +98,7 @@ separater falscher K, Nonce-/Domain-/Kontextfehler, fehlende/doppelte/frühe
 Footer, stdout nach Footer, begrenztes nicht-UTF8-stderr, Kanaltausch,
 Trunkierung/zusätzliche Bytes, exakte Typen vor Fremddispatch, Kanonizität,
 gemeinsame Bounds und Stack; tatsächlicher Encoder-/Providerdrift vor und
-während JSON/SHA, dominante Fehler-POSTs, sichere private Fehler und Restores.
+während JSON (JavaScript Object Notation; strukturiertes Textformat)/SHA, dominante Fehler-POSTs, sichere private Fehler und Restores.
 Wiederholung bleibt deklarativ; keine Consumptionbehauptung.
 
 Lokal: neue Suite auf Python 3.12/Linux und vorhandener Pythonversion/Windows,
@@ -129,7 +129,7 @@ darf variieren. Fehlergegenproben restaurieren ihre eigenen Mutationen in
 Der Erststand enthält Source und eigene Gegenproben. Es wurde noch keine neue
 Suite ausgeführt. Der bereits budgetierte unabhängige Quellen-/Testreview
 erfüllt vor dem ersten Lauf zugleich den Source/Test-PRE aus §31.4; sein
-ausdrückliches einmaliges Lauf-GO bleibt vor Testausführung und CI erforderlich.
+ausdrückliches einmaliges Lauf-GO bleibt vor Testausführung und CI (Continuous Integration; automatisierte Integrationsprüfungen) erforderlich.
 Checkpoint C1 `5fc4184bb46058a0305650c2616d7ba7c8f339d9`: alle bisherigen
 Top-Level-Quellknoten unverändert, statische Syntax, Privacy aller sieben Dateien,
 Registry, Kennungen, Foundationintegration und Kontinuität bestanden. Kein
@@ -179,6 +179,6 @@ Treevergleich und lokale/Remote-Branchbereinigung. Diese Gates bleiben vor
 Integrationsabschluss erforderlich. Der Nachweis behauptet keinen erfolgreichen
 C1-/C2-Matcherlauf und entfernt deren Befunde oder FAILs nicht.
 
-Echter Kanal, Loader-/Parentregistrierungsadapter, EOF/eigener Exit, Consumption,
+Echter Kanal, Loader-/Parentregistrierungsadapter, EOF (End of File; Ende eines Eingabestroms)/eigener Exit, Consumption,
 unabhängiger Ressourcen-Cleanup, operative Inventur, Fünf-Formen-/64-KiB-Gate
 und gemeinsame 20-s-/10-s-/I/O-/No-progress-Budgets bleiben separat nachzuweisen.

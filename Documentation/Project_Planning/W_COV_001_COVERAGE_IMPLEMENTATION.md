@@ -6,15 +6,15 @@ Die neun vorgesehenen Demos sind in der verbindlichen Reihenfolge als eigenstän
 
 | Reihenfolge | Demo | Status | Quellenstatus | Safety | Infrastruktur | Curriculum | Scopeentscheidung |
 |---:|---|---|---|---|---|---|---|
-| 1 | `OPT-003` | `VALIDATED` | `SRC-005` `ACTIVE` | `GREEN` | T-SQL-Testdatenbank | `LO-M02-02`, `CLM-023/024` | Sample, Fullscan, Skew und Histogrammgrenze |
-| 2 | `OPT-005` | `VALIDATED` | `SRC-005` `ACTIVE` | `GREEN` | T-SQL-Testdatenbank | `LO-M02-02`, `CLM-023/024` | Ascending Key, Änderungszähler, Sync-/Async-Konfiguration |
-| 3 | `CON-006` | `VALIDATED` | `SRC-004` `ACTIVE` | `YELLOW` | frische Instanz, drei Sessions | `LO-M05-03`, `CLM-067` | Fehler 1205, Opfervertrag, Deadlock-XML-Evidenz, geordnete Gegenprobe |
-| 4 | `CON-009` | `VALIDATED` | `SRC-029`, `SRC-004`, `SRC-031` `ACTIVE` | `YELLOW` | frische Performance-Instanz | `LO-M05-04`, `CLM-068`, `ADV-CLM-027` | User-/Internal-Objects und Version Store; Instanzkonfiguration zurückgestellt |
-| 5 | `IDX-006` | `VALIDATED` | `SRC-014/015` `ACTIVE` | `YELLOW` | frische Instanz | `LO-M04-05`, `CLM-057/058` | Splits, Density, Fragmentierung und Workloadwirkung ohne feste Schwelle |
-| 6 | `IDX-010` | `VALIDATED` | `SRC-016/017/015` `ACTIVE` | `YELLOW` | begrenztes Performance-Containerprofil | `LO-M04-06/07`, `CLM-060/061` | klassische CCI-Segmente; Ordered NCCI bleibt `DEFER` |
-| 7 | `STL-008` | `VALIDATED` | `SRC-033` `ACTIVE` | `RED` | dedizierte Wegwerf-Containerinstanz | Storage-/Log-Block | VLF und Growth; keine Storage-Latenzbehauptung |
-| 8 | `STL-009` | `VALIDATED` | `SRC-033` `ACTIVE` | `YELLOW` | frische Instanz | Storage-/Log-Block | Einzelcommit/Batch, Log-File-Delta, zeitgebundenes `WRITELOG`-Delta |
-| 9 | `RES-007` | `VALIDATED` | `SRC-035/036/051` `ACTIVE` | `YELLOW` | frische Instanz, drei Sessions | `LO-M06-01/08`, `CLM-073`, `ADV-CLM-037` | Task-/Request-/Instanzscope mit Freigabe-Gegenprobe |
+| 1 | `OPT-003` (Stichproben und ungleiche Datenverteilung) | `VALIDATED` | `SRC-005` (Statistics) `ACTIVE` | `GREEN` | T-SQL-Testdatenbank | `LO-M02-02`, `CLM-023/024` | Sample, Fullscan, Skew und Histogrammgrenze |
+| 2 | `OPT-005` (Wachsende Schlüssel und Statistikpflege) | `VALIDATED` | `SRC-005` `ACTIVE` | `GREEN` | T-SQL-Testdatenbank | `LO-M02-02`, `CLM-023/024` | Ascending Key, Änderungszähler, Sync-/Async-Konfiguration |
+| 3 | `CON-006` (Zyklische Sperrkonflikte erkennen) | `VALIDATED` | `SRC-004` (Transaction locking and row versioning guide) `ACTIVE` | `YELLOW` | frische Instanz, drei Sessions | `LO-M05-03`, `CLM-067` | Fehler 1205, Opfervertrag, Deadlock-XML-Evidenz, geordnete Gegenprobe |
+| 4 | `CON-009` (Kosten in tempdb unterscheiden) | `VALIDATED` | `SRC-029` (tempdb database), `SRC-004`, `SRC-031` (Display an actual execution plan) `ACTIVE` | `YELLOW` | frische Performance-Instanz | `LO-M05-04`, `CLM-068`, `ADV-CLM-027` | User-/Internal-Objects und Version Store; Instanzkonfiguration zurückgestellt |
+| 5 | `IDX-006` (Seitenaufteilungen und Seitenbelegung) | `VALIDATED` | `SRC-014/015` `ACTIVE` | `YELLOW` | frische Instanz | `LO-M04-05`, `CLM-057/058` | Splits, Density, Fragmentierung und Workloadwirkung ohne feste Schwelle |
+| 6 | `IDX-010` (Columnstore-Segmente gezielt überspringen) | `VALIDATED` | `SRC-016/017/015` `ACTIVE` | `YELLOW` | begrenztes Performance-Containerprofil | `LO-M04-06/07`, `CLM-060/061` | klassische CCI-Segmente; Ordered NCCI bleibt `DEFER` |
+| 7 | `STL-008` (Transaktionslog und Dateiwachstum) | `VALIDATED` | `SRC-033` (The transaction log) `ACTIVE` | `RED` | dedizierte Wegwerf-Containerinstanz | Storage-/Log-Block | VLF (Virtual Log File; interner Abschnitt einer Transaktionslogdatei) und Growth; keine Storage-Latenzbehauptung |
+| 8 | `STL-009` (Mehrere Änderungen gemeinsam bestätigen) | `VALIDATED` | `SRC-033` `ACTIVE` | `YELLOW` | frische Instanz | Storage-/Log-Block | Einzelcommit/Batch, Log-File-Delta, zeitgebundenes `WRITELOG`-Delta |
+| 9 | `RES-007` (Wartezeiten im richtigen Messbereich) | `VALIDATED` | `SRC-035/036/051` `ACTIVE` | `YELLOW` | frische Instanz, drei Sessions | `LO-M06-01/08`, `CLM-073`, `ADV-CLM-037` | Task-/Request-/Instanzscope mit Freigabe-Gegenprobe |
 
 ## Abnahmevertrag
 
@@ -26,7 +26,7 @@ Die neun vorgesehenen Demos sind in der verbindlichen Reihenfolge als eigenstän
 
 ## Runtime-Evidenz vom 2026-08-29
 
-Die Läufe verwendeten Docker 29.7.2, die lokalen Microsoft-Images `2019-latest`, `2022-latest` und `2025-latest`, vier CPUs und 8 GB RAM. Jeder Runner führte zwei Wiederholungen aus und prüfte nach jeder Wiederholung aus `master`, dass die erwartete `SQLPERF_LAB_*`-Datenbank nicht mehr existiert. Rohoutput und Zugangsdaten wurden nicht persistiert.
+Die Läufe verwendeten Docker 29.7.2, die lokalen Microsoft-Images `2019-latest`, `2022-latest` und `2025-latest`, vier CPUs und 8 GB RAM (Random Access Memory; Arbeitsspeicher). Jeder Runner führte zwei Wiederholungen aus und prüfte nach jeder Wiederholung aus `master`, dass die erwartete `SQLPERF_LAB_*`-Datenbank nicht mehr existiert. Rohoutput und Zugangsdaten wurden nicht persistiert.
 
 | Demo | 2019 | 2022 | 2025 | Bewertung |
 |---|---|---|---|---|

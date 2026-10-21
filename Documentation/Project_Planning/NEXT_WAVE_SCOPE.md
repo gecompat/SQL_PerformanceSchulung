@@ -27,4 +27,4 @@ Nicht Bestandteil sind Änderungen am PowerPoint-Masterdeck, die Migration histo
 
 ## Folgearbeit
 
-Die nächsten unabhängigen Stränge sind `ADV-004`/`ADV-005`, `PRS-012`/`TST-011`, fachlich geschnittene `W2-002`-Teilpakete und die Query-Store-/XE-Pilotvalidierung.
+Die nächsten unabhängigen Stränge sind `ADV-004` (Design LAB-VP1: Planmechanik und Operatorinteraktion)/`ADV-005` (Design LAB-VP2: Parameter Sensitivity und dynamische Suchbedingungen), `PRS-012`/`TST-011`, fachlich geschnittene `W2-002`-Teilpakete und die Query-Store-/XE-Pilotvalidierung.
