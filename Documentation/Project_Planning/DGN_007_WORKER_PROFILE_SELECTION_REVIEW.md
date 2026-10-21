@@ -175,7 +175,9 @@ erhalten.
 
 Vorgeschlagen ist eine ausdrückliche begrenzte Erweiterung für die Korrektur
 der AST-Providerwahl, eine Gegenprobe zur Ablehnung des falschen Interpreters
-vor weiteren Wirkungen und nötige unabhängige Reviewkorrekturen. Dabei bleiben
+vor weiteren Wirkungen und nötige unabhängige Reviewkorrekturen: denselben
+Rahmen von vier auf höchstens sechs stabile Quellen-/Teststände erweitern,
+mit Checkpoint nach Stand fünf. Dabei bleiben
 die bisherigen Fehlversuche erhalten, die 3.12-Hashes und Bytegrenzen
 unverändert. Die noch unerledigten Paketprüfungen benötigen erneut eine
 konkrete Quellen-/Testprüfung vor Ausführung und ein passendes Lauf-GO.
@@ -188,3 +190,10 @@ verlangt an der harten Grenze: „admit no new work or agent“. Der kontinuierl
 menschliche Auftrag bleibt bestehen; er erneuert diesen ausgeschöpften
 konkreten Rahmen nicht automatisch. Bis zur Entscheidung sind nur der sichere
 Diagnoseabschluss und dessen reguläre Integration zulässig.
+
+Der unabhängige Diagnose-/Dispositionsreview des Dokumentationsstands
+`a683d743376f2bb25e39d9893acf08241492dd14` meldete keine offenen priorisierten
+Befunde und bestätigte das Integrations-GO ausschließlich für diesen
+Dokumentationsabschluss. Auch die Präzisierung auf höchstens sechs Stände mit
+Checkpoint nach fünf wurde nur als noch nicht freigegebener
+Entscheidungsvorschlag bestätigt.
