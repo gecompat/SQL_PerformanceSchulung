@@ -114,6 +114,91 @@ class RunnerLoaderSourceTests(unittest.TestCase):
         self.assertIsNone(result[2])
         return result
 
+    def inverse_pool(self, tree):
+        pools = [n for n in tree.body if isinstance(n, ast.Assign) and len(n.targets) == 1
+                 and isinstance(n.targets[0], ast.Name) and n.targets[0].id.startswith('_c')
+                 and n.targets[0].id[2:].isdigit()]
+        self.assertEqual(len(pools), 1)
+        assignment = pools[0]
+        name = assignment.targets[0].id
+        self.assertIsInstance(assignment.value, ast.Tuple)
+        values = []
+        for n in assignment.value.elts:
+            self.assertIsInstance(n, ast.Constant)
+            self.assertIs(type(n.value), str)
+            values.append(n.value)
+        self.assertTrue(values)
+        self.assertEqual(len(set(values)), len(values))
+        at = tree.body.index(assignment)
+        self.assertTrue(all(isinstance(n, (ast.Import, ast.ImportFrom)) or
+                            isinstance(n, ast.Expr) and isinstance(n.value, ast.Constant) for n in tree.body[:at]))
+        self.assertTrue(all(not isinstance(n, (ast.Import, ast.ImportFrom)) for n in tree.body[at + 1:]))
+        references = [n for n in ast.walk(tree) if isinstance(n, ast.Name) and n.id == name]
+        accesses = [n for n in ast.walk(tree) if isinstance(n, ast.Subscript)
+                    and isinstance(n.value, ast.Name) and n.value.id == name]
+        self.assertEqual(len(references), len(accesses) + 1)
+        for node in ast.walk(tree):
+            excluded = []
+            if isinstance(node, (ast.Match, ast.JoinedStr, ast.TypeAlias)): excluded.append(node)
+            if isinstance(node, ast.arg) and node.annotation: excluded.append(node.annotation)
+            if isinstance(node, ast.AnnAssign): excluded.append(node.annotation)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                excluded.extend(node.type_params)
+                if getattr(node, 'returns', None): excluded.append(node.returns)
+            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Subscript): excluded.append(node.value)
+            for part in excluded:
+                self.assertFalse(any(isinstance(n, ast.Name) and n.id == name for n in ast.walk(part)))
+        used = [0] * len(values)
+        class Expand(ast.NodeTransformer):
+            def visit_Subscript(inner, node):
+                if isinstance(node.value, ast.Name) and node.value.id == name:
+                    self.assertIsInstance(node.ctx, ast.Load)
+                    self.assertIsInstance(node.slice, ast.Constant)
+                    self.assertIs(type(node.slice.value), int)
+                    index = node.slice.value
+                    self.assertTrue(0 <= index < len(values))
+                    used[index] += 1
+                    return ast.copy_location(ast.Constant(value=values[index]), node)
+                return inner.generic_visit(node)
+        tree.body.remove(assignment)
+        Expand().visit(tree)
+        self.assertTrue(all(n > 1 for n in used))
+
+    def inverse_data_globals(self, expected, actual):
+        before = [n for n in expected.body if isinstance(n, ast.Assign)]
+        after = [n for n in actual.body if isinstance(n, ast.Assign)]
+        self.assertEqual(len(before), len(after))
+        identifiers = {n.id for n in ast.walk(expected) if isinstance(n, ast.Name)}
+        strings = [n.value for n in ast.walk(expected) if isinstance(n, ast.Constant) and type(n.value) is str]
+        preserved = {'_EXPECTED_PROFILE_RAW', '_SEMANTIC_CONTROL_ANCHOR', '_WORKER_PROFILE_BINDING',
+                     '_WORKER_REPORT_BINDING', '_WORKER_REPORT_USED', '_WORKER_INPUT_MARKER'}
+        inverse = {}
+        for a, b in zip(before, after):
+            for old, new in zip(a.targets, b.targets):
+                self.assertEqual(type(old), type(new))
+                if not isinstance(old, ast.Name) or old.id == new.id: continue
+                self.assertTrue(old.id.startswith(('_WORKER_', '_INLINE_', '_SEMANTIC_', '_EXPECTED_', '_COMMAND_',
+                                                  '_RECEIVE_', '_REPORT_', '_CONTROL_', '_MODULE_', '_SOURCE_')))
+                self.assertNotIn(old.id, preserved)
+                self.assertTrue(new.id.startswith('_d') and new.id[2:].isdigit())
+                self.assertNotIn(new.id, identifiers)
+                self.assertTrue(all(old.id not in s and new.id not in s for s in strings))
+                self.assertNotIn(new.id, inverse)
+                inverse[new.id] = old.id
+        tables = list(symtable.symtable(ast.unparse(expected), '<independent-data-alpha>', 'exec').get_children())
+        while tables:
+            scope = tables.pop()
+            for symbol in scope.get_symbols():
+                if symbol.get_name() in inverse.values(): self.assertTrue(symbol.is_global())
+            tables.extend(scope.get_children())
+        for n in ast.walk(actual):
+            if isinstance(n, ast.Name): n.id = inverse.get(n.id, n.id)
+            elif isinstance(n, ast.Global): n.names = [inverse.get(s, s) for s in n.names]
+            else:
+                for field in ('arg', 'name', 'asname', 'rest', 'attr'):
+                    self.assertNotIn(getattr(n, field, None), inverse)
+        return inverse
+
     def inverse_uniform(self, expected, actual):
         # Aus gepaarten Bäumen abgeleitet; keine Produktmap/-Auswahl verwenden.
         left, right = tuple(ast.walk(expected)), tuple(ast.walk(actual))
@@ -184,6 +269,35 @@ class RunnerLoaderSourceTests(unittest.TestCase):
         return mapping
 
     def test_actual_source_fit_full_raw_parent_and_independent_alpha_ast(self):
+        pooled_sample = '''"""LONG_SHARED_CONTROL_VALUE"""
+type Alias = tuple["LONG_SHARED_CONTROL_VALUE", "LONG_SHARED_CONTROL_VALUE"]
+annotated: "LONG_SHARED_CONTROL_VALUE" = "LONG_SHARED_CONTROL_VALUE"
+def sample(x: "LONG_SHARED_CONTROL_VALUE") -> "LONG_SHARED_CONTROL_VALUE":
+ """LONG_SHARED_CONTROL_VALUE"""
+ a = "LONG_SHARED_CONTROL_VALUE"
+ b = "LONG_SHARED_CONTROL_VALUE"
+ c = f"LONG_SHARED_CONTROL_VALUE{x}"
+ match x:
+  case "LONG_SHARED_CONTROL_VALUE": pass
+ return a, b, "LONG_SHARED_CONTROL_VALUE"
+'''
+        pooled = subject._pool_strings(ast.parse(pooled_sample))
+        self.assertEqual(ast.get_docstring(pooled), 'LONG_SHARED_CONTROL_VALUE')
+        self.assertEqual(ast.get_docstring(next(n for n in pooled.body if isinstance(n, ast.FunctionDef))),
+                         'LONG_SHARED_CONTROL_VALUE')
+        invalid = ast.parse(ast.unparse(pooled))
+        pool_name = next(n.targets[0].id for n in invalid.body if isinstance(n, ast.Assign))
+        next(n for n in ast.walk(invalid) if isinstance(n, ast.Subscript)
+             and isinstance(n.value, ast.Name) and n.value.id == pool_name).slice = ast.Constant(value=-1)
+        with self.assertRaises(AssertionError): self.inverse_pool(invalid)
+        self.inverse_pool(pooled)
+        self.assertEqual(ast.dump(pooled), ast.dump(ast.parse(pooled_sample)))
+        data_sample = '_INLINE_CONSTANT = 7\n_EXPECTED_PROFILE_RAW = b"raw"\ndef f():\n global _INLINE_CONSTANT\n _INLINE_CONSTANT += 1\n return _INLINE_CONSTANT\n'
+        data = subject._shorten_data_globals(ast.parse(data_sample))
+        self.assertTrue(self.inverse_data_globals(ast.parse(data_sample), data))
+        self.assertEqual(ast.dump(data), ast.dump(ast.parse(data_sample)))
+        flat_sample = 'def f(x):\n a = 1\n if x:\n  return a\n else:\n  raise ValueError()\n'
+        self.assertEqual(ast.dump(ast.parse(flat_sample)), ast.dump(ast.parse(subject._fold_suites(flat_sample))))
         # Kleines eigenes Alpha-Modell: Globalgleichnamigkeit, Defaults,
         # Erstiterable, Closures/Shadowing, Keywords, Methoden und Reflexion.
         sample = '''global_value = 7
@@ -252,6 +366,7 @@ class Example:
             self.assertEqual(built.source_sha256, hashlib.sha256(built.source).hexdigest())
             self.assertFalse(built.runtime_attested or built.import_used_bytes_attested or built.trust_attested or built.method_approved)
             actual = ast.parse(built.source)
+            self.inverse_pool(actual)
             self.assertEqual([a.name for n in actual.body if isinstance(n, ast.Import) for a in n.names],
                              ["importlib.util", "sys", "sysconfig", "json", "struct"])
             self.assertEqual(next(n.value.value for n in actual.body if isinstance(n, ast.Assign)
@@ -383,6 +498,7 @@ _rl_original(owner[19], namespace)(owner, packet)
             self.assertEqual(shared[0].name, "_rl_checkpoint")
             expected.body.insert(len(expected.body) - 1, shared[0])
             ast.fix_missing_locations(expected)
+            self.assertTrue(self.inverse_data_globals(expected, actual))
             definitions = [n for n in expected.body if isinstance(n, ast.FunctionDef)]
             observed = [n for n in actual.body if isinstance(n, ast.FunctionDef)]
             self.assertEqual(len(definitions), len(observed))

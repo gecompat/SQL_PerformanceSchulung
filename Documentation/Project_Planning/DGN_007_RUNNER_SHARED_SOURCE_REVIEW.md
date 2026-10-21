@@ -47,8 +47,31 @@ Nach Befundschließung folgen aktuelle grüne Head-/Base-Gates, regulärer Merge
 frische Main-Gates, vollständiger Übernahmenachweis, Synchronisation und sichere
 Bereinigung ausschließlich eigener lokaler/Remote-Branches. Der PR-Abschlussnachweis
 bindet tatsächliche Ergebnisse; private Evidenz und fremde Ressourcen bleiben
-unverändert erhalten. Stand vor Quellenprüfung: Implementierung korrigiert,
-noch kein Lauf-GO und keine ausgeführte Kandidatenprobe.
+unverändert erhalten.
+
+Der unabhängige Quellen-/Test-PRE an ddf4193 schließt den Reentranzbefund
+statisch. Sein gestuftes Lauf-GO führte auf beiden Plattformen zunächst zum
+fehlenden Positionsattribut neu erzeugter Zuweisungsknoten. Die unabhängig
+geprüfte Korrektur c97a762 ergänzt diese Attribute vor der ersten Textausgabe.
+Dessen erster Fit je Plattform stoppt am unveränderten Scriptlimit:
+145349 Bytes, 14277 Bytes darüber. Keine synthetischen Modelle gestartet.
+
+Ein einmaliger unabhängig freigegebener Generierungs-Diagnoseaufruf wertete nur
+Aggregate aus dem abgelehnten eigenen Generatorframe aus: keine Speicherung,
+Kompilierung oder Ausführung der verworfenen Kontrollquelle. Reine Daten-Alpha
+bietet rechnerisch nur 3027 Bytes vor Schnittstellenausschlüssen. Der danach
+unabhängig ausgewählte Darstellungsschnitt kombiniert genau ein früh erzeugtes
+Tupel für wiederholte konstante Kontrolltexte, konservative Alpha interner
+Datennamen und wertgleiche einzeilige Anweisungsblöcke. Keine Raw-/Bytes-,
+Docstring-, Pattern-, Fstring-, Annotations- oder Typalias-Ersetzung. Der Pool
+gehört von Anfang an zum ursprünglichen Namespace-Snapshot; keine spätere
+Aufnahme, Dekodierung oder zusätzliche Runtimekompilierung. Externe Fixture-/
+Diagnose-/Entrynamen bleiben erhalten. Die unabhängige Oracle prüft Poolposition,
+Werte, feste Indexzugriffe und Grenzen, expandiert die Texte, invertiert die
+Alpha und vergleicht den gesamten ursprünglichen AST und Raw. Kleine Gegenfälle
+prüfen unter anderem ungültige Poolindizes und geschützte Literal-Kontexte.
+Größenwirkung noch unbekannt; stabiler Quellen-/Test-PRE vor jeder Generierung.
+Das erneute Lauf-GO bleibt auf Fit/Ganz-AST vor sämtlichen Modellen gestuft.
 
 ## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 

@@ -1,5 +1,6 @@
 """Additive vollständige Runnerroute; Generierung startet keine Kandidaten."""
 import ast
+from collections import Counter
 import hashlib
 from pathlib import Path
 import symtable
@@ -826,6 +827,117 @@ _rl_original(owner[19], namespace)(owner, packet)
 _PRESERVED = {"_worker_input_seal", "_worker_input_entry", "_worker_profile_state",
               "_inline_observe_selected_worker_profile", "_inline_kernel_check", "_worker_input_factory"}
 
+_DATA_PRESERVED = {"_EXPECTED_PROFILE_RAW", "_SEMANTIC_CONTROL_ANCHOR", "_WORKER_PROFILE_BINDING",
+                   "_WORKER_REPORT_BINDING", "_WORKER_REPORT_USED", "_WORKER_INPUT_MARKER"}
+
+
+def _pool_strings(tree):
+    # Nur festes Kontrollvokabular; weder Eingabebytes noch neue Laufzeitquelle.
+    class Contexts(ast.NodeTransformer):
+        def visit_Expr(self, node):
+            return node if isinstance(node.value, ast.Constant) and type(node.value.value) is str else self.generic_visit(node)
+        def visit_arg(self, node): return node
+        def visit_AnnAssign(self, node):
+            if node.value is not None: node.value = self.visit(node.value)
+            node.target = self.visit(node.target)
+            return node
+        def visit_FunctionDef(self, node):
+            node.args = self.visit(node.args)
+            node.decorator_list = [self.visit(n) for n in node.decorator_list]
+            node.body = [self.visit(n) for n in node.body]
+            return node
+        visit_AsyncFunctionDef = visit_FunctionDef
+        def visit_ClassDef(self, node):
+            node.bases = [self.visit(n) for n in node.bases]
+            node.keywords = [self.visit(n) for n in node.keywords]
+            node.decorator_list = [self.visit(n) for n in node.decorator_list]
+            node.body = [self.visit(n) for n in node.body]
+            return node
+        def visit_TypeAlias(self, node): return node
+        def visit_Match(self, node): return node
+        def visit_JoinedStr(self, node): return node
+    counts = Counter()
+    class Count(Contexts):
+        def visit_Constant(self, node):
+            if type(node.value) is str: counts[node.value] += 1
+            return node
+    Count().visit(tree)
+    occupied = {getattr(n, f, None) for n in ast.walk(tree)
+                for f in ('id', 'arg', 'name', 'asname', 'rest', 'attr')}
+    texts = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and type(n.value) is str]
+    ordinal = 0
+    while '_c' + str(ordinal) in occupied or any('_c' + str(ordinal) in s for s in texts): ordinal += 1
+    name = '_c' + str(ordinal)
+    values = []
+    for value, count in sorted(counts.items()):
+        reference_size = len(name) + len(str(len(values))) + 2
+        if count > 1 and count * (len(repr(value)) - reference_size) > len(repr(value)) + 1:
+            values.append(value)
+    if not values: return tree
+    slots = {value: index for index, value in enumerate(values)}
+    class Replace(Contexts):
+        def visit_Constant(self, node):
+            if type(node.value) is str and node.value in slots:
+                return ast.copy_location(ast.Subscript(value=ast.Name(id=name, ctx=ast.Load()),
+                    slice=ast.Constant(value=slots[node.value]), ctx=ast.Load()), node)
+            return node
+    Replace().visit(tree)
+    at = 1 if tree.body and isinstance(tree.body[0], ast.Expr) and isinstance(tree.body[0].value, ast.Constant) else 0
+    while at < len(tree.body) and isinstance(tree.body[at], (ast.Import, ast.ImportFrom)): at += 1
+    tree.body.insert(at, ast.Assign(targets=[ast.Name(id=name, ctx=ast.Store())],
+                     value=ast.Tuple(elts=[ast.Constant(value=v) for v in values], ctx=ast.Load())))
+    return ast.fix_missing_locations(tree)
+
+
+def _shorten_data_globals(tree):
+    nodes = tuple(ast.walk(tree))
+    occupied = {getattr(n, f, None) for n in nodes for f in ('id', 'arg', 'name', 'asname', 'rest', 'attr')}
+    occupied.update(s for n in nodes if isinstance(n, (ast.Global, ast.Nonlocal)) for s in n.names)
+    strings = [n.value for n in nodes if isinstance(n, ast.Constant) and type(n.value) is str]
+    blocked = set(_DATA_PRESERVED)
+    tables = list(symtable.symtable(ast.unparse(tree), '<runner-data-alpha>', 'exec').get_children())
+    while tables:
+        scope = tables.pop()
+        blocked.update(s.get_name() for s in scope.get_symbols() if not s.is_global())
+        tables.extend(scope.get_children())
+    assigned = {n.id for statement in tree.body if isinstance(statement, ast.Assign)
+                for target in statement.targets for n in ast.walk(target) if isinstance(n, ast.Name)}
+    mapping, ordinal = {}, 0
+    for name in sorted(assigned):
+        if (not name.startswith(('_WORKER_', '_INLINE_', '_SEMANTIC_', '_EXPECTED_', '_COMMAND_',
+                                 '_RECEIVE_', '_REPORT_', '_CONTROL_', '_MODULE_', '_SOURCE_'))
+                or name in blocked or any(name in s for s in strings)): continue
+        while '_d' + str(ordinal) in occupied or any('_d' + str(ordinal) in s for s in strings): ordinal += 1
+        target = '_d' + str(ordinal)
+        ordinal += 1
+        mapping[name] = target
+        occupied.add(target)
+    for n in nodes:
+        if isinstance(n, ast.Name): n.id = mapping.get(n.id, n.id)
+        elif isinstance(n, ast.Global): n.names = [mapping.get(s, s) for s in n.names]
+    return tree
+
+
+def _fold_suites(text):
+    before = ast.parse(text)
+    lines, edits = text.splitlines(keepends=True), []
+    for node in ast.walk(before):
+        for field in ('body', 'orelse', 'finalbody'):
+            body = getattr(node, field, None)
+            if not body or not isinstance(body, list) or not all(isinstance(n, ast.stmt) for n in body): continue
+            if not all(n.lineno == n.end_lineno for n in body): continue
+            first, last = body[0].lineno, body[-1].end_lineno
+            if first < 2 or last - first + 1 != len(body): continue
+            header = lines[first - 2].rstrip()
+            if not header.endswith(':') or body[0].col_offset <= len(header) - len(header.lstrip()): continue
+            if not header.lstrip().startswith(('if ', 'elif ', 'else:', 'for ', 'while ', 'try:',
+                                               'except ', 'except:', 'finally:', 'with ', 'def ', 'class ')): continue
+            edits.append((first - 2, last, header + ' ' + '; '.join(lines[n.lineno - 1].strip() for n in body) + '\n'))
+    for start, end, line in sorted(edits, reverse=True): lines[start:end] = [line]
+    result = ''.join(lines)
+    base.base.inputs.base._need(ast.dump(ast.parse(result)) == ast.dump(before), 'TEMPLATE_FORM')
+    return result
+
 
 def _shorten_globals(tree, protected):
     protected_nodes = tuple(ast.walk(protected))
@@ -987,9 +1099,10 @@ def build_runner_loader_control_bootstrap(profile_raw, *, logical_profile,
     parent = ast.Module(body=[], type_ignores=[])
     tree.body = [n for n in tree.body if n is not main] + _helpers() + _runner_nodes() + [main]
     tree = _expand_checkpoints(tree)
+    tree = _shorten_data_globals(_pool_strings(tree))
     tree = _shorten_globals(tree, parent)
     tree = base.base._compact_locals(_shorten_uniform_locals(tree, parent))
-    text = inputs._compact_indentation(ast.unparse(ast.fix_missing_locations(tree)) + "\n")
+    text = inputs._compact_indentation(_fold_suites(ast.unparse(ast.fix_missing_locations(tree)) + "\n"))
     source = base.base._compact_token_gaps(_compact_raw_literal(text, profile_raw)).encode("utf-8", "strict")
     inputs.base._need(len(source) <= inputs.base.MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
     return inputs.base.BootstrapSource(source, profile_raw, logical_profile,
