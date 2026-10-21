@@ -1,5 +1,40 @@
 # Aktueller Ausführungsstand
 
+## C8 abgelehnt: Folgeeffekt nach Reentranz; Vertrauensmodell entschieden
+
+Der Mensch hat vertrauenswürdige Schulungsquellen gewählt und gezielte
+Kontrollmanipulationen vom Prüfversprechen ausgeschlossen. DEC-076 dokumentiert
+diese Entscheidung. Der stabile C8 `e6184befeaeda00d6ac784038a8b3b6f8b7ed119`
+ist unabhängig ohne Lauf-GO abgelehnt: Bei Reentranz im Compilecallback kann
+der Exec-Provider trotz gesetztem Fehlerflag noch aufgerufen werden. Die
+Reentranzprobe deckt diese Folgeeffekte nicht ab. Dieser funktionale Befund
+bleibt unter dem gewählten Vertrauensmodell erforderlich.
+[Konkreter Befund, Vertragsgrenze und Disposition](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c8-unter-dec-076-abgelehnt-funktionaler-reentranzbefund).
+
+Die gezielte Bootstrap-Feld-0-Korrektur ist im Quellenreview unter DEC-076
+statisch geschlossen. Kein allgemeiner Manipulationssicherheitsclaim. Acht/
+hartacht Kandidaten, sieben geänderte Nachläufe, Verbrauch UNKNOWN. Kein
+Kandidatenimport, keine Generierung, AST-Analyse, Kompilierung, Ausführung,
+Fit- oder Modelllauf. Die neue Runnerquelle, 20 Methoden und der Workflow sind
+aus dem finalen Diff entfernt; der abgelehnte Stand ist privat in einem
+vollständigen geprüften Gitbundle bewahrt. Bestehende Komponenten bleiben erhalten.
+
+Nächste Quellenarbeit ist bis zu einer ausdrücklichen neuen begrenzten
+Entscheidung zum funktionalen Fehlerabschluss und dessen Folgeeffektprobe
+blockiert. Kein C9, Scope-/Budgetreset oder unveränderter automatischer Nachlauf.
+Die Vertrauensfrage ist entschieden. Tatsächliche Runtime-, Trust-, Usedbytes-,
+Methoden-, SESSION_END- und SQL-Gates bleiben offen.
+
+Der reine Vertrags-/Diagnoseabschluss gehört zu
+[PR280](https://github.com/gecompat/SQL_PerformanceSchulung/pull/280), eigener
+Branch `codex/dgn007-trusted-sources-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokalen Dokumentations-/Registryprüfungen, aktuellen
+Head-/Base-Gates, den regulären Merge, frische Main-Gates, vollständige Übernahme,
+Synchronisation und eigene lokale/Remote-Branchbereinigung an tatsächlich belegte
+Ergebnisse. Private Evidence und fremde Ressourcen bleiben erhalten. Die frühere
+ABI-Auswahlsperre unten ist historisch und durch DEC-076 behandelt; sie ist kein
+weiterer offener Entscheidungsbedarf.
+
 ## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
 
 Die ausdrückliche Freigabe umfasst genau einen stabilen C8 zur Bootstrap-
@@ -282,7 +317,7 @@ Auswahl-PRE unabhängig freigegeben. C1 ergänzt einmalige sticky Vorbuchung,
 getrennte Reportdiagnose, zwölf eigene portable Budget-/Ownerordnungsmodelle
 und strengere native io_limit-Gegenprobe. Checkpoint1: ein Kandidat/max4,
 keine Nachläufe; Source/Test-PRE unabhängig ohne offene Befunde mit ausdrücklichem
-Lauf-GO. Danach neue12 Windows3.14.7/Linux3.12.3 und bestehende Linux-Handshake12
+Lauf-GO. Danach neue12 Windows 3.14.7/Linux 3.12.3 und bestehende Linux-Handshake12
 mit28Nativefällen/Session16 ohne SKIP PASS. Produkt/Suite unverändert, nur
 Ergebnisstand ergänzt. Head-/Base-/Main-Gates und regulärer Abschluss folgen. Die feste
 1088-je-Slot-Reserve soll vor erster nativer Wirkung aus4096Globaloperationen
@@ -381,7 +416,7 @@ Source/Test-PRE C1 mit zwei P2 (3.14-Annotationträger/Keyvorlauf) ohne Lauf-GO.
 C2 schließt beide, ergänzt gemeinsamen Zustandsrahmen und drei Gegenproben:
 15Methoden, Checkpoint2/zwei Kandidaten/ein Nachlauf. C2 unabhängig ohne
 offene P1/P2/P3 und mit einmaligem Source/Test-Lauf-GO bestätigt.
-Neue15 unter Windows3.14.7/Linux3.12.3 ohne SKIP PASS; vollständiger neuer
+Neue15 unter Windows 3.14.7/Linux 3.12.3 ohne SKIP PASS; vollständiger neuer
 Arbeitsdatei-Quellenfit innerhalb des unveränderten Caps bestätigt.
 Reguläre aktuelle Head-/Base-/Main-Gates und Integration folgen.
 Caps und vollständige Workerprüfungen bleiben erhalten; keine operative

@@ -1,5 +1,6 @@
 {
   "artifacts": {
+    "DEC-076": {"aliases": [], "artifact_uid": "urn:uuid:01a15e15-d46a-75dd-a513-6291666e2bc4", "kind": "decision", "registration_state": "REGISTERED", "relations": [], "title": "DGN-007-Runner für vertrauenswürdige Schulungsquellen ohne Manipulationsisolation"},
     "DEC-075": {"aliases": [], "artifact_uid": "urn:uuid:01a15632-9add-7503-8286-5e59facad71c", "kind": "decision", "registration_state": "REGISTERED", "relations": [{"target": "DEC-071", "type": "depends_on"}], "title": "Foundation 1.24.0 mit erhaltenen Projektregeln und optionalen Trustverträgen"},
     "ADV-001": {
       "aliases": [],

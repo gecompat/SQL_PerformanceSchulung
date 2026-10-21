@@ -1,5 +1,97 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
+
+Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich
+entschieden: vertrauenswürdige Schulungsquellen; gezielte Kontrollmanipulationen
+sind vom Prüfversprechen ausgeschlossen. [DEC-076 im Kontrollvertrag](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md#vertrauensmodell-für-schulungsquellen-dec-076)
+erhält die Daten-/Provider-/Reihenfolge-/Identitäts-/Budget-/Fehler-/Cleanup-
+anforderungen. Diese Entscheidung bleibt unabhängig vom folgenden funktionalen
+Quellenbefund bestehen; keine Sandbox-, Host- oder Trustattestation.
+
+### Gemeinsamer Rahmen und tatsächlicher Prüfstand
+
+Fortsetzung des zuvor unverbrauchten einzelnen C8, kein neuer Versuch oder
+Reset. Basis 4e738ae nach vollständig abgeschlossenem PR279, ein Owner root und
+derselbe unabhängige Reviewer. Auswahl-/Vertrags-GO an 408691b ohne offene
+priorisierte Auswahlbefunde. Der stabile Quellen-/Testkandidat
+`e6184befeaeda00d6ac784038a8b3b6f8b7ed119` erreicht acht/hartacht Kandidaten
+und sieben geänderte Nachläufe. Verbrauch UNKNOWN. Vertragskorrektur, Auswahl,
+Umsetzung, alle Reviews, Koordination, lokale Tests, CI (Continuous Integration;
+automatisierte Integrationsprüfungen), Integration und eigene Bereinigung zählen
+gemeinsam. Kein C9 oder Quellen-/Fixturefix nach diesem Freeze.
+
+Der Kandidat enthielt einen gemeinsamen vor Reportsnapshot definierten
+Checkpoint, separat übergebene ursprüngliche Primitiven und lokal gehaltene
+Kontext-/D1-Referenzen. D1 bezeichnet den einmal versiegelten Zustand. Exakter
+Kontexttyp, Länge 17 und Identität des primitiven Teilankers wurden vor weiteren
+Feldzugriffen geprüft. Der gezielte C7-Feld-0-Gegenfall ist im unabhängigen
+Quellenreview unter DEC-076 geschlossen. Das ist ein statisches Ergebnis unter
+der gewählten Vertrauensannahme, kein ausgeführtes Modell oder allgemeines
+Manipulationssicherheitsversprechen.
+
+Die 20 Methoden umfassten eine Fit-/Ganz-AST-Methode und 19 eigene synthetische
+Modelle beziehungsweise begrenzte Diagnosen. AST bedeutet Abstract Syntax Tree
+(abstrakter Syntaxbaum). Source, sämtliche Methoden und Workflow wurden rein
+lesend unabhängig geprüft; ein funktionaler P2 bleibt offen. Kein Quellen-/
+Test- oder Lauf-GO. Kein Kandidatenimport, keine Generierung, AST-Analyse,
+Kompilierung, Ausführung, Fit- oder Modelllauf. Quellenfit und tatsächliches
+Laufzeitverhalten sind unbekannt.
+
+### Konkreter unabhängiger Befund
+
+P2 – weitere Providerwirkung trotz sticky Reentranzfehler. Der reentrante Entry
+setzt `state[2] = True` (verworfene Sourcezeile 452). Der angepasste Guard
+akzeptiert das Flag weiterhin als Boolwert (Sourcezeile 805). Erfolgt die
+Reentranz im Compilecallback, passiert dessen finally-POST. Anschließend ruft
+`_rl_execute` noch den Exec-Provider auf (Sourcezeile 708). Das verletzt den
+weiterhin geltenden FAILED-Zustand ohne weitere Sourcewirkung und ist von der
+ausgeschlossenen gezielten Kontrollmanipulation unabhängig.
+
+Die vorhandene Reentranzprobe (Testzeile 757) prüft Ablehnung und Retry, jedoch
+keine ausbleibende Execwirkung nach dem Fehler. Erforderlich wäre eine vor jedem
+weiteren Providerdispatch wirksame Fehlerflagprüfung und eine tatsächlich
+erreichte Compilecallback-Reentranzprobe mit null anschließendem Execdispatch.
+Das verlangt einen weiteren Quellen-/Fixturefix; die erreichte harte Grenze
+erlaubt ihn nicht. Kein Fitlauf zur Umgehung des offenen Befunds.
+
+### Sichere Disposition und Wiederaufnahmegrenze
+
+Die neue Runnerquelle, ihre 20 Testmethoden und der neue Workflow sind aus dem
+finalen Diff entfernt. Der abgelehnte Commit ist vor dem Entfernen in einem
+privaten vollständigen Gitbundle gesichert; dessen Inhalt und exakte Referenz
+wurden lokal geprüft. Bestehende Workerinput-, Proxy-, Harness- und Parent-
+komponenten sowie private Evidence und fremde Ressourcen bleiben erhalten.
+
+Integriert werden ausschließlich DEC-076, dessen kanonische Registrierung und
+die belegte Diagnose. Das Scriptlimit 131072, volle Rawprofil, sämtliche echten
+Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates und der funktionale
+FAILED-Vertrag bleiben erhalten. Keine native Runtimevermittlung, kein nativer
+DGN-Body, Worker oder SQL-Lauf.
+
+Eine Wiederaufnahme benötigt eine ausdrückliche neue begrenzte Entscheidung
+für den funktionalen Fehlerabschluss und seine fehlende Folgeeffektprobe. Die
+Vertrauensfrage ist entschieden und wird nicht erneut geöffnet. Kein C9,
+Namens-/Scope-/Budgetreset oder automatischer Nachlauf aus einem Heartbeat.
+
+### Aufwand und regulärer Abschluss
+
+Ein Implementer und derselbe unabhängige Reviewer mit getrennten Auswahl-,
+Quellen-/Test- und Dispositionsfragen; keine zusätzliche Modellkette. Keine
+unveränderten alten lokalen Suiten wiederholt. Registry-/Kennungsprüfungen und
+gezielte Dokumentationschecks bleiben als lokale Nachweise vom nicht erteilten
+Quellenlauf-GO getrennt. Der neue Runnerworkflow wird nicht aufgenommen; die
+Vertrags-/Registryänderung durchläuft die regulären Governance-Gates. Verbrauch
+UNKNOWN; keine behauptete Einsparungsmessung.
+
+Der reine Vertrags-/Diagnoseabschluss gehört zu
+[PR280](https://github.com/gecompat/SQL_PerformanceSchulung/pull/280), eigener
+Branch `codex/dgn007-trusted-sources-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokalen Dokumentations-/Registryprüfungen, aktuellen
+Head-/Base-Gates, den regulären Merge, frische Main-Gates, vollständige Übernahme,
+Synchronisation und eigene lokale/Remote-Branchbereinigung an tatsächlich belegte
+Ergebnisse. Private Evidence bleibt erhalten.
+
 ## C8: ausdrückliche Freigabe zur Bootstrap-Korrektur
 
 Am 21. Oktober 2026 hat der Mensch genau einen weiteren stabilen C8
@@ -270,7 +362,7 @@ Reflexion und globale Ursprünge bleiben gesperrt. Keine weitere Namenskürzung
 ohne geprüften inversen Nachweis. Profilraw bleibt ein einzelnes wertgleiches
 Bytesliteral, keine Inlinekodierung oder Änderung seiner ursprünglichen Bytes.
 
-Zuerst ausschließlich Fit-/Ganz-AST-Methode je einmal Windows3.14.7/Linux3.12.3
+Zuerst ausschließlich Fit-/Ganz-AST-Methode je einmal Windows 3.14.7/Linux 3.12.3
 mit -I -S -B nach ausdrücklichem Source/Test-GO. Die eine Fitmethode darf bei
 SCRIPT_LIMIT ausschließlich im eigenen verworfenen Generatorframe Quellenlänge/
 Exzess aggregieren und dann unverändert fehlschlagen; kein separater Nachlauf,
