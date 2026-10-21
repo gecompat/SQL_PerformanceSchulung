@@ -17,9 +17,10 @@ Befundabschluss wird integriert. Sechs/hartsechs, fünf geänderte Nachläufe,
 Verbrauch UNKNOWN. Der konkrete Vorschlag einer ausdrücklich zu entscheidenden
 Erweiterung um genau einen C7 ist keine Freigabe oder Budgetreset.
 Bis zu dieser Entscheidung keine weitere Sourcewelle oder Wiederholungsprobe.
-Reiner Dokumentationsabschluss bis zu Review, grünen Head-/Base-/Main-Gates,
-FullTree/Sync und eigener Branchbereinigung offen; echte Runtime-/Trust-/
-Usedbytes-/Methoden-/SESSION_END-/SQL-Gates bleiben offen.
+Der reine Dokumentationsabschluss mit Review, tatsächlichen grünen Head-/Base-/
+Main-Gates, FullTree/Sync und eigener Branchbereinigung wird über
+[PR276](https://github.com/gecompat/SQL_PerformanceSchulung/pull/276) gebunden.
+Echte Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates bleiben offen.
 
 PR273 vollständig in Mainb00418ca74cd6ff4a0d194f8276ca365f9558f56 geschlossen:
 neun PR-/sieben Main-Gates SUCCESS, Parent12/Harness16 ohne SKIP, unabhängige

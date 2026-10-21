@@ -236,6 +236,8 @@ Bei weiterem notwendigen Fix oder fehlgeschlagenem Fit kein C8. Dieser
 Vorschlag ist nicht autorisiert und keine neue Implementierung.
 
 Alle echten Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL- und
-Gesamtgates bleiben offen. Integration des reinen Befundabschlusses benötigt
-noch den unabhängigen Dispositionsreview, passende lokale Dokumentationschecks,
-aktuelle Head-/Base-/Main-Gates, FullTree/Sync und eigene Branchbereinigung.
+Gesamtgates bleiben offen. Der reine Befundabschluss gehört zu
+[PR276](https://github.com/gecompat/SQL_PerformanceSchulung/pull/276). Sein
+Abschlussnachweis bindet den unabhängigen Dispositionsreview, passende lokale
+Dokumentationschecks, tatsächliche Head-/Base-/Main-Gates, FullTree/Sync und
+eigene Branchbereinigung. Das schließt keinen Sourcebefund durch Umsetzung.

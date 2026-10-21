@@ -18,9 +18,11 @@ benannt; Planungsdokumente aus ursprünglichen Gitbytes wiederhergestellt.
 Sechs/hartsechs Source-/Testkandidaten, fünf geänderte Nachläufe, Verbrauch
 UNKNOWN. Kein stiller C7 oder Quellen-/Scope-/Budgetreset. Verworfene neue
 Runnerquelle, ihre16 Tests und Workflow aus finalem Diff entfernt; bestehende
-Komponenten bleiben erhalten. Reiner Dokumentationsabschluss auf eigenem
-Branch codex/dgn007-runner-shared-source bis Review, aktuellen grünen Gates,
-regulärer Mainintegration, FullTree/Sync und eigener Bereinigung noch offen.
+Komponenten bleiben erhalten. Der reine Dokumentationsabschluss gehört zu
+[PR276](https://github.com/gecompat/SQL_PerformanceSchulung/pull/276). Dessen
+Abschlussnachweis hält die tatsächlichen Review-/Head-/Base-/Main-Gates,
+FullTree/Sync und eigene lokale/Remote-Branchbereinigung fest; daraus folgt
+keine Sourcefreigabe.
 
 Nächste Sourcearbeit ist blockiert, bis die im Befundeintrag konkret vorgeschlagene
 Erweiterung um genau einen weiteren stabilen C7 ausdrücklich entschieden wird.
