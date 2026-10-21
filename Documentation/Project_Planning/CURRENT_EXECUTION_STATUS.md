@@ -22,12 +22,14 @@ vertrauenswürdige Runtimevermittlung. Das sind Vertrags-/Architekturentscheidun
 keine routinemäßige Implementierungs- oder Mergefreigabe. Tatsächliche Runtime-,
 Trust-, Usedbytes-, Methoden-, SESSION_END- und SQL-Gates bleiben offen.
 
-Der reine Diagnoseabschluss auf `codex/dgn007-runner-c8` wird bis zur unabhängigen
-Disposition, lokalen Dokumentationsprüfung, grünen Head-/Base-/Main-Gates,
-regulären Integration, vollständigen Übernahme, Sync und sicheren eigenen
-Branchbereinigung verfolgt. Der PR-Abschlussnachweis bindet die tatsächlichen
-Ergebnisse. Private Evidence und fremde Ressourcen bleiben erhalten.
-Unveränderte Heartbeats starten keine Wiederholungsanalyse oder Kandidaten.
+Der reine Diagnoseabschluss gehört zu
+[PR279](https://github.com/gecompat/SQL_PerformanceSchulung/pull/279), eigener
+Branch `codex/dgn007-runner-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates,
+den regulären Merge, frische Main-Gates, vollständige Übernahme, Synchronisation
+und eigene lokale/Remote-Branchbereinigung an die tatsächlich belegten Ergebnisse.
+Private Evidence und fremde Ressourcen bleiben erhalten. Unveränderte Heartbeats
+starten keine Wiederholungsanalyse oder Kandidaten.
 
 ## C7 abgelehnt; erweiterte harte Grenze erreicht
 

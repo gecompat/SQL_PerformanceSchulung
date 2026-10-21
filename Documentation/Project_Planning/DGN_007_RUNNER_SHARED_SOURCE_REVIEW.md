@@ -90,12 +90,14 @@ bleiben erhalten. Der DESIGNED-Vertrag wird durch diesen Diagnoseeintrag nicht
 geändert. Sämtliche Runtime-/Trust-/Usedbytes-/Methoden-/SESSION_END-/SQL-Gates
 und das Scriptlimit bleiben offen beziehungsweise unverändert.
 
-Der reine Auswahl-/Diagnoseabschluss auf `codex/dgn007-runner-c8` wird unabhängig
-geprüft, lokal als Dokumentation validiert und mit aktuellen grünen Head-/Base-
-und frischen Main-Gates regulär integriert. Der spätere PR-Abschlussnachweis
-bindet die tatsächlichen Ergebnisse einschließlich vollständiger Übernahme,
-Sync und eigener lokaler/Remote-Branchbereinigung. Ein unveränderter Heartbeat
-startet weder dieselbe Auswahlprüfung erneut noch einen Quellenversuch.
+Der reine Auswahl-/Diagnoseabschluss gehört zu
+[PR279](https://github.com/gecompat/SQL_PerformanceSchulung/pull/279), eigener
+Branch `codex/dgn007-runner-c8`. Der dortige Abschlussnachweis bindet die
+unabhängige Disposition, lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates,
+den regulären Merge, frische Main-Gates, vollständige Übernahme, Synchronisation
+und eigene lokale/Remote-Branchbereinigung an die tatsächlich belegten Ergebnisse.
+Ein unveränderter Heartbeat startet weder dieselbe Auswahlprüfung erneut noch
+einen Quellenversuch.
 
 ## C7: abgelehnt; erweiterte harte Grenze erreicht
 
