@@ -1,5 +1,28 @@
 # Aktueller Ausführungsstand
 
+## Erste Runnerprofilaufnahme: tatsächlicher Versuch abgelehnt, sicher beendet
+
+Die [begrenzte Runnerprofilaufnahme](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#tatsächliches-ergebnis-des-dritten-standes)
+hat nach unabhängigem Quellen-/Test-/Aufruf-GO einmal stattgefunden.
+Runner bezeichnet die vollständige Ausführungssteuerung. Alle 19 portablen
+Prüfmethoden und sechs nativen Gegenfälle bestanden ohne übersprungene Tests;
+alle eigenen Prozessgruppen wurden unabhängig als abwesend nachgewiesen.
+
+Der anschließend genau einmal gestartete unveränderte Runner lieferte keinen
+Profilreport: `EARLY_EOF`, früher Abschluss des Ausgabestroms. Null stdout-
+und 865 stderr-Bytes, ausschließlich Größen/Hashes gespeichert. Die konkrete
+Ursache bleibt UNKNOWN, mit dieser Evidenz unbekannt. Eigener Cleanup,
+beide Datenstromabschlüsse, Prozessabsenz und Wiederherstellung sind belegt;
+alle vier Windows-Jobs beendet. Dies ist ein abgelehnter Lauf mit sicherem
+Abschluss, kein erfolgreicher Profilvergleich oder Runtime-/SQL-Nachweis.
+
+Drei von höchstens sechs Quellenständen, Checkpoint nach zwei, ein synthetischer
+Prüflauf mit sieben Prozessen und der einzige ausgewählte Runner-Versuch sind
+verbraucht. Kein Retry und keine Änderung des geschlossenen Auswahlpakets.
+Weitere native Diagnose benötigt eine ausdrückliche neue Versuchsgrenze.
+Unabhängiger Ergebnisreview ohne offene priorisierte Befunde abgeschlossen; vollständige Dokumentationsintegration mit
+aktuellen grünen Head-/Base-/Main-Prüfungen stehen noch aus.
+
 ## Nächster Schnitt: erste native Profilbeobachtung vorbereiten
 
 Das Auswahlpaket ist über [PR286](https://github.com/gecompat/SQL_PerformanceSchulung/pull/286)

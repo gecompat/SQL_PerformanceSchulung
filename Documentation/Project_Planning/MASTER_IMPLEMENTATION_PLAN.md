@@ -1,5 +1,24 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Erste Runnerprofilaufnahme sicher beendet, tatsächlicher Report fehlt
+
+Die [erste tatsächliche Aufnahme](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#tatsächliches-ergebnis-des-dritten-standes)
+des Runners, der vollständigen Ausführungssteuerung, ist nach unabhängigem
+Quellen-/Test-/Aufruf-GO abgelehnt beendet: 19 portable Methoden und sechs
+native Gegenfälle bestanden ohne übersprungene Tests, danach genau ein
+unveränderter Runnerstart mit `EARLY_EOF`, frühem Ende des Ausgabestroms vor
+jedem Profilreport. Alle eigenen Prozesse, Datenströme und Windows-Jobs sind
+nachweislich beendet; unabhängige Absenz und Wiederherstellung belegt.
+
+Drei von höchstens sechs Quellenständen, Checkpoint nach zwei, ein Prüflauf
+mit sieben synthetischen Prozessen und der einzige ausgewählte native Versuch
+sind verbraucht. Ursache UNKNOWN, also mit dieser Evidenz unbekannt; weder
+Auswahländerung noch Wiederholung oder Body-/Importfreigabe erlaubt.
+Unabhängiger Ergebnisreview ohne offene priorisierte Befunde abgeschlossen. Dokumentationsintegration mit aktuellen grünen
+Prüfungen folgen. Weitere native Diagnose braucht eine ausdrücklich neue
+Versuchsgrenze. Ein sicherer Abschluss ersetzt keinen vollständigen Report
+und keinen Runtime-, Trust-, Importbyte-, Methoden- oder SQL-Nachweis.
+
 ## Erste native Runnerprofilaufnahme als getrennte Folge planen
 
 [PR286](https://github.com/gecompat/SQL_PerformanceSchulung/pull/286) ist mit
