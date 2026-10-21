@@ -1,5 +1,55 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## Freigegebener funktionaler Reentranzabschluss
+
+Die ausdrückliche menschliche Beauftragung hebt die Kandidatengrenze für diesen
+Fehlerabschluss auf und erlaubt nötige Reviewkorrekturen. Frühere Grenzen und
+Ablehnungen unten bleiben historische Evidenz; daraus folgt kein aktueller
+Freigabeblocker. Basis ist `73c08a798f64fe2d7a36d49df740934a028fecc3` nach
+vollständig abgeschlossenem PR280, Arbeitsbranch `codex/dgn007-reentrancy`.
+
+Ein Implementierungsverantwortlicher root und derselbe unabhängige Reviewer
+führen genau diesen funktionalen Schnitt einschließlich Quellen-/Testprüfung,
+Koordination, lokalen Tests, CI (Continuous Integration; automatisierte
+Integrationsprüfungen), Merge und eigener Bereinigung. Verbrauch UNKNOWN.
+Checkpoint ist die stabile Quellen-/Testprüfung vor jedem Kandidatenimport,
+jeder Generierung, AST-Analyse (Abstract Syntax Tree; abstrakter Syntaxbaum),
+Kompilierung oder Ausführung. Harte Umfangsgrenze ist der Reentranzfehler samt
+Gegenprobe und direkt nötigen Review-/Testkorrekturen, keine weitere operative
+Welle. Die historische Versuchszählung wird nicht zurückgesetzt; es gilt keine
+weitere künstliche Kandidatenobergrenze innerhalb dieses Auftrags.
+
+Der gemeinsame Checkpoint prüft weiterhin zuerst die ursprünglichen Bindungen.
+Im normalen Ablauf muss anschließend das Fehlerflag unverändert falsch sein;
+Reentranz im Providercallback stoppt so im Nachcheck vor der nächsten Wirkung.
+Nur der abschließende Diagnosecheck darf ein gesetztes Fehlerflag dulden, damit
+eine zusätzliche verlorene Bindung weiterhin Vorrang vor einem operativen
+Fehler erhält. Dieser Check dispatcht keine Source oder Provider. Die unabhängige
+Ganz-AST-Probe rekonstruiert seine explizite Kennzeichnung und einzige Position.
+Die Gegenproben erreichen Reentranz im Compilecallback und beim partiellen
+Schreiben und prüfen ausbleibende weitere Compile-/Exec-/Schreibwirkungen,
+Bereinigung eigener Slots und wirkungsfreien Retry.
+
+Die Quelle, bisherige Modelle und Workflow werden aus dem verworfenen C8-Stand
+wieder aufgenommen und zusammenhängend korrigiert. DEC-076 bleibt gültig:
+vertrauenswürdige Schulungsquellen, gezielte Kontrollmanipulationen außerhalb
+des Prüfversprechens. Der unabhängige Quellen-/Test-PRE (Prüfung vor dem Lauf)
+muss ein ausdrückliches gestuftes Lauf-GO geben: zunächst nur die Fit-/Ganz-AST-
+Methode einmal auf Windows 3.14.7 und Linux 3.12.3 mit `-I -S -B`; erst nach
+beidseitigem PASS die übrigen eigenen synthetischen Modelle je Plattform.
+Neue relevante Korrekturen benötigen eine passende Delta-Prüfung und betroffene
+Tests; unveränderte grüne Prüfungen werden ohne Anlass nicht wiederholt.
+Scriptlimit 131072 und vollständige Rawprofile bleiben erhalten. Kein nativer
+DGN-Body, Worker oder SQL-Lauf. Synthetische Ergebnisse ersetzen keine tatsächlichen
+Runtime-, Trust-, Usedbytes-, Methoden-, SESSION_END- oder SQL-Gates.
+
+Nach Befundschließung folgen aktuelle grüne Head-/Base-Gates, regulärer Merge,
+frische Main-Gates, vollständiger Übernahmenachweis, Synchronisation und sichere
+Bereinigung ausschließlich eigener lokaler/Remote-Branches. Der PR-Abschlussnachweis
+bindet tatsächliche Ergebnisse; private Evidenz und fremde Ressourcen bleiben
+unverändert erhalten. Stand vor Quellenprüfung: Implementierung korrigiert,
+noch kein Lauf-GO und keine ausgeführte Kandidatenprobe.
+
 ## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 
 Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich

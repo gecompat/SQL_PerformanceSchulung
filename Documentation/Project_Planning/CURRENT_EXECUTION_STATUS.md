@@ -1,5 +1,20 @@
 # Aktueller Ausführungsstand
 
+## Aktiver Auftrag: Reentranzfehler und Gegenprobe
+
+Der Mensch hat den autonomen funktionalen Fehlerabschluss ausdrücklich beauftragt,
+die bisherige Kandidatengrenze dafür aufgehoben und nötige Reviewkorrekturen
+freigegeben. Die unten dokumentierte C8-Sperre ist damit historisch. Der endliche
+Schnitt umfasst den Reentranzfehler, dessen Folgeeffekt-Gegenproben sowie direkt
+nötige Quellen-/Testkorrekturen bis zur regulären Integration und eigenen
+Branchbereinigung. Ein Implementierungsverantwortlicher root und derselbe
+unabhängige Reviewer; Verbrauch UNKNOWN. Kein Reset historischer Versuche.
+
+Arbeitsbranch `codex/dgn007-reentrancy`, Basis
+`73c08a798f64fe2d7a36d49df740934a028fecc3` nach abgeschlossenem PR280.
+[Konkreter Rahmen, Korrektur und gestufte Laufgates](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#freigegebener-funktionaler-reentranzabschluss).
+DEC-076 bleibt maßgeblich. Kein neuer fachlicher oder nativer Laufumfang.
+
 ## C8 abgelehnt: Folgeeffekt nach Reentranz; Vertrauensmodell entschieden
 
 Der Mensch hat vertrauenswürdige Schulungsquellen gewählt und gezielte
