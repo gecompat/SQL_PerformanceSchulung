@@ -1,19 +1,33 @@
 # Aktueller Ausführungsstand
 
-## C7: Auswahl bestätigt; stabile Quellen-/Testvorlage zur unabhängigen Prüfung
+## C7 abgelehnt; erweiterte harte Grenze erreicht
 
-Der Mensch hat am 21. Oktober 2026 genau einen weiteren stabilen C7 freigegeben.
-Der [konkrete gemeinsame Rahmen](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#c7-ausdrückliche-freigabe-und-gemeinsame-grenze)
-begrenzt den Schnitt auf die drei C6-Befunde, UTF-8-Korrektur und passende
-Negativfälle. Ausgangsbasis347c231 nach abgeschlossenem PR277; Main grün,
-vollständige Übernahme/Sync und eigene Branchabwesenheit zuvor bestätigt.
-Aktiver eigener Branch `codex/dgn007-runner-c7`, ein Implementierungsowner root
-und derselbe unabhängige Reviewer. Verbrauch UNKNOWN; der stabile C7 erreicht die harte Grenze sieben
-Kandidaten/sechs geänderte Nachläufe.
-Unabhängiges Auswahl-GO erteilt;19 eigene Methoden im stabil vorgelegten C7.
-Quellen-/Test-PRE und Generierungs-/Lauf-GO sind offen. Kein C8 bei weiterem
-notwendigem Fix oder fehlgeschlagenem Fit. Alle tatsächlichen Runtime-, Trust-,
-Methoden- und SQL-Freigaben bleiben offen.
+Der ausdrücklich freigegebene einzelne C7 ist im unabhängigen Quellen-/Test-PRE
+(Prüfung vor dem Lauf) abgelehnt. Stabile Bindung559f09cc35dd22a2fd073641401c23517114e031:
+Eine17-elementige Ersatzkopie der `_kernel`-Closure könnte vor dem ursprünglichen
+Kernelcheck eine fremde Iteration auslösen. Die Gegenprobe deckt diesen Einstieg
+nicht ab. Prüfung am zwingenden STOP beendet, keine vollständige Befundschließung.
+[Konkreter Befund, gemeinsamer Rahmen und Disposition](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md).
+
+Sieben/hartsieben Kandidaten, sechs geänderte Nachläufe, Verbrauch UNKNOWN.
+Kein Kandidatenimport, keine Generierung, kein Fit-, Compile-/Exec- oder Modelllauf.
+Die neue Runnerquelle, ihre19 Testmethoden und der Workflow sind aus dem finalen
+Diff entfernt; der verworfene Stand ist privat in einem geprüften Gitbundle
+bewahrt. Bestehende Komponenten und fremde Ressourcen bleiben erhalten.
+
+Reiner Diagnoseabschluss auf `codex/dgn007-runner-c7`: unabhängige Disposition,
+lokale Dokumentationsprüfung, aktuelle Head-/Base-Gates, regulärer Merge,
+frische Main-Gates, FullTree/Sync (vollständige Baumübernahme und Synchronisation)
+und eigene lokale/Remote-Branchbereinigung werden noch verfolgt. Der spätere
+PR-Abschlussnachweis bindet die tatsächlichen Ergebnisse.
+
+Nächste Quellenarbeit ist bis zur ausdrücklichen neuen begrenzten Entscheidung
+zur Bootstrap-Korrektur blockiert. Kein C8 oder Scope-/Budgetreset. Die frühere
+kontinuierliche Fortsetzung hebt die ausdrücklich gesetzte C7-Grenze nicht auf.
+Unveränderte Heartbeats starten keine neue Analyse oder Wiederholungsprüfung.
+Alle tatsächlichen Runtime-, Trust-, Usedbytes-, Methoden-, SESSION_END- und
+SQL-Freigaben bleiben offen. Die historische C6-Grenze unten wurde ausschließlich
+für genau C7 erweitert; sie ist keine aktuelle weitere Freigabe.
 
 ## C6 im Source-/Test-PRE abgelehnt; konkrete Sourcegrenze erreicht
 

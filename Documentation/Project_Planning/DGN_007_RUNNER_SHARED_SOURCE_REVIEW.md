@@ -1,84 +1,84 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
-## C7: ausdrückliche Freigabe und gemeinsame Grenze
+## C7: abgelehnt; erweiterte harte Grenze erreicht
 
-Am 21. Oktober 2026 hat der Mensch ausdrücklich genau einen weiteren stabilen
-Kandidaten C7 mit unabhängigem Review, lokalen Tests, grünen Gates, regulärem
-Merge und eigener Branchbereinigung freigegeben. Ausgangsbasis ist
-347c231bcc5d5318a779100e0677cde2e49e3adb nach abgeschlossenem
-[PR277](https://github.com/gecompat/SQL_PerformanceSchulung/pull/277).
+Stand: 21. Oktober 2026. Ausgangsbasis347c231bcc5d5318a779100e0677cde2e49e3adb
+nach abgeschlossenem [PR277](https://github.com/gecompat/SQL_PerformanceSchulung/pull/277).
+Status CLOSED_REJECTED_C7_PRE: Der stabile Quellen-/Testkandidat
+559f09cc35dd22a2fd073641401c23517114e031 wurde unabhängig vor jeder Generierung
+abgelehnt. Es gab keinen Kandidatenimport, keine Generierung, keinen Fitlauf,
+keine AST-Analyse (Abstract Syntax Tree; abstrakter Syntaxbaum), Kompilierung,
+Ausführung oder Modelllauf. Größenfit und übrige Befundschließung sind unbekannt.
+Die Prüfung endete am zwingenden STOP; es liegt keine vollständige Abnahme vor.
 
-Aktueller Stand: unabhängiges Auswahl-GO auf Basis347c231 erteilt. C7 wird
-als genau ein stabiler Quellen-/Teststand vorgelegt; Quellen-/Test-PRE und
-jedes Generierungs-/Lauf-GO bleiben bis zu dessen ausdrücklichem Ergebnis offen.
-Der bisherige Verbrauch bleibt sechs Kandidaten/fünf geänderte Nachläufe.
-Mit dem einzigen stabilen C7 wird die erweiterte harte Grenze sieben
-Kandidaten/sechs geänderte Nachläufe erreicht. Ein Implementierungsowner root
-und derselbe unabhängige Reviewer; gesamter Quellen-/Versuchsverbrauch UNKNOWN.
-Auswahl, Umsetzung, Quellen-/Testprüfung, Koordination, lokale Prüfungen,
-CI, Integration und sichere Bereinigung zählen gemeinsam zu diesem Schnitt.
+### Freigabe und gemeinsamer Verbrauch
 
-Die Freigabe übernimmt ausschließlich den unten dokumentierten Korrekturschnitt:
-drei C6-Befunde und UTF-8-Textkorruption, dazu eigene tatsächlich erreichte
-Negativfälle für Guard-Slotersetzung und Closureaustausch. Die bestehende
-Architektur, vollständiger Rawumfang, Scriptlimit und sämtliche fachlichen
-Gates bleiben verbindlich. Der Übergang Initialisierung → Einfrieren vor dem
-Reportsnapshot benötigt einen ursprünglich privaten Bootstrapanker; Daten
-aus dem veränderbaren Guard-Slot sind keine Autorität für dessen Prüfung.
+Der Mensch hat am 21. Oktober 2026 genau einen weiteren stabilen Kandidaten C7
+freigegeben: Korrektur der drei C6-Befunde und der UTF-8-Textkorruption, passende
+Negativfälle, unabhängiges Review, lokale Tests, grüne Gates, regulärer Merge
+und eigene Branchbereinigung. Ein Implementierungsverantwortlicher root und
+derselbe unabhängige Reviewer. Der gemeinsame Rahmen umfasst Auswahl,
+Umsetzung, Quellen-/Testprüfung, Koordination, lokale Prüfungen, CI (Continuous
+Integration; automatisierte Integrationsprüfungen), Integration und Bereinigung.
+Quellen-/Versuchsverbrauch UNKNOWN; sieben/hartsieben stabile Kandidaten und
+sechs geänderte Nachläufe sind erreicht. Keine erfundene Verbrauchsmessung.
 
-Checkpoints: unabhängige Auswahlfreigabe vor Umsetzung; danach genau ein
-stabiler Quellen-/Teststand und unabhängiger PRE vor jeder Generierung.
-Nur ausdrückliches gestuftes Lauf-GO erlaubt die Fit-/Ganz-AST-Methode jeweils
-einmal auf Windows und Linux. Nur beidseitiges PASS erlaubt einmal die übrigen
-ausgewählten synthetischen Modelle je Plattform. Kein nativer DGN-Body oder
-SQL-Lauf. Bei weiterem notwendigem Quellen-/Fixturefix oder fehlgeschlagenem
-Fit kein C8 und kein Reset: sichere Disposition sowie belegter Abschluss des
-begonnenen Schnitts. Eine spätere Dokumentationskorrektur ist kein weiterer
-Quellenversuch. Der unabhängige Ergebnisreview prüft die Befundschließung und
-die tatsächlich erreichten Claims; ein historisches PASS ersetzt keine Gate.
+Unabhängiges Auswahl-GO auf Basis347c231 erlaubte die Umsetzung, aber keinen
+Lauf. Vor Generierung war ein stabiler Quellen-/Test-PRE (unabhängige Prüfung
+vor dem Lauf) mit ausdrücklichem gestuftem Lauf-GO erforderlich: zuerst die
+Fit-/Ganz-AST-Methode jeweils einmal auf Windows3.14.7 und Linux3.12.3 mit
+-I -S -B; nur beidseitiges PASS hätte einmal die übrigen eigenen Modelle je
+Plattform erlaubt. Die Interpreterversionen wurden lesend bestätigt. Wegen
+des Quellenbefunds wurde keine dieser Methoden gestartet.
 
-## C7: stabile Vorlage zur unabhängigen Quellen- und Testprüfung
+### Konkreter unabhängiger Befund
 
-Der Entwurf schließt die drei C6-Befunde durch folgende Änderungen:
+P2 – Der Bootstrap übernimmt seine Primitiven erneut aus einer veränderbaren
+Closurezelle. Im verworfenen Stand prüft die Callfunktion `_kernel` lediglich
+auf exaktes Tuple und Länge17 (Sourcezeile500). Der eingefügte Frameprefix
+übernimmt diesen Zellinhalt; der Checkpoint entpackt dessen Feld0 vor dem
+ursprünglichen Kernelcheck (Sourcezeile720).
 
-- Source-/Parentdeskriptoren erhalten zuerst eine genaue Form-/Indexprüfung;
-  erst danach wird die Parentrolle zugewiesen und verwendet.
-- Der aktive Kontrollframe hält den ursprünglichen äußeren Reportkernel und
-  seine Metadaten getrennt vom veränderbaren Guard-Slot. Der Kernel schließt
-  den ursprünglichen D1-Träger, bevor dessen Inhalt oder der Slot verwendet
-  wird. Auch eine ersetzte Recordkopie mit ursprünglichen Prüffunktionen ist
-  keine neue Autorität. D0 bezeichnet den ursprünglichen Initialisierungsstand,
-  D1 den einmal versiegelten Zustand vor dem Reportsnapshot.
-- Eine einmalige Versiegelung schließt zuerst die ursprünglichen D0-Funktionen.
-  Ausschließlich die vorher benannten Kernelzellen wechseln von None zum
-  ursprünglichen Kontext. Der Gateway-Metadatensatz übernimmt genau diesen
-  geprüften Übergang. Sealer, D1-Träger und Inputträger werden vom äußeren
-  Scriptsnapshot vollständig gebunden; sie stehen nicht in ihrer eigenen
-  inneren Prüfliste. Dies vermeidet den in der Auswahlkoordination geprüften
-  Selbstbezug. Keine frei gewählte späte Quellenbaseline.
-- Entry, Gateway und Loader halten Owner-/Zustandsreferenzen im aktiven Frame.
-  Der Entry hält außerdem den ursprünglichen Cache und die vor Callbackwirkung
-  gesammelten eigenen Namespacereferenzen für den Fehlerabschluss. Der Cleanup
-  liest keinen ausgetauschten Owner-/Zustandszellinhalt erneut als Autorität.
-- UTF-8-Textkorruption aus dem verworfenen C6 ist anhand seiner ursprünglichen
-  Gitbytes berichtigt. Vorhandene andere Generatoren, Fixtures und Tests bleiben
-  unverändert.
+Statischer Gegenfall: Vor dem Aufruf wird die `_kernel`-Zelle durch eine
+17-elementige Kontextkopie ersetzt, deren Feld0 ein fremdes Objekt mit
+Iterationssentinel enthält. Die Vorprüfung passiert; das Entpacken würde den
+fremden Iterator aufrufen. Eine spätere feste Ablehnung beseitigt die bereits
+erfolgte Fremdoperation nicht. Die neue Closuregegenprobe verändert `_kernel`
+erst während Parent-BEGIN (Testzeile901); dieser Einstiegspfad fehlt.
 
-Die19 eigenen Testmethoden enthalten den vollständigen Fit-/AST-Nachweis
-(AST: Abstract Syntax Tree; abstrakter Syntaxbaum) und18 synthetische
-Positiv-/Negativmodelle. Neue Fälle prüfen tatsächlich erreichte Ersetzung
-von Slot, Record, D1-Träger und Inputrecord, D0-Drift und wiederholte
-Versiegelung sowie Closureaustausch während des Parent-BEGIN-Callbacks mit
-anschließendem Fehler. Reachedmarker liegen außerhalb des Kandidaten; fremde
-Getter-, Index-, Iterations-, Hash-, Equality-, Len- und Calloperationen müssen
-unerreicht bleiben. Keine Kandidatenimporte, Generierung, AST-Analyse,
-Kompilierung, Ausführung oder Modellläufe vor Quellen-/Test-GO. Größenfit
-und Befundschließung sind noch nicht belegt.
+Erforderlich wäre eine vor Kontextzugriff unabhängig gebundene ursprüngliche
+Kontext-/Primitivenautorität und eine Gegenprobe genau dieses Einstiegspfads.
+Das verlangt einen weiteren Quellen-/Fixturefix. Der unabhängige Review hat
+559f09c deshalb ausdrücklich ohne Fit-GO abgelehnt und am STOP beendet.
+Die übrigen C7-Änderungen sind damit weder vollständig geprüft noch freigegeben.
 
-Der stabile C7 erreicht sieben/hartsieben Kandidaten und sechs geänderte
-Nachläufe. Verbrauch UNKNOWN. Eine notwendige weitere Quellen-/Fixturekorrektur
-oder ein fehlgeschlagener Fit erlaubt keinen C8; dann folgt ausschließlich
-die sichere Disposition und deren regulärer Integrationsabschluss.
+### Sichere Disposition und Abschluss
+
+Der verworfene Stand enthielt eine neue Runnerquelle,19 eigene Testmethoden
+(eine Fit-/Ganz-AST-Methode und18 synthetische Positiv-/Negativmethoden) und
+einen engen Workflow. Diese drei neuen Dateien sind aus dem finalen Diff
+entfernt. Vorhandene Workerinput-, Proxy-, Harness- und Parentkomponenten samt
+Tests bleiben erhalten. Kein nativer DGN-Body, Worker oder SQL-Lauf wurde
+hierdurch gestartet; keine Plattform-, Trust-, Methoden- oder SQL-Freigabe.
+Das unveränderte Scriptlimit131072 und der volle Rawumfang werden nicht
+abgeschwächt. Größenersparnis und Laufzeitverhalten bleiben unbekannt.
+
+Der abgelehnte Commit ist vor dem Entfernen in einem privaten, lokal geprüften
+vollständigen Gitbundle gesichert. Private Evidence und fremde Ressourcen
+bleiben erhalten. Die Versionshistorie ist kein ausführbarer Freigabestand.
+Der [DESIGNED-Vertrag](DGN_007_RUNNER_SHARED_CONTROL_DESIGN.md) bleibt unverändert.
+Eigener Branch `codex/dgn007-runner-c7`; unabhängiger Dispositionsreview,
+lokale Dokumentationsprüfungen, aktuelle Head-/Base-Gates, reguläre Integration,
+frische Main-Gates, vollständige Übernahme und sichere eigene Branchbereinigung
+werden für diesen reinen Diagnoseabschluss verfolgt. Der PR-Abschlussnachweis
+hält die nach Integration tatsächlich belegten Ergebnisse fest.
+
+Nächste Quellenarbeit ist blockiert. Kein C8, kein Budget-/Scope-/Namensreset
+und kein weiterer Lauf innerhalb dieser Freigabe. Eine Wiederaufnahme benötigt
+eine ausdrückliche neue begrenzte Entscheidung zur vor Kontextzugriff tragfähigen
+Bootstrap-Korrektur sowie erneut unabhängige Auswahl-/Quellen-/Testprüfung und
+Lauf-GO. Unveränderte Heartbeats starten keine Wiederholungsanalyse. Tatsächliche
+Runtime-, Trust-, Usedbytes-, Methoden-, SESSION_END- und SQL-Gates bleiben offen.
 
 ## Historischer C6-Auswahl- und Ablehnungsstand
 
