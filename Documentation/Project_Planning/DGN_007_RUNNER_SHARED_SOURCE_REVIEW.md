@@ -1,5 +1,196 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## Abschluss des funktionalen Schnitts
+
+Der menschlich beauftragte Reentranzabschluss liegt im stabilen Quellen-/Teststand
+`47b07578d35467f8206cc88ed95457c9e74ae8d9` vor. Der unabhängige Delta-PRE
+(Quellen-/Testprüfung vor dem Lauf) schließt die priorisierten Befunde und erteilt
+das gestufte Lauf-GO. Lokal bestehen auf Windows 3.14.7 und Linux 3.12.3 jeweils
+alle 21 Methoden mit `-I -S -B`: zuerst eine Fit-/Ganz-AST-Methode, dann die zwei
+Reentranz-Gegenproben und danach die übrigen 18 eigenen Modelle. AST bedeutet
+Abstract Syntax Tree (abstrakter Syntaxbaum). Kein Fehler, kein Skip; die drei
+Stufen bilden zusammen exakt dieselben 21 Methoden, keine doppelte Ausführung
+einer unveränderten grünen Methode innerhalb der finalen lokalen Abnahme.
+
+Die vollständigen Originalprofilbytes (Raw) einschließlich beider Zeilenendformen
+bleiben erhalten: Windows-Zeilenenden (CRLF: Carriage Return/Line Feed) mit
+129679 Bytes, Unix-Zeilenenden (LF: Line Feed) mit 127911 Bytes bei unverändertem
+Scriptlimit 131072. Der unabhängige Vergleich führt Textpool und Namenskürzungen zurück und
+vergleicht den gesamten ursprünglichen Syntaxbaum samt Rawbytes. Der Textpool
+ist ein vor der ersten Nutzung erzeugtes festes Tupel wiederholter Kontrolltexte;
+die Alpha-Umbenennung ist ein eindeutiger, umkehrbarer Austausch interner Namen.
+Externe Schnittstellen, geschützte Literal-Kontexte und die fünf Scriptimporte
+bleiben erhalten. Kein zusätzliches Runtimecompile, keine Dekodierung oder
+spätere Datenaufnahme.
+
+Die erreichten Reentranzfälle halten das gesetzte Fehlerflag und die innere
+Ablehnung beziehungsweise den Exceptiontyp im Callback extern fest. Die
+Assertions prüfen diese Beobachtungen nach dem kontrollierten Aufruf. Nach Compilecallback-Reentranz erfolgt kein Exec; nach
+Reentranz beim Teilwrite wird nur das eine bereits laufende Writerbyte sichtbar,
+sein Bestätigungsoffset bleibt unverändert und es gibt keinen weiteren Writer-,
+Compile- oder Execaufruf. Die äußere Ablehnung bleibt ohne weitere Bindungsdrift
+operativ; bei verlorener Bindung hat deren Diagnose Vorrang. Eigene Cacheeinträge
+und Paketlinks werden identitätsbezogen entfernt, fremde Werte erhalten. Retry
+bewirkt keinen neuen Provideraufruf. Der zusätzliche Cleanupfehler bei flachen
+Modulnamen wird durch die bestehenden frühen und späten Fehlerfälle mitgeprüft.
+Die vollständige positive Folge umfasst acht Sources, zwei codefreie Parents
+und dieselben 20 bestätigten Records.
+
+Ein Implementierungsverantwortlicher root und derselbe unabhängige Reviewer
+führten den endlichen gemeinsamen Schnitt; Verbrauch UNKNOWN (nicht verlässlich
+gemessen). Die menschlich aufgehobene Kandidatengrenze wird nicht durch eine
+neue künstliche Grenze ersetzt, historische Versuche werden nicht zurückgesetzt.
+Die folgenden Abschnitte dokumentieren die Entscheidungs- und Befundfolge;
+ihre damaligen STOPs und Pendingaussagen sind keine aktuellen neuen Sperren.
+
+Aufwand und Gates: Lokale finale Methoden wurden in disjunkte Stufen aufgeteilt;
+bei neuem Fehler stoppt der private Runner sofort. Alte unveränderte Komponenten-
+suiten wurden nicht zusätzlich wiederholt. Die enge CI (Continuous Integration;
+automatisierte Integrationsprüfungen) betrifft diese Runnerquelle, ihre konkreten
+Quellen-/Testabhängigkeiten, den Workflow und die ausgewählten Runnerverträge;
+keine allgemeine Ausweitung auf sämtliche Dokumentation. Die Vertragsdateien
+sind ein begrenzter stärkerer Trigger, weil sie die Abnahmekriterien ändern können.
+Aktuelle Prüfungen des PR-Stands (Head), seiner Main-Basis (Base) und frische
+Main-Gates bleiben für die Integration erforderlich.
+Mechanische Hash-/Methoden-/Logprüfungen benötigen keine weitere Modellkette.
+
+Der reguläre Pull-Request-Abschlussnachweis bindet den finalen Head, die aktuelle
+Base, alle zugehörigen grünen Checks, regulären Merge, frische Main-Gates,
+vollständige Baumübernahme und Synchronisation sowie eigene lokale/Remote-
+Branchabwesenheit. Private Verlaufsevidenz und fremde Ressourcen bleiben erhalten.
+DEC-076 gilt weiterhin: vertrauenswürdige Schulungsquellen, gezielte
+Kontrollmanipulationen außerhalb des Prüfversprechens. Synthetische Modelle und
+endliche Kontrolldriftdiagnosen sind kein tatsächlicher nativer Runtime-,
+Trust-, Usedbytes-, Methoden-, SESSION_END- oder SQL-Nachweis.
+
+## Freigegebener funktionaler Reentranzabschluss
+
+Die ausdrückliche menschliche Beauftragung hebt die Kandidatengrenze für diesen
+Fehlerabschluss auf und erlaubt nötige Reviewkorrekturen. Frühere Grenzen und
+Ablehnungen unten bleiben historische Evidenz; daraus folgt kein aktueller
+Freigabeblocker. Basis ist `73c08a798f64fe2d7a36d49df740934a028fecc3` nach
+vollständig abgeschlossenem PR280, Arbeitsbranch `codex/dgn007-reentrancy`.
+
+Ein Implementierungsverantwortlicher root und derselbe unabhängige Reviewer
+führen genau diesen funktionalen Schnitt einschließlich Quellen-/Testprüfung,
+Koordination, lokalen Tests, CI (Continuous Integration; automatisierte
+Integrationsprüfungen), Merge und eigener Bereinigung. Verbrauch UNKNOWN.
+Checkpoint ist die stabile Quellen-/Testprüfung vor jedem Kandidatenimport,
+jeder Generierung, AST-Analyse (Abstract Syntax Tree; abstrakter Syntaxbaum),
+Kompilierung oder Ausführung. Harte Umfangsgrenze ist der Reentranzfehler samt
+Gegenprobe und direkt nötigen Review-/Testkorrekturen, keine weitere operative
+Welle. Die historische Versuchszählung wird nicht zurückgesetzt; es gilt keine
+weitere künstliche Kandidatenobergrenze innerhalb dieses Auftrags.
+
+Der gemeinsame Checkpoint prüft weiterhin zuerst die ursprünglichen Bindungen.
+Im normalen Ablauf muss anschließend das Fehlerflag unverändert falsch sein;
+Reentranz im Providercallback stoppt so im Nachcheck vor der nächsten Wirkung.
+Nur der abschließende Diagnosecheck darf ein gesetztes Fehlerflag dulden, damit
+eine zusätzliche verlorene Bindung weiterhin Vorrang vor einem operativen
+Fehler erhält. Dieser Check dispatcht keine Source oder Provider. Die unabhängige
+Ganz-AST-Probe rekonstruiert seine explizite Kennzeichnung und einzige Position.
+Die Gegenproben erreichen Reentranz im Compilecallback und beim partiellen
+Schreiben und prüfen ausbleibende weitere Compile-/Exec-/Schreibwirkungen,
+Bereinigung eigener Slots und wirkungsfreien Retry.
+
+Die Quelle, bisherige Modelle und Workflow werden aus dem verworfenen C8-Stand
+wieder aufgenommen und zusammenhängend korrigiert. DEC-076 bleibt gültig:
+vertrauenswürdige Schulungsquellen, gezielte Kontrollmanipulationen außerhalb
+des Prüfversprechens. Der unabhängige Quellen-/Test-PRE (Prüfung vor dem Lauf)
+muss ein ausdrückliches gestuftes Lauf-GO geben: zunächst nur die Fit-/Ganz-AST-
+Methode einmal auf Windows 3.14.7 und Linux 3.12.3 mit `-I -S -B`; erst nach
+beidseitigem PASS die übrigen eigenen synthetischen Modelle je Plattform.
+Neue relevante Korrekturen benötigen eine passende Delta-Prüfung und betroffene
+Tests; unveränderte grüne Prüfungen werden ohne Anlass nicht wiederholt.
+Scriptlimit 131072 und vollständige Rawprofile bleiben erhalten. Kein nativer
+DGN-Body, Worker oder SQL-Lauf. Synthetische Ergebnisse ersetzen keine tatsächlichen
+Runtime-, Trust-, Usedbytes-, Methoden-, SESSION_END- oder SQL-Gates.
+
+Nach Befundschließung folgen aktuelle grüne Head-/Base-Gates, regulärer Merge,
+frische Main-Gates, vollständiger Übernahmenachweis, Synchronisation und sichere
+Bereinigung ausschließlich eigener lokaler/Remote-Branches. Der PR-Abschlussnachweis
+bindet tatsächliche Ergebnisse; private Evidenz und fremde Ressourcen bleiben
+unverändert erhalten.
+
+Der unabhängige Quellen-/Test-PRE an ddf4193 schließt den Reentranzbefund
+statisch. Sein gestuftes Lauf-GO führte auf beiden Plattformen zunächst zum
+fehlenden Positionsattribut neu erzeugter Zuweisungsknoten. Die unabhängig
+geprüfte Korrektur c97a762 ergänzt diese Attribute vor der ersten Textausgabe.
+Dessen erster Fit je Plattform stoppt am unveränderten Scriptlimit:
+145349 Bytes, 14277 Bytes darüber. Keine synthetischen Modelle gestartet.
+
+Ein einmaliger unabhängig freigegebener Generierungs-Diagnoseaufruf wertete nur
+Aggregate aus dem abgelehnten eigenen Generatorframe aus: keine Speicherung,
+Kompilierung oder Ausführung der verworfenen Kontrollquelle. Reine Daten-Alpha
+bietet rechnerisch nur 3027 Bytes vor Schnittstellenausschlüssen. Der danach
+unabhängig ausgewählte Darstellungsschnitt kombiniert genau ein früh erzeugtes
+Tupel für wiederholte konstante Kontrolltexte, konservative Alpha interner
+Datennamen und wertgleiche einzeilige Anweisungsblöcke. Keine Raw-/Bytes-,
+Docstring-, Pattern-, Fstring-, Annotations- oder Typalias-Ersetzung. Der Pool
+gehört von Anfang an zum ursprünglichen Namespace-Snapshot; keine spätere
+Aufnahme, Dekodierung oder zusätzliche Runtimekompilierung. Externe Fixture-/
+Diagnose-/Entrynamen bleiben erhalten. Die unabhängige Oracle prüft Poolposition,
+Werte, feste Indexzugriffe und Grenzen, expandiert die Texte, invertiert die
+Alpha und vergleicht den gesamten ursprünglichen AST und Raw. Kleine Gegenfälle
+prüfen unter anderem ungültige Poolindizes und geschützte Literal-Kontexte.
+Größenwirkung noch unbekannt; stabiler Quellen-/Test-PRE vor jeder Generierung.
+Das erneute Lauf-GO bleibt auf Fit/Ganz-AST vor sämtlichen Modellen gestuft.
+
+### Weitere gebundene Darstellungskorrektur
+
+Der unabhängig freigegebene Fit an 17b676f stoppt auf beiden Plattformen bei
+135236 Bytes, also 4164 Bytes über dem unveränderten Limit. Er spart 10113 Bytes;
+keine Modellstufe gestartet. Die kleinen Pool-/Alpha-/Suitegegenfälle erreichten
+diesen Größencheck ohne eigenen Fehler. Das anschließende unabhängige Auswahl-GO
+betrifft ausschließlich zwei ASCII-Buchstaben als Ziele der bisherigen uniformen
+lokalen Alpha statt z0 bis zN. Alle bisherigen Scope-/Reflexions-/Schnittstellen-
+sperren bleiben erhalten; echte Schlüsselwörter, vorhandene Namen, Deklarationen,
+Stringreferenzen und andere Alpha-Ziele bleiben ausgeschlossen. Die Auswahl ist
+endlich und lehnt bei erschöpftem Namensraum fest ab. Die unabhängige Rückführung
+prüft diese Ziele und den vollständigen AST-/Rawvergleich; kleine Gegenfälle
+prüfen Namenskollision und erschöpften Namensraum. Keine Unicode-Variante oder
+neue Runtimeabhängigkeit ausgewählt. Größenwirkung noch unbekannt; stabiler
+Quellen-/Test-PRE und gestuftes Fit-GO bleiben erforderlich.
+
+
+Der Fit an d245a6d stoppt beidseitig bei 132601 Bytes, 1529 Bytes über dem
+Limit; keine Modellstufe. Die danach unabhängig ausgewählte Namenskorrektur
+verwendet auch für interne Funktions-/Datenziele zwei ASCII-Buchstaben. Der
+zusätzliche Poolname nutzt einen freien ASCII-Buchstaben, sonst zwei. Hier
+werden alle ursprünglichen Bezeichnerfelder einschließlich Importbindungen und
+Deklarationen sowie exakt gleiche Stringwerte gesperrt. Für die Umbenennung
+bestehender Funktionen/Daten bleiben die stärkeren Substring-Sperren erhalten.
+Die berechneten Kontroll-Namespace-Zugriffe verwenden die fest vorgegebenen
+langen Funktionsnamen beziehungsweise ursprünglich aufgenommene Namespacekeys;
+die neue Poolbindung ersetzt keinen solchen ursprünglichen Schlüssel. Alle
+Zielnamen sperren sich gegenseitig. Die unabhängige Oracle erkennt den Pool
+strukturell, prüft ihn gegen den vollständigen Expected-AST und erreicht eine
+Gegenprobe mit eingefangenem Funktionsparameter. Kein Lauf vor Source-/Test-PRE;
+Einsparung noch unbekannt.
+
+
+### Erster vollständiger Fit und operative Fehlerabschlusskorrektur
+
+20cc91d besteht Fit und unabhängigen Ganz-AST-/Rawvergleich auf Windows 3.14.7
+und Linux 3.12.3: CRLF 129652 Bytes, LF 127884 Bytes. Damit ist das unveränderte
+131072-Byte-Limit für beide vollständigen Profile belegt. Danach wurden die
+20 ausgewählten eigenen Modelle je Plattform einmal ausgeführt: je fünf PASS
+und 15 ERROR, alle mit demselben IndexError im Fehlercleanup. Die vollständige
+positive acht-Source-/zwei-Parentfolge besteht bereits; daraus folgt keine
+allgemeine Modellabnahme.
+
+Der Cleanup trennt bislang auch bei flachen Source-Namen ohne Punkt einen
+Kindnamen ab. Die direkt nötige Korrektur berechnet ihn und durchsucht Parent-
+Namespaces ausschließlich für echte Paketkinder; Cachebereinigung eigener
+identischer flacher Sources bleibt separat erhalten. Die Reentranzproben
+halten Rückgabe beziehungsweise Exceptiontyp und das bereits im Callback
+beobachtete Fehlerflag extern fest. Ihre Assertions laufen nach dem kontrollierten
+Aufruf, damit ein absichtlicher BaseException-Abschluss keinen Testfehler
+verschlucken kann. Die bestehenden frühen Compile-/Execfehler und Reentranzfälle
+prüfen die strukturierte Ablehnung samt Cleanup und Retry gegen diesen Befund.
+Noch kein korrigierter Lauf vor unabhängigem Delta-PRE; passende erneute Fit-/
+Modellgates erforderlich. Unveränderte alte Suiten werden nicht zusätzlich gestartet.
+
 ## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 
 Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich

@@ -1,5 +1,37 @@
 # Aktueller Ausführungsstand
 
+## Reentranzfehler im vollständigen Runner behoben
+
+Der gemeinsame Kontrollcheck stoppt den normalen Ablauf nach einem reentranten
+Einstieg vor weiteren Providerwirkungen. Der abschließende Diagnosecheck erhält
+dabei den Vorrang verlorener Bindungen. Auch der im ersten Modelllauf erkannte
+Fehlercleanup für flache Modulnamen ist korrigiert. Gegenproben beobachten das
+Fehlerflag bereits im Callback und prüfen anschließend null Exec-Aufrufe,
+keine weiteren Writes, strukturierte Ablehnung, eigenen Cleanup und wirkungsfreien
+Retry. Die Kandidatengrenze wurde für diesen menschlich beauftragten Abschluss
+aufgehoben; die darunter erhaltenen C8-Sperren sind historische Evidenz.
+
+Quellen-/Teststand `47b07578d35467f8206cc88ed95457c9e74ae8d9`, Basis
+`73c08a798f64fe2d7a36d49df740934a028fecc3`, eigener Branch
+`codex/dgn007-reentrancy`: unabhängige Quellen-/Testprüfung ohne offene
+priorisierte Befunde, lokal je 21 Methoden auf Windows 3.14.7 und Linux 3.12.3
+mit `-I -S -B` bestanden. Vollständige Originalprofilbytes und unabhängiger
+Ganz-AST-Vergleich (AST: Abstract Syntax Tree; abstrakter Syntaxbaum) bestehen
+bei Windows-Zeilenenden (CRLF: Carriage Return/Line Feed) mit 129679 Bytes und
+Unix-Zeilenenden (LF: Line Feed) mit 127911 Bytes unter dem unveränderten
+131072-Byte-Limit.
+[Konkreter Nachweis, Grenzen und Integrationsverfahren](DGN_007_RUNNER_SHARED_SOURCE_REVIEW.md#abschluss-des-funktionalen-schnitts).
+
+Die reguläre Integration verlangt aktuelle grüne Prüfungen für den PR-Stand
+(Head) und die Main-Basis (Base), anschließend
+frische Main-Gates, vollständige Baumübernahme, Synchronisation und eigene
+Branchbereinigung. Der zugehörige Pull-Request-Abschlussnachweis bindet die
+konkreten Ergebnisse. DEC-076 bleibt maßgeblich; die synthetischen Modelle sind
+kein Nachweis eines nativen Laufs, der Quellenherkunft, tatsächlich ausgeführter
+Quellbytes, der Messmethode oder der Abschlussmeldung SESSION_END und keine
+SQL-Freigabe. Dieser funktionale Schnitt eröffnet keine neue operative
+Welle. Private Evidence und fremde Ressourcen bleiben erhalten.
+
 ## C8 abgelehnt: Folgeeffekt nach Reentranz; Vertrauensmodell entschieden
 
 Der Mensch hat vertrauenswürdige Schulungsquellen gewählt und gezielte
