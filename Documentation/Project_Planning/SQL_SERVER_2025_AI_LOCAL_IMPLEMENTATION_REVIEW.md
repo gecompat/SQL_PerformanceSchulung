@@ -23,7 +23,7 @@ Qualifikationsrunner nicht übernommen. Fehler im Cleanup sind dominant.
 ## Runtime-Evidenz und Grenzen
 
 Die lokale Charakterisierung verwendete eigene Linux-Container mit vier CPUs und
-acht GiB RAM. Build 17.0.5005.3, Enterprise Developer. Auf 2025 bestanden zunächst je
+acht GiB RAM (Random Access Memory; Arbeitsspeicher). Build 17.0.5005.3, Enterprise Developer. Auf 2025 bestanden zunächst je
 zwei Lifecycles, Idempotenz sowie 24 Eigentumsgegenproben je Demo. Auf 2019 und 2022
 bestanden je zwei SKIP_VERSION-Prüfungen pro Demo vor Setup; alle 24 unabhängigen
 DB-Abwesenheitsprüfungen und die drei eigenen Containerabbauten bestanden.
@@ -75,7 +75,7 @@ Repository-Logs, keine Persistierung von Prompt-/Antwort-/Plan-/Hostinventardate
 
 ## Verarbeitung und CI-Aufwand
 
-Die neue CI führt drei Versionsjobs aus, je vier Demos mit zwei Lifecycles; native
+Die neue CI (Continuous Integration; automatisierte Integrationsprüfungen) führt drei Versionsjobs aus, je vier Demos mit zwei Lifecycles; native
 Ownership-/Ergebnisgegenproben sind auf 17.x begrenzt. Es gibt einen Implementierer
 und einen unabhängigen Review für konkrete Safety-/Versions-/Ergebnisrisiken,
 anschließend höchstens zwei gebündelte Reviewkorrekturwellen. Charakterisierung,
@@ -108,7 +108,7 @@ CI bewertet den aktuellen Head; Nachweise früherer Commits ersetzen diesen Gate
 Produktverträge: SRC-070 bis SRC-075, SRC-100 und SRC-104 im Quellenregister.
 Der [Modellpfad-Leitfaden](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md) verwendet die
 öffentlichen SQL_Server_Lab-Verträge SRC-101 bis SRC-103. Die Anwendung kann lokal
-HTTP verwenden, während SQL-seitige Modellaufrufe eine getrennte TLS-Strecke benötigen.
+HTTP (Hypertext Transfer Protocol; Protokoll zur Übertragung von Webanfragen und Antworten) verwenden, während SQL-seitige Modellaufrufe eine getrennte TLS-Strecke benötigen.
 Für die anderen 14 Demoentwürfe bleibt der Workstreamplan maßgeblich. Ein echter WhatIf-Aufruf des öffentlichen lokalen RAG-Controllers ergab READY,
 GenerationLane=local, Egress=denied und TopK=1. Es wurden keine Inferenz, SQL-
 Mutation oder Secrets gelesen. Cloud-/Bezahl- und ONNX-Hosteffekte behalten ihre konkrete Freigabegrenze.

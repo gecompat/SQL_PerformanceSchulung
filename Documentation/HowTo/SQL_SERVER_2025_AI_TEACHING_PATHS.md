@@ -49,7 +49,7 @@ neuen Wörter vor der jeweiligen Anwendung. Fragen und Ergebnisbesprechung sind 
 | Block | Folien | Planminuten | Aktivität und sichtbarer Lernbeleg |
 |---|---|---:|---|
 | Vertrauter Fall | 1–7 | 10 | Drei synthetische Quellen und eine bekannte SELECT-Abfrage lesen. Erwartete Quelle und Antwort in eigenen Worten nennen. |
-| Neue Begriffe einzeln | 8–13 | 15 | KI, Modell, Training/Inferenz, Sprachmodell, Token und Datenfluss auseinanderhalten. Eine Aufgabe dem passenden Modell zuordnen. |
+| Neue Begriffe einzeln | 8–13 | 15 | KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen), Modell, Training/Inferenz, Sprachmodell, Token und Datenfluss auseinanderhalten. Eine Aufgabe dem passenden Modell zuordnen. |
 | Einstiegshürden | 14–17 | 15 | Engine/Client/CL/Lab/Rechte erklären. Aus einem vorgegebenen Hindernis den nächsten vorbereiteten Lehrschritt wählen. |
 | Erster SQL-Versuch | 18–21 | 20 | Erst Rangfolge vorhersagen, dann lokale Variablen/SELECT vorführen oder Ergebnisfolie lesen. Mathematische Nähe erklären und ihre Sprachgrenze benennen. |
 | Echter Modellzugang | 22–23 | 10 | Embedding von manueller Zahlenzuordnung unterscheiden. Zusätzliche API-/TLS-/Zugangs-/Datenschutzvoraussetzungen erkennen, ohne einen Provider aufzurufen. |
@@ -72,7 +72,7 @@ wählt Material aus dem Deck aus; er verlangt nicht alle 61 Folien in vier Stund
 | Typ/Modellraum vertiefen | Quellfolien34–35, BASIS29–30; QRY-014 und zugehörige Arbeitsheftaufgabe | 25 |
 | Parameter und Rechte sehen | Folien47–48, QRY-019 und zugehörige Arbeitsheftaufgabe | 25 |
 | Quelle/Antwort und Grenzen | Folien45–46, QRY-018 als moderierte Ergebnisleseaufgabe | 20 |
-| Fachthemen einordnen | Quellfolien40/51/54/57, BASIS35–38: Modellzugang, ANN, Messung und Assistenz | 20 |
+| Fachthemen einordnen | Quellfolien40/51/54/57, BASIS35–38: Modellzugang, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Messung und Assistenz | 20 |
 | Entscheidung/Transfer | Folie61, einen Fall begründen und nächsten Nachweis nennen | 15 |
 | Rückfragen/Reserve | Hindernisse klären und offene Fragen festhalten | 15 |
 | **Summe Netto** | | **210** |
@@ -137,7 +137,7 @@ enthält Kursfoliennummern, alle Zeitblöcke und die konkreten Arbeitsheftaufgab
 Alle 18 registrierten Demoentwürfe bleiben im [Demokatalog](../Demo_Catalog/SQL_SERVER_2025_AI_DEMO_DESIGNS.md)
 mit ihrem tatsächlichen Status. Neun IMPLEMENTED/neun PROPOSED sind kein Versprechen,
 18 ausführbare und vollständig abgenommene Liveversuche anzubieten. Cloud-/Bezahl-
-APIs, ONNX/rote Hoständerungen und andere offenen Grenzen benötigen weiterhin
+APIs, ONNX (Open Neural Network Exchange; Austauschformat für Modelle)/rote Hoständerungen und andere offenen Grenzen benötigen weiterhin
 ihre konkrete Freigabe; die didaktische Auswahl erteilt keine neue Ausführungsautorität.
 
 ## Erprobung und getrennte Nachweise

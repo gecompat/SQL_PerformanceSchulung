@@ -41,8 +41,8 @@ Es werden nur die tatsächlich verwendeten Berechtigungen aufgeführt.
 
 ### 4.3 Mindestanforderungen an die Host-Hardware
 
-- CPU:
-- RAM:
+- CPU (Central Processing Unit; Prozessor):
+- RAM (Random Access Memory; Arbeitsspeicher):
 - freier Datenträgerspeicher:
 - zusätzliche Hosts oder Instanzen, sofern fachlich erforderlich:
 
@@ -58,7 +58,7 @@ Die Angaben sind Mindestanforderungen für die reproduzierbare Ausführung, kein
 - Kill-Switch:
 - Recovery-Pfad:
 
-Gelbe und rote Demos verweisen ausdrücklich auf `FWK-008`.
+Gelbe und rote Demos verweisen ausdrücklich auf `FWK-008` (Sicherheits- und Abbruchvertrag).
 
 ## 6. Synthetisches Datenmodell
 
@@ -113,7 +113,7 @@ Der Abschnitt trennt Beobachtung, Mechanismus, alternative Hypothesen und Grenze
 - wiederherzustellende Optionen:
 - Nachweis des definierten Ausgangszustands:
 
-Datenbankentfernung erfolgt ausschließlich über den markergeprüften Vertrag aus `FWK-002`.
+Datenbankentfernung erfolgt ausschließlich über den markergeprüften Vertrag aus `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken).
 
 ## 11. Tests
 

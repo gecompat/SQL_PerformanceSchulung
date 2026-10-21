@@ -39,7 +39,7 @@ höchstens eine gleichzeitig aktive SQL-Session. Kein Modell-/Providercall.
 
 Neben dem bisherigen eigenen PREVIEW_FEATURES=ON wird ausschließlich
 `ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP=1` in der eigenen Testdatenbank
-beantragt. Kein Server-/Host-MAXDOP, Resource-Governor-, Thread-/TLS-/Cloud-/ONNX-
+beantragt. Kein Server-/Host-MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad), Resource-Governor-, Thread-/TLS-/Cloud-/ONNX-
 oder ALLOW_STALE_VECTOR_INDEX-Effekt. Andere Repositories bleiben unverändert.
 
 [SRC-106](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-known-issues?view=sql-server-ver17#vector-index)
@@ -67,9 +67,9 @@ Alle übrigen Host-/DB-scoped-/Datei-/Quellbindungen unverändert kontrollieren.
 1. Einen separaten neuen privaten Kandidaten vorbereiten; lokale Gegenfixtures für
    beide Baselines, zusätzliche Restorefehler und vollständige Bindungen. Nur
    betroffene Tests/Reviewdeltas; keine historische Probe ändern oder erneut ausführen.
-2. Eigene neue Instanz binden; Build/Edition/OS prüfen. Eigene DB/Baseline anlegen,
+2. Eigene neue Instanz binden; Build/Edition/OS (Operating System; Betriebssystem) prüfen. Eigene DB/Baseline anlegen,
    Marker vollständig prüfen, beide Konfigurationseffekte wie oben setzen/attestieren.
-3. Höchstens 1000 feste nicht-NULL-Vektoren mit clustered int PK laden. Tatsächliche
+3. Höchstens 1000 feste nicht-NULL-Vektoren mit clustered int PK (Primary Key; Primärschlüssel) laden. Tatsächliche
    Spaltenmetadaten, Dimension/float32, numerische Oraclewerte und vollständige
    Unicode-Bytes der unterstützten JSON-Darstellung binden; keine internen VECTOR-
    Speicherbytes behaupten. Exakte fünf Treffer mit Distanz und deterministischem

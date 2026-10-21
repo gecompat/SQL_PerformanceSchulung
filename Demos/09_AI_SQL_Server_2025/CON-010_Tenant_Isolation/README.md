@@ -6,7 +6,7 @@ GREEN, eine Session, SQL Server 2025 (17.x), Kompatibilität 170; 2019/2022 lief
 SKIP_VERSION vor Setup. Kein Modell-, Provider- oder Cloudaufruf, kein ANN-Index.
 
 Zwei synthetische Dokumente mit identischem VECTOR(3) erlauben dieselbe exakte
-Cosine-Abfrage. RLS in `sec` bindet Tenant 1/2 an die WITHOUT LOGIN Benutzer
+Cosine-Abfrage. RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle) in `sec` bindet Tenant 1/2 an die WITHOUT LOGIN Benutzer
 CON010_TenantA/B. CON010_Unmapped erhält keine Zeile. Die Quellen und Vektoren liegen
 gemeinsam in der geschützten Tabelle; es gibt keinen ungeschützten Vektornebenbestand.
 Der privilegierte dbo-Labowner wird im eingefrorenen Prädikat ausdrücklich zugelassen,
@@ -31,7 +31,7 @@ Leere Ergebnisse ersetzen keine positiven Belege. Vier bytegenaue Eigentumsmarke
 binden jede Phase und Cleanup ausschließlich an SQLPERF_LAB_CON010_<RunToken>.
 
 Dieser Slice belegt EXECUTE AS-Kontextwechsel innerhalb einer Session. Serverlogins,
-echtes Verbindungspooling, mehrere Sessions, ANN/Postfilterverhalten und allgemeine
+echtes Verbindungspooling, mehrere Sessions, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren)/Postfilterverhalten und allgemeine
 Seitenkanalfreiheit bleiben UNQUALIFIED. Er behauptet keinen Schutz vor dem
 privilegierten Owner und keine Modell- oder Prompt-Injection-Sicherheitsabnahme.
 RLS filtert auch dbo, sofern die Policy ihn nicht ausdrücklich zulässt; siehe
@@ -75,10 +75,10 @@ belegt 192 Markerabweisungen über alle acht Phasen, 16 tatsächliche Fixture-
 manipulationen je gegen Baseline/Comparison, Setupidempotenz und je zwei
 2019-/2022-SKIPs vor Setup. Ein wirkungsloser erster Spaltengrant-Test blieb
 FAIL; Spalten-DENY und tatsächliche Snapshotänderung qualifizierten C2.
-Die anschließende öffentliche CI zeigte einen PRINT-/stderr-Fehler im
+Die anschließende öffentliche CI (Continuous Integration; automatisierte Integrationsprüfungen) zeigte einen PRINT-/stderr-Fehler im
 Consumer. C3 qualifizierte den Diagnostikkanal, scheiterte anschließend an
 einer eingefrorenen gemeinsamen API-Abhängigkeit. C4 stellt die gemeinsame
-API wieder her und projiziert nur die feste positive Consumersummary als
+API (Application Programming Interface; Programmierschnittstelle) wieder her und projiziert nur die feste positive Consumersummary als
 SELECT; alle Gegenproben mit tatsächlichem `sqlcmd -r 1` bestanden. Beide
 CI-FAILs bleiben sichtbar. Alle 20 eigenen Qualifikationscontainer und ihre
 Datenbanken sind abwesend.

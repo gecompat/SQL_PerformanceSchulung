@@ -17,14 +17,14 @@ Runnerfolge nach [Importprofilvertrag §33.1/33.2](DGN_007_IMPORT_PROFILE_BINDIN
 Ein Implementierungsowner root, derselbe unabhängige Reviewer, höchstens sechs
 stabile Source/Testkandidaten, Checkpoint2, harte Grenze6, höchstens fünf
 geänderte Nachläufe. Auswahl-/Source-/Test-/Deltareviews, explizite Lauf-GOs,
-Tests, Fit-/Transformationskorrekturen, Koordination, CI, regulärer Merge,
+Tests, Fit-/Transformationskorrekturen, Koordination, CI (Continuous Integration; automatisierte Integrationsprüfungen), regulärer Merge,
 frische Main-Gates, FullTree/Sync und eigene Branchbereinigung zählen gemeinsam.
 Verbrauch UNKNOWN. Am Hardstop kein neuer Kandidat, Reset oder umbenannter Scope.
 Alte ausgeschöpfte vollständige Matcher-/Generatorversuche bleiben geschlossen.
 
 ## Additive Auswahl und feste tatsächliche Reihenfolge
 
-Neue API build_runner_loader_control_bootstrap im eigenen Toolmodul auf dem
+Neue API (Application Programming Interface; Programmierschnittstelle) build_runner_loader_control_bootstrap im eigenen Toolmodul auf dem
 vollständigen Eingangsunterbau aus PR269, mit privaten Runnernamen. Proxy- und
 Harnessrouten sowie ältere Generatoren unverändert. Vor Reportsnapshot gebundene
 ursprüngliche Inputentry/Owner, tatsächlicher EOF-/Payloadhandoff, Kernel, volle
@@ -50,7 +50,7 @@ Childmodule; alle Parent-/Childbindungen beim Unwinding erneut prüfen.
 
 Stdlib wird ausschließlich über den vor Reportsnapshot gehaltenen ursprünglichen
 Importer mit vollen PRE/POSTs delegiert; genaue statische Fromlisttabelle je
-Caller, kein tatsächlicher Import im eigenen Modellprovider. Importer/OS/Runtime
+Caller, kein tatsächlicher Import im eigenen Modellprovider. Importer/OS (Operating System; Betriebssystem)/Runtime
 bleiben Vertrauensannahmen, keine Stdlibsource- oder Importneutralitätsattestation.
 
 ## Tatsächliche Parentkomponente und privater Namespace
@@ -66,7 +66,7 @@ Initialisierung die separaten Scriptglobals vervollständigt.
 
 Factorycode, privater Namespace, Klassen und ursprüngliche Guard-/Writerzustände
 werden vor Reportsnapshot gehalten. Der tatsächliche Kontextdigest steht erst
-nach geprüftem Input/EOF fest. Ausschließlich daraus wird beim einmaligen
+nach geprüftem Input/EOF (End of File; Ende eines Eingabestroms) fest. Ausschließlich daraus wird beim einmaligen
 Factoryaufruf eine neue private Run-Closure erzeugt, nach erneutem Vergleich aller
 Originalanker und mit geschlossenen PRE/POSTs. Vor ihrem ersten Dispatch exakten
 Funktionstyp, den zuvor gehaltenen verschachtelten Run-Code und denselben privaten

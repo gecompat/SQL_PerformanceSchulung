@@ -23,16 +23,16 @@ Alle drei Jobs haben Containerstart, Frameworklauf, Diagnoseupload und Container
 Je Version wurden tatsächlich ausgeführt:
 
 1. Engine-Major-Version und Engine Edition prüfen,
-2. vier synthetische Testdatenbanken über `FWK-002` erstellen,
-3. `FWK-001` gegen die markierte Testdatenbank ausführen,
-4. `FWK-003` installieren und mit identischen Parametern zweimal ausführen,
+2. vier synthetische Testdatenbanken über `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) erstellen,
+3. `FWK-001` (Preflight-Vertrag) gegen die markierte Testdatenbank ausführen,
+4. `FWK-003` (Vertrag für synthetische Testdaten) installieren und mit identischen Parametern zweimal ausführen,
 5. Datenfingerprints beider Generatorläufe vergleichen,
-6. `FWK-004` installieren sowie Begin/End-Messung in derselben Session ausführen,
-7. `FWK-005` für Statistikproperties, Histogramm und Actual Showplan XML ausführen,
-8. `FWK-006` installieren und zwei reale parallele `sqlcmd`-Sessions koordinieren,
-9. Query Store über `FWK-007` lesen, aktivieren und in den Ausgangszustand zurückführen,
+6. `FWK-004` (Messvertrag) installieren sowie Begin/End-Messung in derselben Session ausführen,
+7. `FWK-005` (Vertrag für Plan- und Statistikevidenz) für Statistikproperties, Histogramm und Actual Showplan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) ausführen,
+8. `FWK-006` (Multi-Session-Orchestrierungsvertrag) installieren und zwei reale parallele `sqlcmd`-Sessions koordinieren,
+9. Query Store über `FWK-007` (Query-Store- und Extended-Events-Vertrag) lesen, aktivieren und in den Ausgangszustand zurückführen,
 10. Extended Events über `FWK-007` erstellen, starten, lesen, stoppen und entfernen,
-11. `FWK-010` mit einem realen SQL-Server-Ziel über den containerinternen `sqlcmd`-Proxy ausführen,
+11. `FWK-010` (Runtime-Harness-Vertrag) mit einem realen SQL-Server-Ziel über den containerinternen `sqlcmd`-Proxy ausführen,
 12. alle markierten Testdatenbanken im Abschlussblock über `FWK-002` entfernen.
 
 ## 3. Durch die Matrix gefundene Frameworkfehler
@@ -58,4 +58,4 @@ Nicht abgedeckt sind Windows-spezifische Funktionen, andere Editionen, abweichen
 
 ## 6. Freigabe
 
-Die Runtime-Matrix ist validiert. `FWK-001` bis `FWK-012` können für die vier Gate-B-Pilotdemos verwendet werden. Gate B selbst ist noch nicht erfüllt, weil die Pilotdemos noch implementiert und fachlich abgenommen werden müssen.
+Die Runtime-Matrix ist validiert. `FWK-001` bis `FWK-012` (Status-, Fehler- und Skip-Vertrag) können für die vier Gate-B-Pilotdemos verwendet werden. Gate B selbst ist noch nicht erfüllt, weil die Pilotdemos noch implementiert und fachlich abgenommen werden müssen.

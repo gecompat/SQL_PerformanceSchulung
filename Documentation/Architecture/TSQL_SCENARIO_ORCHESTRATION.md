@@ -11,7 +11,7 @@
 
 Die Schulungsbeispiele bleiben als eigenständige T-SQL-Skripte erhalten. Sie müssen ohne Jupyter Notebook und ohne Python verständlich, manuell ausführbar und beobachtbar sein.
 
-T-SQL ist die primäre fachliche Darstellung für:
+T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) ist die primäre fachliche Darstellung für:
 
 - Aufbau und Vorbereitung synthetischer Zustände;
 - getrennte Sessionabläufe;
@@ -57,7 +57,7 @@ Beispiel:
 6. Cleanup.sql ausführen.
 ```
 
-Dieser Modus ist zu bevorzugen, wenn Reihenfolge und Wirkung in SSMS oder einem vergleichbaren SQL-Client leicht nachvollziehbar sind. Das bewusste Starten mehrerer Sessions ist Teil des Lernziels und darf nicht ohne fachlichen Grund verborgen werden.
+Dieser Modus ist zu bevorzugen, wenn Reihenfolge und Wirkung in SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) oder einem vergleichbaren SQL-Client leicht nachvollziehbar sind. Das bewusste Starten mehrerer Sessions ist Teil des Lernziels und darf nicht ohne fachlichen Grund verborgen werden.
 
 ### 3.2 Runner-gestützt und interaktiv beobachtet
 

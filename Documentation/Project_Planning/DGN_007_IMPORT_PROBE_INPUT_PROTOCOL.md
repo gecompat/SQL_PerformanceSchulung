@@ -79,7 +79,7 @@ bestanden jeweils alle 27 Eingangsprotokoll-, 36 Bundle- und 26 Kantentests ohne
 Der Slice attestiert
 weder verwendete Importbytes noch Importabschluss oder Prozesscleanup.
 `runtime_attested`, `import_used_bytes_attested` und Methodenfreigabe bleiben
-false. G13, v1, DEC-068, die offene PR68 und die zurückgestellte Capture-API
+false. G13, v1, DEC-068, die offene PR68 und die zurückgestellte Capture-API (Application Programming Interface; Programmierschnittstelle)
 bleiben erhalten; es entsteht kein Incident- oder Capstonebeleg.
 
 Die getrennte [synthetische Memory-Loader-Komponente](DGN_007_MEMORY_LOADER_FIXTURE.md)

@@ -2,13 +2,13 @@
 
 | Merkmal | Wert |
 |---|---|
-| Paket | `ADV-009` |
+| Paket | `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) |
 | Status | `INTEGRATED` |
 | Deckpositionen | 89 bis 93 (Folienteile `slide90.xml` bis `slide94.xml`) |
 | Modul | M03 – Optimizer, Statistiken und Pläne |
 | Lernziel | `LO-M03-08` |
 | Claims | `ADV-CLM-017`, `ADV-CLM-018` |
-| Kanonische Demo | `QRY-004` |
+| Kanonische Demo | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) |
 | Tiefenprofil | `VERTIEFUNG` |
 | Testprofil | `TP-RUN`, `TP-PERF` |
 
@@ -20,7 +20,7 @@ Die Übernahme in das Deck ist inzwischen erfolgt. Die fünf Folien schließen d
 
 ## 2. Didaktische Einordnung
 
-Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Parameter, Variablen, Literale und `OPTION (RECOMPILE)` dem Optimierer unterschiedliche Information liefern. Hier wird daraus eine Auswahlentscheidung für optionale Suchbedingungen. Der Bogen setzt `OPT-007` und `OPT-008` voraus und endet vor `OPT-009` und `OPT-010`; Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization werden ausdrücklich nicht in diesem Bogen bewertet.
+Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Parameter, Variablen, Literale und `OPTION (RECOMPILE)` dem Optimierer unterschiedliche Information liefern. Hier wird daraus eine Auswahlentscheidung für optionale Suchbedingungen. Der Bogen setzt `OPT-007` und `OPT-008` voraus und endet vor `OPT-009` (Parametersensitive Planoptimierung) und `OPT-010` (Planoptimierung für optionale Parameter); Parameter Sensitive Plan Optimization und Optional Parameter Plan Optimization werden ausdrücklich nicht in diesem Bogen bewertet.
 
 | Reihenfolge | Folien-ID | Claim | Deckposition | Rolle im Bogen |
 |---|---|---|---:|---|
@@ -45,7 +45,7 @@ Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Pa
 
 `[SLIDE-ID: SLD-M03-111]` Wichtig ist die Wortwahl: Wir nennen das Catch-all-Muster nicht falsch. Es ist wartbar, es liefert korrekte Ergebnisse und es erzeugt genau einen Cacheeintrag. Der Preis ist die fehlende Anpassung an die Selektivität. In der Demo `QRY-004` messen wir das an drei Kombinationen mit 20, 19 980 und 4 000 Trefferzeilen; die Zahl der Planformen bleibt dabei bei eins. Erst diese Messung macht die anschließende Strategiediskussion belastbar.
 
-**Quellen:** `SRC-001`, `SRC-045`, `SRC-049` **Demo:** `QRY-004` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001` (Query processing architecture guide), `SRC-045` (Dynamic Search Conditions in T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)), `SRC-049` (Handling Optional Parameters) **Demo:** `QRY-004` **Tiefe:** `VERTIEFUNG`
 
 ## 4. Folie `SLD-M03-112` – `OPTION (RECOMPILE)` ist ein Tauschgeschäft
 
@@ -111,9 +111,9 @@ Der Bogen schließt unmittelbar an `SLD-M03-104` an. Dort wurde gezeigt, dass Pa
 
 **Sprechernotiz**
 
-`[SLIDE-ID: SLD-M03-115]` Diese Folie leitet in `QRY-004` über und schließt den Bogen. Die Demo vergleicht die drei Strategien unter identischer Datenverteilung und prüft für jede Filterkombination Zeilenzahl und Ergebnischecksumme, bevor sie über Lesevorgänge oder CPU spricht. Der Ausblick gehört ausdrücklich in die folgenden Demos: Parameter Sensitive Plan Optimization in `OPT-009` und Optional Parameter Plan Optimization in `OPT-010` lösen jeweils eine eigene Problemform und sind an Version, Compatibility Level und Eligibility gebunden. Sie ersetzen keine der drei hier verglichenen Strategien.
+`[SLIDE-ID: SLD-M03-115]` Diese Folie leitet in `QRY-004` über und schließt den Bogen. Die Demo vergleicht die drei Strategien unter identischer Datenverteilung und prüft für jede Filterkombination Zeilenzahl und Ergebnischecksumme, bevor sie über Lesevorgänge oder CPU (Central Processing Unit; Prozessor) spricht. Der Ausblick gehört ausdrücklich in die folgenden Demos: Parameter Sensitive Plan Optimization in `OPT-009` und Optional Parameter Plan Optimization in `OPT-010` lösen jeweils eine eigene Problemform und sind an Version, Compatibility Level und Eligibility gebunden. Sie ersetzen keine der drei hier verglichenen Strategien.
 
-**Quellen:** `SRC-001`, `SRC-007`, `SRC-045`, `SRC-049` **Demo:** `QRY-004` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001`, `SRC-007` (Intelligent query processing), `SRC-045`, `SRC-049` **Demo:** `QRY-004` **Tiefe:** `VERTIEFUNG`
 
 ## 8. Abnahmekriterien für die Deckübernahme
 

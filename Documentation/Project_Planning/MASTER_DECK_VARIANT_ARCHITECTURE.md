@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspakete | `PRS-009`, `PRS-011`, `PRS-012`, `PRS-013`, `TST-011`, `TST-012` |
+| Arbeitspakete | `PRS-009`, `PRS-011` (Vertrag für SlideKeys und Präsentationsvarianten), `PRS-012`, `PRS-013`, `TST-011`, `TST-012` |
 | Status | `VALIDATED` |
 | Planversion | 1.1 |
 | Stand | 2026-07-26 |
@@ -10,7 +10,7 @@
 | Abgeleitete Tiefenprofile | `BASIS`, `STANDARD`, `VERTIEFUNG` |
 | Primärer Präsentationsmechanismus | PowerPoint Custom Shows im Masterdeck |
 | Eigenständige Dateien | reproduzierbar erzeugte Kopien, keine manuell gepflegten Zweitdecks |
-| Verbindlicher Manifestvertrag | [`PRESENTATION_VARIANT_MANIFEST_CONTRACT.md`](../Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md) |
+| Verbindlicher Manifestvertrag | [PRS-011 – Vertrag für SlideKeys und Präsentationsvarianten](../Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md) |
 | Maschinenlesbares Schema | [`presentation_variants.schema.json`](../../Presentations/variants/presentation_variants.schema.json) |
 
 ## 1. Entscheidung
@@ -32,7 +32,7 @@ Die inhaltliche Tiefe ist von der konkreten Veranstaltungsdauer zu trennen. Ein 
 |---|---|---|
 | `BASIS` | gemeinsamer Kernpfad, notwendige Begriffe, sichere Kerndemos und Diagnosemethode | SQL-Server-Developer und Analysten ohne tiefe Internals-Kenntnisse |
 | `STANDARD` | `BASIS` plus ausgewählte Plan-, Statistik-, Index-, Concurrency- und Diagnosevertiefungen | reguläre Performance-Schulung mit technischer Herleitung |
-| `VERTIEFUNG` | vollständiger freigegebener Bestand einschließlich Query-Optimizer-Internals, IQP, Memory Grants, Parallelität und Capstone-LABs | fortgeschrittene Schulung und Performance Engineering |
+| `VERTIEFUNG` | vollständiger freigegebener Bestand einschließlich Query-Optimizer-Internals, IQP (Intelligent Query Processing; SQL-Server-Funktionen zur intelligenten Abfrageverarbeitung), Memory Grants, Parallelität und Capstone-LABs | fortgeschrittene Schulung und Performance Engineering |
 
 Die Profile sind kumulativ: `STANDARD` enthält grundsätzlich `BASIS`; `VERTIEFUNG` enthält grundsätzlich `STANDARD`. Bewusste Ausnahmen müssen im Variantenmanifest begründet werden. LAB-Folien werden zusätzlich über eine unabhängige Rolle gekennzeichnet, damit beispielsweise ein Vortrag und ein Workshop dieselbe fachliche Tiefe mit unterschiedlichem Übungsanteil verwenden können.
 
@@ -48,7 +48,7 @@ Die `SlideKey` wird in den Speaker Notes in maschinenlesbarer Form abgelegt:
 
 Zusätzlich werden Claim-IDs, Quellen-IDs, Demo-IDs und Lernziele im bestehenden Aussagen- und Traceability-Modell geführt. Die native PowerPoint-`SlideID` kann zur Laufzeit für Custom Shows verwendet werden, ist jedoch nicht die projektweite Identität. Das Variantenmanifest ordnet die projektweite `SlideKey` der im jeweiligen Masterdeck gefundenen Folie zu.
 
-Der vollständige Marker-, Vergabe- und Wiederverwendungsvertrag ist seit `PRS-011` in [`PRESENTATION_VARIANT_MANIFEST_CONTRACT.md`](../Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md) verbindlich.
+Der vollständige Marker-, Vergabe- und Wiederverwendungsvertrag ist seit `PRS-011` in [PRS-011 – Vertrag für SlideKeys und Präsentationsvarianten](../Standards/PRESENTATION_VARIANT_MANIFEST_CONTRACT.md) verbindlich.
 
 ## 4. Variantenmanifest
 
@@ -64,7 +64,7 @@ Das Manifest enthält mindestens:
 - begründete Profilabweichungen;
 - deterministische Build- und Dateinamensregeln.
 
-Das Manifest darf keine personenbezogenen oder umgebungsbezogenen Daten enthalten. Semantische Regeln wie kumulative Profile, azyklische Voraussetzungen und symmetrische Kopplungen werden zusätzlich zum JSON Schema durch `TST-011` geprüft.
+Das Manifest darf keine personenbezogenen oder umgebungsbezogenen Daten enthalten. Semantische Regeln wie kumulative Profile, azyklische Voraussetzungen und symmetrische Kopplungen werden zusätzlich zum JSON (JavaScript Object Notation; strukturiertes Textformat) Schema durch `TST-011` geprüft.
 
 ## 5. Ableitungsverfahren
 
@@ -138,9 +138,9 @@ Für das Masterdeck und jede freigegebene Variante gelten folgende Prüfungen:
 
 ## 9. Reihenfolge
 
-`PRS-011` bis `TST-012` sind abgeschlossen. Der konkrete Nachweis mit Master-Hash, Profilumfängen, Varianten-Hashes und vollständiger Renderprüfung steht in [`W_PRS_001_TEACHING_RELEASE.md`](W_PRS_001_TEACHING_RELEASE.md).
+`PRS-011` bis `TST-012` sind abgeschlossen. Der konkrete Nachweis mit Master-Hash, Profilumfängen, Varianten-Hashes und vollständiger Renderprüfung steht in [W-PRS-001 – Lehrmittelfreigabe](W_PRS_001_TEACHING_RELEASE.md).
 
-Die fachliche Erweiterung des Masterdecks durch `ADV-009` verwendet von Beginn an die festgelegten Tiefenprofile. Neue Vertiefungsfolien werden daher nicht nachträglich aussortiert, sondern bei ihrer Anlage mit `SlideKey`, Profil, Quelle, Lernziel und Demo-Zuordnung registriert.
+Die fachliche Erweiterung des Masterdecks durch `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) verwendet von Beginn an die festgelegten Tiefenprofile. Neue Vertiefungsfolien werden daher nicht nachträglich aussortiert, sondern bei ihrer Anlage mit `SlideKey`, Profil, Quelle, Lernziel und Demo-Zuordnung registriert.
 
 ## 10. Quellen
 

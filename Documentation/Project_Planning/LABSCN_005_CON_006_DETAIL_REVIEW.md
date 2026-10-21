@@ -4,7 +4,7 @@
 |---|---|
 | Status | `VALIDATED` |
 | Stand | 2026-09-01 |
-| Kandidat | `CON-006` – reproduzierbarer Deadlock-Zyklus |
+| Kandidat | `CON-006` (Zyklische Sperrkonflikte erkennen) – reproduzierbarer Deadlock-Zyklus |
 | Provider | Docker und Podman |
 | interaktive Zielversion | SQL Server 2025 / Compatibility Level 170 |
 | Safety | `YELLOW`, ausschließlich isolierte Wegwerfinstanz |
@@ -12,14 +12,14 @@
 ## Reviewentscheidung
 
 `CON-006` wird als dritter interaktiver `LABSCN-005`-Slice freigegeben. Der
-Lernmehrwert gegenüber `CON-004` ist eindeutig: `CON-004` zeigt eine gerichtete
+Lernmehrwert gegenüber `CON-004` (Blockierungsketten verfolgen) ist eindeutig: `CON-004` zeigt eine gerichtete
 Blocking Chain mit kontrollierter Freigabe, während `CON-006` einen Zyklus,
 die Auflösung durch ein Opfer, Fehler 1205 und die Gegenprobe mit einheitlicher
 Zugriffsreihenfolge verbindet. Die vorhandene automatisierte Demo ist im
 Actions-Lauf 33222989644 auf SQL Server 2019, 2022 und 2025 jeweils zweimal
 runtimevalidiert.
 
-Die Primärquellen `SRC-066` bis `SRC-068` tragen Deadlockmechanismus,
+Die Primärquellen `SRC-066` (Deadlocks guide) bis `SRC-068` (Use the system_health session) tragen Deadlockmechanismus,
 Opferpriorität und die Nutzung der bestehenden `system_health`-Session. Die
 konkrete Reproduktion bleibt `EMPIRICAL`: Der Vertrag fordert genau ein
 abgefangenes Opfer mit Fehler 1205 und genau einen Survivor. Ein passender

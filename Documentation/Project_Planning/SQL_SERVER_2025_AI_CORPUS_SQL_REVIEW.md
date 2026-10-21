@@ -32,7 +32,7 @@ Ein bereits vorhandenes festes Image
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`,
 beobachteter Zielbuild 17.0.5005.3, MSSQL_PID=Developer und tatsächlicher EngineEdition3, CL170. Kein aus der
 Buildnummer geratener CU-Claim. Ein serieller neuer eigener Testcontainer je
-Quellenkandidat, vier CPU/6 GiB und ausschließlich Loopback; kein allgemeiner
+Quellenkandidat, vier CPU (Central Processing Unit; Prozessor)/6 GiB und ausschließlich Loopback; kein allgemeiner
 Provisioner, keine Änderungen an anderen Repositories oder Diensten.
 Kein Preview, MAXDOP-, Trust-, Host-, Cloud- oder ONNX-Effekt.
 
@@ -72,10 +72,10 @@ Prompts, Nativeausgaben, tatsächliche Infrastrukturmetadaten und Ledger bleiben
 im ignorierten Runtime. Modell-/Tokenverbrauch unbekannt; dieser Schnitt plant
 null neue Modellaufrufe.
 
-Primärquellen SRC-072 (VECTOR/float32/JSON), SRC-073 (VECTOR_DISTANCE),
+Primärquellen SRC-072 (VECTOR/float32/JSON (JavaScript Object Notation; strukturiertes Textformat)), SRC-073 (VECTOR_DISTANCE),
 SRC-076 (VECTORPROPERTY) sowie die bestehenden SRC-112/SRC-113 zur getrennten
 Modellherkunft; keine neue Kennung. Allgemeine Retrieval-/Deutsch-/Domänen-/
-Antwortqualität, generative Antwort, SQL-HTTPS, voller Live-RAG, TP-PERF,
+Antwortqualität, generative Antwort, SQL-HTTPS, voller Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen), TP-PERF,
 TSK-007/008 und Workstreamabnahme bleiben offen. Quellenreview, fokussierte
 reine Tests, tatsächliches C1-Ergebnis und aktuelle PR-/Head-/Main-/Tree-/FF-/
 Ownbranchgates folgen vor Abschluss.

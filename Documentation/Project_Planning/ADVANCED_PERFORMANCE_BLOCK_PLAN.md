@@ -2,20 +2,20 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspakete | `ADV-001` bis `ADV-010` |
+| Arbeitspakete | `ADV-001` bis `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) |
 | Status | `VALIDATED` |
 | Planversion | 1.5 |
 | Stand | 2026-09-01 |
 | Zielplattform | SQL Server 2019, 2022 und 2025 |
 | Curriculumbezug | M02, M03, M06 und M07 |
-| Standard-Ausführungspfad | T-SQL in einer isolierten synthetischen Testdatenbank |
+| Standard-Ausführungspfad | T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) in einer isolierten synthetischen Testdatenbank |
 | Quellenbasis | Microsoft Learn, SQLServerFast, Paul White, Erland Sommarskog, Brent Ozar und Erik Darling |
-| Claim- und Quellenmatrix | [`ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md`](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
-| Curriculum und Traceability | [`CURRICULUM_ARCHITECTURE.md`](../Curriculum/CURRICULUM_ARCHITECTURE.md), [`TRACEABILITY_MATRIX.md`](../Curriculum/TRACEABILITY_MATRIX.md) |
-| Design LAB-VP1 | [`ADV_004_LAB_VP1_DESIGN.md`](ADV_004_LAB_VP1_DESIGN.md) |
-| Design LAB-VP2 | [`ADV_005_LAB_VP2_DESIGN.md`](ADV_005_LAB_VP2_DESIGN.md) |
-| Design LAB-VP3/VP4 | [`ADV_006_LAB_VP3_VP4_DESIGN.md`](ADV_006_LAB_VP3_VP4_DESIGN.md) |
-| Design LAB-VP5 | [`ADV_007_LAB_VP5_DESIGN.md`](ADV_007_LAB_VP5_DESIGN.md) |
+| Claim- und Quellenmatrix | [ADV-002 – Claim- und Quellenmatrix für den Vertiefungsstrang](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) |
+| Curriculum und Traceability | [Curriculumarchitektur und Lernzielmodell](../Curriculum/CURRICULUM_ARCHITECTURE.md), [Traceability-Matrix](../Curriculum/TRACEABILITY_MATRIX.md) |
+| Design LAB-VP1 | [ADV-004 – Design LAB-VP1: Planmechanik und Operatorinteraktion](ADV_004_LAB_VP1_DESIGN.md) |
+| Design LAB-VP2 | [ADV-005 – Design LAB-VP2: Parameter Sensitivity und dynamische Suchbedingungen](ADV_005_LAB_VP2_DESIGN.md) |
+| Design LAB-VP3/VP4 | [ADV-006 – Design LAB-VP3 und LAB-VP4](ADV_006_LAB_VP3_VP4_DESIGN.md) |
+| Design LAB-VP5 | [ADV-007 – Design LAB-VP5 und DGN-007](ADV_007_LAB_VP5_DESIGN.md) |
 
 ## 1. Zweck und Entscheidung
 
@@ -39,7 +39,7 @@ Für den Vertiefungsstrang gelten folgende Regeln:
 6. Bei Widerspruch zwischen Primärquelle, Community-Quelle und Runtime-Evidenz wird der Widerspruch im Konflikt- und Entscheidungslog dokumentiert. Eine stillschweigende Auflösung ist unzulässig.
 7. Versionsabhängige Aussagen nennen Engine-Version, Compatibility Level, Datenbankkonfiguration und gegebenenfalls Query-Store-Voraussetzungen getrennt.
 
-Die konkrete Einstufung der 39 geplanten Vertiefungsclaims ist seit `ADV-002` in der [Claim- und Quellenmatrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) verbindlich.
+Die konkrete Einstufung der 39 geplanten Vertiefungsclaims ist seit `ADV-002` (Claim- und Quellenmatrix für den Vertiefungsstrang) in der [Claim- und Quellenmatrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md) verbindlich.
 
 ## 3. Fachliche Vertiefungsabschnitte
 
@@ -49,21 +49,21 @@ Dieser Abschnitt erweitert M02 um die interne Leselogik eines Execution Plans. I
 
 Der Abschnitt wird nicht als Operatorlexikon vorgetragen. Die SQLServerFast Execution Plan Reference dient als Nachschlagebasis. In der Schulung werden Operatorfamilien ausgewählt, deren Verhalten eine Diagnoseentscheidung verändert: Access Methods, Joinoperatoren, Sorts, Hashes, Aggregates, Spools, Exchanges, Filter, Compute Scalar, Assert, Top und ausgewählte Window-Operatoren.
 
-Primäre Zuordnung: `OPT-001`, `OPT-012`, `OPT-013`, `FWK-005`, `DGN-001`.
+Primäre Zuordnung: `OPT-001`, `OPT-012`, `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher), `FWK-005` (Vertrag für Plan- und Statistikevidenz), `DGN-001`.
 
 Neue Demo-Bündel:
 
 | ID | Titel | Zweck | Risiko |
 |---|---|---|---|
-| `OPT-015` | Planweite und operatorbezogene Eigenschaften | Planwurzel, Datenfluss, Estimated/Actual Rows, Ausführungsanzahl, Warnings und Plan-XML konsistent lesen | Grün |
-| `OPT-016` | Rebind, Rewind, Outer References und Spools | wiederholte innere Ausführung, Wiederverwendung und Worktable-Verhalten in Nested-Loops-/Apply-Plänen erklären | Grün |
-| `OPT-017` | Parallele Planbereiche, Exchanges und Operatorzeiten | Branches, Threads, Exchanges, Parallel Skew und Grenzen operatorbezogener Zeitangaben untersuchen | Gelb |
+| `OPT-015` (Ausführungspläne systematisch lesen) | Planweite und operatorbezogene Eigenschaften | Planwurzel, Datenfluss, Estimated/Actual Rows, Ausführungsanzahl, Warnings und Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) konsistent lesen | Grün |
+| `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung) | Rebind, Rewind, Outer References und Spools | wiederholte innere Ausführung, Wiederverwendung und Worktable-Verhalten in Nested-Loops-/Apply-Plänen erklären | Grün |
+| `OPT-017` (Ungleich verteilte parallele Arbeit) | Parallele Planbereiche, Exchanges und Operatorzeiten | Branches, Threads, Exchanges, Parallel Skew und Grenzen operatorbezogener Zeitangaben untersuchen | Gelb |
 
-Das vollständige Design einschließlich Datenmodell, Evidenz, Ressourcenprofil und Skip-Verträgen steht in [`ADV_004_LAB_VP1_DESIGN.md`](ADV_004_LAB_VP1_DESIGN.md).
+Das vollständige Design einschließlich Datenmodell, Evidenz, Ressourcenprofil und Skip-Verträgen steht in [ADV-004 – Design LAB-VP1: Planmechanik und Operatorinteraktion](ADV_004_LAB_VP1_DESIGN.md).
 
 ### 3.2 V-OPT-B – Row Goals, APPLY sowie Semi- und Anti-Joins
 
-Dieser Abschnitt verbindet die vorhandenen Themen `OPT-011`, `OPT-012`, `QRY-006` und `QRY-010`. Er erklärt, dass `TOP`, `FAST n`, `EXISTS` sowie bestimmte Semi-/Anti-Join-Transformationen die Optimierung auf eine erwartete Teilmenge ausrichten können. Untersucht werden sichtbare und indirekte Row Goals, Apply mit Outer References, der Unterschied zwischen logischer Form und physischer Planform sowie die mögliche Wechselwirkung mit Nested Loops, Scans und Spools.
+Dieser Abschnitt verbindet die vorhandenen Themen `OPT-011`, `OPT-012`, `QRY-006` (NULL bei NOT IN und NOT EXISTS) und `QRY-010`. Er erklärt, dass `TOP`, `FAST n`, `EXISTS` sowie bestimmte Semi-/Anti-Join-Transformationen die Optimierung auf eine erwartete Teilmenge ausrichten können. Untersucht werden sichtbare und indirekte Row Goals, Apply mit Outer References, der Unterschied zwischen logischer Form und physischer Planform sowie die mögliche Wechselwirkung mit Nested Loops, Scans und Spools.
 
 Der Abschnitt vermittelt keine pauschale Empfehlung zum Deaktivieren von Row Goals. `DISABLE_OPTIMIZER_ROWGOAL` darf nur als kontrollierte Gegenprobe in einer synthetischen Testdatenbank verwendet werden. Die eigentliche Diagnosefrage lautet, welche Schätzung und welche Planannahme die frühe Zeilenfindung plausibel oder unplausibel macht.
 
@@ -73,19 +73,19 @@ Es werden zunächst keine zusätzlichen IDs vergeben. Die vorhandenen Bündel we
 
 Dieser Abschnitt erweitert M03 um den Unterschied zwischen einer Abfrage als isoliertem Text und derselben Abfrage im Anwendungskontext. Behandelt werden Plan Cache Keys, relevante SET-Optionen, unterschiedliche Cacheeinträge, kompilierte Parameterwerte, Parameter Sensitivity, lokale Variablen, `OPTION (RECOMPILE)`, parameterisiertes dynamisches SQL, optionale Suchparameter, mehrwertige Parameter und die Abgrenzung zu PSP und OPPO.
 
-Die vorhandenen Demo-Bündel `OPT-007` bis `OPT-010`, `QRY-004`, `QRY-008` und `QRY-009` werden in einer durchgängigen Serie verbunden. Ergänzt wird folgender bisher nicht ausreichend repräsentierter Diagnosefall:
+Die vorhandenen Demo-Bündel `OPT-007` bis `OPT-010` (Planoptimierung für optionale Parameter), `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `QRY-008` und `QRY-009` werden in einer durchgängigen Serie verbunden. Ergänzt wird folgender bisher nicht ausreichend repräsentierter Diagnosefall:
 
 | ID | Titel | Zweck | Risiko |
 |---|---|---|---|
-| `QRY-013` | Anwendung langsam, SSMS schnell | SET-Optionen, Cache Keys, kompilierte Parameterwerte, Datenbankkontext und Planvergleich als Evidenzkette untersuchen | Grün |
+| `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) | Anwendung langsam, SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) schnell | SET-Optionen, Cache Keys, kompilierte Parameterwerte, Datenbankkontext und Planvergleich als Evidenzkette untersuchen | Grün |
 
 `QRY-004` wird so erweitert, dass mindestens folgende Varianten unter identischer Datenverteilung verglichen werden: Catch-all-Prädikat, statisches SQL mit `OPTION (RECOMPILE)`, sicher parameterisiertes dynamisches SQL, PSP-fähige Gleichheitssuche und OPPO-fähiges optionales Prädikat. SQL-Injection-Sicherheit und Plan-Cache-Wiederverwendung sind eigenständige Abnahmekriterien.
 
-Das vollständige Design einschließlich neutraler Clientprofile, Plan-Cache-Grenzen, PSP-/OPPO-Matrix und Sicherheitsvertrag steht in [`ADV_005_LAB_VP2_DESIGN.md`](ADV_005_LAB_VP2_DESIGN.md).
+Das vollständige Design einschließlich neutraler Clientprofile, Plan-Cache-Grenzen, PSP-/OPPO-Matrix und Sicherheitsvertrag steht in [ADV-005 – Design LAB-VP2: Parameter Sensitivity und dynamische Suchbedingungen](ADV_005_LAB_VP2_DESIGN.md).
 
 ### 3.4 V-MEM-D – Workspace Memory, Spills und Parallelität
 
-Dieser Abschnitt verbindet `OPT-013`, `OPT-014`, `RES-002`, `RES-003`, `RES-004`, `RES-007`, `DGN-002` und `DGN-005`. Er trennt die folgenden Sachverhalte:
+Dieser Abschnitt verbindet `OPT-013`, `OPT-014`, `RES-002`, `RES-003`, `RES-004`, `RES-007` (Wartezeiten im richtigen Messbereich), `DGN-002` und `DGN-005` (Gezielte Ereigniserfassung mit Extended Events). Er trennt die folgenden Sachverhalte:
 
 - speicherverbrauchende Operatoren innerhalb eines Plans,
 - Required, Desired, Requested, Granted, Max Used und tatsächlich verwendete Speicheranteile,
@@ -96,7 +96,7 @@ Dieser Abschnitt verbindet `OPT-013`, `OPT-014`, `RES-002`, `RES-003`, `RES-004`
 - Parallelität, Exchanges und Speicheraufteilung,
 - TempDB-Auswirkung als Folge, nicht als alleinige Ursachenklassifikation.
 
-Die vorhandenen IDs reichen für die technische Abdeckung aus. `RES-003` bleibt eine optionale rote Erweiterung auf einer dedizierten Wegwerfinstanz. Der normale LAB-VP3-Pfad darf ohne rote Speicherlast vollständig durchgeführt werden. Das vollständige Ressourcen-, Evidenz-, Timeout-, Kill-Switch- und Skip-Design steht in [`ADV_006_LAB_VP3_VP4_DESIGN.md`](ADV_006_LAB_VP3_VP4_DESIGN.md).
+Die vorhandenen IDs reichen für die technische Abdeckung aus. `RES-003` bleibt eine optionale rote Erweiterung auf einer dedizierten Wegwerfinstanz. Der normale LAB-VP3-Pfad darf ohne rote Speicherlast vollständig durchgeführt werden. Das vollständige Ressourcen-, Evidenz-, Timeout-, Kill-Switch- und Skip-Design steht in [ADV-006 – Design LAB-VP3 und LAB-VP4](ADV_006_LAB_VP3_VP4_DESIGN.md).
 
 ### 3.5 V-IQP-E – Versionsabhängige adaptive Verarbeitung
 
@@ -105,7 +105,7 @@ Dieser Abschnitt fasst die bereits verteilten IQP-Themen zu einem reproduzierbar
 - Batch Mode on Rowstore,
 - Table Variable Deferred Compilation,
 - Interleaved Execution für Multi-Statement TVFs,
-- Scalar UDF Inlining,
+- Scalar UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining,
 - Row- und Batch-Mode Memory Grant Feedback,
 - persistentes beziehungsweise perzentilbasiertes Memory Grant Feedback,
 - Parameter Sensitive Plan Optimization,
@@ -115,9 +115,9 @@ Dieser Abschnitt fasst die bereits verteilten IQP-Themen zu einem reproduzierbar
 
 Für jedes Feature werden Engine-Version, Compatibility Level, Datenbankkonfiguration, Query-Store-Anforderung und Eligibility als getrennte Vorbedingungen erfasst. Ein neueres Feature wird nicht automatisch als bessere Lösung bewertet; maßgeblich sind Eignung, beobachtete Planänderung, Stabilität und Nebenwirkungen.
 
-Primäre Zuordnung: `OPT-006`, `OPT-009`, `OPT-010`, `OPT-014`, `QRY-004`, `QRY-008`, `QRY-009`, `RES-002` und `DGN-003`.
+Primäre Zuordnung: `OPT-006`, `OPT-009` (Parametersensitive Planoptimierung), `OPT-010`, `OPT-014`, `QRY-004`, `QRY-008`, `QRY-009`, `RES-002` und `DGN-003` (Abfragehistorie mit Query Store).
 
-Die verbindliche Feature- und Skip-Matrix steht in [`ADV_006_LAB_VP3_VP4_DESIGN.md`](ADV_006_LAB_VP3_VP4_DESIGN.md). Unterschiedliche Featurefamilien erhalten getrennte Datenmodelle, wenn ein gemeinsamer Vergleich Eligibility oder Ursache-Wirkung verfälschen würde.
+Die verbindliche Feature- und Skip-Matrix steht in [ADV-006 – Design LAB-VP3 und LAB-VP4](ADV_006_LAB_VP3_VP4_DESIGN.md). Unterschiedliche Featurefamilien erhalten getrennte Datenmodelle, wenn ein gemeinsamer Vergleich Eligibility oder Ursache-Wirkung verfälschen würde.
 
 ### 3.6 V-DGN-F – Performance-Incident-Diagnose
 
@@ -129,7 +129,7 @@ Neues Demo-Bündel:
 |---|---|---|---|
 | `DGN-007` | Zeitabhängige Regression eines Suchworkloads | Query Store, Plan Cache, Plan-XML, Runtime-/Wait-Historie und Parameterkontext zu einer vollständigen Ursachenhypothese verbinden | Gelb |
 
-`DGN-007` wird als Capstone-LAB ausgeführt. Der sichtbare Teilnehmerfall darf die Lösung nicht im Titel, Dateinamen, Querykommentar oder Marker vorwegnehmen. Mindestens zwei plausible, aber falsche Hypothesen müssen anhand fehlender oder widersprechender Evidenz verworfen werden. Das vollständige Incident-, Evidenzfreigabe-, Vergleichs- und Rückfalldesign steht in [`ADV_007_LAB_VP5_DESIGN.md`](ADV_007_LAB_VP5_DESIGN.md).
+`DGN-007` wird als Capstone-LAB ausgeführt. Der sichtbare Teilnehmerfall darf die Lösung nicht im Titel, Dateinamen, Querykommentar oder Marker vorwegnehmen. Mindestens zwei plausible, aber falsche Hypothesen müssen anhand fehlender oder widersprechender Evidenz verworfen werden. Das vollständige Incident-, Evidenzfreigabe-, Vergleichs- und Rückfalldesign steht in [ADV-007 – Design LAB-VP5 und DGN-007](ADV_007_LAB_VP5_DESIGN.md).
 
 ## 4. LAB-Serien
 
@@ -190,12 +190,12 @@ Die vollständigen Abnahmenachweise stehen in der [Curriculumarchitektur](../Cur
 | `ADV-001` | M | `VALIDATED` | quellenbasierten Integrationsplan erstellen und im Repository verankern | Plan, Quellenregister und Backlog sind konsistent verknüpft |
 | `ADV-002` | M | `VALIDATED` | Aussagen- und Quellenmatrix für alle Vertiefungsabschnitte erstellen | 39 Claims besitzen Evidenzklasse, Quellen, Versionsgrenze und Abnahmebedingung |
 | `ADV-003` | M | `VALIDATED` | Curriculum, Lernziele und Traceability-Matrix erweitern | 39 Claims sind neun beobachtbaren Vertiefungslernzielen zugeordnet; Kernpfad und 84 aktive Claims bleiben unverändert |
-| `ADV-004` | L | `VALIDATED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Datenmodell, Phasen, Evidenz, Sicherheitsgrenzen, Skips und Tests sind festgelegt |
-| `ADV-005` | L | `VALIDATED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Clientkontext, Strategievarianten, Sicherheit, Versionsmatrix und Tests sind festgelegt |
-| `ADV-006` | L | `VALIDATED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Ressourcen-, Feature-, Query-Store-, Eligibility- und Skip-Matrix sind vollständig |
-| `ADV-007` | L | `VALIDATED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Vergleich und Recovery sind vollständig |
-| `ADV-008` | XL | `VALIDATED` | Demos in kleinen unabhängigen PRs implementieren und testen | implementierte Demos besitzen statische Verträge und die zutreffende zweifache Zielmatrix; verbleibende Designs bleiben ausdrücklich Folgearbeit |
-| `ADV-009` | L | `VALIDATED` | Masterdeck, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug, Versionsgrenze und Tiefenprofil |
+| `ADV-004` (Design LAB-VP1: Planmechanik und Operatorinteraktion) | L | `VALIDATED` | LAB-VP1 und neue Demos `OPT-015` bis `OPT-017` entwerfen | Datenmodell, Phasen, Evidenz, Sicherheitsgrenzen, Skips und Tests sind festgelegt |
+| `ADV-005` (Design LAB-VP2: Parameter Sensitivity und dynamische Suchbedingungen) | L | `VALIDATED` | LAB-VP2 einschließlich `QRY-013` und Erweiterung von `QRY-004` entwerfen | Clientkontext, Strategievarianten, Sicherheit, Versionsmatrix und Tests sind festgelegt |
+| `ADV-006` (Design LAB-VP3 und LAB-VP4) | L | `VALIDATED` | LAB-VP3 und LAB-VP4 versionsbewusst entwerfen | Ressourcen-, Feature-, Query-Store-, Eligibility- und Skip-Matrix sind vollständig |
+| `ADV-007` (Design LAB-VP5 und DGN-007) | L | `VALIDATED` | LAB-VP5 und `DGN-007` als Capstone-Fall entwerfen | mindestens zwei falsche Hypothesen sind kontrolliert widerlegbar; Vergleich und Recovery sind vollständig |
+| `ADV-008` (Review QRY-004) | XL | `VALIDATED` | Demos in kleinen unabhängigen PRs implementieren und testen | implementierte Demos besitzen statische Verträge und die zutreffende zweifache Zielmatrix; verbleibende Designs bleiben ausdrücklich Folgearbeit |
+| `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) | L | `VALIDATED` | Masterdeck, Speaker Notes und Teilnehmerunterlage integrieren | jede sichtbare technische Aussage besitzt Quellen-ID, Demo-Bezug, Versionsgrenze und Tiefenprofil |
 | `ADV-010` | M | `VALIDATED` | Vertiefungsstrang fachlich und didaktisch abnehmen | Quellenreview, Runtime-Evidenz, Material-Generalprobe und Traceability sind im Endabnahmereview vollständig |
 
 ## 7. Gates
@@ -256,11 +256,11 @@ Die Werte sind Planungsuntergrenzen und keine Zusage bestimmter Laufzeiten. Jede
 
 Die verbindlichen projektweiten Quellen-IDs werden in `Documentation/Research/SOURCE_REGISTER.md` gepflegt. Für diesen Plan sind insbesondere folgende Quellen relevant:
 
-- `SRC-001`, `SRC-005` bis `SRC-010`, `SRC-026`, `SRC-027`, `SRC-031`, `SRC-035` und `SRC-036` als Microsoft-Primärquellen.
-- `SRC-037` bis `SRC-040` für Execution-Plan-Referenz, gemeinsame Eigenschaften und planweite Eigenschaften bei SQLServerFast.
-- `SRC-041` bis `SRC-044` für Row Goals, Spools, parallele Planbereiche und Operatorzeiten nach Paul White.
-- `SRC-045` und `SRC-046` für dynamische Suchbedingungen sowie Anwendung-/SSMS-Kontext nach Erland Sommarskog.
-- `SRC-047` bis `SRC-051` als empirische Fall- und Diagnosequellen zu Parameter Sensitivity, PSP, optionalen Parametern, Memory Grants und Wait-Scope.
+- `SRC-001` (Query processing architecture guide), `SRC-005` (Statistics) bis `SRC-010` (sys.dm_exec_query_memory_grants), `SRC-026`, `SRC-027` (Monitor performance by using the Query Store), `SRC-031` (Display an actual execution plan), `SRC-035` (sys.dm_os_wait_stats) und `SRC-036` (sys.dm_os_waiting_tasks) als Microsoft-Primärquellen.
+- `SRC-037` (SQL Server Execution Plan Reference) bis `SRC-040` (Plan properties) für Execution-Plan-Referenz, gemeinsame Eigenschaften und planweite Eigenschaften bei SQLServerFast.
+- `SRC-041` (Setting and Identifying Row Goals in Execution Plans) bis `SRC-044` (Understanding Execution Plan Operator Timings) für Row Goals, Spools, parallele Planbereiche und Operatorzeiten nach Paul White.
+- `SRC-045` (Dynamic Search Conditions in T-SQL) und `SRC-046` (Slow in the Application, Fast in SSMS?) für dynamische Suchbedingungen sowie Anwendung-/SSMS-Kontext nach Erland Sommarskog.
+- `SRC-047` (What is Parameter Sniffing in SQL Server?) bis `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents) als empirische Fall- und Diagnosequellen zu Parameter Sensitivity, PSP, optionalen Parametern, Memory Grants und Wait-Scope.
 
 ## 11. Nächster ausführbarer Schritt
 

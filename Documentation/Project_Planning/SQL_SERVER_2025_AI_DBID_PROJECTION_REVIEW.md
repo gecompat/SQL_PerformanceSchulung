@@ -32,12 +32,12 @@ Alte Server-UNKNOWN-Zustände bleiben sichtbar und werden dadurch nicht gelöst.
 Nur vorhandene gepinnte SDK10.0.401-/Runtime10.0.12-/SqlClient6.1.4-Bytes mit
 fünf belegten literal Assetpfaden, aktuelle öffentliche SQL_Server_Lab-/
 Namespace-/SQLcmd-Verträge; andere Repositories unverändert. Keine Downloads,
-Restore, Installation, Cloud, ONNX, Modelle oder globale Host-/Trusteffekte.
+Restore, Installation, Cloud, ONNX (Open Neural Network Exchange; Austauschformat für Modelle), Modelle oder globale Host-/Trusteffekte.
 Ein neuer eigener SQL17.0.5005.3/Linux/Developer-Container je Versuch, CL170,
 zwei synthetische VECTOR(3)/FLOAT32-Rows, frischer 16Hex-RunToken und
 SQLPERF_LAB_QRY014_<TOKEN> mit vier vollständigen bytegenauen Markern.
 Volle eigene CID-/Name-/Owner-/Image-/Loopback-/Ressourcenbindung vor Effekten.
-SQLCMDPASSWORD nur ENV/readonly SecureString/SqlCredential, Poolingfalse/TLS
+SQLCMDPASSWORD nur ENV/readonly SecureString/SqlCredential, Poolingfalse/TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen)
 und ausschließlich eigene begrenzte Lab-TrustServerCertificate-Ausnahme.
 
 Die konkrete Dimensionsnegative bleibt ein VECTOR(2)-Parameter gegen VECTOR(3)
@@ -64,7 +64,7 @@ Nur neue betroffene Purekontrollen normal/geschützt unter `-O`; alte grüne Sui
 und historische Runtime nicht wiederholen. Getrennte Root-Compiler-/Native-
 Admissions nach aktuellen Source-/Pin-/Test-/Privacy-/Risikonachweisen.
 API-/SQL-Kohärenz ersetzt keinen unabhängigen Wiretoken-/TDS-Beleg; float16,
-andere Versionen/Editionen/OS, Provider/Rollen/Pooling/Performance/RAG und volle
+andere Versionen/Editionen/OS (Operating System; Betriebssystem), Provider/Rollen/Pooling/Performance/RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) und volle
 TSK-004-/Workstream-/Releaseabnahmen bleiben offen. Modell-/Tokenverbrauch UNKNOWN.
 Aktuelle PR-/Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktreeclosure und
 unmittelbarer nächster zulässiger Schritt bleiben verbindlich.

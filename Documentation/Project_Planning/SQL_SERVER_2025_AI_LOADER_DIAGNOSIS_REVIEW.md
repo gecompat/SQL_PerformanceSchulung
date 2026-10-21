@@ -58,7 +58,7 @@ müssen zur eigenen Kandidatenakte und deren vollständigen Pins passen.
 
 Ein bekannter Loader-FAIL ist kein SQL-FAIL; ein unbekanntes Prozessende bleibt
 UNKNOWN und stoppt den Schnitt. Ein Loader-PASS gilt ausschließlich für diesen
-benannten Probehost und seine Typmetadaten. Typed API, native SNI-/TDS-/SQL-
+benannten Probehost und seine Typmetadaten. Typed API (Application Programming Interface; Programmierschnittstelle), native SNI-/TDS-/SQL-
 Transport, Provider, Performance und volle TSK-004-Abnahme bleiben
 NOT_ESTABLISHED. Keine Behauptung über die alte FileNotFound-Ursache ohne deren
 tatsächlich erhaltene Fehlermetadaten.
@@ -73,7 +73,7 @@ bestanden; tatsächliche Test-PIDs 42400/13944, bekannte Enden und Rawkanäle.
 Keine unveränderten alten Suites wiederholt.
 
 Getrennte Rootadmissions für Compiler und Probe. Genau eine Kompilierung:
-PID 38628, final poll/Returncode 0, 0,602529 Sekunden, kein Timeout/UNKNOWN;
+PID (Process Identifier; Prozesskennung) 38628, final poll/Returncode 0, 0,602529 Sekunden, kein Timeout/UNKNOWN;
 Compilerstdout ohne Warnungen, stderr leer. Eigenes Artefakt 18432 Bytes,
 SHA256 `5acdd5a6a6ee32048bf0dc92866bd62cd84aae04c8fe4b9766b95a4399440498`.
 Tatsächlich verwendete Compilerbytes und 167 BCL-Refs vollständig gepinnt.

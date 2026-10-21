@@ -8,11 +8,11 @@
 
 ## 1. Lernziel
 
-Actual DOP, Exchanges und Threadarbeit in einem parallelen Actual Plan lesen und ungleich verteilte Arbeit von einer bloßen DOP-Zahl unterscheiden.
+Actual DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Exchanges und Threadarbeit in einem parallelen Actual Plan lesen und ungleich verteilte Arbeit von einer bloßen DOP-Zahl unterscheiden.
 
 ## 2. Fachliche Kernaussage
 
-Parallelität garantiert keine gleichmäßige Arbeit. Ein Exchange verteilt Daten zwischen Planbereichen; die tatsächliche Arbeit muss je Thread und zusammen mit Zeilen, Reads, CPU und Duration interpretiert werden. Operatorzeiten werden nicht ungeprüft addiert.
+Parallelität garantiert keine gleichmäßige Arbeit. Ein Exchange verteilt Daten zwischen Planbereichen; die tatsächliche Arbeit muss je Thread und zusammen mit Zeilen, Reads, CPU (Central Processing Unit; Prozessor) und Duration interpretiert werden. Operatorzeiten werden nicht ungeprüft addiert.
 
 ## 3. Nichtziel
 
@@ -27,7 +27,7 @@ Die Demo empfiehlt weder einen globalen `MAXDOP`-Wert noch eine universelle Skew
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-`OPT-017` ist `YELLOW` und erfordert `--confirm-isolated-lab`. Das Manifest begrenzt den Gesamtlauf auf 600 Sekunden; jede Lastphase besitzt ein engeres Zeitbudget. `lab.DemoControl.StopRequested` ist der kooperative Kill-Switch vor einer Lastabfrage. Ein abgebrochener Clientlauf wird vom Harness durch das markergeprüfte Cleanup beendet.
+`OPT-017` (Ungleich verteilte parallele Arbeit) ist `YELLOW` und erfordert `--confirm-isolated-lab`. Das Manifest begrenzt den Gesamtlauf auf 600 Sekunden; jede Lastphase besitzt ein engeres Zeitbudget. `lab.DemoControl.StopRequested` ist der kooperative Kill-Switch vor einer Lastabfrage. Ein abgebrochener Clientlauf wird vom Harness durch das markergeprüfte Cleanup beendet.
 
 ## 6. Synthetisches Datenmodell
 
@@ -39,7 +39,7 @@ Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verte
 2. Setup erzeugt die markergebundene Datenbank und aktiviert `LAST_QUERY_PLAN_STATS` nur dort.
 3. Baseline aggregiert die balancierte Verteilung mit querylokalem `MAXDOP 4`.
 4. Demonstration führt denselben Abfragetyp auf der konzentrierten Verteilung aus.
-5. Observation liest Actual DOP, Exchanges und positive Threadzeilen aus dem Actual-Plan-XML.
+5. Observation liest Actual DOP, Exchanges und positive Threadzeilen aus dem Actual-Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten).
 6. Mitigation führt ausschließlich eine serielle Gegenprobe mit `MAXDOP 1` aus.
 7. Comparison prüft Ergebnisequivalenz und berichtet das Verhältnis größter zu kleinster positiver Threadarbeit.
 
@@ -73,11 +73,11 @@ Ressourcenarme Hosts liefern kontrolliert `SKIP_RESOURCE_PROFILE`; eine nicht er
 
 ## 13. Quellen
 
-- `SRC-001` – Microsoft Showplan/SQL-Server-Dokumentation
-- `SRC-031` – Execution-Plan-Referenz
-- `SRC-043` – parallele Branches und Threads
-- `SRC-044` – Grenzen operatorbezogener Zeitwerte
+- `SRC-001` (Query processing architecture guide) – Microsoft Showplan/SQL-Server-Dokumentation
+- `SRC-031` (Display an actual execution plan) – Execution-Plan-Referenz
+- `SRC-043` (Parallel Execution Plans – Branches and Threads) – parallele Branches und Threads
+- `SRC-044` (Understanding Execution Plan Operator Timings) – Grenzen operatorbezogener Zeitwerte
 
 ## 14. Traceability
 
-`OPT-017` gehört zu `LAB-VP1`, `ADV-004`, `W-ADV-017`, `LO-M02-09` sowie `ADV-CLM-007`, `ADV-CLM-008` und `ADV-CLM-026`.
+`OPT-017` gehört zu `LAB-VP1`, `ADV-004` (Design LAB-VP1: Planmechanik und Operatorinteraktion), `W-ADV-017`, `LO-M02-09` sowie `ADV-CLM-007`, `ADV-CLM-008` und `ADV-CLM-026`.

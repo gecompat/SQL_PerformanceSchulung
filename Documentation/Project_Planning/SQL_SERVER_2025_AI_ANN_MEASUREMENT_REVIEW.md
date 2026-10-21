@@ -1,7 +1,7 @@
 # TSK-006 – Begrenzte ANN-Messdiagnose
 
 Stand: 2026-10-11. Private Diagnose gemäß dem vor SQL festgelegten Messscope
-in [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md). Die ausdrückliche
+in [Aktueller Ausführungsstand](CURRENT_EXECUTION_STATUS.md). Die ausdrückliche
 Benutzerfreigabe umfasst die weiteren notwendigen lokalen Schritte dieser Welle;
 frühere FAIL-Checkpoints und verbrauchte Budgets bleiben erhalten.
 
@@ -11,7 +11,7 @@ Fester 1000-Row-VECTOR(3)-float32-Korpus, gleicher Queryvektor, cosine/K=5 und
 identische temporäre Ergebnisspeicherung. Je Pfad ein ausgeschlossener Warm-up
 und fünf gemessene Batches mit zehn Queries; alternierende Paarreihenfolge und
 keine Cacheleerung. Jeder Query muss fünf gültige Id-/Distanzrows liefern;
-Exact fünf Oracle-Treffer, ANN mindestens vier. Das ausgewiesene Recallminimum
+Exact fünf Oracle-Treffer, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) mindestens vier. Das ausgewiesene Recallminimum
 ist das Minimum der Batchmittelwerte, kein Minimum einzelner Queries.
 
 Maximal zwei Kandidaten/vier serielle eigene Container; zwei Lifecycles je
@@ -25,7 +25,7 @@ LIVE_REQUEST-Deltas (SRC-110), an Session, Request-ID, Startzeit, Connection-ID
 und eigene DB gebunden. Nicht-NULL, nichtnegative Zähler und dieselbe Identität
 vor/nach jedem Batch sind Pflicht. Nach Warm-up-Ausschluss muss jeder Pfad ein
 positives Logical-Read-Delta enthalten. Dies prüft ein aktives Fenster;
-vollständige Worker-IO und tatsächlicher Such-DOP bleiben UNPROVEN. SRC-110
+vollständige Worker-IO und tatsächlicher Such-DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) bleiben UNPROVEN. SRC-110
 begrenzt die Koordinatorzähler paralleler Row-Mode-Requests und schließt
 preemptive Zeit aus. Zeitquantisierung, Ergebnisspeicherung und Zähleraufnahme
 bleiben sichtbar; Waits nicht erfasst. Generation UNKNOWN, neue Indexnutzung

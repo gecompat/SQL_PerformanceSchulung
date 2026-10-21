@@ -16,7 +16,7 @@ Es gilt verbindlich die kleinste ausreichende Orchestrierungsstufe. Ein vorhande
 
 ## 2. Source of Truth
 
-Die eigenständigen T-SQL-Dateien und die Teilnehmeranleitung bleiben die fachliche Source of Truth. Python, PowerShell, CI und ein späteres Notebook dürfen diese Artefakte ausführen oder darstellen, aber keine exklusive fachliche SQL-Logik enthalten.
+Die eigenständigen T-SQL-Dateien und die Teilnehmeranleitung bleiben die fachliche Source of Truth. Python, PowerShell, CI (Continuous Integration; automatisierte Integrationsprüfungen) und ein späteres Notebook dürfen diese Artefakte ausführen oder darstellen, aber keine exklusive fachliche SQL-Logik enthalten.
 
 `SQL_Server_Lab` bleibt auf Infrastruktur-Orchestrierung begrenzt. SQL-Sessions, fachliche Reihenfolge, Schleifen, Beobachtungsbereitschaft, Reset und Cleanup werden durch `SQL_PerformanceSchulung` beschrieben.
 
@@ -32,7 +32,7 @@ Die eigenständigen T-SQL-Dateien und die Teilnehmeranleitung bleiben die fachli
 
 ## 4. Geänderte Einordnung von CON-004
 
-`CON-004` bleibt der bevorzugte erste Vertical Slice. Die primäre Orchestrierungsstufe wurde jedoch von einem implizit runnerzentrierten Ablauf auf `MANUAL` korrigiert.
+`CON-004` (Blockierungsketten verfolgen) bleibt der bevorzugte erste Vertical Slice. Die primäre Orchestrierungsstufe wurde jedoch von einem implizit runnerzentrierten Ablauf auf `MANUAL` korrigiert.
 
 Der Teilnehmer öffnet vier SQL-Fenster und startet nacheinander:
 
@@ -63,7 +63,7 @@ Der Lab-Testkatalog führte `CON-004` ursprünglich mit drei Sessions. Das tats�
 
 Die JSON-Verträge und Repositorybeziehungen wurden strukturell angepasst. Der statische Validator `Tests/Static/validate_performance_scenarios.py` läuft seit `.github/workflows/performance-scenarios.yml` auf einem GitHub-gehosteten Runner; zuvor war er nur lokal ausführbar.
 
-Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und referenzierten Repository-Pfaden dauerhaft abgesichert. `LABSCN-003` hat `CON-004` anschließend auf Docker und Podman praktisch validiert; `DGN-005` bestätigt denselben standardisierten Lifecycle als zweiter Slice.
+Damit ist die Vertragskonsistenz zwischen Inventar, Szenariodefinition und referenzierten Repository-Pfaden dauerhaft abgesichert. `LABSCN-003` hat `CON-004` anschließend auf Docker und Podman praktisch validiert; `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) bestätigt denselben standardisierten Lifecycle als zweiter Slice.
 
 ## 8. Geänderte Reihenfolge für LABSCN-003
 

@@ -7,7 +7,7 @@ Dateien hashverifiziert gesichert und eigener Worktree tatsächlich archiviert.
 Der [Loadervergleich](SQL_SERVER_2025_AI_LOADER_RESOLUTION_REVIEW.md) ist
 nach tatsächlichem Checkpoint3/Loader-/Typmetadaten-PASS gestoppt. Die fünf
 literal Runtimeassetpfade funktionieren im benannten Windows-Probehost;
-Typed API, SNI, TDS und SQL wurden damit nicht geprüft.
+Typed API (Application Programming Interface; Programmierschnittstelle), SNI, TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) und SQL wurden damit nicht geprüft.
 
 ## Explizit neue Welle, alte Fehler bleiben erhalten
 
@@ -37,7 +37,7 @@ QRY-014-Testdatenbank. Das bestehende isolierte Namespacewerkzeug und die
 nachweislich verfügbaren öffentlichen SQL_Server_Lab-Verträge werden vor
 Ausführung lesend geprüft und konkret gepinnt. Andere Repositories bleiben
 unverändert. Kein freier Providerendpoint, Download, Restore oder globaler
-SDK-/Host-/Trust-/Serviceeffekt. Cloud, ONNX und rote Hoständerungen ausgeschlossen.
+SDK-/Host-/Trust-/Serviceeffekt. Cloud, ONNX (Open Neural Network Exchange; Austauschformat für Modelle) und rote Hoständerungen ausgeschlossen.
 
 Eine Read-only-Version-/Edition-/CL-/SQL-Metadatenaufnahme, native FLOAT32-
 Parameterübertragung, tatsächliche typed VECTOR-Rückgabe und SQL-NULL-Kontrolle
@@ -86,7 +86,7 @@ aktuell fehlgeschlagenen oder unbekannten Zustand.
 
 Typed API und tatsächlicher SQL-Roundtrip können separat qualifiziert werden.
 Ohne unabhängigen Transportcapture wird kein spezifischer TDS-Wiretoken
-behauptet. Andere Builds, Editionen, Client-/Server-OS, float16, Provider,
+behauptet. Andere Builds, Editionen, Client-/Server-OS (Operating System; Betriebssystem), float16, Provider,
 Performance, volle TSK-004-/Workstream-/Releaseabnahme bleiben offen.
 Der Schnitt begann SOURCE_PREPARATION_ONLY mit null neuen Effekten.
 Modell-/Tokenverbrauch UNKNOWN. Vollständige PR-/Head-/Main-/Tree-/FF-/Branch-/
@@ -101,7 +101,7 @@ Danach ausschließlich zwei betroffene Gateprüfungen je normal/`-O` bestanden;
 ursprüngliche Rawbelege erhalten. Enge unabhängige Source-/Privacyprüfung und
 getrennte konkrete Compiler-/Nativeadmissions vor beiden Effekten abgeschlossen.
 
-Ein Compiler PID 40932/poll 0/rc 0 in 0,586720 Sekunden, kein Timeout/UNKNOWN;
+Ein Compiler PID (Process Identifier; Prozesskennung) 40932/poll 0/rc 0 in 0,586720 Sekunden, kein Timeout/UNKNOWN;
 69632-Byte-Artefakt und alle Sources aktuell. Zwei tatsächliche CS1701-Warnungen
 für `System.Data.Common` und `System.Runtime` 9→10 bleiben erhalten. Sie werden
 nicht als fehlerfreie Versionsqualifikation oder aufgehobene Supportgrenze behandelt.

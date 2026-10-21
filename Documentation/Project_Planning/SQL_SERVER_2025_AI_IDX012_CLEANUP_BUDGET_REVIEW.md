@@ -108,7 +108,7 @@ RED-Selektion oder anderer Repositories.
 
 ## Endliche Vorbereitung und Abnahme
 
-Neuer API-/Collector-Deadlinevertrag: vorige sechs Quellenstände der Rollen-API
+Neuer API-/Collector-Deadlinevertrag: vorige sechs Quellenstände der Rollen-API (Application Programming Interface; Programmierschnittstelle)
 bleiben gestoppt; kein Reset oder rückwirkender Claim. Neuer Vertrag höchstens
 sechs tatsächlich geprüfte Quellenstände einschließlich SyntaxFAIL, verpflichtender
 Checkpoint3/Hard6. Ein Implementer, enger unabhängiger Rootreview für Zeit-/

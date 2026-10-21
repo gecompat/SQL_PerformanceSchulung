@@ -15,7 +15,7 @@ Der Vertrag trennt fachliche Sessionreihenfolge von Prozessstart und Betriebssys
 
 ## 2. Datenbankseitige Signale
 
-`FWK_MultiSessionControl.sql` installiert ausschließlich in einer nach `FWK-002` markierten Testdatenbank:
+`FWK_MultiSessionControl.sql` installiert ausschließlich in einer nach `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) markierten Testdatenbank:
 
 - `fwk.SessionSignal`,
 - `fwk.USP_Signal`,

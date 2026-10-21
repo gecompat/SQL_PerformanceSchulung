@@ -11,7 +11,7 @@ Eine neue eigene Podmaninstanz verwendete das bereits vorhandene Microsoft-Image
 2025-CU9-ubuntu-24.04 mit exakt gebundener lokaler Image-ID
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`.
 SQL meldete 17.0.5005.3, Enterprise Developer/EngineEdition 3, Ubuntu 24.04.
-4 CPU/6 GB, ein zufälliger eigener Loopbackport, 60 Sekunden SQL-Prozessbudget und
+4 CPU (Central Processing Unit; Prozessor)/6 GB, ein zufälliger eigener Loopbackport, 60 Sekunden SQL-Prozessbudget und
 getrennte begrenzte Cleanupcalls blieben erhalten. Native ODBC-SQLCMD.EXE verwendete
 SQLCMDPASSWORD ausschließlich über Umgebung, keine Passwortwerte in Argumenten.
 
@@ -29,7 +29,7 @@ die bestehende Clustered-PK-Struktur hatte 18 used pages. Die Pagezahlen stammen
 sys.dm_db_partition_stats, keine geschätzte Bytes-/RAM-/DMLkostenzahl.
 
 Eine rein synthetische deklarierte Advice-Zeichenfolge behauptete einen Queryvorteil.
-Sie wurde niemals als SQL ausgeführt. Ausschließlich festes Owner-DDL erstellte und
+Sie wurde niemals als SQL ausgeführt. Ausschließlich festes Owner-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) erstellte und
 entfernte den eigenen Candidateindex. Anschließend waren die drei Queryrowsets gleich,
 die volle 1000-Row-Quelle unverändert, der Candidateindex abwesend und die vollständige
 direkte Readerrechtefixture samt fehlender Rollenmitgliedschaft erhalten. REVERT

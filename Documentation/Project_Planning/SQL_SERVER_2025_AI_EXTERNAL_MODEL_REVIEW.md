@@ -65,7 +65,7 @@ vollständig gebundene Modell-/Endpointpolicy-Metadaten, tatsächliche positive
 SQL-Nutzung und Rechteverweigerungen sowie Grantreduktion, FWK-Phasen,
 Versions-SKIPs, Ergebnis-/Markergegenproben und eigenen Cleanup. EXECUTE am Modell
 bleibt bis zu einer gesonderten Providerfreigabe nur als Metadatenrecht qualifiziert.
-CON-010 bleibt am FAIL-Checkpoint; Live-Lab-RAG bleibt am DEC-033-Secretgate.
+CON-010 bleibt am FAIL-Checkpoint; Live-Lab-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) bleibt am DEC-033-Secretgate.
 Cloud-/Bezahl-, ONNX- und rote Hoständerungen sind weiterhin nicht freigegeben.
 
 Am 2026-10-11 geprüfte Primärquellen:

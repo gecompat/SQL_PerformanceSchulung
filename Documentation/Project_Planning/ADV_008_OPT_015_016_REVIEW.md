@@ -6,15 +6,15 @@
 | Stand | 2026-07-26 |
 | Pull Request | `#20` |
 | Ausgangscommit auf `origin/main` | `6e914da6ab87e4ba17a354bc6e8c4d1c06446396` |
-| Arbeitspaket | `ADV-008` – erster Implementierungs- und Runtime-Schnitt |
-| Demos | `OPT-015`, `OPT-016` |
+| Arbeitspaket | `ADV-008` (Review QRY-004) – erster Implementierungs- und Runtime-Schnitt |
+| Demos | `OPT-015` (Ausführungspläne systematisch lesen), `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung) |
 | PowerPoint geändert | nein |
 
 ## 1. Umfang
 
 Der Schnitt implementiert zwei grüne Vertiefungsdemos aus LAB-VP1 als eigenständige, vollständig ausführbare Demo-Bündel. Jede Demo besitzt Preflight, Setup, Baseline, Demonstration, Observation, Mitigation, Comparison und Cleanup sowie eine eigene Quellen-, Claim-, Lernziel- und Testprofilzuordnung.
 
-Die Implementierung verwendet das bestehende Framework und ausschließlich markergebundene synthetische Testdatenbanken. Plan XML wird während der Ausführung ausgewertet, aber nicht im Repository, in Tabellen oder Diagnoseartefakten persistiert. Persistiert werden nur normalisierte Plan- und Runtimeattribute innerhalb der kurzlebigen Testdatenbank.
+Die Implementierung verwendet das bestehende Framework und ausschließlich markergebundene synthetische Testdatenbanken. Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) wird während der Ausführung ausgewertet, aber nicht im Repository, in Tabellen oder Diagnoseartefakten persistiert. Persistiert werden nur normalisierte Plan- und Runtimeattribute innerhalb der kurzlebigen Testdatenbank.
 
 ## 2. OPT-015 – Planweite und operatorbezogene Eigenschaften
 
@@ -104,4 +104,4 @@ Die Referenzmatrix erfüllte alle Kriterien ohne Skip.
 
 ## 9. Nächster Schnitt
 
-Der nächste abhängige Implementierungsschnitt umfasst `QRY-013` und `QRY-004_CLASSIC_AND_DYNAMIC`. Query Store und Extended Events werden vor `DGN-007` als zentrale Diagnosepfade validiert. `RES-003` bleibt der letzte und separat freizugebende rote Schnitt.
+Der nächste abhängige Implementierungsschnitt umfasst `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) und `QRY-004_CLASSIC_AND_DYNAMIC`. Query Store und Extended Events werden vor `DGN-007` (Zeitabhängige Regression eines Suchworkloads) als zentrale Diagnosepfade validiert. `RES-003` bleibt der letzte und separat freizugebende rote Schnitt.

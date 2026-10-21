@@ -52,7 +52,7 @@ Query Store und Extended Events können zur Laufzeit SQL-Texte, Literalwerte ode
 
 - persistiert keine Exporte,
 - erzeugt keine `.xel`-Dateien,
-- gibt `ring_buffer`-XML nur auf ausdrückliche Anforderung interaktiv aus,
+- gibt `ring_buffer`-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) nur auf ausdrückliche Anforderung interaktiv aus,
 - behandelt jeden Export als neues, separat zu prüfendes Artefakt.
 
 ## 5. Cleanup

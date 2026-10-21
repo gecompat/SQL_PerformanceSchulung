@@ -4,7 +4,7 @@
 |---|---|
 | Status | `VALIDATED_LOCAL_PROVIDER_PARITY` |
 | Stand | 2026-08-09 |
-| Szenario | `QRY-001` – SARGability |
+| Szenario | `QRY-001` (Indexfreundliche Suchbedingungen) – SARGability |
 | Provider | Docker und Podman |
 | SQL-Server-Version | 2025 |
 | Sicherheitsstufe | Grün |
@@ -15,7 +15,7 @@
 
 Der Lauf weist erstmals innerhalb dieses Repositorys praktisch nach, dass ein
 vorhandenes Schulungsbeispiel seine Infrastruktur über öffentliche Commands aus
-`SQL_Server_Lab` beziehen und anschließend über den bestehenden `FWK-010`-
+`SQL_Server_Lab` beziehen und anschließend über den bestehenden `FWK-010` (Runtime-Harness-Vertrag)-
 Harness getestet werden kann.
 
 `QRY-001` wurde gewählt, weil das Szenario grün, Single-Session-fähig und im

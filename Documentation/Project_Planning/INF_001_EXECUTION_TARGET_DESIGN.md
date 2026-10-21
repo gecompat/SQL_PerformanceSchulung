@@ -6,7 +6,7 @@
 | Stand | 2026-08-01 |
 | Arbeitspaket | `INF-001` |
 | Welle | 10 |
-| Verbindliche Grundlage | [`MASTER_IMPLEMENTATION_PLAN.md`](MASTER_IMPLEMENTATION_PLAN.md) Abschnitt 13 |
+| Verbindliche Grundlage | [Master-Umsetzungsplan – SQL-Server-Performance-Schulung](MASTER_IMPLEMENTATION_PLAN.md) Abschnitt 13 |
 | Folgeschritte | Entkopplung der Runtime-Runner, Testumgebungs-How-to, Runner-Topologie |
 
 ## 1. Zweck
@@ -45,7 +45,7 @@ Es gilt die niedrigste ausreichende Stufe. Ein verfügbares höheres Ziel begrü
 | Gelb | nur nach ausdrücklicher Bestätigung einer Wegwerfinstanz | zulässig | zulässig |
 | Rot | unzulässig | unzulässig | ausschließlich hier zulässig |
 
-Der Schutz der Zielinstanz folgt dem Namensschema aus `FWK-002`. Ein Lauf gegen `local-host` darf ausschließlich Datenbanken mit dem Präfix `SQLPERF_` anlegen, verändern oder entfernen.
+Der Schutz der Zielinstanz folgt dem Namensschema aus `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken). Ein Lauf gegen `local-host` darf ausschließlich Datenbanken mit dem Präfix `SQLPERF_` anlegen, verändern oder entfernen.
 
 ## 5. Evidenz- und Gate-Regel
 
@@ -63,13 +63,13 @@ Bis dieser Runner bereitsteht, gilt:
 
 - Stufe 4 und Stufe 5 werden nicht implementiert.
 - Rote Szenarien einschließlich `RES-003` bleiben zurückgestellt.
-- Ein `RUNNER_ASSISTED`-Teilnehmerablauf wird nicht umgesetzt. Diese Einschränkung ist ohne Wirkung auf `LABSCN-002`, weil dort verbindlich die kleinste ausreichende Orchestrierungsstufe gilt und `CON-004` bereits auf `MANUAL` festgelegt ist.
+- Ein `RUNNER_ASSISTED`-Teilnehmerablauf wird nicht umgesetzt. Diese Einschränkung ist ohne Wirkung auf `LABSCN-002`, weil dort verbindlich die kleinste ausreichende Orchestrierungsstufe gilt und `CON-004` (Blockierungsketten verfolgen) bereits auf `MANUAL` festgelegt ist.
 
 Die Anforderungen an den Runner werden getrennt in `Documentation/Architecture/RUNNER_TOPOLOGY.md` beschrieben.
 
 ## 7. Abgrenzung
 
-Nicht Bestandteil von `INF-001` sind die Bündel `INF-002` bis `INF-006`, Änderungen an `SQL_Server_Lab`, die Umsetzung von `LABSCN-003` sowie die fachlichen `ADV-008`-Schnitte.
+Nicht Bestandteil von `INF-001` sind die Bündel `INF-002` bis `INF-006`, Änderungen an `SQL_Server_Lab`, die Umsetzung von `LABSCN-003` sowie die fachlichen `ADV-008` (Review QRY-004)-Schnitte.
 
 Die Framework-Matrix `Tests/Runtime/run_framework_sql_matrix.py` bleibt an das Ziel `docker` gebunden (DEC-050). Sie schaltet Query Store und Extended Events auf Serverebene und setzt drei Hauptversionen nebeneinander voraus. Beides ist auf einer vorhandenen Instanz kein zumutbarer Eingriff. Die Matrix nutzt jedoch dieselben Primitive wie die Demo-Runner, sodass es nur eine Implementierung des Containerpfads gibt.
 
@@ -81,7 +81,7 @@ Die Framework-Matrix `Tests/Runtime/run_framework_sql_matrix.py` bleibt an das Z
 | --- | --- |
 | `docker_target(container=…)` | Wegwerfbare Container-Instanz; Shim ist `docker_sqlcmd_proxy.py`. |
 | `host_target(server=…, username=…)` | Vorhandene Instanz; Shim ist `host_sqlcmd_target.py`. Ohne Anmeldenamen wird Windows-Authentifizierung verwendet. |
-| `run_sql(target, database=…, sql_text=…)` | Führt T-SQL gegen das Ziel aus. |
+| `run_sql(target, database=…, sql_text=…)` | Führt T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) gegen das Ziel aus. |
 | `verify_engine(target, expected_major=…)` | Prüft die Engine-Identität und liefert die erkannte Hauptversion. Ohne Erwartungswert wird sie ausgelesen. |
 | `require_disposable_instance(target, confirmed)` | Erzwingt beim Ziel `host` die ausdrückliche Bestätigung einer Wegwerfinstanz (DEC-051). |
 | `redact(text)` | Entfernt das Kennwort aus Diagnosetext. |

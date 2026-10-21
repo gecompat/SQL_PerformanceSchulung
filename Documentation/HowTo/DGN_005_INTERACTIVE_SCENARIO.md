@@ -1,6 +1,6 @@
 # DGN-005 interaktiv bereitstellen
 
-`DGN-005` verwendet den standardisierten Lifecycle aus
+`DGN-005` (Gezielte Ereigniserfassung mit Extended Events) verwendet den standardisierten Lifecycle aus
 `INTERACTIVE_SCENARIO_LIFECYCLE.md`. Das Szenario ist `YELLOW`, benötigt eine
 isolierte Wegwerfinstanz und exportiert keine Eventdateien.
 

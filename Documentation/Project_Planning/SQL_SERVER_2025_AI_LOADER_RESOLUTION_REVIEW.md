@@ -2,7 +2,7 @@
 
 PR232 ist vollständig geschlossen: neun erfolgreiche Head-Gates und sieben
 erfolgreiche Main-Workflows, Main 6f3a116f81b7ee97e6d5441b9405c0e4255b41ca,
-vollständiger Tree/FF-Synchronisierung und eigene Branches entfernt. SQL-CI
+vollständiger Tree/FF-Synchronisierung und eigene Branches entfernt. SQL-CI (Continuous Integration; automatisierte Integrationsprüfungen)
 wurde bei reiner Dokumentationsintegration nicht ausgelöst. 84 private Dateien
 sind hashverifiziert gesichert und der eigene Worktree tatsächlich archiviert.
 Der [erste Loadercheckpoint](SQL_SERVER_2025_AI_LOADER_DIAGNOSIS_REVIEW.md)
@@ -66,13 +66,13 @@ unabhängiger Rootreview; Quellen, Fixtures, tatsächliche Prozessenden,
 SDK-/Runtime-/Refs-/App-/Originalpins und safe ENV bleiben bindend.
 
 Ein positives Ergebnis gilt ausschließlich für den benannten Probehost,
-sein Dateilayout und seine Typmetadaten. Typed API, SNI, TDS, SQL, Provider,
+sein Dateilayout und seine Typmetadaten. Typed API (Application Programming Interface; Programmierschnittstelle), SNI, TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server), SQL, Provider,
 Performance, volle TSK-004-Qualifikation und ursprüngliche C6-Ursache bleiben
 offen. Keine universelle Deploymentempfehlung aus einem einzelnen Vergleich.
 ## C2 tatsächlich abgeschlossen, C3 vorbereitet
 
 Sechs neue Puremethoden normal und vier optimiert bestanden, Raw-/Endpins
-erhalten (PID 20952/50532). Das sind Spezifikations-/Fakegatetests, keine
+erhalten (PID (Process Identifier; Prozesskennung) 20952/50532). Das sind Spezifikations-/Fakegatetests, keine
 ausgeführten BCL-Parsergegenfälle. Sourceänderung/86 erhaltene C1-Bytepins,
 31 relevante Originaldateien, eigene App30, SDK-/Version-/167-Ref-/Inputpins
 und aktueller enger Rootreview vor getrennten Compiler-/Probeadmissions.

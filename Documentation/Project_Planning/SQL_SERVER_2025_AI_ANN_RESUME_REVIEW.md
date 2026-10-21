@@ -11,7 +11,7 @@ Der [ursprüngliche Fehlercheckpoint](SQL_SERVER_2025_AI_ANN_PREVIEW_REVIEW.md) 
 ## Geänderte private Vorbereitung und Review
 
 Separate Quellen unter dem ignorierten `Runtime/ANN_RESUME_CANDIDATE01/` ersetzen
-die direkte VECTOR→varbinary-Konversion durch vollständiges nvarchar-JSON und
+die direkte VECTOR→varbinary-Konversion durch vollständiges nvarchar-JSON (JavaScript Object Notation; strukturiertes Textformat) und
 dessen Unicode-Bytes. Vorgesehen sind Dimension/float32-Metadaten, numerische
 Koordinaten, JSON-Roundtrip, bidirektionale Sourcebindung, vollständige
 Indexmetadaten sowie Host-/DB-Optionsvergleiche. Eine erfolgreiche Gesamtbindung
@@ -48,7 +48,7 @@ andere Repositoryquelle, Cloud-/ONNX-/Modell- oder Hostoption wurde verändert.
 | Kandidat | Beobachtung | Cleanup |
 |---|---|---|
 | 01 | Python verwarf die Setupausgabe als fehlenden exakten Baselinebeleg, bevor die ANN-Probe aufgerufen wurde. Die erfolgreiche Setupausgabe wurde vor Interpretation nicht erhalten; die konkrete Ursache bleibt unbekannt. | Tatsächliches `RESTORED_0` und `DROP_CONFIRMED`; separater neuer SQL-Client bestätigte DB-Abwesenheit, gebundener Containerabbau und separate Abwesenheit bestanden. Gemessene gemeinsame Cleanupdauer 12,112 s. Kein Lifecycle-PASS. |
-| 02 | Geänderte Auswertung toleriert ausschließlich den exakten eigenen SQLCMD-Kontextwechseltext; `-m 1` unterdrückt Meldungen der Severity 0. Setup-/Probeausgaben werden vor Interpretation erhalten. Tatsächlicher Baselinebeleg 0. Die dynamische `CREATE VECTOR INDEX`-DDL scheiterte mit Fehler 343, anschließend 51003 „Index identity missing“. | Tatsächlicher Restore auf die vorher erfasste 0 und `DROP_CONFIRMED`; separater SQL-Client bestätigte DB-Abwesenheit, gebundener Containerabbau und separate Abwesenheit bestanden. Gemeinsame Cleanupdauer 12,117 s. Kein Lifecycle-PASS. |
+| 02 | Geänderte Auswertung toleriert ausschließlich den exakten eigenen SQLCMD-Kontextwechseltext; `-m 1` unterdrückt Meldungen der Severity 0. Setup-/Probeausgaben werden vor Interpretation erhalten. Tatsächlicher Baselinebeleg 0. Die dynamische `CREATE VECTOR INDEX`-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) scheiterte mit Fehler 343, anschließend 51003 „Index identity missing“. | Tatsächlicher Restore auf die vorher erfasste 0 und `DROP_CONFIRMED`; separater SQL-Client bestätigte DB-Abwesenheit, gebundener Containerabbau und separate Abwesenheit bestanden. Gemeinsame Cleanupdauer 12,117 s. Kein Lifecycle-PASS. |
 
 Für Kandidat 02 bestanden zwei betroffene lokale Baselinefixtures: fehlende/NULL-/
 ungültige/doppelte/fremde Baselines bleiben abgewiesen; allein der exakte eigene
@@ -98,7 +98,7 @@ Lehrmaterialarbeit für die acht qualifizierten Offline-Demos bleibt zulässig.
 Der Heartbeat bleibt als Wiederaufnahmeabsicherung aktiv und setzt dieses Budget
 nicht zurück. Der Gesamtworkstream ist weiterhin offen.
 
-Die anschließende Quellenrecherche dokumentierte in `SRC-106` den ignorierten
+Die anschließende Quellenrecherche dokumentierte in `SRC-106` (SQL Server 2025 known issues) den ignorierten
 MAXDOP-Parameter für SQL-2025-Vector-Index/Search. Kein empirischer DOP-Befund aus
 diesem fehlgeschlagenen Slice. Ein neuer
 [einzelner Parser-/Previewdiagnoseentwurf](SQL_SERVER_2025_AI_ANN_PARSER_DECISION.md)

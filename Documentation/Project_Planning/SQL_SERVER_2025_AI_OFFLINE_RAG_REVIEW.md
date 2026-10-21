@@ -16,7 +16,7 @@ Baseline enthält sieben unüberprüfte Claims. Alle vier Metriken werden tatsä
 
 Die Claimprüfung ist ausdrücklich auf die feste Aufbewahrungssatzform begrenzt, kein
 allgemeiner Entailmentprüfer. Token-/Inferenzzeit ist N/A. Kein Modell, externer Endpoint,
-Cloudkosten-, Preview- oder Hosteffekt. Live-RAG bleibt durch die im
+Cloudkosten-, Preview- oder Hosteffekt. Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) bleibt durch die im
 [Modellpfad-Leitfaden](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md) dokumentierte Secret-Grenze
 von SQL_Server_Lab separat angehalten. Andere Repositories bleiben unverändert.
 
@@ -28,7 +28,7 @@ DB-Abwesenheit. Auch Setup-Idempotenz bestand, dazu
 Negativkontrollen hinzu. Geprüft werden falscher Claim, alte Quellen-ID, leere Chunks,
 falscher Chunktext, fehlende aktuelle Version, leerer Replaybestand und falsches Faktmetadatum.
 Jede scheiterte am erwarteten FAIL_RESULT_CONTRACT. Der eigene Linux-Container mit vier
-CPUs und sechs GiB RAM wurde danach entfernt; seine Abwesenheit wurde unabhängig geprüft.
+CPUs und sechs GiB RAM (Random Access Memory; Arbeitsspeicher) wurde danach entfernt; seine Abwesenheit wurde unabhängig geprüft.
 Cleanupfehler bleiben dominant. Auf 2019/2022 bestanden je zwei SKIP_VERSION-Lifecycles
 vor Setup, jeweils mit unabhängiger DB-Abwesenheit und eigenem Containerabbau.
 Der erste Ausführungsleitfaden-Check vermisste zwei verpflichtende Runbookbegriffe;
@@ -44,7 +44,7 @@ Windows, Podman, weitere Editionen, reale Sprachqualität und Livegeneration ble
 Ein Implementierungsverantwortlicher ergänzt den vorhandenen Runner und Workflow;
 kein zweites Provisionierungssystem oder zusätzliche Modellarbeit. Der endliche Schnitt
 ist eine Demo mit zwei Lifecycles pro Version, einem Review und höchstens zwei Korrekturwellen.
-Checkpoints: lokale Qualifikation, stabiler Reviewkandidat, aktuelle CI und Integration.
+Checkpoints: lokale Qualifikation, stabiler Reviewkandidat, aktuelle CI (Continuous Integration; automatisierte Integrationsprüfungen) und Integration.
 Fehlende Verbrauchsmessung bleibt unbekannt; der unveränderte allgemeine Workstreamumfang
 und seine begrenzte Reviewanzahl bleiben maßgeblich.
 

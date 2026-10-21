@@ -23,7 +23,7 @@ Feste Gegenproben laufen tatsächlich unter den eingeschränkten Identitäten: R
 und Ingestion-CREATE EXTERNAL MODEL scheitern jeweils mit 262, Reader-UPDATE und
 Ingestion-Policy-SELECT mit 229, nach Grantreduktion auch Reader-Policy-SELECT mit 229.
 REVERT schützt Erfolg und Fehler. Vier vollständig eingefrorene Endpointstrings liefern
-1 erlaubte und 3 abgelehnte Fälle (HTTP, fremdes HTTPS-Ziel, nachgestelltes Leerzeichen).
+1 erlaubte und 3 abgelehnte Fälle (HTTP (Hypertext Transfer Protocol; Protokoll zur Übertragung von Webanfragen und Antworten), fremdes HTTPS-Ziel, nachgestelltes Leerzeichen).
 Dies ist eine Bytepolicy ohne echten Abfluss, kein DNS-/Firewall-/Egressnachweis.
 
 Vor-/Nachkontrollen binden volle Modellmetadaten einschließlich IDs und Zeitstempeln,
@@ -35,7 +35,7 @@ freigegeben; er validiert keinen authentifizierten Anwendungsservice oder Verbin
 
 Inferenz, echte Endpoint-/Credentialnutzung, allgemeiner Datenabflussschutz und
 Providerabnahme bleiben UNQUALIFIED. Modell-/Tokenverbrauch: N/A für die Offlinefixture.
-Live-Lab-RAG, Cloud-/Bezahl- und ONNX-Pfade behalten ihre separaten Gates.
+Live-Lab-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen), Cloud-/Bezahl- und ONNX-Pfade behalten ihre separaten Gates.
 
 ## Schritt-für-Schritt-Anleitung
 

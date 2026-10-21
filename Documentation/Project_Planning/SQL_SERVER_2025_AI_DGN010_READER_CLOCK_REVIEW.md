@@ -48,7 +48,7 @@ Session-/Stackoffset-/Root10-/Source10-Bindung bleibt unverändert erforderlich.
 ## Unveränderte Sicherheits- und Ergebnisgrenzen
 
 Alle im ersten Teilvertrag begrenzten Effekte gelten weiter: neuer eigener
-SQL-17.0.5005.3-Container, vier CPU/sechs GiB/Loopback, höchstens 1000 synthetische
+SQL-17.0.5005.3-Container, vier CPU (Central Processing Unit; Prozessor)/sechs GiB/Loopback, höchstens 1000 synthetische
 Source-Rows, Originalquery/MAXDOP1 und Reader CONNECT/SELECT unverändert.
 Vollständige vier bytegenaue DB-Eigentumsmarker; tatsächliche kurzlebige gebundene
 XE-Definition vor jedem DROP einschließlich CATCH; vollständiger Ring ohne

@@ -35,7 +35,7 @@ Auslassung kann keine weitere Einsparung liefern. Keine Wiederholung zur Bestät
 
 Der verworfene Runner hat die komplette Standalone-Parentfactory zusätzlich zu
 seinem eigenen Quellenkontrollanker eingebettet. Weil deren private Run-Closure
-erst nach EOF erzeugt wurde, brauchte er zusätzliche ursprüngliche Factorycode-/
+erst nach EOF (End of File; Ende eines Eingabestroms) erzeugt wurde, brauchte er zusätzliche ursprüngliche Factorycode-/
 Namespace-/Nachkommenbindungen, eine begrenzte spät erzeugte Helfergraphaufnahme
 und einen weiteren Root-Parentbinder. Die tatsächliche Größe einer neuen
 Komposition ist unbekannt; daraus folgt keine bereits belegte Einsparung.
@@ -140,7 +140,7 @@ Source8-Paket; negative ursprüngliche Provider-/Code-/Klassendrift, Parent-
 Spec/Locations/Childdrift an jeder aktiven Veröffentlichung, Fremdtypen ohne
 Getter/Equalityeffekt, bestätigte Teilwrites, Limits, Fehler, Reentranz/Retry
 und identitätsbezogener Cleanup müssen tatsächlich erreicht sein. Bestehende
-unveränderte Suiten werden lokal nicht wiederholt. Neue enge CI erst mit
+unveränderte Suiten werden lokal nicht wiederholt. Neue enge CI (Continuous Integration; automatisierte Integrationsprüfungen) erst mit
 stabilem tatsächlichem Source/Testkandidaten und allen Abhängigkeiten.
 
 ## Claim- und Entscheidungsgrenze

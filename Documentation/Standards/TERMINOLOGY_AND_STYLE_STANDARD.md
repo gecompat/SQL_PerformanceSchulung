@@ -13,6 +13,31 @@ Die Schulungsunterlagen verwenden sachliche, präzise und technisch überprüfba
 
 Projekt- und Schulungssprache ist Deutsch. Etablierte SQL-Server-Fachbegriffe bleiben in ihrer üblichen englischen Form erhalten. Eine deutsche Einordnung kann bei der ersten Verwendung ergänzt werden, darf den Fachbegriff aber nicht durch eine ungebräuchliche Übersetzung ersetzen.
 
+### Abkürzungen und Kennungen für Menschen erklären
+
+Diese Regel gilt für alle für Menschen erstellten Projektbereiche: Einstiegsseiten,
+Anleitungen, Kataloge, Lernwege, Arbeitshefte, Folien, Sprechernotizen sowie
+fachliche und technische Dokumentation.
+
+- Fachabkürzungen beim ersten Auftreten im eigenständig lesbaren Dokument oder
+  Lehrabschnitt ausschreiben und ihre Bedeutung kurz erklären. Die Langform
+  allein genügt nicht, wenn sie das Verständnisproblem bestehen lässt.
+- Eine technische Kennung wie `QRY-001` (Indexfreundliche Suchbedingungen) zusammen mit einem verständlichen Thema
+  oder einer Beschreibung zeigen, etwa „`QRY-001` – indexfreundliche
+  Suchbedingungen“. In Tabellen erfüllt eine benachbarte Titel- oder
+  Beschreibungsspalte diese Aufgabe. Reine Kennungslisten sind kein Leseeinstieg.
+- Links nach ihrem Inhalt oder Zweck beschriften. Ein technischer Dateiname oder
+  eine interne Kennung allein erklärt das Ziel nicht.
+- In Folien müssen die für das Verständnis nötigen Erklärungen sichtbar sein;
+  Sprechernotizen und ein externes Glossar ergänzen sie. Jede eigenständig
+  verwendete Präsentationsvariante benötigt die passenden Einführungen.
+- Stabile Kennungen, Dateipfade, Befehle, Parameter, maschinenlesbare Werte und
+  unveränderte Originalzitate beibehalten. Die Erklärung steht im begleitenden
+  Text; technische Bezeichner werden nicht umbenannt.
+
+Das [Glossar für Begriffe und Kennungen](../GLOSSARY.md) dient als zusätzliche
+Nachschlagehilfe und ersetzt keine notwendige Erklärung an der Verwendungsstelle.
+
 ## 2. Aussageklassen
 
 Technische Texte kennzeichnen ihre Aussagebasis, wenn eine Verwechslung möglich ist:
@@ -92,7 +117,7 @@ Für die Zielversionen gelten folgende Bezeichnungen:
 | `Index Scan` / `Table Scan` | durchlaufender Zugriff; nicht ohne Kosten- und Ergebniskontext als Fehler bezeichnen |
 | `Key Lookup` | Lookup vom Nonclustered Index in einen Clustered Index |
 | `RID Lookup` | Lookup vom Nonclustered Index in einen Heap |
-| `Forwarded Record` | weitergeleitete Heapzeile nach Vergrößerung variabler Daten; kein Synonym für RID Lookup |
+| `Forwarded Record` | weitergeleitete Heapzeile nach Vergrößerung variabler Daten; kein Synonym für RID (Row Identifier; physischer Zeilenverweis) Lookup |
 | `Page Split` | Aufteilung einer Page während einer Änderung; von Fragmentation und Page Density trennen |
 | `Logical Fragmentation` | Abweichung logischer und physischer Page-Reihenfolge |
 | `Page Density` | Belegungsgrad der Pages; nicht automatisch durch Fragmentation beschrieben |
@@ -157,12 +182,12 @@ Folgende Formulierungen sind ohne explizite Voraussetzungen und Evidenz unzuläs
 - „CTEs materialisieren“,
 - „Table Variables haben keine Statistiken und immer eine feste Schätzung“ ohne Versionsgrenze,
 - „ein niedriger Fill Factor verhindert Page Splits“,
-- „Filegroups verteilen I/O automatisch“,
+- „Filegroups verteilen I/O automatisch“ (I/O: Input/Output; Ein- und Ausgabezugriffe),
 - „Row Versioning verhindert Blocking“,
 - „`NOLOCK` löst Blocking“ oder garantiert korrekte schnellere Reads,
 - „eine Partition entspricht einem Thread“,
 - „Wait Type X ist die Ursache“ ohne bestätigende Gegenprobe,
-- „Query Store ersetzt DMVs oder Extended Events“.
+- „Query Store ersetzt DMVs oder Extended Events“ (DMVs: Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen).
 
 Stattdessen ist die konkrete Voraussetzung zu nennen und die Behauptung als dokumentiert, empirisch oder als zu prüfende Hypothese einzuordnen.
 

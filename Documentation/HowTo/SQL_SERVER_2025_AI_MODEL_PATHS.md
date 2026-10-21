@@ -8,11 +8,11 @@ noch keine neue Runtimeabnahme dieses Schulungsprojekts.
 
 | Pfad | Aufrufer und Transport | Frameworkvertrag | Aktuelle Grenze |
 |---|---|---|---|
-| Lokaler Pflichtpfad | T-SQL, ohne Modell | FWK-010, QRY-014 bis QRY-017 | Konstruiert Geometrie; keine Sprachsemantik |
-| Lokales RAG | PowerShell-Controller → Ollama per Loopback-HTTP; Controller → eigene SQL-Instanz | Öffentliche Invoke-SqlServerLabAiRag-API | Vorhandene Modelle, Versions-/Capability-/Dimensions-/Digestprüfung; keine Downloads oder Dienständerungen |
+| Lokaler Pflichtpfad | T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL), ohne Modell | FWK-010, QRY-014 bis QRY-017 | Konstruiert Geometrie; keine Sprachsemantik |
+| Lokales RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) | PowerShell-Controller → Ollama per Loopback-HTTP (Hypertext Transfer Protocol; Protokoll zur Übertragung von Webanfragen und Antworten); Controller → eigene SQL-Instanz | Öffentliche Invoke-SqlServerLabAiRag-API (Application Programming Interface; Programmierschnittstelle) | Vorhandene Modelle, Versions-/Capability-/Dimensions-/Digestprüfung; keine Downloads oder Dienständerungen |
 | SQL-seitige Embeddings | SQL → eigenes HTTPS-Gateway → vorhandener lokaler Provider | Interner Docker-Referenzslice AI_SQL_HTTPS_BRIDGE | Kein allgemeines öffentliches Ollama-Gateway-API; CA-/Credential-/Restart-Lifecycle separat qualifizieren |
 | Lokale Acceleratoren | Providerabhängige TLS-/API-Strecke | Öffentliche Modellplan-/Preflight- und ausgewählte OVMS-Gateway-APIs | OVMS-Gateway ist keine generische Ollama-Bridge; offene TLS-/Providergrenzen bleiben offen |
-| Cloud/ONNX | Ausdrücklich gewählter Zusatzpfad | Eigene Provider-/Kosten-/Hostgrenzen | In diesem Implementierungsauftrag noch nicht konkret freigegeben |
+| Cloud/ONNX (Open Neural Network Exchange; Austauschformat für Modelle) | Ausdrücklich gewählter Zusatzpfad | Eigene Provider-/Kosten-/Hostgrenzen | In diesem Implementierungsauftrag noch nicht konkret freigegeben |
 
 Ollama muss für den lokalen Anwendungspfad keine eigene HTTPS-Funktion bereitstellen.
 Diese Route führt AI_GENERATE_EMBEDDINGS nicht innerhalb von SQL aus: Der Controller
@@ -221,7 +221,7 @@ Budget sechs Kandidaten mit Dreiercheckpoint unverändert. Details und Grenzen:
 [Generationsnachweis](../Project_Planning/SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
 
 Die Generation C3 ist semantisch FAIL: ein Inferenz-/sechs Metadatenrequests,
-gültiges rohes JSON mit Nichtantwort im positiven Fall. Weitere Cases wurden
+gültiges rohes JSON (JavaScript Object Notation; strukturiertes Textformat) mit Nichtantwort im positiven Fall. Weitere Cases wurden
 nicht gestartet; eigener Caller beendet, bekannte Requestenden, kein UNKNOWN.
 Dreiercheckpoint gebunden; drei FAIL-Kandidaten erhalten, insgesamt zwei
 Inferenz-/zwölf Metadatenrequests. C4 ändert ausschließlich die Promptstruktur

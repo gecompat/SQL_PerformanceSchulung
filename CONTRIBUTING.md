@@ -33,13 +33,19 @@ Globale oder destruktive Befehle sind nur in klar gekennzeichneten, isolierten L
 
 ## Quellen
 
-Fachliche Aussagen sollen möglichst auf Microsoft Learn, offizielle Produktdokumentation, dokumentierte DMVs oder andere belastbare Primärquellen gestützt werden. Quellen und Abrufdatum gehören in die jeweilige Fach- oder Demo-Dokumentation.
+Fachliche Aussagen sollen möglichst auf Microsoft Learn, offizielle Produktdokumentation, dokumentierte DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) oder andere belastbare Primärquellen gestützt werden. Quellen und Abrufdatum gehören in die jeweilige Fach- oder Demo-Dokumentation.
 
 ## Sprachstil und Übersetzungen
 
 Für Dokumentation, Kommentare, Commit Messages, Pull Requests, AI-Metadaten und sonstige Projekttexte gelten die verbindlichen [Sprachstil- und Übersetzungsregeln](Documentation/Standards/LANGUAGE_AND_TRANSLATION_RULES.md) sowie der fachlich spezifischere [Terminologie- und Schreibstandard](Documentation/Standards/TERMINOLOGY_AND_STYLE_STANDARD.md).
 
 Projekt- und Dokumentationssprache ist grundsätzlich Deutsch. Ein Dokument verwendet nur eine Hauptsprache. Technische Originalbegriffe, Produktnamen, Codebezeichner, Befehle, Dateinamen und etablierte englische IT-Begriffe werden nicht künstlich übersetzt. Beispiele und Befehle müssen der tatsächlichen Implementierung exakt entsprechen.
+
+Abkürzungen benötigen bei der ersten Verwendung eine Erklärung. Technische
+Kennungen stehen in allen für Menschen erstellten Bereichen zusammen mit
+einem Thema oder einer Beschreibung; eine benachbarte Titelspalte genügt.
+Das gilt auch für Folien und jede eigenständig verwendete Kursvariante.
+Das [Glossar](Documentation/GLOSSARY.md) ergänzt die Erklärungen vor Ort.
 
 Neue Texte sind sachlich, eindeutig, technisch präzise, gut lesbar und möglichst zeitlos zu formulieren. Marketing-Sprache, unnötige Füllwörter, emotionale Formulierungen, Spekulationen und unbegründete Wertungen sind nicht zulässig. Vorhandene Dokumentation wird nicht ohne ausdrücklichen oder fachlich begründeten Anlass übersetzt.
 
@@ -49,11 +55,11 @@ Neue Texte sind sachlich, eindeutig, technisch präzise, gut lesbar und möglich
 
 ### Abschluss nach einem Merge
 
-Nach jedem erfolgreichen Pull-Request-Merge wird das lokale `main` mit `origin/main` synchronisiert und der zugehörige lokale Arbeitsbranch gelöscht. Zuerst sind der serverseitige Merge, der lokale Branchstand und die vollständige Übernahme der Änderungen zu prüfen. Bei einem Squash-Merge genügt `git branch --merged` allein nicht als Nachweis. `git branch -D` ist nur zulässig, wenn die Übernahme unabhängig bestätigt ist und der Branch keine zusätzlichen, nicht übernommenen Änderungen enthält. Ein Branch in einem anderen Worktree bleibt bis zu dessen sicherem Abschluss erhalten. Die Abschlussmeldung bestätigt die lokale Bereinigung oder benennt den konkreten Hinderungsgrund. Maßgeblich ist `DEC-066` in [`.ai/DECISIONS.md`](.ai/DECISIONS.md).
+Nach jedem erfolgreichen Pull-Request-Merge wird das lokale `main` mit `origin/main` synchronisiert und der zugehörige lokale Arbeitsbranch gelöscht. Zuerst sind der serverseitige Merge, der lokale Branchstand und die vollständige Übernahme der Änderungen zu prüfen. Bei einem Squash-Merge genügt `git branch --merged` allein nicht als Nachweis. `git branch -D` ist nur zulässig, wenn die Übernahme unabhängig bestätigt ist und der Branch keine zusätzlichen, nicht übernommenen Änderungen enthält. Ein Branch in einem anderen Worktree bleibt bis zu dessen sicherem Abschluss erhalten. Die Abschlussmeldung bestätigt die lokale Bereinigung oder benennt den konkreten Hinderungsgrund. Maßgeblich ist `DEC-066` (Lokale Arbeitsbranches nach dem Merge bereinigen) in [`.ai/DECISIONS.md`](.ai/DECISIONS.md).
 
 ### Vollständiger Arbeitsabschluss
 
-Begonnene Arbeit wird gemäß `DEC-069` bis zur relevanten Validierung und Integration
+Begonnene Arbeit wird gemäß `DEC-069` (Vollständigen Arbeitsabschluss und lokale sowie Remote-Branchbereinigung verfolgen) bis zur relevanten Validierung und Integration
 in `origin/main` verfolgt, sofern sie nicht ausdrücklich zurückgestellt oder
 ausgeschlossen ist. Ein offener Pull Request oder ein vorbereiteter Branch ist
 kein Abschluss. Nach unabhängig bestätigter vollständiger Übernahme werden auch
@@ -65,7 +71,7 @@ Ausführungsstand. Fehlgeschlagene Checks dürfen nicht umgangen werden.
 
 ## KI-generierte Commit Messages
 
-Jede Commit Message, die vollständig oder überwiegend von einer KI erstellt wird, muss mit dem Namen der tatsächlich verwendeten KI und einem Doppelpunkt beginnen. Beispiele sind:
+Jede Commit Message, die vollständig oder überwiegend von einer KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) erstellt wird, muss mit dem Namen der tatsächlich verwendeten KI und einem Doppelpunkt beginnen. Beispiele sind:
 
 ```text
 ChatGPT: Add Docker smoke test

@@ -44,7 +44,7 @@ Ausgabe enthält keine Kandidateninhalte, lokalen Pfade oder Gitfehlermeldungen.
 `runtime_attested` und `method_approved` sind stets `false`.
 
 `raw_binding` bindet die sortierten `[relativer Pfad, SHA256(Rohbytes)]`-Zeilen
-als kompaktes ASCII-JSON; `lf_binding` verwendet separat ausschließlich
+als kompaktes ASCII-JSON (JavaScript Object Notation; strukturiertes Textformat); `lf_binding` verwendet separat ausschließlich
 CRLF→LF-normalisierte Bytes. Beide Bindungen erscheinen nur nach vollständigem
 PASS. LF-Gleichheit erlaubt keinen Byte-PASS: EOL-Abweichung ergibt
 `RAW_BYTES_DIFFER`, gegebenenfalls mit `logical_text_equivalent=true`.
@@ -109,7 +109,7 @@ Import-/Bootstrapmutation, NUL-Syntax,
 Größen-/Eintrags-/AST-/Gitoutputlimits und einen Ausführungssentinel.
 Darunter bindet ein Fall die tatsächlichen 27 Quellen am lokalen HEAD.
 Unter Windows benötigen zwei echte Symlinkfälle OS-Berechtigung und werden
-bei deren Fehlen ausdrücklich als SKIP ausgewiesen; Linux-CI führt sie aus.
+bei deren Fehlen ausdrücklich als SKIP ausgewiesen; Linux-CI (Continuous Integration; automatisierte Integrationsprüfungen) führt sie aus.
 Reparseattribute besitzen zusätzlich eine kontrollierte Gegenprobe.
 Keine SQL-, Docker- oder Launcher-Runtime ist beteiligt. Der eigene
 [Workflow](../../.github/workflows/dgn007-source-bundle.yml) ist statisch und

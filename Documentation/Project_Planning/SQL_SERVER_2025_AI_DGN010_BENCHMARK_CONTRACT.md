@@ -21,9 +21,9 @@ qualifizieren keine aktuellen Readerpläne oder Indexnutzung aller Messfenster.
 ## Vor Ausführung feste Profilgrenzen
 
 Ein späterer Runner verwendet nur SQL17.0.5005.3/Developer/CL170 auf einer eigenen
-neuen markierten Instanz, vier CPU/sechs GiB, 1000 synthetische IDs 1–1000,
+neuen markierten Instanz, vier CPU (Central Processing Unit; Prozessor)/sechs GiB, 1000 synthetische IDs 1–1000,
 Value=Id×3 und 100 F-Payloadbytes. SIMPLE, Dateilimits 256/64 MB und unveränderte
-MAXDOP/PREVIEW_FEATURES 0. Höchstens sechs kohärente Korrekturkandidaten je
+MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES 0. Höchstens sechs kohärente Korrekturkandidaten je
 Implementierungsschnitt; gemeinsame Ledger zählen alle historischen FAILs.
 Ein Retry braucht geänderte Ausführungsquellen oder neue konkrete Evidenz.
 300 Sekunden reguläres Profilbudget, anschließend insgesamt 60 Sekunden Cleanup.
@@ -31,7 +31,7 @@ Das konkrete öffentliche Versions-/Fehlerlaufbudget wird vor Admission im
 kanonischen Ausführungsstand gebunden; dieser reine Schnitt erzeugt keine Container.
 
 SELECT: identische ungezwungene Readerquery mit int-Parametern 101/110,
-ORDER BY Id und MAXDOP1 ohne INDEX-Hints. DML: Owner-UPDATE der IDs 101–110
+ORDER BY Id und MAXDOP1 ohne INDEX-Hints. DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten): Owner-UPDATE der IDs 101–110
 mit Value+1/OUTPUT und tatsächlichem Rollback der eigenen Transaktion pro Batch.
 Keine freien Modellqueries, Provider-/Cloudaufrufe, ONNX- oder Hoständerungen.
 Eine gespeicherte Advicefixture muss ausdrücklich synthetisch bleiben.
@@ -60,7 +60,7 @@ Rollback Transaktionsdepth0. Ein unveränderter Sourcewert ersetzt kein UPDATE.
 Native Gegenproben/Restore, Config- und Readerrechteattestationen bleiben beim
 späteren Runtimeproducer; ein bloßes Flag oder synthetisches Fixture belegt sie nicht.
 
-CPU/I/O misst denselben tatsächlichen Request einschließlich Countergrenzen;
+CPU/I/O (Input/Output; Ein- und Ausgabezugriffe) misst denselben tatsächlichen Request einschließlich Countergrenzen;
 UTC-Elapsed enthält für SELECT Impersonation/Query-/Buffer-/Transfer-/Delete-/REVERT-
 Aufwand und für DML BEGIN TRAN/UPDATE-/OUTPUT-/Rollbackaufwand. Diese Grenzen sind
 nicht identisch. Coarse DMV-datetime-Requeststart ist ausschließlich Identität,
@@ -106,9 +106,9 @@ Samples/Median/Min/Max, null zusätzliche native Ausführungen. Diese neue reine
 Auswertung erweitert keine Runtime-, Herkunfts-, Versions- oder TP-PERF-Abnahme.
 
 Ein Owner, ein Reviewer allein für das neue konkrete Record-/FWK-Risiko; keine
-Reviewkette oder Wiederholung unveränderter grüner SQLprofile. Statische KI-CI
+Reviewkette oder Wiederholung unveränderter grüner SQLprofile. Statische KI-CI (Continuous Integration; automatisierte Integrationsprüfungen)
 nimmt nur neue Tests und ihre Abhängigkeiten auf. Runtimejob und native gemeinsame
-API bleiben unverändert; der bestehende Revisionselector muss am aktuellen
+API (Application Programming Interface; Programmierschnittstelle) bleiben unverändert; der bestehende Revisionselector muss am aktuellen
 Head/Main ausdrücklich NOT_APPLICABLE für diese rein statischen Eingaben nachweisen.
 Keine zweite lokale Vollprivacyprüfung; geänderte Dateien vor jedem Commit und
 zentrale aktuelle Head-/Main-Gates bleiben erforderlich. Modell-/Tokenverbrauch

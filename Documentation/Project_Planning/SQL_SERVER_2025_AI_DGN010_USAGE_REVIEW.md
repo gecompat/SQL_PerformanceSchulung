@@ -13,7 +13,7 @@ abwesend. Der [Marker-Sicherheitsnachweis](SQL_SERVER_2025_AI_DGN010_MARKER_REVI
 bleibt getrennt vom öffentlichen Gesamt-WARN; historische drei FAILs erhalten.
 
 Die nächste Frage ist ausschließlich tatsächliche Indexnutzung vor/nach drei
-einzelnen festen ungezwungenen DGN010_reader-SELECTs in PK→Candidate→PK. Die
+einzelnen festen ungezwungenen DGN010_reader-SELECTs in PK (Primary Key; Primärschlüssel)→Candidate→PK. Die
 beiden vorhandenen Readerrechte CONNECT/SELECT werden nicht erweitert. Keine
 SHOWPLAN-Erfassung, Modellaufrufe, zusätzlichen Konfigurationseffekte oder
 Arbeitslast-/Nettonutzenbehauptung. INSERT-/Commit-/Build-/Worker-/weitere DML-
@@ -41,12 +41,12 @@ Modell-/Tokenverbrauch unbekannt; kein angenommener Account- oder Geldverbrauch.
 ## Native Grenzen und tatsächliche Oracles
 
 Fixes bereits verfügbares SQL-17.0.5005.3-Image, eigene Owner-/CID-/Name-/Image-
-Bindung, vier CPU/sechs GiB, Loopbackendpoint, ausschließlich synthetische eigene
+Bindung, vier CPU (Central Processing Unit; Prozessor)/sechs GiB, Loopbackendpoint, ausschließlich synthetische eigene
 1000 Rows und eigene markergebundene DB. Öffentlicher read-only Versions-/
 Editions-/Bestätigungs-/Permissions-/Abwesenheitspreflight vor Setup. Andere
 Container/Repositories unverändert. ENV-Passwort ohne -P; keine Cloud-/Bezahl-
 API-/ONNX-/Hoständerungen. Öffentliche 10/20/21/22/24/40-Negativ/90/91-Quellen
-werden unverändert aus dem Repo verwendet, keine zweite Bereitstellungs-API.
+werden unverändert aus dem Repo verwendet, keine zweite Bereitstellungs-API (Application Programming Interface; Programmierschnittstelle).
 
 300 Sekunden Gesamt-Normalbudget einschließlich Startup; einmalige gemeinsame
 60-Sekunden-Recovery einschließlich guarded SQLcleanup, neuer unabhängiger DB-

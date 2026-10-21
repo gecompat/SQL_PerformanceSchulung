@@ -42,11 +42,11 @@ bytegenaue Marker, höchstens 1000 synthetische VECTOR(3)-float32-Rows/cosine.
 Genau eine gleichzeitig aktive SQL-Session. Kein Provider-/Modellaufruf.
 
 Vor beiden Sets eine tatsächlich erfasste persistente Baseline-Row: Preview 0/1,
-MAXDOP genau 0 und voller eigener Token; fehlend/NULL/doppelt/ungültig stoppt.
+MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) genau 0 und voller eigener Token; fehlend/NULL/doppelt/ungültig stoppt.
 Nur eigene DB-scoped PREVIEW_FEATURES=ON und MAXDOP=1. Geschlossene Setclients,
 neue getrennte DB-Clients attestieren beide Werte vor Build. Nur die eigene
 Buildsession setzt/prüft QUOTED_IDENTIFIER ON. Kein Host-MAXDOP, Resource Governor,
-Cloud, TLS, ONNX, ALLOW_STALE_VECTOR_INDEX oder anderer DB-Effekt.
+Cloud, TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen), ONNX (Open Neural Network Exchange; Austauschformat für Modelle), ALLOW_STALE_VECTOR_INDEX oder anderer DB-Effekt.
 
 ## Feste neue Metadatenaufnahme und Abnahmegrenze
 
@@ -61,13 +61,13 @@ Cloud, TLS, ONNX, ALLOW_STALE_VECTOR_INDEX oder anderer DB-Effekt.
    fehlende/zu große Ausgabe bleibt FAIL, keine stillen Defaults/Abschneidungen.
 3. Zusätzlich unverändert erfasste Rohmetadaten und deklarierte Ableitungen
    trennen: JSON-Gültigkeit, JSON_VALUE('$.Version') als Rohtext und TRY_CONVERT
-   als Integer. Ungültiges JSON oder fehlender Generationswert bleibt ausdrücklich
+   als Integer. Ungültiges JSON (JavaScript Object Notation; strukturiertes Textformat) oder fehlender Generationswert bleibt ausdrücklich
    UNKNOWN. Das erfolgreiche Aufnehmen solcher NULL-/unqualifizierten Werte kann
    METADATA_CAPTURE_PASS sein, aber niemals GENERATION_QUALIFIED oder SEARCH_PASS.
    Keine andere JSON-Schreibweise, Generation oder Suchsyntax automatisch erraten.
 4. Vollständige Source-/Baseline-/Marker-/Konfigurationsbindung vor/nach der
    SELECT-Aufnahme vergleichen, eigenen Index entfernen und Abwesenheit prüfen.
-   Kein VECTOR_SEARCH, kein DML nach Build, keine Recall-/Plan-/DOP-/Performanceprobe.
+   Kein VECTOR_SEARCH, kein DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) nach Build, keine Recall-/Plan-/DOP-/Performanceprobe.
 5. Beide tatsächlichen Originalwerte wiederherstellen; beide Recoveryclients
    vor Restore/Drop an den tatsächlichen ursprünglichen Previewwert und MAXDOP 0
    binden. Neuer Client attestiert beide Restores vor eigener DB-Entfernung;

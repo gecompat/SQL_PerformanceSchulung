@@ -19,7 +19,7 @@ für deren reine Ergebnis-/Integrationsprüfung; keine Umdeutung zur Korpusabnah
 
 ## Fester Input- und Ergebnisvertrag
 
-Die öffentliche `Invoke-SqlServerLabAiModel`-API am sauberen Lab-Commit
+Die öffentliche `Invoke-SqlServerLabAiModel`-API (Application Programming Interface; Programmierschnittstelle) am sauberen Lab-Commit
 `f4c9fcd30c397e25c95e57d7aeecc98dc194063e` bleibt der einzige Inferenzweg.
 Der Caller bindet ein exportiertes CommandInfo an Modulname, tatsächlichen
 Modulpfad und öffentliche Funktionsdatei; keine Privatfunktionsaufrufe oder
@@ -115,8 +115,8 @@ Vollvektoren, Inputhashes, Bindungen, Rawreceipt, Parentproof und Ledger bleiben
 ausschließlich im ignorierten Runtime. stdout enthält nur Status/Zähler;
 begrenzte Summary enthält drei Scores, Top1 und Marge, keine Rohidentitäten,
 Prompts oder Vektoren. Noch keine Native-C1-Evidenz und keine erneute Inferenz
-für Dokument-/Source-/Ergebnisprüfung. Null SQLcalls; SQL/HTTPS, Generator/RAG,
-Cloud/ONNX, Antwort-/allgemeine Retrievalqualität und vollständige TSK007/008-,
+für Dokument-/Source-/Ergebnisprüfung. Null SQLcalls; SQL/HTTPS, Generator/RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen),
+Cloud/ONNX (Open Neural Network Exchange; Austauschformat für Modelle), Antwort-/allgemeine Retrievalqualität und vollständige TSK007/008-,
 QRY020-, Demo-, Modul- und Workstreamabnahme bleiben offen. Ein etwaiger weiterer
 SQL-VECTOR-/Exact-Retrievalschnitt ist nicht Teil dieses Vertrags.
 

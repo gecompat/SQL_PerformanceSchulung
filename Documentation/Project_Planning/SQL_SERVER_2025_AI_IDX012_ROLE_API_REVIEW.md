@@ -7,7 +7,7 @@ hashverifiziert gesichert; der eigene Worktree ist tatsächlich archiviert.
 Poolsource Hard6 sowie sämtliche alten UNKNOWN-/FAIL-/Providergrenzen bleiben.
 
 Der [historische IDX-012-Rollennachweis](SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md)
-belegt zwei begrenzte C3-Lifecycles, hält jedoch die öffentliche Multi-Login-API
+belegt zwei begrenzte C3-Lifecycles, hält jedoch die öffentliche Multi-Login-API (Application Programming Interface; Programmierschnittstelle)
 offen. Dieser unabhängige Schnitt adressiert diese vorhandene TSK-006-Abnahme.
 Keine Wiederaufnahme gestoppter Pool-, VECTOR-, Parser- oder Generationswellen.
 
@@ -23,7 +23,7 @@ Der bestehende Ein-Kontext-Pfad darf durch die neue Auswahl nicht still verände
 werden; fehlende oder widersprüchliche Rollenargumente werden abgewiesen.
 
 Die beiden Kostenphasen bleiben je ein SQLcmd-Prozess und eine Session:
-Operator für BEFORE, DML und AFTER; Admin ausschließlich am festen Indexbuild;
+Operator für BEFORE, DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) und AFTER; Admin ausschließlich am festen Indexbuild;
 danach derselbe Operator. Kein zusätzlicher Client am Build, kein Verlust von
 #IDX012CostContext oder Änderung der vorhandenen Session-/DML-/Kostenoracles.
 Übrige Phasen authentifizieren direkt als Operator. Ein fest gebundener öffentlicher

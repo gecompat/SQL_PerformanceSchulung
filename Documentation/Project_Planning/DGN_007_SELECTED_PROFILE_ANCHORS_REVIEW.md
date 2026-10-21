@@ -5,7 +5,7 @@ nach vollständig abgeschlossenem PR262. Status `LOCAL_PASS_PR_GATES_PENDING`.
 Kontinuierlicher menschlicher Auftrag; ein Implementierungsowner, unabhängiger
 Auswahl- und Source/Test-PRE mit ausdrücklichem Lauf-GO. Höchstens sechs stabile
 Quellen-/Testkandidaten, Checkpoint nach zwei, harte Grenze sechs einschließlich
-aller Reviews, höchstens fünf geänderter Befundnachläufe, Tests, CI und Abschluss.
+aller Reviews, höchstens fünf geänderter Befundnachläufe, Tests, CI (Continuous Integration; automatisierte Integrationsprüfungen) und Abschluss.
 Token-/Kostenverbrauch UNKNOWN; keine Wiederaufnahme ausgeschöpfter Scopes.
 
 ## Konkrete Lücke und Schnitt
@@ -29,7 +29,7 @@ Das Ergebnis hält privat die `DeclaredProfile`; ein fester Report unterscheidet
 Der Caller übergibt ausdrücklich den lokalen exakten Cache und Finder-/Hookanker.
 Kein impliziter Zugriff auf `sys.modules`, `sys.path` oder aktuelle Installation,
 kein Dateiread/-write, kein Hashing, kein Import, kein Workerstart und keine
-Hookausführung im neuen API. Vorhandene Imports und APIs bleiben unverändert.
+Hookausführung im neuen API (Application Programming Interface; Programmierschnittstelle). Vorhandene Imports und APIs bleiben unverändert.
 Ausgewählte Cachekeys müssen vollständig und exakt dem übergebenen Cache
 entsprechen. Ganze ausgewählte P11-Felder werden an tatsächliche lokale
 Modul-/Spec-/Loaderfelder gebunden, einschließlich aller Frozenpartner,
@@ -70,7 +70,7 @@ Erfolg samt identischen gewählten S15/P11 und gehaltenen Ankern; Mutationen
 aller S15-/P11-Felder; fehlender/zusätzlicher Cache, umgestellte P11-Auswahl,
 unbeachtliche Cacheinsertionsreihenfolge bei identischen Keys/Ankern, fremde Typen,
 späte Formfehler vor frühem Bindungsfehler, Frozenaliase einschließlich
-Mixedpartnern, Package-/Loader-/Controlsdrift, Caps, kein I/O/Hash/Hook-/
+Mixedpartnern, Package-/Loader-/Controlsdrift, Caps, kein I/O (Input/Output; Ein- und Ausgabezugriffe)/Hash/Hook-/
 Observation-/Prozessaufruf, keine Änderung an übergebenen oder echten Globals.
 Nur synthetische Module/Specs/Loader und Locator. Keine neue operative
 Charakterisierung oder Ableitung der Sollinventur aus der aktuellen Installation.

@@ -68,8 +68,8 @@ einmal vollständig gebunden; niemals SQLcleanup-PASS aus Containerabwesenheit.
 Der Schnitt begann SOURCE_PREPARATION_ONLY mit null zusätzlichen Effekten.
 Nur neue betroffene Puretests normal/geschützt unter `-O`, unveränderte
 historische Tests und Diagnosen nicht wiederholen. API-/SQL-Kohärenz ist kein
-unabhängiger TDS-Wiretokenbeleg. float16, andere Versionen/OS/Editionen, Provider,
-Pooling/Rollen/Performance/RAG, volle TSK-004-/Workstream-/Releaseabnahme offen.
+unabhängiger TDS-Wiretokenbeleg. float16, andere Versionen/OS (Operating System; Betriebssystem)/Editionen, Provider,
+Pooling/Rollen/Performance/RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen), volle TSK-004-/Workstream-/Releaseabnahme offen.
 Cloud-/Bezahl-API-/ONNX-/rote Hosteffekte ausgeschlossen. Modell-/Tokenverbrauch
 UNKNOWN. Aktuelle PR-/Head-/Main-/Tree-/FF-/Branch-/Sicherungs-/Worktreeclosure
 und unmittelbarer nächster zulässiger Schritt bleiben erforderlich.

@@ -25,7 +25,7 @@ Enterprise Developer ist der Entwicklungszielumfang; Windows, Podman und andere 
 benötigen eigene Qualifikation. 2019/2022 beenden Preflight vor Setup mit SKIP_VERSION.
 Grün, eine Session, 180 Sekunden regulär und separat 60 Sekunden Cleanup.
 19 Basisrows und drei erzeugte Chunks; Dateigrenzen 256 MiB Daten / 64 MiB Log.
-Vorgeschlagenes Lab: vier logische CPUs, 16 GiB Host-RAM, 10 GiB freier Laborplatz.
+Vorgeschlagenes Lab: vier logische CPUs, 16 GiB Host-RAM (Random Access Memory; Arbeitsspeicher), 10 GiB freier Laborplatz.
 
 Setup/Cleanup benötigen CREATE DATABASE und Eigentümerrechte in der eigenen Datenbank.
 Die reine Claim-/Retrievalbewertung benötigt nur SELECT auf lab-Views. Chunkaufbau ist
@@ -93,6 +93,6 @@ sie muss den Konflikt benennen und eine Entscheidung zurückhalten. Ein gültige
 SRC-073/SRC-079 sowie SRC-095, geprüft am 2026-10-11 im
 [Quellenregister](../../../Documentation/Research/SOURCE_REGISTER.md). Weitere Grenzen stehen
 in der [Featurematrix](../../../Documentation/Research/SQL_SERVER_2025_AI_FEATURE_MATRIX.md).
-Live-RAG gehört zu einem eigenen Modellpfad; die derzeitige Secret-Grenze von SQL_Server_Lab
+Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) gehört zu einem eigenen Modellpfad; die derzeitige Secret-Grenze von SQL_Server_Lab
 steht im [Modellpfad-Leitfaden](../../../Documentation/HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md).
 Der Offline-PASS ist keine Provider-, Sprachmodell-, Kosten- oder Benchmarkabnahme.

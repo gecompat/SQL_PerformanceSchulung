@@ -13,8 +13,8 @@ begrenzt; öffentliche Producer weiterhin WARN/NOT_ESTABLISHED.
 ## Umfang und korrigiertes Entwicklungsbudget
 
 Unter TSK-011/CUR-021 werden drei ursprüngliche ungezwungene Reader-Abfragen
-mit zehn Ergebnisrows im Ablauf PK → Candidate → PK aufgenommen. Der vollständige
-öffentliche Querytext einschließlich Parametern 101/110 und MAXDOP 1 bleibt
+mit zehn Ergebnisrows im Ablauf PK (Primary Key; Primärschlüssel) → Candidate → PK aufgenommen. Der vollständige
+öffentliche Querytext einschließlich Parametern 101/110 und MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1 bleibt
 unverändert; DGN010_reader behält ausschließlich CONNECT und SELECT ohne Rollen.
 Quelle: 1000 synthetische Rows mit vollständigen Value-/Payload-Byteoracles.
 
@@ -31,7 +31,7 @@ Modell-/Tokenverbrauch unbekannt; keine behauptete monetäre Durchsetzung.
 
 Fixes bereits vorhandenes SQL-17.0.5005.3-Image, tatsächlicher öffentlicher
 Versions-/Editions-/Rechte-/Isolationspreflight. Neuer eigener Container mit
-voller CID-/Name-/Image-/Ownerbindung, vier CPU, sechs GiB, Loopbackendpunkt,
+voller CID-/Name-/Image-/Ownerbindung, vier CPU (Central Processing Unit; Prozessor), sechs GiB, Loopbackendpunkt,
 ENV-Passwort ohne -P. Andere Repositories bleiben unverändert; keine Cloud-,
 Bezahl-, ONNX- oder Hoständerung. Normalbudget insgesamt 300 Sekunden einschließlich
 Startup, einmalige gemeinsame Recovery von 60 Sekunden einschließlich SQL-90/91,
@@ -59,11 +59,11 @@ ungeprüfter SQL-Rettungsabbau. Ungebundene Restobjekte führen zu FAIL und werd
 nur durch vollständigen gebundenen eigenen Containerabbau entfernt.
 
 Der Ringbuffer wird vor STOP/DROP gelesen. Native dropped_event_count und
-dropped_buffer_count müssen tatsächlich null sein; XML truncated/droppedCount
+dropped_buffer_count müssen tatsächlich null sein; XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) truncated/droppedCount
 müssen tatsächlich null sein, vollständige Eventpopulation/Frameordinale prüfen.
 totalEventsProcessed muss der vollständigen Eventzahl entsprechen; fehlende oder
 abweichende Werte sperren PASS, auch bei truncated=0/droppedCount=0.
-XML/JSON höchstens 220000 UTF-16-Einheiten und Nativeausgabe höchstens ein MB;
+XML/JSON (JavaScript Object Notation; strukturiertes Textformat) höchstens 220000 UTF-16-Einheiten und Nativeausgabe höchstens ein MB;
 keine abgeschnittene Ausgabe oder fehlende Laufzeitcounter als PASS behandeln.
 
 Exakter ursprünglicher SELECT-Textdigest, tatsächlicher fünfteiliger Request,

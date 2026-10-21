@@ -18,7 +18,7 @@ und Nativeadmission folgen als eigener nachprüfbarer Umfang.
 ## Konkrete Evidenz- und Privacygrenzen
 
 Der künftige Producer muss Captures an dasselbe tatsächlich gehaltene Clienthandle
-binden: Ordinal/PID, finaler typisierter Returncode, Timeout, Dauer und vollständige
+binden: Ordinal/PID (Process Identifier; Prozesskennung), finaler typisierter Returncode, Timeout, Dauer und vollständige
 Digests des zurückgegebenen dekodierten Stdout-/Stderr-Texts. Der reine Helper
 prüft Callerangaben und ihre Kohärenz, startet oder pollt selbst keinen Prozess
 und attestiert weder Handleprovenienz noch ursprüngliche Pipebytes unabhängig.
@@ -59,7 +59,7 @@ unabhängiger Rootreview. Null neue Prozesse, Native-SQL-, Container-, Domänenm
 oder Provider-Metadatenaufrufe; keine reale Handle-/CLR-/Startup-/C3-Wiederholung.
 V1 bleibt bytegleich. Neue Module/Tests/Fixture unter Tests/Static, Anleitung unter
 Documentation/HowTo. Kein Demos09-/CommonFramework-/Workflow-/Selectorwechsel und
-kein RED-Profil in Default-CI. Spätere tatsächliche Producereingaben benötigen
+kein RED-Profil in Default-CI (Continuous Integration; automatisierte Integrationsprüfungen). Spätere tatsächliche Producereingaben benötigen
 gezielte Dependency-/Nativegates; diese Vorstufe schafft keine Selectorausnahme.
 
 Gebundener Quellen-/Resultatreview, neue betroffene Gegenfälle, aktuelle Head-/Main-

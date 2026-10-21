@@ -2,7 +2,7 @@
 
 Ein .NET-Client besteht aus seiner eigenen DLL und weiteren Bibliotheken.
 Die Datei `*.deps.json` beschreibt den zugehörigen Paketgraphen. Ein Runtime
-Identifier (RID) wie `win-x64` bezeichnet eine Plattformvariante. Die Prüfung
+Identifier (RID (Row Identifier; physischer Zeilenverweis)) wie `win-x64` bezeichnet eine Plattformvariante. Die Prüfung
 hier vergleicht einen festen Windowsgraphen mit bereitgestellten Dateimetadaten.
 Sie lädt keine DLL und öffnet keine SQL-Verbindung.
 
@@ -61,7 +61,7 @@ Layoutunterschied. `SELECTED_RUNTIME_TARGET_PATHS_PRESENT` bedeutet, dass die
 fünf wörtlichen Pfade in den übergebenen Metadaten stehen. Beide Ergebnisse
 bleiben WARN.
 
-Loader, Typed API, TDS, SQL und Runtimequalifikation bleiben
+Loader, Typed API (Application Programming Interface; Programmierschnittstelle), TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server), SQL und Runtimequalifikation bleiben
 NOT_ESTABLISHED: dieser konkrete Ausführungspfad ist dadurch noch nicht
 geprüft. Der Ursprung der historischen `FileNotFoundException` bleibt
 UNPROVEN. Die Ausnahme bezeichnet allein noch nicht die fehlende Datei.

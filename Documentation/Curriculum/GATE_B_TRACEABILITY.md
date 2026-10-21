@@ -17,10 +17,10 @@ Dieses Dokument ergänzt die projektweite [Traceability-Matrix](TRACEABILITY_MAT
 
 | Quellenbasis | Claim | Lernziel | Modul / Folienbezug | Demo | Sicherheitsstufe | Testprofil | Runtime-Evidenz |
 |---|---|---|---|---|---|---|---|
-| `GBSRC-001`, `GBSRC-002`, `GBSRC-012`, `GBSRC-013` | `CLM-037` | `LO-M03-01` | Query Patterns, Folie 37 | `QRY-001` | `GREEN` | `TP-RUN` | je zweimal `PASS` auf SQL Server 2019, 2022 und 2025; Ergebnisequivalenz, Seek/Scan und statementbezogene Logical Reads |
-| `GBSRC-003` bis `GBSRC-006` | `CLM-023`, `CLM-024` | `LO-M02-02` | Optimizer und Statistiken, Folien 23–24 | `OPT-002` | `GREEN` | `TP-RUN` | je zweimal `PASS`; Sample-Header, erste Statistikschlüsselspalte, Histogramm, Density Vector und Fullscan-Invarianten |
-| `GBSRC-007` bis `GBSRC-009` | `CLM-066` | `LO-M05-02` | Concurrency, Folie 66 | `CON-004` | `YELLOW` | `TP-CON` | je zweimal `PASS`; Head–Middle–Leaf-Kette, zwei unmittelbare Blockerbeziehungen, positive `LCK_M_%`-Waits und blockierungsfreier Vergleich |
-| `GBSRC-010` bis `GBSRC-013` | `CLM-030` | `LO-M02-05` | Optimizer und Runtime-Evidenz, Folie 30 | `OPT-013` | `YELLOW` | `TP-PERF` | je zweimal `PASS`; identische 300.000 Zeilen, kleinerer Grant und positiver Sort-Spill bei deaktivierter Table Variable Deferred Compilation, Staging-Vergleich ohne Spill |
+| `GBSRC-001`, `GBSRC-002`, `GBSRC-012`, `GBSRC-013` | `CLM-037` | `LO-M03-01` | Query Patterns, Folie 37 | `QRY-001` (Indexfreundliche Suchbedingungen) | `GREEN` | `TP-RUN` | je zweimal `PASS` auf SQL Server 2019, 2022 und 2025; Ergebnisequivalenz, Seek/Scan und statementbezogene Logical Reads |
+| `GBSRC-003` bis `GBSRC-006` | `CLM-023`, `CLM-024` | `LO-M02-02` | Optimizer und Statistiken, Folien 23–24 | `OPT-002` (Statistiken lesen) | `GREEN` | `TP-RUN` | je zweimal `PASS`; Sample-Header, erste Statistikschlüsselspalte, Histogramm, Density Vector und Fullscan-Invarianten |
+| `GBSRC-007` bis `GBSRC-009` | `CLM-066` | `LO-M05-02` | Concurrency, Folie 66 | `CON-004` (Blockierungsketten verfolgen) | `YELLOW` | `TP-CON` | je zweimal `PASS`; Head–Middle–Leaf-Kette, zwei unmittelbare Blockerbeziehungen, positive `LCK_M_%`-Waits und blockierungsfreier Vergleich |
+| `GBSRC-010` bis `GBSRC-013` | `CLM-030` | `LO-M02-05` | Optimizer und Runtime-Evidenz, Folie 30 | `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) | `YELLOW` | `TP-PERF` | je zweimal `PASS`; identische 300.000 Zeilen, kleinerer Grant und positiver Sort-Spill bei deaktivierter Table Variable Deferred Compilation, Staging-Vergleich ohne Spill |
 
 ## Ausführungsmatrix
 

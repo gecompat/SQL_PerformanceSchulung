@@ -13,7 +13,7 @@ Cleanup, lokale Tag-2-Rechen-/Quellenprüfung und PowerPoint-Anwendungstest.
 Optionaler Full-Text-WARN und bestehende offene Runtimeclaims bleiben erhalten.
 Dies schließt den begrenzten VERTIEFUNG-Materialschnitt von TSK-012/TSK-014.
 Teilnehmererprobung und gemessene Lehrzeiten bleiben offen; keine Gesamtfreigabe
-von Live-Provider, ANN, Pooling, Performance oder Stream. Andere pausierte
+von Live-Provider, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Pooling, Performance oder Stream. Andere pausierte
 Entwicklungswellen und Automation werden nicht wiederaufgenommen.
 
 ## STANDARD Kurswelle vom 18. Oktober 2026
@@ -94,7 +94,7 @@ V2_RECORD_BINDING bleibt unverändert mit seinem verbrauchten Max1 und STOP.
 Die vor dem neuen Report abgewiesene Rootmetadatenassertion mit falsch
 übertragenem Preparedhash ist separat erhalten; nach direkter Aufnahme des
 vollständigen Hashs korrigiert, kein Report vor dieser Korrektur und keine
-Umzählung als Runtime-/Quellen-Syntaxfehler. Ihr PID bleibt NOT_CAPTURED.
+Umzählung als Runtime-/Quellen-Syntaxfehler. Ihr PID (Process Identifier; Prozesskennung) bleibt NOT_CAPTURED.
 
 Alle56 tatsächlich verwendeten Eingangsbytes sind flach gesichert, dazu23 feste
 Authority-/Ergebnis-/Raw-/Ledger-/Rootreviewdateien; bytegenau erneut verglichen.
@@ -133,7 +133,7 @@ festen Eingangsdateien und acht Authoritydateien blieben vor/nach bytegleich.
 Root hat den Fehler und die Originalkanäle unabhängig geprüft.
 
 Der konkrete Fehler betrifft die beiden Rechtegegenfälle: Die tatsächliche
-öffentliche API liefert für das noch nicht gestartete Cleanupfenster vier
+öffentliche API (Application Programming Interface; Programmierschnittstelle) liefert für das noch nicht gestartete Cleanupfenster vier
 Felder, während Consumer und Fixture nur Status erwarteten. Source5 fordert
 jetzt exakt Status=NOT_STARTED, Seconds als int60 sowie beide Zeitfelder=None.
 Fehlende, zusätzliche und widersprüchliche Felder werden abgewiesen. Der neue
@@ -204,7 +204,7 @@ Container angelegt und entfernt. Zwei tatsächliche Rechteentzüge führten exak
 zu PREFLIGHT/SKIP_PERMISSION, frische DBabwesenheit und vollständiger Grantrestore.
 Positiver Produktstatus bleibt WARN_OPTIONAL_EVIDENCE_SKIPPED: 23 Phasen,
 acht Rollenkontexte, zwei Kostenclients, drei Storageaufnahmen und vollständiger
-999-Row-Text-/Distanz-/Rebuildvergleich. Preview/MAXDOP zurückgesetzt, DB/Login/
+999-Row-Text-/Distanz-/Rebuildvergleich. Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) zurückgesetzt, DB/Login/
 CID/Name/Inputs frisch abwesend; Closedtrue/Unknownfalse. RootactualReview bestanden.
 Sechs Quellenstände/28 Invokationen/26 PASS/zwei erhaltene ERROR und elf bekannte
 Testenden. C1/C2-FAILs bleiben unverändert; Welle nach finalem Teilnachweis gestoppt.
@@ -390,7 +390,7 @@ CLR-, Compiler-, SQL-, Container-, Modell- oder Metadatenausführung. Bestehende
 Sourcecheckpoint3 bleibt geschlossen, alte UNKNOWNs und Ursache UNPROVEN bleiben
 unverändert. Kumulativ weiterhin vier Nativeversuche/drei Container, keine neue
 Zulassung der gestoppten Welle. Runtime-/Pooling-/TSK-009-/TP-CON-Abnahme bleibt
-NOT_ESTABLISHED. CI erweitert nur den bestehenden statischen Schritt um vier
+NOT_ESTABLISHED. CI (Continuous Integration; automatisierte Integrationsprüfungen) erweitert nur den bestehenden statischen Schritt um vier
 Schutzmethoden: 39 normal/18 optimiert in denselben zwei Pythonprozessen;
 Runtimejob und Selector sind bytegleich, Default-CI startet kein RED-Profil.
 
@@ -450,12 +450,12 @@ und unveränderte Host-/Cloud-/ONNX-/Releasegrenzen; Tokenverbrauch UNKNOWN.
 
 | Merkmal | Wert |
 |---|---|
-| Planungsauftrag | `TSK-003`, ausdrücklich autorisiert am 2026-10-11 |
+| Planungsauftrag | `TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration), ausdrücklich autorisiert am 2026-10-11 |
 | Status | `DESIGNED`; Planungsintegration und Review sind im PR nachzuweisen |
-| Entscheidung | `DEC-073`; neue Curriculumentscheidung, keine Entwicklungswiederaufnahme |
+| Entscheidung | `DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze); neue Curriculumentscheidung, keine Entwicklungswiederaufnahme |
 | Plattform | SQL Server 2025 (17.x); primär Enterprise Developer, CL 170 |
 | Pflegeautorität | dieser Plan für Architektur/Pakete; Featurematrix für Produktgrenzen; Demoentwurf für Lifecycle |
-| Allgemeiner Ausführungsstand | [CURRENT_EXECUTION_STATUS.md](CURRENT_EXECUTION_STATUS.md), weiterhin `PAUSED` |
+| Allgemeiner Ausführungsstand | [Aktueller Ausführungsstand](CURRENT_EXECUTION_STATUS.md), weiterhin `PAUSED` |
 
 ## Aktueller Implementierungsstand
 
@@ -557,7 +557,7 @@ voller Tree/FF/Branches, 129 private Dateien gesichert/eigener Worktree archivie
 Begrenzter Gesamt4-Roundtrip-PASS gestoppt, keine weiteren Proben; alte UNKNOWN
 und Wire-/volle Abnahmegrenzen erhalten. Öffentliche Lesehilfe beginnt mit
 Begriffen und Datenfluss, erklärt synthetische VECTOR-Zahlen, native API
-gegenüber JSON, Voraussetzungen, NULL/Dimension und TLS-/Versionsgrenzen.
+gegenüber JSON (JavaScript Object Notation; strukturiertes Textformat), Voraussetzungen, NULL/Dimension und TLS-/Versionsgrenzen.
 Bestehende Kompatibilitäts-/Sessionreadertexte an tatsächlichen neuen Beleg
 anpassen, keine alte UNKNOWN-Auflösung oder pauschale Qualification.
 Ein Implementer/enger Rootreview, höchstens sechs Textkandidaten/Checkpoint3,
@@ -591,7 +591,7 @@ Gesamt3 bleibt UNKNOWN_STOP; Pflichtcheckpoint3 anhand tatsächlicher Originale
 unabhängig geschlossen. Neue eigene V4-Grundlage korrigiert nur den erwarteten
 OPEN-Encrypt-Serialisierungswert der gepinnten SqlClient6.1.4-Bytes auf True.
 Herstellerquelle/6.1-Dokumentation stützen die Zuordnung; falsche/fehlende/
-doppelte/zusätzliche Werte weiterhin ablehnen, TLS unverändert. Drei vorherige
+doppelte/zusätzliche Werte weiterhin ablehnen, TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen) unverändert. Drei vorherige
 Compiler/Container/Caller zählen weiter, höchstens drei zusätzliche Gesamt4–6.
 Source6/Checkpoint3/hard6, zunächst null neue Effekte, getrennte Rootgates
 vor Compiler/Native. Alte gestoppte Pakete/Ressourcen nie replay, UNKNOWN
@@ -1069,7 +1069,7 @@ genehmigte KI-Heartbeat ist aktiv. Externe/Bezahl- und rote
 Hoständerungen behalten ihre jeweiligen Gates. QRY-014 bis QRY-017 sind der erste
 zusammenhängende Implementierungsschnitt; der Workstream ist damit noch nicht abgenommen.
 QRY-018 ergänzt jetzt den Offline-RAG-Schnitt aus TSK-008; sein
-[Qualifikationsnachweis](SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md) bleibt getrennt von Live-RAG.
+[Qualifikationsnachweis](SQL_SERVER_2025_AI_OFFLINE_RAG_REVIEW.md) bleibt getrennt von Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen).
 QRY-019 beginnt TSK-009 mit fester SQL-Struktur, tatsächlicher Wertbindung und einem
 eingeschränkten Datenbankbenutzer; sein [Nachweis](SQL_SERVER_2025_AI_SQL_INPUT_REVIEW.md)
 belegt ausschließlich den synthetischen lokalen Kontrollharness.
@@ -1080,7 +1080,7 @@ Modellmetadaten, getrennte SQL-Rollen und Grantreduktion; sein [Nachweis](SQL_SE
 qualifiziert Modell-EXECUTE nur als Metadatenrecht, keine Inferenz oder echten Credentials.
 CON-010 ist unter der erweiterten lokalen Wellenfreigabe mit zwei stabilen
 privaten C5-Lifecycles wiederaufgenommen; genaue sechs CONNECT-/SELECT-Grants,
-RLS/Quellen und tatsächliche Rechteverweigerungen sind im
+RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle)/Quellen und tatsächliche Rechteverweigerungen sind im
 [Teilnachweis](SQL_SERVER_2025_AI_TENANT_RESUME_REVIEW.md) gebunden. Historische
 FAILs bleiben sichtbar. Die öffentliche Demo ist jetzt IMPLEMENTED; der
 [Consumer-/Versionsnachweis](SQL_SERVER_2025_AI_TENANT_IMPLEMENTATION_REVIEW.md)
@@ -1153,7 +1153,7 @@ flowchart LR
   L --> A[Antwort, Quellenbelege oder begründete Nichtantwort]
 ```
 
-Engine, Inference-Provider, Embedding-Modell, generatives LLM und Anwendung sind getrennte
+Engine, Inference-Provider, Embedding-Modell, generatives LLM (Large Language Model; großes Sprachmodell) und Anwendung sind getrennte
 Komponenten. Das SQL-External-Model ist ein Embeddingobjekt; es wird kein generatives Modell
 im Database Engine Prozess behauptet. Der Pflichtpfad benötigt weder Internet noch Modell.
 Konstruierte Vektoren erklären Mathematik; echte Sprachsemantik benötigt den optionalen,
@@ -1181,12 +1181,12 @@ Schulung; fehlende Grundlagen werden als Vorbereitung ausgewiesen.
 
 | Auftragsbereich | Abdeckung | Schwerpunkt und geplante Evidenz |
 |---|---|---|
-| A: Grundlagen | `CUR-013`, `CUR-014` | ML vs. Generative AI/LLM; Tokenisierung vs. Zeichenchunks; Embeddingraum, Dimension, Distanz, Exact/ANN, RAG; deterministische SQL-Verarbeitung und probabilistische Antwort |
-| B: native KI | `CUR-014`–`CUR-016`, `CUR-019` | VECTOR/float32/float16, DISTANCE, NORM, NORMALIZE, VECTORPROPERTY, Index/SEARCH, CHUNKS, EXTERNAL MODEL, EMBEDDINGS; zusätzlich REST und Indexmetadaten |
-| C: Integration | `CUR-016`, `CUR-022` | lokale Mathematik, Ollama/TLS, Azure OpenAI optional, generatives LLM in Anwendung, ONNX Windows optional; API-/Authentifizierungs-/Netzgrenzen |
+| A: Grundlagen | `CUR-013` (KI-Grundlagen für SQL-Server-Fachleute), `CUR-014` (Native Vektoren und Exact Search) | ML vs. Generative AI/LLM; Tokenisierung vs. Zeichenchunks; Embeddingraum, Dimension, Distanz, Exact/ANN, RAG; deterministische SQL-Verarbeitung und probabilistische Antwort |
+| B: native KI | `CUR-014`–`CUR-016` (Modelle und sichere Integration), `CUR-019` | VECTOR/float32/float16, DISTANCE, NORM, NORMALIZE, VECTORPROPERTY, Index/SEARCH, CHUNKS, EXTERNAL MODEL, EMBEDDINGS; zusätzlich REST (Representational State Transfer; Architekturstil für Webschnittstellen) und Indexmetadaten |
+| C: Integration | `CUR-016`, `CUR-022` (Architektur, Kosten und kontrollierte Agenten) | lokale Mathematik, Ollama/TLS, Azure OpenAI optional, generatives LLM in Anwendung, ONNX (Open Neural Network Exchange; Austauschformat für Modelle) Windows optional; API-/Authentifizierungs-/Netzgrenzen |
 | D: Suche/RAG | `CUR-015`, `CUR-017` | Import → Chunking → Embedding → Speicherung → Retrieval → Fachbewertung → Kontext → Antwort/Quellen; fehlende/widersprüchliche Evidenz |
-| E: Security | `CUR-018`, `CUR-022` | Least Privilege, Credentials/TLS/Egress, Injection, Quellenmanipulation, RLS/Tenants, Filter, Embeddingschutz, Audit/Retention, Agenten und Supply Chain |
-| F: Performance | `CUR-019`, `CUR-020` | relational/Full-Text/Exact/ANN, Filter, Build/Maintenance, Dimension/Storage, CPU/Reads/Grant/TempDB/Elapsed/DOP, Concurrency/Throughput/p50/p95/p99, Inferenz-/Netzzeit, Recall und Kosten |
+| E: Security | `CUR-018` (Security, Datenschutz und Tenant-Isolation), `CUR-022` | Least Privilege, Credentials/TLS/Egress, Injection, Quellenmanipulation, RLS/Tenants, Filter, Embeddingschutz, Audit/Retention, Agenten und Supply Chain |
+| F: Performance | `CUR-019`, `CUR-020` (Performance, Skalierung und Diagnose) | relational/Full-Text/Exact/ANN, Filter, Build/Maintenance, Dimension/Storage, CPU (Central Processing Unit; Prozessor)/Reads/Grant/TempDB/Elapsed/DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Concurrency/Throughput/p50/p95/p99, Inferenz-/Netzzeit, Recall und Kosten |
 | G: SQL-Assistenz | `CUR-021` | Generieren/Erklären/Fehlerprüfung, Plans/Indizes/Query Store/Waits/Konfiguration/Fehler; LLM-Hypothese gegen Messung; aktuelle SSMS-/Copilot-Clientfunktionen |
 
 Die vollständigen Voraussetzungen, Syntaxformen und offenen Quellenkonflikte stehen in
@@ -1236,7 +1236,7 @@ Sie sind weder aktuelle Lehrfenster des 61-Folien-Decks noch gemessene Kursdauer
 | **Summe** | **150 Minuten** | **145 / 245 = 390 Minuten** | **235 / 405 = 640 Minuten** |
 
 Ersteinrichtung wird separat mit 60–120 Minuten geschätzt. Schulungslänge und Hardwarebedarf
-werden in `TSK-014` mit Teilnehmenden geprüft, nicht aus diesen Schätzungen als belegt ausgegeben.
+werden in `TSK-014` (KI-Generalprobe und Workstreamabnahme) mit Teilnehmenden geprüft, nicht aus diesen Schätzungen als belegt ausgegeben.
 
 ## 6. Modulverträge und Bewertung
 
@@ -1248,12 +1248,12 @@ alle Module erhalten später Trainerlösung, Teilnehmerauftrag und die hier besc
 
 - Lernziel: ML, LLM und Embedding-Modell unterscheiden und den RAG-Datenfluss erklären.
   Vorwissen: einfache SQL-Abfragen. Theorie: Tokens, Vektoren, Distanz, ANN und probabilistische Ausgabe.
-- Praxis: `QRY-014`/`QRY-015`, Vektoren mit eigener geometrischer Vorhersage ordnen.
+- Praxis: `QRY-014` (Vektortypen und Dimensionen)/`QRY-015` (Vektordistanzen und Normalisierung), Vektoren mit eigener geometrischer Vorhersage ordnen.
   Beobachtung: mathematische Nähe allein belegt keine fachliche Richtigkeit.
 - Frage: Warum sind Zeichenchunk und Tokenlimit verschieden? Fehlinterpretation: gleiche Dimension
   bedeutet gleicher Modellraum. Musterlösung: Tokenizer/Modellversion und Provenienz nennen;
   SQL-Ergebnis, Retrievalqualität und Generationsqualität getrennt bewerten.
-- Quellen: `SRC-072`–`SRC-075`, `SRC-087`, `SRC-094`, `SRC-095`.
+- Quellen: `SRC-072` (Vector data type)–`SRC-075` (VECTOR_NORMALIZE), `SRC-087` (Generate embeddings with Azure OpenAI), `SRC-094` (DiskANN: Fast Accurate Billion-point Nearest Neighbor Search on a Single Node), `SRC-095` (Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks).
 
 ### CUR-014 – Vektoren und Exact Search
 
@@ -1262,87 +1262,87 @@ alle Module erhalten später Trainerlösung, Teilnehmerauftrag und die hier besc
 - Praxis: `QRY-014`/`QRY-015`. Beobachtung: Modell-/Typ-/Dimensionsfehler und unterschiedliche Scores.
 - Frage: Nutzt VECTOR_DISTANCE einen Vector Index? Fehlinterpretation: Index beschleunigt automatisch
   jede Distanzberechnung. Musterlösung: exakter Pfad ohne ANN und validierte Distanz-/Norminvarianten;
-  Preview von GA und dokumentiertes CL von Labor-CL unterscheiden.
+  Preview von GA (General Availability; allgemeine Produktverfügbarkeit) und dokumentiertes CL von Labor-CL unterscheiden.
 - Quellen: `SRC-072`–`SRC-076`.
 
 ### CUR-015 – Chunking und Wissensbasis
 
 - Lernziel: Dokumentversion, Chunkreihenfolge und Quellenbereich durch Import/Chunking erhalten.
   Vorwissen: `CUR-014`, CROSS APPLY. Theorie: FIXED-Zeichenchunking, Overlap und Kontextgrenzen.
-- Praxis: `QRY-016`. Beobachtung: Überlappung erhöht Wiederholungen; ein Split kann eine Erklärung trennen.
+- Praxis: `QRY-016` (Textabschnitte und Quellenherkunft). Beobachtung: Überlappung erhöht Wiederholungen; ein Split kann eine Erklärung trennen.
 - Frage: Welche Quelle gehört zum Treffer nach Dokumentupdate? Fehlinterpretation: Chunk-ID genügt.
   Musterlösung: DocId/Version/Bereich/Modell-/Chunkparameter, Rekonstruktion und Re-Embeddingbedarf zeigen.
-- Quellen: `SRC-079`, `SRC-081`, `SRC-087`.
+- Quellen: `SRC-079` (AI_GENERATE_CHUNKS), `SRC-081` (AI_GENERATE_EMBEDDINGS), `SRC-087`.
 
 ### CUR-016 – Modelle und Integration
 
 - Lernziel: Engine, Provider, Modell und Anwendung mit tatsächlichen Netzwerk-/Rechtegrenzen trennen.
   Vorwissen: `CUR-015`, DB-Rollen. Theorie: REST-Vertrag, TLS, Credentials, Modell-/Tokenlimits und Retry.
-- Praxis: `QRY-020`, optional `QRY-021`/`QRY-022`, `DGN-008`.
+- Praxis: `QRY-020` (Lokale Embeddings über Ollama), optional `QRY-021` (Optionale externe Embeddings)/`QRY-022` (Optionale lokale ONNX-Embeddings), `DGN-008` (Modellmetadaten und Zugriffsrechte).
   Beobachtung: gültiges HTTP-API allein erfüllt den SQL-HTTPS-Vertrag nicht; fehlerhafte Authentifizierung
   und Dimension werden vor Speicherung erkannt.
 - Frage: Wo bedeutet localhost im Container dasselbe? Fehlinterpretation: lokales Modell braucht keine
   Security. Musterlösung: Erreichbarkeit aus Enginekontext, TLS-Vertrauen, least-privilege Rolle,
   Budget und Modelllizenz; fehlende Voraussetzungen kontrolliert SKIP.
-- Quellen: `SRC-080`–`SRC-088`, `SRC-096`.
+- Quellen: `SRC-080` (CREATE EXTERNAL MODEL)–`SRC-088` (Foundry Models data privacy), `SRC-096` (CREATE DATABASE SCOPED CREDENTIAL).
 
 ### CUR-017 – Semantische Suche und RAG
 
 - Lernziel: Treffer gegen Relevanzurteile prüfen und eine Antwort an erlaubte Quellen binden.
   Vorwissen: `CUR-015`/`CUR-016`. Theorie: Retrieval, Kontextbudget, Abstention und Widersprüche.
-- Praxis: `QRY-017`/`QRY-018`. Beobachtung: Keyword, semantische Suche und generative Antwort
+- Praxis: `QRY-017` (Suchverfahren vergleichen)/`QRY-018` (Quellengestützte Antworten im Offline-Beispiel). Beobachtung: Keyword, semantische Suche und generative Antwort
   lösen unterschiedliche Aufgaben; plausible Antworten können unbelegt sein.
 - Frage: Was tun ohne hinreichende Retrieval-Evidenz? Fehlinterpretation: Quellenlink beweist den Satz.
   Musterlösung: konkrete Claim-zu-Quellenstelle-Zuordnung, Widerspruch markieren, Nichtantwort zulassen.
-- Quellen: `SRC-073`, `SRC-078`, `SRC-087`, `SRC-095`.
+- Quellen: `SRC-073`, `SRC-078` (VECTOR_SEARCH), `SRC-087`, `SRC-095`.
 
 ### CUR-018 – Security und Datenschutz
 
 - Lernziel: keine zusätzlichen Rechte durch KI-Integration einführen und Tenantdaten vor Kontextübergabe isolieren.
   Vorwissen: `CUR-016`/`CUR-017`, objektbezogene Grants. Theorie: Bedrohungsmodell aus §8.
-- Praxis: `CON-010`, `DGN-008`/`DGN-009`, `QRY-019`.
+- Praxis: `CON-010` (Daten verschiedener Mandanten trennen), `DGN-008`/`DGN-009` (Manipulierte Quellen und erlaubte Werkzeugaufrufe), `QRY-019` (Feste SQL-Struktur und getrennte Parameterwerte).
   Beobachtung: Promptfilter ersetzen weder DB-Autorisierung noch sichere Parametrisierung.
 - Frage: Kann die Anwendung TenantId aus dem Prompt übernehmen? Fehlinterpretation: Approval oder
   ANN-WHERE ist die Sicherheitsgrenze. Musterlösung: authentifizierter serverseitiger Kontext,
   DB-Zugriffsgrenze, Gegenproben für Pooling/Revocation, geprüfter Kontext und kein DDL-Recht.
-- Quellen: `SRC-080`, `SRC-082`, `SRC-088`, `SRC-090`, `SRC-091`, `SRC-093`, `SRC-096`.
+- Quellen: `SRC-080`, `SRC-082` (sp_invoke_external_rest_endpoint), `SRC-088`, `SRC-090` (SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) Agent mode), `SRC-091` (Execution context for GitHub Copilot), `SRC-093` (Row-Level Security), `SRC-096`.
 
 ### CUR-019 – ANN und Index-Lifecycle
 
 - Lernziel: DiskANN als Approximation erklären und Indexgeneration/Recall/Maintenance gemeinsam beurteilen.
   Vorwissen: `CUR-014`/`CUR-017`, M04 empfohlen. Theorie: Graphsuche, Kandidaten und Trade-offs;
   Paper beschreibt Algorithmus, nicht verbindliche SQL-Internals.
-- Praxis: `IDX-011`/`IDX-012`. Beobachtung: Altformat kann Postfilter-/DML-/Stale-Grenzen besitzen.
-  [DEC-074](SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md) erlaubt ausschließlich für
+- Praxis: `IDX-011` (Exact gegen Approximate Search)/`IDX-012` (Begrenzte DML-Grenzenvorstufe). Beobachtung: Altformat kann Postfilter-/DML-/Stale-Grenzen besitzen.
+  [DEC-074 – Gebundenes ANN-Legacyprofil mit Generation UNKNOWN/WARN](SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md) erlaubt ausschließlich für
   den empirisch gebundenen Build 17.0.5005.3 ein Legacy-TOP_N-Profil mit numerischer
   Generation UNKNOWN/WARN. Alle Qualitäts-/Plan-/Mess-/DML-/Recoverygates bleiben;
   keine Annahme einer numerischen Generation oder neuer Azure-Funktionalität.
 - Frage: Ist niedrige Laufzeit ausreichend? Fehlinterpretation: TOP-k ist garantiert das exakte Top-k.
   Musterlösung: gleiche Candidate-/Metric-/Tie-Regel, Recall@k, Index-/Planbeleg, Update- und Buildkosten.
-- Quellen: `SRC-073`, `SRC-077`, `SRC-078`, `SRC-094`, `SRC-097`.
+- Quellen: `SRC-073`, `SRC-077` (CREATE VECTOR INDEX), `SRC-078`, `SRC-094`, `SRC-097` (sys.vector_indexes).
 
 ### CUR-020 – Performance und Diagnose
 
 - Lernziel: Ressourcen, Verteilungslatenz und Retrievalqualität mit getrennten Zeitbereichen messen.
   Vorwissen: `CUR-019`, M00/M06 empfohlen. Theorie: Messkonzept §9 und Auswahl der Evidenzquellen.
-- Praxis: `RES-008`/`RES-009`, `DGN-011`, Vergleich `QRY-017`/`IDX-011`.
+- Praxis: `RES-008` (Vektordimensionen und Ressourcenbedarf)/`RES-009` (Concurrent Vector Workloads und Latenzverteilung), `DGN-011` (SQL-, Netzwerk- und Inferenzdiagnose), Vergleich `QRY-017`/`IDX-011`.
   Beobachtung: schnelleres SQL kann bei Modell-/Netzengpass die Anwendung kaum beschleunigen.
 - Frage: Kann Query Store p99 der Anwendung belegen? Fehlinterpretation: mittlere Duration genügt.
   Musterlösung: Requestrohwerte mit Fehlerrate/Throughput, Quantilverfahren, belastbares Sample,
   Granularitäts-/Uhrgrenzen und Ressourcen-/Qualitätskosten nennen.
-- Quellen: `SRC-027`, `SRC-028`, `SRC-032`, `SRC-081`, `SRC-082`, `SRC-094`.
+- Quellen: `SRC-027` (Monitor performance by using the Query Store), `SRC-028` (Performance monitoring and tuning tools), `SRC-032` (Tune nonclustered indexes with missing index suggestions), `SRC-081`, `SRC-082`, `SRC-094`.
 
 ### CUR-021 – LLMs für SQL-Entwicklung und Analyse
 
 - Lernziel: generiertes SQL erklären/prüfen und Plan-, Index-, Query-Store-, Wait-, Konfigurations-
   oder Fehlerhypothesen gegen zugelassene Evidenz beurteilen. Vorwissen: M02/M03/M06 oder Vorbereitung.
   Theorie: fehlender Kontext, Halluzination, Versionsgrenzen und sichere Änderungsfreigabe.
-- Praxis: `DGN-010` und `QRY-019`; synthetischer Fall für überflüssigen INCLUDE-Index mit zusätzlicher
+- Praxis: `DGN-010` (synthetischen Indexrat anhand begrenzter Messungen prüfen) und `QRY-019`; synthetischer Fall für überflüssigen INCLUDE-Index mit zusätzlicher
   DML-/Speicherlast. Beobachtung: behaupteter Lesegewinn ist bei bereits abgedeckter Query unbelegt.
 - Frage: Welcher Versuch könnte den Vorschlag widerlegen? Fehlinterpretation: Missing-Index-/LLM-Rat
   ist eine Freigabe. Musterlösung: identische Ergebnisse, A/B/AA-Vergleich, tatsächliche Reads/CPU/
   DML-Kosten, Rückfallpfad; vorgefertigte Antwort als Fixture, Liveantwort separat kennzeichnen.
-- Quellen: `SRC-027`, `SRC-028`, `SRC-089`–`SRC-092`.
+- Quellen: `SRC-027`, `SRC-028`, `SRC-089` (GitHub Copilot in SSMS overview)–`SRC-092` (SSMS 22 release notes).
 
 ### CUR-022 – Architektur, Kosten und Agenten
 
@@ -1353,7 +1353,7 @@ alle Module erhalten später Trainerlösung, Teilnehmerauftrag und die hier besc
 - Frage: Welche Tools darf ein Suchassistent besitzen? Fehlinterpretation: autonome Iteration rechtfertigt
   sysadmin. Musterlösung: SELECT auf erlaubten Daten/Views, genehmigte Tools, Lauf-/Geld-/Retrygrenzen,
   getrennte menschliche Änderungsfreigabe und Abbruch/Recovery; keine autonome Produktionsänderung.
-- Quellen: `SRC-088`–`SRC-092`, `SRC-098`; Kostenmodell §10 ist Methode, kein Anbieterpreisversprechen.
+- Quellen: `SRC-088`–`SRC-092`, `SRC-098` (SSMS Copilot admin controls); Kostenmodell §10 ist Methode, kein Anbieterpreisversprechen.
 
 ## 7. Demo- und Laborarchitektur
 
@@ -1378,9 +1378,9 @@ SQL-Ausführungsgrenze; weitere Bedrohungen und Gegenproben sind geplante Method
 
 | Bedrohung | Ursache / mögliche Wirkung | Reproduzierbarer Versuch | Gegenmaßnahme | Restrisiko |
 |---|---|---|---|---|
-| Rechteausweitung/Agenten | breit berechtigtes SQL-Konto; ungewollte DDL/DML | `DGN-008`, erlaubtes SELECT und verweigertes DDL/Modellregistrieren | getrennte Setup-/Query-/Ingestionrollen, positive/negative Grants; DB-Rechte erzwingen Grenze | privilegierter Betreiber kann Konfiguration ändern |
+| Rechteausweitung/Agenten | breit berechtigtes SQL-Konto; ungewollte DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten)/DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) | `DGN-008`, erlaubtes SELECT und verweigertes DDL/Modellregistrieren | getrennte Setup-/Query-/Ingestionrollen, positive/negative Grants; DB-Rechte erzwingen Grenze | privilegierter Betreiber kann Konfiguration ändern |
 | Credential-/Datenabfluss | frei wählbarer Endpoint, Secret im Prompt/Log | `DGN-008`, nicht erlaubten Endpoint und Secretattrappe abweisen | Egress-Allowlist, TLS, Credentialpfadbindung, nur freigegebene synthetische Payloads | Provider-/Proxybetrieb und falsch konfigurierte Allowlist |
-| TLS-/REST-Verwechslung | HTTP, falscher SAN/Trust Store/API | `QRY-020`, kontrollierte Negativfälle vor Setup | vertrauenswürdige Chain, Enginekontextprobe, erwartetes Payloadschema, Timeouts | CA-/Providerkompromittierung |
+| TLS-/REST-Verwechslung | HTTP (Hypertext Transfer Protocol; Protokoll zur Übertragung von Webanfragen und Antworten), falscher SAN/Trust Store/API | `QRY-020`, kontrollierte Negativfälle vor Setup | vertrauenswürdige Chain, Enginekontextprobe, erwartetes Payloadschema, Timeouts | CA-/Providerkompromittierung |
 | Prompt Injection | untrusted Quelle enthält Toolinstruktion | `DGN-009`, synthetischer Text verlangt Rechte-/Toolwechsel | Daten/Instruktionen trennen, Toolallowlist, serverseitige Policy, kein Tool aus Retrievaltext | Promptmitigation allein ist unvollständig |
 | Retrievalmanipulation | vergiftete Quelle/Version, falscher Claim | `DGN-009`, verändertes Dokument gegen eingefrorene Version | Provenienz/Version, Quellenfreigabe, Qualitytests und Rekonstruktion | fachlich falsche freigegebene Quelle |
 | SQL Injection | Modelltext als ausführbarer Querystring | `QRY-019`, synthetische Mehrstatement-/Identifierattacke | feste Querytemplates, Wertparameter; Identifierallowlist und menschlicher Review für Änderungen | logische Fehler innerhalb erlaubter Queries |
@@ -1406,7 +1406,7 @@ direkt vergleichbar. Der Basispfad nutzt 1000 deterministische Vektoren; Skalenl
 10000/100000 Vektoren nur bei freigegebenem Ressourcenprofil.
 
 Vor dem Lauf einfrieren: Seed/Korpusversion, Modell/Digest, Dimension/Typ, Metric, k=5/10,
-Filterselektivität, Tenant, Indexgeneration, SQLbuild/CL/Edition/OS, Treiber, DOP,
+Filterselektivität, Tenant, Indexgeneration, SQLbuild/CL/Edition/OS (Operating System; Betriebssystem), Treiber, DOP,
 Cache-/Warm-up-Methode, Concurrency 1/2/4/8 und Grenzen. Im engen DEC-074-Pfad
 Generation UNKNOWN/WARN und vollständiges empirisches Build-/Index-/Syntaxprofil
 erfassen; keine numerische Generation ergänzen. Kein globales Cacheleeren. Fünf Warm-up-Requests
@@ -1421,8 +1421,8 @@ Distinct-/Duplicate- und fachliche Relevanzprüfung. Recall ist keine Antwortkor
 Der Implementierungsvertrag setzt die Zielqualität vor Messung fest; kein nachträgliches
 Schwellenanpassen. Ohne erfüllte Qualität keine Optimierungsfreigabe.
 
-SQL-Evidenz: FWK-004/005, STATISTICS IO/TIME, Actual Plans, passende sessionbezogene DMVs,
-Query Store für Verlauf und FWK-007-XE. Erfasst werden CPU, Logical/Physical Reads, Writes,
+SQL-Evidenz: FWK-004/005, STATISTICS IO/TIME, Actual Plans, passende sessionbezogene DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen),
+Query Store für Verlauf und FWK-007-XE (Extended Events; gezielte Ereigniserfassung in SQL Server). Erfasst werden CPU, Logical/Physical Reads, Writes,
 Rows, Requested/Granted/Used Memory, Spills/TempDB, Elapsed, DOP/Threads, Index-/DBspeicher
 und Build-/Maintenancekosten. Ein fehlendes Planattribut bleibt fehlend, kein Nullmesswert.
 Wait-/Instanzsummen sind nur begrenzte Deltas mit explizitem Scope.
@@ -1507,16 +1507,16 @@ Arbeitstage sind Schätzungen zu 8 Stunden; kein gemessener Aufwand und keine Te
 
 | Paket | Priorität / Größe | Inhalt und überprüfbares Ergebnis | Abhängigkeit | Aufwand |
 |---|---|---|---|---:|
-| `TSK-004` | P0 / M | Build/CL/Edition/OS, Syntax/Resultattypen, Quellenkonflikte und Providerproben qualifizieren | `TSK-003`, Implementierungsfreigabe | 3–5 |
-| `TSK-005` | P0 / L | `QRY-014`–`QRY-017`, Korpus/Provenienz und vollständig lokaler Unterrichtspfad | `TSK-004` | 5–8 |
-| `TSK-006` | P1 / M | `IDX-011`/`IDX-012`, Indexgeneration, Recall und Update-/Buildvertrag | `TSK-005`, Previewentscheid | 4–6 |
-| `TSK-007` | P1 / L | `QRY-020`–`QRY-022`, Provider-/TLS-/Secret-/Modellprofile; unabhängige optionale Slices | `TSK-004`, lokale Modellfreigabe; Cloud/ONNX separat | 5–8 |
-| `TSK-008` | P1 / M | `QRY-018`, transparente RAG-Kette, Quellenrubrik und Offline-Replay | `TSK-005`; Livepfad zusätzlich `TSK-007` | 3–5 |
-| `TSK-009` | P0 / L | `CON-010`, `DGN-008`/`DGN-009`, `QRY-019`; Rechte-/Tenant-/Injection-Negativfälle | `TSK-005`; Providerfälle zusätzlich `TSK-007` | 4–6 |
-| `TSK-010` | P1 / L | `RES-008`/`RES-009`, `DGN-011`; Mess-/Quality-/Kostenvertrag und begrenzte Benchmarks | `TSK-006`, `TSK-009`; Inferenz zusätzlich `TSK-007` | 5–8 |
-| `TSK-011` | P1 / M | `DGN-010`; LLM-Hypothese, korrekte Gegenmessung und Clientgrenzen | `TSK-005`, `TSK-009` | 2–4 |
-| `TSK-012` | P2 / L | Modulverträge `CUR-013`–`CUR-022`, Masterdeck/Notes/Trainer-/Teilnehmermaterial | `TSK-008`–`TSK-011`, relevante Demoabnahmen | 5–8 |
-| `TSK-013` | P0 / L | Versions-/Rechte-/Fehler-/Cleanupqualifikation aller implementierten Pfade | `TSK-005`–`TSK-011` | 4–6 |
+| `TSK-004` (KI-Feature-, Build- und Providerqualifikation) | P0 / M | Build/CL/Edition/OS, Syntax/Resultattypen, Quellenkonflikte und Providerproben qualifizieren | `TSK-003`, Implementierungsfreigabe | 3–5 |
+| `TSK-005` (KI-Lokalpfad und synthetisches Korpus) | P0 / L | `QRY-014`–`QRY-017`, Korpus/Provenienz und vollständig lokaler Unterrichtspfad | `TSK-004` | 5–8 |
+| `TSK-006` (KI-Vector-Index und Maintenance) | P1 / M | `IDX-011`/`IDX-012`, Indexgeneration, Recall und Update-/Buildvertrag | `TSK-005`, Previewentscheid | 4–6 |
+| `TSK-007` (KI-Embedding-Providerpfade) | P1 / L | `QRY-020`–`QRY-022`, Provider-/TLS-/Secret-/Modellprofile; unabhängige optionale Slices | `TSK-004`, lokale Modellfreigabe; Cloud/ONNX separat | 5–8 |
+| `TSK-008` (KI-RAG und Quellenbewertung) | P1 / M | `QRY-018`, transparente RAG-Kette, Quellenrubrik und Offline-Replay | `TSK-005`; Livepfad zusätzlich `TSK-007` | 3–5 |
+| `TSK-009` (KI-Security und Datenschutzlabor) | P0 / L | `CON-010`, `DGN-008`/`DGN-009`, `QRY-019`; Rechte-/Tenant-/Injection-Negativfälle | `TSK-005`; Providerfälle zusätzlich `TSK-007` | 4–6 |
+| `TSK-010` (KI-Benchmark und Diagnose) | P1 / L | `RES-008`/`RES-009`, `DGN-011`; Mess-/Quality-/Kostenvertrag und begrenzte Benchmarks | `TSK-006`, `TSK-009`; Inferenz zusätzlich `TSK-007` | 5–8 |
+| `TSK-011` (KI-SQL-Assistenz und Gegenmessung) | P1 / M | `DGN-010`; LLM-Hypothese, korrekte Gegenmessung und Clientgrenzen | `TSK-005`, `TSK-009` | 2–4 |
+| `TSK-012` (KI-Präsentations- und Lehrmaterialintegration) | P2 / L | Modulverträge `CUR-013`–`CUR-022`, Masterdeck/Notes/Trainer-/Teilnehmermaterial | `TSK-008`–`TSK-011`, relevante Demoabnahmen | 5–8 |
+| `TSK-013` (KI-Runtime- und Negativqualifikation) | P0 / L | Versions-/Rechte-/Fehler-/Cleanupqualifikation aller implementierten Pfade | `TSK-005`–`TSK-011` | 4–6 |
 | `TSK-014` | P2 / M | Generalprobe BASIS/STANDARD/VERTIEFUNG, unabhängige Abnahme und Releaseentscheidung | `TSK-012`, `TSK-013` | 2–3 |
 | **Summe** | | vollständiger Umfang einschließlich optionaler Slices | | **42–67 Tage** |
 
@@ -1706,7 +1706,7 @@ bleibt fehlend, tatsächliche Readerpläne und Indexnettonutzen bleiben offen.
 
 Der erste Indexnutzungskandidat bestand zwei neue eigene Native-Lifecycles: sechs
 volle Singlequeryfenster/60 Rows, 18000 Source- und 12000 State-Rows, vier native
-Negativframes; tatsächliche PK→Candidate→PK-Seeks jeweils 1, keine Readerpläne
+Negativframes; tatsächliche PK (Primary Key; Primärschlüssel)→Candidate→PK-Seeks jeweils 1, keine Readerpläne
 oder Nettonutzenqualifikation. Eigener SQL-/DB-/Containercleanup bestanden.
 Aktuelle PR-/Main-Gates und Branchcleanup folgen. Nächste zulässige DGN-010-Frage
 ist begrenzter Owner-INSERT mit tatsächlichem Rollbackrestore ohne/mit Candidate.

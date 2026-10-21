@@ -27,7 +27,7 @@ Modell-/Tokenverbrauch bleibt unbekannt.
 
 Der Entscheid betrifft ausschließlich dieses zusätzliche Korrekturbudget.
 Build 17.0.5005.3, vollständige lokale Image-ID, maximal 1000 synthetische Rows,
-VECTOR(3), MAXDOP 1, vier CPUs/sechs GiB, Daten-/Loglimits und allein das
+VECTOR(3), MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1, vier CPUs/sechs GiB, Daten-/Loglimits und allein das
 PREVIEW_FEATURES in der eigenen markierten Datenbank bleiben wie freigegeben.
 Keine Cloud-, ONNX-, TLS-, Credential-, Host- oder ALLOW_STALE_VECTOR_INDEX-Erweiterung.
 IDX-012 und die vollständigen FWK-/TP-PERF-Demopakete folgen erst nach einem

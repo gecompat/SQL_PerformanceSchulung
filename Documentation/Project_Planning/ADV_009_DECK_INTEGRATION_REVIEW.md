@@ -2,13 +2,13 @@
 
 | Feld | Wert |
 |---|---|
-| Arbeitspaket | `ADV-009` |
+| Arbeitspaket | `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) |
 | Status | `VALIDATED` |
 | Datum | 2026-09-01 |
 | Grundlage | `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03.md`, `Documentation/Curriculum/ADV_009_SLIDE_SPECIFICATION_M03_LO08.md` |
 | Entscheidungen | `DEC-057`, `DEC-058` (Nachfolger von `DEC-053`) |
 | Deck | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
-| Folienumfang | 84 → 94; aktueller Master nach `ADV-010`/`ADV-011`: 102 |
+| Folienumfang | 84 → 94; aktueller Master nach `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung)/`ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization): 102 |
 | Werkzeug | `Tools/build_adv009_slides.py`, Artifact Tool, `Tools/Set-PresentationCustomShows.ps1` |
 | Prüfer | `Tests/Static/validate_adv009_deck_integration.py` |
 
@@ -49,7 +49,7 @@ Diese Abweichung ist bewusst in Kauf genommen. Eine Umbenennung der Schlussfolie
 | `SLD-M03-114` | 92 | `slide93.xml` | `ADV-CLM-018` |
 | `SLD-M03-115` | 93 | `slide94.xml` | `ADV-CLM-017`, `ADV-CLM-018` |
 
-Die kanonischen Demos sind `QRY-013` für die Anzeigepositionen 84 bis 88 und `QRY-004` für 89 bis 93.
+Die kanonischen Demos sind `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) für die Anzeigepositionen 84 bis 88 und `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) für 89 bis 93.
 
 ## 4. Erzeugung
 

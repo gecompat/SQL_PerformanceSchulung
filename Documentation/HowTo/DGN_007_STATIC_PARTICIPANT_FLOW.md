@@ -95,7 +95,7 @@ Get-PerformanceTrainingScenario -ScenarioId DGN-007
 Die Ausgabe zeigt `STATIC_PARTICIPANT_FLOW_ONLY`, dieses Dokument und die
 geordneten Phasen. `Start-PerformanceTrainingScenario`,
 `Reset-PerformanceTrainingScenario` und `Remove-PerformanceTrainingScenario`
-akzeptieren `DGN-007` nicht, solange kein validierter Szenariovertrag und kein
+akzeptieren `DGN-007` (Zeitabhängige Regression eines Suchworkloads) nicht, solange kein validierter Szenariovertrag und kein
 Runtime-Nachweis vorliegen.
 
 ## Statusgrenze

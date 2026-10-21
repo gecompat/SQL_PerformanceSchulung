@@ -27,8 +27,8 @@ heißt gebundenes Legacy-TOP_N-Profil, keine numerische Generation oder GA-Garan
   FWK-012-Code SKIP_CONFIGURATION mit Detail PROFILE_UNQUALIFIED. Kein neuer Statuscode.
   Kein Syntaxfallback, kein Herunterstufen eines Runtimefehlers zu SKIP.
 - Nur eigene synthetische markierte Datenbank, 1000 nichtdegenerierte float32-
-  VECTOR(3)-Rows, clustered INT-PK, cosine und K=5. Derselbe Korpus/Queryvektor,
-  Metric und vorab fixierte Tie- und Kandidatenregeln für Exact/ANN.
+  VECTOR(3)-Rows, clustered INT-PK (Primary Key; Primärschlüssel), cosine und K=5. Derselbe Korpus/Queryvektor,
+  Metric und vorab fixierte Tie- und Kandidatenregeln für Exact/ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren).
 - Vollständige gebundene sys.vector_indexes-Row: eigener DB-/Schema-/Tabellen-/
   Indexbezug, type VECTOR, DiskANN/COSINE, aktiv/nicht hypothetisch; korrekte
   Texttypen und vollständige Unicodebytevergleiche. build_parameters tatsächlich
@@ -51,7 +51,7 @@ heißt gebundenes Legacy-TOP_N-Profil, keine numerische Generation oder GA-Garan
   Freshness-/Drop-Recreate-/Abbruchvertrag. Der einzelne zurückgerollte UPDATE mit
   42231/State 1 ersetzt weder INSERT/DELETE/MERGE-Proben noch Freshness-/Buildkosten.
   ALLOW_STALE_VECTOR_INDEX war tatsächlich ABSENT; kein OFF-Wert wird erfunden.
-- PREVIEW_FEATURES und MAXDOP nur in eigener DB mit tatsächlichen persistierten
+- PREVIEW_FEATURES und MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) nur in eigener DB mit tatsächlichen persistierten
   Baselines, konkreten begrenzten Effekten und tatsächlichem Restore. MAXDOP=1-
   Konfiguration ist kein tatsächlicher Such-DOP-Beweis. Unveränderte Ressourcen,
   vollständige Eigentumsmarker und unabhängiger DB-/Containercleanup bleiben Pflicht.

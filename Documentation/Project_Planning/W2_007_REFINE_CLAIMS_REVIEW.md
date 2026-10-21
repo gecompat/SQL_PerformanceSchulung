@@ -7,7 +7,7 @@
 | Prüfdatum | 2026-07-24 |
 | Aktiver Foliensatz | `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` |
 | SHA-256 | `e83bfebff93721cc5e5ef907dccc919ab574bcb420dcf8d91af90d4226c7c141` |
-| Folienumfang | 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009`, je 4 aus `ADV-010` und `ADV-011`) |
+| Folienumfang | 102 (84 Basisfolien, 10 Vertiefungsfolien aus `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07), je 4 aus `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) und `ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization)) |
 | Betroffene Claims | `CLM-032`, `CLM-034`, `CLM-042`, `CLM-043` |
 
 ## 0. Nachtrag zur Hashfortschreibung
@@ -25,14 +25,14 @@ Bestandskorrekturen stehen im
 
 `W2-007` schließt die vier in der kritischen Aussagenprüfung verbliebenen `REFINE`-Entscheidungen. Geändert wurden ausschließlich sichtbarer Text, Tabelleninhalte und Speaker Notes der Folien 32, 34, 42 und 43 sowie die dazugehörigen Steuerungsdokumente. Layoutsystem, Folienreihenfolge, Brandingstatus und die übrigen 80 Claims blieben in diesem Arbeitspaket unverändert; die spätere additive Erweiterung erfolgt getrennt unter `ADV-009`.
 
-Die Abnahme bestätigt fachliche Präzision und Präsentationskonsistenz. Sie ersetzt keine noch nicht implementierte Runtime-Demo für `OPT-007`, `QRY-008` oder `QRY-009`. Die Notes der Folie 42 dürfen auf die bereits validierte `OPT-013`-Evidenz verweisen, ohne daraus eine allgemeine Produktgarantie abzuleiten.
+Die Abnahme bestätigt fachliche Präzision und Präsentationskonsistenz. Sie ersetzt keine noch nicht implementierte Runtime-Demo für `OPT-007`, `QRY-008` oder `QRY-009`. Die Notes der Folie 42 dürfen auf die bereits validierte `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher)-Evidenz verweisen, ohne daraus eine allgemeine Produktgarantie abzuleiten.
 
 ## 2. Abgeschlossene Präzisierungen
 
 | Folie / Claim | früheres Risiko | umgesetzte Aussage | fachlicher Nachweis |
 |---|---|---|---|
 | 32 / `CLM-032` | Cache-Key-Abweichung wurde mit Invalidierung vermischt | Abweichende SET-Optionen können zusätzliche Cacheeinträge erzeugen; Eviction, Invalidierung und Recompile werden getrennt diagnostiziert | Query Processing Architecture Guide; Query-Store-Dokumentation |
-| 34 / `CLM-034` | MGF-Persistenz/Perzentilmodus wurde zu eng an CL 160 gebunden | SQL Server 2022+, CL 140 und Query Store `READ_WRITE`; PSP, CE-/DOP-Feedback bleiben CL-160-Funktionen; OPPO ist auf SQL Server 2025/CL 170 begrenzt | IQP-, MGF- und OPPO-Dokumentation |
+| 34 / `CLM-034` | MGF-Persistenz/Perzentilmodus wurde zu eng an CL 160 gebunden | SQL Server 2022+, CL 140 und Query Store `READ_WRITE`; PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte), CE-/DOP-Feedback bleiben CL-160-Funktionen; OPPO ist auf SQL Server 2025/CL 170 begrenzt | IQP-, MGF- und OPPO-Dokumentation |
 | 42 / `CLM-042` | „klein und planstabil“ konnte als feste Produktgrenze gelesen werden | TVDC nutzt bei CL 150 die erste Zeilenzahl, erzeugt aber keine Spaltenhistogramme; Planwiederverwendung und Verteilung bleiben relevant; keine feste Zeilengrenze | IQP- und Table-Variable-Dokumentation; validierte `OPT-013`-Laborevidenz |
 | 43 / `CLM-043` | MSTVFs wurden ohne moderne Ausnahme als dauerhaft fest geschätzt beschrieben | Interleaved Execution kann geeignete MSTVFs ab CL 140 mit der ersten Ist-Kardinalität optimieren; Scalar UDF Inlining bleibt ab CL 150 eligibility- und planabhängig | IQP-Details, UDF- und Scalar-UDF-Inlining-Dokumentation |
 
@@ -52,7 +52,7 @@ Verwendete Primärquellen:
 - Microsoft Learn: Create user-defined functions
 - Microsoft Learn: Scalar UDF Inlining
 
-Die stabilen Quellen-IDs im Repository bleiben `SRC-001`, `SRC-007`, `SRC-008`, `SRC-009`, `SRC-026` und `SRC-027`.
+Die stabilen Quellen-IDs im Repository bleiben `SRC-001`, `SRC-007`, `SRC-008` (Intelligent query processing features in detail), `SRC-009`, `SRC-026` und `SRC-027` (Monitor performance by using the Query Store).
 
 ## 4. Technische Validierung
 

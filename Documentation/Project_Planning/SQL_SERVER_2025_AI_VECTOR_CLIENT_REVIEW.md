@@ -9,7 +9,7 @@ begrenzter neuer Clientpfad; die Pool-UNKNOWNwelle wird nicht wiederaufgenommen.
 
 Zwei begrenzte vorhandene Cacheorte und der eigene Repositoryscope enthalten
 keinen verfügbaren Microsoft.Data.SqlClient ab6.1; nur ein bestehendes5.2.2-Paket
-wurde über Nuspecmetadaten gelesen, ohne Assemblyload. Vorhandenes .NET-SDK
+wurde über Nuspecmetadaten gelesen, ohne Assemblyload. Vorhandenes .NET-SDK (Software Development Kit; Entwicklungswerkzeuge und Bibliotheken)
 10.0.401 ist read-only bestätigt. SRC072 dokumentiert getrennt native
 float32-Clienttypen ab6.1 und ältere JSON-Kompatibilität.
 
@@ -25,7 +25,7 @@ Ein initialer Restoreversuch/max120s, höchstens40Pakete/150MB; fehlgeschlagene
 oder unklare Netzwerk-/Audit-/Lizenzprüfung stoppt den betroffenen Pfad statt
 eines unkontrollierten Retry. Ein Compileraufruf/max90s ohne Treiber-Open/SQL.
 Nur Paketidentitäten werden an die offizielle NuGetquelle gesendet; keine
-Labordaten/Secrets/Modelle, keine bezahlte API. Exit: eigener Quell-/Lock-/
+Labordaten/Secrets/Modelle, keine bezahlte API (Application Programming Interface; Programmierschnittstelle). Exit: eigener Quell-/Lock-/
 Provenienzvertrag und eigene lokale Dateien, kein Host-Rollback nötig.
 
 Der initiale Restore C1 endete nach 0,974s mit Returncode1 und null Paketen:
@@ -51,7 +51,7 @@ weiterer Download, keine Löschung zur nachträglichen Umdeutung des C2-FAIL.
 Die C2-Endbindung ist ausdrücklich quellengestützt: Der gehaltene Helper endete
 mit Returncode1; der SDK-Output wurde erst nach erfolgreicher Rückkehr von
 `Popen.communicate()` geschrieben. Root prüfte die tatsächlichen Wrapper-, Raw-
-und Standardbibliotheks-Hashes sowie deren `wait`-Pfad. Die ursprüngliche SDK-PID,
+und Standardbibliotheks-Hashes sowie deren `wait`-Pfad. Die ursprüngliche SDK-PID (Process Identifier; Prozesskennung),
 sein Returncode und eine separate finale `poll`-Aufnahme fehlen und wurden nicht
 rekonstruiert. Diese eng begrenzte Endbindung ersetzt keine entsprechende
 Native- oder TDS-Attestierung. Die Konfigurationsursache ist durch den offiziellen
@@ -83,7 +83,7 @@ Source-/Compilepfad folgt den [NuGet-Supply-Chain-Regeln](https://learn.microsof
 
 Die private C#-Library hat keinen Main-/CLI-Einstieg und wurde nicht ausgeführt.
 Sie übersetzt die tatsächlichen SqlVector-/Parameter-/Reader-APIs, volle eigene
-Eigentumsmarker und einen Vergleich aller sechs float32-Koordinaten mit JSON.
+Eigentumsmarker und einen Vergleich aller sechs float32-Koordinaten mit JSON (JavaScript Object Notation; strukturiertes Textformat).
 Null-/Dimensionsbeobachtungen sind vorbereitet, noch nicht empirisch bestanden.
 Eine angenommene Dimensionsabweisung oder ein aggregierter Await-/Close-Record
 ersetzt kein eingefrorenes Negativoracle und keine individuelle Requestendbindung.
@@ -98,7 +98,7 @@ Container und Modelle: null. Der Pool-UNKNOWN-Pfad bleibt gestoppt.
 Aktuelle Fünf-Dateien-Privacy, PR-/Main-Gates, vollständige Übernahme,
 FF-Synchronisierung, eigene Branches und gesicherter Worktreeabschluss sind
 die verbleibenden Integrationsgates. Die betroffenen Änderungen sind
-Planungs-/Quellennachweisdokumente; keine neue rote CI oder SQL-Matrix.
+Planungs-/Quellennachweisdokumente; keine neue rote CI (Continuous Integration; automatisierte Integrationsprüfungen) oder SQL-Matrix.
 Unmittelbarer Folgeschritt ist ein eigener begrenzter Nativecaller mit aktuellen
 Oracles, Deadline-, Source-/Input- und tatsächlichen Cleanupgates vor Admission.
 

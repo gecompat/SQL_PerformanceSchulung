@@ -55,7 +55,7 @@ vorhandenen vollständigen Output geprüft, ohne neue SQL-Probe. Die
 erklären die Bedeutung der arithmetischen Zwischentypen; die konkrete beobachtete
 floor-Rezeptur bleibt eine Bindung dieses Korpus, keine allgemeine Rundungsregel.
 
-Frischer Restore bestätigte tatsächlich PREVIEW_FEATURES=0/MAXDOP=0; neuer
+Frischer Restore bestätigte tatsächlich PREVIEW_FEATURES=0/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)=0; neuer
 Attestationsclient bestätigte beide Werte vor markergebundenem Drop; eine weitere
 SQL-Verbindung bestätigte DB-Abwesenheit. Vollständige eigene Name-/CID-/Image-/
 Label-/Ressourcenbindung vor Removal und unabhängiges Lookup bestätigten
@@ -111,7 +111,7 @@ Eigener Indexdrop und identischer Exact-Fallback bestanden in beiden vollständi
 Läufen. SQL-Gegenfixtures bestätigten je 24 Marker-, neun Baseline-, drei Ergebnis-,
 drei Quellen-, zehn Typ-/Metric- und vier Filterablehnungen.
 
-| Beobachtung je 100-Query-AB-/BA-Fenster | Lauf 1 Exact / ANN | Lauf 2 Exact / ANN |
+| Beobachtung je 100-Query-AB-/BA-Fenster | Lauf 1 Exact / ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) | Lauf 2 Exact / ANN |
 |---|---|---|
 | CPU-Median | 30,5 / 66 ms | 36 / 97 ms |
 | UTC-Elapsed-Median | 32,740 / 71,864 ms | 35,140 / 107,160 ms |
@@ -124,8 +124,8 @@ keine universelle Speedupratio. Physische Request-Reads tatsächlich null;
 CPU-/Elapsed-Null wurde in diesen gemessenen Fenstern nicht beobachtet.
 Vollständige Rohwerte und AA-Paare bleiben lokal unter der Quellenbindung erhalten.
 
-Öffentliche Runtimequalifikation bleibt NOT_ESTABLISHED. Vollständige Worker-I/O,
-tatsächlicher DOP aller Suchen, Memory-/Spill-/Waits-/Build-/Storagekosten,
+Öffentliche Runtimequalifikation bleibt NOT_ESTABLISHED. Vollständige Worker-I/O (Input/Output; Ein- und Ausgabezugriffe),
+tatsächlicher DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) aller Suchen, Memory-/Spill-/Waits-/Build-/Storagekosten,
 Minimalrollen- und Hard-Abort-Abnahme sind offen. Keine Speedupratio, keine
 pauschale Indexnutzung aller gemessenen/gefilterten Queries und keine numerische
 Generation. IDX-012 sowie Provider-/Cloud-/ONNX-Grenzen sind getrennte Schritte.

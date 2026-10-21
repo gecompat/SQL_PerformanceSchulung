@@ -166,7 +166,7 @@ keine heute implementierte Vertrauensquelle:
   werden dadurch nicht umdefiniert.
   [GitHub-Runner](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 
-Die API auf dem geschützten lokalen Branch `83f08fb…` ist nur eine Referenz für
+Die API (Application Programming Interface; Programmierschnittstelle) auf dem geschützten lokalen Branch `83f08fb…` ist nur eine Referenz für
 Bodyrückgabe nach Lifecycle und erstem DB-Abwesenheitscheck. Sie schließt diese
 Gates nicht und bleibt unveröffentlicht. Ein Host-/Daemonabbruch kann Cleanup
 unbekannt lassen. Bundle-/Actorbelege beweisen keine QS-Zustandskontinuität.
@@ -208,7 +208,7 @@ bleibt eine tragfähige explizite Methodenentscheidung erforderlich.
 
 Die acht Stages und vorgeschlagenen Zeilen-/Byte-/Poll-/Observerlimits aus
 PR73 bleiben unvalidiert. Durchgängiges Streaming vor dem heute vorpuffernden
-Proxy sowie Machbarkeit innerhalb 180/60 Sekunden und 4 CPU/8 GiB bleiben
+Proxy sowie Machbarkeit innerhalb 180/60 Sekunden und 4 CPU (Central Processing Unit; Prozessor)/8 GiB bleiben
 Pflichtgates. Keine neue SQL-Runtime wird durch diesen Review freigegeben.
 Alle drei Zeitbeziehungen bleiben gesondert offen. PR68 bleibt ohne
 Mergefreigabe; historische FAILs werden nicht umgewidmet. Incident-,

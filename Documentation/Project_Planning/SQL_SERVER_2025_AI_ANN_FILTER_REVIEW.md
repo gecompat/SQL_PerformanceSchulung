@@ -39,7 +39,7 @@ eindeutige IDs und tatsächliche Schnittmengen an die erhaltenen Summaries.
 Fester SQL-Build 17.0.5005.3/EngineEdition 3/Linux Ubuntu 24.04, gleiche volle Image-ID,
 vier CPUs/sechs GiB, eigener Loopbackport, volle CID-/Image-/Ownerbindung, CL170/SIMPLE,
 256/64-MB-Dateilimits und bytegenaue Marker. Tatsächliche persistierte Baselines
-Preview 0/MAXDOP 0, getrennte Set-/neue Attestclients 1/1, Buildsession QUOTED_IDENTIFIER 1.
+Preview 0/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0, getrennte Set-/neue Attestclients 1/1, Buildsession QUOTED_IDENTIFIER 1.
 
 Je Lifecycle vier vollständige 107-Host-/41-DB-scoped-Snapshots, 24 Marker-/neun
 Baseline-/drei bisherige Ergebnis-/drei Quell-/zehn Textwert- und vier neue Filter-

@@ -80,7 +80,7 @@ konkreten lokal installierten Interpreters oder seiner Bibliotheksbytes.
   `find_spec` eines Untermoduls kann bereits dessen Parent importieren.
   [Python-Importlib](https://docs.python.org/3.12/library/importlib.html).
 
-ENTWURFSANNAHME: Kontrollprogramm, Workerbootstrap, Interpreter, Stdlib und OS
+ENTWURFSANNAHME: Kontrollprogramm, Workerbootstrap, Interpreter, Stdlib und OS (Operating System; Betriebssystem)
 sind vertrauenswürdig und während der Probe nicht durch fremde Akteure ersetzbar.
 Vor einem späteren Start ist ein konkretes Python-3.12-Installationsprofil mit
 Interpreteridentität, Version, erlaubten Bibliotheksroots und Erweiterungen
@@ -171,7 +171,7 @@ Diese Grenzen gelten nur für die spätere Probe; sie sind nicht runtimevalidier
 | Ausgabe | alle drei Workers/stdout+stderr zusammen höchstens 64 KiB, jede Scalarzeile höchstens 1024 Bytes; begrenzter Read vor Decode/Pufferung |
 | reguläre Zeit | einmalige gemeinsame monotone 20-s-Deadline ab Callback-Probenbeginn einschließlich Trustcheck, Transfer, Import, Drain und Receiptprüfung |
 | Cleanup | kumulativ höchstens 10 s gemessene Cleanupzeit für sämtliche eigenen Worker-/Pfadreste; jedes Segment erhält nur das verbleibende Budget |
-| Gesamtfortschritt | höchstens 4096 I/O-Schritte, höchstens 64 aufeinanderfolgende Schritte ohne neue Bytes/EOF/Zustandsänderung |
+| Gesamtfortschritt | höchstens 4096 I/O-Schritte, höchstens 64 aufeinanderfolgende Schritte ohne neue Bytes/EOF (End of File; Ende eines Eingabestroms)/Zustandsänderung |
 
 Der vorhandene statische Vorcheck behält sein eigenes 30-s-Gitbudget; dies ist
 keine harte 50-s-Wallclockzusage. Alle Caps gelten gleichzeitig; der globale

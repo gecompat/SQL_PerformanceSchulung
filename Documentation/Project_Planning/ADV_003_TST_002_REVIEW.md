@@ -12,18 +12,18 @@
 
 ## 1. ADV-003 – Curriculum und Traceability
 
-Die 39 Claims aus `ADV-002` wurden in neun beobachtbare Vertiefungslernziele überführt:
+Die 39 Claims aus `ADV-002` (Claim- und Quellenmatrix für den Vertiefungsstrang) wurden in neun beobachtbare Vertiefungslernziele überführt:
 
-- `LO-M02-08` bis `LO-M02-11` für Planmechanik, Operatorinteraktion, Row Goals und IQP,
+- `LO-M02-08` bis `LO-M02-11` für Planmechanik, Operatorinteraktion, Row Goals und IQP (Intelligent Query Processing; SQL-Server-Funktionen zur intelligenten Abfrageverarbeitung),
 - `LO-M03-07` und `LO-M03-08` für Anwendungskontext und Parametrisierungsstrategien,
 - `LO-M06-07` und `LO-M06-08` für Workspace Memory und zeitlichen Evidenz-Scope,
 - `LO-M07-04` für die mehrhypothetische Incident-Diagnose.
 
 Die Curriculumarchitektur besitzt damit 52 beobachtbare Lernziele. Der Kernpfad und die Modulfolge M00 bis M07 bleiben unverändert. Alle neuen Lernziele sind `VERTIEFUNG`.
 
-Die Traceability-Matrix enthält weiterhin genau 84 aktive Claims für 84 aktive Folien. Ergänzend besitzt jeder Claim `ADV-CLM-001` bis `ADV-CLM-039` genau eine Lernziel-, Quellen-, Demo-/LAB- und Testprofilzuordnung. Die aktive Folie bleibt bis `ADV-009` und `PRS-012` bewusst leer; `PLANNED` wird nicht als Implementierungs- oder Runtimefreigabe behandelt.
+Die Traceability-Matrix enthält weiterhin genau 84 aktive Claims für 84 aktive Folien. Ergänzend besitzt jeder Claim `ADV-CLM-001` bis `ADV-CLM-039` genau eine Lernziel-, Quellen-, Demo-/LAB- und Testprofilzuordnung. Die aktive Folie bleibt bis `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) und `PRS-012` bewusst leer; `PLANNED` wird nicht als Implementierungs- oder Runtimefreigabe behandelt.
 
-Gate V0 und Gate V1 sind erfüllt. `ADV-004` und `ADV-005` können unabhängig und parallel beginnen.
+Gate V0 und Gate V1 sind erfüllt. `ADV-004` (Design LAB-VP1: Planmechanik und Operatorinteraktion) und `ADV-005` (Design LAB-VP2: Parameter Sensitivity und dynamische Suchbedingungen) können unabhängig und parallel beginnen.
 
 ## 2. TST-002 – Privacy- und Metadatenprüfung
 
@@ -32,7 +32,7 @@ Gate V0 und Gate V1 sind erfüllt. `ADV-004` und `ADV-005` können unabhängig u
 - Textdateien auf hochsignifikante Kontakt-, Pfad-, interne URL-, private IP-, Secret- und Legacy-Identifier-Muster,
 - Office-Pakete und Archive auf Integrität, Pfadtraversal, Verschlüsselung, Größenlimits und verschachtelte Inhalte,
 - Office-Eigenschaften auf nicht freigegebene Identitätsmetadaten,
-- Pakete auf Makros, ActiveX, OLE-/Embedding-Inhalte, Signaturen und Custom XML,
+- Pakete auf Makros, ActiveX, OLE-/Embedding-Inhalte, Signaturen und Custom XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten),
 - Medien und andere Binärartefakte auf notwendige manuelle Sichtprüfung,
 - unveränderte freigegebene Altartefakte über dokumentierte SHA-256-Hashes.
 

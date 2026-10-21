@@ -22,7 +22,7 @@ Ein optionales Parameterprädikat ist kein Sonderfall des Parameter Sniffing. F�
 
 ## 3. Nichtziel
 
-Die Demo bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynamisches SQL als Alternative; dieser Vergleich gehört zu `QRY-004`. Die parametersensitive Planoptimierung für schiefe Gleichheitsprädikate bleibt `OPT-009` vorbehalten; OPT-010 arbeitet bewusst mit einer gleichmäßigen Verteilung, damit die beobachtete Wirkung nicht der Schiefe zugeschrieben werden kann. Die Demo behauptet nicht, dass die Optimierung Abfragen allgemein beschleunigt, und sie erzwingt die Variantenbildung nicht durch undokumentierte Eingriffe. Erweiterte Ereignisse und Query-Store-Sichten sind kein Bestandteil dieses abgegrenzten Schnitts.
+Die Demo bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynamisches SQL als Alternative; dieser Vergleich gehört zu `QRY-004` (Optionale Filter, Recompile und dynamisches SQL). Die parametersensitive Planoptimierung für schiefe Gleichheitsprädikate bleibt `OPT-009` vorbehalten; OPT-010 arbeitet bewusst mit einer gleichmäßigen Verteilung, damit die beobachtete Wirkung nicht der Schiefe zugeschrieben werden kann. Die Demo behauptet nicht, dass die Optimierung Abfragen allgemein beschleunigt, und sie erzwingt die Variantenbildung nicht durch undokumentierte Eingriffe. Erweiterte Ereignisse und Query-Store-Sichten sind kein Bestandteil dieses abgegrenzten Schnitts.
 
 ## 4. Voraussetzungen
 
@@ -64,7 +64,7 @@ Vier Prozeduren tragen denselben Querytext und unterscheiden sich nur im Komment
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-010`.
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-010` (Planoptimierung für optionale Parameter).
 2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
 3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-010 -Server $server -Authentication $authentication -Username $username` aus.
 4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
@@ -98,9 +98,9 @@ Dispatcher- und Variantenevidenz stammt aus `sys.dm_exec_cached_plans`, `sys.dm_
 
 | Quellen-ID | Aussagebezug |
 |---|---|
-| `SRC-007` | Funktionsmatrix der intelligenten Abfrageverarbeitung, Versions- und Compatibility-Level-Grenzen |
+| `SRC-007` (Intelligent query processing) | Funktionsmatrix der intelligenten Abfrageverarbeitung, Versions- und Compatibility-Level-Grenzen |
 | `SRC-026` | Optional Parameter Plan Optimization: Voraussetzungen, Dispatcherplan, optionales Parameterprädikat, Abwahlhinweis und Ausschlussgründe |
-| `SRC-049` | empirische Einordnung optionaler Parameter und ihrer Behandlungsmuster |
+| `SRC-049` (Handling Optional Parameters) | empirische Einordnung optionaler Parameter und ihrer Behandlungsmuster |
 
 ## 14. Traceability
 

@@ -24,7 +24,7 @@ Der einzige öffentliche Ausführungseinstieg
 nimmt einen festen Enumfall an. Er akzeptiert keine Quellbytes, Dateipfade,
 `PreparedInput`-Records oder Callbacks. Die zwei Erfolgsfälle setzen lediglich
 `SYNTHETIC_VALUE = 7` mit LF beziehungsweise CRLF. Zwei getrennte Fälle erzeugen
-einen Compile- beziehungsweise Execfehler. Es gibt keine Fixture mit I/O,
+einen Compile- beziehungsweise Execfehler. Es gibt keine Fixture mit I/O (Input/Output; Ein- und Ausgabezugriffe),
 Imports, Prozessstart oder Endlosschleife.
 
 Eine private Session hält die tatsächlichen Modul- und Specobjekte sowie die
@@ -84,7 +84,7 @@ bleiben getrennte Parent-/Worker-Profilbindung, feste Auflösung und tatsächlic
 Verwendung der vorbereiteten neun Quellen,
 vollständige Importabschlussreceipts sowie drei begrenzte eigene Linux-Worker
 mit unabhängig geprüftem Cleanup offen. G13, v1, DEC-068 und die zurückgestellte
-Capture-API bleiben unverändert; kein Incident-, Capstone- oder Szenariobeleg.
+Capture-API (Application Programming Interface; Programmierschnittstelle) bleiben unverändert; kein Incident-, Capstone- oder Szenariobeleg.
 
 Quelle für die Python-Schnittstellen, geprüft am 2026-10-07:
 [Python 3.12: Loader.create_module und Loader.exec_module](https://docs.python.org/3.12/library/importlib.html#importlib.abc.Loader).

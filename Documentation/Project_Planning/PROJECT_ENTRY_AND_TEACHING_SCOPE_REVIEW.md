@@ -49,7 +49,7 @@ erhalten; das ist keine Behauptung bereits neu aufbereiteter Beispiele.
   Einstiege, Privacy vor jedem Commit, bestehende W2-001-, Framework-,
   Demo-Ausführungspfad- und Curriculumvalidatoren. Keine neuen Spiegeltests
   für Überschriften oder Prosa; keine erneuten grünen technischen Suites.
-- CI: vorhandene zentrale Pflichtgates bleiben. Klassen-/Quellen-/Curriculum-
+- CI (Continuous Integration; automatisierte Integrationsprüfungen): vorhandene zentrale Pflichtgates bleiben. Klassen-/Quellen-/Curriculum-
   und Demo-Vertragsdateien selektieren die bestehenden fachlichen statischen
   Workflows. Die Deckprüfungen haben überlappende unveränderte Validatoren,
   prüfen daneben eigene Deckbindungen. Begründete begrenzte Ausnahme: bestehende

@@ -59,7 +59,7 @@ Für PPTX, DOCX und XLSX werden mindestens folgende Bestandteile geprüft:
 - `docProps/core.xml`, `docProps/app.xml` und Custom Properties,
 - Slide Masters, Layouts, Notes Masters, Notes, Kommentare und Alt-Text,
 - Beziehungen, externe Links, `mailto`-Links und eingebettete Dateien,
-- Medien, Vorschaubilder, OLE-Objekte, ActiveX, Makros und Custom XML,
+- Medien, Vorschaubilder, OLE-Objekte, ActiveX, Makros und Custom XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten),
 - digitale Signaturen, Zertifikatsinformationen und Vorlagenpfade,
 - Author, Last Modified By, Company, Manager, Template und ähnliche Felder.
 
@@ -116,7 +116,7 @@ Nach jeder Korrektur werden alle betroffenen Prüfschichten erneut ausgeführt. 
 |---|---|---|
 | neutralisiertes Referenzarchiv unter `Presentations/old` | `PASS` | Hash und Umfang im Quellenmanifest; Firmen-, Kontakt-, interne System- und Brandingangaben entfernt |
 | aktives 102-Folien-Masterdeck unter `Presentations` | `PASS` mit zulässiger Namensangabe | 102/102 Folien sowie die Profile `BASIS` 41, `STANDARD` 66 und `VERTIEFUNG` 102 gerendert; Office-Paket, Metadaten, Privacy und Branding geprüft; nur `Gerhard Pisch` als reale Angabe |
-| Vertiefungsblöcke `ADV-009` bis `ADV-011`, Anzeigepositionen 84 bis 101 | `PASS` textuell, paketseitig und visuell | Folien deterministisch aus der bestehenden Vorlage erzeugt; vollständiger PowerPoint-Render und Einzelprüfung in `ADV_010_FINAL_ACCEPTANCE_REVIEW.md` und `W_PRS_001_TEACHING_RELEASE.md`; Notizen führen Quellen ausschließlich als `SRC-`-IDs ohne URL |
+| Vertiefungsblöcke `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) bis `ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization), Anzeigepositionen 84 bis 101 | `PASS` textuell, paketseitig und visuell | Folien deterministisch aus der bestehenden Vorlage erzeugt; vollständiger PowerPoint-Render und Einzelprüfung in `ADV_010_FINAL_ACCEPTANCE_REVIEW.md` und `W_PRS_001_TEACHING_RELEASE.md`; Notizen führen Quellen ausschließlich als `SRC-`-IDs ohne URL |
 
 Die visuelle Einzelprüfung aller 102 Masterfolien und der drei Tiefenprofile ist abgeschlossen. Sie bleibt methodisch von der automatisierten Privacy-Prüfung getrennt: Der Scanner prüft personenbezogene und kundenbezogene Angaben, während der Rendernachweis Umbruch und Lesbarkeit im Vortrag bewertet.
 

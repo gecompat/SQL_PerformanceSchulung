@@ -18,7 +18,7 @@ beschreibt die boolsche Zuordnung true zu Mandatory. Für genau die gepinnten
 6.1.4-Bytes wird deshalb der erwartete serialisierte Wert auf True korrigiert.
 Kein permissiver beliebiger Encrypt-Wert: fehlend, False, Optional, Strict,
 unbekannt, zusätzliche oder doppelte Schlüssel sowie andere Verbindungs-
-und Kontextwerte werden weiterhin abgewiesen. Keine Abschwächung von TLS
+und Kontextwerte werden weiterhin abgewiesen. Keine Abschwächung von TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen)
 oder der bereits auf eigene lokale Tests begrenzten TrustServerCertificate-Ausnahme.
 Sourcevertrag ist kein unabhängiger Nachweis tatsächlich ausgehandelter TLS-/TDS-Wiretoken.
 
@@ -66,7 +66,7 @@ frische DB-, ganze CID-/Name-/Inputabwesenheit bleiben erforderlich.
 Compiler60s inklusive Reaping; Normal300s plus genau eine Cleanupdeadline60s,
 17s Namespace-Reserve und jeder Aufruf nur im tatsächlichen Restbudget.
 Keine vorab garantierte Wallclockzeit. Beide CS1701-WARNs sichtbar.
-Volle TSK-004-/Wire-/float16-/andere OS/Build/Edition-/Provider/Rollen/Pooling/
+Volle TSK-004-/Wire-/float16-/andere OS (Operating System; Betriebssystem)/Build/Edition-/Provider/Rollen/Pooling/
 Performance/RAG-/Releaseabnahmen bleiben offen; Modell-/Tokenverbrauch UNKNOWN.
 Vollständige aktuelle PR-/Head-/Main-/Tree-/FF-/Branch-/Belegsicherungs-/Worktree-
 Integration und unmittelbarer nächster zulässiger Schritt bleiben Pflicht.

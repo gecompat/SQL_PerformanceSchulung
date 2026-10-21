@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `ADV-010` |
+| Arbeitspaket | `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) |
 | Status | `VALIDATED` |
 | Prüfdatum | 2026-09-01 |
 | Zielplattformen | SQL Server 2019, 2022 und 2025 |
@@ -20,7 +20,7 @@ Der implementierte Vertiefungsstrang ist fachlich, didaktisch und technisch abge
 | Achse | Nachweis | Ergebnis |
 |---|---|---|
 | Quellen und Claims | `ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md`, `TRACEABILITY_MATRIX.md`, `validate_adv_003_curriculum.py` | Quellenklasse, Lernziel und Versionsgrenze bleiben je Claim nachvollziehbar. |
-| Runtime | Reviews und zweifache 2019/2022/2025-Matrizen für `OPT-015`, `OPT-016`, `QRY-013`, `QRY-004`, `OPT-009`, `OPT-010` und `OPT-017` | Zielmatrix erfüllt; Featuregrenzen liefern kontrollierte Skips, empirische Streuung bleibt als Warnung sichtbar. |
+| Runtime | Reviews und zweifache 2019/2022/2025-Matrizen für `OPT-015` (Ausführungspläne systematisch lesen), `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung), `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell), `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `OPT-009` (Parametersensitive Planoptimierung), `OPT-010` (Planoptimierung für optionale Parameter) und `OPT-017` (Ungleich verteilte parallele Arbeit) | Zielmatrix erfüllt; Featuregrenzen liefern kontrollierte Skips, empirische Streuung bleibt als Warnung sichtbar. |
 | Deck und Notes | `validate_adv009_deck_integration.py`, `validate_adv010_deck_integration.py`, `validate_adv011_deck_integration.py`, `validate_w2_007_presentation.py` | 102 Folien, stabile SlideKeys, Quellen- und Demo-Bezüge sowie synchronisierte Sprechernotizen. |
 | Didaktischer Pfad | vollständiger PowerPoint-Render, Einzelprüfung aller Folien, Kontaktbogen und drei Custom Shows | Kernpfad bleibt kompakt; Standard- und Vertiefungsprofile bauen kumulativ darauf auf. |
 | Technik und Privacy | Template-Fidelity, Überlaufprüfung, `validate_presentation_variants.py`, `validate_presentation_variant_outputs.py`, `validate_privacy_metadata.py` | Layout, Varianten, Hashbindung, Metadaten und Mastererhalt sind prüfbar. |
@@ -30,11 +30,11 @@ Der implementierte Vertiefungsstrang ist fachlich, didaktisch und technisch abge
 - `WARN_EMPIRICAL_VARIANCE` in `QRY-004` ist ein gültiger empirischer Befund und keine fehlgeschlagene Produktgarantie.
 - `OPT-009` und `OPT-010` bleiben an Engine-Version, Compatibility Level, Konfiguration und Eligibility gebunden.
 - `OPT-017` belegt Parallelität und Thread-/Operator-Evidenz in einem begrenzten gelben Profil; daraus folgt keine universelle DOP-Empfehlung.
-- `RES-003` bleibt ein roter, getrennt freizugebender Folgeschnitt. `DGN-007` und weitere noch nicht implementierte Designs erhalten durch diese Abnahme keinen Runtime-Status.
+- `RES-003` bleibt ein roter, getrennt freizugebender Folgeschnitt. `DGN-007` (Zeitabhängige Regression eines Suchworkloads) und weitere noch nicht implementierte Designs erhalten durch diese Abnahme keinen Runtime-Status.
 
 ## Didaktische Übergänge
 
-Die Varianten bilden eine belastbare Progression: `BASIS` vermittelt Messscope und Kernbegriffe, `STANDARD` ergänzt Diagnose- und Abwägungswissen, `VERTIEFUNG` führt in Clientkontext, sichere Parametrisierung, PSP/OPPO und fortgeschrittene Planevidenz. Der Schluss bleibt auf Anzeigeposition 102. Folie 51 trennt den Row-Locator jetzt ohne Linienkreuzung; die Sprechernotiz von `SLD-M03-112` stimmt mit der Runtimewarnung überein.
+Die Varianten bilden eine belastbare Progression: `BASIS` vermittelt Messscope und Kernbegriffe, `STANDARD` ergänzt Diagnose- und Abwägungswissen, `VERTIEFUNG` führt in Clientkontext, sichere Parametrisierung, PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte)/OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter) und fortgeschrittene Planevidenz. Der Schluss bleibt auf Anzeigeposition 102. Folie 51 trennt den Row-Locator jetzt ohne Linienkreuzung; die Sprechernotiz von `SLD-M03-112` stimmt mit der Runtimewarnung überein.
 
 ## Folgeplanung
 

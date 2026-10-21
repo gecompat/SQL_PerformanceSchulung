@@ -17,16 +17,16 @@ Gate B verlangt vier vollständige Pilotdemos, die den gemeinsamen Frameworkvert
 
 | Demo-ID | Sicherheitsstufe | Primäre Kompetenz | Claim-Bezug | Ergebnis |
 |---|---|---|---|---|
-| `QRY-001` | `GREEN` | SARGability, Zugriffspfad und statementbezogene Reads | `CLM-037` | `VALIDATED` |
-| `OPT-002` | `GREEN` | Statistikheader, Histogramm und Density Vector | `CLM-023`, `CLM-024` | `VALIDATED` |
-| `CON-004` | `YELLOW` | Blocking Chain, unmittelbarer Blocker und Head Blocker | `CLM-066` | `VALIDATED` |
-| `OPT-013` | `YELLOW` | Sort-Spill, Grant-Evidenz und Kardinalitätssicht | `CLM-030` | `VALIDATED` |
+| `QRY-001` (Indexfreundliche Suchbedingungen) | `GREEN` | SARGability, Zugriffspfad und statementbezogene Reads | `CLM-037` | `VALIDATED` |
+| `OPT-002` (Statistiken lesen) | `GREEN` | Statistikheader, Histogramm und Density Vector | `CLM-023`, `CLM-024` | `VALIDATED` |
+| `CON-004` (Blockierungsketten verfolgen) | `YELLOW` | Blocking Chain, unmittelbarer Blocker und Head Blocker | `CLM-066` | `VALIDATED` |
+| `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) | `YELLOW` | Sort-Spill, Grant-Evidenz und Kardinalitätssicht | `CLM-030` | `VALIDATED` |
 
 Jede Demo besitzt Preflight, markergeprüftes Setup, Baseline, kontrollierten Problemzustand, technische Evidenz, Gegenmaßnahme, Vergleich und markergeprüften Cleanup. Gelbe Demos benötigen die technische Isolated-Lab-Bestätigung und besitzen positive Laufzeitgrenzen.
 
 ## 2. Testmatrix
 
-Der Workflow `Gate B pilot demos` startete je Version einen getrennten ephemeren offiziellen Microsoft-Linux-Container. Jede Demo wurde in jeder Version zweimal vollständig über `FWK-010` ausgeführt.
+Der Workflow `Gate B pilot demos` startete je Version einen getrennten ephemeren offiziellen Microsoft-Linux-Container. Jede Demo wurde in jeder Version zweimal vollständig über `FWK-010` (Runtime-Harness-Vertrag) ausgeführt.
 
 | SQL Server | Compatibility Level | Piloten | Wiederholungen je Pilot | vollständige Läufe | Ergebnis |
 |---|---:|---:|---:|---:|---|

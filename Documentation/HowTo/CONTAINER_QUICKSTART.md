@@ -3,13 +3,13 @@
 Dieser Quickstart schließt `INF-002` und `INF-003` für den kompakten,
 praktisch validierten Arbeitsplatzpfad. Er provisioniert keinen dauerhaften SQL
 Server, sondern eine isolierte SQL-Server-2025-Linux-Wegwerfumgebung für das
-interaktive Szenario `CON-004`.
+interaktive Szenario `CON-004` (Blockierungsketten verfolgen).
 
 ## Voraussetzungen
 
 - PowerShell 7.2 oder neuer;
 - Git, Microsoft `sqlcmd` und entweder Docker oder Podman;
-- mindestens 2 CPU-Kerne, 4 GB freier RAM und 5 GB freier Speicher;
+- mindestens 2 CPU-Kerne, 4 GB freier RAM (Random Access Memory; Arbeitsspeicher) und 5 GB freier Speicher;
 - ein lokales `SQL_Server_Lab`-Repository neben diesem Repository oder ein
   installiertes `SqlServerLab`-Modul.
 
@@ -98,7 +98,7 @@ nicht anhand eines Namensmusters pauschal gelöscht.
 
 Der Docker- und Podman-Lifecycle `Start -> READY_FOR_USER -> Reset ->
 READY_FOR_USER -> Remove` ist lokal mit SQL Server 2025 praktisch validiert.
-Die CI prüft zusätzlich, dass dieser Quickstart nur öffentliche Commands,
+Die CI (Continuous Integration; automatisierte Integrationsprüfungen) prüft zusätzlich, dass dieser Quickstart nur öffentliche Commands,
 synthetische Zugangsdaten und die markergebundene Cleanup-Grenze verwendet.
 SQL Server 2019/2022, Hyper-V und gemischte Topologien sind nicht Bestandteil
 dieses kompakten Arbeitsplatzpfads.

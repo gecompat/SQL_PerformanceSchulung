@@ -12,13 +12,13 @@ getrennt geführt.
 
 Ein Implementierungsverantwortlicher erzeugte einen lokalen FWK-010/FWK-011-Kandidaten
 mit zwei synthetischen Quellen und identischen VECTOR(3)-Werten. Drei WITHOUT LOGIN
-Benutzer sollten RLS, manipulierten Sessionkontext, Policy-ALTER, fremde Impersonation
+Benutzer sollten RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle), manipulierten Sessionkontext, Policy-ALTER, fremde Impersonation
 und Owner-Revoke kontrollieren. Der privilegierte dbo-Labowner war im Prädikat
 ausdrücklich erlaubt. Quellen und Vektoren lagen gemeinsam unter RLS; feste dynamische
 SELECTs sollten SELECT-Berechtigungen ohne Eigentumsketten-Bypass prüfen.
 
 Der erste vollständige 17.x-Lauf scheiterte in SETUP mit Fehler 2760: die statische
-Policy-DDL wurde vor der im Batch dynamisch erzeugten sec-Schema-/Funktionsbindung
+Policy-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) wurde vor der im Batch dynamisch erzeugten sec-Schema-/Funktionsbindung
 kompiliert. Korrekturwelle 1 verschob diese DDL in ein festes dynamisches Batch.
 Der zweite Lauf erreichte BASELINE und scheiterte mit 51003/FAIL_RESULT_CONTRACT an
 der exakten Policydefinition. Eine gesonderte begrenzte Metadatenprobe zeigte die
@@ -63,8 +63,8 @@ verbraucht. Modell-/Tokenverbrauch bleibt unbekannt. Eine Implementierung, zwei
 Korrekturwellen, drei vollständige Fehlversuche und zwei begrenzte neue Metadatenproben
 bilden den abgeschlossenen Aufwand dieses Checkpoints.
 
-Serverlogin, echte Verbindungspools, mehrere Sessions, ANN/Postfilterverhalten und
-allgemeine Seitenkanalfreiheit bleiben UNQUALIFIED. Live-Lab-RAG bleibt am bestehenden
+Serverlogin, echte Verbindungspools, mehrere Sessions, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren)/Postfilterverhalten und
+allgemeine Seitenkanalfreiheit bleiben UNQUALIFIED. Live-Lab-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) bleibt am bestehenden
 DEC-033-Secretgate blockiert; Cloud-/Bezahl- und ONNX-/rote Hoständerungen sind nicht
 freigegeben. Der nächste unabhängige zulässige Schritt ist die synthetische Offline-
 Vorbereitung von DGN-009 gemäß registriertem Demoentwurf, ohne Live-Modellaufruf.

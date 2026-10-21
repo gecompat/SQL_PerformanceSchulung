@@ -22,7 +22,7 @@ Ein einziger statischer Querytext mit optionalen Prädikaten erzeugt eine einzig
 
 ## 3. Nichtziel
 
-Die Demo stellt keine Rangfolge der drei Strategien auf und behauptet nicht, `OPTION (RECOMPILE)` sei allgemein schnell oder allgemein teuer. Sie bewertet weder Parameter Sensitive Plan Optimization noch Optional Parameter Plan Optimization; diese Verfahren gehören zu `OPT-009` und `OPT-010`. Sie verwendet keine absichtlich fehlerhafte Abfrage und keine unsichere Stringkonkatenation als Gegenbeispiel.
+Die Demo stellt keine Rangfolge der drei Strategien auf und behauptet nicht, `OPTION (RECOMPILE)` sei allgemein schnell oder allgemein teuer. Sie bewertet weder Parameter Sensitive Plan Optimization noch Optional Parameter Plan Optimization; diese Verfahren gehören zu `OPT-009` (Parametersensitive Planoptimierung) und `OPT-010` (Planoptimierung für optionale Parameter). Sie verwendet keine absichtlich fehlerhafte Abfrage und keine unsichere Stringkonkatenation als Gegenbeispiel.
 
 ## 4. Voraussetzungen
 
@@ -43,7 +43,7 @@ Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `S
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-004` auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Die Strategien gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Die Strategien gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 Die Evidenztabelle unterscheidet die drei Strategien über die Werte `CATCHALL`, `RECOMPILE` und `DYNAMIC`:
 
@@ -94,10 +94,10 @@ Die Planform- und Lesewerte stammen aus `sys.dm_exec_procedure_stats` beziehungs
 
 | Quellen-ID | Aussagebezug |
 |---|---|
-| `SRC-001` | Ausführungspläne, Kompilierung und Planwiederverwendung |
-| `SRC-007` | Parameter, Variablen und Optimiererinformation |
-| `SRC-045` | Dynamische Suchbedingungen, Recompile und parameterisiertes dynamisches SQL |
-| `SRC-049` | Catch-all-Prädikate und Schätzfehler bei optionalen Parametern |
+| `SRC-001` (Query processing architecture guide) | Ausführungspläne, Kompilierung und Planwiederverwendung |
+| `SRC-007` (Intelligent query processing) | Parameter, Variablen und Optimiererinformation |
+| `SRC-045` (Dynamic Search Conditions in T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)) | Dynamische Suchbedingungen, Recompile und parameterisiertes dynamisches SQL |
+| `SRC-049` (Handling Optional Parameters) | Catch-all-Prädikate und Schätzfehler bei optionalen Parametern |
 
 ## 14. Traceability
 

@@ -15,9 +15,9 @@ numerische Indexgeneration. Freshness und Storage sind weitere eigene Schritte.
 - SQL Server 2025 Developer, tatsächlich 17.0.5005.3, Linux, CL 170;
   eigener isolierter Testcontainer mit vier CPUs/sechs GiB.
 - Eigene DB SQLPERF_LAB_IDX012_<16HEX> mit vollständigen FWK-002-Markern,
-  synthetische float32 VECTOR(3)-Rows und clustered INT-PK.
+  synthetische float32 VECTOR(3)-Rows und clustered INT-PK (Primary Key; Primärschlüssel).
 - YELLOW: beide expliziten Isolations-/High-Impact-Bestätigungen erforderlich.
-  Nur eigene PREVIEW_FEATURES/MAXDOP, mit tatsächlich persistierten Baselines
+  Nur eigene PREVIEW_FEATURES/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad), mit tatsächlich persistierten Baselines
   und getrennten Enable-, Restore- und Attestationsclients. Keine zusätzliche
   Scoped-Option, keine Host-, Cloud-, Modell- oder ONNX-Wirkung.
 - 999 Ausgangsrows; gültiger INSERT der fehlenden Id 1000 erreicht höchstens
@@ -32,7 +32,7 @@ numerische Indexgeneration. Freshness und Storage sind weitere eigene Schritte.
 
 ## Eingeschränkter Ausführungskontext
 
-Der eigene Operator benötigt für DB-Erstellung und Performance-DMVs
+Der eigene Operator benötigt für DB-Erstellung und Performance-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen)
 CREATE ANY DATABASE und VIEW SERVER PERFORMANCE STATE; er wird Owner
 seiner eigenen Testdatenbank. Der Preflight hält bei fehlenden Rechten vor
 Setup mit SKIP_PERMISSION an. Keine automatische Grantvergabe.
@@ -52,7 +52,7 @@ vollständigen CLI-Pfad bleibt daher der eigene sa-Kontext erforderlich.
 Passwörter ausschließlich als SQLCMDPASSWORD-ENV bereitstellen. Der
 [Rollennachweis](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_IDX012_ROLE_REVIEW.md)
 belegt nach zwei erhaltenen FAIL-Kandidaten mit zwei vollständigen C3-
-Lifecycles im selben erweiterten Ledger die feste lokale Trennung: ausschließlich die beiden Indexbuilds unter Admin, DML und
+Lifecycles im selben erweiterten Ledger die feste lokale Trennung: ausschließlich die beiden Indexbuilds unter Admin, DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) und
 Beobachtung vor/nach ihnen unter tatsächlich attestiertem Operator. Dies ist
 ein begrenzter lokaler Nachweis mit eigener literaler Eingabe; der neue feste öffentliche
 Rollenmodus ist zunächst ein getrennt vorbereiteter Quellenstand.
@@ -92,7 +92,7 @@ JSON-Spalten; diese begründete FWK-010-Abweichung besitzt eigene Gegenproben.
    müssen vor Rollback stimmen. Dann wird ausschließlich der eigene DiskANN/
    COSINE-Index gebaut; Buildzeit und vollständige Indexmetadaten werden erfasst.
    Dieselben vier gültigen Operationen müssen tatsächlich 42231/State 1 liefern.
-   Vollständige Quellbytes, gesicherte Transaktionswerte vor JSON und vollständige
+   Vollständige Quellbytes, gesicherte Transaktionswerte vor JSON (JavaScript Object Notation; strukturiertes Textformat) und vollständige
    Indexmetadaten müssen nach jedem Rollback unverändert sein. Andere Resultate
    sind FAIL; ihre tatsächlichen Rohdatensätze bleiben beim lokalen Parent erhalten.
 5. 40_SourceAfter liest über eine neue Verbindung alle 999 tatsächlichen Vektoren/
@@ -126,7 +126,7 @@ Der getrennte Modus `--mode drop-rebuild` führt nach den unveränderten DML-
 Kontrollen zusätzlich 50_DropRebuild und eine neue vollständige Quellenaufnahme
 aus. Er entfernt ausschließlich den eigenen Index, ändert genau Id 999 dauerhaft
 auf VECTOR(3) [1,0,0] und baut denselben eigenen DiskANN/COSINE-Index neu auf.
-Fünf tatsächliche Suchkontrollen prüfen Baseline-Exact/ANN, Exact nach Änderung
+Fünf tatsächliche Suchkontrollen prüfen Baseline-Exact/ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Exact nach Änderung
 ohne Index und Exact/ANN nach Rebuild gegen sämtliche tatsächlichen 999 Distanzen.
 Id 999 darf vorher nicht Top-5 sein und muss anschließend distanzgeprüfter Top-1
 mit Distanz null sein; ANN-Recall@5 muss in den beiden festen Aufnahmen 1 betragen.
@@ -246,7 +246,7 @@ eigene Container im selben Ledger einschließlich C1/C2. Kein Reset und kein
 unveränderter Fehlversuch. C3 bestand danach zwei vollständige eigene Lifecycles auf 17.0.5005.3
 mit tatsächlichen Session-/TempDB-/Dateikostenpunkten, allen DML-/Rebuild-
 Kontrollen, Originalrestores 0/0 und unabhängiger DB-/CID-/Namensabwesenheit.
-Temporäre Eingabedateien sind entfernt. Session CPU DML 1676/1650 ms,
+Temporäre Eingabedateien sind entfernt. Session CPU (Central Processing Unit; Prozessor) DML 1676/1650 ms,
 Rebuild 1142/1083 ms; alle Werte umfassen ganze Phasen samt Kontrollen.
 Der Kostennachweis erhält die einzelnen Dateidifferenzen und Grenzen;
 eine Manifest-/Demo-/TP-PERF-Freigabe ist damit nicht verbunden.
@@ -282,7 +282,7 @@ Der Modus verlangt `drop-rebuild`, Storage und Kostenaufnahme. Operatorname ist
 und tatsächliche Admin-SID werden mit `--role-sid`/`--admin-sid` gebunden.
 Es gibt keinen geratenen Admin-SID-Default. Der Aufrufer benötigt bereits die
 beiden eigenen vorbereiteten Identitäten im isolierten Lab. Loginanlage und
-Rechtevergabe gehören nicht zu dieser API.
+Rechtevergabe gehören nicht zu dieser API (Application Programming Interface; Programmierschnittstelle).
 
 `IDX012_OPERATOR_PASSWORD` enthält ausschließlich privat das Operatorcredential,
 `SQLCMDPASSWORD` das Admincredential. Beide müssen unterschiedlich sein und aus

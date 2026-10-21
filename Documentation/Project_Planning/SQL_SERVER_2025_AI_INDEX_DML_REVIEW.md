@@ -45,7 +45,7 @@ Tablevariableinhalte bleiben nach Rollback erhalten, wie
 dokumentiert (abgerufen 2026-10-12); die tatsächlichen beiden Lifecycles belegen
 hier zusätzlich vollständige OUTPUT- und Sourcekontrollen.
 
-CPU/Reads/LogicalReads/Writes sind tatsächliche monotone Vorher-/Nachherdeltas
+CPU (Central Processing Unit; Prozessor)/Reads/LogicalReads/Writes sind tatsächliche monotone Vorher-/Nachherdeltas
 desselben vollständig gebundenen eigenen Session-/Request-/Startzeit-/Connection-/
 DB-Requests. UTC-Elapsed umfasst BEGIN TRAN, UPDATEloop/OUTPUTbuffer und ROLLBACK.
 Countergrenzen sind zusätzlich enthalten; UTC-/CPU-I/O-Grenzen sind nicht identisch.
@@ -62,7 +62,7 @@ Log-/TempDB-/vollständige Workerkosten oder gesamter Indexnettonutzen.
 C1 zweimal bestanden, SQL 17.0.5005.3/EngineEdition3, eigenes bereits vorhandenes
 Image 78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726,
 vier CPU/sechs GiB und eigener Loopbackport. CL170/SIMPLE, Dateilimits 256/64 MB,
-MAXDOP/PREVIEW_FEATURES beide 0 unverändert. Normalbudget 300 Sekunden,
+MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad)/PREVIEW_FEATURES beide 0 unverändert. Normalbudget 300 Sekunden,
 anschließend gemeinsame Cleanupdeadline 60 Sekunden. Vollständige bytegenaue vier
 Eigentumsmarker vor jedem effectful Statement, tatsächliches Clientende bekannt;
 UNKNOWN false und keine Folgeclients bei UNKNOWN. Passwort allein über Umgebung.
@@ -73,7 +73,7 @@ Negative OUTPUT-Kontrolle mutiert Id101/Ordinal1 nach Rollback zu Value0 und err
 ebenfalls exakt 51003/FAIL_RESULT_CONTRACT; vollständige separate Sourceprüfung
 danach bestanden. Unveränderte Readerrechte CONNECT+Objekt-SELECT, keine Extra-Rolle.
 Vier tatsächliche eigene Candidatebuilds und vier Drops pro Profil, jeweils durch
-native vollständige Source-/Indexzustände getrennt bestätigt. Abschließend PK allein.
+native vollständige Source-/Indexzustände getrennt bestätigt. Abschließend PK (Primary Key; Primärschlüssel) allein.
 
 92 vollständige Sourceframes/92000 Rows, 58 positive Fensterframes einschließlich
 zwei separater Kontrollen und vier native Negativframes vollständig an private

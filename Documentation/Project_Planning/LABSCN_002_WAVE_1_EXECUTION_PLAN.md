@@ -43,7 +43,7 @@ Der Effekt kann durch kontrollierte Daten, Datenbankoptionen, Sessionreihenfolge
 
 ### Klasse B – containergeeignet mit Ressourcen- und Toleranzvertrag
 
-Der Effekt kann in Containern erzeugt werden, hängt aber zusätzlich von CPU, RAM, Scheduleranzahl, Memory Grants oder Workloadintensität ab. Typische Bereiche sind Parallelität, Sort- und Hash-Spills, Tempdb-Belastung und CPU Pressure. Ein Szenario dieser Klasse benötigt Mindestressourcen, Toleranzwerte und einen kontrollierten `SKIP_HOST_CAPABILITY`-Pfad.
+Der Effekt kann in Containern erzeugt werden, hängt aber zusätzlich von CPU (Central Processing Unit; Prozessor), RAM (Random Access Memory; Arbeitsspeicher), Scheduleranzahl, Memory Grants oder Workloadintensität ab. Typische Bereiche sind Parallelität, Sort- und Hash-Spills, Tempdb-Belastung und CPU Pressure. Ein Szenario dieser Klasse benötigt Mindestressourcen, Toleranzwerte und einen kontrollierten `SKIP_HOST_CAPABILITY`-Pfad.
 
 ### Klasse C – nur eingeschränkt reproduzierbar
 
@@ -117,7 +117,7 @@ Welle 1 ist abgeschlossen, wenn:
 - Assertions, Resetstrategie und Mindestressourcen erfasst sind;
 - nicht belastbar reproduzierbare Aspekte ausdrücklich gekennzeichnet sind;
 - ein Szenariodefinitionsschema vorliegt;
-- `CON-004` oder ein fachlich besser geeigneter Kandidat für `LABSCN-003` freigegeben ist.
+- `CON-004` (Blockierungsketten verfolgen) oder ein fachlich besser geeigneter Kandidat für `LABSCN-003` freigegeben ist.
 
 ## 10. Sicherheits- und Datenschutzgrenze
 
@@ -127,5 +127,5 @@ Szenariodefinitionen und Inventare enthalten ausschließlich synthetische Kennun
 
 `Tests/Static/validate_performance_scenarios.py` bestätigt 22 inventarisierte
 produktive Demos und die freigegebenen interaktiven Szenariodefinitionen. Der
-erste Vertical Slice `CON-004` sowie der Folgeslice `DGN-005` besitzen jeweils
+erste Vertical Slice `CON-004` sowie der Folgeslice `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) besitzen jeweils
 einen praktisch validierten Docker-/Podman-Lifecycle auf SQL Server 2025.

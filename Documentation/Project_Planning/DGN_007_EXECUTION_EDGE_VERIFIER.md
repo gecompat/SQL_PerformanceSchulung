@@ -67,7 +67,7 @@ SQL-only-Art, relative SQLpfade, Datenbankrolle, Required-/Summarypflicht und
 Phasenbudgets sowie 180 Sekunden reguläres und 60 Sekunden Cleanupbudget.
 Mit Cleanup sind es 4/5/6/8/8/8 Phasen für Setup/Fenster/Profil/AB/BA/AA.
 Unbekannte Felder, doppelte JSONkeys, nicht erlaubte Zahlenformen und abweichende
-Projektionen werden abgelehnt. JSON verwendet die bestehenden begrenzten
+Projektionen werden abgelehnt. JSON (JavaScript Object Notation; strukturiertes Textformat) verwendet die bestehenden begrenzten
 Dateibytes und zusätzliche Struktur-/Zahlengrenzen; ein Knotencheck nach Parse
 ist kein allgemeiner harter Parser-Speicherbeweis.
 [Python JSON](https://docs.python.org/3/library/json.html).
@@ -79,7 +79,7 @@ Die älteren Setup-/Fenster-/Profilmanifeste liegen weiterhin außerhalb dieses
 14er-Vertrags, sind aber Kandidatenbyte- und Projektionsgebunden.
 Alle elf SQLdateien werden auf SQLCMD-Zeilenbefehle einschließlich unbekannter
 Colonbefehle und `!!` geprüft; BOM/NUL scheitern geschlossen. Das ist keine
-allgemeine semantische T-SQL- oder externe-I/O-Prüfung. Geändertes T-SQL kann
+allgemeine semantische T-SQL- oder externe-I/O-Prüfung. Geändertes T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) kann
 nach neuer Gitcommit- und passender Contract-Rebindung statisch akzeptiert werden;
 die Fixtures zeigen diese Grenze ausdrücklich. Die Quellenfreigabe eines neuen
 Commits bleibt eine unabhängige fachliche Aufgabe.

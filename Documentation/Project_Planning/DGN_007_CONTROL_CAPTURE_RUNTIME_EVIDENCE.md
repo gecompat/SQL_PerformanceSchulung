@@ -53,7 +53,7 @@ Ein Plan je Fenster beweist weder gleiche noch verschiedene Plan-IDs. Hashes
 ergänzen die IDs, begründen aber keine identischen Kosten oder Ursache.
 IDs sind ausschließlich innerhalb des jeweiligen Lifecycles vergleichbar.
 Die Kontrollevidenz liest keine Plan-XML-Inhalte und exportiert oder persistiert
-keine Querytexte, Plan-XML oder Rohausgaben als Repository-Artefakte.
+keine Querytexte, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) oder Rohausgaben als Repository-Artefakte.
 Query Store erfasst Texte und Pläne innerhalb der eigenen Labdatenbank;
 dieser Zustand endet mit deren markergebundenem Abbau.
 Der Live-Abgleich prüft IDs, Counts und Grenzen, nicht unabhängig
@@ -63,7 +63,7 @@ Capture ALL selbst erfasst werden; sie gehören nicht zum markierten Suchscope.
 ## Lokale Matrix und Cleanup
 
 Die lokale Matrix führt auf jeder neu erzeugten eigenen Instanz dieselbe
-Reihenfolge wie CI aus: zweimal Datenmodell, zweimal Fenster, zweimal
+Reihenfolge wie CI (Continuous Integration; automatisierte Integrationsprüfungen) aus: zweimal Datenmodell, zweimal Fenster, zweimal
 Profilvergleich und je zweimal AB, BA und AA. Höchstens zwei eigene Instanzen
 laufen parallel, je Instanz höchstens eine SQL-Session. Vor jedem Lifecycle
 ist die eigene Datenbank abwesend; nach jedem folgt eine unabhängige Prüfung
@@ -107,7 +107,7 @@ AA zeigt je einen Plan pro Fenster und dieselbe Plan-ID in beiden Fenstern.
 Die beobachteten Hashes waren für A `0x2b0c9b54e639aab5` und für B
 `0x70c7888694fc74a5`; diese Werte sind keine festgeschriebenen Erwartungen.
 
-| SQL Server | Folge | Lauf | Duration T0 / T1 (µs) | CPU T0 / T1 (µs) | Logical Reads T0 / T1 (Pages) |
+| SQL Server | Folge | Lauf | Duration T0 / T1 (µs) | CPU (Central Processing Unit; Prozessor) T0 / T1 (µs) | Logical Reads T0 / T1 (Pages) |
 |---|---|---:|---|---|---|
 | 2019 | AB | 1 | 6311,25 / 10919,25 | 6311 / 10918,25 | 5896 / 3380 |
 | 2019 | AB | 2 | 6104,75 / 12841,25 | 6104,5 / 12840 | 5905 / 3387 |
@@ -183,4 +183,4 @@ Runtime-Stats zählen erfolgreiche Ausführungen gesondert und verwenden
 Abschlusszeitpunkte. Duration und CPU sind Statement-Runtime in Mikrosekunden,
 Reads zählen 8-KB-Pages; Compilekosten und Clientlatenz werden nicht abgeleitet.
 `sp_recompile` veranlasst die nächste Kompilierung, belegt deren Ergebnis aber
-nicht. Fachlicher Vertrag bleibt [ADV-007](ADV_007_LAB_VP5_DESIGN.md).
+nicht. Fachlicher Vertrag bleibt [ADV-007 – Design LAB-VP5 und DGN-007](ADV_007_LAB_VP5_DESIGN.md).

@@ -46,8 +46,8 @@ Gleiche volle Image-ID 78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b2159
 SQL 17.0.5005.3/EngineEdition 3/Linux Ubuntu 24.04, vier CPUs/sechs GiB, eigener
 Loopbackport, volle CID-/Image-/Ownerbindung und bytegenaue eigene DB-Marker.
 CL170/SIMPLE, 256/64-MB-Dateilimits, eine aktive SQL-Session. Nur eigene Preview
-ON/MAXDOP 1 nach vollständig persistierten tatsächlichen Baselines; getrennte
-Set-/neue Attestclients und QUOTED_IDENTIFIER ON. Keine DML, kein Stale-, Host-,
+ON/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1 nach vollständig persistierten tatsächlichen Baselines; getrennte
+Set-/neue Attestclients und QUOTED_IDENTIFIER ON. Keine DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten), kein Stale-, Host-,
 Cloud-/Provider-/ONNX-Effekt. Eigener Indexdrop, beide tatsächlichen Restores,
 neue Attestierung vor DB-Drop und separate SQL-/Containerabwesenheit erforderlich.
 Normale Deadline 300 Sekunden; Cleanup 60 Sekunden mit denselben 50 Call-Capsekunden

@@ -7,6 +7,7 @@ SQL-Server-Performance. Der [Projekteinstieg](../README.md) bietet den Überblic
 
 | Anliegen | Dokument |
 |---|---|
+| Begriffe, Abkürzungen und Kennungen verstehen | [Glossar](GLOSSARY.md) |
 | Themen und Lernumfang wählen | [Curriculum und Lernwege](Curriculum/README.md) |
 | Folien finden | [Präsentationen](../Presentations/README.md) |
 | Beispiele verstehen | [Schritt-für-Schritt-Erklärungen der Fachdemos](HowTo/DEMO_WALKTHROUGHS.md) |
@@ -31,11 +32,11 @@ Die ausführlichen Kursanleitungen für
 [BASIS](HowTo/SQL_SERVER_2025_AI_BASIS_COURSE.md),
 [STANDARD](HowTo/SQL_SERVER_2025_AI_STANDARD_COURSE.md) und
 [VERTIEFUNG](HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md)
-gehören zum ergänzenden Kurs zu KI mit SQL Server 2025.
+gehören zum ergänzenden Kurs zu KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit SQL Server 2025.
 
 ## Projektpflege
 
-Für Beiträge gilt [CONTRIBUTING.md](../CONTRIBUTING.md).
+Für Beiträge gilt [Mitwirken](../CONTRIBUTING.md).
 Die interne Planung liegt in [Project_Planning/](Project_Planning/);
 der [aktuelle Ausführungsstand](Project_Planning/CURRENT_EXECUTION_STATUS.md)
 und der [Masterplan](Project_Planning/MASTER_IMPLEMENTATION_PLAN.md) dienen

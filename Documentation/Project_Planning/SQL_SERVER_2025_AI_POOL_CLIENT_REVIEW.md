@@ -41,7 +41,7 @@ Die Bibliothek erzeugt keine RED-/Lab-/CID-/Marker-/Semantikadmission. Der spät
 Producer muss vor Wirkungen die vollständig eigene isolierte Container-/Principal-
 und Datenbankbindung prüfen; bestehende Instanzen und Hoständerungen bleiben außen.
 
-PID, finaler Pollstatus und tatsächliches Collectorresultat stammen von demselben
+PID (Process Identifier; Prozesskennung), finaler Pollstatus und tatsächliches Collectorresultat stammen von demselben
 gehaltenen Prozessobjekt. Fehlende Collectorevidenz, Timeout, Signal oder unklarer
 Poll erzeugen sticky UNKNOWN und sperren Folge-SQL. Rücklauf prüft erneut dieselbe
 Deadline, ohne Reset. Privacy erfolgt vor Persistierung und Digests; Fehler dürfen
@@ -57,7 +57,7 @@ Prozessende ist kein TDS-Requestende; Ergebnisse bleiben WARN/NOT_ESTABLISHED.
 
 Betroffene Source-/Privacy-/Kontrollfolgentests und aktueller unabhängiger
 Quellenabschluss vor PR. Tatsächliche Pfade bestimmen Head-/Main-Gates einschließlich
-betroffener bestehender Runtime-CI; kein Selector-Ausnahmeeintrag und kein RED-Profil
+betroffener bestehender Runtime-CI (Continuous Integration; automatisierte Integrationsprüfungen); kein Selector-Ausnahmeeintrag und kein RED-Profil
 in Default-CI. Integration erst nach aktuellen Pflichtchecks, vollständiger
 Treeübernahme, Synchronisierung und eigenem Cleanup.
 

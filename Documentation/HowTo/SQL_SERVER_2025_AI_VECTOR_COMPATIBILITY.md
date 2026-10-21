@@ -62,9 +62,9 @@ alle Zahlen korrekt zurück. Die Erwartung lautet: „Damit ist auch der native
 binäre VECTOR-Transport meines Treibers geprüft.“
 
 **Entscheidung:** Nur den tatsächlich verwendeten Pfad als geprüft bezeichnen.
-Die Dokumentation beschreibt native Übertragung mit TDS 7.4 oder höher und einem
+Die Dokumentation beschreibt native Übertragung mit TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) 7.4 oder höher und einem
 unterstützenden Treiber; Microsoft.Data.SqlClient 6.1 dokumentiert dafür SqlVector
-mit float32. Für ältere Clients ist VARCHAR(MAX)/JSON als Abwärtspfad dokumentiert.
+mit float32. Für ältere Clients ist VARCHAR(MAX)/JSON (JavaScript Object Notation; strukturiertes Textformat) als Abwärtspfad dokumentiert.
 Das offene Projektgate bedeutet daher keine allgemeine Treiberinkompatibilität.
 
 Im [Corpus-SQL-Komponentennachweis](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md)
@@ -100,7 +100,7 @@ können Sie die entsprechenden Aufgaben und die optionale Evidenzleseaufgabe E1
 anhand vorhandener Ergebnisse bearbeiten. Ein gespeichertes Ergebnis ist kein
 neuer eigener Lauf; die Ausführungsbedingungen stehen jeweils bei der Demo.
 
-Float16, weitere Builds/Editionen/OS, unabhängige Wire-/TLS-Attestierung und die
+Float16, weitere Builds/Editionen/OS (Operating System; Betriebssystem), unabhängige Wire-/TLS-Attestierung und die
 vollständige TSK-004-Abnahme bleiben offen. Dieser Abgleich belegt keine allgemeine Suchqualität,
 Live-RAG-, Provider-, Modell- oder Performanceabnahme.
 

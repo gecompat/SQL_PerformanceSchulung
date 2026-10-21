@@ -13,13 +13,13 @@
 | Aktive Quellen-IDs | 57 |
 | Aktive Folien mit Demo-Zuordnung | 47 |
 | Bestehende kanonische Demo-Bündel | 36 |
-| Neue geplante Demo-IDs | `OPT-015`, `OPT-016`, `OPT-017`, `QRY-013`, `DGN-007` |
+| Neue geplante Demo-IDs | `OPT-015` (Ausführungspläne systematisch lesen), `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung), `OPT-017` (Ungleich verteilte parallele Arbeit), `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell), `DGN-007` (Zeitabhängige Regression eines Suchworkloads) |
 
 ## 1. Zweck
 
 ### Eigenständig geplanter KI-Workstream: Quelle → Aussage/Lernziel → Lehrposition → Demo → Test
 
-`TSK-003`/`DEC-073`, Stand 2026-10-11. Alle folgenden Lehrpositionen sind geplant und besitzen
+`TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration)/`DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze), Stand 2026-10-11. Alle folgenden Lehrpositionen sind geplant und besitzen
 noch keine Foliennummer/SlideKey; die aktive Deckmatrix bleibt unverändert. Die Modul-ID
 verweist auf den vollständigen Lernziel-/Bewertungsvertrag in
 [Workstream-Plan §6](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md#6-modulverträge-und-bewertung).
@@ -28,23 +28,23 @@ Die Featurematrix trennt dokumentierte Claims von noch empirisch offenen Wirkung
 
 | Modul / geplante Lehrposition | Aussage/Lernziel und Evidenzklasse | Quellen | Demos | Testziel / Profil |
 |---|---|---|---|---|
-| `CUR-013`: Begriffe/Geometrie | Komponenten/Metric erklären; DIDACTIC, Dokumentiert | `SRC-072`–`SRC-075`, `SRC-087`, `SRC-094`, `SRC-095` | `QRY-014`, `QRY-015` | Begriffs-/Geometrie-/Dimensionsinvarianten; TP-RUN/TP-DOC |
-| `CUR-014`: VECTOR/Exact | Typ/Norm/Exact ohne ANN; Dokumentiert | `SRC-072`–`SRC-076` | `QRY-014`, `QRY-015` | Typ-/Metric-/Null-/Dimensionsgegenproben; TP-RUN |
-| `CUR-015`: Chunking | CL170, Zeichen/Overlap/Provenienz; Dokumentiert/METHOD | `SRC-079`, `SRC-081` | `QRY-016` | Ordnung/Quellenrekonstruktion/Version; TP-RUN |
-| `CUR-016`: Provider/Modelle | TLS/API/Rechte/Modellraum; Dokumentiert, Interoperabilität Hypothese | `SRC-080`–`SRC-088`, `SRC-096` | `QRY-020`, `QRY-021`, `QRY-022`, `DGN-008` | Endpoint-/Auth-/Dimension-/Budget-/SKIPgrenzen; TP-RUN |
-| `CUR-017`: Suche/RAG | Retrievalbeleg vor akzeptierter Antwort; METHOD | `SRC-073`, `SRC-078`, `SRC-087`, `SRC-095`, `SRC-100` | `QRY-017`, `QRY-018` | Relevanz, Claimbeleg, Widerspruch/Abstention; TP-RUN/TP-PERF |
-| `CUR-018`: Trust Boundaries | Rechte/Tenants/Injection wirksam begrenzen; METHOD | `SRC-080`, `SRC-082`, `SRC-088`, `SRC-090`, `SRC-091`, `SRC-093`, `SRC-096`, `SRC-099` | `CON-010`, `DGN-008`, `DGN-009`, `QRY-019` | positive/negative Rollen-/Tenant-/Tooltests; TP-RUN/TP-CON |
-| `CUR-019`: DiskANN/Lifecycle | Approximation/Generation/Freshness trennen; Dokumentiert, Wirkung Hypothese | `SRC-073`, `SRC-077`, `SRC-078`, `SRC-094`, `SRC-097` | `IDX-011`, `IDX-012` | Exactoracle, Recall, Plan/Fallback, Build/DML/Cleanup; TP-PERF |
-| `CUR-020`: Benchmark/Diagnose | SQL-/Modell-/Gesamtzeit und Qualität gemeinsam messen; METHOD | `SRC-027`, `SRC-028`, `SRC-072`, `SRC-078`, `SRC-081`, `SRC-082` | `RES-008`, `RES-009`, `DGN-011` | Ressourcen, n/Quantile/Fehler, Quality, Grenzen; TP-PERF/TP-CON |
-| `CUR-021`: SQL-Assistenz | LLM-Hypothese fachlich und empirisch prüfen; METHOD | `SRC-027`, `SRC-028`, `SRC-032`, `SRC-089`–`SRC-092`, `SRC-099` | `DGN-010`, `QRY-019` | gleiche Resultate, A/B/AA, DML-/Storagekosten; TP-PERF |
-| `CUR-022`: Architektur/TCO/Agenten | Go/No-Go und begrenzte Toolautorität begründen; DIDACTIC/METHOD | `SRC-088`–`SRC-092`, `SRC-098` | `QRY-018`, `DGN-008`, `DGN-009` | Qualität/Rechte/TCO/Rückfallpfad; TP-DOC/TP-RUN |
+| `CUR-013` (KI-Grundlagen für SQL-Server-Fachleute): Begriffe/Geometrie | Komponenten/Metric erklären; DIDACTIC, Dokumentiert | `SRC-072` (Vector data type)–`SRC-075` (VECTOR_NORMALIZE), `SRC-087` (Generate embeddings with Azure OpenAI), `SRC-094` (DiskANN: Fast Accurate Billion-point Nearest Neighbor Search on a Single Node), `SRC-095` (Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks) | `QRY-014` (Vektortypen und Dimensionen), `QRY-015` (Vektordistanzen und Normalisierung) | Begriffs-/Geometrie-/Dimensionsinvarianten; TP-RUN/TP-DOC |
+| `CUR-014` (Native Vektoren und Exact Search): VECTOR/Exact | Typ/Norm/Exact ohne ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren); Dokumentiert | `SRC-072`–`SRC-076` (VECTORPROPERTY) | `QRY-014`, `QRY-015` | Typ-/Metric-/Null-/Dimensionsgegenproben; TP-RUN |
+| `CUR-015` (Chunking und Wissensbasis): Chunking | CL170, Zeichen/Overlap/Provenienz; Dokumentiert/METHOD | `SRC-079` (AI_GENERATE_CHUNKS), `SRC-081` (AI_GENERATE_EMBEDDINGS) | `QRY-016` (Textabschnitte und Quellenherkunft) | Ordnung/Quellenrekonstruktion/Version; TP-RUN |
+| `CUR-016` (Modelle und sichere Integration): Provider/Modelle | TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen)/API (Application Programming Interface; Programmierschnittstelle)/Rechte/Modellraum; Dokumentiert, Interoperabilität Hypothese | `SRC-080` (CREATE EXTERNAL MODEL)–`SRC-088` (Foundry Models data privacy), `SRC-096` (CREATE DATABASE SCOPED CREDENTIAL) | `QRY-020` (Lokale Embeddings über Ollama), `QRY-021` (Optionale externe Embeddings), `QRY-022` (Optionale lokale ONNX-Embeddings), `DGN-008` (Modellmetadaten und Zugriffsrechte) | Endpoint-/Auth-/Dimension-/Budget-/SKIPgrenzen; TP-RUN |
+| `CUR-017` (Semantische Suche und RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen)): Suche/RAG | Retrievalbeleg vor akzeptierter Antwort; METHOD | `SRC-073` (VECTOR_DISTANCE), `SRC-078` (VECTOR_SEARCH), `SRC-087`, `SRC-095`, `SRC-100` (Full-Text Search) | `QRY-017` (Suchverfahren vergleichen), `QRY-018` (Quellengestützte Antworten im Offline-Beispiel) | Relevanz, Claimbeleg, Widerspruch/Abstention; TP-RUN/TP-PERF |
+| `CUR-018` (Security, Datenschutz und Tenant-Isolation): Trust Boundaries | Rechte/Tenants/Injection wirksam begrenzen; METHOD | `SRC-080`, `SRC-082` (sp_invoke_external_rest_endpoint), `SRC-088`, `SRC-090` (SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) Agent mode), `SRC-091` (Execution context for GitHub Copilot), `SRC-093` (Row-Level Security), `SRC-096`, `SRC-099` (SQL Injection) | `CON-010` (Daten verschiedener Mandanten trennen), `DGN-008`, `DGN-009` (Manipulierte Quellen und erlaubte Werkzeugaufrufe), `QRY-019` (Feste SQL-Struktur und getrennte Parameterwerte) | positive/negative Rollen-/Tenant-/Tooltests; TP-RUN/TP-CON |
+| `CUR-019` (ANN und Index-Lifecycle): DiskANN/Lifecycle | Approximation/Generation/Freshness trennen; Dokumentiert, Wirkung Hypothese | `SRC-073`, `SRC-077` (CREATE VECTOR INDEX), `SRC-078`, `SRC-094`, `SRC-097` (sys.vector_indexes) | `IDX-011` (Exact gegen Approximate Search), `IDX-012` (Begrenzte DML-Grenzenvorstufe) | Exactoracle, Recall, Plan/Fallback, Build/DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten)/Cleanup; TP-PERF |
+| `CUR-020` (Performance, Skalierung und Diagnose): Benchmark/Diagnose | SQL-/Modell-/Gesamtzeit und Qualität gemeinsam messen; METHOD | `SRC-027` (Monitor performance by using the Query Store), `SRC-028` (Performance monitoring and tuning tools), `SRC-072`, `SRC-078`, `SRC-081`, `SRC-082` | `RES-008` (Vektordimensionen und Ressourcenbedarf), `RES-009` (Concurrent Vector Workloads und Latenzverteilung), `DGN-011` (SQL-, Netzwerk- und Inferenzdiagnose) | Ressourcen, n/Quantile/Fehler, Quality, Grenzen; TP-PERF/TP-CON |
+| `CUR-021` (LLMs für SQL-Entwicklung und Analyse): SQL-Assistenz | LLM-Hypothese fachlich und empirisch prüfen; METHOD | `SRC-027`, `SRC-028`, `SRC-032` (Tune nonclustered indexes with missing index suggestions), `SRC-089` (GitHub Copilot in SSMS overview)–`SRC-092` (SSMS 22 release notes), `SRC-099` | `DGN-010` (synthetischen Indexrat anhand begrenzter Messungen prüfen), `QRY-019` | gleiche Resultate, A/B/AA, DML-/Storagekosten; TP-PERF |
+| `CUR-022` (Architektur, Kosten und kontrollierte Agenten): Architektur/TCO/Agenten | Go/No-Go und begrenzte Toolautorität begründen; DIDACTIC/METHOD | `SRC-088`–`SRC-092`, `SRC-098` (SSMS Copilot admin controls) | `QRY-018`, `DGN-008`, `DGN-009` | Qualität/Rechte/TCO/Rückfallpfad; TP-DOC/TP-RUN |
 
 Kein EMPIRICAL-Claim ist bereits abgenommen. Quellen/Modulverträge/Phasen sind geplant;
-die vollständige spätere Kette einschließlich tatsächlicher Tests/Folien wird in `TSK-012`/`TSK-013` ergänzt.
+die vollständige spätere Kette einschließlich tatsächlicher Tests/Folien wird in `TSK-012` (KI-Präsentations- und Lehrmaterialintegration)/`TSK-013` (KI-Runtime- und Negativqualifikation) ergänzt.
 
 Die Matrix bildet die Kette Quelle → Aussage → Curriculum-Lernziel → Folie beziehungsweise geplante Lehrposition → Demo-Bündel → Testziel ab. Aussagewortlaut, stabile Folien-ID, Versionsgrenze und fachliche Entscheidung des aktiven 84-Folien-Satzes stehen im [Folien- und Aussagenregister](../Inventories/SLIDE_STATEMENT_REGISTER.md). Die fachliche Basis der geplanten Vertiefung steht in der [ADV-002-Claim-Matrix](../Research/ADVANCED_PERFORMANCE_CLAIM_SOURCE_MATRIX.md).
 
-Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Von den 39 `ADV-CLM-*`-Claims sind acht (`ADV-CLM-013` bis `ADV-CLM-020`) durch `ADV-009` bis `ADV-011` als Vertiefungsfolien 84 bis 101 in das aktive Deck übernommen und tragen deshalb eine Foliennummer sowie die Entscheidung `KEEP`. Die übrigen 31 Claims besitzen weiterhin keine aktive Folie. `PRS-012` hat allen 102 vorhandenen Folien stabile SlideKeys und Variantenprofile zugeordnet, erzeugt aber keine zusätzlichen fachlichen Vertiefungsfolien.
+Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Von den 39 `ADV-CLM-*`-Claims sind acht (`ADV-CLM-013` bis `ADV-CLM-020`) durch `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) bis `ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization) als Vertiefungsfolien 84 bis 101 in das aktive Deck übernommen und tragen deshalb eine Foliennummer sowie die Entscheidung `KEEP`. Die übrigen 31 Claims besitzen weiterhin keine aktive Folie. `PRS-012` hat allen 102 vorhandenen Folien stabile SlideKeys und Variantenprofile zugeordnet, erzeugt aber keine zusätzlichen fachlichen Vertiefungsfolien.
 
 ## 2. Testprofile
 
@@ -66,50 +66,50 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-003` | 3 | Performance mehrdimensional bewerten | `LO-M00-01` | KERN | `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-004` | 4 | Diagnosezyklus konsequent anwenden | `LO-M00-02` | KERN | `SRC-027`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-005` | 5 | Evidenzquellen nach Fragestellung auswählen | `LO-M00-03` | KERN | `SRC-027`, `SRC-028` | – | `TP-DOC` | KEEP |
-| `CLM-006` | 6 | Version, Compatibility Level und Konfiguration trennen | `LO-M00-04` | KERN | `SRC-007`, `SRC-025`, `SRC-026` | – | `TP-DOC` | KEEP |
+| `CLM-006` | 6 | Version, Compatibility Level und Konfiguration trennen | `LO-M00-04` | KERN | `SRC-007` (Intelligent query processing), `SRC-025`, `SRC-026` (Optional parameter plan optimization) | – | `TP-DOC` | KEEP |
 | `CLM-007` | 7 | Storage-Modul einordnen | `LO-M01-01..05` | KERN | – | – | `TP-DOC` | KEEP |
-| `CLM-008` | 8 | Data Files und Log besitzen verschiedene Rollen | `LO-M01-01` | KERN | `SRC-003`, `SRC-033` | `STL-005` | `TP-PERF` | KEEP |
+| `CLM-008` | 8 | Data Files und Log besitzen verschiedene Rollen | `LO-M01-01` | KERN | `SRC-003` (Database files and filegroups), `SRC-033` (The transaction log) | `STL-005` | `TP-PERF` | KEEP |
 | `CLM-009` | 9 | Filegroups garantieren keinen Performancegewinn | `LO-M01-01` | KERN | `SRC-003` | – | `TP-DOC` | KEEP |
-| `CLM-010` | 10 | Pages und Extents erklären Zugriffseinheiten | `LO-M01-02` | KERN | `SRC-002` | `STL-004` | `TP-RUN` | KEEP |
+| `CLM-010` | 10 | Pages und Extents erklären Zugriffseinheiten | `LO-M01-02` | KERN | `SRC-002` (Pages and extents architecture guide) | `STL-004` | `TP-RUN` | KEEP |
 | `CLM-011` | 11 | Row Layout begrenzt nutzbaren Page-Platz | `LO-M01-02` | KERN | `SRC-002` | – | `TP-DOC` | KEEP |
 | `CLM-012` | 12 | Row Width beeinflusst Page-Anzahl und Reads | `LO-M01-02` | KERN | `SRC-002` | `STL-001` | `TP-RUN` | KEEP |
-| `CLM-013` | 13 | Allocation Units trennen Speicherbereiche | `LO-M01-03` | VERTIEFUNG | `SRC-002`, `SRC-019` | – | `TP-DOC` | KEEP |
-| `CLM-014` | 14 | Buffer Pool macht Logical Reads zentral | `LO-M01-04` | KERN | `SRC-001` | `STL-006` | `TP-PERF` | KEEP |
+| `CLM-013` | 13 | Allocation Units trennen Speicherbereiche | `LO-M01-03` | VERTIEFUNG | `SRC-002`, `SRC-019` (sys.partitions) | – | `TP-DOC` | KEEP |
+| `CLM-014` | 14 | Buffer Pool macht Logical Reads zentral | `LO-M01-04` | KERN | `SRC-001` (Query processing architecture guide) | `STL-006` | `TP-PERF` | KEEP |
 | `CLM-015` | 15 | Logical und Physical Reads getrennt deuten | `LO-M01-04` | KERN | `SRC-001` | `STL-006` | `TP-PERF` | KEEP |
 | `CLM-016` | 16 | WAL, Log Flush und Checkpoint unterscheiden | `LO-M01-05` | KERN | `SRC-033` | `STL-007` | `TP-RUN` | KEEP |
-| `CLM-017` | 17 | Autogrowth ist keine Kapazitätsplanung | `LO-M01-05` | KERN | `SRC-003`, `SRC-034` | – | `TP-DOC` | KEEP |
+| `CLM-017` | 17 | Autogrowth ist keine Kapazitätsplanung | `LO-M01-05` | KERN | `SRC-003`, `SRC-034` (Database instant file initialization) | – | `TP-DOC` | KEEP |
 | `CLM-018` | 18 | Storage-Wissen auf einen Planfall übertragen | `LO-M01-01..05` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-019` | 19 | Query-Processing-Modul einordnen | `LO-M02-01..07` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-020` | 20 | Query-Phasen unterscheiden | `LO-M02-01` | KERN | `SRC-001` | – | `TP-DOC` | KEEP |
 | `CLM-021` | 21 | Optimierung ist kostenbasiert und zeitbegrenzt | `LO-M02-01` | KERN | `SRC-001` | – | `TP-DOC` | KEEP |
-| `CLM-022` | 22 | Kardinalität treibt Planentscheidungen | `LO-M02-02` | KERN | `SRC-001`, `SRC-006` | `OPT-001` | `TP-RUN` | KEEP |
-| `CLM-023` | 23 | Statistiken beschreiben Verteilung begrenzt | `LO-M02-02` | KERN | `SRC-005` | `OPT-002` | `TP-RUN` | KEEP |
+| `CLM-022` | 22 | Kardinalität treibt Planentscheidungen | `LO-M02-02` | KERN | `SRC-001`, `SRC-006` (Cardinality estimation) | `OPT-001` | `TP-RUN` | KEEP |
+| `CLM-023` | 23 | Statistiken beschreiben Verteilung begrenzt | `LO-M02-02` | KERN | `SRC-005` (Statistics) | `OPT-002` (Statistiken lesen) | `TP-RUN` | KEEP |
 | `CLM-024` | 24 | Histogramm und Density liefern andere Evidenz | `LO-M02-02` | KERN | `SRC-005`, `SRC-006` | `OPT-002` | `TP-RUN` | KEEP |
 | `CLM-025` | 25 | vertrauenswürdige Constraints liefern Optimizerwissen | `LO-M02-02` | KERN | `SRC-001` | – | `TP-DOC` | KEEP |
-| `CLM-026` | 26 | Estimated/Actual-Abweichung ist kein Ursachenbeweis | `LO-M02-03` | KERN | `SRC-031`, `SRC-005` | `OPT-001` | `TP-RUN` | KEEP |
+| `CLM-026` | 26 | Estimated/Actual-Abweichung ist kein Ursachenbeweis | `LO-M02-03` | KERN | `SRC-031` (Display an actual execution plan), `SRC-005` | `OPT-001` | `TP-RUN` | KEEP |
 | `CLM-027` | 27 | Plan entlang Datenfluss und Laufzeit lesen | `LO-M02-03` | KERN | `SRC-031` | `OPT-001` | `TP-RUN` | KEEP |
 | `CLM-028` | 28 | Joinwahl folgt Eingabe- und Kostenprofil | `LO-M02-04` | KERN | `SRC-001`, `SRC-007` | `OPT-012` | `TP-RUN` | KEEP |
-| `CLM-029` | 29 | Grants koppeln Plan und Concurrency | `LO-M02-05` | VERTIEFUNG | `SRC-009`, `SRC-010` | `OPT-014` | `TP-PERF` | KEEP |
-| `CLM-030` | 30 | Spill belegt unzureichenden nutzbaren Workspace | `LO-M02-05` | VERTIEFUNG | `SRC-009`, `SRC-029`, `SRC-031` | `OPT-013` | `TP-PERF` | KEEP |
+| `CLM-029` | 29 | Grants koppeln Plan und Concurrency | `LO-M02-05` | VERTIEFUNG | `SRC-009`, `SRC-010` (sys.dm_exec_query_memory_grants) | `OPT-014` | `TP-PERF` | KEEP |
+| `CLM-030` | 30 | Spill belegt unzureichenden nutzbaren Workspace | `LO-M02-05` | VERTIEFUNG | `SRC-009`, `SRC-029` (tempdb database), `SRC-031` | `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) | `TP-PERF` | KEEP |
 | `CLM-031` | 31 | Parallelität garantiert keine gleichmäßige Arbeit | `LO-M02-06` | VERTIEFUNG | `SRC-001` | `RES-002` | `TP-PERF` | KEEP |
 | `CLM-032` | 32 | Cache-Schlüssel, zusätzliche Einträge und Planinvalidierung getrennt diagnostizieren | `LO-M02-07` | VERTIEFUNG | `SRC-001`, `SRC-027` | `OPT-007` | `TP-PERF` | KEEP |
 | `CLM-033` | 33 | Parameter Sensitivity folgt Datenverteilung | `LO-M02-07` | VERTIEFUNG | `SRC-007` | `OPT-008` | `TP-RUN` | KEEP |
-| `CLM-034` | 34 | IQP-Version, CL, Konfiguration, Query Store und Eligibility gemeinsam prüfen | `LO-M02-07` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-009`, `SRC-026` | – | `TP-DOC` | KEEP |
+| `CLM-034` | 34 | IQP-Version, CL, Konfiguration, Query Store und Eligibility gemeinsam prüfen | `LO-M02-07` | VERTIEFUNG | `SRC-007`, `SRC-008` (Intelligent query processing features in detail), `SRC-009`, `SRC-026` | – | `TP-DOC` | KEEP |
 | `CLM-035` | 35 | Query-Processing-Evidenz konsolidieren | `LO-M02-01..07` | KERN + VERTIEFUNG | – | – | `TP-DOC` | KEEP |
 | `CLM-036` | 36 | Query-Patterns-Modul einordnen | `LO-M03-01..06` | KERN | – | – | `TP-DOC` | KEEP |
-| `CLM-037` | 37 | SARGability hält Suchargument verfügbar | `LO-M03-01` | KERN | `SRC-012` | `QRY-001` | `TP-RUN` | KEEP |
-| `CLM-038` | 38 | Conversion auf Indexseite kann Zugriff beeinträchtigen | `LO-M03-01` | KERN | `SRC-030`, `SRC-031` | `QRY-002` | `TP-RUN` | KEEP |
+| `CLM-037` | 37 | SARGability hält Suchargument verfügbar | `LO-M03-01` | KERN | `SRC-012` (SQL Server index design guide) | `QRY-001` (Indexfreundliche Suchbedingungen) | `TP-RUN` | KEEP |
+| `CLM-038` | 38 | Conversion auf Indexseite kann Zugriff beeinträchtigen | `LO-M03-01` | KERN | `SRC-030` (Data type precedence), `SRC-031` | `QRY-002` | `TP-RUN` | KEEP |
 | `CLM-039` | 39 | halboffene Zeitintervalle vermeiden Randfehler | `LO-M03-02` | KERN | `SRC-012` | `QRY-003` | `TP-RUN` | KEEP |
-| `CLM-040` | 40 | optionale Parameter benötigen Verteilungsstrategie | `LO-M03-03` | VERTIEFUNG | `SRC-026` | `QRY-004` | `TP-RUN` | KEEP |
-| `CLM-041` | 41 | CTE garantiert keine Materialisierung | `LO-M03-04` | KERN | `SRC-011`, `SRC-001` | `QRY-008` | `TP-RUN` | KEEP |
+| `CLM-040` | 40 | optionale Parameter benötigen Verteilungsstrategie | `LO-M03-03` | VERTIEFUNG | `SRC-026` | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) | `TP-RUN` | KEEP |
+| `CLM-041` | 41 | CTE (Common Table Expression; benannter Abfrageausdruck innerhalb einer Anweisung) garantiert keine Materialisierung | `LO-M03-04` | KERN | `SRC-011` (WITH common_table_expression), `SRC-001` | `QRY-008` | `TP-RUN` | KEEP |
 | `CLM-042` | 42 | Temp Table, Table Variable Deferred Compilation, Statistiken und Planwiederverwendung differenziert bewerten | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-008` | `TP-RUN` | KEEP |
-| `CLM-043` | 43 | Inline TVF, MSTVF Interleaved Execution und Scalar UDF Inlining nach Eligibility und Plan unterscheiden | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | KEEP |
-| `CLM-044` | 44 | Partition Elimination muss ableitbar sein | `LO-M03-05` | VERTIEFUNG | `SRC-018` | `QRY-012` | `TP-PERF` | KEEP |
-| `CLM-045` | 45 | Remote Pushdown ist provider- und planabhängig | `LO-M03-05` | VERTIEFUNG | `SRC-020`, `SRC-021`, `SRC-022` | `QRY-012` | `TP-PERF` | KEEP |
+| `CLM-043` | 43 | Inline TVF (Table-Valued Function; tabellenliefernde Funktion), MSTVF (Multi-Statement Table-Valued Function; tabellenliefernde Funktion mit mehreren Anweisungen) Interleaved Execution und Scalar UDF (User-Defined Function; benutzerdefinierte Funktion) Inlining nach Eligibility und Plan unterscheiden | `LO-M03-04` | KERN | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | KEEP |
+| `CLM-044` | 44 | Partition Elimination muss ableitbar sein | `LO-M03-05` | VERTIEFUNG | `SRC-018` (Partitioned tables and indexes) | `QRY-012` | `TP-PERF` | KEEP |
+| `CLM-045` | 45 | Remote Pushdown ist provider- und planabhängig | `LO-M03-05` | VERTIEFUNG | `SRC-020` (Create linked servers), `SRC-021` (sp_addlinkedserver), `SRC-022` (Breaking changes in SQL Server 2025) | `QRY-012` | `TP-PERF` | KEEP |
 | `CLM-046` | 46 | Datenmodell und Datentyp begrenzen Optimierung | `LO-M03-02` | KERN | `SRC-002`, `SRC-005`, `SRC-030` | – | `TP-DOC` | KEEP |
 | `CLM-047` | 47 | Query-Rewrite über Plan und Messung prüfen | `LO-M03-06` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-048` | 48 | Indexmodul einordnen | `LO-M04-01..07` | KERN | – | – | `TP-DOC` | KEEP |
-| `CLM-049` | 49 | Heap und Clustered Index sind alternative Basen | `LO-M04-01` | KERN | `SRC-012`, `SRC-013` | `IDX-001` | `TP-RUN` | KEEP |
+| `CLM-049` | 49 | Heap und Clustered Index sind alternative Basen | `LO-M04-01` | KERN | `SRC-012`, `SRC-013` (Heaps) | `IDX-001` | `TP-RUN` | KEEP |
 | `CLM-050` | 50 | B+-Tree ermöglicht Suchnavigation | `LO-M04-01` | KERN | `SRC-012` | – | `TP-DOC` | KEEP |
 | `CLM-051` | 51 | Row Locator bestimmt Lookup-Form und -Kosten | `LO-M04-01` | KERN | `SRC-012`, `SRC-013` | `IDX-001` | `TP-RUN` | KEEP |
 | `CLM-052` | 52 | Key-Reihenfolge folgt Zugriff und Ordnung | `LO-M04-02` | KERN | `SRC-012` | `IDX-003` | `TP-RUN` | KEEP |
@@ -117,27 +117,27 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-054` | 54 | Lookup-Tipping-Point ist workloadabhängig | `LO-M04-03` | KERN | `SRC-001`, `SRC-012` | `IDX-004` | `TP-RUN` | KEEP |
 | `CLM-055` | 55 | Clustering-Key-Breite vervielfacht Folgekosten | `LO-M04-03` | KERN | `SRC-012` | – | `TP-DOC` | KEEP |
 | `CLM-056` | 56 | Indexdesign bilanziert Read- und Betriebskosten | `LO-M04-04` | KERN | `SRC-012`, `SRC-032` | – | `TP-DOC` | KEEP |
-| `CLM-057` | 57 | Split, Fragmentation und Density sind verschieden | `LO-M04-05` | VERTIEFUNG | `SRC-014`, `SRC-015` | `IDX-006` | `TP-PERF` | KEEP |
+| `CLM-057` | 57 | Split, Fragmentation und Density sind verschieden | `LO-M04-05` | VERTIEFUNG | `SRC-014` (Specify fill factor for an index), `SRC-015` (Optimize index maintenance) | `IDX-006` (Seitenaufteilungen und Seitenbelegung) | `TP-PERF` | KEEP |
 | `CLM-058` | 58 | Maintenance benötigt Messziel und Wirkungskontrolle | `LO-M04-05` | VERTIEFUNG | `SRC-015` | `IDX-006` | `TP-PERF` | KEEP |
-| `CLM-059` | 59 | Columnstore organisiert Rowgroups und Segmente | `LO-M04-06` | VERTIEFUNG | `SRC-016` | `IDX-009` | `TP-PERF` | KEEP |
-| `CLM-060` | 60 | Batch Mode und Segment Elimination reduzieren unterschiedliche Arbeit | `LO-M04-06` | VERTIEFUNG | `SRC-007`, `SRC-016`, `SRC-017` | `IDX-010` | `TP-PERF` | KEEP |
+| `CLM-059` | 59 | Columnstore organisiert Rowgroups und Segmente | `LO-M04-06` | VERTIEFUNG | `SRC-016` (Columnstore indexes overview) | `IDX-009` | `TP-PERF` | KEEP |
+| `CLM-060` | 60 | Batch Mode und Segment Elimination reduzieren unterschiedliche Arbeit | `LO-M04-06` | VERTIEFUNG | `SRC-007`, `SRC-016`, `SRC-017` (Columnstore query performance) | `IDX-010` (Columnstore-Segmente gezielt überspringen) | `TP-PERF` | KEEP |
 | `CLM-061` | 61 | Rowgroup-Qualität steuert Diagnose und Maintenance | `LO-M04-07` | VERTIEFUNG | `SRC-015`, `SRC-016`, `SRC-017` | `IDX-010` | `TP-PERF` | KEEP |
 | `CLM-062` | 62 | Indexentscheidung als Workloadrechnung festigen | `LO-M04-01..07` | KERN + VERTIEFUNG | – | – | `TP-DOC` | KEEP |
 | `CLM-063` | 63 | Concurrency-Modul einordnen | `LO-M05-01..05` | KERN | – | – | `TP-DOC` | KEEP |
-| `CLM-064` | 64 | Isolation Levels steuern Sicht und Konflikte | `LO-M05-01` | KERN | `SRC-004` | `CON-003` | `TP-CON` | KEEP |
+| `CLM-064` | 64 | Isolation Levels steuern Sicht und Konflikte | `LO-M05-01` | KERN | `SRC-004` (Transaction locking and row versioning guide) | `CON-003` | `TP-CON` | KEEP |
 | `CLM-065` | 65 | Locking und Versioning verschieben Kosten | `LO-M05-01` | KERN | `SRC-004`, `SRC-029` | `CON-003` | `TP-CON` | KEEP |
-| `CLM-066` | 66 | Blocking vom Head Blocker aus analysieren | `LO-M05-02` | KERN | `SRC-036` | `CON-004` | `TP-CON` | KEEP |
-| `CLM-067` | 67 | Blocking-Kette und Deadlock-Zyklus unterscheiden | `LO-M05-03` | KERN | `SRC-004` | `CON-006` | `TP-CON` | KEEP |
-| `CLM-068` | 68 | TempDB trägt mehrere Kostenklassen | `LO-M05-04` | VERTIEFUNG | `SRC-029`, `SRC-004` | `CON-009` | `TP-CON` | KEEP |
+| `CLM-066` | 66 | Blocking vom Head Blocker aus analysieren | `LO-M05-02` | KERN | `SRC-036` (sys.dm_os_waiting_tasks) | `CON-004` (Blockierungsketten verfolgen) | `TP-CON` | KEEP |
+| `CLM-067` | 67 | Blocking-Kette und Deadlock-Zyklus unterscheiden | `LO-M05-03` | KERN | `SRC-004` | `CON-006` (Zyklische Sperrkonflikte erkennen) | `TP-CON` | KEEP |
+| `CLM-068` | 68 | TempDB trägt mehrere Kostenklassen | `LO-M05-04` | VERTIEFUNG | `SRC-029`, `SRC-004` | `CON-009` (Kosten in tempdb unterscheiden) | `TP-CON` | KEEP |
 | `CLM-069` | 69 | Optimized Locking benötigt klare Voraussetzungen | `LO-M05-05` | VERTIEFUNG | `SRC-025` | `CON-008` | `TP-CON` | KEEP |
 | `CLM-070` | 70 | Isolation und Blocking ohne `NOLOCK`-Pauschale festigen | `LO-M05-01..05` | KERN + VERTIEFUNG | – | – | `TP-DOC` | KEEP |
 | `CLM-071` | 71 | Diagnosemodul einordnen | `LO-M06-01..06` | KERN | – | – | `TP-DOC` | KEEP |
-| `CLM-072` | 72 | CPU und CPU-bezogene Waits sind andere Signale | `LO-M06-01` | KERN | `SRC-028`, `SRC-035` | `RES-001` | `TP-PERF` | KEEP |
-| `CLM-073` | 73 | kumulative und aktuelle Waits haben anderen Scope | `LO-M06-01` | KERN | `SRC-035`, `SRC-036` | `RES-007` | `TP-PERF` | KEEP |
+| `CLM-072` | 72 | CPU (Central Processing Unit; Prozessor) und CPU-bezogene Waits sind andere Signale | `LO-M06-01` | KERN | `SRC-028`, `SRC-035` (sys.dm_os_wait_stats) | `RES-001` | `TP-PERF` | KEEP |
+| `CLM-073` | 73 | kumulative und aktuelle Waits haben anderen Scope | `LO-M06-01` | KERN | `SRC-035`, `SRC-036` | `RES-007` (Wartezeiten im richtigen Messbereich) | `TP-PERF` | KEEP |
 | `CLM-074` | 74 | RESOURCE_SEMAPHORE belegt Grant-Warten | `LO-M06-02` | VERTIEFUNG | `SRC-010`, `SRC-035` | `RES-003` | `TP-PERF` | KEEP |
 | `CLM-075` | 75 | Wait-Kategorien sind Hypothesenstart | `LO-M06-03` | KERN | `SRC-035`, `SRC-036` | – | `TP-DOC` | KEEP |
-| `CLM-076` | 76 | Query Store liefert Plan- und Laufzeithistorie | `LO-M06-04` | KERN | `SRC-027` | `DGN-003` | `TP-RUN` | KEEP |
-| `CLM-077` | 77 | Extended Events und DMVs ergänzen einander | `LO-M06-04` | KERN | `SRC-027`, `SRC-028` | `DGN-005` | `TP-CON` | KEEP |
+| `CLM-076` | 76 | Query Store liefert Plan- und Laufzeithistorie | `LO-M06-04` | KERN | `SRC-027` | `DGN-003` (Abfragehistorie mit Query Store) | `TP-RUN` | KEEP |
+| `CLM-077` | 77 | Extended Events und DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) ergänzen einander | `LO-M06-04` | KERN | `SRC-027`, `SRC-028` | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) | `TP-CON` | KEEP |
 | `CLM-078` | 78 | Outside-in verbindet Nutzerzeit bis Operatorursache | `LO-M06-05` | KERN | `SRC-027`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-079` | 79 | Vorher/Nachher benötigt vergleichbare Bedingungen | `LO-M06-06` | KERN | `SRC-027`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-080` | 80 | Diagnose folgt der fehlenden Zeit | `LO-M06-06` | KERN | – | – | `TP-DOC` | KEEP |
@@ -150,40 +150,40 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 
 | Claim | Aktive Folie | Aussagekern | Curriculum | Pfad | Quellen | Kanonische Demo/LAB | Testprofil | Status |
 |---|---|---|---|---|---|---|---|---|
-| `ADV-CLM-001` | – | Actual Plan ergänzt Runtime-Evidenz, ersetzt aber keine Workload-Zeitreihe | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-038` | `OPT-001`, `DGN-001` | `TP-RUN` | PLANNED |
-| `ADV-CLM-002` | – | Estimated Cost ist keine gemessene Laufzeit | `LO-M02-08` | VERTIEFUNG | `SRC-001`, `SRC-037`, `SRC-038` | `OPT-015` | `TP-PERF` | PLANNED |
-| `ADV-CLM-003` | – | Plan entlang Datenfluss und Evidenz statt Kostenprozent lesen | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-037`–`SRC-040` | `OPT-015`, `LAB-VP1` | `TP-RUN` | PLANNED |
-| `ADV-CLM-004` | – | Estimated/Actual Rows im Ausführungs- und Operator-Kontext lesen | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-039` | `OPT-001`, `OPT-015` | `TP-RUN` | PLANNED |
-| `ADV-CLM-005` | – | Rebind, Rewind und Outer References sind Mechanik, keine Fehlerkennzeichnung | `LO-M02-09` | VERTIEFUNG | `SRC-039`, `SRC-042` | `OPT-016` | `TP-RUN` | PLANNED |
+| `ADV-CLM-001` | – | Actual Plan ergänzt Runtime-Evidenz, ersetzt aber keine Workload-Zeitreihe | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-038` (Generic information – Execution Plans) | `OPT-001`, `DGN-001` | `TP-RUN` | PLANNED |
+| `ADV-CLM-002` | – | Estimated Cost ist keine gemessene Laufzeit | `LO-M02-08` | VERTIEFUNG | `SRC-001`, `SRC-037` (SQL Server Execution Plan Reference), `SRC-038` | `OPT-015` | `TP-PERF` | PLANNED |
+| `ADV-CLM-003` | – | Plan entlang Datenfluss und Evidenz statt Kostenprozent lesen | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-037`–`SRC-040` (Plan properties) | `OPT-015`, `LAB-VP1` | `TP-RUN` | PLANNED |
+| `ADV-CLM-004` | – | Estimated/Actual Rows im Ausführungs- und Operator-Kontext lesen | `LO-M02-08` | VERTIEFUNG | `SRC-031`, `SRC-039` (Common properties) | `OPT-001`, `OPT-015` | `TP-RUN` | PLANNED |
+| `ADV-CLM-005` | – | Rebind, Rewind und Outer References sind Mechanik, keine Fehlerkennzeichnung | `LO-M02-09` | VERTIEFUNG | `SRC-039`, `SRC-042` (Nested Loops Joins and Performance Spools) | `OPT-016` | `TP-RUN` | PLANNED |
 | `ADV-CLM-006` | – | Spool-Wirkung aus Aufbau, Wiederverwendung und Zeilenarbeit bewerten | `LO-M02-09` | VERTIEFUNG | `SRC-042` | `OPT-016` | `TP-RUN` | PLANNED |
-| `ADV-CLM-007` | – | Exchanges verbinden parallele Producer und Consumer ohne Gleichverteilungsgarantie | `LO-M02-09` | VERTIEFUNG | `SRC-001`, `SRC-043` | `OPT-017`, `RES-002` | `TP-PERF` | PLANNED |
-| `ADV-CLM-008` | – | Operatorzeiten besitzen in parallelen und Batch-Mode-Plänen Grenzen | `LO-M02-09` | VERTIEFUNG | `SRC-031`, `SRC-044` | `OPT-017`, `DGN-001` | `TP-PERF` | PLANNED |
-| `ADV-CLM-009` | – | TOP, FAST und EXISTS können frühe Zeilenfindung priorisieren | `LO-M02-10` | VERTIEFUNG | `SRC-041` | `OPT-011` | `TP-RUN` | PLANNED |
+| `ADV-CLM-007` | – | Exchanges verbinden parallele Producer und Consumer ohne Gleichverteilungsgarantie | `LO-M02-09` | VERTIEFUNG | `SRC-001`, `SRC-043` (Parallel Execution Plans – Branches and Threads) | `OPT-017`, `RES-002` | `TP-PERF` | PLANNED |
+| `ADV-CLM-008` | – | Operatorzeiten besitzen in parallelen und Batch-Mode-Plänen Grenzen | `LO-M02-09` | VERTIEFUNG | `SRC-031`, `SRC-044` (Understanding Execution Plan Operator Timings) | `OPT-017`, `DGN-001` | `TP-PERF` | PLANNED |
+| `ADV-CLM-009` | – | TOP, FAST und EXISTS können frühe Zeilenfindung priorisieren | `LO-M02-10` | VERTIEFUNG | `SRC-041` (Setting and Identifying Row Goals in Execution Plans) | `OPT-011` | `TP-RUN` | PLANNED |
 | `ADV-CLM-010` | – | Row Goal kann Planentscheidungen beeinflussen, ist aber kein Ursachenbeweis | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041`, `SRC-042` | `OPT-011`, `OPT-012`, `OPT-016` | `TP-PERF` | PLANNED |
-| `ADV-CLM-011` | – | Semi-/Anti-Joins sind logische Existenzformen mit variabler physischer Umsetzung | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041` | `QRY-006`, `OPT-012` | `TP-RUN` | PLANNED |
+| `ADV-CLM-011` | – | Semi-/Anti-Joins sind logische Existenzformen mit variabler physischer Umsetzung | `LO-M02-10` | VERTIEFUNG | `SRC-001`, `SRC-041` | `QRY-006` (NULL bei NOT IN und NOT EXISTS), `OPT-012` | `TP-RUN` | PLANNED |
 | `ADV-CLM-012` | – | Row-Goal-Deaktivierung ist nur kontrollierte Gegenprobe | `LO-M02-10` | VERTIEFUNG | `SRC-041` | `OPT-011` | `TP-RUN` | PLANNED |
-| `ADV-CLM-013` | 85, 88 | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge erzeugen | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-040`, `SRC-046` | `OPT-007`, `QRY-013` | `TP-RUN` | KEEP |
+| `ADV-CLM-013` | 85, 88 | Cachekontext und SET-Optionen können zusätzliche Cacheeinträge erzeugen | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-040`, `SRC-046` (Slow in the Application, Fast in SSMS?) | `OPT-007`, `QRY-013` | `TP-RUN` | KEEP |
 | `ADV-CLM-014` | 84, 88 | Anwendung/SSMS-Differenz erfordert mehrdimensionale Kontextdiagnose | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-027`, `SRC-046` | `QRY-013` | `TP-RUN` | KEEP |
-| `ADV-CLM-015` | 86, 88 | Parameter Sensitivity folgt Planwiederverwendung bei unterschiedlicher Verteilung | `LO-M03-07` | VERTIEFUNG | `SRC-007`, `SRC-047` | `OPT-008` | `TP-RUN` | KEEP |
-| `ADV-CLM-016` | 87, 88 | Parameter, Variablen, Literale und Recompile liefern unterschiedliche Optimiererinformation | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-007`, `SRC-045`, `SRC-046` | `QRY-004`, `OPT-008` | `TP-RUN` | KEEP |
+| `ADV-CLM-015` | 86, 88 | Parameter Sensitivity folgt Planwiederverwendung bei unterschiedlicher Verteilung | `LO-M03-07` | VERTIEFUNG | `SRC-007`, `SRC-047` (What is Parameter Sniffing in SQL Server?) | `OPT-008` | `TP-RUN` | KEEP |
+| `ADV-CLM-016` | 87, 88 | Parameter, Variablen, Literale und Recompile liefern unterschiedliche Optimiererinformation | `LO-M03-07` | VERTIEFUNG | `SRC-001`, `SRC-007`, `SRC-045` (Dynamic Search Conditions in T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)), `SRC-046` | `QRY-004`, `OPT-008` | `TP-RUN` | KEEP |
 | `ADV-CLM-017` | 90, 93 | Recompile tauscht Wiederverwendung gegen Compilearbeit und laufzeitnahe Information | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-PERF` | KEEP |
 | `ADV-CLM-018` | 91, 92, 93 | Dynamisches SQL muss sicher parameterisiert und auf Wiederverwendung geprüft werden | `LO-M03-08` | VERTIEFUNG | `SRC-001`, `SRC-045` | `QRY-004` | `TP-RUN` | KEEP |
-| `ADV-CLM-019` | 95, 96, 97 | PSP benötigt Eligibility und nachgewiesene Query Variants | `LO-M03-08` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-048` | `OPT-009` | `TP-RUN` | KEEP |
-| `ADV-CLM-020` | 99, 100, 101 | OPPO benötigt SQL Server 2025, CL 170 und geeignete optionale Prädikate | `LO-M03-08` | VERTIEFUNG | `SRC-026`, `SRC-049` | `OPT-010`, `QRY-004` | `TP-RUN` | KEEP |
-| `ADV-CLM-021` | – | Query Execution Memory besitzt getrennte Anforderungs- und Nutzungsstufen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-019` | 95, 96, 97 | PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) benötigt Eligibility und nachgewiesene Query Variants | `LO-M03-08` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-048` (PSPO: How SQL Server 2022 Tries to Fix Parameter Sniffing) | `OPT-009` (Parametersensitive Planoptimierung) | `TP-RUN` | KEEP |
+| `ADV-CLM-020` | 99, 100, 101 | OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter) benötigt SQL Server 2025, CL 170 und geeignete optionale Prädikate | `LO-M03-08` | VERTIEFUNG | `SRC-026`, `SRC-049` (Handling Optional Parameters) | `OPT-010` (Planoptimierung für optionale Parameter), `QRY-004` | `TP-RUN` | KEEP |
+| `ADV-CLM-021` | – | Query Execution Memory besitzt getrennte Anforderungs- und Nutzungsstufen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` (A Little About Memory Grants in SQL Server Query Plans) | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
 | `ADV-CLM-022` | – | Spill belegt Operator-Workspace-Mangel, nicht automatisch Instanzdruck | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-029`, `SRC-031`, `SRC-050` | `OPT-013`, `RES-004` | `TP-PERF` | PLANNED |
 | `ADV-CLM-023` | – | Undergrant und Overgrant besitzen unterschiedliche Folgen | `LO-M06-07` | VERTIEFUNG | `SRC-009`, `SRC-010`, `SRC-050` | `OPT-014`, `RES-004` | `TP-PERF` | PLANNED |
 | `ADV-CLM-024` | – | RESOURCE_SEMAPHORE ist Grant-Warten und nicht Buffer-Pool-Druck | `LO-M06-07` | VERTIEFUNG | `SRC-010`, `SRC-035`, `SRC-036` | `RES-003`, `RES-007` | `TP-PERF` | PLANNED |
 | `ADV-CLM-025` | – | Memory Grant Feedback ist wiederholungs- und versionsabhängig | `LO-M06-07` | VERTIEFUNG | `SRC-009` | `OPT-014`, `LAB-VP4` | `TP-PERF` | PLANNED |
-| `ADV-CLM-026` | – | Parallelität beeinflusst Grant und Aufteilung, DOP erklärt sie nicht allein | `LO-M06-07` | VERTIEFUNG | `SRC-001`, `SRC-009`, `SRC-043`, `SRC-050` | `OPT-017`, `RES-002`, `RES-004` | `TP-PERF` | PLANNED |
+| `ADV-CLM-026` | – | Parallelität beeinflusst Grant und Aufteilung, DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) erklärt sie nicht allein | `LO-M06-07` | VERTIEFUNG | `SRC-001`, `SRC-009`, `SRC-043`, `SRC-050` | `OPT-017`, `RES-002`, `RES-004` | `TP-PERF` | PLANNED |
 | `ADV-CLM-027` | – | TempDB-Arbeit bei Spills ist Folge einer Plan-/Grant-Situation | `LO-M06-07` | VERTIEFUNG | `SRC-029`, `SRC-031`, `SRC-050` | `OPT-013`, `CON-009` | `TP-PERF` | PLANNED |
-| `ADV-CLM-028` | – | IQP benötigt getrennte Prüfung aller Featurevoraussetzungen | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-009`, `SRC-026` | `LAB-VP4` | `TP-RUN` | PLANNED |
+| `ADV-CLM-028` | – | IQP (Intelligent Query Processing; SQL-Server-Funktionen zur intelligenten Abfrageverarbeitung) benötigt getrennte Prüfung aller Featurevoraussetzungen | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008`, `SRC-009`, `SRC-026` | `LAB-VP4` | `TP-RUN` | PLANNED |
 | `ADV-CLM-029` | – | Deferred Compilation nutzt erste Kardinalität ohne Spaltenhistogramme | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `QRY-008`, `OPT-013` | `TP-RUN` | PLANNED |
 | `ADV-CLM-030` | – | Interleaved Execution stellt geeigneten MSTVFs tatsächliche Kardinalität bereit | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | PLANNED |
 | `ADV-CLM-031` | – | Scalar UDF Inlining ist Eligibility- und Planentscheidung | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `QRY-009` | `TP-RUN` | PLANNED |
 | `ADV-CLM-032` | – | Batch Mode on Rowstore benötigt nachgewiesene Eligibility und Operatorausführung | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `OPT-006`, `RES-002` | `TP-PERF` | PLANNED |
-| `ADV-CLM-033` | – | CE Feedback und DOP Feedback sind getrennte Mechanismen | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `OPT-006`, `RES-002`, `DGN-003` | `TP-RUN` | PLANNED |
-| `ADV-CLM-034` | – | DMVs, Query Store und XE besitzen unterschiedliche zeitliche und semantische Sichten | `LO-M06-08` | VERTIEFUNG | `SRC-027`, `SRC-028`, `SRC-035`, `SRC-036`, `SRC-051` | `DGN-002`, `DGN-003`, `DGN-005` | `TP-RUN` | PLANNED |
+| `ADV-CLM-033` | – | CE (Cardinality Estimation; Schätzung der Zeilenanzahl) Feedback und DOP Feedback sind getrennte Mechanismen | `LO-M02-11` | VERTIEFUNG | `SRC-007`, `SRC-008` | `OPT-006`, `RES-002`, `DGN-003` | `TP-RUN` | PLANNED |
+| `ADV-CLM-034` | – | DMVs, Query Store und XE besitzen unterschiedliche zeitliche und semantische Sichten | `LO-M06-08` | VERTIEFUNG | `SRC-027`, `SRC-028`, `SRC-035`, `SRC-036`, `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents) | `DGN-002`, `DGN-003`, `DGN-005` | `TP-RUN` | PLANNED |
 | `ADV-CLM-035` | – | Query Store-Historie wird durch Konfiguration und Erfassungszustand begrenzt | `LO-M06-08` | VERTIEFUNG | `SRC-027` | `DGN-003`, `DGN-007` | `TP-RUN` | PLANNED |
 | `ADV-CLM-036` | – | XE-Aussage und Kosten hängen von Event, Action, Predicate und Target ab | `LO-M06-08` | VERTIEFUNG | `SRC-028`, `SRC-051` | `DGN-005`, `DGN-007` | `TP-CON` | PLANNED |
 | `ADV-CLM-037` | – | Waits benötigen Scope, Delta/Zeitbezug und Gegenprobe | `LO-M06-08` | VERTIEFUNG | `SRC-035`, `SRC-036`, `SRC-051` | `RES-007`, `DGN-007` | `TP-PERF` | PLANNED |

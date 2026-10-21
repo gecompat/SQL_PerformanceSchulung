@@ -4,7 +4,8 @@ Schulungsunterlagen, SQL-Beispiele und praktische Übungen zum Verstehen,
 Analysieren und Verbessern von Microsoft-SQL-Server-Anwendungen.
 
 Die Schulung richtet sich an Entwickler, Datenbankadministratoren und
-Analysten mit T-SQL-Grundkenntnissen. Sie verbindet technische Erklärungen mit
+Analysten mit Grundkenntnissen in Transact-SQL (T-SQL), dem SQL-Server-Dialekt
+der Abfragesprache SQL. Sie verbindet technische Erklärungen mit
 bewährten Lösungsmustern und nachvollziehbaren Demonstrationen. Sie können
 die Unterlagen zum Selbststudium, zur Vorbereitung einer Schulung oder zum
 gezielten Nachschlagen verwenden.
@@ -18,6 +19,7 @@ gezielten Nachschlagen verwenden.
 | ein SQL-Beispiel Schritt für Schritt verstehen | [Erklärungen zu den Fachdemos](Documentation/HowTo/DEMO_WALKTHROUGHS.md) |
 | eine Demo selbst ausführen | [Ausführungsleitfaden](Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und [Demo-Auswahl](Documentation/Demo_Catalog/README.md) |
 | eine Übungsumgebung vorbereiten | [Vorhandene SQL-Server-Instanz verwenden](Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md) oder [Container einrichten](Documentation/HowTo/CONTAINER_QUICKSTART.md) |
+| einen Fachbegriff oder ein Kürzel nachschlagen | [Glossar mit kurzen Erklärungen](Documentation/GLOSSARY.md) |
 | eine Anleitung oder Vertiefung finden | [Dokumentationsübersicht](Documentation/README.md) |
 
 Zum ersten Kennenlernen benötigen Sie keine laufende SQL-Server-Instanz.
@@ -30,11 +32,11 @@ Ausführungen führen die Anleitungen durch Vorbereitung, Ablauf und Aufräumen.
 - Passende Query Patterns und Indexstrukturen für ein konkretes Problem wählen.
 - Speicher, Pages, Transaktionslog und Columnstore einordnen.
 - Blocking, Isolation, Deadlocks und TempDB untersuchen.
-- CPU-, Speicher- und I/O-Verbrauch sowie Waits richtig interpretieren.
+- Prozessorverbrauch (CPU), Speicher und Ein-/Ausgabezugriffe (I/O) sowie Wartezeiten richtig interpretieren.
 - Query Store, Extended Events und weitere Diagnosewerkzeuge einsetzen.
 - Änderungen mit ihren Voraussetzungen, Vorteilen und Grenzen beurteilen.
 
-Ein ergänzendes [Kursangebot zu KI mit SQL Server 2025](Presentations/AI_SQL_Server_2025/README.md)
+Ein ergänzendes [Kursangebot zu künstlicher Intelligenz (KI) mit SQL Server 2025](Presentations/AI_SQL_Server_2025/README.md)
 behandelt unter anderem Vektoren, Suche und den Umgang mit SQL-Ausgaben von
 Sprachmodellen.
 
@@ -68,7 +70,7 @@ vorgesehene isolierte Umgebung.
 ## Mitwirken und Lizenz
 
 Hinweise zu fachlichen Korrekturen und Beiträgen stehen in
-[CONTRIBUTING.md](CONTRIBUTING.md). Interne Entwicklungsplanung ist über die
+[Mitwirken](CONTRIBUTING.md). Interne Entwicklungsplanung ist über die
 [Projektpflege](Documentation/README.md#projektpflege) erreichbar.
 
 Für Nutzung und Weitergabe gilt [LICENCE.md](LICENCE.md).

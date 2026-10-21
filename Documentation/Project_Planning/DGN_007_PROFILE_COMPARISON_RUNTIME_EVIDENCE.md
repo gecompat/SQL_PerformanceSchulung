@@ -34,7 +34,7 @@ an persistenten Labtabellen und Query-Store-Konfiguration. Beobachtungsqueries
 können selbst kompiliert und unter Capture ALL erfasst werden; sie bleiben
 außerhalb des markierten Suchscope.
 
-Je Fenster werden Duration, CPU, Logical Reads und Rows mit
+Je Fenster werden Duration, CPU (Central Processing Unit; Prozessor), Logical Reads und Rows mit
 `SUM(ExecutionCount * Mittelwert) / SUM(ExecutionCount)` gewichtet. Die Ausgabe
 enthält T0, T1, Delta `T1-T0` und Ratio `T1/NULLIF(T0,0)`. Gültige Nullmessungen
 (0) bleiben 0; `BaselineZero=1` erklärt die nicht definierte Ratio bei T0=0.
@@ -88,7 +88,7 @@ Die quantitative Diagnostik ergänzt ausschließlich im lokalen, nicht versionie
 Aufruf die interaktive Harness-Ausgabe. Der normale Runner unterdrückt weiterhin
 SQL-Phasenausgaben. Aus den transienten Resultsets werden ausschließlich feste
 `DGN007_PROFILE_*`-Kennungen und numerische Metriken übernommen. Rohoutput,
-Querytext, Plan-XML, Zugangsdaten und reale Hostinformationen werden nicht
+Querytext, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten), Zugangsdaten und reale Hostinformationen werden nicht
 als Repository-Artefakte gespeichert.
 
 Für die quantitative Kontrolle wurden 2019 und 2022 zusätzlich je zweimal

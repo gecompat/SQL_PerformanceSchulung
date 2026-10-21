@@ -2,14 +2,14 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `ADV-008` (Schnitt `OPT-010`), `ADV-011` (Deckübernahme) |
+| Arbeitspaket | `ADV-008` (Review QRY-004) (Schnitt `OPT-010` (Planoptimierung für optionale Parameter)), `ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization) (Deckübernahme) |
 | Status | `VALIDATED` |
 | Prüfdatum | 2026-08-02 |
 | Demo-ID | `OPT-010` |
 | Sicherheitsstufe | `GREEN` |
 | Claim | `ADV-CLM-020` |
 | Lernziel | `LO-M03-08` |
-| Quellen | `SRC-007`, `SRC-026`, `SRC-049` |
+| Quellen | `SRC-007` (Intelligent query processing), `SRC-026`, `SRC-049` (Handling Optional Parameters) |
 
 ## 1. Gegenstand und Abgrenzung
 
@@ -18,7 +18,7 @@ Der Schnitt liefert die Demo `OPT-010` und die vier zugehörigen Vertiefungsfoli
 Die Abgrenzung ist bewusst scharf gezogen:
 
 - `OPT-009` behandelt die parametersensitive Planoptimierung. Sie wählt anhand geschätzter Kardinalitätsunterschiede aus. Die Demo `OPT-010` verbietet den Bezeichner `PARAMETER_SENSITIVE_PLAN_OPTIMIZATION` in allen SQL-Dateien, damit beide Verfahren nicht gleichzeitig wirken.
-- `QRY-004` behandelt die klassischen Strategien für Catch-all-Abfragen, insbesondere `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Diese bleiben die Antwort, wo Optional Parameter Plan Optimization nicht greift.
+- `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) behandelt die klassischen Strategien für Catch-all-Abfragen, insbesondere `OPTION (RECOMPILE)` und sicher parameterisiertes dynamisches SQL. Diese bleiben die Antwort, wo Optional Parameter Plan Optimization nicht greift.
 
 Die Demo arbeitet mit einer streng gleichmäßigen Verteilung – 2 000 Agenten zu je genau 50 Zeilen bei 100 000 Zeilen insgesamt. Damit lässt sich die beobachtete Wirkung nicht der Datenschiefe zuschreiben; sie folgt allein aus der Gültigkeitsanforderung an eine einzige Planform.
 
@@ -35,7 +35,7 @@ Die Demo arbeitet mit einer streng gleichmäßigen Verteilung – 2 000 Agenten 
 | `COMPARISON` | `60_Comparison.sql` | Zieldatenbank | abfragebezogene Abwahl über `USE HINT`, dokumentierte Ausschlussgründe |
 | `CLEANUP` | `90_Cleanup.sql` | `master` | markierungsgeprüfter, idempotenter Abbau |
 
-Alle Phasen sind `required` und liefern eine Zusammenfassungszeile nach `FWK-012`.
+Alle Phasen sind `required` und liefern eine Zusammenfassungszeile nach `FWK-012` (Status-, Fehler- und Skip-Vertrag).
 
 ## 3. Statusdisziplin nach FWK-012 und DEC-059
 
@@ -73,7 +73,7 @@ Der statische Vertrag `Tests/Static/validate_adv008_opt010.py` wurde mit reversi
 
 ## 5. Deckübernahme ADV-011
 
-Die Übernahme erfolgt additiv nach `DEC-057` und `DEC-058`. Der Block schließt unmittelbar an `ADV-010` an; die Schlussfolie bleibt letzte Anzeigeposition.
+Die Übernahme erfolgt additiv nach `DEC-057` und `DEC-058`. Der Block schließt unmittelbar an `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) an; die Schlussfolie bleibt letzte Anzeigeposition.
 
 | Stabile ID | Folienteil | Anzeigeposition | Claim |
 |---|---|---:|---|

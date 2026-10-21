@@ -7,7 +7,7 @@
 | Arbeitspaket | bestehender automatisierter DGN-007-Schnitt |
 | geprüfte Repositorybasis | `3234fe0936e894d0c5d8e804c26e2d624a855c8d` nach PR69 |
 | Ausgangsevidenz | [Producernachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md), einschließlich PR68 und privater Originalmaterialisierungsprobe |
-| gültige Methode | [prospektiver v1-Vertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md), `DEC-068`, unverändert |
+| gültige Methode | [prospektiver v1-Vertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/README.md), `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen), unverändert |
 | Abnahmegrenze | Quellen-, Code- und Entwurfsprüfung; keine neue SQL-Runtime, kein implementierter alternativer Nachweis |
 
 ## 1. Problem und zulässige Aussagen
@@ -36,7 +36,7 @@ Die verlustfreie Tickdarstellung erhält gelieferte Werte; sie erhöht deren
 Messgenauigkeit nicht. Auch passende Counts, ein Flush oder nachträgliche
 Vorher-/Nachher-SYSUTC-Werte beweisen den geforderten Einschluss nicht.
 Die bestehenden v1-Fehler bleiben Fehler. Dieser Entwurf berechtigt weder
-zum Merge des fehlgeschlagenen PR68 noch zum Umgehen seiner CI.
+zum Merge des fehlgeschlagenen PR68 noch zum Umgehen seiner CI (Continuous Integration; automatisierte Integrationsprüfungen).
 
 ## 2. Zwei getrennte Methodenalternativen
 
@@ -171,7 +171,7 @@ ungeprüften exakten SYSUTC-Herkunftsbeleg ersetzen.
 Dieser Slice ändert keine Statuscodes oder Fehlerklassifikation. Ein späterer
 eigenständiger Vertrag muss Pflichtrecord-, Herkunfts-, Zustands-, Ergebnis-,
 Timeout- und Cleanupdefekte gemäß
-[FWK-012](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md)
+[FWK-012 – Status-, Fehler- und Skip-Vertrag](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md)
 von gültiger Evidenz ohne Separation unterscheiden. Ein fehlender Pflichtbeleg
 darf nicht pauschal zu `SKIP_EVIDENCE_MISSING` werden. Die bekannten v1- und
 PR68-G13-Fehler bleiben `FAIL`; ein zukünftiger alternativer Lauf kann sie
@@ -179,7 +179,7 @@ nicht nachträglich umklassifizieren. Die DEC-068-Separation vollständiger
 gültiger Records bleibt unverändert.
 
 Zielmatrix bleibt 2019/150, 2022/160 und 2025/170. Variants und PlanTypes
-werden versionsgebunden behandelt. Vier CPU, 8 GiB, eine aktive Session,
+werden versionsgebunden behandelt. Vier CPU (Central Processing Unit; Prozessor), 8 GiB, eine aktive Session,
 180 Sekunden regulär und 60 Sekunden Cleanup bleiben die bestehenden
 Grenzen. Zusätzliche Capturestufen verändern Beobachtungskosten; ihre
 Durchführbarkeit innerhalb dieser Grenzen muss frisch geprüft werden.

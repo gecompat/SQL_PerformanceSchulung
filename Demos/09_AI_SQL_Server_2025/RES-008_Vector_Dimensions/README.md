@@ -26,7 +26,7 @@ andere 2025-Builds mit SKIP_CONFIGURATION. Keine float16-/Preview-/ONNX-Inferenz
 
 Dediziertes isoliertes SQL-Lastlab, sysadmin für Setup/SHOWPLAN und tatsächliche
 DMV-Sichtbarkeit, Python 3.12 oder neuer und Microsoft sqlcmd. Der Aufrufer
-provisioniert die Instanz. Qualifikationsprofil: vier CPU/sechs GiB für den
+provisioniert die Instanz. Qualifikationsprofil: vier CPU (Central Processing Unit; Prozessor)/sechs GiB für den
 eigenen Container, zusätzliche Hostreserven; die Instanz darf verworfen werden.
 Nur eine Session gleichzeitig. Datenbank SQLPERF_LAB_RES008_LOCAL muss zunächst
 fehlen. SQLCMDPASSWORD ist ausschließlich eine Umgebungsvariable.
@@ -36,7 +36,7 @@ fehlen. SQLCMDPASSWORD ist ausschließlich eine Umgebungsvariable.
 YELLOW: `--confirm-isolated-lab` und `--high-impact-confirmed` sind erforderlich.
 Maximal 300 Sekunden regulär, separate 60 Sekunden für Cleanup. Eigene Daten-/
 Logdateien maximal 256/64 MB, vier Tabellen mit je 100 Rows; kein globales Cache-
-leeren, keine Instanz-/DB-MAXDOP-/Previewänderung. Statements verwenden MAXDOP 1.
+leeren, keine Instanz-/DB-MAXDOP-/Previewänderung. Statements verwenden MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1.
 Native Requests haben maximal 30 Sekunden und vollständige Ausgabe höchstens 1 MB.
 Ctrl+C beendet den eigenen Client; Recovery erst nach bekanntem Clientende.
 Unbekannter Endstatus sperrt alle weiteren SQL-Aufrufe und ergibt FAIL_CLEANUP.
@@ -96,14 +96,14 @@ werte, Querytexte, Quellen-/Planstrings oder XMLs werden ausgegeben.
 
 Die Auswertung trennt 20 Warmups und AA von den sechs A/B-Batchfenstern je Pfad
 und Paar. Median/Min/Max/n/Nullzählung enthalten auch Ausreißer; Nullbaseline
-ergibt N/A (`null` im JSON), keine Division. Jeder Batch enthält 100 Queries.
-CPU/I/O stammen aus eigenen Request-Counters vor/nach der Schleife einschließlich
+ergibt N/A (`null` im JSON (JavaScript Object Notation; strukturiertes Textformat)), keine Division. Jeder Batch enthält 100 Queries.
+CPU/I/O (Input/Output; Ein- und Ausgabezugriffe) stammen aus eigenen Request-Counters vor/nach der Schleife einschließlich
 des Overheads an diesen Messgrenzen. Elapsed umfasst die UTC-Zeit der Schleife
 einschließlich Tempresult-Inserts; beide Messgrenzen sind nicht identisch.
 Sechs Batchfenster
 belegen keine individuellen Querylatenzen, belastbare Tails oder Signifikanz.
 Vier repräsentative Planrecords liefern ausschließlich rohe numerische
-Memory-/DOP-Attribute; fehlend bleibt `null`, roher DOP 0 bleibt 0.
+Memory-/DOP-Attribute; fehlend bleibt `null`, roher DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung) 0 bleibt 0.
 
 Die drei [Expected-Verträge](Expected/RES008_D384.result-contract.json) prüfen
 je zehn feste EXACT/FAIL-Invarianten zu Quellen, Vektorbytes und vollständiger
@@ -161,7 +161,7 @@ Kleine synthetische Population, feste Version und Ressourcen. Vollständige
 Worker-I/O, Waits/Spills/TempDB, größere Profile, Loader-/Modellqualität,
 vollständige FWK-/TP-PERF-/Demo-/Versionsabnahme offen. Die begrenzte Aggregation
 prüft ausschließlich den dokumentierten Teilumfang.
-Keine Inferenz, Cloud-, Bezahl-API, ONNX oder rote Hostwirkung.
+Keine Inferenz, Cloud-, Bezahl-API (Application Programming Interface; Programmierschnittstelle), ONNX (Open Neural Network Exchange; Austauschformat für Modelle) oder rote Hostwirkung.
 
 ## 13. Quellen
 

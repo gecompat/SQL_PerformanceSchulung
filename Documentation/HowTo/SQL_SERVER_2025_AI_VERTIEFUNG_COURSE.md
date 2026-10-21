@@ -1,7 +1,7 @@
 # KI mit SQL Server 2025 VERTIEFUNG
 
 Dieser Zweitageskurs verbindet den vollständigen Offline-Praxistag mit einem
-zweiten Tag zu ANN, Kosten, Modellarchitektur, SQL-Assistenz und Betrieb.
+zweiten Tag zu ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren), Kosten, Modellarchitektur, SQL-Assistenz und Betrieb.
 Die [eigenständige VERTIEFUNG-Präsentation](../../Presentations/SQL_Server_2025_KI_VERTIEFUNG.pptx)
 enthält 61 Kursfolien aus 56 Quellfolien; fünf Fachfolien werden an Tag 2
 gezielt wiederholt. Sie benötigt keine zweite Präsentationsdatei.
@@ -19,7 +19,7 @@ und einen fehlenden Nachweis mit Scope, Abbruch und Cleanup konkret benennen.
 Tag 1 verwendet acht ausführbare Offline-Demos. Tag 2 verwendet Beleglesen,
 eine synthetische Recallrechnung, die vorhandene RES-008-Leseaufgabe und
 Architektur-/Evaluationsentwürfe. Live-Modelle, neue ANN-/Poolingversuche,
-Cloud und ONNX werden dabei nicht ausgeführt.
+Cloud und ONNX (Open Neural Network Exchange; Austauschformat für Modelle) werden dabei nicht ausgeführt.
 
 ## Vorbereitung vor den Kurstagen
 

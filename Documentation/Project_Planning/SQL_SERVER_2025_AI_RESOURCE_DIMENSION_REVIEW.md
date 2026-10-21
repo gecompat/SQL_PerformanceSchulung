@@ -11,7 +11,7 @@ Performance-, TP-PERF- oder vollständige TSK-010-Abnahme.
 Drei neue eigene serielle Podmancontainer verwendeten das bereits vorhandene,
 fest gebundene Image
 `78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726`.
-Jeder meldete exakt SQL Server 17.0.5005.3. Grenzen: vier CPU, sechs GiB,
+Jeder meldete exakt SQL Server 17.0.5005.3. Grenzen: vier CPU (Central Processing Unit; Prozessor), sechs GiB,
 eigener zufälliger Loopbackport, 300 Sekunden Gesamtbudget einschließlich
 Readiness und eine separate gemeinsame 60-Sekunden-Cleanupdeadline ohne Reset.
 Native ODBC-SQLCMD.EXE erhielt Secrets ausschließlich über Umgebung; private
@@ -53,7 +53,7 @@ Je Lifecycle wurde unter vollständigem Eigentumsguard tatsächlich Id 100 aus
 der eigenen 32-dimensionalen Tabelle gelöscht. Die anschließende Quellenprüfung
 musste exakt den nativen Fehler 51003/FAIL_RESULT_CONTRACT liefern; beliebige
 andere Fehler waren unzulässig. Ein weiterer Setup stellte die vollständigen
-400 Quellen und alle positiven Kontrollen wieder her. Datenbank-MAXDOP und
+400 Quellen und alle positiven Kontrollen wieder her. Datenbank-MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) und
 PREVIEW_FEATURES blieben tatsächlich 0; allein feste Suchstatements verwendeten
 OPTION(MAXDOP 1). Keine Preview-, Host-, Provider-, Cloud- oder ONNX-Änderung.
 

@@ -6,7 +6,7 @@
 | Planstatus | `DESIGNED` – Ablauf vorbereitet; Teilnehmerdurchführung und empirische Abnahme nicht ausgeführt |
 | Stand | 2026-10-07 |
 | Ziel | Orientierung, Bedienbarkeit, Erklärung und Transfer an einer repräsentativen Demoauswahl prüfen |
-| Auswahl | `OPT-002`, `QRY-001`, `QRY-004`, `CON-004` |
+| Auswahl | `OPT-002` (Statistiken lesen), `QRY-001` (Indexfreundliche Suchbedingungen), `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `CON-004` (Blockierungsketten verfolgen) |
 | Geprüfte Präsentationsquelle | 102 Folien, SHA-256 `f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5` |
 
 ## 1. Abnahmegrenze und vorhandene Planung
@@ -86,7 +86,7 @@ Pro Durchlauf werden nur folgende minimierte Angaben benötigt. Der Bogen ist le
 | Feld | Auszufüllender Wert |
 |---|---|
 | Prüfstand | Datum, Repository-Commit, Deck-Hash und gewähltes Profil |
-| Umgebung | Engine-Version/CU, Compatibility Level, Edition, OS, Provider und Ressourcenklasse; keine Hostnamen, lokalen Pfade oder Zugangsdaten |
+| Umgebung | Engine-Version/CU (Cumulative Update; kumulatives Produktupdate), Compatibility Level, Edition, OS (Operating System; Betriebssystem), Provider und Ressourcenklasse; keine Hostnamen, lokalen Pfade oder Zugangsdaten |
 | Zusammensetzung | Aggregierte Anzahl Teilnehmender und grobe Erfahrungsgruppen; keine Namen, Kontaktdaten oder Arbeitgeber |
 | Je Block | Planzeit, Istzeit, gefundener Einstieg, Bedienhürde, benötigte Hilfe und neutral beschriebene Beobachtung |
 | Je Transferaufgabe | Anzahl vollständig selbstständig, nach Hilfe, teilweise und nicht gelöst; Fehlannahme sachlich zusammenfassen |
@@ -94,7 +94,7 @@ Pro Durchlauf werden nur folgende minimierte Angaben benötigt. Der Bogen ist le
 | Folie / Übergang | Folienposition oder stabile ID, Lesbarkeitsproblem, missverständliches Diagramm oder fehlende Überleitung |
 | Konsequenz | Betroffener Pfad, konkrete Änderung, verantwortliche Rolle und benötigte Nachprüfung |
 
-Speichern Sie zunächst nur eine datensparsame lokale Auswertung. Auch aggregierte Kleingruppenangaben können Rückschlüsse erlauben: keine identifizierenden Freitexte und keine Verknüpfung seltener Merkmale. Versionieren Sie ausschließlich neutralisierte sachliche Befunde nach Privacy-Prüfung; keine realen Teilnehmerrohaufzeichnungen, Plan-XML oder Logs. Der bestehende Registrierungsprozess gilt, wenn aus einem Befund ein neuer Task entsteht.
+Speichern Sie zunächst nur eine datensparsame lokale Auswertung. Auch aggregierte Kleingruppenangaben können Rückschlüsse erlauben: keine identifizierenden Freitexte und keine Verknüpfung seltener Merkmale. Versionieren Sie ausschließlich neutralisierte sachliche Befunde nach Privacy-Prüfung; keine realen Teilnehmerrohaufzeichnungen, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) oder Logs. Der bestehende Registrierungsprozess gilt, wenn aus einem Befund ein neuer Task entsteht.
 
 Die Auswertung trennt technische Ergebnisse, Bedienbarkeit und Lernerfolg. Für diesen Pilotlauf ist vorab festgelegt: Jede Person erhält alle vier Transferaufgaben; Hilfe wird sichtbar gezählt. Ein Verständnisziel bleibt offen, wenn es nur mit Hilfe oder mit einer fachlich falschen Erklärung erreicht wird. Sicherheits- und Cleanupfehler blockieren die betroffene Durchführung. Zeitüberschreitungen führen zu einer begründeten Anpassung des Ablaufs, nicht zu einer Produktleistungsbehauptung. Diese Kriterien sind lokale didaktische Abnahmekriterien, keine universelle Erfolgsquote.
 

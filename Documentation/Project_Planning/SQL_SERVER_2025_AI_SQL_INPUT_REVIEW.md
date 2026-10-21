@@ -34,7 +34,7 @@ Setup-Idempotenz, 80 bytegenauen Markerabweichungen und sieben fachlichen Gegenp
 Diese betreffen leere Kandidaten, leere Inventory, falsche Farbe, Strukturleerzeichen,
 überlangen Wert, anderen Literalwert und bewusst erweitertes UPDATE-Recht. Jeder Fall
 scheiterte mit FAIL_RESULT_CONTRACT; er ersetzt keine Produktionsprüfung.
-Eigene Testcontainer liefen mit vier CPUs / sechs GiB RAM und wurden nach kontrollierter
+Eigene Testcontainer liefen mit vier CPUs / sechs GiB RAM (Random Access Memory; Arbeitsspeicher) und wurden nach kontrollierter
 Ownerbindung entfernt, ihre Abwesenheit separat geprüft. Versionsqualifikation 2019/2022
 bestand je zwei SKIP_VERSION-Lifecycles vor Setup, unabhängige DB-Abwesenheit und eigenen
 Containerabbau. Diese Versionen liefern keinen Parameter-/Rechteruntime-PASS.
@@ -62,13 +62,13 @@ Die geänderte 17.x-Runtime bestand erneut zwei Lifecycles, fünf Ergebnisassert
 Die früheren Versionsprüfungen bleiben gebunden an unveränderten Preflight vor Setup;
 die neuen 17.x-Inputs begründen diese erneute lokale Qualifikation.
 Quellenreview ist keine zusätzliche Runtimeattestation. Windows, Podman, weitere Editionen,
-Serverlogin-/Anwendungszugang, beliebige generierte SQL-Formen und Live-LLM bleiben offen.
+Serverlogin-/Anwendungszugang, beliebige generierte SQL-Formen und Live-LLM (Large Language Model; großes Sprachmodell) bleiben offen.
 
 ## Aufwand, CI und nächste Schritte
 
 Ein Implementierungsverantwortlicher, eine Demo, zwei Lifecycles je Version, ein fokussierter
 Review und höchstens zwei kohärente Korrekturwellen im Demopaket. Checkpoints sind lokale
-Qualifikation, stabiler Reviewkandidat, aktuelle Head-CI und Integration mit Main-Gates,
+Qualifikation, stabiler Reviewkandidat, aktuelle Head-CI (Continuous Integration; automatisierte Integrationsprüfungen) und Integration mit Main-Gates,
 Synchronisierung und eigenem Cleanup. Modell-/Tokenverbrauch bleibt unbekannt.
 Kein weiterer Provider, Modellaufruf oder Provisionierungspfad in versionierten Quellen.
 Der bestehende Runner und die drei KI-Versionsjobs werden erweitert. Die geplante
@@ -116,7 +116,7 @@ kein implementiertes CON-010-Demopaket und keine Serverlogin-/Pooling-/ANN-Abnah
 SRC-093 und der [Microsoft-Fehlerkatalog](https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors-31000-to-41399?view=sql-server-ver17)
 wurden erneut gelesen. Nächster kleiner Schnitt:
 vollständiger markierter Lifecycle mit echten Policy-/Impersonations-/Revocationkontrollen,
-Sessionwechsel und Ergebnis-/Leakagegegenproben. ANN bleibt von TSK-006 abhängig,
+Sessionwechsel und Ergebnis-/Leakagegegenproben. ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) bleibt von TSK-006 abhängig,
 Cloud-/ONNX-/Live-Modellgrenzen unverändert offen. Der KI-Heartbeat bleibt aktiv.
 
 Die privaten Proben bleiben unter Runtime, außerhalb der versionierten Demoquellen.

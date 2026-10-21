@@ -23,7 +23,7 @@ Er ruft keine prospektive Incidentbewertung auf.
 
 Die neue lokale Prüfung verwendet ausschließlich neu erzeugte eigene Linux-
 Docker-Developerinstanzen: höchstens eine gleichzeitig, vier CPU-Kerne,
-8 GB Containerlimit, die reguläre Docker-Bridge wie in CI, keine veröffentlichten Ports und keine
+8 GB Containerlimit, die reguläre Docker-Bridge wie in CI (Continuous Integration; automatisierte Integrationsprüfungen), keine veröffentlichten Ports und keine
 Hostvolumes. Die Ressourcenlimits belegen keine vollständige Ressourcen-
 attestation. Die bestätigenden Optionen `--confirm-disposable-instance` und
 `--confirm-isolated-lab` werden ausschließlich für diese frischen Ziele gesetzt.
@@ -338,7 +338,7 @@ Die anschließende Revision ergänzt ausschließlich konstante ASCII-PRINTs
 bestätigt: Nach Entfernung genau dieser 17 PRINTs ist der vollständige
 normalisierte SQL35-Text identisch mit dem ursprünglichen Head `a6210190…`.
 Prädikate, Last, Flushes, Deadline, Summary, RETURN und Cleanup bleiben
-unverändert. Im JSON wurde ausschließlich der SQL35-Quellenhash erneuert;
+unverändert. Im JSON (JavaScript Object Notation; strukturiertes Textformat) wurde ausschließlich der SQL35-Quellenhash erneuert;
 die übrigen 13 Quellen und der gesamte Methodenvertrag bleiben identisch.
 
 Der Runner veröffentlicht eine feste Guard-ID nur aus dem tatsächlichen
@@ -598,7 +598,7 @@ Zeitwerte bei `count_executions=0` nennt die Quelle keine Sondersemantik.
 
 Die getrennte [SYSUTCDATETIME-Dokumentation](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver16)
 unterscheidet sieben Nachkommastellen beziehungsweise die 100-ns-Präzision
-der genannten Windows-API von hardware-/Windowsabhängiger Genauigkeit
+der genannten Windows-API (Application Programming Interface; Programmierschnittstelle) von hardware-/Windowsabhängiger Genauigkeit
 (abgerufen 2026-10-07). Daraus folgt keine tatsächliche Query-Store-Auflösung
 oder Linux-Implementierung. In den geprüften Primärquellen ist keine
 entsprechende gemeinsame Clock oder tickgenaue Ordnung gegenüber unmittelbar
@@ -611,7 +611,7 @@ im bereits verletzten G13-Zweig gewählt. Sie trennt gespeichertes Profil und fr
 einer einzigen späteren, exakt auf dieselben Query-/Parent-/Plan-/Intervall-
 Keys begrenzten Query-Store-Sicht. Counts, UTC-100-ns-Ticks und signierte
 Grenzabstände bleiben präzise; feste Caps kennzeichnen Overflow ausdrücklich
-als unvollständige Stichprobe. Keine Querytexte, Plan-XML oder Payload-
+als unvollständige Stichprobe. Keine Querytexte, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) oder Payload-
 Persistenz, keine zusätzlichen Suchausführungen, Flushes oder Waits; kein
 Prädikat-, Budget- oder Toleranzfix. Private Kopie und Main-Runner werden
 separat gebunden, kanonische Quellen bleiben unverändert. Die lokale
@@ -804,7 +804,7 @@ Der einmalige frische T-SQL-Vorcheck begann am 2026-10-07 um 05:43:08 UTC
 auf einer neuen eigenen SQL-Server-2022-Developerinstanz `16.0.4295.3`.
 Pullref und separat vorab aufgelöste Inspect-ID waren hier jeweils
 `sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`.
-Vier CPU und 8 GiB, keine Ports oder Mounts, kein Pull, Secrets ausschließlich
+Vier CPU (Central Processing Unit; Prozessor) und 8 GiB, keine Ports oder Mounts, kein Pull, Secrets ausschließlich
 im temporären Prozess-Environment. Die import-sichere private Fixture
 extrahiert nach dem strengen Stripnachweis den tatsächlichen kanonischen
 G13-Branch; nur die beiden gespeicherten Quellen werden durch temporäre
@@ -921,7 +921,7 @@ berichtet wird der tatsächlich übernommene Versuch. SQL35 liest ausschließlic
 diese damaligen Materialisierungen, keine zusätzliche spätere QS-Rohprobe.
 „Ursprünglich“ meint dieselbe SELECT-Materialisierung, keine zugesagte
 transaktionale Momentaufnahme der dynamischen Sichten. Zusätzliche Projektion
-und DML sind Beobachterinstrumentierung; dies ist kein identischer
+und DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) sind Beobachterinstrumentierung; dies ist kein identischer
 kanonischer Timinglauf.
 
 Private Kopie und Parser wurden unabhängig lesend geprüft. Exakter

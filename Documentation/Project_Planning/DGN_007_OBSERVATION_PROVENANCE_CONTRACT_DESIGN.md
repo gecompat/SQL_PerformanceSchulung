@@ -41,7 +41,7 @@ Generation. Frei deklarierte Digests oder Identitäten liefern keine Herkunft.
 | Family | sämtliche marker-/objekt-/kontextgebundenen Parentqueries, alle zugehörigen Variants und Dispatcheranker, Version und Relationstyp | enumerierter Familienumfang; Dispatcher gelten nicht als aktive Ausführungen |
 | Plan und Interval | eindeutiges Plan→Query, Hash und versionszulässiger Typ; alle in der Familienaufnahme referenzierten Intervall-IDs mit Originalgrenzen | vollständige Bindung der aufgenommenen Gruppen, ohne Filter auf T0/T1 |
 | RawFragment | Snapshotordinal, Query/Plan/Intervall/ExecutionType, nullable Count, originale vier QS-Avgmetriken und First/Last-Ticks | tatsächlich gelieferte Fragmente; keine Deduplizierung anhand runtime_stats_id |
-| Group | Countsumme, gewichtete Duration/CPU/Reads/Rows, All-Fragment- und separat Positive-/Zero-Extrema, Anzahl Positive/Zero/NULL/Negative | Aggregate aus exakt derselben Rawmaterialisierung; keine stille Null-/Zeroentfernung |
+| Group | Countsumme, gewichtete Duration/CPU (Central Processing Unit; Prozessor)/Reads/Rows, All-Fragment- und separat Positive-/Zero-Extrema, Anzahl Positive/Zero/NULL/Negative | Aggregate aus exakt derselben Rawmaterialisierung; keine stille Null-/Zeroentfernung |
 | Coverage | je finalem Familienmitglied und Stage: aufgenommen, vollständig nachgewiesen abwesend oder unbekannt, jeweils mit Acquisitionbindung | Abwesenheit nur bei begründeter vollständiger Scopeaufnahme; fehlend ist nicht null |
 | Call | tatsächlicher Start/Abschluss, Parameter, Request-ID, Statement-/Sourcebindung, Ergebnisvergleich, tatsächlich gemessene Rows oder ausdrücklich nicht erfasst | eigener erfolgreicher Aufruf; keine individuelle Request→Plan-Zuordnung |
 | Pulse | fester Statementursprung und Querykontexte, eigener Start/Abschluss, Ergebnis 12, vollständige Vor-/Nachgruppen und QS-Countdelta genau 1 je erfolgreichem Ein-Statement-Call im tatsächlichen Intervall | retrospektive QS-Aktivität dieses Pulses |
@@ -246,7 +246,7 @@ Lifecycle oder Budgetanstieg kompensiert den Observeraufwand.
 
 Records enthalten nur erlaubte synthetische Identitäten und Skalare.
 Querytext wird zur Herkunftsprüfung serverseitig geprüft, nicht exportiert.
-Secrets, Connectionstrings, Plan-XML, Rohfehler und ungeprüfte Prozessausgaben
+Secrets, Connectionstrings, Plan-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten), Rohfehler und ungeprüfte Prozessausgaben
 werden nicht gespeichert. Parse-/Overflowfehler liefern feste bestehende
 FWK-012-Codes ohne Payload oder Exceptioncontext.
 
@@ -293,7 +293,7 @@ Alle drei Zeitbeziehungen QS↔SYSUTC, QS↔Katalog und SYSUTC↔Katalog bleiben
 gesondert zu entscheiden; diese Records entfernen kein Zeitprädikat.
 Fehlende Pflichtbelege werden nicht zu optionalem `SKIP_EVIDENCE_MISSING`.
 Die spätere Fehlerzuordnung verwendet ausschließlich
-[FWK-012](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
+[FWK-012 – Status-, Fehler- und Skip-Vertrag](../../Demos/00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
 
 Die Matrix bleibt 2019/150, 2022/160 und 2025/170. Neue Runtime braucht
 die ausdrücklich bestätigte genaue eigene Wegwerfinstanz und unabhängig

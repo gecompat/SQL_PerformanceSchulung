@@ -18,7 +18,7 @@ beendet. Der öffentliche Ablauf erreicht diesen Snapshot erst nach seinem
 vollständigen unabhängigen Quellenabgleich. Vor dem Signal attestiert der
 Parent nochmals genau den eigenen aktuellen Snapshot, vollständige Marker,
 persistierte Preview-/MAXDOP-Originalbaseline 0/0 und erwartete aktuelle 1/1.
-Keine aktive DDL, kein künstliches WAITFOR als angeblicher laufender Build.
+Keine aktive DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten), kein künstliches WAITFOR als angeblicher laufender Build.
 
 Ausschließlich der vollständige eigene CID nach Name-/Ownerlabel-/Image-/
 4CPU-/6GiB-Bindung erhält podman kill --signal KILL. Kein --all/--latest,
@@ -53,7 +53,7 @@ Restore bleibt FAIL, auch nach vollständig entferntem eigenen Container.
 
 Eigener unveränderlicher vorhandener 17.0.5005.3-Container ohne Pull, 999–1000
 synthetische VECTOR(3)-Rows, 4CPU/6GiB, eigene DB-Dateigrenzen unverändert.
-Preview/MAXDOP ausschließlich eigene DB mit tatsächlicher persistierter
+Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) ausschließlich eigene DB mit tatsächlicher persistierter
 Baseline. Normal 300 s einschließlich ursprünglichem Startup. Die gesamte
 Cleanupdeadline beginnt vor dem ersten SIGKILL/zugehörigem Inspect und bleibt
 60 s über Kill, Restart, Readiness, beide neue read-only Prüfungen, SQL-

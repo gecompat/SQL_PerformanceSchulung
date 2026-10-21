@@ -22,7 +22,7 @@ Token-/Kostenverbrauch UNKNOWN, keine monetäre Durchsetzung behauptet.
 Neue Quelle `Tests/Tools/dgn007_handshake_channel.py`, neuer eigener Harness
 `Tests/Static/test_dgn007_handshake_channel.py`. Gemeinsame neue private Seams
 in `dgn007_session_channel.py` erhalten den vorhandenen öffentlichen Abschluss-
-API und dessen Defaultpfad. Bestehende 15 Builder, pure Eingangsplanquelle,
+API (Application Programming Interface; Programmierschnittstelle) und dessen Defaultpfad. Bestehende 15 Builder, pure Eingangsplanquelle,
 SQL, neun Runtimequellen und synthetisches Ledger bleiben unverändert.
 
 ## Gehaltener privater Ausführungspfad
@@ -90,7 +90,7 @@ Aufruf löst ausschließlich seine eigene Rückgabe aus und hält den äußeren 
 Vorzeitige/duplizierte/falsche Phase oder Commandreihenfolge stoppt den ganzen
 Versuch. Kein vorzeitiger Body-/Importversand, kein zweiter Start/Commandcommit,
 kein Retry nach Teilübertragung oder unklarem Abschluss. No-progress, Exit,
-EOF und Fehlversuche erneuern keine Budgets. Jede Eingangsphase hält private
+EOF (End of File; Ende eines Eingabestroms) und Fehlversuche erneuern keine Budgets. Jede Eingangsphase hält private
 volle Slot-/K8-/Quellenobjekte; neue Reports bleiben private-freie Diagnosen.
 Der vorhandene synthetische Ledger wird nicht durch einen Native-Bool ersetzt
 und erhält keine neuen operativen Receipts oder Replayauthority.
@@ -129,7 +129,7 @@ und Byteweg belegen; synthetische Traces sind keine reale Loaderprovenienz.
 
 Eigener nativer Workflow, cancel-in-progress:false, endlicher Jobtimeout und
 vollständige Importclosure. Die geänderte gemeinsame Kanalquelle benötigt
-auch die vorhandene16-Methoden-Kanalsuite lokal und in aktueller CI. Neue Suite
+auch die vorhandene16-Methoden-Kanalsuite lokal und in aktueller CI (Continuous Integration; automatisierte Integrationsprüfungen). Neue Suite
 ebenfalls Windows portable/Linux native, explizite Plattform-SKIPs nur unter
 Windows. Pure Planquelle unverändert: keine lokale grüne Wiederholung; deren
 aktueller CI-Selector reagiert bereits auf die gemeinsame Quelle. Alte Offline-

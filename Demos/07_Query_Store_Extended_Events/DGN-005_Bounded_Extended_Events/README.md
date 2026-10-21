@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Demo-ID | `DGN-005` |
+| Demo-ID | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) |
 | Status | `VALIDATED` |
 | Sicherheitsstufe | `YELLOW` |
 | Versionen | SQL Server 2019, 2022 und 2025 |
@@ -17,7 +17,7 @@ Extended Events liefern ereignisbezogene Evidenz. Fehlende Ereignisse sind nur a
 
 ## 3. Nichtziel
 
-Die Demo ist kein allgemeiner Servertrace und exportiert weder `.xel`-Dateien noch Ring-Buffer-XML.
+Die Demo ist kein allgemeiner Servertrace und exportiert weder `.xel`-Dateien noch Ring-Buffer-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten).
 
 ## 4. Voraussetzungen
 
@@ -35,7 +35,7 @@ Die Testdatenbank enthält nur Eigentumsmarker und aggregierte Ereigniszähler. 
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-005` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Extended-Events-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-005` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Extended-Events-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 Setup erstellt und startet die begrenzte Session. Demonstration erzeugt zwei synthetische Fehler. Observation zählt passende Ring-Buffer-Ereignisse, Mitigation stoppt die Session und Comparison prüft den Zustand.
 
@@ -45,7 +45,7 @@ Mindestens ein `error_reported`-Ereignis der markierten Datenbank ist sichtbar. 
 
 ## 9. Interpretation
 
-DMVs, Query Store und Extended Events besitzen unterschiedliche zeitliche und semantische Sichten und ergänzen einander.
+DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), Query Store und Extended Events besitzen unterschiedliche zeitliche und semantische Sichten und ergänzen einander.
 
 ## 10. Cleanup und Wiederherstellung
 
@@ -61,9 +61,9 @@ Dispatch-Latenz und Eventzahl sind empirisch. `MAX_DURATION` ist nur ein zusätz
 
 ## 13. Quellen
 
-- `SRC-028`, Microsoft Learn: Extended Events, Abrufdatum 2026-07-24.
-- `SRC-060`, Microsoft Learn: zeitgebundene Extended-Events-Sessions, Abrufdatum 2026-08-28.
-- `SRC-051` wird ausschließlich als Diagnosemethode verwendet und begründet keine Featureverfügbarkeit.
+- `SRC-028` (Performance monitoring and tuning tools), Microsoft Learn: Extended Events, Abrufdatum 2026-07-24.
+- `SRC-060` (Extended Events sessions – time-bound sessions), Microsoft Learn: zeitgebundene Extended-Events-Sessions, Abrufdatum 2026-08-28.
+- `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents) wird ausschließlich als Diagnosemethode verwendet und begründet keine Featureverfügbarkeit.
 
 ## 14. Traceability
 

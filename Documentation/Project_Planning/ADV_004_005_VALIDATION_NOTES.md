@@ -2,10 +2,10 @@
 
 Die statische Designabnahme bestätigt Vollständigkeit und Konsistenz von Lernzielen, Claims, Quellen, Datenmodell, Phasen, Risiken, Ressourcen, Versionen, Evidenzfeldern und Skip-Codes. Sie bestätigt nicht, dass SQL Server in jeder Version eine konkrete optionale Planform erzeugt.
 
-Für Spools, Row Goals, Parallelität, PSP und OPPO gilt deshalb:
+Für Spools, Row Goals, Parallelität, PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) und OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter) gilt deshalb:
 
 - dokumentierte Produktvoraussetzungen werden als Primärgrenze geprüft,
 - konkrete Optimizerentscheidungen benötigen spätere Runtime-Evidenz,
 - nicht erzeugte optionale Planformen führen bei geeignetem Setup zu einem begründeten Skip,
 - ein Skip darf weder als Erfolg der Kernaussage noch als Produktfehler umgedeutet werden,
-- Runtimefreigabe erfolgt ausschließlich in `ADV-008` und Gate V3.
+- Runtimefreigabe erfolgt ausschließlich in `ADV-008` (Review QRY-004) und Gate V3.

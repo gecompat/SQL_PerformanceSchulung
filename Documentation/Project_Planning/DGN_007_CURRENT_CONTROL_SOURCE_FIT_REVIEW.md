@@ -76,7 +76,7 @@ keine offenen P1/P2/P3, ausdrückliches einmaliges Lauf-GO. Der gelesene
 Generatorpfad verarbeitet Bytes und Templates, enthaltenes compile/exec bleibt
 erzeugter Text. Keine eigenen Versuche des Reviewers.
 
-Ein lokaler Python3.14.7-Aufruf am20.Oktober2026, bestehende API,
+Ein lokaler Python3.14.7-Aufruf am20.Oktober2026, bestehende API (Application Programming Interface; Programmierschnittstelle),
 unveränderte Generator-/Profilquelle von Basis966f225, feste oben ausgewählte
 synthetische Locator-/Configinputs:
 

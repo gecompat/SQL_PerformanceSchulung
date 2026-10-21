@@ -53,7 +53,7 @@ der Übertragungsbytes wäre ein zusätzlicher **Wirebeleg**; er liegt hier nich
 ## Kleine API-Ausschnitte zum Zuordnen
 
 Die folgenden Fragmente erläutern vorhandene API-Namen. Sie sind kein Runner,
-stellen keine Verbindung her und enthalten weder SQL-Ziel noch ausführbare DML.
+stellen keine Verbindung her und enthalten weder SQL-Ziel noch ausführbare DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten).
 In einem tatsächlichen Programm gehören Verbindungszulassung, Eigentumsprüfung,
 Fehlerbehandlung und Cleanup zum vollständigen Ablauf.
 
@@ -101,7 +101,7 @@ Empirisch wurde genau diese Kombination geprüft: Windows-Caller mit
 .NET-Runtime 10.0.12, Microsoft.Data.SqlClient-Paket 6.1.4 und gelesener
 Assemblyversion 6.0.0.0; SQL Server Build 17.0.5005.3 unter Linux/Developer,
 Compatibility Level 170. Paket- und Assemblyversion sind getrennte Angaben.
-Die Kompilierung verwendete SDK 10.0.401 und meldete zwei CS1701-WARNs für
+Die Kompilierung verwendete SDK (Software Development Kit; Entwicklungswerkzeuge und Bibliotheken) 10.0.401 und meldete zwei CS1701-WARNs für
 Assemblyreferenzen von System.Data.Common/System.Runtime 9.0 auf 10.0. Diese
 Warnungen bleiben sichtbar; der bestandene Fall ist keine pauschale Empfehlung
 für andere Kombinationen.
@@ -131,7 +131,7 @@ Credentials und Verbindungsdaten werden nicht benötigt.
 ## Drei Fragen beim Lesen eines Ergebnisses
 
 **„Die drei Zahlen sind richtig zurückgekommen. Ist damit die Suchqualität gut?“**
-Die Zahlen bestätigen hier den Transport an der API. Für Suchqualität braucht
+Die Zahlen bestätigen hier den Transport an der API (Application Programming Interface; Programmierschnittstelle). Für Suchqualität braucht
 es geeignete Dokumente, Fragen und unabhängig bewertete Treffer. Die
 [Offlineübungen](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md) behandeln diese
 Unterscheidung mit vorhandenen Ergebnissen.
@@ -160,8 +160,8 @@ eigene Voraussetzungen; die API-Fragmente oben erweitern sie nicht um einen
 neuen Clientrunner.
 
 Geprüft ist der begrenzte float32-API-/SQL-/Cleanupfall. Unabhängige Wire-/TLS-
-Attestierung, float16, andere Builds/OS/Editionen, Pooling, Rollen, Performance,
-RAG und die vollständige TSK-004-/Releaseabnahme bleiben offen. Die früheren
+Attestierung, float16, andere Builds/OS (Operating System; Betriebssystem)/Editionen, Pooling, Rollen, Performance,
+RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen) und die vollständige TSK-004-/Releaseabnahme bleiben offen. Die früheren
 gestoppten UNKNOWN-Akten behalten ihren ursprünglichen Status und ihre fehlenden
 SQLcleanup-Belege; der neue PASS ändert sie nicht rückwirkend.
 

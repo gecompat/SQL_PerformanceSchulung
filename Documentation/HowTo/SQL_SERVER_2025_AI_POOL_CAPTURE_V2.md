@@ -11,7 +11,7 @@ Schnitts und des Framework-Collectors; es gibt keine erfundenen Producerpins.
 ## Capturegrenze
 
 `capture_sqlcmd` nimmt einen tatsächlichen öffentlichen `SqlcmdResult`, die dazugehörige
-PID, den tatsächlichen finalen Pollstatus, die eigenen ursprünglichen UTF8-Inputbytes,
+PID (Process Identifier; Prozesskennung), den tatsächlichen finalen Pollstatus, die eigenen ursprünglichen UTF8-Inputbytes,
 die ausschließlich private Callercredentialliste und die vorher gepinnte öffentliche
 Quellenkarte entgegen. Der Helper startet oder pollt selbst keinen Prozess.
 Boolaliases, fehlende oder inkohärente Daten werden verworfen. Das Ergebnis enthält
@@ -84,7 +84,7 @@ Eine frische tatsächliche Deadlineprüfung nach jedem Rücklauf bleibt Pflicht;
 
 Die nächste eigenständige Runtimegrenze ist ein opt-in RED-Profil mit drei eigenen
 Logins, zwei synthetischen VECTOR(3)-Rows und sechs A/B/U/A/B/U-Checkouts. Bestehende
-Green-CON-010-Manifeste und Default-CI führen keine Login-DDL/RED-Profile aus.
+Green-CON-010-Manifeste und Default-CI (Continuous Integration; automatisierte Integrationsprüfungen) führen keine Login-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten)/RED-Profile aus.
 Providerfähigkeit wird vor Container-/DB-/Loginwirkungen geprüft; fehlende vorhandene
 Windowsassembly bzw. Linuxprovider ergibt SKIP vor Effekten. Kein Download, Install,
 Cloudfallback oder Hosttrustwechsel.

@@ -32,7 +32,7 @@ Datenbankselektoren sind ausschließlich `master` oder `target`. Der Zielname wi
 - SQL-Phasen mit Exitcode 0 und ohne Marker gelten außerhalb des Preflights als `PASS`.
 - Ein strukturierter `SKIP` einer erforderlichen Phase stoppt weitere zustandsverändernde Phasen.
 - Ein optionaler `SKIP` wird als sichtbare Warnung behandelt und blockiert die übrigen Phasen nicht.
-- Multi-Session-Phasen delegieren an `FWK-006`.
+- Multi-Session-Phasen delegieren an `FWK-006` (Multi-Session-Orchestrierungsvertrag).
 - Das globale Harness-Zeitbudget gilt über alle regulären Phasen.
 - Nach gestarteter Setup-Phase wird das konfigurierte Cleanup unabhängig vom vorherigen Ergebnis ausgeführt.
 - Cleanup-Fehler überschreiben das Gesamtergebnis mit `FAIL_CLEANUP`, ohne den ursprünglichen Fehlerkontext zu verbergen.

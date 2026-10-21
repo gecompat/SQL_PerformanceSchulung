@@ -10,7 +10,7 @@
 
 | ID | Quelle | Aussagebezug |
 |---|---|---|
-| `MATRIXSRC-001` | [Quickstart: Run SQL Server Linux container images with Docker](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/quickstart-install-docker?view=sql-server-ver17) | offizielle Tags `2019-latest`, `2022-latest`, `2025-latest`; `MSSQL_SA_PASSWORD`; Developer Edition; Mindestbedarf von 2 GB RAM und 2 GB Datenträgerspeicher; Bereitschaftsmeldung |
+| `MATRIXSRC-001` | [Quickstart: Run SQL Server Linux container images with Docker](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/quickstart-install-docker?view=sql-server-ver17) | offizielle Tags `2019-latest`, `2022-latest`, `2025-latest`; `MSSQL_SA_PASSWORD`; Developer Edition; Mindestbedarf von 2 GB RAM (Random Access Memory; Arbeitsspeicher) und 2 GB Datenträgerspeicher; Bereitschaftsmeldung |
 | `MATRIXSRC-002` | [Deploy and connect to SQL Server Linux containers](https://learn.microsoft.com/en-us/sql/linux/containers/deploy?view=sql-server-ver17) | unterstützte Linux-x64-Containerplattform, Verbindungswege und ephemere Containerverwendung |
 | `MATRIXSRC-003` | [Configure and customize SQL Server Docker containers](https://learn.microsoft.com/en-us/sql/linux/containers/configure?view=sql-server-ver17) | Verhalten von Daten-, Log- und Persistenzpfaden; Begründung für den volumenlosen Wegwerfcontainer der Matrix |
 | `MATRIXSRC-004` | [GitHub-hosted runners reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) | jeder Standardjob läuft auf einer neuen VM; Ressourcen- und Architekturgrenzen des Hosted Runners |

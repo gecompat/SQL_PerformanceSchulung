@@ -22,7 +22,7 @@ Teilnehmerseitiger Fallname: **„Zeitabhängige Regression eines Suchworkloads�
 
 ## 2. Didaktische Reihenfolge
 
-`DGN-001` → `DGN-003` → `QRY-013` → `DGN-007` → `M07-TRANSFER`
+`DGN-001` → `DGN-003` (Abfragehistorie mit Query Store) → `QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell) → `DGN-007` → `M07-TRANSFER`
 
 - `DGN-001` stellt den reproduzierbaren A/B-Messvertrag bereit.
 - `DGN-003` führt Query-Store-Plan-, Runtime- und Wait-Historie ein.
@@ -66,7 +66,7 @@ Query Store wird in der Testdatenbank mit begrenztem Größen- und Capture-Vertr
 - Query-, Plan- und Runtime-Statistik-IDs,
 - Zeitintervalle `T0`, `T1` und `T2`,
 - Plananzahl und Planwechsel,
-- Duration, CPU, Logical Reads, Executions und Rows pro Intervall,
+- Duration, CPU (Central Processing Unit; Prozessor), Logical Reads, Executions und Rows pro Intervall,
 - Wait-Kategorien, soweit in der Zielversion erfasst,
 - erzwungene Pläne oder Query-Store-Hints; im Primärfall müssen beide fehlen.
 
@@ -76,7 +76,7 @@ Query-Store-Historie ist nicht vollständig, wenn Capture deaktiviert, Speicher 
 
 Für relevante Pläne werden gesichert:
 
-- Plan XML und Query Hash,
+- Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) und Query Hash,
 - kompilierter Parameterwert, soweit vorhanden,
 - Estimated und Actual Rows,
 - Actual Rows Read und Number of Executions,
@@ -164,7 +164,7 @@ Teilnehmende dürfen andere Maßnahmen begründen. Für die technische Abnahme d
 
 ## 9. Versionsvertrag
 
-Der Kernfall ist auf SQL Server 2019, 2022 und 2025 ausführbar. Die Ursachenanalyse darf nicht von PSP, OPPO oder Query Store Hints abhängen.
+Der Kernfall ist auf SQL Server 2019, 2022 und 2025 ausführbar. Die Ursachenanalyse darf nicht von PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte), OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter) oder Query Store Hints abhängen.
 
 | Funktion | 2019 | 2022 | 2025 |
 |---|---|---|---|
@@ -220,7 +220,7 @@ Incident-Erzeugung und Referenzmitigation werden in getrennten Pull Requests imp
 
 ## 13. Quellen
 
-Primärquellen: `SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`, `SRC-035`, `SRC-036`. Ergänzende Fachquellen: `SRC-040`, `SRC-046`, `SRC-047`, `SRC-051`. Community-Quellen dienen ausschließlich der Diagnosemethode und ersetzen keine Versions- oder Featuregarantie.
+Primärquellen: `SRC-001` (Query processing architecture guide), `SRC-007` (Intelligent query processing), `SRC-027` (Monitor performance by using the Query Store), `SRC-028` (Performance monitoring and tuning tools), `SRC-031` (Display an actual execution plan), `SRC-035` (sys.dm_os_wait_stats), `SRC-036` (sys.dm_os_waiting_tasks). Ergänzende Fachquellen: `SRC-040` (Plan properties), `SRC-046` (Slow in the Application, Fast in SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug)?), `SRC-047` (What is Parameter Sniffing in SQL Server?), `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents). Community-Quellen dienen ausschließlich der Diagnosemethode und ersetzen keine Versions- oder Featuregarantie.
 
 ## 14. Statusgrenze
 

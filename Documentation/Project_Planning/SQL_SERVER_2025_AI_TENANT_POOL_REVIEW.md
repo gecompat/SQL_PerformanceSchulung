@@ -40,7 +40,7 @@ führt später zu FAIL und sicherem eigenen Cleanup, keiner neuen Dependency.
 Sechs kohärente Quellenkandidaten, Checkpoint nach drei geschlossenen Kandidaten,
 Hardstop sechs; je ein neuer eigener serieller Container/ein Profil, maximal sechs.
 Festes vorhandenes Image, SQL 17.0.5005.3, EngineEdition 3, MSSQL_PID=Developer,
-CL170, vier CPU/sechs GiB, vollständige CID-/Namens-/Owner-/Image-/Ressourcenbindung
+CL170, vier CPU (Central Processing Unit; Prozessor)/sechs GiB, vollständige CID-/Namens-/Owner-/Image-/Ressourcenbindung
 und tatsächliche Mountabwesenheit. 300 Sekunden regulär einschließlich Startup,
 danach einmalig gemeinsame maximal60 Sekunden für eigenen Cleanup.
 
@@ -49,7 +49,7 @@ Eigentumsmarkern: Project SQL_PerformanceSchulung, ContractVersion 1.0,
 DemoId CON-010 und RunToken TENANTPOOL. Initiale Abwesenheit vor Neuanlage;
 Marker-, DBID-, Namens-/Klassenbindung vor jeder folgenden Mutation. Drei eigene
 A/B/Unmapped-Logins mit vorher reservierten vollständigen SIDs und gehaltenen
-Principal-/Permissionleases. Zwei synthetische Quellen/VECTOR(3), RLS und
+Principal-/Permissionleases. Zwei synthetische Quellen/VECTOR(3), RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle) und
 CONNECT-/Objekt-SELECT-Rechte aus dem bestandenen begrenzten Authprofil.
 CREATE/DROP LOGIN ist RED-isolated ausschließlich im neuen eigenen Wegwerfcontainer;
 dessen eigener gebundener Abbau ist der Resetpfad. Keine Standard-CI-Ausführung
@@ -82,7 +82,7 @@ positive Authentifizierung und null Rows. Der absichtlich vor Close nicht
 zurückgesetzte CON010_TenantId-Spoof darf den Tenant nicht wechseln. Beim erneuten
 Open muss der Sessionwert vor jeder Reparatur tatsächlich NULL sein. Ein späterer
 manueller Reset wird nicht zum Poolreset-PASS umgedeutet. Native VECTORdekodierung
-des Clients wird nicht behauptet; alle Koordinaten werden SQLseitig als JSON gelesen.
+des Clients wird nicht behauptet; alle Koordinaten werden SQLseitig als JSON (JavaScript Object Notation; strukturiertes Textformat) gelesen.
 Volle Source-/RLS-/Principal-/Rechte-/Configzustände bleiben erhalten. Die bereits
 bestandenen Policy-/Impersonation-/REVOKE-Gegenproben werden nicht wiederholt.
 
@@ -124,7 +124,7 @@ Nächster Schritt: kleinster eigener Caller-/SQL-/Oracle-/Fehlerprüfscope, dann
 Source-Abschluss und vorab gebundene Native-Admission. Aktuelle Scopeintegration,
 vollständige Übernahme, Synchronisierung und eigener Branchcleanup werden regulär
 geschlossen; private Codevorbereitung darf parallel ohne Native beginnen.
-Pooling anderer Provider/OS/Authformen, Performance, Passwort-/TLSintegrität,
+Pooling anderer Provider/OS (Operating System; Betriebssystem)/Authformen, Performance, Passwort-/TLSintegrität,
 Seitenkanäle und volle öffentliche CON-010-/TSK-009-/TP-CON-Abnahme bleiben offen.
 Andere Repositories bleiben unverändert; allgemeine Entwicklung und DGN-007 pausiert.
 
@@ -226,7 +226,7 @@ Keine weiteren Kandidaten nach erreichtem PASS und keine neue Modellinferenz.
 
 Der PASS gilt ausschließlich für diesen privaten Caller, diese vorhandene
 Assembly-/Host-/Enginekombination, drei synthetische Lanes und die feste serielle
-Population. Allgemeine Provider-/OS-/Authformen, Performance, ANN/Tenantseitenkanäle,
+Population. Allgemeine Provider-/OS-/Authformen, Performance, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren)/Tenantseitenkanäle,
 Passwort-/TLSintegrität, öffentliche Poolconsumer und volle CON-010-/TSK-009-/TP-CON-
 Abnahme bleiben offen. Andere Repositories unverändert; allgemeine Entwicklung
 und DGN-007 bleiben pausiert. Aktuelle Head-/Main-Gates, PRintegration, Synchronisierung

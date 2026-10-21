@@ -23,7 +23,7 @@ keine Wiederholung der dort abgelehnten Route oder unveränderter grüner Tests.
 
 ## Konkrete Auswahl
 
-Additive siebzehnte API `build_inline_worker_report_control_bootstrap` im
+Additive siebzehnte API (Application Programming Interface; Programmierschnittstelle) `build_inline_worker_report_control_bootstrap` im
 vorhandenen Generator, gleiche vier Argumente wie die sechzehnte Workerroute.
 Die bisherigen sechzehn Builder und ihre Bytes bleiben unverändert. Neues
 festes Inlinefragment mit einmaliger privater Initialisierung unmittelbar nach
@@ -79,7 +79,7 @@ Quellenfit innerhalb131072 und Rawliteralgleichheit, fünf direkte Imports,
 kein neuer Parentmatcher/Projektimport, alte sechzehn Quellen unverändert.
 
 Erst nach unabhängigem Source/Test-PRE samt ausdrücklichem Lauf-GO neue Suite
-Windows3.14.7/Linux3.12.3; reguläre CI mit bestehenden betroffenen Consumern.
+Windows3.14.7/Linux3.12.3; reguläre CI (Continuous Integration; automatisierte Integrationsprüfungen) mit bestehenden betroffenen Consumern.
 Eigene Modell-Compile-/Execpfade nur ohne generierte Imports/Main. Keine echte
 Scriptausführung, operative Installation/volle Inventur, Pipe-/Workerstart,
 Kandidaten-/DGN-Imports oder SQL. Die neue Quelle bleibt vor der tatsächlichen

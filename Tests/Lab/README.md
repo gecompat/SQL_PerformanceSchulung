@@ -2,7 +2,7 @@
 
 Dieses Verzeichnis enthält die projektinterne Steuerung automatisierter Prüfungen für Umgebungen aus `gecompat/SQL_Server_Lab`.
 
-Der primäre Benutzervertrag steht unter [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](../../Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md). Dort wird festgelegt, wie ein einzelnes Schulungsbeispiel ausgewählt, technisch vorbereitet, als `READY_FOR_USER` übergeben, interaktiv durchgeführt, zurückgesetzt und entfernt wird.
+Der primäre Benutzervertrag steht unter [Interaktive Schulungsszenarien mit SQL_Server_Lab](../../Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md). Dort wird festgelegt, wie ein einzelnes Schulungsbeispiel ausgewählt, technisch vorbereitet, als `READY_FOR_USER` übergeben, interaktiv durchgeführt, zurückgesetzt und entfernt wird.
 
 ## Dateien
 
@@ -55,9 +55,9 @@ Diese Regel stellt sicher, dass neue Demos in die Qualitätssicherung aufgenomme
 ```
 
 Die standardisierte Benutzerbedienung für interaktive Szenarien liegt unter
-[`INTERACTIVE_SCENARIO_LIFECYCLE.md`](../../Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md).
+[Interaktive Schulungsszenarien bedienen](../../Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md).
 Der kompakte Docker-/Podman-Arbeitsplatzpfad steht unter
-[`CONTAINER_QUICKSTART.md`](../../Documentation/HowTo/CONTAINER_QUICKSTART.md).
+[Docker-/Podman-Quickstart ohne vorhandenen SQL Server](../../Documentation/HowTo/CONTAINER_QUICKSTART.md).
 Beide Verträge werden statisch geprüft mit:
 
 ```bash
@@ -67,7 +67,7 @@ python Tests/Static/validate_labscn004_inf002003.py
 ## Lokaler SQL_Server_Lab-Vertical-Slice
 
 `Invoke-SqlServerLabScenarioTest.ps1` führt den ersten ausführbaren,
-containerbasierten Integrationspfad für `QRY-001` aus. Der Pfad benötigt keine
+containerbasierten Integrationspfad für `QRY-001` (Indexfreundliche Suchbedingungen) aus. Der Pfad benötigt keine
 Hyper-V- oder Windows-Gastumgebung. Er verwendet ausschließlich öffentliche
 Commands aus `SQL_Server_Lab`:
 
@@ -77,7 +77,7 @@ Commands aus `SQL_Server_Lab`:
    oder Podman;
 3. `Get-SqlServerLab` bestätigt den Live-Status; die SQL-Readiness ist bereits
    Abschlussbedingung der Provisionierung;
-4. der vorhandene `FWK-010`-Harness führt `QRY-001` standardmäßig zweimal aus;
+4. der vorhandene `FWK-010` (Runtime-Harness-Vertrag)-Harness führt `QRY-001` standardmäßig zweimal aus;
 5. `Invoke-SqlServerLabScript` prüft nach jedem Lauf unabhängig, dass die
    markierte Testdatenbank entfernt wurde;
 6. `Remove-SqlServerLab` entfernt Container, Volumes, Secrets und Run-State
@@ -110,7 +110,7 @@ Der vollständige Adapter-Lifecycle ist lokal auf SQL Server 2025 mit Docker
 `READY_FOR_USER`, stellten diesen Zustand per Reset auf derselben Instanz wieder
 her und endeten nach fachlichem und infrastrukturellem Cleanup als `REMOVED`.
 
-`DGN-005` verwendet denselben öffentlichen Lifecycle mit einem eigenen,
+`DGN-005` (Gezielte Ereigniserfassung mit Extended Events) verwendet denselben öffentlichen Lifecycle mit einem eigenen,
 markergebundenen Project Adapter `0.1`. Der vollständige Start-, Reset- und
 Remove-Nachweis bestand am 2026-09-01 auf Docker (RunId
 `d5143f2a-9f18-49fa-8e9f-b91604993252`) und Podman (RunId
@@ -118,7 +118,7 @@ Remove-Nachweis bestand am 2026-09-01 auf Docker (RunId
 Observation, Mitigation und Comparison mit `PASS/OK` aus und endeten mit
 `REMOVED`.
 
-`CON-006` ergänzt den dritten Project Adapter `0.1`. Die vollständige
+`CON-006` (Zyklische Sperrkonflikte erkennen) ergänzt den dritten Project Adapter `0.1`. Die vollständige
 SQL-Server-2025-Abnahme bestand auf Docker (RunId
 `76cff6ed-a714-44e6-beda-6b916600cb98`) und Podman (RunId
 `6d2d0a51-1915-4e65-a380-baec715fc676`). Beide Läufe belegten genau ein
@@ -180,7 +180,7 @@ Alternativ den Interpreter direkt übergeben:
 ./Tests/Lab/Invoke-SqlServerLabScenarioTest.ps1 -PythonPath 'C:\\Tools\\Python313\\python.exe'
 ```
 
-`CON-004` nutzt das YELLOW-Demo und benötigt die Isolationsbestätigung im
+`CON-004` (Blockierungsketten verfolgen) nutzt das YELLOW-Demo und benötigt die Isolationsbestätigung im
 Automationslauf:
 
 ```powershell
@@ -200,7 +200,7 @@ Der aktuelle Vertical Slice ist auf SQL Server 2025 begrenzt. Docker und Podman
 sind lokal mit jeweils zwei vollständigen Läufen validiert. Die Versionen 2019
 und 2022 bleiben getrennte Folgearbeiten. Der lokale Laufnachweis und die bewusst
 offene Grenze zum interaktiven Workflow stehen unter
-[`LABINT_002_QRY_001_LOCAL_RESULT.md`](../../Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md).
+[LABINT-002 – lokaler QRY-001-Container-Nachweis](../../Documentation/Project_Planning/LABINT_002_QRY_001_LOCAL_RESULT.md).
 
 ## Sicherheitsregeln
 

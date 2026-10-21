@@ -1,7 +1,7 @@
 # TSK-007: begrenzte öffentliche lokale Embeddingkomponente
 
 Stand: 2026-10-12, Basis `1f4b0f8f9435631977918122d62c337a6665afcd`.
-Die öffentliche Invoke-SqlServerLabAiModel-API kann ein vorhandenes lokales Modell
+Die öffentliche Invoke-SqlServerLabAiModel-API (Application Programming Interface; Programmierschnittstelle) kann ein vorhandenes lokales Modell
 ohne SQL-Verbindung aufrufen. Dieser getrennte Komponentenschnitt prüft genau
 diese API; er ersetzt den [weiter blockierten RAG-Pfad](../HowTo/SQL_SERVER_2025_AI_MODEL_PATHS.md#offene-secret-grenze-vor-live-rag)
 nicht. QRY-020 verlangt zusätzlich SQL-seitige REST-/HTTPS-/Credential-/
@@ -62,7 +62,7 @@ DBs, Container, Volumes, Credentials, Gateways oder Dienstobjekte erzeugt.
 
 Quellen SRC-112/SRC-113, Abruf2026-10-12. Native C1-Ergebnis, eigene Prozessclosure
 sowie aktuelle PR-/Head-/Main-/Tree-/FF-/Ownbranchgates folgen vor Abschluss.
-TSK-007, Live-RAG, SQL-HTTPS, QRY-020, volle Demo-/Modul-/Workstreamabnahme offen.
+TSK-007, Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen), SQL-HTTPS, QRY-020, volle Demo-/Modul-/Workstreamabnahme offen.
 
 ## Tatsächliches C1-Ergebnis
 

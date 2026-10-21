@@ -43,7 +43,7 @@ Feste sieben Slots in dieser Reihenfolge:
 3. Ein kontrollierter SQL2025-Fault direkt nach PASS-Setup mit tatsächlicher Recovery.
 
 Jeder Slot verwendet eine neue eigene vollständig markierte Developerinstanz,
-vier CPU/sechs GiB, eindeutigen Voll-CID, loopbackgebundenen dynamischen Port und
+vier CPU (Central Processing Unit; Prozessor)/sechs GiB, eindeutigen Voll-CID, loopbackgebundenen dynamischen Port und
 bereits vorhandenes fixes Image. SQL2025 exakt17.0.5005.3; SQL2019/2022 tatsächlicher
 Major15/16 und feste vorhandene Imagebytes. Keine Pulls oder Installationen.
 Tatsächliche Image-/CID-/Name-/Ownerlabel-/Memory-/CPUbindung vor eigener Entsorgung.
@@ -99,7 +99,7 @@ sind darin nicht enthalten; diese Zahl ist kein Total aller SQLrequests.
 Acht vollständige DDL-Fenster, 16000 vollständige Source-/20000 Vollstate-Rows,
 vier echte 51003-Abweisungen und vollständiger Source-Restore gebunden.
 
-| Profil | Cycle | DDL | ElapsedUs | CpuMs | Reads | LogicalReads | Writes |
+| Profil | Cycle | DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) | ElapsedUs | CpuMs | Reads | LogicalReads | Writes |
 |---|---:|---|---:|---:|---:|---:|---:|
 | 1 | 1 | CREATE | 12317 | 8 | 0 | 263 | 18 |
 | 1 | 1 | DROP | 4097 | 2 | 0 | 105 | 0 |

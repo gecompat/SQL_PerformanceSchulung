@@ -2,7 +2,7 @@
 
 Diese Anleitung standardisiert `LABSCN-004`: Auswahl, Start, Übergabe,
 Reset und Remove verwenden für jedes freigegebene Szenario dieselben vier
-PowerShell-Commands. Freigegeben sind `CON-004`, `DGN-005` und `CON-006`.
+PowerShell-Commands. Freigegeben sind `CON-004` (Blockierungsketten verfolgen), `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) und `CON-006` (Zyklische Sperrkonflikte erkennen).
 
 ## 1. Sicherheitsgrenze und Voraussetzungen
 

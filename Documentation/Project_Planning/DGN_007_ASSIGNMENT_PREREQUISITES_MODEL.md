@@ -56,7 +56,7 @@ und Nachher-Captures, Requestabschlüsse und den finalen Vergleich. Damit wird
 T0-Capture vor T1 geprüft, ohne QS- und SYSUTC-Werte als gemeinsame Clock
 auszugeben. Counts, Metriken und Metadaten werden an eine deklarierte
 Capturegeneration gebunden. Als exemplarische gewichtete Metrik verwendet das
-Modell ausschließlich `avg_rows`; CPU, Duration, Reads und Planhashes werden
+Modell ausschließlich `avg_rows`; CPU (Central Processing Unit; Prozessor), Duration, Reads und Planhashes werden
 hier nicht vollständig abgebildet. Stabilitätsvergleiche betreffen die
 modellierten Gruppenwerte. Dies attestiert weder tatsächliche Materialisierung
 noch einen transaktionalen Snapshot.

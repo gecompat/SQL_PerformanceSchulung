@@ -37,7 +37,7 @@ separat durch vollständige ID-/Value-/Payloadoracles belegt.
 
 Die folgenden Werte waren in beiden Profilen identisch:
 
-| Zustand | PK Used / Reserved Pages | Candidate Used / Reserved Pages | Summe ausgewählter Indizes Used / Reserved Pages |
+| Zustand | PK (Primary Key; Primärschlüssel) Used / Reserved Pages | Candidate Used / Reserved Pages | Summe ausgewählter Indizes Used / Reserved Pages |
 | --- | --- | --- | --- |
 | A vor Build1 | 18 / 33 | Abwesend, keine Katalogrow | 18 / 33 |
 | B nach Build1 | 18 / 33 | 17 / 33 | 35 / 66 |
@@ -54,7 +54,7 @@ gemessene Null ausgegeben. Used und Reserved werden getrennt erhalten.
 `used_page_count` umfasst Speicher- und Verwaltungsseiten der Partition,
 nicht allein Nutzdaten oder Leaf Pages. Reserved umfasst auch reservierte
 ungefüllte Seiten. Die Aufnahme belegt weder kompletten Datenbank-/Datei- oder
-OS-Speicher noch RAM, Logvolumen, Bytepayload, Shrink oder allgemeinen
+OS-Speicher noch RAM (Random Access Memory; Arbeitsspeicher), Logvolumen, Bytepayload, Shrink oder allgemeinen
 Indexnettonutzen. Aus dem Verschwinden der Indexrow folgt kein Dateischrumpfen.
 Die vorhandene Datei-Statebindung belegt nur unveränderte erfasste Dateimetadaten.
 

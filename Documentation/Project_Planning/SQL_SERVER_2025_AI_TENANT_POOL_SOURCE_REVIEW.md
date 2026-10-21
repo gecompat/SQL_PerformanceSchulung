@@ -51,8 +51,8 @@ Unbekannter Modell-/Reasoningtokenverbrauch bleibt UNKNOWN; null neue Modellaufr
 
 Die erste Runtimequalifikation folgt erst auf den gebundenen Quellenabschluss.
 Noch kein Reuse-/Reset-/Cleanup-PASS; tatsächlicher Befund wird hier ergänzt.
-Die rote Login-DDL bleibt ausschließlich im neuen eigenen isolierten Testcontainer.
-Keine Standard-CI mit roten Effekten, keine anderen Repositoryänderungen.
+Die rote Login-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) bleibt ausschließlich im neuen eigenen isolierten Testcontainer.
+Keine Standard-CI (Continuous Integration; automatisierte Integrationsprüfungen) mit roten Effekten, keine anderen Repositoryänderungen.
 
 
 ## Kandidat 1: bekanntes FAIL vor Checkoutnachweisen
@@ -145,7 +145,7 @@ Keine weiteren Kandidaten nach erreichtem PASS und keine neue Modellinferenz.
 
 Der PASS gilt ausschließlich für diesen privaten Caller, diese vorhandene
 Assembly-/Host-/Enginekombination, drei synthetische Lanes und die feste serielle
-Population. Allgemeine Provider-/OS-/Authformen, Performance, ANN/Tenantseitenkanäle,
+Population. Allgemeine Provider-/OS-/Authformen, Performance, ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren)/Tenantseitenkanäle,
 Passwort-/TLSintegrität, öffentliche Poolconsumer und volle CON-010-/TSK-009-/TP-CON-
 Abnahme bleiben offen. Andere Repositories unverändert; allgemeine Entwicklung
 und DGN-007 bleiben pausiert. Aktuelle Head-/Main-Gates, PRintegration, Synchronisierung

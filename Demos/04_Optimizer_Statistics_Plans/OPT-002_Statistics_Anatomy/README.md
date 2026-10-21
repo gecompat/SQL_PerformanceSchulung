@@ -28,11 +28,11 @@ Die Demo leitet aus einer einzelnen Statistik keine vollständige Erklärung fü
 
 ## 4. Voraussetzungen
 
-SQL Server 2019 bis 2025. Für den automatisierten Lauf werden `CREATE DATABASE`, `SHOWPLAN` und Leserechte auf die synthetischen Objekte benötigt. Mindestens 2 logische CPU-Kerne, 2 GB RAM und 200 MB freier Datenträgerspeicher sind erforderlich.
+SQL Server 2019 bis 2025. Für den automatisierten Lauf werden `CREATE DATABASE`, `SHOWPLAN` und Leserechte auf die synthetischen Objekte benötigt. Mindestens 2 logische CPU-Kerne, 2 GB RAM (Random Access Memory; Arbeitsspeicher) und 200 MB freier Datenträgerspeicher sind erforderlich.
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-Die Demo ist grün. Sie erzeugt 100.000 synthetische Zeilen und verändert ausschließlich eine eigene markierte Testdatenbank. Das Harness-Zeitbudget beträgt 240 Sekunden. Cleanup erfolgt markergeprüft über den lokalen, dem `FWK-002`-Vertrag entsprechenden Pfad.
+Die Demo ist grün. Sie erzeugt 100.000 synthetische Zeilen und verändert ausschließlich eine eigene markierte Testdatenbank. Das Harness-Zeitbudget beträgt 240 Sekunden. Cleanup erfolgt markergeprüft über den lokalen, dem `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken)-Vertrag entsprechenden Pfad.
 
 ## 6. Synthetisches Datenmodell
 
@@ -53,7 +53,7 @@ Die Demo ist grün. Sie erzeugt 100.000 synthetische Zeilen und verändert aussc
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-002`.
+1. Öffnen Sie den [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md) und wählen Sie dort die Demo-ID `OPT-002` (Statistiken lesen).
 2. Prüfen Sie die dort genannten Voraussetzungen und die Sicherheitsstufe `GREEN`. Für diese Sicherheitsstufe ist keine zusätzliche Bestätigung erforderlich; verwenden Sie dennoch ausschließlich eine dedizierte Testinstanz.
 3. Laden Sie den manifestbasierten PowerShell-Aufrufer aus Schritt 4 des Leitfadens und führen Sie `Invoke-SqlPerfDemo -DemoId OPT-002 -Server $server -Authentication $authentication -Username $username` aus.
 4. Prüfen Sie die `SQLPERF_SUMMARY` und die erwartete Beobachtung in dieser README.
@@ -84,7 +84,7 @@ Sampling-Ergebnisse können zwischen Engine-Builds variieren. Deshalb wird vor `
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
 | `SRC-005` | Statistikheader, Histogramm, Sampling | SQL Server 2019–2025 | 2026-07-24 |
-| `SRC-006` | Kardinalitätsschätzung und Statistikgrenzen | versions- und CL-abhängig | 2026-07-24 |
+| `SRC-006` (Cardinality estimation) | Kardinalitätsschätzung und Statistikgrenzen | versions- und CL-abhängig | 2026-07-24 |
 | Microsoft Learn: `DBCC SHOW_STATISTICS` | Header, Histogramm und Density Vector | SQL Server | 2026-07-24 |
 
 ## 14. Traceability

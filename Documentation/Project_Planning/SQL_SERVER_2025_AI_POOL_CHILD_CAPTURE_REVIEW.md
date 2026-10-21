@@ -19,7 +19,7 @@ keine Probe dieser Welle, keine Folge-SQL-/Remove-/Adoptionsaktionen.
 Der öffentliche Childcaller klassifiziert bisher Rücklauf und Receipt vor
 vollständiger eigener Capturepersistenz. Bei UNKNOWN bleibt child_evidence null.
 Neue sichere Prozess-/Kanalbelege müssen vor dieser Klassifikation erhalten
-werden: tatsächlich gehaltene PID, poll/Returncode, vorhandene Timeout-/Collector-
+werden: tatsächlich gehaltene PID (Process Identifier; Prozesskennung), poll/Returncode, vorhandene Timeout-/Collector-
 Informationen, tatsächliche Input-/Sourcebindung und sichere getrennte Kanäle.
 Nicht gestartete, nicht erhaltene oder unbestätigte Werte bleiben ausdrücklich
 unbeobachtet; keine nachträgliche Rekonstruktion des alten Native2-Prozesses.
@@ -48,7 +48,7 @@ Downloads oder globalen Hoständerungen. Kumulativ vier Nativeversuche/drei
 Container bleiben unverändert, die gestoppte Welle erhält keine Admission.
 GREEN/LOCAL/Default-RED-Auswahl bleibt unverändert; betroffene bestehende
 Head-/Main-Gates laufen gegen den aktuellen Stand. Nur erforderliche neue
-Purefälle in bestehende CI integrieren, Doppelprozesse vermeiden.
+Purefälle in bestehende CI (Continuous Integration; automatisierte Integrationsprüfungen) integrieren, Doppelprozesse vermeiden.
 
 Nach Sourceabschluss Privacy, relevante Tests, PR, aktuelle Head-/Main-Gates,
 voller Tree/FF/Branches, private Belegsicherung und tatsächliche eigene

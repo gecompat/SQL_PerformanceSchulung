@@ -7,7 +7,7 @@ PR256. Status: `A_B_IMPLEMENTED_REVIEWED`. Maßgeblich bleibt
 ## Abgegrenzte Wellen und Auswahl vor Implementierung
 
 Ein Implementierungsowner bearbeitet zuerst den Footer-Codec und nach dessen
-lokalen Tests, unabhängigem Review, aktueller CI, Main-Integration und eigener
+lokalen Tests, unabhängigem Review, aktueller CI (Continuous Integration; automatisierte Integrationsprüfungen), Main-Integration und eigener
 Branchbereinigung die Kanalhashfunktion. Höchstens zwei Quellenkandidaten je
 Schnitt, Checkpoint nach jedem ersten Kandidaten, insgesamt vier; ein gemeinsamer
 unabhängiger Auswahl-PRE und ein Implementierungsreview je Schnitt. Nur ein
@@ -75,7 +75,7 @@ Workflows, Scheduler, Trust- oder Providerkonfigurationen für Runtime aktiviert
 
 Der unabhängige Auswahl-PRE bestätigt den Planstand mit SHA256
 `a8af9c818687dd132ed528722697576103a73004454dcebc1911dc1d223c6287`
-ohne Befunde. API, eigene Quelle und Harness sind für beide getrennten Schnitte
+ohne Befunde. API (Application Programming Interface; Programmierschnittstelle), eigene Quelle und Harness sind für beide getrennten Schnitte
 freigegeben. Die Pflichtprüfungen des vollständigen Matchers bleiben außerhalb
 dieser reinen Komponenten bestehen; die Standardbibliothek ist ausschließlich
 eine Kontrollannahme.
@@ -117,7 +117,7 @@ Linux/Python 3.12.3 ohne SKIP: die 13 Footer- und neun Kanalhashmethoden.
 Die genaue 71-Byte-Referenz, alle Ordinals, getrennte Kanal-/Längenbindung,
 unveränderte opake Rohbytes, gemeinsame Grenze und frühe Typ-/Boundsabweisung
 sowie private Providerfehler sind enthalten. Ein Digest attestiert weder
-Providerherkunft noch EOF, Kontext oder tatsächliche Übertragung.
+Providerherkunft noch EOF (End of File; Ende eines Eingabestroms), Kontext oder tatsächliche Übertragung.
 Checkpoint B: Kandidat 1 von höchstens 2, insgesamt zwei von vier verbraucht;
 keine Quellenkorrektur erforderlich, Modellverbrauch unbekannt. Der unabhängige
 Implementierungsreview zu Base `5466a44…` und Head

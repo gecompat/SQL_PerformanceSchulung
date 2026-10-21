@@ -1,6 +1,6 @@
 # KI-Workstream – vollständiger Demo-Katalogentwurf
 
-Stand: 2026-10-11. Planung: `TSK-003`, Entscheidung: `DEC-073`.
+Stand: 2026-10-11. Planung: `TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration), Entscheidung: `DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze).
 Der ursprüngliche Planungsschnitt führte alle 18 Demos als **PROPOSED**. Seit dem
 Implementierungsauftrag vom 2026-10-11 besitzen QRY-014 bis QRY-019, DGN-008/009 und CON-010 ausführbare
 [Demopakete](../../Demos/09_AI_SQL_Server_2025/README.md); deren aktueller Code- und
@@ -25,11 +25,11 @@ Bei Preview wird Zustand geprüft, nicht ungefragt geändert. Setup benötigt ei
 bereitgestellte markierte Labdatenbank oder den bestehenden FWK-002-Bootstrap mit getrennten
 DB-Erstellungsrechten. Setuprolle darf darin Tabellen/Prozeduren und erforderliche Rollen
 anlegen; Abfragerolle erhält nur SELECT bzw. EXECUTE auf den benannten Labobjekten.
-DB-DDL umfasst CREATE TABLE und ALTER auf dem Labschema, Index-DDL ALTER auf der Tabelle.
+DB-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) umfasst CREATE TABLE und ALTER auf dem Labschema, Index-DDL ALTER auf der Tabelle.
 Teilnehmerabfragen benötigen kein sysadmin. Diagnosegrants werden nur bei gewählter Evidenzquelle
 erteilt; SQL-2025-DMV-Rechte wie VIEW DATABASE PERFORMANCE STATE werden im Detaildesign geprüft.
 
-Preflight liest Build/Edition/OS/CL, Objektrechte, Marker, Previewoptionen, Tools und freie
+Preflight liest Build/Edition/OS (Operating System; Betriebssystem)/CL, Objektrechte, Marker, Previewoptionen, Tools und freie
 Ressourcen. Optionaler Providerzugriff ist zusätzlich ausdrücklich freizugeben und zu prüfen.
 Fehlende Voraussetzungen ergeben vor Mutation kontrollierten SKIP gemäß FWK-012; nach Setup
 auftretende Vertrags-/Timeout-/Rechte-/Cleanupfehler ergeben FAIL. Kein Fehler wird als SKIP versteckt.
@@ -43,7 +43,7 @@ Antwortfixtures behaupten weder gemessene Inferenz noch echte semantische Modell
 
 Die folgenden Limits sind **vorgeschlagene Abbruchgrenzen**, keine universellen Performancewerte.
 TSK-004 qualifiziert sie auf dem gewählten Lab vor Runtimefreigabe. Mindesthardware für den
-kleinen SQLpfad: vier logische CPU-Kerne, 16 GiB RAM, 10 GiB freier Laborplatz. Ein kleineres
+kleinen SQLpfad: vier logische CPU-Kerne, 16 GiB RAM (Random Access Memory; Arbeitsspeicher), 10 GiB freier Laborplatz. Ein kleineres
 Profil muss getrennt qualifiziert werden. Modellpfade brauchen zusätzliche modellabhängige
 Kapazität; GPU ist optional, nie Voraussetzung des Pflichtpfads.
 
@@ -51,10 +51,10 @@ Kapazität; GPU ist optional, nie Voraussetzung des Pflichtpfads.
 |---|---|---|---|
 | Lokal | Grün; 1 Session; 180 s regulär, 60 s Cleanup | 1000 Rows, 64 MiB Text, 512 MiB DB, d=3 oder vorbereitetes Profil | 17.x/CL170, vorhandener Frameworkrunner/sqlcmd; kein Netz/Modell |
 | Preview klein | Grün; 1 Session; 300 s + 60 s Cleanup | 1000 Rows, d=3/32, 512 MiB DB, MAXDOP1 | vorher genehmigtes PREVIEW_FEATURES in eigener DB; Indexgeneration vorab binden |
-| Last | Gelb; 1–8 eigene Sessions; 900 s + 120 s Cleanup | höchstens 100000 Rows, d=32/384/768/1536, 3 GiB DB, 2 GiB definierter Mess-Workspace | bestätigte Wegwerfinstanz mit fixiertem CPU/RAMprofil; FWK-006-Signale/Stop; kein globaler Cacheeingriff |
-| Lokales Modell | Gelb; 1 SQL- und 1 eigene Anwendungssession; 600 s + 120 s Cleanup | maximal 50 Embedding-/LLM-Requests, 32 Chunks pro Batch, 2048 Zeichen je Chunk; 1 GiB Korpus | vorab genehmigter eigener lokaler Modellservice, Modell-/Tokenbudget, TLS/APIprobe; keine Instanzoption im Demolauf ändern |
+| Last | Gelb; 1–8 eigene Sessions; 900 s + 120 s Cleanup | höchstens 100000 Rows, d=32/384/768/1536, 3 GiB DB, 2 GiB definierter Mess-Workspace | bestätigte Wegwerfinstanz mit fixiertem CPU (Central Processing Unit; Prozessor)/RAMprofil; FWK-006-Signale/Stop; kein globaler Cacheeingriff |
+| Lokales Modell | Gelb; 1 SQL- und 1 eigene Anwendungssession; 600 s + 120 s Cleanup | maximal 50 Embedding-/LLM-Requests, 32 Chunks pro Batch, 2048 Zeichen je Chunk; 1 GiB Korpus | vorab genehmigter eigener lokaler Modellservice, Modell-/Tokenbudget, TLS (Transport Layer Security; Verschlüsselungsprotokoll für Verbindungen)/APIprobe; keine Instanzoption im Demolauf ändern |
 | Externes Modell | Gelb; dieselben endlichen Limits | zusätzlich vorab genehmigtes Geldbudget und max. ein Retry je Request | eigener freigegebener Provider, Secretquelle und Egress-Allowlist; bei fehlendem Geldbudget SKIP |
-| Instanz/ONNX | Rot; ausschließlich eigene Wegwerfinstanz; 600 s + 180 s Cleanup | 50 Calls, Modell-/DLL-/RAM-/Diskobergrenzen vor Freigabe fixieren | Windows, ML Services, Preview, externe AI-Runtime; OS-/Instanzänderung braucht eigenen Resetpfad |
+| Instanz/ONNX (Open Neural Network Exchange; Austauschformat für Modelle) | Rot; ausschließlich eigene Wegwerfinstanz; 600 s + 180 s Cleanup | 50 Calls, Modell-/DLL-/RAM-/Diskobergrenzen vor Freigabe fixieren | Windows, ML Services, Preview, externe AI-Runtime; OS-/Instanzänderung braucht eigenen Resetpfad |
 
 Abbruch bei Zeit-/Row-/Request-/DB-/Workspaceüberschreitung, Kill-Switch, nicht erfüllter
 Eigentumsprüfung, Fehler oder fehlender Berechtigung. Ein nicht überwachbares erforderliches
@@ -66,7 +66,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 
 ## QRY-014 – Vektortypen und Dimensionsgrenzen
 
-- Ziel/Zuordnung: `CUR-013`/`CUR-014`, `TSK-005`; VECTOR/JSON und Modellraum trennen.
+- Ziel/Zuordnung: `CUR-013` (KI-Grundlagen für SQL-Server-Fachleute)/`CUR-014` (Native Vektoren und Exact Search), `TSK-005` (KI-Lokalpfad und synthetisches Korpus); VECTOR/JSON (JavaScript Object Notation; strukturiertes Textformat) und Modellraum trennen.
   Lokal/Grün; SELECT/INSERT auf eigene Vektortabelle; float16 nur separat Preview klein.
 - Preflight/Setup: Typ-/CL-/Buildprüfung, markierte DB; Geometrievektoren und fehlerhafte Dimensionsfixture.
   Baseline: gespeicherte float32-Werte samt VECTORPROPERTY.
@@ -77,7 +77,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Test/Ergebnis/Abnahme: TP-RUN, reproduzierbarer Seed, exakte Dimensions-/Typinvarianten,
   negative Eingaben ohne Teilpersistenz, float16 optionaler SKIP, unabhängiger Cleanup.
   Grenzen am konkreten Build bestätigen; keine Speicherersparnis ohne Messung.
-- Quellen/Abhängigkeit: `SRC-072`, `SRC-076`, `TSK-004`, Framework.
+- Quellen/Abhängigkeit: `SRC-072` (Vector data type), `SRC-076`, `TSK-004` (KI-Feature-, Build- und Providerqualifikation), Framework.
 
 ## QRY-015 – Distanz, Norm und Normalisierung
 
@@ -91,11 +91,11 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   Suche verschiedener Modellräume. Cleanup: eigener Tabellen-/DB-Lifecycle.
 - Test/Ergebnis/Abnahme: TP-RUN; norm2 des normalisierten Nichtnullvektors nahe 1,
   Selbstdistanz für euclidean/cosine nahe 0; dot gesondert bewerten; dokumentierte Fehlfälle.
-- Quellen/Abhängigkeit: `SRC-073`–`SRC-075`; `TSK-004`, Framework, keine Provider.
+- Quellen/Abhängigkeit: `SRC-073` (VECTOR_DISTANCE)–`SRC-075` (VECTOR_NORMALIZE); `TSK-004`, Framework, keine Provider.
 
 ## QRY-016 – Chunking, Overlap und Provenienz
 
-- Ziel: `CUR-015`, `TSK-005`; Import und reproduzierbare Chunkzuordnung.
+- Ziel: `CUR-015` (Chunking und Wissensbasis), `TSK-005`; Import und reproduzierbare Chunkzuordnung.
   Lokal/Grün; CREATE/INSERT/SELECT auf eigenen Documents/Chunks.
 - Preflight/Setup: CL170/CHUNKS, deterministische deutsche Fantasietexte mit zwei Versionen.
   Baseline: vollständiger Text und Quellenbereiche; FIXED ohne Overlap.
@@ -105,11 +105,11 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   sinnvolle Chunkparameter gegen Fragefixture bewerten. Cleanup: eigene Korpusobjekte/DB.
 - Test/Ergebnis/Abnahme: TP-RUN; Quellenrekonstruktion, Reihenfolge, gleiche Eingaben gleicher
   fachlicher Chunkbestand, negative Größe/Overlap, kein Modellcall, unabhängiger Cleanup.
-- Quellen/Abhängigkeit: `SRC-079`, `TSK-004`, Framework; keine externen Importdateien nötig.
+- Quellen/Abhängigkeit: `SRC-079` (AI_GENERATE_CHUNKS), `TSK-004`, Framework; keine externen Importdateien nötig.
 
 ## QRY-017 – Relationale, Full-Text- und semantische Suche
 
-- Ziel: `CUR-017`/`CUR-020`, `TSK-005`; Suchzweck und Qualitätsmaß unterscheiden.
+- Ziel: `CUR-017` (Semantische Suche und RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen))/`CUR-020` (Performance, Skalierung und Diagnose), `TSK-005`; Suchzweck und Qualitätsmaß unterscheiden.
   Lokal/Grün für kleines Korpus; skaliert Last/Gelb. Full-Text-Komponente optional.
 - Preflight/Setup: SELECT, Full-Text-Katalog-/Index-DDL nur Setuprolle, Komponente installiert;
   synthetischer Korpus mit Identifier-/Keyword-/Paraphrasenfragen und freigegebenen Relevanzurteilen.
@@ -121,12 +121,12 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   Cleanup: eigene Full-Text-/Index-/Korpusobjekte/DB; keine globale Katalogänderung.
 - Test/Ergebnis/Abnahme: TP-RUN/TP-PERF, Identifier korrekt, Relevanzrubrik getrennt von Recall,
   keine pauschale Überlegenheit; fehlendes Full-Text führt zum gekennzeichneten optionalen SKIP/WARN.
-- Quellen/Abhängigkeit: `SRC-073`, `SRC-087`, `SRC-095`, bestehende Full-Text-Produktreferenz
-  aus `SRC-100`; `TSK-004`, Framework; echte Embeddings zusätzlich `TSK-007`.
+- Quellen/Abhängigkeit: `SRC-073`, `SRC-087` (Generate embeddings with Azure OpenAI), `SRC-095` (Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks), bestehende Full-Text-Produktreferenz
+  aus `SRC-100` (Full-Text Search); `TSK-004`, Framework; echte Embeddings zusätzlich `TSK-007` (KI-Embedding-Providerpfade).
 
 ## QRY-018 – RAG mit überprüfbarer Retrieval-Evidenz
 
-- Ziel: `CUR-017`/`CUR-022`, `TSK-008`; vollständige transparente Verarbeitung bewerten.
+- Ziel: `CUR-017`/`CUR-022` (Architektur, Kosten und kontrollierte Agenten), `TSK-008` (KI-RAG und Quellenbewertung); vollständige transparente Verarbeitung bewerten.
   Offline-Replay Lokal/Grün; echte lokale Inferenz Lokales Modell/Gelb, Cloud separat optional.
 - Preflight/Setup: erlaubte Korpus-/Modellversion, SELECTrolle; Documents/Chunks/Fragen und
   Antwortfixtures mit richtigen, unbelegten, fehlenden und widersprüchlichen Aussagen.
@@ -143,7 +143,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 
 ## QRY-019 – KI-generiertes SQL und Injection-Abwehr
 
-- Ziel: `CUR-018`/`CUR-021`, `TSK-009`; Modelloutput sicher prüfen.
+- Ziel: `CUR-018` (Security, Datenschutz und Tenant-Isolation)/`CUR-021` (LLMs für SQL-Entwicklung und Analyse), `TSK-009` (KI-Security und Datenschutzlabor); Modelloutput sicher prüfen.
   Lokal/Grün; synthetische SQL-/Promptfixtures, enges SELECT-/Prozedur-EXECUTE-Recht.
 - Preflight/Setup: nichtprivilegierte Rolle, eigene kleine Tabellen und fester Querytemplate.
   Baseline: erlaubter parameterisierter Wertfilter und korrekte Ergebnismenge.
@@ -154,13 +154,13 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Test/Ergebnis/Abnahme: TP-RUN; Attacke verändert keine Querystruktur, unerlaubte Aktion verweigert,
   erlaubter Fall funktioniert, Syntax-/Ergebnisreview und unabhängiger Cleanup.
 - Quellen/Abhängigkeit: `SRC-099` (SQL Injection und sichere Eingaben),
-  `SRC-091`, `TSK-005`, Framework; LLM-Livezugang nicht erforderlich.
+  `SRC-091` (Execution context for GitHub Copilot), `TSK-005`, Framework; LLM-Livezugang nicht erforderlich.
 
 ## QRY-020 – Lokale Embeddings über Ollama
 
-- Ziel: `CUR-016`, `TSK-007`; reale lokale Inferenz und direkte SQL-REST-Grenze zeigen.
+- Ziel: `CUR-016` (Modelle und sichere Integration), `TSK-007`; reale lokale Inferenz und direkte SQL-REST-Grenze zeigen.
   Lokales Modell/Gelb; Instanzaktivierung separat Rot, niemals verdeckt im Demolauf.
-- Preflight/Setup: vorbereitetes freigegebenes lokales Modell mit Lizenz/Digest; REST bereits aktiviert,
+- Preflight/Setup: vorbereitetes freigegebenes lokales Modell mit Lizenz/Digest; REST (Representational State Transfer; Architekturstil für Webschnittstellen) bereits aktiviert,
   TLS-Proxy aus Enginekontext erreichbar; Model-EXECUTE, Modell-/Credential-DDL nur Setuprolle.
   Eigene External-Modeldefinition und Chunktabelle; Cloudrouting explizit gesperrt.
 - Baseline: konstruierter Vektor ohne Inferenz, daneben definierter direkter /api/embed-Request.
@@ -170,14 +170,14 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Cleanup: eigene Modelle/Credentials/DB, eigene Proxyprozesse nur mit Ownershipbeleg;
   vorbestehenden Service erhalten. Instanzzustand nur im separaten roten Bereitstellungslifecycle restaurieren.
 - Test/Ergebnis/Abnahme: TP-RUN; reale Inferenz nachgewiesen, gültiger Vektor und Modellraum,
-  falscher Trust/HTTP/Auth/Dimension vor Persistenz abgelehnt; Limits und Cleanup bestanden.
-- Quellen/Abhängigkeit: `SRC-080`–`SRC-082`, `SRC-085`/`SRC-086`; `TSK-004`, lokale Freigabe.
+  falscher Trust/HTTP (Hypertext Transfer Protocol; Protokoll zur Übertragung von Webanfragen und Antworten)/Auth/Dimension vor Persistenz abgelehnt; Limits und Cleanup bestanden.
+- Quellen/Abhängigkeit: `SRC-080` (CREATE EXTERNAL MODEL)–`SRC-082` (sp_invoke_external_rest_endpoint), `SRC-085` (Generate embeddings)/`SRC-086` (Authentication); `TSK-004`, lokale Freigabe.
 
 ## QRY-021 – Optionale externe Embeddings
 
 - Ziel: `CUR-016`/`CUR-022`, `TSK-007`; externen Datenfluss/Kosten messen.
   Externes Modell/Gelb; nur genehmigter Azure-OpenAI-Endpoint, keine Dienstbereitstellung in Demo.
-- Preflight/Setup: explizite Provider-/Region-/Kosten-/Egressfreigabe, TLS/API und Credentialpfad;
+- Preflight/Setup: explizite Provider-/Region-/Kosten-/Egressfreigabe, TLS/API (Application Programming Interface; Programmierschnittstelle) und Credentialpfad;
   Secret außerhalb Repository; Model-EXECUTE, Credentialerstellung getrennte Setuprolle.
 - Baseline: derselbe synthetische Chunkbestand im lokalen Pfad. Demonstration: begrenztes
   Embeddingbatch, Quota-/Fehlerfixture; keine echten Kostenfehler provozieren.
@@ -187,12 +187,12 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Cleanup: eigene DBmodelle/Credentials/Fixtures; keine Providerressource löschen;
   Secretwerte nicht loggen. Test: TP-RUN, kein Call ohne Opt-in, maximal genehmigtes Budget,
   Secretscan, Fehler-/Retry-/Dimension-/Cleanupfälle. Qualität und Kosten ohne pauschalen Gewinner.
-- Quellen/Abhängigkeit: `SRC-080`–`SRC-082`, `SRC-087`/`SRC-088`/`SRC-096`; `TSK-004`, externe Freigabe.
+- Quellen/Abhängigkeit: `SRC-080`–`SRC-082`, `SRC-087`/`SRC-088` (Foundry Models data privacy)/`SRC-096` (CREATE DATABASE SCOPED CREDENTIAL); `TSK-004`, externe Freigabe.
 
 ## QRY-022 – Optionale lokale ONNX-Embeddings
 
 - Ziel: `CUR-016`/`CUR-022`, `TSK-007`; lokale Inferenz mit Native-Code-/Instanzgrenze.
-  Instanz/ONNX/Rot; Windows-Wegwerflab, kein Linuxclaim, keine Standard-CI.
+  Instanz/ONNX/Rot; Windows-Wegwerflab, kein Linuxclaim, keine Standard-CI (Continuous Integration; automatisierte Integrationsprüfungen).
 - Preflight/Setup: explizite High-Impact-Freigabe, Machine Learning Services, vertrauenswürdige
   Runtime-/Tokenizer-/Modelldateien, Lizenz/Hash/RAMbudget; ALTER SETTINGS nur Bereitstellungsrolle,
   minimale qualifizierte Dateirechte; Optionen sichern und eigene Modelldefinition registrieren.
@@ -203,15 +203,15 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   Optionsrestore und kompletter Reset der eigenen Instanz mit unabhängiger Abwesenheitsprüfung.
 - Test/Ergebnis/Abnahme: TP-RUN plus rotes Resetprofil; reale lokale Inferenz, negative Metadaten-
   und fehlende Runtimefälle, Limits/Recovery; Linuxwiderspruch bleibt offen statt PASS.
-- Quellen/Abhängigkeit: `SRC-080`, `SRC-083`/`SRC-084`; `TSK-004`, eigene ONNX-Freigabe.
+- Quellen/Abhängigkeit: `SRC-080`, `SRC-083` (SQL Server 2025 editions)/`SRC-084` (SQL Server 2025 on Linux editions); `TSK-004`, eigene ONNX-Freigabe.
 
 ## IDX-011 – Exact gegen Approximate Vector Search
 
-- Ziel: `CUR-019`, `TSK-006`; Recall/Laufzeit und Planpfad gemeinsam bewerten.
+- Ziel: `CUR-019` (ANN (Approximate Nearest Neighbor; näherungsweise Suche nach ähnlichen Vektoren) und Index-Lifecycle), `TSK-006` (KI-Vector-Index und Maintenance); Recall/Laufzeit und Planpfad gemeinsam bewerten.
   Preview klein/Grün; skaliert Last/Gelb; ALTER auf eigener Basistabelle, SELECT für Queryrolle.
 - Preflight/Setup: Preview bereits freigegeben, belegte numerische Indexgeneration oder
   ausschließlich das [gebundene Profil aus DEC-074](../Project_Planning/SQL_SERVER_2025_AI_ANN_PROFILE_DECISION.md)
-  für 17.0.5005.3 mit Generation UNKNOWN/WARN; clustered INT-PK,
+  für 17.0.5005.3 mit Generation UNKNOWN/WARN; clustered INT-PK (Primary Key; Primärschlüssel),
   passender Vektortyp/Metric und genügend Rows am Build; synthetisch nichtdegenerierte Vektoren.
 - Baseline: exaktes Top-k mit gleicher Kandidatenmenge/Metric/Tieregel.
   Demonstration: Indexbuild und generationspassendes VECTOR_SEARCH, selektive Filter variieren.
@@ -220,7 +220,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Cleanup: eigener Index/DB, gesicherte selbst geänderte Optionen. Test: TP-PERF;
   Oraclevergleich, Fallback gekennzeichnet, keine Indexverwendung ohne Planbeleg,
   Qualität vorab fixiert, Performance ohne feste Beschleunigungsratio; unabhängiger Cleanup.
-- Quellen/Abhängigkeit: `SRC-073`, `SRC-077`/`SRC-078`/`SRC-094`/`SRC-097`; `TSK-005`, Previewfreigabe.
+- Quellen/Abhängigkeit: `SRC-073`, `SRC-077` (CREATE VECTOR INDEX)/`SRC-078`/`SRC-094` (DiskANN: Fast Accurate Billion-point Nearest Neighbor Search on a Single Node)/`SRC-097` (sys.vector_indexes); `TSK-005`, Previewfreigabe.
 - Implementierungsvorbereitung: [begrenzter Benchmark-Auswertungsvertrag](../Project_Planning/SQL_SERVER_2025_AI_IDX011_BENCHMARK_CONTRACT.md)
   mit getrennten tatsächlichen Warm-up-Requests, seriellen AB-/BA-/AA-Fenstern
   und Qualitätsprüfung je Query. Offline-Gegenproben ersetzen keine öffentliche
@@ -240,16 +240,16 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Demonstration: Build messen; kontrollierte Datenänderung im erlaubten Format, gegebenenfalls
   dokumentierte Read-only-Grenze bzw. ausdrücklich gewählter ALLOW_STALE_VECTOR_INDEX-Labpfad.
 - Observation: Buildzeit, DB/Indexspeicher, Writes/TempDB, Aktualität/Recall;
-  neue Maintenance-DMV nur bei belegter Buildunterstützung, nicht automatisch auf 17.x übertragen.
+  neue Maintenance-DMV (Dynamic Management View; dynamische Verwaltungssicht für Diagnoseinformationen) nur bei belegter Buildunterstützung, nicht automatisch auf 17.x übertragen.
 - Mitigation/Comparison: eigener Drop/Recreate nach qualifiziertem Updatepfad, Exact-Gegenprobe;
   manuelle Aktualisierungskosten bilanzieren. Cleanup: eigene DB/Index, Optionsrestore, Sessions stoppen.
 - Test/Ergebnis/Abnahme: TP-PERF; gebundene DML-/Stale-Erwartung, Ergebnis-/Freshnesscheck,
-  Abbruch beim Build und nach DML, unabhängiger Cleanup; keine dauerhafte Previewgarantie.
-- Quellen/Abhängigkeit: `SRC-077`/`SRC-078`/`SRC-097`; `IDX-011`, `TSK-004`.
+  Abbruch beim Build und nach DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten), unabhängiger Cleanup; keine dauerhafte Previewgarantie.
+- Quellen/Abhängigkeit: `SRC-077`/`SRC-078`/`SRC-097`; `IDX-011` (Exact gegen Approximate Search), `TSK-004`.
 
 ## RES-008 – Vektordimensionen und Ressourcenbedarf
 
-- Ziel: `CUR-020`, `TSK-010`; Dimension/Precision/Storage/CPU empirisch verbinden.
+- Ziel: `CUR-020`, `TSK-010` (KI-Benchmark und Diagnose); Dimension/Precision/Storage/CPU empirisch verbinden.
   Last/Gelb; SELECT, Setup-DDL/INSERT; float16 als separates Previewprofil.
 - Preflight/Setup: Hardware-/DB-/Memorylimits, freigegebene Dimensionen 32/384/768/1536;
   gleiches N und definierte synthetische Verteilung. Baseline: float32/kleine Dimension.
@@ -259,7 +259,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   künstliche Trunkierung ist keine automatisch zulässige Modelloperation. Cleanup: eigener DB-/Session-Lifecycle.
 - Test/Ergebnis/Abnahme: TP-PERF; gleiche Datenmenge und Messmethode, Ressourcen vorab begrenzt,
   4d/2d nur Nutzdatenmodell, tatsächliche Speicherbelegung gemessen; Qualityverlust dokumentieren.
-- Quellen/Abhängigkeit: `SRC-072`, `SRC-027`/`SRC-028`, `TSK-005`/`TSK-009`, Framework.
+- Quellen/Abhängigkeit: `SRC-072`, `SRC-027` (Monitor performance by using the Query Store)/`SRC-028` (Performance monitoring and tuning tools), `TSK-005`/`TSK-009`, Framework.
 
 ## RES-009 – Concurrent Vector Workloads und Latenzverteilung
 
@@ -304,11 +304,11 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Cleanup: eigene Fixtures/DB/Prozesse, keine Promptpersistenz. Test: TP-RUN;
   unerlaubtes Tool trotz Modelltext technisch verweigert, unbelegte Antwort nicht akzeptiert,
   restriktive Rechte bleiben erhalten; Liveergebnis kann variieren, unabhängiger Cleanup.
-- Quellen/Abhängigkeit: `SRC-090`/`SRC-091`/`SRC-095`; `QRY-018`, `DGN-008`.
+- Quellen/Abhängigkeit: `SRC-090` (SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) Agent mode)/`SRC-091`/`SRC-095`; `QRY-018` (Quellengestützte Antworten im Offline-Beispiel), `DGN-008` (Modellmetadaten und Zugriffsrechte).
 
 ## DGN-010 – LLM-Optimierungsvorschlag und Gegenmessung
 
-- Ziel: `CUR-021`, `TSK-011`; eine plausible Empfehlung widerlegen/relativieren.
+- Ziel: `CUR-021`, `TSK-011` (KI-SQL-Assistenz und Gegenmessung); eine plausible Empfehlung widerlegen/relativieren.
   Lokal/Grün im kleinen Profil; Last/Gelb bei skalierter Gegenmessung; optionaler SSMSclient getrennt.
 - Preflight/Setup: synthetische relational bereits abgedeckte Query, eigenes Index-DDL nur Setuprolle;
   gespeicherte LLM-Antwortfixture empfiehlt redundanten INCLUDE-Index, keine echte LLM-Antwort behaupten.
@@ -322,7 +322,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
 - Test/Ergebnis/Abnahme: TP-PERF; identische Resultate, LLM-Behauptung gegen echte Evidenz,
   ohne Effektseparation kein erfundenes Widerlegungsergebnis; technische Nebenwirkung beurteilen,
   keine automatische Produktionsänderung; unabhängiger Cleanup.
-- Quellen/Abhängigkeit: `SRC-027`/`SRC-028`/`SRC-089`–`SRC-092`; `TSK-005`/`TSK-009`.
+- Quellen/Abhängigkeit: `SRC-027`/`SRC-028`/`SRC-089` (GitHub Copilot in SSMS overview)–`SRC-092` (SSMS 22 release notes); `TSK-005`/`TSK-009`.
 
 ## DGN-011 – SQL-, Netzwerk- und Inferenzdiagnose
 
@@ -336,7 +336,7 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   ai_generate_embeddings_summary/external_rest_endpoint_summary nur falls verfügbar;
   kein Vollprompt/Secretcapture, kein exakter QS-zu-Einzelrequestclaim.
 - Mitigation/Comparison: Embeddingcache/Batch/Timeout/Retry und SQLpfad einzeln ändern;
-  gleiche Frageverteilung mit Qualityprüfung. Cleanup: eigene XE stoppen/entfernen,
+  gleiche Frageverteilung mit Qualityprüfung. Cleanup: eigene XE (Extended Events; gezielte Ereigniserfassung in SQL Server) stoppen/entfernen,
   gesicherte QSoptionen restaurieren, DB/Runner entfernen; kein globales QS-CLEAR.
 - Test/Ergebnis/Abnahme: TP-RUN/TP-PERF; Zeitbereiche/Uhr-/Samplinggrenzen offen,
   Fehlercount/Request-/Budget-/Cleanupnegativfälle, keine Restzeit als reine Netzzeit ausgeben.
@@ -353,13 +353,13 @@ Vorbestehende Provider/Modelle/Instanzoptionen werden nie als eigene Ressourcen 
   vertrauenswürdiger serverseitiger Tenant statt vom Prompt gesetzter SESSION_CONTEXT-Wert.
 - Observation: Anzahl/Identität/Quelle/Vektorzugriff und an Anwendung übergebener Kontext;
   keine fremden Tenantzeilen oder Embeddings, fehlende erlaubte Treffer als Qualitätsfehler.
-- Mitigation/Comparison: DBseitige RLS bzw. getrennte Tabellen/DBs, Policy-/Poolreset,
+- Mitigation/Comparison: DBseitige RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle) bzw. getrennte Tabellen/DBs, Policy-/Poolreset,
   autorisierte Candidate Scope; nachträglicher Filter ist keine alleinige Sicherheitsgrenze.
 - Cleanup: eigene RLS-/Rollen-/Tabellen-/DBobjekte, eigene Sessions und Kontextzustände.
   Test/Abnahme: TP-RUN/TP-CON; positiver/negativer Zugriff, fehlender/manipulierter Tenant,
   Poolreuse/Revocation, unerlaubter Policywechsel, ANN-Fallback und Leakageprüfung;
   keine allgemeine Seitenkanalsicherheit behaupten, unabhängiger Cleanup.
-- Quellen/Abhängigkeit: `SRC-078`/`SRC-091`/`SRC-093`; `TSK-005`, ANN zusätzlich `TSK-006`.
+- Quellen/Abhängigkeit: `SRC-078`/`SRC-091`/`SRC-093` (Row-Level Security); `TSK-005`, ANN zusätzlich `TSK-006`.
 
 ## Gesamtabnahme des Entwurfs
 

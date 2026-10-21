@@ -17,7 +17,7 @@ offen. Diese Kostenbindung ist der nächste eng ausführbare vorbereitende Schni
 Ein Implementierungsowner root, ein wiederverwendeter unabhängiger Reviewer,
 höchstens vier stabile Source/Testkandidaten, Checkpoint1, harte Grenze4 mit
 höchstens drei gebündelten geänderten Nachläufen einschließlich Auswahl-/Source-/
-Testreview, Lauf-GO, lokaler Tests, CI, regulärem Merge, frischen Main-Gates und
+Testreview, Lauf-GO, lokaler Tests, CI (Continuous Integration; automatisierte Integrationsprüfungen), regulärem Merge, frischen Main-Gates und
 eigener Branchbereinigung. Verbrauch UNKNOWN. Keine alten ausgeschöpften Scopes,
 keine Wiederholung unveränderter grüner Tests, kein zweiter Owner.
 
@@ -39,7 +39,7 @@ der Schritt gebucht wird. Das Gesamtcap bleibt4096; drei Slots reservieren3264,
 höchstens832 Schritte verbleiben dem Parent. Kleine Callerlimits dürfen früher
 ablehnen und erhöhen kein Budget. `io_steps` bleibt der tatsächliche Parent-
 Zähler; ein zusätzliches rein diagnostisches `child_io_reserved` wird separat
-im Channelreport ausgegeben. Keine Reservierung wird als gemessene Worker-I/O
+im Channelreport ausgegeben. Keine Reservierung wird als gemessene Worker-I/O (Input/Output; Ein- und Ausgabezugriffe)
 oder erfolgreicher Childabschluss bezeichnet.
 
 `Tests/Tools/dgn007_handshake_channel.py`: der bestehende eigene `_Driver`

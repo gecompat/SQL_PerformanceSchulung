@@ -1,7 +1,7 @@
 {
   "source_slide_count": 61,
   "source_sha256": {
-    "Presentations/AI_SQL_Server_2025/content.mjs": "5241a6b1f1cffe2a2204349be6ddcac698738d818bb6bed64c4faac6c16e6a3b",
+    "Presentations/AI_SQL_Server_2025/content.mjs": "e557e1cf1b2523fb09ec555cc9abcb7ac8203f92acd931f7f401b89095c71ded",
     "Presentations/AI_SQL_Server_2025/introduction.mjs": "0072667430823b2e4d03ea39fd1b2ebe8cfecee48da36f43e1061f04d63f820b"
   },
   "workbook": "Documentation/HowTo/SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md",
@@ -454,14 +454,14 @@
     "42": "DGN-008: Getrennte Modellrechte",
     "49": "DGN-009: Manipulierte Retrievalquelle",
     "61": "Entscheidung und Transferaufgabe",
-    "51": "Exact Search und ANN",
+    "51": "Exakte und näherungsweise Vektorsuche",
     "52": "IDX-011: Recall und gebundene Messung",
     "53": "IDX-012: Index-Lifecycle und Kosten",
     "54": "Messbereiche und Gegenproben",
     "55": "RES-008: Gebundene Dimensionsergebnisse lesen",
     "57": "KI-Assistenz für SQL-Entwicklung und Analyse",
     "58": "DGN-010: Indexvorschlag und Gegenmessung",
-    "59": "Copilot in SSMS und Ausführungskontext",
+    "59": "Copilot im SQL Server Management Studio",
     "50": "CON-010: Tenant-Isolation vor dem Kontext",
     "56": "RES-009 und DGN-011: End-to-End-Diagnose",
     "60": "Neun Entwürfe für die Vertiefung"
@@ -510,7 +510,7 @@
     49,
     61
   ],
-  "standard_course_sha256": "805dcc18f9581222877b52615aeba81329e2dc00394790d855dc963b8aaf26a8",
+  "standard_course_sha256": "aefc0f2b31a5203c8ef7dab4889816e309f32f0d005ba381153730a8aae9439f",
   "slide_overrides": {
     "61": {
       "blocks": [

@@ -12,7 +12,7 @@ zwei vollständige Lifecycles je positivem stabilen Kandidaten. Tatsächlich ver
 ein Kandidat, zwei Container, keine Runtimekorrektur oder Wiederholung alter Wellen.
 Der Review schloss ohne offene P1/P2: gültige positive DML-Kontrollen vor Indexbau,
 wirkliche Fehleraufnahme im unteren dynamischen SQL-Scope, Transaktionswerte vor
-JSON, vollständige Quellen-/Indexmetadatenprüfung und eigener Recovery-/Admissionpfad.
+JSON (JavaScript Object Notation; strukturiertes Textformat), vollständige Quellen-/Indexmetadatenprüfung und eigener Recovery-/Admissionpfad.
 
 Quellenbindung der tatsächlichen Läufe, SHA256:
 
@@ -33,7 +33,7 @@ Compatibility Level 170, vier CPUs/sechs GiB, ausschließlich vorhandenes Image
 Kein Pull, Provider-, Cloud-, ONNX- oder Hostkonfigurationsaufruf.
 Eigene IDX-012-DB mit vollständigen bytegenauen Project-/Contract-/Demo-/Tokenmarkern.
 999 deterministische float32 VECTOR(3)-Rows; der fehlende Id-1000-Insert erreicht
-innerhalb seiner Transaktion höchstens 1000 Rows. Alle DML werden zurückgerollt.
+innerhalb seiner Transaktion höchstens 1000 Rows. Alle DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) werden zurückgerollt.
 
 | Beobachtung | Lauf 1 | Lauf 2 |
 |---|---|---|
@@ -43,7 +43,7 @@ innerhalb seiner Transaktion höchstens 1000 Rows. Alle DML werden zurückgeroll
 | tatsächliche Verweigerungen mit Index | 4/4, 42231/State 1 | 4/4, 42231/State 1 |
 | Indexbuild-Wandzeit | 801,053 ms | 1130,006 ms |
 | neue vollständige Quellenaufnahme | 999 Rows, alle Texte/Distanzen identisch | 999 Rows, alle Texte/Distanzen identisch |
-| ursprüngliche Preview/MAXDOP und tatsächlicher Restore | 0/0 | 0/0 |
+| ursprüngliche Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) und tatsächlicher Restore | 0/0 | 0/0 |
 | gesamter eigener Cleanup ab erstem Restore | 12,180 s | 13,164 s |
 | separate DB-/eigene CID-/Namensabwesenheit | bestanden | bestanden |
 

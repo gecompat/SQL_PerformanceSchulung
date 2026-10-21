@@ -4,7 +4,7 @@ Diese Datei ergänzt `Documentation/Architecture/TSQL_SCENARIO_ORCHESTRATION.md`
 
 ## Verbindliche Regeln
 
-1. T-SQL bleibt die fachliche Source of Truth.
+1. T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL) bleibt die fachliche Source of Truth.
 2. Beispiele werden immer als eigenständige T-SQL-Skripte aufgebaut.
 3. Es wird immer die kleinste ausreichende Orchestrierungsstufe verwendet:
    - MANUAL

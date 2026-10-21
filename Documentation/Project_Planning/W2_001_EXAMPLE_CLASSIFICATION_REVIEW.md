@@ -12,7 +12,7 @@
 
 ## 1. Ergebnis
 
-Alle 19 SQL-Dateien und vier TXT-Diagnoseabfragen des neutralisierten Referenzarchivs wurden inhaltlich geprüft. Die vollständige Matrix steht unter [`Documentation/Inventories/LEGACY_EXAMPLE_CLASSIFICATION.md`](../Inventories/LEGACY_EXAMPLE_CLASSIFICATION.md); der maschinenlesbare Vertrag steht in [`legacy_example_classification.json`](../Inventories/legacy_example_classification.json).
+Alle 19 SQL-Dateien und vier TXT-Diagnoseabfragen des neutralisierten Referenzarchivs wurden inhaltlich geprüft. Die vollständige Matrix steht unter [W2-001 – Klassifikation der Bestandsbeispiele](../Inventories/LEGACY_EXAMPLE_CLASSIFICATION.md); der maschinenlesbare Vertrag steht in [`legacy_example_classification.json`](../Inventories/legacy_example_classification.json).
 
 | Entscheidung | Anzahl |
 |---|---:|
@@ -26,7 +26,7 @@ Kein historisches Skript erfüllt den aktuellen Demo-Vertrag ohne substanzielle 
 
 ## 2. Wesentliche Befunde
 
-Der Isolation-Level-Entwurf enthält keine deterministische Sessionsteuerung; der dargestellte SNAPSHOT-Ablauf erzeugt den beabsichtigten Updatekonflikt nicht zuverlässig. Das Memory-Grant-Diagnoseskript verbindet wertvolle DMVs, verwendet jedoch eine nicht portable Kapazitätsformel und kann Login-, Programm-, Kontext- und SQL-Textdaten ausgeben. Die Wait-Stats-Abfrage bewertet kumulierte Serverwerte ohne Messintervall. Mehrere Workloadskripte verwenden `DBCC FREEPROCCACHE`, `DBCC DROPCLEANBUFFERS`, feste Datenbanknamen, öffentliche Beispieldatenbanken, Systemkataloge als Zeilengenerator oder nichtdeterministische `NEWID()`-/`RAND()`-Verteilungen.
+Der Isolation-Level-Entwurf enthält keine deterministische Sessionsteuerung; der dargestellte SNAPSHOT-Ablauf erzeugt den beabsichtigten Updatekonflikt nicht zuverlässig. Das Memory-Grant-Diagnoseskript verbindet wertvolle DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), verwendet jedoch eine nicht portable Kapazitätsformel und kann Login-, Programm-, Kontext- und SQL-Textdaten ausgeben. Die Wait-Stats-Abfrage bewertet kumulierte Serverwerte ohne Messintervall. Mehrere Workloadskripte verwenden `DBCC FREEPROCCACHE`, `DBCC DROPCLEANBUFFERS`, feste Datenbanknamen, öffentliche Beispieldatenbanken, Systemkataloge als Zeilengenerator oder nichtdeterministische `NEWID()`-/`RAND()`-Verteilungen.
 
 Vier Dateien werden nicht migriert: das `FOR XML PATH`-Rezept, die allgemeine Funktionssammlung, das 149-KB-Skript zu Spaltenlimits und das gemischte Partitioned-Views-Skript. Ihre Einzelaspekte können nur als neu formulierte Bestandteile kanonischer Demos zurückkehren.
 
@@ -34,7 +34,7 @@ Vier Dateien werden nicht migriert: das `FOR XML PATH`-Rezept, die allgemeine Fu
 
 `W2-A` priorisiert Isolation, zentrale DMV-Diagnose, Joinoperatoren, SARGability/Conversions, Parameter Sensitivity und Tipping Point. `W2-B` umfasst Buffer Pool, Partitionierung, korrelierte Subqueries, Ressourcenverbrauch, NULL-/Indexverhalten und Optimizerwissen. `W2-C` enthält APPLY, messbare JSON-Kosten und die Uniquifier-Vertiefung.
 
-Die bereits validierte Demo `QRY-001` bleibt die kanonische SARGability-Implementierung. Der Altbestand erzeugt keine parallele Demo. Die vier `DIAGNOSTIC_ONLY`-Quellen werden erst in `W2-004` als versions-, berechtigungs-, scope- und privacybewusste Diagnosepfade neu veröffentlicht.
+Die bereits validierte Demo `QRY-001` (Indexfreundliche Suchbedingungen) bleibt die kanonische SARGability-Implementierung. Der Altbestand erzeugt keine parallele Demo. Die vier `DIAGNOSTIC_ONLY`-Quellen werden erst in `W2-004` als versions-, berechtigungs-, scope- und privacybewusste Diagnosepfade neu veröffentlicht.
 
 ## 4. Technische Validierung
 

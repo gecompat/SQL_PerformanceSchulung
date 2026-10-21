@@ -16,9 +16,9 @@ PK- und Candidate-Zugriffspfade derselben unveränderten 1000-Row-Quelle.
 
 Beide eigenen Indizes bleiben während aller Warmups und AB-/BA-/AA-Fenster vorhanden.
 Das ist ein Vergleich zweier fester Zugriffspfade, kein Vergleich Index-abwesend/
-Index-vorhanden und kein Nettonutzen einschließlich Build, DML oder Rückbau.
+Index-vorhanden und kein Nettonutzen einschließlich Build, DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) oder Rückbau.
 Die feste SELECT-Struktur enthält ausschließlich INDEX(DGN010_OwnPK) oder
-INDEX(DGN010_OwnCandidate), gebundene int-Werte 101/110, ORDER BY Id und MAXDOP 1.
+INDEX(DGN010_OwnCandidate), gebundene int-Werte 101/110, ORDER BY Id und MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1.
 Ein WITHOUT LOGIN Reader mit CONNECT und ausschließlich SourceRows-SELECT führt
 die Messqueries tatsächlich aus. Zwei neue repräsentative Actual-Pläne je Profil
 werden als Owner aufgenommen; diese qualifizieren keine Readerpläne.
@@ -34,7 +34,7 @@ Eine zusätzliche positive Einquerykontrolle und eine tatsächliche negative
 Einquerykontrolle sind getrennt. Keine nachträgliche Stichprobenauswahl.
 
 Jedes Fenster besitzt eine vollständig gebundene eigene Session-/Request-/Startzeit-/
-Connection-/DB-Identität. CPU/Reads/LogicalReads/Writes werden vor/nach dem Loop am
+Connection-/DB-Identität. CPU (Central Processing Unit; Prozessor)/Reads/LogicalReads/Writes werden vor/nach dem Loop am
 selben tatsächlichen Request aufgenommen, inklusive Countergrenzen. UTC-Elapsed
 umfasst EXECUTE AS, den gesamten Queryloop, Ergebnisbuffer/Transfers/Deletes und
 REVERT. Beide Grenzen sind datetime2(7) desselben SQL-UTC-Takts; der coarse
@@ -73,7 +73,7 @@ Je Profil 54 beziehungsweise
 SQL-Markercleanup und neue unabhängige DB-/Namens-/CID-Abwesenheit bestanden,
 Cleanup 12.796/13.068 Sekunden.
 Tatsächliches Clientende bekannt, UNKNOWN false; kein weiterer Client nach UNKNOWN.
-Eigener Zusatzindex bleibt 1000 Rows/17 used/25 reserved pages, PK 18/25.
+Eigener Zusatzindex bleibt 1000 Rows/17 used/25 reserved pages, PK (Primary Key; Primärschlüssel) 18/25.
 
 ## Tatsächliche AB/BA-Batchwerte
 
@@ -126,7 +126,7 @@ noch zur nachträglichen Baselinekorrektur verwendet.
 
 ## Erhaltene Fehler, Review und Quellenbindung
 
-Vor Admission wurde ein konkreter P2 geschlossen: Candidate-XML durfte bislang
+Vor Admission wurde ein konkreter P2 geschlossen: Candidate-XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) durfte bislang
 PK10 plus Candidate0/fehlende Counter akzeptieren. Der Candidate-Parser erlaubt
 jetzt ausschließlich den geforderten Candidateindex mit tatsächlicher Source-/
 Root-Threadsumme10. Acht reine Methoden bestanden einschließlich dieser positiven

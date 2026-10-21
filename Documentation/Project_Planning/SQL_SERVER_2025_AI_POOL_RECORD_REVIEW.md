@@ -8,7 +8,7 @@ Head-/fünf Main-Gates PASS, vollständiger identischer Tree, main synchron und 
 eigener lokaler und Remote-Branch entfernt. Die private Poolkomponente bestand
 begrenzt in C3; beide historischen FAILs und ihre SQL-/Pool-Abwesenheitsgrenzen bleiben.
 
-Der nächste kleine TSK-009-Schnitt veröffentlicht eine reine API zur Prüfung
+Der nächste kleine TSK-009-Schnitt veröffentlicht eine reine API (Application Programming Interface; Programmierschnittstelle) zur Prüfung
 vollständiger typisierter Records samt expliziter Callerbindung und begrenzter
 Summary. Kein öffentlicher Provisioner und kein zusätzlicher Poollauf. Die API
 führt keine SQL-, Netzwerk-, Container-, Provider- oder Modelloperation aus.
@@ -53,7 +53,7 @@ erst beim anschließenden tatsächlichen öffentlichen Producercut. Keine Workfl
 oder Selectorausnahme; aktuelle Pflichtgates werden anhand tatsächlicher Pfade
 abgeleitet und ausgeführt. Dieses Layout begrenzt unnötige Nativewiederholungen.
 
-Quellen-/Resultatreview, betroffene reine Gegenfälle, aktueller Head/Base-/Main-CI,
+Quellen-/Resultatreview, betroffene reine Gegenfälle, aktueller Head/Base-/Main-CI (Continuous Integration; automatisierte Integrationsprüfungen),
 PRintegration, vollständige Treeübernahme, Synchronisierung und eigener Branchcleanup
 sind vor Schnittabschluss erforderlich. Öffentlicher Producer, Captureattestierung,
 weitere Provider/Authformen und volle CON-010-/TSK-009-/TP-CON-Abnahme bleiben offen.

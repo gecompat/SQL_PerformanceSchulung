@@ -23,7 +23,7 @@ GitHub-gehostete Runner decken die Stufen 1 bis 3 der Entscheidungsleiter aus Ab
 | Hyper-V-VMs | Verschachtelte Virtualisierung mit Windows-Gastsystem ist auf den gehosteten Images nicht vorgesehen. |
 | mehrere SQL-Server-Instanzen nebeneinander | Der Speicher- und Zeitrahmen eines gehosteten Runners reicht für eine Einzelinstanz je Job. |
 | dedizierte CPU-, RAM- und I/O-Grenzen | Gehostete Runner geben keine stabile, wiederholbare Ressourcenzusage. |
-| gedrosseltes I/O und Netzwerkbedingungen | Erfordert Kontrolle über Host und Speicherpfad. |
+| gedrosseltes I/O (Input/Output; Ein- und Ausgabezugriffe) und Netzwerkbedingungen | Erfordert Kontrolle über Host und Speicherpfad. |
 | Windows-nahe Messung | Erfordert ein Windows-Gastsystem unter eigener Kontrolle. |
 
 ## 3. Anforderungen an `Key18_Perf`
@@ -79,7 +79,7 @@ Ein selbstgehosteter Runner führt Code aus dem Repository auf eigener Infrastru
 | `RUNNER_ASSISTED`-Teilnehmerablauf in `LABSCN-003` | nicht umgesetzt | umsetzbar |
 | `INF-003` geprüfte Podman-Variante | lokal mit vollständigem SQL-Server-2025-Lifecycle validiert | keine Runnerabhängigkeit mehr |
 
-`LABSCN-002` ist abgeschlossen. `CON-004` und `DGN-005` verwenden die kleinste ausreichende Orchestrierungsstufe `MANUAL` und sind auf Docker sowie Podman praktisch validiert.
+`LABSCN-002` ist abgeschlossen. `CON-004` (Blockierungsketten verfolgen) und `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) verwenden die kleinste ausreichende Orchestrierungsstufe `MANUAL` und sind auf Docker sowie Podman praktisch validiert.
 
 ## 5. Umschaltung der Workflows
 

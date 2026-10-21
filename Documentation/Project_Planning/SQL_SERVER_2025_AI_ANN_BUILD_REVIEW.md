@@ -9,7 +9,7 @@ IDX-011/IDX-012 bleiben PROPOSED; keine vollständige Demo-/Performanceabnahme.
 Ein neuer eigener Container am fest gebundenen SQL-17.0.5005.3-Image,
 EngineEdition 3/Linux Ubuntu 24.04, vier CPUs/sechs GiB, eigene Loopbackbindung,
 CL170/SIMPLE und 256/64-MB-Dateilimits. Die zwei tatsächlichen Ausgangswerte
-Preview 0 und DB-scoped MAXDOP 0 wurden in genau einer voll tokengebundenen Row
+Preview 0 und DB-scoped MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 0 wurden in genau einer voll tokengebundenen Row
 gesichert. Vier vollständige bytegenaue Eigentumsmarker wurden geprüft.
 Geschlossene eigene Setclients und neue getrennte DB-Clients attestierten
 zuerst Preview 1/MAXDOP 0, anschließend Preview 1/MAXDOP 1.
@@ -30,7 +30,7 @@ Der erste Kandidat ist verbraucht; seine Quellen und Befunde bleiben unveränder
 
 Die konkrete neue Evidenz 1934 begründet ausschließlich `SET QUOTED_IDENTIFIER ON`
 in der eigenen Buildsession und eine tatsächliche SESSIONPROPERTY-Kontrolle vor
-CREATE VECTOR INDEX. [SRC-109](../Research/SOURCE_REGISTER.md) beschreibt den
+CREATE VECTOR INDEX. [SRC-109 – SET QUOTED_IDENTIFIER](../Research/SOURCE_REGISTER.md) beschreibt den
 Parse-time-Sessionzustand und seine Vererbung an EXEC; kein weiterer DB-/Hosteffekt.
 Der enge unabhängige Delta-Quellenreview fand keine P1/P2. Im zweiten neuen eigenen
 Container bestanden Baseline 0/0, geschlossene Setclients und frische Attestierungen

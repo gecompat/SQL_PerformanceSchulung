@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspaket | `TSK-001` (registriert in `.ai/identity/registry.json`) |
+| Arbeitspaket | `TSK-001` (Demo-Walkthroughs: Schritt-fuer-Schritt-Erklaerungen fuer alle Fachdemos) (registriert in `.ai/identity/registry.json`) |
 | Status | `VALIDATED` (statisch; jede beschriebene Demo besitzt den zutreffenden Runtime-Matrixnachweis) |
 | Stand | 2026-09-07 |
 | Geltungsbereich | alle 22 runtimevalidierten Fachdemos |
@@ -18,7 +18,7 @@ Jede Demo-Erklärung beantwortet dieselben Fragen:
 - **Kernfrage:** Was wird demonstriert?
 - **Konstruktion:** Wie wird der Testfall aufgebaut – Objekte, Datenmengen, Stellschrauben?
 - **Phasen:** Was passiert in Setup, Baseline, Demonstration, Observation, Mitigation und Comparison?
-- **Abfrage/Evidenz:** Welche DMVs, Katalogsichten oder Systemobjekte liefern die Messung, und wie wird sie geprüft?
+- **Abfrage/Evidenz:** Welche DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), Katalogsichten oder Systemobjekte liefern die Messung, und wie wird sie geprüft?
 - **Kernaussage:** Welche fachliche Aussage belegt der Lauf?
 - **Nicht gesagt wird:** Welche Aussage die Demo bewusst nicht trifft (Schutz vor Übergeneralisierung).
 - **Versionsabhängigkeiten:** Welche Skip-Regeln bei SQL Server 2019/2022/2025 gelten.
@@ -226,13 +226,13 @@ Die Reihenfolge folgt der Modulstruktur der Präsentation. Die Beschreibungen si
 
 **Kernfrage:** Wie verteilen parallele Exchanges Arbeit ungleich auf Threads – und wie misst man das pro Thread?
 
-**Konstruktion.** Zwei Fakttabellen mit je 600 000 Zeilen: Profil `B` balanciert über 4 096 Gruppenschlüssel, Profil `S` konzentriert 95 % auf einen Schlüssel. Prozedur `usp_Opt017Aggregate` mit MAXDOP 4.
+**Konstruktion.** Zwei Fakttabellen mit je 600 000 Zeilen: Profil `B` balanciert über 4 096 Gruppenschlüssel, Profil `S` konzentriert 95 % auf einen Schlüssel. Prozedur `usp_Opt017Aggregate` mit MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 4.
 
 **Phasen:**
 
 - **BASELINE (Profil B, MAXDOP 4):** Rowcount und Checksumme der Aggregation.
 - **DEMONSTRATION (Profil S, MAXDOP 4):** Gleiche Logik auf konzentrierter Verteilung.
-- **OBSERVATION:** Aus dem XML des letzten Actual Plans: Actual DOP, Exchange-Zähler, ActualRows je Thread, Skew-Ratio (Max/Min positiver Threadarbeit).
+- **OBSERVATION:** Aus dem XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) des letzten Actual Plans: Actual DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Exchange-Zähler, ActualRows je Thread, Skew-Ratio (Max/Min positiver Threadarbeit).
 - **MITIGATION:** Serielle Gegenprobe mit MAXDOP 1.
 - **COMPARISON:** Checksummen und Zeilenzahlen identisch; Skew-Ratio ≥ 1 mit Arbeit auf mindestens zwei Threads und vorhandenem Exchange.
 
@@ -248,7 +248,9 @@ Die Reihenfolge folgt der Modulstruktur der Präsentation. Die Beschreibungen si
 
 # Teil 2 – Query Patterns
 
-## QRY-001 – SARGability
+## QRY-001 – Indexfreundliche Suchbedingungen (SARGability)
+
+SARGability beschreibt, ob ein Prädikat als Suchargument (Search Argument) für einen Indexzugriff nutzbar ist. Ein nutzbarer Indexzugriff ist dabei keine Garantie für geringere Gesamtkosten.
 
 **Sicherheit/Stufe:** GREEN, 1 Session, Stufe 1.
 
@@ -282,7 +284,7 @@ Die Reihenfolge folgt der Modulstruktur der Präsentation. Die Beschreibungen si
 
 **Phasen:**
 
-- **BASELINE (Catch-all, `RARE`):** Logische Reads aus der Cachestatistik; Evidence speichert je Phase/Strategie: RowCount, Checksum, LogicalReads, CachedPlanCount, ExecutionCount, CPU, Literalfreiheit.
+- **BASELINE (Catch-all, `RARE`):** Logische Reads aus der Cachestatistik; Evidence speichert je Phase/Strategie: RowCount, Checksum, LogicalReads, CachedPlanCount, ExecutionCount, CPU (Central Processing Unit; Prozessor), Literalfreiheit.
 - **DEMONSTRATION (Recompile):** `sp_recompile`, dann `RARE` und `COMMON`: selektiver Wert günstiger, häufiger Wert verglichen; Kompilierung neu je Ausführung.
 - **OBSERVATION:** Catch-all und Recompile je 25× ohne Filter – identische Arbeitsmenge, unterschiedlich many gecachte Pläne und CPU je Ausführung (Recompile kostet Kompilierung pro Ausführung).
 - **MITIGATION:** bewusst keine; die Demo liefert die Vergleichsbasis, keine Rangfolge.
@@ -515,7 +517,7 @@ Die Reihenfolge folgt der Modulstruktur der Präsentation. Die Beschreibungen si
 
 **Rote Bestätigungen (Preflight-Gates):** `--allow-red` sowie die drei Variablen `HighImpactConfirmed`, `DisposableEnvironmentConfirmed`, `RecoveryPlanConfirmed`; ohne sie endet der Preflight mit `SKIP_HIGH_IMPACT_CONFIRMATION_REQUIRED`.
 
-**Kernfrage:** Wie erzeugen viele kleine Log-Growth-Schritte viele VLFs – und was ändert ein geplanter Growth-Schritt?
+**Kernfrage:** Wie erzeugen viele kleine Log-Growth-Schritte viele VLFs (Virtual Log Files; interne Abschnitte einer Transaktionslogdatei) – und was ändert ein geplanter Growth-Schritt?
 
 **Konstruktion.** Neue Datenbank `SQLPERF_LAB_STL008_<token>` mit **`FILEGROWTH = 1 MB` auf der Logdatei** (Ursachenschraube), Recovery SIMPLE, Extended-Property-Marker für den markergebundenen Cleanup.
 
@@ -606,7 +608,7 @@ Die Demos teilen einen gemeinsamen Rahmen; diese Bausteine gelten projektweit un
 
 - **Vorhandene Instanz:** `python Demos/00_Framework/Tools/run_demo.py <Pfad zur manifest.json> --server <instanz> --auth sql --username <name>`; gelbe Demos zusätzlich `--confirm-isolated-lab`, rote Demos zusätzlich `--allow-red`. Details: `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md`.
 - **Ohne SQL Server:** `Start-PerformanceTrainingScenario` aus `Documentation/HowTo/CONTAINER_QUICKSTART.md` (Docker/Podman, SQL Server 2025, Lifecycle `READY_FOR_USER` → Reset → Remove).
-- **Interaktive Szenarien:** `CON-004` und `DGN-005` besitzen einen Project-Adapter-Lifecycle mit dokumentiertem Benutzerablauf in `Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md`.
+- **Interaktive Szenarien:** `CON-004` (Blockierungsketten verfolgen) und `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) besitzen einen Project-Adapter-Lifecycle mit dokumentiertem Benutzerablauf in `Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md`.
 - **Kennungen:** Neue Task-/Entscheidungs-/Demo-Kennungen ausschließlich über `.ai/identity/registry.json` (siehe `.ai/IDENTIFIER_REGISTRATION.md`).
 
 # Anhang C – Versionsmatrix der 22 Fachdemos

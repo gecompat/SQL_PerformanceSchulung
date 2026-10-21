@@ -5,8 +5,8 @@
 | Status | `PLANNED` |
 | Geltung | verbindliche Ergänzung des Master-Umsetzungsplans |
 | Stand | 2026-07-26 |
-| Baseline | [`PRESENTATION_BASELINE_REVIEW_2024.md`](../Reviews/PRESENTATION_BASELINE_REVIEW_2024.md) |
-| Variantenarchitektur | [`MASTER_DECK_VARIANT_ARCHITECTURE.md`](MASTER_DECK_VARIANT_ARCHITECTURE.md) |
+| Baseline | [Baseline Review – Vorhandene Performance-Schulungsunterlagen 2024](../Reviews/PRESENTATION_BASELINE_REVIEW_2024.md) |
+| Variantenarchitektur | [Architekturplan – Masterdeck und abgeleitete Präsentationsvarianten](MASTER_DECK_VARIANT_ARCHITECTURE.md) |
 
 ## 1. Zweck und Geltung
 
@@ -21,7 +21,7 @@ Diese Planergänzung integriert die Ergebnisse der Bestandsprüfung in den beste
 | `W0-011` | L | Folienbezogenes Aussagenregister erstellen | jede kritische Aussage besitzt Modul-/Folienbezug, Quelle, Versionsgrenze, Schweregrad und Entscheidung `KEEP`, `REFINE`, `REPLACE` oder `REMOVE` |
 | `W0-012` | M | Visuelle Branding-Prüfung definieren | Masterfolien, Layouts, Bilder, Notes, Exporte und eingebettete Medien werden zusätzlich zur Textsuche visuell geprüft |
 
-Besonders zu prüfen sind CTE, Table Variables, Heaps, RID Lookup, Forwarded Records, Filegroups, physische I/O-Trennung, Plan Cache, Recompilation, Adaptive Join, Batch Mode on Rowstore, Columnstore-Maintenance, Remote Pushdown, Linked Server, Partitionierung, Worker/Tasks/Threads sowie Hash-basierte Eindeutigkeitsmuster.
+Besonders zu prüfen sind CTE (Common Table Expression; benannter Abfrageausdruck innerhalb einer Anweisung), Table Variables, Heaps, RID (Row Identifier; physischer Zeilenverweis) Lookup, Forwarded Records, Filegroups, physische I/O-Trennung, Plan Cache, Recompilation, Adaptive Join, Batch Mode on Rowstore, Columnstore-Maintenance, Remote Pushdown, Linked Server, Partitionierung, Worker/Tasks/Threads sowie Hash-basierte Eindeutigkeitsmuster.
 
 ### Umsetzungsnachweis W0-011
 
@@ -54,11 +54,11 @@ Die verbindlichen technischen Regeln stehen im [Architekturplan für Masterdeck-
 - ausgelassene Vertiefungsfolien dürfen keine unverständlichen Übergänge oder gebrochenen Links erzeugen;
 - das Masterdeck bleibt bei jeder Ableitung unverändert;
 - PowerPoint Desktop ist ein externes Microsoft-Tool; die Erzeugung separater Dateien erfolgt kontrolliert auf einem interaktiven Windows-Client und nicht als unbeaufsichtigter Office-Dienst;
-- CI-fähige user-defined Validatoren prüfen Open XML, Manifest, Custom Shows, Notes, Quellen und Profilmitgliedschaften ohne PowerPoint-Start.
+- CI-fähige user-defined Validatoren prüfen Open XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten), Manifest, Custom Shows, Notes, Quellen und Profilmitgliedschaften ohne PowerPoint-Start.
 
 | ID | Größe | Arbeit | Abschlusskriterium |
 |---|---:|---|---|
-| `PRS-011` | M | SlideKey- und Variantenmanifest-Vertrag definieren | Tiefenprofile, Folienrollen, Abhängigkeiten und Validierungsregeln sind diffbar festgelegt |
+| `PRS-011` (Vertrag für SlideKeys und Präsentationsvarianten) | M | SlideKey- und Variantenmanifest-Vertrag definieren | Tiefenprofile, Folienrollen, Abhängigkeiten und Validierungsregeln sind diffbar festgelegt |
 | `PRS-012` | M | Masterdeck mit SlideKeys und Custom Shows ausstatten | alle Folien sind stabil identifiziert; drei Tiefenprofile sind im Masterdeck vorhanden |
 | `PRS-013` | M | eigenständige Präsentationsvarianten kontrolliert ableiten | Kopie, Folienausschluss, Speicherung und Unverändertheit des Masterdecks sind nachgewiesen |
 | `TST-011` | M | statischen Variantenvalidator implementieren | Manifest, SlideKeys, Custom Shows, Links, Quellen und Abhängigkeiten werden ohne Office-Automation geprüft |
@@ -86,7 +86,7 @@ Damit sind `CUR-001` bis `CUR-005`, `CUR-009` und `CUR-010` abgeschlossen. Übun
 ## 4. Verbindlicher Diagnoseleitfaden
 
 1. Symptom, Bezugszeitraum und betroffene Workload bestimmen.
-2. CPU, Duration, Reads, Writes, Rows und Waits erfassen.
+2. CPU (Central Processing Unit; Prozessor), Duration, Reads, Writes, Rows und Waits erfassen.
 3. Blocking und Ressourcengrenzen klassifizieren.
 4. Actual Execution Plan und tatsächliche Kardinalitäten prüfen.
 5. Schätzfehler, Zugriffspfade, Memory Grants, Parallelität und Spills untersuchen.

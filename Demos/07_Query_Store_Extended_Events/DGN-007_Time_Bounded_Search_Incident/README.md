@@ -15,7 +15,7 @@ Die Teilnehmenden verbinden ein zeitlich abgegrenztes Symptom mit Query-Store-Hi
 
 ## Fachliche Kernaussage
 
-Query Store, Actual Execution Plan, DMVs und Extended Events liefern unterschiedliche Evidenz. Sie belegen jeweils nur ihren Scope; erst die konsistente Kette aus Zeitfenster, Parameterwert, Verteilung, Plan und gemessener Arbeit stützt eine Ursachenhypothese. Die referenzierte Änderung ist kein allgemeiner Tuningrat.
+Query Store, Actual Execution Plan, DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) und Extended Events liefern unterschiedliche Evidenz. Sie belegen jeweils nur ihren Scope; erst die konsistente Kette aus Zeitfenster, Parameterwert, Verteilung, Plan und gemessener Arbeit stützt eine Ursachenhypothese. Die referenzierte Änderung ist kein allgemeiner Tuningrat.
 
 ## Voraussetzungen und Grenzen
 
@@ -23,7 +23,7 @@ Dies ist Schnitt B zu dem bestehenden, markergebundenen Adapter unter [`Scenario
 
 Benötigt werden Rechte auf die markierte Testdatenbank, Query Store und zum Verwalten/Lesen einer begrenzten serverseitigen XE-Session. Query Store muss in der Testdatenbank `READ_WRITE` sein, andernfalls lautet der kontrollierte Ausgang `SKIP_QUERY_STORE_REQUIRED`. Ist die vorbereitete Historie nicht unterscheidbar, lautet der Ausgang `SKIP_INCIDENT_NOT_REPRODUCED`; ist eine erforderliche Evidenzquelle ungeeignet, lautet er `SKIP_EVIDENCE_MISSING`. Kein solcher Ausgang ist eine Evidenzbehauptung.
 
-Query-Store-Waits und `MAX_DURATION` für XE werden vor Ort geprüft. PSP, OPPO, Query Store Hints und Plan Forcing sind keine Voraussetzung und werden im Primärfall nicht verwendet.
+Query-Store-Waits und `MAX_DURATION` für XE werden vor Ort geprüft. PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte), OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter), Query Store Hints und Plan Forcing sind keine Voraussetzung und werden im Primärfall nicht verwendet.
 
 Der bestehende manuelle Adapterpfad ist auf SQL Server 2025 mit Compatibility
 Level 170 begrenzt. `40_Observation.sql` prüft den aktuellen Katalogwert vor
@@ -48,7 +48,7 @@ Es gibt absichtlich kein freigegebenes `manifest.json`: Die fachliche Demo ist n
 ## Evidenzstufen und Hypothesenblatt
 
 Der getrennte [prospektive Reproduktionsvertrag](Contracts/README.md)
-legt gemäß `DEC-068` die spätere Duration-/Kontrollseparation und den
+legt gemäß `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen) die spätere Duration-/Kontrollseparation und den
 zusätzlichen Plan-oder-Reads-Profilzweig fest. Seine reine Bewertungslogik
 und synthetischen Fixtures sind eine statische Voraussetzung. Sie verändern
 weder den Teilnehmerpfad noch die neutralen SQL-Captures und belegen keine
@@ -101,8 +101,8 @@ vollständigen Adapter- oder Teilnehmerablauf. Das Passwort kommt nur aus
 
 ## Quellen und Traceability
 
-- `SRC-001`, `SRC-007`, `SRC-027`, `SRC-028`, `SRC-031`, `SRC-035`, `SRC-036`; Abrufdatum gemäß Quellenregister: 2026-07-26.
-- Ergänzend `SRC-040`, `SRC-046`, `SRC-047`, `SRC-051`; die Community-Quelle begründet nur Diagnosemethodik.
+- `SRC-001` (Query processing architecture guide), `SRC-007` (Intelligent query processing), `SRC-027` (Monitor performance by using the Query Store), `SRC-028` (Performance monitoring and tuning tools), `SRC-031` (Display an actual execution plan), `SRC-035` (sys.dm_os_wait_stats), `SRC-036` (sys.dm_os_waiting_tasks); Abrufdatum gemäß Quellenregister: 2026-07-26.
+- Ergänzend `SRC-040` (Plan properties), `SRC-046` (Slow in the Application, Fast in SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug)?), `SRC-047` (What is Parameter Sniffing in SQL Server?), `SRC-051` (Capturing Query Wait Stats with sp_HumanEvents); die Community-Quelle begründet nur Diagnosemethodik.
 - `ADV-CLM-013` bis `ADV-CLM-015`, `ADV-CLM-034` bis `ADV-CLM-039`; `LO-M07-04`, `LO-M06-08`, `LO-M03-07`.
 - Technische Korrektur der Compatibility-Evidenz, geprüft am 2026-10-06:
   [sys.databases](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-databases-transact-sql?view=sql-server-ver17) und

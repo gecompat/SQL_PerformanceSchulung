@@ -5,8 +5,8 @@
 | Status | `IMPLEMENTED_STATIC_SLICE_B` (Schnitt A-Adapter und statischer Teilnehmerfluss) |
 | Stand | 2026-09-19 |
 | Arbeitspaket | `LABSCN-005` |
-| Task | `TSK-002` |
-| Detailreview | [`LABSCN_005_DGN_007_DETAIL_REVIEW.md`](../../Documentation/Project_Planning/LABSCN_005_DGN_007_DETAIL_REVIEW.md) |
+| Task | `TSK-002` (Detailreview LABSCN-005/DGN-007: Capstone-Planungsschnitt mit Incident-, Hypothesen-, Zeitfenster-, Reset- und Teilnehmeruebergabevertrag) |
+| Detailreview | [LABSCN-005 – Detailreview DGN-007 (Planungsschnitt)](../../Documentation/Project_Planning/LABSCN_005_DGN_007_DETAIL_REVIEW.md) |
 | interaktive Zielversion | SQL Server 2025 / Compatibility Level 170 |
 | Safety | `YELLOW`, ausschließlich isolierte Wegwerfinstanz |
 
@@ -133,7 +133,7 @@ Der Adapter besitzt die vier verbindlichen Entrypoints `preflight`, `install`,
 `validate` und `cleanup`. `install` endet mit `READY_FOR_USER`; `cleanup` ist
 markergebunden und entfernt Datenbank inklusive Query-Store-Zustand
 vollständig. Reset und Remove folgen dem standardisierten Lifecycle aus
-[`INTERACTIVE_SCENARIO_LIFECYCLE.md`](../../Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md).
+[Interaktive Schulungsszenarien bedienen](../../Documentation/HowTo/INTERACTIVE_SCENARIO_LIFECYCLE.md).
 
 ## Historische Adapter-Lifecycle-Abnahme (2026-09-14)
 

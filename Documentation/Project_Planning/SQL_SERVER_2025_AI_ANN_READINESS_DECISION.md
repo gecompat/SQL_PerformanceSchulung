@@ -55,7 +55,7 @@ Helper-/Deadlineanalyse wiederverwenden. Modell-/Tokenverbrauch bleibt unbekannt
 
 Alle [ursprünglichen Parserdiagnosegrenzen](SQL_SERVER_2025_AI_ANN_PARSER_DECISION.md)
 bleiben bestehen: genau die vollständige Image-ID für SQL 17.0.5005.3, vier CPUs/
-sechs GiB, eigene Loopbackinstanz, volle CID-/Image-/Ownerbindung; Build/Edition/OS
+sechs GiB, eigene Loopbackinstanz, volle CID-/Image-/Ownerbindung; Build/Edition/OS (Operating System; Betriebssystem)
 vor Setup tatsächlich prüfen. Eigene CL170/SIMPLE-DB mit 256/64-MB-Dateilimits,
 vier vollständige bytegenaue Marker und genau eine persistente Previewbaseline.
 Höchstens eine gleichzeitig aktive SQL-Session; kein vorhandener Container/DB,

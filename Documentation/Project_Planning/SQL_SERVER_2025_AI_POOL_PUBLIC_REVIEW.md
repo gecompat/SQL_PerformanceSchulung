@@ -3,7 +3,7 @@
 ## Endlicher Umfang und Admission
 
 PR225 auf c7dec2b15eb521f467690e6f33290a6088f2dd82 gemergt; zehn aktuelle Head-Gates PASS.
-Acht aktuelle Main-Gates einschließlich betroffener Runtime-CI PASS; voller
+Acht aktuelle Main-Gates einschließlich betroffener Runtime-CI (Continuous Integration; automatisierte Integrationsprüfungen) PASS; voller
 identischer Tree, primärer Main FF/synchron/sauber und eigener lokaler/Remote-Branch
 entfernt. Dieser eigene Worktree erlaubt weiterhin zunächst Sourcevorbereitung;
 lokale Nativeadmission erst nach aktuellem gebundenem Quellenabschluss. Es folgt
@@ -40,7 +40,7 @@ Wirkungen. Neue DB-/Login-/SID-Abwesenheit; keine Adoption bestehender Objekte.
 Vier vollständige bytegenaue DBmarker und gehaltene Principal-/SIDleases vor
 Mutationen und Cleanup. Vollständige Source-/Config-/Rechte-/Principal-/State-
 oracles; gezielte tatsächliche Negativen mit Resultat und Restore. Sechs wirklich
-authentifizierte Checkouts mit vollständiger Identität, RLS, Spoof- und Resetdaten.
+authentifizierte Checkouts mit vollständiger Identität, RLS (Row-Level Security; zeilenbezogene Zugriffskontrolle), Spoof- und Resetdaten.
 Physische Wiederverwendung über Owner-DMVconnection_id/connect_time; Client-GUIDs
 sind typisierte Metadaten und kein Gleichheitsoracle. Drei getrennte tatsächliche
 Poolkeys ohne Passwort-/SecretderivedHashes; gleiche gehaltene Credentialobjekte

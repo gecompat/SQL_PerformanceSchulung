@@ -27,7 +27,7 @@ V2_RECORD_BINDING bleibt unverändert mit seinem verbrauchten Max1 und STOP.
 Die vor dem neuen Report abgewiesene Rootmetadatenassertion mit falsch
 übertragenem Preparedhash ist separat erhalten; nach direkter Aufnahme des
 vollständigen Hashs korrigiert, kein Report vor dieser Korrektur und keine
-Umzählung als Runtime-/Quellen-Syntaxfehler. Ihr PID bleibt NOT_CAPTURED.
+Umzählung als Runtime-/Quellen-Syntaxfehler. Ihr PID (Process Identifier; Prozesskennung) bleibt NOT_CAPTURED.
 
 Alle56 tatsächlich verwendeten Eingangsbytes sind flach gesichert, dazu23 feste
 Authority-/Ergebnis-/Raw-/Ledger-/Rootreviewdateien; bytegenau erneut verglichen.
@@ -69,7 +69,7 @@ Ein Implementer, enger unabhängiger Rootreview für konkrete Privacy-, Byte-,
 Rollen-/SID- und Claimgrenzen. Die Benutzerfreigabe weiterer Prüfungen dieser
 Entwicklungswelle und die ausdrückliche Erweiterung über zwei Testzyklen gelten.
 Keine neue Benutzerentscheidung für diese gewöhnliche lokale Offlinearbeit.
-Cloud-/Bezahlaufrufe, ONNX und rote Hosteffekte bleiben ausgeschlossen.
+Cloud-/Bezahlaufrufe, ONNX (Open Neural Network Exchange; Austauschformat für Modelle) und rote Hosteffekte bleiben ausgeschlossen.
 
 Höchstens sechs relevante neue Quellen-/Adapterstände einschließlich tatsächlich
 erreichter SyntaxFAILs und höchstens sechs historische Reportversuche. Ein

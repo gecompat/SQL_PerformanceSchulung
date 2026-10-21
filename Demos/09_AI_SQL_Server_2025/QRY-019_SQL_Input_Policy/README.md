@@ -6,7 +6,7 @@ Ausgabefixtures ersetzen Modellantworten. Kein Modellaufruf, keine Generationsqu
 
 ## Lernziel und Aussagegrenze
 
-Eine KI darf Werte für eine vorab festgelegte Query liefern. Die Statementstruktur und
+Eine KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) darf Werte für eine vorab festgelegte Query liefern. Die Statementstruktur und
 Identifier werden vollständig bytegenau gegen die feste erlaubte Form geprüft.
 Eine abgelehnte Struktur wird angezeigt und niemals ausgeführt. Nur der kanonische
 SQL-Text gelangt zu sp_executesql; Werte bleiben separate Parameter.
@@ -25,7 +25,7 @@ beendet 2019/2022 vor Setup mit SKIP_VERSION; das ist keine technische Aussage,
 dass Parameterbindung auf älteren Versionen unmöglich wäre. Windows, Podman und
 andere Editionen benötigen eigene Qualifikation. Grün, eine Session, 180 Sekunden
 regulär und separat 60 Sekunden Cleanup. Elf Basisrows, keine Lastgenerierung.
-Dateigrenzen: 256 MiB Daten / 64 MiB Log; Testcontainer vier CPUs / sechs GiB RAM.
+Dateigrenzen: 256 MiB Daten / 64 MiB Log; Testcontainer vier CPUs / sechs GiB RAM (Random Access Memory; Arbeitsspeicher).
 Vorgeschlagenes Lab: vier logische CPUs, 16 GiB Host-RAM, 10 GiB freier Laborplatz.
 
 Setup/Cleanup benötigen CREATE DATABASE und Eigentümerrechte ausschließlich in der

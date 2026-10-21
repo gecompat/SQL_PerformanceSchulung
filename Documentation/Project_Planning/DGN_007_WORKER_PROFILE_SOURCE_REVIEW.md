@@ -25,7 +25,7 @@ bereinigung. Verbrauch UNKNOWN. Keine zusätzliche Automation oder Owner.
 
 ## Konkrete API und Quellenauswahl
 
-Additive API `build_inline_worker_profile_control_bootstrap(profile_raw, *,
+Additive API (Application Programming Interface; Programmierschnittstelle) `build_inline_worker_profile_control_bootstrap(profile_raw, *,
 logical_profile, expected_soabi, expected_destshared)` im vorhandenen
 `Tests/Tools/dgn007_control_bootstrap_source.py`. Wiederverwendung von
 `build_inline_body_control_bootstrap` mit unveränderten Prüfungen. Einfügen
@@ -156,7 +156,7 @@ mutiert, keine geteilten Stdlibfunktionen.
 Checkpoint2: zwei Source/Testkandidaten/max6, ein gebündelter Befundnachlauf.
 C2 `c794aa395201d912bf137940cb1b9f69cc411902` unabhängig ohne offene
 P1/P2/P3 bestätigt; beide P2 geschlossen. Ausdrückliches einmaliges Source/Test-
-Lauf-GO umfasst die neue Suite unter Windows3.14.7/Linux3.12.3 und reguläre CI
+Lauf-GO umfasst die neue Suite unter Windows3.14.7/Linux3.12.3 und reguläre CI (Continuous Integration; automatisierte Integrationsprüfungen)
 mit bestehenden Consumern, einschließlich eigener Modell-Compile-/Execpfade
 und neuem vollständigem Quellenfit. Keine generierte Mainausführung,
 operative Workerinventur oder Wiederholung der abgelehnten alten Route.

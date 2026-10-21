@@ -28,11 +28,11 @@ Die Demo erzeugt keinen Deadlock und leitet keine allgemeine Empfehlung zum Been
 
 ## 4. Voraussetzungen
 
-SQL Server 2019 bis 2025, vier gleichzeitig ausführbare Sessions sowie `CREATE DATABASE` und die versionsgerechte Server-State-Berechtigung. Mindestanforderungen sind 2 logische CPU-Kerne, 2 GB RAM und 100 MB freier Datenträgerspeicher. Zusätzliche Hosts sind nicht erforderlich.
+SQL Server 2019 bis 2025, vier gleichzeitig ausführbare Sessions sowie `CREATE DATABASE` und die versionsgerechte Server-State-Berechtigung. Mindestanforderungen sind 2 logische CPU-Kerne, 2 GB RAM (Random Access Memory; Arbeitsspeicher) und 100 MB freier Datenträgerspeicher. Zusätzliche Hosts sind nicht erforderlich.
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-Die Demo ist gelb, weil mehrere Sessions absichtlich Lock-Waits erzeugen. `FWK-010` verlangt `--confirm-isolated-lab`; das globale Zeitbudget beträgt 120 Sekunden. Jede Signalsperre besitzt ein eigenes Zeitlimit von höchstens 15 Sekunden. Bei Timeout beendet der Orchestrator verbleibende Prozesse; Cleanup setzt die Testdatenbank mit `ROLLBACK IMMEDIATE` zurück und entfernt sie nach Markerprüfung.
+Die Demo ist gelb, weil mehrere Sessions absichtlich Lock-Waits erzeugen. `FWK-010` (Runtime-Harness-Vertrag) verlangt `--confirm-isolated-lab`; das globale Zeitbudget beträgt 120 Sekunden. Jede Signalsperre besitzt ein eigenes Zeitlimit von höchstens 15 Sekunden. Bei Timeout beendet der Orchestrator verbleibende Prozesse; Cleanup setzt die Testdatenbank mit `ROLLBACK IMMEDIATE` zurück und entfernt sie nach Markerprüfung.
 
 ## 6. Synthetisches Datenmodell
 
@@ -42,7 +42,7 @@ Die Demo ist gelb, weil mehrere Sessions absichtlich Lock-Waits erzeugen. `FWK-0
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [`DEMO_EXECUTION_GUIDE.md`](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `CON-004` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Blocking Chain und Vergleich gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `CON-004` (Blockierungsketten verfolgen) auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Blocking Chain und Vergleich gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -82,7 +82,7 @@ Die konkrete Lock-Ressourcenbeschreibung und Wait-Dauer sind build- und scheduli
 
 | Quellen-ID | Aussagebezug | Gültigkeitsbereich | Abrufdatum |
 |---|---|---|---|
-| `SRC-036` | aktuelle Requests, Waits und Blocking Chain | SQL Server 2019–2025 | 2026-07-24 |
+| `SRC-036` (sys.dm_os_waiting_tasks) | aktuelle Requests, Waits und Blocking Chain | SQL Server 2019–2025 | 2026-07-24 |
 | Microsoft Learn: Understand and resolve blocking problems | Head Blocker und `blocking_session_id` | unterstützte SQL-Server-Versionen | 2026-07-24 |
 
 ## 14. Traceability

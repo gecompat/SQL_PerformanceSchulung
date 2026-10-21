@@ -11,7 +11,7 @@ alte15 im Main ohne SKIP PASS, unabhängige Befundschließung, FullTree/Sync und
 eigene lokale/Remote-Branchbereinigung bestätigt.
 [Abschlussbindung PR268](https://github.com/gecompat/SQL_PerformanceSchulung/pull/268).
 Der tatsächliche Report ist verbunden; §16.3 Schritte1–5 benötigen als nächste
-zusammenhängende Quellenarbeit den Workerempfang samt Haltepunkten und EOF.
+zusammenhängende Quellenarbeit den Workerempfang samt Haltepunkten und EOF (End of File; Ende eines Eingabestroms).
 
 Ein Implementierungsowner, derselbe unabhängige Reviewer, höchstens sechs
 stabile Source/Testkandidaten, Checkpoint2, harte Grenze6 einschließlich Auswahl-,
@@ -100,7 +100,7 @@ höchstens1064960, Ausgabe höchstens65536 und einzelne Zeilen höchstens1024.
 Der Childrahmen ist eine konservative Teilzuweisung aus dem vorhandenen globalen
 4096-I/O-Rahmen, kein zusätzliches Budget: vor einem späteren nativen Start muss
 der Parent1088 je ausgewähltem Worker unwiderruflich reservieren; drei ergeben
-3264, verbleiben832 für eigene Parent-I/O. Der heutige Parent hat diese neue
+3264, verbleiben832 für eigene Parent-I/O (Input/Output; Ein- und Ausgabezugriffe). Der heutige Parent hat diese neue
 Reservierung noch nicht und darf die neue Quelle daher noch nicht operativ
 auswählen. Konkrete gemeinsame Buchung/Admission bleibt ein eigenes Folgegate.
 Keine Zählung tatsächlicher Workers aus einem synthetischen Ergebnis behaupten.
@@ -135,7 +135,7 @@ punkte, unverwendete fremde Callbacks und aktuelle Phase extern nachweisen.
 
 Auswahl-PRE vor Implementierung, Source/Test-PRE samt ausdrücklichem einmaligem
 Lauf-GO vor neuen Suiteimporten/Compile-/Execpfaden; danach neue16 Windows/Linux
-und reguläre eng ausgewählte CI samt betroffenen bestehenden Fixtureconsumern.
+und reguläre eng ausgewählte CI (Continuous Integration; automatisierte Integrationsprüfungen) samt betroffenen bestehenden Fixtureconsumern.
 Neuer Workflow für eigene Quelle/Suite/sichere Fixtures/Plan/sich selbst sowie
 die feste Kontrollgenerator- und tatsächliche Profilraw-Abhängigkeit. Keine
 SQL-/Scanner-Selbsttestauswahl oder Voll-Logs; kein zusätzliches Reviewmodell.

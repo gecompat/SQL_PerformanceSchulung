@@ -39,7 +39,7 @@ Quelldatei und deren SHA256 ausschließlich im ignorierten Nachweisordner.
 Das ist Quellenprovenienz, noch keine Runtimeattestation.
 
 23_CostFrame prüft vollständige FWK-002-Marker, persistierte Originalbaselines,
-tatsächlich Preview/MAXDOP 1/1, 999 Quellenrows, Indexzahl und separat vor
+tatsächlich Preview/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1/1, 999 Quellenrows, Indexzahl und separat vor
 Katalogsubqueries erfasste Transaktionswerte 0/0. Tatsächliche COST_GUARD-Werte
 werden vor einem Grenzfehler ausgegeben; sie ersetzen keine vollständige
 PHASE_COST-Aufnahme. Genau eine eigene Session-/TempDB-Row und beide eigenen
@@ -287,7 +287,7 @@ gleichen tatsächlichen Session pro Phase. Guards bestätigen eigene DB/Token,
 Es werden Counterdifferenzen ganzer Phasen einschließlich Kontrollen,
 Beobachtung und Instrumentierung berichtet; keine reinen Indexbaukosten.
 
-| Lauf / Phase | Session CPU ms | Session Reads | Dirty-Page-Markierungen | Session Logical Reads | TempDB User Alloc/Dealloc Seiten | TempDB Internal Alloc/Dealloc Seiten |
+| Lauf / Phase | Session CPU (Central Processing Unit; Prozessor) ms | Session Reads | Dirty-Page-Markierungen | Session Logical Reads | TempDB User Alloc/Dealloc Seiten | TempDB Internal Alloc/Dealloc Seiten |
 |---|---:|---:|---:|---:|---:|---:|
 | 1 / DML_BOUNDARY | 1676 | 40 | 234 | 1111374 | 0/0 | 80/64 |
 | 1 / REBUILD | 1142 | 8 | 87 | 1062750 | 8/0 | 0/0 |
@@ -314,7 +314,7 @@ Rebuildzeiten 1054882/962357 µs; diese getrennten Walltimepunkte besitzen keine
 exklusive Zuordnung zu den oben ausgewiesenen Counterdifferenzen.
 
 Die tatsächlich an den NativeClient übergebenen Quellen sind in beiden
-Läufen identisch: DML 25325 UTF-8-Bytes/SHA256
+Läufen identisch: DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten) 25325 UTF-8-Bytes/SHA256
 1917145B7762B977CC3D568BF0F26A987B5EF231DC4D9EA6F1675FA2A1F65DE5,
 Rebuild 24535 Bytes/SHA256
 962DB15772A1060C066090581C96DD668B89AAA35B8762208C734C77872AA7C7.

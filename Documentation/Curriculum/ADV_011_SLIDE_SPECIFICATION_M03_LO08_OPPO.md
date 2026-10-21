@@ -2,13 +2,13 @@
 
 | Merkmal | Wert |
 |---|---|
-| Paket | `ADV-011` |
+| Paket | `ADV-011` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Optional Parameter Plan Optimization) |
 | Status | `INTEGRATED` |
 | Deckpositionen | 98 bis 101 (Folienteile `slide99.xml` bis `slide102.xml`) |
 | Modul | M03 – Optimizer, Statistiken und Pläne |
 | Lernziel | `LO-M03-08` |
 | Claims | `ADV-CLM-020` |
-| Kanonische Demo | `OPT-010` |
+| Kanonische Demo | `OPT-010` (Planoptimierung für optionale Parameter) |
 | Tiefenprofil | `VERTIEFUNG` |
 | Testprofil | `TP-RUN`, `TP-PERF` |
 
@@ -16,11 +16,11 @@
 
 Das aktive Foliendeck `Presentations/Performance_Schulung_Chat_2026-07-23_2146_SQL_Server_Performance_Grundlagen.pptx` ist als `SRC-DECK-001` registriert und in `Tests/Static/validate_privacy_metadata.py` über einen freigegebenen SHA-256-Wert gebunden. Nach `DEC-057` darf das Deck additiv und reproduzierbar erweitert werden; der Hashwert wird im selben Schnitt kontrolliert erneuert.
 
-Dieses Dokument bleibt die verbindliche fachliche Quelle des Folieninhalts. Der sichtbare Folientext ist auf das Folienformat verdichtet; die Sprechernotizen tragen den unveränderten Marker `[SLIDE-ID: …]`. Nach `DEC-058` werden die Folien als geschlossener Block unmittelbar vor der Schlussfolie angefügt; bestehende Folienteile, Anzeigepositionen und Foliennummern der Basisfolien sowie der Blöcke `ADV-009` und `ADV-010` bleiben unverändert.
+Dieses Dokument bleibt die verbindliche fachliche Quelle des Folieninhalts. Der sichtbare Folientext ist auf das Folienformat verdichtet; die Sprechernotizen tragen den unveränderten Marker `[SLIDE-ID: …]`. Nach `DEC-058` werden die Folien als geschlossener Block unmittelbar vor der Schlussfolie angefügt; bestehende Folienteile, Anzeigepositionen und Foliennummern der Basisfolien sowie der Blöcke `ADV-009` (Folienspezifikation Modul M03, Lernziel LO-M03-07) und `ADV-010` (Folienspezifikation Modul M03, Lernziel LO-M03-08, Parametersensitive Planoptimierung) bleiben unverändert.
 
 ## 2. Didaktische Einordnung
 
-Der Bogen löst den zweiten Teil des Versprechens ein, das `SLD-M03-115` gegeben und `ADV-010` zur Hälfte eingelöst hat. `OPT-009` behandelte die parametersensitive Planoptimierung für schiefe Gleichheitsprädikate; dieser Block behandelt ausschließlich Optional Parameter Plan Optimization für optionale Prädikate der Form `(Spalte = @p OR @p IS NULL)`. Beide Verfahren nutzen dieselbe Mehrplaninfrastruktur, entscheiden aber nach unterschiedlichen Kriterien und sind unabhängig voneinander. Der Bogen ersetzt keine der in `QRY-004` verglichenen Strategien, sondern ordnet ein versionsgebundenes Verfahren daneben ein.
+Der Bogen löst den zweiten Teil des Versprechens ein, das `SLD-M03-115` gegeben und `ADV-010` zur Hälfte eingelöst hat. `OPT-009` behandelte die parametersensitive Planoptimierung für schiefe Gleichheitsprädikate; dieser Block behandelt ausschließlich Optional Parameter Plan Optimization für optionale Prädikate der Form `(Spalte = @p OR @p IS NULL)`. Beide Verfahren nutzen dieselbe Mehrplaninfrastruktur, entscheiden aber nach unterschiedlichen Kriterien und sind unabhängig voneinander. Der Bogen ersetzt keine der in `QRY-004` (Optionale Filter, Recompile und dynamisches SQL) verglichenen Strategien, sondern ordnet ein versionsgebundenes Verfahren daneben ein.
 
 | Reihenfolge | Folien-ID | Claim | Deckposition | Rolle im Bogen |
 |---|---|---|---:|---|
@@ -44,7 +44,7 @@ Der Bogen löst den zweiten Teil des Versprechens ein, das `SLD-M03-115` gegeben
 
 `[SLIDE-ID: SLD-M03-131]` Diese Folie trennt zwei Dinge, die im Alltag ständig vermischt werden. Bei `OPT-009` ging es um Schiefe: dort existiert eine Suchplanform, sie passt nur nicht zu jedem Wert. Hier ist die Lage grundsätzlich anders. Die Demo `OPT-010` arbeitet bewusst mit einer völlig gleichmäßigen Verteilung – 2 000 Agenten zu je genau 50 Zeilen –, damit niemand die Wirkung der Schiefe zuschreiben kann. Wir messen denselben Querytext in beiden Kompilierungsreihenfolgen und erhalten in beiden Fällen dieselbe Planform und dieselben Lesekosten für den belegten Parameter. Das ist der entscheidende Befund: Hier hilft kein günstiger Erstaufruf, weil es keine passende Planform gibt, die man treffen könnte.
 
-**Quellen:** `SRC-001`, `SRC-049` **Demo:** `OPT-010` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-001` (Query processing architecture guide), `SRC-049` (Handling Optional Parameters) **Demo:** `OPT-010` **Tiefe:** `VERTIEFUNG`
 
 ## 4. Folie `SLD-M03-132` – Dispatcherplan mit optionalem Parameterprädikat
 
@@ -78,7 +78,7 @@ Der Bogen löst den zweiten Teil des Versprechens ein, das `SLD-M03-115` gegeben
 
 `[SLIDE-ID: SLD-M03-133]` Die vier Ausschlussgründe sind keine Randnotiz, sondern der häufigste Grund dafür, dass die Funktion im eigenen Code nicht greift. Besonders die ersten beiden treffen bestehende Anwendungen hart: Wer optionale Suchen mit lokalen Variablen aufbaut oder sie bislang mit `OPTION (RECOMPILE)` entschärft hat, erhält keine Varianten. Das ist kein Fehler, sondern dokumentiertes Verhalten – und es bedeutet, dass eine Migration auf SQL Server 2025 die Funktion nicht automatisch nutzbar macht. Die Demo `OPT-010` behandelt Eignung deshalb als Messgröße: Findet sie trotz passender Version keinen Dispatcherplan mit optionalem Parameterprädikat, endet die Phase kontrolliert mit `SKIP_EVIDENCE_MISSING` und weist aus, was beobachtet wurde.
 
-**Quellen:** `SRC-007`, `SRC-026` **Demo:** `OPT-010` **Tiefe:** `VERTIEFUNG`
+**Quellen:** `SRC-007` (Intelligent query processing), `SRC-026` **Demo:** `OPT-010` **Tiefe:** `VERTIEFUNG`
 
 ## 6. Folie `SLD-M03-134` – Steuerung, Abwahl und Abgrenzung
 

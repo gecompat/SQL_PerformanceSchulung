@@ -2,11 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Arbeitspakete | `FWK-001`, `FWK-002`, `FWK-008`, `FWK-009`, `FWK-012` |
+| Arbeitspakete | `FWK-001`, `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken), `FWK-008` (Sicherheits- und Abbruchvertrag), `FWK-009`, `FWK-012` (Status-, Fehler- und Skip-Vertrag) |
 | Status | `IMPLEMENTED` |
 | Prüfdatum | 2026-07-24 |
 | Runtime-Status | `NOT_RUN` |
-| Nächster Workstream | `FWK-003` bis `FWK-007`, `FWK-010`, `FWK-011` |
+| Nächster Workstream | `FWK-003` (Vertrag für synthetische Testdaten) bis `FWK-007` (Query-Store- und Extended-Events-Vertrag), `FWK-010` (Runtime-Harness-Vertrag), `FWK-011` (Ergebnisnormalisierungs- und Erwartungsvertrag) |
 
 ## 1. Ziel
 
@@ -61,9 +61,9 @@ Die SQL-Skripte bleiben bis zur ersten erfolgreichen Runtime-Matrix `IMPLEMENTED
 ## 6. Offene Folgearbeiten
 
 1. `FWK-003` deterministischer synthetischer Datengenerator.
-2. `FWK-004` Messrahmen und Delta-Scope.
-3. `FWK-005` Plan- und Statistik-Evidenz.
-4. `FWK-006` Multi-Session-Orchestrierung.
+2. `FWK-004` (Messvertrag) Messrahmen und Delta-Scope.
+3. `FWK-005` (Vertrag für Plan- und Statistikevidenz) Plan- und Statistik-Evidenz.
+4. `FWK-006` (Multi-Session-Orchestrierungsvertrag) Multi-Session-Orchestrierung.
 5. `FWK-007` Query-Store- und Extended-Events-Helfer.
 6. `FWK-010` Test-Harness einschließlich Summary-Auswertung.
 7. `FWK-011` Ergebnisnormalisierung und hardwareunabhängige Erwartungsverträge.

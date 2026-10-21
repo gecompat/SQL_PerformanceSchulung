@@ -22,7 +22,7 @@ PR263 bindet volle S15-/P11-Auswahl rein an explizite lokale Anker. Die
 vorhandene `observe_current_interpreter_scalars` nimmt dagegen frisch gegen
 eine bereits gebundene DeclaredProfile auf. Eine private durchgehende Funktion
 zur Verbindung beider Wege und zum vollständigen abschließenden Scalarvergleich
-fehlt. Neue additive API in der vorhandenen Profilkontrollquelle:
+fehlt. Neue additive API (Application Programming Interface; Programmierschnittstelle) in der vorhandenen Profilkontrollquelle:
 `observe_selected_profile_scalars(installation, controls, modules, *, token,
 separately_known_filefinder_hook)`.
 
@@ -133,7 +133,7 @@ Verbrauch UNKNOWN. Unabhängige Delta-Schließung und Lauf-GO bestätigt.
 Unabhängiger Delta-PRE auf
 `1644ba45f12a1af2313ff908cbcbc5977679e54d`: P2/P3 geschlossen, keine neuen
 offenen P1/P2/P3. Ausdrückliches einmaliges Lauf-GO für neue16/bestehende
-Binder16 jeweils unter Windows/Linux und anschließende reguläre CI mit alten57
+Binder16 jeweils unter Windows/Linux und anschließende reguläre CI (Continuous Integration; automatisierte Integrationsprüfungen) mit alten57
 ausschließlich unter Linux. Reviewer führt selbst keine Tests oder Imports aus.
 
 Lokale Läufe am20.Oktober2026 gegen unveränderte C2-Quelle/Testoberfläche:

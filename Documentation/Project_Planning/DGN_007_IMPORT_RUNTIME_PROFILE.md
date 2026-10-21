@@ -86,7 +86,7 @@ Skripteinstieg vor dem `unittest.mock`-Bootstrap: dessen `typing`-Cache enthält
 auch Nichtmodulobjekte, die dieser enge Beobachter geschlossen ablehnt.
 Windows bleibt für diese tatsächliche Beobachtungsroute nicht unterstützt.
 Lokal unter Python 3.12.14: 24 Testmethoden, davon 23 PASS und genau ein
-ausdrücklicher Linux-SKIP (0,042 s). In der Linux-CI muss auch diese Methode
+ausdrücklicher Linux-SKIP (0,042 s). In der Linux-CI (Continuous Integration; automatisierte Integrationsprüfungen) muss auch diese Methode
 PASS erreichen. Die elf Projektvalidatoren und fünf Frameworkprüfungen
 bestanden separat mit Exit 0 (Privacy: 909 Dateien; Result-Evaluator: vier
 Tests). PR85 integrierte den Vorschnitt als Squash
@@ -101,7 +101,7 @@ Ein Metadatenmatch
 ist kein erfolgreicher DGN-Import. Feste Quellenauflösung, tatsächliche
 Loaderverwendung und Importabschluss sowie drei begrenzte eigene Linux-Worker
 mit unabhängig geprüftem Cleanup bleiben offen. G13, v1, DEC-068 und die
-zurückgestellte Capture-API bleiben unverändert.
+zurückgestellte Capture-API (Application Programming Interface; Programmierschnittstelle) bleiben unverändert.
 
 Primärquellen, geprüft am 2026-10-07:
 [Python 3.12: sys-Metadaten](https://docs.python.org/3.12/library/sys.html)

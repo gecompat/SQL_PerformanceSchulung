@@ -4,7 +4,7 @@
 |---|---|
 | Status | `VALIDATED` |
 | Stand | 2026-07-24 |
-| Geltungsbereich | `QRY-001`, `OPT-002`, `CON-004`, `OPT-013` |
+| Geltungsbereich | `QRY-001` (Indexfreundliche Suchbedingungen), `OPT-002` (Statistiken lesen), `CON-004` (Blockierungsketten verfolgen), `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) |
 | Zielversionen | SQL Server 2019, 2022 und 2025 |
 
 ## 1. Zweck
@@ -40,7 +40,7 @@ Eine erneute fachliche Prüfung ist erforderlich bei:
 - einer neuen SQL-Server-Hauptversion oder einem neuen Compatibility Level,
 - Änderungen an Table Variable Deferred Compilation oder dem Hint-Katalog,
 - Änderungen der Berechtigungen für `sys.dm_exec_requests`, `sys.dm_exec_query_stats` oder Planfunktionen,
-- Änderungen der Statistik-DMVs beziehungsweise `DBCC SHOW_STATISTICS`,
+- Änderungen der Statistik-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) beziehungsweise `DBCC SHOW_STATISTICS`,
 - einer Anpassung des synthetischen Datenmodells oder der Assertions eines Piloten.
 
 ## 5. Abnahme

@@ -21,22 +21,22 @@ Dieser Bereich validiert die implementierten Framework-Komponenten gegen reale, 
 | 2022 | `mcr.microsoft.com/mssql/server:2022-latest` | 16 | 160 | `PASS` |
 | 2025 | `mcr.microsoft.com/mssql/server:2025-latest` | 17 | 170 | `PASS` |
 
-Die Tags werden vor jeder Ausführung neu aus der Microsoft Container Registry bezogen. Das Ergebnis bezieht sich deshalb auf den zum Laufzeitpunkt ausgelieferten aktuellen Containerstand und nicht auf ein dauerhaft festgeschriebenes CU.
+Die Tags werden vor jeder Ausführung neu aus der Microsoft Container Registry bezogen. Das Ergebnis bezieht sich deshalb auf den zum Laufzeitpunkt ausgelieferten aktuellen Containerstand und nicht auf ein dauerhaft festgeschriebenes CU (Cumulative Update; kumulatives Produktupdate).
 
 ## Ausgeführte Prüfungen
 
 Der stufenberichtende Matrix-Entry-Point prüft je Version:
 
 1. Engine-Major-Version und unterstützte Engine Edition,
-2. `FWK-002` mit `CREATE`, Markerprüfung und `DROP`,
-3. `FWK-001` gegen die erzeugte Testdatenbank,
-4. Installation und zweimalige deterministische Ausführung von `FWK-003`,
-5. Installation sowie Begin/End-Messung von `FWK-004`,
-6. Statistikproperties, Histogramm und Actual-Plan-Ausgabe aus `FWK-005`,
-7. Installation und reale parallele Sessions aus `FWK-006`,
-8. Query-Store-Status, Enable und Restore aus `FWK-007`,
+2. `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) mit `CREATE`, Markerprüfung und `DROP`,
+3. `FWK-001` (Preflight-Vertrag) gegen die erzeugte Testdatenbank,
+4. Installation und zweimalige deterministische Ausführung von `FWK-003` (Vertrag für synthetische Testdaten),
+5. Installation sowie Begin/End-Messung von `FWK-004` (Messvertrag),
+6. Statistikproperties, Histogramm und Actual-Plan-Ausgabe aus `FWK-005` (Vertrag für Plan- und Statistikevidenz),
+7. Installation und reale parallele Sessions aus `FWK-006` (Multi-Session-Orchestrierungsvertrag),
+8. Query-Store-Status, Enable und Restore aus `FWK-007` (Query-Store- und Extended-Events-Vertrag),
 9. XE-Status, Create, Start, Stop und Drop aus `FWK-007`,
-10. einen realen `FWK-010`-Harness-Lauf über den containerinternen `sqlcmd`-Proxy.
+10. einen realen `FWK-010` (Runtime-Harness-Vertrag)-Harness-Lauf über den containerinternen `sqlcmd`-Proxy.
 
 Alle Testdatenbanken verwenden die FWK-002-Marker und werden im `finally`-Pfad entfernt. Ein Cleanup-Finding lässt den Matrixjob fehlschlagen.
 

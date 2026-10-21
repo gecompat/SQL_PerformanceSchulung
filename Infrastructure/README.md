@@ -22,11 +22,11 @@ Die Umgebung wird nach der Vorbereitung nicht automatisch abgebaut.
 
 Der kanonische Zielvertrag steht unter:
 
-- [`SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md`](../Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md)
+- [Interaktive Schulungsszenarien mit SQL_Server_Lab](../Documentation/Architecture/SQL_SERVER_LAB_INTERACTIVE_SCENARIOS.md)
 
 Die nachgeordnete technische Qualitätssicherung steht unter:
 
-- [`SQL_SERVER_LAB_TEST_AUTOMATION.md`](../Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md)
+- [Qualitätssicherung für Schulungsszenarien mit SQL_Server_Lab](../Documentation/Architecture/SQL_SERVER_LAB_TEST_AUTOMATION.md)
 - [`Tests/Lab/performance-lab-matrix.json`](../Tests/Lab/performance-lab-matrix.json)
 
 Die Testmatrix prüft Reproduzierbarkeit, Reset und Abbau. Sie ersetzt nicht die interaktive Szenarioauswahl, Benutzerübergabe und Schritt-für-Schritt-Anleitung.

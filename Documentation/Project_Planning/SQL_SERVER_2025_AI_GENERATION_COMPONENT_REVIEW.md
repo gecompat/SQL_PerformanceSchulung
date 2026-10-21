@@ -12,7 +12,7 @@ Container und Inputdateien sind abwesend; kein UNKNOWN.
 
 ## Geprüfte vorhandene Route und Aussagegrenze
 
-Die öffentliche lokale AiModel-API bietet den Katalogkey
+Die öffentliche lokale AiModel-API (Application Programming Interface; Programmierschnittstelle) bietet den Katalogkey
 ollama-qwen25-coder-7b-local für qwen2.5-coder:7b. Die begrenzte neue Discovery
 hat genau drei Loopback-Metadatenrequests und einen öffentlichen WhatIf-Plan
 verwendet: vorhandener ausgewählter Tag, vollständige Live-Digest-/Versions-
@@ -26,7 +26,7 @@ denied, Max1/Retry0/OutputTokens96/Timeout45. Das ist keine Antwortqualifikation
 Die Kataloglizenz lautet Apache-2.0; keine vollständige Artefakt-/Supply-Chain-
 Abnahme. SRC-113 bindet die öffentliche API und den zugehörigen Katalogcode.
 Keine Installation, Downloads, Neustarts, Trust-/Hoständerung, Cloudfallback,
-Bezahl-API oder ONNX. Vorhandene Gewichte dürfen für die freigegebene lokale
+Bezahl-API oder ONNX (Open Neural Network Exchange; Austauschformat für Modelle). Vorhandene Gewichte dürfen für die freigegebene lokale
 Inferenz geladen werden; RAM-/Cache-/Geräteausführung werden nicht attestiert.
 
 ## Vorab gebundener fachlicher Vertrag
@@ -80,7 +80,7 @@ Rohantworten, Prompts, tatsächliche Modell-/Hostmetadaten und Verbrauchsledger
 bleiben lokal im ignorierten Runtime. Konsole nur Status/Zähler; Modell-/
 Tokenverbrauch unbekannt. Source-/Scope-/Budget-/Reviewbindungen und exklusive
 Admission müssen vor Inferenz geschlossen sein. Allgemeine Retrieval-/Deutsch-/
-Domänen-/Antwortqualität, LLM-Sicherheit, SQL-HTTPS, voller Live-RAG, QRY-020,
+Domänen-/Antwortqualität, LLM-Sicherheit, SQL-HTTPS, voller Live-RAG (Retrieval-Augmented Generation; Antworterzeugung mit zuvor ausgewählten Quellen), QRY-020,
 TSK-007/008 und Workstreamabnahme bleiben offen. Fokussierte reine Prüfungen,
 tatsächliche Cases sowie aktuelle Head-/Main-/Tree-/FF-/Ownbranchgates folgen.
 
@@ -281,7 +281,7 @@ C5-Ergebnis und eigene Prozessclosure noch offen.
 
 ## C5-FAIL und letzter geänderter Kandidat C6
 
-C5 liefert im positiven Fall wiederum ABSTAIN/null/null als gültiges rohes JSON;
+C5 liefert im positiven Fall wiederum ABSTAIN/null/null als gültiges rohes JSON (JavaScript Object Notation; strukturiertes Textformat);
 semantisch FAIL nach einem Inferenz-/sechs Metadatenrequests. Weitere Cases
 wegen Fail-first nicht aufgerufen, eigene Prozessclosure und beide Requestenden
 bestätigt, kein UNKNOWN. Alle bisherigen FAILs archiviert; tatsächlich insgesamt

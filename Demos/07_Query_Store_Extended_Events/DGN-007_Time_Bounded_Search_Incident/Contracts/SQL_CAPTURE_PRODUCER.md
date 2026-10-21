@@ -5,7 +5,7 @@
 | Status | implementiert; begrenzter lokaler Runtime-Nachweis vorhanden |
 | Umfang | tatsächliche Request-Ergebniszahlen und skalare Projektion vor Cleanup |
 | Transport | `DGN007_CAPTURE_FRAME`, Version `1` |
-| Methodenbezug | [prospektiver Vertrag](README.md), unveränderte Methodik aus `DEC-068` |
+| Methodenbezug | [prospektiver Vertrag](README.md), unveränderte Methodik aus `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen) |
 | Abnahmegrenze | Producer und deklarierter Transport; kein vollständiger Coordinator oder Incidentnachweis |
 
 Der Producer erweitert die vorhandene kontrollierte Pipeline. Die drei
@@ -42,13 +42,13 @@ erhöht keine bereits begrenzte Mess- oder Aggregationsgenauigkeit.
 aus Tagen ab `0001-01-01` und dem Nanosekundenrest des einzelnen Tages
 berechnet. Ein Nanosekunden-Differenzwert über Jahrtausende wird vermieden.
 Planhashes bleiben acht Bytes, transportiert als 16 Hexzeichen ohne `0x`.
-Plan Type ist auf 2019 ausdrücklich JSON `null`; spätere Katalogspalten
+Plan Type ist auf 2019 ausdrücklich JSON (JavaScript Object Notation; strukturiertes Textformat) `null`; spätere Katalogspalten
 werden nur versionsgebunden über statisches `sys.sp_executesql` abgefragt.
 
 SQL erzeugt neun Bodyfelder: Major, Compatibility, Scope, Parent-Objekt und
 die fünf Recordarrays aus dem [Transportvertrag](COLLECTOR_TRANSPORT.md).
 Schema und beide Digests kommen erst extern hinzu. Es werden keine freien
-Querytexte, Plan XML, Verbindungsinformationen oder Lifecycle-Attestationen
+Querytexte, Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten), Verbindungsinformationen oder Lifecycle-Attestationen
 ausgegeben.
 
 Die ASCII-Projektion ist auf 32.000 Zeichen begrenzt. Der Producer emittiert
@@ -96,7 +96,7 @@ Coordinator-Prüfung muss zusätzlich den ausführenden Collector binden.
 
 ## Begrenzte Runtime-Prüfung
 
-Die interne API `_run_capture_one` liefert nach der vollständigen bestehenden
+Die interne API (Application Programming Interface; Programmierschnittstelle) `_run_capture_one` liefert nach der vollständigen bestehenden
 v2-Prüfung den unveränderten Body und die tatsächlich geprüften Phasen in
 einem `_CaptureReceipt`. Die Rückgabe erfolgt erst nach erfolgreichem
 Harness-Cleanup und der ersten unabhängigen Datenbankabwesenheitsprüfung.
@@ -117,7 +117,7 @@ ruft keine Incident-Separationsbewertung auf.
 
 Die zusätzliche Option `--check-phase-diagnostics` verwendet dieselbe private,
 begrenzte Pipe für alle sechs bekannten Scopes, ohne Capture-Abnahme oder
-weitere SQL-Ausführung. Die bestehende CI aktiviert sie für Datenmodell,
+weitere SQL-Ausführung. Die bestehende CI (Continuous Integration; automatisierte Integrationsprüfungen) aktiviert sie für Datenmodell,
 Fenster und Profilvergleich. Beide Optionen zusammen erlauben Capture
 weiterhin ausschließlich für die drei Kontrollscopes. Erfolgreiche öffentliche
 Ausgabe, SQL-Prädikate, Budgets und Fehlerprioritäten bleiben unverändert.

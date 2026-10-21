@@ -24,7 +24,7 @@ Die Referenzimplementierung misst bewusst nur den aktuellen SQL-Server-Sessionko
 - eine vom Aufrufer übergebene fachliche Zeilen- oder Ergebnismenge,
 - Phase und Wiederholungsnummer.
 
-Die Sessionzähler enthalten auch geringen Mess- und Prozeduroverhead. Für operatorbezogene Laufzeitevidenz ist zusätzlich `FWK-005` zu verwenden.
+Die Sessionzähler enthalten auch geringen Mess- und Prozeduroverhead. Für operatorbezogene Laufzeitevidenz ist zusätzlich `FWK-005` (Vertrag für Plan- und Statistikevidenz) zu verwenden.
 
 ## 3. Scope und Berechtigungen
 
@@ -54,7 +54,7 @@ Ein einzelner Lauf darf nur als Funktions- oder Richtungshinweis dienen. Für Pe
 - Streuung oder zulässige Bandbreite,
 - identisches Ressourcenprofil.
 
-Die Referenzimplementierung speichert Rohmessungen; Aggregation und Abnahme erfolgen über `FWK-011`.
+Die Referenzimplementierung speichert Rohmessungen; Aggregation und Abnahme erfolgen über `FWK-011` (Ergebnisnormalisierungs- und Erwartungsvertrag).
 
 ## 6. Fehler- und Statusverhalten
 

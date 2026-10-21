@@ -15,7 +15,7 @@ Keine Plan-/Runtimeattestation durch den Review.
 ## Frage und endlicher Umfang
 
 Genau die bewährte feste Legacy-Suchsignatur am bestehenden festen Build wird
-einmal je Kandidat mit SET STATISTICS XML ON/OFF ausgeführt. Höchstens zwei neue
+einmal je Kandidat mit SET STATISTICS XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) ON/OFF ausgeführt. Höchstens zwei neue
 Kandidaten und zwei neue eigene Container seriell; je Kandidat ein Lifecycle.
 Der zweite Kandidat braucht geänderte Eingaben oder neue Evidenz. Nach zwei
 ungelösten Kandidaten Befund integrieren und einen getrennten endlichen Folgescope
@@ -36,9 +36,9 @@ Volle Image-ID 78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726,
 SQL 17.0.5005.3/EngineEdition 3/Linux Ubuntu 24.04, vier CPUs/sechs GiB,
 vollständige CID-/Image-/Ownerbindung, eigener Loopbackport und voll markierte DB.
 CL170/SIMPLE, 256/64-MB-Dateilimits, 1000 synthetische VECTOR(3)-float32-Rows,
-cosine/K=5, eine aktive SQL-Session. Nur eigene Preview ON/MAXDOP 1 nach persistierter
+cosine/K=5, eine aktive SQL-Session. Nur eigene Preview ON/MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) 1 nach persistierter
 vollständiger tatsächlicher Baseline 0/1 und MAXDOP 0; getrennte Set-/Attestclients,
-QUOTED_IDENTIFIER ON. Keine DML, kein ALLOW_STALE_VECTOR_INDEX, keine Provider-/Cloud-/
+QUOTED_IDENTIFIER ON. Keine DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten), kein ALLOW_STALE_VECTOR_INDEX, keine Provider-/Cloud-/
 ONNX-/Hostwirkung. STATISTICS XML ist eine Option der eigenen Querysession gemäß FWK-005.
 
 Volle aktuelle Indexmetadaten und eindeutiges beobachtetes DiskANN/COSINE-/

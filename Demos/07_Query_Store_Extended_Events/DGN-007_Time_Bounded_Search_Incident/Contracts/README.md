@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `STATIC_PROSPECTIVE_CONTRACT` |
-| Entscheidung | `DEC-068` (Metriken) und `DEC-072` (beobachtete Intervallzuordnung) in [`.ai/DECISIONS.md`](../../../../.ai/DECISIONS.md) |
+| Entscheidung | `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen) (Metriken) und `DEC-072` (DGN-007: beobachtete Intervallzuordnung und diagnostische QS-SYSUTC-Zeitklammer) (beobachtete Intervallzuordnung) in [`.ai/DECISIONS.md`](../../../../.ai/DECISIONS.md) |
 | Vertragsrevision | [`incident-acceptance.contract.json`](incident-acceptance.contract.json), `dgn007-prospective-acceptance/v2` |
 | Implementierung | [reiner Evaluator](../../../../Tests/Contracts/dgn007_prospective_acceptance.py) |
 | Abnahmegrenze | Prädikate und Konsistenz synthetischer Records; keine SQL-Runtime-Abnahme |
@@ -66,7 +66,7 @@ Lifecycle-Attestationen bleiben Coordinator-Folgearbeit.
 ## Gerichtetes Symptom und getrennte zusätzliche Evidenz
 
 Die primäre Metrik ist gewichtete Statement-Duration in Mikrosekunden.
-CPU und Logical Reads bleiben ergänzende Metriken; eine nachträgliche Auswahl
+CPU (Central Processing Unit; Prozessor) und Logical Reads bleiben ergänzende Metriken; eine nachträgliche Auswahl
 der günstigsten Metrik ist ausgeschlossen. Für die vier AB-/BA-Lifecycles
 einer Version werden die Kontraste berechnet:
 
@@ -95,7 +95,7 @@ Akzeptanz = valide Records UND DurationSymptom
 
 Der Reads-Zweig ist eine ausdrücklich strengere automatisierte Voraussetzung
 gegenüber dem allgemeinen Plan-oder-Laufzeitprofilvertrag aus
-[`ADV-007`](../../../../Documentation/Project_Planning/ADV_007_LAB_VP5_DESIGN.md).
+[`ADV-007` – Design LAB-VP5 und DGN-007](../../../../Documentation/Project_Planning/ADV_007_LAB_VP5_DESIGN.md).
 Er verhindert, dass dasselbe Duration-Prädikat zugleich als Symptom und
 zusätzlicher Profilbeleg ausgegeben wird. Beide Reads-Richtungen sind von
 Anfang an zulässig: unterschiedliche Arbeit bedeutet keine Reads-Regression.
@@ -129,7 +129,7 @@ hinzugefügt. Die Herkunft all dieser Angaben wird damit nicht attestiert.
 Metriken sind endliche nichtnegative `Decimal`-Werte; `bool`, binäre Python-
 Floats, NULL, NaN und Infinity sind keine zulässigen metrischen Eingaben.
 Kontraste und Grenzen werden exakt über `Fraction(Decimal)` verglichen,
-unabhängig vom globalen Decimal-Kontext. Die im JSON festgelegten Grenzen für
+unabhängig vom globalen Decimal-Kontext. Die im JSON (JavaScript Object Notation; strukturiertes Textformat) festgelegten Grenzen für
 Ziffernzahl und Exponent begrenzen die technische Recordrepräsentation und
 den Rechenaufwand; sie sind keine Performance-Golden-Values. Gültige
 Null-Baselines bleiben für absolute Kontraste zulässig. Eine Ratio ist kein
@@ -147,7 +147,7 @@ verifizieren; eine stillschweigende Kürzung auf Python-Mikrosekunden wäre
 keine gleichwertige Übertragung.
 
 Es gelten ausschließlich die Codes aus
-[`FWK-012`](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
+[`FWK-012` – Status-, Fehler- und Skip-Vertrag](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
 Cleanupfehler dominieren Timeouts und frühere Fehler. Fehlende oder
 widersprüchliche Pflichtrecords und Bindungen ergeben `FAIL_CONTRACT`;
 ungültige Metriken oder Ergebnisinvarianten `FAIL_RESULT_CONTRACT`.
@@ -199,7 +199,7 @@ Workflow `dgn007-prospective-acceptance.yml` führt ausschließlich
 diese reinen Prüfungen auf einem temporären GitHub-Checkout aus. Er erzeugt
 keine SQL-Ressource und exportiert keine Diagnosedaten.
 
-Methodenentscheidung: `DEC-068`; fachlicher Bezug: `ADV-007`, `LO-M07-04`,
+Methodenentscheidung: `DEC-068`; fachlicher Bezug: `ADV-007` (Design LAB-VP5 und DGN-007), `LO-M07-04`,
 `LO-M06-08`, `LO-M03-07`. Technische Primärquellen, geprüft am 2026-10-07:
 [Query-Store-Runtime-Statistik](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17),
 [Planmetadaten](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17),

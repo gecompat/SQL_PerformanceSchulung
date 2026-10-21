@@ -9,16 +9,16 @@ Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Orchestrierun
 | Arbeitspaket | Status | Kernartefakt |
 |---|---|---|
 | `FWK-001` | `VALIDATED` | Preflight-Vertrag und `Templates/00_Preflight.sql` |
-| `FWK-002` | `VALIDATED` | markergeprüfter Testdatenbank-Lifecycle |
-| `FWK-003` | `VALIDATED` | deterministischer Datengenerator |
-| `FWK-004` | `VALIDATED` | sessionbezogener Messrahmen |
-| `FWK-005` | `VALIDATED` | Plan- und Statistikevidenz |
-| `FWK-006` | `VALIDATED` | Datenbanksignale und `Tools/orchestrate_sessions.py` |
-| `FWK-007` | `VALIDATED` | Query-Store- und XE-Lifecycle |
+| `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) | `VALIDATED` | markergeprüfter Testdatenbank-Lifecycle |
+| `FWK-003` (Vertrag für synthetische Testdaten) | `VALIDATED` | deterministischer Datengenerator |
+| `FWK-004` (Messvertrag) | `VALIDATED` | sessionbezogener Messrahmen |
+| `FWK-005` (Vertrag für Plan- und Statistikevidenz) | `VALIDATED` | Plan- und Statistikevidenz |
+| `FWK-006` (Multi-Session-Orchestrierungsvertrag) | `VALIDATED` | Datenbanksignale und `Tools/orchestrate_sessions.py` |
+| `FWK-007` (Query-Store- und Extended-Events-Vertrag) | `VALIDATED` | Query-Store- und XE-Lifecycle |
 | `FWK-008` | `VALIDATED` | Sicherheits- und Abbruchvertrag |
 | `FWK-009` | `VALIDATED` | vollständige Demo-Dokumentvorlage |
-| `FWK-010` | `VALIDATED` | `Tools/run_demo.py` |
-| `FWK-011` | `VALIDATED` | Ergebnisnormalisierung und Evaluator |
+| `FWK-010` (Runtime-Harness-Vertrag) | `VALIDATED` | `Tools/run_demo.py` |
+| `FWK-011` (Ergebnisnormalisierungs- und Erwartungsvertrag) | `VALIDATED` | Ergebnisnormalisierung und Evaluator |
 | `FWK-012` | `VALIDATED` | Status-, Fehler- und Skip-Vertrag 1.2 |
 
 `VALIDATED` umfasst die SQL-Server-unabhängigen Vertrags- und Prozess-Selbsttests sowie den erfolgreichen Runtime-Lauf `30099942191` auf SQL Server 2019, 2022 und 2025 in offiziellen Microsoft-Linux-Containern mit Compatibility Levels 150, 160 und 170. Betriebssystem- oder editionsspezifische Erweiterungen benötigen weiterhin eigene Testprofile.
@@ -27,7 +27,7 @@ Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Orchestrierun
 
 | Klasse | Bestandteile |
 |---|---|
-| Systemobjekte | SQL-Server-Kataloge, DMVs, Query Store und Extended Events |
+| Systemobjekte | SQL-Server-Kataloge, DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen), Query Store und Extended Events |
 | User-defined Tools | SQL-Vorlagen, `fwk`-Objekte und Python-Module dieses Repositories |
 | Externes Microsoft-Tool | `sqlcmd`; wird nicht installiert und bei Fehlen kontrolliert übersprungen |
 

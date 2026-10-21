@@ -38,7 +38,7 @@ unterbrechen; Fakeclock-Tests sind kein OS-Deadlinebeleg.
 | Acquisition | acht Stages, höchstens zwei Versuche je Stage; Einzelzeit höchstens 2 s |
 | Observer | aktive Kosten kumulativ höchstens 20 s; Schlaf separat im Gesamtelapsed |
 | fachliche Polls | höchstens 64 Puls-/Rotationspolls; keine zusätzlichen Suchcalls |
-| technische I/O | eigener endlicher Schritt-/No-progress-Cap, keine Gleichsetzung mit fachlichen Polls |
+| technische I/O (Input/Output; Ein- und Ausgabezugriffe) | eigener endlicher Schritt-/No-progress-Cap, keine Gleichsetzung mit fachlichen Polls |
 | reguläre Zeit | ein nicht erneuerter 145-/180-Sekunden-Pfad, einschließlich Parse und Drain |
 | Cleanup | eigenes begrenztes Budget bis 60 s; erster Cleanupfehler bleibt dominant |
 
@@ -58,7 +58,7 @@ Observerkosten, gemessene Dauer expliziter Pausenbereiche und Gesamtdauer sind g
 Decodeausgaben werden verworfen; der Counter ist kein gemessener RSS-/Kernel-
 oder aktueller Speichercap. Die UTF-8-Zustände und rohe Zeilenlängen bleiben
 begrenzt. Eine gültige Schlusszeile ohne LF ist zulässig; unvollständige UTF-8-
-Sequenzen am EOF werden abgelehnt. Dies prüft keine v1-/Recordsyntax. Ein erfolgreicher Root-Exit genügt nicht: Inputabschluss, beide EOFs,
+Sequenzen am EOF (End of File; Ende eines Eingabestroms) werden abgelehnt. Dies prüft keine v1-/Recordsyntax. Ein erfolgreicher Root-Exit genügt nicht: Inputabschluss, beide EOFs,
 verbleibender Drain und Cleanup brauchen eigene positive Belege. Bereits
 bekannter Rootexit und Inputabschluss erneuern den No-progress-Zähler nicht.
 Acquisitions sind hier atomare deklarative Steps; es gibt keine Integration

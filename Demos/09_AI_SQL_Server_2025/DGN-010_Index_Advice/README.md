@@ -18,7 +18,7 @@ IDs 101–110 und nimmt jede Batchtransaktion wieder zurück. Sein Messfenster
 enthält UPDATE-/OUTPUT-/Rollbackaufwand und isoliert keine Indexmaintenancekosten.
 
 Keine Modell-/Provider-/Cloudaufrufe, keine automatische Übernahme von Advice
-oder DDL außerhalb der eigenen synthetischen Datenbank. Der Rat ist eine feste
+oder DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) außerhalb der eigenen synthetischen Datenbank. Der Rat ist eine feste
 synthetische [Fixture](AdviceFixture.json), kein tatsächlicher LLM-Output.
 
 ## Voraussetzungen und Sicherheit
@@ -32,9 +32,9 @@ Impersonation und Cleanup des isolierten Labs erforderlich. Die Readerquery
 läuft als eigener Datenbankuser ohne Login, mit CONNECT und Source-SELECT,
 ohne zusätzliche Rollen. Kein Minimalrechte- oder Mehrloginclaim.
 
-YELLOW: ausdrücklich bestätigte neue wegwerfbare Instanz, vier CPU/sechs GiB,
+YELLOW: ausdrücklich bestätigte neue wegwerfbare Instanz, vier CPU (Central Processing Unit; Prozessor)/sechs GiB,
 freier Platz für begrenzte 256-MB-Daten-/64-MB-Logdateien und Client. Andere
-Hostgrößen sind nicht qualifiziert. SIMPLE; MAXDOP und PREVIEW_FEATURES bleiben
+Hostgrößen sind nicht qualifiziert. SIMPLE; MAXDOP (Maximum Degree of Parallelism; konfigurierte Grenze für den Parallelitätsgrad) und PREVIEW_FEATURES bleiben
 unverändert0; jede feste Query und jeder Indexbuild MAXDOP1. 1000 deterministische
 Rows, Id1–1000, Value=Id×3, je 100 F-Payloadbytes. Eine Session je nativer Phase,
 300 Sekunden gemeinsames reguläres Budget, danach 60 Sekunden eigener Cleanup.
@@ -78,7 +78,7 @@ der Messfenster. AA und Warmups gehen nicht in AB-/BA-Mediane ein.
 
 CPU/Reads/LogicalReads/Writes sind die Deltas derselben vollständigen nativen
 Requestidentität vor/nach dem Batch, einschließlich Countergrenzen. UTC-Elapsed
-umfasst für SELECT auch Impersonation und Buffertransfer/-löschung, für DML
+umfasst für SELECT auch Impersonation und Buffertransfer/-löschung, für DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten)
 BEGIN TRAN/UPDATE/OUTPUT/ROLLBACK. Vollständige Ergebnisoracles und JSONaufbereitung
 liegen außerhalb. DML prüft jeden Ordinaldigest gegen Value=Id×3+Ordinal sowie
 nach Rollback alle 1000 Source-Rows und Transaktionsdepth0. Coarse DMV-Startzeit
@@ -136,7 +136,7 @@ an genau diese eigene Abweichung gebundene Reparatur. UNKNOWN sperrt weitere SQL
 Dieser Harness ist eine getrennte Abnahme des
 [Marker-Teilnachweises](../../../Documentation/Project_Planning/SQL_SERVER_2025_AI_DGN010_MARKER_REVIEW.md).
 Zwei Lifecycles je Scope, erforderliche Versions-SKIPs und ein tatsächlicher
-Setupfault je unterstütztem Scope werden separat kontrolliert. Aktuelle CI
+Setupfault je unterstütztem Scope werden separat kontrolliert. Aktuelle CI (Continuous Integration; automatisierte Integrationsprüfungen)
 prüft dieselben Profile. Ein Record-PASS ersetzt weder native Attestation noch
 Cleanup, Version, Privacy oder aktuelle Head-/Main-Gates.
 

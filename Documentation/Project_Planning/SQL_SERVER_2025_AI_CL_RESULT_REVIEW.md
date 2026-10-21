@@ -37,7 +37,7 @@ bei geänderten ausführungsrelevanten Quellen oder neuer konkreter Evidenz.
 
 Bereits vorhandenes fixes Image
 78eb6a93ef20501bd754282cc216188a0acee1cfa6119c33eef0b21599c1f726,
-tatsächlich SQL17.0.5005.3/Developer/EngineEdition3, vier CPU/sechs GiB,
+tatsächlich SQL17.0.5005.3/Developer/EngineEdition3, vier CPU (Central Processing Unit; Prozessor)/sechs GiB,
 eindeutiger Voll-CID/Name/Ownerlabel und dynamischer Loopbackport. Keine Pulls,
 Installationen oder Hosteffekte. Nur neue eigene DB SQLPERF_AI_CL_RESULT mit
 SIMPLE, 256/64-MB-Dateilimits und vier vollständigen bytegenauen Eigentumsmarkern.
