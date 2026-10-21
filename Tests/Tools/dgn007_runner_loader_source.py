@@ -484,10 +484,11 @@ def _rl_factory(o, *, _guard=None, _kernel=None, _primitives=()):
             if valid_cache and valid_namespaces:
                 for index, module, md in R(namespaces):
                     parent_index = 9 if index == 10 else 10 if 6 <= index <= 8 else None
-                    key = NAMES[index].rsplit('.', 1)[1]
-                    for parent_index_actual, parent_module, parent_namespace in namespaces:
-                        if parent_index_actual == parent_index and G(parent_namespace, key) is module:
-                            del parent_namespace[key]
+                    if parent_index is not None:
+                        key = NAMES[index].rsplit('.', 1)[1]
+                        for parent_index_actual, parent_module, parent_namespace in namespaces:
+                            if parent_index_actual == parent_index and G(parent_namespace, key) is module:
+                                del parent_namespace[key]
                     name = NAMES[index]
                     if G(cache, name) is module:
                         del cache[name]

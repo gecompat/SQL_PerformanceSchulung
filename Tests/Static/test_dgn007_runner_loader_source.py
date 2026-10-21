@@ -924,20 +924,22 @@ _rl_original(owner[19], namespace)(owner, packet)
 
     def test_reentry_direct_loader_and_retry_are_sticky(self):
         for kind in ("entry", "loader"):
-            env, reached = model(), []
+            env, reached, outcomes = model(), [], []
             def hook(phase, code, namespace):
                 if phase == "compiled" and code.co_filename.endswith("/0.py"):
                     reached.append(True)
                     if kind == "entry":
-                        self.assertEqual(self.call(env),
-                            ("REJECTED_RUNNER_SOURCES", "RUNNER_SOURCE_BINDING", None))
+                        outcomes.append((self.call(env), owner(env)[2][2]))
                     else:
                         o = owner(env)
                         try: o[2][6][0][2](o[2][6][0][1][0], env["cache"][NAMES[0]])
-                        except BaseException: pass
+                        except BaseException as failure:
+                            outcomes.append((type(failure), owner(env)[2][2]))
             env["hooks"][0] = hook
-            self.reject(env)
+            self.assertEqual(self.reject(env)[1], 'RUNNER_SOURCE_REJECTED')
             self.assertEqual(reached, [True])
+            expected = ("REJECTED_RUNNER_SOURCES", "RUNNER_SOURCE_BINDING", None) if kind == "entry" else RuntimeError
+            self.assertEqual(outcomes, [(expected, True)])
             self.assertEqual(len(self.events(env, "COMPILE")), 1)
             self.assertEqual(self.events(env, "EXEC"), [])
             self.assertEqual(self.events(env, "EXEC_RETURN"), [])
@@ -951,14 +953,16 @@ _rl_original(owner[19], namespace)(owner, packet)
         def callback(io, phase):
             state = owner(env)[2]
             if phase == "write" and state[5] and state[5][-1][19][0] == 2:
-                reached.append((len(io.events), len(io.output), state[5][-1]))
+                observation = (len(io.events), len(io.output), state[5][-1])
                 io.write_max = 1
-                self.assertEqual(self.call(env),
-                    ("REJECTED_RUNNER_SOURCES", "RUNNER_SOURCE_BINDING", None))
+                result = self.call(env)
+                reached.append(observation + (result, state[2]))
         env["io"].callback = callback
-        self.reject(env)
+        self.assertEqual(self.reject(env)[1], 'RUNNER_SOURCE_REJECTED')
         self.assertEqual(len(reached), 1)
-        event_count, written, record = reached[0]
+        event_count, written, record, result, failed = reached[0]
+        self.assertEqual(result, ("REJECTED_RUNNER_SOURCES", "RUNNER_SOURCE_BINDING", None))
+        self.assertIs(failed, True)
         self.assertEqual(len(env["io"].events), event_count)
         self.assertEqual(len(env["io"].output), written + 1)
         self.assertEqual(record[16], 0)

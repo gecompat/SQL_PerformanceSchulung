@@ -105,6 +105,29 @@ strukturell, prüft ihn gegen den vollständigen Expected-AST und erreicht eine
 Gegenprobe mit eingefangenem Funktionsparameter. Kein Lauf vor Source-/Test-PRE;
 Einsparung noch unbekannt.
 
+
+### Erster vollständiger Fit und operative Fehlerabschlusskorrektur
+
+20cc91d besteht Fit und unabhängigen Ganz-AST-/Rawvergleich auf Windows 3.14.7
+und Linux 3.12.3: CRLF 129652 Bytes, LF 127884 Bytes. Damit ist das unveränderte
+131072-Byte-Limit für beide vollständigen Profile belegt. Danach wurden die
+20 ausgewählten eigenen Modelle je Plattform einmal ausgeführt: je fünf PASS
+und 15 ERROR, alle mit demselben IndexError im Fehlercleanup. Die vollständige
+positive acht-Source-/zwei-Parentfolge besteht bereits; daraus folgt keine
+allgemeine Modellabnahme.
+
+Der Cleanup trennt bislang auch bei flachen Source-Namen ohne Punkt einen
+Kindnamen ab. Die direkt nötige Korrektur berechnet ihn und durchsucht Parent-
+Namespaces ausschließlich für echte Paketkinder; Cachebereinigung eigener
+identischer flacher Sources bleibt separat erhalten. Die Reentranzproben
+halten Rückgabe beziehungsweise Exceptiontyp und das bereits im Callback
+beobachtete Fehlerflag extern fest. Ihre Assertions laufen nach dem kontrollierten
+Aufruf, damit ein absichtlicher BaseException-Abschluss keinen Testfehler
+verschlucken kann. Die bestehenden frühen Compile-/Execfehler und Reentranzfälle
+prüfen die strukturierte Ablehnung samt Cleanup und Retry gegen diesen Befund.
+Noch kein korrigierter Lauf vor unabhängigem Delta-PRE; passende erneute Fit-/
+Modellgates erforderlich. Unveränderte alte Suiten werden nicht zusätzlich gestartet.
+
 ## C8 unter DEC-076 abgelehnt: funktionaler Reentranzbefund
 
 Der Mensch hat am 21. Oktober 2026 die offene Vertragsfrage ausdrücklich
