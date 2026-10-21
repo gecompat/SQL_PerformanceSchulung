@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-## Nächster vorbereitender Schnitt: frische Workerprofile auswählen
+## Auswahlpaket gestoppt: falscher AST-Prüfinterpreter
 
 [PR281](https://github.com/gecompat/SQL_PerformanceSchulung/pull/281) ist in
 `f143c968f5fec26c60fcc8b32e8baac637fdbcd1` vollständig abgeschlossen: unabhängiger
@@ -9,13 +9,32 @@ Baumübernahme und eigene Branchbereinigung. Der kontinuierliche menschliche
 Auftrag gilt weiter; die historischen C6-/C7-/C8-Sperren unten sind überholt.
 
 Der [Auswahlplan für frische Workerprofile](DGN_007_WORKER_PROFILE_SELECTION_PLAN.md)
-begrenzt den nächsten vorbereitenden Schnitt auf einen Entwurf mit höchstens
-einer Entwurfsnacharbeit, einen Owner und einen unabhängigen Reviewer;
-Verbrauch UNKNOWN. Eigener Branch `codex/dgn007-worker-profile-plan`. Ausschließlich
-Plan und drei Einstiege werden bearbeitet, keine Probequelle oder native
-Ausführung. Der Plan trennt vollständige Vorwahl, frische Aufnahme, Quellenfit
-und die anschließend nötigen Quellen-/Test-/Lauffreigaben. Nach seiner
-vollständigen Integration folgt das konkrete quellenbegründete Auswahlpaket.
+ist über PR282 in Main `e4b373d679ef2f8670913239664e55623cf7caaa` vollständig
+geschlossen: unabhängiger Review, lokale Dokumentationsprüfungen, sieben Head-/
+drei Base-/fünf frische Main-Prüfungen grün, vollständige Übernahme,
+Synchronisation und eigene Branchbereinigung.
+
+Das [konkrete quellenbegründete Auswahlpaket](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md)
+betrifft eine vorhandene Linux-Installation und drei vollständige Workerprofile,
+ein Owner/ein unabhängiger Reviewer, Checkpoint eins/hart vier einschließlich
+Reviews, lokaler Gegenproben, Koordination und vollständiger Integration;
+Verbrauch UNKNOWN. Eigener Branch `codex/dgn007-worker-profile-selection`.
+Vier/hartvier Quellen-/Teststände: der dritte ohne Lauf-GO abgelehnt, die drei
+Befunde im vierten unabhängig geschlossen. Dessen einmaliger freigegebener
+Windows-Lauf scheiterte bei `INPUT_PREPARATION`: Der statische Eingangsprüfer
+verlangt Python 3.12 für seine AST-Hashes (AST: Abstract Syntax Tree;
+abstrakter Syntaxbaum), der Helfer lief unter 3.14.7. Die Rohbytes stimmten
+überein; die lesende Diagnose erklärt `BOOTSTRAP_CHANGED` durch das veränderte
+AST-Ausgabeformat. Kein Prüfer-/Hashwechsel oder Wiederholungslauf.
+
+Vier Tabellenlesertests und ein statischer Binärread bestanden; im Paketlauf
+wurde nur eine der 37 geplanten negativen Datenproben erreicht. Form-/Größen-
+und Ganz-AST-/Fitprüfungen sind nicht ausgeführt, das Auswahlpaket ist nicht
+abgenommen. Eigene 27 Partialdateien bleiben privat erhalten; kein fertiger
+Paketbericht, keine Worker-Scriptdateien, keine Linux-/WSL-, Worker- oder
+SQL-Ausführung. Die Diagnose wird unabhängig geprüft regulär integriert.
+Eine [begrenzte Erweiterung für Providerkorrektur und Gegenprobe](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#erforderliche-entscheidung-zur-wiederaufnahme)
+bedarf einer ausdrücklichen Entscheidung; kein fünfter Stand oder Budgetreset.
 
 ## Reentranzfehler im vollständigen Runner behoben
 

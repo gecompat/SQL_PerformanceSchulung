@@ -11,14 +11,29 @@ passt mit vollständiger Profilfixture in das unveränderte 131072-Byte-Limit.
 Damit ist der frühere Quellenarchitekturblocker für diese Fixture geschlossen;
 eine tatsächliche Workerinstallation oder echte Quellenverwendung ist nicht belegt.
 
-Nächster vorbereitender Schnitt ist der [Auswahlplan für frische Workerprofile](DGN_007_WORKER_PROFILE_SELECTION_PLAN.md):
-ein Plan mit höchstens einer Entwurfsnacharbeit, ein Owner/ein unabhängiger
-Reviewer, Verbrauch UNKNOWN, einschließlich lokalem Dokumentationscheck und
-vollständigem Integrationsabschluss. Kein Probeaufruf, Workerstart oder SQL-Lauf.
-Anschließend das konkrete quellenbegründete Auswahlpaket unter eigenem endlichen
-Rahmen prüfen; native Ausführung erst nach Quellen-/Testprüfung und konkretem
-Lauf-GO. Die folgenden Stände sind historische Evidenz und keine aktuellen
-C6-/C7-/C8-Sperren. Maßgeblich bleibt der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
+Der [Auswahlplan für frische Workerprofile](DGN_007_WORKER_PROFILE_SELECTION_PLAN.md)
+ist über PR282 vollständig in Main `e4b373d679ef2f8670913239664e55623cf7caaa`
+integriert: sieben Head-/drei Base-/fünf Main-Prüfungen grün, unabhängiger
+Review, lokale Dokumentationsprüfung, vollständige Übernahme, Synchronisation
+und eigene Branchbereinigung. Ein Entwurfsstand, kein nativer Lauf.
+
+Gestoppter aktueller Schnitt ist das [konkrete quellenbegründete Auswahlpaket](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md)
+für eine vorhandene Installation und drei vollständige Profile. Ein Owner/ein
+Reviewer, Checkpoint eins/hart vier Quellen-/Teststände einschließlich
+Koordination und vollständigem Integrationsabschluss; Verbrauch UNKNOWN.
+Der dritte Stand wurde vor Lauf mit drei Befunden abgelehnt; der vierte schloss
+sie unabhängig. Sein einmaliger freigegebener Windows-Lauf scheiterte am
+AST-Prüfinterpreter (AST: Abstract Syntax Tree; abstrakter Syntaxbaum): 3.14.7
+statt des vertraglich festen 3.12. Rohbytes unverändert, Diagnose erklärt die
+Meldung `BOOTSTRAP_CHANGED`; keine Änderung am Prüfer oder Wiederholung.
+Vier Leser-Gegenproben, ein statischer Binärread und eine negative Pinprobe
+erreicht, übrige 36 Fälle und sämtliche Form-/Fitprüfungen nicht ausgeführt.
+Kein fertiges Paket oder Worker-Script, kein Linux-/WSL-, Worker- oder SQL-Lauf.
+Der sichere Diagnoseabschluss wird unabhängig geprüft regulär integriert;
+für Providerkorrektur und Gegenprobe ist eine ausdrückliche begrenzte
+Erweiterung erforderlich. Kein fünfter Stand oder Scope-/Budgetreset. Die
+folgenden Stände sind historische Evidenz und keine aktuellen C6-/C7-/C8-Sperren.
+Maßgeblich bleibt der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
 
 ## Historische Runner- und Kompositionsstände
 
