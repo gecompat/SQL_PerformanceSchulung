@@ -70,8 +70,18 @@ Lokale und CI-Läufe bleiben mangels geschützter Evidenzanerkennung getrennte
 Nachweise. Verbrauch UNKNOWN; keine behauptete Einsparungsmessung. Neue globale
 Regel-/Registryänderungen durchlaufen zusätzlich die regulären Governance-Gates.
 
-Aktueller Stand: neue unabhängige Auswahlprüfung offen. Noch kein stabiler C8,
-keine Kandidatengenerierung und kein Lauf-GO. Eigener Branch
+Auswahl-/Vertrags-GO an 408691b ohne offene priorisierte Befunde erteilt.
+Der jetzt stabil vorgelegte C8 enthält 20 Methoden: eine Fit-/Ganz-AST-Methode
+und 19 eigene synthetische Modelle beziehungsweise begrenzte Diagnosen. Der
+gezielte C7-Feld-0-Fall hält seinen Reachedmarker außerhalb des Kandidaten und
+verlangt null Fremdoperationen. Genau ein gemeinsam genutzter Checkpoint und
+alle Callassignments/Frameprefixe werden vollständig rekonstruiert. Die übrige
+C7-Semantik benötigt weiterhin den vollständigen unabhängigen Quellen-/Test-PRE.
+
+Damit sind acht/hartacht Quellen-/Testkandidaten und sieben geänderte Nachläufe
+erreicht, Verbrauch UNKNOWN. Quellen-/Test-GO sowie jedes Generierungs-/Lauf-GO
+sind noch offen. Bisher kein Kandidatenimport, keine Generierung, AST-Analyse,
+Kompilierung, Ausführung oder Modelle. Eigener Branch
 `codex/dgn007-trusted-sources-c8`. Die alte ABI-Auswahlsperre wird nur durch die
 hier ausdrücklich getroffene Vertragsentscheidung behandelt.
 

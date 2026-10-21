@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-## C8: Vertrauensmodell entschieden; unabhängige Auswahl der Korrektur offen
+## C8: Auswahl bestätigt; stabiler Quellen-/Teststand zur Prüfung
 
 Der Mensch hat vertrauenswürdige Schulungsquellen ausdrücklich gewählt und
 gezielte Manipulationen der Kontrollfunktionen vom Prüfversprechen ausgeschlossen.
@@ -16,7 +16,9 @@ PR279. Ein Owner root und derselbe unabhängige Reviewer; eigener Branch
 Nachläufe, Verbrauch UNKNOWN; ein stabiler C8 erreicht harte Grenze acht/sieben.
 Kein C9, kein Scope-/Budgetreset. Zuerst unabhängige konkrete Auswahl-/Vertrags-
 prüfung, dann ein stabiler Quellen-/Teststand und ausdrückliches gestuftes
-Windows-/Linux-Lauf-GO. Noch keine neue Implementierung oder Generierung.
+Windows-/Linux-Lauf-GO. Auswahl-/Vertrags-GO an 408691b erteilt; stabiler C8 mit 20 Methoden vorgelegt.
+Harte Grenze acht Kandidaten/sieben Nachläufe erreicht, Verbrauch UNKNOWN.
+Quellen-/Test-PRE und jedes Generierungs-/Lauf-GO offen; kein Kandidatenlauf.
 
 ## C8 vor Umsetzung blockiert: Vertrauenswurzel am Python-Importeinstieg
 
