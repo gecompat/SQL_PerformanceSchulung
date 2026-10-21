@@ -1,5 +1,68 @@
 # DGN-007 – Quellenprüfung der vollständigen Runnerroute
 
+## Abschluss des funktionalen Schnitts
+
+Der menschlich beauftragte Reentranzabschluss liegt im stabilen Quellen-/Teststand
+`47b07578d35467f8206cc88ed95457c9e74ae8d9` vor. Der unabhängige Delta-PRE
+(Quellen-/Testprüfung vor dem Lauf) schließt die priorisierten Befunde und erteilt
+das gestufte Lauf-GO. Lokal bestehen auf Windows 3.14.7 und Linux 3.12.3 jeweils
+alle 21 Methoden mit `-I -S -B`: zuerst eine Fit-/Ganz-AST-Methode, dann die zwei
+Reentranz-Gegenproben und danach die übrigen 18 eigenen Modelle. AST bedeutet
+Abstract Syntax Tree (abstrakter Syntaxbaum). Kein Fehler, kein Skip; die drei
+Stufen bilden zusammen exakt dieselben 21 Methoden, keine doppelte Ausführung
+einer unveränderten grünen Methode innerhalb der finalen lokalen Abnahme.
+
+Die vollständigen Originalprofilbytes (Raw) einschließlich beider Zeilenendformen
+bleiben erhalten: Windows-Zeilenenden (CRLF: Carriage Return/Line Feed) mit
+129679 Bytes, Unix-Zeilenenden (LF: Line Feed) mit 127911 Bytes bei unverändertem
+Scriptlimit 131072. Der unabhängige Vergleich führt Textpool und Namenskürzungen zurück und
+vergleicht den gesamten ursprünglichen Syntaxbaum samt Rawbytes. Der Textpool
+ist ein vor der ersten Nutzung erzeugtes festes Tupel wiederholter Kontrolltexte;
+die Alpha-Umbenennung ist ein eindeutiger, umkehrbarer Austausch interner Namen.
+Externe Schnittstellen, geschützte Literal-Kontexte und die fünf Scriptimporte
+bleiben erhalten. Kein zusätzliches Runtimecompile, keine Dekodierung oder
+spätere Datenaufnahme.
+
+Die erreichten Reentranzfälle halten das gesetzte Fehlerflag und die innere
+Ablehnung beziehungsweise den Exceptiontyp im Callback extern fest. Die
+Assertions prüfen diese Beobachtungen nach dem kontrollierten Aufruf. Nach Compilecallback-Reentranz erfolgt kein Exec; nach
+Reentranz beim Teilwrite wird nur das eine bereits laufende Writerbyte sichtbar,
+sein Bestätigungsoffset bleibt unverändert und es gibt keinen weiteren Writer-,
+Compile- oder Execaufruf. Die äußere Ablehnung bleibt ohne weitere Bindungsdrift
+operativ; bei verlorener Bindung hat deren Diagnose Vorrang. Eigene Cacheeinträge
+und Paketlinks werden identitätsbezogen entfernt, fremde Werte erhalten. Retry
+bewirkt keinen neuen Provideraufruf. Der zusätzliche Cleanupfehler bei flachen
+Modulnamen wird durch die bestehenden frühen und späten Fehlerfälle mitgeprüft.
+Die vollständige positive Folge umfasst acht Sources, zwei codefreie Parents
+und dieselben 20 bestätigten Records.
+
+Ein Implementierungsverantwortlicher root und derselbe unabhängige Reviewer
+führten den endlichen gemeinsamen Schnitt; Verbrauch UNKNOWN (nicht verlässlich
+gemessen). Die menschlich aufgehobene Kandidatengrenze wird nicht durch eine
+neue künstliche Grenze ersetzt, historische Versuche werden nicht zurückgesetzt.
+Die folgenden Abschnitte dokumentieren die Entscheidungs- und Befundfolge;
+ihre damaligen STOPs und Pendingaussagen sind keine aktuellen neuen Sperren.
+
+Aufwand und Gates: Lokale finale Methoden wurden in disjunkte Stufen aufgeteilt;
+bei neuem Fehler stoppt der private Runner sofort. Alte unveränderte Komponenten-
+suiten wurden nicht zusätzlich wiederholt. Die enge CI (Continuous Integration;
+automatisierte Integrationsprüfungen) betrifft diese Runnerquelle, ihre konkreten
+Quellen-/Testabhängigkeiten, den Workflow und die ausgewählten Runnerverträge;
+keine allgemeine Ausweitung auf sämtliche Dokumentation. Die Vertragsdateien
+sind ein begrenzter stärkerer Trigger, weil sie die Abnahmekriterien ändern können.
+Aktuelle Prüfungen des PR-Stands (Head), seiner Main-Basis (Base) und frische
+Main-Gates bleiben für die Integration erforderlich.
+Mechanische Hash-/Methoden-/Logprüfungen benötigen keine weitere Modellkette.
+
+Der reguläre Pull-Request-Abschlussnachweis bindet den finalen Head, die aktuelle
+Base, alle zugehörigen grünen Checks, regulären Merge, frische Main-Gates,
+vollständige Baumübernahme und Synchronisation sowie eigene lokale/Remote-
+Branchabwesenheit. Private Verlaufsevidenz und fremde Ressourcen bleiben erhalten.
+DEC-076 gilt weiterhin: vertrauenswürdige Schulungsquellen, gezielte
+Kontrollmanipulationen außerhalb des Prüfversprechens. Synthetische Modelle und
+endliche Kontrolldriftdiagnosen sind kein tatsächlicher nativer Runtime-,
+Trust-, Usedbytes-, Methoden-, SESSION_END- oder SQL-Nachweis.
+
 ## Freigegebener funktionaler Reentranzabschluss
 
 Die ausdrückliche menschliche Beauftragung hebt die Kandidatengrenze für diesen
