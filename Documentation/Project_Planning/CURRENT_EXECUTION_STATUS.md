@@ -1,5 +1,37 @@
 # Aktueller Ausführungsstand
 
+## Siebter Stand: Argumentkorrektur bestätigt, Paketvergleich zu groß
+
+Der Mensch hat genau den siebten Stand für die
+[Argumentkorrektur samt Gegenprobe und offenen Paketprüfungen](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#aktueller-siebter-stand-bereinigte-argumentübergabe)
+freigegeben. Ein Implementierungsverantwortlicher root und derselbe unabhängige
+Reviewer, sieben/hartsieben einschließlich Tests, Koordination und vollständiger
+Integration; Verbrauch UNKNOWN, kein neuer Scope. PR284 ist vollständig in
+`4d758c1f8c52a7dce621eafc838063524fcd5a28` integriert und der eigene Branch
+bereinigt; die früheren Freigabevorbehalte unten sind historische Evidenz.
+
+Der unabhängige Delta-/Testreview erteilte ein einmaliges gestuftes Lauf-GO.
+Die Startbrücke entfernt das Transportargument aus `sys.argv`
+(Programargumentliste). Doppelpfad und leere Liste wurden als ungültige
+Eintrittsformen abgelehnt. Beide Provider-Testmethoden bestanden ohne Fehler
+oder Skip mit neun abgelehnten Providerkonfigurationen. Beide Cleanup-Gegenproben
+bestanden; alle vier begonnenen Windows-Jobs endeten mit null aktiven Prozessen.
+
+Der Pakethelfer unter vorhandenem Windows-CPython 3.12 bestand die
+Eingangsprüfung. Die fünf Formen des ersten Workers erreichten die positive
+Größen-/Codecprüfung, danach scheiterte der zusätzliche flache Profilvergleich
+bei `POSITIVE_MATCH`. Eine rein lesende Untergrenzenanalyse begründet einen
+mindestens 17156 Byte großen Datensatz gegenüber dessen 16384-Byte-Limit;
+`METADATA_LIMIT` ist daraus hergeleitet, kein gespeicherter Rückgabewert.
+Eine der 37 Datengegenproben erreicht, übrige 36 und alle drei Ganz-AST-/
+Fitmethoden nicht ausgeführt; AST bezeichnet den abstrakten Syntaxbaum.
+27 eigene Rohdateien erhalten, keine Worker-Scripts oder fertiges Paket.
+Die [verbleibende Korrektur im vorhandenen Poolvergleich](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#verbleibende-korrektur-im-bestehenden-poolverfahren)
+benötigt eine neue ausdrückliche Erweiterung. Sieben/hartsieben, kein achter
+Stand oder Retry ohne Entscheidung. Eigener Branch `codex/dgn007-argv-selection-fix`;
+keine neue Installation oder Linux-/Worker-/SQL-Ausführung. Sicherer
+Diagnoseabschluss mit unabhängigem Review und regulärer Integration.
+
 ## Interpreterkorrektur: Aufrufabbruch an der Sechsergrenze
 
 Der Mensch hat den bestehenden Rahmen für das

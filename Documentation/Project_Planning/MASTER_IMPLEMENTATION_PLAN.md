@@ -1,5 +1,30 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Argumentkorrektur bestätigt, Paketvergleich am Einzelrahmenlimit gestoppt
+
+Der Mensch hat die [siebte Fortsetzung im bestehenden Auswahlrahmen](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#aktueller-siebter-stand-bereinigte-argumentübergabe)
+ausdrücklich freigegeben. Ein Owner/ein unabhängiger Reviewer, sieben/hartsieben
+einschließlich Gegenproben, Paketpflichten, Koordination und vollständiger
+Integration; Verbrauch UNKNOWN. PR284 ist vollständig in Main
+`4d758c1f8c52a7dce621eafc838063524fcd5a28` integriert, eigene Branches bereinigt.
+Die folgenden Sechsergrenzen und Entscheidungsvorbehalte sind historisch.
+
+Der siebte Stand wurde unabhängig ohne offene Befunde und mit genau einem
+gestuften Lauf-GO freigegeben. Argumentgegenproben, beide Provider-Testmethoden
+mit neun negativen Konfigurationen und beide Cleanup-Gegenproben bestanden;
+alle vier begonnenen Jobs sind bereinigt. Der Pakethelfer unter vorhandenem
+Windows-CPython 3.12 bestand die Eingangsprüfung und den Fünfformenvergleich
+des ersten Workers, stoppte anschließend aber beim zusätzlichen flachen
+Profilvergleich. Dessen 16384-Byte-Limit wird bereits von einer rein lesend
+hergeleiteten konservativen Untergrenze von 17156 Bytes überschritten.
+Kein vollständiges Paket, keine Worker-Scripts; übrige 36 Datengegenproben
+und alle Ganz-AST-/Fitmethoden nicht ausgeführt; AST bezeichnet den abstrakten
+Syntaxbaum. Kein Linux-/SQL-Start.
+Für die verbleibende Korrektur über den vorhandenen Poolvergleich ist eine
+neue ausdrückliche Erweiterung erforderlich; kein automatischer achter Stand,
+kein Capwechsel oder Retry. Quellen und Fehlversuche bleiben erhalten;
+unabhängiger Diagnoseabschluss und reguläre Integration folgen.
+
 ## Interpreterkorrektur am Aufruffehler gestoppt
 
 Nach dem vollständig abgeschlossenen Diagnose-PR283 in Main

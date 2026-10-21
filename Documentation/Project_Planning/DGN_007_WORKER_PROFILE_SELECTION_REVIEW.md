@@ -1,6 +1,98 @@
 # DGN-007 – quellenbegründete Auswahl frischer Workerprofile
 
+## Aktueller siebter Stand: bereinigte Argumentübergabe
+
+Der Mensch hat genau den siebten Quellen-/Teststand für die Argumentkorrektur,
+Gegenprobe und offenen Paketprüfungen ausdrücklich freigegeben. Derselbe
+Implementierungsverantwortliche root und derselbe unabhängige Reviewer führen
+den bestehenden Rahmen weiter; sieben von hart sieben Ständen, Verbrauch
+UNKNOWN. Der vorherige Diagnoseabschluss aus
+[PR284](https://github.com/gecompat/SQL_PerformanceSchulung/pull/284) ist mit
+unabhängigem Review, sieben grünen Head-, fünf grünen Base- und fünf frischen
+grünen Main-Prüfungen, vollständiger Übernahme, Synchronisation und eigener
+Branchbereinigung in `4d758c1f8c52a7dce621eafc838063524fcd5a28` abgeschlossen.
+Die nachfolgenden Grenzen für frühere Stände sind historische Evidenz.
+
+Die private Startbrücke speichert ihren Zielpfad und setzt `sys.argv`, also
+die Programargumentliste, vor dem Scriptstart auf genau diesen einen
+Programmeintrag. Das Transportargument wird nicht als Testauswahl weitergegeben.
+Die Gegenprobe bestätigte diese tatsächliche Eintrittsform und lehnte die
+frühere Doppelpfadform sowie eine leere Argumentliste ab. Anschließend liefen
+genau beide Provider-Testmethoden erfolgreich, ohne Fehler oder Skip;
+ein leerer oder nur teilweise ausgewählter Testlauf genügt nicht. Provider
+bezeichnet hier den Prüfinterpreter. Alle neun falschen Providerkonfigurationen
+wurden abgelehnt, der positive Syntaxbaum-Sentinel bestanden.
+
+Der vollständige Ablauf behält die Deadlinefälle, beide synthetischen
+Cleanup-Gegenproben und die eigene Windows-Jobabsenz bei. Erst danach folgen
+die Argument-/Interpretergegenprobe und genau ein Paketlauf unter dem bereits
+vorhandenen Windows-Prüfinterpreter CPython 3.12. Alle 37 Datengegenproben,
+drei Fünfformenprüfungen und drei unveränderten Ganz-AST-/Fitmethoden bleiben
+erforderlich; AST bedeutet Abstract Syntax Tree, abstrakter Syntaxbaum.
+Originalprofilbytes, feste 3.12-Hashes, Quellenpins und Bytegrenzen bleiben
+erhalten. Keine neue Installation, kein Linux-/WSL-, Worker-, Demo- oder
+SQL-Start. Neue eigene Ziele erhalten die Ergebnisse; alte Quellen und
+Fehlversuche bleiben unverändert privat erhalten.
+
+Der unabhängige Delta-/Testreview schloss den siebten Stand ohne offene
+priorisierte Befunde und erteilte genau ein gestuftes Lauf-GO. Dieser Aufruf
+erfolgte einmal. Kein unveränderter Wiederholungsversuch und kein achter
+Stand ohne neue ausdrückliche Entscheidung.
+
+### Ergebnis: Eintritt korrigiert, zusätzlicher flacher Profilvergleich zu groß
+
+Deadlinefälle und beide synthetischen Cleanup-Gegenproben bestanden erneut
+an der geänderten Startbrücke. Argument- und Interpretergegenprobe liefen
+anschließend vollständig durch. Der tatsächliche Pakethelfer unter isoliertem
+Windows-CPython 3.12 erreichte die Quellenpin-, Installations- und vollständige
+Eingangsprüfung mit 27 Git-Rohdateien. Der Kontrollfluss bis zur späteren
+Fehlerstelle belegt außerdem die erfolgreiche Größen-, Encoder- und
+Fünfformenvergleichsprüfung für den ersten Worker. Es gibt keine gespeicherten
+Einzelgrößen dieses Zwischenstands und keine entsprechende Abnahme der beiden
+anderen Worker.
+
+Danach stoppte der Helfer bei `POSITIVE_MATCH`: Er ruft zusätzlich den älteren
+flachen `match_reported_profile`-Vergleich auf. Dieser serialisiert Worker und
+Kontext in einen einzelnen Datensatz unter unverändertem 16384-Byte-Limit.
+Eine ausschließlich lesende Quellen-/Datenanalyse ergibt bereits eine
+konservative Untergrenze von **17156 Bytes** für 85 Moduldatensätze und die
+gebundenen Quelldeskriptoren. Dabei wurden zahlreiche tatsächliche Werte durch
+kürzere Leerwerte ersetzt; der wirkliche Datensatz kann nicht kleiner sein.
+Der [bestehende Vergleich](../../Tests/Tools/dgn007_import_profile_binding.py)
+lehnt diese Überschreitung mit `METADATA_LIMIT` ab. Das ist eine aus Quellen
+und Größenuntergrenze hergeleitete Ursache: Der tatsächliche fehlgeschlagene
+Lauf speicherte nur das Helferlabel `POSITIVE_MATCH`, nicht den verworfenen
+Vergleichsreport. Es gab keinen erneuten Helfer- oder Matcheraufruf.
+
+Alle vier begonnenen Windows-Jobs endeten mit beendetem Hauptprozess,
+abgeschlossenem Reader und geprüft null aktiven Jobprozessen. Eine negative
+Kontrollbyte-Pinprobe im Paketlauf wurde erreicht; die übrigen 36 geplanten
+Datengegenproben, Formgegenproben und alle drei Ganz-AST-/Fitmethoden wurden
+nicht ausgeführt. Die neuen 27 Rohdateien bleiben privat erhalten; keine
+Worker-Scriptdateien und kein fertiger Paketbericht. Die Argumentübergabe und
+Interpreterzulassung sind lokal bestätigt; das vollständige Auswahlpaket
+bleibt offen. Keine Worker-, Linux- oder SQL-Ausführung.
+
+### Verbleibende Korrektur im bestehenden Poolverfahren
+
+Vorgeschlagen ist ein ausdrücklich freizugebender achter Quellen-/Teststand,
+der die zusätzlichen Profilgegenproben über den bereits vorhandenen
+[Fünfformenvergleich mit Stringpools](../../Tests/Tools/dgn007_pooled_profile_codec.py)
+führt. Ein Stringpool speichert wiederkehrende Texte einmal und verwendet
+gebundene Referenzen. Der flache Vergleich ist für die vollständige große
+Auswahl unter seinem Einzelrahmenlimit ungeeignet. Felder, Module,
+Originalbytes, feste Hashes, Bytegrenzen und semantische positive/negative
+Prüfpflichten bleiben vollständig erhalten. Keine Anhebung des Limits oder
+Produktänderung allein für einen PASS. Vor Ausführung benötigt der konkrete
+Korrekturstand unabhängigen Quellen-/Testreview und ein genaues Lauf-GO.
+Dieser Vorschlag ist keine bereits erteilte Freigabe, keine neue Zählung und
+keine operative Workerfreigabe. Sieben/hartsieben, Verbrauch UNKNOWN;
+der sichere Diagnoseabschluss wird regulär integriert.
+
 ## Freigegebene Interpreterkorrektur nach dem Diagnoseabschluss
+
+Dieser Abschnitt beschreibt den historischen Rahmen bis einschließlich sechs;
+die ausdrücklich freigegebene siebte Fortsetzung steht oben.
 
 Der Mensch hat den bestehenden Rahmen ausdrücklich auf höchstens sechs
 Quellen-/Teststände mit Checkpoint nach Stand fünf erweitert. Das ist dieselbe
@@ -54,6 +146,11 @@ bleiben unverändert privat erhalten. Zulässig ist jetzt der unabhängige
 Diagnose-/Dispositionsabschluss samt regulärer Dokumentationsintegration.
 
 ### Konkreter Vorschlag zur weiteren Korrektur
+
+Dieser Vorschlag aus PR284 wurde durch den aktuellen menschlichen Auftrag für
+genau den siebten Stand freigegeben. Der frühere Entscheidungsvorbehalt ist
+historisch; unabhängiger Quellen-/Testreview und konkretes Lauf-GO bleiben
+vor Ausführung erforderlich.
 
 Eine neue ausdrückliche Erweiterung um genau einen siebten Quellen-/Teststand
 wäre ausschließlich für die Argumentübergabe der Startbrücke und die
