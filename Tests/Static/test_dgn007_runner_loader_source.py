@@ -382,6 +382,7 @@ _rl_original(owner[19], namespace)(owner, packet)
             self.assertIsInstance(shared[0], ast.FunctionDef)
             self.assertEqual(shared[0].name, "_rl_checkpoint")
             expected.body.insert(len(expected.body) - 1, shared[0])
+            ast.fix_missing_locations(expected)
             definitions = [n for n in expected.body if isinstance(n, ast.FunctionDef)]
             observed = [n for n in actual.body if isinstance(n, ast.FunctionDef)]
             self.assertEqual(len(definitions), len(observed))

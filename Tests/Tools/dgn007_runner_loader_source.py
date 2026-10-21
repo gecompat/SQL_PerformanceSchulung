@@ -784,7 +784,7 @@ def _expand_checkpoints(tree):
             return self.generic_visit(node)
     result = Bind().visit(tree)
     result.body[-1:-1] = ast.parse(_CHECKPOINT).body
-    return result
+    return ast.fix_missing_locations(result)
 
 
 def _runner_nodes():
