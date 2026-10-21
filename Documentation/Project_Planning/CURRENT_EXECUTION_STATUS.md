@@ -1,5 +1,40 @@
 # Aktueller Ausführungsstand
 
+## Interpreterkorrektur: Aufrufabbruch an der Sechsergrenze
+
+Der Mensch hat den bestehenden Rahmen für das
+[konkrete Auswahlpaket](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#freigegebene-interpreterkorrektur-nach-dem-diagnoseabschluss)
+auf höchstens sechs Quellen-/Teststände mit Checkpoint nach fünf erweitert.
+Ein Owner und derselbe unabhängige Reviewer; Verbrauch UNKNOWN. Keine neue
+Zählung, alte Fehler und Partialartefakte bleiben erhalten. PR283 ist vollständig
+in `e0cec9842971d0ecdf3f1604cdd5f59f3109a946` integriert: sieben grüne Head-,
+fünf grüne Base- und fünf frische grüne Main-Prüfungen, unabhängiger Review,
+vollständige Übernahme und eigene Branchbereinigung.
+
+Die Korrektur verlangt einen tatsächlichen isolierten Windows-Prüfinterpreter
+CPython 3.12 vor weiteren Imports oder Datei-/Prozesseffekten. Die vorhandene
+gebündelte Laufzeit ermöglicht die Korrektur ohne Linux-Aufruf oder
+Neuinstallation. Checkpoint nach fünf: zwei unabhängige Befunde am Fehlercleanup
+und an den Zeitgrenzen des Windows-Owners, kein Lauf-GO und keine Ausführung.
+Der sechste Stand bündelt die Korrekturen und zwei vorgeschaltete synthetische
+Fehler-/Timeout-Gegenproben mit eigenem Prozesscleanup. Danach bleiben die
+Interpretergegenprobe und sämtliche noch offenen Paketprüfungen erforderlich.
+Der unabhängige Delta-/Testreview schloss beide Befunde und erteilte ein
+gestuftes einmaliges Lauf-GO. Deadlinefälle und beide Cleanup-Gegenproben
+bestanden; alle drei begonnenen Windows-Jobs endeten mit geprüft null aktiven
+Prozessen. Der dritte Job scheiterte an einem Aufruffehler der Startbrücke:
+Der Zielpfad blieb in `sys.argv` und wurde von `unittest` als Testname gelesen.
+Keine der beiden Provider-Testmethoden und kein Pakethelferlauf; alle
+37 Paketgegenproben und Form-/Fitprüfungen sind in diesem Stand nicht ausgeführt.
+Keine neuen Paket- oder Workerartefakte, kein Linux-/SQL-Lauf.
+Sechs von hart sechs Ständen, kein siebter Stand oder Wiederholungsversuch.
+Die [konkrete Korrektur der Argumentübergabe und Methodenzählung](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md#konkreter-vorschlag-zur-weiteren-korrektur)
+bedarf einer neuen ausdrücklichen Erweiterung; der sichere Diagnoseabschluss
+wird unabhängig geprüft regulär integriert.
+Eigener Branch `codex/dgn007-interpreter-selection-fix`. Die bisherigen
+3.12-AST-Hashes (AST: Abstract Syntax Tree; abstrakter Syntaxbaum), Originalbytes,
+Oracles und Größenlimits bleiben unverändert; keine Worker- oder SQL-Freigabe.
+
 ## Auswahlpaket gestoppt: falscher AST-Prüfinterpreter
 
 [PR281](https://github.com/gecompat/SQL_PerformanceSchulung/pull/281) ist in

@@ -1,5 +1,123 @@
 # DGN-007 – quellenbegründete Auswahl frischer Workerprofile
 
+## Freigegebene Interpreterkorrektur nach dem Diagnoseabschluss
+
+Der Mensch hat den bestehenden Rahmen ausdrücklich auf höchstens sechs
+Quellen-/Teststände mit Checkpoint nach Stand fünf erweitert. Das ist dieselbe
+Auswahlaufgabe, kein neuer Scope oder Neustart der Zählung. Ein
+Implementierungsverantwortlicher root und derselbe unabhängige Reviewer führen
+Korrektur, Gegenprobe, lokale Prüfungen und vollständigen Integrationsabschluss;
+Verbrauch UNKNOWN. Der Diagnoseabschluss aus
+[PR283](https://github.com/gecompat/SQL_PerformanceSchulung/pull/283) ist mit
+sieben grünen PR-Prüfungen, fünf grünen Basisprüfungen, fünf frischen grünen
+Main-Prüfungen, vollständiger Baumübernahme, Synchronisation und eigener
+Branchbereinigung in `e0cec9842971d0ecdf3f1604cdd5f59f3109a946` abgeschlossen.
+Die nachfolgenden Abschnitte zum vierten Stand bewahren den damaligen Fehler.
+
+### Ergebnis des sechsten Standes: Aufruffehler vor den Providerprüfungen
+
+Der unabhängige Delta-/Testreview schloss beide Befunde des fünften Standes
+statisch und erteilte genau ein gestuftes Lauf-GO für den sechsten Stand.
+Dieser Aufruf erfolgte einmal. Die reinen Deadlinefälle sowie beide
+synthetischen Cleanup-Gegenproben erfüllten die Erwartungen: Der erzwungene
+Fehler nach Jobzuweisung und der Timeout mit eigenem Nachfahren endeten jeweils
+mit beendeten Hauptprozessen, abgeschlossenem Reader und null aktiven
+Jobprozessen. Der Timeout blieb als Fehler gesetzt. Diese erwarteten
+Fehlerfälle sind Gegenprobenerfolge, kein erfolgreicher Paketlauf.
+
+Der dritte begonnene Job scheiterte anschließend bei der Testauswahl. Die
+Startbrücke übergab ihren Zielscriptpfad als zusätzliches Argument in
+`sys.argv` an `runpy.run_path`. Dieser Aufruf passt nur den Programmeintrag
+`sys.argv[0]` an; `unittest.main` verwendet ohne eigene Argumentliste die
+gesamte `sys.argv`-Liste. Der transportierte Dateipfad wurde dadurch als
+Testname ausgewertet. Ergebnis war ein fehlgeschlagener Loaderplatzhalter
+`unittest.loader._FailedTest.Runtime` mit `AttributeError`, keine Ausführung
+der beiden vorgesehenen Provider-Testmethoden. Die lokalen Standardbibliotheks-
+quellen und die Primärdokumentation zu
+[runpy.run_path](https://docs.python.org/3.14/library/runpy.html#runpy.run_path)
+und [unittest.main](https://docs.python.org/3.14/library/unittest.html#unittest.main)
+begründen diese Diagnose, gelesen am 21. Oktober 2026.
+
+Der dritte Job endete mit Fehlercode und geprüft null aktiven Jobprozessen.
+Alle drei begonnenen Jobs sind bereinigt. Der vierte geplante Job, also der
+eigentliche Pakethelfer, wurde nicht gestartet. Keine neuen Rohdateien, kein
+Paketbericht, keine Worker-Scriptdateien; die 37 Paketgegenproben, drei
+Fünfformenprüfungen und drei Ganz-AST-/Fitmethoden sind in diesem Stand
+sämtlich nicht ausgeführt. Die frühere negative Kontrollbyteprobe aus dem
+vierten Stand bleibt erhalten; sie ist kein aktueller vollständiger Paket-PASS.
+Die Interpreterkorrektur ist statisch geprüft, ihre beabsichtigte lokale
+Providergegenprobe und das Paket sind noch nicht abgenommen.
+
+Sechs von hart sechs Ständen, Verbrauch UNKNOWN. Der einmalige Aufruf wird
+nicht wiederholt; Quellen, Logs, Jobeigentumsnachweise und alte Partialartefakte
+bleiben unverändert privat erhalten. Zulässig ist jetzt der unabhängige
+Diagnose-/Dispositionsabschluss samt regulärer Dokumentationsintegration.
+
+### Konkreter Vorschlag zur weiteren Korrektur
+
+Eine neue ausdrückliche Erweiterung um genau einen siebten Quellen-/Teststand
+wäre ausschließlich für die Argumentübergabe der Startbrücke und die
+Gegenprobe erforderlich: Transportargument vor dem Scriptstart entfernen,
+die erwartete Ausführung beider Provider-Testmethoden ausdrücklich prüfen und
+die noch unerledigten Paketpflichten mit unveränderten Oracles, Originalbytes,
+3.12-Hashes und Größenlimits abschließen. Vor Ausführung bleiben unabhängiger
+Quellen-/Testreview und konkretes Lauf-GO erforderlich. Dieser Vorschlag ist
+keine Freigabe, kein Retry des unveränderten sechsten Standes und kein neuer
+Scope. Keine Worker-, Linux-, Demo- oder SQL-Freigabe daraus ableiten.
+
+Der fünfte Stand korrigierte die Interpreterzulassung vor allen weiteren
+Imports und Datei-/Prozesseffekten. Er verlangt tatsächlich CPython 3.12 unter
+Windows sowie die Isolationflags `-I -S -B` (isolierte Ausführung, kein
+Site-Import, keine Bytecodedateien). Eine bereits vorhandene gebündelte
+Windows-Laufzeit ermöglicht die Prüfung; eine neue Installation oder ein
+Linux-Prozess ist dafür nicht nötig. Dieser Prüfinterpreter ist von der
+vorgewählten Linux-Workerinstallation zu unterscheiden.
+
+Zwei geplante Gegenprobemethoden prüfen neun falsche Providerkonfigurationen
+einschließlich des tatsächlichen bisherigen Windows-Interpreters sowie die
+positive Zulassung bis zum nächsten Import. Kontrollierte Imports und
+beobachtete Dateizugriffsaufrufe sorgen dafür, dass eine falsche Voraussetzung vor
+weiteren Wirkungen scheitert. Erst danach darf genau ein vollständiger
+Paketlauf unter dem tatsächlichen 3.12-Prüfer folgen. Die 37 Datengegenproben,
+drei vollständigen Fünfformenprüfungen und drei vorhandenen unveränderten
+Ganz-AST-/Fitmethoden bleiben erforderlich; AST bezeichnet den Abstract Syntax
+Tree, den abstrakten Syntaxbaum. Quellenpins, Originalprofilbytes, feste
+3.12-Hashes und sämtliche Bytegrenzen bleiben unverändert.
+
+Am Checkpoint nach fünf lehnte der unabhängige Review den Aufruf mit zwei
+Befunden am Windows-Owner ab: Im Fehlercleanup fehlte die abschließende
+Prüfung auf null aktive Jobprozesse; ein später Exit konnte die reguläre
+Deadline umgehen und feste Cleanupwartezeiten konnten den gemeinsamen Rahmen
+überschreiten. Interpreterzulassung, Gegenprobe, Rollen und Quellenpins waren
+statisch geschlossen. Kein Aufruf des fünften Standes.
+
+Der sechste Stand bündelt diese Korrekturen: ein gemeinsamer Abschluss für
+Erfolg und Fehler, Reap des gehaltenen Hauptprozesses (dessen Beendigung
+abwarten), Readerabschluss und abschließende Jobabsenz. Ein einmal erkannter
+Timeout bleibt gesetzt; vor der Startfreigabe und nach jedem Exit wird die
+Deadline geprüft. Jede Cleanupwartezeit verwendet nur die gemeinsame Restzeit.
+Zwei vorgeschaltete synthetische Gegenproben erzwingen einen Fehler direkt
+nach Jobzuweisung sowie einen Timeout mit eigenem Parent und eigenem Child.
+Beide müssen ihre Prozesse vollständig abschließen, bevor die
+Interpretergegenprobe und der vollständige Paketlauf folgen dürfen.
+
+Der konkrete Aufrufplan umfasst damit höchstens vier eigene Windows-Aufrufe. Vor
+dem Helfereintritt wartet jeder Prozess auf einer privaten Startbrücke, bis
+sein gehaltener Prozesshandle einem eigenen Windows-Job zugeordnet ist. Ein
+Job fasst diesen Prozess und seine Nachfahren für den eigenen Cleanup zusammen.
+Maximal vier gleichzeitig aktive Prozesse je Job, je 65536 Ausgabebytes,
+zehn Sekunden für die Gegenprobe und 120 Sekunden für das Paket; gemeinsamer
+Rahmen 150 Sekunden einschließlich Cleanupreserve. Jobweites Beenden und
+geprüfte null aktive Prozesse gehören zum Abschluss. Kein Linux-/WSL-,
+Worker-, Demo- oder SQL-Start; neue eigene Ziele erhalten die Ergebnisse,
+die alten Partialartefakte bleiben unverändert erhalten.
+
+Der sechste Stand wurde genau einmal nach unabhängiger Quellen-/Test- und
+Aufruffreigabe ausgeführt und stoppte wie oben beschrieben. Kein unveränderter
+Wiederholungslauf. Sechs von hart sechs Ständen; kein siebter Stand oder
+Budgetreset ohne neue ausdrückliche Entscheidung. Die Quellen des fünften
+Standes und sämtliche vorherigen Fehlversuche bleiben erhalten.
+
 ## Auftrag und gemeinsamer Rahmen
 
 DGN-007 bezeichnet die Diagnose-Demo mit getrenntem Quellen- und Laufnachweis.
@@ -173,7 +291,12 @@ erhalten.
 
 ## Erforderliche Entscheidung zur Wiederaufnahme
 
-Vorgeschlagen ist eine ausdrückliche begrenzte Erweiterung für die Korrektur
+Der folgende Vorschlag aus PR283 wurde durch den aktuellen menschlichen
+Auftrag ausdrücklich freigegeben; sein damaliger Freigabevorbehalt ist
+historisch. Die konkrete Ausführung verlangt weiterhin die oben beschriebene
+unabhängige Quellen-/Testprüfung und das passende Lauf-GO.
+
+Vorgeschlagen war eine ausdrückliche begrenzte Erweiterung für die Korrektur
 der AST-Providerwahl, eine Gegenprobe zur Ablehnung des falschen Interpreters
 vor weiteren Wirkungen und nötige unabhängige Reviewkorrekturen: denselben
 Rahmen von vier auf höchstens sechs stabile Quellen-/Teststände erweitern,
@@ -184,12 +307,12 @@ konkrete Quellen-/Testprüfung vor Ausführung und ein passendes Lauf-GO.
 Eine notwendige native 3.12-Prüferinvocation wäre vorher mit eigenem endlichen
 Prozessplan zu prüfen; daraus folgt keine Worker-, Demo- oder SQL-Freigabe.
 
-Dieser Vorschlag ist keine bereits erteilte Freigabe. Die
+Dieser Vorschlag erteilte damals selbst keine Freigabe. Die
 [gemeinsame Wellenbudgetregel](../../.ai/foundation/PROCESSING_EFFICIENCY_POLICY.md#shared-wave-budget)
 verlangt an der harten Grenze: „admit no new work or agent“. Der kontinuierliche
-menschliche Auftrag bleibt bestehen; er erneuert diesen ausgeschöpften
-konkreten Rahmen nicht automatisch. Bis zur Entscheidung sind nur der sichere
-Diagnoseabschluss und dessen reguläre Integration zulässig.
+menschliche Auftrag erneuerte diesen ausgeschöpften konkreten Rahmen nicht
+automatisch. Bis zur jetzigen ausdrücklichen Entscheidung waren nur der
+sichere Diagnoseabschluss und dessen reguläre Integration zulässig.
 
 Der unabhängige Diagnose-/Dispositionsreview des Dokumentationsstands
 `a683d743376f2bb25e39d9893acf08241492dd14` meldete keine offenen priorisierten
