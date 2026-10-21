@@ -146,8 +146,7 @@ Das geschlossene Auswahlpaket bleibt unverändert. Diagnose oder Korrektur
 mit weiteren nativen Versuchen benötigt eine ausdrücklich freigegebene neue
 Grenze; bis dahin kein weiterer Workerstart.
 
-Der unabhängige Ergebnisreview ist ohne offene priorisierte Befunde geschlossen und gibt ausschließlich den Dokumentationsabschluss frei. Lokale Dokumentationsprüfung und reguläre
-Integration dieser abgelehnten Beobachtung stehen noch aus. Erfolgreicher
+Der unabhängige Ergebnisreview ist ohne offene priorisierte Befunde geschlossen und gibt ausschließlich den Dokumentationsabschluss frei. Die lokale Prüfung aller vier Dokumente bestand Datenschutz, striktes UTF-8, 620 relative Linkziele und Whitespace. [PR288](https://github.com/gecompat/SQL_PerformanceSchulung/pull/288) führt diesen Dokumentationsabschluss bis zur regulären Integration; seine aktuellen Head-/Base-/Main-Prüfungen, Baumübernahme und eigene Branchbereinigung sind über den Pull Request und frische Git-Evidenz nachzuweisen. Erfolgreicher
 Cleanup heilt den fehlenden Profilvergleich nicht.
 
 ## Nachweisgrenze und vollständiger Abschluss

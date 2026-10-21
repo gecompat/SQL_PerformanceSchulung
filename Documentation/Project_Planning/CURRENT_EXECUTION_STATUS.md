@@ -20,8 +20,7 @@ Drei von höchstens sechs Quellenständen, Checkpoint nach zwei, ein synthetisch
 Prüflauf mit sieben Prozessen und der einzige ausgewählte Runner-Versuch sind
 verbraucht. Kein Retry und keine Änderung des geschlossenen Auswahlpakets.
 Weitere native Diagnose benötigt eine ausdrückliche neue Versuchsgrenze.
-Unabhängiger Ergebnisreview ohne offene priorisierte Befunde abgeschlossen; vollständige Dokumentationsintegration mit
-aktuellen grünen Head-/Base-/Main-Prüfungen stehen noch aus.
+Der unabhängige Ergebnisreview ist ohne offene priorisierte Befunde geschlossen, die lokale Prüfung aller vier Dokumente bestanden. [PR288](https://github.com/gecompat/SQL_PerformanceSchulung/pull/288) führt ausschließlich den Dokumentationsabschluss fort; Gates, Übernahme, Synchronisation und eigene Branchbereinigung sind am aktuellen Pull Request und Gitstand zu prüfen.
 
 ## Nächster Schnitt: erste native Profilbeobachtung vorbereiten
 

@@ -14,8 +14,7 @@ Drei von höchstens sechs Quellenständen, Checkpoint nach zwei, ein Prüflauf
 mit sieben synthetischen Prozessen und der einzige ausgewählte native Versuch
 sind verbraucht. Ursache UNKNOWN, also mit dieser Evidenz unbekannt; weder
 Auswahländerung noch Wiederholung oder Body-/Importfreigabe erlaubt.
-Unabhängiger Ergebnisreview ohne offene priorisierte Befunde abgeschlossen. Dokumentationsintegration mit aktuellen grünen
-Prüfungen folgen. Weitere native Diagnose braucht eine ausdrücklich neue
+Unabhängiger Ergebnisreview ohne offene priorisierte Befunde und lokale Dokumentationsprüfung abgeschlossen. [PR288](https://github.com/gecompat/SQL_PerformanceSchulung/pull/288) bindet den regulären Dokumentationsabschluss mit aktuellen Gates und Übernahmenachweis. Weitere native Diagnose braucht eine ausdrücklich neue
 Versuchsgrenze. Ein sicherer Abschluss ersetzt keinen vollständigen Report
 und keinen Runtime-, Trust-, Importbyte-, Methoden- oder SQL-Nachweis.
 
