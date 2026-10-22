@@ -9,9 +9,9 @@ Ausgangsstand ist Main `dd73310`; der nachfolgende Dokumentationsabschluss
 
 ## Bestätigter Fehler und Korrektur
 
-Die zehn Quellen ändern bislang die Datenbankkonfiguration, bevor sie das
-Eigentum einer vorhandenen Datenbank prüfen. Ihre Markerprüfung weist NULL
-nicht ausdrücklich ab und kann Werte kürzen oder ungenau vergleichen.
+Die zehn alten Quellen änderten die Datenbankkonfiguration, bevor sie das
+Eigentum einer vorhandenen Datenbank prüften. Ihre Markerprüfung wies NULL
+nicht ausdrücklich ab und konnte Werte kürzen oder ungenau vergleichen.
 Die Korrektur prüft vor der ersten Änderung alle vier vollständigen Marker:
 Projekt, Vertragsversion, Demo und Lauftoken. NULL wird abgewiesen; binärer
 Zeichenvergleich und vollständige Bytelänge müssen übereinstimmen. Erst danach
@@ -64,7 +64,6 @@ Zwölf reine Testmethoden prüfen die Setuporacles. Zwölf Selektortests prüfen
 die Auswahl der Laufzeitjobs. Statische Prüfungen für authentifizierte
 Containerbereitschaft und Erhalt laufender SQL-Jobs bestehen. Unabhängiger
 Quellen-/Test-/Aufrufreview ohne offene priorisierte Befunde liegt vor.
-Versionsqualifikation und Integration stehen aus.
 
 Der erste lokale Lauf C2 scheiterte nach 21,781 Sekunden im synthetischen
 Testaufbau: `CREATE SCHEMA` war mit nachfolgenden Anweisungen in einem Batch
@@ -84,6 +83,46 @@ abwesend; kein ungeklärter Ressourcenbestand. Alle 41 gebundenen Rohquellen
 beider Versuche bleiben erhalten. `C2` und `C3` bezeichnen die jeweiligen
 Quellen-/Teststände dieses Setup-Schnitts. Dieser lokale 2025-Nachweis ersetzt
 die frischen Versions- und Integrationsgates nicht.
+
+## Versionsprüfung und Integration
+
+[PR297](https://github.com/gecompat/SQL_PerformanceSchulung/pull/297) ist regulär
+in Main `44f12b4797c7f492fabc5706f9bf8d03d9a739bb` integriert; der vollständige
+Baum stimmt mit dem geprüften Änderungsstand überein. Am Änderungsstand bestanden
+24 SQL-Matrixjobs und ihre 24 Container-Abbauschritte. Der neue Setupworkflow
+bestand auf SQL Server 2019 acht Demos mit 496 Negativfällen, auf 2022 neun mit
+558 und auf 2025 zehn mit 620. Zusammen sind das zweimal je unterstützter Demo,
+54 Profile und 1674 Negativfälle. Nicht unterstützte Demos werden vor ihrem
+Testaufbau übersprungen.
+
+Bei der Integration waren 48 Prüfungen am Änderungsstand erfolgreich und ein
+nicht ausgewählter Matrixjob übersprungen. Ein optionaler statischer Header blieb ausstehend:
+Run 39823663642, Job 119981159307. Alle acht Schritte einschließlich der
+Ausführungspfad- und Leitfadenvalidatoren sowie Jobabschluss sind erfolgreich;
+der Header wurde ausdrücklich PENDING (ausstehend) geführt. Beide erforderlichen
+Prüfungen waren erfolgreich. Der reguläre Merge erfolgte ohne Bypass und ohne
+grünen Ersatzstatus. Die aktuelle GitHub-Status-API meldet Actions seit
+17:41:38 UTC wieder als verfügbar; eine zuvor ältere HTML-Antwort begründet
+keine Ausfallausnahme. Die Ursache des einzelnen offenen Headers bleibt unbekannt.
+
+Die ergänzenden lokalen Pflichtprüfungen bestanden am exakten Änderungsstand.
+Ein voller Datenschutzscan im Arbeitsverzeichnis scheiterte am URL-Parser in
+ignorierten privaten Runtime-Dateien und bleibt als Fehlversuch erhalten. Der
+volle Scan des sauberen Git-Exports desselben veröffentlichten Baums bestand;
+alle Pfade stimmen überein, ausschließlich lokale Zeilenenden unterscheiden
+Textbytes. Das ersetzt keine fehlgeschlagene fachliche Prüfung.
+
+Die frische Main-Prüfung ist vollständig erfolgreich: 15 Workflows, 47 erfolgreiche
+Prüfungen und ein fachlich nicht ausgewählter Matrixjob. Alle 24 SQL-Jobs und
+24 Abbauschritte bestanden; der neue Setupworkflow erneut mit denselben
+54 Profilen und 1674 Negativfällen auf allen drei Versionen. Auch der zuvor
+betroffene statische Workflow ist am frischen Main vollständig erfolgreich.
+Der einzelne alte Header war bei dieser Nachprüfung weiterhin ausstehend;
+dies wird nicht als erfolgreicher Head-Check umgedeutet. Vollständige Baumübernahme,
+lokale Main-Synchronisation und Entfernung des eigenen lokalen sowie
+Remote-Branches sind bestätigt. Alle neun eigenen lokalen Container aus
+Cleanup- und Setup-Schnitt sind unabhängig abwesend. Der getrennte
+Dokumentationsabschluss löst keine neue SQL-Welle aus.
 
 ## Aufwand und Grenzen
 
@@ -115,9 +154,12 @@ wurde anhand der betroffenen Quellen und tatsächlichen Filter geprüft:
 24 SQL-Jobs je Welle, höchstens 72. Je Welle sind 1170 konfigurierte Jobminuten
 eine Obergrenzenschätzung und kein gemessener Verbrauch.
 Keine manuellen Wiederholungen unveränderter grüner Läufe und keine zusätzliche
-lokale Versionsdopplung. Gegenwärtig wurde keine SQL-Welle dieses Schnitts
-ausgelöst. Der Workflow und sein konkreter Aufruf benötigen vor Ausführung
-den abschließenden unabhängigen Ergebnis-/Deltareview.
+lokale Versionsdopplung. Genau eine Änderungswelle mit 24 SQL-Jobs und die
+reservierte frische Main-Welle mit weiteren 24 sind erfolgreich. Eine weitere
+Änderungswelle wurde nicht zugelassen. Der abschließende unabhängige
+Ergebnis-/Deltareview liegt ohne offene priorisierte Befunde vor. Zwei eigene
+lokale Container wurden verbraucht und sind unabhängig abwesend; die übrige
+lokale Reserve wird nicht in diesen abgeschlossenen Versuch zurückgesetzt.
 
 Die Frameworkreferenz und Recovery bei fehlgeschlagener Erstmarkierung einer
 neuen Datenbank bleiben getrennt offen. Recovery bedeutet Wiederherstellung

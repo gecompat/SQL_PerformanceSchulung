@@ -42,18 +42,37 @@ prüften Quellen, Tests, Aufruf und Ergebnis. Modell-/Tokenverbrauch bleibt
 unbekannt. Die reservierten zwei Integrationswellen mit zusammen 108 SQL-Jobs
 sind vollständig verbraucht und abgeschlossen.
 
-Der nächste getrennte Schnitt korrigiert zehn Einrichtungsskripte auf exakte
-Eigentumsprüfung vor der ersten Änderung. Branch:
-`codex/fwk002-setup-ownership`. Quellenkorrektur, reine Tests und unabhängiger
-Quellen-/Test-/Aufrufreview sind abgeschlossen. Lokal auf SQL Server 2025
-bestanden zehn alte Konfigurationsverletzungen und zweimal alle zehn korrigierten
-Quellen mit 620 Negativfällen, positiven Einrichtungen und wiederholten Cleanups.
-Beide eigenen lokalen Container sind unabhängig abwesend; der frühere Fehler
-im Testaufbau bleibt dokumentiert. Frische Versionsqualifikation und Integration
-stehen aus. Der
+Die Korrektur zehn weiterer Einrichtungsskripte ist über
+[PR297](https://github.com/gecompat/SQL_PerformanceSchulung/pull/297) in Main
+`44f12b4797c7f492fabc5706f9bf8d03d9a739bb` integriert. Die vollständige
+Eigentumsprüfung steht jetzt vor der ersten Konfigurationsänderung. Lokal auf
+SQL Server 2025 bestanden zehn alte Konfigurationsverletzungen und zweimal alle
+zehn korrigierten Quellen mit 620 Negativfällen, positiven Einrichtungen und
+wiederholten Cleanups. Beide eigenen lokalen Container sind unabhängig abwesend;
+der frühere Fehler im Testaufbau bleibt dokumentiert. Am Änderungsstand bestanden
+alle 24 SQL-Jobs und ihre 24 Abbauschritte; der neue Workflow prüfte über SQL
+Server 2019/2022/2025 insgesamt 54 Profile und 1674 Negativfälle. Auf frischem
+Main bestanden dieselben 24 SQL-Jobs mit 24 Abbauschritten und erneut 54 Profile
+mit 1674 Negativfällen. Alle 15 Main-Workflows sind erfolgreich; ihre 48
+Prüfeinträge umfassen 47 Erfolge und einen fachlich nicht ausgewählten Matrixjob.
+Vollständige Baumübernahme, lokale Main-Synchronisation und Entfernung des eigenen
+lokalen sowie Remote-Branches sind bestätigt. Der
 [abgegrenzte Setupnachweis](FWK_002_SETUP_OWNERSHIP_REVIEW.md) enthält die zehn
-Demos mit Themen, Prüfverfahren und tatsächlichen Fehlversuchen. Frameworkreferenz
-und Recovery bei fehlgeschlagener Erstmarkierung bleiben getrennt offen.
+Demos mit Themen, Prüfverfahren und tatsächlichen Fehlversuchen.
+
+Bei der Integration blieb ein optionaler statischer Prüfheader am Änderungsstand
+ausstehend, obwohl alle seine Schritte einschließlich beider Validatoren und
+Jobabschluss erfolgreich waren. Beide erforderlichen Prüfungen waren erfolgreich.
+Der reguläre Merge erfolgte ohne Bypass; der damalige offene Header erhält keinen
+grünen Ersatzstatus. Der entsprechende statische Main-Workflow ist frisch und
+vollständig erfolgreich. Nach diesem getrennten Dokumentationsabschluss beginnt
+die Framework-Ausführung.
+
+Die Frameworkreferenz ist im Branch `codex/fwk002-framework-ownership`
+vorbereitet. Quellen- und Testreview sind abgeschlossen; nach Übernahme des
+aktuellen Main sind eine neue Quellenbindung und ein konkreter Aufrufreview
+erforderlich. Es gab noch keine SQL-Ausführung dieses Folgeschnitts. Recovery
+bei fehlgeschlagener Erstmarkierung bleibt getrennt offen.
 
 Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
 priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach
