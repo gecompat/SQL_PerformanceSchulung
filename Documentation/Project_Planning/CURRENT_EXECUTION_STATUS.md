@@ -1,5 +1,63 @@
 # Aktueller Ausführungsstand
 
+## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
+
+Der menschliche Auftrag autorisiert die vollständige Korrektur aller 22
+Cleanup-Eigentumskandidaten einschließlich Tests, Dokumentation und Integration
+per Pull Request nach `origin/main`, danach priorisierte autonome Folgearbeit.
+Der historische Stopp unten ist aufgehoben; keine Automation wurde aktiviert.
+
+Branch: `codex/fwk002-cleanup-ownership`. FWK-002 bezeichnet den Schutzvertrag
+für synthetische Testdatenbanken. Alle 22 Quellen besitzen bestätigte
+Markerfehler: fehlende NULL-Abweisung, gekürzte Werte und ungenaue Zeichen-/
+Längenvergleiche. Die Quellenkorrekturen sind implementiert. DGN-005 (gezielte
+Ereigniserfassung) prüft zusätzlich vor Änderungen seiner Ereignissitzung.
+Neun reine Testmethoden und die betroffenen statischen Vertragsprüfungen
+bestehen. Vollständige Laufzeitqualifikation und Integration stehen aus.
+
+C8 bestand DGN-005 zweimal mit je 30 Negativfällen, positiven und wiederholten
+Cleanups sowie Gegenproben für beide Laufzustandswechsel. Beim anschließenden
+alten DGN-007-Pfad (zeitlich begrenzter Diagnosefall) meldete die strikte
+Rückfallprüfung `RESTORE_NOT_COMPLETE`; die konkrete abweichende Bedingung ist
+durch C9 geklärt: Nur der Test erwartete `ALTER` statt der vollständig
+restaurierten `CREATE`-Prozedurbytes. Das Ergebnis war 1, alle anderen
+Rückfallbedingungen waren erfüllt. C10 korrigiert diese exakte Sollfolge und
+bestand DGN-007 neu zweimal mit je 30 Negativfällen,
+positivem und wiederholtem Rückfall sowie beiden Laufzustands-Gegenproben. Neue DGN-007-Profile wurden in C8 nicht erreicht;
+C8 bleibt als historischer Fehlversuch erhalten.
+Alle sieben eigenen lokalen Container sind unabhängig abwesend; kein ungeklärter
+Ressourcenbestand. Frühere Fehlversuche und Quellenkopien bleiben erhalten;
+C3 besitzt eine dokumentierte Rohquellenlücke und ist kein Qualifikationsbeleg.
+
+An der harten Grenze C8 wurde angehalten. Auf konkrete Rückfrage hat der Mensch
+höchstens zwei weitere Quellenstände und zwei eigene Container ausdrücklich
+freigegeben: C9 zur genauen DGN-007-Diagnose, C10 für Korrektur und Nachtest.
+C10 ist mit PASS beendet; die Versions- und Integrationsgates bleiben offen.
+Kumulativ höchstens zehn Kandidaten und sieben lokale Container, ohne
+Zählerreset; pro Parentlauf maximal 1800 Sekunden plus einmal 90 Sekunden für
+Abbau. Keine Ports, Mounts, Downloads oder Host-SQL. Ein Verantwortlicher und
+ein unabhängiger Reviewer prüfen Quellen, Tests, Aufruf und Ergebnis.
+Modell-/Tokenverbrauch bleibt unbekannt. Keine neue Admission an der Grenze
+oder bei ungeklärtem Ressourcenbestand.
+
+Für die anschließende automatisierte Integrationsprüfung sind eine aktuelle
+Pull-Request- und eine frische Main-Welle reserviert: zusammen 108 SQL-Matrixjobs
+für die unterstützten Versionen einschließlich aller 22 Cleanupquellen. Bisher
+wurde keine Welle ausgelöst; keine manuellen Wiederholungen. Neue relevante
+Head-/Base-Stände benötigen eine konkrete weitere Reservierung. Head bezeichnet
+den geprüften Änderungsstand, Base dessen Main-Basis.
+
+Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
+priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach
+jeder Integration. Danach zuerst verbleibende Setup-/Framework-Eigentumsprüfungen
+und Recovery bei fehlgeschlagener Erstmarkierung, anschließend vollständige
+menschliche Lesepfade und gezieltere Testauswahl. Recovery bedeutet
+Wiederherstellung nach Fehler oder Abbruch. Teilnehmerpiloten benötigen eine
+tatsächliche Durchführung. Eine begrenzte Cleanupabnahme ist keine globale
+Freigabe des gesamten Ausführungspfads oder einer gemeinsam genutzten Instanz.
+
+Details: [Eigentumsprüfung und tatsächliche Nachweise](FWK_002_CLEANUP_OWNERSHIP_REVIEW.md).
+
 ## Benutzerabschluss vom 22. Oktober 2026: keine autonome Fortsetzung
 
 Der Benutzer hat angeordnet, die aktuellen Demo-Implementierungen einschließlich

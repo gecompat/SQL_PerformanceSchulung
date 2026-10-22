@@ -4,10 +4,13 @@ SET XACT_ABORT ON;
 
 DECLARE @SessionName sysname=N'SQLPERF_DGN007_LOCAL',@Sql nvarchar(max),@Original nvarchar(max),@Restore nvarchar(max),@Expected sysname=N'SQLPERF_LAB_DGN007_LOCAL',@ProcedurePosition int;
 IF DB_NAME()<>@Expected THROW 51011, 'FAIL_CONTRACT: Cleanup muss in der markierten DGN-007-Testdatenbank laufen.', 1;
-DECLARE @Project nvarchar(128),@Contract nvarchar(32),@DemoId varchar(7),@RunToken varchar(20);
-SELECT @Project=MAX(CASE WHEN name=N'SQLPERF.Project' THEN CONVERT(nvarchar(128),value) END),@Contract=MAX(CASE WHEN name=N'SQLPERF.ContractVersion' THEN CONVERT(nvarchar(32),value) END),@DemoId=MAX(CASE WHEN name=N'SQLPERF.DemoId' THEN CONVERT(varchar(7),value) END),@RunToken=MAX(CASE WHEN name=N'SQLPERF.RunToken' THEN CONVERT(varchar(20),value) END)
+DECLARE @Project nvarchar(max),@Contract nvarchar(max),@DemoId nvarchar(max),@RunToken nvarchar(max);
+SELECT @Project=MAX(CASE WHEN name=N'SQLPERF.Project' THEN CONVERT(nvarchar(max), value) END),@Contract=MAX(CASE WHEN name=N'SQLPERF.ContractVersion' THEN CONVERT(nvarchar(max), value) END),@DemoId=MAX(CASE WHEN name=N'SQLPERF.DemoId' THEN CONVERT(nvarchar(max), value) END),@RunToken=MAX(CASE WHEN name=N'SQLPERF.RunToken' THEN CONVERT(nvarchar(max), value) END)
 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0;
-IF @Project<>N'SQL_PerformanceSchulung' OR @Contract<>N'1.0' OR @DemoId<>'DGN-007' OR @RunToken<>'LOCAL'
+IF @Project IS NULL OR @Project COLLATE Latin1_General_100_BIN2 <> N'SQL_PerformanceSchulung' OR DATALENGTH(@Project) <> DATALENGTH(N'SQL_PerformanceSchulung')
+   OR @Contract IS NULL OR @Contract COLLATE Latin1_General_100_BIN2 <> N'1.0' OR DATALENGTH(@Contract) <> DATALENGTH(N'1.0')
+   OR @DemoId IS NULL OR @DemoId COLLATE Latin1_General_100_BIN2 <> N'DGN-007' OR DATALENGTH(@DemoId) <> DATALENGTH(N'DGN-007')
+   OR @RunToken IS NULL OR @RunToken COLLATE Latin1_General_100_BIN2 <> N'LOCAL' OR DATALENGTH(@RunToken) <> DATALENGTH(N'LOCAL')
     THROW 51013, 'FAIL_CLEANUP: Die vier DGN-007-Eigentumsmarker stimmen nicht überein.', 1;
 IF OBJECT_ID(N'lab.Dgn007ReferenceState',N'U') IS NOT NULL
 BEGIN

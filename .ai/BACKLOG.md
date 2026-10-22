@@ -1,5 +1,27 @@
 # Initialer Backlog
 
+## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
+
+Der neue menschliche Auftrag autorisiert die vollständige Korrektur der
+22 Cleanup-Eigentumskandidaten einschließlich Tests, Dokumentation und
+Integration per Pull Request nach `origin/main`. Anschließend wird autonom mit
+den nächsten priorisierten Punkten fortgefahren; der historische Arbeitsstopp
+unten ist aufgehoben. Es wurde keine Automation aktiviert.
+
+1. Zuerst die bestätigte Fehlerklasse in allen 22 Cleanupquellen abschließen.
+   FWK-002 bezeichnet den Schutzvertrag für synthetische Testdatenbanken.
+2. Danach vorhandene Setups und die Frameworkreferenz auf Eigentumsprüfungen
+   vor Änderungen sowie Recovery bei fehlgeschlagener Erstmarkierung prüfen.
+   Recovery bedeutet Wiederherstellung nach einem Fehler oder Abbruch.
+3. Anschließend vollständige menschliche Lesepfade und gezieltere Testauswahl
+   bearbeiten. Teilnehmerpiloten benötigen eine tatsächliche Durchführung.
+
+Verbindlicher Arbeitsstand, endlicher Aufgabenrahmen, Prüfgates und Grenzen:
+[aktueller Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md). Der erste
+[abgegrenzte Nachweis](../Documentation/Project_Planning/FWK_002_CLEANUP_OWNERSHIP_REVIEW.md)
+enthält die 22 Quellen und die tatsächliche Evidenz. Eine Cleanupabnahme ist
+keine globale Freigabe des gesamten Ausführungspfads.
+
 ## Aktuelle Priorität nach abgeschlossenem Foundation-Upgrade
 
 Der Benutzerauftrag vom 22. Oktober 2026 beendet die autonome Fortsetzung nach

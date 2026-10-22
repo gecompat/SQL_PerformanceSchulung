@@ -1,0 +1,105 @@
+name: Cleanup ownership guards
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/**/90_Cleanup.sql'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Static/test_cleanup_ownership.py'
+      - '.github/workflows/cleanup-ownership.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/**/90_Cleanup.sql'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Static/test_cleanup_ownership.py'
+      - '.github/workflows/cleanup-ownership.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cleanup-ownership-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  runtime:
+    name: Ownership SQL Server ${{ matrix.year }}
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {year: 2019, major: 15, image: 'mcr.microsoft.com/mssql/server:2019-latest'}
+          - {year: 2022, major: 16, image: 'mcr.microsoft.com/mssql/server:2022-latest'}
+          - {year: 2025, major: 17, image: 'mcr.microsoft.com/mssql/server:2025-latest'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check ownership test oracles
+        run: python Tests/Static/test_cleanup_ownership.py
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Ow"
+          owner="cleanup-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.major }}"
+          container="sqlperf-${owner}"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "$GITHUB_ENV"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "$GITHUB_ENV"
+          echo "SQLPERF_OWNER=${owner}" >> "$GITHUB_ENV"
+          docker pull '${{ matrix.image }}'
+          docker run --name "$container" --label "sqlperf.owner=${owner}" --cpus 2 --memory 2g \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" -d '${{ matrix.image }}'
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "$container" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then ready=1; break; fi
+            test "$(docker inspect -f '{{.State.Running}}' "$container")" = true
+            sleep 2
+          done
+          test "$ready" = 1
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec -e "SQLCMDPASSWORD=${password}" "$container" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          test "$login_ready" = 1
+      - name: Verify all cleanup guards twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/cleanup_ownership.py --container "$SQLPERF_SQL_CONTAINER" \
+            --expected-major '${{ matrix.major }}' --confirm-disposable 2>&1 | tee "$RUNNER_TEMP/cleanup-ownership.log"
+      - name: Upload bounded diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleanup-ownership-${{ matrix.year }}
+          path: ${{ runner.temp }}/cleanup-ownership.log
+          if-no-files-found: ignore
+          retention-days: 3
+      - name: Remove own container and verify absence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SQLPERF_SQL_CONTAINER:-}" ]; then exit 0; fi
+          cid="$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          if [ -z "$cid" ]; then exit 0; fi
+          test "$(docker inspect -f '{{index .Config.Labels "sqlperf.owner"}}' "$cid")" = "$SQLPERF_OWNER"
+          docker rm -f "$cid"
+          test -z "$(docker ps -aq --no-trunc --filter "id=$cid")"
+          test -z "$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"

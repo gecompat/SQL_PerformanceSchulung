@@ -245,12 +245,19 @@ Bei der Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) prüfen Setup
 und Cleanup die vollständigen Eigentumsmarker; das Setup tut dies bei einer
 vorhandenen Datenbank vor Konfigurations- und Tabellenänderungen. Die begrenzten
 Gegenproben verwenden eigene synthetische Daten in einer Wegwerfinstanz.
-Andere Cleanupvarianten und der Fehlerfall bei der erstmaligen Markierung
-einer neuen Datenbank sind damit nicht allgemein freigegeben. Die verbleibenden
-Prüfungen werden unter dem
-[Schutzvertrag für Testdatenbanken im Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
-geführt. Eine pauschale Eigentumsgarantie für den gesamten Ausführungspfad
-gilt weiterhin nicht.
+Die 22 weiteren Cleanupquellen im [abgegrenzten Eigentumsumfang](../Project_Planning/FWK_002_CLEANUP_OWNERSHIP_REVIEW.md)
+lesen inzwischen ebenfalls alle vier Eigentumsmarker vollständig und weisen
+fehlende oder abweichende Werte ab. Bei der gezielten Ereigniserfassung
+(`DGN-005`) bleibt auch die Ereignissitzung erhalten, solange das
+Datenbankeigentum ungeklärt ist. Eine fehlende Datenbank bei vorhandener
+Ereignissitzung ist ein Fehler und verlangt Klärung.
+
+Das qualifiziert keine anderen Setup- oder Wiederherstellungswege. Insbesondere
+die erstmalige Markierung einer neuen Datenbank und weitere bestehende Setups
+sind nicht allgemein freigegeben. Die verbleibenden Prüfungen stehen im
+[aktuellen Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md#wiederaufnahme-vom-22-oktober-2026-eigentumsprüfungen-zuerst).
+Eine pauschale Eigentumsgarantie für den gesamten Ausführungspfad gilt weiterhin
+nicht. Die oben angeordnete Erhaltung nach einem Abbruch bleibt maßgeblich.
 
 Stoppen Sie hier bei erhaltenem oder ungeklärtem Instanz- beziehungsweise
 Szenariozustand und schließen Sie die Sitzung gemäß Abschnitt 7. Bewahren Sie

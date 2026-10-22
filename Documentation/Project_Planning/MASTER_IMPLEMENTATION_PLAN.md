@@ -1,5 +1,27 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
+
+Der neue menschliche Auftrag autorisiert die vollständige Korrektur der
+22 Cleanup-Eigentumskandidaten einschließlich Tests, Dokumentation und
+Integration per Pull Request nach `origin/main`. Anschließend wird autonom mit
+den nächsten priorisierten Punkten fortgefahren; der historische Arbeitsstopp
+unten ist aufgehoben. Es wurde keine Automation aktiviert.
+
+1. Zuerst die bestätigte Fehlerklasse in allen 22 Cleanupquellen abschließen.
+   FWK-002 bezeichnet den Schutzvertrag für synthetische Testdatenbanken.
+2. Danach vorhandene Setups und die Frameworkreferenz auf Eigentumsprüfungen
+   vor Änderungen sowie Recovery bei fehlgeschlagener Erstmarkierung prüfen.
+   Recovery bedeutet Wiederherstellung nach einem Fehler oder Abbruch.
+3. Anschließend vollständige menschliche Lesepfade und gezieltere Testauswahl
+   bearbeiten. Teilnehmerpiloten benötigen eine tatsächliche Durchführung.
+
+Verbindlicher Arbeitsstand, endlicher Aufgabenrahmen, Prüfgates und Grenzen:
+[aktueller Ausführungsstand](CURRENT_EXECUTION_STATUS.md). Der erste
+[abgegrenzte Nachweis](FWK_002_CLEANUP_OWNERSHIP_REVIEW.md)
+enthält die 22 Quellen und die tatsächliche Evidenz. Eine Cleanupabnahme ist
+keine globale Freigabe des gesamten Ausführungspfads.
+
 ## Benutzerabschluss vom 22. Oktober 2026
 
 Der aktuelle Demoauftrag endet nach vollständigem Abschluss. Es werden keine

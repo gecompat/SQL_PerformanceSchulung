@@ -35,7 +35,7 @@ Die Testdatenbank enthält nur Eigentumsmarker und aggregierte Ereigniszähler. 
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-005` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Extended-Events-Evidenz gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `DGN-005` auswählen und den manifestbasierten Aufruf nur auf einer Wegwerfinstanz mit `-ConfirmIsolatedLab` ausführen. Extended-Events-Evidenz gegen Abschnitt 8 prüfen. Nach einem Abbruch dem Erhaltungsweg in Abschnitt 6 des Leitfadens folgen.
 
 Setup erstellt und startet die begrenzte Session. Demonstration erzeugt zwei synthetische Fehler. Observation zählt passende Ring-Buffer-Ereignisse, Mitigation stoppt die Session und Comparison prüft den Zustand.
 
@@ -49,7 +49,16 @@ DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinfor
 
 ## 10. Cleanup und Wiederherstellung
 
-Cleanup stoppt und entfernt ausschließlich die exakt benannte Session. Danach prüft er alle Datenbankmarker und entfernt die Testdatenbank.
+Cleanup ist markergebunden: Er prüft zuerst alle vier vollständigen Datenbankmarker. Fehlende Werte,
+abweichende Schreibweise, angehängte Leerzeichen und zusätzliche Zeichen werden
+abgewiesen. Erst danach stoppt und entfernt er die zugehörige Ereignissitzung
+und die Testdatenbank. Bei Ablehnung bleiben Datenbank und Sitzung erhalten.
+
+Ist die Datenbank bereits entfernt, aber ihre Ereignissitzung noch vorhanden,
+meldet Cleanup `FAIL_CLEANUP` (fehlgeschlagene Bereinigung). Die Sitzung bleibt
+erhalten, weil ihre Zuordnung ohne Datenbankmarker nicht belegt ist. Auch in
+diesem Fall gilt der Erhaltungsweg des Ausführungsleitfadens. Sind beide Objekte
+abwesend, endet ein erneuter Cleanup erfolgreich.
 
 ## 11. Tests
 
