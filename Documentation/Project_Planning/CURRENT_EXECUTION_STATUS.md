@@ -1,5 +1,101 @@
 # Aktueller Ausführungsstand
 
+## Priorität: Setup-Eigentumsprüfung vor jeder Änderung
+
+[PR292](https://github.com/gecompat/SQL_PerformanceSchulung/pull/292) ist in Main
+`0558add5d2d030fd0b19829c5f8e4150ee05a234` vollständig abgeschlossen:
+unabhängiger Review, lokale positive und negative SQL-Gegenproben, 48 grüne
+Head-, 46 Base- und 46 frische Main-Prüfungen, vollständige Baumübernahme,
+Synchronisation und eigene lokale sowie Remote-Branchbereinigung. Head ist
+der geprüfte Pull-Request-Commit, Base dessen Main-Basis. Die vorherigen
+Foundation- und Dokumentationsschnitte bleiben abgeschlossen.
+
+Der getrennte Schnitt `codex/qry001-setup-ownership` behandelt ausschließlich
+das Setup von QRY-001 (Indexfreundliche Suchbedingungen) unter FWK-002
+(Schutzvertrag für Testdatenbanken). Bestehende Datenbanken müssen ihre vier
+vollständigen Eigentumsmarker vor Konfigurations- oder Tabellenänderungen
+nachweisen. Die normale Konfiguration und das synthetische Datenmodell bleiben
+erhalten. Der alte Cleanuprahmen mit vier Quellenständen und vier lokalen
+Prüfläufen ist geschlossen und wird nicht zurückgesetzt.
+
+Ein Implementierungsverantwortlicher, derselbe unabhängige Reviewer;
+Checkpoint am zweiten stabilen Kandidaten beziehungsweise ersten blockierenden
+Befund, harte Grenze vier kohärente Kandidaten einschließlich Reviews, Tests,
+Koordination und Integration. Höchstens vier lokale Prüfläufe, jeder in einem
+eigenen neu erzeugten Dockercontainer mit gebundenem lokalem Image, zwei
+Prozessorkernen und zwei GiB Arbeitsspeicher, ohne Ports oder Mounts. Je Lauf
+1200 Sekunden einschließlich 90 Sekunden Cleanupreserve; eine Überschreitung
+bleibt FAIL. Vor Effekten ist das unabhängige Quellen-, Test- und Aufruf-GO
+erforderlich. Modell-/Koordinationsverbrauch UNKNOWN, nicht verlässlich
+gemessen; tatsächliche native Zeit wird separat protokolliert.
+
+Die alte Quelle muss die vorzeitige Konfigurationsänderung trotz anschließendem
+FAIL_STATE (unzulässigem Ausgangszustand) und den tatsächlichen Ersatz eigener
+Prüftabellen bei fehlenden Markern zeigen. Der korrigierte Stand muss ungültige
+Marker und ein falsches Ziel ablehnen und dabei Identität, Zustand, vollständige
+Markerbytes, Konfiguration, Tabellenstruktur und Prüfzeilen erhalten. Der echte
+Dateiaufruf mit sqlcmd -b muss auch spätere Batchabschnitte hinter GO stoppen.
+Neuanlage, zweimalige passende Wiederverwendung und zwei vollständige
+Demo-Läufe bilden die Positivfälle; kanonischer Cleanup und unabhängige Absenz
+bleiben Pflicht. Kein Host-SQL und kein fremder Datenbestand.
+
+### Testauswahl und Aufwand der Setupkorrektur
+
+Die neue Setupgegenprobe mit 27 Negativ- und zwei Positivfällen ergänzt den
+bestehenden Gate-B-Dockerpfad. Die bisherige Cleanupgegenprobe und vier Piloten
+mit je zwei vollständigen Läufen bleiben erhalten. Neue Datei und kleine
+Oracle-Selbsttests werden in denselben Workflow aufgenommen, keine neue
+Matrix oder Reviewkette. CI (Continuous Integration) bedeutet automatisierte
+Integrationsprüfung. Relevante lokale Prüfungen einmal je stabilem Stand;
+unveränderte grüne Tests werden nicht wiederholt. Derselbe unabhängig prüfende
+Unteragent beurteilt Quellen, Aufruf und neue semantische Befunde; reine
+grüne Logzählungen werden deterministisch geprüft.
+
+Die notwendige Katalogkorrektur löst weiterhin die vorhandenen zusätzlichen
+Parallelismus- und übrigen Demo-Matrizen aus: je Head/Main drei Gate-B-Jobs
+mit 50 Minuten, drei Parallelismusjobs mit 60 Minuten und 27 weitere Jobs mit
+90 Minuten. Zusammen 66 Matrixjobs und 5520 konfigurierte Jobminuten als
+Obergrenzenschätzung, kein gemessener Verbrauch. Gates und sicherer Abbau
+bleiben erhalten; die separate Effizienzkorrektur ist offen. Keine blinden
+Wiederholungen, manuellen Neuauslösungen oder Abbrüche laufender Matrizen.
+
+### Tatsächlicher lokaler Abschluss der Setupgegenproben
+
+Der dritte Implementierungsstand hat beide konkreten Altfehler tatsächlich
+nachgewiesen: Vorzeitige Konfigurationsänderung trotz anschließendem
+Eigentumsfehler 51002 und Ersatz der vorhandenen Labortabellen bei vollständig
+fehlenden Datenbankmarkern. Der korrigierte Stand bestand 27 Ablehnungsfälle,
+zweimalige passende Wiederverwendung, Neuanlage sowie zwei vollständige
+QRY-001-Demo-Läufe. Identität, Konfiguration, vollständige Markerbytes,
+Tabellenstruktur und Prüfzeilen blieben bei Ablehnung erhalten. Kanonischer
+Cleanup, unabhängige Datenbankabsenz und wiederholter Cleanup bestanden.
+
+Die ersten beiden fehlgeschlagenen Prüfläufe bleiben erhalten: C1 stoppte vor
+dem Altsetup an der Konfigurationsauswertung ohne unterdrückte Zeilenzahlmeldung;
+C2 belegte den WrongProject-Fehler, scheiterte beim zweiten Altfall aber an
+fehlenden Basisspalten der Fixturetabellen. Diese Fehler sind keine alten
+Tabellenverlustnachweise. C3 korrigierte ausschließlich die Fixture und führte
+den vollständigen Nachweis. Vier lokale Prüfläufe einschließlich Fehlständen
+benötigten zusammen 322,672 gemessene Sekunden; alle vier eigenen Container
+sind unabhängig abwesend, keine Zeitüberschreitung. Der native Rahmen ist
+ausgeschöpft und geschlossen. C4 ergänzt nur diesen Dokumentationsabschluss;
+die grüne SQL-Quelle wird nicht erneut ausgeführt.
+
+Sieben neue öffentliche und vier private Oracle-Selbsttests sowie relevante
+statische Demo-, Lesepfad-, Datenschutz- und Workflowprüfungen bestanden.
+Unabhängige Quellen-, Test- und Aufrufreviews sind geschlossen; Ergebnisreview
+und aktuelle Integrationsgates folgen. Regulärer Merge, frische Main-Gates,
+vollständige Übernahme, Synchronisation und eigene Branchbereinigung bleiben
+Abschlussbedingungen. Der begrenzte Dockerbeleg ist keine globale
+Eigentumssicherheits-, Host- oder Produktionsfreigabe.
+
+Andere 22 Cleanup-Textkandidaten, Recovery nach gescheiterter erstmaliger
+Markierung einer neuen Datenbank und eine globale Freigabe des Schutzvertrags
+bleiben offen. Weiterhin nur eigene Wegwerfinstanz; bei ungeklärtem Altzustand
+Daten erhalten. Nach vollständiger Integration zuerst die übrigen
+Eigentumslücken begrenzen, danach weitere menschliche Lesepfade beziehungsweise
+native Kanalanbindung. Die folgenden Abschnitte sind historische Nachweise.
+
 ## Priorität: Eigentumsprüfung beim Cleanup indexfreundlicher Suchbedingungen
 
 PR291 ist in Main `65089ac2c42a47fe961a1de7dc04d1e41da78f31` vollständig

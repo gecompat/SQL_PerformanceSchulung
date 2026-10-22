@@ -45,10 +45,10 @@ Mindestens 2 logische Prozessorkerne (CPU: Central Processing Unit), 2 GB RAM (R
 Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer markierten
 Testdatenbank. Verwenden Sie eine ausschließlich für die Übung vorgesehene
 Wegwerfinstanz ohne fremde Daten. Das Zeitbudget des Demo-Aufrufers (Harness)
-beträgt 240 Sekunden. Der Cleanup verweigert fehlende oder abweichende
-Eigentumsmarker. Das Setup besitzt jedoch eine davon getrennte offene Lücke:
-Es verändert eine vorhandene Zieldatenbank vor der vollständigen Markerprüfung.
-Die Demo hat deshalb keine allgemeine Eigentumssicherheitsfreigabe. Nach einem
+beträgt 240 Sekunden. Setup und Cleanup verweigern fehlende oder abweichende
+Eigentumsmarker. Bei einer vorhandenen Zieldatenbank prüft das Setup diese
+Marker vor jeder Konfigurations- oder Tabellenänderung. Das ersetzt keine
+allgemeine Freigabe des Schutzvertrags für Testdatenbanken. Nach einem
 Abbruch gilt weiterhin der Erhaltungsweg in Abschnitt 10.
 
 ## 6. Synthetisches Datenmodell
@@ -59,7 +59,7 @@ Abbruch gilt weiterhin der Erhaltungsweg in Abschnitt 10.
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf auf einer eigenen Wegwerfinstanz ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt im Aufrufer keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen. Der markergebundene Cleanup ist separat abgesichert; die offene Setupgrenze bleibt bestehen. Nach Abbruch Datenbanken gemäß dem Leitfaden erhalten und keinen eigenständigen Cleanup starten.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf auf einer eigenen Wegwerfinstanz ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt im Aufrufer keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen. Setup und Cleanup sind markergebunden. Nach Abbruch Datenbanken gemäß dem Leitfaden erhalten und keinen eigenständigen Cleanup starten.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -89,10 +89,11 @@ Nach begonnenem Setup ruft der Harness denselben Cleanup-Pfad auf.
 
 Erhalten Sie nach einem Abbruch zurückgebliebene Datenbanken und folgen Sie
 dem [aktuellen Erhaltungsweg](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen).
-Die Cleanupkorrektur allein macht den gesamten Schutzvertrag für
-Testdatenbanken (`FWK-002`) nicht vollständig: Das Setup und andere
-Cleanupvarianten bleiben gesondert zu prüfen. Eine gemeinsam genutzte Instanz
-ist weiterhin nicht freigegeben.
+Die begrenzten Setup- und Cleanupkorrekturen machen den gesamten Schutzvertrag
+für Testdatenbanken (`FWK-002`) nicht vollständig: Andere Cleanupvarianten und
+die Wiederherstellung nach einer gescheiterten Markierung einer neu angelegten
+Datenbank bleiben gesondert zu prüfen. Eine gemeinsam genutzte Instanz ist
+weiterhin nicht freigegeben.
 
 ## 11. Tests
 
@@ -107,6 +108,15 @@ unverändert sein. Passende Marker, unabhängiger Absenznachweis und wiederholte
 Cleanup bilden die Positivfälle. Diese Gegenprobe wird nicht auf dem Hostpfad
 ausgeführt. Aktuelle Nachweise stehen beim zugehörigen Pull Request; der alte
 Lauf oben enthält diese neue Gegenprobe nicht.
+
+Die Setupgegenprobe prüft zusätzlich, dass eine abgelehnte Wiederverwendung
+Konfiguration, beide vorhandenen Labortabellen, ihre Struktur und Prüfzeilen
+erhält. Sie verwendet die vollständige Setupdatei einschließlich der
+Batchgrenzen (`GO`) mit dem Kommandozeilenwerkzeug `sqlcmd` und seiner
+Fehlerabbruchoption `-b`. Neuanlage und zweimalige passende Wiederverwendung
+müssen die unveränderte Konfiguration sowie das Datenmodell aus Abschnitt 6
+herstellen; der kanonische Cleanup muss die tatsächlich erzeugten Marker
+akzeptieren. Auch diese Gegenprobe läuft ausschließlich im Dockerziel.
 
 ## 12. Bekannte Grenzen
 

@@ -241,15 +241,16 @@ Lauf gegen diese Instanz. Ein Name mit dem Präfix `SQLPERF_LAB_` belegt kein
 Eigentum. Führen Sie kein manuelles `DROP DATABASE` anhand eines Namensmusters
 und keinen eigenständigen Wiederholungsaufruf eines Cleanupskripts aus.
 
-Bei der Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) zeigt die
-Quellenprüfung neben dem korrigierten Cleanup eine weiterhin offene Lücke im
-Setup: Eine vorhandene Datenbank wird dort vor ihrer vollständigen
-Markerprüfung verändert. Eine pauschale Eigentumsgarantie für den gesamten
-Pfad gilt deshalb weiterhin nicht. Die verbleibende Korrektur wird unter dem
+Bei der Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) prüfen Setup
+und Cleanup die vollständigen Eigentumsmarker; das Setup tut dies bei einer
+vorhandenen Datenbank vor Konfigurations- und Tabellenänderungen. Die begrenzten
+Gegenproben verwenden eigene synthetische Daten in einer Wegwerfinstanz.
+Andere Cleanupvarianten und der Fehlerfall bei der erstmaligen Markierung
+einer neuen Datenbank sind damit nicht allgemein freigegeben. Die verbleibenden
+Prüfungen werden unter dem
 [Schutzvertrag für Testdatenbanken im Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
-geführt. Der Setupbefund stammt aus dem Quellenreview; er ist kein Beleg einer
-bereits betroffenen fremden Datenbank. Die neue Cleanupgegenprobe verwendet
-ausschließlich eigene synthetische Daten im wegwerfbaren Dockerziel.
+geführt. Eine pauschale Eigentumsgarantie für den gesamten Ausführungspfad
+gilt weiterhin nicht.
 
 Stoppen Sie hier bei erhaltenem oder ungeklärtem Instanz- beziehungsweise
 Szenariozustand und schließen Sie die Sitzung gemäß Abschnitt 7. Bewahren Sie
