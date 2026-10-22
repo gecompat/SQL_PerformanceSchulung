@@ -9,7 +9,7 @@
 ## AI Repository Foundation
 
 - Der kanonische Einstieg für KI-gestützte Arbeit ist [`../AGENTS.md`](../AGENTS.md).
-- Die unter `.ai/foundation/` versionierte Foundation `1.24.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
+- Die unter `.ai/foundation/` versionierte Foundation `1.25.0` bildet eine gemeinsame Mindestbasis. Ihre `REQUIRED`-Regeln dürfen nicht abgeschwächt werden; bewusst strengere Projektregeln bleiben zulässig und maßgeblich.
 - Die historischen Bewertungen bis `1.8.0` stehen in [`FOUNDATION_UPGRADE_1_7_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_7_0_ASSESSMENT.json) und [`FOUNDATION_UPGRADE_1_8_0_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_8_0_ASSESSMENT.json); das vollständige Delta von `1.8.0` auf `1.17.1` steht in [`FOUNDATION_UPGRADE_1_17_1_ASSESSMENT.json`](FOUNDATION_UPGRADE_1_17_1_ASSESSMENT.json). `DEC-062` aktiviert weiterhin die zentrale Registry im Profil `foundation-artifact-registry/v2` und die Capability `artifact-registry-github` als projektführende Registrierungsautorität. `DEC-064` aktiviert zusätzlich die Capability `rule-context-cache` mit dem lokalen, unversionierten Record-Pfad `Runtime/.foundation-rule-cache/`; native Instruction Discovery und der vollständige relevante Scope bei `CACHE_MISS` bleiben verpflichtend. Die vollständige Capability-Auswahl ist in `DEC-065` dokumentiert; sie installiert ausschließlich lokale Referenzimplementierungen und ersetzt keine projektbezogene Autorisierung für Runtime-, Provider-, Credential-, Netzwerk- oder externe Effektentscheidungen.
 - Der scopebezogene Einstieg aus [`README.md`](README.md) ist gemäß `DEC-070` verbindlich. Zusätzliche Entscheidungen, Verträge, Planungsabschnitte und Abhängigkeiten werden nur bei Betroffenheit gelesen; Auffindbarkeit bedeutet keine Komplettlektüre. Registry-/Identitätsregeln gelten bei entsprechenden Änderungen.
 - Datenschutz und Neutralisierung sind gegenüber der Foundation `PROJECT_STRONGER`. Sprache, Git-Workflow und KI-Commit-Kennzeichnung sind `PROJECT_SELECTABLE_OVERRIDE`. Die detaillierten Modell-, Validierungs- und SQL-Server-Regeln gelten `COMPLEMENTARY` zur Foundation.
@@ -24,7 +24,21 @@
 - Die Session-Verträge `foundation-session-lifecycle/v1` und `foundation-session-handoff/v1` sowie der bereits gewählte lokale `ai-work`-Planner sind verfügbar. Projektschwellen, die Persistenz von Session-/Checkpoint-/Handoff-Runtime-Zustand und automatische Nachfolgesitzungen sind nicht aktiviert. Die Beispielwerte sind keine Projektvorgabe. Fehlende Kontextmetriken bleiben unbekannt; ohne vertrauenswürdige aktuelle Client-Evidenz gilt `successor_session_capability: UNKNOWN` mit manueller Fortsetzung bei einem tatsächlichen Rotationstrigger.
 - Eine ausgelöste Fortsetzung übernimmt nur das Delta seit dem letzten erfolgreichen Checkpoint und Verweise auf maßgebliche Repository-Artefakte. Sie führt native Instruction Discovery und den aktuellen Projekt-Bootstrap erneut aus. Laufende semantische Chat-Analyse zur Rotationsentscheidung, Zusammenfassungsketten und die Übernahme nicht verfügbarer Regelanalysen sind unzulässig. Das Upgrade begründet keine Autorisierung zur Erstellung zusätzlicher Chats.
 
-`DEC-075` dokumentiert das aktuelle Upgrade auf `1.24.0` in [Bewertung](FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json) und [Review](FOUNDATION_UPGRADE_1_24_0_REVIEW.md). Alle neun Delta-Features sind beurteilt; die bisherige Auswahl und die strengeren Projektverträge bleiben erhalten. Neue autonome Steuerung und Remote-Anerkennung lokaler Tests sind nicht aktiviert.
+`DEC-075` dokumentiert das historische Upgrade auf `1.24.0` in [Bewertung](FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json) und [Review](FOUNDATION_UPGRADE_1_24_0_REVIEW.md). Alle neun damaligen Delta-Features bleiben beurteilt; neue autonome Steuerung und Remote-Anerkennung lokaler Tests bleiben ohne gesonderte Voraussetzungen deaktiviert.
+
+`DEC-077` (Foundation 1.25.0 und vollständige menschliche Dokumentationswege)
+integriert das neue Regelungsdelta aus [Bewertung](FOUNDATION_UPGRADE_1_25_0_ASSESSMENT.json)
+und [Review](FOUNDATION_UPGRADE_1_25_0_REVIEW.md). Neue oder wesentlich geänderte
+Lesepfade einschließlich notwendiger Fortsetzungsseiten müssen verständlich und
+vollständig sein. Das gilt auch bei Änderungen an Verhalten, Konfiguration,
+Generatoren oder Dateipfaden ohne direkte Dokumentationsänderung. Betroffene
+Quellen werden anhand des tatsächlichen Diffs und relevanter Abhängigkeiten
+ausgewählt; unveränderte Texte werden nicht allein wegen eines Commits erneut
+vollständig gelesen. Die KI-Steuerung bleibt über `AGENTS.md` getrennt
+auffindbar, gemeinsame fachliche und technische Quellen behalten eine Autorität.
+Bestehende Dokumentationslücken werden mit Umfang, verantwortlicher Rolle und
+Auslöser in der Projektplanung geführt. Grüne Links oder Foundation-Integrität
+belegen keine vollständige Verständlichkeit des Altbestands.
 
 ## Stabile Kennungen und Wellenplanung
 

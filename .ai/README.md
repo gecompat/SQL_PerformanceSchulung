@@ -1,4 +1,4 @@
-# AI-Projektsteuerung
+# Projektsteuerung für künstliche Intelligenz (KI)
 
 Der kanonische Repository-Einstieg ist [`../AGENTS.md`](../AGENTS.md). Dort wird zuerst die
 gemeinsame Foundation-Basis und anschließend diese projektspezifische Steuerung erschlossen.
@@ -18,7 +18,7 @@ Quellen werden anhand der betroffenen Änderung ausgewählt:
 | Methoden- oder sonstige Projektentscheidung | Betroffene Einträge in [`DECISIONS.md`](DECISIONS.md), ihre Vertragsquellen und das betreffende Entscheidungspaket |
 | CI, Merge, Pflichtchecks oder Infrastruktur-Ausfall | [`REPOSITORY_CONTINUITY.md`](REPOSITORY_CONTINUITY.md), betroffene Workflows und Validators |
 | Planungsänderung | Betroffene Abschnitte aus [`ROADMAP.md`](ROADMAP.md), [`MASTER_IMPLEMENTATION_PLAN.md`](../Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md) und [`BACKLOG.md`](BACKLOG.md) samt Abhängigkeiten |
-| Dokumentation und Quellen | Die in `CONTRIBUTING.md` verlinkten Sprach-/Terminologiestandards und betroffene fachliche Primärquellen |
+| Dokumentation, Verhalten oder Navigation | [`foundation/DOCUMENTATION_POLICY.md`](foundation/DOCUMENTATION_POLICY.md), vollständiger betroffener Lesepfad und die in `CONTRIBUTING.md` verlinkten Sprach-/Terminologiestandards; Quellen nur bei fachlicher Betroffenheit |
 | Foundation-Upgrade oder aktive Regeländerung | Manifest, Feature-Katalog, semantisches Upgradeverfahren und betroffene aktive Autoritäten |
 
 Verweise dienen der Auffindbarkeit, nicht als rekursiver Lesebefehl. Registry-
@@ -54,6 +54,19 @@ oder unveränderte Blocker werden ohne neuen Anlass nicht wiederholt.
 ## Geltungsbereich
 
 Diese Dateien steuern ausschließlich das Repository `gecompat/SQL_PerformanceSchulung`. Sie ersetzen keine fachliche Quellenprüfung und keine Ausführungstests.
+
+## Technische Prüfung der KI-Steuerung
+
+Die Projektregeln oben und die versionierten Foundation-Regeln sind maßgeblich.
+Der [Installationsnachweis](foundation/installation-provenance.json) ist eine
+abgeleitete Beschreibung der übernommenen Quellen, Auswahl und Inhalts-Hashes;
+er schafft keine zusätzliche Autorität. Seine Struktur beschreibt das
+[Provenienzschema](foundation/schemas/installation-provenance.schema.json).
+Der [Projektvalidator für die Foundation-Integration](../Tests/Static/validate_foundation_integration.py)
+prüft unter anderem Version, vollständige Upgradebewertung, Auswahl und Drift.
+Die [aktuelle semantische Bewertung](FOUNDATION_UPGRADE_1_25_0_REVIEW.md) erklärt
+die geprüften menschlichen Wege und verbleibende Lücken. Ein bestandener
+Integritätstest ersetzt weder diese Lesepfadprüfung noch fachliche Laufnachweise.
 
 ## Pflege
 

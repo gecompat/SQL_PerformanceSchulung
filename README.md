@@ -72,5 +72,7 @@ vorgesehene isolierte Umgebung.
 Hinweise zu fachlichen Korrekturen und Beiträgen stehen in
 [Mitwirken](CONTRIBUTING.md). Interne Entwicklungsplanung ist über die
 [Projektpflege](Documentation/README.md#projektpflege) erreichbar.
+Die Regeln für KI-gestützte Beiträge beginnen beim ausdrücklich benannten
+[KI-Einstieg in AGENTS.md](AGENTS.md).
 
 Für Nutzung und Weitergabe gilt [LICENCE.md](LICENCE.md).

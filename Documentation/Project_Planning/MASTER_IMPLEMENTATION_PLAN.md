@@ -1,27 +1,32 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Aktuell: Runnerprofil bestätigt, Abschluss vor Foundation-Upgrade
+## Aktuelle Priorität: Foundation 1.25.0 nach vollständigem Main-Abschluss
 
-Die [Fehlerbehebung des vorzeitigen Ausgabestromendes](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
-ist lokal und nativ bestätigt. Runner bezeichnet die vollständige
-Ausführungssteuerung. Zwei Produktkorrekturen am Python-Dateieinstieg und eine
-fest gebundene private Kindumgebung erhalten die ursprünglichen Profilbytes
-und alle 85 Moduldeklarationen. 23 lokale Modelle und sechs neue
-Umgebungsgegenproben bestehen; zwei Gegenproben scheitern am alten Generator.
-Der vollständige Profilreport vor Kandidatenimports passt, anschließend sind
-geplanter Stopp, beide Datenstromenden, eigener Cleanup und unabhängige Absenz
-bestätigt. Ein vollständiger Sitzungshandshake sowie Runtime-, Trust-,
-Importbyte-, Methoden- und SQL-Nachweise bleiben außerhalb dieses Teilclaims.
+Die [Runner-Fehlerbehebung und vollständige Profilaufnahme](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
+ist mit PR289 in Main `b4e18472aeb925c34b2c34671253abce5541157b` vollständig
+abgeschlossen: unabhängige Reviews, lokale Gegenproben, acht grüne Head-, fünf
+Base- und sechs frische Main-Prüfungen, vollständige Übernahme, Synchronisation
+und eigene Branchbereinigung. Runner bezeichnet die vollständige
+Ausführungssteuerung; Head ist der geprüfte Pull-Request-Commit, Base seine
+Main-Basis. Der Nachweis gilt ausschließlich für das passende Profil vor
+Kandidatenimports mit geplantem Stopp und sicherem eigenem Cleanup.
 
-Der gemeinsame Checkpoint steht bei 18 Quellenständen, neun nativen Versuchen,
-24 Aufrufen des Windows Subsystem for Linux (WSL) und 1400 reservierten
-Prozesssekunden; drei synthetische Prüfläufe mit 21 reservierten Prozessen
-bleiben ausgeschöpft. Keine weitere native Ausführung für diesen Abschluss.
-Finaler unabhängiger Diffreview, lokale Dokumentationsprüfungen, aktuelle grüne
-Gates, vollständige Main-Übernahme und eigene Branchbereinigung folgen auf
-`codex/dgn007-early-eof-fix`. Danach ist die aktuelle AI Repository Foundation
-zu integrieren; anschließend gilt die kontinuierliche autonome Entwicklung.
-Die folgenden Abschnitte sind historische Abschlüsse.
+Gemäß menschlichem Auftrag folgt die [semantische Foundation-Übernahme auf
+1.25.0](../../.ai/FOUNDATION_UPGRADE_1_25_0_REVIEW.md). Der Schnitt erhält die
+gewählten drei Adapter und zehn Capabilities, bindet 114 Installationsziele
+und prüft menschliche Einstiege sowie technische KI-Discovery; KI bedeutet
+künstliche Intelligenz. Ein Implementierungsverantwortlicher, derselbe
+unabhängige Reviewer, Checkpoint nach zwei stabilen Kandidaten beziehungsweise
+beim ersten blockierenden Befund, harte Grenze vier Kandidaten einschließlich
+Tests und Integration; Verbrauch UNKNOWN, nicht verlässlich gemessen.
+
+TSK-015 (Menschliche Lesepfade und historische Planungseinstiege konsolidieren)
+führt verbleibende Altbestandsarbeit mit konkretem Umfang, verantwortlicher
+Dokumentationsrolle und Auslöser im Backlog. Nach vollständigem Upgradeabschluss
+wird die nächste autorisierte Welle eigenständig begrenzt fortgesetzt. Native
+operative Anbindung benötigt einen neuen konkreten Quellen-/Test-/Aufrufplan;
+der alte abgeschlossene Versuchsrahmen bleibt geschlossen. Die folgenden
+Abschnitte sind historische Nachweise.
 
 ## Erste Runnerprofilaufnahme sicher beendet, tatsächlicher Report fehlt
 

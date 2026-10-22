@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.24.0",
+  "source_version": "1.25.0",
+  "source_ref": "9e1b9974de58ea775d40c7c6045cd5057ba8b30c",
+  "assessments": [
+    {
+      "feature_id": "human-documentation-paths",
+      "candidate_reasons": [
+        "introduced_in:1.25.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "README.md",
+        "Documentation/README.md",
+        "Documentation/HowTo/DEMO_EXECUTION_GUIDE.md",
+        "AGENTS.md",
+        ".ai/README.md",
+        ".ai/PROJECT_RULES.md",
+        "CONTRIBUTING.md",
+        ".ai/IDENTIFIER_REGISTRATION.md"
+      ],
+      "rationale": "Die bestehenden menschlichen Einstiege und die Kennungsbeschreibungen bleiben erhalten. Die neue Pflicht ergänzt vollständige Lesepfade, eindeutige Verzeichniszwecke und getrennt auffindbare KI-Steuerung. Die betroffenen Einstiege werden semantisch geprüft; verbleibende Altbestandslücken erhalten einen registrierten, abgegrenzten Folgeauftrag mit Verantwortlichkeit und Auslöser.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}

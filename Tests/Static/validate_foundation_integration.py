@@ -11,9 +11,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_VERSION = "1.24.0"
-EXPECTED_SOURCE_REF = "96391403a1b89e19d4824838806d7190d8033389"
-EXPECTED_MANIFEST_SHA256 = "acddcc5d9c930229279e627f341c5f4afa24ec00f4f77353ede5d137d90b0f48"
+EXPECTED_VERSION = "1.25.0"
+EXPECTED_SOURCE_REF = "9e1b9974de58ea775d40c7c6045cd5057ba8b30c"
+EXPECTED_MANIFEST_SHA256 = "582d3dd2825c5124d7df34874182fef80dafe45bbb7ff239a4fad55c09a4a597"
 EXPECTED_CACHE_CAPABILITY_SHA256 = (
     "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b"
 )
@@ -53,7 +53,7 @@ def version_tuple(value: str) -> tuple[int, int, int]:
 def main() -> None:
     catalog = load_json(ROOT / ".ai" / "foundation" / "feature_catalog.json")
     assessment = load_json(
-        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json"
+        ROOT / ".ai" / "FOUNDATION_UPGRADE_1_25_0_ASSESSMENT.json"
     )
     registry = load_json(ROOT / ".ai" / "identity" / "registry.json")
     provenance = load_json(
@@ -78,6 +78,7 @@ def main() -> None:
         fail("Foundation ruleset version is stale")
     for required_path in (
         ROOT / ".ai" / "foundation" / "PROCESSING_EFFICIENCY_POLICY.md",
+        ROOT / ".ai" / "foundation" / "DOCUMENTATION_POLICY.md",
         ROOT / ".ai" / "foundation" / "TEST_EVIDENCE_REUSE_POLICY.md",
         ROOT / ".ai" / "foundation" / "FOUNDATION_REFERENCE.md",
         ROOT / ".ai" / "foundation" / "runtime" / "processing_efficiency.py",
@@ -96,8 +97,8 @@ def main() -> None:
 
     if assessment.get("schema_version") != 1:
         fail("upgrade assessment schema version must be 1")
-    if assessment.get("installed_version") != "1.21.0":
-        fail("upgrade assessment installed version must be 1.21.0")
+    if assessment.get("installed_version") != "1.24.0":
+        fail("upgrade assessment installed version must be 1.24.0")
     if assessment.get("source_version") != EXPECTED_VERSION:
         fail(f"upgrade assessment source version must be {EXPECTED_VERSION}")
     if assessment.get("source_ref") != EXPECTED_SOURCE_REF:
@@ -135,17 +136,7 @@ def main() -> None:
     if not isinstance(rows, list) or len(rows) != len(candidates):
         fail("upgrade assessment does not contain exactly the complete feature delta")
     assessed_ids = {row.get("feature_id") for row in rows}
-    expected_candidates = {
-        'ai-runtime-adapters',
-        'ai-work-execution',
-        'ai-work-orchestration',
-        'bounded-processing-efficiency',
-        'foundation-baseline',
-        'layered-validation',
-        'orchestrator-job-control',
-        'session-lifecycle-management',
-        'test-evidence-reuse',
-    }
+    expected_candidates = {"human-documentation-paths"}
     if assessed_ids != candidates or candidates != expected_candidates:
         fail(f"unexpected upgrade candidates: {sorted(candidates)}")
 
@@ -155,14 +146,20 @@ def main() -> None:
         if not row.get("evidence") or not row.get("rationale"):
             fail("upgrade assessment lacks evidence or rationale")
     classifications = {row["feature_id"]: row["classification"] for row in rows}
-    if classifications.get("bounded-processing-efficiency") != "APPLY_DEFAULT":
+    if classifications.get("human-documentation-paths") != "APPLY_DEFAULT":
+        fail("human documentation integration is missing")
+    # Earlier activation and efficiency decisions remain project contracts;
+    # they are preserved rather than represented as a new 1.25 feature delta.
+    previous = load_json(ROOT / ".ai" / "FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json")
+    preserved = {row["feature_id"]: row for row in previous["assessments"]}
+    if preserved["bounded-processing-efficiency"]["classification"] != "APPLY_DEFAULT":
         fail("processing efficiency integration is missing")
-    if classifications.get("orchestrator-job-control") != "DECISION_REQUIRED":
+    if preserved["orchestrator-job-control"]["classification"] != "DECISION_REQUIRED":
         fail("autonomous host activation must remain a separate decision")
-    control = next(row for row in rows if row["feature_id"] == "orchestrator-job-control")
+    control = preserved["orchestrator-job-control"]
     if not control.get("decision_required"):
         fail("future host activation lacks its explicit prerequisite")
-    if classifications.get("test-evidence-reuse") != "RECOMMENDED":
+    if preserved["test-evidence-reuse"]["classification"] != "RECOMMENDED":
         fail("test evidence reuse recommendation is missing")
 
     files = provenance.get("files", [])
@@ -245,7 +242,7 @@ def main() -> None:
     if ignored.returncode != 0:
         fail("configured rule-context cache record path is not ignored by Git")
 
-    for reference in ("DEC-065", "DEC-067", "DEC-070", "DEC-071", "DEC-075"):
+    for reference in ("DEC-065", "DEC-067", "DEC-070", "DEC-071", "DEC-075", "DEC-077"):
         decision = registry.get("artifacts", {}).get(reference)
         if not isinstance(decision, dict) or decision.get("kind") != "decision":
             fail(f"{reference} is not registered as a decision")
@@ -270,6 +267,8 @@ def main() -> None:
         ("`Runtime/.foundation-rule-cache/`", ".ai/PROJECT_RULES.md"),
         ("`DEC-067`", ".ai/PROJECT_RULES.md"),
         ("FOUNDATION_UPGRADE_1_24_0_ASSESSMENT.json", ".ai/PROJECT_RULES.md"),
+        ("FOUNDATION_UPGRADE_1_25_0_ASSESSMENT.json", ".ai/PROJECT_RULES.md"),
+        ("DOCUMENTATION_POLICY.md", "AGENTS.md"),
         ("foundation-session-lifecycle/v1", ".ai/PROJECT_RULES.md"),
         ("successor_session_capability: UNKNOWN", ".ai/PROJECT_RULES.md"),
     ):
@@ -287,9 +286,22 @@ def main() -> None:
     if "Vor einer Änderung sind die Dateien in folgender Reihenfolge zu lesen" in router:
         fail("project router still requires the nine-document bootstrap")
 
+    # Structural discovery only; readability is independently judged in the
+    # project review, never inferred from these marker checks.
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    if "[KI-Einstieg in AGENTS.md](AGENTS.md)" not in readme:
+        fail("human entry does not identify the AI entry point")
+    for marker in ("installation-provenance.json", "installation-provenance.schema.json",
+                   "validate_foundation_integration.py", "FOUNDATION_UPGRADE_1_25_0_REVIEW.md"):
+        if marker not in router:
+            fail(f"AI technical inspection path lacks {marker}")
+    task = registry.get("artifacts", {}).get("TSK-015", {})
+    if task.get("kind") != "task" or task.get("registration_state") != "REGISTERED":
+        fail("documentation legacy remediation task is not registered")
+
     print(
         "foundation-integration: PASS "
-        "(1.24.0; complete 9-feature delta; 114 installation hashes; "
+        "(1.25.0; complete 1-feature delta; 114 installation hashes; "
         "all local capabilities preserved)"
     )
 

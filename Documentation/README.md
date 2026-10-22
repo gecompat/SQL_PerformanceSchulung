@@ -42,6 +42,12 @@ der [aktuelle Ausführungsstand](Project_Planning/CURRENT_EXECUTION_STATUS.md)
 und der [Masterplan](Project_Planning/MASTER_IMPLEMENTATION_PLAN.md) dienen
 der Entwicklungskoordination.
 
+Für KI-gestützte Arbeit ist [AGENTS.md](../AGENTS.md) der gesonderte Einstieg.
+Die [KI-Projektsteuerung](../.ai/README.md) erklärt die maßgeblichen Regeln und
+den Weg zu technischen Verträgen, Formaten und ihren Prüfungen. Die fachlichen
+und technischen Quellen behalten jeweils eine gemeinsame Autorität; sie
+werden für Menschen und KI nicht doppelt gepflegt.
+
 Technische Verträge stehen unter [Architecture/](Architecture/), Schreib-
 und Präsentationsregeln unter [Standards/](Standards/), fachliche Recherchen
 unter [Research/](Research/README.md). Der
