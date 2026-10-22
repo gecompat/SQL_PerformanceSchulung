@@ -91,14 +91,14 @@ automatisierte Integrationsprüfung) genau eine aktuelle Head- und eine frische
 Main-Welle reserviert. Die tatsächlichen Selektoren wählen je 54 SQL-Matrixjobs
 einschließlich der drei neuen Eigentumsjobs; zusammen 108 Jobs und 7500
 konfigurierte Jobminuten als Obergrenzenschätzung, kein gemessener Verbrauch.
-Die lokale Sechscontainergrenze zählt ausschließlich lokale Admissionen und
+Die damalige lokale Sechscontainergrenze zählte ausschließlich lokale Admissionen und
 bleibt mit ihrem verbrauchten Versuch erhalten. Es gibt keine manuellen
 CI-Wiederholungen; laufende SQL-Jobs werden bis zu ihrem Cleanup erhalten.
 Unterstützte Versionen werden durch diese frischen Matrizen qualifiziert,
 ohne zusätzliche lokale 2019-/2022-Dopplung. Zusätzliche geänderte Head- oder
 Base-Stände benötigen vor einer weiteren Welle eine neue konkrete Reservierung.
 
-`C1` bis `C5` bezeichnen aufeinanderfolgende Quellen- und Teststände dieses
+`C1` bis `C10` bezeichnen aufeinanderfolgende Quellen- und Teststände dieses
 Korrekturschnitts. C3 wurde nach 253,740 Sekunden bewusst wegen zu vieler einzelner Clientaufrufe
 abgebrochen. Sein Caller endete mit Fehler; der eigene Container ist unabhängig
 abwesend. Dieser Versuch bleibt FAIL, kein vollständiger Laufzeitnachweis.
