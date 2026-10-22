@@ -68,15 +68,29 @@ grünen Ersatzstatus. Der entsprechende statische Main-Workflow ist frisch und
 vollständig erfolgreich. Nach diesem getrennten Dokumentationsabschluss beginnt
 die Framework-Ausführung.
 
-Die Frameworkreferenz wird im Branch `codex/fwk002-framework-ownership`
-korrigiert. Nach aktueller Main-Übernahme, erneuter Quellenbindung und
-unabhängigem Aufrufreview bestand der lokale 2025-Lauf: drei tatsächliche alte
-Fehlannahmen, sechs Profile und 180 Negativfälle sowie positive Wiederverwendung,
-Neuanlage und tatsächlicher Abbau. Beide eigenen Container sind unabhängig
-abwesend. Ein erster fehlgeschlagener Testleser und seine begrenzte Korrektur
-bleiben im [Frameworknachweis](FWK_002_FRAMEWORK_OWNERSHIP_REVIEW.md) dokumentiert.
-Frische Versionsqualifikation und Integration stehen aus. Recovery bei
-fehlgeschlagener Erstmarkierung bleibt getrennt offen.
+Die Eigentumsprüfung der Frameworkreferenz ist über
+[PR299](https://github.com/gecompat/SQL_PerformanceSchulung/pull/299) in Main
+`6e9e485488c47d612f3e2da8622cf336f10b6f65` abgeschlossen. Lokal bestanden drei
+tatsächliche alte Fehlannahmen, sechs Profile und 180 Negativfälle. Am
+Änderungsstand und auf frischem Main bestanden alle drei Versionsverfahren samt
+Abbau: jeweils 18 Profile und 540 Negativfälle auf SQL Server 2019/2022/2025.
+Der frische Main besitzt acht erfolgreiche Workflow-Runs und 14 abgeschlossene
+Prüfheader mit 13 Erfolgen und einem fachlich nicht ausgewählten Matrixjob.
+Frühere widersprüchliche Head-Header bleiben als damaliger ausstehender Zustand
+dokumentiert; kein Bypass oder grüner Ersatzstatus. Vollständige Baumübernahme,
+Main-Synchronisation und eigene lokale sowie Remote-Branchbereinigung sind
+bestätigt. Alle elf eigenen lokalen Container sind unabhängig abwesend. Der
+[Frameworknachweis](FWK_002_FRAMEWORK_OWNERSHIP_REVIEW.md) erhält auch den ersten
+fehlgeschlagenen Testleser und die Grenze seiner damaligen Rohtextaufnahme.
+
+Als viertes begrenztes Produktpaket folgen vollständige Rohparameter vor der
+Namens- und Aktionsableitung. Bisherige feste Typbreiten können ungültige
+Eingaben vor der Prüfung kürzen; dieser bisher ausdrücklich offene Scope
+benötigt eigene Gegenproben. Höchstens sechs Quellenstände und vier weitere
+eigene lokale Container, Checkpoint nach drei Ständen oder dem ersten Blocker;
+die bisherigen elf Container bleiben gezählt, globale Grenze weiterhin 17.
+Erst nach vollständigem Abschluss dieses Dokumentationsschnitts beginnen
+weitere SQL-Effekte. Recovery bei fehlgeschlagener Erstmarkierung bleibt offen.
 
 Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
 priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach

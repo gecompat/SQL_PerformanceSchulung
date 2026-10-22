@@ -70,7 +70,8 @@ strukturierten Ablehnung im Fall ohne Marker ist korrigiert und unabhängig
 geschlossen. Nach vollständigem Setupabschluss über PR297 und PR298 ist der
 Branch auf den aktuellen Main übernommen; beide getrennten Selektorgegenproben
 bleiben erhalten. Der konkrete Aufrufreview nach erneuter Quellenbindung ist
-abgeschlossen. Frische Versionsqualifikation und Integration stehen aus.
+abgeschlossen. Versionsqualifikation und Integration sind inzwischen wie unten
+beschrieben abgeschlossen.
 Der erste lokale Lauf C3 endete nach 56,730 Sekunden als FAIL: Alle drei alten
 Aktionen zeigten ihre tatsächliche falsche Eigentumsannahme, einschließlich der
 unzulässigen Entfernung der eigenen Fixture. Beim ersten Profil scheiterte
@@ -95,8 +96,32 @@ und tatsächlicher Löschung sowie unabhängiger Absenz. Beide schädigenden
 Oracle-Gegenproben und die Markerabweichung hinter Zeichen 128 bestanden.
 Caller und beide eigenen lokalen Container sind beendet und unabhängig abwesend;
 kein Zeitablauf oder ungeklärter Ressourcenbestand. C3 bleibt FAIL. Alle
-gebundenen Rohinputs und Logs beider Versuche bleiben erhalten. Entfernte
-SQL-Prüfungen wurden noch nicht gestartet.
+gebundenen Rohinputs und Logs beider Versuche bleiben erhalten.
+
+## Versionsqualifikation und Integration
+
+[PR299](https://github.com/gecompat/SQL_PerformanceSchulung/pull/299) ist regulär
+in Main `6e9e485488c47d612f3e2da8622cf336f10b6f65` integriert. Am Änderungsstand
+und auf frischem Main bestanden die drei Versionsprüfungen auf SQL Server 2019,
+2022 und 2025 samt ihren drei eigentumsgebundenen Container-Abbau-/Absenzschritten.
+Je Welle wurden 18 Profile mit 540 Negativfällen ausgeführt; die bisherigen
+Frameworkverfahren liefen anschließend ebenfalls erfolgreich.
+
+Am Änderungsstand waren alle zehn Workflow-Runs erfolgreich. Unter den 16
+Prüfheadern waren bei der Integration zwölf erfolgreich, einer fachlich nicht
+ausgewählt und drei trotz abgeschlossener erfolgreicher Verfahren noch
+ausstehend: SQL Server 2019, SQL Server 2022 und Datenschutz. Ihre Schritte
+einschließlich Jobabschluss waren erfolgreich. Beide erforderlichen Checks
+waren erfolgreich; der reguläre Merge benötigte keinen Bypass. Die alten
+Header wurden ausdrücklich als PENDING (ausstehend) erhalten, nicht grün ersetzt.
+
+Der frische Main ist vollständig erfolgreich: acht Workflow-Runs und 14
+Prüfheader mit 13 Erfolgen und einem fachlich nicht ausgewählten Matrixjob.
+Es gibt dort keinen offenen Header. Vollständige Baumübernahme, lokale
+Main-Synchronisation und Entfernung des eigenen lokalen sowie Remote-Branches
+sind bestätigt. Alle elf eigenen lokalen Container aus den drei bisherigen
+Produktschnitten sind unabhängig abwesend. Der getrennte Dokumentationsabschluss
+löst keine neue SQL-Welle aus.
 
 Ein Verantwortlicher und der vorhandene unabhängige Reviewer bearbeiten
 höchstens acht Quellenstände und vier neue lokale Container. Checkpoint nach
@@ -116,9 +141,10 @@ Frameworkworkflow mit drei SQL-Jobs und 90 konfigurierten Jobminuten je Welle
 als Obergrenzenschätzung. Vorgesehen sind eine aktuelle Head-Welle, höchstens eine weitere bei
 tatsächlich geändertem relevantem Input und eine frische Main-Welle. Head ist
 der geprüfte Änderungsstand. Die endliche Reserve umfasst höchstens neun
-SQL-Jobs; vor dem Push ist der unabhängige Ergebnis-/Integrationsreview
-erforderlich. Unveränderte Wiederholungen und zusätzliche lokale Versionsdopplungen
-sind nicht vorgesehen.
+SQL-Jobs; der unabhängige Ergebnis-/Integrationsreview ist abgeschlossen.
+Tatsächlich wurden genau eine Head- und eine Main-Welle mit zusammen sechs
+SQL-Jobs verbraucht, ohne zusätzliche lokale Versionsdopplung oder manuelle
+Wiederholung. Die optionale weitere Welle wurde nicht zugelassen.
 
 Der Versionsworkflow bindet vor Erstellung eine konkrete Image-ID (Kennung des
 Containerabbilds), eigenen Besitzer und Containernamen. Er begrenzt den

@@ -11,9 +11,10 @@ unten ist aufgehoben. Es wurde keine Automation aktiviert.
 1. Die bestätigte Fehlerklasse in allen 22 Cleanupquellen ist abgeschlossen;
    der verlinkte Ausführungsstand führt Integration und tatsächliche Nachweise.
    FWK-002 bezeichnet den Schutzvertrag für synthetische Testdatenbanken.
-2. Zehn weitere Setups sind über PR297 vollständig geprüft und integriert.
-   Danach die Frameworkreferenz auf Eigentumsprüfungen vor Änderungen
-   sowie Recovery bei fehlgeschlagener Erstmarkierung prüfen.
+2. Zehn weitere Setups sind über PR297, der Markerschutz der Frameworkreferenz
+   über PR299 vollständig geprüft und integriert. Als Nächstes vollständige
+   Rohparameter vor der Namens- und Aktionsableitung prüfen, danach Recovery
+   bei fehlgeschlagener Erstmarkierung.
    Recovery bedeutet Wiederherstellung nach einem Fehler oder Abbruch.
 3. Anschließend vollständige menschliche Lesepfade und gezieltere Testauswahl
    bearbeiten. Teilnehmerpiloten benötigen eine tatsächliche Durchführung.
