@@ -17,6 +17,7 @@ sys.path.insert(0, str(RUNTIME))
 import execution_target  # noqa: E402
 from execution_target import ExecutionTarget, ExecutionTargetError  # noqa: E402
 from qry001_cleanup_ownership import OwnershipFailure, run_ownership_probes  # noqa: E402
+from qry001_setup_ownership import run_setup_ownership_probes  # noqa: E402
 
 PILOTS = (
     (
@@ -160,6 +161,8 @@ def main() -> int:
         if target.kind == execution_target.DOCKER:
             cases = run_ownership_probes(target)
             print(f"GATE_B_STAGE|QRY-001|OWNERSHIP_{cases}|PASS|OK")
+            setup_cases = run_setup_ownership_probes(target, major)
+            print(f"GATE_B_STAGE|QRY-001|SETUP_OWNERSHIP_{setup_cases}|PASS|OK")
         else:
             print("GATE_B_STAGE|QRY-001|OWNERSHIP|NOT_APPLICABLE|HOST_COUNTERPROBES_DISABLED")
 

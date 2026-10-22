@@ -1,5 +1,38 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Aktueller Schnitt: Setup-Eigentumsprüfung nach abgeschlossenem Cleanup
+
+PR292 ist vollständig in Main `0558add5d2d030fd0b19829c5f8e4150ee05a234`
+abgeschlossen: unabhängiger Review, lokale Gegenproben, 48 grüne Head-,
+46 Base- und 46 frische Main-Prüfungen, vollständige Baumübernahme,
+Synchronisation und eigene Branchbereinigung. Head ist der geprüfte
+Pull-Request-Commit, Base dessen Main-Basis. Foundation 1.25.0 bleibt integriert.
+
+Der getrennte Schnitt `codex/qry001-setup-ownership` behebt ausschließlich die
+Setupprüfung einer bestehenden Datenbank für QRY-001 (Indexfreundliche
+Suchbedingungen). Vier vollständige Marker vor jeder Konfigurations- und
+Tabellenänderung; normale Konfiguration und Datenmodell bleiben erhalten.
+Ein Implementierungsverantwortlicher, derselbe unabhängige Reviewer, Checkpoint
+am zweiten stabilen Kandidaten oder ersten blockierenden Befund, harte Grenze
+vier Kandidaten einschließlich Reviews, Tests und Integration sowie höchstens
+vier lokale eigene Dockerprüfläufe. Verbrauch UNKNOWN, nicht verlässlich
+gemessen. Auswahl, Effektgrenzen, Gegenfälle und tatsächliche Testauslöser stehen
+im [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
+
+Lokal sind beide tatsächlichen Altfehler und der korrigierte Stand mit 27
+Ablehnungsfällen, zweimaliger Wiederverwendung, Neuanlage und zwei vollständigen
+Demo-Läufen nachgewiesen. C1-/C2-Fixturefehler bleiben erhalten; C3 besteht.
+Vier eigene lokale Prüfläufe, insgesamt 322,672 gemessene Sekunden, alle
+Container unabhängig abwesend. Native Grenze geschlossen, C4 nur Dokumentation.
+Unabhängiger Ergebnisabschluss und reguläre Integrationsgates folgen;
+vollständiger Abschluss erfordert frische Main-Gates und eigene Branchbereinigung.
+
+Weitere Cleanupkandidaten und Wiederherstellung nach fehlgeschlagener erstmaliger
+Markierung bleiben offen. Keine globale Freigabe von FWK-002 (Schutzvertrag für
+Testdatenbanken) oder einer gemeinsam genutzten Instanz. Nach vollständiger
+Integration zuerst die übrigen Eigentumslücken, dann weitere Lesepfade und
+native Anbindung. Die folgenden Abschnitte sind historische Nachweise.
+
 ## Aktueller Schnitt: Cleanup-Eigentumsprüfung vor weiterer nativer Anbindung
 
 PR291 ist vollständig in Main `65089ac2c42a47fe961a1de7dc04d1e41da78f31`

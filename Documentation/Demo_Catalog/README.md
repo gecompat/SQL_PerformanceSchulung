@@ -14,10 +14,12 @@ Ein Eintrag gilt erst dann als `VALIDATED` (abgegrenzt validiert), wenn
 Demo-Vertrag, Quellenprüfung, statische Prüfung und die zutreffende
 Runtime-Matrix im Repository nachvollziehbar sind. Die folgenden historischen
 Abnahmen heben den [aktuellen Erhaltungsweg nach einem Abbruch](../HowTo/DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen)
-nicht auf: Für die Demo zu indexfreundlichen Suchbedingungen (`QRY-001`)
-ist nach der begrenzten Cleanupkorrektur weiterhin ein Fehler im Setup
-quellenbasiert bestätigt: Es verändert eine vorhandene Datenbank vor ihrer
-vollständigen Markerprüfung. Eine Gesamtfreigabe des Schutzvertrags steht aus.
+nicht auf: Die begrenzten Setup- und Cleanupkorrekturen für die Demo zu
+indexfreundlichen Suchbedingungen (`QRY-001`) sichern die vollständige
+Markerprüfung vor Änderungen an einer vorhandenen Datenbank ab. Andere
+Cleanupvarianten und die Wiederherstellung nach gescheiterter erstmaliger
+Markierung einer neuen Datenbank bleiben offen. Eine Gesamtfreigabe des
+Schutzvertrags steht aus; verwenden Sie weiterhin eine eigene Wegwerfinstanz.
 
 Der [KI-Demoentwurf](SQL_SERVER_2025_AI_DEMO_DESIGNS.md) führt 18 zukünftige Demos zu
 `DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze)/`TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration). Die 10 noch nicht implementierten Entwürfe sind PROPOSED ohne
