@@ -34,10 +34,10 @@ DECLARE @DatabaseId int;
 DECLARE @DatabaseState nvarchar(60);
 DECLARE @IsReadOnly bit;
 DECLARE @ExistingCompatibilityLevel int;
-DECLARE @ExistingProject nvarchar(128);
-DECLARE @ExistingContractVersion nvarchar(32);
-DECLARE @ExistingDemoId nvarchar(32);
-DECLARE @ExistingRunToken nvarchar(32);
+DECLARE @ExistingProject nvarchar(max);
+DECLARE @ExistingContractVersion nvarchar(max);
+DECLARE @ExistingDemoId nvarchar(max);
+DECLARE @ExistingRunToken nvarchar(max);
 DECLARE @Sql nvarchar(max);
 DECLARE @ParameterDefinition nvarchar(1000);
 DECLARE @CreatedInThisBatch bit = 0;
@@ -238,17 +238,17 @@ BEGIN
         BEGIN TRY
             SET @Sql = N'
 SELECT
-    @ProjectOut = MAX(CASE WHEN ep.name = N''SQLPERF.Project'' THEN CONVERT(nvarchar(128), ep.value) END),
-    @ContractOut = MAX(CASE WHEN ep.name = N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(32), ep.value) END),
-    @DemoOut = MAX(CASE WHEN ep.name = N''SQLPERF.DemoId'' THEN CONVERT(nvarchar(32), ep.value) END),
-    @RunOut = MAX(CASE WHEN ep.name = N''SQLPERF.RunToken'' THEN CONVERT(nvarchar(32), ep.value) END)
+    @ProjectOut = MAX(CASE WHEN ep.name = N''SQLPERF.Project'' THEN CONVERT(nvarchar(max), ep.value) END),
+    @ContractOut = MAX(CASE WHEN ep.name = N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(max), ep.value) END),
+    @DemoOut = MAX(CASE WHEN ep.name = N''SQLPERF.DemoId'' THEN CONVERT(nvarchar(max), ep.value) END),
+    @RunOut = MAX(CASE WHEN ep.name = N''SQLPERF.RunToken'' THEN CONVERT(nvarchar(max), ep.value) END)
 FROM ' + QUOTENAME(@DatabaseName) + N'.sys.extended_properties AS ep
 WHERE ep.class = 0
   AND ep.major_id = 0
   AND ep.minor_id = 0
   AND ep.name IN (N''SQLPERF.Project'', N''SQLPERF.ContractVersion'', N''SQLPERF.DemoId'', N''SQLPERF.RunToken'');';
 
-            SET @ParameterDefinition = N'@ProjectOut nvarchar(128) OUTPUT, @ContractOut nvarchar(32) OUTPUT, @DemoOut nvarchar(32) OUTPUT, @RunOut nvarchar(32) OUTPUT';
+            SET @ParameterDefinition = N'@ProjectOut nvarchar(max) OUTPUT, @ContractOut nvarchar(max) OUTPUT, @DemoOut nvarchar(max) OUTPUT, @RunOut nvarchar(max) OUTPUT';
 
             EXEC sys.sp_executesql
                 @Sql,
@@ -258,10 +258,10 @@ WHERE ep.class = 0
                 @DemoOut = @ExistingDemoId OUTPUT,
                 @RunOut = @ExistingRunToken OUTPUT;
 
-            IF @ExistingProject = @ProjectMarker
-               AND @ExistingContractVersion = @ContractVersion
-               AND @ExistingDemoId = @DemoId
-               AND @ExistingRunToken = @NormalizedRunToken
+            IF @ExistingProject IS NOT NULL AND @ExistingProject COLLATE Latin1_General_100_BIN2 = CONVERT(nvarchar(max),@ProjectMarker) AND DATALENGTH(@ExistingProject) = DATALENGTH(CONVERT(nvarchar(max),@ProjectMarker))
+               AND @ExistingContractVersion IS NOT NULL AND @ExistingContractVersion COLLATE Latin1_General_100_BIN2 = CONVERT(nvarchar(max),@ContractVersion) AND DATALENGTH(@ExistingContractVersion) = DATALENGTH(CONVERT(nvarchar(max),@ContractVersion))
+               AND @ExistingDemoId IS NOT NULL AND @ExistingDemoId COLLATE Latin1_General_100_BIN2 = CONVERT(nvarchar(max),@DemoId) AND DATALENGTH(@ExistingDemoId) = DATALENGTH(CONVERT(nvarchar(max),@DemoId))
+               AND @ExistingRunToken IS NOT NULL AND @ExistingRunToken COLLATE Latin1_General_100_BIN2 = CONVERT(nvarchar(max),@NormalizedRunToken) AND DATALENGTH(@ExistingRunToken) = DATALENGTH(CONVERT(nvarchar(max),@NormalizedRunToken))
             BEGIN
                 INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
                 VALUES ('LIFECYCLE', 'OWNERSHIP_MARKERS', 'PASS', 'OK', N'vollständig passend', N'Projekt, Vertrag, Demo-ID und Run-Token', N'Die Datenbank ist eindeutig diesem Demolauf zugeordnet.');
