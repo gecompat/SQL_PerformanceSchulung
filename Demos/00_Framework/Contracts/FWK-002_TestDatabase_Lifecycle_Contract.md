@@ -48,6 +48,12 @@ Die Referenzimplementierung schreibt folgende Extended Properties auf Datenbanke
 
 Vor `VALIDATE` und `DROP` müssen Projekt, Vertragsversion, Demo-ID und Run-Token vollständig übereinstimmen. Ein fehlender, nicht lesbarer oder abweichender Marker führt zu `FAIL_STATE`.
 
+Dies gilt ebenso vor der Wiederverwendung durch `CREATE`. Gelesene Werte dürfen
+vor dem Vergleich nicht gekürzt werden. Fehlende Werte, abweichende Schreibweise
+und angehängte Leerzeichen sind keine vollständige exakte Übereinstimmung.
+Die Referenz prüft deshalb NULL ausdrücklich, vergleicht die Zeichen binär und
+prüft zusätzlich die vollständige Bytelänge.
+
 ## 4. Aktionen
 
 ### 4.1 `CREATE`

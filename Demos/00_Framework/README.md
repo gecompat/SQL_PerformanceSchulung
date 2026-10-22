@@ -9,7 +9,7 @@ Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Orchestrierun
 | Arbeitspaket | Status | Kernartefakt |
 |---|---|---|
 | `FWK-001` | `VALIDATED` | Preflight-Vertrag und `Templates/00_Preflight.sql` |
-| `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) | `VALIDATED` | markergeprüfter Testdatenbank-Lifecycle |
+| `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) | begrenzter Nachweis; siehe unten | markergeprüfter Testdatenbank-Lifecycle |
 | `FWK-003` (Vertrag für synthetische Testdaten) | `VALIDATED` | deterministischer Datengenerator |
 | `FWK-004` (Messvertrag) | `VALIDATED` | sessionbezogener Messrahmen |
 | `FWK-005` (Vertrag für Plan- und Statistikevidenz) | `VALIDATED` | Plan- und Statistikevidenz |
@@ -22,6 +22,15 @@ Dieser Bereich enthält die verbindlichen Daten-, Mess-, Evidenz-, Orchestrierun
 | `FWK-012` | `VALIDATED` | Status-, Fehler- und Skip-Vertrag 1.2 |
 
 `VALIDATED` umfasst die SQL-Server-unabhängigen Vertrags- und Prozess-Selbsttests sowie den erfolgreichen Runtime-Lauf `30099942191` auf SQL Server 2019, 2022 und 2025 in offiziellen Microsoft-Linux-Containern mit Compatibility Levels 150, 160 und 170. Betriebssystem- oder editionsspezifische Erweiterungen benötigen weiterhin eigene Testprofile.
+
+Diese historische Abnahme belegt keine aktuelle allgemeine Eigentumsgarantie.
+Die Referenz für Testdatenbanken prüft vorhandene Datenbanken jetzt mit
+vollständigen, binären Marker- und Bytelängenvergleichen. Die
+[abgegrenzte Eigentumsprüfung](../../Documentation/Project_Planning/FWK_002_FRAMEWORK_OWNERSHIP_REVIEW.md)
+führt den tatsächlichen Prüfstand und die weiterhin offene Wiederherstellung
+nach fehlgeschlagener Erstmarkierung. Ein passender Datenbankname allein genügt
+nicht. Nach einem Abbruch gilt die Erhaltung bei ungeklärtem Eigentum gemäß
+[Demo-Ausführungsleitfaden](../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md).
 
 ## Toolklassen
 
@@ -52,7 +61,7 @@ Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über
 ## Sicherheitsgrundsätze
 
 - Keine Datenbank wird aufgrund ihres Namens allein gelöscht.
-- Framework-SQL verändert ausschließlich vollständig markierte Testdatenbanken.
+- Vorhandene Datenbanken benötigen vor Änderungen vollständig passende Eigentumsmarker; für Neuanlage und Wiederherstellung gelten die gesonderten Vertragsgrenzen.
 - Gelbe und rote Demos benötigen technisch erzwungene Bestätigungen.
 - Passwörter stehen weder in Manifesten noch in Kommandozeilen; SQL-Authentifizierung verwendet `SQLCMDPASSWORD`.
 - Kontrollierte Nichtanwendbarkeit ist `SKIP`, kein technischer Fehler.
@@ -64,4 +73,6 @@ Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über
 
 Der pfadbegrenzte Workflow `Framework contracts` führt vier SQL-Server-unabhängige Prüfungen aus. Der Workflow `Framework SQL matrix` startet getrennte ephemere Container für SQL Server 2019, 2022 und 2025 und validiert Installation, Laufzeitverträge sowie markergeprüftes Cleanup.
 
-Der nächste fachliche Abnahmeschritt sind die vier Gate-B-Pilotdemos. Das validierte Framework allein erfüllt Gate B noch nicht.
+Die Prioritäten und tatsächlichen Nachweise der Pilotdemos stehen im
+[aktuellen Ausführungsstand](../../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
+Eine begrenzte Frameworkprüfung ersetzt keine vollständige Demoabnahme.

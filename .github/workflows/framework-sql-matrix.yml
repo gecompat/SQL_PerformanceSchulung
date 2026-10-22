@@ -6,6 +6,11 @@ on:
       - 'Demos/00_Framework/**'
       - 'Tests/Runtime/run_framework_sql_matrix.py'
       - 'Tests/Runtime/run_framework_sql_matrix_staged.py'
+      - 'Tests/Runtime/framework_ownership.py'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Static/test_framework_ownership.py'
+      - 'Tests/Static/test_runtime_workflow_selector.py'
+      - 'Tests/Static/select_runtime_workflow.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -17,6 +22,11 @@ on:
       - 'Demos/00_Framework/**'
       - 'Tests/Runtime/run_framework_sql_matrix.py'
       - 'Tests/Runtime/run_framework_sql_matrix_staged.py'
+      - 'Tests/Runtime/framework_ownership.py'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Static/test_framework_ownership.py'
+      - 'Tests/Static/test_runtime_workflow_selector.py'
+      - 'Tests/Static/select_runtime_workflow.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - 'Tests/Runtime/host_sqlcmd_target.py'
@@ -50,9 +60,21 @@ jobs:
           --workflow framework --event "$EVENT_NAME"
           --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
 
+  static:
+    name: Static framework ownership oracles
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/test_framework_ownership.py
+      - run: python Tests/Static/test_runtime_workflow_selector.py
+
   runtime:
     name: SQL Server ${{ matrix.year }}
-    needs: changes
+    needs: [static, changes]
     if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 30
@@ -88,21 +110,28 @@ jobs:
           set -euo pipefail
 
           password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Aa"
-          container="sqlperf-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          owner="fwk-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.major }}"
+          container="sqlperf-${owner}"
 
           echo "::add-mask::${password}"
+          export SQLCMDPASSWORD="${password}" MSSQL_SA_PASSWORD="${password}"
+          echo "SQLPERF_OWNER=${owner}" >> "$GITHUB_ENV"
           echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
           echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
 
           docker pull '${{ matrix.image }}'
+          image_id="$(docker image inspect -f '{{.Id}}' '${{ matrix.image }}')"
+          [[ "$image_id" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "SQLPERF_IMAGE_ID=${image_id}" >> "$GITHUB_ENV"
           docker run \
             --name "${container}" \
             --hostname "${container}" \
+            --label "sqlperf.owner=${owner}" --cpus 2 --memory 2g \
             -e ACCEPT_EULA=Y \
             -e MSSQL_PID=Developer \
-            -e "MSSQL_SA_PASSWORD=${password}" \
+            -e MSSQL_SA_PASSWORD \
             -d \
-            '${{ matrix.image }}'
+            "$image_id"
 
           ready=0
           for attempt in $(seq 1 90); do
@@ -125,7 +154,7 @@ jobs:
           fi
           login_ready=0
           for attempt in $(seq 1 30); do
-            if docker exec -e "SQLCMDPASSWORD=${password}" "${container}" sh -lc '
+            if docker exec -e SQLCMDPASSWORD "${container}" sh -lc '
               if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
               elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
               else exit 127; fi
@@ -143,14 +172,33 @@ jobs:
       - name: Run framework runtime matrix
         shell: bash
         run: |
-          set -uo pipefail
+          set -euo pipefail
           chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
-          python Tests/Runtime/run_framework_sql_matrix_staged.py \
+          timeout --signal=TERM --kill-after=30s 1500s python Tests/Runtime/run_framework_sql_matrix_staged.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
             --compatibility-level '${{ matrix.compatibility }}' \
             2>&1 | tee "${RUNNER_TEMP}/framework-sql-${{ matrix.major }}.log"
-          exit "${PIPESTATUS[0]}"
+
+      - name: Show SQL Server logs on failure
+        if: failure()
+        shell: bash
+        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+
+      - name: Remove own container and verify absence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SQLPERF_SQL_CONTAINER:-}" ]; then exit 0; fi
+          cid="$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          if [ -z "$cid" ]; then exit 0; fi
+          test "$(docker inspect -f '{{index .Config.Labels "sqlperf.owner"}}' "$cid")" = "$SQLPERF_OWNER"
+          test "$(docker inspect -f '{{.Image}}' "$cid")" = "$SQLPERF_IMAGE_ID"
+          docker rm -f "$cid"
+          test -z "$(docker ps -aq --no-trunc --filter "id=$cid")"
+          test -z "$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          test -z "$(docker ps -aq --no-trunc --filter "label=sqlperf.owner=$SQLPERF_OWNER")"
 
       - name: Upload matrix diagnostic
         if: always()
@@ -160,13 +208,3 @@ jobs:
           path: ${{ runner.temp }}/framework-sql-${{ matrix.major }}.log
           if-no-files-found: warn
           retention-days: 3
-
-      - name: Show SQL Server logs on failure
-        if: failure()
-        shell: bash
-        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
-
-      - name: Remove SQL Server container
-        if: always()
-        shell: bash
-        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true

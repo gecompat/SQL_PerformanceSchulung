@@ -179,6 +179,18 @@ def _verify_engine(
     )
 
 
+def _test_lifecycle_ownership(*,container: str,sqlcmd_path: str,expected_major: int) -> None:
+    import framework_ownership
+    try:
+        count=framework_ownership.run_probes(
+            execution_target.docker_target(container=container,sqlcmd_path=sqlcmd_path),expected_major,
+        )
+    except (RuntimeError,ValueError) as exc:
+        raise MatrixFailure('Framework-Eigentumsgegenprobe fehlgeschlagen: '+str(exc)) from exc
+    if count!=180:raise MatrixFailure('Vollständiger Framework-Fallnachweis fehlt')
+    print(f'FRAMEWORK_OWNERSHIP_COMPLETE|PASS|actions=3|profiles=6|negative={count}|version={expected_major}',flush=True)
+
+
 def _test_qry_database(
     *,
     container: str,
@@ -545,6 +557,8 @@ def main() -> int:
             sqlcmd_path=sqlcmd_path,
             expected_major=args.expected_major,
         )
+
+        _test_lifecycle_ownership(container=args.container,sqlcmd_path=sqlcmd_path,expected_major=args.expected_major)
 
         for demo_id in ("QRY-001", "CON-004", "DGN-003", "DGN-005"):
             database = _create_database(

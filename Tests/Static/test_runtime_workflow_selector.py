@@ -36,7 +36,7 @@ class RuntimeSelectorTests(unittest.TestCase):
                 self.assertIn("  changes:\n", text)
                 self.assertIn("fetch-depth: 0", text)
                 self.assertIn(f"--workflow {name} --event", text)
-                expected_needs = "    needs: changes\n" if name == "framework" else "    needs: [static, changes]\n"
+                expected_needs = "    needs: [static, changes]\n"
                 self.assertIn(expected_needs, text)
                 self.assertIn("    if: needs.changes.outputs.run_runtime == 'true'\n", text)
 
@@ -126,6 +126,13 @@ class RuntimeSelectorTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertFalse(selector.select_runtime({path}, patterns, workflow, runtime_job_changed=False))
         self.assertTrue(selector.select_runtime({workflow}, patterns, workflow, runtime_job_changed=True))
+
+    def test_framework_ownership_runtime_dependencies_and_pure_oracle(self) -> None:
+        workflow = selector.WORKFLOWS['framework']
+        patterns = selector.trigger_paths(workflow)
+        for path in ('Tests/Runtime/framework_ownership.py', 'Tests/Runtime/cleanup_ownership.py'):
+            self.assertTrue(selector.select_runtime({path}, patterns, workflow, runtime_job_changed=False))
+        self.assertFalse(selector.select_runtime({'Tests/Static/test_framework_ownership.py'}, patterns, workflow, runtime_job_changed=False))
 
     def test_unknown_binding_and_missing_git_object_fail_closed(self) -> None:
         workflow = selector.WORKFLOWS["dgn007"]

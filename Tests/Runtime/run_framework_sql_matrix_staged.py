@@ -112,6 +112,10 @@ def main() -> int:
             expected_major=args.expected_major,
         )
 
+        stage = "LIFECYCLE_OWNERSHIP"
+        _announce(stage)
+        matrix._test_lifecycle_ownership(container=args.container,sqlcmd_path=sqlcmd_path,expected_major=args.expected_major)
+
         for demo_id in ("QRY-001", "CON-004", "DGN-003", "DGN-005"):
             stage = f"LIFECYCLE_CREATE_{demo_id.replace('-', '')}"
             _announce(stage)
