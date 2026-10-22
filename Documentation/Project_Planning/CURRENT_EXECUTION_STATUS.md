@@ -1,5 +1,80 @@
 # Aktueller Ausführungsstand
 
+## Runnerprofil passt; Integration vor Foundation-Upgrade
+
+Die [Fehlerbehebung mit vollständigem Profilvergleich](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
+beseitigt `EARLY_EOF`, das vorzeitige Ende des Ausgabestroms, im vorgewählten
+Runnerlauf. Runner bezeichnet die vollständige Ausführungssteuerung. Zwei
+Produktkorrekturen behandeln den Python-Dateieinstieg und den kontrollierten
+Ablehnungspfad. Der private Beobachtungshelfer bindet die vollständige
+Kindumgebung an `LANG=C`, `LC_ALL=C` und `HOME=/`. Die 85 Moduldeklarationen und
+ursprünglichen Profilbytes bleiben unverändert; keine Istwerte wurden ins Soll
+übernommen.
+
+23 lokale Runnermodelle, zwei am alten Generator scheiternde Gegenproben und
+sechs reine Umgebungsgegenproben bestehen. Der unabhängig freigegebene native
+Lauf liefert einen vollständig passenden Profilreport vor den Kandidatenimports:
+`OBSERVED_PREIMPORT_PROFILE_ONLY`. Anschließend wurde der wartende eigene Worker
+geplant gestoppt. Beide tatsächlichen Datenstromenden, Cleanup, Gruppenabsenz,
+Wiederherstellung und unabhängige Prozessabsenz sind bestätigt; beide
+Windows-Jobs sind beendet. Kein vollständiger Sitzungshandshake und keine
+Runtime-, Trust-, Importbyte-, Methoden- oder SQL-Freigabe aus diesem Teilnachweis.
+
+Der gemeinsame Checkpoint steht bei 18 Quellenständen, neun nativen Versuchen,
+drei synthetischen Prüfläufen mit 21 reservierten Prozessen, 24 Aufrufen des
+Windows Subsystem for Linux (WSL) und 1400 reservierten Prozesssekunden.
+Der vor Erreichen der früheren harten Grenze unabhängig fortgeschriebene
+Rahmen endet spätestens bei 20 Ständen, zehn nativen Versuchen, 26 WSL-Aufrufen
+und 1500 Sekunden. Keine weitere native Ausführung für diesen Abschluss;
+alte Zählungen und Fehler bleiben erhalten. Verbrauch UNKNOWN, also nicht
+verlässlich gemessen.
+
+Die Arbeit auf `codex/dgn007-early-eof-fix` wird jetzt bis zum unabhängigen
+finalen Diffreview, den lokalen Dokumentationsprüfungen, aktuellen grünen
+Integrationsgates, dem Merge in `origin/main` und eigener Branchbereinigung
+geführt. Danach wird gemäß menschlichem Auftrag die aktuelle AI Repository
+Foundation integriert und die autonome Entwicklung fortgesetzt. Der folgende
+Checkpoint ist historisch; seine damalige Fortsetzungsgrenze wurde durch den
+neuen Auftrag und den unabhängig geprüften endlichen Rahmen behandelt.
+
+## EARLY_EOF eingegrenzt; weiterer Versuchsrahmen erforderlich
+
+Der [Diagnosecheckpoint vom 22. Oktober](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#diagnosecheckpoint-vom-22-oktober-2026)
+grenzt `EARLY_EOF`, das vorzeitige Ende des Ausgabestroms, weiter ein:
+Die letzte Diagnosequelle meldet alle sechs Initialisierungs-/Versiegelungs-
+schritte erfolgreich. Erst der Runneraufruf, also der Aufruf der vollständigen
+Ausführungssteuerung, lehnt mit `RUNNER_SOURCE_BINDING` ab. Die konkrete innere
+Bindungsbedingung und ein möglicher Einfluss der Diagnoseinstrumentierung
+bleiben offen. Ein vollständiger Profilreport fehlt weiterhin.
+
+Die noch nicht integrierte Produktänderung behandelt den Dateieinstieg mit dem
+eingebauten Python-Modul `builtins` und ergänzt einen kontrollierten
+Ablehnungspfad. Zwei Gegenproben scheitern am alten Generator; alle 23 lokalen
+Runnermodelle bestehen am korrigierten Stand. Nach unabhängig geschlossenen
+Reviewbefunden bestehen zusätzlich neun reine Diagnosegegenproben, der Vergleich
+des gesamten abstrakten Syntaxbaums und alle fünf Paketformen. Die Diagnosequelle
+belegt damit keinen erfolgreichen nativen Produktlauf.
+
+Der vom Implementierungsverantwortlichen gewählte und unabhängig geprüfte
+endliche Rahmen ist ausgeschöpft: zwölf Quellen-/Test-/Aufrufstände, sechs
+native Versuche, drei synthetische Prüfläufe mit 21 reservierten Prozessen,
+18 Aufrufe des Windows Subsystem for Linux (WSL) und 1100 reservierte
+Prozesssekunden. Nicht ausgeführte, im Review abgelehnte Stände zählen mit;
+keine alte Zählung wurde zurückgesetzt. Modell- und Koordinationsverbrauch
+bleiben UNKNOWN, also nicht verlässlich gemessen. Keine automatische Anhebung
+oder weitere Implementierung und kein weiterer nativer Start in diesem Rahmen.
+
+Der letzte Lauf endet kontrolliert mit Code 1, null Bytes auf dem regulären
+Ausgabestrom und 136 Diagnosebytes auf dem Fehlerausgabestrom. Beide Datenströme,
+alle eigenen Gruppen und beide Windows-Jobs sind beendet, unabhängige Absenz
+und Wiederherstellung bestätigt; keine offene Besitzsperre. Die Arbeit bleibt
+auf `codex/dgn007-early-eof-fix` erhalten. Noch kein Pull Request, Merge oder
+Löschen des unübernommenen Branches. Die erforderliche nächste Entscheidung ist
+eine neue endliche Diagnose-/Korrekturgrenze für die offene Runnerbindung;
+Quellen-/Test-/Aufrufreview und grüne Integrationsprüfungen bleiben erforderlich.
+Kein Body- oder Importstart, kein Runtime-, Trust-, Importbyte-, Methoden- oder
+SQL-Nachweis. Die folgenden Abschnitte sind historische Abschlüsse.
+
 ## Erste Runnerprofilaufnahme: tatsächlicher Versuch abgelehnt, sicher beendet
 
 Die [begrenzte Runnerprofilaufnahme](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#tatsächliches-ergebnis-des-dritten-standes)
