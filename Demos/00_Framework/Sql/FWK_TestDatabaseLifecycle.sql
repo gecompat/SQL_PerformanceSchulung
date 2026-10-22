@@ -13,9 +13,9 @@ GO
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
-DECLARE @Action varchar(10) = 'VALIDATE'; -- CREATE | VALIDATE | DROP
-DECLARE @DemoId varchar(7) = 'QRY-001';
-DECLARE @RunToken varchar(16) = 'LOCAL';
+DECLARE @Action nvarchar(max) = N'VALIDATE'; -- CREATE | VALIDATE | DROP
+DECLARE @DemoId nvarchar(max) = N'QRY-001';
+DECLARE @RunToken nvarchar(max) = N'LOCAL';
 DECLARE @RequestedCompatibilityLevel int = NULL; -- NULL = maximum supported by engine
 DECLARE @ConfirmLabUse bit = 0;
 DECLARE @ConfirmDrop bit = 0;
@@ -23,9 +23,10 @@ DECLARE @EmitEnvironmentDetails bit = 0;
 
 DECLARE @ProjectMarker nvarchar(128) = N'SQL_PerformanceSchulung';
 DECLARE @ContractVersion nvarchar(32) = N'1.0';
-DECLARE @NormalizedRunToken varchar(16);
+DECLARE @NormalizedRunToken nvarchar(max);
+DECLARE @ActionIsAscii bit;
 DECLARE @DatabaseName sysname;
-DECLARE @ExpectedDatabaseName sysname;
+DECLARE @ExpectedDatabaseName nvarchar(max);
 DECLARE @MajorVersion int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajorVersion'));
 DECLARE @EngineEdition int = TRY_CONVERT(int, SERVERPROPERTY('EngineEdition'));
 DECLARE @MaximumCompatibilityLevel int;
@@ -62,16 +63,19 @@ DECLARE @Results table
     Message nvarchar(4000) NOT NULL
 );
 
-SET @Action = UPPER(LTRIM(RTRIM(@Action)));
-SET @NormalizedRunToken = UPPER(LTRIM(RTRIM(@RunToken)));
-SET @ExpectedDatabaseName = CONVERT(sysname, N'SQLPERF_LAB_' + REPLACE(@DemoId, '-', '') + N'_' + @NormalizedRunToken);
-SET @DatabaseName = @ExpectedDatabaseName;
+SET @ActionIsAscii = CASE
+    WHEN @Action IS NOT NULL
+         AND LTRIM(RTRIM(@Action)) COLLATE Latin1_General_100_BIN2 NOT LIKE N'%[^A-Za-z]%'
+    THEN 1 ELSE 0 END;
+SET @Action = UPPER(LTRIM(RTRIM(@Action)) COLLATE Latin1_General_100_BIN2);
+SET @NormalizedRunToken = UPPER(LTRIM(RTRIM(@RunToken)) COLLATE Latin1_General_100_BIN2);
 
 /* Contract validation */
-IF @Action NOT IN ('CREATE', 'VALIDATE', 'DROP')
+IF @ActionIsAscii = 0 OR @Action IS NULL
+   OR @Action COLLATE Latin1_General_100_BIN2 NOT IN (N'CREATE', N'VALIDATE', N'DROP')
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-    VALUES ('LIFECYCLE', 'ACTION', 'FAIL', 'FAIL_CONTRACT', @Action, N'CREATE, VALIDATE oder DROP', N'Die angeforderte Lifecycle-Aktion ist ungültig.');
+    VALUES ('LIFECYCLE', 'ACTION', 'FAIL', 'FAIL_CONTRACT', LEFT(@Action, 4000), N'CREATE, VALIDATE oder DROP', N'Die angeforderte Lifecycle-Aktion ist ungültig.');
 END
 ELSE
 BEGIN
@@ -79,9 +83,9 @@ BEGIN
     VALUES ('LIFECYCLE', 'ACTION', 'PASS', 'OK', @Action, N'CREATE, VALIDATE oder DROP', N'Die Lifecycle-Aktion ist gültig.');
 END;
 
-IF LEN(@DemoId) = 7
-   AND @DemoId LIKE '[A-Z][A-Z][A-Z]-[0-9][0-9][0-9]'
-   AND LEFT(@DemoId, 3) IN ('STL', 'OPT', 'QRY', 'IDX', 'CON', 'RES', 'DGN')
+IF @DemoId IS NOT NULL AND DATALENGTH(@DemoId) = 14
+   AND @DemoId COLLATE Latin1_General_100_BIN2 LIKE N'[A-Z][A-Z][A-Z]-[0-9][0-9][0-9]'
+   AND LEFT(@DemoId, 3) COLLATE Latin1_General_100_BIN2 IN (N'STL', N'OPT', N'QRY', N'IDX', N'CON', N'RES', N'DGN')
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
     VALUES ('LIFECYCLE', 'DEMO_ID', 'PASS', 'OK', @DemoId, N'kanonische fachliche Demo-ID', N'Die Demo-ID entspricht dem Vertrag.');
@@ -89,12 +93,13 @@ END
 ELSE
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-    VALUES ('LIFECYCLE', 'DEMO_ID', 'FAIL', 'FAIL_CONTRACT', @DemoId, N'STL|OPT|QRY|IDX|CON|RES|DGN-nnn', N'Die Demo-ID ist nicht kanonisch.');
+    VALUES ('LIFECYCLE', 'DEMO_ID', 'FAIL', 'FAIL_CONTRACT', LEFT(@DemoId, 4000), N'STL|OPT|QRY|IDX|CON|RES|DGN-nnn', N'Die Demo-ID ist nicht kanonisch.');
 END;
 
 IF @NormalizedRunToken IS NOT NULL
    AND LEN(@NormalizedRunToken) BETWEEN 1 AND 16
-   AND @NormalizedRunToken NOT LIKE '%[^A-Z0-9]%'
+   AND @NormalizedRunToken COLLATE Latin1_General_100_BIN2 NOT LIKE N'%[^A-Z0-9]%'
+   AND LTRIM(RTRIM(@RunToken)) COLLATE Latin1_General_100_BIN2 NOT LIKE N'%[^A-Za-z0-9]%'
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
     VALUES ('LIFECYCLE', 'RUN_TOKEN', 'PASS', 'OK', @NormalizedRunToken, N'1 bis 16 Zeichen A-Z oder 0-9', N'Der Run-Token entspricht dem Vertrag.');
@@ -102,18 +107,24 @@ END
 ELSE
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-    VALUES ('LIFECYCLE', 'RUN_TOKEN', 'FAIL', 'FAIL_CONTRACT', @NormalizedRunToken, N'1 bis 16 Zeichen A-Z oder 0-9', N'Der Run-Token ist ungültig.');
+    VALUES ('LIFECYCLE', 'RUN_TOKEN', 'FAIL', 'FAIL_CONTRACT', LEFT(@NormalizedRunToken, 4000), N'1 bis 16 Zeichen A-Z oder 0-9', N'Der Run-Token ist ungültig.');
 END;
 
-IF LEN(@ExpectedDatabaseName) <= 128
+IF NOT EXISTS (SELECT 1 FROM @Results WHERE Outcome = 'FAIL')
 BEGIN
+    SET @ExpectedDatabaseName = N'SQLPERF_LAB_' + REPLACE(@DemoId, N'-', N'') + N'_' + @NormalizedRunToken;
+END;
+
+IF @ExpectedDatabaseName IS NOT NULL AND DATALENGTH(@ExpectedDatabaseName) <= 256
+BEGIN
+    SET @DatabaseName = CONVERT(sysname, @ExpectedDatabaseName);
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
     VALUES ('LIFECYCLE', 'DATABASE_NAME', 'PASS', 'OK', CASE WHEN @EmitEnvironmentDetails = 1 THEN @ExpectedDatabaseName ELSE N'kanonischer Name; Details unterdrückt' END, N'SQLPERF_LAB_DEMO_RUN', N'Der Datenbankname wurde deterministisch abgeleitet.');
 END
 ELSE
 BEGIN
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-    VALUES ('LIFECYCLE', 'DATABASE_NAME', 'FAIL', 'FAIL_CONTRACT', NULL, N'maximal 128 Zeichen', N'Der abgeleitete Datenbankname überschreitet sysname.');
+    VALUES ('LIFECYCLE', 'DATABASE_NAME', 'FAIL', 'FAIL_CONTRACT', NULL, N'gültige Eingaben und maximal 128 Zeichen', N'Ein kanonischer Datenbankname kann aus diesen Eingaben nicht sicher abgeleitet werden.');
 END;
 
 IF @@TRANCOUNT = 0

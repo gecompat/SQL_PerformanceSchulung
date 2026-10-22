@@ -25,7 +25,7 @@ class FrameworkOwnershipTests(unittest.TestCase):
         self.assertNotIn('\nGO\n',phase)
         for action in probe.ACTIONS:
             text=probe.render(phase,action,17)
-            self.assertIn("DECLARE @Action varchar(10) = N'"+action+"';",text)
+            self.assertIn("DECLARE @Action nvarchar(max) = N'"+action+"';",text)
             self.assertIn('DECLARE @RequestedCompatibilityLevel int = 170;',text)
 
     def test_unknown_preamble_and_go_forms_fail_before_sql(self):

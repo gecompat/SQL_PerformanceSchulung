@@ -68,12 +68,12 @@ def fixture(target: ExecutionTarget,major: int) -> None:
     run_sql(target,database='master',sql_text=f'ALTER DATABASE [{ownership.database(DEMO)}] SET COMPATIBILITY_LEVEL={major*10}; ALTER DATABASE [{ownership.database(DEMO)}] SET AUTO_SHRINK OFF;')
 
 
-def snapshot(target: ExecutionTarget) -> str:
+def snapshot(target: ExecutionTarget,*,expression: str|None=None) -> str:
     # Ein SQL-seitiger vollständiger Vergleich wird für alle Negativfälle benutzt.
     # Positive Wiederverwendung liefert ebenfalls den gesamten XML-Wert in Hexform.
     output=run_sql(target,database='master',sql_text=f"""
 SET NOCOUNT ON;
-DECLARE @Bytes varbinary(max)={ownership.state_expression(DEMO)},@Offset int=1;
+DECLARE @Bytes varbinary(max)={expression if expression is not None else ownership.state_expression(DEMO)},@Offset int=1;
 SELECT 'LENGTH',DATALENGTH(@Bytes);
 WHILE @Offset<=DATALENGTH(@Bytes) BEGIN
  SELECT 'BYTES',@Offset,CONVERT(varchar(200),SUBSTRING(@Bytes,@Offset,100),2);

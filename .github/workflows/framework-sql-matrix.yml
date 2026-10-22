@@ -7,8 +7,10 @@ on:
       - 'Tests/Runtime/run_framework_sql_matrix.py'
       - 'Tests/Runtime/run_framework_sql_matrix_staged.py'
       - 'Tests/Runtime/framework_ownership.py'
+      - 'Tests/Runtime/framework_inputs.py'
       - 'Tests/Runtime/cleanup_ownership.py'
       - 'Tests/Static/test_framework_ownership.py'
+      - 'Tests/Static/test_framework_inputs.py'
       - 'Tests/Static/test_runtime_workflow_selector.py'
       - 'Tests/Static/select_runtime_workflow.py'
       - 'Tests/Runtime/execution_target.py'
@@ -23,8 +25,10 @@ on:
       - 'Tests/Runtime/run_framework_sql_matrix.py'
       - 'Tests/Runtime/run_framework_sql_matrix_staged.py'
       - 'Tests/Runtime/framework_ownership.py'
+      - 'Tests/Runtime/framework_inputs.py'
       - 'Tests/Runtime/cleanup_ownership.py'
       - 'Tests/Static/test_framework_ownership.py'
+      - 'Tests/Static/test_framework_inputs.py'
       - 'Tests/Static/test_runtime_workflow_selector.py'
       - 'Tests/Static/select_runtime_workflow.py'
       - 'Tests/Runtime/execution_target.py'
@@ -70,6 +74,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python Tests/Static/test_framework_ownership.py
+      - run: python Tests/Static/test_framework_inputs.py
       - run: python Tests/Static/test_runtime_workflow_selector.py
 
   runtime:
