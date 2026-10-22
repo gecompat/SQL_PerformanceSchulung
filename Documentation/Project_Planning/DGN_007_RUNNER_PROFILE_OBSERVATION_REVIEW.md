@@ -66,12 +66,17 @@ unabhängig auf höchstens 20 Stände, zehn native Versuche, 26 WSL-Aufrufe und
 Modell- und Koordinationsverbrauch bleiben UNKNOWN, also nicht verlässlich
 gemessen. Weitere native Versuche sind für diesen Abschluss nicht geplant.
 
-Die Produktänderung und dieser Ergebnisstand werden auf
-`codex/dgn007-early-eof-fix` bis zu unabhängig geschlossenen Befunden, lokalen
-Dokumentationsprüfungen, aktuellen grünen Head-/Base-/Main-Prüfungen,
-vollständiger Übernahme und eigener Branchbereinigung geführt. Head bezeichnet
-den geprüften Pull-Request-Commit, Base dessen Main-Basis. Anschließend folgt
-gemäß menschlichem Auftrag die aktuelle AI Repository Foundation.
+Die Produktänderung und dieser Ergebnisstand sind mit
+[PR289](https://github.com/gecompat/SQL_PerformanceSchulung/pull/289) in Main
+`b4e18472aeb925c34b2c34671253abce5541157b` vollständig abgeschlossen:
+unabhängig geschlossene Befunde, lokale Dokumentationsprüfungen, acht grüne
+Head-, fünf Base- und sechs frische Main-Prüfungen, vollständige Übernahme,
+Synchronisation und eigene lokale sowie Remote-Branchbereinigung. Head
+bezeichnet den geprüften Pull-Request-Commit, Base dessen Main-Basis. Der
+ehemalige Branch `codex/dgn007-early-eof-fix` ist entfernt. Der alte Rahmen
+endet nach den abschließenden Prüfkorrekturen bei 20 Quellenständen; kein
+weiterer nativer Lauf. Anschließend folgt gemäß menschlichem Auftrag die
+aktuelle AI Repository Foundation.
 
 Die ursprünglichen Profilbytes, Installationsquellen, Elternkontext und
 Protokollkennung bleiben erhalten. Es wurden nur Header und Metadaten gesendet,

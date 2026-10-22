@@ -1,41 +1,43 @@
 # Aktueller Ausführungsstand
 
-## Runnerprofil passt; Integration vor Foundation-Upgrade
+## Foundation 1.25.0 nach abgeschlossenem Runner-Fix
 
-Die [Fehlerbehebung mit vollständigem Profilvergleich](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
-beseitigt `EARLY_EOF`, das vorzeitige Ende des Ausgabestroms, im vorgewählten
-Runnerlauf. Runner bezeichnet die vollständige Ausführungssteuerung. Zwei
-Produktkorrekturen behandeln den Python-Dateieinstieg und den kontrollierten
-Ablehnungspfad. Der private Beobachtungshelfer bindet die vollständige
-Kindumgebung an `LANG=C`, `LC_ALL=C` und `HOME=/`. Die 85 Moduldeklarationen und
-ursprünglichen Profilbytes bleiben unverändert; keine Istwerte wurden ins Soll
-übernommen.
+[PR289](https://github.com/gecompat/SQL_PerformanceSchulung/pull/289) ist in
+Main `b4e18472aeb925c34b2c34671253abce5541157b` vollständig abgeschlossen:
+unabhängige Reviews ohne offene Befunde, lokale positive und negative Tests,
+acht grüne Head-, fünf Base- und sechs frische Main-Prüfungen, vollständige
+Baumübernahme, Synchronisation und eigene lokale sowie Remote-Branchbereinigung.
+Head bezeichnet den geprüften Pull-Request-Commit, Base dessen Main-Basis.
+Die [Runnerprofilbeobachtung](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
+passt vor Kandidatenimports zur unveränderten Auswahl. Runner bedeutet
+vollständige Ausführungssteuerung. Geplanter Stopp und unabhängiger Cleanup
+sind bestätigt; daraus folgt kein vollständiger Sitzungshandshake oder
+Runtime-, Trust-, Importbyte-, Methoden- oder SQL-Nachweis. Der alte native
+Rahmen ist mit 20 Quellenständen und neun nativen Versuchen geschlossen.
 
-23 lokale Runnermodelle, zwei am alten Generator scheiternde Gegenproben und
-sechs reine Umgebungsgegenproben bestehen. Der unabhängig freigegebene native
-Lauf liefert einen vollständig passenden Profilreport vor den Kandidatenimports:
-`OBSERVED_PREIMPORT_PROFILE_ONLY`. Anschließend wurde der wartende eigene Worker
-geplant gestoppt. Beide tatsächlichen Datenstromenden, Cleanup, Gruppenabsenz,
-Wiederherstellung und unabhängige Prozessabsenz sind bestätigt; beide
-Windows-Jobs sind beendet. Kein vollständiger Sitzungshandshake und keine
-Runtime-, Trust-, Importbyte-, Methoden- oder SQL-Freigabe aus diesem Teilnachweis.
+Der ausdrücklich angeordnete nächste Schnitt integriert auf
+`codex/foundation-1-25-0` die aktuelle AI Repository Foundation 1.25.0 aus
+`9e1b9974de58ea775d40c7c6045cd5057ba8b30c`. Die [Upgradebewertung](../../.ai/FOUNDATION_UPGRADE_1_25_0_REVIEW.md)
+erfasst das vollständige neue Feature für menschliche Lesepfade und getrennte
+KI-Steuerung. KI bedeutet künstliche Intelligenz. Drei Adapter, zehn
+Capabilities, 114 Installationsziele und die stärkeren Projektverträge bleiben
+erhalten. Keine neue Runtime- oder Automationaktivierung.
 
-Der gemeinsame Checkpoint steht bei 18 Quellenständen, neun nativen Versuchen,
-drei synthetischen Prüfläufen mit 21 reservierten Prozessen, 24 Aufrufen des
-Windows Subsystem for Linux (WSL) und 1400 reservierten Prozesssekunden.
-Der vor Erreichen der früheren harten Grenze unabhängig fortgeschriebene
-Rahmen endet spätestens bei 20 Ständen, zehn nativen Versuchen, 26 WSL-Aufrufen
-und 1500 Sekunden. Keine weitere native Ausführung für diesen Abschluss;
-alte Zählungen und Fehler bleiben erhalten. Verbrauch UNKNOWN, also nicht
-verlässlich gemessen.
+Ein Implementierungsverantwortlicher und derselbe unabhängige Reviewer führen
+genau diesen Schnitt bis zu lokalen relevanten Tests, geschlossenen Befunden,
+aktuellen grünen Integrationsgates, Main-Übernahme und eigener Branchbereinigung.
+Checkpoint am zweiten stabilen Kandidaten beziehungsweise ersten blockierenden
+Befund; harte Grenze vier kohärente Kandidaten einschließlich Reviews, Tests,
+Koordination und Integration. Verbrauch UNKNOWN, also nicht verlässlich gemessen.
 
-Die Arbeit auf `codex/dgn007-early-eof-fix` wird jetzt bis zum unabhängigen
-finalen Diffreview, den lokalen Dokumentationsprüfungen, aktuellen grünen
-Integrationsgates, dem Merge in `origin/main` und eigener Branchbereinigung
-geführt. Danach wird gemäß menschlichem Auftrag die aktuelle AI Repository
-Foundation integriert und die autonome Entwicklung fortgesetzt. Der folgende
-Checkpoint ist historisch; seine damalige Fortsetzungsgrenze wurde durch den
-neuen Auftrag und den unabhängig geprüften endlichen Rahmen behandelt.
+Anschließend folgt die nächste abgegrenzte autonome Entwicklungswelle.
+`TSK-015` (Menschliche Lesepfade und historische Planungseinstiege konsolidieren)
+ist im Backlog mit Verantwortlichkeit und konkretem Auslöser geführt. Die
+operative Kanal-, EOF-, Exit- und Cleanup-Anbindung bleibt autorisiert;
+EOF bedeutet End of File, hier das tatsächliche Datenstromende. Ein weiterer
+nativer Schnitt benötigt seine eigene aktuelle Auswahl und unabhängiges
+Quellen-/Test-/Aufruf-GO. Der abgeschlossene alte Rahmen wird nicht fortgesetzt.
+Die folgenden Abschnitte sind historische Nachweise.
 
 ## EARLY_EOF eingegrenzt; weiterer Versuchsrahmen erforderlich
 

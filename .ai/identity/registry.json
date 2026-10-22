@@ -1,7 +1,26 @@
 {
   "artifacts": {
-    "DEC-076": {"aliases": [], "artifact_uid": "urn:uuid:01a15e15-d46a-75dd-a513-6291666e2bc4", "kind": "decision", "registration_state": "REGISTERED", "relations": [], "title": "DGN-007-Runner für vertrauenswürdige Schulungsquellen ohne Manipulationsisolation"},
-    "DEC-075": {"aliases": [], "artifact_uid": "urn:uuid:01a15632-9add-7503-8286-5e59facad71c", "kind": "decision", "registration_state": "REGISTERED", "relations": [{"target": "DEC-071", "type": "depends_on"}], "title": "Foundation 1.24.0 mit erhaltenen Projektregeln und optionalen Trustverträgen"},
+    "DEC-076": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a15e15-d46a-75dd-a513-6291666e2bc4",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "DGN-007-Runner für vertrauenswürdige Schulungsquellen ohne Manipulationsisolation"
+    },
+    "DEC-075": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a15632-9add-7503-8286-5e59facad71c",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-071",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Foundation 1.24.0 mit erhaltenen Projektregeln und optionalen Trustverträgen"
+    },
     "ADV-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:bcf181bf-bd8c-40eb-a5d5-f8720b9a2721",
@@ -2988,6 +3007,32 @@
       "registration_state": "REGISTERED",
       "relations": [],
       "title": "Gebundenes ANN-Legacyprofil mit Generation UNKNOWN/WARN"
+    },
+    "DEC-077": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:881d152d-aac9-4110-8b8e-70a03b95ad48",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-075",
+          "type": "depends_on"
+        }
+      ],
+      "title": "Foundation 1.25.0 und vollständige menschliche Dokumentationswege"
+    },
+    "TSK-015": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:47c04185-88a5-44b2-8d13-c2709ab9994d",
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-077",
+          "type": "governed_by"
+        }
+      ],
+      "title": "Menschliche Lesepfade und historische Planungseinstiege konsolidieren"
     }
   },
   "prefixes": {
