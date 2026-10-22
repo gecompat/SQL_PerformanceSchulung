@@ -1,5 +1,52 @@
 # Aktueller Ausführungsstand
 
+## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
+
+Der neue menschliche Auftrag autorisiert die Prüfung aller 22 verbliebenen
+Cleanupkandidaten, die vollständige Korrektur der ersten bestätigten
+Fehlerklasse einschließlich Tests, Dokumentation und Integration per Pull
+Request nach `origin/main` sowie anschließende autonome priorisierte Folgearbeit.
+Der frühere Abschluss bleibt historisch erhalten und ist als Arbeitsstopp
+durch diesen neuen Auftrag ersetzt. Es wurde keine Automation aktiviert.
+
+Aktueller Branch: `codex/fwk002-cleanup-ownership`. FWK-002 bezeichnet den
+Schutzvertrag für Testdatenbanken. Alle 22 Kandidaten enthalten bestätigte
+Markerfehler: fehlende NULL-Abweisung, gekürzte Werte und ungenaue Zeichen-
+beziehungsweise Längenvergleiche. 21 Pfade löschen Datenbanken; DGN-007
+(zeitlich begrenzter Diagnosefall) stellt Prozedur und Daten zurück. DGN-005
+(gezielte Ereigniserfassung) verändert seine Ereignissitzung vor der Prüfung.
+Der erste kohärente Schnitt korrigiert die Markerketten aller 22 Pfade und
+die Ereignisreihenfolge. Quellenkorrektur und reine Oracle-Gegenproben sind
+vorbereitet; tatsächliche Laufzeit- und Integrationsnachweise stehen aus.
+
+Ein Implementierungsverantwortlicher und ein unabhängiger Reviewer prüfen
+Quellen, Tests, Aufruf und tatsächliches Ergebnis desselben Schnitts. Höchstens
+sechs kohärente Kandidaten, Checkpoint nach drei beziehungsweise beim ersten
+blockierenden Befund, maximal sechs serielle eigene lokale Dockercontainer; je Lauf
+1800 Sekunden regulär und einmal 90 Sekunden für sicheren eigenen Abbau.
+Keine Ports, Mounts, Downloads oder Host-SQL. Modell-/Tokenverbrauch unbekannt.
+Der endliche übergreifende Aufgabenrahmen umfasst diesen Schnitt sowie höchstens
+drei priorisierte Folgepakete mit jeweils eigenem unverändert endlichem
+Prüfrahmen; Checkpoint nach jeder vollständigen Integration. Keine neue Arbeit
+bei ausgeschöpfter Paketgrenze oder ungeklärtem eigenem Ressourcenbestand.
+
+Danach zuerst verbleibende Framework-/Setup-Eigentums- und Recoverylücken,
+anschließend menschliche Lesepfade und belegbar gezieltere Testauswahl.
+Recovery bedeutet Wiederherstellung nach Abbruch. Teilnehmerpiloten benötigen
+eine tatsächliche moderierte Durchführung. Eine begrenzte Cleanupabnahme ist
+keine globale Framework- oder Freigabe einer gemeinsam genutzten Instanz.
+Die lokale Sechscontainergrenze und ihre verbrauchten Versuche bleiben erhalten.
+Für die erforderliche automatisierte Integrationsprüfung sind separat genau
+eine aktuelle Pull-Request- und eine frische Main-Welle mit zusammen 108
+SQL-Matrixjobs reserviert; keine manuellen Wiederholungen. Versionsqualifikation
+erfolgt dort statt durch zusätzliche lokale Versionsdopplung. Der erste lokale
+Versuch C3 blieb nach kontrolliertem Abbruch FAIL und ist sicher bereinigt;
+der geänderte gebündelte C5-Prüflauf steht noch aus.
+C3 besitzt eine dokumentierte Rohquellenlücke bei zwei damaligen Testdateien;
+seine Teil-PASSs werden nicht als Qualifikation wiederverwendet. C5 hat vor
+weiteren Änderungen alle 49 gebundenen Quellen vollständig archiviert.
+Details: [Eigentumsprüfung und Nachweise](FWK_002_CLEANUP_OWNERSHIP_REVIEW.md).
+
 ## Benutzerabschluss vom 22. Oktober 2026: keine autonome Fortsetzung
 
 Der Benutzer hat angeordnet, die aktuellen Demo-Implementierungen einschließlich
