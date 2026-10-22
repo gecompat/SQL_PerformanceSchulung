@@ -64,6 +64,7 @@ class CleanupOwnershipTests(unittest.TestCase):
                 self.assertIn('IS NULL',query)
                 self.assertIn('COUNT(*) FROM lab.Dgn007ReferenceState)<>1',query)
                 self.assertIn('CONVERT(varbinary(max)',query)
+                self.assertIn("N'CREATE PROCEDURE lab.OwnershipRestore AS SELECT 1 AS Value;'",query)
 
     def test_batch_oracle_never_accepts_missing_or_duplicate_record(self):
         target = docker_target(container='synthetic-only', sqlcmd_path='/synthetic/sqlcmd')
@@ -85,6 +86,26 @@ class CleanupOwnershipTests(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     probe.batch_rejection(target,'OPT-002',source,'SYNTHETIC',{},False,False)
                 run.assert_not_called()
+
+    def test_demo_selection_rejects_empty_unknown_and_duplicate_before_sql(self):
+        target = docker_target(container='synthetic-only', sqlcmd_path='/synthetic/sqlcmd')
+        for demos in ((), ('UNKNOWN',), ('DGN-005','DGN-005')):
+            with self.subTest(demos=demos),patch.object(probe,'run_sql') as run:
+                with self.assertRaises(ValueError): probe.run_probes(target,demos=demos)
+                run.assert_not_called()
+
+    def test_xe_runtime_mutation_must_be_detected(self):
+        target = docker_target(container='synthetic-only', sqlcmd_path='/synthetic/sqlcmd')
+        for demo in ('DGN-005','DGN-007'):
+            for running in ('0','1'):
+                for failure in (None,ExecutionTargetError('Msg 51994 STATE_WAS_CHANGED'),ExecutionTargetError('Msg 51004 OTHER')):
+                    with self.subTest(demo=demo,running=running,failure=str(failure)),patch.object(probe,'run_sql',side_effect=['ORACLE_COMPLETE',running,'']) as run,patch.object(probe,'batch_rejection',side_effect=failure) as batch:
+                        if failure and '51994' in str(failure):
+                            probe.verify_batch_oracle(target,demo)
+                            self.assertIn('STATE='+('START' if running=='1' else 'STOP'),run.call_args.kwargs['sql_text'])
+                        else:
+                            with self.assertRaises(RuntimeError): probe.verify_batch_oracle(target,demo)
+                        self.assertIn('STATE='+('STOP' if running=='1' else 'START'),batch.call_args.args[2])
 
 
 if __name__ == '__main__':

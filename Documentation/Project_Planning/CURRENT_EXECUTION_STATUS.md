@@ -2,50 +2,61 @@
 
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 
-Der neue menschliche Auftrag autorisiert die Prüfung aller 22 verbliebenen
-Cleanupkandidaten, die vollständige Korrektur der ersten bestätigten
-Fehlerklasse einschließlich Tests, Dokumentation und Integration per Pull
-Request nach `origin/main` sowie anschließende autonome priorisierte Folgearbeit.
-Der frühere Abschluss bleibt historisch erhalten und ist als Arbeitsstopp
-durch diesen neuen Auftrag ersetzt. Es wurde keine Automation aktiviert.
+Der menschliche Auftrag autorisiert die vollständige Korrektur aller 22
+Cleanup-Eigentumskandidaten einschließlich Tests, Dokumentation und Integration
+per Pull Request nach `origin/main`, danach priorisierte autonome Folgearbeit.
+Der historische Stopp unten ist aufgehoben; keine Automation wurde aktiviert.
 
-Aktueller Branch: `codex/fwk002-cleanup-ownership`. FWK-002 bezeichnet den
-Schutzvertrag für Testdatenbanken. Alle 22 Kandidaten enthalten bestätigte
-Markerfehler: fehlende NULL-Abweisung, gekürzte Werte und ungenaue Zeichen-
-beziehungsweise Längenvergleiche. 21 Pfade löschen Datenbanken; DGN-007
-(zeitlich begrenzter Diagnosefall) stellt Prozedur und Daten zurück. DGN-005
-(gezielte Ereigniserfassung) verändert seine Ereignissitzung vor der Prüfung.
-Der erste kohärente Schnitt korrigiert die Markerketten aller 22 Pfade und
-die Ereignisreihenfolge. Quellenkorrektur und reine Oracle-Gegenproben sind
-vorbereitet; tatsächliche Laufzeit- und Integrationsnachweise stehen aus.
+Branch: `codex/fwk002-cleanup-ownership`. FWK-002 bezeichnet den Schutzvertrag
+für synthetische Testdatenbanken. Alle 22 Quellen besitzen bestätigte
+Markerfehler: fehlende NULL-Abweisung, gekürzte Werte und ungenaue Zeichen-/
+Längenvergleiche. Die Quellenkorrekturen sind implementiert. DGN-005 (gezielte
+Ereigniserfassung) prüft zusätzlich vor Änderungen seiner Ereignissitzung.
+Neun reine Testmethoden und die betroffenen statischen Vertragsprüfungen
+bestehen. Vollständige Laufzeitqualifikation und Integration stehen aus.
 
-Ein Implementierungsverantwortlicher und ein unabhängiger Reviewer prüfen
-Quellen, Tests, Aufruf und tatsächliches Ergebnis desselben Schnitts. Höchstens
-sechs kohärente Kandidaten, Checkpoint nach drei beziehungsweise beim ersten
-blockierenden Befund, maximal sechs serielle eigene lokale Dockercontainer; je Lauf
-1800 Sekunden regulär und einmal 90 Sekunden für sicheren eigenen Abbau.
-Keine Ports, Mounts, Downloads oder Host-SQL. Modell-/Tokenverbrauch unbekannt.
-Der endliche übergreifende Aufgabenrahmen umfasst diesen Schnitt sowie höchstens
-drei priorisierte Folgepakete mit jeweils eigenem unverändert endlichem
-Prüfrahmen; Checkpoint nach jeder vollständigen Integration. Keine neue Arbeit
-bei ausgeschöpfter Paketgrenze oder ungeklärtem eigenem Ressourcenbestand.
+C8 bestand DGN-005 zweimal mit je 30 Negativfällen, positiven und wiederholten
+Cleanups sowie Gegenproben für beide Laufzustandswechsel. Beim anschließenden
+alten DGN-007-Pfad (zeitlich begrenzter Diagnosefall) meldete die strikte
+Rückfallprüfung `RESTORE_NOT_COMPLETE`; die konkrete abweichende Bedingung ist
+durch C9 geklärt: Nur der Test erwartete `ALTER` statt der vollständig
+restaurierten `CREATE`-Prozedurbytes. Das Ergebnis war 1, alle anderen
+Rückfallbedingungen waren erfüllt. C10 korrigiert diese exakte Sollfolge und
+bestand DGN-007 neu zweimal mit je 30 Negativfällen,
+positivem und wiederholtem Rückfall sowie beiden Laufzustands-Gegenproben. Neue DGN-007-Profile wurden in C8 nicht erreicht;
+C8 bleibt als historischer Fehlversuch erhalten.
+Alle sieben eigenen lokalen Container sind unabhängig abwesend; kein ungeklärter
+Ressourcenbestand. Frühere Fehlversuche und Quellenkopien bleiben erhalten;
+C3 besitzt eine dokumentierte Rohquellenlücke und ist kein Qualifikationsbeleg.
 
-Danach zuerst verbleibende Framework-/Setup-Eigentums- und Recoverylücken,
-anschließend menschliche Lesepfade und belegbar gezieltere Testauswahl.
-Recovery bedeutet Wiederherstellung nach Abbruch. Teilnehmerpiloten benötigen
-eine tatsächliche moderierte Durchführung. Eine begrenzte Cleanupabnahme ist
-keine globale Framework- oder Freigabe einer gemeinsam genutzten Instanz.
-Die lokale Sechscontainergrenze und ihre verbrauchten Versuche bleiben erhalten.
-Für die erforderliche automatisierte Integrationsprüfung sind separat genau
-eine aktuelle Pull-Request- und eine frische Main-Welle mit zusammen 108
-SQL-Matrixjobs reserviert; keine manuellen Wiederholungen. Versionsqualifikation
-erfolgt dort statt durch zusätzliche lokale Versionsdopplung. Der erste lokale
-Versuch C3 blieb nach kontrolliertem Abbruch FAIL und ist sicher bereinigt;
-der geänderte gebündelte C5-Prüflauf steht noch aus.
-C3 besitzt eine dokumentierte Rohquellenlücke bei zwei damaligen Testdateien;
-seine Teil-PASSs werden nicht als Qualifikation wiederverwendet. C5 hat vor
-weiteren Änderungen alle 49 gebundenen Quellen vollständig archiviert.
-Details: [Eigentumsprüfung und Nachweise](FWK_002_CLEANUP_OWNERSHIP_REVIEW.md).
+An der harten Grenze C8 wurde angehalten. Auf konkrete Rückfrage hat der Mensch
+höchstens zwei weitere Quellenstände und zwei eigene Container ausdrücklich
+freigegeben: C9 zur genauen DGN-007-Diagnose, C10 für Korrektur und Nachtest.
+C10 ist mit PASS beendet; die Versions- und Integrationsgates bleiben offen.
+Kumulativ höchstens zehn Kandidaten und sieben lokale Container, ohne
+Zählerreset; pro Parentlauf maximal 1800 Sekunden plus einmal 90 Sekunden für
+Abbau. Keine Ports, Mounts, Downloads oder Host-SQL. Ein Verantwortlicher und
+ein unabhängiger Reviewer prüfen Quellen, Tests, Aufruf und Ergebnis.
+Modell-/Tokenverbrauch bleibt unbekannt. Keine neue Admission an der Grenze
+oder bei ungeklärtem Ressourcenbestand.
+
+Für die anschließende automatisierte Integrationsprüfung sind eine aktuelle
+Pull-Request- und eine frische Main-Welle reserviert: zusammen 108 SQL-Matrixjobs
+für die unterstützten Versionen einschließlich aller 22 Cleanupquellen. Bisher
+wurde keine Welle ausgelöst; keine manuellen Wiederholungen. Neue relevante
+Head-/Base-Stände benötigen eine konkrete weitere Reservierung. Head bezeichnet
+den geprüften Änderungsstand, Base dessen Main-Basis.
+
+Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
+priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach
+jeder Integration. Danach zuerst verbleibende Setup-/Framework-Eigentumsprüfungen
+und Recovery bei fehlgeschlagener Erstmarkierung, anschließend vollständige
+menschliche Lesepfade und gezieltere Testauswahl. Recovery bedeutet
+Wiederherstellung nach Fehler oder Abbruch. Teilnehmerpiloten benötigen eine
+tatsächliche Durchführung. Eine begrenzte Cleanupabnahme ist keine globale
+Freigabe des gesamten Ausführungspfads oder einer gemeinsam genutzten Instanz.
+
+Details: [Eigentumsprüfung und tatsächliche Nachweise](FWK_002_CLEANUP_OWNERSHIP_REVIEW.md).
 
 ## Benutzerabschluss vom 22. Oktober 2026: keine autonome Fortsetzung
 

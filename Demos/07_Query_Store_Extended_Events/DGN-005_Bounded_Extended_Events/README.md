@@ -49,7 +49,7 @@ DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinfor
 
 ## 10. Cleanup und Wiederherstellung
 
-Cleanup prüft zuerst alle vier vollständigen Datenbankmarker. Fehlende Werte,
+Cleanup ist markergebunden: Er prüft zuerst alle vier vollständigen Datenbankmarker. Fehlende Werte,
 abweichende Schreibweise, angehängte Leerzeichen und zusätzliche Zeichen werden
 abgewiesen. Erst danach stoppt und entfernt er die zugehörige Ereignissitzung
 und die Testdatenbank. Bei Ablehnung bleiben Datenbank und Sitzung erhalten.

@@ -126,7 +126,7 @@ SELECT N'COLUMN',object_id,column_id,name,user_type_id,max_length,is_nullable FR
 IF EXISTS(SELECT 1 FROM [{name}].sys.extended_properties WHERE DATALENGTH(CONVERT(nvarchar(max),value))>4000) THROW 51004,'MARKER_SNAPSHOT_TOO_WIDE',1;
 SELECT N'MARKER',class,major_id,minor_id,name,SQL_VARIANT_PROPERTY(value,'BaseType'),CONVERT(varchar(8000),CONVERT(varbinary(max),CONVERT(nvarchar(max),value)),2) FROM [{name}].sys.extended_properties ORDER BY class,major_id,minor_id,name;
 SELECT N'XE',event_session_id,name,event_retention_mode,max_dispatch_latency,max_memory,max_event_size,memory_partition_mode,track_causality,startup_state FROM sys.server_event_sessions WHERE name=N'{xe_name(demo)}';
-SELECT N'XE_RUNNING',name,CONVERT(nvarchar(33),create_time,126),CONVERT(varchar(max),address,2) FROM sys.dm_xe_sessions WHERE name=N'{xe_name(demo)}';
+SELECT N'XE_RUNNING',name,CONVERT(varchar(max),address,2) FROM sys.dm_xe_sessions WHERE name=N'{xe_name(demo)}';
 SELECT N'XE_EVENT',e.event_session_id,e.event_id,e.name,e.package,e.predicate FROM sys.server_event_session_events e JOIN sys.server_event_sessions s ON s.event_session_id=e.event_session_id WHERE s.name=N'{xe_name(demo)}';
 SELECT N'XE_TARGET',t.event_session_id,t.target_id,t.name,t.package FROM sys.server_event_session_targets t JOIN sys.server_event_sessions s ON s.event_session_id=t.event_session_id WHERE s.name=N'{xe_name(demo)}';
 """)
@@ -144,7 +144,7 @@ SELECT N'STATE',IncidentPhase FROM lab.IncidentState;
 
 
 def assert_restored(target: ExecutionTarget, demo: str) -> None:
-    expected = 'ALTER PROCEDURE lab.OwnershipRestore AS SELECT 1 AS Value;'
+    expected = 'CREATE PROCEDURE lab.OwnershipRestore AS SELECT 1 AS Value;'
     output = run_sql(target, database=database(demo), sql_text=f"""
 SET NOCOUNT ON;
 IF (SELECT COUNT(*) FROM lab.Dgn007ReferenceState)<>1
@@ -195,7 +195,7 @@ def state_expression(demo: str) -> str:
         ("Columns",f"SELECT object_id,column_id,name,user_type_id,max_length,is_nullable FROM [{db}].sys.columns WHERE object_id=OBJECT_ID(N'{db}.dbo.OwnershipProbe') ORDER BY column_id"),
         ("Markers",f"SELECT class,major_id,minor_id,name,CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(value,'BaseType')) AS BaseType,CONVERT(varchar(max),CONVERT(varbinary(max),CONVERT(nvarchar(max),value)),2) AS FullBytes FROM [{db}].sys.extended_properties ORDER BY class,major_id,minor_id,name"),
         ("XeDefinition",f"SELECT * FROM sys.server_event_sessions WHERE name=N'{xe}' ORDER BY event_session_id"),
-        ("XeRuntime",f"SELECT name,create_time,CONVERT(varchar(max),address,2) AS FullAddress FROM sys.dm_xe_sessions WHERE name=N'{xe}' ORDER BY name"),
+        ("XeRuntime",f"SELECT name,CONVERT(varchar(max),address,2) AS FullAddress FROM sys.dm_xe_sessions WHERE name=N'{xe}' ORDER BY name"),
         ("XeEvents",f"SELECT e.* FROM sys.server_event_session_events e JOIN sys.server_event_sessions s ON s.event_session_id=e.event_session_id WHERE s.name=N'{xe}' ORDER BY e.event_id"),
         ("XeTargets",f"SELECT t.* FROM sys.server_event_session_targets t JOIN sys.server_event_sessions s ON s.event_session_id=t.event_session_id WHERE s.name=N'{xe}' ORDER BY t.target_id"),
         ("XeFields",f"SELECT f.event_session_id,f.object_id,f.name,CONVERT(varchar(max),CONVERT(varbinary(max),CONVERT(nvarchar(max),f.value)),2) AS FullBytes FROM sys.server_event_session_fields f JOIN sys.server_event_sessions s ON s.event_session_id=f.event_session_id WHERE s.name=N'{xe}' ORDER BY f.object_id,f.name"),
@@ -280,13 +280,31 @@ SELECT 'ORACLE_COMPLETE';
         else:
             raise RuntimeError('Beschädigender Cleanup wurde vom Oracle akzeptiert')
         run_sql(target,database=database(demo),sql_text='UPDATE dbo.OwnershipProbe SET Value=73;')
+    if demo in ('DGN-005','DGN-007'):
+        # Eine unveränderte create_time variierte in der lokalen Gegenprobe.
+        # Verglichen werden vollständige Definition, Name, Adresse und Laufzustand.
+        running=run_sql(target,database='master',sql_text=f"SET NOCOUNT ON; SELECT COUNT(*) FROM sys.dm_xe_sessions WHERE name=N'{xe_name(demo)}';").strip()
+        if running not in ('0','1'): raise RuntimeError('XE-Laufzustand unbestimmt')
+        mutation='STOP' if running=='1' else 'START'
+        restore='START' if running=='1' else 'STOP'
+        error=51013 if demo=='DGN-007' else 51004
+        try:
+            batch_rejection(target,demo,f"ALTER EVENT SESSION [{xe_name(demo)}] ON SERVER STATE={mutation}; THROW {error},'SYNTHETIC_BAD_XE_CLEANUP',1;",'ORACLE_XE_MUTATION',markers(demo),False,False)
+        except ExecutionTargetError as exc:
+            if '51994' not in str(exc) or 'STATE_WAS_CHANGED' not in str(exc):
+                raise RuntimeError('XE-Oracle-Gegenprobe scheiterte am falschen Fehler') from exc
+        else:
+            raise RuntimeError('Veränderter XE-Laufzustand wurde vom Oracle akzeptiert')
+        run_sql(target,database='master',sql_text=f'ALTER EVENT SESSION [{xe_name(demo)}] ON SERVER STATE={restore};')
 
 
-def run_probes(target: ExecutionTarget, *, old_root: Path | None = None, repetitions: int = 2) -> int:
+def run_probes(target: ExecutionTarget, *, old_root: Path | None = None, repetitions: int = 2, demos: tuple[str, ...] = DEMO_IDS) -> int:
     if target.kind != 'docker' or not target.container:
         raise RuntimeError('Eigene wegwerfbare Dockerinstanz erforderlich')
+    if not demos or len(demos)!=len(set(demos)) or any(demo not in DEMO_IDS for demo in demos):
+        raise ValueError('Bekannte eindeutige Demomenge erforderlich')
     count = 0
-    for demo in DEMO_IDS:
+    for demo in demos:
         source = source_path(demo).read_text(encoding='utf-8-sig')
         if old_root:
             fixture(target, demo)
@@ -355,11 +373,12 @@ def main() -> None:
     parser.add_argument('--expected-major', type=int, required=True)
     parser.add_argument('--confirm-disposable', action='store_true', required=True)
     parser.add_argument('--old-root', type=Path)
+    parser.add_argument('--demos', nargs='+', choices=DEMO_IDS, default=DEMO_IDS)
     args = parser.parse_args()
     target = docker_target(container=args.container)
     verify_engine(target, expected_major=args.expected_major)
-    count = run_probes(target, old_root=args.old_root)
-    print(f'OWNERSHIP_COMPLETE|PASS|demos={len(DEMO_IDS)}|negative={count}', flush=True)
+    count = run_probes(target, old_root=args.old_root, demos=tuple(args.demos))
+    print(f'OWNERSHIP_COMPLETE|PASS|demos={len(args.demos)}|negative={count}', flush=True)
 
 
 if __name__ == '__main__':
