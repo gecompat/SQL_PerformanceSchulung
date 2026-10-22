@@ -118,6 +118,16 @@ SELECT 'PRESERVED';
     require_preserved(output,invalid_demo=invalid_demo)
 
 
+def reject_missing(target: ExecutionTarget,source: str,phase: str,action: str,major: int) -> None:
+    ownership.reset_markers(target,DEMO,{})
+    before=snapshot(target)
+    reject_file(target,source,action,major)
+    if before!=snapshot(target):raise RuntimeError('Gesamtdatei veränderte Zustand vor Markerprüfung')
+    # Dieselbe Markerbedingung benötigt auch die spezifischen Ergebnisrecords;
+    # der Fehlertext der echten sqlcmd-Dateiform allein reicht dafür nicht.
+    reject_batch(target,render(phase,action,major),{})
+
+
 def verify_oracles(target: ExecutionTarget) -> None:
     expression=ownership.state_expression(DEMO)
     output=run_sql(target,database='master',sql_text=f"""
@@ -180,9 +190,8 @@ def run_probes(target: ExecutionTarget,major: int,*,old_source: Path|None=None,r
             if len(cases)!=29:raise RuntimeError('Vollständiges Markerfallinventar fehlt')
             for label,values,obj,_ in cases:
                 if label=='ALL_MISSING':
-                    ownership.reset_markers(target,DEMO,values,obj);before=snapshot(target)
-                    reject_file(target,source,action,major)
-                    if before!=snapshot(target):raise RuntimeError('Gesamtdatei veränderte Zustand vor Markerprüfung')
+                    if values or obj:raise RuntimeError('Unbekannte Form des Falls ohne Marker')
+                    reject_missing(target,source,phase,action,major)
                 else:reject_batch(target,render(phase,action,major),values,object_only=obj)
                 count+=1
             reject_batch(target,render(phase,action,major,invalid_demo=True),ownership.markers(DEMO),invalid_demo=True);count+=1

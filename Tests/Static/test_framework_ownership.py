@@ -75,6 +75,16 @@ class FrameworkOwnershipTests(unittest.TestCase):
                 else:
                     with self.assertRaises(RuntimeError):probe.snapshot(self.target())
 
+    def test_missing_markers_need_specific_records_after_generic_file_error(self):
+        source=probe.SOURCE.read_text(encoding='utf-8-sig');phase=probe.control_batch(source)
+        good=record('OWNERSHIP_MARKERS')+record('SUMMARY')+'PRESERVED\n'
+        for batch_output in ('PRESERVED\n',good):
+            with self.subTest(batch_output=batch_output),patch.object(probe.ownership,'reset_markers'),patch.object(probe,'snapshot',return_value='same'),patch.object(probe,'run_sql',side_effect=[ExecutionTargetError('Msg 51002'),batch_output]) as run:
+                if batch_output==good:probe.reject_missing(self.target(),source,phase,'VALIDATE',17)
+                else:
+                    with self.assertRaises(RuntimeError):probe.reject_missing(self.target(),source,phase,'VALIDATE',17)
+                self.assertEqual(2,run.call_count)
+
     def test_harmful_oracles_require_both_exact_state_failures(self):
         for error in (None,ExecutionTargetError('51994 FRAMEWORK_STATE_WAS_CHANGED'),ExecutionTargetError('51002 OTHER')):
             with self.subTest(error=str(error)),patch.object(probe,'run_sql',side_effect=['ORACLE_COMPLETE','','']),patch.object(probe,'reject_batch',side_effect=error) as batch:

@@ -38,6 +38,9 @@ Optionen, Prüfzeile, Struktur und sämtliche Markerbytes mit Typ und Scope.
 Scope bezeichnet die Ebene des Markers, etwa Datenbank oder Tabelle.
 Der Fall ohne Marker führt die vollständige Originaldatei einschließlich
 GO-Batchtrenner und Fehlerstopp aus; ein angehängter Batch muss unerreicht bleiben.
+Zusätzlich muss dieselbe Bedingung ohne Marker im unveränderten Kontrollbatch
+die konkreten Eigentums- und Zusammenfassungsrecords liefern; ein bloßer
+generischer Fehler 51002 genügt nicht.
 Weitere Fälle führen den unveränderten Kontrollbatch aus. Ein konservativer
 Parser weist andere Batchformen zurück.
 
@@ -59,7 +62,7 @@ die Integrationsroute; eine zweite Laufzeitmatrix wird nicht ergänzt.
 
 ## Tatsächlicher Stand und endlicher Rahmen
 
-Quellenkorrektur und zwölf reine Oracle-Testmethoden sind vorbereitet und
+Quellenkorrektur und dreizehn reine Oracle-Testmethoden sind vorbereitet und
 bestehen. Statische Frameworkvertrags-, Bereitschafts-, Kontinuitäts- und
 Selektorprüfungen bestehen. Unabhängiger Quellen-/Test-/Aufrufreview,
 lokale Gegenproben, frische Versionsqualifikation und Integration stehen aus.
