@@ -12,10 +12,10 @@ DECLARE @MajorVersion int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajorVersion
 DECLARE @CompatibilityLevel int = CASE @MajorVersion WHEN 15 THEN 150 WHEN 16 THEN 160 WHEN 17 THEN 170 END;
 DECLARE @Created bit = 0;
 DECLARE @Sql nvarchar(max);
-DECLARE @Project nvarchar(128);
-DECLARE @Contract nvarchar(32);
-DECLARE @ExistingDemo varchar(7);
-DECLARE @ExistingRun varchar(20);
+DECLARE @Project nvarchar(max);
+DECLARE @Contract nvarchar(max);
+DECLARE @ExistingDemo nvarchar(max);
+DECLARE @ExistingRun nvarchar(max);
 
 IF @DemoId <> 'OPT-015' OR @TargetDatabase <> @ExpectedDatabase OR @CompatibilityLevel IS NULL
     THROW 51000, 'FAIL_CONTRACT: OPT-015-Zielkennung oder Engine-Version ist ungültig.', 1;
@@ -27,12 +27,6 @@ BEGIN
     SET @Created = 1;
 END;
 
-SET @Sql = N'ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET RECOVERY SIMPLE;
-ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET AUTO_CLOSE OFF;
-ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET AUTO_SHRINK OFF;
-ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET PAGE_VERIFY CHECKSUM;
-ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET COMPATIBILITY_LEVEL = ' + CONVERT(nvarchar(10), @CompatibilityLevel) + N';';
-EXEC sys.sp_executesql @Sql;
 
 IF @Created = 1
 BEGIN
@@ -46,17 +40,29 @@ END
 ELSE
 BEGIN
     SET @Sql = N'SELECT
- @ProjectOut=MAX(CASE WHEN name=N''SQLPERF.Project'' THEN CONVERT(nvarchar(128),value) END),
- @ContractOut=MAX(CASE WHEN name=N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(32),value) END),
- @DemoOut=MAX(CASE WHEN name=N''SQLPERF.DemoId'' THEN CONVERT(varchar(7),value) END),
- @RunOut=MAX(CASE WHEN name=N''SQLPERF.RunToken'' THEN CONVERT(varchar(20),value) END)
+ @ProjectOut=MAX(CASE WHEN name=N''SQLPERF.Project'' THEN CONVERT(nvarchar(max),value) END),
+ @ContractOut=MAX(CASE WHEN name=N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(max),value) END),
+ @DemoOut=MAX(CASE WHEN name=N''SQLPERF.DemoId'' THEN CONVERT(nvarchar(max),value) END),
+ @RunOut=MAX(CASE WHEN name=N''SQLPERF.RunToken'' THEN CONVERT(nvarchar(max),value) END)
 FROM ' + QUOTENAME(@TargetDatabase) + N'.sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0;';
     EXEC sys.sp_executesql @Sql,
-        N'@ProjectOut nvarchar(128) OUTPUT,@ContractOut nvarchar(32) OUTPUT,@DemoOut varchar(7) OUTPUT,@RunOut varchar(20) OUTPUT',
+        N'@ProjectOut nvarchar(max) OUTPUT,@ContractOut nvarchar(max) OUTPUT,@DemoOut nvarchar(max) OUTPUT,@RunOut nvarchar(max) OUTPUT',
         @ProjectOut=@Project OUTPUT,@ContractOut=@Contract OUTPUT,@DemoOut=@ExistingDemo OUTPUT,@RunOut=@ExistingRun OUTPUT;
-    IF @Project <> N'SQL_PerformanceSchulung' OR @Contract <> N'1.0' OR @ExistingDemo <> @DemoId OR @ExistingRun <> @RunToken
+    IF @Project IS NULL OR @Project COLLATE Latin1_General_100_BIN2 <> N'SQL_PerformanceSchulung' OR DATALENGTH(@Project) <> DATALENGTH(N'SQL_PerformanceSchulung')
+       OR @Contract IS NULL OR @Contract COLLATE Latin1_General_100_BIN2 <> N'1.0' OR DATALENGTH(@Contract) <> DATALENGTH(N'1.0')
+       OR @ExistingDemo IS NULL OR @ExistingDemo COLLATE Latin1_General_100_BIN2 <> CONVERT(nvarchar(max),@DemoId) OR DATALENGTH(@ExistingDemo) <> DATALENGTH(CONVERT(nvarchar(max),@DemoId))
+       OR @ExistingRun IS NULL OR @ExistingRun COLLATE Latin1_General_100_BIN2 <> CONVERT(nvarchar(max),@RunToken) OR DATALENGTH(@ExistingRun) <> DATALENGTH(CONVERT(nvarchar(max),@RunToken))
         THROW 51002, 'FAIL_STATE: Eine gleichnamige Datenbank besitzt nicht die erwarteten Eigentumsmarker.', 1;
 END;
+
+-- Konfiguration erst nach Eigentumsnachweis.
+SET @Sql = N'ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET RECOVERY SIMPLE;
+ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET AUTO_CLOSE OFF;
+ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET AUTO_SHRINK OFF;
+ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET PAGE_VERIFY CHECKSUM;
+ALTER DATABASE ' + QUOTENAME(@TargetDatabase) + N' SET COMPATIBILITY_LEVEL = ' + CONVERT(nvarchar(10), @CompatibilityLevel) + N';';
+EXEC sys.sp_executesql @Sql;
+
 
 SET @Sql = N'USE ' + QUOTENAME(@TargetDatabase) + N'; ALTER DATABASE SCOPED CONFIGURATION SET LAST_QUERY_PLAN_STATS = ON;';
 EXEC sys.sp_executesql @Sql;
