@@ -1,5 +1,27 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Aktueller Schnitt: Cleanup-Eigentumsprüfung vor weiterer nativer Anbindung
+
+PR291 ist vollständig in Main `65089ac2c42a47fe961a1de7dc04d1e41da78f31`
+abgeschlossen: unabhängiger Review, lokale Prüfungen, 48 grüne Head-, fünf
+Base- und 46 frische Main-Prüfungen, vollständige Übernahme, Synchronisation
+und eigene Branchbereinigung. Head ist der geprüfte Pull-Request-Commit, Base
+dessen Main-Basis. Foundation 1.25.0 aus PR290 bleibt abgeschlossen.
+
+Der eigene Schnitt `codex/qry001-cleanup-ownership` behebt unter FWK-002
+(Schutzvertrag für Testdatenbanken) nur den direkten Cleanup für QRY-001
+(Indexfreundliche Suchbedingungen), mit echten negativen Eigentumsgegenproben
+und erhaltenen positiven Läufen. Die separate Setup-Lücke und weitere
+Cleanupkandidaten bleiben offen; keine allgemeine Eigentumssicherheits- oder
+Freigabe einer gemeinsam genutzten Instanz. Auswahl, Tests, Aufrufgrenzen und
+Aufwand stehen im [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
+Ein Implementierungsverantwortlicher, derselbe unabhängige Reviewer, Checkpoint
+nach zwei stabilen Kandidaten beziehungsweise erstem blockierenden Befund,
+harte Grenze vier Kandidaten einschließlich Reviews, Tests und Integration;
+Verbrauch UNKNOWN, nicht verlässlich gemessen. Danach werden zuerst die
+restlichen Eigentumslücken begrenzt, erst anschließend die native Kanalanbindung.
+Die folgenden Abschnitte sind historische Nachweise.
+
 ## Aktuelle Priorität: menschlicher Ausführungspfad und Schutzvertrag für Cleanup
 
 Foundation 1.25.0 ist mit PR290 in Main
