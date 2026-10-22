@@ -66,10 +66,21 @@ Ereignissitzung erhalten; beim Diagnosefall ebenso Prozedur und Referenzdaten.
 Zwei positive Durchläufe je Version prüfen den passenden Cleanup und dessen
 Wiederholung sowie unabhängige Datenbank-/Sitzungsabsenz.
 
-Neun reine Testmethoden prüfen Quelleninventar und Testoracles. Die unterstützte Versionsqualifikation
-und aktuellen Integrationsprüfungen sind noch offen. Die unten abgegrenzten
-lokalen Ergebnisse werden nicht als vollständige Abnahme ausgegeben. Private Ausgangsbytes, Quellenbindungen, Rohlogs und Budgets liegen
-ausschließlich im ignorierten Runtime-Verzeichnis.
+Neun reine Testmethoden prüfen Quelleninventar und Testoracles. Die Korrektur
+ist über [PR295](https://github.com/gecompat/SQL_PerformanceSchulung/pull/295)
+in Main `dd733100ebc0bfd63846b39c3610b7e945715586` integriert. Am geprüften
+Änderungsstand bestanden 82 Checks, am frischen Main 80; je 54 SQL-Matrixjobs
+und 54 erfolgreiche Abbauschritte. Der neue Eigentumsworkflow bestand je Welle
+alle 22 Quellen zweimal auf SQL Server 2019, 2022 und 2025: 132 Profile und
+3960 Negativfälle. Es gab keine manuellen Wiederholungen. Unabhängiger
+Sicherheitsreview ohne offene priorisierte Befunde, vollständige Baumübernahme,
+Main-Synchronisation und eigene lokale sowie Remote-Branchbereinigung sind
+bestätigt. Die begrenzte Abnahme gilt für diese Cleanupfehlerklasse.
+
+Die nachfolgenden lokalen Versuche dokumentieren den Weg zur Korrektur und
+ersetzen diese frischen Versionsprüfungen nicht. Private Ausgangsbytes,
+Quellenbindungen, Rohlogs und Budgets liegen ausschließlich im ignorierten
+Runtime-Verzeichnis.
 
 ## Aufwand, Grenzen und Folgearbeit
 
@@ -169,8 +180,8 @@ bestätigte Verletzung, danach zweimal alle 30 neuen Negativfälle, positiver un
 wiederholter Rückfall, beide schädigenden Laufzustandswechsel sowie unabhängiger
 Datenbank- und Containerabbau. Alle sieben eigenen lokalen Container sind
 unabhängig abwesend; kein UNKNOWN (ungeklärter Ressourcenbestand). Die früheren
-FAILs bleiben erhalten. Diese gezielte 2025-Gegenprobe ersetzt nicht die noch
-ausstehenden frischen vollständigen Head-/Main-Matrizen auf 2019/2022/2025.
+FAILs bleiben erhalten. Diese gezielte 2025-Gegenprobe ersetzte nicht die anschließend erfolgreich
+abgeschlossenen frischen Head-/Main-Matrizen auf 2019/2022/2025.
 
 Die Frameworkreferenz `FWK_TestDatabaseLifecycle.sql` besitzt außerhalb dieses
 Inventars weiterhin gekürzte positive Markerprüfungen. Andere Setups und die
