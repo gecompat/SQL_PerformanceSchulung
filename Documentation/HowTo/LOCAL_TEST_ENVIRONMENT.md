@@ -1,26 +1,31 @@
 # Lokale Testumgebung für Schulungsdemos
 
-Arbeitspaket `INF-001` (Ausführungsziele der Schulungsbeispiele) aus Welle 10. Grundlage: `Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md` Abschnitt 13 und `Documentation/Project_Planning/INF_001_EXECUTION_TARGET_DESIGN.md`.
-
 Dieses How-to beschreibt, wie eine Schulungsdemo auf einer **vorhandenen SQL-Server-Instanz** ausgeführt wird. Alle Beispiele verwenden neutrale Platzhalter in spitzen Klammern.
+
+Für die eigentliche Vorführung führt der [zentrale Ausführungsleitfaden](DEMO_EXECUTION_GUIDE.md)
+durch Auswahl, Start und Ergebnisdeutung. Diese Seite vertieft die Vorbereitung
+einer vorhandenen Testinstanz. Nach einem Abbruch gilt der dort beschriebene
+Erhaltungsweg; die Eigentumsprüfung der Cleanupskripte ist noch nicht für alle
+Demos belastbar.
 
 ## 1. Auswahl des Ausführungspfads
 
-Abschnitt 13.2 des Masterplans legt eine Stufenleiter fest. Es gilt immer die kleinste ausreichende Stufe.
+Wählen Sie den kleinsten ausreichenden Ausführungspfad. Wenn keine geeignete
+Testinstanz vorhanden ist, verwenden Sie den verlinkten Container-Quickstart.
 
 | Stufe | Pfad | Verwendung | Stand |
 |---:|---|---|---|
 | 1 | vorhandene Testinstanz plus eigene synthetische Testdatenbank | Standard, wenn ein geeigneter SQL Server verfügbar ist | in diesem How-to beschrieben |
-| 2 | reine T-SQL-Steuerung innerhalb der isolierten Testinstanz | bevorzugt für Pläne, Statistiken, Indizes, Blocking, Deadlocks, Query Store und Extended Events | in diesem How-to beschrieben |
-| 3 | containerisierte Einzelinstanz | wenn kein SQL Server vorhanden ist oder reproduzierbare CPU-/RAM-Grenzen benötigt werden | als `INF-002` (Docker) und `INF-003` (Podman) in `CONTAINER_QUICKSTART.md` beschrieben und für den SQL-Server-2025-Lifecycle praktisch validiert |
-| 4 | Hyper-V-VM | Windows-, OS-, Storage- oder Isolationsanforderungen | zurückgestellt (`INF-004`, DEC-049) |
-| 5 | Mehrinstanz- oder Netzwerktopologie | verteilte oder netzwerkabhängige Kernaussage | zurückgestellt (`INF-006`, DEC-049) |
+| 2 | Steuerung mit Transact-SQL (T-SQL), der Abfragesprache von SQL Server, innerhalb der isolierten Testinstanz | Pläne, Statistiken, Indizes, Blocking, Deadlocks, Query Store und Extended Events | in diesem How-to beschrieben |
+| 3 | containerisierte Einzelinstanz | wenn kein SQL Server vorhanden ist oder reproduzierbare Prozessor-/Arbeitsspeichergrenzen benötigt werden | [Container-Quickstart](CONTAINER_QUICKSTART.md); Bereitstellung mit Docker (`INF-002`) oder Podman (`INF-003`) |
+| 4 | virtuelle Maschine mit Hyper-V | Anforderungen an Windows, Betriebssystem, Speicher oder Isolation | noch kein verfügbarer Ausführungspfad in dieser Anleitung |
+| 5 | Mehrinstanz- oder Netzwerktopologie | verteilte oder netzwerkabhängige Kernaussage | noch kein verfügbarer Ausführungspfad in dieser Anleitung |
 
 Entscheidungshilfe:
 
-- Steht eine SQL-Server-Instanz zur Verfügung, die **verworfen oder zurückgesetzt werden darf**, ist Stufe 1 der richtige Weg. Die sechs runtimevalidierten Demos sind so aufgebaut, dass sie auf einer solchen Instanz laufen; ihre bisherige Validierung erfolgte containerisiert.
+- Steht eine SQL-Server-Instanz zur Verfügung, die ausschließlich für die Übung vorgesehen ist und **verworfen oder zurückgesetzt werden darf**, beginnen Sie bei Stufe 1. Die Voraussetzungen der gewählten Demo bleiben maßgeblich.
 - Steht keine Instanz zur Verfügung, führt `Documentation/HowTo/CONTAINER_QUICKSTART.md` über den geprüften Docker- oder Podman-Arbeitsplatzpfad. Der vollständige interaktive Lifecycle ist für `CON-004` (Blockierungsketten verfolgen) auf SQL Server 2025 validiert.
-- Hyper-V und Mehrinstanztopologien sind ausdrücklich zurückgestellt, bis der externe Runner `Key18_Perf` bereitsteht. Die Anforderungen sind in `Documentation/Architecture/RUNNER_TOPOLOGY.md` beschrieben.
+- Hyper-V und Mehrinstanztopologien werden hier nicht bereitgestellt. Ihre technischen Voraussetzungen stehen in der [Runner-Topologie](../Architecture/RUNNER_TOPOLOGY.md).
 
 Läufe gegen eine vorhandene Instanz sind Entwicklungs- und Fehlersuchevidenz. Sie ersetzen keine Gate-Evidenz; diese entsteht ausschließlich auf GitHub-gehosteten Runnern über die Versionsmatrix 2019, 2022 und 2025 (DEC-047).
 
@@ -103,7 +108,9 @@ Die Datenbank wird nicht von Hand angelegt. Das Setup-Skript der Demo erzeugt si
 SQLPERF_LAB_<DEMOID ohne Bindestrich>_<RUN_TOKEN>
 ```
 
-Beispiel: `QRY-001` mit `run_token: LOCAL` ergibt `SQLPERF_LAB_QRY001_LOCAL`. Der Run Token steht im Manifest der Demo und ist synthetisch.
+Beispiel: Die Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) mit
+`run_token: LOCAL` ergibt `SQLPERF_LAB_QRY001_LOCAL`. Der Run Token ist die
+synthetische Laufkennung aus dem Manifest.
 
 Das Präfix `SQLPERF_LAB_` ist das Schutzschema des Frameworks. Die Demo-Verträge verpflichten Setup und Cleanup darauf, ausschließlich Datenbanken mit diesem Präfix anzulegen und zu entfernen. Ein Runtime-Nachweis dieses Schutzschemas ist als `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken) noch offen; die Zielinstanz muss deshalb ohnehin eine Wegwerfinstanz sein.
 
@@ -197,20 +204,21 @@ Nach jedem Lauf wird geprüft, ob die Testdatenbank tatsächlich entfernt wurde:
 SELECT name FROM sys.databases WHERE name LIKE N'SQLPERF[_]LAB[_]%';
 ```
 
-Bleibt eine Datenbank zurück, etwa nach einem Abbruch oder einem Zeitüberschreitungsfehler, wird sie gezielt entfernt. Der Name ist vorher zu prüfen; die Anweisung trennt bestehende Verbindungen:
+Bleibt eine Datenbank zurück, erhalten Sie sie und starten keinen weiteren
+Demolauf gegen diese Instanz. Der [zentrale Wiederherstellungsweg](DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen)
+erläutert die aktuelle Grenze der Eigentumsprüfung. Ein Namenspräfix reicht
+für eine Löschentscheidung nicht aus. Verwenden Sie weder manuelles
+`DROP DATABASE` anhand des Namens noch einen ungeprüften eigenständigen
+Cleanupaufruf.
 
-```sql
-ALTER DATABASE [SQLPERF_LAB_QRY001_LOCAL] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-DROP DATABASE [SQLPERF_LAB_QRY001_LOCAL];
-```
-
-Diese Anweisung wird ausschließlich auf Datenbanken mit dem Präfix `SQLPERF_LAB_` angewendet.
-
-Blockiert eine hängende Sitzung das Löschen, hilft die Zuordnung über `sys.dm_exec_sessions` und `sys.dm_tran_locks`. `CON-004` erzeugt bewusst Blockierungen; ein abgebrochener Lauf dieser Demo kann Sitzungen hinterlassen.
-
-Recovery ohne Datenverlustrisiko: Da alle Daten synthetisch sind und je Lauf neu erzeugt werden, ist das vollständige Entfernen aller `SQLPERF_LAB_`-Datenbanken der Rücksetzpunkt. Eine Sicherung dieser Datenbanken ist weder vorgesehen noch nötig.
-
-Ein Reset der Instanz selbst ist nur nötig, wenn eine Demo Servereinstellungen verändert hat. Die derzeit runtimevalidierten Demos tun das nicht; Query Store und Extended Events werden nur im containerisierten Framework-Matrixlauf auf Serverebene geschaltet.
+Recovery bedeutet hier die Wiederherstellung eines geklärten Ausgangszustands.
+Solange der korrigierte Eigentumsnachweis fehlt, bleiben die bisherige Instanz
+und ihr Szenariozustand erhalten. Stoppen Sie an dieser Stelle; ein unabhängig
+abgegrenzter Wiederanlauf mit getrenntem Steuerungszustand ist hier noch nicht
+beschrieben. Übernehmen Sie keine Reset- oder Remove-Schritte anderer Anleitungen.
+Die bisherige Empfehlung, alle Datenbanken mit Schulungspräfix zu entfernen,
+entfällt. Es gibt keinen pauschalen Auftrag zum Zurücksetzen einer vorhandenen
+Instanz oder zum Beenden fremder Sitzungen.
 
 ## 9. Unterschiede zwischen SQL Server 2019, 2022 und 2025
 
@@ -227,20 +235,17 @@ Eine Demo, deren Versionsbereich die vorhandene Instanz nicht einschließt, ende
 
 ## 10. Demos mit zusätzlichem Infrastrukturbedarf
 
-Stand der runtimevalidierten Demos:
+Die aktuelle Zuordnung von Demo, Sicherheitsstufe, Sitzungszahl und
+**Zusatzbedarf** steht im [Demo-Katalog](../Demo_Catalog/README.md#ausführungspfad-der-implementierten-demos).
+Prüfen Sie dort die Zeile Ihrer gewählten Demo und anschließend ihre README.
+Eine zweite, verkürzte Liste in dieser Anleitung würde bei neuen Demos schnell
+veraltet sein.
 
-| Demo-ID | Sicherheitsstufe | Sitzungen | Zusatzbedarf |
-|---|---|---:|---|
-| `QRY-001` | `GREEN` | 1 | keiner |
-| `OPT-002` (Statistiken lesen) | `GREEN` | 1 | keiner |
-| `OPT-015` (Ausführungspläne systematisch lesen) | `GREEN` | 1 | Planeigenschaften aus `sys.dm_exec_query_plan_stats` |
-| `OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung) | `GREEN` | 1 | Planeigenschaften aus `sys.dm_exec_query_plan_stats` |
-| `OPT-013` | `YELLOW` | 1 | isolierte Instanz; belastet `tempdb` |
-| `CON-004` | `YELLOW` | 4 | isolierte Instanz; Mehrsitzungsorchestrierung über `orchestrate_sessions.py` |
-
-`CON-004` ist die einzige Demo mit Mehrsitzungsorchestrierung. Sie startet vier Sitzungen über ein eigenes Sitzungsmanifest und benötigt deshalb ein `sqlcmd`, das mehrfach parallel gestartet werden kann.
-
-Demos, die CPU-/RAM-Limits, gedrosseltes I/O (Input/Output; Ein- und Ausgabezugriffe), Netzwerkbedingungen, mehrere Instanzen oder Windows-nahe Messung benötigen, sind derzeit nicht umgesetzt. Sie gehören zu den zurückgestellten Bündeln `INF-004` bis `INF-006`.
+Die Demo für Blockierungsketten (`CON-004`) benötigt mehrere gleichzeitige
+Sitzungen. Die Demo zur ungleich verteilten parallelen Arbeit (`OPT-017`)
+benötigt ein Container-Ressourcenprofil. Weitere Mehrsitzungs- und
+Ressourcenanforderungen ergeben sich aus dem Katalog und dem jeweiligen
+Manifest; planen Sie die Instanz anhand dieser Angaben.
 
 ## 11. Grenzen dieses How-tos
 

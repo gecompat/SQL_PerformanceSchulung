@@ -1,4 +1,4 @@
-# QRY-001 – SARGable und Non-SARGable Prädikate
+# QRY-001 – Indexfreundliche Suchbedingungen
 
 | Merkmal | Wert |
 |---|---|
@@ -38,11 +38,17 @@ Für den vollständigen automatisierten Lauf werden `CREATE DATABASE`, `SHOWPLAN
 
 ### 4.3 Mindestanforderungen an die Host-Hardware
 
-Mindestens 2 logische CPU-Kerne, 2 GB RAM (Random Access Memory; Arbeitsspeicher) und 300 MB freier Datenträgerspeicher. Es ist nur eine SQL-Server-Instanz erforderlich.
+Mindestens 2 logische Prozessorkerne (CPU: Central Processing Unit), 2 GB RAM (Random Access Memory; Arbeitsspeicher) und 300 MB freier Datenträgerspeicher. Es ist nur eine SQL-Server-Instanz erforderlich.
 
 ## 5. Sicherheits- und Abbruchrahmen
 
-Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer eigenen markierten Testdatenbank. Das Harness-Zeitbudget beträgt 240 Sekunden. Abbruch und Recovery erfolgen über `FWK-010` (Runtime-Harness-Vertrag); die Datenbank wird ausschließlich nach vollständiger Markerprüfung entfernt.
+Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer markierten
+Testdatenbank. Verwenden Sie eine ausschließlich für die Übung vorgesehene
+Wegwerfinstanz ohne fremde Daten. Das Zeitbudget des Demo-Aufrufers (Harness)
+beträgt 240 Sekunden. Ein Quellenreview hat eine Lücke bei fehlenden
+Cleanup-Eigentumsmarkern bestätigt; die bisherige pauschale Garantie einer
+vollständigen Eigentumsprüfung gilt für diesen Pfad derzeit nicht. Nach einem
+Abbruch gilt der Erhaltungsweg in Abschnitt 10.
 
 ## 6. Synthetisches Datenmodell
 
@@ -52,7 +58,7 @@ Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer eigenen mar
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen; nach Abbruch nur den markergebundenen Cleanup aus dem Leitfaden verwenden.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf auf einer eigenen Wegwerfinstanz ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt im Aufrufer keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen. Der vorgesehene markergebundene Cleanup ist bei fehlenden Markern noch nicht zuverlässig; nach Abbruch Datenbanken gemäß dem Leitfaden erhalten und keinen eigenständigen Cleanup starten.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -75,7 +81,16 @@ Die Funktion `CONVERT(char(10), EventDateTime, 120)` muss für Indexwerte ausgew
 
 ## 10. Cleanup und Wiederherstellung
 
-`90_Cleanup.sql` liest Projekt-, Vertrags-, Demo- und Run-Marker aus der Zieldatenbank. Nur bei vollständiger Übereinstimmung wird die Datenbank in `SINGLE_USER` versetzt und entfernt. Nach Abbruch führt `FWK-010` denselben Cleanup-Pfad aus.
+`90_Cleanup.sql` liest Projekt-, Vertrags-, Demo- und Run-Marker aus der
+Zieldatenbank. Fehlen Marker, kann seine aktuelle Ablehnungsbedingung umgangen
+werden. Nach begonnenem Setup ruft der Harness denselben Cleanup-Pfad auf;
+ein erfolgreicher historischer Lauf belegt diesen fehlenden Gegenfall nicht.
+
+Erhalten Sie nach einem Abbruch zurückgebliebene Datenbanken und folgen Sie
+dem [aktuellen Erhaltungsweg](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen).
+Die Korrektur des Schutzvertrags für Testdatenbanken (`FWK-002`) und eine
+Gegenprobe mit fehlenden Markern stehen aus. Hierfür wurde in diesem
+Dokumentationsschnitt kein SQL ausgeführt.
 
 ## 11. Tests
 
