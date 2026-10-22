@@ -35,6 +35,15 @@ Die Demo behauptet nicht, dass ein bestimmter Client, Treiber oder SSMS (SQL Ser
 
 Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `SQLPERF_LAB_QRY013_<RunToken>`. Cachebereinigung erfolgt ausschließlich objektbezogen über `sp_recompile` auf das Demoobjekt; `DBCC FREEPROCCACHE` und `DBCC DROPCLEANBUFFERS` sind ausgeschlossen. Es werden keine Instanzeinstellungen verändert. Die Auswertung der Cacheattribute ist über `sys.dm_exec_procedure_stats` auf das Demoobjekt in der Demodatenbank eingegrenzt.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.SearchItem` mit 20 020 Zeilen und deterministisch schiefer Verteilung der `CategoryCode`-Werte: 20 Zeilen `RARE` und 20 000 Zeilen `CMMN`. `lab.SearchItemStatus` liefert den referenzierten Statusschlüssel. Ein nicht abdeckender nicht gruppierter Index auf `CategoryCode` macht die Selektivitätsdifferenz zwischen beiden Werten wirksam. `lab.Qry013Evidence` nimmt je Phase Sessionoptionen, Datenbankkontext, Cacheeintragszahl, Anzahl unterschiedlicher `set_options`, logische Lesevorgänge sowie Ergebnisumfang und Ergebnischecksumme auf.

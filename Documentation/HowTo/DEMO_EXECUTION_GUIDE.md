@@ -245,6 +245,13 @@ Bei der Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) prüfen Setup
 und Cleanup die vollständigen Eigentumsmarker; das Setup tut dies bei einer
 vorhandenen Datenbank vor Konfigurations- und Tabellenänderungen. Die begrenzten
 Gegenproben verwenden eigene synthetische Daten in einer Wegwerfinstanz.
+Zehn weitere Einrichtungsskripte prüfen vorhandene Datenbanken ebenfalls vor
+der ersten Konfigurations- oder Tabellenänderung. Die einzelnen Demos mit Thema,
+Versionsgrenzen und tatsächlichem Prüfstand stehen im
+[abgegrenzten Setupumfang](../Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md).
+Fehlende oder abweichende Eigentumsmarker führen zur Ablehnung und Erhaltung
+der Datenbank.
+
 Die 22 weiteren Cleanupquellen im [abgegrenzten Eigentumsumfang](../Project_Planning/FWK_002_CLEANUP_OWNERSHIP_REVIEW.md)
 lesen inzwischen ebenfalls alle vier Eigentumsmarker vollständig und weisen
 fehlende oder abweichende Werte ab. Bei der gezielten Ereigniserfassung
@@ -252,7 +259,7 @@ fehlende oder abweichende Werte ab. Bei der gezielten Ereigniserfassung
 Datenbankeigentum ungeklärt ist. Eine fehlende Datenbank bei vorhandener
 Ereignissitzung ist ein Fehler und verlangt Klärung.
 
-Das qualifiziert keine anderen Setup- oder Wiederherstellungswege. Insbesondere
+Das qualifiziert ausschließlich die genannten Eigentumspfade. Insbesondere
 die erstmalige Markierung einer neuen Datenbank und weitere bestehende Setups
 sind nicht allgemein freigegeben. Die verbleibenden Prüfungen stehen im
 [aktuellen Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md#wiederaufnahme-vom-22-oktober-2026-eigentumsprüfungen-zuerst).

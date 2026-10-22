@@ -35,6 +35,15 @@ Die Demo stellt keine Rangfolge der drei Strategien auf und behauptet nicht, `OP
 
 Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `SQLPERF_LAB_QRY004_<RunToken>`. Planentwertung erfolgt ausschließlich objektbezogen über `sp_recompile`; `DBCC FREEPROCCACHE` und `DBCC DROPCLEANBUFFERS` sind ausgeschlossen. Instanzeinstellungen werden nicht verändert. Dynamisches SQL wird ausschließlich aus einer Positivliste zusammengesetzt; Werte werden nie in den Statementtext geschrieben, sondern über `sys.sp_executesql` gebunden. Eine unbekannte Filterdefinition führt zu einem kontrollierten Abbruch mit `THROW 51000`.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.SearchOrder` mit 20 000 Zeilen: 20 Zeilen `RARE` und 19 980 Zeilen `CMMN` im Feld `CategoryCode`, dazu ein gleichverteilter `StatusCode` mit je 4 000 Zeilen. `lab.SearchStatus` liefert den referenzierten Statusschlüssel. Zwei nicht abdeckende nicht gruppierte Indizes auf `CategoryCode` und `StatusCode` machen den Selektivitätsunterschied wirksam. `lab.Qry004AllowedFilter` enthält die zwei zugelassenen Prädikatsbausteine. `lab.Qry004Evidence` nimmt je Phase, Strategie und Filterkombination Ergebnisumfang, Ergebnischecksumme, logische Lesevorgänge, Zahl der Planformen, Ausführungszahl, CPU-Zeit und die Literalfreiheit des zwischengespeicherten Statementtexts auf.

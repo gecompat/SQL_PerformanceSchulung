@@ -34,6 +34,15 @@ SQL Server 2019 bis 2025, Compatibility Level 150 bis 170, `CREATE DATABASE` und
 
 Die Demo ist gelb, weil 300.000 breite Zeilen mehrfach sortiert und ein kontrollierter TempDB-Spill erzeugt werden. Das Harness verlangt `--confirm-isolated-lab`; die maximale Laufzeit beträgt 360 Sekunden. Jede Workloadabfrage verwendet `MAXDOP 1`. Es werden keine globalen Caches geleert, keine Serveroptionen verändert und keine fremden Objekte bearbeitet. Timeout und Cleanup folgen `FWK-008` (Sicherheits- und Abbruchvertrag) und `FWK-010` (Runtime-Harness-Vertrag).
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.SpillData` enthält 300.000 Zeilen mit deterministischem Sortierschlüssel und 200 Byte breiter Nutzlast. Die Baseline liest die relationale Basistabelle. Im Problemzustand werden dieselben Zeilen in eine Table Variable kopiert; der Statement-Hint `DISABLE_DEFERRED_COMPILATION_TV` deaktiviert ausschließlich für diese Abfrage die ab SQL Server 2019 verfügbare Deferred Compilation. Die Gegenmaßnahme materialisiert dieselben Zeilen in `lab.SpillStage` und erzeugt eine Fullscan-Statistik auf den Sortierspalten.

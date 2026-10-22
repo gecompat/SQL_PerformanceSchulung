@@ -29,6 +29,15 @@ Die Demo empfiehlt weder einen globalen `MAXDOP`-Wert noch eine universelle Skew
 
 `OPT-017` (Ungleich verteilte parallele Arbeit) ist `YELLOW` und erfordert `--confirm-isolated-lab`. Das Manifest begrenzt den Gesamtlauf auf 600 Sekunden; jede Lastphase besitzt ein engeres Zeitbudget. `lab.DemoControl.StopRequested` ist der kooperative Kill-Switch vor einer Lastabfrage. Ein abgebrochener Clientlauf wird vom Harness durch das markergeprüfte Cleanup beendet.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 Das Profil `PARALLEL` enthält je 600.000 Zeilen in zwei Verteilungen. `B` verteilt 4.096 Gruppenschlüssel annähernd gleichmäßig; `S` konzentriert 95 Prozent der Zeilen auf einen Schlüssel. Die Aggregation verwendet einen fest auf 16 Zeilen begrenzten synthetischen Multiplikator und normalisiert Anzahl und Messwertsumme anschließend wieder. Damit überschreitet die Abfrage auch auf kompakten Testinstanzen reproduzierbar die Parallelitätsschwelle, ohne Ergebnismenge oder Datenbestand zu vergrößern. Zeilenzahl und Messwertsumme sind identisch. Alle Daten sind deterministisch und synthetisch.

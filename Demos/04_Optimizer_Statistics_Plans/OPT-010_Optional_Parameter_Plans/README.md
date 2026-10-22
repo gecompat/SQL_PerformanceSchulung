@@ -36,6 +36,15 @@ Die Demo bewertet weder `OPTION (RECOMPILE)` noch sicher parameterisiertes dynam
 
 Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `SQLPERF_LAB_OPT010_<RunToken>`. Die Einstellung `OPTIONAL_PARAMETER_OPTIMIZATION` wird ausschließlich als datenbankbezogene Konfiguration dieser Testdatenbank verändert; Instanzeinstellungen bleiben unberührt. Die Einstellung `PARAMETER_SENSITIVE_PLAN_OPTIMIZATION` wird bewusst nicht angefasst, weil beide Verfahren dieselbe Mehrplaninfrastruktur nutzen; die Zuordnung erfolgt stattdessen über die Elementnamen im Ausführungsplan. Planentwertung erfolgt ausschließlich objektbezogen über `sp_recompile`; `DBCC FREEPROCCACHE` und `DBCC DROPCLEANBUFFERS` sind ausgeschlossen. Die Planauswertung liest ausschließlich Einträge, die über einen Kommentarmarker im Anweisungstext oder über den Namen der Demotabelle eindeutig dieser Demo zuzuordnen sind.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.OppoListing` mit 100 000 Zeilen und bewusst gleichmäßiger Verteilung: 2 000 Agenten zu je genau 50 Zeilen. Die Gleichverteilung ist Teil der Aussage, denn sie schließt aus, dass die parametersensitive Planoptimierung greift; jede beobachtete Variantenbildung ist damit dem optionalen Prädikat zuzuordnen. Der nicht abdeckende nicht gruppierte Index `IX_Opt010_OppoListing_AgentId` macht den Unterschied zwischen Suche mit Schlüsselsuche und vollständiger Prüfung wirksam. Die Statistik wird mit `FULLSCAN` aktualisiert. `lab.Opt010Evidence` nimmt je Phase und Parameterbelegung Ergebnisumfang, Ergebnischecksumme, logische Lesevorgänge, Zahl der zwischengespeicherten Planformen, Zahl der Dispatcherpläne, Zahl der Query Variants, Zahl der Pläne mit optionalem beziehungsweise parametersensitivem Prädikat, die Anzahl optionaler Prädikate im Dispatcher und die beobachtete `QueryVariantID` auf.

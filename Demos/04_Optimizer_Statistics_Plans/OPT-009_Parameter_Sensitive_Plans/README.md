@@ -35,6 +35,15 @@ Die Demo behauptet nicht, dass Parameter Sensitive Plan Optimization Abfragen al
 
 Sicherheitsstufe grün. Alle Objekte liegen in der markergebundenen Datenbank `SQLPERF_LAB_OPT009_<RunToken>`. Die Einstellung `PARAMETER_SENSITIVE_PLAN_OPTIMIZATION` wird ausschließlich als Datenbankeinstellung dieser Testdatenbank verändert; Instanzeinstellungen bleiben unberührt. Planentwertung erfolgt ausschließlich objektbezogen über `sp_recompile`; `DBCC FREEPROCCACHE` und `DBCC DROPCLEANBUFFERS` sind ausgeschlossen. Die Planauswertung liest ausschließlich Einträge, die über einen Kommentarmarker im Anweisungstext oder über den Namen der Demotabelle eindeutig dieser Demo zuzuordnen sind.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.PspOrder` mit 100 000 Zeilen und ausgeprägter Schiefe: `OwnerId = 1` trägt 99 000 Zeilen, die `OwnerId`-Werte 2 bis 201 tragen je fünf Zeilen. Der nicht abdeckende nicht gruppierte Index `IX_Opt009_PspOrder_OwnerId` macht den Selektivitätsunterschied wirksam, weil die Nutzlast nur über eine Schlüsselsuche erreichbar ist. Die Statistik wird mit `FULLSCAN` aktualisiert, damit die Schiefe im Histogramm sichtbar ist. `lab.Opt009Evidence` nimmt je Phase und Parameterwert Ergebnisumfang, Ergebnischecksumme, logische Lesevorgänge, Zahl der zwischengespeicherten Planformen, Zahl der Dispatcherpläne, Zahl der Query Variants, die beobachtete `QueryVariantID` sowie die untere und obere Kardinalitätsgrenze auf.
