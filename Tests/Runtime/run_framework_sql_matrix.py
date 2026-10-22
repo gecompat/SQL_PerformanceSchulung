@@ -179,6 +179,18 @@ def _verify_engine(
     )
 
 
+def _test_lifecycle_inputs(*,container: str,sqlcmd_path: str,expected_major: int) -> None:
+    import framework_inputs
+    try:
+        count=framework_inputs.run_probes(
+            execution_target.docker_target(container=container,sqlcmd_path=sqlcmd_path),expected_major,
+        )
+    except (RuntimeError,ValueError) as exc:
+        raise MatrixFailure('Framework-Eingabegegenprobe fehlgeschlagen: '+str(exc)) from exc
+    if count!=108:raise MatrixFailure('Vollständiger Framework-Eingabenachweis fehlt')
+    print(f'FRAMEWORK_INPUT_COMPLETE|PASS|profiles=6|negative={count}|version={expected_major}',flush=True)
+
+
 def _test_lifecycle_ownership(*,container: str,sqlcmd_path: str,expected_major: int) -> None:
     import framework_ownership
     try:
@@ -558,6 +570,7 @@ def main() -> int:
             expected_major=args.expected_major,
         )
 
+        _test_lifecycle_inputs(container=args.container,sqlcmd_path=sqlcmd_path,expected_major=args.expected_major)
         _test_lifecycle_ownership(container=args.container,sqlcmd_path=sqlcmd_path,expected_major=args.expected_major)
 
         for demo_id in ("QRY-001", "CON-004", "DGN-003", "DGN-005"):

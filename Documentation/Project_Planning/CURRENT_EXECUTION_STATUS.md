@@ -92,6 +92,17 @@ die bisherigen elf Container bleiben gezählt, globale Grenze weiterhin 17.
 Erst nach vollständigem Abschluss dieses Dokumentationsschnitts beginnen
 weitere SQL-Effekte. Recovery bei fehlgeschlagener Erstmarkierung bleibt offen.
 
+Die Rohparameterkorrektur ist nach abgeschlossenem Dokumentationsschnitt
+PR300 im Branch `codex/fwk002-input-validation` lokal geprüft. Elf neue reine
+Testmethoden und die bisherigen 14 Framework-/13 Selektormethoden bestehen.
+Nach unabhängigem Quellen-, Test- und Aufrufreview bestand C2 auf SQL Server 2025
+neun tatsächliche alte Fehlannahmen, darunter drei Löschungen im Testaufbau,
+sowie sechs korrigierte Profile mit 108 Negativfällen und allen positiven
+Nachweisen. C1 wurde nach drei Quellenbefunden nicht ausgeführt. Alle zwölf
+eigenen lokalen Container sind unabhängig abwesend. Versionsprüfung und
+Integration stehen aus. Tatsächlicher Stand und Grenzen:
+[Frameworkeingaben](FWK_002_FRAMEWORK_INPUT_REVIEW.md).
+
 Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
 priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach
 jeder Integration. Danach zuerst verbleibende Setup-/Framework-Eigentumsprüfungen

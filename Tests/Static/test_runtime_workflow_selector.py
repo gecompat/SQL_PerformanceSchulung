@@ -130,9 +130,10 @@ class RuntimeSelectorTests(unittest.TestCase):
     def test_framework_ownership_runtime_dependencies_and_pure_oracle(self) -> None:
         workflow = selector.WORKFLOWS['framework']
         patterns = selector.trigger_paths(workflow)
-        for path in ('Tests/Runtime/framework_ownership.py', 'Tests/Runtime/cleanup_ownership.py'):
+        for path in ('Tests/Runtime/framework_ownership.py', 'Tests/Runtime/framework_inputs.py', 'Tests/Runtime/cleanup_ownership.py'):
             self.assertTrue(selector.select_runtime({path}, patterns, workflow, runtime_job_changed=False))
         self.assertFalse(selector.select_runtime({'Tests/Static/test_framework_ownership.py'}, patterns, workflow, runtime_job_changed=False))
+        self.assertFalse(selector.select_runtime({'Tests/Static/test_framework_inputs.py'}, patterns, workflow, runtime_job_changed=False))
 
     def test_unknown_binding_and_missing_git_object_fail_closed(self) -> None:
         workflow = selector.WORKFLOWS["dgn007"]

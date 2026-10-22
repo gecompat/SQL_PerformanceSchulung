@@ -32,6 +32,13 @@ nach fehlgeschlagener Erstmarkierung. Ein passender Datenbankname allein genügt
 nicht. Nach einem Abbruch gilt die Erhaltung bei ungeklärtem Eigentum gemäß
 [Demo-Ausführungsleitfaden](../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md).
 
+Aktion, Demokennung und Lauftoken werden vor jeder Typkürzung vollständig
+geprüft. Erst gültige Eingaben dürfen einen Datenbanknamen bestimmen.
+Für erlaubte Schreibweise und Normalisierung gilt der
+[Namensvertrag](Contracts/FWK-002_TestDatabase_Lifecycle_Contract.md#2-kanonisches-namensschema).
+Der [abgegrenzte Eingabenachweis](../../Documentation/Project_Planning/FWK_002_FRAMEWORK_INPUT_REVIEW.md)
+trennt vorbereitete Quellen von tatsächlicher Prüfung und Integration.
+
 ## Toolklassen
 
 | Klasse | Bestandteile |

@@ -112,6 +112,10 @@ def main() -> int:
             expected_major=args.expected_major,
         )
 
+        stage = "LIFECYCLE_INPUTS"
+        _announce(stage)
+        matrix._test_lifecycle_inputs(container=args.container,sqlcmd_path=sqlcmd_path,expected_major=args.expected_major)
+
         stage = "LIFECYCLE_OWNERSHIP"
         _announce(stage)
         matrix._test_lifecycle_ownership(container=args.container,sqlcmd_path=sqlcmd_path,expected_major=args.expected_major)

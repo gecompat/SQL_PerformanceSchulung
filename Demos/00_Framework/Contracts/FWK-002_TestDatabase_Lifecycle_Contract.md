@@ -34,6 +34,22 @@ Regeln:
 
 `FWK-*` bezeichnet Framework-Arbeitspakete und erzeugt keine fachliche Testdatenbank. `INF-*` beschreibt Bereitstellung und ist ebenfalls kein Datenbankpräfix.
 
+Die Rohwerte von Aktion, Demokennung und Lauftoken bleiben bis zur Prüfung
+vollständig als Unicode erhalten. Eine feste Eingabebreite darf einen ungültigen
+Suffix nicht vor der Prüfung abschneiden. Die Demokennung besteht exakt aus
+sieben ASCII-Zeichen; ASCII bezeichnet den grundlegenden Zeichensatz mit den
+hier genannten lateinischen Buchstaben und Ziffern. Kleinschreibung oder
+zusätzliche Leerzeichen sind bei der Demokennung ungültig. Aktion und Lauftoken
+dürfen äußere einfache Leerzeichen sowie kleine ASCII-Buchstaben enthalten;
+sie werden vor dem Vergleich getrimmt und großgeschrieben. Andere Unicodeformen
+werden nicht durch ähnliche Darstellung oder Codepage-Konvertierung akzeptiert.
+
+Erst nach gültigen Eingaben wird der vollständige Datenbankname abgeleitet,
+geprüft und in den SQL-Server-Namenstyp `sysname` übernommen. Ungültige Eingaben
+liefern `FAIL_CONTRACT` vor jeder Datenbankänderung. Die sichtbare Fehlerdiagnose
+ist auf 4000 Zeichen je Feld begrenzt; diese Darstellungsgrenze kürzt niemals die
+für die Entscheidung verwendeten Rohwerte.
+
 ## 3. Eigentumsmarker
 
 Die Referenzimplementierung schreibt folgende Extended Properties auf Datenbankebene:
