@@ -1,0 +1,183 @@
+name: Setup ownership guards
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/90_Cleanup.sql'
+      - 'Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/10_Setup.sql'
+      - 'Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/90_Cleanup.sql'
+      - 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/10_Setup.sql'
+      - 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/90_Cleanup.sql'
+      - 'Demos/07_Concurrency/CON-004_Blocking_Chain/10_Setup.sql'
+      - 'Demos/07_Concurrency/CON-004_Blocking_Chain/90_Cleanup.sql'
+      - 'Tests/Runtime/setup_ownership.py'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Static/test_setup_ownership.py'
+      - 'Tests/Static/test_runtime_workflow_selector.py'
+      - 'Tests/Static/select_runtime_workflow.py'
+      - '.github/workflows/setup-ownership.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/90_Cleanup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/10_Setup.sql'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/90_Cleanup.sql'
+      - 'Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/10_Setup.sql'
+      - 'Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/90_Cleanup.sql'
+      - 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/10_Setup.sql'
+      - 'Demos/05_Query_Patterns/QRY-013_Client_Session_Context/90_Cleanup.sql'
+      - 'Demos/07_Concurrency/CON-004_Blocking_Chain/10_Setup.sql'
+      - 'Demos/07_Concurrency/CON-004_Blocking_Chain/90_Cleanup.sql'
+      - 'Tests/Runtime/setup_ownership.py'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Static/test_setup_ownership.py'
+      - 'Tests/Static/test_runtime_workflow_selector.py'
+      - 'Tests/Static/select_runtime_workflow.py'
+      - '.github/workflows/setup-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: setup-ownership-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_runtime: ${{ steps.select.outputs.run_runtime }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python Tests/Static/select_runtime_workflow.py
+          --workflow setup-ownership --event "$EVENT_NAME"
+          --base "$BASE_SHA" --head "$HEAD_SHA" --output "$GITHUB_OUTPUT"
+
+  static:
+    name: Static setup ownership oracles
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/test_setup_ownership.py
+      - run: python Tests/Static/test_runtime_workflow_selector.py
+
+  runtime:
+    name: Setup ownership SQL Server ${{ matrix.year }}
+    needs: [static, changes]
+    if: needs.changes.outputs.run_runtime == 'true'
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {year: 2019, major: 15, image: 'mcr.microsoft.com/mssql/server:2019-latest'}
+          - {year: 2022, major: 16, image: 'mcr.microsoft.com/mssql/server:2022-latest'}
+          - {year: 2025, major: 17, image: 'mcr.microsoft.com/mssql/server:2025-latest'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Ow"
+          owner="setup-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.major }}"
+          container="sqlperf-${owner}"
+          echo "::add-mask::${password}"
+          export SQLCMDPASSWORD="${password}" MSSQL_SA_PASSWORD="${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "$GITHUB_ENV"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "$GITHUB_ENV"
+          echo "SQLPERF_OWNER=${owner}" >> "$GITHUB_ENV"
+          docker pull '${{ matrix.image }}'
+          docker run --name "$container" --label "sqlperf.owner=${owner}" --cpus 2 --memory 2g \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD -d '${{ matrix.image }}'
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "$container" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then ready=1; break; fi
+            test "$(docker inspect -f '{{.State.Running}}' "$container")" = true
+            sleep 2
+          done
+          test "$ready" = 1
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec -e SQLCMDPASSWORD "$container" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          test "$login_ready" = 1
+      - name: Verify all setup guards twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/setup_ownership.py --container "$SQLPERF_SQL_CONTAINER" \
+            --expected-major '${{ matrix.major }}' --confirm-disposable 2>&1 | tee "$RUNNER_TEMP/setup-ownership.log"
+      - name: Upload bounded diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-ownership-${{ matrix.year }}
+          path: ${{ runner.temp }}/setup-ownership.log
+          if-no-files-found: ignore
+          retention-days: 3
+      - name: Remove own container and verify absence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SQLPERF_SQL_CONTAINER:-}" ]; then exit 0; fi
+          cid="$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          if [ -z "$cid" ]; then exit 0; fi
+          test "$(docker inspect -f '{{index .Config.Labels "sqlperf.owner"}}' "$cid")" = "$SQLPERF_OWNER"
+          docker rm -f "$cid"
+          test -z "$(docker ps -aq --no-trunc --filter "id=$cid")"
+          test -z "$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"

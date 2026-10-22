@@ -16,6 +16,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = {
+    "setup-ownership": ".github/workflows/setup-ownership.yml",
     "sql2025-ai-local": ".github/workflows/sql2025-ai-local.yml",
     "adv008-opt009": ".github/workflows/adv008-opt009.yml",
     "adv008-opt010": ".github/workflows/adv008-opt010.yml",
@@ -30,8 +31,8 @@ WORKFLOWS = {
     "w-cov-001": ".github/workflows/w-cov-001.yml",
 }
 
-# Diese reinen Module und Fixtures sind jetzt tatsächliche Eingaben des
-# öffentlichen DGN-010-Runtimeconsumers. Ihre Änderung benötigt native Gates.
+# Diese reinen Module und Fixtures sind jetzt tatsÃ¤chliche Eingaben des
+# Ã¶ffentlichen DGN-010-Runtimeconsumers. Ihre Ã„nderung benÃ¶tigt native Gates.
 RUNTIME_DEPENDENCIES = {
     WORKFLOWS['sql2025-ai-local']: (
         'Tests/Static/dgn010_window_evidence.py',
