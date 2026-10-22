@@ -34,6 +34,15 @@ Erforderlich sind SQL Server 2019 bis 2025, Compatibility Level 150 bis 170, `CR
 
 Die Demo ist grün. Alle Objekte liegen in einer markergebundenen Testdatenbank. `LAST_QUERY_PLAN_STATS` wird nur in dieser Datenbank aktiviert. Globale Cacheleerungen und Instanzänderungen sind verboten; Recompilation erfolgt objektbezogen. Die Datenmenge ist begrenzt, jede Abfrage verwendet `MAXDOP 1`, und Cleanup folgt dem gemeinsamen Marker- und Timeoutvertrag.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.WorkItemDetail` enthält 20.000 Detailzeilen in 20 Gruppen. `lab.ProbeRequest` enthält ein Profil `H` mit 5.000 Anforderungen, aber nur zehn unterschiedlichen Gruppenschlüsseln, sowie ein Profil `L` mit 20 jeweils unterschiedlichen Schlüsseln. Die Baseline verwendet den Index `IX_WorkItemDetail_Group_Sequence` und eine kontrollierte `NO_PERFORMANCE_SPOOL`-Gegenprobe. Der Problemzustand entfernt nur diesen Index und verwendet die hintfreie Abfrage; die äußere Eingabe bleibt nach Profil und Gruppe geordnet. Normalisierte Evidenz wird in `lab.Opt016Evidence` gespeichert, Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) nicht.

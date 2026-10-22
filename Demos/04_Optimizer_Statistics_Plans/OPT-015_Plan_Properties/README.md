@@ -34,6 +34,15 @@ Erforderlich sind SQL Server 2019 bis 2025, Compatibility Level 150 bis 170, `CR
 
 Die Demo ist grün. Sie erzeugt ausschließlich eine markergebundene Testdatenbank und verändert darin die datenbankbezogene Einstellung `LAST_QUERY_PLAN_STATS`. Globale Caches, Instanzoptionen und fremde Objekte bleiben unverändert. Recompilation erfolgt ausschließlich objektbezogen über `sys.sp_recompile`. Timeout und Cleanup folgen dem gemeinsamen Frameworkvertrag.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.EntityGroup` enthält 20 neutrale Gruppen. `lab.WorkItem` enthält zunächst 200.000 deterministische Zeilen mit gleichmäßiger Gruppenverteilung. Der Index `IX_WorkItem_EntityGroupId` wird per Fullscan erfasst und zunächst mit `NORECOMPUTE` stabilisiert. Der Problemzustand ergänzt 60.000 Zeilen für die bisher nicht vorhandene Gruppe 999. Baseline und Vergleich besitzen normalisierte Evidenz in `lab.Opt015Evidence`; Plan XML (Extensible Markup Language; Format zur strukturierten Darstellung von Daten) wird nicht persistiert.

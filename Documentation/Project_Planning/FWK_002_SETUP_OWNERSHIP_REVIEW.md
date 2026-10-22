@@ -63,8 +63,27 @@ Quelle ihre tatsächliche Konfigurationsänderung vor der Ablehnung zeigen.
 Zwölf reine Testmethoden prüfen die Setuporacles. Zwölf Selektortests prüfen
 die Auswahl der Laufzeitjobs. Statische Prüfungen für authentifizierte
 Containerbereitschaft und Erhalt laufender SQL-Jobs bestehen. Unabhängiger
-Quellen-/Testreview ohne offene priorisierte Befunde liegt vor; Aufrufreview,
-lokale Laufzeitgegenproben, Versionsqualifikation und Integration stehen aus.
+Quellen-/Test-/Aufrufreview ohne offene priorisierte Befunde liegt vor.
+Versionsqualifikation und Integration stehen aus.
+
+Der erste lokale Lauf C2 scheiterte nach 21,781 Sekunden im synthetischen
+Testaufbau: `CREATE SCHEMA` war mit nachfolgenden Anweisungen in einem Batch
+verbunden und meldete Syntaxfehler 156. Es wurde keine vollständige
+Produktgegenprobe erreicht. Caller und eigener Container sind beendet und
+unabhängig abwesend. Die 41 gebundenen Rohquellen und der Fehlerlog bleiben
+erhalten. C3 führt die Schemaanlage in einem eigenen dynamischen Batch aus;
+Produktquellen und Prüfanforderungen bleiben unverändert.
+
+C3 bestand nach 1068,273 Sekunden auf SQL Server 2025: zehn tatsächliche alte
+Konfigurationsverletzungen, alle zehn korrigierten Quellen zweimal mit insgesamt
+620 Negativfällen, positive wiederholte Einrichtung und Neuanlage sowie die
+jeweiligen wiederholten Cleanups mit unabhängiger Datenbankabsenz. Die
+Marker-Gegenproben und beide schädigenden Oracle-Gegenproben bestanden.
+Caller und beide eigenen lokalen Container sind beendet und unabhängig
+abwesend; kein ungeklärter Ressourcenbestand. Alle 41 gebundenen Rohquellen
+beider Versuche bleiben erhalten. `C2` und `C3` bezeichnen die jeweiligen
+Quellen-/Teststände dieses Setup-Schnitts. Dieser lokale 2025-Nachweis ersetzt
+die frischen Versions- und Integrationsgates nicht.
 
 ## Aufwand und Grenzen
 
@@ -84,16 +103,21 @@ Laufzeitmatrix. Die reine Prüfung läuft einmal vor der Matrix. Bestehende
 fachliche Matrizen und erforderliche Wiederholungen bleiben erhalten.
 Laufende SQL-Jobs werden nicht automatisch abgebrochen. Authentifizierte
 Bereitschaft, eigener Containerabbau und unabhängige Absenz bleiben Pflicht.
+Der eigentliche CI-Prüfbefehl besitzt ein eigenes Limit von 1800 Sekunden mit
+höchstens 30 Sekunden bis zum erzwungenen Prozessende. Das Joblimit von
+45 Minuten lässt danach Zeit für den immer ausgeführten Containerabbau.
+Ein Zeitlimit ist ein Fehler und wird nicht als erfolgreiche Prüfung gewertet.
 
 Für CI (Continuous Integration; automatisierte Integrationsprüfung) sind eine
 aktuelle Änderungswelle, höchstens eine weitere Welle bei tatsächlich geändertem
 relevantem Input und eine frische Main-Welle vorgesehen. Die genaue Auswahl
-wird vor dem Push geprüft; geschätzt sind 24 SQL-Jobs je Welle, höchstens 72.
-Konfigurierte Zeitgrenzen sind Schätzungen und kein gemessener Verbrauch.
+wurde anhand der betroffenen Quellen und tatsächlichen Filter geprüft:
+24 SQL-Jobs je Welle, höchstens 72. Je Welle sind 1170 konfigurierte Jobminuten
+eine Obergrenzenschätzung und kein gemessener Verbrauch.
 Keine manuellen Wiederholungen unveränderter grüner Läufe und keine zusätzliche
 lokale Versionsdopplung. Gegenwärtig wurde keine SQL-Welle dieses Schnitts
 ausgelöst. Der Workflow und sein konkreter Aufruf benötigen vor Ausführung
-den unabhängigen Review.
+den abschließenden unabhängigen Ergebnis-/Deltareview.
 
 Die Frameworkreferenz und Recovery bei fehlgeschlagener Erstmarkierung einer
 neuen Datenbank bleiben getrennt offen. Recovery bedeutet Wiederherstellung

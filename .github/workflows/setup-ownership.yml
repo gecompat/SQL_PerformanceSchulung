@@ -159,7 +159,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python Tests/Runtime/setup_ownership.py --container "$SQLPERF_SQL_CONTAINER" \
+          timeout --signal=TERM --kill-after=30s 1800s python Tests/Runtime/setup_ownership.py --container "$SQLPERF_SQL_CONTAINER" \
             --expected-major '${{ matrix.major }}' --confirm-disposable 2>&1 | tee "$RUNNER_TEMP/setup-ownership.log"
       - name: Upload bounded diagnostic
         if: always()

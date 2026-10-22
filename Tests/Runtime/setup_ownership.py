@@ -49,7 +49,7 @@ EXEC sys.sp_executesql N'USE [{db}]; ALTER DATABASE SCOPED CONFIGURATION SET LAS
 def fixture(target: ExecutionTarget,demo: str) -> None:
     ownership.fixture(target,demo)
     db=ownership.database(demo)
-    run_sql(target,database=db,sql_text='CREATE SCHEMA lab; CREATE TABLE lab.OwnershipSetupSentinel(Value int NOT NULL); INSERT lab.OwnershipSetupSentinel VALUES(919);')
+    run_sql(target,database=db,sql_text="EXEC(N'CREATE SCHEMA lab'); CREATE TABLE lab.OwnershipSetupSentinel(Value int NOT NULL); INSERT lab.OwnershipSetupSentinel VALUES(919);")
     run_sql(target,database='master',sql_text=initial_config(demo))
 
 

@@ -34,6 +34,15 @@ SQL Server 2019 bis 2025, vier gleichzeitig ausführbare Sessions sowie `CREATE 
 
 Die Demo ist gelb, weil mehrere Sessions absichtlich Lock-Waits erzeugen. `FWK-010` (Runtime-Harness-Vertrag) verlangt `--confirm-isolated-lab`; das globale Zeitbudget beträgt 120 Sekunden. Jede Signalsperre besitzt ein eigenes Zeitlimit von höchstens 15 Sekunden. Bei Timeout beendet der Orchestrator verbleibende Prozesse; Cleanup setzt die Testdatenbank mit `ROLLBACK IMMEDIATE` zurück und entfernt sie nach Markerprüfung.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.BlockingDemo` enthält zwei Zeilen. Die Head-Session hält eine X-Sperre auf Zeile 1. Die Middle-Session hält eine X-Sperre auf Zeile 2 und wartet anschließend auf Zeile 1. Die Leaf-Session wartet auf Zeile 2. `fwk.SessionSignal` koordiniert ausschließlich die fachliche Reihenfolge; Launch Delays ersetzen keine Datenbanksignale.

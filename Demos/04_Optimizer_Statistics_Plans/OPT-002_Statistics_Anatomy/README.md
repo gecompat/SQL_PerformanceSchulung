@@ -34,6 +34,15 @@ SQL Server 2019 bis 2025. Für den automatisierten Lauf werden `CREATE DATABASE`
 
 Die Demo ist grün. Sie erzeugt 100.000 synthetische Zeilen und verändert ausschließlich eine eigene markierte Testdatenbank. Das Harness-Zeitbudget beträgt 240 Sekunden. Cleanup erfolgt markergeprüft über den lokalen, dem `FWK-002` (Namens-, Schutz- und Lifecycle-Vertrag für Testdatenbanken)-Vertrag entsprechenden Pfad.
 
+Bei einer vorhandenen Zieldatenbank prüft `10_Setup.sql` vor Konfigurations-
+und Tabellenänderungen die vier vollständigen Eigentumsmarker für Projekt,
+Vertragsversion, Demo und Lauftoken. Fehlende oder abweichende Marker führen
+zu `FAIL_STATE` (Eigentum oder Zustand nicht bestätigt); die Datenbank bleibt
+erhalten. Ein passender Name allein genügt nicht. Folgen Sie nach einem Abbruch
+dem Abschnitt zur Fehlerbehandlung im zentralen Ausführungsleitfaden.
+Der [abgegrenzte Setupnachweis](../../../Documentation/Project_Planning/FWK_002_SETUP_OWNERSHIP_REVIEW.md)
+beschreibt Prüfverfahren und verbleibende Grenzen.
+
 ## 6. Synthetisches Datenmodell
 
 `lab.StatisticsData` enthält 101 Kategorien. Kategorie 1 besitzt 50.000 Zeilen; die Kategorien 2 bis 101 besitzen jeweils 500 Zeilen. `RegionId` verteilt sich deterministisch auf zehn Werte. Die Zeilenbreite sorgt dafür, dass eine explizite Stichprobe von 1.000 Zeilen vom vollständigen Tabellenumfang unterscheidbar bleibt. Das mehrspaltige Statistikobjekt `ST_StatisticsData_Category_Region` wird zunächst mit `SAMPLE 1000 ROWS` und später mit `FULLSCAN` aufgebaut.

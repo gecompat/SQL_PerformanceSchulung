@@ -42,10 +42,18 @@ prüften Quellen, Tests, Aufruf und Ergebnis. Modell-/Tokenverbrauch bleibt
 unbekannt. Die reservierten zwei Integrationswellen mit zusammen 108 SQL-Jobs
 sind vollständig verbraucht und abgeschlossen.
 
-Der nächste getrennte Schnitt bereitet zehn Einrichtungsskripte auf exakte
+Der nächste getrennte Schnitt korrigiert zehn Einrichtungsskripte auf exakte
 Eigentumsprüfung vor der ersten Änderung. Branch:
-`codex/fwk002-setup-ownership`; noch keine Laufzeitabnahme oder Integration.
-Frameworkreferenz und Recovery bei fehlgeschlagener Erstmarkierung bleiben offen.
+`codex/fwk002-setup-ownership`. Quellenkorrektur, reine Tests und unabhängiger
+Quellen-/Test-/Aufrufreview sind abgeschlossen. Lokal auf SQL Server 2025
+bestanden zehn alte Konfigurationsverletzungen und zweimal alle zehn korrigierten
+Quellen mit 620 Negativfällen, positiven Einrichtungen und wiederholten Cleanups.
+Beide eigenen lokalen Container sind unabhängig abwesend; der frühere Fehler
+im Testaufbau bleibt dokumentiert. Frische Versionsqualifikation und Integration
+stehen aus. Der
+[abgegrenzte Setupnachweis](FWK_002_SETUP_OWNERSHIP_REVIEW.md) enthält die zehn
+Demos mit Themen, Prüfverfahren und tatsächlichen Fehlversuchen. Frameworkreferenz
+und Recovery bei fehlgeschlagener Erstmarkierung bleiben getrennt offen.
 
 Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
 priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach
