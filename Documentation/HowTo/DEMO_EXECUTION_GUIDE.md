@@ -242,12 +242,14 @@ Eigentum. Führen Sie kein manuelles `DROP DATABASE` anhand eines Namensmusters
 und keinen eigenständigen Wiederholungsaufruf eines Cleanupskripts aus.
 
 Bei der Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) zeigt die
-Quellenprüfung, dass fehlende Eigentumsmarker die vorgesehene Ablehnung im
-Cleanup umgehen können. Die pauschale Vier-Marker-Garantie gilt deshalb für
-diesen Pfad derzeit nicht. Die Korrektur wird unter dem
+Quellenprüfung neben dem korrigierten Cleanup eine weiterhin offene Lücke im
+Setup: Eine vorhandene Datenbank wird dort vor ihrer vollständigen
+Markerprüfung verändert. Eine pauschale Eigentumsgarantie für den gesamten
+Pfad gilt deshalb weiterhin nicht. Die verbleibende Korrektur wird unter dem
 [Schutzvertrag für Testdatenbanken im Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
-geführt. Dieser Befund stammt aus dem Quellenreview; hierfür wurde keine
-Datenbank verändert.
+geführt. Der Setupbefund stammt aus dem Quellenreview; er ist kein Beleg einer
+bereits betroffenen fremden Datenbank. Die neue Cleanupgegenprobe verwendet
+ausschließlich eigene synthetische Daten im wegwerfbaren Dockerziel.
 
 Stoppen Sie hier bei erhaltenem oder ungeklärtem Instanz- beziehungsweise
 Szenariozustand und schließen Sie die Sitzung gemäß Abschnitt 7. Bewahren Sie

@@ -15,8 +15,9 @@ Demo-Vertrag, Quellenprüfung, statische Prüfung und die zutreffende
 Runtime-Matrix im Repository nachvollziehbar sind. Die folgenden historischen
 Abnahmen heben den [aktuellen Erhaltungsweg nach einem Abbruch](../HowTo/DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen)
 nicht auf: Für die Demo zu indexfreundlichen Suchbedingungen (`QRY-001`)
-ist ein Fehler bei fehlenden Cleanup-Eigentumsmarkern quellenbasiert bestätigt;
-die Korrektur und Gegenprobe stehen noch aus.
+ist nach der begrenzten Cleanupkorrektur weiterhin ein Fehler im Setup
+quellenbasiert bestätigt: Es verändert eine vorhandene Datenbank vor ihrer
+vollständigen Markerprüfung. Eine Gesamtfreigabe des Schutzvertrags steht aus.
 
 Der [KI-Demoentwurf](SQL_SERVER_2025_AI_DEMO_DESIGNS.md) führt 18 zukünftige Demos zu
 `DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze)/`TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration). Die 10 noch nicht implementierten Entwürfe sind PROPOSED ohne
@@ -72,7 +73,7 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 Für die Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) hat derzeit die
 Einschränkung auf eine ausschließlich eigene Wegwerfinstanz ohne fremde Daten
 Vorrang. Die historische Zuordnung `SHARED_TEST_INSTANCE` in der Tabelle ist
-bis zur geprüften Cleanupkorrektur keine Erlaubnis für eine gemeinsam genutzte
+bis zur geprüften Korrektur des gesamten Eigentumspfads keine Erlaubnis für eine gemeinsam genutzte
 Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 
 | Demo-ID | Titel | Sicherheit | Sitzungen | Stufe | Ausführungspfad | Instanzbedarf | Status |

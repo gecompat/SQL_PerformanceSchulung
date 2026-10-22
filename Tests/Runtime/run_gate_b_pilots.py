@@ -16,6 +16,7 @@ FRAMEWORK_TOOLS = ROOT / "Demos" / "00_Framework" / "Tools"
 sys.path.insert(0, str(RUNTIME))
 import execution_target  # noqa: E402
 from execution_target import ExecutionTarget, ExecutionTargetError  # noqa: E402
+from qry001_cleanup_ownership import OwnershipFailure, run_ownership_probes  # noqa: E402
 
 PILOTS = (
     (
@@ -156,6 +157,12 @@ def main() -> int:
         )
         print(f"GATE_B_STAGE|ENGINE_{major}|IDENTITY|PASS|OK")
 
+        if target.kind == execution_target.DOCKER:
+            cases = run_ownership_probes(target)
+            print(f"GATE_B_STAGE|QRY-001|OWNERSHIP_{cases}|PASS|OK")
+        else:
+            print("GATE_B_STAGE|QRY-001|OWNERSHIP|NOT_APPLICABLE|HOST_COUNTERPROBES_DISABLED")
+
         for demo_id, manifest, yellow in PILOTS:
             for repetition in (1, 2):
                 run_pilot(
@@ -174,6 +181,7 @@ def main() -> int:
     except (
         ExecutionTargetError,
         GateBFailure,
+        OwnershipFailure,
         OSError,
         subprocess.TimeoutExpired,
         ValueError,

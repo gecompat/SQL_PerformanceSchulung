@@ -1,5 +1,64 @@
 # Aktueller Ausführungsstand
 
+## Priorität: Eigentumsprüfung beim Cleanup indexfreundlicher Suchbedingungen
+
+PR291 ist in Main `65089ac2c42a47fe961a1de7dc04d1e41da78f31` vollständig
+abgeschlossen: unabhängiger Review, relevante lokale Prüfungen, 48 grüne Head-,
+fünf Base- und 46 frische Main-Prüfungen, vollständige Baumübernahme,
+Synchronisation sowie eigene lokale und Remote-Branchbereinigung. Head ist
+der geprüfte Pull-Request-Commit, Base dessen Main-Basis. Das Foundation-Upgrade
+aus PR290 bleibt abgeschlossen.
+
+Der nächste begrenzte Schnitt auf `codex/qry001-cleanup-ownership` korrigiert
+unter FWK-002 (Schutzvertrag für Testdatenbanken) ausschließlich den direkten
+Cleanup von QRY-001 (Indexfreundliche Suchbedingungen). Ungekürzte Marker,
+ausdrückliche NULL-Ablehnung und exakter Zeichen-/Längenvergleich schließen
+den Quellenfehler. 37 Cleanupdateien wurden inventarisiert; 23 negative
+Markerbedingungen sind Textkandidaten, keine vollständige Abnahme. Die anderen
+22 Kandidaten und die gesonderte Setup-Lücke von QRY-001 bleiben offen.
+Das Setup verändert eine vorhandene Datenbank vor der vollständigen
+Markerprüfung. Eine gemeinsam genutzte Instanz bleibt ausgeschlossen.
+
+Ein Implementierungsverantwortlicher und derselbe unabhängige Reviewer;
+Checkpoint am zweiten stabilen Kandidaten oder ersten blockierenden Befund,
+harte Grenze vier kohärente Kandidaten einschließlich Reviews, Tests,
+Koordination, CI und Integration. CI bedeutet Continuous Integration,
+automatisierte Integrationsprüfung. Verbrauch UNKNOWN, nicht verlässlich
+gemessen. Vor Container-/SQL-Ausführung ist ein unabhängiges Quellen-,
+Test- und Aufruf-GO erforderlich. Alte native Workerrahmen werden nicht benutzt.
+
+Die Gegenprobe im Dockerziel muss die tatsächliche Löschung der eigenen
+unmarkierten Datenbank durch die alte Quelle erkennen. Der korrigierte Stand
+muss fehlende und abweichende Marker verweigern und dabei Datenbank-ID,
+ONLINE-/MULTI_USER-Zustand, synthetische Prüfzeile (Sentinel) und Marker erhalten. Passende Marker,
+unabhängige Absenz und idempotenter zweiter Cleanup sind Positivfälle.
+Keine destruktiven Gegenproben auf dem vorhandenen Hostpfad.
+
+### Testauswahl und Aufwand dieses Schnitts
+
+Der bestehende Gate-B-Prüfpfad behält vier Piloten mit je zwei vollständigen
+Läufen für SQL Server 2019, 2022 und 2025. Hinzu kommt ausschließlich die
+QRY-001-Eigentumsgegenprobe. Ihre Datei und ihre kleinen Oracle-Selbsttests
+werden in denselben Workflowselektor aufgenommen; keine zweite Matrix,
+keine Gateumgehung und keine manuelle CI-Wiederholung. Die tatsächliche
+SQL-Semantik einschließlich Datenerhalt lässt sich nicht durch einen
+Stringvalidator ersetzen. Die relevanten lokalen Tests werden pro stabilem
+Stand ausgeführt; unveränderte grüne Prüfungen werden nicht wiederholt.
+
+Die notwendige Aktualisierung des Kataloghinweises löst nach den bestehenden
+Selektoren außerdem die Parallelismus- und übrige Demo-Matrix aus. Dieser
+bekannte breite Trigger bleibt für die aktuelle Integration erhalten. Eine
+kleinere aus Quellenabhängigkeiten belegte Auswahl ist eine getrennte offene
+Effizienzkorrektur; bis zu deren unabhängig geprüfter Umsetzung werden die
+laufenden Matrixjobs bis zum eigenen Cleanup erhalten. Rohlogs und Budgetdaten
+bleiben privat; Status, Hashbindung und Zählung werden deterministisch geprüft,
+semantische Befunde durch denselben unabhängigen Reviewer.
+
+Nach vollständigem Abschluss dieses Schnitts sind zuerst die gesonderte
+Setup-Lücke und die weiteren Cleanupkandidaten zu begrenzen. Die operative
+native Kanalanbindung folgt erst danach. Die folgenden Abschnitte sind
+historische Nachweise.
+
 ## Foundation abgeschlossen; menschlicher Ausführungspfad und Cleanupbefund
 
 [PR290](https://github.com/gecompat/SQL_PerformanceSchulung/pull/290) integriert

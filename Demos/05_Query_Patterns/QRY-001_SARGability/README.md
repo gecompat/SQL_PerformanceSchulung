@@ -45,10 +45,11 @@ Mindestens 2 logische Prozessorkerne (CPU: Central Processing Unit), 2 GB RAM (R
 Die Demo ist grün. Sie erzeugt 300.000 synthetische Zeilen in einer markierten
 Testdatenbank. Verwenden Sie eine ausschließlich für die Übung vorgesehene
 Wegwerfinstanz ohne fremde Daten. Das Zeitbudget des Demo-Aufrufers (Harness)
-beträgt 240 Sekunden. Ein Quellenreview hat eine Lücke bei fehlenden
-Cleanup-Eigentumsmarkern bestätigt; die bisherige pauschale Garantie einer
-vollständigen Eigentumsprüfung gilt für diesen Pfad derzeit nicht. Nach einem
-Abbruch gilt der Erhaltungsweg in Abschnitt 10.
+beträgt 240 Sekunden. Der Cleanup verweigert fehlende oder abweichende
+Eigentumsmarker. Das Setup besitzt jedoch eine davon getrennte offene Lücke:
+Es verändert eine vorhandene Zieldatenbank vor der vollständigen Markerprüfung.
+Die Demo hat deshalb keine allgemeine Eigentumssicherheitsfreigabe. Nach einem
+Abbruch gilt weiterhin der Erhaltungsweg in Abschnitt 10.
 
 ## 6. Synthetisches Datenmodell
 
@@ -58,7 +59,7 @@ Abbruch gilt der Erhaltungsweg in Abschnitt 10.
 
 ### 7.1 Schritt-für-Schritt-Anleitung
 
-Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf auf einer eigenen Wegwerfinstanz ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt im Aufrufer keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen. Der vorgesehene markergebundene Cleanup ist bei fehlenden Markern noch nicht zuverlässig; nach Abbruch Datenbanken gemäß dem Leitfaden erhalten und keinen eigenständigen Cleanup starten.
+Die vollständige Ausführung steht im [Ausführungsleitfaden für die katalogisierten Demos](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): `QRY-001` (Indexfreundliche Suchbedingungen) auswählen, den manifestbasierten Aufruf auf einer eigenen Wegwerfinstanz ausführen und `SQLPERF_SUMMARY|PASS|OK` erwarten. Die grüne Demo benötigt im Aufrufer keine Zusatzbestätigung. Planform und Logical Reads gegen Abschnitt 8 prüfen. Der markergebundene Cleanup ist separat abgesichert; die offene Setupgrenze bleibt bestehen. Nach Abbruch Datenbanken gemäß dem Leitfaden erhalten und keinen eigenständigen Cleanup starten.
 
 | Phase | Datei | Zweck |
 |---|---|---|
@@ -82,19 +83,30 @@ Die Funktion `CONVERT(char(10), EventDateTime, 120)` muss für Indexwerte ausgew
 ## 10. Cleanup und Wiederherstellung
 
 `90_Cleanup.sql` liest Projekt-, Vertrags-, Demo- und Run-Marker aus der
-Zieldatenbank. Fehlen Marker, kann seine aktuelle Ablehnungsbedingung umgangen
-werden. Nach begonnenem Setup ruft der Harness denselben Cleanup-Pfad auf;
-ein erfolgreicher historischer Lauf belegt diesen fehlenden Gegenfall nicht.
+Zieldatenbank vollständig aus. Fehlende Marker, abweichende Schreibweise und
+zusätzliche Zeichen einschließlich Leerzeichen verhindern das Entfernen.
+Nach begonnenem Setup ruft der Harness denselben Cleanup-Pfad auf.
 
 Erhalten Sie nach einem Abbruch zurückgebliebene Datenbanken und folgen Sie
 dem [aktuellen Erhaltungsweg](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen).
-Die Korrektur des Schutzvertrags für Testdatenbanken (`FWK-002`) und eine
-Gegenprobe mit fehlenden Markern stehen aus. Hierfür wurde in diesem
-Dokumentationsschnitt kein SQL ausgeführt.
+Die Cleanupkorrektur allein macht den gesamten Schutzvertrag für
+Testdatenbanken (`FWK-002`) nicht vollständig: Das Setup und andere
+Cleanupvarianten bleiben gesondert zu prüfen. Eine gemeinsam genutzte Instanz
+ist weiterhin nicht freigegeben.
 
 ## 11. Tests
 
 Die statische Prüfung kontrolliert Manifest, Pflichtphasen, Marker und unerlaubte Hochrisikomuster. Die Runtime-Matrix führte die Demo im Lauf `30108023315` je Version zweimal aus und prüfte Ergebnisequivalenz, Seek/Scan-Evidenz, relationale statementbezogene Logical-Read-Erwartung und vollständiges Cleanup.
+
+Die ergänzende Eigentumsgegenprobe im Gate-B-Prüfpfad verwendet ausschließlich
+eine neue synthetische Datenbank im wegwerfbaren Dockerziel. Sie prüft fehlende,
+abweichende und nur auf Objektebene vorhandene Marker sowie ein falsches Ziel.
+Nach Ablehnung müssen Datenbank-ID, Zustand, Zugriff, eine synthetische
+Prüfzeile (Sentinel) und Marker
+unverändert sein. Passende Marker, unabhängiger Absenznachweis und wiederholter
+Cleanup bilden die Positivfälle. Diese Gegenprobe wird nicht auf dem Hostpfad
+ausgeführt. Aktuelle Nachweise stehen beim zugehörigen Pull Request; der alte
+Lauf oben enthält diese neue Gegenprobe nicht.
 
 ## 12. Bekannte Grenzen
 
@@ -106,6 +118,8 @@ Planentscheidungen hängen von Datenmenge, Selektivität, Indexbreite und Kosten
 |---|---|---|---|
 | `SRC-012` (SQL Server index design guide) | Indexdesign und Suchprädikate | SQL Server 2019–2025 | 2026-07-24 |
 | Microsoft Learn: Troubleshoot high CPU (Central Processing Unit; Prozessor) | Funktionen auf Prädikatspalten und SARGability | unterstützte SQL-Server-Versionen | 2026-07-24 |
+| [Microsoft: NULL und UNKNOWN](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/null-and-unknown-transact-sql) | fehlende Marker ausdrücklich prüfen | SQL Server 2019–2025 | 2026-10-22 |
+| [Microsoft: DATALENGTH](https://learn.microsoft.com/en-us/sql/t-sql/functions/datalength-transact-sql) und [binäre Kollation BIN2](https://learn.microsoft.com/en-us/sql/t-sql/statements/windows-collation-name-transact-sql) | vollständiger Byteumfang und exakter Zeichenvergleich | SQL Server 2019–2025 | 2026-10-22 |
 
 ## 14. Traceability
 
