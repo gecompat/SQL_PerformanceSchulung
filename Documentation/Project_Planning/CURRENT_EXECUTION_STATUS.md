@@ -1,5 +1,36 @@
 # Aktueller Ausführungsstand
 
+## Benutzerabschluss vom 22. Oktober 2026: keine autonome Fortsetzung
+
+Der Benutzer hat angeordnet, die aktuellen Demo-Implementierungen einschließlich
+Dokumentation, Integration und Branchbereinigung abzuschließen, danach keine
+neuen Implementierungen zu beginnen und diesen Chat zu beenden. Dieser Auftrag
+ersetzt die frühere kontinuierliche Fortsetzung. Der zugehörige
+30-Minuten-Heartbeat wurde gelöscht; er erteilt keine weiteren Fortsetzungen.
+
+Die letzte Demo-Implementierung ist über
+[PR293](https://github.com/gecompat/SQL_PerformanceSchulung/pull/293) vollständig
+in Main `6407a105e656bd0669c81a1921265c292dc622cd` abgeschlossen. QRY-001
+(Indexfreundliche Suchbedingungen) prüft bestehendes Datenbankeigentum vor
+Konfigurations- und Tabellenänderungen. Unabhängiger Ergebnisreview ohne offene
+priorisierte Befunde, lokale Gegenproben, 48 Head-, 46 Base- und 46 frische
+Main-Prüfungen sind abgeschlossen und grün. Head ist der geprüfte
+Pull-Request-Commit, Base dessen Main-Basis. Vollständige Baumübernahme,
+saubere Main-Synchronisation und die Entfernung des eigenen lokalen und
+Remote-Branches sind bestätigt. Alle vier eigenen lokalen Prüfcontainer sind
+unabhängig abwesend; Fehlversuche und private Evidenz bleiben erhalten.
+
+Dieser abschließende Dokumentationsschnitt hält ausschließlich den erreichten
+Stand und das Ende des Auftrags fest. Weitere Eigentumslücken, menschliche
+Lesepfade und native Kanalanbindungen bleiben im Backlog offen und werden in
+diesem Chat nicht begonnen. Wiederaufnahme erfordert einen neuen menschlichen
+Auftrag. Die begrenzte Demoabnahme ist keine globale Freigabe des Schutzvertrags
+für Testdatenbanken oder einer gemeinsam genutzten Instanz.
+
+Die folgenden Abschnitte sind historische Planungs- und Ausführungsstände.
+Ihre früheren Fortsetzungsanweisungen sind durch diesen Benutzerabschluss
+aufgehoben.
+
 ## Priorität: Setup-Eigentumsprüfung vor jeder Änderung
 
 [PR292](https://github.com/gecompat/SQL_PerformanceSchulung/pull/292) ist in Main
