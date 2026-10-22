@@ -1,5 +1,27 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Benutzerabschluss vom 22. Oktober 2026
+
+Der aktuelle Demoauftrag endet nach vollständigem Abschluss. Es werden keine
+weiteren Demo-Implementierungen oder Entwicklungswellen in diesem Chat begonnen;
+der Chat wird anschließend beendet. Der 30-Minuten-Heartbeat ist gelöscht.
+Die frühere kontinuierliche Fortsetzung ist aufgehoben. Eine Wiederaufnahme
+benötigt einen neuen menschlichen Auftrag.
+
+QRY-001 (Indexfreundliche Suchbedingungen) ist mit
+[PR293](https://github.com/gecompat/SQL_PerformanceSchulung/pull/293) vollständig
+in Main `6407a105e656bd0669c81a1921265c292dc622cd` integriert: unabhängiger
+Review, lokale Gegenproben, 48 grüne Head-, 46 Base- und 46 frische
+Main-Prüfungen, vollständige Baumübernahme, Synchronisation und eigene lokale
+sowie Remote-Branchbereinigung. Head bezeichnet den geprüften
+Pull-Request-Commit, Base dessen Main-Basis. Foundation 1.25.0 bleibt integriert.
+
+Offene Eigentums-, Wiederherstellungs- und Dokumentationsaufgaben bleiben
+erhalten, ohne automatische Fortsetzung. Der
+[aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) ist für diesen Abschluss
+maßgeblich. Die folgenden Teilstände und Fortsetzungspläne sind historisch;
+sie begründen keinen weiteren Arbeitsauftrag.
+
 ## Aktueller Schnitt: Setup-Eigentumsprüfung nach abgeschlossenem Cleanup
 
 PR292 ist vollständig in Main `0558add5d2d030fd0b19829c5f8e4150ee05a234`
