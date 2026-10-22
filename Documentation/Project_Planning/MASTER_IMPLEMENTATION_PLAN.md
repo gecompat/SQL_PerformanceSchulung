@@ -8,7 +8,8 @@ Integration per Pull Request nach `origin/main`. Anschließend wird autonom mit
 den nächsten priorisierten Punkten fortgefahren; der historische Arbeitsstopp
 unten ist aufgehoben. Es wurde keine Automation aktiviert.
 
-1. Zuerst die bestätigte Fehlerklasse in allen 22 Cleanupquellen abschließen.
+1. Die bestätigte Fehlerklasse in allen 22 Cleanupquellen ist abgeschlossen;
+   der verlinkte Ausführungsstand führt Integration und tatsächliche Nachweise.
    FWK-002 bezeichnet den Schutzvertrag für synthetische Testdatenbanken.
 2. Danach vorhandene Setups und die Frameworkreferenz auf Eigentumsprüfungen
    vor Änderungen sowie Recovery bei fehlgeschlagener Erstmarkierung prüfen.

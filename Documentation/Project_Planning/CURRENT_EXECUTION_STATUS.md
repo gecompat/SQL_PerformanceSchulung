@@ -7,45 +7,45 @@ Cleanup-Eigentumskandidaten einschließlich Tests, Dokumentation und Integration
 per Pull Request nach `origin/main`, danach priorisierte autonome Folgearbeit.
 Der historische Stopp unten ist aufgehoben; keine Automation wurde aktiviert.
 
-Branch: `codex/fwk002-cleanup-ownership`. FWK-002 bezeichnet den Schutzvertrag
-für synthetische Testdatenbanken. Alle 22 Quellen besitzen bestätigte
-Markerfehler: fehlende NULL-Abweisung, gekürzte Werte und ungenaue Zeichen-/
-Längenvergleiche. Die Quellenkorrekturen sind implementiert. DGN-005 (gezielte
-Ereigniserfassung) prüft zusätzlich vor Änderungen seiner Ereignissitzung.
-Neun reine Testmethoden und die betroffenen statischen Vertragsprüfungen
-bestehen. Vollständige Laufzeitqualifikation und Integration stehen aus.
+Die bestätigte Fehlerklasse in allen 22 Cleanupquellen ist über
+[PR295](https://github.com/gecompat/SQL_PerformanceSchulung/pull/295) in Main
+`dd733100ebc0bfd63846b39c3610b7e945715586` abgeschlossen. Cleanup bedeutet
+Aufräumen; FWK-002 bezeichnet den Schutzvertrag für synthetische Testdatenbanken.
+Fehlende Marker werden ausdrücklich abgewiesen, vollständige Werte binär und
+mit exakter Bytelänge verglichen. DGN-005 (gezielte Ereigniserfassung) prüft
+zusätzlich vor Änderungen seiner Ereignissitzung.
 
-C8 bestand DGN-005 zweimal mit je 30 Negativfällen, positiven und wiederholten
-Cleanups sowie Gegenproben für beide Laufzustandswechsel. Beim anschließenden
-alten DGN-007-Pfad (zeitlich begrenzter Diagnosefall) meldete die strikte
-Rückfallprüfung `RESTORE_NOT_COMPLETE`; die konkrete abweichende Bedingung ist
-durch C9 geklärt: Nur der Test erwartete `ALTER` statt der vollständig
-restaurierten `CREATE`-Prozedurbytes. Das Ergebnis war 1, alle anderen
-Rückfallbedingungen waren erfüllt. C10 korrigiert diese exakte Sollfolge und
-bestand DGN-007 neu zweimal mit je 30 Negativfällen,
-positivem und wiederholtem Rückfall sowie beiden Laufzustands-Gegenproben. Neue DGN-007-Profile wurden in C8 nicht erreicht;
-C8 bleibt als historischer Fehlversuch erhalten.
+Unabhängiger Sicherheitsreview, neun reine Testmethoden und betroffene statische
+Vertragsprüfungen sind abgeschlossen. Am Änderungsstand bestanden 82 Prüfungen,
+am frischen Main 80; je 54 SQL-Matrixjobs einschließlich ihrer 54 erfolgreichen
+Abbauschritte. Der neue Eigentumsworkflow bestand auf SQL Server 2019, 2022 und
+2025 jeweils alle 22 Quellen zweimal: je Welle 132 Profile und 3960 Negativfälle.
+Es gab keine manuellen Wiederholungen. Die vollständige Baumübernahme, lokale
+Main-Synchronisation und Entfernung des eigenen lokalen sowie Remote-Branches
+sind bestätigt. Eine zeitweise widersprüchliche Statusanzeige wurde bis zum
+vollständig erfolgreichen Checkabschluss abgewartet.
+
 Alle sieben eigenen lokalen Container sind unabhängig abwesend; kein ungeklärter
-Ressourcenbestand. Frühere Fehlversuche und Quellenkopien bleiben erhalten;
-C3 besitzt eine dokumentierte Rohquellenlücke und ist kein Qualifikationsbeleg.
+Ressourcenbestand. Quellenstände und Fehlversuche bleiben erhalten. C3 besitzt
+eine dokumentierte Rohquellenlücke und ist kein Qualifikationsbeleg. Beim
+DGN-007-Rückfall (zeitlich begrenzter Diagnosefall) klärte C9 ausschließlich eine
+falsche Erwartung der Prozedurbytes: vollständig restauriertes `CREATE` statt
+erwartetem `ALTER`. C10 korrigierte die exakte Sollfolge und bestand zweimal
+alle 30 Negativfälle sowie positive und wiederholte Rückfälle mit Gegenproben.
 
-An der harten Grenze C8 wurde angehalten. Auf konkrete Rückfrage hat der Mensch
-höchstens zwei weitere Quellenstände und zwei eigene Container ausdrücklich
-freigegeben: C9 zur genauen DGN-007-Diagnose, C10 für Korrektur und Nachtest.
-C10 ist mit PASS beendet; die Versions- und Integrationsgates bleiben offen.
-Kumulativ höchstens zehn Kandidaten und sieben lokale Container, ohne
-Zählerreset; pro Parentlauf maximal 1800 Sekunden plus einmal 90 Sekunden für
-Abbau. Keine Ports, Mounts, Downloads oder Host-SQL. Ein Verantwortlicher und
-ein unabhängiger Reviewer prüfen Quellen, Tests, Aufruf und Ergebnis.
-Modell-/Tokenverbrauch bleibt unbekannt. Keine neue Admission an der Grenze
-oder bei ungeklärtem Ressourcenbestand.
+An der ursprünglichen harten Grenze C8 wurde angehalten. Der Mensch genehmigte
+ausdrücklich zwei weitere Quellenstände und zwei Container; kumulativ zehn
+Kandidaten und sieben lokale Container, ohne Zählerreset. Je Parentlauf galten
+1800 Sekunden plus einmal 90 Sekunden für den Abbau. Keine Ports, Mounts,
+Downloads oder Host-SQL. Ein Verantwortlicher und ein unabhängiger Reviewer
+prüften Quellen, Tests, Aufruf und Ergebnis. Modell-/Tokenverbrauch bleibt
+unbekannt. Die reservierten zwei Integrationswellen mit zusammen 108 SQL-Jobs
+sind vollständig verbraucht und abgeschlossen.
 
-Für die anschließende automatisierte Integrationsprüfung sind eine aktuelle
-Pull-Request- und eine frische Main-Welle reserviert: zusammen 108 SQL-Matrixjobs
-für die unterstützten Versionen einschließlich aller 22 Cleanupquellen. Bisher
-wurde keine Welle ausgelöst; keine manuellen Wiederholungen. Neue relevante
-Head-/Base-Stände benötigen eine konkrete weitere Reservierung. Head bezeichnet
-den geprüften Änderungsstand, Base dessen Main-Basis.
+Der nächste getrennte Schnitt bereitet zehn Einrichtungsskripte auf exakte
+Eigentumsprüfung vor der ersten Änderung. Branch:
+`codex/fwk002-setup-ownership`; noch keine Laufzeitabnahme oder Integration.
+Frameworkreferenz und Recovery bei fehlgeschlagener Erstmarkierung bleiben offen.
 
 Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
 priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach
