@@ -1,43 +1,51 @@
 # Aktueller Ausführungsstand
 
-## Foundation 1.25.0 nach abgeschlossenem Runner-Fix
+## Foundation abgeschlossen; menschlicher Ausführungspfad und Cleanupbefund
 
-[PR289](https://github.com/gecompat/SQL_PerformanceSchulung/pull/289) ist in
-Main `b4e18472aeb925c34b2c34671253abce5541157b` vollständig abgeschlossen:
-unabhängige Reviews ohne offene Befunde, lokale positive und negative Tests,
-acht grüne Head-, fünf Base- und sechs frische Main-Prüfungen, vollständige
-Baumübernahme, Synchronisation und eigene lokale sowie Remote-Branchbereinigung.
-Head bezeichnet den geprüften Pull-Request-Commit, Base dessen Main-Basis.
-Die [Runnerprofilbeobachtung](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
-passt vor Kandidatenimports zur unveränderten Auswahl. Runner bedeutet
-vollständige Ausführungssteuerung. Geplanter Stopp und unabhängiger Cleanup
-sind bestätigt; daraus folgt kein vollständiger Sitzungshandshake oder
-Runtime-, Trust-, Importbyte-, Methoden- oder SQL-Nachweis. Der alte native
-Rahmen ist mit 20 Quellenständen und neun nativen Versuchen geschlossen.
+[PR290](https://github.com/gecompat/SQL_PerformanceSchulung/pull/290) integriert
+die aktuelle AI Repository Foundation 1.25.0 vollständig in Main
+`2f4c427b3da36ae3c5f24770aeaee75ce3488ea0`: unabhängiger Review, lokale
+Prüfungen, sieben grüne Head-, sechs Base- und fünf frische Main-Prüfungen,
+vollständige Baumübernahme, Synchronisation und eigene lokale sowie
+Remote-Branchbereinigung. Head ist der geprüfte Pull-Request-Commit, Base dessen
+Main-Basis. Drei Adapter, zehn Capabilities, 114 Ziele und sämtliche bisherigen
+Projektverträge bleiben erhalten; keine zusätzliche Aktivierung.
+[PR289](https://github.com/gecompat/SQL_PerformanceSchulung/pull/289) und sein
+alter nativer Versuchsrahmen bleiben vollständig abgeschlossen.
 
-Der ausdrücklich angeordnete nächste Schnitt integriert auf
-`codex/foundation-1-25-0` die aktuelle AI Repository Foundation 1.25.0 aus
-`9e1b9974de58ea775d40c7c6045cd5057ba8b30c`. Die [Upgradebewertung](../../.ai/FOUNDATION_UPGRADE_1_25_0_REVIEW.md)
-erfasst das vollständige neue Feature für menschliche Lesepfade und getrennte
-KI-Steuerung. KI bedeutet künstliche Intelligenz. Drei Adapter, zehn
-Capabilities, 114 Installationsziele und die stärkeren Projektverträge bleiben
-erhalten. Keine neue Runtime- oder Automationaktivierung.
+Der nächste autorisierte Schnitt von TSK-015 (Menschliche Lesepfade und
+historische Planungseinstiege konsolidieren) läuft auf
+`codex/human-demo-execution-path`: Demo-Auswahl, Vorbereitung, Ergebnisdeutung
+und Verhalten nach Abbruch als einen zusammenhängenden menschlichen Weg prüfen.
+Ein Implementierungsverantwortlicher, derselbe unabhängige Reviewer, Checkpoint
+am zweiten stabilen Kandidaten beziehungsweise ersten blockierenden Befund,
+harte Grenze vier kohärente Kandidaten einschließlich Tests und Integration;
+Verbrauch UNKNOWN, nicht verlässlich gemessen. Keine SQL-, Code-, Manifest-
+oder Workflowänderung und keine lokale SQL-Ausführung in diesem Schnitt.
 
-Ein Implementierungsverantwortlicher und derselbe unabhängige Reviewer führen
-genau diesen Schnitt bis zu lokalen relevanten Tests, geschlossenen Befunden,
-aktuellen grünen Integrationsgates, Main-Übernahme und eigener Branchbereinigung.
-Checkpoint am zweiten stabilen Kandidaten beziehungsweise ersten blockierenden
-Befund; harte Grenze vier kohärente Kandidaten einschließlich Reviews, Tests,
-Koordination und Integration. Verbrauch UNKNOWN, also nicht verlässlich gemessen.
+Der Quellenreview hat einen konkreten Fehler im Cleanup der Demo zu
+indexfreundlichen Suchbedingungen (`QRY-001`) bestätigt: Fehlende Marker
+verhindern das Löschen nicht zuverlässig. Die negative SQL-Bedingung kann
+`UNKNOWN` ergeben und die Ablehnung überspringen. Der Dokumentationsschnitt
+stoppt deshalb die manuelle Löschanweisung und die unbelegte Marker-Garantie;
+zurückgebliebene Datenbanken werden erhalten. Dies ist ein Quellenbefund,
+kein ausgeführter SQL-Gegenfall oder Beleg einer bereits betroffenen Datenbank.
 
-Anschließend folgt die nächste abgegrenzte autonome Entwicklungswelle.
-`TSK-015` (Menschliche Lesepfade und historische Planungseinstiege konsolidieren)
-ist im Backlog mit Verantwortlichkeit und konkretem Auslöser geführt. Die
-operative Kanal-, EOF-, Exit- und Cleanup-Anbindung bleibt autorisiert;
-EOF bedeutet End of File, hier das tatsächliche Datenstromende. Ein weiterer
-nativer Schnitt benötigt seine eigene aktuelle Auswahl und unabhängiges
-Quellen-/Test-/Aufruf-GO. Der abgeschlossene alte Rahmen wird nicht fortgesetzt.
-Die folgenden Abschnitte sind historische Nachweise.
+Die aktuelle [Priorisierung im Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
+führt die funktionale Korrektur unter FWK-002 (Schutzvertrag für Testdatenbanken).
+Nach vollständigem Abschluss des Dokumentationsschnitts ist genau dieser
+eigene Fehlerbehebungsschnitt zu begrenzen und unabhängig zu prüfen; weitere
+native DGN-007-Kanalanbindung folgt danach. Der alte Workerrahmen wird nicht
+fortgesetzt. Neue SQL-/Prozesswirkung benötigt ihre konkret geprüfte Auswahl,
+Quellen, Gegenproben und ihr unabhängiges Aufruf-GO.
+
+Die notwendige Korrektur der betroffenen Demo-README trifft den vorhandenen
+breiten CI-Selektor für Gate B (Pilotdemo-Prüfungen). CI bedeutet Continuous
+Integration, automatisierte Integrationsprüfung. Die bestehenden SQL-Matrixjobs
+für 2019, 2022 und 2025 auf Head und Main bleiben erhalten; sie sind keine
+Gegenprobe zum neu gefundenen Markerfehler. Keine manuelle Wiederholung oder
+neue lokale SQL-Runtime wird daraus abgeleitet. Die folgenden Abschnitte sind
+historische Nachweise.
 
 ## EARLY_EOF eingegrenzt; weiterer Versuchsrahmen erforderlich
 

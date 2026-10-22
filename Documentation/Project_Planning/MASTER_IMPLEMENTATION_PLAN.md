@@ -1,32 +1,33 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Aktuelle Priorität: Foundation 1.25.0 nach vollständigem Main-Abschluss
+## Aktuelle Priorität: menschlicher Ausführungspfad und Schutzvertrag für Cleanup
 
-Die [Runner-Fehlerbehebung und vollständige Profilaufnahme](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
-ist mit PR289 in Main `b4e18472aeb925c34b2c34671253abce5541157b` vollständig
-abgeschlossen: unabhängige Reviews, lokale Gegenproben, acht grüne Head-, fünf
-Base- und sechs frische Main-Prüfungen, vollständige Übernahme, Synchronisation
-und eigene Branchbereinigung. Runner bezeichnet die vollständige
-Ausführungssteuerung; Head ist der geprüfte Pull-Request-Commit, Base seine
-Main-Basis. Der Nachweis gilt ausschließlich für das passende Profil vor
-Kandidatenimports mit geplantem Stopp und sicherem eigenem Cleanup.
-
-Gemäß menschlichem Auftrag folgt die [semantische Foundation-Übernahme auf
-1.25.0](../../.ai/FOUNDATION_UPGRADE_1_25_0_REVIEW.md). Der Schnitt erhält die
-gewählten drei Adapter und zehn Capabilities, bindet 114 Installationsziele
-und prüft menschliche Einstiege sowie technische KI-Discovery; KI bedeutet
-künstliche Intelligenz. Ein Implementierungsverantwortlicher, derselbe
-unabhängige Reviewer, Checkpoint nach zwei stabilen Kandidaten beziehungsweise
-beim ersten blockierenden Befund, harte Grenze vier Kandidaten einschließlich
-Tests und Integration; Verbrauch UNKNOWN, nicht verlässlich gemessen.
+Foundation 1.25.0 ist mit PR290 in Main
+`2f4c427b3da36ae3c5f24770aeaee75ce3488ea0` vollständig abgeschlossen:
+unabhängiger Review, lokale Prüfungen, sieben grüne Head-, sechs Base- und
+fünf frische Main-Prüfungen, Übernahme, Synchronisation und eigene
+Branchbereinigung. Head bezeichnet den geprüften Pull-Request-Commit, Base
+seine Main-Basis. Der frühere Runner-Fix aus PR289 bleibt abgeschlossen;
+Runner bedeutet vollständige Ausführungssteuerung.
 
 TSK-015 (Menschliche Lesepfade und historische Planungseinstiege konsolidieren)
-führt verbleibende Altbestandsarbeit mit konkretem Umfang, verantwortlicher
-Dokumentationsrolle und Auslöser im Backlog. Nach vollständigem Upgradeabschluss
-wird die nächste autorisierte Welle eigenständig begrenzt fortgesetzt. Native
-operative Anbindung benötigt einen neuen konkreten Quellen-/Test-/Aufrufplan;
-der alte abgeschlossene Versuchsrahmen bleibt geschlossen. Die folgenden
-Abschnitte sind historische Nachweise.
+führt den Weg von Demo-Auswahl bis zum Erhalt zurückgebliebener Daten nach
+Abbruch zusammen. Der konkrete Quellenbefund im Cleanup für indexfreundliche
+Suchbedingungen (`QRY-001`) erfordert eine ehrliche Einschränkung: Fehlende
+Eigentumsmarker können die Ablehnung umgehen. Der aktuelle Dokumentationsschnitt
+ändert kein SQL, entfernt aber unsichere manuelle Löschanweisungen und die
+unbelegte Marker-Garantie. Ein Implementierungsverantwortlicher und derselbe
+unabhängige Reviewer; Checkpoint nach zwei stabilen Kandidaten oder erstem
+blockierenden Befund, harte Grenze vier Kandidaten einschließlich relevanter
+Prüfungen und Integration; Verbrauch UNKNOWN, nicht verlässlich gemessen.
+
+Die anschließende funktionale Korrektur erhält unter FWK-002 (Schutzvertrag
+für Testdatenbanken) Vorrang vor weiterer nativer DGN-007-Anbindung. Umfang,
+Verantwortlichkeit, Gegenfälle und Auslöser stehen im
+[aktuellen Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade).
+Dieser neue Schnitt benötigt seine eigene konkret geprüfte Auswahl und seinen
+endlichen Quellen-/Versuchsrahmen. Der alte Workerrahmen bleibt geschlossen.
+Die folgenden Abschnitte sind historische Nachweise.
 
 ## Erste Runnerprofilaufnahme sicher beendet, tatsächlicher Report fehlt
 

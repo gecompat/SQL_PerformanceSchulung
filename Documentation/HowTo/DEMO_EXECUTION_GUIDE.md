@@ -1,19 +1,31 @@
 # Ausführungsleitfaden für die katalogisierten Demos
 
-| Merkmal | Wert |
-|---|---|
-| Geltungsbereich | 22 historisch runtimevalidierte Fachdemos, acht lokale Offline-KI-Implementierungen sowie der ausdrücklich eingeschränkte Entwicklungseinstieg zur NULL-Semantik (`QRY-006`) |
-| Ausführung | PowerShell auf einer dedizierten Test- oder Wegwerfinstanz |
-| Ergebnis | strukturierte `SQLPERF_SUMMARY` je Phase und markergeprüftes Cleanup |
-| Ergänzende Erklärung | [Demo-Walkthroughs – Schritt-für-Schritt-Erklärungen aller Fachdemos](DEMO_WALKTHROUGHS.md) |
-| Offline-KI-Aufgaben und Trainerlösungen | [KI mit SQL Server 2025 – Arbeitsheft für den Offlinepfad](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md); Teilentwurf, keine Gesamtlehrgangsfreigabe |
-| Offline-KI-Moderation und Reihenfolge | [KI mit SQL Server 2025 – Trainerleitfaden für den Offlinepfad](SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md); didaktischer Teilentwurf ohne Teilnehmerabnahme |
+Mit dieser Anleitung wählen Sie ein Beispiel aus, bereiten die Testumgebung
+vor, führen die Demo in PowerShell aus und ordnen ihre Ergebnisse ein.
+Die [Schritt-für-Schritt-Erklärungen der Fachdemos](DEMO_WALKTHROUGHS.md)
+erläutern die fachlichen Hintergründe. Die jeweilige Demo-README beschreibt
+Lernziel, Datenmodell, Voraussetzungen und Grenzen.
 
-Dieser Leitfaden ist der verbindliche Ausführungspfad für die runtimevalidierten Demos. Er beschreibt die Schritte, mit denen eine Person ohne Kenntnis der ursprünglichen Entwicklungsumgebung einen Lauf starten, das Ergebnis einordnen und einen abgebrochenen Lauf bereinigen kann. Die jeweilige Demo-README erklärt Lernziel, Datenmodell, Evidenz und fachliche Grenzen.
+| Ihr nächster Schritt | Abschnitt |
+|---|---|
+| Ein Thema und seine Versionsvoraussetzung wählen | [1. Demo auswählen](#1-demo-auswählen) |
+| Werkzeuge und eine geeignete Instanz vorbereiten | [2. Arbeitsplatz und Instanz vorbereiten](#2-arbeitsplatz-und-instanz-vorbereiten) |
+| Die Verbindung einrichten | [3. Zugangsdaten und Verbindungsparameter](#3-zugangsdaten-und-verbindungsparameter-setzen) |
+| Den Aufrufer laden und ein Beispiel starten | [4. Aufrufer laden](#4-einmalig-den-demo-aufrufer-laden), dann [5. Ausführen und beobachten](#5-demo-ausführen-und-beobachten) |
+| Nach einem Lauf oder Abbruch prüfen, was erhalten bleiben muss | [6. Cleanup und Wiederherstellung](#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen) |
+| Die Sitzung beenden | [7. Sitzung schließen](#7-sitzung-schließen) |
 
 Beginnen Sie mit dem [Demo-Katalog](../Demo_Catalog/README.md): Dort sind Ausführungsvoraussetzung, Implementierungsstatus und datierter Runtime-Nachweis getrennt dargestellt. Die Demo zur NULL-Semantik (`QRY-006`) bleibt `IMPLEMENTED` mit lokalem Nachweis und offenem Runtime-Gate; seine Aufnahme in den Aufrufer bedeutet keine vollständige Abnahme. Die Teilmanifeste der zeitlich begrenzten Vorfallsdiagnose (`DGN-007`) gehören nicht zu diesem allgemeinen Ausführungspfad.
 
-Die Demos erzeugen und entfernen eigene synthetische Testdatenbanken. Auch eine grüne Demo gehört deshalb nicht auf eine produktive Instanz. Gelbe und rote Demos dürfen ausschließlich auf einer Instanz ausgeführt werden, die verworfen oder kontrolliert zurückgesetzt werden darf.
+Für den ergänzenden Kurs zu künstlicher Intelligenz (KI) führen das
+[Offline-Arbeitsheft mit Trainerlösungen](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md)
+und der [Trainerleitfaden](SQL_SERVER_2025_AI_OFFLINE_TRAINER_GUIDE.md) durch
+die Übungen. Diese Teilentwürfe sind keine Gesamtlehrgangsfreigabe.
+
+Die Demos erzeugen und entfernen synthetische Testdatenbanken. Verwenden Sie
+eine eigens dafür vorgesehene, zurücksetzbare Testinstanz ohne fremde Daten.
+Nach einem Abbruch gilt der Erhaltungsweg in Abschnitt 6: Die Eigentumsprüfung
+ist noch nicht für sämtliche hier aufgeführten Cleanupskripte belastbar.
 
 ## 1. Demo auswählen
 
@@ -223,30 +235,28 @@ sqlcmd -S $server -E -d master -Q "SELECT name FROM sys.databases WHERE name LIK
 
 Für SQL-Authentifizierung verwenden Sie stattdessen `-U $username`; das Kennwort bleibt in `SQLCMDPASSWORD`.
 
-Wenn PowerShell, `sqlcmd` oder der Rechner während eines Laufs beendet wurde, führen Sie **nur** das Cleanup der abgebrochenen Demo aus. Es entfernt eine Datenbank ausschließlich bei vollständiger Übereinstimmung der vier Eigentumsmarker. Führen Sie nie ein manuelles `DROP DATABASE` anhand eines Namensmusters aus.
+Wenn PowerShell, `sqlcmd` oder der Rechner während eines Laufs beendet wurde,
+erhalten Sie zurückgebliebene Datenbanken und starten vorerst keinen weiteren
+Lauf gegen diese Instanz. Ein Name mit dem Präfix `SQLPERF_LAB_` belegt kein
+Eigentum. Führen Sie kein manuelles `DROP DATABASE` anhand eines Namensmusters
+und keinen eigenständigen Wiederholungsaufruf eines Cleanupskripts aus.
 
-```powershell
-function Invoke-AbortedSqlPerfDemoCleanup {
-    param(
-        [Parameter(Mandatory)][ValidateSet('OPT-002','OPT-003','OPT-005','OPT-009','OPT-010','OPT-013','OPT-015','OPT-016','OPT-017','QRY-001','QRY-004','QRY-006','QRY-013','QRY-014','QRY-015','QRY-016','QRY-017','QRY-018','QRY-019','DGN-008','DGN-009','CON-010','IDX-006','IDX-010','CON-004','CON-006','CON-009','DGN-003','DGN-005','STL-008','STL-009','RES-007')][string]$DemoId,
-        [Parameter(Mandatory)][string]$Server,
-        [ValidateSet('integrated','sql')][string]$Authentication = 'integrated',
-        [string]$Username
-    )
+Bei der Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) zeigt die
+Quellenprüfung, dass fehlende Eigentumsmarker die vorgesehene Ablehnung im
+Cleanup umgehen können. Die pauschale Vier-Marker-Garantie gilt deshalb für
+diesen Pfad derzeit nicht. Die Korrektur wird unter dem
+[Schutzvertrag für Testdatenbanken im Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
+geführt. Dieser Befund stammt aus dem Quellenreview; hierfür wurde keine
+Datenbank verändert.
 
-    $entry = $demoCatalog[$DemoId]
-    $demoFolder = Split-Path $entry.Manifest -Parent
-    $targetDatabase = "SQLPERF_LAB_$($DemoId.Replace('-', ''))_LOCAL"
-    $connection = if ($Authentication -eq 'integrated') { @('-E') } else { @('-U', $Username) }
-    $safetyValues = if ($entry.Safety -eq 'RED') { @('SafetyLevel=RED','ConfirmIsolatedLab=0','HighImpactConfirmed=1','DisposableEnvironmentConfirmed=1','RecoveryPlanConfirmed=1') } elseif ($entry.Safety -eq 'YELLOW') { @('SafetyLevel=YELLOW','ConfirmIsolatedLab=1','HighImpactConfirmed=1','DisposableEnvironmentConfirmed=0','RecoveryPlanConfirmed=0') } else { @('SafetyLevel=GREEN','ConfirmIsolatedLab=0','HighImpactConfirmed=0','DisposableEnvironmentConfirmed=0','RecoveryPlanConfirmed=0') }
-    & sqlcmd -S $Server @connection -d master -b -i (Join-Path $demoFolder '90_Cleanup.sql') -v "DemoId=$DemoId" 'RunToken=LOCAL' "TargetDatabase=$targetDatabase" @safetyValues "MaximumRuntimeSeconds=600"
-}
-
-# Beispiel: nur nach einem abgebrochenen Lauf von CON-004
-Invoke-AbortedSqlPerfDemoCleanup -DemoId CON-004 -Server $server -Authentication $authentication -Username $username
-```
-
-Wiederholen Sie danach die Datenbankabfrage. Bleibt eine Datenbank bestehen oder endet das Cleanup nicht mit `PASS`, stoppen Sie weitere Läufe und prüfen Sie die Demo-README sowie [Lokale Testumgebung für Schulungsdemos](LOCAL_TEST_ENVIRONMENT.md).
+Stoppen Sie hier bei erhaltenem oder ungeklärtem Instanz- beziehungsweise
+Szenariozustand und schließen Sie die Sitzung gemäß Abschnitt 7. Bewahren Sie
+die bisherige Instanz und ihre Daten zur Klärung auf. Übernehmen Sie keine
+Reset- oder Remove-Schritte aus dem Container-Quickstart: Er beschreibt keinen
+Wiederanlauf mit erhaltenem Altzustand. Ein neuer Bereitstellungsweg müsste
+die neue Umgebung und ihren Steuerungszustand unabhängig abgrenzen; ein
+solcher Weg ist hier noch nicht beschrieben. Erst ein korrigierter und
+geprüfter Cleanupweg darf die zurückgebliebene Datenbank entfernen.
 
 ## 7. Sitzung schließen
 

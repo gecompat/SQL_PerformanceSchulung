@@ -1,10 +1,22 @@
 # Demo-Katalog
 
-Der Demo-Katalog ist die zentrale Zuordnung zwischen Schulungsinhalt und technischer Vorführung. Ein Eintrag gilt erst dann als `VALIDATED`, wenn Demo-Vertrag, Quellenprüfung, statische Prüfung und die zutreffende Runtime-Matrix im Repository nachvollziehbar sind.
+Hier finden Sie die Zuordnung von Schulungsthema, Voraussetzungen und
+technischer Vorführung. Wählen Sie ein Thema in der
+[beschriebenen Demo-Auswahl](../HowTo/DEMO_EXECUTION_GUIDE.md#1-demo-auswählen),
+lesen Sie die jeweilige Demo-README und folgen Sie dem Ausführungsleitfaden.
+Die Tabellen dieses Katalogs vertiefen Infrastrukturbedarf und datierte Nachweise.
 
 Für die Ausführung beginnen Sie im [zentralen Ausführungsleitfaden](../HowTo/DEMO_EXECUTION_GUIDE.md). Seine Demo-Links und Manifestpfade führen zu den tatsächlich vorhandenen Paketen; die historisch unterschiedlichen Ordnernummern sind keine Modul- oder Freigabekennung. Der [Demo-Einstieg](../../Demos/README.md) erklärt Platzhalter und tatsächliche Ablage.
 
 ## Status und Nachweis richtig lesen
+
+Ein Eintrag gilt erst dann als `VALIDATED` (abgegrenzt validiert), wenn
+Demo-Vertrag, Quellenprüfung, statische Prüfung und die zutreffende
+Runtime-Matrix im Repository nachvollziehbar sind. Die folgenden historischen
+Abnahmen heben den [aktuellen Erhaltungsweg nach einem Abbruch](../HowTo/DEMO_EXECUTION_GUIDE.md#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen)
+nicht auf: Für die Demo zu indexfreundlichen Suchbedingungen (`QRY-001`)
+ist ein Fehler bei fehlenden Cleanup-Eigentumsmarkern quellenbasiert bestätigt;
+die Korrektur und Gegenprobe stehen noch aus.
 
 Der [KI-Demoentwurf](SQL_SERVER_2025_AI_DEMO_DESIGNS.md) führt 18 zukünftige Demos zu
 `DEC-073` (Eigenständiger KI-Workstream: Curriculumerweiterung und Planungsgrenze)/`TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration). Die 10 noch nicht implementierten Entwürfe sind PROPOSED ohne
@@ -57,10 +69,16 @@ Der Katalog beschreibt den **erforderlichen** Ausführungspfad. Er stellt keine 
 
 ## Ausführungspfad der implementierten Demos
 
+Für die Demo zu indexfreundlichen Suchbedingungen (`QRY-001`) hat derzeit die
+Einschränkung auf eine ausschließlich eigene Wegwerfinstanz ohne fremde Daten
+Vorrang. Die historische Zuordnung `SHARED_TEST_INSTANCE` in der Tabelle ist
+bis zur geprüften Cleanupkorrektur keine Erlaubnis für eine gemeinsam genutzte
+Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
+
 | Demo-ID | Titel | Sicherheit | Sitzungen | Stufe | Ausführungspfad | Instanzbedarf | Status |
 |---|---|---|---:|---:|---|---|---|
-| [`QRY-001`](../../Demos/05_Query_Patterns/QRY-001_SARGability/README.md) | SARGability | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
-| [`OPT-002`](../../Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/README.md) | Statistics Anatomy | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
+| [`QRY-001`](../../Demos/05_Query_Patterns/QRY-001_SARGability/README.md) | Indexfreundliche Suchbedingungen (SARGability) | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` – historische Zuordnung; aktuell nur eigene Wegwerfinstanz ohne fremde Daten | `VALIDATED` – historischer Nachweis; aktuelle Cleanupgrenze beachten |
+| [`OPT-002`](../../Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/README.md) | Statistiken lesen | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-015`](../../Demos/04_Optimizer_Statistics_Plans/OPT-015_Plan_Properties/README.md) | Planweite und operatorbezogene Eigenschaften | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-016`](../../Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/README.md) | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`QRY-013`](../../Demos/05_Query_Patterns/QRY-013_Client_Session_Context/README.md) | Anwendung langsam, SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
