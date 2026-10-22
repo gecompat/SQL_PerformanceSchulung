@@ -8,6 +8,148 @@ in Main `3266c4763c0e452f8752cd792473308f87ef25df` abgeschlossen: unabhängiger
 Review, lokale Dokumentationsprüfung, sieben grüne Head-, fünf grüne Base- und
 fünf frische Main-Prüfungen, vollständige Übernahme und eigene Branchbereinigung.
 
+## Fehlerbehebung und vollständiger Profilvergleich vom 22. Oktober 2026
+
+Der vorzeitige Ausgabestromabschluss `EARLY_EOF` tritt im korrigierten,
+instrumentierungsfreien Versuch nicht mehr auf. Der vollständige vor den
+Kandidatenimports aufgenommene Profilreport stimmt mit der separat gewählten
+Installation und allen 85 Moduldeklarationen überein. Sein Status lautet
+`OBSERVED_PREIMPORT_PROFILE_ONLY`: ausschließlich das Profil vor den Imports
+wurde beobachtet. Der Report enthält 9056 Bytes; insgesamt wurden 9289
+Ausgabebytes und keine Fehlerausgabebytes gelesen. Kein Modul oder Feld wurde
+aus einem abweichenden Istlauf in die Erwartung übernommen.
+
+Korrekturen auf zwei Ebenen waren erforderlich. Die Runnerquelle
+behandelt beim Dateieinstieg das eingebaute Modul `builtins` über sein gehaltenes
+Wörterbuch und besitzt vor der Initialisierung einen kontrollierten
+Ablehnungspfad. Der private Beobachtungshelfer legt zusätzlich die vollständige
+Kindumgebung auf `LANG=C`, `LC_ALL=C` und `HOME=/` fest. Ohne `HOME` lädt die
+verwendete Python-Bibliothek beim Import von `sysconfig` über die
+Benutzerpfadauflösung zusätzlich `pwd`, das Modul für die Benutzerverwaltung.
+Diese Umgebungsabhängigkeit fehlte in der zuvor quellenbegründeten Auswahl.
+Die Korrektur erhält die Liste und bindet ihre Voraussetzung ausdrücklich;
+sie entfernt keine Cacheeinträge und lockert keinen Profilvergleich.
+
+Die Diagnose hatte zuerst eine frühe Profilablehnung vor der späteren
+Runnerbindung gezeigt. Der begrenzte Trace im 17. Stand lokalisierte deren
+erste Bedingung am Vergleich der Modulanzahl. Die unveränderten gepinnten
+Bibliotheksquellen begründen den zusätzlichen Importpfad. Sechs reine
+Gegenproben führen genau diese Funktionssyntaxbäume mit eigenen Providern im
+Speicher aus: Die alte Umgebung verlangt `pwd`, die feste Umgebung vermeidet
+den Import; Text-, Bytes- und benannte Benutzerpfade sowie die tatsächliche
+Drei-Felder-Startumgebung werden getrennt geprüft. Es finden keine echten
+Benutzerabfragen statt. Erst danach erfolgte der unabhängig freigegebene
+native Lauf mit der unveränderten, nicht instrumentierten Runnerquelle.
+
+Beide neuen Runnergegenproben scheitern am alten Generator. Alle 23 lokalen
+Runnermodelle und die sechs Umgebungsgegenproben bestehen. Der unveränderte
+volle Modelllauf und die sechs bereits erfolgreichen synthetischen nativen
+Kanalgegenfälle wurden nicht erneut ausgeführt. Frühere Fixture-, Diagnose-,
+Syntax- und Größenfehler bleiben mit ihren abgelehnten Ständen erhalten.
+
+Nach vollständigem Vergleich wurde der weiterhin vor der Bodyfreigabe
+wartende eigene Worker geplant gestoppt. Das ist kein regulärer Workerexit
+mit Code null und kein vollständiger Sitzungshandshake; sein Exitstatus bleibt
+`UNKNOWN`, also in diesem Nachweis nicht bestimmt. Beide tatsächlichen
+Datenstromenden, eigener Gruppenabschluss und Wiederherstellung sind bestätigt;
+der unabhängige Absenzprüfer benötigt 57 von 96 Schritten ohne
+Wiederherstellungssignale. Beide Windows-Jobs sind leer und beendet, keine
+offene Besitzsperre. 2804 technische Ein-/Ausgabeschritte und 13 Cleanupschritte
+liegen innerhalb der unveränderten Grenzen.
+
+Der gemeinsame Checkpoint steht bei 18 Quellen-/Test-/Aufrufständen, neun
+nativen Versuchen, drei synthetischen Prüfläufen mit 21 reservierten Prozessen,
+24 Aufrufen des Windows Subsystem for Linux (WSL) und 1400 reservierten
+Prozesssekunden. Vor der früheren harten Grenze wurde der endliche Rahmen
+unabhängig auf höchstens 20 Stände, zehn native Versuche, 26 WSL-Aufrufe und
+1500 Sekunden fortgeschrieben. Alte Zählungen wurden nicht zurückgesetzt;
+Modell- und Koordinationsverbrauch bleiben UNKNOWN, also nicht verlässlich
+gemessen. Weitere native Versuche sind für diesen Abschluss nicht geplant.
+
+Die Produktänderung und dieser Ergebnisstand werden auf
+`codex/dgn007-early-eof-fix` bis zu unabhängig geschlossenen Befunden, lokalen
+Dokumentationsprüfungen, aktuellen grünen Head-/Base-/Main-Prüfungen,
+vollständiger Übernahme und eigener Branchbereinigung geführt. Head bezeichnet
+den geprüften Pull-Request-Commit, Base dessen Main-Basis. Anschließend folgt
+gemäß menschlichem Auftrag die aktuelle AI Repository Foundation.
+
+Die ursprünglichen Profilbytes, Installationsquellen, Elternkontext und
+Protokollkennung bleiben erhalten. Es wurden nur Header und Metadaten gesendet,
+keine angekündigten Kandidatenbytes, keine Body- oder Importfreigabe und kein
+SQL ausgeführt. Die Felder für Runtime-, Trust-, Importbyte- und
+Methodenbestätigung bleiben falsch; ein passender Profilreport erteilt diese
+weitergehenden Nachweise nicht. Die folgenden Abschnitte sind historische
+Fehler- und Abschlussnachweise.
+
+## Diagnosecheckpoint vom 22. Oktober 2026
+
+Nach dem historischen Abschluss aus PR288 hat der Mensch zusätzliche native
+Versuche zur Diagnose und Behebung von `EARLY_EOF` freigegeben. EOF bedeutet
+End of File, hier das vorzeitige Ende des Ausgabestroms. Ein
+Implementierungsverantwortlicher und derselbe unabhängige Reviewer haben die
+Arbeit auf `codex/dgn007-early-eof-fix` fortgeführt. Die ursprünglichen
+Auswahlbytes, Fehler und abgelehnten Reviewstände bleiben erhalten.
+
+Die Produktänderung ergänzt einen kontrollierten Runner-Ablehnungspfad und
+behandelt das ursprüngliche `builtins`-Modul beim Python-Dateieinstieg als dessen
+gehaltenes Wörterbuch. Zwei Gegenproben scheitern am alten Generator; alle 23
+lokalen Runnermodelle bestehen am korrigierten Stand. Der volle lokale Modelllauf
+benötigte 532,487 Sekunden. Er wurde am unveränderten Stand nicht wiederholt.
+Die sechs synthetischen nativen Kanalgegenfälle bestanden im fünften Stand;
+der vorherige Fixturefehler und dessen nicht gestarteter Kindfall bleiben als
+Fehlschlag erhalten. Keine zusätzliche vollständige Suite nach Ausschöpfung
+der drei gemeinsam gezählten Prüfläufe.
+
+Ein gesonderter Diagnosehelfer war ebenfalls fehlerhaft: Seine Writerqualifikation
+lehnte mit Exitcode 13 ab. Dieser Code unterscheidet die beiden dort geprüften
+Bedingungen nicht. Der letzte Stand bindet stattdessen den ursprünglichen nativen
+Schreibdescriptor vor der Verwendung und prüft ihn vor jedem Schreibversuch.
+Neun reine Gegenproben bestehen ohne übersprungene Tests, einschließlich alter
+Ablehnung gegenüber korrigierter Bindung am selben Speicherschreiber. Ein im
+Review gefundener fehlender Konstantenpool im Fehlerfixture wurde vor Ausführung
+ergänzt; Prüferwartungen blieben unverändert. Quelle 131038 von höchstens 131072
+Bytes, unveränderte Profilrohbytes, Gleichheit des gesamten abstrakten Syntaxbaums
+gegen die separat hergeleitete Transformation und fünf vollständige Paketformen
+mit zusammen 28255 Bytes sind geprüft. Diese Diagnosequelle ist kein Produktfix.
+
+Nach unabhängigem exaktem Quellen-/Test-/Aufruf-GO startete der letzte
+Diagnoseworker genau einmal. Die sechs Rückgaben für Kontrollquelle, Profilbindung,
+Runnerbindung, Eingangsbindung, Reportbindung und Versiegelung waren jeweils
+erwartet mit Fehlerlabel `NONE`. Der anschließende Runneraufruf lehnte mit
+`RUNNER_SOURCE_BINDING` ab. Die innere Bindungsbedingung ist noch nicht
+unterschieden; ein Einfluss der Instrumentierung ist nicht separat ausgeschlossen.
+Es gibt keinen vollständigen Profilreport und keinen Nachweis der Behebung.
+
+Erste und abschließende Kanalursache bleibt `EARLY_EOF`; normaler eigener Exitcode
+1, null Bytes auf stdout (regulärer Ausgabestrom), 136 Diagnosebytes auf stderr
+(Fehlerausgabestrom). Gespeichert sind nur geschlossene Labels, Stufen, Größen und
+Hashes, keine tatsächlichen Profilwerte oder Reportbytes. Eigener Cleanup,
+beide Stromabschlüsse, Gruppen-/Kinderabsenz und Wiederherstellung sind bestätigt.
+Linux-Cleanup 302536 Nanosekunden, 2773 von 4096 belasteten Kanalschritten;
+Windows 214 von 224 Außenoperationen, unabhängige Rückprüfung 65 von 96 Schritten,
+keine Recoverysignale. Beide Windows-Jobs haben null aktive Prozesse, keine
+offene Besitzsperre. Der letzte Flug dauerte 8,094 Sekunden, seine volle
+100-Sekunden-Reservierung bleibt belastet.
+
+Die unabhängig geprüfte Fortführung des endlichen Rahmens erhöhte vor Stand acht
+die Quellengrenze auf zehn und vor Stand zehn auf zwölf, mit Checkpoint nach
+Stand zehn und Versuch fünf. Jetzt sind zwölf Quellen-/Test-/Aufrufstände,
+sechs native Versuche, drei synthetische Prüfläufe mit 21 reservierten Prozessen,
+18 WSL-Aufrufe und 1100 reservierte Prozesssekunden ausgeschöpft. WSL bedeutet
+Windows Subsystem for Linux. Auch die im Review abgelehnten, nicht ausgeführten
+Stände acht und elf zählen. Verbrauch für Modelle und Koordination bleibt UNKNOWN,
+also nicht verlässlich gemessen. Keine neue Implementierung, Wiederholung oder
+automatische Grenzanhebung. Private Originale und Evidenz bleiben erhalten.
+
+Die offene fachliche Aufgabe ist die konkrete Ablehnung innerhalb des Runneraufrufs
+nach erfolgreicher Versiegelung. Eine neue menschliche Entscheidung über einen
+endlichen Diagnose-/Korrekturrahmen ist erforderlich. Unabhängiger Review,
+passende Gegenproben, lokale Tests und aktuelle grüne Head-/Base-/Main-Prüfungen
+sowie reguläre Integration und Übernahmenachweis bleiben offen. Kein Pull Request
+oder Merge für diesen Stand; der unübernommene Arbeitsbranch bleibt erhalten.
+Die folgenden Abschnitte dokumentieren den historischen ersten Versuch, nicht
+den aktuellen Restumfang. Keine Body-/Importfreigabe, kein Runtime- oder SQL-Nachweis.
+
 ## Gewählter endlicher Implementierungsrahmen
 
 Der kontinuierliche menschliche Auftrag autorisiert diesen eigenen operativen

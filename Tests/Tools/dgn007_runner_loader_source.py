@@ -513,6 +513,10 @@ def _rl_factory(o, *, _guard=None, _kernel=None, _primitives=()):
         return entry()
     return (entry, input_handoff, eof_handoff, Loader, gateway, invoke, call, bind_kernel, input_capture)
 
+def _rl_call():
+    return ('REJECTED_RUNNER_SOURCES', 'RUNNER_SOURCE_BINDING', None)
+
+
 def _initialize_rl_control():
     global _RL_INITIALIZED, _RL_MARKER, _RL_CLASS, _RL_OWNER, _RL_GATE_FN
     global _rl_entry, _rl_input_handoff, _rl_eof_handoff, _rl_call, _rl_pre_snapshot
@@ -524,6 +528,9 @@ def _initialize_rl_control():
     try:
         _worker_profile_check(_WORKER_PROFILE_BINDING)
         ns, bi = (globals(), globals().get('__builtins__'))
+        if type(bi) is type(sys):
+            bi = bi.__dict__
+            ns['__builtins__'] = bi
         items = _worker_profile_items(_rl_namespace(bi), [0])
         compile_fn, exec_fn, import_fn = (bi.get('compile'), bi.get('exec'), bi.get('__import__'))
         fs = tuple((_worker_input_function(f, bi) for f in (compile_fn, exec_fn, import_fn)))

@@ -1,5 +1,28 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Aktuell: Runnerprofil bestätigt, Abschluss vor Foundation-Upgrade
+
+Die [Fehlerbehebung des vorzeitigen Ausgabestromendes](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026)
+ist lokal und nativ bestätigt. Runner bezeichnet die vollständige
+Ausführungssteuerung. Zwei Produktkorrekturen am Python-Dateieinstieg und eine
+fest gebundene private Kindumgebung erhalten die ursprünglichen Profilbytes
+und alle 85 Moduldeklarationen. 23 lokale Modelle und sechs neue
+Umgebungsgegenproben bestehen; zwei Gegenproben scheitern am alten Generator.
+Der vollständige Profilreport vor Kandidatenimports passt, anschließend sind
+geplanter Stopp, beide Datenstromenden, eigener Cleanup und unabhängige Absenz
+bestätigt. Ein vollständiger Sitzungshandshake sowie Runtime-, Trust-,
+Importbyte-, Methoden- und SQL-Nachweise bleiben außerhalb dieses Teilclaims.
+
+Der gemeinsame Checkpoint steht bei 18 Quellenständen, neun nativen Versuchen,
+24 Aufrufen des Windows Subsystem for Linux (WSL) und 1400 reservierten
+Prozesssekunden; drei synthetische Prüfläufe mit 21 reservierten Prozessen
+bleiben ausgeschöpft. Keine weitere native Ausführung für diesen Abschluss.
+Finaler unabhängiger Diffreview, lokale Dokumentationsprüfungen, aktuelle grüne
+Gates, vollständige Main-Übernahme und eigene Branchbereinigung folgen auf
+`codex/dgn007-early-eof-fix`. Danach ist die aktuelle AI Repository Foundation
+zu integrieren; anschließend gilt die kontinuierliche autonome Entwicklung.
+Die folgenden Abschnitte sind historische Abschlüsse.
+
 ## Erste Runnerprofilaufnahme sicher beendet, tatsächlicher Report fehlt
 
 Die [erste tatsächliche Aufnahme](DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#tatsächliches-ergebnis-des-dritten-standes)

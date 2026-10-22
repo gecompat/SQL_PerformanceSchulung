@@ -1,5 +1,9 @@
 # Initialer Backlog
 
+## Aktueller Abschluss der Runnerprofilaufnahme
+
+- [ ] [Fehlerbehebung und vollständiger Profilvergleich](../Documentation/Project_Planning/DGN_007_RUNNER_PROFILE_OBSERVATION_REVIEW.md#fehlerbehebung-und-vollständiger-profilvergleich-vom-22-oktober-2026): Das vorzeitige Ausgabestromende ist im instrumentierungsfreien Runnerlauf behoben; Runner bezeichnet die vollständige Ausführungssteuerung. 23 lokale Modelle, zwei am alten Generator scheiternde Gegenproben und sechs reine Umgebungsgegenproben bestätigen die Korrekturen. Vollständiger Profilreport vor Kandidatenimports passt zur unveränderten 85-Modul-Auswahl, eigener geplanter Stopp und unabhängiger Cleanupnachweis bestätigt. Finaler unabhängiger Diffreview, lokale Dokumentationsprüfung, grüne Integrationsgates und eigene Branchbereinigung stehen auf `codex/dgn007-early-eof-fix` noch aus. Kein vollständiger Sitzungshandshake oder weitergehender Runtime-/SQL-Nachweis. Danach aktuelle AI Repository Foundation integrieren und autonome Entwicklung fortsetzen; alte Rahmen und Fehler bleiben erhalten.
+
 ## Menschlicher Projekteinstieg und Lehrmaßstab vom 20. Oktober 2026
 
 - [x] [README und menschliche Einstiege](../Documentation/Project_Planning/PROJECT_ENTRY_AND_TEACHING_SCOPE_REVIEW.md): PR264 in Main5bf9d14,13PR-/11Main-Checks SUCCESS, unabhängiger Review und FullTree/Sync/Branchcleanup. Keine allgemeine Benchmarkpflicht; erhaltene Archivquellen und historische Migrationskennzeichnungen klar eingeordnet.

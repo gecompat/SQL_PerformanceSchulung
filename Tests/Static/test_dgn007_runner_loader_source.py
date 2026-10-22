@@ -53,10 +53,16 @@ def rows(env):
         for tag, kind, index, seq in TRACE)
 
 
-def model(*, bodies=BODIES, ordinal=1, extras=None, before_seal=None):
+def model(*, bodies=BODIES, ordinal=1, extras=None, before_seal=None, module_builtins=False):
     trace, hooks, results = [], [None], [None]
     def setup(env):
         bi = env["ns"]["__builtins__"]
+        if module_builtins:
+            provider = fixture.f.ModuleType('builtins')
+            provider.__dict__.update(bi)
+            bi = provider.__dict__
+            env['module_builtins'] = provider
+            env['ns']['__builtins__'] = provider
         bi.update({} if extras is None else extras)
         stdlib = fixture.f.ModuleType("os")
         bi.update(_real_compile=compile, _real_exec=exec, _trace=trace, _hooks=hooks,
@@ -106,6 +112,29 @@ class RunnerLoaderSourceTests(unittest.TestCase):
     def call(self, env): return env["trusted_caller"]()
 
     def events(self, env, kind): return [e for e in env["trace"] if e[0] == kind]
+
+    def test_file_entry_module_builtins_preserves_providers_and_full_flow(self):
+        env = model(module_builtins=True)
+        self.assertEqual(env['runner_initial'], ('BOUND_RUNNER_CONTROL', 'NONE'))
+        self.assertIs(env['ns']['__builtins__'], env['module_builtins'].__dict__)
+        held = owner(env)
+        self.assertIs(held[5], env['module_builtins'].compile)
+        self.assertIs(held[6], env['module_builtins'].exec)
+        self.assertIs(held[17], env['module_builtins'].__import__)
+        result = self.call(env)
+        self.assertEqual(result[:2], ('EXECUTED_RUNNER_SOURCES', 'NONE'))
+        self.assertEqual(len(self.events(env, 'EXEC')), 8)
+
+    def test_uninitialized_runner_main_rejects_without_name_error(self):
+        functions = [n for n in subject._runner_nodes() if isinstance(n, ast.FunctionDef)
+                     and n.name in ('_rl_call', '_rl_main')]
+        self.assertEqual({n.name for n in functions}, {'_rl_call', '_rl_main'})
+        namespace = {}
+        exec(compile(ast.fix_missing_locations(ast.Module(body=functions, type_ignores=[])),
+                     '<synthetic-runner-entry>', 'exec'), namespace)
+        with self.assertRaises(SystemExit) as stopped:
+            namespace['_rl_main']()
+        self.assertEqual(stopped.exception.code, 1)
 
     def reject(self, env):
         result = self.call(env)
