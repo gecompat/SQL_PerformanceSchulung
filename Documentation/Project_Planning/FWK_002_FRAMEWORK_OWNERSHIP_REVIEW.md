@@ -62,13 +62,41 @@ die Integrationsroute; eine zweite Laufzeitmatrix wird nicht ergänzt.
 
 ## Tatsächlicher Stand und endlicher Rahmen
 
-Quellenkorrektur und dreizehn reine Oracle-Testmethoden sind vorbereitet und
+Quellenkorrektur und vierzehn reine Oracle-Testmethoden sind vorbereitet und
 bestehen. Statische Frameworkvertrags-, Bereitschafts-, Kontinuitäts- und
-Selektorprüfungen bestehen. Unabhängiger Quellen-/Test-/Aufrufreview,
-lokale Gegenproben, frische Versionsqualifikation und Integration stehen aus.
-Es wurde noch kein lokaler oder entfernter SQL-Prüflauf dieses Schnitts gestartet.
-Die Vorbereitung darf parallel zum wartenden vorherigen Integrationsgate
-erfolgen; die Ausführung beginnt erst nach dessen vollständigem Abschluss.
+Selektorprüfungen bestehen. Der unabhängige Quellen- und Testreview ist ohne
+offene priorisierte Befunde abgeschlossen. Ein Befund zur spezifischen
+strukturierten Ablehnung im Fall ohne Marker ist korrigiert und unabhängig
+geschlossen. Nach vollständigem Setupabschluss über PR297 und PR298 ist der
+Branch auf den aktuellen Main übernommen; beide getrennten Selektorgegenproben
+bleiben erhalten. Der konkrete Aufrufreview nach erneuter Quellenbindung ist
+abgeschlossen. Frische Versionsqualifikation und Integration stehen aus.
+Der erste lokale Lauf C3 endete nach 56,730 Sekunden als FAIL: Alle drei alten
+Aktionen zeigten ihre tatsächliche falsche Eigentumsannahme, einschließlich der
+unzulässigen Entfernung der eigenen Fixture. Beim ersten Profil scheiterte
+anschließend der Testleser an den sechs Pipezeichen innerhalb des regulären
+Sollwerts der Demokennungsablehnung. Der vollständige native Ausgabewert dieser
+erfolgreich zurückgegebenen Abfrage war im ersten Fehlerlog nicht enthalten;
+die kanonische Quelle belegt den Diagnosefeldwert. C3 ist keine vollständige
+Qualifikation. Caller und eigener Container sind beendet und unabhängig abwesend;
+28 Rohinputs und der unveränderte Fehlerlog bleiben erhalten.
+
+C4 ergänzt ausschließlich eine verlustfreie Erkennung dieses vollständig
+bekannten Diagnosefelds. Andere Zusatzspalten, geänderte Präfixlisten und
+unpassende Records bleiben Fehler. Der Fehlerleser erhält begrenzte native
+Diagnoseausgabe. Eine neue reine Gegenprobe prüft die konkrete reguläre Form
+und ihre Ablehnungsfälle. Produkt- und SQL-Aufräumquellen bleiben unverändert.
+Nach erneuter Quellenbindung und unabhängigem Ergebnis-/Deltareview bestand
+der zweite lokale Lauf C4 nach 210,510 Sekunden auf SQL Server 2025: alle drei
+tatsächlichen Altverletzungen, sechs eindeutige Profile mit insgesamt 180
+Negativfällen, spezifische Ablehnungsrecords und vollständiger Zustandserhalt,
+positive Wiederverwendung, zwei Neuanlagen mit anschließender Wiederverwendung
+und tatsächlicher Löschung sowie unabhängiger Absenz. Beide schädigenden
+Oracle-Gegenproben und die Markerabweichung hinter Zeichen 128 bestanden.
+Caller und beide eigenen lokalen Container sind beendet und unabhängig abwesend;
+kein Zeitablauf oder ungeklärter Ressourcenbestand. C3 bleibt FAIL. Alle
+gebundenen Rohinputs und Logs beider Versuche bleiben erhalten. Entfernte
+SQL-Prüfungen wurden noch nicht gestartet.
 
 Ein Verantwortlicher und der vorhandene unabhängige Reviewer bearbeiten
 höchstens acht Quellenstände und vier neue lokale Container. Checkpoint nach
@@ -83,11 +111,13 @@ Ressourcen beginnt kein weiterer Lauf.
 Die neue reine Teststufe läuft einmal vor der vorhandenen Versionsmatrix.
 Der tatsächliche Laufzeitconsumer erhält seine importierten Abhängigkeiten
 als Workflowinputs; reine Oracletests bleiben statisch, unklare Revisionsbindung
-wählt konservativ Laufzeit. Es sind vorläufig drei SQL-Jobs je Head- oder
-Main-Welle vorgesehen: eine aktuelle Head-Welle, höchstens eine weitere bei
+wählt konservativ Laufzeit. Die konkrete Auswahl bestätigt ausschließlich den
+Frameworkworkflow mit drei SQL-Jobs und 90 konfigurierten Jobminuten je Welle
+als Obergrenzenschätzung. Vorgesehen sind eine aktuelle Head-Welle, höchstens eine weitere bei
 tatsächlich geändertem relevantem Input und eine frische Main-Welle. Head ist
-der geprüfte Änderungsstand. Die konkrete Auswahl und Reservierung erfolgen vor
-dem Push. Unveränderte Wiederholungen und zusätzliche lokale Versionsdopplungen
+der geprüfte Änderungsstand. Die endliche Reserve umfasst höchstens neun
+SQL-Jobs; vor dem Push ist der unabhängige Ergebnis-/Integrationsreview
+erforderlich. Unveränderte Wiederholungen und zusätzliche lokale Versionsdopplungen
 sind nicht vorgesehen.
 
 Der Versionsworkflow bindet vor Erstellung eine konkrete Image-ID (Kennung des

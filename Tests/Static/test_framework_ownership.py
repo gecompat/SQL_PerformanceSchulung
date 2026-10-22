@@ -53,6 +53,13 @@ class FrameworkOwnershipTests(unittest.TestCase):
         probe.require_preserved(text,invalid_demo=True)
         with self.assertRaises(RuntimeError):probe.require_preserved(text)
 
+    def test_canonical_demo_diagnostic_keeps_embedded_pipes_and_rejects_other_shapes(self):
+        native='1|LIFECYCLE|DEMO_ID|FAIL|FAIL_CONTRACT|XXX-000|STL|OPT|QRY|IDX|CON|RES|DGN-nnn|Die Demo-ID ist nicht kanonisch.\n'
+        self.assertEqual(probe.rows(native)[0][6],'STL|OPT|QRY|IDX|CON|RES|DGN-nnn')
+        probe.require_preserved(native+record('SUMMARY',code='FAIL_CONTRACT')+'PRESERVED\n',invalid_demo=True)
+        for bad in (native.replace('STL|OPT','STL|OTHER'),native.replace('DEMO_ID','OWNERSHIP_MARKERS'),native.replace('XXX-000','XXX-001'),native.replace('kanonisch.','anderes.'),native+'EXTRA\n',native.replace('|STL|','|STL|EXTRA|')):
+            with self.subTest(bad=bad),self.assertRaises(RuntimeError):probe.rows(bad)
+
     def test_batch_rejects_unparsed_go_before_sql(self):
         with patch.object(probe,'run_sql') as run:
             with self.assertRaises(RuntimeError):probe.reject_batch(self.target(),'SELECT 1;\nGO\n',{})

@@ -68,11 +68,15 @@ grünen Ersatzstatus. Der entsprechende statische Main-Workflow ist frisch und
 vollständig erfolgreich. Nach diesem getrennten Dokumentationsabschluss beginnt
 die Framework-Ausführung.
 
-Die Frameworkreferenz ist im Branch `codex/fwk002-framework-ownership`
-vorbereitet. Quellen- und Testreview sind abgeschlossen; nach Übernahme des
-aktuellen Main sind eine neue Quellenbindung und ein konkreter Aufrufreview
-erforderlich. Es gab noch keine SQL-Ausführung dieses Folgeschnitts. Recovery
-bei fehlgeschlagener Erstmarkierung bleibt getrennt offen.
+Die Frameworkreferenz wird im Branch `codex/fwk002-framework-ownership`
+korrigiert. Nach aktueller Main-Übernahme, erneuter Quellenbindung und
+unabhängigem Aufrufreview bestand der lokale 2025-Lauf: drei tatsächliche alte
+Fehlannahmen, sechs Profile und 180 Negativfälle sowie positive Wiederverwendung,
+Neuanlage und tatsächlicher Abbau. Beide eigenen Container sind unabhängig
+abwesend. Ein erster fehlgeschlagener Testleser und seine begrenzte Korrektur
+bleiben im [Frameworknachweis](FWK_002_FRAMEWORK_OWNERSHIP_REVIEW.md) dokumentiert.
+Frische Versionsqualifikation und Integration stehen aus. Recovery bei
+fehlgeschlagener Erstmarkierung bleibt getrennt offen.
 
 Der übergreifende Aufgabenrahmen bleibt dieser Schnitt plus höchstens drei
 priorisierte Folgepakete mit eigenem endlichem Prüfrahmen; Checkpoint nach

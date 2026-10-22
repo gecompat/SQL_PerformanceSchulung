@@ -38,8 +38,16 @@ def control_batch(source: str) -> str:
 
 def rows(output: str) -> list[list[str]]:
     result=[line.strip().split('|') for line in output.splitlines() if line.strip()]
+    for index,row in enumerate(result):
+        # Die kanonische DEMO_ID-Ablehnung enthält selbst sechs Pipezeichen.
+        # Nur diesen vollständig bekannten Feldwert verlustfrei zusammenfügen;
+        # alle anderen zusätzlichen oder fehlenden Spalten bleiben ein Fehler.
+        if (len(row)==14 and row[1:6]==['LIFECYCLE','DEMO_ID','FAIL','FAIL_CONTRACT','XXX-000']
+                and row[6:13]==['STL','OPT','QRY','IDX','CON','RES','DGN-nnn']
+                and row[13]=='Die Demo-ID ist nicht kanonisch.'):
+            result[index]=row[:6]+['|'.join(row[6:13]),row[13]]
     if any(len(row)!=8 or not row[0].isdigit() for row in result):
-        raise RuntimeError('Unbekannter Framework-Ergebnisrecord')
+        raise RuntimeError('Unbekannter Framework-Ergebnisrecord: '+repr(output[:1000]))
     return result
 
 
