@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "proposed",
       "priority": "P1",
-      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) und RES-004 (Abfragespeicherzuteilungen); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
+      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche), RES-004 (Abfragespeicherzuteilungen) und RES-003 (Buffer-Pool-Druck und Ressourcensteuerung); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -829,7 +829,201 @@
           "acceptance": [
             "Abfragespeicher und Datenseiten-Cache fachlich getrennt behandeln; tatsächlich fehlendes Lernziel oder Verzicht dokumentieren.",
             "Bei einer späteren Übung tatsächlichen Druck beziehungsweise wirksame Poolbegrenzung passend nachweisen und alle Instanzänderungen sicher zurücknehmen; allgemeine Infrastruktur bleibt extern."
-          ]
+          ],
+          "source_review_result": {
+            "status": "reviewed_with_gaps",
+            "recorded_on": "2026-10-23",
+            "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+            "observation": "LAB-MEM-002 (Buffer-Pool-Druck; Druck auf den Datenseiten-Cache) legt eine Tabelle mit 32768 Zeilen und je 8000 Zeichen Nutzlast an. Zwei vorgesehene Worker lesen sie wiederholt mit jeweils einem 18-Sekunden-Zeitbudget. LAB-MEM-003 (Resource-Governor-Poolgrenze; Begrenzung eines Ressourcenpools) konfiguriert einen Pool mit MAX_MEMORY_PERCENT = 25 und eine Workloadgruppe mit REQUEST_MAX_MEMORY_GRANT_PERCENT = 10; sein Runbook startet null Worker. Das sind statisch gelesene Abläufe, keine beobachteten Druck- oder Begrenzungseffekte.",
+            "findings": [
+              "LAB-MEM-002 verlangt in Observe.sql lediglich mindestens 16384 zwischengespeicherte Seiten der synthetischen Datenbank. Eine Vorhermessung, Verdrängung, physische Nachlesevorgänge oder tatsächliche Speicherdrucksignale werden nicht verlangt. Aus dem Code ist ableitbar, dass bereits das Befüllen der Tabelle den Cachebelegungsnachweis erfüllen könnte; dies wurde nicht ausgeführt. Cachebelegung ist kein Nachweis eines Speicherengpasses.",
+              "Der aktuelle Katalog ordnet LAB-MEM-002 dem Buffer-Pool-Druck zu; der ältere Lernpfad nennt dagegen überdimensionierte Grants (zu hohe Abfragespeicherzuteilungen). Für die Zuordnung gelten aktueller Katalog und tatsächliche Bausteine. Die Kennzeichnung EMULATED_INFRASTRUCTURE (nachgebildete Infrastrukturbedingungen) ist keine Laufzeitqualifikation.",
+              "USP_BufferPoolAnalysis liefert bei erkannten Prozessspeicherdrucksignalen oder wartenden Abfragespeicherzuteilungen AVAILABLE_WITH_FINDING (verfügbar mit Befund). Observe.sql weist diesen Status zurück; auch die Szenariodefinition erwartet nur AVAILABLE oder AVAILABLE_LIMITED. Ein tatsächlicher Befund könnte deshalb die Szenarioauswertung scheitern lassen. Diese Schlussfolgerung stammt aus dem Codevergleich, nicht aus einem Lauf.",
+              "LAB-MEM-003 prüft nur das Vorhandensein der benannten Gruppe im benannten Pool und REQUEST_MAX_MEMORY_GRANT_PERCENT = 10. Die konfigurierte Poolgrenze von 25 Prozent, klassifizierte eigene Sessions und eine tatsächlich wirksame Begrenzung unter Last werden nicht nachgewiesen. Im Szenario fehlt eine Klassifizierungsfunktion zur Zuordnung neuer Verbindungen; ohne vorhandene Klassifizierung landen Benutzersessions gemäß Produktvertrag in der default-Gruppe. Null Worker und das Katalogmerkmal REAL (als reales Szenario eingeordnet) belegen keine wirksame Ressourcenbegrenzung.",
+              "Bei normalen, nicht speicheroptimierten Tabellen begrenzen MIN_MEMORY_PERCENT und MAX_MEMORY_PERCENT den Query Execution Memory (Abfragearbeitsspeicher). Der Buffer Pool mit Daten- und Indexseiten wird gemeinsam genutzt und dadurch nicht begrenzt. Resource Governor darf deshalb nicht als Buffer-Pool-Obergrenze erklärt werden. MAX_CPU_PERCENT = 50 ist zudem eine weiche Prozessorgrenze bei Konkurrenz, keine harte Begrenzung.",
+              "Beide Definitionen nennen jeweils zwei Analyzer, der generische Ablauf ruft nur den jeweiligen PrimaryAnalyzer (vorrangig ausgewählte Diagnoseprozedur) auf. Beide verwendeten Analyzer besitzen keinen Datenbank- oder Sessionfilter. Die Buffer-Pool-Verteilung ist im Buffer-Pool-Analyzer standardmäßig ausgeschaltet und wird vom Aufrufpfad nicht eingeschaltet. Beim Resource-Governor-Analyzer fehlt @StatusCodeOut; Observe.sql ersetzt den nicht gelieferten Status durch AVAILABLE (verfügbar). Die konfigurierte Befundhülle und MinimumConfidence = HIGH (hohe Mindestzuverlässigkeit) werden nicht aus einem passenden fachlichen Analyzerbefund nachgewiesen.",
+              "Setup speichert den vorherigen Aktivierungszustand von Resource Governor. Cleanup (sicheres Aufräumen) deaktiviert die Funktion instanzweit, entfernt die festen Gruppen-/Poolnamen, wendet die Konfiguration erneut an und deaktiviert sie wieder, falls sie vorher ausgeschaltet war. Die Rücknahme ist damit grundsätzlich vorgesehen, aber kein bewiesener vollständiger Restore. Ein fehlender Datenbank-Eigentumsmarker wird durch IF @DatabaseOwner <> @LabRunId wegen NULL nicht sicher abgewiesen; die bereits erfassten Grenzen der Variablenübergabe und festen Objektnamen bleiben bestehen."
+            ],
+            "remaining_requirements": [
+              "Lernzuwachs oder begründeten Verzicht dokumentieren: STL-006 umfasst Buffer Pool, Cold/Warm Cache und logische/physische Reads; RES-004 umfasst Abfragespeicherzuteilungen und konkurrierende Grants. RES-003 bleibt der getrennte Umfang für isolierten Instanzspeicherdruck. Resource Governor nur mit eigenständigem Lernziel ergänzen; notwendige Ressourcenlimits gehören zum bedarfsabhängigen INF-005-Umfang.",
+              "Für eine spätere Druckdemo Ressourcenprofil, Arbeitsmenge, Zeitbudget und eigene Beobachtungsphase ausdrücklich festlegen. Eine passende Vorher-/Last-/Erholungsbeobachtung und Gegenprobe müssen den behaupteten Druck oder Cacheeffekt tragen; Seitenzahl allein genügt nicht. Instanzspeicherdruck, Cachebelegung und RESOURCE_SEMAPHORE (Warten auf Abfragespeicher) getrennt ausweisen. Bei ausbleibendem Effekt kontrolliert abbrechen oder den Effekt als nicht demonstrierbar kennzeichnen.",
+              "Falls eine wirksame Resource-Governor-Begrenzung gezeigt werden soll, eigene neue Verbindungen gezielt klassifizieren und ihre tatsächliche Gruppen-/Poolzuordnung prüfen. Wirksame Konfiguration und passende Laufzeitwerte mit begrenzter Last vergleichen; bloß angelegte Katalogeinträge genügen dafür nicht. Abfragearbeitsspeicher, Buffer Pool und weiche gegenüber harten Prozessorgrenzen verständlich trennen.",
+              "Statusvertrag und fachlichen Befund vor späterer Adaption zusammenführen: AVAILABLE_WITH_FINDING ausdrücklich behandeln, eigene relevante Diagnosedaten auswerten und keine Erfolgsaussage aus konfigurierten Befundcodes oder einem ersetzten Status ableiten. Die Beobachtung muss zur Behauptung passen; Analyzer- und Szenariostatus ersetzen keine Druckmessung.",
+              "Edition, Version, Rechte und Plattform vor Ausführung festlegen: Resource Governor ist in SQL Server 2019/2022 für Enterprise und Developer verfügbar; SQL Server 2025 ergänzt Standard und Standard Developer neben Enterprise und Enterprise Developer. Die Buffer-Descriptor-Sicht benötigt unter SQL Server 2019 VIEW SERVER STATE und ab 2022 VIEW SERVER PERFORMANCE STATE (Berechtigungen zum Lesen instanzweiter Diagnoseinformationen). Die Versionsliste der Szenarien ist keine praktische Abnahme.",
+              "Nur eine dedizierte Wegwerfinstanz mit festem Ressourcenprofil, hartem Zeitbudget, Notabbruch und überprüfbarer Erholung vorsehen. Vorherige wirksame Konfiguration und gegebenenfalls Klassifizierung sichern und vollständig wiederherstellen; vollständige Eigentumsmarker und Schulungsverträge für Sessionsteuerung, Cleanup und Abbruch anwenden. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab; den Analyze-Runner nicht übernehmen.",
+              "Qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Mess- und Leistungsbehauptungen benötigen passende Evidenz. L (groß) bleibt eine vorläufige Aufwandseinschätzung; Umsetzung, SQL- und Lab-Ausführung benötigen einen eigenen Auftrag."
+            ],
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 160,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 184,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+                "line": 83,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 65,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 75,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 624,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 915,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql",
+                "line": 21,
+                "url": "https://api.github.com/repositories/1302553964/contents/Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql",
+                "line": 216,
+                "url": "https://api.github.com/repositories/1302553964/contents/Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Code/07_Infrastructure/030_USP_ResourceGovernorAnalysis.sql",
+                "line": 33,
+                "url": "https://api.github.com/repositories/1302553964/contents/Code/07_Infrastructure/030_USP_ResourceGovernorAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/LAB-MEM-002/runbook.json",
+                "line": 16,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-002/runbook.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/LAB-MEM-003/runbook.json",
+                "line": 16,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-003/runbook.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/LEARNING_PATH.md",
+                "line": 41,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 62,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 82,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 119,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+                "repository_id": 1302553964
+              }
+            ],
+            "project_sources": [
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "17fd242f55b32bcae80918da3c848bbbc3e5fd3a",
+                "path": "Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md",
+                "line": 903,
+                "topic": "STL-006: geplanter Buffer-Pool-, Cold/Warm- und Read-Vergleich",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L903"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "17fd242f55b32bcae80918da3c848bbbc3e5fd3a",
+                "path": "Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md",
+                "line": 69,
+                "topic": "RES-004: geplanter Umfang für Abfragespeicherzuteilungen und Wartebeobachtung",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L69"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "17fd242f55b32bcae80918da3c848bbbc3e5fd3a",
+                "path": "Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md",
+                "line": 75,
+                "topic": "RES-003: getrennter Umfang auf einer dedizierten Wegwerfinstanz",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L75"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "17fd242f55b32bcae80918da3c848bbbc3e5fd3a",
+                "path": "Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md",
+                "line": 1035,
+                "topic": "INF-005: bedarfsabhängige Prozessor- und Arbeitsspeicherlimits",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L1035"
+              }
+            ],
+            "primary_sources": [
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-buffer-descriptors-transact-sql?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor-resource-pool?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor-classifier-function?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17"
+            ]
+          }
         },
         {
           "target": "RES-001",
@@ -880,7 +1074,7 @@
         "recorded_on": "2026-10-23",
         "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
         "method": "Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.",
-        "conclusion": "CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Auch die Sichtungen zu CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) und RES-004 (Abfragespeicherzuteilungen) sind mit Nachweislücken abgeschlossen. Alle sechs Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen drei Kandidaten besitzen noch keine entsprechende Quellensichtung.",
+        "conclusion": "CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Auch die Sichtungen zu CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche), RES-004 (Abfragespeicherzuteilungen) und RES-003 (Buffer-Pool-Druck und Ressourcensteuerung) sind mit Nachweislücken abgeschlossen. Alle sieben Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen zwei Kandidaten besitzen noch keine entsprechende Quellensichtung.",
         "shared_findings": [
           {
             "topic": "Variablenübergabe im vorhandenen Runner",
@@ -1290,6 +1484,93 @@
               "path": "Lab/Scenarios/Performance/LAB-MEM-001/scenario.json",
               "line": 83,
               "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-001/scenario.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a",
+              "repository_id": 1302553964
+            }
+          ]
+        },
+        "res003_review": {
+          "recorded_on": "2026-10-23",
+          "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+          "targets": [
+            "RES-003"
+          ],
+          "method": "Ausschließlich lesende Sichtung von LAB-MEM-002 und LAB-MEM-003: Katalog, Szenariodefinitionen, Runbooks, gemeinsame SQL-Bausteine, beide vorrangigen Analyzer und Aufruf-/Verify-Pfad; Abgleich mit vorhandenem Schulungsumfang und Microsoft-Primärquellen. Keine Tests, SQL-, Lab- oder CI-Ausführung während der Quellensichtung. Statische Repositoryprüfungen zur Veröffentlichung sind davon getrennt; keine Laufzeitabnahme.",
+          "binding": "Die ergänzenden RES-003-Fundstellen sind an den unveränderlichen Quellenstand ffb8ffa48b48fac025f47a2caea514c2f09d66ed gebunden. Frühere Sichtungen und ihre Quellenbindungen bleiben erhalten; spätere Änderungen des Quellprojekts sind nicht Gegenstand dieser Befunde.",
+          "shared_findings": "Die gemeinsamen Szenario- und Aufrufdateien sind gegenüber dem vorherigen Quellenstand 59e6c9cc8e786828bc710ca6963121511aedb07a unverändert. Die erfassten Grenzen bei Variablenübergabe, Eigentumsprüfung und konfigurierten Befundcodes gelten weiter. Der Verify-Pfad (Ergebnisprüfung) prüft Status, konfigurierte Codes und Cleanup, aber keine fachlich abgeleitete hohe Befundzuverlässigkeit. Der Analyze-Runner wird nicht zur Übernahme freigegeben.",
+          "shared_sources": [
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+              "line": 1,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+              "line": 82,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+              "line": 930,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1",
+              "line": 43,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            }
+          ],
+          "limitations": "Beide Runbooks wählen SQL_ONLY (vorgesehene SQL-Ausführung), keine reine CONTRACT_FIXTURE (Vertragsattrappe). IMPLEMENTED_ACTIONS_GATE im Katalog kennzeichnet vorhandene Aktionsbausteine. EMULATED_INFRASTRUCTURE bei LAB-MEM-002 und REAL bei LAB-MEM-003 sind Einordnungen, keine Laufzeitnachweise. Die Definitionen nennen SQL Server 2019, 2022 und 2025 sowie externe Plattformnachweise; die Sichtung erteilt keine Versions-, Lizenz- oder Implementierungsfreigabe. Ressourcenprofile und allgemeine Bereitstellung bleiben bei SQL_Server_Lab.",
+          "limitation_sources": [
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Catalog/scenarios.json",
+              "line": 62,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Catalog/scenarios.json",
+              "line": 71,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Performance/LAB-MEM-002/scenario.json",
+              "line": 6,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-002/scenario.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/Scenarios/Performance/LAB-MEM-003/scenario.json",
+              "line": 6,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-003/scenario.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
+              "path": "Lab/README.md",
+              "line": 5,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/README.md?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed",
               "repository_id": 1302553964
             }
           ]

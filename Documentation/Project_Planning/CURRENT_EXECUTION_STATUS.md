@@ -3,7 +3,8 @@
 ## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
 
 Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-zu RES-004 (Memory Grants; Abfragespeicherzuteilungen)
+zu RES-003 (Buffer-Pool-Druck und Resource Governor; Druck auf den
+Datenseiten-Cache und Ressourcensteuerung)
 bei TSK-016 (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre
 Integration über einen Pull Request (Änderungsantrag) nach `origin/main`. Statische
 CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
@@ -31,8 +32,14 @@ Für RES-004 liegt eine weitere statische Sichtung am Quellenstand
 eine markierte Session belegt keine konkurrierenden Grants oder tatsächliches
 Warten auf Abfragespeicher. Diagnosefilter, Beobachtungsphase und fachlicher
 Ergebnisvertrag bleiben vor einer späteren Umsetzung zu klären. Damit sind
-sechs Kandidaten mit Lücken gesichtet und drei noch ungeprüft; alle
-Erweiterungen bleiben offen.
+sieben Kandidaten mit Lücken gesichtet und zwei noch ungeprüft; alle
+Erweiterungen bleiben offen. Die zusätzliche RES-003-Sichtung am Quellenstand
+`ffb8ffa48b48fac025f47a2caea514c2f09d66ed` zeigt: Cachebelegung belegt keinen
+Speicherdruck; der Analyzerstatus für einen tatsächlichen Druckbefund wird
+vom Szenario zurückgewiesen. Resource Governor wird nur konfiguriert, ohne
+klassifizierte Last und Wirksamkeitsnachweis; seine Speichergrenzen betreffen
+Abfragearbeitsspeicher, nicht den Buffer Pool. Editionsgrenzen, Eigentumsschutz
+und vollständige Rücknahme bleiben vor einer Adaption zu klären.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen

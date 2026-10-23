@@ -7,11 +7,12 @@ gezielte Curriculum-Ergänzungen prüfen) erfasst ausschließlich offene,
 priorisierte Quellen- und Lückenprüfungen in der [kanonischen Registry](../../.ai/identity/registry.json).
 Die statischen Sichtungen zu CON-005 (Schemasperren), OPT-007
 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung),
-IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) und
-RES-004 (Memory Grants; Abfragespeicherzuteilungen) liegen mit Nachweis- und
-Sicherheitslücken vor. Der aktuelle Auftrag erlaubt die Ergänzung der RES-004-Befunde
-und ihre Integration per Pull Request (Änderungsantrag) mit statischen
-Prüfungen; die übrigen drei Kandidaten und
+IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche),
+RES-004 (Memory Grants; Abfragespeicherzuteilungen) sowie RES-003
+(Buffer-Pool-Druck und Resource Governor; Datenseiten-Cache und Ressourcensteuerung)
+liegen mit Nachweis- und Sicherheitslücken vor. Der aktuelle Auftrag erlaubt
+die Ergänzung der RES-003-Befunde und ihre Integration per Pull Request
+(Änderungsantrag) mit statischen Prüfungen; die übrigen zwei Kandidaten und
 sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
