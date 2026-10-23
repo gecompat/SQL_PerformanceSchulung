@@ -450,6 +450,20 @@
       "instanceRequirement": "SHARED_TEST_INSTANCE",
       "rationale": "Kleine deterministische Fixture in einer eigenen markierten Datenbank; kein Modell, Netzwerkaufruf oder Instanzeingriff.",
       "escalation": null
+    },
+    {
+      "demoId": "OPT-007",
+      "title": "Begrenzte Ad-hoc-Cachebelegung und Planwiederverwendung",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "stage": 2,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Sequenzielle T-SQL-Diagnose in eigener markierter Datenbank einer bestätigten Wegwerfinstanz; Container dienen der begrenzten Versionsqualifikation.",
+      "escalation": null
     }
   ]
 }

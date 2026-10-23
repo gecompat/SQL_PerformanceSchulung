@@ -1,40 +1,30 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Aktueller Planungsauftrag vom 23. Oktober 2026: OPT-007 präzisieren
+## Begrenzter Umsetzungsauftrag vom 23. Oktober 2026: OPT-007
 
-Der aktuelle Auftrag autorisiert ausschließlich die Ergänzung der Befunde und
-die Präzisierung von Abfrageform und Ergebnisvertrag für
 OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan
-formulierter Abfragen) anhand der registrierten Quellenbefunde bei TSK-016
-(Analyze-Labs als gezielte Curriculum-Ergänzungen). Integration per Pull Request
-(Änderungsantrag) nach `origin/main`, ausschließlich statische CI-Prüfungen
-(Continuous Integration; automatisierte Integrationsprüfungen). Keine
-Implementierung oder SQL-/Lab-Läufe; die übrige autonome Verarbeitung bleibt pausiert.
+formulierter Abfragen) wird gemäß dem präzisierten Plan einschließlich Tests,
+Dokumentation und Integration per Pull Request (Änderungsantrag) nach
+`origin/main` umgesetzt. Erforderliche SQL-/Lab-Läufe sind freigegeben.
+Sämtliche anderen autonomen Arbeiten bleiben pausiert.
 
-Der vollständige Plan liegt ausschließlich in der
-[kanonischen Registry](../../.ai/identity/registry.json); die
+Der vollständige aktuelle Nachweis liegt beim vorhandenen TSK-016-Eintrag in
+der [kanonischen Registry](../../.ai/identity/registry.json); die
 [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-zeigt Umfang, Quellen, offene Vorprüfungen, Tests, Schutzgrenzen und Abnahme.
-Die Konzeptvorlagen legen 40 Batches mit Literalwert in DECLARE und 40
-Aufrufe eines konstanten SELECT mit gebundenem Parameter fest. Der erste
-Nachweisumfang verlangt vorhandenen Vollplanmodus, echte SELECT-Pläne statt
-Shell-Einträgen sowie den vollständigen Werte- und Wiederverwendungsnachweis.
-Die erwarteten Cacheanzahlen und Ergebnisse sind noch empirisch zu bestätigen;
-Stubmodi bleiben gesondert offen. Optionen werden nicht umgeschaltet.
-Aufwand M (mittel) ist vorläufig; kein Test- oder Laufzeitnachweis für OPT-007.
-Hier wird keine zweite Planungsliste angelegt.
+trennt ihn vom historischen Entwurf. Der begrenzte Vollplanschnitt mit
+40 Literalbatches und 40 gebundenen Parametern ist auf SQL Server 2019/150,
+2022/160 und 2025/170 unter Developer/Linux/Docker lokal qualifiziert.
+Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Builds,
+Wiederholungen, Gegenfälle, Review, Cleanup und die Integrationsgates.
+Die [Demoanleitung](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md)
+führt Vorbereitung, Ablauf, Ergebnisdeutung und den Erhaltungsweg nach Abbruch.
 
-Der begrenzte Schemasperrenschnitt CON-005 ist über
-[PR310 (Pull Request; Änderungsantrag)](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
-in `origin/main` integriert und auf SQL Server 2019/150, 2022/160 und 2025/170
-(Developer/Linux/Docker) validiert. Sperreskalation und weitere Metadatenpfade
-bleiben offen. Die übrigen sieben TSK-016-Kandidaten werden nicht bearbeitet;
-die Umsetzungen aller weiteren Schnitte bleiben pausiert. INF-006 (Log Shipping;
-Übertragung und Wiederherstellung von Transaktionslog-Sicherungen) bleibt
-gesonderter Infrastrukturumfang mit vorläufig P3 (separate Entscheidung) und
-XL (sehr groß). Allgemeine Lab-Infrastruktur bleibt im bestehenden Lab-Projekt.
-Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) führt Auftrag,
-Pause und historische zurückgestellte Arbeiten.
+Weitere OPT-007-Themen, Windows, andere Editionen, Podman und reale Stubmodi
+bleiben offen; weder ein allgemeiner Leistungsgewinn noch eine Modulfreigabe
+wird behauptet. CON-005 (Schemasperren) bleibt im früheren begrenzten Schnitt
+über [PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) integriert.
+Die übrigen TSK-016-Kandidaten und allgemeine Lab-Infrastruktur werden nicht
+bearbeitet. Eine zweite Planungsliste wird nicht angelegt.
 
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 

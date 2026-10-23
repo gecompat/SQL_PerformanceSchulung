@@ -1,22 +1,19 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## Begrenzte OPT-007-Planung: übrige Entwicklung pausiert
+## Begrenzte OPT-007-Umsetzung: übrige Entwicklung pausiert
 
-Der Auftrag vom 23. Oktober 2026 autorisiert ausschließlich die begrenzte Planung
-von OPT-007 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen)
-mit Testplanung und Abnahmekriterien. Die lesenden Befunde sowie Abfrageform und
-Ergebnisvertrag werden präzisiert und per Pull Request (Änderungsantrag) nach
-`origin/main` integriert; ausschließlich statische CI-Prüfungen (Continuous
-Integration; automatisierte Integrationsprüfungen). Keine Implementierung oder
-SQL-/Lab-Läufe.
-Der Schemasperrenschnitt CON-005 ist über [PR310 (Änderungsantrag)](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
-integriert. Die übrige autonome Verarbeitung bleibt pausiert. Maßgeblich ist der
+Der aktuelle Auftrag autorisiert den begrenzten OPT-007-Schnitt
+(Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan formulierter
+Abfragen) einschließlich Tests, Dokumentation und Integration per Pull Request
+(Änderungsantrag) nach `origin/main`. Erforderliche SQL-/Lab-Läufe sind erlaubt.
+Der unten gebundene Vollplanschnitt ist auf drei Zielversionen lokal validiert;
+sämtliche anderen autonomen Arbeiten bleiben pausiert. Maßgeblich ist der
 [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die begrenzte OPT-007-Planung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die begrenzte OPT-007-Umsetzung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -24,7 +21,7 @@ Datenseiten-Cache), Resource Governor (Ressourcensteuerung), Worker-Druck
 (Druck auf Ausführungsthreads) und Log Shipping (Übertragung und
 Wiederherstellung von Transaktionslog-Sicherungen) liegen mit Lücken vor.
 Damit sind alle neun Kandidatenquellen gesichtet. CON-005 ist im begrenzten
-Schemasperrenumfang validiert; der OPT-007-Plan wird quellenbasiert präzisiert. Sämtliche
+Schemasperrenumfang validiert; OPT-007 ist im begrenzten Vollplanschnitt validiert. Sämtliche
 weiteren Umsetzungen bleiben offen.
 Keine neue Demo wird registriert.
 
@@ -32,7 +29,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Autorisierte OPT-007-Planpräzisierung vom 23. Oktober 2026: lesende Quellenbefunde zu Abfrageform und Ergebnisvertrag bei TSK-016 ergänzen und die reine Planungsänderung per Pull Request (Änderungsantrag) nach origin/main integrieren. Ausschließlich statische CI-Prüfungen (Continuous Integration; automatisierte Integrationsprüfungen), keine Implementierung oder SQL-/Lab-Läufe. Der weitere CON-005-Umfang und sämtliche übrigen autonomen Arbeiten bleiben pausiert; ursprüngliche Quellenbefunde und Kennungen bleiben erhalten.
+Autorisierte OPT-007-Umsetzung vom 23. Oktober 2026: den präzisierten begrenzten Ad-hoc-Plancache-Plan einschließlich Tests, Dokumentation und Integration per Pull Request (Änderungsantrag) nach origin/main umsetzen. Erforderliche SQL-/Lab-Läufe und CI-Prüfungen (Continuous Integration; automatisierte Integrationsprüfungen) sind freigegeben. Der übrige OPT-007-Umfang, weitere CON-005-Themen und sämtliche sonstigen autonomen Arbeiten bleiben pausiert; ursprüngliche Quellenbefunde und Kennungen bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -328,9 +325,71 @@ Produktdokumentation: [Referenz 1](https://learn.microsoft.com/en-us/sql/relatio
 - Diagnoseübung begrenzt Zahl, Dauer und Ressourcen ihrer synthetischen Abfragen; Planzahl und Cachebelegung beziehen sich auf den erklärten Messumfang.
 - Falls Wachstum oder Verbesserungen quantitativ behauptet werden, passenden Ausgangs-/Vergleichszustand und Evidenz ausweisen; keine unkontrollierte globale Cacheleerung.
 
-###### Begrenzter Planungsschnitt: Ad-hoc-Cachebelegung und Parameterisierung
+###### Begrenzter Implementierungsnachweis vom 23. Oktober 2026
 
-DESIGNED – Abfrageform und Ergebnisvertrag quellenbasiert präzisiert; keine Implementierung, keine ausgeführten OPT-007-Demotests und kein Laufzeitnachweis.
+**Abnahmestatus:** `validated` – ausschließlich der unten beschriebene Vollplanschnitt.
+
+**Freigabe:** 2026-10-23
+
+**Paket:** Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache
+
+**Versionsprüfung:** Tests/Runtime/run_opt007.py
+
+**Workflow:** .github/workflows/opt007-adhoc-cache.yml
+
+**Umfang:** Begrenzter Vergleich von 40 DECLARE-/SELECT-Batches mit eingebetteten Werten und 40 sp_executesql-Aufrufen mit gebundenem @Key int; gleiche Tupel (k,k), tatsächliche Vollpläne und eindeutig eigene Cachebelegung. Keine allgemeine Leistungs- oder Speicherersparnisbehauptung.
+
+**Ergebnisvertrag:** Literal-Snapshots mit 20/40 vollständigen Adhoc-Plänen; Parameter-Snapshots mit einem stabilen Prepared-Plan und execution_count 20/40, gleicher creation_time und plan_generation_num. Exakte vollständige Batchtexte, tatsächliches dbid, genau ein passender SELECT-XML-Knoten und seine physische Planstruktur sowie gültige exakte Statistikgrenzen sind Pflicht. Je Arm 40 exakte Tupel, 40 Schlüssel und Summe 820; fehlende Metadaten, Shells, Stubs, Zusatzparameter und Templateverweise scheitern.
+
+**Statementdarstellung:** Empirisch in allen drei Zielversionen: Die Engine-Statementgrenzen schließen den abschließenden Strichpunkt aus; Prepared-XML enthält zusätzlich die feste Deklaration (@Key int). Nur diese konkreten Darstellungen sind zugelassen; der vollständige Cachebatch bleibt einschließlich Strichpunkt binär und längengenau gebunden.
+
+**Schutzgrenzen:** Eigene vollständig markierte Datenbank, maximal 40 Zeilen/80 Nutzabfragen, 4096 UTF-16-Bytes je Nutztext, 128 MiB je Datei, 16 MiB beobachtete gesamte eigene Cachemenge beider Arme als Abbruchschwelle nach jedem Aufruf; 120 Sekunden regulär, 15 Sekunden je Phase, separat 30 Sekunden Cleanup. Keine Optionsumschaltung und keine Cacheleerung. Markerungewissheit und gescheiterte Erstmarkierung behalten den Erhaltungsweg.
+
+**Tatsächlich ausgeführte Prüfungen:**
+
+- Je Version zwei vollständige Lifecycles mit frischen Lauftokens und unveränderten finalen SQL-Quellen, vollständigen Phasen, exakten Tupel-/Plan-/Statistikprüfungen, FWK-011-Ergebnisnormalisierung und unabhängig bestätigter Datenbankabwesenheit erfolgreich.
+- Je Version 30 Setup- und 30 Cleanup-Eigentumsgegenproben mit vollständigem Katalog-/Modul-/Marker-/Sentinelvergleich, vollständige Datei-Ablehnung, Setup-/Cleanup-Idempotenz und 37 ungültige Rohwert-/Sicherheitsfälle erfolgreich.
+- Je Version neun Evidenzmutationen einschließlich gleicher Summe bei anderen Tupeln sowie 18 Plan-/Statistik-/Cache-Gegenfälle erfolgreich. Zusätzliche automatische Parameter und ParameterizedPlanHandle werden synthetisch zurückgewiesen; die echte gemeinsame L+P-Summenprüfung wird mit beiden vorhandenen Armen gegen Rückfall auf nur einen Arm geprüft.
+- Je Version Kontext-/Konfigurationsgegenfälle, synthetischer Textgrößenabbruch, tatsächlicher Berechtigungsskip und vollständiger Lifecycle mit 48 äußeren Leerzeichen im Lauftoken erfolgreich. Kein realer Stubvergleich und keine Konfigurationsumschaltung.
+- Je Version Timeout während eines unabhängig beobachteten aktiven eigenen SQL-Aufrufs mit erfolgreichem Cleanup und unabhängiger Datenbankabwesenheit erfolgreich; sieben Offline-Testmethoden zu numerischer Normalisierung und tatsächlichem Container-Cleanup erfolgreich.
+
+**Review:** Unabhängiger Quellen-/Ergebnisreview abgeschlossen. Vier anfängliche Quellen-/Vertragsbefunde und zwei abschließende Testlücken sind korrigiert und nachgeprüft; keine offenen priorisierten Befunde im begrenzten Schnitt. Der Review führte selbst keine SQL-Läufe aus.
+
+**Cleanup:** Alle drei eigenen lokalen Prüfcontainer nach Identitäts-/Image-/Eigentumsprüfung entfernt; Abwesenheit nach ID, Name und Eigentumslabel bestätigt. Die fünf anderen vorhandenen Lab-Container blieben erhalten.
+
+**Evidenz:** Private Laufbelege und Fehlversuche bleiben unter Runtime/Temp unversioniert erhalten. Aktuelle Head-/Main-Prüfungen, CI-Containerbereinigung und vollständige Integration werden im zugehörigen Pull Request gebunden.
+
+**Offen und pausiert:** Nur der begrenzte Ad-hoc-Vollplanschnitt ist validiert. Weitere historische OPT-007-Themen, Windows, andere Editionen, Podman, reale Stubmodi und eine allgemeine Erstmarkierungs-/Recoveryfreigabe bleiben offen. TSK-016 bleibt in Arbeit; sämtliche anderen autonomen Aufgaben bleiben pausiert.
+
+**Qualifizierte Umgebungen:**
+
+| Engine | Build | Edition | Plattform | Kompatibilitätsstufe | Instanzprofil | Server-Ad-hoc-Option |
+|---|---|---|---|---:|---|---:|
+| 2025 | 17.0.4075.5 | Enterprise Developer Edition (64-bit) | Linux/Docker | 170 | 2 Kerne, 3 GiB | 0 |
+| 2019 | 15.0.4480.2 | Developer Edition (64-bit) | Linux/Docker | 150 | 2 Kerne, 3 GiB | 0 |
+| 2022 | 16.0.4265.3 | Developer Edition (64-bit) | Linux/Docker | 160 | 2 Kerne, 3 GiB | 0 |
+
+Die eigene Datenbankoption OPTIMIZE_FOR_AD_HOC_WORKLOADS war jeweils OFF.
+
+**Bindung der lokal qualifizierten SQL-Quellen (SHA-256, kryptografischer Inhaltsfingerabdruck):**
+
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/00_Preflight.sql`: `77a66a4e7c828775d35ec13ba5cada156f40c7d0b8ba565343f1d4068150a644`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/10_Setup.sql`: `cef348d6f6c3b249250cbd9fe844146a9d03760d876a437c2a09fb82372a9bbe`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/20_Baseline.sql`: `ccb885e6f0dac671cc54843387ee40d9a0e24926bbfe33d7ffc71913ab353c0c`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/30_Demonstration.sql`: `1748dde008753f8cf5b9ad820bd2e5175cc5f460711643c71812dd4ee7f895a6`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/40_Observation.sql`: `5401fc3609fd3f56f80193bfc33f024ca82854b9e423fcccc309984dffda45b9`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/50_Mitigation.sql`: `f751138f8f69f0510add0599daf268589cba8b2bd6ec60669776943c4c3f4042`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/60_Comparison.sql`: `0fea16935c6b8a1691301605a337f0bda6ce575cd27a50bb4072c8740ecd80c6`
+- `Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/90_Cleanup.sql`: `66d7d61ada2e36c560314d1220a1a7b98275d0392393156bbc14edd31cd4420f`
+
+###### Historischer begrenzter Entwurf: Ad-hoc-Cachebelegung und Parameterisierung
+
+HISTORICAL_DESIGN – Entwurfsstand vor dem Umsetzungsauftrag vom 23. Oktober 2026; aktueller begrenzter Implementierungs- und Prüfstand in implementation_record.
+
+Der folgende Entwurf beschreibt den Stand vor dem Umsetzungsauftrag. Aussagen zu noch nicht ausgeführten Tests und späterer Implementierung sind historisch; der aktuelle begrenzte Nachweis steht oben.
+
+**Ursprünglicher Entwurfsstatus:** DESIGNED – Abfrageform und Ergebnisvertrag quellenbasiert präzisiert; keine Implementierung, keine ausgeführten OPT-007-Demotests und kein Laufzeitnachweis.
+
 
 **Lernziel:** Eingebettete Literalwerte im Batchtext mit gebundenen Parametern vergleichen: eigene Cacheobjekte und tatsächliche Pläne, Anzahl und belegte Bytes laufgenau zuordnen und Wiederverwendung prüfen. Der Schnitt erklärt Batchtext-Wiederverwendung; er behauptet keine allgemeine Wirkung aller Literalprädikate oder einen Leistungsgewinn.
 

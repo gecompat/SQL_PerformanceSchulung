@@ -100,6 +100,29 @@ Die Reihenfolge folgt der Modulstruktur der Präsentation. Die Beschreibungen si
 
 **Versionen:** SQL Server 2019–2025; keine harten Versionsskips.
 
+## OPT-007 – Begrenzte Ad-hoc-Cachebelegung und Planwiederverwendung
+
+**Lernziel.** Unterschiedliche Batchtexte und gebundene Parameter anhand ihrer
+konkreten Cacheobjekte unterscheiden. Der Plancache ist der Zwischenspeicher
+kompilierter Ausführungspläne; ein Texttreffer allein belegt keinen vollständigen Plan.
+
+**Ablauf.** Die [Demoanleitung](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md)
+führt Preflight, 40 synthetische Zeilen, leere Baseline und zwei sequenzielle
+Arme durch. Eingebettete Werte stehen in DECLARE, gebundene Werte werden an
+konstanten SELECT-Text übergeben. Die Snapshotpunkte nach 20/40 Aufrufen verlangen
+20/40 echte Literalpläne und einen stabilen Prepared-Plan mit Ausführungszählern
+20/40. Alle 40 Tupel (k,k) müssen identisch sein.
+
+**Deutung.** Shells, Stubs, zusätzliche Templates, Cacheverdrängung und veränderte
+Kompilierung erfüllen den Vertrag nicht. Die Bytewerte beschreiben ausschließlich
+die eigene beobachtete Cachemenge. Lokale Variablen und gebundene Parameter
+können unterschiedliche Optimiererinformationen liefern; ein allgemeiner
+Speicher- oder Laufzeitvorteil wird nicht abgeleitet.
+
+**Abbruch.** Nur bestätigte Wegwerfinstanz im vorhandenen Vollplanmodus verwenden.
+Keine Optionen umschalten oder Caches leeren. Die markergebundene Bereinigung
+und der Recoverypfad stehen in der Demoanleitung.
+
 ## OPT-009 – Parameter Sensitive Plan Optimization (PSP)
 
 **Sicherheit/Stufe:** GREEN, 1 Session, Stufe 1.

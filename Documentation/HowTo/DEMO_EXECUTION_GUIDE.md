@@ -40,6 +40,7 @@ Die Sicherheitsstufen bedeuten `GREEN` (grün: eigene Testdatenbank), `YELLOW` (
 | [`OPT-002`](../../Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/README.md) – Statistiken lesen | Statistikheader, Histogramm und Dichtewerte voneinander abgrenzen. | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`OPT-003`](../../Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew/README.md) – Stichproben und ungleiche Datenverteilung | Stichprobenstatistik und vollständige Datenerfassung am selben Datenbestand vergleichen. | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`OPT-005`](../../Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key/README.md) – Wachsende Schlüssel und Statistikpflege | Neu hinzugekommene Schlüsselwerte und die Aktualität der Statistiken untersuchen. | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
+| [`OPT-007`](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md) – Ad-hoc-Plancache und Parameterbindung | 40 eingebettete Batchwerte mit 40 gebundenen Parametern vergleichen; Plananzahl, tatsächlichen Planinhalt und identische Tupel prüfen. | `YELLOW` | 2019/150, 2022/160, 2025/170 | eigene Wegwerfinstanz, vorhandener Vollplanmodus; Prüfstand im Katalog |
 | [`OPT-009`](../../Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/README.md) – Parametersensitive Planoptimierung | Parameter Sensitive Plan Optimization (PSP): unterschiedliche Planvarianten für geeignete Parameterwerte untersuchen. | `GREEN` | 2022/160, 2025/170 | 2019 ergibt vorgesehenes `SKIP_VERSION` |
 | [`OPT-010`](../../Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/README.md) – Planoptimierung für optionale Parameter | Optional Parameter Plan Optimization (OPPO): Planvarianten für optionale Filter mit und ohne Parameterwert untersuchen. | `GREEN` | 2025/170 | 2019 und 2022 ergeben vorgesehenes `SKIP_VERSION` |
 | [`OPT-013`](../../Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md) – Sortieren mit zu wenig Arbeitsspeicher | Einen Sort-Spill, also das Auslagern von Sortierdaten nach tempdb, und eine Gegenmaßnahme beobachten. | `YELLOW` | 2019/150, 2022/160, 2025/170 | belastet `tempdb` |
@@ -116,6 +117,7 @@ $demoCatalog = @{
     'OPT-002' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-002_Statistics_Anatomy/manifest.json'; Safety = 'GREEN' }
     'OPT-003' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew/manifest.json'; Safety = 'GREEN' }
     'OPT-005' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key/manifest.json'; Safety = 'GREEN' }
+    'OPT-007' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/manifest.json'; Safety = 'YELLOW' }
     'OPT-009' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/manifest.json'; Safety = 'GREEN' }
     'OPT-010' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/manifest.json'; Safety = 'GREEN' }
     'OPT-013' = @{ Manifest = 'Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/manifest.json'; Safety = 'YELLOW' }

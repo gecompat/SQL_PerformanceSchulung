@@ -1,102 +1,50 @@
 # Aktueller Ausführungsstand
 
-## Aktueller Auftrag vom 23. Oktober 2026: OPT-007-Befunde und Plan präzisieren
+## Auftrag vom 23. Oktober 2026: begrenzten OPT-007-Schnitt umsetzen
 
-Der jüngste menschliche Auftrag autorisiert ausschließlich die Ergänzung der
-lesenden OPT-007-Befunde (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter
-Abfragen) bei TSK-016 (gezielte Curriculum-Ergänzungen) sowie die Präzisierung
-von Abfrageform und Ergebnisvertrag. Integration per Pull Request
-(Änderungsantrag) nach `origin/main`; nur statische CI-Prüfungen (Continuous
-Integration; automatisierte Integrationsprüfungen). Keine Implementierung oder
-SQL-/Lab-Läufe; die übrige autonome Verarbeitung bleibt pausiert.
+Der aktuelle menschliche Auftrag autorisiert OPT-007 (Ad-hoc-Plancache;
+Zwischenspeicher spontan formulierter Abfragen) gemäß dem präzisierten Plan,
+einschließlich Tests, Dokumentation und Integration per Pull Request
+(Änderungsantrag) nach `origin/main`. Erforderliche SQL-/Lab-Läufe sind erlaubt.
+Die übrige autonome Verarbeitung bleibt pausiert; keine andere Demo wird begonnen.
 
-Der Plan wird in der [kanonischen Registry](../../.ai/identity/registry.json)
-gepflegt und in der [abgeleiteten Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-lesbar dargestellt. Er umfasst 40 Batches mit eingebettetem Schlüsselwert in
-DECLARE und denselben SELECT mit 40 getrennt gebundenen Parametern. Die Vorlagen
-sind Konzeptdaten, keine ausführbaren Demoartefakte. Der erste Nachweisschnitt
-verlangt einen vorhandenen Vollplanmodus, echte SELECT-Planinhalte ohne Shells
-oder zusätzliche automatische Templates, genaue Datenbank-/Laufbindung und
-korrekte Bytewerte. Die erwarteten Tupel (k, k), Cacheanzahlen 20/40 sowie ein
-stabiler Prepared-Plan mit Ausführungszählern 20/40 sind erst später empirisch
-zu bestätigen. Stubmodi bleiben gesondert offen; es wird keine Option umgeschaltet.
-Testplanung und Schutzgrenzen bleiben bestehen. Aufwand M (mittel) ist vorläufig.
-Die Planungsintegration verwendet ausschließlich statische Prüfungen;
-ausführbare Demo-, Test-, Lab- und Workflowquellen bleiben unverändert.
+Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) führt den
+abgegrenzten Implementierungsnachweis; die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
+enthält alle Quellen, den historischen Entwurf und die tatsächlichen Prüfungen.
+Das [OPT-007-Paket](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md)
+verwendet den vorhandenen Harness, keine neue Lab-Infrastruktur und keine
+Cacheleerung oder Ad-hoc-Optionsumschaltung.
 
-Der begrenzte CON-005-Schemasperrenschnitt ist bereits über
-[PR310 (Pull Request; Änderungsantrag)](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
-in `origin/main` integriert. Die 55 abschließenden PR- und 53 frischen
-Main-Prüfungen sowie Synchronisierung und eigene Branch-/Containerbereinigung
-sind dort belegt. Dieser frühere Nachweis wird nicht auf OPT-007 übertragen.
+Der begrenzte Vollplanschnitt ist auf SQL Server 2019/150 (15.0.4480.2),
+2022/160 (16.0.4265.3) und 2025/170 (17.0.4075.5), jeweils Developer unter
+Linux/Docker mit zwei Kernen und 3 GiB (Gibibyte) Instanzspeicher lokal validiert.
+Je Version bestanden zwei vollständige Lifecycles mit frischen Lauftokens,
+exakten 40 Tupeln (k,k) je Arm, Literalplänen 20/40, stabilem Prepared-Plan
+(Plan für gebundene Parameter) mit Ausführungszählern 20/40 und FWK-011-
+Ergebnisnormalisierung. Dazu bestanden je 30 Setup-/Cleanup-Eigentumsgegenproben,
+37 Rohwert-/Sicherheitsfälle, neun Evidenzmutationen, 18 Plan-/Statistik-/
+Cache-Gegenfälle, Kontext-/Textlimit-/Berechtigungsprüfungen und normalisierte
+Voll-Lifecycles. Timeout bei unabhängig beobachtetem aktivem eigenen SQL-Aufruf
+und nachfolgendem unabhängig bestätigtem Cleanup ist je Version belegt.
 
-`TSK-016` (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) ist als
-offene Aufgabe in der [kanonischen Registry](../../.ai/identity/registry.json)
-erfasst. Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-führt Prioritäten, Quellenprüfung, Abgrenzung und spätere Abnahme. Für CON-005
-(Schemasperren) und OPT-007 (Ad-hoc-Plancache) liegt eine statische Sichtung des
-Analyze-Stands `6e557726a07ce7d389a36083c7e82d214b20822f` mit konkreten Nachweis-
-und Sicherheitslücken vor. Beide Lernideen bleiben priorisiert, sind jedoch
-nicht direkt übernahmefähig. Ergänzend liegen für CON-006 und DGN-004 statische
-Quellenbefunde am Analyze-Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb` vor:
-Die Deadlock-Prüfung belegt keine konkrete Variante; die Forcing-Prüfung
-belegt weder erfolgreiche Planverwendung noch einen kontrollierten Fehler.
-Beide Erweiterungen bleiben offen. Für IDX-007 liegt zusätzlich eine statische
-Sichtung am Quellenstand `00c52fdbd99288839cc570b58a3f2337e610740a` vor:
-Die Prüfungen verlangen nur Einfügeaktivität, passende Zeilenzahlen und eine
-Indexoption; ein tatsächlicher Engpass an der letzten Seite oder ein belastbarer
-Leistungsvergleich wird damit nicht nachgewiesen.
-Für RES-004 liegt eine weitere statische Sichtung am Quellenstand
-`59e6c9cc8e786828bc710ca6963121511aedb07a` vor: Der Alternativnachweis über
-eine markierte Session belegt keine konkurrierenden Grants oder tatsächliches
-Warten auf Abfragespeicher. Diagnosefilter, Beobachtungsphase und fachlicher
-Ergebnisvertrag bleiben vor einer späteren Umsetzung zu klären. Damit sind
-alle neun Kandidatenquellen mit Lücken gesichtet; sämtliche
-Erweiterungen bleiben offen. Die zusätzliche RES-003-Sichtung am Quellenstand
-`ffb8ffa48b48fac025f47a2caea514c2f09d66ed` zeigt: Cachebelegung belegt keinen
-Speicherdruck; der Analyzerstatus für einen tatsächlichen Druckbefund wird
-vom Szenario zurückgewiesen. Resource Governor wird nur konfiguriert, ohne
-klassifizierte Last und Wirksamkeitsnachweis; seine Speichergrenzen betreffen
-Abfragearbeitsspeicher, nicht den Buffer Pool. Editionsgrenzen, Eigentumsschutz
-und vollständige Rücknahme bleiben vor einer Adaption zu klären.
-Die RES-001-Sichtung am selben Quellenstand zeigt: Vier laufmarkierte Sessions
-belegen keinen Worker-Mangel. Das Szenario wertet die fachlichen Analyzerbefunde
-nicht aus und reduziert den Schedulervergleich auf eine Momentaufnahme.
-Laststeuerung, vollständiger Worker-Abschluss, tatsächliche Warte-Evidenz
-und gesicherte Erholung bleiben vor einer Adaption offen.
-Auch INF-006 ist am selben Analyze-Stand gesichtet, ergänzend mit SQL_Server_Lab
-`2423ac75d7b07d29adbb63a2c218a6669db8363c`: LAB-LS-001 enthält Job- und
-Dateibeziehungen für einen vorgesehenen normalen Zyklus und absichtlich
-ausstehende Verarbeitung; LAB-LS-002 bleibt nicht implementiert. Eindeutige
-Objektzuordnung, SQL-Eigentum, Wiederherstellbarkeitsaussagen und vollständiger
-Abbau benötigen vor einer Adaption eigene Nachweise. Die allgemeine Infrastruktur
-bleibt im Lab-Projekt; dessen Verträge sind keine direkte Freigabe für den alten
-Analyze-Runner. Aktuell ist ausschließlich die oben beschriebene OPT-007-Planung autorisiert; sämtliche Umsetzungen und anderen Aufgaben bleiben pausiert.
-Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die ursprüngliche
-Backlogaufnahme und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
-Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
-Pull Request; eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
+Der unabhängige Quellen-/Ergebnisreview ist ohne offene priorisierte Befunde
+abgeschlossen. Alle drei eigenen lokalen Prüfcontainer sind identitätsgeprüft
+entfernt; andere Lab-Container bleiben erhalten. Private Fehlversuche und
+Laufbelege bleiben unversioniert erhalten. Die finalen frischen CI-Prüfungen
+(Continuous Integration; automatisierte Integrationsprüfungen), die
+CI-Containerbereinigung und die vollständige Übernahme werden im zugehörigen
+Pull Request gebunden. Eine lokale Qualifikation ersetzt diese Integrationsgates nicht.
 
-Die quellenbasierte Reihenfolge bleibt kanonisch bei TSK-016 gepflegt.
-Das [CON-005-Paket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
-implementiert drei Akteure mit außerhalb der gehaltenen Transaktion sichtbaren
-Freigaben, gewährtem Sch-M (Schemaänderungssperre), wartendem Sch-S
-(Schemastabilitätssperre), identischer Ressource sowie exakter Blocker-/Laufbindung.
-Der Implementierungsstand `ab27d42214ab24b6b12b2189e5b5e32da535166e`
-bestand am 2026-10-23 den [Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499):
-SQL Server 2019/150, 2022/160 und 2025/170, jeweils Developer/Linux/Docker,
-mit zwei regulären Lifecycles, normalisiertem Lauftoken, vollständigen
-Schutz-/Evidenzgegenproben und Timeout bei unabhängig beobachtetem Sperrkonflikt.
-Eigene Datenbanken und CI-Container sind erfolgreich abgebaut.
-[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
-bindet die aktuellen Head-/Main-Prüfungen und den Integrationsnachweis.
-Alle drei eigenen lokalen Container sind ebenfalls entfernt.
-Zwei frühe fehlgeschlagene Diagnosekandidaten bleiben mit ihrem erfolgreichen
-Cleanup erhalten. Die anderen Lab-Instanzen wurden nicht verändert.
-Sperreskalation und umfassende Metadaten-/Kompilierungspfade bleiben offen.
-OPT-007 (Ad-hoc-Plancache) ist jetzt ausschließlich zur begrenzten Planung
-freigegeben; seine Umsetzung und DGN-004 (Planerzwingung) bleiben pausiert.
-Vorherige Quellenbefunde und sämtliche historischen Pausen bleiben erhalten; eine vollständige CON-005-Gesamtabnahme wird nicht behauptet.
+Der Schnitt belegt Cachezuordnung und Wiederverwendung, keinen allgemeinen
+Leistungs- oder Speicherersparnisclaim. Weitere historische OPT-007-Themen,
+Windows, andere Editionen, Podman, reale Stubmodi und die allgemeine
+Erstmarkierungs-/Recoveryfreigabe bleiben offen. TSK-016 (gezielte
+Curriculum-Ergänzungen) und alle weiteren Kandidaten bleiben offen.
+CON-005 (Schemasperren) bleibt im früheren begrenzten Schnitt über
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) integriert.
+Eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
+
+## Historische Fortsetzungen und zurückgestellte Arbeiten
 
 Bei Eingang dieses Auftrags war PR301 (Pull Request; Änderungsantrag für die
 vollständige Frameworkeingabeprüfung) bereits in Main

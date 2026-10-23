@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "OPT-007",
+  "profile": "BOUNDED_FULL_PLAN",
+  "assertions": [
+    {
+      "id": "literal20",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "literal20",
+      "expected": 20,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "literal40",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "literal40",
+      "expected": 40,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "parameter20",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "parameter20",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "parameter40",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "parameter40",
+      "expected": 1,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "literal_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "literal_rows",
+      "expected": 40,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "parameter_rows",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "parameter_rows",
+      "expected": 40,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "literal_keys",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "literal_keys",
+      "expected": 40,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "parameter_keys",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "parameter_keys",
+      "expected": 40,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "literal_sum",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "literal_sum",
+      "expected": 820,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    },
+    {
+      "id": "parameter_sum",
+      "kind": "EXACT",
+      "phase": "comparison",
+      "metric": "parameter_sum",
+      "expected": 820,
+      "severity": "FAIL",
+      "on_missing": "FAIL"
+    }
+  ]
+}
