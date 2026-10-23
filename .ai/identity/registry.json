@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "proposed",
       "priority": "P1",
-      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
+      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung) und IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -510,7 +510,157 @@
           "acceptance": [
             "Tatsächliche Konkurrenz um die letzte Seite von gewöhnlichen Sperren und Speichergerätezugriffen unterscheiden.",
             "Vergleiche verwenden erklärten identischen Messrahmen; andere Schlüssel und Heap-Varianten nicht pauschal als bessere Lösung ausgeben. Leistungsbehauptungen separat belegen."
-          ]
+          ],
+          "source_review_result": {
+            "status": "reviewed_with_gaps",
+            "recorded_on": "2026-10-23",
+            "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+            "observation": "Die drei LAB-LATCH-Szenarien enthalten SQL-Bausteine für Einfügungen mit fortlaufendem Schlüssel, OPTIMIZE_FOR_SEQUENTIAL_KEY (Indexoption zur Optimierung konkurrierender Einfügungen) sowie einen Vergleich mit anderem Clustered Index und Heap (Tabelle ohne Clustered Index). Die Runbooks sehen je vier Worker mit höchstens 3000 Schleifendurchläufen vor. Das sind vorgesehene Abläufe, keine beobachteten Lauf- oder Leistungsnachweise.",
+            "findings": [
+              "LAB-LATCH-001 verlangt in Observe.sql nur leaf_insert_count > 0, also mindestens eine erfasste Einfügung. Das belegt weder PAGELATCH_EX (exklusives Warten auf eine Seite im Arbeitsspeicher), die tatsächlich betroffene letzte Indexseite noch ausreichende gleichzeitige Zugriffe.",
+              "LAB-LATCH-002 schreibt je Worker abwechselnd in LatchSequential und LatchOptimized. Geprüft werden lediglich gleiche positive Zeilenzahlen und optimize_for_sequential_key = 1 für die optimierte Variante. Getrennte Vergleichsläufe, Laufzeiten, Durchsatz und Wartezeitdifferenzen fehlen; auch gleiche Teilstände können die Zählbedingung erfüllen.",
+              "LAB-LATCH-003 schreibt innerhalb derselben Schleife in LatchDistributed und LatchHeap. Der Schlüssel WorkerId * 1000000 + InsertOrdinal * 7919 steigt je Worker monoton. Fachliche Ableitung: arithmetische Schlüssellücken belegen keine gleichmäßige Verteilung auf physische Indexseiten. Die Prüfung verlangt nur gleiche positive Zeilenzahlen und trägt keine Leistungsüberlegenheit des Heaps oder der anderen Schlüsselwahl.",
+              "Der generische Analyzer-Aufruf untersucht für LAB-LATCH-001/002 ausschließlich LatchSequential und für LAB-LATCH-003 ausschließlich LatchDistributed. Die Betriebszähler der jeweils zweiten Vergleichsvariante werden nicht abgefragt. Der bei LAB-LATCH-001 zusätzlich genannte USP_InternalContentionAnalysis wird über diesen PrimaryAnalyzer-Pfad nicht ausgeführt. USP_IndexOperationalStats stellt kumulative Lock-, Latch- und Ein-/Ausgabezähler bereit; diese werden im Szenarioprädikat nicht als Engpass- oder Vergleichsnachweis geprüft.",
+              "Drei Sekunden Startvorlauf, verzögerter Workerstart und acht Sekunden Leerlauf nach den Einfügungen ersetzen keine signalgesteuerte Messphase. Die Runbooks akzeptieren die Prozesscodes 0 und 1; Complete-LabSqlWorkers verwirft den Worker-Ausgabetext. Damit fehlt ein eindeutiger Erfolgs- und Vollständigkeitsnachweis aller vorgesehenen Worker. Vier gestartete Worker allein garantieren keine tatsächliche Konkurrenz während der Beobachtung."
+            ],
+            "remaining_requirements": [
+              "Im vorhandenen IDX-007-Planungsschnitt bleiben. IDX-006 (Seitendichte und Seitenaufteilungen) sowie RES-005 (Seiten-Latches gegenüber Ein-/Ausgabewartezeiten) fachlich abgrenzen; keine zweite Demo für diese bereits zugeordneten Lernziele anlegen.",
+              "Für einen späteren Engpassnachweis PAGELATCH_EX der eigenen Datenbank, dem Zielindex und der tatsächlich umkämpften letzten Seite zuordnen; Transaktionssperren und PAGEIOLATCH_* (Warten bei Seiten-Ein-/Ausgabe) getrennt ausweisen. Fehlende Konkurrenz kontrolliert als Skip (nicht demonstrierbarer Effekt) behandeln, statt bloße Einfügeaktivität als Engpass zu bestätigen.",
+              "Für einen späteren Messvergleich identische Datenmenge, Nutzdaten, Konkurrenz und Messdauer beziehungsweise klar definierten Arbeitsumfang vorsehen. Vergleichsvarianten getrennt und mit gleicher Messreichweite auswerten; Zählerdifferenzen samt möglicher Rücksetzungen, tatsächlichen Worker-Erfolg, Durchsatz und Wartezeiten passend zur Aussage belegen. Heap- und Schlüsselalternativen mit ihren Strukturunterschieden erklären; keine allgemeine Überlegenheit ableiten.",
+              "OPTIMIZE_FOR_SEQUENTIAL_KEY ist ab SQL Server 2019 verfügbar; die aufgeführten Versionen 2019, 2022 und 2025 sind damit keine bereits geprüfte Laufzeitmatrix. Zielrechte, Edition und Feature-Voraussetzungen vor späterer Ausführung festlegen und Detailquellen im regulären Quellenprozess registrieren. Eine aktivierte Option allein beweist keinen Leistungsgewinn.",
+              "Vorhandene Schulungsverträge für Sessionsteuerung, vollständige Eigentumsmarker, begrenzte Abbruchpfade und Cleanup (sicheres Aufräumen) anwenden. Fehlende Zielobjekte vor Statistikabfragen abweisen: Die lokale Einfügeprüfung übergibt OBJECT_ID ohne NULL-Abweisung; NULL (fehlender Wert) kann bei sys.dm_db_index_operational_stats den Objektumfang erweitern. Die bereits dokumentierten gemeinsamen Runner-Grenzen bleiben ebenfalls vor einer Wiederverwendung zu klären.",
+              "Kurze qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Quantitative Wachstums- oder Leistungsbehauptungen benötigen passende Messnachweise; die vorläufige Aufwandseinschätzung L (groß) bleibt eine Schätzung."
+            ],
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 323,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+                "line": 274,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 306,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 325,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 361,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 624,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 649,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Code/03_ObjectIndex/025_USP_IndexOperationalStats.sql",
+                "line": 253,
+                "url": "https://api.github.com/repositories/1302553964/contents/Code/03_ObjectIndex/025_USP_IndexOperationalStats.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1",
+                "line": 152,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/LAB-LATCH-001/runbook.json",
+                "line": 11,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-001/runbook.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/LAB-LATCH-002/runbook.json",
+                "line": 11,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-002/runbook.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+                "path": "Lab/Scenarios/Performance/LAB-LATCH-003/runbook.json",
+                "line": 11,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-003/runbook.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+                "repository_id": 1302553964
+              }
+            ],
+            "project_sources": [
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "feb10f4d0c82b7331aa63890d3a251e55a6498ea",
+                "path": "Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md",
+                "line": 90,
+                "topic": "Vorhandener IDX-007-Planungsschnitt mit Engpassnachweis und kontrolliertem Skip",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/feb10f4d0c82b7331aa63890d3a251e55a6498ea/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L90"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "feb10f4d0c82b7331aa63890d3a251e55a6498ea",
+                "path": "Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md",
+                "line": 10,
+                "topic": "Vorhandene Abgrenzung von Seitenaufteilungen und Seitendichte",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/feb10f4d0c82b7331aa63890d3a251e55a6498ea/Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md#L10"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "feb10f4d0c82b7331aa63890d3a251e55a6498ea",
+                "path": "Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md",
+                "line": 989,
+                "topic": "RES-005: Seiten-Latches gegenüber Ein-/Ausgabewartezeiten",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/feb10f4d0c82b7331aa63890d3a251e55a6498ea/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L989"
+              }
+            ],
+            "primary_sources": [
+              "https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/resolve-pagelatch-ex-contention",
+              "https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver17#sequential-keys",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-db-index-operational-stats-transact-sql?view=sql-server-ver17"
+            ]
+          }
         },
         {
           "target": "RES-004",
@@ -605,7 +755,7 @@
         "recorded_on": "2026-10-23",
         "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
         "method": "Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.",
-        "conclusion": "CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Die ergänzende Sichtung zu CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung) ist mit Nachweislücken abgeschlossen. Alle vier Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen fünf Kandidaten besitzen noch keine entsprechende Quellensichtung.",
+        "conclusion": "CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Auch die Sichtungen zu CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung) und IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) sind mit Nachweislücken abgeschlossen. Alle fünf Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen vier Kandidaten besitzen noch keine entsprechende Quellensichtung.",
         "shared_findings": [
           {
             "topic": "Variablenübergabe im vorhandenen Runner",
@@ -865,6 +1015,85 @@
               "path": "Lab/Scenarios/Performance/LAB-QS-002/scenario.json",
               "line": 81,
               "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            }
+          ]
+        },
+        "idx007_review": {
+          "recorded_on": "2026-10-23",
+          "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+          "targets": [
+            "IDX-007"
+          ],
+          "method": "Ausschließlich lesende Sichtung von Katalog, drei LAB-LATCH-Szenariodefinitionen und Runbooks, gemeinsamen SQL-Bausteinen, Analyzer und Aufruf-/Verify-Pfad; Abgleich mit vorhandenen Schulungsinhalten und Microsoft-Primärquellen. Keine Tests, SQL-, Lab- oder CI-Ausführung während der Quellensichtung. Statische Repositoryprüfungen zur Veröffentlichung sind davon getrennt; keine Laufzeitabnahme.",
+          "binding": "Die ergänzenden IDX-007-Fundstellen sind an den unveränderlichen Quellenstand 00c52fdbd99288839cc570b58a3f2337e610740a gebunden. Die bereits erfassten Sichtungen am Stand 6e557726a07ce7d389a36083c7e82d214b20822f und fd18d829904b6b1631f385cfaad340ca3c72bcbb bleiben mit ihrer bisherigen Quellenbindung erhalten.",
+          "shared_findings": "Die gemeinsam verwendeten SQL- und Aufrufdateien sind gegenüber der vorherigen Sichtung am Stand fd18d829904b6b1631f385cfaad340ca3c72bcbb unverändert. Die bereits dokumentierten Grenzen bei Variablenübergabe, Eigentumsprüfung und konfigurierten Befundcodes gelten daher auch für diese Szenarien. Ein Katalog- oder Befundcode ersetzt keinen tatsächlichen Engpass- oder Leistungsnachweis; der Analyze-Runner wird nicht zur Übernahme freigegeben.",
+          "shared_sources": [
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+              "line": 1,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+              "line": 82,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+              "line": 930,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1",
+              "line": 43,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            }
+          ],
+          "limitations": "Die Runbooks wählen SQL_ONLY (vorgesehene SQL-Ausführung), keine reine CONTRACT_FIXTURE (Vertragsattrappe). Der Katalogstatus IMPLEMENTED_ACTIONS_GATE bezeichnet vorhandene Aktionsbausteine, keine Laufzeitqualifikation. Die Szenariodefinitionen führen SQL Server 2019, 2022 und 2025 auf und benennen tatsächliche Plattformnachweise als externes Gate. Keine Versions-, Lizenz- oder Implementierungsfreigabe durch diese Sichtung; alle Kandidaten bleiben offene Arbeit.",
+          "limitation_sources": [
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Catalog/scenarios.json",
+              "line": 260,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Performance/LAB-LATCH-001/scenario.json",
+              "line": 82,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-001/scenario.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Performance/LAB-LATCH-002/scenario.json",
+              "line": 81,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-002/scenario.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "00c52fdbd99288839cc570b58a3f2337e610740a",
+              "path": "Lab/Scenarios/Performance/LAB-LATCH-003/scenario.json",
+              "line": 81,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-003/scenario.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a",
               "repository_id": 1302553964
             }
           ]

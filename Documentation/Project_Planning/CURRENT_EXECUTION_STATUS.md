@@ -3,9 +3,9 @@
 ## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
 
 Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-zu CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung) bei TSK-016
-(Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre Integration über einen
-Pull Request (Änderungsantrag) nach `origin/main`. Erforderliche statische
+zu IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche)
+bei TSK-016 (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre
+Integration über einen Pull Request (Änderungsantrag) nach `origin/main`. Statische
 CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
 erlaubt. Implementierungen sowie SQL- und Lab-Läufe sind ausgeschlossen.
 Die übrige autonome Verarbeitung bleibt ausdrücklich pausiert.
@@ -21,7 +21,12 @@ nicht direkt übernahmefähig. Ergänzend liegen für CON-006 und DGN-004 statis
 Quellenbefunde am Analyze-Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb` vor:
 Die Deadlock-Prüfung belegt keine konkrete Variante; die Forcing-Prüfung
 belegt weder erfolgreiche Planverwendung noch einen kontrollierten Fehler.
-Beide Erweiterungen bleiben offen; die übrigen fünf Kandidaten sind ungeprüft.
+Beide Erweiterungen bleiben offen. Für IDX-007 liegt zusätzlich eine statische
+Sichtung am Quellenstand `00c52fdbd99288839cc570b58a3f2337e610740a` vor:
+Die Prüfungen verlangen nur Einfügeaktivität, passende Zeilenzahlen und eine
+Indexoption; ein tatsächlicher Engpass an der letzten Seite oder ein belastbarer
+Leistungsvergleich wird damit nicht nachgewiesen. Damit sind fünf Kandidaten mit Lücken
+gesichtet und vier noch ungeprüft; alle Erweiterungen bleiben offen.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen

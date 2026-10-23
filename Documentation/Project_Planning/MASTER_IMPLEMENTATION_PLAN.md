@@ -6,10 +6,11 @@ Die übrige autonome Entwicklung ist pausiert. `TSK-016` (Analyze-Labs als
 gezielte Curriculum-Ergänzungen prüfen) erfasst ausschließlich offene,
 priorisierte Quellen- und Lückenprüfungen in der [kanonischen Registry](../../.ai/identity/registry.json).
 Die statischen Sichtungen zu CON-005 (Schemasperren), OPT-007
-(Ad-hoc-Plancache), CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung)
+(Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung)
+und IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche)
 liegen mit Nachweis- und Sicherheitslücken vor. Der aktuelle Auftrag erlaubt
-die Ergänzung der beiden zuletzt geprüften Kandidaten und ihre Integration
-per Pull Request (Änderungsantrag) mit statischen Prüfungen; die übrigen fünf Kandidaten und
+die Ergänzung der IDX-007-Befunde und ihre Integration per Pull Request
+(Änderungsantrag) mit statischen Prüfungen; die übrigen vier Kandidaten und
 sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
