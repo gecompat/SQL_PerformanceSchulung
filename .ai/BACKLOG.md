@@ -14,15 +14,16 @@ der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECU
 
 Fachlicher Status: **offen** (`proposed`). Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
-Planerzwingung und Last-Page-Inserts (Einfügungen auf der letzten Indexseite)
-liegen mit Lücken vor; die übrigen vier Kandidaten sind noch zu prüfen.
+Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite) und
+Memory Grants (Abfragespeicherzuteilungen) liegen mit Lücken vor; die übrigen
+drei Kandidaten sind noch zu prüfen.
 Keine neue Demo wird registriert.
 
 Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung) und IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.
+Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) und RES-004 (Abfragespeicherzuteilungen); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.
 
 **Prioritäten innerhalb dieser Recherche:** P1 zuerst, P2 weitere Prüfkandidaten,
 P3 gesonderte Infrastrukturentscheidung. Die Reihenfolge ersetzt keine bestehende
@@ -40,7 +41,7 @@ Am 22. Oktober 2026 ausschließlich lesend: Katalogzuordnungen und Szenariotitel
 
 Erfasst am 2026-10-23. Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.
 
-CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Auch die Sichtungen zu CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung) und IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) sind mit Nachweislücken abgeschlossen. Alle fünf Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen vier Kandidaten besitzen noch keine entsprechende Quellensichtung.
+CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Auch die Sichtungen zu CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche) und RES-004 (Abfragespeicherzuteilungen) sind mit Nachweislücken abgeschlossen. Alle sechs Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen drei Kandidaten besitzen noch keine entsprechende Quellensichtung.
 
 **Gemeinsame Befunde vor einer späteren Adaption:**
 
@@ -87,6 +88,20 @@ Nachlesbare gemeinsame Fundstellen: [Lab/Scenarios/Performance/_Shared/Worker.sq
 Die Runbooks wählen SQL_ONLY (vorgesehene SQL-Ausführung), keine reine CONTRACT_FIXTURE (Vertragsattrappe). Der Katalogstatus IMPLEMENTED_ACTIONS_GATE bezeichnet vorhandene Aktionsbausteine, keine Laufzeitqualifikation. Die Szenariodefinitionen führen SQL Server 2019, 2022 und 2025 auf und benennen tatsächliche Plattformnachweise als externes Gate. Keine Versions-, Lizenz- oder Implementierungsfreigabe durch diese Sichtung; alle Kandidaten bleiben offene Arbeit.
 
 Quellen zur Szenarioreife: [Lab/Scenarios/Catalog/scenarios.json:260](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a), [Lab/Scenarios/Performance/LAB-LATCH-001/scenario.json:82](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-001/scenario.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a), [Lab/Scenarios/Performance/LAB-LATCH-002/scenario.json:81](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-002/scenario.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a), [Lab/Scenarios/Performance/LAB-LATCH-003/scenario.json:81](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-LATCH-003/scenario.json?ref=00c52fdbd99288839cc570b58a3f2337e610740a).
+
+#### Ergänzende Quellensichtung: Abfragespeicherzuteilungen
+
+Erfasst am 2026-10-23; Quellenstand `59e6c9cc8e786828bc710ca6963121511aedb07a`. Ausschließlich lesende Sichtung von LAB-MEM-001: Katalog, Szenariodefinition, Runbook, gemeinsame SQL-Bausteine, Memory-Grant-Analyzer und Aufruf-/Verify-Pfad; Abgleich mit vorhandenem Schulungsumfang und Microsoft-Primärquellen. Keine Tests, SQL-, Lab- oder CI-Ausführung während der Quellensichtung. Statische Repositoryprüfungen zur Veröffentlichung sind davon getrennt; keine Laufzeitabnahme.
+
+Die ergänzenden RES-004-Fundstellen sind an den unveränderlichen Quellenstand 59e6c9cc8e786828bc710ca6963121511aedb07a gebunden. Die bereits erfassten Sichtungen an den früheren Ständen bleiben mit ihren bisherigen Quellenbindungen erhalten; spätere Änderungen des Quellprojekts sind nicht Gegenstand dieser Befunde.
+
+Die bereits dokumentierten Grenzen bei Variablenübergabe, Eigentumsprüfung und konfigurierten Befundcodes bestehen im geprüften gemeinsamen Aufrufpfad weiter. Ein AVAILABLE-Status oder eine Befundhülle ist kein unabhängiger Nachweis einer wartenden eigenen Grant-Anforderung. Der Analyze-Runner wird nicht zur Übernahme freigegeben.
+
+Nachlesbare gemeinsame Fundstellen: [Lab/Scenarios/Performance/_Shared/Worker.sql:1](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:82](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:930](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1:43](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=59e6c9cc8e786828bc710ca6963121511aedb07a).
+
+Das Runbook wählt SQL_ONLY (vorgesehene SQL-Ausführung), keine reine CONTRACT_FIXTURE (Vertragsattrappe). Der Katalogstatus IMPLEMENTED_ACTIONS_GATE bezeichnet vorhandene Aktionsbausteine, keine Laufzeitqualifikation. Die Szenariodefinition führt SQL Server 2019, 2022 und 2025 auf und benennt tatsächliche Plattformnachweise als externes Gate. Keine Versions-, Lizenz- oder Implementierungsfreigabe durch diese Sichtung; alle Kandidaten bleiben offene Arbeit.
+
+Quellen zur Szenarioreife: [Lab/Scenarios/Catalog/scenarios.json:53](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/LAB-MEM-001/scenario.json:33](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-001/scenario.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/LAB-MEM-001/scenario.json:83](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-001/scenario.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a).
 
 #### Gemeinsamer weiterer Prüfauftrag
 
@@ -278,13 +293,35 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Diagnose von Last-Page-
 
 ##### 6. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
 
-**P2 · offen zur Quellenprüfung · Aufwand M – vorläufig.**
+**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
 **Quellen:** `LAB-MEM-001` (Competing memory grants; konkurrierende Abfragespeicherzuteilungen).
 
 **Abgrenzung:** RES-004 umfasst bereits Overgrant (zu hohe Zuteilung), Undergrant (zu geringe Zuteilung), Spills und konkurrierende Grants; OPT-013 behandelt bereits Spills. Nur eine tatsächliche Curriculumlücke ergänzen.
 
-**Zuerst prüfen:** Anforderung, Gewährung und Nutzung des Abfragespeichers sowie echte Wartebeobachtung prüfen; Alternativnachweis über aktive Sessions ausdrücklich bewerten.
+**Weiterer Prüfauftrag:** Anforderung, Gewährung und Nutzung des Abfragespeichers sowie echte Wartebeobachtung prüfen; Alternativnachweis über aktive Sessions ausdrücklich bewerten.
+
+**Statischer Quellenbefund:** Stand `59e6c9cc8e786828bc710ca6963121511aedb07a`, erfasst am 2026-10-23. LAB-MEM-001 enthält eine ORDER-BY-Abfrage über höchstens 16384 Zeilen, die in eine temporäre Tabelle schreibt. Sie verwendet MAXDOP 2 (höchstens Parallelitätsgrad 2) und MAX_GRANT_PERCENT = 1 (Grant-Obergrenze); danach folgt eine feste Wartezeit von 15 Sekunden. Das Runbook sieht drei Worker und drei Sekunden Startvorlauf vor. Das sind vorgesehene Abläufe, keine beobachtete Speicherknappheit oder Laufzeitabnahme.
+
+- Observe.sql akzeptiert irgendeine Grant-Anforderung einer laufzugeordneten Session, unabhängig davon, ob sie wartet oder bereits gewährt wurde. Fehlt auch diese, genügt mindestens eine Session mit passendem Lauftoken als Alternativnachweis. Die Existenz einer solchen Session belegt weder konkurrierende Zuteilungen noch RESOURCE_SEMAPHORE (Warten auf Abfragespeicher).
+- Die nachgelagerte WAITFOR-Verzögerung beginnt erst nach der Abfrageausführung und ist kein Nachweis eines fortbestehenden Grants. Laut Produktdokumentation wird Abfragespeicher nach Abschluss der Abfrageausführung freigegeben. MAX_GRANT_PERCENT = 1 begrenzt die Zuteilung unter den dokumentierten Poolbedingungen; der Hint und drei vorgesehene Worker allein erzeugen keinen belegten Grant-Engpass.
+- Die Szenariodefinition nennt fünf Diagnoseprozeduren, der generische Aufrufpfad verwendet jedoch nur USP_CurrentMemoryGrants. Diese Prozedur unterstützt @SessionIds als Sessionfilter; Observe.sql setzt ihn nicht. Der Analyzer kann deshalb Grants anderer Sessions ausgeben, obwohl das fachliche Prädikat einen Lauftokenfilter verwendet.
+- USP_CurrentMemoryGrants liefert angeforderten, erforderlichen, gewährten, genutzten und maximal genutzten Speicher sowie Grant- und Warteinformationen. Der Szenariovertrag prüft diese Werte nicht als fachliche Abnahme. AVAILABLE ist bei null passenden Grants zulässig und bestätigt dann eine erfolgreiche Diagnoseabfrage, keinen positiven Engpassbefund. Die konfigurierte Befundhülle ersetzt diesen Nachweis nicht.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:66](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Worker.sql:68](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:44](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:624](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:43](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:467](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:586](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:620](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/LAB-MEM-001/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-001/runbook.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a).
+
+Abgleich mit der Schulung: [Vorhandener RES-004-Planungsumfang mit konkurrierenden Grants und Wartebeobachtung](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L69), [OPT-013: vorhandene Demo für einen kontrollierten Sort-Spill](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md#L15), [RES-003: getrennter Umfang für instanzweiten Speicherdruck](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L75).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Eigenständigen Lernzuwachs innerhalb von RES-004 begründen oder auf eine zusätzliche Demo verzichten. Die vorhandene OPT-013-Demo behandelt bereits einen kontrollierten Sort-Spill (Auslagerung nach TempDB). Der mögliche Zusatz ist die Diagnose konkurrierender Zuteilungen und wartender Anforderungen; allgemeiner Instanzspeicherdruck bleibt beim getrennten RES-003-Umfang.
+- Eigene Session- und Request-Kennungen sowie Messzeitpunkte eindeutig zuordnen und die Diagnose auf diese Anforderungen begrenzen. Erforderlichen, angeforderten, gewährten, genutzten und maximal genutzten Speicher passend zur Aussage erfassen. Overgrant (zu hohe Zuteilung) oder Undergrant (zu geringe Zuteilung) nicht aus einem einzelnen frühen Nutzungsschnappschuss ableiten; behauptete Spills gesondert nachweisen.
+- Falls RESOURCE_SEMAPHORE-Warten behauptet wird, es während der eigenen Abfrageausführung tatsächlich beobachten und mit einer noch nicht gewährten Anforderung, grant_time IS NULL (fehlender Gewährungszeitpunkt), sowie passenden Warteinformationen verbinden. Grants, wartende Anforderungen und bloß vorhandene Sessions getrennt behandeln. Eine dreisekündige Verzögerung und nachgelagertes WAITFOR ersetzen keine signalgesteuerte Beobachtungsphase.
+- Begrenzten Ressourcen- und Zeitrahmen, vollständigen Worker-Erfolg, eine passende Gegenprobe und das Ende des Wartezustands vorsehen. Bei ausbleibendem Effekt einen kontrollierten Skip (nicht demonstrierbarer Effekt) liefern; allgemeine Speicherknappheit oder einen Leistungsgewinn nicht aus dem Szenariotitel ableiten.
+- Vorhandene Schulungsverträge für Eigentumsmarker, Sessionsteuerung, Abbruch, Cleanup (sicheres Aufräumen) und Wiederherstellung anwenden. Versionen, Edition und Rechte vor späterer Ausführung festlegen: die Memory-Grant-Sicht erfordert unter SQL Server 2019 VIEW SERVER STATE und ab SQL Server 2022 VIEW SERVER PERFORMANCE STATE. Die genannten Versionen 2019, 2022 und 2025 sind durch die Quellensichtung nicht praktisch abgenommen.
+- Qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Konkrete Mess- oder Leistungsbehauptungen benötigen passende Evidenz. M (mittel) bleibt eine vorläufige Aufwandseinschätzung; eine spätere Umsetzung und Ausführung benötigen einen eigenen Auftrag.
+
+Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Grant-Lebensdauer und tatsächliches Speicherwarten](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues), [Microsoft: Anforderung, Gewährung, Nutzung und Rechte](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17), [Microsoft: Grant-Obergrenze und Poolbedingungen](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17).
 
 **Spätere Abnahme:**
 

@@ -3,7 +3,7 @@
 ## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
 
 Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-zu IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche)
+zu RES-004 (Memory Grants; Abfragespeicherzuteilungen)
 bei TSK-016 (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre
 Integration über einen Pull Request (Änderungsantrag) nach `origin/main`. Statische
 CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
@@ -25,8 +25,14 @@ Beide Erweiterungen bleiben offen. Für IDX-007 liegt zusätzlich eine statische
 Sichtung am Quellenstand `00c52fdbd99288839cc570b58a3f2337e610740a` vor:
 Die Prüfungen verlangen nur Einfügeaktivität, passende Zeilenzahlen und eine
 Indexoption; ein tatsächlicher Engpass an der letzten Seite oder ein belastbarer
-Leistungsvergleich wird damit nicht nachgewiesen. Damit sind fünf Kandidaten mit Lücken
-gesichtet und vier noch ungeprüft; alle Erweiterungen bleiben offen.
+Leistungsvergleich wird damit nicht nachgewiesen.
+Für RES-004 liegt eine weitere statische Sichtung am Quellenstand
+`59e6c9cc8e786828bc710ca6963121511aedb07a` vor: Der Alternativnachweis über
+eine markierte Session belegt keine konkurrierenden Grants oder tatsächliches
+Warten auf Abfragespeicher. Diagnosefilter, Beobachtungsphase und fachlicher
+Ergebnisvertrag bleiben vor einer späteren Umsetzung zu klären. Damit sind
+sechs Kandidaten mit Lücken gesichtet und drei noch ungeprüft; alle
+Erweiterungen bleiben offen.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
