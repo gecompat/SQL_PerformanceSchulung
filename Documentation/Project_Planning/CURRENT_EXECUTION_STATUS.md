@@ -3,8 +3,8 @@
 ## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
 
 Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-zu RES-001 (Worker-Druck und echte Erschöpfung; Druck auf beziehungsweise
-Mangel an verfügbaren Ausführungsthreads)
+zu INF-006 (Log Shipping als gesonderter Infrastrukturumfang; Übertragung
+und Wiederherstellung von Transaktionslog-Sicherungen)
 bei TSK-016 (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre
 Integration über einen Pull Request (Änderungsantrag) nach `origin/main`. Statische
 CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
@@ -32,7 +32,7 @@ Für RES-004 liegt eine weitere statische Sichtung am Quellenstand
 eine markierte Session belegt keine konkurrierenden Grants oder tatsächliches
 Warten auf Abfragespeicher. Diagnosefilter, Beobachtungsphase und fachlicher
 Ergebnisvertrag bleiben vor einer späteren Umsetzung zu klären. Damit sind
-acht Kandidaten mit Lücken gesichtet und einer noch ungeprüft; alle
+alle neun Kandidatenquellen mit Lücken gesichtet; sämtliche
 Erweiterungen bleiben offen. Die zusätzliche RES-003-Sichtung am Quellenstand
 `ffb8ffa48b48fac025f47a2caea514c2f09d66ed` zeigt: Cachebelegung belegt keinen
 Speicherdruck; der Analyzerstatus für einen tatsächlichen Druckbefund wird
@@ -44,9 +44,15 @@ Die RES-001-Sichtung am selben Quellenstand zeigt: Vier laufmarkierte Sessions
 belegen keinen Worker-Mangel. Das Szenario wertet die fachlichen Analyzerbefunde
 nicht aus und reduziert den Schedulervergleich auf eine Momentaufnahme.
 Laststeuerung, vollständiger Worker-Abschluss, tatsächliche Warte-Evidenz
-und gesicherte Erholung bleiben vor einer Adaption offen. Nur INF-006
-(Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
-besitzt noch keine entsprechende Quellensichtung.
+und gesicherte Erholung bleiben vor einer Adaption offen.
+Auch INF-006 ist am selben Analyze-Stand gesichtet, ergänzend mit SQL_Server_Lab
+`2423ac75d7b07d29adbb63a2c218a6669db8363c`: LAB-LS-001 enthält Job- und
+Dateibeziehungen für einen vorgesehenen normalen Zyklus und absichtlich
+ausstehende Verarbeitung; LAB-LS-002 bleibt nicht implementiert. Eindeutige
+Objektzuordnung, SQL-Eigentum, Wiederherstellbarkeitsaussagen und vollständiger
+Abbau benötigen vor einer Adaption eigene Nachweise. Die allgemeine Infrastruktur
+bleibt im Lab-Projekt; dessen Verträge sind keine direkte Freigabe für den alten
+Analyze-Runner. Keine Umsetzung oder weitere autonome Bearbeitung ist freigegeben.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
