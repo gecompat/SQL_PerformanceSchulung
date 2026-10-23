@@ -103,10 +103,28 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 | [`STL-008`](../../Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth/README.md) | VLF-Struktur und Logwachstum | Rot | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`STL-009`](../../Demos/01_Storage_Pages_Log/STL-009_Commit_Batching/README.md) | Commit-Batching und WRITELOG | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`RES-007`](../../Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas/README.md) | Wait-Scope und zeitbezogene Deltas | Gelb | 3 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
+| [`OPT-007`](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md) | Begrenzte Ad-hoc-Cachebelegung und Planwiederverwendung | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` – begrenzter Vollplanschnitt |
 
 `OPT-017` (Ungleich verteilte parallele Arbeit) benötigt als erste implementierte Demo Stufe 3, weil vier sichtbare Kerne und ein begrenztes Ressourcenprofil Teil ihres Evidenzvertrags sind. `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) belastet `tempdb` der gesamten Instanz, `CON-004` (Blockierungsketten verfolgen) hält Sperren über vier Sitzungen; auch sie verlangen deshalb eine Instanz, die zurückgesetzt oder verworfen werden darf.
 
 Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [Lokale Testumgebung für Schulungsdemos](../HowTo/LOCAL_TEST_ENVIRONMENT.md).
+
+## Begrenzter Ad-hoc-Vollplanschnitt
+
+OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne) ist im
+begrenzten Vergleich von eingebetteten Batchwerten und gebundenen Parametern
+lokal qualifiziert. Die vorhandenen Ad-hoc-Optionen waren aus; es wird keine
+allgemeine Leistungs- oder Speicherersparnisbehauptung abgeleitet.
+
+| Demo / Thema | 2019/150 | 2022/160 | 2025/170 | Nachweis und Grenze |
+|---|---|---|---|---|
+| `OPT-007` (Begrenzte Ad-hoc-Cachebelegung und Planwiederverwendung) | `PASS/OK` | `PASS/OK` | `PASS/OK` | 2026-10-23: Developer/Linux/Docker, zwei Lifecycles und relevante Gegenfälle; [kanonischer Nachweis bei TSK-016](../../.ai/BACKLOG.md#begrenzter-implementierungsnachweis-vom-23-oktober-2026). Windows, weitere Editionen und reale Stubmodi bleiben offen. |
+
+Die [Demoanleitung](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md)
+führt Voraussetzungen, Plan-/Tupelnachweise und Recovery. Builds, Quellenbindung,
+Review und Cleanup stehen im verlinkten Nachweis. Die finalen frischen CI-
+(Continuous Integration; automatisierte Integrationsprüfungen) und
+Integrationsnachweise werden im zugehörigen Pull Request (Änderungsantrag) gebunden.
 
 ## Neuer begrenzter Schemasperrenschnitt
 

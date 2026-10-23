@@ -595,6 +595,32 @@
         "SKIP"
       ],
       "defaultRepetitions": 2
+    },
+    {
+      "demoId": "OPT-007",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 1,
+      "providers": [
+        "docker"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "standard",
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE",
+        "SERVER_STATE"
+      ],
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "defaultRepetitions": 2
     }
   ]
 }

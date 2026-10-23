@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "in_progress",
       "priority": "P1",
-      "scope": "Autorisierte OPT-007-Planpräzisierung vom 23. Oktober 2026: lesende Quellenbefunde zu Abfrageform und Ergebnisvertrag bei TSK-016 ergänzen und die reine Planungsänderung per Pull Request (Änderungsantrag) nach origin/main integrieren. Ausschließlich statische CI-Prüfungen (Continuous Integration; automatisierte Integrationsprüfungen), keine Implementierung oder SQL-/Lab-Läufe. Der weitere CON-005-Umfang und sämtliche übrigen autonomen Arbeiten bleiben pausiert; ursprüngliche Quellenbefunde und Kennungen bleiben erhalten.",
+      "scope": "Autorisierte OPT-007-Umsetzung vom 23. Oktober 2026: den präzisierten begrenzten Ad-hoc-Plancache-Plan einschließlich Tests, Dokumentation und Integration per Pull Request (Änderungsantrag) nach origin/main umsetzen. Erforderliche SQL-/Lab-Läufe und CI-Prüfungen (Continuous Integration; automatisierte Integrationsprüfungen) sind freigegeben. Der übrige OPT-007-Umfang, weitere CON-005-Themen und sämtliche sonstigen autonomen Arbeiten bleiben pausiert; ursprüngliche Quellenbefunde und Kennungen bleiben erhalten.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -289,7 +289,7 @@
           "title": "Begrenzte Diagnose von Ad-hoc-Plancache-Wachstum",
           "priority": "P1",
           "order": 2,
-          "status": "proposed",
+          "status": "in_progress",
           "effort": "M – vorläufig",
           "sources": [
             {
@@ -358,7 +358,7 @@
           "planning_outline": {
             "recorded_on": "2026-10-23",
             "basis_revision": "8ebd12b48b338f06bddee9dbbc6bda3173a996bc",
-            "status": "DESIGNED – Abfrageform und Ergebnisvertrag quellenbasiert präzisiert; keine Implementierung, keine ausgeführten OPT-007-Demotests und kein Laufzeitnachweis.",
+            "status": "HISTORICAL_DESIGN – Entwurfsstand vor dem Umsetzungsauftrag vom 23. Oktober 2026; aktueller begrenzter Implementierungs- und Prüfstand in implementation_record.",
             "learning_goal": "Eingebettete Literalwerte im Batchtext mit gebundenen Parametern vergleichen: eigene Cacheobjekte und tatsächliche Pläne, Anzahl und belegte Bytes laufgenau zuordnen und Wiederverwendung prüfen. Der Schnitt erklärt Batchtext-Wiederverwendung; er behauptet keine allgemeine Wirkung aller Literalprädikate oder einen Leistungsgewinn.",
             "scope": "Eine eigene kleine synthetische Datenbank, ein sequenzieller Workload und Beobachtung durch den vorhandenen Harness. 40 Werte werden einmal in jeweils einen Literalbatch eingebettet und einmal an denselben konstanten SELECT-Text gebunden, insgesamt höchstens 80 Nutzabfragen. Erster Nachweisschnitt ausschließlich im vorhandenen Vollplanmodus; Stubmodi bleiben gesondert offen. Diagnose von Cachebelegung und Wiederverwendung, keine Last- oder Leistungsvergleichsdemo.",
             "existing_coverage": "Bestehende OPT-007-Identität für Compilation (Planübersetzung), Recompilation, Plan Reuse (Planwiederverwendung) und Ad-hoc-Cache-Pollution (unnötige Cachebelegung) verwenden. Der Schnitt deckt davon nur den begrenzten Ad-hoc-Vergleich ab. QRY-004 (optionale Filter), QRY-013 (Anwendungs-/Werkzeugkontext), OPT-009 (parametersensitive Planoptimierung) und OPT-010 (Optimierung optionaler Parameter) nicht duplizieren. Vorhandene Zuordnung CLM-032 (Cache-Schlüssel und zusätzliche Einträge) / LO-M02-07 verwenden; keine neue Kennung oder zusätzliche Benchmarkbehauptung.",
@@ -504,7 +504,72 @@
               "parameter_declaration": "@Key int",
               "binding": "Im Literalarm ausschließlich <KEY> durch den intern erzeugten Ganzzahlwert 1 bis 40 ersetzen; der normalisierte Lauftoken und der Armkommentar bleiben konstant. Den gesamten nicht parameterisierten Literalbatch in der eigenen Zieldatenbank ausführen. Im Parameterarm den konstanten Statementtext per sp_executesql mit unveränderter Deklaration @Key int und getrennt gebundenem Wert 1 bis 40 ausführen. Die lokale DECLARE-Anweisung gehört ausschließlich zum Literalbatch.",
               "identity": "Der Lauftoken ist nach dem vollständigen Framework-Rohwertvertrag geprüft, normalisiert und für beide Arme derselbe. Beide vollständigen SQL-Vorlagen sind fest; gleiche Sessioneinstellungen, Datenbank und Datentypen. Bei der Prepared-Textprüfung die erwartete Parameterdeklaration berücksichtigen. Keine wechselnden Kommentare je Schlüssel, keine Textkürzung, keine permissive LIKE-Zuordnung und kein OPTION (RECOMPILE)."
-            }
+            },
+            "original_design_status": "DESIGNED – Abfrageform und Ergebnisvertrag quellenbasiert präzisiert; keine Implementierung, keine ausgeführten OPT-007-Demotests und kein Laufzeitnachweis."
+          },
+          "implementation_record": {
+            "approved_on": "2026-10-23",
+            "status": "validated",
+            "path": "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache",
+            "runtime_test": "Tests/Runtime/run_opt007.py",
+            "workflow": ".github/workflows/opt007-adhoc-cache.yml",
+            "scope": "Begrenzter Vergleich von 40 DECLARE-/SELECT-Batches mit eingebetteten Werten und 40 sp_executesql-Aufrufen mit gebundenem @Key int; gleiche Tupel (k,k), tatsächliche Vollpläne und eindeutig eigene Cachebelegung. Keine allgemeine Leistungs- oder Speicherersparnisbehauptung.",
+            "result_contract": "Literal-Snapshots mit 20/40 vollständigen Adhoc-Plänen; Parameter-Snapshots mit einem stabilen Prepared-Plan und execution_count 20/40, gleicher creation_time und plan_generation_num. Exakte vollständige Batchtexte, tatsächliches dbid, genau ein passender SELECT-XML-Knoten und seine physische Planstruktur sowie gültige exakte Statistikgrenzen sind Pflicht. Je Arm 40 exakte Tupel, 40 Schlüssel und Summe 820; fehlende Metadaten, Shells, Stubs, Zusatzparameter und Templateverweise scheitern.",
+            "statement_representation": "Empirisch in allen drei Zielversionen: Die Engine-Statementgrenzen schließen den abschließenden Strichpunkt aus; Prepared-XML enthält zusätzlich die feste Deklaration (@Key int). Nur diese konkreten Darstellungen sind zugelassen; der vollständige Cachebatch bleibt einschließlich Strichpunkt binär und längengenau gebunden.",
+            "safeguards": "Eigene vollständig markierte Datenbank, maximal 40 Zeilen/80 Nutzabfragen, 4096 UTF-16-Bytes je Nutztext, 128 MiB je Datei, 16 MiB beobachtete gesamte eigene Cachemenge beider Arme als Abbruchschwelle nach jedem Aufruf; 120 Sekunden regulär, 15 Sekunden je Phase, separat 30 Sekunden Cleanup. Keine Optionsumschaltung und keine Cacheleerung. Markerungewissheit und gescheiterte Erstmarkierung behalten den Erhaltungsweg.",
+            "tests": [
+              "Je Version zwei vollständige Lifecycles mit frischen Lauftokens und unveränderten finalen SQL-Quellen, vollständigen Phasen, exakten Tupel-/Plan-/Statistikprüfungen, FWK-011-Ergebnisnormalisierung und unabhängig bestätigter Datenbankabwesenheit erfolgreich.",
+              "Je Version 30 Setup- und 30 Cleanup-Eigentumsgegenproben mit vollständigem Katalog-/Modul-/Marker-/Sentinelvergleich, vollständige Datei-Ablehnung, Setup-/Cleanup-Idempotenz und 37 ungültige Rohwert-/Sicherheitsfälle erfolgreich.",
+              "Je Version neun Evidenzmutationen einschließlich gleicher Summe bei anderen Tupeln sowie 18 Plan-/Statistik-/Cache-Gegenfälle erfolgreich. Zusätzliche automatische Parameter und ParameterizedPlanHandle werden synthetisch zurückgewiesen; die echte gemeinsame L+P-Summenprüfung wird mit beiden vorhandenen Armen gegen Rückfall auf nur einen Arm geprüft.",
+              "Je Version Kontext-/Konfigurationsgegenfälle, synthetischer Textgrößenabbruch, tatsächlicher Berechtigungsskip und vollständiger Lifecycle mit 48 äußeren Leerzeichen im Lauftoken erfolgreich. Kein realer Stubvergleich und keine Konfigurationsumschaltung.",
+              "Je Version Timeout während eines unabhängig beobachteten aktiven eigenen SQL-Aufrufs mit erfolgreichem Cleanup und unabhängiger Datenbankabwesenheit erfolgreich; sieben Offline-Testmethoden zu numerischer Normalisierung und tatsächlichem Container-Cleanup erfolgreich."
+            ],
+            "review": "Unabhängiger Quellen-/Ergebnisreview abgeschlossen. Vier anfängliche Quellen-/Vertragsbefunde und zwei abschließende Testlücken sind korrigiert und nachgeprüft; keine offenen priorisierten Befunde im begrenzten Schnitt. Der Review führte selbst keine SQL-Läufe aus.",
+            "cleanup": "Alle drei eigenen lokalen Prüfcontainer nach Identitäts-/Image-/Eigentumsprüfung entfernt; Abwesenheit nach ID, Name und Eigentumslabel bestätigt. Die fünf anderen vorhandenen Lab-Container blieben erhalten.",
+            "environments": [
+              {
+                "year": "2025",
+                "build": "17.0.4075.5",
+                "edition": "Enterprise Developer Edition (64-bit)",
+                "platform": "Linux",
+                "server_adhoc": 0,
+                "cpu": 2,
+                "memory_gib": 3,
+                "compatibility": 170
+              },
+              {
+                "year": "2019",
+                "build": "15.0.4480.2",
+                "edition": "Developer Edition (64-bit)",
+                "platform": "Linux",
+                "server_adhoc": 0,
+                "cpu": 2,
+                "memory_gib": 3,
+                "compatibility": 150
+              },
+              {
+                "year": "2022",
+                "build": "16.0.4265.3",
+                "edition": "Developer Edition (64-bit)",
+                "platform": "Linux",
+                "server_adhoc": 0,
+                "cpu": 2,
+                "memory_gib": 3,
+                "compatibility": 160
+              }
+            ],
+            "sql_sha256": {
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/00_Preflight.sql": "77a66a4e7c828775d35ec13ba5cada156f40c7d0b8ba565343f1d4068150a644",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/10_Setup.sql": "cef348d6f6c3b249250cbd9fe844146a9d03760d876a437c2a09fb82372a9bbe",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/20_Baseline.sql": "ccb885e6f0dac671cc54843387ee40d9a0e24926bbfe33d7ffc71913ab353c0c",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/30_Demonstration.sql": "1748dde008753f8cf5b9ad820bd2e5175cc5f460711643c71812dd4ee7f895a6",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/40_Observation.sql": "5401fc3609fd3f56f80193bfc33f024ca82854b9e423fcccc309984dffda45b9",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/50_Mitigation.sql": "f751138f8f69f0510add0599daf268589cba8b2bd6ec60669776943c4c3f4042",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/60_Comparison.sql": "0fea16935c6b8a1691301605a337f0bda6ce575cd27a50bb4072c8740ecd80c6",
+              "Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/90_Cleanup.sql": "66d7d61ada2e36c560314d1220a1a7b98275d0392393156bbc14edd31cd4420f"
+            },
+            "evidence": "Private Laufbelege und Fehlversuche bleiben unter Runtime/Temp unversioniert erhalten. Aktuelle Head-/Main-Prüfungen, CI-Containerbereinigung und vollständige Integration werden im zugehörigen Pull Request gebunden.",
+            "remaining": "Nur der begrenzte Ad-hoc-Vollplanschnitt ist validiert. Weitere historische OPT-007-Themen, Windows, andere Editionen, Podman, reale Stubmodi und eine allgemeine Erstmarkierungs-/Recoveryfreigabe bleiben offen. TSK-016 bleibt in Arbeit; sämtliche anderen autonomen Aufgaben bleiben pausiert."
           }
         },
         {

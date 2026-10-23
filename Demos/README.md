@@ -4,7 +4,7 @@ Die Demos folgen [`.ai/DEMO_CONTRACT.md`](../.ai/DEMO_CONTRACT.md). Maßgeblich 
 
 ## Einstieg ohne Repository-Vorwissen
 
-1. Wählen Sie eine der 23 runtimevalidierten Demos im [Demo-Katalog](../Documentation/Demo_Catalog/README.md). Dort stehen Sicherheitsstufe, Ausführungspfad und der datierte Nachweis je Zielversion, einschließlich Skips und Warnungen.
+1. Wählen Sie eine der 24 runtimevalidierten Demos im [Demo-Katalog](../Documentation/Demo_Catalog/README.md). Dort stehen Sicherheitsstufe, Ausführungspfad und der datierte Nachweis je Zielversion, einschließlich Skips und Warnungen.
 2. Lesen Sie die verlinkte Demo-README für Lernziel, Rechte, Ressourcen und erwartete Beobachtung.
 3. Folgen Sie dem [zentralen Ausführungsleitfaden](../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): Instanz und Arbeitsplatz vorbereiten, Manifest ausführen, Ergebnis einordnen und Cleanup prüfen. Ohne vorhandenen SQL Server beginnt der unterstützende Bereitstellungspfad im [Container-Quickstart](../Documentation/HowTo/CONTAINER_QUICKSTART.md).
 
@@ -23,7 +23,7 @@ Sicherheitsbestätigung, die erwarteten Ausgaben sowie Cleanup und Recovery.
 | `01_Storage_Pages_Log/` | `STL-008` (Transaktionslog und Dateiwachstum)<br>`STL-009` (Mehrere Änderungen gemeinsam bestätigen) |
 | [`02_Optimizer_Statistics_Plans/`](02_Optimizer_Statistics_Plans/README.md) | Historischer Platzhalter; ausführbare Optimizer-Demos stehen unter `04_Optimizer_Statistics_Plans/` |
 | [`03_Query_Patterns/`](03_Query_Patterns/README.md) | Historischer Platzhalter; ausführbare Query-Patterns-Demos stehen unter `05_Query_Patterns/` |
-| `04_Optimizer_Statistics_Plans/` | `OPT-002` (Statistiken lesen)<br>`OPT-003` (Stichproben und ungleiche Datenverteilung)<br>`OPT-005` (Wachsende Schlüssel und Statistikpflege)<br>`OPT-009` (Parametersensitive Planoptimierung)<br>`OPT-010` (Planoptimierung für optionale Parameter)<br>`OPT-013` (Sortieren mit zu wenig Arbeitsspeicher)<br>`OPT-015` (Ausführungspläne systematisch lesen)<br>`OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung)<br>`OPT-017` (Ungleich verteilte parallele Arbeit) |
+| `04_Optimizer_Statistics_Plans/` | `OPT-002` (Statistiken lesen)<br>`OPT-003` (Stichproben und ungleiche Datenverteilung)<br>`OPT-005` (Wachsende Schlüssel und Statistikpflege)<br>`OPT-007` (Begrenzte Ad-hoc-Cachebelegung und Planwiederverwendung)<br>`OPT-009` (Parametersensitive Planoptimierung)<br>`OPT-010` (Planoptimierung für optionale Parameter)<br>`OPT-013` (Sortieren mit zu wenig Arbeitsspeicher)<br>`OPT-015` (Ausführungspläne systematisch lesen)<br>`OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung)<br>`OPT-017` (Ungleich verteilte parallele Arbeit) |
 | `04_Rowstore_Columnstore/` | `IDX-006` (Seitenaufteilungen und Seitenbelegung)<br>`IDX-010` (Columnstore-Segmente gezielt überspringen) |
 | `05_Concurrency_Isolation_TempDB/` | `CON-009` (Kosten in tempdb unterscheiden); Blocking und Deadlock stehen unter `07_Concurrency/` |
 | `05_Query_Patterns/` | `QRY-001` (Indexfreundliche Suchbedingungen)<br>`QRY-004` (Optionale Filter, Recompile und dynamisches SQL)<br>`QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell); zusätzlich `QRY-006` mit offenem Runtime-Gate |

@@ -1,0 +1,193 @@
+name: OPT-007 Ad-hoc-Plancache
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/**'
+      - 'Tests/Runtime/run_opt007.py'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Runtime/setup_ownership.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Static/test_opt007.py'
+      - 'Tests/Static/test_con005_container_cleanup.py'
+      - 'Demos/00_Framework/Tools/**'
+      - '.github/workflows/opt007-adhoc-cache.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/**'
+      - 'Tests/Runtime/run_opt007.py'
+      - 'Tests/Runtime/cleanup_ownership.py'
+      - 'Tests/Runtime/setup_ownership.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Tests/Runtime/docker_sqlcmd_proxy.py'
+      - 'Tests/Static/test_opt007.py'
+      - 'Tests/Static/test_con005_container_cleanup.py'
+      - 'Demos/00_Framework/Tools/**'
+      - '.github/workflows/opt007-adhoc-cache.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: opt007-${{ github.workflow }}-${{ github.ref }}
+  # Laufende mutierende Prüfungen erhalten ihren regulären Cleanup-Pfad.
+  cancel-in-progress: false
+
+jobs:
+  static:
+    name: OPT-007 Verträge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Manifeste und betroffene Lesepfade prüfen
+        run: |
+          python Tests/Static/validate_demo_execution_guide.py
+          python Tests/Static/validate_demo_execution_paths.py
+          python Tests/Static/test_opt007.py
+          python - <<'PY'
+          import ast
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'Demos/00_Framework/Tools')
+          import run_demo
+          demo = Path('Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache')
+          run_demo.load_manifest(demo / 'manifest.json')
+          ast.parse(Path('Tests/Runtime/run_opt007.py').read_text(encoding='utf-8'))
+          print('OPT007_STATIC|PASS')
+          PY
+
+  runtime:
+    name: OPT-007 SQL ${{ matrix.year }}
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - year: 2019
+            major: 15
+          - year: 2022
+            major: 16
+          - year: 2025
+            major: 17
+    steps:
+      - uses: actions/checkout@v6
+        timeout-minutes: 2
+      - uses: actions/setup-python@v6
+        timeout-minutes: 2
+        with:
+          python-version: '3.12'
+      - name: Eigene begrenzte Wegwerfinstanz starten
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euo pipefail
+          password=$(python -c 'import secrets; print("Con!" + secrets.token_hex(24) + "9a")')
+          owner="opt007-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          container="sqlperf-${owner}"
+          cidfile="${RUNNER_TEMP}/${container}.cid"
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_OWNER=${owner}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CIDFILE=${cidfile}" >> "${GITHUB_ENV}"
+          export MSSQL_SA_PASSWORD="${password}"
+          timeout --signal=TERM --kill-after=10s 300s docker pull 'mcr.microsoft.com/mssql/server:${{ matrix.year }}-latest'
+          image_id="$(docker image inspect -f '{{.Id}}' 'mcr.microsoft.com/mssql/server:${{ matrix.year }}-latest')"
+          [[ "${image_id}" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "SQLPERF_IMAGE_ID=${image_id}" >> "${GITHUB_ENV}"
+          test ! -e "${cidfile}"
+          existing_name="$(docker container ls --all --quiet --no-trunc --filter "name=^/${container}$")"
+          existing_owner="$(docker container ls --all --quiet --no-trunc --filter "label=sqlperf.owner=${owner}")"
+          test -z "${existing_name}"
+          test -z "${existing_owner}"
+          echo 'SQLPERF_CREATE_ATTEMPTED=1' >> "${GITHUB_ENV}"
+          timeout --signal=TERM --kill-after=10s 30s docker run --name "${container}" --cidfile "${cidfile}" --label "sqlperf.owner=${owner}" \
+            --memory 3g --cpus 2 -e ACCEPT_EULA=Y -e MSSQL_PID=Developer \
+            -e MSSQL_SA_PASSWORD -d "${image_id}" >/dev/null
+          cid="$(cat "${cidfile}")"
+          [[ "${cid}" =~ ^[0-9a-f]{64}$ ]]
+          test "$(docker inspect -f '{{.Name}}|{{index .Config.Labels "sqlperf.owner"}}|{{.Image}}' "${cid}")" = "/${container}|${owner}|${image_id}"
+          echo "OPT007_CONTAINER_INPUT|${cid}|${image_id}"
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then
+              ready=1
+              break
+            fi
+            test "$(docker inspect -f '{{.State.Running}}' "${container}")" = true
+            sleep 2
+          done
+          test "${ready}" = 1
+          export SQLCMDPASSWORD="${password}"
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec -e SQLCMDPASSWORD "${cid}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -b -l 5 -t 5 -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          test "${login_ready}" = 1
+      - name: Zwei Lifecycles und begrenzte Gegenproben ausführen
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x Tests/Runtime/docker_sqlcmd_proxy.py
+          timeout --signal=TERM --kill-after=30s 600s python Tests/Runtime/run_opt007.py --container "${SQLPERF_SQL_CONTAINER}" --expected-major '${{ matrix.major }}' --confirm-disposable-instance
+      - name: Eigene Instanz entfernen und Abwesenheit prüfen
+        if: always()
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SQLPERF_SQL_CONTAINER:-}" ]; then
+            echo 'OPT007_CONTAINER_CLEANUP|NOT_STARTED'
+            exit 0
+          fi
+          test -n "${SQLPERF_OWNER:-}"
+          by_name="$(docker container ls --all --quiet --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          by_owner="$(docker container ls --all --quiet --no-trunc --filter "label=sqlperf.owner=${SQLPERF_OWNER}")"
+          if [ "${SQLPERF_CREATE_ATTEMPTED:-0}" != 1 ]; then
+            test -z "${by_name}"
+            test -z "${by_owner}"
+            echo 'OPT007_CONTAINER_CLEANUP|NOT_CREATED'
+            exit 0
+          fi
+          # Ein unklarer Createausgang oder Dockerfehler ist kein Absenznachweis.
+          test -s "${SQLPERF_SQL_CIDFILE}"
+          cid="$(cat "${SQLPERF_SQL_CIDFILE}")"
+          [[ "${cid}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${SQLPERF_IMAGE_ID}" =~ ^sha256:[0-9a-f]{64}$ ]]
+          by_id="$(docker container ls --all --quiet --no-trunc --filter "id=${cid}")"
+          if [ -n "${by_id}" ]; then
+            test "${by_id}" = "${cid}"
+            test "${by_name}" = "${cid}"
+            test "${by_owner}" = "${cid}"
+            identity="$(docker inspect -f '{{.Name}}|{{index .Config.Labels "sqlperf.owner"}}|{{.Image}}' "${cid}")"
+            test "${identity}" = "/${SQLPERF_SQL_CONTAINER}|${SQLPERF_OWNER}|${SQLPERF_IMAGE_ID}"
+            docker rm --force --volumes "${cid}" >/dev/null
+          else
+            test -z "${by_name}"
+            test -z "${by_owner}"
+          fi
+          remaining_id="$(docker container ls --all --quiet --no-trunc --filter "id=${cid}")"
+          remaining_name="$(docker container ls --all --quiet --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          remaining_owner="$(docker container ls --all --quiet --no-trunc --filter "label=sqlperf.owner=${SQLPERF_OWNER}")"
+          test -z "${remaining_id}"
+          test -z "${remaining_name}"
+          test -z "${remaining_owner}"
+          echo 'OPT007_CONTAINER_CLEANUP|PASS|ABSENT'
