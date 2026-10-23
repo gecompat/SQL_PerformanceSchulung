@@ -179,6 +179,20 @@
       "escalation": null
     },
     {
+      "demoId": "CON-005",
+      "title": "Schemasperren trotz NOLOCK",
+      "path": "Demos/07_Concurrency/CON-005_Schema_Locks",
+      "manifest": "Demos/07_Concurrency/CON-005_Schema_Locks/manifest.json",
+      "implementationStatus": "VALIDATED",
+      "safetyLevel": "YELLOW",
+      "sessions": 3,
+      "stage": 2,
+      "executionPath": "TSQL_TESTDB",
+      "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Drei signalisierte SQL-Sitzungen erzeugen und beobachten einen Sch-M-/Sch-S-Konflikt in einer eigenen markierten Datenbank. Die gelbe Sicherheitsstufe erfordert eine eigene Wegwerfinstanz; zusätzliche Infrastruktur ist für das Lernziel nicht nötig.",
+      "escalation": null
+    },
+    {
       "demoId": "CON-004",
       "title": "Blocking Chain",
       "path": "Demos/07_Concurrency/CON-004_Blocking_Chain",

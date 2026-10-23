@@ -14,23 +14,28 @@ RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) und INF-006
 (Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
 liegen mit Nachweis- und Sicherheitslücken vor. Damit sind alle neun
 Kandidatenquellen gesichtet; sämtliche Erweiterungsideen bleiben offen.
-Der aktuelle Auftrag bestätigt die quellenbasierte Priorisierung und einen
-begrenzten CON-005-Plan (Schemasperren); danach sollen OPT-007 (Ad-hoc-Plancache)
-und DGN-004 (Planerzwingung) gezielt geplant werden. Reihenfolge, fachliche
-Abhängigkeiten, Zurückstellungen und Wiederaufnahmebedingungen stehen
-kanonisch bei TSK-016. Die Dokumentation wird per Pull Request (Änderungsantrag)
-mit statischen Prüfungen integriert. Der CON-005-Entwurf grenzt Lernziel,
-Akteure und Freigaben, konkrete Sperrnachweise, Entwurfsgrenzen und späteren
-Abbau ab; Sperreskalation bleibt ein getrennter späterer Teil.
-INF-006 bleibt ein eigenständiger Infrastrukturumfang mit vorläufiger Priorität P3
-(gesonderte Infrastrukturentscheidung) und Aufwand XL (sehr groß).
-Sämtliche Implementierungen, Tests sowie SQL-/Lab-Läufe bleiben zurückgestellt;
-der Plan ist keine ausführbare Demo oder Laufzeitabnahme.
+Der aktuelle Auftrag autorisiert ausschließlich den begrenzten
+CON-005-Schemasperrenschnitt einschließlich Tests, Dokumentation, erforderlicher
+SQL-/Lab-Läufe und Integration per Pull Request (Änderungsantrag).
+Das [Demopaket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
+enthält drei signalisierte Akteure, konkrete Sch-M-/Sch-S-Nachweise
+(Schemaänderungs- und Schemastabilitätssperre), Rücknahme, Vergleich und sicheren
+Abbau. Der Implementierungsstand `ab27d42214ab24b6b12b2189e5b5e32da535166e`
+ist am 2026-10-23 im [Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499)
+auf SQL Server 2019/150, 2022/160 und 2025/170 (Developer/Linux/Docker)
+mit regulären Lifecycles, Gegenproben und eigenem Cleanup validiert.
+Aktuelle Head-/Main-Prüfungen und Integration sind in
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) gebunden. Sperreskalation bleibt ein
+getrennter offener CON-005-Teil. Die anderen acht Kandidaten und die übrige
+autonome Verarbeitung bleiben pausiert. INF-006 (Log Shipping; Übertragung und
+Wiederherstellung von Transaktionslog-Sicherungen) bleibt ein eigenständiger
+Infrastrukturumfang mit vorläufiger Priorität P3 (gesonderte Entscheidung)
+und Aufwand XL (sehr groß).
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
 geführt. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab. Aufnahme und
-vorläufige Aufwandseinschätzung erteilen keine Implementierungs- oder
-SQL-/Lab-Ausführungsfreigabe. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
+vorläufige Aufwandseinschätzung erteilen für andere Kandidaten keine
+Implementierungs- oder SQL-/Lab-Ausführungsfreigabe. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
 führt die Pause und die zuvor begonnenen, nun zurückgestellten Abschlussgates.
 
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
@@ -987,7 +992,7 @@ voraus; Reihenfolge und Freigabestatus der bestehenden Demos bleiben erhalten.
 | `CON-002` | READ COMMITTED, REPEATABLE READ und SERIALIZABLE einschließlich Key-Range Locks | Gelb |
 | `CON-003` | RCSI, SNAPSHOT, Statement-/Transaction-Snapshot und Update-Konflikt | Gelb |
 | `CON-004` (Blockierungsketten verfolgen) | Blocking Chain, Head Blocker und messbare Wartezeit | Gelb |
-| `CON-005` | Lock Escalation, Schema Locks und Metadatenzugriff | Gelb |
+| `CON-005` (Schemasperren trotz NOLOCK) | begrenzter Sch-M-/Sch-S-Schnitt auf 2019/2022/2025 validiert; Sperreskalation und weitere Metadatenpfade offen | Gelb |
 | `CON-006` (Zyklische Sperrkonflikte erkennen) | reproduzierbarer Deadlock mit Deadlock Graph | Gelb |
 | `CON-007` | Version Store, ADR (Accelerated Database Recovery; beschleunigte Datenbankwiederherstellung) und Persisted Version Store | Gelb |
 | `CON-008` | versionsabhängiges Optimized Locking, TID (Transaction ID; Transaktionskennung) Locks und Lock After Qualification | Gelb |
