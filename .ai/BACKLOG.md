@@ -1,10 +1,11 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## Backlogaufnahme und Quellenbefunde: weitere Entwicklung pausiert
+## Priorisierung und begrenzte Planung: weitere Entwicklung pausiert
 
-Der Auftrag vom 23. Oktober 2026 erlaubt die Ergänzung dieser Quellenbefunde
-und die Integration der Backlogaufnahme über einen Pull Request (Änderungsantrag).
+Der Auftrag vom 23. Oktober 2026 erlaubt die quellenbasierte Priorisierung
+und den begrenzten CON-005-Plan (Schemasperren) sowie ihre Integration
+über einen Pull Request (Änderungsantrag).
 Erforderliche statische CI-Prüfungen (Continuous Integration; automatisierte
 Repositoryprüfungen) sind erlaubt. Die übrige autonome Bearbeitung bleibt pausiert;
 es werden keine Implementierungen oder SQL-/Lab-Läufe begonnen. Maßgeblich ist
@@ -27,11 +28,9 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung), IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche), RES-004 (Abfragespeicherzuteilungen), RES-003 (Buffer-Pool-Druck und Ressourcensteuerung), RES-001 (Worker-Druck und echte Erschöpfung) und INF-006 (Log Shipping als gesonderter Infrastrukturumfang); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.
+Priorisierung der neun mit Nachweislücken gesichteten Kandidaten und begrenzter CON-005-Plan (Schemasperren), beauftragt am 23. Oktober 2026. Dokumentationsintegration über Pull Request (Änderungsantrag) mit statischen Repositoryprüfungen; keine Implementierung, Tests oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Reihenfolge und vorläufiger Aufwand gelten innerhalb von TSK-016; bestehende Sicherheitsprioritäten bleiben maßgeblich.
 
-**Prioritäten innerhalb dieser Recherche:** P1 zuerst, P2 weitere Prüfkandidaten,
-P3 gesonderte Infrastrukturentscheidung. Die Reihenfolge ersetzt keine bestehende
-Sicherheitspriorität. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
+**Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
 **Quellenstand:** [Analyze-Szenariokatalog](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f),
 Commit `6e557726a07ce7d389a36083c7e82d214b20822f`.
@@ -174,11 +173,34 @@ Quellen zur Szenarioreife: [Lab/Scenarios/Catalog/scenarios.json:431](https://ap
 - `STL-008`, `STL-009`: Transaktionslog, VLF (Virtual Log Files; virtuelle Logabschnitte) und Commit-Batching (gebündelte Transaktionsabschlüsse).
 - `IDX-006`, `IDX-010`, `RES-007`: Seitendichte, Columnstore (spaltenweise Speicherung) und Wait-Deltas (Wartezeitdifferenzen).
 
+#### Planungsentscheidung vom 23. Oktober 2026
+
+Priorisierung anhand der bereits registrierten neun Quellenbefunde, vorhandener Curriculumabdeckung, Nachweisgüte, Sicherheits-/Infrastrukturbedarf und begrenzbarem Lernzuwachs. Keine erneute Quellenabnahme oder ausgeführte Demo. Grundlage ist der integrierte Schulungsstand `7f47a393732fa843c9c10620274490a86de14029` mit den unverändert erhaltenen Quellenbefunden.
+
+**Verworfen werden folgende Übernahmeformen:**
+
+- Unveränderte Übernahme des Analyze-Runners oder seines gesamten Frameworks.
+- Zusätzliche allgemeine Demos zu CPU (Central Processing Unit; Prozessor), Cache, Deadlocks (zyklischen Sperrkonflikten) oder Spills (Auslagerung von Arbeitsspeicherinhalten) ohne neues Lernziel.
+- Aktive Sessions als Ersatz für Grant-Warten oder Worker-Erschöpfung; Cachebelegung als Ersatz für Speicherdruck; bloße Einfügeaktivität als Ersatz für Last-Page-Contention (Konkurrenz um die letzte Indexseite).
+
+Kein Lerngebiet und keine stabile Kennung wird gelöscht. Zurückstellung betrifft den beschriebenen Erweiterungsschnitt; alle neun Kandidaten und TSK-016 bleiben offen. Aufwand M mittel, L groß, XL sehr groß ist weiterhin vorläufig.
+
 #### Priorisierte offene Kandidaten
 
 ##### 1. CON-005 – Schema- und Metadatensperren als Ergänzung zu Blocking
 
 **P1 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+
+**Planungsentscheidung:** Als Nächstes planen; erster Schnitt auf Schemasperren begrenzt.
+
+**Begründung:** Eigenständiger, klar abgrenzbarer Lernzuwachs gegenüber CON-004 (Blockierungsketten). Der Quellenbaustein zeigt einen plausiblen Auslöser, sein Ergebnisnachweis ist zu schwach; die Schulung besitzt bereits einen passenden Mehrsessionpfad.
+
+**Abhängigkeiten:**
+
+- Vorhandene CON-004-Sitzungssteuerung und Frameworkverträge für Eigentum, Sicherheit, begrenzte Orchestrierung und Ergebnisse verwenden; keine neue Infrastruktur voraussetzen.
+- Vor einer Implementierung den beschriebenen Ergebnisvertrag sowie Objektzuordnung, Signaltransaktionen, Berechtigungen und Abbruchpfad abschließend prüfen.
+
+**Wiederaufnahmebedingung:** Dieser Dokumentationsschnitt plant nur. Implementierung und spätere Laufzeitqualifikation benötigen einen neuen menschlichen Auftrag.
 
 **Quellen:** `LAB-CONC-002` (Schema-, Metadaten- und Kompilierungssperren).
 
@@ -203,9 +225,72 @@ Quellen: [Lab/Scenarios/Performance/_Shared/Worker.sql:196](https://api.github.c
 - Blockierer, wartende Session und tatsächliche Schema-/Metadatensperre dem Lernziel eindeutig zuordnen; bloße Laufzeit oder aktive Sessions reichen nicht.
 - Ergänzung nutzt den vorhandenen Mehrsessionpfad mit begrenzter Steuerung und sicherem Abbau; bestehende CON-004-Aussage bleibt erhalten.
 
+###### Nächster begrenzter Planungsschnitt: Schemasperren
+
+Entwurf für spätere Umsetzung; nicht implementiert oder zur Laufzeit abgenommen.
+
+**Lernziel:** Sch-S (Schemastabilitätssperre) und Sch-M (Schemaänderungssperre) am selben synthetischen Tabellenobjekt unterscheiden. Eine Leseabfrage mit NOLOCK (Verzicht auf Datensperren für den Lesezugriff) kann weiter auf Sch-S warten, wenn eine andere Sitzung Sch-M hält.
+
+**Umfang:** Erster Schnitt: begrenzter Schemaänderungs-/Lesekonflikt mit Vergleich ohne offene Schemaänderung. Sperreskalation bleibt ein getrennter späterer CON-005-Teil; keine eigenständige Abnahme sämtlicher Kompilierungs- oder Metadatenpfade und keine Leistungsbehauptung.
+
+**Akteure und Freigaben:**
+
+- BLOCKER (Blockierer): eigenes Startsignal vor der Transaktion bestätigen, dann reversible Schemaänderung in offener Transaktion halten. Auf getrennt bestätigtes Freigabesignal warten; anschließend Transaktion zurückrollen und Abschluss außerhalb der Transaktion signalisieren.
+- READER (Leser): Bereitschaft außerhalb einer Transaktion signalisieren, auf Leserfreigabe warten, dann die abgegrenzte Leseabfrage mit NOLOCK ausführen. Nach Aufhebung der Schemasperre erwartetes Ergebnis und Abschluss melden.
+- OBSERVER (Beobachter): Start und Bereitschaft erfassen; tatsächlich gewährtes Sch-M am erwarteten Objekt und Blockierer prüfen, erst dann Leser freigeben. Tatsächlich wartenden Leser mit Sch-S und exakter Blockerbeziehung erfassen; anschließend Blockierer freigeben und beide Abschlüsse prüfen.
+
+**Sitzungssteuerung:**
+
+- Vorhandenen FWK-006-Vertrag (Mehrsessionsteuerung) und fwk.USP_Signal/fwk.USP_WaitForSignal verwenden. Lauf- und Demo-Kennung sowie Sitzung und Signal eindeutig binden. Feste Wartezeiten ersetzen kein Bereitschafts- oder Beobachtungssignal.
+- Signale sind gewöhnliche Datenänderungen ohne autonome Transaktion. Keine Sichtbarkeit eines Signals innerhalb der noch offenen Schemaänderung voraussetzen. Bereitschaft und Freigaben werden außerhalb dieser Transaktion durch den jeweiligen unabhängigen Akteur bestätigt.
+- Datenbank- und Objektkennung vor dem Sperrkonflikt auflösen und laufgenau festhalten. Beobachtung über die Diagnosekennungen durchführen; sperranfällige Metadatenabfragen auf das blockierte Tabellenobjekt während des Konflikts vermeiden. Keine Eigentumsentscheidung allein aus einer Sitzungsnummer ableiten.
+
+**Erwarteter Nachweis:**
+
+- sys.dm_tran_locks (dynamische Verwaltungssicht für Sperren): gewährtes Sch-M des Blockierers und wartendes Sch-S des Lesers auf derselben Ressource. Ressourcen anhand aller relevanten Ressourcenspalten samt Datenbank-/Objektbindung zuordnen; Sessionanzahl oder irgendeine Blockierung genügt nicht.
+- sys.dm_exec_requests (dynamische Verwaltungssicht für laufende Anforderungen): Leser, tatsächliche blocking_session_id des Blockierers und LCK_M_SCH_S (Warten auf Schemastabilität) während desselben beobachteten Konflikts. Flüchtige Sichtwerte begrenzt abfragen; Beobachtungszeitpunkt und Laufbindung erfassen, keine Transaktionssnapshot-Garantie behaupten.
+- Nach Freigabe: Leser beendet sich mit erwarteten synthetischen Daten, Schemaänderung ist zurückgerollt, eigene Transaktionen/Sitzungen bleiben nicht offen. Kontrolllesung ohne gehaltenes Sch-M liefert das erwartete Ergebnis. Aus fehlender Momentaufnahme allein keinen Erfolg ableiten.
+
+**Sicherheit, Abbruch und Entwurfsgrenzen:**
+
+- Geplant YELLOW (isoliertes Labor ausdrücklich bestätigen), eine eigene kleine synthetische Datenbank und genau drei Akteure. Vor Änderungen und Cleanup (Aufräumen) alle vier Eigentumsmarker SQLPERF.Project, SQLPERF.ContractVersion, SQLPERF.DemoId und SQLPERF.RunToken exakt prüfen. Keine globalen Cache- oder Instanzoptionen ändern.
+- Vorläufige Entwurfsgrenzen: höchstens 120 Sekunden für reguläre Phasen, höchstens 15 Sekunden je Signal-/Beobachtungsschritt sowie ein getrennt begrenzter Cleanup-Pfad von höchstens 30 Sekunden. Dies sind Planungsgrenzen, keine gemessenen Laufzeiten; tatsächliche Manifest-/Harness-Abbildung und Datenmengen-/Transaktionsgrenzen vor Implementierung abschließend festlegen.
+- Bei Fehler oder Timeout eigene Akteure begrenzt beenden, offene eigene Transaktion zurückrollen und Cleanup nach gestarteter Setup-Phase versuchen. Fremde Sitzungen oder Datenbanken weder beenden noch verändern. Unklare Eigentumszuordnung stoppt den mutierenden Abbau; Restzustand und Wiederaufnahmebedarf sichtbar ausweisen. Timeout ist kein Cleanupnachweis.
+
+**Voraussetzungen und Ergebnisvertrag:**
+
+- Geplante Zielversionen SQL Server 2019, 2022 und 2025; Plattform- und Editionsumfang sowie Compatibility Level (Datenbank-Kompatibilitätsstufe) vor der ausführbaren Freigabe dokumentieren und tatsächlich prüfen. Die bestehende CON-004-Abnahme überträgt sich nicht auf CON-005.
+- Vorab Eigentum, isolierte Umgebung, sqlcmd (Microsoft-Kommandozeilenwerkzeug), Rechte für die eigene Schemaänderung und serverweite Diagnose prüfen: VIEW SERVER STATE für SQL Server 2019, VIEW SERVER PERFORMANCE STATE ab SQL Server 2022 für sys.dm_tran_locks. Fehlende Voraussetzungen vor Zustandsänderungen nach FWK-012 (Status-, Fehler- und Skip-Vertrag) als SKIP_PERMISSION, SKIP_TOOL_MISSING oder passendem bestehenden Skip-Code ausweisen.
+- Fehlendes erwartetes Sperrbild bei erfüllten Voraussetzungen führt zu FAIL_TIMEOUT oder FAIL_RESULT_CONTRACT, nicht zu einem nachträglichen Skip. Ausführungs- und Cleanupfehler getrennt erhalten; PASS setzt den fachlichen Nachweis und erfolgreichen Abbau voraus. Keine neuen Statuscodes erfinden.
+
+**Spätere Abnahme:**
+
+- Vor einer Umsetzung: Akteurs-/Signalfolge auf Transaktionssichtbarkeit und Selbstblockierung prüfen, Diagnosefilter und Rücknahmebedingungen konkretisieren sowie die vorhandenen Eigentums-, Sicherheits-, Orchestrierungs-, Assertion- und Ergebnisverträge auf den Entwurf abbilden.
+- Erst nach gesonderter Umsetzungsfreigabe: passende statische und unabhängige Reviews, gezielte negative Abbruch-/Eigentums-/Timeoutfälle sowie erforderliche SQL-Versions-/Plattformprüfungen einschließlich Cleanup durchführen. Hierfür liegt noch kein Ausführungs- oder Laufzeitnachweis vor.
+
+**Entwurfsquellen:**
+
+- [CON-004: vorhandene Mehrsessionsteuerung und Beobachtung](https://github.com/gecompat/SQL_PerformanceSchulung/blob/7f47a393732fa843c9c10620274490a86de14029/Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/10_Head.sql); Stand `7f47a393732fa843c9c10620274490a86de14029`.
+- [CON-004: tatsächliches Blocking vor Freigabe beobachten](https://github.com/gecompat/SQL_PerformanceSchulung/blob/7f47a393732fa843c9c10620274490a86de14029/Demos/07_Concurrency/CON-004_Blocking_Chain/Sessions/40_Observer.sql); Stand `7f47a393732fa843c9c10620274490a86de14029`.
+- [Signalimplementierung: gewöhnliche Transaktionssichtbarkeit](https://github.com/gecompat/SQL_PerformanceSchulung/blob/7f47a393732fa843c9c10620274490a86de14029/Demos/00_Framework/Sql/FWK_MultiSessionControl.sql); Stand `7f47a393732fa843c9c10620274490a86de14029`.
+- [Schulungsvertrag: Eigentum, sichere Ausführung und Ergebnisabnahme](https://github.com/gecompat/SQL_PerformanceSchulung/blob/7f47a393732fa843c9c10620274490a86de14029/.ai/DEMO_CONTRACT.md); Stand `7f47a393732fa843c9c10620274490a86de14029`.
+- [Microsoft: NOLOCK und weiterhin erforderliche Schemasperren](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver17); Abruf 2026-10-23.
+- [Microsoft: Sperrressourcen, Modi, Status und Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-tran-locks-transact-sql?view=sql-server-ver17); Abruf 2026-10-23.
+
 ##### 2. OPT-007 – Begrenzte Diagnose von Ad-hoc-Plancache-Wachstum
 
 **P1 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+
+**Planungsentscheidung:** Als zweite begrenzte Diagnoseübung planen.
+
+**Begründung:** Der vorhandene Literalansatz ist begrenzt und didaktisch anschlussfähig. Laufgenaue Cachezuordnung, Cachetyp, Bytes und Parameterisierungsvergleich fehlen; diese Lücken lassen sich vor einer Lastdemo gezielt planen.
+
+**Abhängigkeiten:**
+
+- Reihenfolge nach CON-005 (Schemasperren) ist eine Kapazitätsentscheidung, keine technische Abhängigkeit.
+- Eigene Datenbank, Lauftoken und Abfragemarker, Vergleichsbedingungen und sichere Bereinigung festlegen; keine globale Cacheleerung und keine zweite Plansensitivitätsdemo.
+
+**Wiederaufnahmebedingung:** Nach dem CON-005-Plan den Diagnoseumfang und Ergebnisvertrag gesondert beauftragen; Messbehauptungen erst mit passender Evidenz.
 
 **Quellen:** `LAB-PLAN-003` (Ad-hoc-Plancache-Wachstum).
 
@@ -233,42 +318,20 @@ Produktdokumentation: [Referenz 1](https://learn.microsoft.com/en-us/sql/relatio
 - Diagnoseübung begrenzt Zahl, Dauer und Ressourcen ihrer synthetischen Abfragen; Planzahl und Cachebelegung beziehen sich auf den erklärten Messumfang.
 - Falls Wachstum oder Verbesserungen quantitativ behauptet werden, passenden Ausgangs-/Vergleichszustand und Evidenz ausweisen; keine unkontrollierte globale Cacheleerung.
 
-##### 3. CON-006 – Conversion- und Range-Deadlocks als optionale Varianten
+##### 3. DGN-004 – Erfolgreiches und fehlgeschlagenes Plan Forcing
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Quellen:** `LAB-DEAD-002` (Conversion Deadlock; Konflikt bei Sperrumwandlung); `LAB-DEAD-003` (Range Deadlock; Konflikt um Schlüsselbereiche).
+**Planungsentscheidung:** Innerhalb P2 vorziehen; nach OPT-007 (Ad-hoc-Plancache) gezielt planen.
 
-**Abgrenzung:** CON-006 zeigt bereits einen reproduzierbaren Deadlock mit Deadlock Graph (Konfliktgraph). Nur zusätzliche Ursachenvarianten prüfen; CON-002 deckt Schlüsselbereichssperren fachlich ab.
+**Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
-**Weiterer Prüfauftrag:** Sperrkonvertierung, Isolation, Schlüsselbereich und auslösende Reihenfolge gegen die vorhandene Deadlock-Demo prüfen; unabhängigen Lernzuwachs begründen.
+**Abhängigkeiten:**
 
-**Statischer Quellenbefund:** Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb`, erfasst am 2026-10-23. LAB-DEAD-002 liest in beiden Transaktionen dieselbe Zeile mit HOLDLOCK und versucht nach einer festen Verzögerung die Änderung dieser Zeile; der beabsichtigte Zusatz ist eine Sperrumwandlung vom Lesen zum Schreiben. LAB-DEAD-003 liest unter SERIALIZABLE zwei leere Schlüsselbereiche und fügt anschließend jeweils im Bereich der anderen Session ein.
+- DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
+- Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-- Observe.sql akzeptiert gemeinsam für die Deadlock-Szenarien irgendein xml_deadlock_report-Ereignis in der festen XE-Session (Extended Events; Ereigniserfassung). Datenbank- und Laufzuordnung, Teilnehmer, Ressourcen, Sperrmodi und konkrete Deadlock-Variante werden in diesem Prädikat nicht geprüft.
-- DeadlockRange enthält anfangs nur die Schlüssel 10 und 90. Die gelesenen Leerbereiche 20 bis 40 und 60 bis 80 liegen damit zwischen denselben benachbarten Indexschlüsseln. Fachliche Ableitung: unterschiedliche logische Suchbereiche belegen hier keine getrennten Sperrressourcen; tatsächliche Bereichssperren und Umwandlungen müssen am Konfliktgraphen nachgewiesen werden.
-- Die Worker verwenden feste Verzögerungen; das Runbook ergänzt drei Sekunden Startvorlauf und akzeptiert die Prozesscodes 0 und 1. Das ersetzt weder eine signalgesteuerte Abfolge noch den eindeutigen Nachweis eines Deadlockopfers mit Fehler 1205 und eines erfolgreichen Gegenparts.
-
-Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:113](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Worker.sql:230](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Worker.sql:246](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Observe.sql:272](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb).
-
-Abgleich mit der Schulung: [Vorhandener Deadlock-Grundfall mit Gegenprobe](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md#L13), [CON-002: Isolation und Schlüsselbereichssperren](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L971).
-
-**Vor einer späteren Umsetzung erforderlich:**
-
-- Eigenständigen Lernzuwachs gegenüber CON-006 (vorhandener Deadlock-Zyklus) und CON-002 (Isolation und Schlüsselbereichssperren) begründen; nur ausgewählte Ursachenvarianten ergänzen und den vorhandenen Grundfall erhalten.
-- Je ausgewählter Variante tatsächlichen Konfliktgraphen mit Ressourcen, gehaltenen und angeforderten Sperrmodi, laufzugeordneten Teilnehmern sowie Opfer-/Gegenpartnachweis vorsehen. Für die Range-Variante den Indexbereich fachlich erklären; keinen bestimmten Graphen aus dem Szenariotitel ableiten.
-- Vorhandene signalgesteuerte Schulungs-Sessionsteuerung, begrenzte Warte- und Abbruchpfade, vollständige Eigentumsmarker, passende Gegenprobe und sicheres Cleanup (Aufräumen) anwenden.
-
-Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Schlüsselbereichssperren](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-ver17#key-range-locking), [Microsoft: Deadlock-Diagnose](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17).
-
-**Spätere Abnahme:**
-
-- Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
-- Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen.
-
-##### 4. DGN-004 – Erfolgreiches und fehlgeschlagenes Plan Forcing
-
-**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+**Wiederaufnahmebedingung:** Begrenzter Auftrag für Erfolgs- und Fehlervertrag auf Basis der dokumentierten Quellenlücken.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -299,9 +362,112 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Forcing-Status und Fehl
 - Erfolgreiches Forcing und begründet fehlgeschlagenes Forcing anhand des tatsächlichen Status und Fehlergrundes unterscheiden.
 - Forcing und sonstige Zustandsänderungen rücknehmbar halten; keine zweite allgemeine Query-Store-Demo.
 
-##### 5. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
+##### 4. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
+
+**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+
+**Planungsentscheidung:** Danach gezielt planen; Schwerpunkt auf konkurrierenden Abfragespeicherzuteilungen.
+
+**Begründung:** Echtes Warten auf Abfragespeicher ist ein sinnvoller Zusatz; eine weitere allgemeine Spill-Demo würde OPT-013 (Auslagerung von Arbeitsspeicherinhalten) wiederholen. Der Quellen-Alternativnachweis über aktive Sessions genügt nicht.
+
+**Abhängigkeiten:**
+
+- Anforderung, Gewährung, Nutzung und tatsächlich wartende Abfrage laufgenau verbinden; RESOURCE_SEMAPHORE bedeutet Warten auf Abfragespeicher.
+- Begrenztes Ressourcenprofil und sichere Erholung festlegen; Resource Governor (Ressourcensteuerung) ist keine Voraussetzung für den ersten Schnitt.
+
+**Wiederaufnahmebedingung:** Gezielter Planungsauftrag für einen tatsächlichen Grant-Wartefall mit überprüfbarem Ergebnisvertrag und ohne Verdopplung der Spill-Inhalte.
+
+**Quellen:** `LAB-MEM-001` (Competing memory grants; konkurrierende Abfragespeicherzuteilungen).
+
+**Abgrenzung:** RES-004 umfasst bereits Overgrant (zu hohe Zuteilung), Undergrant (zu geringe Zuteilung), Spills und konkurrierende Grants; OPT-013 behandelt bereits Spills. Nur eine tatsächliche Curriculumlücke ergänzen.
+
+**Weiterer Prüfauftrag:** Anforderung, Gewährung und Nutzung des Abfragespeichers sowie echte Wartebeobachtung prüfen; Alternativnachweis über aktive Sessions ausdrücklich bewerten.
+
+**Statischer Quellenbefund:** Stand `59e6c9cc8e786828bc710ca6963121511aedb07a`, erfasst am 2026-10-23. LAB-MEM-001 enthält eine ORDER-BY-Abfrage über höchstens 16384 Zeilen, die in eine temporäre Tabelle schreibt. Sie verwendet MAXDOP 2 (höchstens Parallelitätsgrad 2) und MAX_GRANT_PERCENT = 1 (Grant-Obergrenze); danach folgt eine feste Wartezeit von 15 Sekunden. Das Runbook sieht drei Worker und drei Sekunden Startvorlauf vor. Das sind vorgesehene Abläufe, keine beobachtete Speicherknappheit oder Laufzeitabnahme.
+
+- Observe.sql akzeptiert irgendeine Grant-Anforderung einer laufzugeordneten Session, unabhängig davon, ob sie wartet oder bereits gewährt wurde. Fehlt auch diese, genügt mindestens eine Session mit passendem Lauftoken als Alternativnachweis. Die Existenz einer solchen Session belegt weder konkurrierende Zuteilungen noch RESOURCE_SEMAPHORE (Warten auf Abfragespeicher).
+- Die nachgelagerte WAITFOR-Verzögerung beginnt erst nach der Abfrageausführung und ist kein Nachweis eines fortbestehenden Grants. Laut Produktdokumentation wird Abfragespeicher nach Abschluss der Abfrageausführung freigegeben. MAX_GRANT_PERCENT = 1 begrenzt die Zuteilung unter den dokumentierten Poolbedingungen; der Hint und drei vorgesehene Worker allein erzeugen keinen belegten Grant-Engpass.
+- Die Szenariodefinition nennt fünf Diagnoseprozeduren, der generische Aufrufpfad verwendet jedoch nur USP_CurrentMemoryGrants. Diese Prozedur unterstützt @SessionIds als Sessionfilter; Observe.sql setzt ihn nicht. Der Analyzer kann deshalb Grants anderer Sessions ausgeben, obwohl das fachliche Prädikat einen Lauftokenfilter verwendet.
+- USP_CurrentMemoryGrants liefert angeforderten, erforderlichen, gewährten, genutzten und maximal genutzten Speicher sowie Grant- und Warteinformationen. Der Szenariovertrag prüft diese Werte nicht als fachliche Abnahme. AVAILABLE ist bei null passenden Grants zulässig und bestätigt dann eine erfolgreiche Diagnoseabfrage, keinen positiven Engpassbefund. Die konfigurierte Befundhülle ersetzt diesen Nachweis nicht.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:66](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Worker.sql:68](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:44](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:624](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:43](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:467](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:586](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:620](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/LAB-MEM-001/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-001/runbook.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a).
+
+Abgleich mit der Schulung: [Vorhandener RES-004-Planungsumfang mit konkurrierenden Grants und Wartebeobachtung](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L69), [OPT-013: vorhandene Demo für einen kontrollierten Sort-Spill](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md#L15), [RES-003: getrennter Umfang für instanzweiten Speicherdruck](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L75).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Eigenständigen Lernzuwachs innerhalb von RES-004 begründen oder auf eine zusätzliche Demo verzichten. Die vorhandene OPT-013-Demo behandelt bereits einen kontrollierten Sort-Spill (Auslagerung nach TempDB). Der mögliche Zusatz ist die Diagnose konkurrierender Zuteilungen und wartender Anforderungen; allgemeiner Instanzspeicherdruck bleibt beim getrennten RES-003-Umfang.
+- Eigene Session- und Request-Kennungen sowie Messzeitpunkte eindeutig zuordnen und die Diagnose auf diese Anforderungen begrenzen. Erforderlichen, angeforderten, gewährten, genutzten und maximal genutzten Speicher passend zur Aussage erfassen. Overgrant (zu hohe Zuteilung) oder Undergrant (zu geringe Zuteilung) nicht aus einem einzelnen frühen Nutzungsschnappschuss ableiten; behauptete Spills gesondert nachweisen.
+- Falls RESOURCE_SEMAPHORE-Warten behauptet wird, es während der eigenen Abfrageausführung tatsächlich beobachten und mit einer noch nicht gewährten Anforderung, grant_time IS NULL (fehlender Gewährungszeitpunkt), sowie passenden Warteinformationen verbinden. Grants, wartende Anforderungen und bloß vorhandene Sessions getrennt behandeln. Eine dreisekündige Verzögerung und nachgelagertes WAITFOR ersetzen keine signalgesteuerte Beobachtungsphase.
+- Begrenzten Ressourcen- und Zeitrahmen, vollständigen Worker-Erfolg, eine passende Gegenprobe und das Ende des Wartezustands vorsehen. Bei ausbleibendem Effekt einen kontrollierten Skip (nicht demonstrierbarer Effekt) liefern; allgemeine Speicherknappheit oder einen Leistungsgewinn nicht aus dem Szenariotitel ableiten.
+- Vorhandene Schulungsverträge für Eigentumsmarker, Sessionsteuerung, Abbruch, Cleanup (sicheres Aufräumen) und Wiederherstellung anwenden. Versionen, Edition und Rechte vor späterer Ausführung festlegen: die Memory-Grant-Sicht erfordert unter SQL Server 2019 VIEW SERVER STATE und ab SQL Server 2022 VIEW SERVER PERFORMANCE STATE. Die genannten Versionen 2019, 2022 und 2025 sind durch die Quellensichtung nicht praktisch abgenommen.
+- Qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Konkrete Mess- oder Leistungsbehauptungen benötigen passende Evidenz. M (mittel) bleibt eine vorläufige Aufwandseinschätzung; eine spätere Umsetzung und Ausführung benötigen einen eigenen Auftrag.
+
+Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Grant-Lebensdauer und tatsächliches Speicherwarten](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues), [Microsoft: Anforderung, Gewährung, Nutzung und Rechte](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17), [Microsoft: Grant-Obergrenze und Poolbedingungen](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17).
+
+**Spätere Abnahme:**
+
+- Dokumentierter Lernzieldelta oder begründeter Verzicht auf weitere Demo; keine Wiederholung vorhandener Spill-Inhalte.
+- Falls RESOURCE_SEMAPHORE-Warten behauptet wird, dieses tatsächlich nachweisen; aktive Sessions allein bleiben unzureichend.
+
+##### 5. CON-006 – Conversion- und Range-Deadlocks als optionale Varianten
+
+**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+
+**Planungsentscheidung:** Zusätzliche Deadlock-Varianten zurückstellen; Conversion vor Range prüfen.
+
+**Begründung:** Ein reproduzierbarer Grundfall mit Konfliktgraph ist vorhanden. Der zusätzliche Lernzuwachs ist kleiner; die Quellenprüfung unterscheidet die konkrete Variante nicht. Conversion betrifft Sperrumwandlung, Range den geschützten Schlüsselbereich.
+
+**Abhängigkeiten:**
+
+- Vorhandenen CON-006-Grundfall erhalten und für jede zusätzliche Variante einen eigenen belegbaren Konfliktgraph verlangen.
+- Range-Variante mit CON-002 (Schlüsselbereichssperren) abgleichen; erst nach eigenständigem Lernziel und deterministischer Auslösereihenfolge planen.
+
+**Wiederaufnahmebedingung:** Konkreter Curriculumbedarf an einer zusätzlichen Ursache und ein nachvollziehbarer Variantenvertrag; bis dahin keine Erweiterung des vorhandenen Grundfalls.
+
+**Quellen:** `LAB-DEAD-002` (Conversion Deadlock; Konflikt bei Sperrumwandlung); `LAB-DEAD-003` (Range Deadlock; Konflikt um Schlüsselbereiche).
+
+**Abgrenzung:** CON-006 zeigt bereits einen reproduzierbaren Deadlock mit Deadlock Graph (Konfliktgraph). Nur zusätzliche Ursachenvarianten prüfen; CON-002 deckt Schlüsselbereichssperren fachlich ab.
+
+**Weiterer Prüfauftrag:** Sperrkonvertierung, Isolation, Schlüsselbereich und auslösende Reihenfolge gegen die vorhandene Deadlock-Demo prüfen; unabhängigen Lernzuwachs begründen.
+
+**Statischer Quellenbefund:** Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb`, erfasst am 2026-10-23. LAB-DEAD-002 liest in beiden Transaktionen dieselbe Zeile mit HOLDLOCK und versucht nach einer festen Verzögerung die Änderung dieser Zeile; der beabsichtigte Zusatz ist eine Sperrumwandlung vom Lesen zum Schreiben. LAB-DEAD-003 liest unter SERIALIZABLE zwei leere Schlüsselbereiche und fügt anschließend jeweils im Bereich der anderen Session ein.
+
+- Observe.sql akzeptiert gemeinsam für die Deadlock-Szenarien irgendein xml_deadlock_report-Ereignis in der festen XE-Session (Extended Events; Ereigniserfassung). Datenbank- und Laufzuordnung, Teilnehmer, Ressourcen, Sperrmodi und konkrete Deadlock-Variante werden in diesem Prädikat nicht geprüft.
+- DeadlockRange enthält anfangs nur die Schlüssel 10 und 90. Die gelesenen Leerbereiche 20 bis 40 und 60 bis 80 liegen damit zwischen denselben benachbarten Indexschlüsseln. Fachliche Ableitung: unterschiedliche logische Suchbereiche belegen hier keine getrennten Sperrressourcen; tatsächliche Bereichssperren und Umwandlungen müssen am Konfliktgraphen nachgewiesen werden.
+- Die Worker verwenden feste Verzögerungen; das Runbook ergänzt drei Sekunden Startvorlauf und akzeptiert die Prozesscodes 0 und 1. Das ersetzt weder eine signalgesteuerte Abfolge noch den eindeutigen Nachweis eines Deadlockopfers mit Fehler 1205 und eines erfolgreichen Gegenparts.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:113](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Worker.sql:230](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Worker.sql:246](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Observe.sql:272](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb).
+
+Abgleich mit der Schulung: [Vorhandener Deadlock-Grundfall mit Gegenprobe](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md#L13), [CON-002: Isolation und Schlüsselbereichssperren](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L971).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Eigenständigen Lernzuwachs gegenüber CON-006 (vorhandener Deadlock-Zyklus) und CON-002 (Isolation und Schlüsselbereichssperren) begründen; nur ausgewählte Ursachenvarianten ergänzen und den vorhandenen Grundfall erhalten.
+- Je ausgewählter Variante tatsächlichen Konfliktgraphen mit Ressourcen, gehaltenen und angeforderten Sperrmodi, laufzugeordneten Teilnehmern sowie Opfer-/Gegenpartnachweis vorsehen. Für die Range-Variante den Indexbereich fachlich erklären; keinen bestimmten Graphen aus dem Szenariotitel ableiten.
+- Vorhandene signalgesteuerte Schulungs-Sessionsteuerung, begrenzte Warte- und Abbruchpfade, vollständige Eigentumsmarker, passende Gegenprobe und sicheres Cleanup (Aufräumen) anwenden.
+
+Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Schlüsselbereichssperren](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-ver17#key-range-locking), [Microsoft: Deadlock-Diagnose](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17).
+
+**Spätere Abnahme:**
+
+- Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
+- Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen.
+
+##### 6. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
+
+**Planungsentscheidung:** Ausführbaren Vergleich zurückstellen.
+
+**Begründung:** Einfügeaktivität und eine aktivierte Indexoption belegen keinen Engpass an der letzten Indexseite. Ein fairer Vergleich fortlaufender und verteilter Schlüssel benötigt größere Laststeuerungs- und Messarbeit.
+
+**Abhängigkeiten:**
+
+- Reproduzierbare Konkurrenz um die letzte Indexseite von Sperren und Ein-/Ausgabewarten unterscheiden; mit RES-005 (Seiten-Latches und Ein-/Ausgabewarten) abstimmen.
+- Identische Last, Datenmenge, Parallelität und Messfenster sowie Versionsgrenzen der Sequential-Key-Optimierung (Optimierung fortlaufender Schlüssel) festlegen.
+
+**Wiederaufnahmebedingung:** Geeignete isolierte Lastumgebung und belegbarer Engpass sowie fairer Vergleichsvertrag; keine pauschale Empfehlung anderer Schlüssel oder Heaps (Tabellen ohne Clustered Index).
 
 **Quellen:** `LAB-LATCH-001` (Last-page insert contention; Konkurrenz um die letzte Indexseite); `LAB-LATCH-002` (Sequential-key optimization comparison; Vergleich der Optimierung fortlaufender Schlüssel); `LAB-LATCH-003` (Distributed-key and heap comparison; verteilte Schlüssel und Tabellen ohne Clustered Index).
 
@@ -337,87 +503,20 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Diagnose von Last-Page-
 - Tatsächliche Konkurrenz um die letzte Seite von gewöhnlichen Sperren und Speichergerätezugriffen unterscheiden.
 - Vergleiche verwenden erklärten identischen Messrahmen; andere Schlüssel und Heap-Varianten nicht pauschal als bessere Lösung ausgeben. Leistungsbehauptungen separat belegen.
 
-##### 6. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
-
-**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
-
-**Quellen:** `LAB-MEM-001` (Competing memory grants; konkurrierende Abfragespeicherzuteilungen).
-
-**Abgrenzung:** RES-004 umfasst bereits Overgrant (zu hohe Zuteilung), Undergrant (zu geringe Zuteilung), Spills und konkurrierende Grants; OPT-013 behandelt bereits Spills. Nur eine tatsächliche Curriculumlücke ergänzen.
-
-**Weiterer Prüfauftrag:** Anforderung, Gewährung und Nutzung des Abfragespeichers sowie echte Wartebeobachtung prüfen; Alternativnachweis über aktive Sessions ausdrücklich bewerten.
-
-**Statischer Quellenbefund:** Stand `59e6c9cc8e786828bc710ca6963121511aedb07a`, erfasst am 2026-10-23. LAB-MEM-001 enthält eine ORDER-BY-Abfrage über höchstens 16384 Zeilen, die in eine temporäre Tabelle schreibt. Sie verwendet MAXDOP 2 (höchstens Parallelitätsgrad 2) und MAX_GRANT_PERCENT = 1 (Grant-Obergrenze); danach folgt eine feste Wartezeit von 15 Sekunden. Das Runbook sieht drei Worker und drei Sekunden Startvorlauf vor. Das sind vorgesehene Abläufe, keine beobachtete Speicherknappheit oder Laufzeitabnahme.
-
-- Observe.sql akzeptiert irgendeine Grant-Anforderung einer laufzugeordneten Session, unabhängig davon, ob sie wartet oder bereits gewährt wurde. Fehlt auch diese, genügt mindestens eine Session mit passendem Lauftoken als Alternativnachweis. Die Existenz einer solchen Session belegt weder konkurrierende Zuteilungen noch RESOURCE_SEMAPHORE (Warten auf Abfragespeicher).
-- Die nachgelagerte WAITFOR-Verzögerung beginnt erst nach der Abfrageausführung und ist kein Nachweis eines fortbestehenden Grants. Laut Produktdokumentation wird Abfragespeicher nach Abschluss der Abfrageausführung freigegeben. MAX_GRANT_PERCENT = 1 begrenzt die Zuteilung unter den dokumentierten Poolbedingungen; der Hint und drei vorgesehene Worker allein erzeugen keinen belegten Grant-Engpass.
-- Die Szenariodefinition nennt fünf Diagnoseprozeduren, der generische Aufrufpfad verwendet jedoch nur USP_CurrentMemoryGrants. Diese Prozedur unterstützt @SessionIds als Sessionfilter; Observe.sql setzt ihn nicht. Der Analyzer kann deshalb Grants anderer Sessions ausgeben, obwohl das fachliche Prädikat einen Lauftokenfilter verwendet.
-- USP_CurrentMemoryGrants liefert angeforderten, erforderlichen, gewährten, genutzten und maximal genutzten Speicher sowie Grant- und Warteinformationen. Der Szenariovertrag prüft diese Werte nicht als fachliche Abnahme. AVAILABLE ist bei null passenden Grants zulässig und bestätigt dann eine erfolgreiche Diagnoseabfrage, keinen positiven Engpassbefund. Die konfigurierte Befundhülle ersetzt diesen Nachweis nicht.
-
-Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:66](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Worker.sql:68](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:44](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/_Shared/Observe.sql:624](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:43](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:467](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:586](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql:620](https://api.github.com/repositories/1302553964/contents/Code/02_CurrentState/060_USP_CurrentMemoryGrants.sql?ref=59e6c9cc8e786828bc710ca6963121511aedb07a), [Lab/Scenarios/Performance/LAB-MEM-001/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-001/runbook.json?ref=59e6c9cc8e786828bc710ca6963121511aedb07a).
-
-Abgleich mit der Schulung: [Vorhandener RES-004-Planungsumfang mit konkurrierenden Grants und Wartebeobachtung](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L69), [OPT-013: vorhandene Demo für einen kontrollierten Sort-Spill](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md#L15), [RES-003: getrennter Umfang für instanzweiten Speicherdruck](https://github.com/gecompat/SQL_PerformanceSchulung/blob/b5074accb314ac32c64e53adb24829a30731b15b/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L75).
-
-**Vor einer späteren Umsetzung erforderlich:**
-
-- Eigenständigen Lernzuwachs innerhalb von RES-004 begründen oder auf eine zusätzliche Demo verzichten. Die vorhandene OPT-013-Demo behandelt bereits einen kontrollierten Sort-Spill (Auslagerung nach TempDB). Der mögliche Zusatz ist die Diagnose konkurrierender Zuteilungen und wartender Anforderungen; allgemeiner Instanzspeicherdruck bleibt beim getrennten RES-003-Umfang.
-- Eigene Session- und Request-Kennungen sowie Messzeitpunkte eindeutig zuordnen und die Diagnose auf diese Anforderungen begrenzen. Erforderlichen, angeforderten, gewährten, genutzten und maximal genutzten Speicher passend zur Aussage erfassen. Overgrant (zu hohe Zuteilung) oder Undergrant (zu geringe Zuteilung) nicht aus einem einzelnen frühen Nutzungsschnappschuss ableiten; behauptete Spills gesondert nachweisen.
-- Falls RESOURCE_SEMAPHORE-Warten behauptet wird, es während der eigenen Abfrageausführung tatsächlich beobachten und mit einer noch nicht gewährten Anforderung, grant_time IS NULL (fehlender Gewährungszeitpunkt), sowie passenden Warteinformationen verbinden. Grants, wartende Anforderungen und bloß vorhandene Sessions getrennt behandeln. Eine dreisekündige Verzögerung und nachgelagertes WAITFOR ersetzen keine signalgesteuerte Beobachtungsphase.
-- Begrenzten Ressourcen- und Zeitrahmen, vollständigen Worker-Erfolg, eine passende Gegenprobe und das Ende des Wartezustands vorsehen. Bei ausbleibendem Effekt einen kontrollierten Skip (nicht demonstrierbarer Effekt) liefern; allgemeine Speicherknappheit oder einen Leistungsgewinn nicht aus dem Szenariotitel ableiten.
-- Vorhandene Schulungsverträge für Eigentumsmarker, Sessionsteuerung, Abbruch, Cleanup (sicheres Aufräumen) und Wiederherstellung anwenden. Versionen, Edition und Rechte vor späterer Ausführung festlegen: die Memory-Grant-Sicht erfordert unter SQL Server 2019 VIEW SERVER STATE und ab SQL Server 2022 VIEW SERVER PERFORMANCE STATE. Die genannten Versionen 2019, 2022 und 2025 sind durch die Quellensichtung nicht praktisch abgenommen.
-- Qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Konkrete Mess- oder Leistungsbehauptungen benötigen passende Evidenz. M (mittel) bleibt eine vorläufige Aufwandseinschätzung; eine spätere Umsetzung und Ausführung benötigen einen eigenen Auftrag.
-
-Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Grant-Lebensdauer und tatsächliches Speicherwarten](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues), [Microsoft: Anforderung, Gewährung, Nutzung und Rechte](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17), [Microsoft: Grant-Obergrenze und Poolbedingungen](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17).
-
-**Spätere Abnahme:**
-
-- Dokumentierter Lernzieldelta oder begründeter Verzicht auf weitere Demo; keine Wiederholung vorhandener Spill-Inhalte.
-- Falls RESOURCE_SEMAPHORE-Warten behauptet wird, dieses tatsächlich nachweisen; aktive Sessions allein bleiben unzureichend.
-
-##### 7. RES-003 – Lückenprüfung für Buffer-Pool-Druck und Resource Governor
+##### 7. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
 
-**Quellen:** `LAB-MEM-002` (Bounded buffer-pool pressure; begrenzter Druck auf den Datenseiten-Cache); `LAB-MEM-003` (Resource Governor pool limit; Begrenzung eines Ressourcenpools).
+**Planungsentscheidung:** Demo echter Worker-Erschöpfung zurückstellen; fachliche Unterscheidung erhalten.
 
-**Abgrenzung:** RES-003 trennt Instanzspeicherdruck von Query Execution Memory (Abfragearbeitsspeicher); STL-006 behandelt den Buffer Pool. Resource Governor (Steuerung von Ressourcenpools) nur bei neuem Lernziel ergänzen; notwendige Limits berühren INF-005.
+**Begründung:** Vier aktive Sessions und Prozessorlast belegen keine Erschöpfung von Ausführungsthreads. Die vorhandenen CPU- und Wait-Inhalte decken Grundlagen bereits ab; ein Erschöpfungsversuch hat höhere Anforderungen an Kontrolle und Erholung.
 
-**Weiterer Prüfauftrag:** LAB-MEM-002 gemäß aktuellem Katalog als Buffer-Pool-Druck einordnen; ältere Overgrant-Zuordnung verwerfen. Bei Resource Governor Edition, Version, Klassifizierung, Poolgrenzen und sicheren Restore prüfen.
+**Abhängigkeiten:**
 
-**Statischer Quellenbefund:** Stand `ffb8ffa48b48fac025f47a2caea514c2f09d66ed`, erfasst am 2026-10-23. LAB-MEM-002 (Buffer-Pool-Druck; Druck auf den Datenseiten-Cache) legt eine Tabelle mit 32768 Zeilen und je 8000 Zeichen Nutzlast an. Zwei vorgesehene Worker lesen sie wiederholt mit jeweils einem 18-Sekunden-Zeitbudget. LAB-MEM-003 (Resource-Governor-Poolgrenze; Begrenzung eines Ressourcenpools) konfiguriert einen Pool mit MAX_MEMORY_PERCENT = 25 und eine Workloadgruppe mit REQUEST_MAX_MEMORY_GRANT_PERCENT = 10; sein Runbook startet null Worker. Das sind statisch gelesene Abläufe, keine beobachteten Druck- oder Begrenzungseffekte.
+- CPU (Central Processing Unit; Prozessor), Worker (Ausführungsthreads) und Scheduler (Ausführungsplaner) getrennt erklären; RES-007 (Wartezeitdifferenzen) weiterverwenden.
+- Tatsächliche Thread-/Warte-Evidenz, begrenzte Laststeuerung, vollständigen Worker-Abschluss und nachweisbare Erholung vor einer ausführbaren Demo planen.
 
-- LAB-MEM-002 verlangt in Observe.sql lediglich mindestens 16384 zwischengespeicherte Seiten der synthetischen Datenbank. Eine Vorhermessung, Verdrängung, physische Nachlesevorgänge oder tatsächliche Speicherdrucksignale werden nicht verlangt. Aus dem Code ist ableitbar, dass bereits das Befüllen der Tabelle den Cachebelegungsnachweis erfüllen könnte; dies wurde nicht ausgeführt. Cachebelegung ist kein Nachweis eines Speicherengpasses.
-- Der aktuelle Katalog ordnet LAB-MEM-002 dem Buffer-Pool-Druck zu; der ältere Lernpfad nennt dagegen überdimensionierte Grants (zu hohe Abfragespeicherzuteilungen). Für die Zuordnung gelten aktueller Katalog und tatsächliche Bausteine. Die Kennzeichnung EMULATED_INFRASTRUCTURE (nachgebildete Infrastrukturbedingungen) ist keine Laufzeitqualifikation.
-- USP_BufferPoolAnalysis liefert bei erkannten Prozessspeicherdrucksignalen oder wartenden Abfragespeicherzuteilungen AVAILABLE_WITH_FINDING (verfügbar mit Befund). Observe.sql weist diesen Status zurück; auch die Szenariodefinition erwartet nur AVAILABLE oder AVAILABLE_LIMITED. Ein tatsächlicher Befund könnte deshalb die Szenarioauswertung scheitern lassen. Diese Schlussfolgerung stammt aus dem Codevergleich, nicht aus einem Lauf.
-- LAB-MEM-003 prüft nur das Vorhandensein der benannten Gruppe im benannten Pool und REQUEST_MAX_MEMORY_GRANT_PERCENT = 10. Die konfigurierte Poolgrenze von 25 Prozent, klassifizierte eigene Sessions und eine tatsächlich wirksame Begrenzung unter Last werden nicht nachgewiesen. Im Szenario fehlt eine Klassifizierungsfunktion zur Zuordnung neuer Verbindungen; ohne vorhandene Klassifizierung landen Benutzersessions gemäß Produktvertrag in der default-Gruppe. Null Worker und das Katalogmerkmal REAL (als reales Szenario eingeordnet) belegen keine wirksame Ressourcenbegrenzung.
-- Bei normalen, nicht speicheroptimierten Tabellen begrenzen MIN_MEMORY_PERCENT und MAX_MEMORY_PERCENT den Query Execution Memory (Abfragearbeitsspeicher). Der Buffer Pool mit Daten- und Indexseiten wird gemeinsam genutzt und dadurch nicht begrenzt. Resource Governor darf deshalb nicht als Buffer-Pool-Obergrenze erklärt werden. MAX_CPU_PERCENT = 50 ist zudem eine weiche Prozessorgrenze bei Konkurrenz, keine harte Begrenzung.
-- Beide Definitionen nennen jeweils zwei Analyzer, der generische Ablauf ruft nur den jeweiligen PrimaryAnalyzer (vorrangig ausgewählte Diagnoseprozedur) auf. Beide verwendeten Analyzer besitzen keinen Datenbank- oder Sessionfilter. Die Buffer-Pool-Verteilung ist im Buffer-Pool-Analyzer standardmäßig ausgeschaltet und wird vom Aufrufpfad nicht eingeschaltet. Beim Resource-Governor-Analyzer fehlt @StatusCodeOut; Observe.sql ersetzt den nicht gelieferten Status durch AVAILABLE (verfügbar). Die konfigurierte Befundhülle und MinimumConfidence = HIGH (hohe Mindestzuverlässigkeit) werden nicht aus einem passenden fachlichen Analyzerbefund nachgewiesen.
-- Setup speichert den vorherigen Aktivierungszustand von Resource Governor. Cleanup (sicheres Aufräumen) deaktiviert die Funktion instanzweit, entfernt die festen Gruppen-/Poolnamen, wendet die Konfiguration erneut an und deaktiviert sie wieder, falls sie vorher ausgeschaltet war. Die Rücknahme ist damit grundsätzlich vorgesehen, aber kein bewiesener vollständiger Restore. Ein fehlender Datenbank-Eigentumsmarker wird durch IF @DatabaseOwner <> @LabRunId wegen NULL nicht sicher abgewiesen; die bereits erfassten Grenzen der Variablenübergabe und festen Objektnamen bleiben bestehen.
-
-Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:160](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Setup.sql:184](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Worker.sql:83](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:65](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:75](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:624](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:915](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql:21](https://api.github.com/repositories/1302553964/contents/Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql:216](https://api.github.com/repositories/1302553964/contents/Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Code/07_Infrastructure/030_USP_ResourceGovernorAnalysis.sql:33](https://api.github.com/repositories/1302553964/contents/Code/07_Infrastructure/030_USP_ResourceGovernorAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/LAB-MEM-002/runbook.json:16](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-002/runbook.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/LAB-MEM-003/runbook.json:16](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-003/runbook.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/LEARNING_PATH.md:41](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Setup.sql:62](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:82](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:119](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed).
-
-Abgleich mit der Schulung: [STL-006: geplanter Buffer-Pool-, Cold/Warm- und Read-Vergleich](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L903), [RES-004: geplanter Umfang für Abfragespeicherzuteilungen und Wartebeobachtung](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L69), [RES-003: getrennter Umfang auf einer dedizierten Wegwerfinstanz](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L75), [INF-005: bedarfsabhängige Prozessor- und Arbeitsspeicherlimits](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L1035).
-
-**Vor einer späteren Umsetzung erforderlich:**
-
-- Lernzuwachs oder begründeten Verzicht dokumentieren: STL-006 umfasst Buffer Pool, Cold/Warm Cache und logische/physische Reads; RES-004 umfasst Abfragespeicherzuteilungen und konkurrierende Grants. RES-003 bleibt der getrennte Umfang für isolierten Instanzspeicherdruck. Resource Governor nur mit eigenständigem Lernziel ergänzen; notwendige Ressourcenlimits gehören zum bedarfsabhängigen INF-005-Umfang.
-- Für eine spätere Druckdemo Ressourcenprofil, Arbeitsmenge, Zeitbudget und eigene Beobachtungsphase ausdrücklich festlegen. Eine passende Vorher-/Last-/Erholungsbeobachtung und Gegenprobe müssen den behaupteten Druck oder Cacheeffekt tragen; Seitenzahl allein genügt nicht. Instanzspeicherdruck, Cachebelegung und RESOURCE_SEMAPHORE (Warten auf Abfragespeicher) getrennt ausweisen. Bei ausbleibendem Effekt kontrolliert abbrechen oder den Effekt als nicht demonstrierbar kennzeichnen.
-- Falls eine wirksame Resource-Governor-Begrenzung gezeigt werden soll, eigene neue Verbindungen gezielt klassifizieren und ihre tatsächliche Gruppen-/Poolzuordnung prüfen. Wirksame Konfiguration und passende Laufzeitwerte mit begrenzter Last vergleichen; bloß angelegte Katalogeinträge genügen dafür nicht. Abfragearbeitsspeicher, Buffer Pool und weiche gegenüber harten Prozessorgrenzen verständlich trennen.
-- Statusvertrag und fachlichen Befund vor späterer Adaption zusammenführen: AVAILABLE_WITH_FINDING ausdrücklich behandeln, eigene relevante Diagnosedaten auswerten und keine Erfolgsaussage aus konfigurierten Befundcodes oder einem ersetzten Status ableiten. Die Beobachtung muss zur Behauptung passen; Analyzer- und Szenariostatus ersetzen keine Druckmessung.
-- Edition, Version, Rechte und Plattform vor Ausführung festlegen: Resource Governor ist in SQL Server 2019/2022 für Enterprise und Developer verfügbar; SQL Server 2025 ergänzt Standard und Standard Developer neben Enterprise und Enterprise Developer. Die Buffer-Descriptor-Sicht benötigt unter SQL Server 2019 VIEW SERVER STATE und ab 2022 VIEW SERVER PERFORMANCE STATE (Berechtigungen zum Lesen instanzweiter Diagnoseinformationen). Die Versionsliste der Szenarien ist keine praktische Abnahme.
-- Nur eine dedizierte Wegwerfinstanz mit festem Ressourcenprofil, hartem Zeitbudget, Notabbruch und überprüfbarer Erholung vorsehen. Vorherige wirksame Konfiguration und gegebenenfalls Klassifizierung sichern und vollständig wiederherstellen; vollständige Eigentumsmarker und Schulungsverträge für Sessionsteuerung, Cleanup und Abbruch anwenden. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab; den Analyze-Runner nicht übernehmen.
-- Qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Mess- und Leistungsbehauptungen benötigen passende Evidenz. L (groß) bleibt eine vorläufige Aufwandseinschätzung; Umsetzung, SQL- und Lab-Ausführung benötigen einen eigenen Auftrag.
-
-Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Cachebelegung und Diagnoseberechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-buffer-descriptors-transact-sql?view=sql-server-ver17), [Microsoft: Abfragearbeitsspeicher, Buffer Pool und Prozessorgrenzen](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor-resource-pool?view=sql-server-ver17), [Microsoft: Klassifizierung neuer Verbindungen](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor-classifier-function?view=sql-server-ver17), [Microsoft: Resource Governor und Editionsgrenzen](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17).
-
-**Spätere Abnahme:**
-
-- Abfragespeicher und Datenseiten-Cache fachlich getrennt behandeln; tatsächlich fehlendes Lernziel oder Verzicht dokumentieren.
-- Bei einer späteren Übung tatsächlichen Druck beziehungsweise wirksame Poolbegrenzung passend nachweisen und alle Instanzänderungen sicher zurücknehmen; allgemeine Infrastruktur bleibt extern.
-
-##### 8. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
-
-**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
+**Wiederaufnahmebedingung:** Eigenständiger Lernbedarf an echter Erschöpfung und ein isoliertes, begrenztes Sicherheits- und Nachweiskonzept; kurze Erklärungen benötigen keinen pauschalen Benchmark.
 
 **Quellen:** `LAB-CPU-003` (Worker-thread pressure; Druck auf Ausführungsthreads).
 
@@ -456,9 +555,72 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Worker-Warteschlange, C
 - Begründete Curriculumlücke oder Verzicht festhalten; Druck und Erschöpfung eindeutig unterschiedlich benennen.
 - Behauptete Worker-Erschöpfung benötigt tatsächliche Thread-/Warte-Evidenz; aktive Sessions oder hohe Prozessorlast allein genügen nicht. Begrenzte Steuerung und gesicherter Abbau sind Voraussetzung.
 
+##### 8. RES-003 – Lückenprüfung für Buffer-Pool-Druck und Resource Governor
+
+**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
+
+**Planungsentscheidung:** Inhaltlich aufteilen; instanzweiten Speicherdruck zurückstellen.
+
+**Begründung:** Datenseiten im Cache sind kein Drucknachweis. Cachegrundlagen liegen in STL-006 (Buffer Pool; Datenseiten-Cache). Resource Governor steuert Ressourcenpools; seine hier relevanten Grenzen betreffen Abfragearbeitsspeicher und verdienen eine eigene Erklärung statt der falschen Buffer-Pool-Zuordnung.
+
+**Abhängigkeiten:**
+
+- Cachegrundlagen bei STL-006 belassen; vorhandene RES-003-Kennung erhalten, keine neue Demo registrieren.
+- Resource-Governor-Erklärung fachlich nach RES-004 (Abfragespeicherzuteilungen) einordnen. Für spätere ausführbare Poolbegrenzung Edition, Version, Klassifizierung, Wirksamkeit und vollständige Rücknahme mit INF-005 (Ressourcenlimits) klären.
+
+**Wiederaufnahmebedingung:** Resource-Governor-Erklärung bei bestätigter Curriculumlücke; ausführbarer Instanzdruck erst nach eigenem Sicherheits- und Drucknachweiskonzept. Keine zusätzliche allgemeine Cache-Demo.
+
+**Quellen:** `LAB-MEM-002` (Bounded buffer-pool pressure; begrenzter Druck auf den Datenseiten-Cache); `LAB-MEM-003` (Resource Governor pool limit; Begrenzung eines Ressourcenpools).
+
+**Abgrenzung:** RES-003 trennt Instanzspeicherdruck von Query Execution Memory (Abfragearbeitsspeicher); STL-006 behandelt den Buffer Pool. Resource Governor (Steuerung von Ressourcenpools) nur bei neuem Lernziel ergänzen; notwendige Limits berühren INF-005.
+
+**Weiterer Prüfauftrag:** LAB-MEM-002 gemäß aktuellem Katalog als Buffer-Pool-Druck einordnen; ältere Overgrant-Zuordnung verwerfen. Bei Resource Governor Edition, Version, Klassifizierung, Poolgrenzen und sicheren Restore prüfen.
+
+**Statischer Quellenbefund:** Stand `ffb8ffa48b48fac025f47a2caea514c2f09d66ed`, erfasst am 2026-10-23. LAB-MEM-002 (Buffer-Pool-Druck; Druck auf den Datenseiten-Cache) legt eine Tabelle mit 32768 Zeilen und je 8000 Zeichen Nutzlast an. Zwei vorgesehene Worker lesen sie wiederholt mit jeweils einem 18-Sekunden-Zeitbudget. LAB-MEM-003 (Resource-Governor-Poolgrenze; Begrenzung eines Ressourcenpools) konfiguriert einen Pool mit MAX_MEMORY_PERCENT = 25 und eine Workloadgruppe mit REQUEST_MAX_MEMORY_GRANT_PERCENT = 10; sein Runbook startet null Worker. Das sind statisch gelesene Abläufe, keine beobachteten Druck- oder Begrenzungseffekte.
+
+- LAB-MEM-002 verlangt in Observe.sql lediglich mindestens 16384 zwischengespeicherte Seiten der synthetischen Datenbank. Eine Vorhermessung, Verdrängung, physische Nachlesevorgänge oder tatsächliche Speicherdrucksignale werden nicht verlangt. Aus dem Code ist ableitbar, dass bereits das Befüllen der Tabelle den Cachebelegungsnachweis erfüllen könnte; dies wurde nicht ausgeführt. Cachebelegung ist kein Nachweis eines Speicherengpasses.
+- Der aktuelle Katalog ordnet LAB-MEM-002 dem Buffer-Pool-Druck zu; der ältere Lernpfad nennt dagegen überdimensionierte Grants (zu hohe Abfragespeicherzuteilungen). Für die Zuordnung gelten aktueller Katalog und tatsächliche Bausteine. Die Kennzeichnung EMULATED_INFRASTRUCTURE (nachgebildete Infrastrukturbedingungen) ist keine Laufzeitqualifikation.
+- USP_BufferPoolAnalysis liefert bei erkannten Prozessspeicherdrucksignalen oder wartenden Abfragespeicherzuteilungen AVAILABLE_WITH_FINDING (verfügbar mit Befund). Observe.sql weist diesen Status zurück; auch die Szenariodefinition erwartet nur AVAILABLE oder AVAILABLE_LIMITED. Ein tatsächlicher Befund könnte deshalb die Szenarioauswertung scheitern lassen. Diese Schlussfolgerung stammt aus dem Codevergleich, nicht aus einem Lauf.
+- LAB-MEM-003 prüft nur das Vorhandensein der benannten Gruppe im benannten Pool und REQUEST_MAX_MEMORY_GRANT_PERCENT = 10. Die konfigurierte Poolgrenze von 25 Prozent, klassifizierte eigene Sessions und eine tatsächlich wirksame Begrenzung unter Last werden nicht nachgewiesen. Im Szenario fehlt eine Klassifizierungsfunktion zur Zuordnung neuer Verbindungen; ohne vorhandene Klassifizierung landen Benutzersessions gemäß Produktvertrag in der default-Gruppe. Null Worker und das Katalogmerkmal REAL (als reales Szenario eingeordnet) belegen keine wirksame Ressourcenbegrenzung.
+- Bei normalen, nicht speicheroptimierten Tabellen begrenzen MIN_MEMORY_PERCENT und MAX_MEMORY_PERCENT den Query Execution Memory (Abfragearbeitsspeicher). Der Buffer Pool mit Daten- und Indexseiten wird gemeinsam genutzt und dadurch nicht begrenzt. Resource Governor darf deshalb nicht als Buffer-Pool-Obergrenze erklärt werden. MAX_CPU_PERCENT = 50 ist zudem eine weiche Prozessorgrenze bei Konkurrenz, keine harte Begrenzung.
+- Beide Definitionen nennen jeweils zwei Analyzer, der generische Ablauf ruft nur den jeweiligen PrimaryAnalyzer (vorrangig ausgewählte Diagnoseprozedur) auf. Beide verwendeten Analyzer besitzen keinen Datenbank- oder Sessionfilter. Die Buffer-Pool-Verteilung ist im Buffer-Pool-Analyzer standardmäßig ausgeschaltet und wird vom Aufrufpfad nicht eingeschaltet. Beim Resource-Governor-Analyzer fehlt @StatusCodeOut; Observe.sql ersetzt den nicht gelieferten Status durch AVAILABLE (verfügbar). Die konfigurierte Befundhülle und MinimumConfidence = HIGH (hohe Mindestzuverlässigkeit) werden nicht aus einem passenden fachlichen Analyzerbefund nachgewiesen.
+- Setup speichert den vorherigen Aktivierungszustand von Resource Governor. Cleanup (sicheres Aufräumen) deaktiviert die Funktion instanzweit, entfernt die festen Gruppen-/Poolnamen, wendet die Konfiguration erneut an und deaktiviert sie wieder, falls sie vorher ausgeschaltet war. Die Rücknahme ist damit grundsätzlich vorgesehen, aber kein bewiesener vollständiger Restore. Ein fehlender Datenbank-Eigentumsmarker wird durch IF @DatabaseOwner <> @LabRunId wegen NULL nicht sicher abgewiesen; die bereits erfassten Grenzen der Variablenübergabe und festen Objektnamen bleiben bestehen.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:160](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Setup.sql:184](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Worker.sql:83](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:65](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:75](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:624](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Observe.sql:915](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql:21](https://api.github.com/repositories/1302553964/contents/Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql:216](https://api.github.com/repositories/1302553964/contents/Code/08_ServerHealth/160_USP_BufferPoolAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Code/07_Infrastructure/030_USP_ResourceGovernorAnalysis.sql:33](https://api.github.com/repositories/1302553964/contents/Code/07_Infrastructure/030_USP_ResourceGovernorAnalysis.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/LAB-MEM-002/runbook.json:16](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-002/runbook.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/LAB-MEM-003/runbook.json:16](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-MEM-003/runbook.json?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/LEARNING_PATH.md:41](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Setup.sql:62](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:82](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:119](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=ffb8ffa48b48fac025f47a2caea514c2f09d66ed).
+
+Abgleich mit der Schulung: [STL-006: geplanter Buffer-Pool-, Cold/Warm- und Read-Vergleich](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L903), [RES-004: geplanter Umfang für Abfragespeicherzuteilungen und Wartebeobachtung](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L69), [RES-003: getrennter Umfang auf einer dedizierten Wegwerfinstanz](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L75), [INF-005: bedarfsabhängige Prozessor- und Arbeitsspeicherlimits](https://github.com/gecompat/SQL_PerformanceSchulung/blob/17fd242f55b32bcae80918da3c848bbbc3e5fd3a/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L1035).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Lernzuwachs oder begründeten Verzicht dokumentieren: STL-006 umfasst Buffer Pool, Cold/Warm Cache und logische/physische Reads; RES-004 umfasst Abfragespeicherzuteilungen und konkurrierende Grants. RES-003 bleibt der getrennte Umfang für isolierten Instanzspeicherdruck. Resource Governor nur mit eigenständigem Lernziel ergänzen; notwendige Ressourcenlimits gehören zum bedarfsabhängigen INF-005-Umfang.
+- Für eine spätere Druckdemo Ressourcenprofil, Arbeitsmenge, Zeitbudget und eigene Beobachtungsphase ausdrücklich festlegen. Eine passende Vorher-/Last-/Erholungsbeobachtung und Gegenprobe müssen den behaupteten Druck oder Cacheeffekt tragen; Seitenzahl allein genügt nicht. Instanzspeicherdruck, Cachebelegung und RESOURCE_SEMAPHORE (Warten auf Abfragespeicher) getrennt ausweisen. Bei ausbleibendem Effekt kontrolliert abbrechen oder den Effekt als nicht demonstrierbar kennzeichnen.
+- Falls eine wirksame Resource-Governor-Begrenzung gezeigt werden soll, eigene neue Verbindungen gezielt klassifizieren und ihre tatsächliche Gruppen-/Poolzuordnung prüfen. Wirksame Konfiguration und passende Laufzeitwerte mit begrenzter Last vergleichen; bloß angelegte Katalogeinträge genügen dafür nicht. Abfragearbeitsspeicher, Buffer Pool und weiche gegenüber harten Prozessorgrenzen verständlich trennen.
+- Statusvertrag und fachlichen Befund vor späterer Adaption zusammenführen: AVAILABLE_WITH_FINDING ausdrücklich behandeln, eigene relevante Diagnosedaten auswerten und keine Erfolgsaussage aus konfigurierten Befundcodes oder einem ersetzten Status ableiten. Die Beobachtung muss zur Behauptung passen; Analyzer- und Szenariostatus ersetzen keine Druckmessung.
+- Edition, Version, Rechte und Plattform vor Ausführung festlegen: Resource Governor ist in SQL Server 2019/2022 für Enterprise und Developer verfügbar; SQL Server 2025 ergänzt Standard und Standard Developer neben Enterprise und Enterprise Developer. Die Buffer-Descriptor-Sicht benötigt unter SQL Server 2019 VIEW SERVER STATE und ab 2022 VIEW SERVER PERFORMANCE STATE (Berechtigungen zum Lesen instanzweiter Diagnoseinformationen). Die Versionsliste der Szenarien ist keine praktische Abnahme.
+- Nur eine dedizierte Wegwerfinstanz mit festem Ressourcenprofil, hartem Zeitbudget, Notabbruch und überprüfbarer Erholung vorsehen. Vorherige wirksame Konfiguration und gegebenenfalls Klassifizierung sichern und vollständig wiederherstellen; vollständige Eigentumsmarker und Schulungsverträge für Sessionsteuerung, Cleanup und Abbruch anwenden. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab; den Analyze-Runner nicht übernehmen.
+- Qualitative Erklärungen benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Mess- und Leistungsbehauptungen benötigen passende Evidenz. L (groß) bleibt eine vorläufige Aufwandseinschätzung; Umsetzung, SQL- und Lab-Ausführung benötigen einen eigenen Auftrag.
+
+Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Cachebelegung und Diagnoseberechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-buffer-descriptors-transact-sql?view=sql-server-ver17), [Microsoft: Abfragearbeitsspeicher, Buffer Pool und Prozessorgrenzen](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor-resource-pool?view=sql-server-ver17), [Microsoft: Klassifizierung neuer Verbindungen](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor-classifier-function?view=sql-server-ver17), [Microsoft: Resource Governor und Editionsgrenzen](https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17).
+
+**Spätere Abnahme:**
+
+- Abfragespeicher und Datenseiten-Cache fachlich getrennt behandeln; tatsächlich fehlendes Lernziel oder Verzicht dokumentieren.
+- Bei einer späteren Übung tatsächlichen Druck beziehungsweise wirksame Poolbegrenzung passend nachweisen und alle Instanzänderungen sicher zurücknehmen; allgemeine Infrastruktur bleibt extern.
+
 ##### 9. INF-006 – Log Shipping als gesonderten Infrastrukturumfang bewerten
 
 **P3 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand XL – vorläufig, eigenständiger Infrastrukturumfang.**
+
+**Planungsentscheidung:** Separater Infrastrukturentscheidung vorbehalten; nicht in die nächste Schulungswelle aufnehmen.
+
+**Begründung:** Log Shipping erfordert mehrere Instanzen sowie Sicherungs-, Übertragungs- und Wiederherstellungspfade. LAB-LS-002 ist lediglich geplant; die gesichteten Bausteine sind keine geprüfte Störungs- oder Wiederanlaufübung. Aufwand bleibt XL (sehr groß), vorläufig.
+
+**Abhängigkeiten:**
+
+- Eigenständiges Lernziel gegenüber STL-008 und STL-009 (Transaktionslog und Commit-Batching; gebündelte Transaktionsabschlüsse) begründen.
+- Topologie, Zuständigkeit, Kosten/Ressourcen, Eigentum, Rückstände, Störfall und sicherer Abbau mit SQL_Server_Lab festlegen; allgemeine Infrastruktur verbleibt dort.
+
+**Wiederaufnahmebedingung:** Eigener menschlicher Infrastrukturauftrag mit begründetem Lernziel und Betriebsverantwortung; keine Abhängigkeit der vorherigen Kandidaten von Log Shipping.
 
 **Quellen:** `LAB-LS-001` (Log Shipping; Sicherung, Kopieren und Wiederherstellen mit Rückstand); `LAB-LS-002` (Unterbrochene Log-Shipping-Übertragung; laut Katalog noch geplant).
 
