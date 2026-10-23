@@ -1,42 +1,34 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Aktueller Planungsauftrag vom 23. Oktober 2026
+## Aktueller Planungsauftrag vom 23. Oktober 2026: OPT-007
 
-Die übrige autonome Entwicklung ist pausiert. `TSK-016` (Analyze-Labs als
-gezielte Curriculum-Ergänzungen prüfen) erfasst ausschließlich offene,
-priorisierte Quellen- und Lückenprüfungen in der [kanonischen Registry](../../.ai/identity/registry.json).
-Die statischen Sichtungen zu CON-005 (Schemasperren), OPT-007
-(Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung),
-IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche),
-RES-004 (Memory Grants; Abfragespeicherzuteilungen), RES-003
-(Buffer-Pool-Druck und Resource Governor; Datenseiten-Cache und Ressourcensteuerung),
-RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) und INF-006
-(Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
-liegen mit Nachweis- und Sicherheitslücken vor. Damit sind alle neun
-Kandidatenquellen gesichtet; sämtliche Erweiterungsideen bleiben offen.
-Der aktuelle Auftrag autorisiert ausschließlich den begrenzten
-CON-005-Schemasperrenschnitt einschließlich Tests, Dokumentation, erforderlicher
-SQL-/Lab-Läufe und Integration per Pull Request (Änderungsantrag).
-Das [Demopaket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
-enthält drei signalisierte Akteure, konkrete Sch-M-/Sch-S-Nachweise
-(Schemaänderungs- und Schemastabilitätssperre), Rücknahme, Vergleich und sicheren
-Abbau. Der Implementierungsstand `ab27d42214ab24b6b12b2189e5b5e32da535166e`
-ist am 2026-10-23 im [Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499)
-auf SQL Server 2019/150, 2022/160 und 2025/170 (Developer/Linux/Docker)
-mit regulären Lifecycles, Gegenproben und eigenem Cleanup validiert.
-Aktuelle Head-/Main-Prüfungen und Integration sind in
-[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) gebunden. Sperreskalation bleibt ein
-getrennter offener CON-005-Teil. Die anderen acht Kandidaten und die übrige
-autonome Verarbeitung bleiben pausiert. INF-006 (Log Shipping; Übertragung und
-Wiederherstellung von Transaktionslog-Sicherungen) bleibt ein eigenständiger
-Infrastrukturumfang mit vorläufiger Priorität P3 (gesonderte Entscheidung)
-und Aufwand XL (sehr groß).
-Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
-geführt. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab. Aufnahme und
-vorläufige Aufwandseinschätzung erteilen für andere Kandidaten keine
-Implementierungs- oder SQL-/Lab-Ausführungsfreigabe. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
-führt die Pause und die zuvor begonnenen, nun zurückgestellten Abschlussgates.
+Der aktuelle Auftrag autorisiert ausschließlich die begrenzte Planung von
+OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan
+formulierter Abfragen) anhand der registrierten Quellenbefunde bei TSK-016
+(Analyze-Labs als gezielte Curriculum-Ergänzungen). Keine Implementierung
+oder SQL-/Lab-Läufe; die übrige autonome Verarbeitung bleibt pausiert.
+
+Der vollständige Plan liegt ausschließlich in der
+[kanonischen Registry](../../.ai/identity/registry.json); die
+[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
+zeigt Umfang, Quellen, offene Vorprüfungen, Tests, Schutzgrenzen und Abnahme.
+Vorgesehen sind je 40 Literal- und Parameterabfragen, laufgenaue Cachetypen/
+Bytes und ein belastbarer Wiederverwendungsnachweis. Die konkrete Abfrageform
+gegen automatische Parametrisierung bleibt vor einer Umsetzung zu schließen.
+Aufwand M (mittel) ist vorläufig; kein Test- oder Laufzeitnachweis für OPT-007.
+Hier wird keine zweite Planungsliste angelegt.
+
+Der begrenzte Schemasperrenschnitt CON-005 ist über
+[PR310 (Pull Request; Änderungsantrag)](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
+in `origin/main` integriert und auf SQL Server 2019/150, 2022/160 und 2025/170
+(Developer/Linux/Docker) validiert. Sperreskalation und weitere Metadatenpfade
+bleiben offen. Die übrigen sieben TSK-016-Kandidaten werden nicht bearbeitet;
+die Umsetzungen aller weiteren Schnitte bleiben pausiert. INF-006 (Log Shipping;
+Übertragung und Wiederherstellung von Transaktionslog-Sicherungen) bleibt
+gesonderter Infrastrukturumfang mit vorläufig P3 (separate Entscheidung) und
+XL (sehr groß). Allgemeine Lab-Infrastruktur bleibt im bestehenden Lab-Projekt.
+Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) führt Auftrag,
+Pause und historische zurückgestellte Arbeiten.
 
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 
