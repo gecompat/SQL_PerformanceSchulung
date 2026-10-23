@@ -1,15 +1,13 @@
 # Aktueller Ausführungsstand
 
-## Aktueller Auftrag vom 23. Oktober 2026: Priorisierung und begrenzter CON-005-Plan
+## Aktueller Auftrag vom 23. Oktober 2026: CON-005 begrenzt umsetzen
 
-Der jüngste menschliche Auftrag bestätigt die quellenbasierte Priorisierung
-aller neun TSK-016-Kandidaten (Analyze-Labs als gezielte Curriculum-Ergänzungen)
-und den nächsten begrenzten Planungsschnitt für CON-005 (Schemasperren).
-Die Dokumentation wird über einen Pull Request (Änderungsantrag) nach
-`origin/main` integriert. Statische CI-Prüfungen (Continuous Integration;
-automatisierte Repositoryprüfungen) sind erlaubt. Implementierungen, Tests sowie
-SQL- und Lab-Läufe sind ausgeschlossen. Die übrige autonome Verarbeitung
-bleibt ausdrücklich pausiert.
+Der jüngste menschliche Auftrag autorisiert ausschließlich CON-005
+(Schemasperren) gemäß dem begrenzten Plan bei TSK-016 (gezielte
+Curriculum-Ergänzungen): Implementierung, Tests, Dokumentation und
+Integration per Pull Request (Änderungsantrag) nach `origin/main`.
+Erforderliche SQL-/Lab-Läufe sind erlaubt. Die übrige autonome Verarbeitung
+bleibt pausiert; insbesondere wird keine nächste Demo begonnen.
 
 `TSK-016` (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) ist als
 offene Aufgabe in der [kanonischen Registry](../../.ai/identity/registry.json)
@@ -52,22 +50,28 @@ ausstehende Verarbeitung; LAB-LS-002 bleibt nicht implementiert. Eindeutige
 Objektzuordnung, SQL-Eigentum, Wiederherstellbarkeitsaussagen und vollständiger
 Abbau benötigen vor einer Adaption eigene Nachweise. Die allgemeine Infrastruktur
 bleibt im Lab-Projekt; dessen Verträge sind keine direkte Freigabe für den alten
-Analyze-Runner. Keine Umsetzung oder weitere autonome Bearbeitung ist freigegeben.
+Analyze-Runner. Nur der oben benannte CON-005-Schemasperrenschnitt ist zur Umsetzung freigegeben; sämtliche anderen Aufgaben bleiben pausiert.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
 Pull Request; eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
 
-Die quellenbasierte Reihenfolge und die begründeten Zurückstellungen sind
-kanonisch bei TSK-016 gepflegt und im Backlog abgeleitet. CON-005 (Schemasperren)
-wird zuerst geplant; danach folgen OPT-007 (Ad-hoc-Plancache) und DGN-004
-(Planerzwingung). Der CON-005-Entwurf beschreibt drei Akteure, außerhalb der
-gehaltenen Transaktion sichtbare Freigaben, tatsächlich gewährtes Sch-M
-(Schemaänderungssperre) und wartendes Sch-S (Schemastabilitätssperre),
-Objekt-/Laufzuordnung, begrenzten Abbruch und sicheren Abbau. Sperreskalation
-bleibt ein getrennter späterer Teil. Entwurfsgrenzen sind keine gemessenen
-Laufzeiten; keine Demo ist implementiert, freigegeben oder zur Laufzeit abgenommen.
-Bestehende Quellenbefunde, Demo-Kennungen und alle früheren Pausen bleiben erhalten.
+Die quellenbasierte Reihenfolge bleibt kanonisch bei TSK-016 gepflegt.
+Das [CON-005-Paket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
+implementiert drei Akteure mit außerhalb der gehaltenen Transaktion sichtbaren
+Freigaben, gewährtem Sch-M (Schemaänderungssperre), wartendem Sch-S
+(Schemastabilitätssperre), identischer Ressource sowie exakter Blocker-/Laufbindung.
+Der finale SQL-Stand ist auf SQL Server 2022 einschließlich regulärer
+Lifecycles, normalisiertem Lauftoken, Schutz-/Evidenzgegenproben und gehaltenem
+Abbruchfall geprüft. Frühere erfolgreiche Diagnosebelege auf SQL Server
+2019/2025 ersetzen die noch offenen aktuellen PR- und frischen Main-Prüfungen
+auf allen drei Versionen nicht. Alle drei eigenen lokalen Container sind entfernt.
+Zwei frühe fehlgeschlagene Diagnosekandidaten bleiben mit ihrem erfolgreichen
+Cleanup erhalten. Die anderen Lab-Instanzen wurden nicht verändert.
+Sperreskalation und umfassende Metadaten-/Kompilierungspfade bleiben offen.
+Nach diesem Schnitt bleiben auch OPT-007 (Ad-hoc-Plancache) und DGN-004
+(Planerzwingung) pausiert. Vorherige Quellenbefunde und sämtliche historischen
+Pausen bleiben erhalten; eine vollständige CON-005-Gesamtabnahme wird nicht behauptet.
 
 Bei Eingang dieses Auftrags war PR301 (Pull Request; Änderungsantrag für die
 vollständige Frameworkeingabeprüfung) bereits in Main

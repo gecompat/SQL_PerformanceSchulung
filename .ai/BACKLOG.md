@@ -1,34 +1,34 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## Priorisierung und begrenzte Planung: weitere Entwicklung pausiert
+## Begrenzte CON-005-Umsetzung: übrige Entwicklung pausiert
 
-Der Auftrag vom 23. Oktober 2026 erlaubt die quellenbasierte Priorisierung
-und den begrenzten CON-005-Plan (Schemasperren) sowie ihre Integration
-über einen Pull Request (Änderungsantrag).
-Erforderliche statische CI-Prüfungen (Continuous Integration; automatisierte
-Repositoryprüfungen) sind erlaubt. Die übrige autonome Bearbeitung bleibt pausiert;
-es werden keine Implementierungen oder SQL-/Lab-Läufe begonnen. Maßgeblich ist
-der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
+Der Auftrag vom 23. Oktober 2026 autorisiert ausschließlich CON-005
+(Schemasperren) gemäß dem begrenzten Plan einschließlich Tests, Dokumentation
+und Integration über einen Pull Request (Änderungsantrag) nach `origin/main`.
+Erforderliche SQL-/Lab-Läufe und CI-Prüfungen (Continuous Integration;
+automatisierte Repositoryprüfungen) sind erlaubt. Alle anderen autonomen
+Arbeiten bleiben pausiert. Maßgeblich ist der
+[aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **offen** (`proposed`). Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur der begrenzte Schemasperrenschnitt ist autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
 Datenseiten-Cache), Resource Governor (Ressourcensteuerung), Worker-Druck
 (Druck auf Ausführungsthreads) und Log Shipping (Übertragung und
 Wiederherstellung von Transaktionslog-Sicherungen) liegen mit Lücken vor.
-Damit sind alle neun Kandidatenquellen gesichtet; sämtliche Erweiterungen
-bleiben offen.
+Damit sind alle neun Kandidatenquellen gesichtet. CON-005 wird im begrenzten
+Schemasperrenumfang umgesetzt; die übrigen acht Erweiterungen bleiben offen.
 Keine neue Demo wird registriert.
 
 Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Priorisierung der neun mit Nachweislücken gesichteten Kandidaten und begrenzter CON-005-Plan (Schemasperren), beauftragt am 23. Oktober 2026. Dokumentationsintegration über Pull Request (Änderungsantrag) mit statischen Repositoryprüfungen; keine Implementierung, Tests oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Reihenfolge und vorläufiger Aufwand gelten innerhalb von TSK-016; bestehende Sicherheitsprioritäten bleiben maßgeblich.
+Autorisierter Umsetzungsschnitt vom 23. Oktober 2026: ausschließlich CON-005 (Schemasperren) gemäß dem begrenzten Plan einschließlich Tests, Dokumentation und Integration per Pull Request (Änderungsantrag) nach origin/main. Erforderliche SQL-/Lab-Läufe sind erlaubt. Sperreskalation und die übrigen acht Kandidaten werden nicht umgesetzt; die übrige autonome Verarbeitung bleibt pausiert. Quellenbefunde und bisherige Priorisierung bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -189,9 +189,9 @@ Kein Lerngebiet und keine stabile Kennung wird gelöscht. Zurückstellung betrif
 
 ##### 1. CON-005 – Schema- und Metadatensperren als Ergänzung zu Blocking
 
-**P1 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+**P1 · Begrenzter Schemasperrenschnitt implementiert; aktuelle Versions-/Integrationsgates offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Als Nächstes planen; erster Schnitt auf Schemasperren begrenzt.
+**Planungsentscheidung:** Begrenzten Schemasperrenschnitt umsetzen und prüfen; Sperreskalation und weitere Metadatenpfade bleiben offen.
 
 **Begründung:** Eigenständiger, klar abgrenzbarer Lernzuwachs gegenüber CON-004 (Blockierungsketten). Der Quellenbaustein zeigt einen plausiblen Auslöser, sein Ergebnisnachweis ist zu schwach; die Schulung besitzt bereits einen passenden Mehrsessionpfad.
 
@@ -200,7 +200,7 @@ Kein Lerngebiet und keine stabile Kennung wird gelöscht. Zurückstellung betrif
 - Vorhandene CON-004-Sitzungssteuerung und Frameworkverträge für Eigentum, Sicherheit, begrenzte Orchestrierung und Ergebnisse verwenden; keine neue Infrastruktur voraussetzen.
 - Vor einer Implementierung den beschriebenen Ergebnisvertrag sowie Objektzuordnung, Signaltransaktionen, Berechtigungen und Abbruchpfad abschließend prüfen.
 
-**Wiederaufnahmebedingung:** Dieser Dokumentationsschnitt plant nur. Implementierung und spätere Laufzeitqualifikation benötigen einen neuen menschlichen Auftrag.
+**Wiederaufnahmebedingung:** Umsetzung, Tests, erforderliche SQL-/Lab-Läufe und PR-Integration sind für diesen begrenzten Schemasperrenschnitt ausdrücklich autorisiert. Andere Kandidaten benötigen weiterhin einen eigenen Auftrag.
 
 **Quellen:** `LAB-CONC-002` (Schema-, Metadaten- und Kompilierungssperren).
 
@@ -225,9 +225,15 @@ Quellen: [Lab/Scenarios/Performance/_Shared/Worker.sql:196](https://api.github.c
 - Blockierer, wartende Session und tatsächliche Schema-/Metadatensperre dem Lernziel eindeutig zuordnen; bloße Laufzeit oder aktive Sessions reichen nicht.
 - Ergänzung nutzt den vorhandenen Mehrsessionpfad mit begrenzter Steuerung und sicherem Abbau; bestehende CON-004-Aussage bleibt erhalten.
 
+**Aktueller Umsetzungsschnitt:** Drei signalisierte Akteure; Sch-M/GRANT gegen Sch-S/WAIT am selben Tabellenobjekt mit exakter Blocker-/Laufbindung; Rücknahme, Vergleich und markergeprüfter Cleanup. Keine Sperreskalation oder allgemeine Kompilierungs-/Metadatenabnahme.
+
+**Nachweisstand:** Der finale SQL-Stand ist auf SQL Server 2022 mit zwei regulären Lifecycles, 30 Setup- und 30 Cleanup-Gegenproben, vollständiger Datei-Ablehnung, Idempotenz, 28 ungültigen Eingaben, Rechte-/Sicherheitsprüfungen, vollständigem Inventaroracle, normalisiertem Voll-Lifecycle mit 48 äußeren Leerzeichen, elf Evidenzmutationen und Timeout bei gehaltenem Konflikt geprüft. SQL Server 2019 und 2025 besitzen erfolgreiche frühere Diagnosebelege, ersetzen aber nicht die noch offenen aktuellen 2019/2022/2025-PR- und frischen Main-Gates. Alle drei eigenen lokalen Prüfcontainer sind entfernt; andere Instanzen blieben unverändert. Frühe Fehlversuche, Testdiagnosen und erfolgreiche Cleanup-Nachweise bleiben private Evidenz.
+
+Paket: [`CON-005 – Schemasperren trotz NOLOCK`](../Demos/07_Concurrency/CON-005_Schema_Locks/README.md). Prüfpfad: [`run_con005.py`](../Tests/Runtime/run_con005.py). Die übrige autonome Verarbeitung bleibt pausiert.
+
 ###### Nächster begrenzter Planungsschnitt: Schemasperren
 
-Entwurf für spätere Umsetzung; nicht implementiert oder zur Laufzeit abgenommen.
+Begrenzter Schemasperrenschnitt in Umsetzung; finale Versionsabnahme und PR-Integration noch offen.
 
 **Lernziel:** Sch-S (Schemastabilitätssperre) und Sch-M (Schemaänderungssperre) am selben synthetischen Tabellenobjekt unterscheiden. Eine Leseabfrage mit NOLOCK (Verzicht auf Datensperren für den Lesezugriff) kann weiter auf Sch-S warten, wenn eine andere Sitzung Sch-M hält.
 

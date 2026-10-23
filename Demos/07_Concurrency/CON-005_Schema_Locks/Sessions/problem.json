@@ -1,0 +1,24 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "CON-005",
+  "run_token": "LOCAL",
+  "timeout_seconds": 60,
+  "abort_on_first_failure": true,
+  "sessions": [
+    {
+      "id": "BLOCKER",
+      "script": "10_Blocker.sql",
+      "launch_delay_ms": 0
+    },
+    {
+      "id": "READER",
+      "script": "20_Reader.sql",
+      "launch_delay_ms": 0
+    },
+    {
+      "id": "OBSERVER",
+      "script": "30_Observer.sql",
+      "launch_delay_ms": 0
+    }
+  ]
+}

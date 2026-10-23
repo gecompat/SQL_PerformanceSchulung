@@ -28,7 +28,7 @@ Sicherheitsbestätigung, die erwarteten Ausgaben sowie Cleanup und Recovery.
 | `05_Concurrency_Isolation_TempDB/` | `CON-009` (Kosten in tempdb unterscheiden); Blocking und Deadlock stehen unter `07_Concurrency/` |
 | `05_Query_Patterns/` | `QRY-001` (Indexfreundliche Suchbedingungen)<br>`QRY-004` (Optionale Filter, Recompile und dynamisches SQL)<br>`QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell); zusätzlich `QRY-006` mit offenem Runtime-Gate |
 | `06_CPU_Memory_IO_Waits/` | `RES-007` (Wartezeiten im richtigen Messbereich) |
-| `07_Concurrency/` | `CON-004` (Blockierungsketten verfolgen)<br>`CON-006` (Zyklische Sperrkonflikte erkennen) |
+| `07_Concurrency/` | `CON-004` (Blockierungsketten verfolgen)<br>`CON-005` (Schemasperren trotz NOLOCK; Versionsabnahme offen)<br>`CON-006` (Zyklische Sperrkonflikte erkennen) |
 | `07_Query_Store_Extended_Events/` | `DGN-003` (Abfragehistorie mit Query Store)<br>`DGN-005` (Gezielte Ereigniserfassung mit Extended Events); zusätzlich begrenzte Entwicklungsschnitte für `DGN-007` |
 | [`08_Infrastructure/`](08_Infrastructure/README.md) | Platzhalter; die vorhandenen Bereitstellungsanleitungen stehen unter `Documentation/HowTo/` |
 

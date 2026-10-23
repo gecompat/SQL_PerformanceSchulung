@@ -126,7 +126,7 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-063` | 63 | Concurrency-Modul einordnen | `LO-M05-01..05` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-064` | 64 | Isolation Levels steuern Sicht und Konflikte | `LO-M05-01` | KERN | `SRC-004` (Transaction locking and row versioning guide) | `CON-003` | `TP-CON` | KEEP |
 | `CLM-065` | 65 | Locking und Versioning verschieben Kosten | `LO-M05-01` | KERN | `SRC-004`, `SRC-029` | `CON-003` | `TP-CON` | KEEP |
-| `CLM-066` | 66 | Blocking vom Head Blocker aus analysieren | `LO-M05-02` | KERN | `SRC-036` (sys.dm_os_waiting_tasks) | `CON-004` (Blockierungsketten verfolgen) | `TP-CON` | KEEP |
+| `CLM-066` | 66 | Blocking vom Head Blocker aus analysieren | `LO-M05-02` | KERN | `SRC-036` (sys.dm_os_waiting_tasks), `SRC-004` (Schemasperren) | `CON-004` (Blockierungsketten verfolgen), `CON-005` (Schemasperren trotz NOLOCK; begrenzter Ergänzungsfall) | `TP-CON` | KEEP |
 | `CLM-067` | 67 | Blocking-Kette und Deadlock-Zyklus unterscheiden | `LO-M05-03` | KERN | `SRC-004` | `CON-006` (Zyklische Sperrkonflikte erkennen) | `TP-CON` | KEEP |
 | `CLM-068` | 68 | TempDB trägt mehrere Kostenklassen | `LO-M05-04` | VERTIEFUNG | `SRC-029`, `SRC-004` | `CON-009` (Kosten in tempdb unterscheiden) | `TP-CON` | KEEP |
 | `CLM-069` | 69 | Optimized Locking benötigt klare Voraussetzungen | `LO-M05-05` | VERTIEFUNG | `SRC-025` | `CON-008` | `TP-CON` | KEEP |

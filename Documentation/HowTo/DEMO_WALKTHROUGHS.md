@@ -403,6 +403,30 @@ SARGability beschreibt, ob ein Prädikat als Suchargument (Search Argument) für
 
 **Versionen:** SQL Server 2019–2025; Timeout-Fehler bei fehlenden Signalen, Cleanup mit `ROLLBACK IMMEDIATE` nach Markerprüfung.
 
+## CON-005 – Schemasperren trotz NOLOCK
+
+**Kernfrage:** Warum kann eine Leseabfrage mit `NOLOCK` trotzdem blockieren?
+Sch-S (Schemastabilitätssperre) schützt die benötigte Tabellenstruktur;
+Sch-M (Schemaänderungssperre) verhindert deren gleichzeitige Verwendung.
+`NOLOCK` vermeidet gemeinsame Datensperren für den Lesezugriff, hebt diesen
+Schemaschutz aber nicht auf.
+
+Die [Demo-README](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
+führt Voraussetzungen, manifestbasierten Start und den Erhaltungsweg nach Abbruch.
+Drei signalisierte Sitzungen erzeugen den begrenzten Konflikt: Der Blockierer
+hält `ALTER TABLE` in einer offenen Transaktion, der Leser wartet nach expliziter
+Freigabe mit `LCK_M_SCH_S` (Warten auf Schemastabilität), und der Beobachter
+ordnet beide Sperren demselben Objekt und dem aktuellen Lauf zu. Erst nach dem
+Nachweis gibt er den Blockierer zum Rollback frei. Die identische Leseabfrage
+liefert danach zwei Zeilen mit Summe 30, ebenso die Kontrolllesung ohne offene
+Schemaänderung. Es gibt keine allgemeine Leistungs- oder NOLOCK-Empfehlung.
+
+**Sicherheit und Grenze:** YELLOW (gelb), eigene Wegwerfinstanz, drei Sitzungen,
+120 Sekunden regulär und getrennt 30 Sekunden Cleanup (Aufräumen).
+Sperreskalation und eine umfassende Metadaten- oder Kompilierungsdemo bleiben
+offen. Der datierte Prüfstand steht in der Demo-README; historische Nachweise
+anderer Demos übertragen sich nicht auf diesen Schnitt.
+
 ## CON-006 – Deadlock Cycle
 
 **Sicherheit/Stufe:** YELLOW, **3 Sessions**, Stufe 2; `--confirm-isolated-lab`, Timeout 180 Sekunden.

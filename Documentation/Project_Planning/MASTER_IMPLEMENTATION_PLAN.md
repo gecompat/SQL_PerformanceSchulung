@@ -14,23 +14,25 @@ RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) und INF-006
 (Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
 liegen mit Nachweis- und Sicherheitslücken vor. Damit sind alle neun
 Kandidatenquellen gesichtet; sämtliche Erweiterungsideen bleiben offen.
-Der aktuelle Auftrag bestätigt die quellenbasierte Priorisierung und einen
-begrenzten CON-005-Plan (Schemasperren); danach sollen OPT-007 (Ad-hoc-Plancache)
-und DGN-004 (Planerzwingung) gezielt geplant werden. Reihenfolge, fachliche
-Abhängigkeiten, Zurückstellungen und Wiederaufnahmebedingungen stehen
-kanonisch bei TSK-016. Die Dokumentation wird per Pull Request (Änderungsantrag)
-mit statischen Prüfungen integriert. Der CON-005-Entwurf grenzt Lernziel,
-Akteure und Freigaben, konkrete Sperrnachweise, Entwurfsgrenzen und späteren
-Abbau ab; Sperreskalation bleibt ein getrennter späterer Teil.
-INF-006 bleibt ein eigenständiger Infrastrukturumfang mit vorläufiger Priorität P3
-(gesonderte Infrastrukturentscheidung) und Aufwand XL (sehr groß).
-Sämtliche Implementierungen, Tests sowie SQL-/Lab-Läufe bleiben zurückgestellt;
-der Plan ist keine ausführbare Demo oder Laufzeitabnahme.
+Der aktuelle Auftrag autorisiert ausschließlich den begrenzten
+CON-005-Schemasperrenschnitt einschließlich Tests, Dokumentation, erforderlicher
+SQL-/Lab-Läufe und Integration per Pull Request (Änderungsantrag).
+Das [Demopaket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
+enthält drei signalisierte Akteure, konkrete Sch-M-/Sch-S-Nachweise
+(Schemaänderungs- und Schemastabilitätssperre), Rücknahme, Vergleich und sicheren
+Abbau. Der finale SQL-Stand ist auf SQL Server 2022 mit regulären Lifecycles
+und Gegenproben geprüft; aktuelle PR- und frische Main-Prüfungen auf
+SQL Server 2019/2022/2025 stehen noch aus. Sperreskalation bleibt ein
+getrennter offener CON-005-Teil. Die anderen acht Kandidaten und die übrige
+autonome Verarbeitung bleiben pausiert. INF-006 (Log Shipping; Übertragung und
+Wiederherstellung von Transaktionslog-Sicherungen) bleibt ein eigenständiger
+Infrastrukturumfang mit vorläufiger Priorität P3 (gesonderte Entscheidung)
+und Aufwand XL (sehr groß).
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
 geführt. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab. Aufnahme und
-vorläufige Aufwandseinschätzung erteilen keine Implementierungs- oder
-SQL-/Lab-Ausführungsfreigabe. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
+vorläufige Aufwandseinschätzung erteilen für andere Kandidaten keine
+Implementierungs- oder SQL-/Lab-Ausführungsfreigabe. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
 führt die Pause und die zuvor begonnenen, nun zurückgestellten Abschlussgates.
 
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
@@ -987,7 +989,7 @@ voraus; Reihenfolge und Freigabestatus der bestehenden Demos bleiben erhalten.
 | `CON-002` | READ COMMITTED, REPEATABLE READ und SERIALIZABLE einschließlich Key-Range Locks | Gelb |
 | `CON-003` | RCSI, SNAPSHOT, Statement-/Transaction-Snapshot und Update-Konflikt | Gelb |
 | `CON-004` (Blockierungsketten verfolgen) | Blocking Chain, Head Blocker und messbare Wartezeit | Gelb |
-| `CON-005` | Lock Escalation, Schema Locks und Metadatenzugriff | Gelb |
+| `CON-005` (Schemasperren trotz NOLOCK) | begrenzter Sch-M-/Sch-S-Schnitt implementiert; Versionsabnahme in Arbeit; Sperreskalation und weitere Metadatenpfade offen | Gelb |
 | `CON-006` (Zyklische Sperrkonflikte erkennen) | reproduzierbarer Deadlock mit Deadlock Graph | Gelb |
 | `CON-007` | Version Store, ADR (Accelerated Database Recovery; beschleunigte Datenbankwiederherstellung) und Persisted Version Store | Gelb |
 | `CON-008` | versionsabhängiges Optimized Locking, TID (Transaction ID; Transaktionskennung) Locks und Lock After Qualification | Gelb |

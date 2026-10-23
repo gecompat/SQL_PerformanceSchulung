@@ -90,6 +90,7 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 | [`OPT-010`](../../Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/README.md) | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-013`](../../Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md) | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`CON-004`](../../Demos/07_Concurrency/CON-004_Blocking_Chain/README.md) | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
+| [`CON-005`](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md) | Schemasperren trotz NOLOCK | Gelb | 3 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `IMPLEMENTED` – finale Versionsabnahme offen |
 | [`DGN-003`](../../Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md) | Query-Store-Historie | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`DGN-005`](../../Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/README.md) | Begrenzte Extended-Events-Evidenz | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`OPT-017`](../../Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/README.md) | Parallele Planbereiche und Skew | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
@@ -106,6 +107,17 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 `OPT-017` (Ungleich verteilte parallele Arbeit) benötigt als erste implementierte Demo Stufe 3, weil vier sichtbare Kerne und ein begrenztes Ressourcenprofil Teil ihres Evidenzvertrags sind. `OPT-013` (Sortieren mit zu wenig Arbeitsspeicher) belastet `tempdb` der gesamten Instanz, `CON-004` (Blockierungsketten verfolgen) hält Sperren über vier Sitzungen; auch sie verlangen deshalb eine Instanz, die zurückgesetzt oder verworfen werden darf.
 
 Die Bedienanleitung für den Weg über eine vorhandene Instanz steht in [Lokale Testumgebung für Schulungsdemos](../HowTo/LOCAL_TEST_ENVIRONMENT.md).
+
+## Neuer begrenzter Schemasperrenschnitt
+
+`CON-005` (Schemasperren trotz NOLOCK) ergänzt den vorhandenen Blocking-Grundfall
+mit einem tatsächlich beobachteten Sch-M-/Sch-S-Konflikt (Schemaänderungs-
+gegen Schemastabilitätssperre). Der aktuelle Prüfstand steht in der
+[Demo-README](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md).
+Der automatisierte Prüfpfad verwendet eigene Dockerinstanzen; ein interaktiver
+Project Adapter oder eine Podman-/Windows-Abnahme wird damit nicht behauptet.
+Sperreskalation und weitere Metadatenpfade bleiben in der vorhandenen
+CON-005-Planung offen. Die folgenden historischen Tabellen bleiben unverändert.
 
 ## Historische Runtime-Ergebnisse je Demo
 

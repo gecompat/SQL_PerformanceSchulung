@@ -77,6 +77,33 @@
       "defaultRepetitions": 2
     },
     {
+      "demoId": "CON-005",
+      "manifest": "Demos/07_Concurrency/CON-005_Schema_Locks/manifest.json",
+      "implementationStatus": "IMPLEMENTED",
+      "safetyLevel": "YELLOW",
+      "sessions": 3,
+      "providers": [
+        "docker"
+      ],
+      "versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "resourceProfile": "standard",
+      "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": [
+        "SQL_DATABASE_ENGINE",
+        "CREATE_DATABASE",
+        "SERVER_STATE",
+        "MULTI_SESSION_SQLCMD"
+      ],
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "defaultRepetitions": 2
+    },
+    {
       "demoId": "CON-004",
       "manifest": "Demos/07_Concurrency/CON-004_Blocking_Chain/manifest.json",
       "implementationStatus": "VALIDATED",
