@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "proposed",
       "priority": "P1",
-      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischer Quellensichtung für CON-005 und OPT-007; Aufnahme der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur erforderliche statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
+      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -277,7 +277,95 @@
           "acceptance": [
             "Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.",
             "Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen."
-          ]
+          ],
+          "source_review_result": {
+            "status": "reviewed_with_gaps",
+            "recorded_on": "2026-10-23",
+            "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+            "observation": "LAB-DEAD-002 liest in beiden Transaktionen dieselbe Zeile mit HOLDLOCK und versucht nach einer festen Verzögerung die Änderung dieser Zeile; der beabsichtigte Zusatz ist eine Sperrumwandlung vom Lesen zum Schreiben. LAB-DEAD-003 liest unter SERIALIZABLE zwei leere Schlüsselbereiche und fügt anschließend jeweils im Bereich der anderen Session ein.",
+            "findings": [
+              "Observe.sql akzeptiert gemeinsam für die Deadlock-Szenarien irgendein xml_deadlock_report-Ereignis in der festen XE-Session (Extended Events; Ereigniserfassung). Datenbank- und Laufzuordnung, Teilnehmer, Ressourcen, Sperrmodi und konkrete Deadlock-Variante werden in diesem Prädikat nicht geprüft.",
+              "DeadlockRange enthält anfangs nur die Schlüssel 10 und 90. Die gelesenen Leerbereiche 20 bis 40 und 60 bis 80 liegen damit zwischen denselben benachbarten Indexschlüsseln. Fachliche Ableitung: unterschiedliche logische Suchbereiche belegen hier keine getrennten Sperrressourcen; tatsächliche Bereichssperren und Umwandlungen müssen am Konfliktgraphen nachgewiesen werden.",
+              "Die Worker verwenden feste Verzögerungen; das Runbook ergänzt drei Sekunden Startvorlauf und akzeptiert die Prozesscodes 0 und 1. Das ersetzt weder eine signalgesteuerte Abfolge noch den eindeutigen Nachweis eines Deadlockopfers mit Fehler 1205 und eines erfolgreichen Gegenparts."
+            ],
+            "remaining_requirements": [
+              "Eigenständigen Lernzuwachs gegenüber CON-006 (vorhandener Deadlock-Zyklus) und CON-002 (Isolation und Schlüsselbereichssperren) begründen; nur ausgewählte Ursachenvarianten ergänzen und den vorhandenen Grundfall erhalten.",
+              "Je ausgewählter Variante tatsächlichen Konfliktgraphen mit Ressourcen, gehaltenen und angeforderten Sperrmodi, laufzugeordneten Teilnehmern sowie Opfer-/Gegenpartnachweis vorsehen. Für die Range-Variante den Indexbereich fachlich erklären; keinen bestimmten Graphen aus dem Szenariotitel ableiten.",
+              "Vorhandene signalgesteuerte Schulungs-Sessionsteuerung, begrenzte Warte- und Abbruchpfade, vollständige Eigentumsmarker, passende Gegenprobe und sicheres Cleanup (Aufräumen) anwenden."
+            ],
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 113,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+                "line": 230,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+                "line": 246,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 272,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json",
+                "line": 11,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json",
+                "line": 11,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              }
+            ],
+            "project_sources": [
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "0ea16ae8c3340ee37fc036e943017f938304c817",
+                "path": "Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md",
+                "line": 13,
+                "topic": "Vorhandener Deadlock-Grundfall mit Gegenprobe",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md#L13"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "0ea16ae8c3340ee37fc036e943017f938304c817",
+                "path": "Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md",
+                "line": 971,
+                "topic": "CON-002: Isolation und Schlüsselbereichssperren",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L971"
+              }
+            ],
+            "primary_sources": [
+              "https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-ver17#key-range-locking",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17"
+            ]
+          }
         },
         {
           "target": "DGN-004",
@@ -297,7 +385,104 @@
           "acceptance": [
             "Erfolgreiches Forcing und begründet fehlgeschlagenes Forcing anhand des tatsächlichen Status und Fehlergrundes unterscheiden.",
             "Forcing und sonstige Zustandsänderungen rücknehmbar halten; keine zweite allgemeine Query-Store-Demo."
-          ]
+          ],
+          "source_review_result": {
+            "status": "reviewed_with_gaps",
+            "recorded_on": "2026-10-23",
+            "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+            "observation": "LAB-QS-002 aktiviert Query Store (persistente Abfragehistorie), erzeugt Abfrageausführungen und markiert anschließend einen erfassten Plan mit sp_query_store_force_plan zur Erzwingung. Das Runbook startet keine Worker; Observe.sql verlangt lediglich mindestens einen Plan der synthetischen Prozedur mit is_forced_plan = 1.",
+            "findings": [
+              "Trotz des Titels Forced and failed forced plan fehlen nach dem Forcing eine erneute Ausführung der Zielabfrage, ein kontrolliert ausgelöster Forcing-Fehler, dessen Beobachtung und eine ausdrückliche Rücknahme mit sp_query_store_unforce_plan. Die Datenbanklöschung ersetzt keine Lehrsequenz zur sicheren Rücknahme.",
+              "is_forced_plan kennzeichnet die angeforderte Planerzwingung und garantiert keine erfolgreiche Planverwendung. Observe.sql prüft weder die tatsächliche Ausführung nach dem Forcing noch force_failure_count (Anzahl fehlgeschlagener Erzwingungsversuche) oder last_force_failure_reason_desc (letzter Fehlergrund). Der Analyzer USP_QueryStoreForcedPlans stellt diese Felder bereit; der Szenariovertrag wertet sie nicht als fachliche Abnahme aus.",
+              "Die Szenariodefinition nennt zusätzlich USP_QueryStoreHints und USP_QueryStoreAnalysis, der Aufrufpfad führt jedoch nur den PrimaryAnalyzer USP_QueryStoreForcedPlans aus. Daraus folgt kein Nachweis für Query Store Hints (gespeicherte Abfragehinweise) oder fehlgeschlagenes Forcing. Der bestehende Schulungsplan umfasst Force, Failure, Fallback und Unforce bereits ausdrücklich."
+            ],
+            "remaining_requirements": [
+              "Im vorhandenen DGN-004-Planungsschnitt bleiben; DGN-003 (Query-Store-Historie) als Grundlage nutzen und keine zweite allgemeine Query-Store-Demo anlegen. Eine tatsächlich ausgeführte Zielabfrage nach dem Forcing mit zugeordneten Query-/Plan-Kennungen und passendem Beobachtungsfenster belegen.",
+              "Für die spätere Fehlersequenz eine Planvoraussetzung kontrolliert entziehen und eine erneute Kompilierung mit anschließender Ausführung auslösen. Änderung des Fehlerzählers, konkreten Fehlergrund und beobachtete Ersatzplanung (Fallback) prüfen; Voraussetzungen und zulässige Abweichungen je unterstützter Version festlegen.",
+              "Forcing und sonstige Zustandsänderungen ausdrücklich zurücknehmen und die Rücknahme prüfen; markergebundenes Cleanup erhalten. SQL Server 2019, 2022 und 2025 getrennt betrachten; Query Store Hints nur als Zusatzpfad ab SQL Server 2022 behandeln. Detailquellen vor einem späteren Design im regulären Quellenprozess registrieren."
+            ],
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 521,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 549,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 472,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 624,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/LAB-QS-002/runbook.json",
+                "line": 11,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Lab/Scenarios/Performance/LAB-QS-002/scenario.json",
+                "line": 36,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "path": "Code/05_QueryStore/060_USP_QueryStoreForcedPlans.sql",
+                "line": 54,
+                "url": "https://api.github.com/repositories/1302553964/contents/Code/05_QueryStore/060_USP_QueryStoreForcedPlans.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+                "repository_id": 1302553964
+              }
+            ],
+            "project_sources": [
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "0ea16ae8c3340ee37fc036e943017f938304c817",
+                "path": "Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md",
+                "line": 89,
+                "topic": "Bestehender DGN-004-Planungsschnitt: Force, Failure und Unforce",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L89"
+              },
+              {
+                "repository": "SQL_PerformanceSchulung",
+                "revision": "0ea16ae8c3340ee37fc036e943017f938304c817",
+                "path": "Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md",
+                "line": 25,
+                "topic": "Abgrenzung zur vorhandenen Query-Store-Historie",
+                "url": "https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md#L25"
+              }
+            ],
+            "primary_sources": [
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/performance/query-store-hints?view=sql-server-ver17"
+            ]
+          }
         },
         {
           "target": "IDX-007",
@@ -420,7 +605,7 @@
         "recorded_on": "2026-10-23",
         "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
         "method": "Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.",
-        "conclusion": "CON-005 und OPT-007 behalten ihre Reihenfolge als erste Prüfkandidaten. Beide liefern fachlich brauchbare Ausgangsbausteine, sind wegen Nachweis- und Sicherheitslücken nicht direkt übernahmefähig. Die übrigen sieben Kandidaten besitzen noch keine entsprechende Quellensichtung.",
+        "conclusion": "CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Die ergänzende Sichtung zu CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung) ist mit Nachweislücken abgeschlossen. Alle vier Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen fünf Kandidaten besitzen noch keine entsprechende Quellensichtung.",
         "shared_findings": [
           {
             "topic": "Variablenübergabe im vorhandenen Runner",
@@ -579,6 +764,110 @@
           "node_id": "R_kgDOTaNlbA",
           "locator": "https://api.github.com/repositories/1302553964",
           "verification": "Offizielle Provider-ID und ausgewählte Datei am unveränderten Commit abgeglichen; relative Pfade und Linienzahlen bleiben erhalten. Die öffentliche Quelle wird neutral bezeichnet; der frühere Projektname wird nicht übernommen."
+        },
+        "follow_up_review": {
+          "recorded_on": "2026-10-23",
+          "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+          "targets": [
+            "CON-006",
+            "DGN-004"
+          ],
+          "method": "Ausschließlich lesende Sichtung von Katalog, drei Szenariodefinitionen und Runbooks, gemeinsamen SQL-Bausteinen, Analyzer- und Aufruf-/Verify-Pfad; Abgleich mit den bestehenden Schulungsinhalten. Keine Tests, SQL-, Lab- oder CI-Ausführung während der Quellensichtung. Statische Repositoryprüfungen zur Veröffentlichung sind davon getrennt; keine Laufzeitabnahme.",
+          "binding": "Die zunächst am Quellenstand add76bdefb3bdeeb3273cae16ecf4ee6bbe33c64 gelesenen Szenario- und Aufrufdateien wurden gegen fd18d829904b6b1631f385cfaad340ca3c72bcbb abgeglichen und waren unverändert. Die Fundstellen dieser ergänzenden Sichtung sind an fd18d829904b6b1631f385cfaad340ca3c72bcbb gebunden; der frühere Stand 6e557726a07ce7d389a36083c7e82d214b20822f bleibt für die erste Sichtung erhalten.",
+          "shared_findings": "Die gemeinsamen Grenzen bei Variablenübergabe, Eigentumsprüfung im Cleanup und konfigurierten Befundcodes sind auch im ergänzend geprüften Aufrufpfad vorhanden. Sie ersetzen keine variantenspezifischen Konfliktgraphen oder tatsächlichen Forcing-Erfolgs-/Fehlernachweise. Der Analyze-Runner wird nicht zur Übernahme freigegeben.",
+          "shared_sources": [
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+              "line": 1,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1",
+              "line": 89,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1",
+              "line": 63,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+              "line": 82,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+              "line": 930,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1",
+              "line": 43,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            }
+          ],
+          "limitations": "Die drei Runbooks wählen SQL_ONLY (vorgesehene SQL-Ausführung), keine reine CONTRACT_FIXTURE (Vertragsattrappe). Der Katalogstatus IMPLEMENTED_ACTIONS_GATE bezeichnet vorhandene Aktionsbausteine, keine Laufzeitqualifikation. Die Szenariodefinitionen führen SQL Server 2019, 2022 und 2025 auf, verlangen tatsächliche Plattformnachweise aber weiterhin außerhalb des Repositoryvertrags. Die Sichtung erteilt keine Versions-, Lizenz- oder Implementierungsfreigabe.",
+          "limitation_sources": [
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Catalog/scenarios.json",
+              "line": 233,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Catalog/scenarios.json",
+              "line": 341,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Performance/LAB-DEAD-002/scenario.json",
+              "line": 79,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Performance/LAB-DEAD-003/scenario.json",
+              "line": 79,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-003/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            },
+            {
+              "repository": "Analyze-Quellprojekt",
+              "revision": "fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "path": "Lab/Scenarios/Performance/LAB-QS-002/scenario.json",
+              "line": 81,
+              "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb",
+              "repository_id": 1302553964
+            }
+          ]
         }
       }
     },
