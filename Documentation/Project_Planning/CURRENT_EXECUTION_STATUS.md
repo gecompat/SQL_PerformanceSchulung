@@ -1,13 +1,30 @@
 # Aktueller Ausführungsstand
 
-## Aktueller Auftrag vom 23. Oktober 2026: CON-005 begrenzt umsetzen
+## Aktueller Auftrag vom 23. Oktober 2026: OPT-007 begrenzt planen
 
-Der jüngste menschliche Auftrag autorisiert ausschließlich CON-005
-(Schemasperren) gemäß dem begrenzten Plan bei TSK-016 (gezielte
-Curriculum-Ergänzungen): Implementierung, Tests, Dokumentation und
-Integration per Pull Request (Änderungsantrag) nach `origin/main`.
-Erforderliche SQL-/Lab-Läufe sind erlaubt. Die übrige autonome Verarbeitung
-bleibt pausiert; insbesondere wird keine nächste Demo begonnen.
+Der jüngste menschliche Auftrag autorisiert ausschließlich die Planung von
+OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan
+formulierter Abfragen) anhand der Quellenbefunde bei TSK-016 (gezielte
+Curriculum-Ergänzungen). Der Plan enthält begrenzten Umfang, Tests und
+Abnahmekriterien. Keine Implementierung oder SQL-/Lab-Läufe; die übrige
+autonome Verarbeitung bleibt pausiert.
+
+Der Plan wird in der [kanonischen Registry](../../.ai/identity/registry.json)
+gepflegt und in der [abgeleiteten Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
+lesbar dargestellt. Er umfasst höchstens 40 Literalabfragen und dieselben 40
+Werte als Parameter, getrennte Cachetypen und Bytes, genaue Datenbank-/Laufbindung,
+nachgewiesene Planwiederverwendung und vollständigen eigenen Cleanup (Aufräumen).
+Die konkrete Abfrageform gegen automatische Parametrisierung ist vor einer
+Umsetzungsfreigabe zu schließen. Die beschriebenen Versions-, Gegen- und
+Abbruchtests sind geplant, nicht ausgeführt. Aufwand M (mittel) bleibt vorläufig.
+Die Planungsintegration verwendet ausschließlich statische Prüfungen;
+ausführbare Demo-, Test-, Lab- und Workflowquellen bleiben unverändert.
+
+Der begrenzte CON-005-Schemasperrenschnitt ist bereits über
+[PR310 (Pull Request; Änderungsantrag)](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
+in `origin/main` integriert. Die 55 abschließenden PR- und 53 frischen
+Main-Prüfungen sowie Synchronisierung und eigene Branch-/Containerbereinigung
+sind dort belegt. Dieser frühere Nachweis wird nicht auf OPT-007 übertragen.
 
 `TSK-016` (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) ist als
 offene Aufgabe in der [kanonischen Registry](../../.ai/identity/registry.json)
@@ -50,9 +67,9 @@ ausstehende Verarbeitung; LAB-LS-002 bleibt nicht implementiert. Eindeutige
 Objektzuordnung, SQL-Eigentum, Wiederherstellbarkeitsaussagen und vollständiger
 Abbau benötigen vor einer Adaption eigene Nachweise. Die allgemeine Infrastruktur
 bleibt im Lab-Projekt; dessen Verträge sind keine direkte Freigabe für den alten
-Analyze-Runner. Nur der oben benannte CON-005-Schemasperrenschnitt ist zur Umsetzung freigegeben; sämtliche anderen Aufgaben bleiben pausiert.
-Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
-und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
+Analyze-Runner. Aktuell ist ausschließlich die oben beschriebene OPT-007-Planung autorisiert; sämtliche Umsetzungen und anderen Aufgaben bleiben pausiert.
+Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die ursprüngliche
+Backlogaufnahme und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
 Pull Request; eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
 
@@ -73,9 +90,9 @@ Alle drei eigenen lokalen Container sind ebenfalls entfernt.
 Zwei frühe fehlgeschlagene Diagnosekandidaten bleiben mit ihrem erfolgreichen
 Cleanup erhalten. Die anderen Lab-Instanzen wurden nicht verändert.
 Sperreskalation und umfassende Metadaten-/Kompilierungspfade bleiben offen.
-Nach diesem Schnitt bleiben auch OPT-007 (Ad-hoc-Plancache) und DGN-004
-(Planerzwingung) pausiert. Vorherige Quellenbefunde und sämtliche historischen
-Pausen bleiben erhalten; eine vollständige CON-005-Gesamtabnahme wird nicht behauptet.
+OPT-007 (Ad-hoc-Plancache) ist jetzt ausschließlich zur begrenzten Planung
+freigegeben; seine Umsetzung und DGN-004 (Planerzwingung) bleiben pausiert.
+Vorherige Quellenbefunde und sämtliche historischen Pausen bleiben erhalten; eine vollständige CON-005-Gesamtabnahme wird nicht behauptet.
 
 Bei Eingang dieses Auftrags war PR301 (Pull Request; Änderungsantrag für die
 vollständige Frameworkeingabeprüfung) bereits in Main

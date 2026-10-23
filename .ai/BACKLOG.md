@@ -1,34 +1,34 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## Begrenzte CON-005-Umsetzung: übrige Entwicklung pausiert
+## Begrenzte OPT-007-Planung: übrige Entwicklung pausiert
 
-Der Auftrag vom 23. Oktober 2026 autorisiert ausschließlich CON-005
-(Schemasperren) gemäß dem begrenzten Plan einschließlich Tests, Dokumentation
-und Integration über einen Pull Request (Änderungsantrag) nach `origin/main`.
-Erforderliche SQL-/Lab-Läufe und CI-Prüfungen (Continuous Integration;
-automatisierte Repositoryprüfungen) sind erlaubt. Alle anderen autonomen
-Arbeiten bleiben pausiert. Maßgeblich ist der
+Der Auftrag vom 23. Oktober 2026 autorisiert ausschließlich die begrenzte Planung
+von OPT-007 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen)
+mit Testplanung und Abnahmekriterien. Keine Implementierung oder SQL-/Lab-Läufe.
+Der Schemasperrenschnitt CON-005 ist über [PR310 (Änderungsantrag)](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
+integriert. Die übrige autonome Verarbeitung bleibt pausiert. Maßgeblich ist der
 [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur der begrenzte Schemasperrenschnitt ist autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die begrenzte OPT-007-Planung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
 Datenseiten-Cache), Resource Governor (Ressourcensteuerung), Worker-Druck
 (Druck auf Ausführungsthreads) und Log Shipping (Übertragung und
 Wiederherstellung von Transaktionslog-Sicherungen) liegen mit Lücken vor.
-Damit sind alle neun Kandidatenquellen gesichtet. CON-005 wird im begrenzten
-Schemasperrenumfang validiert; die übrigen acht Erweiterungen bleiben offen.
+Damit sind alle neun Kandidatenquellen gesichtet. CON-005 ist im begrenzten
+Schemasperrenumfang validiert; OPT-007 wird jetzt begrenzt geplant. Sämtliche
+weiteren Umsetzungen bleiben offen.
 Keine neue Demo wird registriert.
 
 Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Autorisierter Umsetzungsschnitt vom 23. Oktober 2026: ausschließlich CON-005 (Schemasperren) gemäß dem begrenzten Plan einschließlich Tests, Dokumentation und Integration per Pull Request (Änderungsantrag) nach origin/main. Erforderliche SQL-/Lab-Läufe sind erlaubt. Sperreskalation und die übrigen acht Kandidaten werden nicht umgesetzt; die übrige autonome Verarbeitung bleibt pausiert. Quellenbefunde und bisherige Priorisierung bleiben erhalten.
+Autorisierter Planungsschnitt vom 23. Oktober 2026: ausschließlich OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan formulierter Abfragen) anhand der Quellenbefunde begrenzt planen, einschließlich Testplanung und Abnahmekriterien. Keine Implementierung oder SQL-/Lab-Läufe. Der begrenzte CON-005-Schemasperrenschnitt ist über PR310 integriert; sein weiterer Umfang und alle anderen autonomen Arbeiten bleiben pausiert. Quellenbefunde und bestehende Kennungen bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -285,9 +285,9 @@ Begrenzter Schemasperrenschnitt implementiert und am 2026-10-23 auf SQL Server 2
 
 ##### 2. OPT-007 – Begrenzte Diagnose von Ad-hoc-Plancache-Wachstum
 
-**P1 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+**P1 · Begrenzter Diagnoseplan ausgearbeitet; Umsetzung offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Als zweite begrenzte Diagnoseübung planen.
+**Planungsentscheidung:** Begrenzter Ad-hoc-Plancache-Diagnoseschnitt geplant; Umsetzung und Ausführung bleiben gesperrt.
 
 **Begründung:** Der vorhandene Literalansatz ist begrenzt und didaktisch anschlussfähig. Laufgenaue Cachezuordnung, Cachetyp, Bytes und Parameterisierungsvergleich fehlen; diese Lücken lassen sich vor einer Lastdemo gezielt planen.
 
@@ -296,7 +296,7 @@ Begrenzter Schemasperrenschnitt implementiert und am 2026-10-23 auf SQL Server 2
 - Reihenfolge nach CON-005 (Schemasperren) ist eine Kapazitätsentscheidung, keine technische Abhängigkeit.
 - Eigene Datenbank, Lauftoken und Abfragemarker, Vergleichsbedingungen und sichere Bereinigung festlegen; keine globale Cacheleerung und keine zweite Plansensitivitätsdemo.
 
-**Wiederaufnahmebedingung:** Nach dem CON-005-Plan den Diagnoseumfang und Ergebnisvertrag gesondert beauftragen; Messbehauptungen erst mit passender Evidenz.
+**Wiederaufnahmebedingung:** Der begrenzte Plan einschließlich Tests und Abnahmekriterien ist ausgearbeitet. Vor einer Umsetzung sind die konkrete Abfrageform gegen automatische Parametrisierung und der vollständige Ergebnisvertrag zu schließen; danach benötigt OPT-007 einen ausdrücklichen Umsetzungsauftrag einschließlich erforderlicher SQL-/Lab-Läufe. Andere Kandidaten bleiben pausiert.
 
 **Quellen:** `LAB-PLAN-003` (Ad-hoc-Plancache-Wachstum).
 
@@ -323,6 +323,85 @@ Produktdokumentation: [Referenz 1](https://learn.microsoft.com/en-us/sql/relatio
 
 - Diagnoseübung begrenzt Zahl, Dauer und Ressourcen ihrer synthetischen Abfragen; Planzahl und Cachebelegung beziehen sich auf den erklärten Messumfang.
 - Falls Wachstum oder Verbesserungen quantitativ behauptet werden, passenden Ausgangs-/Vergleichszustand und Evidenz ausweisen; keine unkontrollierte globale Cacheleerung.
+
+###### Begrenzter Planungsschnitt: Ad-hoc-Cachebelegung und Parameterisierung
+
+DESIGNED – begrenzter Plan ausgearbeitet; keine Implementierung, keine ausgeführten OPT-007-Tests und kein Laufzeitnachweis.
+
+**Lernziel:** Laufgenau zugeordnete Ad-hoc-Cacheeinträge nach Anzahl, Cacheobjekttyp und belegten Bytes untersuchen und mit einer explizit parameterisierten Abfrage vergleichen. Mehr Texttreffer sind weder ein Nachweis vollständiger Pläne noch ein Speicher- oder Leistungsvorteil.
+
+**Umfang:** Eine eigene kleine synthetische Datenbank, ein sequenzieller Workload und Beobachtung durch den vorhandenen Harness. Genau 40 unterschiedliche Schlüsselwerte einmal als Literale und einmal als Parameter, insgesamt höchstens 80 Nutzabfragen. Diagnose von Cachebelegung und Wiederverwendung; keine Last- oder Leistungsvergleichsdemo.
+
+**Bestehende Abdeckung:** Bestehende OPT-007-Identität für Compilation (Planübersetzung), Recompilation, Plan Reuse (Planwiederverwendung) und Ad-hoc-Cache-Pollution (unnötige Cachebelegung) verwenden. Der Schnitt deckt davon nur den begrenzten Ad-hoc-Vergleich ab. QRY-004 (optionale Filter), QRY-013 (Anwendungs-/Werkzeugkontext), OPT-009 (parametersensitive Planoptimierung) und OPT-010 (Optimierung optionaler Parameter) nicht duplizieren. Vorhandene Zuordnung CLM-032 (Cache-Schlüssel und zusätzliche Einträge) / LO-M02-07 verwenden; keine neue Kennung oder zusätzliche Benchmarkbehauptung.
+
+**Vor einer Umsetzung zu schließen:**
+
+- LAB-PLAN-003 am registrierten Analyze-Stand 6e557726a07ce7d389a36083c7e82d214b20822f bleibt eine Ideenquelle mit Nachweislücken. Vor Codefreigabe die konkrete Literal- und Parameterabfrage sowie Diagnosezuordnung festlegen; weder Runner noch gemeinsame Planbereinigung übernehmen.
+- Erster Schnitt verlangt eine Literalabfrageform ohne automatische Parametrisierung. SIMPLE allein garantiert das nicht. Zulässige Abfrageform anhand der Produktquellen begründen und später auf jeder Zielversion empirisch bestätigen; unterschiedliche Kommentare je Literal, OPTION (RECOMPILE) oder globale Konfigurationswechsel dürfen fehlende Plantrennung nicht ersetzen. Bleibt die Form unklar oder entstehen zusätzliche unzuordenbare Templates, Entwurf stoppen und nachschärfen, bevor die Umsetzung freigegeben wird.
+- Server- und Datenbankeinstellungen für optimize for ad hoc workloads, PARAMETERIZATION und relevante versionsabhängige Cache-/Parameterfunktionen samt SET-Kontext erfassen. Im ersten Schnitt keine Instanzoption ändern und keine Cacheleerung durchführen. Vorhandene Vollplan- und Stubmodi getrennt auswerten; nicht empirisch geprüfte Konfigurationsmodi ausdrücklich offen lassen.
+- Quellen-/Vertragsreview von Cachefilter, flüchtigen Handles, Transaktions-/Sitzungsgrenzen, Eigentum, Eingaben, Ressourcen- und Cleanupbudgets vor dem ersten späteren SQL-Lauf abschließen. Den vorhandenen Frameworkpfad mit FWK-011 (Ergebnisnormalisierung) und FWK-012 (Status-, Fehler- und Skip-Vertrag) verwenden.
+
+**Voraussetzungen und Versionsumfang:**
+
+- Geplante Engine-/Datenbankpaare: SQL Server 2019 mit Compatibility Level 150, SQL Server 2022 mit 160 und SQL Server 2025 mit 170. Compatibility Level bezeichnet die Datenbank-Kompatibilitätsstufe. Erste empirische Qualifikation ausschließlich Developer unter Linux/Docker; Build, Edition, Plattform und tatsächlich vorhandene Konfigurationsmodi getrennt dokumentieren. Windows und andere Editionen bleiben offen.
+- Der Login benötigt CREATE ANY DATABASE sowie Kontrolle über die eigene Datenbank und deren synthetische Objekte. Für die Diagnosesichten unter SQL Server 2019 VIEW SERVER STATE, ab SQL Server 2022 VIEW SERVER PERFORMANCE STATE prüfen. Fehlende Voraussetzungen müssen vor Setup zu einem passenden bestehenden Skip führen; ein später fehlender Pflichtnachweis bleibt ein Fehler.
+- Vorhandenen manifestbasierten T-SQL-Harness (Transact-SQL; SQL-Server-Skriptsprache) und sqlcmd (Microsoft-Kommandozeilenwerkzeug) nutzen. Kennwörter bei SQL-Authentifizierung ausschließlich über SQLCMDPASSWORD, keine Verbindungsdaten in Sessionmanifesten oder Quelltexten. Keine neue Lab-Infrastruktur und keine Abhängigkeit von der Umsetzung einer anderen Demo.
+
+**Geplanter Ablauf:**
+
+- Preflight: eigene isolierte Wegwerfinstanz, unterstützte Version/Kompatibilitätsstufe, Rechte, Tool und Ressourcen bestätigen. Vollständige rohe Demo-/Lauf-/Datenbankwerte vor begrenzten Typen prüfen. Fehlende Rechte als SKIP_PERMISSION, vorher erkennbar ungeeignete Konfiguration als SKIP_CONFIGURATION vor Setup ausweisen; keine Einstellungen automatisch korrigieren.
+- Setup: markierte eigene Datenbank mit 40 eindeutigen Schlüsseln 1 bis 40 und Payload = Schlüsselwert anlegen. Gemeinsame Daten, Schema, Statistikzustand, SET-Optionen und Parameterdatentypen während beider Arme unverändert halten. Keine Plan-Guides, Forcing-, Recompile- oder Warm-up-Eingriffe zwischen den Messpunkten.
+- Baseline: für beide Arme anhand frischem Lauftoken, Datenbankkennung und vollständiger erwarteter Abfragetexte einen leeren eigenen Cacheumfang bestätigen; unbekannte oder bereits vorhandene Einträge ergeben FAIL_STATE statt einer Cacheleerung. Messzeit und Konfigurationszustand aufnehmen.
+- Literalarm: 40 begrenzte Leseabfragen mit den Werten 1 bis 40 jeweils einmal ausführen. Abfragestruktur und laufgenauer Kommentar bleiben innerhalb dieses Arms konstant, nur der fachliche Literalwert variiert. Nach 20 und 40 abgeschlossenen Abfragen jeweils Cacheumfang aufnehmen; keine erfundenen Kommentarvarianten zur künstlichen Erhöhung der Zahl.
+- Parameterarm: dieselbe Abfragestruktur und dieselben 40 Werte mit sp_executesql (parametrisierte dynamische Ausführung) verwenden. Abfragetext, Parameterdeklaration und SET-Kontext bleiben konstant. Nach 20 und 40 abgeschlossenen Aufrufen Cache- und Ausführungsstatistik aufnehmen. Daten pro Wert und Gesamtergebnis müssen mit dem Literalarm übereinstimmen.
+- Auswertung und Cleanup: Snapshotdifferenzen getrennt nach Arm, objtype und cacheobjtype darstellen. Nach fachlichem Erfolg oder Fehler markergeprüften Cleanup versuchen und die Abwesenheit der eigenen Datenbank unabhängig bestätigen. Vorher/nachher nur die tatsächlich eigene Cachemenge vergleichen; keine Aussage über freien Instanzspeicher oder allgemeinen Speicherdruck.
+
+**Geplanter Ergebnisvertrag:**
+
+- Cachezuordnung benötigt gleichzeitig bestätigtes Datenbankeigentum, tatsächliches dbid aus sys.dm_exec_plan_attributes, Lauftoken, Arm und vollständige exakte Abfragetexte. sys.dm_exec_sql_text(sql_handle).dbid allein genügt bei Ad-hoc-Abfragen nicht. Reine LIKE-Texttreffer, Query-Hash oder Sitzungszahl sind kein Ersatz; Beobachter-, Harness- und Wrappertexte ausschließen.
+- Je Cacheobjekt plan_handle genau einmal zählen und size_in_bytes einmal summieren; Joins auf mehrere Planattribute oder Statementzeilen dürfen Anzahl und Bytes nicht vervielfachen. objtype Adhoc/Prepared und cacheobjtype Compiled Plan/Compiled Plan Stub getrennt erhalten. Ein Stub ist kein vollständiger Ausführungsplan; fehlendes Plan-XML (maschinenlesbare Plandarstellung) ist dort kein Widerlegungsbeweis.
+- Messpunkte enthalten vollständige eigene Handlemenge, Anzahl und Bytes je Typ sowie Zeitpunkt, Datenbank-/Lauf-/Armzuordnung und dokumentierten Cachekontext. Numerische Bytes sind beobachtete Belegung dieses Umfangs; Wachstum erfordert die entsprechende Baseline-/Folgedifferenz. Keine festen Bytewerte, Einsparquoten oder Laufzeitvorteile als Erfolg voraussetzen.
+- Wiederverwendung im Parameterarm durch denselben zugeordneten plan_handle und dieselbe Kompilierung zwischen den beiden Messpunkten sowie execution_count-Differenz 20 in sys.dm_exec_query_stats für das exakte Zielstatement belegen. creation_time, plan_generation_num (Kompilierungsgeneration) und Statementgrenzen berücksichtigen; usecounts ist ein Lookupzähler und kein verlässlicher Ausführungszähler.
+- Die Cacheansichten sind flüchtige Momentaufnahmen. Verdrängung, Recompile, Kontextwechsel, NULL-Metadaten oder verlorene Zuordnung dürfen nicht als erfolgreicher Vergleich gelten. Bei erfüllten Voraussetzungen führen fehlende Pflichtbelege zu FAIL_RESULT_CONTRACT beziehungsweise FAIL_TIMEOUT; keine nachträgliche Umdeutung in einen optionalen Evidenz-Skip.
+
+**Sicherheit und vorläufige Schutzgrenzen:**
+
+- Vorläufig YELLOW (gelb; ausdrücklich isoliertes Labor erforderlich), eine eigene Wegwerfinstanz und ein sequenzieller Workload; kein Lasttreiber, keine parallele Flut und keine Fremddaten. Ausgangspunkt für die spätere Dockerqualifikation: zwei Prozessorkerne und 3 GiB Arbeitsspeicher; andere Plattformen/Editionen bleiben unqualifiziert.
+- Harte Entwurfsobergrenzen: 40 Zeilen, 40 Literale plus 40 Parameteraufrufe, höchstens 4096 UTF-16-Bytes (Unicode-Textkodierung) je Nutzabfragetext und 128 MiB (Mebibyte) je Datenbankdatei. Für beobachtete eigene Cacheobjekte gilt 16 MiB als Abbruchschwelle, keine garantierte Spitzenspeichergrenze. Zeitbudgets höchstens 120 Sekunden regulär und separat 30 Sekunden Cleanup; jeder Einzelaufruf beziehungsweise jede Pollingphase höchstens 15 Sekunden und zusätzlich durch das Restbudget begrenzt. Nach jedem Nutzaufruf Restbudget und beobachtete Cachebelegung prüfen; die Messpunkte nach 20/40 Aufrufen ersetzen diese Schutzprüfung nicht. Eine Überschreitung stoppt die Folgeabfragen, sie vergrößert den Umfang nicht automatisch. Das sind Schutzgrenzen, keine gemessenen Laufzeiten oder Leistungswerte.
+- Vor Wiederverwendung, Änderungen und Cleanup alle vier Marker SQLPERF.Project, SQLPERF.ContractVersion, SQLPERF.DemoId und SQLPERF.RunToken vollständig, binär und mit exakter Länge prüfen. Kein DROP DATABASE nur anhand des Namens, kein KILL anhand einer Sitzungsnummer, keine globale oder handlebasierte Planbereinigung und kein CLEAR PROCEDURE_CACHE.
+- Bei Fehler oder Timeout eigene Prozesse begrenzt beenden, gestartetes Setup über den vorhandenen Cleanupvertrag abbauen und Restzustand unabhängig prüfen. Auch nach Datenbanklöschung die zuvor vollständig gebundenen eigenen Cacheobjekte begrenzt auf Restzustände prüfen; verbleibende Objekte sichtbar als Cleanupfehler behandeln, keine globale Leerung anschließen. Bei unklarem Eigentum erhalten und Diagnose-/Wiederaufnahmebedarf ausweisen. Gescheiterte Erstmarkierung erhält den allgemeinen offenen Erhaltungsweg.
+- Diagnosesichten nur im erklärten synthetischen Umfang auswerten. Keine fremden Querytexte, Plan-XML-Dateien, Exporte oder echten Diagnosedaten publizieren. Private Laufbelege und Fehlversuche erhalten; Veröffentlichung nur nach Datenschutzprüfung.
+
+**Später benötigte Tests – noch nicht ausgeführt:**
+
+- Statisch vor Ausführung: Eigentums- und Rohwertprüfungen, Abfrage-/Zeilen-/Text-/Cache-/Zeitgrenzen, statusgebundene Abbrüche, eindeutige Cacheaggregation sowie Ausschluss globaler Eingriffe und unzulässiger Text-/Planexporte prüfen. Keine neue generische Framework- oder Infrastrukturkomponente als Voraussetzung.
+- Positive Versionsqualifikation erst nach Umsetzungsauftrag: SQL Server 2019/150, 2022/160 und 2025/170, zunächst Developer/Linux/Docker. Je zwei vollständige Lifecycles mit frischen Lauftokens; gleicher finaler Quellenstand, alle Pflichtphasen und eigener Cleanup. Pro Arm 40 Einzelwerte, 40 Ergebniszeilen insgesamt und Summe 820; gegenüber der Baseline 20/40 eindeutig zugeordnete Literalobjekte beziehungsweise ein beständiger Prepared-Plan nach beiden Parameterhälften. Vollplan-/Stubmodus und konkrete Produktbuilds protokollieren; nicht geprüfte Modi nicht freigeben.
+- Negative Eigentums-/Eingabefälle: fehlende, NULL-, fremde, gekürzte und verlängerte Marker; ähnliche Datenbanknamen, überlange oder Unicode-Rohwerte, Leerzeichen-/Normalisierungsgegenfälle sowie fremder Lauftoken. Vollständige Ausführung der betroffenen Datei muss vor jeder Mutation stoppen; fremde Zustands-/Sentinelaufnahmen bleiben gleich. Bestehende Setup-/Cleanup-Oracles wiederverwenden.
+- Negative Evidenzfälle ohne Nachweisersatz: gleicher Textmarker in anderer Datenbank/anderem Lauf, Beobachtertext enthält den Marker, zusätzlich passende Wrappertexte, NULL-dbId oder -Text, falscher Cacheobjekttyp, fehlender Snapshot, doppelte Joinzeilen, verfälschte Bytes und Vollplan/Stub-Verwechslung. Fehler müssen den Ergebnisvertrag zurückweisen. Wiederverwendung mit bloßem usecounts-Anstieg, gewechseltem Handle, geänderter creation_time/plan_generation_num oder falschen Statementgrenzen darf nicht bestehen.
+- Konfiguration und Vergleich: automatische Parametrisierung im Literalarm, wechselnde SET-Optionen oder Parameterdeklarationen, Recompile, Cacheverdrängung und fehlende Pflichtmetadaten als Gegenfälle prüfen. Ein kleinerer Cacheumfang allein beweist keine Optimierung; sowohl höhere als auch niedrigere beobachtete Bytewerte dürfen keinen erfundenen Leistungsclaim erzeugen. Stubklassifikation kann zunächst synthetisch geprüft werden; reale Konfigurationsmodi nur im ausdrücklich freigegebenen späteren Labumfang.
+- Abbruch/Recovery: ungültige oder ausgeschöpfte Budgets, versuchter 41. Aufruf je Arm, Text-/Cachegrößenüberschreitung und künstlicher Timeout während eines aktiven eigenen Aufrufs müssen weitere Arbeit stoppen. Setup-/Cleanup-Idempotenz, getrennte ursprüngliche Fehler und dominante FAIL_CLEANUP-Auswertung sowie unabhängige Datenbank-/Containerabwesenheit prüfen. Unklares Eigentum bleibt erhalten; keine unbegründete Erfolgs- oder Restlosigkeitsmeldung.
+
+**Abnahmekriterien:**
+
+- Planungsabnahme jetzt: begrenzter Umfang, Quellenbindung, Abgrenzung, vor Umsetzung zu schließende Abfrageform, Sicherheitsgrenzen, positive/negative Tests und Ergebnis-/Cleanupvertrag sind bei TSK-016 nachvollziehbar. Nur Planung und statische Dokumentations-/Registryprüfungen; keine ausführbaren OPT-007-Artefakte, keine Tests der zukünftigen Demo und keine SQL-/Lab-Läufe.
+- Spätere fachliche Abnahme: 40 vollständig zugeordnete Literalobjekte mit getrennten Typ-/Bytewerten und korrekten Baselines, genau ein stabil wiederverwendeter Prepared-Plan über beide Parameterhälften, übereinstimmende Ergebnisse je Wert sowie 40 Zeilen/Summe 820 je Arm. Automatische Parametrisierung oder zusätzliche ungebundene Cacheobjekte schließen die Abnahme dieses ersten Schnitts aus; keinen Erfolg allein aus 20 beliebigen Texttreffern ableiten.
+- Spätere Sicherheits-/Versionsabnahme: unabhängiger Quellen-/Ergebnisreview ohne offene priorisierte Befunde, zwei erfolgreiche vollständige Lifecycles je qualifizierter Version, relevante negative Eingabe-/Eigentums-/Evidenz-/Abbruchfälle und unabhängig bestätigter Cleanup. Vorhandene Konfigurationsmodi sowie unqualifizierte Windows-/Editions-/Modi-Grenzen ausdrücklich ausweisen.
+- Späterer Dokumentations-/Integrationsabschluss: Demo-Einstieg, Katalog, Ausführungsleitfaden, Demo-README, Interpretation/Abbruch und bestehende Lernzielzuordnung konsistent aktualisieren; Registry und abgeleitete Backlogansicht fortführen. Aktuelle relevante PR-/Main-Gates und vollständige Übernahme per Pull Request (Änderungsantrag) nach origin/main sowie eigene Branch-/Containerbereinigung belegen. Keine pauschale Laufzeit-, Speicherersparnis- oder Modulfreigabe.
+
+**Quellenbindung:** Plan am 2026-10-23 gegen Schulungsstand `8ebd12b48b338f06bddee9dbbc6bda3173a996bc`; ursprüngliche Quellenbefunde unverändert.
+
+- Registrierte Analyze-Sichtung LAB-PLAN-003 einschließlich Setup, Observe und Cleanup, Stand `6e557726a07ce7d389a36083c7e82d214b20822f`; siehe den Quellenbefund oben.
+- [Schulungs-Demovertrag: Sicherheit, Eigentum, Budgets und Ergebnisse](../.ai/DEMO_CONTRACT.md), Stand `8ebd12b48b338f06bddee9dbbc6bda3173a996bc`.
+- [Vorhandene Curriculumzuordnung: Cache-Schlüssel und zusätzliche Einträge](../Documentation/Curriculum/TRACEABILITY_MATRIX.md), Stand `8ebd12b48b338f06bddee9dbbc6bda3173a996bc`.
+- [Microsoft: Cacheobjekttypen, Bytes und Grenzen von usecounts](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-cached-plans-transact-sql?view=sql-server-ver17), gelesen am 2026-10-23.
+- [Microsoft: vollständiger Plan, Planstub und bestehende Konfiguration](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/optimize-for-ad-hoc-workloads-server-configuration-option?view=sql-server-ver17), gelesen am 2026-10-23.
+- [Microsoft: automatische Parametrisierung und Planwiederverwendung](https://learn.microsoft.com/en-us/sql/relational-databases/query-processing-architecture-guide?view=sql-server-ver17), gelesen am 2026-10-23.
+- [Microsoft: tatsächlicher Datenbank- und SET-Kontext eines Plans](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-plan-attributes-transact-sql?view=sql-server-ver17), gelesen am 2026-10-23.
+- [Microsoft: Ad-hoc-Datenbankzuordnung und vollständiger Abfragetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver17), gelesen am 2026-10-23.
+- [Microsoft: Ausführungszähler, Kompilierungszeit und Lebensdauer der Statistik](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-stats-transact-sql?view=sql-server-ver17), gelesen am 2026-10-23.
+- [Microsoft: konstante Abfragetexte und Parameterdeklarationen mit sp_executesql](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17), gelesen am 2026-10-23.
+
+Aufwand weiterhin **M (mittel), vorläufig**. Der Plan ist keine Dauerzusage und kein Nachweis einer ausführbaren oder abgenommenen Demo.
 
 ##### 3. DGN-004 – Erfolgreiches und fehlgeschlagenes Plan Forcing
 
