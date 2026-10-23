@@ -3,8 +3,8 @@
 ## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
 
 Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-zu RES-003 (Buffer-Pool-Druck und Resource Governor; Druck auf den
-Datenseiten-Cache und Ressourcensteuerung)
+zu RES-001 (Worker-Druck und echte Erschöpfung; Druck auf beziehungsweise
+Mangel an verfügbaren Ausführungsthreads)
 bei TSK-016 (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre
 Integration über einen Pull Request (Änderungsantrag) nach `origin/main`. Statische
 CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
@@ -32,7 +32,7 @@ Für RES-004 liegt eine weitere statische Sichtung am Quellenstand
 eine markierte Session belegt keine konkurrierenden Grants oder tatsächliches
 Warten auf Abfragespeicher. Diagnosefilter, Beobachtungsphase und fachlicher
 Ergebnisvertrag bleiben vor einer späteren Umsetzung zu klären. Damit sind
-sieben Kandidaten mit Lücken gesichtet und zwei noch ungeprüft; alle
+acht Kandidaten mit Lücken gesichtet und einer noch ungeprüft; alle
 Erweiterungen bleiben offen. Die zusätzliche RES-003-Sichtung am Quellenstand
 `ffb8ffa48b48fac025f47a2caea514c2f09d66ed` zeigt: Cachebelegung belegt keinen
 Speicherdruck; der Analyzerstatus für einen tatsächlichen Druckbefund wird
@@ -40,6 +40,13 @@ vom Szenario zurückgewiesen. Resource Governor wird nur konfiguriert, ohne
 klassifizierte Last und Wirksamkeitsnachweis; seine Speichergrenzen betreffen
 Abfragearbeitsspeicher, nicht den Buffer Pool. Editionsgrenzen, Eigentumsschutz
 und vollständige Rücknahme bleiben vor einer Adaption zu klären.
+Die RES-001-Sichtung am selben Quellenstand zeigt: Vier laufmarkierte Sessions
+belegen keinen Worker-Mangel. Das Szenario wertet die fachlichen Analyzerbefunde
+nicht aus und reduziert den Schedulervergleich auf eine Momentaufnahme.
+Laststeuerung, vollständiger Worker-Abschluss, tatsächliche Warte-Evidenz
+und gesicherte Erholung bleiben vor einer Adaption offen. Nur INF-006
+(Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
+besitzt noch keine entsprechende Quellensichtung.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
