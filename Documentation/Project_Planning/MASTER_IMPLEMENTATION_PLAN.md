@@ -8,12 +8,14 @@ priorisierte Quellen- und Lückenprüfungen in der [kanonischen Registry](../../
 Die statischen Sichtungen zu CON-005 (Schemasperren), OPT-007
 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung),
 IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche),
-RES-004 (Memory Grants; Abfragespeicherzuteilungen) sowie RES-003
+RES-004 (Memory Grants; Abfragespeicherzuteilungen), RES-003
 (Buffer-Pool-Druck und Resource Governor; Datenseiten-Cache und Ressourcensteuerung)
-liegen mit Nachweis- und Sicherheitslücken vor. Der aktuelle Auftrag erlaubt
-die Ergänzung der RES-003-Befunde und ihre Integration per Pull Request
-(Änderungsantrag) mit statischen Prüfungen; die übrigen zwei Kandidaten und
-sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
+sowie RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) liegen mit
+Nachweis- und Sicherheitslücken vor. Der aktuelle Auftrag erlaubt die Ergänzung
+der RES-001-Befunde und ihre Integration per Pull Request (Änderungsantrag) mit
+statischen Prüfungen. INF-006 (Log Shipping; Übertragung und Wiederherstellung
+von Transaktionslog-Sicherungen) bleibt als einziger Kandidat ungeprüft.
+Sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
 geführt. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab. Aufnahme und
