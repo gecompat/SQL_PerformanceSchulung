@@ -1,22 +1,26 @@
 # Aktueller Ausführungsstand
 
-## Aktueller Auftrag vom 23. Oktober 2026: OPT-007 begrenzt planen
+## Aktueller Auftrag vom 23. Oktober 2026: OPT-007-Befunde und Plan präzisieren
 
-Der jüngste menschliche Auftrag autorisiert ausschließlich die Planung von
-OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan
-formulierter Abfragen) anhand der Quellenbefunde bei TSK-016 (gezielte
-Curriculum-Ergänzungen). Der Plan enthält begrenzten Umfang, Tests und
-Abnahmekriterien. Keine Implementierung oder SQL-/Lab-Läufe; die übrige
-autonome Verarbeitung bleibt pausiert.
+Der jüngste menschliche Auftrag autorisiert ausschließlich die Ergänzung der
+lesenden OPT-007-Befunde (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter
+Abfragen) bei TSK-016 (gezielte Curriculum-Ergänzungen) sowie die Präzisierung
+von Abfrageform und Ergebnisvertrag. Integration per Pull Request
+(Änderungsantrag) nach `origin/main`; nur statische CI-Prüfungen (Continuous
+Integration; automatisierte Integrationsprüfungen). Keine Implementierung oder
+SQL-/Lab-Läufe; die übrige autonome Verarbeitung bleibt pausiert.
 
 Der Plan wird in der [kanonischen Registry](../../.ai/identity/registry.json)
 gepflegt und in der [abgeleiteten Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-lesbar dargestellt. Er umfasst höchstens 40 Literalabfragen und dieselben 40
-Werte als Parameter, getrennte Cachetypen und Bytes, genaue Datenbank-/Laufbindung,
-nachgewiesene Planwiederverwendung und vollständigen eigenen Cleanup (Aufräumen).
-Die konkrete Abfrageform gegen automatische Parametrisierung ist vor einer
-Umsetzungsfreigabe zu schließen. Die beschriebenen Versions-, Gegen- und
-Abbruchtests sind geplant, nicht ausgeführt. Aufwand M (mittel) bleibt vorläufig.
+lesbar dargestellt. Er umfasst 40 Batches mit eingebettetem Schlüsselwert in
+DECLARE und denselben SELECT mit 40 getrennt gebundenen Parametern. Die Vorlagen
+sind Konzeptdaten, keine ausführbaren Demoartefakte. Der erste Nachweisschnitt
+verlangt einen vorhandenen Vollplanmodus, echte SELECT-Planinhalte ohne Shells
+oder zusätzliche automatische Templates, genaue Datenbank-/Laufbindung und
+korrekte Bytewerte. Die erwarteten Tupel (k, k), Cacheanzahlen 20/40 sowie ein
+stabiler Prepared-Plan mit Ausführungszählern 20/40 sind erst später empirisch
+zu bestätigen. Stubmodi bleiben gesondert offen; es wird keine Option umgeschaltet.
+Testplanung und Schutzgrenzen bleiben bestehen. Aufwand M (mittel) ist vorläufig.
 Die Planungsintegration verwendet ausschließlich statische Prüfungen;
 ausführbare Demo-, Test-, Lab- und Workflowquellen bleiben unverändert.
 

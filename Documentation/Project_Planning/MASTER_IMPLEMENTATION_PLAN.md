@@ -1,20 +1,26 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Aktueller Planungsauftrag vom 23. Oktober 2026: OPT-007
+## Aktueller Planungsauftrag vom 23. Oktober 2026: OPT-007 präzisieren
 
-Der aktuelle Auftrag autorisiert ausschließlich die begrenzte Planung von
+Der aktuelle Auftrag autorisiert ausschließlich die Ergänzung der Befunde und
+die Präzisierung von Abfrageform und Ergebnisvertrag für
 OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan
 formulierter Abfragen) anhand der registrierten Quellenbefunde bei TSK-016
-(Analyze-Labs als gezielte Curriculum-Ergänzungen). Keine Implementierung
-oder SQL-/Lab-Läufe; die übrige autonome Verarbeitung bleibt pausiert.
+(Analyze-Labs als gezielte Curriculum-Ergänzungen). Integration per Pull Request
+(Änderungsantrag) nach `origin/main`, ausschließlich statische CI-Prüfungen
+(Continuous Integration; automatisierte Integrationsprüfungen). Keine
+Implementierung oder SQL-/Lab-Läufe; die übrige autonome Verarbeitung bleibt pausiert.
 
 Der vollständige Plan liegt ausschließlich in der
 [kanonischen Registry](../../.ai/identity/registry.json); die
 [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 zeigt Umfang, Quellen, offene Vorprüfungen, Tests, Schutzgrenzen und Abnahme.
-Vorgesehen sind je 40 Literal- und Parameterabfragen, laufgenaue Cachetypen/
-Bytes und ein belastbarer Wiederverwendungsnachweis. Die konkrete Abfrageform
-gegen automatische Parametrisierung bleibt vor einer Umsetzung zu schließen.
+Die Konzeptvorlagen legen 40 Batches mit Literalwert in DECLARE und 40
+Aufrufe eines konstanten SELECT mit gebundenem Parameter fest. Der erste
+Nachweisumfang verlangt vorhandenen Vollplanmodus, echte SELECT-Pläne statt
+Shell-Einträgen sowie den vollständigen Werte- und Wiederverwendungsnachweis.
+Die erwarteten Cacheanzahlen und Ergebnisse sind noch empirisch zu bestätigen;
+Stubmodi bleiben gesondert offen. Optionen werden nicht umgeschaltet.
 Aufwand M (mittel) ist vorläufig; kein Test- oder Laufzeitnachweis für OPT-007.
 Hier wird keine zweite Planungsliste angelegt.
 
