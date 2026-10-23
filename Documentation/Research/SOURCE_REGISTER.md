@@ -264,3 +264,34 @@ ersetzen keine neue Schulungs-Runtimequalifikation.
 | ID | Klasse | Quelle | Verwendung | Grenzen | Abruf | Prüfung | Status | Aktualisierung |
 |---|---|---|---|---|---|---|---|---|
 | `SRC-121` | PRIMARY | Microsoft (ohne Datumsangabe), [SqlConnectionEncryptOption v6.1.4](https://github.com/dotnet/SqlClient/blob/v6.1.4/src/Microsoft.Data.SqlClient/src/Microsoft/Data/SqlClient/SqlConnectionEncryptOption.cs) und [API6.1](https://learn.microsoft.com/en-us/dotnet/api/microsoft.data.sqlclient.sqlconnectionencryptoption?view=sqlclient-dotnet-core-6.1) | Gepinnte OPEN-Serialisierung: Mandatory hält intern True/ToString liefert True; bool true wird Mandatory zugeordnet | Konfigurierte TLS-Anforderung und sourcegebundener Textvertrag, kein unabhängiger Wire-/TDS-/ausgehandelter TLS-Beleg; TrustServerCertificate ausschließlich eigene isolierte Lab-Ausnahme, keine globale Trust- oder Produktionsanleitung | 2026-10-13 | 2026-10-13 | ACTIVE | API-/Quellversion-/Serialisierungs-/TLS-Vertragsänderung oder abweichende Evidenz |
+
+## DGN-004 – Detailverweise zum bestehenden Query-Store-Quellenumfang SRC-027
+
+Datierte Ergänzung des bestehenden Eintrags `SRC-027`, keine neue Quellenkennung.
+Seine historische Registerzeile und früheren Abnahmen bleiben erhalten.
+Klasse `PRIMARY`, Status `ACTIVE`; **Aktualisiert und abgerufen: 2026-10-23**.
+Aussagebezug: begrenzter DGN-004-Entwurf bei TSK-016 zu Planerzwingung,
+Fehlergrund, Ersatzplanung und Rücknahme. Geltungsbereich: SQL Server 2019,
+2022 und 2025; neuere Optionen und Rechte versionsabhängig prüfen.
+Review-Trigger: geänderte Produktdokumentation, neue Version/Option/Rechte,
+Präzisierung des Demo-Vertrags oder abweichendes späteres Laufzeitergebnis.
+
+| Detailquelle innerhalb SRC-027 | Belegter Mechanismus und Grenze |
+|---|---|
+| [sys.query_store_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17) | Force-Flag bezeichnet den Auftrag, nicht garantierte Planverwendung; Fehlerzähler wächst bei fehlgeschlagener Kompilierung und wird beim Wechsel von ungezwungen zu erzwungen zurückgesetzt; `8712/NO_INDEX` bezeichnet einen entfernten Index. Sichtrechte versionsabhängig. |
+| [sp_query_store_force_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17) | Versuch bei Kompilierung, gleicher oder ähnlicher Plan, reguläre Optimierung bei Fehlschlag; Aufruferfolg ist kein Ausführungsbeleg. Neuere optionale Argumente nicht auf 2019 übertragen. |
+| [sp_query_store_unforce_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-unforce-plan-transact-sql?view=sql-server-ver17) | Ausdrückliche Rücknahme für Query-/Plan-Paar und erforderliche ALTER-Berechtigung auf der Datenbank; keine automatische Garantie für sämtliche sonstigen Rücknahmen. |
+| [sys.query_store_runtime_stats](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17) | Mehrere Zeilen je aktivem Intervall möglich; nach Plan, Ausführungstyp und Intervall aggregieren. Reguläre, abgebrochene und fehlerhafte Ausführungen unterscheiden. |
+| [sys.query_store_query](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17) | Query-/Modul-/Text-/Kontextzuordnung; Query-Hash allein ist keine eindeutige Identität. |
+| [Optimized plan forcing with Query Store](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17) | Optimierte Planerzwingung ab 2022 als eigener Einflussfaktor; Verhalten und passende versionsgebundene Begrenzung für den klassischen Schnitt vor Umsetzung klären. |
+| [sp_recompile](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-recompile-transact-sql?view=sql-server-ver17) | Gezielt ein eigenes Modul zur Neukompilierung bei der nächsten Ausführung markieren; ALTER-Recht am Objekt. Kein Ersatz für tatsächliche Ausführung oder globale Cacheleerung. |
+
+Diese Quellen belegen Produktmechanismen (`DOCUMENTED`). Die konkrete Wahl
+zweier Pläne, ihre verlässliche Zuordnung und die Reproduktion von NO_INDEX
+im entworfenen kleinen Workload sind noch nicht qualifiziert. Ablauf und
+Schutzgrenzen sind `METHOD`/`INFERENCE` (Methodik beziehungsweise Herleitung),
+keine gemessenen Produktgarantien. Vor späterer Umsetzung gelten die offenen
+lesenden Detailgates im [kanonischen Plan](../../.ai/identity/registry.json)
+und seiner [abgeleiteten Ansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung).
+Tatsächliche Planbelege folgen zusätzlich dem bestehenden FWK-005-Vertrag;
+gespeicherte Query-Store-Pläne oder das Force-Flag allein reichen nicht.
