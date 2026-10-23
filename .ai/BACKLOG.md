@@ -21,7 +21,7 @@ Datenseiten-Cache), Resource Governor (Ressourcensteuerung), Worker-Druck
 (Druck auf Ausführungsthreads) und Log Shipping (Übertragung und
 Wiederherstellung von Transaktionslog-Sicherungen) liegen mit Lücken vor.
 Damit sind alle neun Kandidatenquellen gesichtet. CON-005 wird im begrenzten
-Schemasperrenumfang umgesetzt; die übrigen acht Erweiterungen bleiben offen.
+Schemasperrenumfang validiert; die übrigen acht Erweiterungen bleiben offen.
 Keine neue Demo wird registriert.
 
 Dieser Abschnitt ist die abgeleitete Ansicht von
@@ -189,9 +189,9 @@ Kein Lerngebiet und keine stabile Kennung wird gelöscht. Zurückstellung betrif
 
 ##### 1. CON-005 – Schema- und Metadatensperren als Ergänzung zu Blocking
 
-**P1 · Begrenzter Schemasperrenschnitt implementiert; aktuelle Versions-/Integrationsgates offen · Aufwand M – vorläufig.**
+**P1 · Begrenzter Schemasperrenschnitt validiert; Integration über PR310 · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Begrenzten Schemasperrenschnitt umsetzen und prüfen; Sperreskalation und weitere Metadatenpfade bleiben offen.
+**Planungsentscheidung:** Begrenzter Schemasperrenschnitt auf SQL Server 2019/2022/2025 validiert; Sperreskalation und weitere Metadatenpfade bleiben offen.
 
 **Begründung:** Eigenständiger, klar abgrenzbarer Lernzuwachs gegenüber CON-004 (Blockierungsketten). Der Quellenbaustein zeigt einen plausiblen Auslöser, sein Ergebnisnachweis ist zu schwach; die Schulung besitzt bereits einen passenden Mehrsessionpfad.
 
@@ -200,7 +200,7 @@ Kein Lerngebiet und keine stabile Kennung wird gelöscht. Zurückstellung betrif
 - Vorhandene CON-004-Sitzungssteuerung und Frameworkverträge für Eigentum, Sicherheit, begrenzte Orchestrierung und Ergebnisse verwenden; keine neue Infrastruktur voraussetzen.
 - Vor einer Implementierung den beschriebenen Ergebnisvertrag sowie Objektzuordnung, Signaltransaktionen, Berechtigungen und Abbruchpfad abschließend prüfen.
 
-**Wiederaufnahmebedingung:** Umsetzung, Tests, erforderliche SQL-/Lab-Läufe und PR-Integration sind für diesen begrenzten Schemasperrenschnitt ausdrücklich autorisiert. Andere Kandidaten benötigen weiterhin einen eigenen Auftrag.
+**Wiederaufnahmebedingung:** Der begrenzte Schemasperrenschnitt besitzt seinen Versionsnachweis; die Integration mit aktuellen Head- und Main-Prüfungen wird in PR310 belegt. Sperreskalation, weitere Metadatenpfade und andere Kandidaten benötigen einen neuen Auftrag; die übrige autonome Verarbeitung bleibt pausiert.
 
 **Quellen:** `LAB-CONC-002` (Schema-, Metadaten- und Kompilierungssperren).
 
@@ -227,13 +227,13 @@ Quellen: [Lab/Scenarios/Performance/_Shared/Worker.sql:196](https://api.github.c
 
 **Aktueller Umsetzungsschnitt:** Drei signalisierte Akteure; Sch-M/GRANT gegen Sch-S/WAIT am selben Tabellenobjekt mit exakter Blocker-/Laufbindung; Rücknahme, Vergleich und markergeprüfter Cleanup. Keine Sperreskalation oder allgemeine Kompilierungs-/Metadatenabnahme.
 
-**Nachweisstand:** Der finale SQL-Stand ist auf SQL Server 2022 mit zwei regulären Lifecycles, 30 Setup- und 30 Cleanup-Gegenproben, vollständiger Datei-Ablehnung, Idempotenz, 28 ungültigen Eingaben, Rechte-/Sicherheitsprüfungen, vollständigem Inventaroracle, normalisiertem Voll-Lifecycle mit 48 äußeren Leerzeichen, elf Evidenzmutationen und Timeout bei gehaltenem Konflikt geprüft. SQL Server 2019 und 2025 besitzen erfolgreiche frühere Diagnosebelege, ersetzen aber nicht die noch offenen aktuellen 2019/2022/2025-PR- und frischen Main-Gates. Alle drei eigenen lokalen Prüfcontainer sind entfernt; andere Instanzen blieben unverändert. Frühe Fehlversuche, Testdiagnosen und erfolgreiche Cleanup-Nachweise bleiben private Evidenz.
+**Nachweisstand:** Am 2026-10-23 bestand der Implementierungsstand ab27d42214ab24b6b12b2189e5b5e32da535166e den Workflow CON-005 Schemasperren, Lauf 39981693499: statische Verträge sowie SQL Server 2019/150, 2022/160 und 2025/170, jeweils Developer auf Linux in eigenen Dockercontainern. Je Version bestanden zwei reguläre Lifecycles, 30 Setup- und 30 Cleanup-Eigentumsgegenproben, vollständige Datei-Ablehnung, Idempotenz, 28 ungültige Eingaben, Rechte-/Sicherheitsprüfungen, vollständiger Inventarvergleich, normalisierter Voll-Lifecycle mit 48 äußeren Leerzeichen, elf Evidenzmutationen und Timeout bei unabhängig beobachtetem Sch-M-/Sch-S-Konflikt. Eigene Datenbanken und CI-Container wurden erfolgreich entfernt. Der unabhängige Quellenreview und fünf Offline-Testmethoden zum Containerabbau sind abgeschlossen. Alle drei eigenen lokalen Prüfcontainer sind ebenfalls entfernt; andere Instanzen blieben unverändert. Frühe Fehlversuche bleiben private Evidenz. PR310 bindet die anschließenden aktuellen Head-/Main-Prüfungen und den Integrationsnachweis; Windows und andere Editionen sind nicht qualifiziert.
 
 Paket: [`CON-005 – Schemasperren trotz NOLOCK`](../Demos/07_Concurrency/CON-005_Schema_Locks/README.md). Prüfpfad: [`run_con005.py`](../Tests/Runtime/run_con005.py). Die übrige autonome Verarbeitung bleibt pausiert.
 
-###### Nächster begrenzter Planungsschnitt: Schemasperren
+###### Begrenzter Planungsschnitt und Abnahme: Schemasperren
 
-Begrenzter Schemasperrenschnitt in Umsetzung; finale Versionsabnahme und PR-Integration noch offen.
+Begrenzter Schemasperrenschnitt implementiert und am 2026-10-23 auf SQL Server 2019/2022/2025 validiert. Integrationsnachweis und aktuelle Head-/Main-Prüfungen: PR310. Der weitere CON-005-Umfang bleibt offen.
 
 **Lernziel:** Sch-S (Schemastabilitätssperre) und Sch-M (Schemaänderungssperre) am selben synthetischen Tabellenobjekt unterscheiden. Eine Leseabfrage mit NOLOCK (Verzicht auf Datensperren für den Lesezugriff) kann weiter auf Sch-S warten, wenn eine andere Sitzung Sch-M hält.
 
@@ -272,7 +272,7 @@ Begrenzter Schemasperrenschnitt in Umsetzung; finale Versionsabnahme und PR-Inte
 **Spätere Abnahme:**
 
 - Vor einer Umsetzung: Akteurs-/Signalfolge auf Transaktionssichtbarkeit und Selbstblockierung prüfen, Diagnosefilter und Rücknahmebedingungen konkretisieren sowie die vorhandenen Eigentums-, Sicherheits-, Orchestrierungs-, Assertion- und Ergebnisverträge auf den Entwurf abbilden.
-- Erst nach gesonderter Umsetzungsfreigabe: passende statische und unabhängige Reviews, gezielte negative Abbruch-/Eigentums-/Timeoutfälle sowie erforderliche SQL-Versions-/Plattformprüfungen einschließlich Cleanup durchführen. Hierfür liegt noch kein Ausführungs- oder Laufzeitnachweis vor.
+- Die gesonderte Umsetzungsfreigabe wurde am 2026-10-23 für den begrenzten Schemasperrenschnitt erteilt. Statische Prüfung, unabhängiger Quellenreview, zwei reguläre Lifecycles je Version und negative Abbruch-/Eigentums-/Timeoutfälle sind durch den unten gebundenen Versionsnachweis belegt. Windows, andere Editionen, Sperreskalation und weitere Metadatenpfade bleiben offen.
 
 **Entwurfsquellen:**
 

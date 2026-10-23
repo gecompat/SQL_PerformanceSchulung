@@ -8,7 +8,7 @@ Sitzungen zu. Danach wird die Schemaänderung zurückgerollt.
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` – Versionsabnahme noch offen |
+| Status | `VALIDATED` – begrenzter Schemasperrenschnitt; Developer/Linux/Docker 2019, 2022 und 2025 |
 | Sicherheitsstufe | `YELLOW` – ausschließlich eigene Wegwerfinstanz ohne fremde Daten |
 | Zielversionen / Compatibility Level | SQL Server 2019/150, 2022/160, 2025/170; Compatibility Level ist die Datenbank-Kompatibilitätsstufe |
 | Edition / Plattform | eigenständige Database Engine; Developer in Linux-Containern als Prüfziel; Windows und andere Editionen nicht empirisch qualifiziert |
@@ -189,9 +189,19 @@ den tatsächlichen Bash-Cleanupblock einschließlich zehn negativer Docker-/
 Identitätsfälle. Frühe fehlgeschlagene Diagnose- und Testversuche bleiben lokale
 Evidenz; sie werden nicht zu Erfolgsbelegen umgedeutet.
 
-Die aktuellen PR-Prüfungen auf SQL Server 2019/2022/2025 und die frischen
-Main-Prüfungen stehen noch aus. Frühere erfolgreiche Diagnosebelege auf
-2019/2025 qualifizieren den letzten Normalisierungsschnitt nicht.
+Am 2026-10-23 bestand der Implementierungsstand
+`ab27d42214ab24b6b12b2189e5b5e32da535166e` den
+[Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499):
+statische Verträge sowie die vollständigen Prüfungen auf SQL Server
+2019/150, 2022/160 und 2025/170, jeweils Developer unter Linux in eigenen
+Dockercontainern. Alle oben genannten regulären und negativen Fälle bestanden
+auf jeder Version, einschließlich des Abbruchs bei gehaltenem Konflikt und
+des eigenen Datenbank- und Containerabbaus. Die ursprüngliche volle lokale
+2022-Suite endete am veralteten Freigabeanker der Timeout-Prüfkopie; dessen
+gezielte Korrektur ist zusätzlich durch diesen vollständigen Versionslauf belegt.
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
+bindet die aktuellen Prüfungen des anschließenden Dokumentationsstands,
+die frischen Main-Prüfungen und den Integrationsnachweis.
 Scheduling, Objektkennungen und Wait-Dauer sind keine Golden Values.
 Windows-, Editions-, Hardware- und umfassende Metadatenpfadabnahmen sowie
 Sperreskalation werden nicht aus Linux-Developer-Läufen abgeleitet.

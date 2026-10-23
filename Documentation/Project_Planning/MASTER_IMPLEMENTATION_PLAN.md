@@ -20,9 +20,12 @@ SQL-/Lab-Läufe und Integration per Pull Request (Änderungsantrag).
 Das [Demopaket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
 enthält drei signalisierte Akteure, konkrete Sch-M-/Sch-S-Nachweise
 (Schemaänderungs- und Schemastabilitätssperre), Rücknahme, Vergleich und sicheren
-Abbau. Der finale SQL-Stand ist auf SQL Server 2022 mit regulären Lifecycles
-und Gegenproben geprüft; aktuelle PR- und frische Main-Prüfungen auf
-SQL Server 2019/2022/2025 stehen noch aus. Sperreskalation bleibt ein
+Abbau. Der Implementierungsstand `ab27d42214ab24b6b12b2189e5b5e32da535166e`
+ist am 2026-10-23 im [Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499)
+auf SQL Server 2019/150, 2022/160 und 2025/170 (Developer/Linux/Docker)
+mit regulären Lifecycles, Gegenproben und eigenem Cleanup validiert.
+Aktuelle Head-/Main-Prüfungen und Integration sind in
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) gebunden. Sperreskalation bleibt ein
 getrennter offener CON-005-Teil. Die anderen acht Kandidaten und die übrige
 autonome Verarbeitung bleiben pausiert. INF-006 (Log Shipping; Übertragung und
 Wiederherstellung von Transaktionslog-Sicherungen) bleibt ein eigenständiger
@@ -989,7 +992,7 @@ voraus; Reihenfolge und Freigabestatus der bestehenden Demos bleiben erhalten.
 | `CON-002` | READ COMMITTED, REPEATABLE READ und SERIALIZABLE einschließlich Key-Range Locks | Gelb |
 | `CON-003` | RCSI, SNAPSHOT, Statement-/Transaction-Snapshot und Update-Konflikt | Gelb |
 | `CON-004` (Blockierungsketten verfolgen) | Blocking Chain, Head Blocker und messbare Wartezeit | Gelb |
-| `CON-005` (Schemasperren trotz NOLOCK) | begrenzter Sch-M-/Sch-S-Schnitt implementiert; Versionsabnahme in Arbeit; Sperreskalation und weitere Metadatenpfade offen | Gelb |
+| `CON-005` (Schemasperren trotz NOLOCK) | begrenzter Sch-M-/Sch-S-Schnitt auf 2019/2022/2025 validiert; Sperreskalation und weitere Metadatenpfade offen | Gelb |
 | `CON-006` (Zyklische Sperrkonflikte erkennen) | reproduzierbarer Deadlock mit Deadlock Graph | Gelb |
 | `CON-007` | Version Store, ADR (Accelerated Database Recovery; beschleunigte Datenbankwiederherstellung) und Persisted Version Store | Gelb |
 | `CON-008` | versionsabhängiges Optimized Locking, TID (Transaction ID; Transaktionskennung) Locks und Lock After Qualification | Gelb |

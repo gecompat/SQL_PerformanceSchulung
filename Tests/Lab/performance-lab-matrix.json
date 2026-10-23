@@ -79,7 +79,7 @@
     {
       "demoId": "CON-005",
       "manifest": "Demos/07_Concurrency/CON-005_Schema_Locks/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "YELLOW",
       "sessions": 3,
       "providers": [

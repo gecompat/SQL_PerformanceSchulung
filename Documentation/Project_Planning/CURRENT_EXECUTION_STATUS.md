@@ -61,11 +61,15 @@ Das [CON-005-Paket](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md)
 implementiert drei Akteure mit außerhalb der gehaltenen Transaktion sichtbaren
 Freigaben, gewährtem Sch-M (Schemaänderungssperre), wartendem Sch-S
 (Schemastabilitätssperre), identischer Ressource sowie exakter Blocker-/Laufbindung.
-Der finale SQL-Stand ist auf SQL Server 2022 einschließlich regulärer
-Lifecycles, normalisiertem Lauftoken, Schutz-/Evidenzgegenproben und gehaltenem
-Abbruchfall geprüft. Frühere erfolgreiche Diagnosebelege auf SQL Server
-2019/2025 ersetzen die noch offenen aktuellen PR- und frischen Main-Prüfungen
-auf allen drei Versionen nicht. Alle drei eigenen lokalen Container sind entfernt.
+Der Implementierungsstand `ab27d42214ab24b6b12b2189e5b5e32da535166e`
+bestand am 2026-10-23 den [Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499):
+SQL Server 2019/150, 2022/160 und 2025/170, jeweils Developer/Linux/Docker,
+mit zwei regulären Lifecycles, normalisiertem Lauftoken, vollständigen
+Schutz-/Evidenzgegenproben und Timeout bei unabhängig beobachtetem Sperrkonflikt.
+Eigene Datenbanken und CI-Container sind erfolgreich abgebaut.
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
+bindet die aktuellen Head-/Main-Prüfungen und den Integrationsnachweis.
+Alle drei eigenen lokalen Container sind ebenfalls entfernt.
 Zwei frühe fehlgeschlagene Diagnosekandidaten bleiben mit ihrem erfolgreichen
 Cleanup erhalten. Die anderen Lab-Instanzen wurden nicht verändert.
 Sperreskalation und umfassende Metadaten-/Kompilierungspfade bleiben offen.

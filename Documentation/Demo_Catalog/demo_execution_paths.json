@@ -183,7 +183,7 @@
       "title": "Schemasperren trotz NOLOCK",
       "path": "Demos/07_Concurrency/CON-005_Schema_Locks",
       "manifest": "Demos/07_Concurrency/CON-005_Schema_Locks/manifest.json",
-      "implementationStatus": "IMPLEMENTED",
+      "implementationStatus": "VALIDATED",
       "safetyLevel": "YELLOW",
       "sessions": 3,
       "stage": 2,

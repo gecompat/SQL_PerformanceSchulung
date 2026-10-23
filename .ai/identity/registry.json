@@ -192,16 +192,16 @@
             ]
           },
           "planning_decision": {
-            "disposition": "Begrenzten Schemasperrenschnitt umsetzen und prüfen; Sperreskalation und weitere Metadatenpfade bleiben offen.",
+            "disposition": "Begrenzter Schemasperrenschnitt auf SQL Server 2019/2022/2025 validiert; Sperreskalation und weitere Metadatenpfade bleiben offen.",
             "rationale": "Eigenständiger, klar abgrenzbarer Lernzuwachs gegenüber CON-004 (Blockierungsketten). Der Quellenbaustein zeigt einen plausiblen Auslöser, sein Ergebnisnachweis ist zu schwach; die Schulung besitzt bereits einen passenden Mehrsessionpfad.",
             "dependencies": [
               "Vorhandene CON-004-Sitzungssteuerung und Frameworkverträge für Eigentum, Sicherheit, begrenzte Orchestrierung und Ergebnisse verwenden; keine neue Infrastruktur voraussetzen.",
               "Vor einer Implementierung den beschriebenen Ergebnisvertrag sowie Objektzuordnung, Signaltransaktionen, Berechtigungen und Abbruchpfad abschließend prüfen."
             ],
-            "resume_when": "Umsetzung, Tests, erforderliche SQL-/Lab-Läufe und PR-Integration sind für diesen begrenzten Schemasperrenschnitt ausdrücklich autorisiert. Andere Kandidaten benötigen weiterhin einen eigenen Auftrag."
+            "resume_when": "Der begrenzte Schemasperrenschnitt besitzt seinen Versionsnachweis; die Integration mit aktuellen Head- und Main-Prüfungen wird in PR310 belegt. Sperreskalation, weitere Metadatenpfade und andere Kandidaten benötigen einen neuen Auftrag; die übrige autonome Verarbeitung bleibt pausiert."
           },
           "planning_outline": {
-            "status": "Begrenzter Schemasperrenschnitt in Umsetzung; finale Versionsabnahme und PR-Integration noch offen.",
+            "status": "Begrenzter Schemasperrenschnitt implementiert und am 2026-10-23 auf SQL Server 2019/2022/2025 validiert. Integrationsnachweis und aktuelle Head-/Main-Prüfungen: PR310. Der weitere CON-005-Umfang bleibt offen.",
             "learning_goal": "Sch-S (Schemastabilitätssperre) und Sch-M (Schemaänderungssperre) am selben synthetischen Tabellenobjekt unterscheiden. Eine Leseabfrage mit NOLOCK (Verzicht auf Datensperren für den Lesezugriff) kann weiter auf Sch-S warten, wenn eine andere Sitzung Sch-M hält.",
             "scope": "Erster Schnitt: begrenzter Schemaänderungs-/Lesekonflikt mit Vergleich ohne offene Schemaänderung. Sperreskalation bleibt ein getrennter späterer CON-005-Teil; keine eigenständige Abnahme sämtlicher Kompilierungs- oder Metadatenpfade und keine Leistungsbehauptung.",
             "actors": [
@@ -231,7 +231,7 @@
             ],
             "later_acceptance": [
               "Vor einer Umsetzung: Akteurs-/Signalfolge auf Transaktionssichtbarkeit und Selbstblockierung prüfen, Diagnosefilter und Rücknahmebedingungen konkretisieren sowie die vorhandenen Eigentums-, Sicherheits-, Orchestrierungs-, Assertion- und Ergebnisverträge auf den Entwurf abbilden.",
-              "Erst nach gesonderter Umsetzungsfreigabe: passende statische und unabhängige Reviews, gezielte negative Abbruch-/Eigentums-/Timeoutfälle sowie erforderliche SQL-Versions-/Plattformprüfungen einschließlich Cleanup durchführen. Hierfür liegt noch kein Ausführungs- oder Laufzeitnachweis vor."
+              "Die gesonderte Umsetzungsfreigabe wurde am 2026-10-23 für den begrenzten Schemasperrenschnitt erteilt. Statische Prüfung, unabhängiger Quellenreview, zwei reguläre Lifecycles je Version und negative Abbruch-/Eigentums-/Timeoutfälle sind durch den unten gebundenen Versionsnachweis belegt. Windows, andere Editionen, Sperreskalation und weitere Metadatenpfade bleiben offen."
             ],
             "sources": [
               {
@@ -268,13 +268,20 @@
           },
           "implementation_record": {
             "approved_on": "2026-10-23",
-            "status": "in_progress",
+            "status": "validated",
             "path": "Demos/07_Concurrency/CON-005_Schema_Locks",
             "runtime_test": "Tests/Runtime/run_con005.py",
             "workflow": ".github/workflows/con005-schema-locks.yml",
             "scope": "Drei signalisierte Akteure; Sch-M/GRANT gegen Sch-S/WAIT am selben Tabellenobjekt mit exakter Blocker-/Laufbindung; Rücknahme, Vergleich und markergeprüfter Cleanup. Keine Sperreskalation oder allgemeine Kompilierungs-/Metadatenabnahme.",
-            "current_evidence": "Der finale SQL-Stand ist auf SQL Server 2022 mit zwei regulären Lifecycles, 30 Setup- und 30 Cleanup-Gegenproben, vollständiger Datei-Ablehnung, Idempotenz, 28 ungültigen Eingaben, Rechte-/Sicherheitsprüfungen, vollständigem Inventaroracle, normalisiertem Voll-Lifecycle mit 48 äußeren Leerzeichen, elf Evidenzmutationen und Timeout bei gehaltenem Konflikt geprüft. SQL Server 2019 und 2025 besitzen erfolgreiche frühere Diagnosebelege, ersetzen aber nicht die noch offenen aktuellen 2019/2022/2025-PR- und frischen Main-Gates. Alle drei eigenen lokalen Prüfcontainer sind entfernt; andere Instanzen blieben unverändert. Frühe Fehlversuche, Testdiagnosen und erfolgreiche Cleanup-Nachweise bleiben private Evidenz.",
-            "other_work": "paused"
+            "current_evidence": "Am 2026-10-23 bestand der Implementierungsstand ab27d42214ab24b6b12b2189e5b5e32da535166e den Workflow CON-005 Schemasperren, Lauf 39981693499: statische Verträge sowie SQL Server 2019/150, 2022/160 und 2025/170, jeweils Developer auf Linux in eigenen Dockercontainern. Je Version bestanden zwei reguläre Lifecycles, 30 Setup- und 30 Cleanup-Eigentumsgegenproben, vollständige Datei-Ablehnung, Idempotenz, 28 ungültige Eingaben, Rechte-/Sicherheitsprüfungen, vollständiger Inventarvergleich, normalisierter Voll-Lifecycle mit 48 äußeren Leerzeichen, elf Evidenzmutationen und Timeout bei unabhängig beobachtetem Sch-M-/Sch-S-Konflikt. Eigene Datenbanken und CI-Container wurden erfolgreich entfernt. Der unabhängige Quellenreview und fünf Offline-Testmethoden zum Containerabbau sind abgeschlossen. Alle drei eigenen lokalen Prüfcontainer sind ebenfalls entfernt; andere Instanzen blieben unverändert. Frühe Fehlversuche bleiben private Evidenz. PR310 bindet die anschließenden aktuellen Head-/Main-Prüfungen und den Integrationsnachweis; Windows und andere Editionen sind nicht qualifiziert.",
+            "other_work": "paused",
+            "qualification": {
+              "checked_on": "2026-10-23",
+              "source_commit": "ab27d42214ab24b6b12b2189e5b5e32da535166e",
+              "workflow_run": "https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499",
+              "pull_request": "https://github.com/gecompat/SQL_PerformanceSchulung/pull/310",
+              "scope": "Nur der begrenzte Schemasperrenschnitt; Developer/Linux/Docker, 2019/150, 2022/160, 2025/170. Keine Gesamtfreigabe des weiteren CON-005-Umfangs."
+            }
           }
         },
         {

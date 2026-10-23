@@ -90,7 +90,7 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 | [`OPT-010`](../../Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/README.md) | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-013`](../../Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md) | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`CON-004`](../../Demos/07_Concurrency/CON-004_Blocking_Chain/README.md) | Blocking Chain | Gelb | 4 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
-| [`CON-005`](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md) | Schemasperren trotz NOLOCK | Gelb | 3 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `IMPLEMENTED` – finale Versionsabnahme offen |
+| [`CON-005`](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md) | Schemasperren trotz NOLOCK | Gelb | 3 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` – begrenzter Schemasperrenschnitt |
 | [`DGN-003`](../../Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md) | Query-Store-Historie | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`DGN-005`](../../Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/README.md) | Begrenzte Extended-Events-Evidenz | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`OPT-017`](../../Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/README.md) | Parallele Planbereiche und Skew | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
@@ -117,7 +117,16 @@ gegen Schemastabilitätssperre). Der aktuelle Prüfstand steht in der
 Der automatisierte Prüfpfad verwendet eigene Dockerinstanzen; ein interaktiver
 Project Adapter oder eine Podman-/Windows-Abnahme wird damit nicht behauptet.
 Sperreskalation und weitere Metadatenpfade bleiben in der vorhandenen
-CON-005-Planung offen. Die folgenden historischen Tabellen bleiben unverändert.
+CON-005-Planung offen. Am 2026-10-23 bestand Quellstand
+`ab27d42214ab24b6b12b2189e5b5e32da535166e` den
+[Versionslauf 39981693499](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39981693499)
+auf SQL Server 2019/150, 2022/160 und 2025/170 (Developer/Linux/Docker):
+je zwei vollständige Manifestläufe sowie Eigentums-, Eingabe-, Evidenz-,
+Rechte- und Abbruchgegenproben, einschließlich eigenem Cleanup. Damit ergänzt
+dieser Schnitt die 22 historisch abgenommenen Demos unten um einen weiteren
+begrenzten Nachweis. Aktuelle Head-/Main-Prüfungen und Integration stehen in
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310).
+Die folgenden historischen Tabellen bleiben unverändert.
 
 ## Historische Runtime-Ergebnisse je Demo
 
