@@ -1,30 +1,36 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Begrenzter Umsetzungsauftrag vom 23. Oktober 2026: OPT-007
+## Begrenzter Planungsauftrag vom 23. Oktober 2026: DGN-004
 
-OPT-007 (Ad-hoc-Plancache; Zwischenspeicher für Ausführungspläne spontan
-formulierter Abfragen) wird gemäß dem präzisierten Plan einschließlich Tests,
-Dokumentation und Integration per Pull Request (Änderungsantrag) nach
-`origin/main` umgesetzt. Erforderliche SQL-/Lab-Läufe sind freigegeben.
-Sämtliche anderen autonomen Arbeiten bleiben pausiert.
+DGN-004 (Planerzwingung) wird anhand der Quellenbefunde bei TSK-016 mit
+begrenztem Umfang, späteren Tests und Abnahmekriterien geplant. Keine
+Implementierung und keine SQL-/Lab-Läufe; nur relevante statische Planungs-
+und Integrationsprüfungen. Die übrige autonome Verarbeitung bleibt pausiert.
 
-Der vollständige aktuelle Nachweis liegt beim vorhandenen TSK-016-Eintrag in
-der [kanonischen Registry](../../.ai/identity/registry.json); die
-[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-trennt ihn vom historischen Entwurf. Der begrenzte Vollplanschnitt mit
-40 Literalbatches und 40 gebundenen Parametern ist auf SQL Server 2019/150,
-2022/160 und 2025/170 unter Developer/Linux/Docker lokal qualifiziert.
-Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Builds,
-Wiederholungen, Gegenfälle, Review, Cleanup und die Integrationsgates.
-Die [Demoanleitung](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md)
-führt Vorbereitung, Ablauf, Ergebnisdeutung und den Erhaltungsweg nach Abbruch.
+Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) enthält
+den Entwurf; die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
+erläutert Lernziel, Ablauf, Schutzgrenzen, Tests und Abnahme. Der erste Schnitt
+verwendet eine eigene Datenbank und feste Abfrage: zwei tatsächlich ausgeführte
+Planvarianten, manuelle Erzwingung, ein kontrolliert entfernter Index,
+nachgewiesene Ersatzplanung und ausdrückliche Rücknahme. Query Store
+(persistente Abfrage- und Planhistorie) aus DGN-003 ist fachliche Grundlage;
+Query Store Hints (gespeicherte Abfragehinweise) und weitere Fehlerklassen
+bleiben zurückgestellt. Quellen belegen Mechanismen; Planwahl und der konkrete
+Fehlerablauf sind noch nicht empirisch bestätigt.
 
-Weitere OPT-007-Themen, Windows, andere Editionen, Podman und reale Stubmodi
-bleiben offen; weder ein allgemeiner Leistungsgewinn noch eine Modulfreigabe
-wird behauptet. CON-005 (Schemasperren) bleibt im früheren begrenzten Schnitt
-über [PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) integriert.
-Die übrigen TSK-016-Kandidaten und allgemeine Lab-Infrastruktur werden nicht
-bearbeitet. Eine zweite Planungsliste wird nicht angelegt.
+Vor Umsetzung sind die offenen Abfrage-/Plannachweis- und Versionsfragen
+lesend zu präzisieren. Danach sind ein ausdrücklicher Umsetzungsauftrag und
+der erforderliche unabhängige Quellen-/Ergebnisreview nötig. Verantwortlich
+ist die beauftragte Umsetzungsrolle, Auslöser ein neuer menschlicher Auftrag.
+Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) trennt diesen
+Plan von abgeschlossenen Nachweisen und historischen Fortsetzungen.
+
+Die früheren begrenzten Schnitte bleiben erhalten: OPT-007
+(Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen) ist über
+[PR313](https://github.com/gecompat/SQL_PerformanceSchulung/pull/313), CON-005
+(Schemasperren) über [PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310)
+integriert. Weitere Demo- oder Infrastrukturarbeit wird nicht begonnen;
+eine zweite Planungsliste wird nicht angelegt.
 
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 

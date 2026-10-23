@@ -1,48 +1,43 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 23. Oktober 2026: begrenzten OPT-007-Schnitt umsetzen
+## Auftrag vom 23. Oktober 2026: DGN-004 begrenzt planen
 
-Der aktuelle menschliche Auftrag autorisiert OPT-007 (Ad-hoc-Plancache;
-Zwischenspeicher spontan formulierter Abfragen) gemäß dem präzisierten Plan,
-einschließlich Tests, Dokumentation und Integration per Pull Request
-(Änderungsantrag) nach `origin/main`. Erforderliche SQL-/Lab-Läufe sind erlaubt.
-Die übrige autonome Verarbeitung bleibt pausiert; keine andere Demo wird begonnen.
+Der aktuelle menschliche Auftrag betrifft DGN-004 (Planerzwingung): anhand der
+Quellenbefunde von TSK-016 einen begrenzten Umfang mit späteren Tests und
+Abnahmekriterien planen. Keine Implementierung und keine SQL-/Lab-Läufe;
+nur relevante statische Planungs- und Integrationsprüfungen. Die übrige
+autonome Verarbeitung bleibt pausiert. Es wurde keine Automation aktiviert.
 
-Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) führt den
-abgegrenzten Implementierungsnachweis; die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
-enthält alle Quellen, den historischen Entwurf und die tatsächlichen Prüfungen.
-Das [OPT-007-Paket](../../Demos/04_Optimizer_Statistics_Plans/OPT-007_Adhoc_Plan_Cache/README.md)
-verwendet den vorhandenen Harness, keine neue Lab-Infrastruktur und keine
-Cacheleerung oder Ad-hoc-Optionsumschaltung.
+Maßgeblich ist `candidates[target=DGN-004].planning_outline` im
+[kanonischen TSK-016-Eintrag](../../.ai/identity/registry.json); die
+[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
+führt denselben Entwurf mit Quellen, Grenzen und offenen Detailgates.
+Die [registrierte Quellenvertiefung](../Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027)
+ergänzt den bestehenden Query-Store-Quellenumfang ohne neue Kennung.
 
-Der begrenzte Vollplanschnitt ist auf SQL Server 2019/150 (15.0.4480.2),
-2022/160 (16.0.4265.3) und 2025/170 (17.0.4075.5), jeweils Developer unter
-Linux/Docker mit zwei Kernen und 3 GiB (Gibibyte) Instanzspeicher lokal validiert.
-Je Version bestanden zwei vollständige Lifecycles mit frischen Lauftokens,
-exakten 40 Tupeln (k,k) je Arm, Literalplänen 20/40, stabilem Prepared-Plan
-(Plan für gebundene Parameter) mit Ausführungszählern 20/40 und FWK-011-
-Ergebnisnormalisierung. Dazu bestanden je 30 Setup-/Cleanup-Eigentumsgegenproben,
-37 Rohwert-/Sicherheitsfälle, neun Evidenzmutationen, 18 Plan-/Statistik-/
-Cache-Gegenfälle, Kontext-/Textlimit-/Berechtigungsprüfungen und normalisierte
-Voll-Lifecycles. Timeout bei unabhängig beobachtetem aktivem eigenen SQL-Aufruf
-und nachfolgendem unabhängig bestätigtem Cleanup ist je Version belegt.
+Der Entwurf trennt angeforderte Erzwingung, tatsächlichen Indexplan,
+kontrollierten Fehler durch einen fehlenden Index, erfolgreiche Ersatzplanung
+und ausdrückliche Rücknahme. Eine eigene Datenbank, eine feste Abfrage und
+sechs geplante Nutzaufrufe bilden den ersten Schnitt. Alle späteren Pflicht-
+und Gegenfälle sind geplant, nicht ausgeführt; DGN-004 bleibt unimplementiert.
+Vor Umsetzung sind konkrete Abfrageform, tatsächliche Planzuordnung und
+Versionsverhalten einschließlich optimierter Planerzwingung lesend zu klären.
+Die verantwortliche Umsetzungsrolle benötigt danach einen ausdrücklichen
+Auftrag samt SQL-/Lab-Freigabe; kein automatischer Übergang zur nächsten Phase.
 
-Der unabhängige Quellen-/Ergebnisreview ist ohne offene priorisierte Befunde
-abgeschlossen. Alle drei eigenen lokalen Prüfcontainer sind identitätsgeprüft
-entfernt; andere Lab-Container bleiben erhalten. Private Fehlversuche und
-Laufbelege bleiben unversioniert erhalten. Die finalen frischen CI-Prüfungen
-(Continuous Integration; automatisierte Integrationsprüfungen), die
-CI-Containerbereinigung und die vollständige Übernahme werden im zugehörigen
-Pull Request gebunden. Eine lokale Qualifikation ersetzt diese Integrationsgates nicht.
+## Erhaltene abgeschlossene Schnitte
 
-Der Schnitt belegt Cachezuordnung und Wiederverwendung, keinen allgemeinen
-Leistungs- oder Speicherersparnisclaim. Weitere historische OPT-007-Themen,
-Windows, andere Editionen, Podman, reale Stubmodi und die allgemeine
-Erstmarkierungs-/Recoveryfreigabe bleiben offen. TSK-016 (gezielte
-Curriculum-Ergänzungen) und alle weiteren Kandidaten bleiben offen.
-CON-005 (Schemasperren) bleibt im früheren begrenzten Schnitt über
-[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) integriert.
-Eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
+OPT-007 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen)
+ist im begrenzten Vollplanschnitt über
+[PR313](https://github.com/gecompat/SQL_PerformanceSchulung/pull/313) in Main
+`4bab78cc321970c014784602f8ba068e38efd70d` integriert: 51 erfolgreiche
+PR-Prüfungen und 49 erfolgreiche Main-Prüfungen; die im
+[kanonischen Eintrag](../../.ai/identity/registry.json) gebundenen lokalen
+Versions-/Gegenfall-/Bereinigungsnachweise bleiben erhalten. Alle drei eigenen
+lokalen Prüfcontainer wurden entfernt. Das ist keine Freigabe weiterer
+OPT-007-Themen. CON-005 (Schemasperren) bleibt über
+[PR310](https://github.com/gecompat/SQL_PerformanceSchulung/pull/310) im
+früheren begrenzten Schnitt integriert. Andere Arbeiten bleiben pausiert.
 
 ## Historische Fortsetzungen und zurückgestellte Arbeiten
 
