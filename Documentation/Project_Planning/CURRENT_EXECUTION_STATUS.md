@@ -3,7 +3,8 @@
 ## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
 
 Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-bei TSK-016 und die Integration der gesamten Backlogaufnahme über einen
+zu CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung) bei TSK-016
+(Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre Integration über einen
 Pull Request (Änderungsantrag) nach `origin/main`. Erforderliche statische
 CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
 erlaubt. Implementierungen sowie SQL- und Lab-Läufe sind ausgeschlossen.
@@ -16,7 +17,11 @@ führt Prioritäten, Quellenprüfung, Abgrenzung und spätere Abnahme. Für CON-
 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) liegt eine statische Sichtung des
 Analyze-Stands `6e557726a07ce7d389a36083c7e82d214b20822f` mit konkreten Nachweis-
 und Sicherheitslücken vor. Beide Lernideen bleiben priorisiert, sind jedoch
-nicht direkt übernahmefähig. Die übrigen sieben Kandidaten bleiben ungeprüft.
+nicht direkt übernahmefähig. Ergänzend liegen für CON-006 und DGN-004 statische
+Quellenbefunde am Analyze-Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb` vor:
+Die Deadlock-Prüfung belegt keine konkrete Variante; die Forcing-Prüfung
+belegt weder erfolgreiche Planverwendung noch einen kontrollierten Fehler.
+Beide Erweiterungen bleiben offen; die übrigen fünf Kandidaten sind ungeprüft.
 Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen

@@ -13,14 +13,15 @@ der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECU
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
 Fachlicher Status: **offen** (`proposed`). Registrierungsstatus: `REGISTERED`.
-Die Quellensichtungen für Schemasperren und Ad-hoc-Plancache liegen mit Lücken vor;
-die übrigen sieben Kandidaten sind noch zu prüfen. Keine neue Demo wird registriert.
+Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten und
+Planerzwingung liegen mit Lücken vor; die übrigen fünf Kandidaten sind noch zu prüfen.
+Keine neue Demo wird registriert.
 
 Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Backlogaufnahme vom 22. Oktober 2026 mit statischer Quellensichtung für CON-005 und OPT-007; Aufnahme der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur erforderliche statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.
+Backlogaufnahme vom 22. Oktober 2026 mit statischen Quellensichtungen für CON-005 (Schemasperren), OPT-007 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung); die Ergänzung der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.
 
 **Prioritäten innerhalb dieser Recherche:** P1 zuerst, P2 weitere Prüfkandidaten,
 P3 gesonderte Infrastrukturentscheidung. Die Reihenfolge ersetzt keine bestehende
@@ -38,7 +39,7 @@ Am 22. Oktober 2026 ausschließlich lesend: Katalogzuordnungen und Szenariotitel
 
 Erfasst am 2026-10-23. Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.
 
-CON-005 und OPT-007 behalten ihre Reihenfolge als erste Prüfkandidaten. Beide liefern fachlich brauchbare Ausgangsbausteine, sind wegen Nachweis- und Sicherheitslücken nicht direkt übernahmefähig. Die übrigen sieben Kandidaten besitzen noch keine entsprechende Quellensichtung.
+CON-005 (Schemasperren) und OPT-007 (Ad-hoc-Plancache) behalten ihre Reihenfolge als erste Prüfkandidaten. Die ergänzende Sichtung zu CON-006 (Deadlock-Varianten) und DGN-004 (Planerzwingung) ist mit Nachweislücken abgeschlossen. Alle vier Lernideen bleiben offen und sind nicht direkt übernahmefähig; die übrigen fünf Kandidaten besitzen noch keine entsprechende Quellensichtung.
 
 **Gemeinsame Befunde vor einer späteren Adaption:**
 
@@ -57,6 +58,20 @@ CON-005 und OPT-007 behalten ihre Reihenfolge als erste Prüfkandidaten. Beide l
 - Vor einer Codeübernahme ist die projektspezifische Analyze-Lizenz mit Urheberangabe und Weitergabebedingungen zu berücksichtigen. Die Quellensichtung ist keine pauschale Lizenz- oder Veröffentlichungsfreigabe.
 
 Nachlesbare Quellen zu diesen Grenzen: [Lab/Scenarios/Performance/LAB-CONC-002/scenario.json:79](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-CONC-002/scenario.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/LAB-PLAN-003/scenario.json:81](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-PLAN-003/scenario.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/LEARNING_PATH.md:39](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/LEARNING_PATH.md:58](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [LICENSE.md:5](https://api.github.com/repositories/1302553964/contents/LICENSE.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f).
+
+#### Ergänzende Quellensichtung: Deadlock-Varianten und Planerzwingung
+
+Erfasst am 2026-10-23; Quellenstand `fd18d829904b6b1631f385cfaad340ca3c72bcbb`. Ausschließlich lesende Sichtung von Katalog, drei Szenariodefinitionen und Runbooks, gemeinsamen SQL-Bausteinen, Analyzer- und Aufruf-/Verify-Pfad; Abgleich mit den bestehenden Schulungsinhalten. Keine Tests, SQL-, Lab- oder CI-Ausführung während der Quellensichtung. Statische Repositoryprüfungen zur Veröffentlichung sind davon getrennt; keine Laufzeitabnahme.
+
+Die zunächst am Quellenstand add76bdefb3bdeeb3273cae16ecf4ee6bbe33c64 gelesenen Szenario- und Aufrufdateien wurden gegen fd18d829904b6b1631f385cfaad340ca3c72bcbb abgeglichen und waren unverändert. Die Fundstellen dieser ergänzenden Sichtung sind an fd18d829904b6b1631f385cfaad340ca3c72bcbb gebunden; der frühere Stand 6e557726a07ce7d389a36083c7e82d214b20822f bleibt für die erste Sichtung erhalten.
+
+Die gemeinsamen Grenzen bei Variablenübergabe, Eigentumsprüfung im Cleanup und konfigurierten Befundcodes sind auch im ergänzend geprüften Aufrufpfad vorhanden. Sie ersetzen keine variantenspezifischen Konfliktgraphen oder tatsächlichen Forcing-Erfolgs-/Fehlernachweise. Der Analyze-Runner wird nicht zur Übernahme freigegeben.
+
+Nachlesbare gemeinsame Fundstellen: [Lab/Scenarios/Performance/_Shared/Worker.sql:1](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1:89](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1:63](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:82](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Observe.sql:930](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1:43](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb).
+
+Die drei Runbooks wählen SQL_ONLY (vorgesehene SQL-Ausführung), keine reine CONTRACT_FIXTURE (Vertragsattrappe). Der Katalogstatus IMPLEMENTED_ACTIONS_GATE bezeichnet vorhandene Aktionsbausteine, keine Laufzeitqualifikation. Die Szenariodefinitionen führen SQL Server 2019, 2022 und 2025 auf, verlangen tatsächliche Plattformnachweise aber weiterhin außerhalb des Repositoryvertrags. Die Sichtung erteilt keine Versions-, Lizenz- oder Implementierungsfreigabe.
+
+Quellen zur Szenarioreife: [Lab/Scenarios/Catalog/scenarios.json:233](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Catalog/scenarios.json:341](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-002/scenario.json:79](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-003/scenario.json:79](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-003/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-QS-002/scenario.json:81](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb).
 
 #### Gemeinsamer weiterer Prüfauftrag
 
@@ -144,13 +159,31 @@ Produktdokumentation: [Referenz 1](https://learn.microsoft.com/en-us/sql/relatio
 
 ##### 3. CON-006 – Conversion- und Range-Deadlocks als optionale Varianten
 
-**P2 · offen zur Quellenprüfung · Aufwand M – vorläufig.**
+**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
 **Quellen:** `LAB-DEAD-002` (Conversion Deadlock; Konflikt bei Sperrumwandlung); `LAB-DEAD-003` (Range Deadlock; Konflikt um Schlüsselbereiche).
 
 **Abgrenzung:** CON-006 zeigt bereits einen reproduzierbaren Deadlock mit Deadlock Graph (Konfliktgraph). Nur zusätzliche Ursachenvarianten prüfen; CON-002 deckt Schlüsselbereichssperren fachlich ab.
 
-**Zuerst prüfen:** Sperrkonvertierung, Isolation, Schlüsselbereich und auslösende Reihenfolge gegen die vorhandene Deadlock-Demo prüfen; unabhängigen Lernzuwachs begründen.
+**Weiterer Prüfauftrag:** Sperrkonvertierung, Isolation, Schlüsselbereich und auslösende Reihenfolge gegen die vorhandene Deadlock-Demo prüfen; unabhängigen Lernzuwachs begründen.
+
+**Statischer Quellenbefund:** Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb`, erfasst am 2026-10-23. LAB-DEAD-002 liest in beiden Transaktionen dieselbe Zeile mit HOLDLOCK und versucht nach einer festen Verzögerung die Änderung dieser Zeile; der beabsichtigte Zusatz ist eine Sperrumwandlung vom Lesen zum Schreiben. LAB-DEAD-003 liest unter SERIALIZABLE zwei leere Schlüsselbereiche und fügt anschließend jeweils im Bereich der anderen Session ein.
+
+- Observe.sql akzeptiert gemeinsam für die Deadlock-Szenarien irgendein xml_deadlock_report-Ereignis in der festen XE-Session (Extended Events; Ereigniserfassung). Datenbank- und Laufzuordnung, Teilnehmer, Ressourcen, Sperrmodi und konkrete Deadlock-Variante werden in diesem Prädikat nicht geprüft.
+- DeadlockRange enthält anfangs nur die Schlüssel 10 und 90. Die gelesenen Leerbereiche 20 bis 40 und 60 bis 80 liegen damit zwischen denselben benachbarten Indexschlüsseln. Fachliche Ableitung: unterschiedliche logische Suchbereiche belegen hier keine getrennten Sperrressourcen; tatsächliche Bereichssperren und Umwandlungen müssen am Konfliktgraphen nachgewiesen werden.
+- Die Worker verwenden feste Verzögerungen; das Runbook ergänzt drei Sekunden Startvorlauf und akzeptiert die Prozesscodes 0 und 1. Das ersetzt weder eine signalgesteuerte Abfolge noch den eindeutigen Nachweis eines Deadlockopfers mit Fehler 1205 und eines erfolgreichen Gegenparts.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:113](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Worker.sql:230](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Worker.sql:246](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Observe.sql:272](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-002/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-DEAD-003/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb).
+
+Abgleich mit der Schulung: [Vorhandener Deadlock-Grundfall mit Gegenprobe](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md#L13), [CON-002: Isolation und Schlüsselbereichssperren](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/MASTER_IMPLEMENTATION_PLAN.md#L971).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Eigenständigen Lernzuwachs gegenüber CON-006 (vorhandener Deadlock-Zyklus) und CON-002 (Isolation und Schlüsselbereichssperren) begründen; nur ausgewählte Ursachenvarianten ergänzen und den vorhandenen Grundfall erhalten.
+- Je ausgewählter Variante tatsächlichen Konfliktgraphen mit Ressourcen, gehaltenen und angeforderten Sperrmodi, laufzugeordneten Teilnehmern sowie Opfer-/Gegenpartnachweis vorsehen. Für die Range-Variante den Indexbereich fachlich erklären; keinen bestimmten Graphen aus dem Szenariotitel ableiten.
+- Vorhandene signalgesteuerte Schulungs-Sessionsteuerung, begrenzte Warte- und Abbruchpfade, vollständige Eigentumsmarker, passende Gegenprobe und sicheres Cleanup (Aufräumen) anwenden.
+
+Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Schlüsselbereichssperren](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-ver17#key-range-locking), [Microsoft: Deadlock-Diagnose](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17).
 
 **Spätere Abnahme:**
 
@@ -159,13 +192,31 @@ Produktdokumentation: [Referenz 1](https://learn.microsoft.com/en-us/sql/relatio
 
 ##### 4. DGN-004 – Erfolgreiches und fehlgeschlagenes Plan Forcing
 
-**P2 · offen zur Quellenprüfung · Aufwand M – vorläufig.**
+**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
 **Abgrenzung:** DGN-004 ist bereits für Plan Forcing (Erzwingen eines Plans), Query Store Hints und sichere Rücknahme geplant; DGN-003 liefert die vorhandene Query-Store-Grundlage.
 
-**Zuerst prüfen:** Vorbedingungen und Versionsgrenzen des gewählten Forcing-Fehlers sowie tatsächlichen Erfolgs-/Fehlernachweis im Verify-Vertrag prüfen.
+**Weiterer Prüfauftrag:** Vorbedingungen und Versionsgrenzen des gewählten Forcing-Fehlers sowie tatsächlichen Erfolgs-/Fehlernachweis im Verify-Vertrag prüfen.
+
+**Statischer Quellenbefund:** Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb`, erfasst am 2026-10-23. LAB-QS-002 aktiviert Query Store (persistente Abfragehistorie), erzeugt Abfrageausführungen und markiert anschließend einen erfassten Plan mit sp_query_store_force_plan zur Erzwingung. Das Runbook startet keine Worker; Observe.sql verlangt lediglich mindestens einen Plan der synthetischen Prozedur mit is_forced_plan = 1.
+
+- Trotz des Titels Forced and failed forced plan fehlen nach dem Forcing eine erneute Ausführung der Zielabfrage, ein kontrolliert ausgelöster Forcing-Fehler, dessen Beobachtung und eine ausdrückliche Rücknahme mit sp_query_store_unforce_plan. Die Datenbanklöschung ersetzt keine Lehrsequenz zur sicheren Rücknahme.
+- is_forced_plan kennzeichnet die angeforderte Planerzwingung und garantiert keine erfolgreiche Planverwendung. Observe.sql prüft weder die tatsächliche Ausführung nach dem Forcing noch force_failure_count (Anzahl fehlgeschlagener Erzwingungsversuche) oder last_force_failure_reason_desc (letzter Fehlergrund). Der Analyzer USP_QueryStoreForcedPlans stellt diese Felder bereit; der Szenariovertrag wertet sie nicht als fachliche Abnahme aus.
+- Die Szenariodefinition nennt zusätzlich USP_QueryStoreHints und USP_QueryStoreAnalysis, der Aufrufpfad führt jedoch nur den PrimaryAnalyzer USP_QueryStoreForcedPlans aus. Daraus folgt kein Nachweis für Query Store Hints (gespeicherte Abfragehinweise) oder fehlgeschlagenes Forcing. Der bestehende Schulungsplan umfasst Force, Failure, Fallback und Unforce bereits ausdrücklich.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:521](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Setup.sql:549](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Observe.sql:472](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/_Shared/Observe.sql:624](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-QS-002/runbook.json:11](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/runbook.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Lab/Scenarios/Performance/LAB-QS-002/scenario.json:36](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-QS-002/scenario.json?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb), [Code/05_QueryStore/060_USP_QueryStoreForcedPlans.sql:54](https://api.github.com/repositories/1302553964/contents/Code/05_QueryStore/060_USP_QueryStoreForcedPlans.sql?ref=fd18d829904b6b1631f385cfaad340ca3c72bcbb).
+
+Abgleich mit der Schulung: [Bestehender DGN-004-Planungsschnitt: Force, Failure und Unforce](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L89), [Abgrenzung zur vorhandenen Query-Store-Historie](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md#L25).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Im vorhandenen DGN-004-Planungsschnitt bleiben; DGN-003 (Query-Store-Historie) als Grundlage nutzen und keine zweite allgemeine Query-Store-Demo anlegen. Eine tatsächlich ausgeführte Zielabfrage nach dem Forcing mit zugeordneten Query-/Plan-Kennungen und passendem Beobachtungsfenster belegen.
+- Für die spätere Fehlersequenz eine Planvoraussetzung kontrolliert entziehen und eine erneute Kompilierung mit anschließender Ausführung auslösen. Änderung des Fehlerzählers, konkreten Fehlergrund und beobachtete Ersatzplanung (Fallback) prüfen; Voraussetzungen und zulässige Abweichungen je unterstützter Version festlegen.
+- Forcing und sonstige Zustandsänderungen ausdrücklich zurücknehmen und die Rücknahme prüfen; markergebundenes Cleanup erhalten. SQL Server 2019, 2022 und 2025 getrennt betrachten; Query Store Hints nur als Zusatzpfad ab SQL Server 2022 behandeln. Detailquellen vor einem späteren Design im regulären Quellenprozess registrieren.
+
+Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Forcing-Status und Fehlergründe](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17), [Microsoft: Planerzwingung und Ersatzplanung](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17), [Microsoft: Query Store Hints ab SQL Server 2022](https://learn.microsoft.com/en-us/sql/relational-databases/performance/query-store-hints?view=sql-server-ver17).
 
 **Spätere Abnahme:**
 
