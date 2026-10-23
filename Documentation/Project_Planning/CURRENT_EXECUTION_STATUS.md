@@ -1,15 +1,15 @@
 # Aktueller Ausführungsstand
 
-## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
+## Aktueller Auftrag vom 23. Oktober 2026: Priorisierung und begrenzter CON-005-Plan
 
-Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
-zu INF-006 (Log Shipping als gesonderter Infrastrukturumfang; Übertragung
-und Wiederherstellung von Transaktionslog-Sicherungen)
-bei TSK-016 (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) und ihre
-Integration über einen Pull Request (Änderungsantrag) nach `origin/main`. Statische
-CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
-erlaubt. Implementierungen sowie SQL- und Lab-Läufe sind ausgeschlossen.
-Die übrige autonome Verarbeitung bleibt ausdrücklich pausiert.
+Der jüngste menschliche Auftrag bestätigt die quellenbasierte Priorisierung
+aller neun TSK-016-Kandidaten (Analyze-Labs als gezielte Curriculum-Ergänzungen)
+und den nächsten begrenzten Planungsschnitt für CON-005 (Schemasperren).
+Die Dokumentation wird über einen Pull Request (Änderungsantrag) nach
+`origin/main` integriert. Statische CI-Prüfungen (Continuous Integration;
+automatisierte Repositoryprüfungen) sind erlaubt. Implementierungen, Tests sowie
+SQL- und Lab-Läufe sind ausgeschlossen. Die übrige autonome Verarbeitung
+bleibt ausdrücklich pausiert.
 
 `TSK-016` (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) ist als
 offene Aufgabe in der [kanonischen Registry](../../.ai/identity/registry.json)
@@ -57,6 +57,17 @@ Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
 und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
 Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
 Pull Request; eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
+
+Die quellenbasierte Reihenfolge und die begründeten Zurückstellungen sind
+kanonisch bei TSK-016 gepflegt und im Backlog abgeleitet. CON-005 (Schemasperren)
+wird zuerst geplant; danach folgen OPT-007 (Ad-hoc-Plancache) und DGN-004
+(Planerzwingung). Der CON-005-Entwurf beschreibt drei Akteure, außerhalb der
+gehaltenen Transaktion sichtbare Freigaben, tatsächlich gewährtes Sch-M
+(Schemaänderungssperre) und wartendes Sch-S (Schemastabilitätssperre),
+Objekt-/Laufzuordnung, begrenzten Abbruch und sicheren Abbau. Sperreskalation
+bleibt ein getrennter späterer Teil. Entwurfsgrenzen sind keine gemessenen
+Laufzeiten; keine Demo ist implementiert, freigegeben oder zur Laufzeit abgenommen.
+Bestehende Quellenbefunde, Demo-Kennungen und alle früheren Pausen bleiben erhalten.
 
 Bei Eingang dieses Auftrags war PR301 (Pull Request; Änderungsantrag für die
 vollständige Frameworkeingabeprüfung) bereits in Main

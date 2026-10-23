@@ -14,11 +14,18 @@ RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) und INF-006
 (Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
 liegen mit Nachweis- und Sicherheitslücken vor. Damit sind alle neun
 Kandidatenquellen gesichtet; sämtliche Erweiterungsideen bleiben offen.
-Der aktuelle Auftrag erlaubt die Ergänzung der INF-006-Befunde und ihre Integration
-per Pull Request (Änderungsantrag) mit statischen Prüfungen. INF-006 bleibt
-ein eigenständiger Infrastrukturumfang mit vorläufiger Priorität P3
+Der aktuelle Auftrag bestätigt die quellenbasierte Priorisierung und einen
+begrenzten CON-005-Plan (Schemasperren); danach sollen OPT-007 (Ad-hoc-Plancache)
+und DGN-004 (Planerzwingung) gezielt geplant werden. Reihenfolge, fachliche
+Abhängigkeiten, Zurückstellungen und Wiederaufnahmebedingungen stehen
+kanonisch bei TSK-016. Die Dokumentation wird per Pull Request (Änderungsantrag)
+mit statischen Prüfungen integriert. Der CON-005-Entwurf grenzt Lernziel,
+Akteure und Freigaben, konkrete Sperrnachweise, Entwurfsgrenzen und späteren
+Abbau ab; Sperreskalation bleibt ein getrennter späterer Teil.
+INF-006 bleibt ein eigenständiger Infrastrukturumfang mit vorläufiger Priorität P3
 (gesonderte Infrastrukturentscheidung) und Aufwand XL (sehr groß).
-Sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
+Sämtliche Implementierungen, Tests sowie SQL-/Lab-Läufe bleiben zurückgestellt;
+der Plan ist keine ausführbare Demo oder Laufzeitabnahme.
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
 geführt. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab. Aufnahme und
