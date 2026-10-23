@@ -1,5 +1,41 @@
 # Aktueller Ausführungsstand
 
+## Aktueller Auftrag vom 23. Oktober 2026: Backlog und Quellenbefunde integrieren
+
+Der jüngste menschliche Auftrag autorisiert die Ergänzung der Quellenbefunde
+bei TSK-016 und die Integration der gesamten Backlogaufnahme über einen
+Pull Request (Änderungsantrag) nach `origin/main`. Erforderliche statische
+CI-Prüfungen (Continuous Integration; automatisierte Repositoryprüfungen) sind
+erlaubt. Implementierungen sowie SQL- und Lab-Läufe sind ausgeschlossen.
+Die übrige autonome Verarbeitung bleibt ausdrücklich pausiert.
+
+`TSK-016` (Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen) ist als
+offene Aufgabe in der [kanonischen Registry](../../.ai/identity/registry.json)
+erfasst. Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
+führt Prioritäten, Quellenprüfung, Abgrenzung und spätere Abnahme. Für CON-005
+(Schemasperren) und OPT-007 (Ad-hoc-Plancache) liegt eine statische Sichtung des
+Analyze-Stands `6e557726a07ce7d389a36083c7e82d214b20822f` mit konkreten Nachweis-
+und Sicherheitslücken vor. Beide Lernideen bleiben priorisiert, sind jedoch
+nicht direkt übernahmefähig. Die übrigen sieben Kandidaten bleiben ungeprüft.
+Bestehende Demo-Kennungen und Umsetzungsstände bleiben erhalten. Die Aufnahme
+und ihre statischen Prüfungen behaupten keine Umsetzung oder Laufzeitabnahme.
+Die Integrationsnachweise dieses begrenzten Schnitts stehen im zugehörigen
+Pull Request; eine Fortsetzung anderer Aufgaben benötigt einen neuen Auftrag.
+
+Bei Eingang dieses Auftrags war PR301 (Pull Request; Änderungsantrag für die
+vollständige Frameworkeingabeprüfung) bereits in Main
+`a0773b7c7c07a3daea9a92ccd9c29f437717e79d` integriert und der lokale Main
+synchronisiert; die vorher zugelassene frische Main-Versionswelle war bereits
+ausgelöst. Ihre abschließende Ergebnisaufnahme, der vorbereitete getrennte
+Dokumentationsabschluss und die Bereinigung des Branches
+`codex/fwk002-input-validation` sind jetzt zurückgestellt. Laufende mutierende
+Prüfungen werden nicht abgebrochen. Neue Läufe oder Wiederholungen werden nicht
+gestartet. Vor einer ausdrücklich beauftragten Wiederaufnahme sind die
+vorhandenen Ergebnisse und der tatsächliche Ressourcenstand zu prüfen; alte
+Resultate oder vorbereitete Dokumentation gelten nicht als abgeschlossener
+Arbeitsstand. Die privaten Quellen-, Ergebnis- und Ressourcenrecords bleiben
+erhalten. Die folgenden Wiederaufnahmeabschnitte beschreiben den früheren Auftrag.
+
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 
 Der menschliche Auftrag autorisiert die vollständige Korrektur aller 22

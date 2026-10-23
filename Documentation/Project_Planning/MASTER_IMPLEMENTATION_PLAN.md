@@ -1,5 +1,22 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Aktueller Planungsauftrag vom 23. Oktober 2026
+
+Die übrige autonome Entwicklung ist pausiert. `TSK-016` (Analyze-Labs als
+gezielte Curriculum-Ergänzungen prüfen) erfasst ausschließlich offene,
+priorisierte Quellen- und Lückenprüfungen in der [kanonischen Registry](../../.ai/identity/registry.json).
+Die statischen Sichtungen zu CON-005 (Schemasperren) und OPT-007
+(Ad-hoc-Plancache) liegen mit Nachweis- und Sicherheitslücken vor. Der aktuelle
+Auftrag erlaubt ihre Aufnahme und Integration per Pull Request (Änderungsantrag)
+mit erforderlichen statischen Prüfungen; die übrigen sieben Kandidaten und
+sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
+Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
+ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
+geführt. Allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab. Aufnahme und
+vorläufige Aufwandseinschätzung erteilen keine Implementierungs- oder
+SQL-/Lab-Ausführungsfreigabe. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
+führt die Pause und die zuvor begonnenen, nun zurückgestellten Abschlussgates.
+
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 
 Der neue menschliche Auftrag autorisiert die vollständige Korrektur der

@@ -1,5 +1,256 @@
 # Initialer Backlog
 
+<!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
+## Backlogaufnahme und Quellenbefunde: weitere Entwicklung pausiert
+
+Der Auftrag vom 23. Oktober 2026 erlaubt die Ergänzung dieser Quellenbefunde
+und die Integration der Backlogaufnahme über einen Pull Request (Änderungsantrag).
+Erforderliche statische CI-Prüfungen (Continuous Integration; automatisierte
+Repositoryprüfungen) sind erlaubt. Die übrige autonome Bearbeitung bleibt pausiert;
+es werden keine Implementierungen oder SQL-/Lab-Läufe begonnen. Maßgeblich ist
+der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
+
+### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
+
+Fachlicher Status: **offen** (`proposed`). Registrierungsstatus: `REGISTERED`.
+Die Quellensichtungen für Schemasperren und Ad-hoc-Plancache liegen mit Lücken vor;
+die übrigen sieben Kandidaten sind noch zu prüfen. Keine neue Demo wird registriert.
+
+Dieser Abschnitt ist die abgeleitete Ansicht von
+[`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
+werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
+
+Backlogaufnahme vom 22. Oktober 2026 mit statischer Quellensichtung für CON-005 und OPT-007; Aufnahme der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur erforderliche statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.
+
+**Prioritäten innerhalb dieser Recherche:** P1 zuerst, P2 weitere Prüfkandidaten,
+P3 gesonderte Infrastrukturentscheidung. Die Reihenfolge ersetzt keine bestehende
+Sicherheitspriorität. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
+
+**Quellenstand:** [Analyze-Szenariokatalog](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f),
+Commit `6e557726a07ce7d389a36083c7e82d214b20822f`.
+Die öffentliche Quelle wird neutral als Analyze-Quellprojekt über die verifizierte
+GitHub-Repository-ID `1302553964` bezeichnet. Quellenlinks verwenden die offizielle
+API (Application Programming Interface; Programmierschnittstelle). Commit,
+Dateipfad und Linienzahl bleiben nachvollziehbar zugeordnet.
+Am 22. Oktober 2026 ausschließlich lesend: Katalogzuordnungen und Szenariotitel geprüft; lokale Katalogbytes stimmen nach Zeilenendennormalisierung mit dem genannten Commit überein. Keine Skript-, Verify- oder Laufzeitqualifikation.
+
+#### Statische Quellensichtung zu den ersten beiden Kandidaten
+
+Erfasst am 2026-10-23. Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.
+
+CON-005 und OPT-007 behalten ihre Reihenfolge als erste Prüfkandidaten. Beide liefern fachlich brauchbare Ausgangsbausteine, sind wegen Nachweis- und Sicherheitslücken nicht direkt übernahmefähig. Die übrigen sieben Kandidaten besitzen noch keine entsprechende Quellensichtung.
+
+**Gemeinsame Befunde vor einer späteren Adaption:**
+
+- **Variablenübergabe im vorhandenen Runner:** Der Aufrufpfad übergibt Szenario, Lauftoken und weitere Werte mit sqlcmd -v. Die unverändert kopierten SQL-Dateien setzen dieselben Variablen anschließend durch :setvar auf Vorgaben zurück, darunter LAB-INVALID-000. Nach der dokumentierten Variablenpriorität gewinnt :setvar; die beabsichtigte Szenario- und Laufbindung wird dadurch überschrieben. Statischer Ausführungspfadfehler; nicht als ausgeführter Fehlernachweis ausgeben. Vor späterer Wiederverwendung muss die tatsächliche Parameterbindung eindeutig geklärt und belegt sein. Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:1](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1:89](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1:63](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1?ref=6e557726a07ce7d389a36083c7e82d214b20822f). [Produktdokumentation](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver17#variable-precedence-low-to-high).
+
+- **Fehlender Eigentumsmarker im Cleanup:** Die Eigentumsprüfung lautet IF @DatabaseOwner <> @LabRunId. Bei fehlendem Marker bleibt @DatabaseOwner NULL; der Vergleich liefert UNKNOWN (unbekannt) und löst die Abweisung nicht aus. Im folgenden Pfad wird die feste Datenbank Lab001Wave3 zur Löschung ausgewählt. Statisch erkennbare Schutzlücke. Vor einer Schulungsadaption sind die vollständigen markergebundenen Eigentumsprüfungen des Schulungsvertrags erforderlich; keine Laufzeitverletzung oder bereits erfolgte Korrektur behaupten. Quellen: [Lab/Scenarios/Performance/_Shared/Cleanup.sql:38](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:82](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:162](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f). [Produktdokumentation](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/null-and-unknown-transact-sql?view=sql-server-ver17).
+
+- **Befundcode ist kein unabhängiger Analyzer-Nachweis:** Observe.sql bildet FindingCodes direkt aus dem Skriptwert @FindingCode; der Code wird nicht aus dem Analyzerergebnis abgeleitet. Test-LabScenario vergleicht anschließend die erzeugte Hülle mit dem erwarteten Code. Wegen des separat belegten :setvar-Konflikts ist im unveränderten Aufruf nicht nachgewiesen, dass der Runbookcode tatsächlich als SQL-Wert ankommt. Analyzer-Aufruf und Status werden berücksichtigt; der konkrete positive Analyzer-Befund und das in der Definition verlangte Mindestvertrauen HIGH werden dadurch nicht unabhängig geprüft. Eine erfolgreiche Hüllenprüfung genügt nicht als Ursachen- oder Diagnosebeleg. Der spätere Schulungsergebnisvertrag muss die tatsächlichen fachlichen Beobachtungen prüfen. Quellen: [Lab/Scenarios/Performance/_Shared/Observe.sql:930](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1:43](https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=6e557726a07ce7d389a36083c7e82d214b20822f).
+
+- **Cachebereinigung ist nicht laufgenau:** Die Planselektion im Cleanup akzeptiert entweder die feste Datenbankkennung oder einen gemeinsamen Textmarker LAB001_WAVE3. Der Textpfad ist nicht an den einzelnen Lauf gebunden; anschließend wird DBCC FREEPROCCACHE für die ausgewählten Planhandles aufgerufen. Vor Wiederverwendung Abgrenzung auf tatsächlich eigene Pläne und die passende Sicherheitsstufe klären. Ein Planhandle begrenzt den einzelnen Eingriff, ersetzt aber keine hinreichende Eigentumsselektion. Quellen: [Lab/Scenarios/Performance/_Shared/Cleanup.sql:142](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f).
+
+**Grenzen der Sichtung:**
+
+- SQL Server 2019, 2022 und 2025 sind in den Szenariodefinitionen aufgeführt. Die Definitionen benennen native Plattformnachweise selbst als externes Gate; die statische Sichtung erbringt keine Versions- oder Laufzeitabnahme.
+- Der ältere Analyze-Lernpfad bezeichnet LAB-CONC-002 als komplexes Blocking und LAB-PLAN-003 als allgemeine Plan-Cache-Analyse. Für diese Aufnahme wurden stattdessen der aktuelle Katalog und die tatsächlichen Szenariobausteine verwendet.
+- Vor einer Codeübernahme ist die projektspezifische Analyze-Lizenz mit Urheberangabe und Weitergabebedingungen zu berücksichtigen. Die Quellensichtung ist keine pauschale Lizenz- oder Veröffentlichungsfreigabe.
+
+Nachlesbare Quellen zu diesen Grenzen: [Lab/Scenarios/Performance/LAB-CONC-002/scenario.json:79](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-CONC-002/scenario.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/LAB-PLAN-003/scenario.json:81](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-PLAN-003/scenario.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/LEARNING_PATH.md:39](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/LEARNING_PATH.md:58](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [LICENSE.md:5](https://api.github.com/repositories/1302553964/contents/LICENSE.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f).
+
+#### Gemeinsamer weiterer Prüfauftrag
+
+- Für jeden Kandidaten Katalog, scenario.json, runbook.json, referenzierte SQL-Bausteine und Verify-Vertrag am selben Quellenstand lesen; geplante Szenarien, reine Fixtures (Testaufbauten), implementierte Abläufe und tatsächliche Laufnachweise auseinanderhalten. Ein Katalogstatus wie IMPLEMENTED_ACTIONS_GATE ist keine Schulungsabnahme.
+- Abweichende ältere Lernpfade mit dem aktuellen Katalog abgleichen: LAB-MEM-002 bedeutet Buffer-Pool-Druck (Druck auf den Datenseiten-Cache), nicht überdimensionierte Memory Grants (Speicherzuteilungen für Abfragen).
+- Schwache Alternativnachweise im Verify-Vertrag prüfen: aktive Sessions allein belegen weder RESOURCE_SEMAPHORE (Warten auf Abfragespeicher) noch Worker-Erschöpfung (Mangel an Ausführungsthreads).
+- Vor jeder späteren Wiederverwendung Herkunft, Nutzungsbedingungen, Versions-/Editionsgrenzen und das tatsächlich fehlende Lernziel prüfen; allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab.
+
+#### Grenzen jeder späteren Erweiterung
+
+- Lernziele und geeignete SQL-Bausteine wiederverwenden; weder den Analyze-Runner noch dessen gesamten Frameworkumfang ungeprüft übernehmen.
+- Spätere ausführbare Demos benötigen die Schulungsverträge für Sessionsteuerung, vollständige Eigentumsmarker, Cleanup (sicheres Aufräumen), Recovery (Wiederherstellung nach Fehlern), Versionsgrenzen und Ergebnisnachweise. Änderungen am gemeinsamen Instanzzustand nur in ausdrücklich isolierter Umgebung.
+- Kurze Erklärungen und Diagnosebeispiele benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Konkrete Mess- oder Leistungsbehauptungen benötigen passende Evidenz mit Bedingungen und Grenzen.
+- Aufwand ist ausschließlich eine vorläufige qualitative Einschätzung: M mittel, L groß, XL sehr groß; keine Zusage von Dauer oder Kapazität. Alle Kandidaten bleiben offen; spätere Umsetzung und Ausführung sind gesondert zu autorisieren.
+
+#### Vorhandene Inhalte berücksichtigen
+
+- `CON-004`, `CON-006`: Blocking (Blockierungen) und Deadlocks (zyklische Sperrkonflikte).
+- `OPT-002`, `OPT-003`, `OPT-005`: Statistiken und Skew (ungleiche Datenverteilung).
+- `QRY-004`, `OPT-009`, `OPT-010`: Plansensitivität, PSP (Parameter Sensitive Plan; parameterabhängige Planvarianten) und OPPO (Optional Parameter Plan Optimization; Optimierung optionaler Parameter).
+- `OPT-015`, `OPT-016`, `OPT-017`: Planeigenschaften, Spools (Zwischenspeicheroperatoren) und Parallelität.
+- `OPT-013`, `CON-009`: Spills (Auslagerung von Arbeitsspeicherinhalten) und TempDB (temporäre Systemdatenbank).
+- `DGN-003`, `DGN-005`: Query Store (Abfragehistorie) und XE (Extended Events; Ereigniserfassung).
+- `STL-008`, `STL-009`: Transaktionslog, VLF (Virtual Log Files; virtuelle Logabschnitte) und Commit-Batching (gebündelte Transaktionsabschlüsse).
+- `IDX-006`, `IDX-010`, `RES-007`: Seitendichte, Columnstore (spaltenweise Speicherung) und Wait-Deltas (Wartezeitdifferenzen).
+
+#### Priorisierte offene Kandidaten
+
+##### 1. CON-005 – Schema- und Metadatensperren als Ergänzung zu Blocking
+
+**P1 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+
+**Quellen:** `LAB-CONC-002` (Schema-, Metadaten- und Kompilierungssperren).
+
+**Abgrenzung:** CON-004 behandelt Blockierungsketten; CON-005 ist bereits für Lock Escalation (Sperreskalation), Schema Locks und Metadatenzugriff vorgesehen. Diesen bestehenden Umfang ergänzen, keine zweite Blocking-Demo anlegen.
+
+**Weiterer Prüfauftrag:** Konkrete Sperrmodi, auslösende Operationen, Kompilierungs-/Metadatenpfad und Verify-Alternativen prüfen; Abgrenzung zur Sperreskalation festhalten.
+
+**Statischer Quellenbefund:** LAB-CONC-002 enthält zwei Worker: ALTER TABLE innerhalb einer offenen Transaktion und eine konkurrierende Leseabfrage. Der Worker hält die Transaktion mit einer festen Wartezeit und nimmt die Änderung danach zurück.
+
+- Observe.sql prüft gemeinsam für LAB-CONC-001 und LAB-CONC-002 nur, ob mindestens ein laufzugeordneter Request einen blocking_session_id größer null besitzt. Schemasperrmodus, Objekt und exakte Blockerbeziehung werden nicht geprüft.
+- Feste Verzögerungen im Worker und drei Sekunden Startvorlauf ersetzen keine deterministische fachliche Sessionsteuerung. Ein eigenständiger Nachweis für Kompilierungs- oder Metadatensperren fehlt.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Worker.sql:196](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/_Shared/Observe.sql:260](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/LAB-CONC-002/runbook.json:14](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-CONC-002/runbook.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Für die spätere Schulung Sch-M (Schemaänderungssperre) und Sch-S (Schemastabilitätssperre), Objektbezug und Blocker-/Wartebeziehung passend zum Lernziel belegen.
+- Vorhandenen signalfähigen Schulungs-Mehrsessionpfad sowie vollständige Eigentums-, Abbruch- und Cleanup-Verträge anwenden; vorhandenen CON-004-Grundfall und die Abgrenzung zur Sperreskalation erhalten.
+
+**Spätere Abnahme:**
+
+- Blockierer, wartende Session und tatsächliche Schema-/Metadatensperre dem Lernziel eindeutig zuordnen; bloße Laufzeit oder aktive Sessions reichen nicht.
+- Ergänzung nutzt den vorhandenen Mehrsessionpfad mit begrenzter Steuerung und sicherem Abbau; bestehende CON-004-Aussage bleibt erhalten.
+
+##### 2. OPT-007 – Begrenzte Diagnose von Ad-hoc-Plancache-Wachstum
+
+**P1 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+
+**Quellen:** `LAB-PLAN-003` (Ad-hoc-Plancache-Wachstum).
+
+**Abgrenzung:** OPT-007 umfasst bereits Compilation (Planübersetzung), Recompilation, Planwiederverwendung und Ad-hoc-Cache-Pollution (unnötige Cachebelegung). Abgrenzen von Plansensitivität und den vorhandenen Parameterdemos.
+
+**Weiterer Prüfauftrag:** Erzeugung verschiedener Ad-hoc-Pläne, Messumfang, wirksame Abbruchgrenzen und Parameterisierungsvergleich prüfen; globale Cache-Eingriffe im Quellenablauf identifizieren.
+
+**Statischer Quellenbefund:** LAB-PLAN-003 erzeugt im Setup höchstens 40 dynamische Abfragen mit unterschiedlichen Literalen und statischen Textmarkern. Die Beobachtung verlangt mindestens 20 Cacheeinträge mit passendem Text.
+
+- Der Beobachtungsfilter prüft weder Datenbank- und Laufzuordnung noch Cacheobjekttyp, Wiederverwendung oder belegte Bytes. Eine Anzahl passender Cacheeinträge ist kein Nachweis einer bestimmten Speicherzunahme.
+- Es fehlen eine vergleichbare Ausgangsmessung und eine Gegenüberstellung mit Parameterisierung. Ein vorhandener Cacheeintrag wird nicht nach vollständigem Plan und kleinem Planstub (reduziertem Cacheeintrag) unterschieden; eine Leistungsverbesserung ist nicht belegt.
+
+Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:443](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/_Shared/Observe.sql:416](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f), [Lab/Scenarios/Performance/_Shared/Cleanup.sql:142](https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f).
+
+**Vor einer späteren Umsetzung erforderlich:**
+
+- Diagnoseumfang und tatsächlich eigene Cacheeinträge definieren; Versions-, Berechtigungs-, Parametrisierungs- und Cachekonfiguration berücksichtigen.
+- Für behauptetes Wachstum einen begründeten Vorher-/Nachhervergleich mit Cachetyp und Bytes vorsehen; für behauptete Verbesserungen eine passende Vergleichsvariante. Keine pauschale Benchmarkpflicht für rein erklärenden Inhalt.
+- Die gemeinsame, nicht laufgenaue Planbereinigung nicht ungeprüft übernehmen; keine globale Cacheleerung als allgemeine Voraussetzung einführen.
+
+Produktdokumentation: [Referenz 1](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-cached-plans-transact-sql?view=sql-server-ver17), [Referenz 2](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/optimize-for-ad-hoc-workloads-server-configuration-option?view=sql-server-ver17).
+
+**Spätere Abnahme:**
+
+- Diagnoseübung begrenzt Zahl, Dauer und Ressourcen ihrer synthetischen Abfragen; Planzahl und Cachebelegung beziehen sich auf den erklärten Messumfang.
+- Falls Wachstum oder Verbesserungen quantitativ behauptet werden, passenden Ausgangs-/Vergleichszustand und Evidenz ausweisen; keine unkontrollierte globale Cacheleerung.
+
+##### 3. CON-006 – Conversion- und Range-Deadlocks als optionale Varianten
+
+**P2 · offen zur Quellenprüfung · Aufwand M – vorläufig.**
+
+**Quellen:** `LAB-DEAD-002` (Conversion Deadlock; Konflikt bei Sperrumwandlung); `LAB-DEAD-003` (Range Deadlock; Konflikt um Schlüsselbereiche).
+
+**Abgrenzung:** CON-006 zeigt bereits einen reproduzierbaren Deadlock mit Deadlock Graph (Konfliktgraph). Nur zusätzliche Ursachenvarianten prüfen; CON-002 deckt Schlüsselbereichssperren fachlich ab.
+
+**Zuerst prüfen:** Sperrkonvertierung, Isolation, Schlüsselbereich und auslösende Reihenfolge gegen die vorhandene Deadlock-Demo prüfen; unabhängigen Lernzuwachs begründen.
+
+**Spätere Abnahme:**
+
+- Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
+- Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen.
+
+##### 4. DGN-004 – Erfolgreiches und fehlgeschlagenes Plan Forcing
+
+**P2 · offen zur Quellenprüfung · Aufwand M – vorläufig.**
+
+**Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
+
+**Abgrenzung:** DGN-004 ist bereits für Plan Forcing (Erzwingen eines Plans), Query Store Hints und sichere Rücknahme geplant; DGN-003 liefert die vorhandene Query-Store-Grundlage.
+
+**Zuerst prüfen:** Vorbedingungen und Versionsgrenzen des gewählten Forcing-Fehlers sowie tatsächlichen Erfolgs-/Fehlernachweis im Verify-Vertrag prüfen.
+
+**Spätere Abnahme:**
+
+- Erfolgreiches Forcing und begründet fehlgeschlagenes Forcing anhand des tatsächlichen Status und Fehlergrundes unterscheiden.
+- Forcing und sonstige Zustandsänderungen rücknehmbar halten; keine zweite allgemeine Query-Store-Demo.
+
+##### 5. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
+
+**P2 · offen zur Quellenprüfung · Aufwand L – vorläufig.**
+
+**Quellen:** `LAB-LATCH-001` (Last-page insert contention; Konkurrenz um die letzte Indexseite); `LAB-LATCH-002` (Sequential-key optimization comparison; Vergleich der Optimierung fortlaufender Schlüssel); `LAB-LATCH-003` (Distributed-key and heap comparison; verteilte Schlüssel und Tabellen ohne Clustered Index).
+
+**Abgrenzung:** IDX-007 ist bereits für Sequential-Key-Insert und Last-Page-Contention vorgesehen. IDX-006 behandelt Seitendichte; RES-005 unterscheidet Seiten-Latches (kurze interne Seitensperren) und Ein-/Ausgabewartezeiten.
+
+**Zuerst prüfen:** Gleichen Workload und Datenumfang, Schlüsselverteilung, wirksame Parallelität, Feature-/Versionsgrenzen und Messreichweite der drei Szenarien prüfen.
+
+**Spätere Abnahme:**
+
+- Tatsächliche Konkurrenz um die letzte Seite von gewöhnlichen Sperren und Speichergerätezugriffen unterscheiden.
+- Vergleiche verwenden erklärten identischen Messrahmen; andere Schlüssel und Heap-Varianten nicht pauschal als bessere Lösung ausgeben. Leistungsbehauptungen separat belegen.
+
+##### 6. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
+
+**P2 · offen zur Quellenprüfung · Aufwand M – vorläufig.**
+
+**Quellen:** `LAB-MEM-001` (Competing memory grants; konkurrierende Abfragespeicherzuteilungen).
+
+**Abgrenzung:** RES-004 umfasst bereits Overgrant (zu hohe Zuteilung), Undergrant (zu geringe Zuteilung), Spills und konkurrierende Grants; OPT-013 behandelt bereits Spills. Nur eine tatsächliche Curriculumlücke ergänzen.
+
+**Zuerst prüfen:** Anforderung, Gewährung und Nutzung des Abfragespeichers sowie echte Wartebeobachtung prüfen; Alternativnachweis über aktive Sessions ausdrücklich bewerten.
+
+**Spätere Abnahme:**
+
+- Dokumentierter Lernzieldelta oder begründeter Verzicht auf weitere Demo; keine Wiederholung vorhandener Spill-Inhalte.
+- Falls RESOURCE_SEMAPHORE-Warten behauptet wird, dieses tatsächlich nachweisen; aktive Sessions allein bleiben unzureichend.
+
+##### 7. RES-003 – Lückenprüfung für Buffer-Pool-Druck und Resource Governor
+
+**P2 · offen zur Quellenprüfung · Aufwand L – vorläufig.**
+
+**Quellen:** `LAB-MEM-002` (Bounded buffer-pool pressure; begrenzter Druck auf den Datenseiten-Cache); `LAB-MEM-003` (Resource Governor pool limit; Begrenzung eines Ressourcenpools).
+
+**Abgrenzung:** RES-003 trennt Instanzspeicherdruck von Query Execution Memory (Abfragearbeitsspeicher); STL-006 behandelt den Buffer Pool. Resource Governor (Steuerung von Ressourcenpools) nur bei neuem Lernziel ergänzen; notwendige Limits berühren INF-005.
+
+**Zuerst prüfen:** LAB-MEM-002 gemäß aktuellem Katalog als Buffer-Pool-Druck einordnen; ältere Overgrant-Zuordnung verwerfen. Bei Resource Governor Edition, Version, Klassifizierung, Poolgrenzen und sicheren Restore prüfen.
+
+**Spätere Abnahme:**
+
+- Abfragespeicher und Datenseiten-Cache fachlich getrennt behandeln; tatsächlich fehlendes Lernziel oder Verzicht dokumentieren.
+- Bei einer späteren Übung tatsächlichen Druck beziehungsweise wirksame Poolbegrenzung passend nachweisen und alle Instanzänderungen sicher zurücknehmen; allgemeine Infrastruktur bleibt extern.
+
+##### 8. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
+
+**P2 · offen zur Quellenprüfung · Aufwand L – vorläufig.**
+
+**Quellen:** `LAB-CPU-003` (Worker-thread pressure; Druck auf Ausführungsthreads).
+
+**Abgrenzung:** RES-001 behandelt bereits CPU (Central Processing Unit; Prozessor), Worker und Scheduler (Ausführungsplaner). RES-007 liefert vorhandene Wait-Deltas. Worker-Druck ist keine neue allgemeine CPU-Demo.
+
+**Zuerst prüfen:** Emuliertes Ressourcenprofil, Sessionsteuerung, Grenzen und schwache Verify-Alternativen prüfen; Druck von tatsächlicher Erschöpfung unterscheiden.
+
+**Spätere Abnahme:**
+
+- Begründete Curriculumlücke oder Verzicht festhalten; Druck und Erschöpfung eindeutig unterschiedlich benennen.
+- Behauptete Worker-Erschöpfung benötigt tatsächliche Thread-/Warte-Evidenz; aktive Sessions oder hohe Prozessorlast allein genügen nicht. Begrenzte Steuerung und gesicherter Abbau sind Voraussetzung.
+
+##### 9. INF-006 – Log Shipping als gesonderten Infrastrukturumfang bewerten
+
+**P3 · offen zur Quellenprüfung · Aufwand XL – vorläufig, eigenständiger Infrastrukturumfang.**
+
+**Quellen:** `LAB-LS-001` (Log Shipping; Sicherung, Kopieren und Wiederherstellen mit Rückstand); `LAB-LS-002` (Unterbrochene Log-Shipping-Übertragung; laut Katalog noch geplant).
+
+**Abgrenzung:** INF-006 enthält bereits begründete Mehrinstanz- und Netzwerktopologien. STL-008 und STL-009 behandeln das Transaktionslog und Commit-Batching; daraus folgt keine Log-Shipping-Infrastrukturfreigabe.
+
+**Zuerst prüfen:** Lernziel, Mehrinstanztopologie, Sicherungs-/Übertragungs-/Restorepfad und insbesondere den geplanten Status von LAB-LS-002 prüfen; Aufwand und Zuständigkeit mit SQL_Server_Lab abgrenzen.
+
+**Spätere Abnahme:**
+
+- Eigenständige fachliche und Infrastrukturentscheidung mit Zuständigkeit, Ressourcenbedarf und realistischem Abnahmeumfang; keine Einstufung als kleine Szenarioübernahme.
+- Allgemeine Bereitstellung und Betrieb bleiben in SQL_Server_Lab. Eine spätere Schulungsintegration benötigt passende Nachweise für Übertragungs-/Restore-Rückstand, Störfall und vollständig sicheren Abbau.
+
+Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.
+
+<!-- REGISTRY_BACKLOG_TSK_016:END -->
+
 ## Wiederaufnahme vom 22. Oktober 2026: Eigentumsprüfungen zuerst
 
 Der neue menschliche Auftrag autorisiert die vollständige Korrektur der

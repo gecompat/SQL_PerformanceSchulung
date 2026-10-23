@@ -1,5 +1,587 @@
 {
   "artifacts": {
+    "TSK-016": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:01a1651b-35a5-77b2-a17f-d9c2170195d8",
+      "kind": "task",
+      "registration_state": "REGISTERED",
+      "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
+      "status": "proposed",
+      "priority": "P1",
+      "scope": "Backlogaufnahme vom 22. Oktober 2026 mit statischer Quellensichtung für CON-005 und OPT-007; Aufnahme der Befunde und Integration über Pull Request sind am 23. Oktober 2026 autorisiert. Nur erforderliche statische Prüfungen, keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert. Prioritäten gelten innerhalb dieses Recherchepakets.",
+      "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
+      "relations": [
+        {
+          "target": "CON-005",
+          "type": "relates_to"
+        },
+        {
+          "target": "OPT-007",
+          "type": "relates_to"
+        },
+        {
+          "target": "CON-006",
+          "type": "relates_to"
+        },
+        {
+          "target": "DGN-004",
+          "type": "relates_to"
+        },
+        {
+          "target": "IDX-007",
+          "type": "relates_to"
+        },
+        {
+          "target": "RES-004",
+          "type": "relates_to"
+        },
+        {
+          "target": "RES-003",
+          "type": "relates_to"
+        },
+        {
+          "target": "RES-001",
+          "type": "relates_to"
+        },
+        {
+          "target": "INF-006",
+          "type": "relates_to"
+        }
+      ],
+      "external_refs": [
+        {
+          "system": "Analyze-Quellprojekt",
+          "value": "Lab/Scenarios/Catalog/scenarios.json",
+          "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+          "sha256": "8fb9e4a7e6b549c66534b44a8a607361dc649f6785d0be6b27340df0ef5acf30",
+          "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Catalog/scenarios.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+          "inspection": "Am 22. Oktober 2026 ausschließlich lesend: Katalogzuordnungen und Szenariotitel geprüft; lokale Katalogbytes stimmen nach Zeilenendennormalisierung mit dem genannten Commit überein. Keine Skript-, Verify- oder Laufzeitqualifikation.",
+          "repository_id": 1302553964
+        }
+      ],
+      "initial_source_review": [
+        "Für jeden Kandidaten Katalog, scenario.json, runbook.json, referenzierte SQL-Bausteine und Verify-Vertrag am selben Quellenstand lesen; geplante Szenarien, reine Fixtures (Testaufbauten), implementierte Abläufe und tatsächliche Laufnachweise auseinanderhalten. Ein Katalogstatus wie IMPLEMENTED_ACTIONS_GATE ist keine Schulungsabnahme.",
+        "Abweichende ältere Lernpfade mit dem aktuellen Katalog abgleichen: LAB-MEM-002 bedeutet Buffer-Pool-Druck (Druck auf den Datenseiten-Cache), nicht überdimensionierte Memory Grants (Speicherzuteilungen für Abfragen).",
+        "Schwache Alternativnachweise im Verify-Vertrag prüfen: aktive Sessions allein belegen weder RESOURCE_SEMAPHORE (Warten auf Abfragespeicher) noch Worker-Erschöpfung (Mangel an Ausführungsthreads).",
+        "Vor jeder späteren Wiederverwendung Herkunft, Nutzungsbedingungen, Versions-/Editionsgrenzen und das tatsächlich fehlende Lernziel prüfen; allgemeine Lab-Infrastruktur bleibt in SQL_Server_Lab."
+      ],
+      "safeguards": [
+        "Lernziele und geeignete SQL-Bausteine wiederverwenden; weder den Analyze-Runner noch dessen gesamten Frameworkumfang ungeprüft übernehmen.",
+        "Spätere ausführbare Demos benötigen die Schulungsverträge für Sessionsteuerung, vollständige Eigentumsmarker, Cleanup (sicheres Aufräumen), Recovery (Wiederherstellung nach Fehlern), Versionsgrenzen und Ergebnisnachweise. Änderungen am gemeinsamen Instanzzustand nur in ausdrücklich isolierter Umgebung.",
+        "Kurze Erklärungen und Diagnosebeispiele benötigen keinen pauschalen neuen Benchmark (systematischen Leistungsvergleich). Konkrete Mess- oder Leistungsbehauptungen benötigen passende Evidenz mit Bedingungen und Grenzen.",
+        "Aufwand ist ausschließlich eine vorläufige qualitative Einschätzung: M mittel, L groß, XL sehr groß; keine Zusage von Dauer oder Kapazität. Alle Kandidaten bleiben offen; spätere Umsetzung und Ausführung sind gesondert zu autorisieren."
+      ],
+      "existing_coverage": [
+        {
+          "targets": [
+            "CON-004",
+            "CON-006"
+          ],
+          "topic": "Blocking (Blockierungen) und Deadlocks (zyklische Sperrkonflikte)"
+        },
+        {
+          "targets": [
+            "OPT-002",
+            "OPT-003",
+            "OPT-005"
+          ],
+          "topic": "Statistiken und Skew (ungleiche Datenverteilung)"
+        },
+        {
+          "targets": [
+            "QRY-004",
+            "OPT-009",
+            "OPT-010"
+          ],
+          "topic": "Plansensitivität, PSP (Parameter Sensitive Plan; parameterabhängige Planvarianten) und OPPO (Optional Parameter Plan Optimization; Optimierung optionaler Parameter)"
+        },
+        {
+          "targets": [
+            "OPT-015",
+            "OPT-016",
+            "OPT-017"
+          ],
+          "topic": "Planeigenschaften, Spools (Zwischenspeicheroperatoren) und Parallelität"
+        },
+        {
+          "targets": [
+            "OPT-013",
+            "CON-009"
+          ],
+          "topic": "Spills (Auslagerung von Arbeitsspeicherinhalten) und TempDB (temporäre Systemdatenbank)"
+        },
+        {
+          "targets": [
+            "DGN-003",
+            "DGN-005"
+          ],
+          "topic": "Query Store (Abfragehistorie) und XE (Extended Events; Ereigniserfassung)"
+        },
+        {
+          "targets": [
+            "STL-008",
+            "STL-009"
+          ],
+          "topic": "Transaktionslog, VLF (Virtual Log Files; virtuelle Logabschnitte) und Commit-Batching (gebündelte Transaktionsabschlüsse)"
+        },
+        {
+          "targets": [
+            "IDX-006",
+            "IDX-010",
+            "RES-007"
+          ],
+          "topic": "Seitendichte, Columnstore (spaltenweise Speicherung) und Wait-Deltas (Wartezeitdifferenzen)"
+        }
+      ],
+      "candidates": [
+        {
+          "target": "CON-005",
+          "title": "Schema- und Metadatensperren als Ergänzung zu Blocking",
+          "priority": "P1",
+          "order": 1,
+          "status": "proposed",
+          "effort": "M – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-CONC-002",
+              "topic": "Schema-, Metadaten- und Kompilierungssperren"
+            }
+          ],
+          "overlap": "CON-004 behandelt Blockierungsketten; CON-005 ist bereits für Lock Escalation (Sperreskalation), Schema Locks und Metadatenzugriff vorgesehen. Diesen bestehenden Umfang ergänzen, keine zweite Blocking-Demo anlegen.",
+          "source_review": "Konkrete Sperrmodi, auslösende Operationen, Kompilierungs-/Metadatenpfad und Verify-Alternativen prüfen; Abgrenzung zur Sperreskalation festhalten.",
+          "acceptance": [
+            "Blockierer, wartende Session und tatsächliche Schema-/Metadatensperre dem Lernziel eindeutig zuordnen; bloße Laufzeit oder aktive Sessions reichen nicht.",
+            "Ergänzung nutzt den vorhandenen Mehrsessionpfad mit begrenzter Steuerung und sicherem Abbau; bestehende CON-004-Aussage bleibt erhalten."
+          ],
+          "source_review_result": {
+            "status": "reviewed_with_gaps",
+            "observation": "LAB-CONC-002 enthält zwei Worker: ALTER TABLE innerhalb einer offenen Transaktion und eine konkurrierende Leseabfrage. Der Worker hält die Transaktion mit einer festen Wartezeit und nimmt die Änderung danach zurück.",
+            "findings": [
+              "Observe.sql prüft gemeinsam für LAB-CONC-001 und LAB-CONC-002 nur, ob mindestens ein laufzugeordneter Request einen blocking_session_id größer null besitzt. Schemasperrmodus, Objekt und exakte Blockerbeziehung werden nicht geprüft.",
+              "Feste Verzögerungen im Worker und drei Sekunden Startvorlauf ersetzen keine deterministische fachliche Sessionsteuerung. Ein eigenständiger Nachweis für Kompilierungs- oder Metadatensperren fehlt."
+            ],
+            "remaining_requirements": [
+              "Für die spätere Schulung Sch-M (Schemaänderungssperre) und Sch-S (Schemastabilitätssperre), Objektbezug und Blocker-/Wartebeziehung passend zum Lernziel belegen.",
+              "Vorhandenen signalfähigen Schulungs-Mehrsessionpfad sowie vollständige Eigentums-, Abbruch- und Cleanup-Verträge anwenden; vorhandenen CON-004-Grundfall und die Abgrenzung zur Sperreskalation erhalten."
+            ],
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Worker.sql",
+                "line": 196,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Worker.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 260,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/LAB-CONC-002/runbook.json",
+                "line": 14,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-CONC-002/runbook.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              }
+            ]
+          }
+        },
+        {
+          "target": "OPT-007",
+          "title": "Begrenzte Diagnose von Ad-hoc-Plancache-Wachstum",
+          "priority": "P1",
+          "order": 2,
+          "status": "proposed",
+          "effort": "M – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-PLAN-003",
+              "topic": "Ad-hoc-Plancache-Wachstum"
+            }
+          ],
+          "overlap": "OPT-007 umfasst bereits Compilation (Planübersetzung), Recompilation, Planwiederverwendung und Ad-hoc-Cache-Pollution (unnötige Cachebelegung). Abgrenzen von Plansensitivität und den vorhandenen Parameterdemos.",
+          "source_review": "Erzeugung verschiedener Ad-hoc-Pläne, Messumfang, wirksame Abbruchgrenzen und Parameterisierungsvergleich prüfen; globale Cache-Eingriffe im Quellenablauf identifizieren.",
+          "acceptance": [
+            "Diagnoseübung begrenzt Zahl, Dauer und Ressourcen ihrer synthetischen Abfragen; Planzahl und Cachebelegung beziehen sich auf den erklärten Messumfang.",
+            "Falls Wachstum oder Verbesserungen quantitativ behauptet werden, passenden Ausgangs-/Vergleichszustand und Evidenz ausweisen; keine unkontrollierte globale Cacheleerung."
+          ],
+          "source_review_result": {
+            "status": "reviewed_with_gaps",
+            "observation": "LAB-PLAN-003 erzeugt im Setup höchstens 40 dynamische Abfragen mit unterschiedlichen Literalen und statischen Textmarkern. Die Beobachtung verlangt mindestens 20 Cacheeinträge mit passendem Text.",
+            "findings": [
+              "Der Beobachtungsfilter prüft weder Datenbank- und Laufzuordnung noch Cacheobjekttyp, Wiederverwendung oder belegte Bytes. Eine Anzahl passender Cacheeinträge ist kein Nachweis einer bestimmten Speicherzunahme.",
+              "Es fehlen eine vergleichbare Ausgangsmessung und eine Gegenüberstellung mit Parameterisierung. Ein vorhandener Cacheeintrag wird nicht nach vollständigem Plan und kleinem Planstub (reduziertem Cacheeintrag) unterschieden; eine Leistungsverbesserung ist nicht belegt."
+            ],
+            "remaining_requirements": [
+              "Diagnoseumfang und tatsächlich eigene Cacheeinträge definieren; Versions-, Berechtigungs-, Parametrisierungs- und Cachekonfiguration berücksichtigen.",
+              "Für behauptetes Wachstum einen begründeten Vorher-/Nachhervergleich mit Cachetyp und Bytes vorsehen; für behauptete Verbesserungen eine passende Vergleichsvariante. Keine pauschale Benchmarkpflicht für rein erklärenden Inhalt.",
+              "Die gemeinsame, nicht laufgenaue Planbereinigung nicht ungeprüft übernehmen; keine globale Cacheleerung als allgemeine Voraussetzung einführen."
+            ],
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 443,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 416,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 142,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              }
+            ],
+            "primary_sources": [
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-cached-plans-transact-sql?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/optimize-for-ad-hoc-workloads-server-configuration-option?view=sql-server-ver17"
+            ]
+          }
+        },
+        {
+          "target": "CON-006",
+          "title": "Conversion- und Range-Deadlocks als optionale Varianten",
+          "priority": "P2",
+          "order": 3,
+          "status": "proposed",
+          "effort": "M – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-DEAD-002",
+              "topic": "Conversion Deadlock; Konflikt bei Sperrumwandlung"
+            },
+            {
+              "scenario": "LAB-DEAD-003",
+              "topic": "Range Deadlock; Konflikt um Schlüsselbereiche"
+            }
+          ],
+          "overlap": "CON-006 zeigt bereits einen reproduzierbaren Deadlock mit Deadlock Graph (Konfliktgraph). Nur zusätzliche Ursachenvarianten prüfen; CON-002 deckt Schlüsselbereichssperren fachlich ab.",
+          "source_review": "Sperrkonvertierung, Isolation, Schlüsselbereich und auslösende Reihenfolge gegen die vorhandene Deadlock-Demo prüfen; unabhängigen Lernzuwachs begründen.",
+          "acceptance": [
+            "Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.",
+            "Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen."
+          ]
+        },
+        {
+          "target": "DGN-004",
+          "title": "Erfolgreiches und fehlgeschlagenes Plan Forcing",
+          "priority": "P2",
+          "order": 4,
+          "status": "proposed",
+          "effort": "M – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-QS-002",
+              "topic": "Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung"
+            }
+          ],
+          "overlap": "DGN-004 ist bereits für Plan Forcing (Erzwingen eines Plans), Query Store Hints und sichere Rücknahme geplant; DGN-003 liefert die vorhandene Query-Store-Grundlage.",
+          "source_review": "Vorbedingungen und Versionsgrenzen des gewählten Forcing-Fehlers sowie tatsächlichen Erfolgs-/Fehlernachweis im Verify-Vertrag prüfen.",
+          "acceptance": [
+            "Erfolgreiches Forcing und begründet fehlgeschlagenes Forcing anhand des tatsächlichen Status und Fehlergrundes unterscheiden.",
+            "Forcing und sonstige Zustandsänderungen rücknehmbar halten; keine zweite allgemeine Query-Store-Demo."
+          ]
+        },
+        {
+          "target": "IDX-007",
+          "title": "Last-Page-Inserts und Sequential-Key-Vergleiche",
+          "priority": "P2",
+          "order": 5,
+          "status": "proposed",
+          "effort": "L – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-LATCH-001",
+              "topic": "Last-page insert contention; Konkurrenz um die letzte Indexseite"
+            },
+            {
+              "scenario": "LAB-LATCH-002",
+              "topic": "Sequential-key optimization comparison; Vergleich der Optimierung fortlaufender Schlüssel"
+            },
+            {
+              "scenario": "LAB-LATCH-003",
+              "topic": "Distributed-key and heap comparison; verteilte Schlüssel und Tabellen ohne Clustered Index"
+            }
+          ],
+          "overlap": "IDX-007 ist bereits für Sequential-Key-Insert und Last-Page-Contention vorgesehen. IDX-006 behandelt Seitendichte; RES-005 unterscheidet Seiten-Latches (kurze interne Seitensperren) und Ein-/Ausgabewartezeiten.",
+          "source_review": "Gleichen Workload und Datenumfang, Schlüsselverteilung, wirksame Parallelität, Feature-/Versionsgrenzen und Messreichweite der drei Szenarien prüfen.",
+          "acceptance": [
+            "Tatsächliche Konkurrenz um die letzte Seite von gewöhnlichen Sperren und Speichergerätezugriffen unterscheiden.",
+            "Vergleiche verwenden erklärten identischen Messrahmen; andere Schlüssel und Heap-Varianten nicht pauschal als bessere Lösung ausgeben. Leistungsbehauptungen separat belegen."
+          ]
+        },
+        {
+          "target": "RES-004",
+          "title": "Lückenprüfung für Memory Grants und konkurrierende Zuteilungen",
+          "priority": "P2",
+          "order": 6,
+          "status": "proposed",
+          "effort": "M – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-MEM-001",
+              "topic": "Competing memory grants; konkurrierende Abfragespeicherzuteilungen"
+            }
+          ],
+          "overlap": "RES-004 umfasst bereits Overgrant (zu hohe Zuteilung), Undergrant (zu geringe Zuteilung), Spills und konkurrierende Grants; OPT-013 behandelt bereits Spills. Nur eine tatsächliche Curriculumlücke ergänzen.",
+          "source_review": "Anforderung, Gewährung und Nutzung des Abfragespeichers sowie echte Wartebeobachtung prüfen; Alternativnachweis über aktive Sessions ausdrücklich bewerten.",
+          "acceptance": [
+            "Dokumentierter Lernzieldelta oder begründeter Verzicht auf weitere Demo; keine Wiederholung vorhandener Spill-Inhalte.",
+            "Falls RESOURCE_SEMAPHORE-Warten behauptet wird, dieses tatsächlich nachweisen; aktive Sessions allein bleiben unzureichend."
+          ]
+        },
+        {
+          "target": "RES-003",
+          "title": "Lückenprüfung für Buffer-Pool-Druck und Resource Governor",
+          "priority": "P2",
+          "order": 7,
+          "status": "proposed",
+          "effort": "L – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-MEM-002",
+              "topic": "Bounded buffer-pool pressure; begrenzter Druck auf den Datenseiten-Cache"
+            },
+            {
+              "scenario": "LAB-MEM-003",
+              "topic": "Resource Governor pool limit; Begrenzung eines Ressourcenpools"
+            }
+          ],
+          "overlap": "RES-003 trennt Instanzspeicherdruck von Query Execution Memory (Abfragearbeitsspeicher); STL-006 behandelt den Buffer Pool. Resource Governor (Steuerung von Ressourcenpools) nur bei neuem Lernziel ergänzen; notwendige Limits berühren INF-005.",
+          "source_review": "LAB-MEM-002 gemäß aktuellem Katalog als Buffer-Pool-Druck einordnen; ältere Overgrant-Zuordnung verwerfen. Bei Resource Governor Edition, Version, Klassifizierung, Poolgrenzen und sicheren Restore prüfen.",
+          "acceptance": [
+            "Abfragespeicher und Datenseiten-Cache fachlich getrennt behandeln; tatsächlich fehlendes Lernziel oder Verzicht dokumentieren.",
+            "Bei einer späteren Übung tatsächlichen Druck beziehungsweise wirksame Poolbegrenzung passend nachweisen und alle Instanzänderungen sicher zurücknehmen; allgemeine Infrastruktur bleibt extern."
+          ]
+        },
+        {
+          "target": "RES-001",
+          "title": "Lückenprüfung für Worker-Druck und echte Erschöpfung",
+          "priority": "P2",
+          "order": 8,
+          "status": "proposed",
+          "effort": "L – vorläufig",
+          "sources": [
+            {
+              "scenario": "LAB-CPU-003",
+              "topic": "Worker-thread pressure; Druck auf Ausführungsthreads"
+            }
+          ],
+          "overlap": "RES-001 behandelt bereits CPU (Central Processing Unit; Prozessor), Worker und Scheduler (Ausführungsplaner). RES-007 liefert vorhandene Wait-Deltas. Worker-Druck ist keine neue allgemeine CPU-Demo.",
+          "source_review": "Emuliertes Ressourcenprofil, Sessionsteuerung, Grenzen und schwache Verify-Alternativen prüfen; Druck von tatsächlicher Erschöpfung unterscheiden.",
+          "acceptance": [
+            "Begründete Curriculumlücke oder Verzicht festhalten; Druck und Erschöpfung eindeutig unterschiedlich benennen.",
+            "Behauptete Worker-Erschöpfung benötigt tatsächliche Thread-/Warte-Evidenz; aktive Sessions oder hohe Prozessorlast allein genügen nicht. Begrenzte Steuerung und gesicherter Abbau sind Voraussetzung."
+          ]
+        },
+        {
+          "target": "INF-006",
+          "title": "Log Shipping als gesonderten Infrastrukturumfang bewerten",
+          "priority": "P3",
+          "order": 9,
+          "status": "proposed",
+          "effort": "XL – vorläufig, eigenständiger Infrastrukturumfang",
+          "sources": [
+            {
+              "scenario": "LAB-LS-001",
+              "topic": "Log Shipping; Sicherung, Kopieren und Wiederherstellen mit Rückstand"
+            },
+            {
+              "scenario": "LAB-LS-002",
+              "topic": "Unterbrochene Log-Shipping-Übertragung; laut Katalog noch geplant"
+            }
+          ],
+          "overlap": "INF-006 enthält bereits begründete Mehrinstanz- und Netzwerktopologien. STL-008 und STL-009 behandeln das Transaktionslog und Commit-Batching; daraus folgt keine Log-Shipping-Infrastrukturfreigabe.",
+          "source_review": "Lernziel, Mehrinstanztopologie, Sicherungs-/Übertragungs-/Restorepfad und insbesondere den geplanten Status von LAB-LS-002 prüfen; Aufwand und Zuständigkeit mit SQL_Server_Lab abgrenzen.",
+          "acceptance": [
+            "Eigenständige fachliche und Infrastrukturentscheidung mit Zuständigkeit, Ressourcenbedarf und realistischem Abnahmeumfang; keine Einstufung als kleine Szenarioübernahme.",
+            "Allgemeine Bereitstellung und Betrieb bleiben in SQL_Server_Lab. Eine spätere Schulungsintegration benötigt passende Nachweise für Übertragungs-/Restore-Rückstand, Störfall und vollständig sicheren Abbau."
+          ]
+        }
+      ],
+      "source_review_results": {
+        "recorded_on": "2026-10-23",
+        "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+        "method": "Statische, ausschließlich lesende Sichtung von Katalog, Szenariodefinitionen, Runbooks, gemeinsamen SQL-Bausteinen und dem zugehörigen Aufruf-/Verify-Pfad. Die Quellen stimmen mit dem unveränderten Analyze-Commit überein. Keine Tests, SQL- oder Lab-Ausführung; keine Laufzeitabnahme.",
+        "conclusion": "CON-005 und OPT-007 behalten ihre Reihenfolge als erste Prüfkandidaten. Beide liefern fachlich brauchbare Ausgangsbausteine, sind wegen Nachweis- und Sicherheitslücken nicht direkt übernahmefähig. Die übrigen sieben Kandidaten besitzen noch keine entsprechende Quellensichtung.",
+        "shared_findings": [
+          {
+            "topic": "Variablenübergabe im vorhandenen Runner",
+            "finding": "Der Aufrufpfad übergibt Szenario, Lauftoken und weitere Werte mit sqlcmd -v. Die unverändert kopierten SQL-Dateien setzen dieselben Variablen anschließend durch :setvar auf Vorgaben zurück, darunter LAB-INVALID-000. Nach der dokumentierten Variablenpriorität gewinnt :setvar; die beabsichtigte Szenario- und Laufbindung wird dadurch überschrieben.",
+            "consequence": "Statischer Ausführungspfadfehler; nicht als ausgeführter Fehlernachweis ausgeben. Vor späterer Wiederverwendung muss die tatsächliche Parameterbindung eindeutig geklärt und belegt sein.",
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Setup.sql",
+                "line": 1,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Setup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1",
+                "line": 89,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/Installer.ps1?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1",
+                "line": 63,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Private/ScenarioRuntime.ps1?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              }
+            ],
+            "primary_source": "https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver17#variable-precedence-low-to-high"
+          },
+          {
+            "topic": "Fehlender Eigentumsmarker im Cleanup",
+            "finding": "Die Eigentumsprüfung lautet IF @DatabaseOwner <> @LabRunId. Bei fehlendem Marker bleibt @DatabaseOwner NULL; der Vergleich liefert UNKNOWN (unbekannt) und löst die Abweisung nicht aus. Im folgenden Pfad wird die feste Datenbank Lab001Wave3 zur Löschung ausgewählt.",
+            "consequence": "Statisch erkennbare Schutzlücke. Vor einer Schulungsadaption sind die vollständigen markergebundenen Eigentumsprüfungen des Schulungsvertrags erforderlich; keine Laufzeitverletzung oder bereits erfolgte Korrektur behaupten.",
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 38,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 82,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 162,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              }
+            ],
+            "primary_source": "https://learn.microsoft.com/en-us/sql/t-sql/language-elements/null-and-unknown-transact-sql?view=sql-server-ver17"
+          },
+          {
+            "topic": "Befundcode ist kein unabhängiger Analyzer-Nachweis",
+            "finding": "Observe.sql bildet FindingCodes direkt aus dem Skriptwert @FindingCode; der Code wird nicht aus dem Analyzerergebnis abgeleitet. Test-LabScenario vergleicht anschließend die erzeugte Hülle mit dem erwarteten Code. Wegen des separat belegten :setvar-Konflikts ist im unveränderten Aufruf nicht nachgewiesen, dass der Runbookcode tatsächlich als SQL-Wert ankommt. Analyzer-Aufruf und Status werden berücksichtigt; der konkrete positive Analyzer-Befund und das in der Definition verlangte Mindestvertrauen HIGH werden dadurch nicht unabhängig geprüft.",
+            "consequence": "Eine erfolgreiche Hüllenprüfung genügt nicht als Ursachen- oder Diagnosebeleg. Der spätere Schulungsergebnisvertrag muss die tatsächlichen fachlichen Beobachtungen prüfen.",
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Observe.sql",
+                "line": 930,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Observe.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              },
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1",
+                "line": 43,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Orchestration/Modules/DiagnosticLab/Public/Test-LabScenario.ps1?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              }
+            ]
+          },
+          {
+            "topic": "Cachebereinigung ist nicht laufgenau",
+            "finding": "Die Planselektion im Cleanup akzeptiert entweder die feste Datenbankkennung oder einen gemeinsamen Textmarker LAB001_WAVE3. Der Textpfad ist nicht an den einzelnen Lauf gebunden; anschließend wird DBCC FREEPROCCACHE für die ausgewählten Planhandles aufgerufen.",
+            "consequence": "Vor Wiederverwendung Abgrenzung auf tatsächlich eigene Pläne und die passende Sicherheitsstufe klären. Ein Planhandle begrenzt den einzelnen Eingriff, ersetzt aber keine hinreichende Eigentumsselektion.",
+            "sources": [
+              {
+                "repository": "Analyze-Quellprojekt",
+                "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+                "path": "Lab/Scenarios/Performance/_Shared/Cleanup.sql",
+                "line": 142,
+                "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/_Shared/Cleanup.sql?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+                "repository_id": 1302553964
+              }
+            ]
+          }
+        ],
+        "limitations": [
+          "SQL Server 2019, 2022 und 2025 sind in den Szenariodefinitionen aufgeführt. Die Definitionen benennen native Plattformnachweise selbst als externes Gate; die statische Sichtung erbringt keine Versions- oder Laufzeitabnahme.",
+          "Der ältere Analyze-Lernpfad bezeichnet LAB-CONC-002 als komplexes Blocking und LAB-PLAN-003 als allgemeine Plan-Cache-Analyse. Für diese Aufnahme wurden stattdessen der aktuelle Katalog und die tatsächlichen Szenariobausteine verwendet.",
+          "Vor einer Codeübernahme ist die projektspezifische Analyze-Lizenz mit Urheberangabe und Weitergabebedingungen zu berücksichtigen. Die Quellensichtung ist keine pauschale Lizenz- oder Veröffentlichungsfreigabe."
+        ],
+        "limitation_sources": [
+          {
+            "repository": "Analyze-Quellprojekt",
+            "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+            "path": "Lab/Scenarios/Performance/LAB-CONC-002/scenario.json",
+            "line": 79,
+            "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-CONC-002/scenario.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+            "repository_id": 1302553964
+          },
+          {
+            "repository": "Analyze-Quellprojekt",
+            "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+            "path": "Lab/Scenarios/Performance/LAB-PLAN-003/scenario.json",
+            "line": 81,
+            "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/Performance/LAB-PLAN-003/scenario.json?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+            "repository_id": 1302553964
+          },
+          {
+            "repository": "Analyze-Quellprojekt",
+            "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+            "path": "Lab/Scenarios/LEARNING_PATH.md",
+            "line": 39,
+            "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+            "repository_id": 1302553964
+          },
+          {
+            "repository": "Analyze-Quellprojekt",
+            "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+            "path": "Lab/Scenarios/LEARNING_PATH.md",
+            "line": 58,
+            "url": "https://api.github.com/repositories/1302553964/contents/Lab/Scenarios/LEARNING_PATH.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+            "repository_id": 1302553964
+          },
+          {
+            "repository": "Analyze-Quellprojekt",
+            "revision": "6e557726a07ce7d389a36083c7e82d214b20822f",
+            "path": "LICENSE.md",
+            "line": 5,
+            "url": "https://api.github.com/repositories/1302553964/contents/LICENSE.md?ref=6e557726a07ce7d389a36083c7e82d214b20822f",
+            "repository_id": 1302553964
+          }
+        ],
+        "source_identity": {
+          "alias": "Analyze-Quellprojekt",
+          "provider": "GitHub",
+          "repository_id": 1302553964,
+          "node_id": "R_kgDOTaNlbA",
+          "locator": "https://api.github.com/repositories/1302553964",
+          "verification": "Offizielle Provider-ID und ausgewählte Datei am unveränderten Commit abgeglichen; relative Pfade und Linienzahlen bleiben erhalten. Die öffentliche Quelle wird neutral bezeichnet; der frühere Projektname wird nicht übernommen."
+        }
+      }
+    },
     "DEC-076": {
       "aliases": [],
       "artifact_uid": "urn:uuid:01a15e15-d46a-75dd-a513-6291666e2bc4",
