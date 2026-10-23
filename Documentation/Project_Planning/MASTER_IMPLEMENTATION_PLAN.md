@@ -9,12 +9,15 @@ Die statischen Sichtungen zu CON-005 (Schemasperren), OPT-007
 (Ad-hoc-Plancache), CON-006 (Deadlock-Varianten), DGN-004 (Planerzwingung),
 IDX-007 (Einfügungen auf der letzten Indexseite und Schlüsselvergleiche),
 RES-004 (Memory Grants; Abfragespeicherzuteilungen), RES-003
-(Buffer-Pool-Druck und Resource Governor; Datenseiten-Cache und Ressourcensteuerung)
-sowie RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) liegen mit
-Nachweis- und Sicherheitslücken vor. Der aktuelle Auftrag erlaubt die Ergänzung
-der RES-001-Befunde und ihre Integration per Pull Request (Änderungsantrag) mit
-statischen Prüfungen. INF-006 (Log Shipping; Übertragung und Wiederherstellung
-von Transaktionslog-Sicherungen) bleibt als einziger Kandidat ungeprüft.
+(Buffer-Pool-Druck und Resource Governor; Datenseiten-Cache und Ressourcensteuerung),
+RES-001 (Worker-Druck und echte Erschöpfung; Ausführungsthreads) und INF-006
+(Log Shipping; Übertragung und Wiederherstellung von Transaktionslog-Sicherungen)
+liegen mit Nachweis- und Sicherheitslücken vor. Damit sind alle neun
+Kandidatenquellen gesichtet; sämtliche Erweiterungsideen bleiben offen.
+Der aktuelle Auftrag erlaubt die Ergänzung der INF-006-Befunde und ihre Integration
+per Pull Request (Änderungsantrag) mit statischen Prüfungen. INF-006 bleibt
+ein eigenständiger Infrastrukturumfang mit vorläufiger Priorität P3
+(gesonderte Infrastrukturentscheidung) und Aufwand XL (sehr groß).
 Sämtliche Implementierungen sowie SQL-/Lab-Läufe bleiben zurückgestellt.
 Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#tsk-016--analyze-labs-als-gezielte-curriculum-ergänzungen-prüfen)
 ordnet sie bestehenden Demo-Kennungen zu; hier wird keine zweite Planungsliste
