@@ -1,33 +1,32 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Planungspräzisierung vom 24. Oktober 2026: DGN-004
+## Engerer DGN-004-Erfassungsentwurf und offenes Versionsgate vom 24. Oktober 2026
 
-Der aktuelle Auftrag ergänzt die lesenden DGN-004-Befunde (Planerzwingung)
-bei TSK-016 und präzisiert den vorhandenen begrenzten Plan. Integration per
-Pull Request (Änderungsantrag) nach `origin/main`, ausschließlich relevante
-statische Prüfungen einschließlich CI (Continuous Integration; automatisierte
-Integrationsprüfungen). Keine Implementierung oder SQL-/Lab-Läufe;
+Der aktuelle Auftrag ergänzt bei TSK-016 den engeren DGN-004-Erfassungsentwurf
+(Planerzwingung) und die zusätzlichen Quellenbefunde zum offenen Versionsgate.
+Integration per Pull Request (Änderungsantrag) nach `origin/main`; ausschließlich
+relevante statische Prüfungen einschließlich CI (Continuous Integration;
+automatisierte Integrationsprüfungen). Keine Implementierung oder SQL-/Lab-Läufe;
 die übrige autonome Verarbeitung bleibt pausiert.
 
-Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) und seine
-[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
-führen die feste Prozedurabfrage, getrennte Rollen für erzwungenen Zielplan
-und tatsächlich ausgeführten Plan, einen begrenzten vollständigen
-Erfassungsvertrag sowie spätere Pflicht-/Gegenfälle. Eine eigene Datenbank,
-sechs Nutzaufrufe, ein kontrollierter Indexentzug, erfolgreiche Ersatzplanung
-und ausdrückliche Rücknahme bleiben der erste Schnitt. Query Store
-(persistente Abfrage- und Planhistorie) aus DGN-003 ist fachliche Grundlage;
-Hints (gespeicherte Abfragehinweise) und weitere Fehlerklassen bleiben offen.
+Der [kanonische Eintrag](../../.ai/identity/registry.json) und seine
+[abgeleitete Ansicht](../../.ai/BACKLOG.md#engerer-erfassungsentwurf-und-offenes-versionsgate)
+führen die ergänzende lesende Prüfung und den engeren Erfassungsvertrag:
+feste sqlcmd-Anzeige, vollständiger tatsächlicher Plan unter 32.768 UTF-8-Bytes
+(Unicode-Zeichenkodierung), strikte Kodierung und während des Lesens begrenzte
+Ausgabe. Die feste Prozedurabfrage, getrennte Planrollen, eine eigene Datenbank,
+sechs Nutzaufrufe, Indexentzug, Ersatzplanung und ausdrückliche Rücknahme bleiben.
+Der Ausführungsadapter und seine Laufzeitqualifikation stehen weiterhin aus.
 
-Vor Umsetzung bleiben zwei konkrete Freigabegates: der vollständige
-Erfassungsadapter im vorhandenen Harness (Ausführungsrahmen) und die
-widersprüchlichen buildbezogenen Versionsangaben zu optimierter
-Planerzwingung ab 2022. Danach sind ausdrücklicher Umsetzungsauftrag und
-unabhängiger Quellen-/Ergebnisreview erforderlich. Zuständig ist die spätere
-beauftragte Umsetzungsrolle; Auslöser ist ein neuer menschlicher Auftrag.
-Planwahl und konkrete Fehlersequenz bleiben empirisch unbestätigt.
-Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Pause,
-verbleibende Gates und den erhaltenen ursprünglichen Entwurf aus PR314.
+Das Versionsgate für SQL Server 2022/2025 bleibt trotz zusätzlicher
+Systemreferenzprüfung offen: die Referenzmodelle liefern weder vollständige
+Prozedursignatur noch Flagsemantik. Zuständig ist die spätere beauftragte
+Umsetzungsrolle; erforderlich sind eindeutige Herstellerklärung oder ein
+ausdrücklicher Auftrag für einen gezielten Buildnachweis. Ein solcher Nachweis
+und die Demo-Umsetzung sind im aktuellen Auftrag nicht erlaubt. Unabhängiger
+Quellen-/Ergebnisreview sowie spätere tatsächliche Versionsqualifikation bleiben
+Pflicht. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet
+Pause und Wiederaufnahmegrenzen; der frühere Entwurf bleibt über PR315 erhalten.
 
 Die früheren begrenzten Schnitte bleiben erhalten: OPT-007
 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen) ist über

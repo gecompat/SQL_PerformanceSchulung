@@ -343,3 +343,37 @@ zusätzlich die rein statischen Aufruf-/Proxybefunde am Schulungsstand
 Trunkierungsnachweis. Tatsächliche zwei Planvarianten, Erzwingung, NO_INDEX,
 Ersatzplanung und Rücknahme sind weiter empirisch offen. Der [präzisierte Plan](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
 enthält die verbleibenden Gates; dieser Quellenstand autorisiert keine SQL-Läufe.
+
+### DGN-004: engerer Erfassungsentwurf und Systemreferenzen vom 24. Oktober 2026
+
+Datierte Ergänzung der bestehenden Quellenumfänge `SRC-031` (tatsächliche
+Planerfassung) und `SRC-027` (Query Store; persistente Abfrage- und Planhistorie).
+Keine neue Quellenkennung; historische Registerzeilen und frühere Befunde
+bleiben erhalten. **Aktualisiert und abgerufen: 2026-10-24.** Klasse `PRIMARY`.
+Review-Trigger: geänderte Herstellerangaben, Paket-/Clientversion, Ergebnisvertrag
+oder neuer tatsächlicher Buildbefund.
+
+| Quellenumfang und Detailquelle | Aussagebezug und Grenze | Status |
+|---|---|---|
+| `SRC-031`: [sqlcmd-Ausgabeoptionen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17#format-options) | Positive feste Anzeigegrenze, maximale Zeilenbreite, Unverträglichkeit von -W mit -y/-Y und Einfluss von -k. Der engere Entwurf mit -y 32768/-w 65535 und Planumfang unter 32.768 UTF-8-Bytes ist METHOD/INFERENCE (Methodik beziehungsweise Herleitung); kein gemessenes Clientverhalten. | `ACTIVE` für dokumentierte Optionen; tatsächliche Erfassung unqualifiziert |
+| `SRC-027`: [Microsoft-Systemreferenzen](https://learn.microsoft.com/en-us/sql/tools/sql-database-projects/concepts/package-references?view=sql-server-ver17#system-databases), [2022 / 160.2.8](https://www.nuget.org/packages/Microsoft.SqlServer.Dacpacs.Master/160.2.8), [2025 / 170.0.4](https://www.nuget.org/packages/Microsoft.SqlServer.Dacpacs.Master/170.0.4) | Microsoft.SqlServer.Dacpacs.Master, tools/master.dacpac/model.xml: Force-/Unforce-Prozeduren als SqlExtendedProcedure ohne Parameterliste; Statusspalte nur als SqlComputedColumn ohne Bedeutungsdefinition. DACPAC (Data-tier Application Package) ist ein Datenbankschema-Referenzpaket. Kein Nachweis der Aufrufsignatur, Flaginterpretation oder eines laufenden Zielbuilds. | `ACTIVE` als Schemaquelle; strittige Detailaussagen weiter `REVIEW_REQUIRED` |
+| `SRC-027`: [historischer Optimierungsstand](https://github.com/MicrosoftDocs/sql-docs/blob/3a69fbed7e840752b5a704d639931f5f82af3960/docs/relational-databases/performance/optimized-plan-forcing-query-store.md#c-force-a-plan-and-disable-optimized-plan-forcing-in-query-store), [historische Prozedurreferenz](https://github.com/MicrosoftDocs/sql-docs/blob/9385fea21808cf682650481315f6f4bde7c59d8e/docs/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql.md#syntax) | Zusätzlich gelesene historische Dokumentstände lösen den bekannten Argument-/Flagkonflikt nicht auf; keine belastbare gemeinsame ältere Aufrufvorlage daraus ableiten. | `REVIEW_REQUIRED` für die strittigen Vertragsdetails |
+
+Die Systemreferenzen wurden ausschließlich im Arbeitsspeicher als ZIP-/XML-
+Quellen gelesen; keine Installation oder Ausführung. Die gepinnten Paketquellen
+und SHA-256-Prüfsummen (Prüfwerte der Quellenbytes) stehen im vorhandenen
+[kanonischen TSK-016-Eintrag](../../.ai/identity/registry.json) unter
+`gate_review_result.reference_packages`. Fehlende Parameterdefinitionen im
+Referenzmodell belegen keine fehlenden Argumente am tatsächlichen Server.
+
+Der engere Erfassungsentwurf ersetzt für den ersten Schnitt die frühere
+256-KiB-Planobergrenze durch höchstens 32.767 UTF-8-Bytes; KiB bedeutet Kibibyte,
+UTF-8 ist eine Unicode-Zeichenkodierung. Die Anzeige-/Bytebeziehung ist eine
+Herleitung; Adapter und Laufzeitnachweis bleiben offen. Das Versionsgate bleibt
+ebenfalls offen: vor Freigabe benötigt die spätere Umsetzungsrolle eine
+eindeutige Herstellerklärung oder einen ausdrücklich autorisierten gezielten
+2022-/2025-Buildnachweis zu Aufrufform, tatsächlich deaktivierter optimierter
+Planerzwingung am eigenen Plan und Statusinterpretation. Diese Ergänzung
+autorisiert keine Probe. Der [engere Entwurf](../../.ai/BACKLOG.md#engerer-erfassungsentwurf-und-offenes-versionsgate)
+enthält Grenzen und spätere Abnahme; Umsetzung und weitere autonome Arbeit
+bleiben pausiert.
