@@ -1,41 +1,47 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: engeren DGN-004-Erfassungsentwurf aufnehmen
+## Auftrag vom 24. Oktober 2026: DGN-004-Versionsbefunde aufnehmen
 
-Der aktuelle menschliche Auftrag autorisiert die Ergänzung des engeren
-DGN-004-Erfassungsentwurfs (Planerzwingung) und des weiterhin offenen
-Versionsgates bei TSK-016, einschließlich Integration per Pull Request
-(Änderungsantrag) nach `origin/main`. Nur relevante statische Prüfungen
-einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen);
-keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung
-bleibt pausiert; keine Automation wurde aktiviert.
+Der aktuelle menschliche Auftrag autorisiert die Dokumentationsaufnahme der zuvor
+ausdrücklich erlaubten begrenzten DGN-004-Versionsdiagnose (Planerzwingung) bei
+TSK-016 und die Integration per Pull Request (Änderungsantrag) nach `origin/main`.
+Nur statische Prüfungen einschließlich CI (Continuous Integration; automatisierte
+Integrationsprüfungen), keine weiteren SQL-/Lab-Läufe oder Demo-Umsetzung.
+Die übrige Verarbeitung bleibt pausiert; keine Automation wurde aktiviert.
 
-Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) führt die
-ergänzende Quellenprüfung unter `gate_review_result` und den aktuellen Entwurf
-unter `planning_outline`. Die ursprünglichen Analyze- und Planprüfbefunde
-bleiben unverändert. Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#engerer-erfassungsentwurf-und-offenes-versionsgate)
-und das [Quellenregister](../Research/SOURCE_REGISTER.md#dgn-004-engerer-erfassungsentwurf-und-systemreferenzen-vom-24-oktober-2026)
-binden die Grenzen und die zusätzlich gelesenen Microsoft-Systemreferenzen.
+Der [kanonische Eintrag](../../.ai/identity/registry.json) führt die Diagnose unter
+`version_probe_result` und den berichtigten aktiven Plan unter `planning_outline`.
+Analyze-, Design- und frühere lesende Gatebefunde bleiben unverändert erhalten.
+Die [abgeleitete Ansicht](../../.ai/BACKLOG.md#begrenzte-versionsdiagnose-und-verbleibende-gates)
+und das [Quellenregister](../Research/SOURCE_REGISTER.md#dgn-004-begrenzte-versionsdiagnose-vom-24-oktober-2026)
+erklären Teilbefunde, Herkunft und verbleibende Grenzen.
 
-Der engere erste Erfassungsentwurf sieht `-y 32768` und `-w 65535` ohne `-W`
-vor und akzeptiert vollständige tatsächliche Pläne mit höchstens 32.767
-UTF-8-Bytes (Unicode-Zeichenkodierung). Strikte Dekodierung, beide während des
-Lesens begrenzten Ausgabekanäle sowie vollständige Ergebnis-/Planzuordnung
-bleiben Pflicht. Der Adapter ist unimplementiert; die Anzeige-/Bytebeziehung
-ist eine Herleitung und noch kein Nachweis tatsächlicher Clientdarstellung.
-Eine eigene Datenbank, sechs Nutzaufrufe und die bisherigen Zeitgrenzen bleiben.
+SQL Server 2025/17.0.4075.5 (Enterprise Developer, Linux, Compatibility Level 170):
+Vierargumentform mit Replikatkennung an dritter und Deaktivierungsanforderung an
+vierter Stelle sowie passende 0/1-Flagwerte charakterisiert. Sieben tatsächliche
+Erzwingungsausführungen, drei Rollenfehler und zehn erfolgreiche Unforce-Prüfungen
+(Aufheben der Erzwingung). Das Anforderungsflag allein belegt keine abgeschaltete
+optimierte Planerzwingung. SQL Server 2022/16.0.4265.3 (Developer, Linux, Stufe 160):
+Standardaufruf erfolgreich, weitere Varianten durch die Hashinvariante der Diagnose
+blockiert. Trotz gleichem Text, Modul, Statement-SQL-Handle und Kontext wechselte
+der Abfragehash zum unveränderten Planhash; Ursache und Bindung bleiben zu klären.
 
-Das Versionsgate für 2022/2025 bleibt offen. Die veröffentlichten
-Systemreferenzpakete 160.2.8 und 170.0.4 enthalten keine Parameterliste der
-Force-Prozeduren und keine Bedeutungsdefinition der strittigen Statusspalte.
-Vor mutationsfähiger Freigabe braucht die spätere Umsetzungsrolle eindeutige
-Herstellerklärung oder einen ausdrücklich beauftragten gezielten Buildnachweis
-zu Aufrufsignatur, tatsächlicher Deaktivierung am eigenen Plan und Status.
-Dieser Auftrag autorisiert keine solche Probe. Danach bleiben unabhängiger
-Quellen-/Ergebnisreview und ein ausdrücklicher Umsetzungsauftrag erforderlich.
-Der vorangehende Entwurf ist über [PR315](https://github.com/gecompat/SQL_PerformanceSchulung/pull/315)
-im Stand `5c0e5128293f7b7591adcbd3de31922fd8f007e4` erhalten. Keine automatische
-Fortsetzung zur Umsetzung oder zu anderen Kandidaten.
+Kein geprüfter Aufbau lieferte einen gespeicherten Optimierungs-Replay
+(wiederverwendbare Kompilierungsschritte). Die tatsächliche Deaktivierung bleibt
+deshalb auf beiden Builds unbelegt. Der frühere Anzeigeentwurf `-y 32768` ist für
+den geprüften Client überholt; ein neuer Erfassungsweg und dessen unabhängiger
+Review bleiben nötig. Die private, vollständig geprüfte Stückübertragung über
+die Systemfunktion für den letzten tatsächlichen Plan ist keine Demo-Freigabe.
+Die bisherigen Demo-Inhalts-, Ergebnis-, Zeit- und Schutzgrenzen bleiben erhalten.
+
+Alle sechs eigenen Container und eigenen Datenbanken wurden entfernt; ursprüngliche
+Optionen vorher wiederhergestellt. Rohlogs, Pläne und Diagnosequellen bleiben lokal;
+deren Prüfsummen sind im kanonischen Befund gebunden. Die jetzt erlaubte Aufnahme
+autorisiert keine weitere Probe. Vor späterer Umsetzung bleiben 2022-Signatur/
+Hashbindung, positive Replay-Ausgangslage und tatsächliche Abschaltung auf beiden
+Builds, Erfassungsentscheidung, unabhängiger Quellen-/Ergebnisreview sowie ein
+ausdrücklicher Umsetzungsauftrag offen. Frühere Entwürfe bleiben über PR315/PR316
+erhalten; keine automatische Fortsetzung zu anderen Kandidaten.
 
 ## Erhaltene abgeschlossene Schnitte
 
