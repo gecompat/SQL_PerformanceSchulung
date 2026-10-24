@@ -1,33 +1,37 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004-Versionsbefunde und offene Gates vom 24. Oktober 2026
+## DGN-004-Hashbefunde und Replay-Referenz vom 24. Oktober 2026
 
-Der aktuelle Auftrag nimmt bei TSK-016 die bereits autorisiert ausgeführten
-begrenzten DGN-004-Versionsbefunde (Planerzwingung) auf und integriert sie per
-Pull Request (Änderungsantrag) nach `origin/main`. Nur statische CI (Continuous
-Integration; automatisierte Integrationsprüfungen), keine weiteren SQL-/Lab-Läufe
-oder Demo-Umsetzung; übrige Verarbeitung pausiert.
+Der aktuelle Auftrag ergänzt bei TSK-016 die lesende Hashanalyse, den
+quellenbasierten Replay-Kandidaten (wiederverwendbare Kompilierungsschritte)
+und offene Gates für DGN-004 (Planerzwingung). Integration per Pull Request
+(Änderungsantrag) nach `origin/main`; nur statische CI (Continuous Integration;
+automatisierte Integrationsprüfungen), keine Umsetzung oder SQL-/Lab-Läufe.
+Übrige Verarbeitung bleibt pausiert.
 
-Der [kanonische Befund](../../.ai/identity/registry.json) und die
-[abgeleitete Ansicht](../../.ai/BACKLOG.md#begrenzte-versionsdiagnose-und-verbleibende-gates)
-trennen 2025-Aufrufform/Anforderungsflag, offene 2022-Hashbindung und den auf beiden
-Builds fehlenden Nachweis tatsächlich abgeschalteter optimierter Planerzwingung.
-Replay bezeichnet dabei wiederverwendbare Kompilierungsschritte; keine geprüfte
-Form speicherte einen solchen Replay. Die gesamte Versionsfreigabe bleibt offen.
+Die [kanonische Sichtung](../../.ai/identity/registry.json),
+[abgeleitete Ansicht](../../.ai/BACKLOG.md#lesende-hashanalyse-und-replay-referenz)
+und [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026)
+trennen vorhandene Planbeobachtungen, experimentelle Originalreproduktionen und
+den gepinnten Microsoft-Referenzablauf. Das 2022-Hashmuster ist eingeordnet;
+unabhängiger Review der kombinierten Zuordnung und erweiterte 2022-Signatur bleiben
+offen. Keine Hersteller-Fixbestätigung oder nachträglich bestandene Diagnose.
 
-Die Clientbefunde überholen den früheren Entwurf `-y 32768`. Vor Umsetzung ist der
-Erfassungsweg neu zu entwerfen und unabhängig zu prüfen; die private vollständige
-Stückübertragung wird nicht zur Demo-Implementierung erklärt. Die Annahmegrenze von
-32.767 UTF-8-Bytes (Unicode-Zeichenkodierung), eine eigene Datenbank, sechs
-Nutzaufrufe, feste Prozedurabfrage, getrennte Planrollen, Indexentzug, Ersatzplanung
-und ausdrückliche Rücknahme bleiben im entworfenen Demoschnitt erhalten.
+Microsoft-bigjoin mit UNION ALL, Join-Zweigen und Sortierung ist eine Referenz für
+eine spätere gesondert beauftragte begrenzte Diagnose-Ausgangsabfrage. Es ist keine
+angepasste Schulungsabfrage und keine Zusage für kleine Datenmengen oder 2025.
+Bereitstellung, Cache- und Historienleerung aus den Begleitskripten bleiben
+ausgeschlossen. Gespeicherter Replay, tatsächliche Nutzung und tatsächliche
+Deaktivierung sind auf beiden Zielbuilds getrennt nachzuweisen.
 
-Die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-begrenzte-versionsdiagnose-vom-24-oktober-2026)
-bindet Herstellerkonflikte und empirische Aussagegrenzen. Alle eigenen Ressourcen
-der privaten Diagnose sind bereinigt. Weitere Proben und Umsetzung benötigen einen
-neuen ausdrücklichen Auftrag; unabhängiger Review und spätere vollständige
-Versionsqualifikation bleiben offen. Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
-führt Pause und Wiederaufnahmegrenzen. Es entsteht keine zweite Planungsliste.
+Der bestehende Demoschnitt bleibt unverändert begrenzt: eigene Datenbank,
+feste ForceProbe-Abfrage, sechs Nutzaufrufe, vollständige Werte-/Strukturbelege,
+Indexentzug, Ersatzplanung und Rücknahme. Der überholte Anzeigeentwurf muss vor
+Umsetzung ersetzt und der ausgewählte Erfassungsweg unabhängig geprüft werden.
+Weitere Proben und Umsetzung benötigen einen neuen ausdrücklichen Auftrag;
+Versionsfreigabe und vollständige Qualifikation bleiben offen. Der
+[aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Pause und
+Wiederaufnahmegrenzen. Es entsteht keine zweite Planungsliste.
 
 Die früheren begrenzten Schnitte bleiben erhalten: OPT-007
 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen) ist über

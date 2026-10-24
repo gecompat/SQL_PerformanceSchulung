@@ -1,47 +1,46 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Versionsbefunde aufnehmen
+## Auftrag vom 24. Oktober 2026: DGN-004-Hashbefunde und Replay-Referenz aufnehmen
 
-Der aktuelle menschliche Auftrag autorisiert die Dokumentationsaufnahme der zuvor
-ausdrücklich erlaubten begrenzten DGN-004-Versionsdiagnose (Planerzwingung) bei
-TSK-016 und die Integration per Pull Request (Änderungsantrag) nach `origin/main`.
-Nur statische Prüfungen einschließlich CI (Continuous Integration; automatisierte
-Integrationsprüfungen), keine weiteren SQL-/Lab-Läufe oder Demo-Umsetzung.
-Die übrige Verarbeitung bleibt pausiert; keine Automation wurde aktiviert.
+Der aktuelle menschliche Auftrag ergänzt bei TSK-016 die lesenden DGN-004-
+Hashbefunde (Planerzwingung), eine quellenbasierte Optimierungs-Replay-Referenz
+(wiederverwendbare Kompilierungsschritte) und offene Gates. Integration per
+Pull Request (Änderungsantrag) nach `origin/main`; nur statische CI (Continuous
+Integration; automatisierte Integrationsprüfungen), keine Umsetzung oder
+SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; keine Automation aktiviert.
 
-Der [kanonische Eintrag](../../.ai/identity/registry.json) führt die Diagnose unter
-`version_probe_result` und den berichtigten aktiven Plan unter `planning_outline`.
-Analyze-, Design- und frühere lesende Gatebefunde bleiben unverändert erhalten.
-Die [abgeleitete Ansicht](../../.ai/BACKLOG.md#begrenzte-versionsdiagnose-und-verbleibende-gates)
-und das [Quellenregister](../Research/SOURCE_REGISTER.md#dgn-004-begrenzte-versionsdiagnose-vom-24-oktober-2026)
-erklären Teilbefunde, Herkunft und verbleibende Grenzen.
+Der [kanonische Eintrag](../../.ai/identity/registry.json) führt die neue Sichtung
+unter `hash_replay_review_result`; `version_probe_result` und die älteren
+Analyze-/Design-/Gatebefunde bleiben unverändert. Die
+[abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesende-hashanalyse-und-replay-referenz)
+und das [Quellenregister](../Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026)
+binden Primärquellen, private Planprüfsummen und Aussagegrenzen.
 
-SQL Server 2025/17.0.4075.5 (Enterprise Developer, Linux, Compatibility Level 170):
-Vierargumentform mit Replikatkennung an dritter und Deaktivierungsanforderung an
-vierter Stelle sowie passende 0/1-Flagwerte charakterisiert. Sieben tatsächliche
-Erzwingungsausführungen, drei Rollenfehler und zehn erfolgreiche Unforce-Prüfungen
-(Aufheben der Erzwingung). Das Anforderungsflag allein belegt keine abgeschaltete
-optimierte Planerzwingung. SQL Server 2022/16.0.4265.3 (Developer, Linux, Stufe 160):
-Standardaufruf erfolgreich, weitere Varianten durch die Hashinvariante der Diagnose
-blockiert. Trotz gleichem Text, Modul, Statement-SQL-Handle und Kontext wechselte
-der Abfragehash zum unveränderten Planhash; Ursache und Bindung bleiben zu klären.
+Die vorhandenen 2022-Pläne zeigen bei gleichem Text, Modul, Kontext,
+Statement-SQL-Handle, Operatorfolge, Objektzugriffen und Prädikaten den Wechsel
+des Abfragehashs auf den Planhash. Das Muster entspricht veröffentlichten
+Originalreproduktionen zur Forcing-Hashüberschreibung. Eine unveränderte
+QueryHash-Gleichheit ist keine geeignete alleinige Identitätsbedingung; auch der
+Kataloghash kann laut Originalreproduktion betroffen sein. Dessen lokale Änderung
+wurde nicht erfasst. Kombinierte Zuordnung unabhängig prüfen, ohne den bestehenden
+vollständigen Struktur-/Objekt-/Ergebnisvertrag zu lockern. Kein neuer Lauf und
+keine Hersteller-Fixbestätigung für SQL Server 2022/16.0.4265.3.
 
-Kein geprüfter Aufbau lieferte einen gespeicherten Optimierungs-Replay
-(wiederverwendbare Kompilierungsschritte). Die tatsächliche Deaktivierung bleibt
-deshalb auf beiden Builds unbelegt. Der frühere Anzeigeentwurf `-y 32768` ist für
-den geprüften Client überholt; ein neuer Erfassungsweg und dessen unabhängiger
-Review bleiben nötig. Die private, vollständig geprüfte Stückübertragung über
-die Systemfunktion für den letzten tatsächlichen Plan ist keine Demo-Freigabe.
-Die bisherigen Demo-Inhalts-, Ergebnis-, Zeit- und Schutzgrenzen bleiben erhalten.
+Microsoft-bigjoin ist als Referenz ausgewählt: zwei UNION-ALL-Zweige mit je zehn
+Tabellen, Detailtupeln und abschließender Sortierung. Die Anleitung beschreibt
+einen gespeicherten Replay auf SQL Server 2022. Eine kleine synthetische Variante
+innerhalb unserer Grenzen und die Eignung auf 2025 sind unbestätigt. Cacheleerung,
+feste Datenbankwiederherstellung, Query-Store-Leerung und ungefilterte Plansicht
+werden nicht übernommen. Keine angepasste Abfrage oder zusätzliche Demo entstanden.
 
-Alle sechs eigenen Container und eigenen Datenbanken wurden entfernt; ursprüngliche
-Optionen vorher wiederhergestellt. Rohlogs, Pläne und Diagnosequellen bleiben lokal;
-deren Prüfsummen sind im kanonischen Befund gebunden. Die jetzt erlaubte Aufnahme
-autorisiert keine weitere Probe. Vor späterer Umsetzung bleiben 2022-Signatur/
-Hashbindung, positive Replay-Ausgangslage und tatsächliche Abschaltung auf beiden
-Builds, Erfassungsentscheidung, unabhängiger Quellen-/Ergebnisreview sowie ein
-ausdrücklicher Umsetzungsauftrag offen. Frühere Entwürfe bleiben über PR315/PR316
-erhalten; keine automatische Fortsetzung zu anderen Kandidaten.
+Offen bleiben kombinierter Zuordnungsreview und erweiterte 2022-Signatur,
+positive Speicherung und tatsächliche Replay-Nutzung vor dem Deaktivierungsvergleich
+auf beiden Builds, Erfassungsentscheidung sowie unabhängiger Quellen-/Ergebnisreview
+und ausdrücklicher Umsetzungsauftrag. Die bisherigen 2025-Aufruf-/Flagbefunde aus
+PR317 bleiben Teilnachweis. Die private Diagnose wurde nicht nachträglich bestanden;
+die Versionsfreigabe bleibt offen. Weitere Proben benötigen einen neuen Auftrag.
+Ursprüngliche Demo-Daten-/Plan-/Zeitgrenzen, feste ForceProbe-Abfrage und sechs
+Nutzaufrufe bleiben erhalten; keine zweite Planungsliste oder automatische Fortsetzung.
 
 ## Erhaltene abgeschlossene Schnitte
 

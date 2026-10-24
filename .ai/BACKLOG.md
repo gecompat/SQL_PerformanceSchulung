@@ -1,20 +1,20 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004-Versionsbefunde: Erfassungs- und Versionsgates offen
+## DGN-004: Hashbefunde und Replay-Referenz aufnehmen
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 die zuvor ausdrücklich erlaubte
-begrenzte Versionsdiagnose für DGN-004 (Planerzwingung). Integration per Pull Request
-(Änderungsantrag) nach `origin/main`, nur statische Prüfungen einschließlich CI
-(Continuous Integration; automatisierte Integrationsprüfungen). Keine weiteren
-SQL-/Lab-Läufe oder Demo-Umsetzung; übrige Verarbeitung pausiert.
-Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet Auftrag und Wiederaufnahmegrenzen. Frühere begrenzte Schemasperren- und
-Ad-hoc-Plancache-Nachweise bleiben erhalten.
+Der aktuelle Auftrag ergänzt bei TSK-016 die lesenden Hashbefunde und eine
+quellenbasierte Referenz für Optimierungs-Replay (wiederverwendbare
+Kompilierungsschritte). Integration per Pull Request (Änderungsantrag) nach
+`origin/main`, nur statische Prüfungen einschließlich CI (Continuous Integration;
+automatisierte Integrationsprüfungen). Keine Umsetzung oder SQL-/Lab-Läufe;
+übrige Verarbeitung pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet Auftrag und Wiederaufnahmegrenzen. Frühere Quellen-/Versionsbefunde sowie
+die begrenzten Schemasperren- und Ad-hoc-Plancache-Nachweise bleiben erhalten.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Versionsbefunde ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Hashbefunde und Replay-Referenz ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -30,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Autorisierter Dokumentationsauftrag vom 24. Oktober 2026: die zuvor ausdrücklich erlaubten begrenzten DGN-004-Versionsbefunde (Planerzwingung) und offenen Gates bei TSK-016 aufnehmen und per Pull Request (Änderungsantrag) nach origin/main integrieren. Nur relevante statische Prüfungen einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen), keine weiteren SQL-/Lab-Läufe und keine Demo-Umsetzung. Die übrige Verarbeitung bleibt pausiert; ursprüngliche Quellenbefunde, Kennungen und bisherige Implementierungsnachweise bleiben erhalten.
+Autorisierter Dokumentationsauftrag vom 24. Oktober 2026: DGN-004-Hashbefunde (Planerzwingung), quellenbasierten Optimierungs-Replay-Kandidaten (wiederverwendbare Kompilierungsschritte) und offene Gates bei TSK-016 ergänzen; Integration per Pull Request (Änderungsantrag) nach origin/main. Nur relevante statische Prüfungen einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen), keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; Kennungen, ursprüngliche Quellenbefunde und bisherige Versionsdiagnose bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -514,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Begrenzte Versionsdiagnose als Teilbefund aufgenommen: 2025-Aufrufform und Anforderungsflag charakterisiert, 2022-Hashbindung und tatsächliche Replay-Abschaltung auf beiden Builds offen. Der frühere Anzeigeentwurf -y 32768 ist für den geprüften Client überholt; Erfassungsweg vor Umsetzung neu zu prüfen. P2 und fehlender Umsetzungsauftrag bleiben unverändert.
+**Planungsentscheidung:** Hashmuster anhand vorhandener Pläne und veröffentlichter Originalreproduktionen eingeordnet; Microsoft-bigjoin als Replay-Referenz ausgewählt. Keine angepasste Abfrage, neue Ausführung oder Hersteller-Fixbestätigung. Kombinierter Zuordnungsreview, erweiterte 2022-Signatur, Replay-/Deaktivierungsnachweise und Erfassung bleiben offen; P2 unverändert.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -523,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Umsetzung Erfassungsweg neu entwerfen und unabhängig prüfen; die private Stückübertragung ist keine Freigabe des Demo-Adapters. 2022-Hashabweichung und erweiterte Signatur klären sowie eine positive Replay-Ausgangslage und tatsächliche Deaktivierung am eigenen Plan auf beiden Builds belegen. Weitere SQL-/Lab-Läufe und Umsetzung benötigen einen neuen ausdrücklichen Auftrag; keine automatische Fortsetzung oder Vertragslockerung.
+**Wiederaufnahmebedingung:** Vor weiterer Ausführung die kombinierte Zuordnung unabhängig prüfen; stabile QueryHash-Gleichheit nicht als alleinige Forcing-Identität behandeln. Die Replay-Referenz nur nach neuem ausdrücklichem Auftrag als begrenzte Diagnoseform anpassen und auf beiden Builds gegen Speicherung, tatsächliche Nutzung und Deaktivierung qualifizieren. Erfassungsweg und Demo-Freigaben bleiben offen; keine automatische Umsetzung oder Zusatzprobe.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -629,6 +629,8 @@ Primärquellen, gelesen am 2026-10-24; Aussagegrenzen im [bestehenden Quellenreg
 
 ###### Begrenzte Versionsdiagnose und verbleibende Gates
 
+Historischer Diagnose- und Aufnahmestand aus PR317; Laufbefunde unverändert erhalten. Die folgende lesende Hashanalyse präzisiert die Einordnung, die aktuellen Gates stehen im anschließend aktualisierten Plan.
+
 **Stand:** 2026-10-24; Basis `2a111cda7bfcbf3218aaf0153678dbd64d3bbd40`. **Status:** EMPIRICAL_PARTIAL – begrenzte Versionsdiagnose ausgeführt; Versions- und Erfassungsgates offen. Keine Demo-Umsetzung oder Laufzeitabnahme.
 
 Zuvor ausdrücklich autorisierte, begrenzte Diagnose auf eigenen Linux-Containern; historische Fehlversuche erhalten. Die aktuelle Dokumentationsaufnahme liest nur vorhandene lokale Evidenz und führt keine SQL-/Lab-Läufe aus. Tatsächliche Pläne, synthetische Sollresultate, Query-Store-Zähler und Rücknahme getrennt ausgewertet.
@@ -697,9 +699,82 @@ Prüfsummen binden die lokal erhaltenen Rohbefunde; sie ersetzen keine reproduzi
 
 Registrierte Einordnung: [Versionsbefunde zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-begrenzte-versionsdiagnose-vom-24-oktober-2026).
 
+###### Lesende Hashanalyse und Replay-Referenz
+
+**Stand:** 2026-10-24; Basis `a87d1d7e68679238b766fb31a399b46825f14efd`. **Status:** READ_ONLY_WITH_OPEN_GATES – vorhandene Planbelege und Originalquellen geprüft; Hashmuster eingeordnet und Replay-Referenz ausgewählt. Keine neue SQL-Ausführung oder Demo-Freigabe.
+
+Ausschließlich lesende Auswertung vorhandener privater Plan-XML-Dateien (Extensible Markup Language; strukturiertes Planformat) und öffentlicher Originalquellen. Attribute und vollständiger Text sowie Operatorfolge, Objektdeskriptoren und Prädikat-XML paarweise verglichen. Keine Ausführung historischer Skripte, Tests, SQL-/Lab- oder CI-Läufe während dieser Sichtung; statische Veröffentlichungsprüfungen sind davon getrennt.
+
+**Hashbefunde und Aussagegrenzen:**
+
+- SQL Server 2022/16.0.4265.3: In den unveränderten Rohplänen wechselt QueryHash (Abfragehash) von 0xA3EEC222B4E92764 auf 0xD7181702D1C14CFD und entspricht danach dem unveränderten QueryPlanHash (Planhash). Der Wert steht bereits im XML; keine erst durch den Auswertungsparser erzeugte Vertauschung.
+- Vollständiger Statementtext, StatementSqlHandle, ParentObjectId, DatabaseContextSettingsId, Sitzungsoptionen, Reihenfolge der 65 physischen/logischen Operatoren, 32 Objektdeskriptoren und Prädikat-XML sind vor/nach dem Standard-Forcing gleich. Derselbe Vergleich auf SQL Server 2025/17.0.4075.5 lässt auch beide Hashwerte unverändert. Diese vorhandenen Belege sprechen für dasselbe eigene Statement; die Listenvergleiche sind kein vollständiger semantischer Planäquivalenznachweis.
+- Das Muster passt genau zu veröffentlichten Originalreproduktionen der Hashüberschreibung bei Planerzwingung: eine USE-PLAN-Reproduktion und eine Query-Store-Reproduktion (persistente Abfrage-/Planhistorie). Die Quellen sind eigenständige experimentelle Primärbefunde, keine Hersteller-Fixbestätigung für den hier betrachteten 2022-Build. Dessen konkrete Produktursache oder ein verfügbarer Fix wurden nicht nachgewiesen.
+- Die Query-Store-Originalreproduktion zeigt zusätzlich spätere Änderungen von sys.query_store_query.query_hash. Der lokale Diagnosebericht enthält diesen Kataloghash nicht vor/nach dem Forcing; eine solche lokale Katalogänderung darf deshalb nicht behauptet werden. Alleiniges Ausweichen vom XML-Hash auf den Kataloghash ist ebenfalls keine belastbare Zuordnung.
+- Eine unveränderte QueryHash-Gleichheit ist unter Forcing keine geeignete alleinige Identitätsbedingung. Vor späterer Umsetzung die kombinierte Bindung an eigene Datenbank/Prozedur, vollständigen Text, Kontext, Query-/Planrollen und tatsächliche Ergebnis-/Ausführungszuwächse unabhängig prüfen. Handles und Hashes bleiben ergänzende Beobachtungen; kein Fehler darf pauschal ignoriert, invertiert oder durch einen neuen Alleinschlüssel ersetzt werden.
+
+**Vorhandene private Planbelege:**
+
+Die Dateien bleiben unversioniert; SHA-256-Prüfsummen binden die gelesenen Bytes, nicht eine neue Ausführung.
+
+- 2022 vor Erzwingung: `Runtime/Temp/dgn004-version-gate-20261024/C5-2022-04-initial-2.plan.xml`; SHA-256 `42ddbcdc4a5979473e9e6010c72dd129bb2d995023df17b6e6aad8525c5ef913`.
+- 2022 unter Standard-Erzwingung: `Runtime/Temp/dgn004-version-gate-20261024/C5-2022-05-TWO_DEFAULT.plan.xml`; SHA-256 `1a0cc10982d8c167f8a2a1439e3a846443298654822cb407d396cd06492f714b`.
+- 2025 vor Erzwingung: `Runtime/Temp/dgn004-version-gate-20261024/C5-2025-04-initial-2.plan.xml`; SHA-256 `3032545ee9c5611851d290c9f13a8ad3309f5c24e5836df20b878be2f63fcb1d`.
+- 2025 unter Standard-Erzwingung: `Runtime/Temp/dgn004-version-gate-20261024/C5-2025-05-TWO_DEFAULT.plan.xml`; SHA-256 `49b26f95709a0d6dd7d95952fc1c0baf874e1181797486e804db2b80f45e0c87`.
+
+**Experimentelle Originalquellen:**
+
+- [ORIGINAL_EXPERIMENT – veröffentlichte eigene Reproduktion](https://www.sql.kiwi/2024/11/forced-plans-query-hash/), veröffentlicht am 2024-11-28: USE PLAN führt im reproduzierten Beispiel zur Überschreibung des Abfragehashs durch den Planhash; historische Untersuchung bis einschließlich SQL Server 2022 CU16. CU bedeutet Cumulative Update, kumulatives Produktupdate; keine allgemeine Aussage über spätere Builds daraus ableiten.
+- [ORIGINAL_EXPERIMENT – veröffentlichte eigene Reproduktion](https://kendralittle.com/2024/11/24/query-hash-values-meaningless-same-as-query-plan-hash-sql-server/), veröffentlicht am 2024-11-24: Query-Store-Forcing zeigt zunächst die Hashüberschreibung im Plan und später einen geänderten Kataloghash für dieselbe Query-Kennung. Belegt eine mögliche Fehlerausprägung, nicht deren Auftreten in unseren nicht erfassten Katalogwerten.
+
+**Replay-Referenz:**
+
+REFERENCE_CANDIDATE_NOT_ADAPTED – quellenbasierte Referenz, keine angepasste Abfrage oder Versionsqualifikation.
+
+Repository `microsoft/bobsql`, Commit `8a6ade5ae3008e68d072e7346bc00e171097f519`. Git-Blob-Prüfwerte der Quellen: `demos/sqlserver2022/IQP/opf/bigjoin.sql` = `ba8e46ff75a9508585d2e18f9ec29cb57fbf5267`; `demos/sqlserver2022/IQP/opf/readme.md` = `d1498eee25536cf53df830ca187da706217a0131`.
+
+Zwei mit UNION ALL verbundene SELECT-Zweige mit jeweils zehn WideWorldImporters-Tabellen und neun Joins, projizierten Detailtupeln und abschließendem ORDER BY OrderID. WideWorldImporters ist eine Microsoft-Beispieldatenbank; UNION ALL erhält Duplikate. Die Form unterscheidet sich vom bisher untersuchten einzelnen COUNT_BIG-/SUM-Sternjoin mit gleichförmigen Id-Verknüpfungen.
+
+Die Microsoft-Repository-Anleitung erwartet has_compile_replay_script = 1 (gespeicherte wiederverwendbare Kompilierungsschritte vorhanden) und beschreibt danach geringeren Kompilierungsaufwand bei Erzwingung. Das ist ein dokumentierter Referenzablauf für SQL Server 2022, kein Laufnachweis dieses Projekts, kein garantierter Leistungsgewinn und keine 2025-Qualifikation.
+
+Replay-Eignung hängt laut Hersteller von Optimierungsaufwand, internem Suchbaum und dem Nutzen gegenüber Speicherkosten ab; Joinzahl und FULL-Optimierung allein garantieren keinen Replay. Die Anleitung verlangt eine größere Beispieldatenbank und ein anderes Ressourcenprofil. Eine kleine synthetische Variante innerhalb der später ausdrücklich beauftragten Daten-/Plan-/Zeitgrenzen kann die Eignung verlieren und ist unbestätigt.
+
+Nur als Referenz für eine spätere gesondert freizugebende begrenzte Diagnose-Ausgangsabfrage prüfen. Der vorhandene DGN-004-Demoschnitt mit fester ForceProbe-Abfrage und sechs Nutzaufrufen wird nicht ersetzt. Keine Anpassung, Bereitstellung oder SQL-Ausführung in diesem Auftrag.
+
+**Ausgeschlossene Steuerteile:**
+
+- bigjoin.sql leert den datenbankbezogenen Prozedurcache; dieser Steuerteil wird nicht als Schulungsbaustein übernommen.
+- restorewwi.sql entfernt eine feste Datenbank, stellt die Beispielsicherung wieder her und leert Query Store. Diese Bereitstellungs-/Historienoperationen erfüllen nicht den eigenen markergebundenen Lifecycle und werden ausgeschlossen.
+- forceplan.sql verwendet nur zwei Argumente; find_query_in_query_store.sql liest die Plansicht ungefiltert. Weder Deaktivierungssignatur noch eindeutige Zielbindung aus diesen Hilfsskripten übernehmen.
+
+**Gepinnte Microsoft-Quellen:**
+
+- [Referenzabfrage](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql)
+- [Referenzanleitung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md)
+- [Wiederherstellungsskript – ausgeschlossen](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/restorewwi.sql)
+- [Force-Aufruf – keine Deaktivierungsvorlage](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/forceplan.sql)
+- [Plansicht – keine eindeutige Zielselektion](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/find_query_in_query_store.sql)
+
+StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichnet ein internes Such-/Aufgabenlimit des Optimierers, keinen nachgewiesenen Client- oder SQL-Aufruftimeout. Daraus weder Replay-Eignung noch fehlgeschlagene Ausführung ableiten.
+
+**Herstellergrundlagen:**
+
+- [Replay-Eignung und Speicherung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16)
+- [Internes Optimierer-Suchlimit](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-optimizer-timeout-performance)
+- [Query-Store-Abfrageidentität](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver16)
+
+**Offene Gates:**
+
+- Zuordnung und 2022-Signatur: Hashmuster quellenbasiert eingeordnet; kombinierte Text-/Modul-/Kontext-/Ergebnis-/Planbindung einschließlich ergänzender Hash-/Handlewerte unabhängig prüfen. Ein früherer Diagnoseabbruch ist damit erklärt, nicht nachträglich bestanden. Erweiterte 2022-Aufrufformen und Anforderungsflag bleiben ungeprüft; keine Hersteller-Fixbehauptung für 16.0.4265.3.
+- Replay auf beiden Builds: Referenz erst nach neuem ausdrücklichem Auftrag als begrenzte synthetische Diagnoseform entwerfen und qualifizieren. Gespeicherten Replay und tatsächliche Wiederverwendung derselben eigenen Abfrage positiv belegen; anschließend tatsächliche Deaktivierung gegenüberstellen. Flagwechsel oder fehlendes optionales Replay-Merkmal allein reichen nicht. Keine Laufzeitfreigabe für den verkleinerten Kandidaten oder 2025.
+- Erfassung: überholten -y-32768-Entwurf vor Umsetzung ersetzen und den ausgewählten Adapter unabhängig gegen vollständige Zuordnung, Kodierung, Ausgabegrenzen sowie Abbruch/Cleanup prüfen. Private große Diagnosepläne und Stückübertragung erweitern den geplanten Demoschnitt nicht.
+- Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
+
+Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
 ###### Begrenzter Planungsschnitt: Planerzwingung
 
-**Stand:** 2026-10-23; ursprüngliche Basis `4bab78cc321970c014784602f8ba068e38efd70d`. Präzisiert am 2026-10-24 gegen `2a111cda7bfcbf3218aaf0153678dbd64d3bbd40`; frühere Entwürfe über [PR315](https://github.com/gecompat/SQL_PerformanceSchulung/pull/315) und [PR316](https://github.com/gecompat/SQL_PerformanceSchulung/pull/316) erhalten. **Status:** DESIGNED_WITH_OPEN_GATES – fachlicher Schnitt geplant; Erfassung nach Clientgegenbefund neu zu prüfen, Versionsgate offen. Private Versionsdiagnose ist keine Demo-Umsetzung oder Laufzeitabnahme.
+**Stand:** 2026-10-23; ursprüngliche Basis `4bab78cc321970c014784602f8ba068e38efd70d`. Präzisiert am 2026-10-24 gegen `a87d1d7e68679238b766fb31a399b46825f14efd`; frühere Entwürfe und Versionsbefunde über [PR315](https://github.com/gecompat/SQL_PerformanceSchulung/pull/315), [PR316](https://github.com/gecompat/SQL_PerformanceSchulung/pull/316) und [PR317](https://github.com/gecompat/SQL_PerformanceSchulung/pull/317) erhalten. **Status:** DESIGNED_WITH_OPEN_GATES – Hashmuster quellenbasiert eingeordnet, Replay-Referenz ausgewählt; kombinierter Zuordnungsreview, Erfassung und tatsächliche Versionsnachweise offen. Keine angepasste Abfrage, Umsetzung oder Laufzeitfreigabe.
 
 **Lernziel:**
 
@@ -733,6 +808,7 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 - Eigene Modulkennung und unveränderter vollständiger Statementtext bleiben über alle sechs Nutzaufrufe gebunden. Objektbezogene Neukompilierung per sp_recompile nur für die eigene Prozedur; kein DROP/CREATE des Moduls, keine globale Cacheleerung. Eigene Indexänderungen sind die beabsichtigte Änderung der Planvoraussetzung.
 - Dasselbe fest dokumentierte Sitzungsprofil bei Modulanlage und Nutzaufrufen verwenden: ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL und QUOTED_IDENTIFIER ON, NUMERIC_ROUNDABORT OFF; Sprache us_english, Datumsformat mdy und erster Wochentag 7. Tatsächliches context_settings_id samt relevanten Werten und query_parameterization_type erfassen. Keine stillschweigende Zusammenlegung verschiedener Kontext- oder Parametrisierungsformen.
 - Die Query-Store-Zuordnung über tatsächliche Datenbank, eigene object_id, vollständigen Text und Kontext eindeutig auflösen und über die Indexphasen gegenprüfen. Genau eine eigene Query-Kennung für das Nutzstatement; Mehrdeutigkeit oder verlorene Zuordnung ist Fehler. Konkrete Engine-Text-/Parameterdarstellung später je Zielversion prüfen; keine beliebige Textnormalisierung zur Erzeugung eines passenden Ergebnisses.
+- Lesende Hashanalyse: QueryHash unter Forcing nicht als zwingend unveränderten Alleinschlüssel voraussetzen; auch sys.query_store_query.query_hash kann laut Originalreproduktion betroffen sein. Unveränderte eigene Datenbank/Prozedur, vollständigen Text, Kontext und eindeutige Query-Kennung mit tatsächlichen Ausführungs-/Ergebnisbelegen kombinieren. Beobachtete Handle-Konstanz ist ein ergänzendes Merkmal, kein ungeprüfter universeller Ersatzschlüssel; unabhängiger Review bleibt offen.
 
 **Geplanter Ablauf:**
 
@@ -758,7 +834,7 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 - XML (Extensible Markup Language; strukturiertes Textformat) vollständig und ohne Ersetzungs-/Trunkierungszeichen lesen; passende Statementtexte, eigene Objekt-/Indexbindung und echte Laufzeitzähler müssen vorhanden sein. Alle Plan-Ergebnismengen und Wrapper berücksichtigen, unerwartete zusätzliche Nutzstatements zurückweisen. Die 2019-/2022-RTM-Schemata dienen als Referenz, nicht als vollständige Schemafreigabe für 2025.
 - Die Erfolgsepoche verlangt zwei neue reguläre Ausführungen der eindeutig zugeordneten tatsächlichen Indexpläne und keinen neuen Force-Fehler. Nach Indexentzug verlangt die Fehlerepoche Zählerzuwachs größer null und 8712/NO_INDEX am Force-Ziel sowie eine neue reguläre Ausführung mit tatsächlichem Ersatzplan ohne entfernten Index. Der Ersatzplan darf einen schon bekannten Plan wiederverwenden; weder neue Plan-ID noch exakt ein Kompilierungsfehler sind Pflicht.
 - Planstruktur und vollständige Werte belegen die beobachtete Verwendung unter der Erzwingungspolitik. Sie belegen weder, dass der Optimierer ohne Forcing anders gewählt hätte, noch einen Leistungsgewinn. Query-Store-Zähler weiterhin vor Joins nach Plan, Ausführungstyp und Intervall aggregieren und über Intervallgrenzen als Vorher-/Nachherdifferenz auswerten.
-- Der private 2022-Probelauf zeigt eine Hashmetadatenabweichung bei gleichem Text, Modul, Statement-SQL-Handle und Kontext. Vor Demo-Umsetzung eine belastbare Bindung unabhängig prüfen; weder eine stabile Hashgleichheit ungeprüft voraussetzen noch die vorhandenen vollständigen Struktur-/Objekt-/Ergebnisanforderungen lockern. Die Diagnoseinvariante ist keine qualifizierte Demo-Regel.
+- Lesende Vertiefung der vorhandenen 2022-Pläne: Hashwechsel bei gleichem vollständigem Text, Modul, Kontext, Statement-SQL-Handle, Operatorfolge, Objektdeskriptoren und Prädikaten passt zu Originalreproduktionen der Forcing-Hashüberschreibung. Die zusätzliche Hashstabilitätsannahme des privaten Diagnosecodes ist als alleinige Identitätsbedingung ungeeignet. Vollständigen Struktur-/Objekt-/Ergebnisvertrag beibehalten und kombinierte Zuordnung unabhängig prüfen; weder neuen Lauf noch vollständige semantische Planäquivalenz oder Hersteller-Fix behaupten.
 
 **Vollständige und begrenzte Planübertragung:**
 
@@ -778,6 +854,7 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 - Neue Build-/Konfigurationsbelege können spätere ausdrücklich autorisierte lesende SQL-Metadatenabfragen erfordern. Dieser Dokumentationsauftrag autorisiert sie nicht. Auch nach Quellenklärung bleiben tatsächliche Parametrisierungs-/Textdarstellung, Scan-/Indexwahl, Erfolgs-/NO_INDEX-/Ersatzplansequenz und Rücknahme auf allen drei Zielversionen empirisch offen.
 - Zum Schließen des Versionsgates ist eine eindeutige Herstellerklärung oder ein später ausdrücklich autorisierter gezielter Nachweis am festgelegten 2022-/2025-Build nötig: akzeptierte Aufrufform, tatsächlich am eigenen Plan deaktivierte optimierte Erzwingung und belastbar interpretierter Status. Das engere Erfassungsprofil allein erteilt diese Freigabe nicht.
 - Begrenzte Versionsdiagnose vom 24. Oktober 2026: 2025/17.0.4075.5 bestätigt die Vierargument-Reihenfolge mit Replikatkennung an dritter und Deaktivierungsanforderung an vierter Stelle sowie passende 0/1-Flagwerte; tatsächliche Replay-Abschaltung bleibt unbelegt. 2022/16.0.4265.3 bestätigt nur den Standardaufruf; Hashmetadatenabweichung blockierte die weiteren Varianten. Vollständiger Befund unter version_probe_result, keine pauschale Versionsfreigabe.
+- Lesende Hash-/Replay-Sichtung: das 2022-Hashmuster ist quellenbasiert eingeordnet, die erweiterte Signatur und belastbare kombinierte Zuordnung bleiben zu prüfen. Microsoft-bigjoin liefert eine dokumentierte 2022-Replay-Referenz, keine Zusage für verkleinerte synthetische Daten oder 2025. Gespeicherter Replay, tatsächliche Nutzung und tatsächliche Deaktivierung müssen getrennt am eigenen Statement belegt werden; hash_replay_review_result bindet Quellen und Grenzen.
 
 **Schutz- und Abbruchgrenzen:**
 
@@ -796,19 +873,20 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 - Spätere Zuordnungsgegenfälle: Force-Ziel und ausgeführten Plan als getrennte Rollen prüfen; eindeutigen passenden tatsächlichen Plan bei abweichender Plan-ID korrekt zuordnen, falschen Hash-/Struktur-/Indexkandidaten und mehrdeutige Treffer zurückweisen. Schon bekannte Ersatzplan-ID darf gültig sein, fehlende neue tatsächliche Ausführung nicht.
 - Spätere Erfassungsgegenfälle: 256-Zeichen-Kürzung, fehlendes XML-Ende, falsche Kodierung, fehlende Laufzeitzähler, zusätzliche Nutzstatements und Plan-/Gesamtausgabeüberschreitung ablehnen. Begrenzung während des Lesens und Cleanup nach Abbruch prüfen. Ungeklärte Signatur oder Flaginterpretation darf keinen mutierenden Versionspfad freigeben.
 - Nach neuer Erfassungsentscheidung weiterhin 32.767/32.768 UTF-8-Bytes, Mehrbytezeichen, echte Zeilenumbrüche, äußeres Padding und künstliche Clientumbrüche prüfen. Grenze bei/oberhalb 32.768 Bytes ablehnen, beide Ausgabekanäle während des Lesens begrenzen, falsche Kodierung und fehlenden XML-Abschluss zurückweisen. -y 32768 nicht als gültige Clientoption verwenden. Die privaten Proben ersetzen diese späteren Demo-Gegenfälle nicht.
+- Späterer Zuordnungsgegenfall aus der Hashsichtung: bekannte Hashüberschreibung bei weiterhin belegter eigener Text-/Modul-/Kontext-/Plan-/Ergebnisbindung von einer fremden oder mehrdeutigen Abfrage unterscheiden. Hashgleichheit allein darf keinen Erfolg erzeugen; fehlender Pflichtbezug muss scheitern. Replay-Kandidat benötigt positiven Speicher-/Nutzungsnachweis vor dem Deaktivierungsvergleich sowie vollständige Tupel einschließlich UNION-ALL-Duplikaten. Diese Fälle sind nur geplant; keine Probe oder Implementierung jetzt.
 
 **Abnahmekriterien:**
 
-- Dokumentationsabnahme jetzt: ursprüngliche Analyze-, Design- und lesende Gatebefunde unverändert erhalten und die bereits ausgeführte private Versionsdiagnose separat nach Build, Methode, Teilbefund und offenen Gates aufnehmen. Den überholten Anzeigeentwurf im aktiven Plan berichtigen. Nur statische Integration, keine weiteren SQL-/Lab-Läufe, Demo-Implementierung oder VALIDATED-Einstufung.
+- Dokumentationsabnahme jetzt: ursprüngliche Analyze-, Design-, Gate- und Versionsbefunde unverändert erhalten. Lesende Hashanalyse mit lokalen Planprüfsummen und Originalreproduktionen, gepinnte Replay-Referenz samt ausgeschlossenen Steuerteilen und offene Gates separat aufnehmen. Die private Diagnose wird nicht nachträglich bestanden, die Referenz nicht als angepasste Abfrage ausgegeben. Nur statische Integration, keine Umsetzung, SQL-/Lab-Läufe oder VALIDATED-Einstufung.
 - Spätere fachliche Abnahme: zwei tatsächlich ausgeführte Planvarianten derselben Abfrage; danach tatsächliche erfolgreiche Erzwingung, genau abgegrenzter NO_INDEX-Fehler samt erfolgreicher Ersatzplanung und ausdrückliche Rücknahme jeweils mit vollständigem Ergebnisvertrag. Alle genannten Pflicht- und Gegenfälle sowie zwei vollständige Läufe je Zielversion bestehen; unabhängiger Review ohne offene priorisierte Befunde und erfolgreiche Bereinigung. Zusätzlich vollständige begrenzte Planübertragung und eindeutige Zuordnung zum tatsächlich ausgeführten Plan belegen; widersprüchliche Aufruf-/Flagdetails je Zielbuild vorher belastbar klären. Kein erfolgreicher Status durch gekürzte Pläne oder gelockerte Ähnlichkeitsregeln. Für den engeren ersten Schnitt gelten höchstens 32.767 UTF-8-Bytes je tatsächlichem Plan, die begrenzten beiden Ausgabekanäle und strikte Dekodierung; eine größere Planmenge ist keine akzeptierte Variante dieses Schnitts.
 - Spätere Dokumentation/Integration: vollständiger deutscher Lesepfad für Vorbereitung, Erfolg, Fehlerdeutung, Rücknahme und Erhaltungsweg mit kurzen Begriffserklärungen; bestehende Lernziel-/Demokatalog-/Testabdeckungszuordnung gezielt ergänzen. Erst nach tatsächlichen Nachweisen Versionsstatus ändern und erforderliche aktuelle PR-/Main-Prüfungen binden; kein pauschaler Benchmark für diese qualitative Diagnoseübung.
 
 **Verbleibende Freigabegates:**
 
-- Erfassung: den mit dem Client unverträglichen -y-32768-Entwurf vor Umsetzung ersetzen und den ausgewählten Adapter unabhängig gegen vollständige Ergebnis-/Planzuordnung, Kodierung, beide während des Lesens begrenzten Ausgabekanäle und Abbruch/Cleanup prüfen. Die private Stückübertragung bleibt Diagnoseevidenz; keine automatische Adapterübernahme oder Erweiterung der Demo-Grenzen.
-- SQL Server 2022: Hashmetadatenabweichung und eine belastbare Zuordnung des tatsächlich ausgeführten eigenen Statements klären; danach die erweiterten Aufrufformen und das Anforderungsflag buildbezogen prüfen. Weder alleinige Hashzuordnung noch ungeprüftes Verwerfen beziehungsweise Invertieren eines Merkmals.
-- Beide Zielbuilds: eine nachweislich gespeicherte und tatsächlich verwendete Optimierungs-Replay-Ausgangslage herstellen und derselben eigenen Abfrage eine belegte Deaktivierung gegenüberstellen. Der 2025-Anforderungs-/Flagbefund allein schließt dieses Gate nicht; veröffentlichte Dokumentationswidersprüche nicht pauschal auflösen.
-- Demo: weiterhin ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Qualifikation des entworfenen Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmeschnitts auf allen Zielversionen erforderlich. Keine weiteren SQL-/Lab-Läufe oder Demo-Umsetzung im aktuellen Auftrag; übrige Verarbeitung pausiert.
+- Zuordnung und 2022-Signatur: Hashmuster quellenbasiert eingeordnet; kombinierte Text-/Modul-/Kontext-/Ergebnis-/Planbindung einschließlich ergänzender Hash-/Handlewerte unabhängig prüfen. Ein früherer Diagnoseabbruch ist damit erklärt, nicht nachträglich bestanden. Erweiterte 2022-Aufrufformen und Anforderungsflag bleiben ungeprüft; keine Hersteller-Fixbehauptung für 16.0.4265.3.
+- Replay auf beiden Builds: Referenz erst nach neuem ausdrücklichem Auftrag als begrenzte synthetische Diagnoseform entwerfen und qualifizieren. Gespeicherten Replay und tatsächliche Wiederverwendung derselben eigenen Abfrage positiv belegen; anschließend tatsächliche Deaktivierung gegenüberstellen. Flagwechsel oder fehlendes optionales Replay-Merkmal allein reichen nicht. Keine Laufzeitfreigabe für den verkleinerten Kandidaten oder 2025.
+- Erfassung: überholten -y-32768-Entwurf vor Umsetzung ersetzen und den ausgewählten Adapter unabhängig gegen vollständige Zuordnung, Kodierung, Ausgabegrenzen sowie Abbruch/Cleanup prüfen. Private große Diagnosepläne und Stückübertragung erweitern den geplanten Demoschnitt nicht.
+- Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 **Zurückgestellt:**
 
@@ -818,7 +896,7 @@ Query Store Hints (gespeicherte Abfragehinweise; Zusatzpfad ab 2022), automatisc
 
 M (mittel) – ausschließlich vorläufige Einschätzung; offene Plannachweis-/Versionsfragen können den Umfang ändern. Bei Überschreitung nicht autonom erweitern.
 
-Registrierte Detailquellen: [DGN-004-Versionsbefunde zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-begrenzte-versionsdiagnose-vom-24-oktober-2026).
+Registrierte Detailquellen: [DGN-004-Hashzuordnung und Replay-Referenz](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
 
 ##### 4. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
 
