@@ -1,25 +1,41 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Prüfbefund zum Mess-/Statusvertrag aufnehmen
+## Auftrag vom 24. Oktober 2026: DGN-004-R/H-Quellenbefund aufnehmen
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 die lesende Nachprüfung des Mess-/Statusvertrags der Negativkontrolle für DGN-004
-(Planerzwingung) mit DISABLE_OPTIMIZED_PLAN_FORCING, einem Abfragehinweis zur
-Abschaltung optimierter Planerzwingung. Nur Dokumentation und statische
-Dokumentationsprüfung/Integration im bestehenden Pull-Request-Verfahren.
-Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
-Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
+Der aktuelle Auftrag dokumentiert bei TSK-016 den lesenden Quellenbefund zu
+DGN-004 (Planerzwingung): R ist die Referenz ohne Hint, H die Negativkontrolle
+mit festem Abfragehinweis. Nur Dokumentation und statische CI (Continuous
+Integration; automatisierte Integrationsprüfungen) im bestehenden Pull-Request-
+Verfahren. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; die übrige
+Verarbeitung bleibt pausiert. Frühere Ausführungsfreigaben und Budgets werden
+nicht wiederverwendet.
 
 Der [kanonische Entwurf](../../.ai/identity/registry.json) steht bei TSK-016 unter
 `hint_negative_control_plan`. Die [abgeleitete Planansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-rh-abfrageform-und-engine-textzuordnung-vom-24-oktober-2026)
 führen dieselben Identitäts-, Nachweis- und Ausführungsgrenzen.
 
-Der neue [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag)
+Der aktuelle [R/H-Quellenbefund](../../.ai/BACKLOG.md#rh-abfrageform-und-engine-textzuordnung)
+steht kanonisch unter `rh_query_text_review_result`. Die terminale Hint-Position
+ist quellenkonform; der vollständige ausführbare R/H-Text ist noch nicht vorhanden.
+Die Planungsabnahme benennt deshalb den Bauplan und lässt die konkrete Quellen-
+und Darstellungsabnahme offen. Ganze Moduldefinition, Cache-Batchtext, daraus
+abgegrenztes Nutzstatement, Query-Store-Text und Plan-Statementtext getrennt
+zuordnen. Query Store (persistente Abfrage-/Planhistorie) lässt äußere Kommentare
+und Leerraum weg; innere Texte und Hinweise bleiben erhalten. Byteoffsets sind
+keine Zeichenpositionen. Erst Quellenbezug eindeutig belegen, danach die jeweilige
+Engine-Darstellung versiegeln; keine freie Normalisierung oder Übernahme früherer
+OPT-007-Textbeobachtungen. Tatsächliche Darstellungen beider Builds bleiben offen.
+Messgrenzen, Ergebnisvorränge, Aufruffolge und Budgets werden nicht geändert.
+
+Der vorherige [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag)
 steht bei TSK-016 unter `hint_evidence_status_review_result`. Beide vorigen
 Präzisierungslücken sind dokumentarisch behoben; im geprüften Kompilierungs-/
-Statusvertrag wurde kein weiterer Widerspruch festgestellt. Der aktive Plan und
-seine Messgrenzen/Ergebnisvorränge bleiben unverändert. Diese Einordnung ist
-keine unabhängige Methodenfreigabe und keine technische Qualifikation der Builds
+Statusvertrag wurde kein weiterer Widerspruch festgestellt. Dieser damalige
+Review änderte den Plan nicht; die aktuelle Ergänzung begrenzt
+nur seine Quelltext-/Darstellungsabnahme. Messgrenzen und Ergebnisvorränge bleiben
+unverändert. Diese Einordnung ist keine unabhängige Methodenfreigabe und keine
+technische Qualifikation der Builds
 2022/16.0.4265.3 oder 2025/17.0.4075.5. Quelltext-, Marker-/Gegenvertrags-,
 Zuordnungs-/Transport- und Laufzeitgates bleiben offen; kein zusätzlicher Lauf
 oder Kontroll-only-Ersatzablauf ist autorisiert.

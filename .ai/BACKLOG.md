@@ -1,20 +1,21 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Prüfbefund zum präzisierten Mess- und Statusvertrag aufnehmen
+## DGN-004: R/H-Abfrageform und Engine-Textzuordnung aufnehmen
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 die erneute lesende Prüfung der
-gesonderten Negativkontrolle für DGN-004 (Planerzwingung). Die beiden vorigen
-Präzisierungslücken sind dokumentarisch behoben; im geprüften Mess-/Statusvertrag
-wurde kein weiterer Widerspruch festgestellt. Methoden- und Versionsgates bleiben
-offen. Nur Dokumentation und statische Prüfung/Integration per Pull Request
-(Änderungsantrag); keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe.
-Übrige Verarbeitung pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+Der aktuelle Auftrag dokumentiert bei TSK-016 die lesende Quellenprüfung für
+DGN-004 (Planerzwingung). R bezeichnet die Referenz ohne Hint, H die Negativkontrolle
+mit festem Abfragehinweis. Die geplante Form ist quellenkonform; vollständige
+Quellen und eindeutige Engine-Textzuordnung bleiben offen. Die Planungsabnahme
+ist auf den vorhandenen Bauplan begrenzt. Nur Dokumentation und statische
+Prüfung/Integration per Pull Request (Änderungsantrag); keine Umsetzung,
+Tests der Probe oder SQL-/Lab-Läufe. Die übrige Verarbeitung bleibt pausiert.
+Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
 bindet Grenzen und unveränderte Budgets.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der erneuten DGN-004-Prüfung zum Mess-/Statusvertrag ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Prüfung zu R/H-Abfrageform und Engine-Textzuordnung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -30,7 +31,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 24. Oktober 2026: den lesenden DGN-004-Prüfbefund zum präzisierten Kompilierungsnachweis und Ergebnisstatus bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Aktiver Mess-/Statusvertrag, alle Identitäten, älteren Reviews/Pläne und Budgets bleiben unverändert.
+Dokumentationsauftrag vom 24. Oktober 2026: den lesenden DGN-004-Prüfbefund zur R/H-Abfrageform und Engine-Textzuordnung bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. R ist die Referenz ohne Hint, H die Negativkontrolle mit festem Abfragehinweis. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Ausschließlich Quelltext-/Zuordnungsgrenzen und die zu weit gehende Planungsabnahme klarstellen; Mess-/Statusvertrag, Identitäten, ältere Reviews/Pläne und Budgets erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -514,7 +515,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Erneuter lesender Review des präzisierten Mess-/Statusvertrags abgeschlossen: beide vorigen Präzisierungslücken dokumentarisch behoben, im geprüften Vertrag kein weiterer Widerspruch festgestellt. Keine unabhängige Freigabe oder Laufzeitqualifikation; Marker-, Quelltext-, Methoden- und Versionsgates bleiben offen. P2, aktiver Plan, neun Aufrufe und Budgets unverändert.
+**Planungsentscheidung:** Lesender R/H-Quellenreview abgeschlossen: terminale Hint-Position quellenkonform und Tupelerwartung rechnerisch schlüssig; vollständiges ausführbares Quellpaar und begrenzte Engine-Textzuordnung bleiben offen. Planungsabnahme auf den Bauplan begrenzt. P2, Mess-/Statusvertrag, neun Aufrufe und Budgets unverändert; keine unabhängige Freigabe oder Laufzeitqualifikation.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -523,7 +524,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Umsetzung weiterhin die im hint_negative_control_plan und hint_evidence_status_review_result benannten Quelltext-/Identitäts-/Marker-/Transport-/Methodengates unabhängig freigeben. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im ausgewählten unveränderten Gesamtrahmen. Dokumentarischer Review schließt keine Ausführungsfreigabe ein; übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Vor Umsetzung vollständige R/H-Quellen festschreiben und die im rh_query_text_review_result präzisierten Erstzuordnungs-/Darstellungsgrenzen sowie bisherigen Identitäts-/Marker-/Transport-/Methodengates unabhängig freigeben. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im ausgewählten unveränderten Gesamtrahmen. Dokumentarischer Review schließt keine Ausführungsfreigabe ein; übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -774,6 +775,39 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
 
+###### R/H-Abfrageform und Engine-Textzuordnung
+
+**Stand:** 2026-10-24; Basis `95105817ec14f4d0050b760611a1559ff19e4254`.
+
+**Status:** SOURCE_REVIEW_WITH_OPEN_TEXT_GATES – geplante Form quellenkonform; vollständiges R/H-Quellpaar und eindeutige Engine-Textzuordnung weiterhin offen. Keine Implementierungs- oder Laufzeitabnahme.
+
+Lesender Vergleich des versionierten DGN-004-Entwurfs mit dem gepinnten Microsoft-bigjoin-Original sowie Herstellerreferenzen zu SELECT, Query Hints, Moduldefinition, Cache-Statementgrenzen und Query-Store-Abfragetext am 2026-10-24. Im Review keine Änderungen, Tests, SQL-/Lab- oder CI-Läufe und kein Push. Dieser Folgeauftrag integriert ausschließlich die Befunde und dokumentarischen Klarstellungen mit statischen Prüfungen; übrige Verarbeitung pausiert.
+
+**Quellenbefunde und Herleitung:**
+
+- DOKUMENTIERT: SELECT ordnet OPTION nach ORDER BY an; bei UNION darf nur der letzte Zweig die OPTION-Klausel für das gesamte Statement tragen. Der Entwurf mit Referenz R ohne Hint und Kontrolle H mit genau einer terminalen OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING')) ist damit quellenkonform. Dies ist keine Syntaxprüfung eines bereits vorliegenden vollständigen Quellpaars oder technische Hint-Abnahme auf den Zielbuilds.
+- QUELLENBEFUND: Das gepinnte bigjoin-Original 8a6ade5ae3008e68d072e7346bc00e171097f519, Git-Blob ba8e46ff75a9508585d2e18f9ec29cb57fbf5267, enthält zehn Tabellen, neun Joins je Zweig und zwei identische UNION-ALL-Zweige. Es projiziert neun Spalten und sortiert nach OrderID. Der synthetische Entwurf projiziert dagegen zehn int-Werte einschließlich GroupNo und sortiert nach OrderId, LineId, GroupNo. Das Original ist strukturelle Anregung, kein identischer SQL-Text oder übertragener Replay-Eignungsnachweis.
+- INFERENZ: Aus den festgelegten 192 Detailzeilen, zwei Gruppen je Detail und zwei identischen Zweigen folgen 768 Ergebnistupel, davon 384 verschiedene jeweils zweimal. Diese Erwartung folgt rechnerisch aus dem synthetischen Aufbau; keine gemessene Ausgabe, erfolgreiche Kompilierung oder Replay-Nutzung wird daraus behauptet.
+- DOKUMENTIERT: sys.sql_modules.definition enthält die vollständige Moduldefinition. sys.dm_exec_sql_text liefert den Batch-/Prozedurtext zum Handle; sys.dm_exec_query_stats.sql_handle bezeichnet Batch oder Prozedur. statement_start_offset und statement_end_offset grenzen das einzelne Statement als nullbasierte Bytepositionen darin ab. Vollständiger Modul-/Batchtext allein ist deshalb kein Nachweis des Nutzstatements; SQL- und Planhandle nicht gleichsetzen.
+- DOKUMENTIERT: sys.query_store_query_text.query_sql_text bewahrt innere Leerzeichen, Kommentare und Hinweise; Kommentare und Leerraum vor und nach dem Abfragetext werden ignoriert. query_text_id bezeichnet den Textdatensatz, statement_sql_handle das einzelne Statement. Ein roher Vergleich der gesamten CREATE-PROCEDURE-Definition mit diesem Statementtext oder beliebige innere Kommentar-/Leerraum-/Hintbereinigung ist daraus nicht ableitbar.
+
+**Offene Quelltext- und Zuordnungsgrenzen:**
+
+- OFFENES QUELLTEXTGATE: Im versionierten Schulungsbestand liegt ein Form-A-Bauplan vor, kein vollständig festgeschriebenes ausführbares R/H-Prozedurenpaar mit konkreten Namen, Aliasen, qualifizierten Spalten und exakten Statementgrenzen. Die bisherige Planungsabnahme formulierte mit genaues R/H-Quellpaar dokumentiert zu weitgehend. Aktuell ist ausschließlich der Bauplan dokumentiert; vollständige Quellen bleiben ein eigenes Gate vor Umsetzung.
+- OFFENES ZUORDNUNGSGATE: Vollständige Moduldefinition, Cache-Batchtext, anhand der Bytegrenzen abgegrenztes Nutzstatement, Query-Store-Abfragetext und aus dem vollständigen Plan gelesener StatementText sind getrennte Darstellungen. Ein vorab begrenzter Vertrag muss den jeweils vollständigen Rohwert, dessen Herkunft und die zulässige Darstellung eindeutig auf das festgeschriebene Nutzstatement beziehen. Erst nach dieser Erstzuordnung darf die Engine-Darstellung je Identität versiegelt und über die Phasen exakt verglichen werden; bloßes Einfrieren der ersten Ausgabe beweist den Quellenbezug nicht.
+- METHODE: Der R/H-Paarvergleich erlaubt ausschließlich die vorab festgelegte terminale Hint-Differenz innerhalb des Nutzstatements. Unterschiedliche Modulnamen gehören zur getrennten R/H-Modulidentität und dürfen nicht als zusätzlicher Nutzstatement-Unterschied normalisiert werden. object_id, query_id, query_text_id und context_settings_id sowie eigene Planrollen und vollständige Texte bleiben gemeinsam maßgeblich. Kein Neubinden über LIKE, TOP 1 oder Hashgleichheit.
+- GRENZE: Aus der Dokumentation folgen keine bereits akzeptierten konkreten Engine-Strings, Semikolongrenzen oder versionsgleichen Darstellungen für diese Prozeduren. Frühere OPT-007-Beobachtungen zu Ad-hoc-/Prepared-Texten werden nicht auf R/H übertragen. Ebenso wenig belegen Abfrageform, Hint-Anforderung oder rechnerische Tupelzahl tatsächliche Replay-Eignung oder Replay-Abschaltung.
+
+**Verbleibende Freigabegates:**
+
+- Vollständiges R/H-Quellpaar und exakt einziger Hint-Unterschied vor späterer Umsetzung festschreiben; anschließend den begrenzten Quellen-/Modul-/Statement-/Query-Store-/Plantext-Zuordnungsvertrag einschließlich zulässiger Darstellungen unabhängig prüfen. Der aktuelle Review aus demselben Arbeitskontext ersetzt keine unabhängige Methodenfreigabe.
+- Für SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170) bleiben tatsächliche Engine-Darstellung, vollständige Planzuordnung, Kompilierungsbeobachtbarkeit und positive R-/beobachtete H-Gegenkennzeichnung offen. Ungeklärte QueryCompilationReplay-Werte und der bisherige Flag-/Signaturkonflikt bleiben erhalten.
+- Messgrenzen B0/B1, sys.query_store_query.count_compiles, strenges Delta +1, Ergebnisvorrang und CONTROL_ONLY als bloßer Teilbefund bleiben unverändert. Ebenso neun Nutzaufrufe je Version, zwei eigene Container insgesamt, gemeinsames Budget 900 Sekunden regulär plus je 60 Sekunden Cleanup. Keine Erweiterung oder Budgetaddition; neue Umsetzung/Läufe benötigen nach unabhängiger Methodenfreigabe einen ausdrücklichen Auftrag für den ausgewählten Schnitt.
+
+**Abnahmegrenze:** Abgeschlossen ist nur die lesende Quellenprüfung mit nachvollziehbarer dokumentarischer Aufnahme. Geplante Form bestätigt und zwei noch offene Quelltext-/Zuordnungsgrenzen benannt; Planungsabnahme auf den tatsächlich vorhandenen Bauplan begrenzt. Keine vollständigen SQL-Artefakte, Parser-/Demotests, neue SQL-/Lab-Läufe, empirische Engine-Textabnahme, unabhängige Methodenfreigabe oder Versions-/Demoqualifikation.
+
+**Quellen, Abruf 2026-10-24:** [Gepinntes Microsoft-bigjoin-Original](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql), [SELECT-Syntax](https://learn.microsoft.com/en-us/sql/t-sql/queries/select-transact-sql?view=sql-server-ver17), [Query Hints und Scope](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17), [Vollständige Moduldefinition](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-modules-transact-sql?view=sql-server-ver17), [Cache-Batchtext](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver17), [Statementgrenzen und Handles](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-stats-transact-sql?view=sql-server-ver17), [Query-Store-Abfragetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-text-transact-sql?view=sql-server-ver17).
+
 ###### Lesender Prüfbefund zum präzisierten Mess- und Statusvertrag
 
 **Stand:** 2026-10-24; Basis `14958e680b5cec132e827c10e642cb7529c1d024`. **Status:** REVIEWED_DOCUMENTARILY_WITH_OPEN_GATES – beide vorherigen Präzisierungslücken dokumentarisch behoben; im geprüften Mess-/Statusvertrag kein weiterer Widerspruch festgestellt. Keine unabhängige Methoden- oder Laufzeitfreigabe.
@@ -923,7 +957,7 @@ Eigenständiger Diagnoseplan innerhalb DGN-004 (Planerzwingung) bei TSK-016, kei
 
 **Abnahmekriterien:**
 
-- Planungsabnahme jetzt: genaues R/H-Quellpaar, getrennte Engine-Identitäten und Planrollen, kontrollierte Neun-Aufruf-Folge, vollständiges Tupelorakel, abgegrenzte Kontroll-/Beobachtungsaussagen sowie gemeinsame Grenzen und Cleanup bei TSK-016 dokumentiert. Nur statische Planungs-/Registryprüfung; keine Probe-Implementierung oder Laufzeitbehauptung.
+- Planungsabnahme jetzt: R/H-Bauplan, getrennte Engine-Identitäten und Planrollen, kontrollierte Neun-Aufruf-Folge, vollständiges Tupelorakel, abgegrenzte Kontroll-/Beobachtungsaussagen sowie gemeinsame Grenzen und Cleanup bei TSK-016 dokumentiert. Vollständiges ausführbares R/H-Quellpaar und begrenzter Engine-Text-Zuordnungsvertrag bleiben gemäß rh_query_text_review_result offen; keine bereits abgeschlossene konkrete Quellen- oder Darstellungsabnahme. Nur statische Planungs-/Registryprüfung; keine Probe-Implementierung oder Laufzeitbehauptung.
 - Spätere Teilabnahme des Kontrollvertrags je Build nur nach neuer Freigabe: H-Hint tatsächlich im vollständigen eigenen Nutzstatement, frische Kompilierung und eigene klassische Planerzwingung mit vollständigen Solltupeln, genau einem regulären Ausführungszuwachs, keinen neuen Forcingfehlern und vollständigem Cleanup. Ohne unabhängigen Gegenvertrag höchstens CONTROL_ONLY, kein empirischer Replay-Abschaltungsnachweis. Der konkret benannte Query-Kompilierungszähler und feste B0/B1-Grenzen müssen erfüllt sein. CONTROL_ONLY ist ausschließlich Teilbefund; bei fehlender empirischer Abnahme Schlussstatus NOT_PROVEN nach dem festgelegten Fehler-/Bereinigungsvorrang. Kein neuer Kontroll-only-Ersatzablauf.
 - Spätere empirische Vergleichsabnahme je Build erst bei genehmigter Marker-/Gegensemantik, zwei positiv belegten R-Phasen und zwei belegten H-Gegenphasen, vollständiger jeweils eigener Query-/Plan-/Kontext-/Ergebnisbindung sowie beidseitig unforced Abschluss und sauberem Cleanup. Der ursprüngliche Gleichidentitätsvergleich, die vollständige Demoqualifikation und eine Releasefreigabe bleiben separat offen. Ein bloßer +1-Kompilierungszuwachs genügt nicht; vollständiger Replay-/Gegenvertrag bleibt Pflicht. Die präzisierten Messgrenzen und Ergebnisvorränge müssen unabhängig freigegeben sein, bevor eine Umsetzung oder Ausführung beginnt.
 
