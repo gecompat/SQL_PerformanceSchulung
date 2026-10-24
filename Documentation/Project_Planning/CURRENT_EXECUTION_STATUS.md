@@ -1,50 +1,47 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: kombinierte DGN-004-Zuordnung und Replay-Probe planen
+## Auftrag vom 24. Oktober 2026: DGN-004-Replay-Nutzungsbefunde dokumentieren
 
-Der aktuelle menschliche Auftrag plant bei TSK-016 die kombinierte Planzuordnung
-und eine separate begrenzte synthetische Optimierungs-Replay-Probe
-(Wiederverwendung von Kompilierungsschritten) für DGN-004 (Planerzwingung) auf
-SQL Server 2022/2025. Nur Planung und relevante statische Prüfung, keine Umsetzung,
-Tests der Probe oder SQL-/Lab-Läufe. Dokumentationsintegration im bestehenden
-Pull-Request-Verfahren (Änderungsantrag); übrige Verarbeitung bleibt pausiert.
-Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
+Der aktuelle Auftrag ergänzt bei TSK-016 die abgeschlossene lesende Quellenprüfung
+zum tatsächlichen Replay-Nutzungsnachweis für DGN-004 (Planerzwingung). Replay
+bedeutet Wiederverwendung aufgezeichneter Optimierungsschritte bei Kompilierung.
+Nur Dokumentation und statische CI (Continuous Integration; automatisierte
+Integrationsprüfungen) mit Integration per Pull Request nach `origin/main`.
+Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; die übrige Verarbeitung
+bleibt pausiert. Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
 
-Der [kanonische Entwurf](../../.ai/identity/registry.json) steht unter
-`mapping_replay_probe_plan`; ursprüngliche Quellen-, Gate-, Versions- und
-Hashbefunde bleiben unverändert. Die [abgeleitete Planansicht](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-für-kombinierte-zuordnung-und-begrenzte-replay-probe-vom-24-oktober-2026)
-führen dieselben Grenzen und offenen Methodengates.
+Der [kanonische Quellenreview](../../.ai/identity/registry.json) steht bei TSK-016
+unter `replay_usage_source_review_result`. Die
+[abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesender-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis)
+und die [registrierte Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis-vom-24-oktober-2026)
+führen dieselben Nachweisgrenzen. Alle bisherigen Analyse-, Versions-, Hash- und
+Planungsbefunde bleiben erhalten.
 
-Die Zuordnung verbindet eigene Datenbank/Prozedur, vollständigen Text und Kontext,
-getrennten Force-Zielplan und tatsächlich ausgeführten Plan, vollständigen
-Operatorbaum samt Objekt-/Prädikatbezügen, alle Ergebnistupel und genau einen neuen
-regulären Ausführungszuwachs. Hashes/Handles sind ergänzende Beobachtungen, keine
-Alleinschlüssel; die bekannte 2022-Hashüberschreibung darf allein weder Erfolg noch
-Fehler entscheiden. Neue Kompilierungs- und Force-Zählerepochen getrennt behandeln.
+Speicherung, Forcing-Anforderung, Replay-Versuch, erfolgreiche Replay-Kompilierung
+und tatsächliche Ausführung sind getrennte Aussagen. `has_compile_replay_script = 1`
+belegt Speicherung; `is_forced_plan = 1` eine Anforderung; Fehler 8675 einen
+gescheiterten Replay. Fehlender Fehler oder kürzere Kompilierungszeit genügen nicht.
+Die originale SQLServerFast-Fachreferenz beschreibt `QueryCompilationReplay = 1`
+als Nutzung, bietet aber keinen belastbaren Gegenvertrag für die Zielbuilds und
+den vorgesehenen Erfassungsweg. Das Hersteller-Schema erklärt nur den optionalen
+Ganzzahltyp. Wert 1 bleibt ein Markerkandidat, kein freigegebenes Erfolgskriterium.
 
-Geplant sind 529 synthetische Datenzeilen in zehn Tabellen und zwei feste Formen
-mit jeweils 768 vollständigen Ergebnistupeln: A mit zwei UNION-ALL-Zweigen, B als
-einmaliger Ersatz mit vier Zweigen und festem Zeilenfilter. B darf nur bei gültiger
-Erfassung und fehlender Replay-Speicherung von A folgen. Keine Datenvergrößerung,
-Hintvariation oder Wiederholung bis zufällig grün. Der ursprüngliche Sechs-Aufruf-
-ForceProbe-Demoschnitt bleibt erhalten und unimplementiert.
+Das Methodengate bleibt für 2022/16.0.4265.3 und 2025/17.0.4075.5 offen: positive
+Wertsemantik und Gegenkennzeichnung quellenbelegt unabhängig klären. Der Marker
+muss zur frischen eigenen Kompilierung gehören; ein Cachetreffer mit altem
+Kompilierungsmerkmal darf keine neue Replay-Nutzung vortäuschen. Vollständige
+Plan-/Kontextbindung, Ergebnistupel und aktuelle reguläre Ausführung bleiben Pflicht.
+Unbekannte oder nicht beobachtbare Zustände bleiben NOT_PROVEN (nicht nachgewiesen).
 
-Spätere Obergrenzen: zwei eigene Container insgesamt, je einer für die festgelegten
-2022-/2025-Builds, sequenziell; höchstens elf Nutzaufrufe je Version inklusive
-Aufwärmen und zwei Folgen Ein–Aus–Ein. Gemeinsames reguläres Budget 900 Sekunden,
-zusätzlich höchstens 60 Sekunden abschließendes Cleanup je Container. Grenzen für
-Daten, Plan-/Gesamtausgabe, Beobachter und Query Store sind kanonisch festgelegt;
-kein Container und keine ausführbare Probe werden jetzt erstellt oder gestartet.
-
-Offen vor Umsetzung bleibt insbesondere der positive Nutzungsnachweis: ein
-gespeicherter Replay oder ein optionaler Ganzzahlmarker im Showplan beweist nicht
-allein tatsächliche Nutzung. Wertsemantik und Gegenkennzeichnung müssen für die
-Zielbuilds quellenbelegt und unabhängig geprüft werden. Ohne dieses Methodengate
-keine mutierende Freigabe der Vergleichsfolge. Danach bleiben unabhängiger
-Zuordnungs-/Transportreview und ein neuer ausdrücklicher Umsetzungs-/Laufauftrag
-erforderlich. Die Versionsfreigabe und eigentliche Demoqualifikation bleiben offen;
-keine Automation oder übrige Arbeit wird fortgesetzt.
+Der [bestehende Probenplan](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+aus [PR319](https://github.com/gecompat/SQL_PerformanceSchulung/pull/319) bleibt
+unverändert: 529 synthetische Datenzeilen, höchstens zwei Formen mit jeweils 768
+Ergebnistupeln, maximal elf Nutzaufrufe je Version, zwei eigene Container insgesamt
+und 900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden Cleanup.
+Zuordnungs-/Transportreview, erweiterte 2022-Signatur, tatsächliche Eignung,
+Nutzung/Deaktivierung und Bereinigung bleiben offen. Erst nach Methodenfreigabe
+und neuem ausdrücklichem Umsetzungs-/Laufauftrag darf diese Probe beginnen;
+keine automatische Ersatztelemetrie, Zusatzprobe oder Wiederaufnahme anderer Arbeit.
 
 ## Erhaltene abgeschlossene Schnitte
 

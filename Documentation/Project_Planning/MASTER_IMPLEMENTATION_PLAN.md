@@ -1,38 +1,35 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Kombinierte DGN-004-Zuordnung und begrenzte Replay-Probe vom 24. Oktober 2026
+## DGN-004: Replay-Nutzungsquellen und offene Methodengates vom 24. Oktober 2026
 
-Der aktuelle Planungsauftrag konkretisiert bei TSK-016 die kombinierte Planzuordnung
-und eine separate synthetische Replay-Probe (Wiederverwendung von Kompilierungsschritten)
-für DGN-004 (Planerzwingung) auf SQL Server 2022/2025. Nur Planungsdateien und statische
-Prüfung im bestehenden Pull-Request-Verfahren (Änderungsantrag); keine Umsetzung,
-Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
+Der aktuelle Dokumentationsauftrag ergänzt bei TSK-016 den lesenden Quellenreview
+für DGN-004 (Planerzwingung). Replay bezeichnet Wiederverwendung aufgezeichneter
+Optimierungsschritte bei Kompilierung. Nur statische Prüfung und Integration per
+Pull Request nach `origin/main`; keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe.
+Die übrige Verarbeitung bleibt pausiert.
 
-Der [kanonische Plan](../../.ai/identity/registry.json), die
-[abgeleitete Ansicht](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-für-kombinierte-zuordnung-und-begrenzte-replay-probe-vom-24-oktober-2026)
-trennen vollständige Statement-/Kontext-/Struktur-/Ergebnisbindung von ergänzenden
-Hashwerten sowie Replay-Speicherung von tatsächlicher Nutzung und Deaktivierung.
-Frühere Hash-/Versionsbefunde bleiben unverändert und werden nicht nachträglich bestanden.
+Der [kanonische Befund](../../.ai/identity/registry.json) unter
+`replay_usage_source_review_result`, die [abgeleitete Ansicht](../../.ai/BACKLOG.md#lesender-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis-vom-24-oktober-2026)
+trennen gespeichertes Skript, Anforderung, Versuch, erfolgreiche Kompilierung und
+tatsächliche Ausführung. `QueryCompilationReplay = 1` bleibt ein Fachquellenkandidat;
+der Hersteller-Schematyp definiert seine Bedeutung nicht. Eine fehlende optionale
+Angabe, ein Flagwechsel oder kürzere Kompilierungszeit ist kein Ersatznachweis.
 
-Zwei feste Abfrageformen auf 529 Datenzeilen sind geplant, jede liefert 768 Tupel
-mit ausdrücklich geprüften Duplikaten. B darf A nur bei fehlender Replay-Speicherung
-nach gültigen Aufwärmaufrufen ersetzen. Danach zwei feste Folgen Ein–Aus–Ein;
-maximal elf Nutzaufrufe je Version, zwei Container insgesamt und 900 Sekunden
-gemeinsames reguläres Budget plus je 60 Sekunden Cleanup. Keine automatische
-Quellen-/Datenerweiterung oder allgemeine Benchmark-/Infrastrukturübernahme.
+Für 2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben positive Markerbedeutung,
+Gegenkennzeichnung und Zuordnung zur frischen Kompilierung unabhängig zu klären.
+Der vorgesehene Erfassungsweg muss altes Kompilierungsmerkmal und aktuelle
+Ausführung auseinanderhalten. Bei fehlendem Nachweis bleibt das Methodengate offen;
+keine nachträgliche Qualifikation historischer Fehlversuche.
 
-Der Nutzungsmarker bleibt offenes Methodengate: das offizielle XML-Schema erklärt
-den optionalen Ganzzahlwert nicht hinreichend. Vor einer Umsetzung buildbezogene
-positive Nutzungskennzeichnung und Gegenkennzeichnung unabhängig klären; Flag oder
-fehlendes Attribut allein reichen nicht. Kombinierte Zuordnungs-/Transportumsetzung,
-sämtliche Gegenfälle und ein neuer ausdrücklicher Laufauftrag bleiben erforderlich.
+Der [Probenplan aus PR319](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+bleibt unverändert: 529 Datenzeilen, zwei feste Formen mit je 768 Ergebnistupeln,
+höchstens elf Nutzaufrufe je Version, zwei eigene Container und 900 Sekunden
+gemeinsame reguläre Zeit plus je 60 Sekunden Cleanup. Der ursprüngliche
+Sechs-Aufruf-Demoschnitt bleibt gesondert unimplementiert. Methoden-/Transportreview,
+neuer ausdrücklicher Umsetzungs-/Laufauftrag und empirische Versionsnachweise
+bleiben erforderlich. Es entsteht keine zweite Planungsliste.
 Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Pause und Grenzen.
-
-Der ursprüngliche ForceProbe-Demoschnitt behält seine sechs Nutzaufrufe, eigene
-Datenbank, Daten-/Plan-/Zeitgrenzen, Indexentzug, Ersatzplanung und Rücknahme.
-Die private Probe ist keine Erfassungsadapter- oder Demoimplementierung, keine
-2019-Abnahme und keine allgemeine Versionsfreigabe. Es entsteht keine zweite Planungsliste.
 
 Die früheren begrenzten Schnitte bleiben erhalten: OPT-007
 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen) ist über

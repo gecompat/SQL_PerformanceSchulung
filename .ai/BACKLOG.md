@@ -1,19 +1,20 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: kombinierte Planzuordnung und begrenzte Replay-Probe planen
+## DGN-004: Quellenbefunde zum tatsächlichen Replay-Nutzungsnachweis
 
-Der aktuelle Auftrag plant bei TSK-016 die kombinierte Planzuordnung und eine
-separate begrenzte synthetische Optimierungs-Replay-Probe (Wiederverwendung von
-Kompilierungsschritten) für SQL Server 2022/2025. Nur Planungsdateien und statische
-Prüfung im bestehenden Pull-Request-Verfahren (Änderungsantrag). Keine Umsetzung,
-Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
+Der aktuelle Auftrag ergänzt bei TSK-016 den abgeschlossenen lesenden Quellenreview
+für DGN-004 (Planerzwingung). Replay bedeutet Wiederverwendung aufgezeichneter
+Optimierungsschritte. Der positive Nutzungsnachweis und seine Gegenkennzeichnung
+bleiben für SQL Server 2022/2025 offen. Nur Dokumentation und statische Prüfungen
+im Pull-Request-Verfahren (Änderungsantrag); keine Umsetzung, Tests der Probe oder
+SQL-/Lab-Läufe. Die übrige Verarbeitung bleibt pausiert.
 Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet Auftrag und Grenzen. Frühere Quellen-/Versionsbefunde bleiben erhalten.
+bindet Auftrag und Grenzen; bestehender Probenplan und frühere Befunde bleiben erhalten.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Planung der kombinierten DGN-004-Planzuordnung und begrenzten Replay-Probe ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme des DGN-004-Quellenreviews zum Replay-Nutzungsnachweis ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -29,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Planungsauftrag vom 24. Oktober 2026: kombinierte Planzuordnung und eine begrenzte synthetische Optimierungs-Replay-Probe (Wiederverwendung von Kompilierungsschritten) für DGN-004 auf SQL Server 2022/2025 bei TSK-016 entwerfen. Ausschließlich Planungsdateien und relevante statische Prüfung; Integration des Planungsstands im bestehenden Branch-/Pull-Request-Verfahren. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; ursprüngliche Quellen-/Versionsbefunde und bestehende Kennungen bleiben erhalten.
+Dokumentationsauftrag vom 24. Oktober 2026: die ausschließlich lesend geprüften DGN-004-Befunde zum tatsächlichen Replay-Nutzungsnachweis und die offenen Gates bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; bestehender Probenplan, frühere Befunde und Kennungen bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -513,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Kombinierte Planzuordnung und separate synthetische Replay-Probe konkret geplant: 529 Datenzeilen, zwei feste Formen mit je 768 Ergebnistupeln und zwei Ein–Aus–Ein-Vergleiche auf 2022/2025. Keine Eignungszusage oder Probe-Umsetzung; Nutzungsmarker-Methodengate und spätere empirische Nachweise offen. P2 und ursprünglicher Demoschnitt unverändert.
+**Planungsentscheidung:** Replay-Nutzungsquellen geprüft; das Methodengate bleibt für 2022/16.0.4265.3 und 2025/17.0.4075.5 offen. Speicherung, Anforderung, Versuch und erfolgreiche Nutzung getrennt. QueryCompilationReplay = 1 ist ein Fachquellenkandidat ohne freigegebenen buildbezogenen Gegenvertrag. Der bestehende begrenzte Probenplan, P2 und ursprüngliche Demoschnitt bleiben unverändert; keine Umsetzung oder neue Laufzeitabnahme.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -522,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Probe-Umsetzung die buildbezogene Nutzungsmarker-/Gegenkennzeichnung und kombinierte Zuordnungs-/Transportmethode unabhängig klären. Danach neuer ausdrücklicher Auftrag für begrenzte Implementierung und SQL-/Lab-Runde mit höchstens zwei Containern, zwei Formen und elf Nutzaufrufen je Version innerhalb des gemeinsamen Budgets. Keine automatische Übernahme als Demo, Zusatzprobe oder Wiederaufnahme übriger Verarbeitung.
+**Wiederaufnahmebedingung:** Vor Probe-Umsetzung die im replay_usage_source_review_result benannten Marker-/Gegenkennzeichnungs- und Korrelationsgates für beide exakten Builds quellenbelegt unabhängig klären; kombinierte Zuordnung und Transport freigeben. Danach neuer ausdrücklicher Auftrag innerhalb des unveränderten Plans mit höchstens zwei Containern, zwei Formen und elf Nutzaufrufen je Version im gemeinsamen Budget. Keine automatische Zusatzprobe, Demoübernahme oder Wiederaufnahme übriger Verarbeitung.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -772,6 +773,50 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 - Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
+###### Lesender Quellenreview zum tatsächlichen Replay-Nutzungsnachweis
+
+**Stand:** 2026-10-24; Basis `5ac459b83688a366a03396292faf41441f18f315`. **Status:** REVIEWED_WITH_OPEN_GATES – Quellenreview abgeschlossen; tatsächliche Replay-Nutzung und Deaktivierung auf beiden Zielbuilds weiterhin NOT_PROVEN (nicht nachgewiesen).
+
+Ausschließlich lesende Prüfung der bestehenden Planung und privaten historischen Befunde sowie öffentlicher Herstellerquellen und einer ausdrücklich als Fachreferenz eingeordneten Originaldarstellung. Abruf am 2026-10-24; das Hersteller-XSD wurde im Speicher gelesen, kein SQL ausgeführt. Die jetzt autorisierte Ergänzung und Integration betrifft nur Dokumentation und statische Prüfung. Keine Umsetzung, Tests der Probe, SQL-/Lab-Läufe oder Wiederaufnahme übriger Verarbeitung.
+
+Speicherung, Forcing-Anforderung, Replay-Versuch, erfolgreiche Replay-Kompilierung und anschließende tatsächliche Abfrageausführung sind getrennte Nachweise. Für die vorgesehenen Zielbuilds ist weiterhin kein hinreichend belegter Vertrag aus positivem Nutzungsmarker, Gegenkennzeichnung und eindeutiger Zuordnung im vorgesehenen Erfassungsweg verfügbar. QueryCompilationReplay = 1 bleibt ein Quellenkandidat, kein freigegebenes Erfolgskriterium.
+
+**Einordnung je Zielbuild:**
+
+- SQL Server 2022/16.0.4265.3, Developer/Linux, Compatibility Level 160: allgemeines Funktionsverhalten dokumentiert; positive Nutzungs-/Gegenkennzeichnung und deren Erhaltung über sys.dm_exec_query_plan_stats für diesen Build ungeklärt. Erweiterte Aufrufsignatur bleibt zusätzlich empirisch offen. Kein neuer Lauf oder bestandener Versionsnachweis.
+- SQL Server 2025/17.0.4075.5, Enterprise Developer/Linux, Compatibility Level 170: allgemeines Verhalten ab SQL Server 2022 und historische Anforderungsflagbefunde sind kein positiver Replay-Nachweis für diesen Build. Kein gesonderter belastbarer Werte-/Gegenkennzeichnungsvertrag gefunden; keine Übertragung einer 2022-Referenz als 2025-Abnahme.
+
+**Quellenbefunde und Grenzen:**
+
+- [Microsoft-Katalogvertrag für Query Store (persistente Abfrage-/Planhistorie)](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17): DOKUMENTIERT für Spalten-/Fehlerbedeutungen; INFERENZ für die Nachweisgrenze. has_compile_replay_script = 1 bezeichnet ein aufgezeichnetes Replay-Skript. is_forced_plan = 1 markiert die Forcing-Anforderung und garantiert keinen exakt verwendeten Plan. Fehler 8675 / OPTIMIZATION_REPLAY_FAILED bedeutet, dass die Ausführung des Replay-Skripts gescheitert ist. Ein fehlender Fehler oder unveränderter Fehlerzähler beweist für sich keinen erfolgreichen Replay; Anforderungs- und Fehlerzählerepochen bleiben getrennt.
+- [Microsoft-Funktionsbeschreibung: Capture und Replay](https://www.microsoft.com/en-us/sql-server/blog/2022/09/15/intelligent-query-processing-feature-family-additions/): DOKUMENTIERTES allgemeines Design von 2022; kein buildbezogener Beobachtungsvertrag. Capture zeichnet nützliche Optimierungsschritte auf. Replay wird bei anschließender Kompilierung eines erzwungenen Plans mit gespeichertem Skript und ohne bereits vorhandenen Cacheplan verwendet, wenn die Voraussetzungen erfüllt sind. Eine Ausführung mit zwischengespeichertem Plan belegt keine neue Replay-Kompilierung; Kompilierungsnachweis und Ausführungsnachweis müssen ausdrücklich zum selben Nutzaufruf gebunden werden.
+- [Offizielles 2022-Showplan-XSD (XML Schema Definition; Schemadefinition des Planformats)](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd): DOKUMENTIERTES Format; keine dokumentierte Wertsemantik. Direkt gelesene Deklaration: QueryCompilationReplay ist optional und vom Typ xsd:int. Sie definiert weder zulässige semantische Zustände noch Erfolg, Versuch, Speicherung oder eine Gegenkennzeichnung. OptimizationReplayType enthält ein erforderliches Script-Textattribut; das Vorhandensein einer Skriptrepräsentation ist ebenfalls kein aktueller Nutzungsbeweis.
+- [Öffentlicher Microsoft-Showplan-Schemaindex](https://schemas.microsoft.com/sqlserver/2004/07/showplan/): DOKUMENTIERTER Abrufstand mit begrenztem Umfang. Der abgerufene Index führt SQL Server 2022 RTM (Release to Manufacturing; ursprünglicher Veröffentlichungsstand) als jüngsten Schemaeintrag. Er liefert keinen gesonderten 2025-Wertevertrag. Das ist eine Grenze dieser veröffentlichten Quelle, keine Behauptung, SQL Server 2025 unterstütze Replay nicht.
+- [SQLServerFast: eigene Fachreferenz zu Planeigenschaften](https://sqlserverfast.com/epr/plan-properties/): Originale Fachreferenz, keine Herstellerzusage oder reproduzierbare Abnahme unserer Builds. Die Referenz beschreibt QueryCompilationReplay = 1 als Verwendung optimierter Planerzwingung und nennt die Eigenschaft im Änderungsverlauf vom 2025-07-06. Ein Nachweis für 16.0.4265.3 beziehungsweise 17.0.4075.5, den geplanten Erfassungsweg und eine eindeutige Gegenkennzeichnung fehlt in dieser Darstellung. Die Aussage begründet einen zu klärenden Markerkandidaten, keinen pauschalen PASS-Wert.
+- [Microsoft-Vertrag der letzten tatsächlichen Planerfassung](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17): DOKUMENTIERT für Erfassungsinhalt; METHODE/INFERENZ für notwendige Korrelation. sys.dm_exec_query_plan_stats verbindet Kompilierungsinformationen des Cacheplans mit letzten bekannten Laufzeitinformationen. Ein dort gelesenes Kompilierungsmerkmal beschreibt deshalb nicht automatisch eine gerade neu erfolgte Replay-Kompilierung. Frische eigene Kompilierung, vollständige Planbindung, eigene Ergebnistupel und regulärer Ausführungszuwachs bleiben gemeinsam Pflicht; Root-only-, alte oder mehrdeutige Pläne genügen nicht.
+- [Gepinnte Microsoft-Referenzanleitung für SQL Server 2022](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md): Originaler Demoablauf am gepinnten Quellenstand; keine eigene Messung. Die Anleitung bezeichnet has_compile_replay_script = 1 als Kandidateneignung und vergleicht anschließend Kompilierungszeiten. Sie definiert keinen unabhängigen direkten Nutzungs-/Gegenmarker für unsere kleine synthetische Probe und keine 2025-Abnahme. Der Quellablauf wird nicht ausgeführt und seine Leistungswerte werden nicht als eigene Ergebnisse übernommen.
+
+**Unzureichende Alleinnachweise:**
+
+- Speicherflag, Forcing- oder Deaktivierungs-Anforderungsflag, StatementOptmLevel = FULL und UsePlan allein beweisen keine erfolgreiche Replay-Kompilierung.
+- Fehlendes optionales QueryCompilationReplay, ein ungeklärter Wert 0 oder 1, kein Fehler 8675 oder bloßer Flagwechsel sind kein vollständiger Nutzungs-/Abschaltungsnachweis.
+- Kürzere Kompilierungszeit ist höchstens ergänzende Diagnose. Sie ersetzt weder direkte Nutzungsevidenz noch vollständige Query-/Plan-/Ausführungsbindung; keine Mess- oder Leistungsbehauptung aus Quellenbeispielen.
+- Die bestehende publizierte Flag-Wertetabelle und historische 2025-Anforderungsbeobachtungen bleiben als getrennte Quellen mit ihrem Konflikt erhalten. Eine Konfigurations- oder Anforderungsanzeige wird dadurch nicht zum tatsächlich beobachteten Replay.
+
+**Offene Freigabegates:**
+
+- Vor Umsetzung den positiven Erfolg von Speicherung und gescheitertem Versuch abgrenzen: Wertsemantik und Gegenkennzeichnung für beide exakten Builds mit nachvollziehbarer Primärquelle klären und unabhängig prüfen. Die SQLServerFast-Aussage zu Wert 1 allein schließt dieses Gate nicht.
+- Den Erfassungs-/Korrelationsvertrag unabhängig prüfen: Quelle und frische Kompilierungsepoche des Markers, vollständiger eigener Text-/Modul-/Kontext-/Planbezug, vollständige Ergebnistupel und genau eine aktuelle reguläre Ausführung. Ein bloß wiederverwendeter Cacheplan darf keine neue Replay-Nutzung vortäuschen.
+- Die Aus-Phase braucht erfolgreiche klassische Planerzwingung und eine vorab begründet festgelegte Gegenkennzeichnung; die anschließende Ein-Phase muss tatsächliche Nutzung erneut positiv belegen. Optionales Attribut fehlt allein genügt nicht. Unbekannte oder nicht beobachtbare Zustände bleiben NOT_PROVEN und beenden die Folge geregelt.
+- Kombinierte Strukturzuordnung und begrenzten Transport weiterhin unabhängig freigeben; 2022-Signatur, Replay-Eignung beider Formen, tatsächliche Nutzung/Deaktivierung und Cleanup bleiben anschließend empirisch offen. Kein nachträgliches Bestehen früherer Fehlversuche.
+- Erst ein neuer ausdrücklicher Auftrag darf Probe-Implementierung und SQL-/Lab-Runde innerhalb des unveränderten Plans erlauben. Keine Zusatzcontainer, weiteren Abfrageformen, serverweiten Ereignissessions, undokumentierten Traceflags oder gelockerten Kriterien als automatischer Ersatz. Die übrige Verarbeitung bleibt pausiert.
+
+Abgeschlossen ist ausschließlich die lesende Quellenprüfung mit dokumentierten Grenzen. Nicht abgeschlossen sind Methodengate, unabhängige Freigabe, technische Umsetzung, Laufzeit-/Versionsabnahme oder Demoqualifikation. Der vorhandene Probenplan und alle früheren Befunde bleiben erhalten; keine zusätzliche Planungsliste oder Kennung.
+
+Registrierte Quelleneinordnung: [Replay-Nutzungsnachweis zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis-vom-24-oktober-2026).
+
+Der folgende Planstand aus [PR319](https://github.com/gecompat/SQL_PerformanceSchulung/pull/319) bleibt erhalten. Der aktuelle Quellenreview schließt sein Methodengate nicht.
 
 ###### Kombinierte Planzuordnung und begrenzte synthetische Replay-Probe
 
