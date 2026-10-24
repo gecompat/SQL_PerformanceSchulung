@@ -1,24 +1,47 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: Prüfbefund zum R/H-Quellpaar und Textvertrag vom 24. Oktober 2026
+## DGN-004: R-Markersemantik und H-Gegenvertrag vom 24. Oktober 2026
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 den lesenden DGN-004-Prüfbefund
-zum vollständigen R/H-Quellpaar, begrenzten Engine-Text-Zuordnungsvertrag und den
-Abnahmekriterien. R ist Referenz ohne Hint, H die Negativkontrolle mit festem
-Abfragehinweis. Nur Dokumentation und statische CI (Continuous Integration;
-automatisierte Integrationsprüfungen) im bestehenden Pull-Request-Verfahren.
-Keine Umsetzung, Demotests oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
-Frühere Ausführungsfreigaben und Laufbudgets werden nicht wiederaufgenommen.
+Der aktuelle Auftrag dokumentiert bei TSK-016 die DGN-004-Quellenbefunde zur
+positiven R-Markersemantik und zum beobachtbaren H-Gegenvertrag. R ist Referenz
+ohne Hint, H die Negativkontrolle mit festem Abfragehinweis. Nur Dokumentation
+und statische CI (Continuous Integration; automatisierte Integrationsprüfungen)
+im bestehenden Pull-Request-Verfahren. Keine Umsetzung, Demotests oder SQL-/Lab-
+Läufe; übrige Verarbeitung pausiert. Frühere Ausführungsfreigaben und Laufbudgets
+werden nicht wiederaufgenommen.
 
 Der [kanonische Plan](../../.ai/identity/registry.json) unter `hint_negative_control_plan`,
 die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-prüfbefund-zum-rh-quellpaar-und-textvertrag-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-r-markersemantik-und-h-gegenvertrag-vom-24-oktober-2026)
 binden zwei getrennte eigene Modul-/Query-Identitäten: R ohne Hint, H mit festem
 Inline-Hint. Ein gleicher QueryHash ist möglich, weil Query Hints nicht eingehen;
 er darf keine Kennungen oder Planrollen zusammenführen. Je Modul vollständige
 Text-/Kontext-/Plan-/Ergebnisbindung und frische Kompilierung/Ausführung verlangen.
 
-Der neue [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-rh-quellpaar-und-textvertrag)
+Der neue [Marker-/Gegenvertragsbefund](../../.ai/BACKLOG.md#r-markersemantik-und-beobachtbarer-h-gegenvertrag)
+steht kanonisch unter `rh_replay_marker_review_result`. Beide Gates bleiben für
+2022/16.0.4265.3 und 2025/17.0.4075.5 offen. QueryCompilationReplay = 1 ist
+weiterhin nur ein Quellenkandidat für tatsächliche Replay-Nutzung, also die
+Wiederverwendung von Optimierungsschritten. Das Hersteller-Schema nennt eine
+optionale Ganzzahl ohne Zustandswerttabelle; 0 oder Abwesenheit sind kein
+freigegebener Aus-Zustand. Gespeichertes Skript und Erzwingungsanforderung sind
+keine aktuelle Nutzungskennzeichnung.
+
+Der feste H-Hint ist dokumentierte Abschaltkontrolle; mit frischer Kompilierung,
+eigener klassischer Erzwingung und vollständigen Tupeln höchstens CONTROL_ONLY
+(nur Kontrollzustand belegt). Für einen beobachteten H-Gegenbeleg fehlt weiterhin
+die unabhängig geklärte Nichtnutzungssemantik. Fehler 8675 und die zusätzliche
+2022-Ereignisliste zu opt_replay_exception_info betreffen gescheiterten Replay;
+ausbleibende Fehler beweisen weder Nutzung noch Nichtnutzung. Keine neue
+Ereignissession oder Ersatztelemetrie ist autorisiert.
+
+Der empirische Vergleich bleibt NOT_PROVEN (nicht nachgewiesen), soweit kein
+höherer Fehlerstatus greift. Quellen-/Textpläne, Abnahmekriterien, Mess-/Statusvertrag,
+neun Nutzaufrufe, zwei eigene Container und sämtliche bisherigen Budgets bleiben
+unverändert. Unabhängige Freigabe und tatsächliche Build-/Erfassungsnachweise
+bleiben offen; dieser Review liefert keine Laufzeit- oder Demoabnahme.
+
+Der vorausgehende [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-rh-quellpaar-und-textvertrag)
 steht kanonisch unter `rh_source_text_review_result`. Quellpaar, endlicher Textvertrag
 und Abnahmekriterien sind im konkret geprüften Umfang dokumentarisch schlüssig;
 kein weiterer konkreter Widerspruch festgestellt. Quellen-/Spaltenbezüge, einziger
