@@ -560,3 +560,38 @@ frischen Kompilierung sowie aktuellen vollständigen Ausführung unabhängig zu
 klären. Vorige Quellen-/Versionsbefunde und der Probenplan bleiben erhalten;
 keine nachträgliche Laufzeitabnahme. Die [Auftragsgrenzen und Pause](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 gelten weiter. Neue Methoden-/Umsetzungs-/Laufarbeit benötigt gesonderte Freigabe.
+
+### DGN-004: Plan einer gesonderten Hint-Negativkontrolle vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`1027441fb5e799e903f02782591d2d4ca4acba13`; Abruf 2026-10-24.
+Der [kanonische Entwurf bei TSK-016](../../.ai/identity/registry.json) steht unter
+`hint_negative_control_plan`; die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
+enthält Identitäten, vollständige Abfolge, Grenzen und spätere Abnahme.
+
+- DOKUMENTIERT: [DISABLE_OPTIMIZED_PLAN_FORCING und Hint-Scope](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing) ab SQL Server 2022; bei UNION gilt die OPTION-Klausel am gesamten Statement. [Herstellerbeispiel E](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17#e-disable-optimized-plan-forcing-for-a-query) verwendet USE HINT. Keine Aussage über ein beobachtetes QueryCompilationReplay-Aus-Merkmal unserer Builds.
+- DOKUMENTIERT: [Query-Store-Abfragekatalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17) führt query_id, object_id und Kontext; query_hash basiert auf der gebundenen logischen Form und schließt Query Hints aus. METHODE: R/H deshalb über getrennte Module, vollständige Texte/Kontexte und eigene Planrollen binden; Hashgleichheit erlaubt keine Zusammenführung.
+- DOKUMENTIERT: [Query-Store-Hintkatalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-hints-transact-sql?view=sql-server-ver17) ordnet externe Hintdefinitionen query_id und Replikatscope zu. METHODE: fremde/unerwartete Hintsteuerung für R/H erkennen und abbrechen; Inline-Hint nicht als dort vorhandene Hintzeile ausgeben oder fremde Regeln löschen.
+- DOKUMENTIERT: [Standard-Planerzwingung](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17) bindet query_id und plan_id. METHODE: eigener Standardaufruf je Identität, kein dritter/vierter Parameter; erfolgreiche tatsächliche klassische Erzwingung unabhängig von bloßer Anforderung prüfen. Der erweiterte 2022-Signaturkonflikt des alten Plans bleibt gesondert offen.
+
+METHODE: Referenz R ohne Hint und Kontrolle H mit dauerhaftem terminalem Inline-Hint
+in zwei eigenen Modulen auf derselben synthetischen Form A führen. 529 Datenzeilen,
+768 vollständige Ergebnistupel, höchstens neun Nutzaufrufe je Version: fünf R und
+vier H. Keine Textänderung in einem Modul, kein Querforcing, kein Ersatzkandidat.
+Der Vergleich besitzt zwei positive R-Phasen um zwei H-Gegenphasen; er beweist
+keine reversible Abschaltung derselben query_id und ersetzt PR319 nicht.
+
+Der dokumentierte Hint und erfolgreiche aktuelle klassische Erzwingung tragen
+höchstens einen quellenbasierten Kontrollvertrag. CONTROL_ONLY bedeutet nur
+Kontrollzustand belegt; daraus folgt keine empirische Replay-Abschaltung.
+Vor Umsetzung müssen positive R-Marker und H-Gegenvertrag für die exakten Builds
+2022/16.0.4265.3 und 2025/17.0.4075.5 unabhängig geklärt sein; alte Quellenkonflikte
+und ungeklärte Rohwerte bleiben erhalten. Keine neue Laufzeit-/Versionsabnahme.
+
+Planungsgrenzen: zwei eigene Container insgesamt, 900 Sekunden gemeinsame
+reguläre Zeit plus je 60 Sekunden Cleanup; keine automatische Budgetaddition
+mit dem alten Plan. Nur statische Dokumentationsintegration, keine Umsetzung,
+Tests der Probe oder SQL-/Lab-Läufe. Der [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet die fortbestehende Pause und den Bedarf eines neuen ausdrücklichen Auftrags
+für spätere Umsetzung und Läufe nach Methodenfreigabe.
