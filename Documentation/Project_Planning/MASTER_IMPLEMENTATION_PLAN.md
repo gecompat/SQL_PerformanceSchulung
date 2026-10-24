@@ -1,37 +1,38 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004-Hashbefunde und Replay-Referenz vom 24. Oktober 2026
+## Kombinierte DGN-004-Zuordnung und begrenzte Replay-Probe vom 24. Oktober 2026
 
-Der aktuelle Auftrag ergänzt bei TSK-016 die lesende Hashanalyse, den
-quellenbasierten Replay-Kandidaten (wiederverwendbare Kompilierungsschritte)
-und offene Gates für DGN-004 (Planerzwingung). Integration per Pull Request
-(Änderungsantrag) nach `origin/main`; nur statische CI (Continuous Integration;
-automatisierte Integrationsprüfungen), keine Umsetzung oder SQL-/Lab-Läufe.
-Übrige Verarbeitung bleibt pausiert.
+Der aktuelle Planungsauftrag konkretisiert bei TSK-016 die kombinierte Planzuordnung
+und eine separate synthetische Replay-Probe (Wiederverwendung von Kompilierungsschritten)
+für DGN-004 (Planerzwingung) auf SQL Server 2022/2025. Nur Planungsdateien und statische
+Prüfung im bestehenden Pull-Request-Verfahren (Änderungsantrag); keine Umsetzung,
+Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
 
-Die [kanonische Sichtung](../../.ai/identity/registry.json),
-[abgeleitete Ansicht](../../.ai/BACKLOG.md#lesende-hashanalyse-und-replay-referenz)
-und [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026)
-trennen vorhandene Planbeobachtungen, experimentelle Originalreproduktionen und
-den gepinnten Microsoft-Referenzablauf. Das 2022-Hashmuster ist eingeordnet;
-unabhängiger Review der kombinierten Zuordnung und erweiterte 2022-Signatur bleiben
-offen. Keine Hersteller-Fixbestätigung oder nachträglich bestandene Diagnose.
+Der [kanonische Plan](../../.ai/identity/registry.json), die
+[abgeleitete Ansicht](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-für-kombinierte-zuordnung-und-begrenzte-replay-probe-vom-24-oktober-2026)
+trennen vollständige Statement-/Kontext-/Struktur-/Ergebnisbindung von ergänzenden
+Hashwerten sowie Replay-Speicherung von tatsächlicher Nutzung und Deaktivierung.
+Frühere Hash-/Versionsbefunde bleiben unverändert und werden nicht nachträglich bestanden.
 
-Microsoft-bigjoin mit UNION ALL, Join-Zweigen und Sortierung ist eine Referenz für
-eine spätere gesondert beauftragte begrenzte Diagnose-Ausgangsabfrage. Es ist keine
-angepasste Schulungsabfrage und keine Zusage für kleine Datenmengen oder 2025.
-Bereitstellung, Cache- und Historienleerung aus den Begleitskripten bleiben
-ausgeschlossen. Gespeicherter Replay, tatsächliche Nutzung und tatsächliche
-Deaktivierung sind auf beiden Zielbuilds getrennt nachzuweisen.
+Zwei feste Abfrageformen auf 529 Datenzeilen sind geplant, jede liefert 768 Tupel
+mit ausdrücklich geprüften Duplikaten. B darf A nur bei fehlender Replay-Speicherung
+nach gültigen Aufwärmaufrufen ersetzen. Danach zwei feste Folgen Ein–Aus–Ein;
+maximal elf Nutzaufrufe je Version, zwei Container insgesamt und 900 Sekunden
+gemeinsames reguläres Budget plus je 60 Sekunden Cleanup. Keine automatische
+Quellen-/Datenerweiterung oder allgemeine Benchmark-/Infrastrukturübernahme.
 
-Der bestehende Demoschnitt bleibt unverändert begrenzt: eigene Datenbank,
-feste ForceProbe-Abfrage, sechs Nutzaufrufe, vollständige Werte-/Strukturbelege,
-Indexentzug, Ersatzplanung und Rücknahme. Der überholte Anzeigeentwurf muss vor
-Umsetzung ersetzt und der ausgewählte Erfassungsweg unabhängig geprüft werden.
-Weitere Proben und Umsetzung benötigen einen neuen ausdrücklichen Auftrag;
-Versionsfreigabe und vollständige Qualifikation bleiben offen. Der
-[aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Pause und
-Wiederaufnahmegrenzen. Es entsteht keine zweite Planungsliste.
+Der Nutzungsmarker bleibt offenes Methodengate: das offizielle XML-Schema erklärt
+den optionalen Ganzzahlwert nicht hinreichend. Vor einer Umsetzung buildbezogene
+positive Nutzungskennzeichnung und Gegenkennzeichnung unabhängig klären; Flag oder
+fehlendes Attribut allein reichen nicht. Kombinierte Zuordnungs-/Transportumsetzung,
+sämtliche Gegenfälle und ein neuer ausdrücklicher Laufauftrag bleiben erforderlich.
+Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Pause und Grenzen.
+
+Der ursprüngliche ForceProbe-Demoschnitt behält seine sechs Nutzaufrufe, eigene
+Datenbank, Daten-/Plan-/Zeitgrenzen, Indexentzug, Ersatzplanung und Rücknahme.
+Die private Probe ist keine Erfassungsadapter- oder Demoimplementierung, keine
+2019-Abnahme und keine allgemeine Versionsfreigabe. Es entsteht keine zweite Planungsliste.
 
 Die früheren begrenzten Schnitte bleiben erhalten: OPT-007
 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen) ist über
