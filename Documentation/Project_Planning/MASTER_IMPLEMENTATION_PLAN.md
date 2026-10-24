@@ -1,20 +1,38 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: gesonderte Hint-Negativkontrolle vom 24. Oktober 2026
+## DGN-004: Prüfbefunde und präzisierte Hint-Negativkontrolle vom 24. Oktober 2026
 
-Der aktuelle Auftrag plant bei TSK-016 eine eigenständige Kontrolle mit
-DISABLE_OPTIMIZED_PLAN_FORCING, dem Abfragehinweis zur Abschaltung optimierter
-Planerzwingung. Nur Planung und statische Dokumentationsprüfung/Integration im
+Der aktuelle Auftrag ergänzt bei TSK-016 die lesenden Prüfbefunde und präzisiert
+die eigenständige Kontrolle mit DISABLE_OPTIMIZED_PLAN_FORCING, dem Abfragehinweis
+zur Abschaltung optimierter
+Planerzwingung. Nur Dokumentation und statische Dokumentationsprüfung/Integration im
 bestehenden Pull-Request-Verfahren; keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe.
 Übrige Verarbeitung pausiert.
 
 Der [kanonische Plan](../../.ai/identity/registry.json) unter `hint_negative_control_plan`,
 die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-einer-gesonderten-hint-negativkontrolle-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-prüfbefunde-und-präzisierter-kompilierungsnachweis-vom-24-oktober-2026)
 binden zwei getrennte eigene Modul-/Query-Identitäten: R ohne Hint, H mit festem
 Inline-Hint. Ein gleicher QueryHash ist möglich, weil Query Hints nicht eingehen;
 er darf keine Kennungen oder Planrollen zusammenführen. Je Modul vollständige
 Text-/Kontext-/Plan-/Ergebnisbindung und frische Kompilierung/Ausführung verlangen.
+
+Der lesende [Prüfbefund](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
+steht kanonisch unter `hint_negative_control_review_result`. Im aktiven Plan
+benennt `compilation_evidence_contract` ausdrücklich
+`sys.query_store_query.count_compiles` je festgebundener eigener query_id.
+Vorhermessung B0 nach bestätigtem Force, danach eigene sp_recompile-Markierung,
+genau ein Nutzaufruf, vollständige Erfassung, budgetierter Flush und Nachhermessung
+B1. R/H und Planstatistik getrennt; genau +1 ist eine strenge Abnahmebedingung,
+keine allgemeine Herstellergarantie. Fehlende Daten oder unbekannte Zählerepoche
+allein bleiben NOT_PROVEN (nicht nachgewiesen).
+
+`outcome_precedence` trennt fehlende Evidenz von positiv belegter falscher oder
+veralteter Zuordnung: Letztere ist FAIL (Vertragsverletzung). Der Schlussstatus
+folgt FAIL_CLEANUP (Bereinigung fehlgeschlagen) vor FAIL vor NOT_PROVEN vor PASS;
+alle Ursachen bleiben erhalten. CONTROL_ONLY bleibt Teilbefund und kann keinen
+Gesamterfolg oder H-Ersatzablauf erzeugen. Beide Präzisierungen brauchen vor
+Umsetzung unabhängige Freigabe; Marker-, Identitäts- und Versionsgates bleiben offen.
 
 Nur der bereits geplante Form-A-Aufbau: 529 Datenzeilen, 768 Ergebnistupel je Aufruf.
 Höchstens neun Nutzaufrufe je Version einschließlich beider positiver R-Phasen,
