@@ -1,36 +1,40 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Befunde ergänzen und Plan präzisieren
+## Auftrag vom 24. Oktober 2026: engeren DGN-004-Erfassungsentwurf aufnehmen
 
-Der aktuelle menschliche Auftrag autorisiert die Ergänzung der lesenden
-DGN-004-Befunde (Planerzwingung) bei TSK-016 und die präzisierte Planung samt
-Integration per Pull Request (Änderungsantrag) nach `origin/main`. Nur relevante
-statische Prüfungen einschließlich CI (Continuous Integration; automatisierte
-Integrationsprüfungen); keine Implementierung oder SQL-/Lab-Läufe. Die übrige
-autonome Verarbeitung bleibt pausiert; keine Automation wurde aktiviert.
+Der aktuelle menschliche Auftrag autorisiert die Ergänzung des engeren
+DGN-004-Erfassungsentwurfs (Planerzwingung) und des weiterhin offenen
+Versionsgates bei TSK-016, einschließlich Integration per Pull Request
+(Änderungsantrag) nach `origin/main`. Nur relevante statische Prüfungen
+einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen);
+keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung
+bleibt pausiert; keine Automation wurde aktiviert.
 
-Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) trennt den
-ursprünglichen Analyze-Befund von `design_review_result` (lesende Planprüfung)
-und `planning_outline` (präzisierter Entwurf). Die
-[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#lesende-planprüfung-vom-24-oktober-2026)
-führt dieselben Befunde; die [Quellenvertiefung](../Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027)
-bindet Herstellerverweise und offene Dokumentationskonflikte.
+Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) führt die
+ergänzende Quellenprüfung unter `gate_review_result` und den aktuellen Entwurf
+unter `planning_outline`. Die ursprünglichen Analyze- und Planprüfbefunde
+bleiben unverändert. Die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#engerer-erfassungsentwurf-und-offenes-versionsgate)
+und das [Quellenregister](../Research/SOURCE_REGISTER.md#dgn-004-engerer-erfassungsentwurf-und-systemreferenzen-vom-24-oktober-2026)
+binden die Grenzen und die zusätzlich gelesenen Microsoft-Systemreferenzen.
 
-Der Entwurf bleibt auf eine eigene Datenbank, eine feste Prozedurabfrage,
-sechs Nutzaufrufe und einen entfernten eigenen Index begrenzt. Erzwungener
-Zielplan und tatsächlich ausgeführter Plan werden getrennt zugeordnet.
-Die vollständige Planübertragung ist im bestehenden Ausgabepfad noch nicht
-abgesichert; die Versionsquellen widersprechen sich bei Flagbedeutung und
-zusätzlichen Force-Argumenten. Das sind offene Freigabegates, keine erledigten
-Implementierungen oder ausgeführten Fehlernachweise. Der ursprüngliche
-Plan bleibt über [PR314](https://github.com/gecompat/SQL_PerformanceSchulung/pull/314)
-im Quellenstand `c9c75cefb30fc82aec33f67d9589670a877dd76b` nachvollziehbar.
+Der engere erste Erfassungsentwurf sieht `-y 32768` und `-w 65535` ohne `-W`
+vor und akzeptiert vollständige tatsächliche Pläne mit höchstens 32.767
+UTF-8-Bytes (Unicode-Zeichenkodierung). Strikte Dekodierung, beide während des
+Lesens begrenzten Ausgabekanäle sowie vollständige Ergebnis-/Planzuordnung
+bleiben Pflicht. Der Adapter ist unimplementiert; die Anzeige-/Bytebeziehung
+ist eine Herleitung und noch kein Nachweis tatsächlicher Clientdarstellung.
+Eine eigene Datenbank, sechs Nutzaufrufe und die bisherigen Zeitgrenzen bleiben.
 
-Die verantwortliche spätere Umsetzungsrolle muss Erfassungsadapter und
-buildbezogenen Versionsvertrag klären, den Quellen-/Ergebnisreview abschließen
-und einen ausdrücklichen Umsetzungsauftrag einschließlich SQL-/Lab-Läufen
-erhalten. Erst danach werden tatsächliche Planwahl, NO_INDEX (fehlender Index),
-Ersatzplanung und Rücknahme je Zielversion qualifiziert. Keine automatische
+Das Versionsgate für 2022/2025 bleibt offen. Die veröffentlichten
+Systemreferenzpakete 160.2.8 und 170.0.4 enthalten keine Parameterliste der
+Force-Prozeduren und keine Bedeutungsdefinition der strittigen Statusspalte.
+Vor mutationsfähiger Freigabe braucht die spätere Umsetzungsrolle eindeutige
+Herstellerklärung oder einen ausdrücklich beauftragten gezielten Buildnachweis
+zu Aufrufsignatur, tatsächlicher Deaktivierung am eigenen Plan und Status.
+Dieser Auftrag autorisiert keine solche Probe. Danach bleiben unabhängiger
+Quellen-/Ergebnisreview und ein ausdrücklicher Umsetzungsauftrag erforderlich.
+Der vorangehende Entwurf ist über [PR315](https://github.com/gecompat/SQL_PerformanceSchulung/pull/315)
+im Stand `5c0e5128293f7b7591adcbd3de31922fd8f007e4` erhalten. Keine automatische
 Fortsetzung zur Umsetzung oder zu anderen Kandidaten.
 
 ## Erhaltene abgeschlossene Schnitte
