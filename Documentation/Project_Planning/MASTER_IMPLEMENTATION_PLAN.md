@@ -1,35 +1,52 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: R/H-Abfrageform und Engine-Textzuordnung vom 24. Oktober 2026
+## DGN-004: vollständige R/H-Quellen und Textvertrag vom 24. Oktober 2026
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 den lesenden Quellenbefund zu
-DGN-004 (Planerzwingung): R ist die Referenz ohne Hint, H die Negativkontrolle
-mit festem Abfragehinweis. Nur Dokumentation und statische CI (Continuous
-Integration; automatisierte Integrationsprüfungen) im bestehenden Pull-Request-
-Verfahren. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; die übrige
-Verarbeitung bleibt pausiert. Frühere Ausführungsfreigaben und Budgets werden
-nicht wiederverwendet.
+Der aktuelle Auftrag plant bei TSK-016 für DGN-004 (Planerzwingung) vollständige
+R/H-Quellvorlagen und den begrenzten Engine-Text-Zuordnungsvertrag einschließlich
+Abnahmekriterien. R ist Referenz ohne Hint, H die Negativkontrolle mit festem
+Abfragehinweis. Nur Planung und statische CI (Continuous Integration; automatisierte
+Integrationsprüfungen) im bestehenden Pull-Request-Verfahren. Keine Umsetzung,
+Demotests oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Alte Ausführungsrechte
+und Laufbudgets werden nicht wiederaufgenommen.
 
 Der [kanonische Plan](../../.ai/identity/registry.json) unter `hint_negative_control_plan`,
 die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-rh-abfrageform-und-engine-textzuordnung-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-geplantes-rh-quellpaar-und-textzuordnungsvertrag-vom-24-oktober-2026)
 binden zwei getrennte eigene Modul-/Query-Identitäten: R ohne Hint, H mit festem
 Inline-Hint. Ein gleicher QueryHash ist möglich, weil Query Hints nicht eingehen;
 er darf keine Kennungen oder Planrollen zusammenführen. Je Modul vollständige
 Text-/Kontext-/Plan-/Ergebnisbindung und frische Kompilierung/Ausführung verlangen.
 
-Der aktuelle [R/H-Quellenbefund](../../.ai/BACKLOG.md#rh-abfrageform-und-engine-textzuordnung)
-steht kanonisch unter `rh_query_text_review_result`. Die terminale Hint-Position
-ist quellenkonform; der vollständige ausführbare R/H-Text ist noch nicht vorhanden.
-Die Planungsabnahme benennt deshalb den Bauplan und lässt die konkrete Quellen-
-und Darstellungsabnahme offen. Ganze Moduldefinition, Cache-Batchtext, daraus
-abgegrenztes Nutzstatement, Query-Store-Text und Plan-Statementtext getrennt
-zuordnen. Query Store (persistente Abfrage-/Planhistorie) lässt äußere Kommentare
-und Leerraum weg; innere Texte und Hinweise bleiben erhalten. Byteoffsets sind
-keine Zeichenpositionen. Erst Quellenbezug eindeutig belegen, danach die jeweilige
-Engine-Darstellung versiegeln; keine freie Normalisierung oder Übernahme früherer
-OPT-007-Textbeobachtungen. Tatsächliche Darstellungen beider Builds bleiben offen.
-Messgrenzen, Ergebnisvorränge, Aufruffolge und Budgets werden nicht geändert.
+Der [konkrete Quellen-/Textentwurf](../../.ai/BACKLOG.md#geplantes-vollständiges-rh-quellpaar-und-begrenzte-textzuordnung)
+steht kanonisch unter `rh_source_text_plan`. Er legt zwei vollständige
+CREATE-PROCEDURE-Quellwerte im eigenen Schema dgn004 fest. Beide verwenden die
+unveränderte synthetische Form A; ausschließlich H erhält den terminalen Hint.
+Die Vorlagen bestehen je aus einer ASCII-Zeile (7-Bit-Zeichensatz) ohne Kommentare
+oder Zeilenumbrüche;
+Bytepositionen und Offline-Prüfsummen binden die Quellen, keine Engine-Ausführung.
+
+M bezeichnet den vollständigen Modultext, S dessen Nutzstatement mit Semikolon,
+T nur denselben Text ohne letztes Semikolon. Modul-/Cachebatch müssen M entsprechen;
+Cache-, Query-Store- und Planstatement dürfen ausschließlich S oder T entsprechen.
+Die Erstzuordnung muss Quelle, eigenes Objekt, Kontext, Abfrage-/Textkennung und
+aktuellen Plan gemeinsam belegen. Erst danach die je Ansicht gewählte Darstellung
+versiegeln und unverändert fortführen; keine freie Normalisierung oder Neubindung.
+Ein unbekanntes wohlgeformtes Engine-Format bleibt NOT_PROVEN (nicht nachgewiesen),
+eine positiv belegte Vertragsverletzung FAIL; Bereinigungsfehler haben Vorrang.
+
+Die Quellenlücke ist als Planungsvorlage geschlossen. Unabhängige fachliche Freigabe,
+Überführung in ausführbare Quellen und tatsächliche M/S/T-/Offsetqualifikation auf
+2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben offen. Positive R-/beobachtete
+H-Replay-Kennzeichnung ist weiterhin gesondert nachzuweisen. Neun Nutzaufrufe,
+zwei Container, Mess-/Statusvertrag und Laufbudgets unverändert; keine Kalibrierung
+oder Umsetzung durch diesen Plan autorisiert.
+
+Der [vorausgehende Quellenbefund](../../.ai/BACKLOG.md#rh-abfrageform-und-engine-textzuordnung)
+unter `rh_query_text_review_result` bleibt mit Basis PR325 erhalten. Er stellte
+die damalige Quellenlücke und fehlende Erstzuordnung fest; der neue Entwurf liefert
+die vollständigen Planungsvorlagen und begrenzt die Darstellungsauswahl. Der damalige
+Review und die jetzige Planung ersetzen weder unabhängige Freigabe noch Buildnachweise.
 
 Der vorherige [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag)
 steht bei TSK-016 unter `hint_evidence_status_review_result`. Beide vorigen

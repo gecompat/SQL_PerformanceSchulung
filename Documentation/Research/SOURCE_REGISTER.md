@@ -678,3 +678,31 @@ Zeitbudget unverändert. Im lesenden Review keine Tests, SQL-/Lab- oder CI-Läuf
 und kein Push; dieser Folgeauftrag erlaubt nur statische Dokumentationsintegration.
 Die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md) halten Umsetzung,
 SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
+
+### DGN-004: geplantes R/H-Quellpaar und Textzuordnungsvertrag vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`c005607276b67097018c9772feb04e4b8ad42cac`; Abruf/Planung 2026-10-24. Der
+[kanonische Plan bei TSK-016](../../.ai/identity/registry.json) steht unter
+`rh_source_text_plan`; die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#geplantes-vollständiges-rh-quellpaar-und-begrenzte-textzuordnung)
+enthält beide vollständigen Quellvorlagen, Quellenprüfsummen und Abnahmekriterien.
+R ist Referenz ohne Hint, H die Kontrolle mit festem Abfragehinweis; keine neuen
+ausführbaren SQL-Dateien, Demo-/Parserimplementierung oder SQL-/Lab-Läufe.
+
+- DOKUMENTIERT: [CREATE PROCEDURE](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver17) liefert den Modulrahmen; [SELECT](https://learn.microsoft.com/en-us/sql/t-sql/queries/select-transact-sql?view=sql-server-ver17) und [Query Hints](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17) stützen die terminale OPTION-Klausel. METHODE: zwei parameterlose eigene Prozeduren mit vollständigen einzeiligen ASCII-Quellwerten, identischem Nutzstatement und genau dem festen terminalen Hint-Unterschied planen. Keine Syntax-/Engine-Abnahme durch bloßes Festschreiben.
+- DOKUMENTIERT: [Moduldefinition](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-modules-transact-sql?view=sql-server-ver17) und [Cachetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver17) sind von den durch [Byteoffsets](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-stats-transact-sql?view=sql-server-ver17) abgegrenzten Statements zu unterscheiden. METHODE: Quellen M sowie Nutzstatement S mit und T ohne letztes Semikolon vorab festlegen; Module/Cachebatch nur M, die drei Statementansichten nur S/T. Die geplante inklusive Endposition oder der -1-Sentinel sind begrenzte Vertragskandidaten nach dem Hersteller-Extraktionsmuster, keine beobachteten Werte der Zielbuilds.
+- DOKUMENTIERT: [Query-Store-Abfragetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-text-transact-sql?view=sql-server-ver17) bewahrt innere Texte/Hinweise und lässt äußere Kommentare/Leerraum weg. METHODE: diese äußeren Texte in der Quelle vermeiden, keine freie Textbereinigung zulassen. StatementText aus dem vollständigen Plan separat dekodieren und mit Quellen-/Objekt-/Kontext-/Abfrage-/Ausführungsbezug erstzuordnen; erst danach die zulässige Darstellungswahl je Rolle/Build festhalten.
+- METHODE/INFERENZ: Die unveränderte synthetische Form A nach dem [gepinnten bigjoin-Muster](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql) verwendet zehn Tabellen, neun Joins je Zweig, zehn int-Projektionen und zwei Zweige. 768 erwartete Tupel mit ihren Multiplizitäten bleiben eine rechnerische Erwartung, kein Ausführungs-/Replay-Nachweis. Die konkrete Vorlage ist eine eigene synthetische Anpassung.
+
+DOKUMENTIERT: Der [Query-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17) ordnet query_parameterization_type = 0 der fehlenden Parametrisierung zu. METHODE: diesen Wert als strenge lokale Vorbedingung für R/H planen; keine bereits beobachtete Eigenschaft der Prozeduren behaupten.
+
+Planungsabnahme bedeutet vollständige dokumentarische Quellen-/Vertragsfestlegung.
+Ein unabhängiger Review und spätere technische M/S/T-/Offsetnachweise für
+2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben offen; unbekannte Darstellungen werden
+nicht automatisch normalisiert oder zugelassen. Replay (Wiederverwendung von
+Optimierungsschritten), Gegenkennzeichnung, Flag-/Signaturkonflikte, Mess-/Statusvertrag
+und alle bisherigen Gates bleiben gesondert erhalten. Keine zusätzliche Kalibrierung,
+Budgetaddition oder Übernahme von OPT-007-Textbeobachtungen. Nur statische
+Dokumentationsintegration; die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
