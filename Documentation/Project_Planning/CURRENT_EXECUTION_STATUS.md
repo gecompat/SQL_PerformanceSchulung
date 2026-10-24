@@ -1,18 +1,35 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: gesonderte DGN-004-Hint-Negativkontrolle planen
+## Auftrag vom 24. Oktober 2026: DGN-004-Prüfbefunde und Mess-/Statusvertrag präzisieren
 
-Der aktuelle Auftrag plant bei TSK-016 eine Negativkontrolle für DGN-004
+Der aktuelle Auftrag ergänzt bei TSK-016 Prüfbefunde und präzisiert die Negativkontrolle für DGN-004
 (Planerzwingung) mit DISABLE_OPTIMIZED_PLAN_FORCING, einem Abfragehinweis zur
-Abschaltung optimierter Planerzwingung. Nur Planung und statische
+Abschaltung optimierter Planerzwingung. Nur Dokumentation und statische
 Dokumentationsprüfung/Integration im bestehenden Pull-Request-Verfahren.
 Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
 Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
 
 Der [kanonische Entwurf](../../.ai/identity/registry.json) steht bei TSK-016 unter
 `hint_negative_control_plan`. Die [abgeleitete Planansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-einer-gesonderten-hint-negativkontrolle-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-prüfbefunde-und-präzisierter-kompilierungsnachweis-vom-24-oktober-2026)
 führen dieselben Identitäts-, Nachweis- und Ausführungsgrenzen.
+
+Der lesende [Prüfbefund](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
+steht kanonisch unter `hint_negative_control_review_result`. Im aktiven Plan
+benennt `compilation_evidence_contract` ausdrücklich
+`sys.query_store_query.count_compiles` je festgebundener eigener query_id.
+Vorhermessung B0 nach bestätigtem Force, danach eigene sp_recompile-Markierung,
+genau ein Nutzaufruf, vollständige Erfassung, budgetierter Flush und Nachhermessung
+B1. R/H und Planstatistik getrennt; genau +1 ist eine strenge Abnahmebedingung,
+keine allgemeine Herstellergarantie. Fehlende Daten oder unbekannte Zählerepoche
+allein bleiben NOT_PROVEN (nicht nachgewiesen).
+
+`outcome_precedence` trennt fehlende Evidenz von positiv belegter falscher oder
+veralteter Zuordnung: Letztere ist FAIL (Vertragsverletzung). Der Schlussstatus
+folgt FAIL_CLEANUP (Bereinigung fehlgeschlagen) vor FAIL vor NOT_PROVEN vor PASS;
+alle Ursachen bleiben erhalten. CONTROL_ONLY bleibt Teilbefund und kann keinen
+Gesamterfolg oder H-Ersatzablauf erzeugen. Beide Präzisierungen brauchen vor
+Umsetzung unabhängige Freigabe; Marker-, Identitäts- und Versionsgates bleiben offen.
 
 Referenz R ohne Hint und Kontrolle H mit dauerhaftem terminalem Inline-Hint werden
 in zwei getrennten eigenen Prozeduren auf demselben synthetischen Aufbau geführt.

@@ -595,3 +595,26 @@ mit dem alten Plan. Nur statische Dokumentationsintegration, keine Umsetzung,
 Tests der Probe oder SQL-/Lab-Läufe. Der [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 bindet die fortbestehende Pause und den Bedarf eines neuen ausdrücklichen Auftrags
 für spätere Umsetzung und Läufe nach Methodenfreigabe.
+
+### DGN-004: Prüfbefunde und präzisierter Kompilierungsnachweis vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`5dc12013065d2a571354f091c19f586f2208961f`; Abruf/lesender Review 2026-10-24.
+Der [kanonische Review bei TSK-016](../../.ai/identity/registry.json) steht unter
+`hint_negative_control_review_result`, die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
+führt Ergebnis und Grenzen. Der aktive Hint-Plan wird dokumentarisch präzisiert;
+kein Test, SQL-/Lab-Lauf oder neue Runtime-/Versionsabnahme wird daraus behauptet.
+
+- DOKUMENTIERT: [Query-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17) und [Plan-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17) führen beide count_compiles auf unterschiedlichem Scope. METHODE: für den aktuellen Nutzaufruf genau sys.query_store_query.count_compiles je fester eigener query_id verwenden; R/H und planbezogene Zusatzstatistik nicht summieren.
+- DOKUMENTIERT: [sp_recompile](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-recompile-transact-sql?view=sql-server-ver17) veranlasst Neukompilierung beim nächsten Aufruf; erfolgreiche Rückgabe ist kein bereits ausgeführter Nutzaufruf. [Query-Store-Flush](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-flush-db-transact-sql?view=sql-server-ver17) persistiert Speicherdaten und beweist weder allein Kompilierung noch Ausführung oder Replay-Nutzung.
+- METHODE: B0 erst nach angenommener Force-Anforderung und vor eigener sp_recompile-Markierung, dann genau ein Nutzaufruf, vollständige Erfassung, vorhandener Flush und B1 zur selben query_id. Unforced Phasen entsprechend ohne Force; erste Identitätsbindung nicht mit erfundenem Nullzähler behandeln. Genau +1 in ununterbrochener Epoche ist strenges geplantes Abnahmekriterium, keine dokumentierte allgemeine Ein-Kompilierung-pro-Aufruf-Garantie. Beobachtbarkeit auf beiden Builds weiterhin ungeprüft.
+- METHODE: NOT_PROVEN bei fehlender aktueller Evidenz oder unklarer Epoche von FAIL bei positiv belegter falscher/veralteter Zuordnung trennen. Schlussstatus FAIL_CLEANUP vor FAIL vor NOT_PROVEN vor PASS; sämtliche Ursachen/Teilbelege erhalten. CONTROL_ONLY bedeutet nur Kontrollzustand belegt, keinen empirischen Rundenerfolg und keinen alternativen H-Lauf.
+
+Die Identitäts-/Hint-Grundlage aus dem vorigen Plan bleibt quellenbasiert gestützt;
+vollständige konkrete Quelltexte, Marker-/Gegenvertrag, unabhängiger Methodenreview
+und empirische Nachweise für 2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben offen.
+Neun Nutzaufrufe je Version, zwei Container und gemeinsames Zeitbudget unverändert.
+Frühere Quellenreviews und der alte Ein–Aus–Ein-Plan bleiben erhalten. Nur statische
+Dokumentationsintegration; die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
