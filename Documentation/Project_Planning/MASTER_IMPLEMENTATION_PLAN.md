@@ -1,22 +1,39 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: vollständige R/H-Quellen und Textvertrag vom 24. Oktober 2026
+## DGN-004: Prüfbefund zum R/H-Quellpaar und Textvertrag vom 24. Oktober 2026
 
-Der aktuelle Auftrag plant bei TSK-016 für DGN-004 (Planerzwingung) vollständige
-R/H-Quellvorlagen und den begrenzten Engine-Text-Zuordnungsvertrag einschließlich
+Der aktuelle Auftrag dokumentiert bei TSK-016 den lesenden DGN-004-Prüfbefund
+zum vollständigen R/H-Quellpaar, begrenzten Engine-Text-Zuordnungsvertrag und den
 Abnahmekriterien. R ist Referenz ohne Hint, H die Negativkontrolle mit festem
-Abfragehinweis. Nur Planung und statische CI (Continuous Integration; automatisierte
-Integrationsprüfungen) im bestehenden Pull-Request-Verfahren. Keine Umsetzung,
-Demotests oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Alte Ausführungsrechte
-und Laufbudgets werden nicht wiederaufgenommen.
+Abfragehinweis. Nur Dokumentation und statische CI (Continuous Integration;
+automatisierte Integrationsprüfungen) im bestehenden Pull-Request-Verfahren.
+Keine Umsetzung, Demotests oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
+Frühere Ausführungsfreigaben und Laufbudgets werden nicht wiederaufgenommen.
 
 Der [kanonische Plan](../../.ai/identity/registry.json) unter `hint_negative_control_plan`,
 die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-geplantes-rh-quellpaar-und-textzuordnungsvertrag-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-prüfbefund-zum-rh-quellpaar-und-textvertrag-vom-24-oktober-2026)
 binden zwei getrennte eigene Modul-/Query-Identitäten: R ohne Hint, H mit festem
 Inline-Hint. Ein gleicher QueryHash ist möglich, weil Query Hints nicht eingehen;
 er darf keine Kennungen oder Planrollen zusammenführen. Je Modul vollständige
 Text-/Kontext-/Plan-/Ergebnisbindung und frische Kompilierung/Ausführung verlangen.
+
+Der neue [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-rh-quellpaar-und-textvertrag)
+steht kanonisch unter `rh_source_text_review_result`. Quellpaar, endlicher Textvertrag
+und Abnahmekriterien sind im konkret geprüften Umfang dokumentarisch schlüssig;
+kein weiterer konkreter Widerspruch festgestellt. Quellen-/Spaltenbezüge, einziger
+terminaler Hint-Unterschied und rechnerische Tupelerwartung passen zum Aufbau.
+Die erwarteten Textdarstellungen stammen aus der Quelle; Erstzuordnung und
+Darstellungswahl ersetzen keinen aktuellen Ausführungsnachweis oder Beleg für
+wiederverwendete Optimierungsschritte. Die Sonderregel für erste
+Bindungen in Aufrufen 1/4 erlaubt keinen erfundenen Null-Kompilierungszähler.
+
+Der Review aus demselben Arbeitskontext ist keine unabhängige Freigabe. Tatsächliche
+Darstellungen, Byteoffsets, Beobachtbarkeit und positive R-/beobachtete H-Replay-
+Kennzeichnung (Wiederverwendung von Optimierungsschritten) auf beiden Zielbuilds
+bleiben offen. Aktive Quellvorlagen/Pläne,
+Abnahmekriterien, Mess-/Statusvertrag und Laufbudgets bleiben vollständig unverändert.
+Kein zusätzlicher Lauf oder Ersatzablauf ist autorisiert.
 
 Der [konkrete Quellen-/Textentwurf](../../.ai/BACKLOG.md#geplantes-vollständiges-rh-quellpaar-und-begrenzte-textzuordnung)
 steht kanonisch unter `rh_source_text_plan`. Er legt zwei vollständige
