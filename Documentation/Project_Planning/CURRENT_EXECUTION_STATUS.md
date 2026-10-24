@@ -1,29 +1,37 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 23. Oktober 2026: DGN-004 begrenzt planen
+## Auftrag vom 24. Oktober 2026: DGN-004-Befunde ergänzen und Plan präzisieren
 
-Der aktuelle menschliche Auftrag betrifft DGN-004 (Planerzwingung): anhand der
-Quellenbefunde von TSK-016 einen begrenzten Umfang mit späteren Tests und
-Abnahmekriterien planen. Keine Implementierung und keine SQL-/Lab-Läufe;
-nur relevante statische Planungs- und Integrationsprüfungen. Die übrige
-autonome Verarbeitung bleibt pausiert. Es wurde keine Automation aktiviert.
+Der aktuelle menschliche Auftrag autorisiert die Ergänzung der lesenden
+DGN-004-Befunde (Planerzwingung) bei TSK-016 und die präzisierte Planung samt
+Integration per Pull Request (Änderungsantrag) nach `origin/main`. Nur relevante
+statische Prüfungen einschließlich CI (Continuous Integration; automatisierte
+Integrationsprüfungen); keine Implementierung oder SQL-/Lab-Läufe. Die übrige
+autonome Verarbeitung bleibt pausiert; keine Automation wurde aktiviert.
 
-Maßgeblich ist `candidates[target=DGN-004].planning_outline` im
-[kanonischen TSK-016-Eintrag](../../.ai/identity/registry.json); die
-[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
-führt denselben Entwurf mit Quellen, Grenzen und offenen Detailgates.
-Die [registrierte Quellenvertiefung](../Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027)
-ergänzt den bestehenden Query-Store-Quellenumfang ohne neue Kennung.
+Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) trennt den
+ursprünglichen Analyze-Befund von `design_review_result` (lesende Planprüfung)
+und `planning_outline` (präzisierter Entwurf). Die
+[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#lesende-planprüfung-vom-24-oktober-2026)
+führt dieselben Befunde; die [Quellenvertiefung](../Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027)
+bindet Herstellerverweise und offene Dokumentationskonflikte.
 
-Der Entwurf trennt angeforderte Erzwingung, tatsächlichen Indexplan,
-kontrollierten Fehler durch einen fehlenden Index, erfolgreiche Ersatzplanung
-und ausdrückliche Rücknahme. Eine eigene Datenbank, eine feste Abfrage und
-sechs geplante Nutzaufrufe bilden den ersten Schnitt. Alle späteren Pflicht-
-und Gegenfälle sind geplant, nicht ausgeführt; DGN-004 bleibt unimplementiert.
-Vor Umsetzung sind konkrete Abfrageform, tatsächliche Planzuordnung und
-Versionsverhalten einschließlich optimierter Planerzwingung lesend zu klären.
-Die verantwortliche Umsetzungsrolle benötigt danach einen ausdrücklichen
-Auftrag samt SQL-/Lab-Freigabe; kein automatischer Übergang zur nächsten Phase.
+Der Entwurf bleibt auf eine eigene Datenbank, eine feste Prozedurabfrage,
+sechs Nutzaufrufe und einen entfernten eigenen Index begrenzt. Erzwungener
+Zielplan und tatsächlich ausgeführter Plan werden getrennt zugeordnet.
+Die vollständige Planübertragung ist im bestehenden Ausgabepfad noch nicht
+abgesichert; die Versionsquellen widersprechen sich bei Flagbedeutung und
+zusätzlichen Force-Argumenten. Das sind offene Freigabegates, keine erledigten
+Implementierungen oder ausgeführten Fehlernachweise. Der ursprüngliche
+Plan bleibt über [PR314](https://github.com/gecompat/SQL_PerformanceSchulung/pull/314)
+im Quellenstand `c9c75cefb30fc82aec33f67d9589670a877dd76b` nachvollziehbar.
+
+Die verantwortliche spätere Umsetzungsrolle muss Erfassungsadapter und
+buildbezogenen Versionsvertrag klären, den Quellen-/Ergebnisreview abschließen
+und einen ausdrücklichen Umsetzungsauftrag einschließlich SQL-/Lab-Läufen
+erhalten. Erst danach werden tatsächliche Planwahl, NO_INDEX (fehlender Index),
+Ersatzplanung und Rücknahme je Zielversion qualifiziert. Keine automatische
+Fortsetzung zur Umsetzung oder zu anderen Kandidaten.
 
 ## Erhaltene abgeschlossene Schnitte
 

@@ -295,3 +295,51 @@ lesenden Detailgates im [kanonischen Plan](../../.ai/identity/registry.json)
 und seiner [abgeleiteten Ansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung).
 Tatsächliche Planbelege folgen zusätzlich dem bestehenden FWK-005-Vertrag;
 gespeicherte Query-Store-Pläne oder das Force-Flag allein reichen nicht.
+
+### DGN-004: lesende Vertiefung und Quellenkonflikte vom 24. Oktober 2026
+
+Diese Ergänzung präzisiert den vorigen DGN-004-Abschnitt. Bestehende
+Quellenkennungen und historische Registerzeilen bleiben erhalten.
+**Aktualisiert und abgerufen: 2026-10-24.** Alle folgenden Detailverweise
+sind `PRIMARY`. Geltungsbereich: der begrenzte Plan für SQL Server
+2019/150, 2022/160 und 2025/170; Zahlen nach dem Schrägstrich bezeichnen
+den Compatibility Level (Datenbank-Kompatibilitätsstufe).
+Review-Trigger: geänderte Herstellerdokumentation, neuer Build/Client,
+geänderter Ergebnisvertrag oder abweichender späterer Laufbefund.
+
+| Bestehender Quellenumfang | Detailverweis | Aussagebezug und Status |
+|---|---|---|
+| `SRC-001` | [Query processing architecture guide](https://learn.microsoft.com/en-us/sql/relational-databases/query-processing-architecture-guide?view=sql-server-ver17#forced-parameterization) | `ACTIVE`: datenbankweite erzwungene Parametrisierung nimmt Prozedurinhalte aus; keine Garantie für jede konkrete Engine-Darstellung oder zwei unterschiedliche Pläne. |
+| `SRC-027` | [Query-Store-Best-Practices](https://learn.microsoft.com/en-us/sql/relational-databases/performance/best-practice-with-the-query-store?view=sql-server-ver17#avoid-a-drop-and-create-pattern-for-containing-objects), [Query-Zuordnung](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17), [Kontext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-context-settings-transact-sql?view=sql-server-ver17) | `ACTIVE`: Modul, Text und Kontext zusammenhalten; DROP/CREATE erzeugt neue Zuordnung. Hash allein ist keine eindeutige Identität. Sichtrechte ab 2022 gesondert berücksichtigen. |
+| `SRC-031` | [SET STATISTICS XML](https://learn.microsoft.com/en-us/sql/t-sql/statements/set-statistics-xml-transact-sql?view=sql-server-ver17) | `ACTIVE`: tatsächliche Ausführungsinformationen, ausgegebene Ergebnisse und SHOWPLAN-Rechte; keine Garantie eines vollständigen Clienttransports. XML bedeutet Extensible Markup Language, strukturiertes Textformat. |
+| `SRC-031` | [Showplan-Schema 2019](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2019/showplanxml.xsd), [Showplan-Schema 2022](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd) | `ACTIVE` nur im beschriebenen RTM-Umfang (Erstveröffentlichungsstand): UsePlan, QueryHash und QueryPlanHash sind optionale Attribute. Attributexistenz ist keine universelle Query-Store-Erzwingungsgarantie und kein vollständiger 2025-Schemavertrag. |
+| `SRC-031` | [sqlcmd-Ausgabeoptionen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17#-y-variable_length_type_display_width) | `ACTIVE` für den Plan-Erfassungspfad: Großtext/XML standardmäßig auf 256 Zeichen begrenzt; -w ändert Zeilenbreite; -W nicht mit -y/-Y kombinierbar. Konkrete Clientversion und begrenzte vollständige Übertragung später prüfen. |
+
+Innerhalb `SRC-027` erhalten die **strittigen Detailaussagen** den Status
+`REVIEW_REQUIRED` (erneute Quellenprüfung erforderlich):
+
+- Die [Katalogbeschreibung](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17)
+  ordnet bei `is_optimized_plan_forcing_disabled` den Wert 0 der Deaktivierung zu;
+  [Beispiel D der Optimierungsbeschreibung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16#d-select-all-queries-where-optimized-plan-forcing-is-disabled-by-query-store)
+  verwendet dafür 1. Die Semantik wird nicht stillschweigend aus dem Namen abgeleitet.
+- Die [Force-Prozedurreferenz](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver16)
+  führt `disable_optimized_plan_forcing` an dritter Stelle und danach
+  `replica_group_id`; [Beispiel C](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16#c-force-a-plan-and-disable-optimized-plan-forcing-in-query-store)
+  fordert `replica_group_id` an dritter Stelle und beschreibt es als zusätzlich
+  erforderlich. Eine einheitliche buildübergreifende Aufrufvorlage ist daraus
+  nicht belastbar abgeleitet.
+
+Diese Konfliktmarkierung betrifft die genannten Aufruf-/Flagdetails.
+Die übrigen bereits belegten Eigenschaften des Query Store, der möglichen
+gleichen/ähnlichen Planverwendung, des Kompilierungsfehlerzählers und des
+Fehlergrunds `8712/NO_INDEX` bleiben davon getrennt. Die verantwortliche
+spätere Umsetzungsrolle muss vor mutationsfähiger Freigabe belastbare
+buildbezogene Evidenz zur Signatur und Interpretation ergänzen.
+
+Der [kanonische DGN-004-Eintrag](../../.ai/identity/registry.json) dokumentiert
+zusätzlich die rein statischen Aufruf-/Proxybefunde am Schulungsstand
+`c9c75cefb30fc82aec33f67d9589670a877dd76b`. Der begrenzte Erfassungsentwurf ist
+`METHOD`/`INFERENCE` (Methodik beziehungsweise Herleitung), kein ausgeführter
+Trunkierungsnachweis. Tatsächliche zwei Planvarianten, Erzwingung, NO_INDEX,
+Ersatzplanung und Rücknahme sind weiter empirisch offen. Der [präzisierte Plan](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
+enthält die verbleibenden Gates; dieser Quellenstand autorisiert keine SQL-Läufe.

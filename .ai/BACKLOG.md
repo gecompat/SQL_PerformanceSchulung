@@ -1,14 +1,16 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## Begrenzte DGN-004-Planung: übrige Entwicklung pausiert
+## DGN-004-Plan präzisieren: übrige Entwicklung pausiert
 
-Der aktuelle Auftrag betrifft ausschließlich den Entwurf zu DGN-004
-(Planerzwingung), spätere Tests und Abnahmekriterien. Keine Implementierung
-und keine SQL-/Lab-Läufe; nur relevante statische Planungs- und
-Integrationsprüfungen. Die übrige autonome Verarbeitung bleibt pausiert.
-Maßgeblich ist der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
-Die abgeschlossenen begrenzten CON-005- und OPT-007-Nachweise bleiben erhalten.
+Der aktuelle Auftrag ergänzt die lesenden DGN-004-Befunde (Planerzwingung)
+und präzisiert die bestehende Planung einschließlich Integration per Pull
+Request (Änderungsantrag) nach `origin/main`. Nur relevante statische
+Prüfungen einschließlich CI (Continuous Integration; automatisierte
+Integrationsprüfungen); keine Implementierung oder SQL-/Lab-Läufe.
+Die übrige autonome Verarbeitung bleibt pausiert. Maßgeblich ist der
+[aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
+Die bisherigen begrenzten CON-005- und OPT-007-Nachweise bleiben erhalten.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
@@ -28,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Autorisierter Planungsauftrag vom 23. Oktober 2026: DGN-004 (Planerzwingung) anhand der Quellenbefunde von TSK-016 begrenzt planen, einschließlich späterer Tests und Abnahmekriterien. Keine Implementierung und keine SQL-/Lab-Läufe; nur relevante statische Planungs- und Integrationsprüfungen. Die übrige autonome Verarbeitung bleibt pausiert. Quellenbefunde, Kennungen und bisherige begrenzte Implementierungsnachweise bleiben erhalten.
+Autorisierter Dokumentationsauftrag vom 24. Oktober 2026: die lesenden DGN-004-Befunde (Planerzwingung) bei TSK-016 ergänzen, Abfrageform, tatsächliche Planzuordnung, vollständige Planübertragung und Versionsgrenzen präzisieren und per Pull Request (Änderungsantrag) nach origin/main integrieren. Nur relevante statische Prüfungen einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert; ursprüngliche Quellenbefunde, Kennungen und frühere begrenzte Implementierungsnachweise bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -512,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Begrenzter Plan für manuelle Planerzwingung, einen kontrollierten Indexfehler, Ersatzplanung und ausdrückliche Rücknahme; P2 bleibt bestehen. Umsetzung noch nicht autorisiert.
+**Planungsentscheidung:** Begrenzten DGN-004-Plan anhand der lesenden Befunde präzisiert; Abfrageform und Nachweisvertrag konkretisiert, Planübertragung sowie widersprüchliche Versionsdetails als offene Freigabegates geführt. P2 bleibt bestehen; Umsetzung nicht autorisiert.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -521,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Umsetzung die offenen Abfrage-/Plannachweis- und Versionsfragen ausschließlich lesend präzisieren; anschließend ausdrücklicher Umsetzungsauftrag einschließlich erforderlicher SQL-/Lab-Läufe und unabhängiger Quellen-/Ergebnisreview vor dem ersten Lauf. Kein autonomer Übergang zur Umsetzung.
+**Wiederaufnahmebedingung:** Vor einer Umsetzung den begrenzten vollständigen Erfassungspfad und die buildbezogenen Aufruf-/Flagverträge für 2022/2025 klären und unabhängig gegen Quellen und Ergebnisvertrag prüfen. Danach ausdrücklicher Umsetzungsauftrag einschließlich erforderlicher SQL-/Lab-Läufe. Parameter-/Plan-Darstellungen, zwei Planvarianten und NO_INDEX-Ablauf je Zielversion später empirisch bestätigen; keine autonome Umfangserweiterung.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -552,9 +554,44 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Forcing-Status und Fehl
 - Erfolgreiches Forcing und begründet fehlgeschlagenes Forcing anhand des tatsächlichen Status und Fehlergrundes unterscheiden.
 - Forcing und sonstige Zustandsänderungen rücknehmbar halten; keine zweite allgemeine Query-Store-Demo.
 
+###### Lesende Planprüfung vom 24. Oktober 2026
+
+**Status:** READ_ONLY_REVIEW_WITH_OPEN_GATES – Quellenprüfung und Herleitung; keine Implementierung, ausgeführten Tests, SQL-/Lab-Läufe oder Laufzeitabnahme.
+
+**Basis:** `c9c75cefb30fc82aec33f67d9589670a877dd76b`. Den über PR314 integrierten Entwurf gegen vorhandene Framework-/Aufrufquellen und aktuelle Microsoft-Primärdokumentation gelesen. Der ursprüngliche Analyze-Befund bleibt unverändert. Dokumentierte Eigenschaften, statische Pfadbefunde, Designherleitung und spätere empirische Prüfung getrennt.
+
+- Abfrageidentität: dieselbe parameterlose Prozedur mit unverändertem SELECT und Sitzungskontext beibehalten. Die dokumentierte datenbankweite Forced Parameterization (erzwungene Parametrisierung) nimmt Prozedurinhalte aus. Daraus folgt keine pauschale Garantie für jede Parametrisierungsdarstellung. DROP/CREATE der Prozedur erzeugt laut Query-Store-Dokumentation eine neue Query-Zuordnung und ist zwischen den Phasen ungeeignet.
+- Planverwendung: sp_query_store_force_plan kann einen gleichen oder ähnlichen resultierenden Plan liefern. Erzwungenes Ziel und tatsächlich ausgeführter Plan erhalten getrennte Kennungen im Nachweis; weder identische Plan-ID noch Query-/Plan-Hash allein voraussetzen. Tatsächlicher Plan, vollständige Tupel und neue Ausführungszähler müssen demselben Aufruf zugeordnet sein.
+- Erfassung: SET STATISTICS XML liefert tatsächliche Ausführungsinformationen. Der unveränderte lokale Aufrufpfad verwendet -W und -w 65535, setzt aber keine eigene Großtextanzeigegrenze. sqlcmd begrenzt große Text-/XML-Werte standardmäßig auf 256 Zeichen; -w ändert nur die Zeilenbreite. -W ist mit -y/-Y nicht kombinierbar, und der vorhandene Containerproxy akzeptiert -y derzeit nicht. Statische Nachweislücke, kein ausgeführter Trunkierungsfehler.
+- Planattribute: Die veröffentlichten Showplan-Schemata für 2019/2022 führen UsePlan als optionales boolesches Attribut. Das Schema allein belegt weder seine alleinige Eignung als Query-Store-Erzwingungsnachweis noch die tatsächliche Ausgabe auf jedem Build. Ein 2022-RTM-Schema ist keine vollständige Versionsgarantie für 2025; RTM bedeutet Erstveröffentlichungsstand.
+- Dokumentationskonflikt ab 2022: Die Katalogbeschreibung von is_optimized_plan_forcing_disabled ordnet 0 der Deaktivierung zu; Beispiel D der Optimierungsbeschreibung verwendet dafür 1. Die Force-Prozedurreferenz nennt als drittes Argument disable_optimized_plan_forcing und danach replica_group_id; Beispiel C der Optimierungsbeschreibung fordert replica_group_id an dritter Stelle und beschreibt es als zusätzlich erforderlich. Daraus wird keine ungeprüfte gemeinsame Aufruf- oder Flagvorlage abgeleitet.
+- Fehlervertrag: 8712/NO_INDEX bezeichnet den fehlenden Index. force_failure_count steigt bei fehlgeschlagener Kompilierung, nicht bei jeder Ausführung, und wird beim Wechsel von ungezwungen zu erzwungen zurückgesetzt. Zählerzuwachs und letzter Grund müssen deshalb im eigenen neuen Beobachtungsfenster zusammen mit erfolgreicher tatsächlicher Ersatzplanung belegt werden. Die konkrete Reproduktion mit 1000 Zeilen und sechs Aufrufen ist weiterhin unbestätigt.
+
+**Gelesene Projektquellen:**
+
+- [Tests/Runtime/execution_target.py:47](https://github.com/gecompat/SQL_PerformanceSchulung/blob/c9c75cefb30fc82aec33f67d9589670a877dd76b/Tests/Runtime/execution_target.py#L47): Feste sqlcmd-Ausgabeoptionen; run_sql liefert Standardausgabe als Text.
+- [Tests/Runtime/docker_sqlcmd_proxy.py:18](https://github.com/gecompat/SQL_PerformanceSchulung/blob/c9c75cefb30fc82aec33f67d9589670a877dd76b/Tests/Runtime/docker_sqlcmd_proxy.py#L18): Akzeptierte Proxyargumente enthalten -w und -W, aber kein -y/-Y.
+- [Demos/00_Framework/Contracts/FWK-005_Plan_Statistics_Evidence_Contract.md:22](https://github.com/gecompat/SQL_PerformanceSchulung/blob/c9c75cefb30fc82aec33f67d9589670a877dd76b/Demos/00_Framework/Contracts/FWK-005_Plan_Statistics_Evidence_Contract.md#L22): Tatsächlichen Ausführungsplan, gespeicherten Plan und Exportgrenzen unterscheiden.
+- [Demos/00_Framework/Templates/40_Plan_Statistics_Evidence.sql:162](https://github.com/gecompat/SQL_PerformanceSchulung/blob/c9c75cefb30fc82aec33f67d9589670a877dd76b/Demos/00_Framework/Templates/40_Plan_Statistics_Evidence.sql#L162): STATISTICS-XML-Prinzip; die Referenzabfrage mit OPTION RECOMPILE nicht als DGN-004-Abfrage übernehmen.
+
+Primärquellen, gelesen am 2026-10-24; Registrierung und Aussagegrenzen im [bestehenden Quellenregister](../Documentation/Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027):
+
+- [SRC-001: Parametrisierung von Prozedurinhalten](https://learn.microsoft.com/en-us/sql/relational-databases/query-processing-architecture-guide?view=sql-server-ver17)
+- [SRC-027: Query-Store-Identität und Schemaänderungen](https://learn.microsoft.com/en-us/sql/relational-databases/performance/best-practice-with-the-query-store?view=sql-server-ver17)
+- [Query-Store-Abfragezuordnung](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17)
+- [Sitzungskontext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-context-settings-transact-sql?view=sql-server-ver17)
+- [SRC-031: tatsächliche Planerfassung](https://learn.microsoft.com/en-us/sql/t-sql/statements/set-statistics-xml-transact-sql?view=sql-server-ver17)
+- [sqlcmd-Ausgabegrenzen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17)
+- [Showplan-Schema 2019](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2019/showplanxml.xsd)
+- [Showplan-Schema 2022](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd)
+- [Force-Prozedurreferenz](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver16)
+- [Katalogbeschreibung und Fehlerzähler](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17)
+- [Optimierte Planerzwingung, Beispiele C/D](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16)
+- [Aggregierte Ausführungsstatistik](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17)
+
 ###### Begrenzter Planungsschnitt: Planerzwingung
 
-**Stand:** 2026-10-23; Basis `4bab78cc321970c014784602f8ba068e38efd70d`. **Status:** DESIGNED – begrenzter Entwurf mit offenen Detailgates; keine Implementierung, ausgeführten Demotests oder Laufzeitabnahme.
+**Stand:** 2026-10-23; ursprüngliche Basis `4bab78cc321970c014784602f8ba068e38efd70d`. Präzisiert am 2026-10-24 gegen `c9c75cefb30fc82aec33f67d9589670a877dd76b`; ursprünglicher Entwurf über [PR314](https://github.com/gecompat/SQL_PerformanceSchulung/pull/314) erhalten. **Status:** DESIGNED – lesend präzisierter Entwurf; vollständiger Erfassungspfad und widersprüchliche Versionsdetails bleiben offene Freigabegates. Keine Implementierung, ausgeführten Demotests oder Laufzeitabnahme.
 
 **Lernziel:**
 
@@ -577,11 +614,17 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 
 **Begrenzter Daten-/Abfrageentwurf:**
 
-- METHOD/INFERENCE – didaktischer Daten-/Abfrageentwurf, noch keine qualifizierte SQL-Abfrageform oder Optimierergarantie.
+- METHOD/INFERENCE – Abfrageform quellenbasiert präzisiert; Planwahl und konkrete Engine-Darstellung noch nicht empirisch qualifiziert.
 - Eigene lab.ForceProbe: Id = 1 bis 1000 als eindeutiger Primärschlüssel, GroupId = ((Id - 1) modulo 10) + 1 und Payload = 10 * Id. Anfänglich kein sekundärer Index; später genau einen eigenen abdeckenden Index auf (GroupId, Id) mit Payload anlegen und wieder entfernen.
-- Unveränderter SELECT in einer eigenen parameterlosen Prozedur: Id und Payload für GroupId = 7, sortiert nach Id. Keine wechselnden Texte, Abfragehinweise oder Sessionoptionen zur Herstellung scheinbar gleicher Query-Kennungen.
+- Fester vollständiger Statemententwurf: SELECT Id, Payload FROM lab.ForceProbe WHERE GroupId = 7 ORDER BY Id; Innerhalb derselben eigenen parameterlosen Prozedur ausführen, keine direkt eingereichten Ad-hoc-Varianten dieses SELECT. Prozedur zwischen den Phasen weder neu anlegen noch verändern; kein OPTION RECOMPILE, kein Query Store Hint und kein wechselnder Text-/Sessionmarker. Erfassung und Beobachtung liegen außerhalb des Nutzstatements.
 - Bei jeder der sechs geplanten Nutzabfragen genau die 100 geordneten Tupel (7 + 10*j, 10*(7 + 10*j)) für j = 0 bis 99; zusätzlich Summe Id = 50200 und Summe Payload = 502000. Vollständiger Tupelvergleich ist Pflicht; Anzahl und Summen allein reichen nicht.
 - Ohne sekundären Index einen Scanplan und mit dem Index einen physisch anderen, diesen Index tatsächlich nutzenden Plan für dieselbe Query-Kennung erfassen. Ob der kleine Entwurf dies je Zielversion liefert, bleibt empirisch offen; kein automatisches Datenwachstum, Hintwechsel oder unbegrenztes Wiederholen bei Abweichung.
+
+**Präzisierte Abfrageidentität:**
+
+- Eigene Modulkennung und unveränderter vollständiger Statementtext bleiben über alle sechs Nutzaufrufe gebunden. Objektbezogene Neukompilierung per sp_recompile nur für die eigene Prozedur; kein DROP/CREATE des Moduls, keine globale Cacheleerung. Eigene Indexänderungen sind die beabsichtigte Änderung der Planvoraussetzung.
+- Dasselbe fest dokumentierte Sitzungsprofil bei Modulanlage und Nutzaufrufen verwenden: ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL und QUOTED_IDENTIFIER ON, NUMERIC_ROUNDABORT OFF; Sprache us_english, Datumsformat mdy und erster Wochentag 7. Tatsächliches context_settings_id samt relevanten Werten und query_parameterization_type erfassen. Keine stillschweigende Zusammenlegung verschiedener Kontext- oder Parametrisierungsformen.
+- Die Query-Store-Zuordnung über tatsächliche Datenbank, eigene object_id, vollständigen Text und Kontext eindeutig auflösen und über die Indexphasen gegenprüfen. Genau eine eigene Query-Kennung für das Nutzstatement; Mehrdeutigkeit oder verlorene Zuordnung ist Fehler. Konkrete Engine-Text-/Parameterdarstellung später je Zielversion prüfen; keine beliebige Textnormalisierung zur Erzeugung eines passenden Ergebnisses.
 
 **Geplanter Ablauf:**
 
@@ -595,9 +638,33 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 **Verbindlicher späterer Ergebnisvertrag:**
 
 - Jeden Nachweis an Lauf, tatsächliche Datenbankkennung, eigene Prozedurkennung, vollständigen Abfragetext, Query-Store-query_id und Kontext der Sessioneinstellungen binden; Planidentitäten und Beobachtungsfenster vollständig dokumentieren. Kein TOP-1-/LIKE-/Hash-Alleinnachweis und keine hart codierten Query-/Plan-Kennungen.
-- Tatsächlichen Ausführungsplan nach FWK-005 (Planbelegvertrag) einschließlich zutreffendem Statement, Objekt-/Indexzugriff und tatsächlichen Zeilen prüfen. Ein gespeicherter Query-Store-Plan, ein Cacheplan oder das Force-Flag allein gilt nicht als Ausführungsbeleg. Erlaubte Ähnlichkeit, verlässliche Zuordnung zum erzwungenen Plan und konkrete Erfassungsmethode vor Umsetzung festlegen; kein ungeprüftes XML-Attribut (Extensible Markup Language; strukturiertes Textformat) als universellen Forcingbeweis erfinden.
+- Tatsächlichen Ausführungsplan nach FWK-005 (Planbelegvertrag) aus demselben Aufruf wie die vollständigen Ergebnistupel prüfen. Erzwungenes Ziel und tatsächlich ausgeführten Plan getrennt führen; tatsächliche Ausführungszähler dem ausgeführten Plan zuordnen. Gespeicherter Plan, Force-Flag, Hash oder optionales UsePlan-Attribut allein reichen nicht. Der konkretisierte Zuordnungs- und Strukturvergleich unten ist Pflicht.
 - Query-Store-Zähler vor/nach jeder Phase aus allen relevanten Intervallen der begrenzten Epoche bilden, Mehrfachzeilen vor Joins aggregieren und Intervallwechsel berücksichtigen. Beobachtungsabfragen, DDL (Data Definition Language; Schemaänderungen), Wrapper, abgebrochene und fehlerhafte Ausführungen ausschließen. Alte Historie oder ein neuer Kompilierungsversuch ohne belegte Ausführung darf nicht bestehen.
 - Fehlende Pflichtpläne, Zähler, Tupel, Kontextbindung, NO_INDEX-Grund oder Rücknahmen nach erfüllter Vorprüfung führen zu FAIL_RESULT_CONTRACT oder FAIL_TIMEOUT nach bestehendem Statusvertrag. Kein WARN/SKIP als Ersatz für Pflichtnachweise. FWK-011-Normalisierung erst nach vollständiger Prüfung der Plan- und Metadatenbelege; bestehende FWK-012-Status- und Ergebnisfelder verwenden.
+
+**Zuordnung des tatsächlich ausgeführten Plans:**
+
+- Jeder der sechs sequenziellen Nutzaufrufe erhält einen eigenen Aufruf-/Phasenrecord mit Lauftoken, tatsächlicher Datenbank, eigener Modul-/Query-Kennung, Kontext, Beginn/Ende, vollständigen Ergebnistupeln und vollständigem tatsächlichem Showplan. STATISTICS XML ausschließlich um diesen Nutzaufruf aktivieren; zusätzliche Beobachtungs- und Steueranweisungen dürfen keine passenden Nutzpläne vortäuschen.
+- Den angeforderten Force-Zielplan getrennt vom tatsächlich ausgeführten Plan führen. Dessen Query-Store-Zuordnung aus derselben Query-/Kontextbindung, neuem Ausführungszuwachs und passender physischer Planstruktur ermitteln; einen vorhandenen QueryPlanHash (Planprüfwert) ergänzend gegen die gespeicherte Kandidatenstruktur prüfen. Keine alleinige Hashzuordnung und kein TOP 1 bei mehreren Kandidaten. Nicht eindeutige Zuordnung ist Fehler.
+- Der erste begrenzte Schnitt erlaubt für den Erfolgsvergleich nur dieselbe relevante Operatorstruktur mit denselben eigenen Datenbank-/Tabellen-/Indexzugriffen und Prädikaten wie im Force-Zielplan. Lediglich technische Knotennummern, Kosten-/Schätzwerte, Zeit-/Laufzeitzähler und Kompilierungsmetadaten sind vom Strukturvergleich ausgenommen. Keine pauschale Gleichsetzung aller Indexpläne; andere strukturelle Abweichung führt zum dokumentierten Abbruch statt automatischer Vertragslockerung.
+- XML (Extensible Markup Language; strukturiertes Textformat) vollständig und ohne Ersetzungs-/Trunkierungszeichen lesen; passende Statementtexte, eigene Objekt-/Indexbindung und echte Laufzeitzähler müssen vorhanden sein. Alle Plan-Ergebnismengen und Wrapper berücksichtigen, unerwartete zusätzliche Nutzstatements zurückweisen. Die 2019-/2022-RTM-Schemata dienen als Referenz, nicht als vollständige Schemafreigabe für 2025.
+- Die Erfolgsepoche verlangt zwei neue reguläre Ausführungen der eindeutig zugeordneten tatsächlichen Indexpläne und keinen neuen Force-Fehler. Nach Indexentzug verlangt die Fehlerepoche Zählerzuwachs größer null und 8712/NO_INDEX am Force-Ziel sowie eine neue reguläre Ausführung mit tatsächlichem Ersatzplan ohne entfernten Index. Der Ersatzplan darf einen schon bekannten Plan wiederverwenden; weder neue Plan-ID noch exakt ein Kompilierungsfehler sind Pflicht.
+- Planstruktur und vollständige Werte belegen die beobachtete Verwendung unter der Erzwingungspolitik. Sie belegen weder, dass der Optimierer ohne Forcing anders gewählt hätte, noch einen Leistungsgewinn. Query-Store-Zähler weiterhin vor Joins nach Plan, Ausführungstyp und Intervall aggregieren und über Intervallgrenzen als Vorher-/Nachherdifferenz auswerten.
+
+**Vollständige und begrenzte Planübertragung:**
+
+- Offene Voraussetzung vor Umsetzung: einen DGN-004-begrenzten vollständigen Plan-Erfassungspfad im bestehenden Harness festlegen; keine pauschale Änderung des allgemeinen Ausgabeformats. Die vorhandenen -W/-w-Optionen und die Proxyargumentliste erfüllen diesen Vertrag noch nicht. Der FWK-005-Referenzvertrag liefert das STATISTICS-XML-Prinzip, keine unverändert übernehmbare Abfrage mit OPTION RECOMPILE.
+- Vorgesehene Schutzgrenzen: höchstens 256 KiB (Kibibyte) UTF-8-Daten (Unicode-Zeichenkodierung) je tatsächlichem Plan und 2 MiB (Mebibyte) gesamte Standardausgabe je Nutzaufruf. Ausgabe bereits während des Einlesens begrenzen, nicht erst nach unbeschränktem capture_output. Vollständiges, wohlgeformtes XML und alle Pflichtknoten verlangen; abgeschnittene Ausgabe darf nicht bestehen. Diese Grenzen sind Entwurfswerte, nicht gemessene Plangrößen.
+- Bei Wahl eines sqlcmd-Erfassungspfads eine feste geeignete Großtextanzeigegrenze innerhalb dieser Budgets und eine damit verträgliche Formatierung verwenden. -w ist nur Zeilenbreite; -W ist mit -y/-Y unverträglich. Kein pauschal unbegrenztes -y 0 als Lösung. Zeilenumbrüche, Sonderzeichen, Ergebnismengengrenzen und strikte Zeichenkodierung im vollständigen Ergebnisvertrag festlegen; die konkrete Adapter-/Transportwahl bleibt vor Implementierung zu prüfen.
+- Der Erfassungspfad gehört zu denselben sechs Nutzaufrufen und den bestehenden 180-/15-Sekunden-Budgets; kein zusätzlicher Probe-Workload. Ein Ausgabelimit oder Timeout muss den eigenen Aufruf beenden und den separat begrenzten Cleanup (Aufräumen) erreichen. Keine automatische Planpersistenz oder ungeprüfte Übernahme vollständiger XML-/Logdateien.
+
+**Versionsvertrag und offene Dokumentationskonflikte:**
+
+- SQL Server 2019/Compatibility Level 150 (Datenbank-Kompatibilitätsstufe): klassische manuelle Erzwingung mit den eigenen Query-/Plan-Kennungen; keine nur ab 2022 vorhandenen Argumente oder Katalogspalten referenzieren. Für Query-Store-Plan-/Kontextsicht VIEW DATABASE STATE vorsehen.
+- SQL Server 2022/160 und 2025/170: optimierte Planerzwingung als zusätzlichen Einfluss protokollieren. Ziel bleibt der klassische manuelle Schnitt mit einer nur auf den eigenen Force-Plan begrenzten Deaktivierung; weder neue Abfragehinweise noch Datenbank-/Instanzumschaltung. Konkrete buildbezogene Aufrufsignatur und belastbare Interpretation der Statusspalte müssen vor dieser Mutation geklärt sein. Für Plan-/Kontextsicht VIEW DATABASE PERFORMANCE STATE vorsehen.
+- Die widersprüchlichen Angaben zur 0/1-Bedeutung von is_optimized_plan_forcing_disabled und zum zusätzlichen replica_group_id-Argument sind REVIEW_REQUIRED (erneute Quellenprüfung erforderlich). Kein blindes Kopieren von Beispiel C/D, keine bloße Invertierung der Flagprüfung und kein Rückfall auf optimierte Erzwingung oder einen anderen Fehlergrund, nur um ein positives Ergebnis zu erhalten.
+- 2025 ausschließlich im eigenen lokalen Primär-/Einzelinstanzumfang betrachten; keine sekundären Replikate und keine Replikatmetadaten als pauschale Voraussetzung. ALTER-Recht auf der eigenen Datenbank für Force/Unforce/Flush, ALTER am eigenen Modul für sp_recompile und SHOWPLAN auf allen referenzierten Datenbanken getrennt prüfen. Zusätzliche Versionsfelder nur in tatsächlich unterstützten Abfragezweigen referenzieren; keine ungültigen Spalten in scheinbar geschützten statischen Ausdrücken.
+- Neue Build-/Konfigurationsbelege können spätere ausdrücklich autorisierte lesende SQL-Metadatenabfragen erfordern. Dieser Dokumentationsauftrag autorisiert sie nicht. Auch nach Quellenklärung bleiben tatsächliche Parametrisierungs-/Textdarstellung, Scan-/Indexwahl, Erfolgs-/NO_INDEX-/Ersatzplansequenz und Rücknahme auf allen drei Zielversionen empirisch offen.
 
 **Schutz- und Abbruchgrenzen:**
 
@@ -613,19 +680,21 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 - Spätere Fehlergegenfälle: NO_INDEX ohne tatsächliche erfolgreiche Ersatzplanung, Ersatzplanung ohne erhöhten Force-Fehlerzähler und anderer Fehlergrund dürfen nicht bestehen. Fehlendes Unforce oder nicht zurückgenommene Konfiguration ebenfalls ablehnen.
 - Spätere Sicherheits-/Abbruchfälle: fehlende, fremde, gekürzte und Unicode-abweichende Marker/Rohwerte; Setup-/Cleanup-Idempotenz; bekannte fehlende Rechte vor Mutation; nachträglicher Captureverlust oder READ_ONLY als Fehler. Timeout während eigener erzwungener Ausführung und nach Indexentzug; unabhängige Bereinigungs-/Abwesenheitsprüfung und Erhalt unklarer Eigentumszustände.
 - Spätere Qualifikation: SQL Server 2019 mit Compatibility Level 150, 2022/160 und 2025/170, jeweils Developer/Linux/Docker, zwei Kerne und 3 GiB (Gibibyte) Instanzspeicher als erstes Prüfprofil. Je Version zwei vollständige Läufe mit frischen Lauftokens aus demselben finalen Quellenstand; Build, Edition, Rechte, Konfiguration, alle Phasen und Cleanup protokollieren. Private Logs und vollständige Pläne nicht ungeprüft versionieren.
+- Spätere Zuordnungsgegenfälle: Force-Ziel und ausgeführten Plan als getrennte Rollen prüfen; eindeutigen passenden tatsächlichen Plan bei abweichender Plan-ID korrekt zuordnen, falschen Hash-/Struktur-/Indexkandidaten und mehrdeutige Treffer zurückweisen. Schon bekannte Ersatzplan-ID darf gültig sein, fehlende neue tatsächliche Ausführung nicht.
+- Spätere Erfassungsgegenfälle: 256-Zeichen-Kürzung, fehlendes XML-Ende, falsche Kodierung, fehlende Laufzeitzähler, zusätzliche Nutzstatements und Plan-/Gesamtausgabeüberschreitung ablehnen. Begrenzung während des Lesens und Cleanup nach Abbruch prüfen. Ungeklärte Signatur oder Flaginterpretation darf keinen mutierenden Versionspfad freigeben.
 
 **Abnahmekriterien:**
 
-- Planungsabnahme jetzt: Quellenbefunde unverändert erhalten, Detailquellen registriert, begrenzter Ablauf, Abgrenzung, offene Gates, spätere Tests und Abnahmekriterien in derselben kanonischen Planung nachvollziehbar. Kein VALIDATED-Status für DGN-004 und keine behauptete Demoausführung.
-- Spätere fachliche Abnahme: zwei tatsächlich ausgeführte Planvarianten derselben Abfrage; danach tatsächliche erfolgreiche Erzwingung, genau abgegrenzter NO_INDEX-Fehler samt erfolgreicher Ersatzplanung und ausdrückliche Rücknahme jeweils mit vollständigem Ergebnisvertrag. Alle genannten Pflicht- und Gegenfälle sowie zwei vollständige Läufe je Zielversion bestehen; unabhängiger Review ohne offene priorisierte Befunde und erfolgreiche Bereinigung.
+- Planungsabnahme jetzt: ursprüngliche Quellenbefunde unverändert erhalten und lesende Vertiefung separat mit Quellenstand, statischen Pfadbefunden und offenen Versionskonflikten dokumentieren. Abfrageform, getrennte Planrollen, vollständige begrenzte Erfassung und spätere Gegenfälle in derselben kanonischen Planung führen. Kein VALIDATED-Status für DGN-004 und keine behauptete Demoausführung.
+- Spätere fachliche Abnahme: zwei tatsächlich ausgeführte Planvarianten derselben Abfrage; danach tatsächliche erfolgreiche Erzwingung, genau abgegrenzter NO_INDEX-Fehler samt erfolgreicher Ersatzplanung und ausdrückliche Rücknahme jeweils mit vollständigem Ergebnisvertrag. Alle genannten Pflicht- und Gegenfälle sowie zwei vollständige Läufe je Zielversion bestehen; unabhängiger Review ohne offene priorisierte Befunde und erfolgreiche Bereinigung. Zusätzlich vollständige begrenzte Planübertragung und eindeutige Zuordnung zum tatsächlich ausgeführten Plan belegen; widersprüchliche Aufruf-/Flagdetails je Zielbuild vorher belastbar klären. Kein erfolgreicher Status durch gekürzte Pläne oder gelockerte Ähnlichkeitsregeln.
 - Spätere Dokumentation/Integration: vollständiger deutscher Lesepfad für Vorbereitung, Erfolg, Fehlerdeutung, Rücknahme und Erhaltungsweg mit kurzen Begriffserklärungen; bestehende Lernziel-/Demokatalog-/Testabdeckungszuordnung gezielt ergänzen. Erst nach tatsächlichen Nachweisen Versionsstatus ändern und erforderliche aktuelle PR-/Main-Prüfungen binden; kein pauschaler Benchmark für diese qualitative Diagnoseübung.
 
-**Vor Umsetzung zunächst lesend zu klären:**
+**Verbleibende Freigabegates:**
 
-- Konkreten unveränderten Prozedur-/Abfragetext, Sessionkontext, objektspezifische Neukompilierung und Erhalt derselben Query-Kennung nach Indexänderung gegen Quellen prüfen. Indexauswahl und zwei Planvarianten als spätere empirische Hypothese kennzeichnen.
-- Konkrete tatsächliche Planerfassung, Zuordnung zu Query-Store-Plänen und zulässigen Strukturvergleich für erfolgreiche Erzwingung festlegen; die gespeicherte Plan-ID und das Force-Flag genügen nicht.
-- NO_INDEX-Vertrag und Einfluss optimierter Planerzwingung auf 2022/2025 klären. Für den klassischen manuellen Schnitt eine passende, nur auf den eigenen Plan begrenzte Strategie mit Versionsguard festlegen; keine instanzweite oder datenbankweite Umschaltung als bequeme Abkürzung.
-- Rechte, Query-Store-Ausgangs-/Rücknahmekonfiguration, Erfassung/Flush und Zählerepochen sowie Abbildung der festen Budgets auf den bestehenden Harness abschließend festlegen. CREATE-DATABASE-/ALTER-/SHOWPLAN-Rechte und versionsabhängige Sichtrechte getrennt prüfen; nicht aus dem Versionslabel ableiten.
+- Vor Umsetzung: konkreten DGN-004-Erfassungsadapter, feste Anzeige-/Bytegrenzen, strikte Ergebnismengen-/Zeichenbehandlung und Durchsetzung der Ausgabebudgets im vorhandenen Harness ausschließlich lesend gegen die Quellen und den präzisierten Ergebnisvertrag prüfen.
+- Vor mutationsfähiger Freigabe für 2022/2025: widersprüchliche Force-Prozedursignatur, erforderliche Argumente und Flagbedeutung mit belastbarer buildbezogener Evidenz klären. Dokumentationskonflikte bleiben ausdrücklich offen; reine Namensdeutung oder unverändert kopierte Beispiele reichen nicht.
+- Vor erstem später ausdrücklich autorisierten Lauf: Rohwert-/Eigentums-, Berechtigungs-, Query-Store-Ausgangs-/Rücknahme-, Zeit-/Ausgabe- und Planrollenvertrag unabhängig prüfen. Allgemeine Erstmarkierungs-/Recoverylücken bleiben im vorhandenen Erhaltungsweg; dieser Schnitt übernimmt keine globale Frameworkfreigabe.
+- Empirisch erst später: dieselbe Query-/Kontextbindung und vollständige Engine-Darstellung über Indexänderungen, zwei tatsächliche Planvarianten, klassische erfolgreiche Erzwingung, exakt abgegrenzter NO_INDEX-Grund mit erfolgreicher Ersatzplanung und vollständige Rücknahme je Zielversion qualifizieren. Kein zusätzlicher Lauf und keine Implementierung im aktuellen Auftrag.
 
 **Zurückgestellt:**
 
@@ -635,7 +704,7 @@ Query Store Hints (gespeicherte Abfragehinweise; Zusatzpfad ab 2022), automatisc
 
 M (mittel) – ausschließlich vorläufige Einschätzung; offene Plannachweis-/Versionsfragen können den Umfang ändern. Bei Überschreitung nicht autonom erweitern.
 
-Registrierte Detailquellen: [SRC-027 – DGN-004-Ergänzung](../Documentation/Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027).
+Registrierte Detailquellen: [DGN-004-Ergänzung zu SRC-027 sowie SRC-001/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004--detailverweise-zum-bestehenden-query-store-quellenumfang-src-027).
 
 ##### 4. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
 
