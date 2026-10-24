@@ -415,3 +415,44 @@ Erfassungsentscheidung, 2022-Hashbindung/Signatur und tatsächliche Deaktivierun
 auf beiden Builds bleiben offen. Der [aktuelle Auftrag](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 erlaubt nur statische Integration dieser Befunde. Kein VALIDATED-Status,
 keine weiteren Läufe, Demo-Umsetzung oder Wiederaufnahme übriger Arbeit.
+
+### DGN-004: Hashzuordnung und Replay-Referenz vom 24. Oktober 2026
+
+Ergänzung der bestehenden Umfänge `SRC-027` (Query Store; persistente Abfrage-/
+Planhistorie) und `SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung.
+Basis der lesenden Sichtung: `a87d1d7e68679238b766fb31a399b46825f14efd`.
+Vorhandene private Plan-Dateien und öffentliche Originalquellen wurden gelesen;
+keine Tests, SQL-/Lab- oder CI-Läufe während der Sichtung. Die jetzt erlaubten
+statischen Veröffentlichungsprüfungen sind davon getrennt.
+
+| Primärquelle und Klasse | Befund und Grenze |
+|---|---|
+| [Originalreproduktion mit USE PLAN](https://www.sql.kiwi/2024/11/forced-plans-query-hash/), veröffentlicht 2024-11-28; eigene experimentelle Primärquelle | QueryHash (Abfragehash) wird im reproduzierten Forcing-Fall durch QueryPlanHash (Planhash) überschrieben. Historischer Umfang bis einschließlich 2022 CU16; CU bedeutet Cumulative Update, kumulatives Produktupdate. Keine Hersteller-Fixbestätigung für unseren späteren Build. |
+| [Originalreproduktion über Query Store](https://kendralittle.com/2024/11/24/query-hash-values-meaningless-same-as-query-plan-hash-sql-server/), veröffentlicht 2024-11-24; eigene experimentelle Primärquelle | Hashüberschreibung im Plan und später auch geänderter query_hash im Query-Store-Katalog. Das bloße Ausweichen auf den Kataloghash ist keine robuste Zuordnung. Eine entsprechende lokale Katalogänderung wurde nicht erfasst. |
+| [Microsoft-Replay-Abfrage](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql), [Anleitung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md); Hersteller-Referenzquelle | Zwei UNION-ALL-Zweige mit je zehn WideWorldImporters-Tabellen und neun Joins, Detailtupel und ORDER BY. Die Anleitung beschreibt has_compile_replay_script = 1, also gespeicherte wiederverwendbare Kompilierungsschritte. Referenz für 2022, keine Projektmessung oder Zusage für verkleinerte synthetische Daten und 2025. |
+| [Replay-Eignung und Speicherung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16), [Optimierer-Suchlimit](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-optimizer-timeout-performance); Herstellergrundlagen | Optimierungsaufwand und Nutzen gegenüber Replay-Speicherkosten bestimmen die Eignung; Joinzahl oder FULL-Optimierung allein garantieren sie nicht. TimeOut im Plan bezeichnet ein internes Aufgaben-/Suchlimit und beweist keinen Clienttimeout. |
+
+Die lokale Leseauswertung bestätigt den Hashwechsel bereits in den Rohplänen von
+SQL Server 2022/16.0.4265.3. Vollständiger Text, Statement-SQL-Handle, eigene
+Prozedur, Kontext, Sitzungsoptionen, Operatorfolge, Objektdeskriptoren und
+Prädikat-XML bleiben gleich; der Vergleich auf 2025/17.0.4075.5 lässt auch die
+Hashwerte gleich. Das passt zum veröffentlichten Fehlerbild, ist aber kein
+vollständiger semantischer Planäquivalenzbeweis oder Hersteller-Fixnachweis.
+Die private Hashinvariante wurde nicht nachträglich als bestanden ausgegeben.
+
+Der kanonische Datensatz bindet den Microsoft-Commit und die Git-Blob-Prüfwerte
+von Abfrage und Anleitung. Ausgeschlossen bleiben die Cacheleerung in bigjoin.sql,
+[feste Datenbankwiederherstellung und Historienleerung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/restorewwi.sql),
+[bloßer Zweiparameter-Force-Aufruf](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/forceplan.sql)
+und [ungefilterte Plansicht](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/find_query_in_query_store.sql).
+Weder allgemeine Lab-Infrastruktur noch diese Steuerteile werden übernommen.
+
+Die [kanonische Sichtung bei TSK-016](../../.ai/identity/registry.json) unter
+`hash_replay_review_result` enthält die lokalen Planprüfsummen, Originalquellen,
+Referenzform und Grenzen. Die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesende-hashanalyse-und-replay-referenz)
+führt dieselben Inhalte lesbar zusammen; frühere Versionsbefunde bleiben erhalten.
+Offen bleiben unabhängiger kombinierter Zuordnungsreview, erweiterte 2022-Signatur,
+Replay-Speicherung und tatsächliche Nutzung vor dem Deaktivierungsvergleich auf
+beiden Builds sowie Erfassungsentscheidung und Demo-Freigaben. Kein weiterer
+Lauf oder Umsetzungsauftrag folgt daraus. Der [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet statische Integration und fortbestehende Pause.
