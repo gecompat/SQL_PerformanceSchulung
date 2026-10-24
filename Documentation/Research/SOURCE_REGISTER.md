@@ -706,3 +706,38 @@ und alle bisherigen Gates bleiben gesondert erhalten. Keine zusätzliche Kalibri
 Budgetaddition oder Übernahme von OPT-007-Textbeobachtungen. Nur statische
 Dokumentationsintegration; die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
+
+### DGN-004: Prüfbefund zum R/H-Quellpaar und Textvertrag vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`2c1a5fd998b58bc51a2a97fffc2472b275312332`; Abruf/lesender Review 2026-10-24. Der
+[kanonische Befund bei TSK-016](../../.ai/identity/registry.json) steht unter
+`rh_source_text_review_result`; die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-rh-quellpaar-und-textvertrag)
+führt Bestätigungen, Grenzen und offene Gates vollständig.
+
+Der Abgleich mit [SELECT](https://learn.microsoft.com/en-us/sql/t-sql/queries/select-transact-sql?view=sql-server-ver17), [Query Hints](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17),
+[Byteoffsets und Cachebezug](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-stats-transact-sql?view=sql-server-ver17),
+[Query-Store-Abfragetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-text-transact-sql?view=sql-server-ver17) und [Moduldefinition](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-modules-transact-sql?view=sql-server-ver17)
+stützt die getrennte Betrachtung des vollständigen R/H-Quellpaars und der endlichen
+M/S/T-Darstellungen. R ist Referenz ohne Hint, H die Kontrolle mit festem
+Abfragehinweis. M bezeichnet den ganzen Modultext, S das Nutzstatement mit und T
+ohne letztes Semikolon. Hint-Position und Objekt-/Spaltenbezüge sind quellenkonform;
+768 erwartete Tupel bleiben eine rechnerische Herleitung, keine gemessene Ausgabe.
+
+Die [Laufzeitstatistik](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17) dokumentiert mögliche Mehrfachzeilen im aktiven Intervall und die Aggregation nach plan_id, execution_type und runtime_stats_interval_id. Der übergeordnete Zuordnungsvertrag erhält diese Aggregation. Der [Query-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17) belegt die Bedeutung der Parametrisierungsart 0; der tatsächliche R/H-Wert bleibt ungeprüft. Die Ausnahmen für erste Identitätsbindungen in Aufrufen 1/4 dürfen keinen erfundenen Null-Kompilierungszähler erzeugen.
+
+Im konkret geprüften Quellpaar, Textvertrag und den Abnahmekriterien wurde kein
+weiterer konkreter Widerspruch festgestellt. Keine allgemeine Fehlerfreiheit oder
+unabhängige Freigabe aus diesem Abgleich im selben Arbeitskontext ableiten.
+Tatsächliche M/S/T-/Byteoffsetdarstellung, Planzuordnung, Kompilierungsbeobachtbarkeit
+und Replay-Nutzung (Wiederverwendung von Optimierungsschritten) auf
+2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben offen; bisherige Marker-/Flag-/
+Signaturkonflikte erhalten. Aktive Quellvorlagen, Pläne, Abnahmekriterien und alle
+Zeit-/Ressourcen-/Ergebnisverträge werden nicht geändert.
+
+Im lesenden Review keine Änderungen, Tests, Validatoren, Parserprüfungen, frische
+Prüfsummen-/Bytebereichsprüfung, SQL-/Lab- oder CI-Läufe und kein Push. Dieser
+Folgeauftrag integriert ausschließlich Dokumentation mit statischen Prüfungen;
+keine Syntax-/Engine-/Versions-/Demoabnahme. Die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
