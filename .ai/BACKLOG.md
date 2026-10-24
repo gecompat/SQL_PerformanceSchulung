@@ -1,21 +1,19 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: R/H-Abfrageform und Engine-Textzuordnung aufnehmen
+## DGN-004: vollständiges R/H-Quellpaar und Textzuordnung planen
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 die lesende Quellenprüfung für
-DGN-004 (Planerzwingung). R bezeichnet die Referenz ohne Hint, H die Negativkontrolle
-mit festem Abfragehinweis. Die geplante Form ist quellenkonform; vollständige
-Quellen und eindeutige Engine-Textzuordnung bleiben offen. Die Planungsabnahme
-ist auf den vorhandenen Bauplan begrenzt. Nur Dokumentation und statische
-Prüfung/Integration per Pull Request (Änderungsantrag); keine Umsetzung,
-Tests der Probe oder SQL-/Lab-Läufe. Die übrige Verarbeitung bleibt pausiert.
-Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet Grenzen und unveränderte Budgets.
+Der aktuelle Auftrag plant bei TSK-016 für DGN-004 (Planerzwingung) vollständige
+Quellvorlagen und einen begrenzten Engine-Text-Zuordnungsvertrag. R ist die
+Referenz ohne Hint, H die Negativkontrolle mit festem Abfragehinweis. Nur Planung
+und statische Dokumentationsprüfung/Integration per Pull Request (Änderungsantrag);
+keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Die übrige Verarbeitung bleibt
+pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet unveränderte Methoden-/Laufzeitgates und Budgets.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Prüfung zu R/H-Abfrageform und Engine-Textzuordnung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die dokumentarische DGN-004-Planung des vollständigen R/H-Quellpaars und Textzuordnungsvertrags ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -31,7 +29,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 24. Oktober 2026: den lesenden DGN-004-Prüfbefund zur R/H-Abfrageform und Engine-Textzuordnung bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. R ist die Referenz ohne Hint, H die Negativkontrolle mit festem Abfragehinweis. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Ausschließlich Quelltext-/Zuordnungsgrenzen und die zu weit gehende Planungsabnahme klarstellen; Mess-/Statusvertrag, Identitäten, ältere Reviews/Pläne und Budgets erhalten.
+Planungsauftrag vom 24. Oktober 2026: für DGN-004 (Planerzwingung) bei TSK-016 vollständige R/H-Quellvorlagen und einen begrenzten Engine-Text-Zuordnungsvertrag mit Abnahmekriterien festlegen. R ist Referenz ohne Hint, H Negativkontrolle mit festem Abfragehinweis. Nur dokumentarische Planung und statische Prüfung/Integration per Pull Request; keine Demo-/Probe-/Parserimplementierung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; Identitäten, frühere Befunde, Mess-/Statusvertrag und bestehende Laufbudgets erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -515,7 +513,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Lesender R/H-Quellenreview abgeschlossen: terminale Hint-Position quellenkonform und Tupelerwartung rechnerisch schlüssig; vollständiges ausführbares Quellpaar und begrenzte Engine-Textzuordnung bleiben offen. Planungsabnahme auf den Bauplan begrenzt. P2, Mess-/Statusvertrag, neun Aufrufe und Budgets unverändert; keine unabhängige Freigabe oder Laufzeitqualifikation.
+**Planungsentscheidung:** Vollständiges R/H-Quellpaar als textuelle Planungsvorlage und endlicher M/S/T-Zuordnungsvertrag entworfen. Die reine Bauplanlücke ist damit dokumentarisch geschlossen; unabhängige Quellen-/Methodenfreigabe, konkrete Engine-Darstellungen und Replay-/Versionsnachweise bleiben offen. P2, Mess-/Statusvertrag, neun Aufrufe und Budgets unverändert; keine Implementierung oder Laufzeitqualifikation.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -524,7 +522,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Umsetzung vollständige R/H-Quellen festschreiben und die im rh_query_text_review_result präzisierten Erstzuordnungs-/Darstellungsgrenzen sowie bisherigen Identitäts-/Marker-/Transport-/Methodengates unabhängig freigeben. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im ausgewählten unveränderten Gesamtrahmen. Dokumentarischer Review schließt keine Ausführungsfreigabe ein; übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Vor Umsetzung rh_source_text_plan einschließlich vollständiger R/H-Quellwerte, Erstzuordnung, begrenzter M/S/T-Darstellungen und Byte-/XML-Grenzen unabhängig prüfen; positive R-Markersemantik und beobachteten H-Gegenvertrag sowie die übrigen Zuordnungs-/Transport-/Methodengates klären. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten gewählten Gesamtrahmen. Planung schließt keine Ausführungsfreigabe ein; übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -775,6 +773,128 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
 
+###### Geplantes vollständiges R/H-Quellpaar und begrenzte Textzuordnung
+
+**Stand:** 2026-10-24; Basis `c005607276b67097018c9772feb04e4b8ad42cac`.
+
+**Status:** DESIGNED_NOT_IMPLEMENTED – vollständige textuelle R/H-Planungsvorlagen und begrenzter Zuordnungsvertrag festgelegt; keine ausführbaren Demoartefakte, unabhängige Freigabe oder technische Abnahme.
+
+Nur Planung und statische Dokumentationsintegration bei TSK-016 für DGN-004 (Planerzwingung). R ist die Referenz ohne Hint, H die Negativkontrolle mit festem Abfragehinweis. Keine Demo-/Probe-/Parserimplementierung, Demotests oder SQL-/Lab-Läufe. Die übrige Verarbeitung bleibt pausiert; alte Ausführungsfreigaben und Budgets werden nicht wiederaufgenommen.
+
+**Quellenformat:**
+
+- Die beiden vollständigen module_source-Werte sind geplante CREATE-PROCEDURE-Batches, keine angelegten Module. Je Wert genau eine ASCII-Zeile (7-Bit-Zeichensatz) ohne BOM (Byte Order Mark; vorangestellte Kodierungsmarke), CR/LF (Zeilenumbrüche), Tabulator, Kommentar, führenden oder nachlaufenden Leerraum. Ein einziges Abschlusssemikolon; keine GO-/USE-/SET-/EXEC-Hülle. SQL-Quelltext nur als Dokumentationswert, keine neue .sql-Datei oder ausführbare Demo.
+- Prozedurpräfix einschließlich genau eines Leerzeichens nach AS und Nutzstatement getrennt binden. module_source endet unmittelbar mit dem Nutzstatement-Semikolon. Die Zeilenumbrüche der Markdown-Codeblöcke gehören nicht zum Quellwert; dessen unveränderten Inhalt aus der Registry verwenden, nicht manuell umbrechen oder formatieren. UTF-16LE (16-Bit-Unicode mit niederwertigem Byte zuerst) ohne BOM legt Bytepositionen und SHA-256-Prüfsummen fest; diese sind Offline-Quellenbindungen, keine Engine-Evidenz.
+- Je Modul vor späterem CREATE die eigene Datenbank und das vorhandene feste Sitzungsprofil prüfen. ANSI_NULLS und QUOTED_IDENTIFIER ON bei Anlage und Ausführung; die weiteren festgelegten Kontextwerte aus hint_negative_control_plan.query_identity bleiben Pflicht. Keine Parameter, WITH RECOMPILE, ENCRYPTION, dynamischen Abfragen oder zusätzlichen Statements im Modul; kein ALTER/CREATE/DROP zwischen Nutzaufrufen.
+
+**Geplanter Tabellen- und Spaltenvertrag:**
+
+- [dgn004].[Orders]: OrderId als Primärschlüssel, CustomerId, ContactId; 96 Zeilen.
+- [dgn004].[OrderLines]: LineId als Primärschlüssel, OrderId, ItemId; 192 Zeilen.
+- [dgn004].[Customers]: CustomerId als Primärschlüssel, CategoryId, CityId, CustomerValue; 48 Zeilen.
+- [dgn004].[Categories]: CategoryId als Primärschlüssel, CategoryValue; 4 Zeilen.
+- [dgn004].[Contacts]: ContactId als Primärschlüssel, ContactValue; 24 Zeilen.
+- [dgn004].[Cities]: CityId als Primärschlüssel, RegionId, CityValue; 12 Zeilen.
+- [dgn004].[Regions]: RegionId als Primärschlüssel, CountryId, RegionValue; 6 Zeilen.
+- [dgn004].[Countries]: CountryId als Primärschlüssel, CountryValue; 3 Zeilen.
+- [dgn004].[Items]: ItemId als Primärschlüssel, ItemValue; 48 Zeilen.
+- [dgn004].[ItemGroups]: MapId als Primärschlüssel, ItemId, GroupNo; 96 Zeilen.
+- Alle genannten Spalten materialisiert als int NOT NULL. Ausschließlich diese zehn eigenen Tabellen im eigenen Schema dgn004 der markierten Datenbank; keine fremden Dreiteilnamen, Views, Funktionen, Synonyme, berechneten Spalten oder Fremdschlüsselannahmen. Schlüsselwerte, geschlossene Beziehungen, 529 Zeilen und genau neun sekundäre Indizes unverändert aus mapping_replay_probe_plan.fixture_model übernehmen. Hier wird kein Setup-DDL implementiert.
+
+**Vollständige geplante Quellen, keine ausführbaren Demoartefakte:**
+
+Rolle R: `[dgn004].[ReplayReference]`.
+
+```sql
+CREATE PROCEDURE [dgn004].[ReplayReference] AS SELECT o.[OrderId] AS [OrderId], l.[LineId] AS [LineId], c.[CustomerValue] AS [CustomerValue], ca.[CategoryValue] AS [CategoryValue], ct.[ContactValue] AS [ContactValue], ci.[CityValue] AS [CityValue], rg.[RegionValue] AS [RegionValue], co.[CountryValue] AS [CountryValue], i.[ItemValue] AS [ItemValue], ig.[GroupNo] AS [GroupNo] FROM [dgn004].[Orders] AS o INNER JOIN [dgn004].[Customers] AS c ON c.[CustomerId] = o.[CustomerId] INNER JOIN [dgn004].[Categories] AS ca ON ca.[CategoryId] = c.[CategoryId] INNER JOIN [dgn004].[Contacts] AS ct ON ct.[ContactId] = o.[ContactId] INNER JOIN [dgn004].[Cities] AS ci ON ci.[CityId] = c.[CityId] INNER JOIN [dgn004].[Regions] AS rg ON rg.[RegionId] = ci.[RegionId] INNER JOIN [dgn004].[Countries] AS co ON co.[CountryId] = rg.[CountryId] INNER JOIN [dgn004].[OrderLines] AS l ON l.[OrderId] = o.[OrderId] INNER JOIN [dgn004].[Items] AS i ON i.[ItemId] = l.[ItemId] INNER JOIN [dgn004].[ItemGroups] AS ig ON ig.[ItemId] = i.[ItemId] UNION ALL SELECT o.[OrderId] AS [OrderId], l.[LineId] AS [LineId], c.[CustomerValue] AS [CustomerValue], ca.[CategoryValue] AS [CategoryValue], ct.[ContactValue] AS [ContactValue], ci.[CityValue] AS [CityValue], rg.[RegionValue] AS [RegionValue], co.[CountryValue] AS [CountryValue], i.[ItemValue] AS [ItemValue], ig.[GroupNo] AS [GroupNo] FROM [dgn004].[Orders] AS o INNER JOIN [dgn004].[Customers] AS c ON c.[CustomerId] = o.[CustomerId] INNER JOIN [dgn004].[Categories] AS ca ON ca.[CategoryId] = c.[CategoryId] INNER JOIN [dgn004].[Contacts] AS ct ON ct.[ContactId] = o.[ContactId] INNER JOIN [dgn004].[Cities] AS ci ON ci.[CityId] = c.[CityId] INNER JOIN [dgn004].[Regions] AS rg ON rg.[RegionId] = ci.[RegionId] INNER JOIN [dgn004].[Countries] AS co ON co.[CountryId] = rg.[CountryId] INNER JOIN [dgn004].[OrderLines] AS l ON l.[OrderId] = o.[OrderId] INNER JOIN [dgn004].[Items] AS i ON i.[ItemId] = l.[ItemId] INNER JOIN [dgn004].[ItemGroups] AS ig ON ig.[ItemId] = i.[ItemId] ORDER BY [OrderId], [LineId], [GroupNo];
+```
+
+| Quellenmerkmal | Festgelegter Wert |
+|---|---|
+| module_utf16_bytes | `4094` |
+| module_sha256_utf16le | `9eead7c722a9cd9545cbd0220e90c07b61dbb740e0e11b5eee207966bbb25aec` |
+| statement_start_utf16_bytes | `94` |
+| statement_utf16_bytes | `4000` |
+| statement_sha256_utf16le | `bd709eccf476ac18fb05854fe37f326808b31f8b6ddd4e3a32fc6467332b6f88` |
+| without_terminator_sha256_utf16le | `9cc4356097691f2f2011af55cd109303845f93b3f1cf4a7c867ad7f194968551` |
+
+Rolle H: `[dgn004].[ReplayHintControl]`.
+
+```sql
+CREATE PROCEDURE [dgn004].[ReplayHintControl] AS SELECT o.[OrderId] AS [OrderId], l.[LineId] AS [LineId], c.[CustomerValue] AS [CustomerValue], ca.[CategoryValue] AS [CategoryValue], ct.[ContactValue] AS [ContactValue], ci.[CityValue] AS [CityValue], rg.[RegionValue] AS [RegionValue], co.[CountryValue] AS [CountryValue], i.[ItemValue] AS [ItemValue], ig.[GroupNo] AS [GroupNo] FROM [dgn004].[Orders] AS o INNER JOIN [dgn004].[Customers] AS c ON c.[CustomerId] = o.[CustomerId] INNER JOIN [dgn004].[Categories] AS ca ON ca.[CategoryId] = c.[CategoryId] INNER JOIN [dgn004].[Contacts] AS ct ON ct.[ContactId] = o.[ContactId] INNER JOIN [dgn004].[Cities] AS ci ON ci.[CityId] = c.[CityId] INNER JOIN [dgn004].[Regions] AS rg ON rg.[RegionId] = ci.[RegionId] INNER JOIN [dgn004].[Countries] AS co ON co.[CountryId] = rg.[CountryId] INNER JOIN [dgn004].[OrderLines] AS l ON l.[OrderId] = o.[OrderId] INNER JOIN [dgn004].[Items] AS i ON i.[ItemId] = l.[ItemId] INNER JOIN [dgn004].[ItemGroups] AS ig ON ig.[ItemId] = i.[ItemId] UNION ALL SELECT o.[OrderId] AS [OrderId], l.[LineId] AS [LineId], c.[CustomerValue] AS [CustomerValue], ca.[CategoryValue] AS [CategoryValue], ct.[ContactValue] AS [ContactValue], ci.[CityValue] AS [CityValue], rg.[RegionValue] AS [RegionValue], co.[CountryValue] AS [CountryValue], i.[ItemValue] AS [ItemValue], ig.[GroupNo] AS [GroupNo] FROM [dgn004].[Orders] AS o INNER JOIN [dgn004].[Customers] AS c ON c.[CustomerId] = o.[CustomerId] INNER JOIN [dgn004].[Categories] AS ca ON ca.[CategoryId] = c.[CategoryId] INNER JOIN [dgn004].[Contacts] AS ct ON ct.[ContactId] = o.[ContactId] INNER JOIN [dgn004].[Cities] AS ci ON ci.[CityId] = c.[CityId] INNER JOIN [dgn004].[Regions] AS rg ON rg.[RegionId] = ci.[RegionId] INNER JOIN [dgn004].[Countries] AS co ON co.[CountryId] = rg.[CountryId] INNER JOIN [dgn004].[OrderLines] AS l ON l.[OrderId] = o.[OrderId] INNER JOIN [dgn004].[Items] AS i ON i.[ItemId] = l.[ItemId] INNER JOIN [dgn004].[ItemGroups] AS ig ON ig.[ItemId] = i.[ItemId] ORDER BY [OrderId], [LineId], [GroupNo] OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'));
+```
+
+| Quellenmerkmal | Festgelegter Wert |
+|---|---|
+| module_utf16_bytes | `4204` |
+| module_sha256_utf16le | `079ae44aac32576e35261b71bf4ee3efaa4bd8dd10687e5e5e66003e65390dd5` |
+| statement_start_utf16_bytes | `98` |
+| statement_utf16_bytes | `4106` |
+| statement_sha256_utf16le | `fc19490c0aaffe404884a41d519db6495d8b8b5d06260d8a15addb2d4c5373c4` |
+| without_terminator_sha256_utf16le | `7f077ab066bfe0a61ddbc9ebad50e45916e9735fe0e7446e1ea3e9c49c77771b` |
+
+**Quellpaar- und Ergebnisvertrag:**
+
+- Das vollständige R-Nutzstatement S beginnt am gespeicherten statement_start_utf16_bytes-Offset der R-Modulquelle und endet mit deren letztem Semikolon. H verwendet exakt S ohne dieses Semikolon, danach exakt einen führenden ASCII-Leerschritt mit OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING')) und danach das eine Abschlusssemikolon. Im Nutzstatement ist dies der einzige erlaubte Unterschied; keine Suche/Ersetzung beliebiger OPTION-Texte.
+- Zwei identische UNION-ALL-Zweige, je zehn Tabellen/neun INNER JOINs und genau zehn explizit benannte int-Projektionen. ORDER BY am gesamten Ausdruck nach OrderId, LineId, GroupNo; keine TOP-/Aggregat-/Filterersatzabfrage. Erwartet bleiben 768 vollständige Tupel, 384 verschiedene jeweils zweimal. Werte und Multiplizitäten später unabhängig aus den geschlossenen Id-Formeln prüfen; keine Übernahme der Erwartung aus dem Abfrageergebnis selbst.
+- Modulnamen sind bewusst verschieden; jeder vollständige Modultext wird gegen seine eigene Quelle geprüft. Der semantische Paarvergleich arbeitet nur auf den beiden abgegrenzten Nutzstatements, nicht auf willkürlich bereinigten Modulhüllen. Eine eigene object_id, query_id und eigene Force-Ziel-plan_id je Rolle; kein Querforcing oder Zusammenführen aufgrund gleicher Hashes.
+
+**Endlicher Engine-Text-Vertrag:**
+
+- M ist je Rolle der vollständige gespeicherte module_source-Wert, S das daraus anhand des vorgegebenen Präfixoffsets gewonnene Nutzstatement einschließlich Semikolon. T ist ausschließlich S ohne dessen letztes Semikolon. Diese drei Werte sind vor späterer Umsetzung deterministisch bekannt; keine nachträglich aus einer Engine-Ausgabe erfundene Erwartung. M/S/T je Rolle roh, UTF-16LE-bytegenau und mit tatsächlicher Länge vergleichen; kein SQL-Kollationsvergleich, LEN, Trim, Großschreibung oder Leerraum-/Kommentar-/Hintnormalisieren.
+- Modulansicht: sys.sql_modules.definition zur eigenen Datenbank/object_id muss exakt M ergeben; uses_ansi_nulls = 1, uses_quoted_identifier = 1 und is_recompiled = 0 verlangen. Fehlende Sichtbarkeit oder NULL liefert keinen Ersatztext. Vorher/nachher eigener Modulbezug, Typ P und null Parameter; keine Annahme aus gleichem Objektnamen.
+- Cacheansicht: sys.dm_exec_sql_text zum aktuellen eigenen Cacheeintrag muss Datenbank und objectid der Rolle sowie vollständigen text = M ausweisen. Kein bloßes EXEC-Aufrufbatch, fremder Cacheeintrag oder Text mit zusätzlich angenommener Modulhülle. Cache-/SQL-Handle und neue Kompilierungsepoche gemeinsam erfassen; Handlewechsel darf die feste Quellenidentität nicht ersetzen.
+- Cache-Statement: start/end als rohe nullbasierte Byteoffsets sichern. start muss exakt statement_start_utf16_bytes sein. Für reguläres end werden nur die beiden vorgeplanten Endpositionen start + Bytezahl(S) - 2 beziehungsweise start + Bytezahl(T) - 2 geprüft; sie bezeichnen das letzte UTF-16-Codeelement. Bytebereich bis einschließlich dieses Elements aus M abgrenzen, nicht nach Zeichenindex/LEN schneiden. Ein Sentinel end = -1 ist ausschließlich als M-Ende zugelassen und liefert hier S. Reguläre Offsets müssen gerade sein; -1 ist nur der ausdrücklich genannte Endsentinel. Gültige Reihenfolge, Ende innerhalb M und exakte Ausgabe S oder T sind Pflicht. Dieser geplante Adapter folgt dem dokumentierten Extraktionsmuster; sein tatsächliches Offsetverhalten ist auf beiden Builds noch zu qualifizieren.
+- Query-Store-Ansicht: über eigene Datenbank, object_id, festen vollständigen Kontext und Parametrisierungsart genau eine query_id auflösen; query_text_id muss genau einen vollständigen query_sql_text liefern. Als vorgeplante Textformen sind ausschließlich S oder T erlaubt, keine Modulhülle, EXEC-Hülle, Parameterdeklaration oder äußere Kommentar-/Leerraumvariante. Das Paar enthält absichtlich solche äußeren Texte nicht. Die Semikolonwahl ist eine enge geplante Zulässigkeitsmenge, keine dokumentierte Zusage über die konkrete Darstellung dieses Prozedurenpaars.
+- Planansicht: den vollständig und begrenzt erfassten aktuellen tatsächlichen Plan mit dem vorhandenen XML-Namensraum-/Strukturvertrag prüfen. Genau ein Nutzstatement des eigenen Moduls und dessen StatementText verlangen. XML (Extensible Markup Language; strukturierte Plandarstellung) einmal mit standardkonformer Attributdekodierung und ohne DTD (Document Type Definition; Dokumenttypdefinition) oder externe Entitäten lesen; der resultierende volle String muss exakt S oder T sein. Roh-XML unverändert erhalten; kein mehrfaches Entitätenauflösen, LIKE, Teilstring-, Hash- oder flacher Operatorvergleich als Ersatz.
+- Je Rolle und Zielbuild darf jede der drei Statementansichten unabhängig nur S oder T wählen; die beiden Modul-/Batchansichten ausschließlich M. Dies sind höchstens zwei Kandidaten je Statementansicht, keine offene Normalisierungsmenge. Die erste qualifizierte Aufnahme protokolliert für jede Ansicht Variante, Rohtext, Bytelänge und Herkunft. Danach dieselbe Variante und unveränderten vollen Text durch alle vorgesehenen Phasen verlangen; keine automatische Neubindung oder Erweiterung der Menge. Eine andere wohlgeformte Engine-Darstellung bleibt außerhalb des geplanten Qualifikationsprofils und erfordert einen neuen Quellen-/Planungsauftrag.
+- SQL-/Cache-/Statementhandles und Hashes roh ergänzend sichern; verschiedene Handlearten nicht gleichsetzen und keine Konstanz über sp_recompile behaupten. Wenn gleichzeitige Statementhandles in Cache und Query Store vorliegen, ihren Bezug zusätzlich prüfen und ungeklärte Widersprüche nicht übergehen. Keines dieser Felder begründet allein die erste Query-/Planbindung; die bekannte 2022-Hashüberschreibung bleibt erhalten.
+
+**Erstzuordnung und Phasenbindung:**
+
+- Vor späterer Mutation vier vollständige Eigentumsmarker, Lauf-/Container-/Datenbankidentität, Kontextprofil und vollständigen synthetischen Aufbau prüfen. Beide Module nur mit ihren genau geplanten M-Texten anlegen und die getrennten object_id-Werte/Metadaten erfassen. S/T-Erwartungen offline aus diesen Quellen beziehen, nicht aus einem späteren TOP-1-Ergebnis.
+- Nur die bereits vorgesehenen ersten Aufwärmaufrufe R1 und H4 etablieren die jeweiligen Engine-Identitäten; kein zusätzlicher Kalibrierungs- oder Suchaufruf. Erst nach vollständigen Solltupeln, genau einem regulären Ausführungszuwachs, passendem aktuellen tatsächlichen Plan und allen vorgegebenen Modul-/Cache-/Statement-/Query-Store-Textvergleichen ist die Erstzuordnung gültig. Die getrennten R-/H-query_id-Werte müssen zum jeweiligen object_id und genau einem query_text_id passen. Mehrere oder neu erscheinende Identitäten nicht durch Auswahl der ersten Zeile reparieren.
+- Kontextwerte je Rolle an die geplante parameterlose Quelle binden; für beide Rollen query_parameterization_type = 0 (None; keine Parametrisierung) als strenge lokale Vorbedingung verlangen. Dokumentiert ist die Bedeutung von 0, keine garantierte Beobachtung an diesem Prozedurenpaar. Keine Deklarationen aus Ad-hoc-/Prepared-Beispielen übernehmen oder tatsächliche Werte erraten. Ein abweichender oder fehlender Parametrisierungswert führt vor Versiegelung zu NOT_PROVEN (nicht nachgewiesen), nicht zu einer stillschweigenden Profilerweiterung.
+- Eindeutige Erstzuordnung vor jeder Versiegelung abschließen. Ab dann Identitätstupel aus Lauf, Datenbank, object_id, query_id, query_text_id, context_settings_id, Parametrisierungsart und Darstellungswahl unverändert führen; Cacheepoche/Handle sind gesonderte aktuelle Beobachtungen. Vor/nach jedem weiteren Nutzaufruf Quellen-/Modultext prüfen und neue Plan-/Textbelege genau der aktuellen Ausführung zuordnen. Zielplanrolle und tatsächliche plan_id weiterhin getrennt halten.
+- Der bestehende Ablauf, B0/B1 (Vorher-/Nachhermessung), sys.query_store_query.count_compiles, strenges Delta +1 und der komplette gerichtete Struktur-/Tupel-/Laufzeitvertrag gelten zusätzlich. Eine Textübereinstimmung ist kein Kompilierungs-, Ausführungs-, Forcing- oder Replay-Nutzungsbeweis. Replay bedeutet Wiederverwendung von Optimierungsschritten; dessen positive und negative Kennzeichnung bleibt ein gesondertes Gate.
+
+**Grenzen und Ergebnisstatus:**
+
+- Keine neue Laufvariante: unverändert zwei eigene Container insgesamt, je eine Datenbank mit genau zwei Modulen, höchstens zwei eigene Sessions, neun Nutzaufrufe und neun Flushes je Version. Höchstens 100 reguläre SQL-Batches und drei vorhandene Zustandsbeobachtungen je Flush. Textaufnahme mit diesen vorhandenen Beobachtungen planen; keine zusätzlichen EXEC-, Recompile-, Force- oder Flush-Kalibrierungen und kein automatischer Rückfall auf den früheren Ein–Aus–Ein-Plan.
+- Je vollständigem Modul-/Nutz-/Engine-Text höchstens 16 KiB UTF-16; KiB bedeutet 1024 Bytes. Je Aufnahme höchstens fünf rohe Engine-Textfelder pro Rolle (Modul, Cachebatch, Cachestatement, Query Store, Plan-StatementText), insgesamt zehn für beide Rollen. Längen/Identitätsmehrdeutigkeit vor großer Materialisierung prüfen; keine vollständige Sammlung fremder Module oder des gesamten Plancaches. S/T aus eigener geplanter Quelle ableiten. Keine zusätzliche Text-/Zeitkappe ersetzt die bereits strengeren Transportgrenzen; Daten während des Lesens begrenzen.
+- Unverändert 512 KiB UTF-16-Rohplan, 256 KiB UTF-8-Plan, 2 MiB Standardausgabe und 64 KiB Fehlerausgabe je Aufruf; MiB bedeutet 1.048.576 Bytes. Maximal vier Pläne je Modul/acht insgesamt. Gemeinsame reguläre Laufzeit 900 Sekunden, Kontrollpunkt 600, kein zweiter Versionsstart unter 180 Sekunden Rest, SQL-Aufruf 15 Sekunden/äußerer Prozess 20 Sekunden, Cleanup zusätzlich 60 Sekunden je Container. Rohtextfelder, XML und Tupel teilen diese bestehenden Grenzen; kein Anspruch, dass neun Aufrufe trotz ausgeschöpfter Kappe stattfinden.
+- Ohne positiv belegte Vertragsverletzung führen fehlende Metadaten, unbekanntes Offsetprofil, nicht unterstützte wohlgeformte Darstellung, fehlende Erstzuordnung oder veränderte Darstellungswahl zu NOT_PROVEN (nicht nachgewiesen) und geregeltem Abbruch. Kein Nachladen, Normalisieren oder zusätzlicher Nutzaufruf zur Heilung. Positiv belegtes falsches Objekt, geänderter innerer Quelltext, fehlender/zusätzlicher H-Hint, als aktuell zugeordneter alter Plan, beschädigte Übertragung oder ungültiger Bytezugriff ergeben FAIL (Vertragsverletzung).
+- FAIL_CLEANUP (Bereinigung fehlgeschlagen) hat weiterhin Vorrang vor FAIL, dann NOT_PROVEN und PASS. Sämtliche Ursachen und rohe Teilbelege erhalten; CONTROL_ONLY bedeutet ausschließlich Kontrollzustand belegt und kann weder diese Erstzuordnung noch die offene Replay-Abnahme ersetzen. Eigentumsprüfung, Sicherung/Wiederherstellung der Optionen, beidseitiges Unforce und unabhängige Datenbank-/Container-Abwesenheitsprüfung bleiben unverändert.
+
+**Später erforderliche Gegenfälle, noch nicht implementiert:**
+
+- Quellen: einzelnes inneres Leerzeichen, CR/LF/Tab/BOM, Kommentar oder nachlaufender Leerraum; falsche Quellenlänge/Prüfsumme; R/H-Modulname vertauscht.
+- Paarung: Hint fehlt, doppelt, im ersten UNION-Zweig oder mit zusätzlichem Hint; falsches terminales Semikolon oder ein weiterer Statement-Unterschied.
+- Schema/Ergebnis: Alias oder Joinbezug vertauscht, zehnte Projektion/GroupNo verloren, falsche int-Spalte, Duplikate entfernt oder Sortierschlüssel geändert; trotz korrekter Zeilenzahl falsche Tupel.
+- Offsets: Zeichenindex als Byteindex, ungerader/negativer Start, end vor Start, Ende außerhalb M, -1 bei fremder/zusätzlicher Batchhülle oder abgeschnittenes Statement; kein stilles Klemmen an Stringgrenzen.
+- Darstellungen: S und T je zulässiger Ansicht getrennt; M als Query-Store-/Planstatement oder EXEC-/Parameterhülle verwerfen; unbekannte wohlgeformte Form als NOT_PROVEN, nicht als neu akzeptierte Variante.
+- Erstzuordnung: erster fremder Engine-Text trotz späterer Konstanz; zwei passende query_id-Werte, fehlender/falscher query_text_id-Bezug oder falscher Kontext; kein TOP-1-/LIKE-/Hash-Fallback.
+- Phasen: erlaubte Darstellungswahl nach Erstbindung gewechselt, Quelle oder query_id neu gebunden, Cachehandle gewechselt ohne aktuelle Epochenbelege oder alter Plan mit passendem Text wiederverwendet.
+- XML/Transport: doppelt dekodierter Hint-Text, abgeschnittenes Attribut, unzulässige externe Entität, mehrere passende Nutzstatements oder fehlende echte Laufzeitzähler; Rohplan und Textkappen unverändert durchsetzen.
+- Budget/Status/Cleanup: elftes Textfeld, Text über 16 KiB, zusätzlicher Kalibrierungsaufruf, ausgeschöpfter gemeinsamer Kanal-/Zeitrahmen sowie gleichzeitiges NOT_PROVEN/FAIL/FAIL_CLEANUP; alle Ursachen erhalten und Bereinigungsvorrang prüfen.
+
+**Abnahmekriterien:**
+
+- Planungsabnahme jetzt: beide vollständigen CREATE-PROCEDURE-Quellwerte, konkrete Tabellen-/Spaltenbindung, Präfix-/Statement-Bytepositionen und Offline-Prüfsummen sowie endliche M/S/T-Zuordnung, Erstbindungsfolge, Grenzen und spätere Gegenfälle bei TSK-016 dokumentiert. Nur statische Dokumentations-/Registry-/Quellenpaarprüfung; keine Produkt-/Parserimplementierung, SQL-Syntaxausführung oder Laufzeitabnahme.
+- Vor Umsetzung: unabhängiger Review der vollständigen Quellwerte, eindeutigen Projektionen/Joins/Ergebnisableitung, terminalen Hint-Position, Byte- und XML-Abgrenzung, endlichen Darstellungsmenge, Epochengrenzen und Fehlerklassen. Statische Testfälle erst in einer separat autorisierten Umsetzung implementieren; der vorliegende Entwurf aus demselben Arbeitskontext ist keine unabhängige Freigabe.
+- Spätere technische Abnahme je Build erst nach neuer ausdrücklicher Freigabe und erfüllten übrigen Methodengates: exakte M-Quellen/Module, eindeutige getrennte R/H-Identitäten und zulässige aktuelle Textdarstellungen über alle neun Aufrufe, vollständige Solltupel und eigener tatsächlicher Plan, richtige frische Kompilierungs-/Ausführungszuwächse sowie tatsächliche eigene klassische Planerzwingung und geregelter Cleanup. Nicht unterstützte Darstellung beendet die Runde; keine automatische Profilerweiterung.
+- Empirischer Replay-Vergleich weiterhin nur mit unabhängig belegter positiver R-Markersemantik und beobachtetem H-Gegenvertrag auf SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) sowie 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170). Text-/Hint-/Kompilierungsbelege allein schließen dieses Gate nicht; CONTROL_ONLY bleibt Teilbefund. Keine allgemeine Demo-, Plattform- oder Versionsfreigabe.
+
+**Offene Gates:**
+
+- Die Quellenlücke des Bauplans wird durch vollständige textuelle Planungsvorlagen geschlossen; unabhängige fachliche Freigabe und spätere unveränderte Überführung in ausführbare Quellen bleiben offen. Keine Behauptung, dass bereits Prozeduren oder ein Diagnoseadapter implementiert sind.
+- Die Darstellungsmenge und der Erstzuordnungsvertrag sind jetzt begrenzt geplant; konkrete Engine-Darstellungen, Offsetverhalten und Beobachtbarkeit beider Zielbuilds bleiben empirisch ungeprüft. Es ist nicht zugesagt, dass M/S/T auf beiden Builds ausreichen. Eine Erweiterung benötigt einen neuen begründeten Planungsauftrag.
+- Positive/negative QueryCompilationReplay-Semantik, bisheriger Flag-/Signaturkonflikt und unabhängige Zuordnungs-/Transport-/Methodenfreigabe bleiben erhalten. Keine Implementierung oder SQL-/Lab-Runde aus dieser Planung, ihren Offline-Prüfsummen oder früheren Freigaben ableiten; übrige Verarbeitung pausiert.
+
+**Primärquellen, Abruf 2026-10-24:** [CREATE PROCEDURE](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver17), [SELECT](https://learn.microsoft.com/en-us/sql/t-sql/queries/select-transact-sql?view=sql-server-ver17), [Query Hints](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17), [Moduldefinition](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-modules-transact-sql?view=sql-server-ver17), [Cachetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver17), [Statement-Byteoffsets](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-stats-transact-sql?view=sql-server-ver17), [Query-Store-Abfragetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-text-transact-sql?view=sql-server-ver17), [Gepinntes bigjoin-Original](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql), [Query-Identität und Parametrisierungsart](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17).
+
+Der [Quellenbefund](#rh-abfrageform-und-engine-textzuordnung) bleibt mit seiner damaligen Basis erhalten; die aktuelle Planung liefert die dort noch fehlenden Quellvorlagen, keine technische Abnahme. [Quelleneinordnung](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-geplantes-rh-quellpaar-und-textzuordnungsvertrag-vom-24-oktober-2026).
+
 ###### R/H-Abfrageform und Engine-Textzuordnung
 
 **Stand:** 2026-10-24; Basis `95105817ec14f4d0050b760611a1559ff19e4254`.
@@ -957,7 +1077,7 @@ Eigenständiger Diagnoseplan innerhalb DGN-004 (Planerzwingung) bei TSK-016, kei
 
 **Abnahmekriterien:**
 
-- Planungsabnahme jetzt: R/H-Bauplan, getrennte Engine-Identitäten und Planrollen, kontrollierte Neun-Aufruf-Folge, vollständiges Tupelorakel, abgegrenzte Kontroll-/Beobachtungsaussagen sowie gemeinsame Grenzen und Cleanup bei TSK-016 dokumentiert. Vollständiges ausführbares R/H-Quellpaar und begrenzter Engine-Text-Zuordnungsvertrag bleiben gemäß rh_query_text_review_result offen; keine bereits abgeschlossene konkrete Quellen- oder Darstellungsabnahme. Nur statische Planungs-/Registryprüfung; keine Probe-Implementierung oder Laufzeitbehauptung.
+- Planungsabnahme jetzt: vollständige textuelle R/H-Quellvorlagen und begrenzter M/S/T-Engine-Text-Zuordnungsvertrag einschließlich Erstbindung und Abnahmekriterien unter rh_source_text_plan dokumentiert. Unabhängige Freigabe, Überführung in ausführbare Quellen und tatsächliche Darstellungs-/Versionsabnahme bleiben offen. Getrennte Planrollen, Neun-Aufruf-Folge, Tupelorakel, Mess-/Statusvertrag, Grenzen und Cleanup unverändert. Nur statische Planungs-/Registryprüfung; keine Probe-Implementierung oder Laufzeitbehauptung.
 - Spätere Teilabnahme des Kontrollvertrags je Build nur nach neuer Freigabe: H-Hint tatsächlich im vollständigen eigenen Nutzstatement, frische Kompilierung und eigene klassische Planerzwingung mit vollständigen Solltupeln, genau einem regulären Ausführungszuwachs, keinen neuen Forcingfehlern und vollständigem Cleanup. Ohne unabhängigen Gegenvertrag höchstens CONTROL_ONLY, kein empirischer Replay-Abschaltungsnachweis. Der konkret benannte Query-Kompilierungszähler und feste B0/B1-Grenzen müssen erfüllt sein. CONTROL_ONLY ist ausschließlich Teilbefund; bei fehlender empirischer Abnahme Schlussstatus NOT_PROVEN nach dem festgelegten Fehler-/Bereinigungsvorrang. Kein neuer Kontroll-only-Ersatzablauf.
 - Spätere empirische Vergleichsabnahme je Build erst bei genehmigter Marker-/Gegensemantik, zwei positiv belegten R-Phasen und zwei belegten H-Gegenphasen, vollständiger jeweils eigener Query-/Plan-/Kontext-/Ergebnisbindung sowie beidseitig unforced Abschluss und sauberem Cleanup. Der ursprüngliche Gleichidentitätsvergleich, die vollständige Demoqualifikation und eine Releasefreigabe bleiben separat offen. Ein bloßer +1-Kompilierungszuwachs genügt nicht; vollständiger Replay-/Gegenvertrag bleibt Pflicht. Die präzisierten Messgrenzen und Ergebnisvorränge müssen unabhängig freigegeben sein, bevor eine Umsetzung oder Ausführung beginnt.
 
