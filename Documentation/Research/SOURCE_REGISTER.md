@@ -487,3 +487,38 @@ Integration, keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; weitere
 Ausführung benötigt einen neuen ausdrücklichen Auftrag. Der
 [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) hält die
 übrige Verarbeitung pausiert.
+
+### DGN-004: Quellenreview zum tatsächlichen Replay-Nutzungsnachweis vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`5ac459b83688a366a03396292faf41441f18f315`; ausschließlich lesender Quellenreview,
+Abruf am 2026-10-24. Keine neuen Tests, SQL-/Lab-Läufe oder Messwerte. Der
+[kanonische Befund bei TSK-016](../../.ai/identity/registry.json) steht unter
+`replay_usage_source_review_result`; die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesender-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis)
+führt alle Aussagen, Grenzen und offenen Gates.
+
+| Quelle | Beleg und Grenze |
+|---|---|
+| [Microsoft-Katalogvertrag](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17) | DOKUMENTIERT: has_compile_replay_script = 1 bedeutet gespeichert; is_forced_plan markiert eine Anforderung ohne Garantie exakter Planverwendung. Fehler 8675 / OPTIMIZATION_REPLAY_FAILED bedeutet gescheiterte Skriptausführung. INFERENZ: fehlender Fehler allein beweist keinen erfolgreichen Replay. |
+| [Microsoft-Designbeschreibung von 2022](https://www.microsoft.com/en-us/sql-server/blog/2022/09/15/intelligent-query-processing-feature-family-additions/) | DOKUMENTIERT: Capture und spätere Replay-Kompilierung sind getrennte Phasen. Ein bereits zwischengespeicherter Plan erfordert keine neue Replay-Kompilierung. Kein konkreter Marker-/Gegenvertrag für unsere beiden Zielbuilds. |
+| [Hersteller-XSD 2022](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd) und [Schemaindex](https://schemas.microsoft.com/sqlserver/2004/07/showplan/) | Im Speicher gelesenes XSD (XML Schema Definition; Schemadefinition des Planformats): QueryCompilationReplay ist optionales xsd:int ohne Zustandsbedeutungen; ein erforderliches Script-Textattribut definiert ebenfalls keinen aktuellen Nutzungsnachweis. Der öffentliche Index führt zuletzt 2022 RTM (Release to Manufacturing; ursprünglicher Veröffentlichungsstand), keinen gesonderten 2025-Wertevertrag. Keine Aussage gegen Replay-Unterstützung in 2025. |
+| [SQLServerFast-Originalreferenz](https://sqlserverfast.com/epr/plan-properties/) | Eigene Fachreferenz, keine Herstellerzusage: beschreibt QueryCompilationReplay = 1 als Nutzung; Eigenschaft laut Änderungsverlauf am 2025-07-06 ergänzt. Reproduzierbarer Nachweis für die exakten Zielbuilds, vorgesehenen Erfassungsweg und Gegenkennzeichnung fehlt dort. Wert 1 bleibt Kandidat, kein freigegebenes Erfolgskriterium. |
+| [Microsoft-Vertrag des letzten tatsächlichen Plans](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17) | DOKUMENTIERT: Cache-Kompilierungsdaten plus letzte bekannte Laufzeitinformationen. METHODE/INFERENZ: Kompilierungsmarker separat zur frischen eigenen Kompilierung und aktuellen Ausführung binden; Cachetreffer, Root-only- oder alte Pläne genügen nicht. |
+| [Gepinnte Microsoft-Referenzanleitung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md) | Kandidateneignung über Speicherflag und Vergleich von Kompilierungszeiten; kein direkter Werte-/Gegenvertrag für die kleine synthetische Probe oder 2025. Kein Quellablauf ausgeführt und keine Leistungswerte als eigene Messung übernommen. |
+
+Ergebnis: Die Quellenprüfung ist abgeschlossen; das Freigabegate bleibt für
+SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und
+SQL Server 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170)
+offen. Positive Markerbedeutung, Gegenkennzeichnung und Erfassung/Korrelation
+buildbezogen quellenbelegt unabhängig klären. Fehlendes optionales Attribut,
+Forcing-/Deaktivierungsflag, UsePlan, FULL, kein Fehler oder kürzere Compilezeit
+sind jeweils allein unzureichend. Eine Ein–Aus–Ein-Folge darf ohne diesen
+vorab geklärten Vertrag keinen Nutzungs- oder Deaktivierungsnachweis behaupten.
+
+Der [bestehende Probenplan](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+und alle historischen Befunde bleiben unverändert. Keine automatische Erweiterung
+oder Ersatztelemetrie. Umsetzung und Läufe benötigen nach Methodenfreigabe einen
+neuen ausdrücklichen Auftrag; der [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+hält die übrige Verarbeitung pausiert. Statische Dokumentationsintegration
+belegt keine technische Versions- oder Demoabnahme.
