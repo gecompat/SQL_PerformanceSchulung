@@ -1,23 +1,32 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: Prüfbefunde und präzisierte Hint-Negativkontrolle vom 24. Oktober 2026
+## DGN-004: Prüfbefund zum präzisierten Mess-/Statusvertrag vom 24. Oktober 2026
 
-Der aktuelle Auftrag ergänzt bei TSK-016 die lesenden Prüfbefunde und präzisiert
-die eigenständige Kontrolle mit DISABLE_OPTIMIZED_PLAN_FORCING, dem Abfragehinweis
-zur Abschaltung optimierter
-Planerzwingung. Nur Dokumentation und statische Dokumentationsprüfung/Integration im
+Der aktuelle Auftrag dokumentiert bei TSK-016 die lesende Nachprüfung des Mess-/
+Statusvertrags der Kontrolle mit DISABLE_OPTIMIZED_PLAN_FORCING, dem Abfragehinweis
+zur Abschaltung optimierter Planerzwingung. Nur Dokumentation und statische Dokumentationsprüfung/Integration im
 bestehenden Pull-Request-Verfahren; keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe.
 Übrige Verarbeitung pausiert.
 
 Der [kanonische Plan](../../.ai/identity/registry.json) unter `hint_negative_control_plan`,
 die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-prüfbefunde-und-präzisierter-kompilierungsnachweis-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag-vom-24-oktober-2026)
 binden zwei getrennte eigene Modul-/Query-Identitäten: R ohne Hint, H mit festem
 Inline-Hint. Ein gleicher QueryHash ist möglich, weil Query Hints nicht eingehen;
 er darf keine Kennungen oder Planrollen zusammenführen. Je Modul vollständige
 Text-/Kontext-/Plan-/Ergebnisbindung und frische Kompilierung/Ausführung verlangen.
 
-Der lesende [Prüfbefund](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
+Der neue [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag)
+steht bei TSK-016 unter `hint_evidence_status_review_result`. Beide vorigen
+Präzisierungslücken sind dokumentarisch behoben; im geprüften Kompilierungs-/
+Statusvertrag wurde kein weiterer Widerspruch festgestellt. Der aktive Plan und
+seine Messgrenzen/Ergebnisvorränge bleiben unverändert. Diese Einordnung ist
+keine unabhängige Methodenfreigabe und keine technische Qualifikation der Builds
+2022/16.0.4265.3 oder 2025/17.0.4075.5. Quelltext-, Marker-/Gegenvertrags-,
+Zuordnungs-/Transport- und Laufzeitgates bleiben offen; kein zusätzlicher Lauf
+oder Kontroll-only-Ersatzablauf ist autorisiert.
+
+Der vorausgehende lesende [Prüfbefund](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
 steht kanonisch unter `hint_negative_control_review_result`. Im aktiven Plan
 benennt `compilation_evidence_contract` ausdrücklich
 `sys.query_store_query.count_compiles` je festgebundener eigener query_id.

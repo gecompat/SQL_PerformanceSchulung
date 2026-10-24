@@ -1,19 +1,20 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Prüfbefunde, Kompilierungsnachweis und Ergebnisstatus
+## DGN-004: Prüfbefund zum präzisierten Mess- und Statusvertrag aufnehmen
 
-Der aktuelle Auftrag ergänzt bei TSK-016 den lesenden Review der gesonderten
-Negativkontrolle für DGN-004 (Planerzwingung) und präzisiert Messgrenzen sowie
-Ergebnisstatus. Referenz R und Hint-Kontrolle H bleiben getrennte eigene
-Abfrageidentitäten. Nur Dokumentation und statische Prüfung/Integration per
-Pull Request (Änderungsantrag); keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe.
+Der aktuelle Auftrag dokumentiert bei TSK-016 die erneute lesende Prüfung der
+gesonderten Negativkontrolle für DGN-004 (Planerzwingung). Die beiden vorigen
+Präzisierungslücken sind dokumentarisch behoben; im geprüften Mess-/Statusvertrag
+wurde kein weiterer Widerspruch festgestellt. Methoden- und Versionsgates bleiben
+offen. Nur Dokumentation und statische Prüfung/Integration per Pull Request
+(Änderungsantrag); keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe.
 Übrige Verarbeitung pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet Auftrag, offene Freigabegates und unveränderte Budgets.
+bindet Grenzen und unveränderte Budgets.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Prüfbefunde und Vertragspräzisierung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der erneuten DGN-004-Prüfung zum Mess-/Statusvertrag ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -29,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 24. Oktober 2026: DGN-004-Prüfbefunde zur gesonderten Hint-Negativkontrolle bei TSK-016 ergänzen; Kompilierungszähler, Messgrenzen und Ergebnisstatus präzisieren und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Aufruf-/Ressourcenbudgets, Identitäten, frühere Befunde und ältere Pläne bleiben erhalten.
+Dokumentationsauftrag vom 24. Oktober 2026: den lesenden DGN-004-Prüfbefund zum präzisierten Kompilierungsnachweis und Ergebnisstatus bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Aktiver Mess-/Statusvertrag, alle Identitäten, älteren Reviews/Pläne und Budgets bleiben unverändert.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -513,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Lesender Identitäts-/Hint-/Abnahmereview ergänzt und gesonderter Hint-Plan präzisiert: Query-Zähler je eigener query_id, feste B0/B1-Grenzen und eindeutiger Ergebnisvorrang. CONTROL_ONLY bleibt Teilbefund; beobachteter Replay-Gegenvertrag und unabhängige Freigaben offen. P2, neun Aufrufe, zwei Container und ältere Pläne unverändert; keine Umsetzung oder Laufzeitabnahme.
+**Planungsentscheidung:** Erneuter lesender Review des präzisierten Mess-/Statusvertrags abgeschlossen: beide vorigen Präzisierungslücken dokumentarisch behoben, im geprüften Vertrag kein weiterer Widerspruch festgestellt. Keine unabhängige Freigabe oder Laufzeitqualifikation; Marker-, Quelltext-, Methoden- und Versionsgates bleiben offen. P2, aktiver Plan, neun Aufrufe und Budgets unverändert.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -522,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Umsetzung den präzisierten hint_negative_control_plan einschließlich compilation_evidence_contract und outcome_precedence sowie die verbleibenden Identitäts-/Marker-/Transportgates unabhängig freigeben. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag für den ausgewählten begrenzten Schnitt. Kein CONTROL_ONLY-Ersatzablauf, keine Budgetaddition oder Wiederaufnahme übriger Verarbeitung.
+**Wiederaufnahmebedingung:** Vor Umsetzung weiterhin die im hint_negative_control_plan und hint_evidence_status_review_result benannten Quelltext-/Identitäts-/Marker-/Transport-/Methodengates unabhängig freigeben. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im ausgewählten unveränderten Gesamtrahmen. Dokumentarischer Review schließt keine Ausführungsfreigabe ein; übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -772,6 +773,39 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 - Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
+###### Lesender Prüfbefund zum präzisierten Mess- und Statusvertrag
+
+**Stand:** 2026-10-24; Basis `14958e680b5cec132e827c10e642cb7529c1d024`. **Status:** REVIEWED_DOCUMENTARILY_WITH_OPEN_GATES – beide vorherigen Präzisierungslücken dokumentarisch behoben; im geprüften Mess-/Statusvertrag kein weiterer Widerspruch festgestellt. Keine unabhängige Methoden- oder Laufzeitfreigabe.
+
+Ausschließlich lesender Abgleich des über PR323 integrierten hint_negative_control_plan.compilation_evidence_contract und outcome_precedence mit den zugehörigen Herstellerquellen am 2026-10-24. Im Review keine Änderungen, Tests, SQL-/Lab- oder CI-Läufe und kein Push. Dieser Folgeauftrag dokumentiert nur das Ergebnis mit statischer Integration; übrige Verarbeitung pausiert.
+
+**Bestätigte dokumentarische Konsistenz:**
+
+- Kompilierungszähler eindeutig: sys.query_store_query.count_compiles je zuvor gebundener eigener query_id; Referenz R ohne Hint und Kontrolle H mit festem Abfragehinweis getrennt. Planbezogene Kompilierungsstatistik bleibt Zusatzinformation und wird weder dazuaddiert noch über Pläne oder Module als Ersatz aufsummiert.
+- Messgrenzen schlüssig festgelegt: in forcierten Phasen erst eigene Rücknahme prüfen und Standard-Force bestätigen, dann B0 (Vorhermessung), eigene sp_recompile-Markierung und genau ein Nutzaufruf. Vollständige Ergebnistupel/aktuellen tatsächlichen Plan sichern, budgetierten Flush ausführen und B1 (Nachhermessung) zur selben Identität lesen. B0 bleibt bei begrenzten Nachbeobachtungen unverändert; keine zusätzlichen Nutz-/Force-/Flush-Aufrufe.
+- Unforced Aufrufe 2, 8 und 9 verwenden dieselben Messgrenzen ohne Force. Erste R-/H-Bindung in Aufrufen 1 und 4 wird gesondert behandelt; eine nicht vorhandene Query-Zeile wird nicht als erfundener Nullzähler verwendet. Diese Aufwärmaufrufe beweisen keine positive Replay-Nutzung.
+- Genau +1 bleibt eine strenge Bedingung des lokalen Diagnoseplans, keine allgemeine Herstellerzusage pro Nutzaufruf. Vollständiger aktueller Plan, Solltupel, genau eine reguläre Ausführung, Zeitfenster und unveränderte Identität bleiben zusätzlich nötig. sp_recompile-Rückgabe, Flush, Zeitstempel oder Zuwachs allein werden korrekt nicht zu einem Ausführungs-/Replay-Beweis erklärt.
+- Ergebnisstatus unterscheidet fehlende Evidenz von nachgewiesener Verletzung: ohne anderweitig belegten Vertragsfehler führen fehlende Werte, unklare Epoche sowie Delta 0, größer 1 oder negativ zu NOT_PROVEN (nicht nachgewiesen). Positiv belegte falsche Identität, veraltete als aktuell zugeordnete Pläne oder beschädigter Transport führen zu FAIL (Vertragsverletzung nachgewiesen).
+- Schlussstatus und Teilbefunde sind getrennt: FAIL_CLEANUP (Bereinigung fehlgeschlagen) vor FAIL vor NOT_PROVEN vor PASS. Einzelursachen bleiben erhalten. CONTROL_ONLY bedeutet nur Kontrollzustand belegt und wird nicht zum empirischen Rundenerfolg; ohne positive erste R-Phase darf keine H-Ersatzfolge beginnen.
+- PASS bleibt auf den einzelnen Zielbuild und alle neun vorgesehenen Aufrufe mit zwei positiven R-Phasen, zwei belegten H-Gegenphasen, unforced Abschlüssen und vollständigem Cleanup begrenzt. Erfolgreiche Teilphasen oder die andere Version ersetzen keinen Nachweis; keine reversible Abschaltung derselben query_id wird behauptet.
+
+**Weiterhin offene Freigabegates:**
+
+- Vollständige konkrete R/H-Quelltexte und akzeptierte Engine-Darstellung, positive Markersemantik und beobachteter Gegenvertrag sowie unabhängiger Zuordnungs-/Transport-/Methodenreview bleiben offen. Dieser lesende Abgleich ist keine unabhängige Freigabe der vom selben Arbeitskontext verfassten Planung.
+- Technische Beobachtbarkeit und tatsächliche Qualifikation auf SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170) bleiben ungeprüft. Die ungeklärten QueryCompilationReplay-Werte und der publizierte Flagkonflikt bleiben erhalten.
+- Neun Nutzaufrufe je Version, zwei Container, gemeinsames Zeitbudget und alle bestehenden Schutz-/Bereinigungsverträge unverändert. Neue Umsetzung oder SQL-/Lab-Runde benötigt nach unabhängiger Methodenfreigabe einen ausdrücklichen Auftrag für den ausgewählten Schnitt; übrige Verarbeitung bleibt pausiert.
+
+Dokumentarische Konsistenz des konkret geprüften Mess-/Statusvertrags bestätigt und beide vorigen Präzisierungsbefunde als behoben eingeordnet. Keine neue Produktfehlerbehauptung, keine weiteren Planänderungen, keine Implementierungs-/Versions-/Demoabnahme und keine allgemeine Fehlerfreiheitsbehauptung.
+
+**Herstellerquellen des Reviews (Abruf 2026-10-24):**
+
+- [Query-Zähler und Identität](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17)
+- [Planbezogene Zusatzstatistik](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17)
+- [Neukompilierung beim nächsten Aufruf](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-recompile-transact-sql?view=sql-server-ver17)
+- [Persistieren der Query-Store-Speicherdaten](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-flush-db-transact-sql?view=sql-server-ver17)
+
+Quelleneinordnung: [Prüfbefund zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag-vom-24-oktober-2026). Der [aktive Vertrag](#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten) und alle früheren Befunde bleiben unverändert.
 
 ###### Prüfbefunde zur gesonderten Hint-Negativkontrolle
 
