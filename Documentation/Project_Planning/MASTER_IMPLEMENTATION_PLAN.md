@@ -1,8 +1,54 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## DGN-004: Begrenzte R/H-Markerprobe vom 25. Oktober 2026
+
+Der aktuelle Auftrag plant bei TSK-016 (gezielte Curriculum-Ergänzungen) für
+DGN-004 (Planerzwingung) eine begrenzte R/H-Markerprobe. R ist Referenz ohne Hint,
+H die Negativkontrolle mit festem Abschalthinweis. Replay bedeutet Wiederverwendung
+von Optimierungsschritten bei der Kompilierung. Nur Dokumentation und statische
+CI (Continuous Integration; automatisierte Integrationsprüfungen) im bestehenden
+Pull-Request-Verfahren; keine Umsetzung oder SQL-/Lab-Läufe. Die übrige
+Verarbeitung bleibt pausiert, alte Laufrechte werden nicht wiederaufgenommen.
+
+Der [kanonische Vertrag](../../.ai/identity/registry.json) steht unter
+`artifacts.TSK-016.candidates[DGN-004].rh_marker_probe_plan`; die
+[abgeleitete Detailansicht](../../.ai/BACKLOG.md#begrenzte-rh-markerprobe-für-nutzung-und-nichtnutzung)
+führt denselben ergänzenden Beobachtungs-/Abnahmevertrag. Quellpaar, Form A und
+Neun-Aufruf-Folge bleiben unverändert: R aufwärmen (1/2), R-Nutzung (3), H binden
+(4), zweimal H-Nichtnutzung (5/6), erneut R-Nutzung (7), H/R unforced abschließen
+(8/9). Höchstens zwei eigene Container, sequenziell einer je festgelegtem Build,
+und 900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden Cleanup.
+Keine zusätzliche Kalibrierungsrunde oder Addition mit alten Probenbudgets.
+
+Abnahme getrennt für 2022/16.0.4265.3, Developer/Linux, Compatibility Level 160,
+und 2025/17.0.4075.5, Enterprise Developer/Linux, Compatibility Level 170.
+Aktuelle vollständige Plan-/Text-/Kontext-/Query-/Tupelbindung und strenger
+Kompilierungszuwachs +1 bleiben Pflicht. Markerpräsenz, Rohwert und XML-Pfad
+(XML: Extensible Markup Language; strukturiertes Planformat) bleiben je aktueller
+Kompilierung erhalten; keine Umdeutung von Abwesenheit zu 0.
+
+Vor Umsetzung unabhängig freigeben: tatsächliche erfolgreiche R-Nutzungssemantik
+und beobachtbaren H-Nichtnutzungszustand je Build und Erfassungsweg. Beide Gates
+bleiben offen. QueryCompilationReplay = 1 ist nur ein Kandidat; ein Muster aus
+R/H-Werten allein begründet seine Bedeutung nicht. Fehlender H-Marker trägt nur
+dann eine Nichtnutzungsregel, wenn vorab unabhängig nachgewiesen ist, dass dieser
+Erfassungsweg jede tatsächliche Nutzung zwingend markiert und Abwesenheit am
+aktuellen Zielstatement Nichtnutzung bedeutet. Solange das fehlt, höchstens
+CONTROL_ONLY (nur Kontrollzustand belegt), kein empirischer Abschaltungsbeweis.
+
+PASS (bestanden) je Build erst mit beiden positiven R- und beiden belegten
+H-Gegenphasen, allen neun Aufrufen und vollständiger Bereinigung; Gesamt-PASS
+nur für beide Builds. NOT_PROVEN (nicht nachgewiesen) bleibt bei fehlender
+Semantik/Evidenz; FAIL (belegte Vertragsverletzung) und FAIL_CLEANUP
+(Bereinigung fehlgeschlagen) haben Vorrang. Ohne Freigabegates kein Start,
+Zustand nicht ausgeführt. Die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-markerprobenplan-vom-25-oktober-2026)
+begründet die offenen Grenzen. Neuer ausdrücklicher Auftrag für spätere Umsetzung
+und Läufe erforderlich; dieser Plan ist keine unabhängige Freigabe oder
+Laufzeit-/Demoabnahme. Bisherige Befunde und Pläne bleiben erhalten.
+
 ## DGN-004: R-Markersemantik und H-Gegenvertrag vom 24. Oktober 2026
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 die DGN-004-Quellenbefunde zur
+Der Auftrag vom 24. Oktober 2026 dokumentierte bei TSK-016 die DGN-004-Quellenbefunde zur
 positiven R-Markersemantik und zum beobachtbaren H-Gegenvertrag. R ist Referenz
 ohne Hint, H die Negativkontrolle mit festem Abfragehinweis. Nur Dokumentation
 und statische CI (Continuous Integration; automatisierte Integrationsprüfungen)
