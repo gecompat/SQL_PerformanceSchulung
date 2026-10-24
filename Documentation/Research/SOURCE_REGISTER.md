@@ -522,3 +522,41 @@ oder Ersatztelemetrie. Umsetzung und Läufe benötigen nach Methodenfreigabe ein
 neuen ausdrücklichen Auftrag; der [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 hält die übrige Verarbeitung pausiert. Statische Dokumentationsintegration
 belegt keine technische Versions- oder Demoabnahme.
+
+### DGN-004: QueryCompilationReplay und Gegenkennzeichnung vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`c8069016aa00a6804ed608f22447e5c2a9a18251`; ergänzender lesender Quellenreview,
+Abruf am 2026-10-24. Keine neue Umsetzung, Tests der Probe, SQL-/Lab-Läufe oder
+Messung. Der [kanonische Befund bei TSK-016](../../.ai/identity/registry.json) steht
+unter `query_compilation_replay_counter_review_result`; die
+[abgeleitete Befundansicht](../../.ai/BACKLOG.md#querycompilationreplay-und-gegenkennzeichnung--ergänzender-quellenreview)
+führt Markergrenzen, Kontrollwege und offene Gates vollständig.
+
+DOKUMENTIERT am gemeinsamen MicrosoftDocs-Quellencommit
+`b6fe4934643919b28ddea54ad04c66ff1b2a82d1`:
+
+- [Katalogtabelle, Zeilen 55–57](https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql.md#L55-L57), Git-Blob `a7fc21cff62f67111f293cfa71de5af885e6524b`: nennt is_optimized_plan_forcing_disabled = 0 deaktiviert, 1 nicht deaktiviert.
+- [Funktionsbeschreibung, Beispiele C/D ab Zeile 118](https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/performance/optimized-plan-forcing-query-store.md#L118-L156), Git-Blob `027099d57a33a44ce88df09af35f4c447a34a215`: zeigt Replikatkennung 1 an dritter und Deaktivierungsanforderung 1 an vierter Stelle; Beispiel D filtert Flag 1 als deaktiviert. Direkter Quellenwiderspruch zur Katalogtabelle. Keine bestätigte Herstellerkorrektur oder neue Produktfehlerdiagnose.
+
+Das [Hersteller-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd)
+definiert QueryCompilationReplay weiterhin nur als optionale Ganzzahl. Die
+[originale Fachreferenz](https://sqlserverfast.com/epr/plan-properties/) nennt Wert 1
+als Nutzung; ein verifizierter Werte-/Gegenvertrag für beide Zielbuilds fehlt.
+0, Abwesenheit oder andere ungeklärte Werte sind kein belastbarer Aus-Zustand.
+
+METHODE/INFERENZ: Eine [dokumentierte Abschaltanforderung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17#c-force-a-plan-and-disable-optimized-plan-forcing-in-query-store)
+mit anschließender frischer eigener Kompilierung bleibt ein Kontrollweg, kein
+alleiniger beobachteter Gegenmarker. Der [dokumentierte Abfragehinweis](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing)
+DISABLE_OPTIMIZED_PLAN_FORCING wäre eine gesonderte Negativkontrolle. Sein Einfügen
+oder Entfernen ändert aber den Text und möglicherweise die Query-Store-Identität;
+der unveränderte Ein–Aus–Ein-Probenplan erlaubt keinen automatischen Ersatz damit.
+
+Für 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und
+2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170) bleiben
+positive Markersemantik, beobachtete Gegenkennzeichnung und Korrelation zur
+frischen Kompilierung sowie aktuellen vollständigen Ausführung unabhängig zu
+klären. Vorige Quellen-/Versionsbefunde und der Probenplan bleiben erhalten;
+keine nachträgliche Laufzeitabnahme. Die [Auftragsgrenzen und Pause](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+gelten weiter. Neue Methoden-/Umsetzungs-/Laufarbeit benötigt gesonderte Freigabe.

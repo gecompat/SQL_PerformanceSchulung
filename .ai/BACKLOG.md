@@ -1,10 +1,10 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Quellenbefunde zum tatsächlichen Replay-Nutzungsnachweis
+## DGN-004: QueryCompilationReplay und Gegenkennzeichnung dokumentieren
 
-Der aktuelle Auftrag ergänzt bei TSK-016 den abgeschlossenen lesenden Quellenreview
-für DGN-004 (Planerzwingung). Replay bedeutet Wiederverwendung aufgezeichneter
+Der aktuelle Auftrag ergänzt bei TSK-016 die lesend geprüften Befunde zu
+QueryCompilationReplay und zur Gegenkennzeichnung für DGN-004 (Planerzwingung). Replay bedeutet Wiederverwendung aufgezeichneter
 Optimierungsschritte. Der positive Nutzungsnachweis und seine Gegenkennzeichnung
 bleiben für SQL Server 2022/2025 offen. Nur Dokumentation und statische Prüfungen
 im Pull-Request-Verfahren (Änderungsantrag); keine Umsetzung, Tests der Probe oder
@@ -14,7 +14,7 @@ bindet Auftrag und Grenzen; bestehender Probenplan und frühere Befunde bleiben 
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme des DGN-004-Quellenreviews zum Replay-Nutzungsnachweis ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Marker-/Gegenkennzeichnungsbefunde ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -30,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 24. Oktober 2026: die ausschließlich lesend geprüften DGN-004-Befunde zum tatsächlichen Replay-Nutzungsnachweis und die offenen Gates bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; bestehender Probenplan, frühere Befunde und Kennungen bleiben erhalten.
+Dokumentationsauftrag vom 24. Oktober 2026: die lesend geprüften DGN-004-Befunde zu QueryCompilationReplay, dem gepinnten Dokumentationskonflikt und einer belastbaren Gegenkennzeichnung bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; bisherige Quellenbefunde und Probenplan unverändert erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -514,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Replay-Nutzungsquellen geprüft; das Methodengate bleibt für 2022/16.0.4265.3 und 2025/17.0.4075.5 offen. Speicherung, Anforderung, Versuch und erfolgreiche Nutzung getrennt. QueryCompilationReplay = 1 ist ein Fachquellenkandidat ohne freigegebenen buildbezogenen Gegenvertrag. Der bestehende begrenzte Probenplan, P2 und ursprüngliche Demoschnitt bleiben unverändert; keine Umsetzung oder neue Laufzeitabnahme.
+**Planungsentscheidung:** QueryCompilationReplay und Gegenkennzeichnung weiter quellenbasiert abgegrenzt: keine freigegebene Wertetabelle, gepinnter Konflikt zwischen Katalog und Abschaltbeispiel. Kontrollzustand und beobachtete Deaktivierung getrennt; Hint-Gegenkontrolle liegt außerhalb des unveränderten Textprotokolls. Methodengates für beide Builds bleiben offen. P2, Probenplan und ursprünglicher Demoschnitt unverändert; keine Umsetzung oder Laufzeitabnahme.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -523,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Probe-Umsetzung die im replay_usage_source_review_result benannten Marker-/Gegenkennzeichnungs- und Korrelationsgates für beide exakten Builds quellenbelegt unabhängig klären; kombinierte Zuordnung und Transport freigeben. Danach neuer ausdrücklicher Auftrag innerhalb des unveränderten Plans mit höchstens zwei Containern, zwei Formen und elf Nutzaufrufen je Version im gemeinsamen Budget. Keine automatische Zusatzprobe, Demoübernahme oder Wiederaufnahme übriger Verarbeitung.
+**Wiederaufnahmebedingung:** Vor Probe-Umsetzung die Gates im query_compilation_replay_counter_review_result unabhängig quellenbelegt klären: positive Markerbedeutung, belastbare Gegenkennzeichnung, frische Kompilierungs-/Ausführungsbindung und Erhalt des Quellenkonflikts. Kombinierte Zuordnung und Transport freigeben; erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten Budget. Hint-Gegenkontrolle nur nach gesonderter methodischer Planung/Freigabe; übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -773,6 +773,58 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 - Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
+###### QueryCompilationReplay und Gegenkennzeichnung – ergänzender Quellenreview
+
+**Stand:** 2026-10-24; Basis `c8069016aa00a6804ed608f22447e5c2a9a18251`. **Status:** REVIEWED_WITH_OPEN_GATES – Bedeutung von QueryCompilationReplay und belastbare beobachtete Gegenkennzeichnung auf beiden Zielbuilds weiterhin NOT_PROVEN (nicht nachgewiesen).
+
+Ergänzender ausschließlich lesender Quellenreview vom 2026-10-24; Hersteller-Dokumentation und deren zwei zusammen gepinnte Quelldateien mit den bestehenden historischen Befunden abgeglichen. Nur Dokumentationsaufnahme und statische Integration autorisiert. Keine Umsetzung, Tests der Probe, SQL-/Lab-Läufe oder neue Messung; übrige Verarbeitung pausiert.
+
+**Bedeutung und Aussagegrenzen:**
+
+- QueryCompilationReplay ist im Hersteller-XSD (XML Schema Definition; Schemadefinition des Planformats) eine optionale Ganzzahl. Keine belastbare Wertetabelle gefunden, die Speicherung, Versuch und erfolgreiche Replay-Kompilierung für unsere Zielbuilds trennt. Weder 0 noch Abwesenheit noch ein anderer ungeklärter Rohwert wird als aus interpretiert.
+- QueryCompilationReplay = 1 wird in der eigenen SQLServerFast-Fachreferenz als Nutzung beschrieben; das bleibt ein Markerkandidat. Kein hinreichend nachvollziehbarer Nachweis für beide exakten Builds, den vorgesehenen Erfassungsweg und die Gegenkennzeichnung. Kein freigegebener PASS-Wert und keine automatische Umdeutung zum booleschen Zustand.
+- Ein zwischengespeichertes Kompilierungsmerkmal beweist keine neue Replay-Kompilierung beim aktuellen Nutzaufruf. Speicherung, Abschaltanforderung, erfolgreiche Kompilierung und tatsächliche Ausführung mit vollständigen Ergebnissen bleiben getrennt zuzuordnen.
+
+**Gepinnter Dokumentationskonflikt:**
+
+Gemeinsamer Quellencommit `b6fe4934643919b28ddea54ad04c66ff1b2a82d1`.
+
+- [Microsoft-Katalogtabelle](https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql.md#L55-L57), Git-Blob `a7fc21cff62f67111f293cfa71de5af885e6524b`: Die Katalogtabelle beschreibt is_optimized_plan_forcing_disabled mit 0 als deaktiviert und 1 als nicht deaktiviert.
+- [Microsoft-Funktionsbeschreibung, Beispiele C/D](https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/performance/optimized-plan-forcing-query-store.md#L118-L156), Git-Blob `027099d57a33a44ce88df09af35f4c447a34a215`: Die Funktionsbeschreibung zeigt in Beispiel C replica_group_id = 1 an dritter und disable_optimized_plan_forcing = 1 an vierter Stelle zur Abschaltung. Beispiel D bezeichnet is_optimized_plan_forcing_disabled = 1 als deaktiviert und filtert genau diesen Zustand. Das widerspricht der Katalogtabelle am selben Quellencommit.
+
+DOKUMENTIERTER Quellenwiderspruch, keine bestätigte Herstellerkorrektur oder Produktfehlerdiagnose. Die bereits erhaltenen 2025-Anforderungsbeobachtungen passen zu Beispiel D; sie belegen ohne positiven Replay-Ausgangszustand keine tatsächliche Abschaltung. Keine zusätzliche 2022-Signaturprüfung erfolgt.
+
+**Kontrollweg und Grenzen einer Gegenkennzeichnung:**
+
+- Der bestehende Parameterweg bleibt ein dokumentierter Kontrollweg: eigene Query-/Planbindung, passende Replikatkennung und Abschaltanforderung vor frischer eigener Kompilierung prüfen; anschließend erfolgreiche klassische Planerzwingung, vollständigen Plan, Tupel und aktuelle reguläre Ausführung zusammenführen. Ein angezeigter Kontrollzustand allein ist weiterhin kein beobachteter Gegenmarker für zuvor positiv belegte Replay-Nutzung.
+- DISABLE_OPTIMIZED_PLAN_FORCING ist als Query Hint (Abfragehinweis) ab SQL Server 2022 dokumentiert. Eine gesonderte spätere Negativkontrolle könnte diesen dokumentierten Abschaltweg untersuchen. Seine Aufnahme oder Entfernung im Statement verändert jedoch den Abfragetext und möglicherweise die Query-Store-Identität; sie verletzt damit die unveränderte Textbindung des bestehenden Ein–Aus–Ein-Plans.
+- Der Hintweg ist eine methodische Alternative außerhalb des unveränderten Vergleichsprotokolls, keine jetzt freigegebene Ersatzphase. Kein Hint einfügen, Modul ändern, Quellen-/Aufrufbudget vergrößern oder zusätzliche Laufvariante automatisch beginnen. Auch dieser Kontrollweg liefert ohne positive Ausgangslage und freigegebenen Beobachtungsvertrag keinen direkten Deaktivierungsnachweis.
+- Fehlendes optionales Attribut, QueryCompilationReplay = 0, bloßer Anforderungsflagwechsel, UsePlan allein, kein Replay-Fehler oder kürzere Kompilierungszeit schließen das Gate nicht. Bei unbekannter Markersemantik oder nicht beobachtbarer Nutzung bleibt NOT_PROVEN; keine Ersatztelemetrie oder gelockerten Kriterien.
+
+**Einordnung je Zielbuild:**
+
+- SQL Server 2022/16.0.4265.3, Developer/Linux, Compatibility Level 160: positive Wertsemantik und beobachtete Gegenkennzeichnung weiterhin offen; erweiterte Aufrufsignatur zusätzlich empirisch ungeprüft. Keine Laufzeitabnahme aus dem allgemeinen Herstellerbeispiel.
+- SQL Server 2025/17.0.4075.5, Enterprise Developer/Linux, Compatibility Level 170: historische Signatur-/Anforderungsflagbefunde bleiben Teilnachweis. Ohne positiv gespeicherten und tatsächlich verwendeten Replay weiterhin kein Nutzungs- oder Abschaltungsnachweis; keine Übernahme einer 2022-Referenz als 2025-Abnahme.
+
+**Offene Freigabegates:**
+
+- Primärquellenvertrag für erfolgreiche Replay-Kompilierung und belastbare Gegenkennzeichnung auf beiden exakten Builds unabhängig klären; Quellenwiderspruch und Markerkandidat ausdrücklich erhalten. 0, 1 oder Abwesenheit ohne diesen Vertrag nicht zum Erfolgskriterium erklären.
+- Marker und Gegenbeleg zur frischen eigenen Kompilierung sowie derselben aktuellen Query-/Plan-/Kontext-/Ergebnisbindung unabhängig prüfen. Die Aus-Phase verlangt weiterhin erfolgreiche klassische Erzwingung, eine vorab freigegebene Gegenkennzeichnung und danach erneut positiv belegte Ein-Phase; Kontrollzustand allein genügt nicht.
+- Der bestehende Probenplan und seine Budgets bleiben unverändert. Eine methodische Änderung zugunsten einer Hint-Gegenkontrolle müsste gesondert geplant und freigegeben werden. Umsetzung und SQL-/Lab-Läufe benötigen nach Methodenfreigabe einen neuen ausdrücklichen Auftrag; Zuordnungs-/Transportreview und empirische Versionsgates bleiben offen.
+
+**Weitere Quellen:**
+
+- [Offizielles Planformat-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd)
+- [Originale Fachreferenz zu Planeigenschaften](https://sqlserverfast.com/epr/plan-properties/)
+- [Dokumentierter Abschaltweg](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17#c-force-a-plan-and-disable-optimized-plan-forcing-in-query-store)
+- [Dokumentierter Abfragehinweis](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing)
+
+Abgeschlossen ist der ergänzende lesende Quellenreview; offen bleiben Markersemantik, beobachtete Gegenkennzeichnung und sämtliche Methoden-/Versionsfreigaben. Voriger Quellenreview aus PR320, Probenplan aus PR319, alte Fehlversuche und alle Kennungen bleiben erhalten. Keine neue Demo, Planungsliste, technische Implementierung oder Laufzeitbehauptung.
+
+Registrierte Quelleneinordnung: [QueryCompilationReplay und Gegenkennzeichnung zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-querycompilationreplay-und-gegenkennzeichnung-vom-24-oktober-2026).
+
+Der folgende Quellenreview aus [PR320](https://github.com/gecompat/SQL_PerformanceSchulung/pull/320) bleibt mit seinen ursprünglichen Befunden erhalten.
 
 ###### Lesender Quellenreview zum tatsächlichen Replay-Nutzungsnachweis
 

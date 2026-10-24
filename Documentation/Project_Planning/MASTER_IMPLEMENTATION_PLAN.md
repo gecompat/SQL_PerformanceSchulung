@@ -1,6 +1,6 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: Replay-Nutzungsquellen und offene Methodengates vom 24. Oktober 2026
+## DGN-004: QueryCompilationReplay, Gegenkennzeichnung und offene Methodengates vom 24. Oktober 2026
 
 Der aktuelle Dokumentationsauftrag ergänzt bei TSK-016 den lesenden Quellenreview
 für DGN-004 (Planerzwingung). Replay bezeichnet Wiederverwendung aufgezeichneter
@@ -9,8 +9,8 @@ Pull Request nach `origin/main`; keine Umsetzung, Tests der Probe oder SQL-/Lab-
 Die übrige Verarbeitung bleibt pausiert.
 
 Der [kanonische Befund](../../.ai/identity/registry.json) unter
-`replay_usage_source_review_result`, die [abgeleitete Ansicht](../../.ai/BACKLOG.md#lesender-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis-vom-24-oktober-2026)
+`query_compilation_replay_counter_review_result`, die [abgeleitete Ansicht](../../.ai/BACKLOG.md#querycompilationreplay-und-gegenkennzeichnung--ergänzender-quellenreview)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-querycompilationreplay-und-gegenkennzeichnung-vom-24-oktober-2026)
 trennen gespeichertes Skript, Anforderung, Versuch, erfolgreiche Kompilierung und
 tatsächliche Ausführung. `QueryCompilationReplay = 1` bleibt ein Fachquellenkandidat;
 der Hersteller-Schematyp definiert seine Bedeutung nicht. Eine fehlende optionale
@@ -21,6 +21,22 @@ Gegenkennzeichnung und Zuordnung zur frischen Kompilierung unabhängig zu kläre
 Der vorgesehene Erfassungsweg muss altes Kompilierungsmerkmal und aktuelle
 Ausführung auseinanderhalten. Bei fehlendem Nachweis bleibt das Methodengate offen;
 keine nachträgliche Qualifikation historischer Fehlversuche.
+
+Zusätzlich gepinnt bestätigt: Im selben Hersteller-Quellencommit widerspricht die
+Wertetabelle für `is_optimized_plan_forcing_disabled` dem Abschaltbeispiel C/D.
+Die historische 2025-Beobachtung passt zum Beispiel, beweist aber keinen
+Replay-Gegenmarker. `QueryCompilationReplay = 0` oder Abwesenheit bleibt ungeklärt;
+Wert 1 bleibt Fachquellenkandidat ohne freigegebenen Werte-/Gegenvertrag.
+
+Der dokumentierte Hint `DISABLE_OPTIMIZED_PLAN_FORCING` (Abfragehinweis zur
+Abschaltung) ist eine mögliche gesonderte Negativkontrolle. Einfügen/Entfernen
+ändert jedoch den Statementtext und möglicherweise die Query-Store-Identität
+(Zuordnung in der persistenten Abfrage-/Planhistorie). Das passt nicht unverändert
+zum bestehenden Ein–Aus–Ein-Protokoll; keine Ersatzphase oder Planänderung ist
+freigegeben. Kontroll-/Anforderungszustand allein ersetzt weiterhin keinen
+beobachteten Gegenbeleg einer zuvor positiv belegten Replay-Kompilierung.
+Der frühere Quellenreview aus PR320 bleibt unter `replay_usage_source_review_result`
+unverändert erhalten; beide Methoden-/Versionsgates bleiben offen.
 
 Der [Probenplan aus PR319](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
 bleibt unverändert: 529 Datenzeilen, zwei feste Formen mit je 768 Ergebnistupeln,
