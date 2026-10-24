@@ -1,9 +1,9 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Replay-Nutzungsbefunde dokumentieren
+## Auftrag vom 24. Oktober 2026: DGN-004-Marker und Gegenkennzeichnung dokumentieren
 
-Der aktuelle Auftrag ergänzt bei TSK-016 die abgeschlossene lesende Quellenprüfung
-zum tatsächlichen Replay-Nutzungsnachweis für DGN-004 (Planerzwingung). Replay
+Der aktuelle Auftrag ergänzt bei TSK-016 den ergänzenden lesenden Quellenreview
+zu QueryCompilationReplay und zur Gegenkennzeichnung für DGN-004 (Planerzwingung). Replay
 bedeutet Wiederverwendung aufgezeichneter Optimierungsschritte bei Kompilierung.
 Nur Dokumentation und statische CI (Continuous Integration; automatisierte
 Integrationsprüfungen) mit Integration per Pull Request nach `origin/main`.
@@ -11,9 +11,9 @@ Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; die übrige Verarbeitung
 bleibt pausiert. Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
 
 Der [kanonische Quellenreview](../../.ai/identity/registry.json) steht bei TSK-016
-unter `replay_usage_source_review_result`. Die
-[abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesender-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis)
-und die [registrierte Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-quellenreview-zum-tatsächlichen-replay-nutzungsnachweis-vom-24-oktober-2026)
+unter `query_compilation_replay_counter_review_result`. Die
+[abgeleitete Befundansicht](../../.ai/BACKLOG.md#querycompilationreplay-und-gegenkennzeichnung--ergänzender-quellenreview)
+und die [registrierte Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-querycompilationreplay-und-gegenkennzeichnung-vom-24-oktober-2026)
 führen dieselben Nachweisgrenzen. Alle bisherigen Analyse-, Versions-, Hash- und
 Planungsbefunde bleiben erhalten.
 
@@ -32,6 +32,22 @@ muss zur frischen eigenen Kompilierung gehören; ein Cachetreffer mit altem
 Kompilierungsmerkmal darf keine neue Replay-Nutzung vortäuschen. Vollständige
 Plan-/Kontextbindung, Ergebnistupel und aktuelle reguläre Ausführung bleiben Pflicht.
 Unbekannte oder nicht beobachtbare Zustände bleiben NOT_PROVEN (nicht nachgewiesen).
+
+Zusätzlich gepinnt bestätigt: Im selben Hersteller-Quellencommit widerspricht die
+Wertetabelle für `is_optimized_plan_forcing_disabled` dem Abschaltbeispiel C/D.
+Die historische 2025-Beobachtung passt zum Beispiel, beweist aber keinen
+Replay-Gegenmarker. `QueryCompilationReplay = 0` oder Abwesenheit bleibt ungeklärt;
+Wert 1 bleibt Fachquellenkandidat ohne freigegebenen Werte-/Gegenvertrag.
+
+Der dokumentierte Hint `DISABLE_OPTIMIZED_PLAN_FORCING` (Abfragehinweis zur
+Abschaltung) ist eine mögliche gesonderte Negativkontrolle. Einfügen/Entfernen
+ändert jedoch den Statementtext und möglicherweise die Query-Store-Identität
+(Zuordnung in der persistenten Abfrage-/Planhistorie). Das passt nicht unverändert
+zum bestehenden Ein–Aus–Ein-Protokoll; keine Ersatzphase oder Planänderung ist
+freigegeben. Kontroll-/Anforderungszustand allein ersetzt weiterhin keinen
+beobachteten Gegenbeleg einer zuvor positiv belegten Replay-Kompilierung.
+Der frühere Quellenreview aus PR320 bleibt unter `replay_usage_source_review_result`
+unverändert erhalten; beide Methoden-/Versionsgates bleiben offen.
 
 Der [bestehende Probenplan](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
 aus [PR319](https://github.com/gecompat/SQL_PerformanceSchulung/pull/319) bleibt
