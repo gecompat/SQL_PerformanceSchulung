@@ -780,3 +780,35 @@ SQL-/Lab- oder CI-Läufe, kein Push und keine Repositoryänderung. Dieser Folgea
 integriert nur Dokumentation mit statischen Prüfungen; keine technische Versions-
 oder Demoabnahme. Die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
+
+### DGN-004: Markerprobenplan vom 25. Oktober 2026
+
+Bei TSK-016 (gezielte Curriculum-Ergänzungen) ergänzt der
+[kanonisch abgeleitete Markerplan](../../.ai/BACKLOG.md#begrenzte-rh-markerprobe-für-nutzung-und-nichtnutzung)
+die vorhandene R/H-Folge: R ist Referenz ohne Hint, H die Negativkontrolle mit
+festem Abschalthinweis. Nutzung und Nichtnutzung von Optimierungs-Replay
+(Wiederverwendung von Optimierungsschritten) getrennt abnehmen. Quellen erneut
+lesend geprüft am 25. Oktober 2026, keine neue empirische Evidenz.
+
+Die [Herstellerbeschreibung zur optimierten Planerzwingung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17)
+belegt Skriptaufzeichnung und die querybezogene Abschaltkontrolle. Die
+[originale Fachreferenz zu Planeigenschaften](https://sqlserverfast.com/epr/plan-properties/)
+liefert QueryCompilationReplay = 1 als positiven Kandidaten; das
+[Hersteller-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd)
+nennt weiterhin nur eine optionale Ganzzahl ohne Nutzungs-/Nichtnutzungstabelle.
+Die [Herstellerbeschreibung zum letzten tatsächlichen Plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17)
+begrenzt die Erfassung auf zwischengespeicherte Kompilierungsinformationen mit
+letzten bekannten Laufzeitdaten. Deshalb aktuelle eigene Kompilierung und
+Ausführung vollständig zuordnen; weder gespeichertes Skript noch letzter Plan
+allein belegen Replay-Nutzung.
+
+**Methodischer Schluss:** Vor Umsetzung unabhängige Zustandssemantik und
+Erfassungsvollständigkeit für 2022/16.0.4265.3 und 2025/17.0.4075.5 klären.
+Unterschiedliche R/H-Rohwerte kalibrieren ihre Bedeutung nicht selbst. Abwesenheit
+darf nur nach eigenständigem Vollständigkeits- und Bedeutungsnachweis eine
+Nichtnutzung tragen; derzeit offen. Vorhandene Quellenkennungen SRC-027
+(Query Store) und SRC-031 (tatsächliche Planerfassung) genügen; keine neue Kennung.
+Neun Nutzaufrufe je Version und vorhandenes gemeinsames Budget unverändert,
+keine neue Telemetrie, Implementierung oder SQL-/Lab-Ausführung. Der
+[Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) hält die
+offenen Freigabegates und die übrige Verarbeitungspause fest.
