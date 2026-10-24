@@ -1,20 +1,19 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Hashbefunde und Replay-Referenz aufnehmen
+## DGN-004: kombinierte Planzuordnung und begrenzte Replay-Probe planen
 
-Der aktuelle Auftrag ergänzt bei TSK-016 die lesenden Hashbefunde und eine
-quellenbasierte Referenz für Optimierungs-Replay (wiederverwendbare
-Kompilierungsschritte). Integration per Pull Request (Änderungsantrag) nach
-`origin/main`, nur statische Prüfungen einschließlich CI (Continuous Integration;
-automatisierte Integrationsprüfungen). Keine Umsetzung oder SQL-/Lab-Läufe;
-übrige Verarbeitung pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet Auftrag und Wiederaufnahmegrenzen. Frühere Quellen-/Versionsbefunde sowie
-die begrenzten Schemasperren- und Ad-hoc-Plancache-Nachweise bleiben erhalten.
+Der aktuelle Auftrag plant bei TSK-016 die kombinierte Planzuordnung und eine
+separate begrenzte synthetische Optimierungs-Replay-Probe (Wiederverwendung von
+Kompilierungsschritten) für SQL Server 2022/2025. Nur Planungsdateien und statische
+Prüfung im bestehenden Pull-Request-Verfahren (Änderungsantrag). Keine Umsetzung,
+Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
+Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet Auftrag und Grenzen. Frühere Quellen-/Versionsbefunde bleiben erhalten.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Hashbefunde und Replay-Referenz ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Planung der kombinierten DGN-004-Planzuordnung und begrenzten Replay-Probe ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -30,7 +29,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Autorisierter Dokumentationsauftrag vom 24. Oktober 2026: DGN-004-Hashbefunde (Planerzwingung), quellenbasierten Optimierungs-Replay-Kandidaten (wiederverwendbare Kompilierungsschritte) und offene Gates bei TSK-016 ergänzen; Integration per Pull Request (Änderungsantrag) nach origin/main. Nur relevante statische Prüfungen einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen), keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; Kennungen, ursprüngliche Quellenbefunde und bisherige Versionsdiagnose bleiben erhalten.
+Planungsauftrag vom 24. Oktober 2026: kombinierte Planzuordnung und eine begrenzte synthetische Optimierungs-Replay-Probe (Wiederverwendung von Kompilierungsschritten) für DGN-004 auf SQL Server 2022/2025 bei TSK-016 entwerfen. Ausschließlich Planungsdateien und relevante statische Prüfung; Integration des Planungsstands im bestehenden Branch-/Pull-Request-Verfahren. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; ursprüngliche Quellen-/Versionsbefunde und bestehende Kennungen bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -514,7 +513,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Hashmuster anhand vorhandener Pläne und veröffentlichter Originalreproduktionen eingeordnet; Microsoft-bigjoin als Replay-Referenz ausgewählt. Keine angepasste Abfrage, neue Ausführung oder Hersteller-Fixbestätigung. Kombinierter Zuordnungsreview, erweiterte 2022-Signatur, Replay-/Deaktivierungsnachweise und Erfassung bleiben offen; P2 unverändert.
+**Planungsentscheidung:** Kombinierte Planzuordnung und separate synthetische Replay-Probe konkret geplant: 529 Datenzeilen, zwei feste Formen mit je 768 Ergebnistupeln und zwei Ein–Aus–Ein-Vergleiche auf 2022/2025. Keine Eignungszusage oder Probe-Umsetzung; Nutzungsmarker-Methodengate und spätere empirische Nachweise offen. P2 und ursprünglicher Demoschnitt unverändert.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -523,7 +522,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor weiterer Ausführung die kombinierte Zuordnung unabhängig prüfen; stabile QueryHash-Gleichheit nicht als alleinige Forcing-Identität behandeln. Die Replay-Referenz nur nach neuem ausdrücklichem Auftrag als begrenzte Diagnoseform anpassen und auf beiden Builds gegen Speicherung, tatsächliche Nutzung und Deaktivierung qualifizieren. Erfassungsweg und Demo-Freigaben bleiben offen; keine automatische Umsetzung oder Zusatzprobe.
+**Wiederaufnahmebedingung:** Vor Probe-Umsetzung die buildbezogene Nutzungsmarker-/Gegenkennzeichnung und kombinierte Zuordnungs-/Transportmethode unabhängig klären. Danach neuer ausdrücklicher Auftrag für begrenzte Implementierung und SQL-/Lab-Runde mit höchstens zwei Containern, zwei Formen und elf Nutzaufrufen je Version innerhalb des gemeinsamen Budgets. Keine automatische Übernahme als Demo, Zusatzprobe oder Wiederaufnahme übriger Verarbeitung.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -701,6 +700,8 @@ Registrierte Einordnung: [Versionsbefunde zu SRC-027/SRC-031](../Documentation/R
 
 ###### Lesende Hashanalyse und Replay-Referenz
 
+Historischer Lesestand aus PR318; die Befunde bleiben unverändert, die anschließend folgende Planung konkretisiert die nächsten Gates.
+
 **Stand:** 2026-10-24; Basis `a87d1d7e68679238b766fb31a399b46825f14efd`. **Status:** READ_ONLY_WITH_OPEN_GATES – vorhandene Planbelege und Originalquellen geprüft; Hashmuster eingeordnet und Replay-Referenz ausgewählt. Keine neue SQL-Ausführung oder Demo-Freigabe.
 
 Ausschließlich lesende Auswertung vorhandener privater Plan-XML-Dateien (Extensible Markup Language; strukturiertes Planformat) und öffentlicher Originalquellen. Attribute und vollständiger Text sowie Operatorfolge, Objektdeskriptoren und Prädikat-XML paarweise verglichen. Keine Ausführung historischer Skripte, Tests, SQL-/Lab- oder CI-Läufe während dieser Sichtung; statische Veröffentlichungsprüfungen sind davon getrennt.
@@ -772,9 +773,115 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
 
+###### Kombinierte Planzuordnung und begrenzte synthetische Replay-Probe
+
+**Stand:** 2026-10-24; Basis `c238ba5c6e4b00782fd9fbc37d7c87333880823c`. **Status:** DESIGNED_WITH_METHOD_GATES – kombinierte Zuordnung und begrenzte synthetische Replay-Probe geplant; keine Implementierung, Tests der Probe, SQL-/Lab-Läufe oder Laufzeitfreigabe.
+
+Aktueller Auftrag autorisiert ausschließlich Planung und deren Dokumentation. Frühere Genehmigungen und Budgets für SQL-/Lab-Diagnosen werden nicht wiederverwendet. Die übrige Verarbeitung bleibt pausiert; eine spätere Ausführung benötigt einen neuen ausdrücklichen Auftrag.
+
+Separater Versionsdiagnose-Entwurf innerhalb DGN-004 (Planerzwingung), keine neue Demo oder Kennung. Gemeinsame kombinierte Planzuordnung für SQL Server 2022/2025 konkretisieren; Replay-Speicherung, tatsächliche Nutzung und tatsächliche Deaktivierung getrennt prüfen. Der bestehende ForceProbe-Demoschnitt mit sechs Nutzaufrufen, Indexentzug und NO_INDEX-Fehler bleibt unverändert und unimplementiert.
+
+**Geplantes erstes Versionsprofil:**
+
+- SQL Server 2022/16.0.4265.3, Developer/Linux, Compatibility Level 160; vorhandene Imagebindung sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89 als späteres erstes Prüfprofil. Erweiterte Aufrufsignatur ist hier weiterhin ungeprüft.
+- SQL Server 2025/17.0.4075.5, Enterprise Developer/Linux, Compatibility Level 170; vorhandene Imagebindung sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1. Frühere Aufruf-/Anforderungsflagbefunde sind Teilnachweis, keine Replay-Abnahme. Keine Images jetzt laden oder starten und kein Wechsel auf neuere Builds innerhalb eines später freigegebenen Laufs.
+
+**Kombinierte Zuordnung und Fehlerzählerepochen:**
+
+- Jeder spätere Nutzaufruf besitzt eine unveränderliche Hülle aus Quellenprüfsumme, Version/Build/Edition/Compatibility Level, vollständigem normalisiertem Lauftoken, tatsächlicher Datenbank, eigener Modulkennung, Abfrageform A/B, Aufrufnummer, Phase und Start/Ende. Vier vollständige Eigentumsmarker vor jeder Mutation ausdrücklich auf NULL, binäre Gleichheit und Bytelänge prüfen; kein passender Name als Eigentumsbeleg.
+- Pro Abfrageform genau eine eigene parameterlose Prozedur mit genau einem Nutzstatement. Bei Anlage und Ausführung dasselbe dokumentierte Sitzungsprofil verwenden: ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL und QUOTED_IDENTIFIER ON, NUMERIC_ROUNDABORT OFF, Sprache us_english, Datumsformat mdy und DATEFIRST 7. Ganze Engine-Textdarstellung, object_id, context_settings_id, Kontextwerte und Parametrisierungsart erfassen; keine freie Textnormalisierung, Textmarkerwechsel oder Modulanpassung zwischen Vergleichsphasen.
+- Query Store (persistente Abfrage-/Planhistorie) über eigene Datenbank, object_id, vollständigen Statementtext und Kontext eindeutig auflösen. Genau eine eigene query_id und eine dazugehörige ausgewählte Force-Ziel-plan_id binden. Beide Rollen unverändert über die Folge führen; neue oder mehrdeutige Query-Kennung, verlorener Kontext oder fremdes Objekt beendet die Probe. Keine Zuordnung allein über Hash, LIKE oder TOP 1.
+- QueryHash (Abfragehash), QueryPlanHash (Planhash), Statement-SQL-Handle und Cachehandle roh protokollieren. Hashwechsel allein ist weder Erfolg noch Fehler und kein Ersatz für die anderen Pflichtbezüge. Insbesondere die bekannte 2022-Überschreibung darf die eigene, anderweitig vollständig gebundene Abfrage nicht allein verwerfen. Eine Katalog- oder Handle-Konstanz wird nicht ungeprüft zum universellen Ersatzschlüssel erklärt.
+- Force-Zielplan, tatsächlich ausgeführtes Statement und dessen beobachtete Query-Store-plan_id getrennt führen. Vor/nach jedem Nutzaufruf eigene reguläre Ausführungen über alle Pläne und Intervalle derselben query_id aggregieren; Mehrfachzeilen vor Joins nach plan_id, execution_type und runtime_stats_interval_id zusammenfassen. Genau eine neue reguläre Ausführung und genau einen durch Struktur und Ausführungszuwachs passenden tatsächlichen Plan verlangen; Mehrdeutigkeit oder negativer Zählerzuwachs ist Fehler.
+- Nach ausschließlich eigener objektbezogener Neukompilierung die neue Cache-/Zählerepoche erfassen. Über einen Reset von DMV-Zählern (Dynamic Management Views; dynamische Diagnoseansichten) nicht blind subtrahieren. Ein Compile, Cachetreffer, neues Handle oder Zeitstempel allein beweist keine Ausführung; vollständige Ergebnistupel, echte Laufzeitzähler und Query-Store-Zuwachs müssen zum selben sequenziellen Nutzaufruf gehören.
+- Den tatsächlichen Plan aus genau einem Cacheeintrag der eigenen Datenbank/Prozedur und der aktuellen Ausführung lesen; vollständigen XML-Namensraum, ein eindeutiges passendes Nutzstatement und echte Laufzeitzähler verlangen. Root-only-, alte, unvollständige oder mehrere passende Pläne zurückweisen. Zusätzliche Steuer-/Beobachtungsstatements dürfen keinen Nutzplan vortäuschen; keine Reparatur eines abgeschnittenen Plans.
+- Strukturvergleich als vollständigen gerichteten Operatorbaum mit Kindreihenfolge, physischen/logischen Operatoren, eigenen Datenbank-/Schema-/Tabellen-/Indexbezügen, Join-/Seek-/Residualprädikaten, skalaren Ausdrücken, Datentypen, Sortier-/Gruppierungsschlüsseln und Projektionen entwerfen. Technische Knotennummern nur durch konsistente bijektive Referenzabbildung normalisieren. Kosten/Schätzungen, Zeiten/Laufzeitzähler und Kompilierungsmetadaten einschließlich Replay-Kennzeichnung getrennt beobachten. Kein flacher Operatorlisten- oder Hashvergleich als vollständiger Äquivalenzbeweis; unbekannte strukturelle Abweichung bleibt Fehler.
+- Jede Force-Anforderung eröffnet eine eigene Fehlerzählerepoche, weil erneutes Force den Fehlerzähler zurücksetzt. Rückgabewert 0, is_forced_plan = 1 und Anforderungsflag vor Ausführung kontrollieren; danach keine neue Force-Fehlermeldung und regulären Ausführungszuwachs verlangen. Ergebnis und Fehlerbefund vor Unforce (Aufheben der Erzwingung) sichern; Unforce durch is_forced_plan = 0 prüfen. Ein verbleibendes Deaktivierungs-Anforderungsflag 1 nach Unforce ist kein verbleibendes Force-Flag.
+
+**Deterministischer synthetischer Aufbau und Tupelorakel:**
+
+- Genau zehn eigene synthetische Tabellen mit jeweils materialisierten int-Spalten ohne NULL: Orders 96, OrderLines 192, Customers 48, Categories 4, Contacts 24, Cities 12, Regions 6, Countries 3, Items 48 und ItemGroups 96. Insgesamt exakt 529 Datenzeilen. Pro Tabelle Id von 1 bis zur genannten Anzahl als eindeutiger Primärschlüssel; keine Views, Funktionen, berechneten Spalten oder zusätzlichen Datenquellen.
+- Geschlossene Beziehungen: Orders.CustomerId = 1 + ((OrderId-1) modulo 48), Orders.ContactId = 1 + ((OrderId-1) modulo 24); OrderLines.OrderId = 1 + floor((LineId-1)/2), OrderLines.ItemId = 1 + ((LineId-1) modulo 48). Customers.CategoryId = 1 + ((CustomerId-1) modulo 4), Customers.CityId = 1 + ((CustomerId-1) modulo 12); Cities.RegionId = 1 + ((CityId-1) modulo 6), Regions.CountryId = 1 + ((RegionId-1) modulo 3). ItemGroups.ItemId = 1 + floor((MapId-1)/2), GroupNo = 1 + ((MapId-1) modulo 2). floor bedeutet Abrunden; modulo liefert den Rest einer Division.
+- Nichtschlüsselwerte materialisieren: CustomerValue = 3000 + CustomerId, CategoryValue = 1000 + CategoryId, ContactValue = 2000 + ContactId, CityValue = 4000 + CityId, RegionValue = 5000 + RegionId, CountryValue = 6000 + CountryId und ItemValue = 7000 + ItemId. Diese Werte aus den jeweils verbundenen Tabellen projizieren, nicht durch Konstanten oder aus Fremdschlüsseln berechnete Ausdrücke ersetzen. Keine Fremdschlüssel-Constraints als zusätzliche Optimiererannahme.
+- Genau neun vorher festgelegte sekundäre Indizes vor dem ersten Nutzaufruf: Orders(CustomerId), Orders(ContactId), OrderLines(OrderId), OrderLines(ItemId), Customers(CategoryId), Customers(CityId), Cities(RegionId), Regions(CountryId), ItemGroups(ItemId, GroupNo). Keine zusätzliche Indexkalibrierung, kein Indexentzug und keine Statistik-/Schemaänderung innerhalb der Vergleichsfolge; NO_INDEX gehört zum späteren ursprünglichen Demoschnitt.
+- Vollständiger Ergebnissatz je Nutzaufruf: zehn int-Werte (OrderId, LineId, CustomerValue, CategoryValue, ContactValue, CityValue, RegionValue, CountryValue, ItemValue, GroupNo), geordnet nach OrderId, LineId, GroupNo. Erwartung unabhängig aus den geschlossenen Id-Abbildungen für jede LineId und GroupNo erzeugen; vollständige Tupel und Duplikatmultiplizitäten vergleichen. Zeilenzahl, Summen oder Prüfsummen allein genügen nicht.
+
+**Zwei vorab begrenzte Abfrageformen:**
+
+- Form A: zwei identische SELECT-Joinzweige mit je zehn Tabellen und neun Joins gemäß dem gepinnten Microsoft-bigjoin-Muster; Orders verbindet Customers und Contacts, Customers verbindet Categories und Cities, Cities/Regions/Countries bilden die Ortskette, OrderLines verbindet Orders mit Items und ItemGroups. Zweige durch UNION ALL verbinden und die gesamte Ausgabe nach OrderId, LineId, GroupNo sortieren. Alle 192 Lines mit je zwei Gruppen ergeben 384 verschiedene Tupel, jedes zweimal: exakt 768 Ergebnistupel.
+- Form B: dieselben Tabellen, Daten, Indizes, Projektionen und Beziehungen, aber vier identische UNION-ALL-Zweige mit festem Filter LineId <= 96 je Zweig. 96 Lines mit je zwei Gruppen ergeben 192 verschiedene Tupel, jedes viermal: ebenfalls exakt 768 Ergebnistupel. Form B ist nur vorab begrenzter Ersatzkandidat, falls A nach zwei gültigen Aufwärmaufrufen keinen gespeicherten Replay liefert; keine Zusage, dass A oder B die Eignungsschwelle erreicht.
+- Vor späterer Ausführung genau einen final geprüften Quellenstand mit beiden Formen und vollständigem Text festschreiben. Jede Form erhält eine frische eigene markierte Datenbank und Prozedur; die untereinander verschiedenen Texte sind keine Varianten derselben Query-Store-query_id. Kein OPTION RECOMPILE, Query Store Hint, wechselnder Kommentar, allgemeines Cacheleeren oder automatisches Wachsen der Daten/Pläne. Quelle A vollständig bereinigen, bevor B angelegt wird.
+
+**Begrenzte Planerfassung als Entwurf:**
+
+- Für die separate Probe begrenzte letzte-tatsächliche-Planerfassung über sys.dm_exec_query_plan_stats entwerfen, nicht den überholten -y-32768-Aufruf. LAST_QUERY_PLAN_STATS nur in der eigenen Datenbank nach vollständiger Eigentumsprüfung sichern, aktivieren und wiederherstellen. Der gemeinsame Demo-Adapter und dessen 32.767-UTF-8-Byte-Vertrag bleiben unverändert ungeklärt; dieser private Diagnoseweg wird nicht zur Schulungsimplementierung erklärt.
+- Vorläufiger Transportentwurf: vollständige serverseitige XML-Darstellung als UTF-16-Bytes in nummerierten Stücken zu höchstens 100 Bytes, entsprechend höchstens 200 Hexadezimalzeichen je normaler sqlcmd-Spalte. Start-/Endrahmen, Stückzahl, lückenlose Reihenfolge, exakte Bytezahl und server-/clientseitige SHA-256-Prüfsumme prüfen; danach strikt UTF-16 dekodieren und das vollständige XML unverändert parsen. Zeichenersetzung, abgeschnittene Werte, doppelte/fehlende Stücke oder künstliche Zeilenumbrüche dürfen keinen Plan erzeugen.
+- Grenzen des Probeentwurfs: höchstens 512 KiB UTF-16-Rohplan und nach Dekodierung höchstens 256 KiB UTF-8-Plantext; KiB bedeutet 1024 Bytes. Gesamte Standardausgabe einschließlich 768 Tupeln und Stückrahmen höchstens 2 MiB (2.097.152 Bytes), Fehlerausgabe zusätzlich höchstens 64 KiB. Beide Kanäle während des Lesens begrenzen und leeren. Grenzverletzung oder Dekodierungs-/XML-Fehler beendet den eigenen Aufruf und löst Cleanup aus. Keine pauschale Übernahme der bisherigen privaten Python-Prototypen.
+
+**Offenes Methodengate für tatsächliche Replay-Nutzung:**
+
+- Speicherung und Nutzung sind getrennte Prüfaussagen: has_compile_replay_script = 1 belegt einen gespeicherten Replay, nicht allein dessen tatsächliche Verwendung. StatementOptmLevel = FULL und reduzierte Compilezeit reichen ebenfalls nicht als Nutzungsnachweis; Zeit-/Speicherwerte nur als beschreibende Diagnose erfassen, keinen Leistungsgewinn behaupten.
+- Das offizielle 2022-Showplan-XSD deklariert QueryCompilationReplay nur als optionales xsd:int; daraus folgt keine belastbare Wertsemantik. Vor dem ersten mutierenden Probelauf eine buildbezogen quellenbelegte positive Nutzungskennzeichnung und ihre Gegenkennzeichnung im vollständig erfassten tatsächlichen Plan festlegen und unabhängig prüfen. Kein konkreter Rohwert, insbesondere nicht pauschal 1, wird in diesem Plan als fertiger Nutzungsbeweis freigegeben. Ein fehlendes optionales Attribut ist für sich kein Deaktivierungsbeweis.
+- Bis diese Interpretation feststeht, bleibt das Methoden-Gate OPEN: Implementierung und SQL-Freigabe dürfen nicht daraus abgeleitet werden. Ein später zugelassener Lauf muss die gewählte Markersemantik und deren unveränderte Erfassung vorab binden. Wenn der positive Nutzungsbeleg in einer Ein-Phase fehlt, keine Aus-Phase oder alternative Telemetriemethode nachschieben; Ergebnis NOT_PROVEN und geregelter Abbruch. Keine serverweiten Ereignissessions oder undokumentierten Traceflags als automatischer Ersatz.
+
+**Geplante Folge – noch nicht ausgeführt:**
+
+- Vorbereitung nach neuer Freigabe: Quellen-/Methodenreview, negative Parser-/Zuordnungsfälle und erwartete vollständige Tupel prüfen; anschließend genaue Image-/Containeridentität, Ressourcen, Edition, Version, Rechte und isolierte Wegwerfumgebung vor jeder Datenbankänderung prüfen. Für die Probe mindestens YELLOW-Schutz (kontrollierte Optimiererlast) mit expliziten Isolations-/Lastbestätigungen; eigene Containerdienstaktionen zusätzlich eindeutig an die bestätigte Wegwerfumgebung binden. Keine Sicherheitsstufe allein aus der kleinen Zeilenzahl ableiten.
+- Quelle A in eigener Datenbank aufbauen, Ausgangsoptionen rekonstruierbar sichern; Query Store READ_WRITE, Capture ALL, 64 MiB Obergrenze, Intervall eine Minute und Flushintervall 60 Sekunden. OPTIMIZED_PLAN_FORCING muss bereits ON sein und bleibt unverändert; keine Datenbank-/Instanzumschaltung dieses Merkmals. LAST_QUERY_PLAN_STATS nur für die eigene Erfassung aktivieren. Höchstens zwei Aufwärmaufrufe je Form, vor jedem nur die eigene Prozedur per sp_recompile neu kompilieren; vollständiges Ergebnis und Plan erfassen, einmal explizit flushen und höchstens dreimal begrenzt den eigenen Zustand lesen.
+- Falls nach zwei gültig zugeordneten Aufwärmaufrufen von A kein gespeicherter Replay vorliegt, A innerhalb des regulären Budgets vollständig bereinigen und höchstens B in einer neuen eigenen Datenbank versuchen. Erfassungs-, Sicherheits-, Signatur-, Struktur- oder Ergebnisfehler erlauben diesen Wechsel nicht. Liefert auch B keinen gespeicherten Replay, Version mit NOT_PROVEN beenden; kein dritter Kandidat oder Zusatzaufruf.
+- Bei genau einem passenden Replay-Plan dessen eigene query_id/Force-plan_id binden und zwei feste Folgen Ein–Aus–Ein ausführen. Jede der sechs Phasen beginnt mit explizitem Unforce und bestätigtem is_forced_plan = 0, einem neuen Zählerschnappschuss und anschließend genau einem Force-Aufruf: query_id, plan_id, replica_group_id = 1 an dritter Stelle, disable_optimized_plan_forcing = 0 für Ein beziehungsweise 1 für Aus an vierter Stelle. Dies ist auf 2022 noch zu prüfen, auf 2025 nur vorläufig quellen-/befundgestützt. Fehler bedeutet Abbruch dieser Version; keine Signaturpermutationen oder Dreiparameter-Rückfälle.
+- Nach angenommener Anforderung und passendem Anforderungsflag genau einen tatsächlichen Nutzaufruf mit eigener Neukompilierung ausführen, vollständige Tupel und Plan binden, eigene Query-Store-Zähler/Fehler sowie Markerrohwerte sichern und ausdrücklich Unforce prüfen. Ein verlangt gespeicherten Replay und den vorher freigegebenen positiven Nutzungsbeleg. Aus verlangt Anforderungsflag 1, weiterhin erfolgreiche klassische Erzwingung am zugeordneten Plan einschließlich positivem UsePlan-Merkmal sowie die freigegebene Gegenkennzeichnung. Die folgende Ein-Phase muss die positive Nutzung wieder belegen; keine Abschaltungsbehauptung aus Aus-Abwesenheit allein.
+- Alle sechs Vergleichsphasen behalten Text, Modul, Kontext, Daten, Indizes, ausgewählten Zielplan und Datenbankkonfiguration unverändert; nur die Deaktivierungsanforderung wechselt. Vorhandensein/Verlust des gespeicherten Replay und beobachtete Planrollen vollständig protokollieren. Verlust der positiven Ausgangslage oder nicht eindeutig zugeordneter Replay-/Forcingfehler beendet die Folge, statt nachträglich einen einfacheren Nachweis zu wählen.
+- Nach beiden gültigen Folgen ein letzter regulärer Nutzaufruf unter ausdrücklich aufgehobener Erzwingung, weiterhin korrekte Tupel/Zuordnung und is_forced_plan = 0 belegen. Danach Originaloptionen exakt wiederherstellen, eigene Datenbank entfernen und Abwesenheit unabhängig prüfen. Versionsspezifischer offener Befund darf nach sauberem Cleanup die schon eingeplante andere Version mit demselben Quellenstand nicht automatisch qualifizieren; ein gemeinsamer Sicherheits-/Erfassungs-/Quellenfehler stoppt die gesamte Runde.
+
+**Harte Aufruf-, Zeit- und Ressourcengrenzen:**
+
+- Höchstens zwei neue eigene Prüfcontainer insgesamt, je einer für die genannten 2022-/2025-Builds, sequenziell mit höchstens einem aktiven Container und einer eigenen Datenbank. Je Container zwei Prozessorkerne, 3 GiB (Gibibyte) Containerobergrenze und 2048 MiB SQL-Speicherlimit; keine Hostports, fremden Mounts oder fremden Container. Kein Download oder neuer Provider als automatischer Ersatz. Höchstens zwei gleichzeitig aktive eigene SQL-Sessions: ein Nutzworker und bei Bedarf ein Beobachter/Cleanupkanal; keine parallele Nutzlast.
+- Je Version maximal zwei vorab festgelegte Abfrageformen A/B, je Form eine frische eigene Datenbank, 529 Nutzdatenzeilen und 768 Ergebnistupel je Aufruf. Höchstens acht gespeicherte Pläne der einen eigenen Nutzabfrage und 16 KiB UTF-16 je vollständigem Probetext. Jede Datenbankdatei höchstens 128 MiB; Query Store höchstens 64 MiB. Diese Probegrenzen erweitern weder die 1000-Zeilen-/4096-Byte-/32-MiB-Grenzen noch die sechs Aufrufe des ursprünglichen Demoschnitts. Für TempDB (temporäre Systemdatenbank) ist keine Last beabsichtigt; Bedarf noch ungemessen. Eigene Sessionallokationen innerhalb der Aufrufepoche beobachten und bei 64 MiB keine weitere Nutzphase zulassen beziehungsweise den belegten eigenen Worker abbrechen. Das ist ein vorläufiger Abbruchschutzwert, keine Zusage über den tatsächlichen Spitzenbedarf und keine Änderung der TempDB-Dateien.
+- Maximal elf geplante Nutzaufrufe je Version: zwei Aufwärmaufrufe für A, bei fehlender Eignung höchstens zwei für B, sechs Aufrufe für zwei Ein–Aus–Ein-Folgen und ein letzter unforced Vergleich. Ohne B sind es höchstens neun. Keine Wiederholung fehlgeschlagener Phasen und keine Reserveaufrufe bis zufällig grün. Höchstens elf explizite Query-Store-Flushes und 100 reguläre SQL-Batches je Version einschließlich begrenzter Beobachtungen; vollständige Aufrufzählung vor Start reservieren.
+- Gemeinsames reguläres Zeitbudget höchstens 900 Sekunden ab erstem Containerstart einschließlich beider Versionen, Kandidatenwechsel und Zwischenbereinigung; Kontrollpunkt bei 600 Sekunden. Kein neuer Kandidat oder Versionsstart mit weniger als 180 Sekunden Restbudget. Je SQL-Aufruf höchstens 15 Sekunden, äußerer Prozess höchstens 20 Sekunden und stets auf Restbudget begrenzt; abschließendes Cleanup zusätzlich höchstens 60 Sekunden je Container. Kein Zurücksetzen dieser Budgets bei Quellwechsel, Fehler oder Wiederaufnahme; frühere C1–C5-Befunde bleiben historische Evidenz, keine neuen Freigaben.
+
+**Eigentum, Wiederherstellung und Abbruch:**
+
+- Vor jeder Änderung vollständige FWK-002-Marker- und Rohwertprüfung (Namens-/Eigentumsvertrag für Testdatenbanken); FWK-007 nur als Query-Store-Lifecycle-Vertrag verwenden, keinen älteren verkürzenden/NULL-anfälligen Guard ungeprüft übernehmen. Baseline vor ENABLE/Optionänderung rekonstruierbar sichern; CUSTOM oder nicht rekonstruierbare Konfiguration vor Mutation ablehnen. Kein Query-Store-CLEAR, globales Cacheleeren, Datenbank-Recoveryexperiment oder Eingriff in Bestandsdatenbanken.
+- Cleanup unabhängig vom Ergebnis: eigene Sessions/Transaktionen beenden, eindeutige Force-Bindungen aufheben, ursprüngliche Query-Store- und LAST_QUERY_PLAN_STATS-Optionen exakt wiederherstellen und prüfen, danach nur vollständig markergebundene Datenbank entfernen. Abschließend eigene Containeridentität samt Kennung, Name, Image und Eigentumslabel erneut prüfen, eigenen Wegwerfcontainer entfernen und Abwesenheit unabhängig nach Kennung/Name/Label belegen. Fremde Zustände unverändert lassen. Abbruchsignal sind Benutzerabbruch, Gesamt-/Schrittbudget oder Ausgabegrenze. Eigene Prozessgruppe beenden; SQL-KILL nur bei vorher belegter eigener Sessionlease aus Container-/Laufbindung, session_id und login_time mit erneuter Identitätsprüfung. Bei unbekannter Lease keinen fremden Sessionzustand erzwingen, sondern den eindeutig eigenen Wegwerfcontainer-Recoverypfad verwenden.
+- Bei unbekanntem Datenbankeigentum keine SQL-Löschung erzwingen; nur bei weiterhin vollständig nachgewiesenem eigenen Wegwerfcontainer dessen vereinbarten Recoverypfad verwenden und den Eigentums-/Cleanupfehler erhalten. Timeout ist kein Bereinigungsbeweis. Fehlender Cleanup bleibt FAIL_CLEANUP und darf nicht als erfolgreicher oder ausgelassener Fachnachweis enden. Private Logs/Pläne behalten, Datenschutz vor jeder späteren Veröffentlichung prüfen; keine Secrets oder realen Diagnosedaten versionieren.
+
+**Spätere Prüfungen – noch nicht ausgeführt:**
+
+- Vor SQL: unabhängiger Review von vollständigem tatsächlichem Statement-/Kontextbezug, gerichteter Struktur-/Referenznormalisierung, optionalen Metadaten und Zählerepochen. Lokale Gegenfälle: gleicher Hash bei fremdem Text/Objekt/Index/Prädikat, falscher Kontext und alte oder mehrere passende Pläne müssen scheitern. Bekannte Hashüberschreibung bei vollständig erfüllter übriger Bindung muss als Metadatenbefund erhalten bleiben, ohne allein Erfolg oder Fehler zu entscheiden.
+- Transportfälle vor SQL: fehlende, doppelte, vertauschte oder übergroße Stücke, falsche Bytezahl/Digest, ungültiges UTF-16, unvollständiges XML, künstlicher Clientumbruch, Root-only-Plan, fehlende Laufzeitzähler und zusätzliches passendes Nutzstatement zurückweisen; beide Ausgabekanäle während des Lesens begrenzen. Grenzen genau bei/oberhalb Rohplan-, UTF-8-, Gesamtausgabe- und Fehlerausgabelimit prüfen.
+- Tupelorakel: Form A mit Multiplizität zwei gegen Form B mit Multiplizität vier unterscheiden, obwohl beide 768 Zeilen liefern. Gleiche Anzahl oder Summen mit anderen Werten/Duplikaten muss scheitern. Die schmale Detailprojektion darf nicht zu COUNT/SUM oder TOP geändert werden, um eine andere Planform zu erzeugen.
+- Zählerfälle: Intervallwechsel und mehrere Speicher-/Persistenzzeilen korrekt aggregieren, Wrapper/Beobachter und nicht reguläre Ausführungen ausschließen; Query-/Planwechsel, negative Deltas und verlorene Neukompilierungs-/Force-Epochen zurückweisen. Keine Zählersubtraktion über einen ungeklärten Reset hinweg.
+- Replayfälle: gespeicherter Replay ohne positiven Nutzungsbeleg, fehlendes Attribut oder bloßer Flagwechsel darf keinen Nutzungs-/Deaktivierungsnachweis liefern. Ein-Phase ohne bestätigte Nutzung stoppt, Aus-Phase ohne erfolgreiche klassische Erzwingung oder nachfolgende positive Ein-Phase bleibt unbelegt. Unbekannte Markerwerte niemals automatisch als aus interpretieren.
+- Sicherheits-/Abbruchfälle: fehlende, fremde, zu lange, Unicode-abweichende oder gekürzte Marker; fehlende Rechte; nicht rekonstruierbare Ausgangsoptionen; Timeout/Outputlimit nach Setup und zwischen Vergleichsphasen; doppelte Cleanup-Anforderung und unabhängige Abwesenheit. Fehlversuche und Zähler/Budgets bleiben erhalten. Keine dieser Prüfungen oder SQL-Proben wurde in diesem Planungsauftrag ausgeführt.
+
+**Abnahmekriterien:**
+
+- Planungsabnahme jetzt: kombinierte Bindung, deterministische Daten-/Tupelformeln, zwei begrenzte Formen, Abfolge, Marker-Methodengate, harte Ressourcen-/Aufruf-/Zeitgrenzen, Abbruch/Cleanup und spätere Gegenfälle kanonisch dokumentiert. Nur statische Dokumentations-/Registryprüfung, keine Probe-Implementierung oder Laufzeitbehauptung.
+- Spätere Teilabnahme pro Zielbuild nur nach neuer Freigabe und bestandenem Methoden-/Quellenreview: eindeutige Query-/Planrollen, tatsächliche reguläre Ausführung und vollständige Tupel, zwei vollständige Ein–Aus–Ein-Folgen mit positiv belegter Replay-Nutzung in beiden Ein-Phasen und belegter Deaktivierung dazwischen sowie unforced Abschluss und vollständig geprüfter Cleanup. Fehlende Replay-Eignung oder Nutzungsbeobachtbarkeit ist NOT_PROVEN/offenes Gate, kein grünes PASS und keine pauschale Versionsfreigabe.
+- Auch eine später erfolgreiche private Probe belegt nur die bezeichneten Builds und den abgegrenzten Diagnosevertrag. Kein Leistungsbenchmark, keine 2019-Abnahme und keine Implementierungs-/Releasefreigabe der eigentlichen Erfolgs-/NO_INDEX-/Ersatzplan-Demo. Die ursprüngliche vollständige Demoqualifikation einschließlich ihrer Wiederholungen und Plattformgrenzen bleibt offen.
+
+**Verbleibende Freigabegates:**
+
+- Vor Umsetzung Nutzungsmarker und Gegenkennzeichnung buildbezogen quellenbelegen und unabhängig freigeben; optionales xsd:int oder Katalogflag allein genügt nicht. Der geplante Ein–Aus–Ein-Vergleich ist ohne dieses Methodengate nicht zur Mutation freigegeben.
+- Kombinierte Zuordnungs-/Struktur- und Transportumsetzung einschließlich aller statischen Gegenfälle unabhängig prüfen; bestehende private Prototypen sind keine bereits freigegebene Implementierung. Eigentliche Demo-Erfassung unter 32.768 UTF-8-Bytes bleibt gesondert zu entwerfen.
+- Neuer ausdrücklicher Auftrag für Implementierung der begrenzten Probe und anschließend erlaubte SQL-/Lab-Läufe innerhalb der festgelegten Gesamtrunde erforderlich. Nicht allein aus dem jetzigen Plan oder früheren SQL-Freigaben ableiten; übrige Verarbeitung pausiert.
+- Erweiterte 2022-Signatur, Replay-Eignung von A/B, tatsächlich gespeicherter und genutzter Replay, Deaktivierung und Cleanup auf beiden Builds bleiben empirisch offen. Bei Grenz- oder Methodenfehlern stoppen statt Daten, Queryformen oder Nachweisregeln automatisch zu erweitern.
+
+**Primärquellen der Herleitung:**
+
+- [Gepinnte Microsoft-Referenzabfrage](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql)
+- [Gepinnte Referenzanleitung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md)
+- [Replay-Eignung und Grenzen](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16)
+- [Letzter tatsächlicher Plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17)
+- [Offizielles 2022-Showplan-XSD – XML-Schemadefinition](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd)
+
+Registrierte Einordnung: [Zuordnungs- und Replay-Probenentwurf zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-plan-für-kombinierte-zuordnung-und-begrenzte-replay-probe-vom-24-oktober-2026).
+
 ###### Begrenzter Planungsschnitt: Planerzwingung
 
-**Stand:** 2026-10-23; ursprüngliche Basis `4bab78cc321970c014784602f8ba068e38efd70d`. Präzisiert am 2026-10-24 gegen `a87d1d7e68679238b766fb31a399b46825f14efd`; frühere Entwürfe und Versionsbefunde über [PR315](https://github.com/gecompat/SQL_PerformanceSchulung/pull/315), [PR316](https://github.com/gecompat/SQL_PerformanceSchulung/pull/316) und [PR317](https://github.com/gecompat/SQL_PerformanceSchulung/pull/317) erhalten. **Status:** DESIGNED_WITH_OPEN_GATES – Hashmuster quellenbasiert eingeordnet, Replay-Referenz ausgewählt; kombinierter Zuordnungsreview, Erfassung und tatsächliche Versionsnachweise offen. Keine angepasste Abfrage, Umsetzung oder Laufzeitfreigabe.
+**Stand:** 2026-10-23; ursprüngliche Basis `4bab78cc321970c014784602f8ba068e38efd70d`. Präzisiert am 2026-10-24 gegen `c238ba5c6e4b00782fd9fbc37d7c87333880823c`; frühere Entwürfe und Befunde über [PR315](https://github.com/gecompat/SQL_PerformanceSchulung/pull/315), [PR316](https://github.com/gecompat/SQL_PerformanceSchulung/pull/316), [PR317](https://github.com/gecompat/SQL_PerformanceSchulung/pull/317) und [PR318](https://github.com/gecompat/SQL_PerformanceSchulung/pull/318) erhalten. **Status:** DESIGNED_WITH_OPEN_GATES – ursprünglicher Sechs-Aufruf-Demoschnitt erhalten; kombinierte Zuordnung und separate begrenzte Replay-Probe unter mapping_replay_probe_plan entworfen. Nutzungsmarker, Umsetzung und Versionsnachweise offen.
 
 **Lernziel:**
 
@@ -883,10 +990,10 @@ DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachlich
 
 **Verbleibende Freigabegates:**
 
-- Zuordnung und 2022-Signatur: Hashmuster quellenbasiert eingeordnet; kombinierte Text-/Modul-/Kontext-/Ergebnis-/Planbindung einschließlich ergänzender Hash-/Handlewerte unabhängig prüfen. Ein früherer Diagnoseabbruch ist damit erklärt, nicht nachträglich bestanden. Erweiterte 2022-Aufrufformen und Anforderungsflag bleiben ungeprüft; keine Hersteller-Fixbehauptung für 16.0.4265.3.
-- Replay auf beiden Builds: Referenz erst nach neuem ausdrücklichem Auftrag als begrenzte synthetische Diagnoseform entwerfen und qualifizieren. Gespeicherten Replay und tatsächliche Wiederverwendung derselben eigenen Abfrage positiv belegen; anschließend tatsächliche Deaktivierung gegenüberstellen. Flagwechsel oder fehlendes optionales Replay-Merkmal allein reichen nicht. Keine Laufzeitfreigabe für den verkleinerten Kandidaten oder 2025.
-- Erfassung: überholten -y-32768-Entwurf vor Umsetzung ersetzen und den ausgewählten Adapter unabhängig gegen vollständige Zuordnung, Kodierung, Ausgabegrenzen sowie Abbruch/Cleanup prüfen. Private große Diagnosepläne und Stückübertragung erweitern den geplanten Demoschnitt nicht.
-- Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
+- Vor Umsetzung Nutzungsmarker und Gegenkennzeichnung buildbezogen quellenbelegen und unabhängig freigeben; optionales xsd:int oder Katalogflag allein genügt nicht. Der geplante Ein–Aus–Ein-Vergleich ist ohne dieses Methodengate nicht zur Mutation freigegeben.
+- Kombinierte Zuordnungs-/Struktur- und Transportumsetzung einschließlich aller statischen Gegenfälle unabhängig prüfen; bestehende private Prototypen sind keine bereits freigegebene Implementierung. Eigentliche Demo-Erfassung unter 32.768 UTF-8-Bytes bleibt gesondert zu entwerfen.
+- Neuer ausdrücklicher Auftrag für Implementierung der begrenzten Probe und anschließend erlaubte SQL-/Lab-Läufe innerhalb der festgelegten Gesamtrunde erforderlich. Nicht allein aus dem jetzigen Plan oder früheren SQL-Freigaben ableiten; übrige Verarbeitung pausiert.
+- Erweiterte 2022-Signatur, Replay-Eignung von A/B, tatsächlich gespeicherter und genutzter Replay, Deaktivierung und Cleanup auf beiden Builds bleiben empirisch offen. Bei Grenz- oder Methodenfehlern stoppen statt Daten, Queryformen oder Nachweisregeln automatisch zu erweitern.
 
 **Zurückgestellt:**
 
@@ -896,7 +1003,7 @@ Query Store Hints (gespeicherte Abfragehinweise; Zusatzpfad ab 2022), automatisc
 
 M (mittel) – ausschließlich vorläufige Einschätzung; offene Plannachweis-/Versionsfragen können den Umfang ändern. Bei Überschreitung nicht autonom erweitern.
 
-Registrierte Detailquellen: [DGN-004-Hashzuordnung und Replay-Referenz](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+Registrierte Detailquellen: [DGN-004-Zuordnungs- und Replay-Probenentwurf](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-plan-für-kombinierte-zuordnung-und-begrenzte-replay-probe-vom-24-oktober-2026).
 
 ##### 4. RES-004 – Lückenprüfung für Memory Grants und konkurrierende Zuteilungen
 

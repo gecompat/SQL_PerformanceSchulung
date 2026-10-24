@@ -1,46 +1,50 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Hashbefunde und Replay-Referenz aufnehmen
+## Auftrag vom 24. Oktober 2026: kombinierte DGN-004-Zuordnung und Replay-Probe planen
 
-Der aktuelle menschliche Auftrag ergänzt bei TSK-016 die lesenden DGN-004-
-Hashbefunde (Planerzwingung), eine quellenbasierte Optimierungs-Replay-Referenz
-(wiederverwendbare Kompilierungsschritte) und offene Gates. Integration per
-Pull Request (Änderungsantrag) nach `origin/main`; nur statische CI (Continuous
-Integration; automatisierte Integrationsprüfungen), keine Umsetzung oder
-SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; keine Automation aktiviert.
+Der aktuelle menschliche Auftrag plant bei TSK-016 die kombinierte Planzuordnung
+und eine separate begrenzte synthetische Optimierungs-Replay-Probe
+(Wiederverwendung von Kompilierungsschritten) für DGN-004 (Planerzwingung) auf
+SQL Server 2022/2025. Nur Planung und relevante statische Prüfung, keine Umsetzung,
+Tests der Probe oder SQL-/Lab-Läufe. Dokumentationsintegration im bestehenden
+Pull-Request-Verfahren (Änderungsantrag); übrige Verarbeitung bleibt pausiert.
+Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
 
-Der [kanonische Eintrag](../../.ai/identity/registry.json) führt die neue Sichtung
-unter `hash_replay_review_result`; `version_probe_result` und die älteren
-Analyze-/Design-/Gatebefunde bleiben unverändert. Die
-[abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesende-hashanalyse-und-replay-referenz)
-und das [Quellenregister](../Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026)
-binden Primärquellen, private Planprüfsummen und Aussagegrenzen.
+Der [kanonische Entwurf](../../.ai/identity/registry.json) steht unter
+`mapping_replay_probe_plan`; ursprüngliche Quellen-, Gate-, Versions- und
+Hashbefunde bleiben unverändert. Die [abgeleitete Planansicht](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-für-kombinierte-zuordnung-und-begrenzte-replay-probe-vom-24-oktober-2026)
+führen dieselben Grenzen und offenen Methodengates.
 
-Die vorhandenen 2022-Pläne zeigen bei gleichem Text, Modul, Kontext,
-Statement-SQL-Handle, Operatorfolge, Objektzugriffen und Prädikaten den Wechsel
-des Abfragehashs auf den Planhash. Das Muster entspricht veröffentlichten
-Originalreproduktionen zur Forcing-Hashüberschreibung. Eine unveränderte
-QueryHash-Gleichheit ist keine geeignete alleinige Identitätsbedingung; auch der
-Kataloghash kann laut Originalreproduktion betroffen sein. Dessen lokale Änderung
-wurde nicht erfasst. Kombinierte Zuordnung unabhängig prüfen, ohne den bestehenden
-vollständigen Struktur-/Objekt-/Ergebnisvertrag zu lockern. Kein neuer Lauf und
-keine Hersteller-Fixbestätigung für SQL Server 2022/16.0.4265.3.
+Die Zuordnung verbindet eigene Datenbank/Prozedur, vollständigen Text und Kontext,
+getrennten Force-Zielplan und tatsächlich ausgeführten Plan, vollständigen
+Operatorbaum samt Objekt-/Prädikatbezügen, alle Ergebnistupel und genau einen neuen
+regulären Ausführungszuwachs. Hashes/Handles sind ergänzende Beobachtungen, keine
+Alleinschlüssel; die bekannte 2022-Hashüberschreibung darf allein weder Erfolg noch
+Fehler entscheiden. Neue Kompilierungs- und Force-Zählerepochen getrennt behandeln.
 
-Microsoft-bigjoin ist als Referenz ausgewählt: zwei UNION-ALL-Zweige mit je zehn
-Tabellen, Detailtupeln und abschließender Sortierung. Die Anleitung beschreibt
-einen gespeicherten Replay auf SQL Server 2022. Eine kleine synthetische Variante
-innerhalb unserer Grenzen und die Eignung auf 2025 sind unbestätigt. Cacheleerung,
-feste Datenbankwiederherstellung, Query-Store-Leerung und ungefilterte Plansicht
-werden nicht übernommen. Keine angepasste Abfrage oder zusätzliche Demo entstanden.
+Geplant sind 529 synthetische Datenzeilen in zehn Tabellen und zwei feste Formen
+mit jeweils 768 vollständigen Ergebnistupeln: A mit zwei UNION-ALL-Zweigen, B als
+einmaliger Ersatz mit vier Zweigen und festem Zeilenfilter. B darf nur bei gültiger
+Erfassung und fehlender Replay-Speicherung von A folgen. Keine Datenvergrößerung,
+Hintvariation oder Wiederholung bis zufällig grün. Der ursprüngliche Sechs-Aufruf-
+ForceProbe-Demoschnitt bleibt erhalten und unimplementiert.
 
-Offen bleiben kombinierter Zuordnungsreview und erweiterte 2022-Signatur,
-positive Speicherung und tatsächliche Replay-Nutzung vor dem Deaktivierungsvergleich
-auf beiden Builds, Erfassungsentscheidung sowie unabhängiger Quellen-/Ergebnisreview
-und ausdrücklicher Umsetzungsauftrag. Die bisherigen 2025-Aufruf-/Flagbefunde aus
-PR317 bleiben Teilnachweis. Die private Diagnose wurde nicht nachträglich bestanden;
-die Versionsfreigabe bleibt offen. Weitere Proben benötigen einen neuen Auftrag.
-Ursprüngliche Demo-Daten-/Plan-/Zeitgrenzen, feste ForceProbe-Abfrage und sechs
-Nutzaufrufe bleiben erhalten; keine zweite Planungsliste oder automatische Fortsetzung.
+Spätere Obergrenzen: zwei eigene Container insgesamt, je einer für die festgelegten
+2022-/2025-Builds, sequenziell; höchstens elf Nutzaufrufe je Version inklusive
+Aufwärmen und zwei Folgen Ein–Aus–Ein. Gemeinsames reguläres Budget 900 Sekunden,
+zusätzlich höchstens 60 Sekunden abschließendes Cleanup je Container. Grenzen für
+Daten, Plan-/Gesamtausgabe, Beobachter und Query Store sind kanonisch festgelegt;
+kein Container und keine ausführbare Probe werden jetzt erstellt oder gestartet.
+
+Offen vor Umsetzung bleibt insbesondere der positive Nutzungsnachweis: ein
+gespeicherter Replay oder ein optionaler Ganzzahlmarker im Showplan beweist nicht
+allein tatsächliche Nutzung. Wertsemantik und Gegenkennzeichnung müssen für die
+Zielbuilds quellenbelegt und unabhängig geprüft werden. Ohne dieses Methodengate
+keine mutierende Freigabe der Vergleichsfolge. Danach bleiben unabhängiger
+Zuordnungs-/Transportreview und ein neuer ausdrücklicher Umsetzungs-/Laufauftrag
+erforderlich. Die Versionsfreigabe und eigentliche Demoqualifikation bleiben offen;
+keine Automation oder übrige Arbeit wird fortgesetzt.
 
 ## Erhaltene abgeschlossene Schnitte
 

@@ -456,3 +456,34 @@ Replay-Speicherung und tatsächliche Nutzung vor dem Deaktivierungsvergleich auf
 beiden Builds sowie Erfassungsentscheidung und Demo-Freigaben. Kein weiterer
 Lauf oder Umsetzungsauftrag folgt daraus. Der [aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 bindet statische Integration und fortbestehende Pause.
+
+### DGN-004: Plan für kombinierte Zuordnung und begrenzte Replay-Probe vom 24. Oktober 2026
+
+Ergänzung von `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`c238ba5c6e4b00782fd9fbc37d7c87333880823c`; Klasse `METHODE/INFERENZ` für den neuen
+Probenentwurf, keine neue Ausführung oder technische Qualifikation. Der bestehende
+[Microsoft-Referenzablauf](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql)
+motiviert UNION-ALL-Joinzweige und Sortierung; die synthetischen 529 Datenzeilen,
+Formen A/B und 768 Ergebnistupel sind eigener unimplementierter Plan.
+
+- [Replay-Eignung und Speicherung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver16): gespeicherte Kompilierungsschritte, volle Optimierung und Nutzenprüfung. Joinzahl oder Katalogflag allein belegen keine tatsächliche Nutzung. Kein garantierter Eignungs- oder Leistungswert wird daraus abgeleitet.
+- [Letzter tatsächlicher Plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17): Cache-/Modulbindung und mögliche reduzierte/fehlende Ausgabe. Der Entwurf verlangt zusätzlich vollständigen Statement-/Kontext-/Struktur-/Tupelbezug und Ausführungszuwachs; alte oder Root-only-Pläne reichen nicht.
+- [Offizielles 2022-Showplan-XSD](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd): QueryCompilationReplay ist als optionales xsd:int deklariert. XSD bedeutet XML Schema Definition, Schemadefinition des strukturierten Planformats; der Typ enthält keine belastbare Definition der Rohwertbedeutung. Daher wird insbesondere kein pauschaler Wert 1 als fertiger Nutzungsbeweis festgelegt.
+
+Das Methoden-Gate für positive Replay-Nutzung und Gegenkennzeichnung bleibt offen
+und ist vor Umsetzung unabhängig für die Zielbuilds zu klären. Erst danach kann
+eine später ausdrücklich autorisierte Ein–Aus–Ein-Folge einen Deaktivierungsnachweis
+anstreben. Katalogflag, Compilezeit oder fehlendes optionales Merkmal allein genügen
+nicht. Unbekannte Werte oder fehlende positive Beobachtbarkeit werden nicht durch
+alternative Telemetrie, Zusatzaufrufe oder gelockerte Nachweisregeln ersetzt.
+
+Die [kanonische Planung bei TSK-016](../../.ai/identity/registry.json) unter
+`mapping_replay_probe_plan` und die [abgeleitete Planansicht](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+binden Daten-/Tupelformeln, kombinierte Zuordnung, zwei Kandidaten, Zählerepochen,
+harte Budgets, spätere Gegenfälle und Cleanup. Vorhandene private Planbelege und
+frühere Originalquellen bleiben unverändert. Aktuell nur Planung und statische
+Integration, keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; weitere
+Ausführung benötigt einen neuen ausdrücklichen Auftrag. Der
+[aktuelle Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) hält die
+übrige Verarbeitung pausiert.
