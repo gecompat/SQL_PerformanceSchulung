@@ -1,29 +1,33 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## Begrenzter Planungsauftrag vom 23. Oktober 2026: DGN-004
+## Planungspräzisierung vom 24. Oktober 2026: DGN-004
 
-DGN-004 (Planerzwingung) wird anhand der Quellenbefunde bei TSK-016 mit
-begrenztem Umfang, späteren Tests und Abnahmekriterien geplant. Keine
-Implementierung und keine SQL-/Lab-Läufe; nur relevante statische Planungs-
-und Integrationsprüfungen. Die übrige autonome Verarbeitung bleibt pausiert.
+Der aktuelle Auftrag ergänzt die lesenden DGN-004-Befunde (Planerzwingung)
+bei TSK-016 und präzisiert den vorhandenen begrenzten Plan. Integration per
+Pull Request (Änderungsantrag) nach `origin/main`, ausschließlich relevante
+statische Prüfungen einschließlich CI (Continuous Integration; automatisierte
+Integrationsprüfungen). Keine Implementierung oder SQL-/Lab-Läufe;
+die übrige autonome Verarbeitung bleibt pausiert.
 
-Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) enthält
-den Entwurf; die [abgeleitete Backlogansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
-erläutert Lernziel, Ablauf, Schutzgrenzen, Tests und Abnahme. Der erste Schnitt
-verwendet eine eigene Datenbank und feste Abfrage: zwei tatsächlich ausgeführte
-Planvarianten, manuelle Erzwingung, ein kontrolliert entfernter Index,
-nachgewiesene Ersatzplanung und ausdrückliche Rücknahme. Query Store
+Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) und seine
+[abgeleitete Backlogansicht](../../.ai/BACKLOG.md#begrenzter-planungsschnitt-planerzwingung)
+führen die feste Prozedurabfrage, getrennte Rollen für erzwungenen Zielplan
+und tatsächlich ausgeführten Plan, einen begrenzten vollständigen
+Erfassungsvertrag sowie spätere Pflicht-/Gegenfälle. Eine eigene Datenbank,
+sechs Nutzaufrufe, ein kontrollierter Indexentzug, erfolgreiche Ersatzplanung
+und ausdrückliche Rücknahme bleiben der erste Schnitt. Query Store
 (persistente Abfrage- und Planhistorie) aus DGN-003 ist fachliche Grundlage;
-Query Store Hints (gespeicherte Abfragehinweise) und weitere Fehlerklassen
-bleiben zurückgestellt. Quellen belegen Mechanismen; Planwahl und der konkrete
-Fehlerablauf sind noch nicht empirisch bestätigt.
+Hints (gespeicherte Abfragehinweise) und weitere Fehlerklassen bleiben offen.
 
-Vor Umsetzung sind die offenen Abfrage-/Plannachweis- und Versionsfragen
-lesend zu präzisieren. Danach sind ein ausdrücklicher Umsetzungsauftrag und
-der erforderliche unabhängige Quellen-/Ergebnisreview nötig. Verantwortlich
-ist die beauftragte Umsetzungsrolle, Auslöser ein neuer menschlicher Auftrag.
-Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) trennt diesen
-Plan von abgeschlossenen Nachweisen und historischen Fortsetzungen.
+Vor Umsetzung bleiben zwei konkrete Freigabegates: der vollständige
+Erfassungsadapter im vorhandenen Harness (Ausführungsrahmen) und die
+widersprüchlichen buildbezogenen Versionsangaben zu optimierter
+Planerzwingung ab 2022. Danach sind ausdrücklicher Umsetzungsauftrag und
+unabhängiger Quellen-/Ergebnisreview erforderlich. Zuständig ist die spätere
+beauftragte Umsetzungsrolle; Auslöser ist ein neuer menschlicher Auftrag.
+Planwahl und konkrete Fehlersequenz bleiben empirisch unbestätigt.
+Der [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) bindet Pause,
+verbleibende Gates und den erhaltenen ursprünglichen Entwurf aus PR314.
 
 Die früheren begrenzten Schnitte bleiben erhalten: OPT-007
 (Ad-hoc-Plancache; Zwischenspeicher spontan formulierter Abfragen) ist über
