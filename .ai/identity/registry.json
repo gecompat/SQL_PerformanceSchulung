@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "in_progress",
       "priority": "P1",
-      "scope": "Autorisierter Dokumentationsauftrag vom 24. Oktober 2026: bei TSK-016 den engeren DGN-004-Erfassungsentwurf (Planerzwingung) und die zusätzlichen lesenden Befunde zum weiterhin offenen Versionsgate für SQL Server 2022/2025 ergänzen; Integration per Pull Request (Änderungsantrag) nach origin/main. Ausschließlich relevante statische Prüfungen einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen), keine Implementierung oder SQL-/Lab-Läufe. Die übrige autonome Verarbeitung bleibt pausiert; Quellenbefunde, Kennungen und bisherige Implementierungsnachweise bleiben erhalten.",
+      "scope": "Autorisierter Dokumentationsauftrag vom 24. Oktober 2026: die zuvor ausdrücklich erlaubten begrenzten DGN-004-Versionsbefunde (Planerzwingung) und offenen Gates bei TSK-016 aufnehmen und per Pull Request (Änderungsantrag) nach origin/main integrieren. Nur relevante statische Prüfungen einschließlich CI (Continuous Integration; automatisierte Integrationsprüfungen), keine weiteren SQL-/Lab-Läufe und keine Demo-Umsetzung. Die übrige Verarbeitung bleibt pausiert; ursprüngliche Quellenbefunde, Kennungen und bisherige Implementierungsnachweise bleiben erhalten.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -689,18 +689,18 @@
             ]
           },
           "planning_decision": {
-            "disposition": "Engeren Erfassungsentwurf mit fester sqlcmd-Anzeige und Planumfang unter 32.768 UTF-8-Bytes aufgenommen. Das Versionsgate für 2022/2025 bleibt trotz zusätzlicher Systemreferenzprüfung offen; P2 und der fehlende Umsetzungsauftrag bleiben unverändert.",
+            "disposition": "Begrenzte Versionsdiagnose als Teilbefund aufgenommen: 2025-Aufrufform und Anforderungsflag charakterisiert, 2022-Hashbindung und tatsächliche Replay-Abschaltung auf beiden Builds offen. Der frühere Anzeigeentwurf -y 32768 ist für den geprüften Client überholt; Erfassungsweg vor Umsetzung neu zu prüfen. P2 und fehlender Umsetzungsauftrag bleiben unverändert.",
             "rationale": "Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.",
             "dependencies": [
               "DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.",
               "Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache)."
             ],
-            "resume_when": "Vor Umsetzung den engeren Erfassungsadapter unabhängig gegen Zielbindung, Ergebnisvertrag, Kodierungs-, Ausgabe- und Abbruchgrenzen prüfen. Das Versionsgate für 2022/2025 erst mit eindeutiger Herstellerklärung oder später ausdrücklich autorisiertem gezieltem Buildnachweis schließen; anschließend ist ein ausdrücklicher Umsetzungsauftrag erforderlich. Keine automatische Implementierung, Zusatzprobe oder Vertragslockerung."
+            "resume_when": "Vor Umsetzung Erfassungsweg neu entwerfen und unabhängig prüfen; die private Stückübertragung ist keine Freigabe des Demo-Adapters. 2022-Hashabweichung und erweiterte Signatur klären sowie eine positive Replay-Ausgangslage und tatsächliche Deaktivierung am eigenen Plan auf beiden Builds belegen. Weitere SQL-/Lab-Läufe und Umsetzung benötigen einen neuen ausdrücklichen Auftrag; keine automatische Fortsetzung oder Vertragslockerung."
           },
           "planning_outline": {
             "recorded_on": "2026-10-23",
             "basis_revision": "4bab78cc321970c014784602f8ba068e38efd70d",
-            "status": "DESIGNED – engerer Erfassungsentwurf mit vollständigem Plan unter 32.768 UTF-8-Bytes; Versionsgate 2022/2025 offen. Keine Implementierung, ausgeführten Demotests oder Laufzeitabnahme.",
+            "status": "DESIGNED_WITH_OPEN_GATES – fachlicher Schnitt geplant; Erfassung nach Clientgegenbefund neu zu prüfen, Versionsgate offen. Private Versionsdiagnose ist keine Demo-Umsetzung oder Laufzeitabnahme.",
             "learning_goal": "Angeforderte Planerzwingung, tatsächlich ausgeführten Plan, gescheiterte Erzwingung mit erfolgreicher Ersatzplanung (Fallback) und ausdrückliche Rücknahme (Unforce) anhand getrennter Nachweise erklären. Kein allgemeiner Leistungsgewinn wird behauptet.",
             "scope": "Eine eigene synthetische Datenbank, eine feste Abfrage in einer eigenen parameterlosen Prozedur, zwei physisch unterschiedliche Query-Store-Pläne derselben Abfrage und genau ein absichtlich entzogener sekundärer Index. Sequenzieller Ablauf im vorhandenen Framework, keine Übernahme des Analyze-Runners oder allgemeiner Lab-Infrastruktur.",
             "existing_coverage": "DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachliche Grundlage. Dessen optionale Zweiplan-/Warnpfade erfüllen DGN-004 nicht. DGN-005 behandelt Extended Events (gezielte Ereigniserfassung); ein neuer allgemeiner Ereignispfad ist nicht Teil dieses Schnitts. Keine technische Abhängigkeit von CON-005 oder OPT-007. Für die spätere Unterrichtsfreigabe die konkrete Zuordnung zu LO-M06-04/08 (Lernziele zur Auswahl und Einordnung der Diagnosequellen) in der vorhandenen Traceability-Matrix ergänzen; CLM-076 bleibt die Aussage zur Query-Store-Historie.",
@@ -745,23 +745,23 @@
               "Spätere Qualifikation: SQL Server 2019 mit Compatibility Level 150, 2022/160 und 2025/170, jeweils Developer/Linux/Docker, zwei Kerne und 3 GiB (Gibibyte) Instanzspeicher als erstes Prüfprofil. Je Version zwei vollständige Läufe mit frischen Lauftokens aus demselben finalen Quellenstand; Build, Edition, Rechte, Konfiguration, alle Phasen und Cleanup protokollieren. Private Logs und vollständige Pläne nicht ungeprüft versionieren.",
               "Spätere Zuordnungsgegenfälle: Force-Ziel und ausgeführten Plan als getrennte Rollen prüfen; eindeutigen passenden tatsächlichen Plan bei abweichender Plan-ID korrekt zuordnen, falschen Hash-/Struktur-/Indexkandidaten und mehrdeutige Treffer zurückweisen. Schon bekannte Ersatzplan-ID darf gültig sein, fehlende neue tatsächliche Ausführung nicht.",
               "Spätere Erfassungsgegenfälle: 256-Zeichen-Kürzung, fehlendes XML-Ende, falsche Kodierung, fehlende Laufzeitzähler, zusätzliche Nutzstatements und Plan-/Gesamtausgabeüberschreitung ablehnen. Begrenzung während des Lesens und Cleanup nach Abbruch prüfen. Ungeklärte Signatur oder Flaginterpretation darf keinen mutierenden Versionspfad freigeben.",
-              "Später den engeren Erfassungsvertrag an 32.767/32.768 UTF-8-Bytes, Mehrbytezeichen, tatsächlichen Zeilenumbrüchen und äußerem Padding prüfen; Grenze bei/oberhalb 32.768 Bytes ablehnen. Beide Ausgabekanäle während des Lesens begrenzen, ungültige Kodierung, überschrittene Gesamt-/Fehlerausgabe und fehlenden XML-Abschluss ablehnen sowie Cleanup nach Abbruch unabhängig prüfen. Diese Fälle werden im aktuellen Auftrag nur beschrieben."
+              "Nach neuer Erfassungsentscheidung weiterhin 32.767/32.768 UTF-8-Bytes, Mehrbytezeichen, echte Zeilenumbrüche, äußeres Padding und künstliche Clientumbrüche prüfen. Grenze bei/oberhalb 32.768 Bytes ablehnen, beide Ausgabekanäle während des Lesens begrenzen, falsche Kodierung und fehlenden XML-Abschluss zurückweisen. -y 32768 nicht als gültige Clientoption verwenden. Die privaten Proben ersetzen diese späteren Demo-Gegenfälle nicht."
             ],
             "acceptance_criteria": [
-              "Planungsabnahme jetzt: ursprüngliche Quellenbefunde unverändert erhalten und lesende Vertiefung separat mit Quellenstand, statischen Pfadbefunden und offenen Versionskonflikten dokumentieren. Abfrageform, getrennte Planrollen, vollständige begrenzte Erfassung und spätere Gegenfälle in derselben kanonischen Planung führen. Kein VALIDATED-Status für DGN-004 und keine behauptete Demoausführung. Den engeren Anzeige-/Bytevertrag und die zusätzliche negative Systemreferenz-Evidenz separat binden; die Versionsfreigabe bleibt offen.",
+              "Dokumentationsabnahme jetzt: ursprüngliche Analyze-, Design- und lesende Gatebefunde unverändert erhalten und die bereits ausgeführte private Versionsdiagnose separat nach Build, Methode, Teilbefund und offenen Gates aufnehmen. Den überholten Anzeigeentwurf im aktiven Plan berichtigen. Nur statische Integration, keine weiteren SQL-/Lab-Läufe, Demo-Implementierung oder VALIDATED-Einstufung.",
               "Spätere fachliche Abnahme: zwei tatsächlich ausgeführte Planvarianten derselben Abfrage; danach tatsächliche erfolgreiche Erzwingung, genau abgegrenzter NO_INDEX-Fehler samt erfolgreicher Ersatzplanung und ausdrückliche Rücknahme jeweils mit vollständigem Ergebnisvertrag. Alle genannten Pflicht- und Gegenfälle sowie zwei vollständige Läufe je Zielversion bestehen; unabhängiger Review ohne offene priorisierte Befunde und erfolgreiche Bereinigung. Zusätzlich vollständige begrenzte Planübertragung und eindeutige Zuordnung zum tatsächlich ausgeführten Plan belegen; widersprüchliche Aufruf-/Flagdetails je Zielbuild vorher belastbar klären. Kein erfolgreicher Status durch gekürzte Pläne oder gelockerte Ähnlichkeitsregeln. Für den engeren ersten Schnitt gelten höchstens 32.767 UTF-8-Bytes je tatsächlichem Plan, die begrenzten beiden Ausgabekanäle und strikte Dekodierung; eine größere Planmenge ist keine akzeptierte Variante dieses Schnitts.",
               "Spätere Dokumentation/Integration: vollständiger deutscher Lesepfad für Vorbereitung, Erfolg, Fehlerdeutung, Rücknahme und Erhaltungsweg mit kurzen Begriffserklärungen; bestehende Lernziel-/Demokatalog-/Testabdeckungszuordnung gezielt ergänzen. Erst nach tatsächlichen Nachweisen Versionsstatus ändern und erforderliche aktuelle PR-/Main-Prüfungen binden; kein pauschaler Benchmark für diese qualitative Diagnoseübung."
             ],
             "open_read_only_gates": [
-              "Vor Umsetzung den jetzt konkretisierten engeren Erfassungsadapter mit -y 32768/-w 65535 und Planumfang unter 32.768 UTF-8-Bytes unabhängig gegen vollständige Ergebniszuordnung, strikte Kodierung, beide während des Lesens begrenzten Ausgabekanäle, sichere Zielbindung und Abbruch-/Cleanupvertrag prüfen. Unterstützung und tatsächliche Darstellung des Clients sind erst später empirisch zu bestätigen.",
-              "Das Versionsgate 2022/2025 bleibt nach der ergänzenden lesenden Prüfung offen: eindeutige Herstellerklärung oder später ausdrücklich beauftragte gezielte Buildprobe für Aufrufsignatur, tatsächliche Deaktivierung am eigenen Plan und Statusinterpretation. Die veröffentlichten Schema-Referenzpakete liefern diese Belege nicht; keine automatische Probenfreigabe oder Vertragslockerung.",
-              "Vor erstem später ausdrücklich autorisierten Lauf: Rohwert-/Eigentums-, Berechtigungs-, Query-Store-Ausgangs-/Rücknahme-, Zeit-/Ausgabe- und Planrollenvertrag unabhängig prüfen. Allgemeine Erstmarkierungs-/Recoverylücken bleiben im vorhandenen Erhaltungsweg; dieser Schnitt übernimmt keine globale Frameworkfreigabe.",
-              "Empirisch erst später: dieselbe Query-/Kontextbindung und vollständige Engine-Darstellung über Indexänderungen, zwei tatsächliche Planvarianten, klassische erfolgreiche Erzwingung, exakt abgegrenzter NO_INDEX-Grund mit erfolgreicher Ersatzplanung und vollständige Rücknahme je Zielversion qualifizieren. Kein zusätzlicher Lauf und keine Implementierung im aktuellen Auftrag."
+              "Erfassung: den mit dem Client unverträglichen -y-32768-Entwurf vor Umsetzung ersetzen und den ausgewählten Adapter unabhängig gegen vollständige Ergebnis-/Planzuordnung, Kodierung, beide während des Lesens begrenzten Ausgabekanäle und Abbruch/Cleanup prüfen. Die private Stückübertragung bleibt Diagnoseevidenz; keine automatische Adapterübernahme oder Erweiterung der Demo-Grenzen.",
+              "SQL Server 2022: Hashmetadatenabweichung und eine belastbare Zuordnung des tatsächlich ausgeführten eigenen Statements klären; danach die erweiterten Aufrufformen und das Anforderungsflag buildbezogen prüfen. Weder alleinige Hashzuordnung noch ungeprüftes Verwerfen beziehungsweise Invertieren eines Merkmals.",
+              "Beide Zielbuilds: eine nachweislich gespeicherte und tatsächlich verwendete Optimierungs-Replay-Ausgangslage herstellen und derselben eigenen Abfrage eine belegte Deaktivierung gegenüberstellen. Der 2025-Anforderungs-/Flagbefund allein schließt dieses Gate nicht; veröffentlichte Dokumentationswidersprüche nicht pauschal auflösen.",
+              "Demo: weiterhin ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Qualifikation des entworfenen Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmeschnitts auf allen Zielversionen erforderlich. Keine weiteren SQL-/Lab-Läufe oder Demo-Umsetzung im aktuellen Auftrag; übrige Verarbeitung pausiert."
             ],
             "excluded": "Query Store Hints (gespeicherte Abfragehinweise; Zusatzpfad ab 2022), automatische Plansteuerung, Replikate, Vergleich optimierter Replay-Verfahren, Leistungsbenchmarks, PSP/OPPO (versionsabhängige Planvarianten für sensible beziehungsweise optionale Parameter), weitere Forcing-Fehlerklassen und andere Plattform-/Editionsfreigaben bleiben offen und benötigen einen eigenen Auftrag.",
             "effort": "M (mittel) – ausschließlich vorläufige Einschätzung; offene Plannachweis-/Versionsfragen können den Umfang ändern. Bei Überschreitung nicht autonom erweitern.",
             "refined_on": "2026-10-24",
-            "refinement_basis_revision": "5c0e5128293f7b7591adcbd3de31922fd8f007e4",
+            "refinement_basis_revision": "2a111cda7bfcbf3218aaf0153678dbd64d3bbd40",
             "query_identity_contract": [
               "Eigene Modulkennung und unveränderter vollständiger Statementtext bleiben über alle sechs Nutzaufrufe gebunden. Objektbezogene Neukompilierung per sp_recompile nur für die eigene Prozedur; kein DROP/CREATE des Moduls, keine globale Cacheleerung. Eigene Indexänderungen sind die beabsichtigte Änderung der Planvoraussetzung.",
               "Dasselbe fest dokumentierte Sitzungsprofil bei Modulanlage und Nutzaufrufen verwenden: ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL und QUOTED_IDENTIFIER ON, NUMERIC_ROUNDABORT OFF; Sprache us_english, Datumsformat mdy und erster Wochentag 7. Tatsächliches context_settings_id samt relevanten Werten und query_parameterization_type erfassen. Keine stillschweigende Zusammenlegung verschiedener Kontext- oder Parametrisierungsformen.",
@@ -773,14 +773,15 @@
               "Der erste begrenzte Schnitt erlaubt für den Erfolgsvergleich nur dieselbe relevante Operatorstruktur mit denselben eigenen Datenbank-/Tabellen-/Indexzugriffen und Prädikaten wie im Force-Zielplan. Lediglich technische Knotennummern, Kosten-/Schätzwerte, Zeit-/Laufzeitzähler und Kompilierungsmetadaten sind vom Strukturvergleich ausgenommen. Keine pauschale Gleichsetzung aller Indexpläne; andere strukturelle Abweichung führt zum dokumentierten Abbruch statt automatischer Vertragslockerung.",
               "XML (Extensible Markup Language; strukturiertes Textformat) vollständig und ohne Ersetzungs-/Trunkierungszeichen lesen; passende Statementtexte, eigene Objekt-/Indexbindung und echte Laufzeitzähler müssen vorhanden sein. Alle Plan-Ergebnismengen und Wrapper berücksichtigen, unerwartete zusätzliche Nutzstatements zurückweisen. Die 2019-/2022-RTM-Schemata dienen als Referenz, nicht als vollständige Schemafreigabe für 2025.",
               "Die Erfolgsepoche verlangt zwei neue reguläre Ausführungen der eindeutig zugeordneten tatsächlichen Indexpläne und keinen neuen Force-Fehler. Nach Indexentzug verlangt die Fehlerepoche Zählerzuwachs größer null und 8712/NO_INDEX am Force-Ziel sowie eine neue reguläre Ausführung mit tatsächlichem Ersatzplan ohne entfernten Index. Der Ersatzplan darf einen schon bekannten Plan wiederverwenden; weder neue Plan-ID noch exakt ein Kompilierungsfehler sind Pflicht.",
-              "Planstruktur und vollständige Werte belegen die beobachtete Verwendung unter der Erzwingungspolitik. Sie belegen weder, dass der Optimierer ohne Forcing anders gewählt hätte, noch einen Leistungsgewinn. Query-Store-Zähler weiterhin vor Joins nach Plan, Ausführungstyp und Intervall aggregieren und über Intervallgrenzen als Vorher-/Nachherdifferenz auswerten."
+              "Planstruktur und vollständige Werte belegen die beobachtete Verwendung unter der Erzwingungspolitik. Sie belegen weder, dass der Optimierer ohne Forcing anders gewählt hätte, noch einen Leistungsgewinn. Query-Store-Zähler weiterhin vor Joins nach Plan, Ausführungstyp und Intervall aggregieren und über Intervallgrenzen als Vorher-/Nachherdifferenz auswerten.",
+              "Der private 2022-Probelauf zeigt eine Hashmetadatenabweichung bei gleichem Text, Modul, Statement-SQL-Handle und Kontext. Vor Demo-Umsetzung eine belastbare Bindung unabhängig prüfen; weder eine stabile Hashgleichheit ungeprüft voraussetzen noch die vorhandenen vollständigen Struktur-/Objekt-/Ergebnisanforderungen lockern. Die Diagnoseinvariante ist keine qualifizierte Demo-Regel."
             ],
             "plan_capture_contract": [
-              "Engerer erster Erfassungsentwurf im bestehenden Harness (Ausführungsrahmen): paketbezogener sqlcmd-Modus mit -y 32768 und -w 65535. -W und -k/-k1/-k2 entfallen; UTF-8 (Unicode-Zeichenkodierung) für Ein-/Ausgabe explizit festlegen. Ziel-, Eigentums- und Bereinigungsbindung beibehalten. Allgemeine Standardargumente und vorhandene Proxyregeln bleiben im aktuellen Auftrag unverändert; der Adapter ist noch nicht implementiert.",
-              "Pro vollständigem tatsächlichem XML-Plan strikt weniger als 32.768 UTF-8-Bytes akzeptieren, also höchstens 32.767 Bytes. XML bedeutet Extensible Markup Language, strukturiertes Textformat. Diese engere Annahmegrenze ersetzt im aktuellen Schnitt die bisherige 256-KiB-Obergrenze (Kibibyte); es gibt keine Zusage, größere Pläne zu unterstützen. Die Byte-/Anzeigegrenzen sind eine Herleitung aus den Ausgabeoptionen und keine gemessenen Client- oder Plangrößen.",
+              "Der frühere Anzeigeentwurf -y 32768/-w 65535 ist für den geprüften sqlcmd-Client überholt: dessen Fehlermeldung begrenzt positive -y-Werte auf 8000. Kein aktiver ausführbarer Erfassungsadapter ist ausgewählt oder implementiert. Vor Umsetzung einen passenden Weg neu entwerfen und unabhängig prüfen; den privaten sys.dm_exec_query_plan_stats-Stücktransport nicht automatisch übernehmen. Allgemeine Standardargumente und Proxyregeln bleiben unverändert.",
+              "Für den späteren ersten Demoschnitt bleibt die Annahmegrenze bei höchstens 32.767 UTF-8-Bytes je vollständigem tatsächlichem XML-Plan (Extensible Markup Language; strukturiertes Planformat). Diese Inhaltsgrenze ist keine gültige sqlcmd-Anzeigeoption und kein Nachweis der Machbarkeit. Größere private Diagnosepläne ändern sie nicht; eine neue Erfassungsmethode ist vor Umsetzung zu prüfen.",
               "Gesamte Standardausgabe je Nutzaufruf weiterhin höchstens 2 MiB (Mebibyte; 2.097.152 Bytes), Fehlerausgabe zusätzlich höchstens 64 KiB (65.536 Bytes). Beide Kanäle während des Einlesens begrenzen und leeren; kein unbeschränktes communicate/capture_output und keine Zeichenersetzung. Kodierungsfehler, Ausgabelimit oder Timeout beenden den eigenen Aufruf mit Fehler und führen in den separat begrenzten Cleanup.",
               "Vollständigen XML-Wurzelabschluss, passenden Namensraum, Pflichtknoten und echte Laufzeitzähler verlangen. Sämtliche Ergebnis-/Planmengen und die vollständigen 100 Ergebnistupel demselben Nutzaufruf zuordnen. Formatpadding außerhalb des XML-Dokuments darf entfernt werden; Inhalt, echte Zeilenumbrüche, Sonderzeichen und Statementtexte innerhalb des Dokuments bleiben erhalten. Keine Reparatur eines abgeschnittenen Plans, kein Zusammenkleben fremder Planfragmente und kein Auswählen nur des ersten passenden Plans.",
-              "Das Anzeigeprofil soll im engeren Umfang Kürzung und künstliche Zeilenumbrüche vermeiden; seine tatsächliche Darstellung und Unterstützung auf dem jeweiligen Client bleiben später zu qualifizieren. Ein Plan oberhalb der Annahmegrenze führt zum dokumentierten Abbruch, nicht zu automatischer Grenzerhöhung, -y 0 oder einem zusätzlichen Probe-Workload. Die sechs Nutzaufrufe und die vorhandenen 180-/15-Sekunden-Budgets sowie 45 Sekunden Cleanup bleiben erhalten; keine automatische Planpersistenz."
+              "Der neu zu prüfende Adapter muss Kürzung und künstliche Zeilenumbrüche vermeiden. Ein Plan oberhalb der Annahmegrenze führt zum dokumentierten Abbruch, nicht zu automatischer Grenzerhöhung, -y 0, Wechsel auf den privaten Diagnoseweg oder Zusatz-Workload. Die sechs Nutzaufrufe, 180-/15-Sekunden-Budgets und 45 Sekunden Cleanup bleiben erhalten; keine automatische Planpersistenz."
             ],
             "version_contract": [
               "SQL Server 2019/Compatibility Level 150 (Datenbank-Kompatibilitätsstufe): klassische manuelle Erzwingung mit den eigenen Query-/Plan-Kennungen; keine nur ab 2022 vorhandenen Argumente oder Katalogspalten referenzieren. Für Query-Store-Plan-/Kontextsicht VIEW DATABASE STATE vorsehen.",
@@ -789,7 +790,8 @@
               "Zusätzliche reine Quellenprüfung: die Microsoft-Systemreferenzpakete 160.2.8/170.0.4 enthalten die Force-Prozeduren ohne Parameterliste und die fragliche Statusspalte ohne Bedeutungsdefinition. Daraus folgt keine Auflösung des Aufruf-/Flagkonflikts und keine Aussage zur Vollständigkeit laufender Serverkataloge. Die Quelle ist für Schemaexistenz verwendbar; die strittigen Detailaussagen bleiben REVIEW_REQUIRED.",
               "2025 ausschließlich im eigenen lokalen Primär-/Einzelinstanzumfang betrachten; keine sekundären Replikate und keine Replikatmetadaten als pauschale Voraussetzung. ALTER-Recht auf der eigenen Datenbank für Force/Unforce/Flush, ALTER am eigenen Modul für sp_recompile und SHOWPLAN auf allen referenzierten Datenbanken getrennt prüfen. Zusätzliche Versionsfelder nur in tatsächlich unterstützten Abfragezweigen referenzieren; keine ungültigen Spalten in scheinbar geschützten statischen Ausdrücken.",
               "Neue Build-/Konfigurationsbelege können spätere ausdrücklich autorisierte lesende SQL-Metadatenabfragen erfordern. Dieser Dokumentationsauftrag autorisiert sie nicht. Auch nach Quellenklärung bleiben tatsächliche Parametrisierungs-/Textdarstellung, Scan-/Indexwahl, Erfolgs-/NO_INDEX-/Ersatzplansequenz und Rücknahme auf allen drei Zielversionen empirisch offen.",
-              "Zum Schließen des Versionsgates ist eine eindeutige Herstellerklärung oder ein später ausdrücklich autorisierter gezielter Nachweis am festgelegten 2022-/2025-Build nötig: akzeptierte Aufrufform, tatsächlich am eigenen Plan deaktivierte optimierte Erzwingung und belastbar interpretierter Status. Das engere Erfassungsprofil allein erteilt diese Freigabe nicht."
+              "Zum Schließen des Versionsgates ist eine eindeutige Herstellerklärung oder ein später ausdrücklich autorisierter gezielter Nachweis am festgelegten 2022-/2025-Build nötig: akzeptierte Aufrufform, tatsächlich am eigenen Plan deaktivierte optimierte Erzwingung und belastbar interpretierter Status. Das engere Erfassungsprofil allein erteilt diese Freigabe nicht.",
+              "Begrenzte Versionsdiagnose vom 24. Oktober 2026: 2025/17.0.4075.5 bestätigt die Vierargument-Reihenfolge mit Replikatkennung an dritter und Deaktivierungsanforderung an vierter Stelle sowie passende 0/1-Flagwerte; tatsächliche Replay-Abschaltung bleibt unbelegt. 2022/16.0.4265.3 bestätigt nur den Standardaufruf; Hashmetadatenabweichung blockierte die weiteren Varianten. Vollständiger Befund unter version_probe_result, keine pauschale Versionsfreigabe."
             ]
           },
           "design_review_result": {
@@ -912,6 +914,141 @@
               "https://github.com/MicrosoftDocs/sql-docs/blob/3a69fbed7e840752b5a704d639931f5f82af3960/docs/relational-databases/performance/optimized-plan-forcing-query-store.md#c-force-a-plan-and-disable-optimized-plan-forcing-in-query-store",
               "https://github.com/MicrosoftDocs/sql-docs/blob/9385fea21808cf682650481315f6f4bde7c59d8e/docs/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql.md#syntax"
             ]
+          },
+          "version_probe_result": {
+            "recorded_on": "2026-10-24",
+            "basis_revision": "2a111cda7bfcbf3218aaf0153678dbd64d3bbd40",
+            "status": "EMPIRICAL_PARTIAL – begrenzte Versionsdiagnose ausgeführt; Versions- und Erfassungsgates offen. Keine Demo-Umsetzung oder Laufzeitabnahme.",
+            "method": "Zuvor ausdrücklich autorisierte, begrenzte Diagnose auf eigenen Linux-Containern; historische Fehlversuche erhalten. Die aktuelle Dokumentationsaufnahme liest nur vorhandene lokale Evidenz und führt keine SQL-/Lab-Läufe aus. Tatsächliche Pläne, synthetische Sollresultate, Query-Store-Zähler und Rücknahme getrennt ausgewertet.",
+            "capture_findings": [
+              "C1: Der 2022-Client wies -y 65534 vor der Zielabfrage zurück und meldete den zulässigen Bereich 0 bis 8000. Daraus folgt, dass auch der frühere positive Anzeigeentwurf -y 32768 auf diesem Client nicht verwendbar ist; dieser Wert wurde nicht separat ausgeführt. C2: Der 2025-Client wies -h zusammen mit -y 0 vor der Zielabfrage zurück.",
+              "C3: -y 0 ohne -h/-W funktionierte mit während des Lesens begrenzten Ausgabekanälen. Beim direkten 12-Tabellen-Plan fügte sqlcmd nach 65.535 Zeichen einen Umbruch innerhalb eines XML-Tokens ein; der strikte Parser lehnte das Dokument ab. Kein reparierter Plan wurde akzeptiert.",
+              "C4/C5: Vollständige letzte tatsächliche Pläne über sys.dm_exec_query_plan_stats an genau einen Cacheeintrag der eigenen Prozedur und eine Ausführung gebunden. LAST_QUERY_PLAN_STATS nur in eigener markierter Datenbank gesichert, aktiviert und wiederhergestellt. Nummerierte 100-Byte-Stücke als 200 Hexadezimalzeichen übertragen; Bytezahl und SHA-256-Prüfsumme (256-Bit-Integritätsprüfwert), strikte UTF-16-Dekodierung, vollständiges XML (Extensible Markup Language; strukturiertes Planformat), unveränderter Statementtext und echte Laufzeitzähler geprüft.",
+              "18 vollständige letzte tatsächliche Plan-Dateien aus C4/C5 liegen privat vor. Grenzen des Diagnosewegs: 256 KiB (Kibibyte) Plantext in UTF-8, 2 MiB (Mebibyte) Standardausgabe und 64 KiB Fehlerausgabe. Das ist keine Umsetzung oder Qualifikation des direkten SET STATISTICS XML-Demo-Adapters; weder größere Demo-Pläne noch LAST_QUERY_PLAN_STATS werden dadurch freigegeben."
+            ],
+            "versions": [
+              {
+                "version": "SQL Server 2022",
+                "build": "16.0.4265.3",
+                "edition": "Developer Edition (64-bit)",
+                "compatibility_level": 160,
+                "result": "Standardaufruf mit zwei Argumenten erfolgreich: Rückgabewert 0, is_forced_plan = 1, UsePlan = 1, korrektes synthetisches Ergebnis und Ausführungsdifferenz eins. Danach stoppte die zusätzliche Hashinvariante des Diagnosecodes; erweiterte Aufrufformen und Anforderungsflag nicht geprüft.",
+                "hash_finding": "QueryHash (Abfragehash) wechselte von 0xA3EEC222B4E92764 auf 0xD7181702D1C14CFD; der neue Wert entspricht dem unveränderten QueryPlanHash (Planhash). Vollständiger Statementtext, Statement-SQL-Handle, eigene Prozedur und Kontext blieben gleich. Ursache offen; weder als Produktfehler diagnostiziert noch durch Lockerung des Diagnosecodes übergangen.",
+                "actual_deactivation": "NOT_PROVEN – tatsächliche Abschaltung nicht belegt; kein gespeicherter Optimierungs-Replay."
+              },
+              {
+                "version": "SQL Server 2025",
+                "build": "17.0.4075.5",
+                "edition": "Enterprise Developer Edition (64-bit)",
+                "compatibility_level": 170,
+                "result": "Zehn Aufruffälle, sieben erfolgreiche Erzwingungen mit vollständigem zugeordnetem Plan, Sollresultat, Ausführungsdifferenz eins, UsePlan = 1 und ohne Force-Fehler; drei Aufrufe mit Rollenfehler 12463 zurückgewiesen. Bei allen zehn Fällen war is_forced_plan nach Unforce (Aufheben der Erzwingung) null.",
+                "signature": "Vierargument-Reihenfolge query_id, plan_id, replica_group_id = 1, disable_optimized_plan_forcing = 0 beziehungsweise 1 erfolgreich; das Anforderungsflag is_optimized_plan_forcing_disabled wurde entsprechend 0 beziehungsweise 1. Der dritte benannte Deaktivierungsparameter mit Wert 1 ließ das anfänglich nullwertige Flag auf 0; Wert 0 an dritter Stelle führte zu Rollenfehler 12463 (zulässiger Rollenwert 1 bis 4). Ein angenommener Parametername beweist keine passende Positionsbedeutung.",
+                "state_retention": "Nach vorherigem Flagwert 1 ließ Unforce diesen Wert bestehen. Dreiparameteraufrufe mit drittem Wert 1 hielten dann den bereits vorhandenen Wert 1; daraus darf keine durch den dritten Parameter bewirkte Deaktivierung abgeleitet werden.",
+                "actual_deactivation": "NOT_PROVEN – beobachtete Anforderung und Flagzuordnung sind kein Nachweis tatsächlich abgeschalteter Replay-Nutzung."
+              }
+            ],
+            "cases_2025": [
+              {
+                "case": "TWO_DEFAULT",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 0,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "NAMED_DISABLE_1",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@disable_optimized_plan_forcing=1",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 0,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "NAMED_DISABLE_0",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@disable_optimized_plan_forcing=0",
+                "call_result": "CALL_ERROR 12463",
+                "disabled_request_flag": 0,
+                "execution_delta": null,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "DOC_ORDER_DISABLE_0",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@replica_group_id=1,@disable_optimized_plan_forcing=0",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 0,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "REF_ORDER_DISABLE_0",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@disable_optimized_plan_forcing=0,@replica_group_id=1",
+                "call_result": "CALL_ERROR 12463",
+                "disabled_request_flag": 0,
+                "execution_delta": null,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "DOC_ORDER_DISABLE_1",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@replica_group_id=1,@disable_optimized_plan_forcing=1",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 1,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "REF_ORDER_DISABLE_1",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@disable_optimized_plan_forcing=1,@replica_group_id=1",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 1,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "POSITIONAL_DISABLE_1",
+                "arguments": "<eigene Query>,<eigener Plan>,1",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 1,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "NAMED_DISABLE_1_REPEAT",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@disable_optimized_plan_forcing=1",
+                "call_result": "CALL 0",
+                "disabled_request_flag": 1,
+                "execution_delta": 1,
+                "forced_after_unforce": 0
+              },
+              {
+                "case": "NAMED_DISABLE_0_REPEAT",
+                "arguments": "@query_id=<eigene Query>,@plan_id=<eigener Plan>,@disable_optimized_plan_forcing=0",
+                "call_result": "CALL_ERROR 12463",
+                "disabled_request_flag": 1,
+                "execution_delta": null,
+                "forced_after_unforce": 0
+              }
+            ],
+            "replay_limit": "Alle Warm-ups mit abgeschlossener Planbindung meldeten has_compile_replay_script = 0 (kein gespeicherter Optimierungs-Replay); QueryCompilationReplay fehlte in den tatsächlichen Plänen. Formen mit 8/12 Primärschlüsseltabellen sowie 24 × 32 und 32 × 24 Zeilen mit nicht eindeutigen Id-/V-Indizes lieferten keine positive Replay-Ausgangslage. Die letzten beiden Formen haben jeweils exakt 768 Datenzeilen. Fehlendes optionales Replay-Merkmal beweist keine Deaktivierung.",
+            "cleanup_and_bounds": "Alle sechs eigenen Container und sämtliche eigenen Datenbanken entfernt; vorher vollständige vier Eigentumsmarker geprüft und ursprüngliche Query-Store-/Datenbankoptionen exakt wiederhergestellt. Containerabwesenheit unabhängig nach Kennung, Name und Eigentumslabel geprüft. Letzte Freigabe: zwei zusätzliche Quellenstände und höchstens vier weitere Container, maximal zwei je Version, 15 Minuten regulär plus je 60 Sekunden Cleanup; verwendet zwei Quellenstände und drei weitere Container. Frühere Versuche, Quellen und Bereinigung bleiben erhalten.",
+            "open_gates": [
+              "Erfassung: den mit dem Client unverträglichen -y-32768-Entwurf vor Umsetzung ersetzen und den ausgewählten Adapter unabhängig gegen vollständige Ergebnis-/Planzuordnung, Kodierung, beide während des Lesens begrenzten Ausgabekanäle und Abbruch/Cleanup prüfen. Die private Stückübertragung bleibt Diagnoseevidenz; keine automatische Adapterübernahme oder Erweiterung der Demo-Grenzen.",
+              "SQL Server 2022: Hashmetadatenabweichung und eine belastbare Zuordnung des tatsächlich ausgeführten eigenen Statements klären; danach die erweiterten Aufrufformen und das Anforderungsflag buildbezogen prüfen. Weder alleinige Hashzuordnung noch ungeprüftes Verwerfen beziehungsweise Invertieren eines Merkmals.",
+              "Beide Zielbuilds: eine nachweislich gespeicherte und tatsächlich verwendete Optimierungs-Replay-Ausgangslage herstellen und derselben eigenen Abfrage eine belegte Deaktivierung gegenüberstellen. Der 2025-Anforderungs-/Flagbefund allein schließt dieses Gate nicht; veröffentlichte Dokumentationswidersprüche nicht pauschal auflösen.",
+              "Demo: weiterhin ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Qualifikation des entworfenen Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmeschnitts auf allen Zielversionen erforderlich. Keine weiteren SQL-/Lab-Läufe oder Demo-Umsetzung im aktuellen Auftrag; übrige Verarbeitung pausiert."
+            ],
+            "evidence": {
+              "storage": "Private, unversionierte Evidenz unter Runtime/Temp/dgn004-version-gate-20261024; Rohlogs, vollständige Pläne, Containerkennungen und Diagnoseskripte werden nicht versioniert.",
+              "report_sha256": "e81f450c574a64dbf6f2e6393bbc80cad3f44bda4fb78e16abbce27a1abe09c5",
+              "driver_source_sha256": [
+                "d7181937ec78d64c7d6818a28029323b36b8c7ea99771c4f5b7132b929bf4a10",
+                "ccbaef7a7d9ee5c9eaad01a38063946b2a9233b62baa465f2a91cfc231f7cf94",
+                "3e49b6ed7cbeae04269b9f9cdcd7d021972ecea15cd03dbdf6f5228b271afcbf",
+                "9593387d65b9a776d41dd635a590ab724b5585275d6971f3823b9860b207ebb6",
+                "5924b221e1bc0195e48beb6f5095695d1f5f5495239b3aeba7956f1ea69d7e9e"
+              ],
+              "provenance_limit": "Prüfsummen binden die lokal erhaltenen Rohbefunde; sie ersetzen keine reproduzierbare Demo-Quelle, unabhängigen Review oder Laufzeitqualifikation. Die 2025-Hälfte von C5 wurde mit unveränderten Diagnosefunktionen innerhalb derselben freigegebenen Runde fortgesetzt."
+            }
           }
         },
         {

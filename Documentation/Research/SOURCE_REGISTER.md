@@ -346,6 +346,8 @@ enthält die verbleibenden Gates; dieser Quellenstand autorisiert keine SQL-Läu
 
 ### DGN-004: engerer Erfassungsentwurf und Systemreferenzen vom 24. Oktober 2026
 
+Historischer Quellenstand vor der begrenzten Versionsdiagnose. Die Anzeigeherleitung mit `-y 32768` ist durch die nachfolgend dokumentierten Clientbefunde überholt; der ursprüngliche Befund bleibt nachvollziehbar.
+
 Datierte Ergänzung der bestehenden Quellenumfänge `SRC-031` (tatsächliche
 Planerfassung) und `SRC-027` (Query Store; persistente Abfrage- und Planhistorie).
 Keine neue Quellenkennung; historische Registerzeilen und frühere Befunde
@@ -377,3 +379,39 @@ Planerzwingung am eigenen Plan und Statusinterpretation. Diese Ergänzung
 autorisiert keine Probe. Der [engere Entwurf](../../.ai/BACKLOG.md#engerer-erfassungsentwurf-und-offenes-versionsgate)
 enthält Grenzen und spätere Abnahme; Umsetzung und weitere autonome Arbeit
 bleiben pausiert.
+
+### DGN-004: begrenzte Versionsdiagnose vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage- und Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Die zuvor
+ausdrücklich erlaubten privaten Läufe wurden gegen Repository-Basis
+`2a111cda7bfcbf3218aaf0153678dbd64d3bbd40` ausgeführt. Jetzt werden ausschließlich
+die vorhandenen Befunde dokumentiert; keine weiteren SQL-/Lab-Läufe.
+Klassen: `EMPIRISCH` für die benannten Builds, `PRIMARY` für Herstellerangaben.
+
+| Befundquelle | Beobachtung und Grenze |
+|---|---|
+| SQL Server 2022 `16.0.4265.3`, Developer/Linux, Compatibility Level 160 | Standardaufruf erfolgreich. Danach wechselte QueryHash (Abfragehash) bei gleichem vollständigem Text, Modul, Statement-SQL-Handle und Kontext auf den unveränderten QueryPlanHash (Planhash). Diagnoseinvariante verletzt; erweiterte Signatur und Anforderungsflag nicht geprüft. Keine diagnostizierte Produktursache. |
+| SQL Server 2025 `17.0.4075.5`, Enterprise Developer/Linux, Compatibility Level 170 | Vierargumentform mit replica_group_id = 1 an dritter und disable_optimized_plan_forcing = 0/1 an vierter Stelle erfolgreich; Anforderungsflag entsprechend 0/1. Dritter benannter Parameter mit Wert 1 ließ anfänglich Flag 0 bestehen; Wert 0 an dritter Stelle führte zu Rollenfehler 12463. Zehn Fälle: sieben zugeordnete tatsächliche Ausführungen, drei Rollenfehler, zehn Rücknahmeprüfungen. Keine tatsächliche Replay-Abschaltung nachgewiesen. |
+| Private Abfrageformen und Planbelege | Kein gespeicherter Optimierungs-Replay (wiederverwendbare Kompilierungsschritte), has_compile_replay_script = 0; fehlendes optionales QueryCompilationReplay ist kein Deaktivierungsbeweis. 24 × 32 und 32 × 24 Zeilen mit nicht eindeutigen Indizes ergänzten die früheren 8-/12-Tabellenformen; keine Form schuf eine positive Replay-Ausgangslage. |
+| Client-/Erfassungsbefunde | Der 2022-Client lehnte -y 65534 ab und meldete einen Wertebereich bis 8000; daraus folgt die Unverwendbarkeit des früheren -y-32768-Entwurfs auf diesem Client, ohne diesen Wert separat auszuführen. 2025 lehnte -h zusammen mit -y 0 ab. Direkte XML-Ausgabe wurde bei 65.535 Zeichen innerhalb eines Tokens umgebrochen und strikt abgelehnt. Vollständige private Stückübertragung gelang; kein qualifizierter Demo-Adapter. |
+
+Die aktuellen Herstellerquellen wurden am 24. Oktober 2026 gelesen:
+
+- [Optimierte Planerzwingung, Beispiele C/D](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17): Replikatkennung vor Deaktivierungsparameter, Flag 1 im Deaktivierungsbeispiel. Der lokale 2025-Befund passt zur Anforderungszuordnung, beweist wegen fehlender Replay-Ausgangslage keine tatsächliche Abschaltung.
+- [Force-Prozedurreferenz](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17): abweichende veröffentlichte Parameterreihenfolge; nicht unverändert als gemeinsame 2022-/2025-Vorlage übernehmen.
+- [Query-Store-Planmetadaten](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17): abweichende veröffentlichte 0/1-Beschreibung. Der begrenzte Anforderungsbefund löst diesen Konflikt nicht pauschal für alle Builds oder tatsächliche Replay-Nutzung auf.
+- [Letzter tatsächlicher Plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17): Systemfunktion, Cachebindung, datenbankbezogene Aktivierung und mögliche reduzierte/fehlende Laufzeitinformation. Privat wurden vollständiger Statementbezug und echte Laufzeitzähler zusätzlich verlangt.
+- [sqlcmd-Ausgabeoptionen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17#format-options): Clientformat und Bytegrenzen getrennt prüfen. Ein größerer privater Plan oder erfolgreicher Stücktransport erweitert den späteren Demo-Vertrag nicht.
+
+Der [kanonische TSK-016-Eintrag](../../.ai/identity/registry.json) bindet unter
+`version_probe_result` Build, Falltabelle, Erfassungsmethode, Rücknahme, private
+Berichts-/Quellenprüfsummen und offene Gates. Die [menschliche Befundansicht](../../.ai/BACKLOG.md#begrenzte-versionsdiagnose-und-verbleibende-gates)
+erklärt die Diagnosebezeichner und den korrigierten Plan. Rohlogs, vollständige
+Pläne und Diagnoseskripte bleiben unversioniert; Prüfsummen ersetzen keine
+reproduzierbare Demo-Quelle oder unabhängige Laufzeitabnahme.
+
+Erfassungsentscheidung, 2022-Hashbindung/Signatur und tatsächliche Deaktivierung
+auf beiden Builds bleiben offen. Der [aktuelle Auftrag](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+erlaubt nur statische Integration dieser Befunde. Kein VALIDATED-Status,
+keine weiteren Läufe, Demo-Umsetzung oder Wiederaufnahme übriger Arbeit.
