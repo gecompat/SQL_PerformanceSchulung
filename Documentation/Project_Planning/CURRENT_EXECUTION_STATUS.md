@@ -1,63 +1,50 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Marker und Gegenkennzeichnung dokumentieren
+## Auftrag vom 24. Oktober 2026: gesonderte DGN-004-Hint-Negativkontrolle planen
 
-Der aktuelle Auftrag ergänzt bei TSK-016 den ergänzenden lesenden Quellenreview
-zu QueryCompilationReplay und zur Gegenkennzeichnung für DGN-004 (Planerzwingung). Replay
-bedeutet Wiederverwendung aufgezeichneter Optimierungsschritte bei Kompilierung.
-Nur Dokumentation und statische CI (Continuous Integration; automatisierte
-Integrationsprüfungen) mit Integration per Pull Request nach `origin/main`.
-Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; die übrige Verarbeitung
-bleibt pausiert. Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
+Der aktuelle Auftrag plant bei TSK-016 eine Negativkontrolle für DGN-004
+(Planerzwingung) mit DISABLE_OPTIMIZED_PLAN_FORCING, einem Abfragehinweis zur
+Abschaltung optimierter Planerzwingung. Nur Planung und statische
+Dokumentationsprüfung/Integration im bestehenden Pull-Request-Verfahren.
+Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert.
+Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
 
-Der [kanonische Quellenreview](../../.ai/identity/registry.json) steht bei TSK-016
-unter `query_compilation_replay_counter_review_result`. Die
-[abgeleitete Befundansicht](../../.ai/BACKLOG.md#querycompilationreplay-und-gegenkennzeichnung--ergänzender-quellenreview)
-und die [registrierte Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-querycompilationreplay-und-gegenkennzeichnung-vom-24-oktober-2026)
-führen dieselben Nachweisgrenzen. Alle bisherigen Analyse-, Versions-, Hash- und
-Planungsbefunde bleiben erhalten.
+Der [kanonische Entwurf](../../.ai/identity/registry.json) steht bei TSK-016 unter
+`hint_negative_control_plan`. Die [abgeleitete Planansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-plan-einer-gesonderten-hint-negativkontrolle-vom-24-oktober-2026)
+führen dieselben Identitäts-, Nachweis- und Ausführungsgrenzen.
 
-Speicherung, Forcing-Anforderung, Replay-Versuch, erfolgreiche Replay-Kompilierung
-und tatsächliche Ausführung sind getrennte Aussagen. `has_compile_replay_script = 1`
-belegt Speicherung; `is_forced_plan = 1` eine Anforderung; Fehler 8675 einen
-gescheiterten Replay. Fehlender Fehler oder kürzere Kompilierungszeit genügen nicht.
-Die originale SQLServerFast-Fachreferenz beschreibt `QueryCompilationReplay = 1`
-als Nutzung, bietet aber keinen belastbaren Gegenvertrag für die Zielbuilds und
-den vorgesehenen Erfassungsweg. Das Hersteller-Schema erklärt nur den optionalen
-Ganzzahltyp. Wert 1 bleibt ein Markerkandidat, kein freigegebenes Erfolgskriterium.
+Referenz R ohne Hint und Kontrolle H mit dauerhaftem terminalem Inline-Hint werden
+in zwei getrennten eigenen Prozeduren auf demselben synthetischen Aufbau geführt.
+Jeweils eigene object_id, query_id und Force-Ziel-plan_id; kein Hintwechsel innerhalb
+einer Identität und keine Querzuordnung über Hashes. Query Hints sind laut Hersteller
+nicht Teil des QueryHash. Vollständige Texte, Kontext, Planrollen, Tupel und frische
+Kompilierung/Ausführung bleiben deshalb gemeinsam Pflicht.
 
-Das Methodengate bleibt für 2022/16.0.4265.3 und 2025/17.0.4075.5 offen: positive
-Wertsemantik und Gegenkennzeichnung quellenbelegt unabhängig klären. Der Marker
-muss zur frischen eigenen Kompilierung gehören; ein Cachetreffer mit altem
-Kompilierungsmerkmal darf keine neue Replay-Nutzung vortäuschen. Vollständige
-Plan-/Kontextbindung, Ergebnistupel und aktuelle reguläre Ausführung bleiben Pflicht.
-Unbekannte oder nicht beobachtbare Zustände bleiben NOT_PROVEN (nicht nachgewiesen).
+Geplant sind nur Form A mit 529 Datenzeilen und 768 vollständigen Ergebnistupeln
+sowie höchstens neun Nutzaufrufe je Version: zwei R-Aufwärmaufrufe, positive R-Phase,
+H-Aufwärmen, zwei H-Gegenphasen, erneut positive R-Phase und zwei unforced Abschlüsse.
+Standard-Force mit zwei Argumenten; keine zusätzliche Deaktivierungsanforderung.
+R/H haben unterschiedliche Identitäten; die Folge behauptet keine reversible
+Abschaltung derselben query_id und ersetzt den alten Ein–Aus–Ein-Plan nicht.
 
-Zusätzlich gepinnt bestätigt: Im selben Hersteller-Quellencommit widerspricht die
-Wertetabelle für `is_optimized_plan_forcing_disabled` dem Abschaltbeispiel C/D.
-Die historische 2025-Beobachtung passt zum Beispiel, beweist aber keinen
-Replay-Gegenmarker. `QueryCompilationReplay = 0` oder Abwesenheit bleibt ungeklärt;
-Wert 1 bleibt Fachquellenkandidat ohne freigegebenen Werte-/Gegenvertrag.
+Ein Quellen-/Kontrollbeleg bleibt von unabhängig beobachteter Replay-Nutzung
+(Wiederverwendung von Optimierungsschritten bei Kompilierung) getrennt.
+CONTROL_ONLY bedeutet nur Kontrollzustand belegt; es ist kein empirischer Replay-
+Abschaltungsnachweis. Positive R-Marker und H-Gegenvertrag bleiben für
+2022/16.0.4265.3 und 2025/17.0.4075.5 vor Umsetzung unabhängig zu klären.
+Unbekannte QueryCompilationReplay-Werte, Abwesenheit oder Zeitunterschiede genügen
+nicht. Der Quellenkonflikt und die bisherigen Reviews aus PR320/PR321 bleiben erhalten.
 
-Der dokumentierte Hint `DISABLE_OPTIMIZED_PLAN_FORCING` (Abfragehinweis zur
-Abschaltung) ist eine mögliche gesonderte Negativkontrolle. Einfügen/Entfernen
-ändert jedoch den Statementtext und möglicherweise die Query-Store-Identität
-(Zuordnung in der persistenten Abfrage-/Planhistorie). Das passt nicht unverändert
-zum bestehenden Ein–Aus–Ein-Protokoll; keine Ersatzphase oder Planänderung ist
-freigegeben. Kontroll-/Anforderungszustand allein ersetzt weiterhin keinen
-beobachteten Gegenbeleg einer zuvor positiv belegten Replay-Kompilierung.
-Der frühere Quellenreview aus PR320 bleibt unter `replay_usage_source_review_result`
-unverändert erhalten; beide Methoden-/Versionsgates bleiben offen.
-
-Der [bestehende Probenplan](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
-aus [PR319](https://github.com/gecompat/SQL_PerformanceSchulung/pull/319) bleibt
-unverändert: 529 synthetische Datenzeilen, höchstens zwei Formen mit jeweils 768
-Ergebnistupeln, maximal elf Nutzaufrufe je Version, zwei eigene Container insgesamt
-und 900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden Cleanup.
-Zuordnungs-/Transportreview, erweiterte 2022-Signatur, tatsächliche Eignung,
-Nutzung/Deaktivierung und Bereinigung bleiben offen. Erst nach Methodenfreigabe
-und neuem ausdrücklichem Umsetzungs-/Laufauftrag darf diese Probe beginnen;
-keine automatische Ersatztelemetrie, Zusatzprobe oder Wiederaufnahme anderer Arbeit.
+Späterer gesonderter Rahmen: höchstens zwei eigene Container insgesamt, sequenziell,
+neun Nutzaufrufe je Version und 900 Sekunden gemeinsame reguläre Zeit plus je
+60 Sekunden abschließendes Cleanup. Eigentum, Plantransport, Ergebnisse, Abbruch
+und Bereinigung bleiben vollständig zu prüfen. Alter und neuer Plan dürfen nicht
+automatisch nacheinander laufen oder ihre Budgets addieren. Neue Umsetzung und
+Läufe erfordern nach Methodenfreigabe einen ausdrücklichen Auftrag für den gewählten
+Schnitt; keine sonstige Verarbeitung oder Automation wird wiederaufgenommen.
+Der [bisherige Zuordnungs-/Erfassungsplan](../../.ai/BACKLOG.md#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe)
+bleibt unverändert mit seinen eigenen offenen Gates maßgeblich.
 
 ## Erhaltene abgeschlossene Schnitte
 

@@ -1,20 +1,20 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: QueryCompilationReplay und Gegenkennzeichnung dokumentieren
+## DGN-004: gesonderte Negativkontrolle mit Abfragehinweis planen
 
-Der aktuelle Auftrag ergänzt bei TSK-016 die lesend geprüften Befunde zu
-QueryCompilationReplay und zur Gegenkennzeichnung für DGN-004 (Planerzwingung). Replay bedeutet Wiederverwendung aufgezeichneter
-Optimierungsschritte. Der positive Nutzungsnachweis und seine Gegenkennzeichnung
-bleiben für SQL Server 2022/2025 offen. Nur Dokumentation und statische Prüfungen
-im Pull-Request-Verfahren (Änderungsantrag); keine Umsetzung, Tests der Probe oder
-SQL-/Lab-Läufe. Die übrige Verarbeitung bleibt pausiert.
-Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet Auftrag und Grenzen; bestehender Probenplan und frühere Befunde bleiben erhalten.
+Der aktuelle Auftrag plant bei TSK-016 eine eigenständige Negativkontrolle für
+DGN-004 (Planerzwingung) mit DISABLE_OPTIMIZED_PLAN_FORCING, einem Abfragehinweis
+zur Abschaltung optimierter Planerzwingung. Referenz R und Kontrolle H besitzen
+getrennte Modul-/Abfrageidentitäten; der bestehende Ein–Aus–Ein-Plan bleibt erhalten.
+Nur Planung und statische Dokumentationsprüfung/Integration im Pull-Request-Verfahren
+(Änderungsantrag). Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige
+Verarbeitung pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet Auftrag, offene Methoden-/Versionsgates und Grenzen.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Marker-/Gegenkennzeichnungsbefunde ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Planung der gesonderten DGN-004-Hint-Negativkontrolle ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -30,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 24. Oktober 2026: die lesend geprüften DGN-004-Befunde zu QueryCompilationReplay, dem gepinnten Dokumentationskonflikt und einer belastbaren Gegenkennzeichnung bei TSK-016 ergänzen und per Pull Request nach origin/main integrieren. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert; bisherige Quellenbefunde und Probenplan unverändert erhalten.
+Planungsauftrag vom 24. Oktober 2026: gesonderte DGN-004-Negativkontrolle mit DISABLE_OPTIMIZED_PLAN_FORCING auf SQL Server 2022/2025 bei TSK-016 entwerfen, einschließlich getrennter Abfrageidentitäten und Abnahmekriterien. Nur Planung und relevante statische Dokumentationsprüfung/Integration im bestehenden Pull-Request-Verfahren. Keine Umsetzung, Tests der Probe oder SQL-/Lab-Läufe; übrige Verarbeitung pausiert. Frühere Quellenbefunde, Probenpläne und Kennungen bleiben erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -514,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** QueryCompilationReplay und Gegenkennzeichnung weiter quellenbasiert abgegrenzt: keine freigegebene Wertetabelle, gepinnter Konflikt zwischen Katalog und Abschaltbeispiel. Kontrollzustand und beobachtete Deaktivierung getrennt; Hint-Gegenkontrolle liegt außerhalb des unveränderten Textprotokolls. Methodengates für beide Builds bleiben offen. P2, Probenplan und ursprünglicher Demoschnitt unverändert; keine Umsetzung oder Laufzeitabnahme.
+**Planungsentscheidung:** Gesonderte Hint-Negativkontrolle konkret geplant: eigene R/H-Module und Query-Store-Identitäten, eine gemeinsame Form A mit 529 Datenzeilen und 768 Ergebnistupeln, höchstens neun Nutzaufrufe je Version. Kontrollbeleg und beobachteter Gegenvertrag getrennt; Methoden-/Versionsgates offen. Der frühere Ein–Aus–Ein-Plan, P2 und ursprüngliche Demoschnitt bleiben unverändert; keine Umsetzung oder Laufzeitabnahme.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -523,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Probe-Umsetzung die Gates im query_compilation_replay_counter_review_result unabhängig quellenbelegt klären: positive Markerbedeutung, belastbare Gegenkennzeichnung, frische Kompilierungs-/Ausführungsbindung und Erhalt des Quellenkonflikts. Kombinierte Zuordnung und Transport freigeben; erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten Budget. Hint-Gegenkontrolle nur nach gesonderter methodischer Planung/Freigabe; übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Vor Umsetzung den hint_negative_control_plan mit R/H-Identitätsbindung, terminalem Hint, positiver Referenz und belastbarem Gegenvertrag unabhängig freigeben; kombinierte Zuordnung/Transport und statische Gegenfälle prüfen. Danach neuer ausdrücklicher Umsetzungs-/Laufauftrag für genau den ausgewählten begrenzten Schnitt. Kein automatischer Ersatz des alten Plans, keine Budgetaddition oder Wiederaufnahme übriger Verarbeitung.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -773,6 +773,94 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 - Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
+###### Gesonderte Hint-Negativkontrolle mit getrennten Abfrageidentitäten
+
+**Stand:** 2026-10-24; Basis `1027441fb5e799e903f02782591d2d4ca4acba13`. **Status:** DESIGNED_WITH_OPEN_GATES – gesonderte Hint-Negativkontrolle geplant; keine Umsetzung, Tests der Probe, SQL-/Lab-Läufe oder Laufzeitabnahme.
+
+Aktueller Auftrag autorisiert die Planung und deren statische Dokumentationsintegration im bestehenden Pull-Request-Verfahren. DISABLE_OPTIMIZED_PLAN_FORCING ist ein Abfragehinweis zur Abschaltung optimierter Planerzwingung. Keine Probe implementieren oder ausführen; die übrige Verarbeitung bleibt pausiert. Früher erlaubte Läufe oder Budgets werden nicht wiederverwendet.
+
+Eigenständiger Diagnoseplan innerhalb DGN-004 (Planerzwingung) bei TSK-016, keine neue Demo, Kennung oder zweite Planungsliste. Referenz R ohne Hint und Kontrolle H mit dauerhaft festem Inline-Hint als getrennte Abfrageidentitäten führen. Kein Ersatz der Aus-Phase oder Ausbau der elf Aufrufe des bestehenden Ein–Aus–Ein-Plans aus PR319; dieser und die Quellenreviews aus PR320/PR321 bleiben unverändert.
+
+**Geplante Zielprofile:**
+
+- SQL Server 2022/16.0.4265.3, Developer/Linux, Compatibility Level 160; zuerst nur vorhandene Imagebindung sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89 vorsehen. Der Hint ist allgemein ab 2022 dokumentiert; seine Bindung, klassische Erzwingung und Replay-Beobachtung auf diesem Build sind nicht qualifiziert.
+- SQL Server 2025/17.0.4075.5, Enterprise Developer/Linux, Compatibility Level 170; vorhandene Imagebindung sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1. Historische Anforderungsflagbefunde sind kein Nachweis dieser Hint-Kontrolle. Kein Versionswechsel, Image-Download oder Start in diesem Planungsauftrag.
+
+**Fester Aufbau und R/H-Quellpaar:**
+
+- Nur den deterministischen Aufbau und Form A aus mapping_replay_probe_plan wiederverwenden: zehn Tabellen, insgesamt 529 synthetische Datenzeilen, neun festgelegte sekundäre Indizes, zwei identische UNION-ALL-Zweige mit je neun Joins, zehn projizierte int-Werte. Alle 192 Detailzeilen mit je zwei Gruppen und zwei Zweigen ergeben 768 Ergebnistupel, 384 verschiedene Tupel jeweils zweimal. Vollständige Werte und Duplikatmultiplizitäten unabhängig aus den gespeicherten Id-Formeln prüfen.
+- In genau einer neuen eigenen markierten Datenbank je Version zwei parameterlose eigene Prozeduren R und H vor dem ersten Nutzaufruf anlegen; jede enthält genau ein Nutzstatement. Beide greifen auf dieselben Tabellen, Werte und Indizes zu. Referenztext S entspricht Form A ohne OPTION-Klausel; H entsteht ausschließlich durch eine terminale OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING')) für das gesamte UNION-ALL-Statement nach dessen ORDER BY und vor dem Abschlusssemikolon. Keine Hinweise je Einzelzweig, wechselnden Kommentare, weiteren Hints, RECOMPILE-Option oder dynamischen Abfragen.
+- Die ausgewählten Quelltexte und Moduldefinitionen einschließlich exakter Stelle des einzigen Hints vor einer späteren Umsetzung festschreiben und unabhängig prüfen. Innerhalb der gesamten Folge kein CREATE/DROP/ALTER der Module, kein Einfügen oder Entfernen des Hints, kein Wechsel der Daten/Indizes/Statistiken und kein Ersatzkandidat B. Eine ausbleibende Replay-Eignung von R führt zu NOT_PROVEN (nicht nachgewiesen), nicht zu Last- oder Abfragewachstum.
+
+**Abfrageidentität und getrennte Planrollen:**
+
+- R und H besitzen ausdrücklich unterschiedliche object_id-Werte und jeweils genau eine eigene query_id mit eigenen Force-Ziel-plan_id-Werten. Beide Identitäten separat über Container-/Lauftoken, Datenbank, vollständige Prozedurdefinition, vollständigen tatsächlichen Statementtext, object_id, context_settings_id und Parametrisierungsart binden. Ein unveränderlicher Paarbezug bezeichnet nur denselben fachlichen Aufbau; er ersetzt keine Engine-Identität. Bei gleicher oder mehrdeutiger query_id, verlorenem Modul-/Textbezug oder neuer Query-Kennung abbrechen; kein automatisches Neubinden.
+- Für beide Module das identische feste Sitzungsprofil aus mapping_replay_probe_plan.combined_mapping verwenden: ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER ON; NUMERIC_ROUNDABORT OFF; us_english, mdy, DATEFIRST 7. Vollständige Quell-/Modultexte und einmal eindeutig aufgelöste Engine-Texte je Identität getrennt versiegeln und in späteren Phasen exakt vergleichen. Der semantische Paarvergleich darf ausschließlich die vorab festgelegte terminale Hint-Klausel als Textunterschied im Nutzstatement erlauben; keine freie Kommentar-/Leerraum-/Hintnormalisierung.
+- DOKUMENTIERT: sys.query_store_query.query_hash berechnet die gebundene logische Abfrageform ohne Query Hints. Ein gleicher QueryHash zwischen R und H ist deshalb möglich und darf weder Zusammenführung noch Wiederverwendung einer query_id/plan_id rechtfertigen. Auch unterschiedliche Hashwerte sind kein Identitätsbeweis; QueryHash, QueryPlanHash und Handles nur roh ergänzend beobachten. Die bekannte 2022-Hashüberschreibung bleibt Metadatenbefund, keine alleinige Ablehnung.
+- R nur mit einem aus R stammenden Zielplan erzwingen, H ausschließlich mit einem aus H stammenden Zielplan; nie R-Plan auf H anwenden, Plan-XML zwischen Modulen kopieren oder fremde Kennungen übernehmen. Den Zielplan über den eindeutig beobachteten regulären Ausführungszuwachs des zugehörigen letzten Aufwärmaufrufs und dessen vollständige Struktur bestimmen, nicht über TOP 1 oder Hash. Je Modul Zielplanrolle und tatsächlich ausgeführten Plan getrennt führen; keine identischen Operatorbäume zwischen R und H voraussetzen.
+- Für R und H dürfen keine Query-Store-Hints, Plan Guides (gesonderte Plansteuerungsregeln) oder andere externe Abschalt-/Erzwingungsregeln wirksam sein. Zugeordnete sys.query_store_query_hints-Zeilen einschließlich Replikatscope vor/nach den Phasen prüfen; keine vorhandenen Hints löschen, sondern bei fremdem oder unerwartetem Steuerzustand abbrechen. Der Inline-Hint von H ist Quelltext, keine dort erzeugte Hintzeile. Eigene Datenbank muss Query Store READ_WRITE und OPTIMIZED_PLAN_FORCING ON besitzen; Letzteres bleibt unverändert.
+
+**Erzwingung, frische Kompilierung und Erfassung:**
+
+- In dieser gesonderten Kontrolle ausschließlich die dokumentierte Standardform mit query_id und plan_id für Force/Unforce verwenden; keinen dritten/vierten Parameter und keine Deaktivierungsanforderung zusätzlich zum Inline-Hint setzen. Damit wird der ungeklärte erweiterte 2022-Aufruf nicht zur notwendigen Variante dieses Plans; sein Gate im alten Plan bleibt offen. Rückgabewert, is_forced_plan und rohe is_optimized_plan_forcing_disabled-Werte dokumentieren, den publizierten Flagkonflikt nicht durch eine unbestätigte Wertannahme auflösen.
+- Jede forcierte Phase beginnt nach belegtem Unforce und is_forced_plan = 0 am eigenen Zielplan. Eigene Prozedur per sp_recompile vor dem genau einen Nutzaufruf für frische Kompilierung markieren; kein OPTION RECOMPILE und kein allgemeines Cacheleeren. Force-Anforderung, Kompilierungsepoche, vollständigen tatsächlichen Plan, Ergebnistupel und genau eine aktuelle reguläre Ausführung zusammenführen. Ein Cachetreffer mit altem Kompilierungsmerkmal genügt nicht. Den sp_recompile-Markierungsaufruf allein nicht als erfolgte Kompilierung werten: in den Vergleichsphasen nach gebundener Query-Identität zusätzlich genau einen neuen Query-Store-Kompilierungszuwachs in ununterbrochener eigener Zählerepoche und dazu passende Kompilierungszeit-/Cachebindung nach dem eigenen Flush verlangen. Fehlender oder zurückgesetzter Zähler, mehrdeutiger Zeitraum oder alter Plan bleibt NOT_PROVEN; nicht allein Zeitstempel oder neues Handle als Beweis akzeptieren.
+- Die vollständige kombinierte Zuordnung, der gerichtete Strukturvergleich samt Objekt-/Prädikatbezügen, Zähleraggregation je eigener query_id und die begrenzte Stückübertragung aus mapping_replay_probe_plan.combined_mapping/capture_design bleiben Pflicht. Tatsächlicher Plan muss zum eigenen unveränderten Zielplan passen; R/H über Ergebnisse und Quellpaarung vergleichen, nicht über erzwungene Operatorgleichheit. Fehler-/Kompilierungszählerepochen je Modul und Force-Anforderung getrennt sichern; keine Subtraktion über Resets oder Vermischung beider Module.
+
+**Geplante neun Nutzaufrufe je Version:**
+
+- Vor späterem Start Methoden-/Identitäts-/Transportreview und eine neue ausdrückliche Laufgenehmigung einholen. Beide Module vorab anlegen und ihre Quellen festschreiben. Nutzaufrufe 1 und 2: R jeweils unforced mit eigener frischer Kompilierung aufwärmen, vollständige Tupel/Plan/Zähler erfassen und den einen eigenen R-Zielplan binden. R muss danach gespeicherten Replay zeigen; andernfalls Version sauber mit NOT_PROVEN beenden, ohne H- oder Ersatzaufrufe. Vor jeder Mutation exakte Build-/Imagebindung, notwendige Rechte, vollständige Eigentumsmarker und mindestens YELLOW-Schutz (kontrollierte Optimiererlast mit ausdrücklicher Bestätigung der isolierten Wegwerfumgebung) prüfen. Eigene Containerdienstaktionen an diese Umgebung binden; Schutzstufe nicht aus der kleinen Zeilenzahl ableiten.
+- Nutzaufruf 3: R-Zielplan mit Standardform erzwingen, frisch kompilieren und tatsächliche Replay-Nutzung mit vorab unabhängig freigegebenem positivem Beobachtungsvertrag belegen; anschließend ausdrücklich Unforce und is_forced_plan = 0 prüfen. Ohne positive Referenz keine H-Negativbehauptung oder Fortsetzung der Vergleichsfolge.
+- Nutzaufruf 4: H einmal unforced frisch kompilieren; tatsächlichen terminalen Hint, vollständige 768 Tupel, eigene Query-/Planbindung und regulären Ausführungszuwachs sichern. Den eigenen H-Zielplan binden. Ein gespeichertes Replay-Skript bei H wird nicht als Voraussetzung verlangt; Vorhandensein oder Fehlen roh protokollieren, nicht als alleinigen Nutzungszustand interpretieren.
+- Nutzaufrufe 5 und 6: zwei vorab geplante H-Phasen, jeweils eigener Standard-Force, frische Kompilierung, vollständiger Hint-/Plan-/Tupel-/Ausführungsbezug, erfolgreiche klassische Erzwingung einschließlich UsePlan sowie vorab freigegebener Gegenbeleg. Nach jeder Phase eigene Fehlerzählerepoche sichern und Unforce bestätigen. Fehler oder unbekannte Beobachtung stoppt; kein Wiederholen einer gescheiterten Phase bis grün.
+- Nutzaufruf 7: R mit demselben R-Zielplan erneut frisch unter Standard-Force kompilieren und positive Replay-Nutzung wieder unabhängig belegen; anschließend Unforce. Damit wird nur eine getrennte Referenz vor/nach den H-Phasen geprüft, keine Abschaltung und Wiederanschaltung derselben query_id behauptet.
+- Nutzaufrufe 8 und 9: H, dann R unter ausdrücklich aufgehobener Erzwingung frisch ausführen, vollständige Tupel und Ausführungsbezüge prüfen; H behält seinen Hint. Für beide Identitäten is_forced_plan = 0 und ursprüngliche Optionen wiederhergestellt belegen, dann eigene Datenbank/Container sicher bereinigen. Keine Moduländerung als Rücknahme des Hints; der ausschließlich eigene Datenbankumfang wird nach geprüfter Rücknahme entfernt.
+
+**Kontrollbeleg und beobachteter Gegenvertrag:**
+
+- Kontrollbeleg und Beobachtungsbeleg ausdrücklich getrennt ausgeben. Vollständiger H-Text mit gültigem Inline-Hint, dokumentierte Hintbedeutung und erfolgreiche aktuelle klassische Planerzwingung können einen nachvollziehbaren quellenbasierten Kontrollvertrag tragen. Sie werden als CONTROL_ONLY (nur Kontrollzustand belegt) geführt, solange kein unabhängig freigegebener direkter Gegenbeleg vorliegt; daraus folgt kein geschlossener Replay-Nutzungs-/Deaktivierungsnachweis.
+- Eine spätere empirische Vergleichsabnahme braucht positiv beobachtete Replay-Kompilierung in beiden R-Phasen und einen vorab festgelegten belastbaren Gegenvertrag in beiden H-Phasen, jeweils derselben aktuellen eigenen Ausführung zugeordnet. QueryCompilationReplay = 0, = 1, Abwesenheit, Speicher-/Anforderungsflag, fehlender Fehler oder kürzere Compilezeit werden ohne geklärte Semantik nicht zum Beobachtungsersatz.
+- Jede erfolgreiche Teilbehauptung gilt ausschließlich für die bezeichnete Identität und den konkreten Build. R und H haben unterschiedliche Modul-/Query-Identitäten; selbst ein bestandener Vergleich beweist keine reversible Abschaltung derselben query_id und ersetzt keine der beiden Ein–Aus–Ein-Folgen des alten Plans. Keine Performance-, universelle Versions- oder 2019-Qualifikationsbehauptung.
+- Bei Erfassungs-/Zuordnungs-/Ergebnis-/Sicherheitsfehlern FAIL mit erhaltener Ursache; bei fehlender Replay-Eignung oder ungeklärter/fehlender Beobachtung NOT_PROVEN; bei unvollständigem Cleanup FAIL_CLEANUP. CONTROL_ONLY ist kein PASS für die empirische Vergleichsabnahme. Abbruch und Bereinigung sind auch bei teilweise abgeschlossenen Phasen Pflicht.
+
+**Gemeinsame Grenzen und Bereinigung:**
+
+- Für eine später gesondert genehmigte Runde höchstens zwei eigene Container insgesamt, einer je festgelegtem Build, sequenziell mit einer eigenen Datenbank und höchstens zwei eigenen SQL-Sessions. Zwei Prozessorkerne, 3 GiB (Gibibyte) Containergrenze und 2048 MiB SQL-Speicherlimit je Container. Keine Hostports, fremden Mounts/Container oder Downloads. Genau zwei Module, eine Form A und höchstens neun Nutzaufrufe je Version: fünf R und vier H; keine Ersatzform, weitere Variante oder Nachholaufrufe.
+- Gemeinsames reguläres Budget 900 Sekunden für beide Versionen ab erstem Containerstart, Kontrollpunkt 600 Sekunden; kein neuer Versionsstart bei weniger als 180 Sekunden Rest. SQL-Aufruf höchstens 15 Sekunden, äußerer Prozess 20 Sekunden und jeweils auf Restbudget begrenzt. Abschließendes Cleanup zusätzlich höchstens 60 Sekunden je Container. Höchstens neun explizite Query-Store-Flushes, 100 reguläre SQL-Batches und je Flush höchstens drei begrenzte Zustandsbeobachtungen; keine Budgetrücksetzung nach Fehler/Quellwechsel.
+- Ein gemeinsamer 529-Zeilen-Aufbau pro Version, 768 Ergebnistupel je Aufruf, höchstens vier gespeicherte Nutzpläne je Modul und acht insgesamt. Höchstens 16 KiB UTF-16 je vollständigem Nutztext, jede eigene Datenbankdatei höchstens 128 MiB, Query Store 64 MiB. KiB bedeutet 1024 Bytes, MiB bedeutet 1.048.576 Bytes. Transportgrenzen bleiben 512 KiB UTF-16-Rohplan, 256 KiB UTF-8-Plantext, 2 MiB Standardausgabe und 64 KiB Fehlerausgabe je Aufruf; während des Lesens begrenzen. Keine beabsichtigte TempDB-Last; eigener Sessionbedarf ab 64 MiB löst den vorhandenen Abbruchschutz aus, keine Zusage über ungemessene Spitzenwerte.
+- Vollständige FWK-002-Eigentumsmarkerprüfung (Schutzvertrag eigener Testdatenbanken), rekonstruierbare Ausgangsoptionen und unabhängiger Cleanup gelten wie im bisherigen Plan. Originale Query-Store-/LAST_QUERY_PLAN_STATS-Optionen sichern/wiederherstellen, beide eigenen Force-Bindungen aufheben und prüfen, nur eigene markierte Datenbank entfernen, eigene Containeridentität prüfen/entfernen und Abwesenheit unabhängig belegen. Kein Query-Store-CLEAR, globaler Cacheeingriff oder fremdes Session-KILL; Abbruch nur mit belegter eigener Sessionlease beziehungsweise eigenem Wegwerfcontainer-Recoverypfad.
+- Dieser gesonderte Plan und der frühere Probenplan dürfen nicht automatisch nacheinander ausgeführt oder ihre Container-/Zeitbudgets addiert werden. Ein späterer Auftrag wählt genau den genehmigten Schnitt; ein kombinierter Auftrag benötigt vor Start einen ausdrücklich festgelegten gemeinsamen Gesamtrahmen. Kein Laufrecht aus dieser Planung, alten Freigaben oder einem CONTROL_ONLY-Teilbefund.
+
+**Spätere Gegenfälle – noch nicht ausgeführt:**
+
+- Vor SQL statische Identitäts-/Paarfälle planen: gleicher QueryHash bei fremdem Modul oder H-Text darf nicht zu R binden; unterschiedliche Hashwerte beweisen keine Identität. Vertauschte query_id/plan_id, Querkopieren von Plan-XML, falscher Kontext und mehrdeutiger letzter Aufwärmplan müssen scheitern. Tatsächliche Moduldefinition und Nutzstatement müssen die vorab versiegelten Quellen erfüllen.
+- Hintfälle vor SQL: Hinweis nur im Kommentar/String, fehlender oder doppelter Hint, falscher Hintname, falscher UNION-Zweig, weiterer OPTION-/RECOMPILE-Hinweis, Query-Store-Hint oder Plan Guide darf nicht als gültige Inline-Kontrolle gelten. Innerhalb eines Moduls geänderter Text oder entfernter Hint beendet die Folge; semantischer Paarvergleich darf keine weitere Abweichung verbergen.
+- Quellen-/Beobachtungsfälle: gespeichertes Skript ohne tatsächliche R-Nutzung, unbekannte Rohwerte, fehlendes optionales Attribut, alte Kompilierungsmarker, gleicher Zähler ohne aktuelle Ausführung, Hint-/Forcingfehler oder fehlende positive zweite R-Phase dürfen keinen empirischen Erfolg ergeben. CONTROL_ONLY und NOT_PROVEN gegenüber PASS unterscheidbar halten; keine voreingestellte 0/1-Semantik.
+- Vor Umsetzung vollständige Transport-/Tupel-/Zähler-/Timeout-/Eigentums-/Cleanup-Gegenfälle des bestehenden Vertrags für beide getrennten Identitäten unabhängig prüfen. Insbesondere gleiche Zeilenzahl bei falschen Werten/Duplikaten, fehlende oder vertauschte Planstücke sowie unerlaubte zehnte Nutzabfrage zurückweisen. Diese Prüfungen sind nur geplant und nicht ausgeführt.
+
+**Abnahmekriterien:**
+
+- Planungsabnahme jetzt: genaues R/H-Quellpaar, getrennte Engine-Identitäten und Planrollen, kontrollierte Neun-Aufruf-Folge, vollständiges Tupelorakel, abgegrenzte Kontroll-/Beobachtungsaussagen sowie gemeinsame Grenzen und Cleanup bei TSK-016 dokumentiert. Nur statische Planungs-/Registryprüfung; keine Probe-Implementierung oder Laufzeitbehauptung.
+- Spätere Teilabnahme des Kontrollvertrags je Build nur nach neuer Freigabe: H-Hint tatsächlich im vollständigen eigenen Nutzstatement, frische Kompilierung und eigene klassische Planerzwingung mit vollständigen Solltupeln, genau einem regulären Ausführungszuwachs, keinen neuen Forcingfehlern und vollständigem Cleanup. Ohne unabhängigen Gegenvertrag höchstens CONTROL_ONLY, kein empirischer Replay-Abschaltungsnachweis.
+- Spätere empirische Vergleichsabnahme je Build erst bei genehmigter Marker-/Gegensemantik, zwei positiv belegten R-Phasen und zwei belegten H-Gegenphasen, vollständiger jeweils eigener Query-/Plan-/Kontext-/Ergebnisbindung sowie beidseitig unforced Abschluss und sauberem Cleanup. Der ursprüngliche Gleichidentitätsvergleich, die vollständige Demoqualifikation und eine Releasefreigabe bleiben separat offen.
+
+**Offene Freigabegates:**
+
+- Vor Umsetzung R/H-Text-/Modulbindung, erlaubte terminale Hint-Klausel und ihre gültige Anwendung auf das gesamte UNION-ALL-Statement unabhängig freigeben; vollständige Engine-Darstellung und zwei getrennte Query-Store-Identitäten dürfen nicht durch Hashgleichheit ersetzt werden.
+- Positive R-Markersemantik und beobachteten H-Gegenvertrag für beide exakten Builds unabhängig quellenbelegt klären. Der gepinnte Flagkonflikt und die ungeklärte QueryCompilationReplay-Wertetabelle bleiben bestehen. Dieser Plan senkt die bisherigen Freigabegates nicht und erlaubt keine Mutation allein zur Kalibrierung unbekannter Werte.
+- Kombinierte Zuordnung, begrenzten Transport und alle statischen Gegenfälle unabhängig prüfen; neuer ausdrücklicher Auftrag für spätere Umsetzung und SQL-/Lab-Runde im ausgewählten Gesamtrahmen erforderlich. Hint-Eignung, tatsächliche R-Replay-Ausgangslage und sämtliche Versions-/Cleanup-Nachweise bleiben empirisch offen; übrige Verarbeitung pausiert.
+
+**Primärquellen der Herleitung (Abruf 2026-10-24):**
+
+- [Dokumentierter Abfragehinweis und UNION-Scope](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing)
+- [Herstellerbeispiel des Inline-Hints](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17#e-disable-optimized-plan-forcing-for-a-query)
+- [Query Store: Modul, Kontext und Hash ohne Hints](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17)
+- [Query-Store-Hints und Replikatscope](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-hints-transact-sql?view=sql-server-ver17)
+- [Standardform der Planerzwingung](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17)
+
+Vertragsdetails bleiben im [vorhandenen Zuordnungs-/Erfassungsplan](#kombinierte-planzuordnung-und-begrenzte-synthetische-replay-probe) maßgeblich. Die [Quelleneinordnung zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-plan-einer-gesonderten-hint-negativkontrolle-vom-24-oktober-2026) trennt Herstellerfakten, Entwurf und fehlende Laufzeitabnahme.
+
+Die folgenden Quellenreviews und der frühere Probenplan bleiben unverändert erhalten.
 
 ###### QueryCompilationReplay und Gegenkennzeichnung – ergänzender Quellenreview
 
