@@ -1,21 +1,20 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Prüfbefund zum R/H-Quellpaar und Textvertrag aufnehmen
+## DGN-004: R-Markersemantik und H-Gegenvertrag aufnehmen
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 den lesenden Prüfbefund zu
-DGN-004 (Planerzwingung). R ist Referenz ohne Hint, H die Negativkontrolle mit
-festem Abfragehinweis. Vollständiges Quellpaar, begrenzte Textzuordnung und
-Abnahmekriterien sind im geprüften Umfang dokumentarisch schlüssig; kein weiterer
-konkreter Widerspruch festgestellt. Bestehende unabhängige und technische Gates
-bleiben offen. Nur Dokumentation und statische Prüfung/Integration per Pull Request
-(Änderungsantrag); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung
-pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-bindet unveränderte Grenzen und Budgets.
+Der aktuelle Auftrag dokumentiert bei TSK-016 die Quellenbefunde für DGN-004
+(Planerzwingung). R ist Referenz ohne Hint, H die Negativkontrolle mit festem
+Abfragehinweis. Positive tatsächliche Replay-Nutzung (Wiederverwendung von
+Optimierungsschritten) und beobachtete Nichtnutzung sind für beide Zielbuilds
+weiterhin nicht belegt. Nur Dokumentation und statische Prüfung/Integration per
+Pull Request (Änderungsantrag); keine Umsetzung, Demotests oder SQL-/Lab-Läufe.
+Die übrige Verarbeitung bleibt pausiert. Der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+bindet unveränderte Grenzen, offene Gates und Budgets.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme des DGN-004-Prüfbefunds zu vollständigem R/H-Quellpaar, Textzuordnung und Abnahmekriterien ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Befunde zu R-Markersemantik und H-Gegenvertrag ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -31,7 +30,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 24. Oktober 2026: bei TSK-016 den lesenden DGN-004-Prüfbefund zu vollständigem R/H-Quellpaar, begrenzter Engine-Textzuordnung und Abnahmekriterien ergänzen und per Pull Request nach origin/main integrieren. R ist Referenz ohne Hint, H Negativkontrolle mit festem Abfragehinweis. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung; keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Vollständige Quellvorlagen, aktive Pläne, Mess-/Statusvertrag, Identitäten, frühere Befunde und Laufbudgets bleiben unverändert.
+Dokumentationsauftrag vom 24. Oktober 2026: bei TSK-016 die DGN-004-Befunde zur positiven R-Markersemantik und zum beobachtbaren H-Gegenvertrag ergänzen und per Pull Request nach origin/main integrieren. R ist Referenz ohne Hint, H Negativkontrolle mit festem Abfragehinweis. Nur statische CI (Continuous Integration; automatisierte Integrationsprüfungen) und lokale statische Dokumentationsprüfung; keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Vollständige Quellvorlagen, aktive Pläne, Abnahmekriterien, Mess-/Statusvertrag, Identitäten, frühere Befunde und Laufbudgets bleiben unverändert.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -515,7 +514,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Vollständiges R/H-Quellpaar, begrenzter M/S/T-Textvertrag und Abnahmekriterien lesend geprüft: im geprüften Umfang dokumentarisch schlüssig, kein weiterer konkreter Widerspruch festgestellt. Kein unabhängiger Freigabe- oder technischer Nachweis. P2, aktive Quellvorlagen/Pläne, Mess-/Statusvertrag, neun Aufrufe und Budgets unverändert; Engine-, Marker- und Versionsgates bleiben offen.
+**Planungsentscheidung:** Gezielter lesender Quellenreview zur positiven R-Markersemantik und zum beobachtbaren H-Gegenvertrag abgeschlossen; beide Gates bleiben für die exakten 2022/2025-Builds offen. QueryCompilationReplay = 1 bleibt Kandidat, fester H-Hint höchstens Kontrollbeleg; Speicher-/Anforderungsflag und ausbleibende Replay-Fehler genügen nicht. P2, aktive Quellvorlagen/Pläne, Abnahmekriterien, Mess-/Statusvertrag, neun Aufrufe und Budgets unverändert; keine unabhängige Freigabe oder Laufzeitqualifikation.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -524,7 +523,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Vor Umsetzung weiterhin rh_source_text_plan einschließlich vollständiger R/H-Quellwerte und begrenzter Erstzuordnung unabhängig freigeben; die in rh_source_text_review_result erhaltenen Engine-/Marker-/Zuordnungs-/Transport-/Methodengates klären. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten gewählten Gesamtrahmen. Dokumentarischer Review schließt keine Ausführungsfreigabe ein; übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Vor Umsetzung die in rh_replay_marker_review_result weiterhin offenen R-/H-Marker- und Gegenvertragsgates für beide exakten Builds und den ausgewählten Erfassungsweg unabhängig quellenbelegt klären. rh_source_text_plan und die übrigen Quellen-/Zuordnungs-/Transport-/Methodengates unverändert unabhängig freigeben. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten gewählten Gesamtrahmen. Dokumentarischer Review oder Fehlerereigniskandidat schließt keine Ausführungs-/Telemetriefreigabe ein; übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -774,6 +773,47 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 - Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
+###### R-Markersemantik und beobachtbarer H-Gegenvertrag
+
+**Stand:** 2026-10-24; Basis `51eab9a11d372a41fbb5f6fd1f91c076c1ceb70d`.
+
+**Status:** SOURCE_REVIEW_WITH_OPEN_R_AND_H_MARKER_GATES – positive tatsächliche Replay-Nutzung bei R und beobachtete Nichtnutzung bei H für beide Zielbuilds weiterhin nicht belegt. Quellenreview, kein ausgeführter Vergleich oder unabhängige Freigabe.
+
+Ausschließlich lesender Quellenabgleich für den bestehenden festen R/H-Plan am 2026-10-24. Herstellerkatalog, Funktions-/Hintbeschreibung, öffentliches Showplan-Schema, originale Fachreferenz, ursprüngliche 2022-Ereignisliste und gepinnte Microsoft-Demoanleitung geprüft. Schema nur als Text im Arbeitsspeicher gelesen; keine Implementierung, Tests, Validatoren, Parserprüfungen, SQL-/Lab- oder CI-Läufe, kein Push und keine Repositoryänderung im Review. Dieser Folgeauftrag integriert die Befunde mit statischen Prüfungen; übrige Verarbeitung pausiert.
+
+**Quellenbefunde:**
+
+- DOKUMENTIERT: has_compile_replay_script = 1 bezeichnet ein aufgezeichnetes Optimierungs-Replay-Skript, keinen Nachweis seiner aktuellen Verwendung. is_forced_plan bezeichnet eine Erzwingungsanforderung und garantiert nicht den exakt ausgeführten Plan. Der Force-Fehlerzähler wird beim Wechsel der Anforderung von aus nach ein zurückgesetzt; Anforderungs-/Fehlerepochen getrennt halten.
+- DOKUMENTIERT: Fehler 8675 / OPTIMIZATION_REPLAY_FAILED bezeichnet gescheiterte Ausführung des Replay-Skripts. INFERENZ: kein Fehler oder unveränderter Fehlerzähler allein unterscheidet erfolgreiche Nutzung nicht zuverlässig von unterbliebenem Replay. Aus fehlendem Fehler folgt weder positiver R-Nutzungsbeleg noch beobachtete H-Nichtnutzung.
+- SCHEMABEFUND: Im originalen 2022-Showplan-XSD (XML Schema Definition; Schemadefinition des Planformats) bleibt QueryCompilationReplay ein optionales xsd:int ohne Zustandswerttabelle. OptimizationReplayType verlangt ein Script-Textattribut, definiert aber keinen aktuellen Nutzungserfolg. Der öffentliche Schemaindex führt zuletzt SQL Server 2022 RTM (Release to Manufacturing; ursprünglicher Veröffentlichungsstand), keinen gesonderten 2025-Wertevertrag. Das ist kein Beleg gegen Feature-Unterstützung in 2025.
+- FACHREFERENZ: SQLServerFast beschreibt QueryCompilationReplay = 1 als Verwendung optimierter Planerzwingung bei der Kompilierung und nennt SQL Server 2022 als Einführung. Dies bleibt ein Markerkandidat. Die Darstellung ist keine Herstellerzusage und liefert keine reproduzierte Werte-/Gegenkennzeichnung für 16.0.4265.3 beziehungsweise 17.0.4075.5 und den ausgewählten Erfassungsweg. Keine ungeprüfte boolesche Auslegung von 0, Abwesenheit oder anderen Rohwerten.
+- DOKUMENTIERT: DISABLE_OPTIMIZED_PLAN_FORCING deaktiviert optimierte Planerzwingung für die betreffende Abfrage ab SQL Server 2022. METHODE: Der unveränderte feste Inline-Hint von H ist eine quellenbasierte Negativkontrolle. Er liefert allein keine validierte beobachtete Gegenkennzeichnung. Fester Hint, frische Kompilierung, erfolgreiche eigene klassische Erzwingung und vollständige Solltupel tragen im bestehenden Vertrag höchstens CONTROL_ONLY (nur Kontrollzustand belegt), keinen empirischen Replay-Abschaltungsbeweis.
+- ZUSÄTZLICHER QUELLENBEFUND: Die originale als neu für 2022 bezeichnete Ereignisliste beschreibt opt_replay_exception_info ausschließlich als Sammlung von Ausnahmeinformationen zu Replay-Fehlern. Keine Erfolgs-/Nichtnutzungswerttabelle, keine Abnahme des Ereignisses auf einem unserer exakten Builds und kein 2025-Nachweis. INFERENZ: Ereignisstille ist weder positiver R- noch negativer H-Beweis. Dieser Diagnosehinweis erlaubt keine neue XE-Session (Extended Events; ereignisbasierte SQL-Server-Diagnose) oder Ersatztelemetrie.
+- DOKUMENTIERT: sys.dm_exec_query_plan_stats liefert zwischengespeicherte Kompilierungsinformationen mit letzten bekannten tatsächlichen Laufzeitinformationen. METHODE: vollständigen aktuellen Plan weiterhin zur frischen eigenen Kompilierung und aktuellen eigenen Ausführung binden. Letzter tatsächlicher Plan, Cachetreffer, Speicherflag oder Kompilierungsdelta +1 allein belegt keine aktuelle erfolgreiche Replay-Kompilierung.
+- GEPINNTE REFERENZ: Die ursprüngliche Microsoft-bigjoin-Anleitung am Commit 8a6ade5ae3008e68d072e7346bc00e171097f519, Git-Blob d1498eee25536cf53df830ca187da706217a0131, identifiziert Kandidaten über has_compile_replay_script und demonstriert verringerte Kompilierungszeit. Sie enthält keinen direkten Marker-/Gegenwertevertrag für die zwei exakten Zielbuilds und unseren begrenzten Erfassungsweg. Keine dortigen Laufzeitwerte oder Quellabläufe als eigene Messung übernommen.
+
+**Schlussfolgerung für den bestehenden R/H-Vertrag:**
+
+- Im geprüften Quellenumfang kein belastbar erklärtes beobachtbares Paar aus erfolgreicher aktueller R-Replay-Kompilierung und aktueller H-Nichtnutzung für beide exakten Builds und den gewählten Erfassungsweg gefunden. Die frühere Markerlücke bleibt offen; diese Prüfung bestätigt weder technische Nutzungsfähigkeit noch ein Versagen der Funktion.
+- Für R muss der Marker tatsächliche erfolgreiche Wiederverwendung von Optimierungsschritten bei genau der aktuellen eigenen Kompilierung bezeichnen. Für H ist ein unabhängig begründeter beobachteter Zustand der Nichtnutzung bei der aktuellen eigenen H-Kompilierung nötig. Gespeichertes Skript, angenommene Force-Anforderung, frischer Compile, Hint, vollständiges Ergebnis, kein Fehler oder kürzere Compilezeit ersetzen diese Semantik nicht.
+- Der empirische R/H-Vergleich bleibt ohne diese Semantik NOT_PROVEN (nicht nachgewiesen). Positiv belegte Vertragsverletzung FAIL und Bereinigungsfehler FAIL_CLEANUP behalten ihren bisherigen Vorrang; alle Ursachen und Teilbelege erhalten. CONTROL_ONLY bleibt Teilbefund, ohne separaten H-Ersatzlauf oder Fortschreibung zu PASS.
+
+**Verbleibende Freigabegates:**
+
+- Für SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und SQL Server 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170) positive R-Wertsemantik, beobachteten H-Gegenvertrag und deren Erfassung/Korrelation unabhängig quellenbelegt klären. Keine Ableitung einer 2025-Wertetabelle aus einem 2022-Schema oder Ereignisnamen.
+- Vollständige Quellen-/Modul-/Kontext-/Query-/Plan-/Tupelbindung, tatsächliche M/S/T-Darstellungen (Modultext beziehungsweise Nutzstatement mit/ohne Semikolon), Byteoffsets und Beobachtbarkeit beider Builds sowie unabhängiger Zuordnungs-/Transport-/Methodenreview bleiben offen. Der Review aus demselben Arbeitskontext ist keine unabhängige Freigabe; frühere QueryCompilationReplay-, Flag- und Signaturkonflikte bleiben erhalten.
+- Keine Änderung an rh_source_text_plan, hint_negative_control_plan oder dem älteren Zuordnungs-/Erfassungsplan. Neun Nutzaufrufe je Version, zwei eigene Container, sämtliche Zeit-/Batch-/Text-/Transportgrenzen, Eigentumsprüfung und Cleanup bleiben unverändert. Neue Umsetzung oder SQL-/Lab-Runde benötigt nach bestehenden Freigabegates einen neuen ausdrücklichen Auftrag für den ausgewählten unveränderten Gesamtrahmen; keine automatische Methoden-/Budgeterweiterung.
+
+**Evidenzgrenzen:**
+
+- Eine zusätzliche Literaturspur konnte im relevanten Volltext am Verlagsoriginal nicht geprüft werden. Bibliografischer Nachweis: https://link.springer.com/chapter/10.1007/978-1-4842-8894-8_4 . Nicht als technische Evidenz verwendet; aus Suchtreffer-Wiedergaben keine weitere Markersemantik, keinen Quellenwiderspruch oder Produktfehler abgeleitet.
+
+**Abnahmegrenze:** Abgeschlossen ist die lesende Quellenprüfung und ihre nachvollziehbare dokumentarische Aufnahme. Beide Marker-Gates bleiben offen; keine neue beobachtete Markerbedeutung, Nichtnutzung oder Versions-/Demoabnahme. Keine neue empirische Evidenz, unabhängige Freigabe, Implementierung, SQL-/Lab-Runde oder Ersetzung der bestehenden strengen Abnahmekriterien. Übrige Verarbeitung bleibt pausiert.
+
+**Quellen, Abruf 2026-10-24:** [Query-Store-Plan-/Fehlervertrag](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17), [Optimierte Planerzwingung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17), [Fester Abschalthinweis](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing), [2022-Showplan-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd), [Öffentlicher Schemaindex](https://schemas.microsoft.com/sqlserver/2004/07/showplan/), [Originale Planreferenz](https://sqlserverfast.com/epr/plan-properties/), [Originale 2022-Ereignisliste](https://gist.github.com/zikato/47068829fc0bb164199447b271860335), [Letzter tatsächlicher Plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17), [Gepinnte Microsoft-Demoanleitung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md).
+
+Quelleneinordnung: [Markerbefund zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-r-markersemantik-und-h-gegenvertrag-vom-24-oktober-2026). [Quellpaar und Textvertrag](#geplantes-vollständiges-rh-quellpaar-und-begrenzte-textzuordnung) sowie frühere Reviews und die Neun-Aufruf-Folge bleiben unverändert.
 
 ###### Lesender Prüfbefund zum R/H-Quellpaar und Textvertrag
 

@@ -741,3 +741,42 @@ Prüfsummen-/Bytebereichsprüfung, SQL-/Lab- oder CI-Läufe und kein Push. Diese
 Folgeauftrag integriert ausschließlich Dokumentation mit statischen Prüfungen;
 keine Syntax-/Engine-/Versions-/Demoabnahme. Die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
+
+### DGN-004: R-Markersemantik und H-Gegenvertrag vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`51eab9a11d372a41fbb5f6fd1f91c076c1ceb70d`; Abruf/lesender Review 2026-10-24. Der
+[kanonische Befund bei TSK-016](../../.ai/identity/registry.json) steht unter
+`rh_replay_marker_review_result`; die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#r-markersemantik-und-beobachtbarer-h-gegenvertrag)
+führt Quellen, Schlussfolgerungen und Grenzen vollständig. R ist Referenz ohne
+Hint, H die Negativkontrolle mit festem Abfragehinweis.
+
+| Quelle | Beleg und Grenze |
+|---|---|
+| [Herstellerkatalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17) | has_compile_replay_script = 1 bedeutet gespeichert; is_forced_plan bezeichnet eine Anforderung. Fehler 8675 / OPTIMIZATION_REPLAY_FAILED bedeutet gescheiterte Skriptausführung. INFERENZ: fehlender Fehler belegt weder Nutzung noch Nichtnutzung. |
+| [2022-Showplan-XSD](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd) und [Schemaindex](https://schemas.microsoft.com/sqlserver/2004/07/showplan/) | Schema nur lesend als Text im Arbeitsspeicher geprüft: QueryCompilationReplay bleibt optionale Ganzzahl ohne semantische Zustandswerttabelle; Script-Attribut ist kein aktueller Nutzungsbeleg. Im öffentlichen Index kein gesonderter 2025-Wertevertrag; keine Aussage gegen Feature-Unterstützung. |
+| [Originale Fachreferenz](https://sqlserverfast.com/epr/plan-properties/) | Beschreibt QueryCompilationReplay = 1 als Nutzung bei Kompilierung. Kandidat, keine Herstellerzusage oder reproduzierte Werte-/Gegenkennzeichnung beider exakten Builds und des vorgesehenen Erfassungswegs. |
+| [Hersteller-Funktionsbeschreibung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17) und [Abfragehinweis](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing) | Fester H-Hint dokumentiert Abschaltung. Im bestehenden Vertrag höchstens CONTROL_ONLY (nur Kontrollzustand belegt), solange keine unabhängig erklärte beobachtete Nichtnutzung vorliegt. Keine pauschale 0-/Abwesenheitsinterpretation. |
+| [Originale 2022-Ereignisliste](https://gist.github.com/zikato/47068829fc0bb164199447b271860335) | opt_replay_exception_info ist als Fehler-/Ausnahmediagnostik beschrieben. Kein Erfolgs-/Nichtnutzungswertevertrag, keine Abnahme auf unseren exakten Builds oder 2025. INFERENZ: Ereignisstille schließt das Marker-Gate nicht; keine neue Ereignissession autorisiert. |
+| [Letzter tatsächlicher Plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17) | Enthält Cache-Kompilierungsdaten und letzte bekannte Laufzeitinformationen. Aktuelle Kompilierung, vollständigen eigenen Plan und aktuelle eigene Ausführung gemeinsam binden; kein Replay-Nachweis allein aus dem Funktionsnamen. |
+| [Gepinnte Microsoft-Anleitung](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/readme.md) | Git-Blob d1498eee25536cf53df830ca187da706217a0131: Kandidat über Speicherflag, Demonstration über Kompilierungszeiten. Kein direkter Marker-/Gegenwertevertrag für die begrenzte Probe oder beide Zielbuilds. Keine fremden Messwerte als eigene Evidenz übernommen. |
+
+Eine zusätzliche Literaturspur konnte im geprüften öffentlichen
+[Verlagszugang](https://link.springer.com/chapter/10.1007/978-1-4842-8894-8_4)
+nicht im relevanten Volltext geprüft werden. Nur bibliografisch geprüft und aus der technischen
+Evidenz ausgeschlossen; kein weiterer Markerwiderspruch oder Produktfehler aus
+Suchtreffer-Wiedergaben abgeleitet.
+
+Für 2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben positive aktuelle R-Nutzung und
+beobachtete H-Nichtnutzung unabhängig zu klären. Replay bedeutet Wiederverwendung
+von Optimierungsschritten. Der empirische Vergleich bleibt NOT_PROVEN (nicht
+nachgewiesen), mit unverändertem Vorrang positiver Vertrags-/Bereinigungsfehler.
+Bestehende Quellenkonflikte, Quellpaar/Textvertrag, Abnahmekriterien und Laufbudgets
+bleiben erhalten. Keine Implizitfreigabe durch neue Diagnosehinweise.
+
+Im lesenden Review keine Umsetzung, Tests, Validatoren, Parserprüfungen,
+SQL-/Lab- oder CI-Läufe, kein Push und keine Repositoryänderung. Dieser Folgeauftrag
+integriert nur Dokumentation mit statischen Prüfungen; keine technische Versions-
+oder Demoabnahme. Die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
