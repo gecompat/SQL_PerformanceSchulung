@@ -618,3 +618,33 @@ Neun Nutzaufrufe je Version, zwei Container und gemeinsames Zeitbudget unveränd
 Frühere Quellenreviews und der alte Ein–Aus–Ein-Plan bleiben erhalten. Nur statische
 Dokumentationsintegration; die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
 halten Umsetzung, SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
+
+### DGN-004: Lesender Prüfbefund zum präzisierten Mess- und Statusvertrag vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`14958e680b5cec132e827c10e642cb7529c1d024`; Abruf/lesender Review 2026-10-24.
+Der [kanonische Befund bei TSK-016](../../.ai/identity/registry.json) steht unter
+`hint_evidence_status_review_result`; die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag)
+führt die Bestätigungen und verbleibenden Grenzen vollständig.
+
+Der erneute Abgleich mit [Query-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17),
+[Plan-Katalog](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17),
+[sp_recompile](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-recompile-transact-sql?view=sql-server-ver17)
+und [Query-Store-Flush](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-flush-db-transact-sql?view=sql-server-ver17)
+bestätigt die dokumentarische Schlüssigkeit der präzisierten Zähler-/Messgrenzen.
+METHODE: genau +1 bleibt eine strenge lokale Abnahmebedingung; kein einzelner
+Zähler, Markierungsaufruf oder Flush ist allein Ausführungs-/Replay-Beweis.
+Die beiden vorigen Präzisierungslücken sind dokumentarisch behoben; kein weiterer
+Widerspruch im konkret geprüften Mess-/Statusvertrag festgestellt. Fehlende
+Evidenz, belegte Vertragsverletzung und Bereinigungsfehler sind getrennt;
+CONTROL_ONLY bleibt ausschließlich ein Teilbefund, kein empirischer Rundenerfolg.
+
+Keine allgemeine Fehlerfreiheitsbehauptung, unabhängige Methodenfreigabe oder
+neue Implementierungs-/Versions-/Demoabnahme. Der aktive Plan bleibt unverändert;
+vollständige konkrete Quelltexte, Marker-/Gegenvertrag, unabhängige Reviews und
+technische Nachweise für 2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben offen.
+Im lesenden Review keine Tests, SQL-/Lab- oder CI-Läufe und kein Push; dieser
+Folgeauftrag integriert nur Dokumentation mit statischen Prüfungen. Die
+[Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md) halten Umsetzung,
+SQL-/Lab-Läufe und übrige Verarbeitung pausiert.

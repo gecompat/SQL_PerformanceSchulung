@@ -1,8 +1,8 @@
 # Aktueller Ausführungsstand
 
-## Auftrag vom 24. Oktober 2026: DGN-004-Prüfbefunde und Mess-/Statusvertrag präzisieren
+## Auftrag vom 24. Oktober 2026: DGN-004-Prüfbefund zum Mess-/Statusvertrag aufnehmen
 
-Der aktuelle Auftrag ergänzt bei TSK-016 Prüfbefunde und präzisiert die Negativkontrolle für DGN-004
+Der aktuelle Auftrag dokumentiert bei TSK-016 die lesende Nachprüfung des Mess-/Statusvertrags der Negativkontrolle für DGN-004
 (Planerzwingung) mit DISABLE_OPTIMIZED_PLAN_FORCING, einem Abfragehinweis zur
 Abschaltung optimierter Planerzwingung. Nur Dokumentation und statische
 Dokumentationsprüfung/Integration im bestehenden Pull-Request-Verfahren.
@@ -11,10 +11,20 @@ Frühere Ausführungsfreigaben und Budgets werden nicht wiederverwendet.
 
 Der [kanonische Entwurf](../../.ai/identity/registry.json) steht bei TSK-016 unter
 `hint_negative_control_plan`. Die [abgeleitete Planansicht](../../.ai/BACKLOG.md#gesonderte-hint-negativkontrolle-mit-getrennten-abfrageidentitäten)
-und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-prüfbefunde-und-präzisierter-kompilierungsnachweis-vom-24-oktober-2026)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag-vom-24-oktober-2026)
 führen dieselben Identitäts-, Nachweis- und Ausführungsgrenzen.
 
-Der lesende [Prüfbefund](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
+Der neue [lesende Prüfbefund](../../.ai/BACKLOG.md#lesender-prüfbefund-zum-präzisierten-mess--und-statusvertrag)
+steht bei TSK-016 unter `hint_evidence_status_review_result`. Beide vorigen
+Präzisierungslücken sind dokumentarisch behoben; im geprüften Kompilierungs-/
+Statusvertrag wurde kein weiterer Widerspruch festgestellt. Der aktive Plan und
+seine Messgrenzen/Ergebnisvorränge bleiben unverändert. Diese Einordnung ist
+keine unabhängige Methodenfreigabe und keine technische Qualifikation der Builds
+2022/16.0.4265.3 oder 2025/17.0.4075.5. Quelltext-, Marker-/Gegenvertrags-,
+Zuordnungs-/Transport- und Laufzeitgates bleiben offen; kein zusätzlicher Lauf
+oder Kontroll-only-Ersatzablauf ist autorisiert.
+
+Der vorausgehende lesende [Prüfbefund](../../.ai/BACKLOG.md#prüfbefunde-zur-gesonderten-hint-negativkontrolle)
 steht kanonisch unter `hint_negative_control_review_result`. Im aktiven Plan
 benennt `compilation_evidence_contract` ausdrücklich
 `sys.query_store_query.count_compiles` je festgebundener eigener query_id.
