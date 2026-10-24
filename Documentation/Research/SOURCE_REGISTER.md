@@ -648,3 +648,33 @@ Im lesenden Review keine Tests, SQL-/Lab- oder CI-Läufe und kein Push; dieser
 Folgeauftrag integriert nur Dokumentation mit statischen Prüfungen. Die
 [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md) halten Umsetzung,
 SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
+
+### DGN-004: R/H-Abfrageform und Engine-Textzuordnung vom 24. Oktober 2026
+
+Ergänzung zu `SRC-027` (Query Store; persistente Abfrage-/Planhistorie) und
+`SRC-031` (tatsächliche Planerfassung), keine neue Quellenkennung. Basis
+`95105817ec14f4d0050b760611a1559ff19e4254`; Abruf/lesender Review 2026-10-24.
+Der [kanonische Befund bei TSK-016](../../.ai/identity/registry.json) steht unter
+`rh_query_text_review_result`; die [abgeleitete Befundansicht](../../.ai/BACKLOG.md#rh-abfrageform-und-engine-textzuordnung)
+enthält Quellen, Herleitung und offene Abnahmegrenzen vollständig.
+
+- DOKUMENTIERT: [SELECT-Syntax](https://learn.microsoft.com/en-us/sql/t-sql/queries/select-transact-sql?view=sql-server-ver17) ordnet OPTION nach ORDER BY an. [Query Hints](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17) gelten bei UNION mit der OPTION-Klausel am letzten Zweig für das gesamte Statement. Die geplante Referenz R ohne Hint und Kontrolle H mit dauerhaftem terminalem DISABLE_OPTIMIZED_PLAN_FORCING sind damit quellenkonform; vollständiger Prozedurtext und technische Hint-Abnahme fehlen weiterhin.
+- QUELLENBEFUND: Das [gepinnte Microsoft-Original](https://github.com/microsoft/bobsql/blob/8a6ade5ae3008e68d072e7346bc00e171097f519/demos/sqlserver2022/IQP/opf/bigjoin.sql) (Git-Blob ba8e46ff75a9508585d2e18f9ec29cb57fbf5267) besitzt zehn Tabellen und zwei UNION-ALL-Zweige mit neun Joins, aber neun projizierte Spalten und ORDER BY OrderID. Die synthetische Form A hat zehn int-Spalten einschließlich GroupNo sowie drei Sortierschlüssel. Nur strukturelle Anregung; kein übertragener Eignungsnachweis. INFERENZ: 192 Detailzeilen mal zwei Gruppen mal zwei Zweige ergeben 768 Tupel, 384 verschiedene jeweils zweimal; keine Messung.
+- DOKUMENTIERT: [sys.sql_modules](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-modules-transact-sql?view=sql-server-ver17) führt die vollständige Moduldefinition; [sys.dm_exec_sql_text](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver17) den Batch-/Prozedurtext. Die [Abfragestatistik](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-stats-transact-sql?view=sql-server-ver17) grenzt Statements durch nullbasierte Byteoffsets darin ab. Batch-/Prozedurbezug, Statement und Planhandle sind zu unterscheiden.
+- DOKUMENTIERT: [Query-Store-Abfragetext](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-text-transact-sql?view=sql-server-ver17) bewahrt innere Leerzeichen, Kommentare und Hinweise; äußere Kommentare und Leerraum werden ignoriert. METHODE: vollständige rohe Darstellungen getrennt halten und ihren Quellenbezug vor dem Versiegeln eindeutig belegen. Unterschiedliche Modulnamen gehören zur R/H-Modulidentität; der einzige erlaubte Nutzstatement-Unterschied bleibt der feste terminale Hint. Keine pauschale Textnormalisierung oder Übertragung von OPT-007-Semikolongrenzen.
+
+Der versionierte Bestand enthält den Bauplan, kein vollständig festgeschriebenes
+ausführbares R/H-Quellpaar. Die zu weit gehende Planungsabnahme wird entsprechend
+begrenzt. Konkrete Quellen, akzeptierte Engine-Darstellungen und die vollständige
+Erstzuordnung sind weiterhin unabhängig zu prüfen. Die erste beobachtete Ausgabe
+allein beweist ihre eigene Zuordnung nicht. Tatsächliche Darstellung, Planzuordnung
+und Replay-Nutzung (Wiederverwendung von Optimierungsschritten) für
+2022/16.0.4265.3 und 2025/17.0.4075.5 bleiben ungeprüft; keine unabhängige Methoden-,
+Laufzeit- oder Demoabnahme.
+
+Frühere Reviews, Quellkonflikte und der ältere Ein–Aus–Ein-Plan bleiben erhalten.
+Mess-/Statusvertrag, neun Aufrufe je Version, zwei Container und gemeinsames
+Zeitbudget unverändert. Im lesenden Review keine Tests, SQL-/Lab- oder CI-Läufe
+und kein Push; dieser Folgeauftrag erlaubt nur statische Dokumentationsintegration.
+Die [Auftragsgrenzen](../Project_Planning/CURRENT_EXECUTION_STATUS.md) halten Umsetzung,
+SQL-/Lab-Läufe und übrige Verarbeitung pausiert.
