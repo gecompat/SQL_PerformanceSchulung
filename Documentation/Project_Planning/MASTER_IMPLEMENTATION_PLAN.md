@@ -1,8 +1,48 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
-## DGN-004: Markerprobenreview und Hintwirkung vom 25. Oktober 2026
+## DGN-004: Quellenklärung der Marker-Gates vom 25. Oktober 2026
 
 Der aktuelle Auftrag dokumentiert bei TSK-016 (gezielte Curriculum-Ergänzungen)
+die Quellenklärung für DGN-004 (Planerzwingung). R ist Referenz ohne Hint, H die
+Negativkontrolle mit festem Abschalthinweis; Replay bedeutet Wiederverwendung
+von Optimierungsschritten. Nur Dokumentation und statische CI (Continuous
+Integration; automatisierte Integrationsprüfungen) im Pull-Request-Verfahren;
+keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
+
+Die [kanonische Quellenklärung](../../.ai/identity/registry.json) steht bei TSK-016
+unter `rh_marker_gate_source_clarification_result`; die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#quellenklärung-der-offenen-rh-marker-gates)
+und die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-quellenklärung-der-marker-gates-vom-25-oktober-2026)
+führen die technische Evidenz und deren Grenzen. Herstellerstand b6fe4934643919b28ddea54ad04c66ff1b2a82d1
+erneut gebunden: allgemeiner Funktions-/Hintumfang ab 2022 einschließlich 2025
+ist dokumentiert. Dies ist kein aktueller Marker-Nutzungsnachweis.
+
+Beide Gates bleiben für 2022/16.0.4265.3 und 2025/17.0.4075.5 offen.
+QueryCompilationReplay = 1 bleibt positiver Quellenkandidat. Das optionale
+Ganzzahlattribut besitzt im Hersteller-Schema keine Zustandswerttabelle; für H
+fehlt ein qualifizierter beobachtbarer Nichtnutzungszustand. 0, Abwesenheit,
+Hint, Skriptvorhandensein, fehlender Fehler oder Kompilierungszuwachs ersetzen
+die aktuelle Nutzungs-/Nichtnutzungssemantik nicht. Abwesenheit verlangt einen
+eigenständigen Vollständigkeits- und Bedeutungsnachweis des Erfassungswegs.
+
+Öffentlich geprüfte Quellen schließen diese Lücke nicht; keine Behauptung einer
+vollständigen Recherche oder fehlender Featureunterstützung in 2025. Zusätzliche
+Buchspur nicht im relevanten Originalvolltext zugänglich und nicht als technische
+Evidenz verwendet. Keine neue empirische Beobachtung oder unabhängige Freigabe.
+CONTROL_ONLY (nur Kontrollzustand belegt) bleibt Teilbefund, der Vergleich ohne
+Markerabnahme NOT_PROVEN (nicht nachgewiesen), soweit kein höherer Fehlerstatus
+greift. Die Aussagegrenze zur isolierten kausalen Hintwirkung bleibt erhalten.
+
+Quellpaar, Markerprobenplan, Abnahmekriterien, Mess-/Statusvertrag und sämtliche
+Budgets unverändert: neun Nutzaufrufe je Build, zwei eigene sequenzielle Container,
+900 Sekunden gemeinsam plus je 60 Sekunden Cleanup. Unabhängige Marker-, Quellen-/
+Identitäts-/Transport-/Mess-/Statusfreigaben und tatsächliche Buildnachweise
+bleiben offen. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im
+gewählten Gesamtrahmen; keine alte Lauf- oder Telemetriefreigabe wird aktiviert.
+Frühere Befunde und Pläne bleiben erhalten.
+
+## DGN-004: Markerprobenreview und Hintwirkung vom 25. Oktober 2026
+
+Der vorausgehende Dokumentationsauftrag erfasste bei TSK-016 (gezielte Curriculum-Ergänzungen)
 den Prüfbefund für DGN-004 (Planerzwingung). R ist Referenz ohne Hint, H die
 Negativkontrolle mit festem Abschalthinweis. Replay bezeichnet Wiederverwendung
 von Optimierungsschritten. Nur Dokumentation und statische CI (Continuous

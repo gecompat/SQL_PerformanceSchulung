@@ -1,21 +1,22 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Markerprobenreview und Aussagegrenze zur Hintwirkung aufnehmen
+## DGN-004: Quellenklärung und offene Marker-Gates aufnehmen
 
-Bei TSK-016 wird der Prüfbefund für DGN-004 (Planerzwingung) dokumentiert.
-R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis;
-Replay bedeutet Wiederverwendung von Optimierungsschritten. Der Markerprobenplan
-ist im geprüften Umfang dokumentarisch schlüssig. Nutzung und Nichtnutzung
-bleiben unabhängig nachzuweisen; ein späterer Zustandsvergleich beweist keine
-isolierte kausale Hintwirkung. Nur Dokumentation und statische Integration per
-Pull Request (Änderungsantrag), keine Umsetzung oder SQL-/Lab-Läufe.
-Die übrige Verarbeitung bleibt pausiert. Der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-und der [Prüfbefund samt Aussagegrenze](#prüfbefund-zum-rh-markerprobenplan-und-zur-hintwirkung) führen die offenen Gates.
+Bei TSK-016 wird die erneute Quellenklärung für DGN-004 (Planerzwingung)
+dokumentiert. R ist Referenz ohne Hint, H die Negativkontrolle mit festem
+Abschalthinweis; Replay bedeutet Wiederverwendung von Optimierungsschritten.
+Allgemeiner Feature-/Hintumfang ist quellenbelegt. Beide Marker-Gates für die
+exakten 2022/2025-Builds und den gewählten Erfassungsweg bleiben offen; keine
+isolierte kausale Hintwirkung aus dem R/H-Zustandsvergleich ableiten.
+Nur Dokumentation und statische Integration per Pull Request (Änderungsantrag),
+keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
+Der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+und die [Quellenklärung samt offenen Gates](#quellenklärung-der-offenen-rh-marker-gates) führen die Grenzen.
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme des DGN-004-Markerprobenreviews samt Aussagegrenze zur Hintwirkung ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Quellenklärung samt offenen Marker-Gates ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -31,7 +32,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 25. Oktober 2026: bei TSK-016 den DGN-004-Prüfbefund zum R/H-Markerprobenplan samt Aussagegrenze zur Hintwirkung aufnehmen und per Pull Request nach origin/main integrieren. DGN-004 behandelt Planerzwingung; R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Vorhandene Identitäten, Quellvorlagen, Pläne, Abnahmekriterien, Mess-/Statusvertrag, frühere Befunde und Gesamtlaufbudgets unverändert erhalten.
+Dokumentationsauftrag vom 25. Oktober 2026: bei TSK-016 die DGN-004-Quellenklärung samt weiterhin offenen Marker-Gates aufnehmen und per Pull Request nach origin/main integrieren. DGN-004 behandelt Planerzwingung; R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Vorhandene Identitäten, Quellen-/Probenpläne, Abnahmekriterien, Mess-/Statusvertrag, frühere Befunde, Aussagegrenze zur Hintwirkung und sämtliche Laufbudgets unverändert erhalten.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -515,7 +516,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Lesender Review des R/H-Markerprobenplans im geprüften Umfang dokumentarisch schlüssig; kein neuer konkreter Widerspruch festgestellt. Aussagegrenze zur Hintwirkung ergänzt: Zustandsvergleich getrennt von isolierter kausaler Wirkung. Positive/negative Markersemantik und unabhängige Freigaben bleiben offen; P2, Quellen/Pläne, Abnahmekriterien, neun Aufrufe und Budgets unverändert. Keine Ausführungsreife oder Laufzeitabnahme.
+**Planungsentscheidung:** Erneute lesende Quellenklärung dokumentiert: allgemeiner Feature-/Hintumfang ab 2022 einschließlich 2025 geklärt, R-Marker bleibt Quellenkandidat, beobachtbarer H-Nichtnutzungszustand weiterhin nicht qualifiziert. Beide Marker-Gates für die exakten Builds und den Erfassungsweg offen; keine neue empirische Evidenz oder unabhängige Freigabe. P2, aktive Pläne/Abnahmekriterien, Aussagegrenze zur Hintwirkung, neun Aufrufe und Budgets unverändert.
 
 **Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
 
@@ -524,7 +525,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
 - Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Die offenen Marker-, Quellen-/Zuordnungs-/Transport-/Mess-/Statusgates aus rh_marker_probe_plan und rh_marker_probe_review_result unabhängig für beide exakten Builds und den gewählten Erfassungsweg freigeben. Aussagegrenze beibehalten: beobachtete R/H-Zustände sind kein isolierter kausaler Hintnachweis. Danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten gewählten Gesamtrahmen; bis dahin keine Probe implementieren oder starten und übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Die offenen R-/H-Marker-Gates aus rh_marker_gate_source_clarification_result durch unabhängige Quellen-/Methodenevidenz für beide exakten Builds und den gewählten Erfassungsweg schließen; aktuelle erfolgreiche Nutzung beziehungsweise beobachtbare Nichtnutzung qualifizieren. Übrige Quellen-/Zuordnungs-/Transport-/Mess-/Statusgates und Aussagegrenze zur Hintwirkung unverändert beachten. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im gewählten Gesamtrahmen; keine Wiederaufnahme alter Laufrechte und übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -774,6 +775,80 @@ StatementOptmEarlyAbortReason = TimeOut in vorhandenen Warm-up-Plänen bezeichne
 - Demo: ausdrücklicher Umsetzungsauftrag, unabhängiger Quellen-/Ergebnisreview und vollständige Erfolgs-/NO_INDEX-/Ersatzplan-/Rücknahmequalifikation auf allen Zielversionen bleiben erforderlich. Nur statische Integration dieser Befunde; keine Umsetzung oder SQL-/Lab-Läufe und keine Wiederaufnahme übriger Verarbeitung.
 
 Registrierte Einordnung: [Hashzuordnung und Replay-Referenz zu SRC-027/SRC-031](../Documentation/Research/SOURCE_REGISTER.md#dgn-004-hashzuordnung-und-replay-referenz-vom-24-oktober-2026).
+
+###### Quellenklärung der offenen R/H-Marker-Gates
+
+**Quellenklärung vom:**
+
+2026-10-25
+
+**Geprüfter Projektstand:**
+
+05bc7bf9b360cff54d6e3907ab7a745232c3bd68
+
+**Status:**
+
+PARTIALLY_CLARIFIED_BOTH_MARKER_GATES_OPEN – allgemeine Feature-/Hintbedeutung quellenbelegt; aktuelle R-Nutzung und beobachtete H-Nichtnutzung für beide exakten Builds und den gewählten Erfassungsweg weiterhin nicht qualifiziert.
+
+**Prüfumfang und Auftragsgrenze:**
+
+Ausschließlich lesende Quellenklärung am 2026-10-25 zum bestehenden R/H-Markerprobenplan. Gezielte Suche nach QueryCompilationReplay-Werten, Versions-, Erfolgs-/Nichtnutzungs- und Ereignisverträgen; Hersteller- und Originalreferenzen eingesehen. Offizielles XSD nur als Text im Arbeitsspeicher gelesen, keine Parser-/Schema-/Vertragstests. MicrosoftDocs-live über den GitHub-Connector erneut auf Commit b6fe4934643919b28ddea54ad04c66ff1b2a82d1 gebunden und Funktions-/Erfassungsreferenzen dort gelesen. Im Review keine Repositoryänderung, Validatoren, Tests, SQL-/Lab- oder CI-Läufe, kein Push und keine aktivierte Telemetrie. Dieser Folgeauftrag integriert die Befunde ausschließlich dokumentarisch mit statischen Prüfungen; übrige Verarbeitung pausiert.
+
+**Quellenbefunde:**
+
+- ALLGEMEIN DOKUMENTIERT: DISABLE_OPTIMIZED_PLAN_FORCING deaktiviert optimierte Planerzwingung für die betreffende Abfrage ab SQL Server 2022. Die Funktionsreferenz im gepinnten Herstellerstand gilt über monikerRange >=sql-server-ver16 beziehungsweise >=sql-server-linux-ver16 auch für 2025. Allgemeine Featureverfügbarkeit und Abschaltbedeutung sind damit von einer noch offenen build- und erfassungsbezogenen Markerqualifikation zu trennen.
+- R – REFERENZ OHNE HINT: SQLServerFast beschreibt QueryCompilationReplay als vorhanden und auf 1 gesetzt, wenn optimierte Planerzwingung zur Kompilierung verwendet wurde. Die Originalreferenz beschreibt ihre Eigenschaftsliste mit Bezug auf SQL Server 2022 und SSMS 20.2 (SQL Server Management Studio; grafisches Verwaltungswerkzeug) und benennt versions-/erfassungsabhängige Sichtbarkeit. Dies bleibt ein positiver Quellenkandidat, keine qualifizierte Erfolgs-/Versuchs-/Speicherwerttabelle für 16.0.4265.3 und 17.0.4075.5 im ausgewählten Erfassungsweg.
+- SCHEMABEFUND: Das originale 2022-Showplan-XSD (XML Schema Definition; Schemadefinition des Planformats) definiert QueryCompilationReplay weiterhin als optionales xsd:int ohne Zustandswertsemantik. OptimizationReplayType verlangt Script-Text, keinen aktuellen Nutzungserfolg. Aus Treffern oder ausbleibenden Treffern zu 0, 2 oder anderen Zahlen werden keine weiteren Zustandswerte abgeleitet; Abwesenheit nicht auf 0 abbilden.
+- H – NEGATIVKONTROLLE MIT FESTEM ABSCHALTHINWEIS: Für die aktuelle eigene H-Kompilierung wurde im geprüften öffentlich zugänglichen Quellenumfang kein unabhängig begründeter beobachtbarer Nichtnutzungszustand gefunden. Eine Abwesenheitsregel braucht vorab die belegte Kennzeichnung jeder tatsächlichen Nutzung auf genau dem Build und Erfassungsweg sowie geklärte Nichtnutzungsbedeutung am Zielstatement. Der dokumentierte Hint allein trägt höchstens CONTROL_ONLY (nur Kontrollzustand belegt), keinen empirischen Gegenbeleg.
+- ERFASSUNGSGRENZE: sys.dm_exec_query_plan_stats dokumentiert den letzten bekannten tatsächlichen Plan mit Kompilierungsinformationen aus dem Cache und letzten Laufzeitinformationen; unter benannten Bedingungen kommen reduzierte oder keine Pläne zurück. Vollständige aktuelle Quellen-/Modul-/Kontext-/Query-/Plan-/Kompilierungs-/Ausführungsbindung bleibt Pflicht. Daraus folgt keine QueryCompilationReplay-spezifische Erfolgs- oder Vollständigkeitsgarantie für beide Zielbuilds.
+- VERSIONSGRENZE: Der öffentliche Showplan-Schemaindex führt als jüngsten Eintrag SQL Server 2022 RTM (Release to Manufacturing; ursprünglicher Veröffentlichungsstand), keinen gesonderten 2025-Markerwertevertrag. Dies belegt weder fehlende Featureunterstützung in 2025 noch einen gültigen gemeinsamen Zustandswertvertrag für 2022/2025.
+- KEIN ERSATZNACHWEIS: has_compile_replay_script bezeichnet ein aufgezeichnetes Skript, is_forced_plan eine Erzwingungsanforderung; Fehler 8675 bezeichnet gescheiterten Replay. Fehlender Fehler, Ereignisstille, kürzere Kompilierung oder +1-Kompilierungszuwachs allein beweisen weder Nutzung noch Nichtnutzung. Der bisherige Deaktivierungsflagkonflikt bleibt unverändert und wird nicht als H-Gegenmarker verwendet.
+
+**Ergebnis:**
+
+Beide Marker-Gates lassen sich aus den konkret geprüften öffentlich zugänglichen Quellen weiterhin nicht belastbar schließen. Teilweise geklärt sind allgemeiner Feature-/Hintumfang und Quellenkandidat für R; eine vollständige aktuelle Erfolgs-/Nichtnutzungssemantik für beide exakten Builds und den gewählten Erfassungsweg fehlt. Keine Behauptung, dass solche Evidenz grundsätzlich nicht existiert oder das Feature versagt. Empirischer Vergleich bleibt NOT_PROVEN (nicht nachgewiesen), soweit kein höherer Vertrags-/Bereinigungsfehler greift.
+
+**Recherche- und Zugangsgrenzen:**
+
+- Die Connector-Suche nach QueryCompilationReplay in MicrosoftDocs/sql-docs und microsoft/bobsql lieferte keine Ergebnisse; das ist kein Nachweis vollständiger Code- oder Webabdeckung. Auch erfolglose exakte Versions-/Wertsuchen beweisen keine Abwesenheit der Funktion oder aller einschlägigen Quellen.
+- Die zusätzliche Buchspur Built-In Query Intelligence war am Verlagsoriginal nur als Abstract beziehungsweise Abonnementsvorschau zugänglich. Die öffentliche OReilly-Buchseite zeigte das Inhaltsverzeichnis; weiterer Zugriff wurde verweigert. Relevanter Originalvolltext nicht verifiziert, keine Zugangsumgehung oder Bestellung. Unbestätigte Drittwiedergaben erneut nicht als technische Evidenz verwendet; daraus keinen Quellenwiderspruch oder Produktfehler abgeleitet.
+- Keine neuen Beobachtungen auf 2022/16.0.4265.3 oder 2025/17.0.4075.5 gelesen oder erzeugt, keine unabhängige Methodenfreigabe und keine alternative Telemetrie aktiviert. Die Quellenklärung ersetzt weder technische Versionsqualifikation noch eine Demoabnahme.
+
+**Weiterhin offene Gates:**
+
+- Für SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und SQL Server 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170) muss unabhängige Quellen-/Methodenevidenz tatsächliche erfolgreiche R-Replay-Nutzung bei der aktuellen eigenen Kompilierung von Speicherung, Anforderung und bloßem Versuch unterscheiden. Exakte Rohdarstellung, Geltungsbereich und gewählten Erfassungsweg qualifizieren.
+- Für die aktuelle eigene H-Kompilierung auf beiden Zielbuilds einen expliziten Nichtnutzungszustand oder eine unabhängig belegte Vollständigkeits-/Abwesenheitsregel begründen. Kein ungeprüftes boolesches 0/1-Schema und keine selbst kalibrierte Semantik aus unterschiedlichen R/H-Rohwerten. Allgemeine Abschaltbedeutung allein schließt dieses Beobachtungsgate nicht.
+- Unabhängige Quellen-/Identitäts-/Transport-/Mess-/Statusfreigaben sowie tatsächliche M/S/T-/Byteoffset-/Planqualifikation bleiben offen. M/S/T bezeichnet Modultext beziehungsweise Nutzstatement mit und ohne letztes Semikolon. Ein weiterer dokumentarischer Review allein ersetzt fehlende Semantik- oder Buildnachweise nicht.
+- rh_marker_probe_plan, hint_negative_control_plan, rh_source_text_plan und frühere Befunde unverändert. Neun Nutzaufrufe je Version, zwei eigene Container, alle Zeit-/Batch-/Text-/Transport-/Eigentums-/Cleanupgrenzen beibehalten. Erst nach bestehenden Gates neuer ausdrücklicher Umsetzungs-/Laufauftrag für den gewählten Gesamtrahmen; keine alte Freigabe, zusätzliche Kalibrierung, neue Telemetrie oder Budgetaddition ableiten. Übrige Verarbeitung pausiert.
+
+**Erhaltene Aussagegrenze zur Hintwirkung:**
+
+Die Aussagegrenze aus rh_marker_probe_review_result bleibt erhalten: Der R/H-Zustandsvergleich belegt keine isolierte kausale Hintwirkung. R/H haben getrennte Identitäten und eigene Zielpläne, bei H ist kein gespeichertes Replay-Skript Voraussetzung. Keine neue Kausalprobe, reversible Abschaltung derselben query_id oder Performanceaussage aus dieser Quellenklärung ableiten.
+
+**Abnahmegrenze:**
+
+Abgeschlossen sind die lesende Quellenklärung und ihre nachvollziehbare Dokumentation mit weiterhin offenen Marker-Gates. Keine neue Markerwertfreigabe, beobachtete Nutzung/Nichtnutzung, unabhängige Freigabe oder Versions-/Demoabnahme. Bestehende Abnahmekriterien, Mess-/Statusvertrag, Quellen-/Probenpläne, Aussagegrenzen und Budgets bleiben unverändert; kein zusätzlicher Lauf oder Umsetzung autorisiert.
+
+**Quellen im lesenden Review geprüft am:**
+
+2026-10-25
+
+**Technische Quellen:**
+
+- https://sqlserverfast.com/epr/plan-properties/
+- https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd
+- https://schemas.microsoft.com/sqlserver/2004/07/showplan/
+- https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing
+- https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17
+- https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/performance/optimized-plan-forcing-query-store.md
+- https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql.md
+
+**Nur bibliografische Spur ohne relevanten Originalvolltext:**
+
+- https://link.springer.com/chapter/10.1007/978-1-4842-8894-8_4
+- https://www.oreilly.com/library/view/sql-server-2022/9781484288948/
 
 ###### Prüfbefund zum R/H-Markerprobenplan und zur Hintwirkung
 
