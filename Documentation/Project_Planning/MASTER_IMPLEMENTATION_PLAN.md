@@ -1,8 +1,59 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## DGN-004: Aktiver begrenzter Umfang vom 25. Oktober 2026
+
+Der aktuelle Auftrag begrenzt DGN-004 (Planerzwingung) bei TSK-016
+(gezielte Curriculum-Ergänzungen) auf klassische Planerzwingung über Standard-
+Force/Unforce und einen festen Inline-Hint-Kontrollzustand. R ist Referenz ohne
+Hint, H die getrennte Hint-Kontrolle. Nur Planung und statische CI (Continuous
+Integration; automatisierte Integrationsprüfungen) im Pull-Request-Verfahren;
+keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
+
+Die [kanonische Registry](../../.ai/identity/registry.json) wählt bei TSK-016 für
+DGN-004 über `active_plan` ausschließlich `classical_forcing_hint_control_plan`.
+Die [abgeleitete aktive Planansicht](../../.ai/BACKLOG.md#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand)
+führt die neuen Abnahmekriterien. Klassisch bezeichnet die dokumentierte
+Zwei-Argument-Standardschnittstelle und belegte Planverwendung, keine Aussage
+über den internen Optimierungs-/Replay-Weg. Replay bedeutet Wiederverwendung
+von Optimierungsschritten; Nutzung und Nichtnutzung werden hier nicht abgenommen.
+
+Unverändertes R/H-Quellpaar, Form A und neun Nutzaufrufe je Build: R aufwärmen
+(1/2), R-Force belegen (3), H binden (4), zweimal H-Force/Kontrollzustand (5/6),
+erneut R-Force (7), H/R unforced abschließen (8/9). Kein R-Replay-Skript,
+QueryCompilationReplay-Wert oder H-Nichtnutzungsmarker als Eintritts-/Erfolgsgate.
+Vollständige Quellen-/Identitäts-/Plan-/Kontext-/Tupelbindung, aktuelle Erfassung,
+strenger Kompilierungszuwachs +1, eigener regulärer Ausführungszuwachs und
+Fehlerfreiheit bleiben Pflicht. H verlangt zusätzlich den vollständigen festen
+Inline-Hint und keine fremde überschreibende Steuerung.
+
+Ein späterer PASS (bestanden) gilt ausschließlich für
+CLASSICAL_FORCING_AND_HINT_CONTROL. H bleibt CONTROL_ONLY (nur Kontrollzustand
+belegt), ohne empirische Replay-Abschaltung oder isolierte kausale Hintwirkung.
+Gesamt-PASS im engeren Umfang erst nach allen neun Aufrufen und sicherer
+Bereinigung auf beiden Builds. Fehlende aktive Pflichtbelege bleiben Nichtabnahme;
+Vertrags-/Bereinigungsfehler dürfen nicht durch die Begrenzung verdeckt werden.
+
+Replay-Vergleich samt offenen Marker-Gates, alter Ein–Aus–Ein-/Gleichidentitäts-
+vergleich, erweiterte Deaktivierungssignatur, gezielte Fehler-/Fallback-Demo,
+gespeicherte Query-Store-Hints und 2019-Qualifikation sind zurückgestellt.
+Frühere FAIL-/NOT_PROVEN-Befunde und Quellen-/Planstände unverändert erhalten.
+Die offenen Replay-Gates blockieren diesen engeren Aussageumfang nicht und
+bleiben für spätere Erweiterungen zwingend. Die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-begrenzung-auf-standard-planerzwingung-und-hint-kontrollzustand-vom-25-oktober-2026)
+trennt die Abnahmeumfänge; keine zweite Planungsliste.
+
+Unverändert zwei eigene sequenzielle Container für 2022/16.0.4265.3 und
+2025/17.0.4075.5, 900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden
+Cleanup und alle bisherigen Text-/Transport-/Eigentums-/Ressourcengrenzen.
+Vor Umsetzung unabhängigen Review des engeren Quellen-/Identitäts-/Transport-/
+Mess-/Statusvertrags und statische Gegenfälle abschließen; diese Freigabe ist
+noch offen. Danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Tatsächliche
+Build-/Text-/Planqualifikation bleibt spätere Pflicht. Die folgenden älteren
+Abschnitte sind historische Befunde und Pläne; ihre Replay-Abnahme wird nicht
+zum Erfolg oder zur aktuellen Eintrittsbedingung umgedeutet.
+
 ## DGN-004: Quellenklärung der Marker-Gates vom 25. Oktober 2026
 
-Der aktuelle Auftrag dokumentiert bei TSK-016 (gezielte Curriculum-Ergänzungen)
+Der vorausgehende Quellenklärungsauftrag dokumentierte bei TSK-016 (gezielte Curriculum-Ergänzungen)
 die Quellenklärung für DGN-004 (Planerzwingung). R ist Referenz ohne Hint, H die
 Negativkontrolle mit festem Abschalthinweis; Replay bedeutet Wiederverwendung
 von Optimierungsschritten. Nur Dokumentation und statische CI (Continuous
@@ -1246,7 +1297,7 @@ voraus; Reihenfolge und Freigabestatus der bestehenden Demos bleiben erhalten.
 | `DGN-001` | `STATISTICS IO/TIME`, Actual Plan und kontrollierter A/B-Vergleich | Grün |
 | `DGN-002` | Session-, Request- und Task-DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) sowie Live Query Statistics | Grün |
 | `DGN-003` (Abfragehistorie mit Query Store) | Query Store: Regression, mehrere Pläne, Runtime- und Wait-Historie | Grün |
-| `DGN-004` | Plan Forcing, Query Store Hints und sichere Rücknahme | Gelb |
+| `DGN-004` (Planerzwingung) | [Aktiv: Standard-Force/Unforce, fester Inline-Hint-Kontrollzustand und sichere Rücknahme](../../.ai/BACKLOG.md#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand); Replay und gespeicherte Query-Store-Hints zurückgestellt | Gelb |
 | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events) | Extended Events für Deadlocks, Blocking, Spills, Recompiles und Fehler | Gelb |
 | `DGN-006` | Workload-Treiber, hohe Sessionzahl, OS-Metriken und reproduzierbare Baselines | Gelb |
 

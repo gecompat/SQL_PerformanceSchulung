@@ -81,6 +81,13 @@ lehrzielgebundenen Beispielen. Sie verwenden ausschließlich bereits registriert
 Demo-IDs. Ihre Reihenfolge gilt nur innerhalb dieser Kandidatengruppe und ändert
 weder `NEXT_DEVELOPMENT_WAVES.md` noch bestehende Freigabegates.
 
+Für DGN-004 (Planerzwingung) gilt aktuell ausschließlich der
+[begrenzte Standard-Forcing-/Inline-Hint-Kontrollumfang bei TSK-016](../../.ai/BACKLOG.md#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand).
+Die breitere DGN-004-Zeile unten bleibt historischer Planungsvorrat; gezielte
+Fehler-/Fallback-Demo, gespeicherte Query-Store-Hints und Replay-Vergleich sind
+zurückgestellt. Der aktuelle Dokumentationsauftrag erlaubt keine Umsetzung oder
+SQL-/Lab-Läufe; die übrige Verarbeitung bleibt pausiert.
+
 | Rang | Demo-ID | Beispiel und Kernevidenz | Versionen | Safety | Vorläufiger Quellenstatus | Offene Analyse |
 |---:|---|---|---|---|---|---|
 | 1 | `QRY-006` (NULL bei NOT IN und NOT EXISTS) | NULL-Falle beim Anti-Join: `NOT IN` mit einem `NULL` in der Vergleichsmenge gegen das fachlich korrekte `NOT EXISTS`; Ergebnisvertrag und mögliche Planform getrennt bewerten | 2019–2025 | Grün | `SOURCE_REVIEW_REQUIRED`; Microsoft-Primärquellen zu `IN` und `EXISTS` in den regulären Quellenprozess übernehmen | deterministische Datensätze, Ergebnisassertion und planformunabhängige Kernaussage festlegen |

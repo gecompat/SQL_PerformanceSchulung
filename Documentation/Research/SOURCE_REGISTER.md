@@ -267,6 +267,11 @@ ersetzen keine neue Schulungs-Runtimequalifikation.
 
 ## DGN-004 – Detailverweise zum bestehenden Query-Store-Quellenumfang SRC-027
 
+Aktuell gilt der [begrenzte Standard-Forcing-/Hint-Kontrollumfang bei TSK-016](../../.ai/BACKLOG.md#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand).
+Die folgenden datierten Quellen-/Replay-Befunde bleiben historische Nachweise;
+die [aktuelle Abnahmegrenze](#dgn-004-begrenzung-auf-standard-planerzwingung-und-hint-kontrollzustand-vom-25-oktober-2026)
+setzt sie für den engeren Schnitt in Beziehung.
+
 Datierte Ergänzung des bestehenden Eintrags `SRC-027`, keine neue Quellenkennung.
 Seine historische Registerzeile und früheren Abnahmen bleiben erhalten.
 Klasse `PRIMARY`, Status `ACTIVE`; **Aktualisiert und abgerufen: 2026-10-23**.
@@ -877,3 +882,38 @@ alle Pläne, Abnahmekriterien und Laufbudgets bleiben unverändert. Der
 [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) begrenzt den
 Folgeauftrag auf Dokumentation und statische Integration; keine Umsetzung oder
 SQL-/Lab-Läufe, übrige Verarbeitung pausiert.
+
+### DGN-004: Begrenzung auf Standard-Planerzwingung und Hint-Kontrollzustand vom 25. Oktober 2026
+
+Der ausdrückliche Auftrag wählt bei TSK-016 für DGN-004 (Planerzwingung) den
+[aktiven begrenzten Vertrag](../../.ai/BACKLOG.md#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand).
+R ist Referenz ohne Hint, H die getrennte Kontrolle mit festem Inline-Hint.
+Abgenommen werden später die dokumentierte Standard-Planerzwingung, tatsächlich
+passende aktuelle Planausführung, H-Kontrollzustand und sichere Rücknahme.
+Klassisch bezeichnet diesen Standardpfad, keinen bestimmten internen
+Kompilierungsalgorithmus; kein Replay- oder kausaler Hintnachweis.
+
+Die am 25. Oktober 2026 erneut gelesenen Herstellerreferenzen zu
+[Force](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17),
+[Unforce](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-unforce-plan-transact-sql?view=sql-server-ver17)
+und [Abfragehinweisen](https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17)
+tragen Auftragsannahme/Rücknahme und dokumentierte Hintbedeutung. Force allein
+garantiert keinen identischen tatsächlich ausgeführten Plan. Deshalb vollständige
+aktuelle Struktur-/Identitäts-/Ausführungs-/Ergebnisbindung weiter verlangen.
+H bleibt CONTROL_ONLY (nur Kontrollzustand belegt). Die ausdrückliche Begrenzung
+erlaubt diesem Teilbefund einen Erfolg ausschließlich im neuen Aussageumfang,
+keine empirische Replay-Abschaltungsabnahme.
+
+Die [offenen Marker-Gates](#dgn-004-quellenklärung-der-marker-gates-vom-25-oktober-2026)
+bleiben fachlich offen; sie gelten für den zurückgestellten Replay-Vergleich,
+nicht als Voraussetzung des engeren Vertrags. Historische Quellen/Befunde,
+gescheiterte Versuche und Aussagegrenze zur Hintwirkung unverändert. Auch gezielter
+Forcing-Fehler, gespeicherte Query-Store-Hints und 2019-Qualifikation bleiben
+gesonderte spätere Schnitte. Bestehende SRC-027 (Query Store; persistente Abfrage-
+und Planhistorie) und SRC-031 (tatsächliche Planerfassung) genügen; keine neue Kennung.
+
+Neun Nutzaufrufe je Version, zwei eigene Container und sämtliche Budgets erhalten;
+keine neue Ausführungsfreigabe. Der [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md)
+führt die noch offene unabhängige Methodenprüfung und den nötigen späteren Auftrag.
+Nur Planung und statische Integration, keine Umsetzung oder SQL-/Lab-Läufe;
+übrige Verarbeitung pausiert.
