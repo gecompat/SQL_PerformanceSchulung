@@ -812,3 +812,32 @@ Neun Nutzaufrufe je Version und vorhandenes gemeinsames Budget unverändert,
 keine neue Telemetrie, Implementierung oder SQL-/Lab-Ausführung. Der
 [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) hält die
 offenen Freigabegates und die übrige Verarbeitungspause fest.
+
+### DGN-004: Markerprobenreview und Hintwirkung vom 25. Oktober 2026
+
+Der [Prüfbefund bei TSK-016](../../.ai/BACKLOG.md#prüfbefund-zum-rh-markerprobenplan-und-zur-hintwirkung)
+bewertet den Markerprobenplan für DGN-004 (Planerzwingung) im konkret geprüften
+Umfang als dokumentarisch schlüssig; keine unabhängige Methodenfreigabe oder
+Laufzeitabnahme. R ist Referenz ohne Hint, H die Negativkontrolle mit festem
+Abschalthinweis. Replay bezeichnet Wiederverwendung von Optimierungsschritten.
+Herstellerbeschreibung, Hintreferenz, originales Planformatschema, originale
+Fachreferenz sowie Planerfassung und Query-Kompilierungsstatistik wurden im
+lesenden Review am 25. Oktober 2026 geprüft. Die [vorige Quelleneinordnung](#dgn-004-markerprobenplan-vom-25-oktober-2026)
+und die dort verlinkten Originale bleiben erhalten. Bestehende SRC-027
+(Query Store; persistente Abfrage- und Planhistorie) und SRC-031 (tatsächliche
+Planerfassung) genügen; keine neue Quellenkennung.
+
+**Inferenz aus dem Versuchsaufbau:** R/H besitzen getrennte Abfrageidentitäten
+und eigene Zielpläne; für H ist kein gespeichertes Replay-Skript Voraussetzung.
+Ein späterer Erfolg belegt daher nur die unabhängig qualifizierten beobachteten
+Nutzungs-/Nichtnutzungszustände. Keine isolierte kausale Wirkung des Hints und
+keine reversible Abschaltung derselben query_id daraus ableiten. Die
+[dokumentierte Abschaltbedeutung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17#disable-optimized-plan-forcing-with-a-query-hint)
+bleibt quellenbasiert; keine neue empirische Evidenz oder Produktfehlerbehauptung.
+
+Die positive und negative Markersemantik sowie Zuordnungs-/Erfassungsnachweise
+für beide exakten Builds bleiben offen. Vorhandene neun Aufrufe, Quellen und
+Budgets unverändert; keine zusätzliche Kausalprobe oder Telemetrie. Der
+[Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) begrenzt die
+aktuelle Arbeit auf Dokumentation und statische Integration; übrige Verarbeitung
+bleibt pausiert. Keine Umsetzung oder SQL-/Lab-Läufe in diesem Folgeauftrag.

@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "in_progress",
       "priority": "P1",
-      "scope": "Planungsauftrag vom 25. Oktober 2026: für DGN-004 (Planerzwingung) bei TSK-016 eine begrenzte R/H-Markerprobe auf den festgelegten SQL-Server-2022/2025-Builds planen. R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis. Nutzung und Nichtnutzung von Optimierungs-Replay (Wiederverwendung von Optimierungsschritten) getrennt abnehmen. Nur Dokumentation, lokale statische Prüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen) im bestehenden Pull-Request-Verfahren; keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Frühere Befunde, Quellvorlagen, Pläne, Identitäten und Gesamtlaufbudgets erhalten; keine neue Ausführungsfreigabe.",
+      "scope": "Dokumentationsauftrag vom 25. Oktober 2026: bei TSK-016 den DGN-004-Prüfbefund zum R/H-Markerprobenplan samt Aussagegrenze zur Hintwirkung aufnehmen und per Pull Request nach origin/main integrieren. DGN-004 behandelt Planerzwingung; R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Vorhandene Identitäten, Quellvorlagen, Pläne, Abnahmekriterien, Mess-/Statusvertrag, frühere Befunde und Gesamtlaufbudgets unverändert erhalten.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -689,13 +689,13 @@
             ]
           },
           "planning_decision": {
-            "disposition": "Begrenzte R/H-Markerprobe als ergänzender Beobachtungs-/Abnahmevertrag geplant. P2 und neun Nutzaufrufe je Version im vorhandenen gemeinsamen Zwei-Container-/900-Sekunden-Rahmen unverändert. Positive R-Semantik und beobachtbarer H-Nichtnutzungszustand bleiben unabhängig vor Umsetzung zu klären; keine Kalibrierung unbekannter Werte, Ausführung oder Demoabnahme.",
+            "disposition": "Lesender Review des R/H-Markerprobenplans im geprüften Umfang dokumentarisch schlüssig; kein neuer konkreter Widerspruch festgestellt. Aussagegrenze zur Hintwirkung ergänzt: Zustandsvergleich getrennt von isolierter kausaler Wirkung. Positive/negative Markersemantik und unabhängige Freigaben bleiben offen; P2, Quellen/Pläne, Abnahmekriterien, neun Aufrufe und Budgets unverändert. Keine Ausführungsreife oder Laufzeitabnahme.",
             "rationale": "Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.",
             "dependencies": [
               "DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.",
               "Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache)."
             ],
-            "resume_when": "Die offenen semantischen und Quellen-/Zuordnungs-/Transport-/Messgates aus rh_marker_probe_plan unabhängig für beide exakten Builds und den gewählten Erfassungsweg freigeben; insbesondere aktuelle erfolgreiche R-Nutzung und beobachtbare H-Nichtnutzung erklären. Dann neuer ausdrücklicher Umsetzungs-/Laufauftrag für genau den unveränderten gemeinsamen Rahmen. Bis dahin keine Probe implementieren oder starten; übrige Verarbeitung pausiert."
+            "resume_when": "Die offenen Marker-, Quellen-/Zuordnungs-/Transport-/Mess-/Statusgates aus rh_marker_probe_plan und rh_marker_probe_review_result unabhängig für beide exakten Builds und den gewählten Erfassungsweg freigeben. Aussagegrenze beibehalten: beobachtete R/H-Zustände sind kein isolierter kausaler Hintnachweis. Danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im unveränderten gewählten Gesamtrahmen; bis dahin keine Probe implementieren oder starten und übrige Verarbeitung pausiert."
           },
           "planning_outline": {
             "recorded_on": "2026-10-23",
@@ -1768,6 +1768,42 @@
               "https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd",
               "https://sqlserverfast.com/epr/plan-properties/",
               "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17"
+            ]
+          },
+          "rh_marker_probe_review_result": {
+            "recorded_on": "2026-10-25",
+            "basis_revision": "a36a94c4df350d0d8d2cdb24c47f4ca6a34812a2",
+            "status": "SOURCE_REVIEW_WITH_OPEN_MARKER_GATES_AND_HINT_CAUSALITY_LIMIT – Markerprobenplan im geprüften Umfang dokumentarisch schlüssig, nicht ausführungsreif; keine unabhängige Freigabe oder empirische Abnahme.",
+            "method": "Ausschließlich lesender Abgleich des rh_marker_probe_plan mit hint_negative_control_plan, rh_source_text_plan, Mess-/Statusvertrag sowie Registry-/Backlog-/Master-/Ausführungs-/Quellenwegen am 2026-10-25. Herstellerbeschreibung, Hintreferenz, originales Planformatschema, originale Fachreferenz, Planerfassung und Query-Kompilierungsstatistik gelesen. Schema nur als Text im Arbeitsspeicher, keine Parser-/Schema-/Vertragstests. Im Review keine Repositoryänderung, Validatoren, Tests, SQL-/Lab- oder CI-Läufe und kein Push. Dieser Folgeauftrag integriert den Befund ausschließlich dokumentarisch mit statischen Prüfungen; übrige Verarbeitung pausiert.",
+            "confirmed": [
+              "Zwei aktuelle R-Nutzungsphasen 3/7 und zwei aktuelle H-Nichtnutzungsphasen 5/6 sind getrennt verlangt. R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis; Replay bezeichnet Wiederverwendung von Optimierungsschritten. Vollständige Quellen-/Modul-/Kontext-/Query-/Plan-/Tupelbindung und frische eigene Kompilierung gelten gemeinsam; Hashes und Handles ergänzend, keine Zusammenführung der Rollen.",
+              "QueryCompilationReplay-Präsenz und Rohwert bleiben getrennt. Die originale Fachreferenz liefert Wert 1 als positiven Kandidaten; das Hersteller-XSD (XML Schema Definition; Planformatschema) definiert optional xsd:int ohne Zustandswerttabelle. Abwesenheit wird nicht zu 0 und ein R/H-Rohwertmuster nicht zu selbst kalibrierter Bedeutungsfreigabe.",
+              "Der H-Hint ist dokumentierte Abschaltkontrolle, kein direkter Beobachtungsnachweis. Abwesenheitsbasierte Nichtnutzung erfordert vorab unabhängig belegte Kennzeichnung jeder tatsächlichen Nutzung auf genau dem Build und Erfassungsweg sowie geklärte Nichtnutzungsbedeutung am aktuellen eigenen H-Statement. Solange das fehlt, höchstens CONTROL_ONLY (nur Kontrollzustand belegt), kein empirischer Gegenbeleg.",
+              "sys.dm_exec_query_plan_stats liefert letzten bekannten tatsächlichen Plan mit Cache-Kompilierungsinformationen; vollständige aktuelle Kompilierungs-/Ausführungsbindung bleibt erforderlich. B0 nach bestätigtem eigenem Force, eigene sp_recompile-Markierung, genau ein Nutzaufruf, vollständige Erfassung, budgetierter Flush und B1 derselben eigenen Query. Strenger +1-Zuwachs in sys.query_store_query.count_compiles ist lokale Abnahmebedingung, keine allgemeine Herstellerzusage. Erstbindungen 1/4 ohne erfundenen Nullzähler.",
+              "PASS (bestanden) je Build nur nach allen neun Aufrufen, beiden positiven R- und beiden belegten H-Gegenphasen, unforced Abschlüssen und vollständigem Cleanup. Gesamt-PASS verlangt beide Builds; FAIL_CLEANUP (Bereinigung fehlgeschlagen) vor FAIL (belegte Vertragsverletzung), NOT_PROVEN (nicht nachgewiesen) und PASS. Alle Ursachen erhalten; CONTROL_ONLY bleibt Teilbefund.",
+              "Neun Nutzaufrufe je Version, zwei eigene sequenzielle Container und 900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden Cleanup unverändert. Kein Zusatzaufruf, Kalibrieren unbekannter Werte, neue Telemetrie oder Addieren alter Probenbudgets. Quellen-/Text-/Transport-/Ergebnis-/Eigentumsgrenzen bleiben gemeinsam verbindlich."
+            ],
+            "conclusion": "Im konkret geprüften Beobachtungs-/Abnahmevertrag kein neuer konkreter Widerspruch zu bestehenden Text-, Mess-, Status-, Sequenz- und Budgetverträgen festgestellt. Der Plan ist unter seinen offenen Gates schlüssig; dokumentarische Kohärenz ist keine Ausführungsreife, unabhängige Methodenfreigabe oder Laufzeit-/Demoabnahme.",
+            "hint_effect_claim_boundary": [
+              "INFERENZ AUS DEM VERSUCHSAUFBAU: Ein späterer PASS würde ausschließlich die unabhängig freigegebenen beobachteten Nutzungs-/Nichtnutzungszustände der getrennten R/H-Abfragen auf dem konkreten Build und Erfassungsweg belegen. R/H besitzen verschiedene Abfrageidentitäten und jeweils eigene Zielpläne; bei H ist kein gespeichertes Replay-Skript Voraussetzung. Eine bei H beobachtete Nichtnutzung lässt damit offen, ob H ohne Hint überhaupt Replay genutzt hätte.",
+              "Der Vergleich beweist keine isolierte kausale Wirkung des Hints und keine reversible Abschaltung derselben query_id. Die dokumentierte Abschaltbedeutung von DISABLE_OPTIMIZED_PLAN_FORCING bleibt quellenbasiert; der Versuch erhebt keinen eigenen kausalen Wirksamkeitsnachweis. Diese Aussagegrenze ergänzt die bereits dokumentierte Gleichidentitätsgrenze, ohne eine neue empirische Beobachtung oder Produktfehlerdiagnose.",
+              "Aus der begrenzten Zustandsabnahme keinen Claim zur Hintursache oder zu Performancegewinnen ableiten. Keine zusätzliche H-Ausführung ohne Hint, Moduländerung, Gegenfaktualprobe oder neue Kontrollreihe in den bestehenden Rahmen aufnehmen. Eine spätere kausale Fragestellung benötigt einen gesonderten begründeten Plan und ausdrückliche Autorisierung; die bestehende Abnahme mit neun Nutzaufrufen bleibt unverändert."
+            ],
+            "remaining_gates": [
+              "Positive erfolgreiche aktuelle R-Markersemantik für SQL Server 2022/16.0.4265.3 (Developer/Linux, Compatibility Level 160) und SQL Server 2025/17.0.4075.5 (Enterprise Developer/Linux, Compatibility Level 170) auf dem gewählten Erfassungsweg unabhängig quellenbelegt freigeben.",
+              "Beobachtbaren aktuellen H-Nichtnutzungszustand auf beiden exakten Builds unabhängig begründen; eine eventuelle Abwesenheitsregel braucht einen gesonderten Vollständigkeits- und Bedeutungsnachweis. Fester Hint, gespeichertes Skript, fehlender Fehler oder Kompilierungszuwachs ersetzen ihn nicht.",
+              "Unabhängiger Quellen-/Identitäts-/Transport-/Mess-/Statusreview sowie tatsächliche M/S/T-/Byteoffset-/Planqualifikation beider Builds bleiben offen. M/S/T bezeichnet Modultext beziehungsweise Nutzstatement mit und ohne letztes Semikolon. Review aus demselben Arbeitskontext ersetzt keine unabhängige Freigabe.",
+              "Alle aktiven Quellen-/Probenpläne, Abnahmekriterien und Zeit-/Container-/Batch-/Text-/Transportgrenzen unverändert. Nach bestehenden Gates neuer ausdrücklicher Umsetzungs-/Laufauftrag für genau den gewählten Gesamtrahmen erforderlich; keine Wiederaufnahme alter Laufrechte, keine Ausweichmethode und übrige Verarbeitung pausiert."
+            ],
+            "acceptance_boundary": "Abgeschlossen sind der lesende Review und seine nachvollziehbare Dokumentation samt Aussagegrenze zur Hintwirkung. Keine neue Markerwertsemantik, beobachtete Nutzung oder Nichtnutzung, unabhängige Freigabe oder Versions-/Demoabnahme. Der ursprüngliche Gleichidentitätsvergleich und eine isolierte kausale Hintprobe bleiben außerhalb dieser Zustandsabnahme; kein zusätzlicher Lauf oder neue Umsetzung autorisiert.",
+            "sources_checked_on": "2026-10-25",
+            "sources": [
+              "https://learn.microsoft.com/en-us/sql/relational-databases/performance/optimized-plan-forcing-query-store?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17",
+              "https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd",
+              "https://sqlserverfast.com/epr/plan-properties/",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17",
+              "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17"
             ]
           }
         },
