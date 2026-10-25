@@ -1,8 +1,48 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## DGN-004: Markerprobenreview und Hintwirkung vom 25. Oktober 2026
+
+Der aktuelle Auftrag dokumentiert bei TSK-016 (gezielte Curriculum-Ergänzungen)
+den Prüfbefund für DGN-004 (Planerzwingung). R ist Referenz ohne Hint, H die
+Negativkontrolle mit festem Abschalthinweis. Replay bezeichnet Wiederverwendung
+von Optimierungsschritten. Nur Dokumentation und statische CI (Continuous
+Integration; automatisierte Integrationsprüfungen) im Pull-Request-Verfahren;
+keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
+
+Der [kanonische Prüfbefund](../../.ai/identity/registry.json) steht bei TSK-016
+unter `rh_marker_probe_review_result`; die [abgeleitete Detailansicht](../../.ai/BACKLOG.md#prüfbefund-zum-rh-markerprobenplan-und-zur-hintwirkung)
+führt Ergebnis und Aussagegrenze. Im konkret geprüften Beobachtungs-/Abnahmevertrag
+kein neuer konkreter Widerspruch zu den bestehenden Text-, Mess-, Status-,
+Sequenz- und Budgetverträgen festgestellt. Dies ist keine unabhängige Methoden-
+freigabe, Ausführungsreife oder Laufzeit-/Demoabnahme.
+
+Ein späterer PASS (bestanden) würde die unabhängig freigegebenen beobachteten
+Nutzungs-/Nichtnutzungszustände der getrennten R/H-Abfragen belegen. R/H haben
+verschiedene Identitäten und eigene Zielpläne; für H ist ein gespeichertes
+Replay-Skript keine Voraussetzung. Daraus folgt als methodische Aussagegrenze:
+keine isolierte kausale Hintwirkung und keine reversible Abschaltung derselben
+query_id nachgewiesen. Die dokumentierte Hintbedeutung bleibt quellenbasiert.
+Keine zusätzliche Gegenfaktualprobe oder Kontrollreihe in den Rahmen aufnehmen.
+
+Positive R-Markersemantik und beobachtbarer H-Nichtnutzungszustand bleiben für
+2022/16.0.4265.3 und 2025/17.0.4075.5 unabhängig zu klären. Abwesenheit trägt
+nur mit vorab belegter vollständiger Nutzungskennzeichnung und geklärter
+Nichtnutzungsbedeutung; sonst höchstens CONTROL_ONLY (nur Kontrollzustand belegt).
+Der Vergleich bleibt bei fehlender Evidenz NOT_PROVEN (nicht nachgewiesen),
+soweit kein höherer Fehler-/Bereinigungsstatus greift. Die [Quelleneinordnung](../Research/SOURCE_REGISTER.md#dgn-004-markerprobenreview-und-hintwirkung-vom-25-oktober-2026)
+trennt Quellenbefund und Inferenz aus dem Versuchsaufbau.
+
+Quellpaar, rh_marker_probe_plan, übrige Pläne, Abnahmekriterien und Mess-/Status-
+vertrag unverändert: neun Nutzaufrufe je Build, zwei eigene sequenzielle Container,
+900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden Cleanup. Keine
+neue Telemetrie, Kalibrierung oder Budgetaddition. Unabhängige Quellen-/Identitäts-/
+Transport-/Mess-/Statusfreigaben und tatsächliche Buildnachweise bleiben offen.
+Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag; alte Freigaben werden
+nicht wiederaufgenommen. Frühere Befunde und Pläne bleiben erhalten.
+
 ## DGN-004: Begrenzte R/H-Markerprobe vom 25. Oktober 2026
 
-Der aktuelle Auftrag plant bei TSK-016 (gezielte Curriculum-Ergänzungen) für
+Der Planungsauftrag vom 25. Oktober 2026 plante bei TSK-016 (gezielte Curriculum-Ergänzungen) für
 DGN-004 (Planerzwingung) eine begrenzte R/H-Markerprobe. R ist Referenz ohne Hint,
 H die Negativkontrolle mit festem Abschalthinweis. Replay bedeutet Wiederverwendung
 von Optimierungsschritten bei der Kompilierung. Nur Dokumentation und statische
