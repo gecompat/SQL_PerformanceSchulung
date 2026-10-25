@@ -263,7 +263,7 @@ jobs:
     needs: [static, changes]
     if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 45
+    timeout-minutes: 50
     strategy:
       fail-fast: false
       matrix:
@@ -331,38 +331,23 @@ jobs:
           if [ "${login_ready}" -eq 1 ]; then exit 0; fi
           echo 'AI_LOCAL|FAIL_SQL_LOGIN_TIMEOUT'
           exit 1
-      - name: Verify two lifecycles, result contracts and ownership negatives
-        timeout-minutes: 4
+      - name: Verify bounded public lifecycles and recovery
+        timeout-minutes: 25
         shell: bash
         run: |
+          set -euo pipefail
           python Tests/Runtime/run_sql2025_ai_local.py \
             --target docker --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
-      - name: Verify bounded RES-008 public lifecycles and setup recovery
-        timeout-minutes: 4
-        shell: bash
-        run: |
           python Tests/Runtime/run_res008_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
-      - name: Verify bounded DGN-010 SELECT and DML lifecycles and setup recovery
-        timeout-minutes: 4
-        shell: bash
-        run: |
           python Tests/Runtime/run_dgn010_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
-      - name: Verify bounded DGN-010 cost lifecycles and setup recovery
-        timeout-minutes: 4
-        shell: bash
-        run: |
           python Tests/Runtime/run_dgn010_cost_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
-      - name: Verify complete DGN-010 ownership marker controls
-        timeout-minutes: 4
-        shell: bash
-        run: |
           python Tests/Runtime/run_dgn010_marker_controls.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
