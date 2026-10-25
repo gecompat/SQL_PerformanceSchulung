@@ -1,22 +1,22 @@
 # Initialer Backlog
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
-## DGN-004: Quellenklärung und offene Marker-Gates aufnehmen
+## DGN-004: Klassische Planerzwingung und Hint-Kontrollzustand
 
-Bei TSK-016 wird die erneute Quellenklärung für DGN-004 (Planerzwingung)
-dokumentiert. R ist Referenz ohne Hint, H die Negativkontrolle mit festem
-Abschalthinweis; Replay bedeutet Wiederverwendung von Optimierungsschritten.
-Allgemeiner Feature-/Hintumfang ist quellenbelegt. Beide Marker-Gates für die
-exakten 2022/2025-Builds und den gewählten Erfassungsweg bleiben offen; keine
-isolierte kausale Hintwirkung aus dem R/H-Zustandsvergleich ableiten.
-Nur Dokumentation und statische Integration per Pull Request (Änderungsantrag),
-keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
-Der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-und die [Quellenklärung samt offenen Gates](#quellenklärung-der-offenen-rh-marker-gates) führen die Grenzen.
+TSK-016 führt für DGN-004 (Planerzwingung) ausschließlich den begrenzten
+Force-/Unforce-Standardpfad und festen Inline-Hint-Kontrollzustand als aktiven
+Plan. R ist Referenz ohne Hint, H die getrennte Hint-Kontrolle. Tatsächliche
+Planverwendung, vollständige Ergebnisse und sichere Rücknahme bleiben Pflicht.
+Replay (Wiederverwendung von Optimierungsschritten) und sein Nutzungs-/Nichtnutzungs-
+vergleich sind zurückgestellt; beide Marker-Gates bleiben dafür offen.
+Ein Erfolg gilt nur im engeren Aussageumfang und belegt keine isolierte Hintwirkung.
+Nur Planung und statische Integration per Pull Request (Änderungsantrag), keine
+Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Maßgeblich sind der
+[aktive begrenzte Plan](#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand) und der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Dokumentationsaufnahme der DGN-004-Quellenklärung samt offenen Marker-Gates ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); nur die Planungsbegrenzung von DGN-004 auf klassische Planerzwingung und Hint-Kontrollzustand ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -32,7 +32,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Dokumentationsauftrag vom 25. Oktober 2026: bei TSK-016 die DGN-004-Quellenklärung samt weiterhin offenen Marker-Gates aufnehmen und per Pull Request nach origin/main integrieren. DGN-004 behandelt Planerzwingung; R ist Referenz ohne Hint, H die Negativkontrolle mit festem Abschalthinweis. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Vorhandene Identitäten, Quellen-/Probenpläne, Abnahmekriterien, Mess-/Statusvertrag, frühere Befunde, Aussagegrenze zur Hintwirkung und sämtliche Laufbudgets unverändert erhalten.
+Planungsauftrag vom 25. Oktober 2026: DGN-004 (Planerzwingung) bei TSK-016 ausdrücklich auf klassische Planerzwingung über den Force-/Unforce-Standardpfad und den festen Inline-Hint-Kontrollzustand begrenzen. Aktiven Plan und Abnahmekriterien anpassen und per Pull Request nach origin/main integrieren. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Frühere Replay-Pläne, offene Marker-Gates und Fehlversuche historisch erhalten; kein Replay-, Kausal- oder Performancebeweis und keine Erweiterung der Laufbudgets.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -512,26 +512,118 @@ Der Lauftoken ist nach dem vollständigen Framework-Rohwertvertrag geprüft, nor
 
 Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belegen weder eine ausführbare Demo noch die erwartete Planmenge oder Laufzeitabnahme.
 
-##### 3. DGN-004 – Erfolgreiches und fehlgeschlagenes Plan Forcing
+##### 3. DGN-004 – Klassische Planerzwingung und Hint-Kontrollzustand
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Erneute lesende Quellenklärung dokumentiert: allgemeiner Feature-/Hintumfang ab 2022 einschließlich 2025 geklärt, R-Marker bleibt Quellenkandidat, beobachtbarer H-Nichtnutzungszustand weiterhin nicht qualifiziert. Beide Marker-Gates für die exakten Builds und den Erfassungsweg offen; keine neue empirische Evidenz oder unabhängige Freigabe. P2, aktive Pläne/Abnahmekriterien, Aussagegrenze zur Hintwirkung, neun Aufrufe und Budgets unverändert.
+**Planungsentscheidung:** Ausdrückliche Umfangsentscheidung: nur klassische Planerzwingung über Standard-Force/Unforce und fester Inline-Hint-Kontrollzustand aktiv. Aktiver Vertrag classical_forcing_hint_control_plan; P2 und vorläufiger Aufwand unverändert. Replay-Nutzungs-/Nichtnutzungsvergleich, gezielter Forcing-Fehler und gespeicherte Query-Store-Hints zurückgestellt. Offene Replay-Marker-Gates bleiben erhalten, blockieren aber nicht die unabhängige Freigabe dieses engeren Aussageumfangs.
 
-**Begründung:** Erfolgreiche und fehlgeschlagene Planerzwingung ergänzen die vorhandene Query-Store-Grundlage mit einem klaren Diagnoseziel. Die Quelle belegt weder tatsächliche Planverwendung noch den beabsichtigten Fehler; ihr Erfolgskriterium darf nicht übernommen werden.
+**Begründung:** Der begrenzte Lehrumfang erklärt angeforderte und tatsächlich belegte Planerzwingung, einen dokumentierten Hint-Kontrollzustand und sichere Rücknahme. Er benötigt keinen empirisch behaupteten Replay-Zustand. Die ausdrücklich beauftragte Änderung trennt die Abnahmeumfänge, ohne fehlende Evidenz oder alte Fehlversuche zu Erfolg umzudeuten.
 
 **Abhängigkeiten:**
 
-- DGN-003 (Query Store; persistente Abfrage- und Planhistorie) fachlich voraussetzen.
-- Einen kontrollierten Forcing-Fehler samt Versionsgrenzen, tatsächlich verwendetem Plan, Fehlergrund und vollständiger Rücknahme entwerfen; keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
+- DGN-003 (Query-Store-Grundlage), vollständiges R/H-Quellpaar aus rh_source_text_plan und Form-A-Datenmodell weiterverwenden.
+- Vor Umsetzung unabhängige Quellen-/Identitäts-/Text-/Transport-/Mess-/Statusprüfung des aktiven begrenzten Vertrags sowie passende statische Gegenfälle; danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Die offenen R-/H-Marker-Gates aus rh_marker_gate_source_clarification_result durch unabhängige Quellen-/Methodenevidenz für beide exakten Builds und den gewählten Erfassungsweg schließen; aktuelle erfolgreiche Nutzung beziehungsweise beobachtbare Nichtnutzung qualifizieren. Übrige Quellen-/Zuordnungs-/Transport-/Mess-/Statusgates und Aussagegrenze zur Hintwirkung unverändert beachten. Erst danach neuer ausdrücklicher Umsetzungs-/Laufauftrag im gewählten Gesamtrahmen; keine Wiederaufnahme alter Laufrechte und übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Aktiven classical_forcing_hint_control_plan unabhängig im begrenzten Aussageumfang freigeben und einen neuen ausdrücklichen Auftrag für Umsetzung sowie die begrenzten SQL-/Lab-Läufe erhalten. Tatsächliche Build-/Text-/Zuordnungs-/Erfassungsqualifikation bleibt spätere Pflicht. Die offenen R-/H-Replay-Marker-Gates und das erweiterte Deaktivierungssignaturgate gelten weiter nur für die zurückgestellten Replay-Umfänge; übrige Verarbeitung pausiert.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
-**Abgrenzung:** DGN-004 ist bereits für Plan Forcing (Erzwingen eines Plans), Query Store Hints und sichere Rücknahme geplant; DGN-003 liefert die vorhandene Query-Store-Grundlage.
+**Abgrenzung:** DGN-003 (Query Store; persistente Abfrage- und Planhistorie) liefert die fachliche Grundlage. Aktiver Teilumfang von DGN-004: Standard-Force/Unforce und fester Inline-Hint-Kontrollzustand. Gezielter Forcing-Fehler, gespeicherte Query-Store-Hints und Replay-Vergleich bleiben im historischen breiteren Vorrat, ohne zweite allgemeine Query-Store-Demo.
 
-**Weiterer Prüfauftrag:** Vorbedingungen und Versionsgrenzen des gewählten Forcing-Fehlers sowie tatsächlichen Erfolgs-/Fehlernachweis im Verify-Vertrag prüfen.
+**Weiterer Prüfauftrag:** Für den aktiven begrenzten Schnitt Standard-Force/Unforce, vollständige aktuelle Plan-/Text-/Kontext-/Ergebnisbindung und festen Inline-Hint-Kontrollzustand fachlich prüfen. Replay-Marker-Gates bleiben für den zurückgestellten Replay-Vergleich offen und sind keine Eintrittsbedingung dieses neuen Aussageumfangs.
+
+###### Aktiver begrenzter Plan: klassische Planerzwingung und Hint-Kontrollzustand
+
+**Planungsänderung vom:**
+
+2026-10-25
+
+**Planungsbasis:**
+
+f3335a2cd56ce43f87be245b5143427ce70d60f1
+
+**Status:**
+
+ACTIVE_DESIGN_NOT_IMPLEMENTED – ausdrücklich begrenzter Plan und Abnahmekriterien angepasst; unabhängige Freigabe, Umsetzung und technische Qualifikation offen.
+
+**Auftragsgrenze:**
+
+Aktueller Auftrag autorisiert ausschließlich die Umfangs-/Planungsänderung und ihre statische Integration per Pull Request. Keine Probe-/Demo-/Testimplementierung, SQL-/Lab-Läufe oder Containerstarts. Übrige Verarbeitung bleibt pausiert; alte Laufrechte und Laufbudgets werden nicht aktiviert.
+
+**Aktive Autorität und zurückgestellte Umfänge:**
+
+- Dieser Eintrag ist über candidates[DGN-004].active_plan der einzige aktive DGN-004-Plan bei TSK-016. Seine Abnahme ersetzt für den jetzt ausgewählten Teilumfang die früheren Replay-Eintrittsbedingungen. Historische planning_outline-, mapping_replay_probe_plan-, hint_negative_control_plan-, rh_source_text_plan- und rh_marker_probe_plan-Datensätze sowie sämtliche Reviews und Fehlversuche bleiben inhaltlich unverändert erhalten. Nur die unten ausdrücklich wiederverwendeten Quellen-, Identitäts-, Erfassungs-, Mess- und Schutzverträge gelten weiter; alte Replay-Bedingungen nicht transitiv wieder aktivieren.
+- Zurückgestellt: positive R-Replay-Nutzung, beobachtete H-Replay-Nichtnutzung, ursprünglicher Ein–Aus–Ein-/Gleichidentitätsvergleich und Deaktivierungssignatur-/Flagqualifikation. Deren Marker-Gates bleiben OPEN (offen), ohne den engeren Standard-Forcing-/Kontrollumfang zu blockieren. Ein späterer neuer Replay-Auftrag muss sie erfüllen; keine historischen NOT_PROVEN- oder FAIL-Ergebnisse umwerten.
+- Gezielter Forcing-Fehler mit Indexentzug und Ersatzplanung aus dem ursprünglichen Sechs-Aufruf-Entwurf, gespeicherte Query-Store-Hints und SQL-Server-2019-Qualifikation bleiben gesonderte spätere Schnitte. Kein Indexentzug, keine neue Fehlersimulation oder zusätzliche Kontrollreihe in dieser Folge. Unerwartete Forcingfehler weiterhin erkennen und als Scheitern behandeln.
+
+**Lernziel und zulässige Aussage:**
+
+- Klassisch bezeichnet hier den dokumentierten Standardpfad sys.sp_query_store_force_plan(query_id, plan_id) und sys.sp_query_store_unforce_plan(query_id, plan_id), die tatsächliche Planbindung und sichere Rücknahme. Der Ausdruck beschreibt keinen nachgewiesenen internen Kompilierungsalgorithmus. Insbesondere kann aus R ohne Abschalthinweis weder Replay-Nutzung noch dessen Nichtnutzung abgeleitet werden.
+- R ist Referenz ohne Hint, H die getrennte Kontrolle mit festem terminalem Inline-Hint DISABLE_OPTIMIZED_PLAN_FORCING. Den H-Kontrollzustand quellenbasiert erklären und seinen vollständigen aktuellen Text-/Kompilierungs-/Forcing-/Ergebnisbezug belegen. Dieser Teilbefund heißt weiterhin CONTROL_ONLY (nur Kontrollzustand belegt); keine beobachtete Replay-Abschaltung oder isolierte kausale Hintwirkung behaupten.
+- Ein späterer PASS (bestanden) gilt ausschließlich im ausdrücklich benannten acceptance_scope CLASSICAL_FORCING_AND_HINT_CONTROL. Er schließt keine Replay-Gates und beweist keinen Performancegewinn, keine Kausalwirkung des Hints und keine reversible Abschaltung derselben query_id. R/H behalten getrennte Objekt-/Query-/Zielplanidentitäten.
+
+**Versionen und unveränderte Quellen:**
+
+- Zielprofile unverändert: SQL Server 2022/16.0.4265.3, Developer/Linux, Compatibility Level 160, Image sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89; SQL Server 2025/17.0.4075.5, Enterprise Developer/Linux, Compatibility Level 170, Image sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1. Build, Edition und Kompatibilitätsstufe getrennt prüfen; kein neuer Build, Download oder 2019-Hintpfad.
+- Vollständige R/H-Modulquellen, Spalten und endliche M/S/T-Textdarstellungen aus rh_source_text_plan unverändert wiederverwenden. M/S/T bezeichnet vollständigen Modultext beziehungsweise Nutzstatement mit und ohne letztes Semikolon. R ist dgn004.ReplayReference, H dgn004.ReplayHintControl; bestehende Namen zur Quellenbindung erhalten, daraus keine Replay-Aussage ableiten. Quellen werden erst in gesonderter Umsetzung ausführbar bereitgestellt.
+- Form A unverändert: zehn synthetische Tabellen, 529 Eingabezeilen, neun sekundäre Indizes, zwei identische UNION-ALL-Zweige. Je Nutzaufruf alle 768 vollständigen Solltupel, 384 verschiedene jeweils zweimal, aus den unabhängigen Id-Formeln vergleichen. Daten, Indizes, Statistiken und Module während der Folge nicht ändern; keine Ersatzform oder Lastvergrößerung.
+- Eigene markierte Datenbank, Query Store (persistente Abfrage- und Planhistorie) READ_WRITE, OPTIMIZED_PLAN_FORCING ON sowie gesicherter Ausgangszustand unverändert. Keine Umschaltung der Optimierungsoption zur Ursachenprobe. Fester Sitzungskontext aus hint_negative_control_plan.query_identity und getrennte Identitäten bleiben Pflicht; keine Query-Store-Hints, Plan Guides (gesonderte Plansteuerungsregeln) oder fremden überschreibenden Regeln für R/H zulassen.
+
+**Identität, Erfassung und Messvertrag:**
+
+- Eigene Datenbank, vollständiger Modul-/Statementtext, object_id, query_id, query_text_id, context_settings_id, Parametrisierungsart und getrennte Force-Ziel-/ausgeführte Planrollen vollständig binden. Erstzuordnung und endliche M/S/T-Darstellungswahl aus rh_source_text_plan übernehmen, dann exakt versiegeln; kein TOP 1, LIKE, Hash-Alleinnachweis, freies Normalisieren oder automatisches Neubinden. Bekannte 2022-Hashüberschreibung nur ergänzend roh führen.
+- Gerichteten Strukturvergleich und Query-Store-Ausführungsaggregation aus mapping_replay_probe_plan.combined_mapping wiederverwenden. Force-Ziel und tatsächlich ausgeführter Plan sind getrennte Rollen; jeder forcierte Aufruf braucht passende vollständige Struktur-/Objekt-/Prädikat-/Projektionsevidenz, UsePlan und genau eine eigene reguläre Ausführung. R/H müssen nicht dieselben Operatorbäume besitzen. Annahme der Force-Anforderung allein genügt nicht.
+- Vollständigen aktuellen letzten tatsächlichen Plan über sys.dm_exec_query_plan_stats und den nummerierten begrenzten Stücktransport aus mapping_replay_probe_plan.capture_design erfassen. Lückenlose Stückfolge, exakte Länge, Prüfsummen, strikte Dekodierung und vollständiges XML (Extensible Markup Language; strukturiertes Planformat) mit echten Laufzeitinformationen verlangen. LAST_QUERY_PLAN_STATS ausschließlich an der eigenen markierten Datenbank sichern/aktivieren/wiederherstellen. Reduzierte, fehlende oder veraltete Pläne liefern keinen Erfolg; kein Wechsel des Erfassungswegs nach Fehler.
+- compilation_evidence_contract aus hint_negative_control_plan unverändert übernehmen: je eigene query_id sys.query_store_query.count_compiles, bei forcierten Phasen B0 erst nach bestätigtem eigenem Force, eigene sp_recompile-Markierung, genau ein Nutzaufruf, vollständige Erfassung, ein budgetierter Flush und B1; streng +1 in ununterbrochener Epoche mit aktuellem Zeit-/Plan-/Ausführungsbezug. Erstbindungen 1/4 ohne erfundenen Nullzähler; fehlende oder mehrdeutige Pflichtwerte sind keine Abnahme. Genau +1 bleibt lokale Bedingung, keine Herstellergarantie.
+- Nur die dokumentierte Zwei-Argument-Standardform von Force/Unforce verwenden. Je Anforderung Rückgabe, is_forced_plan und eigene Force-Fehlerzählerepoche prüfen; nach Ausführung keine neue Force-Fehlermeldung, danach explizites Unforce mit is_forced_plan = 0. Kein dritter/vierter Parameter und keine Interpretation des widersprüchlich dokumentierten Deaktivierungsflags als Abnahmekriterium.
+- Replay-Metadaten einschließlich has_compile_replay_script und QueryCompilationReplay dürfen höchstens unverändert ergänzend roh im ohnehin erfassten Plan erhalten bleiben. Ihr Vorhandensein, Fehlen oder Wert steuert weder Zulassung, Folge noch Erfolg des aktiven Schnitts. Keine zusätzliche Markersuche, Speicherungserzeugung, Nichtnutzungsregel oder Telemetrie als versteckte Pflicht; beschädigtes XML oder falsche Identität bleibt trotzdem Fehler.
+
+**Begrenzte Reihenfolge:**
+
+- Vor Start des späteren gesondert genehmigten Laufs unabhängigen Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview und statische Gegenfälle abschließen. Mindestens YELLOW-Schutz (ausdrücklich bestätigte isolierte Wegwerfumgebung bei kontrollierter Optimiererlast), eigene Ressourcenzuordnung, Rechte, Build-/Imagebindung und Ausgangsoptionen prüfen. Alle Replay-Marker-Gates sind aus der Zulassung dieses aktiven Umfangs entfernt, nicht fachlich geschlossen.
+- Aufrufe 1/2: R unforced frisch kompilieren, Quellen-/Query-/Zielplanbindung, vollständige Tupel und aktuelle Ausführung erfassen. Kein gespeichertes Replay-Skript verlangen und nicht deshalb abbrechen. Nach eindeutiger Erstbindung für Aufruf 2 den bestehenden B0/B1-Kompilierungsvertrag anwenden.
+- Aufruf 3: eigenen R-Zielplan mit Standard-Force erzwingen, B0/sp_recompile/Nutzaufruf/Erfassung/Flush/B1 einhalten; tatsächlichen passenden Plan einschließlich UsePlan, vollständige Solltupel, Kompilierungs- und Ausführungszuwachs sowie Fehlerfreiheit belegen. Anschließend Unforce und Nullzustand prüfen. Keine Replay-Nutzung behaupten oder verlangen. Fehlt ein aktiver Pflichtnachweis, keine H-Fortsetzung.
+- Aufruf 4: H unforced frisch kompilieren, eigenes Modul mit vollständigem festem terminalem Hint und eigene Query-/Zielplanbindung erfassen; vollständige Solltupel und aktuelle Ausführung prüfen. Aufrufe 5/6: jeweils eigenen H-Zielplan mit Standard-Force frisch kompilieren, vollständige eigene Plan-/Text-/Tupel-/Zähler-/Fehlerbezüge und UsePlan verlangen, danach Unforce prüfen. Je Phase H-Kontrollzustand CONTROL_ONLY dokumentieren; kein empirischer Nichtnutzungsmarker erforderlich.
+- Aufruf 7: unveränderten eigenen R-Zielplan erneut frisch mit Standard-Force und denselben aktiven Kriterien belegen, anschließend Unforce. Aufrufe 8/9: H, dann R frisch unforced vollständig prüfen; H behält seinen Hint. Für beide Bindungen ausdrücklich aufgehobene Erzwingung und rekonstruierte Ausgangsoptionen belegen, dann eigene Ressourcen markergebunden und unabhängig bereinigen. Keine Zusatz- oder Wiederholungsaufrufe nach Fehler.
+
+**Neue Abnahmekriterien und Ergebnisumfang:**
+
+- Planungsabnahme jetzt: aktiver Plan eindeutig ausgewählt, zulässiger Aussageumfang und neue Kandidaten-Abnahmekriterien konsistent dokumentiert; historische Replay-Pläne/Befunde und offene Marker-Gates erhalten. Nur statische Dokumentations-/Registry-/Datenschutz-/Integrationsprüfung. Keine unabhängige Methodenfreigabe, ausführbare Umsetzung oder Laufzeit-/Versionsabnahme behaupten.
+- Spätere Abnahme je Zielbuild: alle neun vorgesehenen Nutzaufrufe erfüllen vollständige Quellen-/Identitäts-/Plan-/Kontext-/Tupel-/Transport-/Kompilierungs-/Ausführungsbezüge. Beide R-Force-Phasen 3/7 und beide H-Force-Phasen 5/6 mit angenommenem eigenen Auftrag, tatsächlichem passendem Plan, UsePlan, strengem +1-Kompilierungszuwachs, genau einer regulären Ausführung und ohne neue Forcingfehler; beide unforced Abschlüsse und sichere Bereinigung bestehen.
+- H-Kontrollabnahme zusätzlich: vollständiger aktueller terminaler Inline-Hint, keine fremde überschreibende Steuerung, frische eigene Kompilierung und erfolgreiche Standard-Planerzwingung. H-Teilbefund CONTROL_ONLY ist im ausdrücklich begrenzten acceptance_scope CLASSICAL_FORCING_AND_HINT_CONTROL ausreichend. Ein PASS dieses neuen Umfangs ist niemals PASS des alten Replay-Vergleichs; die frühere Beschränkung von CONTROL_ONLY für dessen empirische Abnahme bleibt unverändert.
+- Ergebnisdarstellung zwingend mit Aussageumfang und Build: Gesamt-PASS im engeren Umfang nur bei bestandenem aktivem Vertrag auf beiden Zielbuilds. Zurückgestellter Replay-Vergleich separat als DEFERRED (zurückgestellt), Marker-Gates OPEN ausweisen. Fehlende Replay-Semantik allein macht den engeren Umfang weder NOT_PROVEN noch FAIL; fehlende aktive Pflichtnachweise dürfen dagegen niemals durch Scopebegrenzung verdeckt werden. Frühere FAIL-/NOT_PROVEN-Ergebnisse bleiben erhalten.
+- Für aktive Pflichtnachweise bleibt FAIL_CLEANUP (Bereinigung fehlgeschlagen) vor FAIL (belegte Vertragsverletzung), NOT_PROVEN (nicht nachgewiesen) und PASS. Fehlende aktuelle Pflichtdaten oder unbekannte Darstellung führen zur Nichtabnahme, positiv belegte falsche Identität, veralteter Plan, geänderter Hint, falsche Tupel, beschädigter Transport und Sicherheits-/Forcingfehler zu FAIL. Eine spätere paketierte Demo muss nach begonnenem Setup fehlende Pflichtbelege auf FWK-012-FAIL_RESULT_CONTRACT abbilden; kein WARN/SKIP als Erfolgsersatz und keine globale Frameworkänderung.
+- Keine vollständige DGN-004-Abnahme des historischen Sechs-Aufruf-Fehler-/Fallback-Schnitts, keine 2019- oder allgemeine Versionsqualifikation und kein Release aus der engeren Runde ableiten. Spätere eigenständige Unterrichtsfreigabe benötigt passenden Demo-Lifecycle, deutsche Anleitung und tatsächlich gebundene Evidenz; das aktuelle Dokumentations-PR erteilt diese Freigabe nicht.
+
+**Unveränderte Grenzen und Bereinigung:**
+
+- Unveränderter gemeinsamer Gesamtrahmen: höchstens zwei eigene Container insgesamt, sequenziell einer je Zielbuild, je eine markierte Datenbank mit zwei Modulen und höchstens zwei eigenen SQL-Sessions. Zwei Prozessorkerne, 3 GiB (Gibibyte) Containergrenze und 2048 MiB (Mebibyte) SQL-Speicherlimit. Keine Hostports, fremden Mounts/Container oder Downloads. Höchstens neun Nutzaufrufe je Version, fünf R und vier H, neun Flushes, 100 reguläre SQL-Batches und drei begrenzte Metadatenbeobachtungen je Flush.
+- 900 Sekunden gemeinsames reguläres Budget ab erstem Containerstart, Kontrollpunkt 600 Sekunden; kein neuer Versionsstart unter 180 Sekunden Rest. SQL-Aufruf höchstens 15 Sekunden, äußerer Prozess 20 Sekunden, jeweils durch Restzeit begrenzt; zusätzlich höchstens 60 Sekunden Cleanup je Container. Keine Budgetrücksetzung oder automatische zweite Runde und keine Addition mit zurückgestellten Plänen.
+- Unverändert 529 Eingabezeilen und 768 Solltupel je Aufruf; vier gespeicherte Nutzpläne je Modul, acht insgesamt; 16 KiB (Kibibyte) UTF-16 je Text und höchstens fünf Engine-Textfelder je Rolle und Beobachtung. Datenbankdatei jeweils höchstens 128 MiB, Query Store 64 MiB. Je Aufruf 512 KiB UTF-16-Rohplan, 256 KiB UTF-8-Plantext, 2 MiB Standardausgabe und 64 KiB Fehlerausgabe, während des Lesens begrenzen. Eigener Session-TempDB-Bedarf ab 64 MiB löst Abbruch aus; keine Behauptung über ungemessene Spitzenwerte.
+- FWK-002-Eigentumsschutz (vier vollständige Marker eigener Testdatenbanken), rekonstruierbare Ausgangsoptionen und unabhängige Bereinigung unverändert. Beide eigenen Force-Bindungen ausdrücklich aufheben und prüfen, Query-Store-/LAST_QUERY_PLAN_STATS-Optionen wiederherstellen; nur eigene markierte Datenbank und identitätsgebundenen Container entfernen, Abwesenheit unabhängig bestätigen. Auch nach Abbruch Pflicht; keine fremden Sessions beenden, kein globales Cacheleeren oder Query-Store-CLEAR.
+
+**Spätere Tests und verbleibende Freigaben:**
+
+- Vor späterem SQL statische negative Fälle für falsche/mehrdeutige Query-/Plan-/Kontextbindung, gleiche Hashes bei fremdem Objekt, bekannte 2022-Hashüberschreibung, M/S/T-/Offsetabweichungen, geänderten/fehlenden/doppelten oder nur kommentierten H-Hint sowie externe überschreibende Steuerung planen. Vollständige Quellen bleiben unverändert; Tests erst in gesondert autorisierter Umsetzung implementieren.
+- Ergebnis-/Transport-/Sicherheitsgegenfälle erhalten: richtige Anzahl oder Summe bei falschen vollständigen Tupeln, Duplikatverlust, gespeicherter statt aktuellem tatsächlichen Plan, falsches UsePlan, fehlende/alte Zähler, Reset-/Mehrfachkompilierung, zusätzliche Ausführung, fehlende/doppelte Planstücke, Kodierungs-/Ausgabegrenzen, Timeout, falsche Eigentumsmarker und gescheiterter Cleanup dürfen keinen Erfolg liefern.
+- Neue Scope-Gegenfälle vor späterem SQL: bei sonst erfülltem aktivem Vertrag dürfen fehlendes Replay-Skript, abwesender oder unbekannter QueryCompilationReplay-Rohwert und offenes Replay-Gate den engeren Umfang nicht blockieren. Umgekehrt dürfen sie keine fehlende aktive Pflichtmetadaten-, Plan-, Hint- oder Cleanupprüfung überspringen. Ergebnis ohne acceptance_scope, fälschlich bestandener Replay-Vergleich, Kausal-/Performanceclaim und automatische Reaktivierung alter Läufe zurückweisen.
+- Vor Umsetzung unabhängig den aktiven Aussage-/Abnahmevertrag, vollständige Quellpaar-/Identitäts-/M/S/T-/Offset-/Transport-/Mess-/Statusprüfung freigeben. Methodenfreigabe ist weiterhin offen und wird durch die Umfangsentscheidung nicht ersetzt. Tatsächliche Darstellungen, Planbindung und technische Verfügbarkeit auf beiden Builds bleiben empirische Qualifikationsaufgaben der späteren genehmigten Runde; Replay-Markersemantik ist dafür keine Voraussetzung.
+- Danach neuer ausdrücklicher Auftrag für genau diese begrenzte Umsetzung und deren erforderliche SQL-/Lab-Läufe. Kein allgemeiner Entwicklungsneustart; übrige Verarbeitung pausiert. Für eine spätere Replay-Erweiterung sind deren bisherige Marker-/Gegenvertragsgates, unabhängige Freigabe und neuer eigener Auftrag wieder zwingend.
+
+**Quellen geprüft am:**
+
+2026-10-25
+
+**Quellen:**
+
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-unforce-plan-transact-sql?view=sql-server-ver17
+- https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver17#disable_optimized_plan_forcing
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql?view=sql-server-ver17
+
+Die folgenden Quellenbefunde und Replay-Entwürfe bleiben historische Nachweise. Ihre früheren Eintritts-/Erfolgskriterien gelten nur für den zurückgestellten Umfang; der oben ausgewählte aktive Plan ist für den engeren Schnitt maßgeblich.
 
 **Statischer Quellenbefund:** Stand `fd18d829904b6b1631f385cfaad340ca3c72bcbb`, erfasst am 2026-10-23. LAB-QS-002 aktiviert Query Store (persistente Abfragehistorie), erzeugt Abfrageausführungen und markiert anschließend einen erfassten Plan mit sp_query_store_force_plan zur Erzwingung. Das Runbook startet keine Worker; Observe.sql verlangt lediglich mindestens einen Plan der synthetischen Prozedur mit is_forced_plan = 1.
 
@@ -543,7 +635,7 @@ Quellen: [Lab/Scenarios/Performance/_Shared/Setup.sql:521](https://api.github.co
 
 Abgleich mit der Schulung: [Bestehender DGN-004-Planungsschnitt: Force, Failure und Unforce](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Documentation/Project_Planning/LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md#L89), [Abgrenzung zur vorhandenen Query-Store-Historie](https://github.com/gecompat/SQL_PerformanceSchulung/blob/0ea16ae8c3340ee37fc036e943017f938304c817/Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md#L25).
 
-**Vor einer späteren Umsetzung erforderlich:**
+**Historischer Prüfauftrag für den breiteren Fehler-/Fallback-Umfang:**
 
 - Im vorhandenen DGN-004-Planungsschnitt bleiben; DGN-003 (Query-Store-Historie) als Grundlage nutzen und keine zweite allgemeine Query-Store-Demo anlegen. Eine tatsächlich ausgeführte Zielabfrage nach dem Forcing mit zugeordneten Query-/Plan-Kennungen und passendem Beobachtungsfenster belegen.
 - Für die spätere Fehlersequenz eine Planvoraussetzung kontrolliert entziehen und eine erneute Kompilierung mit anschließender Ausführung auslösen. Änderung des Fehlerzählers, konkreten Fehlergrund und beobachtete Ersatzplanung (Fallback) prüfen; Voraussetzungen und zulässige Abweichungen je unterstützter Version festlegen.
@@ -551,10 +643,13 @@ Abgleich mit der Schulung: [Bestehender DGN-004-Planungsschnitt: Force, Failure 
 
 Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Forcing-Status und Fehlergründe](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17), [Microsoft: Planerzwingung und Ersatzplanung](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-force-plan-transact-sql?view=sql-server-ver17), [Microsoft: Query Store Hints ab SQL Server 2022](https://learn.microsoft.com/en-us/sql/relational-databases/performance/query-store-hints?view=sql-server-ver17).
 
-**Spätere Abnahme:**
+**Aktive Kandidaten-Abnahmekriterien des begrenzten Schnitts:**
 
-- Erfolgreiches Forcing und begründet fehlgeschlagenes Forcing anhand des tatsächlichen Status und Fehlergrundes unterscheiden.
-- Forcing und sonstige Zustandsänderungen rücknehmbar halten; keine zweite allgemeine Query-Store-Demo.
+- Ausschließlich CLASSICAL_FORCING_AND_HINT_CONTROL abnehmen: angenommene Standard-Force-Anforderung und tatsächlich passende aktuelle Planausführung je eigener R/H-Identität getrennt belegen; keine Aussage über den internen Optimierungs- oder Replay-Weg von R.
+- H als CONTROL_ONLY (nur Kontrollzustand belegt) abnehmen: vollständiger unveränderter Inline-Hint DISABLE_OPTIMIZED_PLAN_FORCING, keine fremde überschreibende Plansteuerung, eigene erfolgreiche Standard-Planerzwingung, frische Kompilierung, vollständige Solltupel und sichere Rücknahme. Keine beobachtete Replay-Nichtnutzung oder isolierte kausale Hintwirkung behaupten.
+- Alle neun geplanten Nutzaufrufe je einzelnem Zielbuild mit eindeutiger vollständiger Quellen-/Modul-/Kontext-/Query-/Planbindung, zugehöriger aktueller Ausführung und unverändertem Kompilierungsvertrag abnehmen. R-Replay-Skript, QueryCompilationReplay-Wert und empirischer H-Gegenmarker sind keine Voraussetzungen dieses begrenzten Schnitts.
+- Beide eigenen Force-Bindungen ausdrücklich aufheben, Ausgangsoptionen wiederherstellen und eigene Ressourcen unabhängig bereinigt nachweisen. Eigentums-, Transport-, Tupel-, Fehler- und Budgetprüfungen unverändert erhalten.
+- Erfolg ausschließlich für den benannten engeren Aussageumfang und die tatsächlich geprüften Builds melden. Historischer Replay-Vergleich samt offenen Marker-Gates und früheren NOT_PROVEN-/FAIL-Befunden bleibt zurückgestellt und unverändert; kein Gesamtabschluss der früheren breiteren Demoanforderungen.
 
 ###### Lesende Planprüfung vom 24. Oktober 2026
 
