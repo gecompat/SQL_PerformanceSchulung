@@ -841,3 +841,39 @@ Budgets unverändert; keine zusätzliche Kausalprobe oder Telemetrie. Der
 [Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) begrenzt die
 aktuelle Arbeit auf Dokumentation und statische Integration; übrige Verarbeitung
 bleibt pausiert. Keine Umsetzung oder SQL-/Lab-Läufe in diesem Folgeauftrag.
+
+### DGN-004: Quellenklärung der Marker-Gates vom 25. Oktober 2026
+
+Die [erneute Quellenklärung bei TSK-016](../../.ai/BACKLOG.md#quellenklärung-der-offenen-rh-marker-gates)
+betrifft DGN-004 (Planerzwingung): R ist Referenz ohne Hint, H die Negativkontrolle
+mit festem Abschalthinweis. Replay bezeichnet Wiederverwendung von
+Optimierungsschritten. Beide Marker-Gates bleiben für 2022/16.0.4265.3 und
+2025/17.0.4075.5 auf dem gewählten Erfassungsweg offen; keine neue empirische
+Evidenz, unabhängige Freigabe oder Versions-/Demoabnahme.
+
+Die [erneut gepinnte Herstellerreferenz](https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/performance/optimized-plan-forcing-query-store.md)
+belegt allgemeinen Feature-/Hintumfang ab 2022 einschließlich 2025. Die
+[Erfassungsreferenz am selben Stand](https://github.com/MicrosoftDocs/sql-docs/blob/b6fe4934643919b28ddea54ad04c66ff1b2a82d1/docs/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-stats-transact-sql.md)
+beschreibt letzte bekannte tatsächliche Pläne einschließlich Cache-Kompilierungs-
+informationen sowie mögliche reduzierte oder fehlende Pläne. Keine spezifische
+Marker-Erfolgs-/Vollständigkeitsgarantie daraus ableiten. Die
+[originale Fachreferenz](https://sqlserverfast.com/epr/plan-properties/) belässt
+QueryCompilationReplay = 1 als positiven Kandidaten; das
+[Hersteller-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/sql2022/showplanxml.xsd)
+nennt nur eine optionale Ganzzahl ohne Zustandswerttabelle. Kein H-Nichtnutzungswert
+und keine vollständige Abwesenheitsregel im geprüften Quellenumfang qualifiziert.
+
+**Recherchegrenze:** Gezielte Quellen-/Versions-/Wertsuchen sind keine vollständige
+Web- oder Codeabdeckung. Die [Buchspur beim Verlag](https://link.springer.com/chapter/10.1007/978-1-4842-8894-8_4)
+und die [öffentliche Buchübersicht](https://www.oreilly.com/library/view/sql-server-2022/9781484288948/)
+lieferten keinen prüfbaren relevanten Originalvolltext. Nicht als technische
+Evidenz verwendet; keine Bedeutung aus unbestätigten Drittwiedergaben übernommen.
+Der jüngste öffentliche Schemaindexeintrag zur ursprünglichen Veröffentlichung
+von 2022 belegt keine fehlende Unterstützung in 2025. Vorhandene SRC-027 (Query Store; persistente Abfrage- und
+Planhistorie) und SRC-031 (tatsächliche Planerfassung) genügen; keine neue Kennung.
+
+Die [Aussagegrenze zur Hintwirkung](#dgn-004-markerprobenreview-und-hintwirkung-vom-25-oktober-2026),
+alle Pläne, Abnahmekriterien und Laufbudgets bleiben unverändert. Der
+[Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md) begrenzt den
+Folgeauftrag auf Dokumentation und statische Integration; keine Umsetzung oder
+SQL-/Lab-Läufe, übrige Verarbeitung pausiert.
