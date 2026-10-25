@@ -274,4 +274,5 @@ jobs:
           expected="/${SQLPERF_SQL_CONTAINER}|dgn007-automated-setup|${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.major }}"
           [ "${identity}" = "${expected}" ] || { echo 'Container-Eigentumsprüfung fehlgeschlagen.'; exit 1; }
           docker rm --force --volumes "${container_id}" >/dev/null
-          [ -z "$(docker container ls --all --quiet --filter "id=${container_id}")" ] || exit 1
+          remaining="$(docker container ls --all --quiet --filter "id=${container_id}")"
+          [ -z "$remaining" ] || exit 1

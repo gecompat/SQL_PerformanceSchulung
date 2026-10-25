@@ -1,5 +1,26 @@
 # Tests
 
+## Flüchtige CI-Container entfernen
+
+Die älteren Demo-Workflows verwenden `Runtime/cleanup_ci_container.sh` in einem
+abschließenden `always()`-Schritt. Ein zufälliges Ownerlabel und die vollständige
+Container-ID binden die Entfernung an den eigenen Lauf. Der Cleanup entfernt
+auch anonyme Volumes, prüft die Abwesenheit und meldet Provider- oder
+Löschfehler als Fehler. Start- und Testschritte lassen eine Zeitreserve für
+diesen Abschluss. Weitere Abbruchsignale unterbrechen den laufenden Cleanup
+nicht. Ein harter Runnerverlust kann den Abschlussschritt weiterhin verhindern;
+die Ownerlabels bleiben für eine gezielte Wiederherstellung erhalten.
+
+```bash
+python Tests/Static/test_ci_container_cleanup.py
+```
+
+Die Gegenprobe führt den echten Bash-Helper mit synthetischen Dockerantworten
+aus. Sie benötigt keinen SQL Server und prüft auch fremde Owner, fehlende
+Providerantworten und verbleibende Container. Der kleine Workflow
+`ci-container-cleanup-contract` führt sie bei Änderungen an Workflows oder
+Helper aus; hierfür wird keine SQL-Matrix gestartet.
+
 ## Präsentationsdiagramme
 
 ```bash

@@ -78,6 +78,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Start bounded SQL Server container
+        timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
@@ -86,8 +87,11 @@ jobs:
           echo "::add-mask::${password}"
           echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
           echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          owner="$(openssl rand -hex 16)"
+          [[ "$owner" =~ ^[0-9a-f]{32}$ ]]
+          echo "SQLPERF_CI_OWNER=${owner}" >> "${GITHUB_ENV}"
           docker pull '${{ matrix.image }}'
-          docker run --name "${container}" --hostname "${container}" --cpus 4 --memory 8g -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" -d '${{ matrix.image }}'
+          docker run --name "${container}" --label "sqlperf.ci.owner=${owner}" --hostname "${container}" --cpus 4 --memory 8g -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" -d '${{ matrix.image }}'
           ready=0
           for attempt in $(seq 1 90); do
             if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then
@@ -118,6 +122,7 @@ jobs:
             exit 1
           fi
       - name: Run OPT-017 twice
+        timeout-minutes: 40
         shell: bash
         run: |
           set -uo pipefail
@@ -136,4 +141,5 @@ jobs:
         run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
       - if: always()
         shell: bash
-        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true
+        timeout-minutes: 3
+        run: bash Tests/Runtime/cleanup_ci_container.sh

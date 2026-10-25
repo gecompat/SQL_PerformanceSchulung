@@ -263,7 +263,7 @@ jobs:
     needs: [static, changes]
     if: needs.changes.outputs.run_runtime == 'true'
     runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 25
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -286,6 +286,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Start disposable SQL Server container
+        timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
@@ -295,9 +296,12 @@ jobs:
           echo "::add-mask::${password}"
           echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
           echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          owner="$(openssl rand -hex 16)"
+          [[ "$owner" =~ ^[0-9a-f]{32}$ ]]
+          echo "SQLPERF_CI_OWNER=${owner}" >> "${GITHUB_ENV}"
           docker pull '${{ matrix.image }}'
           export MSSQL_SA_PASSWORD="${password}"
-          docker run --name "${container}" --hostname "${container}" --label sqlperf.owner=ai-local-ci --cpus 4 --memory 6g \
+          docker run --name "${container}" --label "sqlperf.ci.owner=${owner}" --hostname "${container}" --label sqlperf.owner=ai-local-ci --cpus 4 --memory 6g \
             -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD \
             -d '${{ matrix.image }}'
           for attempt in $(seq 1 90); do
@@ -308,6 +312,7 @@ jobs:
           echo 'AI_LOCAL|FAIL_START_TIMEOUT'
           exit 1
       - name: Verify SQL login readiness
+        timeout-minutes: 4
         shell: bash
         run: |
           set -euo pipefail
@@ -327,30 +332,35 @@ jobs:
           echo 'AI_LOCAL|FAIL_SQL_LOGIN_TIMEOUT'
           exit 1
       - name: Verify two lifecycles, result contracts and ownership negatives
+        timeout-minutes: 4
         shell: bash
         run: |
           python Tests/Runtime/run_sql2025_ai_local.py \
             --target docker --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Verify bounded RES-008 public lifecycles and setup recovery
+        timeout-minutes: 4
         shell: bash
         run: |
           python Tests/Runtime/run_res008_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Verify bounded DGN-010 SELECT and DML lifecycles and setup recovery
+        timeout-minutes: 4
         shell: bash
         run: |
           python Tests/Runtime/run_dgn010_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Verify bounded DGN-010 cost lifecycles and setup recovery
+        timeout-minutes: 4
         shell: bash
         run: |
           python Tests/Runtime/run_dgn010_cost_profile.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}'
       - name: Verify complete DGN-010 ownership marker controls
+        timeout-minutes: 4
         shell: bash
         run: |
           python Tests/Runtime/run_dgn010_marker_controls.py \
@@ -359,11 +369,5 @@ jobs:
       - name: Remove SQL Server container
         if: always()
         shell: bash
-        run: |
-          set -euo pipefail
-          if docker container inspect "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1; then
-            test "$(docker inspect -f '{{index .Config.Labels "sqlperf.owner"}}' "${SQLPERF_SQL_CONTAINER}")" = ai-local-ci
-            docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null
-          fi
-          if docker container inspect "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1; then exit 1; fi
-          echo 'AI_LOCAL_CLEANUP|OWN_CONTAINER_ABSENT|PASS'
+        timeout-minutes: 3
+        run: bash Tests/Runtime/cleanup_ci_container.sh

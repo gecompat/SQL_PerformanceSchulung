@@ -1,0 +1,27 @@
+name: CI container cleanup contract
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'Tests/Runtime/cleanup_ci_container.sh'
+      - 'Tests/Static/test_ci_container_cleanup.py'
+      - 'Tests/Static/test_con005_container_cleanup.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'Tests/Runtime/cleanup_ci_container.sh'
+      - 'Tests/Static/test_ci_container_cleanup.py'
+      - 'Tests/Static/test_con005_container_cleanup.py'
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/test_ci_container_cleanup.py
