@@ -178,6 +178,8 @@ jobs:
           cid="$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
           if [ -z "$cid" ]; then exit 0; fi
           test "$(docker inspect -f '{{index .Config.Labels "sqlperf.owner"}}' "$cid")" = "$SQLPERF_OWNER"
-          docker rm -f "$cid"
-          test -z "$(docker ps -aq --no-trunc --filter "id=$cid")"
-          test -z "$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          docker rm --force --volumes "$cid"
+          remaining="$(docker ps -aq --no-trunc --filter "id=$cid")"
+          test -z "$remaining"
+          remaining="$(docker ps -aq --no-trunc --filter "name=^/${SQLPERF_SQL_CONTAINER}$")"
+          test -z "$remaining"

@@ -96,6 +96,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Start disposable SQL Server container
+        timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
@@ -104,8 +105,11 @@ jobs:
           echo "::add-mask::${password}"
           echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
           echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          owner="$(openssl rand -hex 16)"
+          [[ "$owner" =~ ^[0-9a-f]{32}$ ]]
+          echo "SQLPERF_CI_OWNER=${owner}" >> "${GITHUB_ENV}"
           docker pull '${{ matrix.image }}'
-          docker run --name "${container}" --hostname "${container}" \
+          docker run --name "${container}" --label "sqlperf.ci.owner=${owner}" --hostname "${container}" \
             -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e "MSSQL_SA_PASSWORD=${password}" \
             -d '${{ matrix.image }}'
           for attempt in $(seq 1 90); do
@@ -136,6 +140,7 @@ jobs:
           docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
           exit 1
       - name: Run QRY-006 twice
+        timeout-minutes: 25
         shell: bash
         run: |
           set -uo pipefail
@@ -159,4 +164,5 @@ jobs:
       - name: Remove SQL Server container
         if: always()
         shell: bash
-        run: docker rm -f "${SQLPERF_SQL_CONTAINER}" >/dev/null 2>&1 || true
+        timeout-minutes: 3
+        run: bash Tests/Runtime/cleanup_ci_container.sh
