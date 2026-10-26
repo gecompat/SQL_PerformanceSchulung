@@ -28,12 +28,35 @@ Ein stündlicher nativer Heartbeat dient ausschließlich als Leerlaufsicherung.
 Bei aktiver Arbeit oder nicht handlungsfähigem Zustand beginnt er keine Arbeit.
 
 **Erste Subwelle: vorhandene Framework-Evidenz abschließen.** PR301 ist integriert;
-alle acht damaligen Main-Workflows sind erfolgreich. Der [Eingabenachweis](FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
+alle acht damaligen Main-Workflows sind erfolgreich. PR334 (Evidenzabschluss)
+ist auf `bce4ec812ec5247e2e2afaa78fa74e0e5fac9ffd` in `main` integriert; die
+zugehörigen eigenen Branches wurden entfernt. Der
+[Eingabenachweis](FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
 bindet die abgeschlossene Versionsmatrix. Keine erneuten SQL-Läufe oder Container
-für diesen Dokumentationsschnitt. Danach folgt die gesonderte Prüfung des
-Fehlerpfads bei gescheiterter Erstmarkierung. Menschliche Teilnehmererprobung
-bleibt ein menschliches Gate; bei einem konkreten Blocker wird die nächste
-unabhängig bearbeitbare Aufgabe verfolgt.
+für diesen Dokumentationsschnitt.
+
+**Laufender FWK-002-Erhaltungsschnitt: SOURCE/STATIC; Runtime offen.** Der
+Erstmarkierungsfehlerpfad erhält eine noch vorhandene Datenbank ohne
+automatischen Wiederherstellungs- oder Löschanspruch. Der bestehende Matrixplan
+enthält zwei Faultfälle: vollständig unmarkiert sowie teilmarkiert mit
+Sentinel; beide prüfen ursprüngliche Fehlernummer/-meldung, `FAIL_CLEANUP` und
+den markergeprüften Folgeabbau. Es gab dafür keine lokalen SQL- oder
+Containerläufe. Die CI von PR335 (Head `c28dcf1`, Frameworklauf `40321050815`)
+scheiterte in `LIFECYCLE_OWNERSHIP` auf allen drei SQL-Server-Versionen. Die
+konkrete Syntaxursache lag in der Faultinjektion: Sie ersetzte den öffnenden
+dynamischen Marker-SQL-String, ließ dessen Inhalt außerhalb des Strings und
+verhinderte dadurch die Ausführung des Produktions-CATCH. Das ist kein
+Nachweis eines fehlerhaften Produkt-CATCH. Die drei Cleanupjobs einschließlich
+unabhängiger Containerabwesenheit waren auf 2019, 2022 und 2025 erfolgreich.
+Ein SOURCE_ONLY-Korrekturdelta behält den dynamischen String bei und setzt den
+Teilmarkerfehler hinter dem ersten Marker. Der korrigierte Kandidat ist noch
+nicht runtimequalifiziert. Als Admission sind ausschließlich die bestehende
+PR-Prüfung und die Main-Matrix vorgesehen. Die ursprüngliche Recoverygrenze
+bleibt bestehen:
+Erhaltung ist kein Nachweis eines allgemeinen sicheren Wiederanlaufs oder einer
+freigegebenen manuellen Entfernung. Menschliche Teilnehmererprobung bleibt ein
+menschliches Gate; bei einem konkreten Blocker wird die nächste unabhängig
+bearbeitbare Aufgabe verfolgt.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 

@@ -28,8 +28,11 @@ Die Referenz für Testdatenbanken prüft vorhandene Datenbanken jetzt mit
 vollständigen, binären Marker- und Bytelängenvergleichen. Die
 [abgegrenzte Eigentumsprüfung](../../Documentation/Project_Planning/FWK_002_FRAMEWORK_OWNERSHIP_REVIEW.md)
 führt den tatsächlichen Prüfstand und die weiterhin offene Wiederherstellung
-nach fehlgeschlagener Erstmarkierung. Ein passender Datenbankname allein genügt
-nicht. Nach einem Abbruch gilt die Erhaltung bei ungeklärtem Eigentum gemäß
+nach fehlgeschlagener Erstmarkierung. Der CREATE-Fehlerpfad erhält eine in
+diesem Batch angelegte, noch vorhandene Datenbank ohne vollständige
+Eigentumsmarker und liefert `FAIL_CLEANUP` samt ursprünglichem Fehlerrecord.
+Ein passender Datenbankname allein genügt nicht. Nach einem Abbruch gilt die
+Erhaltung bei ungeklärtem Eigentum gemäß
 [Demo-Ausführungsleitfaden](../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md).
 
 Aktion, Demokennung und Lauftoken werden vor jeder Typkürzung vollständig

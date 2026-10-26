@@ -402,20 +402,10 @@ BEGIN CATCH
     SET @OriginalErrorMessage = ERROR_MESSAGE();
 
     IF @CreatedInThisBatch = 1 AND DB_ID(@DatabaseName) IS NOT NULL
-    BEGIN TRY
-        SET @Sql = N'
-USE [master];
-ALTER DATABASE ' + QUOTENAME(@DatabaseName) + N' SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-DROP DATABASE ' + QUOTENAME(@DatabaseName) + N';';
-        EXEC sys.sp_executesql @Sql;
-
+    BEGIN
         INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-        VALUES ('CLEANUP', 'ROLLBACK_NEW_DATABASE', 'PASS', 'OK', N'gerade in diesem Batch erstellt', N'keine unvollständig markierte Datenbank', N'Die neu erstellte Datenbank wurde nach dem Fehler entfernt.');
-    END TRY
-    BEGIN CATCH
-        INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
-        VALUES ('CLEANUP', 'ROLLBACK_NEW_DATABASE', 'FAIL', 'FAIL_CLEANUP', N'Cleanup fehlgeschlagen', N'Entfernung der gerade erstellten Datenbank', N'Die unvollständig initialisierte Testdatenbank konnte nach dem Fehler nicht entfernt werden.');
-    END CATCH;
+        VALUES ('CLEANUP', 'PRESERVE_DATABASE_AFTER_CREATE_ERROR', 'FAIL', 'FAIL_CLEANUP', CASE WHEN @EmitEnvironmentDetails = 1 THEN @DatabaseName ELSE N'Name unterdrückt' END, N'Datenbank erhalten; vollständiges Eigentum nicht verifiziert', N'Die im fehlgeschlagenen CREATE-Lauf angelegte Datenbank bleibt zur Klärung erhalten. Kein automatischer DROP ohne vollständige Eigentumsprüfung.');
+    END;
 
     INSERT @Results (Phase, CheckId, Outcome, Code, ObservedValue, RequiredValue, Message)
     VALUES ('LIFECYCLE', 'EXECUTION_ERROR', 'FAIL', CASE WHEN EXISTS (SELECT 1 FROM @Results WHERE Code = 'FAIL_CLEANUP') THEN 'FAIL_CLEANUP' ELSE 'FAIL_EXECUTION' END, CONVERT(nvarchar(20), @OriginalErrorNumber), N'erfolgreiche Lifecycle-Aktion', LEFT(@OriginalErrorMessage, 4000));
