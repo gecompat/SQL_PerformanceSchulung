@@ -16,6 +16,8 @@ on:
       - 'Tests/Static/test_dgn004_capture_input.py'
       - 'Tests/Runtime/dgn004_capture_runner.py'
       - 'Tests/Static/test_dgn004_capture_runner.py'
+      - 'Tests/Static/dgn004_identity_snapshot.py'
+      - 'Tests/Static/test_dgn004_identity_snapshot.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -45,6 +47,8 @@ on:
       - 'Tests/Static/test_dgn004_capture_input.py'
       - 'Tests/Runtime/dgn004_capture_runner.py'
       - 'Tests/Static/test_dgn004_capture_runner.py'
+      - 'Tests/Static/dgn004_identity_snapshot.py'
+      - 'Tests/Static/test_dgn004_identity_snapshot.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -95,6 +99,9 @@ jobs:
 
       - name: Test DGN-004 capture runner
         run: python Tests/Static/test_dgn004_capture_runner.py
+
+      - name: Test DGN-004 supplied identity record consistency
+        run: python Tests/Static/test_dgn004_identity_snapshot.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py

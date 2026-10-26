@@ -84,3 +84,14 @@ Prozessgruppe. Unter Windows ist die Baumbeendigung nach Ende des Launchers
 nicht nachgewiesen; bleibt ein Pipe-Reader offen, endet der Aufruf mit
 `CaptureProcessEndUnknown` und darf nicht wiederholt werden. Das Fixture ist
 keine freigegebene Demo und nicht selbstständig auszuführen.
+
+`Tests/Static/dgn004_identity_snapshot.py` vergleicht separat vom Aufrufer
+gelieferte R/H-Rohdatensätze mit den endlichen registrierten M/S/T-Texten,
+UTF-16LE-Offsets, Modulnamen und getrennten Objekt-/Query-IDs. Die Herkunftslabels
+und die Gruppierung als R/H-Rolle sind Eingabebehauptungen; der Prüfer ermittelt
+keine Serverzeilen und prüft nicht, ob ihre Aufzählung vollständig war. Sein
+Offline-Konsistenzresultat enthält keinen `plan_handle` und kann den Capture-
+Runner nicht freigeben. Damit bleiben die Zuordnung eines Handles zu genau der
+aktuellen Nutzstatementausführung, vollständige Serverkandidatenaufzählung,
+Kontextprofil-/Plan-StatementText-Bindung sowie Ausführung auf SQL Server offene
+Gates.
