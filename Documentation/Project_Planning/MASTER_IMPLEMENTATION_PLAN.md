@@ -376,7 +376,7 @@ erhalten, ohne automatische Fortsetzung. Der
 maßgeblich. Die folgenden Teilstände und Fortsetzungspläne sind historisch;
 sie begründen keinen weiteren Arbeitsauftrag.
 
-## Aktueller Schnitt: Setup-Eigentumsprüfung nach abgeschlossenem Cleanup
+## Historischer Schnitt: Setup-Eigentumsprüfung nach abgeschlossenem Cleanup
 
 PR292 ist vollständig in Main `0558add5d2d030fd0b19829c5f8e4150ee05a234`
 abgeschlossen: unabhängiger Review, lokale Gegenproben, 48 grüne Head-,
@@ -409,7 +409,7 @@ Testdatenbanken) oder einer gemeinsam genutzten Instanz. Nach vollständiger
 Integration zuerst die übrigen Eigentumslücken, dann weitere Lesepfade und
 native Anbindung. Die folgenden Abschnitte sind historische Nachweise.
 
-## Aktueller Schnitt: Cleanup-Eigentumsprüfung vor weiterer nativer Anbindung
+## Historischer Schnitt: Cleanup-Eigentumsprüfung vor weiterer nativer Anbindung
 
 PR291 ist vollständig in Main `65089ac2c42a47fe961a1de7dc04d1e41da78f31`
 abgeschlossen: unabhängiger Review, lokale Prüfungen, 48 grüne Head-, fünf
@@ -431,7 +431,7 @@ Verbrauch UNKNOWN, nicht verlässlich gemessen. Danach werden zuerst die
 restlichen Eigentumslücken begrenzt, erst anschließend die native Kanalanbindung.
 Die folgenden Abschnitte sind historische Nachweise.
 
-## Aktuelle Priorität: menschlicher Ausführungspfad und Schutzvertrag für Cleanup
+## Historische Priorität: menschlicher Ausführungspfad und Schutzvertrag für Cleanup
 
 Foundation 1.25.0 ist mit PR290 in Main
 `2f4c427b3da36ae3c5f24770aeaee75ce3488ea0` vollständig abgeschlossen:
@@ -441,24 +441,18 @@ Branchbereinigung. Head bezeichnet den geprüften Pull-Request-Commit, Base
 seine Main-Basis. Der frühere Runner-Fix aus PR289 bleibt abgeschlossen;
 Runner bedeutet vollständige Ausführungssteuerung.
 
-TSK-015 (Menschliche Lesepfade und historische Planungseinstiege konsolidieren)
-führt den Weg von Demo-Auswahl bis zum Erhalt zurückgebliebener Daten nach
-Abbruch zusammen. Der konkrete Quellenbefund im Cleanup für indexfreundliche
-Suchbedingungen (`QRY-001`) erfordert eine ehrliche Einschränkung: Fehlende
-Eigentumsmarker können die Ablehnung umgehen. Der aktuelle Dokumentationsschnitt
-ändert kein SQL, entfernt aber unsichere manuelle Löschanweisungen und die
-unbelegte Marker-Garantie. Ein Implementierungsverantwortlicher und derselbe
-unabhängige Reviewer; Checkpoint nach zwei stabilen Kandidaten oder erstem
-blockierenden Befund, harte Grenze vier Kandidaten einschließlich relevanter
-Prüfungen und Integration; Verbrauch UNKNOWN, nicht verlässlich gemessen.
-
-Die anschließende funktionale Korrektur erhält unter FWK-002 (Schutzvertrag
-für Testdatenbanken) Vorrang vor weiterer nativer DGN-007-Anbindung. Umfang,
-Verantwortlichkeit, Gegenfälle und Auslöser stehen im
-[aktuellen Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade).
-Dieser neue Schnitt benötigt seine eigene konkret geprüfte Auswahl und seinen
-endlichen Quellen-/Versuchsrahmen. Der alte Workerrahmen bleibt geschlossen.
-Die folgenden Abschnitte sind historische Nachweise.
+Der erste TSK-015-Ausführungspfad (Demo-Auswahl, Vorbereitung, Ergebnisdeutung
+und Erhalt nach Abbruch) wurde mit [PR291](https://github.com/gecompat/SQL_PerformanceSchulung/pull/291)
+integriert. Die damalige Einschränkung des QRY-001-Cleanupclaims und der
+Dokumentationsschnitt ohne SQL-Änderung sind abgeschlossene historische Arbeit;
+der alte Workerrahmen ist geschlossen. Der damalige Plan, vor weiterer
+DGN-007-Anbindung zunächst funktionale FWK-002-Korrekturen auszuführen, ist
+ebenfalls kein aktueller Ausführungsauftrag. Für die heutige Reihenfolge,
+verbleibende Lesepfade und offene Prüfgates sind der
+[aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) und der
+[aktuelle Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
+maßgeblich. Historische Kennungen und Nachweise bleiben erhalten; die folgenden
+Abschnitte dokumentieren frühere Planungs- und Ausführungsstände.
 
 ## Erste Runnerprofilaufnahme sicher beendet, tatsächlicher Report fehlt
 
@@ -585,7 +579,7 @@ erforderlich, Hashes und Bytegrenzen unverändert. Die nachfolgenden Stopps
 sind historische Evidenz; aktueller Einstieg ist der
 [Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
 
-## Aktueller Einstieg nach funktionalem Runnerabschluss
+## Historischer Einstieg nach funktionalem Runnerabschluss
 
 [PR281](https://github.com/gecompat/SQL_PerformanceSchulung/pull/281) ist vollständig
 in Main `f143c968f5fec26c60fcc8b32e8baac637fdbcd1` integriert. Der unabhängige
@@ -602,7 +596,7 @@ integriert: sieben Head-/drei Base-/fünf Main-Prüfungen grün, unabhängiger
 Review, lokale Dokumentationsprüfung, vollständige Übernahme, Synchronisation
 und eigene Branchbereinigung. Ein Entwurfsstand, kein nativer Lauf.
 
-Gestoppter aktueller Schnitt ist das [konkrete quellenbegründete Auswahlpaket](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md)
+Der damals gestoppte Schnitt war das [konkrete quellenbegründete Auswahlpaket](DGN_007_WORKER_PROFILE_SELECTION_REVIEW.md)
 für eine vorhandene Installation und drei vollständige Profile. Ein Owner/ein
 Reviewer, Checkpoint eins/hart vier Quellen-/Teststände einschließlich
 Koordination und vollständigem Integrationsabschluss; Verbrauch UNKNOWN.
@@ -1612,7 +1606,13 @@ Jede Arbeitsübergabe enthält mindestens:
 - nächster ausführbarer Schritt,
 - explizite Blocker oder benötigte Entscheidungen.
 
-## 20. Aktueller Ausführungsmarker
+## 20. Historischer Ausführungsmarker
+
+Der folgende Projektmarker gehört zum Benutzerstopp vom 2026-10-08 und ist
+keine aktuelle Arbeitssteuerung. Für Reihenfolge, offene Gates und heutige
+Prioritäten ist ausschließlich der
+[aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) maßgeblich; dieser
+historische Marker bleibt als damaliger Projektzustand erhalten.
 
 | Feld | Stand |
 |---|---|
