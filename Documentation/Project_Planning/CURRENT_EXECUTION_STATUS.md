@@ -36,6 +36,14 @@ noch nicht gewährte eigene Anforderung und den dazugehörigen aktuellen
 Laufzeitqualifikation. Die ausführbare Konkurrenzprobe und ihr tatsächlicher
 Wait-Nachweis bleiben offen; aktive Sessions allein belegen keinen Grant-Wait.
 
+Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
+Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
+Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.
+Umsetzung und tatsächlicher variantenspezifischer Konfliktgraph bleiben offen;
+die Range-Variante bleibt wegen der Überschneidung mit CON-002 zurückgestellt.
+Der [begrenzte Quellen- und Variantenvertrag](../../.ai/BACKLOG.md#5-con-006--conversion--und-range-deadlocks-als-optionale-varianten) führt die noch nötigen
+Graph-, Opfer-, Gegenpart- und Cleanup-Nachweise auf.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem
