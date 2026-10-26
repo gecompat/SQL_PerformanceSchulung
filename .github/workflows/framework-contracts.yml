@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'Demos/00_Framework/**'
+      - 'Tests/Fixtures/DGN004_SourcePair/**'
+      - 'Tests/Static/test_dgn004_source_pair.py'
+      - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
       - 'Tests/Static/validate_orchestration_runtime.py'
@@ -20,6 +23,9 @@ on:
       - main
     paths:
       - 'Demos/00_Framework/**'
+      - 'Tests/Fixtures/DGN004_SourcePair/**'
+      - 'Tests/Static/test_dgn004_source_pair.py'
+      - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
       - 'Tests/Static/validate_orchestration_runtime.py'
@@ -51,6 +57,9 @@ jobs:
 
       - name: Validate framework contracts
         run: python Tests/Static/validate_framework_contracts.py
+
+      - name: Test DGN-004 source pair
+        run: python Tests/Static/test_dgn004_source_pair.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py

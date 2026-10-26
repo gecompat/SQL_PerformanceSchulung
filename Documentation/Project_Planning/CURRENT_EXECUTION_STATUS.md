@@ -35,28 +35,29 @@ zugehörigen eigenen Branches wurden entfernt. Der
 bindet die abgeschlossene Versionsmatrix. Keine erneuten SQL-Läufe oder Container
 für diesen Dokumentationsschnitt.
 
-**Laufender FWK-002-Erhaltungsschnitt: SOURCE/STATIC; Runtime offen.** Der
-Erstmarkierungsfehlerpfad erhält eine noch vorhandene Datenbank ohne
-automatischen Wiederherstellungs- oder Löschanspruch. Der bestehende Matrixplan
-enthält zwei Faultfälle: vollständig unmarkiert sowie teilmarkiert mit
-Sentinel; beide prüfen ursprüngliche Fehlernummer/-meldung, `FAIL_CLEANUP` und
-den markergeprüften Folgeabbau. Es gab dafür keine lokalen SQL- oder
-Containerläufe. Die CI von PR335 (Head `c28dcf1`, Frameworklauf `40321050815`)
-scheiterte in `LIFECYCLE_OWNERSHIP` auf allen drei SQL-Server-Versionen. Die
-konkrete Syntaxursache lag in der Faultinjektion: Sie ersetzte den öffnenden
-dynamischen Marker-SQL-String, ließ dessen Inhalt außerhalb des Strings und
-verhinderte dadurch die Ausführung des Produktions-CATCH. Das ist kein
-Nachweis eines fehlerhaften Produkt-CATCH. Die drei Cleanupjobs einschließlich
-unabhängiger Containerabwesenheit waren auf 2019, 2022 und 2025 erfolgreich.
-Ein SOURCE_ONLY-Korrekturdelta behält den dynamischen String bei und setzt den
-Teilmarkerfehler hinter dem ersten Marker. Der korrigierte Kandidat ist noch
-nicht runtimequalifiziert. Als Admission sind ausschließlich die bestehende
-PR-Prüfung und die Main-Matrix vorgesehen. Die ursprüngliche Recoverygrenze
-bleibt bestehen:
-Erhaltung ist kein Nachweis eines allgemeinen sicheren Wiederanlaufs oder einer
-freigegebenen manuellen Entfernung. Menschliche Teilnehmererprobung bleibt ein
-menschliches Gate; bei einem konkreten Blocker wird die nächste unabhängig
-bearbeitbare Aufgabe verfolgt.
+**FWK-002-Erhaltung nach gescheiterter Erstmarkierung: begrenzt runtimequalifiziert.**
+PR335 (finaler Head `7125d10`) und die integrierte Main-Version auf
+`1f8c152ec9a8d8855d2eb3bee3e46842f9dc5786` bestehen die vorhandenen
+Frameworkmatrizen auf SQL Server 2019, 2022 und 2025 einschließlich aller drei
+eigenen Container-Cleanup- und Abwesenheitsprüfungen. Die Gegenproben decken
+vollständig unmarkierten und teilmarkierten Zustand mit Sentinel ab, erhalten
+Originalfehler und `FAIL_CLEANUP` und schließen mit markergeprüftem Folgeabbau.
+Der erste Head-Lauf `40321050815` am Head `c28dcf1` blieb als historischer Fehler erhalten: Eine
+fehlerhafte Test-Faultinjektion hatte den dynamischen Marker-SQL-String geöffnet
+gelassen und verhinderte den Eintritt in den Produktions-CATCH. Die korrigierte
+Headmatrix `40321858686` und Mainmatrix `40322492377` sind erfolgreich. Das
+qualifiziert ausschließlich die Erhaltung in diesem Fehlerpfad. Es begründet
+weder allgemeinen sicheren Wiederanlauf noch eine freigegebene manuelle
+Entfernung. Die ursprüngliche Recoverygrenze bleibt bestehen. Menschliche
+Teilnehmererprobung bleibt ein menschliches Gate; bei einem konkreten Blocker
+wird die nächste unabhängig bearbeitbare Aufgabe verfolgt.
+
+**Laufend: DGN-004-Quellpaarvorschnitt.** Das [statische Quellpaar](../../Tests/Fixtures/DGN004_SourcePair/README.md)
+überführt die freigegebenen R/H-Textvorlagen in zwei bytegenau geprüfte
+SQL-Einzeiler. Reine Gegenproben prüfen Textdarstellungen, Offsets und
+Hintposition. Dies ist kein ausführbares Demopaket und keine Build-, Plan-,
+Replay- oder Laufzeitabnahme. Integrierter Transport und die begrenzte
+Qualifikation auf den beiden festgelegten Zielbuilds bleiben Folgearbeit.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 
