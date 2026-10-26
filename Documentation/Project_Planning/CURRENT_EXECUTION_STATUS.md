@@ -52,20 +52,27 @@ Entfernung. Die ursprüngliche Recoverygrenze bleibt bestehen. Menschliche
 Teilnehmererprobung bleibt ein menschliches Gate; bei einem konkreten Blocker
 wird die nächste unabhängig bearbeitbare Aufgabe verfolgt.
 
-**DGN-004-Quellpaarvorschnitt: statisch integriert.** Das [statische Quellpaar](../../Tests/Fixtures/DGN004_SourcePair/README.md)
+**DGN-004-Quellpaar- und Offline-Transportvorschnitt: statisch integriert.** Das [statische Quellpaar](../../Tests/Fixtures/DGN004_SourcePair/README.md)
 überführt die freigegebenen R/H-Textvorlagen in zwei bytegenau geprüfte
 SQL-Einzeiler. Reine Gegenproben prüfen Textdarstellungen, Offsets und
-Hintposition. Dies ist kein ausführbares Demopaket und keine Build-, Plan-,
-Replay- oder Laufzeitabnahme. Integrierter Transport und die begrenzte
-Qualifikation auf den beiden festgelegten Zielbuilds bleiben Folgearbeit.
+Hintposition. Der Offline-Transport ergänzt begrenzte Frame- und
+XML-Wohlgeformtheitsprüfungen sowie einen caller-bound SQL-Ausschnitt. Dies ist
+kein ausführbares Demopaket und keine Build-, Plan-, Replay- oder
+Laufzeitabnahme. End-to-end Capture/Runner und die begrenzte Qualifikation auf
+den beiden festgelegten Zielbuilds bleiben Folgearbeit.
 
-PR336 ist auf Main `f5a2f6b264d14105075f9a48b638f2c920659b50` integriert;
-neun Headprüfungen und sieben frische Main-Workflows sind erfolgreich, die
-zugehörigen eigenen Branches entfernt. Der laufende nächste Vorschnitt prüft
-bereits geparste Plan-Chunks rein auf Reihenfolge, Größen, Prüfsumme und
-Zeichencodierung. Er erfasst keine SQL-Ausgabe. Vollständige Rahmung,
-Prozesskanalbegrenzung und tatsächliche Plan-/Abfragebindung bleiben offen;
-die interne Sequenzbasis des Decoders legt kein SQL-Transportformat fest.
+PR338 ist auf Main `e5130c443eaf94f5e440208d38059d6cdb6719b5` integriert;
+alle fünf Headprüfungen sowie die frischen Main-Läufe Framework `40328734818`,
+Privacy `40328734514` und Cleanup `40328734569` sind erfolgreich, die eigenen
+Branches entfernt. PR338 ergänzt zum bereits statischen R/H-Quellpaar und
+Chunk-Decoder einen begrenzten Frame-Serializer/Parser. Der Offline-Ergebnisbinder
+bindet Frames an separat erwartete Run/Rolle/Aufrufwerte, prüft wohlgeformtes
+XML mit ShowPlanXML-Wurzel, validiert die engen sqlcmd-Eingaben vor Substitution
+und enthält ein SQL-Transportfragment für einen caller-bound `plan_handle`.
+Der SQL-Ausschnitt wurde nicht ausgeführt. Ohne den noch offenen Runner und
+die Quellen-/Query-/Planbindung belegt er weder die beabsichtigte aktuelle
+Ausführung noch Prozesskanalgrenzen, Schema-/Runtimequalität oder
+Engineidentität. End-to-end Capture und Buildqualifikation bleiben offen.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 

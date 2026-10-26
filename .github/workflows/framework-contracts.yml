@@ -7,9 +7,13 @@ on:
       - 'Tests/Fixtures/DGN004_SourcePair/**'
       - 'Tests/Static/dgn004_plan_transport.py'
       - 'Tests/Static/dgn004_plan_frame.py'
+      - 'Tests/Static/dgn004_capture_result.py'
+      - 'Tests/Static/dgn004_capture_input.py'
       - 'Tests/Static/test_dgn004_source_pair.py'
       - 'Tests/Static/test_dgn004_plan_transport.py'
       - 'Tests/Static/test_dgn004_plan_frame.py'
+      - 'Tests/Static/test_dgn004_capture_result.py'
+      - 'Tests/Static/test_dgn004_capture_input.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -30,9 +34,13 @@ on:
       - 'Tests/Fixtures/DGN004_SourcePair/**'
       - 'Tests/Static/dgn004_plan_transport.py'
       - 'Tests/Static/dgn004_plan_frame.py'
+      - 'Tests/Static/dgn004_capture_result.py'
+      - 'Tests/Static/dgn004_capture_input.py'
       - 'Tests/Static/test_dgn004_source_pair.py'
       - 'Tests/Static/test_dgn004_plan_transport.py'
       - 'Tests/Static/test_dgn004_plan_frame.py'
+      - 'Tests/Static/test_dgn004_capture_result.py'
+      - 'Tests/Static/test_dgn004_capture_input.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -74,6 +82,12 @@ jobs:
 
       - name: Test DGN-004 plan frame
         run: python Tests/Static/test_dgn004_plan_frame.py
+
+      - name: Test DGN-004 capture result
+        run: python Tests/Static/test_dgn004_capture_result.py
+
+      - name: Test DGN-004 capture input
+        run: python Tests/Static/test_dgn004_capture_input.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py
