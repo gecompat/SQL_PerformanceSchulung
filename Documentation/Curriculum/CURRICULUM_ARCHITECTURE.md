@@ -142,6 +142,12 @@ Operatorpriorität, typgerechte Parameter und Collation-Konflikte mit kurzen
 synthetischen Beispielen. Sie ist erklärender Lerninhalt, keine freigegebene
 QRY-002-Demo oder Laufzeitqualifikation.
 
+Zur Ergänzung von `LO-M03-02` zeigt die
+[Lehrnotiz zu halboffenen Datumsintervallen](HALF_OPEN_DATE_INTERVAL_LESSON.md)
+den Unterschied zwischen inklusivem `BETWEEN` und einer halboffenen Obergrenze
+sowie die Bedeutung passender Datentypen und Präzision. Sie ist erklärender
+Lerninhalt, keine freigegebene QRY-003-Demo oder Laufzeitqualifikation.
+
 ### M04 – Rowstore- und Columnstore-Indizes
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |
