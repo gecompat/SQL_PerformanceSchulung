@@ -3013,7 +3013,12 @@ wegen nicht übernommener Arbeit erhalten. Der zusätzliche Scopeentscheid ist
 beim Benutzer angefragt. Der vorherige Matrix-PASS wird nicht als Freigabe oder
 Behebung umgedeutet.
 
-## Aktueller operativer Einstiegspunkt
+## Historischer operativer Stand bis zum Benutzerstopp vom 8. Oktober 2026
+
+Der folgende Abschnitt hält den damaligen Pausen- und Abschlussstand fest. Er
+ist durch den späteren Auftrag vom 26. Oktober 2026 abgelöst und steuert keine
+aktuelle Ausführung. Die aktuelle Reihenfolge, offenen Gates und Blocker stehen
+im [aktuellen Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 Die Entwicklung wurde am 2026-10-07 nach der über PR 92 dokumentierten Pause
 ausdrücklich mit den bisherigen Regeln wieder aufgenommen. Diese Wiederaufnahme ist
