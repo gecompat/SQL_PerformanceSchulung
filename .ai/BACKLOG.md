@@ -28,11 +28,12 @@ Für die Kern-Query-Patterns ist die Reihenfolge QRY-002, danach QRY-003 und
 anschließend RES-004. Der QRY-002-Lehrinhalt behandelt kurz Datentyppriorität,
 passende Parameter-/Spaltentypen, Konvertierungsfehler, Collation und die
 Grenzen von `CAST` auf einer Spalte; er erstellt keine laufzeitqualifizierte
-Demo. QRY-003 behandelt halboffene
-Datumsintervalle einschließlich `BETWEEN`-Grenzen und passender
-Datentypgenauigkeit. Danach folgt eine begrenzte Lückenprüfung zu
-konkurrierenden Abfragespeicherzuteilungen in RES-004. Für alle drei bleiben
-ihre eigenen offenen Quellen- und Qualifikationsgrenzen maßgeblich.
+Demo. Die QRY-003-Lehrnotiz ergänzt `LO-M03-02` mit halboffenen
+Datumsintervallen, inklusiven `BETWEEN`-Grenzen und passender
+Datentypgenauigkeit; sie ist keine Laufzeitqualifikation. Danach folgt eine
+begrenzte Lückenprüfung zu konkurrierenden Abfragespeicherzuteilungen in
+RES-004. Für alle drei bleiben ihre eigenen offenen Quellen- und
+Qualifikationsgrenzen maßgeblich.
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
 ## DGN-004: Klassische Planerzwingung und Hint-Kontrollzustand

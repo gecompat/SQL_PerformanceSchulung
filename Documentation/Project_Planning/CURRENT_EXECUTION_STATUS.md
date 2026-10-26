@@ -26,6 +26,10 @@ RES-004 zu konkurrierenden Abfragespeicherzuteilungen. Performanceaussagen
 benötigen weiterhin passende Messung; die Lehrnotiz behauptet keinen Scan
 allein wegen einer Konvertierung.
 
+Die QRY-003-Lehrnotiz ergänzt `LO-M03-02` mit synthetischen Beispielen zu
+halboffenen Intervallen und passenden Datentypgrenzen. Sie ist keine
+Laufzeitqualifikation. Als nächster begrenzter Inhalt ist RES-004 vorgesehen.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem
