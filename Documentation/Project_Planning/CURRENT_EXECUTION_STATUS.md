@@ -17,6 +17,15 @@ Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastrukt
 KI bedeutet künstliche Intelligenz. Der aktive DGN-004-Plan bleibt auf
 Standard-Planerzwingung und einen festen Hint-Kontrollzustand begrenzt.
 
+Die QRY-002-Lehrnotiz zu impliziter Konvertierung, Datentyp- und
+Collation-Mismatch ergänzt `LO-M03-01` mit synthetischen Beispielen. Sie
+enthält kein neues Manifest oder Laufzeitclaim. Die festgelegte Reihenfolge
+der Kern-Query-Pattern-Inhalte lautet QRY-002, danach QRY-003 zu halboffenen
+Datumsintervallen, `BETWEEN`-Grenzen und Datentypgenauigkeit, anschließend
+RES-004 zu konkurrierenden Abfragespeicherzuteilungen. Performanceaussagen
+benötigen weiterhin passende Messung; die Lehrnotiz behauptet keinen Scan
+allein wegen einer Konvertierung.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem

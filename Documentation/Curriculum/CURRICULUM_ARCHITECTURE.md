@@ -136,6 +136,12 @@ Die Reihenfolge von Query Patterns vor dem Indexmodul ist bewusst: M03 verwendet
 | `LO-M03-07` | VERTIEFUNG | Unterschiede zwischen Anwendung und SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) über Cachekontext, SET-Optionen, Parameterwerte, Datenbankkontext und Datenzustand untersuchen | mindestens vier Kontextdimensionen vergleichen und eine voreilige Ein-Ursachen-Hypothese anhand widersprechender Evidenz verwerfen |
 | `LO-M03-08` | VERTIEFUNG | Parameter, lokale Variablen, Literale, Recompile, sicher parameterisiertes dynamisches SQL, PSP und OPPO nach Information, Sicherheit und Wiederverwendung vergleichen | für dieselbe Ergebnismenge eine sichere Strategie auswählen und Compilekosten, Planvarianten sowie Versionsvoraussetzungen nachweisen |
 
+Zur Ergänzung von `LO-M03-01` erklärt die
+[Lehrnotiz zu Datentypen und impliziter Konvertierung](IMPLICIT_CONVERSION_LESSON.md)
+Operatorpriorität, typgerechte Parameter und Collation-Konflikte mit kurzen
+synthetischen Beispielen. Sie ist erklärender Lerninhalt, keine freigegebene
+QRY-002-Demo oder Laufzeitqualifikation.
+
 ### M04 – Rowstore- und Columnstore-Indizes
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |
