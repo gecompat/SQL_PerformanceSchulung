@@ -28,12 +28,25 @@ Ein stündlicher nativer Heartbeat dient ausschließlich als Leerlaufsicherung.
 Bei aktiver Arbeit oder nicht handlungsfähigem Zustand beginnt er keine Arbeit.
 
 **Erste Subwelle: vorhandene Framework-Evidenz abschließen.** PR301 ist integriert;
-alle acht damaligen Main-Workflows sind erfolgreich. Der [Eingabenachweis](FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
+alle acht damaligen Main-Workflows sind erfolgreich. PR334 (Evidenzabschluss)
+ist auf `bce4ec812ec5247e2e2afaa78fa74e0e5fac9ffd` in `main` integriert; die
+zugehörigen eigenen Branches wurden entfernt. Der
+[Eingabenachweis](FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
 bindet die abgeschlossene Versionsmatrix. Keine erneuten SQL-Läufe oder Container
-für diesen Dokumentationsschnitt. Danach folgt die gesonderte Prüfung des
-Fehlerpfads bei gescheiterter Erstmarkierung. Menschliche Teilnehmererprobung
-bleibt ein menschliches Gate; bei einem konkreten Blocker wird die nächste
-unabhängig bearbeitbare Aufgabe verfolgt.
+für diesen Dokumentationsschnitt.
+
+**Laufender FWK-002-Erhaltungsschnitt: SOURCE/STATIC qualifiziert.** Der
+Erstmarkierungsfehlerpfad erhält eine noch vorhandene Datenbank ohne
+automatischen Wiederherstellungs- oder Löschanspruch. Der bestehende Matrixplan
+enthält zwei Faultfälle: vollständig unmarkiert sowie teilmarkiert mit
+Sentinel; beide prüfen ursprüngliche Fehlernummer/-meldung, `FAIL_CLEANUP` und
+den markergeprüften Folgeabbau. Dafür wurden noch keine SQL- oder Containerläufe
+ausgeführt. Als Admission sind ausschließlich die bestehende PR-Prüfung und die
+Main-Matrix vorgesehen. Die ursprüngliche Recoverygrenze bleibt bestehen:
+Erhaltung ist kein Nachweis eines allgemeinen sicheren Wiederanlaufs oder einer
+freigegebenen manuellen Entfernung. Menschliche Teilnehmererprobung bleibt ein
+menschliches Gate; bei einem konkreten Blocker wird die nächste unabhängig
+bearbeitbare Aufgabe verfolgt.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 

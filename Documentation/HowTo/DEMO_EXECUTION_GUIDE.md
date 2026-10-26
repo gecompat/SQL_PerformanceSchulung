@@ -239,6 +239,8 @@ sqlcmd -S $server -E -d master -Q "SELECT name FROM sys.databases WHERE name LIK
 
 Für SQL-Authentifizierung verwenden Sie stattdessen `-U $username`; das Kennwort bleibt in `SQLCMDPASSWORD`.
 
+Scheitert die Framework-Aktion `CREATE` nach dem Anlegen, aber vor der vollständigen Erstmarkierung, meldet sie `FAIL_CLEANUP`, erhält die noch vorhandene Datenbank und gibt den ursprünglichen Fehler separat aus. `FAIL_CLEANUP` ist kein Nachweis einer sicheren Wiederherstellung. Beenden Sie weitere Läufe gegen diese Instanz; entfernen Sie die Datenbank nicht anhand ihres Namens oder durch einen ungeprüften Cleanup-Aufruf.
+
 Wenn PowerShell, `sqlcmd` oder der Rechner während eines Laufs beendet wurde,
 erhalten Sie zurückgebliebene Datenbanken und starten vorerst keinen weiteren
 Lauf gegen diese Instanz. Ein Name mit dem Präfix `SQLPERF_LAB_` belegt kein

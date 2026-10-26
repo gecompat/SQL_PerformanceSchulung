@@ -157,6 +157,55 @@ SELECT 'ORACLE_COMPLETE';
         run_sql(target,database='master',sql_text=repair)
 
 
+def verify_first_marker_failure_is_preserved(target: ExecutionTarget,source: str,major: int) -> None:
+    final_throw="""IF @Outcome = 'FAIL'
+BEGIN
+    SET @ErrorMessage = CONCAT(N'Testdatenbank-Lifecycle fehlgeschlagen: ', @Code, N'.');
+    SET @ThrowNumber = CASE @Code WHEN 'FAIL_CLEANUP' THEN 51004 WHEN 'FAIL_STATE' THEN 51002 WHEN 'FAIL_SAFETY' THEN 51001 WHEN 'FAIL_CONTRACT' THEN 51000 ELSE 51003 END;
+    THROW @ThrowNumber, @ErrorMessage, 1;
+END;"""
+    if source.count(final_throw)!=1:raise RuntimeError('Lifecycle-Endfehleranker ist nicht eindeutig')
+    declaration='DECLARE @CreatedInThisBatch bit = 0;'
+    if source.count(declaration)!=1:raise RuntimeError('Lifecycle-Erstellungsanker ist nicht eindeutig')
+    db=ownership.database(DEMO)
+    marker_anchor="                SET @Sql = N'\nUSE ' + QUOTENAME(@DatabaseName) + N';"
+    if source.count(marker_anchor)!=1:raise RuntimeError('Erstmarker-Fehlerinjektionsanker ist nicht eindeutig')
+    for mode in ('UNMARKED','PARTIAL_MARKER'):
+        injected=source.replace(declaration,declaration+"\nDECLARE @InjectedDatabaseId int=NULL,@InjectedCreateDate datetime=NULL;",1)
+        if mode=='UNMARKED':
+            anchor='                SET @CreatedInThisBatch = 1;'
+            fault=(anchor+f"\n                SET @InjectedDatabaseId=DB_ID(@DatabaseName); SELECT @InjectedCreateDate=create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId;\n"
+                   "                THROW 51998, 'SYNTHETIC_FIRST_MARKER_FAULT', 1;")
+        else:
+            fault=("                SET @InjectedDatabaseId=DB_ID(@DatabaseName); SELECT @InjectedCreateDate=create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId;\n"
+                   f"                SET @Sql=N'USE [{db}]; CREATE TABLE dbo.FirstMarkerProbe(Value int NOT NULL); INSERT dbo.FirstMarkerProbe VALUES(73); EXEC sys.sp_addextendedproperty @name=N''SQLPERF.Project'',@value=N''SQL_PerformanceSchulung'';';\n"
+                   "                EXEC sys.sp_executesql @Sql;\n                THROW 51998, 'SYNTHETIC_FIRST_MARKER_FAULT', 1;")
+            anchor=marker_anchor
+        if injected.count(anchor)!=1:raise RuntimeError('CREATE-Fehlerinjektionsanker ist nicht eindeutig')
+        injected=injected.replace(anchor,fault,1)
+        state_check=("IF DB_ID(@DatabaseName)<>@InjectedDatabaseId OR (SELECT create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId)<>@InjectedCreateDate THROW 51989,'FIRST_MARKER_DATABASE_IDENTITY_CHANGED',1;\n"
+                     f"IF (SELECT COUNT(*) FROM [{db}].sys.extended_properties WHERE class=0 AND name LIKE N'SQLPERF.%')<>{1 if mode=='PARTIAL_MARKER' else 0} THROW 51989,'FIRST_MARKER_SET_CHANGED',1;\n")
+        if mode=='PARTIAL_MARKER':
+            state_check+=f"IF (SELECT CONVERT(nvarchar(128),value) FROM [{db}].sys.extended_properties WHERE class=0 AND name=N'SQLPERF.Project')<>N'SQL_PerformanceSchulung' OR (SELECT COUNT(*) FROM [{db}].dbo.FirstMarkerProbe)<>1 OR (SELECT COUNT(*) FROM [{db}].dbo.FirstMarkerProbe WHERE Value=73)<>1 THROW 51989,'FIRST_MARKER_SENTINEL_CHANGED',1;\n"
+        outcome_anchor="SET @Outcome = CASE"
+        if injected.count(outcome_anchor)!=1:raise RuntimeError('Lifecycle-Ergebnisanker ist nicht eindeutig')
+        injected=injected.replace(outcome_anchor,state_check+outcome_anchor,1)
+        injected=injected.replace(final_throw,'-- Testprobe liest die strukturierten Fehlerrecords aus.',1)
+        output=run_sql(target,database='master',sql_text=render(injected,'CREATE',major))
+        records=rows(output)
+        preserved=[r for r in records if r[2]=='PRESERVE_DATABASE_AFTER_CREATE_ERROR']
+        original=[r for r in records if r[2]=='EXECUTION_ERROR']
+        summary=[r for r in records if r[2]=='SUMMARY']
+        if len(preserved)!=1 or preserved[0][1:5]!=['CLEANUP','PRESERVE_DATABASE_AFTER_CREATE_ERROR','FAIL','FAIL_CLEANUP']:
+            raise RuntimeError(f'Erhaltungsrecord nach {mode}-Fehler fehlt')
+        if len(original)!=1 or original[0][1:5]!=['LIFECYCLE','EXECUTION_ERROR','FAIL','FAIL_CLEANUP'] or original[0][5]!='51998' or 'SYNTHETIC_FIRST_MARKER_FAULT' not in original[0][7]:
+            raise RuntimeError(f'Ursprünglicher Fehler nach {mode} ist nicht separat erhalten')
+        if len(summary)!=1 or summary[0][1:5]!=['LIFECYCLE','SUMMARY','FAIL','FAIL_CLEANUP']:
+            raise RuntimeError(f'FAIL_CLEANUP hat nach {mode} nicht Vorrang')
+        ownership.reset_markers(target,DEMO,ownership.markers(DEMO))
+        finish(target,source,major)
+
+
 def positive(target: ExecutionTarget,source: str,action: str,major: int,*,existing: bool=True) -> None:
     output=run_sql(target,database='master',sql_text=render(source,action,major))
     records=rows(output)
@@ -180,6 +229,7 @@ def run_probes(target: ExecutionTarget,major: int,*,old_source: Path|None=None,r
     if target.kind!='docker' or not target.container or major not in (15,16,17) or repetitions!=2:
         raise ValueError('Eigener Container, bekannte Version und zwei Profile erforderlich')
     source=SOURCE.read_text(encoding='utf-8-sig');phase=control_batch(source);count=0
+    verify_first_marker_failure_is_preserved(target,source,major)
     if old_source:
         old=old_source.read_text(encoding='utf-8-sig');control_batch(old)
         for action in ACTIONS:

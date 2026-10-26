@@ -73,6 +73,36 @@ class FrameworkOwnershipTests(unittest.TestCase):
                 else:
                     with self.assertRaises(RuntimeError):probe.reject_file(self.target(),source,'DROP',17)
 
+    def test_first_marker_fault_probe_runs_real_source_and_checks_retained_error(self):
+        source=probe.SOURCE.read_text(encoding='utf-8-sig')
+        output=('1|CLEANUP|PRESERVE_DATABASE_AFTER_CREATE_ERROR|FAIL|FAIL_CLEANUP|Name unterdrückt|Datenbank erhalten|Bleibt erhalten\n'+
+                '2|LIFECYCLE|EXECUTION_ERROR|FAIL|FAIL_CLEANUP|51998|erfolgreiche Lifecycle-Aktion|SYNTHETIC_FIRST_MARKER_FAULT\n'+
+                '3|LIFECYCLE|SUMMARY|FAIL|FAIL_CLEANUP|||Fehlgeschlagen\n')
+        fault_sql=[]
+        def run(target,*,database,sql_text,timeout_seconds=120):
+            if "SYNTHETIC_FIRST_MARKER_FAULT" in sql_text:
+                fault_sql.append(sql_text)
+                self.assertIn("DECLARE @Action nvarchar(max) = N'CREATE';",sql_text)
+                self.assertIn("THROW 51998, 'SYNTHETIC_FIRST_MARKER_FAULT', 1;",sql_text)
+                self.assertNotIn('ROLLBACK_NEW_DATABASE',sql_text)
+                return output
+            return '0\n'
+        with patch.object(probe,'run_sql',side_effect=run),patch.object(probe.ownership,'reset_markers') as mark,patch.object(probe,'finish') as cleanup:
+            probe.verify_first_marker_failure_is_preserved(self.target(),source,17)
+        self.assertEqual(2,len(fault_sql))
+        self.assertTrue(any('FirstMarkerProbe' in text and "SQLPERF.Project" in text and f'SELECT COUNT(*) FROM [{probe.ownership.database(probe.DEMO)}].dbo.FirstMarkerProbe)' in text for text in fault_sql))
+        self.assertTrue(any('FIRST_MARKER_SET_CHANGED' in text and 'FirstMarkerProbe' not in text for text in fault_sql))
+        self.assertEqual(2,mark.call_count)
+        self.assertEqual(2,cleanup.call_count)
+
+    def test_first_marker_probe_rejects_missing_original_error_record(self):
+        source=probe.SOURCE.read_text(encoding='utf-8-sig')
+        output='1|CLEANUP|PRESERVE_DATABASE_AFTER_CREATE_ERROR|FAIL|FAIL_CLEANUP|Name unterdrückt|Datenbank erhalten|Bleibt erhalten\n2|LIFECYCLE|SUMMARY|FAIL|FAIL_CLEANUP|||Fehlgeschlagen\n'
+        with patch.object(probe,'run_sql',return_value=output),patch.object(probe.ownership,'reset_markers') as mark:
+            with self.assertRaisesRegex(RuntimeError,'Ursprünglicher Fehler'):
+                probe.verify_first_marker_failure_is_preserved(self.target(),source,17)
+        mark.assert_not_called()
+
     def test_snapshot_keeps_all_bytes_and_rejects_incomplete_records(self):
         raw=bytes(range(100))+b'\x00\xff'
         good='LENGTH|102\nBYTES|1|'+raw[:100].hex().upper()+'\nBYTES|101|00FF\n'

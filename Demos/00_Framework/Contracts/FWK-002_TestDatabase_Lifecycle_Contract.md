@@ -100,9 +100,18 @@ Erst nach diesen Prüfungen darf `SINGLE_USER WITH ROLLBACK IMMEDIATE` verwendet
 
 ## 5. Fehler- und Wiederherstellungsverhalten
 
-Scheitert die Markeranlage unmittelbar nach einer in diesem Batch neu erstellten Datenbank, versucht die Referenzimplementierung ausschließlich diese gerade erstellte, kanonisch abgeleitete Datenbank wieder zu entfernen. Das ursprüngliche Fehlerereignis wird anschließend erneut ausgelöst.
+Scheitert `CREATE`, bleibt eine in diesem Batch angelegte Datenbank erhalten,
+sobald sie noch vorhanden ist. Die Herkunft aus dem aktuellen Batch und der
+kanonische Name ersetzen keine erfolgreich geprüften Eigentumsmarker. Der
+Ergebnisrecord `CLEANUP / PRESERVE_DATABASE_AFTER_CREATE_ERROR` meldet
+`FAIL_CLEANUP` und fordert die Klärung des erhaltenen Zustands. Der separate
+`LIFECYCLE / EXECUTION_ERROR`-Record enthält weiterhin ursprüngliche
+Fehlernummer und -meldung; `FAIL_CLEANUP` hat Vorrang im Gesamtergebnis.
 
-Eine bereits vor dem Batch vorhandene Datenbank wird bei einem Fehler niemals automatisch entfernt.
+Dieser Fehlerpfad führt keine automatische Wiederherstellung oder Entfernung
+durch. Eine bereits vor dem Batch vorhandene Datenbank wird bei einem Fehler
+ebenfalls niemals automatisch entfernt. Eine spätere Entfernung setzt einen
+gesondert geprüften Cleanupweg mit vollständigen Eigentumsmarkern voraus.
 
 ## 6. Datenschutz und Neutralität
 
@@ -116,6 +125,9 @@ Der Datenbankname enthält ausschließlich Projektpräfix, Demo-ID und synthetis
 - alle Marker bei `VALIDATE` und `DROP` geprüft werden,
 - `DROP` zwei ausdrückliche Bestätigungen verlangt,
 - eine fremde oder unmarkierte Datenbank technisch nicht gelöscht werden kann,
+- ein Fehler nach dem Erstellen, aber vor abgeschlossener Erstmarkierung die
+  Datenbank erhält, `FAIL_CLEANUP` ausweist und den ursprünglichen Fehler
+  separat protokolliert,
 - `CREATE` und `VALIDATE` idempotent sind,
 - die Referenzimplementierung keine dauerhaften Objekte in `master` anlegt.
 

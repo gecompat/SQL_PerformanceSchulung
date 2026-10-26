@@ -8,12 +8,17 @@ der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECU
 Die älteren Planungsfreigaben und Pausen unten bleiben historische Belege;
 fachliche Abnahme- und Sicherheitsgrenzen gelten weiterhin.
 
-- [x] FWK-002 (Schutzvertrag für synthetische Testdatenbanken): bereits vorhandene
-  erfolgreiche Main-Versionsmatrix von PR301 lesend aufnehmen. Der
+- [x] FWK-002-Evidenzabschluss: PR301 und PR334 sind integriert; PR334 wurde
+  auf `bce4ec812ec5247e2e2afaa78fa74e0e5fac9ffd` übernommen und die zugehörigen
+  eigenen Branches entfernt. Der
   [Integrationsnachweis](../Documentation/Project_Planning/FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
-  ersetzt keine neue Runtimeabnahme.
-- [ ] Gesonderten Fehlerpfad nach gescheiterter erstmaliger Datenbankmarkierung
-  prüfen und sicher abgrenzen; vorhandene Eigentumsprüfungen nicht abschwächen.
+  bindet die abgeschlossene Versionsmatrix.
+- [ ] FWK-002-Erhaltung nach gescheiterter Erstmarkierung: SOURCE/STATIC
+  qualifiziert; zwei bestehende Matrix-Faultfälle (unmarkiert und teilmarkiert
+  mit Sentinel) prüfen Erhalt, Originalfehler, `FAIL_CLEANUP` und markergeprüften
+  Folgeabbau. Keine SQL-Läufe erfolgt. Admission ausschließlich über bestehende
+  PR-Prüfung und Main-Matrix; keine allgemeine Recovery- oder manuelle
+  Entfernung freigegeben.
 - [ ] Anschließend DGN-004 (Standard-Planerzwingung und Hint-Kontrollzustand),
   Teilnehmer-/Generalprobe und die weiteren priorisierten Punkte bearbeiten.
 
