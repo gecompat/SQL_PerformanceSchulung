@@ -72,7 +72,10 @@ XML mit ShowPlanXML-Wurzel, validiert die engen sqlcmd-Eingaben vor Substitution
 und enthält ein SQL-Transportfragment für einen caller-bound `plan_handle`.
 Der DGN-Runner begrenzt beide Ausgabe-Kanäle beim Lesen; seine Prozessgegenproben
 verwenden nur synthetische lokale Prozesse. SQL-Ausschnitt und Runner wurden
-nicht gegen SQL Server ausgeführt. Ohne Quellen-/Query-/Planbindung belegen sie
+nicht gegen SQL Server ausgeführt. Ein Offline-Prüfer vergleicht caller-gelieferte
+Identitätsrohwerte mit den registrierten M/S/T-Formen, prüft aber weder die
+Vollständigkeit der Serverzeilen noch die Herkunft, Aktualität oder Zuordnung
+eines `plan_handle`. Ohne diese Quellen-/Query-/Planbindung belegen die Helfer
 weder die beabsichtigte aktuelle Ausführung noch Schema-/Runtimequalität oder
 Engineidentität. SQL-ausgeführtes End-to-end Capture und Buildqualifikation
 bleiben offen.

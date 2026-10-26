@@ -556,7 +556,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **Abgrenzung:** DGN-003 (Query Store; persistente Abfrage- und Planhistorie) liefert die fachliche Grundlage. Aktiver Teilumfang von DGN-004: Standard-Force/Unforce und fester Inline-Hint-Kontrollzustand. Gezielter Forcing-Fehler, gespeicherte Query-Store-Hints und Replay-Vergleich bleiben im historischen breiteren Vorrat, ohne zweite allgemeine Query-Store-Demo.
 
-**Source-Status:** Der Offline-Transport prüft begrenzte UTF-16-Planbytes, feste ASCII-Rahmung, separat erwartete Run/Rolle/Aufrufwerte und wohlgeformtes XML mit ShowPlanXML-Wurzel. Ein SQL-Transportfragment serialisiert den `query_plan` aus einem caller-bound `plan_handle`; ein kleiner Eingabeprüfer validiert die Werte vor sqlcmd-Substitution. Der Runner begrenzt stdout und stderr beim Lesen; seine Tests verwenden ausschließlich synthetische Prozesse. SQL-Ausführung, Abfrage-/Plan-/Engine-/Ausführungsidentität, XML-Schema und Laufzeitinformationen bleiben offene Gates.
+**Source-Status:** Der Offline-Transport prüft begrenzte UTF-16-Planbytes, feste ASCII-Rahmung, separat erwartete Run/Rolle/Aufrufwerte und wohlgeformtes XML mit ShowPlanXML-Wurzel. Ein SQL-Transportfragment serialisiert den `query_plan` aus einem caller-bound `plan_handle`; ein kleiner Eingabeprüfer validiert die Werte vor sqlcmd-Substitution. Der Runner begrenzt stdout und stderr beim Lesen; seine Tests verwenden ausschließlich synthetische Prozesse. Ein Offline-Prüfer kann gelieferte M/S/T-Identitätsrohwerte vergleichen, belegt aber weder deren vollständige Servererfassung noch Handle-Provenienz oder aktuelle Ausführung. SQL-Ausführung, Abfrage-/Plan-/Engine-/Ausführungsidentität, XML-Schema und Laufzeitinformationen bleiben offene Gates.
 
 **Weiterer Prüfauftrag:** Für den aktiven begrenzten Schnitt Standard-Force/Unforce, vollständige aktuelle Plan-/Text-/Kontext-/Ergebnisbindung und festen Inline-Hint-Kontrollzustand fachlich prüfen. Replay-Marker-Gates bleiben für den zurückgestellten Replay-Vergleich offen und sind keine Eintrittsbedingung dieses neuen Aussageumfangs.
 
@@ -572,7 +572,7 @@ f3335a2cd56ce43f87be245b5143427ce70d60f1
 
 **Status:**
 
-ACTIVE_DESIGN_BOUNDED_RUNNER_SOURCE_ONLY – ausdrücklich begrenzter Plan und Abnahmekriterien aktiv; Frame-/Ergebnisbinder, caller-bound SQL-Transportfragment und begrenzter direkter Docker-Runner sind als Quelle vorhanden, SQL-Ausführung und DGN-Lifecycle-Qualifikation bleiben offen.
+ACTIVE_DESIGN_OFFLINE_IDENTITY_CONSISTENCY_SOURCE_ONLY – ausdrücklich begrenzter Plan und Abnahmekriterien aktiv; Frame-/Ergebnisbinder, caller-bound SQL-Transportfragment, begrenzter direkter Docker-Runner und Offlinevergleich caller-gelieferter M/S/T-Rohwerte sind als Quelle vorhanden. Vollständige Servererfassung, Handle-Provenienz, SQL-Ausführung und DGN-Lifecycle-Qualifikation bleiben offen.
 
 **Auftragsgrenze:**
 
