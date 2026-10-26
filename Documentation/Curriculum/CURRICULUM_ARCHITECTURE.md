@@ -183,6 +183,13 @@ Lerninhalt, keine freigegebene QRY-003-Demo oder Laufzeitqualifikation.
 | `LO-M06-07` | VERTIEFUNG | Required, Desired, Requested, Granted und Used Memory sowie Spill, Undergrant, Overgrant und Grant-Warten als getrennte Zustände korrelieren | Plan, Grant-DMV, Wait-Scope, konkurrierenden Workload und TempDB-Folge derselben Untersuchung zuordnen |
 | `LO-M06-08` | VERTIEFUNG | DMV-Livezustand, kumulative Waits, Query-Store-Historie und Extended-Events-Ereignisse nach Zeit- und Aussageebene kombinieren | für einen Incident Zeitraum, Scope, Capture-Zustand und bestätigende Gegenprobe dokumentieren, ohne fehlende Ereignisse als Nichtauftreten zu interpretieren |
 
+Zur Ergänzung des vorstehenden Lernziels erklärt die
+[Lehrnotiz zu konkurrierenden Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md),
+wie eine wartende eigene Anforderung über Grant-DMV und Request-Wait gebunden
+wird und wie sie sich von einem Poolzähler oder einer aktiven Session
+unterscheidet. Sie ist erklärender Lerninhalt, keine neue Demo oder
+Laufzeitqualifikation.
+
 ### M07 – Synthese und Transfer
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |

@@ -30,6 +30,12 @@ Die QRY-003-Lehrnotiz ergänzt `LO-M03-02` mit synthetischen Beispielen zu
 halboffenen Intervallen und passenden Datentypgrenzen. Sie ist keine
 Laufzeitqualifikation. Als nächster begrenzter Inhalt ist RES-004 vorgesehen.
 
+Die RES-004-Lehrnotiz konkretisiert `LO-M06-07`: ein Grant-Wait muss an eine
+noch nicht gewährte eigene Anforderung und den dazugehörigen aktuellen
+`RESOURCE_SEMAPHORE`-Request gebunden sein. Sie ist keine neue Demo oder
+Laufzeitqualifikation. Die ausführbare Konkurrenzprobe und ihr tatsächlicher
+Wait-Nachweis bleiben offen; aktive Sessions allein belegen keinen Grant-Wait.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem
