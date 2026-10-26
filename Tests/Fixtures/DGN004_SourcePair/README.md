@@ -19,7 +19,20 @@ Der aktive Aussageumfang bleibt klassische Standard-Planerzwingung mit
 Planbindung, Hintwirkung, Replay-Nutzung oder -Nichtnutzung, Leistung oder
 Kausalität.
 
-Nächste Schritte sind vollständige statische Prüfung der Originalbytes,
-Projektionen, Paarung, terminalen Hintposition und endlichen M/S/T-Offsets sowie
-negative Source-/Textmutationen. Erst danach kommen die bestehenden Review- und
-Matrixgates für spätere technische Qualifikation.
+Die statische Prüfung der Originalbytes, Projektionen, Paarung, terminalen
+Hintposition und endlichen M/S/T-Offsets sowie negative Source-/Textmutationen
+sind vorhanden. Vollständige Erfassung, unabhängiger Quellen-/Ergebnisreview
+und die bestehenden Matrixgates bleiben für spätere technische Qualifikation
+erforderlich.
+
+`Tests/Static/dgn004_plan_transport.py` enthält den begrenzten Offline-Decoder
+für bereits geparste (Sequenznummer, Hex-Payload)-Stücke. Er prüft lückenlose
+Reihenfolge, Stück- und Gesamtbytegrenzen, die als serverseitig deklarierte
+SHA-256-Prüfsumme sowie
+strikte UTF-16LE-Dekodierung und die UTF-8-Textgrenze. Da der Capture-Entwurf
+keine konkreten Start-/End-Zeilen oder deren Feldsyntax festlegt, parst dieser
+Helper keine sqlcmd-Ausgabe und behauptet keine vollständige Transportsicherung,
+Kanalbegrenzung, Planidentität oder XML-/Planqualifikation. Die Wire-Frame-Form
+und ihre End-to-End-Erfassung bleiben ein separates Gate. Die interne
+Decoder-API akzeptiert Startindizes 0 oder 1; das legt die Basis der späteren
+Wire-Frames nicht fest.

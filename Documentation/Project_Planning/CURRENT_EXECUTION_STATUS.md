@@ -52,12 +52,20 @@ Entfernung. Die ursprüngliche Recoverygrenze bleibt bestehen. Menschliche
 Teilnehmererprobung bleibt ein menschliches Gate; bei einem konkreten Blocker
 wird die nächste unabhängig bearbeitbare Aufgabe verfolgt.
 
-**Laufend: DGN-004-Quellpaarvorschnitt.** Das [statische Quellpaar](../../Tests/Fixtures/DGN004_SourcePair/README.md)
+**DGN-004-Quellpaarvorschnitt: statisch integriert.** Das [statische Quellpaar](../../Tests/Fixtures/DGN004_SourcePair/README.md)
 überführt die freigegebenen R/H-Textvorlagen in zwei bytegenau geprüfte
 SQL-Einzeiler. Reine Gegenproben prüfen Textdarstellungen, Offsets und
 Hintposition. Dies ist kein ausführbares Demopaket und keine Build-, Plan-,
 Replay- oder Laufzeitabnahme. Integrierter Transport und die begrenzte
 Qualifikation auf den beiden festgelegten Zielbuilds bleiben Folgearbeit.
+
+PR336 ist auf Main `f5a2f6b264d14105075f9a48b638f2c920659b50` integriert;
+neun Headprüfungen und sieben frische Main-Workflows sind erfolgreich, die
+zugehörigen eigenen Branches entfernt. Der laufende nächste Vorschnitt prüft
+bereits geparste Plan-Chunks rein auf Reihenfolge, Größen, Prüfsumme und
+Zeichencodierung. Er erfasst keine SQL-Ausgabe. Vollständige Rahmung,
+Prozesskanalbegrenzung und tatsächliche Plan-/Abfragebindung bleiben offen;
+die interne Sequenzbasis des Decoders legt kein SQL-Transportformat fest.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 
