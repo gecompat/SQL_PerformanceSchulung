@@ -13,12 +13,14 @@ fachliche Abnahme- und Sicherheitsgrenzen gelten weiterhin.
   eigenen Branches entfernt. Der
   [Integrationsnachweis](../Documentation/Project_Planning/FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
   bindet die abgeschlossene Versionsmatrix.
-- [ ] FWK-002-Erhaltung nach gescheiterter Erstmarkierung: SOURCE/STATIC
-  qualifiziert; zwei bestehende Matrix-Faultfälle (unmarkiert und teilmarkiert
-  mit Sentinel) prüfen Erhalt, Originalfehler, `FAIL_CLEANUP` und markergeprüften
-  Folgeabbau. Keine SQL-Läufe erfolgt. Admission ausschließlich über bestehende
-  PR-Prüfung und Main-Matrix; keine allgemeine Recovery- oder manuelle
-  Entfernung freigegeben.
+- [x] FWK-002-Erhaltung nach gescheiterter Erstmarkierung: begrenzt
+  runtimequalifiziert durch PR335 und die integrierte Mainmatrix auf SQL Server
+  2019, 2022 und 2025 einschließlich Cleanup-/Abwesenheitsprüfungen. Die
+  unmarkierte und teilmarkierte Sentinelprobe erhalten den Zustand und den
+  Originalfehler, melden `FAIL_CLEANUP` und räumen anschließend markergeprüft
+  ab. Der erste Fault-Injektionsfehler bleibt als historischer Laufbefund
+  erhalten. Dies belegt weder allgemeinen sicheren Wiederanlauf noch eine
+  manuelle Entfernung.
 - [ ] Anschließend DGN-004 (Standard-Planerzwingung und Hint-Kontrollzustand),
   Teilnehmer-/Generalprobe und die weiteren priorisierten Punkte bearbeiten.
 
