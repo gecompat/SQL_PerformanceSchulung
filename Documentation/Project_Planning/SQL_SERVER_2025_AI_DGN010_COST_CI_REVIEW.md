@@ -63,8 +63,25 @@ Head-Matrizen plus eine finale Main-Matrix/maximal21 neue eigene CI-Container
 am Hardlimit keine neue Admission. Modell-/Tokenverbrauch unbekannt. Eine grüne
 Gateprüfung attestiert diesen bounded Kostenvertrag, keine volle Workerkosten-,
 TP-PERF-, Nettonutzen-, Demo- oder Workstreamabnahme. WARN/PROPOSED und alte FAILs
-bleiben sichtbar. Native CI-Ergebnisse sowie PR-/Head-/Main-/Tree-/FF-/Ownbranch-
-Abschluss folgen vor regulärem Abschluss dieses Schnitts.
+bleiben sichtbar. PR-/Head-/Main-/Tree-/FF- und eigener Branchabschluss für
+diesen Statusabgleich folgen mit der regulären Integration. Die bestehende
+Mainmatrix ist inzwischen im folgenden Nachweis dokumentiert.
+
+## Tatsächlicher Mainmatrix-Nachweis
+
+Die bestehende `sql2025-ai-local`-Mainmatrix lief nach PR333 am
+`ec4907c32c1f40506d70b90558d8c2ea448e69bd` erfolgreich (Run
+[`40171366457`](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/40171366457));
+alle drei Versionsjobs einschließlich des Kosten-Consumers bestanden. In
+2019/CL150 und 2022/CL160 lieferten je zwei Kostenaufrufe den erwarteten
+`SKIP_VERSION` mit bestätigtem Cleanup. In 2025/CL170 lieferten zwei Aufrufe
+`WARN|WARN_OPTIONAL_EVIDENCE_SKIPPED|CLEANUP_CONFIRMED`, jeweils mit
+`DDL_4|SOURCE_8000|STATE_10000|NEGATIVE_2|BOUNDED_ONLY`; der erwartete Fehler
+nach Setup endete mit bestätigter Recovery. Die gebundenen Consumer-, Workflow-
+und Kostenquellen sind auf dem aktuellen Main unverändert gegenüber diesem
+Run. Das schließt die hier geplante begrenzte Kosten-CI-Gateprüfung; es ändert
+weder den `WARN`-Ergebnisstatus noch die Grenzen für volle Performance-,
+Nettonutzen-, Demo- oder Workstreamabnahme.
 
 Ein konkreter P2 im engen Quellenreview betraf zu schwache Phasenbindung: ein
 leeres Versions-SKIP-Tupel beziehungsweise doppelte Quellennegative konnten

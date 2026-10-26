@@ -6426,9 +6426,15 @@ vorbereitet: zehn synthetische Consumermethoden/elf Selector-Methoden PASS,
 volle bounded Record-/Aggregate-/Negativ-/Cleanupbindung und fail-closed2025Gate.
 -y0-Adapter ermöglicht Vollframes bei unverändertem Remote-End-/Envsecretvertrag.
 Keine lokale SQLwiederholung. Sechs Quellenkandidaten/Checkpoint3/hard6, maximal21
-eigene CI-Container einschließlich Integration. Enger unabhängiger Review und
-tatsächliche aktuelle Head-/Main-Matrizen folgen; DGN010 PROPOSED/WARN, volle
-TP-PERF-/Workstreamabnahme offen und historische FAILs erhalten.
+eigene CI-Container einschließlich Integration. Die bestehende Mainmatrix lief
+nach PR333 auf `ec4907c32c1f40506d70b90558d8c2ea448e69bd` erfolgreich
+(Workflow 40171366457); alle drei Versionsjobs waren grün und die gebundenen
+Kostenquellen, der Consumer sowie der Workflow sind seitdem unverändert.
+Der Kosten-Consumer meldete auf 2019 und 2022 je zwei `SKIP_VERSION` mit
+bestätigtem Cleanup; auf 2025 zwei begrenzte `WARN`-Profile mit Cleanup sowie
+den vorgesehenen Setupfehler mit bestätigter Recovery. Damit ist nur dieses
+Kosten-CI-Gate begrenzt qualifiziert. DGN010 bleibt `PROPOSED/WARN`; volle
+TP-PERF-/Workstreamabnahme bleibt offen, historische FAILs bleiben erhalten.
 
 ## TSK-007: lokale öffentliche Modellkomponente
 
