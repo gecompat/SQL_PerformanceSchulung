@@ -36,6 +36,7 @@ ihren didaktischen Wert.
 - [Datentypen und implizite Konvertierung](IMPLICIT_CONVERSION_LESSON.md): passende Parameter, Konvertierungsfehler und Collation.
 - [Halboffene Datumsintervalle](HALF_OPEN_DATE_INTERVAL_LESSON.md): inklusive `BETWEEN`-Grenzen und Datentypgenauigkeit.
 - [Konkurrierende Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md): aktuelle Grant-Zustände und der Nachweis eines wartenden eigenen Requests.
+- [Einfügungen an einer heißen Indexseite](LAST_PAGE_INSERT_CONTENTION_LESSON.md): `PAGELATCH_EX` von I/O- und Sperrwartezeiten trennen; Insertzähler nicht als Engpassnachweis lesen.
 
 Diese Notizen ergänzen bestehende Lernziele. Sie sind Erklärungen mit
 synthetischen oder rein lesenden Beispielen, keine neuen freigegebenen Demos
