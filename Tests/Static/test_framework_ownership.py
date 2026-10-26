@@ -83,7 +83,7 @@ class FrameworkOwnershipTests(unittest.TestCase):
             if "SYNTHETIC_FIRST_MARKER_FAULT" in sql_text:
                 fault_sql.append(sql_text)
                 self.assertIn("DECLARE @Action nvarchar(max) = N'CREATE';",sql_text)
-                self.assertIn("THROW 51998, 'SYNTHETIC_FIRST_MARKER_FAULT', 1;",sql_text)
+                self.assertIn("SYNTHETIC_FIRST_MARKER_FAULT",sql_text)
                 self.assertNotIn('ROLLBACK_NEW_DATABASE',sql_text)
                 return output
             return '0\n'
@@ -92,6 +92,9 @@ class FrameworkOwnershipTests(unittest.TestCase):
         self.assertEqual(2,len(fault_sql))
         self.assertTrue(any('FirstMarkerProbe' in text and "SQLPERF.Project" in text and f'SELECT COUNT(*) FROM [{probe.ownership.database(probe.DEMO)}].dbo.FirstMarkerProbe)' in text for text in fault_sql))
         self.assertTrue(any('FIRST_MARKER_SET_CHANGED' in text and 'FirstMarkerProbe' not in text for text in fault_sql))
+        partial=next(text for text in fault_sql if 'FirstMarkerProbe' in text)
+        self.assertIn("THROW 51998, ''SYNTHETIC_FIRST_MARKER_FAULT'', 1;",partial)
+        self.assertIn("USE ' + QUOTENAME(@DatabaseName) + N';",partial)
         self.assertEqual(2,mark.call_count)
         self.assertEqual(2,cleanup.call_count)
 

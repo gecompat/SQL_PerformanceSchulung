@@ -176,13 +176,14 @@ END;"""
             anchor='                SET @CreatedInThisBatch = 1;'
             fault=(anchor+f"\n                SET @InjectedDatabaseId=DB_ID(@DatabaseName); SELECT @InjectedCreateDate=create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId;\n"
                    "                THROW 51998, 'SYNTHETIC_FIRST_MARKER_FAULT', 1;")
+            if injected.count(anchor)!=1:raise RuntimeError('CREATE-Fehlerinjektionsanker ist nicht eindeutig')
+            injected=injected.replace(anchor,fault,1)
         else:
-            fault=("                SET @InjectedDatabaseId=DB_ID(@DatabaseName); SELECT @InjectedCreateDate=create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId;\n"
-                   f"                SET @Sql=N'USE [{db}]; CREATE TABLE dbo.FirstMarkerProbe(Value int NOT NULL); INSERT dbo.FirstMarkerProbe VALUES(73); EXEC sys.sp_addextendedproperty @name=N''SQLPERF.Project'',@value=N''SQL_PerformanceSchulung'';';\n"
-                   "                EXEC sys.sp_executesql @Sql;\n                THROW 51998, 'SYNTHETIC_FIRST_MARKER_FAULT', 1;")
-            anchor=marker_anchor
-        if injected.count(anchor)!=1:raise RuntimeError('CREATE-Fehlerinjektionsanker ist nicht eindeutig')
-        injected=injected.replace(anchor,fault,1)
+            capture="                SET @InjectedDatabaseId=DB_ID(@DatabaseName); SELECT @InjectedCreateDate=create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId;\n"
+            injected=injected.replace(marker_anchor,capture+marker_anchor,1)
+            marker_line="EXEC sys.sp_addextendedproperty @name = N''SQLPERF.Project'', @value = @Project;"
+            if injected.count(marker_line)!=1:raise RuntimeError('Erstmarker-Fehlerinjektionsanker ist nicht eindeutig')
+            injected=injected.replace(marker_line,"CREATE TABLE dbo.FirstMarkerProbe(Value int NOT NULL);\nINSERT dbo.FirstMarkerProbe VALUES(73);\n"+marker_line+"\nTHROW 51998, ''SYNTHETIC_FIRST_MARKER_FAULT'', 1;",1)
         state_check=("IF DB_ID(@DatabaseName)<>@InjectedDatabaseId OR (SELECT create_date FROM sys.databases WHERE database_id=@InjectedDatabaseId)<>@InjectedCreateDate THROW 51989,'FIRST_MARKER_DATABASE_IDENTITY_CHANGED',1;\n"
                      f"IF (SELECT COUNT(*) FROM [{db}].sys.extended_properties WHERE class=0 AND name LIKE N'SQLPERF.%')<>{1 if mode=='PARTIAL_MARKER' else 0} THROW 51989,'FIRST_MARKER_SET_CHANGED',1;\n")
         if mode=='PARTIAL_MARKER':
