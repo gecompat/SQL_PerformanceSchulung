@@ -3,17 +3,31 @@
 | Merkmal | Wert |
 |---|---|
 | Bestehende Arbeitspakete | `PRS-010`, `CUR-007`, `CUR-008`, `DOC-002`, `DOC-003` |
-| Planstatus | `DESIGNED` – Ablauf vorbereitet; Teilnehmerdurchführung und empirische Abnahme nicht ausgeführt |
-| Stand | 2026-10-07 |
+| Planstatus | `DESIGNED` – Ablauf und Aufgaben vorbereitet; ausgewählte Quellenparts am aktuellen Master revalidiert; Teilnehmerdurchführung und empirische Abnahme nicht ausgeführt |
+| Ursprünglicher Planstand | 2026-10-07 |
+| Quellenrevalidierung | 2026-10-26 |
 | Ziel | Orientierung, Bedienbarkeit, Erklärung und Transfer an einer repräsentativen Demoauswahl prüfen |
 | Auswahl | `OPT-002` (Statistiken lesen), `QRY-001` (Indexfreundliche Suchbedingungen), `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `CON-004` (Blockierungsketten verfolgen) |
-| Geprüfte Präsentationsquelle | 102 Folien, SHA-256 `f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5` |
+| Aktuelle Planungsbindung | 102 Folien, SHA-256 `17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787` |
 
 ## 1. Abnahmegrenze und vorhandene Planung
 
 Der [Masterplan §14](MASTER_IMPLEMENTATION_PLAN.md#14-querschnitt-c--präsentation-und-lehrmaterial) verlangt eine vollständige Generalprobe durch `PRS-010`. `CUR-007` und `CUR-008` betreffen Aufgaben und Lernkontrolle. Die [ADV-010-Endabnahme](ADV_010_FINAL_ACCEPTANCE_REVIEW.md) und die [Lehrmittelfreigabe](W_PRS_001_TEACHING_RELEASE.md) belegen Quellen-, Runtime-, Render- und Profilprüfungen, enthalten aber keinen ausgefüllten Nachweis einer Generalprobe mit echten Teilnehmenden.
 
 Dieser Plan konkretisiert die bestehenden Arbeitspakete. Die Auswahl ist eine begrenzte Pilot-Generalprobe, keine Prüfung aller Module und keine statistisch belastbare Wirksamkeitsstudie. Die historische Lehrmittelfreigabe wird dadurch weder umgedeutet noch auf einen empirischen Lernerfolg erweitert. Die vollständige Generalprobe des gewählten Kursprofils und die Releaseabnahme bleiben anschließend erforderlich.
+
+Die geplante Folienauswahl ist an den oben genannten Hash des aktuellen Masterdecks
+unter `Presentations/` gebunden; er stimmt mit dem
+[Variantenmanifest](../../Presentations/variants/presentation_variants.json)
+überein. Das Vorgängerdeck mit SHA-256
+`f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5` hatte
+ebenfalls 102 Folien. Für die neun ausgewählten Positionen (23, 24, 37, 66,
+89–93) wurden Folien- und Notes-Inhalte sowie die rekursiv referenzierten
+OOXML-Paketbestandteile einschließlich Beziehungen verglichen; alle Teile waren
+byteidentisch. Damit ist die Planbindung für diese Auswahl auf den aktuellen
+Master aktualisiert. Die Prüfung belegt Quellteilidentität, aber keinen neuen
+PowerPoint-Render, keine visuelle Prüfung am aktuellen Deck und keine
+Teilnehmer- oder Lernwirksamkeitserhebung.
 
 ## 2. Voraussetzungen und Vorbereitung
 
@@ -102,7 +116,7 @@ Belegte Bedienungs- oder Inhaltsfehler werden gezielt korrigiert und am betroffe
 
 ## 7. Durchgeführte Folien- und Dokumentenprüfung
 
-Am 2026-10-07 wurden neun Folien (23, 24, 37, 66, 89–93) mit PowerPoint aus dem oben genannten Deck frisch auf 1600 × 900 gerendert und einzeln visuell geprüft. Sprechernotizen wurden aus den jeweiligen OOXML-Beziehungen ausgelesen und gegen Demo-README, Phasen und Reviewnachweise abgeglichen. Der Deck-Hash war vor und nach Export identisch. Die PNGs dienten als lokale Prüfarbeitsdateien und wurden nach der Prüfung entfernt; es wurde kein zusätzliches Deck erzeugt. Diese Prüfung ist keine Teilnehmer- oder SQL-Runtime-Abnahme.
+Am 2026-10-07 wurden neun Folien (23, 24, 37, 66, 89–93) aus dem damaligen Deck mit SHA-256 `f655bc850e6d1367f52c7485babc5ce76eb23e14f8c8a1592b847d111473d7c5` mit PowerPoint frisch auf 1600 × 900 gerendert und einzeln visuell geprüft. Sprechernotizen wurden aus den jeweiligen OOXML-Beziehungen ausgelesen und gegen Demo-README, Phasen und Reviewnachweise abgeglichen. Der Deck-Hash war vor und nach Export identisch. Die PNGs dienten als lokale Prüfarbeitsdateien und wurden nach der Prüfung entfernt; es wurde kein zusätzliches Deck erzeugt. Diese historische Renderprüfung ist keine neue Renderprüfung des aktuellen Masterdecks und keine Teilnehmer- oder SQL-Runtime-Abnahme. Die spätere Byteprüfung der ausgewählten Paketbestandteile ist in Abschnitt 1 beschrieben.
 
 | Abschnitt | Objektiver Befund und Behandlung | Gestalterische Einschätzung / offene Prüfung |
 |---|---|---|

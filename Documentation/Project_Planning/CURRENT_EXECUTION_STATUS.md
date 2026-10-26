@@ -17,6 +17,13 @@ Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastrukt
 KI bedeutet künstliche Intelligenz. Der aktive DGN-004-Plan bleibt auf
 Standard-Planerzwingung und einen festen Hint-Kontrollzustand begrenzt.
 
+Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
+[PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
+Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem
+historisch geprüften Deck verglichen; die Planbindung ist aktualisiert. Das ist
+keine neue PowerPoint-Render- oder Sichtprüfung am aktuellen Deck und kein
+Teilnehmer- oder Lernwirksamkeitsbefund.
+
 Gemeinsamer endlicher Rahmen: höchstens 15 Arbeitspakete, 20 neue Pull Requests
 und 45 Quellenkandidaten einschließlich Reviews, Tests und Wiederholungen.
 Jede Subwelle erhält ihren kleinsten nötigen Quellen-/Ressourcenrahmen;
@@ -746,15 +753,18 @@ Projektverträge bleiben erhalten; keine zusätzliche Aktivierung.
 [PR289](https://github.com/gecompat/SQL_PerformanceSchulung/pull/289) und sein
 alter nativer Versuchsrahmen bleiben vollständig abgeschlossen.
 
-Der nächste autorisierte Schnitt von TSK-015 (Menschliche Lesepfade und
-historische Planungseinstiege konsolidieren) läuft auf
-`codex/human-demo-execution-path`: Demo-Auswahl, Vorbereitung, Ergebnisdeutung
-und Verhalten nach Abbruch als einen zusammenhängenden menschlichen Weg prüfen.
-Ein Implementierungsverantwortlicher, derselbe unabhängige Reviewer, Checkpoint
-am zweiten stabilen Kandidaten beziehungsweise ersten blockierenden Befund,
-harte Grenze vier kohärente Kandidaten einschließlich Tests und Integration;
-Verbrauch UNKNOWN, nicht verlässlich gemessen. Keine SQL-, Code-, Manifest-
-oder Workflowänderung und keine lokale SQL-Ausführung in diesem Schnitt.
+Der folgende TSK-015-Stand ist historisch: Der erste menschliche
+Demo-Ausführungspfad für Auswahl, Vorbereitung, Ergebnisdeutung und Verhalten
+nach Abbruch wurde mit [PR291](https://github.com/gecompat/SQL_PerformanceSchulung/pull/291)
+integriert. Der damalige Branch `codex/human-demo-execution-path` und sein
+Vier-Kandidaten-Rahmen sind abgeschlossen; sie sind kein aktueller Arbeitsauftrag.
+
+Die echte Teilnehmer-Generalprobe bleibt getrennt offen. Ihr Ablauf und der
+datensparsame Beobachtungsbogen stehen im [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md);
+eine Durchführung mit Teilnehmenden und deren Ergebnisse sind nicht belegt.
+Die verbleibenden menschlichen Lesepfade und die Bereinigung historischer
+Planungseinstiege stehen als offene Arbeit in der
+[aktuellen Backlog-Priorität](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade).
 
 Der Quellenreview hat einen konkreten Fehler im Cleanup der Demo zu
 indexfreundlichen Suchbedingungen (`QRY-001`) bestätigt: Fehlende Marker
