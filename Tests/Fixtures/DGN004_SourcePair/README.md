@@ -25,14 +25,37 @@ sind vorhanden. Vollständige Erfassung, unabhängiger Quellen-/Ergebnisreview
 und die bestehenden Matrixgates bleiben für spätere technische Qualifikation
 erforderlich.
 
-`Tests/Static/dgn004_plan_transport.py` enthält den begrenzten Offline-Decoder
-für bereits geparste (Sequenznummer, Hex-Payload)-Stücke. Er prüft lückenlose
-Reihenfolge, Stück- und Gesamtbytegrenzen, die als serverseitig deklarierte
-SHA-256-Prüfsumme sowie
-strikte UTF-16LE-Dekodierung und die UTF-8-Textgrenze. Da der Capture-Entwurf
-keine konkreten Start-/End-Zeilen oder deren Feldsyntax festlegt, parst dieser
-Helper keine sqlcmd-Ausgabe und behauptet keine vollständige Transportsicherung,
-Kanalbegrenzung, Planidentität oder XML-/Planqualifikation. Die Wire-Frame-Form
-und ihre End-to-End-Erfassung bleiben ein separates Gate. Die interne
-Decoder-API akzeptiert Startindizes 0 oder 1; das legt die Basis der späteren
-Wire-Frames nicht fest.
+`Tests/Static/dgn004_plan_transport.py` dekodiert bereits geparste Stücke;
+`Tests/Static/dgn004_plan_frame.py` enthält einen reinen Serializer für
+vorgelegte UTF-16-Planbytes sowie den Parser für das hier festgelegte
+Textformat. Eine Rahmung besteht aus genau diesen ASCII-Zeilen:
+
+```text
+DGN004_PLAN_START|<run>|<role>|<call>|<byte_count>|<chunk_count>|<sha256>
+DGN004_PLAN_CHUNK|<sequence>|<hex_payload>
+...
+DGN004_PLAN_END|<run>|<role>|<call>|<byte_count>|<chunk_count>|<sha256>
+```
+
+Zeilen werden durch LF oder CRLF getrennt; ein einzelner abschließender
+Zeilenumbruch ist erlaubt. Leerzeilen, weitere Ausgabe, zusätzliche Felder,
+Escaping und andere Zeilenumbrüche sind ungültig. `run` ist ein nichtleerer
+ASCII-Wert von 1 bis 64 Zeichen ohne Trennzeichen oder Zeilenumbruch;
+`role` ist `R` oder `H`; `call` ist eine kanonische Dezimalzahl von 1 bis 9.
+Der aufrufende Prüfer muss erwartetes Run, Rolle und Call separat liefern.
+Start- und Endzeile müssen
+diese Bindung sowie Bytezahl, Stückzahl und SHA-256 exakt wiederholen. Diese
+Selbstdeklaration verbindet Daten nur mit der separat erwarteten Aufrufbindung;
+sie belegt keine Query-, Plan- oder Engineidentität.
+
+Die Bytezahl ist gerade und zwischen 1 und 512 KiB. Die Stückzahl ist exakt
+`ceil(byte_count / 100)`. Sequenzen beginnen in diesem Format fest bei 1;
+jeder Chunk ist eine Zeile mit kleingeschriebenem oder großgeschriebenem
+Hex-Bytepaaren, genau 100 Bytes außer dem letzten Reststück. SHA-256 ist
+64-stelliges ASCII-Hex. Die bestehende Transportfunktion prüft lückenlose
+Reihenfolge, Stück- und Gesamtgrenzen, den Hash sowie strikte UTF-16LE- und
+UTF-8-Dekodierung. Der Parser lehnt nachträglich gelesenen Text über 2 MiB ab;
+das begrenzt keinen Prozesskanal während des Lesens. Diese statischen Helfer
+belegen weder sqlcmd-Erfassung noch stderr-/stdout-Limits, XML-/Planqualität,
+Planidentität, Laufzeitverhalten oder vollständige Transportsicherung. Diese
+Erfassungs- und Ergebnisgates bleiben offen.

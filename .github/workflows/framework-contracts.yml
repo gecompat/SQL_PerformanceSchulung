@@ -6,8 +6,10 @@ on:
       - 'Demos/00_Framework/**'
       - 'Tests/Fixtures/DGN004_SourcePair/**'
       - 'Tests/Static/dgn004_plan_transport.py'
+      - 'Tests/Static/dgn004_plan_frame.py'
       - 'Tests/Static/test_dgn004_source_pair.py'
       - 'Tests/Static/test_dgn004_plan_transport.py'
+      - 'Tests/Static/test_dgn004_plan_frame.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -27,8 +29,10 @@ on:
       - 'Demos/00_Framework/**'
       - 'Tests/Fixtures/DGN004_SourcePair/**'
       - 'Tests/Static/dgn004_plan_transport.py'
+      - 'Tests/Static/dgn004_plan_frame.py'
       - 'Tests/Static/test_dgn004_source_pair.py'
       - 'Tests/Static/test_dgn004_plan_transport.py'
+      - 'Tests/Static/test_dgn004_plan_frame.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -67,6 +71,9 @@ jobs:
 
       - name: Test DGN-004 plan transport
         run: python Tests/Static/test_dgn004_plan_transport.py
+
+      - name: Test DGN-004 plan frame
+        run: python Tests/Static/test_dgn004_plan_frame.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py
