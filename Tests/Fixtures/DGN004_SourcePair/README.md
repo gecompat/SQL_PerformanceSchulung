@@ -1,7 +1,8 @@
 # DGN-004 – R/H-Quellpaar
 
-Dieses Verzeichnis enthält ausschließlich die zwei vollständigen textuellen
-`CREATE PROCEDURE`-Quellwerte für den begrenzten DGN-004-Schnitt. `R`
+Dieses Verzeichnis enthält die zwei vollständigen textuellen
+`CREATE PROCEDURE`-Quellwerte für den begrenzten DGN-004-Schnitt sowie einen
+separaten SQL-Transportausschnitt für bereits extern gebundene Planhandles. `R`
 (`ReplayReference`) ist die Referenz ohne Hint. `H` (`ReplayHintControl`) ist
 die getrennte Kontrolle mit genau einem terminalen
 `DISABLE_OPTIMIZED_PLAN_FORCING`-Hint. Die Texte übernehmen die Form A und die
@@ -28,7 +29,10 @@ erforderlich.
 `Tests/Static/dgn004_plan_transport.py` dekodiert bereits geparste Stücke;
 `Tests/Static/dgn004_plan_frame.py` enthält einen reinen Serializer für
 vorgelegte UTF-16-Planbytes sowie den Parser für das hier festgelegte
-Textformat. Eine Rahmung besteht aus genau diesen ASCII-Zeilen:
+Textformat. `Tests/Static/dgn004_capture_result.py` bindet die decodierten
+Bytes zusätzlich an die vom Aufrufer separat erwartete Run/Rollen/Aufruf-
+Kombination und prüft ein vollständiges wohlgeformtes XML-Dokument mit
+`ShowPlanXML`-Wurzelelement. Eine Rahmung besteht aus genau diesen ASCII-Zeilen:
 
 ```text
 DGN004_PLAN_START|<run>|<role>|<call>|<byte_count>|<chunk_count>|<sha256>
@@ -40,7 +44,8 @@ DGN004_PLAN_END|<run>|<role>|<call>|<byte_count>|<chunk_count>|<sha256>
 Zeilen werden durch LF oder CRLF getrennt; ein einzelner abschließender
 Zeilenumbruch ist erlaubt. Leerzeilen, weitere Ausgabe, zusätzliche Felder,
 Escaping und andere Zeilenumbrüche sind ungültig. `run` ist ein nichtleerer
-ASCII-Wert von 1 bis 64 Zeichen ohne Trennzeichen oder Zeilenumbruch;
+ASCII-Token aus Buchstaben, Ziffern, Punkt, Unterstrich und Bindestrich
+(1 bis 64 Zeichen);
 `role` ist `R` oder `H`; `call` ist eine kanonische Dezimalzahl von 1 bis 9.
 Der aufrufende Prüfer muss erwartetes Run, Rolle und Call separat liefern.
 Start- und Endzeile müssen
@@ -59,3 +64,16 @@ das begrenzt keinen Prozesskanal während des Lesens. Diese statischen Helfer
 belegen weder sqlcmd-Erfassung noch stderr-/stdout-Limits, XML-/Planqualität,
 Planidentität, Laufzeitverhalten oder vollständige Transportsicherung. Diese
 Erfassungs- und Ergebnisgates bleiben offen.
+
+`CapturePlanFrame.sql` liest den `query_plan`-Wert für ein vom Aufrufer
+übergebenes Handle aus `sys.dm_exec_query_plan_stats`, serialisiert das XML in
+UTF-16-Bytes und gibt die festgelegten Start-/Chunk-/End-Zeilen als einzelne
+Textspalte aus. Der Runner muss die Run-/Rollen-/Call-Werte und den 128-stelligen
+Handle vor der sqlcmd-Substitution validieren; `dgn004_capture_input.py` stellt
+dafür nur die enge Token-/Hex-Prüfung bereit. Der Runner muss außerdem die
+vorangegangene Quellen-/Query-/Ausführungsbindung bereits belegt haben. Das SQL kann weder
+beweisen, dass das Handle zum beabsichtigten aktuellen Aufruf gehört, noch
+Plan- oder Engineidentität herstellen. Es prüft die 512-KiB-Grenze erst nach
+der XML-Serialisierung. Eine Ausführung und SQL-Syntax-/Buildqualifikation sind
+noch offen; das Fixture ist keine freigegebene Demo und nicht selbstständig
+auszuführen.

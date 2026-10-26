@@ -46,6 +46,7 @@ class Dgn004PlanFrameTests(unittest.TestCase):
     def test_serializer_rejects_unbounded_or_unbound_payloads(self) -> None:
         cases = ((b"", RUN, ROLE, CALL), (b"x", RUN, ROLE, CALL), (b"\x00\xd8", RUN, ROLE, CALL),
                  (b"a" * (512 * 1024 + 2), RUN, ROLE, CALL), (PAYLOAD, "bad|run", ROLE, CALL),
+                 (PAYLOAD, "bad run", ROLE, CALL),
                  (PAYLOAD, RUN, "X", CALL), (PAYLOAD, RUN, ROLE, True))
         for payload, run, role, call in cases:
             with self.subTest(size=len(payload), run=run, role=role, call=call):

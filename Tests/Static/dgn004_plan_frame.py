@@ -14,9 +14,14 @@ from dgn004_plan_transport import (
 
 
 MAX_FRAME_TEXT_BYTES = 2 * 1024 * 1024
-MAX_RUN_FIELD_CHARS = 64
 _DECIMAL = re.compile(r"\A(?:0|[1-9][0-9]*)\Z")
+_RUN_TOKEN = re.compile(r"\A[A-Za-z0-9._-]{1,64}\Z")
 _SHA256 = re.compile(r"\A[0-9A-Fa-f]{64}\Z")
+
+
+def is_valid_run_token(value: object) -> bool:
+    """Whether a caller-supplied run label matches the fixed token grammar."""
+    return isinstance(value, str) and _RUN_TOKEN.fullmatch(value) is not None
 
 
 class PlanFrameError(ValueError):
@@ -31,9 +36,7 @@ def encode_plan_frame(raw_plan_bytes: bytes, *, run: str, role: str, call: int) 
     """
     if not isinstance(raw_plan_bytes, bytes):
         raise PlanFrameError("plan payload must be bytes")
-    if not isinstance(run, str) or not run or len(run) > MAX_RUN_FIELD_CHARS:
-        raise PlanFrameError("invalid caller run binding")
-    if not run.isascii() or any(char in run for char in "|\r\n"):
+    if not is_valid_run_token(run):
         raise PlanFrameError("invalid caller run binding")
     if role not in ("R", "H"):
         raise PlanFrameError("invalid caller role binding")
@@ -76,8 +79,7 @@ def decode_plan_frame(
     not attest query, plan, or engine identity.
     """
     if (not isinstance(frame_text, str) or not isinstance(expected_run, str)
-            or not expected_run or len(expected_run) > MAX_RUN_FIELD_CHARS or not expected_run.isascii()
-            or any(char in expected_run for char in "|\r\n")):
+            or not is_valid_run_token(expected_run)):
         raise PlanFrameError("invalid caller run binding")
     if expected_role not in ("R", "H"):
         raise PlanFrameError("invalid caller role binding")
@@ -112,7 +114,7 @@ def decode_plan_frame(
     if len(end) != 7 or end[0] != "DGN004_PLAN_END":
         raise PlanFrameError("invalid end record")
     run, role = start[1], start[2]
-    if not run or len(run) > MAX_RUN_FIELD_CHARS:
+    if not is_valid_run_token(run):
         raise PlanFrameError("invalid frame run field")
     call = _parse_decimal(start[3], "call")
     byte_length = _parse_decimal(start[4], "byte length")
