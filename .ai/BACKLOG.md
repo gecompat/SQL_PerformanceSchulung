@@ -30,10 +30,11 @@ passende Parameter-/Spaltentypen, Konvertierungsfehler, Collation und die
 Grenzen von `CAST` auf einer Spalte; er erstellt keine laufzeitqualifizierte
 Demo. Die QRY-003-Lehrnotiz ergänzt `LO-M03-02` mit halboffenen
 Datumsintervallen, inklusiven `BETWEEN`-Grenzen und passender
-Datentypgenauigkeit; sie ist keine Laufzeitqualifikation. Danach folgt eine
-begrenzte Lückenprüfung zu konkurrierenden Abfragespeicherzuteilungen in
-RES-004. Für alle drei bleiben ihre eigenen offenen Quellen- und
-Qualifikationsgrenzen maßgeblich.
+Datentypgenauigkeit; sie ist keine Laufzeitqualifikation. Die RES-004-Lehrnotiz
+konkretisiert `LO-M06-07` für konkurrierende Grants und den Nachweis des
+wartenden eigenen Requests. Eine ausführbare Konkurrenzprobe und tatsächlicher
+Wait-Nachweis bleiben offen; aktive Sessions genügen nicht. Für alle drei
+bleiben ihre eigenen offenen Quellen- und Qualifikationsgrenzen maßgeblich.
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
 ## DGN-004: Klassische Planerzwingung und Hint-Kontrollzustand
