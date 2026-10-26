@@ -56,9 +56,10 @@ wird die nächste unabhängig bearbeitbare Aufgabe verfolgt.
 überführt die freigegebenen R/H-Textvorlagen in zwei bytegenau geprüfte
 SQL-Einzeiler. Reine Gegenproben prüfen Textdarstellungen, Offsets und
 Hintposition. Der Offline-Transport ergänzt begrenzte Frame- und
-XML-Wohlgeformtheitsprüfungen sowie einen caller-bound SQL-Ausschnitt. Dies ist
+XML-Wohlgeformtheitsprüfungen, einen caller-bound SQL-Ausschnitt und einen
+direkten Runner mit beim Lesen begrenzten stdout-/stderr-Kanälen. Dies ist
 kein ausführbares Demopaket und keine Build-, Plan-, Replay- oder
-Laufzeitabnahme. End-to-end Capture/Runner und die begrenzte Qualifikation auf
+Laufzeitabnahme. SQL-Ausführung des Runners und die begrenzte Qualifikation auf
 den beiden festgelegten Zielbuilds bleiben Folgearbeit.
 
 PR338 ist auf Main `e5130c443eaf94f5e440208d38059d6cdb6719b5` integriert;
@@ -69,10 +70,12 @@ Chunk-Decoder einen begrenzten Frame-Serializer/Parser. Der Offline-Ergebnisbind
 bindet Frames an separat erwartete Run/Rolle/Aufrufwerte, prüft wohlgeformtes
 XML mit ShowPlanXML-Wurzel, validiert die engen sqlcmd-Eingaben vor Substitution
 und enthält ein SQL-Transportfragment für einen caller-bound `plan_handle`.
-Der SQL-Ausschnitt wurde nicht ausgeführt. Ohne den noch offenen Runner und
-die Quellen-/Query-/Planbindung belegt er weder die beabsichtigte aktuelle
-Ausführung noch Prozesskanalgrenzen, Schema-/Runtimequalität oder
-Engineidentität. End-to-end Capture und Buildqualifikation bleiben offen.
+Der DGN-Runner begrenzt beide Ausgabe-Kanäle beim Lesen; seine Prozessgegenproben
+verwenden nur synthetische lokale Prozesse. SQL-Ausschnitt und Runner wurden
+nicht gegen SQL Server ausgeführt. Ohne Quellen-/Query-/Planbindung belegen sie
+weder die beabsichtigte aktuelle Ausführung noch Schema-/Runtimequalität oder
+Engineidentität. SQL-ausgeführtes End-to-end Capture und Buildqualifikation
+bleiben offen.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 

@@ -550,13 +550,13 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query-Store-Grundlage), vollständiges R/H-Quellpaar aus rh_source_text_plan und Form-A-Datenmodell weiterverwenden.
 - Vor Umsetzung unabhängige Quellen-/Identitäts-/Text-/Transport-/Mess-/Statusprüfung des aktiven begrenzten Vertrags sowie passende statische Gegenfälle; danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Der menschliche Wiederaufnahmeauftrag vom 26. Oktober 2026 liegt vor; die stufenweise Source-/Statiktest-/Dokumentationsumsetzung des aktiven Plans ist autorisiert. Der reine Chunk- und Frame-Transport samt XML-Formprüfung ist statisch umgesetzt. Tatsächliche DMV-/sqlcmd-Erfassung, Query-/Plan-/Engineidentität, technische Buildqualifikation und Laufzeit bleiben offene Gates und benötigen jeweils unabhängige Prüfung. Offene Replay-Marker- und erweiterte Deaktivierungssignaturgates gelten weiterhin ausschließlich für zurückgestellte Replay-Umfänge. Aktuelle Reihenfolge und Subwellenzulassung stehen im kanonischen Ausführungsstand.
+**Wiederaufnahmebedingung:** Der menschliche Wiederaufnahmeauftrag vom 26. Oktober 2026 liegt vor; die stufenweise Source-/Statiktest-/Dokumentationsumsetzung des aktiven Plans ist autorisiert. Chunk-/Frame-Transport, XML-Formprüfung, Caller-Eingabevalidierung und ein direkter, auf beiden Prozesskanälen während des Lesens begrenzter Runner sind als Quelle vorhanden; nur synthetische Prozessgrenzen sind geprüft. SQL-Ausführung, Query-/Plan-/Engineidentität, technische Buildqualifikation und DGN-Lifecycle bleiben offene Gates und benötigen jeweils unabhängige Prüfung. Offene Replay-Marker- und erweiterte Deaktivierungssignaturgates gelten weiterhin ausschließlich für zurückgestellte Replay-Umfänge. Aktuelle Reihenfolge und Subwellenzulassung stehen im kanonischen Ausführungsstand.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
 **Abgrenzung:** DGN-003 (Query Store; persistente Abfrage- und Planhistorie) liefert die fachliche Grundlage. Aktiver Teilumfang von DGN-004: Standard-Force/Unforce und fester Inline-Hint-Kontrollzustand. Gezielter Forcing-Fehler, gespeicherte Query-Store-Hints und Replay-Vergleich bleiben im historischen breiteren Vorrat, ohne zweite allgemeine Query-Store-Demo.
 
-**Source-Status:** Der Offline-Transport prüft begrenzte UTF-16-Planbytes, feste ASCII-Rahmung, separat erwartete Run/Rolle/Aufrufwerte und wohlgeformtes XML mit ShowPlanXML-Wurzel. Ein SQL-Transportfragment serialisiert den `query_plan` aus einem caller-bound `plan_handle`; ein kleiner Eingabeprüfer validiert die Werte vor sqlcmd-Substitution. Runner, sqlcmd-Ausführung, Abfrage-/Plan-/Engine-/Ausführungsidentität, Kanalbegrenzung, XML-Schema und Laufzeitinformationen bleiben offene Gates.
+**Source-Status:** Der Offline-Transport prüft begrenzte UTF-16-Planbytes, feste ASCII-Rahmung, separat erwartete Run/Rolle/Aufrufwerte und wohlgeformtes XML mit ShowPlanXML-Wurzel. Ein SQL-Transportfragment serialisiert den `query_plan` aus einem caller-bound `plan_handle`; ein kleiner Eingabeprüfer validiert die Werte vor sqlcmd-Substitution. Der Runner begrenzt stdout und stderr beim Lesen; seine Tests verwenden ausschließlich synthetische Prozesse. SQL-Ausführung, Abfrage-/Plan-/Engine-/Ausführungsidentität, XML-Schema und Laufzeitinformationen bleiben offene Gates.
 
 **Weiterer Prüfauftrag:** Für den aktiven begrenzten Schnitt Standard-Force/Unforce, vollständige aktuelle Plan-/Text-/Kontext-/Ergebnisbindung und festen Inline-Hint-Kontrollzustand fachlich prüfen. Replay-Marker-Gates bleiben für den zurückgestellten Replay-Vergleich offen und sind keine Eintrittsbedingung dieses neuen Aussageumfangs.
 
@@ -572,11 +572,11 @@ f3335a2cd56ce43f87be245b5143427ce70d60f1
 
 **Status:**
 
-ACTIVE_DESIGN_NOT_IMPLEMENTED – ausdrücklich begrenzter Plan und Abnahmekriterien angepasst; unabhängige Freigabe, Umsetzung und technische Qualifikation offen.
+ACTIVE_DESIGN_BOUNDED_RUNNER_SOURCE_ONLY – ausdrücklich begrenzter Plan und Abnahmekriterien aktiv; Frame-/Ergebnisbinder, caller-bound SQL-Transportfragment und begrenzter direkter Docker-Runner sind als Quelle vorhanden, SQL-Ausführung und DGN-Lifecycle-Qualifikation bleiben offen.
 
 **Auftragsgrenze:**
 
-Aktueller Auftrag autorisiert ausschließlich die Umfangs-/Planungsänderung und ihre statische Integration per Pull Request. Keine Probe-/Demo-/Testimplementierung, SQL-/Lab-Läufe oder Containerstarts. Übrige Verarbeitung bleibt pausiert; alte Laufrechte und Laufbudgets werden nicht aktiviert.
+Menschliche Delegation vom 26. Oktober 2026 autorisiert die begrenzte stufenweise Source-, Statiktest- und Dokumentationsumsetzung des aktiven Plans in regulären Pull Requests. Keine SQL-/Lab-Läufe, Containerstarts, Provider- oder Netzwerkaktionen oder Runtimequalifikation ohne unabhängige Prüfung der konkreten Quellen- und Methodenpläne; alte Laufrechte und Laufbudgets werden nicht aktiviert.
 
 **Aktive Autorität und zurückgestellte Umfänge:**
 
@@ -616,7 +616,7 @@ Aktueller Auftrag autorisiert ausschließlich die Umfangs-/Planungsänderung und
 
 **Neue Abnahmekriterien und Ergebnisumfang:**
 
-- Planungsabnahme jetzt: aktiver Plan eindeutig ausgewählt, zulässiger Aussageumfang und neue Kandidaten-Abnahmekriterien konsistent dokumentiert; historische Replay-Pläne/Befunde und offene Marker-Gates erhalten. Nur statische Dokumentations-/Registry-/Datenschutz-/Integrationsprüfung. Keine unabhängige Methodenfreigabe, ausführbare Umsetzung oder Laufzeit-/Versionsabnahme behaupten.
+- Begrenzter Source-Stand: Frame-/Ergebnisbinder, caller-bound SQL-Transportfragment und direkter Runner mit synthetisch geprüften Kanalgrenzen sind als Quelle integriert; SQL wurde nicht ausgeführt. Keine Query-/Plan-/Engineidentitätsbindung oder DGN-Lifecycle-Qualifikation behaupten; historische Replay-Pläne/Befunde und offene Marker-Gates erhalten.
 - Spätere Abnahme je Zielbuild: alle neun vorgesehenen Nutzaufrufe erfüllen vollständige Quellen-/Identitäts-/Plan-/Kontext-/Tupel-/Transport-/Kompilierungs-/Ausführungsbezüge. Beide R-Force-Phasen 3/7 und beide H-Force-Phasen 5/6 mit angenommenem eigenen Auftrag, tatsächlichem passendem Plan, UsePlan, strengem +1-Kompilierungszuwachs, genau einer regulären Ausführung und ohne neue Forcingfehler; beide unforced Abschlüsse und sichere Bereinigung bestehen.
 - H-Kontrollabnahme zusätzlich: vollständiger aktueller terminaler Inline-Hint, keine fremde überschreibende Steuerung, frische eigene Kompilierung und erfolgreiche Standard-Planerzwingung. H-Teilbefund CONTROL_ONLY ist im ausdrücklich begrenzten acceptance_scope CLASSICAL_FORCING_AND_HINT_CONTROL ausreichend. Ein PASS dieses neuen Umfangs ist niemals PASS des alten Replay-Vergleichs; die frühere Beschränkung von CONTROL_ONLY für dessen empirische Abnahme bleibt unverändert.
 - Ergebnisdarstellung zwingend mit Aussageumfang und Build: Gesamt-PASS im engeren Umfang nur bei bestandenem aktivem Vertrag auf beiden Zielbuilds. Zurückgestellter Replay-Vergleich separat als DEFERRED (zurückgestellt), Marker-Gates OPEN ausweisen. Fehlende Replay-Semantik allein macht den engeren Umfang weder NOT_PROVEN noch FAIL; fehlende aktive Pflichtnachweise dürfen dagegen niemals durch Scopebegrenzung verdeckt werden. Frühere FAIL-/NOT_PROVEN-Ergebnisse bleiben erhalten.
