@@ -1950,6 +1950,42 @@ Abgleich mit der Schulung: [Vorhandener Deadlock-Grundfall mit Gegenprobe](https
 
 Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Schlüsselbereichssperren](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-ver17#key-range-locking), [Microsoft: Deadlock-Diagnose](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17).
 
+**Begrenzter Quellen- und Variantenvertrag vom 26. Oktober 2026 (`PROPOSED`):**
+Die priorisierte Prüfung wählt zunächst den Conversion-Deadlock, ohne den
+validierten CON-006-Grundfall zu ändern. Das eigenständige Lernziel ist, einen
+Sperrumwandlungszyklus von der Gegenreihenfolge über zwei Ressourcen zu
+unterscheiden: Zwei Transaktionen behalten jeweils eine gemeinsame `S`-Sperre
+auf derselben festen Schlüsselressource und fordern anschließend eine
+`X`-Sperre an. `SRC-004` beschreibt diese Umwandlung unter `REPEATABLE READ`/
+`SERIALIZABLE` oder bei explizitem Halten der Lesesperre; eine `UPDLOCK`-Lesung
+ist die passende Kontrollalternative für dieses Muster. Optimierte Sperren,
+Isolation und tatsächlich verwendete Ressourcen können das beobachtete Bild
+ändern; der Titel oder der SQL-Text allein ist kein Graphnachweis.
+
+Vor einer Implementierung muss der Variantenvertrag festlegen: dieselbe
+markergebundene Wegwerfdatenbank und ein fester vorhandener Indexschlüssel;
+signalbasierte Reihenfolge statt Zeitverzögerungen; und ein laufgebundener
+Beobachter, der den vollständigen `xml_deadlock_report` auf Datenbank, beide
+Sessions, dieselbe Schlüsselressource, gehaltene `S`- sowie angeforderte
+Konversions-/`X`-Sperren und den Zyklus prüft. Zusätzlich müssen genau ein
+Opfer mit Fehler 1205 und ein erfolgreich abgeschlossener Gegenpart belegt
+sein. Die Kontrollvariante muss unter `UPDLOCK` ohne vorzeitiges Warten auf ein
+noch nicht mögliches Session-Signal und ohne Opfer enden; die bestehende breite
+Prüfung auf irgendein XE-Deadlockereignis reicht dafür nicht. Der
+vorhandene Grundfall samt geordneter Gegenprobe, Markern und Cleanup bleibt
+unverändert. Das ist ein Quellen-/Designvorschlag; es wurden keine
+SQL-Dateien, Manifest- oder Runtimeaussagen ergänzt.
+
+Die Range-Variante bleibt zurückgestellt: CON-002 behandelt bereits
+Schlüsselbereichssperren; die vorhandene Fixture beweist weder verschiedene
+Indexressourcen noch eine eigenständige zusätzliche Lernerfahrung. Dafür wäre
+ein eigener präziser Bereichs-/Graphvertrag nötig. Produktgrundlage für die
+Konversionsmechanik: [SRC-004](../Research/SOURCE_REGISTER.md#src-004),
+insbesondere Shared-/Update-/Exclusive-Locks und die S→X-Konversion; der
+Deadlock-Guide beschreibt die Graph- und Opferbelege unter
+[SRC-066](../Research/SOURCE_REGISTER.md#src-066). Die Graphzuordnung und das
+Verhalten auf den Zielbuilds bleiben empirische Gates.
+
 **Spätere Abnahme:**
 
 - Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
