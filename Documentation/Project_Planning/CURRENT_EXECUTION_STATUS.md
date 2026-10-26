@@ -44,6 +44,12 @@ die Range-Variante bleibt wegen der Überschneidung mit CON-002 zurückgestellt.
 Der [begrenzte Quellen- und Variantenvertrag](../../.ai/BACKLOG.md#5-con-006--conversion--und-range-deadlocks-als-optionale-varianten) führt die noch nötigen
 Graph-, Opfer-, Gegenpart- und Cleanup-Nachweise auf.
 
+Für `IDX-007` ergänzt eine kurze, quellengebundene Erläuterung den Lernpfad:
+Sie trennt Last-Page-`PAGELATCH_EX` von I/O- und Transaktionssperren und
+begrenzt die Aussage zu `OPTIMIZE_FOR_SEQUENTIAL_KEY`. Sie ist weder eine
+Engpassdiagnose noch eine quantitative Vergleichsdemo; der faire Vergleich
+und tatsächliche Wait-/Page-Nachweis bleiben offen.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem

@@ -2040,6 +2040,13 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Diagnose von Last-Page-
 - Tatsächliche Konkurrenz um die letzte Seite von gewöhnlichen Sperren und Speichergerätezugriffen unterscheiden.
 - Vergleiche verwenden erklärten identischen Messrahmen; andere Schlüssel und Heap-Varianten nicht pauschal als bessere Lösung ausgeben. Leistungsbehauptungen separat belegen.
 
+**Begrenzter Erklärungsbaustein vom 26. Oktober 2026:** Die
+[Curriculumnotiz](../Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md)
+ordnet `PAGELATCH_EX`, `PAGEIOLATCH_EX`, Insertzähler und
+`OPTIMIZE_FOR_SEQUENTIAL_KEY` quellengebunden ein. Sie erfüllt nur den kurzen
+qualitativen Lehrbedarf; der zurückgestellte ausführbare Vergleich und die
+konkrete letzte-Seite-Zuordnung bleiben offen.
+
 ##### 7. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
