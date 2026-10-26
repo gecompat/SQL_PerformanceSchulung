@@ -70,10 +70,17 @@ Erfassungs- und Ergebnisgates bleiben offen.
 UTF-16-Bytes und gibt die festgelegten Start-/Chunk-/End-Zeilen als einzelne
 Textspalte aus. Der Runner muss die Run-/Rollen-/Call-Werte und den 128-stelligen
 Handle vor der sqlcmd-Substitution validieren; `dgn004_capture_input.py` stellt
-dafür nur die enge Token-/Hex-Prüfung bereit. Der Runner muss außerdem die
-vorangegangene Quellen-/Query-/Ausführungsbindung bereits belegt haben. Das SQL kann weder
+dafür nur die enge Token-/Hex-Prüfung bereit. Der DGN-Runner liest stdout und
+stderr parallel mit den festen 2-MiB-/64-KiB-Grenzen und führt den lokalen
+Docker-Client direkt aus, damit kein innerer Shim die SQL-Ausgabe vorher
+vollständig puffert. Der Runner muss außerdem die vorangegangene
+Quellen-/Query-/Ausführungsbindung bereits belegt haben. Das SQL kann weder
 beweisen, dass das Handle zum beabsichtigten aktuellen Aufruf gehört, noch
 Plan- oder Engineidentität herstellen. Es prüft die 512-KiB-Grenze erst nach
-der XML-Serialisierung. Eine Ausführung und SQL-Syntax-/Buildqualifikation sind
-noch offen; das Fixture ist keine freigegebene Demo und nicht selbstständig
-auszuführen.
+der XML-Serialisierung. Die Prozessgrenzen sind mit synthetischen lokalen
+Prozessen geprüft, aber nicht gegen SQL Server ausgeführt; SQL-Syntax-/Build-
+Qualifikation bleibt offen. Auf POSIX beendet der Runner seine eigene
+Prozessgruppe. Unter Windows ist die Baumbeendigung nach Ende des Launchers
+nicht nachgewiesen; bleibt ein Pipe-Reader offen, endet der Aufruf mit
+`CaptureProcessEndUnknown` und darf nicht wiederholt werden. Das Fixture ist
+keine freigegebene Demo und nicht selbstständig auszuführen.

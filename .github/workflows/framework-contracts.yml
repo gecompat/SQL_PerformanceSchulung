@@ -14,6 +14,8 @@ on:
       - 'Tests/Static/test_dgn004_plan_frame.py'
       - 'Tests/Static/test_dgn004_capture_result.py'
       - 'Tests/Static/test_dgn004_capture_input.py'
+      - 'Tests/Runtime/dgn004_capture_runner.py'
+      - 'Tests/Static/test_dgn004_capture_runner.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -41,6 +43,8 @@ on:
       - 'Tests/Static/test_dgn004_plan_frame.py'
       - 'Tests/Static/test_dgn004_capture_result.py'
       - 'Tests/Static/test_dgn004_capture_input.py'
+      - 'Tests/Runtime/dgn004_capture_runner.py'
+      - 'Tests/Static/test_dgn004_capture_runner.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -88,6 +92,9 @@ jobs:
 
       - name: Test DGN-004 capture input
         run: python Tests/Static/test_dgn004_capture_input.py
+
+      - name: Test DGN-004 capture runner
+        run: python Tests/Static/test_dgn004_capture_runner.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py
