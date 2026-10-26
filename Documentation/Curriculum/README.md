@@ -31,6 +31,17 @@ als Einstieg wählen. Kurze Erklärungen und SQL-Techniken ergänzen die
 ausführlichen Messdemos; ein eigener Benchmark ist keine Voraussetzung für
 ihren didaktischen Wert.
 
+### Kurze technische Erläuterungen
+
+- [Datentypen und implizite Konvertierung](IMPLICIT_CONVERSION_LESSON.md): passende Parameter, Konvertierungsfehler und Collation.
+- [Halboffene Datumsintervalle](HALF_OPEN_DATE_INTERVAL_LESSON.md): inklusive `BETWEEN`-Grenzen und Datentypgenauigkeit.
+- [Konkurrierende Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md): aktuelle Grant-Zustände und der Nachweis eines wartenden eigenen Requests.
+
+Diese Notizen ergänzen bestehende Lernziele. Sie sind Erklärungen mit
+synthetischen oder rein lesenden Beispielen, keine neuen freigegebenen Demos
+oder Laufzeitqualifikationen. Für tatsächlich freigegebene Ausführungen gelten
+der jeweilige Demo-Katalogeintrag und der zentrale Ausführungsleitfaden.
+
 ## Praktisch weiterarbeiten
 
 Beginnen Sie mit einer [erklärten Fachdemonstration](../HowTo/DEMO_WALKTHROUGHS.md).
