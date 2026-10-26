@@ -1,5 +1,22 @@
 # Initialer Backlog
 
+## Wiederaufnahme und Reihenfolge vom 26. Oktober 2026
+
+Der neue menschliche Auftrag autorisiert die schrittweise autonome Bearbeitung
+der priorisierten Punkte. Maßgeblich für aktuelle Arbeit, Grenzen und Blocker ist
+der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md#autonomer-auftrag-vom-26-oktober-2026).
+Die älteren Planungsfreigaben und Pausen unten bleiben historische Belege;
+fachliche Abnahme- und Sicherheitsgrenzen gelten weiterhin.
+
+- [x] FWK-002 (Schutzvertrag für synthetische Testdatenbanken): bereits vorhandene
+  erfolgreiche Main-Versionsmatrix von PR301 lesend aufnehmen. Der
+  [Integrationsnachweis](../Documentation/Project_Planning/FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
+  ersetzt keine neue Runtimeabnahme.
+- [ ] Gesonderten Fehlerpfad nach gescheiterter erstmaliger Datenbankmarkierung
+  prüfen und sicher abgrenzen; vorhandene Eigentumsprüfungen nicht abschwächen.
+- [ ] Anschließend DGN-004 (Standard-Planerzwingung und Hint-Kontrollzustand),
+  Teilnehmer-/Generalprobe und die weiteren priorisierten Punkte bearbeiten.
+
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
 ## DGN-004: Klassische Planerzwingung und Hint-Kontrollzustand
 
@@ -10,13 +27,14 @@ Planverwendung, vollständige Ergebnisse und sichere Rücknahme bleiben Pflicht.
 Replay (Wiederverwendung von Optimierungsschritten) und sein Nutzungs-/Nichtnutzungs-
 vergleich sind zurückgestellt; beide Marker-Gates bleiben dafür offen.
 Ein Erfolg gilt nur im engeren Aussageumfang und belegt keine isolierte Hintwirkung.
-Nur Planung und statische Integration per Pull Request (Änderungsantrag), keine
-Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Maßgeblich sind der
+Der Auftrag vom 26. Oktober 2026 nimmt die priorisierte Bearbeitung wieder auf.
+Umsetzung und Läufe folgen erst nach den unabhängigen fachlichen Freigaben im
+jeweils begrenzten Rahmen. Maßgeblich sind der
 [aktive begrenzte Plan](#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand) und der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
 
-Fachlicher Status: **in Arbeit** (`in_progress`); nur die Planungsbegrenzung von DGN-004 auf klassische Planerzwingung und Hint-Kontrollzustand ist aktuell autorisiert. Registrierungsstatus: `REGISTERED`.
+Fachlicher Status: **in Arbeit** (`in_progress`); die priorisierte Wiederaufnahme vom 26. Oktober 2026 ist autorisiert, erforderliche unabhängige Freigaben bleiben offen. Registrierungsstatus: `REGISTERED`.
 Die Quellensichtungen für Schemasperren, Ad-hoc-Plancache, Deadlock-Varianten,
 Planerzwingung, Last-Page-Inserts (Einfügungen auf der letzten Indexseite),
 Memory Grants (Abfragespeicherzuteilungen), Buffer-Pool-Druck (Druck auf den
@@ -32,7 +50,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Planungsauftrag vom 25. Oktober 2026: DGN-004 (Planerzwingung) bei TSK-016 ausdrücklich auf klassische Planerzwingung über den Force-/Unforce-Standardpfad und den festen Inline-Hint-Kontrollzustand begrenzen. Aktiven Plan und Abnahmekriterien anpassen und per Pull Request nach origin/main integrieren. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Frühere Replay-Pläne, offene Marker-Gates und Fehlversuche historisch erhalten; kein Replay-, Kausal- oder Performancebeweis und keine Erweiterung der Laufbudgets.
+Auftrag vom 26. Oktober 2026: Die priorisierten Entwicklungspunkte schrittweise autonom bearbeiten und konsistente, relevant geprüfte Wellen per Pull Request nach origin/main integrieren. Aktuelle Reihenfolge, gemeinsamer endlicher Rahmen und laufende Subwelle stehen im kanonischen Ausführungsstand. Dies ersetzt die früheren Pausen innerhalb dieses Umfangs; fachliche Abnahmekriterien, unabhängige Freigaben und Sicherheitsgrenzen bleiben bestehen. DGN-004 bleibt auf klassische Standard-Planerzwingung und festen Hint-Kontrollzustand begrenzt. Replay-Vergleich, frühere Fehlversuche und offene Marker-Gates bleiben getrennt erhalten. Keine automatische Budgeterneuerung oder zusätzliche Ausgaben-/Provider-/Fremdrepositoryfreigabe.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
@@ -525,7 +543,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 - DGN-003 (Query-Store-Grundlage), vollständiges R/H-Quellpaar aus rh_source_text_plan und Form-A-Datenmodell weiterverwenden.
 - Vor Umsetzung unabhängige Quellen-/Identitäts-/Text-/Transport-/Mess-/Statusprüfung des aktiven begrenzten Vertrags sowie passende statische Gegenfälle; danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Aktiven classical_forcing_hint_control_plan unabhängig im begrenzten Aussageumfang freigeben und einen neuen ausdrücklichen Auftrag für Umsetzung sowie die begrenzten SQL-/Lab-Läufe erhalten. Tatsächliche Build-/Text-/Zuordnungs-/Erfassungsqualifikation bleibt spätere Pflicht. Die offenen R-/H-Replay-Marker-Gates und das erweiterte Deaktivierungssignaturgate gelten weiter nur für die zurückgestellten Replay-Umfänge; übrige Verarbeitung pausiert.
+**Wiederaufnahmebedingung:** Der menschliche Wiederaufnahmeauftrag vom 26. Oktober 2026 liegt vor. Vor Umsetzung den aktiven classical_forcing_hint_control_plan unabhängig im begrenzten Aussageumfang freigeben; technische Build-/Text-/Zuordnungs-/Erfassungsqualifikation folgt im bestehenden endlichen Rahmen. Offene Replay-Marker- und erweiterte Deaktivierungssignaturgates gelten weiterhin ausschließlich für zurückgestellte Replay-Umfänge. Aktuelle Reihenfolge und Subwellenzulassung stehen im kanonischen Ausführungsstand.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 

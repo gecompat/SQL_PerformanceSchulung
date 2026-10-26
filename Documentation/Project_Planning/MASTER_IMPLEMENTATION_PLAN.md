@@ -1,5 +1,16 @@
 # Master-Umsetzungsplan – SQL-Server-Performance-Schulung
 
+## Operativer Auftrag vom 26. Oktober 2026
+
+Die autonome Wiederaufnahme folgt der vom Menschen bestätigten Priorisierung.
+Aktuelle Reihenfolge, gemeinsamer endlicher Rahmen, jeweilige Subwelle und
+Blocker stehen ausschließlich im [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md#autonomer-auftrag-vom-26-oktober-2026).
+Jede konsistente, relevant geprüfte Welle wird über Pull Request integriert.
+Die älteren datierten Aufträge unten erhalten ihre historische Aussage;
+ihre Pausen begrenzen den neuen Auftrag nicht, ihre fachlichen und technischen
+Abnahmebedingungen bleiben bestehen. Der begrenzte DGN-004-Plan für
+Standard-Planerzwingung und festen Hint-Kontrollzustand bleibt unverändert.
+
 ## DGN-004: Aktiver begrenzter Umfang vom 25. Oktober 2026
 
 Der aktuelle Auftrag begrenzt DGN-004 (Planerzwingung) bei TSK-016

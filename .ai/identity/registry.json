@@ -8,7 +8,7 @@
       "title": "Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen",
       "status": "in_progress",
       "priority": "P1",
-      "scope": "Planungsauftrag vom 25. Oktober 2026: DGN-004 (Planerzwingung) bei TSK-016 ausdrücklich auf klassische Planerzwingung über den Force-/Unforce-Standardpfad und den festen Inline-Hint-Kontrollzustand begrenzen. Aktiven Plan und Abnahmekriterien anpassen und per Pull Request nach origin/main integrieren. Nur lokale statische Dokumentationsprüfung und statische CI (Continuous Integration; automatisierte Integrationsprüfungen); keine Umsetzung, Demotests oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert. Frühere Replay-Pläne, offene Marker-Gates und Fehlversuche historisch erhalten; kein Replay-, Kausal- oder Performancebeweis und keine Erweiterung der Laufbudgets.",
+      "scope": "Auftrag vom 26. Oktober 2026: Die priorisierten Entwicklungspunkte schrittweise autonom bearbeiten und konsistente, relevant geprüfte Wellen per Pull Request nach origin/main integrieren. Aktuelle Reihenfolge, gemeinsamer endlicher Rahmen und laufende Subwelle stehen im kanonischen Ausführungsstand. Dies ersetzt die früheren Pausen innerhalb dieses Umfangs; fachliche Abnahmekriterien, unabhängige Freigaben und Sicherheitsgrenzen bleiben bestehen. DGN-004 bleibt auf klassische Standard-Planerzwingung und festen Hint-Kontrollzustand begrenzt. Replay-Vergleich, frühere Fehlversuche und offene Marker-Gates bleiben getrennt erhalten. Keine automatische Budgeterneuerung oder zusätzliche Ausgaben-/Provider-/Fremdrepositoryfreigabe.",
       "acceptance_criteria": "Quellenstände und tatsächliche Szenarioreife prüfen, jede Idee bestehenden Schulungsdemos zuordnen und einen begründeten Lernzieldelta oder Verzicht dokumentieren. Für ausgewählte spätere Erweiterungen Schulungsvertrag, passende Evidenz und sichere Abnahme festlegen; die Backlogaufnahme selbst ist weder Umsetzung noch Laufzeitabnahme.",
       "relations": [
         {
@@ -698,7 +698,7 @@
               "DGN-003 (Query-Store-Grundlage), vollständiges R/H-Quellpaar aus rh_source_text_plan und Form-A-Datenmodell weiterverwenden.",
               "Vor Umsetzung unabhängige Quellen-/Identitäts-/Text-/Transport-/Mess-/Statusprüfung des aktiven begrenzten Vertrags sowie passende statische Gegenfälle; danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache)."
             ],
-            "resume_when": "Aktiven classical_forcing_hint_control_plan unabhängig im begrenzten Aussageumfang freigeben und einen neuen ausdrücklichen Auftrag für Umsetzung sowie die begrenzten SQL-/Lab-Läufe erhalten. Tatsächliche Build-/Text-/Zuordnungs-/Erfassungsqualifikation bleibt spätere Pflicht. Die offenen R-/H-Replay-Marker-Gates und das erweiterte Deaktivierungssignaturgate gelten weiter nur für die zurückgestellten Replay-Umfänge; übrige Verarbeitung pausiert."
+            "resume_when": "Der menschliche Wiederaufnahmeauftrag vom 26. Oktober 2026 liegt vor. Vor Umsetzung den aktiven classical_forcing_hint_control_plan unabhängig im begrenzten Aussageumfang freigeben; technische Build-/Text-/Zuordnungs-/Erfassungsqualifikation folgt im bestehenden endlichen Rahmen. Offene Replay-Marker- und erweiterte Deaktivierungssignaturgates gelten weiterhin ausschließlich für zurückgestellte Replay-Umfänge. Aktuelle Reihenfolge und Subwellenzulassung stehen im kanonischen Ausführungsstand."
           },
           "planning_outline": {
             "recorded_on": "2026-10-23",

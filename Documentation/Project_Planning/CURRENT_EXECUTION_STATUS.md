@@ -1,5 +1,40 @@
 # Aktueller Ausführungsstand
 
+## Autonomer Auftrag vom 26. Oktober 2026
+
+Der neue menschliche Auftrag nimmt die priorisierten Entwicklungspunkte
+schrittweise wieder auf. Er ersetzt frühere Pausen innerhalb dieses Umfangs;
+fachliche Verträge, unabhängige Freigaben und Sicherheitsgrenzen bleiben bestehen.
+Konsistente, relevant geprüfte Wellen werden regulär über einen Pull Request
+(Änderungsantrag) nach `origin/main` integriert. Frühere datierte Aufträge unten
+bleiben als historische Belege erhalten und erteilen keine zusätzlichen Laufrechte.
+
+Die Reihenfolge lautet: Frameworkschutz und Abschluss, begrenzte Planerzwingung,
+Teilnehmer-/Generalprobe, Lesepfade, Kerndemos, Abfragespeicherzuteilungen,
+vollständiger Diagnosefall, vorhandene KI-Qualifikation, Deadlockvarianten,
+Einfügungen auf der letzten Indexseite, Ressourcen, SQL-Server-2025-Ergänzungen,
+Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastruktur.
+KI bedeutet künstliche Intelligenz. Der aktive DGN-004-Plan bleibt auf
+Standard-Planerzwingung und einen festen Hint-Kontrollzustand begrenzt.
+
+Gemeinsamer endlicher Rahmen: höchstens 15 Arbeitspakete, 20 neue Pull Requests
+und 45 Quellenkandidaten einschließlich Reviews, Tests und Wiederholungen.
+Jede Subwelle erhält ihren kleinsten nötigen Quellen-/Ressourcenrahmen;
+Checkpoint am dritten Kandidaten oder ersten Blocker, kein automatischer Reset.
+Token- und Geldverbrauch sind unbekannt. Ein Verantwortlicher führt die Arbeit;
+erforderliche unabhängige Reviews werden wiederverwendet. Unveränderte grüne
+Prüfungen und unveränderte Blocker lösen keine neuen Versuche aus.
+Ein stündlicher nativer Heartbeat dient ausschließlich als Leerlaufsicherung.
+Bei aktiver Arbeit oder nicht handlungsfähigem Zustand beginnt er keine Arbeit.
+
+**Erste Subwelle: vorhandene Framework-Evidenz abschließen.** PR301 ist integriert;
+alle acht damaligen Main-Workflows sind erfolgreich. Der [Eingabenachweis](FWK_002_FRAMEWORK_INPUT_REVIEW.md#nachträglicher-integrationsabschluss-vom-26-oktober-2026)
+bindet die abgeschlossene Versionsmatrix. Keine erneuten SQL-Läufe oder Container
+für diesen Dokumentationsschnitt. Danach folgt die gesonderte Prüfung des
+Fehlerpfads bei gescheiterter Erstmarkierung. Menschliche Teilnehmererprobung
+bleibt ein menschliches Gate; bei einem konkreten Blocker wird die nächste
+unabhängig bearbeitbare Aufgabe verfolgt.
+
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 
 Der aktuelle Auftrag begrenzt DGN-004 (Planerzwingung) bei TSK-016

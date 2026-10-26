@@ -89,6 +89,39 @@ entfernt und unabhängig abwesend. Alle 33 Rohinputs und das vollständige Log
 bleiben privat erhalten. C3 dokumentiert diesen Checkpoint ohne Codeänderung;
 Ergebnisreview und Zulassung der entfernten Versionsprüfung folgen.
 
+## Nachträglicher Integrationsabschluss vom 26. Oktober 2026
+
+Der neue Auftrag nimmt ausschließlich den bereits vorhandenen Abschlussbeleg
+auf; er wiederholt keine SQL-Prüfung. [PR301](https://github.com/gecompat/SQL_PerformanceSchulung/pull/301)
+wurde am 22. Oktober 2026 regulär integriert: geprüfter Head
+`df2815722c17108c33dbba11eb48a371438429a7`, Base
+`a541b978aa06fc663dbd7371cba16aca63858515`, Main
+`a0773b7c7c07a3daea9a92ccd9c29f437717e79d`.
+Die erforderlichen Head-Prüfungen und alle acht damaligen Main-Workflows
+sind abgeschlossen und erfolgreich. Ein fachlich nicht ausgewählter
+Setup-Matrixjob blieb erwartungsgemäß übersprungen.
+
+Die [Framework-Versionsmatrix auf Main](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/39839888436)
+bestand auf SQL Server 2019, 2022 und 2025. Je Version belegen die Originalkanäle
+sechs Eingabeprofile mit 108 Negativfällen und sechs Eigentumsprofile mit
+180 Negativfällen: zusammen 18 Eingabeprofile/324 Eingabenegative sowie
+18 Eigentumsprofile/540 Eigentumsnegative. Alle drei Schritte zum Entfernen
+des eigenen Containers mit anschließender Abwesenheitsprüfung sind erfolgreich.
+Das ist historische Evidenz am genannten Main-Commit, keine frische Abnahme
+des heutigen gesamten Repositorystands.
+
+Der alte Arbeitsbranch und der Squash-Merge besitzen denselben vollständigen
+Git-Baum `2ba7f13830e742114212374114ad1091649a2bee`; zusätzliche nicht übernommene
+Änderungen liegen dort nicht vor. Nach unabhängiger Prüfung sind der alte lokale
+und der zugehörige Remote-Branch entfernt. Für diese reine Dokumentationswelle
+werden die betroffenen statischen Integrations-/Datenschutzprüfungen verwendet;
+keine zusätzliche SQL-Matrix oder lokale Containerausführung.
+
+Die oben beschriebenen ausstehenden Remote-Gates waren der damalige Stand vor
+der Integration. Sie sind durch den konkret gebundenen Nachweis geschlossen.
+Die Wiederherstellung bei gescheiterter Erstmarkierung bleibt gesondert offen;
+dieser Abschluss erweitert weder den Funktionsumfang noch eine Sicherheitsfreigabe.
+
 ## Aufwand und Grenzen
 
 Ein Verantwortlicher und der vorhandene unabhängige Reviewer, höchstens sechs
