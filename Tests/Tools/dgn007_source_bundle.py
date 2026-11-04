@@ -172,7 +172,7 @@ def _git(repo: Path, args: tuple[str, ...], limit: int, deadline: float) -> byte
     executable = shutil.which("git")
     if not executable:
         raise Rejected("GIT_UNAVAILABLE")
-    command = [executable, "--no-replace-objects", "--no-lazy-fetch", "-C", str(repo), *args]
+    command = [executable, "--no-replace-objects", "-C", str(repo), *args]
     output, overflow, errors = bytearray(), threading.Event(), threading.Event()
     with subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE, shell=False, env=git_environment()) as proc:

@@ -203,7 +203,7 @@ class ImportWorkerTests(unittest.TestCase):
                 with open(f"/proc/{pid}/stat", encoding="ascii") as stream:
                     state_letter = stream.read().split()[2]
                 stopped = state_letter == "Z"
-            except FileNotFoundError:
+            except (FileNotFoundError, ProcessLookupError):
                 stopped = True
             if stopped: break
             time.sleep(0.01)
