@@ -139,6 +139,11 @@ SQL und Demoaufrufe wurden nicht ausgeführt. Die Probe lief unter Ubuntu
 CPython 3.12.3; sie ist keine CI- oder DGN-Runnerabnahme. Profil-, Kanal-,
 Prozessbaum-, Trust-, Cleanup-, SQL-, Acquisition- und Methodenfreigaben bleiben
 offen. Alle Attestationsflags bleiben `false`.
+Dieselbe begrenzte Import-only-Probe ist nun als Test im bestehenden
+Ubuntu-/CPython-3.12-Harness-Source-Job enthalten: der Test bildet den
+temporären 27-Member-Kandidaten aus den Git-Blobs des expliziten `HEAD` und
+verwendet die vorhandenen Blob-, Gesamtbyte- und Deadlinegrenzen. Es entsteht
+kein zusätzlicher Workflow oder Job; SQL- und Demoaufrufe bleiben ausgeschlossen.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 

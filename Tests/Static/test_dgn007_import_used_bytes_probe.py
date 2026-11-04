@@ -1,8 +1,9 @@
-"""Synthetische Offline-Proben des DGN-007 Import-Only-Workers."""
+"""Synthetische Proben plus gebundene DGN-007 Import-Only-CI-Probe."""
 import hashlib
 import ast
 from pathlib import Path
 import sys
+import tempfile
 import threading
 import time
 import unittest
@@ -217,6 +218,47 @@ class ImportWorkerTests(unittest.TestCase):
             time.monotonic() + 5.0, cap)
         self.assertEqual(state, "OUTPUT_LIMIT")
         self.assertLessEqual(len(stdout) + len(stderr), cap + 1)
+
+
+class ActualDgnImportTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "linux" and sys.version_info[:2] == (3, 12),
+                         "actual import-only probe requires Linux CPython 3.12")
+    def test_exact_git_bundle_imports_in_all_three_workers(self):
+        deadline = time.monotonic() + 30.0
+        commit = bundle._git(ROOT, ("rev-parse", "--verify", "HEAD^{commit}"), 64,
+                             deadline).decode("ascii").strip()
+        with tempfile.TemporaryDirectory(prefix="dgn007-actual-import-") as temporary:
+            candidate = Path(temporary)
+            total = 0
+            for member in bundle.DGN007.members:
+                body = bundle._git_blob(ROOT, commit, member,
+                                        bundle.DGN007.file_bytes, deadline)
+                total += len(body)
+                if total > bundle.DGN007.total_bytes:
+                    self.fail("current DGN blob set exceeds the declared total-byte cap")
+                path = candidate / member
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(body)
+
+            preparation = input_protocol.prepare_input(ROOT, commit, candidate)
+            self.assertEqual((preparation.status, preparation.issue),
+                             ("PREPARED_INPUT_ONLY", "NONE"))
+            self.assertEqual(preparation.verification.members, 27)
+            report = probe.run_import_only(preparation)
+
+        self.assertEqual((report.status, report.issue), ("OBSERVED_IMPORT_BYTES", "NONE"))
+        self.assertEqual(len(report.workers), 3)
+        for observation, (entry, expected_modules) in zip(report.workers, probe.WORKERS):
+            self.assertEqual((observation.entry, observation.status, observation.issue),
+                             (entry, "OBSERVED_IMPORTS", "NONE"))
+            actual_modules = tuple(receipt.module for receipt in observation.imports
+                                   if receipt.phase == "BEGIN")
+            self.assertEqual(actual_modules, expected_modules)
+            self.assertEqual(sum(receipt.phase == "COMPLETE" for receipt in observation.imports),
+                             len(expected_modules))
+        for flag in ("runtime_attested", "import_used_bytes_attested", "trust_attested",
+                     "method_approved"):
+            self.assertIs(getattr(report, flag), False)
 
 
 if __name__ == "__main__":
