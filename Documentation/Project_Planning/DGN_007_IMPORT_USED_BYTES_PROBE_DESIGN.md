@@ -4,7 +4,7 @@
 |---|---|
 | Design- / Quellenstand | 2026-10-07 |
 | Importworker-Quellschnitt | 2026-11-04; Basis `0165ab4de5221e80699ecd20197fd0f773032311` |
-| Status | `SOURCE_CANDIDATE`; synthetische Workerproben bestanden, tatsächliche DGN-Module nicht importiert |
+| Status | `SOURCE_CANDIDATE`; synthetische Proben bestanden; eine begrenzte lokale Importbeobachtung der DGN-Module liegt vor |
 | Geltung | `PROJECT_SEMANTIC`; begrenzte Import-Only-Komponente |
 | Grenze | keine Trust-, vollständige Runtimeclosure, SQL-Runtime oder Methodenfreigabe |
 
@@ -225,12 +225,16 @@ begrenzt. Die Datei stellt noch keinen DGN-Runnerpfad dar.
 Die synthetischen Linux-Gegenproben importieren feste, harmlose Fixturebytes
 in tatsächlichen lokalen Workerprozessen; sie prüfen Sollsequenzen,
 unbekannte Imports, Reload, Frame-Bodytausch und den Leader-exit-Fall mit
-geerbter Pipe. Die tatsächlichen neun DGN-Module wurden in diesem Schnitt
-nicht importiert. `runtime_attested`, `import_used_bytes_attested`,
-`trust_attested` und `method_approved` bleiben daher fest `false`. Ein späterer
-gebundener Importversuch und unabhängige Prüfung von Worker-/Profil-/Channel-
-und Cleanupgrenzen bleiben erforderlich; weder SQL-/Acquisition-/DGN-007-
-Laufzeit noch Methodenfreigabe folgt daraus.
+geerbter Pipe. Zusätzlich wurde am 2026-11-04 genau ein begrenzter lokaler
+Importlauf gegen den 27-Member-Git-Blob-Snapshot `1587103e207897a0f3665143bd007812901950db`
+ausgeführt: `PREPARED_INPUT_ONLY`, danach `OBSERVED_IMPORT_BYTES` für drei
+frische CPython-3.12.3-Linux-Worker mit den festgelegten Sequenzen aus 8, 1 und
+3 Modulen. Der Lauf lud nur die gebundenen Python-Modulbytes; SQL- und
+Demoausführung fanden nicht statt. Diese lokale Beobachtung ist keine
+CI-/Runnerabnahme und belegt weder vollständige Importclosure noch Profil-,
+Kanal-, Prozessbaum-, Trust-, Cleanup-, SQL-, Acquisition- oder
+Methodenfreigabe. `runtime_attested`, `import_used_bytes_attested`,
+`trust_attested` und `method_approved` bleiben fest `false`.
 
 Das getrennte [Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md)
 bereitet gebundene Bytes und binäre Rahmung vor; für sich selbst führt es keine

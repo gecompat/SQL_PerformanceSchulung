@@ -251,7 +251,7 @@ class InputProtocolTests(unittest.TestCase):
 def git(repo, *args):
     env = bundle.git_environment()
     env.update(GIT_AUTHOR_DATE="2026-10-07T00:00:00Z", GIT_COMMITTER_DATE="2026-10-07T00:00:00Z")
-    return subprocess.check_output(["git", "--no-replace-objects", "--no-lazy-fetch", "-C", str(repo),
+    return subprocess.check_output(["git", "--no-replace-objects", "-C", str(repo),
         "-c", "core.hooksPath=" + str(repo / "empty-hooks"), "-c", "core.autocrlf=false",
         "-c", "commit.gpgSign=false", "-c", "user.name=Synthetic Lab", "-c", "user.email=synthetic-fixture", *args],
         env=env, stderr=subprocess.DEVNULL, timeout=10, shell=False)

@@ -123,7 +123,7 @@ weder die beabsichtigte aktuelle Ausführung noch Schema-/Runtimequalität oder
 Engineidentität. SQL-ausgeführtes End-to-end Capture und Buildqualifikation
 bleiben offen.
 
-**DGN-007-Import-Only-Worker: begrenzte Quellkomponente, keine DGN-Importabnahme.**
+**DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
 verwendet das vorbereitete 27-Member-/Neuner-Eingangsprotokoll für drei frische
 Linux-/CPython-3.12-Prozesse, lädt die festen Modulbytes über einen kontrollierten
@@ -132,10 +132,13 @@ Eingang und Worker-Nonce. Elf synthetische lokale Linux-/CPython-3.12.3-Tests
 prüfen die drei Sollsequenzen und gezielte falsche Imports, Bodytausch,
 Reload/Alias, veraltete Receiptbindung sowie den offenen Pipe-Fall nach Leader-
 Ende. stdout/stderr teilen beim Lesen 64 KiB plus höchstens ein Sentinelbyte.
-Der Testschritt hängt am bestehenden DGN-007-Harness-Source-Job, ohne
-SQL-Matrix oder zusätzlichen Job. Die tatsächlichen DGN-Module wurden nicht
-importiert; Profil-, Kanal-, Prozessbaum-, Trust-, Cleanup-, SQL-, Acquisition-
-und Methodenfreigaben bleiben offen. Alle Attestationsflags bleiben `false`.
+Zusätzlich wurde genau ein lokaler Import-only-Lauf am 2026-11-04 gegen den
+27-Member-Git-Blob-Snapshot `1587103e207897a0f3665143bd007812901950db`
+ausgeführt: 3/3 Worker lieferten `OBSERVED_IMPORT_BYTES`, mit 8/1/3 Modulen.
+SQL und Demoaufrufe wurden nicht ausgeführt. Die Probe lief unter Ubuntu
+CPython 3.12.3; sie ist keine CI- oder DGN-Runnerabnahme. Profil-, Kanal-,
+Prozessbaum-, Trust-, Cleanup-, SQL-, Acquisition- und Methodenfreigaben bleiben
+offen. Alle Attestationsflags bleiben `false`.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 
