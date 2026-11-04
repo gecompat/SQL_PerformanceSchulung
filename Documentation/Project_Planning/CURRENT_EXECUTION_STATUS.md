@@ -57,13 +57,16 @@ historisch geprüften Deck verglichen; die Planbindung ist aktualisiert. Das ist
 keine neue PowerPoint-Render- oder Sichtprüfung am aktuellen Deck und kein
 Teilnehmer- oder Lernwirksamkeitsbefund.
 
-Gemeinsamer endlicher Rahmen: höchstens 15 Arbeitspakete, 20 neue Pull Requests
-und 45 Quellenkandidaten einschließlich Reviews, Tests und Wiederholungen.
-Jede Subwelle erhält ihren kleinsten nötigen Quellen-/Ressourcenrahmen;
-Checkpoint am dritten Kandidaten oder ersten Blocker, kein automatischer Reset.
-Token- und Geldverbrauch sind unbekannt. Ein Verantwortlicher führt die Arbeit;
-erforderliche unabhängige Reviews werden wiederverwendet. Unveränderte grüne
-Prüfungen und unveränderte Blocker lösen keine neuen Versuche aus.
+Der historische gemeinsame Rahmen vom 26. Oktober betrug höchstens 15
+Arbeitspakete, 20 neue Pull Requests und 45 Quellenkandidaten einschließlich
+Reviews, Tests und Wiederholungen; der 45er-Kandidatenstopp wurde erreicht.
+Der menschliche Fortsetzungsauftrag vom 4. November erweitert additiv um höchstens
+12 Kandidaten und drei Pull Requests, ohne Reset: kumulative Obergrenzen 15/23/57
+(Arbeitspakete/Pull Requests/Kandidaten). Startverbrauch der Fortsetzung ist
+1/19/45. Die Fortsetzung verfolgt höchstens zwei zusammenhängende Arbeitspakete
+und checkpointet am dritten Kandidaten oder ersten Blocker. Token- und
+Geldverbrauch sind unbekannt. Unveränderte grüne Prüfungen und Blocker lösen
+keine neuen Versuche aus.
 Ein stündlicher nativer Heartbeat dient ausschließlich als Leerlaufsicherung.
 Bei aktiver Arbeit oder nicht handlungsfähigem Zustand beginnt er keine Arbeit.
 
@@ -119,6 +122,20 @@ eines `plan_handle`. Ohne diese Quellen-/Query-/Planbindung belegen die Helfer
 weder die beabsichtigte aktuelle Ausführung noch Schema-/Runtimequalität oder
 Engineidentität. SQL-ausgeführtes End-to-end Capture und Buildqualifikation
 bleiben offen.
+
+**DGN-007-Import-Only-Worker: begrenzte Quellkomponente, keine DGN-Importabnahme.**
+Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
+verwendet das vorbereitete 27-Member-/Neuner-Eingangsprotokoll für drei frische
+Linux-/CPython-3.12-Prozesse, lädt die festen Modulbytes über einen kontrollierten
+MemoryFinder und bindet Import-`BEGIN`/`COMPLETE` an Member, Größe, SHA-256,
+Eingang und Worker-Nonce. Elf synthetische lokale Linux-/CPython-3.12.3-Tests
+prüfen die drei Sollsequenzen und gezielte falsche Imports, Bodytausch,
+Reload/Alias, veraltete Receiptbindung sowie den offenen Pipe-Fall nach Leader-
+Ende. stdout/stderr teilen beim Lesen 64 KiB plus höchstens ein Sentinelbyte.
+Der Testschritt hängt am bestehenden DGN-007-Harness-Source-Job, ohne
+SQL-Matrix oder zusätzlichen Job. Die tatsächlichen DGN-Module wurden nicht
+importiert; Profil-, Kanal-, Prozessbaum-, Trust-, Cleanup-, SQL-, Acquisition-
+und Methodenfreigaben bleiben offen. Alle Attestationsflags bleiben `false`.
 
 ## Auftrag vom 25. Oktober 2026: DGN-004 auf Standard-Planerzwingung und Hint-Kontrollzustand begrenzen
 
