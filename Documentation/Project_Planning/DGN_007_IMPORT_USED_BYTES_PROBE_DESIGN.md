@@ -2,11 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Stand / Quellenabruf | 2026-10-07 |
-| Repositorybasis | `fe5bdd25af429de347a7cdd75376d84eed9f6105` |
-| Status | `DESIGNED`; nicht implementiert oder ausgeführt |
-| Geltung | `PROJECT_SEMANTIC`; kontrollierter Import-Only-Entwurf |
-| Grenze | keine vollständige Runtimeclosure, SQL-Runtime oder Methodenfreigabe |
+| Design- / Quellenstand | 2026-10-07 |
+| Importworker-Quellschnitt | 2026-11-04; Basis `0165ab4de5221e80699ecd20197fd0f773032311` |
+| Status | `SOURCE_CANDIDATE`; synthetische Workerproben bestanden, tatsächliche DGN-Module nicht importiert |
+| Geltung | `PROJECT_SEMANTIC`; begrenzte Import-Only-Komponente |
+| Grenze | keine Trust-, vollständige Runtimeclosure, SQL-Runtime oder Methodenfreigabe |
 
 ## 1. Ziel und Aussagegrenze
 
@@ -14,8 +14,10 @@ Die Probe soll später belegen, welche bereits gebundenen Pythonbytes ihr
 vertrauenswürdiger Loader bei drei festen Top-Level-Imports tatsächlich
 kompiliert und ausgeführt hat. Ein Kandidatenhash oder eine nachträglich
 ausgelesene Modul-Origin allein trägt diesen begrenzten Verwendungsbeleg nicht.
-Dieser Entwurf erzeugt noch keinen solchen Beleg. `runtime_attested=false` und
-`method_approved=false` bleiben für den heutigen Dokumentationsstand erhalten.
+Der Entwurf definiert die Beweisgrenze. Der neue Quellkandidat führt feste
+synthetische Fixturebytes in Workerprozessen aus; er importiert nicht die
+tatsächlichen DGN-Module. `runtime_attested=false`,
+`import_used_bytes_attested=false` und `method_approved=false` bleiben erhalten.
 
 Grundlagen sind der [Bundle-Verifier](DGN_007_SOURCE_BUNDLE_VERIFIER.md), das
 [Kantenprofil](DGN_007_EXECUTION_EDGE_VERIFIER.md) und das
@@ -197,13 +199,49 @@ Cleanup UNKNOWN lassen; kein allgemeiner Kernel-, Speicher- oder Harddeadlinecla
 
 ## 7. Vorgesehene Gegenproben und Folgescope
 
-Der erste Implementierungsteil ist jetzt das getrennte
-[Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md). Es bereitet nur
-gebundene Bytes und binäre Rahmung vor. Die getrennte
+### Begrenzter Import-Worker als Quellkandidat
+
+Der neue [Import-Only-Worker](../../Tests/Tools/dgn007_import_used_bytes_probe.py)
+verwendet das unverändert vorbereitete Eingangsprotokoll für drei frische
+CPython-3.12-Linux-Worker. Er kompiliert und importiert ausschließlich die
+gehaltenen neun Modulbytes über einen kontrollierten MemoryFinder; `Tests` und
+`Tests.Contracts` werden codefrei angelegt. Der feste Sollumfang ist Runner
+(acht Module), Proxy (ein Modul) und Framework-Harness (drei Module). Der Parent
+vergleicht geordnete `BEGIN`- und stackgebundene `COMPLETE`-Records mit Member,
+Bytezahl, SHA-256 und eingefrorenem Eingangskontext. stdout/stderr verwenden
+beim Lesen ein gemeinsames 64-KiB-Budget mit höchstens einem zusätzlichen
+Overflow-Sentinelbyte; einzelne Reportzeilen sind auf 1 KiB begrenzt;
+alle drei Worker teilen eine monotone 20-s-Deadline. Bei Überlauf, Zeitablauf
+oder nach Leader-Ende offenen Pipes wird die eigene Linux-Prozessgruppe beendet;
+ein unklarer Drain bleibt `UNKNOWN`.
+
+Der Parent verlangt ein `PASS_STATIC_CANDIDATE` aus dem vorhandenen
+Git-/Rohbyte-/Kantenprüfer. Das begrenzt den Kandidateneingang, attestiert aber
+weder eine unabhängige Actor-/Interpreterherkunft noch eine vollständige
+Stdlib-/OS-Vertrauensdomäne. Der Worker lädt keine Dateien des Kandidaten; seine
+Stdlibsuche bleibt auf die beim isolierten Prozessstart vorhandenen Pfade
+begrenzt. Die Datei stellt noch keinen DGN-Runnerpfad dar.
+
+Die synthetischen Linux-Gegenproben importieren feste, harmlose Fixturebytes
+in tatsächlichen lokalen Workerprozessen; sie prüfen Sollsequenzen,
+unbekannte Imports, Reload, Frame-Bodytausch und den Leader-exit-Fall mit
+geerbter Pipe. Die tatsächlichen neun DGN-Module wurden in diesem Schnitt
+nicht importiert. `runtime_attested`, `import_used_bytes_attested`,
+`trust_attested` und `method_approved` bleiben daher fest `false`. Ein späterer
+gebundener Importversuch und unabhängige Prüfung von Worker-/Profil-/Channel-
+und Cleanupgrenzen bleiben erforderlich; weder SQL-/Acquisition-/DGN-007-
+Laufzeit noch Methodenfreigabe folgt daraus.
+
+Das getrennte [Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md)
+bereitet gebundene Bytes und binäre Rahmung vor; für sich selbst führt es keine
+Imports aus. Die getrennte
 [synthetische Memory-Loader-Komponente](DGN_007_MEMORY_LOADER_FIXTURE.md)
 erprobt inzwischen tatsächliches Compile/Exec ausschließlich fester harmloser
 Fixturebytes und ihre objektgebundenen Beginn-/Abschlussreceipts. Sie ist kein
-DGN-Import- oder Auflösungsnachweis. Der getrennte
+DGN-Import- oder Auflösungsnachweis. Der hier beschriebene Importworker ist die
+erste getrennte Komponente, die einen kontrollierten Resolver in frischen
+Prozessen tatsächlich anwendet; seine lokalen Proben nutzen ausschließlich
+synthetische Bytes und attestieren keine DGN-Module. Der getrennte
 [Interpreter-/Stdlib-Profilvorschnitt](DGN_007_IMPORT_RUNTIME_PROFILE.md)
 beobachtet inzwischen begrenzte aktuelle Kontrollbootstrapmetadaten und prüft
 Übereinstimmung mit einer separat deklarierten Baseline. Die ausdrücklich
@@ -213,24 +251,26 @@ ist `DESIGNED`: separat vorab gewählte Workerinventur und gemeinsamer
 Eingangs-/Ordinal-/Phasenkontext. Der getrennte
 [reine Matcher](DGN_007_IMPORT_PROFILE_BINDING_MATCHER.md) ist implementiert.
 Tatsächlicher Beobachtungsadapter, kombinierter Codec, Kanal- und Verbrauchsbindung
-bleiben unimplementiert; die tatsächliche Parent-/Workerbindung ist noch nicht belegt. Die folgenden vollständigen Worker-/Loadergrenzen,
-tatsächliche DGN-Importreceipts und Cleanup bleiben unimplementierter Folgescope.
+bleiben unimplementiert; die tatsächliche Parent-/Workerbindung ist noch nicht
+belegt. Der Importworker ersetzt weder diese Profilbindung noch eine vollständige
+Kanal-, Verbrauchs-, Trust- oder Cleanupattestation.
 
 | Gegenprobe | Erforderliches Ergebnis |
 |---|---|
 | fremdes `Tests`-/`json`-Package, CWD/PYTHONPATH/.pth, fremder Hook | kein Fremdimport; keine Suchpfaderweiterung als erfolgreiche Lösung |
 | eigener Name schon gecacht oder eigenes Modulobjekt ausgetauscht | geschlossen ablehnen, auch bei gleicher Origin |
 | Kandidat nach Byteprüfung ersetzt, Transferbyte geändert | Loader bleibt an alten Bytes gebunden beziehungsweise Hashfehler; keine Neuaufnahme |
-| Aliasname, falscher Member, Replay/alter Nonce, doppelte Abschlussreceipt | kein PASS |
+| Aliasname, falscher Member, wiederverwendeter Worker-Receipt mit altem Nonce, doppelte Abschlussreceipt | kein PASS |
 | zusätzliches ausführbares AST oder Top-Level-Sentinel | Ablehnung vor Workerstart am unveränderten Kantenprofil |
 | Lazy-/unvollständiger Import, Outputoverflow, Timeout/Exit vor Pipe-EOF | kein Import-Only-PASS; eigener Cleanup bleibt Pflicht |
 | fehlender Reap/Restore/Pfadabbau oder harter Parentabbruch | FAIL beziehungsweise UNKNOWN, niemals Cleanup aus Exit ableiten |
 
-Vorgeschlagene spätere Dateien (NICHT VORHANDEN):
+Die Dateien
 `Tests/Tools/dgn007_import_used_bytes_probe.py` und
-`Tests/Static/test_dgn007_import_used_bytes_probe.py`. Kleine feste Fixtures und
-die drei kontrollierten Imports bilden nach Review einen kleinen gewöhnlichen
-Offlineimplementierungsscope, keine Aktivität dieses Docs-only-Schnitts.
+`Tests/Static/test_dgn007_import_used_bytes_probe.py` enthalten den
+Sourcekandidaten und seine synthetischen lokalen Prozessproben. Der CI-Hook hängt
+die zusätzliche statische Prüfung an den vorhandenen fünfminütigen DGN-007-
+Harness-Source-Job an; es entsteht keine weitere SQL-Matrix oder Job.
 Die bestehende Entwicklungsautorisierung umfasst diesen begrenzten technischen Offline-Schnitt.
 SQL-/Docker-/Collector-Ausführung ist daraus nicht mitautorisiert; normative
 Beweisart-, G13- oder Methodengrenzänderungen brauchen die bestehende materielle
