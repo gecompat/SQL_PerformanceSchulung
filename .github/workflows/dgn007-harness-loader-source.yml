@@ -84,5 +84,5 @@ jobs:
           python-version: '3.12'
       - name: Quellenfit, Importgateway und vollständige eigene Traces prüfen
         run: python -I -S -B Tests/Static/test_dgn007_harness_loader_source.py
-      - name: Import-Only-Worker mit synthetischen Bytes und lokalen Prozessen prüfen
+      - name: Import-Only-Worker mit Fixtures und gebundenem DGN-Bundle prüfen
         run: python -I -S -B Tests/Static/test_dgn007_import_used_bytes_probe.py

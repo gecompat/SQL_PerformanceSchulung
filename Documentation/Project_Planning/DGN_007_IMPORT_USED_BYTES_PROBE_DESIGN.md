@@ -235,6 +235,11 @@ CI-/Runnerabnahme und belegt weder vollständige Importclosure noch Profil-,
 Kanal-, Prozessbaum-, Trust-, Cleanup-, SQL-, Acquisition- oder
 Methodenfreigabe. `runtime_attested`, `import_used_bytes_attested`,
 `trust_attested` und `method_approved` bleiben fest `false`.
+Das bestehende Ubuntu-/CPython-3.12-Harness-Source-Job führt dieselbe
+Import-only-Route jetzt zusätzlich gegen den exakten aktuellen Git-HEAD aus.
+Der Test verwendet die begrenzten Bundle-Blob-/Gesamtbytes-/Deadline-Helfer und
+ein temporäres Kandidatenverzeichnis; er ergänzt weder Workflow noch Job oder
+SQL-Matrix. Das ist weiterhin keine vollständige Runtime- oder Methodenabnahme.
 
 Das getrennte [Eingangsprotokoll](DGN_007_IMPORT_PROBE_INPUT_PROTOCOL.md)
 bereitet gebundene Bytes und binäre Rahmung vor; für sich selbst führt es keine
