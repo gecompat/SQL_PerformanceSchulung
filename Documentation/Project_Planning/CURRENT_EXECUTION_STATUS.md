@@ -42,6 +42,14 @@ Session-/Request-ID, gemeinsamer Erfassungszeitpunkt, `RESOURCE_SEMAPHORE`,
 Pool-/Semaphore-Kombination. Die gelieferten Zeilen sind unauthentifiziert;
 kein Lauf, kein Kausalnachweis und keine Runtimequalifikation.
 
+Für RES-001 bindet ein weiterer Offlinevertrag caller-supplied `THREADPOOL`-
+Wait, passendes Run-Token und Scheduler-`work_queue_count` an einen gemeinsamen
+Capturezeitpunkt innerhalb des Run-Fensters. `runnable_tasks_count` bleibt
+separat sichtbar und genügt allein nicht als Worker-Nachweis. Das ist eine
+statische Gegenprobe, keine bestätigte Worker-Erschöpfung oder Runtime-
+Qualifikation; Laststeuerung, erfolgreicher Verbindungsabschluss und
+unabhängiger Cleanup bleiben offen.
+
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
 Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.
