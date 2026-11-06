@@ -132,9 +132,19 @@ eine passende Gegenprobe und einen sicheren Abbruch- und Cleanup-Pfad.
 Allgemeiner Instanzspeicherdruck bleibt beim getrennten Lernumfang `RES-003`;
 der kontrollierte Sort-Spill bleibt in `OPT-013`.
 
+Der [Offline-Prüfer](../../Tests/Static/res004_grant_wait_contract.py) ergänzt
+einen statischen Vertragscheck für caller-supplied Snapshots: ein aktueller
+`RESOURCE_SEMAPHORE`-Request muss über dieselbe Session- und Request-ID an eine
+Anforderung mit `grant_time IS NULL` und positiver Wartezeit gebunden sein.
+Mindestens ein weiterer erteilter Grant muss im selben Pool und derselben
+Semaphore erscheinen. Unterschiedliche positive Wartezeitfelder werden nicht
+gleichgesetzt, da sie unabhängig erfasste Zeitwerte sind. `PASS` prüft nur die
+gelieferten Werte; er authentifiziert keine DMV-Aufnahme und beweist keine
+Ursache des Wartens oder eine tatsächlich erzeugte Konkurrenz.
+
 ## Quellen
 
-- Microsoft Learn, [sys.dm_exec_query_memory_grants](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17): wartende und gewährte Requests, Grant-Spalten, Schlüssel und Berechtigungen; Abruf am 2026-10-26.
-- Microsoft Learn, [sys.dm_exec_requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-requests-transact-sql?view=sql-server-ver17): aktuelle Requests, Session-/Request-IDs und Wait-Spalten; Abruf am 2026-10-26.
-- Microsoft Learn, [sys.dm_exec_query_resource_semaphores](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-resource-semaphores-transact-sql?view=sql-server-ver17): Pool-/Semaphore-Scope sowie Grant- und Waiter-Zähler; Abruf am 2026-10-26.
-- Microsoft Learn, [Troubleshoot slow performance or low memory issues caused by memory grants](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues): Grant-Lebensdauer, `RESOURCE_SEMAPHORE`-Diagnose und Poolkontext; Abruf am 2026-10-26.
+- Microsoft Learn, [sys.dm_exec_query_memory_grants](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17): wartende und gewährte Requests, Grant-Spalten, Schlüssel und Berechtigungen; erneut geprüft am 2026-11-06.
+- Microsoft Learn, [sys.dm_exec_requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-requests-transact-sql?view=sql-server-ver17): aktuelle Requests, Session-/Request-IDs und Wait-Spalten; erneut geprüft am 2026-11-06.
+- Microsoft Learn, [sys.dm_exec_query_resource_semaphores](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-resource-semaphores-transact-sql?view=sql-server-ver17): Pool-/Semaphore-Scope sowie Grant- und Waiter-Zähler; erneut geprüft am 2026-11-06.
+- Microsoft Learn, [Troubleshoot slow performance or low memory issues caused by memory grants](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues): Grant-Lebensdauer, `RESOURCE_SEMAPHORE`-Diagnose und Poolkontext; erneut geprüft am 2026-11-06.

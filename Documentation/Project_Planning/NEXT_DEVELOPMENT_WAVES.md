@@ -16,7 +16,7 @@ die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
 |---|---|---|
 | 1. DGN-004 statische Annahmeprüfung | Der reine Neun-Aufruf-/Statusprüfer und seine synthetischen Gegenfälle sind implementiert und unabhängig geprüft. Restgate: die unabhängige Methoden-/Quellenfreigabe vor SQL bleibt offen. | Keine SQL-/Lab-Ausführung. Der Review schließt nur die statische Gegenprobenlücke. Umsetzung und Laufqualifikation nur nach der dafür nötigen Freigabe; Zielbuilds bleiben 2022/16.0.4265.3 und 2025/17.0.4075.5, neun Aufrufe je Build, zwei eigene sequenzielle Container, 900 Sekunden gemeinsames Laufbudget plus je 60 Sekunden Cleanup. |
 | 2. Teilnehmer-/Generalprobe | Vorbereitung und Materialien für die neun Folien anhand des bestehenden PRS-010-Plans bereitstellen und den offenen Status nachvollziehbar halten. | Die Durchführung mit Teilnehmenden, Sicht-/Lernwirksamkeitsbefund und deren Freigabe sind menschliche Gates; keine autonome Erledigung behaupten. Bei fehlender Verfügbarkeit mit dem nächsten unabhängig bearbeitbaren Punkt fortfahren. |
-| 3. Lesepfade und Kerninhalte | Den vollständigen betroffenen Lesepfad prüfen; danach die festgelegte Reihenfolge der begrenzten Inhalte verfolgen: QRY-002, QRY-003, RES-004. Vorhandene Notizen nicht als Runtimebeleg werten. | RES-004-Ausführung erst nach Prüfung des konkreten Demo-/Mess-/Cleanupvertrags. Der Grant-Wait muss an die eigene nicht gewährte Anforderung und den aktuellen `RESOURCE_SEMAPHORE`-Request gebunden sein. |
+| 3. Lesepfade und Kerninhalte | Den vollständigen betroffenen Lesepfad prüfen; danach die festgelegte Reihenfolge der begrenzten Inhalte verfolgen: QRY-002, QRY-003, RES-004. Der RES-004-Offlineschnitt bindet caller-supplied Request-/Grantzeilen und ist im Framework-Contracts-Workflow enthalten. Vorhandene Notizen und statische Gegenproben bleiben kein Runtimebeleg. | RES-004-Ausführung erst nach Prüfung des konkreten Demo-/Mess-/Cleanupvertrags. Der Grant-Wait muss an die eigene nicht gewährte Anforderung und den aktuellen `RESOURCE_SEMAPHORE`-Request gebunden sein; eine parallele gewährte Anforderung aus demselben Pool/Semaphore ist nur mit tatsächlicher DMV-Evidenz zu qualifizieren. |
 | 4. Diagnose- und vorhandene KI-Qualifikation | Jeweils nur den im aktiven Status ausgewählten, unabhängig prüfbaren Schnitt vorbereiten; Verträge, synthetische Prüfungen und erforderliche Reviews vor jeder Runtimephase abschließen. | Kein SQL-/Provider-/Netzwerk-/Lab-Effekt aus statischer Evidenz ableiten. Lauf-, Provider- und Datenfreigaben gelten pro konkretem Schnitt. |
 | 5. CON-006- und IDX-007-Varianten | Der synthetisch geprüfte CON-006-Offline-Graph- und Capturevertrag sowie der IDX-007-Offlinevertrag für caller-supplied `PAGELATCH_EX`-Waits sind im Framework-Contracts-Workflow enthalten. Offen sind unabhängige Methoden-/Quellenfreigabe und danach die empirische Darstellung bzw. echte Seitenkettenauflösung, bevor Laufvarianten umgesetzt werden. Anschließend den fairen IDX-007-Vergleich mit tatsächlichem Wait-/Page-Nachweis verfolgen. | Graph, Zeitfenster, Marker, Eventquelle, Actorresultate, Waits und Seitenfelder sind caller-geliefert und unauthentifiziert. Der statische `PASS` ist kein Laufzeit- oder Engpassnachweis. Range bleibt zurückgestellt. Kein SQL-/Lab-Lauf ohne konkreten Demo-Vertrag, Methodenfreigabe und Safety-/Cleanup-Gates. |
 | 6. Nachgelagerte Erweiterungen | Ressourcen, SQL Server 2025, Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastruktur einzeln anhand der aktiven Reihenfolge und Abhängigkeiten aufnehmen. | Jede Erweiterung braucht ihren eigenen Quellen-/Vertragsreview und gegebenenfalls ausdrückliche Methoden-, Versions-, Lizenz-, Infrastruktur- und Runtimefreigabe. Keine Bündelfreigabe aus dieser Planung ableiten. |
@@ -37,14 +37,25 @@ nächsten Lauf.
 
 - Ein Owner, höchstens zwei zusammenhängende Arbeitspakete je Fortsetzung und
   Checkpoint spätestens am dritten Quellenkandidaten oder beim ersten Blocker.
-- Die dokumentierten kumulativen Obergrenzen bleiben 15 Arbeitspakete,
-  23 Pull Requests und 57 Quellenkandidaten. Kein Reset und keine Erhöhung.
+- Die bisherigen kumulativen Obergrenzen von 15 Arbeitspaketen, 23 Pull
+  Requests und 57 Quellenkandidaten bleiben als Verbrauchsbasis erhalten.
+  Der Nutzer hat am 2026-11-06 für die fortlaufende autonome Entwicklung eine
+  begrenzte Erweiterung um ein Arbeitspaket, einen Pull Request und zwei
+  Quellen-/Testkandidaten autorisiert. Die neue kumulative Obergrenze beträgt
+  16/24/59; kein Reset. Diese Erweiterung gilt für den nächsten zusammenhängenden
+  Schnitt und wird am PR-/Integrationscheckpoint erneut gegen den Stand geprüft.
   Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
   der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
   Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
 - Token- und Geldverbrauch bleiben unbekannt. Die endlichen Kandidaten-/PR-
   Obergrenzen begrenzen die Arbeit, sind aber keine behauptete Kostenmessung
   oder Provider-Ausgabensperre.
+- Aufwand für den RES-004-Schnitt: zwei gezielte Offline-Testdateien werden
+  lokal einmal ausgeführt und im passenden PR- und Main-Workflow erneut
+  geprüft; kein Vollsuite- oder SQL-Lab-Trigger. Fehlende/fehlgeschlagene
+  Evidenz wird lokal nur bei neuem Befund weiter untersucht. Ein Owner, keine
+  zusätzliche Reviewkette und keine Subagenten; reale Token-/Geldmessung bleibt
+  unbekannt.
 - Nach jedem kohärenten Schnitt: relevante lokale Prüfungen und erforderliche
   unabhängige Prüfung, PR- und Main-Gates gemäß Projektregeln, Integration,
   Main-Synchronisierung und Branchbereinigung. Begonnene Arbeit nicht als

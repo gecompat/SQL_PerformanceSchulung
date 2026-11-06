@@ -36,6 +36,14 @@ wartenden eigenen Requests. Eine ausführbare Konkurrenzprobe und tatsächlicher
 Wait-Nachweis bleiben offen; aktive Sessions genügen nicht. Für alle drei
 bleiben ihre eigenen offenen Quellen- und Qualifikationsgrenzen maßgeblich.
 
+Der statische [RES-004-Offlineprüfer](../Tests/Static/res004_grant_wait_contract.py)
+bindet caller-supplied Request- und Grantzeilen über Session-ID, Request-ID,
+gemeinsamen Erfassungszeitpunkt, `RESOURCE_SEMAPHORE`, `grant_time IS NULL`,
+positive Wartewerte und einen weiteren gewährten Grant aus derselben
+Pool-/Semaphore-Kombination. Er authentifiziert keine Aufnahme und weist keine
+Ursache oder reale Konkurrenz nach. Die synthetischen Gegenproben sind im
+Framework-Contracts-Workflow enthalten; SQL-/Runtimequalifikation bleibt offen.
+
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
 ## DGN-004: Klassische Planerzwingung und Hint-Kontrollzustand
 

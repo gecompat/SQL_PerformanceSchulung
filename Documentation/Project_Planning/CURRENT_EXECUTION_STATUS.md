@@ -36,6 +36,12 @@ noch nicht gewährte eigene Anforderung und den dazugehörigen aktuellen
 Laufzeitqualifikation. Die ausführbare Konkurrenzprobe und ihr tatsächlicher
 Wait-Nachweis bleiben offen; aktive Sessions allein belegen keinen Grant-Wait.
 
+Der Offlinevertrag ergänzt nun synthetische Prüfungen für genau diese Bindung:
+Session-/Request-ID, gemeinsamer Erfassungszeitpunkt, `RESOURCE_SEMAPHORE`,
+`grant_time IS NULL`, positive Wartewerte und einen erteilten Grant derselben
+Pool-/Semaphore-Kombination. Die gelieferten Zeilen sind unauthentifiziert;
+kein Lauf, kein Kausalnachweis und keine Runtimequalifikation.
+
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
 Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.
