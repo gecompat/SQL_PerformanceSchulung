@@ -1,7 +1,69 @@
 # Nächste Entwicklungswellen
 
-Der Benutzerauftrag vom 20. Oktober 2026 nimmt nach Bestandsprüfung die
-allgemeine Entwicklung wieder auf. Der interne Capture-Vorschnitt ist nach
+## Aktuelle autonome Fortsetzungsplanung vom 6. November 2026
+
+Diese Planung konkretisiert den aktiven Auftrag in
+[`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
+überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
+die dort genannten Pausen bis zum 20. Oktober. Sie setzt weder neue fachliche
+Freigaben noch Laufrechte oder Budgets. Reihenfolge, Umfang und Status werden
+vor jedem neuen Arbeitspaket gegen den aktuellen kanonischen Ausführungsstand,
+die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
+
+### Arbeitsfolge
+
+| Schritt | Arbeit und Abschlusskriterium | Grenze / Folgeentscheidung |
+|---|---|---|
+| 1. DGN-004 statische Annahmeprüfung | Der reine Neun-Aufruf-/Statusprüfer und seine synthetischen Gegenfälle sind implementiert und unabhängig geprüft. Restgate: die unabhängige Methoden-/Quellenfreigabe vor SQL bleibt offen. | Keine SQL-/Lab-Ausführung. Der Review schließt nur die statische Gegenprobenlücke. Umsetzung und Laufqualifikation nur nach der dafür nötigen Freigabe; Zielbuilds bleiben 2022/16.0.4265.3 und 2025/17.0.4075.5, neun Aufrufe je Build, zwei eigene sequenzielle Container, 900 Sekunden gemeinsames Laufbudget plus je 60 Sekunden Cleanup. |
+| 2. Teilnehmer-/Generalprobe | Vorbereitung und Materialien für die neun Folien anhand des bestehenden PRS-010-Plans bereitstellen und den offenen Status nachvollziehbar halten. | Die Durchführung mit Teilnehmenden, Sicht-/Lernwirksamkeitsbefund und deren Freigabe sind menschliche Gates; keine autonome Erledigung behaupten. Bei fehlender Verfügbarkeit mit dem nächsten unabhängig bearbeitbaren Punkt fortfahren. |
+| 3. Lesepfade und Kerninhalte | Den vollständigen betroffenen Lesepfad prüfen; danach die festgelegte Reihenfolge der begrenzten Inhalte verfolgen: QRY-002, QRY-003, RES-004. Vorhandene Notizen nicht als Runtimebeleg werten. | RES-004-Ausführung erst nach Prüfung des konkreten Demo-/Mess-/Cleanupvertrags. Der Grant-Wait muss an die eigene nicht gewährte Anforderung und den aktuellen `RESOURCE_SEMAPHORE`-Request gebunden sein. |
+| 4. Diagnose- und vorhandene KI-Qualifikation | Jeweils nur den im aktiven Status ausgewählten, unabhängig prüfbaren Schnitt vorbereiten; Verträge, synthetische Prüfungen und erforderliche Reviews vor jeder Runtimephase abschließen. | Kein SQL-/Provider-/Netzwerk-/Lab-Effekt aus statischer Evidenz ableiten. Lauf-, Provider- und Datenfreigaben gelten pro konkretem Schnitt. |
+| 5. CON-006- und IDX-007-Varianten | Nach den vorangehenden Schritten die vorgeschlagene CON-006-Konversionsvariante mit Konfliktgraph-, Opfer-, Gegenpart- und Cleanupkriterien bearbeiten; danach den fairen IDX-007-Vergleich mit tatsächlichem Wait-/Page-Nachweis. | Range-Variante bleibt zurückgestellt. Kein Lauf, der nicht vom konkreten Demo-Vertrag und dessen Safety-/Cleanup-Gates gedeckt ist. |
+| 6. Nachgelagerte Erweiterungen | Ressourcen, SQL Server 2025, Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastruktur einzeln anhand der aktiven Reihenfolge und Abhängigkeiten aufnehmen. | Jede Erweiterung braucht ihren eigenen Quellen-/Vertragsreview und gegebenenfalls ausdrückliche Methoden-, Versions-, Lizenz-, Infrastruktur- und Runtimefreigabe. Keine Bündelfreigabe aus dieser Planung ableiten. |
+
+### DGN-007 getrenntes Qualifikationsband
+
+Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
+Komponentenevidenz. Ein nächster DGN-007-Schritt darf nur aus dem aktiven
+kanonischen Status gewählt und auf einen einzelnen, statisch prüfbaren
+Quell-/Vertragsschnitt begrenzt werden. Loader-/Parentregistrierung,
+SESSION_END, tatsächlicher Kanal, operative Inventur, UsedBytes, Trust,
+Consumption, Replay, unabhängiger Worker-Cleanup, SQL und Methodenfreigabe
+bleiben getrennte Gates. Jeder PASS einer Komponente ist ausschließlich für
+deren festgelegten Scope gültig; keine Komponente aktiviert automatisch den
+nächsten Lauf.
+
+### Gemeinsame Autonomie- und Stopregeln
+
+- Ein Owner, höchstens zwei zusammenhängende Arbeitspakete je Fortsetzung und
+  Checkpoint spätestens am dritten Quellenkandidaten oder beim ersten Blocker.
+- Die dokumentierten kumulativen Obergrenzen bleiben 15 Arbeitspakete,
+  23 Pull Requests und 57 Quellenkandidaten. Kein Reset und keine Erhöhung.
+  Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
+  der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
+  Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
+- Token- und Geldverbrauch bleiben unbekannt. Die endlichen Kandidaten-/PR-
+  Obergrenzen begrenzen die Arbeit, sind aber keine behauptete Kostenmessung
+  oder Provider-Ausgabensperre.
+- Nach jedem kohärenten Schnitt: relevante lokale Prüfungen und erforderliche
+  unabhängige Prüfung, PR- und Main-Gates gemäß Projektregeln, Integration,
+  Main-Synchronisierung und Branchbereinigung. Begonnene Arbeit nicht als
+  abgeschlossen melden, solange diese Integrationsschritte offen sind.
+- Bei FAIL, fehlender Evidenz, unbekanntem Zustand, veraltetem Quellenbinder,
+  verbrauchter Obergrenze oder nicht erfülltem Gate: keine Folgeausführung.
+  Fehler nicht weginterpretieren und unveränderte Kandidaten nicht wiederholen.
+  Den Blocker mit Wiederaufnahmebedingung im kanonischen Ausführungsstand
+  vermerken.
+
+Die Umsetzung dieser Planung selbst ist keine Aufforderung, nach Abschluss
+dieses Planungsdokuments autonom mit Arbeitspaket 1 fortzufahren. Eine spätere
+Fortsetzung muss am dann aktuellen Status und der dort wirksamen Autorisierung
+ansetzen.
+
+## Historischer Planungsstand vom 20. Oktober 2026
+
+Der damalige Benutzerauftrag nahm nach Bestandsprüfung die
+allgemeine Entwicklung wieder auf. Der interne Capture-Vorschnitt war nach
 [unabhängigem Review und aktueller CI](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
 über PR255 integriert und vollständig bereinigt. Danach ist ausschließlich der
 [SESSION_END-Entwurf §34](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#34-session_end-counts-und-kanalhashpräbild)
@@ -18,8 +80,8 @@ SQLimplementierung in dieser Designwelle.
 
 | Merkmal | Wert |
 |---|---|
-| Status | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch aktuelle Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
-| Stand | 2026-10-08 |
+| Historischer Status zum damaligen Planungsstand | allgemeine Entwicklung `PAUSED`; PR68-Code `BLOCKED` durch damalige Runtimefehler; Prüfbericht und Abschlussprozess getrennt |
+| Historischer Bezugsstand | 2026-10-08 |
 | Ausgangsstand | Produktive Runtimeevidenz bis Pull Request 42; begrenzte DGN-007-Kontrollcaptures bis Pull Request 62 und prospektiver Prüfvertrag aus Pull Request 63 und skalarer Transport aus Pull Request 64 sowie begrenzter SQL-Producer aus Pull Request 65; Detailstand in `CURRENT_EXECUTION_STATUS.md` |
 | Bezug | [Aktueller Ausführungsstand](CURRENT_EXECUTION_STATUS.md), `.ai/BACKLOG.md`, `MASTER_IMPLEMENTATION_PLAN.md` |
 | Zweck | priorisierte, kleine Folgepakete; keine Aussage, dass die beschriebenen Inhalte bereits umgesetzt sind |

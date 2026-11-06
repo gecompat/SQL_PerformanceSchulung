@@ -123,6 +123,19 @@ weder die beabsichtigte aktuelle Ausführung noch Schema-/Runtimequalität oder
 Engineidentität. SQL-ausgeführtes End-to-end Capture und Buildqualifikation
 bleiben offen.
 
+**DGN-004 statischer Annahmevertrag: lokaler begrenzter Schnitt.** Ein reiner
+Prüfer und synthetische Gegenproben bilden jetzt den aktiven
+`CLASSICAL_FORCING_AND_HINT_CONTROL`-Umfang mit neun geordneten Aufrufen,
+Kompilierungs-/Ausführungszuwächsen, Form-A-Tupeloracle aus den registrierten
+ID-/Wertformeln, Force/Unforce-, Hint-, Identitäts- und Statusvorrang ab.
+Offene Replay-Marker werden nicht als Eintritts- oder PASS-Gate verwendet.
+Der unabhängige Review schließt ausschließlich die statische Gegenprobenlücke;
+er gibt keine Runtimebelege frei und ersetzt nicht die weiter offene
+Methoden-/Quellenfreigabe für SQL, Build- oder Demoqualifikation. Alle Eingaben
+des Prüfers sind caller-gelieferte Belege oder synthetische Fixturewerte; PASS
+ist keine Attestation tatsächlicher Ausführung. PR und frische Integrationsgates
+stehen noch aus.
+
 **DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
 verwendet das vorbereitete 27-Member-/Neuner-Eingangsprotokoll für drei frische
