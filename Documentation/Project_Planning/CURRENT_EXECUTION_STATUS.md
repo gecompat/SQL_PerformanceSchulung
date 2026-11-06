@@ -133,8 +133,9 @@ Der unabhängige Review schließt ausschließlich die statische Gegenprobenlück
 er gibt keine Runtimebelege frei und ersetzt nicht die weiter offene
 Methoden-/Quellenfreigabe für SQL, Build- oder Demoqualifikation. Alle Eingaben
 des Prüfers sind caller-gelieferte Belege oder synthetische Fixturewerte; PASS
-ist keine Attestation tatsächlicher Ausführung. PR und frische Integrationsgates
-stehen noch aus.
+ist keine Attestation tatsächlicher Ausführung. Integrationsentscheidung und CI
+werden für diesen Schnitt in PR 355 geführt; dieser Statusabschnitt hält die
+fachlichen Aussagegrenzen fest.
 
 **DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
