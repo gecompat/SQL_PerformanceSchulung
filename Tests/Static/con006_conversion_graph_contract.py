@@ -6,6 +6,7 @@ not acquire, authenticate, time, or attest to SQL Server evidence.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 import re
 import xml.etree.ElementTree as ET
@@ -13,6 +14,9 @@ import xml.etree.ElementTree as ET
 
 MAX_GRAPH_BYTES = 128 * 1024
 _UNSIGNED = re.compile(r"[1-9][0-9]*\Z")
+_RFC3339 = re.compile(
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})\Z"
+)
 
 
 class Verdict(str, Enum):
@@ -34,6 +38,49 @@ class GraphIdentity:
 class GraphResult:
     verdict: Verdict
     reasons: tuple[str, ...]
+    victim_spid: int | None = None
+
+
+@dataclass(frozen=True)
+class ActorOutcome:
+    role: str
+    spid: int
+    outcome: str
+    error_number: int | None
+
+
+@dataclass(frozen=True)
+class CaptureEvidence:
+    """Caller-supplied correlation envelope; fields are not authenticated here."""
+
+    expected_run_token: str | None
+    observed_run_token: str | None
+    event_name: str | None
+    source_session: str | None
+    database_id: int | None
+    actor_spids: tuple[tuple[str, int], ...] | None
+    event_timestamp_utc: str | None
+    run_started_utc: str | None
+    run_finished_utc: str | None
+    matching_event_count: int | None
+    actor_outcomes: tuple[ActorOutcome, ...] | None
+    graph_identity: GraphIdentity | None
+    graph_xml: str | bytes | None
+
+
+def _valid_actor_spids(actor_spids: object) -> bool:
+    if type(actor_spids) is not tuple or len(actor_spids) != 2:
+        return False
+    if any(type(pair) is not tuple or len(pair) != 2 for pair in actor_spids):
+        return False
+    roles = [pair[0] for pair in actor_spids]
+    if any(type(role) is not str for role in roles) or set(roles) != {"ACTOR_A", "ACTOR_B"}:
+        return False
+    spids = [pair[1] for pair in actor_spids]
+    if (any(type(spid) is not int or spid <= 0 for spid in spids)
+            or spids[0] == spids[1]):
+        return False
+    return True
 
 
 def _valid_identity(identity: object) -> bool:
@@ -41,16 +88,7 @@ def _valid_identity(identity: object) -> bool:
         return False
     if type(identity.database_id) is not int or identity.database_id <= 0:
         return False
-    if type(identity.actor_spids) is not tuple or len(identity.actor_spids) != 2:
-        return False
-    if any(type(pair) is not tuple or len(pair) != 2 for pair in identity.actor_spids):
-        return False
-    roles = [pair[0] for pair in identity.actor_spids]
-    if any(type(role) is not str for role in roles) or set(roles) != {"ACTOR_A", "ACTOR_B"}:
-        return False
-    spids = [pair[1] for pair in identity.actor_spids]
-    if (any(type(spid) is not int or spid <= 0 for spid in spids)
-            or spids[0] == spids[1]):
+    if not _valid_actor_spids(identity.actor_spids):
         return False
     if type(identity.object_name) is not str or not identity.object_name.strip():
         return False
@@ -87,6 +125,24 @@ def _unsigned_attr(node: ET.Element, name: str, label: str, failures: list[str])
         failures.append(f"{label} {name} must be a positive decimal integer")
         return None
     return int(value)
+
+
+def _timestamp(value: str | None, label: str, *, missing: list[str], failures: list[str]) -> datetime | None:
+    if value is None:
+        missing.append(label)
+        return None
+    if type(value) is not str or not _RFC3339.fullmatch(value):
+        failures.append(f"{label} must be an RFC 3339 timestamp with an explicit UTC offset")
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        failures.append(f"{label} is not a valid timestamp")
+        return None
+    if parsed.utcoffset() is None:
+        failures.append(f"{label} must include a UTC offset")
+        return None
+    return parsed.astimezone(timezone.utc)
 
 
 def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIdentity | None) -> GraphResult:
@@ -191,4 +247,125 @@ def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIden
 
     if failures:
         return GraphResult(Verdict.FAIL, tuple(failures))
-    return GraphResult(Verdict.PASS, ())
+    victim_spid = int(process_by_id[victim_id].get("spid", "0")) if victim_id is not None else None
+    return GraphResult(Verdict.PASS, (), victim_spid)
+
+
+def evaluate_conversion_capture(evidence: CaptureEvidence | None) -> GraphResult:
+    """Check graph plus caller-supplied event, run-window, and actor outcome bindings."""
+    if evidence is None:
+        return GraphResult(Verdict.NOT_PROVEN, ("conversion capture evidence is missing",))
+    if type(evidence) is not CaptureEvidence:
+        return GraphResult(Verdict.FAIL, ("capture evidence must use the exact contract record",))
+
+    missing: list[str] = []
+    failures: list[str] = []
+
+    def require_text(value: str | None, label: str, expected: str | None = None) -> None:
+        if value is None:
+            missing.append(label)
+        elif type(value) is not str or not value.strip():
+            failures.append(f"{label} is invalid")
+        elif expected is not None and value != expected:
+            failures.append(f"{label} differs from the required value")
+
+    require_text(evidence.expected_run_token, "expected run token")
+    require_text(evidence.observed_run_token, "observed run token", evidence.expected_run_token)
+    require_text(evidence.event_name, "event name", "xml_deadlock_report")
+    require_text(evidence.source_session, "source session", "system_health")
+
+    if evidence.graph_identity is not None and type(evidence.graph_identity) is not GraphIdentity:
+        failures.append("graph identity record is invalid")
+    if evidence.database_id is None:
+        missing.append("event database identity")
+    elif type(evidence.database_id) is not int or evidence.database_id <= 0:
+        failures.append("event database identity is invalid")
+    elif (type(evidence.graph_identity) is GraphIdentity
+          and evidence.database_id != evidence.graph_identity.database_id):
+        failures.append("event database identity differs from the graph identity")
+
+    if evidence.actor_spids is None:
+        missing.append("event actor-to-SPID bindings")
+    elif not _valid_actor_spids(evidence.actor_spids):
+        failures.append("event actor-to-SPID bindings are invalid")
+    elif (type(evidence.graph_identity) is GraphIdentity
+          and evidence.actor_spids != evidence.graph_identity.actor_spids):
+        failures.append("event actor-to-SPID bindings differ from the graph identity")
+
+    event_time = _timestamp(evidence.event_timestamp_utc, "event timestamp", missing=missing, failures=failures)
+    started = _timestamp(evidence.run_started_utc, "run start", missing=missing, failures=failures)
+    finished = _timestamp(evidence.run_finished_utc, "run finish", missing=missing, failures=failures)
+    if started is not None and finished is not None and started > finished:
+        failures.append("run window ends before it starts")
+    if event_time is not None and started is not None and finished is not None:
+        if not started <= event_time <= finished:
+            failures.append("deadlock event timestamp falls outside the supplied run window")
+
+    if evidence.matching_event_count is None:
+        missing.append("matching event count")
+    elif type(evidence.matching_event_count) is not int or evidence.matching_event_count < 0:
+        failures.append("matching event count is invalid")
+    elif evidence.matching_event_count == 0:
+        missing.append("matching deadlock event")
+    elif evidence.matching_event_count != 1:
+        failures.append("exactly one matching deadlock event is required")
+
+    graph_result = evaluate_conversion_graph(evidence.graph_xml, evidence.graph_identity)
+    if graph_result.verdict is Verdict.NOT_PROVEN:
+        missing.extend(graph_result.reasons)
+    elif graph_result.verdict is Verdict.FAIL:
+        failures.extend(graph_result.reasons)
+
+    if evidence.actor_outcomes is None:
+        missing.append("actor outcome evidence")
+    elif (type(evidence.actor_outcomes) is not tuple or len(evidence.actor_outcomes) != 2
+          or any(type(item) is not ActorOutcome for item in evidence.actor_outcomes)):
+        failures.append("exactly two actor outcome records are required")
+    elif any(type(item.role) is not str or item.role not in {"ACTOR_A", "ACTOR_B"}
+             for item in evidence.actor_outcomes):
+        failures.append("actor outcome roles must be ACTOR_A and ACTOR_B")
+    else:
+        by_role = {item.role: item for item in evidence.actor_outcomes}
+        expected_spids = dict(evidence.actor_spids) if _valid_actor_spids(evidence.actor_spids) else {}
+        if set(by_role) != {"ACTOR_A", "ACTOR_B"} or len(by_role) != 2:
+            failures.append("actor outcome roles must be ACTOR_A and ACTOR_B exactly once")
+        elif not expected_spids:
+            pass  # the missing or invalid actor binding already determines the result
+        elif any(
+            type(item.spid) is not int or item.spid != expected_spids.get(role)
+            for role, item in by_role.items()
+        ):
+            failures.append("actor outcome SPIDs differ from the supplied actor bindings")
+        else:
+            victims = [
+                item for item in evidence.actor_outcomes
+                if item.spid == graph_result.victim_spid
+                and item.outcome == "VICTIM"
+                and type(item.error_number) is int
+                and item.error_number == 1205
+            ]
+            survivors = [
+                item for item in evidence.actor_outcomes
+                if item.spid != graph_result.victim_spid
+                and item.outcome == "SURVIVOR"
+                and item.error_number is None
+            ]
+            if graph_result.verdict is Verdict.PASS and (len(victims) != 1 or len(survivors) != 1):
+                failures.append("graph victim must match one error 1205 outcome and the other actor must be the survivor")
+            elif graph_result.verdict is not Verdict.PASS:
+                observed_victims = [item for item in evidence.actor_outcomes if item.outcome == "VICTIM"]
+                observed_survivors = [item for item in evidence.actor_outcomes if item.outcome == "SURVIVOR"]
+                if len(observed_victims) != 1 or len(observed_survivors) != 1:
+                    failures.append("actor outcomes must contain one victim and one survivor")
+                elif observed_victims[0].error_number not in (None, 1205):
+                    failures.append("victim outcome error number must be 1205")
+                elif observed_victims[0].error_number is None:
+                    missing.append("victim error number 1205")
+                elif observed_survivors[0].error_number is not None:
+                    failures.append("survivor outcome must not report an error")
+
+    if failures:
+        return GraphResult(Verdict.FAIL, tuple(failures + missing))
+    if missing:
+        return GraphResult(Verdict.NOT_PROVEN, tuple(missing))
+    return GraphResult(Verdict.PASS, (), graph_result.victim_spid)
