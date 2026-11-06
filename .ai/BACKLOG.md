@@ -2086,6 +2086,16 @@ ordnet `PAGELATCH_EX`, `PAGEIOLATCH_EX`, Insertzähler und
 qualitativen Lehrbedarf; der zurückgestellte ausführbare Vergleich und die
 konkrete letzte-Seite-Zuordnung bleiben offen.
 
+**Statischer Vertragsbaustein vom 6. November 2026:** Der
+[IDX-007-Offlineprüfer](../Tests/Static/idx007_last_page_contract.py) prüft
+synthetisch gelieferte Waits auf denselben Zeitstempel und dieselbe
+Datenbank-/Datei-/Seitenadresse, mindestens zwei Sessions, `PAGELATCH_EX`,
+Blattniveau und eine caller-supplied Rechtsaußen-Aussage. Seine Gegenproben
+trennen I/O-Waits, fehlende Konkurrenz und widersprüchliche Zuordnungen.
+Callerwerte sind nicht authentifiziert; echte Seitenkettenauflösung,
+Methoden-/Quellenreview, fairer Workloadvergleich und Runtimequalifikation
+bleiben offen. Der Prüfer darf nicht als Lauf- oder Engpassnachweis gelten.
+
 ##### 7. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**

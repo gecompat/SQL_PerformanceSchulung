@@ -3,6 +3,16 @@
 **Status:** kurze fachliche Erläuterung; keine neue Demo, kein Benchmark und
 keine Runtimequalifikation.
 
+Der [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) prüft
+ergänzend caller-supplied Wait- und Seitenfelder: mindestens zwei verschiedene
+Sessions mit `PAGELATCH_EX`, dieselbe Datenbank-/Datei-/Seitenadresse, denselben
+Zeitpunkt, eine als Blatt deklarierte Zielseite und eine positive
+Rechtsaußen-Aussage. `PAGEIOLATCH_EX` allein und fehlende Konkurrenz ergeben
+`NOT_PROVEN`; inkonsistente Zuordnungen ergeben `FAIL`. Der Prüfer sammelt oder
+authentifiziert keine DMV-Werte und bestätigt nicht selbst die Seitenkette.
+Insbesondere ist sein `PASS` kein SQL-Server-Lauf, kein unabhängiger
+Rechtsaußen-Nachweis und keine Engpass- oder Leistungsqualifikation.
+
 ## Was „Last-Page-Contention“ beschreibt
 
 Wenn viele gleichzeitige Einfügungen denselben sequentiellen führenden

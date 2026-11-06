@@ -65,6 +65,14 @@ begrenzt die Aussage zu `OPTIMIZE_FOR_SEQUENTIAL_KEY`. Sie ist weder eine
 Engpassdiagnose noch eine quantitative Vergleichsdemo; der faire Vergleich
 und tatsächliche Wait-/Page-Nachweis bleiben offen.
 
+Ein synthetisch geprüfter Offline-Vertrag bindet zusätzlich caller-supplied
+`PAGELATCH_EX`-Waits an dieselbe Datenbank-/Datei-/Seitenadresse und denselben
+Capturezeitpunkt, verlangt zwei verschiedene Sessions und Blattniveau sowie
+eine separat gelieferte Rechtsaußen-Aussage. Dies ist statische
+Konsistenzprüfung, keine authentifizierte SQL-Erfassung oder Qualifikation.
+Die unabhängige Seitenkettenauflösung, Methoden-/Quellenprüfung, ein fairer
+Vergleich und Laufzeitnachweise bleiben offen.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem
