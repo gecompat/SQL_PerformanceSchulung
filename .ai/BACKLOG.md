@@ -1991,6 +1991,27 @@ Verhalten auf den Zielbuilds bleiben empirische Gates.
 - Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
 - Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen.
 
+**Reiner Offline-Graphprüfer:** `Tests/Static/con006_conversion_graph_contract.py`
+prüft ein caller-geliefertes `<deadlock>`-XML mit genau zwei gebundenen SPIDs,
+einem Opfer und genau einer passenden `keylock`-Ressource. Beide Prozesse müssen
+dieselbe Datenbank, Tabelle, Index- und optionale HoBT-Identität binden; an der
+Ressource müssen beide Prozesse `S` halten und jeweils `X` mit
+`requestType="convert"` anfordern. Fehlender Graph oder fehlende
+Identitätsbindung ergibt `NOT_PROVEN`; fehlerhaftes oder widersprüchliches XML
+ergibt `FAIL`. Synthetische Gegenproben liegen in
+`Tests/Static/test_con006_conversion_graph_contract.py` und laufen über den
+bestehenden Framework-Contracts-Workflow.
+
+Der Prüfer belegt ausschließlich die innere Form der übergebenen XML- und
+Identitätswerte. Er bindet weder XE-Event, Zeitfenster, Run-Token, Sessionquelle,
+SQL-Fehler 1205, erfolgreichen Gegenpart noch Cleanup und attestiert keine
+Runtimeherkunft. `requestType="convert"` ist ein absichtlich strenges
+prospektives Runtimekriterium; die konkrete Darstellung muss auf beiden
+Zielbuilds beobachtet werden, bevor ein Methoden- oder Laufclaim möglich ist.
+Ein abweichender Graph wird als fehlender Vertragsnachweis behandelt und nicht
+durch eine Lockerung dieses Prüfers umgedeutet. Die bestehende CON-006-Demo,
+Manifestdateien und ihre Runtimequalifikation sind unverändert.
+
 ##### 6. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**

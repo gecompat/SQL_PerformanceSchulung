@@ -20,6 +20,8 @@ on:
       - 'Tests/Static/test_dgn004_identity_snapshot.py'
       - 'Tests/Static/dgn004_acceptance_contract.py'
       - 'Tests/Static/test_dgn004_acceptance_contract.py'
+      - 'Tests/Static/con006_conversion_graph_contract.py'
+      - 'Tests/Static/test_con006_conversion_graph_contract.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -53,6 +55,8 @@ on:
       - 'Tests/Static/test_dgn004_identity_snapshot.py'
       - 'Tests/Static/dgn004_acceptance_contract.py'
       - 'Tests/Static/test_dgn004_acceptance_contract.py'
+      - 'Tests/Static/con006_conversion_graph_contract.py'
+      - 'Tests/Static/test_con006_conversion_graph_contract.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -109,6 +113,9 @@ jobs:
 
       - name: Test DGN-004 narrowed acceptance contract
         run: python Tests/Static/test_dgn004_acceptance_contract.py
+
+      - name: Test CON-006 conversion deadlock graph contract
+        run: python Tests/Static/test_con006_conversion_graph_contract.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py
