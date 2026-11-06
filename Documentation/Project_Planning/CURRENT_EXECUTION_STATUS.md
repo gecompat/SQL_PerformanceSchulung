@@ -44,6 +44,17 @@ die Range-Variante bleibt wegen der Überschneidung mit CON-002 zurückgestellt.
 Der [begrenzte Quellen- und Variantenvertrag](../../.ai/BACKLOG.md#5-con-006--conversion--und-range-deadlocks-als-optionale-varianten) führt die noch nötigen
 Graph-, Opfer-, Gegenpart- und Cleanup-Nachweise auf.
 
+Der getrennte Offline-Graphprüfer für den vorgeschlagenen Konversionsfall ist
+implementiert und über den bestehenden Framework-Contracts-Workflow ausgewählt.
+Elf synthetische Gegenproben bestehen. Geprüft werden caller-geliefertes
+Deadlock-XML, genau zwei an Datenbank und SPIDs gebundene Prozesse, ein Opfer
+und dieselbe konkrete Keylock-Ressource mit beiderseits gehaltenem `S` und
+angefordertem `X`/`requestType="convert"`. Das ist kein Erwerb oder Herkunfts-
+nachweis des Graphen und bindet noch weder Beobachtungszeitraum, Run-Token noch
+die unabhängigen 1205-/Gegenpart-/Cleanupresultate. Die genaue Darstellung auf
+beiden Zielbuilds bleibt empirisch zu prüfen; Demo-SQL, Manifest und
+Runtimequalifikation wurden nicht geändert.
+
 Für `IDX-007` ergänzt eine kurze, quellengebundene Erläuterung den Lernpfad:
 Sie trennt Last-Page-`PAGELATCH_EX` von I/O- und Transaktionssperren und
 begrenzt die Aussage zu `OPTIMIZE_FOR_SEQUENTIAL_KEY`. Sie ist weder eine
