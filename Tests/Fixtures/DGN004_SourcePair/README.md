@@ -65,6 +65,19 @@ belegen weder sqlcmd-Erfassung noch stderr-/stdout-Limits, XML-/Planqualität,
 Planidentität, Laufzeitverhalten oder vollständige Transportsicherung. Diese
 Erfassungs- und Ergebnisgates bleiben offen.
 
+`Tests/Static/dgn004_acceptance_contract.py` prüft getrennt davon den
+statischen Statusvertrag für die neun vorgesehenen Aufrufe auf den beiden
+Zielbuilds. Synthetische Gegenfälle erzwingen vollständigen Quell-/Identitäts-/
+Plan-/Kontext-/Transportbezug, 768 Solltupel unabhängig aus den registrierten
+Form-A-ID-/Wertformeln mit den festgelegten Duplikaten,
+Kompilierungs- und Ausführungszuwächse, Force-/Unforce-Zustände und eigene
+Force-Fehlerzählepochen, den festen
+H-Hint, den begrenzten `acceptance_scope` sowie Statusvorrang einschließlich
+`FAIL_CLEANUP`. Replay-Markerwerte werden absichtlich nicht als Pflicht
+verwendet. Der Prüfer bewertet ausschließlich caller-gelieferte Werte und
+synthetische Fixtures; er erzeugt keine Runtimeevidenz und schließt weder
+Methodenfreigabe noch SQL-/Versions-/Demoqualifikation.
+
 `CapturePlanFrame.sql` liest den `query_plan`-Wert für ein vom Aufrufer
 übergebenes Handle aus `sys.dm_exec_query_plan_stats`, serialisiert das XML in
 UTF-16-Bytes und gibt die festgelegten Start-/Chunk-/End-Zeilen als einzelne
