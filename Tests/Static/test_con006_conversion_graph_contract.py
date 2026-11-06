@@ -10,8 +10,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from con006_conversion_graph_contract import (  # noqa: E402
     MAX_GRAPH_BYTES,
+    ActorOutcome,
+    CaptureEvidence,
     GraphIdentity,
     Verdict,
+    evaluate_conversion_capture,
     evaluate_conversion_graph,
 )
 
@@ -52,6 +55,27 @@ def change_graph(mutator) -> str:
     root = ET.fromstring(good_graph())
     mutator(root)
     return ET.tostring(root, encoding="unicode")
+
+
+def good_capture() -> CaptureEvidence:
+    return CaptureEvidence(
+        expected_run_token="RUN20261106A",
+        observed_run_token="RUN20261106A",
+        event_name="xml_deadlock_report",
+        source_session="system_health",
+        database_id=73,
+        actor_spids=IDENTITY.actor_spids,
+        event_timestamp_utc="2026-11-06T12:00:00.250Z",
+        run_started_utc="2026-11-06T11:59:00Z",
+        run_finished_utc="2026-11-06T12:01:00Z",
+        matching_event_count=1,
+        actor_outcomes=(
+            ActorOutcome("ACTOR_A", 51, "VICTIM", 1205),
+            ActorOutcome("ACTOR_B", 52, "SURVIVOR", None),
+        ),
+        graph_identity=IDENTITY,
+        graph_xml=good_graph(),
+    )
 
 
 class ConversionGraphContractTests(unittest.TestCase):
@@ -142,6 +166,90 @@ class ConversionGraphContractTests(unittest.TestCase):
         invalid = replace(IDENTITY, actor_spids=(([], 51), ("ACTOR_B", 52)))
         self.assertEqual(evaluate_conversion_graph(good_graph(), invalid).verdict, Verdict.FAIL)
         self.assertEqual(evaluate_conversion_graph("\ud800", IDENTITY).verdict, Verdict.FAIL)
+
+    def test_complete_capture_binds_graph_window_victim_and_survivor(self) -> None:
+        result = evaluate_conversion_capture(good_capture())
+        self.assertEqual(result.verdict, Verdict.PASS)
+        self.assertEqual(result.victim_spid, 51)
+        self.assertEqual(evaluate_conversion_capture(None).verdict, Verdict.NOT_PROVEN)
+
+    def test_missing_capture_fields_remain_not_proven(self) -> None:
+        for changes in (
+            {"observed_run_token": None},
+            {"event_timestamp_utc": None},
+            {"actor_outcomes": None},
+            {"matching_event_count": None},
+            {"graph_xml": None},
+        ):
+            with self.subTest(changes=changes):
+                self.assertEqual(
+                    evaluate_conversion_capture(replace(good_capture(), **changes)).verdict,
+                    Verdict.NOT_PROVEN,
+                )
+
+    def test_event_source_database_run_and_actor_bindings_are_exact(self) -> None:
+        for changes in (
+            {"event_name": "lock_deadlock"},
+            {"source_session": "other_session"},
+            {"database_id": 74},
+            {"observed_run_token": "OTHER"},
+            {"actor_spids": (("ACTOR_A", 52), ("ACTOR_B", 51))},
+            {"graph_identity": "not-an-identity"},
+        ):
+            with self.subTest(changes=changes):
+                self.assertEqual(
+                    evaluate_conversion_capture(replace(good_capture(), **changes)).verdict,
+                    Verdict.FAIL,
+                )
+
+    def test_event_must_be_inside_a_valid_explicit_offset_run_window(self) -> None:
+        for changes in (
+            {"event_timestamp_utc": "2026-11-06T12:02:00Z"},
+            {"run_started_utc": "2026-11-06T12:02:00Z"},
+            {"run_finished_utc": "2026-11-06T11:00:00Z"},
+            {"event_timestamp_utc": "2026-11-06T12:00:00"},
+            {"event_timestamp_utc": "not-a-timestamp"},
+        ):
+            with self.subTest(changes=changes):
+                self.assertEqual(
+                    evaluate_conversion_capture(replace(good_capture(), **changes)).verdict,
+                    Verdict.FAIL,
+                )
+
+    def test_matching_event_count_is_exactly_one(self) -> None:
+        self.assertEqual(
+            evaluate_conversion_capture(replace(good_capture(), matching_event_count=0)).verdict,
+            Verdict.NOT_PROVEN,
+        )
+        for count in (2, True, -1):
+            with self.subTest(count=count):
+                self.assertEqual(
+                    evaluate_conversion_capture(replace(good_capture(), matching_event_count=count)).verdict,
+                    Verdict.FAIL,
+                )
+
+    def test_actor_outcomes_must_match_graph_victim_and_successful_counterpart(self) -> None:
+        good = good_capture()
+        bad_outcomes = (
+            (ActorOutcome("ACTOR_A", 51, "VICTIM", 1204), good.actor_outcomes[1]),
+            (ActorOutcome("ACTOR_A", 51, "SURVIVOR", None), good.actor_outcomes[1]),
+            (good.actor_outcomes[0], ActorOutcome("ACTOR_B", 52, "SURVIVOR", 1205)),
+            (ActorOutcome("ACTOR_B", 52, "VICTIM", 1205), ActorOutcome("ACTOR_A", 51, "SURVIVOR", None)),
+            (good.actor_outcomes[0], good.actor_outcomes[0]),
+        )
+        for outcomes in bad_outcomes:
+            with self.subTest(outcomes=outcomes):
+                self.assertEqual(
+                    evaluate_conversion_capture(replace(good, actor_outcomes=outcomes)).verdict,
+                    Verdict.FAIL,
+                )
+
+    def test_capture_failure_precedes_missing_evidence(self) -> None:
+        result = evaluate_conversion_capture(replace(
+            good_capture(), expected_run_token=None, observed_run_token=None,
+            event_name="wrong_event", graph_xml=None,
+        ))
+        self.assertEqual(result.verdict, Verdict.FAIL)
 
 
 if __name__ == "__main__":

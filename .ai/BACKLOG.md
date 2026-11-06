@@ -2012,6 +2012,24 @@ Ein abweichender Graph wird als fehlender Vertragsnachweis behandelt und nicht
 durch eine Lockerung dieses Prüfers umgedeutet. Die bestehende CON-006-Demo,
 Manifestdateien und ihre Runtimequalifikation sind unverändert.
 
+**Offline-Capture-Vertrag:** `evaluate_conversion_capture` im selben Modul
+ergänzt die Graphform um caller-gelieferte Korrelation: erwarteter und
+beobachteter Run-Token müssen übereinstimmen; Eventname und Quelle müssen
+`xml_deadlock_report` beziehungsweise `system_health` sein; Datenbank und
+Actor/SPID-Paare müssen zum Graphbinder passen; genau ein passendes Ereignis
+muss innerhalb des angegebenen RFC-3339-Zeitfensters liegen. Zwei Actorresultate
+müssen den Graphvictim mit Fehler 1205 und den anderen Actor als fehlerfreien
+Survivor abbilden. Bei null passenden Ereignissen oder fehlenden Pflichtwerten
+bleibt das Ergebnis `NOT_PROVEN`; Mehrdeutigkeit oder Widersprüche sind `FAIL`.
+
+Auch dieser Capture-Vertrag bewertet ausschließlich gemeinsam caller-gelieferte
+Werte. Eventquelle, Markerherkunft, Uhrgrenzen und Actorresultate werden nicht
+unabhängig gelesen oder authentifiziert; ein übereinstimmender Tokenwert steht
+nicht im Deadlockgraphen und beweist keine Runherkunft. Zeit- und Runbindungen
+sind deshalb kein Runtime-Nachweis. Die spätere Beobachtungsphase muss diese
+Quellen tatsächlich und in einem eigenen begrenzten Capturepfad erheben; der
+Offline-Contract autorisiert keine Liveausführung.
+
 ##### 6. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**

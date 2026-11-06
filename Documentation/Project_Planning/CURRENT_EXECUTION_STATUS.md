@@ -49,11 +49,15 @@ implementiert und über den bestehenden Framework-Contracts-Workflow ausgewählt
 Elf synthetische Gegenproben bestehen. Geprüft werden caller-geliefertes
 Deadlock-XML, genau zwei an Datenbank und SPIDs gebundene Prozesse, ein Opfer
 und dieselbe konkrete Keylock-Ressource mit beiderseits gehaltenem `S` und
-angefordertem `X`/`requestType="convert"`. Das ist kein Erwerb oder Herkunfts-
-nachweis des Graphen und bindet noch weder Beobachtungszeitraum, Run-Token noch
-die unabhängigen 1205-/Gegenpart-/Cleanupresultate. Die genaue Darstellung auf
-beiden Zielbuilds bleibt empirisch zu prüfen; Demo-SQL, Manifest und
-Runtimequalifikation wurden nicht geändert.
+angefordertem `X`/`requestType="convert"`. Der anschließende Offline-
+Capturevertrag verlangt zusätzlich übereinstimmende caller-gelieferte
+Run-Token, `xml_deadlock_report`/`system_health`, genau ein Ereignis innerhalb
+des expliziten Zeitfensters und einen zum Graphvictim passenden Fehler 1205
+sowie Survivorstatus. Zusammen wurden 18 synthetische Testmethoden ausgeführt.
+Graph, Quelle, Zeitgrenzen und Outcomes bleiben caller-geliefert und
+unauthentifiziert; der Prüfer erzeugt keine Laufzeitevidenz. Die genaue
+Darstellung auf beiden Zielbuilds bleibt empirisch zu prüfen; Demo-SQL,
+Manifest und Runtimequalifikation wurden nicht geändert.
 
 Für `IDX-007` ergänzt eine kurze, quellengebundene Erläuterung den Lernpfad:
 Sie trennt Last-Page-`PAGELATCH_EX` von I/O- und Transaktionssperren und
