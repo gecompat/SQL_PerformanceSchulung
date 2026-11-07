@@ -182,6 +182,23 @@ Generatorverteilung, Demo-/Cleanupvertrag, Methodenreview und konkrete
 Ausführungsfreigabe bleiben getrennt. Menschliche Generalprobe bleibt
 ausgeschlossen.
 
+PR #390 ist mit Squashcommit `c1f84cb80d078fbd1afa9156a123d58e4a5a8a30`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; `main` ist synchronisiert und der Remote-Branch entfernt.
+
+Die quellengebundene Lehrnotiz ist vom Curriculum-Einstieg aus verlinkt. Sie
+erklärt die Rolle des Key Lookups, die abdeckende Gegenprobe und die getrennte
+Interpretation vollständiger Ergebnisoracles, tatsächlicher Planoperatoren und
+Logical Reads. Sie setzt keinen allgemeinen Kippunkt und ergänzt keine neue
+Lernziel-, Claim- oder Demo-ID.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
+kumulative Obergrenze 48/56/123. Verarbeitung: eine kurze Curriculum-Erklärung,
+README-/Kandidatenlinks und begrenzte Lesepfadprüfung; keine neue Abhängigkeit
+oder Workflowprüfung. Nächster unabhängiger Offlinekandidat ist `IDX-001` in
+der vorhandenen Reihenfolge. Kein Laufgate und keine menschliche Generalprobe
+werden damit erfüllt.
+
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
 Die MCR-Tagliste enthält GDR-spezifische Linux-Images für die drei Profile.
