@@ -19,7 +19,7 @@ die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
 | 3. Lesepfade und Kerninhalte | Den vollständigen betroffenen Lesepfad prüfen; danach die festgelegte Reihenfolge der begrenzten Inhalte verfolgen: QRY-002, QRY-003, RES-004. Der RES-004-Offlineschnitt bindet caller-supplied Request-/Grantzeilen und ist im Framework-Contracts-Workflow enthalten. Vorhandene Notizen und statische Gegenproben bleiben kein Runtimebeleg. | RES-004-Ausführung erst nach Prüfung des konkreten Demo-/Mess-/Cleanupvertrags. Der Grant-Wait muss an die eigene nicht gewährte Anforderung und den aktuellen `RESOURCE_SEMAPHORE`-Request gebunden sein; eine parallele gewährte Anforderung aus demselben Pool/Semaphore ist nur mit tatsächlicher DMV-Evidenz zu qualifizieren. |
 | 4. Diagnose- und vorhandene KI-Qualifikation | Jeweils nur den im aktiven Status ausgewählten, unabhängig prüfbaren Schnitt vorbereiten; Verträge, synthetische Prüfungen und erforderliche Reviews vor jeder Runtimephase abschließen. | Kein SQL-/Provider-/Netzwerk-/Lab-Effekt aus statischer Evidenz ableiten. Lauf-, Provider- und Datenfreigaben gelten pro konkretem Schnitt. |
 | 5. CON-006- und IDX-007-Varianten | Der synthetisch geprüfte CON-006-Offline-Graph- und Capturevertrag sowie der IDX-007-Offlinevertrag für caller-supplied `PAGELATCH_EX`-Waits sind im Framework-Contracts-Workflow enthalten. Offen sind unabhängige Methoden-/Quellenfreigabe und danach die empirische Darstellung bzw. echte Seitenkettenauflösung, bevor Laufvarianten umgesetzt werden. Anschließend den fairen IDX-007-Vergleich mit tatsächlichem Wait-/Page-Nachweis verfolgen. | Graph, Zeitfenster, Marker, Eventquelle, Actorresultate, Waits und Seitenfelder sind caller-geliefert und unauthentifiziert. Der statische `PASS` ist kein Laufzeit- oder Engpassnachweis. Range bleibt zurückgestellt. Kein SQL-/Lab-Lauf ohne konkreten Demo-Vertrag, Methodenfreigabe und Safety-/Cleanup-Gates. |
-| 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt bindet caller-supplied `THREADPOOL`-Wait und `work_queue_count` an ein gemeinsames Zeitfenster; CPU-`runnable_tasks_count` wird separat ausgewiesen. Für RES-003 sind nun ein synthetischer Offlinevertrag und eine quellengebundene Lehrnotiz zu Prozess-/System-Low-Memory-Signalen integriert. Als nächste unabhängige Ressourcenerweiterung die verbleibende SQL-Server-2025-Folge anhand des aktuellen Delta- und Curriculumstands auswählen. | RES-003 bleibt ein roter, nicht ausführbarer Druckversuch. Die statischen Artefakte belegen weder authentische DMV-Daten noch Kausalität, Cacheverdrängung oder Laufzeit-Recovery; keine SQL-/Container-Ausführung. Dafür bleiben dedizierte Wegwerfinfrastruktur, High-Impact-Bestätigung, Kill-Switch und konkrete Runtime-/Cleanupgates erforderlich. Weitere Ressourcen und gesonderte Erweiterungen danach einzeln anhand der aktiven Reihenfolge aufnehmen. |
+| 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt und RES-003-Offlinevertrag samt quellengebundener Lehrnotiz sind integriert. Die Detailprüfung zu SQL-Server-2025-`OPTIMIZED_SP_EXECUTESQL` ist abgeschlossen; Aktivierung, Demo und Performanceclaim bleiben `DEFER`, weil die bestehende `QRY-004`-Abnahme keine zeitgleiche Kompilierung prüft. Danach nächste Graph-/External-Table-Erweiterung anhand des aktiven Curriculum- und Sicherheitsstands einzeln auswählen. | RES-003 bleibt ein roter, nicht ausführbarer Druckversuch; `OPTIMIZED_SP_EXECUTESQL` erhält keine Runtimefreigabe. Statische und quellengebundene Erklärung ersetzt weder authentische Runtime-Evidenz noch Kausalitätsnachweis. Weitere Ressourcen und Infrastruktur nur mit eigenem Methoden-, Versions-, Sicherheits- und Cleanupvertrag. |
 
 ### DGN-007 getrenntes Qualifikationsband
 
@@ -53,6 +53,11 @@ nächsten Lauf.
   einen zusätzlichen, eigenständigen Dokumentationsschnitt mit weiteren
   1/1/2 Einheiten; die kumulative Obergrenze beträgt nun 19/27/65. Diese
   Erweiterung gilt für die quellengebundene RES-003-Lehrergänzung.
+  Für die anschließende Detailprüfung des SQL-Server-2025-`OPTIMIZED_SP_EXECUTESQL`
+  gilt nach der Fortsetzungsanweisung vom 2026-11-07 eine weitere klar begrenzte
+  Erweiterung um ein Arbeitspaket, einen PR und zwei Quellenkandidaten; kumulativ
+  höchstens 20/28/67, kein Reset. Sie deckt nur Quellenprüfung und dokumentarische
+  Entscheidung ab, keine Featureaktivierung oder Runtime.
   Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
   der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
   Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
@@ -64,6 +69,9 @@ nächsten Lauf.
   Main-Workflow erneut geprüft; kein SQL-Lab-Trigger. Für die aktuelle
   Lehrergänzung werden die zwei direkt betroffenen Markdown-Lesepfade und ihre
   Microsoft-Quellen geprüft; keine Code- oder SQL-Ausführung.
+  Für die `OPTIMIZED_SP_EXECUTESQL`-Detailprüfung wurden zwei Microsoft-
+  Quellenstellen geprüft und die vorhandene `QRY-004`-Abnahme als Curriculum-
+  Verbraucher abgeglichen; keine Code-, SQL- oder Runtimeausführung.
   Fehlende/fehlgeschlagene
   Evidenz wird lokal nur bei neuem Befund weiter untersucht. Ein Owner, keine
   zusätzliche Reviewkette und keine Subagenten; reale Token-/Geldmessung bleibt
