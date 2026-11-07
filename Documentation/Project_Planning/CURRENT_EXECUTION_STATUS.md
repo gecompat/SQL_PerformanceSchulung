@@ -49,6 +49,24 @@ Entwurf umfasst nur den Statistik-/Korrelationsanteil von OPT-004; Constraints,
 Eindeutigkeit und Vertrauensstatus bleiben offen. Keine SQL-/Runtimeausführung,
 keine Plan- oder Leistungsbehauptung und keine menschliche Generalprobe.
 
+PR #397 ist mit Squashcommit `dd4614aeef5856a862047bfcf10b80cf30569e5c`
+integriert. Alle fünf PR-Gates und drei Main-Workflows waren erfolgreich;
+`main` ist synchronisiert, sauber und der Arbeitsbranch entfernt. Der
+[Statistikentwurf](OPT004_CORRELATED_STATISTICS_DESIGN.md) fixiert 10.000
+korrelierte Zeilen, vollständige Ergebnistupel und trennt die hypothetische
+Unabhängigkeitsrechnung von späteren Schätzwerten.
+
+## Fortsetzung: OPT-004 – Constraint-Vertrauen und Eindeutigkeit
+
+Für den nächsten getrennten Offline-Teilschnitt gilt eine begrenzte Erweiterung
+um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+55/63/137. Umfang: gleiche synthetische Daten mit vertrauenswürdigem und
+nicht vertrauenswürdigem, aber aktiviertem `CHECK`-Constraint sowie
+Eindeutigkeitskontrast mit identischen vollständigen Tupeln. Katalogzustand,
+Constraint-Semantik und Ergebnisoracle werden von empirischer Schätzungs- und
+Planwirkung getrennt. Keine SQL-/Runtimeausführung, kein Performanceclaim und
+keine menschliche Generalprobe.
+
 ## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
 
 PR #392 ist mit Squashcommit `97b1ceadad3d0b1f9179fc393dd4e55e6612b10b`
