@@ -212,9 +212,11 @@ Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträg
 
 ## Vorgeschlagene Erweiterung – Graph Tables
 
-| Demo | Lernziel | Status | Abgrenzung |
-|---|---|---|---|
-| `QRY-023` – gerichtete Zwei-Kanten-Pfade mit Graph Tables und relationalen Joins | `LO-M03-06` / `CLM-047` | `PROPOSED`; registrierter statischer Vertrag, keine Implementierung oder Runtimequalifikation | Exakte Ergebnisgleichheit auf synthetischen Daten; keine Performanceempfehlung. [Vertrag und offene Gates](../Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md) |
+`QRY-023` – gerichtete Zwei-Kanten-Pfade mit Graph Tables und relationalen
+Joins – ist als `PROPOSED` registriert und dem bestehenden `LO-M03-06` /
+`CLM-047` zugeordnet. Der statische Vertrag prüft exakte Ergebnisgleichheit
+auf synthetischen Daten; Implementierung und Runtimequalifikation stehen aus.
+Es gibt keine Performanceempfehlung. [Vertrag und offene Gates](../Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
 
 ## Lokale KI-Demos – Implementierung vom 2026-10-11
 
