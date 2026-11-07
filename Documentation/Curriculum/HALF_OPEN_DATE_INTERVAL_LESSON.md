@@ -51,17 +51,19 @@ abhängig.
 
 Für aufeinanderfolgende Tagesbereiche ist die halboffene Form
 `Zeitpunkt >= @Start AND Zeitpunkt < @EndExclusive` geeignet. Der nächste
-Bereich kann denselben Wert als Startgrenze verwenden. Erfinde keine
-Tagesendgrenze wie `23:59:59.997`: sie hängt von der Auflösung und dem Typ der
-Spalte ab und kann Werte auslassen oder in den Folgetag reichen.
+Bereich kann denselben Wert als Startgrenze verwenden. Eine inklusive
+Tagesendgrenze ist typabhängig: `23:59:59.997` ist der letzte darstellbare
+Zeitpunkt für `datetime`, aber bei `datetime2(7)` sind danach noch Werte bis
+`23:59:59.9999999` möglich. Eine Grenze, die für einen Typ passt, ist daher
+keine allgemeine Tagesendgrenze.
 
 SQL Server dokumentiert für `datetime2(p)` eine einstellbare
 Nachkommastellenpräzision von 0 bis 7; `datetime2(7)` kann Werte bis
 `23:59:59.9999999` darstellen. `datetime` hat eine andere Genauigkeit und
-rundet Zeitwerte auf seine darstellbaren Schritte. Deshalb sollen Parameter
-und Grenzen den fachlichen Spaltentyp und dessen Präzision abbilden. Eine
-Konvertierung der Grenze kann Werte runden oder verwerfen; sie ist keine
-neutrale Formatierung.
+rundet Zeitwerte auf seine darstellbaren Schritte; der letzte Zeitpunkt eines
+Tages ist `23:59:59.997`. Deshalb sollen Parameter und Grenzen den fachlichen
+Spaltentyp und dessen Präzision abbilden. Eine Konvertierung der Grenze kann
+Werte runden oder verwerfen; sie ist keine neutrale Formatierung.
 
 ```sql
 -- Beispiel für eine datetime2(3)-Spalte:
@@ -77,9 +79,15 @@ bei einem Zeitstempel. Bei `datetimeoffset` müssen zudem die fachliche
 Zeitzone und die Bedeutung der Offsetgrenzen geklärt sein. Dieses Beispiel
 legt keine Zeitzonenregel fest.
 
+Ein Bereichsprädikat mit der Spalte links im Vergleich lässt dem Optimierer
+einen möglichen Suchbereich. Das erzwingt keinen Index Seek und belegt für
+sich keine geringere Arbeit: Index, Selektivität und tatsächlicher Plan bleiben
+entscheidend. Diese Lehrnotiz enthält keine SARGability-Gegenprobe oder
+Logical-Read-Messung.
+
 ## Quellen
 
-- Microsoft Learn, [BETWEEN (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/between-transact-sql?view=sql-server-ver17): beide Grenzen sind einschließend; Abruf am 2026-10-26.
-- Microsoft Learn, [datetime2 (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17): Wertebereich und einstellbare Bruchteilssekundenpräzision; Abruf am 2026-10-26.
-- Microsoft Learn, [datetime (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime-transact-sql?view=sql-server-ver17): Genauigkeit und Rundungsverhalten; Abruf am 2026-10-26.
-- Microsoft Learn, [DATEADD (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17): Rückgabetyp folgt dem Datumseingang, sofern kein Zeichenfolgenliteral verwendet wird; Abruf am 2026-10-26.
+- Microsoft Learn, [BETWEEN (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/between-transact-sql?view=sql-server-ver17): beide Grenzen sind einschließend; geprüft 2026-11-07.
+- Microsoft Learn, [datetime2 (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17) und [datetime (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime-transact-sql?view=sql-server-ver17): Wertebereich, Präzision und Rundung; geprüft 2026-11-07.
+- Microsoft Learn, [DATEADD (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17): bei typisiertem Datumseingang bleibt der Rückgabetyp erhalten; geprüft 2026-11-07.
+- Das projektweite [Quellenregister](../Research/SOURCE_REGISTER.md) führt `SRC-133` für Intervall-, Präzisions- und `DATEADD`-Semantik sowie `SRC-012` für den allgemeinen Index-/Suchargumentkontext. Die Zugriffswirkung bleibt empirisch.
