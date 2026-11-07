@@ -92,6 +92,12 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             require(marker in source, f"{label} must bind the {marker} ownership marker", errors)
     require("has_perms_by_name" in preflight and "create database" in preflight,
             "read-only preflight must check database creation permission", errors)
+    build_pins = ("15.0.4500.2", "16.0.4305.5", "17.0.5035.5")
+    for build in build_pins:
+        require(build in preflight and build in setup,
+                f"preflight and setup must pin the proposed engine build {build}", errors)
+    require("serverproperty('productversion')" in preflight and "'engine_build'" in preflight,
+            "preflight must skip before setup when ProductVersion misses its pin", errors)
     require("showplan" in qualification and "has_perms_by_name" in qualification,
             "qualification preflight must check SHOWPLAN before query execution", errors)
     require("create table dbo.person" in workload and "as node" in workload,
@@ -140,6 +146,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "README must explain non-catalogued proposed status", errors)
     require("not executed" in readme or "nicht ausgeführt" in readme,
             "README must state that QRY-023 has not been executed", errors)
+    require(all(build in readme for build in build_pins),
+            "README must document all time-bound engine build pins", errors)
+    require("graph" in readme and "editionsmatrizen" in readme,
+            "README must state the sourced Graph edition scope", errors)
 
     for relative in (
         "Documentation/Demo_Catalog/demo_execution_paths.json",

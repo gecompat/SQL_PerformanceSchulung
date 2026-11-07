@@ -66,6 +66,7 @@ vergleichende Messquelle.
 
 ## Quellen und Projektverträge
 
-- `SRC-122` bis `SRC-125`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen).
+- `SRC-122` bis `SRC-127`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen).
 - [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md).
+- [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md).
 - `FWK-003`, `FWK-004`, `FWK-005`, `FWK-011` und `FWK-002`.

@@ -1,5 +1,13 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – Editionsmatrix und Servicingpins
+
+PR #375 ist als Squashcommit `a92ae3049c9f3f62efa2d582791e92fddb855410` integriert; der eng gefilterte statische CI-Workflow, seine vier synthetischen Regressionstests und alle betroffenen Projektworkflows waren erfolgreich. Das eigene Demo-SQL wurde nicht ausgeführt.
+
+Die Quellenprüfung in [GRAPH_TABLES_BUILD_EDITION_REVIEW.md](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) bindet die Graph-Verfügbarkeit über die Microsoft-Editionsmatrizen 2019/2022/2025 und den Servicingstand vom 7. November 2026. Für die Designprofile werden `15.0.4500.2` (2019 CU32+GDR), `16.0.4305.5` (2022 CU27+GDR) und `17.0.5035.5` (2025 CU10) als zeitgebundene Qualifikationspins vorgeschlagen. Preflight und Setup prüfen dieselben Buildpins; bei Abweichung endet der Ablauf vor Setup beziehungsweise Datenbankanlage mit `SKIP_VERSION`. Das sind keine Graph-Mindestversionen. Konkrete Image-Digests und tatsächliche Runtimeumgebung bleiben offen.
+
+Diese Fortsetzung erweitert die kumulative Arbeitsobergrenze um 1 Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 33/41/93. Unabhängige Methodenfreigabe, formale T-SQL-/Harness-Abnahme, Index-/Ressourcenbegründung und konkrete Ausführungsautorisierung bleiben getrennte Gates; QRY-023 bleibt `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren.
+
 ## Fortsetzung: QRY-023 – statischer Harness-Vertrag
 
 PR #374 ist als Squashcommit `74cd9ac303bbc1648216cdfc8268ab70e8b25d09` in `origin/main` integriert; lokales `main` stimmt damit überein, der Arbeitsbranch ist entfernt. Die neun PR-Workflows waren erfolgreich. Der allgemeine Cleanup-Eigentumstest lief in disposable SQL Server 2019/2022/2025-Containern; er prüfte das gemeinsame Cleanupframework und führte keine QRY-023-Abfragen aus.

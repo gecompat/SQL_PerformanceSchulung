@@ -127,12 +127,12 @@ Der statische Vertrag für eine spätere Implementierung lautet:
 | Abfragen | Gerichteter Zwei-Kanten-`MATCH` mit verschiedenen Edge-Aliasen; relationale Form mit zwei Kantentabellen-Joins; identische Start-/Zielparameter | Keine Behauptung, dass die Formen denselben Plan oder dieselbe Arbeit erzeugen |
 | Isolation / Rechte | Nur eigene wegwerfbare markierte Testdatenbank; Setup benötigt DDL- und Insert-Rechte, Abfragephase nur Select, Cleanup die zum Entfernen der eigenen Objekte erforderlichen Rechte | Keine fremde Datenbank, kein gemeinsam genutzter Instanzzustand und keine Rechteausweitung für Lernende |
 | Cleanup / Fehlerpfad | Setup markiert alle eigenen Tabellen und den Lauf; Cleanup entfernt ausschließlich nach erfolgreicher Eigentumsprüfung die eigenen Objekte; Teilausfall liefert den Zustand und einen sicheren Wiederaufnahmehinweis | Wiederholung nach Erfolg oder kontrolliertem Setupfehler darf fremde Objekte nicht verändern |
-| Version / Skip | Vorgeschlagene Designprofile sind SQL Server 2019/150, 2022/160 und 2025/170 entsprechend der bestehenden Projektmatrix | Die Zuordnung ist keine QRY-023-Runtimefreigabe. Konkrete Build-/CU-Pins, Editionen und Zielimages werden vor Implementierung bestätigt; unbekannte oder inkompatible Umgebung endet vor Setup mit begründetem `SKIP` |
+| Version / Skip | Vorgeschlagene Qualifikationsprofile sind SQL Server 2019/150 (`15.0.4500.2`), 2022/160 (`16.0.4305.5`) und 2025/170 (`17.0.5035.5`); Graph ist in den Microsoft-Editionsmatrizen für alle genannten Editionen verfügbar | Die Builds sind zeitgebundene Designpins vom 7.11.2026, keine Graph-Mindestbuilds oder Runtimefreigabe. Read-only Preflight und Setup prüfen die exakte Version; spätere CU/GDR-Stände enden zunächst mit `SKIP`. Image-Digests und tatsächliche Runtimeumgebung bleiben vor Lauf offen; siehe [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) |
 | Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Separates vorgeschlagenes Messprofil: 10.000 disjunkte Pfade mit 30.000 Knoten und 20.000 Kanten; Plan, Estimated Rows, Logical Reads, CPU und Duration nach `FWK-004`/`FWK-005` | Kein allgemeiner Performancegewinner. Der [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) bleibt vor Implementierung statisch zu prüfen; konkrete Builds, Ressourcenwerte und Messgrenzen folgen dem ausführbaren Vertrag |
 
 Vor statischer Abnahme und Katalogintegration der Codeentwürfe bleiben unabhängige Methodenfreigabe,
-statische Vertragsprüfung, Prüfung des vorgeschlagenen Messworkloads und Wiederholungsplans,
-Bestätigung konkreter Build-/CU-Pins und Prüfung der bestehenden
+formale T-SQL-Abnahme und Prüfung des vorgeschlagenen Messworkloads und Wiederholungsplans,
+Bestätigung oder Erneuerung der zeitgebundenen Build-/CU-Pins und Prüfung der bestehenden
 Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,
 Runtimequalifikation und Performanceclaims sind getrennte Gates und durch die
 Registrierung nicht autorisiert.

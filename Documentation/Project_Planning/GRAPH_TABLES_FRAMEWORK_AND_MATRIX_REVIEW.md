@@ -58,12 +58,11 @@ ausreichendes Messworkload qualifiziert.
 Dies ist die vorgeschlagene Matrix für die spätere gezielte QRY-023-Qualifikation.
 Sie folgt den bestehenden Framework-/Demo-Zielversionen und Microsofts
 Versionszuordnung der Compatibility Levels. Microsoft dokumentiert Graph
-NODE-/EDGE-Tabellen und `MATCH` ab SQL Server 2017; die Referenz prüft keine
-QRY-023-Projektbuilds, Editionen oder Compatibility-Level-Kombinationen. Die
-gewählten Projektprofile sind daher **Designziele**, noch keine
-Graph-Runtimefreigabe. Konkrete Build-/CU-Pins, Editionen und Containerimages
-werden unmittelbar vor der Implementierung gegen den dann aktuellen
-Projektmatrix- und Servicingstand bestätigt.
+NODE-/EDGE-Tabellen und `MATCH` ab SQL Server 2017. Die konkrete Editions- und
+Buildsicht samt zeitgebundenen Qualifikationspins ist im
+[Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) festgehalten.
+Diese Quellenprüfung begründet keine QRY-023-Runtimefreigabe; vor einem späteren
+Lauf müssen Pin und Image-Digest erneut gebunden werden.
 
 ## Quellen
 

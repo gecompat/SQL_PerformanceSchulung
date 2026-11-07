@@ -6,7 +6,7 @@
 | Sicherheitsstufe | `YELLOW` |
 | Lernziel | `LO-M03-06` / `CLM-047` |
 | Daten | ausschließlich synthetisch; 10.000 disjunkte Zwei-Kanten-Pfade plus kleines Korrektheitsoracle |
-| Profile | SQL Server 2019/150, 2022/160 und 2025/170 vorgeschlagen; keine Runtimequalifikation |
+| Profile | SQL Server 2019/150, Build 15.0.4500.2; 2022/160, Build 16.0.4305.5; 2025/170, Build 17.0.5035.5; vorgeschlagene Qualifikationspins, keine Runtimequalifikation |
 | Runtime | nicht ausgeführt; keine Performanceaussage |
 
 ## Zweck
@@ -53,17 +53,25 @@ Pläne; es erfasst Sessiondeltas. Die Datenbank wird als Wegwerfdatenbank mit
 vollständigen QRY-023-Markern angelegt. Fremde oder nicht vollständig markierte
 Ziele werden abgewiesen und nicht entfernt.
 
-Der QRY-023-Prüflauf wurde nicht gestartet. Ein Offlinevalidator prüft die
+Der QRY-023-Prüflauf wurde nicht gestartet. Der read-only Preflight akzeptiert
+für die vorgeschlagenen Profile ausschließlich Builds `15.0.4500.2`,
+`16.0.4305.5` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals
+vor der Datenbankanlage. Das sind reproduzierbare Designpins nach dem
+Servicingstand vom 7. November 2026, keine Graph-Mindestbuilds. SQL Graph wird
+laut Microsoft-Editionsmatrizen in den Editionen von 2019, 2022 und 2025 angeboten.
+Der Preflight protokolliert die tatsächliche Edition, beschränkt Graph aber
+nicht auf eine bestimmte Edition. Ein Offlinevalidator prüft die
 Manifestphasen, Markerbindung, Workloadarithmetik, Ergebnisorakel,
 Messreihenfolge, Plantrennung und den Nicht-Katalogstatus. Er prüft keine
 T-SQL-Kompilierbarkeit. Bevor die Demo in den Katalog oder einen Runtimeworkflow
 aufgenommen wird, bleiben formale T-SQL-/Harness-Abnahme, unabhängige
-Methodenfreigabe, Build-/Edition-/CU-Pins, Ressourcenprofil und konkrete
-Ausführungsgenehmigung offen.
+Methodenfreigabe, Bestätigung/Erneuerung der Build-Pins, exakte Image-Digests,
+Ressourcenprofil und konkrete Ausführungsgenehmigung offen.
 
 ## Verträge und Reviews
 
 - [Statischer Demoentwurf](../../../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
 - [Messworkload](../../../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md)
 - [Quellen- und Methodenreview](../../../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md)
+- [Editions- und Buildreview](../../../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.

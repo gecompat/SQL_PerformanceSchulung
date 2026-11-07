@@ -7,6 +7,12 @@ DECLARE @RunToken varchar(20) = '$(RunToken)';
 DECLARE @TargetDatabase sysname = N'$(TargetDatabase)';
 DECLARE @ExpectedDatabase sysname = CONVERT(sysname, N'SQLPERF_LAB_' + REPLACE(@DemoId, '-', '') + N'_' + @RunToken);
 DECLARE @MajorVersion int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajorVersion'));
+DECLARE @ProductVersion nvarchar(128) = CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion'));
+DECLARE @ExpectedBuild nvarchar(128) = CASE @MajorVersion
+    WHEN 15 THEN N'15.0.4500.2'
+    WHEN 16 THEN N'16.0.4305.5'
+    WHEN 17 THEN N'17.0.5035.5'
+END;
 DECLARE @HasCreateDatabase bit = CASE WHEN HAS_PERMS_BY_NAME(NULL,NULL,'CREATE ANY DATABASE')=1 OR HAS_PERMS_BY_NAME(NULL,NULL,'ALTER ANY DATABASE')=1 OR HAS_PERMS_BY_NAME(N'master','DATABASE','CREATE DATABASE')=1 THEN 1 ELSE 0 END;
 DECLARE @ExistingDatabaseId int = DB_ID(@TargetDatabase);
 
@@ -22,6 +28,15 @@ BEGIN
     SELECT 1 AS Sequence,'PREFLIGHT' AS Phase,'ENGINE_VERSION' AS CheckId,'SKIP' AS Outcome,'SKIP_VERSION' AS Code,
            CONVERT(nvarchar(20),@MajorVersion) AS ObservedValue,N'15 bis 17' AS RequiredValue,
            N'QRY-023 ist auf SQL Server 2019, 2022 und 2025 begrenzt.' AS Message;
+    PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_VERSION';
+    RETURN;
+END;
+
+IF @ProductVersion IS NULL OR @ProductVersion COLLATE Latin1_General_100_BIN2<>@ExpectedBuild
+BEGIN
+    SELECT 1 AS Sequence,'PREFLIGHT' AS Phase,'ENGINE_BUILD' AS CheckId,'SKIP' AS Outcome,'SKIP_VERSION' AS Code,
+           @ProductVersion AS ObservedValue,@ExpectedBuild AS RequiredValue,
+           N'Der QRY-023-Entwurf ist an die aktuell festgeschriebenen Builds der Projektprofile gebunden.' AS Message;
     PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_VERSION';
     RETURN;
 END;
@@ -53,7 +68,7 @@ FROM '+QUOTENAME(@TargetDatabase)+N'.sys.extended_properties WHERE class=0 AND m
 END;
 
 SELECT 1 AS Sequence,'PREFLIGHT' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
-       CONCAT(N'Major=',@MajorVersion,N'; ExistingTarget=',CASE WHEN @ExistingDatabaseId IS NULL THEN N'no' ELSE N'owned' END) AS ObservedValue,
-       N'SQL Server 2019 bis 2025; kanonische eigene Testdatenbank' AS RequiredValue,
+       CONCAT(N'Major=',@MajorVersion,N'; Build=',@ProductVersion,N'; Edition=',CONVERT(nvarchar(128),SERVERPROPERTY('Edition')),N'; ExistingTarget=',CASE WHEN @ExistingDatabaseId IS NULL THEN N'no' ELSE N'owned' END) AS ObservedValue,
+       @ExpectedBuild AS RequiredValue,
        N'Der unverändernde QRY-023-Preflight ist bestanden.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';

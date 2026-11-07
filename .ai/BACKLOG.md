@@ -3417,6 +3417,14 @@ fand in beiden Übersichten keine Graph-Einträge. Dieser negative Befund belegt
 keine Featureparität; konkrete Funktionen, Editionen und Compatibility Levels
 bleiben vor einer Runtimefreigabe zu verifizieren.
 
+Das [Editions- und Buildreview](../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
+prüft nun Graph-Verfügbarkeit für die Editionsmatrizen 2019/2022/2025 und
+schlägt zeitgebundene Qualifikationspins `15.0.4500.2`, `16.0.4305.5` und
+`17.0.5035.5` vor. Der Offline-Preflight und die Setupphase binden diese
+ProductVersion-Werte vor Mutation. Die Pins sind keine Graph-Mindestbuilds;
+Image-Digests, unabhängige Methodenfreigabe und Laufzeitqualifikation bleiben
+offen.
+
 Der [statische Demoentwurf](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
 legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten
 Pfadtripeln fest. Ein ausführbarer Codeentwurf liegt inzwischen separat vor;
@@ -3432,7 +3440,7 @@ bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
 Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
 bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
 [Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md), [Messworkload](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) und [Codeentwurf](../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md).
-Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge als Vorschlag fest; das [Quellen- und Methodenreview](../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md) begründet `MATCH`, Kandidatenindizes und getrennte Mess-/Planevidenz. Ein lokaler Harness-Codeentwurf liegt vor; unabhängige Methodenfreigabe, formale Vertrags- und T-SQL-Prüfung, Index-/Build-/CU-Definitionen, Katalogintegration und alle Laufzeitgates bleiben offen.
+Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge als Vorschlag fest; das [Quellen- und Methodenreview](../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md) begründet `MATCH`, Kandidatenindizes und getrennte Mess-/Planevidenz. Ein nicht katalogisierter Harness-Codeentwurf mit statischem Strukturvalidator liegt vor. Unabhängige Methodenfreigabe, formale Vertrags-/T-SQL-Prüfung, Image-Digestbindung und Laufzeitqualifikation bleiben offen.
 
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.

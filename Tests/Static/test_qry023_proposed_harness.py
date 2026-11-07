@@ -48,6 +48,13 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                         encoding="utf-8")
         self.assertTrue(any("cleanup must bind the sqlperf.runtoken" in error for error in self.errors()))
 
+    def test_unpinned_product_version_is_rejected(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        path.write_text(path.read_text(encoding="utf-8").replace("15.0.4500.2", "15.0.4480.2"),
+                        encoding="utf-8")
+        self.assertTrue(any("must pin the proposed engine build 15.0.4500.2" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
