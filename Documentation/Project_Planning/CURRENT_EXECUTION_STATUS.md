@@ -135,6 +135,29 @@ keine Workflowprüfung. Der nächste eigenständige Offlinekandidat ist `IDX-003
 gemäß der vorhandenen Kandidatenreihenfolge; Ausführung, Planbehauptung und
 menschliche Generalprobe bleiben davon unberührt.
 
+PR #388 ist mit Squashcommit `b31f32060a9381b690a2ca8cc3c94198fee66ac2`
+integriert. Alle vier PR-Gates und beide betroffenen Main-Workflows waren
+erfolgreich; `main` ist synchronisiert und der Remote-Branch entfernt.
+
+## Fortsetzung: IDX-003 – Key-Reihenfolge und INCLUDE
+
+Der priorisierte Kandidat erhält einen Offlineentwurf mit drei sekundären
+Indexprofilen und einer Baseline auf einer festen 120.000-Zeilen-Fixture.
+Vier Prädikatsformen vergleichen jeweils vollständige Tupel und `RowId` gegen
+dieselbe Abfragemenge. Der Entwurf hält Key-Reihenfolge, `Payload` als
+Schlüssel-/INCLUDE-Spalte, Abdeckung und Seitenzahlen auseinander. `SRC-012`
+bindet die Key-Reihenfolge; `SRC-136` registriert INCLUDE- und
+`sys.dm_db_partition_stats`-Aussagen. Seek-/Plan-/Read-Ergebnisse bleiben
+empirisch; kein Indexhint oder SQL-Lauf.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Quellen-/Testkandidaten;
+kumulative Obergrenze 46/54/119. Verarbeitung: ein Quellenbundle, ein
+Abfrage-/Indexentwurf und eine bestehende Kandidatenzeile; keine Abhängigkeit,
+kein neuer Workflow und keine Runtime. Die Sollzeilenzahlen müssen beim
+späteren Fixture-Build verifiziert werden. Demo-/Cleanupvertrag,
+Methodenreview und Ausführungsfreigabe bleiben getrennt; menschliche
+Generalprobe bleibt ausgeschlossen.
+
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
 Die MCR-Tagliste enthält GDR-spezifische Linux-Images für die drei Profile.
