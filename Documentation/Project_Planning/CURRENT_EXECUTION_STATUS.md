@@ -158,6 +158,30 @@ späteren Fixture-Build verifiziert werden. Demo-/Cleanupvertrag,
 Methodenreview und Ausführungsfreigabe bleiben getrennt; menschliche
 Generalprobe bleibt ausgeschlossen.
 
+PR #389 ist mit Squashcommit `63b7542e69859689cce2f92943788c16da8e8dae`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert und der Remote-Branch entfernt.
+
+## Fortsetzung: IDX-004 – Lookup-Kurve über kontrollierte Selektivitäten
+
+Der nächste Kandidat erhält eine deterministische 100.000-Zeilen-Fixture mit
+elf abgestuften Treffermengen und einer Restgruppe. Dieselbe parameterisierte
+Abfrage wird gegen clustered-only Baseline, nicht abdeckenden Index und
+abdeckenden Index geprüft. `OPTION (RECOMPILE)` bindet jeden Fall an seinen
+aktuellen Parameterwert. Vollständige Tupel und tatsächliche Trefferzahl sind
+das Ergebnisoracle; Planwahl, Lookup-Ausführungszahl, Logical Reads und
+Compilewerte sind getrennte Diagnostik. Ein beobachteter Planübergang gilt
+nur für Fixture und Build; ein allgemeiner Prozentsatz wird nicht behauptet.
+`SRC-137` bindet die Microsoft-Operator- und Recompilesemantik.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Quellen-/Testkandidaten;
+kumulative Obergrenze 47/55/121. Verarbeitung: ein Quellenbundle und ein
+statischer Selektivitäts-/Oracleentwurf, aktualisierte Kandidatenzeile; keine
+neue Abhängigkeit, kein Workflow und keine Runtime. Engineprüfung der
+Generatorverteilung, Demo-/Cleanupvertrag, Methodenreview und konkrete
+Ausführungsfreigabe bleiben getrennt. Menschliche Generalprobe bleibt
+ausgeschlossen.
+
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
 Die MCR-Tagliste enthält GDR-spezifische Linux-Images für die drei Profile.
