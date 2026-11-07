@@ -31,6 +31,24 @@ prüft vollständige Tupel und Mehrfachheiten auf synthetischen Daten; keine
 SQL-/Runtimeausführung, Planbehauptung, Leistungsaussage oder menschliche
 Generalprobe.
 
+PR #396 ist mit Squashcommit `cead58958474a4c69fe77be897c01cc0816f71b4`
+integriert. Alle fünf PR-Gates und drei Main-Workflows waren erfolgreich;
+`main` ist synchronisiert, sauber und der Arbeitsbranch entfernt. Der Entwurf
+[QRY-005](QRY005_OR_UNION_DESIGN.md) bindet den vollständigen Tupelvergleich
+und die 1.000 absichtlichen Mehrfachzeilen bei naivem `UNION ALL` an `SRC-142`.
+SQL-Ausführung, Planwahl, Laufzeitwirkung und Cleanup bleiben offen.
+
+## Fortsetzung: OPT-004 – Spaltenkorrelation und Mehrspaltenstatistik
+
+Für den nächsten getrennten Offline-Teilschnitt gilt eine begrenzte Erweiterung
+um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+54/62/135. Umfang: identische korrelierte synthetische Daten, dokumentierte
+Einzel- und Mehrspaltenstatistikstrukturen, vollständige Ergebnisoracles und
+getrennte mathematische Referenzwerte gegenüber empirischen Schätzungen. Der
+Entwurf umfasst nur den Statistik-/Korrelationsanteil von OPT-004; Constraints,
+Eindeutigkeit und Vertrauensstatus bleiben offen. Keine SQL-/Runtimeausführung,
+keine Plan- oder Leistungsbehauptung und keine menschliche Generalprobe.
+
 ## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
 
 PR #392 ist mit Squashcommit `97b1ceadad3d0b1f9179fc393dd4e55e6612b10b`
