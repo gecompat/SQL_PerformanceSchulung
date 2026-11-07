@@ -20,6 +20,21 @@ empirisches Ressourcenprofil und konkrete Laufautorisierung. QRY-023 bleibt
 `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren; menschliche
 Generalprobe ist aus diesem autonomen Auftrag ausgeschlossen.
 
+## Fortsetzung: QRY-002 – Konvertierungsrichtung didaktisch ergänzt
+
+Die bestehende Lehrnotiz zeigt jetzt explizit beide Richtungen der
+Typpräzedenz: `int` gegenüber `nvarchar` sowie `nvarchar` gegenüber `varchar`.
+Sie trennt die dokumentierte Konvertierungsrichtung von der erst am konkreten
+tatsächlichen Plan und Workload prüfbaren Zugriffswirkung. Die gelesenen
+Microsoft-Primärquellen und der Geltungsbereich von `SRC-012`, `SRC-030` und
+`SRC-031` sind aktualisiert. Keine Demo, keine Laufzeitmessung und keine
+Performancebehauptung.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
+kumulative Obergrenze 40/48/107. Aufwand: eine eng begrenzte Lehrnotiz- und
+Quellenregisteraktualisierung, keine neue Abhängigkeit, kein neuer CI-Job.
+QRY-002 bleibt ungefahren; eine eigenständige Demoabnahme wäre separat.
+
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
 Die MCR-Tagliste enthält GDR-spezifische Linux-Images für die drei Profile.
@@ -251,7 +266,7 @@ Konsistente, relevant geprüfte Wellen werden regulär über einen Pull Request
 bleiben als historische Belege erhalten und erteilen keine zusätzlichen Laufrechte.
 
 Die Reihenfolge lautet: Frameworkschutz und Abschluss, begrenzte Planerzwingung,
-Teilnehmer-/Generalprobe, Lesepfade, Kerndemos, Abfragespeicherzuteilungen,
+Lesepfade, Kerndemos, Abfragespeicherzuteilungen,
 vollständiger Diagnosefall, vorhandene KI-Qualifikation, Deadlockvarianten,
 Einfügungen auf der letzten Indexseite, Ressourcen, SQL-Server-2025-Ergänzungen,
 Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastruktur.
@@ -260,12 +275,12 @@ Standard-Planerzwingung und einen festen Hint-Kontrollzustand begrenzt.
 
 Die QRY-002-Lehrnotiz zu impliziter Konvertierung, Datentyp- und
 Collation-Mismatch ergänzt `LO-M03-01` mit synthetischen Beispielen. Sie
-enthält kein neues Manifest oder Laufzeitclaim. Die festgelegte Reihenfolge
-der Kern-Query-Pattern-Inhalte lautet QRY-002, danach QRY-003 zu halboffenen
-Datumsintervallen, `BETWEEN`-Grenzen und Datentypgenauigkeit, anschließend
-RES-004 zu konkurrierenden Abfragespeicherzuteilungen. Performanceaussagen
-benötigen weiterhin passende Messung; die Lehrnotiz behauptet keinen Scan
-allein wegen einer Konvertierung.
+enthält kein neues Manifest oder Laufzeitclaim. Nach dem aktuellen
+QRY-002-Offline-Update folgt QRY-003 zu halboffenen Datumsintervallen,
+`BETWEEN`-Grenzen und Datentypgenauigkeit, anschließend RES-004 zu
+konkurrierenden Abfragespeicherzuteilungen. Performanceaussagen benötigen
+weiterhin passende Messung; die Lehrnotiz behauptet keinen Scan allein wegen
+einer Konvertierung.
 
 Die QRY-003-Lehrnotiz ergänzt `LO-M03-02` mit synthetischen Beispielen zu
 halboffenen Intervallen und passenden Datentypgrenzen. Sie ist keine
