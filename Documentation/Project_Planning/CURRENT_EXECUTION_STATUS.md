@@ -27,6 +27,11 @@ oder Workflowprüfung.
 
 ## Nächster begrenzter Schritt: IDX-002 – Clustered-Key-Breite
 
+PR #393 ist mit Squashcommit `5b52722b741085ffa48f80b4a79f6ad3d9401432`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert, sauber und der Remote-Branch
+entfernt.
+
 Für die autonome Fortsetzung gilt eine neue, isolierte Erweiterung um 1
 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
 50/58/127. Umfang: aktuelle Primärquellen und ein statischer Entwurf zum
@@ -34,6 +39,24 @@ Vergleich eines schmalen eindeutigen mit einem breiten nicht eindeutigen
 Clustered Key, Locatorbreite, Nonclustered-Indexseiten und Uniquifier. Keine
 SQL-/Runtimeausführung, keine allgemeine Größen- oder Leistungsaussage und
 keine menschliche Generalprobe.
+
+## Fortsetzung: STL-001 – Zeilenbreitenleiter
+
+Für die autonome Fortsetzung gilt eine neue, isolierte Erweiterung um 1
+Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+51/59/129. Umfang: ein statischer, quellengebundener Entwurf einer
+Zeilenbreitenleiter mit festen, variablen und nullable Spalten, Ergebnisoracle
+und unterstützter Seiten-/Recordbeobachtung. Keine SQL-/Runtimeausführung,
+keine allgemeine Page-Dichte- oder Leistungsaussage und keine menschliche
+Generalprobe.
+
+Der vorgeschlagene Vier-Stufen-Heapaufbau enthält 100.000 identische
+Grunddatensätze sowie kumulativ einen festen 100-Byte-Block, eine Variable mit
+exakten 0/25/50/100/200-Byte-Verteilungen und eine nullable Variable mit
+80-Prozent-NULL-Verteilung. Das Full-Tuple- und Längenoracle ist je Profil
+definiert. Abgeleitete Heapmodellwerte für Recordgröße und Zeilen pro Seite
+sind ausdrücklich von `sys.dm_db_index_physical_stats`-Messwerten getrennt.
+Keine Engine-Ausführung und keine Page-Density- oder Performanceaussage.
 
 ## IDX-002 – statischer Quellen- und Entwurfsstand
 
