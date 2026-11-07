@@ -107,7 +107,7 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-044` | 44 | Partition Elimination muss ableitbar sein | `LO-M03-05` | VERTIEFUNG | `SRC-018` (Partitioned tables and indexes) | `QRY-012` | `TP-PERF` | KEEP |
 | `CLM-045` | 45 | Remote Pushdown ist provider- und planabhängig | `LO-M03-05` | VERTIEFUNG | `SRC-020` (Create linked servers), `SRC-021` (sp_addlinkedserver), `SRC-022` (Breaking changes in SQL Server 2025) | `QRY-012` | `TP-PERF` | KEEP |
 | `CLM-046` | 46 | Datenmodell und Datentyp begrenzen Optimierung | `LO-M03-02` | KERN | `SRC-002`, `SRC-005`, `SRC-030` | – | `TP-DOC` | KEEP |
-| `CLM-047` | 47 | Query-Rewrite über Plan und Messung prüfen | `LO-M03-06` | KERN | – | – | `TP-DOC` | KEEP |
+| `CLM-047` | 47 | Query-Rewrite über Plan und Messung prüfen | `LO-M03-06` | KERN | `SRC-122`, `SRC-123` | `QRY-023` (`PROPOSED`) | `TP-PERF` | KEEP |
 | `CLM-048` | 48 | Indexmodul einordnen | `LO-M04-01..07` | KERN | – | – | `TP-DOC` | KEEP |
 | `CLM-049` | 49 | Heap und Clustered Index sind alternative Basen | `LO-M04-01` | KERN | `SRC-012`, `SRC-013` (Heaps) | `IDX-001` | `TP-RUN` | KEEP |
 | `CLM-050` | 50 | B+-Tree ermöglicht Suchnavigation | `LO-M04-01` | KERN | `SRC-012` | – | `TP-DOC` | KEEP |
