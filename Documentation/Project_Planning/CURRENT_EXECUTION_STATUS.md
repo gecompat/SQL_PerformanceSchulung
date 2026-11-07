@@ -22,6 +22,10 @@ Generalprobe ist aus diesem autonomen Auftrag ausgeschlossen.
 
 ## Fortsetzung: QRY-002 – Konvertierungsrichtung didaktisch ergänzt
 
+PR #383 ist mit Squashcommit `90d2abf85180d23556af3bff1d3fa004e7c999e5`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert und der Remote-Branch entfernt.
+
 Die bestehende Lehrnotiz zeigt jetzt explizit beide Richtungen der
 Typpräzedenz: `int` gegenüber `nvarchar` sowie `nvarchar` gegenüber `varchar`.
 Sie trennt die dokumentierte Konvertierungsrichtung von der erst am konkreten
@@ -34,6 +38,21 @@ Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
 kumulative Obergrenze 40/48/107. Aufwand: eine eng begrenzte Lehrnotiz- und
 Quellenregisteraktualisierung, keine neue Abhängigkeit, kein neuer CI-Job.
 QRY-002 bleibt ungefahren; eine eigenständige Demoabnahme wäre separat.
+
+## Fortsetzung: QRY-003 – typabhängige Tagesgrenzen präzisiert
+
+Die Lehrnotiz grenzt jetzt `datetime` (letzter darstellbarer Tageszeitpunkt
+`23:59:59.997`) von `datetime2(7)` (bis `23:59:59.9999999`) ab. Sie bindet
+`BETWEEN`-Inklusivität, typisiertes `DATEADD` und die Aussagegrenze für
+SARGability an Microsoft-Primärquellen. Der Bereichsausdruck bleibt eine
+Methode, keine Seek- oder Leistungszusage. `SRC-133` wurde ergänzt und `SRC-012`
+um den Indexkontext erweitert. Keine Laufzeit oder Messung.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
+kumulative Obergrenze 41/49/109. Der Eingriff aktualisiert eine vorhandene
+Lehrnotiz und ein Quellenregister; keine zusätzliche Abhängigkeit oder
+Workflowprüfung. Als nächster Offlineinhalt folgt RES-004. Die menschliche
+Generalprobe bleibt ausgeschlossen.
 
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
