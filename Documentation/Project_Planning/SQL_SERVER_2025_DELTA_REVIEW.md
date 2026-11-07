@@ -20,7 +20,7 @@ CE steht für Cardinality Estimation, die Schätzung der Zeilenanzahl; XE steht 
 | Funktion | Quellen | bestehender Bezug | Entscheidung | Begründung und nächste Bedingung |
 |---|---|---|---|---|
 | CE Feedback für Ausdrücke | `SRC-058`, `SRC-061` (CE feedback for expressions) | `OPT-006`, `ADV-CLM-033` | `ADOPT` | SQL Server 2025, CL 160+, Datenbankkonfiguration, wiederkehrende Ausdrucksmuster und tatsächliche Feedbackevidenz. Keine neue Demo; ein späterer `OPT-006`-Schnitt prüft Showplan-, XE- oder Cacheevidenz und Regression Protection. |
-| Optimiertes `sp_executesql` | `SRC-058`, `SRC-059` (sp_executesql – OPTIMIZED_SP_EXECUTESQL) | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `ADV-CLM-018` | `DEFER` | Die Option ist standardmäßig aus und adressiert konkurrierende Compilation identischer Batches. `QRY-004` ist inzwischen runtimevalidiert; ein eigener Concurrent-Compile-Designschnitt darf nun bewertet werden, bleibt aber bis zu dieser Detailanalyse zurückgestellt. |
+| Optimiertes `sp_executesql` | `SRC-058`, `SRC-059` (sp_executesql – OPTIMIZED_SP_EXECUTESQL) | `QRY-004` (Optionale Filter, Recompile und dynamisches SQL), `ADV-CLM-018` | `DEFER` | Die quellengebundene Detailprüfung in §7 ist abgeschlossen. Die Aussage zur Serialisierung kann in der Erklärung erscheinen; Aktivierung, Performanceclaim und Demo bleiben zurückgestellt, bis ein eigener Concurrent-Compile-Vertrag samt Statistikzustand, Messung und vollständigem Restore vorliegt. |
 | Zeitgebundene XE-Sessions | `SRC-058`, `SRC-060` (Extended Events sessions – time-bound sessions) | `DGN-005` (Gezielte Ereigniserfassung mit Extended Events), `ADV-CLM-036` | `ADOPT` | `MAX_DURATION` wird als optionaler, auf Engine 17 begrenzter Schutzpfad an `DGN-005` gebunden. Der Basispfad behält explizites Stoppen, `STARTUP_STATE = OFF`, Ring-Buffer-Limit und Cleanup. |
 | TempDB Space Resource Governance | `SRC-058`, `SRC-062` | `CON-009` (Kosten in tempdb unterscheiden), `RES-004`, `ADV-CLM-027` | `DEFER` | Resource Governor verändert Instanzzustand und kann Requests mit Fehler 1138 abbrechen. Erforderlich sind Editionstest, rotes Safety-Design, dedizierte Wegwerfinstanz, Recovery und getrennte Behandlung von Datenfiles, Log und Version Store. |
 | Ordered nonclustered Columnstore | `SRC-058`, `SRC-063` (Performance tuning with ordered columnstore indexes) | `IDX-010` (Columnstore-Segmente gezielt überspringen) | `DEFER` | Nutzen hängt von Segmentüberlappung, Datenverteilung, DOP (Degree of Parallelism; Parallelitätsgrad einer Ausführung), Online-/Offline-Build, TempDB-Platz und Edition ab. Erst nach einem gelben Detaildesign mit `sys.column_store_segments` übernehmen. |
@@ -36,7 +36,7 @@ CE steht für Cardinality Estimation, die Schätzung der Zeilenanzahl; XE steht 
 
 ## 4. Stop-Regeln
 
-- Kein optimiertes `sp_executesql` ohne eigenen Concurrent-Compile-Designschnitt; die dafür vorausgesetzte `QRY-004`-Runtimefreigabe liegt vor.
+- Keine Aktivierung oder Laufzeitbehauptung zu optimiertem `sp_executesql` ohne eigenen Concurrent-Compile-Designschnitt; `QRY-004` ist zwar runtimevalidiert, qualifiziert aber keine parallele Kompilierung.
 - Keine Resource-Governor- oder Columnstore-Featuredemo ohne Edition-/Versionsprüfung, Safety-Klasse, Zeitbudget, Kill-Switch und Cleanup.
 - Kein Query-Store-Secondary-Schnitt während Preview und ohne freigegebene Mehrinstanztopologie.
 - Vector-/KI-Themen nur nach einer ausdrücklichen Curriculumentscheidung.
@@ -54,3 +54,16 @@ Demoentwurf definiert den neuen Lehrstrang. Quellen `SRC-072` (Vector data type)
 Runtimebeleg. SQL Server 2025 Preview, Azure-Freigaben, Indexgenerationen und SSMSfunktionen
 werden getrennt geführt. Andere ADOPT-/DEFER-Entscheidungen und bestehende Reihenfolge bleiben
 erhalten; Demoimplementierung und Präsentationsarbeit benötigen einen eigenen Auftrag.
+
+## 7. Detailprüfung `OPTIMIZED_SP_EXECUTESQL` vom 2026-11-07
+
+Die erneute Prüfung der [Featuredokumentation `SRC-059`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17#optimized_sp_executesql)
+und der [Statistikdokumentation `SRC-005`](https://learn.microsoft.com/en-us/sql/relational-databases/statistics/statistics?view=sql-server-ver17)
+ergibt folgende engere Aussage:
+
+- Die datenbankbezogene Option ist ab SQL Server 2025 verfügbar und standardmäßig `OFF`. Bei gleichen `sp_executesql`-Batchtexten (Parameterwerte dürfen verschieden sein) wird die Kompilierung serialisiert: Der erste Aufruf kompiliert und legt den Plan ab; konkurrierende Aufrufe warten auf den Compile-Lock und können den verfügbaren Plan wiederverwenden. Andere Statementtexte fallen nicht unter diese Gleichheitsbedingung.
+- Das ist eine Aussage zu konkurrierender Kompilierung und Planablage, keine allgemeine Beschleunigungszusage. **Abgeleitete Designgrenze:** Weniger gleichzeitige Doppelkompilierung kann zusätzliche Wartezeit der konkurrierenden Aufrufe bedeuten; der Nettoworkloadeffekt ist empirisch und die Quelle behauptet keine allgemeine Verbesserung.
+- Microsoft empfiehlt bei aktivierter automatischer Statistikaktualisierung zusätzlich `AUTO_UPDATE_STATISTICS_ASYNC` und `ASYNC_STATS_UPDATE_WAIT_AT_LOW_PRIORITY`, um bestimmte Risiken langer synchroner Kompilierung, übermäßiger `LCK_M_X`-Sperren und `WAIT_ON_SYNC_STATISTICS_REFRESH`-Waits zu verringern. Das sind eigenständige Konfigurationsentscheidungen. Asynchrone Statistikaktualisierung kann eine Kompilierung mit noch nicht aktualisierten Statistiken zulassen; sie ist deshalb kein folgenloser Schalter und muss in jedem Vergleich festgehalten werden.
+- Die vorhandene `QRY-004`-Abnahme belegt sichere Parametrisierung, Statementformbegrenzung und drei Strategien auf SQL Server 2019/2022/2025. Sie enthält keinen zeitgleichen Compile-Sturm und qualifiziert weder die neue Option noch ihre Waits.
+
+**Entscheidung:** `DEFER` bleibt für Aktivierung, Laufzeitdemo und Performanceclaim bestehen. Die technische Erklärung darf die oben begrenzte SQL-Server-2025-Funktion als optionalen Ausblick benennen, wenn die Trennung zur bestehenden `QRY-004`-Evidenz klar bleibt. Eine spätere Demo braucht eine eigene designierte Workload mit identischem und abweichendem Statementtext, kontrolliertem Kompilierungszustand, festgehaltenem Statistik-/Async-Status, Compile-/Wait-/Planablage-Evidenz sowie vollständigem Vorher-/Restore-Nachweis. Die bestehenden `QRY-004`-Quellen, Oracles, Laufmatrix und Skripte werden nicht umgedeutet oder erweitert.

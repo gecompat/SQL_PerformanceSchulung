@@ -71,6 +71,14 @@ Für diesen Dokumentationsschnitt wurde am 7. November eine weitere begrenzte
 Fortsetzung um ein Arbeitspaket, einen PR und zwei Quellen-/Testkandidaten
 angesetzt: kumulativ höchstens 19/27/65, ohne Reset.
 
+Die Detailprüfung von SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL` ist im
+[Delta-Review](SQL_SERVER_2025_DELTA_REVIEW.md) abgeschlossen. `QRY-004` qualifiziert keine parallele Compilation; die Funktion
+bleibt daher für Aktivierung, Laufzeitdemo und Performanceclaim `DEFER`. Die
+optionale Produktaussage kann eng abgegrenzt erklärt werden. Für diesen
+quellengebundenen Dokumentationsschnitt gilt die am 7. November angesetzte
+Fortsetzung um ein Arbeitspaket, einen PR und zwei Quellenkandidaten: kumulativ
+höchstens 20/28/67, ohne Reset.
+
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
 Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.
