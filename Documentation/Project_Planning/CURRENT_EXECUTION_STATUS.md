@@ -63,6 +63,14 @@ Fortsetzungsanweisung vom 7. November 2026 die kumulative Planungsobergrenze
 18 Arbeitspakete, 26 Pull Requests und 63 Quellen-/Testkandidaten; sie ist kein
 Geld- oder Provider-Ausgabenlimit.
 
+Die Lehrnotiz zu konkurrierenden Grants erklärt nun zusätzlich die getrennten
+Scopes dieser Prozess- und Betriebssystemsignale und grenzt sie von
+Buffer-Pool-Verdrängung und `RESOURCE_SEMAPHORE` ab. Das ist eine quellengebundene
+Begriffsklärung; die rote Demo-, Mess- und Laufzeitqualifikation bleibt offen.
+Für diesen Dokumentationsschnitt wurde am 7. November eine weitere begrenzte
+Fortsetzung um ein Arbeitspaket, einen PR und zwei Quellen-/Testkandidaten
+angesetzt: kumulativ höchstens 19/27/65, ohne Reset.
+
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
 Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.
