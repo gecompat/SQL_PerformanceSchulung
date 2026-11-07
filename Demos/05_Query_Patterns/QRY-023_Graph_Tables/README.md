@@ -81,8 +81,9 @@ Ergebnisorakel, Messreihenfolge, Plantrennung und den Nicht-Katalogstatus.
 
 Bevor die Demo in den Katalog oder einen Runtimeworkflow aufgenommen wird,
 bleiben formale Harness-Abnahme, unabhängige Methodenfreigabe,
-Bestätigung/Erneuerung der Build-Pins, exakte Image-Digests, Ressourcenprofil
-und konkrete Ausführungsgenehmigung offen.
+Bestätigung/Erneuerung der Build-Pins, Integration des Image-Locks in einen
+späteren Runtimeaufruf, Ressourcenprofil und konkrete Ausführungsgenehmigung
+offen.
 
 ## Verträge und Reviews
 
@@ -91,4 +92,5 @@ und konkrete Ausführungsgenehmigung offen.
 - [Quellen- und Methodenreview](../../../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md)
 - [Editions- und Buildreview](../../../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 - [ScriptDom-Grammatikprüfung](../../../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md)
+- Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json); nicht von einem Runtimeworkflow konsumiert und nicht ausführungsberechtigend.
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.

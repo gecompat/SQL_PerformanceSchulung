@@ -55,10 +55,10 @@ und keinen empirisch getesteten Container.
 `00_Preflight.sql` soll ausschließlich den zum jeweiligen Profil passenden
 Build zulassen und bei Abweichung vor Setup `SKIP_VERSION` zurückgeben.
 `10_Setup.sql` prüft denselben Build vor jeder Datenbankanlage erneut. Beide
-Skripte protokollieren die tatsächliche Edition. Das belegt weder die exakte
-Imageidentität noch den tatsächlich gestarteten SQL-Server-Build; vor einem
-späteren Lauf muss die Image-Digestbindung separat ergänzt und `SERVERPROPERTY`
-im Laufresultat geprüft werden. Ein späteres CU/GDR führt zunächst zum
+Skripte protokollieren die tatsächliche Edition. Der vorgeschlagene Image-Lock
+ist noch nicht in einen Runtimeaufruf integriert und belegt nicht den
+tatsächlich gestarteten SQL-Server-Build; vor einem späteren Lauf müssen
+Image-Digest und `SERVERPROPERTY` im Laufresultat gebunden werden. Ein späteres CU/GDR führt zunächst zum
 begründeten Skip, bis Quellenstand, Pin und Prüfer erneuert wurden.
 
 Die Compatibility Levels 150/160/170 bleiben die Projektmatrix und sind keine

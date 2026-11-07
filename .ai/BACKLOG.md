@@ -3427,6 +3427,12 @@ unbeobachtet. Die 2019-/2022-CU-Images enthalten nicht die separat
 veröffentlichten CU+GDR-Stände. Neuere passende Images, unabhängige
 Methodenfreigabe und Laufzeitqualifikation bleiben offen.
 
+Die Manifest- und Konfigurationsdigests liegen zusätzlich in einem
+`PROPOSED`-Image-Lock mit statischem Validator und synthetischen Gegenfällen.
+Der Lock wird von keinem Runtimeaufruf konsumiert; dies bleibt zusammen mit
+Ressourcenprofil, unabhängiger Methodenfreigabe und konkreter Laufautorisierung
+offen.
+
 Der [statische Demoentwurf](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
 legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten
 Pfadtripeln fest. Ein ausführbarer Codeentwurf liegt inzwischen separat vor;
