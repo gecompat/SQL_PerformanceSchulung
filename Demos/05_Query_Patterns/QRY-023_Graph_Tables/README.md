@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `PROPOSED`; lokaler Codeentwurf, noch nicht statisch abgenommen oder katalogisiert |
+| Status | `PROPOSED`; integrierter Codeentwurf mit begrenzter statischer Vertragsprüfung, nicht katalogisiert |
 | Sicherheitsstufe | `YELLOW` |
 | Lernziel | `LO-M03-06` / `CLM-047` |
 | Daten | ausschließlich synthetisch; 10.000 disjunkte Zwei-Kanten-Pfade plus kleines Korrektheitsoracle |
@@ -53,10 +53,13 @@ Pläne; es erfasst Sessiondeltas. Die Datenbank wird als Wegwerfdatenbank mit
 vollständigen QRY-023-Markern angelegt. Fremde oder nicht vollständig markierte
 Ziele werden abgewiesen und nicht entfernt.
 
-Der Prüflauf wurde hier nicht gestartet. Bevor die Demo in den Katalog oder
-einen Runtimeworkflow aufgenommen wird, bleiben unabhängige Methodenfreigabe,
-statische SQL-/Harnessprüfung, Build-/Edition-/CU-Pins, Ressourcenprofil und
-konkrete Ausführungsgenehmigung offen.
+Der QRY-023-Prüflauf wurde nicht gestartet. Ein Offlinevalidator prüft die
+Manifestphasen, Markerbindung, Workloadarithmetik, Ergebnisorakel,
+Messreihenfolge, Plantrennung und den Nicht-Katalogstatus. Er prüft keine
+T-SQL-Kompilierbarkeit. Bevor die Demo in den Katalog oder einen Runtimeworkflow
+aufgenommen wird, bleiben formale T-SQL-/Harness-Abnahme, unabhängige
+Methodenfreigabe, Build-/Edition-/CU-Pins, Ressourcenprofil und konkrete
+Ausführungsgenehmigung offen.
 
 ## Verträge und Reviews
 
