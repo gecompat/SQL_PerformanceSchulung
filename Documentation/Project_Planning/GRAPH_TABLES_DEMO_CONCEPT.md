@@ -1,7 +1,7 @@
 # Graph Tables: statischer Demoentwurf
 
 Stand: 7. November 2026  
-Status: `PROPOSED`; Entwurf ohne Demo-ID, Implementierung oder Ausführung
+Status: `PROPOSED`; registrierter Offlinevertrag `QRY-023`, nicht implementiert
 
 ## Lernziel und Umfang
 
@@ -100,17 +100,26 @@ Arbeit; ein einzelner Messlauf begründet keine allgemeine Empfehlung.
 
 ## Lifecycle, Sicherheit und offene Gates
 
-Ein späteres ausführbares Paket muss die stabil registrierte Demo-ID und den
-vollständigen Demo-Vertrag ergänzen. Der isolierte, synthetische Aufbau folgt
-dem vorhandenen Framework für markierte Testdatenbanken; Setup und Cleanup
-müssen wiederholbar sein und Cleanup darf nur exakt markierte, eigene Objekte
-entfernen. Vor Aufnahme in den Demo-Katalog sind Sicherheitsstufe,
-Rechte, Ressourcenprofil, Version, Compatibility Level, Edition,
-Zielbuilds und erwartete `PASS`-/`SKIP`-Grenzen festzulegen.
+Die zentrale Registry führt den Schnitt als `QRY-023` unter `TSK-017`. Die
+Zuordnung verwendet ausschließlich den bestehenden Lernzielanker `LO-M03-06`
+und Claim `CLM-047`; es entsteht kein neues Lernziel. Im Demo-Katalog ist der
+Status `PROPOSED` zu verwenden, bis eine Implementierung und die dafür
+erforderlichen Qualifikationen tatsächlich vorliegen.
 
-Der nächste fachliche Schritt ist, die konkrete `MATCH`- und Join-Syntax gegen
-die passenden Microsoft-T-SQL-Referenzen abzugleichen und die registrierte
-Demo-Identität erst nach bestätigter Umfangszuordnung anzulegen. Danach folgen
-unabhängige Methoden- und Quellenprüfung sowie die statische Vertragsprüfung.
-SQL-/Lab-Ausführung und Runtimequalifikation bleiben eigene spätere Gates und
-sind durch diesen Entwurf nicht autorisiert.
+Der statische Vertrag für eine spätere Implementierung lautet:
+
+| Bereich | Festlegung | Abnahmegrenze |
+|---|---|---|
+| Testdaten | Fünf synthetische Personen-IDs 1–5, vier gerichtete Kanten `(1,2)`, `(2,5)`, `(1,3)`, `(3,5)`; keine realen oder extern bezogenen Daten | Setup ist deterministisch und wiederholbar; Graph- und Relationsmodell enthalten dieselben logischen Paare |
+| Ergebnis | Exakt die Tupel `(1,2,5)` und `(1,3,5)` in beiden Varianten, dieselben Spalten und Datentypen, aufsteigend sortiert nach Start-, Zwischen- und Ziel-ID | Beidseitiger Vergleich gegen dasselbe feste Oracle; fehlende, zusätzliche und doppelte Zeilen müssen als Fehler sichtbar werden |
+| Abfragen | Gerichteter Zwei-Kanten-`MATCH` mit verschiedenen Edge-Aliasen; relationale Form mit zwei Kantentabellen-Joins; identische Start-/Zielparameter | Keine Behauptung, dass die Formen denselben Plan oder dieselbe Arbeit erzeugen |
+| Isolation / Rechte | Nur eigene wegwerfbare markierte Testdatenbank; Setup benötigt DDL- und Insert-Rechte, Abfragephase nur Select, Cleanup die zum Entfernen der eigenen Objekte erforderlichen Rechte | Keine fremde Datenbank, kein gemeinsam genutzter Instanzzustand und keine Rechteausweitung für Lernende |
+| Cleanup / Fehlerpfad | Setup markiert alle eigenen Tabellen und den Lauf; Cleanup entfernt ausschließlich nach erfolgreicher Eigentumsprüfung die eigenen Objekte; Teilausfall liefert den Zustand und einen sicheren Wiederaufnahmehinweis | Wiederholung nach Erfolg oder kontrolliertem Setupfehler darf fremde Objekte nicht verändern |
+| Version / Skip | Vor Implementierung werden konkrete Zielbuilds, Editionen und Compatibility Levels aus der aktuellen Projektmatrix gewählt und je Funktion geprüft | Mindestversion aus Microsoft-Dokumentation allein ist kein unterstütztes Buildprofil; unbekannte oder inkompatible Umgebung endet vor Setup mit begründetem `SKIP` |
+| Ressourcen / Messung | Korrektheitslauf bleibt klein und einstufig. Plan, Estimated Rows, Logical Reads, CPU und Duration sind optionale spätere Beobachtungen mit gleichen Bedingungen | Keine synthetische Benchmarkbehauptung, kein allgemeiner Performancegewinner und keine Messung ohne separates qualifiziertes Profil |
+
+Vor Erstellung ausführbarer Dateien bleiben unabhängige Methoden-/Quellenprüfung,
+statische Vertragsprüfung, konkrete Versionswahl und Prüfung der bestehenden
+Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,
+Runtimequalifikation und Performanceclaims sind getrennte Gates und durch die
+Registrierung nicht autorisiert.

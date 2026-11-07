@@ -3424,6 +3424,12 @@ Der ergänzende [T-SQL-Syntaxreview](../Documentation/Project_Planning/GRAPH_TAB
 bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
 über echte `$node_id`-Werte. Er ist Quellenprüfung, keine SQL-Ausführung.
 
+Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
+bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
+[Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
+Der Status bleibt `PROPOSED`; unabhängige Vertragsprüfung, Frameworkabgleich,
+konkrete Zielmatrix, Implementierung und alle Laufzeitgates sind offen.
+
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale
