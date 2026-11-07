@@ -1,21 +1,26 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-011 – Filterprädikate und berechnete Indexspalte
+## Fortsetzung: IDX-005 – Missing-Index-Vorschläge fachlich bewerten
 
-PR #399 (STL-003) ist mit Squashcommit
-`74d433015dc46a7c6889736aa67e4a3ba59499de` integriert. Alle fünf PR-Gates und
+PR #400 (QRY-011) ist mit Squashcommit
+`3beaecb0183a2b70906a4670567ee608e5cc6aaf` integriert. Alle fünf PR-Gates und
 drei Main-Workflows waren erfolgreich; `main` ist sauber und synchronisiert,
-der Arbeitsbranch wurde lokal und remote entfernt. Der Entwurf bindet
-Tupeloracles, `forwarded_record_count` und den begrenzten,
-cacheflüchtigen `forwarded_fetch_count`-Delta an getrennte Aussagen.
+der Arbeitsbranch wurde lokal und remote entfernt. Der Entwurf trennt
+Prädikatsimplikation, Indexeligibilität, SET-Optionszustand und die empirische
+Planwahl.
 
 Für den nächsten eigenständigen Offlineentwurf gilt eine begrenzte Erweiterung
 um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
-57/65/141. Umfang: passendes und nicht implizierendes Prädikat für einen
-Filtered Index, eine deterministische präzise berechnete Spalte mit eigenem
-Index und eine einzelne falsche SET-Option als Eligibility-Gegenprobe. Nur
-synthetische vollständige Ergebnistupel; keine SQL-/Runtime- oder
-Planfreigabe, keine Leistungsbehauptung und keine menschliche Generalprobe.
+58/66/143. Umfang: zwei synthetische Abfragen, Prüfung tatsächlicher
+Missing-Index-Vorschläge, Vergleich getrennter und konsolidierter Kandidaten
+und vollständige Ergebnistupel; keine SQL-/Runtimeausführung,
+Indeximplementierung, Plan-/Leistungsbehauptung oder menschliche Generalprobe.
+
+## Abschluss: QRY-011 – Filtered Indexes und berechnete Indexspalte
+
+Der [QRY-011-Entwurf](QRY011_FILTERED_INDEX_PREDICATE_DESIGN.md) ist über
+PR #400 integriert. Die tatsächliche Indexwahl, Enginekompilierung,
+Build-/Rechtequalifikation und Leistungswirkungen bleiben offen.
 
 ## Abschluss: STL-003 – Lebenszyklus weitergeleiteter Heapzeilen
 
