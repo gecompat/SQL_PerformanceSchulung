@@ -59,6 +59,35 @@ diesen Fall daher als ungültigen Eingang, statt ihn mit einer echten
 `NULL`-Kennung gleichzusetzen. Ein direktes `CONVERT(int, @Eingabe)` würde
 für `N'42x'` einen Konvertierungsfehler melden.
 
+## Die Präzedenz bestimmt die Konvertierungsseite
+
+Die Richtung hängt vom konkreten Typvergleich ab. `int` hat Vorrang vor
+`nvarchar`; ein Texteingang wird deshalb zu `int`. `nvarchar` hat dagegen
+Vorrang vor `varchar`; ein Vergleich kann die `varchar`-Spalte in den
+höher priorisierten Typ einbeziehen:
+
+```sql
+DECLARE @KundenIdAusText nvarchar(20) = N'42';
+DECLARE @Benutzername nvarchar(100) = N'ada';
+DECLARE @Kunden table (KundenId int);
+DECLARE @Benutzer table (Benutzername varchar(100));
+INSERT INTO @Kunden (KundenId) VALUES (42);
+INSERT INTO @Benutzer (Benutzername) VALUES ('ada');
+
+-- int hat Vorrang: der Texteingang wird für den Vergleich konvertiert.
+SELECT KundenId FROM @Kunden WHERE KundenId = @KundenIdAusText;
+
+-- nvarchar hat Vorrang: die varchar-Spalte ist an der Konvertierung beteiligt.
+SELECT Benutzername FROM @Benutzer WHERE Benutzername = @Benutzername;
+```
+
+Das sind Beispiele für die Typauflösung, keine Planbehauptungen. Für
+Zeichendaten sind zusätzlich Collation und gewünschte Vergleichssemantik zu
+prüfen. Ein `CONVERT_IMPLICIT` im tatsächlichen Plan ist ein Prüfhinweis; ob
+der Optimierer einen Seek, Scan oder einen anderen Zugriff wählt und welche
+Arbeit daraus entsteht, muss für genau diese Abfrage und diesen Index geprüft
+werden.
+
 ## Die Spalte nicht vorschnell umformen
 
 Ein Prädikat wie `CAST(KundenId AS nvarchar(20)) = @TextEingang` vergleicht die
@@ -98,11 +127,11 @@ neutrale Reparatur.
 
 ## Quellen und Aussagegrenzen
 
-- Microsoft Learn, [Datentyppriorität](https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-type-precedence-transact-sql?view=sql-server-ver17), Abruf 2026-10-26: Konvertierungsrichtung bei Operatoren verschiedener Datentypen.
-- Microsoft Learn, [CAST und CONVERT](https://learn.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver17) sowie [TRY_CONVERT](https://learn.microsoft.com/en-us/sql/t-sql/functions/try-convert-transact-sql?view=sql-server-ver17), Abruf 2026-10-26: explizite Konvertierung und Fehlerverhalten.
-- Microsoft Learn, [Collation-Priorität](https://learn.microsoft.com/en-us/sql/t-sql/statements/collation-precedence-transact-sql?view=sql-server-ver17) und [Collation und Unicode](https://learn.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support?view=sql-server-ver17), Abruf 2026-10-26: Vorrangregeln und Auswirkungen auf Zeichenvergleiche.
-- Microsoft Learn, [Indexarchitektur und -entwurf](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver17), Abruf 2026-10-26: Suchargumente und Grenzen bei Konvertierungen in Prädikaten.
-- Microsoft Learn, [Tatsächlichen Ausführungsplan anzeigen](https://learn.microsoft.com/en-us/sql/relational-databases/performance/display-an-actual-execution-plan?view=sql-server-ver17), Abruf 2026-10-26: Laufzeitplan zur Prüfung einer konkreten Abfrage.
+- Microsoft Learn, [Datentyppriorität](https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-type-precedence-transact-sql?view=sql-server-ver17), geprüft 2026-11-07: Konvertierungsrichtung bei Operatoren verschiedener Datentypen. Die Beispiele beanspruchen keine vollständige oder versionsübergreifende Wiedergabe der Prioritätsliste.
+- Microsoft Learn, [CAST und CONVERT](https://learn.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver17) sowie [TRY_CONVERT](https://learn.microsoft.com/en-us/sql/t-sql/functions/try-convert-transact-sql?view=sql-server-ver17), geprüft 2026-11-07: explizite Konvertierung und Fehlerverhalten.
+- Microsoft Learn, [Collation-Priorität](https://learn.microsoft.com/en-us/sql/t-sql/statements/collation-precedence-transact-sql?view=sql-server-ver17) und [Collation und Unicode](https://learn.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support?view=sql-server-ver17), geprüft 2026-11-07: Vorrangregeln und Auswirkungen auf Zeichenvergleiche.
+- Microsoft Learn, [Indexarchitektur und -entwurf](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver17), geprüft 2026-11-07: Suchargumente und die Abhängigkeit eines geeigneten Zugriffs vom Prädikat, Index und Workload.
+- Microsoft Learn, [Tatsächlichen Ausführungsplan anzeigen](https://learn.microsoft.com/en-us/sql/relational-databases/performance/display-an-actual-execution-plan?view=sql-server-ver17), geprüft 2026-11-07: Der Engineplan enthält Laufzeitinformationen für die konkrete Abfrage.
 - Das vorhandene Quellenregister führt [SRC-030](../Research/SOURCE_REGISTER.md) für Datentyppriorität und `QRY-002`; `SRC-012` behandelt den Indexentwurf.
 
 Diese qualitative Lehrnotiz enthält keine Ausführungspläne, Laufzeit- oder
