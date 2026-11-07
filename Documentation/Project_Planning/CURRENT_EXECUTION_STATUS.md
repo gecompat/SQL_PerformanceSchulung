@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: STL-003 – Lebenszyklus weitergeleiteter Heapzeilen
+
+PR #398 (OPT-004-Constraintvertrauen und Eindeutigkeit) ist mit
+Squashcommit `db0091a8ae46b504aab793d971bd126e470a87aa` integriert. Alle fünf
+PR-Gates und die drei Main-Workflows waren erfolgreich; `main` ist sauber und
+synchronisiert, der Remote-Arbeitsbranch wurde durch den Merge entfernt.
+
+Für den nächsten eigenständigen Offlineentwurf gilt eine begrenzte Erweiterung
+um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+56/64/139. Umfang: eine synthetische Heapfixture, vollständige Tupeloracles,
+physischer Forwarded-Record-Zähler, eng begrenzter operativer Fetch-Delta und
+kontrollierter Rebuild. Keine SQL-/Runtimeausführung, keine
+Leistungsbehauptung und keine menschliche Generalprobe.
+
+Der [STL-003-Entwurf](STL003_FORWARDED_RECORD_LIFECYCLE_DESIGN.md) hält fest,
+dass ein positiver `forwarded_record_count` die Struktur belegt, während
+`forwarded_fetch_count` nur als flüchtiger operativer Delta-Nachweis gilt.
+Fixture-Enginequalifikation, Rechte, Build, vollständiger Demo-/Cleanupvertrag
+und jede Laufzeitbehauptung bleiben offen.
+
 ## Abschluss: STL-002 – Row-Overflow und LOB
 
 Für die autonome Fortsetzung gilt eine neue, isolierte Erweiterung um 1
