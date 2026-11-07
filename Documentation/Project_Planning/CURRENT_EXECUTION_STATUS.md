@@ -66,6 +66,17 @@ Erweiterungen von SQL Server 2019. Dafür wurde die kumulative Arbeitsgrenze um
 Zielbuilds, Editions-/Compatibility-Level-Grenzen, Demo und Runtime bleiben
 offen.
 
+PR #367 ist auf `main` integriert: sieben aktuelle PR- und fünf Main-Workflows
+erfolgreich, Squashcommit `4d44ec7b9327c38a59cb39ebc6465bf267340c02`.
+Vollständiger Tree `e45e6bbf7a69e1c1d1053da2b669ff94ed464099` stimmt lokal und
+auf `origin/main` überein; lokaler und Remote-Branch sind entfernt.
+
+Der nächste begrenzte Schritt entwirft statisch den festen Zwei-Kanten-Pfad,
+beide äquivalenten Abfrageformen und die erwarteten Ergebnistripel. Dafür wird
+die kumulative Arbeitsgrenze um 1 Arbeitspaket, 1 PR und höchstens 2 Quellen-
+kandidaten auf 25/33/77 erweitert. Der Entwurf hat keine Demo-ID; ausführbares
+SQL, Sicherheits-/Cleanupvertrag und Runtime bleiben spätere Gates.
+
 ## Autonomer Auftrag vom 26. Oktober 2026
 
 Der neue menschliche Auftrag nimmt die priorisierten Entwicklungspunkte

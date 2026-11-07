@@ -3415,6 +3415,11 @@ fand in beiden Übersichten keine Graph-Einträge. Dieser negative Befund belegt
 keine Featureparität; konkrete Funktionen, Editionen und Compatibility Levels
 bleiben vor einem Demo-Vertrag zu verifizieren.
 
+Der [statische Demoentwurf](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
+legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten
+Pfadtripeln fest. Er besitzt keine Demo-ID und enthält weder ausführbare
+Artefakte noch Runtime- oder Performancequalifikation.
+
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale
