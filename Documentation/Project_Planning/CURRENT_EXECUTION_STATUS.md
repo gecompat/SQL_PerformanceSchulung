@@ -100,6 +100,10 @@ gegen tatsächliche Engine-Rundung bleibt vor jeder späteren SQL-Umsetzung offe
 
 ## Fortsetzung: QRY-007 – Join-Kardinalität und `DISTINCT`
 
+PR #387 ist mit Squashcommit `1ee4867ec415e3c85bffab42b17ecd7c79cd3621`
+integriert. Fünf PR-Gates sowie die beiden betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert und der Remote-Branch entfernt.
+
 Der nächste priorisierte Offlinekandidat trennt die dokumentierte Semantik
 passender Join-Zeilenpaare, eindeutiger `DISTINCT`-Projektionen und
 `EXISTS`. Ein vorgeschlagener Eltern-/Kind-Orakelentwurf macht explizit, dass
@@ -117,6 +121,19 @@ statischer Fixture-/Oracleentwurf mit einer Kandidatenplanpflege; kein neuer
 Workflow, keine Abhängigkeit und keine Runtime. Engine-/Fixtureprüfung,
 vollständiger Demo-/Cleanupvertrag, Methodenreview und konkrete Laufautorisierung
 bleiben spätere getrennte Gates. Menschliche Generalprobe bleibt ausgeschlossen.
+
+Die quellengebundene Lehrnotiz ist nun im Curriculum-Einstieg verlinkt. Sie
+führt die Fixture in statischen Table-Variable-Beispielen durch Join-Paare,
+Elternprojektion, `DISTINCT`, `EXISTS` und eine bedarfsgerechte Zählung; die
+vollständigen Soll-IDs und Multiplikitäten sind angegeben. Es wurde kein SQL
+ausgeführt und keine Lernziel-, Claim- oder Demo-ID ergänzt.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
+kumulative Obergrenze 45/53/117. Verarbeitung: eine kleine Lehrnotiz plus
+Curriculum-Link und begrenzte Lesepfadprüfung; keine neue Abhängigkeit und
+keine Workflowprüfung. Der nächste eigenständige Offlinekandidat ist `IDX-003`
+gemäß der vorhandenen Kandidatenreihenfolge; Ausführung, Planbehauptung und
+menschliche Generalprobe bleiben davon unberührt.
 
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
