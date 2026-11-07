@@ -8,6 +8,12 @@ Die [Traceability-Matrix](../Curriculum/TRACEABILITY_MATRIX.md) ordnet `CLM-047`
 
 Für diese begrenzte Fortsetzung beträgt die kumulative Arbeitsobergrenze 29 Arbeitspakete, 37 Pull Requests und 85 Evidenzkandidaten. Token- und Geldverbrauch bleiben unbekannt. Registry-Semantik, Kennungsregistrierung und Curriculum-Traceability wurden lokal geprüft und bestanden. Keine Codeänderung, kein SQL-, Lab- oder Runtime-Lauf.
 
+## Fortsetzung: Graph Tables – Quellen- und Methodenpräzisierung
+
+Das [Quellen- und Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md) ergänzt den Workloaddesign-Entwurf um `MATCH` statt direkter Gleichheit von Graph-ID-Pseudospalten, begrenzt die Indizes auf Kandidaten und trennt Actual-Plan-Diagnostik von den `FWK-004`-Messwiederholungen. Die Planerfassung benötigt `SHOWPLAN`; `STATISTICS IO/TIME` laut Quellen nicht. Der tatsächliche Indexnutzen, konkrete Plan-/Messausgabe und Rechte bleiben vor einer Implementierung weiter zu qualifizieren. Die Evidenz steht in `SRC-124`/`SRC-125`.
+
+Diese Fortsetzung erweitert die kumulative Obergrenze um 1 Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 30/38/87. Das Review ist dokumentarisch, keine unabhängige Methodenfreigabe. Keine Codeänderung und kein SQL-, Lab- oder Runtime-Lauf.
+
 ## Fortsetzung: Graph Tables – Framework-, Mess- und Zielmatrixreview
 
 Der Abgleich gegen das Curriculum hat eine erforderliche Korrektur ergeben: `LO-M03-06` verlangt identische Baseline und Vergleichsmessung; `CLM-047` benennt Plan- und Messprüfung. Planbeobachtung und Messung sind daher für QRY-023 Pflicht. Das Fünf-Knoten-/Vier-Kanten-Fixture bleibt ein Korrektheitsoracle und ist kein qualifiziertes Messworkload. `FWK-004`/`FWK-005` verlangen Warm-up-Ausschluss, dokumentierte Wiederholungen, robuste Zusammenfassung samt Streuung und Plan-/Statistikevidenz. Deterministische Messlast, Wiederholungsplan und fachlich begründete Indexe sind der nächste Designschritt.
