@@ -67,8 +67,10 @@ Vor Umsetzung bleiben mindestens offen:
 
 1. Curriculum-Owner und bestehendes Lernziel beziehungsweise begründetes neues
    Lernziel festlegen; Folien- und Traceability-Auswirkung bestimmen.
-2. Graph-Indizes und Versions-/Editions-/Compatibility-Level-Grenzen anhand
-   der passenden Primärquellen prüfen.
+2. Die [gesonderte Versions- und Indexprüfung](GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
+   bindet Graph-Indexgrundlagen und dokumentierte Erweiterungen für SQL Server
+   2019. Versions-, Editions- und Compatibility-Level-Grenzen für SQL Server
+   2022/2025 bleiben anhand passender Primärquellen zu prüfen.
 3. Einen Demo-Vertrag mit synthetischen Daten, isoliertem Setup, erwarteter
    Ausgabe, zulässiger Evidenz, Messbedingungen und unabhängig bestätigtem
    Cleanup erstellen.

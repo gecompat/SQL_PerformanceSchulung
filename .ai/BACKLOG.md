@@ -1988,10 +1988,10 @@ Die Range-Variante bleibt zurückgestellt: CON-002 behandelt bereits
 Schlüsselbereichssperren; die vorhandene Fixture beweist weder verschiedene
 Indexressourcen noch eine eigenständige zusätzliche Lernerfahrung. Dafür wäre
 ein eigener präziser Bereichs-/Graphvertrag nötig. Produktgrundlage für die
-Konversionsmechanik: [SRC-004](../Research/SOURCE_REGISTER.md#src-004),
+Konversionsmechanik: [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004),
 insbesondere Shared-/Update-/Exclusive-Locks und die S→X-Konversion; der
 Deadlock-Guide beschreibt die Graph- und Opferbelege unter
-[SRC-066](../Research/SOURCE_REGISTER.md#src-066). Die Graphzuordnung und das
+[SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066). Die Graphzuordnung und das
 Verhalten auf den Zielbuilds bleiben empirische Gates.
 
 **Spätere Abnahme:**
@@ -3404,6 +3404,11 @@ Lernzielzuordnung, Performanceaussage oder Laufzeitfreigabe. Der Graph-Schnitt
 bleibt `PROPOSED`; stabile Task-/Demo-Kennungen folgen erst nach
 Ownerentscheidung. External Tables bleiben bis zur Klärung von Connector,
 Quelle und Infrastruktur zurückgestellt.
+
+Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
+bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
+Erweiterungen. Die geprüften Quellen qualifizieren weder SQL Server 2022/2025
+noch Editionen, Compatibility Levels oder einen Lauf.
 
 - [ ] **External Tables:** Einsatzgrenzen, konkrete externe Datenquelle und Zugriffsweg einschließlich gegebenenfalls PolyBase für die SQL-Server-2019/2022/2025-Matrix recherchieren. Statistiken, Cardinality Estimates, Predicate-/Projection-Pushdown, lokale gegenüber externer Verarbeitung sowie Datenübertragungs- und I/O-Kosten anhand vergleichbarer synthetischer Abfragen untersuchen. Version, Edition, Betriebssystem, Compatibility Level, Rechte und Connectorvoraussetzungen vor dem Demoentwurf prüfen; zusätzliche Infrastruktur auf den gewählten Zugriffsweg begrenzen und isolierten Aufbau, bestätigte Ausführung sowie unabhängigen Cleanup vorsehen. Einstieg: [PolyBase-Pushdown](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-pushdown-computation?view=sql-server-ver17).
 - [ ] **Graph Tables:** Node-/Edge-Tabellen, `MATCH`, Graph-Indizes und passende Anwendungsfälle aufbereiten. Eine synthetische Graph-Abfrage mit einer semantisch gleichwertigen relationalen Modellierung vergleichen und Execution Plans, Cardinality Estimates, Logical Reads, CPU und Duration unter gleichen Bedingungen messen. Featuregrenzen nach Version, Edition und Compatibility Level für SQL Server 2019/2022/2025 prüfen; reproduzierbares T-SQL-Setup und Cleanup in einer isolierten Testdatenbank entwerfen. Einstieg: [SQL-Graph-Architektur](https://learn.microsoft.com/en-us/sql/relational-databases/graphs/sql-graph-architecture?view=sql-server-ver17).
