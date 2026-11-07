@@ -92,9 +92,9 @@ Vor Umsetzung bleiben mindestens offen:
    enthalten keine Graph-Einträge, was Versionsparität nicht beweist. Editions-
    und Compatibility-Level-Grenzen bleiben anhand passender T-SQL-Referenzen
    und Zielbuilds zu prüfen.
-3. Den [statischen Demoentwurf](GRAPH_TABLES_DEMO_CONCEPT.md) für identische
-   Zwei-Kanten-Pfade, Ergebnismenge und Vergleichsbedingungen quellengebunden
-   vervollständigen.
+3. Der [T-SQL-Syntaxreview](GRAPH_TABLES_TSQL_SYNTAX_REVIEW.md) klärt die
+   `MATCH`-Aliase und Edge-INSERT-IDs; der [statische Demoentwurf](GRAPH_TABLES_DEMO_CONCEPT.md)
+   bindet diese Syntax an den gleichen Zwei-Kanten-Pfad.
 4. Erst nach Registrierung und konkretem Demo-Vertrag die erforderlichen
    Methoden-, Sicherheits-, Ausführungs- und Runtime-Gates abarbeiten.
 

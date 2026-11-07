@@ -77,6 +77,17 @@ die kumulative Arbeitsgrenze um 1 Arbeitspaket, 1 PR und höchstens 2 Quellen-
 kandidaten auf 25/33/77 erweitert. Der Entwurf hat keine Demo-ID; ausführbares
 SQL, Sicherheits-/Cleanupvertrag und Runtime bleiben spätere Gates.
 
+PR #368 ist auf `main` integriert: sieben aktuelle PR- und fünf Main-Workflows
+erfolgreich, Squashcommit `5902dbb714217c1ae9b971e770e09c931ef666ba`.
+Vollständiger Tree `ada6bf79f41f49490b5c8a392263b027695a5bf3` stimmt lokal und
+auf `origin/main` überein; lokaler und Remote-Branch sind entfernt.
+
+Der nächste begrenzte Schritt prüft die konkrete `MATCH`- und Edge-INSERT-
+Syntax anhand zweier Microsoft-T-SQL-Referenzen und ergänzt den statischen
+Entwurf. Die kumulative Arbeitsobergrenze wird dafür um 1 Arbeitspaket, 1 PR
+und bis zu 2 Quellenkandidaten auf 26/34/79 erweitert. Keine Demo-ID,
+ausführbare SQL-Datei oder Laufzeitfreigabe.
+
 ## Autonomer Auftrag vom 26. Oktober 2026
 
 Der neue menschliche Auftrag nimmt die priorisierten Entwicklungspunkte
