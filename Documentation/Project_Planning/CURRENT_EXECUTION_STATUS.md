@@ -52,6 +52,20 @@ Der endliche Rahmen wird dafür um 1 Arbeitspaket, 1 PR und höchstens 2 weitere
 Quellenkandidaten auf 23/31/73 erweitert; dieser Schritt nutzt vorhandene
 Curriculum-Dokumente und prüft keine neuen Produktquellen.
 
+PR #366 ist auf `main` integriert: sieben aktuelle PR- und fünf Main-Workflows
+erfolgreich, Squashcommit `7e09a5b557f5b5fe1c746a164d677cec205a56a1`.
+Vollständiger Tree `5e6efedbbda9764d2681e1d9ab9846a848de4b7b` stimmt lokal und
+auf `origin/main` überein; lokaler und Remote-Branch sind entfernt.
+
+Die anschließende Quellenprüfung der SQL-Server-2022/2025-Releaseübersichten
+fand dort keine Graph-Einträge. Sie hält ausdrücklich fest, dass die Abwesenheit
+eines Eintrags keine Versionsparität belegt; für den Entwurf gilt weiterhin nur
+die quellenbelegte Basis ab SQL Server 2017 plus die dokumentierten Graph-
+Erweiterungen von SQL Server 2019. Dafür wurde die kumulative Arbeitsgrenze um
+1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten auf 24/32/75 erweitert.
+Zielbuilds, Editions-/Compatibility-Level-Grenzen, Demo und Runtime bleiben
+offen.
+
 ## Autonomer Auftrag vom 26. Oktober 2026
 
 Der neue menschliche Auftrag nimmt die priorisierten Entwicklungspunkte
