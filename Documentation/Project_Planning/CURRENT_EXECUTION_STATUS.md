@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
+
+Der Offlineentwurf vergleicht identische Zeilentupel auf Heap und Clustered
+Table mit jeweils einem nicht abdeckenden sekundären Index. Er bindet die
+unterschiedlichen Row Locator (RID gegenüber Clustered Key) an die bedingte
+Showplanzuordnung von `RID Lookup` beziehungsweise `Key Lookup`; beide sind
+laut `SRC-138` mit `Nested Loops` verbunden. Fixture- und Tupeloracles decken
+Punkt- und Bereichszugriff ab. Die Planassertion verlangt keinen Lookup: falls
+einer gewählt wird, muss er zur Tabellenstruktur passen. Kein SQL-Lauf und
+keine Leistungsaussage.
+
+Begrenzte Fortsetzungserweiterung +1 Arbeitspaket, +1 PR und bis zu 2
+Quellenkandidaten; kumulative Obergrenze 49/57/125. Sie gilt ausschließlich
+für Quellenabgleich, statischen IDX-001-Entwurf und Kandidatenpflege. Fixture-
+Enginevalidierung, Demo-/Cleanupvertrag, Methodenreview, SQL-/Runtimeausführung
+und konkrete Laufautorisierung bleiben offen; menschliche Generalprobe bleibt
+ausgeschlossen. Aufwand: ein Entwurf, ein bestehender Quellenregistereintrag
+präzisiert und eine Showplanquelle neu registriert; keine neue Abhängigkeit
+oder Workflowprüfung.
+
 ## Fortsetzung: QRY-023 – FWK-004-Vertrag statisch gebunden
 
 Der Offlineprüfer bindet die tatsächlich implementierten Parameter von
