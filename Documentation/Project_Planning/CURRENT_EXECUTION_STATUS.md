@@ -1,20 +1,26 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: IDX-005 – Missing-Index-Vorschläge fachlich bewerten
+## Fortsetzung: OPT-012 – Adaptive Join unter wechselnder Eingabekardinalität
 
-PR #400 (QRY-011) ist mit Squashcommit
-`3beaecb0183a2b70906a4670567ee608e5cc6aaf` integriert. Alle fünf PR-Gates und
-drei Main-Workflows waren erfolgreich; `main` ist sauber und synchronisiert,
-der Arbeitsbranch wurde lokal und remote entfernt. Der Entwurf trennt
-Prädikatsimplikation, Indexeligibilität, SET-Optionszustand und die empirische
-Planwahl.
+PR #401 (IDX-005) ist mit Squashcommit
+`d82b75a44271acd1bda93d55cbecf8bf187c8240` integriert. Alle fünf PR-Gates und
+drei Main-Workflows waren erfolgreich; `main` war sauber und synchronisiert.
+Der Missing-Index-Entwurf trennt tatsächliche Requests von Kandidatenformen,
+vergleicht überlappende Indexvarianten und bindet die DML-Oracles an vollständige
+Tupel.
 
-Für den nächsten eigenständigen Offlineentwurf gilt eine begrenzte Erweiterung
-um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
-58/66/143. Umfang: zwei synthetische Abfragen, Prüfung tatsächlicher
-Missing-Index-Vorschläge, Vergleich getrennter und konsolidierter Kandidaten
-und vollständige Ergebnistupel; keine SQL-/Runtimeausführung,
-Indeximplementierung, Plan-/Leistungsbehauptung oder menschliche Generalprobe.
+Für OPT-012 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
+2 Quellenkandidaten; kumulative Obergrenze 59/67/145. Umfang: quellengebundener
+Offlineentwurf eines wiederverwendeten Adaptive-Join-Plans mit kleinen und
+großen synthetischen Eingabemengen, Eligibility-Prüfung und Actual Plan
+Oracles. Keine SQL-/Runtimeausführung, Garantie einer Adaptive-Join-Planform,
+Leistungsbehauptung oder menschliche Generalprobe.
+
+## Abschluss: IDX-005 – Missing-Index-Vorschläge fachlich bewerten
+
+Der [IDX-005-Entwurf](IDX005_MISSING_INDEX_REVIEW_DESIGN.md) ist über PR #401
+integriert. Tatsächliche Vorschläge, DMV-Rechte und DML-/Planlaufzeiten bleiben
+für eine spätere qualifizierte Runtimephase offen.
 
 ## Abschluss: QRY-011 – Filtered Indexes und berechnete Indexspalte
 
