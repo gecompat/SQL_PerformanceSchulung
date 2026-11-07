@@ -1,5 +1,29 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-011 – Filterprädikate und berechnete Indexspalte
+
+PR #399 (STL-003) ist mit Squashcommit
+`74d433015dc46a7c6889736aa67e4a3ba59499de` integriert. Alle fünf PR-Gates und
+drei Main-Workflows waren erfolgreich; `main` ist sauber und synchronisiert,
+der Arbeitsbranch wurde lokal und remote entfernt. Der Entwurf bindet
+Tupeloracles, `forwarded_record_count` und den begrenzten,
+cacheflüchtigen `forwarded_fetch_count`-Delta an getrennte Aussagen.
+
+Für den nächsten eigenständigen Offlineentwurf gilt eine begrenzte Erweiterung
+um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+57/65/141. Umfang: passendes und nicht implizierendes Prädikat für einen
+Filtered Index, eine deterministische präzise berechnete Spalte mit eigenem
+Index und eine einzelne falsche SET-Option als Eligibility-Gegenprobe. Nur
+synthetische vollständige Ergebnistupel; keine SQL-/Runtime- oder
+Planfreigabe, keine Leistungsbehauptung und keine menschliche Generalprobe.
+
+## Abschluss: STL-003 – Lebenszyklus weitergeleiteter Heapzeilen
+
+Der [STL-003-Entwurf](STL003_FORWARDED_RECORD_LIFECYCLE_DESIGN.md) ist über
+PR #399 integriert. Fixtureausführung und Enginequalifikation, tatsächliche
+Fetch-Deltas, Rechte, Build sowie Laufzeit- und Leistungswirkungen bleiben
+offen.
+
 ## Fortsetzung: STL-003 – Lebenszyklus weitergeleiteter Heapzeilen
 
 PR #398 (OPT-004-Constraintvertrauen und Eindeutigkeit) ist mit
