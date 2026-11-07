@@ -19,6 +19,22 @@ offen: neuere passende Images für 2019/2022, unabhängige Methodenfreigabe,
 formale Harnessabnahme, Ressourcenprofil und konkrete Laufautorisierung. QRY-023
 bleibt `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren.
 
+## Fortsetzung: QRY-023 – vorgeschlagener Image-Lock
+
+Die drei AMD64-Manifest- und Konfigurationsdigests stehen jetzt zusätzlich
+maschinenlesbar in `container-images.proposed.json`. Der Offlinevalidator prüft
+Schema, Profilanzahl, Produktmajor, Compatibility Level, Plattform, geprüften
+MCR-Tag, Digestform, unveränderliche `image@sha256`-Referenz und Übereinstimmung
+des Image-Produktlabels mit Preflight und Setup. Regressionen prüfen mutable
+Tagverwendung und Buildabweichung. Der Lock autorisiert keinen Lauf und wird
+noch von keinem Runtimeaufruf konsumiert.
+
+Diese statische Integrationswelle erweitert den kumulativen Rahmen um 1
+Arbeitspaket, 1 PR und 2 Kandidaten auf höchstens 36/44/99. Keine Container- oder
+SQL-Ausführung. Offen bleiben Runtimeintegration, unabhängige Methodenfreigabe,
+formale Harnessabnahme, passende neuere 2019/2022-Images, Ressourcenprofil und
+konkrete Laufautorisierung.
+
 ## Fortsetzung: QRY-023 – ScriptDom-Grammatikprüfung
 
 PR #376 ist als Squashcommit `ed75e78b7558fec94fed17aba1ad20d93d2891a9` in `origin/main` integriert; alle zehn PR-Workflows waren erfolgreich, `main` ist lokal synchronisiert und beide Branches sind entfernt. Die Editionsmatrix und zeitgebundenen Buildpins sind in `SRC-126/127` gebunden.

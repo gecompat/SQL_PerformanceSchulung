@@ -86,6 +86,71 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     cleanup_sql = read("90_Cleanup.sql")
     readme = read("README.md")
 
+    image_lock_path = demo / "container-images.proposed.json"
+    try:
+        image_lock = json.loads(image_lock_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        image_lock = {}
+        errors.append(f"Cannot load proposed container image lock: {exc}")
+
+    require(image_lock.get("contract_version") == "1.0",
+            "proposed image lock contract version must be 1.0", errors)
+    require(image_lock.get("status") == "PROPOSED" and image_lock.get("runtime_authorized") is False,
+            "image lock must remain proposed and must not authorize runtime", errors)
+    require(image_lock.get("registry") == "mcr.microsoft.com/mssql/server",
+            "image lock must use the declared Microsoft registry", errors)
+    image_profiles = image_lock.get("profiles")
+    expected_tags = {
+        15: (150, "2019-CU32-ubuntu-20.04"),
+        16: (160, "2022-CU27-ubuntu-22.04"),
+        17: (170, "2025-CU10-ubuntu-22.04"),
+    }
+    require(isinstance(image_profiles, list) and len(image_profiles) == 3,
+            "image lock must declare exactly three product profiles", errors)
+    image_builds: dict[int, str] = {}
+    if isinstance(image_profiles, list):
+        for profile in image_profiles:
+            major = profile.get("product_major_version")
+            require(major in expected_tags, f"unsupported image product major version: {major}", errors)
+            if major not in expected_tags:
+                continue
+            level, tag = expected_tags[major]
+            digest = profile.get("manifest_digest", "")
+            config_digest = profile.get("config_digest", "")
+            require(profile.get("compatibility_level") == level,
+                    f"product {major} image lock has the wrong compatibility level", errors)
+            require(profile.get("platform") == "linux/amd64",
+                    f"product {major} image must remain linux/amd64", errors)
+            require(profile.get("source_tag") == tag,
+                    f"product {major} must retain its reviewed MCR source tag", errors)
+            require(re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is not None,
+                    f"product {major} must have a valid manifest digest", errors)
+            require(re.fullmatch(r"sha256:[0-9a-f]{64}", config_digest) is not None,
+                    f"product {major} must have a valid config digest", errors)
+            require(profile.get("image") == f"mcr.microsoft.com/mssql/server@{digest}",
+                    f"product {major} image reference must use its immutable manifest digest", errors)
+            build = profile.get("product_version_label", "")
+            require(build.startswith(f"{major}."),
+                    f"product {major} image label must match its major version", errors)
+            image_builds[major] = build
+    for major, build in image_builds.items():
+        expected_sql = f"when {major} then n'{build.casefold()}'"
+        require(expected_sql in preflight and expected_sql in setup,
+                f"product {major} image label must match preflight and setup build pins", errors)
+    build_review = repository / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md"
+    try:
+        review_text = build_review.read_text(encoding="utf-8").casefold()
+    except OSError as exc:
+        review_text = ""
+        errors.append(f"Cannot read image build review: {exc}")
+    if isinstance(image_profiles, list):
+        for profile in image_profiles:
+            for field in ("manifest_digest", "config_digest"):
+                digest = profile.get(field, "").casefold()
+                require(bool(digest) and digest in review_text,
+                        f"image review must document {field} for product {profile.get('product_major_version')}",
+                        errors)
+
     for label, source in (("preflight", preflight), ("setup", setup), ("workload", workload),
                           ("qualification preflight", qualification), ("cleanup", cleanup_sql)):
         for marker in ("sqlperf.project", "sqlperf.contractversion", "sqlperf.demoid", "sqlperf.runtoken"):
@@ -148,6 +213,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "README must state that QRY-023 has not been executed", errors)
     require(all(build in readme for build in build_pins),
             "README must document all time-bound engine build pins", errors)
+    require("container-images.proposed.json" in readme,
+            "README must link the proposed immutable image lock", errors)
     require("graph" in readme and "editionsmatrizen" in readme,
             "README must state the sourced Graph edition scope", errors)
 

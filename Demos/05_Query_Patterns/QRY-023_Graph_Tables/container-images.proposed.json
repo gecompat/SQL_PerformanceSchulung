@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0",
+  "status": "PROPOSED",
+  "registry": "mcr.microsoft.com/mssql/server",
+  "runtime_authorized": false,
+  "profiles": [
+    {
+      "product_major_version": 15,
+      "compatibility_level": 150,
+      "platform": "linux/amd64",
+      "source_tag": "2019-CU32-ubuntu-20.04",
+      "manifest_digest": "sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce",
+      "image": "mcr.microsoft.com/mssql/server@sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce",
+      "config_digest": "sha256:b6d65c67219f3a0bd86870b0ef485928305923e8c3c83964170c476b5eef165e",
+      "product_version_label": "15.0.4430.1"
+    },
+    {
+      "product_major_version": 16,
+      "compatibility_level": 160,
+      "platform": "linux/amd64",
+      "source_tag": "2022-CU27-ubuntu-22.04",
+      "manifest_digest": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+      "image": "mcr.microsoft.com/mssql/server@sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+      "config_digest": "sha256:5b0916c7af8ca97ce9390be7e1182862d6fa90bff9f44f035dbe1626df140637",
+      "product_version_label": "16.0.4295.3"
+    },
+    {
+      "product_major_version": 17,
+      "compatibility_level": 170,
+      "platform": "linux/amd64",
+      "source_tag": "2025-CU10-ubuntu-22.04",
+      "manifest_digest": "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f",
+      "image": "mcr.microsoft.com/mssql/server@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f",
+      "config_digest": "sha256:e6b27c1b6b7c1faa799fc4cd831c442bb36a8f7a7f214e780652e8cc09a26625",
+      "product_version_label": "17.0.5035.5"
+    }
+  ]
+}
