@@ -25,21 +25,21 @@
       "product_major_version": 15,
       "compatibility_level": 150,
       "platform": "linux/amd64",
-      "source_tag": "2019-CU32-ubuntu-20.04",
-      "manifest_digest": "sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce",
-      "image": "mcr.microsoft.com/mssql/server@sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce",
-      "config_digest": "sha256:b6d65c67219f3a0bd86870b0ef485928305923e8c3c83964170c476b5eef165e",
-      "product_version_label": "15.0.4430.1"
+      "source_tag": "2019-CU32-GDR12-ubuntu-20.04",
+      "manifest_digest": "sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069",
+      "image": "mcr.microsoft.com/mssql/server@sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069",
+      "config_digest": "sha256:d47c3524cdcabc59024d5cca4f9888e4eff01d7efc5ceedd0f4e383cc72a8366",
+      "product_version_label": "15.0.4500.2"
     },
     {
       "product_major_version": 16,
       "compatibility_level": 160,
       "platform": "linux/amd64",
-      "source_tag": "2022-CU27-ubuntu-22.04",
-      "manifest_digest": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
-      "image": "mcr.microsoft.com/mssql/server@sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
-      "config_digest": "sha256:5b0916c7af8ca97ce9390be7e1182862d6fa90bff9f44f035dbe1626df140637",
-      "product_version_label": "16.0.4295.3"
+      "source_tag": "2022-CU27-GDR1-ubuntu-22.04",
+      "manifest_digest": "sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718",
+      "image": "mcr.microsoft.com/mssql/server@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718",
+      "config_digest": "sha256:7fb2139341715e8a71843cfc2f02bab6e95f1c52c0fa9f9a6b2e7b761f060780",
+      "product_version_label": "16.0.4305.5"
     },
     {
       "product_major_version": 17,

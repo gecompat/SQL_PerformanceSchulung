@@ -3419,13 +3419,13 @@ bleiben vor einer Runtimefreigabe zu verifizieren.
 
 Das [Editions- und Buildreview](../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 prüft nun Graph-Verfügbarkeit für die Editionsmatrizen 2019/2022/2025 und
-bindet die Buildlabels der Linux/AMD64-CU-Images: `15.0.4430.1`, `16.0.4295.3`
-und `17.0.5035.5`. Der Offline-Preflight und die Setupphase prüfen diese
-ProductVersion-Werte vor Mutation. Manifest- und Konfigurationsdigests sind im
-Buildreview dokumentiert; gestartete Engine und `SERVERPROPERTY` bleiben
-unbeobachtet. Die 2019-/2022-CU-Images enthalten nicht die separat
-veröffentlichten CU+GDR-Stände. Neuere passende Images, unabhängige
-Methodenfreigabe und Laufzeitqualifikation bleiben offen.
+bindet die Buildlabels der Linux/AMD64-GDR-/CU-Images: `15.0.4500.2`,
+`16.0.4305.5` und `17.0.5035.5`. Der Offline-Preflight und die Setupphase
+prüfen diese ProductVersion-Werte vor Mutation. Manifest- und
+Konfigurationsdigests sind im Buildreview dokumentiert; gestartete Engine und
+`SERVERPROPERTY` bleiben unbeobachtet. Die zuvor geprüften plain-CU-Tags für
+2019/2022 enthielten nicht den neuesten GDR-Stand; passende GDR-Tags sind nun
+im Lock festgehalten.
 
 Die Manifest- und Konfigurationsdigests liegen zusätzlich in einem
 `PROPOSED`-Image-Lock mit statischem Validator und synthetischen Gegenfällen.

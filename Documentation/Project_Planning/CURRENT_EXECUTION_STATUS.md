@@ -1,13 +1,29 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
+
+Die MCR-Tagliste enthält GDR-spezifische Linux-Images für die drei Profile.
+Die Tags `2019-CU32-GDR12-ubuntu-20.04` und
+`2022-CU27-GDR1-ubuntu-22.04` tragen per OCI-Label `15.0.4500.2` bzw.
+`16.0.4305.5`; das SQL-Server-2025-Image bleibt auf `17.0.5035.5`. Damit
+stimmen jetzt alle drei Imagebuilds mit dem neuesten dokumentierten
+Linux-Servicingstand überein. Lock, Preflight, Setup, README und Review binden
+die neuen Tags und Manifest-/Konfigurationsdigests. Nur Registrymetadaten
+wurden gelesen, keine Images gezogen oder gestartet.
+
+Die unabhängige Tag-/Manifestprüfung erweitert die kumulative Obergrenze um 1
+Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 38/46/103. Offen
+bleiben Runtimeverbrauch des Locks, unabhängige Methodenfreigabe, formale
+Harnessabnahme, Ressourcenmessung und konkrete Laufautorisierung. QRY-023
+bleibt `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren.
+
 ## Fortsetzung: QRY-023 – Linux-Imagebuilds gebunden
 
-Der read-only MCR-Abgleich zeigt eine Abweichung zu den zuvor gewählten
-Produktservicingpins: Die offiziellen Linux/AMD64-Tags `2019-CU32-ubuntu-20.04`
-und `2022-CU27-ubuntu-22.04` werben in ihrer Imagekonfiguration die Builds
-`15.0.4430.1` und `16.0.4295.3`; beide sind älter als die separat dokumentierten
-CU+GDR-Stände. `2025-CU10-ubuntu-22.04` wirbt `17.0.5035.5` und stimmt überein.
-Preflight und Setup prüfen jetzt die drei zum Image passenden Builds. Die
+Historischer Registryabgleich: Die plain-CU-Tags `2019-CU32-ubuntu-20.04` und
+`2022-CU27-ubuntu-22.04` werben `15.0.4430.1` und `16.0.4295.3`; sie enthalten
+nicht den veröffentlichten CU+GDR-Stand. Dieser Zwischenbefund wurde durch die
+GDR-Tagprüfung im obigen Abschnitt überholt. Das 2025-CU10-Image wirbt
+`17.0.5035.5` und stimmte bereits überein. Die
 AMD64-Manifest- und Konfigurationsdigests sowie die Labels sind in
 [GRAPH_TABLES_BUILD_EDITION_REVIEW.md](GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 und `SRC-130` festgehalten. Es wurde kein Image heruntergeladen oder gestartet;
@@ -15,11 +31,16 @@ ein späterer Lauf muss Digest und `SERVERPROPERTY` erneut binden.
 
 Der neue statische Pinabgleich erweitert die kumulative Obergrenze um 1
 Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 35/43/97. Weiterhin
-offen: neuere passende Images für 2019/2022, unabhängige Methodenfreigabe,
-formale Harnessabnahme, Ressourcenprofil und konkrete Laufautorisierung. QRY-023
+offen: unabhängige Methodenfreigabe, formale Harnessabnahme, Ressourcenprofil
+und konkrete Laufautorisierung. Die Suche nach passenden neueren Tags ist im
+neuesten Statusabschnitt abgeschlossen. QRY-023
 bleibt `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren.
 
 ## Fortsetzung: QRY-023 – vorgeschlagener Image-Lock
+
+Historischer Zwischenstand: Der erste Lock verwendete CU-only-Tags; die
+GDR-spezifischen Tags und Digests im obersten Statusabschnitt haben diese Werte
+ersetzt.
 
 Die drei AMD64-Manifest- und Konfigurationsdigests stehen jetzt zusätzlich
 maschinenlesbar in `container-images.proposed.json`. Der Offlinevalidator prüft
@@ -32,8 +53,8 @@ noch von keinem Runtimeaufruf konsumiert.
 Diese statische Integrationswelle erweitert den kumulativen Rahmen um 1
 Arbeitspaket, 1 PR und 2 Kandidaten auf höchstens 36/44/99. Keine Container- oder
 SQL-Ausführung. Offen bleiben Runtimeintegration, unabhängige Methodenfreigabe,
-formale Harnessabnahme, passende neuere 2019/2022-Images, Ressourcenprofil und
-konkrete Laufautorisierung.
+formale Harnessabnahme, 2019/2022-GDR-Tags, Ressourcenprofil und konkrete
+Laufautorisierung.
 
 ## Fortsetzung: QRY-023 – begrenztes Ressourcenprofil
 
