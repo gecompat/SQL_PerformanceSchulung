@@ -268,6 +268,13 @@ ersetzen keine neue Schulungs-Runtimequalifikation.
 |---|---|---|---|---|---|---|---|---|
 | `SRC-121` | PRIMARY | Microsoft (ohne Datumsangabe), [SqlConnectionEncryptOption v6.1.4](https://github.com/dotnet/SqlClient/blob/v6.1.4/src/Microsoft.Data.SqlClient/src/Microsoft/Data/SqlClient/SqlConnectionEncryptOption.cs) und [API6.1](https://learn.microsoft.com/en-us/dotnet/api/microsoft.data.sqlclient.sqlconnectionencryptoption?view=sqlclient-dotnet-core-6.1) | Gepinnte OPEN-Serialisierung: Mandatory hält intern True/ToString liefert True; bool true wird Mandatory zugeordnet | Konfigurierte TLS-Anforderung und sourcegebundener Textvertrag, kein unabhängiger Wire-/TDS-/ausgehandelter TLS-Beleg; TrustServerCertificate ausschließlich eigene isolierte Lab-Ausnahme, keine globale Trust- oder Produktionsanleitung | 2026-10-13 | 2026-10-13 | ACTIVE | API-/Quellversion-/Serialisierungs-/TLS-Vertragsänderung oder abweichende Evidenz |
 
+## Graph Tables – eng begrenzte SQL-Graph- und Compatibility-Quellen
+
+| ID | Klasse | Quelle | Aussagebezug | Gültigkeitsbereich | Aktualisiert | Abgerufen | Status | Review-Trigger |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-122` | PRIMARY | Microsoft (2026), [CREATE TABLE (SQL Graph)](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph?view=sql-server-ver17) | `QRY-023`: Graph-NODE-/EDGE-Tabellen, Geltungsbereich ab SQL Server 2017 und Einschränkung, dass Graph-Tabellen nicht temporär erstellt werden können | SQL Server 2017+ gemäß Produktdokumentation; Edition, Compatibility Level, konkrete Builds und Projekt-Runtime nicht qualifiziert | 2026-11-07 | 2026-11-07 | ACTIVE | Graph-DDL-, Versions- oder temporäre Tabellenunterstützung ändert sich oder neue Projekt-Runtimeevidenz widerspricht |
+| `SRC-123` | PRIMARY | Microsoft (2026), [ALTER DATABASE Compatibility Level (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql-compatibility-level?view=sql-server-ver17) | `QRY-023`: Engine-/Compatibility-Level-Zuordnung für die vorgeschlagenen Projektprofile SQL Server 2019/150, 2022/160 und 2025/170 | Produktseitig zulässige Levels; nicht Graph-funktions- oder Runtimequalifikation für `QRY-023` | 2026-11-07 | 2026-11-07 | ACTIVE | neue SQL-Server-Hauptversion, Levelzuordnung oder Projektmatrixänderung |
+
 ## DGN-004 – Detailverweise zum bestehenden Query-Store-Quellenumfang SRC-027
 
 Aktuell gilt der [begrenzte Standard-Forcing-/Hint-Kontrollumfang bei TSK-016](../../.ai/BACKLOG.md#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand).

@@ -1,8 +1,16 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: Graph Tables – Framework-, Mess- und Zielmatrixreview
+
+Der Abgleich gegen das Curriculum hat eine erforderliche Korrektur ergeben: `LO-M03-06` verlangt identische Baseline und Vergleichsmessung; `CLM-047` benennt Plan- und Messprüfung. Planbeobachtung und Messung sind daher für QRY-023 Pflicht. Das Fünf-Knoten-/Vier-Kanten-Fixture bleibt ein Korrektheitsoracle und ist kein qualifiziertes Messworkload. `FWK-004`/`FWK-005` verlangen Warm-up-Ausschluss, dokumentierte Wiederholungen, robuste Zusammenfassung samt Streuung und Plan-/Statistikevidenz. Deterministische Messlast, Wiederholungsplan und fachlich begründete Indexe sind der nächste Designschritt.
+
+Microsoft dokumentiert Graph-NODE-/EDGE-Tabellen ab SQL Server 2017, weist aber darauf hin, dass sie keine temporären Tabellen sein können. Der Review bindet deshalb den späteren Lauf an die eigene `FWK-002`-markierte Wegwerfdatenbank. Die Projektmatrix SQL Server 2019/150, 2022/160 und 2025/170 wird als Designziel vorgeschlagen; keine konkrete QRY-023-Build-/Edition-/Runtimefreigabe folgt daraus. Details und Quellen: [Framework- und Zielmatrixprüfung](GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md).
+
+Für diese Fortsetzung beträgt die kumulative Arbeitsobergrenze 28 Arbeitspakete, 36 Pull Requests und 83 Quellenkandidaten. Token- und Geldverbrauch bleiben unbekannt. Es gab keine Code-, Test-, SQL-, Lab- oder Runtimeausführung.
+
 ## Fortsetzung: Graph Tables – QRY-023 registriert und statischer Vertrag
 
-Der synthetische Vergleich ist als `QRY-023` unter Task `TSK-017` in der zentralen Registry registriert. Er ordnet sich dem bestehenden `LO-M03-06` und `CLM-047` zu; das Curriculum erhält kein neues Lernziel. Der Demo-Katalogstatus bleibt `PROPOSED`. Der [statische Vertrag](GRAPH_TABLES_DEMO_CONCEPT.md) fixiert fünf synthetische Knoten, vier gerichtete Kanten, die exakten zwei Pfadtripel, identische Ergebnisform, isolierte Testdatenbank, Rechteaufteilung, Eigentumsmarker, Cleanup-/Fehlergrenzen sowie die noch ausstehende konkrete Zielmatrix.
+Der synthetische Vergleich ist als `QRY-023` unter Task `TSK-017` in der zentralen Registry registriert. Er ordnet sich dem bestehenden `LO-M03-06` und `CLM-047` zu; das Curriculum erhält kein neues Lernziel. Der Demo-Katalogstatus bleibt `PROPOSED`. Der [statische Vertrag](GRAPH_TABLES_DEMO_CONCEPT.md) fixiert fünf synthetische Knoten, vier gerichtete Kanten, die exakten zwei Pfadtripel, identische Ergebnisform, isolierte Testdatenbank, Rechteaufteilung, Eigentumsmarker und Cleanup-/Fehlergrenzen; Build-/CU-Pins, Editionen und Runtimezielprofile bleiben noch zu qualifizieren.
 
 Für diese begrenzte Fortsetzung beträgt die kumulative Arbeitsobergrenze 27 Arbeitspakete, 35 Pull Requests und 81 Quellen-/Vertragskandidaten. Token- und Geldverbrauch bleiben unbekannt; die Zähler sind keine Provider-Ausgabensperre. Es gab keine SQL-, Lab- oder Runtimeausführung und keinen Performanceclaim.
 
