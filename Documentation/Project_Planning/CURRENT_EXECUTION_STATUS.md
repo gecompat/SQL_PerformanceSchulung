@@ -80,6 +80,9 @@ Runtime. Als nächster Schritt folgt die vollständige betroffene Lesepfadprüfu
 
 ## Fortsetzung: QRY-003 – vorgeschlagenes Intervalltestdesign
 
+PR #386 ist integriert; alle vier PR-Gates sowie die beiden betroffenen
+Main-Workflows waren erfolgreich. `main` ist synchronisiert und sauber.
+
 Der vollständige betroffene Lesepfad von Dokumentationseinstieg über Curriculum,
 Lernziel, Lehrnotiz, Quellenregister und Präsentationsabdeckung ist geprüft.
 Die vorhandenen Lernziel- und Navigationsbezüge sind konsistent. Ein neuer,
@@ -94,6 +97,26 @@ kumulative Obergrenze 43/51/113. Aufwand: ein Designentwurf und die Abstimmung
 zweier bestehender Kandidaten-/Präsentationsübersichten; keine neue
 Abhängigkeit, kein neuer Workflow und keine Runtime. Die Fixturenormalisierung
 gegen tatsächliche Engine-Rundung bleibt vor jeder späteren SQL-Umsetzung offen.
+
+## Fortsetzung: QRY-007 – Join-Kardinalität und `DISTINCT`
+
+Der nächste priorisierte Offlinekandidat trennt die dokumentierte Semantik
+passender Join-Zeilenpaare, eindeutiger `DISTINCT`-Projektionen und
+`EXISTS`. Ein vorgeschlagener Eltern-/Kind-Orakelentwurf macht explizit, dass
+ein One-to-many-Join Eltern-IDs vervielfacht; `DISTINCT` kann diese sichtbare
+Multiplizität nur für gleiche projizierte Zeilen entfernen. `EXISTS` passt zur
+Frage, ob mindestens ein passendes Kind vorliegt. Aggregation bleibt dem
+eigenständigen Lernziel vorbehalten, wenn Kindfakten wie Anzahl oder Summe
+verlangt sind. `SRC-135` bindet vier Microsoft-Primärseiten. Der Entwurf deckt
+nicht die weiteren QRY-007-Themen `UNION`, `UNION ALL` oder `SELECT *` ab.
+
+Der Entwurf ist nicht implementiert, nicht katalogisiert und ungefahren.
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Quellen-/Testkandidaten;
+kumulative Obergrenze 44/52/115. Verarbeitung: ein Quellenbundle und ein
+statischer Fixture-/Oracleentwurf mit einer Kandidatenplanpflege; kein neuer
+Workflow, keine Abhängigkeit und keine Runtime. Engine-/Fixtureprüfung,
+vollständiger Demo-/Cleanupvertrag, Methodenreview und konkrete Laufautorisierung
+bleiben spätere getrennte Gates. Menschliche Generalprobe bleibt ausgeschlossen.
 
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
