@@ -3392,8 +3392,10 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 Beide Themen sind offene Vormerkungen mit Status `PROPOSED`. Die fachliche
 Zuordnung beginnt in Welle 5 und berührt Optimizer-/Planmechanik in Welle 4
 sowie Indizes in Welle 6. Priorisierung, Lernziel-/Folienzuordnung und ein
-konkreter Demo-Schnitt werden nach Quellen- und Abdeckungsprüfung festgelegt;
-die aktuelle DGN-007-Folgearbeit behält ihre Priorität.
+konkreter Demo-Schnitt sind nach den Quellen-, Abdeckungs- und Frameworkreviews
+im Vorschlag `QRY-023` registriert; die Curriculum-Fachredaktion bleibt als
+vorgeschlagener Owner ausgewiesen und die formale Traceability-Zuordnung noch
+offen. Die aktuelle DGN-007-Folgearbeit behält ihre priorisierte Reihenfolge.
 
 Die [Quellen- und Abdeckungsprüfung zu Graph Tables](../Documentation/Project_Planning/GRAPH_TABLES_SOURCE_COVERAGE_REVIEW.md)
 empfiehlt Graph Tables als ersten Offline-Entwurf vor External Tables: Die
@@ -3401,24 +3403,26 @@ Curriculum-Suche fand keine eigene Graph-Abdeckung; Microsoft dokumentiert
 Graphtabellen und `MATCH` ab SQL Server 2017 und stellt ein synthetisches
 Beispiel mit Cleanup bereit. Das ist eine Reihenfolgeempfehlung, keine
 Lernzielzuordnung, Performanceaussage oder Laufzeitfreigabe. Der Graph-Schnitt
-bleibt `PROPOSED`; stabile Task-/Demo-Kennungen folgen erst nach
-Ownerentscheidung. External Tables bleiben bis zur Klärung von Connector,
-Quelle und Infrastruktur zurückgestellt.
+bleibt `PROPOSED`; `QRY-023` und `TSK-017` sind nach dem Registryverfahren
+registriert. External Tables bleiben bis zur Klärung von Connector, Quelle und
+Infrastruktur zurückgestellt.
 
 Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
 bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
-Erweiterungen. Die geprüften Quellen qualifizieren weder SQL Server 2022/2025
-noch Editionen, Compatibility Levels oder einen Lauf.
+Erweiterungen. Die geprüften Quellen qualifizieren weder Graph-Runtime auf
+SQL Server 2019/2022/2025 noch Editionen oder konkrete Compatibility-Levels.
 
 Die [Releaseübersichtenprüfung 2022/2025](../Documentation/Project_Planning/GRAPH_TABLES_2022_2025_SOURCE_REVIEW.md)
 fand in beiden Übersichten keine Graph-Einträge. Dieser negative Befund belegt
 keine Featureparität; konkrete Funktionen, Editionen und Compatibility Levels
-bleiben vor einem Demo-Vertrag zu verifizieren.
+bleiben vor einer Runtimefreigabe zu verifizieren.
 
 Der [statische Demoentwurf](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
 legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten
-Pfadtripeln fest. Er besitzt keine Demo-ID und enthält weder ausführbare
-Artefakte noch Runtime- oder Performancequalifikation.
+Pfadtripeln fest. Er enthält keine ausführbaren Artefakte oder Runtime-
+qualifikation. Der spätere Vergleich muss nach `LO-M03-06` Plan- und
+Baseline-/Vergleichsmessung einschließen; das kleine Ergebnisfixture genügt
+nicht als Messworkload.
 
 Der ergänzende [T-SQL-Syntaxreview](../Documentation/Project_Planning/GRAPH_TABLES_TSQL_SYNTAX_REVIEW.md)
 bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
@@ -3427,8 +3431,7 @@ bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
 Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
 bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
 [Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
-Der Status bleibt `PROPOSED`; unabhängige Vertragsprüfung, Frameworkabgleich,
-konkrete Zielmatrix, Implementierung und alle Laufzeitgates sind offen.
+Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. Messlast, Wiederholungsplan, konkrete Build-/CU-Pins, unabhängige Vertragsprüfung, Implementierung und alle Laufzeitgates bleiben offen.
 
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.

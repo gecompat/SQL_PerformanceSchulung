@@ -11,11 +11,14 @@ Lernfrage lautet: Wie lässt sich derselbe feste Zwei-Kanten-Pfad mit Graph-
 Tabellen und `MATCH` beziehungsweise mit einem relationalen Kantentisch und
 Joins ausdrücken?
 
-Die Kernabnahme ist semantisch: beide Varianten liefern für dieselben
-synthetischen gerichteten Kanten genau dieselben Pfadtripel. Ein Laufzeit- oder
-Leistungsgewinner ist nicht Teil der Aussage. `LO-M02-04` und `LO-M04-04`
-werden nur dann ergänzt, wenn eine spätere Erweiterung physische
-Joinentscheidungen oder Indexkosten ausdrücklich zum Lernziel macht.
+Die Abnahme verbindet semantische Korrektheit mit dem bestehenden Lernziel:
+beide Varianten müssen dieselben synthetischen gerichteten Pfadtripel liefern;
+Planbeobachtung und identische Baseline-/Vergleichsmessung sind verpflichtend,
+weil `LO-M03-06` genau diese Methode fordert. Die Messung gilt nur für das
+konkrete synthetische Profil und erklärt keinen allgemeinen Leistungsgewinner.
+`LO-M02-04` und `LO-M04-04` werden nur dann ergänzt, wenn eine spätere
+Erweiterung physische Joinentscheidungen oder Indexkosten ausdrücklich zum
+Lernziel macht.
 
 ## Synthetisches Modell und Ergebnisoracle
 
@@ -35,7 +38,7 @@ aus `(1, 2, 5)` und `(1, 3, 5)`. Der relationale Kantentisch hält dieselben
 vier gerichteten Paare; die Graphtabellen modellieren dieselben Knoten und
 Kanten. Keine realen Namen oder Daten werden benötigt.
 
-Die spätere statische Ergebnisprüfung soll beide Ergebnisrelationen gegen
+Die statische Ergebnisprüfung soll beide Ergebnisrelationen gegen
 dieselbe erwartete Zweizeilenmenge prüfen. Vorher müssen Sortierung,
 Duplikatbehandlung, Richtung und Ergebnisform explizit fixiert sein. Eine
 Mengenprüfung allein reicht nicht, falls mehrere identische Pfadzeilen möglich
@@ -85,14 +88,18 @@ nach Registrierung und vollständigem Demo-Vertrag.
 ## Beobachtung und zulässige Aussagen
 
 Die Korrektheitsabnahme vergleicht beide Ergebnismengen mit dem festgelegten
-Zweizeilenoracle. Der später separat freigegebene Vergleich erfasst zusätzlich
-die tatsächlichen Execution Plans und geschätzten Kardinalitäten, Logical
-Reads, CPU und Duration beider Formen. Die Bedingungen werden vorab festgelegt
-und soweit die jeweiligen Funktionen es erlauben gleich gehalten: Enginebuild,
-Compatibility Level, Parameter, Daten, Indizes, Warm-up, Wiederholungen und
-Messverfahren. Unvermeidliche Unterschiede in Planform oder Indexierung werden
-als Teil der verglichenen Varianten beschrieben und nicht als isolierter
-Syntaxeffekt ausgegeben.
+Zweizeilenoracle. Die Messabnahme erfasst für beide Formen tatsächliche
+Execution Plans und geschätzte Kardinalitäten, Logical Reads, CPU und Duration.
+Enginebuild, Compatibility Level, Parameter, Daten, fachlich begründete
+Indexierung, Warm-up, Wiederholungen und Messverfahren werden vorab festgelegt
+und so weit wie möglich gleich gehalten. `FWK-004` bestimmt die dokumentierten
+Wiederholungen, Warm-up-Ausschlüsse, robusten Lagewerte und Streuung; `FWK-005`
+bindet Plan- und Statistikevidenz. Der kleine Fünf-Knoten-Vier-Kanten-Aufbau ist
+ein Korrektheitsoracle und kein qualifiziertes Messworkload. Ein eigener
+deterministischer Messdatensatz und dessen Umfang sind noch zu entwerfen.
+Unvermeidliche Unterschiede in Planform oder Indexierung werden als Teil der
+verglichenen Varianten beschrieben und nicht als isolierter Syntaxeffekt
+ausgegeben.
 
 Keine Laufzeit, Planform, Kardinalitätsschätzung oder Performancewirkung wird
 vor dieser Ausführung behauptet. Gleiche Ergebnisse belegen keine gleiche
@@ -115,11 +122,12 @@ Der statische Vertrag für eine spätere Implementierung lautet:
 | Abfragen | Gerichteter Zwei-Kanten-`MATCH` mit verschiedenen Edge-Aliasen; relationale Form mit zwei Kantentabellen-Joins; identische Start-/Zielparameter | Keine Behauptung, dass die Formen denselben Plan oder dieselbe Arbeit erzeugen |
 | Isolation / Rechte | Nur eigene wegwerfbare markierte Testdatenbank; Setup benötigt DDL- und Insert-Rechte, Abfragephase nur Select, Cleanup die zum Entfernen der eigenen Objekte erforderlichen Rechte | Keine fremde Datenbank, kein gemeinsam genutzter Instanzzustand und keine Rechteausweitung für Lernende |
 | Cleanup / Fehlerpfad | Setup markiert alle eigenen Tabellen und den Lauf; Cleanup entfernt ausschließlich nach erfolgreicher Eigentumsprüfung die eigenen Objekte; Teilausfall liefert den Zustand und einen sicheren Wiederaufnahmehinweis | Wiederholung nach Erfolg oder kontrolliertem Setupfehler darf fremde Objekte nicht verändern |
-| Version / Skip | Vor Implementierung werden konkrete Zielbuilds, Editionen und Compatibility Levels aus der aktuellen Projektmatrix gewählt und je Funktion geprüft | Mindestversion aus Microsoft-Dokumentation allein ist kein unterstütztes Buildprofil; unbekannte oder inkompatible Umgebung endet vor Setup mit begründetem `SKIP` |
-| Ressourcen / Messung | Korrektheitslauf bleibt klein und einstufig. Plan, Estimated Rows, Logical Reads, CPU und Duration sind optionale spätere Beobachtungen mit gleichen Bedingungen | Keine synthetische Benchmarkbehauptung, kein allgemeiner Performancegewinner und keine Messung ohne separates qualifiziertes Profil |
+| Version / Skip | Vorgeschlagene Designprofile sind SQL Server 2019/150, 2022/160 und 2025/170 entsprechend der bestehenden Projektmatrix | Die Zuordnung ist keine QRY-023-Runtimefreigabe. Konkrete Build-/CU-Pins, Editionen und Zielimages werden vor Implementierung bestätigt; unbekannte oder inkompatible Umgebung endet vor Setup mit begründetem `SKIP` |
+| Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Das kleine Oracle bleibt getrennt von einem noch zu entwerfenden deterministischen Messdatensatz; Plan, Estimated Rows, Logical Reads, CPU und Duration werden nach `FWK-004`/`FWK-005` erfasst | Kein allgemeiner Performancegewinner. Messwiederholungen, Warm-up, robuste Zusammenfassung, Streuung, Indexe und Messdatenumfang sind vor dem ausführbaren Vertrag festzulegen |
 
 Vor Erstellung ausführbarer Dateien bleiben unabhängige Methoden-/Quellenprüfung,
-statische Vertragsprüfung, konkrete Versionswahl und Prüfung der bestehenden
+statische Vertragsprüfung, Definition des Messworkloads und Wiederholungsplans,
+Bestätigung konkreter Build-/CU-Pins und Prüfung der bestehenden
 Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,
 Runtimequalifikation und Performanceclaims sind getrennte Gates und durch die
 Registrierung nicht autorisiert.
