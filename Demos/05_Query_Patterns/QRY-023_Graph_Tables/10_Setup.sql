@@ -9,8 +9,8 @@ DECLARE @ExpectedDatabase sysname=CONVERT(sysname,N'SQLPERF_LAB_'+REPLACE(@DemoI
 DECLARE @MajorVersion int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion'));
 DECLARE @ProductVersion nvarchar(128)=CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'));
 DECLARE @ExpectedBuild nvarchar(128)=CASE @MajorVersion
-    WHEN 15 THEN N'15.0.4500.2'
-    WHEN 16 THEN N'16.0.4305.5'
+    WHEN 15 THEN N'15.0.4430.1'
+    WHEN 16 THEN N'16.0.4295.3'
     WHEN 17 THEN N'17.0.5035.5'
 END;
 DECLARE @CompatibilityLevel int=CASE @MajorVersion WHEN 15 THEN 150 WHEN 16 THEN 160 WHEN 17 THEN 170 END;

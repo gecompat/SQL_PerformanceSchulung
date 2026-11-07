@@ -92,7 +92,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             require(marker in source, f"{label} must bind the {marker} ownership marker", errors)
     require("has_perms_by_name" in preflight and "create database" in preflight,
             "read-only preflight must check database creation permission", errors)
-    build_pins = ("15.0.4500.2", "16.0.4305.5", "17.0.5035.5")
+    build_pins = ("15.0.4430.1", "16.0.4295.3", "17.0.5035.5")
     for build in build_pins:
         require(build in preflight and build in setup,
                 f"preflight and setup must pin the proposed engine build {build}", errors)
