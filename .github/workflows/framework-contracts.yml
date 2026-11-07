@@ -28,6 +28,8 @@ on:
       - 'Tests/Static/test_res004_grant_wait_contract.py'
       - 'Tests/Static/res001_worker_queue_contract.py'
       - 'Tests/Static/test_res001_worker_queue_contract.py'
+      - 'Tests/Static/res003_memory_signal_contract.py'
+      - 'Tests/Static/test_res003_memory_signal_contract.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -69,6 +71,8 @@ on:
       - 'Tests/Static/test_res004_grant_wait_contract.py'
       - 'Tests/Static/res001_worker_queue_contract.py'
       - 'Tests/Static/test_res001_worker_queue_contract.py'
+      - 'Tests/Static/res003_memory_signal_contract.py'
+      - 'Tests/Static/test_res003_memory_signal_contract.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -137,6 +141,9 @@ jobs:
 
       - name: Test RES-001 supplied worker queue contract
         run: python Tests/Static/test_res001_worker_queue_contract.py
+
+      - name: Test RES-003 supplied memory signal contract
+        run: python Tests/Static/test_res003_memory_signal_contract.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py

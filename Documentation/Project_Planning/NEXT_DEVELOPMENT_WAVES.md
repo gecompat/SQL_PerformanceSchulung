@@ -19,7 +19,7 @@ die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
 | 3. Lesepfade und Kerninhalte | Den vollständigen betroffenen Lesepfad prüfen; danach die festgelegte Reihenfolge der begrenzten Inhalte verfolgen: QRY-002, QRY-003, RES-004. Der RES-004-Offlineschnitt bindet caller-supplied Request-/Grantzeilen und ist im Framework-Contracts-Workflow enthalten. Vorhandene Notizen und statische Gegenproben bleiben kein Runtimebeleg. | RES-004-Ausführung erst nach Prüfung des konkreten Demo-/Mess-/Cleanupvertrags. Der Grant-Wait muss an die eigene nicht gewährte Anforderung und den aktuellen `RESOURCE_SEMAPHORE`-Request gebunden sein; eine parallele gewährte Anforderung aus demselben Pool/Semaphore ist nur mit tatsächlicher DMV-Evidenz zu qualifizieren. |
 | 4. Diagnose- und vorhandene KI-Qualifikation | Jeweils nur den im aktiven Status ausgewählten, unabhängig prüfbaren Schnitt vorbereiten; Verträge, synthetische Prüfungen und erforderliche Reviews vor jeder Runtimephase abschließen. | Kein SQL-/Provider-/Netzwerk-/Lab-Effekt aus statischer Evidenz ableiten. Lauf-, Provider- und Datenfreigaben gelten pro konkretem Schnitt. |
 | 5. CON-006- und IDX-007-Varianten | Der synthetisch geprüfte CON-006-Offline-Graph- und Capturevertrag sowie der IDX-007-Offlinevertrag für caller-supplied `PAGELATCH_EX`-Waits sind im Framework-Contracts-Workflow enthalten. Offen sind unabhängige Methoden-/Quellenfreigabe und danach die empirische Darstellung bzw. echte Seitenkettenauflösung, bevor Laufvarianten umgesetzt werden. Anschließend den fairen IDX-007-Vergleich mit tatsächlichem Wait-/Page-Nachweis verfolgen. | Graph, Zeitfenster, Marker, Eventquelle, Actorresultate, Waits und Seitenfelder sind caller-geliefert und unauthentifiziert. Der statische `PASS` ist kein Laufzeit- oder Engpassnachweis. Range bleibt zurückgestellt. Kein SQL-/Lab-Lauf ohne konkreten Demo-Vertrag, Methodenfreigabe und Safety-/Cleanup-Gates. |
-| 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt bindet caller-supplied `THREADPOOL`-Wait und `work_queue_count` an ein gemeinsames Zeitfenster; CPU-`runnable_tasks_count` wird separat ausgewiesen. Anschließend Ressourcen, SQL Server 2025, Graph-/External Tables, Replay-/Providererweiterungen und gesonderte Infrastruktur einzeln anhand der aktiven Reihenfolge aufnehmen. | Statische Eingaben sind unauthentifiziert und beweisen keine Erschöpfung. Jede Erweiterung braucht eigenen Quellen-/Vertragsreview und gegebenenfalls Methoden-, Versions-, Lizenz-, Infrastruktur- und Runtimefreigabe. Keine Bündelfreigabe aus dieser Planung ableiten. |
+| 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt bindet caller-supplied `THREADPOOL`-Wait und `work_queue_count` an ein gemeinsames Zeitfenster; CPU-`runnable_tasks_count` wird separat ausgewiesen. Für RES-003 wird als nächster begrenzter Schritt nur ein Offlinevertrag für getrennte Prozess-/System-Low-Memory-Signale samt Vorher-/Druck-/Erholungszeitpunkten ergänzt. | RES-003 bleibt ein roter, nicht ausführbarer Druckversuch. Der Offlinevertrag belegt weder authentische DMV-Daten noch Kausalität, Cacheverdrängung oder Erholung; keine SQL-/Container-Ausführung. Dafür bleiben dedizierte Wegwerfinfrastruktur, High-Impact-Bestätigung, Kill-Switch und konkrete Runtime-/Cleanupgates erforderlich. Weitere Ressourcen und gesonderte Erweiterungen danach einzeln anhand der aktiven Reihenfolge aufnehmen. |
 
 ### DGN-007 getrenntes Qualifikationsband
 
@@ -44,15 +44,21 @@ nächsten Lauf.
   und zwei Quellen-/Testkandidaten. Die kumulative Obergrenze beträgt nun
   17/25/61; kein Reset. Diese aktuelle Erweiterung gilt für den RES-001-Schnitt
   und wird am PR-/Integrationscheckpoint gegen den Stand geprüft.
+  Mit der Fortsetzungsanweisung vom 2026-11-07 gilt für den nächsten
+  eigenständigen RES-003-Offlineschnitt eine begrenzte Erweiterung um ein
+  Arbeitspaket, einen Pull Request und zwei Quellen-/Testkandidaten. Die
+  kumulative Obergrenze beträgt 18/26/63; kein Reset. Sie gilt ausschließlich
+  für diesen Offlinevertrag und wird am Integrationscheckpoint abgeglichen.
   Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
   der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
   Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
 - Token- und Geldverbrauch bleiben unbekannt. Die endlichen Kandidaten-/PR-
   Obergrenzen begrenzen die Arbeit, sind aber keine behauptete Kostenmessung
   oder Provider-Ausgabensperre.
-- Aufwand für den RES-001-Schnitt: zwei gezielte Offline-Testdateien werden
-  lokal einmal ausgeführt und im passenden PR- und Main-Workflow erneut
-  geprüft; kein Vollsuite- oder SQL-Lab-Trigger. Fehlende/fehlgeschlagene
+- Aufwand für den RES-003-Schnitt: ein Offlineprüfer und seine gezielte
+  Testdatei werden lokal einmal ausgeführt und im passenden PR- und
+  Main-Workflow erneut geprüft; kein Vollsuite- oder SQL-Lab-Trigger.
+  Fehlende/fehlgeschlagene
   Evidenz wird lokal nur bei neuem Befund weiter untersucht. Ein Owner, keine
   zusätzliche Reviewkette und keine Subagenten; reale Token-/Geldmessung bleibt
   unbekannt.
