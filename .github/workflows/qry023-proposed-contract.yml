@@ -6,6 +6,7 @@ on:
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
+      - 'Tests/Static/Qry023SqlParser/**'
       - '.github/workflows/qry023-proposed-contract.yml'
   push:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
+      - 'Tests/Static/Qry023SqlParser/**'
       - '.github/workflows/qry023-proposed-contract.yml'
   workflow_dispatch:
 
@@ -37,3 +39,11 @@ jobs:
         run: python Tests/Static/validate_qry023_proposed_harness.py
       - name: Check validator regression cases
         run: python Tests/Static/test_qry023_proposed_harness.py
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore pinned ScriptDom parser
+        run: dotnet restore Tests/Static/Qry023SqlParser/Qry023SqlParser.csproj --locked-mode
+      - name: Parse QRY-023 T-SQL for SQL Server 2019/2022/2025
+        run: dotnet run --project Tests/Static/Qry023SqlParser/Qry023SqlParser.csproj --configuration Release --no-restore

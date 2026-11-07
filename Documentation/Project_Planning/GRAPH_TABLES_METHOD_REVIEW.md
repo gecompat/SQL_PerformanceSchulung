@@ -48,6 +48,12 @@ kein `SHOWPLAN`; ihre Nachrichten und Abgrenzung von Parse-/Compile-Zeit sind im
 ausführbaren Vertrag explizit zu behandeln. `FWK-004`-Sessiondeltas bleiben die
 vergleichende Messquelle.
 
+Die ausführbaren T-SQL-Dateien bestehen außerdem die
+[ScriptDom-Grammatikprüfung](GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md) für die
+Parserprofile 150/160/170. Dieses Ergebnis schließt keine Kompilierung gegen
+eine konkrete SQL-Engine und keine Objekt-, Berechtigungs- oder
+Laufzeitqualifikation ein.
+
 ## Konsequenzen für die offene Arbeit
 
 - Das bestehende 10.000-Pfade-Profil und beidseitige `EXCEPT`-Oracle bleiben als
@@ -69,4 +75,5 @@ vergleichende Messquelle.
 - `SRC-122` bis `SRC-127`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen).
 - [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md).
 - [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md).
+- [ScriptDom-Grammatikprüfung](GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md).
 - `FWK-003`, `FWK-004`, `FWK-005`, `FWK-011` und `FWK-002`.

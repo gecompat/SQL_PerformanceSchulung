@@ -1,5 +1,13 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – ScriptDom-Grammatikprüfung
+
+PR #376 ist als Squashcommit `ed75e78b7558fec94fed17aba1ad20d93d2891a9` in `origin/main` integriert; alle zehn PR-Workflows waren erfolgreich, `main` ist lokal synchronisiert und beide Branches sind entfernt. Die Editionsmatrix und zeitgebundenen Buildpins sind in `SRC-126/127` gebunden.
+
+Der nächste Schritt ergänzt eine gesperrte Microsoft ScriptDom-Abhängigkeit `170.191.0` und prüft alle acht ausführbaren T-SQL-Dateien mit den Grammatikparsern 150, 160 und 170. Der `:r`-SQLCMD-Wrapper wird separat auf den erwarteten Include geprüft; Platzhalter werden nur im flüchtigen Parsertext synthetisch ersetzt. Alle Parserläufe bestanden lokal am 7. November 2026. Das ist kein SQL-Engine-Kompilier- oder Laufnachweis. Details und Grenzen stehen in [GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md](GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md).
+
+Der QRY-023-CI-Trigger bleibt eng auf Demopfad, Parser, Regressionstest und Workflow beschränkt; NuGet-Restore ist gesperrt, Joblimit fünf Minuten, keine SQL-Container oder Runtime-Matrix. Die Änderung erweitert die kumulative Obergrenze um 1 Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 34/42/95. Unabhängige Methodenfreigabe, formale Harness-Abnahme, Image-Digests, Ressourcenprofil und konkrete Runtimeautorisierung bleiben offen.
+
 ## Fortsetzung: QRY-023 – Editionsmatrix und Servicingpins
 
 PR #375 ist als Squashcommit `a92ae3049c9f3f62efa2d582791e92fddb855410` integriert; der eng gefilterte statische CI-Workflow, seine vier synthetischen Regressionstests und alle betroffenen Projektworkflows waren erfolgreich. Das eigene Demo-SQL wurde nicht ausgeführt.
