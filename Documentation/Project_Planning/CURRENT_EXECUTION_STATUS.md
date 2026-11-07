@@ -41,6 +41,10 @@ QRY-002 bleibt ungefahren; eine eigenständige Demoabnahme wäre separat.
 
 ## Fortsetzung: QRY-003 – typabhängige Tagesgrenzen präzisiert
 
+PR #384 ist mit Squashcommit `aa2e053f3875a0ff894eaa3aed02cd43bdc5cfa6`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert und der Remote-Branch entfernt.
+
 Die Lehrnotiz grenzt jetzt `datetime` (letzter darstellbarer Tageszeitpunkt
 `23:59:59.997`) von `datetime2(7)` (bis `23:59:59.9999999`) ab. Sie bindet
 `BETWEEN`-Inklusivität, typisiertes `DATEADD` und die Aussagegrenze für
@@ -53,6 +57,22 @@ kumulative Obergrenze 41/49/109. Der Eingriff aktualisiert eine vorhandene
 Lehrnotiz und ein Quellenregister; keine zusätzliche Abhängigkeit oder
 Workflowprüfung. Als nächster Offlineinhalt folgt RES-004. Die menschliche
 Generalprobe bleibt ausgeschlossen.
+
+## Fortsetzung: RES-004 – Quellenregister an den bestehenden Lehrvertrag gebunden
+
+Der Quellenabgleich bestätigt die bestehenden Aussagen zu Request-/Grant-
+Bindung und Pool-/Semaphore-Scope. Die vorhandenen Kennungen `SRC-010` und
+`SRC-110` deckten den Lehrvertrag noch nicht ab. Beide Scopes sind ergänzt;
+`SRC-134` registriert die Microsoft-Primärquellen zu Resource-Semaphore,
+Grant-Diagnose und den getrennten RES-003-Prozess-/Betriebssystemsignalen.
+Die Lehrnotiz verlinkt nun die stabilen Quellen-IDs. Es wurde keine DMV-Abfrage
+ausgeführt.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
+kumulative Obergrenze 42/50/111. Verarbeitung: vorhandene sechs Quellen
+gegenprüfen, einen zusammengehörigen Quellenregistereintrag ergänzen und die
+Lehrnotiz daran binden; kein neuer CI-Job, keine neue Abhängigkeit und keine
+Runtime. Als nächster Schritt folgt die vollständige betroffene Lesepfadprüfung.
 
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
