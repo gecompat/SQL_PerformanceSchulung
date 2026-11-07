@@ -60,6 +60,10 @@ Generalprobe bleibt ausgeschlossen.
 
 ## Fortsetzung: RES-004 – Quellenregister an den bestehenden Lehrvertrag gebunden
 
+PR #385 ist in `origin/main` integriert; alle fünf PR-Gates und drei
+betroffenen Main-Workflows waren erfolgreich. `main` ist synchronisiert und
+der Remote-Branch entfernt.
+
 Der Quellenabgleich bestätigt die bestehenden Aussagen zu Request-/Grant-
 Bindung und Pool-/Semaphore-Scope. Die vorhandenen Kennungen `SRC-010` und
 `SRC-110` deckten den Lehrvertrag noch nicht ab. Beide Scopes sind ergänzt;
@@ -73,6 +77,23 @@ kumulative Obergrenze 42/50/111. Verarbeitung: vorhandene sechs Quellen
 gegenprüfen, einen zusammengehörigen Quellenregistereintrag ergänzen und die
 Lehrnotiz daran binden; kein neuer CI-Job, keine neue Abhängigkeit und keine
 Runtime. Als nächster Schritt folgt die vollständige betroffene Lesepfadprüfung.
+
+## Fortsetzung: QRY-003 – vorgeschlagenes Intervalltestdesign
+
+Der vollständige betroffene Lesepfad von Dokumentationseinstieg über Curriculum,
+Lernziel, Lehrnotiz, Quellenregister und Präsentationsabdeckung ist geprüft.
+Die vorhandenen Lernziel- und Navigationsbezüge sind konsistent. Ein neuer,
+nicht freigebender Designentwurf konkretisiert Tupel-Oracles für `BETWEEN`,
+typabhängige künstliche Tagesendwerte und das halboffene Intervall für
+`datetime` und `datetime2(7)`. Er hält Plan-/Read-Beobachtung von
+Ergebnissemantik getrennt und verweist die SARGability-Gegenprobe auf QRY-001.
+Kein Manifest, Katalogeintrag oder SQL-Lauf.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Evidenzkandidaten;
+kumulative Obergrenze 43/51/113. Aufwand: ein Designentwurf und die Abstimmung
+zweier bestehender Kandidaten-/Präsentationsübersichten; keine neue
+Abhängigkeit, kein neuer Workflow und keine Runtime. Die Fixturenormalisierung
+gegen tatsächliche Engine-Rundung bleibt vor jeder späteren SQL-Umsetzung offen.
 
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
