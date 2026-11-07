@@ -3429,9 +3429,10 @@ Methodenfreigabe und Laufzeitqualifikation bleiben offen.
 
 Die Manifest- und Konfigurationsdigests liegen zusätzlich in einem
 `PROPOSED`-Image-Lock mit statischem Validator und synthetischen Gegenfällen.
-Der Lock wird von keinem Runtimeaufruf konsumiert; dies bleibt zusammen mit
-Ressourcenprofil, unabhängiger Methodenfreigabe und konkreter Laufautorisierung
-offen.
+Der Lock wird von keinem Runtimeaufruf konsumiert; Integration, unabhängige
+Methodenfreigabe und konkrete Laufautorisierung bleiben offen. Das ergänzte
+Ressourcenprofil ist ein ungemessener Vorschlag; empirische Speicher-, TempDB-
+und Laufzeitqualifikation sind weiterhin offen.
 
 Der [statische Demoentwurf](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
 legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten

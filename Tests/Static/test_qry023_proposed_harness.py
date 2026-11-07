@@ -72,6 +72,13 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(validator.json.dumps(lock), encoding="utf-8")
         self.assertTrue(any("match preflight and setup build pins" in error for error in self.errors()))
 
+    def test_sql_memory_limit_must_remain_below_container_limit(self) -> None:
+        path = self.demo / "container-images.proposed.json"
+        lock = validator.json.loads(path.read_text(encoding="utf-8"))
+        lock["resources"]["container"]["sql_memory_limit_mib"] = 4096
+        path.write_text(validator.json.dumps(lock), encoding="utf-8")
+        self.assertTrue(any("remain below container memory" in error for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

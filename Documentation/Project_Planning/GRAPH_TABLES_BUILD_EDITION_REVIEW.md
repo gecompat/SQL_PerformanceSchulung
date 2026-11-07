@@ -69,9 +69,35 @@ nicht katalogisiert und ungefahren. Unabhängige Methodenfreigabe, formale
 T-SQL-/Harness-Abnahme, Ressourcenprofil und konkrete Ausführungsautorisierung
 bleiben offen.
 
+## Vorgeschlagene Ressourcenbegrenzung
+
+Microsoft nennt für SQL Server auf Linux mindestens zwei x64-kompatible
+Prozessorkerne zu 2 GHz, 2 GB Arbeitsspeicher und 6 GB Speicherplatz. Das ist
+die Produktstartanforderung, keine ausreichende Messumgebung für QRY-023. Für
+die noch ungefahrene Demo schlägt der Projektentwurf 8 GiB Host-RAM, 20 GiB
+freien Speicher, höchstens zwei Containerkerne, ein Containerlimit von 4.096
+MiB und `MSSQL_MEMORY_LIMIT_MB=3072` vor. Der SQL-Prozess liegt damit unter
+der harten Containergrenze; 2 GiB sind die Microsoft-Mindestmenge zum Start.
+
+Die Hostreserve über den Produktminimumwerten und die 4/3-GiB-Aufteilung sind
+bewusste Planungsannahmen, keine Messwerte oder Laufzeitmachbarkeit. Die
+MCR-Manifeste weisen je Profil drei komprimierte Layers mit zusammen rund
+0,53–0,64 GB aus; das ersetzt weder den installierten Dateisystembedarf von
+6 GB noch eine qualifizierte Datenbank-/TempDB-Spitzenmessung. Das Zeitbudget
+bleibt aus dem vorgeschlagenen Manifest bei 900 Sekunden plus 90 Sekunden
+Cleanup. Ein künftiger Runtimeaufrufer muss CPU-, Speicher-, Zeit- und
+Hostfreigrenzen vor Start prüfen und erzwingen; keine solche Integration oder
+QRY-023-Messung liegt vor.
+
+Quellen: `SRC-131` (Linux-Systemminimum) und `SRC-132` (Trennung von
+Containergrenze und SQL-Server-Speicherlimit). Die Werte 8/20 GiB und 4/3 GiB
+sind klar ausgewiesene Projektvorschläge.
+
 ## Quellen
 
-- `SRC-126`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen) bindet die Editionsmatrizen für 2019, 2022 und 2025.
+- `SRC-122` und `SRC-123`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen) bindet Graph-Unterstützung ab SQL Server 2017 und die Compatibility-Level-Zuordnung.
+- `SRC-126`: derselbe Registerabschnitt bindet die Editionsmatrizen für 2019, 2022 und 2025.
 - `SRC-127`: Microsofts [Linux-Servicingübersicht](https://learn.microsoft.com/en-us/troubleshoot/sql/releases/linux/download-and-install-latest-updates-linux) bindet den Produktservicingstand am 7. November 2026; dieser stimmt für 2019/2022 nicht mit den geprüften CU-Container-Tags überein.
 - `SRC-130`: Microsoft Artifact Registry, die drei oben dokumentierten Manifest-/Konfigurationsdigests und deren `com.microsoft.version`-Labels, read-only abgerufen am 7. November 2026; kein Laufzeitbeleg.
-- `SRC-122` und `SRC-123`: derselbe Quellenregisterabschnitt bindet Graph-Unterstützung ab SQL Server 2017 und die Compatibility-Level-Zuordnung.
+- `SRC-131`: Microsofts [Linux-Installationsanforderungen](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup) nennen zwei x64-Kerne mit 2 GHz, 2 GB RAM und 6 GB Speicherplatz als Produktminimum.
+- `SRC-132`: Microsofts [Speicherempfehlungen für SQL Server auf Linux](https://learn.microsoft.com/en-us/sql/linux/configure/performance-best-practices-sql-server-memory?view=sql-server-ver17) dokumentieren die getrennten Container- und Enginegrenzen.

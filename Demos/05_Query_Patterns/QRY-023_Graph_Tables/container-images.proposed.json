@@ -3,6 +3,23 @@
   "status": "PROPOSED",
   "registry": "mcr.microsoft.com/mssql/server",
   "runtime_authorized": false,
+  "resources": {
+    "status": "PROPOSED_NOT_EMPIRICAL",
+    "host": {
+      "architecture": "x86_64",
+      "cpu_cores": 2,
+      "cpu_frequency_ghz": 2,
+      "memory_gib": 8,
+      "free_disk_gib": 20
+    },
+    "container": {
+      "cpu_cores": 2,
+      "memory_mib": 4096,
+      "sql_memory_limit_mib": 3072,
+      "timeout_seconds": 900,
+      "cleanup_timeout_seconds": 90
+    }
+  },
   "profiles": [
     {
       "product_major_version": 15,

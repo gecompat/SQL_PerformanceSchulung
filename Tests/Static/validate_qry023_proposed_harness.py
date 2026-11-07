@@ -99,6 +99,25 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "image lock must remain proposed and must not authorize runtime", errors)
     require(image_lock.get("registry") == "mcr.microsoft.com/mssql/server",
             "image lock must use the declared Microsoft registry", errors)
+    resources = image_lock.get("resources", {})
+    host_resources = resources.get("host", {})
+    container_resources = resources.get("container", {})
+    require(resources.get("status") == "PROPOSED_NOT_EMPIRICAL",
+            "resource profile must remain an unqualified proposal", errors)
+    require(host_resources == {
+        "architecture": "x86_64", "cpu_cores": 2, "cpu_frequency_ghz": 2,
+        "memory_gib": 8, "free_disk_gib": 20,
+    }, "host resource proposal must retain its reviewed values", errors)
+    require(container_resources.get("cpu_cores") == 2
+            and container_resources.get("memory_mib") == 4096,
+            "container proposal must retain its reviewed CPU and memory limits", errors)
+    require(2048 <= container_resources.get("sql_memory_limit_mib", 0)
+            < container_resources.get("memory_mib", 0)
+            and container_resources.get("sql_memory_limit_mib") == 3072,
+            "SQL memory limit must cover startup minimum and remain below container memory", errors)
+    require(container_resources.get("timeout_seconds") == manifest.get("timeout_seconds")
+            and container_resources.get("cleanup_timeout_seconds") == manifest.get("cleanup_timeout_seconds"),
+            "resource profile time budgets must match the proposed harness manifest", errors)
     image_profiles = image_lock.get("profiles")
     expected_tags = {
         15: (150, "2019-CU32-ubuntu-20.04"),

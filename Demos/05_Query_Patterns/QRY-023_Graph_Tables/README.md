@@ -7,6 +7,8 @@
 | Lernziel | `LO-M03-06` / `CLM-047` |
 | Daten | ausschließlich synthetisch; 10.000 disjunkte Zwei-Kanten-Pfade plus kleines Korrektheitsoracle |
 | Profile | Linux/AMD64-Images: SQL Server 2019/150, Build 15.0.4430.1; 2022/160, Build 16.0.4295.3; 2025/170, Build 17.0.5035.5; vorgeschlagene Qualifikationspins, keine Runtimequalifikation |
+| Hostressourcen | Vorschlag: x86-64, 2 Kerne mit mindestens 2 GHz, 8 GiB RAM und 20 GiB freier Speicher; nicht empirisch qualifiziert |
+| Containergrenze | Vorschlag: höchstens 2 CPU-Kerne, 4.096 MiB Speicher, SQL-Server-Limit 3.072 MiB; 900 Sekunden Lauf-/90 Sekunden Cleanupbudget |
 | Runtime | nicht ausgeführt; keine Performanceaussage |
 
 ## Zweck
@@ -84,6 +86,13 @@ bleiben formale Harness-Abnahme, unabhängige Methodenfreigabe,
 Bestätigung/Erneuerung der Build-Pins, Integration des Image-Locks in einen
 späteren Runtimeaufruf, Ressourcenprofil und konkrete Ausführungsgenehmigung
 offen.
+
+Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
+[`container-images.proposed.json`](container-images.proposed.json). Er ist aus
+Microsofts Linux-Mindestanforderungen und der geforderten Trennung zwischen
+Container- und SQL-Server-Speichergrenze abgeleitet. 8/20 GiB Hostreserve sowie
+4/3 GiB Container-/Enginegrenze sind Projektwerte ohne QRY-023-Laufmessung;
+der Runtimeaufrufer muss sie vor Start tatsächlich durchsetzen.
 
 ## Verträge und Reviews
 
