@@ -6,7 +6,7 @@
 | Sicherheitsstufe | `YELLOW` |
 | Lernziel | `LO-M03-06` / `CLM-047` |
 | Daten | ausschließlich synthetisch; 10.000 disjunkte Zwei-Kanten-Pfade plus kleines Korrektheitsoracle |
-| Profile | Linux/AMD64-Images: SQL Server 2019/150, Build 15.0.4430.1; 2022/160, Build 16.0.4295.3; 2025/170, Build 17.0.5035.5; vorgeschlagene Qualifikationspins, keine Runtimequalifikation |
+| Profile | Linux/AMD64-Images: SQL Server 2019/150, Build 15.0.4500.2; 2022/160, Build 16.0.4305.5; 2025/170, Build 17.0.5035.5; vorgeschlagene Qualifikationspins, keine Runtimequalifikation |
 | Hostressourcen | Vorschlag: x86-64, 2 Kerne mit mindestens 2 GHz, 8 GiB RAM und 20 GiB freier Speicher; nicht empirisch qualifiziert |
 | Containergrenze | Vorschlag: höchstens 2 CPU-Kerne, 4.096 MiB Speicher, SQL-Server-Limit 3.072 MiB; 900 Sekunden Lauf-/90 Sekunden Cleanupbudget |
 | Runtime | nicht ausgeführt; keine Performanceaussage |
@@ -56,16 +56,16 @@ vollständigen QRY-023-Markern angelegt. Fremde oder nicht vollständig markiert
 Ziele werden abgewiesen und nicht entfernt.
 
 Der QRY-023-Prüflauf wurde nicht gestartet. Der read-only Preflight akzeptiert
-für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4430.1`,
-`16.0.4295.3` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals
+für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,
+`16.0.4305.5` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals
 vor der Datenbankanlage. Das sind reproduzierbare Designpins nach dem
 Image-Metadatenstand vom 7. November 2026, keine Graph-Mindestbuilds. Die
 Images werben diese Builds über `com.microsoft.version`. Die AMD64-Manifestdigests
-lauten für 2019 `sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce`,
-2022 `sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`
+lauten für 2019 `sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069`,
+2022 `sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718`
 und 2025 `sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f`.
-Die 2019-/2022-Images enthalten nicht die neueren CU+GDR-Builds aus der
-separaten Servicingübersicht. Imagekonfiguration und Produktlabel belegen nicht
+Die 2019-/2022-Tags tragen `GDR12` bzw. `GDR1` und stimmen mit den aktuellen
+Linux-CU+GDR-Builds überein. Imagekonfiguration und Produktlabel belegen nicht
 den gestarteten `sqlservr`; jeder spätere Lauf muss `SERVERPROPERTY` erfassen
 und das Image per Manifestdigest binden. SQL Graph wird
 laut Microsoft-Editionsmatrizen in den Editionen von 2019, 2022 und 2025 angeboten.

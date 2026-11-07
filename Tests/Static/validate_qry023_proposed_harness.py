@@ -120,8 +120,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "resource profile time budgets must match the proposed harness manifest", errors)
     image_profiles = image_lock.get("profiles")
     expected_tags = {
-        15: (150, "2019-CU32-ubuntu-20.04"),
-        16: (160, "2022-CU27-ubuntu-22.04"),
+        15: (150, "2019-CU32-GDR12-ubuntu-20.04"),
+        16: (160, "2022-CU27-GDR1-ubuntu-22.04"),
         17: (170, "2025-CU10-ubuntu-22.04"),
     }
     require(isinstance(image_profiles, list) and len(image_profiles) == 3,
@@ -176,7 +176,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             require(marker in source, f"{label} must bind the {marker} ownership marker", errors)
     require("has_perms_by_name" in preflight and "create database" in preflight,
             "read-only preflight must check database creation permission", errors)
-    build_pins = ("15.0.4430.1", "16.0.4295.3", "17.0.5035.5")
+    build_pins = ("15.0.4500.2", "16.0.4305.5", "17.0.5035.5")
     for build in build_pins:
         require(build in preflight and build in setup,
                 f"preflight and setup must pin the proposed engine build {build}", errors)

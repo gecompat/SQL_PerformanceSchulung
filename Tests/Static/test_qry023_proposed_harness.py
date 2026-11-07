@@ -53,9 +53,9 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
 
     def test_unpinned_product_version_is_rejected(self) -> None:
         path = self.demo / "00_Preflight.sql"
-        path.write_text(path.read_text(encoding="utf-8").replace("15.0.4430.1", "15.0.4480.2"),
+        path.write_text(path.read_text(encoding="utf-8").replace("15.0.4500.2", "15.0.4480.2"),
                         encoding="utf-8")
-        self.assertTrue(any("must pin the proposed engine build 15.0.4430.1" in error
+        self.assertTrue(any("must pin the proposed engine build 15.0.4500.2" in error
                             for error in self.errors()))
 
     def test_image_reference_must_use_immutable_digest(self) -> None:
@@ -68,7 +68,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
     def test_image_build_must_match_sql_pins(self) -> None:
         path = self.demo / "container-images.proposed.json"
         lock = validator.json.loads(path.read_text(encoding="utf-8"))
-        lock["profiles"][0]["product_version_label"] = "15.0.4500.2"
+        lock["profiles"][0]["product_version_label"] = "15.0.4430.1"
         path.write_text(validator.json.dumps(lock), encoding="utf-8")
         self.assertTrue(any("match preflight and setup build pins" in error for error in self.errors()))
 

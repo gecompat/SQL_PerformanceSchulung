@@ -16,32 +16,33 @@ Die eigentliche QRY-023-Ausführung verlangt unabhängig davon `CREATE DATABASE`
 Objekt-/DML-Rechte sowie `SELECT` und `SHOWPLAN` nach den jeweiligen Phasen.
 
 Die Microsoft-Produktübersicht weist zum 7. November 2026 die jüngsten
-Servicingbuilds aus. Diese sind nicht automatisch in den gleichnamigen
-Linux-Container-CU-Tags enthalten. Für die im QRY-023-Entwurf verwendeten
-MCR-Tags wurde das Single-Platform-Manifest samt Konfiguration read-only
-abgefragt. Die Konfiguration trägt das Label `com.microsoft.version`; kein
+Servicingbuilds aus. Die MCR-Tagliste enthält sowohl CU-only- als auch GDR-
+Linux-Tags; deren Namen allein reichen nicht als Buildnachweis. Für die im
+QRY-023-Entwurf verwendeten GDR-Tags wurde das Single-Platform-Manifest samt
+Konfiguration read-only abgefragt. Das Image-Label `com.microsoft.version`
+stimmt bei allen drei Profilen mit dem jeweiligen Produktbuild überein. Kein
 Image wurde heruntergeladen oder gestartet.
 
 | Projektprofil / Linux-Image | Compatibility Level | Produktservicing laut Microsoft | Image-Label `com.microsoft.version` |
 |---|---:|---|---:|
-| SQL Server 2019 `2019-CU32-ubuntu-20.04` | 150 | CU32 + GDR `15.0.4500.2` | `15.0.4430.1` |
-| SQL Server 2022 `2022-CU27-ubuntu-22.04` | 160 | CU27 + GDR `16.0.4305.5` | `16.0.4295.3` |
+| SQL Server 2019 `2019-CU32-GDR12-ubuntu-20.04` | 150 | CU32 + GDR `15.0.4500.2` | `15.0.4500.2` |
+| SQL Server 2022 `2022-CU27-GDR1-ubuntu-22.04` | 160 | CU27 + GDR `16.0.4305.5` | `16.0.4305.5` |
 | SQL Server 2025 `2025-CU10-ubuntu-22.04` | 170 | CU10 `17.0.5035.5` | `17.0.5035.5` |
 
 Die geprüften AMD64-Manifest- und Konfigurationsdigests lauten:
 
 | Profil | Manifestdigest | Konfigurationsdigest |
 |---|---|---|
-| 2019 | `sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce` | `sha256:b6d65c67219f3a0bd86870b0ef485928305923e8c3c83964170c476b5eef165e` |
-| 2022 | `sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090` | `sha256:5b0916c7af8ca97ce9390be7e1182862d6fa90bff9f44f035dbe1626df140637` |
+| 2019 | `sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069` | `sha256:d47c3524cdcabc59024d5cca4f9888e4eff01d7efc5ceedd0f4e383cc72a8366` |
+| 2022 | `sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718` | `sha256:7fb2139341715e8a71843cfc2f02bab6e95f1c52c0fa9f9a6b2e7b761f060780` |
 | 2025 | `sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f` | `sha256:e6b27c1b6b7c1faa799fc4cd831c442bb36a8f7a7f214e780652e8cc09a26625` |
 
-Für die drei vorhandenen Images sind deshalb `15.0.4430.1`, `16.0.4295.3`
-und `17.0.5035.5` die passenden Design-/Qualifikationspins. Die 2019- und
-2022-CU-Tags enthalten jeweils den CU-Build ohne den separat veröffentlichten
-GDR-Patchstand. Wer stattdessen die neueren GDR-Builds qualifizieren will,
-benötigt ein dazu passendes Image oder eine kontrollierte Aktualisierung; beides
-ist hier nicht vorbereitet. Die Konfiguration beschreibt nicht den tatsächlich
+Für die drei GDR-/CU-Images sind deshalb `15.0.4500.2`, `16.0.4305.5` und
+`17.0.5035.5` die passenden Design-/Qualifikationspins; sie stimmen mit den
+zum Abrufdatum neuesten dokumentierten Linux-Servicingbuilds überein. Die
+plain-CU-Tags `2019-CU32-ubuntu-20.04` und `2022-CU27-ubuntu-22.04` enthalten
+ältere Buildstände und werden nicht verwendet. Die Konfiguration beschreibt
+nicht den tatsächlich
 gestarteten Engineprozess: ein späterer Lauf muss Image-Manifestdigest und
 `SERVERPROPERTY('ProductVersion')` binden.
 
@@ -49,8 +50,7 @@ Diese Builds sind zeitgebundene, reproduzierbare **Design-/Qualifikationspins**,
 keine Mindestbuilds für Graph Tables. Die Graph-Dokumentation weist die Funktion ab
 SQL Server 2017 aus; sie setzt für diese Graph-DDL-/`MATCH`-Funktionen keine
 bestimmte CU-Stufe voraus. Die vorgeschlagenen Builds wählen den zum Abrufdatum
-verfügbaren offiziellen Imagebuild, nicht den neuesten Produktservicingstand
-und keinen empirisch getesteten Container.
+verfügbaren offiziellen Linux-Servicingbuild, aber keinen empirisch getesteten Container.
 
 `00_Preflight.sql` soll ausschließlich den zum jeweiligen Profil passenden
 Build zulassen und bei Abweichung vor Setup `SKIP_VERSION` zurückgeben.
