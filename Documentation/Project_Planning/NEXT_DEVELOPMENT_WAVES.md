@@ -19,7 +19,7 @@ die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
 | 3. Lesepfade und Kerninhalte | Den vollständigen betroffenen Lesepfad prüfen; danach die festgelegte Reihenfolge der begrenzten Inhalte verfolgen: QRY-002, QRY-003, RES-004. Der RES-004-Offlineschnitt bindet caller-supplied Request-/Grantzeilen und ist im Framework-Contracts-Workflow enthalten. Vorhandene Notizen und statische Gegenproben bleiben kein Runtimebeleg. | RES-004-Ausführung erst nach Prüfung des konkreten Demo-/Mess-/Cleanupvertrags. Der Grant-Wait muss an die eigene nicht gewährte Anforderung und den aktuellen `RESOURCE_SEMAPHORE`-Request gebunden sein; eine parallele gewährte Anforderung aus demselben Pool/Semaphore ist nur mit tatsächlicher DMV-Evidenz zu qualifizieren. |
 | 4. Diagnose- und vorhandene KI-Qualifikation | Jeweils nur den im aktiven Status ausgewählten, unabhängig prüfbaren Schnitt vorbereiten; Verträge, synthetische Prüfungen und erforderliche Reviews vor jeder Runtimephase abschließen. | Kein SQL-/Provider-/Netzwerk-/Lab-Effekt aus statischer Evidenz ableiten. Lauf-, Provider- und Datenfreigaben gelten pro konkretem Schnitt. |
 | 5. CON-006- und IDX-007-Varianten | Der synthetisch geprüfte CON-006-Offline-Graph- und Capturevertrag sowie der IDX-007-Offlinevertrag für caller-supplied `PAGELATCH_EX`-Waits sind im Framework-Contracts-Workflow enthalten. Offen sind unabhängige Methoden-/Quellenfreigabe und danach die empirische Darstellung bzw. echte Seitenkettenauflösung, bevor Laufvarianten umgesetzt werden. Anschließend den fairen IDX-007-Vergleich mit tatsächlichem Wait-/Page-Nachweis verfolgen. | Graph, Zeitfenster, Marker, Eventquelle, Actorresultate, Waits und Seitenfelder sind caller-geliefert und unauthentifiziert. Der statische `PASS` ist kein Laufzeit- oder Engpassnachweis. Range bleibt zurückgestellt. Kein SQL-/Lab-Lauf ohne konkreten Demo-Vertrag, Methodenfreigabe und Safety-/Cleanup-Gates. |
-| 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt und RES-003-Offlinevertrag samt quellengebundener Lehrnotiz sind integriert. Die Detailprüfung zu SQL-Server-2025-`OPTIMIZED_SP_EXECUTESQL` ist abgeschlossen; Aktivierung, Demo und Performanceclaim bleiben `DEFER`, weil die bestehende `QRY-004`-Abnahme keine zeitgleiche Kompilierung prüft. Die [Graph-Table-Quellen- und Abdeckungsprüfung](GRAPH_TABLES_SOURCE_COVERAGE_REVIEW.md) empfiehlt Graph Tables als ersten Offline-Entwurf; Curriculum-Owner, Lernziel und Demo-Schnitt sind weiterhin offen. | RES-003 bleibt ein roter, nicht ausführbarer Druckversuch; `OPTIMIZED_SP_EXECUTESQL` erhält keine Runtimefreigabe. Graph Tables bleiben `PROPOSED`, ohne neue Kennung, Runtimefreigabe oder Performanceclaim. External Tables bleiben zurückgestellt bis zur Prüfung des konkreten Connectors, der Quelle und der Infrastruktur. Statische und quellengebundene Erklärung ersetzt weder authentische Runtime-Evidenz noch Kausalitätsnachweis. Weitere Ressourcen und Infrastruktur nur mit eigenem Methoden-, Versions-, Sicherheits- und Cleanupvertrag. |
+| 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt und RES-003-Offlinevertrag samt quellengebundener Lehrnotiz sind integriert. Die Detailprüfung zu SQL-Server-2025-`OPTIMIZED_SP_EXECUTESQL` ist abgeschlossen; Aktivierung, Demo und Performanceclaim bleiben `DEFER`, weil die bestehende `QRY-004`-Abnahme keine zeitgleiche Kompilierung prüft. Die [Graph-Table-Quellen- und Abdeckungsprüfung](GRAPH_TABLES_SOURCE_COVERAGE_REVIEW.md) empfiehlt Graph Tables als ersten Offline-Entwurf; die [Versions- und Indexprüfung](GRAPH_TABLES_VERSION_INDEX_REVIEW.md) präzisiert Indexhinweise und SQL-Server-2019-Erweiterungen. Curriculum-Owner, Lernziel, 2022/2025-Matrix und Demo-Schnitt sind weiterhin offen. | RES-003 bleibt ein roter, nicht ausführbarer Druckversuch; `OPTIMIZED_SP_EXECUTESQL` erhält keine Runtimefreigabe. Graph Tables bleiben `PROPOSED`, ohne neue Kennung, Runtimefreigabe oder Performanceclaim. External Tables bleiben zurückgestellt bis zur Prüfung des konkreten Connectors, der Quelle und der Infrastruktur. Statische und quellengebundene Erklärung ersetzt weder authentische Runtime-Evidenz noch Kausalitätsnachweis. Weitere Ressourcen und Infrastruktur nur mit eigenem Methoden-, Versions-, Sicherheits- und Cleanupvertrag. |
 
 ### DGN-007 getrenntes Qualifikationsband
 
@@ -63,6 +63,11 @@ nächsten Lauf.
   21/29/69, ohne Reset. Diese Erweiterung gilt für die Offline-Quellen- und
   Abdeckungsprüfung zu Graph Tables. Sie autorisiert weder SQL-/Lab-Ausführung
   noch Demo-Implementierung oder Performanceaussage.
+  Für die anschließende getrennte Graph-Table-Versions- und Indexprüfung gilt
+  eine weitere begrenzte Erweiterung um 1 Arbeitspaket, 1 Pull Request und
+  2 Quellenkandidaten; kumulativ höchstens 22/30/71, kein Reset. Sie erfasst nur
+  zwei weitere Microsoft-Primärquellen und eine Offline-Dokumentation, ohne
+  SQL-/Runtimefreigabe.
   Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
   der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
   Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
@@ -80,6 +85,9 @@ nächsten Lauf.
   Für den Graph-Table-Schnitt wurden die aktuelle Curriculum-Abdeckung und zwei
   Microsoft-Primärquellen geprüft; ein Planungsdokument und zwei bestehende
   Index-/Statuspfade wurden angepasst. Keine Code-, SQL- oder Runtimeausführung.
+  Für die getrennte Graph-Versions-/Indexwelle werden zwei Microsoft-Quellen,
+  die Review- und Statusnotiz sowie aktualisierte Backlog-/Planungspfade geprüft;
+  kein Code-, SQL- oder Runtimeaufruf.
   Fehlende/fehlgeschlagene
   Evidenz wird lokal nur bei neuem Befund weiter untersucht. Ein Owner, keine
   zusätzliche Reviewkette und keine Subagenten; reale Token-/Geldmessung bleibt

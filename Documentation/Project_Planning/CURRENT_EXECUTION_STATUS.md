@@ -2,6 +2,12 @@
 
 ## Fortsetzung: Graph Tables – Quellen- und Abdeckungsprüfung
 
+PR #364 ist auf `main` vollständig integriert: sieben aktuelle PR- und fünf
+Main-Workflows erfolgreich, Squashcommit
+`e39367d55541b27e773cfa1a1c4eeb2640bffd8a`. Der vollständige Tree
+`3d0f1b7a96c4fc9a179b015296eb4fc55a3418fa` ist lokal und auf `origin/main`
+identisch; der lokale und der Remote-Arbeitsbranch sind entfernt.
+
 Die autonome Entwicklung läuft nach dem abgeschlossenen `OPTIMIZED_SP_EXECUTESQL`-
 Checkpoint weiter. Die Curriculum-Suche ergab keine eigene Abdeckung für Graph
 Tables, `MATCH` oder den Vergleich mit einem relationalen Kantentisch.
@@ -24,6 +30,14 @@ Ausgabenmessung oder Provider-Ausgabensperre. Nächster Schritt: Curriculum-Owne
 und Lernzielentscheidung vorbereiten und anschließend den konkreten
 Demo-Vertrag entwerfen; bis zur fachlichen und methodischen Freigabe bleibt
 Runtime ausgeschlossen.
+
+Die zweite Graph-Table-Welle ergänzt die [Versions- und Indexprüfung](GRAPH_TABLES_VERSION_INDEX_REVIEW.md).
+Zwei weitere Microsoft-Primärquellen belegen Empfehlungen zu Graph-ID- und
+Kantenindizes sowie dokumentierte Graph-Erweiterungen in SQL Server 2019.
+Aussagen zu 2022/2025, Editionen, Compatibility Levels und deren vollständigem
+Featureumfang bleiben offen. Die kumulative Arbeitsobergrenze wurde hierfür
+um ein weiteres Arbeitspaket, einen PR und zwei Quellenkandidaten auf höchstens
+22/30/71 erweitert; weiterhin keine Demo- oder SQL-/Runtimefreigabe.
 
 ## Autonomer Auftrag vom 26. Oktober 2026
 
