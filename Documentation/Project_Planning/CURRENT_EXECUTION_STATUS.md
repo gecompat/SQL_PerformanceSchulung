@@ -39,6 +39,19 @@ Featureumfang bleiben offen. Die kumulative Arbeitsobergrenze wurde hierfür
 um ein weiteres Arbeitspaket, einen PR und zwei Quellenkandidaten auf höchstens
 22/30/71 erweitert; weiterhin keine Demo- oder SQL-/Runtimefreigabe.
 
+PR #365 ist auf `main` integriert: sieben aktuelle PR- und fünf Main-Workflows
+erfolgreich, Squashcommit `0852ed11886a9a76c83ef3a4f758faa9eee7189d`.
+Vollständiger Tree `c85c36c03d748a8c02e810f30f4e4d72dcbf5b55` stimmt lokal und
+auf `origin/main` überein; lokaler und Remote-Branch sind bereinigt.
+
+Als nächsten begrenzten Schritt ordnet die Curriculumprüfung den Vorschlag
+`LO-M03-06`/`CLM-047` als primären bestehenden Lernzielanker zu. Die formale
+Traceability-Zuordnung bleibt bis zum Demoentwurf `PROPOSED`; `LO-M02-04` und
+`LO-M04-04` sind optionale Anschlussziele, keine stillschweigende Erweiterung.
+Der endliche Rahmen wird dafür um 1 Arbeitspaket, 1 PR und höchstens 2 weitere
+Quellenkandidaten auf 23/31/73 erweitert; dieser Schritt nutzt vorhandene
+Curriculum-Dokumente und prüft keine neuen Produktquellen.
+
 ## Autonomer Auftrag vom 26. Oktober 2026
 
 Der neue menschliche Auftrag nimmt die priorisierten Entwicklungspunkte

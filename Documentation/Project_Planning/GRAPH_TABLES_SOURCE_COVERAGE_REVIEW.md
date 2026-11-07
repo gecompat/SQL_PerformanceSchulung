@@ -16,6 +16,24 @@ mit relationalen Kantenmodellen. Der Themenvorschlag passt fachlich zu
 Welle 5 (Abfragen und Optimierung) sowie Welle 6 (Indizes); das ist eine
 Planungseinordnung, keine bereits bestätigte Curriculum-Zuordnung.
 
+## Curriculum-Zuordnung als Vorschlag
+
+Als primärer vorhandener Lernzielanker eignet sich `LO-M03-06`: einen
+Query-Rewrite als einzelne Hypothese mit identischer Baseline und
+Vergleichsmessung durchführen. Das bereits vorhandene `CLM-047` (Query-Rewrite
+über Plan und Messung prüfen) ist diesem Lernziel zugeordnet, aber noch keiner
+Demo. Der Graph-gegen-relational-Vergleich könnte diese vorhandene Aussage
+konkretisieren, wenn beide Varianten dieselbe Frage und Ergebnismenge besitzen
+und die Baseline-/Messbedingungen vorab feststehen.
+
+`LO-M02-04` und `LO-M04-04` sind keine Voraussetzung des Kernvorschlags. Sie
+kommen nur als zusätzliche Anschlussziele infrage, falls der Demoentwurf
+tatsächlich physische Joinentscheidungen beziehungsweise Indexkosten
+untersucht. Vorläufiger Arbeitsowner ist die Curriculum-Fachredaktion; die
+formale Zuordnung in der Traceability-Matrix bleibt bis zum abgeschlossenen
+Demoentwurf `PROPOSED`. Ein neues Lernziel ist nach aktuellem Befund nicht
+erforderlich.
+
 ## Quellenbefunde
 
 Microsoft beschreibt SQL Graph als Fähigkeit ab SQL Server 2017. Graphdaten

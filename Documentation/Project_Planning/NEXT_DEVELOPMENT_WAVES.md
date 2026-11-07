@@ -63,11 +63,15 @@ nächsten Lauf.
   21/29/69, ohne Reset. Diese Erweiterung gilt für die Offline-Quellen- und
   Abdeckungsprüfung zu Graph Tables. Sie autorisiert weder SQL-/Lab-Ausführung
   noch Demo-Implementierung oder Performanceaussage.
-  Für die anschließende getrennte Graph-Table-Versions- und Indexprüfung gilt
-  eine weitere begrenzte Erweiterung um 1 Arbeitspaket, 1 Pull Request und
-  2 Quellenkandidaten; kumulativ höchstens 22/30/71, kein Reset. Sie erfasst nur
+  Für die anschließende getrennte Graph-Table-Versions- und Indexprüfung galt
+  eine begrenzte Erweiterung um 1 Arbeitspaket, 1 Pull Request und
+  2 Quellenkandidaten; kumulativ höchstens 22/30/71, kein Reset. Sie erfasste
   zwei weitere Microsoft-Primärquellen und eine Offline-Dokumentation, ohne
-  SQL-/Runtimefreigabe.
+  SQL-/Runtimefreigabe. Der Schnitt ist über PR #365 vollständig integriert.
+  Die nächste Curriculum-Zuordnung erweitert den Rahmen um ein Arbeitspaket,
+  einen Pull Request und bis zu zwei Quellenkandidaten auf kumulativ 23/31/73.
+  Sie verwendet bestehende Projektquellen, begründet keine neue Lernziel-ID
+  und erteilt keine Demo- oder Runtimefreigabe.
   Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
   der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
   Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
@@ -85,9 +89,13 @@ nächsten Lauf.
   Für den Graph-Table-Schnitt wurden die aktuelle Curriculum-Abdeckung und zwei
   Microsoft-Primärquellen geprüft; ein Planungsdokument und zwei bestehende
   Index-/Statuspfade wurden angepasst. Keine Code-, SQL- oder Runtimeausführung.
-  Für die getrennte Graph-Versions-/Indexwelle werden zwei Microsoft-Quellen,
-  die Review- und Statusnotiz sowie aktualisierte Backlog-/Planungspfade geprüft;
-  kein Code-, SQL- oder Runtimeaufruf.
+  Für die getrennte Graph-Versions-/Indexwelle wurden zwei Microsoft-Quellen,
+  Review- und Statusnotiz sowie Backlog-/Planungspfade geprüft; kein Code-,
+  SQL- oder Runtimeaufruf.
+  Die Curriculum-Zuordnung gleicht `CURRICULUM_ARCHITECTURE.md`,
+  `TRACEABILITY_MATRIX.md`, `SLIDE_STATEMENT_REGISTER.md` und den
+  Masterimplementierungsplan ab; keine neuen Produktquellen, Code- oder
+  SQL-Ausführung.
   Fehlende/fehlgeschlagene
   Evidenz wird lokal nur bei neuem Befund weiter untersucht. Ein Owner, keine
   zusätzliche Reviewkette und keine Subagenten; reale Token-/Geldmessung bleibt
