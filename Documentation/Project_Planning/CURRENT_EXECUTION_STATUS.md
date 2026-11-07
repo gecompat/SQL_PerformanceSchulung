@@ -1,13 +1,6 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: STL-001 – Zeilenbreitenleiter
-
-PR #394 ist mit Squashcommit `bced71b6ab4ad1102b795e2db3b2d6d7e0cf1db5`
-integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
-erfolgreich; lokales `main` ist synchronisiert, sauber und der Remote-Branch
-entfernt.
-
-## Fortsetzung: STL-002 – Row-Overflow und LOB
+## Abschluss: STL-002 – Row-Overflow und LOB
 
 Für die autonome Fortsetzung gilt eine neue, isolierte Erweiterung um 1
 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
@@ -16,16 +9,27 @@ Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
 allocation-type-gebundene Oracles unterscheidet. Keine SQL-/Runtimeausführung,
 keine Leistungsbehauptung und keine menschliche Generalprobe.
 
-Der statische Entwurf [STL-002](STL002_ROW_OVERFLOW_DESIGN.md) ist erstellt und
-an die bestehenden Speicher-/DMV-Quellen sowie `SRC-141` gebunden. Er fixiert
-2.000 vollständige Tupel je Profil und drei Tabellenprofile; tatsächliche
-Allocation-Units, DMV-Zugriffsrechte, Demo-/Cleanupvertrag und I/O-Werte bleiben
-ungeprüft. Die PR-Gates stehen für den Integrationsschritt noch aus.
-Kennungsregistrierung, Performance-Szenarien,
-Repositorykontinuität und Registrysemantik bestanden lokal; der Privacy-Scanner
-bestand für alle fünf geänderten Markdown-Dateien. Sein Repository-Lauf scheitert
-zuvor reproduzierbar an einer ungültig geparsten URL in einer unveränderten
-Datei unter `Runtime/AI_COMPLETION_ROUTE/IntegratedRun_PR240/...`.
+PR #395 ist mit Squashcommit `67dc715e7b53b0c77f79a3fa5d36413afca5b713`
+integriert. Alle fünf PR-Gates und drei Main-Workflows waren erfolgreich;
+lokales `main` ist synchronisiert und sauber. Der lokale Branch wurde entfernt;
+der Remote-Branch war bereits gelöscht. Der statische Entwurf
+[STL-002](STL002_ROW_OVERFLOW_DESIGN.md) bindet 2.000 vollständige Tupel je
+Profil und drei Tabellenprofile an die Speicher-/DMV-Quellen. Allocation-Units,
+DMV-Zugriffsrechte, Demo-/Cleanupvertrag und tatsächliche I/O-Werte bleiben
+später zu qualifizieren. Der lokale Repository-weite Privacy-Scan konnte eine
+unveränderte Datei unter `Runtime/AI_COMPLETION_ROUTE/IntegratedRun_PR240/`
+nicht parsen; der Scan aller geänderten Dateien und der PR-Privacy-Workflow
+bestanden.
+
+## Fortsetzung: QRY-005 – OR-Aufteilung und Mengensemantik
+
+Für den nächsten eigenständigen Offlineentwurf gilt eine begrenzte Erweiterung
+um 1 Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+53/61/133. Der Entwurf vergleicht ein OR-Prädikat mit einer überlappenden,
+naiven `UNION ALL`-Aufteilung, `UNION` und disjunkten `UNION ALL`-Zweigen. Er
+prüft vollständige Tupel und Mehrfachheiten auf synthetischen Daten; keine
+SQL-/Runtimeausführung, Planbehauptung, Leistungsaussage oder menschliche
+Generalprobe.
 
 ## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
 
