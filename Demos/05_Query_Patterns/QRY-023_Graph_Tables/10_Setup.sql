@@ -7,12 +7,19 @@ SET XACT_ABORT ON;
 DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@TargetDatabase sysname=N'$(TargetDatabase)';
 DECLARE @ExpectedDatabase sysname=CONVERT(sysname,N'SQLPERF_LAB_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken);
 DECLARE @MajorVersion int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion'));
+DECLARE @ProductVersion nvarchar(128)=CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'));
+DECLARE @ExpectedBuild nvarchar(128)=CASE @MajorVersion
+    WHEN 15 THEN N'15.0.4500.2'
+    WHEN 16 THEN N'16.0.4305.5'
+    WHEN 17 THEN N'17.0.5035.5'
+END;
 DECLARE @CompatibilityLevel int=CASE @MajorVersion WHEN 15 THEN 150 WHEN 16 THEN 160 WHEN 17 THEN 170 END;
 DECLARE @Created bit=0,@Sql nvarchar(max),@Project nvarchar(max),@Contract nvarchar(max),@ExistingDemo nvarchar(max),@ExistingRun nvarchar(max);
 
 IF @DemoId<>'QRY-023' OR @RunToken IS NULL OR LEN(@RunToken) NOT BETWEEN 1 AND 20
    OR @RunToken COLLATE Latin1_General_100_BIN2 LIKE '%[^A-Z0-9_]%'
-   OR @TargetDatabase<>@ExpectedDatabase OR @CompatibilityLevel IS NULL
+   OR @TargetDatabase<>@ExpectedDatabase OR @CompatibilityLevel IS NULL OR @ProductVersion IS NULL
+   OR @ProductVersion COLLATE Latin1_General_100_BIN2<>@ExpectedBuild
     THROW 51000,'FAIL_CONTRACT: QRY-023-Zielkennung oder Engine-Version ist ungültig.',1;
 
 IF DB_ID(@TargetDatabase) IS NULL
