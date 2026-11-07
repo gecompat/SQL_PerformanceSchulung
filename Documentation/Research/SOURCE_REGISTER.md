@@ -335,6 +335,21 @@ garantiert keine adaptive Planform; die konkrete Plan- und Runtimebeobachtung
 bleibt empirisch. Die Schwelle ist optimiererbestimmt und kein allgemeiner
 Konstantwert.
 
+## Datenkompression – STL-010
+
+| ID | Klasse | Quelle | Aussagebezug | Gültigkeitsbereich | Aktualisiert | Abgerufen | Status | Review-Trigger |
+|---|---|---|---|---|---|---|---|---|
+| `SRC-151` | PRIMARY | Microsoft, [`sys.sp_estimate_data_compression_savings`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-estimate-data-compression-savings-transact-sql?view=sql-server-ver17) | `STL-010`: Schätzung durch Sampling und komprimierte Vergleichsobjekte in `tempdb`; Rückgabewerte sind keine Messung des späteren Zielobjekts. Dokumentiert außerdem `SELECT`, `VIEW DATABASE STATE` und `VIEW DEFINITION` für Quelldatenbank und `tempdb` sowie einen IS-Lock auf der Quelle | SQL Server 2019–2025; Spalten und Verhalten vor Lauf pro Zielversion prüfen | 2026-11-07 | 2026-11-07 | ACTIVE | Änderung an Prozedur, Sampling, Berechtigung oder TempDB-Verfahren |
+| `SRC-152` | PRIMARY | Microsoft, [Editions and Supported Features of SQL Server 2025](https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2025?view=sql-server-ver17) | `STL-010`: editionsbezogene Featureverfügbarkeit von Data Compression; konkrete Edition jedes späteren Builds muss gegen die passende Versionsmatrix geprüft werden | SQL Server 2025; nicht automatisch auf ältere Versionen übertragbar | 2026-11-07 | 2026-11-07 | ACTIVE | neue Editionsmatrix oder geänderte Featureverfügbarkeit |
+
+Für `STL-010` wird die geschätzte Größe aus `SRC-151` von der tatsächlich
+nach einem späteren, freigegebenen Kompressions-Rebuild belegten Größe
+getrennt. Die Prozedur verwendet Sampling und temporäre Vergleichsobjekte in
+`tempdb`; TempDB-Ressourcen, Rechte und der IS-Lock gehören daher zur
+Qualifikation. Editionsverfügbarkeit wird build- und editionsspezifisch
+geprüft. `SRC-152` ist nur der aktuelle SQL-Server-2025-Nachweis und ersetzt
+keine Prüfung der 2019-/2022-Matrizen.
+
 ## Indexgestaltung – `IDX-003`
 
 | ID | Klasse | Quelle | Aussagebezug | Gültigkeitsbereich | Aktualisiert | Abgerufen | Status | Review-Trigger |

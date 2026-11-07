@@ -1,20 +1,25 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: OPT-012 – Adaptive Join unter wechselnder Eingabekardinalität
+## Fortsetzung: STL-010 – Datenkompression: Schätzung und Ergebnis trennen
 
-PR #401 (IDX-005) ist mit Squashcommit
-`d82b75a44271acd1bda93d55cbecf8bf187c8240` integriert. Alle fünf PR-Gates und
-drei Main-Workflows waren erfolgreich; `main` war sauber und synchronisiert.
-Der Missing-Index-Entwurf trennt tatsächliche Requests von Kandidatenformen,
-vergleicht überlappende Indexvarianten und bindet die DML-Oracles an vollständige
-Tupel.
+PR #402 (OPT-012) ist mit Squashcommit
+`b9a93d950ad81633c0a58373d9ae38f2cce4a4b2` integriert. Alle fünf PR-Gates und
+drei Main-Workflows waren erfolgreich; lokales `main` ist sauber und
+synchronisiert. Der Entwurf trennt Adaptive-Join-Eligibility, tatsächliche
+Operatorwahl, Planidentität und Ergebnistupel von Leistungsbehauptungen.
 
-Für OPT-012 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
-2 Quellenkandidaten; kumulative Obergrenze 59/67/145. Umfang: quellengebundener
-Offlineentwurf eines wiederverwendeten Adaptive-Join-Plans mit kleinen und
-großen synthetischen Eingabemengen, Eligibility-Prüfung und Actual Plan
-Oracles. Keine SQL-/Runtimeausführung, Garantie einer Adaptive-Join-Planform,
-Leistungsbehauptung oder menschliche Generalprobe.
+Für STL-010 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
+2 Quellenkandidaten; kumulative Obergrenze 60/68/147. Umfang: quellengebundener
+Offlineentwurf zum Vergleich der Schätzung von `sp_estimate_data_compression_savings`
+mit tatsächlichen Seitenwerten für synthetische Datenprofile. Keine
+SQL-/Runtimeausführung, Editionsannahme ohne Quellenprüfung, allgemeine
+Kompressionsrangfolge, Leistungsbehauptung oder menschliche Generalprobe.
+
+## Abschluss: OPT-012 – Adaptive Join unter wechselnder Eingabekardinalität
+
+Der [OPT-012-Entwurf](OPT012_ADAPTIVE_JOIN_DESIGN.md) ist über PR #402
+integriert. SQL-/Planqualifikation, genaue Zielbuilds, Rechte und jede
+Runtime- oder Leistungswirkung bleiben offen.
 
 ## Abschluss: IDX-005 – Missing-Index-Vorschläge fachlich bewerten
 
