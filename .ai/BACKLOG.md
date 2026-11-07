@@ -3420,6 +3420,10 @@ legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten
 Pfadtripeln fest. Er besitzt keine Demo-ID und enthält weder ausführbare
 Artefakte noch Runtime- oder Performancequalifikation.
 
+Der ergänzende [T-SQL-Syntaxreview](../Documentation/Project_Planning/GRAPH_TABLES_TSQL_SYNTAX_REVIEW.md)
+bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
+über echte `$node_id`-Werte. Er ist Quellenprüfung, keine SQL-Ausführung.
+
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale

@@ -44,12 +44,43 @@ keine mehrfachen gleichartigen Pfade.
 
 ## Abfrageformen
 
-Die Graphvariante verwendet eine zweistufige `MATCH`-Kette über dieselbe
-Edge-Tabelle. Die relationale Variante joint den Kantentisch zweimal über
-Quell- und Ziel-ID mit derselben Knotentabelle. Beide verwenden dieselben
-Start-/Zielparameter und projizieren dieselben drei IDs. Die konkreten T-SQL-
-Statements und ihre Syntax müssen vor Implementierung gegen die versionierten
-`MATCH`- und SQL-Graph-Referenzen geprüft werden.
+Der quellengeprüfte [T-SQL-Schnitt](GRAPH_TABLES_TSQL_SYNTAX_REVIEW.md)
+verwendet für die Graphvariante `p1-(e1)->p2-(e2)->p3`; `e1` und `e2` sind
+verschiedene Aliase derselben Edge-Tabelle. Die relationale Variante joint den
+Kantentisch zweimal über Quell- und Ziel-ID mit derselben Knotentabelle. Beide
+verwenden dieselben Start-/Zielparameter und projizieren dieselben drei IDs.
+Edge-Datensätze werden über `$node_id` der synthetischen Endknoten erzeugt;
+interne oder hart codierte Graph-IDs kommen nicht zum Einsatz.
+
+Die geplanten Abfrageformen lauten:
+
+```sql
+-- Graphvariante
+SELECT p1.PersonId AS StartId, p2.PersonId AS MiddleId, p3.PersonId AS EndId
+FROM dbo.Person AS p1, dbo.FriendOf AS e1, dbo.Person AS p2,
+     dbo.FriendOf AS e2, dbo.Person AS p3
+WHERE MATCH(p1-(e1)->p2-(e2)->p3)
+  AND p1.PersonId = @StartPersonId
+  AND p3.PersonId = @TargetPersonId;
+```
+
+```sql
+-- Relationale Variante
+SELECT p1.PersonId AS StartId, p2.PersonId AS MiddleId, p3.PersonId AS EndId
+FROM dbo.RelPerson AS p1
+JOIN dbo.RelFriend AS e1 ON e1.FromPersonId = p1.PersonId
+JOIN dbo.RelPerson AS p2 ON p2.PersonId = e1.ToPersonId
+JOIN dbo.RelFriend AS e2 ON e2.FromPersonId = p2.PersonId
+JOIN dbo.RelPerson AS p3 ON p3.PersonId = e2.ToPersonId
+WHERE p1.PersonId = @StartPersonId
+  AND p3.PersonId = @TargetPersonId;
+```
+
+Die vier Graphkanten werden nach Einfügen der Personenknoten durch je einen
+`INSERT` in `dbo.FriendOf` aufgebaut. `$from_id` und `$to_id` beziehen ihre
+Werte aus skalaren Unterabfragen auf `dbo.Person.$node_id`, anhand des
+synthetischen `PersonId`. Setupskripte und konkrete Inserts entstehen erst
+nach Registrierung und vollständigem Demo-Vertrag.
 
 ## Beobachtung und zulässige Aussagen
 
