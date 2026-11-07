@@ -33,7 +33,9 @@ allgemeine Empfehlung für Graph- oder relationale Speicherung.
 
 Der Entwurf heißt `manifest.proposed.json`, damit er von den bestehenden
 Runtimekatalogen und automatischen Manifestmatrizen nicht als freigegebene
-Demo erkannt wird.
+Demo erkannt wird. `YELLOW` erfordert im FWK-010-Aufrufer eine ausdrückliche
+`--confirm-isolated-lab`-Bestätigung; das Manifest autorisiert selbst keinen
+Lauf.
 
 `15_Framework.sql` bindet `Demos/00_Framework/Sql/FWK_Measurement.sql` per
 SQLCMD-`:r` ein. Der dokumentierte Harness-Aufruf startet deshalb aus dem
