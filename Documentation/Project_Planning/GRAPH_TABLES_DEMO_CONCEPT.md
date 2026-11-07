@@ -95,8 +95,9 @@ Indexierung, Warm-up, Wiederholungen und Messverfahren werden vorab festgelegt
 und so weit wie möglich gleich gehalten. `FWK-004` bestimmt die dokumentierten
 Wiederholungen, Warm-up-Ausschlüsse, robusten Lagewerte und Streuung; `FWK-005`
 bindet Plan- und Statistikevidenz. Der kleine Fünf-Knoten-Vier-Kanten-Aufbau ist
-ein Korrektheitsoracle und kein qualifiziertes Messworkload. Ein eigener
-deterministischer Messdatensatz und dessen Umfang sind noch zu entwerfen.
+ein Korrektheitsoracle und kein qualifiziertes Messworkload. Ein getrenntes
+Design für 10.000 deterministische Zwei-Kanten-Pfade mit 30.000 Knoten und
+20.000 Kanten steht im [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md); es ist weder implementiert noch ausgeführt.
 Unvermeidliche Unterschiede in Planform oder Indexierung werden als Teil der
 verglichenen Varianten beschrieben und nicht als isolierter Syntaxeffekt
 ausgegeben.
@@ -123,10 +124,10 @@ Der statische Vertrag für eine spätere Implementierung lautet:
 | Isolation / Rechte | Nur eigene wegwerfbare markierte Testdatenbank; Setup benötigt DDL- und Insert-Rechte, Abfragephase nur Select, Cleanup die zum Entfernen der eigenen Objekte erforderlichen Rechte | Keine fremde Datenbank, kein gemeinsam genutzter Instanzzustand und keine Rechteausweitung für Lernende |
 | Cleanup / Fehlerpfad | Setup markiert alle eigenen Tabellen und den Lauf; Cleanup entfernt ausschließlich nach erfolgreicher Eigentumsprüfung die eigenen Objekte; Teilausfall liefert den Zustand und einen sicheren Wiederaufnahmehinweis | Wiederholung nach Erfolg oder kontrolliertem Setupfehler darf fremde Objekte nicht verändern |
 | Version / Skip | Vorgeschlagene Designprofile sind SQL Server 2019/150, 2022/160 und 2025/170 entsprechend der bestehenden Projektmatrix | Die Zuordnung ist keine QRY-023-Runtimefreigabe. Konkrete Build-/CU-Pins, Editionen und Zielimages werden vor Implementierung bestätigt; unbekannte oder inkompatible Umgebung endet vor Setup mit begründetem `SKIP` |
-| Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Das kleine Oracle bleibt getrennt von einem noch zu entwerfenden deterministischen Messdatensatz; Plan, Estimated Rows, Logical Reads, CPU und Duration werden nach `FWK-004`/`FWK-005` erfasst | Kein allgemeiner Performancegewinner. Messwiederholungen, Warm-up, robuste Zusammenfassung, Streuung, Indexe und Messdatenumfang sind vor dem ausführbaren Vertrag festzulegen |
+| Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Separates vorgeschlagenes Messprofil: 10.000 disjunkte Pfade mit 30.000 Knoten und 20.000 Kanten; Plan, Estimated Rows, Logical Reads, CPU und Duration nach `FWK-004`/`FWK-005` | Kein allgemeiner Performancegewinner. Der [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) bleibt vor Implementierung statisch zu prüfen; konkrete Builds, Ressourcenwerte und Messgrenzen folgen dem ausführbaren Vertrag |
 
 Vor Erstellung ausführbarer Dateien bleiben unabhängige Methoden-/Quellenprüfung,
-statische Vertragsprüfung, Definition des Messworkloads und Wiederholungsplans,
+statische Vertragsprüfung, Prüfung des vorgeschlagenen Messworkloads und Wiederholungsplans,
 Bestätigung konkreter Build-/CU-Pins und Prüfung der bestehenden
 Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,
 Runtimequalifikation und Performanceclaims sind getrennte Gates und durch die

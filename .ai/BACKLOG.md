@@ -3431,7 +3431,7 @@ bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
 Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
 bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
 [Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
-Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. Messlast, Wiederholungsplan, konkrete Build-/CU-Pins, unabhängige Vertragsprüfung, Implementierung und alle Laufzeitgates bleiben offen.
+Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge als Vorschlag fest. Unabhängige Methodenprüfung, ausführbarer Vertrag, konkrete Index-/Build-/CU-Definitionen, Implementierung und alle Laufzeitgates bleiben offen.
 
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.

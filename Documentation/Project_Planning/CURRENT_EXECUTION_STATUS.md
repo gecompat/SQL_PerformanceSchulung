@@ -1,5 +1,13 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: Graph Tables – deterministischer Messworkload und Traceability
+
+Der kleine Zwei-Pfad-Aufbau bleibt das exakte Korrektheitsoracle. Für die nach `LO-M03-06`/`CLM-047` verpflichtende Plan-/Vergleichsmessung ist zusätzlich ein getrenntes synthetisches Profil vorgeschlagen: 10.000 disjunkte Zwei-Kanten-Pfade, 30.000 Knoten, 20.000 gerichtete Kanten, deterministische IDs `3*n+1..3*n+3`. Vollpfadgleichheit wird vor dem Messlauf über beidseitiges `EXCEPT`, Eindeutigkeit und Sollanzahl geprüft. Die Messabfrage zählt mit `COUNT_BIG(*)`, damit die 10.000 Ergebniszeilen nicht je Messlauf zum Client übertragen werden. Das vorgeschlagene Protokoll schließt je Variante ein Warm-up aus und misst fünf Paare mit alternierender AB/BA-Reihenfolge in derselben Session; keine Cacheleerung, keine Performance-Schwelle und keine Versionsaggregation. Details: [QRY-023-Messworkload](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md).
+
+Die [Traceability-Matrix](../Curriculum/TRACEABILITY_MATRIX.md) ordnet `CLM-047` jetzt `SRC-122`/`SRC-123`, der geplanten Demo `QRY-023` (`PROPOSED`) und dem Profil `TP-PERF` zu. Das ist eine geplante Zuordnung, keine implementierte Demo oder Abnahme.
+
+Für diese begrenzte Fortsetzung beträgt die kumulative Arbeitsobergrenze 29 Arbeitspakete, 37 Pull Requests und 85 Evidenzkandidaten. Token- und Geldverbrauch bleiben unbekannt. Registry-Semantik, Kennungsregistrierung und Curriculum-Traceability wurden lokal geprüft und bestanden. Keine Codeänderung, kein SQL-, Lab- oder Runtime-Lauf.
+
 ## Fortsetzung: Graph Tables – Framework-, Mess- und Zielmatrixreview
 
 Der Abgleich gegen das Curriculum hat eine erforderliche Korrektur ergeben: `LO-M03-06` verlangt identische Baseline und Vergleichsmessung; `CLM-047` benennt Plan- und Messprüfung. Planbeobachtung und Messung sind daher für QRY-023 Pflicht. Das Fünf-Knoten-/Vier-Kanten-Fixture bleibt ein Korrektheitsoracle und ist kein qualifiziertes Messworkload. `FWK-004`/`FWK-005` verlangen Warm-up-Ausschluss, dokumentierte Wiederholungen, robuste Zusammenfassung samt Streuung und Plan-/Statistikevidenz. Deterministische Messlast, Wiederholungsplan und fachlich begründete Indexe sind der nächste Designschritt.
