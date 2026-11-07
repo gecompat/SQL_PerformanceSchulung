@@ -3410,6 +3410,11 @@ bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
 Erweiterungen. Die geprüften Quellen qualifizieren weder SQL Server 2022/2025
 noch Editionen, Compatibility Levels oder einen Lauf.
 
+Die [Releaseübersichtenprüfung 2022/2025](../Documentation/Project_Planning/GRAPH_TABLES_2022_2025_SOURCE_REVIEW.md)
+fand in beiden Übersichten keine Graph-Einträge. Dieser negative Befund belegt
+keine Featureparität; konkrete Funktionen, Editionen und Compatibility Levels
+bleiben vor einem Demo-Vertrag zu verifizieren.
+
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale

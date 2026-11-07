@@ -43,9 +43,11 @@ Für eine vorläufige Kompatibilitätsübersicht ist nur dies quellenbelegt:
 
 - Graph-Grundfunktionen und Graphtabellen: SQL Server 2017 und höher.
 - Die genannten Graph-Erweiterungen wurden für SQL Server 2019 dokumentiert.
-- Konkrete Aussagen zu SQL Server 2022 und 2025 sowie zu Edition und
-  Compatibility Level bleiben offen. Die zwei geprüften Quellen belegen weder
-  deren vollständigen Featureumfang noch eine Performanceeigenschaft.
+- Die geprüften [Releaseübersichten für SQL Server 2022 und 2025](GRAPH_TABLES_2022_2025_SOURCE_REVIEW.md)
+  enthalten keinen Graph-Eintrag. Das ist kein Beleg unveränderten Verhaltens
+  und ersetzt keine versionierte Referenz oder Zielbuildprüfung. Edition und
+  Compatibility Level bleiben ebenso offen; die geprüften Quellen belegen
+  weder den vollständigen Featureumfang noch eine Performanceeigenschaft.
 
 Vor einem Demo-Vertrag muss die Fachprüfung die tatsächlichen
 SQL-Server-2019/2022/2025-Zielbuilds und alle verwendeten Funktionen gegen die

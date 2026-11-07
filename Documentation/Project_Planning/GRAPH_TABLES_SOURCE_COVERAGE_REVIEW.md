@@ -87,8 +87,10 @@ Vor Umsetzung bleiben mindestens offen:
    Lernziel festlegen; Folien- und Traceability-Auswirkung bestimmen.
 2. Die [gesonderte Versions- und Indexprüfung](GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
    bindet Graph-Indexgrundlagen und dokumentierte Erweiterungen für SQL Server
-   2019. Versions-, Editions- und Compatibility-Level-Grenzen für SQL Server
-   2022/2025 bleiben anhand passender Primärquellen zu prüfen.
+   2019. Die geprüften [Releaseübersichten 2022/2025](GRAPH_TABLES_2022_2025_SOURCE_REVIEW.md)
+   enthalten keine Graph-Einträge, was Versionsparität nicht beweist. Editions-
+   und Compatibility-Level-Grenzen bleiben anhand passender T-SQL-Referenzen
+   und Zielbuilds zu prüfen.
 3. Einen Demo-Vertrag mit synthetischen Daten, isoliertem Setup, erwarteter
    Ausgabe, zulässiger Evidenz, Messbedingungen und unabhängig bestätigtem
    Cleanup erstellen.
