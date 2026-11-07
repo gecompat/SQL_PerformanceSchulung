@@ -98,6 +98,9 @@ bindet Plan- und Statistikevidenz. Der kleine Fünf-Knoten-Vier-Kanten-Aufbau is
 ein Korrektheitsoracle und kein qualifiziertes Messworkload. Ein getrenntes
 Design für 10.000 deterministische Zwei-Kanten-Pfade mit 30.000 Knoten und
 20.000 Kanten steht im [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md); es ist weder implementiert noch ausgeführt.
+Die [Quellen- und Methodenprüfung](GRAPH_TABLES_METHOD_REVIEW.md) grenzt
+`MATCH`, Kandidatenindizes, Mess- und Actual-Plan-Erfassung sowie Rechte ab;
+eine unabhängige Methodenfreigabe steht aus.
 Unvermeidliche Unterschiede in Planform oder Indexierung werden als Teil der
 verglichenen Varianten beschrieben und nicht als isolierter Syntaxeffekt
 ausgegeben.

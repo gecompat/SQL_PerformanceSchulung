@@ -45,6 +45,13 @@ Indexdefinition und tatsächlicher Plan gehören zum Vergleichsbericht. Es gibt
 keine Query Hints, keine unterschiedlichen Datenvolumen und keine zusätzliche
 globale Cache- oder Serverkonfigurationsänderung.
 
+Das [Quellen- und Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md) präzisiert:
+Die Graph-Query muss `MATCH` verwenden; direkte Gleichheit zwischen
+Graph-ID-Pseudo-Spalten ist nicht der vorgesehene Pfad. Der empfohlene
+Edge-Paarindex ist für diesen vollständigen Zwei-Hop-Scan eine Hypothese, kein
+Leistungsversprechen. Die `PersonId`-Indizes sind Kandidaten und dürfen nicht
+als von `MATCH` verwendete Strukturen behauptet werden.
+
 ## Messstatement und Ablauf
 
 Die Messvariante zählt alle übereinstimmenden vollständigen Zwei-Kanten-Pfade
@@ -55,17 +62,23 @@ vermeidet lediglich die Ausgabe von 10.000 Zeilen je Messlauf.
 
 Vorgeschlagener Ablauf je qualifiziertem Engine-/Compatibility-Profil:
 
-1. Ein Warm-up je Variante, nicht in die fachliche Messauswertung aufnehmen.
+1. Relationaler Ausdruck ist die `BASELINE`, Graph-Ausdruck die `COMPARISON`;
+   je Variante ein Warm-up, nicht in die fachliche Messreihe aufnehmen.
 2. Fünf gepaarte Messwiederholungen in derselben Session und Datenbank.
 3. Reihenfolge zwischen Paaren abwechseln: Graph–Relational, dann
    Relational–Graph, danach fortsetzen.
 4. Keine Cacheleerung; beide Varianten laufen unter demselben unveränderten
    Ressourcen- und Datenzustand.
-5. Nach `FWK-004` tatsächlichen Plan, geschätzte und tatsächliche Zeilen,
-   Logical Reads, Session-CPU, verstrichene Zeit, Wiederholungsnummer und
-   Warm-up-Status erfassen; nach `FWK-005` die Plan-/Statistikevidenz binden.
-6. Je Profil Median und Streuung der gepaarten Werte ausweisen. Keine Werte
-   über Engineversionen aggregieren.
+5. Mit `FWK-004` je Wiederholung Phase, Paar, Reihenfolge, Session-CPU,
+   Logical Reads, Reads/Writes, verstrichene Zeit und Ergebnisanzahl erfassen.
+   Der Messprozedur-Overhead ist enthalten und wird offengelegt.
+6. Actual-Plan-Evidenz getrennt nach `FWK-005` erfassen. Dieser Diagnosegang
+   braucht `SHOWPLAN` auf den referenzierten Datenbanken und ist keine
+   Messwiederholung der Performancewerte. `STATISTICS IO/TIME` verlangt laut
+   Microsoft kein `SHOWPLAN`, muss aber im ausführbaren Vertrag von
+   Parse-/Compile-Ausgabe getrennt werden.
+7. Rohwerte erhalten und je Profil Median plus Streuung der fünf gepaarten
+   Differenzen ausweisen. Keine Werte über Engineversionen aggregieren.
 
 Ein Ergebnis, das ausschließlich für dieses synthetische Profil gilt, ist kein
 allgemeiner Graph-/Relational-Leistungsgewinner. Planform oder einzelne Werte
@@ -80,6 +93,8 @@ Leistungsgrenze als Pass/Fail-Schwelle.
 - Generator ist für alle Nummern 0–9.999 vollständig und kollisionsfrei.
 - Graph- und relationale Datensätze, Indizes und Messstatements bilden dieselbe
   fachliche Abfrage ab.
+- Graph-`MATCH`, die Indexpaarung und die getrennten Plan-/Messrechte sind im
+  ausführbaren Vertrag festgelegt.
 - Warm-up-, Paarreihenfolge-, Mess- und Zusammenfassungsprotokoll sind im
   ausführbaren Demo-Vertrag konkretisiert.
 - Sicherheitsstufe, Rechte, Ressourcenprofil, Version, Edition, Compatibility
@@ -95,3 +110,5 @@ Methodenprüfung und Ausführung bleiben nächste getrennte Schritte.
 - Quellen: [`SRC-122` und `SRC-123`](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen).
 - Framework: `FWK-002`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011`
   und `FWK-012`.
+- Quellen- und Methodenreview: [`GRAPH_TABLES_METHOD_REVIEW.md`](GRAPH_TABLES_METHOD_REVIEW.md),
+  `SRC-124` und `SRC-125`.
