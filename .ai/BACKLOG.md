@@ -3419,11 +3419,13 @@ bleiben vor einer Runtimefreigabe zu verifizieren.
 
 Das [Editions- und Buildreview](../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 prüft nun Graph-Verfügbarkeit für die Editionsmatrizen 2019/2022/2025 und
-schlägt zeitgebundene Qualifikationspins `15.0.4500.2`, `16.0.4305.5` und
-`17.0.5035.5` vor. Der Offline-Preflight und die Setupphase binden diese
-ProductVersion-Werte vor Mutation. Die Pins sind keine Graph-Mindestbuilds;
-Image-Digests, unabhängige Methodenfreigabe und Laufzeitqualifikation bleiben
-offen.
+bindet die Buildlabels der Linux/AMD64-CU-Images: `15.0.4430.1`, `16.0.4295.3`
+und `17.0.5035.5`. Der Offline-Preflight und die Setupphase prüfen diese
+ProductVersion-Werte vor Mutation. Manifest- und Konfigurationsdigests sind im
+Buildreview dokumentiert; gestartete Engine und `SERVERPROPERTY` bleiben
+unbeobachtet. Die 2019-/2022-CU-Images enthalten nicht die separat
+veröffentlichten CU+GDR-Stände. Neuere passende Images, unabhängige
+Methodenfreigabe und Laufzeitqualifikation bleiben offen.
 
 Der [statische Demoentwurf](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md)
 legt als vorgeschlagenen Lehrschnitt zwei gerichtete Hops mit exakt erwarteten

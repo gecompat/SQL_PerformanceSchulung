@@ -1,5 +1,24 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – Linux-Imagebuilds gebunden
+
+Der read-only MCR-Abgleich zeigt eine Abweichung zu den zuvor gewählten
+Produktservicingpins: Die offiziellen Linux/AMD64-Tags `2019-CU32-ubuntu-20.04`
+und `2022-CU27-ubuntu-22.04` werben in ihrer Imagekonfiguration die Builds
+`15.0.4430.1` und `16.0.4295.3`; beide sind älter als die separat dokumentierten
+CU+GDR-Stände. `2025-CU10-ubuntu-22.04` wirbt `17.0.5035.5` und stimmt überein.
+Preflight und Setup prüfen jetzt die drei zum Image passenden Builds. Die
+AMD64-Manifest- und Konfigurationsdigests sowie die Labels sind in
+[GRAPH_TABLES_BUILD_EDITION_REVIEW.md](GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
+und `SRC-130` festgehalten. Es wurde kein Image heruntergeladen oder gestartet;
+ein späterer Lauf muss Digest und `SERVERPROPERTY` erneut binden.
+
+Der neue statische Pinabgleich erweitert die kumulative Obergrenze um 1
+Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 35/43/97. Weiterhin
+offen: neuere passende Images für 2019/2022, unabhängige Methodenfreigabe,
+formale Harnessabnahme, Ressourcenprofil und konkrete Laufautorisierung. QRY-023
+bleibt `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren.
+
 ## Fortsetzung: QRY-023 – ScriptDom-Grammatikprüfung
 
 PR #376 ist als Squashcommit `ed75e78b7558fec94fed17aba1ad20d93d2891a9` in `origin/main` integriert; alle zehn PR-Workflows waren erfolgreich, `main` ist lokal synchronisiert und beide Branches sind entfernt. Die Editionsmatrix und zeitgebundenen Buildpins sind in `SRC-126/127` gebunden.
@@ -12,7 +31,11 @@ Der QRY-023-CI-Trigger bleibt eng auf Demopfad, Parser, Regressionstest und Work
 
 PR #375 ist als Squashcommit `a92ae3049c9f3f62efa2d582791e92fddb855410` integriert; der eng gefilterte statische CI-Workflow, seine vier synthetischen Regressionstests und alle betroffenen Projektworkflows waren erfolgreich. Das eigene Demo-SQL wurde nicht ausgeführt.
 
-Die Quellenprüfung in [GRAPH_TABLES_BUILD_EDITION_REVIEW.md](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) bindet die Graph-Verfügbarkeit über die Microsoft-Editionsmatrizen 2019/2022/2025 und den Servicingstand vom 7. November 2026. Für die Designprofile werden `15.0.4500.2` (2019 CU32+GDR), `16.0.4305.5` (2022 CU27+GDR) und `17.0.5035.5` (2025 CU10) als zeitgebundene Qualifikationspins vorgeschlagen. Preflight und Setup prüfen dieselben Buildpins; bei Abweichung endet der Ablauf vor Setup beziehungsweise Datenbankanlage mit `SKIP_VERSION`. Das sind keine Graph-Mindestversionen. Konkrete Image-Digests und tatsächliche Runtimeumgebung bleiben offen.
+Historischer Stand zum Merge von PR #376: Die damaligen Produktservicingpins
+`15.0.4500.2`, `16.0.4305.5` und `17.0.5035.5` wurden nach dem folgenden
+MCR-Metadatenabgleich für die vorgesehenen Linux-Images durch deren tatsächlich
+deklarierte Builds ersetzt. Maßgeblich für den aktuellen Vorschlag ist der
+vorstehende Abschnitt `Linux-Imagebuilds gebunden`.
 
 Diese Fortsetzung erweitert die kumulative Arbeitsobergrenze um 1 Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 33/41/93. Unabhängige Methodenfreigabe, formale T-SQL-/Harness-Abnahme, Index-/Ressourcenbegründung und konkrete Ausführungsautorisierung bleiben getrennte Gates; QRY-023 bleibt `PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren.
 
