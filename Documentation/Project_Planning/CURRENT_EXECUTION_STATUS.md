@@ -1,5 +1,13 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – statischer Harness-Vertrag
+
+PR #374 ist als Squashcommit `74cd9ac303bbc1648216cdfc8268ab70e8b25d09` in `origin/main` integriert; lokales `main` stimmt damit überein, der Arbeitsbranch ist entfernt. Die neun PR-Workflows waren erfolgreich. Der allgemeine Cleanup-Eigentumstest lief in disposable SQL Server 2019/2022/2025-Containern; er prüfte das gemeinsame Cleanupframework und führte keine QRY-023-Abfragen aus.
+
+Als nächster Offline-Schritt schützen `Tests/Static/validate_qry023_proposed_harness.py`, die gezielten synthetischen Regressionstests und ein eng gefilterter statischer CI-Workflow den Manifeststatus, die Lifecycle-/Cleanupmarker, den 30k/20k/10k-Datenvertrag, bidirektionale Ergebnisgleichheit, fünf AB/BA-Messpaare, getrennte Planabfragen und das Fehlen einer Katalogintegration. Diese Prüfung belegt strukturelle Projektverträge, keine T-SQL-Kompilierbarkeit oder Methodenfreigabe. Es wurde kein QRY-023-SQL gestartet.
+
+Die kumulative Arbeitsobergrenze wird um 1 Arbeitspaket, 1 PR und 2 Evidenzkandidaten auf höchstens 32/40/91 erweitert. Offen bleiben formale T-SQL-/Harness-Abnahme und unabhängige Methodenfreigabe, konkrete Build-/Edition-/CU-Pins, Index- und Ressourcenbegründung sowie konkrete getrennte Ausführungsautorisierung. `PROPOSED`/`YELLOW` und der Ausschluss aus Runtimekatalog und -matrix bleiben bestehen.
+
 ## Fortsetzung: Graph Tables – deterministischer Messworkload und Traceability
 
 Der kleine Zwei-Pfad-Aufbau bleibt das exakte Korrektheitsoracle. Für die nach `LO-M03-06`/`CLM-047` verpflichtende Plan-/Vergleichsmessung ist zusätzlich ein getrenntes synthetisches Profil vorgeschlagen: 10.000 disjunkte Zwei-Kanten-Pfade, 30.000 Knoten, 20.000 gerichtete Kanten, deterministische IDs `3*n+1..3*n+3`. Vollpfadgleichheit wird vor dem Messlauf über beidseitiges `EXCEPT`, Eindeutigkeit und Sollanzahl geprüft. Die Messabfrage zählt mit `COUNT_BIG(*)`, damit die 10.000 Ergebniszeilen nicht je Messlauf zum Client übertragen werden. Das vorgeschlagene Protokoll schließt je Variante ein Warm-up aus und misst fünf Paare mit alternierender AB/BA-Reihenfolge in derselben Session; keine Cacheleerung, keine Performance-Schwelle und keine Versionsaggregation. Details: [QRY-023-Messworkload](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md).

@@ -1,0 +1,39 @@
+name: QRY-023 proposed harness contract
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
+      - 'Tests/Static/validate_qry023_proposed_harness.py'
+      - 'Tests/Static/test_qry023_proposed_harness.py'
+      - '.github/workflows/qry023-proposed-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
+      - 'Tests/Static/validate_qry023_proposed_harness.py'
+      - 'Tests/Static/test_qry023_proposed_harness.py'
+      - '.github/workflows/qry023-proposed-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qry023-proposed-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate offline QRY-023 draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate proposed harness contract
+        run: python Tests/Static/validate_qry023_proposed_harness.py
+      - name: Check validator regression cases
+        run: python Tests/Static/test_qry023_proposed_harness.py

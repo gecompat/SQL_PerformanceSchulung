@@ -88,6 +88,7 @@ nächsten Lauf.
   Der Entwurf des deterministischen QRY-023-Messworkloads und die formale CLM-047-Traceabilityzuordnung erweitern die Obergrenze um 1 Arbeitspaket, 1 PR und 2 Kandidaten auf höchstens 29/37/85. Die Designprofile und Messmethodik sind weiterhin keine Graph-Runtimefreigabe.
   Das Quellen-/Methodenreview zu MATCH, Kandidatenindizes und getrennter Planevidenz erweitert die Obergrenze um 1 Arbeitspaket, 1 PR und 2 Kandidaten auf höchstens 30/38/87. Die unabhängige Methodenfreigabe bleibt ausdrücklich offen.
   Der initiale QRY-023-Harness-Codeentwurf erweitert die Obergrenze um 1 Arbeitspaket und 1 PR auf höchstens 31/39/89. Er bleibt nicht katalogisiert und ungefahren; statische Abnahme, unabhängige Methodenfreigabe und konkrete Runtimefreigabe sind getrennte weitere Gates.
+  PR #374 integriert den QRY-023-Codeentwurf nach erfolgreichen Projektworkflows. Der statische allgemeine Cleanup-Eigentumstest lief in disposable SQL-Server-Containern für 2019, 2022 und 2025; QRY-023 selbst wurde nicht ausgeführt. Die nächste Welle ergänzt einen gezielten Offlinevertrag mit Regressionstests und eigenem nur statischen CI-Workflow. Die kumulative Obergrenze steigt um 1 Arbeitspaket, 1 PR und 2 Evidenzkandidaten auf 32/40/91. Diese Strukturprüfung schließt weder T-SQL-Kompilierbarkeit noch unabhängige Methodenfreigabe.
   Vor dem nächsten Start muss der Verbrauch anhand des aktuellen Status und
   der Integrationshistorie verifiziert werden; der zuletzt dokumentierte
   Startverbrauch 1/19/45 ist kein Nachweis des heutigen Restbudgets.
