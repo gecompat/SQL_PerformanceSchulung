@@ -1,5 +1,32 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: STL-001 – Zeilenbreitenleiter
+
+PR #394 ist mit Squashcommit `bced71b6ab4ad1102b795e2db3b2d6d7e0cf1db5`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert, sauber und der Remote-Branch
+entfernt.
+
+## Fortsetzung: STL-002 – Row-Overflow und LOB
+
+Für die autonome Fortsetzung gilt eine neue, isolierte Erweiterung um 1
+Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+52/60/131. Umfang: ein statischer, quellengebundener Entwurf, der In-Row,
+`ROW_OVERFLOW_DATA` und `LOB_DATA` über identische fachliche Nutzdaten und
+allocation-type-gebundene Oracles unterscheidet. Keine SQL-/Runtimeausführung,
+keine Leistungsbehauptung und keine menschliche Generalprobe.
+
+Der statische Entwurf [STL-002](STL002_ROW_OVERFLOW_DESIGN.md) ist erstellt und
+an die bestehenden Speicher-/DMV-Quellen sowie `SRC-141` gebunden. Er fixiert
+2.000 vollständige Tupel je Profil und drei Tabellenprofile; tatsächliche
+Allocation-Units, DMV-Zugriffsrechte, Demo-/Cleanupvertrag und I/O-Werte bleiben
+ungeprüft. Die PR-Gates stehen für den Integrationsschritt noch aus.
+Kennungsregistrierung, Performance-Szenarien,
+Repositorykontinuität und Registrysemantik bestanden lokal; der Privacy-Scanner
+bestand für alle fünf geänderten Markdown-Dateien. Sein Repository-Lauf scheitert
+zuvor reproduzierbar an einer ungültig geparsten URL in einer unveränderten
+Datei unter `Runtime/AI_COMPLETION_ROUTE/IntegratedRun_PR240/...`.
+
 ## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
 
 PR #392 ist mit Squashcommit `97b1ceadad3d0b1f9179fc393dd4e55e6612b10b`
