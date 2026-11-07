@@ -83,19 +83,20 @@ konkrete Demo-Sicherheit ist erst mit ihrem Vertrag zu beurteilen.
 
 Vor Umsetzung bleiben mindestens offen:
 
-1. Curriculum-Owner und bestehendes Lernziel beziehungsweise begründetes neues
-   Lernziel festlegen; Folien- und Traceability-Auswirkung bestimmen.
+1. Den Vorschlag `LO-M03-06`/`CLM-047` und Curriculum-Fachredaktion als
+   Arbeitsowner für die formale Traceability-Zuordnung bestätigen; kein neues
+   Lernziel ist derzeit angezeigt.
 2. Die [gesonderte Versions- und Indexprüfung](GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
    bindet Graph-Indexgrundlagen und dokumentierte Erweiterungen für SQL Server
    2019. Die geprüften [Releaseübersichten 2022/2025](GRAPH_TABLES_2022_2025_SOURCE_REVIEW.md)
    enthalten keine Graph-Einträge, was Versionsparität nicht beweist. Editions-
    und Compatibility-Level-Grenzen bleiben anhand passender T-SQL-Referenzen
    und Zielbuilds zu prüfen.
-3. Einen Demo-Vertrag mit synthetischen Daten, isoliertem Setup, erwarteter
-   Ausgabe, zulässiger Evidenz, Messbedingungen und unabhängig bestätigtem
-   Cleanup erstellen.
-4. Erst danach die erforderlichen Methoden-, Sicherheits-, Ausführungs- und
-   Runtime-Gates für den konkreten Schnitt abarbeiten.
+3. Den [statischen Demoentwurf](GRAPH_TABLES_DEMO_CONCEPT.md) für identische
+   Zwei-Kanten-Pfade, Ergebnismenge und Vergleichsbedingungen quellengebunden
+   vervollständigen.
+4. Erst nach Registrierung und konkretem Demo-Vertrag die erforderlichen
+   Methoden-, Sicherheits-, Ausführungs- und Runtime-Gates abarbeiten.
 
 External Tables bleiben zurückgestellt, bis der konkrete Datenzugriffsweg,
 Connector, Infrastrukturbedarf, unterstützte Versionsmatrix sowie deren
