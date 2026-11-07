@@ -35,6 +35,25 @@ SQL-Ausführung. Offen bleiben Runtimeintegration, unabhängige Methodenfreigabe
 formale Harnessabnahme, passende neuere 2019/2022-Images, Ressourcenprofil und
 konkrete Laufautorisierung.
 
+## Fortsetzung: QRY-023 – begrenztes Ressourcenprofil
+
+Der Demo-Vertrag verlangt Host-Mindestressourcen. Microsofts Linuxminimum ist
+als `SRC-131` gebunden: zwei x64-Kerne zu 2 GHz, 2 GB RAM und 6 GB Speicher.
+`SRC-132` trennt die harte Container-Cgroup-Grenze vom niedrigeren
+`MSSQL_MEMORY_LIMIT_MB`. Darauf aufbauend schlägt der Image-Lock 8 GiB Host-RAM,
+20 GiB freien Speicher, höchstens zwei Containerkerne, 4.096 MiB Container-RAM
+und 3.072 MiB SQL-Limit vor. Der Abstand zum Herstellerminimum ist eine
+Planungsannahme; es gab keine QRY-023-Messung. MCR-Layergrößen und das bestehende
+900/90-Sekundenbudget sind dokumentiert. Ein künftiger Runtimeaufrufer muss
+Grenzen vor Start prüfen und durchsetzen.
+
+Die Dokumentations-/Vertragswelle erweitert die kumulative Obergrenze um 1
+Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 37/45/101. Offen sind
+unabhängige Methodenfreigabe, formale Harnessabnahme, mögliche neuere Images,
+empirische Speicher-/TempDB-/Laufzeitqualifikation, Integration der Limits in
+einen Runtimeaufruf und konkrete Laufautorisierung. QRY-023 bleibt
+`PROPOSED`/`YELLOW` und ungefahren.
+
 ## Fortsetzung: QRY-023 – ScriptDom-Grammatikprüfung
 
 PR #376 ist als Squashcommit `ed75e78b7558fec94fed17aba1ad20d93d2891a9` in `origin/main` integriert; alle zehn PR-Workflows waren erfolgreich, `main` ist lokal synchronisiert und beide Branches sind entfernt. Die Editionsmatrix und zeitgebundenen Buildpins sind in `SRC-126/127` gebunden.
