@@ -14,6 +14,12 @@ Das [Quellen- und Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md) ergänzt den Wo
 
 Diese Fortsetzung erweitert die kumulative Obergrenze um 1 Arbeitspaket, 1 PR und 2 Quellenkandidaten auf höchstens 30/38/87. Das Review ist dokumentarisch, keine unabhängige Methodenfreigabe. Keine Codeänderung und kein SQL-, Lab- oder Runtime-Lauf.
 
+## Fortsetzung: QRY-023 – initialer Harness-Codeentwurf
+
+Ein lokaler, noch nicht katalogisierter Harness-Entwurf ergänzt jetzt Preflight, exakte Markerprüfung, eigene Wegwerfdatenbank, deterministischen Graph-/Relationsaufbau samt kleinem Oracle, Vollpfadvergleich, FWK-004-Messreihe, getrennte Actual-Plan-Diagnostik und markergebundenen Cleanup. Der Manifeststatus bleibt `YELLOW`/`PROPOSED`; dieser Branch wurde nicht ausgeführt. Die `:r`-Einbindung der kanonischen Framework-Messreferenz setzt den Harness-Aufruf aus dem Repository-Stamm voraus. Keine SQL-/Lab-/Runtimeausführung.
+
+Die kumulative Obergrenze steigt um 1 Arbeitspaket und 1 PR auf 31/39/89; die Quellenobergrenze bleibt bei 89. Offen sind statische Harness-/SQL-Abnahme, unabhängige Methodenfreigabe, konkrete Build-/Edition-/CU-Pins, Indexbegründung, Ressourcenfreigabe und spätere konkrete Runtimeautorisierung. Die Demo bleibt aus Katalog und Runtimematrix heraus.
+
 ## Fortsetzung: Graph Tables – Framework-, Mess- und Zielmatrixreview
 
 Der Abgleich gegen das Curriculum hat eine erforderliche Korrektur ergeben: `LO-M03-06` verlangt identische Baseline und Vergleichsmessung; `CLM-047` benennt Plan- und Messprüfung. Planbeobachtung und Messung sind daher für QRY-023 Pflicht. Das Fünf-Knoten-/Vier-Kanten-Fixture bleibt ein Korrektheitsoracle und ist kein qualifiziertes Messworkload. `FWK-004`/`FWK-005` verlangen Warm-up-Ausschluss, dokumentierte Wiederholungen, robuste Zusammenfassung samt Streuung und Plan-/Statistikevidenz. Deterministische Messlast, Wiederholungsplan und fachlich begründete Indexe sind der nächste Designschritt.

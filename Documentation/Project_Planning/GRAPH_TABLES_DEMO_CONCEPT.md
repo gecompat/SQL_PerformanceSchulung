@@ -1,7 +1,7 @@
 # Graph Tables: statischer Demoentwurf
 
 Stand: 7. November 2026  
-Status: `PROPOSED`; registrierter Offlinevertrag `QRY-023`, nicht implementiert
+Status: `PROPOSED`; registrierter Vertrag mit nicht validiertem Codeentwurf, noch nicht katalogisiert
 
 ## Lernziel und Umfang
 
@@ -79,11 +79,12 @@ WHERE p1.PersonId = @StartPersonId
   AND p3.PersonId = @TargetPersonId;
 ```
 
-Die vier Graphkanten werden nach Einfügen der Personenknoten durch je einen
-`INSERT` in `dbo.FriendOf` aufgebaut. `$from_id` und `$to_id` beziehen ihre
-Werte aus skalaren Unterabfragen auf `dbo.Person.$node_id`, anhand des
-synthetischen `PersonId`. Setupskripte und konkrete Inserts entstehen erst
-nach Registrierung und vollständigem Demo-Vertrag.
+Die vier Graphkanten des Korrektheitsoracles werden nach Einfügen der
+Personenknoten durch `INSERT` in `dbo.OracleFriendOf` aufgebaut. `$from_id` und
+`$to_id` beziehen ihre Werte aus verbundenen `dbo.OraclePerson.$node_id`-Werten,
+anhand der synthetischen `PersonId`. Ein initialer Codeentwurf liegt in
+[`QRY-023_Graph_Tables`](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md);
+er ist nicht statisch abgenommen und nicht im allgemeinen Demo-Katalog.
 
 ## Beobachtung und zulässige Aussagen
 
@@ -129,7 +130,7 @@ Der statische Vertrag für eine spätere Implementierung lautet:
 | Version / Skip | Vorgeschlagene Designprofile sind SQL Server 2019/150, 2022/160 und 2025/170 entsprechend der bestehenden Projektmatrix | Die Zuordnung ist keine QRY-023-Runtimefreigabe. Konkrete Build-/CU-Pins, Editionen und Zielimages werden vor Implementierung bestätigt; unbekannte oder inkompatible Umgebung endet vor Setup mit begründetem `SKIP` |
 | Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Separates vorgeschlagenes Messprofil: 10.000 disjunkte Pfade mit 30.000 Knoten und 20.000 Kanten; Plan, Estimated Rows, Logical Reads, CPU und Duration nach `FWK-004`/`FWK-005` | Kein allgemeiner Performancegewinner. Der [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) bleibt vor Implementierung statisch zu prüfen; konkrete Builds, Ressourcenwerte und Messgrenzen folgen dem ausführbaren Vertrag |
 
-Vor Erstellung ausführbarer Dateien bleiben unabhängige Methoden-/Quellenprüfung,
+Vor statischer Abnahme und Katalogintegration der Codeentwürfe bleiben unabhängige Methodenfreigabe,
 statische Vertragsprüfung, Prüfung des vorgeschlagenen Messworkloads und Wiederholungsplans,
 Bestätigung konkreter Build-/CU-Pins und Prüfung der bestehenden
 Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,

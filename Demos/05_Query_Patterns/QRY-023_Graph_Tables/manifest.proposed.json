@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "QRY-023",
+  "run_token": "LOCAL",
+  "safety_level": "YELLOW",
+  "timeout_seconds": 900,
+  "cleanup_timeout_seconds": 90,
+  "phases": [
+    {"id":"PREFLIGHT","kind":"sql","script":"00_Preflight.sql","database":"master","required":true,"require_summary":true},
+    {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":240},
+    {"id":"FRAMEWORK","kind":"sql","script":"15_Framework.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180},
+    {"id":"WORKLOAD","kind":"sql","script":"20_Workload.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300},
+    {"id":"QUALIFICATION_PREFLIGHT","kind":"sql","script":"25_Qualification_Preflight.sql","database":"target","required":true,"require_summary":true},
+    {"id":"CORRECTNESS","kind":"sql","script":"30_Correctness.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180},
+    {"id":"MEASUREMENT","kind":"sql","script":"40_Measurement.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300},
+    {"id":"PLAN_EVIDENCE","kind":"sql","script":"50_Plan_Evidence.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":120}
+  ],
+  "cleanup": {"id":"CLEANUP","kind":"sql","script":"90_Cleanup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":90}
+}
