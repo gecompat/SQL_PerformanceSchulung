@@ -210,6 +210,14 @@ Die Zeitangaben hier sind die von GitHub gelieferten UTC-Erstellungszeiten (`cre
 
 Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträge stehen in den jeweiligen Demo-README-Dateien. Die datierten Abnahmenachweise je Demo sind in der Runtime-Tabelle oben verlinkt.
 
+## Vorgeschlagene Erweiterung – Graph Tables
+
+`QRY-023` – gerichtete Zwei-Kanten-Pfade mit Graph Tables und relationalen
+Joins – ist als `PROPOSED` registriert und dem bestehenden `LO-M03-06` /
+`CLM-047` zugeordnet. Der statische Vertrag prüft exakte Ergebnisgleichheit
+auf synthetischen Daten; Implementierung und Runtimequalifikation stehen aus.
+Es gibt keine Performanceempfehlung. [Vertrag und offene Gates](../Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
+
 ## Lokale KI-Demos – Implementierung vom 2026-10-11
 
 Die neun Demos laufen ohne Modell- oder Endpointaufruf. DGN-008 erzeugt ausschließlich ein Modellmetadatenobjekt. `IMPLEMENTED` bezeichnet den aktuellen

@@ -1,5 +1,13 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: Graph Tables – QRY-023 registriert und statischer Vertrag
+
+Der synthetische Vergleich ist als `QRY-023` unter Task `TSK-017` in der zentralen Registry registriert. Er ordnet sich dem bestehenden `LO-M03-06` und `CLM-047` zu; das Curriculum erhält kein neues Lernziel. Der Demo-Katalogstatus bleibt `PROPOSED`. Der [statische Vertrag](GRAPH_TABLES_DEMO_CONCEPT.md) fixiert fünf synthetische Knoten, vier gerichtete Kanten, die exakten zwei Pfadtripel, identische Ergebnisform, isolierte Testdatenbank, Rechteaufteilung, Eigentumsmarker, Cleanup-/Fehlergrenzen sowie die noch ausstehende konkrete Zielmatrix.
+
+Für diese begrenzte Fortsetzung beträgt die kumulative Arbeitsobergrenze 27 Arbeitspakete, 35 Pull Requests und 81 Quellen-/Vertragskandidaten. Token- und Geldverbrauch bleiben unbekannt; die Zähler sind keine Provider-Ausgabensperre. Es gab keine SQL-, Lab- oder Runtimeausführung und keinen Performanceclaim.
+
+Vor einer Implementierung folgen die unabhängige Methoden-/Quellenprüfung des statischen Vertrags, der Abgleich gegen aktuelle Frameworkmarker und Cleanupkonventionen sowie die Festlegung konkreter Zielbuilds, Editionen und Compatibility Levels. Erst danach kann ein ausführbares Artefakt vorbereitet werden; SQL-/Lab-Ausführung und Laufzeitqualifikation bleiben getrennte Freigabegates.
+
 ## Fortsetzung: Graph Tables – Quellen- und Abdeckungsprüfung
 
 PR #364 ist auf `main` vollständig integriert: sieben aktuelle PR- und fünf
@@ -23,13 +31,7 @@ ist eine Planungsschlussfolgerung. Status bleibt `PROPOSED`; Owner, Lernziel,
 Folien, Graph-Indizes, Versionsmatrix und Demo-Vertrag sind offen. Es gab keine
 SQL-, Lab- oder Runtimeausführung und keine Performancequalifikation.
 
-Für diesen begrenzten Schritt wurde das kumulative Arbeitsbudget um 1
-Arbeitspaket, 1 Pull Request und 2 Quellenkandidaten auf höchstens 21/29/69
-erweitert. Token- und Geldverbrauch sind unbekannt; diese Zähler sind keine
-Ausgabenmessung oder Provider-Ausgabensperre. Nächster Schritt: Curriculum-Owner
-und Lernzielentscheidung vorbereiten und anschließend den konkreten
-Demo-Vertrag entwerfen; bis zur fachlichen und methodischen Freigabe bleibt
-Runtime ausgeschlossen.
+Für diesen historischen Quellenprüfungsschritt wurde das kumulative Arbeitsbudget um 1 Arbeitspaket, 1 Pull Request und 2 Quellenkandidaten auf höchstens 21/29/69 erweitert. Die damals offenen Punkte Curriculumanker, statischer Vertrag, Registrierung und Syntaxprüfung sind in den nachfolgenden Fortsetzungen abgearbeitet; Runtime bleibt ausgeschlossen.
 
 Die zweite Graph-Table-Welle ergänzt die [Versions- und Indexprüfung](GRAPH_TABLES_VERSION_INDEX_REVIEW.md).
 Zwei weitere Microsoft-Primärquellen belegen Empfehlungen zu Graph-ID- und

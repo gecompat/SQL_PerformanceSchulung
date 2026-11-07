@@ -6837,6 +6837,48 @@
         }
       ],
       "title": "Menschliche Lesepfade und historische Planungseinstiege konsolidieren"
+    },
+    "TSK-017": {
+      "artifact_uid": "urn:uuid:53cb1737-7e63-4e63-b0d1-ac853d9b2d30",
+      "kind": "task",
+      "title": "Graph-Table-Demo QRY-023 formal registrieren und statischen Vertrag qualifizieren",
+      "registration_state": "REGISTERED",
+      "aliases": [],
+      "status": "in_progress",
+      "priority": "P2",
+      "scope": "Autonomer, auf SQL Server Graph Tables begrenzter Ausbau des bestehenden Query-Rewrite-Lernziels LO-M03-06 / CLM-047. Vorhandene Graph-Quellen-, Curriculum-, Versions-, Index-, Syntax- und Konzeptreviews integrieren; stabile Demo-Identität und vollständigen statischen Vertrag pflegen; danach eigenständige Methoden-/Quellenprüfung und statische Vertragsprüfung durchführen. Keine SQL-/Lab-Ausführung oder Performancebehauptung ohne gesonderte konkrete Freigabe und vollständig erfüllte Gates.",
+      "acceptance_criteria": "QRY-023 ist in der zentralen Registry registriert und als PROPOSED im Demo-Katalog abgrenzbar; der statische Vertrag fixiert Eingabedaten, Pfadresultate, beide Abfrageformen, Reproduzierbarkeit, Sicherheit, Berechtigungsminimum, Fehler-/Cleanupgrenzen, Zielmatrix-Entscheidung, Evidenz und Nicht-Claims. Betroffene Planungs-, Katalog- und Backlogpfade sind synchron. Registry und relevante Projektgates sind erfolgreich; keine Runtimequalifikation wird behauptet.",
+      "relations": [
+        {
+          "target": "QRY-023",
+          "type": "implements"
+        }
+      ],
+      "curriculum_refs": [
+        "LO-M03-06",
+        "CLM-047"
+      ]
+    },
+    "QRY-023": {
+      "artifact_uid": "urn:uuid:d6f60eb9-6971-425a-81f3-01d92b863c54",
+      "kind": "query_pattern_demo",
+      "title": "Gerichtete Zwei-Kanten-Pfade mit Graph Tables und relationalen Joins",
+      "registration_state": "REGISTERED",
+      "aliases": [],
+      "relations": [
+        {
+          "target": "TSK-017",
+          "type": "planned_by"
+        }
+      ],
+      "status": "PROPOSED",
+      "learning_objective": "LO-M03-06",
+      "claim": "CLM-047",
+      "scope": "Identisches synthetisches Pfadfixture mit fünf Knoten und vier gerichteten Kanten; Graph-MATCH-Abfrage gegen zweimal gejointen relationalen Kantentisch. Korrektheit der exakten Pfadtripel ist die Kernabnahme. Pläne und Messwerte sind ein späteres, getrenntes Qualifikationsziel und keine Leistungsrangfolge.",
+      "execution_state": "Nicht implementiert; keine SQL-, Lab- oder Runtimeausführung.",
+      "version_gate": "Zielbuilds, Editionen und Compatibility Levels sind vor Implementierung anhand aktueller Projektmatrix und konkreter Microsoft-Quellen festzulegen. Die dokumentierte Basis ab SQL Server 2017 ist keine Build- oder Runtimeabnahme.",
+      "safety_gate": "Später ausschließlich eigene wegwerfbare isolierte Testdatenbank mit Frameworkmarker und vollständigem Eigentumsnachweis; minimale Rechte getrennt nach Setup/Lesen/Cleanup; Cleanup nur exakt markierte Objekte; begrenztes Ressourcenprofil und sauberer Abbruch-/Recoverypfad. Kein gemeinsamer Instanzzustand.",
+      "relations_note": "Keine Performanceempfehlung aus Syntax oder Ergebnisgleichheit ableiten. Messung und Planvergleich nur nach separater Methodenprüfung, konkreter Ausführungsfreigabe und erfolgreicher Safety-/Cleanupqualifikation."
     }
   },
   "prefixes": {
