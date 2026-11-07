@@ -132,6 +132,23 @@ eine passende Gegenprobe und einen sicheren Abbruch- und Cleanup-Pfad.
 Allgemeiner Instanzspeicherdruck bleibt beim getrennten Lernumfang `RES-003`;
 der kontrollierte Sort-Spill bleibt in `OPT-013`.
 
+### Prozess- und Betriebssystemsignale getrennt einordnen
+
+Für den getrennten RES-003-Kontext liefert
+`sys.dm_os_process_memory.process_physical_memory_low` den Status, ob der
+SQL-Server-Prozess auf eine Benachrichtigung über niedrigen physischen Speicher
+reagiert. `sys.dm_os_sys_memory.system_low_memory_signal_state` beschreibt
+separat das Low-Memory-Signal des Betriebssystems; `1` bedeutet, dass dieses
+Signal gesetzt ist. Die Felder haben damit verschiedene Scopes. Ein gesetztes
+Signal allein weist weder eine Verdrängung bestimmter Buffer-Pool-Seiten noch
+die Ursache des Speicherdrucks nach. `RESOURCE_SEMAPHORE` bleibt ein Signal für
+wartende Query Execution Memory Grants. Für eine zeitliche Aussage müssen
+Vorher-, Druck- und Erholungsbeobachtungen getrennt gebunden sein.
+
+Der [RES-003-Offlineprüfer](../../Tests/Static/res003_memory_signal_contract.py)
+prüft diese drei caller-supplied Zustände synthetisch. Sein `PASS` authentifiziert
+keine DMV-Abfrage und ist keine Laufzeit- oder Kausalitätsqualifikation.
+
 Der [Offline-Prüfer](../../Tests/Static/res004_grant_wait_contract.py) ergänzt
 einen statischen Vertragscheck für caller-supplied Snapshots: ein aktueller
 `RESOURCE_SEMAPHORE`-Request muss über dieselbe Session- und Request-ID an eine
@@ -148,3 +165,5 @@ Ursache des Wartens oder eine tatsächlich erzeugte Konkurrenz.
 - Microsoft Learn, [sys.dm_exec_requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-requests-transact-sql?view=sql-server-ver17): aktuelle Requests, Session-/Request-IDs und Wait-Spalten; erneut geprüft am 2026-11-06.
 - Microsoft Learn, [sys.dm_exec_query_resource_semaphores](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-resource-semaphores-transact-sql?view=sql-server-ver17): Pool-/Semaphore-Scope sowie Grant- und Waiter-Zähler; erneut geprüft am 2026-11-06.
 - Microsoft Learn, [Troubleshoot slow performance or low memory issues caused by memory grants](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues): Grant-Lebensdauer, `RESOURCE_SEMAPHORE`-Diagnose und Poolkontext; erneut geprüft am 2026-11-06.
+- Microsoft Learn, [sys.dm_os_process_memory](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-process-memory-transact-sql?view=sql-server-ver17): Prozessspeicherwerte und Low-Physical-Memory-Status; erneut geprüft am 2026-11-07.
+- Microsoft Learn, [sys.dm_os_sys_memory](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-sys-memory-transact-sql?view=sql-server-ver17): Betriebssystemspeicher und Bedeutung des Low-Memory-Signals; erneut geprüft am 2026-11-07.
