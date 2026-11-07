@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – FWK-004-Vertrag statisch gebunden
+
+Der Offlineprüfer bindet die tatsächlich implementierten Parameter von
+`USP_BeginMeasurement` und `USP_EndMeasurement`, die QRY-023-Aufrufwerte,
+Output-ID und Ergebniszeilen sowie die für die Messabnahme verwendeten
+`MeasurementRun`-Spalten. Zwei synthetische Regressionen weisen geänderte
+Prozedursignatur und fehlende Ergebnisspalte zurück. Der Framework-Contracts-
+Workflow führt diese Prüfungen bei Änderungen am Framework aus. Zehn
+Prüffälle und der Positivlauf bestehen lokal; kein SQL-Lauf.
+
+Begrenzte Erweiterung +1 Arbeitspaket, +1 PR und +2 Kandidaten; kumulative
+Obergrenze 39/47/105. Verarbeitungskosten-/Reviewbewertung: zwei kleine,
+deterministische Offlineprüfungen im vorhandenen Fünf-Minuten-Workflow; kein
+zusätzliches Runtime-/Parsermatrix-Gate und keine doppelte Ausführung bei
+reinen Frameworkänderungen im QRY-Workflow. Token- und Geldverbrauch bleiben
+unbekannt. Weiter offen: unabhängige Methodenfreigabe, formale Harnessabnahme,
+empirisches Ressourcenprofil und konkrete Laufautorisierung. QRY-023 bleibt
+`PROPOSED`/`YELLOW`, nicht katalogisiert und ungefahren; menschliche
+Generalprobe ist aus diesem autonomen Auftrag ausgeschlossen.
+
 ## Fortsetzung: QRY-023 – GDR-Tags und Digestbindung aktualisiert
 
 Die MCR-Tagliste enthält GDR-spezifische Linux-Images für die drei Profile.

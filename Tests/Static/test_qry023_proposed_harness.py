@@ -27,6 +27,9 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                      self.root / "Tests/Lab/performance-lab-matrix.json")
         shutil.copy2(validator.ROOT / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md",
                      self.root / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md")
+        framework_sql = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
+        framework_sql.parent.mkdir(parents=True)
+        shutil.copy2(validator.ROOT / "Demos/00_Framework/Sql/FWK_Measurement.sql", framework_sql)
 
     def errors(self) -> list[str]:
         return validator.validate(self.demo, self.root)
@@ -78,6 +81,20 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         lock["resources"]["container"]["sql_memory_limit_mib"] = 4096
         path.write_text(validator.json.dumps(lock), encoding="utf-8")
         self.assertTrue(any("remain below container memory" in error for error in self.errors()))
+
+    def test_framework_begin_signature_drift_is_rejected(self) -> None:
+        path = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
+        path.write_text(path.read_text(encoding="utf-8").replace(
+            "@CaptureSessionWaits bit = 1", "@CaptureSessionWaits int = 1"), encoding="utf-8")
+        self.assertTrue(any("Begin signature must retain @capturesessionwaits bit = 1" in error
+                            for error in self.errors()))
+
+    def test_missing_framework_result_column_is_rejected(self) -> None:
+        path = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
+        path.write_text(path.read_text(encoding="utf-8").replace(
+            "LogicalReads bigint NULL,", "LogicalReadsValue bigint NULL,"), encoding="utf-8")
+        self.assertTrue(any("MeasurementRun must expose logicalreads" in error
+                            for error in self.errors()))
 
 
 if __name__ == "__main__":
