@@ -50,6 +50,19 @@ statische Gegenprobe, keine bestätigte Worker-Erschöpfung oder Runtime-
 Qualifikation; Laststeuerung, erfolgreicher Verbindungsabschluss und
 unabhängiger Cleanup bleiben offen.
 
+Der nächste begrenzte Ressourcenbaustein ist RES-003. Der
+[Offlineprüfer](../../Tests/Static/res003_memory_signal_contract.py) bindet
+ausschließlich caller-gelieferte `process_physical_memory_low`- und
+`system_low_memory_signal_state`-Zustände an getrennte Vorher-, Druck- und
+Erholungszeitpunkte. Buffer-Pool-Belegung, `RESOURCE_SEMAPHORE`, Kausalität und
+authentische DMV-Herkunft werden dadurch nicht behauptet. Die rote RES-003-
+Laufzeitprobe bleibt ohne dedizierte Wegwerfinfrastruktur,
+High-Impact-Bestätigung, Kill-Switch sowie konkrete Setup-/Restore-/Cleanup-
+Qualifikation gesperrt. Für diesen einen Offlinevertrag gilt seit der
+Fortsetzungsanweisung vom 7. November 2026 die kumulative Planungsobergrenze
+18 Arbeitspakete, 26 Pull Requests und 63 Quellen-/Testkandidaten; sie ist kein
+Geld- oder Provider-Ausgabenlimit.
+
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
 Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.
