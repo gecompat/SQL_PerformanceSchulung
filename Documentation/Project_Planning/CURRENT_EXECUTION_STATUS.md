@@ -2,6 +2,11 @@
 
 ## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
 
+PR #392 ist mit Squashcommit `97b1ceadad3d0b1f9179fc393dd4e55e6612b10b`
+integriert. Alle fünf PR-Gates und drei betroffenen Main-Workflows waren
+erfolgreich; lokales `main` ist synchronisiert, sauber und der Remote-Branch
+entfernt.
+
 Der Offlineentwurf vergleicht identische Zeilentupel auf Heap und Clustered
 Table mit jeweils einem nicht abdeckenden sekundären Index. Er bindet die
 unterschiedlichen Row Locator (RID gegenüber Clustered Key) an die bedingte
@@ -19,6 +24,26 @@ und konkrete Laufautorisierung bleiben offen; menschliche Generalprobe bleibt
 ausgeschlossen. Aufwand: ein Entwurf, ein bestehender Quellenregistereintrag
 präzisiert und eine Showplanquelle neu registriert; keine neue Abhängigkeit
 oder Workflowprüfung.
+
+## Nächster begrenzter Schritt: IDX-002 – Clustered-Key-Breite
+
+Für die autonome Fortsetzung gilt eine neue, isolierte Erweiterung um 1
+Arbeitspaket, 1 PR und bis zu 2 Quellenkandidaten; kumulative Obergrenze
+50/58/127. Umfang: aktuelle Primärquellen und ein statischer Entwurf zum
+Vergleich eines schmalen eindeutigen mit einem breiten nicht eindeutigen
+Clustered Key, Locatorbreite, Nonclustered-Indexseiten und Uniquifier. Keine
+SQL-/Runtimeausführung, keine allgemeine Größen- oder Leistungsaussage und
+keine menschliche Generalprobe.
+
+## IDX-002 – statischer Quellen- und Entwurfsstand
+
+Der vorgeschlagene Vergleich verwendet identische 100.000-Zeilen-Fixtures mit
+einem eindeutigen schmalen `int`-Clustered Key beziehungsweise einem
+nicht-eindeutigen 68-Byte-Schlüssel aus `int` und `char(64)`. Der nicht eindeutige
+sekundäre Index auf `FilterBand` macht den impliziten Locator und den
+Uniquifier-Effekt sichtbar. Vollständige Ergebnistupel sind das Korrektoracle;
+geschätzte Schlüsselbreite und gemessene Seitenzahlen bleiben getrennte
+Größenarten. Keine SQL-Ausführung oder allgemeine Performancebehauptung.
 
 ## Fortsetzung: QRY-023 – FWK-004-Vertrag statisch gebunden
 
