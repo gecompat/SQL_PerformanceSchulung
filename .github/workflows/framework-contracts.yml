@@ -30,6 +30,8 @@ on:
       - 'Tests/Static/test_res001_worker_queue_contract.py'
       - 'Tests/Static/res003_memory_signal_contract.py'
       - 'Tests/Static/test_res003_memory_signal_contract.py'
+      - 'Tests/Static/validate_qry023_proposed_harness.py'
+      - 'Tests/Static/test_qry023_proposed_harness.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -73,6 +75,8 @@ on:
       - 'Tests/Static/test_res001_worker_queue_contract.py'
       - 'Tests/Static/res003_memory_signal_contract.py'
       - 'Tests/Static/test_res003_memory_signal_contract.py'
+      - 'Tests/Static/validate_qry023_proposed_harness.py'
+      - 'Tests/Static/test_qry023_proposed_harness.py'
       - '.ai/identity/registry.json'
       - 'Tests/Static/validate_framework_contracts.py'
       - 'Tests/Static/test_result_contract_evaluator.py'
@@ -144,6 +148,12 @@ jobs:
 
       - name: Test RES-003 supplied memory signal contract
         run: python Tests/Static/test_res003_memory_signal_contract.py
+
+      - name: Validate QRY-023 FWK-004 consumer contract
+        run: python Tests/Static/validate_qry023_proposed_harness.py
+
+      - name: Test QRY-023 FWK-004 consumer contract
+        run: python Tests/Static/test_qry023_proposed_harness.py
 
       - name: Test result contract evaluator
         run: python Tests/Static/test_result_contract_evaluator.py

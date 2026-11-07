@@ -86,6 +86,49 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     cleanup_sql = read("90_Cleanup.sql")
     readme = read("README.md")
 
+    framework_measurement_path = repository / "Demos/00_Framework/Sql/FWK_Measurement.sql"
+    try:
+        framework_measurement = framework_measurement_path.read_text(encoding="utf-8").casefold()
+    except OSError as exc:
+        framework_measurement = ""
+        errors.append(f"Cannot read FWK-004 implementation: {exc}")
+
+    begin_signature = re.search(
+        r"create\s+or\s+alter\s+procedure\s+lab\.usp_beginmeasurement(?P<body>.*?)\bas\s+begin",
+        framework_measurement, re.DOTALL)
+    end_signature = re.search(
+        r"create\s+or\s+alter\s+procedure\s+lab\.usp_endmeasurement(?P<body>.*?)\bas\s+begin",
+        framework_measurement, re.DOTALL)
+    require(begin_signature is not None, "FWK-004 must declare USP_BeginMeasurement", errors)
+    require(end_signature is not None, "FWK-004 must declare USP_EndMeasurement", errors)
+    if begin_signature:
+        begin = re.sub(r"\s+", " ", begin_signature.group("body"))
+        for parameter in ("@demoid varchar(7)", "@runtoken varchar(20)", "@phase varchar(16)",
+                          "@iteration int", "@capturesessionwaits bit = 1",
+                          "@measurementrunid uniqueidentifier output"):
+            require(parameter in begin, f"FWK-004 Begin signature must retain {parameter}", errors)
+    if end_signature:
+        end = re.sub(r"\s+", " ", end_signature.group("body"))
+        for parameter in ("@demoid varchar(7)", "@runtoken varchar(20)",
+                          "@measurementrunid uniqueidentifier", "@resultrows bigint = null"):
+            require(parameter in end, f"FWK-004 End signature must retain {parameter}", errors)
+
+    workload_compact = re.sub(r"\s+", "", workload)
+    require("execlab.usp_beginmeasurement@demoid='qry-023',@runtoken=@runtoken,@phase=@phase,@iteration=@iteration,@capturesessionwaits=0,@measurementrunid=@measurementrunidoutput;"
+            in workload_compact,
+            "QRY-023 must bind its Begin call to FWK-004 parameters and capture the output ID", errors)
+    require("execlab.usp_endmeasurement@demoid='qry-023',@runtoken=@runtoken,@measurementrunid=@measurementrunid,@resultrows=@pathcount;"
+            in workload_compact,
+            "QRY-023 must bind its End call and result count to FWK-004 parameters", errors)
+    for column in ("measurementrunid", "endedatutc", "overalloutcome", "cpums", "logicalreads", "elapsedms"):
+        require(re.search(rf"^\s*{column}\s+(?:uniqueidentifier|datetime2\(3\)|varchar\(8\)|bigint)(?=\s)",
+                          framework_measurement, re.MULTILINE) is not None,
+                f"FWK-004 MeasurementRun must expose {column}", errors)
+    require(all(f"m.{column} is null" in measurement or f"m.{column}<>'pass'" in measurement
+                for column in ("endedatutc", "cpums", "logicalreads", "elapsedms"))
+            and "m.overalloutcome<>'pass'" in measurement,
+            "QRY-023 must reject incomplete or unsuccessful FWK-004 result rows", errors)
+
     image_lock_path = demo / "container-images.proposed.json"
     try:
         image_lock = json.loads(image_lock_path.read_text(encoding="utf-8"))

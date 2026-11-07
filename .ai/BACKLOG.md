@@ -21,8 +21,9 @@ fachliche Abnahme- und Sicherheitsgrenzen gelten weiterhin.
   ab. Der erste Fault-Injektionsfehler bleibt als historischer Laufbefund
   erhalten. Dies belegt weder allgemeinen sicheren Wiederanlauf noch eine
   manuelle Entfernung.
-- [ ] Anschließend DGN-004 (Standard-Planerzwingung und Hint-Kontrollzustand),
-  Teilnehmer-/Generalprobe und die weiteren priorisierten Punkte bearbeiten.
+- [ ] Anschließend DGN-004 (Standard-Planerzwingung und Hint-Kontrollzustand)
+  und die weiteren priorisierten Punkte bearbeiten. Eine menschliche
+  Generalprobe ist im aktuellen autonomen Auftrag ausgeschlossen.
 
 Für die Kern-Query-Patterns ist die Reihenfolge QRY-002, danach QRY-003 und
 anschließend RES-004. Der QRY-002-Lehrinhalt behandelt kurz Datentyppriorität,
@@ -77,7 +78,7 @@ Dieser Abschnitt ist die abgeleitete Ansicht von
 [`artifacts.TSK-016` in der Registry](identity/registry.json). Fachliche Änderungen
 werden dort gepflegt. Die übrigen historischen Backlogabschnitte bleiben erhalten.
 
-Auftrag vom 26. Oktober 2026: Die priorisierten Entwicklungspunkte schrittweise autonom bearbeiten und konsistente, relevant geprüfte Wellen per Pull Request nach origin/main integrieren. Aktuelle Reihenfolge, gemeinsamer endlicher Rahmen und laufende Subwelle stehen im kanonischen Ausführungsstand. Dies ersetzt die früheren Pausen innerhalb dieses Umfangs; fachliche Abnahmekriterien, unabhängige Freigaben und Sicherheitsgrenzen bleiben bestehen. DGN-004 bleibt auf klassische Standard-Planerzwingung und festen Hint-Kontrollzustand begrenzt. Replay-Vergleich, frühere Fehlversuche und offene Marker-Gates bleiben getrennt erhalten. Keine automatische Budgeterneuerung oder zusätzliche Ausgaben-/Provider-/Fremdrepositoryfreigabe.
+Auftrag vom 26. Oktober 2026: Die priorisierten Entwicklungspunkte schrittweise autonom bearbeiten und konsistente, relevant geprüfte Wellen per Pull Request nach origin/main integrieren. Aktuelle Reihenfolge, jeweils begrenzte Budgetfortschreibung und laufende Subwelle stehen im kanonischen Ausführungsstand; bei fortgesetzter Arbeit wird der nächste notwendige begrenzte Rahmen dort konkret ausgewiesen. Dies ersetzt die früheren Pausen innerhalb dieses Umfangs; fachliche Abnahmekriterien, unabhängige Freigaben und Sicherheitsgrenzen bleiben bestehen. DGN-004 bleibt auf klassische Standard-Planerzwingung und festen Hint-Kontrollzustand begrenzt. Replay-Vergleich, frühere Fehlversuche und offene Marker-Gates bleiben getrennt erhalten. Keine zusätzliche Ausgaben-/Provider-/Fremdrepositoryfreigabe.
 
 **Prioritäten innerhalb dieser Planung:** P1 zuerst planen, P2 nachrangig beziehungsweise unter den genannten Bedingungen zurückgestellt, P3 gesonderte Infrastrukturentscheidung. Die Kandidatenreihenfolge gilt für dieses Planungspaket, nicht als Ausführungsfreigabe. Bestehende Sicherheitsprioritäten bleiben maßgeblich. Aufwand: M mittel, L groß, XL sehr groß; stets vorläufig.
 
