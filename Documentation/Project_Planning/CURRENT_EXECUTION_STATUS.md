@@ -1,19 +1,25 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: STL-010 – Datenkompression: Schätzung und Ergebnis trennen
+## Fortsetzung: QRY-003 – Datumsintervalle an der Mitternachtsgrenze
 
-PR #402 (OPT-012) ist mit Squashcommit
-`b9a93d950ad81633c0a58373d9ae38f2cce4a4b2` integriert. Alle fünf PR-Gates und
+PR #403 (STL-010) ist mit Squashcommit
+`ee92880d2d68cba2524861e01e67a786c1fd8001` integriert. Alle fünf PR-Gates und
 drei Main-Workflows waren erfolgreich; lokales `main` ist sauber und
-synchronisiert. Der Entwurf trennt Adaptive-Join-Eligibility, tatsächliche
-Operatorwahl, Planidentität und Ergebnistupel von Leistungsbehauptungen.
+synchronisiert. Der Entwurf trennt Kompressionsschätzung, tatsächliche
+Seitenbelegung, Editionsverfügbarkeit und mögliche Laufzeitmessungen.
 
-Für STL-010 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
-2 Quellenkandidaten; kumulative Obergrenze 60/68/147. Umfang: quellengebundener
-Offlineentwurf zum Vergleich der Schätzung von `sp_estimate_data_compression_savings`
-mit tatsächlichen Seitenwerten für synthetische Datenprofile. Keine
-SQL-/Runtimeausführung, Editionsannahme ohne Quellenprüfung, allgemeine
-Kompressionsrangfolge, Leistungsbehauptung oder menschliche Generalprobe.
+Für QRY-003 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
+2 Quellenkandidaten; kumulative Obergrenze 61/69/149. Umfang: quellengebundene
+Prüfung und gezielte Vervollständigung des statischen Date-Interval-Entwurfs
+für `datetime` und `datetime2(7)` an der Mitternachtsgrenze, mit vollständigen
+Ergebnisoracles. Keine SQL-/Runtimeausführung, Seek-/Scan-Garantie,
+Leistungsbehauptung oder menschliche Generalprobe.
+
+## Abschluss: STL-010 – Datenkompression: Schätzung und Ergebnis trennen
+
+Der [STL-010-Entwurf](STL010_DATA_COMPRESSION_ESTIMATE_DESIGN.md) ist über
+PR #403 integriert. Schätzabweichung, Editions-/Buildmatrix, TempDB-Verbrauch,
+Rechte, tatsächliche Seitenwerte und jede Laufzeitwirkung bleiben offen.
 
 ## Abschluss: OPT-012 – Adaptive Join unter wechselnder Eingabekardinalität
 
