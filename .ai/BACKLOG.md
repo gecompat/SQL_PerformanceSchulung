@@ -3395,6 +3395,16 @@ sowie Indizes in Welle 6. Priorisierung, Lernziel-/Folienzuordnung und ein
 konkreter Demo-Schnitt werden nach Quellen- und Abdeckungsprüfung festgelegt;
 die aktuelle DGN-007-Folgearbeit behält ihre Priorität.
 
+Die [Quellen- und Abdeckungsprüfung zu Graph Tables](../Documentation/Project_Planning/GRAPH_TABLES_SOURCE_COVERAGE_REVIEW.md)
+empfiehlt Graph Tables als ersten Offline-Entwurf vor External Tables: Die
+Curriculum-Suche fand keine eigene Graph-Abdeckung; Microsoft dokumentiert
+Graphtabellen und `MATCH` ab SQL Server 2017 und stellt ein synthetisches
+Beispiel mit Cleanup bereit. Das ist eine Reihenfolgeempfehlung, keine
+Lernzielzuordnung, Performanceaussage oder Laufzeitfreigabe. Der Graph-Schnitt
+bleibt `PROPOSED`; stabile Task-/Demo-Kennungen folgen erst nach
+Ownerentscheidung. External Tables bleiben bis zur Klärung von Connector,
+Quelle und Infrastruktur zurückgestellt.
+
 - [ ] **External Tables:** Einsatzgrenzen, konkrete externe Datenquelle und Zugriffsweg einschließlich gegebenenfalls PolyBase für die SQL-Server-2019/2022/2025-Matrix recherchieren. Statistiken, Cardinality Estimates, Predicate-/Projection-Pushdown, lokale gegenüber externer Verarbeitung sowie Datenübertragungs- und I/O-Kosten anhand vergleichbarer synthetischer Abfragen untersuchen. Version, Edition, Betriebssystem, Compatibility Level, Rechte und Connectorvoraussetzungen vor dem Demoentwurf prüfen; zusätzliche Infrastruktur auf den gewählten Zugriffsweg begrenzen und isolierten Aufbau, bestätigte Ausführung sowie unabhängigen Cleanup vorsehen. Einstieg: [PolyBase-Pushdown](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-pushdown-computation?view=sql-server-ver17).
 - [ ] **Graph Tables:** Node-/Edge-Tabellen, `MATCH`, Graph-Indizes und passende Anwendungsfälle aufbereiten. Eine synthetische Graph-Abfrage mit einer semantisch gleichwertigen relationalen Modellierung vergleichen und Execution Plans, Cardinality Estimates, Logical Reads, CPU und Duration unter gleichen Bedingungen messen. Featuregrenzen nach Version, Edition und Compatibility Level für SQL Server 2019/2022/2025 prüfen; reproduzierbares T-SQL-Setup und Cleanup in einer isolierten Testdatenbank entwerfen. Einstieg: [SQL-Graph-Architektur](https://learn.microsoft.com/en-us/sql/relational-databases/graphs/sql-graph-architecture?view=sql-server-ver17).
 

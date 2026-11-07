@@ -1,0 +1,81 @@
+# Graph Tables: Quellen- und Abdeckungsprüfung
+
+Stand: 7. November 2026  
+Status: `PROPOSED`; Quellen-/Curriculumprüfung, keine Demo- oder Laufzeitfreigabe
+
+## Zweck und Befund
+
+Diese Prüfung wählt einen möglichen nächsten Entwicklungsschnitt aus dem
+Backlog zu Graph Tables und External Tables aus. Sie ordnet noch kein Lernziel,
+keine Folie, Demo oder stabile Kennung zu und ändert keinen Implementierungs-
+oder Qualifikationsstatus.
+
+Die aktuelle Curriculum-Traceability-Matrix und die vorhandenen Kursinhalte
+enthalten keine eigene Abdeckung zu Graph Tables, `MATCH` oder einem Vergleich
+mit relationalen Kantenmodellen. Der Themenvorschlag passt fachlich zu
+Welle 5 (Abfragen und Optimierung) sowie Welle 6 (Indizes); das ist eine
+Planungseinordnung, keine bereits bestätigte Curriculum-Zuordnung.
+
+## Quellenbefunde
+
+Microsoft beschreibt SQL Graph als Fähigkeit ab SQL Server 2017. Graphdaten
+werden in Node- und Edge-Tabellen modelliert; `MATCH` unterstützt
+Musterabfragen und Navigation über mehrere Kanten. Dass Graphobjekte Tabellen
+sind, erlaubt relationale Operationen, belegt aber keinen Performancevorteil
+gegenüber einem relationalen Modell.
+
+Das offizielle Microsoft-Beispiel zeigt synthetische Node-/Edge-Tabellen,
+Einfügen von Beispieldaten, `MATCH`-Abfragen und einen Cleanup-Abschnitt. Es
+kann als technische Ausgangsbasis für einen späteren isolierten T-SQL-Schnitt
+dienen; sein Schema und seine Ausführung sind damit nicht für diese Schulung
+qualifiziert.
+
+Quellen, beide abgerufen am 7. November 2026:
+
+- [Graph Processing – SQL Server and Azure SQL Database](https://learn.microsoft.com/en-us/sql/relational-databases/graphs/sql-graph-overview?view=sql-server-2017)
+- [SQL Graph Database Sample – SQL Server](https://learn.microsoft.com/en-us/sql/relational-databases/graphs/sql-graph-sample)
+
+Diese zwei Quellen decken den begrenzten Quellenkandidatenrahmen dieser Welle
+ab. Sie schließen keine Detailprüfung zu Graph-Indizes, Editionen,
+Compatibility Levels oder versionsspezifischen Ausnahmen ein.
+
+## Vorgeschlagener Lehrschnitt
+
+Als späteren Kandidaten empfiehlt sich ein fester Zwei-Kanten-Pfad über
+synthetische Knoten und gerichtete Kanten. Dieselbe Fragestellung und
+Ergebnismenge werden einmal mit Graphtabellen und `MATCH`, einmal mit einem
+relationalen Kantentisch und Joins ausgedrückt. Vor einer Ausführung müssen
+Modellsemantik, Duplikate, Richtung, Nullverhalten, Datenverteilung, Indizes,
+Version und Compatibility Level festgelegt werden.
+
+Das Lernziel wäre zunächst, Modellierung und Abfragesyntax passend zur
+Beziehungsstruktur einzuordnen und die beiden Abfrageformen semantisch korrekt
+zu vergleichen. Execution Plans, Cardinality Estimates, Logical Reads, CPU und
+Duration sind mögliche Beobachtungsgrößen eines späteren qualifizierten
+Versuchs. Ohne diesen Versuch wird weder ein Gleichstand noch eine
+Performanceüberlegenheit behauptet.
+
+## Reihenfolge, Sicherheit und offene Entscheidungen
+
+Graph Tables sind als erster Kandidat vor External Tables empfohlen, weil ein
+synthetischer Graph in einer lokalen Datenbank entworfen werden kann und dafür
+nach bisheriger Quellenprüfung kein externer Connector oder Datendienst
+erforderlich ist. Das ist eine begrenzte Planungsschlussfolgerung; die
+konkrete Demo-Sicherheit ist erst mit ihrem Vertrag zu beurteilen.
+
+Vor Umsetzung bleiben mindestens offen:
+
+1. Curriculum-Owner und bestehendes Lernziel beziehungsweise begründetes neues
+   Lernziel festlegen; Folien- und Traceability-Auswirkung bestimmen.
+2. Graph-Indizes und Versions-/Editions-/Compatibility-Level-Grenzen anhand
+   der passenden Primärquellen prüfen.
+3. Einen Demo-Vertrag mit synthetischen Daten, isoliertem Setup, erwarteter
+   Ausgabe, zulässiger Evidenz, Messbedingungen und unabhängig bestätigtem
+   Cleanup erstellen.
+4. Erst danach die erforderlichen Methoden-, Sicherheits-, Ausführungs- und
+   Runtime-Gates für den konkreten Schnitt abarbeiten.
+
+External Tables bleiben zurückgestellt, bis der konkrete Datenzugriffsweg,
+Connector, Infrastrukturbedarf, unterstützte Versionsmatrix sowie deren
+Sicherheits- und Cleanup-Vertrag geprüft sind. Diese Prüfung erteilt weder
+Graph- noch External-Table-Laufrechte.

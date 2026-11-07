@@ -1,5 +1,30 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: Graph Tables – Quellen- und Abdeckungsprüfung
+
+Die autonome Entwicklung läuft nach dem abgeschlossenen `OPTIMIZED_SP_EXECUTESQL`-
+Checkpoint weiter. Die Curriculum-Suche ergab keine eigene Abdeckung für Graph
+Tables, `MATCH` oder den Vergleich mit einem relationalen Kantentisch.
+Microsoft dokumentiert Graphtabellen und `MATCH` ab SQL Server 2017 und ein
+synthetisches Beispiel mit Setup, Abfrage und Cleanup. Die zwei Quellen sind in
+der [Quellen- und Abdeckungsprüfung](GRAPH_TABLES_SOURCE_COVERAGE_REVIEW.md)
+gebunden.
+
+Graph Tables sind als erster Offline-Entwurf vor External Tables empfohlen,
+weil der synthetische Graph lokal entworfen werden kann, ohne nach bisheriger
+Quellenprüfung einen externen Connector oder Datendienst vorauszusetzen. Das
+ist eine Planungsschlussfolgerung. Status bleibt `PROPOSED`; Owner, Lernziel,
+Folien, Graph-Indizes, Versionsmatrix und Demo-Vertrag sind offen. Es gab keine
+SQL-, Lab- oder Runtimeausführung und keine Performancequalifikation.
+
+Für diesen begrenzten Schritt wurde das kumulative Arbeitsbudget um 1
+Arbeitspaket, 1 Pull Request und 2 Quellenkandidaten auf höchstens 21/29/69
+erweitert. Token- und Geldverbrauch sind unbekannt; diese Zähler sind keine
+Ausgabenmessung oder Provider-Ausgabensperre. Nächster Schritt: Curriculum-Owner
+und Lernzielentscheidung vorbereiten und anschließend den konkreten
+Demo-Vertrag entwerfen; bis zur fachlichen und methodischen Freigabe bleibt
+Runtime ausgeschlossen.
+
 ## Autonomer Auftrag vom 26. Oktober 2026
 
 Der neue menschliche Auftrag nimmt die priorisierten Entwicklungspunkte
