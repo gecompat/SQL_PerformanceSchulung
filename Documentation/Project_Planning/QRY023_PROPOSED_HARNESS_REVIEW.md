@@ -122,6 +122,12 @@ gelockerte Maximallänge binden. Der Validator bindet dies nun zusammen mit den
 SQLCMD-gebundenen Variablen; die drei Negativregressionen werden abgewiesen.
 Der Nachweis bleibt auf Skripttext beschränkt.
 
+Als anschließende Validatorergänzung wird die Verknüpfung der
+Preflight-Vertragsguards geprüft. Das bloße Vorkommen aller Bedingungen
+garantiert nicht, dass jede fehlerhafte Einzelbedingung den Fehlerzweig
+auslöst; die statische Prüfung muss die kombinierte Guardform samt
+`OR`-Verknüpfungen schützen.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche
