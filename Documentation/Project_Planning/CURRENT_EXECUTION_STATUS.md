@@ -1,21 +1,21 @@
 # Aktueller Ausführungsstand
 
-## Abschluss: QRY-023 – Proposed Harness statisch geprüft
+## Fortsetzung: QRY-023 – gepaarte Messmetriken vervollständigen
 
-PR #423 wählte den begrenzten Review; PR #424 dokumentiert den
-[Coverage-Befund](QRY023_PROPOSED_HARNESS_REVIEW.md) und bindet Manifestphasen
-exakt an Script, Datenbank und Phase-Zeitlimit. Zusätzlich werden Cleanup in
-`master`, seine 90-Sekundenfrist sowie 900/90-Sekunden-Laufgrenzen geprüft.
-Fehlgeformte Manifest-/Phasenwerte führen kontrolliert zu Validierungsfehlern.
-Die gezielten synthetischen Regressionen und der QRY-023-Offlinevalidator
-bestanden.
+PR #424 integrierte die statische Manifest-Coveragekorrektur: Phasen-, Script-,
+Datenbank- und Timeoutbindungen sowie Cleanup-/Gesamtbudgets sind fest geprüft;
+14 synthetische Regressionen und der Offlinevalidator bestanden. QRY-023 bleibt
+`PROPOSED`, nicht katalogisiert und ungefahren.
 
-Die kumulative Obergrenze 71/86/169 wurde für diesen Offline-Schnitt verwendet.
-QRY-023 bleibt `PROPOSED`, nicht katalogisiert und ungefahren. Formale
-Harness-/T-SQL-Abnahme, unabhängige Methodenfreigabe, aktuelle Image-/Build-
-Bestätigung, Ressourcen- und Cleanupqualifikation sowie getrennte
-Runtimeautorisierung bleiben offen. Keine SQL-/Runtimeausführung, keine
-Labänderung und keine menschliche Generalprobe.
+Der nächste begrenzte Offline-Schnitt stimmt die vorhandene Messimplementierung
+mit dem registrierten Methodenentwurf ab: Die erfassten FWK-004-Werte `Reads`
+und `Writes` werden neben CPU, Logical Reads und Elapsed vollständig auf
+Fehlen geprüft und in Median/Streuung der fünf gepaarten Deltas aufgenommen.
+Die kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs (Statusübergang und
+Reviewintegration) und höchstens 2 Quellenkandidaten auf 72/88/171. Keine
+SQL-/Runtimeausführung, keine Labänderung und keine menschliche Generalprobe.
+Formale Harness-/T-SQL-Abnahme, unabhängige Methodenfreigabe, aktuelle Image-/
+Buildbestätigung, Ressourcen- und Cleanupqualifikation bleiben getrennte Gates.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
