@@ -456,6 +456,13 @@ ein Paket, einen PR und zwei Testkandidaten auf höchstens 114/163/234 erweitert
 Guards als Moduleinstieg abgewiesen werden. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #483 integriert beide globalen Formen; alle fünf Workflows bestanden. Für
+die entsprechenden `locals()`- und `vars()`-Mappingaufrufe erweitert sich der
+kumulative Rahmen ohne Reset um ein Paket, einen PR und zwei Testkandidaten auf
+höchstens 115/164/236. Auch diese direkten Mappingzugriffe auf `main` werden
+außerhalb des Guards zurückgewiesen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

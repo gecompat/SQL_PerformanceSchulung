@@ -282,6 +282,12 @@ synthetische Gegenproben auf höchstens 114/163/234. Dynamische Aufrufe über
 Guards zurückgewiesen. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #483 integriert diese beiden Formen; alle fünf Workflows bestanden. Zwei
+weitere synthetische Gegenproben für `locals()["main"]()` und `vars()["main"]()`
+erweitern den Rahmen ohne Reset um ein Paket, einen PR und zwei Testkandidaten
+auf höchstens 115/164/236. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

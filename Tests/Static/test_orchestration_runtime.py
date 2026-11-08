@@ -520,7 +520,7 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
                 isinstance(node.func, ast.Subscript)
                 and isinstance(node.func.value, ast.Call)
                 and isinstance(node.func.value.func, ast.Name)
-                and node.func.value.func.id == "globals"
+                and node.func.value.func.id in {"globals", "locals", "vars"}
                 and not node.func.value.args
                 and not node.func.value.keywords
                 and isinstance(node.func.slice, ast.Constant)
@@ -534,7 +534,7 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
                 and len(node.func.args) == 2
                 and isinstance(node.func.args[0], ast.Call)
                 and isinstance(node.func.args[0].func, ast.Name)
-                and node.func.args[0].func.id == "globals"
+                and node.func.args[0].func.id in {"globals", "locals", "vars"}
                 and isinstance(node.func.args[1], ast.Constant)
                 and node.func.args[1].value == "main"
             ):
@@ -640,6 +640,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
             'getattr(globals(), "main")()\n'
             'if __name__ == "__main__":\n    raise SystemExit(main())\n',
             "dynamic getattr main call",
+        ),
+        (
+            'locals()["main"]()\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "dynamic locals main call",
+        ),
+        (
+            'vars()["main"]()\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "dynamic vars main call",
         ),
     ):
         assert_equal(
