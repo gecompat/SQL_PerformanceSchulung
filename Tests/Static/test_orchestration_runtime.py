@@ -541,6 +541,7 @@ def main() -> int:
         executable = fake_sqlcmd(base)
         test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base)
         test_hostile_qry023_token_fails_before_sqlcmd_resolution(base)
+        test_qry023_contract_rejects_leading_underscore_before_sqlcmd_resolution(base)
         test_sessions_pass(base, executable)
         test_sessions_fail(base, executable)
         test_sessions_timeout(base, executable)
