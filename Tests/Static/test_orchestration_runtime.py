@@ -193,6 +193,10 @@ def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> N
         ("validation_timing", lambda contract: contract.update(must_validate_before="TSQL_GUARD")),
         ("unknown_field", lambda contract: contract.update(unrecognized=True)),
         ("boolean_byte_limit", lambda contract: contract["run_token"].update(max_bytes=True)),
+        ("wrong_demo_id", lambda contract: contract["demo_id"].update(value="QRY-024")),
+        ("wrong_target_template", lambda contract: contract["target_database"].update(
+            template="SQLPERF_LAB_UNBOUND"
+        )),
     ):
         path = demo_manifest(base / f"invalid_qry023_contract_{name}", demo_id="QRY-023")
         payload = json.loads(path.read_text(encoding="utf-8"))

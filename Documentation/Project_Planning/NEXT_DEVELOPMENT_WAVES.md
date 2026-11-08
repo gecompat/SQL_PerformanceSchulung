@@ -151,11 +151,16 @@ deklariert. Vier Negativproben für Unterstrich am Anfang, Länge, ASCII und
 nachgestelltes Leerzeichen bestanden. Kumulativ höchstens 92 Arbeitspakete,
 128 PRs und 207 Quellen-/Testkandidaten. Keine Engine- oder Runtimeausführung.
 
-Der nächste synthetische Caller-Schnitt ergänzt Negativregressionen für
-unbekannte Zusatzfelder im exakten Vertragsobjekt und einen booleschen Wert im
-Byte-Limit. Beide müssen vor SQLCMD-Auflösung und -Start abgewiesen werden.
-Kumulativ höchstens 93 Arbeitspakete, 130 PRs und 208 Quellen-/Testkandidaten.
-Keine Vertragsausweitung, Engine- oder Runtimeausführung.
+PR #462 ergänzt Negativregressionen für unbekannte Zusatzfelder im exakten
+Vertragsobjekt und einen booleschen Wert im Byte-Limit. Beide werden vor
+SQLCMD-Auflösung und -Start abgewiesen; alle sechs direkten CI-Workflows waren
+grün. Kumulativ höchstens 93 Arbeitspakete, 130 PRs und 208 Quellen-/
+Testkandidaten. Keine Vertragsausweitung, Engine- oder Runtimeausführung.
+
+Als nächstes pinnen synthetische Caller-Gegenproben die exakte Vertrags-Demo-ID
+und Zielnamenschablone. Beide veränderten Werte müssen vor SQLCMD-Auflösung und
+-Start scheitern. Kumulativ höchstens 94 Arbeitspakete, 132 PRs und 209
+Quellen-/Testkandidaten. Keine Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
