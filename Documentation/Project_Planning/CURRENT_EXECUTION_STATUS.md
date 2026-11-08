@@ -1,20 +1,26 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-007 – Join-Kardinalität und Ergebniskörnung
+## Fortsetzung: IDX-003 – Schlüsselreihenfolge und INCLUDE-Spalten
 
-PR #405 (QRY-003) ist mit Squashcommit
-`a64447e2206b625077eb8f809bbe01f1014351cd` integriert. Alle vier ausgelösten
-PR-Gates und beide Main-Workflows waren erfolgreich; lokales `main` ist sauber
-und synchronisiert. Die Datumsfixture hat jetzt vollständige, typgenaue
-`datetime`- und `datetime2(7)`-Tupeloracles für inklusive und halboffene
-Grenzen.
+PR #406 (QRY-007) ist mit Squashcommit
+`f09dd8559626a9a27e60cab1d118568c7b117364` integriert. Alle fünf PR-Gates und
+drei Main-Workflows waren erfolgreich; lokales `main` ist sauber und
+synchronisiert. Der Entwurf bindet Eltern-/Kind-Multiplizität an exakte
+Joinpaare und trennt Elternprojektion, `DISTINCT`, `EXISTS` und angeforderte
+Aggregation durch vollständige Tupeloracles.
 
-Für QRY-007 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
-2 Quellenkandidaten; kumulative Obergrenze 62/70/151. Umfang: quellengebundene
-Vervollständigung des statischen One-to-many-Entwurfs mit exakten Fixture- und
-Tupeloracles für Join-Paare, Elternprojektion, `DISTINCT`, `EXISTS` und
-Aggregation. Keine SQL-/Runtimeausführung, allgemeine `DISTINCT`-Empfehlung,
-Plan-/Leistungsbehauptung oder menschliche Generalprobe.
+Für IDX-003 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
+2 Quellenkandidaten; kumulative Obergrenze 63/71/153. Umfang: quellengebundene
+Vervollständigung des statischen Key-Reihenfolge-/INCLUDE-Entwurfs samt
+vollständiger Ergebnistupeloracles und Prüfung der geplanten Fixturezählwerte.
+Keine SQL-/Runtimeausführung, Seek-Garantie, Leistungsbehauptung oder
+menschliche Generalprobe.
+
+## Abschluss: QRY-007 – Join-Kardinalität und Ergebniskörnung
+
+Der [QRY-007-Entwurf](QRY007_JOIN_CARDINALITY_DESIGN.md) ist über PR #406
+integriert. SQL-/Enginequalifikation, Demo-/Cleanupvertrag sowie jede
+konkrete Plan- oder Laufzeitwirkung bleiben offen.
 
 ## Abschluss: QRY-003 – Datumsintervalle an der Mitternachtsgrenze
 
