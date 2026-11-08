@@ -205,6 +205,29 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("both plan queries must execute inside the STATISTICS XML ON/OFF window" in error
                             for error in self.errors()))
 
+    def test_showplan_permission_must_be_scoped_to_current_target_database(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')",
+                                "HAS_PERMS_BY_NAME(N'master','DATABASE','SHOWPLAN')")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
+
+    def test_showplan_preflight_must_check_all_query_table_select_rights(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("    AND HAS_PERMS_BY_NAME(N'dbo.RelFriend','OBJECT','SELECT')=1 THEN 1 ELSE 0 END;",
+                                "    THEN 1 ELSE 0 END;")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
+
+    def test_missing_permissions_must_skip_before_pass(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("'SKIP_PERMISSION' AS Code", "'SKIP_STATE' AS Code")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

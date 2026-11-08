@@ -87,15 +87,22 @@ und Repository-Continuity-Validatoren bestanden. Die Prüfung belegt nur
 Skriptpositionen, keine ausgeführten Actual-Pläne. QRY-023 bleibt `PROPOSED`;
 T-SQL-/Methoden- und Runtimegates sind unverändert offen.
 
-## Fortsetzung: QRY-023 – SHOWPLAN-Preflight exakt binden
+## Abschluss: QRY-023 – SHOWPLAN-Preflight exakt binden
 
-Der nächste Offline-Schnitt bindet die `SHOWPLAN`-Prüfung an `DB_NAME()` und
+Der Offline-Schnitt bindet die `SHOWPLAN`-Prüfung an `DB_NAME()` und
 die Berechtigung `DATABASE/SHOWPLAN`, verlangt `SELECT` auf allen vier
 Querytabellen und prüft, dass der fehlende Rechtefall vor den Diagnoseabfragen
 mit `SKIP_PERMISSION` beendet wird. Negativregressionen ändern Scope und
 entfernen eine Tabellenberechtigung. Kumulative Obergrenze: ein weiteres
 Arbeitspaket, zwei PRs, höchstens zwei Quellenkandidaten, insgesamt 79/102/185.
 Keine SQL-/Runtime-/Lab-Ausführung und keine Erweiterung der Laufrechte.
+
+PR #439 bindet den exakten SHOWPLAN-Datenbankscope, alle vier Objekt-
+`SELECT`-Rechte und den `SKIP_PERMISSION`-/`RETURN`-Pfad vor der Erfolgsausgabe.
+Drei Negativregressionen verwerfen falschen Scope, fehlendes Tabellenrecht und
+veränderten Skip-Code. 26 QRY-023-Regressionen sowie die QRY-023-, Framework-
+und Repository-Continuity-Validatoren bestanden. Rechte werden nicht erteilt;
+es bleibt ein statischer Vertragsnachweis.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

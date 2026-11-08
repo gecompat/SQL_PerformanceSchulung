@@ -83,6 +83,14 @@ Gegenprobe, die beide Abfragen vor `BEGIN TRY` verschiebt, wird abgelehnt. Diese
 Prüfung bindet statische Positionen; sie belegt weder, dass ein Client das
 Skript tatsächlich ausführt, noch dass ein Engineplan ausgegeben wird.
 
+Der vorgeschaltete Qualifikationspreflight wird jetzt exakt auf
+`HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')`, die vier verwendeten
+Objekt-`SELECT`-Prüfungen und den fehlende-Rechte-Zweig `SKIP_PERMISSION` mit
+`RETURN` gebunden. Negativregressionen für fremden Datenbankscope, ausgelassene
+Objektberechtigung und geänderten Skip-Code werden zurückgewiesen. Das prüft
+nur die T-SQL-Textform; es erteilt keine Rechte und liest keine tatsächlichen
+SQL-Server-Berechtigungen aus.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche
