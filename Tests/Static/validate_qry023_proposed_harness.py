@@ -70,7 +70,9 @@ def plan_summary_follows_cleanup(plan: str) -> bool:
     markers["throw"] = plan.find("throw;", markers["catch_off"] + 1)
     markers["end_catch"] = plan.find("end catch", markers["throw"] + 1)
     summary_selects = list(re.finditer(
-        r"\bselect\s+1\s+as\s+sequence\s*,\s*'plan_evidence'\s+as\s+phase\b", plan
+        r"\bselect\s+1\s+as\s+sequence\s*,\s*'plan_evidence'\s+as\s+phase\s*,"
+        r"\s*'summary'\s+as\s+checkid\s*,\s*'pass'\s+as\s+outcome\s*,"
+        r"\s*'ok'\s+as\s+code\b", plan
     ))
     summary_prints = list(re.finditer(r"\bprint\s+'sqlperf_summary\|pass\|ok'", plan))
     return (
@@ -337,7 +339,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             and "begin try" in plan and "begin catch" in plan and "throw;" in plan,
             "plan evidence must reset STATISTICS XML on success and error in a separate, bounded Actual Plan diagnostic", errors)
     require(plan_summary_follows_cleanup(plan),
-            "plan evidence success summaries must occur once after successful STATISTICS XML cleanup and the rethrowing CATCH", errors)
+            "plan evidence success summaries must occur once after successful STATISTICS XML cleanup and use the expected PASS/OK phase and check fields", errors)
     require(len(count_big_queries(workload)) == 2
             and count_big_queries(plan) == count_big_queries(workload),
             "plan evidence must preserve the measured Graph and relational COUNT_BIG query shapes and order",
