@@ -275,6 +275,13 @@ der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und einen
 Testkandidaten auf höchstens 113/162/232. Der Test nutzt die Aliaszuweisung
 `runner = main`. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #482 integriert die Aliasprüfung; alle fünf Workflows bestanden. Der nächste
+Schnitt erweitert das Budget ohne Reset um ein Arbeitspaket, einen PR und zwei
+synthetische Gegenproben auf höchstens 114/163/234. Dynamische Aufrufe über
+`globals()["main"]()` und `getattr(globals(), "main")()` werden außerhalb des
+Guards zurückgewiesen. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
