@@ -93,6 +93,10 @@ Die nächste begrenzte Prüfung ergänzt eine `DATALENGTH`-Grenze für das
 RunToken, weil `LEN` und ASCII-`LIKE` laut Microsoft-Dokumentation trailing
 spaces auslassen. Eine Negativprobe hängt ein Leerzeichen an. Kumulativ
 85/114/197; Quellen: Microsoft Learn zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17), abgerufen am 8. November 2026. Keine Engineausführung.
+PR #451 bindet `DATALENGTH(@RunToken) NOT BETWEEN 1 AND 20`; eine gelockerte
+Byteobergrenze wird durch die statische Negativregression abgewiesen. 38
+QRY-023-Regressionen und die betroffenen Validatoren bestanden. Es wurde kein
+SQL ausgeführt.
 
 ### DGN-007 getrenntes Qualifikationsband
 

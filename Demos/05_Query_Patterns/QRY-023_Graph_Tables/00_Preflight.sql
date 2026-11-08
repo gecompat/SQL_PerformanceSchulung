@@ -19,6 +19,7 @@ DECLARE @ExistingDatabaseId int = DB_ID(@TargetDatabase);
 IF @DemoId <> 'QRY-023'
    OR @RunToken IS NULL
    OR LEN(@RunToken) NOT BETWEEN 1 AND 20
+   OR DATALENGTH(@RunToken) NOT BETWEEN 1 AND 20
    OR @RunToken COLLATE Latin1_General_100_BIN2 LIKE '%[^A-Z0-9_]%'
    OR @TargetDatabase <> @ExpectedDatabase
     THROW 51000, 'FAIL_CONTRACT: Demo-ID, Run-Token oder Ziel-Datenbank entsprechen nicht dem QRY-023-Vertrag.', 1;

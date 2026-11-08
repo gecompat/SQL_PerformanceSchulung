@@ -139,7 +139,8 @@ enthalten, ohne dass diese beiden Prüfungen sie zuverlässig als ungültige
 Zeichen erkennen. Da der erlaubte Zeichensatz ASCII ist, soll der Preflight
 zusätzlich `DATALENGTH(@RunToken) BETWEEN 1 AND 20` verlangen. Der statische
 Validator bindet diese Bedingung samt Reihenfolge im OR-Guard; eine
-Negativregression hängt ein abschließendes Leerzeichen an.
+Negativregression lockert die Byte-Obergrenze und wird abgewiesen. Dies ist eine
+statische Prüfung und keine tatsächliche LIKE-/LEN-Auswertung durch SQL Server.
 
 Quellen (abgerufen am 8. November 2026): Microsoft Learn, [`LEN` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17).
 
