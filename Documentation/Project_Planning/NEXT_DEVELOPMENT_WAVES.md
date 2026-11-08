@@ -138,11 +138,18 @@ Ablehnung geschieht vor SQLCMD-Auflösung und -Start. Kumulativ höchstens 90
 Arbeitspakete, 124 PRs und 205 Quellen-/Testkandidaten. Keine SQL- oder
 Runtimeausführung.
 
-Der folgende Grenzschnitt prüft die zulässigen Tokenlängen 1 und 20 sowie
-leere, überlange, nicht-ASCII-, kleingeschriebene und nachgestellte-Leerzeichen-
-Tokens. Zulässige Werte müssen die Manifestladung bestehen; ungültige Werte
-werden vor SQLCMD-Auflösung und -Start abgewiesen. Kumulativ höchstens 91
-Arbeitspakete, 126 PRs und 206 Quellen-/Testkandidaten. Keine Engine- oder
+PR #460 ergänzt die ausgeführten synthetischen Caller-Grenzen: gültige
+1-/20-Zeichenwerte werden geladen; leere, überlange, nicht-ASCII-,
+kleingeschriebene und nachgestellte-Leerzeichen-Token scheitern vor SQLCMD-
+Auflösung/-Start. Die QRY-023-, FWK-010- und Repository-Continuity-Prüfungen
+bestanden. Kumulativ höchstens 91 Arbeitspakete, 126 PRs und 206 Quellen-/
+Testkandidaten. Keine Engine- oder Runtimeausführung.
+
+Als nächstes prüft der Offlinevalidator auch den konkreten `run_token`-Wert im
+vorgeschlagenen Manifest gegen dieselbe ASCII-/Zeichen-/Längengrenze, die das
+maschinelle Caller-Vertragsobjekt deklariert. Negativproben verändern Unterstrich
+am Anfang, Länge, ASCII und nachgestelltes Leerzeichen. Kumulativ höchstens 92
+Arbeitspakete, 128 PRs und 207 Quellen-/Testkandidaten. Keine Engine- oder
 Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
