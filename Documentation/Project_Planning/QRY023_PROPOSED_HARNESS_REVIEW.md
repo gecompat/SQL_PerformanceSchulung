@@ -167,6 +167,12 @@ Sollstruktur; Gegenproben für Validierungszeitpunkt und Zeichensatz werden
 abgewiesen. Das Manifestfeld implementiert keinen Aufrufer und ersetzt keine
 spätere Caller-/Runtimequalifikation.
 
+Da `Demos/00_Framework/Tools/run_demo.py` der vorhandene FWK-010-Caller ist,
+soll ein Folgeschritt das optionale Vertragsobjekt beim Manifestladen
+durchsetzen. Ungültige Werte müssen vor `resolve_sqlcmd` und vor dem ersten
+Prozessstart scheitern. Das soll mit synthetischen Aufrufer-Tests ohne
+SQL-Serververbindung geprüft werden.
+
 Quelle (abgerufen am 8. November 2026): Microsoft Learn, [Use sqlcmd with scripting variables](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver15). Die Ableitung zur Eingabesicherheit ist eine Projektinferenz aus dem dokumentierten Expansionsverhalten.
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit

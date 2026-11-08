@@ -231,6 +231,16 @@ betroffenen statischen Validatoren bestanden. Das Manifest ist eine
 Anforderungsspezifikation; es führt keinen Aufrufer aus. Keine Runtime- oder
 menschliche Generalprobe.
 
+## Fortsetzung: QRY-023 – Manifestvertrag im Laufzeitcaller durchsetzen
+
+Der nächste begrenzte Schnitt erweitert `run_demo.py`, damit der vorhandene
+FWK-010-Caller ein vorhandenes `sqlcmd_input_validation`-Objekt bereits beim
+Manifestladen vollständig prüft und bei Abweichungen vor `resolve_sqlcmd` und
+vor jeder Prozessausführung abbricht. Synthetische Tests prüfen gültige und
+abweichende Vertragsformen, ohne SQL Server aufzurufen. Kumulative Obergrenze:
+ein Arbeitspaket, zwei PRs und höchstens zwei Quellen-/Testkandidaten zusätzlich,
+insgesamt 88/120/203. Keine Datenbank-, Runtime- oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
