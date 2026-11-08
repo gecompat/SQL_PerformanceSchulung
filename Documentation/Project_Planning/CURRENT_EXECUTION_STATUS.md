@@ -1,19 +1,30 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: IDX-004 – Treffermenge, Lookup und Abdeckung
+## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
 
-PR #408 (IDX-003) ist mit Squashcommit
-`8d45f2ea296ba7318827c41e4b886b8e25d2132f` integriert. Alle vier ausgelösten
-PR-Gates und beide Main-Workflows waren erfolgreich; lokales `main` ist sauber
-und synchronisiert. Der Entwurf bindet die zyklische Fixtureverteilung und
-vollständige sortierte Tupeloracles für alle vier Filterfälle.
+PR #410 (IDX-004) ist mit Squashcommit
+`543031c981c8fd91e8dfee883a832705baf6ca2d` integriert. Alle vier PR-Gates und
+beide Main-Workflows waren erfolgreich; lokales `main` ist sauber und
+synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet die
+bijektive Fixtureformel, exakten Slotintervalle und vollständigen sortierten
+Tupeloracles für BASE-, LOOKUP- und COVERING-Profile.
 
-Für IDX-004 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
-2 Quellenkandidaten; kumulative Obergrenze 64/72/155. Umfang: quellengebundene
-Prüfung und gezielte Vervollständigung des statischen Lookup-Entwurfs mit
-exakten Fixtureformeln und vollständigen Tupeloracles für BASE-, LOOKUP- und
-COVERING-Profile. Kein SQL-/Runtimelauf, kein garantierter Planübergang,
-Leistungsclaim oder menschliche Generalprobe.
+Für die autonome Fortsetzung folgt IDX-001 mit einer begrenzten Erweiterung um
+1 Arbeitspaket, 2 PRs (Statusübergang und Entwurfsintegration) und bis zu 2
+Quellenkandidaten; kumulative Obergrenze 65/74/157. Umfang: aktuelle
+Quellenprüfung sowie exakte Fixtureformeln und vollständige Tupeloracles für
+HEAP- und CLUSTERED-Profile im Punkt- und Bereichsfall. Keine SQL-/Runtime-
+Ausführung, keine erzwungene Lookup-Planform, Leistungsbehauptung oder
+menschliche Generalprobe.
+
+## Abschluss: IDX-004 – Treffermenge, Lookup und Abdeckung
+
+Der [IDX-004-Entwurf](IDX004_LOOKUP_SELECTIVITY_DESIGN.md) ist über PR #410
+integriert. Generatorformel und Slotintervalle definieren eine Bijektion über
+100.000 RowIds; vollständige sortierte Ergebnistupeloracles für alle Bänder
+vergleichen BASE, LOOKUP und COVERING. Die kanonische Sortierung gilt nur für
+den mengenweisen Vergleich, nicht als Abfragereihenfolge. Enginequalifikation,
+tatsächlicher Plan-/Lookup-/Read-Befund und jede Laufzeitwirkung bleiben offen.
 
 ## Abschluss: IDX-003 – Schlüsselreihenfolge und INCLUDE-Spalten
 
