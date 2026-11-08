@@ -288,6 +288,13 @@ erweitern den Rahmen ohne Reset um ein Paket, einen PR und zwei Testkandidaten
 auf höchstens 115/164/236. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #484 integriert die lokalen Mappingformen; alle fünf Workflows bestanden.
+Der nächste Schnitt erweitert den Rahmen ohne Reset um ein Arbeitspaket, einen
+PR und zwei Testkandidaten auf höchstens 116/165/238. Direkte Testaufrufe nach
+`return` oder `raise` im `main()`-Ablauf gelten als unerreichbar und dürfen die
+Vollständigkeitsprüfung nicht bestehen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

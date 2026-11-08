@@ -432,9 +432,14 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             and call.func.id.startswith("test_")
         ]
 
-    def collect_direct_calls(statements: list[ast.stmt]) -> None:
+    def collect_direct_calls(statements: list[ast.stmt]) -> bool:
         nonlocal non_direct_call
+        terminated = False
         for statement in statements:
+            if terminated:
+                if test_calls(statement):
+                    non_direct_call = True
+                continue
             if isinstance(statement, ast.Expr):
                 value = statement.value
                 if (
@@ -448,9 +453,13 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             elif isinstance(statement, (ast.With, ast.AsyncWith)):
                 if any(test_calls(item.context_expr) for item in statement.items):
                     non_direct_call = True
-                collect_direct_calls(statement.body)
+                if collect_direct_calls(statement.body):
+                    terminated = True
             elif test_calls(statement):
                 non_direct_call = True
+            if isinstance(statement, (ast.Return, ast.Raise)):
+                terminated = True
+        return terminated
 
     collect_direct_calls(main_function.body)
     issues: list[str] = []
@@ -726,6 +735,20 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ),
         "conditional test call is not an unconditional registration",
     )
+    for terminal, label in (("return", "unreachable after return"),
+                            ("raise RuntimeError()", "unreachable after raise")):
+        unreachable_call = (
+            f"def test_one(): pass\ndef main():\n    {terminal}\n"
+            "    test_one()\n"
+        )
+        assert_equal(
+            runtime_test_registration_issues(unreachable_call),
+            (
+                "runtime tests must be direct unconditional main statements",
+                "runtime test definitions and registrations must match",
+            ),
+            label,
+        )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
         runtime_test_registration_issues(async_test),
