@@ -241,7 +241,20 @@ synthetische Tests bestätigen den QRY-023-Manifestpfad sowie die Ablehnung eine
 veränderten Vertrags und eines SQL-Injection-ähnlichen RunTokens, jeweils vor
 SQLCMD-Auflösung/-Start. Kumulative Obergrenze: 88/120/203. Der Runner wurde
 nicht gegen SQL Server ausgeführt; keine Datenbank- oder menschliche
-Generalprobe.
+Generalprobe. Zwei unabhängige DGN-007-Quellenprofilworkflows meldeten
+`PYTHON_PROFILE_CHANGED`; die betroffenen DGN-Dateien gehören nicht zum
+PR-Diff. QRY-023-/FWK-010- und Runtime-Matrixchecks waren erfolgreich.
+
+## Fortsetzung: QRY-023 – RunToken-Vertrag an FWK-010 angleichen
+
+Das maschinenlesbare `sqlcmd_input_validation` erlaubte als erstes Tokenzeichen
+auch `_`, während der bestehende allgemeine FWK-010-Validator nur `A-Z` oder
+`0-9` am Anfang akzeptiert. Der nächste Offline-Schnitt macht diese
+Einschränkung im Vertragsobjekt und in den Lesepfaden explizit; ein synthetischer
+Caller-Test weist `_LOCAL` vor SQLCMD-Auflösung und -Start zurück. Keine
+Änderung an der wirksamen Tokenakzeptanz, keine SQL-Ausführung und keine
+menschliche Generalprobe. Kumulative Obergrenze für Auswahl und Integration:
+89 Arbeitspakete, 122 PRs und 204 Quellen-/Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

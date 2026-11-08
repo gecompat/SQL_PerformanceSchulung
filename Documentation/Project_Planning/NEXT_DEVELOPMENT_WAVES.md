@@ -123,6 +123,13 @@ synthetischen Tests lehnen geänderten Vertrag und bösartigen Token vor jedem
 SQLCMD-Prozess ab. Der QRY-023-Manifestentwurf bleibt dennoch nicht
 katalogisiert und ungeprüft gegen SQL Server.
 
+Der nächste Offline-Schnitt gleicht den maschinenlesbaren RunToken-Vertrag an
+FWK-010 an: `A-Z` oder `0-9` muss das erste Zeichen sein; weitere Zeichen
+dürfen `A-Z`, `0-9` oder `_` sein, insgesamt 1–20 ASCII-Zeichen. Eine
+synthetische Negativregression weist `_LOCAL` vor SQLCMD-Auflösung und -Start
+zurück. Kumulativ höchstens 89 Arbeitspakete, 122 PRs und 204 Quellen-/
+Testkandidaten. Keine Engineausführung, Runtimefreigabe oder Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

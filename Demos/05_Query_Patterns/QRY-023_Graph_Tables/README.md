@@ -56,7 +56,8 @@ vollständigen QRY-023-Markern angelegt. Fremde oder nicht vollständig markiert
 Ziele werden abgewiesen und nicht entfernt.
 
 Der vorgeschlagene read-only Preflight begrenzt das RunToken auf 1 bis 20
-ASCII-Bytes. `DATALENGTH` ergänzt die Zeichenprüfung, weil `LEN`
+ASCII-Bytes und verlangt ein alphanumerisches erstes Zeichen. `DATALENGTH`
+ergänzt die Zeichenprüfung, weil `LEN`
 nachgestellte Leerzeichen ausschließt und ASCII-`LIKE` sie im Suchwert
 ignoriert; siehe die Microsoft-Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17). Diese Bedingung ist offline statisch geprüft, aber noch nicht mit SQL Server ausgeführt.
 

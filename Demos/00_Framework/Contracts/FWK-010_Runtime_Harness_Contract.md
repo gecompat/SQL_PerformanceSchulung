@@ -28,7 +28,8 @@ Datenbankselektoren sind ausschließlich `master` oder `target`. Der Zielname wi
 
 Ein Manifest kann zusätzlich `sqlcmd_input_validation` deklarieren. Der
 Caller unterstützt derzeit den exakten QRY-023-Vertrag für Demo-ID,
-ASCII-RunToken und deterministischen Datenbanknamen. `run_demo.py` prüft das
+ASCII-RunToken (1–20 Zeichen aus `A-Z`, `0-9`, `_`, beginnend mit `A-Z` oder
+`0-9`) und deterministischen Datenbanknamen. `run_demo.py` prüft das
 vollständige Vertragsobjekt beim Laden des Manifests und beendet ungültige
 Werte, bevor es `sqlcmd` auflöst oder startet. Der Vertrag muss die Prüfung vor
 der SQLCMD-Variablenexpansion verlangen, weil T-SQL-Guards erst nach dieser

@@ -26,6 +26,7 @@ EXPECTED_SQLCMD_INPUT_VALIDATION = {
     "run_token": {
         "encoding": "ASCII",
         "allowed_characters": "A-Z0-9_",
+        "first_character": "A-Z0-9",
         "min_bytes": 1,
         "max_bytes": 20,
     },
