@@ -200,9 +200,15 @@ fehlender und doppelter Registrierung sowie doppelter Definition aus. Der
 Runner-Test und alle fünf Workflows bestanden. Kumulativ höchstens 101
 Arbeitspakete, 146 PRs und 216 Quellen-/Testkandidaten.
 
-Der nächste AST-Schnitt ergänzt Fälle mit fehlendem und doppeltem `main()` und
-einem Aufruf eines nicht definierten Testnamens. Kumulativ höchstens 102
+PR #471 ergänzt Fälle mit fehlendem und doppeltem `main()` und einem Aufruf
+eines nicht definierten Testnamens; die Gegenproben wurden erkannt. Der
+Runner-Test und alle fünf Workflows bestanden. Kumulativ höchstens 102
 Arbeitspakete, 148 PRs und 217 Quellen-/Testkandidaten.
+
+Der nächste AST-Schnitt ignoriert Testaufrufe in nicht ausgeführten
+verschachtelten Funktionen und Lambdas; ein solcher Hilfsaufruf darf eine
+fehlende `main()`-Registrierung nicht verdecken. Kumulativ höchstens 103
+Arbeitspakete, 150 PRs und 218 Quellen-/Testkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 
