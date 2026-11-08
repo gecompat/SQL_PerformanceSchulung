@@ -31,13 +31,31 @@ Tabellen und setzt die Option vor dem Laden.
 
 Alle drei eigenständigen Tabellen sind nicht partitionierte Heaps ohne
 Sekundärindizes, Kompression, Updates oder Deletes. Jede enthält genau 2.000
-Zeilen mit `RowId` von 1 bis 2.000 und fachlichem `Payload` der Länge 6.000
-ASCII-Bytes. Der Payload besteht aus dem Dezimalwert von `RowId`, links mit
-`0` auf 10 Bytes aufgefüllt, gefolgt von `P` bis insgesamt 6.000 Bytes.
-ASCII stellt sicher, dass Zeichen- und Byte-Länge gleich sind. Das vollständige
-Sollresultat ist jedes einzelne geordnete `(RowId, Payload)`-Tupel, nicht nur
-eine Prüfsumme oder Aggregation. In allen Profilen gelten `COUNT(*) = 2000`
-und für jede Zeile `DATALENGTH(Payload) = 6000`.
+Zeilen mit `RowId` von 1 bis 2.000. Für jede `RowId` `r` gilt exakt:
+
+```text
+Payload(r) = RIGHT(REPLICATE('0', 10) + CONVERT(varchar(10), r), 10)
+             + REPLICATE('P', 5990)
+Padding(r) = REPLICATE('X', 3000) -- nur im ROW_OVERFLOW-Profil
+```
+
+`Payload(r)` enthält damit den zehn Zeichen langen, mit Nullen aufgefüllten
+Dezimalwert und 5.990 `P`-Zeichen, insgesamt 6.000 ASCII-Bytes. Im
+`ROW_OVERFLOW`-Profil ist `Padding(r)` genau 3.000 ASCII-`X`-Bytes. ASCII
+stellt sicher, dass Zeichen- und Byte-Länge gleich sind. Das vollständige
+Solltupeloracle pro Profil ist für jedes `r = 1..2000`:
+
+- `INROW`: `(r, Payload(r))`;
+- `ROW_OVERFLOW`: `(r, Payload(r), Padding(r))`;
+- `LOB`: `(r, Payload(r))`.
+
+Die Oracles vergleichen vollständige Tupel einschließlich Multiplizitäten.
+Für den mengenweisen Vergleich werden sie kanonisch nach `RowId` sortiert;
+das behauptet keine Reihenfolge der SQL-Ergebnisse. Eine spätere Abfrage, die
+eine stabile Ausgabeordnung benötigt, muss `ORDER BY RowId` ausdrücklich
+enthalten. In allen Profilen gelten `COUNT(*) = 2000` und für jede Zeile
+`DATALENGTH(Payload) = 6000`; im Overflow-Profil kommt
+`DATALENGTH(Padding) = 3000` hinzu.
 
 | Profil | Spaltendeklaration und Setup | Erwartete Struktur, noch empirisch zu bestätigen |
 |---|---|---|
@@ -45,11 +63,15 @@ und für jede Zeile `DATALENGTH(Payload) = 6000`.
 | `ROW_OVERFLOW` | dieselben `RowId`-/`Payload`-Werte und -Typen, zusätzlich `Padding char(3000) NOT NULL` aus ASCII-`X` | Die Zeile überschreitet die In-Row-Grenze; Payload ist die einzige variable Spalte und wird deshalb als zu verschiebender Kandidat erwartet. SQL Server soll sie nach `ROW_OVERFLOW_DATA` verschieben und einen 24-Byte-Zeiger im In-Row-Datensatz halten |
 | `LOB` | `RowId int NOT NULL`, `Payload varchar(max) NOT NULL`; frische Tabelle, danach `sp_tableoption` mit `large value types out of row = 1`, erst dann Inserts | Neue Payload-Werte sollen in `LOB_DATA` liegen, mit 16-Byte-Zeiger im In-Row-Datensatz |
 
-Das Overflow-Profil vergleicht gleiche fachliche Nutzdaten, aber nicht gleiche
-gesamte Tabellenzeilen: `Padding` ist ein ausdrücklich sichtbarer
-Strukturhebel und muss zusätzlich exakt als 3.000 ASCII-`X`-Bytes je Zeile
-geprüft werden. Die eigentliche Ergebnisprojektion aller drei Lesefälle bleibt
-`RowId, Payload` in `RowId`-Reihenfolge.
+Das Overflow-Profil vergleicht gleiche fachliche `RowId`-/`Payload`-Nutzdaten,
+aber nicht gleiche gesamte Tabellenzeilen: `Padding` ist ein ausdrücklich
+sichtbarer Strukturhebel. Bei 3.000 festen Padding-Bytes, 6.000 variablen
+Payload-Bytes und dem Schlüssel liegt die deklarierte Zeilenbreite vor
+Zeilenoverhead über 8.060 Byte. Da `Payload` die einzige variable Spalte ist,
+ist sie der vorgesehene Verschiebekandidat; die konkrete Allocation-Unit-
+Zuordnung bleibt zu qualifizieren. Die Ergebnisprojektion der drei
+Vergleichsabfragen bleibt `RowId, Payload`; vollständige Oracles werden
+unabhängig davon gegen die jeweilige Fixture einschließlich Padding geprüft.
 
 ## Struktur- und Messoracles
 
@@ -103,6 +125,11 @@ Performanceausführung und ersetzt keine menschliche oder technische Abnahme.
 `SRC-002` bindet Page-, In-Row-, Row-Overflow- und LOB-Pointer-Semantik.
 `SRC-136` beschreibt partitionale Seitenzähler für die drei Speicherbereiche.
 `SRC-140` bindet Allocation-Unit-Zeilen und physische Heapdiagnostik.
-`SRC-141` dokumentiert das explizite LOB-Out-of-Row-Setup und die getrennte,
-später rein empirische I/O-Messung. Die Primärquellen stehen im
+`SRC-141` dokumentiert, dass `large value types out of row = 1` neue
+`varchar(max)`-Werte out-of-row mit einem 16-Byte-Zeiger speichert, während
+Bestandswerte erst bei späterer Änderung gemäß der neuen Option umgelagert
+werden. Die Einstellung benötigt `ALTER`-Berechtigung auf der Tabelle.
+`SET STATISTICS IO` stellt `logical reads` und `lob logical reads` getrennt
+dar; daraus folgt kein vorbestimmter Mehrlese- oder Leistungseffekt. Die
+Primärquellen stehen im
 [Quellenregister](../Research/SOURCE_REGISTER.md#in-row-row-overflow-und-lob--stl-002).
