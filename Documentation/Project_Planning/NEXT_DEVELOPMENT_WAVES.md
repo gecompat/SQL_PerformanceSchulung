@@ -108,6 +108,12 @@ entfernt die Schutzformulierung; 39 QRY-023-Regressionen und betroffene
 Validatoren bestanden. Die Eingabeinjektionsbewertung bleibt eine
 quellenbasierte Inferenz, keine Laufbeobachtung.
 
+Der nächste Offline-Schnitt überführt diesen Schutz in ein maschinenlesbares
+Manifestobjekt mit exakter Demo-ID, RunToken-Muster, Zielnamenschablone und
+Validierungszeitpunkt vor SQLCMD. Der Offlinevalidator bindet die vollständigen
+Werte. Kumulativ 87/118/201; kein SQLCMD-Aufruf und keine Runtime- oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
