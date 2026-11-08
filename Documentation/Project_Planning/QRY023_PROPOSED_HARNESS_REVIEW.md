@@ -104,6 +104,14 @@ entfernen oder den Vergleich umkehren, werden abgewiesen. Zusammen mit der
 Manifestbindung bleibt dies eine Textprüfung; ein tatsächlicher Verbindungskontext
 wird nicht hergestellt.
 
+Die vier Extended-Property-Marker werden vor der Rechteauswertung jetzt
+statisch an ihre Zuweisungen aus `sys.extended_properties` und an vollständige
+Vergleiche gebunden: Projektname, Vertragsversion, Demo-ID und RunToken. Die
+Vergleiche enthalten die festgelegte binäre Kollation und `DATALENGTH`-Prüfung;
+der RunToken wird gegen den Harnessparameter verglichen. Gegenproben mit
+verändertem Projektwert oder umgekehrter RunToken-Gleichheit werden abgewiesen.
+Es werden keine realen Datenbankmarker erfasst.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

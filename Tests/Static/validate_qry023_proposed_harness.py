@@ -162,6 +162,34 @@ def qualification_target_context_valid(qualification: str) -> bool:
     return context >= 0 and context < guard_throw < permission_check
 
 
+def qualification_ownership_markers_valid(qualification: str) -> bool:
+    """Bind marker assignments and exact, length-aware values before permission checks."""
+    compact = re.sub(r"\s+", "", qualification).casefold()
+    assignments = (
+        "@project=max(casewhenname=n'sqlperf.project'thenconvert(nvarchar(max),value)end)",
+        "@contract=max(casewhenname=n'sqlperf.contractversion'thenconvert(nvarchar(max),value)end)",
+        "@markerdemo=max(casewhenname=n'sqlperf.demoid'thenconvert(nvarchar(max),value)end)",
+        "@markerrun=max(casewhenname=n'sqlperf.runtoken'thenconvert(nvarchar(max),value)end)",
+    )
+    comparisons = (
+        "@projectcollatelatin1_general_100_bin2<>n'sql_performanceschulung'ordatalength(@project)<>datalength(n'sql_performanceschulung')",
+        "@contractcollatelatin1_general_100_bin2<>n'1.0'ordatalength(@contract)<>datalength(n'1.0')",
+        "@markerdemocollatelatin1_general_100_bin2<>n'qry-023'ordatalength(@markerdemo)<>datalength(n'qry-023')",
+        "@markerruncollatelatin1_general_100_bin2<>convert(nvarchar(max),@runtoken)ordatalength(@markerrun)<>datalength(convert(nvarchar(max),@runtoken))",
+    )
+    select_from = compact.find("fromsys.extended_propertieswhereclass=0andmajor_id=0andminor_id=0;")
+    guard = compact.find("ifdb_id()<=4")
+    guard_throw = compact.find("throw51001,", guard)
+    permission_check = compact.find("declare@hasshowplan")
+    return (
+        select_from >= 0
+        and guard > select_from
+        and all(compact.count(item) == 1 and compact.find(item) < guard for item in assignments)
+        and all(compact.count(item) == 1 and guard < compact.find(item) < guard_throw for item in comparisons)
+        and guard < guard_throw < permission_check
+    )
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -378,6 +406,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "qualification preflight must check target DATABASE/SHOWPLAN and SELECT on all four query tables before SKIP_PERMISSION/RETURN", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
+    require(qualification_ownership_markers_valid(qualification),
+            "qualification preflight must bind all four exact, length-aware ownership markers before permission checks", errors)
     require(qualification_summaries_valid(qualification),
             "qualification preflight summary rows and PRINT markers must match the exact permission-skip and success statuses", errors)
     require("create table dbo.person" in workload and "as node" in workload,
