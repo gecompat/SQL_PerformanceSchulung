@@ -91,12 +91,22 @@ PR #449 bindet die vollständige Guardklausel und weist die `AND`-Gegenprobe ab;
 37 QRY-023-Regressionen und die betroffenen statischen Validatoren bestanden.
 Die nächste begrenzte Prüfung ergänzt eine `DATALENGTH`-Grenze für das
 RunToken, weil `LEN` und ASCII-`LIKE` laut Microsoft-Dokumentation trailing
-spaces auslassen. Eine Negativprobe hängt ein Leerzeichen an. Kumulativ
+spaces auslassen. Eine Negativprobe lockert die Byteobergrenze. Kumulativ
 85/114/197; Quellen: Microsoft Learn zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17), abgerufen am 8. November 2026. Keine Engineausführung.
 PR #451 bindet `DATALENGTH(@RunToken) NOT BETWEEN 1 AND 20`; eine gelockerte
 Byteobergrenze wird durch die statische Negativregression abgewiesen. 38
 QRY-023-Regressionen und die betroffenen Validatoren bestanden. Es wurde kein
 SQL ausgeführt.
+Als nächstes dokumentiert ein begrenzter Schnitt die SQLCMD-Eingabegrenze:
+Aufrufer müssen Demo-ID, RunToken und Zielnamen vor SQLCMD allowlisten, da die
+T-SQL-Guards erst nach Skriptvariablen-Einsetzung greifen. Dies folgt als
+Sicherheitsinferenz aus den Microsoft-Beispielen zur SQLCMD-Skriptvariablen-
+Einsetzung. Kumulativ 86/116/199; keine Runtimeautorisierung oder Ausführung.
+PR #453 dokumentiert den ausstehenden Caller-Schutz und prüft, dass die
+SQLCMD-Eingabegrenze im Demo-Lesepfad genannt bleibt. Eine Negativregression
+entfernt die Schutzformulierung; 39 QRY-023-Regressionen und betroffene
+Validatoren bestanden. Die Eingabeinjektionsbewertung bleibt eine
+quellenbasierte Inferenz, keine Laufbeobachtung.
 
 ### DGN-007 getrenntes Qualifikationsband
 

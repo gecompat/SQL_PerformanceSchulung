@@ -184,7 +184,7 @@ die komplette Guardklausel in Reihenfolge und Operatoren; die gezielte
 Validatoren bestanden. Keine SQL-/Runtime-/Lab-Ausführung, Datenbank- oder
 Rechteänderung und keine menschliche Generalprobe.
 
-## Fortsetzung: QRY-023 – RunToken-Byteformat absichern
+## Abschluss: QRY-023 – RunToken-Byteformat absichern
 
 Microsoft dokumentiert, dass `LEN` nachgestellte Leerzeichen ausschließt und
 ASCII-`LIKE` nachgestellte Leerzeichen im Suchwert ignoriert. PR #451 ergänzt im
@@ -195,6 +195,27 @@ ein weiteres Arbeitspaket, zwei PRs und höchstens zwei Quellen-/Testkandidaten,
 insgesamt 85/114/197. Die 38 QRY-023-Regressionen sowie die QRY-023-,
 Framework- und Repository-Continuity-Validatoren bestanden. Primärquellen:
 Microsoft Learn, [`LEN` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17), abgerufen am 8. November 2026. Keine SQL-/Runtime-/Lab-Ausführung, Datenbank- oder Rechteänderung und keine menschliche Generalprobe.
+
+## Abschluss: QRY-023 – SQLCMD-Eingabevertrag vor Ausführung klären
+
+Die Manifest-Skripte verwenden SQLCMD-Variablen innerhalb von T-SQL-
+Zeichenliteralen. Microsoft dokumentiert die Einsetzung von SQLCMD-
+Skriptvariablen an ihren `$(Name)`-Vorkommen. Daraus folgt als
+Sicherheitsinferenz: Eine T-SQL-Prüfung kann bösartige Werte nicht zuverlässig
+abweisen, wenn sie bereits vor dem Parsen die SQL-Struktur verändert haben.
+Der nächste Dokumentationsschnitt stellt klar, dass ein künftiger Aufrufer
+Demo-ID, RunToken und Zielnamen vor SQLCMD anhand des Vertrags allowlisten
+muss. Die Preflight-Prüfung gilt nicht als Schutz gegen SQLCMD-Eingabeinjektion.
+Kumulative Obergrenze: ein Arbeitspaket, zwei PRs und höchstens zwei
+Quellen-/Testkandidaten zusätzlich, insgesamt 86/116/199. Quelle:
+Microsoft Learn, [Use sqlcmd with scripting variables](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver15), abgerufen am 8. November 2026. Kein Aufrufer wird implementiert oder ausgeführt; keine menschliche Generalprobe.
+PR #453 dokumentiert die Caller-seitige Allowlist vor SQLCMD und bindet den
+offenen Schutzstatus in README, Review und Offlinevalidator. Eine
+Negativregression entfernt die Eingabegrenzen-Formulierung. 39 QRY-023-
+Regressionen und die betroffenen Projektvalidatoren bestanden. Die SQLCMD-
+Injektionseinschätzung ist eine Inferenz aus der dokumentierten Variablen-
+Expansion; es gibt weiterhin keinen aufrufenden Harness und keine
+Runtimequalifikation.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
