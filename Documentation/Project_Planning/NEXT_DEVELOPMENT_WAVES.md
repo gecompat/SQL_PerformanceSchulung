@@ -269,6 +269,12 @@ Ungeschützte `main()`-Aufrufe in Klassenbasen, Funktionsstandardwerten und
 Dekoratoren müssen als Importzeitaufrufe erkannt werden. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #481 integriert die Prüfung der Importzeit-Auswertungsstellen; alle fünf
+Workflows bestanden. Für ungeschützte Aliasreferenzen auf `main` erweitert sich
+der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und einen
+Testkandidaten auf höchstens 113/162/232. Der Test nutzt die Aliaszuweisung
+`runner = main`. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

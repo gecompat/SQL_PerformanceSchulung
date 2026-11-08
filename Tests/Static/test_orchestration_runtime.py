@@ -507,6 +507,11 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
     class ImportTimeMainCallFinder(ast.NodeVisitor):
         def __init__(self) -> None:
             self.calls: list[ast.Call] = []
+            self.references: list[ast.Name] = []
+
+        def visit_Name(self, node: ast.Name) -> None:
+            if node.id == "main" and isinstance(node.ctx, ast.Load):
+                self.references.append(node)
 
         def visit_Call(self, node: ast.Call) -> None:
             if isinstance(node.func, ast.Name) and node.func.id == "main":
@@ -546,6 +551,7 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
         or len(valid_calls) != 1
         or len(guard_calls) != 1
         or unguarded_calls
+        or main_call_finder.references
     ):
         return ("runtime test module must invoke main from __main__ guard",)
     return ()
@@ -596,6 +602,11 @@ def test_runtime_test_functions_are_registered_once() -> None:
             '@main()\ndef example():\n    pass\n'
             'if __name__ == "__main__":\n    raise SystemExit(main())\n',
             "main call in function decorator",
+        ),
+        (
+            'runner = main\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "unguarded main alias",
         ),
     ):
         assert_equal(

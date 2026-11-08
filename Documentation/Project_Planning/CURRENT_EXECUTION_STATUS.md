@@ -442,6 +442,13 @@ und bis zu drei Testkandidaten auf höchstens 112/161/231. Diese Ausdrücke werd
 vor dem `__main__`-Guard ausgewertet und müssen als ungeschützte Aufrufe
 abgewiesen werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #481 integriert die drei Importzeitfälle; alle fünf Workflows bestanden.
+Für eine Aliasreferenz wie `runner = main` erweitert sich das kumulative Budget
+ohne Reset um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
+113/162/232. Nicht geschützte Ladezugriffe auf `main` dürfen einen indirekten
+Moduleinstieg nicht am Wächter vorbeiführen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
