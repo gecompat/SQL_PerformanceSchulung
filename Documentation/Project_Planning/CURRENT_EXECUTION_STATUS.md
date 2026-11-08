@@ -123,6 +123,15 @@ mit verändertem Skip-Outcome, Erfolgs-Outcome und Skip-Print wurden abgewiesen.
 Continuity-Validatoren bestanden. Die Prüfung ist statisch; keine Rechte wurden
 erteilt und kein SQL ausgeführt.
 
+## Fortsetzung: QRY-023 – Preflight an Zielkontext binden
+
+Der nächste Offline-Schnitt bindet den Zielkontext des Qualification-Preflights:
+Systemdatenbanken müssen ausgeschlossen und `DB_NAME()` mit dem manifestierten
+`@TargetDatabase` verglichen werden, bevor Berechtigungen ausgewertet werden.
+Eine Negativregression kehrt den Vergleich um. Die kumulative Obergrenze steigt
+um ein Paket und zwei PRs auf 81/106/189 (höchstens 189 Quellenkandidaten).
+Keine Datenbank-, Rechte- oder Runtimeänderung.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
