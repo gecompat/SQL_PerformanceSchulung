@@ -172,6 +172,16 @@ drei Negativregressionen für Präfix, Vergleichsrichtung und Maximallänge.
 Validatoren bestanden. Nur statische Textprüfung; keine SQL-/Runtime-/Lab-
 Ausführung, Datenbank- oder Rechteänderung und keine menschliche Generalprobe.
 
+## Fortsetzung: QRY-023 – Preflight-Guard-Verknüpfungen binden
+
+Die nächste Offline-Regression bindet zusätzlich die boolesche Verknüpfung der
+Demo-ID-, RunToken- und Zielnamenbedingungen: Jede ungültige Bedingung muss den
+Vertragsfehler allein auslösen können. Eine Gegenprobe ersetzt gezielt ein
+`OR` durch `AND`. Kumulative Obergrenze: ein weiteres Arbeitspaket, zwei PRs
+und höchstens zwei Quellen-/Testkandidaten, insgesamt 84/112/195. Keine
+SQL-/Runtime-/Lab-Ausführung, Datenbank- oder Rechteänderung und keine
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

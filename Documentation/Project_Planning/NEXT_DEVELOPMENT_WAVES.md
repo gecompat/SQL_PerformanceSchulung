@@ -82,6 +82,11 @@ Rechteänderungen und menschliche Generalprobe bleiben ausgeschlossen.
 PR #447 ergänzt die statische Bindung und drei Gegenproben; 36
 QRY-023-Regressionen und die betroffenen Validatoren bestanden. Damit bleibt
 der Datenbank- und Runtimezustand unberührt.
+Als nächstes bindet ein eigenständiger Offline-Schnitt die boolesche
+`OR`-Verknüpfung aller Vertragsguards, damit jede einzelne ungültige Eingabe
+zum Abbruch führt. Er erhöht den kumulativen Rahmen um 1 Arbeitspaket, 2 PRs
+und höchstens 2 Quellen-/Testkandidaten auf 84/112/195. Keine SQL-/Runtime-/
+Lab-Ausführung oder menschliche Generalprobe.
 
 ### DGN-007 getrenntes Qualifikationsband
 
