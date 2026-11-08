@@ -178,6 +178,20 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("success summaries must occur once after successful STATISTICS XML cleanup" in error
                             for error in self.errors()))
 
+    def test_plan_summary_outcome_must_remain_pass(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("'PASS' AS Outcome,'OK' AS Code", "'WARN' AS Outcome,'OK' AS Code")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("expected PASS/OK phase and check fields" in error for error in self.errors()))
+
+    def test_plan_summary_code_must_remain_ok(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("'PASS' AS Outcome,'OK' AS Code", "'PASS' AS Outcome,'ERR' AS Code")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("expected PASS/OK phase and check fields" in error for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

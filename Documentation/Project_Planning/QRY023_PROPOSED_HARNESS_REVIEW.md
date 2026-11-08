@@ -71,6 +71,12 @@ erfolgreichen Abschaltpunkt ein und muss die Datei ablehnen. Damit wird
 Textreihenfolge geschützt, nicht die Wirkung einer tatsächlichen
 SQL-Server-Session oder das Verhalten bei Verbindungsabbruch.
 
+Die Summaryzeile wird nun mit den festen Statusfeldern
+`PLAN_EVIDENCE`/`SUMMARY`/`PASS`/`OK` und einem korrespondierenden
+`SQLPERF_SUMMARY|PASS|OK`-Marker gebunden. Gegenproben mit `WARN`-Outcome oder
+abweichendem Statuscode werden zurückgewiesen. Das belegt nur das deklarierte
+Skriptformat und keinen fachlichen Erfolg einer tatsächlichen Diagnose.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

@@ -54,7 +54,7 @@ oder Sessionwirkung. QRY-023 bleibt `PROPOSED`/nicht katalogisiert; formale
 T-SQL-Abnahme, unabhängige Methodenfreigabe und Runtimeautorisierung bleiben
 offen.
 
-## Fortsetzung: QRY-023 – Plan-Summary-Erfolgsfelder binden
+## Abschluss: QRY-023 – Plan-Summary-Erfolgsfelder binden
 
 Die nächste statische Regression bindet `Phase=PLAN_EVIDENCE`,
 `CheckId=SUMMARY`, `Outcome=PASS` und `Code=OK` als gemeinsame Felder der
@@ -63,6 +63,13 @@ Ein synthetisch auf `WARN`/Fehler geänderter Outcome muss abgelehnt werden.
 Der kumulative Rahmen steigt um ein Arbeitspaket, zwei PRs (Statusauswahl und
 Integration) und höchstens zwei Quellenkandidaten auf 77/98/181. Keine Änderung
 an SQL-Laufrechten, Korrektheitsoracles oder Performanceaussagen.
+
+PR #435 bindet die gemeinsame Statuszeile an genau `Phase=PLAN_EVIDENCE`,
+`CheckId=SUMMARY`, `Outcome=PASS`, `Code=OK` sowie den passenden PASS-Print.
+Negativregressionen mit `WARN`-Outcome und fehlerhaftem Code werden abgelehnt.
+22 QRY-023-Regressionen sowie QRY-023-, Framework- und Repository-Continuity-
+Validatoren bestanden. Die Prüfung bleibt statische Textvalidierung; sie
+beweist keine SQL-Ausführung oder Ergebniswahrheit.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
