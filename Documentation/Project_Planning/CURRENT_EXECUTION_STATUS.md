@@ -184,6 +184,16 @@ die komplette Guardklausel in Reihenfolge und Operatoren; die gezielte
 Validatoren bestanden. Keine SQL-/Runtime-/Lab-Ausführung, Datenbank- oder
 Rechteänderung und keine menschliche Generalprobe.
 
+## Fortsetzung: QRY-023 – RunToken-Byteformat absichern
+
+Microsoft dokumentiert, dass `LEN` nachgestellte Leerzeichen ausschließt und
+ASCII-`LIKE` nachgestellte Leerzeichen im Suchwert ignoriert. Der nächste
+read-only Preflight-Schnitt ergänzt deshalb eine `DATALENGTH`-Grenze, die für
+das auf ASCII-Zeichen beschränkte RunToken 1 bis 20 Bytes verlangt. Eine
+Negativregression ergänzt ein abschließendes Leerzeichen. Kumulative Obergrenze:
+ein weiteres Arbeitspaket, zwei PRs und höchstens zwei Quellen-/Testkandidaten,
+insgesamt 85/114/197. Primärquellen: Microsoft Learn, [`LEN` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17), abgerufen am 8. November 2026. Keine SQL-/Runtime-/Lab-Ausführung, Datenbank- oder Rechteänderung und keine menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
