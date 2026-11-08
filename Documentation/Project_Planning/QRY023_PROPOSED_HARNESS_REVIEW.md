@@ -30,6 +30,21 @@ fehlerhafte Phasenrecords, nicht-objektförmige Manifestwurzel sowie veränderte
 Lauf-/Cleanupbudgets ab. Der feste aktuelle Entwurf bleibt `PROPOSED` und
 erfüllt diese Prüfungen.
 
+## Befund zur Messmetrikabdeckung
+
+Der Messlauf erfasste FWK-004-`Reads` und `Writes` bereits als Rohwerte, fasste
+Median und Streuung gepaarter Differenzen aber nur für CPU, Logical Reads und
+Elapsed zusammen. Die Designbeschreibung verlangte eine gepaarte
+Profilzusammenfassung der erfassten Messwerte und grenzte den Overhead der
+Messprozedur ein. `40_Measurement.sql` weist jetzt fehlende Reads-/Writes-Werte
+zurück und nimmt beide in die fünf Metrikdeltas auf. Der Offlinevalidator
+verlangt dafür die Messwertspalten in FWK-004 und die Metriknamen in der
+Zusammenfassung; synthetische Gegenfälle schützen diese Bindung.
+
+Die Reads-/Writes-Zähler bleiben FWK-004-Sessiondeltas einschließlich
+Messprozedur-Overhead. Sie werden nicht als isolierte Statement- oder
+I/O-Gerätemessung interpretiert.
+
 ## Aussagegrenzen und weitere Gates
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit

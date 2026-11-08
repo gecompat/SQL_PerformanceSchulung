@@ -71,7 +71,9 @@ Vorgeschlagener Ablauf je qualifiziertem Engine-/Compatibility-Profil:
    Ressourcen- und Datenzustand.
 5. Mit `FWK-004` je Wiederholung Phase, Paar, Reihenfolge, Session-CPU,
    Logical Reads, Reads/Writes, verstrichene Zeit und Ergebnisanzahl erfassen.
-   Der Messprozedur-Overhead ist enthalten und wird offengelegt.
+   Für CPU, Logical Reads, Reads, Writes und Elapsed werden Median und
+   Streuung der fünf gepaarten Deltas berichtet. Der Messprozedur-Overhead ist
+   enthalten und wird offengelegt; alle Werte sind Sessiondeltas des Profils.
 6. Actual-Plan-Evidenz getrennt nach `FWK-005` erfassen. Dieser Diagnosegang
    braucht `SHOWPLAN` auf den referenzierten Datenbanken und ist keine
    Messwiederholung der Performancewerte. `STATISTICS IO/TIME` verlangt laut

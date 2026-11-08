@@ -49,9 +49,10 @@ IF EXISTS
     FROM @Captured AS c
     LEFT JOIN lab.MeasurementRun AS m ON m.MeasurementRunId=c.MeasurementRunId
     WHERE m.MeasurementRunId IS NULL OR m.EndedAtUtc IS NULL OR m.OverallOutcome<>'PASS'
-       OR m.CpuMs IS NULL OR m.LogicalReads IS NULL OR m.ElapsedMs IS NULL
+       OR m.CpuMs IS NULL OR m.LogicalReads IS NULL OR m.Reads IS NULL
+       OR m.Writes IS NULL OR m.ElapsedMs IS NULL
 )
-    THROW 51003,'FAIL_EXECUTION: Mindestens ein Messlauf besitzt keine vollständigen FWK-004-Zeit-, CPU- oder Read-Deltas.',1;
+    THROW 51003,'FAIL_EXECUTION: Mindestens ein Messlauf besitzt nicht alle vollständigen FWK-004-Messwertdeltas.',1;
 
 SELECT c.PairNumber,c.ExecutionOrder,c.Variant,c.Phase,c.PathCount,
        m.CpuMs,m.LogicalReads,m.Reads,m.Writes,m.ElapsedMs,m.OverallOutcome,m.OverallCode
@@ -64,6 +65,8 @@ ORDER BY c.PairNumber,c.ExecutionOrder;
     SELECT b.PairNumber,
            CpuDeltaMs=CONVERT(float,c.CpuMs-b.CpuMs),
            LogicalReadDelta=CONVERT(float,c.LogicalReads-b.LogicalReads),
+           ReadDelta=CONVERT(float,c.Reads-b.Reads),
+           WriteDelta=CONVERT(float,c.Writes-b.Writes),
            ElapsedDeltaMs=CONVERT(float,c.ElapsedMs-b.ElapsedMs)
     FROM @Captured AS b
     JOIN @Captured AS c ON c.PairNumber=b.PairNumber
@@ -72,6 +75,8 @@ ORDER BY c.PairNumber,c.ExecutionOrder;
 (
     SELECT PairNumber,Metric='CPU_MS',Delta=CpuDeltaMs FROM Paired
     UNION ALL SELECT PairNumber,'LOGICAL_READS',LogicalReadDelta FROM Paired
+    UNION ALL SELECT PairNumber,'READS',ReadDelta FROM Paired
+    UNION ALL SELECT PairNumber,'WRITES',WriteDelta FROM Paired
     UNION ALL SELECT PairNumber,'ELAPSED_MS',ElapsedDeltaMs FROM Paired
 )
 SELECT DISTINCT Metric,
@@ -85,6 +90,6 @@ ORDER BY Metric;
 
 SELECT 1 AS Sequence,'MEASUREMENT' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        N'5 gepaarte Läufe; BASELINE=relational; COMPARISON=Graph; AB/BA alterniert; Warm-up ausgeschlossen' AS ObservedValue,
-       N'alle Ergebnisanzahlen=10.000; Rohwerte und Median/Streuung der gepaarten Deltas sichtbar' AS RequiredValue,
+       N'alle Ergebnisanzahlen=10.000; fünf Metriken mit Rohwerten und Median/Streuung der gepaarten Deltas sichtbar' AS RequiredValue,
        N'Die Messreihe enthält keine Performance-Schwelle oder allgemeine Leistungsrangfolge.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
