@@ -1,21 +1,22 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: STL-002 – In-Row, Row-Overflow und LOB
+## Fortsetzung: IDX-007 – Offline-Evidenzvertrag prüfen
 
-PR #416 (STL-001) ist mit Squashcommit
-`580ead9e22fc91828f33b631b03a34ebc1b0e911` integriert. Alle vier PR-Gates und
+PR #418 (STL-002) ist mit Squashcommit
+`b83e6f9a1d0f4b8007fff73a4918c03e7e94a45d` integriert. Alle vier PR-Gates und
 beide Main-Workflows waren erfolgreich; lokales `main` ist sauber und
 synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet die
-vollständigen Formeln und Ergebnistupeloracles für die vier kumulativen
-Heapprofile, exakte `DATALENGTH`-Häufigkeiten und nachgerechnete Modellwerte.
+vollständigen Nutzdaten- und Padding-Formeln sowie mengengleiche Tupeloracles
+für INROW-, ROW_OVERFLOW- und LOB-Profile. Tatsächliche Allocation-Units,
+Lese-I/O und Laufzeitwirkungen bleiben offen.
 
-Für die autonome Fortsetzung folgt STL-002 mit einer begrenzten Erweiterung um
-1 Arbeitspaket, 2 PRs (Statusübergang und Entwurfsintegration) und bis zu 2
-Quellenkandidaten; kumulative Obergrenze 68/80/163. Umfang: aktueller
-Quellenabgleich sowie Präzisierung des vollständigen Payload-/Padding-Oracles
-und der kanonischen Tupelreihenfolge für INROW-, ROW_OVERFLOW- und LOB-Profile.
-Keine SQL-/Runtimeausführung, keine gemessene Allocation-Unit-Zuordnung,
-I/O- oder Leistungsbehauptung und keine menschliche Generalprobe.
+Die nächste begrenzte Offline-Welle prüft den bereits synthetisch geprüften
+IDX-007-Caller-Evidenzvertrag auf fachliche Lücken und aktualisiert seine
+quellengebundene Interpretation. Sie erweitert die kumulative Obergrenze um
+1 Arbeitspaket, 2 PRs (Statusübergang und Reviewintegration) und höchstens 2
+Quellenkandidaten auf 69/82/165. Der Review attestiert keine Unabhängigkeit,
+authentische Wait-/Seitenbeobachtung oder Methodenfreigabe. Keine SQL-/
+Runtimeausführung, keine Labänderung und keine menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
