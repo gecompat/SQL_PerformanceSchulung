@@ -504,15 +504,43 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
                 and not exc.args[0].keywords
             ):
                 valid_calls.append(statement)
-    unguarded_calls = [
-        node for statement in tree.body
-        if statement not in guards
-        and not isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
-        for node in ast.walk(statement)
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Name)
-        and node.func.id == "main"
-    ]
+    class ImportTimeMainCallFinder(ast.NodeVisitor):
+        def __init__(self) -> None:
+            self.calls: list[ast.Call] = []
+
+        def visit_Call(self, node: ast.Call) -> None:
+            if isinstance(node.func, ast.Name) and node.func.id == "main":
+                self.calls.append(node)
+            self.generic_visit(node)
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            for expression in (
+                *node.decorator_list,
+                *node.args.defaults,
+                *(default for default in node.args.kw_defaults if default is not None),
+                *(argument.annotation for argument in (*node.args.posonlyargs, *node.args.args,
+                                                       *node.args.kwonlyargs)
+                  if argument.annotation is not None),
+                *((node.args.vararg.annotation,) if node.args.vararg and node.args.vararg.annotation else ()),
+                *((node.args.kwarg.annotation,) if node.args.kwarg and node.args.kwarg.annotation else ()),
+                *((node.returns,) if node.returns is not None else ()),
+            ):
+                self.visit(expression)
+
+        visit_AsyncFunctionDef = visit_FunctionDef
+
+        def visit_ClassDef(self, node: ast.ClassDef) -> None:
+            for expression in (*node.decorator_list, *node.bases,
+                               *(keyword.value for keyword in node.keywords)):
+                self.visit(expression)
+            for statement in node.body:
+                self.visit(statement)
+
+    main_call_finder = ImportTimeMainCallFinder()
+    for statement in tree.body:
+        if statement not in guards:
+            main_call_finder.visit(statement)
+    unguarded_calls = main_call_finder.calls
     if (
         len(guards) != 1
         or len(valid_calls) != 1
@@ -553,6 +581,21 @@ def test_runtime_test_functions_are_registered_once() -> None:
             'if __name__ == "__main__":\n    main()\n'
             '    raise SystemExit(main())\n',
             "duplicate main call inside module guard",
+        ),
+        (
+            'class Example(main()):\n    pass\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "main call in class base expression",
+        ),
+        (
+            'def example(value=main()):\n    pass\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "main call in function default value",
+        ),
+        (
+            '@main()\ndef example():\n    pass\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "main call in function decorator",
         ),
     ):
         assert_equal(

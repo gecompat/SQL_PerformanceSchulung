@@ -435,6 +435,13 @@ einen PR und einen Testkandidaten auf höchstens 111/160/228. Der Modulstartpfad
 muss genau einen `main()`-Aufruf enthalten. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #480 integriert die Einzelaufrufprüfung; alle fünf Workflows bestanden. Für
+Importzeitaufrufe in Klassenbasen, Funktionsstandardwerten und Dekoratoren
+erweitert sich das kumulative Budget ohne Reset um ein Arbeitspaket, einen PR
+und bis zu drei Testkandidaten auf höchstens 112/161/231. Diese Ausdrücke werden
+vor dem `__main__`-Guard ausgewertet und müssen als ungeschützte Aufrufe
+abgewiesen werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

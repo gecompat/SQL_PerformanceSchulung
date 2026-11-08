@@ -262,6 +262,13 @@ Reset um ein Paket, einen PR und einen Test auf höchstens 111/160/228. Auch
 innerhalb des einzigen `__main__`-Guards darf `main()` genau einmal aufgerufen
 werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #480 integriert die Prüfung auf genau einen Guard-Aufruf; alle fünf
+Workflows bestanden. Der nächste Schnitt erweitert das Budget ohne Reset um
+ein Paket, einen PR und bis zu drei Testkandidaten auf höchstens 112/161/231.
+Ungeschützte `main()`-Aufrufe in Klassenbasen, Funktionsstandardwerten und
+Dekoratoren müssen als Importzeitaufrufe erkannt werden. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
