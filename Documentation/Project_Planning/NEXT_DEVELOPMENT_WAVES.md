@@ -27,7 +27,8 @@ Pflichtfelder und gepaarte Statistikmetriken neben CPU, Logical Reads und
 Elapsed; Zähler bleiben Sessiondeltas einschließlich Messprozedur-Overhead.
 Der nächste begrenzte Schnitt prüft und schützt das Abschalten von
 `STATISTICS XML` auf Erfolg und Fehler in der separaten Actual-Plan-Phase
-anhand der FWK-005-Referenz. QRY-023 bleibt `PROPOSED`; formale T-SQL-Abnahme,
+anhand der FWK-005-Referenz; PR #427 wählt diesen Offline-Schritt. QRY-023
+bleibt `PROPOSED`; formale T-SQL-Abnahme,
 unabhängige Methodenfreigabe und Runtimegates bleiben offen.
 
 ### DGN-007 getrenntes Qualifikationsband
