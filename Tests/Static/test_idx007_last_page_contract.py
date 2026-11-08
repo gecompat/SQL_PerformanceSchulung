@@ -53,11 +53,13 @@ class LastPageContractTests(unittest.TestCase):
         target = PageTarget(7, 1, 900, 42, 3, 1, True, STAMP)
         self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
 
-    def test_missing_or_negative_rightmost_claim_is_not_proven(self) -> None:
+    def test_missing_rightmost_claim_is_not_proven(self) -> None:
         waits, target = fixture(rightmost=None)
         self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.NOT_PROVEN)
+
+    def test_negative_rightmost_claim_fails(self) -> None:
         waits, target = fixture(rightmost=False)
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
 
     def test_boolean_is_not_accepted_as_integer_wait_duration(self) -> None:
         waits, target = fixture()

@@ -1,22 +1,19 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: IDX-007 – Offline-Evidenzvertrag prüfen
+## Abschluss: IDX-007 – Offline-Evidenzvertrag geprüft
 
-PR #418 (STL-002) ist mit Squashcommit
-`b83e6f9a1d0f4b8007fff73a4918c03e7e94a45d` integriert. Alle vier PR-Gates und
-beide Main-Workflows waren erfolgreich; lokales `main` ist sauber und
-synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet die
-vollständigen Nutzdaten- und Padding-Formeln sowie mengengleiche Tupeloracles
-für INROW-, ROW_OVERFLOW- und LOB-Profile. Tatsächliche Allocation-Units,
-Lese-I/O und Laufzeitwirkungen bleiben offen.
+PR #419 schloss die STL-002-Fortsetzung nach erfolgreicher Integration von
+PR #418. PR #420 ergänzt die quellengebundene lokale Prüfung des bestehenden
+IDX-007-Offlinevertrags und trennt einen fehlenden Rechtsaußenbeleg
+(`NOT_PROVEN`) von einem explizit negativen Rechtsaußenbefund (`FAIL`). Die
+gezielte synthetische Regression besteht mit 12 Tests. Die neuen Quellen
+`SRC-147` und `SRC-148` binden Wait-Ressourcenformat und Seitenmetadaten.
 
-Die nächste begrenzte Offline-Welle prüft den bereits synthetisch geprüften
-IDX-007-Caller-Evidenzvertrag auf fachliche Lücken und aktualisiert seine
-quellengebundene Interpretation. Sie erweitert die kumulative Obergrenze um
-1 Arbeitspaket, 2 PRs (Statusübergang und Reviewintegration) und höchstens 2
-Quellenkandidaten auf 69/82/165. Der Review attestiert keine Unabhängigkeit,
-authentische Wait-/Seitenbeobachtung oder Methodenfreigabe. Keine SQL-/
-Runtimeausführung, keine Labänderung und keine menschliche Generalprobe.
+Die kumulative Obergrenze 69/82/165 wurde für diesen Schnitt verwendet.
+Eigenständige Methoden-/Quellenfreigabe, authentische Wait-/Seitenbeobachtung,
+Seitenkettenauflösung, fairer Vergleich und Runtimequalifikation bleiben offen.
+Keine SQL-/Runtimeausführung, keine Labänderung und keine menschliche
+Generalprobe. Die Offline-Prüfung ist keine unabhängige Methodenfreigabe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
@@ -790,8 +787,12 @@ Ein synthetisch geprüfter Offline-Vertrag bindet zusätzlich caller-supplied
 Capturezeitpunkt, verlangt zwei verschiedene Sessions und Blattniveau sowie
 eine separat gelieferte Rechtsaußen-Aussage. Dies ist statische
 Konsistenzprüfung, keine authentifizierte SQL-Erfassung oder Qualifikation.
-Die unabhängige Seitenkettenauflösung, Methoden-/Quellenprüfung, ein fairer
-Vergleich und Laufzeitnachweise bleiben offen.
+PR #420 ergänzt die [lokale Vertragsprüfung](IDX007_OFFLINE_EVIDENCE_REVIEW.md),
+trennt fehlenden Rechtsaußenbeleg (`NOT_PROVEN`) von einem expliziten
+Gegenbeleg (`FAIL`) und bindet `sys.dm_os_waiting_tasks` sowie
+`sys.dm_db_page_info` im Quellenregister. Die unabhängige Seitenkettenauflösung,
+Methoden-/Quellenprüfung, ein fairer Vergleich und Laufzeitnachweise bleiben
+offen.
 
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
