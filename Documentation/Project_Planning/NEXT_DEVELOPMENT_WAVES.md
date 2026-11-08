@@ -302,6 +302,12 @@ Reset um ein Paket, einen PR und vier synthetische Testkandidaten auf höchstens
 liegende Testaufrufe nicht als ausgeführt zählen lassen. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #486 integriert die vier direkten Exitformen; alle fünf Workflows bestanden.
+Der nächste Schritt erweitert den kumulativen Rahmen ohne Reset um ein Paket,
+einen PR und zwei Testkandidaten auf höchstens 118/167/244. Importierte oder
+umbenannte `sys.exit`-Aufrufe beenden den Kontrollfluss ebenfalls. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

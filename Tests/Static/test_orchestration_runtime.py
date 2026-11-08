@@ -423,6 +423,25 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     main_function = main_definitions[0]
     registrations: list[str] = []
     non_direct_call = False
+    exit_aliases: set[str] = set()
+    module_aliases: dict[str, str] = {}
+    for statement in tree.body:
+        if isinstance(statement, ast.ImportFrom) and statement.module in {"sys", "os", "builtins"}:
+            allowed = {
+                "sys": {"exit"},
+                "os": {"_exit"},
+                "builtins": {"exit", "quit"},
+            }[statement.module]
+            exit_aliases.update(
+                alias.asname or alias.name
+                for alias in statement.names
+                if alias.name in allowed
+            )
+        elif isinstance(statement, ast.Import):
+            for alias in statement.names:
+                module_name = alias.name.split(".", 1)[0]
+                if module_name in {"sys", "os"}:
+                    module_aliases[alias.asname or module_name] = module_name
 
     def test_calls(node: ast.AST) -> list[str]:
         return [
@@ -439,11 +458,15 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             return False
         function = statement.value.func
         if isinstance(function, ast.Name):
-            return function.id in {"exit", "quit"}
+            return function.id in {"exit", "quit"} or function.id in exit_aliases
         return (
             isinstance(function, ast.Attribute)
             and isinstance(function.value, ast.Name)
-            and (function.value.id, function.attr) in {("sys", "exit"), ("os", "_exit")}
+            and (
+                (function.value.id, function.attr) in {("sys", "exit"), ("os", "_exit")}
+                or (module_aliases.get(function.value.id), function.attr)
+                in {("sys", "exit"), ("os", "_exit")}
+            )
         )
 
     def collect_direct_calls(statements: list[ast.stmt]) -> bool:
@@ -750,16 +773,26 @@ def test_runtime_test_functions_are_registered_once() -> None:
         "conditional test call is not an unconditional registration",
     )
     terminal_cases = (
-        ("return", "unreachable after return"),
-        ("raise RuntimeError()", "unreachable after raise"),
-        ("exit()", "unreachable after exit"),
-        ("quit()", "unreachable after quit"),
-        ("sys.exit()", "unreachable after sys.exit"),
-        ("os._exit(1)", "unreachable after os._exit"),
+        ("", "return", "unreachable after return"),
+        ("", "raise RuntimeError()", "unreachable after raise"),
+        ("", "exit()", "unreachable after exit"),
+        ("", "quit()", "unreachable after quit"),
+        ("", "sys.exit()", "unreachable after sys.exit"),
+        ("", "os._exit(1)", "unreachable after os._exit"),
+        (
+            "from sys import exit as stop\n",
+            "stop()",
+            "unreachable after aliased sys.exit",
+        ),
+        (
+            "import sys as runtime\n",
+            "runtime.exit()",
+            "unreachable after aliased sys module exit",
+        ),
     )
-    for terminal, label in terminal_cases:
+    for prefix, terminal, label in terminal_cases:
         unreachable_call = (
-            f"def test_one(): pass\ndef main():\n    {terminal}\n"
+            f"{prefix}def test_one(): pass\ndef main():\n    {terminal}\n"
             "    test_one()\n"
         )
         assert_equal(

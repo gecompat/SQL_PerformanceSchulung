@@ -477,6 +477,13 @@ höchstens 117/166/242. Nach `exit()`, `quit()`, `sys.exit()` und `os._exit()`
 liegende Testaufrufe gelten ebenfalls als unerreichbar. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #486 integriert die vier direkten Prozessendeformen; alle fünf Workflows
+bestanden. Für zwei über Modul- oder Importalias erkannte `sys.exit`-Varianten
+erweitert sich das kumulative Budget ohne Reset um ein Paket, einen PR und zwei
+Testkandidaten auf höchstens 118/167/244. `from sys import exit as stop` und
+`import sys as runtime` dürfen spätere Tests nicht ausführbar erscheinen
+lassen. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
