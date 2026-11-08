@@ -256,6 +256,17 @@ Caller-Test weist `_LOCAL` vor SQLCMD-Auflösung und -Start zurück. Keine
 menschliche Generalprobe. Kumulative Obergrenze für Auswahl und Integration:
 89 Arbeitspakete, 122 PRs und 204 Quellen-/Testkandidaten.
 
+## Fortsetzung: QRY-023 – RunToken-Negativregression ausführen
+
+Ein Nachreview ergab, dass die `_LOCAL`-Regression zwar definiert, aber nicht
+im `main()`-Ablauf des statischen Runner-Tests registriert war. Der zuvor
+gemeldete grüne Testlauf hat diesen konkreten Fall daher nicht ausgeführt. Der
+nächste Korrekturschnitt hängt den Test explizit ein und bestätigt den
+Frühabbruch vor SQLCMD-Auflösung/-Start. Kumulativ für Auswahl und Integration:
+90 Arbeitspakete, 124 PRs und 205 Quellen-/Testkandidaten. Die vorherige
+Zählung bezeichnet die vorhandene Regression als Kandidat; dieser Schnitt
+macht ihre tatsächliche Ausführung zum belegten Test.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

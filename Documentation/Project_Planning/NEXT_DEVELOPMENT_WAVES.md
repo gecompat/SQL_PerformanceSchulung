@@ -130,6 +130,13 @@ synthetische Negativregression weist `_LOCAL` vor SQLCMD-Auflösung und -Start
 zurück. Kumulativ höchstens 89 Arbeitspakete, 122 PRs und 204 Quellen-/
 Testkandidaten. Keine Engineausführung, Runtimefreigabe oder Generalprobe.
 
+Nachreview zeigte, dass diese Negativregression noch nicht aus der
+Testmodul-`main()`-Funktion aufgerufen wurde; der grüne Modultest belegt den
+Einzelfall somit nicht. Der folgende Korrekturschnitt registriert und führt
+`_LOCAL` explizit aus und bindet die Ablehnung vor SQLCMD-Auflösung und -Start.
+Kumulativ höchstens 90 Arbeitspakete, 124 PRs und 205 Quellen-/Testkandidaten.
+Keine SQL- oder Runtimeausführung.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
