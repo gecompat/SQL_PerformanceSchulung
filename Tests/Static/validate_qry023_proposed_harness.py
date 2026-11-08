@@ -153,6 +153,15 @@ def qualification_summaries_valid(qualification: str) -> bool:
     )
 
 
+def qualification_target_context_valid(qualification: str) -> bool:
+    """Require the target and non-system database guard before permission checks."""
+    compact = re.sub(r"\s+", "", qualification).casefold()
+    context = compact.find("ifdb_id()<=4or@demoid<>'qry-023'ordb_name()<>@targetdatabaseor")
+    guard_throw = compact.find("throw51001,", context) if context >= 0 else -1
+    permission_check = compact.find("declare@hasshowplan")
+    return context >= 0 and context < guard_throw < permission_check
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -367,6 +376,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "qualification preflight must check SHOWPLAN before query execution", errors)
     require(qualification_permission_gate_valid(qualification),
             "qualification preflight must check target DATABASE/SHOWPLAN and SELECT on all four query tables before SKIP_PERMISSION/RETURN", errors)
+    require(qualification_target_context_valid(qualification),
+            "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
     require(qualification_summaries_valid(qualification),
             "qualification preflight summary rows and PRINT markers must match the exact permission-skip and success statuses", errors)
     require("create table dbo.person" in workload and "as node" in workload,
