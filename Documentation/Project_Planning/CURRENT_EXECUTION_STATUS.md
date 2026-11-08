@@ -209,7 +209,7 @@ muss. Die Preflight-Prüfung gilt nicht als Schutz gegen SQLCMD-Eingabeinjektion
 Kumulative Obergrenze: ein Arbeitspaket, zwei PRs und höchstens zwei
 Quellen-/Testkandidaten zusätzlich, insgesamt 86/116/199. Quelle:
 Microsoft Learn, [Use sqlcmd with scripting variables](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver15), abgerufen am 8. November 2026. Kein Aufrufer wird implementiert oder ausgeführt; keine menschliche Generalprobe.
-PR #453 dokumentiert die Caller-seitige Allowlist vor SQLCMD und bindet den
+PR #452 dokumentiert die Caller-seitige Allowlist vor SQLCMD und bindet den
 offenen Schutzstatus in README, Review und Offlinevalidator. Eine
 Negativregression entfernt die Eingabegrenzen-Formulierung. 39 QRY-023-
 Regressionen und die betroffenen Projektvalidatoren bestanden. Die SQLCMD-
