@@ -377,11 +377,18 @@ und 218 Quellen-/Testkandidaten.
 
 ## Fortsetzung: FWK-010 – Testaufrufe an unbedingten Stellen verlangen
 
-Der nächste Schnitt beschränkt Registrierungen auf direkte, unbedingte
-Ausdrucksaufrufe im `main()`-Ablauf und in `with`-Blöcken. Gegenproben mit `if False` und
-verschachtelten Hilfsfunktionen dürfen keine Testregistrierung vortäuschen.
-Kumulative Obergrenze für Auswahl und Integration: 104 Arbeitspakete, 152 PRs
-und 219 Quellen-/Testkandidaten.
+PR #473 beschränkt Registrierungen auf direkte, unbedingte Ausdrucksaufrufe im
+`main()`-Ablauf und in `with`-Blöcken. Gegenproben mit `if False` und
+verschachtelten Hilfsfunktionen bestehen als fehlende Registrierung. Der
+Runner-Test und alle fünf Workflows bestanden. Kumulative Obergrenze:
+104 Arbeitspakete, 152 PRs und 219 Quellen-/Testkandidaten.
+
+## Fortsetzung: FWK-010 – Asynchrone Testdefinitionen fail-closed behandeln
+
+Der nächste synthetische Fall definiert `test_one` als `async def` und ruft es
+ohne Await aus `main()` auf. Der AST-Wächter darf diesen Coroutine-Aufruf nicht
+als ausgeführten Test zählen. Kumulative Obergrenze für Auswahl und Integration:
+105 Arbeitspakete, 154 PRs und 220 Quellen-/Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
