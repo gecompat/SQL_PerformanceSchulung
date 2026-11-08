@@ -69,6 +69,11 @@ PR #443 bindet Systemdatenbankausschluss und den `DB_NAME()`/
 abgewiesen; 31 QRY-023-Regressionen und die statischen Projektvalidatoren
 bestanden nach Korrektur eines lokalen Validatorfehlers. Keine Datenbank- oder
 Rechteänderung und kein SQL-Lauf.
+Der nächste Offline-Schritt bindet die Zuweisung und exakten Vergleiche aller
+vier Ownership-Marker an Projekt- und Harnesswerte, einschließlich Binär- und
+Längenprüfungen vor der Rechteauswertung. Negativproben ändern Projektwert und
+RunToken-Bindung. Kumulativ 82 Arbeitspakete, 108 PRs und höchstens 191
+Quellenkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 

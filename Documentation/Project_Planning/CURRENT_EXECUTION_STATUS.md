@@ -140,6 +140,16 @@ nach Korrektur bestanden 31 QRY-023-Regressionen sowie QRY-023-, Framework-
 und Repository-Continuity-Validatoren. Nur statische Textprüfung; keine DB-
 oder Rechteänderung und kein SQL-Lauf.
 
+## Fortsetzung: QRY-023 – Eigentumsmarker an Harnesswerte binden
+
+Der nächste Offline-Schnitt bindet Zuweisung und exakten Vergleich aller vier
+Extended-Property-Marker (`SQLPERF.Project`, `ContractVersion`, `DemoId`,
+`RunToken`) an Projektkonstanten bzw. die Harnesswerte, einschließlich
+Binär- und Längenvergleich, bevor Rechte ausgewertet werden. Negativproben
+verändern den Projektwert und die RunToken-Bindung. Kumulativ erweitert um ein
+Paket und zwei PRs auf 82/108/191, höchstens 191 Quellenkandidaten. Keine
+Datenbank- oder Rechteänderung.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
