@@ -68,6 +68,11 @@ Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über
 
 `Tools/run_demo.py` verbindet sich über `--server`, `--auth` und `--username`. Gegen eine vorhandene SQL-Server-Instanz beschreibt `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md` den vollständigen Ablauf einschließlich Anmeldedaten, Preflight, Cleanup und Recovery. Trägt die Instanz ein selbstsigniertes Zertifikat, wird `Tests/Runtime/host_sqlcmd_target.py` als `--sqlcmd` zwischengeschaltet, weil `build_sqlcmd_command()` selbst kein `-C` setzt.
 
+Für Manifeste mit `sqlcmd_input_validation` prüft `run_demo.py` den exakten
+unterstützten Vertrag bereits beim Laden, bevor der SQLCMD-Prozess aufgelöst
+oder gestartet wird. Der aktuell unterstützte Vertrag ist QRY-023-spezifisch;
+unbekannte oder abweichende Vertragsobjekte enden mit `FAIL_CONTRACT`.
+
 ## Sicherheitsgrundsätze
 
 - Keine Datenbank wird aufgrund ihres Namens allein gelöscht.

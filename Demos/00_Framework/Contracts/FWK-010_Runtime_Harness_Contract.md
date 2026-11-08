@@ -26,6 +26,15 @@ Ein Manifest enthält:
 
 Datenbankselektoren sind ausschließlich `master` oder `target`. Der Zielname wird deterministisch als `SQLPERF_LAB_<DEMO>_<RUN>` abgeleitet. Pfade müssen innerhalb des Manifestverzeichnisses liegen.
 
+Ein Manifest kann zusätzlich `sqlcmd_input_validation` deklarieren. Der
+Caller unterstützt derzeit den exakten QRY-023-Vertrag für Demo-ID,
+ASCII-RunToken und deterministischen Datenbanknamen. `run_demo.py` prüft das
+vollständige Vertragsobjekt beim Laden des Manifests und beendet ungültige
+Werte, bevor es `sqlcmd` auflöst oder startet. Der Vertrag muss die Prüfung vor
+der SQLCMD-Variablenexpansion verlangen, weil T-SQL-Guards erst nach dieser
+Expansion ausgewertet werden. Ein Manifestobjekt ohne unterstützten Vertrag
+führt zu `FAIL_CONTRACT`.
+
 ## 3. Phasenverhalten
 
 - `PREFLIGHT` benötigt einen maschinenlesbaren Marker `SQLPERF_SUMMARY|OUTCOME|CODE` oder eine pipe-separierte `SUMMARY`-Resultsetzeile.
