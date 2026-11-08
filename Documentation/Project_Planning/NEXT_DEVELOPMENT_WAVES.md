@@ -190,11 +190,16 @@ Manipulationsgegenproben bestanden. Alle fünf Workflows waren grün. Kumulativ
 höchstens 98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten. Keine
 Runtimeausführung.
 
-Ein Nachreview fand eine doppelte Definition und Registrierung des
-`OPT-001`-Scope-Tests aus PR #466. Der nächste Schnitt entfernt sie und ergänzt
-eine gezielte Zielnamendriftprobe, die einen abweichenden
-`target_database_name()`-Wert vor SQLCMD zurückweist. Kumulativ höchstens 99
-Arbeitspakete, 142 PRs und 214 Quellen-/Testkandidaten.
+PR #468 entfernt die doppelte Definition/Registrierung des `OPT-001`-Scope-
+Tests und ergänzt eine Driftprobe für `target_database_name()`. Ein vom
+Manifesttemplate abweichender Zielname wird vor SQLCMD abgewiesen; alle fünf
+Workflows bestanden. Kumulativ höchstens 99 Arbeitspakete, 142 PRs und 214
+Quellen-/Testkandidaten.
+
+Der nächste statische Selbsttest vergleicht die per AST gefundenen
+`test_*`-Definitionen mit den Aufrufen in `main()` und verlangt eine exakte
+Eins-zu-eins-Registrierung. Kumulativ höchstens 100 Arbeitspakete, 144 PRs und
+215 Quellen-/Testkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import os
 from pathlib import Path
@@ -398,6 +399,27 @@ def assert_equal(actual: object, expected: object, message: str) -> None:
         raise AssertionError(f"{message}: expected={expected!r}, actual={actual!r}")
 
 
+def test_runtime_test_functions_are_registered_once() -> None:
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    definitions = [
+        node.name for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+    ]
+    main_function = next(
+        node for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "main"
+    )
+    registrations = [
+        node.func.id for node in ast.walk(main_function)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id.startswith("test_")
+    ]
+    assert_equal(len(definitions), len(set(definitions)), "runtime test function definitions must be unique")
+    assert_equal(len(registrations), len(set(registrations)), "runtime tests must be registered only once")
+    assert_equal(set(registrations), set(definitions), "each runtime test must be registered exactly once")
+
+
 def test_sessions_pass(base: Path, executable: Path) -> None:
     result = run_session_manifest(
         manifest_path=session_manifest(base / "sessions_pass", ["session_pass", "session_pass"]),
@@ -649,6 +671,7 @@ def test_linux_nested_session_interrupt() -> None:
 
 
 def main() -> int:
+    test_runtime_test_functions_are_registered_once()
     test_collect_process_interrupt()
     test_windows_process_tree_termination()
     test_completed_root_is_never_terminated_by_old_pid()
