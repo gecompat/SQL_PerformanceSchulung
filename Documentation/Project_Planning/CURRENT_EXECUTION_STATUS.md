@@ -1,21 +1,22 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-023 – gepaarte Messmetriken vervollständigen
+## Abschluss: QRY-023 – Manifest- und Metrikdeckung statisch ergänzt
 
-PR #424 integrierte die statische Manifest-Coveragekorrektur: Phasen-, Script-,
-Datenbank- und Timeoutbindungen sowie Cleanup-/Gesamtbudgets sind fest geprüft;
-14 synthetische Regressionen und der Offlinevalidator bestanden. QRY-023 bleibt
-`PROPOSED`, nicht katalogisiert und ungefahren.
+PR #424 band das Proposed-Manifest exakt an Phasenscript, Zieldatenbank,
+Zeitlimits sowie Cleanup-/Gesamtbudgets; 14 synthetische Regressionen und der
+Offlinevalidator bestanden. PR #426 schließt die in der Messvorlage erfassten
+FWK-004-Metriken: `Reads` und `Writes` werden nun auf Vollständigkeit geprüft
+und zusammen mit CPU, Logical Reads und Elapsed als fünf gepaarte
+Median-/Streuungsdeltas ausgegeben. Das sind Sessiondeltas einschließlich
+Messprozedur-Overhead, keine isolierten Statement- oder Gerätewerte. Die
+synthetischen Regressionen und der Offlinevalidator bestanden.
 
-Der nächste begrenzte Offline-Schnitt stimmt die vorhandene Messimplementierung
-mit dem registrierten Methodenentwurf ab: Die erfassten FWK-004-Werte `Reads`
-und `Writes` werden neben CPU, Logical Reads und Elapsed vollständig auf
-Fehlen geprüft und in Median/Streuung der fünf gepaarten Deltas aufgenommen.
-Die kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs (Statusübergang und
-Reviewintegration) und höchstens 2 Quellenkandidaten auf 72/88/171. Keine
-SQL-/Runtimeausführung, keine Labänderung und keine menschliche Generalprobe.
-Formale Harness-/T-SQL-Abnahme, unabhängige Methodenfreigabe, aktuelle Image-/
-Buildbestätigung, Ressourcen- und Cleanupqualifikation bleiben getrennte Gates.
+Die kumulative Obergrenze 72/88/171 wurde für diesen Offline-Schnitt verwendet.
+QRY-023 bleibt `PROPOSED`, nicht katalogisiert und ungefahren. Formale
+Harness-/T-SQL-Abnahme, unabhängige Methodenfreigabe, aktuelle Image-/Build-
+Bestätigung, Ressourcen- und Cleanupqualifikation sowie Runtimeautorisierung
+bleiben offen. Keine SQL-/Runtimeausführung, keine Labänderung und keine
+menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

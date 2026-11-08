@@ -126,6 +126,23 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("MeasurementRun must expose logicalreads" in error
                             for error in self.errors()))
 
+    def test_framework_must_expose_reads_and_writes(self) -> None:
+        path = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
+        source = path.read_text(encoding="utf-8")
+        for column in ("Reads", "Writes"):
+            with self.subTest(column=column):
+                changed = source.replace(f"{column} bigint NULL,", f"{column}Value bigint NULL,")
+                path.write_text(changed, encoding="utf-8")
+                self.assertTrue(any(f"MeasurementRun must expose {column.lower()}" in error
+                                    for error in self.errors()))
+
+    def test_measurement_requires_all_captured_deltas(self) -> None:
+        path = self.demo / "40_Measurement.sql"
+        measurement = path.read_text(encoding="utf-8")
+        measurement = measurement.replace("OR m.Reads IS NULL", "").replace("OR m.Writes IS NULL", "")
+        path.write_text(measurement, encoding="utf-8")
+        self.assertTrue(any("reject incomplete or unsuccessful" in error for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -142,12 +142,13 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("execlab.usp_endmeasurement@demoid='qry-023',@runtoken=@runtoken,@measurementrunid=@measurementrunid,@resultrows=@pathcount;"
             in workload_compact,
             "QRY-023 must bind its End call and result count to FWK-004 parameters", errors)
-    for column in ("measurementrunid", "endedatutc", "overalloutcome", "cpums", "logicalreads", "elapsedms"):
+    for column in ("measurementrunid", "endedatutc", "overalloutcome", "cpums",
+                   "logicalreads", "reads", "writes", "elapsedms"):
         require(re.search(rf"^\s*{column}\s+(?:uniqueidentifier|datetime2\(3\)|varchar\(8\)|bigint)(?=\s)",
                           framework_measurement, re.MULTILINE) is not None,
                 f"FWK-004 MeasurementRun must expose {column}", errors)
     require(all(f"m.{column} is null" in measurement or f"m.{column}<>'pass'" in measurement
-                for column in ("endedatutc", "cpums", "logicalreads", "elapsedms"))
+                for column in ("endedatutc", "cpums", "logicalreads", "reads", "writes", "elapsedms"))
             and "m.overalloutcome<>'pass'" in measurement,
             "QRY-023 must reject incomplete or unsuccessful FWK-004 result rows", errors)
 
@@ -272,6 +273,9 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "full-path oracle must enforce the 10,000-result cardinality", errors)
     require("'warmup'" in measurement and "while @pair<=5" in measurement,
             "measurement must exclude warm-ups and retain five pairs", errors)
+    for metric in ("cpu_ms", "logical_reads", "reads", "writes", "elapsed_ms"):
+        require(f"'{metric}'" in measurement,
+                f"paired metric summary must retain {metric}", errors)
     require("@pair%2=1" in measurement and "@pair%2=0" in measurement,
             "measurement must alternate AB/BA order", errors)
     compact_measurement = re.sub(r"\s+", "", measurement)
