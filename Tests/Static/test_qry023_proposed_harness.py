@@ -41,6 +41,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         (self.demo / "manifest.json").write_text("{}", encoding="utf-8")
         self.assertTrue(any("catalog manifest.json" in error for error in self.errors()))
 
+    def test_readme_must_keep_the_caller_side_sqlcmd_input_gate(self) -> None:
+        path = self.demo / "README.md"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("SQLCMD-Eingabeinjektion", "SQLCMD-Variablen")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("caller-side SQLCMD input-validation gate" in error
+                            for error in self.errors()))
+
     def test_missing_required_cleanup_phase_is_rejected(self) -> None:
         path = self.demo / "manifest.proposed.json"
         text = path.read_text(encoding="utf-8").replace('"required":true,"require_summary":true,"timeout_seconds":90',

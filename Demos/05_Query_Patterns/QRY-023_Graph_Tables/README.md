@@ -60,6 +60,14 @@ ASCII-Bytes. `DATALENGTH` ergänzt die Zeichenprüfung, weil `LEN`
 nachgestellte Leerzeichen ausschließt und ASCII-`LIKE` sie im Suchwert
 ignoriert; siehe die Microsoft-Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17). Diese Bedingung ist offline statisch geprüft, aber noch nicht mit SQL Server ausgeführt.
 
+SQLCMD setzt Skriptvariablen an ihren `$(Name)`-Vorkommen ein, auch in
+Zeichenliteralen. Daraus folgt als Sicherheitsinferenz, dass der T-SQL-
+Preflight keine SQLCMD-Eingabeinjektion verhindert: Eine unsichere Eingabe kann
+die Skriptstruktur vor Auswertung der Guards verändern. Ein künftiger Harness-
+Aufrufer muss Demo-ID, RunToken und Zielnamen vor dem SQLCMD-Aufruf exakt gegen
+den Vertrag allowlisten. Ein solcher Aufrufer ist nicht Bestandteil dieses
+Entwurfs; daher gibt es noch keine Caller-seitige Absicherung.
+
 Der QRY-023-Prüflauf wurde nicht gestartet. Der read-only Preflight akzeptiert
 für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,
 `16.0.4305.5` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals

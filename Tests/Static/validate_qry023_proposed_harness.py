@@ -495,6 +495,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "README must explain non-catalogued proposed status", errors)
     require("not executed" in readme or "nicht ausgeführt" in readme,
             "README must state that QRY-023 has not been executed", errors)
+    require("vor dem sqlcmd-aufruf" in readme and "sqlcmd-eingabeinjektion" in readme,
+            "proposed harness README must state the caller-side SQLCMD input-validation gate", errors)
     require(all(build in readme for build in build_pins),
             "README must document all time-bound engine build pins", errors)
     require("container-images.proposed.json" in readme,

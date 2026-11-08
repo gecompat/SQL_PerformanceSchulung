@@ -144,6 +144,23 @@ statische Prüfung und keine tatsächliche LIKE-/LEN-Auswertung durch SQL Server
 
 Quellen (abgerufen am 8. November 2026): Microsoft Learn, [`LEN` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE` (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17).
 
+## SQLCMD-Eingabegrenze
+
+Die Phasenskripte verwenden `$(DemoId)`, `$(RunToken)` und
+`$(TargetDatabase)` innerhalb von SQL-Literalen. Microsoft dokumentiert
+SQLCMD-Skriptvariablen und zeigt deren Expansion an den Vorkommen im Skript,
+auch innerhalb eines Zeichenliterals. Daraus folgt für diesen Entwurf die
+Sicherheitsinferenz, dass unsichere Quote-/Batch-Inhalte die T-SQL-Guards
+erreichen können, nachdem die Skriptstruktur bereits beeinflusst wurde. Der
+read-only Preflight ist daher keine SQLCMD-Injectiongrenze. Vor jeder späteren
+Aufnahme in einen ausführbaren Harness muss der Aufrufer die Demo-ID exakt auf
+`QRY-023`, den RunToken auf `A-Z`, `0-9`, `_` mit 1–20 ASCII-Bytes und den
+Zielnamen auf die deterministische Formel vor SQLCMD allowlisten. Dieser
+Aufrufer existiert im Vorschlag nicht; der Vertrag ist ein offenes
+Qualifikationsgate, keine aktuelle Runtimeabsicherung.
+
+Quelle (abgerufen am 8. November 2026): Microsoft Learn, [Use sqlcmd with scripting variables](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver15). Die Ableitung zur Eingabesicherheit ist eine Projektinferenz aus dem dokumentierten Expansionsverhalten.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche
