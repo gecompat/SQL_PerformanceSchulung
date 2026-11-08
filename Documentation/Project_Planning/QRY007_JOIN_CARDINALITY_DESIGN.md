@@ -3,7 +3,7 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `PROPOSED_DESIGN` |
-| Kandidat | `QRY-007` – `DISTINCT`, `UNION`, `UNION ALL` und Modellierungsindikatoren |
+| Kandidat | `QRY-007` – Join-Kardinalität, Projektion, `DISTINCT`, `EXISTS` und angeforderte Aggregation |
 | Quellen | `SRC-135` |
 | Laufstatus | nicht implementiert, nicht katalogisiert, nicht ausgeführt |
 
@@ -23,8 +23,24 @@ eindeutigen Projektionen besteht.
 
 ## Synthetische fachliche Fixture
 
-Die mögliche Lehrfixture hat drei Elternentitäten `P-A`, `P-B` und `P-C` sowie
-aktive Kinddatensätze wie folgt:
+Die Lehrfixture entspricht der [Curriculum-Erläuterung](../Curriculum/DISTINCT_JOIN_CARDINALITY_LESSON.md)
+und verwendet genau diese vollständig festgelegten synthetischen Zeilen:
+
+| Eltern-Tupel (`ParentId`, `ParentName`) |
+|---|
+| `('P-A', N'Alpha')` |
+| `('P-B', N'Beta')` |
+| `('P-C', N'Gamma')` |
+
+| Kind-Tupel (`ChildId`, `ParentId`, `IsActive`) |
+|---|
+| `(101, 'P-A', 1)` |
+| `(102, 'P-A', 1)` |
+| `(201, 'P-B', 1)` |
+| `(202, 'P-B', 0)` |
+
+Die Fremdschlüsselwerte sind synthetisch; die Datenmenge enthält absichtlich
+keinen Kinddatensatz für `P-C`. Daraus folgen die aktiven Kindzahlen:
 
 | Eltern-ID | Anzahl passender aktiver Kinder | Erwartung für „Eltern mit mindestens einem aktiven Kind“ |
 |---|---:|---|
@@ -32,31 +48,47 @@ aktive Kinddatensätze wie folgt:
 | `P-B` | 1 | einmal enthalten |
 | `P-C` | 0 | ausgeschlossen |
 
-Für die Elternprojektion erzeugt der direkte Join drei Zeilen mit der
-Multiplizität `P-A × 2`, `P-B × 1`. Die fachliche Sollmenge ist
-`{P-A, P-B}`. Das vollständige Oracle vergleicht Eltern-IDs und Multiplizität;
-eine bloße Zeilenzahl reicht nicht. Falls Kindattribute mitprojiziert werden,
-sind die `P-A`-Zeilen möglicherweise nicht gleich und `DISTINCT` entfernt sie
-nicht. Der Test darf daher nicht behaupten, `DISTINCT` dedupliziere unabhängig
-von der Projektion.
+Der direkte Join mit der Projektion `(ParentId, ParentName, ChildId)` muss
+exakt diese sortierten Tupel liefern:
+
+```text
+('P-A', N'Alpha', 101)
+('P-A', N'Alpha', 102)
+('P-B', N'Beta', 201)
+```
+
+Die fachliche Sollmenge für die Elternfrage ist `(P-A, Alpha)` und
+`(P-B, Beta)`, jeweils genau einmal. Die Kind-ID unterscheidet die beiden
+`P-A`-Paare. Wird sie mitprojiziert, lässt `DISTINCT` diese Zeilen zu Recht
+getrennt. Das Tupeloracle prüft Werte, Sortierung und Multiplizität; die
+Gesamtzeilenzahl allein reicht nicht.
 
 ## Varianten und Abnahmegrenzen
 
-1. **Direkter Join:** erwartete Zeilenpaare beobachten und die unterschiedliche
-   Elternmultiplizität als Diagnose der One-to-many-Beziehung sichtbar machen.
-2. **Join plus `DISTINCT`:** eindeutige Elternprojektion mit `{P-A, P-B}`
-   vergleichen. Das Ergebnis kann der erwarteten Elternmenge entsprechen,
-   während die Join-Kardinalität und deren Ursache weiter geprüft werden muss.
-3. **`EXISTS`:** für die Fragestellung „hat mindestens ein passendes Kind?“
-   genau die Elternmenge `{P-A, P-B}` als Existenzabfrage formulieren.
-4. **Aggregation:** nur verwenden, wenn das Lernziel Kindfakten wie Anzahl
-   oder Summe verlangt. Dann zuerst die gewünschte Kindkörnung pro `ParentID`
-   eindeutig bestimmen und diese Zusammenfassung gegen ein separates Oracle
-   prüfen. Eine Aggregation ist nicht automatisch Ersatz für `EXISTS`.
+1. **Direkter Join:** erwartet exakt die drei oben gelisteten Eltern-/Kind-
+   Tupel.
+2. **Join plus `DISTINCT` auf Elternspalten:** erwartet
+   `[('P-A', N'Alpha'), ('P-B', N'Beta')]`.
+3. **`DISTINCT` mit Kind-ID:** erwartet dieselben drei Tupel wie der direkte
+   Join, da `ChildId` die passenden Kindzeilen unterscheidet.
+4. **`EXISTS`:** für die Frage „hat mindestens ein aktives Kind?“ erwartet
+   `[('P-A', N'Alpha'), ('P-B', N'Beta')]`.
+5. **Aggregation:** `LEFT JOIN` mit dem Aktivfilter im `ON` und Gruppierung
+   je Elternidentität erwartet
+   `[('P-A', N'Alpha', 2), ('P-B', N'Beta', 1), ('P-C', N'Gamma', 0)]`.
+   `COUNT_BIG(c.ChildId)` zählt nur passende, nicht-NULL Kind-IDs. Der
+   Filter im `ON` erhält `P-C`; ein Filter auf die Kindspalte in `WHERE`
+   würde die Null-erweiterte Elternzeile verwerfen.
 
-Alle Ergebnisvergleiche verwenden dieselbe Elternprojektion und denselben
-fachlichen Filter. Die Abnahme prüft vollständige IDs, Paarmultiplizität und
-die erwartete Elternkörnung. Sie misst weder einen Laufzeitvorteil noch
+Jede Variante verwendet ihre vollständige sortierte Tupelliste als Oracle.
+Damit prüft die Fixture sowohl Joinpaar-Multiplizität als auch die gewünschte
+Eltern- oder Aggregatkörnung. Aggregation ist nicht automatisch Ersatz für
+`EXISTS`; sie passt hier, weil die Kindanzahl ausdrücklich Teil der Antwort
+ist.
+
+Alle Ergebnisvergleiche verwenden denselben fachlichen Filter `IsActive = 1`
+und halten die Projektion pro Variante explizit fest. Die Abnahme prüft
+vollständige Tupel, Paarmultiplizität und die erwartete Elternkörnung. Sie misst weder einen Laufzeitvorteil noch
 erzwingt sie eine bestimmte physische Planform. Sort-/Hash-Aggregate oder
 Semi-Join-Operatoren sind mögliche Planbeobachtungen, keine Versions-Sollwerte.
 

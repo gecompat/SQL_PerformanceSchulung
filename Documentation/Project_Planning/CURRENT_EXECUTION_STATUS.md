@@ -1,19 +1,26 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-003 – Datumsintervalle an der Mitternachtsgrenze
+## Fortsetzung: QRY-007 – Join-Kardinalität und Ergebniskörnung
 
-PR #403 (STL-010) ist mit Squashcommit
-`ee92880d2d68cba2524861e01e67a786c1fd8001` integriert. Alle fünf PR-Gates und
-drei Main-Workflows waren erfolgreich; lokales `main` ist sauber und
-synchronisiert. Der Entwurf trennt Kompressionsschätzung, tatsächliche
-Seitenbelegung, Editionsverfügbarkeit und mögliche Laufzeitmessungen.
+PR #405 (QRY-003) ist mit Squashcommit
+`a64447e2206b625077eb8f809bbe01f1014351cd` integriert. Alle vier ausgelösten
+PR-Gates und beide Main-Workflows waren erfolgreich; lokales `main` ist sauber
+und synchronisiert. Die Datumsfixture hat jetzt vollständige, typgenaue
+`datetime`- und `datetime2(7)`-Tupeloracles für inklusive und halboffene
+Grenzen.
 
-Für QRY-003 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
-2 Quellenkandidaten; kumulative Obergrenze 61/69/149. Umfang: quellengebundene
-Prüfung und gezielte Vervollständigung des statischen Date-Interval-Entwurfs
-für `datetime` und `datetime2(7)` an der Mitternachtsgrenze, mit vollständigen
-Ergebnisoracles. Keine SQL-/Runtimeausführung, Seek-/Scan-Garantie,
-Leistungsbehauptung oder menschliche Generalprobe.
+Für QRY-007 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
+2 Quellenkandidaten; kumulative Obergrenze 62/70/151. Umfang: quellengebundene
+Vervollständigung des statischen One-to-many-Entwurfs mit exakten Fixture- und
+Tupeloracles für Join-Paare, Elternprojektion, `DISTINCT`, `EXISTS` und
+Aggregation. Keine SQL-/Runtimeausführung, allgemeine `DISTINCT`-Empfehlung,
+Plan-/Leistungsbehauptung oder menschliche Generalprobe.
+
+## Abschluss: QRY-003 – Datumsintervalle an der Mitternachtsgrenze
+
+Der [QRY-003-Entwurf](QRY003_DATE_INTERVAL_DESIGN.md) ist über PR #405
+integriert. Engine-Rundung, T-SQL-Fixture, Buildqualifikation und jede
+Plan-/Laufzeitwirkung bleiben offen.
 
 ## Abschluss: STL-010 – Datenkompression: Schätzung und Ergebnis trennen
 
