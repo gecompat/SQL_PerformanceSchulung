@@ -278,13 +278,21 @@ bestanden; keine Engine- oder Runtimeausführung. Kumulative Obergrenze:
 
 ## Fortsetzung: QRY-023 – RunToken im Offlinevalidator binden
 
-Der vorgeschlagene Manifestvalidator prüft bereits die exakte
-`sqlcmd_input_validation`-Vertragsform, validiert aber nicht den konkreten
-`run_token`-Wert gegen denselben FWK-010-Zeichensatz und dieselbe Längengrenze.
-Der nächste Offline-Schnitt ergänzt diese Prüfung und eine Negativregression
-für führenden Unterstrich, Überlänge, Nicht-ASCII und nachgestelltes Leerzeichen.
-Kumulative Obergrenze für Auswahl und Integration: 92 Arbeitspakete, 128 PRs
-und 207 Quellen-/Testkandidaten. Keine Engine- oder Runtimeausführung.
+PR #461 bindet den konkreten `run_token`-Wert gegen den FWK-010-Zeichensatz und
+die Längengrenze; vier Negativregressionen für führenden Unterstrich, Überlänge,
+Nicht-ASCII und nachgestelltes Leerzeichen sowie die betroffenen Workflows
+bestanden. Kumulative Obergrenze: 92 Arbeitspakete, 128 PRs und 207 Quellen-/
+Testkandidaten. Keine Engine- oder Runtimeausführung.
+
+## Fortsetzung: QRY-023 – Vertragsobjekt fail-closed prüfen
+
+Der nächste synthetische Caller-Schnitt erweitert die bestehenden
+Negativregressionen um unbekannte Zusatzfelder und einen booleschen Wert im
+numerischen Byte-Limit. Beide Varianten müssen wie ein veränderter
+Validierungszeitpunkt vor SQLCMD-Auflösung/-Start scheitern. So bleibt die
+exakte Vertragsform einschließlich JSON-Typen belegt; es werden keine neuen
+Vertragswerte eingeführt. Kumulative Obergrenze für Auswahl und Integration:
+93 Arbeitspakete, 130 PRs und 208 Quellen-/Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
