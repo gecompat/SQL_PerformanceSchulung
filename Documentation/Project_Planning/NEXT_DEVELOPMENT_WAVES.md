@@ -60,10 +60,10 @@ Querytabellen. Scope-, Tabellenrecht- und Skip-Code-Negativfälle werden
 abgewiesen; 26 QRY-023-Regressionen sowie die statischen Projektvalidatoren
 bestanden. Es wurde kein Recht erteilt oder SQL ausgeführt. Formale T-SQL-,
 Methoden- und Runtimegates bleiben offen.
-Der nächste Offline-Schritt bindet die beiden Qualification-Preflight-
-Ausgaben samt Phase, Check-ID, Outcome, Code und jeweils passendem PRINT-Marker.
-Negativregressionen ändern `SKIP_PERMISSION` und `PASS/OK`. Obergrenze:
-80 Arbeitspakete, 104 PRs, höchstens 187 Quellenkandidaten.
+PR #441 bindet beide Qualification-Preflight-Statuszeilen und ihre PRINT-Marker.
+Drei Negativregressionen für Skip-Outcome, Erfolgs-Outcome und Skip-Print werden
+abgewiesen; 29 QRY-023-Regressionen und die statischen Projektvalidatoren
+bestanden. Keine Rechteänderung oder SQL-Ausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 

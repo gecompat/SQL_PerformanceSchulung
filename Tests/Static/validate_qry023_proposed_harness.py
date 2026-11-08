@@ -130,6 +130,29 @@ def qualification_permission_gate_valid(qualification: str) -> bool:
     )
 
 
+def qualification_summaries_valid(qualification: str) -> bool:
+    """Require the permission skip and success rows to match their PRINT markers."""
+    skip_row_pattern = (
+        r"\bselect\s+1\s+as\s+sequence\s*,\s*'qualification_preflight'\s+as\s+phase\s*,"
+        r"\s*'permissions'\s+as\s+checkid\s*,\s*'skip'\s+as\s+outcome\s*,"
+        r"\s*'skip_permission'\s+as\s+code\b"
+    )
+    pass_row_pattern = (
+        r"\bselect\s+1\s+as\s+sequence\s*,\s*'qualification_preflight'\s+as\s+phase\s*,"
+        r"\s*'summary'\s+as\s+checkid\s*,\s*'pass'\s+as\s+outcome\s*,\s*'ok'\s+as\s+code\b"
+    )
+    skip_rows = list(re.finditer(skip_row_pattern, qualification))
+    pass_rows = list(re.finditer(pass_row_pattern, qualification))
+    skip_prints = list(re.finditer(r"\bprint\s+'sqlperf_summary\|skip\|skip_permission'", qualification))
+    pass_prints = list(re.finditer(r"\bprint\s+'sqlperf_summary\|pass\|ok'", qualification))
+    skip_return = qualification.find("return;", skip_prints[0].end()) if skip_prints else -1
+    return (
+        len(skip_rows) == len(pass_rows) == len(skip_prints) == len(pass_prints) == 1
+        and skip_rows[0].start() < skip_prints[0].start() < skip_return
+        < pass_rows[0].start() < pass_prints[0].start()
+    )
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -344,6 +367,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "qualification preflight must check SHOWPLAN before query execution", errors)
     require(qualification_permission_gate_valid(qualification),
             "qualification preflight must check target DATABASE/SHOWPLAN and SELECT on all four query tables before SKIP_PERMISSION/RETURN", errors)
+    require(qualification_summaries_valid(qualification),
+            "qualification preflight summary rows and PRINT markers must match the exact permission-skip and success statuses", errors)
     require("create table dbo.person" in workload and "as node" in workload,
             "workload must create a Graph NODE table", errors)
     require("create table dbo.friendof as edge" in workload,

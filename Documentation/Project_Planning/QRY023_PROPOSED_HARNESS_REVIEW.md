@@ -85,10 +85,16 @@ Skript tatsächlich ausführt, noch dass ein Engineplan ausgegeben wird.
 
 Der vorgeschaltete Qualifikationspreflight wird jetzt exakt auf
 `HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')`, die vier verwendeten
-Objekt-`SELECT`-Prüfungen und den fehlende-Rechte-Zweig `SKIP_PERMISSION` mit
+Objekt-`SELECT`-Prüfungen und den Rechtefehlerzweig `SKIP_PERMISSION` mit
 `RETURN` gebunden. Negativregressionen für fremden Datenbankscope, ausgelassene
-Objektberechtigung und geänderten Skip-Code werden zurückgewiesen. Das prüft
-nur die T-SQL-Textform; es erteilt keine Rechte und liest keine tatsächlichen
+Objektberechtigung und geänderten Skip-Code werden zurückgewiesen.
+
+Die beiden Preflight-Summarys müssen exakt als
+`QUALIFICATION_PREFLIGHT/PERMISSIONS/SKIP/SKIP_PERMISSION` und
+`QUALIFICATION_PREFLIGHT/SUMMARY/PASS/OK` ausgegeben und jeweils vom passenden
+`SQLPERF_SUMMARY`-Print begleitet werden. Negativfälle mit geändertem Skip-
+Outcome, Erfolgs-Outcome oder Printmarker werden abgewiesen. Das prüft nur die
+T-SQL-Textform; es erteilt keine Rechte und liest keine tatsächlichen
 SQL-Server-Berechtigungen aus.
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
