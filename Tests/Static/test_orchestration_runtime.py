@@ -432,6 +432,20 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             and call.func.id.startswith("test_")
         ]
 
+    def terminates_main(statement: ast.stmt) -> bool:
+        if isinstance(statement, (ast.Return, ast.Raise)):
+            return True
+        if not isinstance(statement, ast.Expr) or not isinstance(statement.value, ast.Call):
+            return False
+        function = statement.value.func
+        if isinstance(function, ast.Name):
+            return function.id in {"exit", "quit"}
+        return (
+            isinstance(function, ast.Attribute)
+            and isinstance(function.value, ast.Name)
+            and (function.value.id, function.attr) in {("sys", "exit"), ("os", "_exit")}
+        )
+
     def collect_direct_calls(statements: list[ast.stmt]) -> bool:
         nonlocal non_direct_call
         terminated = False
@@ -457,7 +471,7 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                     terminated = True
             elif test_calls(statement):
                 non_direct_call = True
-            if isinstance(statement, (ast.Return, ast.Raise)):
+            if terminates_main(statement):
                 terminated = True
         return terminated
 
@@ -735,8 +749,15 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ),
         "conditional test call is not an unconditional registration",
     )
-    for terminal, label in (("return", "unreachable after return"),
-                            ("raise RuntimeError()", "unreachable after raise")):
+    terminal_cases = (
+        ("return", "unreachable after return"),
+        ("raise RuntimeError()", "unreachable after raise"),
+        ("exit()", "unreachable after exit"),
+        ("quit()", "unreachable after quit"),
+        ("sys.exit()", "unreachable after sys.exit"),
+        ("os._exit(1)", "unreachable after os._exit"),
+    )
+    for terminal, label in terminal_cases:
         unreachable_call = (
             f"def test_one(): pass\ndef main():\n    {terminal}\n"
             "    test_one()\n"
