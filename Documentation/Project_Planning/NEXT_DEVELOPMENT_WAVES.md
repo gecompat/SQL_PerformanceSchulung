@@ -55,11 +55,11 @@ PR #437 bindet beide Planabfragen statisch innerhalb des
 QRY-023-, Framework- und Repository-Continuity-Prüfungen bestanden. Keine
 SQL-/Runtimeausführung; die formalen T-SQL-, Methoden- und Runtimegates bleiben
 offen.
-Als nächste statische Qualifikationsprüfung wird `SHOWPLAN` an die konkrete
-Zieldatenbank gebunden; alle vier Querytabellen müssen `SELECT` erlauben, und
-ein Rechtefehler muss vor jeder Diagnose mit `SKIP_PERMISSION` enden. Die
-Negativfälle ändern Datenbankscope und Tabellenrechte. Kumulativ 79
-Arbeitspakete, 102 PRs und höchstens 185 Quellenkandidaten; keine Ausführung.
+PR #439 bindet `SHOWPLAN` an `DB_NAME()`/`DATABASE` und `SELECT` an alle vier
+Querytabellen. Scope-, Tabellenrecht- und Skip-Code-Negativfälle werden
+abgewiesen; 26 QRY-023-Regressionen sowie die statischen Projektvalidatoren
+bestanden. Es wurde kein Recht erteilt oder SQL ausgeführt. Formale T-SQL-,
+Methoden- und Runtimegates bleiben offen.
 
 ### DGN-007 getrenntes Qualifikationsband
 

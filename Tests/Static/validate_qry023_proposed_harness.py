@@ -99,6 +99,37 @@ def plan_summary_follows_cleanup(plan: str) -> bool:
     )
 
 
+def qualification_permission_gate_valid(qualification: str) -> bool:
+    """Bind target SHOWPLAN and all four SELECT checks to the early skip path."""
+    compact = re.sub(r"\s+", "", qualification).casefold()
+    showplan_check = (
+        "declare@hasshowplanbit=casewhenhas_perms_by_name(db_name(),'database','showplan')=1then1else0end;"
+    )
+    select_match = re.search(r"declare@hasselectbit=casewhen(.*?)then1else0end;", compact)
+    expected_selects = (
+        "has_perms_by_name(n'dbo.person','object','select')=1and"
+        "has_perms_by_name(n'dbo.friendof','object','select')=1and"
+        "has_perms_by_name(n'dbo.relperson','object','select')=1and"
+        "has_perms_by_name(n'dbo.relfriend','object','select')=1"
+    )
+    guard = compact.find("if@hasshowplan=0or@hasselect=0begin")
+    if guard < 0:
+        return False
+    skip_outcome = compact.find("'skip'asoutcome", guard)
+    skip_code = compact.find("'skip_permission'ascode", guard)
+    skip_print = compact.find("print'sqlperf_summary|skip|skip_permission'", guard)
+    skip_return = compact.find("return;", guard)
+    guard_end = compact.find("end;", skip_return)
+    pass_output = compact.find("'pass'asoutcome", guard_end)
+    return (
+        compact.count(showplan_check) == 1
+        and select_match is not None
+        and select_match.group(1) == expected_selects
+        and 0 <= skip_outcome < skip_code < skip_print < skip_return < guard_end
+        and pass_output > guard_end
+    )
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -311,6 +342,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "preflight must skip before setup when ProductVersion misses its pin", errors)
     require("showplan" in qualification and "has_perms_by_name" in qualification,
             "qualification preflight must check SHOWPLAN before query execution", errors)
+    require(qualification_permission_gate_valid(qualification),
+            "qualification preflight must check target DATABASE/SHOWPLAN and SELECT on all four query tables before SKIP_PERMISSION/RETURN", errors)
     require("create table dbo.person" in workload and "as node" in workload,
             "workload must create a Graph NODE table", errors)
     require("create table dbo.friendof as edge" in workload,
