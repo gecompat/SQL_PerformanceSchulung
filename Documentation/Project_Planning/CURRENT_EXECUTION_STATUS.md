@@ -398,6 +398,14 @@ Top-Leveldefinition muss als doppelte Definition abgewiesen werden, weil die
 spätere Coroutine den aufrufbaren Namen überschreibt. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #475 integriert diese Duplikatprüfung; alle fünf ausgelösten Workflows
+bestanden. Für den ebenso eng abgegrenzten Einstiegspunkt-Schattenfall wird der
+kumulative Rahmen einmalig um ein Paket, einen PR und einen synthetischen
+Kandidaten auf höchstens 107/156/222 erweitert. Eine asynchrone `main()` darf
+eine synchrone `main()` nicht überschreiben und dabei die eindeutige
+Runner-Einstiegsprüfung passieren. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

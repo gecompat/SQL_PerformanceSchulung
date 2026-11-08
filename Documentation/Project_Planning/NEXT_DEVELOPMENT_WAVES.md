@@ -225,6 +225,14 @@ synthetischen Kandidaten auf höchstens 106/155/221. Der Wächter muss die
 überschreibende asynchrone Definition als Namensduplikat zurückweisen. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #475 integriert die eindeutige Erkennung gleichnamiger synchroner und
+asynchroner `test_*`-Definitionen; alle fünf Workflows bestanden. Als nächste
+Fortsetzung wird der Rahmen ohne Reset einmalig um ein Paket, einen PR und
+einen synthetischen Testkandidaten auf höchstens 107/156/222 erweitert. Die
+Gegenprobe definiert erst eine synchrone `main()` und überschreibt sie danach
+mit `async def main()`; der AST-Wächter muss den Einstiegspunkt fail-closed
+ablehnen. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

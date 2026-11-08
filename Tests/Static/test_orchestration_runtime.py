@@ -410,13 +410,17 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
         node.name for node in tree.body
         if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
     ]
-    main_functions = [
+    main_definitions = [
         node for node in tree.body
-        if isinstance(node, ast.FunctionDef) and node.name == "main"
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "main"
     ]
-    if len(main_functions) != 1:
+    if (
+        len(main_definitions) != 1
+        or not isinstance(main_definitions[0], ast.FunctionDef)
+    ):
         return ("runtime test module must define exactly one main function",)
-    main_function = main_functions[0]
+    main_function = main_definitions[0]
     registrations: list[str] = []
     non_direct_call = False
 
@@ -493,6 +497,15 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(duplicate_main),
         ("runtime test module must define exactly one main function",),
         "duplicate synthetic test entry point",
+    )
+    sync_async_main_shadow = (
+        "def test_one(): pass\ndef main(): test_one()\n"
+        "async def main(): pass\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(sync_async_main_shadow),
+        ("runtime test module must define exactly one main function",),
+        "asynchronous main cannot shadow the synchronous test entry point",
     )
     undefined_registration = "def test_one(): pass\ndef main():\n    test_missing()\n"
     assert_equal(
