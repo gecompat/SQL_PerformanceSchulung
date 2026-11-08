@@ -125,8 +125,9 @@ Der Nachweis bleibt auf Skripttext beschränkt.
 Als anschließende Validatorergänzung wird die Verknüpfung der
 Preflight-Vertragsguards geprüft. Das bloße Vorkommen aller Bedingungen
 garantiert nicht, dass jede fehlerhafte Einzelbedingung den Fehlerzweig
-auslöst; die statische Prüfung muss die kombinierte Guardform samt
-`OR`-Verknüpfungen schützen.
+auslöst. Der Validator bindet nun die vollständige Klausel samt Reihenfolge und
+`OR`-Verknüpfungen; eine Gegenprobe mit `AND` wird abgewiesen. Das belegt die
+statische Textform, nicht die Ausführung durch SQL Server.
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser

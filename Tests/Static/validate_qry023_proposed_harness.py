@@ -191,24 +191,26 @@ def qualification_ownership_markers_valid(qualification: str) -> bool:
 
 
 def preflight_target_derivation_valid(preflight: str) -> bool:
-    """Bind the read-only preflight target name and RunToken input guards."""
+    """Bind target derivation, input rules, and fail-closed guard operators."""
     compact = re.sub(r"\s+", "", preflight).casefold()
-    required = (
+    declarations = (
         "declare@demoidvarchar(7)='$(demoid)';",
         "declare@runtokenvarchar(20)='$(runtoken)';",
         "declare@targetdatabasesysname=n'$(targetdatabase)';",
         "declare@expecteddatabasesysname=convert(sysname,n'sqlperf_lab_'+replace(@demoid,'-','')+n'_'+@runtoken);",
-        "@runtokenisnull",
-        "len(@runtoken)notbetween1and20",
-        "@runtokencollatelatin1_general_100_bin2like'%[^a-z0-9_]%'",
-        "@targetdatabase<>@expecteddatabase",
     )
-    contract_guard = compact.find("if@demoid<>'qry-023'")
-    guard_throw = compact.find("throw51000,", contract_guard) if contract_guard >= 0 else -1
+    guard = (
+        "if@demoid<>'qry-023'or@runtokenisnullorlen(@runtoken)notbetween1and20"
+        "or@runtokencollatelatin1_general_100_bin2like'%[^a-z0-9_]%'"
+        "or@targetdatabase<>@expecteddatabase"
+    )
+    guard_start = compact.find(guard)
+    guard_throw = compact.find("throw51000,", guard_start) if guard_start >= 0 else -1
     return (
-        all(compact.count(item) == 1 and compact.find(item) < guard_throw for item in required)
-        and contract_guard >= 0
-        and guard_throw > contract_guard
+        all(compact.count(item) == 1 and compact.find(item) < guard_start for item in declarations)
+        and compact.count(guard) == 1
+        and guard_start >= 0
+        and guard_throw > guard_start
     )
 
 
