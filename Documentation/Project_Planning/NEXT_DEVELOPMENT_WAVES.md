@@ -102,7 +102,7 @@ Aufrufer müssen Demo-ID, RunToken und Zielnamen vor SQLCMD allowlisten, da die
 T-SQL-Guards erst nach Skriptvariablen-Einsetzung greifen. Dies folgt als
 Sicherheitsinferenz aus den Microsoft-Beispielen zur SQLCMD-Skriptvariablen-
 Einsetzung. Kumulativ 86/116/199; keine Runtimeautorisierung oder Ausführung.
-PR #453 dokumentiert den ausstehenden Caller-Schutz und prüft, dass die
+PR #452 dokumentiert den ausstehenden Caller-Schutz und prüft, dass die
 SQLCMD-Eingabegrenze im Demo-Lesepfad genannt bleibt. Eine Negativregression
 entfernt die Schutzformulierung; 39 QRY-023-Regressionen und betroffene
 Validatoren bestanden. Die Eingabeinjektionsbewertung bleibt eine
