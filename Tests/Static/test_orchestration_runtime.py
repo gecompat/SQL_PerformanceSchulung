@@ -399,25 +399,57 @@ def assert_equal(actual: object, expected: object, message: str) -> None:
         raise AssertionError(f"{message}: expected={expected!r}, actual={actual!r}")
 
 
-def test_runtime_test_functions_are_registered_once() -> None:
-    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
+    tree = ast.parse(source)
     definitions = [
         node.name for node in tree.body
-        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_")
     ]
-    main_function = next(
+    main_functions = [
         node for node in tree.body
         if isinstance(node, ast.FunctionDef) and node.name == "main"
-    )
+    ]
+    if len(main_functions) != 1:
+        return ("runtime test module must define exactly one main function",)
+    main_function = main_functions[0]
     registrations = [
         node.func.id for node in ast.walk(main_function)
         if isinstance(node, ast.Call)
         and isinstance(node.func, ast.Name)
         and node.func.id.startswith("test_")
     ]
-    assert_equal(len(definitions), len(set(definitions)), "runtime test function definitions must be unique")
-    assert_equal(len(registrations), len(set(registrations)), "runtime tests must be registered only once")
-    assert_equal(set(registrations), set(definitions), "each runtime test must be registered exactly once")
+    issues: list[str] = []
+    if len(definitions) != len(set(definitions)):
+        issues.append("runtime test functions must be uniquely defined")
+    if len(registrations) != len(set(registrations)):
+        issues.append("runtime tests must be registered only once")
+    if set(registrations) != set(definitions):
+        issues.append("runtime test definitions and registrations must match")
+    return tuple(issues)
+
+
+def test_runtime_test_functions_are_registered_once() -> None:
+    source = Path(__file__).read_text(encoding="utf-8")
+    assert_equal(runtime_test_registration_issues(source), (), "current runtime test registration")
+
+    base = "def test_one(): pass\ndef main():\n    test_one()\n"
+    assert_equal(runtime_test_registration_issues(base), (), "complete synthetic test registration")
+    assert_equal(
+        runtime_test_registration_issues("def test_one(): pass\ndef main(): pass\n"),
+        ("runtime test definitions and registrations must match",),
+        "missing synthetic test registration",
+    )
+    assert_equal(
+        runtime_test_registration_issues(base.replace("    test_one()", "    test_one()\n    test_one()")),
+        ("runtime tests must be registered only once",),
+        "duplicate synthetic test registration",
+    )
+    duplicate_definition = "def test_one(): pass\ndef test_one(): pass\ndef main():\n    test_one()\n"
+    assert_equal(
+        runtime_test_registration_issues(duplicate_definition),
+        ("runtime test functions must be uniquely defined",),
+        "duplicate synthetic test definition",
+    )
 
 
 def test_sessions_pass(base: Path, executable: Path) -> None:

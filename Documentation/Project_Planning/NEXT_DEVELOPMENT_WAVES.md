@@ -196,10 +196,15 @@ Manifesttemplate abweichender Zielname wird vor SQLCMD abgewiesen; alle fünf
 Workflows bestanden. Kumulativ höchstens 99 Arbeitspakete, 142 PRs und 214
 Quellen-/Testkandidaten.
 
-Der nächste statische Selbsttest vergleicht die per AST gefundenen
-`test_*`-Definitionen mit den Aufrufen in `main()` und verlangt eine exakte
-Eins-zu-eins-Registrierung. Kumulativ höchstens 100 Arbeitspakete, 144 PRs und
-215 Quellen-/Testkandidaten.
+PR #469 vergleicht die per AST gefundenen `test_*`-Definitionen mit den
+Aufrufen in `main()` und verlangt eine exakte Eins-zu-eins-Registrierung. Der
+Runner-Test und alle fünf Workflows bestanden. Kumulativ höchstens 100
+Arbeitspakete, 144 PRs und 215 Quellen-/Testkandidaten.
+
+Der nächste Schnitt führt denselben AST-Wächter gegen synthetische Fälle mit
+korrekter, fehlender und doppelter Registrierung sowie doppelter Definition
+aus. Kumulativ höchstens 101 Arbeitspakete, 146 PRs und 216 Quellen-/
+Testkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 
