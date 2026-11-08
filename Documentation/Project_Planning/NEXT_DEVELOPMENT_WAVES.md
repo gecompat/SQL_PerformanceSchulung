@@ -123,6 +123,12 @@ synthetischen Tests lehnen geänderten Vertrag und bösartigen Token vor jedem
 SQLCMD-Prozess ab. Der QRY-023-Manifestentwurf bleibt dennoch nicht
 katalogisiert und ungeprüft gegen SQL Server.
 
+PR #458 integriert die RunToken-Vertragsangleichung. Die vollständige CI
+endete mit 20/22 erfolgreichen Workflows; zwei unabhängige DGN-007-
+Quellenprofilchecks meldeten `PYTHON_PROFILE_CHANGED`. Alle übrigen
+Framework-/Runtimeworkflows, einschließlich SQL Server 2025 AI, waren nach
+regulärem Abschluss erfolgreich.
+
 Der nächste Offline-Schnitt gleicht den maschinenlesbaren RunToken-Vertrag an
 FWK-010 an: `A-Z` oder `0-9` muss das erste Zeichen sein; weitere Zeichen
 dürfen `A-Z`, `0-9` oder `_` sein, insgesamt 1–20 ASCII-Zeichen. Eine
@@ -167,11 +173,17 @@ wird vor SQLCMD-Auflösung und -Start fail-closed durchgesetzt. Alle fünf
 Workflows bestanden. Kumulativ höchstens 95 Arbeitspakete, 134 PRs und 210
 Quellen-/Testkandidaten. Keine Runtimeausführung.
 
-Der nächste Dokumentationsschnitt trennt die vom FWK-010-Caller erzwungene
-alphanumerische Startzeichenregel von Zeichensatz- und Bytegrenze des
-vorgeschlagenen SQL-Preflights. Eine Negativregression schützt die korrekte
-Zuordnung. Kumulativ höchstens 96 Arbeitspakete, 136 PRs und 211 Quellen-/
-Testkandidaten. Keine SQL- oder Runtimeausführung.
+PR #465 trennt die vom FWK-010-Caller erzwungene alphanumerische
+Startzeichenregel von Zeichensatz- und Bytegrenze des vorgeschlagenen
+SQL-Preflights. Die Negativregression, 43 QRY-023-Tests und alle sieben
+ausgelösten Workflows bestanden. Kumulativ höchstens 96 Arbeitspakete, 136 PRs
+und 211 Quellen-/Testkandidaten. Keine SQL- oder Runtimeausführung.
+
+Der synthetische Caller-Test setzt den exakten QRY-023-Vertrag in ein
+`OPT-001`-Manifest; der Demo-ID-Scopekonflikt wird vor SQLCMD-Auflösung und
+-Start abgewiesen. Lokaler Runner-Test, Vertragsvalidator und
+Continuity-Validator bestanden. Kumulativ höchstens 97 Arbeitspakete, 138 PRs
+und 212 Quellen-/Testkandidaten. Keine Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
