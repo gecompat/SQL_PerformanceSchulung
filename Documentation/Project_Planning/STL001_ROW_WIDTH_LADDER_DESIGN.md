@@ -43,11 +43,54 @@ statt, die Forwarded Records erzeugen könnten.
 | `VARIABLE_MIX` | `VariableBlock varchar(200) NOT NULL` | Für `RowId % 5` = 0, 1, 2, 3, 4 gelten der Reihe nach Längen 0, 25, 50, 100 und 200; jeder Wert besteht aus so vielen ASCII-`V`-Bytes. Exakt 20.000 je Länge, Mittelwert 75 Byte |
 | `NULLABLE_MIX` | `NullableBlock varchar(100) NULL` | Bei `RowId % 5 = 0` exakt 20.000 Werte aus 80 ASCII-`N`-Bytes; sonst 80.000 `NULL`-Werte |
 
-Für jede Tabelle müssen `COUNT(*) = 100.000`, die vollständigen Solltupel und
+Für eine beliebige `RowId` `r` von 1 bis 100.000 gelten die vollständigen
+Spaltenformeln:
+
+```text
+GroupId(r) = (r - 1) % 100
+FixedBlock(r) = REPLICATE('F', 100)
+VariableLength(r) = CASE r % 5 WHEN 0 THEN 0 WHEN 1 THEN 25 WHEN 2 THEN 50
+                              WHEN 3 THEN 100 ELSE 200 END
+VariableBlock(r) = REPLICATE('V', VariableLength(r))
+NullableBlock(r) = CASE WHEN r % 5 = 0 THEN REPLICATE('N', 80) ELSE NULL END
+```
+
+Die vollständigen Solltupel je Profil sind für alle `r = 1..100000`,
+kanonisch aufsteigend nach `RowId`:
+
+- `BASE`: `(r, GroupId(r))`;
+- `FIXED_100`: `(r, GroupId(r), FixedBlock(r))`;
+- `VARIABLE_MIX`: `(r, GroupId(r), FixedBlock(r), VariableBlock(r))`;
+- `NULLABLE_MIX`: `(r, GroupId(r), FixedBlock(r), VariableBlock(r), NullableBlock(r))`.
+
+Die kanonische Sortierung dient nur dem Vergleich, nicht als Abfragereihenfolge.
+Sie definiert für jede Tabelle alle Spaltenwerte, Nullwerte, Leerstrings und
+Multiplizitäten. Damit lassen sich gemeinsam vorhandene Spalten zwischen den
+Stufen direkt vergleichen. Die 100.000 `RowId`-Werte sind eindeutig; jeder
+`GroupId`-Wert von 0 bis 99 kommt in jedem Profil genau 1.000-mal vor.
+
+Die exakten `DATALENGTH`-Häufigkeiten sind:
+
+| Profil/Spalte | Länge | Häufigkeit |
+|---|---:|---:|
+| `FIXED_100.FixedBlock` | 100 | 100.000 |
+| `VARIABLE_MIX.VariableBlock` | 0 | 20.000 |
+| `VARIABLE_MIX.VariableBlock` | 25 | 20.000 |
+| `VARIABLE_MIX.VariableBlock` | 50 | 20.000 |
+| `VARIABLE_MIX.VariableBlock` | 100 | 20.000 |
+| `VARIABLE_MIX.VariableBlock` | 200 | 20.000 |
+| `NULLABLE_MIX.VariableBlock` | 0 | 20.000 |
+| `NULLABLE_MIX.VariableBlock` | 25 | 20.000 |
+| `NULLABLE_MIX.VariableBlock` | 50 | 20.000 |
+| `NULLABLE_MIX.VariableBlock` | 100 | 20.000 |
+| `NULLABLE_MIX.VariableBlock` | 200 | 20.000 |
+| `NULLABLE_MIX.NullableBlock` | 80 | 20.000 |
+| `NULLABLE_MIX.NullableBlock` | `NULL` (kein Längenwert) | 80.000 |
+
+Für jede Tabelle müssen `COUNT(*) = 100.000`, alle vollständigen Solltupel und
 die `RowId`-Multiplizitäten mit dem deterministischen Generatororacle
-übereinstimmen. Gemeinsam vorhandene Spalten müssen über alle Stufen identisch
-bleiben. `DATALENGTH`-Häufigkeiten belegen die Sollverteilung; alleinige
-Zeilenzahlen reichen nicht.
+übereinstimmen. Alle `DATALENGTH`-Häufigkeiten müssen den Tabellenwerten
+entsprechen; alleinige Zeilenzahlen reichen nicht.
 
 ## Rechenmodell und Beobachtung
 
@@ -64,11 +107,16 @@ Fixturmittelwert, nicht die deklarierte Maximalbreite.
 | `VARIABLE_MIX` | 105 B | 75 B | 4 / 1 | 191 B | 41 |
 | `NULLABLE_MIX` | 105 B | 91 B | 5 / 2 | 209 B | 38 |
 
-Die modellierte Zeilengröße enthält gemäß Microsoft-Formel NULL-Bitmap,
-Variablenlängenverwaltung und 4-Byte-Recordheader. Die modellierten Zeilen pro
-Seite runden `8096 / (Row_Size + 2)` ab; sie sagen keine exakte reale
-Seitenauslastung voraus. Alle Profile liegen weit unter der 8.060-Byte-
-In-Row-Grenze und testen daher keinen Row-Overflow-Fall.
+Die Rechnung verwendet `Null_Bitmap = 2 + floor((Num_Cols + 7) / 8)`;
+`Variable_Data_Size = 2 + 2 * Num_Variable_Cols + mittlere variable Nutzbytes`
+und `Row_Size = Fixed_Data_Size + Variable_Data_Size + Null_Bitmap + 4`.
+Damit sind die mittleren variablen Datengrößen 79 Byte für `VARIABLE_MIX`
+(75 Nutzbytes plus 4 Byte Verwaltungsaufwand) und 97 Byte für `NULLABLE_MIX`
+(91 Nutzbytes plus 6 Byte Verwaltungsaufwand). Die NULL-Bitmap beträgt in
+allen vier Profilen 3 Byte. Die modellierten Zeilen pro Seite runden
+`8096 / (Row_Size + 2)` ab; sie sagen keine exakte reale Seitenauslastung
+voraus. Alle Profile liegen weit unter der 8.060-Byte-In-Row-Grenze und testen
+daher keinen Row-Overflow-Fall.
 
 Bei einer später separat freigegebenen Engineprüfung kann
 `sys.dm_db_index_physical_stats` je Heap und Partition im Modus `DETAILED`
@@ -91,6 +139,11 @@ Entwurf ist nicht katalogisiert und nicht ausgeführt; er behauptet keine
 allgemeine Page Density, Leistung oder Ressourcenaussage. Menschliche
 Generalprobe bleibt ausgeschlossen.
 
-Die Quellen-IDs sind im [Quellenregister](../Research/SOURCE_REGISTER.md)
-aufgeführt. `SRC-002` dokumentiert Seitenaufbau und Row-Overflow-Grenze;
-`SRC-140` bindet Heap-Größenschätzung und Record-/Seitenbeobachtung zusammen.
+`SRC-002` dokumentiert 8-KiB-Seiten, den 96-Byte-Seitenheader, 2-Byte-Slot
+Array-Elemente und die 8.060-Byte-Grenze. `SRC-140` bindet die Heap-
+Größenschätzung und `sys.dm_db_index_physical_stats` zusammen. `DETAILED`
+scannt alle Seiten und die Funktion nimmt unabhängig vom Modus eine
+Intent-Shared-Sperre. Für die ausgewählte Heapmessung bleiben daher Rechte,
+Ressourcenwirkung und zulässiger Modus vor einer späteren Runtimephase zu
+qualifizieren. Die vollständigen Quellen stehen im
+[Quellenregister](../Research/SOURCE_REGISTER.md).
