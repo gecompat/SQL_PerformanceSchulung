@@ -184,10 +184,17 @@ Demo-ID-Scopekonflikt wird vor SQLCMD-Auflösung und -Start abgewiesen. Alle
 fünf Workflows bestanden. Kumulativ höchstens 97 Arbeitspakete, 138 PRs und
 212 Quellen-/Testkandidaten. Keine Runtimeausführung.
 
-Der nächste synthetische Caller-Test ersetzt `sqlcmd_input_validation` durch
-eine Liste und prüft die Ablehnung vor SQLCMD-Auflösung und Prozessstart.
-Kumulativ höchstens 98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten.
-Keine Runtimeausführung.
+PR #467 ersetzt `sqlcmd_input_validation` synthetisch durch eine Liste; die
+Zurückweisung vor SQLCMD-Auflösung und Prozessstart sowie die übrigen
+Manipulationsgegenproben bestanden. Alle fünf Workflows waren grün. Kumulativ
+höchstens 98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten. Keine
+Runtimeausführung.
+
+Ein Nachreview fand eine doppelte Definition und Registrierung des
+`OPT-001`-Scope-Tests aus PR #466. Der nächste Schnitt entfernt sie und ergänzt
+eine gezielte Zielnamendriftprobe, die einen abweichenden
+`target_database_name()`-Wert vor SQLCMD zurückweist. Kumulativ höchstens 99
+Arbeitspakete, 142 PRs und 214 Quellen-/Testkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 
