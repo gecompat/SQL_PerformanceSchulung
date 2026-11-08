@@ -39,6 +39,7 @@ QRY023_SQLCMD_INPUT_VALIDATION = {
     "run_token": {
         "encoding": "ASCII",
         "allowed_characters": "A-Z0-9_",
+        "first_character": "A-Z0-9",
         "min_bytes": 1,
         "max_bytes": 20,
     },
@@ -172,7 +173,7 @@ def _validate_sqlcmd_input_contract(payload: dict[str, Any], demo_id: str, run_t
 
     if demo_id != "QRY-023":
         raise ValueError("sqlcmd_input_validation requires demo_id QRY-023")
-    if not run_token.isascii() or not re.fullmatch(r"[A-Z0-9_]{1,20}", run_token):
+    if not run_token.isascii() or not re.fullmatch(r"[A-Z0-9][A-Z0-9_]{0,19}", run_token):
         raise ValueError("run_token does not satisfy sqlcmd_input_validation")
 
     target_template = contract["target_database"]["template"]

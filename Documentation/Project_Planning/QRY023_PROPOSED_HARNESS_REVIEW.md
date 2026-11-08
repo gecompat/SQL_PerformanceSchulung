@@ -154,18 +154,19 @@ Sicherheitsinferenz, dass unsichere Quote-/Batch-Inhalte die T-SQL-Guards
 erreichen können, nachdem die Skriptstruktur bereits beeinflusst wurde. Der
 read-only Preflight ist daher keine SQLCMD-Injectiongrenze. Vor jeder späteren
 Aufnahme in einen ausführbaren Harness muss der Aufrufer die Demo-ID exakt auf
-`QRY-023`, den RunToken auf `A-Z`, `0-9`, `_` mit 1–20 ASCII-Bytes und den
-Zielnamen auf die deterministische Formel vor SQLCMD allowlisten. Dieser
-Aufrufer existiert im Vorschlag nicht; der Vertrag ist ein offenes
-Qualifikationsgate, keine aktuelle Runtimeabsicherung.
+`QRY-023`, den RunToken auf `A-Z`, `0-9`, `_` mit 1–20 ASCII-Bytes und einem
+alphanumerischen ersten Zeichen sowie den Zielnamen auf die deterministische
+Formel vor SQLCMD allowlisten. Der FWK-010-Caller setzt diese Eingabeprüfung
+jetzt um; QRY-023 selbst bleibt dennoch nicht katalogisiert und ungefahren.
 
 `manifest.proposed.json` bindet diese Anforderung jetzt im Feld
 `sqlcmd_input_validation`: exakte Demo-ID, ASCII-RunToken-Zeichensatz und
 Bytegrenzen, deterministische Zielnamenschablone sowie Prüfung vor
 SQLCMD-Expansion. Der Validator vergleicht das ganze Vertragsobjekt gegen die
 Sollstruktur; Gegenproben für Validierungszeitpunkt und Zeichensatz werden
-abgewiesen. Das Manifestfeld implementiert keinen Aufrufer und ersetzt keine
-spätere Caller-/Runtimequalifikation.
+abgewiesen. Das Manifestfeld allein implementiert keinen Aufrufer; die optionale
+Prüfung in FWK-010 setzt es für diesen Caller durch. Das ersetzt weder die
+QRY-023-Runtimequalifikation noch eine Engineausführung.
 
 `Demos/00_Framework/Tools/run_demo.py` setzt das optionale Vertragsobjekt jetzt
 beim Manifestladen durch. Ungültige Vertragswerte und ein SQL-Injection-
