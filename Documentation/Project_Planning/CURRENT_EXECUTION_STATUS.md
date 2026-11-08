@@ -385,10 +385,18 @@ Runner-Test und alle fünf Workflows bestanden. Kumulative Obergrenze:
 
 ## Fortsetzung: FWK-010 – Asynchrone Testdefinitionen fail-closed behandeln
 
-Der nächste synthetische Fall definiert `test_one` als `async def` und ruft es
-ohne Await aus `main()` auf. Der AST-Wächter darf diesen Coroutine-Aufruf nicht
-als ausgeführten Test zählen. Kumulative Obergrenze für Auswahl und Integration:
-105 Arbeitspakete, 154 PRs und 220 Quellen-/Testkandidaten.
+PR #474 nimmt nur synchrone `test_*`-Definitionen in den Registrierungssatz auf;
+eine asynchrone Definition mit gewöhnlichem, nicht-awaited Aufruf gilt nicht
+als ausgeführt. Alle fünf ausgelösten Workflows bestanden. Die kumulative
+Obergrenze von 105 Arbeitspaketen, 154 PRs und 220 Quellen-/Testkandidaten ist
+erreicht.
+
+Für den unmittelbar folgenden Schattenfall gilt eine begrenzte Erweiterung um
+ein Arbeitspaket, einen PR und einen synthetischen Testkandidaten auf höchstens
+106/155/221, ohne Reset. Eine gleichnamige synchrone und asynchrone
+Top-Leveldefinition muss als doppelte Definition abgewiesen werden, weil die
+spätere Coroutine den aufrufbaren Namen überschreibt. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
