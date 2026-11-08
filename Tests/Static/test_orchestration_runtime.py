@@ -412,12 +412,30 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     if len(main_functions) != 1:
         return ("runtime test module must define exactly one main function",)
     main_function = main_functions[0]
-    registrations = [
-        node.func.id for node in ast.walk(main_function)
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Name)
-        and node.func.id.startswith("test_")
-    ]
+
+    class MainTestCallVisitor(ast.NodeVisitor):
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            if node is main_function:
+                self.generic_visit(node)
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+            if node is main_function:
+                self.generic_visit(node)
+
+        def visit_Lambda(self, node: ast.Lambda) -> None:
+            return
+
+        def visit_Call(self, node: ast.Call) -> None:
+            if isinstance(node.func, ast.Name) and node.func.id.startswith("test_"):
+                self.calls.append(node.func.id)
+            self.generic_visit(node)
+
+    visitor = MainTestCallVisitor()
+    visitor.visit(main_function)
+    registrations = visitor.calls
     issues: list[str] = []
     if len(definitions) != len(set(definitions)):
         issues.append("runtime test functions must be uniquely defined")
@@ -466,6 +484,15 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(undefined_registration),
         ("runtime test definitions and registrations must match",),
         "undefined synthetic test registration",
+    )
+    nested_unexecuted_call = (
+        "def test_one(): pass\ndef main():\n"
+        "    def helper():\n        test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(nested_unexecuted_call),
+        ("runtime test definitions and registrations must match",),
+        "nested helper call is not a main registration",
     )
 
 
