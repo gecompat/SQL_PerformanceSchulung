@@ -157,10 +157,15 @@ SQLCMD-Auflösung und -Start abgewiesen; alle sechs direkten CI-Workflows waren
 grün. Kumulativ höchstens 93 Arbeitspakete, 130 PRs und 208 Quellen-/
 Testkandidaten. Keine Vertragsausweitung, Engine- oder Runtimeausführung.
 
-Als nächstes pinnen synthetische Caller-Gegenproben die exakte Vertrags-Demo-ID
-und Zielnamenschablone. Beide veränderten Werte müssen vor SQLCMD-Auflösung und
--Start scheitern. Kumulativ höchstens 94 Arbeitspakete, 132 PRs und 209
+PR #463 pinnt synthetisch die exakte Vertrags-Demo-ID und Zielnamenschablone;
+beide veränderten Werte scheitern vor SQLCMD-Auflösung und -Start. Alle fünf
+Workflows bestanden. Kumulativ höchstens 94 Arbeitspakete, 132 PRs und 209
 Quellen-/Testkandidaten. Keine Runtimeausführung.
+
+Der nächste synthetische Caller-Test legt den QRY-023-Vertrag in ein
+`OPT-001`-Manifest und prüft, dass der Demo-Scope vor SQLCMD-Auflösung und
+-Start fail-closed durchgesetzt wird. Kumulativ höchstens 95 Arbeitspakete,
+134 PRs und 210 Quellen-/Testkandidaten. Keine Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
