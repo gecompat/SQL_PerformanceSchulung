@@ -414,6 +414,13 @@ AST-Wächter muss den tatsächlichen `if __name__ == "__main__"`-Einstieg mit
 vollständige Testregistrierung startet den Testlauf noch nicht. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #477 integriert diese Einstiegsprüfung; alle fünf Workflows bestanden.
+Für drei synthetische Fehlformen wird das kumulative Budget ohne Reset um ein
+Arbeitspaket, einen PR und drei Testkandidaten auf höchstens 109/158/226
+erweitert. Umgedrehte Guard-Bedingung, fehlende Exitcode-Weitergabe und ein
+Funktionsverweis ohne Aufruf müssen fail-closed scheitern. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
