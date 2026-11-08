@@ -516,6 +516,29 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
         def visit_Call(self, node: ast.Call) -> None:
             if isinstance(node.func, ast.Name) and node.func.id == "main":
                 self.calls.append(node)
+            elif (
+                isinstance(node.func, ast.Subscript)
+                and isinstance(node.func.value, ast.Call)
+                and isinstance(node.func.value.func, ast.Name)
+                and node.func.value.func.id == "globals"
+                and not node.func.value.args
+                and not node.func.value.keywords
+                and isinstance(node.func.slice, ast.Constant)
+                and node.func.slice.value == "main"
+            ):
+                self.calls.append(node)
+            elif (
+                isinstance(node.func, ast.Call)
+                and isinstance(node.func.func, ast.Name)
+                and node.func.func.id == "getattr"
+                and len(node.func.args) == 2
+                and isinstance(node.func.args[0], ast.Call)
+                and isinstance(node.func.args[0].func, ast.Name)
+                and node.func.args[0].func.id == "globals"
+                and isinstance(node.func.args[1], ast.Constant)
+                and node.func.args[1].value == "main"
+            ):
+                self.calls.append(node)
             self.generic_visit(node)
 
         def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
@@ -607,6 +630,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
             'runner = main\n'
             'if __name__ == "__main__":\n    raise SystemExit(main())\n',
             "unguarded main alias",
+        ),
+        (
+            'globals()["main"]()\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "dynamic globals main call",
+        ),
+        (
+            'getattr(globals(), "main")()\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n',
+            "dynamic getattr main call",
         ),
     ):
         assert_equal(

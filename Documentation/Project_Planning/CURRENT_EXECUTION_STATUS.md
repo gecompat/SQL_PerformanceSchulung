@@ -449,6 +449,13 @@ ohne Reset um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
 Moduleinstieg nicht am Wächter vorbeiführen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #482 integriert die Aliasgegenprobe; alle fünf Workflows bestanden. Für
+zwei dynamische globale Aufrufformen wird das kumulative Budget ohne Reset um
+ein Paket, einen PR und zwei Testkandidaten auf höchstens 114/163/234 erweitert.
+`globals()["main"]()` und `getattr(globals(), "main")()` müssen außerhalb des
+Guards als Moduleinstieg abgewiesen werden. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
