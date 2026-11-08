@@ -256,6 +256,13 @@ Caller-Test weist `_LOCAL` vor SQLCMD-Auflösung und -Start zurück. Keine
 menschliche Generalprobe. Kumulative Obergrenze für Auswahl und Integration:
 89 Arbeitspakete, 122 PRs und 204 Quellen-/Testkandidaten.
 
+PR #458 integriert die Caller-Vertragsangleichung. Die vollständige, breit
+ausgelöste CI ist inzwischen abgeschlossen: 20 von 22 Workflows waren
+erfolgreich; zwei unabhängige DGN-007-Quellenprofilchecks scheiterten mit
+`PYTHON_PROFILE_CHANGED`. Die DGN-Dateien waren nicht Teil des PR-Diffs; alle
+übrigen Framework- und Runtimeläufe, einschließlich SQL Server 2025 AI, sind
+beendet und bestanden.
+
 ## Fortsetzung: QRY-023 – RunToken-Negativregression ausführen
 
 Ein Nachreview ergab, dass die `_LOCAL`-Regression zwar definiert, aber nicht
@@ -308,13 +315,20 @@ Testkandidaten. Keine Runtimeausführung.
 
 ## Fortsetzung: QRY-023 – Caller- und SQL-Preflight-Grenze dokumentieren
 
-Die README ordnet aktuell die alphanumerische Startzeichenregel dem SQL-
-Preflight zu; tatsächlich setzt sie FWK-010 beim Caller durch. Der SQL-
-Preflight prüft separat den erlaubten ASCII-Zeichensatz und die Bytegrenze.
-Der nächste Dokumentationsschnitt trennt diese Verantwortlichkeiten und pinnt
-die Zuordnung mit einer statischen Negativregression. Kumulative Obergrenze
-für Auswahl und Integration: 96 Arbeitspakete, 136 PRs und 211 Quellen-/
-Testkandidaten. Keine SQL- oder Runtimeausführung.
+PR #465 ordnet die alphanumerische Startzeichenregel dem FWK-010-Caller zu und
+trennt davon ASCII-Zeichensatz und Bytegrenze des SQL-Preflights. Eine statische
+Negativregression schützt die Zuordnung; 43 QRY-023-Tests und alle sieben
+ausgelösten Workflows bestanden. Kumulative Obergrenze: 96 Arbeitspakete, 136
+PRs und 211 Quellen-/Testkandidaten. Keine SQL- oder Runtimeausführung.
+
+## Fortsetzung: FWK-010 – Demo-ID-Feld des QRY-023-Vertrags durchsetzen
+
+Der synthetische Caller-Test ändert die Manifest-Demo-ID auf `OPT-001`, lässt
+aber den exakten QRY-023-Vertrag stehen. FWK-010 weist den Scope-Konflikt vor
+SQLCMD-Auflösung/-Start zurück; lokaler Runner-Test, Vertragsvalidator und
+Continuity-Validator bestanden. Kumulative Obergrenze für Auswahl und
+Integration: 97 Arbeitspakete, 138 PRs und 212 Quellen-/Testkandidaten. Keine
+Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

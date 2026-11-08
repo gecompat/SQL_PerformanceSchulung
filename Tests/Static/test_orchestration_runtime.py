@@ -227,6 +227,35 @@ def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> N
             execute.assert_not_called()
 
 
+def test_qry023_input_contract_rejects_other_demo_id_before_sqlcmd_resolution(base: Path) -> None:
+    path = demo_manifest(base / "qry023_contract_on_opt_demo", demo_id="OPT-001")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["sqlcmd_input_validation"] = json.loads(
+        json.dumps(run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION)
+    )
+    write_json(path, payload)
+    with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=path,
+                server="synthetic",
+                auth="integrated",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "sqlcmd_input_validation requires demo_id QRY-023",
+                         "QRY-023 contract scope rejection")
+        else:
+            raise AssertionError("QRY-023 SQLCMD contract was accepted for OPT-001")
+        resolve.assert_not_called()
+        execute.assert_not_called()
+
+
 def test_hostile_qry023_token_fails_before_sqlcmd_resolution(base: Path) -> None:
     path = demo_manifest(
         base / "hostile_qry023_token",
@@ -622,6 +651,7 @@ def main() -> int:
         executable = fake_sqlcmd(base)
         test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base)
         test_hostile_qry023_token_fails_before_sqlcmd_resolution(base)
+        test_qry023_input_contract_rejects_other_demo_id_before_sqlcmd_resolution(base)
         test_qry023_input_contract_rejects_other_demo_id_before_sqlcmd_resolution(base)
         test_qry023_contract_rejects_leading_underscore_before_sqlcmd_resolution(base)
         test_qry023_run_token_length_and_ascii_boundaries(base)
