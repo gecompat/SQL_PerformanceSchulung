@@ -233,6 +233,14 @@ Gegenprobe definiert erst eine synchrone `main()` und überschreibt sie danach
 mit `async def main()`; der AST-Wächter muss den Einstiegspunkt fail-closed
 ablehnen. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #476 integriert die Zurückweisung der asynchronen `main()`-Überschreibung;
+alle fünf Workflows bestanden. Die Fortsetzung erweitert den Rahmen ohne Reset
+um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens 108/157/223.
+Der Wächter prüft nun auch den direkten Modulaufruf unter dem
+`__main__`-Guard und die Weitergabe des Rückgabecodes über
+`raise SystemExit(main())`. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

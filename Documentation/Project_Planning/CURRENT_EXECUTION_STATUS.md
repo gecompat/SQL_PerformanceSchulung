@@ -406,6 +406,14 @@ eine synchrone `main()` nicht überschreiben und dabei die eindeutige
 Runner-Einstiegsprüfung passieren. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #476 integriert die Prüfung; alle fünf Workflows bestanden. Für den nächsten
+kleinen Kandidaten erweitert sich der kumulative Rahmen ohne Reset um ein
+Arbeitspaket, einen PR und einen Testkandidaten auf höchstens 108/157/223. Der
+AST-Wächter muss den tatsächlichen `if __name__ == "__main__"`-Einstieg mit
+`raise SystemExit(main())` verlangen. Eine bloße `main()`-Definition und intern
+vollständige Testregistrierung startet den Testlauf noch nicht. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

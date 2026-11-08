@@ -465,9 +465,54 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     return tuple(issues)
 
 
+def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
+    tree = ast.parse(source)
+    guards = [
+        node for node in tree.body
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.Compare)
+        and isinstance(node.test.left, ast.Name)
+        and node.test.left.id == "__name__"
+        and len(node.test.ops) == 1
+        and isinstance(node.test.ops[0], ast.Eq)
+        and len(node.test.comparators) == 1
+        and isinstance(node.test.comparators[0], ast.Constant)
+        and node.test.comparators[0].value == "__main__"
+    ]
+    valid_calls = []
+    for guard in guards:
+        for statement in guard.body:
+            if not isinstance(statement, ast.Raise) or not isinstance(statement.exc, ast.Call):
+                continue
+            exc = statement.exc
+            if (
+                isinstance(exc.func, ast.Name)
+                and exc.func.id == "SystemExit"
+                and len(exc.args) == 1
+                and not exc.keywords
+                and isinstance(exc.args[0], ast.Call)
+                and isinstance(exc.args[0].func, ast.Name)
+                and exc.args[0].func.id == "main"
+                and not exc.args[0].args
+                and not exc.args[0].keywords
+            ):
+                valid_calls.append(statement)
+    if len(guards) != 1 or len(valid_calls) != 1:
+        return ("runtime test module must invoke main from __main__ guard",)
+    return ()
+
+
 def test_runtime_test_functions_are_registered_once() -> None:
     source = Path(__file__).read_text(encoding="utf-8")
     assert_equal(runtime_test_registration_issues(source), (), "current runtime test registration")
+    assert_equal(runtime_test_entrypoint_issues(source), (), "current runtime test entry point")
+    entrypoint = 'if __name__ == "__main__":\n    raise SystemExit(main())\n'
+    assert_equal(runtime_test_entrypoint_issues(entrypoint), (), "valid synthetic module entry point")
+    assert_equal(
+        runtime_test_entrypoint_issues("def main(): pass\n"),
+        ("runtime test module must invoke main from __main__ guard",),
+        "missing synthetic module entry point",
+    )
 
     base = "def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(runtime_test_registration_issues(base), (), "complete synthetic test registration")
