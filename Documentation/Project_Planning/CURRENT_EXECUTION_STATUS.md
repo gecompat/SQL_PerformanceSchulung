@@ -347,12 +347,18 @@ Kumulative Obergrenze: 99 Arbeitspakete, 142 PRs und 214 Quellen-/Testkandidaten
 
 ## Fortsetzung: FWK-010 – Runner-Testregistrierung automatisch prüfen
 
-Der nächste statische Selbsttest vergleicht die AST-definierten
-`test_*`-Funktionen mit den Aufrufen in `main()`: jede muss genau einmal
-definiert und registriert sein. Damit werden ausgelassene Tests, doppelte
-Definitionen und doppelte Aufrufe früh erkannt. Kumulative Obergrenze für
-Auswahl und Integration: 100 Arbeitspakete, 144 PRs und 215 Quellen-/
-Testkandidaten.
+PR #469 vergleicht die AST-definierten `test_*`-Funktionen mit den Aufrufen in
+`main()` und verlangt eine eindeutige Eins-zu-eins-Registrierung. Der erneute
+Runner-Test sowie alle fünf Workflows bestanden. Kumulative Obergrenze:
+100 Arbeitspakete, 144 PRs und 215 Quellen-/Testkandidaten.
+
+## Fortsetzung: FWK-010 – Testregistrierungswächter synthetisch prüfen
+
+Der nächste Schnitt führt den AST-Wächter zusätzlich gegen kleine synthetische
+Module mit korrekter, fehlender und doppelter Testregistrierung sowie doppelter
+Definition aus. Der Wächter selbst soll seine wichtigsten Fehlermodi abdecken.
+Kumulative Obergrenze für Auswahl und Integration: 101 Arbeitspakete, 146 PRs
+und 216 Quellen-/Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
