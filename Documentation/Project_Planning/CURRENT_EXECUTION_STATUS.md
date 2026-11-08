@@ -323,11 +323,18 @@ PRs und 211 Quellen-/Testkandidaten. Keine SQL- oder Runtimeausführung.
 
 ## Fortsetzung: FWK-010 – Demo-ID-Feld des QRY-023-Vertrags durchsetzen
 
-Der synthetische Caller-Test ändert die Manifest-Demo-ID auf `OPT-001`, lässt
-aber den exakten QRY-023-Vertrag stehen. FWK-010 weist den Scope-Konflikt vor
-SQLCMD-Auflösung/-Start zurück; lokaler Runner-Test, Vertragsvalidator und
-Continuity-Validator bestanden. Kumulative Obergrenze für Auswahl und
-Integration: 97 Arbeitspakete, 138 PRs und 212 Quellen-/Testkandidaten. Keine
+PR #466 ergänzt den synthetischen Caller-Test mit `OPT-001`-Manifest und exakt
+deklariertem QRY-023-Vertrag. FWK-010 weist den Scope-Konflikt vor SQLCMD-
+Auflösung/-Start zurück; alle fünf Workflows bestanden. Kumulative Obergrenze:
+97 Arbeitspakete, 138 PRs und 212 Quellen-/Testkandidaten. Keine Runtime-
+Ausführung.
+
+## Fortsetzung: FWK-010 – Nicht-Objekt-Vertrag fail-closed ablehnen
+
+Der nächste synthetische Caller-Test ersetzt `sqlcmd_input_validation` durch
+eine Liste. Der Manifestloader muss den ungültigen Vertrag vor SQLCMD-Auflösung
+und Prozessstart zurückweisen. Kumulative Obergrenze für Auswahl und
+Integration: 98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten. Keine
 Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter

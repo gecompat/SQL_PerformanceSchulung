@@ -179,11 +179,15 @@ SQL-Preflights. Die Negativregression, 43 QRY-023-Tests und alle sieben
 ausgelösten Workflows bestanden. Kumulativ höchstens 96 Arbeitspakete, 136 PRs
 und 211 Quellen-/Testkandidaten. Keine SQL- oder Runtimeausführung.
 
-Der synthetische Caller-Test setzt den exakten QRY-023-Vertrag in ein
-`OPT-001`-Manifest; der Demo-ID-Scopekonflikt wird vor SQLCMD-Auflösung und
--Start abgewiesen. Lokaler Runner-Test, Vertragsvalidator und
-Continuity-Validator bestanden. Kumulativ höchstens 97 Arbeitspakete, 138 PRs
-und 212 Quellen-/Testkandidaten. Keine Runtimeausführung.
+PR #466 setzt den exakten QRY-023-Vertrag in ein `OPT-001`-Manifest; der
+Demo-ID-Scopekonflikt wird vor SQLCMD-Auflösung und -Start abgewiesen. Alle
+fünf Workflows bestanden. Kumulativ höchstens 97 Arbeitspakete, 138 PRs und
+212 Quellen-/Testkandidaten. Keine Runtimeausführung.
+
+Der nächste synthetische Caller-Test ersetzt `sqlcmd_input_validation` durch
+eine Liste und prüft die Ablehnung vor SQLCMD-Auflösung und Prozessstart.
+Kumulativ höchstens 98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten.
+Keine Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 

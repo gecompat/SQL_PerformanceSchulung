@@ -190,11 +190,18 @@ def test_qry023_contract_loads_in_existing_caller() -> None:
 
 def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> None:
     for name, mutation in (
-        ("validation_timing", lambda contract: contract.update(must_validate_before="TSQL_GUARD")),
-        ("unknown_field", lambda contract: contract.update(unrecognized=True)),
-        ("boolean_byte_limit", lambda contract: contract["run_token"].update(max_bytes=True)),
-        ("wrong_demo_id", lambda contract: contract["demo_id"].update(value="QRY-024")),
-        ("wrong_target_template", lambda contract: contract["target_database"].update(
+        ("non_object_root", lambda payload: payload.__setitem__("sqlcmd_input_validation", [])),
+        ("validation_timing", lambda payload: payload["sqlcmd_input_validation"].update(
+            must_validate_before="TSQL_GUARD"
+        )),
+        ("unknown_field", lambda payload: payload["sqlcmd_input_validation"].update(unrecognized=True)),
+        ("boolean_byte_limit", lambda payload: payload["sqlcmd_input_validation"]["run_token"].update(
+            max_bytes=True
+        )),
+        ("wrong_demo_id", lambda payload: payload["sqlcmd_input_validation"]["demo_id"].update(
+            value="QRY-024"
+        )),
+        ("wrong_target_template", lambda payload: payload["sqlcmd_input_validation"]["target_database"].update(
             template="SQLPERF_LAB_UNBOUND"
         )),
     ):
@@ -203,7 +210,7 @@ def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> N
         payload["sqlcmd_input_validation"] = json.loads(
             json.dumps(run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION)
         )
-        mutation(payload["sqlcmd_input_validation"])
+        mutation(payload)
         write_json(path, payload)
         with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
              patch.object(run_demo_module, "run_sqlcmd") as execute:
