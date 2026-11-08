@@ -87,7 +87,7 @@ Logical-Read-Messung.
 
 ## Quellen
 
-- Microsoft Learn, [BETWEEN (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/between-transact-sql?view=sql-server-ver17): beide Grenzen sind einschließend; geprüft 2026-11-07.
-- Microsoft Learn, [datetime2 (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17) und [datetime (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime-transact-sql?view=sql-server-ver17): Wertebereich, Präzision und Rundung; geprüft 2026-11-07.
-- Microsoft Learn, [DATEADD (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17): bei typisiertem Datumseingang bleibt der Rückgabetyp erhalten; geprüft 2026-11-07.
+- Microsoft Learn, [BETWEEN (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/between-transact-sql?view=sql-server-ver17): beide Grenzen sind einschließend; geprüft 2026-11-08.
+- Microsoft Learn, [datetime2 (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17) und [datetime (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime-transact-sql?view=sql-server-ver17): Wertebereich, Präzision und Rundung; geprüft 2026-11-08.
+- Microsoft Learn, [DATEADD (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17): bei typisiertem Datumseingang bleibt der Rückgabetyp erhalten; geprüft 2026-11-08.
 - Das projektweite [Quellenregister](../Research/SOURCE_REGISTER.md) führt `SRC-133` für Intervall-, Präzisions- und `DATEADD`-Semantik sowie `SRC-012` für den allgemeinen Index-/Suchargumentkontext. Die Zugriffswirkung bleibt empirisch.

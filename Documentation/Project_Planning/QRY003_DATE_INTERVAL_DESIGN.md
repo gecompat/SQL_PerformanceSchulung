@@ -43,46 +43,62 @@ Read- oder Laufzeitvorteil als feste Erwartung erzwingen.
 Die behauptete Semantik ist versionsübergreifend dokumentiert. Die Matrix
 qualifiziert keine Builds, Editionen, Plattformen oder tatsächlichen Pläne.
 
-## Synthetische Grenzdaten
+## Synthetische Grenzdaten und vollständige Tupeloracles
 
-Verwende für beide Spalten dieselbe Kalendertagsachse, aber nur Werte, die der
-jeweilige Typ darstellen kann.
+Zwei getrennte Fixturevarianten verwenden jeweils eine Primärschlüsselspalte
+`EventId int` und eine Spalte `OccurredAt`, einmal `datetime` und einmal
+`datetime2(7)`. Die folgenden ISO-8601-Zeitpunkte sind die gespeicherten
+Sollwerte. Für `datetime` werden ausschließlich darstellbare Millisekunden
+verwendet; die Werte werden bei der Fixtureerzeugung nicht aus höherer
+Präzision gerundet.
 
-| Ereignis | `datetime` | `datetime2(7)` |
-|---|---|---|
-| `START` | `2026-03-07 00:00:00.000` | `2026-03-07 00:00:00.0000000` |
-| `LATE_1` | `2026-03-07 23:59:59.990` | `2026-03-07 23:59:59.9970000` |
-| `LATE_2` | `2026-03-07 23:59:59.993` | `2026-03-07 23:59:59.9999999` |
-| `DATETIME_LAST_TICK` | `2026-03-07 23:59:59.997` | – |
-| `NEXT_DAY` | `2026-03-08 00:00:00.000` | `2026-03-08 00:00:00.0000000` |
+| `EventId` | Rolle | Solltupel `datetime` (`EventId`, `OccurredAt`) | Solltupel `datetime2(7)` (`EventId`, `OccurredAt`) |
+|---:|---|---|---|
+| 1 | Tagesbeginn | `(1, 2026-03-07T00:00:00.000)` | `(1, 2026-03-07T00:00:00.0000000)` |
+| 2 | Tagesende, früher | `(2, 2026-03-07T23:59:59.990)` | `(2, 2026-03-07T23:59:59.9900000)` |
+| 3 | Tagesende, später | `(3, 2026-03-07T23:59:59.993)` | `(3, 2026-03-07T23:59:59.9930000)` |
+| 4 | letzter `datetime`-Tick | `(4, 2026-03-07T23:59:59.997)` | `(4, 2026-03-07T23:59:59.9970000)` |
+| 5 | letzte `datetime2(7)`-Fraktion | – | `(5, 2026-03-07T23:59:59.9999999)` |
+| 6 | Folgetagesbeginn | `(6, 2026-03-08T00:00:00.000)` | `(6, 2026-03-08T00:00:00.0000000)` |
+| 7 | Folgetag, nächster Typ-Tick | `(7, 2026-03-08T00:00:00.003)` | `(7, 2026-03-08T00:00:00.0000001)` |
 
-Die Solltupel für den 7. März sind für `datetime` `{START, LATE_1, LATE_2,
-DATETIME_LAST_TICK}` und für `datetime2(7)` `{START, LATE_1, LATE_2}`. Beide
-Oracles schließen `NEXT_DAY` aus.
+Die vollständigen Tupeloracles für das Zielintervall 7. März sind damit:
 
-Vor einer SQL-Implementierung ist die endgültige Fixture so zu normalisieren,
-dass jede erwartete `datetime`-Zeile nach Engine-Rundung eindeutig ist und die
-typenbezogenen Vergleichsgruppen dieselbe fachliche Aussage beantworten.
+- `datetime`: `[(1, 2026-03-07T00:00:00.000), (2, 2026-03-07T23:59:59.990), (3, 2026-03-07T23:59:59.993), (4, 2026-03-07T23:59:59.997)]`;
+- `datetime2(7)`: `[(1, 2026-03-07T00:00:00.0000000), (2, 2026-03-07T23:59:59.9900000), (3, 2026-03-07T23:59:59.9930000), (4, 2026-03-07T23:59:59.9970000), (5, 2026-03-07T23:59:59.9999999)]`.
+
+Die getrennten Fixtures tragen denselben fachlichen Tag und Grenzfall, aber
+die Typoracles unterscheiden sich bei der letzten darstellbaren Tagesfraktion.
+Die `EventId`- und `OccurredAt`-Paare sind der vollständige projizierte
+Ergebnisvertrag; ein späterer ausführbarer Vergleich muss jede Spalte und
+Reihenfolge dagegen prüfen.
 
 ## Geplante Varianten und Oracles
 
-1. **Inklusives `BETWEEN` bis Mitternacht des Folgetages.** `BETWEEN @Start AND
-   @NextDay` muss `NEXT_DAY` einschließen. Das dient als gezielter negativer
-   Oracle für die vermeintlich exklusive Obergrenze.
-2. **Typabhängiger Tagesendpunkt.** `23:59:59.997` kann für `datetime` den
-   letzten darstellbaren Tageszeitpunkt bezeichnen. Derselbe numerische
-   Endwert bei `datetime2(7)` schließt Werte bis `.9999999` aus. Ein aus einer
-   Zeichenfolge konvertiertes `.999` kann bei `datetime` auf Mitternacht des
-   Folgetages gerundet werden.
+1. **Inklusives `BETWEEN` bis Mitternacht des Folgetages.** Für `datetime`
+   liefert `OccurredAt BETWEEN @Start AND @NextDay` die Tupel mit IDs
+   `{1, 2, 3, 4, 6}`; ID 6 liegt exakt auf der inklusiven Obergrenze. Für
+   `datetime2(7)` gilt dasselbe ID-Oracle. ID 7 bleibt in beiden Fällen
+   außerhalb.
+2. **Künstlicher Tagesendpunkt.** Mit `@End datetime =
+   '2026-03-07T23:59:59.997'` liefert `BETWEEN @Start AND @End` für
+   `datetime` IDs `{1, 2, 3, 4}`. Mit `@End datetime2(7) =
+   '2026-03-07T23:59:59.997'` liefert dieselbe numerische Grenze ebenfalls
+   `{1, 2, 3, 4}`, schließt aber den zusätzlichen gültigen Tageswert mit ID 5
+   aus. Ein an `datetime` gebundener Endwert
+   `@End = '2026-03-07T23:59:59.999'` wird auf
+   `2026-03-08T00:00:00.000` gerundet und schließt ID 6 mit ein.
 3. **Halboffenes Intervall.** `OccurredAt >= @Start AND OccurredAt < @NextDay`
-   muss für beide Typen genau die erwarteten Tupel des Zielkalendertages
-   zurückgeben und `NEXT_DAY` ausschließen. `@Start` und `@NextDay` sind
-   typisiert; `@NextDay` wird mit `DATEADD(day, 1, @Start)` gebildet.
+   liefert für `datetime` exakt IDs `{1, 2, 3, 4}` und für `datetime2(7)`
+   `{1, 2, 3, 4, 5}`. `@Start` und `@NextDay` sind jeweils explizit vom
+   Spaltentyp; `@NextDay` wird als `DATEADD(day, 1, @Start)` gebildet. ID 6
+   liegt gleich der exklusiven Obergrenze und wird ausgeschlossen.
 
-Die Abnahme vergleicht die vollständigen Ereignis-IDs mit dem erwarteten Tupel
-und prüft zugleich den expliziten Grenzfall `NEXT_DAY`. Zeilenanzahl allein
-genügt nicht. Keine Endzeit wird aus der letzten beobachteten Millisekunde
-abgeleitet.
+Die Abnahme vergleicht die vollständigen `(EventId, OccurredAt)`-Tupel in
+aufsteigender `EventId`-Reihenfolge mit den oben festgelegten Oracles. Sie
+prüft `NEXT_DAY` (ID 6) und den nächsten repräsentierbaren Folgetagestick
+(ID 7) getrennt. Zeilenanzahl allein genügt. Keine Endzeit wird aus der
+letzten beobachteten Millisekunde abgeleitet.
 
 ## Diagnose und Aussagegrenzen
 
@@ -102,7 +118,8 @@ autonomen Auftrag ausgeschlossen.
 
 ## Offene Arbeit vor einer möglichen Implementierung
 
-- Fixturewerte für beide Typen im ausführbaren SQL gegen Engine-Rundung prüfen.
+- Die festgelegten Fixturewerte für beide Typen im ausführbaren SQL gegen
+  Engine-Rundung qualifizieren; die statischen Oracles sind hier vollständig.
 - Den exakten Ergebnisvertrag und Cleanup vor einer Manifest- oder
   Katalogänderung an den geltenden Demo-Vertrag binden.
 - Plan- und Read-Beobachtung als Diagnose dokumentieren, ohne einen
