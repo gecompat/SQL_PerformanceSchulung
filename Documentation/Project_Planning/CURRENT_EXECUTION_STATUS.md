@@ -286,13 +286,19 @@ Testkandidaten. Keine Engine- oder Runtimeausführung.
 
 ## Fortsetzung: QRY-023 – Vertragsobjekt fail-closed prüfen
 
-Der nächste synthetische Caller-Schnitt erweitert die bestehenden
-Negativregressionen um unbekannte Zusatzfelder und einen booleschen Wert im
-numerischen Byte-Limit. Beide Varianten müssen wie ein veränderter
-Validierungszeitpunkt vor SQLCMD-Auflösung/-Start scheitern. So bleibt die
-exakte Vertragsform einschließlich JSON-Typen belegt; es werden keine neuen
-Vertragswerte eingeführt. Kumulative Obergrenze für Auswahl und Integration:
-93 Arbeitspakete, 130 PRs und 208 Quellen-/Testkandidaten.
+PR #462 ergänzt die Caller-Negativregressionen für unbekannte Zusatzfelder und
+`true` im numerischen Byte-Limit. Beide scheitern wie ein veränderter
+Validierungszeitpunkt vor SQLCMD-Auflösung/-Start; die betroffenen Workflows
+bestanden. Kumulative Obergrenze: 93 Arbeitspakete, 130 PRs und 208 Quellen-/
+Testkandidaten. Keine Vertragsausweitung oder Runtimeausführung.
+
+## Fortsetzung: QRY-023 – Callerbindungen für Demo-ID und Zielvorlage
+
+Der nächste synthetische Schnitt prüft, dass eine abweichende Vertrags-Demo-ID
+und eine veränderte Zielnamenschablone im optionalen Caller-Vertrag ebenfalls
+vor SQLCMD-Auflösung/-Start abgewiesen werden. Kumulative Obergrenze für
+Auswahl und Integration: 94 Arbeitspakete, 132 PRs und 209 Quellen-/
+Testkandidaten. Keine Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
