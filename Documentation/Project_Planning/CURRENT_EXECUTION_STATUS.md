@@ -1,21 +1,23 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: CON-006 – Offline-Graph-/Capturevertrag prüfen
+## Abschluss: CON-006 – Offline-Graph-/Capturevertrag lokal geprüft
 
-PR #420 integrierte die quellengebundene lokale Prüfung des IDX-007-
-Offlinevertrags. Ein fehlender Rechtsaußenbeleg bleibt `NOT_PROVEN`, ein
-explizit negativer Beleg ist nun `FAIL`; die gezielte synthetische Regression
-bestand mit 12 Tests. Die Quellen `SRC-147` und `SRC-148` binden
-Wait-Ressourcenformat und Seitenmetadaten. Lokales `main` ist synchronisiert
-und sauber, der Remote-Branch wurde entfernt.
+PR #421 wählte den begrenzten Review; PR #422 ergänzt die
+[lokale Vertrags- und Quellenprüfung](CON006_OFFLINE_EVIDENCE_REVIEW.md).
+Die bestehenden 18 synthetischen Vertragstests bestehen. Die erneute
+Primärquellenlektüre bestätigt Deadlock-Graphstruktur, `system_health`-
+Erfassung und Opferfehler 1205. Die geprüften Herstellertexte spezifizieren
+jedoch kein vollständiges XML-Schema und insbesondere nicht exakt
+`requestType="convert"`; diese konkrete Engine-Repräsentation bleibt ein
+empirisches, buildgebundenes Gate.
 
-Der nächste begrenzte Offline-Schnitt prüft den bestehenden CON-006-Graph- und
-Capturevertrag auf fachliche Lücken und quellengebundene Aussagegrenzen. Die
-kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs (Statusübergang und
-Reviewintegration) und höchstens 2 Quellenkandidaten auf 70/84/167. Dies ist
-keine unabhängige Methoden-/Quellenfreigabe. Keine SQL-/Runtimeausführung,
-keine Labänderung und keine menschliche Generalprobe. Ein Runtimepfad bleibt
-separat autorisierungs- und sicherheitsgebunden.
+Die Capturefelder bleiben caller-geliefert. Der Offline-Vertrag authentifiziert
+nicht, dass Token, Eventzeit, Graph-XML und Actorresultate aus demselben
+Event/Lauf stammen; diese Producerherkunft muss ein späterer Capturevertrag
+belegen. Die kumulative Obergrenze 70/84/167 wurde für den lokalen Review
+verwendet. Unabhängige Methoden-/Quellenfreigabe, Engine- und Capture-/Cleanup-
+Qualifikation bleiben offen. Keine SQL-/Runtimeausführung, keine Labänderung
+und keine menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
