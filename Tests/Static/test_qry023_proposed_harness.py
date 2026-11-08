@@ -48,6 +48,36 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(text, encoding="utf-8")
         self.assertTrue(any("cleanup must be required" in error for error in self.errors()))
 
+    def test_phase_script_and_database_bindings_are_exact(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["phases"][1]["script"] = "00_Preflight.sql"
+        manifest["phases"][2]["database"] = "master"
+        manifest["phases"][3]["timeout_seconds"] = 301
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("scripts, databases, and timeouts" in error for error in self.errors()))
+
+    def test_malformed_phase_record_fails_without_crashing(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["phases"][0] = "PREFLIGHT"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("phase must be an object" in error for error in self.errors()))
+
+    def test_run_and_cleanup_budgets_are_exact(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["timeout_seconds"] = 901
+        manifest["cleanup"]["database"] = "target"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        errors = self.errors()
+        self.assertTrue(any("900-second run" in error for error in errors))
+        self.assertTrue(any("in master with a 90-second timeout" in error for error in errors))
+
+    def test_non_object_manifest_fails_without_crashing(self) -> None:
+        (self.demo / "manifest.proposed.json").write_text("[]", encoding="utf-8")
+        self.assertIn("proposed manifest root must be an object", self.errors())
+
     def test_cleanup_without_run_token_marker_is_rejected(self) -> None:
         path = self.demo / "90_Cleanup.sql"
         path.write_text(path.read_text(encoding="utf-8").replace("SQLPERF.RunToken", "SQLPERF.OtherToken"),
