@@ -104,6 +104,17 @@ veränderten Skip-Code. 26 QRY-023-Regressionen sowie die QRY-023-, Framework-
 und Repository-Continuity-Validatoren bestanden. Rechte werden nicht erteilt;
 es bleibt ein statischer Vertragsnachweis.
 
+## Fortsetzung: QRY-023 – Qualification-Preflight-Ausgaben binden
+
+Der nächste Offline-Schnitt bindet die beiden Qualification-Preflight-
+Summaryzeilen an ihre vollständigen Tupel: `QUALIFICATION_PREFLIGHT`/
+`PERMISSIONS`/`SKIP`/`SKIP_PERMISSION` und
+`QUALIFICATION_PREFLIGHT`/`SUMMARY`/`PASS`/`OK`. Die jeweiligen `PRINT`-Marker
+müssen übereinstimmen; je ein falsch geänderter Status ist eine
+Negativregression. Die kumulative Obergrenze wächst um ein Paket und zwei PRs
+auf 80/104/187 (höchstens 187 Quellenkandidaten). Keine Ausführung oder
+Rechteänderung.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
