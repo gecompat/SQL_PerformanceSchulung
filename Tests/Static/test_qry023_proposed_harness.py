@@ -82,6 +82,22 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("900-second run" in error for error in errors))
         self.assertTrue(any("in master with a 90-second timeout" in error for error in errors))
 
+    def test_sqlcmd_input_contract_must_validate_before_expansion(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["sqlcmd_input_validation"]["must_validate_before"] = "TSQL_GUARD"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("caller-side SQLCMD input validation contract" in error
+                            for error in self.errors()))
+
+    def test_sqlcmd_input_contract_must_bind_run_token_pattern(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["sqlcmd_input_validation"]["run_token"]["allowed_characters"] = "A-Z0-9_-"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("caller-side SQLCMD input validation contract" in error
+                            for error in self.errors()))
+
     def test_non_object_manifest_fails_without_crashing(self) -> None:
         (self.demo / "manifest.proposed.json").write_text("[]", encoding="utf-8")
         self.assertIn("proposed manifest root must be an object", self.errors())
