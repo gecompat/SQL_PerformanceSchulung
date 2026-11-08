@@ -1,23 +1,21 @@
 # Aktueller Ausführungsstand
 
-## Abschluss: CON-006 – Offline-Graph-/Capturevertrag lokal geprüft
+## Fortsetzung: QRY-023 – Proposed Harness lokal prüfen
 
-PR #421 wählte den begrenzten Review; PR #422 ergänzt die
-[lokale Vertrags- und Quellenprüfung](CON006_OFFLINE_EVIDENCE_REVIEW.md).
-Die bestehenden 18 synthetischen Vertragstests bestehen. Die erneute
-Primärquellenlektüre bestätigt Deadlock-Graphstruktur, `system_health`-
-Erfassung und Opferfehler 1205. Die geprüften Herstellertexte spezifizieren
-jedoch kein vollständiges XML-Schema und insbesondere nicht exakt
-`requestType="convert"`; diese konkrete Engine-Repräsentation bleibt ein
-empirisches, buildgebundenes Gate.
+PR #422 integrierte die lokale CON-006-Vertrags-/Quellenprüfung. Die 18
+synthetischen Vertragsprüfungen bestanden. Der genaue
+`requestType="convert"`-Schema bleibt in den geprüften Herstellertexten
+unspezifiziert; außerdem authentifiziert der Offline-Capturevertrag nicht,
+dass seine caller-gelieferten Felder aus demselben Event/Lauf stammen. Diese
+Engine- und Producergrenzen bleiben ausdrücklich offen.
 
-Die Capturefelder bleiben caller-geliefert. Der Offline-Vertrag authentifiziert
-nicht, dass Token, Eventzeit, Graph-XML und Actorresultate aus demselben
-Event/Lauf stammen; diese Producerherkunft muss ein späterer Capturevertrag
-belegen. Die kumulative Obergrenze 70/84/167 wurde für den lokalen Review
-verwendet. Unabhängige Methoden-/Quellenfreigabe, Engine- und Capture-/Cleanup-
-Qualifikation bleiben offen. Keine SQL-/Runtimeausführung, keine Labänderung
-und keine menschliche Generalprobe.
+Der nächste begrenzte Offline-Schnitt prüft den vorhandenen QRY-023-
+Harnessentwurf, seinen statischen Vertragsprüfer und die Syntax-/Methoden-
+Dokumente auf konkrete Coverage-Lücken und widersprüchliche Sollwerte. Die
+kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs (Statusübergang und
+Reviewintegration) und höchstens 2 Quellenkandidaten auf 71/86/169. Das ist
+keine formale T-SQL-, unabhängige Methoden- oder Runtimefreigabe. Keine
+SQL-/Runtimeausführung, keine Labänderung und keine menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
