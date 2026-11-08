@@ -1,22 +1,22 @@
 # Aktueller Ausführungsstand
 
-## Abschluss: QRY-023 – Manifest- und Metrikdeckung statisch ergänzt
+## Fortsetzung: QRY-023 – Actual-Plan-Diagnose absichern
 
-PR #424 band das Proposed-Manifest exakt an Phasenscript, Zieldatenbank,
-Zeitlimits sowie Cleanup-/Gesamtbudgets; 14 synthetische Regressionen und der
-Offlinevalidator bestanden. PR #426 schließt die in der Messvorlage erfassten
-FWK-004-Metriken: `Reads` und `Writes` werden nun auf Vollständigkeit geprüft
-und zusammen mit CPU, Logical Reads und Elapsed als fünf gepaarte
-Median-/Streuungsdeltas ausgegeben. Das sind Sessiondeltas einschließlich
-Messprozedur-Overhead, keine isolierten Statement- oder Gerätewerte. Die
-synthetischen Regressionen und der Offlinevalidator bestanden.
+PR #426 integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads,
+Reads, Writes und Elapsed. Die 16 synthetischen Regressionen und der
+QRY-023-Offlinevalidator bestanden. Diese Werte sind FWK-004-Sessiondeltas
+einschließlich Messprozedur-Overhead. Das Manifest bleibt `PROPOSED`, nicht
+katalogisiert und ungefahren.
 
-Die kumulative Obergrenze 72/88/171 wurde für diesen Offline-Schnitt verwendet.
-QRY-023 bleibt `PROPOSED`, nicht katalogisiert und ungefahren. Formale
-Harness-/T-SQL-Abnahme, unabhängige Methodenfreigabe, aktuelle Image-/Build-
-Bestätigung, Ressourcen- und Cleanupqualifikation sowie Runtimeautorisierung
-bleiben offen. Keine SQL-/Runtimeausführung, keine Labänderung und keine
-menschliche Generalprobe.
+Der nächste begrenzte Offline-Schnitt macht die getrennte
+`STATISTICS XML`-Planphase fehlerresistent: Der Diagnosecode muss die Session-
+Option sowohl im Erfolgs- als auch im Fehlerpfad ausschalten und den
+ursprünglichen SQL-Fehler weiterreichen. Die vorhandene FWK-005-Vorlage ist
+Referenz. Die kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs
+(Statusübergang und Reviewintegration) und höchstens 2 Quellenkandidaten auf
+73/90/173. Keine SQL-/Runtimeausführung, keine Labänderung und keine
+menschliche Generalprobe; QRY-023 bleibt ohne formale Harness-/T-SQL-Abnahme,
+unabhängige Methodenfreigabe und konkrete Runtimeautorisierung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
