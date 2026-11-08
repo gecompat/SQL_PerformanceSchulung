@@ -518,6 +518,9 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "README must state that QRY-023 has not been executed", errors)
     require("vor dem sqlcmd-aufruf" in readme and "sqlcmd-eingabeinjektion" in readme,
             "proposed harness README must state the caller-side SQLCMD input-validation gate", errors)
+    require("der fwk-010-caller begrenzt das runtoken" in readme
+            and "separat prüft der vorgeschlagene" in readme,
+            "README must distinguish caller-only start-character validation from the SQL preflight", errors)
     require(all(build in readme for build in build_pins),
             "README must document all time-bound engine build pins", errors)
     require("container-images.proposed.json" in readme,
