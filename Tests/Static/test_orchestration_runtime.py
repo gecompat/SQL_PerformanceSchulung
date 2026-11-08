@@ -450,6 +450,23 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("runtime test functions must be uniquely defined",),
         "duplicate synthetic test definition",
     )
+    assert_equal(
+        runtime_test_registration_issues("def test_one(): pass\n"),
+        ("runtime test module must define exactly one main function",),
+        "missing synthetic test entry point",
+    )
+    duplicate_main = "def test_one(): pass\ndef main(): test_one()\ndef main(): test_one()\n"
+    assert_equal(
+        runtime_test_registration_issues(duplicate_main),
+        ("runtime test module must define exactly one main function",),
+        "duplicate synthetic test entry point",
+    )
+    undefined_registration = "def test_one(): pass\ndef main():\n    test_missing()\n"
+    assert_equal(
+        runtime_test_registration_issues(undefined_registration),
+        ("runtime test definitions and registrations must match",),
+        "undefined synthetic test registration",
+    )
 
 
 def test_sessions_pass(base: Path, executable: Path) -> None:

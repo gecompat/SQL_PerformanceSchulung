@@ -1,6 +1,6 @@
 # Nächste Entwicklungswellen
 
-## Aktuelle autonome Fortsetzungsplanung vom 7. November 2026
+## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
@@ -127,14 +127,8 @@ PR #458 integriert die RunToken-Vertragsangleichung. Die vollständige CI
 endete mit 20/22 erfolgreichen Workflows; zwei unabhängige DGN-007-
 Quellenprofilchecks meldeten `PYTHON_PROFILE_CHANGED`. Alle übrigen
 Framework-/Runtimeworkflows, einschließlich SQL Server 2025 AI, waren nach
-regulärem Abschluss erfolgreich.
-
-Der nächste Offline-Schnitt gleicht den maschinenlesbaren RunToken-Vertrag an
-FWK-010 an: `A-Z` oder `0-9` muss das erste Zeichen sein; weitere Zeichen
-dürfen `A-Z`, `0-9` oder `_` sein, insgesamt 1–20 ASCII-Zeichen. Eine
-synthetische Negativregression weist `_LOCAL` vor SQLCMD-Auflösung und -Start
-zurück. Kumulativ höchstens 89 Arbeitspakete, 122 PRs und 204 Quellen-/
-Testkandidaten. Keine Engineausführung, Runtimefreigabe oder Generalprobe.
+regulärem Abschluss erfolgreich. Kumulativ höchstens 89 Arbeitspakete, 122
+PRs und 204 Quellen-/Testkandidaten.
 
 Nachreview zeigte, dass diese Negativregression noch nicht aus der
 Testmodul-`main()`-Funktion aufgerufen wurde; der grüne Modultest belegte den
@@ -201,10 +195,14 @@ Aufrufen in `main()` und verlangt eine exakte Eins-zu-eins-Registrierung. Der
 Runner-Test und alle fünf Workflows bestanden. Kumulativ höchstens 100
 Arbeitspakete, 144 PRs und 215 Quellen-/Testkandidaten.
 
-Der nächste Schnitt führt denselben AST-Wächter gegen synthetische Fälle mit
-korrekter, fehlender und doppelter Registrierung sowie doppelter Definition
-aus. Kumulativ höchstens 101 Arbeitspakete, 146 PRs und 216 Quellen-/
-Testkandidaten.
+PR #470 führt denselben AST-Wächter gegen synthetische Fälle mit korrekter,
+fehlender und doppelter Registrierung sowie doppelter Definition aus. Der
+Runner-Test und alle fünf Workflows bestanden. Kumulativ höchstens 101
+Arbeitspakete, 146 PRs und 216 Quellen-/Testkandidaten.
+
+Der nächste AST-Schnitt ergänzt Fälle mit fehlendem und doppeltem `main()` und
+einem Aufruf eines nicht definierten Testnamens. Kumulativ höchstens 102
+Arbeitspakete, 148 PRs und 217 Quellen-/Testkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 

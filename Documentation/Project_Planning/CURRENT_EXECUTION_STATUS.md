@@ -354,11 +354,18 @@ Runner-Test sowie alle fünf Workflows bestanden. Kumulative Obergrenze:
 
 ## Fortsetzung: FWK-010 – Testregistrierungswächter synthetisch prüfen
 
-Der nächste Schnitt führt den AST-Wächter zusätzlich gegen kleine synthetische
-Module mit korrekter, fehlender und doppelter Testregistrierung sowie doppelter
-Definition aus. Der Wächter selbst soll seine wichtigsten Fehlermodi abdecken.
-Kumulative Obergrenze für Auswahl und Integration: 101 Arbeitspakete, 146 PRs
-und 216 Quellen-/Testkandidaten.
+PR #470 führt den Wächter gegen synthetische Module mit korrekter, fehlender und
+doppelter Testregistrierung sowie doppelter Funktionsdefinition aus. Der reale
+Runner-Test und alle fünf Workflows bestanden. Kumulative Obergrenze:
+101 Arbeitspakete, 146 PRs und 216 Quellen-/Testkandidaten.
+
+## Fortsetzung: FWK-010 – Testeinstieg im AST-Wächter prüfen
+
+Der nächste Schnitt ergänzt synthetische Fälle mit fehlendem und doppeltem
+`main()` sowie einem Aufruf eines nicht definierten `test_*`-Namens. Alle Fälle
+müssen vom Registrierungswächter erkannt werden. Kumulative Obergrenze für
+Auswahl und Integration: 102 Arbeitspakete, 148 PRs und 217 Quellen-/
+Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
