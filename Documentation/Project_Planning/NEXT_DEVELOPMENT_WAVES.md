@@ -215,9 +215,15 @@ PR #473 zählt nur direkte, unbedingte Testaufrufe in `main()` und dessen
 Registrierung. Der Runner-Test und alle fünf Workflows bestanden. Kumulativ
 höchstens 104 Arbeitspakete, 152 PRs und 219 Quellen-/Testkandidaten.
 
-Der nächste synthetische Fall definiert einen Test asynchron und ruft ihn ohne
-Await aus `main()` auf. Er darf nicht als ausgeführte Registrierung gelten.
-Kumulativ höchstens 105 Arbeitspakete, 154 PRs und 220 Quellen-/Testkandidaten.
+PR #474 berücksichtigt nur synchrone `test_*`-Definitionen als Registrierung;
+ein nicht-awaited Aufruf einer Coroutine wird als fehlende Registrierung
+abgewiesen. Alle fünf ausgelösten Workflows bestanden. Die bisherige
+Obergrenze 105/154/220 ist erreicht. Für den Schattenfall einer gleichnamigen
+`def`-/`async def`-Definition erweitert die autonome Fortsetzung den
+kumulativen Rahmen einmalig um ein Arbeitspaket, einen PR und einen
+synthetischen Kandidaten auf höchstens 106/155/221. Der Wächter muss die
+überschreibende asynchrone Definition als Namensduplikat zurückweisen. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
 
 ### DGN-007 getrenntes Qualifikationsband
 

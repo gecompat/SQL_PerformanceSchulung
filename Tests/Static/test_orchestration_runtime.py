@@ -401,6 +401,11 @@ def assert_equal(actual: object, expected: object, message: str) -> None:
 
 def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     tree = ast.parse(source)
+    all_test_definitions = [
+        node.name for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name.startswith("test_")
+    ]
     definitions = [
         node.name for node in tree.body
         if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
@@ -447,7 +452,7 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     issues: list[str] = []
     if non_direct_call:
         issues.append("runtime tests must be direct unconditional main statements")
-    if len(definitions) != len(set(definitions)):
+    if len(all_test_definitions) != len(set(all_test_definitions)):
         issues.append("runtime test functions must be uniquely defined")
     if len(registrations) != len(set(registrations)):
         issues.append("runtime tests must be registered only once")
@@ -524,6 +529,15 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(async_test),
         ("runtime test definitions and registrations must match",),
         "unawaited asynchronous test is not an executed registration",
+    )
+    sync_async_shadow = (
+        "def test_one(): pass\nasync def test_one(): pass\n"
+        "def main():\n    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(sync_async_shadow),
+        ("runtime test functions must be uniquely defined",),
+        "asynchronous test definition cannot shadow a synchronous test",
     )
 
 
