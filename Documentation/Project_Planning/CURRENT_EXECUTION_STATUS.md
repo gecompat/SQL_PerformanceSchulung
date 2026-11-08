@@ -87,6 +87,16 @@ und Repository-Continuity-Validatoren bestanden. Die Prüfung belegt nur
 Skriptpositionen, keine ausgeführten Actual-Pläne. QRY-023 bleibt `PROPOSED`;
 T-SQL-/Methoden- und Runtimegates sind unverändert offen.
 
+## Fortsetzung: QRY-023 – SHOWPLAN-Preflight exakt binden
+
+Der nächste Offline-Schnitt bindet die `SHOWPLAN`-Prüfung an `DB_NAME()` und
+die Berechtigung `DATABASE/SHOWPLAN`, verlangt `SELECT` auf allen vier
+Querytabellen und prüft, dass der fehlende Rechtefall vor den Diagnoseabfragen
+mit `SKIP_PERMISSION` beendet wird. Negativregressionen ändern Scope und
+entfernen eine Tabellenberechtigung. Kumulative Obergrenze: ein weiteres
+Arbeitspaket, zwei PRs, höchstens zwei Quellenkandidaten, insgesamt 79/102/185.
+Keine SQL-/Runtime-/Lab-Ausführung und keine Erweiterung der Laufrechte.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
