@@ -19,6 +19,20 @@ EXPECTED_PHASES = [
     ("MEASUREMENT", "40_Measurement.sql", "target", 300),
     ("PLAN_EVIDENCE", "50_Plan_Evidence.sql", "target", 120),
 ]
+EXPECTED_SQLCMD_INPUT_VALIDATION = {
+    "must_validate_before": "SQLCMD_EXPANSION",
+    "reject_invalid": True,
+    "demo_id": {"mode": "EXACT", "value": "QRY-023"},
+    "run_token": {
+        "encoding": "ASCII",
+        "allowed_characters": "A-Z0-9_",
+        "min_bytes": 1,
+        "max_bytes": 20,
+    },
+    "target_database": {
+        "template": "SQLPERF_LAB_{DEMO_ID_WITHOUT_HYPHEN}_{RUN_TOKEN}"
+    },
+}
 COUNT_BIG_QUERY_PATTERN = re.compile(
     r"\bselect\s+@?pathcount\s*=\s*count_big\s*\(\s*\*\s*\).*?;",
     re.IGNORECASE | re.DOTALL,
@@ -230,6 +244,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(manifest.get("demo_id") == "QRY-023", "proposed manifest must identify QRY-023", errors)
     require(manifest.get("contract_version") == "1.0", "proposed manifest contract version must be 1.0", errors)
     require(manifest.get("safety_level") == "YELLOW", "proposed manifest must retain YELLOW", errors)
+    require(manifest.get("sqlcmd_input_validation") == EXPECTED_SQLCMD_INPUT_VALIDATION,
+            "manifest must bind the exact caller-side SQLCMD input validation contract before expansion", errors)
     phases = manifest.get("phases")
     require(isinstance(phases, list), "proposed manifest phases must be a list", errors)
     if isinstance(phases, list):

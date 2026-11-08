@@ -113,6 +113,10 @@ Manifestobjekt mit exakter Demo-ID, RunToken-Muster, Zielnamenschablone und
 Validierungszeitpunkt vor SQLCMD. Der Offlinevalidator bindet die vollständigen
 Werte. Kumulativ 87/118/201; kein SQLCMD-Aufruf und keine Runtime- oder
 menschliche Generalprobe.
+PR #455 integriert `sqlcmd_input_validation`; Gegenproben ändern Prüfzeitpunkt
+und Tokenzeichensatz und werden abgewiesen. 41 QRY-023-Regressionen sowie die
+betroffenen Projektvalidatoren bestanden. Das Feld bleibt eine Vorgabe für
+einen späteren Caller.
 
 ### DGN-007 getrenntes Qualifikationsband
 

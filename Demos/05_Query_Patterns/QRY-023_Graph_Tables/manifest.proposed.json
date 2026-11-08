@@ -3,6 +3,20 @@
   "demo_id": "QRY-023",
   "run_token": "LOCAL",
   "safety_level": "YELLOW",
+  "sqlcmd_input_validation": {
+    "must_validate_before": "SQLCMD_EXPANSION",
+    "reject_invalid": true,
+    "demo_id": {"mode": "EXACT", "value": "QRY-023"},
+    "run_token": {
+      "encoding": "ASCII",
+      "allowed_characters": "A-Z0-9_",
+      "min_bytes": 1,
+      "max_bytes": 20
+    },
+    "target_database": {
+      "template": "SQLPERF_LAB_{DEMO_ID_WITHOUT_HYPHEN}_{RUN_TOKEN}"
+    }
+  },
   "timeout_seconds": 900,
   "cleanup_timeout_seconds": 90,
   "phases": [
