@@ -100,6 +100,8 @@ def evaluate_last_page_contention(
         return Result(Verdict.NOT_PROVEN, ("fewer than two distinct waiting sessions were supplied",))
     if target.page_level != 0:
         return Result(Verdict.FAIL, ("target page is not declared as a leaf page",))
-    if target.rightmost_leaf is None or target.rightmost_leaf is False:
-        return Result(Verdict.NOT_PROVEN, ("rightmost-leaf page-chain evidence is absent or negative",))
+    if target.rightmost_leaf is False:
+        return Result(Verdict.FAIL, ("target page is explicitly not the rightmost leaf",))
+    if target.rightmost_leaf is None:
+        return Result(Verdict.NOT_PROVEN, ("rightmost-leaf page-chain evidence is absent",))
     return Result(Verdict.PASS, ())
