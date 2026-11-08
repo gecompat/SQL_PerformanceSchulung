@@ -269,13 +269,22 @@ Zählung bezeichnete die Regression als Kandidat; PR #459 belegt ihre Ausführun
 
 ## Fortsetzung: QRY-023 – RunToken-Grenzen im Caller abdecken
 
-Der nächste synthetische Schnitt prüft den Caller am unteren und oberen
-zulässigen Tokenlimit sowie auf leere, zu lange, nicht-ASCII-, kleingeschriebene
-und nachgestellte-Leerzeichen-Eingaben. Gültige 1- und 20-Zeichenwerte müssen
-Manifestladung bestehen; alle ungültigen Varianten müssen vor SQLCMD-Auflösung
-und -Start scheitern. Kumulative Obergrenze für Auswahl und Integration:
-91 Arbeitspakete, 126 PRs und 206 Quellen-/Testkandidaten. Keine Engine- oder
-Runtimeausführung.
+PR #460 ergänzt die ausgeführten synthetischen Caller-Grenzen: gültige
+1-/20-Zeichenwerte werden geladen; leere, überlange, nicht-ASCII-,
+kleingeschriebene und nachgestellte-Leerzeichen-Token scheitern vor SQLCMD-
+Auflösung/-Start. Die QRY-023-, FWK-010- und Repository-Continuity-Prüfungen
+bestanden; keine Engine- oder Runtimeausführung. Kumulative Obergrenze:
+91 Arbeitspakete, 126 PRs und 206 Quellen-/Testkandidaten.
+
+## Fortsetzung: QRY-023 – RunToken im Offlinevalidator binden
+
+Der vorgeschlagene Manifestvalidator prüft bereits die exakte
+`sqlcmd_input_validation`-Vertragsform, validiert aber nicht den konkreten
+`run_token`-Wert gegen denselben FWK-010-Zeichensatz und dieselbe Längengrenze.
+Der nächste Offline-Schnitt ergänzt diese Prüfung und eine Negativregression
+für führenden Unterstrich, Überlänge, Nicht-ASCII und nachgestelltes Leerzeichen.
+Kumulative Obergrenze für Auswahl und Integration: 92 Arbeitspakete, 128 PRs
+und 207 Quellen-/Testkandidaten. Keine Engine- oder Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

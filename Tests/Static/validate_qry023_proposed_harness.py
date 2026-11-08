@@ -34,6 +34,7 @@ EXPECTED_SQLCMD_INPUT_VALIDATION = {
         "template": "SQLPERF_LAB_{DEMO_ID_WITHOUT_HYPHEN}_{RUN_TOKEN}"
     },
 }
+RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 COUNT_BIG_QUERY_PATTERN = re.compile(
     r"\bselect\s+@?pathcount\s*=\s*count_big\s*\(\s*\*\s*\).*?;",
     re.IGNORECASE | re.DOTALL,
@@ -247,6 +248,9 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(manifest.get("safety_level") == "YELLOW", "proposed manifest must retain YELLOW", errors)
     require(manifest.get("sqlcmd_input_validation") == EXPECTED_SQLCMD_INPUT_VALIDATION,
             "manifest must bind the exact caller-side SQLCMD input validation contract before expansion", errors)
+    run_token = manifest.get("run_token")
+    require(isinstance(run_token, str) and run_token.isascii() and RUN_TOKEN_PATTERN.fullmatch(run_token) is not None,
+            "manifest run_token must satisfy the FWK-010 ASCII caller contract", errors)
     phases = manifest.get("phases")
     require(isinstance(phases, list), "proposed manifest phases must be a list", errors)
     if isinstance(phases, list):

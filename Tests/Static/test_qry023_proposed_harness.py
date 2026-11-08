@@ -98,6 +98,16 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("caller-side SQLCMD input validation contract" in error
                             for error in self.errors()))
 
+    def test_manifest_run_token_must_satisfy_caller_contract(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        for token in ("_LOCAL", "A" * 21, "Ä", "A "):
+            with self.subTest(token=token):
+                manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+                manifest["run_token"] = token
+                path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+                self.assertTrue(any("manifest run_token must satisfy the FWK-010 ASCII caller contract" in error
+                                    for error in self.errors()))
+
     def test_non_object_manifest_fails_without_crashing(self) -> None:
         (self.demo / "manifest.proposed.json").write_text("[]", encoding="utf-8")
         self.assertIn("proposed manifest root must be an object", self.errors())
