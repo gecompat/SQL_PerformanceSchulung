@@ -210,10 +210,14 @@ solcher Hilfsaufruf verdeckt keine fehlende `main()`-Registrierung. Der
 Runner-Test und alle fünf Workflows bestanden. Kumulativ höchstens 103
 Arbeitspakete, 150 PRs und 218 Quellen-/Testkandidaten.
 
-Der nächste AST-Schnitt zählt nur direkte, unbedingte Testaufrufe in `main()`
-und dessen `with`-Blöcken. Eine `if False`-Gegenprobe darf fehlende
-Registrierung nicht kaschieren. Kumulativ höchstens 104 Arbeitspakete, 152 PRs
-und 219 Quellen-/Testkandidaten.
+PR #473 zählt nur direkte, unbedingte Testaufrufe in `main()` und dessen
+`with`-Blöcken. Eine `if False`-Gegenprobe kaschiert keine fehlende
+Registrierung. Der Runner-Test und alle fünf Workflows bestanden. Kumulativ
+höchstens 104 Arbeitspakete, 152 PRs und 219 Quellen-/Testkandidaten.
+
+Der nächste synthetische Fall definiert einen Test asynchron und ruft ihn ohne
+Await aus `main()` auf. Er darf nicht als ausgeführte Registrierung gelten.
+Kumulativ höchstens 105 Arbeitspakete, 154 PRs und 220 Quellen-/Testkandidaten.
 
 ### DGN-007 getrenntes Qualifikationsband
 

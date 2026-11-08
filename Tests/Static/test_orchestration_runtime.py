@@ -403,7 +403,7 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     tree = ast.parse(source)
     definitions = [
         node.name for node in tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_")
+        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
     ]
     main_functions = [
         node for node in tree.body
@@ -518,6 +518,12 @@ def test_runtime_test_functions_are_registered_once() -> None:
             "runtime test definitions and registrations must match",
         ),
         "conditional test call is not an unconditional registration",
+    )
+    async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
+    assert_equal(
+        runtime_test_registration_issues(async_test),
+        ("runtime test definitions and registrations must match",),
+        "unawaited asynchronous test is not an executed registration",
     )
 
 
