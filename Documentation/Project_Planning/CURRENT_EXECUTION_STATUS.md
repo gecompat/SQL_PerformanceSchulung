@@ -260,12 +260,22 @@ menschliche Generalprobe. Kumulative Obergrenze für Auswahl und Integration:
 
 Ein Nachreview ergab, dass die `_LOCAL`-Regression zwar definiert, aber nicht
 im `main()`-Ablauf des statischen Runner-Tests registriert war. Der zuvor
-gemeldete grüne Testlauf hat diesen konkreten Fall daher nicht ausgeführt. Der
-nächste Korrekturschnitt hängt den Test explizit ein und bestätigt den
-Frühabbruch vor SQLCMD-Auflösung/-Start. Kumulativ für Auswahl und Integration:
+gemeldete grüne Testlauf hat diesen konkreten Fall daher nicht ausgeführt. PR
+#459 hängt den Test explizit ein; der erneute Modultest und die fünf ausgelösten
+Workflows bestanden. Der tatsächliche synthetische Lauf bestätigt den
+Frühabbruch vor SQLCMD-Auflösung/-Start. Kumulative Obergrenze:
 90 Arbeitspakete, 124 PRs und 205 Quellen-/Testkandidaten. Die vorherige
-Zählung bezeichnet die vorhandene Regression als Kandidat; dieser Schnitt
-macht ihre tatsächliche Ausführung zum belegten Test.
+Zählung bezeichnete die Regression als Kandidat; PR #459 belegt ihre Ausführung.
+
+## Fortsetzung: QRY-023 – RunToken-Grenzen im Caller abdecken
+
+Der nächste synthetische Schnitt prüft den Caller am unteren und oberen
+zulässigen Tokenlimit sowie auf leere, zu lange, nicht-ASCII-, kleingeschriebene
+und nachgestellte-Leerzeichen-Eingaben. Gültige 1- und 20-Zeichenwerte müssen
+Manifestladung bestehen; alle ungültigen Varianten müssen vor SQLCMD-Auflösung
+und -Start scheitern. Kumulative Obergrenze für Auswahl und Integration:
+91 Arbeitspakete, 126 PRs und 206 Quellen-/Testkandidaten. Keine Engine- oder
+Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

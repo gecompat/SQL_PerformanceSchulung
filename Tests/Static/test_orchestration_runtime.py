@@ -275,6 +275,46 @@ def test_qry023_contract_rejects_leading_underscore_before_sqlcmd_resolution(bas
         execute.assert_not_called()
 
 
+def test_qry023_run_token_length_and_ascii_boundaries(base: Path) -> None:
+    for name, token in (("minimum", "A"), ("maximum", "A" + "Z" * 19)):
+        path = demo_manifest(base / f"valid_{name}_qry023_token", demo_id="QRY-023", run_token=token)
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["sqlcmd_input_validation"] = run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION
+        write_json(path, payload)
+        assert_equal(run_demo_module.load_manifest(path).run_token, token, f"valid {name} QRY-023 token")
+
+    for name, token in (
+        ("empty", ""),
+        ("too_long", "A" * 21),
+        ("non_ascii", "Ä"),
+        ("lowercase", "local"),
+        ("trailing_space", "A "),
+    ):
+        path = demo_manifest(base / f"invalid_{name}_qry023_token", demo_id="QRY-023", run_token=token)
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["sqlcmd_input_validation"] = run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION
+        write_json(path, payload)
+        with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+             patch.object(run_demo_module, "run_sqlcmd") as execute:
+            try:
+                run_demo(
+                    manifest_path=path,
+                    server="synthetic",
+                    auth="integrated",
+                    username=None,
+                    sqlcmd_path="synthetic-sqlcmd",
+                    confirm_isolated_lab=True,
+                    allow_red=False,
+                    show_output=False,
+                )
+            except ValueError as exc:
+                assert_equal(str(exc), "invalid run_token", f"invalid {name} QRY-023 token rejection")
+            else:
+                raise AssertionError(f"QRY-023 RunToken boundary {name} was accepted")
+            resolve.assert_not_called()
+            execute.assert_not_called()
+
+
 def assert_equal(actual: object, expected: object, message: str) -> None:
     if actual != expected:
         raise AssertionError(f"{message}: expected={expected!r}, actual={actual!r}")
@@ -542,6 +582,7 @@ def main() -> int:
         test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base)
         test_hostile_qry023_token_fails_before_sqlcmd_resolution(base)
         test_qry023_contract_rejects_leading_underscore_before_sqlcmd_resolution(base)
+        test_qry023_run_token_length_and_ascii_boundaries(base)
         test_sessions_pass(base, executable)
         test_sessions_fail(base, executable)
         test_sessions_timeout(base, executable)

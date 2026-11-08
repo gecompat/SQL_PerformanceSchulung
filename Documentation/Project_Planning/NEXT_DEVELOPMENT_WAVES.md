@@ -131,11 +131,19 @@ zurück. Kumulativ höchstens 89 Arbeitspakete, 122 PRs und 204 Quellen-/
 Testkandidaten. Keine Engineausführung, Runtimefreigabe oder Generalprobe.
 
 Nachreview zeigte, dass diese Negativregression noch nicht aus der
-Testmodul-`main()`-Funktion aufgerufen wurde; der grüne Modultest belegt den
-Einzelfall somit nicht. Der folgende Korrekturschnitt registriert und führt
-`_LOCAL` explizit aus und bindet die Ablehnung vor SQLCMD-Auflösung und -Start.
-Kumulativ höchstens 90 Arbeitspakete, 124 PRs und 205 Quellen-/Testkandidaten.
-Keine SQL- oder Runtimeausführung.
+Testmodul-`main()`-Funktion aufgerufen wurde; der grüne Modultest belegte den
+Einzelfall somit nicht. PR #459 registriert und führt `_LOCAL` explizit aus;
+der erneute Modultest und alle fünf ausgelösten Workflows bestanden. Die
+Ablehnung geschieht vor SQLCMD-Auflösung und -Start. Kumulativ höchstens 90
+Arbeitspakete, 124 PRs und 205 Quellen-/Testkandidaten. Keine SQL- oder
+Runtimeausführung.
+
+Der folgende Grenzschnitt prüft die zulässigen Tokenlängen 1 und 20 sowie
+leere, überlange, nicht-ASCII-, kleingeschriebene und nachgestellte-Leerzeichen-
+Tokens. Zulässige Werte müssen die Manifestladung bestehen; ungültige Werte
+werden vor SQLCMD-Auflösung und -Start abgewiesen. Kumulativ höchstens 91
+Arbeitspakete, 126 PRs und 206 Quellen-/Testkandidaten. Keine Engine- oder
+Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
