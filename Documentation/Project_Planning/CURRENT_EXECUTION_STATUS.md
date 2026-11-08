@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-## Abschluss: QRY-023 – Actual-Plan-Diagnose absichern
+## Fortsetzung: QRY-023 – Planabfragen an Korrektheitsvertrag binden
 
 PR #427 wählte die Absicherung der getrennten Actual-Plan-Diagnose. PR #426
 integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads, Reads,
@@ -19,11 +19,18 @@ keine Labänderung und keine menschliche Generalprobe. QRY-023 bleibt
 `PROPOSED`/nicht katalogisiert; formale Harness-/T-SQL-Abnahme, unabhängige
 Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
 
-Als nächster begrenzter Offline-Schritt wird geprüft, ob der statische Vertrag
-die beiden tatsächlichen Diagnoseabfragen, ihre Ausgabeabgrenzung und den
-Messlauf-Ausschluss zusammenhängend an die Graph-/Relationalkorrektheit bindet.
-Vor Beginn werden aktive Budgetobergrenze und die bestehenden Oracles gegen den
-kanonischen Status geprüft; bis dahin keine Runtime- oder SQL-Ausführung.
+Der nächste Offline-Schnitt ergänzt Negativregressionen und Validatorbindungen
+für die beiden Planabfragen: Graph-`MATCH`, relationale Joinfolge, Ergebnisform
+und explizite Trennung vom Messlauf müssen mit den bereits geprüften Varianten
+übereinstimmen. Die Regressionen verändern jeweils eine Queryeigenschaft und
+müssen die Drift erkennen; bestehende Vollpfad- und gepaarte Messoracles bleiben
+unverändert. Keine SQL-/Runtime- oder Lab-Ausführung.
+
+Die kumulative Obergrenze wird um ein Arbeitspaket, zwei PRs (Statusübergang
+und Integration) und höchstens zwei Quellenkandidaten auf 75/94/177
+fortgeschrieben. Dieses Budget deckt genau diesen Offline-Schnitt samt lokalen
+Prüfungen und PR-Gates; neue fachliche Methoden- oder Runtimefreigaben entstehen
+nicht. QRY-023 bleibt `PROPOSED` und nicht katalogisiert.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

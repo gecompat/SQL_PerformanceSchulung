@@ -28,10 +28,13 @@ Elapsed; Zähler bleiben Sessiondeltas einschließlich Messprozedur-Overhead.
 PR #429 schützt das Abschalten von `STATISTICS XML` bei Erfolg und fangbaren
 Fehlern in der separaten Actual-Plan-Phase nach dem FWK-005-Cleanupmuster. Der
 Validator und eine Negativregression binden den Fehlerpfad; Verbindungsabbruch
-und tatsächliche Sessionwirkung bleiben unbelegt. Als nächste statische Frage
-steht die durchgehende Bindung von Graph-/Relationaldiagnoseabfragen,
-Ausgabeabgrenzung und Messlauf-Ausschluss an. QRY-023 bleibt `PROPOSED`; formale
-T-SQL-Abnahme, unabhängige Methodenfreigabe und Runtimegates bleiben offen.
+und tatsächliche Sessionwirkung bleiben unbelegt. Der aktive nächste
+Offline-Schnitt bindet Graph-`MATCH`, relationale Joinfolge und Ergebnisform der
+beiden Planabfragen durch gezielte Negativregressionen an die korrektheits-
+und Messvarianten. Sein fortgeschriebener Rahmen beträgt ein Arbeitspaket,
+zwei PRs und höchstens zwei Quellenkandidaten bei 75/94/177 kumulativ. Es folgen
+keine SQL-/Runtimegates aus dieser statischen Prüfung; QRY-023 bleibt
+`PROPOSED`, formale T-SQL-Abnahme und unabhängige Methodenfreigabe bleiben offen.
 
 ### DGN-007 getrenntes Qualifikationsband
 
