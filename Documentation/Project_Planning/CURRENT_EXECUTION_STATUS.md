@@ -369,11 +369,19 @@ Testkandidaten.
 
 ## Fortsetzung: FWK-010 – AST-Registrierung auf ausführbaren Hauptpfad begrenzen
 
-Der nächste Schnitt verhindert, dass `test_*`-Aufrufe in verschachtelten,
-nie aufgerufenen Funktionen oder Lambdas fälschlich als `main()`-Registrierung
-gezählt werden. Eine synthetische verschachtelte Hilfsfunktion muss als
-fehlende Registrierung gelten. Kumulative Obergrenze für Auswahl und
-Integration: 103 Arbeitspakete, 150 PRs und 218 Quellen-/Testkandidaten.
+PR #472 zählt nur Aufrufe im `main()`-Funktionskörper; verschachtelte
+Funktionen und Lambdas gelten nicht als Registrierung. Eine synthetische
+Hilfsfunktion wird als nicht registriert erkannt. Der Runner-Test und alle
+fünf Workflows bestanden. Kumulative Obergrenze: 103 Arbeitspakete, 150 PRs
+und 218 Quellen-/Testkandidaten.
+
+## Fortsetzung: FWK-010 – Testaufrufe an unbedingten Stellen verlangen
+
+Der nächste Schnitt beschränkt Registrierungen auf direkte, unbedingte
+Ausdrucksaufrufe im `main()`-Ablauf und in `with`-Blöcken. Gegenproben mit `if False` und
+verschachtelten Hilfsfunktionen dürfen keine Testregistrierung vortäuschen.
+Kumulative Obergrenze für Auswahl und Integration: 104 Arbeitspakete, 152 PRs
+und 219 Quellen-/Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
