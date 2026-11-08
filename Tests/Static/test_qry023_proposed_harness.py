@@ -192,6 +192,19 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("expected PASS/OK phase and check fields" in error for error in self.errors()))
 
+    def test_plan_queries_must_stay_inside_statistics_window(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        start = source.index("    SELECT PathCount=COUNT_BIG(*)")
+        end = source.index("    SET STATISTICS XML OFF;", start)
+        queries = source[start:end]
+        source = source[:start] + source[end:]
+        try_start = source.index("BEGIN TRY")
+        source = source[:try_start] + queries + source[try_start:]
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("both plan queries must execute inside the STATISTICS XML ON/OFF window" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

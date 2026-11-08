@@ -71,14 +71,21 @@ Negativregressionen mit `WARN`-Outcome und fehlerhaftem Code werden abgelehnt.
 Validatoren bestanden. Die Prüfung bleibt statische Textvalidierung; sie
 beweist keine SQL-Ausführung oder Ergebniswahrheit.
 
-## Fortsetzung: QRY-023 – Diagnoseabfragen ins XML-Aktivierungsfenster binden
+## Abschluss: QRY-023 – Diagnoseabfragen ins XML-Aktivierungsfenster binden
 
-Der nächste Offline-Schnitt prüft, dass beide bereits gebundenen Graph- und
+Der Offline-Schnitt prüfte, dass beide bereits gebundenen Graph- und
 Relationsabfragen innerhalb des `TRY` nach `SET STATISTICS XML ON` und vor dem
 Erfolgs-`OFF` liegen. Eine Negativregression verschiebt beide Abfragen aus
 diesem Fenster und muss abgelehnt werden. Der kumulative Rahmen steigt um ein
 Arbeitspaket, zwei PRs und höchstens zwei Quellenkandidaten auf 78/100/183.
 Keine SQL-/Runtime-/Lab-Ausführung und keine Erweiterung der Ergebnisoracles.
+
+PR #437 ergänzt den Positionsvalidator für beide Abfragen innerhalb des
+`STATISTICS XML ON/OFF`-Fensters und eine Negativregression, die sie vor
+`BEGIN TRY` verschiebt. 23 QRY-023-Regressionen sowie die QRY-023-, Framework-
+und Repository-Continuity-Validatoren bestanden. Die Prüfung belegt nur
+Skriptpositionen, keine ausgeführten Actual-Pläne. QRY-023 bleibt `PROPOSED`;
+T-SQL-/Methoden- und Runtimegates sind unverändert offen.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

@@ -19,6 +19,10 @@ EXPECTED_PHASES = [
     ("MEASUREMENT", "40_Measurement.sql", "target", 300),
     ("PLAN_EVIDENCE", "50_Plan_Evidence.sql", "target", 120),
 ]
+COUNT_BIG_QUERY_PATTERN = re.compile(
+    r"\bselect\s+@?pathcount\s*=\s*count_big\s*\(\s*\*\s*\).*?;",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def profile_counts(path_count: int) -> tuple[int, int, int]:
@@ -40,12 +44,8 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
 
 def count_big_queries(sql: str) -> list[str]:
     """Return normalized PathCount COUNT_BIG statements for query-shape comparison."""
-    pattern = re.compile(
-        r"\bselect\s+@?pathcount\s*=\s*count_big\s*\(\s*\*\s*\).*?;",
-        re.IGNORECASE | re.DOTALL,
-    )
     queries = []
-    for match in pattern.finditer(sql):
+    for match in COUNT_BIG_QUERY_PATTERN.finditer(sql):
         normalized = re.sub(r"\s+", "", match.group(0)).casefold()
         normalized = re.sub(
             r"^select@?pathcount=count_big\(\*\)",
@@ -55,6 +55,19 @@ def count_big_queries(sql: str) -> list[str]:
         )
         queries.append(normalized)
     return queries
+
+
+def plan_queries_inside_statistics_window(plan: str) -> bool:
+    """Require both diagnostic queries between the successful XML ON/OFF statements."""
+    xml_on = plan.find("set statistics xml on")
+    xml_off = plan.find("set statistics xml off", xml_on + 1)
+    queries = list(COUNT_BIG_QUERY_PATTERN.finditer(plan))
+    return (
+        xml_on >= 0
+        and xml_off > xml_on
+        and len(queries) == 2
+        and all(xml_on < query.start() < query.end() < xml_off for query in queries)
+    )
 
 
 def plan_summary_follows_cleanup(plan: str) -> bool:
@@ -344,6 +357,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             and count_big_queries(plan) == count_big_queries(workload),
             "plan evidence must preserve the measured Graph and relational COUNT_BIG query shapes and order",
             errors)
+    require(plan_queries_inside_statistics_window(plan),
+            "both plan queries must execute inside the STATISTICS XML ON/OFF window", errors)
     require("measurement" not in plan, "plan diagnostic must not write measured phase records", errors)
     require("drop database" in cleanup_sql and "single_user" in cleanup_sql,
             "cleanup must remove only the owned disposable database", errors)
