@@ -295,6 +295,13 @@ PR und zwei Testkandidaten auf höchstens 116/165/238. Direkte Testaufrufe nach
 Vollständigkeitsprüfung nicht bestehen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #485 integriert die beiden Kontrollflussenden; alle fünf Workflows
+bestanden. Für vier direkte Prozessendeaufrufe erweitert sich der Rahmen ohne
+Reset um ein Paket, einen PR und vier synthetische Testkandidaten auf höchstens
+117/166/242. `exit()`, `quit()`, `sys.exit()` und `os._exit()` dürfen danach
+liegende Testaufrufe nicht als ausgeführt zählen lassen. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

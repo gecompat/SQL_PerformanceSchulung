@@ -470,6 +470,13 @@ höchstens 116/165/238. Nach einem unbedingten Kontrollflussende werden spätere
 Aufrufe nicht als Registrierungen gezählt. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #485 integriert die Unerreichbarkeitsprüfung für `return` und `raise`; alle
+fünf Workflows bestanden. Für vier direkte Prozessendeformen erweitert sich der
+kumulative Rahmen ohne Reset um ein Paket, einen PR und vier Testkandidaten auf
+höchstens 117/166/242. Nach `exit()`, `quit()`, `sys.exit()` und `os._exit()`
+liegende Testaufrufe gelten ebenfalls als unerreichbar. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
