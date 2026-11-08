@@ -2,21 +2,21 @@
 
 ## Fortsetzung: QRY-023 – Actual-Plan-Diagnose absichern
 
-PR #426 integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads,
-Reads, Writes und Elapsed. Die 16 synthetischen Regressionen und der
-QRY-023-Offlinevalidator bestanden. Diese Werte sind FWK-004-Sessiondeltas
+PR #427 wählte die Absicherung der getrennten Actual-Plan-Diagnose. PR #426
+integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads, Reads,
+Writes und Elapsed; die 16 synthetischen Regressionen und der QRY-023-
+Offlinevalidator bestanden. Diese Werte sind FWK-004-Sessiondeltas
 einschließlich Messprozedur-Overhead. Das Manifest bleibt `PROPOSED`, nicht
 katalogisiert und ungefahren.
 
-Der nächste begrenzte Offline-Schnitt macht die getrennte
-`STATISTICS XML`-Planphase fehlerresistent: Der Diagnosecode muss die Session-
-Option sowohl im Erfolgs- als auch im Fehlerpfad ausschalten und den
-ursprünglichen SQL-Fehler weiterreichen. Die vorhandene FWK-005-Vorlage ist
-Referenz. Die kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs
-(Statusübergang und Reviewintegration) und höchstens 2 Quellenkandidaten auf
-73/90/173. Keine SQL-/Runtimeausführung, keine Labänderung und keine
-menschliche Generalprobe; QRY-023 bleibt ohne formale Harness-/T-SQL-Abnahme,
-unabhängige Methodenfreigabe und konkrete Runtimeautorisierung.
+Der aktuelle begrenzte Offline-Schnitt stellt sicher, dass die separate
+`STATISTICS XML`-Planphase die Sessionoption im Erfolgs- und Fehlerpfad
+ausschaltet und den ursprünglichen SQL-Fehler weiterreicht, entsprechend der
+vorhandenen FWK-005-Referenzvorlage. Die kumulative Obergrenze steigt um
+1 Arbeitspaket, 2 PRs (Statusübergang und Reviewintegration) und höchstens 2
+Quellenkandidaten auf 74/92/175. Keine SQL-/Runtimeausführung, keine
+Labänderung und keine menschliche Generalprobe; formale Harness-/T-SQL-Abnahme,
+unabhängige Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
