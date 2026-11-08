@@ -49,6 +49,11 @@ Negativregressionen mit WARN-Outcome und Fehlercode werden abgewiesen.
 22 QRY-023-Regressionen und die zugehörigen statischen Projektprüfungen
 bestanden. Dies belegt keine SQL-Ausführung oder Ergebniswahrheit; QRY-023
 bleibt `PROPOSED` und alle formalen sowie Runtimegates bleiben offen.
+Als nächster Offline-Schritt wird statisch gebunden, dass beide Planabfragen
+zwischen `STATISTICS XML ON` und dem Erfolgs-`OFF` innerhalb des `TRY` liegen.
+Eine Negativregression verschiebt beide aus dem Diagnosefenster. Die neue
+kumulative Obergrenze ist 78 Arbeitspakete, 100 PRs und höchstens 183
+Quellenkandidaten; keine SQL-/Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
