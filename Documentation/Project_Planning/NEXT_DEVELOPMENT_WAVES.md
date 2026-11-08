@@ -43,6 +43,11 @@ die statischen QRY-023-, Framework- und Repository-Continuity-Prüfungen
 bestanden. Dies belegt nur Textreihenfolge, keine SQL-/Runtimeausführung oder
 Sessionwirkung. QRY-023 bleibt `PROPOSED`; formale T-SQL-Abnahme, unabhängige
 Methodenfreigabe und Runtimegates bleiben offen.
+Der aktive nächste Offline-Schnitt bindet die Erfolgsfelder der
+`PLAN_EVIDENCE`-Summary (`Phase`, `CheckId`, `Outcome`, `Code`) und den
+korrespondierenden PASS-Print exakt; eine Negativregression verändert den
+Outcome. Die kumulative Obergrenze beträgt dafür 77 Arbeitspakete, 98 PRs und
+höchstens 181 Quellenkandidaten. Keine Ausführungsfreigabe.
 
 ### DGN-007 getrenntes Qualifikationsband
 
