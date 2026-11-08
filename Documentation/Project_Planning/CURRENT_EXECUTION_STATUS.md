@@ -217,6 +217,17 @@ Injektionseinschätzung ist eine Inferenz aus der dokumentierten Variablen-
 Expansion; es gibt weiterhin keinen aufrufenden Harness und keine
 Runtimequalifikation.
 
+## Fortsetzung: QRY-023 – SQLCMD-Eingabeanforderungen maschinenlesbar binden
+
+Der nächste Offline-Schnitt ergänzt im vorgeschlagenen Manifest ein exaktes,
+maschinenlesbares Caller-Vertragsobjekt: Demo-ID, RunToken-Zeichensatz und
+Längenlimit, deterministische Zielnamenschablone sowie die Pflicht, vor dem
+Start von SQLCMD zu validieren. Der Validator bindet das Objekt vollständig und
+weist Abweichungen zurück. Kumulative Obergrenze: ein Arbeitspaket, zwei PRs
+und höchstens zwei Quellen-/Testkandidaten zusätzlich, insgesamt 87/118/201.
+Kein SQLCMD-Aufrufer wird implementiert oder ausgeführt; keine Runtime- oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

@@ -159,6 +159,14 @@ Zielnamen auf die deterministische Formel vor SQLCMD allowlisten. Dieser
 Aufrufer existiert im Vorschlag nicht; der Vertrag ist ein offenes
 Qualifikationsgate, keine aktuelle Runtimeabsicherung.
 
+Der nächste Entwurfsschritt soll diese Anforderung maschinenlesbar in
+`manifest.proposed.json` ablegen. Festzulegen sind die exakte Demo-ID, das
+ASCII-RunToken-Muster mit 1–20 Bytes, die deterministische Zielnamenschablone
+und die Validierung vor dem Start von SQLCMD. Der Validator muss das ganze
+Vertragsobjekt gegen die festgelegte Sollstruktur vergleichen. Ein solches
+Manifestfeld implementiert noch keinen Aufrufer und ersetzt keine spätere
+Caller-/Runtimequalifikation.
+
 Quelle (abgerufen am 8. November 2026): Microsoft Learn, [Use sqlcmd with scripting variables](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver15). Die Ableitung zur Eingabesicherheit ist eine Projektinferenz aus dem dokumentierten Expansionsverhalten.
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
