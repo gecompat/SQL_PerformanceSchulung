@@ -73,6 +73,12 @@ PR #445 bindet die vier Ownership-Markerzuweisungen und vollständigen Vergleich
 vor der Rechteprüfung; Projektwert- und RunToken-Negativproben werden
 abgewiesen. 33 QRY-023-Regressionen und die statischen Projektvalidatoren
 bestanden. Tatsächliche Datenbankmarker wurden nicht gelesen oder verändert.
+Der nächste ausgewählte Offline-Schnitt bindet im read-only Preflight den
+erwarteten Ziel-Datenbanknamen an Demo-ID und RunToken und schützt die
+Längen-/Zeichenmengenprüfung des Tokens durch Negativregressionen. Er erweitert
+den kumulativen Rahmen um 1 Arbeitspaket, 2 PRs und höchstens 2
+Quellen-/Testkandidaten auf 83/110/193. SQL-/Runtime-/Lab-Ausführung,
+Rechteänderungen und menschliche Generalprobe bleiben ausgeschlossen.
 
 ### DGN-007 getrenntes Qualifikationsband
 
