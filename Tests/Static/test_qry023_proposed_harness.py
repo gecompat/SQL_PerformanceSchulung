@@ -144,5 +144,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("reject incomplete or unsuccessful" in error for error in self.errors()))
 
 
+    def test_plan_diagnostic_resets_statistics_xml_on_error(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("BEGIN CATCH\n    SET STATISTICS XML OFF;", "BEGIN CATCH\n    THROW;")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("reset STATISTICS XML on success and error" in error
+                            for error in self.errors()))
+
+
 if __name__ == "__main__":
     unittest.main()
