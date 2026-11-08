@@ -1,21 +1,29 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: STL-001 – Zeilenbreitenleiter
+## Fortsetzung: STL-002 – In-Row, Row-Overflow und LOB
 
-PR #414 (IDX-002) ist mit Squashcommit
-`e1debcd26275d97d4dbefba3878c3dc41b79c68d` integriert. Alle vier PR-Gates und
+PR #416 (STL-001) ist mit Squashcommit
+`580ead9e22fc91828f33b631b03a34ebc1b0e911` integriert. Alle vier PR-Gates und
 beide Main-Workflows waren erfolgreich; lokales `main` ist sauber und
-synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet exakte
-Key-, Payload- und Bandformeln sowie das vollständige FilterBand-37-Tupeloracle
-für `NARROW_UNIQUE` und `WIDE_NONUNIQUE`.
+synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet die
+vollständigen Formeln und Ergebnistupeloracles für die vier kumulativen
+Heapprofile, exakte `DATALENGTH`-Häufigkeiten und nachgerechnete Modellwerte.
 
-Für die autonome Fortsetzung folgt STL-001 mit einer begrenzten Erweiterung um
+Für die autonome Fortsetzung folgt STL-002 mit einer begrenzten Erweiterung um
 1 Arbeitspaket, 2 PRs (Statusübergang und Entwurfsintegration) und bis zu 2
-Quellenkandidaten; kumulative Obergrenze 67/78/161. Umfang: aktuelle
-Quellenprüfung, unabhängige Nachrechnung der Modellwerte sowie vollständige
-Fixtureformeln und Tupeloracles für `BASE`, `FIXED_100`, `VARIABLE_MIX` und
-`NULLABLE_MIX`. Keine SQL-/Runtimeausführung, keine Page-Density- oder
-Leistungsbehauptung und keine menschliche Generalprobe.
+Quellenkandidaten; kumulative Obergrenze 68/80/163. Umfang: aktueller
+Quellenabgleich sowie Präzisierung des vollständigen Payload-/Padding-Oracles
+und der kanonischen Tupelreihenfolge für INROW-, ROW_OVERFLOW- und LOB-Profile.
+Keine SQL-/Runtimeausführung, keine gemessene Allocation-Unit-Zuordnung,
+I/O- oder Leistungsbehauptung und keine menschliche Generalprobe.
+
+## Abschluss: STL-001 – Zeilenbreitenleiter
+
+Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
+integriert. Er legt die vollständigen Spalten- und Ergebnistupel für alle vier
+Profile sowie exakte Längenverteilungen fest. Die Modellwerte bleiben von
+tatsächlichen Record-/Seitenmessungen getrennt; keine Heap-Enginequalifikation
+ist erfolgt.
 
 ## Abschluss: IDX-002 – Clustered-Key-Breite
 
