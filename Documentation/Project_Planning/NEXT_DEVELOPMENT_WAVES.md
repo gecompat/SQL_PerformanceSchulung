@@ -308,6 +308,12 @@ einen PR und zwei Testkandidaten auf höchstens 118/167/244. Importierte oder
 umbenannte `sys.exit`-Aufrufe beenden den Kontrollfluss ebenfalls. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #487 integriert beide `sys.exit`-Aliasfälle; alle fünf Workflows bestanden.
+Für drei weitere Aliasfälle erweitert sich das Budget ohne Reset um ein
+Arbeitspaket, einen PR und drei Testkandidaten auf höchstens 119/168/247:
+`builtins.exit`, `os._exit` und ein `os`-Modulalias. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
