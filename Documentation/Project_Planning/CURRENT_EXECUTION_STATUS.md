@@ -1,21 +1,30 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: IDX-002 – Clustered-Key-Breite
+## Fortsetzung: STL-001 – Zeilenbreitenleiter
 
-PR #412 (IDX-001) ist mit Squashcommit
-`71c471eb0a2a5101f6546b896e4a2660cf5c75a6` integriert. Alle vier PR-Gates und
+PR #414 (IDX-002) ist mit Squashcommit
+`e1debcd26275d97d4dbefba3878c3dc41b79c68d` integriert. Alle vier PR-Gates und
 beide Main-Workflows waren erfolgreich; lokales `main` ist sauber und
-synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet die
-deterministische Fixtureformel sowie vollständige Tupeloracles für den
-Punktfall und den Bereichsfall auf HEAP und CLUSTERED.
+synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet exakte
+Key-, Payload- und Bandformeln sowie das vollständige FilterBand-37-Tupeloracle
+für `NARROW_UNIQUE` und `WIDE_NONUNIQUE`.
 
-Für die autonome Fortsetzung folgt IDX-002 mit einer begrenzten Erweiterung um
+Für die autonome Fortsetzung folgt STL-001 mit einer begrenzten Erweiterung um
 1 Arbeitspaket, 2 PRs (Statusübergang und Entwurfsintegration) und bis zu 2
-Quellenkandidaten; kumulative Obergrenze 66/76/159. Umfang: aktuelle
-Quellenprüfung sowie exakte Fixtureformeln und vollständige sortierte
-Ergebnistupeloracles für `NARROW_UNIQUE` und `WIDE_NONUNIQUE`. Keine
-SQL-/Runtimeausführung, keine allgemeine Indexgrößen- oder
+Quellenkandidaten; kumulative Obergrenze 67/78/161. Umfang: aktuelle
+Quellenprüfung, unabhängige Nachrechnung der Modellwerte sowie vollständige
+Fixtureformeln und Tupeloracles für `BASE`, `FIXED_100`, `VARIABLE_MIX` und
+`NULLABLE_MIX`. Keine SQL-/Runtimeausführung, keine Page-Density- oder
 Leistungsbehauptung und keine menschliche Generalprobe.
+
+## Abschluss: IDX-002 – Clustered-Key-Breite
+
+Der [IDX-002-Entwurf](IDX002_CLUSTERED_KEY_WIDTH_DESIGN.md) ist über PR #414
+integriert. Er definiert alle 100.000 synthetischen Zeilentupel, 100 nicht
+eindeutige Clustered-Key-Werte mit je 1.000 Zeilen und das vollständige
+FilterBand-37-Oracle. Modellierte Größen, reale Seitenmessungen und
+Performancewirkungen bleiben getrennte Evidenzen; keine Enginequalifikation
+ist erfolgt.
 
 ## Abschluss: IDX-001 – Heap- und Clustered-Row-Locators
 
