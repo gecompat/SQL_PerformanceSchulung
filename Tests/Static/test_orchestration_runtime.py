@@ -513,6 +513,22 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("runtime test module must invoke main from __main__ guard",),
         "missing synthetic module entry point",
     )
+    for invalid_entrypoint, label in (
+        (
+            'if "__main__" == __name__:\n    raise SystemExit(main())\n',
+            "reversed module guard",
+        ),
+        ('if __name__ == "__main__":\n    main()\n', "unpropagated main return code"),
+        (
+            'if __name__ == "__main__":\n    raise SystemExit(main)\n',
+            "main function reference is not a call",
+        ),
+    ):
+        assert_equal(
+            runtime_test_entrypoint_issues(invalid_entrypoint),
+            ("runtime test module must invoke main from __main__ guard",),
+            label,
+        )
 
     base = "def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(runtime_test_registration_issues(base), (), "complete synthetic test registration")

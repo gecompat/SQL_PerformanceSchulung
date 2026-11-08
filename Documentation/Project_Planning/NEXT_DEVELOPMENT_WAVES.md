@@ -241,6 +241,14 @@ Der Wächter prüft nun auch den direkten Modulaufruf unter dem
 `raise SystemExit(main())`. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #477 bindet die Modulstartbedingung und die Weitergabe des `main()`-
+Rückgabecodes. Alle fünf Workflows bestanden. Der kumulative Rahmen wird für
+die drei synthetischen Gegenproben ohne Reset um ein Arbeitspaket, einen PR
+und bis zu drei Testkandidaten auf höchstens 109/158/226 erweitert: umgedrehte
+`__name__`-Bedingung, direkter Aufruf ohne `SystemExit` und Funktionsreferenz
+statt Funktionsaufruf. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
