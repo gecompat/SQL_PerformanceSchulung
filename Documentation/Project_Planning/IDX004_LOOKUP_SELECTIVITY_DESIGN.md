@@ -24,10 +24,16 @@ Scan` und `Seek` mögliche Beobachtungen, keine Planpflicht.
 ## Kontrollierte Fixture
 
 Die vorgeschlagene Tabelle `LookupBand` hat 100.000 synthetische Zeilen mit
-einem eindeutigen Clustered Key `RowId`, einem Selektivitätsschlüssel
-`FilterBand` und `Payload char(200)`. Jede Frequenzgruppe wird deterministisch
-über den gesamten `RowId`-Bereich verteilt; zusammenhängende Gruppen am
-Tabellenanfang würden den Clustered-Zugriff ungewollt begünstigen.
+`RowId int` als eindeutigem Clustered Key, `FilterBand int` und
+`Payload char(200)`. Der Generator verwendet die nullbasierte Slotnummer `s`
+von 0 bis 99.999 und ordnet ihr die Zeilen-ID
+`RowId(s) = ((37 * s) mod 100000) + 1` zu. Da 37 und 100.000 teilerfremd
+sind, ist dies eine Permutation: jede `RowId` von 1 bis 100.000 entsteht genau
+einmal. Die Slotintervalle unten legen `FilterBand` fest; dadurch liegen die
+Gruppen reproduzierbar über den RowId-Bereich verteilt. Für jede Zeile gilt
+`Payload = REPLICATE('X', 200)` (genau 200 ASCII-Zeichen; Speicherung in
+`char(200)`). Der konstante Payload isoliert die Ergebniskorrektheit und
+Datensatzbreite, ist aber kein repräsentativer Anwendungswert.
 
 | `FilterBand` | Treffer | Tabellenanteil |
 |---:|---:|---:|
@@ -44,9 +50,28 @@ Tabellenanfang würden den Clustered-Zugriff ungewollt begünstigen.
 | 11 | 40.000 | 40 % |
 | 99 | 21.090 | außerhalb der Selektivitätsleiter |
 
-Die 12 Frequenzen ergeben zusammen genau 100.000 Zeilen. Der spätere Fixture-
-Generator muss Verteilung und Counts vor jeder Messung vollständig
-attestieren; diese Entwurfsrechnung ist kein Enginebefund.
+Die 12 Frequenzen ergeben zusammen genau 100.000 Zeilen. Die vollständigen
+Slotintervalle `[Start, Ende]` (beide Grenzen eingeschlossen) lauten:
+
+| `FilterBand` | Slotintervall |
+|---:|---:|
+| 1 | 0–9 |
+| 2 | 10–59 |
+| 3 | 60–159 |
+| 4 | 160–409 |
+| 5 | 410–909 |
+| 6 | 910–1.909 |
+| 7 | 1.910–3.909 |
+| 8 | 3.910–8.909 |
+| 9 | 8.910–18.909 |
+| 10 | 18.910–38.909 |
+| 11 | 38.910–78.909 |
+| 99 | 78.910–99.999 |
+
+Damit ist die Sollverteilung ohne Zufall, Laufzeit-Zahlenquelle oder
+Interpretationsspielraum definiert. Ein späterer Generator muss vor einer
+Ausführung die vollständige Bijektion, jeden Band-Count und den Payload prüfen;
+dieser statische Entwurf ist kein Enginebefund.
 
 ## Vergleichsprofile und identische Abfrage
 
@@ -81,11 +106,29 @@ keinen Laufzeitclaim.
 
 ## Ergebnisoracle und Beobachtung
 
-Für jedes Band ist die erwartete Trefferzahl tabellarisch festgelegt; die
-Korrektheitsabnahme vergleicht zusätzlich die vollständigen Tupel
-`(RowId, FilterBand, Payload)` zwischen `BASE`, `LOOKUP` und `COVERING`.
-Eine gleiche Zeilenzahl genügt nicht. Die gemessene tatsächliche Zeilenzahl
-und der vollständige Zeileninhalt müssen dem Oracle entsprechen.
+## Vollständiges Ergebnistupeloracle
+
+Für ein Band `b` mit Slotintervall `[a_b, z_b]` lautet das vollständige Oracle
+die Menge aller Tupel
+`(RowId(s), b, REPLICATE('X', 200))` für `s = a_b..z_b`, für den Vergleich
+kanonisch aufsteigend sortiert nach `RowId(s)`. Diese Definition umfasst alle drei projizierten Spalten,
+jede Zeilenmultiplizität und den vollständigen Payloadinhalt. Sie gilt für
+jedes Band einschließlich des Füllbands 99. Die Selektivitätsleiter selbst
+wertet die Bänder 1 bis 11 aus; Band 99 füllt die restliche Tabelle auf und ist
+kein zusätzlicher Leiterpunkt.
+
+`RowId(s)` ist bijektiv. Zur unabhängigen Rückabbildung einer beliebigen
+`RowId` auf ihren Soll-Slot gilt
+`s = (((RowId - 1) * 72973) mod 100000)`, da 72.973 das multiplikative Inverse
+von 37 modulo 100.000 ist. Damit folgt das Sollband einer Zeile eindeutig aus
+dem resultierenden Slotintervall. Ein Oracle-Generator kann diese
+Rückabbildung unabhängig vom Vorwärtslauf nutzen.
+
+Für jedes getestete Band wird das vollständige Tupeloracle identisch
+gegen `BASE`, `LOOKUP` und `COVERING` geprüft. Die kanonische Sortierung dient
+nur dem mengenweisen Vergleich; die Abfrage verspricht keine Ergebnisreihenfolge.
+Gleichheit von Zeilenzahl, Prüfsumme oder Bandverteilung allein genügt nicht;
+vollständige Tupel und Duplikate müssen übereinstimmen.
 
 Falls eine spätere Ausführung freigegeben wird, werden je Band und Profil
 getrennt festgehalten:
@@ -119,5 +162,10 @@ Umsetzung sind ein markierter Demo-/Setup-/Cleanupvertrag, Version-/Buildpins,
 Permissions, Fixturegenerator, unabhängiges Ergebnisoracle, Methodenreview und
 konkrete Ausführungsfreigabe zu binden. `SRC-012` bindet Index- und
 Selektivitätsgrundlagen, `SRC-125` die Plan-/Read-Erfassung und `SRC-137` die
-Lookup- und Compilesemantik. Es erfolgen keine SQL-/DMV-Läufe und keine
-menschliche Generalprobe.
+Lookup- und Compilesemantik. `OPTION (RECOMPILE)` verwendet beim Kompilieren
+den aktuellen Parameterwert; dies bindet den Entwurf an den jeweiligen
+Leiterwert, beweist aber weder eine bestimmte Schätzung noch Planform oder
+Ausführungszeit. Die aktuelle Microsoft-Indexdokumentation beschreibt den
+Clustered Key als Row Locator nicht eindeutiger Nonclustered Indexes und
+Included Columns als Möglichkeit, eine Abfrage abzudecken. Es erfolgen keine
+SQL-/DMV-Läufe und keine menschliche Generalprobe.
