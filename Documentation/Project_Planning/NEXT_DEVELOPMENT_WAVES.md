@@ -118,6 +118,12 @@ und Tokenzeichensatz und werden abgewiesen. 41 QRY-023-Regressionen sowie die
 betroffenen Projektvalidatoren bestanden. Das Feld bleibt eine Vorgabe für
 einen späteren Caller.
 
+Als nächstes soll der vorhandene FWK-010-Caller `run_demo.py` das optionale
+Manifestobjekt beim Laden tatsächlich durchsetzen. Ungültige Werte müssen vor
+der Auflösung oder Ausführung von SQLCMD abgewiesen werden. Synthetische Tests
+verwenden nur den vorhandenen Fake-SQLCMD-Aufruf. Kumulativ 88/120/203; keine
+SQL-Server- oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
