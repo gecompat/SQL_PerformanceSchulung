@@ -123,14 +123,22 @@ mit verändertem Skip-Outcome, Erfolgs-Outcome und Skip-Print wurden abgewiesen.
 Continuity-Validatoren bestanden. Die Prüfung ist statisch; keine Rechte wurden
 erteilt und kein SQL ausgeführt.
 
-## Fortsetzung: QRY-023 – Preflight an Zielkontext binden
+## Abschluss: QRY-023 – Preflight an Zielkontext binden
 
-Der nächste Offline-Schnitt bindet den Zielkontext des Qualification-Preflights:
+Der Offline-Schnitt band den Zielkontext des Qualification-Preflights:
 Systemdatenbanken müssen ausgeschlossen und `DB_NAME()` mit dem manifestierten
 `@TargetDatabase` verglichen werden, bevor Berechtigungen ausgewertet werden.
-Eine Negativregression kehrt den Vergleich um. Die kumulative Obergrenze steigt
+Eine Negativregression kehrt den Vergleich um. Die kumulative Obergrenze stieg
 um ein Paket und zwei PRs auf 81/106/189 (höchstens 189 Quellenkandidaten).
 Keine Datenbank-, Rechte- oder Runtimeänderung.
+
+PR #443 bindet den Systemdatenbankausschluss und die Prüfung
+`DB_NAME()<>@TargetDatabase` vor der Rechteauswertung. Zwei Negativregressionen
+entfernen den Ausschluss bzw. kehren den Vergleich um. Der erste lokale Lauf
+deckte einen Leerzeichenfehler in der neu ergänzten kompakten Suchbedingung auf;
+nach Korrektur bestanden 31 QRY-023-Regressionen sowie QRY-023-, Framework-
+und Repository-Continuity-Validatoren. Nur statische Textprüfung; keine DB-
+oder Rechteänderung und kein SQL-Lauf.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

@@ -64,10 +64,11 @@ PR #441 bindet beide Qualification-Preflight-Statuszeilen und ihre PRINT-Marker.
 Drei Negativregressionen für Skip-Outcome, Erfolgs-Outcome und Skip-Print werden
 abgewiesen; 29 QRY-023-Regressionen und die statischen Projektvalidatoren
 bestanden. Keine Rechteänderung oder SQL-Ausführung.
-Als nächster Offline-Schritt werden Systemdatenbankausschluss und exakter
-`DB_NAME()`/`@TargetDatabase`-Abgleich vor der Rechteprüfung gebunden. Eine
-Negativregression kehrt den Vergleich um. Kumulativ 81 Arbeitspakete, 106 PRs
-und höchstens 189 Quellenkandidaten.
+PR #443 bindet Systemdatenbankausschluss und den `DB_NAME()`/
+`@TargetDatabase`-Abgleich vor der Rechteprüfung. Zwei Negativfälle werden
+abgewiesen; 31 QRY-023-Regressionen und die statischen Projektvalidatoren
+bestanden nach Korrektur eines lokalen Validatorfehlers. Keine Datenbank- oder
+Rechteänderung und kein SQL-Lauf.
 
 ### DGN-007 getrenntes Qualifikationsband
 

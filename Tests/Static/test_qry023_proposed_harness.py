@@ -252,6 +252,20 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("summary rows and PRINT markers must match" in error for error in self.errors()))
 
+    def test_qualification_preflight_must_bind_current_database_to_target(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("DB_NAME()<>@TargetDatabase", "DB_NAME()=@TargetDatabase")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("mismatched DB_NAME()/@TargetDatabase" in error for error in self.errors()))
+
+    def test_qualification_preflight_must_reject_system_databases(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("IF DB_ID()<=4 OR @DemoId", "IF @DemoId")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("reject system databases" in error for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

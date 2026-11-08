@@ -97,6 +97,13 @@ Outcome, Erfolgs-Outcome oder Printmarker werden abgewiesen. Das prüft nur die
 T-SQL-Textform; es erteilt keine Rechte und liest keine tatsächlichen
 SQL-Server-Berechtigungen aus.
 
+Vor den Rechteprüfungen muss der Qualifikationspreflight außerdem
+Systemdatenbanken (`DB_ID()<=4`) ausschließen und `DB_NAME()` exakt an den
+manifestierten `@TargetDatabase`-Wert binden. Gegenproben, die den Ausschluss
+entfernen oder den Vergleich umkehren, werden abgewiesen. Zusammen mit der
+Manifestbindung bleibt dies eine Textprüfung; ein tatsächlicher Verbindungskontext
+wird nicht hergestellt.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche
