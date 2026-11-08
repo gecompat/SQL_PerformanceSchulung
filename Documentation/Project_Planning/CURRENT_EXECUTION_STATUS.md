@@ -421,6 +421,13 @@ erweitert. Umgedrehte Guard-Bedingung, fehlende Exitcode-Weitergabe und ein
 Funktionsverweis ohne Aufruf müssen fail-closed scheitern. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #478 integriert diese drei Fehlformen; alle fünf Workflows bestanden. Für
+die Erkennung eines zusätzlichen ungeschützten Modulebenenaufrufs von `main()`
+erweitert sich der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR
+und einen Testkandidaten auf höchstens 110/159/227. Doppelte Ausführung beim
+Import oder vor dem geschützten Einstieg muss abgewiesen werden. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

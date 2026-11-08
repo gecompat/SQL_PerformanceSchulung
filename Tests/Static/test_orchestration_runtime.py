@@ -497,7 +497,16 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
                 and not exc.args[0].keywords
             ):
                 valid_calls.append(statement)
-    if len(guards) != 1 or len(valid_calls) != 1:
+    unguarded_calls = [
+        node for statement in tree.body
+        if statement not in guards
+        and not isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+        for node in ast.walk(statement)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "main"
+    ]
+    if len(guards) != 1 or len(valid_calls) != 1 or unguarded_calls:
         return ("runtime test module must invoke main from __main__ guard",)
     return ()
 
@@ -522,6 +531,11 @@ def test_runtime_test_functions_are_registered_once() -> None:
         (
             'if __name__ == "__main__":\n    raise SystemExit(main)\n',
             "main function reference is not a call",
+        ),
+        (
+            'main()\nif __name__ == "__main__":\n'
+            '    raise SystemExit(main())\n',
+            "unguarded top-level main call",
         ),
     ):
         assert_equal(
