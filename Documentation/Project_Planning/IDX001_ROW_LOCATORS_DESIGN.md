@@ -33,10 +33,19 @@ Beweis für die Gesamtgröße eines Indexes oder eine Performanceprognose.
 
 Vorgeschlagen ist ein deterministischer Datensatz mit 100.000 Zeilen und den
 Spalten `RowId int NOT NULL`, `FilterBand int NOT NULL` sowie `Payload char(200)
-NOT NULL`. `RowId` läuft lückenlos von 1 bis 100.000; `FilterBand` ist
-`(RowId - 1) % 100`; `Payload` wird allein aus `RowId` deterministisch
-gebildet. Damit liegen je Band exakt 1.000 Zeilen vor. Die Payload ist bewusst
-nicht im Vergleichsindex enthalten.
+NOT NULL`. Für jede `RowId` `r` von 1 bis 100.000 gilt:
+
+```text
+FilterBand(r) = (r - 1) % 100
+Payload(r) = 'P' + RIGHT(REPLICATE('0', 6) + CONVERT(varchar(6), r), 6)
+             + REPLICATE('X', 193)
+```
+
+Der Generator erzeugt jede `RowId` im geschlossenen Bereich genau einmal.
+`Payload(r)` besteht aus `P`, sechs Dezimalziffern von `r` mit führenden Nullen
+und 193 `X`-Zeichen; die Länge ist genau 200 ASCII-Zeichen. Damit liegen je
+Filterband exakt 1.000 Zeilen vor. Die Payload ist bewusst nicht im
+Vergleichsindex enthalten.
 
 Zwei Tabellen erhalten exakt dieselben vollständigen Tupel:
 
@@ -52,7 +61,7 @@ Basistabellen-Row-Locator.
 
 ## Abfragefälle und Oracles
 
-Die beiden Tabellen werden mit derselben Abfrageform gelesen:
+Der Punktfall liest mit Gleichheitsprädikaten:
 
 ```sql
 SELECT RowId, FilterBand, Payload
@@ -62,13 +71,32 @@ WHERE FilterBand = @FilterBand
 ```
 
 Der Punktfall verwendet `FilterBand = 36` und `RowId = 37037` und muss genau
-ein vollständiges Tupel liefern. Der Suchindex kann zunächst Kandidaten für das
-Band lokalisieren; der zusätzliche RowId-Test und die Ausgabe von `Payload`
-bleiben Bestandteil derselben logischen Abfrage. Der Bereichsfall verwendet
-`FilterBand BETWEEN 37 AND 39` und muss 3.000 vollständige Tupel liefern.
-Beide Fälle laufen auf beiden Tabellen. Die vollständigen Tupelmengen und
-`RowId`-Multiplizitäten müssen mit dem Fixtureoracle und zwischen HEAP und
-CLUSTERED übereinstimmen. Gleiche Zeilenzahl allein genügt nicht.
+ein vollständiges Tupel liefern. Die Parameterwerte sind `@FilterBand = 36`
+und `@RowId = 37037`; sie erfüllen die Fixtureformel.
+
+Der Bereichsfall verwendet eine getrennte Abfrage ohne Punktfilter:
+
+```sql
+SELECT RowId, FilterBand, Payload
+FROM dbo.OperatorHeap -- alternativ: dbo.OperatorClustered
+WHERE FilterBand BETWEEN @FilterBandStart AND @FilterBandEnd;
+```
+
+mit `@FilterBandStart = 37` und `@FilterBandEnd = 39`; er muss genau 3.000
+vollständige Tupel liefern. Beide Fälle laufen auf beiden Tabellen. Die
+folgenden Formeln definieren die vollständigen Tupeloracles; die kanonische
+Sortierung dient nur dem Vergleich, da keine Abfrage ein `ORDER BY` enthält:
+
+- Punktfall: genau `(37037, 36, Payload(37037))`, wobei
+  `Payload(37037) = 'P037037' + REPLICATE('X', 193)`.
+- Bereichsfall: für `k = 0..999` und `b ∈ {37, 38, 39}` jeweils das Tupel
+  `(r, b, Payload(r))`, wobei `r = 100 * k + b + 1`; die Gesamtmenge wird
+  aufsteigend nach `r` kanonisiert und enthält keine doppelten `RowId`-Werte.
+
+Damit betragen die erwarteten Mengen genau ein Tupel im Punktfall und 3.000
+Tupel im Bereichsfall. Die vollständigen Tupel und `RowId`-Multiplizitäten
+müssen mit dem Fixtureoracle und zwischen HEAP und CLUSTERED übereinstimmen;
+gleiche Zeilenzahl allein genügt nicht.
 
 Die Bereichsform erlaubt keine Schlussfolgerung über einen universellen
 Scan-/Lookup-Kipppunkt oder eine repräsentative Selektivität. Es handelt sich
@@ -92,7 +120,14 @@ und Versionsprüfung, Methodenreview und konkrete Ausführungsfreigabe nötig.
 Dieser statische Entwurf erfüllt keines dieser Laufzeitgates und schließt keine
 menschliche Generalprobe ein.
 
-Die Quellen-IDs sind im [Quellenregister](../Research/SOURCE_REGISTER.md)
-aufgeführt. `SRC-012` beschreibt Row-Locator-Struktur und implizite
-Locator-Spalten, `SRC-013` Heap und RID, `SRC-138` die beiden bedingten
-Showplan-Operatorzuordnungen.
+`SRC-012` beschreibt Row-Locator-Struktur und implizite Locator-Spalten:
+nicht eindeutige Nonclustered Indexes auf Heap und eindeutig geclusterter
+Tabelle erhalten den jeweiligen Locator als Schlüsselspalte. `SRC-013`
+beschreibt Heap und den acht Byte großen RID aus File-, Page- und Slot-ID.
+`SRC-138` ordnet `RID Lookup` einem Heap und `Key Lookup` einer Tabelle mit
+Clustered Index zu; beide Lookup-Operatoren sind mit `Nested Loops` verbunden.
+Diese Zuordnungen begründen nur die Struktur, falls ein Lookup im späteren
+Plan vorkommt. Die aktuelle Microsoft-Dokumentation hält außerdem fest, dass
+die Heap-Reihenfolge und die Reihenfolge zurückgegebener Zeilen ohne `ORDER BY`
+nicht garantiert sind. Die vollständigen Quellen stehen im
+[Quellenregister](../Research/SOURCE_REGISTER.md).
