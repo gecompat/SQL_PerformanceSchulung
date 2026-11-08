@@ -256,6 +256,12 @@ um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
 zweiten oder vorzeitigen Testrun auslösen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #479 integriert den Schutz vor ungeschützten Aufrufen; alle fünf Workflows
+bestanden. Der nächste einzelne Kandidat erweitert den kumulativen Rahmen ohne
+Reset um ein Paket, einen PR und einen Test auf höchstens 111/160/228. Auch
+innerhalb des einzigen `__main__`-Guards darf `main()` genau einmal aufgerufen
+werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

@@ -428,6 +428,13 @@ und einen Testkandidaten auf höchstens 110/159/227. Doppelte Ausführung beim
 Import oder vor dem geschützten Einstieg muss abgewiesen werden. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #479 integriert den Schutz vor ungeschützten `main()`-Aufrufen; alle fünf
+Workflows bestanden. Für einen zweiten Aufruf innerhalb desselben
+`__main__`-Guards erweitert sich der kumulative Rahmen ohne Reset um ein Paket,
+einen PR und einen Testkandidaten auf höchstens 111/160/228. Der Modulstartpfad
+muss genau einen `main()`-Aufruf enthalten. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

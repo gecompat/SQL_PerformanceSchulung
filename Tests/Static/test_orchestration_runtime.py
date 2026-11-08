@@ -480,7 +480,14 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
         and node.test.comparators[0].value == "__main__"
     ]
     valid_calls = []
+    guard_calls = []
     for guard in guards:
+        guard_calls.extend(
+            node for node in ast.walk(guard)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "main"
+        )
         for statement in guard.body:
             if not isinstance(statement, ast.Raise) or not isinstance(statement.exc, ast.Call):
                 continue
@@ -506,7 +513,12 @@ def runtime_test_entrypoint_issues(source: str) -> tuple[str, ...]:
         and isinstance(node.func, ast.Name)
         and node.func.id == "main"
     ]
-    if len(guards) != 1 or len(valid_calls) != 1 or unguarded_calls:
+    if (
+        len(guards) != 1
+        or len(valid_calls) != 1
+        or len(guard_calls) != 1
+        or unguarded_calls
+    ):
         return ("runtime test module must invoke main from __main__ guard",)
     return ()
 
@@ -536,6 +548,11 @@ def test_runtime_test_functions_are_registered_once() -> None:
             'main()\nif __name__ == "__main__":\n'
             '    raise SystemExit(main())\n',
             "unguarded top-level main call",
+        ),
+        (
+            'if __name__ == "__main__":\n    main()\n'
+            '    raise SystemExit(main())\n',
+            "duplicate main call inside module guard",
         ),
     ):
         assert_equal(
