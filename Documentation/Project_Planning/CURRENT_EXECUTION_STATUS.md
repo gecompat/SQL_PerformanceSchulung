@@ -1,20 +1,25 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: IDX-003 – Schlüsselreihenfolge und INCLUDE-Spalten
+## Fortsetzung: IDX-004 – Treffermenge, Lookup und Abdeckung
 
-PR #406 (QRY-007) ist mit Squashcommit
-`f09dd8559626a9a27e60cab1d118568c7b117364` integriert. Alle fünf PR-Gates und
-drei Main-Workflows waren erfolgreich; lokales `main` ist sauber und
-synchronisiert. Der Entwurf bindet Eltern-/Kind-Multiplizität an exakte
-Joinpaare und trennt Elternprojektion, `DISTINCT`, `EXISTS` und angeforderte
-Aggregation durch vollständige Tupeloracles.
+PR #408 (IDX-003) ist mit Squashcommit
+`8d45f2ea296ba7318827c41e4b886b8e25d2132f` integriert. Alle vier ausgelösten
+PR-Gates und beide Main-Workflows waren erfolgreich; lokales `main` ist sauber
+und synchronisiert. Der Entwurf bindet die zyklische Fixtureverteilung und
+vollständige sortierte Tupeloracles für alle vier Filterfälle.
 
-Für IDX-003 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
-2 Quellenkandidaten; kumulative Obergrenze 63/71/153. Umfang: quellengebundene
-Vervollständigung des statischen Key-Reihenfolge-/INCLUDE-Entwurfs samt
-vollständiger Ergebnistupeloracles und Prüfung der geplanten Fixturezählwerte.
-Keine SQL-/Runtimeausführung, Seek-Garantie, Leistungsbehauptung oder
-menschliche Generalprobe.
+Für IDX-004 gilt eine begrenzte Erweiterung um 1 Arbeitspaket, 1 PR und bis zu
+2 Quellenkandidaten; kumulative Obergrenze 64/72/155. Umfang: quellengebundene
+Prüfung und gezielte Vervollständigung des statischen Lookup-Entwurfs mit
+exakten Fixtureformeln und vollständigen Tupeloracles für BASE-, LOOKUP- und
+COVERING-Profile. Kein SQL-/Runtimelauf, kein garantierter Planübergang,
+Leistungsclaim oder menschliche Generalprobe.
+
+## Abschluss: IDX-003 – Schlüsselreihenfolge und INCLUDE-Spalten
+
+Der [IDX-003-Entwurf](IDX003_KEY_ORDER_DESIGN.md) ist über PR #408 integriert.
+Enginequalifikation, tatsächliche Zugriffspfade, Indexseiten, Berechtigungen
+und Laufzeitwirkungen bleiben offen.
 
 ## Abschluss: QRY-007 – Join-Kardinalität und Ergebniskörnung
 
