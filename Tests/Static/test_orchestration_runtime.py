@@ -789,6 +789,21 @@ def test_runtime_test_functions_are_registered_once() -> None:
             "runtime.exit()",
             "unreachable after aliased sys module exit",
         ),
+        (
+            "from builtins import exit as stop\n",
+            "stop()",
+            "unreachable after aliased builtins.exit",
+        ),
+        (
+            "from os import _exit as stop\n",
+            "stop(1)",
+            "unreachable after aliased os._exit",
+        ),
+        (
+            "import os as process\n",
+            "process._exit(1)",
+            "unreachable after aliased os module exit",
+        ),
     )
     for prefix, terminal, label in terminal_cases:
         unreachable_call = (

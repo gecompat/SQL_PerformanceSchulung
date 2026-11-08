@@ -484,6 +484,13 @@ Testkandidaten auf höchstens 118/167/244. `from sys import exit as stop` und
 `import sys as runtime` dürfen spätere Tests nicht ausführbar erscheinen
 lassen. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #487 integriert die zwei `sys.exit`-Aliasformen; alle fünf Workflows
+bestanden. Für drei importierte `builtins.exit`-/`os._exit`-Varianten erweitert
+sich der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und drei
+Testkandidaten auf höchstens 119/168/247. Die Aliasauflösung muss auch für
+Builtin- und OS-Endpunkte gelten. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
