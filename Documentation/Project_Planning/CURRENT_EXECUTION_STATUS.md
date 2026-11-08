@@ -1,21 +1,21 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-023 – Proposed Harness lokal prüfen
+## Abschluss: QRY-023 – Proposed Harness statisch geprüft
 
-PR #422 integrierte die lokale CON-006-Vertrags-/Quellenprüfung. Die 18
-synthetischen Vertragsprüfungen bestanden. Der genaue
-`requestType="convert"`-Schema bleibt in den geprüften Herstellertexten
-unspezifiziert; außerdem authentifiziert der Offline-Capturevertrag nicht,
-dass seine caller-gelieferten Felder aus demselben Event/Lauf stammen. Diese
-Engine- und Producergrenzen bleiben ausdrücklich offen.
+PR #423 wählte den begrenzten Review; PR #424 dokumentiert den
+[Coverage-Befund](QRY023_PROPOSED_HARNESS_REVIEW.md) und bindet Manifestphasen
+exakt an Script, Datenbank und Phase-Zeitlimit. Zusätzlich werden Cleanup in
+`master`, seine 90-Sekundenfrist sowie 900/90-Sekunden-Laufgrenzen geprüft.
+Fehlgeformte Manifest-/Phasenwerte führen kontrolliert zu Validierungsfehlern.
+Die gezielten synthetischen Regressionen und der QRY-023-Offlinevalidator
+bestanden.
 
-Der nächste begrenzte Offline-Schnitt prüft den vorhandenen QRY-023-
-Harnessentwurf, seinen statischen Vertragsprüfer und die Syntax-/Methoden-
-Dokumente auf konkrete Coverage-Lücken und widersprüchliche Sollwerte. Die
-kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs (Statusübergang und
-Reviewintegration) und höchstens 2 Quellenkandidaten auf 71/86/169. Das ist
-keine formale T-SQL-, unabhängige Methoden- oder Runtimefreigabe. Keine
-SQL-/Runtimeausführung, keine Labänderung und keine menschliche Generalprobe.
+Die kumulative Obergrenze 71/86/169 wurde für diesen Offline-Schnitt verwendet.
+QRY-023 bleibt `PROPOSED`, nicht katalogisiert und ungefahren. Formale
+Harness-/T-SQL-Abnahme, unabhängige Methodenfreigabe, aktuelle Image-/Build-
+Bestätigung, Ressourcen- und Cleanupqualifikation sowie getrennte
+Runtimeautorisierung bleiben offen. Keine SQL-/Runtimeausführung, keine
+Labänderung und keine menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

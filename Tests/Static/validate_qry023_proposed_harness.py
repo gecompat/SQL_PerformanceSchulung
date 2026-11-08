@@ -10,14 +10,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DEMO = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables"
 EXPECTED_PHASES = [
-    "PREFLIGHT",
-    "SETUP",
-    "FRAMEWORK",
-    "WORKLOAD",
-    "QUALIFICATION_PREFLIGHT",
-    "CORRECTNESS",
-    "MEASUREMENT",
-    "PLAN_EVIDENCE",
+    ("PREFLIGHT", "00_Preflight.sql", "master", None),
+    ("SETUP", "10_Setup.sql", "master", 240),
+    ("FRAMEWORK", "15_Framework.sql", "target", 180),
+    ("WORKLOAD", "20_Workload.sql", "target", 300),
+    ("QUALIFICATION_PREFLIGHT", "25_Qualification_Preflight.sql", "target", None),
+    ("CORRECTNESS", "30_Correctness.sql", "target", 180),
+    ("MEASUREMENT", "40_Measurement.sql", "target", 300),
+    ("PLAN_EVIDENCE", "50_Plan_Evidence.sql", "target", 120),
 ]
 
 
@@ -46,6 +46,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
         manifest = json.loads(proposed_manifest.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         return [f"Cannot load proposed manifest: {exc}"]
+    if type(manifest) is not dict:
+        return ["proposed manifest root must be an object"]
 
     require(not catalog_manifest.exists(), "QRY-023 must not have a catalog manifest.json", errors)
     require(manifest.get("demo_id") == "QRY-023", "proposed manifest must identify QRY-023", errors)
@@ -54,20 +56,40 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     phases = manifest.get("phases")
     require(isinstance(phases, list), "proposed manifest phases must be a list", errors)
     if isinstance(phases, list):
-        require([phase.get("id") for phase in phases] == EXPECTED_PHASES,
-                "phase IDs/order must match the proposed QRY-023 lifecycle", errors)
+        records_valid = all(type(phase) is dict for phase in phases)
+        require(records_valid, "each proposed manifest phase must be an object", errors)
+        if records_valid:
+            observed_bindings = [
+                (phase.get("id"), phase.get("script"), phase.get("database"),
+                 phase.get("timeout_seconds"))
+                for phase in phases
+            ]
+            require(observed_bindings == EXPECTED_PHASES,
+                    "phase IDs/order, scripts, databases, and timeouts must match the proposed QRY-023 lifecycle", errors)
         for phase in phases:
+            if type(phase) is not dict:
+                continue
             script = phase.get("script", "")
             require(phase.get("kind") == "sql", f"phase {phase.get('id')} must be SQL", errors)
             require(phase.get("required") is True, f"phase {phase.get('id')} must be required", errors)
             require(phase.get("require_summary") is True, f"phase {phase.get('id')} must require a summary", errors)
-            require((demo / script).is_file(), f"phase script is missing: {script}", errors)
-    cleanup = manifest.get("cleanup", {})
-    require(cleanup.get("id") == "CLEANUP" and cleanup.get("script") == "90_Cleanup.sql",
-            "manifest must bind cleanup to 90_Cleanup.sql", errors)
-    require(cleanup.get("required") is True and cleanup.get("require_summary") is True,
-            "cleanup must be required and summary-checked", errors)
-    require((demo / cleanup.get("script", "")).is_file(), "cleanup script is missing", errors)
+            require(type(script) is str and (demo / script).is_file(),
+                    f"phase script is missing or invalid: {script}", errors)
+    cleanup = manifest.get("cleanup")
+    require(type(cleanup) is dict, "manifest cleanup must be an object", errors)
+    if type(cleanup) is dict:
+        require((cleanup.get("id"), cleanup.get("kind"), cleanup.get("script"),
+                 cleanup.get("database"), cleanup.get("timeout_seconds"))
+                == ("CLEANUP", "sql", "90_Cleanup.sql", "master", 90),
+                "manifest must bind SQL cleanup to 90_Cleanup.sql in master with a 90-second timeout", errors)
+        require(cleanup.get("required") is True and cleanup.get("require_summary") is True,
+                "cleanup must be required and summary-checked", errors)
+        cleanup_script = cleanup.get("script")
+        require(type(cleanup_script) is str and (demo / cleanup_script).is_file(),
+                "cleanup script is missing or invalid", errors)
+    require(manifest.get("timeout_seconds") == 900
+            and manifest.get("cleanup_timeout_seconds") == 90,
+            "manifest must retain the 900-second run and 90-second cleanup limits", errors)
 
     def read(name: str) -> str:
         try:
