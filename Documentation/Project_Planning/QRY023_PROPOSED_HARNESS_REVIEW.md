@@ -64,6 +64,13 @@ Graphpfad- und relationale Zieljoinform. Dies bindet Skriptformen, berechnet
 aber weder Ergebnisse noch beweist es die unabhängig geprüfte
 Tripelgleichheit erneut.
 
+Der Validator prüft außerdem, dass das Plan-Summary und der PASS-Print genau
+einmal nach dem Erfolgszweig mit `STATISTICS XML OFF` sowie nach dem rethrowing
+`CATCH` stehen. Eine Negativregression fügt beide Erfolgsausgaben vor dem
+erfolgreichen Abschaltpunkt ein und muss die Datei ablehnen. Damit wird
+Textreihenfolge geschützt, nicht die Wirkung einer tatsächlichen
+SQL-Server-Session oder das Verhalten bei Verbindungsabbruch.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche
