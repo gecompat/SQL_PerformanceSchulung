@@ -55,6 +55,15 @@ Es ist eine Skriptstrukturprüfung: sie belegt weder Engineverhalten bei
 Verbindungsabbruch noch eine tatsächlich erfolgte Rücksetzung in einer
 SQL-Session.
 
+Die zwei Plan-`COUNT_BIG`-Statements werden jetzt in Anzahl und Reihenfolge
+gegen die entsprechenden Graph- und Relationsstatements der Messprozedur
+verglichen. Nach Entfernen von Whitespace, Vereinheitlichung der Großschreibung
+und Normalisierung des Ausgabeziels (`@PathCount` gegenüber `PathCount`) muss
+der übrige Statementtext übereinstimmen. Zwei Negativregressionen schützen die
+Graphpfad- und relationale Zieljoinform. Dies bindet Skriptformen, berechnet
+aber weder Ergebnisse noch beweist es die unabhängig geprüfte
+Tripelgleichheit erneut.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

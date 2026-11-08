@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-023 – Planabfragen an Korrektheitsvertrag binden
+## Abschluss: QRY-023 – Planabfragen an Korrektheitsvertrag binden
 
 PR #427 wählte die Absicherung der getrennten Actual-Plan-Diagnose. PR #426
 integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads, Reads,
@@ -19,18 +19,22 @@ keine Labänderung und keine menschliche Generalprobe. QRY-023 bleibt
 `PROPOSED`/nicht katalogisiert; formale Harness-/T-SQL-Abnahme, unabhängige
 Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
 
-Der nächste Offline-Schnitt ergänzt Negativregressionen und Validatorbindungen
+Der Offline-Schnitt ergänzte Negativregressionen und Validatorbindungen
 für die beiden Planabfragen: Graph-`MATCH`, relationale Joinfolge, Ergebnisform
 und explizite Trennung vom Messlauf müssen mit den bereits geprüften Varianten
 übereinstimmen. Die Regressionen verändern jeweils eine Queryeigenschaft und
 müssen die Drift erkennen; bestehende Vollpfad- und gepaarte Messoracles bleiben
 unverändert. Keine SQL-/Runtime- oder Lab-Ausführung.
 
-Die kumulative Obergrenze wird um ein Arbeitspaket, zwei PRs (Statusübergang
-und Integration) und höchstens zwei Quellenkandidaten auf 75/94/177
-fortgeschrieben. Dieses Budget deckt genau diesen Offline-Schnitt samt lokalen
-Prüfungen und PR-Gates; neue fachliche Methoden- oder Runtimefreigaben entstehen
-nicht. QRY-023 bleibt `PROPOSED` und nicht katalogisiert.
+PR #431 bindet die beiden `COUNT_BIG`-Planabfragen durch normalisierte
+Statementvergleiche an Reihenfolge und Graph-/Relationsformen der Messprozedur.
+Zwei gezielte Negativregressionen weisen abweichendes Graph-`MATCH` und einen
+veränderten relationalen Zieljoin zurück. 19 QRY-023-Regressionen sowie
+QRY-023-, Framework- und Repository-Continuity-Validatoren bestanden. Der
+Vergleich prüft Skripttextstruktur, keine tatsächlichen Resultate oder
+Enginekompilierung. Keine SQL-/Runtime- oder Lab-Ausführung; QRY-023 bleibt
+`PROPOSED` und nicht katalogisiert. Formale T-SQL-Abnahme, unabhängige
+Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
