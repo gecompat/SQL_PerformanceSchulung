@@ -339,12 +339,20 @@ Ausführung.
 
 ## Fortsetzung: FWK-010 – Callerbindung des Zielnamens prüfen
 
-Ein Nachreview fand eine versehentliche doppelte Definition und Registrierung
-des `OPT-001`-Scope-Tests aus PR #466. Der Korrekturschnitt entfernt die
-Doppelung und ergänzt eine synthetische Driftprobe für `target_database_name()`;
-ein vom Manifesttemplate abweichender Ableitungswert muss vor SQLCMD-Auflösung
-und -Start scheitern. Kumulative Obergrenze für Auswahl und Integration:
-99 Arbeitspakete, 142 PRs und 214 Quellen-/Testkandidaten.
+PR #468 entfernt die doppelte Definition/Registrierung des `OPT-001`-Scope-Tests
+und ergänzt die synthetische Zielnamendriftprobe: ein abweichender Wert von
+`target_database_name()` wird vor SQLCMD-Auflösung/-Start zurückgewiesen. Die
+Runner-, QRY-023- und Continuity-Tests sowie alle fünf Workflows bestanden.
+Kumulative Obergrenze: 99 Arbeitspakete, 142 PRs und 214 Quellen-/Testkandidaten.
+
+## Fortsetzung: FWK-010 – Runner-Testregistrierung automatisch prüfen
+
+Der nächste statische Selbsttest vergleicht die AST-definierten
+`test_*`-Funktionen mit den Aufrufen in `main()`: jede muss genau einmal
+definiert und registriert sein. Damit werden ausgelassene Tests, doppelte
+Definitionen und doppelte Aufrufe früh erkannt. Kumulative Obergrenze für
+Auswahl und Integration: 100 Arbeitspakete, 144 PRs und 215 Quellen-/
+Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
