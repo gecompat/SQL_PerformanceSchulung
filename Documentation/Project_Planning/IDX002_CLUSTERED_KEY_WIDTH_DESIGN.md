@@ -33,13 +33,24 @@ Belegungsabhängige Beobachtungen.
 
 Vorgeschlagen sind in beiden Tabellen die Spalten `RowId int NOT NULL`,
 `KeyGroup int NOT NULL`, `KeyLabel char(64) NOT NULL`, `FilterBand int NOT
-NULL` und `Payload char(200) NOT NULL`. `RowId` läuft lückenlos von 1 bis
-100.000. `KeyGroup` und `FilterBand` sind `(RowId - 1) % 100`; `KeyLabel` ist
-für jede `KeyGroup` deterministisch `GROUP-` gefolgt von ihrer dezimalen Zahl,
-links mit Nullen auf insgesamt 64 ASCII-Zeichen aufgefüllt.
-`Payload` wird deterministisch allein aus `RowId` erzeugt. Damit sind die
+NULL` und `Payload char(200) NOT NULL`. Für jede `RowId` `r` von 1 bis
+100.000 gelten diese exakten Formeln:
+
+```text
+KeyGroup(r) = (r - 1) % 100
+FilterBand(r) = (r - 1) % 100
+KeyLabel(r) = 'GROUP-' + RIGHT(REPLICATE('0', 58)
+                              + CONVERT(varchar(2), KeyGroup(r)), 58)
+Payload(r) = 'P' + RIGHT(REPLICATE('0', 6) + CONVERT(varchar(6), r), 6)
+             + REPLICATE('X', 193)
+```
+
+`RowId` läuft lückenlos von 1 bis 100.000 und kommt genau einmal vor.
+`KeyLabel` ist 64 ASCII-Zeichen lang: der sechs Zeichen lange Präfix `GROUP-`
+und der auf 58 Zeichen mit Nullen links aufgefüllte Dezimalwert von
+`KeyGroup`. `Payload` ist 200 ASCII-Zeichen lang. Damit sind die vollständigen
 Zeilentupel beider Varianten identisch und jeder `(KeyGroup, KeyLabel)`-Wert
-kommt 1.000-mal vor.
+kommt genau 1.000-mal vor.
 
 | Profil | Clustered Key | Eindeutigkeit | Konsequenz für den Locator des nicht eindeutigen NCI |
 |---|---|---|---|
@@ -55,9 +66,17 @@ Builds, Datenbankoptionen und Messbedingungen verwenden.
 ## Oracles und Größenbeobachtung
 
 Ein Korrektheitsfall liest `FilterBand = 37` und muss in beiden Varianten
-1.000 vollständige Tupel liefern. Die Tupel und `RowId`-Multiplizitäten
-müssen vollständig übereinstimmen; gleiche Zeilenzahl allein genügt nicht.
-Dieser Ergebnisoracle prüft Fixturegleichheit, nicht den gewählten Plan.
+1.000 vollständige Tupel liefern. Für `k = 0..999` gilt `r = 100 * k + 38`.
+Das vollständige Solltupel lautet
+`(r, 37, 'GROUP-' + RIGHT(REPLICATE('0', 58) + '37', 58), 37,
+'P' + RIGHT(REPLICATE('0', 6) + CONVERT(varchar(6), r), 6) +
+REPLICATE('X', 193))`. Die Menge wird für den Vergleich kanonisch nach
+`RowId` sortiert; die Abfrage selbst verspricht ohne `ORDER BY` keine
+Ausgabereihenfolge. Die Formel deckt alle fünf projizierten Spalten und jede
+Multiplizität ab. Tupel und `RowId`-Multiplizitäten müssen zwischen
+`NARROW_UNIQUE` und `WIDE_NONUNIQUE` vollständig übereinstimmen; gleiche
+Zeilenzahl allein genügt nicht. Dieser Ergebnisoracle prüft Fixturegleichheit,
+nicht den gewählten Plan.
 
 Eine spätere, gesondert autorisierte Engineprüfung kann verwendete und
 reservierte Seiten je Tabelle und Index aus den passenden Partitionen
@@ -74,7 +93,11 @@ Ein Demo-/Setup-/Cleanupvertrag, Methodenreview und konkrete Ausführungsfreigab
 bleiben ebenfalls erforderlich. Dieser statische Entwurf wurde nicht auf einer
 SQL-Engine ausgeführt und schließt keine menschliche Generalprobe ein.
 
-Die Quellen-IDs sind im [Quellenregister](../Research/SOURCE_REGISTER.md)
-aufgeführt. `SRC-012` deckt implizite Row Locator und Uniquifier-Regeln,
-`SRC-136` die verwendeten/reservierten Seiten je Partition und `SRC-139` die
-Key-, Locator- und Uniquifier-Annahmen für die Indexgrößenschätzungen ab.
+`SRC-012` deckt implizite Row Locator und Uniquifier-Regeln, `SRC-136` die
+verwendeten/reservierten Seiten je Partition und `SRC-139` die Key-, Locator-
+und Uniquifier-Annahmen der Microsoft-Indexgrößenschätzungen ab. Die dortige
+Schätzung nimmt für ihre Formel alle Key-Werte als nicht eindeutig an und ist
+keine Messung dieser konkreten Fixture. Die tatsächlichen Seitencounts bleiben
+Enginebeobachtungen und sind getrennt von der vollständigen Ergebniskorrektheit
+zu berichten. Alle Quellen stehen im
+[Quellenregister](../Research/SOURCE_REGISTER.md).
