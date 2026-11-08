@@ -412,31 +412,41 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     if len(main_functions) != 1:
         return ("runtime test module must define exactly one main function",)
     main_function = main_functions[0]
+    registrations: list[str] = []
+    non_direct_call = False
 
-    class MainTestCallVisitor(ast.NodeVisitor):
-        def __init__(self) -> None:
-            self.calls: list[str] = []
+    def test_calls(node: ast.AST) -> list[str]:
+        return [
+            call.func.id for call in ast.walk(node)
+            if isinstance(call, ast.Call)
+            and isinstance(call.func, ast.Name)
+            and call.func.id.startswith("test_")
+        ]
 
-        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-            if node is main_function:
-                self.generic_visit(node)
+    def collect_direct_calls(statements: list[ast.stmt]) -> None:
+        nonlocal non_direct_call
+        for statement in statements:
+            if isinstance(statement, ast.Expr):
+                value = statement.value
+                if (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id.startswith("test_")
+                ):
+                    registrations.append(value.func.id)
+                elif test_calls(statement):
+                    non_direct_call = True
+            elif isinstance(statement, (ast.With, ast.AsyncWith)):
+                if any(test_calls(item.context_expr) for item in statement.items):
+                    non_direct_call = True
+                collect_direct_calls(statement.body)
+            elif test_calls(statement):
+                non_direct_call = True
 
-        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-            if node is main_function:
-                self.generic_visit(node)
-
-        def visit_Lambda(self, node: ast.Lambda) -> None:
-            return
-
-        def visit_Call(self, node: ast.Call) -> None:
-            if isinstance(node.func, ast.Name) and node.func.id.startswith("test_"):
-                self.calls.append(node.func.id)
-            self.generic_visit(node)
-
-    visitor = MainTestCallVisitor()
-    visitor.visit(main_function)
-    registrations = visitor.calls
+    collect_direct_calls(main_function.body)
     issues: list[str] = []
+    if non_direct_call:
+        issues.append("runtime tests must be direct unconditional main statements")
     if len(definitions) != len(set(definitions)):
         issues.append("runtime test functions must be uniquely defined")
     if len(registrations) != len(set(registrations)):
@@ -491,8 +501,23 @@ def test_runtime_test_functions_are_registered_once() -> None:
     )
     assert_equal(
         runtime_test_registration_issues(nested_unexecuted_call),
-        ("runtime test definitions and registrations must match",),
+        (
+            "runtime tests must be direct unconditional main statements",
+            "runtime test definitions and registrations must match",
+        ),
         "nested helper call is not a main registration",
+    )
+    conditional_call = (
+        "def test_one(): pass\ndef main():\n"
+        "    if False:\n        test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(conditional_call),
+        (
+            "runtime tests must be direct unconditional main statements",
+            "runtime test definitions and registrations must match",
+        ),
+        "conditional test call is not an unconditional registration",
     )
 
 
