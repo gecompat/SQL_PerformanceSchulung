@@ -172,15 +172,17 @@ drei Negativregressionen für Präfix, Vergleichsrichtung und Maximallänge.
 Validatoren bestanden. Nur statische Textprüfung; keine SQL-/Runtime-/Lab-
 Ausführung, Datenbank- oder Rechteänderung und keine menschliche Generalprobe.
 
-## Fortsetzung: QRY-023 – Preflight-Guard-Verknüpfungen binden
+## Abschluss: QRY-023 – Preflight-Guard-Verknüpfungen binden
 
 Die nächste Offline-Regression bindet zusätzlich die boolesche Verknüpfung der
 Demo-ID-, RunToken- und Zielnamenbedingungen: Jede ungültige Bedingung muss den
 Vertragsfehler allein auslösen können. Eine Gegenprobe ersetzt gezielt ein
 `OR` durch `AND`. Kumulative Obergrenze: ein weiteres Arbeitspaket, zwei PRs
-und höchstens zwei Quellen-/Testkandidaten, insgesamt 84/112/195. Keine
-SQL-/Runtime-/Lab-Ausführung, Datenbank- oder Rechteänderung und keine
-menschliche Generalprobe.
+und höchstens zwei Quellen-/Testkandidaten, insgesamt 84/112/195. PR #449 bindet
+die komplette Guardklausel in Reihenfolge und Operatoren; die gezielte
+`AND`-Negativprobe wird abgewiesen. 37 QRY-023-Regressionen und die betroffenen
+Validatoren bestanden. Keine SQL-/Runtime-/Lab-Ausführung, Datenbank- oder
+Rechteänderung und keine menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

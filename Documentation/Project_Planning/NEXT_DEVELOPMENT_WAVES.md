@@ -87,6 +87,8 @@ Als nächstes bindet ein eigenständiger Offline-Schnitt die boolesche
 zum Abbruch führt. Er erhöht den kumulativen Rahmen um 1 Arbeitspaket, 2 PRs
 und höchstens 2 Quellen-/Testkandidaten auf 84/112/195. Keine SQL-/Runtime-/
 Lab-Ausführung oder menschliche Generalprobe.
+PR #449 bindet die vollständige Guardklausel und weist die `AND`-Gegenprobe ab;
+37 QRY-023-Regressionen und die betroffenen statischen Validatoren bestanden.
 
 ### DGN-007 getrenntes Qualifikationsband
 
