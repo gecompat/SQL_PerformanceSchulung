@@ -112,6 +112,14 @@ der RunToken wird gegen den Harnessparameter verglichen. Gegenproben mit
 verändertem Projektwert oder umgekehrter RunToken-Gleichheit werden abgewiesen.
 Es werden keine realen Datenbankmarker erfasst.
 
+Der read-only Serverpreflight leitet `@ExpectedDatabase` deterministisch aus
+dem QRY-023-Demo-ID-Präfix und dem RunToken ab. Der Eingabe-RunToken wird auf
+eine Länge von 1 bis 20 Zeichen sowie ausschließlich `A-Z`, `0-9` und `_`
+beschränkt; der manifeste Zielname muss exakt dem abgeleiteten Namen
+entsprechen. Eine zusätzliche statische Prüfung soll diese Formel und Guards
+mit Gegenproben gegen einen geänderten Zielpräfix, umgekehrten Vergleich und
+gelockerte Maximallänge binden. Der Nachweis bleibt auf Skripttext beschränkt.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

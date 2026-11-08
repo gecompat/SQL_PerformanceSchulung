@@ -157,6 +157,17 @@ Regressionen sowie QRY-023-, Framework- und Repository-Continuity-Validatoren
 bestanden. Die Prüfung attestiert keine tatsächlichen Datenbankmarker und führt
 keine Datenbankaktion aus.
 
+## Fortsetzung: QRY-023 – Zielnamen und RunToken-Format absichern
+
+Der nächste begrenzte Offlineschnitt bindet den im Preflight erwarteten
+Datenbanknamen an `DemoId` und `RunToken` sowie die Längen- und
+Zeichenmengenprüfung des RunToken an den vorgeschlagenen Harnessvertrag.
+Negativregressionen müssen einen abweichenden Zielnamenspräfix, einen
+umgekehrten Namensvergleich und eine gelockerte Tokenlänge zurückweisen.
+Kumulative Obergrenze: ein weiteres Arbeitspaket, zwei PRs und höchstens zwei
+Quellen-/Testkandidaten, insgesamt 83/110/193. Keine SQL-/Runtime-/Lab-Ausführung,
+keine Datenbank- oder Rechteänderung und keine menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
