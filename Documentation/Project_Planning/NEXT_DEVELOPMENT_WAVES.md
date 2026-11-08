@@ -89,6 +89,10 @@ und höchstens 2 Quellen-/Testkandidaten auf 84/112/195. Keine SQL-/Runtime-/
 Lab-Ausführung oder menschliche Generalprobe.
 PR #449 bindet die vollständige Guardklausel und weist die `AND`-Gegenprobe ab;
 37 QRY-023-Regressionen und die betroffenen statischen Validatoren bestanden.
+Die nächste begrenzte Prüfung ergänzt eine `DATALENGTH`-Grenze für das
+RunToken, weil `LEN` und ASCII-`LIKE` laut Microsoft-Dokumentation trailing
+spaces auslassen. Eine Negativprobe hängt ein Leerzeichen an. Kumulativ
+85/114/197; Quellen: Microsoft Learn zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17), abgerufen am 8. November 2026. Keine Engineausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
