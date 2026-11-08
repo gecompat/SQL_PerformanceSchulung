@@ -331,11 +331,20 @@ Ausführung.
 
 ## Fortsetzung: FWK-010 – Nicht-Objekt-Vertrag fail-closed ablehnen
 
-Der nächste synthetische Caller-Test ersetzt `sqlcmd_input_validation` durch
-eine Liste. Der Manifestloader muss den ungültigen Vertrag vor SQLCMD-Auflösung
-und Prozessstart zurückweisen. Kumulative Obergrenze für Auswahl und
-Integration: 98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten. Keine
-Runtimeausführung.
+PR #467 prüft eine Liste statt des `sqlcmd_input_validation`-Objekts; die
+Zurückweisung vor SQLCMD-Auflösung/-Start sowie die vorhandenen Manipulations-
+gegenproben bestanden. Alle fünf Workflows waren grün. Kumulative Obergrenze:
+98 Arbeitspakete, 140 PRs und 213 Quellen-/Testkandidaten. Keine Runtime-
+Ausführung.
+
+## Fortsetzung: FWK-010 – Callerbindung des Zielnamens prüfen
+
+Ein Nachreview fand eine versehentliche doppelte Definition und Registrierung
+des `OPT-001`-Scope-Tests aus PR #466. Der Korrekturschnitt entfernt die
+Doppelung und ergänzt eine synthetische Driftprobe für `target_database_name()`;
+ein vom Manifesttemplate abweichender Ableitungswert muss vor SQLCMD-Auflösung
+und -Start scheitern. Kumulative Obergrenze für Auswahl und Integration:
+99 Arbeitspakete, 142 PRs und 214 Quellen-/Testkandidaten.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
