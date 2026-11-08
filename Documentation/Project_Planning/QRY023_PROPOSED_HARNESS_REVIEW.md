@@ -77,6 +77,12 @@ Die Summaryzeile wird nun mit den festen Statusfeldern
 abweichendem Statuscode werden zurückgewiesen. Das belegt nur das deklarierte
 Skriptformat und keinen fachlichen Erfolg einer tatsächlichen Diagnose.
 
+Beide query-shape-gebundenen Diagnoseabfragen müssen außerdem innerhalb des
+`TRY` zwischen `SET STATISTICS XML ON` und dem erfolgreichen `OFF` liegen. Eine
+Gegenprobe, die beide Abfragen vor `BEGIN TRY` verschiebt, wird abgelehnt. Diese
+Prüfung bindet statische Positionen; sie belegt weder, dass ein Client das
+Skript tatsächlich ausführt, noch dass ein Engineplan ausgegeben wird.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche
