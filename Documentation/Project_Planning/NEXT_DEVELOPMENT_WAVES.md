@@ -79,6 +79,9 @@ Längen-/Zeichenmengenprüfung des Tokens durch Negativregressionen. Er erweiter
 den kumulativen Rahmen um 1 Arbeitspaket, 2 PRs und höchstens 2
 Quellen-/Testkandidaten auf 83/110/193. SQL-/Runtime-/Lab-Ausführung,
 Rechteänderungen und menschliche Generalprobe bleiben ausgeschlossen.
+PR #447 ergänzt die statische Bindung und drei Gegenproben; 36
+QRY-023-Regressionen und die betroffenen Validatoren bestanden. Damit bleibt
+der Datenbank- und Runtimezustand unberührt.
 
 ### DGN-007 getrenntes Qualifikationsband
 

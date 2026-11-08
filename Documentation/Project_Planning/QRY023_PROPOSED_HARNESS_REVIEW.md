@@ -118,7 +118,9 @@ eine Länge von 1 bis 20 Zeichen sowie ausschließlich `A-Z`, `0-9` und `_`
 beschränkt; der manifeste Zielname muss exakt dem abgeleiteten Namen
 entsprechen. Eine zusätzliche statische Prüfung soll diese Formel und Guards
 mit Gegenproben gegen einen geänderten Zielpräfix, umgekehrten Vergleich und
-gelockerte Maximallänge binden. Der Nachweis bleibt auf Skripttext beschränkt.
+gelockerte Maximallänge binden. Der Validator bindet dies nun zusammen mit den
+SQLCMD-gebundenen Variablen; die drei Negativregressionen werden abgewiesen.
+Der Nachweis bleibt auf Skripttext beschränkt.
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser

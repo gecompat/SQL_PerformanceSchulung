@@ -190,6 +190,28 @@ def qualification_ownership_markers_valid(qualification: str) -> bool:
     )
 
 
+def preflight_target_derivation_valid(preflight: str) -> bool:
+    """Bind the read-only preflight target name and RunToken input guards."""
+    compact = re.sub(r"\s+", "", preflight).casefold()
+    required = (
+        "declare@demoidvarchar(7)='$(demoid)';",
+        "declare@runtokenvarchar(20)='$(runtoken)';",
+        "declare@targetdatabasesysname=n'$(targetdatabase)';",
+        "declare@expecteddatabasesysname=convert(sysname,n'sqlperf_lab_'+replace(@demoid,'-','')+n'_'+@runtoken);",
+        "@runtokenisnull",
+        "len(@runtoken)notbetween1and20",
+        "@runtokencollatelatin1_general_100_bin2like'%[^a-z0-9_]%'",
+        "@targetdatabase<>@expecteddatabase",
+    )
+    contract_guard = compact.find("if@demoid<>'qry-023'")
+    guard_throw = compact.find("throw51000,", contract_guard) if contract_guard >= 0 else -1
+    return (
+        all(compact.count(item) == 1 and compact.find(item) < guard_throw for item in required)
+        and contract_guard >= 0
+        and guard_throw > contract_guard
+    )
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -394,6 +416,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             require(marker in source, f"{label} must bind the {marker} ownership marker", errors)
     require("has_perms_by_name" in preflight and "create database" in preflight,
             "read-only preflight must check database creation permission", errors)
+    require(preflight_target_derivation_valid(preflight),
+            "read-only preflight must bind the deterministic target database name and exact RunToken format before contract failure", errors)
     build_pins = ("15.0.4500.2", "16.0.4305.5", "17.0.5035.5")
     for build in build_pins:
         require(build in preflight and build in setup,
