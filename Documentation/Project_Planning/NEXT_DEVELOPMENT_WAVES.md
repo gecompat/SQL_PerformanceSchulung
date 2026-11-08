@@ -249,6 +249,13 @@ und bis zu drei Testkandidaten auf höchstens 109/158/226 erweitert: umgedrehte
 statt Funktionsaufruf. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #478 integriert alle drei negativen Guardformen; alle fünf Workflows
+bestanden. Die autonome Fortsetzung erweitert das kumulative Budget ohne Reset
+um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
+110/159/227. Ein zusätzliches ungeschütztes `main()` auf Modulebene darf keinen
+zweiten oder vorzeitigen Testrun auslösen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
