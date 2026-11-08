@@ -322,6 +322,15 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("deterministic target database name and exact RunToken format" in error
                             for error in self.errors()))
 
+    def test_preflight_must_keep_the_run_token_byte_length_bound(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("DATALENGTH(@RunToken) NOT BETWEEN 1 AND 20",
+                                "DATALENGTH(@RunToken) NOT BETWEEN 1 AND 40")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
