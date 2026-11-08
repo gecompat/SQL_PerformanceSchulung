@@ -189,30 +189,38 @@ def test_qry023_contract_loads_in_existing_caller() -> None:
 
 
 def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> None:
-    path = demo_manifest(base / "invalid_qry023_contract", demo_id="QRY-023")
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    payload["sqlcmd_input_validation"] = dict(run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION)
-    payload["sqlcmd_input_validation"]["must_validate_before"] = "TSQL_GUARD"
-    write_json(path, payload)
-    with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
-         patch.object(run_demo_module, "run_sqlcmd") as execute:
-        try:
-            run_demo(
-                manifest_path=path,
-                server="synthetic",
-                auth="integrated",
-                username=None,
-                sqlcmd_path="synthetic-sqlcmd",
-                confirm_isolated_lab=True,
-                allow_red=False,
-                show_output=False,
-            )
-        except ValueError as exc:
-            assert_equal(str(exc), "invalid sqlcmd_input_validation contract", "invalid QRY-023 contract rejection")
-        else:
-            raise AssertionError("invalid QRY-023 SQLCMD contract was accepted")
-        resolve.assert_not_called()
-        execute.assert_not_called()
+    for name, mutation in (
+        ("validation_timing", lambda contract: contract.update(must_validate_before="TSQL_GUARD")),
+        ("unknown_field", lambda contract: contract.update(unrecognized=True)),
+        ("boolean_byte_limit", lambda contract: contract["run_token"].update(max_bytes=True)),
+    ):
+        path = demo_manifest(base / f"invalid_qry023_contract_{name}", demo_id="QRY-023")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["sqlcmd_input_validation"] = json.loads(
+            json.dumps(run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION)
+        )
+        mutation(payload["sqlcmd_input_validation"])
+        write_json(path, payload)
+        with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+             patch.object(run_demo_module, "run_sqlcmd") as execute:
+            try:
+                run_demo(
+                    manifest_path=path,
+                    server="synthetic",
+                    auth="integrated",
+                    username=None,
+                    sqlcmd_path="synthetic-sqlcmd",
+                    confirm_isolated_lab=True,
+                    allow_red=False,
+                    show_output=False,
+                )
+            except ValueError as exc:
+                assert_equal(str(exc), "invalid sqlcmd_input_validation contract",
+                             f"invalid QRY-023 {name} contract rejection")
+            else:
+                raise AssertionError(f"invalid QRY-023 SQLCMD contract variant {name} was accepted")
+            resolve.assert_not_called()
+            execute.assert_not_called()
 
 
 def test_hostile_qry023_token_fails_before_sqlcmd_resolution(base: Path) -> None:

@@ -145,12 +145,17 @@ Auflösung/-Start. Die QRY-023-, FWK-010- und Repository-Continuity-Prüfungen
 bestanden. Kumulativ höchstens 91 Arbeitspakete, 126 PRs und 206 Quellen-/
 Testkandidaten. Keine Engine- oder Runtimeausführung.
 
-Als nächstes prüft der Offlinevalidator auch den konkreten `run_token`-Wert im
-vorgeschlagenen Manifest gegen dieselbe ASCII-/Zeichen-/Längengrenze, die das
-maschinelle Caller-Vertragsobjekt deklariert. Negativproben verändern Unterstrich
-am Anfang, Länge, ASCII und nachgestelltes Leerzeichen. Kumulativ höchstens 92
-Arbeitspakete, 128 PRs und 207 Quellen-/Testkandidaten. Keine Engine- oder
-Runtimeausführung.
+PR #461 prüft den konkreten `run_token`-Wert im vorgeschlagenen Manifest gegen
+dieselbe ASCII-/Zeichen-/Längengrenze, die das maschinelle Caller-Vertragsobjekt
+deklariert. Vier Negativproben für Unterstrich am Anfang, Länge, ASCII und
+nachgestelltes Leerzeichen bestanden. Kumulativ höchstens 92 Arbeitspakete,
+128 PRs und 207 Quellen-/Testkandidaten. Keine Engine- oder Runtimeausführung.
+
+Der nächste synthetische Caller-Schnitt ergänzt Negativregressionen für
+unbekannte Zusatzfelder im exakten Vertragsobjekt und einen booleschen Wert im
+Byte-Limit. Beide müssen vor SQLCMD-Auflösung und -Start abgewiesen werden.
+Kumulativ höchstens 93 Arbeitspakete, 130 PRs und 208 Quellen-/Testkandidaten.
+Keine Vertragsausweitung, Engine- oder Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 
