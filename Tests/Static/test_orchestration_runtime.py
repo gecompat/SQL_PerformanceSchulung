@@ -21,6 +21,7 @@ sys.path.insert(0, str(ROOT / "Tests" / "Runtime"))
 from execution_target import DOCKER, ExecutionTarget  # noqa: E402
 from orchestrate_sessions import run_manifest as run_session_manifest  # noqa: E402
 from run_demo import run_demo  # noqa: E402
+import run_demo as run_demo_module  # noqa: E402
 from sqlcmd_process import run_sqlcmd  # noqa: E402
 import sqlcmd_process  # noqa: E402
 
@@ -111,6 +112,8 @@ def demo_manifest(
     cleanup: str = "cleanup_pass",
     safety: str = "GREEN",
     optional: str | None = None,
+    demo_id: str = "QRY-001",
+    run_token: str = "TEST",
 ) -> Path:
     for name in (preflight, "setup_pass", demo, cleanup):
         write(root / f"{name}.sql")
@@ -160,8 +163,8 @@ def demo_manifest(
         root / "demo.json",
         {
             "contract_version": "1.0",
-            "demo_id": "QRY-001",
-            "run_token": "TEST",
+            "demo_id": demo_id,
+            "run_token": run_token,
             "safety_level": safety,
             "timeout_seconds": 4,
             "cleanup_timeout_seconds": 2,
@@ -176,6 +179,70 @@ def demo_manifest(
             },
         },
     )
+
+
+def test_qry023_contract_loads_in_existing_caller() -> None:
+    manifest_path = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json"
+    manifest = run_demo_module.load_manifest(manifest_path)
+    assert_equal(manifest.demo_id, "QRY-023", "QRY-023 caller manifest ID")
+    assert_equal(manifest.run_token, "LOCAL", "QRY-023 caller RunToken")
+
+
+def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> None:
+    path = demo_manifest(base / "invalid_qry023_contract", demo_id="QRY-023")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["sqlcmd_input_validation"] = dict(run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION)
+    payload["sqlcmd_input_validation"]["must_validate_before"] = "TSQL_GUARD"
+    write_json(path, payload)
+    with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=path,
+                server="synthetic",
+                auth="integrated",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "invalid sqlcmd_input_validation contract", "invalid QRY-023 contract rejection")
+        else:
+            raise AssertionError("invalid QRY-023 SQLCMD contract was accepted")
+        resolve.assert_not_called()
+        execute.assert_not_called()
+
+
+def test_hostile_qry023_token_fails_before_sqlcmd_resolution(base: Path) -> None:
+    path = demo_manifest(
+        base / "hostile_qry023_token",
+        demo_id="QRY-023",
+        run_token="X'; DROP DATABASE master;--",
+    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["sqlcmd_input_validation"] = run_demo_module.QRY023_SQLCMD_INPUT_VALIDATION
+    write_json(path, payload)
+    with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=path,
+                server="synthetic",
+                auth="integrated",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "invalid run_token", "hostile QRY-023 token rejection")
+        else:
+            raise AssertionError("hostile QRY-023 RunToken was accepted")
+        resolve.assert_not_called()
+        execute.assert_not_called()
 
 
 def assert_equal(actual: object, expected: object, message: str) -> None:
@@ -438,9 +505,12 @@ def main() -> int:
     test_windows_process_tree_termination()
     test_completed_root_is_never_terminated_by_old_pid()
     test_linux_nested_session_interrupt()
+    test_qry023_contract_loads_in_existing_caller()
     with tempfile.TemporaryDirectory(prefix="sqlperf-orchestration-") as temporary:
         base = Path(temporary)
         executable = fake_sqlcmd(base)
+        test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base)
+        test_hostile_qry023_token_fails_before_sqlcmd_resolution(base)
         test_sessions_pass(base, executable)
         test_sessions_fail(base, executable)
         test_sessions_timeout(base, executable)

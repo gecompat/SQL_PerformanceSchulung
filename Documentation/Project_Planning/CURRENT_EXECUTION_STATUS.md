@@ -214,8 +214,8 @@ offenen Schutzstatus in README, Review und Offlinevalidator. Eine
 Negativregression entfernt die Eingabegrenzen-Formulierung. 39 QRY-023-
 Regressionen und die betroffenen Projektvalidatoren bestanden. Die SQLCMD-
 Injektionseinschätzung ist eine Inferenz aus der dokumentierten Variablen-
-Expansion; es gibt weiterhin keinen aufrufenden Harness und keine
-Runtimequalifikation.
+Expansion; der vorhandene FWK-010-Caller erzwingt den Vertrag jetzt, aber
+QRY-023 ist weiterhin nicht katalogisiert und wurde nicht ausgeführt.
 
 ## Abschluss: QRY-023 – SQLCMD-Eingabeanforderungen maschinenlesbar binden
 
@@ -231,15 +231,17 @@ betroffenen statischen Validatoren bestanden. Das Manifest ist eine
 Anforderungsspezifikation; es führt keinen Aufrufer aus. Keine Runtime- oder
 menschliche Generalprobe.
 
-## Fortsetzung: QRY-023 – Manifestvertrag im Laufzeitcaller durchsetzen
+## Abschluss: QRY-023 – Manifestvertrag im Laufzeitcaller durchsetzen
 
 Der nächste begrenzte Schnitt erweitert `run_demo.py`, damit der vorhandene
 FWK-010-Caller ein vorhandenes `sqlcmd_input_validation`-Objekt bereits beim
 Manifestladen vollständig prüft und bei Abweichungen vor `resolve_sqlcmd` und
-vor jeder Prozessausführung abbricht. Synthetische Tests prüfen gültige und
-abweichende Vertragsformen, ohne SQL Server aufzurufen. Kumulative Obergrenze:
-ein Arbeitspaket, zwei PRs und höchstens zwei Quellen-/Testkandidaten zusätzlich,
-insgesamt 88/120/203. Keine Datenbank-, Runtime- oder menschliche Generalprobe.
+vor jeder Prozessausführung abbricht. PR #457 integriert diese Prüfung und
+synthetische Tests bestätigen den QRY-023-Manifestpfad sowie die Ablehnung eines
+veränderten Vertrags und eines SQL-Injection-ähnlichen RunTokens, jeweils vor
+SQLCMD-Auflösung/-Start. Kumulative Obergrenze: 88/120/203. Der Runner wurde
+nicht gegen SQL Server ausgeführt; keine Datenbank- oder menschliche
+Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

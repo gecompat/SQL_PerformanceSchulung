@@ -65,11 +65,13 @@ Zeichenliteralen. Daraus folgt als Sicherheitsinferenz, dass der T-SQL-
 Preflight keine SQLCMD-Eingabeinjektion verhindert: Eine unsichere Eingabe kann
 die Skriptstruktur vor Auswertung der Guards verändern. Ein künftiger Harness-
 Aufrufer muss Demo-ID, RunToken und Zielnamen vor dem SQLCMD-Aufruf exakt gegen
-den Vertrag allowlisten. Ein solcher Aufrufer ist nicht Bestandteil dieses
-Entwurfs; daher gibt es noch keine Caller-seitige Absicherung.
+den Vertrag allowlisten. Der vorhandene FWK-010-Caller `run_demo.py` prüft das
+`sqlcmd_input_validation`-Vertragsobjekt bereits beim Laden des Manifests,
+bevor SQLCMD aufgelöst oder gestartet wird. Die vorgeschlagene Demo ist aber
+weiterhin nicht katalogisiert oder zur Ausführung freigegeben.
 Die exakten Anforderungen sind im Feld `sqlcmd_input_validation` des
-vorgeschlagenen Manifests maschinenlesbar festgelegt und werden offline
-strukturell geprüft. Das Feld führt selbst keine Vorabvalidierung aus.
+vorgeschlagenen Manifests maschinenlesbar festgelegt und durch statische sowie
+synthetische Caller-Tests geprüft. Das Feld allein führt keine Validierung aus.
 
 Der QRY-023-Prüflauf wurde nicht gestartet. Der read-only Preflight akzeptiert
 für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,

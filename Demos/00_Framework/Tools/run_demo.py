@@ -32,6 +32,20 @@ DEMO_ID_PATTERN = re.compile(r"(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}")
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 PHASE_ID_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,31}")
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
+QRY023_SQLCMD_INPUT_VALIDATION = {
+    "must_validate_before": "SQLCMD_EXPANSION",
+    "reject_invalid": True,
+    "demo_id": {"mode": "EXACT", "value": "QRY-023"},
+    "run_token": {
+        "encoding": "ASCII",
+        "allowed_characters": "A-Z0-9_",
+        "min_bytes": 1,
+        "max_bytes": 20,
+    },
+    "target_database": {
+        "template": "SQLPERF_LAB_{DEMO_ID_WITHOUT_HYPHEN}_{RUN_TOKEN}"
+    },
+}
 
 
 @dataclass(frozen=True)
@@ -145,6 +159,31 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
     )
 
 
+def _validate_sqlcmd_input_contract(payload: dict[str, Any], demo_id: str, run_token: str) -> None:
+    """Enforce the declared QRY-023 caller contract before any SQLCMD process starts."""
+    if "sqlcmd_input_validation" not in payload:
+        return
+
+    contract = payload["sqlcmd_input_validation"]
+    expected = json.dumps(QRY023_SQLCMD_INPUT_VALIDATION, sort_keys=True, separators=(",", ":"))
+    actual = json.dumps(contract, sort_keys=True, separators=(",", ":"))
+    if type(contract) is not dict or actual != expected:
+        raise ValueError("invalid sqlcmd_input_validation contract")
+
+    if demo_id != "QRY-023":
+        raise ValueError("sqlcmd_input_validation requires demo_id QRY-023")
+    if not run_token.isascii() or not re.fullmatch(r"[A-Z0-9_]{1,20}", run_token):
+        raise ValueError("run_token does not satisfy sqlcmd_input_validation")
+
+    target_template = contract["target_database"]["template"]
+    target_name = target_template.format(
+        DEMO_ID_WITHOUT_HYPHEN=demo_id.replace("-", ""),
+        RUN_TOKEN=run_token,
+    )
+    if target_name != target_database_name(demo_id, run_token):
+        raise ValueError("target database does not satisfy sqlcmd_input_validation")
+
+
 def load_manifest(path: Path) -> DemoManifest:
     payload = _load_json_object(path)
     if payload.get("contract_version") != "1.0":
@@ -160,6 +199,7 @@ def load_manifest(path: Path) -> DemoManifest:
         raise ValueError("invalid demo_id")
     if not isinstance(run_token, str) or not RUN_TOKEN_PATTERN.fullmatch(run_token):
         raise ValueError("invalid run_token")
+    _validate_sqlcmd_input_contract(payload, demo_id, run_token)
     if safety_level not in {"GREEN", "YELLOW", "RED"}:
         raise ValueError("safety_level must be GREEN, YELLOW, or RED")
     if not isinstance(timeout_seconds, int) or not 1 <= timeout_seconds <= 7200:
