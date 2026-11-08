@@ -288,6 +288,32 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("all four exact, length-aware ownership markers" in error
                             for error in self.errors()))
 
+    def test_preflight_must_reject_a_weakened_run_token_length(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("LEN(@RunToken) NOT BETWEEN 1 AND 20",
+                                "LEN(@RunToken) NOT BETWEEN 1 AND 40")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
+    def test_preflight_must_derive_the_expected_database_prefix(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("SQLPERF_LAB_", "OTHER_LAB_")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
+    def test_preflight_must_require_the_derived_target_database(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("@TargetDatabase <> @ExpectedDatabase",
+                                "@TargetDatabase = @ExpectedDatabase")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
