@@ -1,21 +1,30 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: IDX-001 – Heap- und Clustered-Row-Locators
+## Fortsetzung: IDX-002 – Clustered-Key-Breite
 
-PR #410 (IDX-004) ist mit Squashcommit
-`543031c981c8fd91e8dfee883a832705baf6ca2d` integriert. Alle vier PR-Gates und
+PR #412 (IDX-001) ist mit Squashcommit
+`71c471eb0a2a5101f6546b896e4a2660cf5c75a6` integriert. Alle vier PR-Gates und
 beide Main-Workflows waren erfolgreich; lokales `main` ist sauber und
 synchronisiert, der Remote-Branch wurde entfernt. Der Entwurf bindet die
-bijektive Fixtureformel, exakten Slotintervalle und vollständigen sortierten
-Tupeloracles für BASE-, LOOKUP- und COVERING-Profile.
+deterministische Fixtureformel sowie vollständige Tupeloracles für den
+Punktfall und den Bereichsfall auf HEAP und CLUSTERED.
 
-Für die autonome Fortsetzung folgt IDX-001 mit einer begrenzten Erweiterung um
+Für die autonome Fortsetzung folgt IDX-002 mit einer begrenzten Erweiterung um
 1 Arbeitspaket, 2 PRs (Statusübergang und Entwurfsintegration) und bis zu 2
-Quellenkandidaten; kumulative Obergrenze 65/74/157. Umfang: aktuelle
-Quellenprüfung sowie exakte Fixtureformeln und vollständige Tupeloracles für
-HEAP- und CLUSTERED-Profile im Punkt- und Bereichsfall. Keine SQL-/Runtime-
-Ausführung, keine erzwungene Lookup-Planform, Leistungsbehauptung oder
-menschliche Generalprobe.
+Quellenkandidaten; kumulative Obergrenze 66/76/159. Umfang: aktuelle
+Quellenprüfung sowie exakte Fixtureformeln und vollständige sortierte
+Ergebnistupeloracles für `NARROW_UNIQUE` und `WIDE_NONUNIQUE`. Keine
+SQL-/Runtimeausführung, keine allgemeine Indexgrößen- oder
+Leistungsbehauptung und keine menschliche Generalprobe.
+
+## Abschluss: IDX-001 – Heap- und Clustered-Row-Locators
+
+Der [IDX-001-Entwurf](IDX001_ROW_LOCATORS_DESIGN.md) ist über PR #412
+integriert. Er definiert alle 100.000 synthetischen Tupel, die exakte
+Payloadformel und vollständige Punkt-/Bereichsoracles für beide Profile. Die
+kanonische Sortierung dient ausschließlich dem mengengleichen Vergleich.
+Enginequalifikation, tatsächliche Lookup-Pläne und jede Laufzeitwirkung bleiben
+offen.
 
 ## Abschluss: IDX-004 – Treffermenge, Lookup und Abdeckung
 
