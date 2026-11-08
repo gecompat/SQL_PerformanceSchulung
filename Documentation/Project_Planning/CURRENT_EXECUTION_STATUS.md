@@ -104,16 +104,24 @@ veränderten Skip-Code. 26 QRY-023-Regressionen sowie die QRY-023-, Framework-
 und Repository-Continuity-Validatoren bestanden. Rechte werden nicht erteilt;
 es bleibt ein statischer Vertragsnachweis.
 
-## Fortsetzung: QRY-023 – Qualification-Preflight-Ausgaben binden
+## Abschluss: QRY-023 – Qualification-Preflight-Ausgaben binden
 
-Der nächste Offline-Schnitt bindet die beiden Qualification-Preflight-
+Der statische Schnitt band die beiden Qualification-Preflight-
 Summaryzeilen an ihre vollständigen Tupel: `QUALIFICATION_PREFLIGHT`/
 `PERMISSIONS`/`SKIP`/`SKIP_PERMISSION` und
 `QUALIFICATION_PREFLIGHT`/`SUMMARY`/`PASS`/`OK`. Die jeweiligen `PRINT`-Marker
 müssen übereinstimmen; je ein falsch geänderter Status ist eine
-Negativregression. Die kumulative Obergrenze wächst um ein Paket und zwei PRs
+Negativregression. Die kumulative Obergrenze wuchs um ein Paket und zwei PRs
 auf 80/104/187 (höchstens 187 Quellenkandidaten). Keine Ausführung oder
 Rechteänderung.
+
+PR #441 bindet die Skip-Zeile an `QUALIFICATION_PREFLIGHT/PERMISSIONS/SKIP/
+SKIP_PERMISSION`, die Erfolgssummary an `QUALIFICATION_PREFLIGHT/SUMMARY/PASS/OK`
+und beide an ihre jeweiligen `SQLPERF_SUMMARY`-Prints. Drei Negativregressionen
+mit verändertem Skip-Outcome, Erfolgs-Outcome und Skip-Print wurden abgewiesen.
+29 QRY-023-Regressionen sowie die QRY-023-, Framework- und Repository-
+Continuity-Validatoren bestanden. Die Prüfung ist statisch; keine Rechte wurden
+erteilt und kein SQL ausgeführt.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

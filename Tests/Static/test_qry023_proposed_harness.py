@@ -228,6 +228,30 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
 
+    def test_qualification_skip_summary_must_report_skip_permission(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("'SKIP' AS Outcome,'SKIP_PERMISSION' AS Code",
+                                "'FAIL' AS Outcome,'SKIP_PERMISSION' AS Code")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("summary rows and PRINT markers must match" in error for error in self.errors()))
+
+    def test_qualification_success_summary_must_report_pass_ok(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code",
+                                "'SUMMARY' AS CheckId,'WARN' AS Outcome,'OK' AS Code")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("summary rows and PRINT markers must match" in error for error in self.errors()))
+
+    def test_qualification_skip_print_must_match_skip_row(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION",
+                                "SQLPERF_SUMMARY|SKIP|SKIP_STATE")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("summary rows and PRINT markers must match" in error for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
