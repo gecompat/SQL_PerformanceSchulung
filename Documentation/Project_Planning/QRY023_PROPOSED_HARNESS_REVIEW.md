@@ -47,6 +47,14 @@ I/O-Gerätemessung interpretiert.
 
 ## Aussagegrenzen und weitere Gates
 
+Die separate Actual-Plan-Phase schaltet `STATISTICS XML` jetzt im Erfolgszweig
+und in `CATCH` ab und reicht den Fehler mit `THROW` weiter. Der statische
+Validator und eine Regression schützen beide Abschaltpfade. Das folgt dem
+Cleanupmuster aus `Demos/00_Framework/Templates/40_Plan_Statistics_Evidence.sql`.
+Es ist eine Skriptstrukturprüfung: sie belegt weder Engineverhalten bei
+Verbindungsabbruch noch eine tatsächlich erfolgte Rücksetzung in einer
+SQL-Session.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

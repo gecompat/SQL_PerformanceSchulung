@@ -25,11 +25,13 @@ PR #424 bindet beim QRY-023-Proposed-Harness Phasenscript, Zieldatenbank,
 Zeitlimits, Cleanup und Gesamtbudgets. PR #426 ergänzt `Reads` und `Writes` als
 Pflichtfelder und gepaarte Statistikmetriken neben CPU, Logical Reads und
 Elapsed; Zähler bleiben Sessiondeltas einschließlich Messprozedur-Overhead.
-Der nächste begrenzte Schnitt prüft und schützt das Abschalten von
-`STATISTICS XML` auf Erfolg und Fehler in der separaten Actual-Plan-Phase
-anhand der FWK-005-Referenz; PR #427 wählt diesen Offline-Schritt. QRY-023
-bleibt `PROPOSED`; formale T-SQL-Abnahme,
-unabhängige Methodenfreigabe und Runtimegates bleiben offen.
+PR #429 schützt das Abschalten von `STATISTICS XML` bei Erfolg und fangbaren
+Fehlern in der separaten Actual-Plan-Phase nach dem FWK-005-Cleanupmuster. Der
+Validator und eine Negativregression binden den Fehlerpfad; Verbindungsabbruch
+und tatsächliche Sessionwirkung bleiben unbelegt. Als nächste statische Frage
+steht die durchgehende Bindung von Graph-/Relationaldiagnoseabfragen,
+Ausgabeabgrenzung und Messlauf-Ausschluss an. QRY-023 bleibt `PROPOSED`; formale
+T-SQL-Abnahme, unabhängige Methodenfreigabe und Runtimegates bleiben offen.
 
 ### DGN-007 getrenntes Qualifikationsband
 

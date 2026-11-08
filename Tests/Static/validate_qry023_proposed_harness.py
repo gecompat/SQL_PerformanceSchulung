@@ -287,8 +287,9 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
         ("GRAPH", "RELATIONAL"), ("RELATIONAL", "GRAPH"),
         ("GRAPH", "RELATIONAL"),
     ], "paired-order rule must alternate across five pairs", errors)
-    require("statistics xml on" in plan and "statistics xml off" in plan,
-            "plan evidence must be a separate, bounded Actual Plan diagnostic", errors)
+    require("statistics xml on" in plan and plan.count("statistics xml off") >= 2
+            and "begin try" in plan and "begin catch" in plan and "throw;" in plan,
+            "plan evidence must reset STATISTICS XML on success and error in a separate, bounded Actual Plan diagnostic", errors)
     require("measurement" not in plan, "plan diagnostic must not write measured phase records", errors)
     require("drop database" in cleanup_sql and "single_user" in cleanup_sql,
             "cleanup must remove only the owned disposable database", errors)

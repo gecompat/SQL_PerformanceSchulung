@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-023 – Actual-Plan-Diagnose absichern
+## Abschluss: QRY-023 – Actual-Plan-Diagnose absichern
 
 PR #427 wählte die Absicherung der getrennten Actual-Plan-Diagnose. PR #426
 integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads, Reads,
@@ -9,14 +9,21 @@ Offlinevalidator bestanden. Diese Werte sind FWK-004-Sessiondeltas
 einschließlich Messprozedur-Overhead. Das Manifest bleibt `PROPOSED`, nicht
 katalogisiert und ungefahren.
 
-Der aktuelle begrenzte Offline-Schnitt stellt sicher, dass die separate
-`STATISTICS XML`-Planphase die Sessionoption im Erfolgs- und Fehlerpfad
-ausschaltet und den ursprünglichen SQL-Fehler weiterreicht, entsprechend der
-vorhandenen FWK-005-Referenzvorlage. Die kumulative Obergrenze steigt um
-1 Arbeitspaket, 2 PRs (Statusübergang und Reviewintegration) und höchstens 2
-Quellenkandidaten auf 74/92/175. Keine SQL-/Runtimeausführung, keine
-Labänderung und keine menschliche Generalprobe; formale Harness-/T-SQL-Abnahme,
-unabhängige Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
+PR #429 integriert die Absicherung der separaten `STATISTICS XML`-Planphase:
+Erfolg und `CATCH` schalten die Option ab, `THROW` erhält den Fehler. Eine
+gezielte Negativregression weist den fehlenden Fehlerpfad zurück; 17
+Harness-Regressionen sowie QRY-023-, Framework- und Repository-Continuity-
+Validatoren bestanden. Die Prüfung belegt keine Sessionrücksetzung bei
+Verbindungsabbruch und keine Engineausführung. Keine SQL-/Runtimeausführung,
+keine Labänderung und keine menschliche Generalprobe. QRY-023 bleibt
+`PROPOSED`/nicht katalogisiert; formale Harness-/T-SQL-Abnahme, unabhängige
+Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
+
+Als nächster begrenzter Offline-Schritt wird geprüft, ob der statische Vertrag
+die beiden tatsächlichen Diagnoseabfragen, ihre Ausgabeabgrenzung und den
+Messlauf-Ausschluss zusammenhängend an die Graph-/Relationalkorrektheit bindet.
+Vor Beginn werden aktive Budgetobergrenze und die bestehenden Oracles gegen den
+kanonischen Status geprüft; bis dahin keine Runtime- oder SQL-Ausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
