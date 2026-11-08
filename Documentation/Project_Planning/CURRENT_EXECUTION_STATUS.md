@@ -1,19 +1,21 @@
 # Aktueller Ausführungsstand
 
-## Abschluss: IDX-007 – Offline-Evidenzvertrag geprüft
+## Fortsetzung: CON-006 – Offline-Graph-/Capturevertrag prüfen
 
-PR #419 schloss die STL-002-Fortsetzung nach erfolgreicher Integration von
-PR #418. PR #420 ergänzt die quellengebundene lokale Prüfung des bestehenden
-IDX-007-Offlinevertrags und trennt einen fehlenden Rechtsaußenbeleg
-(`NOT_PROVEN`) von einem explizit negativen Rechtsaußenbefund (`FAIL`). Die
-gezielte synthetische Regression besteht mit 12 Tests. Die neuen Quellen
-`SRC-147` und `SRC-148` binden Wait-Ressourcenformat und Seitenmetadaten.
+PR #420 integrierte die quellengebundene lokale Prüfung des IDX-007-
+Offlinevertrags. Ein fehlender Rechtsaußenbeleg bleibt `NOT_PROVEN`, ein
+explizit negativer Beleg ist nun `FAIL`; die gezielte synthetische Regression
+bestand mit 12 Tests. Die Quellen `SRC-147` und `SRC-148` binden
+Wait-Ressourcenformat und Seitenmetadaten. Lokales `main` ist synchronisiert
+und sauber, der Remote-Branch wurde entfernt.
 
-Die kumulative Obergrenze 69/82/165 wurde für diesen Schnitt verwendet.
-Eigenständige Methoden-/Quellenfreigabe, authentische Wait-/Seitenbeobachtung,
-Seitenkettenauflösung, fairer Vergleich und Runtimequalifikation bleiben offen.
-Keine SQL-/Runtimeausführung, keine Labänderung und keine menschliche
-Generalprobe. Die Offline-Prüfung ist keine unabhängige Methodenfreigabe.
+Der nächste begrenzte Offline-Schnitt prüft den bestehenden CON-006-Graph- und
+Capturevertrag auf fachliche Lücken und quellengebundene Aussagegrenzen. Die
+kumulative Obergrenze steigt um 1 Arbeitspaket, 2 PRs (Statusübergang und
+Reviewintegration) und höchstens 2 Quellenkandidaten auf 70/84/167. Dies ist
+keine unabhängige Methoden-/Quellenfreigabe. Keine SQL-/Runtimeausführung,
+keine Labänderung und keine menschliche Generalprobe. Ein Runtimepfad bleibt
+separat autorisierungs- und sicherheitsgebunden.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
