@@ -463,6 +463,13 @@ höchstens 115/164/236. Auch diese direkten Mappingzugriffe auf `main` werden
 außerhalb des Guards zurückgewiesen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #484 integriert die lokalen Mappingformen; alle fünf Workflows bestanden.
+Für unerreichbare Testaufrufe nach `return` und `raise` erweitert sich der
+kumulative Rahmen ohne Reset um ein Paket, einen PR und zwei Testkandidaten auf
+höchstens 116/165/238. Nach einem unbedingten Kontrollflussende werden spätere
+Aufrufe nicht als Registrierungen gezählt. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
