@@ -294,11 +294,18 @@ Testkandidaten. Keine Vertragsausweitung oder Runtimeausführung.
 
 ## Fortsetzung: QRY-023 – Callerbindungen für Demo-ID und Zielvorlage
 
-Der nächste synthetische Schnitt prüft, dass eine abweichende Vertrags-Demo-ID
-und eine veränderte Zielnamenschablone im optionalen Caller-Vertrag ebenfalls
-vor SQLCMD-Auflösung/-Start abgewiesen werden. Kumulative Obergrenze für
-Auswahl und Integration: 94 Arbeitspakete, 132 PRs und 209 Quellen-/
-Testkandidaten. Keine Runtimeausführung.
+PR #463 ergänzt Gegenproben für abweichende Vertrags-Demo-ID und
+Zielnamenschablone; beide werden vor SQLCMD-Auflösung/-Start abgewiesen. Alle
+fünf Workflows bestanden. Kumulative Obergrenze: 94 Arbeitspakete, 132 PRs und
+209 Quellen-/Testkandidaten. Keine Runtimeausführung.
+
+## Fortsetzung: FWK-010 – QRY-023-Vertrag auf Demo-ID begrenzen
+
+Der nächste synthetische Caller-Test legt den exakten QRY-023-Vertrag in ein
+`OPT-001`-Manifest und verlangt eine Ablehnung vor SQLCMD-Auflösung/-Start.
+Damit wird der explizite Demo-Scope des optionalen Vertragsobjekts geschützt.
+Kumulative Obergrenze für Auswahl und Integration: 95 Arbeitspakete, 134 PRs
+und 210 Quellen-/Testkandidaten. Keine Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
