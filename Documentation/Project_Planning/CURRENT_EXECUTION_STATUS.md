@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-## Fortsetzung: QRY-023 – Planerfolg erst nach Cleanup ausgeben
+## Abschluss: QRY-023 – Planerfolg erst nach Cleanup ausgeben
 
 PR #427 wählte die Absicherung der getrennten Actual-Plan-Diagnose. PR #426
 integrierte die fünf gepaarten Messmetrikdeltas für CPU, Logical Reads, Reads,
@@ -36,7 +36,7 @@ Enginekompilierung. Keine SQL-/Runtime- oder Lab-Ausführung; QRY-023 bleibt
 `PROPOSED` und nicht katalogisiert. Formale T-SQL-Abnahme, unabhängige
 Methodenfreigabe und konkrete Runtimeautorisierung bleiben offen.
 
-Der nächste Offline-Schnitt bindet die `PLAN_EVIDENCE`-Erfolgssummary an den
+Der Offline-Schnitt bindet die `PLAN_EVIDENCE`-Erfolgssummary an den
 erfolgreichen Abschluss des Diagnoseblocks: beide Abfragen müssen vor dem
 erfolgreichen `STATISTICS XML OFF` liegen; `SELECT`-/`PRINT`-PASS-Ausgaben
 müssen nach TRY/CATCH stehen. Eine Negativregression verschiebt die
@@ -44,6 +44,15 @@ Erfolgsausgabe vor den Abschaltpunkt und muss vom Validator abgelehnt werden.
 Der kumulative Rahmen wächst um ein Arbeitspaket, zwei PRs (Auswahl und
 Integration) und höchstens zwei Quellenkandidaten auf 76/96/179. Keine
 SQL-/Runtime-/Lab-Ausführung; keine Änderung an den Ergebnis- oder Messoracles.
+
+PR #433 integriert die Reihenfolgeprüfung samt Negativregression: genau eine
+Plan-Erfolgssummary und ein PASS-Marker müssen nach dem Try-/Catch-Block mit
+erfolgreichem Cleanup stehen; ein vorgezogenes Erfolgsfragment wird abgelehnt.
+20 QRY-023-Regressionen sowie QRY-023-, Framework- und Repository-Continuity-
+Validatoren bestanden. Dies belegt nur die Textreihenfolge, keine Ausführung
+oder Sessionwirkung. QRY-023 bleibt `PROPOSED`/nicht katalogisiert; formale
+T-SQL-Abnahme, unabhängige Methodenfreigabe und Runtimeautorisierung bleiben
+offen.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 

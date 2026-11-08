@@ -57,6 +57,33 @@ def count_big_queries(sql: str) -> list[str]:
     return queries
 
 
+def plan_summary_follows_cleanup(plan: str) -> bool:
+    """Require success output after both option resets and the rethrowing CATCH."""
+    markers = {
+        "try": plan.find("begin try"),
+        "xml_on": plan.find("set statistics xml on"),
+        "success_off": plan.find("set statistics xml off", plan.find("set statistics xml on") + 1),
+    }
+    markers["end_try"] = plan.find("end try", markers["success_off"] + 1)
+    markers["catch"] = plan.find("begin catch", markers["end_try"] + 1)
+    markers["catch_off"] = plan.find("set statistics xml off", markers["catch"] + 1)
+    markers["throw"] = plan.find("throw;", markers["catch_off"] + 1)
+    markers["end_catch"] = plan.find("end catch", markers["throw"] + 1)
+    summary_selects = list(re.finditer(
+        r"\bselect\s+1\s+as\s+sequence\s*,\s*'plan_evidence'\s+as\s+phase\b", plan
+    ))
+    summary_prints = list(re.finditer(r"\bprint\s+'sqlperf_summary\|pass\|ok'", plan))
+    return (
+        all(position >= 0 for position in markers.values())
+        and markers["try"] < markers["xml_on"] < markers["success_off"] < markers["end_try"]
+        < markers["catch"] < markers["catch_off"] < markers["throw"] < markers["end_catch"]
+        and len(summary_selects) == 1
+        and summary_selects[0].start() > markers["end_catch"]
+        and len(summary_prints) == 1
+        and summary_prints[0].start() > markers["end_catch"]
+    )
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -309,6 +336,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("statistics xml on" in plan and plan.count("statistics xml off") >= 2
             and "begin try" in plan and "begin catch" in plan and "throw;" in plan,
             "plan evidence must reset STATISTICS XML on success and error in a separate, bounded Actual Plan diagnostic", errors)
+    require(plan_summary_follows_cleanup(plan),
+            "plan evidence success summaries must occur once after successful STATISTICS XML cleanup and the rethrowing CATCH", errors)
     require(len(count_big_queries(workload)) == 2
             and count_big_queries(plan) == count_big_queries(workload),
             "plan evidence must preserve the measured Graph and relational COUNT_BIG query shapes and order",

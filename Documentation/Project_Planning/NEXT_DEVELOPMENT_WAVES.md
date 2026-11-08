@@ -36,11 +36,13 @@ statischen QRY-023-, Framework- und Repository-Continuity-Prüfungen bestanden.
 Das bleibt eine Textstrukturprüfung ohne SQL-/Runtime- oder Lab-Ausführung.
 QRY-023 bleibt `PROPOSED`; formale T-SQL-Abnahme, unabhängige
 Methodenfreigabe und Runtimegates bleiben offen.
-Der aktive nächste Offline-Schnitt schützt die Reihenfolge von erfolgreicher
-Plan-Summary und `STATISTICS XML OFF` einschließlich TRY/CATCH-Grenze durch
-eine Negativregression. Der begrenzte Rahmen ist um ein Paket und zwei PRs auf
-76/96/179 kumulativ erweitert; keine SQL-/Runtimeausführung oder Änderung an
-den bestehenden Ergebnis- und Messoracles.
+PR #433 schützt die Reihenfolge von erfolgreicher Plan-Summary und
+`STATISTICS XML OFF` einschließlich TRY/CATCH-Grenze. Die gezielte
+Negativregression weist vorgezogenes PASS zurück; 20 QRY-023-Regressionen und
+die statischen QRY-023-, Framework- und Repository-Continuity-Prüfungen
+bestanden. Dies belegt nur Textreihenfolge, keine SQL-/Runtimeausführung oder
+Sessionwirkung. QRY-023 bleibt `PROPOSED`; formale T-SQL-Abnahme, unabhängige
+Methodenfreigabe und Runtimegates bleiben offen.
 
 ### DGN-007 getrenntes Qualifikationsband
 

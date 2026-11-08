@@ -168,6 +168,16 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("preserve the measured Graph and relational COUNT_BIG" in error
                             for error in self.errors()))
 
+    def test_plan_success_summary_cannot_precede_option_cleanup(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        marker = "    SET STATISTICS XML OFF;"
+        early_summary = "SELECT 1 AS Sequence,'PLAN_EVIDENCE' AS Phase;\nPRINT 'SQLPERF_SUMMARY|PASS|OK';\n"
+        source = source.replace(marker, early_summary + marker, 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("success summaries must occur once after successful STATISTICS XML cleanup" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
