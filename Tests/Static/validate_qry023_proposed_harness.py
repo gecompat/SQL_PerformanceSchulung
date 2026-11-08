@@ -38,6 +38,25 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
         errors.append(message)
 
 
+def count_big_queries(sql: str) -> list[str]:
+    """Return normalized PathCount COUNT_BIG statements for query-shape comparison."""
+    pattern = re.compile(
+        r"\bselect\s+@?pathcount\s*=\s*count_big\s*\(\s*\*\s*\).*?;",
+        re.IGNORECASE | re.DOTALL,
+    )
+    queries = []
+    for match in pattern.finditer(sql):
+        normalized = re.sub(r"\s+", "", match.group(0)).casefold()
+        normalized = re.sub(
+            r"^select@?pathcount=count_big\(\*\)",
+            "selectresult=count_big(*)",
+            normalized,
+            count=1,
+        )
+        queries.append(normalized)
+    return queries
+
+
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
     proposed_manifest = demo / "manifest.proposed.json"
@@ -290,6 +309,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("statistics xml on" in plan and plan.count("statistics xml off") >= 2
             and "begin try" in plan and "begin catch" in plan and "throw;" in plan,
             "plan evidence must reset STATISTICS XML on success and error in a separate, bounded Actual Plan diagnostic", errors)
+    require(len(count_big_queries(workload)) == 2
+            and count_big_queries(plan) == count_big_queries(workload),
+            "plan evidence must preserve the measured Graph and relational COUNT_BIG query shapes and order",
+            errors)
     require("measurement" not in plan, "plan diagnostic must not write measured phase records", errors)
     require("drop database" in cleanup_sql and "single_user" in cleanup_sql,
             "cleanup must remove only the owned disposable database", errors)

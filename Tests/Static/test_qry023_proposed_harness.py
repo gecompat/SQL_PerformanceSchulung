@@ -152,6 +152,22 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("reset STATISTICS XML on success and error" in error
                             for error in self.errors()))
 
+    def test_plan_graph_query_must_match_measured_shape(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("MATCH(p1-(e1)->p2-(e2)->p3)", "MATCH(p1-(e1)->p2)")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("preserve the measured Graph and relational COUNT_BIG" in error
+                            for error in self.errors()))
+
+    def test_plan_relational_query_must_match_measured_shape(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("p3.PersonId=e2.ToPersonId", "p2.PersonId=e2.ToPersonId")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("preserve the measured Graph and relational COUNT_BIG" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
