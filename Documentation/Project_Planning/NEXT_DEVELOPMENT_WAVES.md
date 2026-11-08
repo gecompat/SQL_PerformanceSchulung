@@ -162,10 +162,16 @@ beide veränderten Werte scheitern vor SQLCMD-Auflösung und -Start. Alle fünf
 Workflows bestanden. Kumulativ höchstens 94 Arbeitspakete, 132 PRs und 209
 Quellen-/Testkandidaten. Keine Runtimeausführung.
 
-Der nächste synthetische Caller-Test legt den QRY-023-Vertrag in ein
-`OPT-001`-Manifest und prüft, dass der Demo-Scope vor SQLCMD-Auflösung und
--Start fail-closed durchgesetzt wird. Kumulativ höchstens 95 Arbeitspakete,
-134 PRs und 210 Quellen-/Testkandidaten. Keine Runtimeausführung.
+PR #464 legt den QRY-023-Vertrag in ein `OPT-001`-Manifest; der Demo-Scope
+wird vor SQLCMD-Auflösung und -Start fail-closed durchgesetzt. Alle fünf
+Workflows bestanden. Kumulativ höchstens 95 Arbeitspakete, 134 PRs und 210
+Quellen-/Testkandidaten. Keine Runtimeausführung.
+
+Der nächste Dokumentationsschnitt trennt die vom FWK-010-Caller erzwungene
+alphanumerische Startzeichenregel von Zeichensatz- und Bytegrenze des
+vorgeschlagenen SQL-Preflights. Eine Negativregression schützt die korrekte
+Zuordnung. Kumulativ höchstens 96 Arbeitspakete, 136 PRs und 211 Quellen-/
+Testkandidaten. Keine SQL- oder Runtimeausführung.
 
 ### DGN-007 getrenntes Qualifikationsband
 

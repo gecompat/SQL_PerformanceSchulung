@@ -301,11 +301,20 @@ fünf Workflows bestanden. Kumulative Obergrenze: 94 Arbeitspakete, 132 PRs und
 
 ## Fortsetzung: FWK-010 – QRY-023-Vertrag auf Demo-ID begrenzen
 
-Der nächste synthetische Caller-Test legt den exakten QRY-023-Vertrag in ein
-`OPT-001`-Manifest und verlangt eine Ablehnung vor SQLCMD-Auflösung/-Start.
-Damit wird der explizite Demo-Scope des optionalen Vertragsobjekts geschützt.
-Kumulative Obergrenze für Auswahl und Integration: 95 Arbeitspakete, 134 PRs
-und 210 Quellen-/Testkandidaten. Keine Runtimeausführung.
+PR #464 legt den exakten QRY-023-Vertrag in ein `OPT-001`-Manifest und bestätigt
+die Ablehnung vor SQLCMD-Auflösung/-Start. Die fünf betroffenen Workflows
+bestanden. Kumulative Obergrenze: 95 Arbeitspakete, 134 PRs und 210 Quellen-/
+Testkandidaten. Keine Runtimeausführung.
+
+## Fortsetzung: QRY-023 – Caller- und SQL-Preflight-Grenze dokumentieren
+
+Die README ordnet aktuell die alphanumerische Startzeichenregel dem SQL-
+Preflight zu; tatsächlich setzt sie FWK-010 beim Caller durch. Der SQL-
+Preflight prüft separat den erlaubten ASCII-Zeichensatz und die Bytegrenze.
+Der nächste Dokumentationsschnitt trennt diese Verantwortlichkeiten und pinnt
+die Zuordnung mit einer statischen Negativregression. Kumulative Obergrenze
+für Auswahl und Integration: 96 Arbeitspakete, 136 PRs und 211 Quellen-/
+Testkandidaten. Keine SQL- oder Runtimeausführung.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
