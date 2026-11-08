@@ -266,6 +266,28 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("reject system databases" in error for error in self.errors()))
 
+    def test_qualification_preflight_must_bind_exact_project_marker(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace(
+            "@Project COLLATE Latin1_General_100_BIN2<>N'SQL_PerformanceSchulung'",
+            "@Project COLLATE Latin1_General_100_BIN2<>N'OtherProject'",
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("all four exact, length-aware ownership markers" in error
+                            for error in self.errors()))
+
+    def test_qualification_preflight_must_bind_run_token_to_harness(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace(
+            "@MarkerRun COLLATE Latin1_General_100_BIN2<>CONVERT(nvarchar(max),@RunToken)",
+            "@MarkerRun COLLATE Latin1_General_100_BIN2=CONVERT(nvarchar(max),@RunToken)",
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("all four exact, length-aware ownership markers" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
