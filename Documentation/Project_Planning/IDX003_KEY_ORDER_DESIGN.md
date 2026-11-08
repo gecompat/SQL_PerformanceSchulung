@@ -21,13 +21,24 @@ Indexgröße oder ein Performancevorteil als festes Ergebnis behauptet.
 
 ## Gemeinsame Fixture
 
-Eine vorgeschlagene Tabelle `SearchFact` hat den eindeutigen, schmalen
-Clustered Key `RowId`, die Attribute `TenantId`, `Status` und einen festen
-Ausgabewert `Payload`. Die Fixture umfasst 120.000 Zeilen mit deterministisch
-balancierter Verteilung: 100 Mandanten und 6 Statuswerte, je 200 Zeilen pro
-Mandant-/Statuskombination. `Payload` enthält einen für jede Zeile
-deterministischen, 64 Zeichen langen synthetischen Wert. Kein Skew oder
-selektiver Spezialfall wird als repräsentativer Produktworkload ausgegeben.
+Eine vorgeschlagene Tabelle `SearchFact` hat `RowId int` als eindeutigen,
+schmalen Clustered Key, `TenantId int`, `Status tinyint` und
+`Payload varchar(64)`. Die Fixture enthält jede `RowId` von 1 bis 120.000
+genau einmal. Für jede Zeile werden die übrigen Spalten ausschließlich aus
+`RowId` abgeleitet:
+
+```text
+TenantId = ((RowId - 1) / 1200) + 1
+Status   = ((RowId - 1) % 6) + 1
+Payload  = 'P' + RIGHT(REPLICATE('0', 6) + CONVERT(varchar(6), RowId), 6)
+           + REPLICATE('X', 57)
+```
+
+Die Division für `TenantId` ist ganzzahlig. Damit entstehen 100 Mandanten
+und sechs Statuswerte von 1 bis 6; jede Kombination hat exakt 200 Zeilen.
+`Payload` ist eindeutig je `RowId` und genau 64 ASCII-Zeichen lang. Diese
+gleichmäßige, synthetische Verteilung ist ein Oracle für die Fixture, kein
+repräsentativer Produktworkload.
 
 Verglichen werden die folgenden sekundären, nicht eindeutigen
 Nonclustered-Indexprofile jeweils allein auf derselben unveränderten Tabelle;
@@ -65,12 +76,25 @@ die vier Fälle untereinander haben absichtlich unterschiedliche Filter.
 | `Q3` | `TenantId = 37 AND Status = 5` | beide Gleichheitsprädikate; Schlüsselreihenfolge gegen gleiche Ergebnisoracles halten |
 | `Q4` | `TenantId = 37 AND Status BETWEEN 4 AND 6` | Gleichheit gefolgt von Statusbereich gegen umgekehrte Reihenfolge und INCLUDE-Profil |
 
-Die Sollmengen folgen direkt aus der festgelegten Verteilung: `Q1` hat 1.200
-Zeilen, `Q2` 20.000, `Q3` 200 und `Q4` 600. Diese Zählwerte kontrollieren nur
-die Fixture und werden vor einer späteren SQL-Umsetzung am konkreten Generator
-zu verifizieren sein. Für jeden Fall gilt zusätzlich der vollständige Oracle
-über `RowId` und alle projizierten Werte; gleiche Zeilenzahl allein genügt
-nicht.
+Die vollständigen Solltupel werden in aufsteigender `RowId`-Reihenfolge durch
+die folgenden Mengen beschrieben. In allen Formeln steht `Payload(r)` für den
+oben festgelegten 64-Zeichen-Ausdruck mit `RowId = r`:
+
+- `Q1`: für `r = 43201..44400` jeweils
+  `(r, 37, ((r - 1) % 6) + 1, Payload(r))`;
+- `Q2`: für `t = 1..100` und `k = 0..199`, jeweils das Tupel
+  `(r, t, 5, Payload(r))` mit `r = 1200 * (t - 1) + 6 * k + 5`, global nach
+  `r` sortiert;
+- `Q3`: für `k = 0..199` jeweils
+  `(r, 37, 5, Payload(r))` mit `r = 43200 + 6 * k + 5`;
+- `Q4`: für `k = 0..199` und `j = 0..2` jeweils
+  `(r, 37, ((r - 1) % 6) + 1, Payload(r))` mit `r = 43200 + 6 * k + 4 + j`,
+  global nach `r` sortiert.
+
+Daraus folgen exakt 1.200 Zeilen für `Q1`, 20.000 für `Q2`, 200 für `Q3`
+und 600 für `Q4`. Die Formel bestimmt pro Fall alle vier projizierten Werte
+und deren Multiplizität, nicht bloß den Rowcount. Jedes Indexprofil wird
+gegen diese identischen Oracles und gegen die `BASE`-Ausgabe geprüft.
 
 ## Beobachtung und Abnahmegrenzen
 
