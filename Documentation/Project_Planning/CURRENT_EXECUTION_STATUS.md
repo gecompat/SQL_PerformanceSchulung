@@ -636,6 +636,13 @@ ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens
 152/201/297. Nur absolute Imports binden das Standardmodul `sys`. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #509 integriert die Abgrenzung relativer Imports; alle fünf Workflows
+bestanden. Für lokale Namensüberschreibungen von Exit-Aliasen erweitert sich
+der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei
+Testkandidaten auf höchstens 154/203/300. Zuweisungen und lokale Definitionen
+überschreiben erkannte Import-Aliase. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
