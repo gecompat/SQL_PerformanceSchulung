@@ -401,6 +401,13 @@ Testkandidaten auf höchstens 136/185/273. Die Gegenproben unterscheiden einen
 Callback bei Eager-Verbrauch von einem lazy `map` ohne Iteration. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #501 integriert die ausgeführten Lambda-Callbacks; alle fünf Workflows
+bestanden. Für benannte synchrone `map`-/`filter`-Callbacks erweitert sich der
+Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf
+höchstens 138/187/276. Eine benannte synchrone Funktion wird nur beim Eager-
+Verbrauch ihres Iterators aufgerufen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
