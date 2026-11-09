@@ -598,6 +598,38 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             )
         )
 
+    class MainExitImportFinder(ast.NodeVisitor):
+        def visit_ImportFrom(self, statement: ast.ImportFrom) -> None:
+            if statement.module in {"sys", "os", "builtins"}:
+                allowed = {
+                    "sys": {"exit"},
+                    "os": {"_exit"},
+                    "builtins": {"exit", "quit"},
+                }[statement.module]
+                exit_aliases.update(
+                    alias.asname or alias.name
+                    for alias in statement.names
+                    if alias.name in allowed
+                )
+
+        def visit_Import(self, statement: ast.Import) -> None:
+            for alias in statement.names:
+                module_name = alias.name.split(".", 1)[0]
+                if module_name in {"sys", "os"}:
+                    module_aliases[alias.asname or module_name] = module_name
+
+        def visit_FunctionDef(self, function: ast.FunctionDef) -> None:
+            return
+
+        visit_AsyncFunctionDef = visit_FunctionDef
+
+        def visit_Lambda(self, function: ast.Lambda) -> None:
+            return
+
+    local_import_finder = MainExitImportFinder()
+    for statement in main_function.body:
+        local_import_finder.visit(statement)
+
     def expression_ends_process(expression: ast.expr) -> bool:
         if isinstance(expression, ast.Call):
             return is_process_exit_call(expression)
@@ -1295,6 +1327,30 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(uncalled_module_helper_exit),
         (),
         "an uncalled module-level helper body does not exit during import",
+    )
+    conditional_local_exit_alias = (
+        "def test_one(): pass\ndef main():\n"
+        "    if condition:\n"
+        "        from sys import exit as stop\n"
+        "        stop()\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(conditional_local_exit_alias),
+        ("runtime tests must be direct unconditional main statements",),
+        "an imported exit alias in a conditional branch can stop main",
+    )
+    uncalled_conditional_import_helper = (
+        "def test_one(): pass\ndef main():\n"
+        "    def helper():\n"
+        "        from sys import exit as stop\n"
+        "        stop()\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(uncalled_conditional_import_helper),
+        (),
+        "an uncalled helper import does not bind an exit alias in main",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(

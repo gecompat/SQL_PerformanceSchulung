@@ -439,6 +439,13 @@ um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 148/197/291
 `from sys import exit as stop` und `import sys as runtime` werden erkannt.
 Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #507 integriert direkte lokale Exit-Imports; alle fünf Workflows bestanden.
+Für bedingte Imports in `main()` erweitert sich der Rahmen ohne Reset um ein
+Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 150/199/294.
+Mögliche Exit-Imports in Kontrollflusszweigen werden erkannt; unaufgerufene
+Helper-Rümpfe bleiben ausgenommen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

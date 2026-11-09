@@ -623,6 +623,13 @@ ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens
 148/197/291. Lokale `sys.exit`- und `sys`-Modul-Aliase werden im Ablauf erkannt.
 Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #507 integriert direkte lokale Exit-Imports; alle fünf Workflows bestanden.
+Für Exit-Imports in bedingten `main()`-Blöcken erweitert sich der kumulative
+Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf
+höchstens 150/199/294. Mögliche Zweigimporte werden erkannt, Importe in
+unaufgerufenen Helpern bleiben ausgeklammert. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
