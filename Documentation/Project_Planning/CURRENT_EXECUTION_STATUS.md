@@ -526,6 +526,13 @@ auf höchstens 124/173/254. `result = sys.exit() if condition else 0` darf einen
 folgenden Test nicht als unbedingt registriert bestehen lassen. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #493 integriert die bedingte Zuweisungsgegenprobe; alle fünf Workflows
+bestanden. Für einen Exit in einer `if`-Verzweigung erweitert sich der
+kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und einen
+Testkandidaten auf höchstens 125/174/255. Ein späterer Test nach `if condition:
+sys.exit()` ist nicht auf allen Kontrollflusspfaden ausführbar und muss
+abgewiesen werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
