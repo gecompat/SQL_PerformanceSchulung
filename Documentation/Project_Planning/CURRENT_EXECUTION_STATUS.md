@@ -529,9 +529,17 @@ SQL-/Runtimeausführung oder menschliche Generalprobe.
 PR #493 integriert die bedingte Zuweisungsgegenprobe; alle fünf Workflows
 bestanden. Für einen Exit in einer `if`-Verzweigung erweitert sich der
 kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und einen
-Testkandidaten auf höchstens 125/174/255. Ein späterer Test nach `if condition:
-sys.exit()` ist nicht auf allen Kontrollflusspfaden ausführbar und muss
-abgewiesen werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+Testkandidaten auf höchstens 125/174/255. Ein späterer Test nach einer
+`if`-Verzweigung mit `sys.exit()` ist nicht auf allen Kontrollflusspfaden
+ausführbar und muss abgewiesen werden. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
+PR #494 integriert die `if`-Gegenprobe; alle fünf Workflows bestanden. Für
+Prozessende in Schleifen, `try`/`except`, `match` und `with` erweitert sich das
+kumulative Budget ohne Reset um ein Arbeitspaket, einen PR und fünf
+Testkandidaten auf höchstens 126/175/260. Kein Test darf trotz möglichem
+Abbruchpfad in einem solchen Kontrollflussblock als unbedingt registriert
+gelten. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
