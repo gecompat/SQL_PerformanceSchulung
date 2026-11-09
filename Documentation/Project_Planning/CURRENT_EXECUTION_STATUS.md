@@ -562,6 +562,13 @@ Testkandidaten auf höchstens 130/179/265. Ein Klassenkörper läuft beim
 Definieren, ein Methodenrumpf erst beim Aufruf. Keine SQL-/Runtimeausführung
 oder menschliche Generalprobe.
 
+PR #498 integriert diese Klassengrenze; alle fünf Workflows bestanden. Für
+Generatorausdrücke erweitert sich der kumulative Rahmen ohne Reset um ein
+Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 132/181/267. Der
+Generatorrumpf wird erst beim Iterieren ausgeführt, sein äußerstes Iterable
+bereits beim Erzeugen ausgewertet. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
