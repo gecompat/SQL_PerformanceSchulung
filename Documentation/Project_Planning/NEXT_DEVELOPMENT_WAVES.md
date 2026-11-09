@@ -414,6 +414,13 @@ Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf
 höchstens 140/189/279. Die Schleife konsumiert den Generator. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #503 integriert die Loop-Konsumierung; alle fünf Workflows bestanden. Für
+Generatorfunktionen als `main` erweitert sich der Rahmen ohne Reset um ein
+Arbeitspaket, einen PR und drei Testkandidaten auf höchstens 143/192/283.
+`yield` im ausgeführten `main`-Pfad oder Helper-Header macht `main()` lazy;
+ein verschachtelter Helper-Rumpf ändert das nicht. Keine SQL-/Runtimeausführung
+oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

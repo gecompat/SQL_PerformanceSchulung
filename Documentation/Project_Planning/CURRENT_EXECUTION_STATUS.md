@@ -596,6 +596,13 @@ der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei
 Testkandidaten auf höchstens 140/189/279. Die Schleife konsumiert den
 Generatorrumpf. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #503 integriert die Loop-Konsumierung; alle fünf Workflows bestanden. Für
+Generatorfunktionen als `main` erweitert sich der kumulative Rahmen ohne Reset
+um ein Arbeitspaket, einen PR und drei Testkandidaten auf höchstens 143/192/283.
+Ein direktes `yield` oder eines in einem ausgewerteten Helper-Header macht
+`main()` lazy; ein verschachtelter Helper-Rumpf nicht. Keine SQL-/Runtime-
+ausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
