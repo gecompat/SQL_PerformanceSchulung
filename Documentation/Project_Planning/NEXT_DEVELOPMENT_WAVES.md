@@ -338,6 +338,13 @@ drei Testkandidaten auf höchstens 123/172/253. Prozessendeaufrufe innerhalb von
 Tupel-, Listen- und Dictionary-Literalen müssen als eager ausgewertet erkannt
 werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #492 integriert die drei eager Literalformen; alle fünf Workflows bestanden.
+Der nächste Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und
+einen Testkandidaten auf höchstens 124/173/254. Eine bedingte Exit-Auswertung
+innerhalb eines Zuweisungswerts darf einen nachfolgenden Test nicht als
+unbedingt erreichbar ausweisen. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
