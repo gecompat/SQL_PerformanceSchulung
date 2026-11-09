@@ -451,6 +451,45 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             and call.func.id.startswith("test_")
         ]
 
+    def has_executable_process_exit(node: ast.AST) -> bool:
+        class ProcessExitFinder(ast.NodeVisitor):
+            found = False
+
+            def visit_Call(self, call: ast.Call) -> None:
+                if is_process_exit_call(call):
+                    self.found = True
+                self.generic_visit(call)
+
+            def visit_FunctionDef(self, function: ast.FunctionDef) -> None:
+                expressions = [
+                    *function.decorator_list,
+                    *function.args.defaults,
+                    *(item for item in function.args.kw_defaults if item is not None),
+                    *((function.returns,) if function.returns is not None else ()),
+                    *(argument.annotation for argument in (
+                        *function.args.posonlyargs,
+                        *function.args.args,
+                        *function.args.kwonlyargs,
+                    ) if argument.annotation is not None),
+                    *((function.args.vararg.annotation,) if function.args.vararg
+                      and function.args.vararg.annotation is not None else ()),
+                    *((function.args.kwarg.annotation,) if function.args.kwarg
+                      and function.args.kwarg.annotation is not None else ()),
+                ]
+                for expression in expressions:
+                    self.visit(expression)
+
+            visit_AsyncFunctionDef = visit_FunctionDef
+
+            def visit_Lambda(self, function: ast.Lambda) -> None:
+                for expression in (*function.args.defaults,
+                                   *(item for item in function.args.kw_defaults if item is not None)):
+                    self.visit(expression)
+
+        finder = ProcessExitFinder()
+        finder.visit(node)
+        return finder.found
+
     def is_process_exit_call(call: ast.Call) -> bool:
         function = call.func
         if isinstance(function, ast.Name):
@@ -542,15 +581,11 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 ast.Try,
                 ast.Match,
             )
-            if isinstance(statement, conditional_exit_blocks) and any(
-                isinstance(node, ast.Call) and is_process_exit_call(node)
-                for node in ast.walk(statement)
-            ):
+            if isinstance(statement, conditional_exit_blocks) and has_executable_process_exit(statement):
                 non_direct_call = True
             if isinstance(statement, (ast.With, ast.AsyncWith)) and any(
-                isinstance(node, ast.Call) and is_process_exit_call(node)
+                has_executable_process_exit(item.context_expr)
                 for item in statement.items
-                for node in ast.walk(item.context_expr)
             ):
                 non_direct_call = True
             if terminates_main(statement):
@@ -937,6 +972,17 @@ def test_runtime_test_functions_are_registered_once() -> None:
             ("runtime tests must be direct unconditional main statements",),
             label,
         )
+    uncalled_exit_helper = (
+        "def test_one(): pass\ndef main():\n"
+        "    if condition:\n"
+        "        def helper():\n            sys.exit()\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(uncalled_exit_helper),
+        (),
+        "an uncalled nested helper does not terminate the main test path",
+    )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
         runtime_test_registration_issues(async_test),

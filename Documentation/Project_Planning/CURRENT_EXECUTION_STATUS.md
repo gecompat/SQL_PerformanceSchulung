@@ -541,6 +541,13 @@ Testkandidaten auf höchstens 126/175/260. Kein Test darf trotz möglichem
 Abbruchpfad in einem solchen Kontrollflussblock als unbedingt registriert
 gelten. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #495 integriert die fünf Kontrollflussfälle; alle fünf Workflows bestanden.
+Für die Abgrenzung nicht aufgerufener Hilfsfunktionskörper erweitert sich das
+kumulative Budget ohne Reset um ein Paket, einen PR und einen Testkandidaten
+auf höchstens 127/176/261. Ein lediglich definierter Helper mit `sys.exit()`
+beendet den äußeren `main()`-Pfad nicht. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
