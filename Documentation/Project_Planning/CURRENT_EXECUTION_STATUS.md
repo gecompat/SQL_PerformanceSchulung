@@ -576,6 +576,13 @@ und zwei Testkandidaten auf höchstens 134/183/270. `list`, `tuple`, `set`,
 `sorted`, `sum`, `min`, `max`, `any` und `all` werten den Generatorrumpf aus.
 Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #500 integriert den direkten Eager-Verbrauch von Generatorausdrücken; alle
+fünf Workflows bestanden. Für aufgerufene `map`-/`filter`-Callbacks erweitert
+sich der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei
+Testkandidaten auf höchstens 136/185/273. Die Gegenproben trennen einen
+iterierten Lambda-Callback von einem noch unaufgerufenen `map`-Callback. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

@@ -490,6 +490,28 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 if expression.generators:
                     self.visit(expression.generators[0].iter)
 
+            def visit_consumed_iterator(self, expression: ast.AST) -> None:
+                if isinstance(expression, ast.GeneratorExp):
+                    for generator in expression.generators:
+                        self.visit(generator.iter)
+                        for condition in generator.ifs:
+                            self.visit(condition)
+                    self.visit(expression.elt)
+                elif (
+                    isinstance(expression, ast.Call)
+                    and isinstance(expression.func, ast.Name)
+                    and expression.func.id in {"filter", "map"}
+                    and expression.args
+                ):
+                    callback = expression.args[0]
+                    if isinstance(callback, ast.Lambda):
+                        self.visit(callback.body)
+                    for argument in expression.args[1:]:
+                        self.visit_consumed_iterator(argument)
+                    self.generic_visit(expression)
+                else:
+                    self.visit(expression)
+
             def visit_Call(self, call: ast.Call) -> None:
                 if is_process_exit_call(call):
                     self.found = True
@@ -498,12 +520,7 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 }
                 if isinstance(call.func, ast.Name) and call.func.id in eager_consumers:
                     for argument in call.args:
-                        if isinstance(argument, ast.GeneratorExp):
-                            for generator in argument.generators:
-                                self.visit(generator.iter)
-                                for condition in generator.ifs:
-                                    self.visit(condition)
-                            self.visit(argument.elt)
+                        self.visit_consumed_iterator(argument)
                 self.generic_visit(call)
 
         finder = ProcessExitFinder()
@@ -1069,6 +1086,26 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(consumed_generator_exit),
         ("runtime tests must be direct unconditional main statements",),
         "an eager consumer executes the generator body before later tests",
+    )
+    consumed_map_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    values = list(map(lambda item: sys.exit(), items))\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(consumed_map_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "an eager consumer executes a map callback",
+    )
+    unconsumed_map_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    values = map(lambda item: sys.exit(), items)\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(unconsumed_map_exit),
+        (),
+        "an unconsumed map callback does not terminate the main test path",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
