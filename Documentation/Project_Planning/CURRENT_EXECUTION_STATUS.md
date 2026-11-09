@@ -512,6 +512,13 @@ Testkandidaten auf höchstens 122/171/250. `result: int = sys.exit()` muss
 nachfolgende Testaufrufe ebenfalls unerreichbar machen. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #491 integriert die annotierte Zuweisungsgegenprobe; alle fünf Workflows
+bestanden. Für eager ausgewertete Tupel-, Listen- und Dictionary-Literale als
+Zuweisungswert erweitert sich der kumulative Rahmen ohne Reset um ein Paket,
+einen PR und drei Testkandidaten auf höchstens 123/172/253. Darin liegende
+Prozessendeaufrufe dürfen nachfolgende Tests nicht erreichbar erscheinen
+lassen. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
