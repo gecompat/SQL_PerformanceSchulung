@@ -374,6 +374,13 @@ Testkandidaten auf höchstens 128/177/263. Diese Ausdrücke laufen bereits bei
 der Definition des Helpers. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #497 integriert die ausgeführten Helper-Header; alle fünf Workflows
+bestanden. Für Klassenkörper und unaufgerufene Methoden erweitert sich der
+Rahmen ohne Reset um ein Paket, einen PR und zwei Testkandidaten auf höchstens
+130/179/265. Die Gegenproben trennen den ausgeführten Klassenkörper vom erst
+bei Aufruf ausgeführten Methodenrumpf. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
