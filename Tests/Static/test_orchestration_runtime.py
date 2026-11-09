@@ -427,6 +427,48 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     }
     registrations: list[str] = []
     non_direct_call = False
+    class MainGeneratorFinder(ast.NodeVisitor):
+        found = False
+
+        def visit_Yield(self, node: ast.Yield) -> None:
+            self.found = True
+
+        def visit_YieldFrom(self, node: ast.YieldFrom) -> None:
+            self.found = True
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            expressions = [
+                *node.decorator_list,
+                *node.args.defaults,
+                *(item for item in node.args.kw_defaults if item is not None),
+                *((node.returns,) if node.returns is not None else ()),
+                *(argument.annotation for argument in (
+                    *node.args.posonlyargs,
+                    *node.args.args,
+                    *node.args.kwonlyargs,
+                ) if argument.annotation is not None),
+                *((node.args.vararg.annotation,) if node.args.vararg
+                  and node.args.vararg.annotation is not None else ()),
+                *((node.args.kwarg.annotation,) if node.args.kwarg
+                  and node.args.kwarg.annotation is not None else ()),
+            ]
+            for expression in expressions:
+                self.visit(expression)
+
+        visit_AsyncFunctionDef = visit_FunctionDef
+
+        def visit_Lambda(self, node: ast.Lambda) -> None:
+            for expression in (
+                *node.args.defaults,
+                *(item for item in node.args.kw_defaults if item is not None),
+            ):
+                self.visit(expression)
+
+    main_generator_finder = MainGeneratorFinder()
+    for statement in main_function.body:
+        main_generator_finder.visit(statement)
+    if main_generator_finder.found:
+        non_direct_call = True
     exit_aliases: set[str] = set()
     module_aliases: dict[str, str] = {}
     for statement in tree.body:
@@ -1153,6 +1195,35 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(loop_consumed_generator_exit),
         ("runtime tests must be direct unconditional main statements",),
         "a for loop eagerly iterates its generator expression",
+    )
+    generator_main = (
+        "def test_one(): pass\ndef main():\n"
+        "    yield 1\n    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(generator_main),
+        ("runtime tests must be direct unconditional main statements",),
+        "calling a generator main does not execute its test registrations",
+    )
+    nested_generator_main_helper = (
+        "def test_one(): pass\ndef main():\n"
+        "    def helper():\n        yield 1\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(nested_generator_main_helper),
+        (),
+        "an uncalled generator helper does not make main a generator",
+    )
+    generator_main_header = (
+        "def test_one(): pass\ndef main():\n"
+        "    def helper(value=(yield 1)):\n        pass\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(generator_main_header),
+        ("runtime tests must be direct unconditional main statements",),
+        "yield in an executed helper header makes main a generator",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
