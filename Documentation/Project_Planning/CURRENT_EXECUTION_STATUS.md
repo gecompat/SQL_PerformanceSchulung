@@ -590,6 +590,12 @@ Testkandidaten auf höchstens 138/187/276. Die Gegenproben trennen den
 aufgerufenen Funktionsrumpf von einem lazy Iterator. Keine SQL-/Runtime-
 ausführung oder menschliche Generalprobe.
 
+PR #502 integriert benannte synchrone Callbacks; alle fünf Workflows bestanden.
+Für Generatorausdrücke direkt in `for`-/`async for`-Iteratoren erweitert sich
+der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei
+Testkandidaten auf höchstens 140/189/279. Die Schleife konsumiert den
+Generatorrumpf. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

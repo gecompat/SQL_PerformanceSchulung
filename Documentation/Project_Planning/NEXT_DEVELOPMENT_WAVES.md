@@ -408,6 +408,12 @@ höchstens 138/187/276. Eine benannte synchrone Funktion wird nur beim Eager-
 Verbrauch ihres Iterators aufgerufen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #502 integriert benannte synchrone Callbacks; alle fünf Workflows bestanden.
+Für Generatoren direkt in `for`-/`async for`-Iteratoren erweitert sich der
+Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf
+höchstens 140/189/279. Die Schleife konsumiert den Generator. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

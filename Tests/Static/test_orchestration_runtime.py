@@ -521,6 +521,12 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 else:
                     self.visit(expression)
 
+            def visit_For(self, loop: ast.For) -> None:
+                self.visit_consumed_iterator(loop.iter)
+                self.generic_visit(loop)
+
+            visit_AsyncFor = visit_For
+
             def visit_Call(self, call: ast.Call) -> None:
                 if is_process_exit_call(call):
                     self.found = True
@@ -1137,6 +1143,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(unconsumed_named_callback_exit),
         (),
         "an unconsumed map does not invoke its named callback",
+    )
+    loop_consumed_generator_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    for item in (sys.exit() for value in values):\n        pass\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(loop_consumed_generator_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "a for loop eagerly iterates its generator expression",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
