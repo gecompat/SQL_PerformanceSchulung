@@ -569,6 +569,13 @@ Generatorrumpf wird erst beim Iterieren ausgeführt, sein äußerstes Iterable
 bereits beim Erzeugen ausgewertet. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #499 integriert die Generator-Auswertungsgrenze; alle fünf Workflows
+bestanden. Für Generatoren, die ein unmittelbarer Eager-Verbraucher iteriert,
+erweitert sich der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR
+und zwei Testkandidaten auf höchstens 134/183/270. `list`, `tuple`, `set`,
+`sorted`, `sum`, `min`, `max`, `any` und `all` werten den Generatorrumpf aus.
+Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

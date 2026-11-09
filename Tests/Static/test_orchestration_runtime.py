@@ -490,6 +490,22 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 if expression.generators:
                     self.visit(expression.generators[0].iter)
 
+            def visit_Call(self, call: ast.Call) -> None:
+                if is_process_exit_call(call):
+                    self.found = True
+                eager_consumers = {
+                    "all", "any", "list", "max", "min", "set", "sorted", "sum", "tuple",
+                }
+                if isinstance(call.func, ast.Name) and call.func.id in eager_consumers:
+                    for argument in call.args:
+                        if isinstance(argument, ast.GeneratorExp):
+                            for generator in argument.generators:
+                                self.visit(generator.iter)
+                                for condition in generator.ifs:
+                                    self.visit(condition)
+                            self.visit(argument.elt)
+                self.generic_visit(call)
+
         finder = ProcessExitFinder()
         finder.visit(node)
         return finder.found
@@ -1043,6 +1059,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(eager_generator_iterable_exit),
         ("runtime tests must be direct unconditional main statements",),
         "the outer iterable of a generator expression is evaluated immediately",
+    )
+    consumed_generator_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    values = list(sys.exit() for item in items)\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(consumed_generator_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "an eager consumer executes the generator body before later tests",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
