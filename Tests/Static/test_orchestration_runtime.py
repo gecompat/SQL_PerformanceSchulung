@@ -588,6 +588,9 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 for item in statement.items
             ):
                 non_direct_call = True
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if has_executable_process_exit(statement):
+                    non_direct_call = True
             if terminates_main(statement):
                 terminated = True
         return terminated
@@ -983,6 +986,22 @@ def test_runtime_test_functions_are_registered_once() -> None:
         (),
         "an uncalled nested helper does not terminate the main test path",
     )
+    for helper, label in (
+        (
+            "    @sys.exit()\n    def helper():\n        pass",
+            "process exit in nested helper decorator",
+        ),
+        (
+            "    def helper(value=sys.exit()):\n        pass",
+            "process exit in nested helper default value",
+        ),
+    ):
+        source = f"def test_one(): pass\ndef main():\n{helper}\n    test_one()\n"
+        assert_equal(
+            runtime_test_registration_issues(source),
+            ("runtime tests must be direct unconditional main statements",),
+            label,
+        )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
         runtime_test_registration_issues(async_test),
