@@ -421,6 +421,10 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     ):
         return ("runtime test module must define exactly one main function",)
     main_function = main_definitions[0]
+    synchronous_functions = {
+        node.name: node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+    }
     registrations: list[str] = []
     non_direct_call = False
     exit_aliases: set[str] = set()
@@ -506,6 +510,11 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                     callback = expression.args[0]
                     if isinstance(callback, ast.Lambda):
                         self.visit(callback.body)
+                    elif isinstance(callback, ast.Name):
+                        function = synchronous_functions.get(callback.id)
+                        if function is not None:
+                            for statement in function.body:
+                                self.visit(statement)
                     for argument in expression.args[1:]:
                         self.visit_consumed_iterator(argument)
                     self.generic_visit(expression)
@@ -1106,6 +1115,28 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(unconsumed_map_exit),
         (),
         "an unconsumed map callback does not terminate the main test path",
+    )
+    consumed_named_callback_exit = (
+        "def stop(item):\n    sys.exit()\n"
+        "def test_one(): pass\ndef main():\n"
+        "    values = list(map(stop, items))\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(consumed_named_callback_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "an eager consumer executes a named synchronous callback",
+    )
+    unconsumed_named_callback_exit = (
+        "def stop(item):\n    sys.exit()\n"
+        "def test_one(): pass\ndef main():\n"
+        "    values = map(stop, items)\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(unconsumed_named_callback_exit),
+        (),
+        "an unconsumed map does not invoke its named callback",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(

@@ -583,6 +583,13 @@ Testkandidaten auf höchstens 136/185/273. Die Gegenproben trennen einen
 iterierten Lambda-Callback von einem noch unaufgerufenen `map`-Callback. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #501 integriert die Lambda-Callback-Auswertung; alle fünf Workflows
+bestanden. Für benannte synchrone `map`-/`filter`-Callbacks erweitert sich der
+kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei
+Testkandidaten auf höchstens 138/187/276. Die Gegenproben trennen den
+aufgerufenen Funktionsrumpf von einem lazy Iterator. Keine SQL-/Runtime-
+ausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
