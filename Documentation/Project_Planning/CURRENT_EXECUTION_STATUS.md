@@ -548,6 +548,13 @@ auf höchstens 127/176/261. Ein lediglich definierter Helper mit `sys.exit()`
 beendet den äußeren `main()`-Pfad nicht. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #496 integriert diese Abgrenzung; alle fünf Workflows bestanden. Für
+ausgewertete Dekoratoren und Standardwerte verschachtelter Helper erweitert
+sich der kumulative Rahmen ohne Reset um ein Paket, einen PR und zwei
+Testkandidaten auf höchstens 128/177/263. `@sys.exit()` und
+`value=sys.exit()` beenden die Helperdefinition und damit den äußeren Testlauf.
+Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

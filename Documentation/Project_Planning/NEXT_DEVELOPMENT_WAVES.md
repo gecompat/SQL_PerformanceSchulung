@@ -367,6 +367,13 @@ Dekoratoren, Defaults und Annotationen bleiben als beim Definieren ausgewertete
 Ausdrücke berücksichtigt. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #496 integriert das Überspringen unaufgerufener Funktionskörper; alle fünf
+Workflows bestanden. Für Prozessenden in ausgeführten Helper-Dekoratoren oder
+Defaults erweitert sich der Rahmen ohne Reset um ein Paket, einen PR und zwei
+Testkandidaten auf höchstens 128/177/263. Diese Ausdrücke laufen bereits bei
+der Definition des Helpers. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
