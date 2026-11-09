@@ -789,6 +789,7 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("", "sys.exit()", "unreachable after sys.exit"),
         ("", "os._exit(1)", "unreachable after os._exit"),
         ("", "result = sys.exit()", "unreachable after assigned sys.exit"),
+        ("", "result: int = sys.exit()", "unreachable after annotated sys.exit"),
         (
             "status = 0\n",
             "status += sys.exit()",
