@@ -617,6 +617,13 @@ Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens
 bleiben getrennt. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
 ## Abschluss: STL-001 – Zeilenbreitenleiter
+PR #506 integriert Prozessenden beim Modulstart; alle fünf Workflows bestanden.
+Für Imports von Exit-Aliasen in `main()` erweitert sich der kumulative Rahmen
+ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens
+148/197/291. Lokale `sys.exit`- und `sys`-Modul-Aliase werden im Ablauf erkannt.
+Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
+## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
 integriert. Er legt die vollständigen Spalten- und Ergebnistupel für alle vier

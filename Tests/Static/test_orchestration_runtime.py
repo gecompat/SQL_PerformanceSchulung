@@ -634,6 +634,22 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 if test_calls(statement):
                     non_direct_call = True
                 continue
+            if isinstance(statement, ast.ImportFrom) and statement.module in {"sys", "os", "builtins"}:
+                allowed = {
+                    "sys": {"exit"},
+                    "os": {"_exit"},
+                    "builtins": {"exit", "quit"},
+                }[statement.module]
+                exit_aliases.update(
+                    alias.asname or alias.name
+                    for alias in statement.names
+                    if alias.name in allowed
+                )
+            elif isinstance(statement, ast.Import):
+                for alias in statement.names:
+                    module_name = alias.name.split(".", 1)[0]
+                    if module_name in {"sys", "os"}:
+                        module_aliases[alias.asname or module_name] = module_name
             if isinstance(statement, ast.Expr):
                 value = statement.value
                 if (
@@ -1245,6 +1261,31 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("runtime tests must be direct unconditional main statements",),
         "a module-level process exit prevents main from running",
     )
+    for local_import, local_exit, label in (
+        (
+            "from sys import exit as stop",
+            "stop()",
+            "a function-local sys.exit alias terminates main",
+        ),
+        (
+            "import sys as runtime",
+            "runtime.exit()",
+            "a function-local sys module alias terminates main",
+        ),
+    ):
+        local_alias_exit = (
+            "def test_one(): pass\ndef main():\n"
+            f"    {local_import}\n    {local_exit}\n"
+            "    test_one()\n"
+        )
+        assert_equal(
+            runtime_test_registration_issues(local_alias_exit),
+            (
+                "runtime tests must be direct unconditional main statements",
+                "runtime test definitions and registrations must match",
+            ),
+            label,
+        )
     uncalled_module_helper_exit = (
         "def helper():\n    sys.exit()\n"
         "def test_one(): pass\ndef main():\n"

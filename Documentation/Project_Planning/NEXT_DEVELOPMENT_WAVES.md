@@ -433,6 +433,12 @@ Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 146/195/288. Die
 Gegenproben trennen direkte Importzeit-Ausführung von einem unaufgerufenen
 Helper-Rumpf. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #506 integriert Prozessenden beim Modulstart; alle fünf Workflows bestanden.
+Für lokale Exit-Alias-Imports in `main()` erweitert sich der Rahmen ohne Reset
+um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 148/197/291.
+`from sys import exit as stop` und `import sys as runtime` werden erkannt.
+Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
