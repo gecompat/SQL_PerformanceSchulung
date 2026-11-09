@@ -519,6 +519,13 @@ einen PR und drei Testkandidaten auf höchstens 123/172/253. Darin liegende
 Prozessendeaufrufe dürfen nachfolgende Tests nicht erreichbar erscheinen
 lassen. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #492 integriert die drei Literalformen; alle fünf Workflows bestanden. Für
+eine bedingte Exit-Auswertung in einem Zuweisungswert erweitert sich der
+kumulative Rahmen ohne Reset um ein Paket, einen PR und einen Testkandidaten
+auf höchstens 124/173/254. `result = sys.exit() if condition else 0` darf einen
+folgenden Test nicht als unbedingt registriert bestehen lassen. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
