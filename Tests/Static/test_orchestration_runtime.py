@@ -662,6 +662,15 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             return expression_ends_process(statement.value)
         return False
 
+    def target_names(target: ast.expr) -> set[str]:
+        if isinstance(target, ast.Name):
+            return {target.id}
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return set().union(*(target_names(item) for item in target.elts))
+        if isinstance(target, ast.Starred):
+            return target_names(target.value)
+        return set()
+
     def collect_direct_calls(statements: list[ast.stmt]) -> bool:
         nonlocal non_direct_call
         terminated = False
@@ -740,11 +749,22 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                     non_direct_call = True
             if terminates_main(statement):
                 terminated = True
+            shadowed_names: set[str] = set()
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                shadowed_names.add(statement.name)
+            elif isinstance(statement, ast.Assign):
+                for target in statement.targets:
+                    shadowed_names.update(target_names(target))
+            elif isinstance(statement, (ast.AnnAssign, ast.AugAssign)):
+                shadowed_names.update(target_names(statement.target))
+            for name in shadowed_names:
+                exit_aliases.discard(name)
+                module_aliases.pop(name, None)
         return terminated
 
-    collect_direct_calls(main_function.body)
     if any(has_executable_process_exit(statement) for statement in tree.body):
         non_direct_call = True
+    collect_direct_calls(main_function.body)
     issues: list[str] = []
     if non_direct_call:
         issues.append("runtime tests must be direct unconditional main statements")
@@ -1346,6 +1366,27 @@ def test_runtime_test_functions_are_registered_once() -> None:
         (),
         "a relative .sys import inside main is not a process exit alias",
     )
+    for local_shadow, label in (
+        (
+            "stop = lambda: None",
+            "a local assignment can shadow an imported exit alias",
+        ),
+        (
+            "def stop():\n        pass",
+            "a local function definition can shadow an imported exit alias",
+        ),
+    ):
+        shadowed_local_exit = (
+            "from sys import exit as stop\n"
+            "def test_one(): pass\ndef main():\n"
+            f"    {local_shadow}\n"
+            "    stop()\n    test_one()\n"
+        )
+        assert_equal(
+            runtime_test_registration_issues(shadowed_local_exit),
+            (),
+            label,
+        )
     uncalled_module_helper_exit = (
         "def helper():\n    sys.exit()\n"
         "def test_one(): pass\ndef main():\n"

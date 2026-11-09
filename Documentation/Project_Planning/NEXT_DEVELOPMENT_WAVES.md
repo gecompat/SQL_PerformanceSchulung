@@ -452,6 +452,13 @@ Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 152/201/297. Nur
 absolute Imports werden als Standardmodul `sys` erkannt. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #509 integriert die Abgrenzung relativer Imports; alle fünf Workflows
+bestanden. Für lokale Überschreibungen von Exit-Aliasen erweitert sich der
+Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf
+höchstens 154/203/300. Zuweisungen und lokale Definitionen ersetzen die
+vorherige Aliasbindung. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
