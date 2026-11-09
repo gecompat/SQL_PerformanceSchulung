@@ -352,6 +352,13 @@ einen Testkandidaten auf höchstens 125/174/255. Ein Prozessende in einer
 ausführbaren Aufruf bestehen lassen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #494 integriert den `if`-Abbruchpfad; alle fünf Workflows bestanden. Für
+Schleifen, `try`/`except`, `match` und `with` erweitert sich der Rahmen ohne
+Reset um ein Arbeitspaket, einen PR und fünf Testkandidaten auf höchstens
+126/175/260. Mögliche Prozessenden innerhalb dieser Kontrollflussblöcke dürfen
+spätere Tests nicht als unbedingt ausführbar bestehen lassen. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

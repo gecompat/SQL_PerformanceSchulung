@@ -534,9 +534,23 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 )
             ):
                 non_direct_call = True
-            if isinstance(statement, ast.If) and any(
+            conditional_exit_blocks = (
+                ast.If,
+                ast.For,
+                ast.AsyncFor,
+                ast.While,
+                ast.Try,
+                ast.Match,
+            )
+            if isinstance(statement, conditional_exit_blocks) and any(
                 isinstance(node, ast.Call) and is_process_exit_call(node)
                 for node in ast.walk(statement)
+            ):
+                non_direct_call = True
+            if isinstance(statement, (ast.With, ast.AsyncWith)) and any(
+                isinstance(node, ast.Call) and is_process_exit_call(node)
+                for item in statement.items
+                for node in ast.walk(item.context_expr)
             ):
                 non_direct_call = True
             if terminates_main(statement):
@@ -893,6 +907,36 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("runtime tests must be direct unconditional main statements",),
         "conditional process exit branch cannot precede an unconditional test registration",
     )
+    conditional_exit_blocks = (
+        (
+            "    while condition:\n        sys.exit()",
+            "process exit in while loop",
+        ),
+        (
+            "    for item in items:\n        sys.exit()",
+            "process exit in for loop",
+        ),
+        (
+            "    try:\n        sys.exit()\n"
+            "    except SystemExit:\n        pass",
+            "process exit in try block",
+        ),
+        (
+            "    match value:\n        case _:\n            sys.exit()",
+            "process exit in match branch",
+        ),
+        (
+            "    with (resource if condition else sys.exit()):\n        pass",
+            "possible process exit in with context expression",
+        ),
+    )
+    for block, label in conditional_exit_blocks:
+        source = f"def test_one(): pass\ndef main():\n{block}\n    test_one()\n"
+        assert_equal(
+            runtime_test_registration_issues(source),
+            ("runtime tests must be direct unconditional main statements",),
+            label,
+        )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
         runtime_test_registration_issues(async_test),
