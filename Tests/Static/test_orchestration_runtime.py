@@ -472,7 +472,11 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
     exit_aliases: set[str] = set()
     module_aliases: dict[str, str] = {}
     for statement in tree.body:
-        if isinstance(statement, ast.ImportFrom) and statement.module in {"sys", "os", "builtins"}:
+        if (
+            isinstance(statement, ast.ImportFrom)
+            and statement.level == 0
+            and statement.module in {"sys", "os", "builtins"}
+        ):
             allowed = {
                 "sys": {"exit"},
                 "os": {"_exit"},
@@ -600,7 +604,7 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
 
     class MainExitImportFinder(ast.NodeVisitor):
         def visit_ImportFrom(self, statement: ast.ImportFrom) -> None:
-            if statement.module in {"sys", "os", "builtins"}:
+            if statement.level == 0 and statement.module in {"sys", "os", "builtins"}:
                 allowed = {
                     "sys": {"exit"},
                     "os": {"_exit"},
@@ -666,7 +670,11 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 if test_calls(statement):
                     non_direct_call = True
                 continue
-            if isinstance(statement, ast.ImportFrom) and statement.module in {"sys", "os", "builtins"}:
+            if (
+                isinstance(statement, ast.ImportFrom)
+                and statement.level == 0
+                and statement.module in {"sys", "os", "builtins"}
+            ):
                 allowed = {
                     "sys": {"exit"},
                     "os": {"_exit"},
@@ -1293,6 +1301,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("runtime tests must be direct unconditional main statements",),
         "a module-level process exit prevents main from running",
     )
+    relative_module_exit_name = (
+        "from .sys import exit as stop\n"
+        "def test_one(): pass\ndef main():\n"
+        "    stop()\n    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(relative_module_exit_name),
+        (),
+        "a relative .sys import is not the standard sys module",
+    )
     for local_import, local_exit, label in (
         (
             "from sys import exit as stop",
@@ -1318,6 +1336,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
             ),
             label,
         )
+    relative_local_exit_name = (
+        "def test_one(): pass\ndef main():\n"
+        "    from .sys import exit as stop\n"
+        "    stop()\n    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(relative_local_exit_name),
+        (),
+        "a relative .sys import inside main is not a process exit alias",
+    )
     uncalled_module_helper_exit = (
         "def helper():\n    sys.exit()\n"
         "def test_one(): pass\ndef main():\n"

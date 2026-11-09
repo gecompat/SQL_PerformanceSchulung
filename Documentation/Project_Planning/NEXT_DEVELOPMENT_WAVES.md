@@ -446,6 +446,12 @@ Mögliche Exit-Imports in Kontrollflusszweigen werden erkannt; unaufgerufene
 Helper-Rümpfe bleiben ausgenommen. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #508 integriert bedingte lokale Exit-Imports; alle fünf Workflows bestanden.
+Für relative `.sys`-Imports erweitert sich der Rahmen ohne Reset um ein
+Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 152/201/297. Nur
+absolute Imports werden als Standardmodul `sys` erkannt. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
