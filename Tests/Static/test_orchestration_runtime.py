@@ -474,6 +474,8 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             return is_process_exit_call(statement.value)
         if isinstance(statement, ast.AnnAssign) and isinstance(statement.value, ast.Call):
             return is_process_exit_call(statement.value)
+        if isinstance(statement, ast.AugAssign) and isinstance(statement.value, ast.Call):
+            return is_process_exit_call(statement.value)
         return False
 
     def collect_direct_calls(statements: list[ast.stmt]) -> bool:
@@ -787,6 +789,11 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("", "sys.exit()", "unreachable after sys.exit"),
         ("", "os._exit(1)", "unreachable after os._exit"),
         ("", "result = sys.exit()", "unreachable after assigned sys.exit"),
+        (
+            "status = 0\n",
+            "status += sys.exit()",
+            "unreachable after augmented sys.exit",
+        ),
         (
             "from sys import exit as stop\n",
             "stop()",

@@ -320,6 +320,12 @@ Testkandidaten auf höchstens 120/169/248. Ein `sys.exit()` als einfache
 Zuweisung beendet den Kontrollfluss ebenfalls; folgende Tests gelten als
 unerreichbar. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #489 integriert die einfache Zuweisungsform; alle fünf Workflows bestanden.
+Der nächste Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und
+einen Testkandidaten auf höchstens 121/170/249. Ein Prozessende in einer
+erweiterten Zuweisung wie `status += sys.exit()` muss ebenfalls als Ende erkannt
+werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
