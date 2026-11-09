@@ -394,6 +394,13 @@ Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens
 `all` führen den Generatorrumpf aus. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #500 integriert den Generatorverbrauch durch diese eingebauten Funktionen;
+alle fünf Workflows bestanden. Für ausgeführte `map`-/`filter`-Callbacks
+erweitert sich der Rahmen ohne Reset um ein Arbeitspaket, einen PR und zwei
+Testkandidaten auf höchstens 136/185/273. Die Gegenproben unterscheiden einen
+Callback bei Eager-Verbrauch von einem lazy `map` ohne Iteration. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
