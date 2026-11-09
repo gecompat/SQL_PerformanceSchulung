@@ -427,6 +427,12 @@ ohne Reset um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
 144/193/285. `yield from` macht `main` lazy. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #505 integriert die `yield from`-Gegenprobe; alle fünf Workflows bestanden.
+Für Modulstart-Prozessenden erweitert sich der Rahmen ohne Reset um ein
+Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens 146/195/288. Die
+Gegenproben trennen direkte Importzeit-Ausführung von einem unaufgerufenen
+Helper-Rumpf. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

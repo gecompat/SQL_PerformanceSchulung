@@ -610,6 +610,12 @@ Testkandidaten auf höchstens 144/193/285. `yield from` markiert `main` ebenso
 als Generatorfunktion. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #505 integriert die `yield from`-Gegenprobe; alle fünf Workflows bestanden.
+Für Prozessenden beim Modulstart erweitert sich der kumulative Rahmen ohne
+Reset um ein Arbeitspaket, einen PR und zwei Testkandidaten auf höchstens
+146/195/288. Direkte Importzeit-Ausführung und ein unaufgerufener Helper-Rumpf
+bleiben getrennt. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
