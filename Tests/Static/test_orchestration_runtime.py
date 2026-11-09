@@ -1225,6 +1225,15 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("runtime tests must be direct unconditional main statements",),
         "yield in an executed helper header makes main a generator",
     )
+    yield_from_generator_main = (
+        "def test_one(): pass\ndef main():\n"
+        "    yield from values\n    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(yield_from_generator_main),
+        ("runtime tests must be direct unconditional main statements",),
+        "yield from makes main a generator function",
+    )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
         runtime_test_registration_issues(async_test),
