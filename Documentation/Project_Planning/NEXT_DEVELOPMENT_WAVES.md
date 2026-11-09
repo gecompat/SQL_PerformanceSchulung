@@ -381,6 +381,12 @@ Rahmen ohne Reset um ein Paket, einen PR und zwei Testkandidaten auf höchstens
 bei Aufruf ausgeführten Methodenrumpf. Keine SQL-/Runtimeausführung oder
 menschliche Generalprobe.
 
+PR #498 integriert diese Auswertungsgrenze; alle fünf Workflows bestanden. Für
+Generatorausdrücke erweitert sich der Rahmen ohne Reset um ein Arbeitspaket,
+einen PR und zwei Testkandidaten auf höchstens 132/181/267. Der Generatorrumpf
+ist aufgeschoben, das äußerste Iterable läuft beim Erzeugen. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

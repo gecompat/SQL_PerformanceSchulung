@@ -486,6 +486,10 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                                    *(item for item in function.args.kw_defaults if item is not None)):
                     self.visit(expression)
 
+            def visit_GeneratorExp(self, expression: ast.GeneratorExp) -> None:
+                if expression.generators:
+                    self.visit(expression.generators[0].iter)
+
         finder = ProcessExitFinder()
         finder.visit(node)
         return finder.found
@@ -567,10 +571,7 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             if (
                 assignment_value is not None
                 and not terminates_main(statement)
-                and any(
-                    isinstance(node, ast.Call) and is_process_exit_call(node)
-                    for node in ast.walk(assignment_value)
-                )
+                and has_executable_process_exit(assignment_value)
             ):
                 non_direct_call = True
             conditional_exit_blocks = (
@@ -1022,6 +1023,26 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(uncalled_method_exit),
         (),
         "an uncalled method body does not terminate the outer test path",
+    )
+    deferred_generator_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    values = (sys.exit() for item in items)\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(deferred_generator_exit),
+        (),
+        "an unconsumed generator body does not terminate the main test path",
+    )
+    eager_generator_iterable_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    values = (item for item in sys.exit())\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(eager_generator_iterable_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "the outer iterable of a generator expression is evaluated immediately",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
