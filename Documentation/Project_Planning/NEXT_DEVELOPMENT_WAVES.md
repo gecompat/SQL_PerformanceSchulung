@@ -359,6 +359,14 @@ Reset um ein Arbeitspaket, einen PR und fünf Testkandidaten auf höchstens
 spätere Tests nicht als unbedingt ausführbar bestehen lassen. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #495 integriert die fünf Pfadfälle; alle fünf Workflows bestanden. Der
+nächste Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und
+einen Testkandidaten auf höchstens 127/176/261. Nicht aufgerufene verschachtelte
+Funktionskörper werden bei der Prozessende-Pfadanalyse ignoriert; ihre
+Dekoratoren, Defaults und Annotationen bleiben als beim Definieren ausgewertete
+Ausdrücke berücksichtigt. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
