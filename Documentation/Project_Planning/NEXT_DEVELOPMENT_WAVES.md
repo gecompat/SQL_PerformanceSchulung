@@ -345,6 +345,13 @@ innerhalb eines Zuweisungswerts darf einen nachfolgenden Test nicht als
 unbedingt erreichbar ausweisen. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #493 integriert den bedingten Zuweisungsfall; alle fünf Workflows bestanden.
+Der nächste Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und
+einen Testkandidaten auf höchstens 125/174/255. Ein Prozessende in einer
+`if`-Verzweigung darf einen späteren Test nicht als auf allen Pfaden
+ausführbaren Aufruf bestehen lassen. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

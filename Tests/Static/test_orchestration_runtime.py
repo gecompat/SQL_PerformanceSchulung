@@ -534,6 +534,11 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 )
             ):
                 non_direct_call = True
+            if isinstance(statement, ast.If) and any(
+                isinstance(node, ast.Call) and is_process_exit_call(node)
+                for node in ast.walk(statement)
+            ):
+                non_direct_call = True
             if terminates_main(statement):
                 terminated = True
         return terminated
@@ -877,6 +882,16 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(conditional_exit_assignment),
         ("runtime tests must be direct unconditional main statements",),
         "conditional process exit cannot precede an unconditional test registration",
+    )
+    conditional_exit_branch = (
+        "def test_one(): pass\ndef main():\n"
+        "    if condition:\n        sys.exit()\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(conditional_exit_branch),
+        ("runtime tests must be direct unconditional main statements",),
+        "conditional process exit branch cannot precede an unconditional test registration",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
