@@ -687,6 +687,8 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
         return terminated
 
     collect_direct_calls(main_function.body)
+    if any(has_executable_process_exit(statement) for statement in tree.body):
+        non_direct_call = True
     issues: list[str] = []
     if non_direct_call:
         issues.append("runtime tests must be direct unconditional main statements")
@@ -1233,6 +1235,25 @@ def test_runtime_test_functions_are_registered_once() -> None:
         runtime_test_registration_issues(yield_from_generator_main),
         ("runtime tests must be direct unconditional main statements",),
         "yield from makes main a generator function",
+    )
+    module_level_exit = (
+        "sys.exit()\ndef test_one(): pass\n"
+        "def main():\n    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(module_level_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "a module-level process exit prevents main from running",
+    )
+    uncalled_module_helper_exit = (
+        "def helper():\n    sys.exit()\n"
+        "def test_one(): pass\ndef main():\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(uncalled_module_helper_exit),
+        (),
+        "an uncalled module-level helper body does not exit during import",
     )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
