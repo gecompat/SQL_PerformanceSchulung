@@ -1002,6 +1002,27 @@ def test_runtime_test_functions_are_registered_once() -> None:
             ("runtime tests must be direct unconditional main statements",),
             label,
         )
+    class_body_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    class Helper:\n        sys.exit()\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(class_body_exit),
+        ("runtime tests must be direct unconditional main statements",),
+        "process exit in executed class body can prevent later tests",
+    )
+    uncalled_method_exit = (
+        "def test_one(): pass\ndef main():\n"
+        "    class Helper:\n"
+        "        def stop(self):\n            sys.exit()\n"
+        "    test_one()\n"
+    )
+    assert_equal(
+        runtime_test_registration_issues(uncalled_method_exit),
+        (),
+        "an uncalled method body does not terminate the outer test path",
+    )
     async_test = "async def test_one(): pass\ndef main():\n    test_one()\n"
     assert_equal(
         runtime_test_registration_issues(async_test),

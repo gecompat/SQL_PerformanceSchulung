@@ -555,6 +555,13 @@ Testkandidaten auf höchstens 128/177/263. `@sys.exit()` und
 `value=sys.exit()` beenden die Helperdefinition und damit den äußeren Testlauf.
 Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #497 integriert diese Helper-Headerfälle; alle fünf Workflows bestanden.
+Für Prozessenden im Klassenkörper und im unaufgerufenen Methodenrumpf erweitert
+sich der kumulative Rahmen ohne Reset um ein Paket, einen PR und zwei
+Testkandidaten auf höchstens 130/179/265. Ein Klassenkörper läuft beim
+Definieren, ein Methodenrumpf erst beim Aufruf. Keine SQL-/Runtimeausführung
+oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
