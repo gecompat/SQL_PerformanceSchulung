@@ -332,6 +332,12 @@ einen Testkandidaten auf höchstens 122/171/250. Die annotierte Zuweisung
 `result: int = sys.exit()` erhält eine eigene synthetische Gegenprobe. Keine
 SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #491 integriert die annotierte Zuweisung; alle fünf Workflows bestanden.
+Der nächste Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und
+drei Testkandidaten auf höchstens 123/172/253. Prozessendeaufrufe innerhalb von
+Tupel-, Listen- und Dictionary-Literalen müssen als eager ausgewertet erkannt
+werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

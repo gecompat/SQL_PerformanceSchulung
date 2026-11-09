@@ -465,6 +465,19 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             )
         )
 
+    def expression_ends_process(expression: ast.expr) -> bool:
+        if isinstance(expression, ast.Call):
+            return is_process_exit_call(expression)
+        if isinstance(expression, (ast.Tuple, ast.List, ast.Set)):
+            return any(expression_ends_process(item) for item in expression.elts)
+        if isinstance(expression, ast.Dict):
+            return any(
+                expression_ends_process(item)
+                for item in (*expression.keys, *expression.values)
+                if item is not None
+            )
+        return False
+
     def terminates_main(statement: ast.stmt) -> bool:
         if isinstance(statement, (ast.Return, ast.Raise)):
             return True
@@ -472,10 +485,12 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             return is_process_exit_call(statement.value)
         if isinstance(statement, ast.Assign) and isinstance(statement.value, ast.Call):
             return is_process_exit_call(statement.value)
-        if isinstance(statement, ast.AnnAssign) and isinstance(statement.value, ast.Call):
-            return is_process_exit_call(statement.value)
-        if isinstance(statement, ast.AugAssign) and isinstance(statement.value, ast.Call):
-            return is_process_exit_call(statement.value)
+        if isinstance(statement, ast.Assign):
+            return expression_ends_process(statement.value)
+        if isinstance(statement, ast.AnnAssign) and statement.value is not None:
+            return expression_ends_process(statement.value)
+        if isinstance(statement, ast.AugAssign):
+            return expression_ends_process(statement.value)
         return False
 
     def collect_direct_calls(statements: list[ast.stmt]) -> bool:
@@ -790,6 +805,9 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("", "os._exit(1)", "unreachable after os._exit"),
         ("", "result = sys.exit()", "unreachable after assigned sys.exit"),
         ("", "result: int = sys.exit()", "unreachable after annotated sys.exit"),
+        ("", "result = (0, sys.exit())", "unreachable after tuple sys.exit"),
+        ("", "result = [sys.exit()]", "unreachable after list sys.exit"),
+        ("", 'result = {"status": sys.exit()}', "unreachable after dict sys.exit"),
         (
             "status = 0\n",
             "status += sys.exit()",
