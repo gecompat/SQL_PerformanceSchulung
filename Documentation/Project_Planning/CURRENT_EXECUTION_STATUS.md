@@ -603,6 +603,13 @@ Ein direktes `yield` oder eines in einem ausgewerteten Helper-Header macht
 `main()` lazy; ein verschachtelter Helper-Rumpf nicht. Keine SQL-/Runtime-
 ausführung oder menschliche Generalprobe.
 
+PR #504 integriert die Prüfung von Generatorfunktionen als `main`; alle fünf
+Workflows bestanden. Für die eigenständige `yield from`-Gegenprobe erweitert
+sich der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und einen
+Testkandidaten auf höchstens 144/193/285. `yield from` markiert `main` ebenso
+als Generatorfunktion. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416

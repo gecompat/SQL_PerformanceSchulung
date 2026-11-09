@@ -421,6 +421,12 @@ Arbeitspaket, einen PR und drei Testkandidaten auf höchstens 143/192/283.
 ein verschachtelter Helper-Rumpf ändert das nicht. Keine SQL-/Runtimeausführung
 oder menschliche Generalprobe.
 
+PR #504 integriert die Prüfung von Generatorfunktionen als `main`; alle fünf
+Workflows bestanden. Für die `yield from`-Gegenprobe erweitert sich der Rahmen
+ohne Reset um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
+144/193/285. `yield from` macht `main` lazy. Keine SQL-/Runtimeausführung oder
+menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale
