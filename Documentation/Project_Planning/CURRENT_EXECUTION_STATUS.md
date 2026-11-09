@@ -498,6 +498,13 @@ Testkandidaten auf höchstens 120/169/248. Auch `result = sys.exit()` muss
 nachfolgende Testaufrufe als unerreichbar behandeln. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #489 integriert den Prozessendeaufruf in einfacher Zuweisung; alle fünf
+Workflows bestanden. Für eine erweiterte Zuweisung wird das kumulative Budget
+ohne Reset um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
+121/170/249 erweitert. `status += sys.exit()` muss spätere Tests ebenfalls als
+unerreichbar markieren. Keine SQL-/Runtimeausführung oder menschliche
+Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
