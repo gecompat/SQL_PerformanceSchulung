@@ -326,6 +326,12 @@ einen Testkandidaten auf höchstens 121/170/249. Ein Prozessende in einer
 erweiterten Zuweisung wie `status += sys.exit()` muss ebenfalls als Ende erkannt
 werden. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
 
+PR #490 integriert die erweiterte Zuweisung; alle fünf Workflows bestanden.
+Der nächste Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und
+einen Testkandidaten auf höchstens 122/171/250. Die annotierte Zuweisung
+`result: int = sys.exit()` erhält eine eigene synthetische Gegenprobe. Keine
+SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

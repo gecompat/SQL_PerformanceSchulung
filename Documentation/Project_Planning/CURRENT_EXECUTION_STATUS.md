@@ -505,6 +505,13 @@ ohne Reset um ein Arbeitspaket, einen PR und einen Testkandidaten auf höchstens
 unerreichbar markieren. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #490 integriert die erweiterte Zuweisungsform; alle fünf Workflows
+bestanden. Für die explizite Gegenprobe einer annotierten Zuweisung erweitert
+sich der kumulative Rahmen ohne Reset um ein Paket, einen PR und einen
+Testkandidaten auf höchstens 122/171/250. `result: int = sys.exit()` muss
+nachfolgende Testaufrufe ebenfalls unerreichbar machen. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
