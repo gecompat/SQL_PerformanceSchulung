@@ -451,12 +451,8 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
             and call.func.id.startswith("test_")
         ]
 
-    def terminates_main(statement: ast.stmt) -> bool:
-        if isinstance(statement, (ast.Return, ast.Raise)):
-            return True
-        if not isinstance(statement, ast.Expr) or not isinstance(statement.value, ast.Call):
-            return False
-        function = statement.value.func
+    def is_process_exit_call(call: ast.Call) -> bool:
+        function = call.func
         if isinstance(function, ast.Name):
             return function.id in {"exit", "quit"} or function.id in exit_aliases
         return (
@@ -468,6 +464,17 @@ def runtime_test_registration_issues(source: str) -> tuple[str, ...]:
                 in {("sys", "exit"), ("os", "_exit")}
             )
         )
+
+    def terminates_main(statement: ast.stmt) -> bool:
+        if isinstance(statement, (ast.Return, ast.Raise)):
+            return True
+        if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call):
+            return is_process_exit_call(statement.value)
+        if isinstance(statement, ast.Assign) and isinstance(statement.value, ast.Call):
+            return is_process_exit_call(statement.value)
+        if isinstance(statement, ast.AnnAssign) and isinstance(statement.value, ast.Call):
+            return is_process_exit_call(statement.value)
+        return False
 
     def collect_direct_calls(statements: list[ast.stmt]) -> bool:
         nonlocal non_direct_call
@@ -779,6 +786,7 @@ def test_runtime_test_functions_are_registered_once() -> None:
         ("", "quit()", "unreachable after quit"),
         ("", "sys.exit()", "unreachable after sys.exit"),
         ("", "os._exit(1)", "unreachable after os._exit"),
+        ("", "result = sys.exit()", "unreachable after assigned sys.exit"),
         (
             "from sys import exit as stop\n",
             "stop()",

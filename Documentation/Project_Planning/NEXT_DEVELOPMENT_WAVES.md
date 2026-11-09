@@ -314,6 +314,12 @@ Arbeitspaket, einen PR und drei Testkandidaten auf höchstens 119/168/247:
 `builtins.exit`, `os._exit` und ein `os`-Modulalias. Keine SQL-/Runtime-
 Ausführung oder menschliche Generalprobe.
 
+PR #488 integriert alle drei Aliase; alle fünf Workflows bestanden. Der nächste
+Schnitt erweitert den Rahmen ohne Reset um ein Paket, einen PR und einen
+Testkandidaten auf höchstens 120/169/248. Ein `sys.exit()` als einfache
+Zuweisung beendet den Kontrollfluss ebenfalls; folgende Tests gelten als
+unerreichbar. Keine SQL-/Runtimeausführung oder menschliche Generalprobe.
+
 ### DGN-007 getrenntes Qualifikationsband
 
 Der am 4. November integrierte Import-only-Worker ist begrenzte lokale

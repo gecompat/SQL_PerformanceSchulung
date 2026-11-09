@@ -491,6 +491,13 @@ Testkandidaten auf höchstens 119/168/247. Die Aliasauflösung muss auch für
 Builtin- und OS-Endpunkte gelten. Keine SQL-/Runtimeausführung oder menschliche
 Generalprobe.
 
+PR #488 integriert die drei Aliasfälle für Builtin und OS; alle fünf Workflows
+bestanden. Für einen Prozessendeaufruf als einfache Zuweisung erweitert sich
+der kumulative Rahmen ohne Reset um ein Arbeitspaket, einen PR und einen
+Testkandidaten auf höchstens 120/169/248. Auch `result = sys.exit()` muss
+nachfolgende Testaufrufe als unerreichbar behandeln. Keine SQL-/Runtime-
+Ausführung oder menschliche Generalprobe.
+
 ## Abschluss: STL-001 – Zeilenbreitenleiter
 
 Der [STL-001-Entwurf](STL001_ROW_WIDTH_LADDER_DESIGN.md) ist über PR #416
