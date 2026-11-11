@@ -8019,3 +8019,19 @@ Inferenz-/25 Metadatenrequests. Letzter C6-Kandidat ergänzt separat deklarierte
 deterministische Glossarnormalisierung zur erhaltenen Originalfrage. Tatsächliche
 SQL-Quelle und Oracles unverändert; Pipelineänderung und eingeschränkter Claim
 ausdrücklich sichtbar. Review/Admission offen; nach C6 Hardstop dieser Welle.
+
+Am 2026-11-11 hat der Nutzer sechs zusätzliche Generationskandidaten freigegeben.
+Die alte C1–C6-Welle bleibt geschlossen; C7–C12 bilden eine getrennte Folgewelle.
+Read-only Discovery bestätigte eine erreichbare lokale Runtime und den lokalen
+Tag `gemma4:26b` als verfügbar, aber unbewertet. Im gepinnten SRC-113-Commit
+`f4c9fcd30c397e25c95e57d7aeecc98dc194063e` ist dieser Tag nicht als öffentlicher
+Modellschlüssel registriert; dort ist für Generation nur der bisher geprüfte
+Qwen-Schlüssel belegt. Die Foundation-Runtime ist kein stiller Ersatz für die
+projektgebundene öffentliche Lab-API. Vollständige ursprüngliche Prompt- und
+Admissionbytes sind im aktuellen Checkout nicht vorhanden. Daher keine C7-
+Admission; die Folgewelle verbrauchte null Inferenz- und null kandidatenbezogene
+Metadatenrequests. Read-only Discovery ist davon getrennt; Freigabe unverbraucht.
+Wiederaufnahme erst nach registrierter alternativer lokaler Route oder
+ausdrücklich angepasstem und qualifiziertem öffentlichem API-Vertrag, gebundenem
+vollständigem Input, unveränderten Oracles, Quellenreview und C7-Admission.
+Details: [Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).

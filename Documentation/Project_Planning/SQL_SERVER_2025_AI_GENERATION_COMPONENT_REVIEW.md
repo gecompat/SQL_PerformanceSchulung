@@ -349,3 +349,33 @@ unveränderten Promptwiederholungen oder Änderung der Oracles. Cloud-/Bezahl-/
 ONNX-/rote Hosteffekte bleiben konkret freigabepflichtig. Unabhängige lokale
 Tenant-/Serverloginqualifikation unter TSK-009 ist der nächste zulässige Schnitt.
 Aktuelle Head-/Main-/vollständige Tree-/FF-/Ownbranchgates vor Abschluss offen.
+
+
+## Wiederaufnahmebudget C7–C12: Freigabe erhalten, keine Admission
+
+Am 2026-11-11 hat der Nutzer sechs zusätzliche Kandidaten freigegeben. Diese
+Freigabe setzt das alte Hard6 nicht rückwirkend zurück; die Folgewelle C7–C12
+ist separat begrenzt. Read-only Discovery des konfigurierten lokalen Foundation-
+Runtimekatalogs zeigte `gemma4:26b` als lokal verfügbar und die Ollama-Verbindung
+als erreichbar. Modellqualität und exakte Generationsfähigkeit bleiben
+`UNASSESSED`. Cloud-Tags wurden nicht ausgewählt.
+
+Die projektgebundene Inferenzroute bleibt die öffentliche
+`Invoke-SqlServerLabAiModel`-API aus SRC-113 am gepinnten Lab-Commit
+`f4c9fcd30c397e25c95e57d7aeecc98dc194063e`. Die reine Quellprüfung dieses
+Commits fand den zuvor verwendeten Schlüssel
+`ollama-qwen25-coder-7b-local`, aber keinen Schlüssel für `gemma4:26b`.
+Der abweichende Foundation-Runtimeadapter ist kein stiller Ersatz für diesen
+Projektvertrag. Die ursprünglichen vollständigen Generationsprompt- und
+Admissionbytes liegen zudem nicht im aktuellen Schulungscheckout. Deshalb wurde
+kein Kandidat C7 admittiert; die Folgewelle verbrauchte null Inferenz- und null
+kandidatenbezogene Metadatenrequests. Die read-only Discovery ist davon getrennt;
+das freigegebene Kandidatenbudget ist unverbraucht.
+
+Wiederaufnahmebedingung: ein aktuell gebundener, registrierter alternativer
+lokaler Modellschlüssel über SRC-113 oder ein ausdrücklich angepasster
+öffentlicher API-Vertrag im zuständigen Lab-Repository, zusammen mit erneut
+gebundenem vollständigem Input, unveränderten Oracles, Quellenreview und
+exklusiver C7-Admission. Die sechs Kandidaten und ihre Fail-first-/UNKNOWN-
+Gates gelten erst ab dieser Admission. Keine Cloud-, Download-, ONNX- oder
+Hostkonfigurationswirkung ist durch die Sechserfreigabe umfasst.
