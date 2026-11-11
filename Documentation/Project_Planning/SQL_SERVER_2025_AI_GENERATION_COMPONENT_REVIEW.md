@@ -351,31 +351,38 @@ Tenant-/Serverloginqualifikation unter TSK-009 ist der nächste zulässige Schni
 Aktuelle Head-/Main-/vollständige Tree-/FF-/Ownbranchgates vor Abschluss offen.
 
 
-## Wiederaufnahmebudget C7–C12: Freigabe erhalten, keine Admission
+## C7–C12-Folgewelle: C7 UNKNOWN, Fail-stop
 
 Am 2026-11-11 hat der Nutzer sechs zusätzliche Kandidaten freigegeben. Diese
 Freigabe setzt das alte Hard6 nicht rückwirkend zurück; die Folgewelle C7–C12
 ist separat begrenzt. Read-only Discovery des konfigurierten lokalen Foundation-
 Runtimekatalogs zeigte `gemma4:26b` als lokal verfügbar und die Ollama-Verbindung
-als erreichbar. Modellqualität und exakte Generationsfähigkeit bleiben
+als erreichbar. Modellqualität und exakte Generationsfähigkeit blieben vor C7
 `UNASSESSED`. Cloud-Tags wurden nicht ausgewählt.
 
-Die projektgebundene Inferenzroute bleibt die öffentliche
-`Invoke-SqlServerLabAiModel`-API aus SRC-113 am gepinnten Lab-Commit
-`f4c9fcd30c397e25c95e57d7aeecc98dc194063e`. Die reine Quellprüfung dieses
-Commits fand den zuvor verwendeten Schlüssel
-`ollama-qwen25-coder-7b-local`, aber keinen Schlüssel für `gemma4:26b`.
-Der abweichende Foundation-Runtimeadapter ist kein stiller Ersatz für diesen
-Projektvertrag. Die ursprünglichen vollständigen Generationsprompt- und
-Admissionbytes liegen zudem nicht im aktuellen Schulungscheckout. Deshalb wurde
-kein Kandidat C7 admittiert; die Folgewelle verbrauchte null Inferenz- und null
-kandidatenbezogene Metadatenrequests. Die read-only Discovery ist davon getrennt;
-das freigegebene Kandidatenbudget ist unverbraucht.
+Die ursprünglichen vollständigen Generationsprompts, Admissiondateien und
+Receipts liegen im ignorierten privaten Runtimebereich
+`Runtime/AI_GENERATION_COMPONENT`; ihre Vollständigkeit und Bindungen wurden
+lokal verifiziert. C1–C6 und deren Ledger bleiben unverändert.
 
-Wiederaufnahmebedingung: ein aktuell gebundener, registrierter alternativer
-lokaler Modellschlüssel über SRC-113 oder ein ausdrücklich angepasster
-öffentlicher API-Vertrag im zuständigen Lab-Repository, zusammen mit erneut
-gebundenem vollständigem Input, unveränderten Oracles, Quellenreview und
-exklusiver C7-Admission. Die sechs Kandidaten und ihre Fail-first-/UNKNOWN-
-Gates gelten erst ab dieser Admission. Keine Cloud-, Download-, ONNX- oder
-Hostkonfigurationswirkung ist durch die Sechserfreigabe umfasst.
+Der Nutzer erweiterte den Auftrag ausdrücklich auf `SQL_Server_Lab`. Dort wurde
+im separaten Worktree der lokale öffentliche Schlüssel
+`ollama-gemma4-26b-local` für `gemma4:26b` registriert. Statische
+Szenarioprüfung, WhatIf-Planung und read-only Liveidentitätsbindung bestanden.
+Der Commit `f03676acf9aebceaacfa050454520d566c4d45ce` ist noch nicht integriert.
+
+Die Welle reservierte höchstens drei Inferenz- und 21 Metadatenrequests je
+Kandidat, checkpoint C9 und Hardstop C12. C7 änderte gegenüber C6 nur die
+registrierte Modellroute; Promptbytes und Oracles waren identisch. Vollsnapshot,
+Quellenreview und Admission bestanden. C7 endete mit bekanntem Caller-Prozess,
+sechs erfolgreich abgeschlossenen Metadatenrequests und einem gestarteten
+Modellrequest, dessen Endstatus `UNKNOWN` blieb. Das private Receipt enthält
+keine Modellantwort; Output und Tokens sind unbekannt. SQL-Aufrufe: null.
+
+Gemäß Fail-stop-Gate wurde die Welle sofort beendet; C8–C12 wurden nicht
+admittiert. Der Kandidat qualifiziert die Route für diesen Antwortvertrag nicht.
+Die Sechserfreigabe wurde nicht vollständig verbraucht. Ein weiterer Versuch
+benötigt eine geklärte Request-Enderfassung oder eine material geänderte,
+gebundene technische Umsetzung und erneutes Quellenreview; kein unveränderter
+Prompt-Retry. Cloud-, Download-, ONNX- und Hostkonfigurationswirkungen sind
+nicht freigegeben.

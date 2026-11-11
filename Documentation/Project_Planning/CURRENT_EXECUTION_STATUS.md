@@ -8020,18 +8020,23 @@ deterministische Glossarnormalisierung zur erhaltenen Originalfrage. Tatsächlic
 SQL-Quelle und Oracles unverändert; Pipelineänderung und eingeschränkter Claim
 ausdrücklich sichtbar. Review/Admission offen; nach C6 Hardstop dieser Welle.
 
-Am 2026-11-11 hat der Nutzer sechs zusätzliche Generationskandidaten freigegeben.
-Die alte C1–C6-Welle bleibt geschlossen; C7–C12 bilden eine getrennte Folgewelle.
-Read-only Discovery bestätigte eine erreichbare lokale Runtime und den lokalen
-Tag `gemma4:26b` als verfügbar, aber unbewertet. Im gepinnten SRC-113-Commit
-`f4c9fcd30c397e25c95e57d7aeecc98dc194063e` ist dieser Tag nicht als öffentlicher
-Modellschlüssel registriert; dort ist für Generation nur der bisher geprüfte
-Qwen-Schlüssel belegt. Die Foundation-Runtime ist kein stiller Ersatz für die
-projektgebundene öffentliche Lab-API. Vollständige ursprüngliche Prompt- und
-Admissionbytes sind im aktuellen Checkout nicht vorhanden. Daher keine C7-
-Admission; die Folgewelle verbrauchte null Inferenz- und null kandidatenbezogene
-Metadatenrequests. Read-only Discovery ist davon getrennt; Freigabe unverbraucht.
-Wiederaufnahme erst nach registrierter alternativer lokaler Route oder
-ausdrücklich angepasstem und qualifiziertem öffentlichem API-Vertrag, gebundenem
-vollständigem Input, unveränderten Oracles, Quellenreview und C7-Admission.
+Am 2026-11-11 hat der Nutzer sechs zusätzliche Generationskandidaten und die
+Änderung im separaten Repository `SQL_Server_Lab` ausdrücklich freigegeben.
+C1–C6 bleiben abgeschlossen und unverändert; C7–C12 bilden eine Folgewelle mit
+eigenem Ledger, sechs Kandidaten, höchstens 18 Inferenz- und 126
+Kandidatenmetadatenrequests, checkpoint C9 und Hardstop C12. Die vollständigen
+ursprünglichen Eingaben und Receipts wurden im ignorierten privaten Runtimebereich
+gefunden und lokal gebunden.
+
+Für den vorhandenen lokalen Tag `gemma4:26b` wurde der öffentliche Schlüssel
+`ollama-gemma4-26b-local` im Lab-Worktree registriert. Betroffene statische
+Szenarioprüfung PASS; lokale WhatIf-Planung und read-only Liveidentitätsbindung
+PASS, drei Metadatenrequests plus ein WhatIf, null Inferenz. Der Code liegt im separaten Lab-Worktree auf Commit
+`f03676acf9aebceaacfa050454520d566c4d45ce`; die Integration ist offen. C7
+wurde mit identischen Promptbytes und Oracles unter der neuen Route gestartet.
+Der Prozess endete bekannt, aber der Modellrequest-Endstatus ist `UNKNOWN` nach
+sechs erfolgreich abgeschlossenen Metadatenrequests und einem gestarteten
+Inferenzaufruf. Kein SQL-Aufruf; Modelloutput und Tokens unbekannt. Gemäß
+Fail-stop-Regel bleiben C8–C12 unangetastet. Der Kandidatenstopp qualifiziert
+keine Modellantwort und ändert die verbleibenden Aufgaben nicht.
 Details: [Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
