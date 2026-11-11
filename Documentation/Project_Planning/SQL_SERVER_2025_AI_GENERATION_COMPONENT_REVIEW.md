@@ -351,7 +351,7 @@ Tenant-/Serverloginqualifikation unter TSK-009 ist der nächste zulässige Schni
 Aktuelle Head-/Main-/vollständige Tree-/FF-/Ownbranchgates vor Abschluss offen.
 
 
-## C7–C12-Folgewelle: C7 UNKNOWN, Fail-stop
+## C7–C12-Folgewelle: keine qualifizierte Modellantwort
 
 Am 2026-11-11 hat der Nutzer sechs zusätzliche Kandidaten freigegeben. Diese
 Freigabe setzt das alte Hard6 nicht rückwirkend zurück; die Folgewelle C7–C12
@@ -379,10 +379,82 @@ sechs erfolgreich abgeschlossenen Metadatenrequests und einem gestarteten
 Modellrequest, dessen Endstatus `UNKNOWN` blieb. Das private Receipt enthält
 keine Modellantwort; Output und Tokens sind unbekannt. SQL-Aufrufe: null.
 
-Gemäß Fail-stop-Gate wurde die Welle sofort beendet; C8–C12 wurden nicht
-admittiert. Der Kandidat qualifiziert die Route für diesen Antwortvertrag nicht.
-Die Sechserfreigabe wurde nicht vollständig verbraucht. Ein weiterer Versuch
-benötigt eine geklärte Request-Enderfassung oder eine material geänderte,
-gebundene technische Umsetzung und erneutes Quellenreview; kein unveränderter
-Prompt-Retry. Cloud-, Download-, ONNX- und Hostkonfigurationswirkungen sind
-nicht freigegeben.
+Die konkrete Diagnosegrenze war ein Fehler im privaten Caller: Der `catch`-Pfad
+speicherte nur `System.Management.Automation.RuntimeException` und verwarf den
+bereinigten API-Fehlercode. So blieb `model_request_end=UNKNOWN`, obwohl der
+Caller-Prozess bekannt endete. Die 56,13 Sekunden Gesamtlaufzeit bei 45 Sekunden
+API-Timeout machen `AI_ENDPOINT_TIMEOUT` plausibel, belegen ihn ohne den
+verlorenen Fehlercode aber nicht. Das C7-Receipt wird daher nicht nachträglich
+umklassifiziert; C7 bleibt `UNKNOWN` und zählt als verbrauchter Kandidat.
+
+Der reparierte Caller bewahrte in C8 den bereinigten Fehlercode
+`AI_ENDPOINT_TIMEOUT` und klassifizierte ihn als `CLIENT_TIMEOUT`; die
+Request-Endevidence bleibt `UNKNOWN`. C8 endete nach 66,65 Sekunden mit einem
+45-Sekunden-API-Timeout, einem Inferenzversuch und sechs Metadatenrequests. Das
+Outputlimit von 48 statt 96 Tokens änderte den Timeout nicht. Die unmittelbare
+read-only Abfrage von `/api/ps` zeigte danach keine residierenden Modelle. Kein
+SQL-Aufruf; Antwort und Tokens unbekannt. C7 bleibt separat `UNKNOWN`.
+
+C9 scheiterte vor jeder Inferenz beim ersten lokalen Metadatenrequest. Der
+Caller endete nach 15,31 Sekunden; `attempts=0`, `model_request_end=NOT_STARTED`,
+Metadatenrequests=1. Der Fehlercode wurde in diesem C9-Receipt ebenfalls noch
+nicht erfasst. Der unmittelbare Read-only-Check danach erhielt
+`SocketError.ConnectionRefused`; kein Ollama-Prozess oder Listener lief. Es ist
+nicht belegt, wodurch der Prozess beendet wurde. Ich startete das vorhandene
+`ollama serve` ohne Konfigurationsänderung. Danach meldete die Runtime Version
+`0.40.16` (vorher gebunden `0.40.15`); Gemma-Tag, Digest und Completionfähigkeit
+blieben identisch. Die aktuelle WhatIf-Planung ist lokal, Egress denied.
+
+C10 bestätigte `AI_ENDPOINT_TIMEOUT` auch bei 90 Sekunden. Der Caller beendete
+sich nach 108,81 Sekunden mit einem gestarteten Modellrequest, sechs
+Metadatenrequests, null SQL-Aufrufen und ohne Antwort. Ollama blieb aktiv; eine
+15-Sekunden-Beobachtung zeigte das Modell resident, aber keine CPU-Aktivität.
+Der tatsächliche Modellrequest-Endstatus bleibt UNKNOWN. C11 lief 180 Sekunden
+und erhielt anschließend eine HTTP-Antwort, deren Generierungstext leer/fehlend
+war (`AI_ENDPOINT_GENERATION_RESPONSE_INVALID`). Metadaten- und
+Modellrequest-Ende sind `RESPONSE_RECEIVED`; Attempts=1, SQL=0. Das ist ein
+bekannter FAIL, kein UNKNOWN.
+
+C11 nutzte 48 Outputtokens. Ein HTTP-Ergebnis ohne `response`-Text machte eine
+Abschneidung interner Ausgabe zunächst plausibel; C12 mit 96 Outputtokens
+widerlegte, dass das 48-Token-Limit allein den Fehler verursachte. Der rohe
+Responsebody wurde von der API nicht gespeichert. C12 nutzte 180 Sekunden
+Requesttimeout, Retry 0 und Parentdeadline 300 Sekunden bei unveränderter
+Runtime, Digest und Oracles. Nach C12 gilt Hardstop; kein Cloud-, Download-,
+ONNX- oder Hostkonfigurationseffekt ist freigegeben.
+
+C12 wurde als letzter Kandidat ausgeführt: 96 Outputtokens, 180 Sekunden
+Requesttimeout und Retry 0. Nach 19,07 Sekunden kam eine HTTP-Antwort ohne
+`response`-Text; `AI_ENDPOINT_GENERATION_RESPONSE_INVALID`, beide Requests
+`RESPONSE_RECEIVED`, ein Inferenzversuch, sechs Metadatenrequests und null SQL.
+Damit ist die Erklärung, dass allein das 48-Token-Limit den C11-Befund
+verursachte, widerlegt. C7–C10 bleiben UNKNOWN, C11 und C12 sind bekannte FAILs.
+Die sechs Kandidaten sind verbraucht. Keine Antwort eignete sich für eine
+Orakelbewertung oder Qualifikation.
+
+Die Untersuchung lokalisierte die bekannte Parserablehnung in der öffentlichen
+Ollama-Endpointfunktion, die bei Generierung nur `response` auswertete und
+Antworten mit leerem/fehlendem Feld zurückwies. Der private Caller bewahrte den
+Rohbody nicht auf; deshalb lässt sich rückwirkend nicht belegen, ob Ollama einen
+Chat-Response, ein `error`-Feld oder eine andere Form geliefert hat. Unabhängig
+davon fehlte dem Katalog die modellbezogene Auswahl von Generation-API und
+Think-Einstellung. Gemma 4 wird nun im SQL_Server_Lab-Katalog auf `/api/chat` mit
+`think: false` gebunden; der Plan weist diese Werte aus und nimmt sie in die
+Planidentität auf. Der Parser verwendet `message.content` und liefert feste,
+sanitisierte Fehlercodes für Modellfehler oder fehlenden Text. Ein synthetischer
+Transporttest prüft Pfad, Nachrichtenform, Think-Wert, Antwortlesung und
+Fehlerbehandlung. Die gezielte KI-Szenarioprüfung ist lokal PASS. Es gab dabei
+keinen weiteren Modell-, SQL- oder Containeraufruf. Der neue Chatpfad ist eine
+nachgewiesene Vertragslücke des bisherigen Katalogs, aber seine Kausalität für
+C11/C12 kann erst eine neue, ausdrücklich genehmigte Modellqualifikation
+prüfen; `think: false` ändert zudem nicht den Rückblick auf diese Läufe.
+
+Die Änderung liegt in PR
+[#890](https://github.com/gecompat/SQL_Server_Lab/pull/890). Statische,
+Adapter-, Docker-, Podman-, Mixed- und Hyper-V-Gates des ursprünglichen
+Catalog-Commits sind PASS. Die API-Erweiterung ist in Commit
+`b02be0f9` enthalten; deren CI-Lauf steht noch aus. Weder die neuen Änderungen
+noch Gemma 4s tatsächliche Chat-Generierung sind bisher durch den Remote-Gate
+beziehungsweise einen weiteren Modelllauf bestätigt. Eine erneute
+Generationswelle benötigt eine frische explizite Budgetfreigabe; Hardstop C12
+bleibt bestehen.

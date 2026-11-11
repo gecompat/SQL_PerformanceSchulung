@@ -8036,7 +8036,29 @@ PASS, drei Metadatenrequests plus ein WhatIf, null Inferenz. Der Code liegt im s
 wurde mit identischen Promptbytes und Oracles unter der neuen Route gestartet.
 Der Prozess endete bekannt, aber der Modellrequest-Endstatus ist `UNKNOWN` nach
 sechs erfolgreich abgeschlossenen Metadatenrequests und einem gestarteten
-Inferenzaufruf. Kein SQL-Aufruf; Modelloutput und Tokens unbekannt. Gemäß
-Fail-stop-Regel bleiben C8–C12 unangetastet. Der Kandidatenstopp qualifiziert
-keine Modellantwort und ändert die verbleibenden Aufgaben nicht.
-Details: [Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
+Inferenzaufruf. Kein SQL-Aufruf; Modelloutput und Tokens unbekannt. Die
+Caller-Diagnose hat den bereinigten API-Fehlercode verworfen; der 56,13-Sekunden-
+Lauf bei 45 Sekunden Requesttimeout deutet auf Timeout, belegt ihn aber nicht.
+C7 bleibt UNKNOWN. C8 bestätigte `AI_ENDPOINT_TIMEOUT` bei 45 Sekunden,
+66,65 Sekunden Gesamtlaufzeit. C9 startete keine Inferenz: der lokale Ollama-
+Dienst war beendet, der erste Metadatenrequest erhielt anschließend
+`ConnectionRefused`. Der vorhandene Dienst wurde ohne Konfigurationsänderung
+neu gestartet. Er meldet jetzt Version `0.40.16`; Gemma-Digest und Completion-
+Fähigkeit blieben gleich. Die Caller-Erfassung sanitisiert nun API- und
+Metadatenfehlercodes. C10 bestätigte `AI_ENDPOINT_TIMEOUT` auch bei 90 Sekunden;
+die Runtime blieb aktiv und das Modell resident, jedoch ohne CPU-Aktivität im
+kurzen Nachcheck. C11 erhielt nach 180 Sekunden eine HTTP-Antwort ohne
+Generierungstext (`AI_ENDPOINT_GENERATION_RESPONSE_INVALID`), Requests beendet,
+bekannter FAIL. C12 erhielt mit 96 Outputtokens nach 19,07 Sekunden denselben
+bekannten Fehler. Damit ist die Vermutung widerlegt, nur das 48-Token-Limit habe
+den leeren Text verursacht. C7–C10 bleiben UNKNOWN/unverändert; C11 und C12 sind
+bekannte FAILs. Alle sechs Kandidaten sind verbraucht, null SQL-Aufrufe und keine
+brauchbare Modellantwort. Die Callerdiagnose und der öffentliche Endpointvertrag
+wurden lokal nachgebessert: Gemma 4 ist im separaten Lab-Branch an `/api/chat`,
+`think: false` und `message.content` gebunden; sanitisiertes Fehlerverhalten und
+synthetische Transporttests sind ergänzt. Der gezielte KI-Vertragstest besteht.
+Das ist noch kein Laufzeitnachweis am Modell. PR #890 ist offen. Alle Gates des
+ursprünglichen Catalog-Commits sind PASS; die Chat-API-Erweiterung liegt nun in
+Commit `b02be0f9` und wartet auf den neuen CI-Lauf. Es wurden keine weiteren
+Inferenzaufrufe ausgeführt. Details:
+[Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
