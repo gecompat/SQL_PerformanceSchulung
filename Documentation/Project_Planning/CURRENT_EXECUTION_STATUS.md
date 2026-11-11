@@ -8019,3 +8019,24 @@ Inferenz-/25 Metadatenrequests. Letzter C6-Kandidat ergänzt separat deklarierte
 deterministische Glossarnormalisierung zur erhaltenen Originalfrage. Tatsächliche
 SQL-Quelle und Oracles unverändert; Pipelineänderung und eingeschränkter Claim
 ausdrücklich sichtbar. Review/Admission offen; nach C6 Hardstop dieser Welle.
+
+Am 2026-11-11 hat der Nutzer sechs zusätzliche Generationskandidaten und die
+Änderung im separaten Repository `SQL_Server_Lab` ausdrücklich freigegeben.
+C1–C6 bleiben abgeschlossen und unverändert; C7–C12 bilden eine Folgewelle mit
+eigenem Ledger, sechs Kandidaten, höchstens 18 Inferenz- und 126
+Kandidatenmetadatenrequests, checkpoint C9 und Hardstop C12. Die vollständigen
+ursprünglichen Eingaben und Receipts wurden im ignorierten privaten Runtimebereich
+gefunden und lokal gebunden.
+
+Für den vorhandenen lokalen Tag `gemma4:26b` wurde der öffentliche Schlüssel
+`ollama-gemma4-26b-local` im Lab-Worktree registriert. Betroffene statische
+Szenarioprüfung PASS; lokale WhatIf-Planung und read-only Liveidentitätsbindung
+PASS, drei Metadatenrequests plus ein WhatIf, null Inferenz. Der Code liegt im separaten Lab-Worktree auf Commit
+`f03676acf9aebceaacfa050454520d566c4d45ce`; die Integration ist offen. C7
+wurde mit identischen Promptbytes und Oracles unter der neuen Route gestartet.
+Der Prozess endete bekannt, aber der Modellrequest-Endstatus ist `UNKNOWN` nach
+sechs erfolgreich abgeschlossenen Metadatenrequests und einem gestarteten
+Inferenzaufruf. Kein SQL-Aufruf; Modelloutput und Tokens unbekannt. Gemäß
+Fail-stop-Regel bleiben C8–C12 unangetastet. Der Kandidatenstopp qualifiziert
+keine Modellantwort und ändert die verbleibenden Aufgaben nicht.
+Details: [Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
