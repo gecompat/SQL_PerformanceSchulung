@@ -30,7 +30,8 @@ empirisches Gate.
 ## Prüferbefund
 
 Der Offline-Prüfer ist bewusst nur ein Konsistenzfilter: zwei unterschiedliche
-Sessionkennungen, identische Seitenadresse und Zeitmarke, Blattebene sowie eine
+Sessionkennungen, identische Seitenadresse und derselbe RFC-3339-Zeitpunkt,
+Blattebene sowie eine
 separat gelieferte Rechtsaußen-Aussage reichen für `PASS`. Da alle Werte vom
 Caller stammen, ist das weder authentische Beobachtung noch ein Laufzeit- oder
 Engpassnachweis.
@@ -41,7 +42,11 @@ belegt ist, und bleibt `NOT_PROVEN`. `rightmost_leaf=False` ist ein expliziter
 Gegenbeleg zur für diesen Vertrag erforderlichen Rechtsaußen-Seite und wird nun
 als `FAIL` gewertet. Das verhindert, dass ein bekannter Widerspruch wie bloße
 Abwesenheit von Evidenz erscheint. Ein synthetischer Regressionstest bindet
-beide Zustände getrennt.
+beide Zustände getrennt. Zeitstempel müssen jetzt ein gültiges RFC-3339-Datum
+mit explizitem Offset enthalten; Gleichheit wird über den normalisierten
+Zeitpunkt statt über die Schreibweise bestimmt. Synthetische Fälle decken
+ungültige Kalenderdaten, fehlenden Offset und gleichwertige Offsetdarstellungen
+ab.
 
 ## Verbleibende Gates
 

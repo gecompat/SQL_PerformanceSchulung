@@ -43,6 +43,49 @@ class LastPageContractTests(unittest.TestCase):
         target = PageTarget(7, 1, 900, 42, 3, 0, True, "2026-11-06T10:00:01Z")
         self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
 
+    def test_capture_timestamps_require_rfc3339_and_compare_as_instants(self) -> None:
+        waits, target = fixture()
+        equivalent_waits = tuple(
+            PageWait(w.wait_type, w.session_id, w.database_id, w.file_id, w.page_id,
+                     w.wait_ms, "2026-11-06T11:00:00+01:00")
+            for w in waits
+        )
+        self.assertEqual(
+            evaluate_last_page_contention(equivalent_waits, target).verdict,
+            Verdict.PASS,
+        )
+        for invalid in ("x", "2026-11-06T10:00:00", "2026-02-30T10:00:00Z", "2026-11-06T10:00:00Z "):
+            with self.subTest(invalid=invalid):
+                invalid_target = PageTarget(7, 1, 900, 42, 3, 0, True, invalid)
+                self.assertEqual(
+                    evaluate_last_page_contention(waits, invalid_target).verdict,
+                    Verdict.FAIL,
+                )
+                invalid_waits = (PageWait("PAGELATCH_EX", 51, 7, 1, 900, 12, invalid), waits[1])
+                self.assertEqual(
+                    evaluate_last_page_contention(invalid_waits, target).verdict,
+                    Verdict.FAIL,
+                )
+
+        high_precision_waits = tuple(
+            PageWait(w.wait_type, w.session_id, w.database_id, w.file_id, w.page_id,
+                     w.wait_ms, "2026-11-06T10:00:00.1234567Z")
+            for w in waits
+        )
+        high_precision_target = PageTarget(
+            7, 1, 900, 42, 3, 0, True, "2026-11-06T10:00:00.12345670+00:00"
+        )
+        self.assertEqual(
+            evaluate_last_page_contention(high_precision_waits, high_precision_target).verdict,
+            Verdict.PASS,
+        )
+        changed_fraction = (PageWait("PAGELATCH_EX", 51, 7, 1, 900, 12,
+                                     "2026-11-06T10:00:00.1234568Z"), high_precision_waits[1])
+        self.assertEqual(
+            evaluate_last_page_contention(changed_fraction, high_precision_target).verdict,
+            Verdict.FAIL,
+        )
+
     def test_one_distinct_session_is_not_concurrency(self) -> None:
         waits, target = fixture()
         waits = (waits[0], PageWait("PAGELATCH_EX", 51, 7, 1, 900, 8, STAMP))

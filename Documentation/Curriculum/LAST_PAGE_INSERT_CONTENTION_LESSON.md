@@ -6,7 +6,7 @@ keine Runtimequalifikation.
 Der [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) prüft
 ergänzend caller-supplied Wait- und Seitenfelder: mindestens zwei verschiedene
 Sessions mit `PAGELATCH_EX`, dieselbe Datenbank-/Datei-/Seitenadresse, denselben
-Zeitpunkt, eine als Blatt deklarierte Zielseite und eine positive
+gültigen RFC-3339-Zeitpunkt, eine als Blatt deklarierte Zielseite und eine positive
 Rechtsaußen-Aussage. `PAGEIOLATCH_EX` allein und fehlende Konkurrenz ergeben
 `NOT_PROVEN`; inkonsistente Zuordnungen ergeben `FAIL`. Der Prüfer sammelt oder
 authentifiziert keine DMV-Werte und bestätigt nicht selbst die Seitenkette.
