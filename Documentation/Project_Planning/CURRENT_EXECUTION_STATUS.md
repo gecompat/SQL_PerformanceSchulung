@@ -1686,6 +1686,12 @@ nachgewiesen. Kein DGN-004-Container und keine Datenbank wurde gestartet oder
 verändert; die übrigen Container wurden nicht berührt. Der exakte Lauf bleibt
 bis zu einem belegbaren YELLOW-Preflight ausstehend.
 
+Eine erneute rein lesende Containerinventur am 12. November 2026 fand weiterhin
+fünf aktive, nicht DGN-004 zugeordnete SQL-Server-Container (2017, 2019, 2022
+und zweimal 2025). Die Inventur hat keinen Container gestartet, gestoppt oder
+verändert. Das YELLOW-Isolations-/Lastgate bleibt damit aktuell nicht erfüllt;
+es wurde kein SQL- oder DGN-004-Lauf begonnen.
+
 **DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
 verwendet das vorbereitete 27-Member-/Neuner-Eingangsprotokoll für drei frische
