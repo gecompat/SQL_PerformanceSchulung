@@ -2008,3 +2008,18 @@ volle Live-RAG-/QRY-020-/TSK-007/008-Abnahme bleibt offen. Modell-/Tokens unbeka
 Details: [begrenzter Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
 Unabhängige lokale Tenant-/Serverloginqualifikation unter TSK-009 folgt nach
 vollständiger Integration; allgemeine Entwicklung und DGN-007 bleiben pausiert.
+
+## Integrationsupdate TSK-007/008 am 2026-11-12
+
+SQL_Server_Lab PR #890 wurde am 2026-11-12 um 12:35:47 UTC per Squash in
+`main` integriert (`d7009af9712bc0fd6ac34b2ff0d052e9d673a17d`). Classify,
+beide Static-Checks, Adapter-, Docker-, Podman-, Mixed-, Hyper-V- und PR-Gates
+bestanden; Foundation integrity und der nicht betroffene Podman-Recovery-Job
+wurden übersprungen. Der modellbezogene Ollama-Chat-Vertrag (`/api/chat`,
+`think: false`, `message.content`) ist damit implementiert und integriert.
+
+Der Merge qualifiziert weder eine Gemma-4-Antwort noch die rückwirkende Ursache
+von C11/C12; der Rohbody fehlt. Die freigegebenen C7–C12 sind verbraucht
+(C7–C10 UNKNOWN, C11/C12 FAIL). Keine neuen Modell- oder SQL-Aufrufe. Ein neuer
+Generationsversuch benötigt eine eigene endliche Wellenentscheidung. TSK-007/008,
+Live-RAG, allgemeine Antwortqualität und volle Workstreamabnahme bleiben offen.

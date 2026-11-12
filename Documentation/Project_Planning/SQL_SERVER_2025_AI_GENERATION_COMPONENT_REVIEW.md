@@ -1,8 +1,10 @@
 # TSK-008/007: begrenzte lokale Generation über einen geprüften SQL-Snapshot
 
-Stand: 2026-10-12. Status: FAIL_BOUNDED_GENERATION_WAVE; sechs Kandidaten
-abgeschlossen, Hardstop erreicht, Integrationsgates noch offen.
-Arbeitsbranch: `codex/sql2025-ai-generation-component`.
+Stand: 2026-11-12. Status: FAIL_BOUNDED_GENERATION_WAVE; sechs Kandidaten
+abgeschlossen, Hardstop erreicht. Der API-Fix ist integriert; eine
+qualifizierte Gemma-4-Antwort und die Kausalität für C11/C12 bleiben unbewiesen.
+Historischer Arbeitsbranch der Komponente:
+`codex/sql2025-ai-generation-component`.
 Basis nach vollständig geschlossenem
 [PR 217](https://github.com/gecompat/SQL_PerformanceSchulung/pull/217):
 `1101a14499e8ee3d6cb009f69c3c7ad09ad7f3fe`, acht aktuelle Head-/sechs Main-
@@ -449,12 +451,26 @@ nachgewiesene Vertragslücke des bisherigen Katalogs, aber seine Kausalität fü
 C11/C12 kann erst eine neue, ausdrücklich genehmigte Modellqualifikation
 prüfen; `think: false` ändert zudem nicht den Rückblick auf diese Läufe.
 
-Die Änderung liegt in PR
-[#890](https://github.com/gecompat/SQL_Server_Lab/pull/890). Statische,
-Adapter-, Docker-, Podman-, Mixed- und Hyper-V-Gates des ursprünglichen
-Catalog-Commits sind PASS. Die API-Erweiterung ist in Commit
-`b02be0f9` enthalten; deren CI-Lauf steht noch aus. Weder die neuen Änderungen
-noch Gemma 4s tatsächliche Chat-Generierung sind bisher durch den Remote-Gate
-beziehungsweise einen weiteren Modelllauf bestätigt. Eine erneute
-Generationswelle benötigt eine frische explizite Budgetfreigabe; Hardstop C12
-bleibt bestehen.
+Zum damaligen Stand lag die Änderung in PR
+[#890](https://github.com/gecompat/SQL_Server_Lab/pull/890); die Gates standen
+noch aus. Der folgende Integrationscheckpoint ersetzt diesen offenen Status.
+
+## Integration nach C12
+
+PR #890 wurde am 2026-11-12 um 12:35:47 UTC per Squash gemergt. Der
+Integrationscommit ist
+`d7009af9712bc0fd6ac34b2ff0d052e9d673a17d`; der aktuelle PR-Run
+[43102351575](https://github.com/gecompat/SQL_Server_Lab/actions/runs/43102351575)
+bestand mit Classify, beiden Static-Checks, Adapter-, Docker-, Podman-, Mixed-,
+Hyper-V- und PR-Gate. Foundation integrity sowie der nicht betroffene
+Podman-Recovery-Job wurden übersprungen. Lokales `main` ist synchronisiert;
+der eigene Arbeitsbranch wurde lokal und remote entfernt.
+
+Damit ist die öffentliche Vertragslücke (`/api/chat`, `think: false`,
+`message.content`, sanitisierte Fehler) implementiert und integriert. Das
+beweist nicht, dass sie C11/C12 verursacht hat: deren rohe Ollama-Response wurde
+nicht gespeichert. Die sechs C7–C12-Kandidaten bleiben unverändert klassifiziert
+(C7–C10 UNKNOWN; C11/C12 FAIL), ohne qualifizierte Antwort. Es gab keine neuen
+Modell- oder SQL-Aufrufe. Der C7–C12-Hardstop bleibt bestehen. Eine erneute
+Modellqualifikation braucht eine eigene neue endliche Wellenentscheidung;
+TSK-007/008 und die Live-RAG-Abnahme sind nicht abgeschlossen.
