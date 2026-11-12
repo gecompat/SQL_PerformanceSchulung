@@ -114,8 +114,9 @@ schemaqualifizierte Funktion oder sonstige Referenz ab.
 
 Eine zweite Textprüfung erlaubt direkt erkennbare schreibende Ziele in
 READER-Skripten nur für lokale Tabellenvariablen und weist erkannte persistente
-DML-, `SELECT INTO`-, `BULK INSERT`-, DDL-, Rechte- und DBCC-Anweisungen sowie
-erkennbare `USE`-/`SETUSER`-/`REVERT`-Kontextwechsel zurück.
+DML-, `SELECT INTO`-, `BULK INSERT`-, DDL-, Rechte- und DBCC-Anweisungen,
+erkennbare `USE`-/`SETUSER`-/`REVERT`-Kontextwechsel sowie SQLCMD-Controlzeilen
+außer dem exakt gebundenen `:setvar SQLCMDMAXVARTYPEWIDTH 0` zurück.
 Gegenproben mit `DELETE` (mit und ohne `FROM`), `SELECT INTO`,
 `CREATE OR ALTER`, DBCC und `USE master` schützen diese Grenze. Die Prüfung gilt für direkte
 Schreiboperationen im Skripttext; Auswirkungen der ausdrücklich zugelassenen

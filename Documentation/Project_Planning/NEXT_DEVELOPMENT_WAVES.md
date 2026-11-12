@@ -247,6 +247,13 @@ oder einen vergleichbaren Kontextwechsel verlassen. Ein Arbeitspaket und PR, kei
 kein SQL-/Lab-/Runtime-Lauf. Der statische Befund belegt keine Engine- oder
 Effektivberechtigungsqualifikation.
 
+PR #550 integrierte den Reader-Kontextschutz mit sieben erfolgreichen
+PR-Checks und fünf betroffenen Main-Workflows. Der nächste Validator-/Regressionstest-
+Schnitt weist SQLCMD-`:r`-Includes und `!!`-Shellbefehle in READER-Skripten
+zurück. Ein Arbeitspaket/ein PR, keine Produktquellen und keine SQL-, Lab- oder
+Runtimeausführung; die Kontrolle über SQLCMD-Imports und Hostprozesse ist damit
+nicht allgemein runtimequalifiziert.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

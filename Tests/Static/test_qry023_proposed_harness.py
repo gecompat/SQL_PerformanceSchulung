@@ -400,6 +400,27 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
+    def test_reader_phase_rejects_sqlcmd_include_directive(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text(":r ./unreviewed.sql\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_bom_prefixed_sqlcmd_include(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("\ufeff:r ./unreviewed.sql\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_sqlcmd_shell_command(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("!! whoami\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
     def test_reader_phase_cannot_select_into_a_persistent_table(self) -> None:
         path = self.demo / "30_Correctness.sql"
         source = path.read_text(encoding="utf-8")
