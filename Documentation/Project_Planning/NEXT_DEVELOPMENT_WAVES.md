@@ -232,6 +232,13 @@ ein Validator-/Testpaket, ein PR, keine neuen Produktquellen und kein
 SQL-/Lab-/Runtime-Lauf. Auch ein bestandener Fundstellencheck bleibt
 Textanalyse und belegt keine Engineauflösung oder Effektivrechte.
 
+PR #548 integrierte den Fundstellenabgleich mit sechs PR-Checks und vier
+erfolgreichen betroffenen Main-Workflows. Der nächste offline begrenzte
+Validator-/Regressionstest-Schnitt ergänzt erkannte `CREATE OR ALTER`-/DROP-
+DDL-, `DELETE`-Formen ohne `FROM` und zustandsändernde DBCC-Befehle; ein PR, keine Produktquellen, keine
+SQL-/Lab-/Runtimeausführung. Die statische Textprüfung bleibt kein
+Engine-/Rechtebeleg.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

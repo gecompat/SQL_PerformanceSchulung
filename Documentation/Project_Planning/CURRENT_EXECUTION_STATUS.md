@@ -77,9 +77,20 @@ deshalb als geprüft gelten, weil derselbe Objektname in einer anderen Abfrage
 vorkommt. Eine synthetische Regression prüft insbesondere, dass ein
 funktionsartiger `dbo`-Aufruf nach einem SELECT-Komma nicht durch einen
 gleichnamigen Tabellen-`SELECT` gedeckt wird.
-Die lokalen 57 gezielten Regressionen und der Offlinevalidator bestehen;
-dieser zweite Validator-/Testkandidat ist noch nicht reviewed, gepusht oder
-integriert.
+Die lokalen 59 gezielten Regressionen und der Offlinevalidator bestehen;
+PR #548 integrierte diese Fundstellenbindung. Sechs PR-Checks und vier
+betroffene Main-Workflows bestanden; `main` ist auf `9f15586` synchronisiert,
+der Arbeitsbranch ist entfernt. Der unabhängige Review fand keine offenen
+P1/P2. Das bleibt statische Textanalyse ohne SQL-, Lab- oder Runtimebeleg,
+ohne effektive Serverrechte und ohne Generalprobe.
+
+Der nächste lokale Schnitt erweitert die direkte Schreibschutzprüfung auf
+DDL-Varianten wie `CREATE OR ALTER`/`DROP VIEW`, DML-Formen wie
+`DELETE dbo.Tabelle` ohne explizites `FROM` und direkte zustandsändernde
+DBCC-Befehle. Der statische Validator-/Testdiff besteht lokal inzwischen mit
+60 gezielten Regressionen und dem Offlinevalidator; ein DBCC-Mutationsgegenfall
+wurde nach unabhängigem P2 ergänzt. Der Schnitt ist noch nicht abschließend
+reviewed, gepusht oder integriert.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten

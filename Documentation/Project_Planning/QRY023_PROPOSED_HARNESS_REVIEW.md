@@ -114,10 +114,13 @@ schemaqualifizierte Funktion oder sonstige Referenz ab.
 
 Eine zweite Textprüfung erlaubt direkt erkennbare schreibende Ziele in
 READER-Skripten nur für lokale Tabellenvariablen und weist erkannte persistente
-DML-, `SELECT INTO`-, `BULK INSERT`-, DDL- und Rechteänderungen zurück.
-Gegenproben mit `DELETE`, `SELECT INTO` und indirektem `EXEC` schützen diese
-Grenze. Diese Prüfungen sind fail-closed für die
-erkannten Textformen, aber keine T-SQL-AST-Analyse und keine vollständige
+DML-, `SELECT INTO`-, `BULK INSERT`-, DDL-, Rechte- und DBCC-Anweisungen zurück.
+Gegenproben mit `DELETE` (mit und ohne `FROM`), `SELECT INTO`,
+`CREATE OR ALTER` und DBCC schützen diese Grenze. Die Prüfung gilt für direkte
+Schreiboperationen im Skripttext; Auswirkungen der ausdrücklich zugelassenen
+Messprozedur über deren Ownership Chain bleiben ein separates Laufzeitgate.
+Diese Prüfungen sind fail-closed für die erkannten Textformen, aber keine
+T-SQL-AST-Analyse und keine vollständige
 Semantik für Kommentare, SQLCMD-Expansion, indirekte Aufrufe oder alle
 Syntaxvarianten. Sie belegen weder effektive Berechtigungen noch
 Nichtveränderung auf einer SQL-Server-Engine. Der bestehende ScriptDom-Parse
