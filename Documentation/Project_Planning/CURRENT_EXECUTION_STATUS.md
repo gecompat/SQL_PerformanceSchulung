@@ -1,5 +1,18 @@
 # Aktueller Ausführungsstand
 
+## External Tables – begrenzter Quellen- und Zugriffswegreview
+
+Der [Offline-Review](EXTERNAL_TABLES_SOURCE_REVIEW.md) bindet die
+Microsoft-Matrix für SQL Server 2019/2022/2025: identische External-Table-
+Verfügbarkeit reicht nicht für einen identischen Connector-/OS-Pfad. `sqlserver://`
+ist der gemeinsame RDBMS-Kandidat, für eine gemeinsame 2019/2022/2025-Matrix
+aber nur auf Windows durchgängig dokumentiert; unter Linux gilt dieser
+Connectorweg erst ab 2025. Datei- und ODBC-Wege unterscheiden sich zusätzlich
+nach Version und Pushdown-Fähigkeit. Die Quelle empfiehlt daher nur den
+Kandidaten für einen späteren Entwurf; externe SQL-Quelle, OS, Credentials,
+Infrastruktur, Transportmessung, formale Methodenfreigabe und Lauf bleiben
+offen. Kein Connector, SQL oder Netzwerk wurde angesprochen.
+
 ## Fortsetzung: Datenschutzscanner – fehlerhafte URL sicher klassifizieren
 
 Bei der lokalen Pflichtprüfung stürzte `urlsplit` mit `ValueError` an einer
