@@ -72,7 +72,8 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         manifest["phases"][2]["database"] = "master"
         manifest["phases"][3]["timeout_seconds"] = 301
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
-        self.assertTrue(any("scripts, databases, and timeouts" in error for error in self.errors()))
+        self.assertTrue(any("scripts, databases, timeouts, and credential profiles" in error
+                            for error in self.errors()))
 
     def test_malformed_phase_record_fails_without_crashing(self) -> None:
         path = self.demo / "manifest.proposed.json"
@@ -265,13 +266,21 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("SQLCMDMAXVARTYPEWIDTH to unlimited" in error for error in self.errors()))
 
-    def test_phase_identity_gate_cannot_be_claimed_as_enforced(self) -> None:
+    def test_phase_identity_mapping_is_bound_to_the_privilege_matrix(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
-        manifest["authorization_contract"]["phase_identity_enforced"] = True
+        manifest["phases"][4]["credential_profile"] = "ADMIN"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("phase IDs/order, scripts, databases, timeouts, and credential profiles" in error
+                            for error in self.errors()))
+
+    def test_phase_identity_does_not_close_server_privilege_qualification(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["authorization_contract"]["gate_status"] = "PASS"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
-        self.assertTrue(any("open single-identity enforcement gate" in error for error in self.errors()))
+        self.assertTrue(any("server privilege qualification gate" in error
+                            for error in self.errors()))
 
     def test_showplan_permission_must_be_scoped_to_current_target_database(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
@@ -279,7 +288,8 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         source = source.replace("HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')",
                                 "HAS_PERMS_BY_NAME(N'master','DATABASE','SHOWPLAN')")
         path.write_text(source, encoding="utf-8")
-        self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
+        self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
+                            for error in self.errors()))
 
     def test_showplan_preflight_must_check_all_query_table_select_rights(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
@@ -287,14 +297,34 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         source = source.replace("    AND HAS_PERMS_BY_NAME(N'dbo.RelFriend','OBJECT','SELECT')=1 THEN 1 ELSE 0 END;",
                                 "    THEN 1 ELSE 0 END;")
         path.write_text(source, encoding="utf-8")
-        self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
+        self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
+                            for error in self.errors()))
+
+    def test_measurement_preflight_must_check_log_select_right(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("HAS_PERMS_BY_NAME(N'lab.MeasurementRun','OBJECT','SELECT')=1",
+                                "HAS_PERMS_BY_NAME(N'lab.MeasurementRun','OBJECT','INSERT')=1")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
+                            for error in self.errors()))
+
+    def test_measurement_preflight_must_check_measurement_procedure_execute(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("HAS_PERMS_BY_NAME(N'lab.USP_Qry023MeasureVariant','OBJECT','EXECUTE')=1",
+                                "HAS_PERMS_BY_NAME(N'lab.USP_Qry023MeasureVariant','OBJECT','SELECT')=1")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
+                            for error in self.errors()))
 
     def test_missing_permissions_must_skip_before_pass(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
         source = path.read_text(encoding="utf-8")
         source = source.replace("'SKIP_PERMISSION' AS Code", "'SKIP_STATE' AS Code")
         path.write_text(source, encoding="utf-8")
-        self.assertTrue(any("target DATABASE/SHOWPLAN" in error for error in self.errors()))
+        self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
+                            for error in self.errors()))
 
     def test_qualification_skip_summary_must_report_skip_permission(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"

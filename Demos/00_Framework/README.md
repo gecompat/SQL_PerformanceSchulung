@@ -68,6 +68,16 @@ Multi-Session-Abhängigkeiten verwenden Datenbanksignale. Query Store wird über
 
 `Tools/run_demo.py` verbindet sich über `--server`, `--auth` und `--username`. Gegen eine vorhandene SQL-Server-Instanz beschreibt `Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md` den vollständigen Ablauf einschließlich Anmeldedaten, Preflight, Cleanup und Recovery. Trägt die Instanz ein selbstsigniertes Zertifikat, wird `Tests/Runtime/host_sqlcmd_target.py` als `--sqlcmd` zwischengeschaltet, weil `build_sqlcmd_command()` selbst kein `-C` setzt.
 
+Optional kann ein Manifest `credential_profiles` und je SQL-Phase ein
+`credential_profile` setzen. Dann muss jede SQL-Phase einschließlich Cleanup
+ein Profil wählen. Für SQL-Authentifizierung liest der Runner
+`SQLPERF_SQL_USERNAME_<PROFIL>` und `SQLPERF_SQL_PASSWORD_<PROFIL>`; nur das
+Kennwort des aktuellen Profils wird als `SQLCMDPASSWORD` an dessen `sqlcmd`-
+Prozess übergeben. Die Profile müssen verschiedene Benutzernamen ergeben.
+Damit wird die Client-Anmeldung pro Phase getrennt; tatsächliche Serverrechte
+und die kleinsten erforderlichen Grants müssen weiterhin pro Zielbuild geprüft
+werden. Multi-Session-Phasen verwenden weiterhin die bestehende Einzelidentität.
+
 Für Manifeste mit `sqlcmd_input_validation` prüft `run_demo.py` den exakten
 unterstützten Vertrag bereits beim Laden, bevor der SQLCMD-Prozess aufgelöst
 oder gestartet wird. Der aktuell unterstützte Vertrag ist QRY-023-spezifisch;

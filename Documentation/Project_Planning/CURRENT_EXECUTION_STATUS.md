@@ -11,9 +11,12 @@ den statischen ScriptDom-Parse der Grammatiken 150/160/170. Diese Prüfung ist
 keine Enginekompilierung oder Laufzeitfreigabe. `DEC-081` bestätigt die drei
 Produktbuildpins als aktuelle Linux-Servicingstände zum 12. November 2026;
 `DEC-082` bestätigt die aktuellen MCR-Manifest-/Konfigurationsdigests und
-Produktlabels gegen den vorgeschlagenen Lock. Formale Harnessabnahme,
-phasenspezifische Identitätsdurchsetzung, Runtimecaller-Integration,
-Ressourcen-, Cleanup- und sämtliche Runtimegates bleiben offen.
+Produktlabels gegen den vorgeschlagenen Lock. Der FWK-010-Caller unterstützt
+jetzt getrennte SQL-Anmeldungsprofile pro Phase; QRY-023 weist Setup-/Installations-
+phasen `ADMIN`, lesende Qualifikations- und Messphasen `READER` sowie Cleanup
+`ADMIN` zu. Tatsächliche Serverprinzipale und Minimalrechte, Ressourcen- und
+Abbruchdurchsetzung, Cleanupqualifikation, formale Harnessabnahme und sämtliche
+Runtimegates bleiben unbewiesen.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen

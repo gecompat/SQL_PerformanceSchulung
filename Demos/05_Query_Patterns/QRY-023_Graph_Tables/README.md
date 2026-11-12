@@ -48,12 +48,22 @@ und keine qualifizierte Demoimplementierung.
 ## Rechte und Grenzen
 
 Die Rechte müssen fachlich getrennt werden: Setup benötigt `CREATE DATABASE`
-sowie Tabellen-, Index- und synthetische Insert-Rechte; Korrektheit, Messung und
-Planevidenz benötigen nur `SELECT` auf den vier Querytabellen sowie
-`SHOWPLAN` auf der markierten Zieldatenbank; Cleanup benötigt das Entfernen der
-eigenen Datenbank nach exakter Markerprüfung. Der gegenwärtige FWK-010-Caller
-verwendet jedoch dieselbe Anmeldung für alle Phasen. Er erzwingt diese
-Rechtetrennung daher noch nicht. Das bleibt ein formales Harness-Gate; die
+sowie Tabellen-, Index- und synthetische Insert-Rechte; Korrektheit und
+Planevidenz benötigen `SELECT` auf den vier Querytabellen sowie `SHOWPLAN` auf
+der markierten Zieldatenbank. Messung benötigt zusätzlich `SELECT` auf
+`lab.MeasurementRun` und `EXECUTE` auf `lab.USP_Qry023MeasureVariant`; deren
+interne Schreiboperationen setzen eine passende Ownership Chain voraus und
+müssen in der Laufzeitqualifikation bestätigt werden. Cleanup benötigt das
+Entfernen der eigenen Datenbank nach exakter Markerprüfung. Das vorgeschlagene Manifest weist
+Setup-/Installationsphasen dem Profil `ADMIN` und Qualifikations-, Korrektheits-,
+Mess- und Planphasen dem Profil `READER` zu; Cleanup erhält `ADMIN`. Der
+FWK-010-Caller verlangt unterschiedliche SQL-Benutzernamen, liest ihre
+Zugangsdaten aus `SQLPERF_SQL_USERNAME_ADMIN`/
+`SQLPERF_SQL_PASSWORD_ADMIN` und den entsprechenden `READER`-Variablen und
+übergibt das jeweilige Kennwort nur als `SQLCMDPASSWORD` an den Phasenprozess.
+Der Client schaltet damit die konfigurierte Identität um. Ob die realen
+SQL-Prinzipale die Sollrechte und keine darüber hinausgehenden Rechte besitzen,
+ist nicht serverseitig verifiziert. Das bleibt ein Runtime-/Methodengate; die
 aufgezählten Gesamtberechtigungen dürfen nicht als Minimalrechte ausgegeben
 werden. `FWK-004` speichert keine Abfragetexte oder Pläne; es erfasst
 Sessiondeltas. Fremde oder nicht vollständig markierte Ziele werden abgewiesen

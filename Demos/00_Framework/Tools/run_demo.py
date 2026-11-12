@@ -17,7 +17,7 @@ from pathlib import Path
 import re
 import sys
 import time
-from typing import Any
+from typing import Any, Mapping
 
 from orchestrate_sessions import run_manifest as run_session_manifest
 from sqlcmd_process import (
@@ -31,6 +31,7 @@ from sqlcmd_process import (
 DEMO_ID_PATTERN = re.compile(r"(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}")
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 PHASE_ID_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,31}")
+IDENTITY_PROFILE_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,31}")
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
 QRY023_SQLCMD_INPUT_VALIDATION = {
     "must_validate_before": "SQLCMD_EXPANSION",
@@ -58,6 +59,7 @@ class PhaseSpec:
     required: bool
     require_summary: bool
     timeout_seconds: int | None
+    credential_profile: str | None
 
 
 @dataclass(frozen=True)
@@ -69,6 +71,7 @@ class DemoManifest:
     cleanup_timeout_seconds: int
     phases: tuple[PhaseSpec, ...]
     cleanup: PhaseSpec | None
+    credential_profiles: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -130,6 +133,7 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
     required = raw.get("required", True)
     require_summary = raw.get("require_summary", phase_id == "PREFLIGHT")
     timeout_seconds = raw.get("timeout_seconds")
+    credential_profile = raw.get("credential_profile")
 
     if not isinstance(phase_id, str) or not PHASE_ID_PATTERN.fullmatch(phase_id):
         raise ValueError(f"invalid phase id: {phase_id!r}")
@@ -145,6 +149,11 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
         not isinstance(timeout_seconds, int) or not 1 <= timeout_seconds <= 3600
     ):
         raise ValueError(f"phase {phase_id} timeout_seconds must be 1 through 3600")
+    if credential_profile is not None and (
+        not isinstance(credential_profile, str)
+        or not IDENTITY_PROFILE_PATTERN.fullmatch(credential_profile)
+    ):
+        raise ValueError(f"invalid credential profile for {phase_id}")
     if cleanup and kind != "sql":
         raise ValueError("cleanup must be a SQL phase")
 
@@ -157,7 +166,21 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
         required=required,
         require_summary=require_summary,
         timeout_seconds=timeout_seconds,
+        credential_profile=credential_profile,
     )
+
+
+def _parse_credential_profiles(payload: dict[str, Any]) -> tuple[str, ...]:
+    if "credential_profiles" not in payload:
+        return ()
+    raw_profiles = payload["credential_profiles"]
+    if (type(raw_profiles) is not list or not 2 <= len(raw_profiles) <= 16
+            or any(type(profile) is not str
+                   or IDENTITY_PROFILE_PATTERN.fullmatch(profile) is None
+                   for profile in raw_profiles)
+            or len(raw_profiles) != len(set(raw_profiles))):
+        raise ValueError("credential_profiles must contain 2 through 16 unique uppercase names")
+    return tuple(raw_profiles)
 
 
 def _validate_sqlcmd_input_contract(payload: dict[str, Any], demo_id: str, run_token: str) -> None:
@@ -212,6 +235,7 @@ def load_manifest(path: Path) -> DemoManifest:
     if not isinstance(raw_phases, list) or not 1 <= len(raw_phases) <= 20:
         raise ValueError("phases must contain 1 through 20 entries")
 
+    credential_profiles = _parse_credential_profiles(payload)
     phases = tuple(_parse_phase(raw, path.parent) for raw in raw_phases)
     ids = [phase.phase_id for phase in phases]
     if len(ids) != len(set(ids)):
@@ -221,6 +245,17 @@ def load_manifest(path: Path) -> DemoManifest:
 
     cleanup_raw = payload.get("cleanup")
     cleanup = _parse_phase(cleanup_raw, path.parent, cleanup=True) if cleanup_raw is not None else None
+    all_phases = (*phases, *((cleanup,) if cleanup is not None else ()))
+    used_profiles = {phase.credential_profile for phase in all_phases
+                     if phase.credential_profile is not None}
+    if credential_profiles:
+        if any(phase.kind != "sql" or phase.credential_profile is None
+               for phase in all_phases):
+            raise ValueError("credential profile manifests require a profile on every SQL phase and do not support multi-session phases")
+        if used_profiles != set(credential_profiles):
+            raise ValueError("credential_profiles must exactly match profiles assigned to phases")
+    elif used_profiles:
+        raise ValueError("phase credential_profile requires manifest credential_profiles")
 
     return DemoManifest(
         demo_id=demo_id,
@@ -230,7 +265,46 @@ def load_manifest(path: Path) -> DemoManifest:
         cleanup_timeout_seconds=cleanup_timeout_seconds,
         phases=phases,
         cleanup=cleanup,
+        credential_profiles=credential_profiles,
     )
+
+
+def _resolve_credential_profiles(
+    profile_names: tuple[str, ...],
+) -> dict[str, tuple[str, str]]:
+    resolved: dict[str, tuple[str, str]] = {}
+    seen_usernames: set[str] = set()
+    for profile in profile_names:
+        username = os.environ.get(f"SQLPERF_SQL_USERNAME_{profile}")
+        password = os.environ.get(f"SQLPERF_SQL_PASSWORD_{profile}")
+        if (not isinstance(username, str) or not username.strip()
+                or any(char in username for char in "\r\n\x00")):
+            raise ValueError(f"missing or invalid SQL username for credential profile {profile}")
+        if not isinstance(password, str) or not password or "\x00" in password:
+            raise ValueError(f"missing or invalid SQL password for credential profile {profile}")
+        normalized_username = username.strip().casefold()
+        if normalized_username in seen_usernames:
+            raise ValueError("credential profiles must resolve to distinct SQL usernames")
+        seen_usernames.add(normalized_username)
+        resolved[profile] = (username.strip(), password)
+    return resolved
+
+
+def _phase_connection(
+    phase: PhaseSpec,
+    *,
+    username: str | None,
+    credentials: Mapping[str, tuple[str, str]],
+) -> tuple[str | None, Mapping[str, str]]:
+    environment = os.environ.copy()
+    for key in tuple(environment):
+        if key.upper().startswith(("SQLPERF_SQL_USERNAME_", "SQLPERF_SQL_PASSWORD_", "SQLCMDPASSWORD_")):
+            environment.pop(key, None)
+    if phase.credential_profile is None:
+        return username, environment
+    profile_username, password = credentials[phase.credential_profile]
+    environment["SQLCMDPASSWORD"] = password
+    return profile_username, environment
 
 
 def target_database_name(demo_id: str, run_token: str) -> str:
@@ -260,22 +334,35 @@ def _execute_sql_phase(
     target_database: str,
     auth: str,
     username: str | None,
+    environment: Mapping[str, str],
     timeout_seconds: float,
     variables: dict[str, str],
     show_output: bool,
 ) -> PhaseResult:
     database = "master" if phase.database_selector == "master" else target_database
-    command = build_sqlcmd_command(
-        executable=executable,
-        server=server,
-        database=database,
-        script=phase.path,
-        auth=auth,
-        username=username,
-        variables=variables,
-    )
+    password_present = bool(environment.get("SQLCMDPASSWORD"))
+    had_ambient_password = "SQLCMDPASSWORD" in os.environ
+    ambient_password = os.environ.get("SQLCMDPASSWORD")
+    try:
+        if password_present:
+            # The command builder checks presence only; keep the real secret in the child env.
+            os.environ["SQLCMDPASSWORD"] = "credential-profile-configured"
+        command = build_sqlcmd_command(
+            executable=executable,
+            server=server,
+            database=database,
+            script=phase.path,
+            auth=auth,
+            username=username,
+            variables=variables,
+        )
+    finally:
+        if had_ambient_password:
+            os.environ["SQLCMDPASSWORD"] = ambient_password or ""
+        else:
+            os.environ.pop("SQLCMDPASSWORD", None)
     started = time.monotonic()
-    result = run_sqlcmd(command, timeout_seconds=timeout_seconds, environment=os.environ)
+    result = run_sqlcmd(command, timeout_seconds=timeout_seconds, environment=environment)
     if show_output:
         _emit_raw_output(phase.phase_id, result.stdout, result.stderr)
 
@@ -314,6 +401,10 @@ def run_demo(
     if manifest.safety_level == "RED" and not allow_red:
         return HarnessResult("FAIL", "FAIL_SAFETY", "Rote Demo benötigt --allow-red.", ())
 
+    if manifest.credential_profiles and auth.strip().lower() != "sql":
+        raise ValueError("credential_profiles require SQL authentication")
+    credentials = _resolve_credential_profiles(manifest.credential_profiles)
+
     executable = resolve_sqlcmd(sqlcmd_path)
     target_database = target_database_name(manifest.demo_id, manifest.run_token)
     variables = {
@@ -343,6 +434,9 @@ def run_demo(
         else:
             phase_timeout = min(remaining, phase.timeout_seconds or remaining)
             if phase.kind == "sql":
+                phase_username, phase_environment = _phase_connection(
+                    phase, username=username, credentials=credentials
+                )
                 if phase.phase_id == "SETUP":
                     setup_started = True
                 result = _execute_sql_phase(
@@ -351,7 +445,8 @@ def run_demo(
                     server=server,
                     target_database=target_database,
                     auth=auth,
-                    username=username,
+                    username=phase_username,
+                    environment=phase_environment,
                     timeout_seconds=phase_timeout,
                     variables=variables,
                     show_output=show_output,
@@ -375,13 +470,17 @@ def run_demo(
             stop_regular_phases = True
 
     if setup_started and manifest.cleanup is not None:
+        cleanup_username, cleanup_environment = _phase_connection(
+            manifest.cleanup, username=username, credentials=credentials
+        )
         cleanup = _execute_sql_phase(
             phase=manifest.cleanup,
             executable=executable,
             server=server,
             target_database=target_database,
             auth=auth,
-            username=username,
+            username=cleanup_username,
+            environment=cleanup_environment,
             timeout_seconds=manifest.cleanup_timeout_seconds,
             variables=variables,
             show_output=show_output,

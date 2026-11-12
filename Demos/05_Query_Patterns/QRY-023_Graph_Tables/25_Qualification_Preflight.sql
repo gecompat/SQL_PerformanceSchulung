@@ -21,18 +21,20 @@ DECLARE @HasSelect bit=CASE WHEN HAS_PERMS_BY_NAME(N'dbo.Person','OBJECT','SELEC
     AND HAS_PERMS_BY_NAME(N'dbo.FriendOf','OBJECT','SELECT')=1
     AND HAS_PERMS_BY_NAME(N'dbo.RelPerson','OBJECT','SELECT')=1
     AND HAS_PERMS_BY_NAME(N'dbo.RelFriend','OBJECT','SELECT')=1 THEN 1 ELSE 0 END;
-IF @HasShowplan=0 OR @HasSelect=0
+DECLARE @HasMeasurement bit=CASE WHEN HAS_PERMS_BY_NAME(N'lab.MeasurementRun','OBJECT','SELECT')=1
+    AND HAS_PERMS_BY_NAME(N'lab.USP_Qry023MeasureVariant','OBJECT','EXECUTE')=1 THEN 1 ELSE 0 END;
+IF @HasShowplan=0 OR @HasSelect=0 OR @HasMeasurement=0
 BEGIN
     SELECT 1 AS Sequence,'QUALIFICATION_PREFLIGHT' AS Phase,'PERMISSIONS' AS CheckId,'SKIP' AS Outcome,'SKIP_PERMISSION' AS Code,
-           CONCAT(N'SHOWPLAN=',@HasShowplan,N'; SELECT=',@HasSelect) AS ObservedValue,
-           N'SELECT auf den QRY-023-Objekten und SHOWPLAN auf der markierten Zieldatenbank' AS RequiredValue,
+           CONCAT(N'SHOWPLAN=',@HasShowplan,N'; SELECT=',@HasSelect,N'; MEASUREMENT=',@HasMeasurement) AS ObservedValue,
+           N'SELECT auf Querytabellen und lab.MeasurementRun, EXECUTE auf lab.USP_Qry023MeasureVariant sowie SHOWPLAN auf der markierten Zieldatenbank' AS RequiredValue,
            N'Plan- und Vergleichsevidenz sind Pflicht; ohne Rechte beginnt kein Query-Lauf.' AS Message;
     PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION';
     RETURN;
 END;
 
 SELECT 1 AS Sequence,'QUALIFICATION_PREFLIGHT' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
-       N'exakte Zielmarker, SELECT und SHOWPLAN geprüft' AS ObservedValue,
+       N'exakte Zielmarker, SELECT, Messprozedurausführung und SHOWPLAN geprüft' AS ObservedValue,
        N'Plan-/Messrechte vor Korrektheits- und Messabfragen' AS RequiredValue,
        N'Der QRY-023-Qualifikationspreflight ist bestanden.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';

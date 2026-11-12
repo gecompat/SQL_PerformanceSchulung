@@ -56,7 +56,24 @@ führt zu `FAIL_CONTRACT`.
 
 ## 5. Authentifizierung und Datenschutz
 
-Die Verbindungsregeln entsprechen `FWK-006`. `SQLCMDPASSWORD` ist die einzige unterstützte Passwortquelle. Der Harness schreibt weder Rohoutput noch Verbindungsdaten in Dateien. `--show-output` ist eine interaktive Diagnoseoption.
+Die Verbindungsregeln entsprechen `FWK-006`. Ohne `credential_profiles` gilt
+die bisherige einzelne Anmeldeidentität aus `--auth` und `--username`.
+Ein Manifest mit `credential_profiles` benennt zwei bis 16 eindeutige
+Profilkennungen. Jede SQL-Phase einschließlich Cleanup muss genau ein
+`credential_profile` aus dieser Liste angeben; Multi-Session-Phasen sind in
+diesem Modus nicht zulässig. Der Caller verlangt SQL-Authentifizierung,
+unterschiedliche aufgelöste Benutzernamen und vor der ersten Prozessauflösung
+vollständige Zugangsdaten. Je Profil liest er den Namen aus
+`SQLPERF_SQL_USERNAME_<PROFIL>` und das Kennwort aus
+`SQLPERF_SQL_PASSWORD_<PROFIL>`. Das Kennwort gelangt ausschließlich als
+`SQLCMDPASSWORD` in die Umgebung des jeweiligen `sqlcmd`-Prozesses. Andere
+profilgebundene Kennwortvariablen werden nicht an diesen Prozess vererbt.
+
+Der Caller legt keine Logins oder Rechte an und prüft nicht, ob die
+Serverprinzipale tatsächlich die angegebenen Minimalrechte besitzen. Das muss
+eine getrennte, versionsgebundene Runtimequalifikation nachweisen. Der Harness
+schreibt weder Rohoutput noch Verbindungsdaten in Dateien. `--show-output` ist
+eine interaktive Diagnoseoption.
 
 ## 6. Prozess- und Ergebnisvertrag
 
