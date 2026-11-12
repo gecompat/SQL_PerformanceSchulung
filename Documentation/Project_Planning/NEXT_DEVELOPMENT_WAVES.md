@@ -86,11 +86,18 @@ Vertragsimplementierung genehmigt und als `DEC-079` registriert. QRY-023 bleibt
 `PROPOSED`. Keine SQL-/Lab-/Runtime-Ausführung, Rechteänderung, Infrastruktur,
 neue Performanceaussage oder menschliche Generalprobe.
 
-`DEC-079`, Registry, Demoentwurf, Methodenreview und aktueller Ausführungsstand
-sind synchronisiert. Das Paket bleibt innerhalb 1/1/2; PR-Integration ist der
-verbleibende Checkpoint. Formaler T-SQL-/Harnessvertrag, phasenspezifische
-Identitätsdurchsetzung, Build-/Image-, Ressourcen-, Cleanup- und Runtimegates
-bleiben nachgelagert offen.
+PR #535 integrierte `DEC-079` am Commit `6bbc09e`; der getestete Baum wurde
+unverändert übernommen und `main` synchronisiert. Die nächste autonome Welle
+begrenzt sich auf ein Arbeitspaket, einen PR und zwei Quellen-/Vertragskandidaten.
+Sie registriert `DEC-080` für die statische ScriptDom-Syntaxakzeptanz der acht
+ausführbaren QRY-023-T-SQL-Dateien unter 150/160/170 und synchronisiert die
+betroffenen Lesepfade. Keine neuen Produktquellen, kein SQL-/Lab-/Runtimelauf,
+keine menschliche Generalprobe. Token- und Geldverbrauch bleiben unbekannt;
+Paket/PR/Kandidaten begrenzen den Umfang, nicht Providerkosten.
+
+Nach lokaler gesperrter Parserprüfung und Projektvalidierung ist PR-Integration
+der Checkpoint. Formale Harnessabnahme, phasenspezifische Identität,
+Build-/Image-, Ressourcen-, Cleanup- und Runtimegates bleiben offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die

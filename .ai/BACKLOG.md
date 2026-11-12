@@ -3411,8 +3411,9 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 ## P2 - External Tables und Graph Tables
 
 Graph Tables bleiben als Demo `QRY-023` im Status `PROPOSED`; `DEC-079` gibt
-die vorhandene Methodik als Grundlage der statischen Vertragsimplementierung
-frei, ohne Ausführung oder Runtimequalifikation zu genehmigen. Die fachliche
+die vorhandene Methodik frei und `DEC-080` akzeptiert die acht ausführbaren
+T-SQL-Dateien nur für den statischen ScriptDom-Parse 150/160/170. Daraus folgt
+keine Enginekompilierung, Ausführung oder Runtimequalifikation. Die fachliche
 Zuordnung liegt in Welle 5 und berührt Optimizer-/Planmechanik in Welle 4 sowie
 Indizes in Welle 6. Priorisierung, Lernziel-/Folienzuordnung und der konkrete
 Demo-Schnitt sind nach den Quellen-, Abdeckungs- und Frameworkreviews im
