@@ -223,6 +223,15 @@ Produktquellen. Kein SQL-, Lab- oder Runtime-Lauf. Der Merge ist der
 Checkpoint; tatsächliche Effektivrechte, vollständige Methodenabnahme und
 Runtimegates bleiben davon getrennt offen.
 
+Als nächster eigenständiger statischer Kandidat wird jede schemaqualifizierte
+Fundstelle an genau ihren T-SQL-Textkontext gebunden, statt nur Objektname und
+Berechtigungsart global zu vergleichen. Eine Negativregression schützt einen
+funktionsartigen SELECT-Ausdruck mit vorangestelltem Komma neben einem
+gleichnamigen Tabellenzugriff. Grenze:
+ein Validator-/Testpaket, ein PR, keine neuen Produktquellen und kein
+SQL-/Lab-/Runtime-Lauf. Auch ein bestandener Fundstellencheck bleibt
+Textanalyse und belegt keine Engineauflösung oder Effektivrechte.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
