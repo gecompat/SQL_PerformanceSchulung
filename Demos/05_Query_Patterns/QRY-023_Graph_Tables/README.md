@@ -79,6 +79,22 @@ Rechte, und benötigen `VIEW DEFINITION` auf der jeweiligen Rolle. Eine spätere
 ihre Sichtbarkeit für `READER` fail-closed qualifizieren. Bis dahin bleibt die
 Minimalrechte- und Runtimefreigabe offen.
 
+Der nächste offline zu konkretisierende Prüfansatz ist `sys.fn_my_permissions` im
+tatsächlichen `READER`-Verbindungskontext. Die vorgesehene Prüfung muss die
+effektiven Rechte am Server, an der markierten Datenbank, an den verwendeten
+Schemas und an jedem vorhandenen QRY-023-Objekt gegen eine vorab festgelegte
+Sollmenge vergleichen. Die Sollmenge ist aus den konkreten Phasen abzuleiten;
+`SELECT` auf den Querytabellen und Messdaten, `EXECUTE` auf der Messprozedur
+sowie `SHOWPLAN` sind Mindestanforderungen, keine vollständige Sollmenge.
+Unbekannte, nicht auflistbare oder zusätzliche effektive Rechte müssen den
+Preflight fail-closed abbrechen. Die Prüfung ist im jeweiligen Kontext
+auszuführen, weil `fn_my_permissions` die Rechte des aufrufenden Principals
+auswertet. Sie belegt weder die Berechtigungen anderer Principals noch die
+Ownership-Chain-Wirkung der internen Schreiboperationen; beides bleibt ein
+separates Laufzeitgate. Diese Prüfstrategie ist ein Designvorschlag und noch
+nicht implementiert oder auf SQL Server qualifiziert. Siehe Microsofts
+[`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17)-Dokumentation.
+
 Der vorgeschlagene Ausführungs-Sicherheitsvertrag nennt 1 GiB als erwartete
 Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze für
 zusätzliches TempDB-Wachstum; zugleich ist höchstens eine SQL-Session aktiv.

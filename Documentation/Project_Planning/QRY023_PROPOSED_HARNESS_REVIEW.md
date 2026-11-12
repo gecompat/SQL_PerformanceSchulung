@@ -269,6 +269,23 @@ geprüft werden; das Gate bleibt `OPEN`. Quellen, abgerufen am 12. November
 2026: [IS_SRVROLEMEMBER (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/is-srvrolemember-transact-sql)
 und [IS_ROLEMEMBER (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/is-rolemember-transact-sql).
 
+#### Nächster Offline-Prüfansatz
+
+Für den Soll-Ist-Abgleich ist `sys.fn_my_permissions` im tatsächlichen
+`READER`-Verbindungskontext ein geeigneter Designkandidat: Microsoft beschreibt
+die Ausgabe als effektive Berechtigungen des aktuellen Sicherheitskontexts für
+das angegebene sicherbare Objekt. Ein künftiger Vertrag muss vorab eine
+vollständige, phasengenaue Sollmenge für Server, Ziel-Datenbank, betroffene
+Schemas und jedes erzeugte QRY-023-Objekt festlegen. Die vorgesehenen positiven
+Rechte `SELECT`, `EXECUTE` und `SHOWPLAN` sind kein vollständiger Allowlist-
+Nachweis. Der Abgleich muss fehlgeschlagene oder nicht auswertbare Abfragen und
+jede zusätzliche effektive Berechtigung fail-closed behandeln. `fn_my_permissions`
+wertet ausschließlich den Aufruferkontext aus; damit ist keine Prüfung anderer
+Principals oder ein Nachweis der internen Ownership Chain verbunden. Beides
+bleibt offen bis zu einer getrennten Laufzeitqualifikation. Der Ansatz ist
+DESIGNED, nicht implementiert oder enginequalifiziert. Quelle, abgerufen am
+12. November 2026: [sys.fn_my_permissions (Transact-SQL)](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17).
+
 Die erste PR-CI-Prüfung zeigte, dass DGN-007 zusätzlich den AST von
 `run_demo.py` fest bindet. Die Bindung enthält jetzt den exakten Python-3.12-
 AST-Digest der erweiterten Runnerdatei; alle übrigen DGN-007-AST-Digests bleiben

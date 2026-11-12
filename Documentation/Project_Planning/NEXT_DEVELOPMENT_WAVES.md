@@ -159,6 +159,19 @@ menschliche Generalprobe. Umfang: ein Arbeitspaket, ein PR, zwei
 Dokumentationskandidaten; verbleibende SQL-, Rechte-, Ressourcen-, Abbruch-,
 Cleanup- und Runtimegates bleiben offen.
 
+PR #542 integrierte diese Rollenfunktionsgrenze. Der nächste Offlinepunkt
+konkretisiert den Soll-Ist-Prüfansatz, ohne bereits eine Rechteprüfung oder
+Runtimefreigabe zu behaupten: `sys.fn_my_permissions` wird als möglicher
+Abgleich effektiver Rechte im tatsächlichen `READER`-Kontext dokumentiert.
+README und Harnessreview müssen Server-, Datenbank-, Schema- und Objektkontexte,
+eine vorab festgelegte phasengenaue Sollmenge, fail-closed Verhalten sowie die
+Grenzen zu anderen Principals und Ownership Chain gemeinsam abbilden. Grenze:
+ein Arbeitspaket, ein PR, zwei bestehende Dokumentationskandidaten; innerhalb
+der sechs freigegebenen Kandidaten, ohne Reset. Keine neue Produktquelle, keine
+Serverprinzipal-/Grantänderung, kein SQL-/Lab-/Runtime-Lauf und keine
+menschliche Generalprobe. Der verbleibende Lauf- und Minimalrechtenachweis
+bleibt offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
