@@ -3455,6 +3455,12 @@ Folienaussagenregister und kritischer Claimprüfung konsistent um `SRC-153` bis
 Pushdown-Quellen auffindbar, ohne den External-Tables-Konzeptvorschlag als
 formale Demo- oder Laufzeitabnahme auszugeben.
 
+Die [Curriculum-Lernnotiz](../Documentation/Curriculum/EXTERNAL_TABLES_LESSON.md)
+stellt den erklärenden Lehrinhalt bereit: Datenweg, Connector-/Versionsgrenzen,
+Pushdown-Nachweis, Statistiknebenwirkungen und Auswahl gegenüber lokaler
+Materialisierung. Sie behauptet keine gemessene Rangfolge und ersetzt keinen
+späteren Methoden-, Infrastruktur- oder Runtimegate.
+
 Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
 bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
 Erweiterungen. Die geprüften Quellen qualifizieren weder Graph-Runtime auf
