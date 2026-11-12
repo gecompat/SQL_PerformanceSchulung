@@ -280,11 +280,14 @@ integrierte beide Korrekturen mit sechs PR-Checks und fünf erfolgreichen
 betroffenen Main-Workflows. Als nächster freigegebener Offlinepunkt wurde
 [QRY023_EFFECTIVE_PERMISSION_DESIGN.md](QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
 erstellt: Phasen-/Securablematrix, fail-closed Mengengrenzen und geplante
-Gegenproben für `sys.fn_my_permissions`. Unabhängiger semantischer Review fand
-keine offenen P1/P2; QRY-023-Validator, Dokumentationslinks und Datenschutzscan
-der fünf geänderten Dateien bestehen. Die konkrete Sollmenge bleibt
-unentschieden und der Entwurf unverbindlich. Keine Produktquelle und kein
-SQL-/Lab-/Runtime-Lauf.
+Gegenproben für `sys.fn_my_permissions`. Eine anschließende Quellenprüfung
+ergänzte SQL-Server-`public`-Baselinerechte und versionsabhängige
+Festserverrollen; insbesondere wird `VIEW ANY DATABASE` nicht als erforderliche
+QRY-023-Rechte freigegeben. Unabhängiger Review fand keine P1/P2 und bestätigte,
+dass keine Instanzrechte oder `public`-Änderung freigegeben wird; QRY-023-
+Validator, Dokumentationslinks und Datenschutzscan bestanden. Die konkrete
+Sollmenge bleibt unentschieden und der Entwurf unverbindlich. Keine
+Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die

@@ -38,7 +38,7 @@ Profilnamen.
 
 ## Vorläufige Phasen- und Objektmatrix
 
-| Identität / Phase | Bestehender Ablauf | Minimal erforderlicher Zugriff im Entwurf | Zusätzliche Qualifikation |
+| Identität / Phase | Bestehender Ablauf | Vorläufig nötiger Zugriffskandidat | Zusätzliche Qualifikation |
 |---|---|---|---|
 | `ADMIN` / `PREFLIGHT` | Read-only Prüfung in `master`, bestehendes Ziel wird anhand seiner Marker geprüft | Zugriff auf `master`; bei vorhandenem Ziel Markerlesbarkeit; eine der bereits deklarierten Rechte zum Anlegen der Testdatenbank | Keine Minimalrechteaussage für ein administratives Provisionierungsprofil |
 | `ADMIN` / `SETUP`, `FRAMEWORK`, `WORKLOAD` | Wegwerfdatenbank, FWK-004 und synthetische Objekte aufbauen | Datenbank, Schema, Tabellen, Prozeduren, Indizes und synthetische Inserts gemäß Setupskripten | Keine Minimalrechteaussage; Ziel muss eigens isoliert und vollständig markiert sein |
@@ -118,6 +118,45 @@ zukünftiger Methodenentscheid kann die Umgebung auf eine eigens gebundene
 Wegwerfinstanz einschränken; das allein rechtfertigt keine ausgelassene
 Effektivrechteprüfung.
 
+## SQL-Server-Standardbaselines und offene Auswahl
+
+Eine vollständig leere Server-Sollmenge ist für einen normalen SQL-Server-
+Login keine belastbare Annahme: Jeder Login gehört zur festen Serverrolle
+`public`; neue Logins erhalten automatisch `CONNECT SQL`. Microsoft nennt
+`CONNECT` auf den Serverendpunkten (außer Dedicated Admin Connection) als
+normale `public`-Konfiguration. Außerdem hat `public` standardmäßig
+`VIEW ANY DATABASE`; damit können Logins Datenbankinformationen sehen. Diese
+Rechte sind von einer zusätzlich gewährten QRY-023-Berechtigung zu trennen.
+
+Für die spätere READER-Sollmenge bleibt deshalb ausdrücklich zu entscheiden,
+wie `VIEW ANY DATABASE` behandelt wird. Mögliche, noch nicht beschlossene
+Optionen sind:
+
+- den SQL-Server-`public`-Baselineeintrag nur in einer tatsächlich isolierten,
+  für QRY-023 eigens bereitgestellten Wegwerfinstanz zu akzeptieren, deren
+  Datenbankinventar vor dem Lauf gebunden ist; oder
+- die Metadatensichtbarkeit in einer später ausdrücklich freigegebenen
+  Instanzkonfiguration einzuschränken und die dann verbleibende Rechteform
+  gezielt neu zu qualifizieren.
+
+Ein `VIEW ANY DATABASE`-Grant wird weder als für die Abfragen erforderlich
+ausgegeben noch stillschweigend als minimale QRY-023-Rechte freigegeben. Der
+Proposed-Harness setzt keine Instanzrechte und ändert `public` nicht.
+
+Auch die Festrollenmatrix ist versionsgebunden: SQL Server 2019 besitzt die
+Legacy-Festserverrollen; ab SQL Server 2022 kommen zusätzliche `##MS_*##`-
+Serverrollen hinzu, deren Rechte Datenbankrechte weitervererben können. Die
+Freigabe muss daher die tatsächliche Serverversion feststellen, die komplette
+versionsgültige Festrollenmitgliedschaft des READER-Principals prüfen und
+unbekannte oder nicht sichtbare Rolleneinträge als `NOT_PROVEN` behandeln.
+Ein bloßer Vergleich der durch `sys.fn_my_permissions` gelieferten Namen darf
+eine privilegierte Festrollenmitgliedschaft oder deren mögliche
+Eskalationswirkung nicht verdecken.
+
+Diese Baselinefrage ergänzt die offene normative Sollmengenentscheidung; sie
+ändert die vorgeschlagene Laufgrenze nicht und autorisiert keine globale
+Rechteänderung.
+
 ## Geplante unabhängige Prüffälle
 
 - Jede der acht Query-/Oracletabellen besitzt genau die vorgesehene effektive
@@ -145,6 +184,8 @@ T-SQL-Änderungen oder SQL-Server-Läufe erstellt beziehungsweise ausgeführt.
 - Microsoft Learn, [`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17): effektive Rechte des aufrufenden Kontexts, Securable-Klassen, `NULL` bei Abfragefehler und benötigter `public`-Mitgliedschaftszustand; abgerufen am 12. November 2026.
 - Microsoft Learn, [effektive Database-Engine-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/determining-effective-database-engine-permissions?view=sql-server-ver17): Zusammenwirken des granularen und Festrollensystems sowie Sonderbehandlung von `sysadmin`; abgerufen am 12. November 2026.
 - Microsoft Learn, [Database-Engine-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/getting-started-with-database-engine-permissions?view=sql-server-ver17): Vererbung durch Datenbank-/Schemahierarchie und weiterreichende `CONTROL`-Rechte; abgerufen am 12. November 2026.
+- Microsoft Learn, [`sys.databases`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-databases-transact-sql?view=sql-server-ver17) und [Server-`public`-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/policy-based-management/server-public-permissions?view=sql-server-ver17): Standard-`VIEW ANY DATABASE`, automatische `CONNECT SQL`-Berechtigung und Endpoint-`CONNECT`; abgerufen am 12. November 2026.
+- Microsoft Learn, [Serverrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/server-level-roles?view=sql-server-ver17): neue SQL-Server-2022-Rollen und in Datenbanken weiterwirkende Rechte; abgerufen am 12. November 2026.
 - Bestehender QRY-023-Vertrag: [Proposed-Harness README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md), [Proposed-Manifest](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json) und [Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md).
 
 Die nächste Implementierungsfreigabe kann erst einen konkreten,
