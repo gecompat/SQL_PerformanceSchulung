@@ -3428,6 +3428,17 @@ bleibt `PROPOSED`; `QRY-023` und `TSK-017` sind nach dem Registryverfahren
 registriert. External Tables bleiben bis zur Klärung von Connector, Quelle und
 Infrastruktur zurückgestellt.
 
+Der begrenzte [External-Tables-Quellenreview](../Documentation/Project_Planning/EXTERNAL_TABLES_SOURCE_REVIEW.md)
+vom 12. November 2026 grenzt die Feature-/OS-/Connectorunterschiede für
+SQL Server 2019/2022/2025 ab. `sqlserver://` bleibt der gemeinsame
+RDBMS-Connector-Kandidat; ein einheitliches Windowsprofil oder explizite
+OS-Teilprofile wären nötig, weil RDBMS-Connectoren unter Linux laut aktueller
+Microsoft-Matrix erst ab SQL Server 2025 verfügbar sind. CSV/Parquet/Delta
+decken die Versionsmatrix nicht mit gleichem Datei-/Serviceweg ab. Das ist
+eine Quelleninferenz, keine Infrastruktur- oder Laufzeitfreigabe. Konkrete
+Quelle, isolierte zweite SQL-Instanz, Betriebssystem, Build/CU, Credentials,
+Ressourcen, Cleanup, Transportmessung und Methodenfreigabe bleiben offen.
+
 Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
 bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
 Erweiterungen. Die geprüften Quellen qualifizieren weder Graph-Runtime auf
