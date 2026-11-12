@@ -117,14 +117,15 @@ def plan_queries_inside_statistics_window(plan: str) -> bool:
 
 
 def plan_xml_output_is_untruncated(plan: str) -> bool:
-    """Require sqlcmd's variable-length XML width to be unlimited for the two plans."""
-    directive = re.search(
-        r"^\s*:setvar\s+SQLCMDMAXVARTYPEWIDTH\s+0\s*$",
+    """Require the effective sqlcmd XML-width value before XML output to be unlimited."""
+    directives = list(re.finditer(
+        r"^\s*:setvar\s+SQLCMDMAXVARTYPEWIDTH\s+(\S+)\s*$",
         plan,
         re.IGNORECASE | re.MULTILINE,
-    )
+    ))
     xml_on = plan.lower().find("set statistics xml on")
-    return directive is not None and directive.start() < xml_on
+    prior_values = [match.group(1) for match in directives if match.start() < xml_on]
+    return xml_on >= 0 and bool(prior_values) and prior_values[-1] == "0"
 
 
 def plan_summary_follows_cleanup(plan: str) -> bool:

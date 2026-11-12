@@ -255,6 +255,16 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("SQLCMDMAXVARTYPEWIDTH to unlimited" in error for error in self.errors()))
 
+    def test_later_sqlcmd_width_override_is_rejected(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace(
+            ":setvar SQLCMDMAXVARTYPEWIDTH 0",
+            ":setvar SQLCMDMAXVARTYPEWIDTH 0\n:setvar SQLCMDMAXVARTYPEWIDTH 256",
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("SQLCMDMAXVARTYPEWIDTH to unlimited" in error for error in self.errors()))
+
     def test_phase_identity_gate_cannot_be_claimed_as_enforced(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))

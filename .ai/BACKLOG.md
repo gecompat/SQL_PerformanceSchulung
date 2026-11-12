@@ -3483,6 +3483,13 @@ Vorverarbeitung binden die Direktive. Der Registry-Scope nennt jetzt dasselbe
 für diesen Offline-Fix; vollständige Methodenfreigabe, konkrete sqlcmd-
 Runtimevollständigkeit, Ressourcen- und sonstige Runtimegates bleiben offen.
 
+Die Folgereview fand, dass der Validator spätere Überschreibungen von
+`SQLCMDMAXVARTYPEWIDTH 0` nicht erkannte. Er prüft jetzt den letzten Wert vor
+`STATISTICS XML ON`; eine Regression für `0` gefolgt von `256` schützt den
+Fehlerfall. 46 QRY-023-Tests und die unabhängige Korrekturprüfung bestanden,
+ohne neue P1/P2. Das Skript bleibt unverändert; Runtime-/Methodengates bleiben
+offen.
+
 Die unabhängige Gesamtprüfung an Main `b48269a` fand danach zwei P2-Gates:
 FWK-010 nimmt nur eine Anmeldung über alle Phasen an; FWK-008-Größen-,
 Session- und Abbruchgrenzen waren unvollständig. Das Proposed-Manifest bindet

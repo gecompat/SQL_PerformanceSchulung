@@ -1,5 +1,19 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – effektiven sqlcmd XML-Grenzwert binden
+
+Die unabhängige Prüfung fand, dass der Strukturvalidator zwar eine
+`SQLCMDMAXVARTYPEWIDTH 0`-Direktive vor `STATISTICS XML ON` verlangte, aber
+eine spätere Überschreibung auf `256` nicht erkannte. Der Validator prüft nun
+den letzten passenden Wert vor der XML-Aktivierung; eine Negativregression
+deckt genau die Überschreibung `0` dann `256` ab. 46 gezielte Regressionen,
+der QRY-023-Strukturvalidator und der Frameworkvertrag bestanden. Die
+unabhängige Nachprüfung bestätigt die Schließung dieses Validator-P2 ohne
+neue P1/P2. Das bindet den effektiven Skriptvertrag statisch, qualifiziert
+weder sqlcmd zur Laufzeit noch T-SQL, Harness oder Demo. Sämtliche zuvor
+benannten Identitäts-, Ressourcen-, Cleanup-, Methoden- und Ausführungsgates
+bleiben offen.
+
 ## Fortsetzung: QRY-023 – Actual-Plan-XML ungekürzt transportieren
 
 Die unabhängige Prüfung fand, dass `sqlcmd` XML-Datentypen standardmäßig bei
