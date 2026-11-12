@@ -254,6 +254,12 @@ zurück. Ein Arbeitspaket/ein PR, keine Produktquellen und keine SQL-, Lab- oder
 Runtimeausführung; die Kontrolle über SQLCMD-Imports und Hostprozesse ist damit
 nicht allgemein runtimequalifiziert.
 
+PR #551 integrierte den SQLCMD-Controlguard mit sieben erfolgreichen
+PR-Checks, drei betroffenen Main-Workflows und 67 QRY-023-Regressionen. Ein
+anschließender lokaler Regressionstest bindet den Ausschluss eines abweichenden
+`SQLCMDMAXVARTYPEWIDTH`-Werts für READER-Phasen. Ein Test-/Dokumentations-PR,
+keine neue Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
