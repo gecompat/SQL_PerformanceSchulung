@@ -216,6 +216,50 @@ class ConversionGraphContractTests(unittest.TestCase):
                     Verdict.FAIL,
                 )
 
+    def test_rfc3339_timestamp_case_precision_and_boundary_values(self) -> None:
+        lowercase = replace(
+            good_capture(),
+            event_timestamp_utc="2026-11-06t12:00:00.250z",
+            run_started_utc="2026-11-06t11:59:00z",
+            run_finished_utc="2026-11-06t12:01:00z",
+        )
+        self.assertEqual(evaluate_conversion_capture(lowercase).verdict, Verdict.PASS)
+
+        equivalent_offsets = replace(
+            good_capture(),
+            event_timestamp_utc="2026-11-06T12:00:00.250+01:00",
+            run_started_utc="2026-11-06T11:00:00.250Z",
+            run_finished_utc="2026-11-06T11:00:00.250Z",
+        )
+        self.assertEqual(evaluate_conversion_capture(equivalent_offsets).verdict, Verdict.PASS)
+
+        precise = replace(
+            good_capture(),
+            event_timestamp_utc="2026-11-06T12:00:00.2500001Z",
+            run_started_utc="2026-11-06T12:00:00.2500001Z",
+            run_finished_utc="2026-11-06T12:00:00.2500001Z",
+        )
+        self.assertEqual(evaluate_conversion_capture(precise).verdict, Verdict.PASS)
+        self.assertEqual(
+            evaluate_conversion_capture(replace(precise, run_finished_utc="2026-11-06T12:00:00.2500000Z")).verdict,
+            Verdict.FAIL,
+        )
+
+        boundary = "0001-01-01T00:00:00+23:59"
+        boundary_capture = replace(
+            good_capture(),
+            event_timestamp_utc=boundary,
+            run_started_utc=boundary,
+            run_finished_utc=boundary,
+        )
+        self.assertEqual(evaluate_conversion_capture(boundary_capture).verdict, Verdict.PASS)
+        self.assertEqual(
+            evaluate_conversion_capture(replace(
+                good_capture(), event_timestamp_utc="2026-11-06T12:00:60Z"
+            )).verdict,
+            Verdict.FAIL,
+        )
+
     def test_matching_event_count_is_exactly_one(self) -> None:
         self.assertEqual(
             evaluate_conversion_capture(replace(good_capture(), matching_event_count=0)).verdict,

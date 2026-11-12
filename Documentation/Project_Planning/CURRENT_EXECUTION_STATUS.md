@@ -1434,11 +1434,19 @@ angefordertem `X`/`requestType="convert"`. Der anschließende Offline-
 Capturevertrag verlangt zusätzlich übereinstimmende caller-gelieferte
 Run-Token, `xml_deadlock_report`/`system_health`, genau ein Ereignis innerhalb
 des expliziten Zeitfensters und einen zum Graphvictim passenden Fehler 1205
-sowie Survivorstatus. Zusammen wurden 18 synthetische Testmethoden ausgeführt.
+sowie Survivorstatus. Zusammen wurden 19 synthetische Testmethoden ausgeführt.
 Graph, Quelle, Zeitgrenzen und Outcomes bleiben caller-geliefert und
 unauthentifiziert; der Prüfer erzeugt keine Laufzeitevidenz. Die genaue
 Darstellung auf beiden Zielbuilds bleibt empirisch zu prüfen; Demo-SQL,
 Manifest und Runtimequalifikation wurden nicht geändert.
+
+Der unabhängige Quellenreview fand einen P2 im Capture-Zeitparser: gültige
+RFC-3339-Kleinschreibung und siebenstellige Bruchteile wurden abgelehnt,
+Randzeitpunkte konnten eine ungefangene Ausnahme auslösen. Der Parser wurde
+auf präzise Bruchteilvergleiche und ganzzahlige Offsetnormalisierung umgestellt;
+synthetische Regressionen decken diese Fälle ab. Der unabhängige Review der
+korrigierten Fassung fand keine offenen P1/P2 im Offlineumfang. Die offenen
+Capture-Provenienz- und Engine-Qualifikationsgates bleiben getrennt.
 
 Für `IDX-007` ergänzt eine kurze, quellengebundene Erläuterung den Lernpfad:
 Sie trennt Last-Page-`PAGELATCH_EX` von I/O- und Transaktionssperren und
@@ -1451,12 +1459,13 @@ Ein synthetisch geprüfter Offline-Vertrag bindet zusätzlich caller-supplied
 Capturezeitpunkt, verlangt zwei verschiedene Sessions und Blattniveau sowie
 eine separat gelieferte Rechtsaußen-Aussage. Dies ist statische
 Konsistenzprüfung, keine authentifizierte SQL-Erfassung oder Qualifikation.
-PR #420 ergänzt die [lokale Vertragsprüfung](IDX007_OFFLINE_EVIDENCE_REVIEW.md),
+PR #420 ergänzt die [Vertragsprüfung](IDX007_OFFLINE_EVIDENCE_REVIEW.md),
 trennt fehlenden Rechtsaußenbeleg (`NOT_PROVEN`) von einem expliziten
 Gegenbeleg (`FAIL`) und bindet `sys.dm_os_waiting_tasks` sowie
-`sys.dm_db_page_info` im Quellenregister. Die unabhängige Seitenkettenauflösung,
-Methoden-/Quellenprüfung, ein fairer Vergleich und Laufzeitnachweise bleiben
-offen.
+`sys.dm_db_page_info` im Quellenregister. Der unabhängige Offline-Review vom
+12. November 2026 fand nach der Timestamp-Korrektur keine offenen P1/P2 im
+geprüften Vertrags-/Quellenumfang. Die unabhängige Seitenkettenauflösung, ein
+fairer Vergleich und Laufzeitnachweise bleiben offen.
 
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,

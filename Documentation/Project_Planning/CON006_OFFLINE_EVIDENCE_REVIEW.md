@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Prüfart | lokale Vertrags- und Quellenprüfung, nicht unabhängig |
+| Prüfart | unabhängige Offline-Vertrags- und Quellenprüfung vom 12.11.2026; keine Runtimeprüfung |
 | Geprüfte Komponente | `Tests/Static/con006_conversion_graph_contract.py` |
 | Geltungsbereich | caller-gelieferter XML-Graph und Capturefelder |
 | Laufstatus | keine SQL-, Lab- oder Runtimeausführung |
@@ -43,6 +43,15 @@ demselben Event beziehungsweise Lauf stammen. Die Dokumentation muss diesen
 Producervertrag als separates späteres Gate erhalten. Ein statischer `PASS`
 attestiert allein interne Konsistenz der übergebenen Werte.
 
+Die Capture-Zeitwerte akzeptieren jetzt Groß- und Kleinschreibung von `T`/`Z`
+und beliebige [RFC-3339-Bruchteile](https://www.rfc-editor.org/rfc/rfc3339#section-5.6)
+bis zum festen Gesamtlängenlimit. Der
+Zeitvergleich erhält die Bruchteilpräzision exakt und verwendet ganzzahlige
+Sekunden für Zeitzonenkorrektur, auch an den Datumsgrenzen von Jahr 1 und 9999.
+Schaltsekunden bleiben außerhalb des SQL-Captureprofils. Synthetische Tests
+decken Kleinschreibung, siebenstellige Bruchteile, abweichende letzte Ziffer
+und Offsetüberlauf ab. Das authentifiziert weiterhin keine Caller-Felder.
+
 ## Grenzen und Folgegates
 
 Die öffentliche `system_health`-Evidenz kann begrenzt sein und ist kein
@@ -51,8 +60,9 @@ fehlenden Graphsichtbarkeit keinen Graphnachweis erzeugen; die bestehende
 kontrollierte Evidenzlücke bleibt `SKIP_EVIDENCE_MISSING` beziehungsweise
 `NOT_PROVEN` im jeweiligen Vertrag.
 
-Offen bleiben die unabhängige Methoden-/Quellenfreigabe, die tatsächliche
-Engine-Qualifikation des Konversionsattributs, die Herkunftsbindung eines
-vollständigen Capture-Records sowie die begrenzte Capture-/Cleanupprüfung im
-Zielbuild. Diese lokale Prüfung erteilt keine Runtimefreigabe und ändert den
+Der unabhängige Offline-Review vom 12.11.2026 fand nach der Timestamp-Korrektur
+keine offenen P1/P2 im geprüften Parser-/Quellenumfang. Offen bleiben die
+tatsächliche Engine-Qualifikation des Konversionsattributs, die Herkunftsbindung
+eines vollständigen Capture-Records sowie die begrenzte Capture-/Cleanupprüfung
+im Zielbuild. Dieser Review erteilt keine Runtimefreigabe und ändert den
 bestehenden CON-006-Demovertrag nicht.

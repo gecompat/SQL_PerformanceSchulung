@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Prüfart | lokale Vertragsprüfung, nicht unabhängig |
+| Prüfart | unabhängige Offline-Vertrags- und Quellenprüfung vom 12.11.2026; keine Runtimeprüfung |
 | Geprüfter Vertrag | `Tests/Static/idx007_last_page_contract.py` |
 | Geltungsbereich | Konsistenz caller-gelieferter Wait- und Seitenfelder |
 | Laufstatus | keine SQL-, Lab- oder Runtimeausführung |
@@ -60,3 +60,8 @@ geeignete aktuelle Seitenketten-/Metadatenevidenz belegen und den Vergleich
 mit identischer Workload kontrollieren. Eine unabhängige Methoden-/Quellen-
 freigabe, ein konkreter Demo-/Cleanupvertrag und eine getrennte
 Runtimeautorisierung bleiben erforderlich. Diese Prüfung erteilt keine davon.
+
+Der unabhängige Offline-Review vom 12.11.2026 fand nach der Timestamp-Korrektur
+keine offenen P1/P2 im geprüften Vertrags- und Quellenumfang. Das bestätigt weder
+die Caller-Eingaben noch eine aktuelle Rechtsaußen-Seite. Seitenkette, Herkunft,
+Methodenvergleich und Runtime bleiben separate Gates.
