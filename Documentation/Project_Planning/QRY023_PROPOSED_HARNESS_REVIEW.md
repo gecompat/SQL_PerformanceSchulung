@@ -197,6 +197,14 @@ die vollständige Demo-Methode. Runtimevollständigkeit und Ressourcenwirkung,
 formale Harness-/T-SQL-Abnahme, aktuelle Images/Builds, Ressourcenisolation,
 Cleanup sowie Ausführungsautorisierung bleiben offen.
 
+Eine anschließende unabhängige Prüfung fand einen Validator-P2: eine weitere
+`SQLCMDMAXVARTYPEWIDTH`-Direktive konnte den zuvor geprüften Wert `0` vor
+`STATISTICS XML ON` wieder auf `256` setzen. Der Validator bindet jetzt den
+letzten Wert vor der Aktivierung; die Regression `0` gefolgt von `256` wird
+abgewiesen. Die unabhängige Nachprüfung des Korrekturschnitts bestätigte die
+Schließung ohne neue P1/P2. Das Skript selbst enthält weiterhin den korrekten
+Wert `0`. Laufzeit- und Gesamtmethodengates bleiben unverändert offen.
+
 ## Gesamtprüfung des Offlinevorschlags
 
 Die unabhängige Gesamtprüfung vom 12. November 2026 an Main `b48269a` bestätigte
