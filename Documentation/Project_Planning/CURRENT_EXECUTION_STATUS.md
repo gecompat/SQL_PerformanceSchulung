@@ -56,11 +56,18 @@ Bindungen nicht. FWK-010 bleibt unverändert; Abbruch, bestätigtes Prozessende
 und Cleanup-Reihenfolge sind dort für diesen Anwendungsfall nicht qualifiziert.
 Die Runtime-, Rechte- und vollständige Methodenfreigabe bleiben offen.
 
+Die [Quellen- und Methodenprüfung](GRAPH_TABLES_METHOD_REVIEW.md) zeichnet den
+unabhängigen Offline-Review vom 12. November 2026 jetzt mit seinem geprüften
+Umfang und den offenen Gates nach. Die geprüften Offline-Verträge haben keine
+offenen P1/P2 nach den Korrekturen; formale Harness-/T-SQL-Abnahme und
+Runtimefreigabe sind davon getrennte, weiterhin offene Entscheidungen.
+
 Der QRY-023-Registry-Scope nennt nun das bereits im `measurement_gate`
 festgelegte Profil von 10.000 Pfaden, 30.000 Knoten und 20.000 Kanten, statt zu
 sagen, die Last sei noch zu entwerfen. QRY-023 bleibt `PROPOSED`, nicht
-katalogisiert und ungefahren. Formale T-SQL-/Harness-Abnahme, unabhängige
-Methodenfreigabe und Runtime-/Ressourcengates bleiben offen.
+katalogisiert und ungefahren. Der unabhängige Offline-Review ist dokumentiert;
+formale T-SQL-/Harness-Abnahme, Ressourcen-/Runtimegates und die formale
+Methodenfreigabe bleiben offen.
 
 ## Abschluss: QRY-023 – Planerfolg erst nach Cleanup ausgeben
 
