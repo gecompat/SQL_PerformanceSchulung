@@ -59,7 +59,12 @@ Der Auftrag vom 26. Oktober 2026 nimmt die priorisierte Bearbeitung wieder auf.
 Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview vom
 12. November 2026 fand nach PR #518 keine offenen P1/P2. Vor dem Lauf bleibt
 das YELLOW-Isolations-/Lastgate offen, da fünf nicht DGN-004 zugeordnete
-SQL-Server-Container parallel aktiv waren. Maßgeblich sind der
+SQL-Server-Container parallel aktiv waren. Die erneute read-only Inventur am
+12. November 2026 fand weiterhin fünf nicht
+DGN-004 zugeordnete aktive SQL-Server-Container (2017, 2019, 2022 und zweimal
+2025); keiner wurde gestartet, gestoppt oder verändert. Das YELLOW-Gate bleibt
+offen. Maßgeblich sind der [aktive begrenzte Plan](#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand)
+und der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 [aktive begrenzte Plan](#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand) und der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
