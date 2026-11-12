@@ -3470,7 +3470,7 @@ bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
 Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
 bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
 [Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md), [Messworkload](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) und [Codeentwurf](../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md).
-Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge als Vorschlag fest; das [Quellen- und Methodenreview](../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md) begründet `MATCH`, Kandidatenindizes und getrennte Mess-/Planevidenz. Ein nicht katalogisierter Harness-Codeentwurf mit statischem Strukturvalidator liegt vor. Unabhängige Methodenfreigabe, formale Vertrags-/T-SQL-Prüfung, Image-Digestbindung und Laufzeitqualifikation bleiben offen.
+Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge als Vorschlag fest; das [Quellen- und Methodenreview](../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md) begründet `MATCH`, Kandidatenindizes und getrennte Mess-/Planevidenz. Ein nicht katalogisierter Harness-Codeentwurf mit statischem Strukturvalidator liegt vor. Der unabhängige Offline-Review vom 12.11.2026 prüfte Daten-/Queryform, Messreihen, Planabfragen und statische Harnessverträge; die gefundenen Identitäts-, Ressourcen- und Validatorgrenzen sind dokumentiert und nachverfolgt. Eine formale Methodenfreigabe, Vertrags-/T-SQL-Prüfung, Image-Digestbindung und Laufzeitqualifikation bleiben offen.
 
 Der [ScriptDom-Grammatikparse](../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md) besteht für die ausführbaren T-SQL-Dateien unter den Grammatikprofilen 150/160/170. Das ist kein Engine-Kompiliernachweis; unabhängige Methodenfreigabe, formale Harness-Abnahme und Laufzeitqualifikation bleiben offen.
 
@@ -3490,7 +3490,7 @@ Fehlerfall. 46 QRY-023-Tests und die unabhängige Korrekturprüfung bestanden,
 ohne neue P1/P2. Das Skript bleibt unverändert; Runtime-/Methodengates bleiben
 offen.
 
-Die unabhängige Gesamtprüfung an Main `b48269a` fand danach zwei P2-Gates:
+Die unabhängige Gesamtprüfung an Main `b48269a` fand zwei P2-Gates:
 FWK-010 nimmt nur eine Anmeldung über alle Phasen an; FWK-008-Größen-,
 Session- und Abbruchgrenzen waren unvollständig. Das Proposed-Manifest bindet
 die Phasenrechtsmatrix und hält die Identitätsdurchsetzung ausdrücklich OPEN.

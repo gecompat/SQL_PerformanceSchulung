@@ -1,8 +1,8 @@
 # Graph Tables: Quellen- und Methodenreview zu QRY-023
 
-Stand: 7. November 2026
-Status: dokumentarisches Review; keine unabhängige Freigabe, Implementierung
-oder Ausführung
+Stand: 12. November 2026
+Status: statischer Entwurf und unabhängige Offline-Review durchgeführt;
+formale Methoden-/Harnessfreigabe und Ausführung bleiben offen
 
 ## Graph-Query und Indexbegründung
 
@@ -78,8 +78,20 @@ Laufzeitqualifikation ein.
 - Fünf Wiederholungspaare liefern kleine Stichproben. Median und Streuung sind
   beschreibend für das Profil; ein statistischer Signifikanz- oder
   Allgemeingültigkeitsclaim ist daraus nicht ableitbar.
-- Eine unabhängige Methodenprüfung, formale Vertragsabnahme und sämtliche
-  Ausführungsgates bleiben offen.
+- Die unabhängige Offline-Review vom 12. November 2026 prüfte Ergebnisoracle,
+  Abfrageformen, Messreihen, Planabfragen und die statischen Harnessverträge.
+  Sie fand zunächst offene Identitäts- sowie Ressourcen-/Abbruchgrenzen. Das
+  Proposed-Manifest bindet diese Grenzen nun und markiert die technische
+  Durchsetzung ausdrücklich offen; der gemeinsame FWK-010-Caller wurde dafür
+  nicht verändert.
+- Die Review der sqlcmd-Planbreite fand zusätzlich, dass der Validator eine
+  spätere Überschreibung von `SQLCMDMAXVARTYPEWIDTH 0` nicht erkannte. Der
+  Validator prüft nun den letzten Wert vor `STATISTICS XML ON`; die
+  Negativregression `0` gefolgt von `256` wird abgewiesen. Eine unabhängige
+  Nachprüfung bestätigte die Korrektur ohne neue P1/P2.
+- Damit ist der geprüfte Offline-Methodenumfang unabhängig reviewed; dies ist
+  keine formale Projektfreigabe. Formale Vertrags-/T-SQL-Abnahme und sämtliche
+  Runtime-/Ausführungsgates bleiben offen.
 
 ## Quellen und Projektverträge
 
