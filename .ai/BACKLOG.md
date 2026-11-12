@@ -2041,6 +2041,15 @@ sind deshalb kein Runtime-Nachweis. Die spätere Beobachtungsphase muss diese
 Quellen tatsächlich und in einem eigenen begrenzten Capturepfad erheben; der
 Offline-Contract autorisiert keine Liveausführung.
 
+**Unabhängiger Offline-Review vom 12. November 2026:** Im Zeitfensterparser
+wurden zuvor gültige RFC-3339-Kleinschreibung und Bruchteile ab sieben Stellen
+abgelehnt; Offsetnormalisierung konnte an den Jahresgrenzen ungefangen
+scheitern. PR #523 bindet exakte Dezimalpräzision und ganzzahlige
+Zeitzonenrechnung; 19 synthetische Tests decken diese Fälle einschließlich
+gleichwertiger Offsets ab. Der unabhängige Korrekturreview fand keine offenen
+P1/P2 im Offlineumfang. `requestType="convert"` bleibt ohne Enginebeleg,
+Capture-Provenienz caller-geliefert und die Variante `PROPOSED`.
+
 ##### 6. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
@@ -2106,6 +2115,15 @@ trennen I/O-Waits, fehlende Konkurrenz und widersprüchliche Zuordnungen.
 Callerwerte sind nicht authentifiziert; echte Seitenkettenauflösung,
 Methoden-/Quellenreview, fairer Workloadvergleich und Runtimequalifikation
 bleiben offen. Der Prüfer darf nicht als Lauf- oder Engpassnachweis gelten.
+
+PR #522 härtet die Zeitkonsistenz: gültige RFC-3339-Zeitwerte mit explizitem
+Offset werden nach dem UTC-Zeitpunkt statt nach ihrer Schreibweise verglichen;
+`-00:00`, ungültige Kalenderdaten, Präzisionsunterschiede und
+Offsetnormalisierungsüberläufe werden fail-closed behandelt. 13 synthetische
+Tests bestehen. Der unabhängige Offline-Review vom 12. November 2026 fand nach
+der Korrektur keine offenen P1/P2 im geprüften Parser-/Quellenumfang; Wait-
+Herkunft, aktuelle Rechtsaußen-Seitenkette, fairer Workloadvergleich und
+Runtimequalifikation bleiben offen.
 
 ##### 7. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
 
