@@ -77,9 +77,10 @@ EXPECTED_READER_BASELINE_CONTRACT = {
     "server_or_public_permission_mutation": "FORBIDDEN",
     "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED",
 }
+EXPECTED_SQLCMD_IDENTITY_VARIABLES = {"ReaderLogin": "READER"}
 EXPECTED_AUTHORIZATION_CONTRACT = {
     "phase_privileges": {
-        "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
+        "SETUP": ["CREATE DATABASE", "CREATE DATABASE USER FOR ACTIVE READER SQL_LOGIN", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
         "READ_AND_MEASURE": ["SELECT ON FOUR QUERY AND FOUR ORACLE TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
         "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"],
     },
@@ -502,6 +503,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "manifest must bind phase-specific SQL identities and retain the server privilege qualification gate", errors)
     require(manifest.get("credential_profiles") == ["ADMIN", "READER"],
             "manifest must define exactly the two approved QRY-023 credential profiles", errors)
+    require(manifest.get("sqlcmd_identity_variables") == EXPECTED_SQLCMD_IDENTITY_VARIABLES,
+            "manifest must bind the ReaderLogin SQLCMD identity to the READER profile", errors)
     require(manifest.get("sqlcmd_input_validation") == EXPECTED_SQLCMD_INPUT_VALIDATION,
             "manifest must bind the exact caller-side SQLCMD input validation contract before expansion", errors)
     run_token = manifest.get("run_token")
@@ -555,6 +558,11 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
 
     preflight = read("00_Preflight.sql")
     setup = read("10_Setup.sql")
+    setup_compact = re.sub(r"\s+", " ", setup).casefold()
+    require("@readerlogin sysname" in setup_compact
+            and "where name=@readerlogin and type='s' and is_disabled=0" in setup_compact
+            and "create user '+quotename(@readerlogin)+n' for login '+quotename(@readerlogin)" in setup_compact,
+            "setup must map only the active SQL READER login into the exact marked target database", errors)
     workload = read("20_Workload.sql")
     qualification = read("25_Qualification_Preflight.sql")
     correctness = read("30_Correctness.sql")

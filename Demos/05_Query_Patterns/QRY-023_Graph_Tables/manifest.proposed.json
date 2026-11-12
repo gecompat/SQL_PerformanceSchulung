@@ -32,6 +32,7 @@
     "forced_abort_residual_state": "The marked target database may contain partial synthetic objects; connection-cancel completion and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
   },
   "credential_profiles": ["ADMIN", "READER"],
+  "sqlcmd_identity_variables": {"ReaderLogin": "READER"},
   "reader_baseline_contract": {
     "instance_scope": "DEDICATED_TO_ONE_QRY023_RUN",
     "user_database_inventory_before_setup": "EMPTY_OR_EXACT_MARKED_SAME_RUN",
@@ -57,7 +58,7 @@
   },
   "authorization_contract": {
     "phase_privileges": {
-      "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
+      "SETUP": ["CREATE DATABASE", "CREATE DATABASE USER FOR ACTIVE READER SQL_LOGIN", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
       "READ_AND_MEASURE": ["SELECT ON FOUR QUERY AND FOUR ORACLE TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
       "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"]
     },

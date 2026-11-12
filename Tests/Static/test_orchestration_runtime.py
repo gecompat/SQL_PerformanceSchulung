@@ -1510,6 +1510,9 @@ def test_harness_pass(base: Path, executable: Path) -> None:
 
 def test_phase_credential_profiles_are_isolated(base: Path) -> None:
     manifest = credential_profile_manifest(base / "credential_profiles")
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    payload["sqlcmd_identity_variables"] = {"ReaderLogin": "READER"}
+    manifest = write_json(manifest, payload)
     record = base / "credential_invocations.jsonl"
     shim = write(
         base / "credential_sqlcmd.py",
@@ -1518,7 +1521,7 @@ def test_phase_credential_profiles_are_isolated(base: Path) -> None:
         "script=pathlib.Path(args[args.index('-i')+1]).name\n"
         "username=args[args.index('-U')+1]\n"
         "with open(os.environ['IDENTITY_RECORD'], 'a', encoding='utf-8') as stream:\n"
-        " stream.write(json.dumps({'script':script,'username':username,'password':os.environ.get('SQLCMDPASSWORD'),"
+        " stream.write(json.dumps({'script':script,'username':username,'args':args,'password':os.environ.get('SQLCMDPASSWORD'),"
         "'profile_secrets':[key for key in os.environ if key.startswith(('SQLPERF_SQL_PASSWORD_', 'SQLCMDPASSWORD_'))]})+'\\n')\n"
         "print('SQLPERF_SUMMARY|PASS|OK')\n",
     )
@@ -1547,6 +1550,11 @@ def test_phase_credential_profiles_are_isolated(base: Path) -> None:
     by_script = {call["script"]: call for call in calls}
     assert_equal(by_script["preflight_pass.sql"]["username"], "admin_login", "admin preflight identity")
     assert_equal(by_script["setup_pass.sql"]["username"], "admin_login", "admin setup identity")
+    setup_call = by_script["setup_pass.sql"]
+    variable_index = setup_call["args"].index("-v")
+    assert_equal("ReaderLogin=reader_login" in setup_call["args"][variable_index + 1:],
+                 True,
+                 "mapped profile username is passed as a SQLCMD identity variable")
     assert_equal(by_script["demo_pass.sql"]["username"], "reader_login", "reader phase identity")
     assert_equal(by_script["cleanup_pass.sql"]["username"], "admin_login", "admin cleanup identity")
     assert_equal(by_script["demo_pass.sql"]["password"], "synthetic-reader-secret", "reader SQLCMDPASSWORD")
@@ -1582,6 +1590,58 @@ def test_duplicate_phase_identity_fails_before_sqlcmd_resolution(base: Path) -> 
                          "duplicate identity rejected before SQLCMD")
         else:
             raise AssertionError("duplicate phase identities were accepted")
+        resolve.assert_not_called()
+        execute.assert_not_called()
+
+
+def test_unsafe_sqlcmd_identity_fails_before_sqlcmd_resolution(base: Path) -> None:
+    manifest = credential_profile_manifest(base / "unsafe_sqlcmd_identity")
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    payload["sqlcmd_identity_variables"] = {"ReaderLogin": "READER"}
+    manifest = write_json(manifest, payload)
+    environment = {
+        "SQLPERF_SQL_USERNAME_ADMIN": "admin_login",
+        "SQLPERF_SQL_PASSWORD_ADMIN": "synthetic-admin-secret",
+        "SQLPERF_SQL_USERNAME_READER": "reader]';DROP_TABLE",
+        "SQLPERF_SQL_PASSWORD_READER": "synthetic-reader-secret",
+    }
+    with patch.dict(os.environ, environment), \
+         patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=manifest,
+                server="synthetic",
+                auth="sql",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "credential profile READER username is not a safe SQLCMD identity",
+                         "unsafe SQLCMD identity rejected before expansion")
+        else:
+            raise AssertionError("unsafe SQLCMD identity was accepted")
+        resolve.assert_not_called()
+        execute.assert_not_called()
+
+
+def test_reserved_sqlcmd_identity_name_fails_before_sqlcmd_resolution(base: Path) -> None:
+    manifest = credential_profile_manifest(base / "reserved_sqlcmd_identity")
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    payload["sqlcmd_identity_variables"] = {"targetdatabase": "READER"}
+    manifest = write_json(manifest, payload)
+    with patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo_module.load_manifest(manifest)
+        except ValueError as exc:
+            assert_equal(str(exc), "invalid or reserved sqlcmd_identity_variables mapping",
+                         "core SQLCMD variable cannot be overwritten")
+        else:
+            raise AssertionError("reserved SQLCMD identity variable was accepted")
         resolve.assert_not_called()
         execute.assert_not_called()
 
@@ -1861,6 +1921,8 @@ def main() -> int:
         test_harness_pass(base, executable)
         test_phase_credential_profiles_are_isolated(base)
         test_duplicate_phase_identity_fails_before_sqlcmd_resolution(base)
+        test_unsafe_sqlcmd_identity_fails_before_sqlcmd_resolution(base)
+        test_reserved_sqlcmd_identity_name_fails_before_sqlcmd_resolution(base)
         test_missing_phase_credential_fails_before_sqlcmd_resolution(base)
         test_phase_profiles_require_sql_authentication_before_sqlcmd_resolution(base)
         test_harness_cleanup_failure(base, executable)
