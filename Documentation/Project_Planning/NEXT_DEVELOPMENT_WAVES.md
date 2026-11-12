@@ -289,6 +289,16 @@ Validator, Dokumentationslinks und Datenschutzscan bestanden. Die konkrete
 Sollmenge bleibt unentschieden und der Entwurf unverbindlich. Keine
 Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
 
+Die anschließende SQLCMD-Quellenprüfung fand einen weiteren P2: `GO [count]`
+ist ein Utility-Batchtrenner und wiederholt seine vorherige Batch. Der Guard
+verwirft jetzt rohe `GO`-Zeilen, auch hinter führenden ein- und mehrzeiligen
+Blockkommentaren. Fünf neue Regressionen prüfen nacktes `GO`, `GO` innerhalb
+von Blockkommentaren und drei `GO 1000000`-Kommentarpräfixe; die Testsuite (76),
+der QRY-023-Validator, Datenschutzprüfung und Dokumentationslinks bestehen.
+Der unabhängige Nachreview schloss den P2 ohne weitere P1/P2. Als nächstes
+folgen PR- und Integrationsgates. Keine Produktquelle und kein
+SQL-/Lab-/Runtime-Lauf.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

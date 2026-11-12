@@ -435,6 +435,42 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
+    def test_reader_phase_rejects_batch_separator(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("GO\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_repeated_batch_separator_inside_tsql_block_comment(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("/*\nGO 1000000\n*/\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_batch_separator_after_same_line_comment(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("/* harmless */ GO 1000000\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_batch_separator_after_multiline_comment(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("/* harmless\n*/ GO 1000000\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_batch_separator_after_multiline_comment_text(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("/* harmless\nstill harmless */ GO 1000000\n" + source,
+                        encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
     def test_reader_phase_rejects_sqlcmd_output_width_override(self) -> None:
         path = self.demo / "40_Measurement.sql"
         source = path.read_text(encoding="utf-8")

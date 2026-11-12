@@ -100,6 +100,16 @@ Laufzeitqualifikation ein.
   konkretisiert phasenbezogene READER-Zugriffe und fail-closed Inventurregeln
   mit `sys.fn_my_permissions`. Er legt keine normative Sollmenge fest und
   belegt keine realen Principalrechte, Ownership Chain oder Runtimewirkung.
+- Ein weiterer statischer Follow-up sperrt SQLCMD-`GO`-Batchtrenner in READER-
+  Skripten, damit ein optionaler Wiederholungswert keine unbeschränkt
+  vervielfachte Mess-/Planabfrage erzeugt. Die Rohtextprüfung umfasst auch
+  `GO` nach ein- und mehrzeiligen führenden T-SQL-Blockkommentaren; 76
+  Regressionen und der QRY-023-Validator bestehen. Microsoft dokumentiert
+  `GO [count]` als SQLCMD-Batchterminator, dessen Count die vorherige Batch
+  wiederholt ([SQLCMD-Befehle](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-commands),
+  abgerufen am 12. November 2026). Unabhängiger Nachreview schloss den P2 ohne
+  weitere P1/P2; PR-Gates folgen. Der Laufzeit-Timeout bleibt eine getrennte
+  Grenze.
 
 ## Quellen und Projektverträge
 
