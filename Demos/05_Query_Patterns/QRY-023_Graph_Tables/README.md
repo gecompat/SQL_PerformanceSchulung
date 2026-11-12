@@ -111,6 +111,15 @@ Reservierte FWK-010-SQLCMD-Variablennamen können nicht überschrieben werden.
 Namens- oder SID-Konflikte brechen fail-closed ab. Dies ist statisch geprüft,
 aber weder T-SQL-kompiliert noch mit realen SQL-Identitäten ausgeführt.
 
+Das Proposed-Manifest bindet jetzt zusätzlich eine versionierte
+READER-Effektivrechte-Sollmenge für Server, ADMIN-inventarisierte
+Standardendpoints, Datenbank, `dbo`/`lab` und alle 13 erwarteten
+QRY-023-/FWK-004-Securables. Der Offlinevalidator schützt die exakte
+Vertragsform sowie Fail-closed Regeln für Duplikate, fehlende Resultate,
+Spaltenrechte und unerwartete Objekte. Der Vertrag ist
+`DESIGN_ONLY_NOT_ENGINE_QUALIFIED`; er prüft keine Live-Rechte und ändert
+keine Rechte.
+
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
 `HAS_PERMS_BY_NAME`-Prüfungen im Qualifikationspreflight. Nicht zuordenbare

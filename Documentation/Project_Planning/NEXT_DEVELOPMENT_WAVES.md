@@ -338,6 +338,26 @@ Runtime- oder Generalprobenlauf. Der Merge ist Checkpoint; T-SQL-Kompilierung,
 reale Rechte-/SID-Qualifikation, Ressourcen-/Cleanupdurchsetzung und sämtliche
 Runtimegates bleiben offen.
 
+PR #559 ist am 12. November 2026 nach erfolgreichem unabhängigen Review
+integriert. Die direkte QRY-023- und Framework-SQL-Matrix einschließlich
+SQL Server 2019/2022/2025 sowie die erforderlichen Registry-/Governance-Gates
+waren auf dem finalen Head grün. Zwei nicht betroffene DGN-007-Profilchecks
+meldeten `PYTHON_PROFILE_CHANGED`; ihre Fehler wurden diagnostisch geprüft,
+nicht umgangen. Ein nicht betroffener SQL-2025-AI-Job war beim Checkpoint noch
+in Arbeit.
+
+Als nächstes folgt ein einzelnes QRY-023-Offlinesegment mit maximal einem
+Arbeitspaket, einem PR und drei Vertrags-/Test-/Quellenkandidaten: eine
+begrenzte Erweiterung des bestehenden Primärquellenpakets `SRC-158` plus die vollständige,
+versionierte Sollmenge effektiver Rechte pro Server, Standardendpoint,
+Datenbank, Schema und inventarisiertem QRY-023-Securable als deklarativer
+Vertrag, dazu synthetische Abweichungs- und Vollständigkeitsgegenproben.
+Vorhandene `DEC-083`-Baselines und die Effektivrechtequalifikation bleiben
+maßgeblich. Keine SQL-/Lab-/Runtimeausführung, Rechtevergabe, neue Quellen-ID
+oder Generalprobe. Der Merge ist Checkpoint; die tatsächliche
+`sys.fn_my_permissions`-Erfassung, ADMIN-Rollen-/SID-/Endpointinventur und
+Enginequalifikation bleiben anschließend eigene offene Runtimegates.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

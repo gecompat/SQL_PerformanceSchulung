@@ -51,6 +51,30 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
 
+    def test_reader_permission_contract_rejects_extra_database_permission(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_permission_expectation_contract"]["database_permissions"].append("CONTROL")
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("complete fail-closed READER permission expectation" in error
+                            for error in self.errors()))
+
+    def test_reader_permission_contract_requires_complete_object_inventory(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        del manifest["reader_permission_expectation_contract"]["object_permissions"]["lab.USP_EndMeasurement"]
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("complete fail-closed READER permission expectation" in error
+                            for error in self.errors()))
+
+    def test_reader_permission_contract_rejects_runtime_derived_expectations(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_permission_expectation_contract"]["runtime_derived_expectations"] = "ALLOW"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("complete fail-closed READER permission expectation" in error
+                            for error in self.errors()))
+
     def test_reader_baseline_must_bind_permission_sources(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))

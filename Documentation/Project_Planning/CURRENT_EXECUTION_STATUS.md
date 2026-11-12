@@ -52,6 +52,16 @@ aktiven SQL_LOGIN der exakt markierten QRY-023-Datenbank zu und bricht bei
 Namens-/SID-Konflikten ab. Der Offlineentwurf und synthetische Gegenproben
 belegen noch keine SQL-Kompilierung, reale SID-Zuordnung, Effektivrechte oder
 Runtime. QRY-023 bleibt `PROPOSED`; SQL, Lab und Generalprobe bleiben aus.
+PR #559 schloss den READER-Datenbankbenutzerfehler nach unabhängigem Review;
+der case-insensitive FWK-010-Variablenraum ist gegen Überschreibung geschützt.
+Ein weiterer Offlinekandidat bindet nun `reader_permission_expectation_contract`
+`1.0`: exakte erwartete READER-Rechtemengen für Server, inventarisierte
+Standardendpoints, Datenbank, `dbo`/`lab` und die 13 erwarteten
+QRY-023-/FWK-004-Securables. Validator und synthetische Regressionen schützen
+zusätzliche Datenbankrechte, unvollständige Objektinventur und runtimeabgeleitete
+Sollwerte. Dies attestiert nicht die tatsächlichen Funktionsresultate;
+`sys.fn_my_permissions`, ADMIN-Rollen-/SID-/Endpointinventur, Ownership Chain,
+SQL-Ausführung und Runtime bleiben offen.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
 SQL-, Lab- oder Runtimeausführung.
