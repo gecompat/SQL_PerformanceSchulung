@@ -160,3 +160,21 @@ des bereits tatsaechlichen ps/--no-trunc/-a. Nur dieses Expectedliteral korrigie
 genau betroffener Fall lokal normal/-O PASS mit originalen Rawkanal-SHAs.
 Produktquellen unveraendert, keine lokale25er-Wiederholung. Historischer CI-Fail
 bleibt erhalten; neue aktuelle Head-/Main-Gates vor Integration Pflicht.
+
+## SOURCE_ONLY-Integration nach PR226
+
+PR [#226](https://github.com/gecompat/SQL_PerformanceSchulung/pull/226) wurde am
+2026-10-12 vollständig gemergt: zehn Head- und acht Main-Gates PASS, vollständiger
+Tree übernommen, `main` per Fast-Forward synchronisiert und sauber; eigener
+lokaler/Remote-Branch entfernt. Der Worktree wurde nach Belegsicherung archiviert.
+Head `dec87b692081171538db7e26039fc5ccd1a64ded`, Main
+`69abfb34e10bd2538190c2759109ab2da827810a`, Tree
+`6c2f8396baee84dff8546f26885e8fe78bc62505`.
+
+Integriert wurde SOURCE_ONLY: vollständige ID-Abfragen, begrenzter
+`--time=0`-Namespaceabbau, sticky UNKNOWN bei unbeendetem mutativen Remove und die
+25 neuen reinen Methoden samt vier geschützten Deltafällen. C1/C2 bleiben FAIL;
+C2-Recovery UNKNOWN und SQLcleanup NOT_ESTABLISHED. Nach zwei Nativekandidaten und
+einem eigenen Container bleibt diese Welle gestoppt; es gab null SQLcmd- und
+Poolchildaufrufe. Die Integration qualifiziert keine Pool-Runtime. C3 benötigt
+eine gesonderte geänderte Recovery-/Quellenentscheidung und frische Admission.
