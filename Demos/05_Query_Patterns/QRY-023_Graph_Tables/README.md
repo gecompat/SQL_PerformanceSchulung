@@ -127,11 +127,13 @@ Ergebnisorakel, Messreihenfolge, Plantrennung und den Nicht-Katalogstatus.
 `DEC-079` genehmigt die Methodenbasis; `DEC-080` akzeptiert die acht
 ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170;
 `DEC-081` bestätigt die Buildpins als aktuelle Linux-Servicingstände am
-12.11.2026. Die OCI-Tag-/Manifestmetadaten wurden zuletzt am 7.11.2026 geprüft.
+12.11.2026. `DEC-082` bestätigt am selben Tag die OCI-Manifest-/Konfigurations-
+digests und Produktlabels gegen den vorgeschlagenen Lock. Das belegt keinen
+gestarteten SQL-Server-Prozess.
 Bevor die Demo in den Katalog oder einen Runtimeworkflow aufgenommen wird,
 bleiben formale Harness-Abnahme,
-Integration des Image-Locks in einen späteren Runtimeaufruf, Ressourcenprofil
-und konkrete Ausführungsgenehmigung offen.
+Runtimecaller-Integration, phasenspezifische Identität, Ressourcenprofil und
+konkrete Ausführungsgenehmigung offen.
 
 Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus

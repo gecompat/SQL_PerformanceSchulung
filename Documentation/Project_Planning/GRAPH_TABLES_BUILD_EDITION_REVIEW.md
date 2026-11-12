@@ -1,7 +1,7 @@
 # Graph Tables: Editions- und Buildprüfung für QRY-023
 
 Stand: 12. November 2026
-Status: aktuelle Servicingquellenbestätigung gemäß `DEC-081`; vorgeschlagene Qualifikationspins, keine Ausführung
+Status: aktuelle Servicingquellen- und MCR-Metadatenbestätigung gemäß `DEC-081`/`DEC-082`; vorgeschlagene Qualifikationspins, keine Ausführung
 
 ## Befund
 
@@ -18,11 +18,12 @@ Objekt-/DML-Rechte sowie `SELECT` und `SHOWPLAN` nach den jeweiligen Phasen.
 Die erneute Microsoft-Versionshistorieprüfung vom 12. November 2026 weist
 weiterhin die jüngsten Servicingbuilds aus. Die MCR-Tagliste enthält sowohl
 CU-only- als auch GDR-Linux-Tags; deren Namen allein reichen nicht als
-Buildnachweis. Für die im
-QRY-023-Entwurf verwendeten GDR-Tags wurde das Single-Platform-Manifest samt
-Konfiguration read-only abgefragt. Das Image-Label `com.microsoft.version`
-stimmt bei allen drei Profilen mit dem jeweiligen Produktbuild überein. Kein
-Image wurde heruntergeladen oder gestartet.
+Buildnachweis. Am 12. November 2026 wurden die drei im QRY-023-Entwurf
+verwendeten Tags und ihre Konfigurationsblobs read-only erneut abgefragt.
+Alle aktuellen `Docker-Content-Digest`-Werte stimmen mit dem vorgeschlagenen
+Manifestlock überein; Konfigurationsdigests und `com.microsoft.version`-Labels
+stimmen ebenfalls mit den dokumentierten Werten überein. Kein Image-Layer
+wurde heruntergeladen und kein Image wurde gestartet.
 
 | Projektprofil / Linux-Image | Compatibility Level | Produktservicing laut Microsoft | Image-Label `com.microsoft.version` |
 |---|---:|---|---:|
@@ -41,8 +42,8 @@ Die geprüften AMD64-Manifest- und Konfigurationsdigests lauten:
 Für die drei GDR-/CU-Images sind deshalb `15.0.4500.2`, `16.0.4305.5` und
 `17.0.5035.5` weiterhin passende Design-/Qualifikationspins; Microsoft führt
 sie auch am 12. November 2026 als neueste dokumentierte Linux-Servicingbuilds.
-Die vorhandene OCI-Manifestprüfung und Labels stammen vom 7. November; die
-Tags wurden beim aktuellen Standcheck nicht erneut abgefragt. Die
+Die OCI-Manifestprüfung vom 12. November bestätigt die untenstehenden aktuellen
+Tag-, Manifest-, Konfigurations- und Labelwerte. Die
 plain-CU-Tags `2019-CU32-ubuntu-20.04` und `2022-CU27-ubuntu-22.04` enthalten
 ältere Buildstände und werden nicht verwendet. Die Konfiguration beschreibt
 nicht den tatsächlich
@@ -101,6 +102,6 @@ sind klar ausgewiesene Projektvorschläge.
 - `SRC-122` und `SRC-123`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen) bindet Graph-Unterstützung ab SQL Server 2017 und die Compatibility-Level-Zuordnung.
 - `SRC-126`: derselbe Registerabschnitt bindet die Editionsmatrizen für 2019, 2022 und 2025.
 - `SRC-127`: Microsofts [Linux-Servicingübersicht](https://learn.microsoft.com/en-us/troubleshoot/sql/releases/linux/download-and-install-latest-updates-linux) wurde am 12. November erneut geprüft und bestätigt die Pins als aktuelle Linux-Servicingstände.
-- `SRC-130`: Microsoft Artifact Registry, die drei oben dokumentierten Manifest-/Konfigurationsdigests und deren `com.microsoft.version`-Labels, read-only abgerufen am 7. November 2026; kein Laufzeitbeleg.
+- `SRC-130`: Microsoft Artifact Registry, die drei oben dokumentierten Manifest-/Konfigurationsdigests und deren `com.microsoft.version`-Labels, read-only am 12. November 2026 erneut abgerufen; kein Laufzeitbeleg.
 - `SRC-131`: Microsofts [Linux-Installationsanforderungen](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup) nennen zwei x64-Kerne mit 2 GHz, 2 GB RAM und 6 GB Speicherplatz als Produktminimum.
 - `SRC-132`: Microsofts [Speicherempfehlungen für SQL Server auf Linux](https://learn.microsoft.com/en-us/sql/linux/configure/performance-best-practices-sql-server-memory?view=sql-server-ver17) dokumentieren die getrennten Container- und Enginegrenzen.
