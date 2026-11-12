@@ -285,6 +285,11 @@ Principals oder ein Nachweis der internen Ownership Chain verbunden. Beides
 bleibt offen bis zu einer getrennten Laufzeitqualifikation. Der Ansatz ist
 DESIGNED, nicht implementiert oder enginequalifiziert. Quelle, abgerufen am
 12. November 2026: [sys.fn_my_permissions (Transact-SQL)](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17).
+Die Aufzählung der QRY-023-eigenen Objekte beweist außerdem nicht, dass auf
+anderen Datenbank- oder Instanzobjekten keine zusätzlichen Rechte bestehen.
+Ein vollständiger Minimalrechtnachweis muss sämtliche relevanten Securables
+einschließlich Spaltenrechten inventarisieren oder den Aussageumfang auf eine
+qualifizierte dedizierte Wegwerfinstanz mit gebundenem Objektbestand begrenzen.
 
 Die erste PR-CI-Prüfung zeigte, dass DGN-007 zusätzlich den AST von
 `run_demo.py` fest bindet. Die Bindung enthält jetzt den exakten Python-3.12-

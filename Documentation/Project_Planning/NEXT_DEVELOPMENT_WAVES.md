@@ -172,6 +172,19 @@ Serverprinzipal-/Grantänderung, kein SQL-/Lab-/Runtime-Lauf und keine
 menschliche Generalprobe. Der verbleibende Lauf- und Minimalrechtenachweis
 bleibt offen.
 
+PR #543 integrierte den dokumentierten `sys.fn_my_permissions`-Ansatz. Die
+anschließende Scopeprüfung fand eine weitere Grenze: Eine Prüfung nur der
+QRY-023-Objekte schließt zusätzliche Grants auf anderen Instanz-, Datenbank-
+oder Spalten-Securables nicht aus. Der folgende begrenzte Offlinepunkt macht
+diese Beweisgrenze in README und Harnessreview ausdrücklich. Ein vollständiger
+Minimalrechtnachweis muss später eine vollständige relevante Inventur oder eine
+qualifizierte dedizierte Instanz mit gebundenem Objektbestand verwenden. Umfang:
+ein Arbeitspaket, ein PR und zwei bestehende Dokumentationskandidaten innerhalb
+der sechs freigegebenen Kandidaten; kein Reset und keine neue Produktquelle.
+Keine Principals/Grants, kein SQL-/Lab-/Runtime-Lauf und keine menschliche
+Generalprobe. Implementierung und tatsächliche Rechtequalifikation bleiben
+Folgearbeit.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
