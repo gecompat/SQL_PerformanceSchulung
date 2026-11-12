@@ -315,23 +315,20 @@ def reader_phase_scripts_are_read_only(
     block_comment = re.compile(r"/\*.*?\*/", re.DOTALL)
     line_comment = re.compile(r"--[^\r\n]*")
     dml_target = re.compile(
-        r"\b(?:insert(?:\s+into)?|update|delete\s+from|merge\s+into|truncate\s+table)\s+"
-        r"(?P<target>@?[a-z_][a-z0-9_$#@]*)",
+        r"\b(?:insert(?:\s+into)?|update|delete(?:\s+top\s*\([^)]*\))?(?:\s+from)?|"
+        r"merge\s+into|truncate\s+table|set\s+identity_insert|(?:write|updatetext))\s+"
+        r"(?P<target>@?[a-z_][a-z0-9_$#@]*|\[[^]]+\])",
         re.IGNORECASE,
     )
     select_into_target = re.compile(
-        r"\bselect\b(?:(?!;).)*?\binto\s+(?P<target>@?[a-z_][a-z0-9_$#@]*)",
+        r"\bselect\b(?:(?!;).)*?\binto\s+(?P<target>@?[a-z_][a-z0-9_$#@]*|\[[^]]+\])",
         re.IGNORECASE | re.DOTALL,
     )
     bulk_insert_target = re.compile(
-        r"\bbulk\s+insert\s+(?P<target>@?[a-z_][a-z0-9_$#@]*)",
+        r"\bbulk\s+insert\s+(?P<target>@?[a-z_][a-z0-9_$#@]*|\[[^]]+\])",
         re.IGNORECASE,
     )
-    ddl_or_security = re.compile(
-        r"\b(?:create|alter|drop)\s+(?:database|login|user|role|schema|table|procedure|index)\b"
-        r"|\b(?:grant|deny|revoke)\b",
-        re.IGNORECASE,
-    )
+    ddl_or_security = re.compile(r"\b(?:create|alter|drop|grant|deny|revoke|dbcc)\b", re.IGNORECASE)
     direct_execute = re.compile(
         r"\bexec(?:ute)?\s+(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
         r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
@@ -342,7 +339,7 @@ def reader_phase_scripts_are_read_only(
         source = block_comment.sub(" ", reader_scripts[script_name])
         source = line_comment.sub(" ", source)
         executable_source = re.sub(r"n?'(?:''|[^'])*'", "''", source, flags=re.IGNORECASE)
-        if ddl_or_security.search(source):
+        if ddl_or_security.search(executable_source):
             return False
         for match in re.finditer(r"\bexec(?:ute)?\b", executable_source, re.IGNORECASE):
             call = direct_execute.match(executable_source, match.start())
@@ -352,9 +349,9 @@ def reader_phase_scripts_are_read_only(
                       call.group("object").strip("[]").casefold())
             if target not in allowed_execute:
                 return False
-        for match in (*dml_target.finditer(source),
-                      *select_into_target.finditer(source),
-                      *bulk_insert_target.finditer(source)):
+        for match in (*dml_target.finditer(executable_source),
+                      *select_into_target.finditer(executable_source),
+                      *bulk_insert_target.finditer(executable_source)):
             if not match.group("target").startswith("@"):
                 return False
     return True
@@ -693,7 +690,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
                     "50_Plan_Evidence.sql": plan,
                 },
             ),
-            "READER phase scripts may write only to local table variables and must not alter persistent data, schema, or permissions", errors)
+            "READER script text may directly write only to local table variables and must not contain persistent DML, DDL, DBCC, security changes, or indirect execution", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
     require(qualification_ownership_markers_valid(qualification),
