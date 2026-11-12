@@ -30,7 +30,12 @@ Sollmenge. Dieser Ansatz ist jetzt in README und Harnessreview als `DESIGNED`
 dokumentiert; er ist weder implementiert noch enginequalifiziert. Zusätzliche
 oder nicht auswertbare Rechte müssen fail-closed behandelt werden. Andere
 Principals und die interne Ownership Chain benötigen getrennte Nachweise.
+Die Liste der QRY-023-eigenen Objekte inventarisiert keine anderen
+Instanz-/Datenbanksecurables und schließt dortige Zusatzrechte nicht aus.
 Minimalrechte und Runtime bleiben `OPEN`.
+PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
+P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
+SQL-, Lab- oder Runtimeausführung.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen

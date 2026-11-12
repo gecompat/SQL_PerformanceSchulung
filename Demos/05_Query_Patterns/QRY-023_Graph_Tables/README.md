@@ -94,6 +94,11 @@ Ownership-Chain-Wirkung der internen Schreiboperationen; beides bleibt ein
 separates Laufzeitgate. Diese Prüfstrategie ist ein Designvorschlag und noch
 nicht implementiert oder auf SQL Server qualifiziert. Siehe Microsofts
 [`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17)-Dokumentation.
+Die genannten QRY-023-Objekte allein bilden keine vollständige Instanz- oder
+Datenbankinventur: Ein Grant auf einem anderen Objekt würde damit nicht
+ausgeschlossen. Ein späterer Minimalrechtnachweis muss zusätzliche relevante
+Securables und Spaltenrechte vollständig abdecken oder seine Aussage auf eine
+qualifizierte, dedizierte Wegwerfinstanz mit gebundenem Bestand beschränken.
 
 Der vorgeschlagene Ausführungs-Sicherheitsvertrag nennt 1 GiB als erwartete
 Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze für
