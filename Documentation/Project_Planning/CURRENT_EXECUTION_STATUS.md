@@ -1,5 +1,17 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: Datenschutzscanner – fehlerhafte URL sicher klassifizieren
+
+Bei der lokalen Pflichtprüfung stürzte `urlsplit` mit `ValueError` an einer
+fehlerhaften URL in lokalem Runtime-Arbeitsmaterial ab. Der Scanner klassifiziert
+solche Kandidaten jetzt als redigierten Befund `malformed_url` und setzt die
+Prüfung fort; der URL-Wert wird nicht übernommen oder ausgegeben. Sechs
+synthetische Scannerregressionen bestehen; die unabhängige Prüfung fand keine
+P1/P2. Die lokale Vollprüfung dieses Arbeitsverzeichnisses wurde wegen der
+großen ignorierten Runtime-Artefakte beendet. Der Befund bleibt fail-closed;
+die unveränderten lokalen Artefakte werden nicht automatisch als sicher
+eingestuft.
+
 ## Fortsetzung: QRY-023 – effektiven sqlcmd XML-Grenzwert binden
 
 Die unabhängige Prüfung fand, dass der Strukturvalidator zwar eine

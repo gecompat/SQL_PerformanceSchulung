@@ -88,6 +88,22 @@ class PrivacyScannerTests(unittest.TestCase):
                 scanner.report()
             self.assertNotIn(secret, output.getvalue())
 
+    def test_malformed_url_is_categorized_without_exposing_value(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            malformed_url = "https:" + "/" + "/[not-an-ipv6-address]/private/path"
+            (root / "malformed-url.txt").write_text(malformed_url, encoding="utf-8")
+            scanner = self.scan(root)
+            self.assertIn("malformed_url", self.categories(scanner))
+
+            output = io.StringIO()
+            with redirect_stdout(output):
+                exit_code = scanner.report()
+            report = output.getvalue()
+            self.assertEqual(1, exit_code)
+            self.assertNotIn(malformed_url, report)
+            self.assertIn("malformed_url", report)
+
     def test_office_metadata_macro_and_media_are_detected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
