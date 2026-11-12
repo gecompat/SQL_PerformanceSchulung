@@ -1,5 +1,19 @@
 # Aktueller Ausführungsstand
 
+## External Tables – statischer Lehr- und Demoentwurf
+
+Der [Konzeptentwurf](EXTERNAL_TABLES_DEMO_CONCEPT.md) knüpft als Vorschlag an
+`LO-M03-05`/`CLM-045` an und prüft eine mögliche Ergänzung von `QRY-012`.
+Er bindet den synthetischen Snapshot, Tupeloracle, Pushdown-Evidenz,
+Statistikphasen und getrennte Cleanupgrenzen. Es wurde keine stabile
+Demo-ID vergeben. Die sechs vom Nutzer freigegebenen Quellen-/Testkandidaten
+bilden für diesen Schnitt die endliche Obergrenze; verwendet werden keine
+neuen Produktquellen, da `SRC-153` bis `SRC-157` bereits aktuell geprüft sind.
+Quellen- und Vertragsprüfung bleiben auf den beschriebenen Entwurf begrenzt.
+Die formale Curriculumentscheidung, Methodenprüfung, Infrastruktur,
+Connectorverfügbarkeit und Laufzeitqualifikation bleiben offen. Kein SQL,
+Connector, Netzwerk, Dienst oder Credential wurde verwendet.
+
 ## External Tables – begrenzter Quellen- und Zugriffswegreview
 
 Der [Offline-Review](EXTERNAL_TABLES_SOURCE_REVIEW.md) bindet die
