@@ -8057,8 +8057,30 @@ brauchbare Modellantwort. Die Callerdiagnose und der öffentliche Endpointvertra
 wurden lokal nachgebessert: Gemma 4 ist im separaten Lab-Branch an `/api/chat`,
 `think: false` und `message.content` gebunden; sanitisiertes Fehlerverhalten und
 synthetische Transporttests sind ergänzt. Der gezielte KI-Vertragstest besteht.
-Das ist noch kein Laufzeitnachweis am Modell. PR #890 ist offen. Alle Gates des
-ursprünglichen Catalog-Commits sind PASS; die Chat-API-Erweiterung liegt nun in
-Commit `b02be0f9` und wartet auf den neuen CI-Lauf. Es wurden keine weiteren
-Inferenzaufrufe ausgeführt. Details:
+Das ist noch kein Laufzeitnachweis am Modell. PR #890 ist inzwischen gemergt;
+der API-Fix und seine Integrationsgates stehen im nachfolgenden Checkpoint.
+Es wurden keine weiteren Inferenzaufrufe ausgeführt. Details:
 [Generationsnachweis](SQL_SERVER_2025_AI_GENERATION_COMPONENT_REVIEW.md).
+
+## Integration des Gemma-4-API-Fixes am 2026-11-12
+
+PR [#890](https://github.com/gecompat/SQL_Server_Lab/pull/890) wurde am
+2026-11-12 um 12:35:47 UTC per Squash gemergt. Integrationscommit:
+`d7009af9712bc0fd6ac34b2ff0d052e9d673a17d`. Der PR-Run
+[43102351575](https://github.com/gecompat/SQL_Server_Lab/actions/runs/43102351575)
+bestand mit Classify, Ubuntu-/Windows-Static-Checks, Adapter-, Docker-, Podman-,
+Mixed- und Hyper-V-Gates sowie PR Gate. Foundation integrity und der nicht
+betroffene Podman-Recovery-Job wurden übersprungen. Das Lab-Worktree steht
+sauber auf `main`; der eigene lokale und Remote-Branch sind entfernt.
+
+Der Fix ergänzt im lokalen öffentlichen Ollama-Vertrag die modellbezogene
+Auswahl von `/api/chat`, `think: false` und `message.content` sowie
+sanitisierte Fehlerbehandlung und synthetische Transporttests. Das behebt die
+belegte Vertragslücke des bisherigen Catalog-Pfads. Ob diese Lücke den leeren
+Text in C11/C12 konkret verursacht hat, bleibt mangels gespeichertem Rohbody
+unbewiesen. C7–C10 bleiben UNKNOWN, C11/C12 FAIL; alle sechs Kandidaten der
+Folgewelle sind verbraucht. Es gab keinen weiteren Modell- oder SQL-Aufruf.
+Gemma-4-Antwortqualität, erneute Generationsqualifikation und vollständige
+TSK-007/008-/Live-RAG-Abnahme bleiben offen und benötigen eine neue endliche
+Wellenentscheidung. Der nächste getrennte Entwicklungsbereich ist TSK-009;
+seine eigenen Budget- und Qualifikationsgrenzen bleiben maßgeblich.
