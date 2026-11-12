@@ -113,7 +113,9 @@ Vor einem Demo-Vertrag bleiben offen:
   festgelegten Connectorprofil;
 - Statistikzustand, Setup-/Messphasentrennung, vollständiger Cleanup und
   unabhängiger Methodenreview;
-- formale Curriculumentscheidung, ob `QRY-012` die Ergänzung tragen kann.
+- formale Curriculumentscheidung. Die begrenzte [Scopeempfehlung](EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md)
+  spricht gegen eine ausführbare External-Tables-Phase in `QRY-012`; eine
+  registrierte Projektentscheidung steht noch aus.
 
 Bis diese Gates geschlossen sind, bleibt dies ein statischer Lehrentwurf.
 Es wurde kein SQL, Connector, Netzwerk, Dienst oder Credential verwendet.
