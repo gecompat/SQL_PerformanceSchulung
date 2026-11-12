@@ -3456,6 +3456,15 @@ Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documenta
 
 Der [ScriptDom-Grammatikparse](../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md) besteht für die ausführbaren T-SQL-Dateien unter den Grammatikprofilen 150/160/170. Das ist kein Engine-Kompiliernachweis; unabhängige Methodenfreigabe, formale Harness-Abnahme und Laufzeitqualifikation bleiben offen.
 
+Die unabhängige Offline-Nachprüfung vom 12. November 2026 fand bei der
+Actual-Plan-Phase eine mögliche stille 256-Zeichen-Kürzung des XML-Datentyps.
+`QRY-023/50_Plan_Evidence.sql` setzt jetzt vor den zwei Diagnoseabfragen
+`SQLCMDMAXVARTYPEWIDTH 0`; Strukturvalidator, Negativregression und ScriptDom-
+Vorverarbeitung binden die Direktive. Der Registry-Scope nennt jetzt dasselbe
+10.000-/30.000-/20.000-Profil wie `measurement_gate`. Review ohne offene P1/P2
+für diesen Offline-Fix; vollständige Methodenfreigabe, konkrete sqlcmd-
+Runtimevollständigkeit, Ressourcen- und sonstige Runtimegates bleiben offen.
+
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale

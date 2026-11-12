@@ -177,6 +177,26 @@ ausgeführt.
 
 Quelle (abgerufen am 8. November 2026): Microsoft Learn, [Use sqlcmd with scripting variables](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver15). Die Ableitung zur Eingabesicherheit ist eine Projektinferenz aus dem dokumentierten Expansionsverhalten.
 
+## Actual-Plan-Ausgabegrenze
+
+Die unabhängige QRY-023-Nachprüfung vom 12. November 2026 fand, dass sqlcmd
+XML-Datentypen standardmäßig bei 256 Zeichen abschneidet, während der
+FWK-010-Phasenstatus nur die Summary auswertet. `50_Plan_Evidence.sql` setzt
+jetzt vor `STATISTICS XML ON` die dokumentierte Skriptvariable
+`SQLCMDMAXVARTYPEWIDTH` auf `0`. Die Ausgabe ist auf zwei `COUNT_BIG`-
+Diagnoseabfragen begrenzt; Plan-Dateien werden nicht gespeichert. Der
+Strukturvalidator schützt die Direktive samt Position, eine Negativregression
+weist den Grenzwert 256 zurück und der ScriptDom-Parser entfernt nach separater
+Prüfung nur diese Nicht-T-SQL-Direktive vor dem Grammatikparse. Die Registry
+benennt nun dieselbe vorgeschlagene 10.000-/30.000-/20.000-Messlast wie ihr
+`measurement_gate`.
+
+Die unabhängige Nachprüfung fand keine P1/P2 und erreichte die Review-Schwelle
+für diesen Offline-Fix. Sie qualifiziert weder den konkreten sqlcmd-Client noch
+die vollständige Demo-Methode. Runtimevollständigkeit und Ressourcenwirkung,
+formale Harness-/T-SQL-Abnahme, aktuelle Images/Builds, Ressourcenisolation,
+Cleanup sowie Ausführungsautorisierung bleiben offen.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

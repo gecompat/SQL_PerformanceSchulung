@@ -1,5 +1,25 @@
 # Aktueller Ausführungsstand
 
+## Fortsetzung: QRY-023 – Actual-Plan-XML ungekürzt transportieren
+
+Die unabhängige Prüfung fand, dass `sqlcmd` XML-Datentypen standardmäßig bei
+256 Zeichen begrenzt und QRY-023s Planphase ihren Erfolg trotzdem nur anhand
+der SQL-Summary bewertete. `50_Plan_Evidence.sql` setzt nun vor den zwei
+Diagnoseabfragen `SQLCMDMAXVARTYPEWIDTH 0`; die gezielte statische Regression
+bindet die Direktive. Die Microsoft-Dokumentation warnt vor der unbeschränkten
+Ausgabe bei großen Resultaten. Hier gilt sie nur für zwei `COUNT_BIG`-Pläne;
+Plan-Dateien werden weiterhin nicht gespeichert. Das ist ein Skript-/Vertrags-
+Nachweis, noch kein Laufzeitbeleg des eingesetzten sqlcmd-Clients. Die
+unabhängige Nachprüfung des Offline-Fixes fand keine offenen P1/P2 und bestätigte
+die Review-Schwelle für genau diesen Schnitt; sie erteilt keine SQL-/Runtime-
+Freigabe und ersetzt nicht die offene Gesamtmethodenabnahme von QRY-023.
+
+Der QRY-023-Registry-Scope nennt nun das bereits im `measurement_gate`
+festgelegte Profil von 10.000 Pfaden, 30.000 Knoten und 20.000 Kanten, statt zu
+sagen, die Last sei noch zu entwerfen. QRY-023 bleibt `PROPOSED`, nicht
+katalogisiert und ungefahren. Formale T-SQL-/Harness-Abnahme, unabhängige
+Methodenfreigabe und Runtime-/Ressourcengates bleiben offen.
+
 ## Abschluss: QRY-023 – Planerfolg erst nach Cleanup ausgeben
 
 PR #427 wählte die Absicherung der getrennten Actual-Plan-Diagnose. PR #426

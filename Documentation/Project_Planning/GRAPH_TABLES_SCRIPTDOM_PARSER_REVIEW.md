@@ -15,7 +15,10 @@ Projektprofile geprüft.
 
 Die drei SQLCMD-Variablen `$(DemoId)`, `$(RunToken)` und
 `$(TargetDatabase)` werden nur im flüchtigen Parser-Eingabetext mit
-synthetischen Werten ersetzt. `15_Framework.sql` ist ein SQLCMD-`:r`-Wrapper,
+synthetischen Werten ersetzt. Die zusätzlich benötigte SQLCMD-Direktive für
+`SQLCMDMAXVARTYPEWIDTH` wird im Strukturvalidator exakt gebunden und vor dem
+T-SQL-Parsing aus dem Parser-Eingabetext entfernt; die Direktive selbst ist
+keine T-SQL-Syntax. `15_Framework.sql` ist ein SQLCMD-`:r`-Wrapper,
 kein eigenständiges T-SQL: der Prüfer parst ihn nicht, sondern bestätigt separat
 den erwarteten Include-Pfad zur kanonischen `FWK-004`-Referenz.
 
@@ -29,8 +32,9 @@ Ein ScriptDom-PASS belegt ausschließlich, dass der Parsertext mit diesen
 Grammatiken ohne Parserfehler verarbeitet wurde. Er beweist keine Bindung von
 Objekten, Datenbankkontext, Edition, Berechtigungen, gespeicherten
 Prozedurverträgen oder SQL-Engine-Kompilierung und keine tatsächliche
-Ausführbarkeit. SQLCMD-Expansion über die expliziten drei Platzhalter hinaus
-und die eingebundene Frameworkdatei sind nicht Teil dieses Grammatikdurchlaufs.
+Ausführbarkeit. SQLCMD-Expansion über die drei expliziten Platzhalter und die
+separat strukturell gebundene `SQLCMDMAXVARTYPEWIDTH`-Direktive hinaus sowie
+die eingebundene Frameworkdatei sind nicht Teil dieses Grammatikdurchlaufs.
 Unabhängige Methodenfreigabe, formale Harness-Abnahme und jede konkrete
 Runtimequalifikation bleiben offen.
 

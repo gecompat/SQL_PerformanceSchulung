@@ -40,6 +40,20 @@ foreach (var file in sqlFiles.Where(path => !Path.GetFileName(path).Equals("15_F
         .Replace("$(DemoId)", "QRY-023", StringComparison.Ordinal)
         .Replace("$(RunToken)", "LOCAL", StringComparison.Ordinal)
         .Replace("$(TargetDatabase)", "SQLPERF_LAB_QRY023_LOCAL", StringComparison.Ordinal);
+    if (Path.GetFileName(file).Equals("50_Plan_Evidence.sql", StringComparison.OrdinalIgnoreCase))
+    {
+        const string widthDirective = ":setvar SQLCMDMAXVARTYPEWIDTH 0";
+        if (!sql.Contains(widthDirective, StringComparison.OrdinalIgnoreCase))
+        {
+            failed = true;
+            Console.Error.WriteLine("FAIL 50_Plan_Evidence.sql is missing its unlimited sqlcmd XML-width directive.");
+            continue;
+        }
+        sql = System.Text.RegularExpressions.Regex.Replace(
+            sql,
+            @"(?im)^\s*:setvar\s+SQLCMDMAXVARTYPEWIDTH\s+0\s*\r?$",
+            string.Empty);
+    }
     foreach (var dialect in dialects)
     {
         using var reader = new StringReader(sql);
