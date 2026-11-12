@@ -1,5 +1,14 @@
 # Aktueller Ausführungsstand
 
+## Graph Tables – Curriculum-Lernnotiz
+
+Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
+`LO-M03-06` um die Erklärung gerichteter Pfade mit `MATCH` und relationalen
+Joins. Sie trennt Ergebnisgleichheit von tatsächlicher Planevidenz. Der
+QRY-023-Entwurf bleibt `PROPOSED`; T-SQL-/Harnessfreigabe,
+Methodenentscheidung und Runtimequalifikation bleiben offen. Der unabhängige
+Offline-Review fand keine offenen P1/P2.
+
 ## External Tables – statischer Lehr- und Demoentwurf
 
 Der [Konzeptentwurf](EXTERNAL_TABLES_DEMO_CONCEPT.md) knüpft als Vorschlag an
@@ -25,6 +34,7 @@ Die [Curriculum-Lernnotiz](../Curriculum/EXTERNAL_TABLES_LESSON.md) ergänzt
 Statistiken und Architekturabwägungen. Sie ist kein ausführbarer
 Demo-Vertrag. Version-/Connectorprofile, Quelle, Credentials, Infrastruktur,
 Methodenfreigabe und Runtimequalifikation bleiben offen.
+
 Der unabhängige Lehrnotizreview fand einen Präzisionspunkt zur optionalen
 Credentialpflicht bei anonymen Quellen; die Formulierung wurde korrigiert.
 Weitere P1/P2 blieben nicht offen.

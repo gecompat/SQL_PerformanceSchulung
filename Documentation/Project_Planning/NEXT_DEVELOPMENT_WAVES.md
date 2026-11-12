@@ -18,20 +18,26 @@ nicht Teil dieses Rahmens. Token- und Geldverbrauch sind nicht verlässlich
 gemessen. Die Fortsetzung setzt die kumulative Budgethistorie nicht zurück;
 der letzte ältere Summenstand ersetzt keine aktuelle Verbrauchsprüfung.
 
-Nach dem Checkpoint durch PR #530 setzt die ausdrückliche Anweisung des
+Die Fortsetzung nach PR #530 ergänzte `LO-M03-05` durch die
+[External-Tables-Lernnotiz](../Curriculum/EXTERNAL_TABLES_LESSON.md); PR #531
+integrierte sie mit sieben erfolgreichen CI-Checks. Sie bleibt erklärender
+Inhalt ohne Demo-ID oder Lauf-/Messclaim.
+
+Nach dem Checkpoint durch PR #531 setzt die ausdrückliche Anweisung des
 Nutzers zur autonomen Bearbeitung aller übrigen freigegebenen Themen den
-Auftrag fort. Für den nächsten eigenständigen External-Tables-Lehrnotizschnitt
+Auftrag fort. Für den nächsten eigenständigen Graph-Tables-Lehrnotizschnitt
 gilt eine weitere begrenzte Fortsetzung von höchstens einem Arbeitspaket,
 einem Pull Request und zwei Quellen-/Vertragskandidaten. Die vorhandenen
-`SRC-153` bis `SRC-157` bleiben die Quellenbasis; neue Produktquellen werden
-nicht benötigt. Checkpoint ist die PR-Integration. Keine SQL-, Connector-,
-Netzwerk-, Dienst-, Credential- oder menschliche Generalproben-Ausführung.
-Kein Budgetreset und keine monetäre/tokenbasierte Verbrauchsbehauptung.
+`SRC-122` und `SRC-124` sowie der abgeschlossene T-SQL-Syntaxreview bilden die
+Quellenbasis; neue Produktquellen werden nicht benötigt. Checkpoint ist die
+PR-Integration. Keine SQL-, Lab- oder Runtimeausführung und keine menschliche
+Generalprobe. Kein Budgetreset und keine monetäre/tokenbasierte
+Verbrauchsbehauptung.
 
-Das Arbeitspaket ergänzt `LO-M03-05` mit der quellengebundenen Lernnotiz
-[`EXTERNAL_TABLES_LESSON.md`](../Curriculum/EXTERNAL_TABLES_LESSON.md) und führt
-sie im Curriculum-Lesepfad auf. Es bleibt erklärender Inhalt; weder eine
-separate Demo-ID noch ein Lauf-/Messclaim wird aufgenommen.
+Das Arbeitspaket ergänzt `LO-M03-06`/`CLM-047` mit einer quellengebundenen
+Erklärung des Graph-gegen-relationalen Zwei-Kanten-Pfads und führt sie im
+Curriculum-Lesepfad auf. Es übernimmt keine Performanceaussage des
+PROPOSED-Demoentwurfs.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die

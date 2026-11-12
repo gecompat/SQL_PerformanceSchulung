@@ -40,6 +40,7 @@ ihren didaktischen Wert.
 - [Konkurrierende Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md): aktuelle Grant-Zustände und der Nachweis eines wartenden eigenen Requests.
 - [Einfügungen an einer heißen Indexseite](LAST_PAGE_INSERT_CONTENTION_LESSON.md): `PAGELATCH_EX` von I/O- und Sperrwartezeiten trennen; Insertzähler nicht als Engpassnachweis lesen.
 - [External Tables und Remote Pushdown](EXTERNAL_TABLES_LESSON.md): Datenweg, Connectorgrenzen und tatsächliche Pushdown-Evidenz unterscheiden; erklärender Inhalt ohne Runtimequalifikation.
+- [Graph Tables und gerichtete Pfade](GRAPH_TABLES_LESSON.md): Graph- und relationale Abfrageformen sowie Korrektheit und Performanceevidenz trennen.
 
 Diese Notizen vertiefen bestehende Themen und geplante Query-Pattern-Kandidaten.
 Sie sind Erklärungen mit synthetischen oder rein lesenden Beispielen, keine
