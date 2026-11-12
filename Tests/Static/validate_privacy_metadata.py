@@ -182,7 +182,14 @@ class Scanner:
 
         internal_url_count = 0
         for raw_url in URL_RE.findall(text):
-            host = (urlsplit(raw_url.rstrip(".,);]")).hostname or "").lower()
+            try:
+                host = (urlsplit(raw_url.rstrip(".,);]")).hostname or "").lower()
+            except ValueError:
+                # urllib's URL validation differs across Python versions. Keep
+                # scanning deterministically and report malformed candidates
+                # without echoing potentially sensitive input.
+                self.add(label, "malformed_url", 1)
+                continue
             if not host or host in ALLOWED_LOOPBACK_HOSTS:
                 continue
             is_internal = host.endswith(INTERNAL_HOST_SUFFIXES)
