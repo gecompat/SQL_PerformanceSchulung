@@ -8084,3 +8084,25 @@ Gemma-4-Antwortqualität, erneute Generationsqualifikation und vollständige
 TSK-007/008-/Live-RAG-Abnahme bleiben offen und benötigen eine neue endliche
 Wellenentscheidung. Der nächste getrennte Entwicklungsbereich ist TSK-009;
 seine eigenen Budget- und Qualifikationsgrenzen bleiben maßgeblich.
+
+## TSK-009: SOURCE_ONLY-Poolproducer nach PR226 integriert
+
+Der unabhängige SOURCE_ONLY-Korrekturschnitt des öffentlichen opt-in Poolproducers
+wurde über PR [#226](https://github.com/gecompat/SQL_PerformanceSchulung/pull/226)
+vollständig integriert. Der PR wurde am 2026-10-12 gemergt. Head
+`dec87b692081171538db7e26039fc5ccd1a64ded`, Integrationsstand
+`69abfb34e10bd2538190c2759109ab2da827810a`; der vollständige Tree
+`6c2f8396baee84dff8546f26885e8fe78bc62505` ist übernommen. Zehn Head- und acht
+Main-Gates bestanden, Fast-Forward-Synchronisierung sauber, eigener lokaler und
+Remote-Branch entfernt; der isolierte Worktree ist archiviert.
+
+Integriert wurden ausschließlich die gebundenen Quellkorrekturen und ihre
+betroffenen statischen Prüfungen: vollständige Podman-ID-Abfragen,
+`--time=0`-Namespaceabbau, sticky UNKNOWN für unbeendete mutative Removal und
+der geschlossene C1/C2-FAIL-/Recovery-UNKNOWN-Befund. Die vorherige Native-Welle
+bleibt nach C2 gestoppt: ein eigener Container, null SQLcmd-/Poolchild-Aufrufe,
+C1/C2 FAIL und Cleanup-Request-Ende UNKNOWN. Frische read-only CID-/Namens- und
+Inputabwesenheit ist belegt, aber SQLcleanup bleibt NOT_ESTABLISHED. C3 ist nicht
+zugelassen; der Merge belegt SOURCE_ONLY, keine öffentliche Pool-/CON-010-/TSK-009-
+oder TP-CON-Runtimequalifikation. Eine neue native Frage braucht eine eigene
+geänderte Quellen-/Recoveryentscheidung, unabhängigen Review und frische Admission.

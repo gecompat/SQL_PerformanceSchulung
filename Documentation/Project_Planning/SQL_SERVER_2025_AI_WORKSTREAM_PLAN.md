@@ -2023,3 +2023,14 @@ von C11/C12; der Rohbody fehlt. Die freigegebenen C7–C12 sind verbraucht
 (C7–C10 UNKNOWN, C11/C12 FAIL). Keine neuen Modell- oder SQL-Aufrufe. Ein neuer
 Generationsversuch benötigt eine eigene endliche Wellenentscheidung. TSK-007/008,
 Live-RAG, allgemeine Antwortqualität und volle Workstreamabnahme bleiben offen.
+
+## Integrationsupdate TSK-009 Poolproducer am 2026-11-12
+
+Der SOURCE_ONLY-Poolproducerkorrekturschnitt aus PR #226 ist vollständig
+integriert (10 Head-/8 Main-Gates PASS, vollständiger Tree und sauberer
+Fast-Forward). Er ergänzt keinen Runtime-Nachweis. C1/C2 FAIL, C2-Recovery
+UNKNOWN und SQLcleanup NOT_ESTABLISHED bleiben erhalten; die Native-Welle ist
+nach C2 gestoppt und C3 nicht zugelassen. Eine getrennte geänderte Recoveryfrage
+braucht vor Native einen eigenen Quellenabschluss, unabhängigen Review und frische
+Admission. Siehe den [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md)
+und den [Poolproducer-Nachweis](SQL_SERVER_2025_AI_POOL_PUBLIC_REVIEW.md).
