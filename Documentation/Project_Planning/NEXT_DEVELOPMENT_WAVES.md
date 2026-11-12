@@ -286,8 +286,10 @@ Festserverrollen; insbesondere wird `VIEW ANY DATABASE` nicht als erforderliche
 QRY-023-Rechte freigegeben. Unabhängiger Review fand keine P1/P2 und bestätigte,
 dass keine Instanzrechte oder `public`-Änderung freigegeben wird; QRY-023-
 Validator, Dokumentationslinks und Datenschutzscan bestanden. Die konkrete
-Sollmenge bleibt unentschieden und der Entwurf unverbindlich. Keine
-Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
+Effektivrechte-Sollmenge war an diesem Zwischenstand noch offen. Sie ist durch
+die spätere `DEC-083` inzwischen für die `public`-Baseline und ihre isolierte
+Laufgrenze entschieden; tatsächliche Sollmengenprüfung und Laufqualifikation
+bleiben offen. Keine neue Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
 
 Die anschließende SQLCMD-Quellenprüfung fand einen weiteren P2: `GO [count]`
 ist ein Utility-Batchtrenner und wiederholt seine vorherige Batch. Der Guard
@@ -298,6 +300,32 @@ der QRY-023-Validator, Datenschutzprüfung und Dokumentationslinks bestehen.
 Der unabhängige Nachreview schloss den P2 ohne weitere P1/P2. Als nächstes
 folgen PR- und Integrationsgates. Keine Produktquelle und kein
 SQL-/Lab-/Runtime-Lauf.
+
+### QRY-023: READER-Baseline verbindlich begrenzen
+
+Nach Verbrauch der vorherigen sechs Vertragskandidaten hat der Nutzer am
+12. November 2026 die verbleibenden offenen Themen erneut ausdrücklich
+freigegeben. Für den nächsten QRY-023-Schnitt gilt ein neues, endliches Paket:
+höchstens ein Arbeitspaket, ein Pull Request und zwei Entscheidungs-/Vertrags-
+kandidaten. Der erste Kandidat legt die bereits quellenbelegte
+`public`-Baseline normativ fest; der zweite synchronisiert den Effektivrechte-
+Vertrag, das Proposed-Manifest, den Offlinevalidator samt Gegenproben und die
+betroffenen README-/Statuspfade. Bereits verwendete Microsoft-Primärquellen
+wurden als `SRC-158` zusammengeführt; es gibt keine neue Produktquelle.
+Token- und Geldverbrauch sind unbekannt; die Grenze
+wird durch Paket/PR/Kandidaten und nicht als Providerkostenlimit geprüft.
+
+`DEC-083` akzeptiert `CONNECT SQL` als reguläres Loginrecht sowie
+`VIEW ANY DATABASE` und normales Endpoint-`CONNECT` aus `public` ausschließlich
+auf einer für einen einzelnen QRY-023-Run exklusiv reservierten SQL-Server-
+Wegwerfinstanz. Das Datenbankinventar ist vor Setup
+leer (oder enthält nur die vollständig markierte Wiederaufnahme desselben
+Runs) und danach auf die gebundene QRY-023-Datenbank begrenzt. Der Harness
+ändert weder `public` noch Serverrechte. Der Offlinevertrag fordert zusätzlich
+eine echte READER-Effektivrechteprüfung und vollständige Rollen-/SID-/Endpoint-
+Inventur. Keine SQL-/Lab-/Runtimeausführung und keine menschliche Generalprobe.
+Der PR-Merge ist der Checkpoint; die Implementierung und alle Laufzeitgates
+bleiben für eine spätere getrennte Phase offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
