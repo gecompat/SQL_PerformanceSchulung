@@ -136,6 +136,7 @@ class Dgn004SourcePairTests(unittest.TestCase):
             ("missing hint", "H", lambda text: text.replace(" OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'))", "", 1)),
             ("duplicate hint", "H", lambda text: text.replace(" OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'))", " OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING')) OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'))", 1)),
             ("hint position", "H", lambda text: text.replace("SELECT o.[OrderId]", "SELECT o.[OrderId] OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'))", 1)),
+            ("commented hint", "H", lambda text: text.replace(" OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'))", " -- OPTION (USE HINT ('DISABLE_OPTIMIZED_PLAN_FORCING'))", 1)),
             ("extra statement", "R", lambda text: text + "; SELECT 1"),
             ("line ending", "R", lambda text: text.replace(" AS ", " AS\r\n", 1)),
             ("BOM", "H", lambda text: "\ufeff" + text),
