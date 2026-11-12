@@ -1495,15 +1495,17 @@ weder die beabsichtigte aktuelle Ausführung noch Schema-/Runtimequalität oder
 Engineidentität. SQL-ausgeführtes End-to-end Capture und Buildqualifikation
 bleiben offen.
 
-**DGN-004 statischer Annahmevertrag: lokaler begrenzter Schnitt.** Ein reiner
+**DGN-004 statischer Annahmevertrag: lokal begrenzter und unabhängig geprüfter Source-only-Schnitt.** Ein reiner
 Prüfer und synthetische Gegenproben bilden jetzt den aktiven
 `CLASSICAL_FORCING_AND_HINT_CONTROL`-Umfang mit neun geordneten Aufrufen,
 Kompilierungs-/Ausführungszuwächsen, Form-A-Tupeloracle aus den registrierten
 ID-/Wertformeln, Force/Unforce-, Hint-, Identitäts- und Statusvorrang ab.
 Offene Replay-Marker werden nicht als Eintritts- oder PASS-Gate verwendet.
-Der unabhängige Review schließt ausschließlich die statische Gegenprobenlücke;
-er gibt keine Runtimebelege frei und ersetzt nicht die weiter offene
-Methoden-/Quellenfreigabe für SQL, Build- oder Demoqualifikation. Alle Eingaben
+PRs #516/#517 ergänzen die zuvor fehlenden Hint- und Identitätsgegenproben;
+PR #518 behebt die unabhängigen P2-Befunde zu Force-Fehlerzählepochen und
+Nullzähler nach Force. Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/
+Messreview fand danach keine offenen P1/P2. Er belegt keine Runtime und ersetzt
+nicht die noch offenen YELLOW-, Build-, Laufzeit- oder Demoqualifikationen. Alle Eingaben
 des Prüfers sind caller-gelieferte Belege oder synthetische Fixturewerte; PASS
 ist keine Attestation tatsächlicher Ausführung. Integrationsentscheidung und CI
 sind mit dem nachstehenden Integrationsstand abgeschlossen; dieser
@@ -1516,8 +1518,24 @@ am 2026-11-06 um 19:01:37 UTC gemergt. Die sechs ausgewiesenen PR-Prüfungen
 bestanden; Integrationscommit ist
 `f5d5aab22b2370588711da80272da3209f42f63c`. Damit ist der statische
 Annahmevertrag integriert. Die unabhängige Methoden-/Quellen-/Zuordnungs-/
-Transport-/Messfreigabe vor SQL bleibt offen. Es gab durch PR #355 keine
-SQL-Ausführung, Buildqualifikation oder Demo-/Runtimefreigabe.
+Transport-/Messfreigabe vor SQL war nach PR #355 noch offen; sie wurde durch
+den unabhängigen Review vom 2026-11-12 abgeschlossen. PR #355 selbst enthielt
+keine SQL-Ausführung, Buildqualifikation oder Demo-/Runtimefreigabe.
+
+Der unabhängige DGN-004-Review vom 2026-11-12 ist in
+[DGN_004_ACTIVE_SOURCE_REVIEW.md](DGN_004_ACTIVE_SOURCE_REVIEW.md) festgehalten.
+PRs [#516](https://github.com/gecompat/SQL_PerformanceSchulung/pull/516),
+[#517](https://github.com/gecompat/SQL_PerformanceSchulung/pull/517) und
+[#518](https://github.com/gecompat/SQL_PerformanceSchulung/pull/518) integrieren
+die Gegenproben und Fixes; alle vier Repositoryprüfungen je PR bestanden. Die
+DGN-004-Statiksuite besteht unter Windows mit 67 Tests/1 POSIX-Skip und unter
+Linux/WSL mit 68 Tests ohne Skip. Der Vorstartcheck fand jedoch fünf aktive,
+nicht DGN-004 zugeordnete SQL-Server-Container mit gemeinsamer momentaner
+Auslastung von rund 33 % CPU und 7,4 GiB Speicher. Das unabhängige Review
+beurteilt die kontrollierte YELLOW-Last und Isolierung deshalb als nicht
+nachgewiesen. Kein DGN-004-Container und keine Datenbank wurde gestartet oder
+verändert; die übrigen Container wurden nicht berührt. Der exakte Lauf bleibt
+bis zu einem belegbaren YELLOW-Preflight ausstehend.
 
 **DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)

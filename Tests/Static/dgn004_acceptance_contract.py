@@ -67,6 +67,8 @@ class CallEvidence:
     query_id: int | None
     query_text_id: int | None
     context_settings_id: int | None
+    query_hash: bytes | None
+    query_plan_hash: bytes | None
     parameterization_type: int | None
     target_plan_id: int | None
     actual_plan_id: int | None
@@ -234,6 +236,11 @@ def evaluate_build(evidence: BuildEvidence) -> AcceptanceResult:
                         call.context_settings_id, call.parameterization_type)
         if all(type(value) is int for value in required_ids):
             role_identities[call.role].add(required_ids)  # type: ignore[arg-type]
+        for name, value in (("query_hash", call.query_hash), ("query_plan_hash", call.query_plan_hash)):
+            if value is None:
+                missing.append(f"{label} {name}")
+            elif type(value) is not bytes or len(value) != 8:
+                failures.append(f"{label} {name} is not an exact 8-byte raw value")
         if type(call.parameterization_type) is int and call.parameterization_type != 0:
             failures.append(f"{label} parameterization type differs from the active contract")
         if type(call.target_plan_id) is int and call.target_plan_id > 0:

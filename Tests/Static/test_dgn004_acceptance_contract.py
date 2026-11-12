@@ -45,6 +45,8 @@ def good_call(index: int) -> CallEvidence:
         query_id=201 if is_r else 202,
         query_text_id=301 if is_r else 302,
         context_settings_id=100,
+        query_hash=b"\x01\x02\x03\x04\x05\x06\x07\x08",
+        query_plan_hash=b"\x11\x12\x13\x14\x15\x16\x17\x18",
         parameterization_type=0,
         target_plan_id=plan,
         actual_plan_id=plan if forced else plan + 10 + index,
@@ -213,6 +215,24 @@ class Dgn004AcceptanceContractTests(unittest.TestCase):
             evaluate_build(replace(good_build(), calls=tuple(calls))).verdict,
             Verdict.FAIL,
         )
+
+    def test_hashes_are_raw_supplemental_values_not_identity_keys(self) -> None:
+        calls = list(good_build().calls)
+        calls[3] = replace(
+            calls[3],
+            query_hash=calls[0].query_hash,
+            query_plan_hash=calls[0].query_plan_hash,
+        )
+        calls[2] = replace(calls[2], query_hash=b"\xaa" * 8)
+        self.assertEqual(
+            evaluate_build(replace(good_build(), calls=tuple(calls))).verdict,
+            Verdict.PASS,
+        )
+
+        calls[4] = replace(calls[4], query_hash=b"short")
+        result = evaluate_build(replace(good_build(), calls=tuple(calls)))
+        self.assertEqual(result.verdict, Verdict.FAIL)
+        self.assertTrue(any("query_hash is not an exact 8-byte" in reason for reason in result.reasons))
 
     def test_object_query_text_and_context_binding_cannot_change_within_role(self) -> None:
         for field, value in (
