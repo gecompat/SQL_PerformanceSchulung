@@ -206,6 +206,20 @@ class Dgn004AcceptanceContractTests(unittest.TestCase):
             evaluate_build(replace(good_build(), calls=tuple(calls))).verdict,
             Verdict.FAIL,
         )
+
+    def test_object_query_text_and_context_binding_cannot_change_within_role(self) -> None:
+        for field, value in (
+            ("object_id", 103),
+            ("query_text_id", 303),
+            ("context_settings_id", 999),
+        ):
+            with self.subTest(field=field):
+                calls = list(good_build().calls)
+                calls[4] = replace(calls[4], **{field: value})
+                result = evaluate_build(replace(good_build(), calls=tuple(calls)))
+                self.assertEqual(result.verdict, Verdict.FAIL)
+                self.assertTrue(any("identity changes within its role" in reason for reason in result.reasons))
+
         calls = list(good_build().calls)
         calls[6] = replace(calls[6], target_plan_id=903, actual_plan_id=903)
         self.assertEqual(
