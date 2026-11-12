@@ -65,8 +65,21 @@ Rechteänderungen werden abgewiesen. Die 56 gezielten Regressionen und der
 direkte Offlinevalidator bestehen; unabhängiger Review fand nach den
 Gegenproben für drei- und vierteilige Objektbezüge sowie indirektes `EXEC`
 keine offenen P1/P2. Das ist kein AST-/Engine-/Effektivberechtigungsnachweis.
-PR und CI-Integration sind noch offen; QRY-023 bleibt `PROPOSED` und ohne
-SQL-, Lab- oder Runtimeausführung.
+PR #547 integrierte den Schritt mit sieben erfolgreichen PR-Checks. Der
+QRY-023-Mainworkflow sowie die Framework- und Curriculum-/Privacy-Mainworkflows
+bestanden ebenfalls; lokales `main` ist auf `6ef003f` synchronisiert und der
+Arbeitsbranch ist entfernt. QRY-023 bleibt `PROPOSED` und ohne SQL-, Lab- oder
+Runtimeausführung.
+
+Nach diesem Checkpoint wird der statische Abgleich noch fundstellenbezogen
+gehärtet: eine nicht erkannte schemaqualifizierte Verwendung darf nicht allein
+deshalb als geprüft gelten, weil derselbe Objektname in einer anderen Abfrage
+vorkommt. Eine synthetische Regression prüft insbesondere, dass ein
+funktionsartiger `dbo`-Aufruf nach einem SELECT-Komma nicht durch einen
+gleichnamigen Tabellen-`SELECT` gedeckt wird.
+Die lokalen 57 gezielten Regressionen und der Offlinevalidator bestehen;
+dieser zweite Validator-/Testkandidat ist noch nicht reviewed, gepusht oder
+integriert.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten

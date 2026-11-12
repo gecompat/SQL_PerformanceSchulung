@@ -214,7 +214,16 @@ def reader_object_dependencies_covered(
 
     referenced: set[tuple[str, str, str]] = set()
     object_pattern = re.compile(
-        r"(?:\bfrom\b|\bjoin\b|,)\s*(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+        r"(?:\bfrom\b|\bjoin\b)\s*(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+        r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
+        re.IGNORECASE,
+    )
+    from_list_pattern = re.compile(
+        r"\bfrom\b(?P<body>.*?)(?=\bjoin\b|\bwhere\b|\bgroup\b|\border\b|\bhaving\b|;|$)",
+        re.IGNORECASE | re.DOTALL,
+    )
+    comma_object_pattern = re.compile(
+        r",\s*(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
         r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
         re.IGNORECASE,
     )
@@ -232,44 +241,47 @@ def reader_object_dependencies_covered(
         r"(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
         re.IGNORECASE,
     )
-    permission_literal_pattern = re.compile(
-        r"has_perms_by_name\s*\(\s*n?'(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
-        r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)'\s*,\s*'object'\s*,\s*"
-        r"'(?:select|execute)'\s*\)",
-        re.IGNORECASE,
-    )
     block_comment = re.compile(r"/\*.*?\*/", re.DOTALL)
     line_comment = re.compile(r"--[^\r\n]*")
-    qualified_references: set[tuple[str, str]] = set()
-    permission_literals: set[tuple[str, str]] = set()
     for script_name in reader_names:
         source = reader_scripts[script_name]
         source = block_comment.sub(" ", source)
         source = line_comment.sub(" ", source)
+        source = re.sub(r"n?'(?:''|[^'])*'", "''", source, flags=re.IGNORECASE)
         if three_part_reference_pattern.search(source):
             return False
-        qualified_references.update(
-            (match.group("schema").strip("[]").casefold(), match.group("object").strip("[]").casefold())
-            for match in qualified_pattern.finditer(source)
-        )
-        permission_literals.update(
-            (match.group("schema").strip("[]").casefold(), match.group("object").strip("[]").casefold())
-            for match in permission_literal_pattern.finditer(source)
-        )
-        for match in object_pattern.finditer(source):
+        object_matches = list(object_pattern.finditer(source))
+        from_list_matches = []
+        for from_match in from_list_pattern.finditer(source):
+            body_start = from_match.start("body")
+            for match in comma_object_pattern.finditer(from_match.group("body")):
+                from_list_matches.append((match, body_start))
+        execute_matches = list(execute_pattern.finditer(source))
+        def add_select_reference(match: re.Match[str]) -> None:
             schema = match.group("schema").strip("[]").casefold()
             name = match.group("object").strip("[]").casefold()
             referenced.add((schema, name, "SELECT"))
-        for match in execute_pattern.finditer(source):
+
+        for match in object_matches:
+            add_select_reference(match)
+        for match, _ in from_list_matches:
+            add_select_reference(match)
+        for match in execute_matches:
             schema = match.group("schema").strip("[]").casefold()
             name = match.group("object").strip("[]").casefold()
             referenced.add((schema, name, "EXECUTE"))
-
-    recognized_references = {
-        (schema, name) for schema, name, _ in referenced
-    } | permission_literals
-    if not qualified_references.issubset(recognized_references):
-        return False
+        recognized_spans = [
+            (match.start(), match.end())
+            for match in (*object_matches, *execute_matches)
+        ]
+        recognized_spans.extend(
+            (offset + match.start(), offset + match.end())
+            for match, offset in from_list_matches
+        )
+        for match in qualified_pattern.finditer(source):
+            if not any(start <= match.start() and match.end() <= end
+                       for start, end in recognized_spans):
+                return False
 
     checked = {
         (match.group("schema").strip("[]").casefold(),

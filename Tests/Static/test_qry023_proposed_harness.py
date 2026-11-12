@@ -335,6 +335,13 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("every direct dbo/lab object reference in READER phase scripts" in error
                             for error in self.errors()))
 
+    def test_reader_reference_must_match_its_permission_context(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("SELECT 1, dbo.Person(1);\n" + source, encoding="utf-8")
+        self.assertTrue(any("every direct dbo/lab object reference in READER phase scripts" in error
+                            for error in self.errors()))
+
     def test_reader_phase_cannot_mutate_persistent_user_objects(self) -> None:
         path = self.demo / "30_Correctness.sql"
         source = path.read_text(encoding="utf-8")

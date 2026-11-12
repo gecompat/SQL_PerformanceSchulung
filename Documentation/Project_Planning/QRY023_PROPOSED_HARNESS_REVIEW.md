@@ -97,8 +97,9 @@ Serverrechte bleiben unbewiesene Laufzeitbedingungen.
 #### READER-Phasen: Abgleich der Objektabhängigkeiten
 
 Der Validator leitet direkte `dbo`-/`lab`-Objektreferenzen aus allen
-Manifestphasen mit Profil `READER` ab und verlangt für Tabellenzugriffe
-`SELECT` beziehungsweise für direkte Prozeduraufrufe `EXECUTE` im
+Manifestphasen mit Profil `READER` ab und verlangt für Tabellenquellen
+einschließlich Tabellenwertfunktionen `SELECT` beziehungsweise für direkte
+Prozeduraufrufe `EXECUTE` im
 Qualifikationspreflight. Schemaqualifizierte Referenzen, die der begrenzte
 Textscanner keiner Abfrage, keinem Aufruf oder expliziten
 `HAS_PERMS_BY_NAME`-Literal zuordnen kann, datenbankqualifizierte
@@ -106,7 +107,10 @@ Textscanner keiner Abfrage, keinem Aufruf oder expliziten
 Ablehnung. Die direkten READER-Aufrufe sind zusätzlich auf
 `lab.USP_Qry023MeasureVariant` begrenzt. Synthetische Regressionen fügen ein
 ungeprüftes sowie datenbankqualifiziertes Objekt ein und bestätigen die
-Ablehnung.
+Ablehnung. Die Berechtigungszuordnung wird für jede Fundstelle im lokalen
+Skriptkontext geprüft; Komma-Tabellen werden nur aus dem `FROM`-Abschnitt
+erkannt. Ein gleichnamiger Tabellenzugriff an anderer Stelle deckt keine
+schemaqualifizierte Funktion oder sonstige Referenz ab.
 
 Eine zweite Textprüfung erlaubt direkt erkennbare schreibende Ziele in
 READER-Skripten nur für lokale Tabellenvariablen und weist erkannte persistente
