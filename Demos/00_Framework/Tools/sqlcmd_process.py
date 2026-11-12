@@ -44,6 +44,10 @@ class SqlcmdResult:
         return self.returncode == 0 and not self.timed_out
 
 
+class ProcessTerminationError(RuntimeError):
+    """The sqlcmd process tree could not be confirmed stopped and reaped."""
+
+
 def resolve_sqlcmd(explicit_path: str | None = None) -> str:
     """Resolve sqlcmd without invoking a shell."""
 
@@ -177,47 +181,70 @@ def _linux_descendants(parent_pid: int) -> list[tuple[int, str]]:
     return descendants
 
 
-def _terminate_process_tree(process: subprocess.Popen[str]) -> None:
+def _terminate_process_tree(process: subprocess.Popen[str]) -> bool:
     """Hard-stop sqlcmd and any descendants after timeout or fail-fast."""
 
-    # Ein bereits beendeter/reapter Root darf nicht über eine inzwischen
-    # möglicherweise wiederverwendete PID erneut adressiert werden.
+    # Eine beendete Rootprozesskennung nicht erneut adressieren: Nachfahren
+    # können noch laufen; unbestätigter Status hält das Cleanup gesperrt.
     if process.poll() is not None:
-        return
+        # Ein Nachfahre kann seine Session/Prozessgruppe gewechselt haben;
+        # die ursprüngliche Gruppe kann daher keine vollständige Abwesenheit
+        # beweisen, sobald der Root bereits beendet ist.
+        return False
 
+    tree_termination_confirmed = False
     try:
         if os.name == "nt":
             # process.kill() allein lässt Harness-/Shim-Nachfahren weiterlaufen.
             try:
-                subprocess.run(
+                result = subprocess.run(
                     ["taskkill", "/PID", str(process.pid), "/T", "/F"],
                     check=False, capture_output=True, timeout=5,
                     creationflags=subprocess.CREATE_NO_WINDOW,
                 )
+                tree_termination_confirmed = result.returncode == 0
             except (OSError, subprocess.TimeoutExpired):
                 pass
             if process.poll() is None:
                 process.kill()
         else:
             descendants = _linux_descendants(process.pid) if sys.platform.startswith("linux") else []
+            descendants_terminated = True
             for pid, started in reversed(descendants):
                 identity = _linux_process_identity(pid)
                 if identity is not None and identity[1] == started:
                     try:
                         os.kill(pid, signal.SIGKILL)
-                    except (ProcessLookupError, PermissionError, OSError):
+                    except ProcessLookupError:
                         pass
-            os.killpg(process.pid, signal.SIGKILL)
+                    except (PermissionError, OSError):
+                        descendants_terminated = False
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+                tree_termination_confirmed = descendants_terminated
+            except ProcessLookupError:
+                tree_termination_confirmed = descendants_terminated
     except (ProcessLookupError, PermissionError, OSError):
         try:
             process.kill()
         except (ProcessLookupError, PermissionError, OSError):
-            pass
+            return False
 
     try:
         process.wait(timeout=2)
     except subprocess.TimeoutExpired:
-        pass
+        return False
+    if process.poll() is None or not tree_termination_confirmed:
+        return False
+    if os.name != "nt" and sys.platform.startswith("linux"):
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            return True
+        except (PermissionError, OSError):
+            return False
+        return False
+    return True
 
 
 def start_sqlcmd(
@@ -261,22 +288,31 @@ def collect_process(
             stdout, stderr = process.communicate(timeout=timeout_seconds)
         except subprocess.TimeoutExpired:
             timed_out = True
-            _terminate_process_tree(process)
+            if not _terminate_process_tree(process):
+                raise ProcessTerminationError("sqlcmd process-tree termination was not confirmed")
             stdout, stderr = process.communicate(timeout=5)
     except BaseException:
         # Auch Ctrl+C/SystemExit muss den Prozess des Setups vor der
         # unabhängigen Prüfung des Cleanups vollständig beenden.
+        termination_confirmed = False
         try:
-            _terminate_process_tree(process)
+            termination_confirmed = _terminate_process_tree(process)
         except BaseException:
-            pass
+            termination_confirmed = False
+        reaped = False
         try:
             process.communicate(timeout=5)
+            reaped = process.poll() is not None
         except BaseException:
             try:
                 process.wait(timeout=2)
+                reaped = process.poll() is not None
             except BaseException:
-                pass
+                reaped = False
+        if not termination_confirmed or not reaped:
+            raise ProcessTerminationError(
+                "sqlcmd process-tree termination or reap could not be confirmed"
+            )
         raise
 
     return SqlcmdResult(

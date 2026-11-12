@@ -21,6 +21,7 @@ from typing import Any
 
 from orchestrate_sessions import run_manifest as run_session_manifest
 from sqlcmd_process import (
+    ProcessTerminationError,
     build_sqlcmd_command,
     extract_summary,
     resolve_sqlcmd,
@@ -333,59 +334,83 @@ def run_demo(
     aggregate = ("PASS", "OK")
     setup_started = False
     stop_regular_phases = False
+    cleanup_safe = True
 
-    for phase in manifest.phases:
-        if stop_regular_phases:
-            break
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            result = PhaseResult(phase.phase_id, "FAIL", "FAIL_TIMEOUT", "Das globale Harness-Zeitbudget ist abgelaufen.", 0.0)
+    try:
+        for phase in manifest.phases:
+            if stop_regular_phases:
+                break
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                result = PhaseResult(phase.phase_id, "FAIL", "FAIL_TIMEOUT", "Das globale Harness-Zeitbudget ist abgelaufen.", 0.0)
+            else:
+                phase_timeout = min(remaining, phase.timeout_seconds or remaining)
+                if phase.kind == "sql":
+                    if phase.phase_id == "SETUP":
+                        setup_started = True
+                    result = _execute_sql_phase(
+                        phase=phase,
+                        executable=executable,
+                        server=server,
+                        target_database=target_database,
+                        auth=auth,
+                        username=username,
+                        timeout_seconds=phase_timeout,
+                        variables=variables,
+                        show_output=show_output,
+                    )
+                else:
+                    orchestration = run_session_manifest(
+                        manifest_path=phase.path,
+                        server=server,
+                        database=target_database,
+                        auth=auth,
+                        username=username,
+                        sqlcmd_path=executable,
+                        show_output=show_output,
+                        timeout_override_seconds=max(1, int(phase_timeout)),
+                    )
+                    result = PhaseResult(phase.phase_id, orchestration.outcome, orchestration.code, orchestration.message, 0.0)
+
+            phase_results.append(result)
+            aggregate = _combine_result(aggregate, (result.outcome, result.code))
+            if result.outcome == "FAIL" or (result.outcome == "SKIP" and phase.required):
+                stop_regular_phases = True
+    except ProcessTerminationError:
+        interrupted_phase = phase.phase_id if "phase" in locals() else "UNKNOWN"
+        code = "FAIL_CLEANUP" if setup_started else "FAIL_EXECUTION"
+        result = PhaseResult(interrupted_phase, "FAIL", code,
+                             "sqlcmd-Prozessende nicht bestätigt; Folgephasen gestoppt.", 0.0)
+        phase_results.append(result)
+        aggregate = _combine_result(aggregate, (result.outcome, result.code))
+        if setup_started:
+            cleanup_safe = False
+    except KeyboardInterrupt:
+        interrupted_phase = phase.phase_id if "phase" in locals() else "UNKNOWN"
+        result = PhaseResult(interrupted_phase, "FAIL", "FAIL_EXECUTION", "Benutzerabbruch; laufender Prozess wurde beendet.", 0.0)
+        phase_results.append(result)
+        aggregate = _combine_result(aggregate, (result.outcome, result.code))
+
+    if setup_started and manifest.cleanup is not None:
+        if not cleanup_safe:
+            cleanup = PhaseResult(manifest.cleanup.phase_id, "FAIL", "FAIL_CLEANUP",
+                                  "Cleanup unterbleibt, weil das Ende eines möglichen SQLCMD-Prozesses ungeklärt ist.", 0.0)
         else:
-            phase_timeout = min(remaining, phase.timeout_seconds or remaining)
-            if phase.kind == "sql":
-                if phase.phase_id == "SETUP":
-                    setup_started = True
-                result = _execute_sql_phase(
-                    phase=phase,
+            try:
+                cleanup = _execute_sql_phase(
+                    phase=manifest.cleanup,
                     executable=executable,
                     server=server,
                     target_database=target_database,
                     auth=auth,
                     username=username,
-                    timeout_seconds=phase_timeout,
+                    timeout_seconds=manifest.cleanup_timeout_seconds,
                     variables=variables,
                     show_output=show_output,
                 )
-            else:
-                orchestration = run_session_manifest(
-                    manifest_path=phase.path,
-                    server=server,
-                    database=target_database,
-                    auth=auth,
-                    username=username,
-                    sqlcmd_path=executable,
-                    show_output=show_output,
-                    timeout_override_seconds=max(1, int(phase_timeout)),
-                )
-                result = PhaseResult(phase.phase_id, orchestration.outcome, orchestration.code, orchestration.message, 0.0)
-
-        phase_results.append(result)
-        aggregate = _combine_result(aggregate, (result.outcome, result.code))
-        if result.outcome == "FAIL" or (result.outcome == "SKIP" and phase.required):
-            stop_regular_phases = True
-
-    if setup_started and manifest.cleanup is not None:
-        cleanup = _execute_sql_phase(
-            phase=manifest.cleanup,
-            executable=executable,
-            server=server,
-            target_database=target_database,
-            auth=auth,
-            username=username,
-            timeout_seconds=manifest.cleanup_timeout_seconds,
-            variables=variables,
-            show_output=show_output,
-        )
+            except (KeyboardInterrupt, ProcessTerminationError):
+                cleanup = PhaseResult(manifest.cleanup.phase_id, "FAIL", "FAIL_CLEANUP",
+                                      "Cleanupabbruch oder Prozessende nicht bestätigt; Zustand bleibt ungeklärt.", 0.0)
         if cleanup.outcome != "PASS":
             cleanup = PhaseResult(cleanup.phase_id, "FAIL", "FAIL_CLEANUP", f"Cleanup nicht erfolgreich; ursprünglicher Code: {cleanup.code}.", cleanup.duration_seconds)
         phase_results.append(cleanup)

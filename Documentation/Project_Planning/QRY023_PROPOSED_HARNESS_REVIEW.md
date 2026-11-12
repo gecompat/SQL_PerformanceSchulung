@@ -197,6 +197,26 @@ die vollständige Demo-Methode. Runtimevollständigkeit und Ressourcenwirkung,
 formale Harness-/T-SQL-Abnahme, aktuelle Images/Builds, Ressourcenisolation,
 Cleanup sowie Ausführungsautorisierung bleiben offen.
 
+## Gesamtprüfung des Offlinevorschlags
+
+Die unabhängige Gesamtprüfung vom 12. November 2026 an Main `b48269a` bestätigte
+die Daten-, Queryform-, Messreihen- und Planabfragebindungen, fand jedoch zwei
+P2-Gates: eine einzelne FWK-010-Anmeldung bleibt über Setup/Lesen/Cleanup
+wirksam, und Größen-, Session- sowie Abbruchgrenzen nach FWK-008 waren noch
+nicht vollständig gebunden. Das Manifest und der Lesepfad legen jetzt die
+Phasenrechte, die vorgeschlagenen 1-GiB-Datenbank-/TempDB-Grenzen, eine
+gleichzeitige Session, Stoptrigger und mögliche Restzustände offen. Der
+FWK-010-Prozesspfad versucht nach Ctrl+C, den sqlcmd-Prozessbaum zu beenden.
+Nach begonnenem Setup wird Cleanup nur nach bestätigtem Prozessende und Reap
+versucht; andernfalls unterbleibt Cleanup und `FAIL_CLEANUP` wird gemeldet.
+Synthetische Regressionen schützen den Cleanup- und den Fail-closed-Fall.
+
+Die phasenspezifische Identitätsdurchsetzung bleibt ausdrücklich `OPEN`, weil
+der allgemeine Caller weiterhin nur eine Anmeldung annimmt. Die vorgeschlagenen
+Größenwerte sind nicht gemessen; der Runtimecaller muss sie technisch
+erzwingen. Bis beide Punkte die vorgesehene Prüfung bestehen, gilt keine
+vollständige Harness-/Methodenfreigabe. Kein SQL oder Runtime wurde ausgeführt.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

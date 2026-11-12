@@ -47,13 +47,34 @@ und keine qualifizierte Demoimplementierung.
 
 ## Rechte und Grenzen
 
-Der vollständige Harness benötigt `CREATE DATABASE`, Berechtigungen für
-Tabellen, Indizes und synthetische Inserts in der eigenen Datenbank, `SELECT`
-auf den Demoobjekten und `SHOWPLAN` auf der markierten Zieldatenbank. Actual-
-Plan-XML wird separat erfasst. `FWK-004` speichert keine Abfragetexte oder
-Pläne; es erfasst Sessiondeltas. Die Datenbank wird als Wegwerfdatenbank mit
-vollständigen QRY-023-Markern angelegt. Fremde oder nicht vollständig markierte
-Ziele werden abgewiesen und nicht entfernt.
+Die Rechte müssen fachlich getrennt werden: Setup benötigt `CREATE DATABASE`
+sowie Tabellen-, Index- und synthetische Insert-Rechte; Korrektheit, Messung und
+Planevidenz benötigen nur `SELECT` auf den vier Querytabellen sowie
+`SHOWPLAN` auf der markierten Zieldatenbank; Cleanup benötigt das Entfernen der
+eigenen Datenbank nach exakter Markerprüfung. Der gegenwärtige FWK-010-Caller
+verwendet jedoch dieselbe Anmeldung für alle Phasen. Er erzwingt diese
+Rechtetrennung daher noch nicht. Das bleibt ein formales Harness-Gate; die
+aufgezählten Gesamtberechtigungen dürfen nicht als Minimalrechte ausgegeben
+werden. `FWK-004` speichert keine Abfragetexte oder Pläne; es erfasst
+Sessiondeltas. Fremde oder nicht vollständig markierte Ziele werden abgewiesen
+und nicht entfernt.
+
+Der vorgeschlagene Ausführungs-Sicherheitsvertrag nennt 1 GiB als erwartete
+Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze für
+zusätzliches TempDB-Wachstum; zugleich ist höchstens eine SQL-Session aktiv.
+Diese Werte sind nicht empirisch qualifiziert und der aktuelle Caller setzt sie
+nicht durch. Ein späterer Runtime-Aufrufer muss vor Setup ein abweichendes
+Ressourcenprofil zurückweisen und Daten-/TempDB-Grenzen tatsächlich
+überwachen. `CTRL+C`, Phasen- und Gesamtzeitüberschreitung müssen den
+sqlcmd-Prozessbaum beenden. Nach begonnenem Setup wird Cleanup nur gestartet,
+wenn das Ende des Prozesses bestätigt ist; sonst wird Cleanup unterdrückt und
+`FAIL_CLEANUP` gemeldet, damit es nicht parallel zu einer möglicherweise noch
+laufenden SQL-Phase arbeitet. Bei erzwungenem Abbruch können synthetische
+Teilobjekte in der markierten Datenbank verbleiben; Abschluss der serverseitigen
+Abbruchwirkung und TempDB-Freigabe sind unbelegt. Unbekanntes Eigentum oder
+fehlgeschlagenes Cleanup führt zu Erhalt der Datenbank und `FAIL_CLEANUP`, nicht
+zum erzwungenen Entfernen. Diese Anforderungen sind im Proposed-Manifest
+gebunden, aber noch keine Runtime-Durchsetzung.
 
 Der FWK-010-Caller begrenzt das RunToken auf 1 bis 20 ASCII-Zeichen und verlangt
 ein alphanumerisches erstes Zeichen. Separat prüft der vorgeschlagene

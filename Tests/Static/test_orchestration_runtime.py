@@ -1504,6 +1504,50 @@ def test_harness_cleanup_failure(base: Path, executable: Path) -> None:
     assert_equal((result.phases[-2].outcome, result.phases[-2].code), ("FAIL", "FAIL_EXECUTION"), "original execution error preserved")
 
 
+def test_harness_interrupt_after_setup_attempts_cleanup(base: Path, executable: Path) -> None:
+    manifest = demo_manifest(base / "interrupt_after_setup")
+    calls: list[str] = []
+
+    def execute_phase(**kwargs):
+        phase_id = kwargs["phase"].phase_id
+        calls.append(phase_id)
+        if phase_id == "DEMONSTRATION":
+            raise KeyboardInterrupt()
+        return run_demo_module.PhaseResult(phase_id, "PASS", "OK", "synthetic", 0.0)
+
+    with patch.object(run_demo_module, "_execute_sql_phase", side_effect=execute_phase):
+        result = run_harness(manifest, executable)
+
+    assert_equal(calls, ["PREFLIGHT", "SETUP", "DEMONSTRATION", "CLEANUP"],
+                 "cleanup follows a user interrupt after setup")
+    assert_equal((result.outcome, result.code), ("FAIL", "FAIL_EXECUTION"),
+                 "user interrupt remains a failed execution")
+    assert_equal((result.phases[-1].phase_id, result.phases[-1].outcome),
+                 ("CLEANUP", "PASS"), "cleanup outcome remains visible after interrupt")
+
+
+def test_harness_suppresses_cleanup_when_process_termination_is_unknown(base: Path, executable: Path) -> None:
+    manifest = demo_manifest(base / "unknown_process_termination")
+    calls: list[str] = []
+
+    def execute_phase(**kwargs):
+        phase_id = kwargs["phase"].phase_id
+        calls.append(phase_id)
+        if phase_id == "DEMONSTRATION":
+            raise sqlcmd_process.ProcessTerminationError("synthetic unknown process state")
+        return run_demo_module.PhaseResult(phase_id, "PASS", "OK", "synthetic", 0.0)
+
+    with patch.object(run_demo_module, "_execute_sql_phase", side_effect=execute_phase):
+        result = run_harness(manifest, executable)
+
+    assert_equal(calls, ["PREFLIGHT", "SETUP", "DEMONSTRATION"],
+                 "cleanup must not race an unconfirmed process")
+    assert_equal((result.outcome, result.code), ("FAIL", "FAIL_CLEANUP"),
+                 "unknown process state dominates as cleanup failure")
+    assert_equal((result.phases[-1].phase_id, result.phases[-1].code),
+                 ("CLEANUP", "FAIL_CLEANUP"), "suppressed cleanup is visible")
+
+
 def test_harness_preflight_skip(base: Path, executable: Path) -> None:
     result = run_harness(demo_manifest(base / "preflight_skip", preflight="preflight_skip"), executable)
     assert_equal((result.outcome, result.code), ("SKIP", "SKIP_CONFIGURATION"), "preflight skip")
@@ -1585,7 +1629,8 @@ def test_collect_process_interrupt() -> None:
                 raise interruption
             return "", ""
         process.communicate.side_effect = communicate
-        with patch.object(sqlcmd_process, "_terminate_process_tree", side_effect=lambda value: events.append(("terminate", value))):
+        with patch.object(sqlcmd_process, "_terminate_process_tree",
+                          side_effect=lambda value: events.append(("terminate", value)) or True):
             try:
                 sqlcmd_process.collect_process(process, ["synthetic"], timeout_seconds=10)
             except BaseException as exc:
@@ -1595,36 +1640,52 @@ def test_collect_process_interrupt() -> None:
         assert_equal(events, [("communicate", 10), ("terminate", process), ("communicate", 5)], "Terminierung vor Reap und Wiederwurf")
 
 
+def test_collect_process_rejects_unconfirmed_termination() -> None:
+    process = Mock()
+    process.poll.return_value = None
+    process.communicate.side_effect = [KeyboardInterrupt(), ("", "")]
+    with patch.object(sqlcmd_process, "_terminate_process_tree", return_value=False):
+        try:
+            sqlcmd_process.collect_process(process, ["synthetic"], timeout_seconds=10)
+        except sqlcmd_process.ProcessTerminationError:
+            pass
+        else:
+            raise AssertionError("unconfirmed process-tree termination must fail closed")
+
+
 def test_windows_process_tree_termination() -> None:
     """Taskkill beendet unter Windows den Baum und bleibt zeitlich begrenzt."""
     process = Mock(pid=12345)
-    process.poll.side_effect = [None, 0]
+    process.poll.side_effect = [None, None, 0]
     with patch.object(sqlcmd_process.os, "name", "nt"), \
          patch.object(sqlcmd_process.subprocess, "CREATE_NO_WINDOW", 0x08000000, create=True), \
          patch.object(sqlcmd_process.subprocess, "run") as run:
-        sqlcmd_process._terminate_process_tree(process)
+        run.return_value.returncode = 0
+        assert_equal(sqlcmd_process._terminate_process_tree(process), True, "Windows tree termination confirmed")
         assert_equal(run.call_args.args[0], ["taskkill", "/PID", "12345", "/T", "/F"], "Windows-Baumabbruch")
         assert_equal(run.call_args.kwargs["timeout"], 5, "Taskkill-Budget")
         process.wait.assert_called_once_with(timeout=2)
     process.poll.side_effect = None
     process.poll.return_value = None
+    process.kill.reset_mock()
     with patch.object(sqlcmd_process.os, "name", "nt"), \
          patch.object(sqlcmd_process.subprocess, "CREATE_NO_WINDOW", 0x08000000, create=True), \
          patch.object(sqlcmd_process.subprocess, "run", side_effect=subprocess.TimeoutExpired("taskkill", 5)):
-        sqlcmd_process._terminate_process_tree(process)
+        assert_equal(sqlcmd_process._terminate_process_tree(process), False, "taskkill timeout leaves tree status unknown")
         process.kill.assert_called_once()
 
 
-def test_completed_root_is_never_terminated_by_old_pid() -> None:
-    """Nach Reap darf eine wiederverwendete PID kein Terminierungsziel sein."""
+def test_completed_root_does_not_claim_unverified_tree_stopped() -> None:
+    """Ein beendeter Root beweist unter Windows keinen Baumstopp."""
     for platform_name in ("nt", "posix"):
         process = Mock(pid=12345)
         process.poll.return_value = 0
         with patch.object(sqlcmd_process.os, "name", platform_name), \
              patch.object(sqlcmd_process.subprocess, "run") as run, \
-             patch.object(sqlcmd_process.os, "killpg", create=True) as killpg, \
+             patch.object(sqlcmd_process.os, "killpg", side_effect=ProcessLookupError, create=True) as killpg, \
              patch.object(sqlcmd_process.os, "kill") as kill:
-            sqlcmd_process._terminate_process_tree(process)
+            assert_equal(sqlcmd_process._terminate_process_tree(process), False,
+                         "completed root cannot prove detached descendants are absent")
             run.assert_not_called()
             killpg.assert_not_called()
             kill.assert_not_called()
@@ -1691,8 +1752,9 @@ def test_linux_nested_session_interrupt() -> None:
 def main() -> int:
     test_runtime_test_functions_are_registered_once()
     test_collect_process_interrupt()
+    test_collect_process_rejects_unconfirmed_termination()
     test_windows_process_tree_termination()
-    test_completed_root_is_never_terminated_by_old_pid()
+    test_completed_root_does_not_claim_unverified_tree_stopped()
     test_linux_nested_session_interrupt()
     test_qry023_contract_loads_in_existing_caller()
     with tempfile.TemporaryDirectory(prefix="sqlperf-orchestration-") as temporary:
@@ -1709,6 +1771,8 @@ def main() -> int:
         test_sessions_timeout(base, executable)
         test_harness_pass(base, executable)
         test_harness_cleanup_failure(base, executable)
+        test_harness_interrupt_after_setup_attempts_cleanup(base, executable)
+        test_harness_suppresses_cleanup_when_process_termination_is_unknown(base, executable)
         test_harness_preflight_skip(base, executable)
         test_harness_optional_skip(base, executable)
         test_harness_yellow_confirmation(base, executable)

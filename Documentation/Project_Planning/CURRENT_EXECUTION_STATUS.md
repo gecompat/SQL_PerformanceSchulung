@@ -14,6 +14,21 @@ unabhängige Nachprüfung des Offline-Fixes fand keine offenen P1/P2 und bestät
 die Review-Schwelle für genau diesen Schnitt; sie erteilt keine SQL-/Runtime-
 Freigabe und ersetzt nicht die offene Gesamtmethodenabnahme von QRY-023.
 
+Die unabhängige Gesamtprüfung an `b48269a` fand zwei P2-Gates: FWK-010
+verwendet für alle Phasen dieselbe Anmeldung, und der Vorschlag führte die
+FWK-008-Größen-, Session- und Abbruchgrenzen nicht vollständig. Das QRY-023-
+Manifest bindet diese Rollen und Grenzen jetzt explizit, kennzeichnet die
+phasenbezogene Rechteausführung aber weiterhin als `OPEN`; die aktuelle
+FWK-010-Funktionalität wird nicht als ausreichend dargestellt. Die 1-GiB-
+Zieldatenbank-/TempDB-Werte sind nur vorgeschlagene Obergrenzen und erfordern
+einen späteren Runtimecaller, der sie vor Setup tatsächlich durchsetzt.
+FWK-010 behandelt Ctrl+C während einer regulären Phase nun als
+`FAIL_EXECUTION` und versucht, den sqlcmd-Prozessbaum zu beenden. Nur wenn
+Beendigung und Reap bestätigt sind, wird nach begonnenem Setup Cleanup
+versucht; bei unklarem Status bleibt Cleanup aus und `FAIL_CLEANUP` wird
+gemeldet. Synthetische Regressionen binden Reihenfolge und Fail-closed-Pfad.
+Die Runtime-, Rechte- und vollständige Methodenfreigabe bleiben offen.
+
 Der QRY-023-Registry-Scope nennt nun das bereits im `measurement_gate`
 festgelegte Profil von 10.000 Pfaden, 30.000 Knoten und 20.000 Kanten, statt zu
 sagen, die Last sei noch zu entwerfen. QRY-023 bleibt `PROPOSED`, nicht
