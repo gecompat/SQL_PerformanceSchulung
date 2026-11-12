@@ -15,6 +15,8 @@ DECLARE @ExpectedBuild nvarchar(128) = CASE @MajorVersion
 END;
 DECLARE @HasCreateDatabase bit = CASE WHEN HAS_PERMS_BY_NAME(NULL,NULL,'CREATE ANY DATABASE')=1 OR HAS_PERMS_BY_NAME(NULL,NULL,'ALTER ANY DATABASE')=1 OR HAS_PERMS_BY_NAME(N'master','DATABASE','CREATE DATABASE')=1 THEN 1 ELSE 0 END;
 DECLARE @ExistingDatabaseId int = DB_ID(@TargetDatabase);
+DECLARE @VisibleUserDatabases bit = CASE WHEN HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY DATABASE')=1 THEN 1 ELSE 0 END;
+DECLARE @UserDatabaseCount int;
 
 IF @DemoId <> 'QRY-023'
    OR @RunToken IS NULL
@@ -50,6 +52,21 @@ BEGIN
     PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION';
     RETURN;
 END;
+
+IF @VisibleUserDatabases=0
+BEGIN
+    SELECT 1 AS Sequence,'PREFLIGHT' AS Phase,'DATABASE_INVENTORY_VISIBILITY' AS CheckId,'SKIP' AS Outcome,'SKIP_PERMISSION' AS Code,
+           N'VIEW ANY DATABASE fehlt oder ist nicht nachweisbar' AS ObservedValue,N'vollständige Benutzerdatenbanksicht vor Setup' AS RequiredValue,
+           N'Ohne vollständige Inventarsicht wird keine Zieldatenbank erstellt.' AS Message;
+    PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION';
+    RETURN;
+END;
+
+SELECT @UserDatabaseCount=COUNT(*) FROM sys.databases WHERE database_id>4;
+IF (@ExistingDatabaseId IS NULL AND @UserDatabaseCount<>0)
+   OR (@ExistingDatabaseId IS NOT NULL AND (@UserDatabaseCount<>1 OR NOT EXISTS
+       (SELECT 1 FROM sys.databases WHERE database_id=@ExistingDatabaseId AND name=@TargetDatabase)))
+    THROW 51007,'FAIL_SAFETY: Vor Setup ist nur eine leere Instanz oder die exakt benannte Wiederaufnahme desselben QRY-023-Runs zulässig.',1;
 
 IF @ExistingDatabaseId IS NOT NULL
 BEGIN

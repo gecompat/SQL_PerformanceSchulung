@@ -8,6 +8,7 @@ var expectedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     "10_Setup.sql",
     "15_Framework.sql",
     "20_Workload.sql",
+    "22_Admin_Permission_Inventory.sql",
     "25_Qualification_Preflight.sql",
     "30_Correctness.sql",
     "40_Measurement.sql",
