@@ -100,6 +100,17 @@ ausgeschlossen. Ein späterer Minimalrechtnachweis muss zusätzliche relevante
 Securables und Spaltenrechte vollständig abdecken oder seine Aussage auf eine
 qualifizierte, dedizierte Wegwerfinstanz mit gebundenem Bestand beschränken.
 
+Der Messpfad hält außerdem die optionale FWK-004-Wartezeiterfassung aus:
+`lab.USP_Qry023MeasureVariant` ruft `USP_BeginMeasurement` mit
+`@CaptureSessionWaits=0` auf. Die Messprozeduren lesen dadurch nur die eigene
+Session aus `sys.dm_exec_sessions`; Microsoft dokumentiert den Zugriff auf die
+eigene Session ohne Zusatzrecht. Die bedingten Abfragen auf
+`sys.dm_exec_session_wait_stats` werden übersprungen. Auf SQL Server 2022 und
+neuer wäre für diese Wait-Statistik DMV das Serverrecht
+`VIEW SERVER PERFORMANCE STATE` erforderlich. Dieses Recht gehört daher nicht
+zum QRY-023-READER-Profil; eine Negativregression schützt den festen Wert `0`.
+Quellen, abgerufen am 12. November 2026: [`sys.dm_exec_sessions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-sessions-transact-sql?view=sql-server-ver17), [`sys.dm_exec_session_wait_stats`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-session-wait-stats-transact-sql?view=sql-server-ver17).
+
 Der vorgeschlagene Ausführungs-Sicherheitsvertrag nennt 1 GiB als erwartete
 Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze für
 zusätzliches TempDB-Wachstum; zugleich ist höchstens eine SQL-Session aktiv.

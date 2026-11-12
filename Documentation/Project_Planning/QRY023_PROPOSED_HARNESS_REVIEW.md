@@ -291,6 +291,22 @@ Ein vollständiger Minimalrechtnachweis muss sämtliche relevanten Securables
 einschließlich Spaltenrechten inventarisieren oder den Aussageumfang auf eine
 qualifizierte dedizierte Wegwerfinstanz mit gebundenem Objektbestand begrenzen.
 
+#### FWK-004-Wartezeitrechte im QRY-023-Readerpfad
+
+Der Aufruf von `lab.USP_Qry023MeasureVariant` bindet
+`@CaptureSessionWaits=0` an `fwk.USP_BeginMeasurement`. FWK-004 liest für die
+Sessiondeltas `sys.dm_exec_sessions` mit `session_id = @@SPID`; Microsoft
+dokumentiert, dass jeder Principal die eigene Session sehen kann. Die
+bedingten Abfragen auf `sys.dm_exec_session_wait_stats` werden bei diesem
+Parameter übersprungen. Für diese DMV verlangt SQL Server 2022 und neuer das
+Serverrecht `VIEW SERVER PERFORMANCE STATE`; es ist deshalb kein notwendiger
+Bestandteil des QRY-023-READER-Profils und darf nicht als Umgehung für eine
+aktivierte Wait-Erfassung ergänzt werden. Die bestehende Vertragsprüfung bindet
+den Literalwert `0`; eine zusätzliche Negativregression muss den Wechsel auf
+`1` zurückweisen. Das ist ein statischer Quellen-/Codepfadbefund, kein
+Engine-Nachweis der übrigen Minimalrechte. Quellen, abgerufen am 12. November
+2026: [sys.dm_exec_sessions](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-sessions-transact-sql?view=sql-server-ver17), [sys.dm_exec_session_wait_stats](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-session-wait-stats-transact-sql?view=sql-server-ver17).
+
 Die erste PR-CI-Prüfung zeigte, dass DGN-007 zusätzlich den AST von
 `run_demo.py` fest bindet. Die Bindung enthält jetzt den exakten Python-3.12-
 AST-Digest der erweiterten Runnerdatei; alle übrigen DGN-007-AST-Digests bleiben
