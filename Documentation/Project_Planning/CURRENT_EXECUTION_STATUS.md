@@ -16,6 +16,12 @@ phasenspezifische Identitätsdurchsetzung, Runtimecaller-Integration,
 Ressourcen-, Cleanup- und sämtliche Runtimegates bleiben offen.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
+`SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
+für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten
+verfügbar; für 2025 folgt Standard Developer der Standard-Matrix. Das bestätigt
+ausschließlich dokumentierte Featureverfügbarkeit, keine tatsächliche Edition,
+Enginekompilierung oder Runtimequalifikation. QRY-023 bleibt `PROPOSED`.
+
 ## External Tables – statischer Lehr- und Demoentwurf
 
 Der [Konzeptentwurf](EXTERNAL_TABLES_DEMO_CONCEPT.md) knüpft als Vorschlag an
