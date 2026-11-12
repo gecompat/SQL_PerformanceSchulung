@@ -102,6 +102,19 @@ ausgeschlossen. Ein späterer Minimalrechtnachweis muss zusätzliche relevante
 Securables und Spaltenrechte vollständig abdecken oder seine Aussage auf eine
 qualifizierte, dedizierte Wegwerfinstanz mit gebundenem Bestand beschränken.
 
+Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
+Objektreferenzen der als `READER` markierten Phasenskripte mit den
+`HAS_PERMS_BY_NAME`-Prüfungen im Qualifikationspreflight. Nicht zuordenbare
+`dbo`-/`lab`-Referenzen, datenbankqualifizierte Namen und dynamische
+`EXEC`-Formen werden fail-closed zurückgewiesen; als Prozeduraufruf ist nur
+`lab.USP_Qry023MeasureVariant` zugelassen. Für diese Phasen erlaubt die Textprüfung direkt erkennbare
+schreibende Ziele nur an lokalen Tabellenvariablen; erkannte persistente DML-,
+`SELECT INTO`-, `BULK INSERT`-, DDL- und Rechteänderungen werden abgelehnt. Das
+schützt die statische Zuordnung der aktuellen Skripttexte, ist
+aber kein T-SQL-AST-/Datenflussnachweis, kein Serverrechteinventar und kein
+Nachweis des tatsächlichen Verhaltens unter SQL Server. Die Runtime- und
+Effektivberechtigungsgates bleiben offen.
+
 Der Messpfad hält außerdem die optionale FWK-004-Wartezeiterfassung aus:
 `lab.USP_Qry023MeasureVariant` ruft `USP_BeginMeasurement` mit
 `@CaptureSessionWaits=0` auf. Die Messprozeduren lesen dadurch nur die eigene

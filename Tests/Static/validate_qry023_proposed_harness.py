@@ -197,6 +197,157 @@ def qualification_permission_gate_valid(qualification: str) -> bool:
     )
 
 
+def reader_object_dependencies_covered(
+    manifest: dict[str, object], reader_scripts: dict[str, str], qualification: str
+) -> bool:
+    """Require every direct user-object read/call in READER phases to be preflighted."""
+    phases = manifest.get("phases")
+    if not isinstance(phases, list):
+        return False
+    reader_names = {
+        phase.get("script")
+        for phase in phases
+        if isinstance(phase, dict) and phase.get("credential_profile") == "READER"
+    }
+    if not reader_names or not reader_names.issubset(reader_scripts):
+        return False
+
+    referenced: set[tuple[str, str, str]] = set()
+    object_pattern = re.compile(
+        r"(?:\bfrom\b|\bjoin\b|,)\s*(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+        r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
+        re.IGNORECASE,
+    )
+    execute_pattern = re.compile(
+        r"\bexec(?:ute)?\s+(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+        r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
+        re.IGNORECASE,
+    )
+    three_part_reference_pattern = re.compile(
+        r"\b(?:from|join|exec(?:ute)?)\s+(?:(?:\[[^]]+\]|[a-z_][a-z0-9_$#@]*)\s*\.\s*){1,2}"
+        r"\[?(?:dbo|lab)\]?\s*\.\s*\[?[a-z_][a-z0-9_$#@]*\]?",
+        re.IGNORECASE,
+    )
+    qualified_pattern = re.compile(
+        r"(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
+        re.IGNORECASE,
+    )
+    permission_literal_pattern = re.compile(
+        r"has_perms_by_name\s*\(\s*n?'(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+        r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)'\s*,\s*'object'\s*,\s*"
+        r"'(?:select|execute)'\s*\)",
+        re.IGNORECASE,
+    )
+    block_comment = re.compile(r"/\*.*?\*/", re.DOTALL)
+    line_comment = re.compile(r"--[^\r\n]*")
+    qualified_references: set[tuple[str, str]] = set()
+    permission_literals: set[tuple[str, str]] = set()
+    for script_name in reader_names:
+        source = reader_scripts[script_name]
+        source = block_comment.sub(" ", source)
+        source = line_comment.sub(" ", source)
+        if three_part_reference_pattern.search(source):
+            return False
+        qualified_references.update(
+            (match.group("schema").strip("[]").casefold(), match.group("object").strip("[]").casefold())
+            for match in qualified_pattern.finditer(source)
+        )
+        permission_literals.update(
+            (match.group("schema").strip("[]").casefold(), match.group("object").strip("[]").casefold())
+            for match in permission_literal_pattern.finditer(source)
+        )
+        for match in object_pattern.finditer(source):
+            schema = match.group("schema").strip("[]").casefold()
+            name = match.group("object").strip("[]").casefold()
+            referenced.add((schema, name, "SELECT"))
+        for match in execute_pattern.finditer(source):
+            schema = match.group("schema").strip("[]").casefold()
+            name = match.group("object").strip("[]").casefold()
+            referenced.add((schema, name, "EXECUTE"))
+
+    recognized_references = {
+        (schema, name) for schema, name, _ in referenced
+    } | permission_literals
+    if not qualified_references.issubset(recognized_references):
+        return False
+
+    checked = {
+        (match.group("schema").strip("[]").casefold(),
+         match.group("object").strip("[]").casefold(),
+         match.group("permission").upper())
+        for match in re.finditer(
+            r"has_perms_by_name\s*\(\s*n?'(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+            r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)'\s*,\s*'object'\s*,\s*"
+            r"'(?P<permission>select|execute)'\s*\)",
+            qualification,
+            re.IGNORECASE,
+        )
+    }
+    return referenced.issubset(checked)
+
+
+def reader_phase_scripts_are_read_only(
+    manifest: dict[str, object], reader_scripts: dict[str, str]
+) -> bool:
+    """Allow local table-variable writes, but reject persistent DML/DDL in READER phases."""
+    phases = manifest.get("phases")
+    if not isinstance(phases, list):
+        return False
+    reader_names = {
+        phase.get("script")
+        for phase in phases
+        if isinstance(phase, dict) and phase.get("credential_profile") == "READER"
+    }
+    if not reader_names or not reader_names.issubset(reader_scripts):
+        return False
+    block_comment = re.compile(r"/\*.*?\*/", re.DOTALL)
+    line_comment = re.compile(r"--[^\r\n]*")
+    dml_target = re.compile(
+        r"\b(?:insert(?:\s+into)?|update|delete\s+from|merge\s+into|truncate\s+table)\s+"
+        r"(?P<target>@?[a-z_][a-z0-9_$#@]*)",
+        re.IGNORECASE,
+    )
+    select_into_target = re.compile(
+        r"\bselect\b(?:(?!;).)*?\binto\s+(?P<target>@?[a-z_][a-z0-9_$#@]*)",
+        re.IGNORECASE | re.DOTALL,
+    )
+    bulk_insert_target = re.compile(
+        r"\bbulk\s+insert\s+(?P<target>@?[a-z_][a-z0-9_$#@]*)",
+        re.IGNORECASE,
+    )
+    ddl_or_security = re.compile(
+        r"\b(?:create|alter|drop)\s+(?:database|login|user|role|schema|table|procedure|index)\b"
+        r"|\b(?:grant|deny|revoke)\b",
+        re.IGNORECASE,
+    )
+    direct_execute = re.compile(
+        r"\bexec(?:ute)?\s+(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
+        r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
+        re.IGNORECASE,
+    )
+    allowed_execute = {("lab", "usp_qry023measurevariant")}
+    for script_name in reader_names:
+        source = block_comment.sub(" ", reader_scripts[script_name])
+        source = line_comment.sub(" ", source)
+        executable_source = re.sub(r"n?'(?:''|[^'])*'", "''", source, flags=re.IGNORECASE)
+        if ddl_or_security.search(source):
+            return False
+        for match in re.finditer(r"\bexec(?:ute)?\b", executable_source, re.IGNORECASE):
+            call = direct_execute.match(executable_source, match.start())
+            if call is None:
+                return False
+            target = (call.group("schema").strip("[]").casefold(),
+                      call.group("object").strip("[]").casefold())
+            if target not in allowed_execute:
+                return False
+        for match in (*dml_target.finditer(source),
+                      *select_into_target.finditer(source),
+                      *bulk_insert_target.finditer(source)):
+            if not match.group("target").startswith("@"):
+                return False
+    return True
+
+
 def qualification_summaries_valid(qualification: str) -> bool:
     """Require the permission skip and success rows to match their PRINT markers."""
     skip_row_pattern = (
@@ -510,6 +661,27 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "qualification preflight must check SHOWPLAN before query execution", errors)
     require(qualification_permission_gate_valid(qualification),
             "qualification preflight must check target DATABASE/SHOWPLAN, SELECT on all query and oracle tables and MeasurementRun, and EXECUTE on the measurement procedure before SKIP_PERMISSION/RETURN", errors)
+    require(reader_object_dependencies_covered(
+                manifest,
+                {
+                    "25_Qualification_Preflight.sql": qualification,
+                    "30_Correctness.sql": correctness,
+                    "40_Measurement.sql": measurement,
+                    "50_Plan_Evidence.sql": plan,
+                },
+                qualification,
+            ),
+            "every direct dbo/lab object reference in READER phase scripts must have a matching preflight permission check", errors)
+    require(reader_phase_scripts_are_read_only(
+                manifest,
+                {
+                    "25_Qualification_Preflight.sql": qualification,
+                    "30_Correctness.sql": correctness,
+                    "40_Measurement.sql": measurement,
+                    "50_Plan_Evidence.sql": plan,
+                },
+            ),
+            "READER phase scripts may write only to local table variables and must not alter persistent data, schema, or permissions", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
     require(qualification_ownership_markers_valid(qualification),

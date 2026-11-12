@@ -212,6 +212,17 @@ Regressionstest); keine neue Produktquelle, kein Grant, kein SQL-/Lab-/Runtime-
 Lauf und keine menschliche Generalprobe. Die vollständige effektive
 Rechteinventur und die übrigen Runtimegates bleiben offen.
 
+Nach der Integration dieser Vier-Oracle-Prüfungen folgt ein begrenzter lokaler
+Vertragsschnitt: READER-Phasen werden statisch gegen ihre direkten
+`dbo`-/`lab`-Objektreferenzen im Preflight abgeglichen; nicht zuordenbare oder
+datenbankqualifizierte Namen, indirekte `EXEC`-Formen und erkannte direkte
+persistent schreibende Anweisungen werden zurückgewiesen. Die bereits
+vorhandene QRY-023-Testsuite prüft die positiven Skripte und die synthetischen
+Negativfälle. Grenze dieses Schnitts: ein Arbeitspaket, ein PR und keine neuen
+Produktquellen. Kein SQL-, Lab- oder Runtime-Lauf. Der Merge ist der
+Checkpoint; tatsächliche Effektivrechte, vollständige Methodenabnahme und
+Runtimegates bleiben davon getrennt offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
