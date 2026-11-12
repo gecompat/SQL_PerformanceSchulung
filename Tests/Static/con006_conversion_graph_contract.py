@@ -6,7 +6,8 @@ not acquire, authenticate, time, or attest to SQL Server evidence.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from enum import Enum
 import re
 import xml.etree.ElementTree as ET
@@ -14,8 +15,12 @@ import xml.etree.ElementTree as ET
 
 MAX_GRAPH_BYTES = 128 * 1024
 _UNSIGNED = re.compile(r"[1-9][0-9]*\Z")
+# SQL capture timestamps use RFC-3339 offsets/fractions but not leap seconds.
+# Fractions remain unbounded except for a small whole-input length guard.
 _RFC3339 = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})\Z"
+    r"([0-9]{4}-[0-9]{2}-[0-9]{2})[Tt]"
+    r"([0-9]{2}):([0-9]{2}):([0-9]{2})"
+    r"(?:\.([0-9]+))?([Zz]|[+-][0-9]{2}:[0-9]{2})\Z"
 )
 
 
@@ -127,22 +132,54 @@ def _unsigned_attr(node: ET.Element, name: str, label: str, failures: list[str])
     return int(value)
 
 
-def _timestamp(value: str | None, label: str, *, missing: list[str], failures: list[str]) -> datetime | None:
+def _timestamp(
+    value: str | None,
+    label: str,
+    *,
+    missing: list[str],
+    failures: list[str],
+) -> tuple[int, Decimal] | None:
     if value is None:
         missing.append(label)
         return None
-    if type(value) is not str or not _RFC3339.fullmatch(value):
-        failures.append(f"{label} must be an RFC 3339 timestamp with an explicit UTC offset")
+    if type(value) is not str or len(value) > 128:
+        failures.append(f"{label} must match the bounded SQL capture timestamp profile")
         return None
+    match = _RFC3339.fullmatch(value)
+    if match is None:
+        failures.append(f"{label} must match the bounded SQL capture timestamp profile")
+        return None
+    date_text, hour_text, minute_text, second_text, fraction_text, offset_text = match.groups()
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
+        parsed_date = datetime.fromisoformat(date_text)
+        fraction = Decimal("0." + fraction_text) if fraction_text is not None else Decimal(0)
+    except (ValueError, InvalidOperation):
         failures.append(f"{label} is not a valid timestamp")
         return None
-    if parsed.utcoffset() is None:
-        failures.append(f"{label} must include a UTC offset")
+
+    hour, minute, second = int(hour_text), int(minute_text), int(second_text)
+    if hour > 23 or minute > 59 or second > 59:
+        failures.append(f"{label} is outside the supported SQL capture timestamp profile")
         return None
-    return parsed.astimezone(timezone.utc)
+
+    offset_seconds = 0
+    if offset_text not in {"Z", "z"}:
+        sign = 1 if offset_text[0] == "+" else -1
+        offset_hour, offset_minute = int(offset_text[1:3]), int(offset_text[4:6])
+        if offset_hour > 23 or offset_minute > 59:
+            failures.append(f"{label} has an invalid UTC offset")
+            return None
+        offset_seconds = sign * (offset_hour * 3600 + offset_minute * 60)
+
+    local_seconds = (
+        parsed_date.date().toordinal() * 86400
+        + hour * 3600
+        + minute * 60
+        + second
+    )
+    # Integer arithmetic avoids datetime.astimezone overflow at year 1/9999
+    # boundaries and Decimal preserves arbitrary RFC-3339 fractional precision.
+    return local_seconds - offset_seconds, fraction
 
 
 def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIdentity | None) -> GraphResult:
