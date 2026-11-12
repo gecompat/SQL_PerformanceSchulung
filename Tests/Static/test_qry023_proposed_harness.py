@@ -346,14 +346,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path = self.demo / "30_Correctness.sql"
         source = path.read_text(encoding="utf-8")
         path.write_text("DELETE FROM dbo.Person;\n" + source, encoding="utf-8")
-        self.assertTrue(any("READER script text may directly write only to local table variables" in error
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
     def test_reader_phase_rejects_delete_without_from(self) -> None:
         path = self.demo / "30_Correctness.sql"
         source = path.read_text(encoding="utf-8")
         path.write_text("DELETE dbo.Person;\n" + source, encoding="utf-8")
-        self.assertTrue(any("READER script text may directly write only to local table variables" in error
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
     def test_reader_phase_rejects_create_or_alter_ddl(self) -> None:
@@ -361,7 +361,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         source = path.read_text(encoding="utf-8")
         path.write_text("CREATE OR ALTER PROCEDURE dbo.Unsafe AS SELECT 1;\n" + source,
                         encoding="utf-8")
-        self.assertTrue(any("READER script text may directly write only to local table variables" in error
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
     def test_reader_phase_rejects_dbcc_mutation(self) -> None:
@@ -369,7 +369,35 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         source = path.read_text(encoding="utf-8")
         path.write_text("DBCC CHECKIDENT (N'dbo.Person', RESEED, 1);\n" + source,
                         encoding="utf-8")
-        self.assertTrue(any("READER script text may directly write only to local table variables" in error
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_cannot_switch_database_context(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("USE master;\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_cannot_switch_to_bracketed_database_context(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("USE [master];\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_cannot_switch_to_double_quoted_database_context(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text('USE "master";\n' + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_sqlcmd_parameterized_use(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("USE $(TargetDatabase);\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
     def test_reader_phase_cannot_select_into_a_persistent_table(self) -> None:
@@ -377,7 +405,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         source = path.read_text(encoding="utf-8")
         path.write_text("SELECT * INTO dbo.PersonCopy FROM dbo.Person;\n" + source,
                         encoding="utf-8")
-        self.assertTrue(any("READER script text may directly write only to local table variables" in error
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
     def test_reader_phase_rejects_indirect_execution(self) -> None:
@@ -385,7 +413,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         source = path.read_text(encoding="utf-8")
         path.write_text("DECLARE @sql nvarchar(max)=N'DELETE FROM dbo.Person';\nEXEC @sql;\n" + source,
                         encoding="utf-8")
-        self.assertTrue(any("READER script text may directly write only to local table variables" in error
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
     def test_measurement_preflight_must_check_log_select_right(self) -> None:

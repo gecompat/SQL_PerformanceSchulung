@@ -109,7 +109,8 @@ Objektreferenzen der als `READER` markierten Phasenskripte mit den
 `EXEC`-Formen werden fail-closed zurückgewiesen; als Prozeduraufruf ist nur
 `lab.USP_Qry023MeasureVariant` zugelassen. Für diese Phasen erlaubt die Textprüfung direkt erkennbare
 schreibende Ziele nur an lokalen Tabellenvariablen; erkannte persistente DML-,
-`SELECT INTO`-, `BULK INSERT`-, DDL-, DBCC- und Rechteänderungen werden abgelehnt. Das
+`SELECT INTO`-, `BULK INSERT`-, DDL-, DBCC- und Rechteänderungen sowie direkte
+Datenbank-/Sicherheitskontextwechsel werden abgelehnt. Das
 schützt die statische Zuordnung der aktuellen Skripttexte, ist
 aber kein T-SQL-AST-/Datenflussnachweis, kein Serverrechteinventar und kein
 Nachweis des tatsächlichen Verhaltens unter SQL Server. Die Runtime- und
