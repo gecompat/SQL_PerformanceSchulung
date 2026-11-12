@@ -84,7 +84,6 @@ def build_sqlcmd_command(
     auth: str,
     username: str | None = None,
     variables: Mapping[str, str] | None = None,
-    environment: Mapping[str, str] | None = None,
 ) -> list[str]:
     """Build a sqlcmd command as an argument vector."""
 
@@ -121,8 +120,7 @@ def build_sqlcmd_command(
     elif normalized_auth == "sql":
         if not username:
             raise ValueError("SQL authentication requires --username")
-        credential_environment = environment if environment is not None else os.environ
-        if not credential_environment.get("SQLCMDPASSWORD"):
+        if not os.environ.get("SQLCMDPASSWORD"):
             raise ValueError(
                 "SQL authentication requires SQLCMDPASSWORD in the process environment"
             )
