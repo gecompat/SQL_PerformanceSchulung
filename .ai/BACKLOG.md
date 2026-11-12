@@ -3417,7 +3417,11 @@ keine Enginekompilierung, Ausführung oder Runtimequalifikation. `DEC-081`
 bestätigt die Buildpins als aktuelle Linux-Servicingstände zum 12.11.2026;
 `DEC-082` bestätigt die aktuellen MCR-Manifest-/Konfigurationsdigests und
 Produktlabels gegenüber dem vorgeschlagenen Lock; Runtimecaller-Integration
-und Enginebindung bleiben offen. Die fachliche
+und Enginebindung bleiben offen. Die Editionsmatrix `SRC-126` wurde am
+12.11.2026 erneut geprüft und bestätigt Graph-Verfügbarkeit in den
+aufgeführten Editionen der Projektversionen; 2025 Standard Developer folgt der
+Standard-Matrix. Dies ist keine tatsächliche Editions- oder Runtimequalifikation.
+Die fachliche
 Zuordnung liegt in Welle 5 und berührt Optimizer-/Planmechanik in Welle 4 sowie
 Indizes in Welle 6. Priorisierung, Lernziel-/Folienzuordnung und der konkrete
 Demo-Schnitt sind nach den Quellen-, Abdeckungs- und Frameworkreviews im

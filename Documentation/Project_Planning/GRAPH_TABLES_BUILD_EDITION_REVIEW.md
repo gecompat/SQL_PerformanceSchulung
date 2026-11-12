@@ -5,12 +5,14 @@ Status: aktuelle Servicingquellen- und MCR-Metadatenbestätigung gemäß `DEC-08
 
 ## Befund
 
-Microsofts Editionsmatrizen führen SQL Graph für SQL Server 2019 und 2022 in
+Die Editionsmatrizen wurden am 12. November 2026 erneut geprüft. Microsofts
+Matrizen führen SQL Graph für SQL Server 2019 und 2022 in
 allen dort aufgeführten Editionen (Enterprise, Standard, Web sowie Express mit
 Advanced Services und Express) als verfügbar. Die 2025-Matrix weist Graph
 Tables für Enterprise, Standard und Express aus. Für Developer und Evaluation
-gelten laut 2025-Seite die Enterprise-Featurezeilen; für 2022 entsprechend die
-Enterprise-Zuordnung der Entwickler-/Evaluierungsausgaben. Damit ist keine
+gelten für SQL Server 2019/2022 die Enterprise-Featurezeilen. Für SQL Server
+2025 folgen Enterprise Developer und Evaluation der Enterprise-Features;
+Standard Developer folgt Standard. Damit ist keine
 Graph-spezifische Editionsbeschränkung in den drei Projektprofilen erkennbar.
 Die eigentliche QRY-023-Ausführung verlangt unabhängig davon `CREATE DATABASE`,
 Objekt-/DML-Rechte sowie `SELECT` und `SHOWPLAN` nach den jeweiligen Phasen.
@@ -101,6 +103,7 @@ sind klar ausgewiesene Projektvorschläge.
 
 - `SRC-122` und `SRC-123`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen) bindet Graph-Unterstützung ab SQL Server 2017 und die Compatibility-Level-Zuordnung.
 - `SRC-126`: derselbe Registerabschnitt bindet die Editionsmatrizen für 2019, 2022 und 2025.
+- `SRC-126`: Microsofts Editionsmatrizen wurden am 12. November erneut geprüft; Graph bleibt in den Projektversionen in allen aufgeführten Editionsvarianten verfügbar.
 - `SRC-127`: Microsofts [Linux-Servicingübersicht](https://learn.microsoft.com/en-us/troubleshoot/sql/releases/linux/download-and-install-latest-updates-linux) wurde am 12. November erneut geprüft und bestätigt die Pins als aktuelle Linux-Servicingstände.
 - `SRC-130`: Microsoft Artifact Registry, die drei oben dokumentierten Manifest-/Konfigurationsdigests und deren `com.microsoft.version`-Labels, read-only am 12. November 2026 erneut abgerufen; kein Laufzeitbeleg.
 - `SRC-131`: Microsofts [Linux-Installationsanforderungen](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/setup) nennen zwei x64-Kerne mit 2 GHz, 2 GB RAM und 6 GB Speicherplatz als Produktminimum.

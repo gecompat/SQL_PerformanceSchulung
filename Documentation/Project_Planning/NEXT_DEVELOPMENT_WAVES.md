@@ -120,6 +120,17 @@ Kein Image-Layerdownload, Build, Containerstart, SQL, Runtime oder menschliche
 Generalprobe. `SRC-130` wird aktualisiert; Runtimecallerintegration bleibt ein
 separates Gate. Verbrauch in Tokens/Geld ist nicht verlässlich messbar.
 
+PR #538 integrierte `DEC-082` am Commit `ffaa196`; elf Checks waren erfolgreich,
+`main` ist synchronisiert und der lokale/Remote-Branch entfernt. Der nächste
+begrenzte Offlinepunkt aktualisiert innerhalb eines Arbeitspakets, eines PRs und
+höchstens zwei bestehenden Quellen-/Vertragskandidaten die Editionsmatrix
+`SRC-126` und den zugehörigen QRY-023-Review anhand der drei offiziellen
+Microsoft-Editionsseiten. Keine neue Produktquelle, Engineabfrage, Imageaktion,
+SQL-/Lab-/Runtimeausführung oder menschliche Generalprobe. Das belegt allein
+die dokumentierte Verfügbarkeit, keine tatsächliche Edition oder Qualifikation.
+Token- und Geldverbrauch bleiben unbekannt; Paket/PR/Kandidaten begrenzen den
+Umfang, nicht Providerkosten.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
