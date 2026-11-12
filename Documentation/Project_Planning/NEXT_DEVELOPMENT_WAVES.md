@@ -146,6 +146,19 @@ keine Serverrechte-, Ressourcen-, Abbruch-, Cleanup- oder Runtimequalifikation.
 Token- und Geldverbrauch sind unbekannt; Umfangsgrenze ist 1/1/3 aus den sechs
 freigegebenen Kandidaten, ohne Reset.
 
+PR #541 integrierte die phasenspezifischen SQL-Anmeldungsprofile über Squash
+`e430cde`; 77 PR-Checks und die ausgelösten Main-Workflows bestanden. Main ist
+synchronisiert, der lokale und Remote-Branch sind entfernt. Der folgende
+begrenzte Offlinepunkt klärt die Grenze zwischen positiven `READER`-
+Rechteprüfungen und dem weiterhin offenen Nachweis fehlender Zusatzrechte.
+Microsofts Rollenfunktionen prüfen Mitgliedschaft, nicht effektive Rechte, und
+benötigen Rollenmetadatensicht. Die QRY-023-Dokumentation hält deshalb fest,
+warum sie allein kein Minimalrechte-Gate bilden. Keine Änderung an
+Serverprinzipalen oder Grants, kein SQL-/Runtime-/Lab-Lauf und keine
+menschliche Generalprobe. Umfang: ein Arbeitspaket, ein PR, zwei
+Dokumentationskandidaten; verbleibende SQL-, Rechte-, Ressourcen-, Abbruch-,
+Cleanup- und Runtimegates bleiben offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

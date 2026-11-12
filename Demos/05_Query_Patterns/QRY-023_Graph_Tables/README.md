@@ -69,6 +69,16 @@ werden. `FWK-004` speichert keine Abfragetexte oder Pläne; es erfasst
 Sessiondeltas. Fremde oder nicht vollständig markierte Ziele werden abgewiesen
 und nicht entfernt.
 
+Der aktuelle Qualifikationspreflight prüft, ob die benötigten positiven Rechte
+vorliegen; er inventarisiert keine direkten, geerbten oder über Rollen
+gewährten Berechtigungen. Eine Prüfung nur auf Mitgliedschaft in `sysadmin` oder
+`db_owner` würde Minimalrechte ebenfalls nicht beweisen: `IS_SRVROLEMEMBER` und
+`IS_ROLEMEMBER` fragen Rollenmitgliedschaft ab, nicht die zugrunde liegenden
+Rechte, und benötigen `VIEW DEFINITION` auf der jeweiligen Rolle. Eine spätere
+Überprivilegierungsprüfung muss daher effektive Rechte gezielt bewerten und
+ihre Sichtbarkeit für `READER` fail-closed qualifizieren. Bis dahin bleibt die
+Minimalrechte- und Runtimefreigabe offen.
+
 Der vorgeschlagene Ausführungs-Sicherheitsvertrag nennt 1 GiB als erwartete
 Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze für
 zusätzliches TempDB-Wachstum; zugleich ist höchstens eine SQL-Session aktiv.

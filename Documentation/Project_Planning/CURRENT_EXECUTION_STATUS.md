@@ -16,7 +16,12 @@ jetzt getrennte SQL-Anmeldungsprofile pro Phase; QRY-023 weist Setup-/Installati
 phasen `ADMIN`, lesende Qualifikations- und Messphasen `READER` sowie Cleanup
 `ADMIN` zu. Tatsächliche Serverprinzipale und Minimalrechte, Ressourcen- und
 Abbruchdurchsetzung, Cleanupqualifikation, formale Harnessabnahme und sämtliche
-Runtimegates bleiben unbewiesen.
+Runtimegates bleiben unbewiesen. Der Qualifikationspreflight prüft nötige
+positive Rechte; er inventarisiert keine direkten oder geerbten Zusatzrechte.
+Eine bloße `sysadmin`-/`db_owner`-Mitgliedschaftsprüfung würde das nicht lösen,
+da die SQL-Rollenfunktionen weder effektive Rechte auswerten noch ohne
+Rollenmetadatensicht garantiert ein Ergebnis liefern. Das bleibt ein explizites
+offenes Minimalrechte-Gate.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
