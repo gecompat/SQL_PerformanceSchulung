@@ -3500,6 +3500,12 @@ Der ergänzende [T-SQL-Syntaxreview](../Documentation/Project_Planning/GRAPH_TAB
 bindet die zwei unterschiedlichen Edge-Aliase in `MATCH` und den Edge-INSERT
 über echte `$node_id`-Werte. Er ist Quellenprüfung, keine SQL-Ausführung.
 
+Die [Curriculum-Lernnotiz](../Documentation/Curriculum/GRAPH_TABLES_LESSON.md)
+ergänzt `LO-M03-06` mit einer Erklärung gerichteter Zwei-Kanten-Pfade,
+`MATCH` und relationaler Joins. Ergebnisgleichheit, Planbeobachtung und
+Performanceaussagen bleiben getrennt; die Note qualifiziert weder die
+PROPOSED-QRY-023-Demo noch eine Graph-/Relations-Performance-Rangfolge.
+
 Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
 bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
 [Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md), [Messworkload](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) und [Codeentwurf](../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md).

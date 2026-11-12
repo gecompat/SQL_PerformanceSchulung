@@ -19,13 +19,15 @@ Eine lokale Tabelle speichert ihre Zeilen in der SQL-Server-Datenbank. Eine
 External Table beschreibt dagegen die Zuordnung zu Daten an einer externen
 Quelle. Die Datenquelle, ein bei geschützten Quellen erforderliches Credential
 und die externe Tabellendefinition bilden zusammen den Zugriffspfad.
-`OPENROWSET(BULK ...)` ist ein separater
-Dateizugriffsweg und nicht dasselbe wie eine persistente External Table.
+`OPENROWSET(BULK ...)` ist ein separater Dateizugriffsweg und nicht dasselbe
+wie eine persistente External Table.
 Quelltyp, Connector, Betriebssystem und SQL-Server-Version bestimmen, welcher
 Weg verfügbar ist.
 
-Der SQL-Server-Connector `sqlserver://` ist der gemeinsame RDBMS-Kandidat für
-SQL Server 2019, 2022 und 2025. Für eine gemeinsame 2019/2022/2025-Matrix ist
+Der SQL-Server-Connector `sqlserver://` ist der gemeinsame Kandidat für eine
+Quelle auf einem relationalen Datenbankverwaltungssystem (RDBMS; relational
+database management system) bei SQL Server 2019, 2022 und 2025. Für eine
+gemeinsame 2019/2022/2025-Matrix ist
 Windows der dokumentierte gemeinsame Betriebssystempfad; der
 RDBMS-Connector unter Linux ist in der Produktmatrix ab SQL Server 2025
 aufgeführt. Eine SQL-Server-2022-PolyBase-Installation unter Linux benötigt
