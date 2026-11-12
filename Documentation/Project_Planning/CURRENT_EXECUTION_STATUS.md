@@ -133,9 +133,23 @@ QRY-023-Validator bestehen. Der unabhängige Nachreview fand keine weiteren
 P1/P2 im Kontrollzeilenscan. Zusätzlich korrigiert die Registry den im
 Gesamtreview gefundenen P2-Widerspruch: FWK-010 unterstützt phasenspezifische,
 verschiedene SQL-Benutzer; offen bleiben deren reale Effektivrechte und die
-Runtimegates. Beide Korrekturen sind in PR #554 gebündelt; die erste
-Checkrunde bestand. Keine SQL-/Engine-/Runtimeausführung; QRY-023 bleibt
-`PROPOSED`.
+Runtimegates. PR #554 integrierte beide Korrekturen mit sechs erfolgreichen
+PR-Checks und fünf erfolgreichen betroffenen Main-Workflows. `main` steht
+sauber auf `ee6ad0f`; lokaler Arbeitsbranch und Remote-Branch sind entfernt.
+Keine SQL-/Engine-/Runtimeausführung; QRY-023 bleibt `PROPOSED`.
+
+Als nächster freigegebener Offlinepunkt liegt der Entwurf
+[QRY-023-Effektivrechtequalifikation](QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
+vor. Er ordnet die aktuellen READER-Rechte den Phasen zu und beschreibt einen
+fail-closed Vergleich mit `sys.fn_my_permissions` für Server, markierte
+Datenbank, Schemas und vollständige benutzerdefinierte Objektinventur. Der
+unabhängige semantische Review fand keine offenen P1/P2 und bestätigte, dass
+der Text weder eine normative Sollmenge noch eine Laufzeitqualifikation
+behauptet. QRY-023-Validator, geänderte Dokumentationslinks und die
+Datenschutzprüfung der fünf betroffenen Dateien bestehen. Keine Tests des
+Entwurfs und keine SQL-Ausführung. Principal-/Effektrechte-,
+Ownership-Chain- und Runtimequalifikation bleiben offen; Umsetzung erfordert
+eine vollständige versionierte Sollmengenentscheidung.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten

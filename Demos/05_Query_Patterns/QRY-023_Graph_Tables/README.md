@@ -81,26 +81,18 @@ Rechte, und benötigen `VIEW DEFINITION` auf der jeweiligen Rolle. Eine spätere
 ihre Sichtbarkeit für `READER` fail-closed qualifizieren. Bis dahin bleibt die
 Minimalrechte- und Runtimefreigabe offen.
 
-Der nächste offline zu konkretisierende Prüfansatz ist `sys.fn_my_permissions` im
-tatsächlichen `READER`-Verbindungskontext. Die vorgesehene Prüfung muss die
-effektiven Rechte am Server, an der markierten Datenbank, an den verwendeten
-Schemas und an jedem vorhandenen QRY-023-Objekt gegen eine vorab festgelegte
-Sollmenge vergleichen. Die Sollmenge ist aus den konkreten Phasen abzuleiten;
-`SELECT` auf den Querytabellen und Messdaten, `EXECUTE` auf der Messprozedur
-sowie `SHOWPLAN` sind Mindestanforderungen, keine vollständige Sollmenge.
-Unbekannte, nicht auflistbare oder zusätzliche effektive Rechte müssen den
-Preflight fail-closed abbrechen. Die Prüfung ist im jeweiligen Kontext
-auszuführen, weil `fn_my_permissions` die Rechte des aufrufenden Principals
-auswertet. Sie belegt weder die Berechtigungen anderer Principals noch die
-Ownership-Chain-Wirkung der internen Schreiboperationen; beides bleibt ein
-separates Laufzeitgate. Diese Prüfstrategie ist ein Designvorschlag und noch
-nicht implementiert oder auf SQL Server qualifiziert. Siehe Microsofts
-[`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17)-Dokumentation.
-Die genannten QRY-023-Objekte allein bilden keine vollständige Instanz- oder
-Datenbankinventur: Ein Grant auf einem anderen Objekt würde damit nicht
-ausgeschlossen. Ein späterer Minimalrechtnachweis muss zusätzliche relevante
-Securables und Spaltenrechte vollständig abdecken oder seine Aussage auf eine
-qualifizierte, dedizierte Wegwerfinstanz mit gebundenem Bestand beschränken.
+Der Offlineentwurf für die Effektivrechteprüfung mit `sys.fn_my_permissions`
+liegt jetzt in der [QRY-023-Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md).
+Er leitet die vorläufigen READER-Sollzugriffe aus den konkreten Phasen ab und
+bindet Server, markierte Datenbank, Schemas und die vollständige
+benutzerdefinierte Objektinventur ein. Der Entwurf legt fail-closed Grenzen
+fest, aber noch keine abschließend genehmigte Rechte-Sollmenge. Ein Grant auf
+einem nicht inventarisierten Objekt oder eine nicht qualifizierte
+Securable-Klasse bleibt ein Abbruchgrund. Microsoft beschreibt, dass
+`sys.fn_my_permissions` die Rechte des aktuellen Aufrufkontexts zurückgibt und
+bei Fehler `NULL` liefert; die Funktion qualifiziert damit weder andere
+Principals noch die Ownership-Chain-Wirkung. Eine Umsetzung und SQL-Server-
+Qualifikation sind offen.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
@@ -220,5 +212,6 @@ der Runtimeaufrufer muss sie vor Start tatsächlich durchsetzen.
 - [Editions- und Buildreview](../../../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 - [ScriptDom-Grammatikprüfung](../../../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md)
 - [Coverage-Prüfung des Proposed Harness](../../../Documentation/Project_Planning/QRY023_PROPOSED_HARNESS_REVIEW.md)
+- [Entwurf der Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
 - Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json); nicht von einem Runtimeworkflow konsumiert und nicht ausführungsberechtigend.
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.
