@@ -1,7 +1,7 @@
 # Graph Tables: statischer Demoentwurf
 
 Stand: 7. November 2026  
-Status: `PROPOSED`; registrierter Vertrag mit nicht validiertem Codeentwurf, noch nicht katalogisiert
+Status: `PROPOSED`; Methodik gemäß `DEC-079` freigegeben; registrierter Vertrag mit nicht validiertem Codeentwurf, noch nicht katalogisiert
 
 ## Lernziel und Umfang
 
@@ -101,7 +101,8 @@ Design für 10.000 deterministische Zwei-Kanten-Pfade mit 30.000 Knoten und
 20.000 Kanten steht im [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md); es ist weder implementiert noch ausgeführt.
 Die [Quellen- und Methodenprüfung](GRAPH_TABLES_METHOD_REVIEW.md) grenzt
 `MATCH`, Kandidatenindizes, Mess- und Actual-Plan-Erfassung sowie Rechte ab;
-eine unabhängige Methodenfreigabe steht aus.
+`DEC-079` gibt diese Methodik als Grundlage der statischen Vertragsimplementierung
+frei.
 Unvermeidliche Unterschiede in Planform oder Indexierung werden als Teil der
 verglichenen Varianten beschrieben und nicht als isolierter Syntaxeffekt
 ausgegeben.
@@ -130,8 +131,8 @@ Der statische Vertrag für eine spätere Implementierung lautet:
 | Version / Skip | Vorgeschlagene Qualifikationsprofile sind SQL Server 2019/150 (`15.0.4500.2`), 2022/160 (`16.0.4305.5`) und 2025/170 (`17.0.5035.5`); Graph ist in den Microsoft-Editionsmatrizen für alle genannten Editionen verfügbar | Die Builds sind zeitgebundene Designpins vom 7.11.2026, keine Graph-Mindestbuilds oder Runtimefreigabe. Read-only Preflight und Setup prüfen die exakte Version; spätere CU/GDR-Stände enden zunächst mit `SKIP`. Image-Digests und tatsächliche Runtimeumgebung bleiben vor Lauf offen; siehe [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) |
 | Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Separates vorgeschlagenes Messprofil: 10.000 disjunkte Pfade mit 30.000 Knoten und 20.000 Kanten; Plan, Estimated Rows, Logical Reads, CPU und Duration nach `FWK-004`/`FWK-005` | Kein allgemeiner Performancegewinner. Der [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) bleibt vor Implementierung statisch zu prüfen; konkrete Builds, Ressourcenwerte und Messgrenzen folgen dem ausführbaren Vertrag |
 
-Vor statischer Abnahme und Katalogintegration der Codeentwürfe bleiben unabhängige Methodenfreigabe,
-formale T-SQL-Abnahme und Prüfung des vorgeschlagenen Messworkloads und Wiederholungsplans,
+Vor statischer Abnahme und Katalogintegration der Codeentwürfe bleiben formale
+Vertrags-/T-SQL-Abnahme und Prüfung des vorgeschlagenen Messworkloads und Wiederholungsplans,
 Bestätigung oder Erneuerung der zeitgebundenen Build-/CU-Pins und Prüfung der bestehenden
 Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,
 Runtimequalifikation und Performanceclaims sind getrennte Gates und durch die

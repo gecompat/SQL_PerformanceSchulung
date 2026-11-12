@@ -2,7 +2,8 @@
 
 Stand: 12. November 2026
 Status: statischer Entwurf und unabhängige Offline-Review durchgeführt;
-formale Methoden-/Harnessfreigabe und Ausführung bleiben offen
+Methodikgrundlage für statische Vertragsimplementierung durch `DEC-079`
+freigegeben; formale Vertrags-/T-SQL-Abnahme und Ausführung bleiben offen
 
 ## Graph-Query und Indexbegründung
 
@@ -89,9 +90,10 @@ Laufzeitqualifikation ein.
   Validator prüft nun den letzten Wert vor `STATISTICS XML ON`; die
   Negativregression `0` gefolgt von `256` wird abgewiesen. Eine unabhängige
   Nachprüfung bestätigte die Korrektur ohne neue P1/P2.
-- Damit ist der geprüfte Offline-Methodenumfang unabhängig reviewed; dies ist
-  keine formale Projektfreigabe. Formale Vertrags-/T-SQL-Abnahme und sämtliche
-  Runtime-/Ausführungsgates bleiben offen.
+- `DEC-079` genehmigt diese bestehende Methodik als Grundlage der weiteren
+  statischen Vertragsimplementierung. Die Entscheidung ersetzt weder die
+  formale Vertrags-/T-SQL-Abnahme noch offene Ressourcen-, Identitäts-,
+  Berechtigungs-, Cleanup-, Build-/Image- und Runtime-/Ausführungsgates.
 
 ## Quellen und Projektverträge
 

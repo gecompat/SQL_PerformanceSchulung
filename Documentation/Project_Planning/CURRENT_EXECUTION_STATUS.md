@@ -5,9 +5,11 @@
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
 `LO-M03-06` um die Erklärung gerichteter Pfade mit `MATCH` und relationalen
 Joins. Sie trennt Ergebnisgleichheit von tatsächlicher Planevidenz. Der
-QRY-023-Entwurf bleibt `PROPOSED`; T-SQL-/Harnessfreigabe,
-Methodenentscheidung und Runtimequalifikation bleiben offen. Der unabhängige
-Offline-Review fand keine offenen P1/P2.
+QRY-023-Entwurf bleibt `PROPOSED`; `DEC-079` gibt die bestehende Methodik als
+Grundlage der weiteren statischen Vertragsimplementierung frei. Formale
+Vertrags-/T-SQL-Abnahme, phasenspezifische Identitätsdurchsetzung, konkrete
+Build-/Image-, Ressourcen-, Cleanup- und sämtliche Runtimegates bleiben offen.
+Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 ## External Tables – statischer Lehr- und Demoentwurf
 
