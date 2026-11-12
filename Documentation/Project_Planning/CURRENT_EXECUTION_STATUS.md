@@ -103,10 +103,16 @@ Der nächste Offlinekandidat prüft SQLCMD-Steuerzeilen in READER-Skripten:
 `:r`-Includes und `!!`-Shellbefehle werden fail-closed abgewiesen; die exakt
 gebundene `:setvar SQLCMDMAXVARTYPEWIDTH 0`-Direktive bleibt zulässig,
 damit die geprüfte Textdatei nicht zusätzlichen, im Validator unsichtbaren
-Code nachlädt oder ausführt. Die lokale Implementierung und ihre zwei
-Gegenproben bestehen inzwischen mit 67 gezielten Tests und dem Offlinevalidator;
-ein UTF-8-BOM vor `:r` wird vor dem Control-Line-Scan entfernt. Unabhängiger
-Review bestätigt keine offenen P1/P2; PR und CI stehen noch aus.
+Code nachlädt oder ausführt. Die lokale Implementierung entfernt ein führendes
+UTF-8-BOM vor dem Control-Line-Scan. PR #551 integrierte die Regressionen mit
+67 gezielten Tests, sieben erfolgreichen PR-Checks und drei erfolgreichen
+betroffenen Main-Workflows; `main` ist auf `e5ecf25` synchronisiert und der
+Arbeitsbranch entfernt. Unabhängiger Review fand keine offenen P1/P2.
+
+Der nächste kleine Contracttest schützt explizit, dass ein anderer
+`SQLCMDMAXVARTYPEWIDTH`-Wert als `0` in einer READER-Phase abgewiesen wird.
+Das ist eine lokale Regressionsergänzung; keine Änderung am erlaubten Wert und
+keine SQL-/Lab-/Runtimeausführung.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten

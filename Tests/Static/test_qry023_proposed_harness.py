@@ -421,6 +421,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
+    def test_reader_phase_rejects_sqlcmd_output_width_override(self) -> None:
+        path = self.demo / "40_Measurement.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text(":setvar SQLCMDMAXVARTYPEWIDTH 256\n" + source,
+                        encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
     def test_reader_phase_cannot_select_into_a_persistent_table(self) -> None:
         path = self.demo / "30_Correctness.sql"
         source = path.read_text(encoding="utf-8")
