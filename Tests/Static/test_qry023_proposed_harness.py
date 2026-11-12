@@ -37,6 +37,27 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
     def test_current_draft_satisfies_offline_contract(self) -> None:
         self.assertEqual(self.errors(), [])
 
+    def test_reader_baseline_must_keep_single_run_database_inventory(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_baseline_contract"]["user_database_inventory_after_setup"] = "ANY_DATABASES"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
+    def test_reader_baseline_must_reject_unapproved_server_permissions(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_baseline_contract"]["conditionally_tolerated_public_permissions"].append("CONTROL SERVER")
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
+    def test_reader_baseline_must_bind_permission_sources(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_baseline_contract"]["server_permission_sources"]["VIEW ANY DATABASE"] = ["READER_LOGIN"]
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
     def test_catalog_manifest_is_rejected(self) -> None:
         (self.demo / "manifest.json").write_text("{}", encoding="utf-8")
         self.assertTrue(any("catalog manifest.json" in error for error in self.errors()))

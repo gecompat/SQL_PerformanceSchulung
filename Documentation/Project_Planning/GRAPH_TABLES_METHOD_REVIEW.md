@@ -98,8 +98,11 @@ Laufzeitqualifikation ein.
 - Der getrennte Offlineentwurf
   [QRY-023-Effektivrechtequalifikation](QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
   konkretisiert phasenbezogene READER-Zugriffe und fail-closed Inventurregeln
-  mit `sys.fn_my_permissions`. Er legt keine normative Sollmenge fest und
-  belegt keine realen Principalrechte, Ownership Chain oder Runtimewirkung.
+  mit `sys.fn_my_permissions`. `DEC-083` begrenzt die zulässige
+  `public`-Baseline auf eine isolierte QRY-023-Einzel-Run-Wegwerfinstanz. Der
+  Effektivrechtevergleich, die tatsächliche Rollen-/SID-/Endpointinventur und
+  jede SQL-Server-Qualifikation bleiben offen; die Entscheidung autorisiert
+  weder Rechteänderungen noch eine Laufzeit.
 - Ein weiterer statischer Follow-up sperrt SQLCMD-`GO`-Batchtrenner in READER-
   Skripten, damit ein optionaler Wiederholungswert keine unbeschränkt
   vervielfachte Mess-/Planabfrage erzeugt. Die Rohtextprüfung umfasst auch
@@ -113,7 +116,7 @@ Laufzeitqualifikation ein.
 
 ## Quellen und Projektverträge
 
-- `SRC-122` bis `SRC-127`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen).
+- `SRC-122` bis `SRC-127`: [Graph-Tables-Quellen](../Research/SOURCE_REGISTER.md#graph-tables--eng-begrenzte-sql-graph--und-compatibility-quellen); `SRC-158`: [Effektivrechte und SQL-Server-`public`-Baseline](../Research/SOURCE_REGISTER.md#qry-023--effektivrechte-und-sql-server-public-baseline).
 - [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md).
 - [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md).
 - [ScriptDom-Grammatikprüfung](GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md).

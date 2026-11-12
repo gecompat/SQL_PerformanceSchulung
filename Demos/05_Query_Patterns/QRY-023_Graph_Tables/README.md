@@ -82,14 +82,21 @@ ihre Sichtbarkeit für `READER` fail-closed qualifizieren. Bis dahin bleibt die
 Minimalrechte- und Runtimefreigabe offen.
 
 Der Offlineentwurf für die Effektivrechteprüfung mit `sys.fn_my_permissions`
-liegt jetzt in der [QRY-023-Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md).
-Er leitet vorläufige READER-Zugriffskandidaten aus den konkreten Phasen ab und
-bindet Server, markierte Datenbank, Schemas und die vollständige
-benutzerdefinierte Objektinventur ein. Der Entwurf behandelt außerdem die
-öffentliche Serverrechte-Baseline und die versionsabhängigen Festserverrollen.
-Er legt fail-closed Grenzen fest, aber noch keine abschließend genehmigte
-Rechte-Sollmenge. Ein Grant auf einem nicht inventarisierten Objekt oder eine
-nicht qualifizierte Securable-Klasse bleibt ein Abbruchgrund. Microsoft beschreibt, dass
+liegt in der [QRY-023-Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md).
+`DEC-083` akzeptiert `CONNECT SQL` als reguläres Loginrecht sowie die
+dokumentierte `public`-Baseline `VIEW ANY DATABASE` ausschließlich auf einer
+frischen, exklusiv für einen QRY-023-Run reservierten Wegwerfinstanz. Vor Setup darf keine
+Benutzerdatenbank vorhanden sein (außer der exakt markierten Wiederaufnahme
+desselben Runs); danach ist die markierte QRY-023-Datenbank die einzige
+Benutzerdatenbank. Erlaubt sind nur `public` als READER-Server-/Datenbankrolle
+und `CONNECT` aus `public` auf nachweislich standardmäßigen SQL-Endpoints. Der Harness ändert
+weder Serverrechte noch `public`. Die tatsächliche Effektivrechteprüfung,
+Endpointinventur, Rollen- und SID-Bindung sind nicht implementiert oder
+enginequalifiziert. `manifest.proposed.json` hält diese Bedingungen als
+`DESIGN_ONLY_NOT_IMPLEMENTED` fest; der Offlinevalidator schützt die statische
+Vertragsform, er führt die Rechteprüfung nicht aus. Ein Grant auf einem nicht
+inventarisierten Objekt oder eine nicht qualifizierte Securable-Klasse bleibt
+ein Abbruchgrund. Microsoft beschreibt, dass
 `sys.fn_my_permissions` die Rechte des aktuellen Aufrufkontexts zurückgibt und
 bei Fehler `NULL` liefert; die Funktion qualifiziert damit weder andere
 Principals noch die Ownership-Chain-Wirkung. Eine Umsetzung und SQL-Server-
@@ -214,6 +221,6 @@ der Runtimeaufrufer muss sie vor Start tatsächlich durchsetzen.
 - [Editions- und Buildreview](../../../Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md)
 - [ScriptDom-Grammatikprüfung](../../../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md)
 - [Coverage-Prüfung des Proposed Harness](../../../Documentation/Project_Planning/QRY023_PROPOSED_HARNESS_REVIEW.md)
-- [Entwurf der Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
+- [Normative Laufgrenze und Entwurf der Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
 - Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json); nicht von einem Runtimeworkflow konsumiert und nicht ausführungsberechtigend.
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.

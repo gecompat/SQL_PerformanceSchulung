@@ -54,6 +54,29 @@ EXPECTED_EXECUTION_SAFETY_CONTRACT = {
         "and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
     ),
 }
+EXPECTED_READER_BASELINE_CONTRACT = {
+    "instance_scope": "DEDICATED_TO_ONE_QRY023_RUN",
+    "user_database_inventory_before_setup": "EMPTY_OR_EXACT_MARKED_SAME_RUN",
+    "user_database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
+    "required_server_permissions": ["CONNECT SQL"],
+    "conditionally_tolerated_public_permissions": ["VIEW ANY DATABASE"],
+    "server_permission_sources": {
+        "CONNECT SQL": ["READER_LOGIN"],
+        "VIEW ANY DATABASE": ["public"],
+    },
+    "endpoint_permissions": {
+        "standard_endpoints_only": True,
+        "expected": ["CONNECT"],
+        "permission_source_role": "public",
+        "dedicated_admin_connection": "EXCLUDED",
+    },
+    "server_role_membership": ["public"],
+    "database_role_membership": ["public"],
+    "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
+    "unknown_or_unavailable_inventory": "NOT_PROVEN",
+    "server_or_public_permission_mutation": "FORBIDDEN",
+    "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED",
+}
 EXPECTED_AUTHORIZATION_CONTRACT = {
     "phase_privileges": {
         "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
@@ -473,6 +496,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(manifest.get("safety_level") == "YELLOW", "proposed manifest must retain YELLOW", errors)
     require(manifest.get("execution_safety_contract") == EXPECTED_EXECUTION_SAFETY_CONTRACT,
             "manifest must bind the proposed size, session, abort, residual-state and caller-enforcement limits", errors)
+    require(manifest.get("reader_baseline_contract") == EXPECTED_READER_BASELINE_CONTRACT,
+            "manifest must bind the isolated READER baseline, inventory, role, endpoint and no-mutation contract", errors)
     require(manifest.get("authorization_contract") == EXPECTED_AUTHORIZATION_CONTRACT,
             "manifest must bind phase-specific SQL identities and retain the server privilege qualification gate", errors)
     require(manifest.get("credential_profiles") == ["ADMIN", "READER"],

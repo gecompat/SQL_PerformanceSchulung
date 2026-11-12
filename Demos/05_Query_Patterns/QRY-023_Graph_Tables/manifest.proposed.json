@@ -32,6 +32,29 @@
     "forced_abort_residual_state": "The marked target database may contain partial synthetic objects; connection-cancel completion and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
   },
   "credential_profiles": ["ADMIN", "READER"],
+  "reader_baseline_contract": {
+    "instance_scope": "DEDICATED_TO_ONE_QRY023_RUN",
+    "user_database_inventory_before_setup": "EMPTY_OR_EXACT_MARKED_SAME_RUN",
+    "user_database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
+    "required_server_permissions": ["CONNECT SQL"],
+    "conditionally_tolerated_public_permissions": ["VIEW ANY DATABASE"],
+    "server_permission_sources": {
+      "CONNECT SQL": ["READER_LOGIN"],
+      "VIEW ANY DATABASE": ["public"]
+    },
+    "endpoint_permissions": {
+      "standard_endpoints_only": true,
+      "expected": ["CONNECT"],
+      "permission_source_role": "public",
+      "dedicated_admin_connection": "EXCLUDED"
+    },
+    "server_role_membership": ["public"],
+    "database_role_membership": ["public"],
+    "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
+    "unknown_or_unavailable_inventory": "NOT_PROVEN",
+    "server_or_public_permission_mutation": "FORBIDDEN",
+    "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED"
+  },
   "authorization_contract": {
     "phase_privileges": {
       "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],

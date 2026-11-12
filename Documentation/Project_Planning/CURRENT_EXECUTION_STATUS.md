@@ -32,7 +32,16 @@ oder nicht auswertbare Rechte müssen fail-closed behandelt werden. Andere
 Principals und die interne Ownership Chain benötigen getrennte Nachweise.
 Die Liste der QRY-023-eigenen Objekte inventarisiert keine anderen
 Instanz-/Datenbanksecurables und schließt dortige Zusatzrechte nicht aus.
-Minimalrechte und Runtime bleiben `OPEN`.
+Minimalrechte und Runtime bleiben `OPEN`. `DEC-083` legt `CONNECT SQL` als
+reguläres READER-Loginrecht sowie die zulässige SQL-Server-`public`-Baseline
+`VIEW ANY DATABASE` und normales Endpoint-`CONNECT` ausschließlich für eine
+exklusive QRY-023-Einzel-Run-Wegwerfinstanz fest; vor dem Lauf darf es keine andere
+Benutzerdatenbank geben. Das ist eine normative Umgebungsgrenze, keine
+Rechtevergabe oder Effektivrechtequalifikation. `manifest.proposed.json` und
+Offlinevalidator binden diese Grenze jetzt statisch; die Prüfung läuft dadurch
+noch nicht. Die vollständige, vorab gebundene Sollmenge,
+Rollen-/SID-/Endpointinventur, Ownership Chain und alle Runtime-/Cleanupgates
+bleiben unimplementiert beziehungsweise offen.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
 SQL-, Lab- oder Runtimeausführung.

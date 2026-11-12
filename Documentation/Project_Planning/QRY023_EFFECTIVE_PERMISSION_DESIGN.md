@@ -1,8 +1,8 @@
-# QRY-023: Entwurf der Effektivrechtequalifikation
+# QRY-023: Effektivrechtequalifikation
 
 Stand: 12. November 2026  
-Status: `DESIGNED`, ausschließlich Offlineentwurf; nicht implementiert und nicht
-auf SQL Server qualifiziert
+Status: `DESIGNED`, normative Offlinegrenze gemäß `DEC-083`; nicht implementiert
+und nicht auf SQL Server qualifiziert
 
 ## Ziel und Grenze
 
@@ -24,10 +24,11 @@ und `sysadmin` die normale Berechtigungsprüfung umgeht. Die Funktion allein
 belegt daher weder eine vollständige Instanzinventur noch eine belastbare
 Minimalrechteaussage.
 
-Dieser Entwurf legt keine neue normative Rechtepolitik fest. Eine spätere
-Implementierung benötigt vorab eine vollständige zulässige Menge pro Securable,
-eine Abdeckungsbegründung für alle relevanten Securable-Klassen und einen
-unabhängigen Review. SQL-Prinzipale, tatsächliche Effektivrechte,
+`DEC-083` legt die zulässige Umgebungsbaseline und die Ablehnungsgrenzen fest.
+Das ist noch keine Implementierung oder Laufqualifikation. Der spätere Prüfer
+muss die vollständige, vorab versionierte Sollmenge je Securable und ihre
+Vererbung aus diesem Vertrag abbilden; unbekannte oder nicht inventarisierbare
+Rechte bleiben `NOT_PROVEN`. SQL-Prinzipalbindung, tatsächliche Effektivrechte,
 Ownership-Chain-Wirkung, Runtime-Durchsetzung und QRY-023-Promotion bleiben
 separate offene Gates.
 
@@ -57,22 +58,43 @@ laufende Qualifikation darf weder `VIEW SERVER PERFORMANCE STATE` noch
 ## Erfassungsflächen und fail-closed Regeln
 
 1. **Serverkontext:** `sys.fn_my_permissions(NULL, 'SERVER')` im READER-
-   Login. Unerwartete serverweite Rechte, unbekannte Berechtigungsnamen,
-   fehlende Resultsets und `NULL`-Ergebnis sind ein harter Abbruch. Eine
-   gesonderte Prüfung muss `sysadmin`-Mitgliedschaft zurückweisen, weil dieser
-   Festrollenpfad normale Rechteprüfungen umgeht.
-2. **Datenbankkontext:** `sys.fn_my_permissions(NULL, 'DATABASE')` in der
+   Login. `CONNECT SQL` ist das erforderliche reguläre Loginrecht; neue Logins
+   erhalten es automatisch. `VIEW ANY DATABASE` ist ausschließlich als
+   dokumentierte SQL-Server-`public`-Baseline zulässig; beide Rechte werden
+   nicht als QRY-023-Fachrechte bezeichnet. Jedes weitere Serverrecht, unbekannte
+   Berechtigungsnamen, fehlende Resultsets oder `NULL` ergeben einen harten
+   Abbruch. ADMIN muss zusätzlich die vollständige Rollenmitgliedschaft des
+   READER-Logins prüfen: `public` ist die einzige zulässige Serverrolle;
+   `sysadmin`, jede andere feste Rolle, jede benutzerdefinierte Rolle sowie
+   nicht sichtbare oder unbekannte Einträge führen zu `NOT_PROVEN`. Die
+   ADMIN-Sicht muss außerdem explizite Rechtezuweisungen an READER und
+   beteiligte Rollen erfassen: `CONNECT SQL` darf dem READER-Login als
+   reguläres Loginrecht zugewiesen sein; `VIEW ANY DATABASE` darf nur aus der
+   dokumentierten `public`-Baseline stammen. Ein weiterer oder abweichender
+   expliziter Grant/DENY ist nicht durch gleiche Effektivrechtenamen gedeckt.
+2. **Endpoints:** Der spätere Prüfer inventarisiert zuerst alle Endpoints aus
+   vertrauenswürdiger ADMIN-Sicht und prüft für jeden Endpoint im tatsächlichen
+   READER-Kontext `sys.fn_my_permissions(<Endpointname>, 'ENDPOINT')`. Erlaubt
+   ist ausschließlich das dokumentierte `CONNECT`-Baselineverhalten der
+   SQL-Server-Standardendpoints; die Dedicated Admin Connection ist davon
+   ausgenommen. ADMIN muss direkte Grants/DENYs sowie Rollenmitgliedschaften
+   so binden, dass diese Rechte nur aus der `public`-Baseline stammen.
+   Benutzerdefinierte Endpoints, zusätzliche Rechte oder eine
+   unvollständige Endpointinventur stoppen den Lauf. Ein Name oder Typ, den der
+   Implementierer nicht als Standardendpoint klassifizieren kann, ist
+   `NOT_PROVEN`.
+3. **Datenbankkontext:** `sys.fn_my_permissions(NULL, 'DATABASE')` in der
    markierten Zieldatenbank. Erwartete Laufrechte sind auf den explizit
    vereinbarten Basiseintrag zum Verbinden und die oben ausgewiesenen
    Objektzugriffe zu begrenzen. Höherstufige Rechte wie `CONTROL`, `ALTER`,
    `CREATE`, `IMPERSONATE` oder eine andere unvereinbarte Berechtigung dürfen
    nicht als bloßes Vorhandensein der Pflichtrechte durchgehen.
-3. **Schemata:** `dbo` und `lab` getrennt erfassen. Schema- oder
+4. **Schemata:** `dbo` und `lab` getrennt erfassen. Schema- oder
    Datenbankrechte können Rechte auf untergeordnete Objekte übertragen und
    würden das beabsichtigte objektweise Profil erweitern. Eine solche
    Berechtigung wird abgewiesen, sofern sie nicht ausdrücklich in der
    Sollmenge beschlossen ist.
-4. **Objekte:** Das Inventar wird nach erfolgreichen Setup-/Workloadphasen an
+5. **Objekte:** Das Inventar wird nach erfolgreichen Setup-/Workloadphasen an
    die vollständigen erwarteten Objekte gebunden. Es umfasst die acht
    QRY-023-Tabellen, `lab.MeasurementRun`,
    `lab.MeasurementWaitSnapshot`, `lab.USP_Qry023MeasureVariant`,
@@ -80,14 +102,21 @@ laufende Qualifikation darf weder `VIEW SERVER PERFORMANCE STATE` noch
    tatsächlich vorhandenen benutzerdefinierten Securables in der
    Wegwerfdatenbank. Unerwartete oder nicht klassifizierbare Objekte stoppen
    die Prüfung.
-5. **Objekt- und Spaltenrechte:** Für jedes inventarisierte Objekt die
+6. **Rollen:** ADMIN bindet die tatsächliche SQL-Login-SID an den erwarteten
+   READER-Datenbankprincipal und inventarisiert Server- und Datenbankrollen.
+   In der markierten QRY-023-Datenbank ist nur die feste Rolle `public`
+   zulässig. Nicht sichtbare Rollenmitgliedschaften, zusätzliche Rollen oder
+   eine Principal-/SID-Abweichung ergeben `NOT_PROVEN`. Die Rechteauswertung
+   selbst läuft trotzdem unter der tatsächlichen READER-Anmeldung; ein
+   ADMIN-Ergebnis oder `EXECUTE AS` ersetzt sie nicht.
+7. **Objekt- und Spaltenrechte:** Für jedes inventarisierte Objekt die
    vollständigen zurückgegebenen Tupel aus `entity_name`, `subentity_name` und
    `permission_name` mit der Sollmenge vergleichen. Nicht deklarierte
    Berechtigungen, Spaltenrechte, ein fehlendes Objekt oder ein unvollständiges
    Resultset stoppen die Prüfung. Column-level `SELECT` wird bis zu einer
    gesonderten vollständigen Ergebnisspaltenbegründung nicht als Ersatz für
    das Tabellenrecht akzeptiert.
-6. **Vergleich:** Nur vollständige Mengengleichheit mit der vorab gebundenen
+8. **Vergleich:** Nur vollständige Mengengleichheit mit der vorab gebundenen
    Sollmenge darf `PASS` erzeugen. Keine Sollmenge zur Laufzeit aus den gerade
    beobachteten Rechten ableiten. `HAS_PERMS_BY_NAME` bleibt als positive
    Vorprüfung bestehen, ersetzt aber den zusätzlichen Mengengleichheitscheck
@@ -113,12 +142,26 @@ späteren Lauf nachgewiesen werden.
 
 Ein unbekannter Serverberechtigungsbaseline-Eintrag oder eine nicht
 inventarisierbare Server-/Datenbanksecurable führt zu `NOT_PROVEN`/Skip vor
-Korrektheit und Messung, niemals zu einem stillschweigenden PASS. Ein
-zukünftiger Methodenentscheid kann die Umgebung auf eine eigens gebundene
-Wegwerfinstanz einschränken; das allein rechtfertigt keine ausgelassene
-Effektivrechteprüfung.
+Korrektheit und Messung, niemals zu einem stillschweigenden PASS. Der
+SQL-Server-`public`-Baselineeintrag `VIEW ANY DATABASE` wird nur dann
+akzeptiert, wenn der Ausführungsträger eine frische, für genau diesen
+QRY-023-Lauf reservierte Wegwerfinstanz bereitstellt. Vor Setup darf diese
+Instanz keine Benutzerdatenbank enthalten; bei einem zulässigen Wiederaufnahmepfad
+darf ausschließlich die vollständig markierte Datenbank desselben Runs
+vorhanden sein. Nach Setup muss die gebundene QRY-023-Datenbank die einzige
+Benutzerdatenbank sein. Ein abweichendes Inventar, ein nicht exklusiv
+zuordenbarer Container oder eine nicht unabhängig bestätigte Instanzbindung
+ergibt `NOT_PROVEN` vor der ersten Reader-Abfrage. Dadurch bleibt die
+Metadatensichtbarkeit auf die absichtlich disposable Instanz begrenzt; sie wird
+weder als erforderliches QRY-023-Recht noch als allgemeine Least-Privilege-
+Ausnahme freigegeben.
 
-## SQL-Server-Standardbaselines und offene Auswahl
+Der Harness ändert weder Serverrechte noch `public`. Er entzieht `VIEW ANY
+DATABASE` nicht, gewährt es nicht neu und nimmt keine Endpoint- oder
+Rollenkorrektur vor. Die Laufvoraussetzung wird geprüft und bei Abweichung
+abgebrochen.
+
+## SQL-Server-Standardbaselines und festgelegte Laufgrenze
 
 Eine vollständig leere Server-Sollmenge ist für einen normalen SQL-Server-
 Login keine belastbare Annahme: Jeder Login gehört zur festen Serverrolle
@@ -128,20 +171,35 @@ normale `public`-Konfiguration. Außerdem hat `public` standardmäßig
 `VIEW ANY DATABASE`; damit können Logins Datenbankinformationen sehen. Diese
 Rechte sind von einer zusätzlich gewährten QRY-023-Berechtigung zu trennen.
 
-Für die spätere READER-Sollmenge bleibt deshalb ausdrücklich zu entscheiden,
-wie `VIEW ANY DATABASE` behandelt wird. Mögliche, noch nicht beschlossene
-Optionen sind:
+`DEC-083` wählt die eng begrenzte Betriebsform: akzeptiert wird die
+dokumentierte `public`-Baseline nur auf einer für einen QRY-023-Run exklusiv
+bereitgestellten Wegwerfinstanz mit gebundenem Datenbankinventar und
+Standardendpointbestand. Vor Setup ist keine Benutzerdatenbank vorhanden,
+außer einer exakt markierten Wiederaufnahme desselben Runs; nach Setup ist die
+markierte QRY-023-Datenbank die einzige Benutzerdatenbank. Die Rechteprüfung
+läuft in jeder tatsächlichen READER-Verbindung und vergleicht vorab gebundene
+Sollmengen für Server, jeden Standardendpoint, Datenbank, Schemas und sämtliche
+benutzerdefinierten Securables. ADMIN bindet zusätzlich Login-SID, Datenbank-
+Principal und Rollenmitgliedschaften; ausschließlich `public` ist zulässig.
 
-- den SQL-Server-`public`-Baselineeintrag nur in einer tatsächlich isolierten,
-  für QRY-023 eigens bereitgestellten Wegwerfinstanz zu akzeptieren, deren
-  Datenbankinventar vor dem Lauf gebunden ist; oder
-- die Metadatensichtbarkeit in einer später ausdrücklich freigegebenen
-  Instanzkonfiguration einzuschränken und die dann verbleibende Rechteform
-  gezielt neu zu qualifizieren.
+Die Sollmenge darf `CONNECT SQL` als reguläres Loginrecht, `VIEW ANY DATABASE`
+als Server-`public`-Baseline sowie Endpoint-`CONNECT` aus der `public`-Rolle auf nachweislich
+standardmäßigen SQL-Endpoints tolerieren. `VIEW ANY DATABASE` ist dabei kein
+für QRY-023-Abfragen erforderliches Recht. Die Einzel-Run-Instanz darf keine
+anderen Benutzerdatenbanken oder benutzerdefinierten Endpoints enthalten.
+Unbekannte Endpoints, zusätzliche oder nicht sichtbare Rollen, sonstige
+Server-/Endpointrechte, unerwartete Rechte auf niedrigeren Securables und eine
+abweichende Datenbankinventur führen zu `NOT_PROVEN` vor Korrektheit oder
+Messung. Der Harness gewährt, entzieht oder verändert keine Serverrechte und
+ändert die feste Serverrolle `public` nicht. Eine spätere Lockerung oder
+Änderung dieser Umgebungsgrenze erfordert eine eigene Methodenentscheidung.
 
-Ein `VIEW ANY DATABASE`-Grant wird weder als für die Abfragen erforderlich
-ausgegeben noch stillschweigend als minimale QRY-023-Rechte freigegeben. Der
-Proposed-Harness setzt keine Instanzrechte und ändert `public` nicht.
+Die Implementierung muss die dokumentierte Rechtehierarchie beim Vergleich
+berücksichtigen: effektiv geerbte Rechte werden nicht irrtümlich als
+zusätzliche direkte Grants gezählt; zugleich darf keine beobachtete
+Sollmenge aus dem Lauf selbst abgeleitet werden. Kann die statische Sollmenge
+für eine Securable-Klasse oder die dafür benötigte Sichtbarkeit nicht
+vollständig vorab gebunden werden, bleibt die Laufphase `NOT_PROVEN`.
 
 Auch die Festrollenmatrix ist versionsgebunden: SQL Server 2019 besitzt die
 Legacy-Festserverrollen; ab SQL Server 2022 kommen zusätzliche `##MS_*##`-
@@ -153,9 +211,8 @@ Ein bloßer Vergleich der durch `sys.fn_my_permissions` gelieferten Namen darf
 eine privilegierte Festrollenmitgliedschaft oder deren mögliche
 Eskalationswirkung nicht verdecken.
 
-Diese Baselinefrage ergänzt die offene normative Sollmengenentscheidung; sie
-ändert die vorgeschlagene Laufgrenze nicht und autorisiert keine globale
-Rechteänderung.
+Diese Baselineentscheidung ergänzt die noch auszuarbeitende konkrete
+Effektivrechte-Sollmenge; sie autorisiert keine globale Rechteänderung.
 
 ## Geplante unabhängige Prüffälle
 
@@ -170,6 +227,9 @@ Rechteänderung.
 - Zusätzliche Rollen-, Festrollen- und serverweite Rechte werden entweder
   explizit erkannt oder bleiben `NOT_PROVEN`; unbekannte Rechte dürfen nicht
   ignoriert werden.
+- Jede Server- und Endpointbaseline wird mit dem tatsächlichen Endpointinventar,
+  `public`-Mitgliedschaft und ADMIN-seitig sichtbaren expliziten Grants gebunden;
+  ein benutzerdefinierter Endpoint oder eine weitere Benutzerdatenbank stoppt.
 - Funktionsfehler, `NULL`, leere/fehlende Resultsets, doppelte Zeilen,
   unvollständige Spaltenresultate, veränderte Marker und Principalwechsel
   ergeben keinen PASS.
@@ -181,14 +241,20 @@ T-SQL-Änderungen oder SQL-Server-Läufe erstellt beziehungsweise ausgeführt.
 
 ## Quellen und nächste Grenze
 
-- Microsoft Learn, [`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17): effektive Rechte des aufrufenden Kontexts, Securable-Klassen, `NULL` bei Abfragefehler und benötigter `public`-Mitgliedschaftszustand; abgerufen am 12. November 2026.
+- Microsoft Learn, [`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17): effektive Rechte des aufrufenden Kontexts, unterstützte Securable-Klassen einschließlich `ENDPOINT`, `NULL` bei Abfragefehler und benötigter `public`-Mitgliedschaftszustand; abgerufen am 12. November 2026.
 - Microsoft Learn, [effektive Database-Engine-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/determining-effective-database-engine-permissions?view=sql-server-ver17): Zusammenwirken des granularen und Festrollensystems sowie Sonderbehandlung von `sysadmin`; abgerufen am 12. November 2026.
 - Microsoft Learn, [Database-Engine-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/getting-started-with-database-engine-permissions?view=sql-server-ver17): Vererbung durch Datenbank-/Schemahierarchie und weiterreichende `CONTROL`-Rechte; abgerufen am 12. November 2026.
 - Microsoft Learn, [`sys.databases`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-databases-transact-sql?view=sql-server-ver17) und [Server-`public`-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/policy-based-management/server-public-permissions?view=sql-server-ver17): Standard-`VIEW ANY DATABASE`, automatische `CONNECT SQL`-Berechtigung und Endpoint-`CONNECT`; abgerufen am 12. November 2026.
 - Microsoft Learn, [Serverrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/server-level-roles?view=sql-server-ver17): neue SQL-Server-2022-Rollen und in Datenbanken weiterwirkende Rechte; abgerufen am 12. November 2026.
 - Bestehender QRY-023-Vertrag: [Proposed-Harness README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md), [Proposed-Manifest](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json) und [Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md).
+- Die wiederverwendeten Microsoft-Primärquellen sind als [`SRC-158`](../Research/SOURCE_REGISTER.md#qry-023--effektivrechte-und-sql-server-public-baseline) im Quellenregister zusammengeführt.
 
-Die nächste Implementierungsfreigabe kann erst einen konkreten,
-versionsgebundenen und vollständigen Sollmengen-/Securablevertrag festlegen.
-Dieser Entwurf ändert keine SQL-Datei, Rechtevergabe, Demo-ID, Manifest- oder
-Runtimefreigabe. QRY-023 bleibt `PROPOSED`.
+Die konkrete Methodenentscheidung ist in [DEC-083](../../.ai/DECISIONS.md)
+registriert. Der spätere Harness bleibt für die tatsächliche Inventur und
+Sollmengenprüfung verantwortlich; dieser Vertrag führt weder eine
+SQL-Server-Abfrage aus noch belegt er eine reale Rechtevergabe.
+
+Die nächste Offlineimplementierung darf den versionierten Sollmengen- und
+Inventurvertrag samt synthetischer Gegenproben konkretisieren. Sie ändert keine
+SQL-Datei, Rechtevergabe, Demo-ID, Manifest- oder Runtimefreigabe. QRY-023
+bleibt `PROPOSED`.
