@@ -18,6 +18,21 @@ nicht Teil dieses Rahmens. Token- und Geldverbrauch sind nicht verlässlich
 gemessen. Die Fortsetzung setzt die kumulative Budgethistorie nicht zurück;
 der letzte ältere Summenstand ersetzt keine aktuelle Verbrauchsprüfung.
 
+Nach dem Checkpoint durch PR #530 setzt die ausdrückliche Anweisung des
+Nutzers zur autonomen Bearbeitung aller übrigen freigegebenen Themen den
+Auftrag fort. Für den nächsten eigenständigen External-Tables-Lehrnotizschnitt
+gilt eine weitere begrenzte Fortsetzung von höchstens einem Arbeitspaket,
+einem Pull Request und zwei Quellen-/Vertragskandidaten. Die vorhandenen
+`SRC-153` bis `SRC-157` bleiben die Quellenbasis; neue Produktquellen werden
+nicht benötigt. Checkpoint ist die PR-Integration. Keine SQL-, Connector-,
+Netzwerk-, Dienst-, Credential- oder menschliche Generalproben-Ausführung.
+Kein Budgetreset und keine monetäre/tokenbasierte Verbrauchsbehauptung.
+
+Das Arbeitspaket ergänzt `LO-M03-05` mit der quellengebundenen Lernnotiz
+[`EXTERNAL_TABLES_LESSON.md`](../Curriculum/EXTERNAL_TABLES_LESSON.md) und führt
+sie im Curriculum-Lesepfad auf. Es bleibt erklärender Inhalt; weder eine
+separate Demo-ID noch ein Lauf-/Messclaim wird aufgenommen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

@@ -20,6 +20,15 @@ Pushdown. Der bestehende Claimtext und die `QRY-012`-Zuordnung bleiben
 unverändert; das erweitert keine External-Tables-Laufzeit- oder
 Curriculumfreigabe. Der unabhängige Traceability-Review fand keine P1/P2.
 
+Die [Curriculum-Lernnotiz](../Curriculum/EXTERNAL_TABLES_LESSON.md) ergänzt
+`LO-M03-05` nun mit einer quellengebundenen Erklärung zu Datenweg, Pushdown,
+Statistiken und Architekturabwägungen. Sie ist kein ausführbarer
+Demo-Vertrag. Version-/Connectorprofile, Quelle, Credentials, Infrastruktur,
+Methodenfreigabe und Runtimequalifikation bleiben offen.
+Der unabhängige Lehrnotizreview fand einen Präzisionspunkt zur optionalen
+Credentialpflicht bei anonymen Quellen; die Formulierung wurde korrigiert.
+Weitere P1/P2 blieben nicht offen.
+
 ## External Tables – begrenzter Quellen- und Zugriffswegreview
 
 Der [Offline-Review](EXTERNAL_TABLES_SOURCE_REVIEW.md) bindet die
