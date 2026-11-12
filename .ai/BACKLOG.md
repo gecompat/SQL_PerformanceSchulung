@@ -3439,6 +3439,16 @@ eine Quelleninferenz, keine Infrastruktur- oder Laufzeitfreigabe. Konkrete
 Quelle, isolierte zweite SQL-Instanz, Betriebssystem, Build/CU, Credentials,
 Ressourcen, Cleanup, Transportmessung und Methodenfreigabe bleiben offen.
 
+Der [statische Lehr- und Demoentwurf](../Documentation/Project_Planning/EXTERNAL_TABLES_DEMO_CONCEPT.md)
+konkretisiert den möglichen Anschluss an `LO-M03-05`/`CLM-045` und prüft eine
+Ergänzung von `QRY-012`, ohne diese Curriculumzuordnung bereits festzulegen.
+Ein deterministischer Quell-Snapshot und eine identische lokale Kopie werden
+über vollständige Tupel-/Multiplizitätsoracles gebunden. Pushdown, Resultate,
+Statistiken und DMS-Metriken erhalten getrennte Evidenzgrenzen. Der Entwurf
+vergibt keine Demo-ID und begründet weder eine Performance-Rangfolge noch
+Laufrechte. Die offene Prüfung der Infrastruktur- und Cleanupgates bleibt
+vorgeschaltet.
+
 Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
 bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
 Erweiterungen. Die geprüften Quellen qualifizieren weder Graph-Runtime auf
