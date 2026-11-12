@@ -111,6 +111,15 @@ Die bisherigen OCI-Digests bleiben auf ihrem Quellenstand 7. November datiert.
 Token- und Geldverbrauch bleiben unbekannt; Umfang ist über Paket/PR/Kandidaten
 begrenzt, nicht monetär.
 
+PR #537 integrierte `DEC-081` am Commit `9274937`; elf Checks waren erfolgreich,
+`main` ist synchronisiert und der lokale/Remote-Branch entfernt. Der nächste
+Offlinepunkt prüft innerhalb eines Pakets, eines PRs und höchstens zwei
+Quellen-/Vertragskandidaten read-only die aktuellen MCR-Manifest- und
+Konfigurationsdigests der drei bereits vorgeschlagenen Tags gegen den Lock.
+Kein Image-Layerdownload, Build, Containerstart, SQL, Runtime oder menschliche
+Generalprobe. `SRC-130` wird aktualisiert; Runtimecallerintegration bleibt ein
+separates Gate. Verbrauch in Tokens/Geld ist nicht verlässlich messbar.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

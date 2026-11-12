@@ -6889,6 +6889,23 @@
       ],
       "title": "Aktualitätsbestätigung der QRY-023-Buildpins"
     },
+    "DEC-082": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:838f262f-1445-4d35-95f8-21d4a9eda077",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "TSK-017",
+          "type": "governs"
+        },
+        {
+          "target": "QRY-023",
+          "type": "applies_to"
+        }
+      ],
+      "title": "Read-only Verifikation der QRY-023-Image-Locks"
+    },
     "TSK-015": {
       "aliases": [],
       "artifact_uid": "urn:uuid:47c04185-88a5-44b2-8d13-c2709ab9994d",
@@ -6911,7 +6928,7 @@
       "status": "in_progress",
       "priority": "P2",
       "scope": "Autonomer, auf SQL Server Graph Tables begrenzter Ausbau des bestehenden Query-Rewrite-Lernziels LO-M03-06 / CLM-047. Vorhandene Graph-Quellen-, Curriculum-, Versions-, Index-, Syntax- und Konzeptreviews integrieren; stabile Demo-Identität und vollständigen statischen Vertrag pflegen; danach eigenständige Methoden-/Quellenprüfung und statische Vertragsprüfung durchführen. Keine SQL-/Lab-Ausführung oder Performancebehauptung ohne gesonderte konkrete Freigabe und vollständig erfüllte Gates.",
-      "acceptance_criteria": "QRY-023 ist zentral registriert, als PROPOSED im Demo-Katalog abgegrenzt und im CLM-047/LO-M03-06-Traceabilitypfad als TP-PERF geplant; statischer Vertrag fixiert Korrektheitsoracle, 10.000-Pfade-Messprofil, Graph-MATCH und relationale Baseline, Plan-/Baseline-/Vergleichsmessung nach FWK-004/FWK-005, getrennte Actual-Plan-Diagnostik, Reproduzierbarkeit, Sicherheit, Berechtigungsminimum, Fehler-/Cleanupgrenzen und Zielmatrix. DEC-079 genehmigt die Quellen- und Methodenbasis; DEC-080 akzeptiert die acht ausführbaren T-SQL-Dateien für statische ScriptDom-Syntax in 150/160/170; DEC-081 bestätigt die drei vorgeschlagenen Produktbuildpins als aktuelle Linux-Servicingstände zum 12.11.2026. Formale Harnessabnahme sowie Sicherheits-, Rechte-, Ressourcen-, Image-Lock-, Cleanup- und Runtimegates bleiben offen. Kein neues Lernziel. Registry und relevante Projektgates sind erfolgreich; keine Runtimequalifikation oder allgemeine Leistungsrangfolge wird behauptet.",
+      "acceptance_criteria": "QRY-023 ist zentral registriert, als PROPOSED im Demo-Katalog abgegrenzt und im CLM-047/LO-M03-06-Traceabilitypfad als TP-PERF geplant; statischer Vertrag fixiert Korrektheitsoracle, 10.000-Pfade-Messprofil, Graph-MATCH und relationale Baseline, Plan-/Baseline-/Vergleichsmessung nach FWK-004/FWK-005, getrennte Actual-Plan-Diagnostik, Reproduzierbarkeit, Sicherheit, Berechtigungsminimum, Fehler-/Cleanupgrenzen und Zielmatrix. DEC-079 genehmigt die Quellen- und Methodenbasis; DEC-080 akzeptiert die acht ausführbaren T-SQL-Dateien für statische ScriptDom-Syntax in 150/160/170; DEC-081 bestätigt die drei vorgeschlagenen Produktbuildpins als aktuelle Linux-Servicingstände und DEC-082 die aktuelle MCR-Manifest-/Konfigurationsbindung zum 12.11.2026. Formale Harnessabnahme sowie Sicherheits-, Rechte-, Ressourcen-, Runtimecaller-, Cleanup- und Runtimegates bleiben offen. Kein neues Lernziel. Registry und relevante Projektgates sind erfolgreich; keine Runtimequalifikation oder allgemeine Leistungsrangfolge wird behauptet.",
       "relations": [
         {
           "target": "QRY-023",
@@ -6940,9 +6957,9 @@
       "claim": "CLM-047",
       "scope": "Identisches synthetisches Pfadfixture mit fünf Knoten und vier gerichteten Kanten; Graph-MATCH-Abfrage gegen zweimal gejointen relationalen Kantentisch. Ergebniskorrektheit, tatsächliche Pläne und Baseline-/Vergleichsmessung sind verpflichtend zur Unterstützung von LO-M03-06 / CLM-047. Das Fixture ist nur ein Korrektheitsoracle; das vorgeschlagene deterministische Messprofil umfasst 10.000 disjunkte Zwei-Kanten-Pfade mit 30.000 Knoten und 20.000 gerichteten Kanten. Keine allgemeine Leistungsrangfolge.",
       "execution_state": "Nicht implementiert; keine SQL-, Lab- oder Runtimeausführung.",
-      "version_gate": "Vorgeschlagene Designmatrix: SQL Server 2019 / Compatibility Level 150, 2022 / 160, 2025 / 170 gemäß bestehender Projektmatrix. DEC-081 bestätigt die Buildpins 15.0.4500.2, 16.0.4305.5 und 17.0.5035.5 als neueste Microsoft-Linux-Servicingstände zum 12.11.2026. Das ist keine Graph-Mindestversion oder Runtimequalifikation. Die bestehenden OCI-Digests stammen aus der Prüfung vom 7.11.2026; Image-Lock-Integration und tatsächliche Enginebindung bleiben vor einem Lauf offen.",
+      "version_gate": "Vorgeschlagene Designmatrix: SQL Server 2019 / Compatibility Level 150, 2022 / 160, 2025 / 170 gemäß bestehender Projektmatrix. DEC-081 bestätigt die Buildpins 15.0.4500.2, 16.0.4305.5 und 17.0.5035.5 als neueste Microsoft-Linux-Servicingstände; DEC-082 bestätigt am 12.11.2026 die exakten MCR-Manifestdigests und Produktlabels gegenüber dem vorgeschlagenen Lock. Das ist keine Graph-Mindestversion oder Runtimequalifikation. Image-Lock-Integration in einen Runtimecaller und tatsächliche Enginebindung bleiben vor einem Lauf offen.",
       "safety_gate": "Später ausschließlich eigene wegwerfbare isolierte Testdatenbank mit Frameworkmarker und vollständigem Eigentumsnachweis; minimale Rechte getrennt nach Setup/Lesen/Cleanup; Cleanup nur exakt markierte Objekte; vorgeschlagene Größen-/Session-/Zeitgrenzen und sauberer Abbruch-/Recoverypfad. Der aktuelle FWK-010-Caller verwendet eine Anmeldung für alle Phasen und erfüllt die Rechteaufteilung nicht; dieses Gate bleibt OPEN bis phasenspezifische Identität technisch erzwungen wird. Kein gemeinsamer Instanzzustand.",
-      "relations_note": "DEC-079 genehmigt die geprüfte Methodik; DEC-080 akzeptiert ausschließlich die statische ScriptDom-Syntax der acht T-SQL-Dateien in 150/160/170; DEC-081 bestätigt die Buildpins als zum 12.11.2026 aktuelle Linux-Servicingstände. Keine Performanceempfehlung aus Syntax oder Ergebnisgleichheit ableiten. Messung und Planvergleich erst nach konkreter Ausführungsfreigabe und erfolgreicher Safety-/Cleanupqualifikation.",
+      "relations_note": "DEC-079 genehmigt die geprüfte Methodik; DEC-080 akzeptiert ausschließlich die statische ScriptDom-Syntax der acht T-SQL-Dateien in 150/160/170; DEC-081 bestätigt die Linux-Servicingstände und DEC-082 die aktuellen MCR-Manifest-/Konfigurationsdigests. Keine Performanceempfehlung aus Syntax oder Ergebnisgleichheit ableiten. Messung und Planvergleich erst nach konkreter Ausführungsfreigabe und erfolgreicher Safety-/Cleanupqualifikation.",
       "measurement_gate": "Planbeobachtung sowie Baseline-/Vergleichsmessung von Logical Reads, CPU und Duration sind für LO-M03-06 verpflichtend. Das vorgeschlagene deterministische Messprofil besteht aus 10.000 disjunkten Zwei-Kanten-Pfaden, 30.000 Knoten und 20.000 gerichteten Kanten, mit getrenntem Fünf-Knoten-/Vier-Kanten-Korrektheitsoracle. FWK-004 fordert Warm-up-Ausschluss, dokumentierte Wiederholungen, Median gepaarter Werte und Streuung; FWK-005 bindet Plan- und Statistikevidenz. Quellenreview empfiehlt `MATCH`; Kandidatenindizes und Plan-/Messläufe sind getrennt. Keine Implementierung oder Ausführung."
     }
   },
