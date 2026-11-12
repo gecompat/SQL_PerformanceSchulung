@@ -214,6 +214,33 @@ Eskalationswirkung nicht verdecken.
 Diese Baselineentscheidung ergänzt die noch auszuarbeitende konkrete
 Effektivrechte-Sollmenge; sie autorisiert keine globale Rechteänderung.
 
+## Versionierter Sollmengenkandidat `1.0`
+
+Der vorgeschlagene Manifestblock `reader_permission_expectation_contract`
+konkretisiert die vollständige erwartete Effektivrechtemenge unter der echten
+READER-Verbindung. Er ist mit dem exact-set-Vergleich pro Securable gebunden;
+fehlende oder `NULL`-Resultate, Duplikate, unbekannte Securables,
+Spaltenrechte und zur Laufzeit aus Beobachtungen abgeleitete Erwartungen
+führen zu `NOT_PROVEN`.
+
+Die Kandidatenmenge akzeptiert im Serverkontext ausschließlich `CONNECT SQL`
+und `VIEW ANY DATABASE` gemäß `DEC-083`; pro ADMIN-inventarisiertem Standard-
+Endpoint ausschließlich `CONNECT`; im Datenbankkontext `CONNECT` und
+`SHOWPLAN`; auf `dbo` und `lab` keine Schemarechte. Die acht Query-/Oracle-
+Tabellen sowie `lab.MeasurementRun` erwarten `SELECT`; das Messverfahren
+`lab.USP_Qry023MeasureVariant` erwartet `EXECUTE`. `lab.MeasurementWaitSnapshot`,
+`lab.USP_BeginMeasurement` und `lab.USP_EndMeasurement` erwarten für READER
+keine direkten Rechte; der Messwrapper-Zugriff auf interne Messobjekte muss
+getrennt über die bestehende Ownership Chain qualifiziert werden. Zusätzliche
+benutzerdefinierte Securables werden nicht stillschweigend ignoriert.
+
+Der Manifestvertrag ist mit `EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT`
+im Offlinevalidator objektgenau gebunden. Synthetische Regressionen schützen
+gegen zusätzliches Datenbankrecht, unvollständige Objektinventur und
+runtime-abgeleitete Sollwerte. Das prüft nur die Stabilität des vorgeschlagenen
+Vertrags, weder SQL-Ausführung noch tatsächliche `sys.fn_my_permissions`-
+Ausgaben. Der Kandidat bleibt `DESIGN_ONLY_NOT_ENGINE_QUALIFIED`.
+
 ## Geplante unabhängige Prüffälle
 
 - Jede der acht Query-/Oracletabellen besitzt genau die vorgesehene effektive
@@ -246,6 +273,7 @@ T-SQL-Änderungen oder SQL-Server-Läufe erstellt beziehungsweise ausgeführt.
 - Microsoft Learn, [Database-Engine-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/getting-started-with-database-engine-permissions?view=sql-server-ver17): Vererbung durch Datenbank-/Schemahierarchie und weiterreichende `CONTROL`-Rechte; abgerufen am 12. November 2026.
 - Microsoft Learn, [`sys.databases`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-databases-transact-sql?view=sql-server-ver17) und [Server-`public`-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/policy-based-management/server-public-permissions?view=sql-server-ver17): Standard-`VIEW ANY DATABASE`, automatische `CONNECT SQL`-Berechtigung und Endpoint-`CONNECT`; abgerufen am 12. November 2026.
 - Microsoft Learn, [Serverrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/server-level-roles?view=sql-server-ver17): neue SQL-Server-2022-Rollen und in Datenbanken weiterwirkende Rechte; abgerufen am 12. November 2026.
+- Microsoft Learn, [Datenbankrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-ver17) und [`sys.fn_builtin_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-builtin-permissions-transact-sql?view=sql-server-ver17): `public`-Datenbank-`CONNECT` und die vordefinierte Rechtehierarchie; abgerufen am 12. November 2026, in `SRC-158` ergänzt.
 - Bestehender QRY-023-Vertrag: [Proposed-Harness README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md), [Proposed-Manifest](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json) und [Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md).
 - Die wiederverwendeten Microsoft-Primärquellen sind als [`SRC-158`](../Research/SOURCE_REGISTER.md#qry-023--effektivrechte-und-sql-server-public-baseline) im Quellenregister zusammengeführt.
 

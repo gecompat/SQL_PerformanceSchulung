@@ -56,6 +56,43 @@
     "server_or_public_permission_mutation": "FORBIDDEN",
     "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED"
   },
+  "reader_permission_expectation_contract": {
+    "version": "1.0",
+    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "evaluation_identity": "ACTUAL_READER_CONNECTION",
+    "captured_classes": ["SERVER", "ENDPOINT", "DATABASE", "SCHEMA", "OBJECT"],
+    "tuple_fields": ["entity_name", "subentity_name", "permission_name"],
+    "comparison": "EXACT_SET_PER_SECURABLE",
+    "duplicate_rows": "FAIL_CLOSED",
+    "missing_null_or_unavailable_result": "NOT_PROVEN",
+    "column_level_permissions": "FORBIDDEN",
+    "runtime_derived_expectations": "FORBIDDEN",
+    "unexpected_custom_securables": "NOT_PROVEN",
+    "server_permissions": ["CONNECT SQL", "VIEW ANY DATABASE"],
+    "endpoint_inventory": {
+      "source": "ADMIN_INVENTORY_OF_STANDARD_ENDPOINTS",
+      "dedicated_admin_connection": "EXCLUDED",
+      "expected_permissions_per_endpoint": ["CONNECT"]
+    },
+    "database_permissions": ["CONNECT", "SHOWPLAN"],
+    "schema_permissions": {"dbo": [], "lab": []},
+    "object_permissions": {
+      "dbo.Person": ["SELECT"],
+      "dbo.FriendOf": ["SELECT"],
+      "dbo.RelPerson": ["SELECT"],
+      "dbo.RelFriend": ["SELECT"],
+      "dbo.OraclePerson": ["SELECT"],
+      "dbo.OracleFriendOf": ["SELECT"],
+      "dbo.OracleRelPerson": ["SELECT"],
+      "dbo.OracleRelFriend": ["SELECT"],
+      "lab.MeasurementRun": ["SELECT"],
+      "lab.MeasurementWaitSnapshot": [],
+      "lab.USP_Qry023MeasureVariant": ["EXECUTE"],
+      "lab.USP_BeginMeasurement": [],
+      "lab.USP_EndMeasurement": []
+    },
+    "admin_inventory_gates": ["READER_LOGIN_SID", "DATABASE_USER_SID", "SERVER_AND_DATABASE_ROLES", "EXPLICIT_GRANTS_AND_DENIES", "DATABASE_INVENTORY", "ENDPOINT_INVENTORY"]
+  },
   "authorization_contract": {
     "phase_privileges": {
       "SETUP": ["CREATE DATABASE", "CREATE DATABASE USER FOR ACTIVE READER SQL_LOGIN", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
