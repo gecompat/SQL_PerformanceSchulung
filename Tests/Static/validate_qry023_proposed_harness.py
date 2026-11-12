@@ -10,14 +10,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DEMO = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables"
 EXPECTED_PHASES = [
-    ("PREFLIGHT", "00_Preflight.sql", "master", None),
-    ("SETUP", "10_Setup.sql", "master", 240),
-    ("FRAMEWORK", "15_Framework.sql", "target", 180),
-    ("WORKLOAD", "20_Workload.sql", "target", 300),
-    ("QUALIFICATION_PREFLIGHT", "25_Qualification_Preflight.sql", "target", None),
-    ("CORRECTNESS", "30_Correctness.sql", "target", 180),
-    ("MEASUREMENT", "40_Measurement.sql", "target", 300),
-    ("PLAN_EVIDENCE", "50_Plan_Evidence.sql", "target", 120),
+    ("PREFLIGHT", "00_Preflight.sql", "master", None, "ADMIN"),
+    ("SETUP", "10_Setup.sql", "master", 240, "ADMIN"),
+    ("FRAMEWORK", "15_Framework.sql", "target", 180, "ADMIN"),
+    ("WORKLOAD", "20_Workload.sql", "target", 300, "ADMIN"),
+    ("QUALIFICATION_PREFLIGHT", "25_Qualification_Preflight.sql", "target", None, "READER"),
+    ("CORRECTNESS", "30_Correctness.sql", "target", 180, "READER"),
+    ("MEASUREMENT", "40_Measurement.sql", "target", 300, "READER"),
+    ("PLAN_EVIDENCE", "50_Plan_Evidence.sql", "target", 120, "READER"),
 ]
 EXPECTED_SQLCMD_INPUT_VALIDATION = {
     "must_validate_before": "SQLCMD_EXPANSION",
@@ -57,12 +57,12 @@ EXPECTED_EXECUTION_SAFETY_CONTRACT = {
 EXPECTED_AUTHORIZATION_CONTRACT = {
     "phase_privileges": {
         "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
-        "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SHOWPLAN ON TARGET DATABASE"],
+        "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
         "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"],
     },
-    "current_fwk010_mode": "SINGLE_IDENTITY_FOR_ALL_PHASES",
-    "phase_identity_enforced": False,
-    "gate_status": "OPEN_UNTIL_PHASE_SPECIFIC_IDENTITY_SUPPORT",
+    "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
+    "phase_identity_enforced": True,
+    "gate_status": "OPEN_UNTIL_SQL_SERVER_PRINCIPAL_AND_PRIVILEGE_QUALIFICATION",
 }
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 COUNT_BIG_QUERY_PATTERN = re.compile(
@@ -158,7 +158,7 @@ def plan_summary_follows_cleanup(plan: str) -> bool:
 
 
 def qualification_permission_gate_valid(qualification: str) -> bool:
-    """Bind target SHOWPLAN and all four SELECT checks to the early skip path."""
+    """Bind target SHOWPLAN, query reads, and measurement permissions to early skip."""
     compact = re.sub(r"\s+", "", qualification).casefold()
     showplan_check = (
         "declare@hasshowplanbit=casewhenhas_perms_by_name(db_name(),'database','showplan')=1then1else0end;"
@@ -170,7 +170,11 @@ def qualification_permission_gate_valid(qualification: str) -> bool:
         "has_perms_by_name(n'dbo.relperson','object','select')=1and"
         "has_perms_by_name(n'dbo.relfriend','object','select')=1"
     )
-    guard = compact.find("if@hasshowplan=0or@hasselect=0begin")
+    measurement_check = (
+        "declare@hasmeasurementbit=casewhenhas_perms_by_name(n'lab.measurementrun','object','select')=1"
+        "andhas_perms_by_name(n'lab.usp_qry023measurevariant','object','execute')=1then1else0end;"
+    )
+    guard = compact.find("if@hasshowplan=0or@hasselect=0or@hasmeasurement=0begin")
     if guard < 0:
         return False
     skip_outcome = compact.find("'skip'asoutcome", guard)
@@ -183,6 +187,7 @@ def qualification_permission_gate_valid(qualification: str) -> bool:
         compact.count(showplan_check) == 1
         and select_match is not None
         and select_match.group(1) == expected_selects
+        and compact.count(measurement_check) == 1
         and 0 <= skip_outcome < skip_code < skip_print < skip_return < guard_end
         and pass_output > guard_end
     )
@@ -291,7 +296,9 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(manifest.get("execution_safety_contract") == EXPECTED_EXECUTION_SAFETY_CONTRACT,
             "manifest must bind the proposed size, session, abort, residual-state and caller-enforcement limits", errors)
     require(manifest.get("authorization_contract") == EXPECTED_AUTHORIZATION_CONTRACT,
-            "manifest must retain the phase-privilege matrix and open single-identity enforcement gate", errors)
+            "manifest must bind phase-specific SQL identities and retain the server privilege qualification gate", errors)
+    require(manifest.get("credential_profiles") == ["ADMIN", "READER"],
+            "manifest must define exactly the two approved QRY-023 credential profiles", errors)
     require(manifest.get("sqlcmd_input_validation") == EXPECTED_SQLCMD_INPUT_VALIDATION,
             "manifest must bind the exact caller-side SQLCMD input validation contract before expansion", errors)
     run_token = manifest.get("run_token")
@@ -305,11 +312,11 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
         if records_valid:
             observed_bindings = [
                 (phase.get("id"), phase.get("script"), phase.get("database"),
-                 phase.get("timeout_seconds"))
+                 phase.get("timeout_seconds"), phase.get("credential_profile"))
                 for phase in phases
             ]
             require(observed_bindings == EXPECTED_PHASES,
-                    "phase IDs/order, scripts, databases, and timeouts must match the proposed QRY-023 lifecycle", errors)
+                    "phase IDs/order, scripts, databases, timeouts, and credential profiles must match the proposed QRY-023 lifecycle", errors)
         for phase in phases:
             if type(phase) is not dict:
                 continue
@@ -323,9 +330,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(type(cleanup) is dict, "manifest cleanup must be an object", errors)
     if type(cleanup) is dict:
         require((cleanup.get("id"), cleanup.get("kind"), cleanup.get("script"),
-                 cleanup.get("database"), cleanup.get("timeout_seconds"))
-                == ("CLEANUP", "sql", "90_Cleanup.sql", "master", 90),
-                "manifest must bind SQL cleanup to 90_Cleanup.sql in master with a 90-second timeout", errors)
+                 cleanup.get("database"), cleanup.get("timeout_seconds"),
+                 cleanup.get("credential_profile"))
+                == ("CLEANUP", "sql", "90_Cleanup.sql", "master", 90, "ADMIN"),
+                "manifest must bind SQL cleanup to the ADMIN identity and 90_Cleanup.sql in master with a 90-second timeout", errors)
         require(cleanup.get("required") is True and cleanup.get("require_summary") is True,
                 "cleanup must be required and summary-checked", errors)
         cleanup_script = cleanup.get("script")
@@ -497,7 +505,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("showplan" in qualification and "has_perms_by_name" in qualification,
             "qualification preflight must check SHOWPLAN before query execution", errors)
     require(qualification_permission_gate_valid(qualification),
-            "qualification preflight must check target DATABASE/SHOWPLAN and SELECT on all four query tables before SKIP_PERMISSION/RETURN", errors)
+            "qualification preflight must check target DATABASE/SHOWPLAN, SELECT on all query tables and MeasurementRun, and EXECUTE on the measurement procedure before SKIP_PERMISSION/RETURN", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
     require(qualification_ownership_markers_valid(qualification),

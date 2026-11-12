@@ -85,9 +85,14 @@ Skript tatsächlich ausführt, noch dass ein Engineplan ausgegeben wird.
 
 Der vorgeschaltete Qualifikationspreflight wird jetzt exakt auf
 `HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')`, die vier verwendeten
-Objekt-`SELECT`-Prüfungen und den Rechtefehlerzweig `SKIP_PERMISSION` mit
-`RETURN` gebunden. Negativregressionen für fremden Datenbankscope, ausgelassene
-Objektberechtigung und geänderten Skip-Code werden zurückgewiesen.
+Objekt-`SELECT`-Prüfungen, `SELECT` auf `lab.MeasurementRun`, `EXECUTE` auf
+`lab.USP_Qry023MeasureVariant` und den Rechtefehlerzweig `SKIP_PERMISSION` mit
+`RETURN` gebunden. Die beiden Messrechte wurden ergänzt, nachdem die Prüfung
+von `40_Measurement.sql` zeigte, dass das Skript den Mess-Wrapper aufruft und
+`lab.MeasurementRun` direkt liest. Negativregressionen für fremden
+Datenbankscope, ausgelassene Objektberechtigungen und geänderten Skip-Code
+werden zurückgewiesen. Die tatsächliche Ownership Chain und effektive
+Serverrechte bleiben unbewiesene Laufzeitbedingungen.
 
 Die beiden Preflight-Summarys müssen exakt als
 `QUALIFICATION_PREFLIGHT/PERMISSIONS/SKIP/SKIP_PERMISSION` und
@@ -221,11 +226,28 @@ QRY-023-Arbeit weder umgangen noch neu qualifiziert. Abbruch, bestätigtes
 Prozessende und Cleanup-Reihenfolge bleiben daher im vorhandenen Caller
 ungeprüft.
 
-Die phasenspezifische Identitätsdurchsetzung bleibt ausdrücklich `OPEN`, weil
-der allgemeine Caller weiterhin nur eine Anmeldung annimmt. Die vorgeschlagenen
-Größenwerte sind nicht gemessen; der Runtimecaller muss sie technisch
-erzwingen. Bis beide Punkte die vorgesehene Prüfung bestehen, gilt keine
-vollständige Harness-/Methodenfreigabe. Kein SQL oder Runtime wurde ausgeführt.
+Beim damaligen Gesamtreview blieb die phasenspezifische Identitätsdurchsetzung
+`OPEN`, weil der allgemeine Caller nur eine Anmeldung annahm. Die vorgeschlagenen
+Größenwerte waren nicht gemessen; der Runtimecaller musste sie technisch
+erzwingen. Bis die jeweiligen Prüfungen bestehen, gilt keine vollständige
+Harness-/Methodenfreigabe. Kein SQL oder Runtime wurde ausgeführt.
+
+### Nachtrag vom 12. November 2026: SQL-Anmeldungsprofile je Phase
+
+FWK-010 unterstützt jetzt optionale `credential_profiles` mit einer expliziten
+`credential_profile`-Zuordnung je SQL-Phase. Der Runner verlangt in diesem Modus
+SQL-Authentifizierung, vollständige Anmeldedaten vor SQLCMD-Auflösung und
+unterschiedliche Benutzernamen. Das Kennwort des ausgewählten Profils wird nur
+als `SQLCMDPASSWORD` an dessen Prozess übergeben; andere profilgebundene
+Kennwortvariablen werden entfernt. Synthetische Runner-Regressionen prüfen die
+Phasenzuordnung und die Prozessumgebungen. QRY-023 ordnet ADMIN und READER den
+vorgesehenen Phasen zu.
+
+Dieser Offlinebefund schließt nur die Client-seitige Identitätsauswahl. Er
+belegt weder Existenz oder SID der SQL-Server-Prinzipale noch deren effektive
+Rechte. Minimalrechte, tatsächliche Ablehnung überprivilegierter Profile,
+Serverversionen, Ressourcenbegrenzung, Abbruch-/Reap-Reihenfolge und Runtime
+bleiben offene Gates.
 
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser

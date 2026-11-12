@@ -131,6 +131,18 @@ die dokumentierte Verfügbarkeit, keine tatsächliche Edition oder Qualifikation
 Token- und Geldverbrauch bleiben unbekannt; Paket/PR/Kandidaten begrenzen den
 Umfang, nicht Providerkosten.
 
+PR #539 aktualisierte `SRC-126`; PR #540 erfasste den weiterhin offenen
+DGN-004-Isolationsblocker. Beide sind integriert. Für den nächsten Offlinepunkt
+gilt ein Arbeitspaket, ein PR und höchstens zwei Vertragskandidaten: FWK-010
+erweitert den Caller um optionale SQL-Anmeldungsprofile je Phase; QRY-023 ordnet
+das vorhandene Rechteprofil ADMIN beziehungsweise READER den Phasen zu. Keine
+neue Produktquelle, keine Loginerstellung, Rechteänderung, SQL-, Lab- oder
+Runtimeausführung und keine menschliche Generalprobe. Die bestehenden
+DGN-007-Quellenbundle- und Harnessloaderprüfungen werden als gebundene
+Runnerverbraucher mitgeprüft. Der Client-Identitätswechsel schließt keine
+Serverrechte-, Ressourcen-, Abbruch-, Cleanup- oder Runtimequalifikation.
+Token- und Geldverbrauch sind unbekannt; Umfangsgrenze ist 1/1/2, ohne Reset.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

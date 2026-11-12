@@ -1490,10 +1490,161 @@ def run_harness(manifest: Path, executable: Path, *, confirm: bool = False):
     )
 
 
+def credential_profile_manifest(root: Path) -> Path:
+    path = demo_manifest(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["credential_profiles"] = ["ADMIN", "READER"]
+    for phase in payload["phases"]:
+        phase["credential_profile"] = (
+            "READER" if phase["id"] == "DEMONSTRATION" else "ADMIN"
+        )
+    payload["cleanup"]["credential_profile"] = "ADMIN"
+    return write_json(path, payload)
+
+
 def test_harness_pass(base: Path, executable: Path) -> None:
     result = run_harness(demo_manifest(base / "harness_pass"), executable)
     assert_equal((result.outcome, result.code), ("PASS", "OK"), "harness pass")
     assert_equal(result.phases[-1].phase_id, "CLEANUP", "cleanup executed")
+
+
+def test_phase_credential_profiles_are_isolated(base: Path) -> None:
+    manifest = credential_profile_manifest(base / "credential_profiles")
+    record = base / "credential_invocations.jsonl"
+    shim = write(
+        base / "credential_sqlcmd.py",
+        "import json, os, pathlib, sys\n"
+        "args=sys.argv[1:]\n"
+        "script=pathlib.Path(args[args.index('-i')+1]).name\n"
+        "username=args[args.index('-U')+1]\n"
+        "with open(os.environ['IDENTITY_RECORD'], 'a', encoding='utf-8') as stream:\n"
+        " stream.write(json.dumps({'script':script,'username':username,'password':os.environ.get('SQLCMDPASSWORD'),"
+        "'profile_secrets':[key for key in os.environ if key.startswith(('SQLPERF_SQL_PASSWORD_', 'SQLCMDPASSWORD_'))]})+'\\n')\n"
+        "print('SQLPERF_SUMMARY|PASS|OK')\n",
+    )
+    shim.chmod(shim.stat().st_mode | stat.S_IXUSR)
+    credentials = {
+        "SQLPERF_SQL_USERNAME_ADMIN": "admin_login",
+        "SQLPERF_SQL_PASSWORD_ADMIN": "synthetic-admin-secret",
+        "SQLPERF_SQL_USERNAME_READER": "reader_login",
+        "SQLPERF_SQL_PASSWORD_READER": "synthetic-reader-secret",
+        "SQLCMDPASSWORD": "ambient-secret-must-not-win",
+        "IDENTITY_RECORD": str(record),
+    }
+    with patch.dict(os.environ, credentials):
+        result = run_demo(
+            manifest_path=manifest,
+            server="synthetic",
+            auth="sql",
+            username="ignored_global_user",
+            sqlcmd_path=str(shim),
+            confirm_isolated_lab=True,
+            allow_red=False,
+            show_output=False,
+        )
+    assert_equal((result.outcome, result.code), ("PASS", "OK"), "credential-profile harness result")
+    calls = [json.loads(line) for line in record.read_text(encoding="utf-8").splitlines()]
+    by_script = {call["script"]: call for call in calls}
+    assert_equal(by_script["preflight_pass.sql"]["username"], "admin_login", "admin preflight identity")
+    assert_equal(by_script["setup_pass.sql"]["username"], "admin_login", "admin setup identity")
+    assert_equal(by_script["demo_pass.sql"]["username"], "reader_login", "reader phase identity")
+    assert_equal(by_script["cleanup_pass.sql"]["username"], "admin_login", "admin cleanup identity")
+    assert_equal(by_script["demo_pass.sql"]["password"], "synthetic-reader-secret", "reader SQLCMDPASSWORD")
+    assert_equal(by_script["setup_pass.sql"]["password"], "synthetic-admin-secret", "admin SQLCMDPASSWORD")
+    assert_equal(all(not call["profile_secrets"] for call in calls), True,
+                 "profile-specific password variables are not inherited by sqlcmd")
+
+
+def test_duplicate_phase_identity_fails_before_sqlcmd_resolution(base: Path) -> None:
+    manifest = credential_profile_manifest(base / "duplicate_credential_profiles")
+    environment = {
+        "SQLPERF_SQL_USERNAME_ADMIN": "same_login",
+        "SQLPERF_SQL_PASSWORD_ADMIN": "synthetic-admin-secret",
+        "SQLPERF_SQL_USERNAME_READER": "SAME_LOGIN",
+        "SQLPERF_SQL_PASSWORD_READER": "synthetic-reader-secret",
+    }
+    with patch.dict(os.environ, environment), \
+         patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=manifest,
+                server="synthetic",
+                auth="sql",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "credential profiles must resolve to distinct SQL usernames",
+                         "duplicate identity rejected before SQLCMD")
+        else:
+            raise AssertionError("duplicate phase identities were accepted")
+        resolve.assert_not_called()
+        execute.assert_not_called()
+
+
+def test_missing_phase_credential_fails_before_sqlcmd_resolution(base: Path) -> None:
+    manifest = credential_profile_manifest(base / "missing_credential_profiles")
+    environment = {
+        "SQLPERF_SQL_USERNAME_ADMIN": "admin_login",
+        "SQLPERF_SQL_PASSWORD_ADMIN": "synthetic-admin-secret",
+        "SQLPERF_SQL_USERNAME_READER": "reader_login",
+    }
+    with patch.dict(os.environ, environment), \
+         patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=manifest,
+                server="synthetic",
+                auth="sql",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "missing or invalid SQL password for credential profile READER",
+                         "missing phase credential rejected before SQLCMD")
+        else:
+            raise AssertionError("missing phase credential was accepted")
+        resolve.assert_not_called()
+        execute.assert_not_called()
+
+
+def test_phase_profiles_require_sql_authentication_before_sqlcmd_resolution(base: Path) -> None:
+    manifest = credential_profile_manifest(base / "integrated_credential_profiles")
+    environment = {
+        "SQLPERF_SQL_USERNAME_ADMIN": "admin_login",
+        "SQLPERF_SQL_PASSWORD_ADMIN": "synthetic-admin-secret",
+        "SQLPERF_SQL_USERNAME_READER": "reader_login",
+        "SQLPERF_SQL_PASSWORD_READER": "synthetic-reader-secret",
+    }
+    with patch.dict(os.environ, environment), \
+         patch.object(run_demo_module, "resolve_sqlcmd") as resolve, \
+         patch.object(run_demo_module, "run_sqlcmd") as execute:
+        try:
+            run_demo(
+                manifest_path=manifest,
+                server="synthetic",
+                auth="integrated",
+                username=None,
+                sqlcmd_path="synthetic-sqlcmd",
+                confirm_isolated_lab=True,
+                allow_red=False,
+                show_output=False,
+            )
+        except ValueError as exc:
+            assert_equal(str(exc), "credential_profiles require SQL authentication",
+                         "phase credentials require SQL authentication")
+        else:
+            raise AssertionError("credential profiles were accepted with integrated authentication")
+        resolve.assert_not_called()
+        execute.assert_not_called()
 
 
 def test_harness_cleanup_failure(base: Path, executable: Path) -> None:
@@ -1708,6 +1859,10 @@ def main() -> int:
         test_sessions_fail(base, executable)
         test_sessions_timeout(base, executable)
         test_harness_pass(base, executable)
+        test_phase_credential_profiles_are_isolated(base)
+        test_duplicate_phase_identity_fails_before_sqlcmd_resolution(base)
+        test_missing_phase_credential_fails_before_sqlcmd_resolution(base)
+        test_phase_profiles_require_sql_authentication_before_sqlcmd_resolution(base)
         test_harness_cleanup_failure(base, executable)
         test_harness_preflight_skip(base, executable)
         test_harness_optional_skip(base, executable)

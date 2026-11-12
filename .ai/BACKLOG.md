@@ -3421,8 +3421,11 @@ T-SQL-Dateien nur für den statischen ScriptDom-Parse 150/160/170. Daraus folgt
 keine Enginekompilierung, Ausführung oder Runtimequalifikation. `DEC-081`
 bestätigt die Buildpins als aktuelle Linux-Servicingstände zum 12.11.2026;
 `DEC-082` bestätigt die aktuellen MCR-Manifest-/Konfigurationsdigests und
-Produktlabels gegenüber dem vorgeschlagenen Lock; Runtimecaller-Integration
-und Enginebindung bleiben offen. Die Editionsmatrix `SRC-126` wurde am
+Produktlabels gegenüber dem vorgeschlagenen Lock. FWK-010 unterstützt jetzt
+getrennte SQL-Anmeldungsprofile je Manifestphase; QRY-023 weist administrative
+Phasen `ADMIN` und Korrektheits-/Messphasen `READER` zu. Die Laufzeitprüfung der
+realen Serverprinzipale und Minimalrechte bleibt offen. Die Editionsmatrix
+`SRC-126` wurde am
 12.11.2026 erneut geprüft und bestätigt Graph-Verfügbarkeit in den
 aufgeführten Editionen der Projektversionen; 2025 Standard Developer folgt der
 Standard-Matrix. Dies ist keine tatsächliche Editions- oder Runtimequalifikation.

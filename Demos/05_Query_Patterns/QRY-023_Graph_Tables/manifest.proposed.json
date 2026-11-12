@@ -31,25 +31,26 @@
     "enforcement_status": "PROPOSED_RUNTIME_CALLER_REQUIRED",
     "forced_abort_residual_state": "The marked target database may contain partial synthetic objects; connection-cancel completion and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
   },
+  "credential_profiles": ["ADMIN", "READER"],
   "authorization_contract": {
     "phase_privileges": {
       "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
-      "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SHOWPLAN ON TARGET DATABASE"],
+      "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
       "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"]
     },
-    "current_fwk010_mode": "SINGLE_IDENTITY_FOR_ALL_PHASES",
-    "phase_identity_enforced": false,
-    "gate_status": "OPEN_UNTIL_PHASE_SPECIFIC_IDENTITY_SUPPORT"
+    "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
+    "phase_identity_enforced": true,
+    "gate_status": "OPEN_UNTIL_SQL_SERVER_PRINCIPAL_AND_PRIVILEGE_QUALIFICATION"
   },
   "phases": [
-    {"id":"PREFLIGHT","kind":"sql","script":"00_Preflight.sql","database":"master","required":true,"require_summary":true},
-    {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":240},
-    {"id":"FRAMEWORK","kind":"sql","script":"15_Framework.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180},
-    {"id":"WORKLOAD","kind":"sql","script":"20_Workload.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300},
-    {"id":"QUALIFICATION_PREFLIGHT","kind":"sql","script":"25_Qualification_Preflight.sql","database":"target","required":true,"require_summary":true},
-    {"id":"CORRECTNESS","kind":"sql","script":"30_Correctness.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180},
-    {"id":"MEASUREMENT","kind":"sql","script":"40_Measurement.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300},
-    {"id":"PLAN_EVIDENCE","kind":"sql","script":"50_Plan_Evidence.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":120}
+    {"id":"PREFLIGHT","kind":"sql","script":"00_Preflight.sql","database":"master","required":true,"require_summary":true,"credential_profile":"ADMIN"},
+    {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":240,"credential_profile":"ADMIN"},
+    {"id":"FRAMEWORK","kind":"sql","script":"15_Framework.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180,"credential_profile":"ADMIN"},
+    {"id":"WORKLOAD","kind":"sql","script":"20_Workload.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300,"credential_profile":"ADMIN"},
+    {"id":"QUALIFICATION_PREFLIGHT","kind":"sql","script":"25_Qualification_Preflight.sql","database":"target","required":true,"require_summary":true,"credential_profile":"READER"},
+    {"id":"CORRECTNESS","kind":"sql","script":"30_Correctness.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180,"credential_profile":"READER"},
+    {"id":"MEASUREMENT","kind":"sql","script":"40_Measurement.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300,"credential_profile":"READER"},
+    {"id":"PLAN_EVIDENCE","kind":"sql","script":"50_Plan_Evidence.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":120,"credential_profile":"READER"}
   ],
-  "cleanup": {"id":"CLEANUP","kind":"sql","script":"90_Cleanup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":90}
+  "cleanup": {"id":"CLEANUP","kind":"sql","script":"90_Cleanup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":90,"credential_profile":"ADMIN"}
 }

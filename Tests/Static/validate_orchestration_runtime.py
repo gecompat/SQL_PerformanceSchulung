@@ -192,6 +192,7 @@ def main() -> int:
     ))
     require_tokens(findings, "runtime harness", read_text(FRAMEWORK / "Tools" / "run_demo.py"), (
         "cleanup_timeout_seconds", "WARN_OPTIONAL_EVIDENCE_SKIPPED", "FAIL_CLEANUP", "target_database_name",
+        "credential_profiles", "credential_profile", "SQLPERF_SQL_USERNAME_", "SQLPERF_SQL_PASSWORD_",
     ))
 
     for manifest_path in sorted((FRAMEWORK / "Examples").rglob("manifest.json")):
