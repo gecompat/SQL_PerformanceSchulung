@@ -3410,12 +3410,17 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 
 ## P2 - External Tables und Graph Tables
 
-Beide Themen sind offene Vormerkungen mit Status `PROPOSED`. Die fachliche
-Zuordnung beginnt in Welle 5 und berührt Optimizer-/Planmechanik in Welle 4
-sowie Indizes in Welle 6. Priorisierung, Lernziel-/Folienzuordnung und ein
-konkreter Demo-Schnitt sind nach den Quellen-, Abdeckungs- und Frameworkreviews
-im Vorschlag `QRY-023` registriert; die Curriculum-Fachredaktion bleibt als
-vorgeschlagener Owner ausgewiesen und die formale Traceability-Zuordnung noch
+Graph Tables bleiben als Demo `QRY-023` im Status `PROPOSED`; `DEC-079` gibt
+die vorhandene Methodik als Grundlage der statischen Vertragsimplementierung
+frei, ohne Ausführung oder Runtimequalifikation zu genehmigen. Die fachliche
+Zuordnung liegt in Welle 5 und berührt Optimizer-/Planmechanik in Welle 4 sowie
+Indizes in Welle 6. Priorisierung, Lernziel-/Folienzuordnung und der konkrete
+Demo-Schnitt sind nach den Quellen-, Abdeckungs- und Frameworkreviews im
+Vorschlag `QRY-023` registriert und `LO-M03-06`/`CLM-047` zugeordnet.
+External Tables sind durch `DEC-078` als erklärende Ergänzung zu
+`LO-M03-05`/`CLM-045` eingeordnet; eine ausführbare Phase in `QRY-012` ist im
+aktuellen Curriculumstand zurückgestellt. Ihre Quellen-, Connector-,
+Infrastruktur- und Laufgates bleiben für ein separates späteres Arbeitspaket
 offen. Die aktuelle DGN-007-Folgearbeit behält ihre priorisierte Reihenfolge.
 
 Die [Quellen- und Abdeckungsprüfung zu Graph Tables](../Documentation/Project_Planning/GRAPH_TABLES_SOURCE_COVERAGE_REVIEW.md)
@@ -3515,9 +3520,9 @@ PROPOSED-QRY-023-Demo noch eine Graph-/Relations-Performance-Rangfolge.
 Der statische Vertrag ist als `QRY-023` unter `TSK-017` registriert und dem
 bestehenden Lernziel `LO-M03-06` / Claim `CLM-047` zugeordnet:
 [Demoentwurf und Vertrag](../Documentation/Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md), [Messworkload](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) und [Codeentwurf](../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md).
-Der Status bleibt `PROPOSED`; der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge als Vorschlag fest; das [Quellen- und Methodenreview](../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md) begründet `MATCH`, Kandidatenindizes und getrennte Mess-/Planevidenz. Ein nicht katalogisierter Harness-Codeentwurf mit statischem Strukturvalidator liegt vor. Der unabhängige Offline-Review vom 12.11.2026 prüfte Daten-/Queryform, Messreihen, Planabfragen und statische Harnessverträge; die gefundenen Identitäts-, Ressourcen- und Validatorgrenzen sind dokumentiert und nachverfolgt. Eine formale Methodenfreigabe, Vertrags-/T-SQL-Prüfung, Image-Digestbindung und Laufzeitqualifikation bleiben offen.
+Der Status bleibt `PROPOSED`; `DEC-079` genehmigt die geprüfte Methodik als Grundlage der statischen Vertragsimplementierung. Der [Framework- und Zielmatrixreview](../Documentation/Project_Planning/GRAPH_TABLES_FRAMEWORK_AND_MATRIX_REVIEW.md) stellt die verpflichtende Plan-/Baseline-/Vergleichsmessung nach `LO-M03-06`/`CLM-047`, die isolierte markierte Testdatenbank und die Designmatrix 2019/150, 2022/160, 2025/170 klar. [Messworkload-Entwurf](../Documentation/Project_Planning/GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) legt 10.000 synthetische Zwei-Kanten-Pfade, Vollpfad-oracle, fünf Messpaare und alternierende Reihenfolge fest; das [Quellen- und Methodenreview](../Documentation/Project_Planning/GRAPH_TABLES_METHOD_REVIEW.md) begründet `MATCH`, Kandidatenindizes und getrennte Mess-/Planevidenz. Ein nicht katalogisierter Harness-Codeentwurf mit statischem Strukturvalidator liegt vor. Der unabhängige Offline-Review vom 12.11.2026 prüfte Daten-/Queryform, Messreihen, Planabfragen und statische Harnessverträge; die gefundenen Identitäts-, Ressourcen- und Validatorgrenzen sind dokumentiert und nachverfolgt. Vertrags-/T-SQL-Prüfung, Image-Digestbindung, technische Rechte-/Ressourcendurchsetzung, Cleanup und Laufzeitqualifikation bleiben offen.
 
-Der [ScriptDom-Grammatikparse](../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md) besteht für die ausführbaren T-SQL-Dateien unter den Grammatikprofilen 150/160/170. Das ist kein Engine-Kompiliernachweis; unabhängige Methodenfreigabe, formale Harness-Abnahme und Laufzeitqualifikation bleiben offen.
+Der [ScriptDom-Grammatikparse](../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md) besteht für die ausführbaren T-SQL-Dateien unter den Grammatikprofilen 150/160/170. Das ist kein Engine-Kompiliernachweis; formale Harness-Abnahme und Laufzeitqualifikation bleiben offen. `DEC-079` genehmigt die Methodikgrundlage, aber keine Ausführung.
 
 Die unabhängige Offline-Nachprüfung vom 12. November 2026 fand bei der
 Actual-Plan-Phase eine mögliche stille 256-Zeichen-Kürzung des XML-Datentyps.
@@ -3525,7 +3530,7 @@ Actual-Plan-Phase eine mögliche stille 256-Zeichen-Kürzung des XML-Datentyps.
 `SQLCMDMAXVARTYPEWIDTH 0`; Strukturvalidator, Negativregression und ScriptDom-
 Vorverarbeitung binden die Direktive. Der Registry-Scope nennt jetzt dasselbe
 10.000-/30.000-/20.000-Profil wie `measurement_gate`. Review ohne offene P1/P2
-für diesen Offline-Fix; vollständige Methodenfreigabe, konkrete sqlcmd-
+für diesen Offline-Fix; vollständige Vertrags-/Harnessabnahme, konkrete sqlcmd-
 Runtimevollständigkeit, Ressourcen- und sonstige Runtimegates bleiben offen.
 
 Die Folgereview fand, dass der Validator spätere Überschreibungen von
@@ -3546,8 +3551,9 @@ Cleanup-Anforderung im gemeinsamen FWK-010-Caller umzusetzen, ließ die
 PR-Qualifikation scheitern: DGN-007- und CON-010-Sourceprofile binden die
 gemeinsamen Runtime-Dateien kryptografisch. FWK-010 blieb unverändert; diese
 Abbruch-/Cleanup-Reihenfolge ist für QRY-023 dort nicht qualifiziert.
-Formale Harness-/Methodenfreigabe bleibt bis zur separaten
-Identitätsdurchsetzung und Ressourcengate offen.
+Formale Harnessfreigabe bleibt bis zur separaten
+Identitätsdurchsetzung und Ressourcengate offen; `DEC-079` genehmigt nur die
+Methodikgrundlage für weitere statische Vertragsimplementierung.
 
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.

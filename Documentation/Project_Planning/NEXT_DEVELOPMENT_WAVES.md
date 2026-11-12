@@ -70,8 +70,27 @@ bindet den erklärenden External-Tables-Lehrpfad an `LO-M03-05`/`CLM-045` und
 entscheidet gegen eine ausführbare External-Tables-Phase in `QRY-012` im
 aktuellen Curriculumstand. Keine Demo-ID, SQL-, Infrastruktur- oder
 Runtimefreigabe. DEC-078 und der Registrydatensatz sind angelegt; lokale
-Registry- und Projektchecks sowie der PR-/Integrationsabschluss bilden die
-verbleibenden Schritte dieses Pakets.
+Registry- und Projektchecks sowie der PR-/Integrationsabschluss sind mit PR
+#534 abgeschlossen. Der Main-Stand ist `9aaa1b1`.
+
+### Graph Tables: formale Freigabe der statischen Methodik
+
+Die ausdrückliche Freigabe aller verbleibenden offenen Themen eröffnet für
+QRY-023 ein begrenztes Offline-Arbeitspaket: höchstens ein Paket, ein PR und
+zwei lokale Entscheidungs-/Vertragskandidaten; keine neuen Produktquellen.
+Der Checkpoint ist die PR-Integration. Token- und Geldverbrauch bleiben
+unbekannt; der Rahmen wird über Paket/PR/Kandidaten begrenzt und ist kein
+Provider-Ausgabenlimit. Die bestehende Methodik aus Quellen-/Methodenreview,
+Messworkload und Framework-/Matrixreview wird für die weitere statische
+Vertragsimplementierung genehmigt und als `DEC-079` registriert. QRY-023 bleibt
+`PROPOSED`. Keine SQL-/Lab-/Runtime-Ausführung, Rechteänderung, Infrastruktur,
+neue Performanceaussage oder menschliche Generalprobe.
+
+`DEC-079`, Registry, Demoentwurf, Methodenreview und aktueller Ausführungsstand
+sind synchronisiert. Das Paket bleibt innerhalb 1/1/2; PR-Integration ist der
+verbleibende Checkpoint. Formaler T-SQL-/Harnessvertrag, phasenspezifische
+Identitätsdurchsetzung, Build-/Image-, Ressourcen-, Cleanup- und Runtimegates
+bleiben nachgelagert offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
