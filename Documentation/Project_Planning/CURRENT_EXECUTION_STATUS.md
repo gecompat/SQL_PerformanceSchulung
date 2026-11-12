@@ -5,10 +5,12 @@
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
 `LO-M03-06` um die Erklärung gerichteter Pfade mit `MATCH` und relationalen
 Joins. Sie trennt Ergebnisgleichheit von tatsächlicher Planevidenz. Der
-QRY-023-Entwurf bleibt `PROPOSED`; `DEC-079` gibt die bestehende Methodik als
-Grundlage der weiteren statischen Vertragsimplementierung frei. Formale
-Vertrags-/T-SQL-Abnahme, phasenspezifische Identitätsdurchsetzung, konkrete
-Build-/Image-, Ressourcen-, Cleanup- und sämtliche Runtimegates bleiben offen.
+QRY-023-Entwurf bleibt `PROPOSED`; `DEC-079` gibt die Methodik frei und
+`DEC-080` akzeptiert die acht ausführbaren T-SQL-Dateien ausschließlich für
+den statischen ScriptDom-Parse der Grammatiken 150/160/170. Diese Prüfung ist
+keine Enginekompilierung oder Laufzeitfreigabe. Formale Harnessabnahme,
+phasenspezifische Identitätsdurchsetzung, konkrete Build-/Image-, Ressourcen-,
+Cleanup- und sämtliche Runtimegates bleiben offen.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 ## External Tables – statischer Lehr- und Demoentwurf

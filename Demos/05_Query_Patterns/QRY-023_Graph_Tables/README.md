@@ -123,8 +123,10 @@ keine Objektbindung, Berechtigungen oder Laufzeitsemantik. Ein Offlinevalidator
 prüft zusätzlich Manifestphasen, Markerbindung, Workloadarithmetik,
 Ergebnisorakel, Messreihenfolge, Plantrennung und den Nicht-Katalogstatus.
 
+`DEC-079` genehmigt die Methodenbasis; `DEC-080` akzeptiert die acht
+ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170.
 Bevor die Demo in den Katalog oder einen Runtimeworkflow aufgenommen wird,
-bleiben formale Harness-Abnahme, unabhängige Methodenfreigabe,
+bleiben formale Harness-Abnahme,
 Bestätigung/Erneuerung der Build-Pins, Integration des Image-Locks in einen
 späteren Runtimeaufruf, Ressourcenprofil und konkrete Ausführungsgenehmigung
 offen.

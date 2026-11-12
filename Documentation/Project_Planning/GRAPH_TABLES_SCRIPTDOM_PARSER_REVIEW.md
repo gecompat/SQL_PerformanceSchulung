@@ -1,7 +1,7 @@
 # Graph Tables: ScriptDom-Grammatikprüfung für QRY-023
 
-Stand: 7. November 2026  
-Status: statische Grammatikprüfung; keine SQL-Server-Kompilierung oder Ausführung
+Stand: 12. November 2026
+Status: statische Grammatikprüfung und Annahme gemäß `DEC-080`; keine SQL-Server-Kompilierung oder Ausführung
 
 ## Prüfmethode
 
@@ -24,7 +24,14 @@ den erwarteten Include-Pfad zur kanonischen `FWK-004`-Referenz.
 
 ## Ergebnis und Grenzen
 
-Am 7. November 2026 bestanden alle acht Dateien die Grammatikparser 150, 160
+`DEC-080` akzeptiert die acht ausführbaren T-SQL-Dateien ausschließlich für
+den statischen Parse mit ScriptDom-Grammatiken 150/160/170. Der aktuelle
+gesperrte lokale Lauf bestand erneut für alle Dateien und Profile. Die
+Methodikgrundlage ist durch `DEC-079` genehmigt. Formale Harnessabnahme,
+phasenspezifische Identität, Ressourcen-/Abbruchdurchsetzung, Pins,
+Enginekompilierung, Cleanup und Runtime bleiben eigenständige offene Gates.
+
+Am 12. November 2026 bestanden alle acht Dateien die Grammatikparser 150, 160
 und 170. Es wurde kein SQL Server angesprochen; weder QRY-023-SQL noch ein
 SQLCMD-Harness wurden gestartet.
 
@@ -35,8 +42,7 @@ Prozedurverträgen oder SQL-Engine-Kompilierung und keine tatsächliche
 Ausführbarkeit. SQLCMD-Expansion über die drei expliziten Platzhalter und die
 separat strukturell gebundene `SQLCMDMAXVARTYPEWIDTH`-Direktive hinaus sowie
 die eingebundene Frameworkdatei sind nicht Teil dieses Grammatikdurchlaufs.
-Unabhängige Methodenfreigabe, formale Harness-Abnahme und jede konkrete
-Runtimequalifikation bleiben offen.
+Formale Harness-Abnahme und jede konkrete Runtimequalifikation bleiben offen.
 
 Der Workflow wird nur durch Änderungen am QRY-023-Demopfad, Parser, seinem
 Regressionstest oder dem eigenen Workflow ausgelöst. Er führt die vorhandenen

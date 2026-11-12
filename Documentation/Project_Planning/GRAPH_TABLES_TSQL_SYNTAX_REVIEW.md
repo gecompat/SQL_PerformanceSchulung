@@ -1,9 +1,19 @@
 # Graph Tables: T-SQL-Syntaxprüfung
 
-Stand: 7. November 2026  
-Status: quellengebundene Syntaxprüfung, keine Ausführung
+Stand: 12. November 2026
+Status: quellengebundene Syntaxprüfung und statische ScriptDom-Akzeptanz gemäß `DEC-080`; keine Enginekompilierung oder Ausführung
 
 ## Quellen und konkrete Regeln
+
+## Statische Parse-Abnahme (`DEC-080`)
+
+Der gesperrte ScriptDom-Lauf bestand für die acht ausführbaren T-SQL-Dateien
+unter den Grammatiken 150, 160 und 170. `15_Framework.sql` bleibt ein SQLCMD-
+Wrapper; geprüft wird dort nur der festgelegte `:r`-Include. Die drei
+SQLCMD-Platzhalter werden ausschließlich im flüchtigen Parsertext synthetisch
+ersetzt. Das bestätigt Syntaxverträglichkeit mit diesen Parsergrammatiken,
+nicht Enginekompilierung, Objektbindung, Rechte, Frameworkprozedurverträge,
+Harnessabnahme oder Ausführbarkeit. `QRY-023` bleibt `PROPOSED`.
 
 Die Microsoft-Referenz für `MATCH` beschreibt einfache gerichtete Muster in
 `SELECT ... WHERE MATCH(...)`. Muster können mehrere Kanten enthalten, müssen

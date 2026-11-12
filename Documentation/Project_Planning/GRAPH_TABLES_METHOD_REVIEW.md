@@ -90,10 +90,11 @@ Laufzeitqualifikation ein.
   Validator prüft nun den letzten Wert vor `STATISTICS XML ON`; die
   Negativregression `0` gefolgt von `256` wird abgewiesen. Eine unabhängige
   Nachprüfung bestätigte die Korrektur ohne neue P1/P2.
-- `DEC-079` genehmigt diese bestehende Methodik als Grundlage der weiteren
-  statischen Vertragsimplementierung. Die Entscheidung ersetzt weder die
-  formale Vertrags-/T-SQL-Abnahme noch offene Ressourcen-, Identitäts-,
-  Berechtigungs-, Cleanup-, Build-/Image- und Runtime-/Ausführungsgates.
+- `DEC-079` genehmigt diese Methodik als Grundlage der statischen
+  Vertragsimplementierung; `DEC-080` akzeptiert die acht ausführbaren
+  T-SQL-Dateien für ScriptDom-Syntax in 150/160/170. Keine Enginekompilierung,
+  Harnessabnahme oder Ausführung folgt daraus. Ressourcen-, Identitäts-,
+  Berechtigungs-, Cleanup-, Build-/Image- und Runtimegates bleiben offen.
 
 ## Quellen und Projektverträge
 
