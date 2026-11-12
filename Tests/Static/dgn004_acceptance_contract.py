@@ -199,6 +199,7 @@ def evaluate_build(evidence: BuildEvidence) -> AcceptanceResult:
 
     role_identities: dict[str, set[tuple[int, ...]]] = {"R": set(), "H": set()}
     target_plans: dict[str, set[int]] = {"R": set(), "H": set()}
+    force_error_epochs: set[str] = set()
     for index, call in enumerate(calls[:len(CALL_SEQUENCE)]):
         expected_role, forced = CALL_SEQUENCE[index]
         label = f"call {index + 1}"
@@ -301,6 +302,10 @@ def evaluate_build(evidence: BuildEvidence) -> AcceptanceResult:
                 missing.append(f"{label} force failure epoch")
             elif type(call.force_error_epoch) is not str or not call.force_error_epoch:
                 failures.append(f"{label} force failure epoch is invalid")
+            elif call.force_error_epoch in force_error_epochs:
+                failures.append(f"{label} force failure epoch is not unique to its request")
+            else:
+                force_error_epochs.add(call.force_error_epoch)
             for name, value in (
                 ("after-request force failure count", call.force_failure_count_after_request),
                 ("after-execution force failure count", call.force_failure_count_after_execution),
@@ -309,6 +314,9 @@ def evaluate_build(evidence: BuildEvidence) -> AcceptanceResult:
                     missing.append(f"{label} {name}")
                 elif type(value) is not int or value < 0:
                     failures.append(f"{label} {name} is invalid")
+            if (type(call.force_failure_count_after_request) is int
+                    and call.force_failure_count_after_request != 0):
+                failures.append(f"{label} force failure count is nonzero in the new request epoch")
             if (type(call.force_failure_count_after_request) is int
                     and type(call.force_failure_count_after_execution) is int
                     and call.force_failure_count_after_execution != call.force_failure_count_after_request):
