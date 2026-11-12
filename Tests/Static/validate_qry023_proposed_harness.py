@@ -329,6 +329,7 @@ def reader_phase_scripts_are_read_only(
         re.IGNORECASE,
     )
     ddl_or_security = re.compile(r"\b(?:create|alter|drop|grant|deny|revoke|dbcc)\b", re.IGNORECASE)
+    context_switch = re.compile(r"\b(?:use|setuser|revert)\b", re.IGNORECASE)
     direct_execute = re.compile(
         r"\bexec(?:ute)?\s+(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
         r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
@@ -339,7 +340,7 @@ def reader_phase_scripts_are_read_only(
         source = block_comment.sub(" ", reader_scripts[script_name])
         source = line_comment.sub(" ", source)
         executable_source = re.sub(r"n?'(?:''|[^'])*'", "''", source, flags=re.IGNORECASE)
-        if ddl_or_security.search(executable_source):
+        if ddl_or_security.search(executable_source) or context_switch.search(executable_source):
             return False
         for match in re.finditer(r"\bexec(?:ute)?\b", executable_source, re.IGNORECASE):
             call = direct_execute.match(executable_source, match.start())
@@ -690,7 +691,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
                     "50_Plan_Evidence.sql": plan,
                 },
             ),
-            "READER script text may directly write only to local table variables and must not contain persistent DML, DDL, DBCC, security changes, or indirect execution", errors)
+            "READER script text must not contain persistent writes, DDL/DBCC/security changes, indirect execution, or database-context switching", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
     require(qualification_ownership_markers_valid(qualification),

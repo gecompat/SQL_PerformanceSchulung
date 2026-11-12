@@ -239,6 +239,14 @@ DDL-, `DELETE`-Formen ohne `FROM` und zustandsändernde DBCC-Befehle; ein PR, ke
 SQL-/Lab-/Runtimeausführung. Die statische Textprüfung bleibt kein
 Engine-/Rechtebeleg.
 
+PR #549 integrierte den direkten Schreibschutz mit sieben erfolgreichen
+PR-Checks und fünf betroffenen Main-Workflows. Der nächste isolierte
+QRY-023-Validator-/Regressionstest-Schritt prüft, dass READER-Phasen ihren
+geprüften Datenbankkontext nicht über `USE` (einschließlich SQLCMD-Varianten)
+oder einen vergleichbaren Kontextwechsel verlassen. Ein Arbeitspaket und PR, keine neuen Produktquellen,
+kein SQL-/Lab-/Runtime-Lauf. Der statische Befund belegt keine Engine- oder
+Effektivberechtigungsqualifikation.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

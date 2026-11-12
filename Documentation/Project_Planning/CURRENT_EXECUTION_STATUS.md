@@ -84,13 +84,21 @@ der Arbeitsbranch ist entfernt. Der unabhängige Review fand keine offenen
 P1/P2. Das bleibt statische Textanalyse ohne SQL-, Lab- oder Runtimebeleg,
 ohne effektive Serverrechte und ohne Generalprobe.
 
-Der nächste lokale Schnitt erweitert die direkte Schreibschutzprüfung auf
-DDL-Varianten wie `CREATE OR ALTER`/`DROP VIEW`, DML-Formen wie
-`DELETE dbo.Tabelle` ohne explizites `FROM` und direkte zustandsändernde
-DBCC-Befehle. Der statische Validator-/Testdiff besteht lokal inzwischen mit
-60 gezielten Regressionen und dem Offlinevalidator; ein DBCC-Mutationsgegenfall
-wurde nach unabhängigem P2 ergänzt. Der Schnitt ist noch nicht abschließend
-reviewed, gepusht oder integriert.
+Der nächste lokale Schnitt erweiterte die direkte Schreibschutzprüfung auf
+DDL-Varianten wie `CREATE OR ALTER`, DML-Formen wie `DELETE dbo.Tabelle` ohne
+explizites `FROM` und DBCC-Befehle. PR #549 integrierte die Gegenproben mit
+sechs gezielten QRY-023-Regressionsfällen und allen sieben erfolgreichen
+PR-Checks; fünf betroffene Main-Workflows bestanden. `main` ist auf `ca5899c`
+synchronisiert, der Arbeitsbranch entfernt. Der unabhängige Review fand nach
+dem DBCC-Gegenfall keine offenen P1/P2. Kein SQL-, Lab- oder Runtimebeleg.
+
+Der nächste Offlinekandidat bindet die Datenbankkontextstabilität der READER-
+Phasen: `USE` oder vergleichbare Kontextwechsel dürfen die vorab geprüfte
+Zieldatenbank nicht verlassen. Die statische Prüfung und bare, geklammerte
+sowie SQLCMD-parametrisierte `USE`-Formen sind lokal abgewiesen; 64 gezielte
+Tests und der Validator bestehen.
+Der Slice ist noch nicht unabhängig reviewed oder integriert. Engineausführung
+und tatsächliche Rechte bleiben offen.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten
