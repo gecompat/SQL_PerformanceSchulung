@@ -275,9 +275,16 @@ jetzt den Rohtext und schützt beide Formen mit Regressionen. 71 gezielte Tests,
 der QRY-023-Validator und unabhängiger Nachreview bestehen. Der Full-scope
 Review fand außerdem den aktiven Registry-Widerspruch zu FWK-010s bereits
 implementierter Phasenidentität; die Registry ist korrigiert und benennt nun
-die weiterhin offenen realen Effektivrechte und Runtimegates. Beide Korrekturen
-sind im gebündelten PR #554; die erste Checkrunde bestand. Keine Produktquelle
-und kein SQL-/Lab-/Runtime-Lauf.
+die weiterhin offenen realen Effektivrechte und Runtimegates. PR #554
+integrierte beide Korrekturen mit sechs PR-Checks und fünf erfolgreichen
+betroffenen Main-Workflows. Als nächster freigegebener Offlinepunkt wurde
+[QRY023_EFFECTIVE_PERMISSION_DESIGN.md](QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
+erstellt: Phasen-/Securablematrix, fail-closed Mengengrenzen und geplante
+Gegenproben für `sys.fn_my_permissions`. Unabhängiger semantischer Review fand
+keine offenen P1/P2; QRY-023-Validator, Dokumentationslinks und Datenschutzscan
+der fünf geänderten Dateien bestehen. Die konkrete Sollmenge bleibt
+unentschieden und der Entwurf unverbindlich. Keine Produktquelle und kein
+SQL-/Lab-/Runtime-Lauf.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die

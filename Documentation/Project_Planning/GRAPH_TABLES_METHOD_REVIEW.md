@@ -95,6 +95,11 @@ Laufzeitqualifikation ein.
   T-SQL-Dateien für ScriptDom-Syntax in 150/160/170. Keine Enginekompilierung,
   Harnessabnahme oder Ausführung folgt daraus. Ressourcen-, Identitäts-,
   Berechtigungs-, Cleanup-, Build-/Image- und Runtimegates bleiben offen.
+- Der getrennte Offlineentwurf
+  [QRY-023-Effektivrechtequalifikation](QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
+  konkretisiert phasenbezogene READER-Zugriffe und fail-closed Inventurregeln
+  mit `sys.fn_my_permissions`. Er legt keine normative Sollmenge fest und
+  belegt keine realen Principalrechte, Ownership Chain oder Runtimewirkung.
 
 ## Quellen und Projektverträge
 
