@@ -174,6 +174,7 @@ class Dgn004AcceptanceContractTests(unittest.TestCase):
             {"use_plan": False},
             {"actual_plan_id": 999},
             {"compile_count_after": 4},
+            {"force_failure_count_after_request": 1},
             {"force_failure_count_after_execution": 1},
             {"unforce_confirmed": False},
         )
@@ -188,6 +189,12 @@ class Dgn004AcceptanceContractTests(unittest.TestCase):
         calls[2] = replace(calls[2], force_error_epoch=None)
         result = evaluate_build(replace(good_build(), calls=tuple(calls)))
         self.assertEqual(result.verdict, Verdict.NOT_PROVEN)
+
+        calls = list(good_build().calls)
+        calls[4] = replace(calls[4], force_error_epoch=calls[2].force_error_epoch)
+        result = evaluate_build(replace(good_build(), calls=tuple(calls)))
+        self.assertEqual(result.verdict, Verdict.FAIL)
+        self.assertTrue(any("force failure epoch is not unique" in reason for reason in result.reasons))
 
     def test_wrong_hint_or_external_override_fails(self) -> None:
         for changed in ({"hint_state": "ABSENT"}, {"external_override_absent": False}):
