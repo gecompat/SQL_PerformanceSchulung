@@ -56,8 +56,10 @@ Replay (Wiederverwendung von Optimierungsschritten) und sein Nutzungs-/Nichtnutz
 vergleich sind zurückgestellt; beide Marker-Gates bleiben dafür offen.
 Ein Erfolg gilt nur im engeren Aussageumfang und belegt keine isolierte Hintwirkung.
 Der Auftrag vom 26. Oktober 2026 nimmt die priorisierte Bearbeitung wieder auf.
-Umsetzung und Läufe folgen erst nach den unabhängigen fachlichen Freigaben im
-jeweils begrenzten Rahmen. Maßgeblich sind der
+Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview vom
+12. November 2026 fand nach PR #518 keine offenen P1/P2. Vor dem Lauf bleibt
+das YELLOW-Isolations-/Lastgate offen, da fünf nicht DGN-004 zugeordnete
+SQL-Server-Container parallel aktiv waren. Maßgeblich sind der
 [aktive begrenzte Plan](#aktiver-begrenzter-plan-klassische-planerzwingung-und-hint-kontrollzustand) und der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 ### TSK-016 – Analyze-Labs als gezielte Curriculum-Ergänzungen prüfen
@@ -569,9 +571,9 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 **Abhängigkeiten:**
 
 - DGN-003 (Query-Store-Grundlage), vollständiges R/H-Quellpaar aus rh_source_text_plan und Form-A-Datenmodell weiterverwenden.
-- Vor Umsetzung unabhängige Quellen-/Identitäts-/Text-/Transport-/Mess-/Statusprüfung des aktiven begrenzten Vertrags sowie passende statische Gegenfälle; danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
+- Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview des aktiven Vertrags ist am 12. November 2026 abgeschlossen; PRs #516–#518 integrieren zusätzliche Gegenproben und die zwei Review-Fixes. Vor SQL bleiben YELLOW-Isolation/kontrollierte Last, Ressourcen, Rechte, Image-/Buildbindung und rekonstruierbare Ausgangsoptionen nachzuweisen. Keine technische Abhängigkeit von CON-005 (Schemasperren) oder OPT-007 (Ad-hoc-Plancache).
 
-**Wiederaufnahmebedingung:** Der menschliche Wiederaufnahmeauftrag vom 26. Oktober 2026 liegt vor; die stufenweise Source-/Statiktest-/Dokumentationsumsetzung des aktiven Plans ist autorisiert. Chunk-/Frame-Transport, XML-Formprüfung, Caller-Eingabevalidierung und ein direkter, auf beiden Prozesskanälen während des Lesens begrenzter Runner sind als Quelle vorhanden; nur synthetische Prozessgrenzen sind geprüft. SQL-Ausführung, Query-/Plan-/Engineidentität, technische Buildqualifikation und DGN-Lifecycle bleiben offene Gates und benötigen jeweils unabhängige Prüfung. Offene Replay-Marker- und erweiterte Deaktivierungssignaturgates gelten weiterhin ausschließlich für zurückgestellte Replay-Umfänge. Aktuelle Reihenfolge und Subwellenzulassung stehen im kanonischen Ausführungsstand.
+**Wiederaufnahmebedingung:** Die Nutzeranweisung vom 12. November 2026 autorisiert alle offenen Punkte im bestehenden Planumfang. Chunk-/Frame-Transport, XML-Formprüfung, Caller-Eingabevalidierung, begrenzter direkter Runner und M/S/T-Offlinevergleich sind vorhanden. PRs #516–#518 ergänzen Gegenproben; die DGN-004-Statiksuite besteht lokal mit 68 Tests unter Linux/WSL ohne Skip. Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview fand nach #518 keine offenen P1/P2; die Hash-Gegenprobe wurde danach unabhängig geprüft und hält beide Hashwerte außerhalb der Identität. SQL-Ausführung, Query-/Plan-/Engineidentität, technische Buildqualifikation und DGN-Lifecycle bleiben offen. Der Vorstart am 12. November wies das YELLOW-Gate wegen fünf aktiven, nicht DGN-004 zugeordneten SQL-Server-Containern nicht nach. Offene Replay-Marker- und erweiterte Deaktivierungssignaturgates gelten weiterhin ausschließlich für zurückgestellte Replay-Umfänge.
 
 **Quellen:** `LAB-QS-002` (Forced and failed forced plan; erfolgreiche und gescheiterte Planerzwingung).
 
@@ -579,7 +581,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 **Source-Status:** Der Offline-Transport prüft begrenzte UTF-16-Planbytes, feste ASCII-Rahmung, separat erwartete Run/Rolle/Aufrufwerte und wohlgeformtes XML mit ShowPlanXML-Wurzel. Ein SQL-Transportfragment serialisiert den `query_plan` aus einem caller-bound `plan_handle`; ein kleiner Eingabeprüfer validiert die Werte vor sqlcmd-Substitution. Der Runner begrenzt stdout und stderr beim Lesen; seine Tests verwenden ausschließlich synthetische Prozesse. Ein Offline-Prüfer kann gelieferte M/S/T-Identitätsrohwerte vergleichen, belegt aber weder deren vollständige Servererfassung noch Handle-Provenienz oder aktuelle Ausführung. SQL-Ausführung, Abfrage-/Plan-/Engine-/Ausführungsidentität, XML-Schema und Laufzeitinformationen bleiben offene Gates.
 
-**Weiterer Prüfauftrag:** Für den aktiven begrenzten Schnitt Standard-Force/Unforce, vollständige aktuelle Plan-/Text-/Kontext-/Ergebnisbindung und festen Inline-Hint-Kontrollzustand fachlich prüfen. Replay-Marker-Gates bleiben für den zurückgestellten Replay-Vergleich offen und sind keine Eintrittsbedingung dieses neuen Aussageumfangs.
+**Weiterer Prüfauftrag:** Vor SQL müssen kontrollierte Optimiererlast und isolierte Wegwerfumgebung sowie Ressourcen, Rechte, Image-/Buildbindung und Ausgangsoptionen belegt sein. Danach die neun sequenziellen Aufrufe samt vollständiger aktueller Plan-/Text-/Kontext-/Ergebnisbindung, Force/Unforce und Cleanup innerhalb des registrierten Gesamtbudgets qualifizieren. Replay-Marker-Gates bleiben für den zurückgestellten Replay-Vergleich offen und sind keine Eintrittsbedingung dieses Aussageumfangs.
 
 ###### Aktiver begrenzter Plan: klassische Planerzwingung und Hint-Kontrollzustand
 
@@ -593,11 +595,11 @@ f3335a2cd56ce43f87be245b5143427ce70d60f1
 
 **Status:**
 
-ACTIVE_DESIGN_OFFLINE_IDENTITY_CONSISTENCY_SOURCE_ONLY – ausdrücklich begrenzter Plan und Abnahmekriterien aktiv; Frame-/Ergebnisbinder, caller-bound SQL-Transportfragment, begrenzter direkter Docker-Runner und Offlinevergleich caller-gelieferter M/S/T-Rohwerte sind als Quelle vorhanden. Vollständige Servererfassung, Handle-Provenienz, SQL-Ausführung und DGN-Lifecycle-Qualifikation bleiben offen.
+ACTIVE_DESIGN_SOURCE_REVIEWED_PREFLIGHT_PENDING – der begrenzte Plan, die Source-only-Helfer und der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview sind integriert; nach PR #518 bleiben keine P1/P2 im geprüften Umfang. Vollständige Servererfassung, Handle-Provenienz, YELLOW-Vorstart, SQL-Ausführung und DGN-Lifecycle-Qualifikation bleiben offen.
 
 **Auftragsgrenze:**
 
-Menschliche Delegation vom 26. Oktober 2026 autorisiert die begrenzte stufenweise Source-, Statiktest- und Dokumentationsumsetzung des aktiven Plans in regulären Pull Requests. Keine SQL-/Lab-Läufe, Containerstarts, Provider- oder Netzwerkaktionen oder Runtimequalifikation ohne unabhängige Prüfung der konkreten Quellen- und Methodenpläne; alte Laufrechte und Laufbudgets werden nicht aktiviert.
+Die Nutzeranweisung vom 12. November 2026 autorisiert die offenen Punkte innerhalb des aktiven Plans und seiner Grenzen. SQL-/Lab-Läufe bleiben an den abgeschlossenen unabhängigen Review sowie an den belegten YELLOW-/Isolations-/Ressourcen-/Rechte-/Image-/Build-/Ausgangszustands-Preflight gebunden; keine Downloads, Fremdcontainer oder Budgeterweiterung.
 
 **Aktive Autorität und zurückgestellte Umfänge:**
 
@@ -629,7 +631,7 @@ Menschliche Delegation vom 26. Oktober 2026 autorisiert die begrenzte stufenweis
 
 **Begrenzte Reihenfolge:**
 
-- Vor Start des späteren gesondert genehmigten Laufs unabhängigen Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview und statische Gegenfälle abschließen. Mindestens YELLOW-Schutz (ausdrücklich bestätigte isolierte Wegwerfumgebung bei kontrollierter Optimiererlast), eigene Ressourcenzuordnung, Rechte, Build-/Imagebindung und Ausgangsoptionen prüfen. Alle Replay-Marker-Gates sind aus der Zulassung dieses aktiven Umfangs entfernt, nicht fachlich geschlossen.
+- Unabhängiger Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview sowie die statischen Gegenfälle sind vor SQL abgeschlossen; der Review vom 12. November fand nach PR #518 keine offenen P1/P2. Der Vorstartcheck wies mindestens YELLOW-Schutz noch nicht nach. Vor Start kontrollierte Optimiererlast, isolierte Wegwerfumgebung, eigene Ressourcen, Rechte, Image-/Buildbindung und rekonstruierbare Ausgangsoptionen belegen. Alle Replay-Marker-Gates sind aus der Zulassung dieses aktiven Umfangs entfernt, nicht fachlich geschlossen.
 - Aufrufe 1/2: R unforced frisch kompilieren, Quellen-/Query-/Zielplanbindung, vollständige Tupel und aktuelle Ausführung erfassen. Kein gespeichertes Replay-Skript verlangen und nicht deshalb abbrechen. Nach eindeutiger Erstbindung für Aufruf 2 den bestehenden B0/B1-Kompilierungsvertrag anwenden.
 - Aufruf 3: eigenen R-Zielplan mit Standard-Force erzwingen, B0/sp_recompile/Nutzaufruf/Erfassung/Flush/B1 einhalten; tatsächlichen passenden Plan einschließlich UsePlan, vollständige Solltupel, Kompilierungs- und Ausführungszuwachs sowie Fehlerfreiheit belegen. Anschließend Unforce und Nullzustand prüfen. Keine Replay-Nutzung behaupten oder verlangen. Fehlt ein aktiver Pflichtnachweis, keine H-Fortsetzung.
 - Aufruf 4: H unforced frisch kompilieren, eigenes Modul mit vollständigem festem terminalem Hint und eigene Query-/Zielplanbindung erfassen; vollständige Solltupel und aktuelle Ausführung prüfen. Aufrufe 5/6: jeweils eigenen H-Zielplan mit Standard-Force frisch kompilieren, vollständige eigene Plan-/Text-/Tupel-/Zähler-/Fehlerbezüge und UsePlan verlangen, danach Unforce prüfen. Je Phase H-Kontrollzustand CONTROL_ONLY dokumentieren; kein empirischer Nichtnutzungsmarker erforderlich.
@@ -656,8 +658,8 @@ Menschliche Delegation vom 26. Oktober 2026 autorisiert die begrenzte stufenweis
 - Vor späterem SQL statische negative Fälle für falsche/mehrdeutige Query-/Plan-/Kontextbindung, gleiche Hashes bei fremdem Objekt, bekannte 2022-Hashüberschreibung, M/S/T-/Offsetabweichungen, geänderten/fehlenden/doppelten oder nur kommentierten H-Hint sowie externe überschreibende Steuerung planen. Vollständige Quellen bleiben unverändert; Tests erst in gesondert autorisierter Umsetzung implementieren.
 - Ergebnis-/Transport-/Sicherheitsgegenfälle erhalten: richtige Anzahl oder Summe bei falschen vollständigen Tupeln, Duplikatverlust, gespeicherter statt aktuellem tatsächlichen Plan, falsches UsePlan, fehlende/alte Zähler, Reset-/Mehrfachkompilierung, zusätzliche Ausführung, fehlende/doppelte Planstücke, Kodierungs-/Ausgabegrenzen, Timeout, falsche Eigentumsmarker und gescheiterter Cleanup dürfen keinen Erfolg liefern.
 - Neue Scope-Gegenfälle vor späterem SQL: bei sonst erfülltem aktivem Vertrag dürfen fehlendes Replay-Skript, abwesender oder unbekannter QueryCompilationReplay-Rohwert und offenes Replay-Gate den engeren Umfang nicht blockieren. Umgekehrt dürfen sie keine fehlende aktive Pflichtmetadaten-, Plan-, Hint- oder Cleanupprüfung überspringen. Ergebnis ohne acceptance_scope, fälschlich bestandener Replay-Vergleich, Kausal-/Performanceclaim und automatische Reaktivierung alter Läufe zurückweisen.
-- Vor Umsetzung unabhängig den aktiven Aussage-/Abnahmevertrag, vollständige Quellpaar-/Identitäts-/M/S/T-/Offset-/Transport-/Mess-/Statusprüfung freigeben. Methodenfreigabe ist weiterhin offen und wird durch die Umfangsentscheidung nicht ersetzt. Tatsächliche Darstellungen, Planbindung und technische Verfügbarkeit auf beiden Builds bleiben empirische Qualifikationsaufgaben der späteren genehmigten Runde; Replay-Markersemantik ist dafür keine Voraussetzung.
-- Danach neuer ausdrücklicher Auftrag für genau diese begrenzte Umsetzung und deren erforderliche SQL-/Lab-Läufe. Kein allgemeiner Entwicklungsneustart; übrige Verarbeitung pausiert. Für eine spätere Replay-Erweiterung sind deren bisherige Marker-/Gegenvertragsgates, unabhängige Freigabe und neuer eigener Auftrag wieder zwingend.
+- Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview und die statischen Gegenfälle sind abgeschlossen; die zwei P2-Korrekturen betreffen eigene Force-Fehlerzählepochen und den Nullzähler direkt nach Force. Tatsächliche Darstellung, Planbindung und technische Verfügbarkeit auf beiden Builds bleiben empirische Qualifikationsaufgaben; Replay-Markersemantik ist dafür keine Voraussetzung.
+- Die Nutzeranweisung vom 12. November 2026 autorisiert die offenen Punkte dieses aktiven Plans; vor SQL bleibt der konkrete YELLOW-/Vorstartnachweis erforderlich. Für eine spätere Replay-Erweiterung sind deren bisherige Marker-/Gegenvertragsgates, unabhängige Freigabe und eigener Auftrag wieder zwingend.
 
 **Quellen geprüft am:**
 
