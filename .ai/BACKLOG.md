@@ -3449,6 +3449,12 @@ vergibt keine Demo-ID und begründet weder eine Performance-Rangfolge noch
 Laufrechte. Die offene Prüfung der Infrastruktur- und Cleanupgates bleibt
 vorgeschaltet.
 
+Die bestehende Aussage `CLM-045` wurde in Curriculum-Traceability,
+Folienaussagenregister und kritischer Claimprüfung konsistent um `SRC-153` bis
+`SRC-155` ergänzt. Der Claimtext bleibt unverändert; damit sind die allgemeinen
+Pushdown-Quellen auffindbar, ohne den External-Tables-Konzeptvorschlag als
+formale Demo- oder Laufzeitabnahme auszugeben.
+
 Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
 bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-
 Erweiterungen. Die geprüften Quellen qualifizieren weder Graph-Runtime auf

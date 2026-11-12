@@ -4,17 +4,19 @@
 
 ### Begrenzung der Fortsetzung vom 12. November 2026
 
-Der Nutzer hat die Bearbeitung der restlichen freigegebenen Themen fortgesetzt
-und sechs weitere Quellen-/Testkandidaten freigegeben. Dieser External-Tables-
-Schnitt bleibt innerhalb eines Arbeitspakets und eines Pull Requests; höchstens
-sechs neue Quellen-/Vertragskandidaten dürfen verwendet werden. Die vorhandenen
-`SRC-153` bis `SRC-157` werden wiederverwendet und nicht als neue Kandidaten
-gezählt. Der Konzeptentwurf verwendet zwei lokale Vertrags-/Lesepfadprüfungen.
-Checkpoint ist die abgeschlossene PR-Integration; SQL, Connector, Netzwerk,
-Dienst, Credential und menschliche Generalprobe sind nicht Teil dieses
-Rahmens. Token- und Geldverbrauch sind nicht verlässlich gemessen. Diese
-begrenzte Fortsetzung setzt die kumulative Budgethistorie nicht zurück; der
-letzte ältere Summenstand ersetzt keine aktuelle Verbrauchsprüfung.
+Der Nutzer hat die Bearbeitung aller restlichen freigegebenen Themen fortgesetzt
+und sechs weitere Quellen-/Testkandidaten freigegeben. Für diese begrenzte
+Fortsetzung gelten höchstens zwei Arbeitspakete, zwei Pull Requests und sechs
+neue Quellen-/Vertragskandidaten. Das erste Paket, der External-Tables-
+Konzeptentwurf, ist integriert; es verwendete keine neue Produktquelle und
+zwei lokale Vertrags-/Lesepfadprüfungen. Die bestehenden `SRC-153` bis
+`SRC-157` werden wiederverwendet und nicht als neue Quellenkandidaten gezählt.
+Das zweite Paket beschränkt sich auf den Quellenabgleich der bestehenden
+`CLM-045`-Traceability. Checkpoint ist spätestens die zweite PR-Integration.
+SQL, Connector, Netzwerk, Dienst, Credential und menschliche Generalprobe sind
+nicht Teil dieses Rahmens. Token- und Geldverbrauch sind nicht verlässlich
+gemessen. Die Fortsetzung setzt die kumulative Budgethistorie nicht zurück;
+der letzte ältere Summenstand ersetzt keine aktuelle Verbrauchsprüfung.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
