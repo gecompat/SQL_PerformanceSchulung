@@ -14,6 +14,12 @@ Die formale Curriculumentscheidung, Methodenprüfung, Infrastruktur,
 Connectorverfügbarkeit und Laufzeitqualifikation bleiben offen. Kein SQL,
 Connector, Netzwerk, Dienst oder Credential wurde verwendet.
 
+Die bestehende `CLM-045`-Traceability ergänzt `SRC-153` bis `SRC-155` als
+Quellen zur allgemeinen Provider-/Ausdrucks-/Planabhängigkeit von Remote
+Pushdown. Der bestehende Claimtext und die `QRY-012`-Zuordnung bleiben
+unverändert; das erweitert keine External-Tables-Laufzeit- oder
+Curriculumfreigabe. Der unabhängige Traceability-Review fand keine P1/P2.
+
 ## External Tables – begrenzter Quellen- und Zugriffswegreview
 
 Der [Offline-Review](EXTERNAL_TABLES_SOURCE_REVIEW.md) bindet die
