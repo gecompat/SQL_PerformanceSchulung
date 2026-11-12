@@ -34,6 +34,36 @@ EXPECTED_SQLCMD_INPUT_VALIDATION = {
         "template": "SQLPERF_LAB_{DEMO_ID_WITHOUT_HYPHEN}_{RUN_TOKEN}"
     },
 }
+EXPECTED_EXECUTION_SAFETY_CONTRACT = {
+    "expected_target_database_size_mib": 1024,
+    "expected_tempdb_growth_mib": 1024,
+    "maximum_concurrent_sql_sessions": 1,
+    "abort_signals": ["CTRL_C", "PHASE_TIMEOUT", "GLOBAL_TIMEOUT"],
+    "abort_action": "TERMINATE_SQLCMD_PROCESS_TREE",
+    "cleanup_after_setup_started": "ONLY_AFTER_PROCESS_EXIT_CONFIRMED",
+    "early_stop_triggers": [
+        "RESOURCE_PROFILE_MISMATCH_BEFORE_SETUP",
+        "TARGET_DATABASE_SIZE_LIMIT",
+        "TEMPDB_GROWTH_LIMIT",
+        "PHASE_OR_GLOBAL_TIMEOUT",
+        "CTRL_C",
+    ],
+    "enforcement_status": "PROPOSED_RUNTIME_CALLER_REQUIRED",
+    "forced_abort_residual_state": (
+        "The marked target database may contain partial synthetic objects; connection-cancel completion "
+        "and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
+    ),
+}
+EXPECTED_AUTHORIZATION_CONTRACT = {
+    "phase_privileges": {
+        "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
+        "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SHOWPLAN ON TARGET DATABASE"],
+        "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"],
+    },
+    "current_fwk010_mode": "SINGLE_IDENTITY_FOR_ALL_PHASES",
+    "phase_identity_enforced": False,
+    "gate_status": "OPEN_UNTIL_PHASE_SPECIFIC_IDENTITY_SUPPORT",
+}
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 COUNT_BIG_QUERY_PATTERN = re.compile(
     r"\bselect\s+@?pathcount\s*=\s*count_big\s*\(\s*\*\s*\).*?;",
@@ -257,6 +287,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(manifest.get("demo_id") == "QRY-023", "proposed manifest must identify QRY-023", errors)
     require(manifest.get("contract_version") == "1.0", "proposed manifest contract version must be 1.0", errors)
     require(manifest.get("safety_level") == "YELLOW", "proposed manifest must retain YELLOW", errors)
+    require(manifest.get("execution_safety_contract") == EXPECTED_EXECUTION_SAFETY_CONTRACT,
+            "manifest must bind the proposed size, session, abort, residual-state and caller-enforcement limits", errors)
+    require(manifest.get("authorization_contract") == EXPECTED_AUTHORIZATION_CONTRACT,
+            "manifest must retain the phase-privilege matrix and open single-identity enforcement gate", errors)
     require(manifest.get("sqlcmd_input_validation") == EXPECTED_SQLCMD_INPUT_VALIDATION,
             "manifest must bind the exact caller-side SQLCMD input validation contract before expansion", errors)
     run_token = manifest.get("run_token")

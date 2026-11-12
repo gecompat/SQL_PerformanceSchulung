@@ -20,6 +20,27 @@
   },
   "timeout_seconds": 900,
   "cleanup_timeout_seconds": 90,
+  "execution_safety_contract": {
+    "expected_target_database_size_mib": 1024,
+    "expected_tempdb_growth_mib": 1024,
+    "maximum_concurrent_sql_sessions": 1,
+    "abort_signals": ["CTRL_C", "PHASE_TIMEOUT", "GLOBAL_TIMEOUT"],
+    "abort_action": "TERMINATE_SQLCMD_PROCESS_TREE",
+    "cleanup_after_setup_started": "ONLY_AFTER_PROCESS_EXIT_CONFIRMED",
+    "early_stop_triggers": ["RESOURCE_PROFILE_MISMATCH_BEFORE_SETUP", "TARGET_DATABASE_SIZE_LIMIT", "TEMPDB_GROWTH_LIMIT", "PHASE_OR_GLOBAL_TIMEOUT", "CTRL_C"],
+    "enforcement_status": "PROPOSED_RUNTIME_CALLER_REQUIRED",
+    "forced_abort_residual_state": "The marked target database may contain partial synthetic objects; connection-cancel completion and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
+  },
+  "authorization_contract": {
+    "phase_privileges": {
+      "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
+      "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SHOWPLAN ON TARGET DATABASE"],
+      "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"]
+    },
+    "current_fwk010_mode": "SINGLE_IDENTITY_FOR_ALL_PHASES",
+    "phase_identity_enforced": false,
+    "gate_status": "OPEN_UNTIL_PHASE_SPECIFIC_IDENTITY_SUPPORT"
+  },
   "phases": [
     {"id":"PREFLIGHT","kind":"sql","script":"00_Preflight.sql","database":"master","required":true,"require_summary":true},
     {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":240},

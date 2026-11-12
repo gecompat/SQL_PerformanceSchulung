@@ -3465,6 +3465,20 @@ Vorverarbeitung binden die Direktive. Der Registry-Scope nennt jetzt dasselbe
 für diesen Offline-Fix; vollständige Methodenfreigabe, konkrete sqlcmd-
 Runtimevollständigkeit, Ressourcen- und sonstige Runtimegates bleiben offen.
 
+Die unabhängige Gesamtprüfung an Main `b48269a` fand danach zwei P2-Gates:
+FWK-010 nimmt nur eine Anmeldung über alle Phasen an; FWK-008-Größen-,
+Session- und Abbruchgrenzen waren unvollständig. Das Proposed-Manifest bindet
+die Phasenrechtsmatrix und hält die Identitätsdurchsetzung ausdrücklich OPEN.
+Die vorgeschlagenen 1-GiB-Grenzen für Zieldatenbank und TempDB sowie eine
+gleichzeitige Session sind nicht gemessen und müssen von einem späteren
+Runtimecaller technisch durchgesetzt werden. Ein Versuch, die Abbruch- und
+Cleanup-Anforderung im gemeinsamen FWK-010-Caller umzusetzen, ließ die
+PR-Qualifikation scheitern: DGN-007- und CON-010-Sourceprofile binden die
+gemeinsamen Runtime-Dateien kryptografisch. FWK-010 blieb unverändert; diese
+Abbruch-/Cleanup-Reihenfolge ist für QRY-023 dort nicht qualifiziert.
+Formale Harness-/Methodenfreigabe bleibt bis zur separaten
+Identitätsdurchsetzung und Ressourcengate offen.
+
 Als primärer vorhandener Curriculum-Anker ist `LO-M03-06` mit `CLM-047`
 vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale

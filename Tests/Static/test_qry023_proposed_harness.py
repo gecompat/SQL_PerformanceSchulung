@@ -255,6 +255,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("SQLCMDMAXVARTYPEWIDTH to unlimited" in error for error in self.errors()))
 
+    def test_phase_identity_gate_cannot_be_claimed_as_enforced(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["authorization_contract"]["phase_identity_enforced"] = True
+        manifest["authorization_contract"]["gate_status"] = "PASS"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("open single-identity enforcement gate" in error for error in self.errors()))
+
     def test_showplan_permission_must_be_scoped_to_current_target_database(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
         source = path.read_text(encoding="utf-8")
