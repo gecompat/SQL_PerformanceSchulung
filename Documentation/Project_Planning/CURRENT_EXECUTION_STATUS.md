@@ -54,6 +54,20 @@ Oracle-`SELECT` vor der Korrektheitsphase `PASS` ausgeben. Die vier Oraclerechte
 werden jetzt vorab gebunden; Laufzeit und effektive Rechte bleiben offen.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
+Als nächster statischer Schritt wird die Rechteprüfung gegen die tatsächlichen
+Reader-Skriptreferenzen synchronisiert: jede direkte `dbo`-/`lab`-Referenz
+muss im Preflight abgedeckt sein; unbekannte schemaqualifizierte Verwendungen
+und datenbankqualifizierte Namen sowie dynamische `EXEC`-Formen werden
+zurückgewiesen; nur der bestehende Messprozeduraufruf ist erlaubt. READER-Skripte dürfen laut statischer
+Textprüfung direkt erkennbare schreibende Ziele nur an lokale Tabellenvariablen
+richten; erkannte persistente DML-, `SELECT INTO`-, `BULK INSERT`-, DDL- und
+Rechteänderungen werden abgewiesen. Die 56 gezielten Regressionen und der
+direkte Offlinevalidator bestehen; unabhängiger Review fand nach den
+Gegenproben für drei- und vierteilige Objektbezüge sowie indirektes `EXEC`
+keine offenen P1/P2. Das ist kein AST-/Engine-/Effektivberechtigungsnachweis.
+PR und CI-Integration sind noch offen; QRY-023 bleibt `PROPOSED` und ohne
+SQL-, Lab- oder Runtimeausführung.
+
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten
 verfügbar; für 2025 folgt Standard Developer der Standard-Matrix. Das bestätigt

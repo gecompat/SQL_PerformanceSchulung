@@ -94,6 +94,31 @@ Datenbankscope, ausgelassene Objektberechtigungen und geänderten Skip-Code
 werden zurückgewiesen. Die tatsächliche Ownership Chain und effektive
 Serverrechte bleiben unbewiesene Laufzeitbedingungen.
 
+#### READER-Phasen: Abgleich der Objektabhängigkeiten
+
+Der Validator leitet direkte `dbo`-/`lab`-Objektreferenzen aus allen
+Manifestphasen mit Profil `READER` ab und verlangt für Tabellenzugriffe
+`SELECT` beziehungsweise für direkte Prozeduraufrufe `EXECUTE` im
+Qualifikationspreflight. Schemaqualifizierte Referenzen, die der begrenzte
+Textscanner keiner Abfrage, keinem Aufruf oder expliziten
+`HAS_PERMS_BY_NAME`-Literal zuordnen kann, datenbankqualifizierte
+`OtherDb.dbo...`-/`OtherDb.lab...`-Namen und dynamisches SQL führen zur
+Ablehnung. Die direkten READER-Aufrufe sind zusätzlich auf
+`lab.USP_Qry023MeasureVariant` begrenzt. Synthetische Regressionen fügen ein
+ungeprüftes sowie datenbankqualifiziertes Objekt ein und bestätigen die
+Ablehnung.
+
+Eine zweite Textprüfung erlaubt direkt erkennbare schreibende Ziele in
+READER-Skripten nur für lokale Tabellenvariablen und weist erkannte persistente
+DML-, `SELECT INTO`-, `BULK INSERT`-, DDL- und Rechteänderungen zurück.
+Gegenproben mit `DELETE`, `SELECT INTO` und indirektem `EXEC` schützen diese
+Grenze. Diese Prüfungen sind fail-closed für die
+erkannten Textformen, aber keine T-SQL-AST-Analyse und keine vollständige
+Semantik für Kommentare, SQLCMD-Expansion, indirekte Aufrufe oder alle
+Syntaxvarianten. Sie belegen weder effektive Berechtigungen noch
+Nichtveränderung auf einer SQL-Server-Engine. Der bestehende ScriptDom-Parse
+prüft Grammatik separat; Engine- und Laufzeitgates bleiben offen.
+
 Die beiden Preflight-Summarys müssen exakt als
 `QUALIFICATION_PREFLIGHT/PERMISSIONS/SKIP/SKIP_PERMISSION` und
 `QUALIFICATION_PREFLIGHT/SUMMARY/PASS/OK` ausgegeben und jeweils vom passenden

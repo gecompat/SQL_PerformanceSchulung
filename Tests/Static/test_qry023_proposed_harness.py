@@ -308,6 +308,56 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
                             for error in self.errors()))
 
+    def test_reader_table_dependency_requires_a_preflight_permission_check(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("FROM dbo.OracleRelPerson AS p1",
+                                "FROM dbo.UncheckedOracleRelPerson AS p1", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("every direct dbo/lab object reference in READER phase scripts" in error
+                            for error in self.errors()))
+
+    def test_reader_database_qualified_reference_is_rejected(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("FROM dbo.OracleRelPerson AS p1",
+                                "FROM OtherDb.dbo.Person AS p1", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("every direct dbo/lab object reference in READER phase scripts" in error
+                            for error in self.errors()))
+
+    def test_reader_server_qualified_reference_is_rejected(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("FROM dbo.OracleRelPerson AS p1",
+                                "FROM LinkedServer.OtherDb.dbo.Person AS p1", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("every direct dbo/lab object reference in READER phase scripts" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_cannot_mutate_persistent_user_objects(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("DELETE FROM dbo.Person;\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER phase scripts may write only to local table variables" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_cannot_select_into_a_persistent_table(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("SELECT * INTO dbo.PersonCopy FROM dbo.Person;\n" + source,
+                        encoding="utf-8")
+        self.assertTrue(any("READER phase scripts may write only to local table variables" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_indirect_execution(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("DECLARE @sql nvarchar(max)=N'DELETE FROM dbo.Person';\nEXEC @sql;\n" + source,
+                        encoding="utf-8")
+        self.assertTrue(any("READER phase scripts may write only to local table variables" in error
+                            for error in self.errors()))
+
     def test_measurement_preflight_must_check_log_select_right(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
         source = path.read_text(encoding="utf-8")
