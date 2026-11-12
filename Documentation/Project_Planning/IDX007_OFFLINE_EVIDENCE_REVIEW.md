@@ -45,8 +45,10 @@ Abwesenheit von Evidenz erscheint. Ein synthetischer Regressionstest bindet
 beide Zustände getrennt. Zeitstempel müssen jetzt ein gültiges RFC-3339-Datum
 mit explizitem Offset enthalten; Gleichheit wird über den normalisierten
 Zeitpunkt statt über die Schreibweise bestimmt. Synthetische Fälle decken
-ungültige Kalenderdaten, fehlenden Offset und gleichwertige Offsetdarstellungen
-ab.
+ungültige Kalenderdaten, fehlenden oder als unbekannt markierten Offset und
+gleichwertige Offsetdarstellungen ab. Ein gültiger lokaler Zeitwert, dessen
+Offsetnormalisierung den unterstützten Datumsbereich verlässt, wird als
+ungültig abgewiesen, statt die Auswertung mit einer Ausnahme zu beenden.
 
 ## Verbleibende Gates
 

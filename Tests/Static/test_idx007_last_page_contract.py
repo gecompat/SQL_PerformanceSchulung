@@ -54,7 +54,14 @@ class LastPageContractTests(unittest.TestCase):
             evaluate_last_page_contention(equivalent_waits, target).verdict,
             Verdict.PASS,
         )
-        for invalid in ("x", "2026-11-06T10:00:00", "2026-02-30T10:00:00Z", "2026-11-06T10:00:00Z "):
+        for invalid in (
+            "x",
+            "2026-11-06T10:00:00",
+            "2026-02-30T10:00:00Z",
+            "2026-11-06T10:00:00Z ",
+            "2026-11-06T10:00:00-00:00",
+            "0001-01-01T00:00:00+23:59",
+        ):
             with self.subTest(invalid=invalid):
                 invalid_target = PageTarget(7, 1, 900, 42, 3, 0, True, invalid)
                 self.assertEqual(

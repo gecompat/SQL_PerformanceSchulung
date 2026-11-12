@@ -64,6 +64,9 @@ def _capture_instant(value: object) -> tuple[datetime, Decimal] | None:
     if match is None:
         return None
     base, fraction, offset = match.groups()
+    # RFC 3339 -00:00 means the local offset is unknown, not known UTC.
+    if offset == "-00:00":
+        return None
     try:
         parsed = datetime.fromisoformat(base + ("+00:00" if offset == "Z" else offset))
         fractional_second = Decimal("0." + fraction) if fraction is not None else Decimal(0)
@@ -71,7 +74,11 @@ def _capture_instant(value: object) -> tuple[datetime, Decimal] | None:
         return None
     if parsed.utcoffset() is None:
         return None
-    return parsed.astimezone(timezone.utc), fractional_second
+    try:
+        normalized = parsed.astimezone(timezone.utc)
+    except OverflowError:
+        return None
+    return normalized, fractional_second
 
 
 def evaluate_last_page_contention(
