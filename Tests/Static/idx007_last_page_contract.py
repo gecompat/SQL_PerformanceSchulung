@@ -6,7 +6,16 @@ or attest to SQL Server waits, page metadata, or page-chain observations.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 from enum import Enum
+import re
+
+
+_RFC3339 = re.compile(
+    r"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})"
+    r"(?:\.([0-9]+))?(Z|[+-][0-9]{2}:[0-9]{2})\Z"
+)
 
 
 class Verdict(str, Enum):
@@ -48,6 +57,30 @@ def _positive_int(value: object) -> bool:
     return type(value) is int and value > 0
 
 
+def _capture_instant(value: object) -> tuple[datetime, Decimal] | None:
+    if type(value) is not str or len(value) > 128:
+        return None
+    match = _RFC3339.fullmatch(value)
+    if match is None:
+        return None
+    base, fraction, offset = match.groups()
+    # RFC 3339 -00:00 means the local offset is unknown, not known UTC.
+    if offset == "-00:00":
+        return None
+    try:
+        parsed = datetime.fromisoformat(base + ("+00:00" if offset == "Z" else offset))
+        fractional_second = Decimal("0." + fraction) if fraction is not None else Decimal(0)
+    except (ValueError, InvalidOperation):
+        return None
+    if parsed.utcoffset() is None:
+        return None
+    try:
+        normalized = parsed.astimezone(timezone.utc)
+    except OverflowError:
+        return None
+    return normalized, fractional_second
+
+
 def evaluate_last_page_contention(
     waits: tuple[PageWait, ...] | None,
     target: PageTarget | None,
@@ -63,7 +96,8 @@ def evaluate_last_page_contention(
     fields = (target.database_id, target.file_id, target.page_id, target.object_id, target.index_id)
     if any(not _positive_int(value) for value in fields) or type(target.page_level) is not int or target.page_level < 0:
         return Result(Verdict.FAIL, ("target page identity or level is invalid",))
-    if type(target.captured_at) is not str or not target.captured_at:
+    target_instant = _capture_instant(target.captured_at)
+    if target_instant is None:
         return Result(Verdict.FAIL, ("target capture timestamp is invalid",))
     if target.rightmost_leaf is not None and type(target.rightmost_leaf) is not bool:
         return Result(Verdict.FAIL, ("rightmost-leaf assertion must be boolean or missing",))
@@ -72,8 +106,7 @@ def evaluate_last_page_contention(
         return Result(Verdict.NOT_PROVEN, ("no waits were supplied",))
     if any(
         type(wait.wait_type) is not str
-        or type(wait.captured_at) is not str
-        or not wait.captured_at
+        or _capture_instant(wait.captured_at) is None
         or not _positive_int(wait.session_id)
         or not _positive_int(wait.database_id)
         or not _positive_int(wait.file_id)
@@ -87,7 +120,7 @@ def evaluate_last_page_contention(
     latches = tuple(wait for wait in waits if wait.wait_type == "PAGELATCH_EX")
     if not latches:
         return Result(Verdict.NOT_PROVEN, ("no PAGELATCH_EX waits were supplied",))
-    if any(wait.captured_at != target.captured_at for wait in latches):
+    if any(_capture_instant(wait.captured_at) != target_instant for wait in latches):
         return Result(Verdict.FAIL, ("waits and target page do not share one capture timestamp",))
     if any(
         (wait.database_id, wait.file_id, wait.page_id)
