@@ -421,6 +421,20 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("READER script text must not contain persistent writes" in error
                             for error in self.errors()))
 
+    def test_reader_phase_rejects_sqlcmd_include_inside_tsql_block_comment(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("/*\n:r ./unreviewed.sql\n*/\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
+    def test_reader_phase_rejects_sqlcmd_shell_command_inside_tsql_block_comment(self) -> None:
+        path = self.demo / "30_Correctness.sql"
+        source = path.read_text(encoding="utf-8")
+        path.write_text("/*\n!! whoami\n*/\n" + source, encoding="utf-8")
+        self.assertTrue(any("READER script text must not contain persistent writes" in error
+                            for error in self.errors()))
+
     def test_reader_phase_rejects_sqlcmd_output_width_override(self) -> None:
         path = self.demo / "40_Measurement.sql"
         source = path.read_text(encoding="utf-8")
