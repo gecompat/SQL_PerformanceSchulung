@@ -128,14 +128,15 @@ Der statische Vertrag für eine spätere Implementierung lautet:
 | Abfragen | Gerichteter Zwei-Kanten-`MATCH` mit verschiedenen Edge-Aliasen; relationale Form mit zwei Kantentabellen-Joins; identische Start-/Zielparameter | Keine Behauptung, dass die Formen denselben Plan oder dieselbe Arbeit erzeugen |
 | Isolation / Rechte | Nur eigene wegwerfbare markierte Testdatenbank; Setup benötigt DDL- und Insert-Rechte, Abfragephase nur Select, Cleanup die zum Entfernen der eigenen Objekte erforderlichen Rechte | Keine fremde Datenbank, kein gemeinsam genutzter Instanzzustand und keine Rechteausweitung für Lernende |
 | Cleanup / Fehlerpfad | Setup markiert alle eigenen Tabellen und den Lauf; Cleanup entfernt ausschließlich nach erfolgreicher Eigentumsprüfung die eigenen Objekte; Teilausfall liefert den Zustand und einen sicheren Wiederaufnahmehinweis | Wiederholung nach Erfolg oder kontrolliertem Setupfehler darf fremde Objekte nicht verändern |
-| Version / Skip | Vorgeschlagene Qualifikationsprofile sind SQL Server 2019/150 (`15.0.4500.2`), 2022/160 (`16.0.4305.5`) und 2025/170 (`17.0.5035.5`); Graph ist in den Microsoft-Editionsmatrizen für alle genannten Editionen verfügbar | Die Builds sind zeitgebundene Designpins vom 7.11.2026, keine Graph-Mindestbuilds oder Runtimefreigabe. Read-only Preflight und Setup prüfen die exakte Version; spätere CU/GDR-Stände enden zunächst mit `SKIP`. Image-Digests und tatsächliche Runtimeumgebung bleiben vor Lauf offen; siehe [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) |
-| Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Separates vorgeschlagenes Messprofil: 10.000 disjunkte Pfade mit 30.000 Knoten und 20.000 Kanten; Plan, Estimated Rows, Logical Reads, CPU und Duration nach `FWK-004`/`FWK-005` | Kein allgemeiner Performancegewinner. Der [Messworkload-Entwurf](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md) bleibt vor Implementierung statisch zu prüfen; konkrete Builds, Ressourcenwerte und Messgrenzen folgen dem ausführbaren Vertrag |
+| Version / Skip | Vorgeschlagene Qualifikationsprofile sind SQL Server 2019/150 (`15.0.4500.2`), 2022/160 (`16.0.4305.5`) und 2025/170 (`17.0.5035.5`); Graph ist in den Microsoft-Editionsmatrizen für alle genannten Editionen verfügbar | `DEC-081` bestätigt diese zeitgebundenen Pins als aktuelle Linux-Servicingstände am 12.11.2026; sie sind keine Graph-Mindestbuilds oder Runtimefreigabe. Read-only Preflight und Setup prüfen die exakte Version; ein späterer Stand erfordert erneute Quellen-/Pinprüfung. Image-Lock-Integration und tatsächliche Runtimeumgebung bleiben vor Lauf offen; siehe [Editions- und Buildreview](GRAPH_TABLES_BUILD_EDITION_REVIEW.md) |
+| Ressourcen / Messung | Korrektheit und Baseline-/Vergleichsmessung sind verpflichtend. Separates vorgeschlagenes Messprofil: 10.000 disjunkte Pfade mit 30.000 Knoten und 20.000 Kanten; Plan, Estimated Rows, Logical Reads, CPU und Duration nach `FWK-004`/`FWK-005` | Kein allgemeiner Performancegewinner. Die Methodikgrundlage wurde mit `DEC-079` genehmigt; Ressourcenwerte und ihre technische Durchsetzung bleiben bis zum ausführbaren Vertrag und einer qualifizierten Laufumgebung offen |
 
 `DEC-079` genehmigt die Methodik; `DEC-080` akzeptiert die acht ausführbaren
-T-SQL-Dateien ausschließlich für den statischen ScriptDom-Parse 150/160/170.
+T-SQL-Dateien ausschließlich für den statischen ScriptDom-Parse 150/160/170;
+`DEC-081` bestätigt die Aktualität der drei Produktbuildpins zum 12.11.2026.
 Vor einer Katalogintegration bleiben formale Harnessabnahme und Prüfung des
-vorgeschlagenen Messworkloads und Wiederholungsplans,
-Bestätigung oder Erneuerung der zeitgebundenen Build-/CU-Pins und Prüfung der bestehenden
-Frameworkmarker, Eigentums- und Cleanupkonventionen offen. SQL-/Lab-Ausführung,
+vorgeschlagenen Messworkloads und Wiederholungsplans sowie Prüfung der
+bestehenden Frameworkmarker, Eigentums- und Cleanupkonventionen offen.
+SQL-/Lab-Ausführung,
 Runtimequalifikation und Performanceclaims sind getrennte Gates und durch die
 Registrierung nicht autorisiert.
