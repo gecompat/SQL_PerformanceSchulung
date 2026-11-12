@@ -22,6 +22,15 @@ Eine bloße `sysadmin`-/`db_owner`-Mitgliedschaftsprüfung würde das nicht lös
 da die SQL-Rollenfunktionen weder effektive Rechte auswerten noch ohne
 Rollenmetadatensicht garantiert ein Ergebnis liefern. Das bleibt ein explizites
 offenes Minimalrechte-Gate.
+
+Der nächste Offline-Prüfansatz verwendet `sys.fn_my_permissions` unter der
+tatsächlichen `READER`-Identität und vergleicht effektive Rechte pro Server-,
+Datenbank-, Schema- und QRY-023-Objektkontext mit einer vorab festgelegten
+Sollmenge. Dieser Ansatz ist jetzt in README und Harnessreview als `DESIGNED`
+dokumentiert; er ist weder implementiert noch enginequalifiziert. Zusätzliche
+oder nicht auswertbare Rechte müssen fail-closed behandelt werden. Andere
+Principals und die interne Ownership Chain benötigen getrennte Nachweise.
+Minimalrechte und Runtime bleiben `OPEN`.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
