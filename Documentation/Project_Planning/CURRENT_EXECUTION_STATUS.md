@@ -1506,8 +1506,18 @@ er gibt keine Runtimebelege frei und ersetzt nicht die weiter offene
 Methoden-/Quellenfreigabe für SQL, Build- oder Demoqualifikation. Alle Eingaben
 des Prüfers sind caller-gelieferte Belege oder synthetische Fixturewerte; PASS
 ist keine Attestation tatsächlicher Ausführung. Integrationsentscheidung und CI
-werden für diesen Schnitt in PR 355 geführt; dieser Statusabschnitt hält die
-fachlichen Aussagegrenzen fest.
+sind mit dem nachstehenden Integrationsstand abgeschlossen; dieser
+Statusabschnitt hält die fachlichen Aussagegrenzen fest.
+
+PR [#355](https://github.com/gecompat/SQL_PerformanceSchulung/pull/355) wurde
+am 2026-11-06 um 19:01:37 UTC gemergt. Die sechs ausgewiesenen PR-Prüfungen
+`Validate ADV-006 and ADV-007`, `registry-integrity`, `contract`,
+`Curriculum and repository privacy`, `validate` und `repository-governance`
+bestanden; Integrationscommit ist
+`f5d5aab22b2370588711da80272da3209f42f63c`. Damit ist der statische
+Annahmevertrag integriert. Die unabhängige Methoden-/Quellen-/Zuordnungs-/
+Transport-/Messfreigabe vor SQL bleibt offen. Es gab durch PR #355 keine
+SQL-Ausführung, Buildqualifikation oder Demo-/Runtimefreigabe.
 
 **DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
