@@ -39,6 +39,27 @@ Erklärung des Graph-gegen-relationalen Zwei-Kanten-Pfads und führt sie im
 Curriculum-Lesepfad auf. Es übernimmt keine Performanceaussage des
 PROPOSED-Demoentwurfs.
 
+Nach PR #532 ist diese Graph-Notiz integriert. Die ausdrückliche Fortsetzung
+aller übrigen freigegebenen Themen eröffnet eine neue, endliche Welle für die
+Curriculum-Scopeentscheidung zu External Tables: höchstens ein Arbeitspaket,
+ein PR und zwei lokale Vertrags-/Curriculumkandidaten; keine neuen
+Produktquellen. Der Checkpoint ist die PR-Integration, die harte Grenze ein
+Paket/ein PR/zwei Kandidaten. Verlässliche Token- und Geldmessung fehlt; die
+Grenze wird daher über Arbeitspaket, PR und Kandidaten geprüft, nicht als
+Provider-Ausgabenlimit ausgegeben. Ziel ist eine quellengebundene Empfehlung,
+ob die vorhandene External-Tables-Lernnotiz QRY-012 als ausführbare Phase
+erweitern sollte. SQL, Runtime, Connector, Netzwerk, Dienst, Credential und
+menschliche Generalprobe bleiben ausgeschlossen.
+
+Die [Scopeempfehlung](EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md) ist erstellt:
+External Tables bleiben eine ergänzende Erklärung zu `LO-M03-05`/`CLM-045`;
+eine weitere ausführbare Phase in `QRY-012` wird bis zu einer registrierten
+Projektentscheidung und einem eigenen Infrastruktur-/Methodenvertrag nicht
+empfohlen. Zwei lokale Curriculum-/Vertragskandidaten wurden gegengeprüft; es
+wurden keine neuen Produktquellen verwendet. Das Paket bleibt innerhalb des
+1/1/2-Rahmens; der PR-Checkpoint ist noch offen. Die formale Entscheidung,
+Demo-ID, Methoden- und Runtimefreigabe bleiben offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
