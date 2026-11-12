@@ -117,8 +117,25 @@ auf `0481239` synchronisiert, der Arbeitsbranch entfernt. Der nächste kleine
 Contracttest bindet die erlaubte `:setvar ... 0`-Direktive ausschließlich an
 die Planphase, nicht an Mess- und Korrektheitsskripte. Die Regression und der
 Validator bestehen lokal mit 69 Tests; Privacy-Scan der geänderten Testdatei
-bestanden. Unabhängiger Review fand keine offenen P1/P2. Dieser Validator-/Test-
-PR ist noch nicht integriert; keine SQL-/Lab-/Runtimeausführung.
+bestanden. Unabhängiger Review fand keine offenen P1/P2. PR #553 integrierte
+den Test mit sieben erfolgreichen PR-Checks; fünf betroffene Main-Workflows
+bestanden. `main` ist auf `92480d6` synchronisiert, der Arbeitsbranch entfernt.
+Keine SQL-/Lab-/Runtimeausführung.
+
+Die unabhängige vollständige Offlineabnahme des QRY-023-Proposed-Harness fand
+einen P1 im READER-Controlguard: Der Validator entfernte T-SQL-Blockkommentare,
+bevor er SQLCMD-Controlzeilen suchte. SQLCMD verarbeitet `:r` und `!!` bereits
+vor T-SQL-Kommentaren; damit konnte eine verbotene Include- oder lokale
+Shellzeile im Blockkommentar den statischen Guard umgehen. Der Validator prüft
+Controlzeilen jetzt am unveränderten Skripttext; zwei Regressionen decken
+`:r` und `!!` in Blockkommentaren ab. 71 gezielte Tests und der
+QRY-023-Validator bestehen. Der unabhängige Nachreview fand keine weiteren
+P1/P2 im Kontrollzeilenscan. Zusätzlich korrigiert die Registry den im
+Gesamtreview gefundenen P2-Widerspruch: FWK-010 unterstützt phasenspezifische,
+verschiedene SQL-Benutzer; offen bleiben deren reale Effektivrechte und die
+Runtimegates. Beide Korrekturen sind in PR #554 gebündelt; die erste
+Checkrunde bestand. Keine SQL-/Engine-/Runtimeausführung; QRY-023 bleibt
+`PROPOSED`.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten

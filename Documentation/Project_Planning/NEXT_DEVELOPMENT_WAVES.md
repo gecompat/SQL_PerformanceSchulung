@@ -266,6 +266,19 @@ erfolgreichen betroffenen Main-Workflows. Als enger Follow-up wird die erlaubte
 Mess- und Korrektheitsphasen müssen sie ablehnen. Ein Validator-/Regressionstest-
 PR, keine neue Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
 
+PR #553 integrierte die phasenspezifische Direktivenbindung mit sieben
+erfolgreichen PR-Checks und fünf betroffenen Main-Workflows. Die unabhängige
+Offlinequellenabnahme fand danach einen P1 im SQLCMD-Controlguard: `:r` und
+`!!` in T-SQL-Blockkommentaren wurden nach deren Entfernung nicht mehr erkannt,
+obwohl SQLCMD Controlzeilen vor T-SQL verarbeitet. Ein Validator-/Testfix prüft
+jetzt den Rohtext und schützt beide Formen mit Regressionen. 71 gezielte Tests,
+der QRY-023-Validator und unabhängiger Nachreview bestehen. Der Full-scope
+Review fand außerdem den aktiven Registry-Widerspruch zu FWK-010s bereits
+implementierter Phasenidentität; die Registry ist korrigiert und benennt nun
+die weiterhin offenen realen Effektivrechte und Runtimegates. Beide Korrekturen
+sind im gebündelten PR #554; die erste Checkrunde bestand. Keine Produktquelle
+und kein SQL-/Lab-/Runtime-Lauf.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
