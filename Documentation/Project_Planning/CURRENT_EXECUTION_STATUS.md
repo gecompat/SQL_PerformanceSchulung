@@ -42,6 +42,16 @@ Offlinevalidator binden diese Grenze jetzt statisch; die Prüfung läuft dadurch
 noch nicht. Die vollständige, vorab gebundene Sollmenge,
 Rollen-/SID-/Endpointinventur, Ownership Chain und alle Runtime-/Cleanupgates
 bleiben unimplementiert beziehungsweise offen.
+PR #558 integrierte die isolierte `public`-Baseline. Die anschließende
+statische Fehleranalyse fand einen konkreten Laufzeitblocker: Setup erzeugte
+keinen Datenbankbenutzer für das separate READER-Login, sodass dessen
+target-Datenbankverbindung ohne `guest`-Zugang scheitern würde. `DEC-084`
+bindet den eng begrenzten Fix: FWK-010 übergibt den explizit zugeordneten
+READER-Login als sichere SQLCMD-Identitätsvariable; Setup ordnet nur einen
+aktiven SQL_LOGIN der exakt markierten QRY-023-Datenbank zu und bricht bei
+Namens-/SID-Konflikten ab. Der Offlineentwurf und synthetische Gegenproben
+belegen noch keine SQL-Kompilierung, reale SID-Zuordnung, Effektivrechte oder
+Runtime. QRY-023 bleibt `PROPOSED`; SQL, Lab und Generalprobe bleiben aus.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
 SQL-, Lab- oder Runtimeausführung.

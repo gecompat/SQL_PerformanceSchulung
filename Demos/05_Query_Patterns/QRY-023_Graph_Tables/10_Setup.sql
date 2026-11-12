@@ -5,6 +5,7 @@ SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
 DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@TargetDatabase sysname=N'$(TargetDatabase)';
+DECLARE @ReaderLogin sysname=N'$(ReaderLogin)',@ReaderSid varbinary(85),@ReaderUserSid varbinary(85),@ReaderUserName sysname;
 DECLARE @ExpectedDatabase sysname=CONVERT(sysname,N'SQLPERF_LAB_'+REPLACE(@DemoId,'-','')+N'_'+@RunToken);
 DECLARE @MajorVersion int=TRY_CONVERT(int,SERVERPROPERTY('ProductMajorVersion'));
 DECLARE @ProductVersion nvarchar(128)=CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'));
@@ -70,6 +71,24 @@ ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET AUTO_SHRINK OFF;
 ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET PAGE_VERIFY CHECKSUM;
 ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET COMPATIBILITY_LEVEL='+CONVERT(nvarchar(10),@CompatibilityLevel)+N';';
 EXEC sys.sp_executesql @Sql;
+
+SELECT @ReaderSid=sid FROM sys.server_principals
+WHERE name=@ReaderLogin AND type='S' AND is_disabled=0;
+IF @ReaderSid IS NULL
+    THROW 51003,'FAIL_CONTRACT: READER muss ein aktiver SQL_LOGIN sein.',1;
+SET @Sql=N'SELECT @UserSid=sid,@UserName=name FROM '+QUOTENAME(@TargetDatabase)+N'.sys.database_principals WHERE sid=@LoginSid AND type=''S'';';
+EXEC sys.sp_executesql @Sql,N'@LoginSid varbinary(85),@UserSid varbinary(85) OUTPUT,@UserName sysname OUTPUT',
+     @LoginSid=@ReaderSid,@UserSid=@ReaderUserSid OUTPUT,@UserName=@ReaderUserName OUTPUT;
+IF @ReaderUserSid IS NULL
+BEGIN
+    SET @Sql=N'IF EXISTS(SELECT 1 FROM '+QUOTENAME(@TargetDatabase)+N'.sys.database_principals WHERE name=@LoginName)
+        THROW 51004,''FAIL_STATE: READER-Name ist bereits anders zugeordnet.'',1;
+        CREATE USER '+QUOTENAME(@ReaderLogin)+N' FOR LOGIN '+QUOTENAME(@ReaderLogin)+N';';
+    EXEC sys.sp_executesql @Sql,N'@LoginName sysname',@LoginName=@ReaderLogin;
+    SET @ReaderUserName=@ReaderLogin;
+END;
+IF @ReaderUserName<>@ReaderLogin
+    THROW 51005,'FAIL_STATE: READER-Login ist in der Zieldatenbank unter einem anderen Namen abgebildet.',1;
 
 SELECT 1 AS Sequence,'SETUP' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        CONCAT(N'Database=',@TargetDatabase,N'; CompatibilityLevel=',@CompatibilityLevel,N'; Created=',@Created) AS ObservedValue,

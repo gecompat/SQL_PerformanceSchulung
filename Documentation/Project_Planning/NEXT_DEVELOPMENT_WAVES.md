@@ -327,6 +327,17 @@ Inventur. Keine SQL-/Lab-/Runtimeausführung und keine menschliche Generalprobe.
 Der PR-Merge ist der Checkpoint; die Implementierung und alle Laufzeitgates
 bleiben für eine spätere getrennte Phase offen.
 
+PR #558 integrierte diese Baseline. Die anschließende Fehleranalyse fand, dass
+die separate READER-Anmeldung mangels Datenbankbenutzerzuordnung nicht in die
+QRY-023-Zieldatenbank verbinden kann. Dafür ist ein einzelnes Folgepaket mit
+maximal einem PR und `DEC-084` begrenzt: explizite FWK-010-Identitätsvariable,
+strikte SQLCMD-sichere Loginform, fail-closed SQL_LOGIN-/SID-Zuordnung in der
+exakt markierten Datenbank, Manifest-/Validator-/Regression-/Dokumentations-
+abgleich. Es gibt keine Serverrechte-/`public`-Änderung und keinen SQL-, Lab-,
+Runtime- oder Generalprobenlauf. Der Merge ist Checkpoint; T-SQL-Kompilierung,
+reale Rechte-/SID-Qualifikation, Ressourcen-/Cleanupdurchsetzung und sämtliche
+Runtimegates bleiben offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

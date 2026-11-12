@@ -6978,6 +6978,23 @@
           "type": "applies_to"
         }
       ]
+    },
+    "DEC-084": {
+      "artifact_uid": "urn:uuid:0be033d9-fc13-4b4b-a7d9-7e738bce49cd",
+      "kind": "decision",
+      "title": "QRY-023 READER-Datenbankbenutzer sicher zuordnen",
+      "registration_state": "REGISTERED",
+      "aliases": [],
+      "relations": [
+        {
+          "target": "TSK-017",
+          "type": "governs"
+        },
+        {
+          "target": "QRY-023",
+          "type": "applies_to"
+        }
+      ]
     }
   },
   "prefixes": {

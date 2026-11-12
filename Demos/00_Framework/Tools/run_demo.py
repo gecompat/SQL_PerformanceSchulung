@@ -32,6 +32,13 @@ DEMO_ID_PATTERN = re.compile(r"(STL|OPT|QRY|IDX|CON|RES|DGN)-[0-9]{3}")
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 PHASE_ID_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,31}")
 IDENTITY_PROFILE_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,31}")
+SQLCMD_IDENTITY_PATTERN = re.compile(r"[A-Za-z0-9_]{1,128}")
+CORE_SQLCMD_VARIABLES = frozenset({
+    "DemoId", "RunToken", "TargetDatabase", "SafetyLevel", "ConfirmIsolatedLab",
+    "HighImpactConfirmed", "DisposableEnvironmentConfirmed", "RecoveryPlanConfirmed",
+    "MaximumRuntimeSeconds",
+})
+CORE_SQLCMD_VARIABLE_NAMES = frozenset(name.casefold() for name in CORE_SQLCMD_VARIABLES)
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
 QRY023_SQLCMD_INPUT_VALIDATION = {
     "must_validate_before": "SQLCMD_EXPANSION",
@@ -72,6 +79,7 @@ class DemoManifest:
     phases: tuple[PhaseSpec, ...]
     cleanup: PhaseSpec | None
     credential_profiles: tuple[str, ...]
+    sqlcmd_identity_variables: Mapping[str, str]
 
 
 @dataclass(frozen=True)
@@ -183,6 +191,20 @@ def _parse_credential_profiles(payload: dict[str, Any]) -> tuple[str, ...]:
     return tuple(raw_profiles)
 
 
+def _parse_sqlcmd_identity_variables(payload: dict[str, Any], profiles: tuple[str, ...]) -> dict[str, str]:
+    raw = payload.get("sqlcmd_identity_variables", {})
+    if not isinstance(raw, dict):
+        raise ValueError("sqlcmd_identity_variables must be an object")
+    parsed: dict[str, str] = {}
+    for variable, profile in raw.items():
+        if (not isinstance(variable, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", variable)
+                or variable.casefold() in CORE_SQLCMD_VARIABLE_NAMES
+                or not isinstance(profile, str) or profile not in profiles):
+            raise ValueError("invalid or reserved sqlcmd_identity_variables mapping")
+        parsed[variable] = profile
+    return parsed
+
+
 def _validate_sqlcmd_input_contract(payload: dict[str, Any], demo_id: str, run_token: str) -> None:
     """Enforce the declared QRY-023 caller contract before any SQLCMD process starts."""
     if "sqlcmd_input_validation" not in payload:
@@ -236,6 +258,7 @@ def load_manifest(path: Path) -> DemoManifest:
         raise ValueError("phases must contain 1 through 20 entries")
 
     credential_profiles = _parse_credential_profiles(payload)
+    sqlcmd_identity_variables = _parse_sqlcmd_identity_variables(payload, credential_profiles)
     phases = tuple(_parse_phase(raw, path.parent) for raw in raw_phases)
     ids = [phase.phase_id for phase in phases]
     if len(ids) != len(set(ids)):
@@ -266,6 +289,7 @@ def load_manifest(path: Path) -> DemoManifest:
         phases=phases,
         cleanup=cleanup,
         credential_profiles=credential_profiles,
+        sqlcmd_identity_variables=sqlcmd_identity_variables,
     )
 
 
@@ -404,6 +428,9 @@ def run_demo(
     if manifest.credential_profiles and auth.strip().lower() != "sql":
         raise ValueError("credential_profiles require SQL authentication")
     credentials = _resolve_credential_profiles(manifest.credential_profiles)
+    for variable, profile in manifest.sqlcmd_identity_variables.items():
+        if not SQLCMD_IDENTITY_PATTERN.fullmatch(credentials[profile][0]):
+            raise ValueError(f"credential profile {profile} username is not a safe SQLCMD identity")
 
     executable = resolve_sqlcmd(sqlcmd_path)
     target_database = target_database_name(manifest.demo_id, manifest.run_token)
@@ -418,6 +445,8 @@ def run_demo(
         "RecoveryPlanConfirmed": "1" if allow_red else "0",
         "MaximumRuntimeSeconds": str(manifest.timeout_seconds),
     }
+    variables.update({variable: credentials[profile][0]
+                      for variable, profile in manifest.sqlcmd_identity_variables.items()})
 
     deadline = time.monotonic() + manifest.timeout_seconds
     phase_results: list[PhaseResult] = []

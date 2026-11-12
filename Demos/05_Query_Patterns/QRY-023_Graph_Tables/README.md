@@ -102,6 +102,15 @@ bei Fehler `NULL` liefert; die Funktion qualifiziert damit weder andere
 Principals noch die Ownership-Chain-Wirkung. Eine Umsetzung und SQL-Server-
 Qualifikation sind offen.
 
+`DEC-084` schließt jetzt den konkreten Verbindungsfehler im Offlineentwurf:
+FWK-010 übergibt den READER-Profilnamen über die explizite SQLCMD-Variable
+`ReaderLogin`; der Caller erlaubt dafür nur `[A-Za-z0-9_]{1,128}`. Setup
+verlangt einen aktiven `SQL_LOGIN` und erstellt oder bestätigt dessen
+Datenbankbenutzer ausschließlich in der exakt markierten QRY-023-Datenbank.
+Reservierte FWK-010-SQLCMD-Variablennamen können nicht überschrieben werden.
+Namens- oder SID-Konflikte brechen fail-closed ab. Dies ist statisch geprüft,
+aber weder T-SQL-kompiliert noch mit realen SQL-Identitäten ausgeführt.
+
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
 `HAS_PERMS_BY_NAME`-Prüfungen im Qualifikationspreflight. Nicht zuordenbare
