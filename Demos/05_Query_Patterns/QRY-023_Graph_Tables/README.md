@@ -83,12 +83,13 @@ Minimalrechte- und Runtimefreigabe offen.
 
 Der Offlineentwurf für die Effektivrechteprüfung mit `sys.fn_my_permissions`
 liegt jetzt in der [QRY-023-Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md).
-Er leitet die vorläufigen READER-Sollzugriffe aus den konkreten Phasen ab und
+Er leitet vorläufige READER-Zugriffskandidaten aus den konkreten Phasen ab und
 bindet Server, markierte Datenbank, Schemas und die vollständige
-benutzerdefinierte Objektinventur ein. Der Entwurf legt fail-closed Grenzen
-fest, aber noch keine abschließend genehmigte Rechte-Sollmenge. Ein Grant auf
-einem nicht inventarisierten Objekt oder eine nicht qualifizierte
-Securable-Klasse bleibt ein Abbruchgrund. Microsoft beschreibt, dass
+benutzerdefinierte Objektinventur ein. Der Entwurf behandelt außerdem die
+öffentliche Serverrechte-Baseline und die versionsabhängigen Festserverrollen.
+Er legt fail-closed Grenzen fest, aber noch keine abschließend genehmigte
+Rechte-Sollmenge. Ein Grant auf einem nicht inventarisierten Objekt oder eine
+nicht qualifizierte Securable-Klasse bleibt ein Abbruchgrund. Microsoft beschreibt, dass
 `sys.fn_my_permissions` die Rechte des aktuellen Aufrufkontexts zurückgibt und
 bei Fehler `NULL` liefert; die Funktion qualifiziert damit weder andere
 Principals noch die Ownership-Chain-Wirkung. Eine Umsetzung und SQL-Server-

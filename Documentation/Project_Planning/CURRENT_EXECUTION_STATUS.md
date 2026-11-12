@@ -145,9 +145,14 @@ fail-closed Vergleich mit `sys.fn_my_permissions` für Server, markierte
 Datenbank, Schemas und vollständige benutzerdefinierte Objektinventur. Der
 unabhängige semantische Review fand keine offenen P1/P2 und bestätigte, dass
 der Text weder eine normative Sollmenge noch eine Laufzeitqualifikation
-behauptet. QRY-023-Validator, geänderte Dokumentationslinks und die
-Datenschutzprüfung der fünf betroffenen Dateien bestehen. Keine Tests des
-Entwurfs und keine SQL-Ausführung. Principal-/Effektrechte-,
+behauptet. Ergänzt sind die offenen SQL-Server-`public`-Baselinerechte und die
+versionsabhängigen Festserverrollen; `VIEW ANY DATABASE` erhält keine
+stillschweigende QRY-023-Freigabe. Der unabhängige Nachreview fand auch in
+dieser Baselineergänzung keine P1/P2 und bestätigte, dass keine Änderung an
+Instanzrechten oder `public` freigegeben wird. QRY-023-Validator,
+Dokumentationslinks und Datenschutzprüfung der fünf betroffenen Dateien
+bestanden nach der Ergänzung. Keine Tests des Entwurfs und keine SQL-Ausführung.
+Principal-/Effektrechte-,
 Ownership-Chain- und Runtimequalifikation bleiben offen; Umsetzung erfordert
 eine vollständige versionierte Sollmengenentscheidung.
 
