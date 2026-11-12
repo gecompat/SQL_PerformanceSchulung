@@ -99,6 +99,18 @@ Nach lokaler gesperrter Parserprüfung und Projektvalidierung ist PR-Integration
 der Checkpoint. Formale Harnessabnahme, phasenspezifische Identität,
 Build-/Image-, Ressourcen-, Cleanup- und Runtimegates bleiben offen.
 
+PR #536 integrierte `DEC-080` am Commit `73ef23a`; alle zehn CI-Checks waren
+erfolgreich, der getestete Baum wurde übernommen, `main` synchronisiert und
+der lokale sowie Remote-Arbeitsbranch entfernt. Für den nächsten offenen
+Offlinepunkt gilt ein Paket, ein PR und zwei Quellen-/Vertragskandidaten. Der
+bestehende `SRC-127`-Servicingeintrag wird neu geprüft; keine neue Produktquelle,
+kein Container-/Imageabruf, kein SQL-/Lab-/Runtimelauf und keine menschliche
+Generalprobe. Der Quellencheck bestätigt allein, dass die vorhandenen drei
+Designpins weiterhin den neuesten Microsoft-Linux-Servicingbuilds entsprechen.
+Die bisherigen OCI-Digests bleiben auf ihrem Quellenstand 7. November datiert.
+Token- und Geldverbrauch bleiben unbekannt; Umfang ist über Paket/PR/Kandidaten
+begrenzt, nicht monetär.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

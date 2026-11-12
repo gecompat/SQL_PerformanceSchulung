@@ -100,8 +100,9 @@ synthetische Caller-Tests geprüft. Das Feld allein führt keine Validierung aus
 Der QRY-023-Prüflauf wurde nicht gestartet. Der read-only Preflight akzeptiert
 für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,
 `16.0.4305.5` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals
-vor der Datenbankanlage. Das sind reproduzierbare Designpins nach dem
-Image-Metadatenstand vom 7. November 2026, keine Graph-Mindestbuilds. Die
+vor der Datenbankanlage. Das sind reproduzierbare Designpins, die gemäß dem
+Servicingquellencheck vom 12. November 2026 weiterhin aktuell sind, keine
+Graph-Mindestbuilds. Die
 Images werben diese Builds über `com.microsoft.version`. Die AMD64-Manifestdigests
 lauten für 2019 `sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069`,
 2022 `sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718`
@@ -124,12 +125,13 @@ prüft zusätzlich Manifestphasen, Markerbindung, Workloadarithmetik,
 Ergebnisorakel, Messreihenfolge, Plantrennung und den Nicht-Katalogstatus.
 
 `DEC-079` genehmigt die Methodenbasis; `DEC-080` akzeptiert die acht
-ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170.
+ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170;
+`DEC-081` bestätigt die Buildpins als aktuelle Linux-Servicingstände am
+12.11.2026. Die OCI-Tag-/Manifestmetadaten wurden zuletzt am 7.11.2026 geprüft.
 Bevor die Demo in den Katalog oder einen Runtimeworkflow aufgenommen wird,
 bleiben formale Harness-Abnahme,
-Bestätigung/Erneuerung der Build-Pins, Integration des Image-Locks in einen
-späteren Runtimeaufruf, Ressourcenprofil und konkrete Ausführungsgenehmigung
-offen.
+Integration des Image-Locks in einen späteren Runtimeaufruf, Ressourcenprofil
+und konkrete Ausführungsgenehmigung offen.
 
 Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus

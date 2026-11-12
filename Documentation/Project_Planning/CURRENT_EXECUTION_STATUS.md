@@ -8,9 +8,10 @@ Joins. Sie trennt Ergebnisgleichheit von tatsächlicher Planevidenz. Der
 QRY-023-Entwurf bleibt `PROPOSED`; `DEC-079` gibt die Methodik frei und
 `DEC-080` akzeptiert die acht ausführbaren T-SQL-Dateien ausschließlich für
 den statischen ScriptDom-Parse der Grammatiken 150/160/170. Diese Prüfung ist
-keine Enginekompilierung oder Laufzeitfreigabe. Formale Harnessabnahme,
-phasenspezifische Identitätsdurchsetzung, konkrete Build-/Image-, Ressourcen-,
-Cleanup- und sämtliche Runtimegates bleiben offen.
+keine Enginekompilierung oder Laufzeitfreigabe. `DEC-081` bestätigt die drei
+Produktbuildpins als aktuelle Linux-Servicingstände zum 12. November 2026;
+formale Harnessabnahme, phasenspezifische Identitätsdurchsetzung, Image-Lock-
+Integration, Ressourcen-, Cleanup- und sämtliche Runtimegates bleiben offen.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 ## External Tables – statischer Lehr- und Demoentwurf
