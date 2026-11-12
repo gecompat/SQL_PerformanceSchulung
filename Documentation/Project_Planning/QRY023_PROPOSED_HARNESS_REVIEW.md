@@ -249,6 +249,14 @@ Rechte. Minimalrechte, tatsächliche Ablehnung überprivilegierter Profile,
 Serverversionen, Ressourcenbegrenzung, Abbruch-/Reap-Reihenfolge und Runtime
 bleiben offene Gates.
 
+Die erste PR-CI-Prüfung zeigte, dass DGN-007 zusätzlich den AST von
+`run_demo.py` fest bindet. Die Bindung enthält jetzt den exakten Python-3.12-
+AST-Digest der erweiterten Runnerdatei; alle übrigen DGN-007-AST-Digests bleiben
+unverändert. `sqlcmd_process.py` ist unverändert, damit der getrennte CON-010-
+Collectorvertrag seine zwei bisher qualifizierten Zeilenendungsvarianten
+weiterhin exakt prüfen kann. Die DGN-007-Offline-Gegenproben laufen erneut;
+bis zum erfolgreichen Workflow bleibt diese Requalifikation offen.
+
 Das prüft nur die statische Übereinstimmung des vorgeschlagenen Manifests mit
 den im Validator festgelegten Werten. Es belegt weder die Ausführung dieser
 Budgets durch einen Runtimeaufrufer noch Enginekompilierung, tatsächliche

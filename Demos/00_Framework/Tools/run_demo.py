@@ -340,16 +340,27 @@ def _execute_sql_phase(
     show_output: bool,
 ) -> PhaseResult:
     database = "master" if phase.database_selector == "master" else target_database
-    command = build_sqlcmd_command(
-        executable=executable,
-        server=server,
-        database=database,
-        script=phase.path,
-        auth=auth,
-        username=username,
-        variables=variables,
-        environment=environment,
-    )
+    password_present = bool(environment.get("SQLCMDPASSWORD"))
+    had_ambient_password = "SQLCMDPASSWORD" in os.environ
+    ambient_password = os.environ.get("SQLCMDPASSWORD")
+    try:
+        if password_present:
+            # The command builder checks presence only; keep the real secret in the child env.
+            os.environ["SQLCMDPASSWORD"] = "credential-profile-configured"
+        command = build_sqlcmd_command(
+            executable=executable,
+            server=server,
+            database=database,
+            script=phase.path,
+            auth=auth,
+            username=username,
+            variables=variables,
+        )
+    finally:
+        if had_ambient_password:
+            os.environ["SQLCMDPASSWORD"] = ambient_password or ""
+        else:
+            os.environ.pop("SQLCMDPASSWORD", None)
     started = time.monotonic()
     result = run_sqlcmd(command, timeout_seconds=timeout_seconds, environment=environment)
     if show_output:
