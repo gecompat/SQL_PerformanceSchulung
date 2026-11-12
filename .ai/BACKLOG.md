@@ -3471,10 +3471,11 @@ Session- und Abbruchgrenzen waren unvollständig. Das Proposed-Manifest bindet
 die Phasenrechtsmatrix und hält die Identitätsdurchsetzung ausdrücklich OPEN.
 Die vorgeschlagenen 1-GiB-Grenzen für Zieldatenbank und TempDB sowie eine
 gleichzeitige Session sind nicht gemessen und müssen von einem späteren
-Runtimecaller technisch durchgesetzt werden. FWK-010 versucht nach Ctrl+C den
-Prozessbaum zu beenden; Cleanup läuft nach begonnenem Setup nur nach bestätigtem
-Prozessende und Reap. Unklarer Prozessstatus unterdrückt Cleanup und meldet
-`FAIL_CLEANUP`; synthetische Regressionen binden diesen Fail-closed-Pfad.
+Runtimecaller technisch durchgesetzt werden. Ein Versuch, die Abbruch- und
+Cleanup-Anforderung im gemeinsamen FWK-010-Caller umzusetzen, ließ die
+PR-Qualifikation scheitern: DGN-007- und CON-010-Sourceprofile binden die
+gemeinsamen Runtime-Dateien kryptografisch. FWK-010 blieb unverändert; diese
+Abbruch-/Cleanup-Reihenfolge ist für QRY-023 dort nicht qualifiziert.
 Formale Harness-/Methodenfreigabe bleibt bis zur separaten
 Identitätsdurchsetzung und Ressourcengate offen.
 

@@ -206,10 +206,12 @@ wirksam, und Größen-, Session- sowie Abbruchgrenzen nach FWK-008 waren noch
 nicht vollständig gebunden. Das Manifest und der Lesepfad legen jetzt die
 Phasenrechte, die vorgeschlagenen 1-GiB-Datenbank-/TempDB-Grenzen, eine
 gleichzeitige Session, Stoptrigger und mögliche Restzustände offen. Der
-FWK-010-Prozesspfad versucht nach Ctrl+C, den sqlcmd-Prozessbaum zu beenden.
-Nach begonnenem Setup wird Cleanup nur nach bestätigtem Prozessende und Reap
-versucht; andernfalls unterbleibt Cleanup und `FAIL_CLEANUP` wird gemeldet.
-Synthetische Regressionen schützen den Cleanup- und den Fail-closed-Fall.
+vorhandene FWK-010-Prozesspfad wurde dafür nicht geändert: PR-Checks zeigen,
+dass mehrere qualifizierte Sourceprofile (einschließlich DGN-007 und CON-010)
+die gemeinsamen Runtime-Dateien fest binden. Diese Bindungen werden in dieser
+QRY-023-Arbeit weder umgangen noch neu qualifiziert. Abbruch, bestätigtes
+Prozessende und Cleanup-Reihenfolge bleiben daher im vorhandenen Caller
+ungeprüft.
 
 Die phasenspezifische Identitätsdurchsetzung bleibt ausdrücklich `OPEN`, weil
 der allgemeine Caller weiterhin nur eine Anmeldung annimmt. Die vorgeschlagenen

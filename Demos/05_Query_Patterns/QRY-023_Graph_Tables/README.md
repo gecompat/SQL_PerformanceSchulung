@@ -66,10 +66,11 @@ Diese Werte sind nicht empirisch qualifiziert und der aktuelle Caller setzt sie
 nicht durch. Ein späterer Runtime-Aufrufer muss vor Setup ein abweichendes
 Ressourcenprofil zurückweisen und Daten-/TempDB-Grenzen tatsächlich
 überwachen. `CTRL+C`, Phasen- und Gesamtzeitüberschreitung müssen den
-sqlcmd-Prozessbaum beenden. Nach begonnenem Setup wird Cleanup nur gestartet,
-wenn das Ende des Prozesses bestätigt ist; sonst wird Cleanup unterdrückt und
-`FAIL_CLEANUP` gemeldet, damit es nicht parallel zu einer möglicherweise noch
-laufenden SQL-Phase arbeitet. Bei erzwungenem Abbruch können synthetische
+sqlcmd-Prozessbaum beenden. Der spätere Runtimecaller muss nach begonnenem
+Setup Cleanup nur bei bestätigtem Prozessende und Reap starten; andernfalls muss
+er Cleanup unterdrücken und `FAIL_CLEANUP` melden, damit es nicht parallel zu
+einer möglicherweise noch laufenden SQL-Phase arbeitet. Dieses Verhalten ist
+im vorhandenen FWK-010-Caller noch nicht qualifiziert. Bei erzwungenem Abbruch können synthetische
 Teilobjekte in der markierten Datenbank verbleiben; Abschluss der serverseitigen
 Abbruchwirkung und TempDB-Freigabe sind unbelegt. Unbekanntes Eigentum oder
 fehlgeschlagenes Cleanup führt zu Erhalt der Datenbank und `FAIL_CLEANUP`, nicht

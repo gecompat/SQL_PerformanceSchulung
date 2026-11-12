@@ -22,11 +22,12 @@ phasenbezogene Rechteausführung aber weiterhin als `OPEN`; die aktuelle
 FWK-010-Funktionalität wird nicht als ausreichend dargestellt. Die 1-GiB-
 Zieldatenbank-/TempDB-Werte sind nur vorgeschlagene Obergrenzen und erfordern
 einen späteren Runtimecaller, der sie vor Setup tatsächlich durchsetzt.
-FWK-010 behandelt Ctrl+C während einer regulären Phase nun als
-`FAIL_EXECUTION` und versucht, den sqlcmd-Prozessbaum zu beenden. Nur wenn
-Beendigung und Reap bestätigt sind, wird nach begonnenem Setup Cleanup
-versucht; bei unklarem Status bleibt Cleanup aus und `FAIL_CLEANUP` wird
-gemeldet. Synthetische Regressionen binden Reihenfolge und Fail-closed-Pfad.
+Die Umsetzung dieser Abbruchanforderung im gemeinsamen FWK-010-Caller wurde
+im PR-Check verworfen: mehrere unabhängige Sourceprofile (darunter DGN-007 und
+CON-010) binden die aktuellen Dateien kryptografisch und qualifizieren
+Änderungen separat. Diese QRY-023-Änderung aktualisiert oder umgeht diese
+Bindungen nicht. FWK-010 bleibt unverändert; Abbruch, bestätigtes Prozessende
+und Cleanup-Reihenfolge sind dort für diesen Anwendungsfall nicht qualifiziert.
 Die Runtime-, Rechte- und vollständige Methodenfreigabe bleiben offen.
 
 Der QRY-023-Registry-Scope nennt nun das bereits im `measurement_gate`
