@@ -6825,6 +6825,19 @@
       ],
       "title": "Foundation 1.25.0 und vollständige menschliche Dokumentationswege"
     },
+    "DEC-078": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:ae9b0bcd-c7a6-4a3b-b1fb-f6d1e0772ce4",
+      "kind": "decision",
+      "registration_state": "REGISTERED",
+      "relations": [
+        {
+          "target": "DEC-009",
+          "type": "depends_on"
+        }
+      ],
+      "title": "External-Tables-Curriculum und QRY-012-Scope"
+    },
     "TSK-015": {
       "aliases": [],
       "artifact_uid": "urn:uuid:47c04185-88a5-44b2-8d13-c2709ab9994d",

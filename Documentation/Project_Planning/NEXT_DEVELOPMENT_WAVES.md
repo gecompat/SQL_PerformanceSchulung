@@ -60,6 +60,19 @@ wurden keine neuen Produktquellen verwendet. Das Paket bleibt innerhalb des
 1/1/2-Rahmens; der PR-Checkpoint ist noch offen. Die formale Entscheidung,
 Demo-ID, Methoden- und Runtimefreigabe bleiben offen.
 
+Der Nutzer hat anschließend die verbleibenden offenen Themen ausdrücklich
+freigegeben. Für die formale Registrierung der bereits geprüften
+Curriculumentscheidung gilt eine weitere endliche Welle von höchstens einem
+Arbeitspaket, einem PR und zwei lokalen Entscheidungs-/Vertragskandidaten;
+keine neuen Produktquellen. Der PR-Merge ist der Checkpoint, die Grenze ist
+1/1/2 ohne Reset. Token- und Geldverbrauch bleiben unbekannt. Scope: DEC-078
+bindet den erklärenden External-Tables-Lehrpfad an `LO-M03-05`/`CLM-045` und
+entscheidet gegen eine ausführbare External-Tables-Phase in `QRY-012` im
+aktuellen Curriculumstand. Keine Demo-ID, SQL-, Infrastruktur- oder
+Runtimefreigabe. DEC-078 und der Registrydatensatz sind angelegt; lokale
+Registry- und Projektchecks sowie der PR-/Integrationsabschluss bilden die
+verbleibenden Schritte dieses Pakets.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere
