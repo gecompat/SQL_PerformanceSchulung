@@ -48,6 +48,17 @@ kein `SHOWPLAN`; ihre Nachrichten und Abgrenzung von Parse-/Compile-Zeit sind im
 ausführbaren Vertrag explizit zu behandeln. `FWK-004`-Sessiondeltas bleiben die
 vergleichende Messquelle.
 
+Die getrennte Planphase setzt für sqlcmd `SQLCMDMAXVARTYPEWIDTH` auf `0`, bevor
+Actual-Plan-XML ausgegeben wird. Microsoft dokumentiert für `-y` den
+Standardwert 256 Zeichen und dass XML bei Überschreitung abgeschnitten wird;
+`0` hebt diese Begrenzung auf. Da unbegrenzte Ausgabe laut Hersteller bei
+großen Resultaten Aufwand verursachen kann, ist die Maßnahme ausschließlich auf
+die beiden `COUNT_BIG`-Diagnoseabfragen beschränkt und erzeugt keine Plan-Datei.
+Quelle: [sqlcmd-Skriptvariablen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver17)
+und [sqlcmd-Option `-y`](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17),
+abgerufen am 12. November 2026. Der Skriptdirektivvertrag ist statisch gebunden;
+das konkrete Toolverhalten bleibt Runtime zu qualifizieren.
+
 Die ausführbaren T-SQL-Dateien bestehen außerdem die
 [ScriptDom-Grammatikprüfung](GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md) für die
 Parserprofile 150/160/170. Dieses Ergebnis schließt keine Kompilierung gegen

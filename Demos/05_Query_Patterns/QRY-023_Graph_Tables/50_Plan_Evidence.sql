@@ -1,4 +1,7 @@
 /* Separate diagnostic execution; do not combine these values with measured runs. */
+/* Keep complete SHOWPLAN XML in sqlcmd output; this process emits only two plan results. */
+:setvar SQLCMDMAXVARTYPEWIDTH 0
+
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 BEGIN TRY

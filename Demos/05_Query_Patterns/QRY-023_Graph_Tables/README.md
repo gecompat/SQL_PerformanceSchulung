@@ -30,7 +30,7 @@ allgemeine Empfehlung für Graph- oder relationale Speicherung.
 | Qualification preflight | `25_Qualification_Preflight.sql` | vollständige Marker, SELECT und SHOWPLAN vor den Abfragen prüfen |
 | Korrektheit | `30_Correctness.sql` | kleine Oracle-Tupel sowie vollständige 10.000-Pfade-Ergebnismengen in beide Richtungen vergleichen |
 | Messung | `40_Measurement.sql` | Warm-up und fünf gepaarte BASELINE/COMPARISON-Läufe mit alternierendem AB/BA erfassen |
-| Plan | `50_Plan_Evidence.sql` | separate Actual-Plan-Diagnostik; Planläufe fließen nicht in Messwerte ein |
+| Plan | `50_Plan_Evidence.sql` | separate Actual-Plan-Diagnostik; Planläufe fließen nicht in Messwerte ein; sqlcmd gibt variable XML-Datentypen für diese auf zwei Abfragen begrenzte Phase ungekürzt aus |
 | Cleanup | `90_Cleanup.sql` | Wegwerfdatenbank nur mit vollständigen Projekt-, Demo- und Run-Markern entfernen |
 
 Der Entwurf heißt `manifest.proposed.json`, damit er von den bestehenden

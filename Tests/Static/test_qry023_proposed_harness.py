@@ -248,6 +248,13 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("both plan queries must execute inside the STATISTICS XML ON/OFF window" in error
                             for error in self.errors()))
 
+    def test_plan_xml_output_width_must_be_unlimited(self) -> None:
+        path = self.demo / "50_Plan_Evidence.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace(":setvar SQLCMDMAXVARTYPEWIDTH 0", ":setvar SQLCMDMAXVARTYPEWIDTH 256")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("SQLCMDMAXVARTYPEWIDTH to unlimited" in error for error in self.errors()))
+
     def test_showplan_permission_must_be_scoped_to_current_target_database(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
         source = path.read_text(encoding="utf-8")

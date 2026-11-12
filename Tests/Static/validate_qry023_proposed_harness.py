@@ -86,6 +86,17 @@ def plan_queries_inside_statistics_window(plan: str) -> bool:
     )
 
 
+def plan_xml_output_is_untruncated(plan: str) -> bool:
+    """Require sqlcmd's variable-length XML width to be unlimited for the two plans."""
+    directive = re.search(
+        r"^\s*:setvar\s+SQLCMDMAXVARTYPEWIDTH\s+0\s*$",
+        plan,
+        re.IGNORECASE | re.MULTILINE,
+    )
+    xml_on = plan.lower().find("set statistics xml on")
+    return directive is not None and directive.start() < xml_on
+
+
 def plan_summary_follows_cleanup(plan: str) -> bool:
     """Require success output after both option resets and the rethrowing CATCH."""
     markers = {
@@ -506,6 +517,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             errors)
     require(plan_queries_inside_statistics_window(plan),
             "both plan queries must execute inside the STATISTICS XML ON/OFF window", errors)
+    require(plan_xml_output_is_untruncated(plan),
+            "plan evidence must set SQLCMDMAXVARTYPEWIDTH to unlimited before requesting XML", errors)
     require("measurement" not in plan, "plan diagnostic must not write measured phase records", errors)
     require("drop database" in cleanup_sql and "single_user" in cleanup_sql,
             "cleanup must remove only the owned disposable database", errors)
