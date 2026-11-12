@@ -343,7 +343,9 @@ def reader_phase_scripts_are_read_only(
         source = line_comment.sub(" ", source)
         for control_line in sqlcmd_control_line.finditer(source):
             directive = control_line.group(0).strip()
-            if not re.fullmatch(r":setvar\s+SQLCMDMAXVARTYPEWIDTH\s+0", directive, re.IGNORECASE):
+            if (script_name != "50_Plan_Evidence.sql"
+                    or not re.fullmatch(r":setvar\s+SQLCMDMAXVARTYPEWIDTH\s+0", directive,
+                                        re.IGNORECASE)):
                 return False
         executable_source = re.sub(r"n?'(?:''|[^'])*'", "''", source, flags=re.IGNORECASE)
         if ddl_or_security.search(executable_source) or context_switch.search(executable_source):

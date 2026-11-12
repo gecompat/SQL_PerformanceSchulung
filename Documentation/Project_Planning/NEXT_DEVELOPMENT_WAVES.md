@@ -260,6 +260,12 @@ anschließender lokaler Regressionstest bindet den Ausschluss eines abweichenden
 `SQLCMDMAXVARTYPEWIDTH`-Werts für READER-Phasen. Ein Test-/Dokumentations-PR,
 keine neue Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
 
+PR #552 integrierte diesen Ausschlusstest mit sechs PR-Checks und vier
+erfolgreichen betroffenen Main-Workflows. Als enger Follow-up wird die erlaubte
+`:setvar SQLCMDMAXVARTYPEWIDTH 0`-Zeile auf `50_Plan_Evidence.sql` beschränkt;
+Mess- und Korrektheitsphasen müssen sie ablehnen. Ein Validator-/Regressionstest-
+PR, keine neue Produktquelle und kein SQL-/Lab-/Runtime-Lauf.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

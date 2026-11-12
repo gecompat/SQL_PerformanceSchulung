@@ -111,7 +111,8 @@ Objektreferenzen der als `READER` markierten Phasenskripte mit den
 schreibende Ziele nur an lokalen Tabellenvariablen; erkannte persistente DML-,
 `SELECT INTO`-, `BULK INSERT`-, DDL-, DBCC- und Rechteänderungen, direkte
 Datenbank-/Sicherheitskontextwechsel sowie nicht freigegebene SQLCMD-Controlzeilen
-werden abgelehnt; nur `:setvar SQLCMDMAXVARTYPEWIDTH 0` bleibt zugelassen. Das
+werden abgelehnt; nur `:setvar SQLCMDMAXVARTYPEWIDTH 0` bleibt in
+`50_Plan_Evidence.sql` zugelassen. Das
 schützt die statische Zuordnung der aktuellen Skripttexte, ist
 aber kein T-SQL-AST-/Datenflussnachweis, kein Serverrechteinventar und kein
 Nachweis des tatsächlichen Verhaltens unter SQL Server. Die Runtime- und

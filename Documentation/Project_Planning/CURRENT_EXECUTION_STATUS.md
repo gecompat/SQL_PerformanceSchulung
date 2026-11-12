@@ -111,8 +111,14 @@ Arbeitsbranch entfernt. Unabhängiger Review fand keine offenen P1/P2.
 
 Der nächste kleine Contracttest schützt explizit, dass ein anderer
 `SQLCMDMAXVARTYPEWIDTH`-Wert als `0` in einer READER-Phase abgewiesen wird.
-Das ist eine lokale Regressionsergänzung; keine Änderung am erlaubten Wert und
-keine SQL-/Lab-/Runtimeausführung.
+PR #552 integrierte diesen Test mit 68 QRY-023-Regressionen und sechs
+erfolgreichen PR-Checks; vier betroffene Main-Workflows bestanden. `main` ist
+auf `0481239` synchronisiert, der Arbeitsbranch entfernt. Der nächste kleine
+Contracttest bindet die erlaubte `:setvar ... 0`-Direktive ausschließlich an
+die Planphase, nicht an Mess- und Korrektheitsskripte. Die Regression und der
+Validator bestehen lokal mit 69 Tests; Privacy-Scan der geänderten Testdatei
+bestanden. Unabhängiger Review fand keine offenen P1/P2. Dieser Validator-/Test-
+PR ist noch nicht integriert; keine SQL-/Lab-/Runtimeausführung.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten
