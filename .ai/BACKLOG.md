@@ -3461,11 +3461,11 @@ Pushdown-Nachweis, Statistiknebenwirkungen und Auswahl gegenüber lokaler
 Materialisierung. Sie behauptet keine gemessene Rangfolge und ersetzt keinen
 späteren Methoden-, Infrastruktur- oder Runtimegate.
 
-Die [Curriculum-Scopeempfehlung](../Documentation/Project_Planning/EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md)
+Die gemäß [DEC-078 registrierte Curriculum-Scopeentscheidung](../Documentation/Project_Planning/EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md)
 führt External Tables als ergänzende Erklärung zu `LO-M03-05`/`CLM-045` und
-empfiehlt keine zusätzliche ausführbare Phase in `QRY-012`. Eine formale
-Projektentscheidung und ein separates Demo-Arbeitspaket bleiben bis zu einem
-eigenen Infrastruktur-, Methoden- und Laufvertrag offen.
+nimmt keine zusätzliche ausführbare Phase in `QRY-012` auf. Ein separates
+Demo-Arbeitspaket bleibt bis zu einem eigenen Infrastruktur-, Methoden- und
+Laufvertrag offen.
 
 Die ergänzende [Versions- und Indexprüfung](../Documentation/Project_Planning/GRAPH_TABLES_VERSION_INDEX_REVIEW.md)
 bindet Microsofts Graph-Indexhinweise und die dokumentierten SQL-Server-2019-

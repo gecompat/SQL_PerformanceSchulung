@@ -35,11 +35,11 @@ Statistiken und Architekturabwägungen. Sie ist kein ausführbarer
 Demo-Vertrag. Version-/Connectorprofile, Quelle, Credentials, Infrastruktur,
 Methodenfreigabe und Runtimequalifikation bleiben offen.
 
-Die [Curriculum-Scopeempfehlung](EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md)
+Die registrierte [Curriculum-Scopeentscheidung](EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md)
 ordnet die Lernnotiz als ergänzende Erklärung zu `LO-M03-05`/`CLM-045` ein und
-empfiehlt, External Tables nicht als ausführbare Phase in `QRY-012` aufzunehmen.
-Die formale Projektentscheidung, ein separater Demo-Vertrag und eigene
-Freigaben bleiben offen; Infrastruktur- und Runtimegates sind unverändert.
+nimmt External Tables im aktuellen Curriculumstand nicht als ausführbare Phase
+in `QRY-012` auf. Ein separater Demo-Vertrag und eigene Freigaben bleiben
+offen; Infrastruktur- und Runtimegates sind unverändert.
 
 Der unabhängige Lehrnotizreview fand einen Präzisionspunkt zur optionalen
 Credentialpflicht bei anonymen Quellen; die Formulierung wurde korrigiert.

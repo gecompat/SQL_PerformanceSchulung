@@ -1,10 +1,10 @@
-# External Tables: Curriculum-Scopeempfehlung
+# External Tables: Curriculum-Scope und Projektentscheidung
 
 Stand: 12. November 2026
-Status: begrenzte Curriculum- und Methodenempfehlung; keine Demo-, SQL- oder
-Runtimefreigabe
+Status: `DEC-078` registriert; begrenzte Curriculum-Scopeentscheidung, keine
+Demo-, SQL- oder Runtimefreigabe
 
-## Empfehlung für den aktuellen Scope
+## Projektentscheidung für den aktuellen Scope
 
 Die vorhandene External-Tables-Lernnotiz bleibt eine ergänzende Erklärung zu
 `LO-M03-05` und `CLM-045`. Sie wird nicht als neue ausführbare Phase in
@@ -13,10 +13,10 @@ für Linked Server als optionales, topologieabhängiges Sonderlabor. Eine späte
 External-Tables-Demo braucht einen eigenen abgegrenzten Vertrag und eine
 separate Freigabe, bevor eine Demo-ID vergeben wird.
 
-Diese Empfehlung gilt für den aktuellen Curriculum- und Demo-Scope. Sie
+Diese Entscheidung gilt für den aktuellen Curriculum- und Demo-Scope. Sie
 verwirft External Tables nicht als Lehrthema und erlaubt keine Infrastruktur-
-oder Laufzeiteinrichtung. Eine verbindliche Projektentscheidung bedarf einer
-registrierten Entscheidung im Projektentscheidungsregister.
+oder Laufzeiteinrichtung. Die verbindliche Fassung steht als `DEC-078` im
+[Projektentscheidungsregister](../../.ai/DECISIONS.md).
 
 ## Gründe
 
@@ -53,9 +53,9 @@ Phase in `QRY-012`.
 
 - Die Lernnotiz bleibt über den vorhandenen Lernziel- und Claimlesepfad
   auffindbar; `CLM-045` und seine Quellenzuordnung werden durch diese
-  Scopeempfehlung nicht umgedeutet.
+  Scopeentscheidung nicht umgedeutet.
 - Der Abdeckungsplan für `QRY-012` bleibt bei seinen bestehenden Phasen. Diese
-  Empfehlung ergänzt keine External-Tables-Slide, Demo-ID oder Runtime-
+  Entscheidung ergänzt keine External-Tables-Slide, Demo-ID oder Runtime-
   Anforderung.
 - Ein künftiger externer Zugriffspfad muss zunächst OS, Version, Builds/CUs,
   Editionen, Compatibility Levels, Quellbesitz, Isolation, Rechte, Credential-
@@ -78,6 +78,6 @@ die [PolyBase-Verfügbarkeit und Connectorprofile](https://learn.microsoft.com/e
 und die [Grenzen der Pushdown-Diagnose](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-how-to-tell-pushdown-computation?view=sql-server-ver17)
 fest.
 
-Die Scopeempfehlung ist eine Projektableitung auf Basis dieser Pfade und
+Die Scopeentscheidung ist eine Projektableitung auf Basis dieser Pfade und
 Produktquellen. Sie ist weder eine Herstellerzusage noch eine Runtime-
 Beobachtung oder Performanceaussage.

@@ -113,9 +113,9 @@ Vor einem Demo-Vertrag bleiben offen:
   festgelegten Connectorprofil;
 - Statistikzustand, Setup-/Messphasentrennung, vollständiger Cleanup und
   unabhängiger Methodenreview;
-- formale Curriculumentscheidung. Die begrenzte [Scopeempfehlung](EXTERNAL_TABLES_CURRICULUM_SCOPE_REVIEW.md)
-  spricht gegen eine ausführbare External-Tables-Phase in `QRY-012`; eine
-  registrierte Projektentscheidung steht noch aus.
+- formale Curriculum-Scopeentscheidung. `DEC-078` nimmt im aktuellen Stand
+  keine ausführbare External-Tables-Phase in `QRY-012` auf; ein späterer
+  separater Demo-Vertrag und seine Freigaben bleiben offen.
 
 Bis diese Gates geschlossen sind, bleibt dies ein statischer Lehrentwurf.
 Es wurde kein SQL, Connector, Netzwerk, Dienst oder Credential verwendet.
