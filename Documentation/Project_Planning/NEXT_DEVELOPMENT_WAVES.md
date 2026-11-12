@@ -353,10 +353,22 @@ versionierte Sollmenge effektiver Rechte pro Server, Standardendpoint,
 Datenbank, Schema und inventarisiertem QRY-023-Securable als deklarativer
 Vertrag, dazu synthetische Abweichungs- und Vollständigkeitsgegenproben.
 Vorhandene `DEC-083`-Baselines und die Effektivrechtequalifikation bleiben
-maßgeblich. Keine SQL-/Lab-/Runtimeausführung, Rechtevergabe, neue Quellen-ID
-oder Generalprobe. Der Merge ist Checkpoint; die tatsächliche
-`sys.fn_my_permissions`-Erfassung, ADMIN-Rollen-/SID-/Endpointinventur und
-Enginequalifikation bleiben anschließend eigene offene Runtimegates.
+maßgeblich. PR #560 integrierte die Sollmenge nach unabhängigem Review und acht
+grünen PR-Gates. Der aktuelle Schnitt umfasst höchstens ein Arbeitspaket,
+einen PR und drei Kandidaten: Quellenregistereintrag `SRC-159` sowie die
+read-only ADMIN-Inventurimplementierung und ihre Tests für
+READER-Login-/Datenbank-SID, Server-/Datenbankrollen, explizite Grants/DENYs,
+Benutzerdatenbankbestand und Standardendpointbestand samt Offlinevalidator und
+synthetischen Abweichungsgegenproben. QRY-Validator, 93 Offline-Regressionen und ScriptDom-Parse unter
+150/160/170 bestanden; der unabhängige Nachreview fand keine offenen P1/P2.
+Weil Microsofts Beschreibung „Systemobjekt“ keine exakte Allowlist der
+`public`-SELECT-Standardmenge liefert, sperrt die Inventur solche Grants bis zu
+einer versionsgebundenen Sollmenge mit `FAIL_NOT_PROVEN`; ein PASS wird nicht
+vorgegeben. Keine Rechtevergabe, keine Rechte- oder `public`-Mutation, keine
+SQL-/Lab-/Runtimeausführung und keine Generalprobe. PR-Gates stehen aus; der
+Merge ist Checkpoint. Exakte Systemobjekt-Standardmenge, tatsächliche READER-
+`sys.fn_my_permissions`-Erfassung, Ownership-Chain-Wirkung und
+Enginequalifikation bleiben offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die

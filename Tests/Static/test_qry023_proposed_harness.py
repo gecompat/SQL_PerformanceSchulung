@@ -37,6 +37,70 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
     def test_current_draft_satisfies_offline_contract(self) -> None:
         self.assertEqual(self.errors(), [])
 
+    def test_admin_inventory_phase_is_required_and_uses_admin_profile(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        phase = next(item for item in manifest["phases"] if item["id"] == "ADMIN_PERMISSION_INVENTORY")
+        phase["credential_profile"] = "READER"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("phase IDs/order, scripts, databases, timeouts, and credential profiles" in error
+                            for error in self.errors()))
+
+    def test_admin_inventory_fails_closed_when_metadata_visibility_gate_is_removed(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("VIEW ANY SECURITY DEFINITION", "VIEW ANY DEFINITION", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_inventory_rejects_permission_mutation(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        path.write_text(path.read_text(encoding="utf-8") + "\nGRANT CONNECT SQL TO public;\n", encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_inventory_binds_database_public_principal_id(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "SELECT @PublicDatabasePrincipalId=principal_id FROM sys.database_principals WHERE name=N'public' AND type='R';",
+            "SELECT @PublicDatabasePrincipalId=principal_id FROM sys.database_principals WHERE name=N'other' AND type='R';")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_inventory_rejects_non_public_role_membership(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("AND role_principal_id<>@PublicPrincipalId", "", 2)
+        source = source.replace("AND role_principal_id<>@PublicDatabasePrincipalId", "", 2)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_inventory_does_not_pass_unqualified_public_system_select(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "@UnqualifiedPublicSystemSelectCount>0", "@UnqualifiedPublicSystemSelectCount<0", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_inventory_unqualified_select_counter_cannot_include_user_objects(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace("major_id<0", "major_id>0", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_preflight_rejects_uninventoried_user_databases_before_setup(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "WHERE database_id>4", "WHERE database_id>5", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("preflight must fail closed unless the instance is empty" in error
+                            for error in self.errors()))
+
     def test_reader_baseline_must_keep_single_run_database_inventory(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
@@ -55,6 +119,32 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_permission_expectation_contract"]["database_permissions"].append("CONTROL")
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("complete fail-closed READER permission expectation" in error
+                            for error in self.errors()))
+
+    def test_reader_permission_contract_keeps_documented_public_database_baseline(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_permission_expectation_contract"]["database_permissions"].remove(
+            "VIEW ANY COLUMN MASTER KEY DEFINITION")
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("complete fail-closed READER permission expectation" in error
+                            for error in self.errors()))
+
+    def test_reader_permission_contract_limits_public_system_baseline_to_system_objects(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_permission_expectation_contract"]["database_public_system_object_baseline"]["object_scope"] = "ALL_OBJECTS"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("complete fail-closed READER permission expectation" in error
+                            for error in self.errors()))
+
+    def test_reader_permission_contract_requires_exact_versioned_public_system_baseline(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        baseline = manifest["reader_permission_expectation_contract"]["database_public_system_object_baseline"]
+        baseline["status"] = "DOCUMENTED_SQL_SERVER_DEFAULT"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("complete fail-closed READER permission expectation" in error
                             for error in self.errors()))
@@ -323,7 +413,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
     def test_phase_identity_mapping_is_bound_to_the_privilege_matrix(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
-        manifest["phases"][4]["credential_profile"] = "ADMIN"
+        manifest["phases"][5]["credential_profile"] = "ADMIN"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("phase IDs/order, scripts, databases, timeouts, and credential profiles" in error
                             for error in self.errors()))

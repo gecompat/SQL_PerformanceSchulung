@@ -14,6 +14,7 @@ EXPECTED_PHASES = [
     ("SETUP", "10_Setup.sql", "master", 240, "ADMIN"),
     ("FRAMEWORK", "15_Framework.sql", "target", 180, "ADMIN"),
     ("WORKLOAD", "20_Workload.sql", "target", 300, "ADMIN"),
+    ("ADMIN_PERMISSION_INVENTORY", "22_Admin_Permission_Inventory.sql", "target", None, "ADMIN"),
     ("QUALIFICATION_PREFLIGHT", "25_Qualification_Preflight.sql", "target", None, "READER"),
     ("CORRECTNESS", "30_Correctness.sql", "target", 180, "READER"),
     ("MEASUREMENT", "40_Measurement.sql", "target", 300, "READER"),
@@ -96,7 +97,15 @@ EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
         "dedicated_admin_connection": "EXCLUDED",
         "expected_permissions_per_endpoint": ["CONNECT"],
     },
-    "database_permissions": ["CONNECT", "SHOWPLAN"],
+    "database_permissions": ["CONNECT", "SHOWPLAN", "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION", "VIEW ANY COLUMN MASTER KEY DEFINITION"],
+    "database_public_system_object_baseline": {
+        "permission": "SELECT",
+        "principal": "public",
+        "object_scope": "SYSTEM_OBJECTS_ONLY",
+        "application_objects": "FORBIDDEN",
+        "exact_default_object_inventory": "VERSIONED_REQUIRED",
+        "status": "NOT_PROVEN_UNTIL_EXACT_ENGINE_BASELINE",
+    },
     "schema_permissions": {"dbo": [], "lab": []},
     "object_permissions": {
         "dbo.Person": ["SELECT"],
@@ -117,6 +126,22 @@ EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
         "READER_LOGIN_SID", "DATABASE_USER_SID", "SERVER_AND_DATABASE_ROLES",
         "EXPLICIT_GRANTS_AND_DENIES", "DATABASE_INVENTORY", "ENDPOINT_INVENTORY",
     ],
+}
+EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
+    "version": "1.0",
+    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "phase": "ADMIN_PERMISSION_INVENTORY",
+    "context": "EXACT_MARKED_TARGET_DATABASE",
+    "metadata_visibility": "VERSIONED_REQUIRED_PERMISSIONS_FAIL_CLOSED",
+    "reader_login_binding": "ACTIVE_SQL_LOGIN_NAME_AND_DATABASE_USER_SID_EXACT",
+    "server_and_database_role_membership": "NO_EXPLICIT_MEMBERSHIP_BEYOND_IMPLICIT_PUBLIC",
+    "explicit_permissions": "READER_AND_PUBLIC_ONLY; GRANT_ONLY; EXACT_DECLARED_BASELINE_SUBSET",
+    "database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
+    "endpoint_inventory": "ALL_VISIBLE; BUILT_IN_NON_ADMIN_ENDPOINTS_ONLY; DAC_EXCLUDED",
+    "public_system_object_select": "EXACT_VERSIONED_BASELINE_REQUIRED; OTHERWISE_FAIL_NOT_PROVEN",
+    "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
+    "permission_mutation": "FORBIDDEN",
+    "runtime_authorized": False,
 }
 EXPECTED_AUTHORIZATION_CONTRACT = {
     "phase_privileges": {
@@ -467,6 +492,54 @@ def qualification_target_context_valid(qualification: str) -> bool:
     return context >= 0 and context < guard_throw < permission_check
 
 
+def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> bool:
+    """Bind inventory surfaces, visibility gates, exact identity and no mutation."""
+    uncommented = re.sub(r"/\*.*?\*/|--[^\r\n]*", " ", inventory, flags=re.DOTALL)
+    executable = re.sub(r"n?'(?:''|[^'])*'", "''", uncommented, flags=re.IGNORECASE)
+    raw_compact = re.sub(r"\s+", "", uncommented).casefold()
+    compact = re.sub(r"\s+", "", executable).casefold()
+    required_surfaces = (
+        "master.sys.server_principals", "sys.database_principals",
+        "master.sys.server_role_members", "sys.database_role_members",
+        "role_principal_id<>@publicprincipalid",
+        "role_principal_id<>@publicdatabaseprincipalid",
+        "master.sys.server_permissions", "sys.database_permissions",
+        "master.sys.databases", "master.sys.endpoints",
+        "select@publicdatabaseprincipalid=principal_idfromsys.database_principals",
+        "in(@readeruserid,@publicdatabaseprincipalid)",
+        "has_perms_by_name(null,'server','viewanysecuritydefinition')",
+        "has_perms_by_name(null,'server','viewanydefinition')",
+        "has_perms_by_name(null,'server','viewserversecuritystate')",
+        "has_perms_by_name(db_name(),'database','viewsecuritydefinition')",
+        "has_perms_by_name(db_name(),'database','viewdefinition')",
+        "n'viewanycolumnencryptionkeydefinition'",
+        "n'viewanycolumnmasterkeydefinition'",
+        "p.grantee_principal_id=@publicdatabaseprincipalid",
+        "select@unqualifiedpublicsystemselectcount=count(*)fromsys.database_permissions",
+        "permission_name=n'select'andminor_id=0andmajor_id<0",
+        "@unqualifiedpublicsystemselectcount>0",
+        "has_perms_by_name(null,'server','viewserverstate')",
+        "@readersid<>@readerusersid", "@userdatabasecount<>1",
+        "endpoint_id>=65536", "p.state<>'g'", "@unexpectedcount>0",
+        "print'sqlperf_summary|fail|fail_not_proven'",
+        "print'sqlperf_summary|pass|ok'",
+    )
+    forbidden = re.compile(
+        r"\b(?:insert|update|delete|merge|truncate|create|alter|drop|grant|deny|revoke|exec(?:ute)?|use|setuser|revert)\b",
+        re.IGNORECASE,
+    )
+    return (
+        all(term in raw_compact for term in required_surfaces)
+        and raw_compact.count("role_principal_id<>@publicprincipalid") == 2
+        and raw_compact.count("role_principal_id<>@publicdatabaseprincipalid") == 2
+        and raw_compact.count("wherename=n'public'andtype='r'") == 2
+        and raw_compact.count("permission_name=n'select'andminor_id=0andmajor_id<0") == 1
+        and not forbidden.search(executable)
+        and raw_compact.find("@unexpectedcount>0") < raw_compact.find("'summary'ascheckid,'pass'asoutcome")
+        and compact.find("@visible=0") < compact.find("@readerprincipalid=")
+    )
+
+
 def qualification_ownership_markers_valid(qualification: str) -> bool:
     """Bind marker assignments and exact, length-aware values before permission checks."""
     compact = re.sub(r"\s+", "", qualification).casefold()
@@ -548,6 +621,9 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require(manifest.get("reader_permission_expectation_contract")
             == EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT,
             "manifest must bind the complete fail-closed READER permission expectation contract", errors)
+    require(manifest.get("admin_permission_inventory_contract")
+            == EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT,
+            "manifest must bind the versioned read-only ADMIN inventory and retain its unqualified status", errors)
     require(manifest.get("sqlcmd_input_validation") == EXPECTED_SQLCMD_INPUT_VALIDATION,
             "manifest must bind the exact caller-side SQLCMD input validation contract before expansion", errors)
     run_token = manifest.get("run_token")
@@ -600,6 +676,12 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             return ""
 
     preflight = read("00_Preflight.sql")
+    preflight_compact = re.sub(r"\s+", "", preflight)
+    require("@visibleuserdatabasesbit=casewhenhas_perms_by_name(null,'server','viewanydatabase')=1then1else0end" in preflight_compact
+            and "select@userdatabasecount=count(*)fromsys.databaseswheredatabase_id>4" in preflight_compact
+            and "@existingdatabaseidisnulland@userdatabasecount<>0" in preflight_compact
+            and "@existingdatabaseidisnotnulland(@userdatabasecount<>1ornotexists" in preflight_compact,
+            "preflight must fail closed unless the instance is empty or contains only the exact marked same-run target database", errors)
     setup = read("10_Setup.sql")
     setup_compact = re.sub(r"\s+", " ", setup).casefold()
     require("@readerlogin sysname" in setup_compact
@@ -608,11 +690,15 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "setup must map only the active SQL READER login into the exact marked target database", errors)
     workload = read("20_Workload.sql")
     qualification = read("25_Qualification_Preflight.sql")
+    admin_inventory = read("22_Admin_Permission_Inventory.sql")
     correctness = read("30_Correctness.sql")
     measurement = read("40_Measurement.sql")
     plan = read("50_Plan_Evidence.sql")
     cleanup_sql = read("90_Cleanup.sql")
     readme = read("README.md")
+
+    require(admin_permission_inventory_is_read_only_and_fail_closed(admin_inventory),
+            "ADMIN permission inventory must prove metadata visibility, SID/role/grant/database/endpoint scope, and reject mutation", errors)
 
     framework_measurement_path = repository / "Demos/00_Framework/Sql/FWK_Measurement.sql"
     try:

@@ -1,8 +1,9 @@
 # QRY-023: Effektivrechtequalifikation
 
-Stand: 12. November 2026  
-Status: `DESIGNED`, normative Offlinegrenze gemäß `DEC-083`; nicht implementiert
-und nicht auf SQL Server qualifiziert
+Stand: 13. November 2026
+Status: Die READER-Effektivrechte bleiben `DESIGNED` und nicht enginequalifiziert;
+die vorgeschaltete read-only ADMIN-Inventur ist offline implementiert, aber
+nicht auf SQL Server qualifiziert
 
 ## Ziel und Grenze
 
@@ -41,8 +42,9 @@ Profilnamen.
 
 | Identität / Phase | Bestehender Ablauf | Vorläufig nötiger Zugriffskandidat | Zusätzliche Qualifikation |
 |---|---|---|---|
-| `ADMIN` / `PREFLIGHT` | Read-only Prüfung in `master`, bestehendes Ziel wird anhand seiner Marker geprüft | Zugriff auf `master`; bei vorhandenem Ziel Markerlesbarkeit; eine der bereits deklarierten Rechte zum Anlegen der Testdatenbank | Keine Minimalrechteaussage für ein administratives Provisionierungsprofil |
+| `ADMIN` / `PREFLIGHT` | Read-only Prüfung in `master`, vollständige Benutzerdatenbanksicht und Markerprüfung eines vorhandenen Ziels | `VIEW ANY DATABASE`; eines der bereits deklarierten Rechte zum Anlegen der Testdatenbank | Vor Setup ist nur eine leere Instanz oder die exakte markierte Wiederaufnahme zulässig |
 | `ADMIN` / `SETUP`, `FRAMEWORK`, `WORKLOAD` | Wegwerfdatenbank, FWK-004 und synthetische Objekte aufbauen | Datenbank, Schema, Tabellen, Prozeduren, Indizes und synthetische Inserts gemäß Setupskripten | Keine Minimalrechteaussage; Ziel muss eigens isoliert und vollständig markiert sein |
+| `ADMIN` / `ADMIN_PERMISSION_INVENTORY` | READER-Login und Datenbankbenutzer binden sowie Rollen, explizite Rechte, Datenbanken und Endpoints vollständig inventarisieren | Read-only Katalogzugriff auf die markierte Zieldatenbank | Offline implementiert; fehlende Metadatensicht oder Abweichung führt zu `FAIL_NOT_PROVEN`; keine Rechtevergabe |
 | `READER` / `QUALIFICATION_PREFLIGHT` | Marker lesen und vor allen Queryphasen positive Rechte prüfen | `SELECT` auf acht QRY-023 Query-/Oracletabellen und `lab.MeasurementRun`; `EXECUTE` auf `lab.USP_Qry023MeasureVariant`; Datenbankrecht `SHOWPLAN` | Effektivmengen außerdem auf Server, Datenbank, `dbo`, `lab` und allen inventarisierten Datenbankobjekten erfassen |
 | `READER` / `CORRECTNESS` | kleines Tupeloracle und 10.000 eindeutige Pfade gegen beide Varianten | `SELECT` auf `dbo.Person`, `dbo.FriendOf`, `dbo.RelPerson`, `dbo.RelFriend`, `dbo.OraclePerson`, `dbo.OracleFriendOf`, `dbo.OracleRelPerson`, `dbo.OracleRelFriend` | Tabellenvariablen sind lokale Ausgabespeicher; keine persistenten Schreibrechte erforderlich |
 | `READER` / `MEASUREMENT` | Messwrapper ausführen und zehn FWK-004-Messzeilen lesen | `EXECUTE` auf `lab.USP_Qry023MeasureVariant`; `SELECT` auf `lab.MeasurementRun`; `SELECT` auf den vier Querytabellen | Interne Schreiboperationen durch `USP_BeginMeasurement`/`USP_EndMeasurement` müssen über die konkrete Ownership Chain funktionieren; READER erhält dafür keine direkten Tabellen-Schreibrechte. Wait-Statistiken bleiben deaktiviert |
@@ -225,8 +227,18 @@ führen zu `NOT_PROVEN`.
 
 Die Kandidatenmenge akzeptiert im Serverkontext ausschließlich `CONNECT SQL`
 und `VIEW ANY DATABASE` gemäß `DEC-083`; pro ADMIN-inventarisiertem Standard-
-Endpoint ausschließlich `CONNECT`; im Datenbankkontext `CONNECT` und
-`SHOWPLAN`; auf `dbo` und `lab` keine Schemarechte. Die acht Query-/Oracle-
+Endpoint ausschließlich `CONNECT`; im Datenbankkontext `CONNECT`, `SHOWPLAN`
+und die dokumentierten `public`-Baseline-Rechte
+`VIEW ANY COLUMN ENCRYPTION KEY DEFINITION` sowie
+`VIEW ANY COLUMN MASTER KEY DEFINITION`. Darüber hinaus dokumentiert Microsoft
+standardmäßiges `SELECT` für `public` auf einzelnen Systemobjekten. Die negative
+`major_id` allein weist jedoch nur
+Systemobjekte aus und identifiziert nicht die exakte Standardmenge. Die ADMIN-
+Inventur weist solche Grants daher bis zu einer exakten, versionsgebundenen
+Sollmenge mit `FAIL_NOT_PROVEN` zurück; eine pauschale Freigabe aller Systemobjekte
+ist ausgeschlossen. `public`-Grants auf QRY-023-/FWK-004-Nutzobjekten und direkte
+READER-Grants auf Systemobjekte bleiben unzulässig. Auf `dbo` und `lab` sind
+keine Schemarechte erlaubt. Die acht Query-/Oracle-
 Tabellen sowie `lab.MeasurementRun` erwarten `SELECT`; das Messverfahren
 `lab.USP_Qry023MeasureVariant` erwartet `EXECUTE`. `lab.MeasurementWaitSnapshot`,
 `lab.USP_BeginMeasurement` und `lab.USP_EndMeasurement` erwarten für READER
@@ -274,15 +286,39 @@ T-SQL-Änderungen oder SQL-Server-Läufe erstellt beziehungsweise ausgeführt.
 - Microsoft Learn, [`sys.databases`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-databases-transact-sql?view=sql-server-ver17) und [Server-`public`-Berechtigungen](https://learn.microsoft.com/en-us/sql/relational-databases/policy-based-management/server-public-permissions?view=sql-server-ver17): Standard-`VIEW ANY DATABASE`, automatische `CONNECT SQL`-Berechtigung und Endpoint-`CONNECT`; abgerufen am 12. November 2026.
 - Microsoft Learn, [Serverrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/server-level-roles?view=sql-server-ver17): neue SQL-Server-2022-Rollen und in Datenbanken weiterwirkende Rechte; abgerufen am 12. November 2026.
 - Microsoft Learn, [Datenbankrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-ver17) und [`sys.fn_builtin_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-builtin-permissions-transact-sql?view=sql-server-ver17): `public`-Datenbank-`CONNECT` und die vordefinierte Rechtehierarchie; abgerufen am 12. November 2026, in `SRC-158` ergänzt.
+- Microsoft Learn, [`sys.server_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-server-permissions-transact-sql?view=sql-server-ver17), [`sys.server_role_members`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-server-role-members-transact-sql?view=sql-server-ver17), [`sys.database_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-permissions-transact-sql?view=sql-server-ver17), [`sys.database_role_members`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-role-members-transact-sql?view=sql-server-ver17), [`sys.endpoints`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-endpoints-transact-sql?view=sql-server-ver17) und [Metadatensichtbarkeit](https://learn.microsoft.com/en-us/sql/relational-databases/security/metadata-visibility-configuration?view=sql-server-ver17): versionierte Security-Katalogrechte und Grenzen expliziter Permission-Zeilen; abgerufen am 13. November 2026, in `SRC-159` ergänzt.
 - Bestehender QRY-023-Vertrag: [Proposed-Harness README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md), [Proposed-Manifest](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json) und [Methodenreview](GRAPH_TABLES_METHOD_REVIEW.md).
-- Die wiederverwendeten Microsoft-Primärquellen sind als [`SRC-158`](../Research/SOURCE_REGISTER.md#qry-023--effektivrechte-und-sql-server-public-baseline) im Quellenregister zusammengeführt.
+- Die wiederverwendeten Microsoft-Primärquellen sind als [`SRC-158` und `SRC-159`](../Research/SOURCE_REGISTER.md#qry-023--effektivrechte-und-sql-server-public-baseline) im Quellenregister zusammengeführt.
 
 Die konkrete Methodenentscheidung ist in [DEC-083](../../.ai/DECISIONS.md)
 registriert. Der spätere Harness bleibt für die tatsächliche Inventur und
 Sollmengenprüfung verantwortlich; dieser Vertrag führt weder eine
 SQL-Server-Abfrage aus noch belegt er eine reale Rechtevergabe.
 
-Die nächste Offlineimplementierung darf den versionierten Sollmengen- und
-Inventurvertrag samt synthetischer Gegenproben konkretisieren. Sie ändert keine
-SQL-Datei, Rechtevergabe, Demo-ID, Manifest- oder Runtimefreigabe. QRY-023
-bleibt `PROPOSED`.
+`22_Admin_Permission_Inventory.sql` setzt den ADMIN-Anteil jetzt read-only um.
+Er prüft die exakte Login-/Datenbankbenutzer-SID, verwirft explizite
+Server-/Datenbankrollen, inventarisiert die expliziten Grants/DENYs an READER
+und `public`, begrenzt den Benutzerdatenbankbestand und weist benutzerdefinierte
+Endpoints zurück. Ein `public`-SELECT auf Systemobjekten bleibt bis zur exakten,
+versionsgebundenen Inventur der Standardobjektmenge ausdrücklich `NOT_PROVEN`;
+negative `major_id` allein ist kein Allowlist-Nachweis. Die READER-Objektgrants
+werden nur auf eine zulässige Sollmenge begrenzt; fehlende Laufrechte werden
+weiterhin erst durch den
+nachfolgenden tatsächlichen READER-Preflight erkannt. Der Vor-Setup-Preflight
+verlangt vollständige Datenbanksicht und blockiert jede fremde
+Benutzerdatenbank vor Setup.
+
+Für SQL Server 2022+ prüft die Phase `VIEW ANY SECURITY DEFINITION`,
+`VIEW ANY DEFINITION`, `VIEW SERVER SECURITY STATE`, `VIEW ANY DATABASE`,
+`VIEW SECURITY DEFINITION` und `VIEW DEFINITION`; auf SQL Server 2019 gelten
+`VIEW ANY DEFINITION`, `VIEW SERVER STATE`, `VIEW ANY DATABASE` und
+`VIEW DEFINITION`. Die Definitionsrechte decken auch die dokumentierten
+Anforderungen der Rollenmitgliedschaftskataloge ab. Der ADMIN-Kontext erhält
+keine automatischen Grants. Fehlende Sichtbarkeit oder eine Abweichung erzeugt
+`FAIL_NOT_PROVEN`. Quellenregistereintrag `SRC-159` bindet die jeweilige
+Metadatensicht und die Grenzen der Permission-Kataloge.
+
+Der Offlinevalidator, seine synthetischen Regressionen und der ScriptDom-Parse
+unter den Grammatiken 150/160/170 prüfen nur die Struktur. Sie attestieren keine
+vollständigen Katalogresultate, SQL-Ausführung, tatsächlichen READER-Rechte oder
+Ownership-Chain-Wirkung. QRY-023 bleibt `PROPOSED` und ohne Runtimequalifikation.

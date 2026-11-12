@@ -23,10 +23,11 @@ allgemeine Empfehlung für Graph- oder relationale Speicherung.
 
 | Phase | Datei | Aufgabe |
 |---|---|---|
-| Preflight | `00_Preflight.sql` | Version, Datenbankname, CREATE DATABASE und exakte Marker einer vorhandenen Zieldatenbank prüfen |
+| Preflight | `00_Preflight.sql` | Version, Datenbankname, CREATE DATABASE, vollständigen Benutzerdatenbankbestand und exakte Marker einer vorhandenen Zieldatenbank prüfen |
 | Setup | `10_Setup.sql` | Eigene markierte Wegwerfdatenbank erstellen oder exakt passende wiederverwenden |
 | Framework | `15_Framework.sql` | kanonische FWK-004-Messreferenz installieren |
 | Workload | `20_Workload.sql` | 30.000 Knoten, 20.000 Kanten, kleines Oracle, Kandidatenindizes und Messprozedur anlegen |
+| ADMIN permission inventory | `22_Admin_Permission_Inventory.sql` | READER-SID, Rollen, explizite Grants/DENYs, Zieldatenbankbestand und Endpoints read-only inventarisieren; bei unvollständiger Sicht oder Abweichung vor READER stoppen |
 | Qualification preflight | `25_Qualification_Preflight.sql` | vollständige Marker, SELECT und SHOWPLAN vor den Abfragen prüfen |
 | Korrektheit | `30_Correctness.sql` | kleine Oracle-Tupel sowie vollständige 10.000-Pfade-Ergebnismengen in beide Richtungen vergleichen |
 | Messung | `40_Measurement.sql` | Warm-up und fünf gepaarte BASELINE/COMPARISON-Läufe mit alternierendem AB/BA erfassen |
@@ -119,6 +120,45 @@ Vertragsform sowie Fail-closed Regeln für Duplikate, fehlende Resultate,
 Spaltenrechte und unerwartete Objekte. Der Vertrag ist
 `DESIGN_ONLY_NOT_ENGINE_QUALIFIED`; er prüft keine Live-Rechte und ändert
 keine Rechte.
+
+Vor Setup verlangt der `PREFLIGHT` eine vollständige Sicht auf
+`sys.databases` und lässt nur eine leere Instanz oder die exakt markierte
+Wiederaufnahme desselben Runs zu. Nach `WORKLOAD` läuft die neue
+`ADMIN_PERMISSION_INVENTORY`-Phase in der markierten Zieldatenbank. Sie bindet
+den aktiven SQL-Login an den gleichnamigen Datenbankbenutzer mit identischer
+SID, verwirft explizite Zusatzrollen und nicht deklarierte Grants/DENYs und
+inventarisiert Benutzerdatenbanken sowie Endpoints. SQL Server 2022+ verlangt
+serverseitig `VIEW ANY SECURITY DEFINITION`, `VIEW ANY DEFINITION`,
+`VIEW SERVER SECURITY STATE` und `VIEW ANY DATABASE` sowie in der
+Zieldatenbank `VIEW SECURITY DEFINITION` und `VIEW DEFINITION`. SQL Server
+2019 verlangt stattdessen `VIEW ANY DEFINITION`, `VIEW SERVER STATE` und
+`VIEW ANY DATABASE` sowie `VIEW DEFINITION` in der Zieldatenbank. Die
+Definitionsrechte sind nötig, um auch benutzerdefinierte
+Rollenmitgliedschaften vollständig zu sehen; das Skript nutzt sie nur lesend.
+Die unveränderte Datenbankrolle `public` besitzt außerdem die von Microsoft
+dokumentierte Plattformbaseline ([Datenbankrollen](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-ver17)):
+`CONNECT`, `VIEW ANY COLUMN ENCRYPTION KEY DEFINITION`,
+`VIEW ANY COLUMN MASTER KEY DEFINITION` und `SELECT` auf systemeigenen
+Systemobjekten. `sys.database_permissions` kennzeichnet Systemobjekte mit
+negativer `major_id` ([Katalogsicht](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-permissions-transact-sql?view=sql-server-ver17)).
+Die Inventur erkennt `public`-SELECT-Grants auf Systemobjekten, lässt sie aber
+bis zu einer exakten, versionsgebundenen Sollmenge nicht als bestanden gelten:
+Solange diese Baseline fehlt, endet die Phase mit `FAIL_NOT_PROVEN`. Die negative
+`major_id`-Kennzeichnung allein belegt nur „Systemobjekt“, nicht die Zugehörigkeit
+zur dokumentierten Standardmenge. `public`-Grants auf QRY-023-/FWK-004-Nutzobjekten
+und direkte Systemobjektgrants an READER bleiben unzulässig.
+Fehlt eine dieser Sichtbarkeiten oder erscheint ein unbekannter Endpoint, eine
+weitere READER-Rolle oder ein nicht deklarierter Berechtigungszustand,
+endet die Phase mit `FAIL_NOT_PROVEN`. Die Phase vergibt, entzieht und ändert
+keine Rechte. Ihre ADMIN-Metadatenrechte sind keine READER-Rechte und werden
+nicht durch diesen statischen Entwurf bereitgestellt.
+
+Der statische Validator schützt Vor- und Nach-Setup-Inventar, die
+ADMIN-Phasenbindung und das Verbot von Rechteänderungen; synthetische Tests
+prüfen unter anderem entfernte Sichtbarkeitsgates, SID-Bindung und verbotene
+Grants. ScriptDom parst das neue T-SQL unter den Grammatiken 150, 160 und 170.
+Das belegt weder Metadatenvollständigkeit noch erfolgreiche T-SQL-Ausführung.
+Der Vertrag bleibt `DESIGN_ONLY_NOT_ENGINE_QUALIFIED`.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den

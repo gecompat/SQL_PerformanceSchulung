@@ -74,7 +74,15 @@
       "dedicated_admin_connection": "EXCLUDED",
       "expected_permissions_per_endpoint": ["CONNECT"]
     },
-    "database_permissions": ["CONNECT", "SHOWPLAN"],
+    "database_permissions": ["CONNECT", "SHOWPLAN", "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION", "VIEW ANY COLUMN MASTER KEY DEFINITION"],
+    "database_public_system_object_baseline": {
+      "permission": "SELECT",
+      "principal": "public",
+      "object_scope": "SYSTEM_OBJECTS_ONLY",
+      "application_objects": "FORBIDDEN",
+      "exact_default_object_inventory": "VERSIONED_REQUIRED",
+      "status": "NOT_PROVEN_UNTIL_EXACT_ENGINE_BASELINE"
+    },
     "schema_permissions": {"dbo": [], "lab": []},
     "object_permissions": {
       "dbo.Person": ["SELECT"],
@@ -93,6 +101,22 @@
     },
     "admin_inventory_gates": ["READER_LOGIN_SID", "DATABASE_USER_SID", "SERVER_AND_DATABASE_ROLES", "EXPLICIT_GRANTS_AND_DENIES", "DATABASE_INVENTORY", "ENDPOINT_INVENTORY"]
   },
+  "admin_permission_inventory_contract": {
+    "version": "1.0",
+    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "phase": "ADMIN_PERMISSION_INVENTORY",
+    "context": "EXACT_MARKED_TARGET_DATABASE",
+    "metadata_visibility": "VERSIONED_REQUIRED_PERMISSIONS_FAIL_CLOSED",
+    "reader_login_binding": "ACTIVE_SQL_LOGIN_NAME_AND_DATABASE_USER_SID_EXACT",
+    "server_and_database_role_membership": "NO_EXPLICIT_MEMBERSHIP_BEYOND_IMPLICIT_PUBLIC",
+    "explicit_permissions": "READER_AND_PUBLIC_ONLY; GRANT_ONLY; EXACT_DECLARED_BASELINE_SUBSET",
+    "database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
+    "endpoint_inventory": "ALL_VISIBLE; BUILT_IN_NON_ADMIN_ENDPOINTS_ONLY; DAC_EXCLUDED",
+    "public_system_object_select": "EXACT_VERSIONED_BASELINE_REQUIRED; OTHERWISE_FAIL_NOT_PROVEN",
+    "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
+    "permission_mutation": "FORBIDDEN",
+    "runtime_authorized": false
+  },
   "authorization_contract": {
     "phase_privileges": {
       "SETUP": ["CREATE DATABASE", "CREATE DATABASE USER FOR ACTIVE READER SQL_LOGIN", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
@@ -108,6 +132,7 @@
     {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":240,"credential_profile":"ADMIN"},
     {"id":"FRAMEWORK","kind":"sql","script":"15_Framework.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180,"credential_profile":"ADMIN"},
     {"id":"WORKLOAD","kind":"sql","script":"20_Workload.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300,"credential_profile":"ADMIN"},
+    {"id":"ADMIN_PERMISSION_INVENTORY","kind":"sql","script":"22_Admin_Permission_Inventory.sql","database":"target","required":true,"require_summary":true,"credential_profile":"ADMIN"},
     {"id":"QUALIFICATION_PREFLIGHT","kind":"sql","script":"25_Qualification_Preflight.sql","database":"target","required":true,"require_summary":true,"credential_profile":"READER"},
     {"id":"CORRECTNESS","kind":"sql","script":"30_Correctness.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180,"credential_profile":"READER"},
     {"id":"MEASUREMENT","kind":"sql","script":"40_Measurement.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300,"credential_profile":"READER"},

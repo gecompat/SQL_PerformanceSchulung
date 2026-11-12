@@ -62,6 +62,22 @@ zusätzliche Datenbankrechte, unvollständige Objektinventur und runtimeabgeleit
 Sollwerte. Dies attestiert nicht die tatsächlichen Funktionsresultate;
 `sys.fn_my_permissions`, ADMIN-Rollen-/SID-/Endpointinventur, Ownership Chain,
 SQL-Ausführung und Runtime bleiben offen.
+PR #560 integrierte die Sollmenge nach unabhängigem Review und acht grünen
+PR-Gates. Die kontraktgeschützte Erfassung belegt weiterhin keine Live-Rechte.
+Der aktuelle begrenzte Offlinepunkt implementiert die read-only ADMIN-Inventur
+für READER-Login-/Datenbank-SID, Server-/Datenbankrollen, explizite
+Grants/DENYs, Benutzerdatenbankbestand und Standardendpointbestand samt
+synthetischen Abweichungsfällen. Vor Setup weist der Preflight fremde
+Benutzerdatenbanken zurück. Unabhängiger Nachreview bestätigte, dass keine
+Systemobjekt-SELECTs pauschal erlaubt werden: bis zur exakten, versionierten
+Sollmenge liefert die ADMIN-Phase `FAIL_NOT_PROVEN`. Der QRY-Validator, 93
+Regressionen, ScriptDom-Parse der neun eigenständigen T-SQL-Dateien unter
+150/160/170, Identifier- und Continuity-Validator sowie der geänderte-Dateien-
+Privacy-Scan bestanden. Dies belegt weder SQL-Ausführung noch vollständige
+Katalogsicht. PR-Gates stehen vor Integration noch aus. Es werden keine Rechte
+geändert oder vergeben; die exakte Standard-Systemobjektmenge,
+READER-Funktionserfassung, Ownership-Chain-Wirkung und Enginequalifikation
+bleiben offen.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
 SQL-, Lab- oder Runtimeausführung.
