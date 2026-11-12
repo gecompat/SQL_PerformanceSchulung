@@ -185,6 +185,19 @@ Keine Principals/Grants, kein SQL-/Lab-/Runtime-Lauf und keine menschliche
 Generalprobe. Implementierung und tatsächliche Rechtequalifikation bleiben
 Folgearbeit.
 
+PR #544 integrierte diese vollständige Aussagegrenze am Commit `c0707b3`.
+Der nächste Offlinepunkt prüft die von QRY-023 tatsächlich aufgerufene
+FWK-004-Variante: `@CaptureSessionWaits=0` muss fest bleiben, weil ein Wechsel
+auf `1` bei SQL Server 2022/2025 den Zugriff auf
+`sys.dm_exec_session_wait_stats` und damit `VIEW SERVER PERFORMANCE STATE`
+erfordert. Die `sys.dm_exec_sessions`-Abfrage bleibt auf die eigene Session
+beschränkt. Die vorhandene Vertragsprüfung bindet den Wert bereits; eine
+Negativregression und quellengebundene Klarstellung schützen diesen
+Least-Privilege-Codepfad. Begrenzung: ein Arbeitspaket, ein PR, höchstens drei
+Quellen-/Vertragskandidaten; keine neue SQL-Ausführung, keine Serverrechte oder
+Credentials, keine menschliche Generalprobe. Die restliche effektive
+Rechteinventur und Runtimequalifikation bleiben offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

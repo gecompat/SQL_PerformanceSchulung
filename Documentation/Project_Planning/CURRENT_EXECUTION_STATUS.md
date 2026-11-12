@@ -36,6 +36,15 @@ Minimalrechte und Runtime bleiben `OPEN`.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
 SQL-, Lab- oder Runtimeausführung.
+PR #544 begrenzte anschließend ausdrücklich die Aussage der Demoobjektliste:
+sie schließt Zusatzrechte auf anderen Securables nicht aus. Review und sechs
+PR-Checks bestanden; die vier ausgelösten Main-Workflows waren grün. Der nächste
+Offlinepunkt bindet die bewusst deaktivierte optionale FWK-004-Wartezeiterfassung
+an die effektive READER-Rechtematrix. QRY-023 übergibt
+`@CaptureSessionWaits=0`; so wird die Wait-Stats-DMV nicht abgefragt und das auf
+SQL Server 2022+ dafür notwendige `VIEW SERVER PERFORMANCE STATE` nicht
+benötigt. Eine neue Negativregression schützt diesen Parameter. Das bleibt ein
+Codepfad-/Quellenbeleg, keine Engine- oder vollständige Minimalrechtequalifikation.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen

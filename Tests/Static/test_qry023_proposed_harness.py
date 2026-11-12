@@ -163,6 +163,15 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("Begin signature must retain @capturesessionwaits bit = 1" in error
                             for error in self.errors()))
 
+    def test_qry023_must_keep_session_wait_capture_disabled(self) -> None:
+        path = self.demo / "20_Workload.sql"
+        source = path.read_text(encoding="utf-8")
+        self.assertIn("@CaptureSessionWaits=0", source)
+        path.write_text(source.replace("@CaptureSessionWaits=0", "@CaptureSessionWaits=1"),
+                        encoding="utf-8")
+        self.assertTrue(any("bind its Begin call to FWK-004 parameters" in error
+                            for error in self.errors()))
+
     def test_missing_framework_result_column_is_rejected(self) -> None:
         path = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
         path.write_text(path.read_text(encoding="utf-8").replace(
