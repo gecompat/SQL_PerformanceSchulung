@@ -249,6 +249,26 @@ Rechte. Minimalrechte, tatsächliche Ablehnung überprivilegierter Profile,
 Serverversionen, Ressourcenbegrenzung, Abbruch-/Reap-Reihenfolge und Runtime
 bleiben offene Gates.
 
+### Rechteprüfung: Rollenmitgliedschaft ist kein Minimalrechtnachweis
+
+Ein weiterer Offlineabgleich prüfte, ob `IS_SRVROLEMEMBER('sysadmin')` und
+`IS_ROLEMEMBER('db_owner')` als einfacher Ausschluss für überprivilegierte
+READER-Anmeldungen ergänzt werden sollten. Microsoft beschreibt beide
+Funktionen als Rollenmitgliedschaftsprüfungen, nicht als Abfrage der
+zugrunde liegenden effektiven Rechte. Beide Funktionen benötigen außerdem
+`VIEW DEFINITION` auf der jeweiligen Rolle; ohne diese Sicht kann das Ergebnis
+`NULL` sein. Eine solche Prüfung würde weder andere direkte oder geerbte
+Grants erfassen noch ohne zusätzliche Rechte verlässlich laufen. Sie wird
+deshalb nicht als Minimalrechte-Gate ergänzt.
+
+Der bestehende Preflight bleibt auf den nötigen positiven `SELECT`-,
+`EXECUTE`- und `SHOWPLAN`-Rechten fail-closed. Die Existenz der beiden
+Anmeldungen, ihre effektive Berechtigungsmenge, zusätzliche Rollen oder Grants
+und die Ownership Chain müssen in einer späteren qualifizierten Umgebung
+geprüft werden; das Gate bleibt `OPEN`. Quellen, abgerufen am 12. November
+2026: [IS_SRVROLEMEMBER (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/is-srvrolemember-transact-sql)
+und [IS_ROLEMEMBER (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/is-rolemember-transact-sql).
+
 Die erste PR-CI-Prüfung zeigte, dass DGN-007 zusätzlich den AST von
 `run_demo.py` fest bindet. Die Bindung enthält jetzt den exakten Python-3.12-
 AST-Digest der erweiterten Runnerdatei; alle übrigen DGN-007-AST-Digests bleiben
