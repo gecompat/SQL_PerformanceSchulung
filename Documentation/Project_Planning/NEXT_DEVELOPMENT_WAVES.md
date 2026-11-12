@@ -198,6 +198,20 @@ Quellen-/Vertragskandidaten; keine neue SQL-Ausführung, keine Serverrechte oder
 Credentials, keine menschliche Generalprobe. Die restliche effektive
 Rechteinventur und Runtimequalifikation bleiben offen.
 
+PR #545 integrierte die Wait-Statistikgrenze am Commit `78521f0`; 50 gezielte
+QRY-023-Regressionen und sieben PR-Checks bestanden. Die anschließende
+Quellinventur fand eine echte Lücke im positiven Preflight: `30_Correctness.sql`
+liest neben den vier Graph-/Relations-Tabellen vier Oracle-Tabellen. Der
+Preflight prüfte deren `SELECT`-Rechte nicht und hätte trotz fehlender Oracle-
+Leseerlaubnis `PASS` melden können. Der nächste begrenzte Schnitt ergänzt alle
+acht Objektprüfungen, bindet dieselbe Liste im Proposed-Manifest und schützt
+die Auslassung einer Oracleberechtigung mit einer Negativregression.
+Begrenzung: ein Arbeitspaket, ein PR und höchstens drei Quellen-/Vertrags-
+kandidaten (Korrektheitsskript, Preflight/Manifestvertrag, Validator mit
+Regressionstest); keine neue Produktquelle, kein Grant, kein SQL-/Lab-/Runtime-
+Lauf und keine menschliche Generalprobe. Die vollständige effektive
+Rechteinventur und die übrigen Runtimegates bleiben offen.
+
 Diese Planung konkretisiert den aktiven Auftrag in
 [`CURRENT_EXECUTION_STATUS.md`](CURRENT_EXECUTION_STATUS.md). Sie ersetzt die
 überholten Statusangaben der nachfolgenden historischen Planung, insbesondere

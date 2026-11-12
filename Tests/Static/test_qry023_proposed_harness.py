@@ -300,11 +300,10 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
                             for error in self.errors()))
 
-    def test_showplan_preflight_must_check_all_query_table_select_rights(self) -> None:
+    def test_showplan_preflight_must_check_all_query_and_oracle_table_select_rights(self) -> None:
         path = self.demo / "25_Qualification_Preflight.sql"
         source = path.read_text(encoding="utf-8")
-        source = source.replace("    AND HAS_PERMS_BY_NAME(N'dbo.RelFriend','OBJECT','SELECT')=1 THEN 1 ELSE 0 END;",
-                                "    THEN 1 ELSE 0 END;")
+        source = source.replace("    AND HAS_PERMS_BY_NAME(N'dbo.OracleFriendOf','OBJECT','SELECT')=1\n", "")
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("MeasurementRun, and EXECUTE on the measurement procedure" in error
                             for error in self.errors()))
