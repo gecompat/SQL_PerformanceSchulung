@@ -330,7 +330,10 @@ def reader_phase_scripts_are_read_only(
     )
     ddl_or_security = re.compile(r"\b(?:create|alter|drop|grant|deny|revoke|dbcc)\b", re.IGNORECASE)
     context_switch = re.compile(r"\b(?:use|setuser|revert)\b", re.IGNORECASE)
-    sqlcmd_control_line = re.compile(r"(?m)^[ \t]*(?::.*|!!.*)$")
+    sqlcmd_control_line = re.compile(
+        r"(?m)^[ \t]*(?::.*|!!.*|GO\b.*|(?:/\*.*?\*/[ \t]*)+GO\b.*|.*\*/[ \t]*GO\b.*)$",
+        re.IGNORECASE,
+    )
     direct_execute = re.compile(
         r"\bexec(?:ute)?\s+(?P<schema>\[?(?:dbo|lab)\]?)\s*\.\s*"
         r"(?P<object>\[?[a-z_][a-z0-9_$#@]*\]?)",
@@ -339,8 +342,8 @@ def reader_phase_scripts_are_read_only(
     allowed_execute = {("lab", "usp_qry023measurevariant")}
     for script_name in reader_names:
         source = reader_scripts[script_name].removeprefix("\ufeff")
-        # SQLCMD consumes its control lines before SQL Server interprets T-SQL
-        # comments, so inspect the original script text here.
+        # SQLCMD consumes control and GO batch lines before SQL Server
+        # interprets T-SQL comments, so inspect the original script text here.
         for control_line in sqlcmd_control_line.finditer(source):
             directive = control_line.group(0).strip()
             if (script_name != "50_Plan_Evidence.sql"

@@ -156,6 +156,17 @@ Principal-/Effektrechte-,
 Ownership-Chain- und Runtimequalifikation bleiben offen; Umsetzung erfordert
 eine vollständige versionierte Sollmengenentscheidung.
 
+Die Folgeprüfung fand einen weiteren P2 im READER-SQLCMD-Guard: `GO [count]`
+kann eine Batch wiederholen und wurde nach einem führenden Kommentar auf
+derselben Zeile nicht erkannt. Der Guard verwirft jetzt rohe `GO`-Zeilen auch
+nach ein- und mehrzeiligen Blockkommentarpräfixen. Fünf neue Regressionen
+schützen nacktes `GO`, `GO` innerhalb von Blockkommentaren sowie drei
+`GO 1000000`-Formen mit inline und mehrzeiligen Kommentarpräfixen. 76 gezielte
+Tests und der QRY-023-Validator bestehen. Der unabhängige Nachreview schloss
+den Randfall ohne weitere P1/P2; Datenschutzprüfung und Dokumentationslinks der
+sechs geänderten Dateien bestehen. Keine T-SQL-Änderung und kein SQL-/Runtime-
+Lauf.
+
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen
 für 2019, 2022 und 2025 geprüft. Graph ist in den aufgeführten Editionsvarianten
 verfügbar; für 2025 folgt Standard Developer der Standard-Matrix. Das bestätigt
