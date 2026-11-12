@@ -49,9 +49,11 @@ und keine qualifizierte Demoimplementierung.
 
 Die Rechte müssen fachlich getrennt werden: Setup benötigt `CREATE DATABASE`
 sowie Tabellen-, Index- und synthetische Insert-Rechte; Korrektheit und
-Planevidenz benötigen `SELECT` auf den vier Querytabellen sowie `SHOWPLAN` auf
-der markierten Zieldatenbank. Messung benötigt zusätzlich `SELECT` auf
-`lab.MeasurementRun` und `EXECUTE` auf `lab.USP_Qry023MeasureVariant`; deren
+Die Korrektheitsphase benötigt `SELECT` auf den vier Query- und den vier
+Oracle-Tabellen. Mess- und Planevidenz benötigen `SELECT` auf den vier
+Querytabellen sowie `SHOWPLAN` auf der markierten Zieldatenbank. Messung
+benötigt zusätzlich `SELECT` auf `lab.MeasurementRun` und `EXECUTE` auf
+`lab.USP_Qry023MeasureVariant`; deren
 interne Schreiboperationen setzen eine passende Ownership Chain voraus und
 müssen in der Laufzeitqualifikation bestätigt werden. Cleanup benötigt das
 Entfernen der eigenen Datenbank nach exakter Markerprüfung. Das vorgeschlagene Manifest weist

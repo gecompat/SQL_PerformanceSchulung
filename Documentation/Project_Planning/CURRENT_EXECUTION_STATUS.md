@@ -45,6 +45,13 @@ an die effektive READER-Rechtematrix. QRY-023 übergibt
 SQL Server 2022+ dafür notwendige `VIEW SERVER PERFORMANCE STATE` nicht
 benötigt. Eine neue Negativregression schützt diesen Parameter. Das bleibt ein
 Codepfad-/Quellenbeleg, keine Engine- oder vollständige Minimalrechtequalifikation.
+PR #545 integrierte diese Klarstellung; der unabhängige Review fand keine
+P1/P2, 50 QRY-023-Regressionen, sieben PR-Checks und fünf ausgelöste
+Main-Workflows bestanden. Eine weitere Prüfung der Readerphasen fand, dass
+`30_Correctness.sql` vier zusätzliche Oracle-Tabellen liest, die der
+Qualifikationspreflight nicht prüfte. Der Preflight könnte daher trotz fehlendem
+Oracle-`SELECT` vor der Korrektheitsphase `PASS` ausgeben. Die vier Oraclerechte
+werden jetzt vorab gebunden; Laufzeit und effektive Rechte bleiben offen.
 Der unabhängige Offline-Review fand keine offenen P1/P2.
 
 `SRC-126` wurde am 12. November 2026 erneut gegen die Microsoft-Editionsmatrizen

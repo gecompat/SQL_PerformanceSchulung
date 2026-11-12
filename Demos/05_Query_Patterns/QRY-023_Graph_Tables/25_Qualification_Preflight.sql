@@ -20,14 +20,18 @@ DECLARE @HasShowplan bit=CASE WHEN HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWP
 DECLARE @HasSelect bit=CASE WHEN HAS_PERMS_BY_NAME(N'dbo.Person','OBJECT','SELECT')=1
     AND HAS_PERMS_BY_NAME(N'dbo.FriendOf','OBJECT','SELECT')=1
     AND HAS_PERMS_BY_NAME(N'dbo.RelPerson','OBJECT','SELECT')=1
-    AND HAS_PERMS_BY_NAME(N'dbo.RelFriend','OBJECT','SELECT')=1 THEN 1 ELSE 0 END;
+    AND HAS_PERMS_BY_NAME(N'dbo.RelFriend','OBJECT','SELECT')=1
+    AND HAS_PERMS_BY_NAME(N'dbo.OraclePerson','OBJECT','SELECT')=1
+    AND HAS_PERMS_BY_NAME(N'dbo.OracleFriendOf','OBJECT','SELECT')=1
+    AND HAS_PERMS_BY_NAME(N'dbo.OracleRelPerson','OBJECT','SELECT')=1
+    AND HAS_PERMS_BY_NAME(N'dbo.OracleRelFriend','OBJECT','SELECT')=1 THEN 1 ELSE 0 END;
 DECLARE @HasMeasurement bit=CASE WHEN HAS_PERMS_BY_NAME(N'lab.MeasurementRun','OBJECT','SELECT')=1
     AND HAS_PERMS_BY_NAME(N'lab.USP_Qry023MeasureVariant','OBJECT','EXECUTE')=1 THEN 1 ELSE 0 END;
 IF @HasShowplan=0 OR @HasSelect=0 OR @HasMeasurement=0
 BEGIN
     SELECT 1 AS Sequence,'QUALIFICATION_PREFLIGHT' AS Phase,'PERMISSIONS' AS CheckId,'SKIP' AS Outcome,'SKIP_PERMISSION' AS Code,
            CONCAT(N'SHOWPLAN=',@HasShowplan,N'; SELECT=',@HasSelect,N'; MEASUREMENT=',@HasMeasurement) AS ObservedValue,
-           N'SELECT auf Querytabellen und lab.MeasurementRun, EXECUTE auf lab.USP_Qry023MeasureVariant sowie SHOWPLAN auf der markierten Zieldatenbank' AS RequiredValue,
+           N'SELECT auf vier Query- und vier Oracle-Tabellen sowie lab.MeasurementRun, EXECUTE auf lab.USP_Qry023MeasureVariant sowie SHOWPLAN auf der markierten Zieldatenbank' AS RequiredValue,
            N'Plan- und Vergleichsevidenz sind Pflicht; ohne Rechte beginnt kein Query-Lauf.' AS Message;
     PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_PERMISSION';
     RETURN;

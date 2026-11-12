@@ -57,7 +57,7 @@ EXPECTED_EXECUTION_SAFETY_CONTRACT = {
 EXPECTED_AUTHORIZATION_CONTRACT = {
     "phase_privileges": {
         "SETUP": ["CREATE DATABASE", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
-        "READ_AND_MEASURE": ["SELECT ON FOUR QUERY TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
+        "READ_AND_MEASURE": ["SELECT ON FOUR QUERY AND FOUR ORACLE TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
         "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"],
     },
     "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
@@ -168,7 +168,11 @@ def qualification_permission_gate_valid(qualification: str) -> bool:
         "has_perms_by_name(n'dbo.person','object','select')=1and"
         "has_perms_by_name(n'dbo.friendof','object','select')=1and"
         "has_perms_by_name(n'dbo.relperson','object','select')=1and"
-        "has_perms_by_name(n'dbo.relfriend','object','select')=1"
+        "has_perms_by_name(n'dbo.relfriend','object','select')=1and"
+        "has_perms_by_name(n'dbo.oracleperson','object','select')=1and"
+        "has_perms_by_name(n'dbo.oraclefriendof','object','select')=1and"
+        "has_perms_by_name(n'dbo.oraclerelperson','object','select')=1and"
+        "has_perms_by_name(n'dbo.oraclerelfriend','object','select')=1"
     )
     measurement_check = (
         "declare@hasmeasurementbit=casewhenhas_perms_by_name(n'lab.measurementrun','object','select')=1"
@@ -505,7 +509,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("showplan" in qualification and "has_perms_by_name" in qualification,
             "qualification preflight must check SHOWPLAN before query execution", errors)
     require(qualification_permission_gate_valid(qualification),
-            "qualification preflight must check target DATABASE/SHOWPLAN, SELECT on all query tables and MeasurementRun, and EXECUTE on the measurement procedure before SKIP_PERMISSION/RETURN", errors)
+            "qualification preflight must check target DATABASE/SHOWPLAN, SELECT on all query and oracle tables and MeasurementRun, and EXECUTE on the measurement procedure before SKIP_PERMISSION/RETURN", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
     require(qualification_ownership_markers_valid(qualification),

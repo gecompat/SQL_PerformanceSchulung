@@ -84,8 +84,8 @@ Prüfung bindet statische Positionen; sie belegt weder, dass ein Client das
 Skript tatsächlich ausführt, noch dass ein Engineplan ausgegeben wird.
 
 Der vorgeschaltete Qualifikationspreflight wird jetzt exakt auf
-`HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')`, die vier verwendeten
-Objekt-`SELECT`-Prüfungen, `SELECT` auf `lab.MeasurementRun`, `EXECUTE` auf
+`HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','SHOWPLAN')`, die acht von der
+Korrektheitsphase verwendeten Objekt-`SELECT`-Prüfungen, `SELECT` auf `lab.MeasurementRun`, `EXECUTE` auf
 `lab.USP_Qry023MeasureVariant` und den Rechtefehlerzweig `SKIP_PERMISSION` mit
 `RETURN` gebunden. Die beiden Messrechte wurden ergänzt, nachdem die Prüfung
 von `40_Measurement.sql` zeigte, dass das Skript den Mess-Wrapper aufruft und
@@ -101,6 +101,18 @@ Die beiden Preflight-Summarys müssen exakt als
 Outcome, Erfolgs-Outcome oder Printmarker werden abgewiesen. Das prüft nur die
 T-SQL-Textform; es erteilt keine Rechte und liest keine tatsächlichen
 SQL-Server-Berechtigungen aus.
+
+Eine erneute Rechteinventur fand einen bisher fehlenden Check: `30_Correctness.sql`
+liest neben den vier Graph-/Relations-Querytabellen auch `OraclePerson`,
+`OracleFriendOf`, `OracleRelPerson` und `OracleRelFriend`. Der frühere
+Qualifikationspreflight prüfte diese vier Oracleobjekte nicht und konnte deshalb
+vor der Korrektheitsphase `PASS` liefern, obwohl dort `SELECT` fehlte. Der
+Preflight prüft jetzt alle acht Tabellen vor jeder Queryphase; das Proposed-
+Manifest und der Offlinevalidator binden dieselbe Liste. Eine Negativregression
+entfernt die `SELECT`-Prüfzeile für `OracleFriendOf` aus dem Preflightskript;
+der statische Validator muss diesen Vertragsverlust zurückweisen. Der Test
+verändert keine SQL-Berechtigung und führt kein SQL aus. Script-/Testprüfung
+belegt weder tatsächliche Grants noch SQL-Server-Laufzeit.
 
 Vor den Rechteprüfungen muss der Qualifikationspreflight außerdem
 Systemdatenbanken (`DB_ID()<=4`) ausschließen und `DB_NAME()` exakt an den
