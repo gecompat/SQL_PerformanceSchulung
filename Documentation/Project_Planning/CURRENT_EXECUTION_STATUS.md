@@ -8946,5 +8946,6 @@ auch für direkt importierte Quellklassen. Drei synthetische Fixtures prüfen
 lokale und beide importierten Aliasformen. Eine zusätzliche Verzweigungsfixture
 prüft Aliasverkettung und die Erhaltung beider möglicher Basen samt Imports.
 62/62 fokussierte Tests bestehen. Mehrfachzuweisungen können Kandidaten
-überzählen; dynamische Zuweisungen, externe Basen und vollständige MRO bleiben
-offen.
+überzählen. Eine Negativprobe bestätigt, dass ein Factory-Rückgabewert nicht
+als Klassenbasis geraten wird. 63/63 Tests bestehen. Externe Basen und
+vollständige MRO bleiben offen.
