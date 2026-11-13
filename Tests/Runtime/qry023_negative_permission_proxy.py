@@ -79,7 +79,13 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DENY VIEW DEFINITION TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_DENY_INJECTED",
         )
-    if mode == "ENDPOINT_PERMISSION":
+    if mode in {"ENDPOINT_PERMISSION", "ENDPOINT_PERMISSION_DENY"}:
+        is_deny = mode == "ENDPOINT_PERMISSION_DENY"
+        verb = "DENY" if is_deny else "GRANT"
+        marker = (
+            "QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_DENY_INJECTED"
+            if is_deny else "QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_INJECTED"
+        )
         return (
             "DECLARE @reader_id int=SUSER_ID(N'READER'); DECLARE @endpoint_id int; "
             "SELECT @endpoint_id=endpoint_id FROM master.sys.endpoints "
@@ -89,8 +95,8 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "IF EXISTS (SELECT 1 FROM master.sys.server_permissions "
             "WHERE grantee_principal_id=@reader_id AND class_desc=N'ENDPOINT' AND major_id=@endpoint_id) "
             "THROW 51028,'QRY-023 endpoint negative control found a preexisting permission.',1; "
-            "GRANT CONNECT ON ENDPOINT::[TSQL Default TCP] TO [READER];\n",
-            "QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_INJECTED",
+            f"{verb} CONNECT ON ENDPOINT::[TSQL Default TCP] TO [READER];\n",
+            marker,
         )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
@@ -106,7 +112,8 @@ def main() -> int:
             if not container or not password:
                 raise ValueError("isolated container or ADMIN credential is unavailable")
             injection_database = "master" if mode in {
-                "SERVER_PERMISSION", "SERVER_PERMISSION_DENY", "ENDPOINT_PERMISSION"
+                "SERVER_PERMISSION", "SERVER_PERMISSION_DENY",
+                "ENDPOINT_PERMISSION", "ENDPOINT_PERMISSION_DENY",
             } else target
             command = [
                 "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", container,

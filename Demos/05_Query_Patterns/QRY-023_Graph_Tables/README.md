@@ -203,7 +203,8 @@ abgewiesen: zusätzlicher direkter READER-`SELECT`-Grant, Mitgliedschaft in
 Serverrolle `dbcreator`, fehlendes erwartetes Tabellenobjekt, ein serverweiter
 `VIEW SERVER STATE`-Grant sowie ein explizites serverweites
 `DENY VIEW SERVER STATE`, datenbankweiter `VIEW DEFINITION`-Grant und
-datenbankweites `DENY VIEW DEFINITION`. Jeder Fall verlangte die exakte
+datenbankweites `DENY VIEW DEFINITION` sowie ein direkter `CONNECT`-Grant auf
+dem Standardendpoint `TSQL Default TCP`. Jeder Fall verlangte die exakte
 Abweichungskategorie, `FAIL_NOT_PROVEN`, keinen Eintritt in Queryphasen und
 bestandenes markergebundenes Cleanup; nach temporären Rechteänderungen wurde
 deren Wiederherstellung separat geprüft. Der anschließende positive
