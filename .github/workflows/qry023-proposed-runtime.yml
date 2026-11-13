@@ -939,22 +939,6 @@ jobs:
           timeout_manifest="$demo_dir/manifest.proposed.timeout-negative.json"
           log="$RUNNER_TEMP/qry023-timeout-cleanup-${{ matrix.major }}.log"
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
-          cleanup_timeout_probe() {
-            run_status=$?
-            trap - EXIT
-            set +e
-            rm -f -- "$timeout_manifest"
-            cleanup_status=$?
-            for probe in "$demo_dir"/.qry023_timeout_probe_*.sql; do
-              if [[ -f "$probe" ]]; then rm -f -- "$probe" || cleanup_status=1; fi
-            done
-            if [[ "$cleanup_status" != 0 ]]; then
-              echo 'QRY-023 timeout probe temporary-file cleanup failed.' >&2
-              run_status=1
-            fi
-            exit "$run_status"
-          }
-          trap cleanup_timeout_probe EXIT
           python - "$demo_dir/manifest.proposed.json" "$timeout_manifest" <<'PY'
           import json
           import sys
@@ -1025,11 +1009,6 @@ jobs:
           done
           [[ "$active" == 0 ]]
           printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED' >> "$log"
-          rm -f -- "$timeout_manifest"
-          for probe in "$demo_dir"/.qry023_timeout_probe_*.sql; do
-            if [[ -f "$probe" ]]; then rm -f -- "$probe"; fi
-          done
-          trap - EXIT
           exit 0
       - name: Remove only the owned SQL Server container
         if: always()
