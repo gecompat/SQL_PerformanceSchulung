@@ -2,9 +2,9 @@
 
 Aktualisiert am 13. November 2026: QRY-023s vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
-enginequalifiziert. PR #586 ergänzte den Live-Nachweis für die SQL-RunToken-
-Grenze. Die aktuelle Folgequalifikation prüft den exakt gebundenen
-`TargetDatabase`-Namen; QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
+enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
+RunToken-, Zielnamen- und Demo-ID-Prüfung, jeweils vor Setup und ohne Erzeugung
+einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
@@ -8580,10 +8580,15 @@ geprüfte Containerbereinigung bestand. PR #586 ist in `main` integriert.
 PR #587 ergänzte danach den binären Namensvergleich und Bytelängenvergleich
 für `TargetDatabase`; die Gegenprobe für ein nachgestelltes Leerzeichen wurde
 auf allen drei Engines vor Setup abgewiesen, ohne eine Nutzerdatenbank
-anzulegen. Der nächste Boundary-Schnitt prüft die Demo-ID gegen vorzeitige
-`varchar`-Kürzung und kollationsabhängige Gleichheit. Er enthält einen
-Leerzeichenfall und einen case-varianten Wert mit konsistent abgeleitetem
-Zielnamen. QRY-023 bleibt `PROPOSED`, nicht katalogisiert und
+anzulegen.
+
+PR #588 verbreiterte die Demo-ID-Variable, sodass vorzeitige Kürzung nicht mehr
+eine ungültige Eingabe kaschiert, und fordert exakt sieben Bytes sowie den
+BIN2-Wert `QRY-023`. Die Live-Gegenproben für ein angehängtes Leerzeichen und
+eine kleingeschriebene Demo-ID mit konsistent abgeleitetem Zielnamen wurden auf
+allen drei Engines vor Setup abgewiesen; Nutzerdatenbanken blieben aus und der
+Cleanup-Marker bestand. Damit sind die drei benannten SQLCMD-Identitätsgrenzen
+getrennt live qualifiziert. QRY-023 bleibt `PROPOSED`, nicht katalogisiert und
 `runtime_authorized: false`; die
 allgemeine Produkt-/Katalogfreigabe und die ausdrücklich ausgeschlossene
 menschliche Generalprobe bleiben getrennte Grenzen.
