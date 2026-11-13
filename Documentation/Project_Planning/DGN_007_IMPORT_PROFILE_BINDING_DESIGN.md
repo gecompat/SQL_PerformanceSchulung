@@ -5145,3 +5145,28 @@ Der Kandidatenfolger ist weiterhin kein vollständiger Aufrufgraph und keine
 P11-Importclosure. Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung; S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben
 offen.
+
+### Fortsetzung: importierte Klassenaliase in aufgerufenen Nested-Function-Closures
+
+Ein bereits erkannter importierter Klassenalias wird nun als lexikalischer
+Kandidat an aufgerufene verschachtelte Funktionen weitergegeben. Damit werden
+beispielsweise `LocalWorker = Worker`, `ChainedWorker = LocalWorker` und ein
+danach aufgerufenes `invoke()` mit `ChainedWorker().run()` verfolgt. Nicht
+aufgerufene innere Funktionen fügen keine Imports hinzu. Namen aus einem
+Klassen-Namespace werden nicht als lexikalische Closures einer Methode
+behandelt. Factory-Rückgaben und dynamisches Rebinding bleiben ungelöst.
+Drei synthetische Regressionen prüfen Closure-Verfolgung, Ausschluss
+nichtaufgerufener Funktionen und die Klassenscope-Grenze; der fokussierte
+Scannertestsatz besteht mit 86/86.
+
+Der erneut ausgeführte Scan des SHA-256-gebundenen CPython-3.12.16-Archivs
+bleibt `CANDIDATES_ONLY`: 93 Quellmodule, 578 Kanten, 534 Funktionen, 22
+entschiedene und 1.605 unbekannte Bedingungen; Zeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+Die neue Form ändert die gebundene Archivmenge nicht. Der zusätzliche breite
+`test_dgn007_import_runtime_profile`-Satz ist in der lokalen Windows-Umgebung
+nicht verwertbar: dessen Linux-Profilfixtures werden bereits an
+`ROOT_MISMATCH` abgewiesen (`os.path.isabs` akzeptiert die Linux-Wurzelpfade
+unter Windows nicht). Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
+Generalproben-Ausführung; vollständige Aufrufclosure, S15-/P11-Inventur und
+Fünf-Formen-/64-KiB-Gate bleiben offen.
