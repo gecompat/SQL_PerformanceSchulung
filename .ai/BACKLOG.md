@@ -45,12 +45,13 @@ Pool-/Semaphore-Kombination. Er authentifiziert keine Aufnahme und weist keine
 Ursache oder reale Konkurrenz nach. Die synthetischen Gegenproben sind im
 Framework-Contracts-Workflow enthalten; SQL-/Runtimequalifikation bleibt offen.
 
-**Nächster unabhängig bearbeitbarer Lesepfad:** TSK-015 (menschliche Lesepfade
-und historische Planungseinstiege). Der DGN-004-Quellkandidat aus PR #593 ist
-integriert; SQL-/Runtimequalifikation wartet weiterhin auf das YELLOW-Gate.
-TSK-015 trennt den historischen Pause-/Prioritätsstand vom aktuellen Auftrag,
-erhält Kennungen und Nachweise und berührt nicht die ausgeschlossene
-Teilnehmer-Generalprobe. Den aktuellen Arbeitsstand führt der
+**TSK-015 – abgeschlossener Lesepfad-Schnitt:** Der 22.-Oktober-Pausen- und
+Prioritätsstand ist als historischer Snapshot markiert und mit dem aktuellen
+Auftrag vom 26. Oktober verknüpft. PRs #595 und #596 integrieren den Abgleich
+von Backlog, Ausführungsstand und Masterplan; Kennungen und historische Belege
+blieben erhalten. Unabhängiger Review ohne offene P1/P2. Dies ist keine
+pauschale Altbestandskonformität und keine Teilnehmer-Generalprobe. Der nächste
+Arbeitsstand und die weitere Reihenfolge stehen im
 [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
 
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
@@ -2360,6 +2361,12 @@ und der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_E
 
 Die folgenden datierten Einträge sind historische Teilstände. Für die aktuelle
 Fortsetzung gilt der [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
+
+**Spätere Fortschreibung:** Der benannte TSK-015-Lesepfadbefund wurde mit
+PRs #595 und #596 behoben. Die oben stehende Checkbox hält den Stand des
+22. Oktober 2026 fest und wurde nicht rückwirkend geändert. Eine pauschale
+Altbestandskonformität oder Teilnehmer-Generalprobe wird daraus nicht
+abgeleitet.
 
 ## Menschlicher Projekteinstieg und Lehrmaßstab vom 20. Oktober 2026
 

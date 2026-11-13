@@ -8655,3 +8655,18 @@ Hostcheck am 2026-11-13 fand weiterhin fünf fremde, aktive SQL-Server-Container
 (seit rund 23 Stunden aktiv); deren gemeinsamer Snapshot lag bei rund 5,6 GiB
 und 30 % CPU. Das belegt keine kontrollierte Optimiererlast. Die fremden
 Container blieben unverändert; das YELLOW-Vorstartgate bleibt offen.
+
+## TSK-015 – historische Priorität von aktueller Steuerung getrennt
+
+Die menschliche Lesepfadprüfung führte vom Root-README über die
+Dokumentationsübersicht zu Backlog, Ausführungsstand und Masterplan. Der
+Pausenauftrag vom 22. Oktober bleibt als historischer Snapshot mit seinen
+damaligen Kennungen und Nachweisen erhalten; aktuelle Verweise führen zur
+Wiederaufnahme vom 26. Oktober. Der aktive DGN-004-Plan nennt nun den
+integrierten Source-only-Stand PR #593 und die weiterhin bindenden YELLOW- und
+Vorstartgates. PRs [#595](https://github.com/gecompat/SQL_PerformanceSchulung/pull/595)
+und [#596](https://github.com/gecompat/SQL_PerformanceSchulung/pull/596) sind
+integriert; unabhängiger Review fand nach Korrektur der Links keine offenen
+P1/P2. Der benannte Lesepfadbefund ist behoben. Das ist keine pauschale
+Altbestandskonformität; nicht geänderte Lern-/Präsentationspfade wurden nicht
+global neu bewertet. Die menschliche Generalprobe bleibt ausgeschlossen.
