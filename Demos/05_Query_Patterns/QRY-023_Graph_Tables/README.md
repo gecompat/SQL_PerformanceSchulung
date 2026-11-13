@@ -230,9 +230,11 @@ Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze f�
 zusätzliches TempDB-Wachstum; zugleich ist höchstens eine SQL-Session aktiv.
 Diese Werte sind noch nicht als allgemeine Runtimequalifikation abgenommen. Der
 separate vorgeschlagene CI-Aufrufer setzt für seine frische Wegwerfinstanz 2 CPU,
-4 GiB Container-RAM, 3 GiB SQL-Speicher und neun TempDB-Dateien mit je 96 MiB
-Maximalgröße (864 MiB zusammen); vor Setup verifiziert er die Grenzwerte und das
-leere Benutzerdatenbankinventar. Der Aufrufer bleibt vom Runtimekatalog getrennt.
+4 GiB Container-RAM und 3 GiB SQL-Speicher. Er akzeptiert ein TempDB-Layout aus
+einer Logdatei und 1–15 Datendateien, verteilt das Maximalbudget von 1 GiB auf
+alle Dateien und setzt 64 MiB Wachstum pro Datei; vor Setup verifiziert er die
+Grenzwerte und das leere Benutzerdatenbankinventar. Der Aufrufer bleibt vom
+Runtimekatalog getrennt.
 Bei einem QRY-023-SQL-Timeout unterdrückt der FWK-010-Runner das SQL-Cleanup und
 meldet `FAIL_CLEANUP`, weil serverseitiges Ende und TempDB-Freigabe nicht
 bewiesen sind. Der äußere CI-Schritt entfernt den exakt markierten

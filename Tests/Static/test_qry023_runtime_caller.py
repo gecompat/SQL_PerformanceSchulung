@@ -82,9 +82,10 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
     def test_tempdb_guard_is_fail_closed_and_capped(self) -> None:
         sql = (ROOT / "Tests/Runtime/qry023_tempdb_resource_guard.sql").read_text(encoding="utf-8")
         self.assertIn("database_id > 4", sql)
-        self.assertIn("@file_count <> 9", sql)
-        self.assertIn("MAXSIZE = 96MB, FILEGROWTH = 64MB", sql)
-        self.assertIn("SUM(CONVERT(bigint, max_size)) FROM tempdb.sys.database_files) > 131072", sql)
+        self.assertIn("@file_count NOT BETWEEN 2 AND 16", sql)
+        self.assertIn("DECLARE @max_file_mib int = 1024 / @file_count", sql)
+        self.assertIn("FILEGROWTH = 64MB", sql)
+        self.assertIn("IF @total_max_mib > 1024", sql)
 
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:
         password = "QRY" + "023!" + "1" * 24 + "Read"
