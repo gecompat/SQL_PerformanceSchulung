@@ -151,7 +151,11 @@ jobs:
           status="$?"
           set -e
           printf '%s\n' "$output"
-          if (( status != 0 )); then exit "$status"; fi
+          if (( status != 0 )); then
+            docker exec -e SQLCMDPASSWORD "$container" "$sqlcmd" -S localhost -d master -U sa -C -Q \
+              'SELECT file_id,type,size AS size_pages,max_size AS max_size_pages,growth,is_percent_growth FROM tempdb.sys.database_files ORDER BY file_id;'
+            exit "$status"
+          fi
           grep -F 'QRY023_TEMPDB_GUARD|PASS|' <<< "$output"
           grep -F ';growth_mib=64' <<< "$output"
       - name: Provision the fresh READER SQL login through stdin
