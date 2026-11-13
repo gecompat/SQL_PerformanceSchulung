@@ -8951,3 +8951,14 @@ als Klassenbasis geraten wird. 63/63 Tests bestehen. Externe Basen und
 vollständige MRO bleiben offen. Eine Gegenprobe mit gegenseitig zyklischen
 Aliasnamen terminiert ebenfalls ohne erfundene Basismethode; 64/64 Tests
 bestehen.
+
+## Gebundener Archivscan nach Alias- und Basiserweiterungen
+
+Der erneute CPython-3.12.16-Archivlauf verwendet den Quellhash
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`.
+Der Aufrufkandidatenpfad zählt 92 Module, 573 Kanten und 471 besuchte
+Funktionen; 22 Bedingungen sind entschieden und 1.452 unbekannt. Der
+Modul-/Quelldigest lautet
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`. Der
+Status bleibt `CANDIDATES_ONLY`; dies ist keine vollständige Importclosure oder
+P11-Sollinventur.
