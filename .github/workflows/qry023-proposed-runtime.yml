@@ -461,6 +461,54 @@ jobs:
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_RESTORED' <<< "$output"
           echo 'QRY023_ENDPOINT_PERMISSION_GRANTED=' >> "$GITHUB_ENV"
+      - name: Prove the permission inventory rejects a denied READER endpoint permission
+        shell: bash
+        env:
+          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: ENDPOINT_PERMISSION_DENY
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-endpoint-permission-deny-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          echo 'QRY023_ENDPOINT_PERMISSION_DENY_GRANTED=0' >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          grep -F 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_DENY_INJECTED' "$log"
+          echo 'QRY023_ENDPOINT_PERMISSION_DENY_GRANTED=1' >> "$GITHUB_ENV"
+          [[ "$result" == 2 ]]
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'SERVER_PERMISSION;' "$log"
+          if grep -F 'SERVER_ROLE;' "$log" || grep -F 'DATABASE_PERMISSION;' "$log" || grep -F 'DATABASE_ROLE;' "$log"; then
+            echo 'Denied endpoint-permission case produced an unexpected permission category.' >&2
+            exit 1
+          fi
+          grep -F 'CLEANUP: PASS/OK' "$log"
+          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
+            echo 'Denied endpoint-permission case reached a protected query phase.' >&2
+            exit 1
+          fi
+      - name: Restore denied endpoint-permission baseline after negative control
+        if: always() && env.QRY023_ENDPOINT_PERMISSION_DENY_GRANTED == '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="${SQLPERF_SQL_CONTAINER:-}"
+          owner="${SQLPERF_CI_OWNER:-}"
+          if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
+          container_id="$(docker inspect --format '{{.Id}}' "$container" 2>/dev/null || true)"
+          if [[ -z "$container_id" ]]; then exit 0; fi
+          [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
+          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -Q \
+            "DECLARE @reader_id int=SUSER_ID(N'READER'); DECLARE @endpoint_id int; SELECT @endpoint_id=endpoint_id FROM master.sys.endpoints WHERE name=N'TSQL Default TCP' AND endpoint_id<65536 AND is_admin_endpoint=0; IF @reader_id IS NULL OR @endpoint_id IS NULL THROW 51031,'QRY-023 endpoint DENY cleanup target is unavailable.',1; IF EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND class_desc=N'ENDPOINT' AND major_id=@endpoint_id) REVOKE CONNECT ON ENDPOINT::[TSQL Default TCP] FROM [READER]; IF EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND class_desc=N'ENDPOINT' AND major_id=@endpoint_id) THROW 51032,'QRY-023 endpoint DENY cleanup failed.',1; PRINT 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_DENY_RESTORED';")"
+          printf '%s\n' "$output"
+          grep -F 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_DENY_RESTORED' <<< "$output"
+          echo 'QRY023_ENDPOINT_PERMISSION_DENY_GRANTED=' >> "$GITHUB_ENV"
       - name: Prove the permission inventory rejects a missing expected object
         shell: bash
         env:
