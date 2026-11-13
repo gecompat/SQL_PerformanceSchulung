@@ -8613,3 +8613,22 @@ neue P1/P2. PR #590 wurde am 2026-11-13 per Squash als
 nicht katalogisiert und `runtime_authorized: false`. Die Produkt-/Katalogabnahme
 bleibt getrennt; die menschliche Generalprobe bleibt ausdrücklich
 ausgeschlossen.
+
+## DGN-004 – begrenzter Entwurf zur plan_handle-Provenienz
+
+Der integrierte Capture-Transport erhält weiterhin nur einen vom Aufrufer
+gelieferten `plan_handle`; die Offline-Identitätsprüfung authentifiziert weder
+Serverzeilen noch aktuelle Ausführung. Der neue
+[Provenienzentwurf](DGN_004_PLAN_HANDLE_PROVENANCE_DESIGN.md) schlägt vor, alle
+exakt objekt-, quellen- und offsetgebundenen Cachezeilen vor und nach genau
+einem eigenen Aufruf vollständig zu erfassen. Ein Handle dürfte erst bei genau
+einem Kandidaten mit einer Ausführungsdifferenz von eins freigegeben werden;
+fehlende, zusätzliche oder mehrdeutige Zeilen bleiben `NOT_PROVEN`. Der
+unabhängige Nachreview fand zunächst eine P2-Mehrdeutigkeit im Snapshot-
+Schlüssel; die Ergänzung von `sql_handle` und Start-/Endoffsets wurde bestätigt.
+Keine offenen P1/P2. Der Entwurf ist noch nicht implementiert, SQL-kompiliert
+oder ausgeführt. Die kontrollierte Ein-Writer-Zuordnung bleibt eine begrenzte
+Inferenz. Ein read-only Hostcheck am 2026-11-13 fand weiterhin fünf fremde,
+aktive SQL-Server-Container; deren gemeinsamer Snapshot lag bei rund 5,6 GiB
+und etwa 5 % CPU. Das belegt keine kontrollierte Optimiererlast. Die fremden
+Container blieben unverändert; das YELLOW-Vorstartgate bleibt offen.
