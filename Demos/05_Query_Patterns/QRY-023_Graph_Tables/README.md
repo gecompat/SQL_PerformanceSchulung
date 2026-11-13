@@ -119,9 +119,10 @@ prüfte die tatsächlichen READER-Verbindungen und den Messprozedurpfad auf alle
 drei Builds. Eine Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant
 und Mitgliedschaft in `db_datareader` wurde auf allen drei Builds vor den
 Queryphasen fail-closed abgewiesen. Die seither ergänzten und auf den drei
-Builds qualifizierten Live-Gegenproben für Objekt-DENY, Rollen, Objektinventar,
-Server-/Datenbankrechte (einschließlich direktem `VIEW ANY DATABASE`-GRANT)
-und Endpoints samt Cleanup sind im [aktuellen
+Builds qualifizierten Live-Gegenproben für Objekt-DENY, Serverrollen und
+Objektinventar, Server-/Datenbankrechte (einschließlich direktem
+`VIEW ANY DATABASE`-GRANT und -DENY sowie `CONNECT SQL`-DENY) und Endpoints
+samt Cleanup sind im [aktuellen
 Ausführungsstatus](../../../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
 nach PR dokumentiert. QRY-023 bleibt dabei `PROPOSED` und nicht katalogisiert.
 
@@ -207,13 +208,17 @@ abgewiesen: zusätzlicher direkter READER-`SELECT`-Grant, Mitgliedschaft in
 Serverrolle `dbcreator`, fehlendes erwartetes Tabellenobjekt, ein serverweiter
 `VIEW SERVER STATE`-Grant sowie ein explizites serverweites
 `DENY VIEW SERVER STATE`, datenbankweiter `VIEW DEFINITION`-Grant und
-datenbankweites `DENY VIEW DEFINITION` sowie direkte `CONNECT`-Grant- und
-`DENY`-Gegenproben auf dem Standardendpoint `TSQL Default TCP`. Jeder Fall verlangte die exakte
+datenbankweites `DENY VIEW DEFINITION`, direkte `CONNECT`-Grant- und `DENY`-
+Gegenproben auf dem Standardendpoint `TSQL Default TCP`, direkte
+`VIEW ANY DATABASE`-Grant- und `DENY`-Gegenproben sowie `DENY CONNECT SQL`.
+Jeder Fall verlangte die exakte
 Abweichungskategorie, `FAIL_NOT_PROVEN`, keinen Eintritt in Queryphasen und
 bestandenes markergebundenes Cleanup; nach temporären Rechteänderungen wurde
 deren Wiederherstellung separat geprüft. Der anschließende positive
-Zehnphasenlauf bestand ebenfalls. Weitere negative Varianten und absichtlich
-beschädigte SQL-Kataloge wurden nicht ausgeführt. QRY-023 bleibt vorgeschlagen
+Zehnphasenlauf bestand ebenfalls. Eine zusätzliche direkte
+`securityadmin`-Serverrollenmitgliedschaft wird als nächster isolierter
+Inventarfall qualifiziert. Absichtlich beschädigte SQL-Kataloge wurden nicht
+ausgeführt. QRY-023 bleibt vorgeschlagen
 und nicht katalogisiert.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-

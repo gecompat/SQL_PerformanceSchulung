@@ -150,6 +150,10 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         sql, marker = negative_proxy.injection_for_mode("SERVER_ROLE")
         self.assertEqual(sql, "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n")
         self.assertEqual(marker, "QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_INJECTED")
+        securityadmin_sql, securityadmin_marker = negative_proxy.injection_for_mode("SECURITYADMIN_ROLE")
+        self.assertIn("DECLARE @membership int=IS_SRVROLEMEMBER(N'securityadmin',N'READER')", securityadmin_sql)
+        self.assertIn("ALTER SERVER ROLE [securityadmin] ADD MEMBER [READER]", securityadmin_sql)
+        self.assertEqual(securityadmin_marker, "QRY023_NEGATIVE_PERMISSION|SECURITYADMIN_ROLE_INJECTED")
 
     def test_negative_permission_proxy_missing_object_mode_is_fixed(self) -> None:
         sql, marker = negative_proxy.injection_for_mode("MISSING_OBJECT")
@@ -451,6 +455,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER server role"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the permission inventory rejects READER securityadmin membership"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects a missing expected object"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER server permission"),
@@ -473,6 +479,11 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("DATABASE_PERMISSION;", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DIRECT_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_ROLE", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SECURITYADMIN_ROLE", workflow)
+        self.assertIn("QRY023_SECURITYADMIN_ROLE_ATTEMPTED=1", workflow)
+        self.assertIn("if: always() && env.QRY023_SECURITYADMIN_ROLE_ATTEMPTED == '1'", workflow)
+        self.assertIn("ALTER SERVER ROLE [securityadmin] DROP MEMBER [READER]", workflow)
+        self.assertIn("QRY023_NEGATIVE_PERMISSION|SECURITYADMIN_ROLE_RESTORED", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: MISSING_OBJECT", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION_DENY", workflow)
@@ -600,7 +611,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant", readme)
         self.assertIn("Mitgliedschaft in `db_datareader`", readme)
         self.assertIn("`VIEW SERVER STATE`-Grant", readme)
-        self.assertIn("absichtlich\nbeschädigte SQL-Kataloge wurden nicht ausgeführt", readme)
+        self.assertIn("Absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
         self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
 
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:

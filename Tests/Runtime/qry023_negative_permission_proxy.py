@@ -54,6 +54,14 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_INJECTED",
         )
+    if mode == "SECURITYADMIN_ROLE":
+        return (
+            "DECLARE @membership int=IS_SRVROLEMEMBER(N'securityadmin',N'READER'); "
+            "IF @membership IS NULL OR @membership<>0 "
+            "THROW 51039,'QRY-023 securityadmin negative control requires a known non-member baseline.',1; "
+            "ALTER SERVER ROLE [securityadmin] ADD MEMBER [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|SECURITYADMIN_ROLE_INJECTED",
+        )
     if mode == "MISSING_OBJECT":
         return (
             "DROP TABLE lab.MeasurementWaitSnapshot;\n",
@@ -143,6 +151,7 @@ def main() -> int:
                 "VIEW_ANY_DATABASE_GRANT",
                 "VIEW_ANY_DATABASE_DENY",
                 "CONNECT_SQL_DENY",
+                "SECURITYADMIN_ROLE",
                 "ENDPOINT_PERMISSION", "ENDPOINT_PERMISSION_DENY",
                 "CUSTOM_ENDPOINT",
             } else target
