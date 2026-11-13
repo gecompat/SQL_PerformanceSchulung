@@ -2474,6 +2474,40 @@ vollständige Importumfang muss aus den endgültigen gehaltenen Bootstrapbytes,
 der begründeten Aufrufroute und unabhängig vorgewählten S15-/P11-Feldern
 abgeleitet werden.
 
+### 19.12 Statische Sysconfig-Vorwahl für den Imagekandidaten
+
+Die bereits digestgebundene CPython-3.12.16-Installation liefert eine weitere
+vorab lesbare Teilmenge der geplanten Auswahl. Die syntaktisch gelesene
+`build_time_vars`-Konstante aus `_sysconfigdata__linux_x86_64-linux-gnu.py`
+weist `SOABI=cpython-312-x86_64-linux-gnu`,
+`DESTSHARED=/usr/local/lib/python3.12/lib-dynload`,
+`EXT_SUFFIX=.cpython-312-x86_64-linux-gnu.so`,
+`MULTIARCH=x86_64-linux-gnu` und leere `ABIFLAGS` aus. Die Dateibytes bleiben
+47.373 Bytes mit SHA-256
+`3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187` aus §19.9.
+Die signaturgeprüfte `Lib/sysconfig.py` bleibt an den Quellhash
+`ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8`
+gebunden. Ihre Funktion `_get_sysconfigdata_name` liest
+`_PYTHON_SYSCONFIGDATA_NAME` aus `os.environ`, falls gesetzt; andernfalls
+bildet sie den Namen aus ABIFLAGS, Plattform und Multiarch. Für die
+Imagekonfiguration ohne diese Umgebungsvariable ergibt sich damit der
+Dateiname `_sysconfigdata__linux_x86_64-linux-gnu`.
+
+Dies legt `SOABI`, `DESTSHARED` und den Kandidaten für den Sysconfigdaten-
+Modulnamen als erwartete Quellenwerte vorläufig fest. Die spätere gehaltene
+Kindumgebung muss `_PYTHON_SYSCONFIGDATA_NAME` ausdrücklich abwesend halten;
+`-I` allein unterbindet den direkten `os.environ`-Zugriff der Funktion nicht.
+Ein generierter Configure-Wert und die Image-`Env`-Angabe ersetzen jedoch
+weder den späteren gebundenen `sysconfig`-Aufruf noch dessen tatsächliche
+Rückgabewerte, die vollständigen S15-Felder oder P11-Records. Es gab weiterhin
+keinen Interpreterstart und keine Profilaufnahme.
+
+Als Typklarstellung: `MODBUILT_NAMES` ist im generierten Modul ein
+whitespace-getrennter String mit 1.029 Zeichen und 101 eindeutigen Namen,
+nicht eine Sequenz mit 1.029 Modulen. Sein Tokenbestand stimmt mit den 22
+`Setup.bootstrap`- und 79 `Setup.stdlib`-Namen aus §19.9 überein. Der
+AST-/Literalzugriff führte weder das Modul noch den Interpreter aus.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
