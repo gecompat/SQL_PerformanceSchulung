@@ -481,6 +481,37 @@ def _top_level_class_method_index(tree):
     return result
 
 
+def _has_possible_staticmethod_rebinding(tree):
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id == "staticmethod" \
+                and not isinstance(node.ctx, ast.Load):
+            return True
+        if isinstance(node, ast.arg) and node.arg == "staticmethod":
+            return True
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) \
+                and node.name == "staticmethod":
+            return True
+        if isinstance(node, ast.ExceptHandler) and node.name == "staticmethod":
+            return True
+        if isinstance(node, (ast.Global, ast.Nonlocal)) and "staticmethod" in node.names:
+            return True
+        if isinstance(node, ast.Import) and any(
+                (alias.asname or alias.name.partition(".")[0]) == "staticmethod"
+                for alias in node.names):
+            return True
+        if isinstance(node, ast.ImportFrom):
+            if any(alias.name == "*" or (alias.asname or alias.name) == "staticmethod"
+                   for alias in node.names):
+                return True
+        if isinstance(node, ast.MatchAs) and node.name == "staticmethod":
+            return True
+        if isinstance(node, ast.MatchStar) and node.name == "staticmethod":
+            return True
+        if isinstance(node, ast.MatchMapping) and node.rest == "staticmethod":
+            return True
+    return False
+
+
 def _imported_function_aliases(tree, module, path, function_index):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
     result = {}
@@ -816,6 +847,18 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
 
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
     module_class_methods = scope_class_methods(tree.body)
+    staticmethod_rebinding_possible = _has_possible_staticmethod_rebinding(tree)
+    method_receiver_context = {}
+    for class_name, methods in module_class_methods.items():
+        for functions in methods.values():
+            for function in functions:
+                decorators = {decorator.id for decorator in function.decorator_list
+                              if isinstance(decorator, ast.Name)}
+                if "staticmethod" in decorators and not staticmethod_rebinding_possible:
+                    continue
+                positional = (*function.args.posonlyargs, *function.args.args)
+                if positional:
+                    method_receiver_context[id(function)] = (class_name, positional[0].arg)
 
     def constructed_instance_methods(statements):
         """Resolve only same-scope names assigned a direct known class call."""
@@ -880,9 +923,49 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         return result
 
     active_instance_methods = constructed_instance_methods(tree.body)
+    active_method_context = None
     pending = []
     imported_calls = set()
     function_closures = {}
+
+    def captures_method_receiver(function, receiver):
+        args = (*function.args.posonlyargs, *function.args.args, *function.args.kwonlyargs)
+        if (any(arg.arg == receiver for arg in args)
+                or (function.args.vararg is not None and function.args.vararg.arg == receiver)
+                or (function.args.kwarg is not None and function.args.kwarg.arg == receiver)):
+            return False
+        has_load = False
+        has_local_binding = False
+
+        def scan(node, root=False):
+            nonlocal has_load, has_local_binding
+            if not root and isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                              ast.ClassDef, ast.Lambda)):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) \
+                        and node.name == receiver:
+                    has_local_binding = True
+                return
+            if isinstance(node, ast.Name) and node.id == receiver:
+                if isinstance(node.ctx, ast.Load):
+                    has_load = True
+                else:
+                    has_local_binding = True
+            elif isinstance(node, ast.Import):
+                if any((alias.asname or alias.name.partition(".")[0]) == receiver
+                       for alias in node.names):
+                    has_local_binding = True
+            elif isinstance(node, ast.ImportFrom):
+                if any((alias.asname or alias.name) == receiver for alias in node.names):
+                    has_local_binding = True
+            elif isinstance(node, ast.ExceptHandler) and node.name == receiver:
+                has_local_binding = True
+            elif isinstance(node, (ast.Global, ast.Nonlocal)) and receiver in node.names:
+                has_local_binding = True
+            for child in ast.iter_child_nodes(node):
+                scan(child)
+
+        scan(function, root=True)
+        return has_load and not has_local_binding
 
     def visit(node, active_functions, in_function=False, function_scope=None):
         if function_scope is None:
@@ -894,6 +977,9 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             return
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             function_closures.setdefault(id(node), function_scope)
+            if (active_method_context is not None
+                    and captures_method_receiver(node, active_method_context[1])):
+                method_receiver_context.setdefault(id(node), active_method_context)
             expressions = [*node.decorator_list, *node.args.defaults, *node.args.kw_defaults]
             if not postponed_annotations:
                 args = (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs)
@@ -975,6 +1061,11 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     ).get(node.func.attr, ())
                     imported_calls.update(imported_targets)
             if isinstance(node.func.value, ast.Name):
+                if (active_method_context is not None
+                        and node.func.value.id == active_method_context[1]):
+                    class_name = active_method_context[0]
+                    for function in module_class_methods.get(class_name, {}).get(node.func.attr, ()):
+                        pending.append((function, function_closures.get(id(function), function_scope)))
                 instance_targets = active_instance_methods.get(node.func.value.id, {}).get(
                     node.func.attr, {"local": (), "imported": ()}
                 )
@@ -1030,6 +1121,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             continue
         visited.add(id(function))
         active_instance_methods = constructed_instance_methods(function.body)
+        active_method_context = method_receiver_context.get(id(function))
         visible_functions = dict(closure_scope)
         visible_functions.update(scope_functions(function.body))
         visible_functions = scope_function_aliases(function.body, visible_functions)
@@ -1184,7 +1276,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_AND_INSTANCE_ALIASES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_AND_NESTED_RECEIVER_CLOSURES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

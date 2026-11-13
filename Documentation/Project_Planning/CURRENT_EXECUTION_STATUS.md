@@ -40,12 +40,13 @@ früheren 63er-Stand sind `locale`, `selectors`, `signal` und `subprocess`.
 Die jüngste statische Fortsetzung folgt nun auch explizit importierte
 Quellklassenmethoden und vorhandene `__init__`-Konstruktoren. Nach Korrektur
 der importierten Zielpaare zählt der Kandidatenscan 92 Module/572 Kanten und
-352 lokale Funktionen (22 entschiedene, 1.127 unbekannte Bedingungen; Digest
+433 lokale Funktionen (22 entschiedene, 1.399 unbekannte Bedingungen; Digest
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`).
 Der Scan folgt nun zusätzlich `from package import module [as alias]` und
 relativen Varianten, direkte Methodenaufrufe auf frisch konstruierten
 Klassenobjekten, direkte gleichscope Variablenbindungen und einfache Aliase
-solcher Instanzen. 45 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
+solcher Instanzen sowie `self.method()`-/`cls.method()`-Kanten einschließlich
+direkter lokaler Closure-Helfer. 53 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
 Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
 bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
@@ -8874,3 +8875,27 @@ Der Archivscan bleibt `CANDIDATES_ONLY`: 92 Module/572 Kanten/352 besuchte
 Funktionen, 22 entschiedene und 1.127 unbekannte Bedingungen; Quelldigest
 unverändert. Unbekanntes Rebinding hebt frühere Kandidatenzuordnungen nicht
 auf und kann daher weiterhin überzählen.
+
+## Fortsetzung: DGN-007 – gebundene `self`-/`cls`-Methodenaufrufe
+
+Innerhalb eines bereits aufgerufenen Klassenmethodenbodys verfolgt der Scanner
+jetzt direkte Methodenaufrufe über den ersten Positionsparameter. Explizite
+`@staticmethod`-Methoden werden als ungebunden behandelt; `super()`, Vererbung
+und MRO bleiben offen. Drei Regressionen prüfen die beiden gebundenen Formen
+und den statischen Negativfall. 48/48 synthetische Tests bestehen. Der
+archivgebundene Kandidat zählt 92 Module, 572 Kanten und 431 besuchte Funktionen
+bei 22 entschiedenen und 1.387 unbekannten Bedingungen. Digest unverändert;
+keine vollständige Closure oder P11-Aussage.
+
+## Fortsetzung: DGN-007 – Receivercontext und Decoratorgrenze
+
+Der gebundene `self`-/`cls`-Methodenkontext wird jetzt an direkt verschachtelte
+lokale Helfer weitergereicht, wenn deren Zugriff den äußeren Receiver nicht
+überschattet. Das direkte Dekoratorwort `@staticmethod` wird nur dann als
+ungebundener Builtinmarker verwendet, wenn keine mögliche Neubelegung des
+Namens im Modul-AST gefunden wird; qualifizierte unbekannte Decorators bleiben
+konservativ im Kandidatengraph. Fünf Regressionen prüfen Closure, Schatten-
+Parameter, benutzerdefinierten Decorator, gewöhnliches Builtin-Shadowing und
+Capture-Binding durch `match {**staticmethod}`. 53/53 synthetische Tests bestehen.
+Der Archivlauf bleibt `CANDIDATES_ONLY`: 92 Module, 572 Kanten, 433 Funktionen,
+22 entschiedene und 1.399 unbekannte Bedingungen; Quelldigest unverändert.

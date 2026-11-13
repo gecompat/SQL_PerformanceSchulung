@@ -2746,6 +2746,47 @@ unbekannte Zuweisungen aufgehoben, daher können Rebinding und Kontrollfluss
 überzählen. Beliebige Zuweisungsausdrücke und dynamische Typwechsel bleiben
 unaufgelöst; `CANDIDATES_ONLY` bleibt bestehen.
 
+Für bereits verfolgte Klassenmethoden löst der Kandidatenscan nun auch direkte
+Aufrufe über deren ersten Positionsparameter auf (`self.method()` und
+`cls.method()`). Er prüft die Zielmethode gegen dieselbe deklarierte Klasse;
+explizite `@staticmethod`-Methoden erhalten keinen gebundenen Empfänger. Drei
+Regressionen prüfen Instanzmethode, Klassenmethode und den statischen
+Negativfall. Der Testsatz umfasst 48 Fälle. Im gebundenen Archivscan bleiben
+92 Module und 572 Kanten unverändert; 431 lokale Funktionen werden verfolgt,
+22 Bedingungen entschieden und 1.387 unbekannt gelassen. Der Quelldigest bleibt
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`.
+Vererbte Methoden, `super()`, MRO, Deskriptoren, dynamische Empfänger,
+statische Methodenaliase und unbekannte Dekoratorsemantik werden nicht
+aufgelöst. Dies ist weiter ausschließlich eine `CANDIDATES_ONLY`-Analyse,
+keine vollständige Aufrufclosure oder P11-Inventur.
+
+Der Receiverkontext wird außerdem an direkt verschachtelte lokale Funktionen
+weitergegeben, sofern deren erster freier Zugriff auf den äußeren
+`self`-/`cls`-Namen nicht lokal überschattet wird. Eine Regression prüft den
+Closurefall, eine zweite den gleichnamigen Parameter als Schattenbindung. Die
+statische Dekoratorerkennung behandelt nur den direkten Namen `@staticmethod`
+als bekannten ungebundenen Builtinmarker. Ein unbekannter qualifizierter
+Dekorator wie `@custom.staticmethod` bleibt konservativ gebunden; eine dritte
+Regression schützt diesen Fall vor einem falschen Ausschluss. Der isolierte
+Testsatz umfasst 51 Fälle. Der gebundene Archivlauf zählt 92 Module, 572
+Kanten, 433 besuchte lokale Funktionen sowie 22 entschiedene und 1.399
+unbekannte Bedingungen. Quelldigest unverändert. Verschachtelte Scopes mit
+Schattenbindungen werden nicht als Receiverclosure verknüpft. `super()`, MRO,
+Vererbung, Descriptoren und Laufzeitrebinding bleiben unmodelliert; der
+Claim bleibt `CANDIDATES_ONLY`.
+
+Die Builtinannahme für ein direktes `@staticmethod` wird zusätzlich nur
+verwendet, wenn der Modul-AST keine mögliche Neubelegung des Namens
+`staticmethod` enthält. Bei Assignment, Import, Parameter oder anderem
+statischen Binding wird die Receiverzuordnung konservativ beibehalten. Eine
+Regression deckt `staticmethod = identity` ab. Der fokussierte Satz umfasst
+nun 53 Fälle. Die Neubelegungssuche umfasst auch Capture-Bindungen aus
+`match {**staticmethod}`. Der CPython-Archivlauf bleibt bei 92 Modulen/572
+Kanten/433 Funktionen, 22 entschiedenen und 1.399 unbekannten Bedingungen.
+Modulmenge und Digest ändern sich nicht. Dynamische `globals()`-/`exec()`-
+Änderungen können mit dieser statischen Namenssuche nicht ausgeschlossen
+werden; der Status bleibt `CANDIDATES_ONLY`.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
