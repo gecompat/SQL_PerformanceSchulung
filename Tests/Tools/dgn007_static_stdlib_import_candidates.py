@@ -550,6 +550,44 @@ def _top_level_class_base_index(tree):
     return {name: tuple(bases) for name, bases in result.items()}
 
 
+def _top_level_local_class_alias_index(tree, class_index):
+    """Resolve simple module-scope aliases to locally declared classes."""
+    aliases = {}
+
+    def collect(node):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return
+        if isinstance(node, (ast.Assign, ast.AnnAssign)) and isinstance(node.value, ast.Name):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for target in targets:
+                if isinstance(target, ast.Name):
+                    candidates = aliases.setdefault(target.id, [])
+                    if node.value.id not in candidates:
+                        candidates.append(node.value.id)
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                collect(child)
+            elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                for statement in child.body:
+                    collect(statement)
+
+    def resolve(name, active=()):
+        if name in active:
+            return ()
+        if name in class_index:
+            return (name,)
+        result = []
+        for source in aliases.get(name, ()):
+            for target in resolve(source, (*active, name)):
+                if target not in result:
+                    result.append(target)
+        return tuple(result)
+
+    for statement in tree.body:
+        collect(statement)
+    return {name: resolve(name) for name in aliases}
+
+
 def _has_possible_staticmethod_rebinding(tree):
     for node in ast.walk(tree):
         if isinstance(node, ast.Name) and node.id == "staticmethod" \
@@ -972,6 +1010,9 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
     module_class_methods = scope_class_methods(tree.body)
     module_class_bases = _top_level_class_base_index(tree)
+    module_class_aliases = _top_level_local_class_alias_index(
+        tree, module_class_methods
+    )
 
     def local_base_classes(class_name):
         """Return known local ancestors without imposing a linear MRO order."""
@@ -991,16 +1032,20 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         """Return methods on a known class and its known local ancestors."""
         local_targets = []
         imported_targets = set()
-        for candidate in (class_name, *local_base_classes(class_name)):
-            for function in module_class_methods.get(candidate, {}).get(method_name, ()):
-                if function not in local_targets:
-                    local_targets.append(function)
-            imported_targets.update(
-                (imported_class_methods or {}).get(candidate, {}).get(method_name, ())
-            )
-            imported_targets.update(
-                (imported_module_class_methods or {}).get(candidate, {}).get(method_name, ())
-            )
+        class_candidates = tuple(dict.fromkeys((
+            class_name, *module_class_aliases.get(class_name, ())
+        )))
+        for local_class in class_candidates:
+            for candidate in (local_class, *local_base_classes(local_class)):
+                for function in module_class_methods.get(candidate, {}).get(method_name, ()):
+                    if function not in local_targets:
+                        local_targets.append(function)
+                imported_targets.update(
+                    (imported_class_methods or {}).get(candidate, {}).get(method_name, ())
+                )
+                imported_targets.update(
+                    (imported_module_class_methods or {}).get(candidate, {}).get(method_name, ())
+                )
         return tuple(local_targets), tuple(sorted(imported_targets))
 
     def add_base_method_calls(class_name, method_name, function_scope):
@@ -1548,7 +1593,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

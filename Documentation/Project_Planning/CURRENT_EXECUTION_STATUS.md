@@ -9039,3 +9039,20 @@ der Quelldigest lautet
 Die synthetischen qualifizierten Aliasformen ändern die Archivmenge nicht.
 Keine Zielinterpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung;
 operative S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 – lokale Klassenaliase
+
+Modulweite einfache Klassenzuweisungen wie `WorkerAlias = Worker` und
+Aliasverkettungen werden jetzt auch bei `WorkerAlias()` und
+`WorkerAlias().run()` aufgelöst. Bekannte Klassen aus alternativen unbekannten
+Zuweisungszweigen bleiben Kandidaten. Factory-Rückgaben und Aliaszyklen werden
+nicht als Klassen geraten; Aliase in Funktions- und Klassenscope bleiben offen.
+Vier neue Regressionen prüfen Konstruktor/Methode, Zweigalternativen,
+Negativgrenzen und die Erhaltung importierter Ziele bei lokalem Rebinding;
+79/79 fokussierte Tests bestehen. Der gebundene CPython-3.12.16-
+Scan bleibt bei 93 Modulen/578 Kanten/534 Funktionen, 22 entschiedenen und
+1.605 unbekannten Bedingungen, Digest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+`CANDIDATES_ONLY`; keine Zielinterpreter-, Profil-, Worker-, SQL- oder
+Generalproben-Ausführung. S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben
+offen.
