@@ -663,6 +663,146 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.method_leaf"))
         self.assertEqual(function_count, 1)
 
+    def test_instance_method_call_on_bound_receiver_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker().boot()\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
+    def test_classmethod_call_on_bound_receiver_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    @classmethod\n"
+                b"    def boot(cls):\n        cls.load()\n"
+                b"    @classmethod\n"
+                b"    def load(cls):\n        from . import leaf\n"
+                b"Worker.boot()\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
+    def test_staticmethod_parameter_is_not_treated_as_bound_receiver(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    @staticmethod\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker.boot(None)\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg",))
+        self.assertEqual(function_count, 1)
+
+    def test_nested_local_helper_inherits_method_receiver_context(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    def boot(self):\n"
+                b"        def inner():\n            self.load()\n"
+                b"        inner()\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker().boot()\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 3)
+
+    def test_nested_helper_parameter_shadow_does_not_inherit_receiver(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    def boot(self):\n"
+                b"        def inner(self):\n            self.load()\n"
+                b"        inner(None)\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker().boot()\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg",))
+        self.assertEqual(function_count, 2)
+
+    def test_custom_attribute_staticmethod_decorator_keeps_unknown_binding(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    @custom.staticmethod\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker.boot(None)\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
+    def test_shadowed_staticmethod_name_keeps_receiver_candidate(self):
+        files = {
+            "pkg/__init__.py": (
+                b"staticmethod = identity\n"
+                b"class Worker:\n"
+                b"    @staticmethod\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker.boot(None)\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
+    def test_match_capture_staticmethod_name_keeps_receiver_candidate(self):
+        files = {
+            "pkg/__init__.py": (
+                b"match {}:\n    case {**staticmethod}:\n        pass\n"
+                b"class Worker:\n"
+                b"    @staticmethod\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"Worker.boot(None)\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
     def test_uncalled_from_import_module_alias_does_not_expand_function(self):
         files = {
             "pkg/__init__.py": b"from . import helper as h\n",
@@ -787,7 +927,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_AND_INSTANCE_ALIASES",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_AND_NESTED_RECEIVER_CLOSURES",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
