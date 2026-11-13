@@ -115,6 +115,13 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED", output.getvalue())
         forward.assert_called_once_with()
 
+    def test_negative_permission_proxy_has_only_fixed_direct_deny_mode(self) -> None:
+        sql, marker = negative_proxy.injection_for_mode("DIRECT_DENY")
+        self.assertEqual(sql, "DENY SELECT ON OBJECT::dbo.Person TO [READER];\n")
+        self.assertEqual(marker, "QRY023_NEGATIVE_PERMISSION|DIRECT_DENY_INJECTED")
+        with self.assertRaises(ValueError):
+            negative_proxy.injection_for_mode("arbitrary SQL")
+
     def test_qry023_timeout_after_setup_suppresses_sql_cleanup(self) -> None:
         calls: list[str] = []
 
@@ -160,10 +167,14 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
         self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER grant"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the permission inventory rejects an explicit READER DENY"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
         self.assertIn("DATABASE_ROLE;", workflow)
         self.assertIn("DATABASE_PERMISSION;", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DIRECT_DENY", workflow)
+        self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("CLEANUP: PASS/OK", workflow)
         self.assertIn("CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE", workflow)
 
