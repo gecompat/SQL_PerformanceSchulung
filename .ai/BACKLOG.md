@@ -3590,6 +3590,12 @@ vorgeschlagen; eine neue Lernzielkennung ist vorerst nicht angezeigt.
 Curriculum-Fachredaktion ist der vorgeschlagene Arbeitsowner. Die formale
 Matrixzuordnung erfolgt nach dem Demoentwurf und bleibt bis dahin `PROPOSED`.
 
+Der Timeout-CI-Kandidat (PR #590) prüft auf SQL Server 2019/2022/2025 die
+Cleanup-Unterdrückung nach einem synthetischen SQL-Timeout, den Erhalt der
+exakten Eigentumsmarker und einen getrennten Recovery-Cleanup nach Ende der
+beobachteten Anfrage. Das qualifiziert weder serverseitige Abbruchsemantik noch
+allgemeine Runtime-/Produktfreigabe. Review und Integration stehen noch aus.
+
 - [ ] **External Tables:** Einsatzgrenzen, konkrete externe Datenquelle und Zugriffsweg einschließlich gegebenenfalls PolyBase für die SQL-Server-2019/2022/2025-Matrix recherchieren. Statistiken, Cardinality Estimates, Predicate-/Projection-Pushdown, lokale gegenüber externer Verarbeitung sowie Datenübertragungs- und I/O-Kosten anhand vergleichbarer synthetischer Abfragen untersuchen. Version, Edition, Betriebssystem, Compatibility Level, Rechte und Connectorvoraussetzungen vor dem Demoentwurf prüfen; zusätzliche Infrastruktur auf den gewählten Zugriffsweg begrenzen und isolierten Aufbau, bestätigte Ausführung sowie unabhängigen Cleanup vorsehen. Einstieg: [PolyBase-Pushdown](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-pushdown-computation?view=sql-server-ver17).
 - [ ] **Graph Tables:** Node-/Edge-Tabellen, `MATCH`, Graph-Indizes und passende Anwendungsfälle aufbereiten. Eine synthetische Graph-Abfrage mit einer semantisch gleichwertigen relationalen Modellierung vergleichen und Execution Plans, Cardinality Estimates, Logical Reads, CPU und Duration unter gleichen Bedingungen messen. Featuregrenzen nach Version, Edition und Compatibility Level für SQL Server 2019/2022/2025 prüfen; reproduzierbares T-SQL-Setup und Cleanup in einer isolierten Testdatenbank entwerfen. Einstieg: [SQL-Graph-Architektur](https://learn.microsoft.com/en-us/sql/relational-databases/graphs/sql-graph-architecture?view=sql-server-ver17).
 

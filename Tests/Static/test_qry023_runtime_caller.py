@@ -749,7 +749,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("CLEANUP: PASS/EXTERNAL_RECOVERY", timeout_case)
         self.assertIn("QRY023_TIMEOUT_HARNESS_LOG=${log}", timeout_case)
         self.assertIn("grep -Eq '^CLEANUP: PASS/'", timeout_case)
-        self.assertIn('log="${QRY023_TIMEOUT_HARNESS_LOG:-${QRY023_HARNESS_LOG:-}}"', workflow)
+        self.assertIn('log="${QRY023_HARNESS_LOG:-${QRY023_TIMEOUT_HARNESS_LOG:-}}"', workflow)
         self.assertLess(workflow.index("Prove a SQL timeout suppresses cleanup and preserves the marked target"),
                         workflow.index("Prove the permission inventory rejects an unregistered custom endpoint"))
         self.assertLess(timeout_case.index("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED"), workflow.index("Remove only the owned SQL Server container"))

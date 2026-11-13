@@ -1071,7 +1071,7 @@ jobs:
           container="${SQLPERF_SQL_CONTAINER:-}"
           owner="${SQLPERF_CI_OWNER:-}"
           if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
-          log="${QRY023_TIMEOUT_HARNESS_LOG:-${QRY023_HARNESS_LOG:-}}"
+          log="${QRY023_HARNESS_LOG:-${QRY023_TIMEOUT_HARNESS_LOG:-}}"
           if [[ -n "$log" && -f "$log" ]] && ! grep -Eq '^CLEANUP: PASS/' "$log"; then
             echo "Preserving owned container after an unproven QRY-023 cleanup: ${container}" >&2
             exit 0
