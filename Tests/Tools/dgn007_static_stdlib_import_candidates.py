@@ -481,6 +481,31 @@ def _top_level_class_method_index(tree):
     return result
 
 
+def _top_level_class_base_index(tree):
+    """Keep direct local base names for bounded zero-argument super() calls."""
+    result = {}
+
+    def collect(node):
+        if isinstance(node, ast.ClassDef):
+            bases = result.setdefault(node.name, [])
+            for base in node.bases:
+                if isinstance(base, ast.Name) and base.id not in bases:
+                    bases.append(base.id)
+            return
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            return
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                collect(child)
+            elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                for statement in child.body:
+                    collect(statement)
+
+    for statement in tree.body:
+        collect(statement)
+    return {name: tuple(bases) for name, bases in result.items()}
+
+
 def _has_possible_staticmethod_rebinding(tree):
     for node in ast.walk(tree):
         if isinstance(node, ast.Name) and node.id == "staticmethod" \
@@ -847,6 +872,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
 
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
     module_class_methods = scope_class_methods(tree.body)
+    module_class_bases = _top_level_class_base_index(tree)
     staticmethod_rebinding_possible = _has_possible_staticmethod_rebinding(tree)
     method_receiver_context = {}
     for class_name, methods in module_class_methods.items():
@@ -1045,6 +1071,16 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             for function in module_class_methods.get(node.func.id, {}).get("__init__", ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if (isinstance(node.func.value, ast.Call)
+                    and isinstance(node.func.value.func, ast.Name)
+                    and node.func.value.func.id == "super"
+                    and not node.func.value.args
+                    and not node.func.value.keywords
+                    and active_method_context is not None):
+                class_name = active_method_context[0]
+                for base_name in module_class_bases.get(class_name, ()):
+                    for function in module_class_methods.get(base_name, {}).get(node.func.attr, ()):
+                        pending.append((function, function_closures.get(id(function), function_scope)))
             if isinstance(node.func.value, ast.Call):
                 constructor = node.func.value.func
                 if isinstance(constructor, ast.Name):
@@ -1276,7 +1312,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_AND_NESTED_RECEIVER_CLOSURES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_AND_DIRECT_LOCAL_SUPER_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

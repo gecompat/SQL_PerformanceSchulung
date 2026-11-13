@@ -8899,3 +8899,15 @@ Parameter, benutzerdefinierten Decorator, gewöhnliches Builtin-Shadowing und
 Capture-Binding durch `match {**staticmethod}`. 53/53 synthetische Tests bestehen.
 Der Archivlauf bleibt `CANDIDATES_ONLY`: 92 Module, 572 Kanten, 433 Funktionen,
 22 entschiedene und 1.399 unbekannte Bedingungen; Quelldigest unverändert.
+
+## Fortsetzung: DGN-007 – direkte lokale `super()`-Methoden
+
+Der Offline-Kandidat verfolgt `super().methode()` aus bereits erreichten
+Methoden, sofern die Basisklasse direkt lokal benannt und die Zielmethode
+quellseitig vorhanden ist. Eine synthetische Regression führt vom
+Unterklassen-Entry bis zum Import im Basismethodenrumpf. Alternative lokale
+Klassendefinitionen unter unbekannten Bedingungen bewahren alle direkt
+benannten Basen als Kandidaten. 55/55 fokussierte Tests bestehen. Importierte
+oder unbekannte Basen, explizite `super(T, self)`-Aufrufe und vollständige
+MRO-Auswertung bleiben offen; der Befund ist kein P11-Soll und keine
+vollständige Aufrufclosure.
