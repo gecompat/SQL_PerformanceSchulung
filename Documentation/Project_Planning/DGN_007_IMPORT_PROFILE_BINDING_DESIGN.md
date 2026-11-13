@@ -2165,6 +2165,108 @@ abgeleiteten Modul-, Spec-, Loader-, Alias- und Pfadwerten gewählt und gegen
 die endgültigen gehaltenen Scriptbytes geprüft werden. Fehlt auch nur ein
 Sollfeld, bleiben Aufnahme und Fünf-Formen-/64-KiB-Gate offen.
 
+### 19.3 Offizieller CPython-Quellrelease mit digestgebundenem OCI-Kandidaten
+
+Am 2026-11-13 wurde eine zweite, nicht über einen beweglichen Hosted-Runner
+definierte Quelle geprüft. Python 3.12.16 ist ein offizieller Security-Release
+vom 2026-10-25; Python.org bietet für die 3.12-Sicherheitsserie keine
+Binärinstaller mehr an. Das XZ-Quellarchiv hat den veröffentlichten SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`.
+Python.org stellt für CPython bis 3.13 OpenPGP-Signaturen des Release-Managers
+oder Binary-Builders bereit ([Release 3.12.16](https://www.python.org/downloads/release/python-31216/),
+[Python-Release-Signaturen](https://www.python.org/downloads/metadata/pgp/)).
+
+Die Docker Official Image-Metadaten führen `python:3.12.16-bookworm` für
+Linux/amd64 auf den Dockerfile-Commit
+`3d7e95597e56a415d9e4abc0f15877e005d2cb2e`. Dieser Dockerfile bindet dieselbe
+Python-Quellversion und den Quellarchivdigest, prüft die OpenPGP-Signatur und
+kompiliert CPython gegen Debian Bookworm. Eine read-only Abfrage des OCI
+Registry-Manifests am 2026-11-13 ergab für den Multi-Arch-Tag den Digest
+`sha256:4209fae09a3e20afd863e528bfddc235da5fd5977983e1996cd54cc9a72e6267`;
+sein `linux/amd64`-Childmanifest ist
+`sha256:3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93`.
+Das Childmanifest bindet die OCI-Config
+`sha256:28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b`
+(6.562 Bytes) und die sieben komprimierten Layer:
+
+| Reihenfolge | OCI-Layerdigest | komprimierte Bytes |
+|---:|---|---:|
+| 1 | `sha256:69245854ad5855991d16224f6abf55855d2d73922785206adea9c5c5988434a0` | 48.526.483 |
+| 2 | `sha256:338554e9113fa6731ba588cb8f45e85b3e3fe7ada531ee7d7b0bc9291d616727` | 23.873.217 |
+| 3 | `sha256:d6c30932f8d3f5798b438cce12cdf6cebb1717b52f51e22ff010b4d86667031d` | 64.432.621 |
+| 4 | `sha256:9bab93d346cda15207e5a5000093cee7256ec1092fb689ec3d2997faf31b9a16` | 211.826.577 |
+| 5 | `sha256:c3bb8894691e757a336b94388048f0557392a3e6d6e0a515f0b690a9cbfba3a1` | 6.162.371 |
+| 6 | `sha256:7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779` | 25.724.587 |
+| 7 | `sha256:7d0909af463852965fc4e328a11b968cf56707fd15258498d0a43b4c6a1b0953` | 249 |
+
+Die Config wurde anhand des gebundenen Blobdigests read-only aus der Registry
+abgerufen. Sie nennt `linux/amd64`, `PYTHON_VERSION=3.12.16`, den erwarteten
+Quellhash, `CMD ["python3"]` und sieben RootFS-DiffIDs. Ihre Buildhistory
+bestätigt mehrere nicht snapshotgebundene `apt-get update`-Installationen und
+eine CPython-Konfiguration mit Laufzeitwerten wie `nproc`, `dpkg-buildflags`
+und Architekturermittlung. Diese Angaben binden Image-Metadaten, nicht den
+Buildhost oder die Erzeugung.
+
+Primärquellen: [Docker-Official-Image-Metadaten](https://github.com/docker-library/official-images/blob/master/library/python),
+[gebundener Python-Dockerfile](https://github.com/docker-library/python/blob/3d7e95597e56a415d9e4abc0f15877e005d2cb2e/3.12/bookworm/Dockerfile),
+[offizielle Docker-Hub-Tags](https://hub.docker.com/_/python/tags?name=3.12.16-bookworm).
+
+Das ist ein genauerer Kandidat für eine festgelegte CPython-/OS-Installation,
+aber noch keine zulässige operative Sollprofilquelle. Der Dockerfile führt
+`apt-get update` aus und bindet weder einen unveränderlichen Debian-Snapshot
+noch alle Build- und Hostparameter; der finale Image-Digest fixiert zwar das
+resultierende OCI-Objekt, attestiert aber nicht unabhängig dessen Erzeugung.
+Die Plattformmanifest-, Config- und Layerdigest-Auswahl für `linux/amd64` ist
+damit bestimmt. Der gebundene Pull und eine eng begrenzte native Probe sind in
+§19.4 dokumentiert. OCI-Digest-/DiffID-Vergleich, Buildherkunft sowie
+vollständige Source-/Build-/Toolbindung bleiben auf ihren jeweiligen
+Beobachtungsgrenzen. Zusätzlich fehlen weiterhin die unabhängig aus gehaltenen
+Quellen und Buildparametern abgeleiteten vollständigen S15-/P11-Erwartungsrecords
+für Modul-/Spec-/Loader-/Alias- und Pfadformen einschließlich des gemeinsamen
+64-KiB-Gates. Ein Profil, das erst mit dem zu prüfenden Interpreter aufgenommen
+wird, wäre weiterhin zirkulär.
+
+Der Image-Digest ist kein Trust-Attest und die Auswahl bleibt offen. Als
+nächster Schritt muss die private Bootstrap-/Profilquellenbindung samt
+Sollrecordableitung vollständig vorbereitet und unabhängig geprüft werden;
+erst danach ist eine einmalige operative Inventur gemäß §8/§18 zulässig.
+
+### 19.4 Gebundener Image-Pull und begrenzte Interpreterprobe
+
+Am 2026-11-13 wurde das amd64-Childmanifest direkt per Digest mit
+`docker pull --platform linux/amd64 python@sha256:3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93`
+geladen. `docker image inspect` meldete Linux/amd64. Das Feld `RepoDigests` enthielt exakt
+`python@sha256:3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93`;
+`Os` und `Architecture` waren `linux` beziehungsweise `amd64`. Die sieben vom Engine-Inspect ausgegebenen
+RootFS-DiffIDs wurden deterministisch gegen die sieben `rootfs.diff_ids` der
+zuvor digestgebunden gelesenen OCI-Config verglichen; alle stimmten in Anzahl
+und Reihenfolge überein. Der Pull beendete alle sieben Layerdownloads als
+`Pull complete`. Das belegt die Docker-seitige Aufnahme und die übereinstimmende
+DiffID-Metadatenliste für genau dieses lokale Image. Es ist keine unabhängige
+Neuberechnung der Layer-/DiffID-Hashes, keine externe Buildattestation und kein
+Trustnachweis.
+
+Ein einzelner read-only Containerlauf startete `python3 -I -S -B -X utf8` mit
+`--network none`, schreibgeschütztem RootFS, begrenztem `/tmp`, entfernten
+Capabilities, `no-new-privileges`, Prozess- und Memory-Limit sowie `--rm`.
+Der Prozess meldete CPython 3.12.16; die begrenzte private Ausgabe enthielt
+ausgewählte Interpreter-, Startup-, Builtin- und Sysconfigwerte. Der Container
+führte weder DGN-Profil-/Bootstrapquellen noch Kandidatenmodule, Tests,
+SQL-Befehle oder Demos aus. Das war eine aktuelle Laufzeitcharakterisierung des
+Images, keine Profilaufnahme: vollständige unabhängig vorgewählte S15-/P11-
+Sollrecords, Modul-/Spec-/Loader-/Alias-/Pfadformen, alle fünf Darstellungen
+und das gemeinsame 64-KiB-Gate wurden nicht erstellt oder geprüft. Vollständige
+Installationsrecords und Hostwerte verbleiben unveröffentlicht.
+
+Das Image ist damit für genau eine begrenzte native Probe verwendet, aber nicht
+als operative Profilbaseline ausgewählt. Der dokumentierte Dockerfile und die
+OCI-Digests bestimmen Artefaktquellen; sie liefern keine unabhängige Herkunft
+der tatsächlichen Buildausführung. Vor der getrennten einmaligen Inventur sind
+gehaltene Bootstrap-/Profilbytes, alle unabhängigen Sollfelder und die
+Fünf-Formen-/64-KiB-Grenze vollständig zu binden und zu reviewen. Ein
+Methoden-, Worker-, UsedBytes-, SQL- oder Runtimequalifikationsclaim folgt
+aus dieser Probe nicht.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
