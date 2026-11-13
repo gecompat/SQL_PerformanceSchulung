@@ -48,7 +48,7 @@ Klassenobjekten, direkte gleichscope Variablenbindungen und einfache Aliase
 solcher Instanzen sowie `self.method()`-/`cls.method()`-Kanten einschließlich
 direkter lokaler Closure-Helfer. Spätere Quellwellen ergänzen bekannte lokale
 und importierte Basen, Aliase, `super()`-Formen sowie geerbte Konstruktoren und
-Methoden auf frisch konstruierten Unterklassen. 71 synthetische Tests bestehen.
+Methoden auf frisch konstruierten Unterklassen. 74 synthetische Tests bestehen.
 Dynamische Calls, vollständige MRO, Deskriptoren, `__new__`, C-/Frozen-Aufrufe
 und modulübergreifendes Rebinding bleiben offen. Der aktuelle gebundene
 Archivscan zählt 92 Module/573 Kanten/471 besuchte Funktionen, 22 entschiedene
@@ -9010,3 +9010,16 @@ unbekannten Bedingungen; Quelldigest unverändert. Mehrfach- und alternative
 Basen bleiben Kandidatenvereinigung, unbekannte dynamische Basen und vollständige
 MRO bleiben ungelöst. Kein Zielinterpreter, Profil, Worker, SQL oder
 Generalprobe wurde ausgeführt.
+
+## Fortsetzung: Aliase importierter Quellklassen
+
+Einfache gleichscope Zuweisungen importierter Klassennamen werden nun für
+Konstruktor- und Methodenaufrufe verfolgt, einschließlich verketteter Aliase
+und möglicher Alternativen aus unbekannten Modulzweigen. Drei Regressionen
+prüfen Aliasverkettung, Erhaltung beider Zweigziele sowie Terminierung von
+Aliaszyklen und den Ausschluss dynamischer Factory-Rückgaben. 74/74 fokussierte
+Tests bestehen. Aliasauflösung bleibt auf statische Modul-/Kontrollblocknamen
+beschränkt; Rebinding kann Kandidaten überzählen. Der gebundene CPython-Scan
+bleibt bei 92 Modulen/573 Kanten/471 Funktionen und 1.452 unbekannten
+Bedingungen; Quelldigest unverändert. Kein Interpreter, Profil, Worker, SQL
+oder Generalprobe wurde ausgeführt.

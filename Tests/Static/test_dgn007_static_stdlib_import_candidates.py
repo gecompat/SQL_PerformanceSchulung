@@ -407,6 +407,75 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.method_leaf"))
         self.assertEqual(function_count, 1)
 
+    def test_imported_class_alias_chains_follow_constructor_and_method(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import Worker as Alias\n"
+                b"FirstAlias = Alias\nSecondAlias = FirstAlias\n"
+                b"SecondAlias()\nSecondAlias().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def __init__(self):\n        from . import init_leaf\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+            ),
+            "pkg/init_leaf.py": b"VALUE = 1\n",
+            "pkg/method_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.helper", "pkg.init_leaf", "pkg.method_leaf")
+        )
+        self.assertEqual(function_count, 2)
+
+    def test_imported_class_aliases_preserve_unknown_branch_alternatives(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import First, Second\n"
+                b"if class_choice:\n    Candidate = First\n"
+                b"else:\n    Candidate = Second\n"
+                b"Candidate()\n"
+            ),
+            "pkg/helper.py": (
+                b"class First:\n"
+                b"    def __init__(self):\n        from . import first_leaf\n"
+                b"class Second:\n"
+                b"    def __init__(self):\n        from . import second_leaf\n"
+            ),
+            "pkg/first_leaf.py": b"VALUE = 1\n",
+            "pkg/second_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.first_leaf", "pkg.helper", "pkg.second_leaf")
+        )
+        self.assertEqual(function_count, 2)
+
+    def test_imported_class_alias_cycles_and_factories_are_not_guessed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import Worker as Known\n"
+                b"def choose_class():\n    return Known\n"
+                b"FirstAlias = SecondAlias\nSecondAlias = FirstAlias\n"
+                b"DynamicAlias = choose_class()\n"
+                b"FirstAlias()\nDynamicAlias()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+            ),
+            "pkg/method_leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper"))
+        self.assertEqual(function_count, 1)
+
     def test_imported_module_class_method_adds_its_imports(self):
         files = {
             "pkg/__init__.py": b"import pkg.helper as helper\nhelper.Worker.run()\n",
@@ -1370,7 +1439,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)

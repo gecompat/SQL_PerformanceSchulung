@@ -608,6 +608,13 @@ def _imported_function_aliases(tree, module, path, function_index):
 def _imported_class_aliases(tree, module, path, class_index):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
     result = {}
+    local_aliases = {}
+
+    def add_class_target(alias, target):
+        targets = result.setdefault(alias, [])
+        if target not in targets:
+            targets.append(target)
+
     for node in ast.walk(tree):
         if not isinstance(node, ast.ImportFrom) or node.module == "__future__":
             continue
@@ -620,10 +627,42 @@ def _imported_class_aliases(tree, module, path, class_index):
             if imported.name not in class_index.get(base, {}):
                 continue
             alias = imported.asname or imported.name
-            target = (base, imported.name)
-            targets = result.setdefault(alias, [])
-            if target not in targets:
-                targets.append(target)
+            add_class_target(alias, (base, imported.name))
+
+    def collect_aliases(node):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            value = node.value
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if isinstance(value, ast.Name):
+                for target in targets:
+                    if isinstance(target, ast.Name):
+                        sources = local_aliases.setdefault(target.id, [])
+                        if value.id not in sources:
+                            sources.append(value.id)
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                collect_aliases(child)
+            elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                for statement in child.body:
+                    collect_aliases(statement)
+
+    def resolve(alias, active=()):
+        if alias in active:
+            return ()
+        targets = list(result.get(alias, ()))
+        for source in local_aliases.get(alias, ()):
+            for target in resolve(source, (*active, alias)):
+                if target not in targets:
+                    targets.append(target)
+        return tuple(targets)
+
+    for statement in tree.body:
+        collect_aliases(statement)
+    for alias in local_aliases:
+        for target in resolve(alias):
+            add_class_target(alias, target)
     return {name: tuple(targets) for name, targets in result.items()}
 
 
@@ -1497,7 +1536,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
