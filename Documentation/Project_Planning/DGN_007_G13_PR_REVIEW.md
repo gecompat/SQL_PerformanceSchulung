@@ -560,3 +560,5 @@ Der abschließende QRY-023-Enginepfad erzwang einen SQLCMD-sicheren Wechsel des 
 ## Runnerprofilbindung nach QRY-023-Timeoutschutz (13. November 2026)
 
 Der vorgeschlagene QRY-023-Aufrufer unterdrückt nach einem SQL-Timeout das nachfolgende SQL-Cleanup, weil serverseitiges Ende und TempDB-Freigabe nicht bewiesen sind. Das änderte erneut den gemeinsamen `run_demo.py`-AST. Der vollständige Digest wurde aus den Working-Tree-Bytes unter CPython 3.12.14 berechnet und ausschließlich für diesen Runner auf `eca5512a16aac7d25fd22eba88348aa2f48f91754a14ef932e197b6802d003b0` aktualisiert. Die übrigen acht AST-Digests und DGN-Methodengates bleiben unverändert. Die Profilregression bestand gegen den vorherigen Git-Snapshot; der neue Kandidaten-Commit muss das aktualisierte Profil im CI bestätigen.
+
+PR #563 bestätigte das aktualisierte Profil im gebundenen DGN-007-CI. Die oben genannte ausstehende CI-Bestätigung ist damit erledigt; die übrigen DGN-007-Methoden- und Runtimegrenzen bleiben unverändert.
