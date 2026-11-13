@@ -9,6 +9,7 @@ IF @ActualCompatibility IS NULL OR @ActualCompatibility<>170
 /* DGN007_COMPATIBILITY_GUARD_END */
 
 DECLARE @QueryId bigint, @PlanCount int, @RuntimeRows int, @ParentQueryCount int, @EffectiveQueryCount int, @VariantCount int,
+        @ProfilePhaseCount int, @T0Executions bigint, @T1Executions bigint,
         @XeActive bit, @XeRows int = 0, @XeStartedUtc datetimeoffset(7);
 DECLARE @SessionName sysname=N'SQLPERF_DGN007_LOCAL';
 
@@ -118,35 +119,45 @@ EffectiveQuery AS
     FROM sys.query_store_query_variant AS qv
     JOIN StrictParentQuery AS parent ON parent.query_id=qv.parent_query_id
 )
-SELECT @QueryId=MIN(q.query_id), @PlanCount=COUNT(DISTINCT p.plan_id), @RuntimeRows=COUNT(rs.runtime_stats_id),
-       @EffectiveQueryCount=COUNT(DISTINCT q.query_id)
-FROM EffectiveQuery AS effective
-JOIN sys.query_store_query AS q ON q.query_id=effective.query_id
-JOIN sys.query_store_plan AS p ON p.query_id=q.query_id LEFT JOIN sys.query_store_runtime_stats AS rs ON rs.plan_id=p.plan_id
-;
+SELECT @QueryId=MIN(profile.QueryId), @PlanCount=COUNT(DISTINCT profile.PlanId),
+       @RuntimeRows=COUNT(*), @EffectiveQueryCount=COUNT(DISTINCT profile.QueryId),
+       @ProfilePhaseCount=COUNT(DISTINCT profile.IncidentPhase),
+       @T0Executions=SUM(CASE WHEN profile.IncidentPhase=N'T0_BASELINE' THEN profile.CountExecutions ELSE 0 END),
+       @T1Executions=SUM(CASE WHEN profile.IncidentPhase=N'T1_INCIDENT' THEN profile.CountExecutions ELSE 0 END)
+FROM lab.IncidentQueryStoreProfile AS profile
+JOIN EffectiveQuery AS effective ON effective.query_id=profile.QueryId
+JOIN sys.query_store_runtime_stats AS rs
+  ON rs.plan_id=profile.PlanId
+ AND rs.runtime_stats_interval_id=profile.RuntimeStatsIntervalId
+ AND rs.execution_type=0
+JOIN sys.query_store_runtime_stats_interval AS i
+  ON i.runtime_stats_interval_id=profile.RuntimeStatsIntervalId
+JOIN lab.IncidentState AS state ON state.IncidentPhase=profile.IncidentPhase
+WHERE profile.IncidentPhase IN(N'T0_BASELINE',N'T1_INCIDENT')
+  AND profile.CountExecutions>0
+  AND rs.count_executions>=profile.CountExecutions
+  AND i.end_time>state.MarkerUtc
+  AND i.start_time<=state.CompletedUtc;
 SELECT @ParentQueryCount=COUNT(*), @VariantCount=COUNT(DISTINCT qv.query_variant_query_id)
 FROM sys.query_store_query AS q
 JOIN sys.query_store_query_text AS qt ON qt.query_text_id=q.query_text_id
 LEFT JOIN sys.query_store_query_variant AS qv ON qv.parent_query_id=q.query_id
 WHERE q.object_id=OBJECT_ID(N'dbo.usp_CaseSearch',N'P')
   AND qt.query_sql_text LIKE N'%/* DGN007_CASE_SEARCH */%';
-IF @QueryId IS NULL OR @RuntimeRows=0 OR @XeActive=0
+IF @QueryId IS NULL OR @RuntimeRows=0 OR @ProfilePhaseCount<>2
+   OR @T0Executions<>4 OR @T1Executions<>4 OR @XeActive=0
 BEGIN
     SELECT 6 AS Sequence, 'OBSERVATION' AS Phase, 'EVIDENCE_SOURCE' AS CheckId, 'SKIP' AS Outcome, 'SKIP_EVIDENCE_MISSING' AS Code,
            CONCAT(N'ParentQueries=',@ParentQueryCount,N'; EffectiveQueries=',@EffectiveQueryCount,N'; QueryVariantCount=',@VariantCount,
-                  N'; QueryId=',COALESCE(CONVERT(nvarchar(20),@QueryId),N'NULL'),N'; RuntimeRows=',@RuntimeRows,N'; XeActive=',@XeActive) AS ObservedValue,
-           N'Query Store, Runtime-Historie und aktive begrenzte XE-Session' AS RequiredValue, N'Mindestens eine Evidenzquelle ist nicht geeignet; keine Ursachenbewertung wurde ausgegeben.' AS Message;
+                  N'; QueryId=',COALESCE(CONVERT(nvarchar(20),@QueryId),N'NULL'),N'; RuntimeRows=',@RuntimeRows,
+                  N'; ProfilePhases=',@ProfilePhaseCount,N'; T0Executions=',COALESCE(CONVERT(nvarchar(20),@T0Executions),N'NULL'),
+                  N'; T1Executions=',COALESCE(CONVERT(nvarchar(20),@T1Executions),N'NULL'),N'; XeActive=',@XeActive) AS ObservedValue,
+           N'Erfolgreiche T0/T1-Query-Store-Profile mit jeweils vier Ausführungen und aktive begrenzte XE-Session' AS RequiredValue,
+           N'Mindestens eine Evidenzquelle oder Phasenbindung ist nicht geeignet; keine Ursachenbewertung wurde ausgegeben.' AS Message;
     PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_EVIDENCE_MISSING'; RETURN;
-END;
-IF @PlanCount<2
-BEGIN
-    SELECT 7 AS Sequence, 'OBSERVATION' AS Phase, 'DISTINGUISHABLE_PROFILES' AS CheckId, 'SKIP' AS Outcome, 'SKIP_INCIDENT_NOT_REPRODUCED' AS Code,
-           CONCAT(N'Plans=',@PlanCount,N'; ParentQueries=',@ParentQueryCount,N'; EffectiveQueries=',@EffectiveQueryCount,N'; QueryVariantCount=',@VariantCount) AS ObservedValue,
-           N'mindestens zwei Plan- oder Laufzeitprofile' AS RequiredValue, N'Der vorbereitete Fall ist in dieser Umgebung nicht ausreichend unterscheidbar.' AS Message;
-    PRINT 'SQLPERF_SUMMARY|SKIP|SKIP_INCIDENT_NOT_REPRODUCED'; RETURN;
 END;
 SELECT 8 AS Sequence, 'OBSERVATION' AS Phase, 'SUMMARY' AS CheckId, 'PASS' AS Outcome, 'OK' AS Code,
        CONCAT(N'QueryId=',@QueryId,N'; Plans=',@PlanCount,N'; RuntimeRows=',@RuntimeRows,N'; ParentQueries=',@ParentQueryCount,
               N'; EffectiveQueries=',@EffectiveQueryCount,N'; QueryVariantCount=',@VariantCount,N'; XeEvents=',@XeRows) AS ObservedValue,
-       N'sechs Evidenzstufen bis zur eigenen Hypothese' AS RequiredValue, N'Die Evidenz ist für die Hypothesenprüfung verfügbar; sie ist kein alleiniger Ursachenbeweis.' AS Message;
+       N'Erfolgreiche, phasengebundene T0/T1-Laufzeitprofile' AS RequiredValue, N'Plananzahl und Profildaten sind beschreibende Evidenz; sie beweisen weder Incident noch Ursache.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';

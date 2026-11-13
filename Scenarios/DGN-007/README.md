@@ -36,10 +36,12 @@ Schnitt A implementiert den Project Adapter `0.1` mit:
    seltenen Parameterwerten. Die Cacheisolation bleibt objektgebunden; globale
    Cacheleerung bleibt verboten.
 
-Der Adapter führt in T0 drei Aufrufe mit Gruppe 8/Status 3 aus. T1 enthält
-drei Aufrufe mit Gruppe 1/Status 3 sowie je einen Aufruf mit Gruppe 5/Status 3
-und Gruppe 1/Status 1. Zwischen den Phasen wartet er auf das Ende des letzten
-tatsächlich belegten Baseline-Intervalls. Die Prüfung erfolgt im
+Der Adapter führt denselben Viererparameter-Mix in getrennten Reihenfolgen
+aus: T0 verwendet `(8,3)`, `(1,3)`, `(5,3)`, `(1,1)`; T1 verwendet
+`(1,3)`, `(8,3)`, `(5,3)`, `(1,1)`. Damit enthalten beide Phasen genau vier
+erfolgreiche Suchaufrufe und dieselben erwarteten Ergebnismengen. Zwischen den
+Phasen wartet der Adapter auf das Ende des letzten tatsächlich belegten
+Baseline-Intervalls. Die Prüfung erfolgt im
 Sekundentakt mit einer Grenze von 90 Sekunden. Ein Flush persistiert
 Query-Store-Daten; er erzwingt keinen Intervallwechsel. Fehlt die erfasste
 Ausführungsanzahl oder überlappen die belegten Intervalle, bricht der Aufbau

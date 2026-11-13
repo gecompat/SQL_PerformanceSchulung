@@ -148,7 +148,7 @@ try {
     foreach ($stage in @(
         @{ Name = 'PRECHECK'; Script = '00_Preflight.sql'; AllowedSkipCodes = @('SKIP_QUERY_STORE_REQUIRED') },
         @{ Name = 'TIME_WINDOWS'; Script = '20_Baseline.sql'; AllowedSkipCodes = @('SKIP_INCIDENT_NOT_REPRODUCED') },
-        @{ Name = 'EVIDENCE'; Script = '40_Observation.sql'; AllowedSkipCodes = @('SKIP_INCIDENT_NOT_REPRODUCED','SKIP_EVIDENCE_MISSING') },
+        @{ Name = 'EVIDENCE'; Script = '40_Observation.sql'; AllowedSkipCodes = @('SKIP_EVIDENCE_MISSING') },
         @{ Name = 'REFERENCE_CHANGE'; Script = '50_Mitigation.sql'; AllowedSkipCodes = @() },
         @{ Name = 'COMPARISON'; Script = '60_Comparison.sql'; AllowedSkipCodes = @('SKIP_EVIDENCE_MISSING') },
         @{ Name = 'RECOVERY'; Script = '90_Cleanup.sql'; AllowedSkipCodes = @() }

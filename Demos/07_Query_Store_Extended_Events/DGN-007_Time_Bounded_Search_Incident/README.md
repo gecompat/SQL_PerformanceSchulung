@@ -21,7 +21,7 @@ Query Store, Actual Execution Plan, DMVs (Dynamic Management Views; dynamische V
 
 Dies ist Schnitt B zu dem bestehenden, markergebundenen Adapter unter [`Scenarios/DGN-007`](../../../Scenarios/DGN-007/README.md). Der Adapter erzeugt Datenmodell sowie die Fenster `T0_BASELINE` und `T1_INCIDENT`; diese Skripte bauen keinen Ersatzdatenbestand auf und ändern weder `Scenarios/` noch globale Caches. Vor der Ausführung ist eine bestätigte isolierte Wegwerfinstanz erforderlich (`--confirm-isolated-lab`), mit mindestens 4 logischen CPU-Kernen, 8 GB SQL-Server-Speicher sowie Platz für Testdaten, Query Store und TempDB.
 
-Benötigt werden Rechte auf die markierte Testdatenbank, Query Store und zum Verwalten/Lesen einer begrenzten serverseitigen XE-Session. Query Store muss in der Testdatenbank `READ_WRITE` sein, andernfalls lautet der kontrollierte Ausgang `SKIP_QUERY_STORE_REQUIRED`. Ist die vorbereitete Historie nicht unterscheidbar, lautet der Ausgang `SKIP_INCIDENT_NOT_REPRODUCED`; ist eine erforderliche Evidenzquelle ungeeignet, lautet er `SKIP_EVIDENCE_MISSING`. Kein solcher Ausgang ist eine Evidenzbehauptung.
+Benötigt werden Rechte auf die markierte Testdatenbank, Query Store und zum Verwalten/Lesen einer begrenzten serverseitigen XE-Session. Query Store muss in der Testdatenbank `READ_WRITE` sein, andernfalls lautet der kontrollierte Ausgang `SKIP_QUERY_STORE_REQUIRED`. Fehlen erfolgreich erfasste und phasengebundene T0/T1-Laufzeitprofile oder eine andere erforderliche Evidenzquelle, lautet der Ausgang `SKIP_EVIDENCE_MISSING`. Kein solcher Ausgang ist eine Evidenzbehauptung.
 
 Query-Store-Waits und `MAX_DURATION` für XE werden vor Ort geprüft. PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte), OPPO (Optional Parameter Plan Optimization; Planoptimierung für optionale Parameter), Query Store Hints und Plan Forcing sind keine Voraussetzung und werden im Primärfall nicht verwendet.
 
@@ -74,7 +74,7 @@ Mindestens zwei der ersten drei Hypothesen müssen anhand fehlender oder widersp
 
 ## Erwartete Resultate und zulässige Abweichungen
 
-T0, T1 und T2 bleiben getrennte Zeitfenster und Query-Store-Intervalle. Die Query-Store-Abfragen sind auf `dbo.usp_CaseSearch` und den Marker `DGN007_CASE_SEARCH` gebunden. Die Ausgaben verwenden keine festen Millisekunden, Plan-Node-IDs oder universellen Operatorerwartungen. Erforderlich sind gleiche fachliche Ergebnismengen für die vier vorbereiteten Vergleichsparameter und mindestens zwei unterscheidbare Query-Store-Plan- oder Laufzeitprofile zwischen T0/T1. Die XE-Session startet erst nach T1; ihre begrenzten Ereignisse gelten ausschließlich als Kontext für nachfolgende Vergleichsausführungen, nicht als rückwirkende T0-/T1-Evidenz. Planwahl, absolute Dauer, XE-Ereigniszahl und Query-Store-Flush sind empirisch. Eine fehlende geeignete Evidenz beendet die jeweilige Bewertung mit einem dokumentierten `SKIP` statt mit einer Ursachenbehauptung.
+T0, T1 und T2 bleiben getrennte Zeitfenster und Query-Store-Intervalle. Die Query-Store-Abfragen sind auf `dbo.usp_CaseSearch` und den Marker `DGN007_CASE_SEARCH` gebunden. Die Ausgaben verwenden keine festen Millisekunden, Plan-Node-IDs, universellen Operatorerwartungen oder Mindestplanzahl. T0 und T1 führen denselben Viererparameter-Mix mit unterschiedlicher erster Suchparameterreihenfolge aus; die tatsächlich erfassten erfolgreichen Runtimeprofile sind an die gespeicherten Phasen und Intervalle gebunden. Plananzahl und Profile beschreiben die verfügbare Evidenz, sind für sich kein Incident- oder Ursachenbeleg. Die XE-Session startet erst nach T1; ihre begrenzten Ereignisse gelten ausschließlich als Kontext für nachfolgende Vergleichsausführungen, nicht als rückwirkende T0-/T1-Evidenz. Planwahl, absolute Dauer, XE-Ereigniszahl und Query-Store-Flush sind empirisch. Fehlende geeignete Evidenz beendet die Bewertung mit einem dokumentierten `SKIP` statt mit einer Ursachenbehauptung.
 
 ## Cleanup und Recovery
 
@@ -82,7 +82,7 @@ T0, T1 und T2 bleiben getrennte Zeitfenster und Query-Store-Intervalle. Die Quer
 
 ## Statische Prüfung und Statusgrenze
 
-Die Artefakte wurden nur statisch geprüft. Es bestehen keine Runtime- oder `VALIDATED`-Behauptungen für die fachliche Demo. Die Runtime-Matrix 2019/2022/2025 und die didaktische Generalprobe bleiben offen.
+Die lokale Korrektur wurde statisch und im nicht-promotenden Teilnehmerablauf auf einer frischen Docker-Instanz mit SQL Server 2025 geprüft; sechs SQL-Stufen sowie Adapter- und Teilnehmer-Cleanup bestanden. Das ist weder vollständige Runtime-Matrix noch Incident-/Ursachenabnahme oder `VALIDATED`-Freigabe. Die Bestätigungsmatrix und Capstone-Qualifikation bleiben offen; die menschliche Generalprobe ist ausgeschlossen.
 
 Die begrenzten Compatibility-Gegenproben laufen mit
 `python Tests/Static/test_dgn007_compatibility.py`. Acht Tests prüfen die

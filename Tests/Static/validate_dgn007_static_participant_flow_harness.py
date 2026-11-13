@@ -24,7 +24,7 @@ def main() -> int:
     expected_skips = {
         "PRECHECK": "@('SKIP_QUERY_STORE_REQUIRED')",
         "TIME_WINDOWS": "@('SKIP_INCIDENT_NOT_REPRODUCED')",
-        "EVIDENCE": "@('SKIP_INCIDENT_NOT_REPRODUCED','SKIP_EVIDENCE_MISSING')",
+        "EVIDENCE": "@('SKIP_EVIDENCE_MISSING')",
         "COMPARISON": "@('SKIP_EVIDENCE_MISSING')",
     }
     for stage, codes in expected_skips.items():

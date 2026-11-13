@@ -110,19 +110,19 @@ DECLARE @PhaseNumber int = 0, @Phase nvarchar(32), @ExpectedExecutions bigint,
 WHILE @PhaseNumber < 2
 BEGIN
     SET @Phase = CASE @PhaseNumber WHEN 0 THEN N''T0_BASELINE'' ELSE N''T1_INCIDENT'' END;
-    SET @ExpectedExecutions = CASE @PhaseNumber WHEN 0 THEN 3 ELSE 5 END;
+    SET @ExpectedExecutions = 4;
     INSERT lab.IncidentState(IncidentPhase,MarkerUtc) VALUES(@Phase,SYSUTCDATETIME());
     IF @PhaseNumber = 0
     BEGIN
         EXEC dbo.usp_CaseSearch 8,3;
-        EXEC dbo.usp_CaseSearch 8,3;
-        EXEC dbo.usp_CaseSearch 8,3;
+        EXEC dbo.usp_CaseSearch 1,3;
+        EXEC dbo.usp_CaseSearch 5,3;
+        EXEC dbo.usp_CaseSearch 1,1;
     END
     ELSE
     BEGIN
         EXEC dbo.usp_CaseSearch 1,3;
-        EXEC dbo.usp_CaseSearch 1,3;
-        EXEC dbo.usp_CaseSearch 1,3;
+        EXEC dbo.usp_CaseSearch 8,3;
         EXEC dbo.usp_CaseSearch 5,3;
         EXEC dbo.usp_CaseSearch 1,1;
     END;
