@@ -2649,16 +2649,19 @@ werden ausgelassen. Generatorausdrücke werden einschließlich Iterable,
 Zuweisungsziel, Filtern und Elementausdruck auf mögliche lokale Calls
 untersucht, auch wenn eine Iteration statisch nicht nachgewiesen ist; das kann
 Kandidaten konservativ überzählen. Für die zwölf festen
-Wurzeln ergaben sich 315 zugeordnete Kanten, 63 Quellmodulkandidaten und 108
+Wurzeln ergaben sich 315 zugeordnete Kanten, 63 Quellmodulkandidaten und 111
 verfolgte lokale Funktionen; der sortierte Modul-/Quelldigest lautet
 `a846ba1f2e76cfa3754bdf415b722d5acfe9a3bc681a1878a22a485789783189`. Dabei
-wurden 19 Zielbedingungen entschieden und 279 unbekannte Bedingungen
-beidseitig behalten. Die Auflösung folgt nur direkte lokale `Name`-Aufrufe;
-mehrere Definitionen desselben Namens bleiben bei unbekannten Bedingungen als
-Alternativen erhalten, bekannte Zielzweige begrenzen die Definitionen.
-Attribute, Aliase, dynamische/indirekte Aufrufe und Imports aus fremden
-Funktionen werden nicht geschlossen. Der Vorschnitt ist kein vollständiger
-Aufrufgraph und keine P11-Importclosure.
+wurden 19 Zielbedingungen entschieden und 290 unbekannte Bedingungen
+beidseitig behalten. Die Auflösung folgt direkte lokale `Name`-Aufrufe und
+einfache gleichnamige Zuweisungen `alias = function_name` im selben vorab
+erfassten Scope. Mehrere Definitionen desselben Namens bleiben bei unbekannten
+Bedingungen als Alternativen erhalten, bekannte Zielzweige begrenzen die
+Definitionen. Generatorausdrücke umfassen Iterable, Zuweisungsziel, Filter und
+Element als mögliche Auswertungen; fehlende Iteration wird nicht als
+Abwesenheitsbeleg verwendet. Attribute, dynamische/indirekte Aufrufe und
+Imports aus fremden Funktionen werden nicht geschlossen. Der Vorschnitt ist
+kein vollständiger Aufrufgraph und keine P11-Importclosure.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
