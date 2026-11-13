@@ -2,14 +2,14 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `PROPOSED`; integrierter Codeentwurf mit statischer Vertragsprüfung und ScriptDom-Grammatikparse, nicht katalogisiert |
+| Status | `PROPOSED`; integrierter Codeentwurf mit statischer Vertragsprüfung, ScriptDom-Grammatikparse und automatischer Enginequalifikation auf den drei festgeschriebenen SQL-Server-Builds; nicht katalogisiert |
 | Sicherheitsstufe | `YELLOW` |
 | Lernziel | `LO-M03-06` / `CLM-047` |
 | Daten | ausschließlich synthetisch; 10.000 disjunkte Zwei-Kanten-Pfade plus kleines Korrektheitsoracle |
-| Profile | Linux/AMD64-Images: SQL Server 2019/150, Build 15.0.4500.2; 2022/160, Build 16.0.4305.5; 2025/170, Build 17.0.5035.5; vorgeschlagene Qualifikationspins, keine Runtimequalifikation |
+| Profile | Linux/AMD64-Images: SQL Server 2019/150, Build 15.0.4500.2; 2022/160, Build 16.0.4305.5; 2025/170, Build 17.0.5035.5; festgeschriebene und automatisiert qualifizierte Profile |
 | Hostressourcen | Vorschlag: x86-64, 2 Kerne mit mindestens 2 GHz, 8 GiB RAM und 20 GiB freier Speicher; nicht empirisch qualifiziert |
 | Containergrenze | Vorschlag: höchstens 2 CPU-Kerne, 4.096 MiB Speicher, SQL-Server-Limit 3.072 MiB; 900 Sekunden Lauf-/90 Sekunden Cleanupbudget |
-| Runtime | nicht ausgeführt; keine Performanceaussage |
+| Runtime | automatisierter isolierter End-to-End-Lauf auf SQL Server 2019/2022/2025 bestanden; fünf synthetische Messpaare je Engine, keine Performanceaussage und keine menschliche Generalprobe |
 
 ## Zweck
 
@@ -43,8 +43,9 @@ Lauf.
 `15_Framework.sql` bindet `Demos/00_Framework/Sql/FWK_Measurement.sql` per
 SQLCMD-`:r` ein. Der dokumentierte Harness-Aufruf startet deshalb aus dem
 Repository-Stamm. Das Manifest ist noch nicht in einen allgemeinen
-Ausführungspfad aufgenommen. Die Dateien sind ein nicht ausgeführter Entwurf
-und keine qualifizierte Demoimplementierung.
+Ausführungspfad aufgenommen. Die Dateien bleiben `PROPOSED`; die isolierte technische
+Enginequalifikation ist für die drei festgeschriebenen Profile bestanden und
+ersetzt weder die menschliche Generalprobe noch eine Katalogfreigabe.
 
 ## Rechte und Grenzen
 
@@ -91,48 +92,50 @@ Benutzerdatenbank vorhanden sein (außer der exakt markierten Wiederaufnahme
 desselben Runs); danach ist die markierte QRY-023-Datenbank die einzige
 Benutzerdatenbank. Erlaubt sind nur `public` als READER-Server-/Datenbankrolle
 und `CONNECT` aus `public` auf nachweislich standardmäßigen SQL-Endpoints.
-Der Harness ändert weder Serverrechte noch `public`. Die read-only ADMIN-
-Endpoint-, Rollen-, SID- und explizite Rechteinventur ist offline implementiert,
-aber nicht enginequalifiziert. Die READER-Phase erfasst jetzt die Effektivrechte
+Der Harness ändert weder Serverrechte noch `public`. Die read-only ADMIN-Endpoint-, Rollen-, SID- und explizite Rechteinventur
+wurde in isolierten Wegwerfcontainern auf allen drei festgeschriebenen Engines
+ausgeführt und bestanden. Die READER-Phase erfasst jetzt die Effektivrechte
 für Server, Zieldatenbank, jeden Standardendpoint, `dbo`/`lab` und alle 13
 gebundenen
 Framework-/Demoobjekte mit `sys.fn_my_permissions` und vergleicht sie
 fail-closed mit dem Manifest. Die ADMIN-Phase bestätigt unter ausreichender
 Metadatensicht zuerst die Existenz aller 13 gebundenen Objekte, darunter drei intern genutzte Objekte,
 die READER absichtlich nicht sehen kann. Sie gibt dafür einen festen
-PASS-Marker sowie die begrenzte Endpointliste als ID- und UTF-16LE-Hexdatensätze
+PASS-Marker sowie die begrenzte Endpointliste als SQLCMD-sichere ID-/UTF-16LE-
+Hexdatensätze mit `G`- und `H`-Trennzeichen außerhalb des Hexalphabets
 aus; der Caller validiert Objektmarker, Count, Grenzen, IDs, Namen und Encoding
 vor dem nächsten SQL-Aufruf. Die tatsächliche
 READER-Verbindung prüft anschließend `CONNECT` für jeden übergebenen Endpoint.
-Der READER braucht dafür keine Endpointmetadatensicht. Das ist offline
-implementiert, nicht auf einer Engine qualifiziert. `manifest.proposed.json`
-kennzeichnet diesen Stand getrennt; der Offlinevalidator führt keine
-Rechteprüfung aus. Ein expliziter Grant an READER oder `public` außerhalb des gebundenen
+Der READER braucht dafür keine Endpointmetadatensicht. Die tatsächlichen
+READER-Verbindungen bestanden auf allen drei festgeschriebenen Engine-Builds.
+`manifest.proposed.json` hält den Vorschlagsstatus getrennt; der Offlinevalidator
+allein führt keine Rechteprüfung aus. Ein expliziter Grant an READER oder `public` außerhalb des gebundenen
 Objektinventars wird bereits durch die ADMIN-Inventur abgelehnt; unbekannte
 Effektivrechte in allen geprüften Scopes blockieren den Lauf ebenfalls.
-Microsoft beschreibt, dass
-`sys.fn_my_permissions` die Rechte des aktuellen Aufrufkontexts zurückgibt und
-bei Fehler `NULL` liefert; die Funktion qualifiziert damit weder andere
-Principals noch die Ownership-Chain-Wirkung. Eine Enginequalifikation bleibt
-offen.
+Microsoft beschreibt, dass `sys.fn_my_permissions` die Rechte des aktuellen
+Aufrufkontexts zurückgibt und bei Fehler `NULL` liefert; die Funktion qualifiziert
+für sich weder andere Principals noch Ownership-Chain-Wirkungen. Der Harness
+prüfte die tatsächlichen READER-Verbindungen und den Messprozedurpfad auf allen
+drei Builds. Negative Live-Berechtigungsvarianten sind noch nicht geprüft.
 
-`DEC-084` schließt jetzt den konkreten Verbindungsfehler im Offlineentwurf:
+`DEC-084` schließt den konkreten Verbindungsfehler im Setup und in dessen
+Offline-Vertragsprüfung:
 FWK-010 übergibt den READER-Profilnamen über die explizite SQLCMD-Variable
 `ReaderLogin`; der Caller erlaubt dafür nur `[A-Za-z0-9_]{1,128}`. Setup
 verlangt einen aktiven `SQL_LOGIN` und erstellt oder bestätigt dessen
 Datenbankbenutzer ausschließlich in der exakt markierten QRY-023-Datenbank.
 Reservierte FWK-010-SQLCMD-Variablennamen können nicht überschrieben werden.
-Namens- oder SID-Konflikte brechen fail-closed ab. Dies ist statisch geprüft,
-aber weder T-SQL-kompiliert noch mit realen SQL-Identitäten ausgeführt.
+Namens- oder SID-Konflikte brechen fail-closed ab. Die Setup- und SID-Prüfung
+lief auf allen drei gepinnten SQL-Server-Engines erfolgreich durch.
 
 Das Proposed-Manifest bindet jetzt zusätzlich eine versionierte
 READER-Effektivrechte-Sollmenge für Server, ADMIN-inventarisierte
 Standardendpoints, Datenbank, `dbo`/`lab` und alle 13 erwarteten
-QRY-023-/FWK-004-Securables. Der Offlinevalidator schützt die exakte
-Vertragsform sowie Fail-closed Regeln für Duplikate, fehlende Resultate,
-Spaltenrechte und unerwartete Objekte. Der Vertrag ist
-`DESIGN_ONLY_NOT_ENGINE_QUALIFIED`; er prüft keine Live-Rechte und ändert
-keine Rechte.
+QRY-023-/FWK-004-Securables. Der Offlinevalidator schützt die exakte Vertragsform sowie Fail-closed Regeln
+für Duplikate, fehlende Resultate, Spaltenrechte und unerwartete Objekte. Der
+Vertrag trägt `ENGINE_QUALIFIED_PROPOSED_NOT_RUNTIME_AUTHORIZED`. Der Validator
+selbst prüft keine Live-Rechte; die getrennte Enginequalifikation tat dies unter
+den tatsächlichen ADMIN- und READER-Verbindungen und änderte keine Rechte.
 
 Vor Setup verlangt der `PREFLIGHT` eine vollständige Sicht auf
 `sys.databases` und lässt nur eine leere Instanz oder die exakt markierte
@@ -154,12 +157,24 @@ dokumentierte Plattformbaseline ([Datenbankrollen](https://learn.microsoft.com/e
 `VIEW ANY COLUMN MASTER KEY DEFINITION` und `SELECT` auf systemeigenen
 Systemobjekten. `sys.database_permissions` kennzeichnet Systemobjekte mit
 negativer `major_id` ([Katalogsicht](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-permissions-transact-sql?view=sql-server-ver17)).
-Die Inventur erkennt `public`-SELECT-Grants auf Systemobjekten, lässt sie aber
-bis zu einer exakten, versionsgebundenen Sollmenge nicht als bestanden gelten:
-Solange diese Baseline fehlt, endet die Phase mit `FAIL_NOT_PROVEN`. Die negative
-`major_id`-Kennzeichnung allein belegt nur „Systemobjekt“, nicht die Zugehörigkeit
-zur dokumentierten Standardmenge. `public`-Grants auf QRY-023-/FWK-004-Nutzobjekten
-und direkte Systemobjektgrants an READER bleiben unzulässig.
+Die exakte `public`-SELECT-Menge wurde in frischen, digestgebundenen
+Wegwerfcontainern für die festgelegten Builds 15.0.4500.2, 16.0.4305.5 und
+17.0.5035.5 erfasst: 186, 226 beziehungsweise 232 effektive `public`-
+`SELECT`-Grants auf negative Systemobjekt-IDs in einer neu angelegten
+Nutzerdatenbank. Dazu gehören sieben PDW-Kompatibilitätsviews, die nicht in
+`sys.system_objects` erscheinen; eine Inventur nur über diese Sicht wäre
+unvollständig. Der vollständige Eintragssatz und die
+kanonischen SHA-256-Werte stehen in der [Baseline](../../../Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json)
+und sind als `SRC-160` registriert. Der ADMIN-Preflight akzeptiert diese Rechte
+nur bei exakter Build-, Anzahl- und Digestübereinstimmung. Ein unbekannter Build,
+eine abweichende Menge oder fehlende Metadatensicht bleibt `FAIL_NOT_PROVEN`.
+Die negative `major_id`-Kennzeichnung allein genügt weiterhin nicht. Die
+Kontrollabfragen in `master` ergaben deutlich größere und abweichende Mengen;
+sie werden ausdrücklich nicht als Sollmenge für die QRY-023-Zieldatenbank
+verwendet. `public`-Grants auf QRY-023-/FWK-004-Nutzobjekten und direkte
+Systemobjektgrants an READER bleiben unzulässig. Die getrennte Baselineerfassung
+führte weder QRY-023-Skripte noch Rechteänderungen aus; der Harness wurde in
+einem separaten Schritt auf den drei Engines qualifiziert.
 Fehlt eine dieser Sichtbarkeiten oder erscheint ein unbekannter Endpoint, eine
 weitere READER-Rolle oder ein nicht deklarierter Berechtigungszustand,
 endet die Phase mit `FAIL_NOT_PROVEN`. Die Phase vergibt, entzieht und ändert
@@ -171,7 +186,10 @@ ADMIN-Phasenbindung und das Verbot von Rechteänderungen; synthetische Tests
 prüfen unter anderem entfernte Sichtbarkeitsgates, SID-Bindung und verbotene
 Grants. ScriptDom parst das neue T-SQL unter den Grammatiken 150, 160 und 170.
 Das belegt weder Metadatenvollständigkeit noch erfolgreiche T-SQL-Ausführung.
-Der Vertrag bleibt `DESIGN_ONLY_NOT_ENGINE_QUALIFIED`.
+Der Vertragsvalidator deckt diese synthetischen Negativfälle ab. Die
+automatisierten Engine-Läufe qualifizieren den positiven Standardpfad; negative
+Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht
+ausgeführt. QRY-023 bleibt vorgeschlagen und nicht katalogisiert.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
@@ -239,7 +257,8 @@ Die exakten Anforderungen sind im Feld `sqlcmd_input_validation` des
 vorgeschlagenen Manifests maschinenlesbar festgelegt und durch statische sowie
 synthetische Caller-Tests geprüft. Das Feld allein führt keine Validierung aus.
 
-Der QRY-023-Prüflauf wurde nicht gestartet. Der read-only Preflight akzeptiert
+Der automatisierte QRY-023-Prüflauf wurde auf allen drei gepinnten Builds
+ausgeführt und bestanden. Der read-only Preflight akzeptiert
 für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,
 `16.0.4305.5` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals
 vor der Datenbankanlage. Das sind reproduzierbare Designpins, die gemäß dem
@@ -272,10 +291,12 @@ ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170;
 12.11.2026. `DEC-082` bestätigt am selben Tag die OCI-Manifest-/Konfigurations-
 digests und Produktlabels gegen den vorgeschlagenen Lock. Das belegt keinen
 gestarteten SQL-Server-Prozess.
-Bevor die Demo in den Katalog oder einen Runtimeworkflow aufgenommen wird,
-bleiben formale Harness-Abnahme,
-Runtimecaller-Integration, phasenspezifische Identität, Ressourcenprofil und
-konkrete Ausführungsgenehmigung offen.
+Vor einer Katalog- oder allgemeinen Runtimeaufnahme bleiben formale
+Produktabnahme, Runtimecaller-Integration und dauerhaft durchsetzbares
+Ressourcenprofil offen. Die menschliche Generalprobe bleibt wie beauftragt
+ausgeschlossen. Der isolierte Einzelaufruf verwendete begrenzte Wegwerfcontainer
+und separate ADMIN-/READER-Anmeldungen; er ist noch kein allgemeiner
+Runtimeworkflow.
 
 Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus

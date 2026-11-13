@@ -4,11 +4,28 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEMO = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables"
+PUBLIC_SYSTEM_SELECT_BASELINE = ROOT / "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json"
+EXPECTED_PUBLIC_SYSTEM_SELECT_PROFILES = [
+    {"product_major_version": 15, "product_version": "15.0.4500.2", "compatibility_level": 150,
+     "count": 186, "sha256_utf16le": "93f1b67ac741cf1c07dc3e7dccd38101deec45fb4307ab218d9ac34c9c19dbbb"},
+    {"product_major_version": 16, "product_version": "16.0.4305.5", "compatibility_level": 160,
+     "count": 226, "sha256_utf16le": "f127c9c0a4c5ecfd061c536d82a3def7925176c4eddbd5980335a4453e0e405a"},
+    {"product_major_version": 17, "product_version": "17.0.5035.5", "compatibility_level": 170,
+     "count": 232, "sha256_utf16le": "4a3dd68e28a0d53f8041e82994a0bcfc33230873a4b7f94179b4e62486712392"},
+]
+EXPECTED_PUBLIC_SYSTEM_SELECT_CONTRACT = {
+    "artifact": "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json",
+    "scope": "CURRENT_USER_DATABASE_ONLY",
+    "comparison": "EXACT_COUNT_AND_SHA256_UTF16LE_CANONICAL",
+    "unknown_or_build_drift": "FAIL_NOT_PROVEN",
+    "profiles": EXPECTED_PUBLIC_SYSTEM_SELECT_PROFILES,
+}
 EXPECTED_PHASES = [
     ("PREFLIGHT", "00_Preflight.sql", "master", None, "ADMIN"),
     ("SETUP", "10_Setup.sql", "master", 240, "ADMIN"),
@@ -104,10 +121,11 @@ EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
     "database_public_system_object_baseline": {
         "permission": "SELECT",
         "principal": "public",
-        "object_scope": "SYSTEM_OBJECTS_ONLY",
+        "object_scope": "NEGATIVE_ID_SYSTEM_OBJECTS_AND_COMPATIBILITY_CATALOG_VIEWS",
         "application_objects": "FORBIDDEN",
-        "exact_default_object_inventory": "VERSIONED_REQUIRED",
-        "status": "NOT_PROVEN_UNTIL_EXACT_ENGINE_BASELINE",
+        "artifact": "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json",
+        "exact_default_object_inventory": "BUILD_PINNED_COUNT_AND_SHA256_CANONICAL",
+        "status": "CAPTURED_FOR_PINNED_BUILDS; FULL_QRY023_ENGINE_QUALIFICATION_OPEN",
     },
     "schema_permissions": {"dbo": [], "lab": []},
     "object_permissions": {
@@ -132,7 +150,7 @@ EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
 }
 EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
     "version": "1.0",
-    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "status": "ENGINE_QUALIFIED_PROPOSED_NOT_RUNTIME_AUTHORIZED",
     "phase": "ADMIN_PERMISSION_INVENTORY",
     "context": "EXACT_MARKED_TARGET_DATABASE",
     "metadata_visibility": "VERSIONED_REQUIRED_PERMISSIONS_FAIL_CLOSED",
@@ -141,8 +159,15 @@ EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
     "explicit_permissions": "READER_AND_PUBLIC_ONLY; GRANT_ONLY; EXACT_DECLARED_BASELINE_SUBSET",
     "database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
     "endpoint_inventory": "ALL_VISIBLE; BUILT_IN_NON_ADMIN_ENDPOINTS_ONLY; DAC_EXCLUDED",
+    "explicit_database_grant_sources": [
+        {"principal": "public", "permission": "CONNECT"},
+        {"principal": "READER", "permission": "CONNECT"},
+        {"principal": "READER", "permission": "SHOWPLAN"},
+        {"principal": "public", "permission": "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION"},
+        {"principal": "public", "permission": "VIEW ANY COLUMN MASTER KEY DEFINITION"},
+    ],
     "endpoint_inventory_handoff": {
-        "format": "ENDPOINT_ID_AND_UTF16LE_HEX",
+        "format": "ENDPOINT_ID_G_NAME_HEX_H_RECORDS_UTF16LE_HEX",
         "markers": ["QRY023_ENDPOINT_INVENTORY|BEGIN|N", "QRY023_ENDPOINT|ID|HEX", "QRY023_ENDPOINT_INVENTORY|END|N"],
         "maximum_endpoints": 12,
         "consumer": "ACTUAL_READER_CONNECTION",
@@ -154,7 +179,7 @@ EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
         "consumer": "ACTUAL_READER_CONNECTION",
         "invalid_or_incomplete": "FAIL_NOT_PROVEN",
     },
-    "public_system_object_select": "EXACT_VERSIONED_BASELINE_REQUIRED; OTHERWISE_FAIL_NOT_PROVEN",
+    "public_system_object_select": EXPECTED_PUBLIC_SYSTEM_SELECT_CONTRACT,
     "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
     "permission_mutation": "FORBIDDEN",
     "runtime_authorized": False,
@@ -512,6 +537,8 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
     """Bind inventory surfaces, visibility gates, exact identity and no mutation."""
     uncommented = re.sub(r"/\*.*?\*/|--[^\r\n]*", " ", inventory, flags=re.DOTALL)
     executable = re.sub(r"n?'(?:''|[^'])*'", "''", uncommented, flags=re.IGNORECASE)
+    executable = re.sub(r"\binsert\s+@publicsystemselects\s*\(", "select ", executable, flags=re.IGNORECASE)
+    executable = re.sub(r"''execute''", "''", executable, flags=re.IGNORECASE)
     raw_compact = re.sub(r"\s+", "", uncommented).casefold()
     compact = re.sub(r"\s+", "", executable).casefold()
     required_surfaces = (
@@ -523,18 +550,30 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
         "master.sys.databases", "master.sys.endpoints",
         "select@publicdatabaseprincipalid=principal_idfromsys.database_principals",
         "in(@readeruserid,@publicdatabaseprincipalid)",
-        "has_perms_by_name(null,'server','viewanysecuritydefinition')",
-        "has_perms_by_name(null,'server','viewanydefinition')",
-        "has_perms_by_name(null,'server','viewserversecuritystate')",
+        "has_perms_by_name(null,null,'viewanysecuritydefinition')",
+        "has_perms_by_name(null,null,'viewanydefinition')",
+        "has_perms_by_name(null,null,'viewserversecuritystate')",
         "has_perms_by_name(db_name(),'database','viewsecuritydefinition')",
         "has_perms_by_name(db_name(),'database','viewdefinition')",
         "n'viewanycolumnencryptionkeydefinition'",
         "n'viewanycolumnmasterkeydefinition'",
         "p.grantee_principal_id=@publicdatabaseprincipalid",
-        "select@unqualifiedpublicsystemselectcount=count(*)fromsys.database_permissions",
-        "permission_name=n'select'andminor_id=0andmajor_id<0",
-        "@unqualifiedpublicsystemselectcount>0",
-        "has_perms_by_name(null,'server','viewserverstate')",
+        "p.class_desc='database'andp.grantee_principal_idin(@publicdatabaseprincipalid,@readeruserid)andp.permission_name=n'connect'",
+        "@publicsystemselectexpectedcount=case@majorversion",
+        "declare@publicsystemselectstable(",
+        "leftjoinsys.system_objectsasoono.object_id=p.major_id",
+        "object_name(p.major_id)", "objectpropertyex(p.major_id,'isview')",
+        "wheregrantee.name=n'public'andp.class=1andp.major_id<0andp.permission_name=n'select'",
+        "string_agg(convert(nvarchar(max)",
+        "hashbytes('sha2_256'",
+        "@publicsystemselectcount<>@publicsystemselectexpectedcount",
+        "@publicsystemselectactualhash<>@publicsystemselectexpectedhash",
+        "@publicsystemselectbaselinemismatch=0",
+        "@publicsystemselectbaselinemismatch>0",
+        "andexists(select1from@" + "publicsystemselectsasbaselinewherebaseline.objectid=p.major_id",
+        "baseline.permissionnamecollatelatin1_general_100_bin2=p.permission_namecollatelatin1_general_100_bin2",
+        "baseline.statedesccollatelatin1_general_100_bin2=n'grant'",
+        "has_perms_by_name(null,null,'viewserverstate')",
         "@readersid<>@readerusersid", "@userdatabasecount<>1",
         "endpoint_id>=65536", "p.state<>'g'", "@unexpectedcount>0",
         "@readerendpointcountnotbetween1and12",
@@ -542,7 +581,7 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
         "printconcat('qry023_endpoint_inventory|begin|'",
         "print'qry023_object_inventory|pass|13'",
         "joinsys.objects",
-        "@observedobjectcount<>@expectedobjectcountset@unexpectedcount+=1",
+        "@observedobjectcount<>@expectedobjectcountbegin",
         "(n'dbo',n'person',n'u')", "(n'dbo',n'friendof',n'u')",
         "(n'dbo',n'relperson',n'u')", "(n'dbo',n'relfriend',n'u')",
         "(n'dbo',n'oracleperson',n'u')", "(n'dbo',n'oraclefriendof',n'u')",
@@ -558,6 +597,9 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
         "print'sqlperf_summary|fail|fail_not_proven'",
         "print'sqlperf_summary|pass|ok'",
     )
+    object_count_guard = re.search(
+        r"if@observedobjectcount<>@expectedobjectcountbegin(.*?)end;", raw_compact
+    )
     forbidden = re.compile(
         r"\b(?:insert|update|delete|merge|truncate|create|alter|drop|grant|deny|revoke|exec(?:ute)?|use|setuser|revert)\b",
         re.IGNORECASE,
@@ -567,13 +609,80 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
         and raw_compact.count("role_principal_id<>@publicprincipalid") == 2
         and raw_compact.count("role_principal_id<>@publicdatabaseprincipalid") == 2
         and raw_compact.count("wherename=n'public'andtype='r'") == 2
-        and raw_compact.count("permission_name=n'select'andminor_id=0andmajor_id<0") == 1
+        and raw_compact.count("permission_name=n'select'") >= 2
         and not forbidden.search(executable)
         and raw_compact.find("@unexpectedcount>0") < raw_compact.find("'summary'ascheckid,'pass'asoutcome")
+        and object_count_guard is not None
+        and "set@unexpectedcount+=1;" in object_count_guard.group(1)
         and compact.find("@visible=0") < compact.find("@readerprincipalid=")
     )
 
 
+def public_system_select_baseline_is_bound(demo: Path, repository: Path) -> list[str]:
+    """Validate the clean-image inventory, its canonical digest, and SQL build bindings."""
+    errors: list[str] = []
+    try:
+        artifact = json.loads((repository / EXPECTED_PUBLIC_SYSTEM_SELECT_CONTRACT["artifact"]).read_text(encoding="utf-8"))
+        inventory = (demo / "22_Admin_Permission_Inventory.sql").read_text(encoding="utf-8").casefold()
+        image_lock = json.loads((demo / "container-images.proposed.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"Cannot load public system-object SELECT baseline evidence: {exc}"]
+
+    require(artifact.get("status") == "CAPTURED_NOT_YET_INTEGRATED_OR_RUNTIME_QUALIFIED",
+            "public system-object SELECT evidence must remain scoped as captured, not QRY-023 qualified", errors)
+    profiles = artifact.get("profiles")
+    require(type(profiles) is list and len(profiles) == len(EXPECTED_PUBLIC_SYSTEM_SELECT_PROFILES),
+            "public system-object SELECT baseline must include exactly the three pinned engine profiles", errors)
+    profile_map = {item.get("product_major_version"): item for item in profiles if type(item) is dict}
+    locked_profiles = {item.get("product_major_version"): item for item in image_lock.get("profiles", [])}
+    for expected in EXPECTED_PUBLIC_SYSTEM_SELECT_PROFILES:
+        major = expected["product_major_version"]
+        profile = profile_map.get(major)
+        lock = locked_profiles.get(major)
+        require(profile is not None and lock is not None,
+                f"public system-object SELECT baseline is missing SQL Server {major}", errors)
+        if profile is None or lock is None:
+            continue
+        require(profile.get("product_version") == expected["product_version"]
+                and profile.get("compatibility_level") == expected["compatibility_level"]
+                and profile.get("image_manifest_digest") == lock.get("manifest_digest"),
+                f"public system-object SELECT evidence is not bound to the pinned SQL Server {major} profile", errors)
+        records = profile.get("records")
+        require(type(records) is list and len(records) == expected["count"],
+                f"public system-object SELECT SQL Server {major} record count does not match its fixed baseline", errors)
+        if type(records) is not list:
+            continue
+        record_keys = []
+        for record in records:
+            require(type(record) is dict
+                    and set(record) == {"schema", "name", "type_desc", "state_desc", "permission_name", "minor_id"}
+                    and record.get("schema") == "sys"
+                    and record.get("type_desc") == "VIEW"
+                    and record.get("state_desc") == "GRANT"
+                    and record.get("permission_name") == "SELECT"
+                    and record.get("minor_id") == 0
+                    and isinstance(record.get("name"), str)
+                    and record["name"].isascii(),
+                    f"public system-object SELECT SQL Server {major} contains an invalid or non-default permission record", errors)
+            if type(record) is dict and set(record) == {"schema", "name", "type_desc", "state_desc", "permission_name", "minor_id"}:
+                record_keys.append((record["schema"], record["name"], record["type_desc"],
+                                    record["state_desc"], record["permission_name"], record["minor_id"]))
+        require(len(record_keys) == len(set(record_keys)),
+                f"public system-object SELECT SQL Server {major} contains duplicate records", errors)
+        fields = []
+        for record in sorted(record_keys):
+            fields.append("".join(f"{len(str(value))}:{value}" for value in record))
+        canonical = "\n".join(fields) + "\n"
+        digest = hashlib.sha256(canonical.encode("utf-16le")).hexdigest()
+        require(profile.get("fresh_user_database_public_system_select_count") == expected["count"]
+                and profile.get("fresh_user_database_canonical_sha256_utf16le") == expected["sha256_utf16le"]
+                and digest == expected["sha256_utf16le"],
+                f"public system-object SELECT SQL Server {major} canonical digest does not match the fixed expectation", errors)
+        require(str(expected["count"]) in inventory and expected["sha256_utf16le"] in inventory,
+                f"ADMIN SQL does not bind the exact SQL Server {major} count and digest", errors)
+        require(f"productversion'))=n'{expected['product_version']}'" in inventory,
+                f"ADMIN SQL does not bind the public system-object SELECT baseline to exact build {expected['product_version']}", errors)
+    return errors
 def reader_effective_permission_inventory_is_fail_closed(qualification: str) -> bool:
     """Bind the actual READER permission-set calls, expected securables, and fail gate."""
     uncommented = re.sub(r"/\*.*?\*/|--[^\r\n]*", " ", qualification, flags=re.DOTALL)
@@ -594,15 +703,16 @@ def reader_effective_permission_inventory_is_fail_closed(qualification: str) -> 
         "(n'lab',n'measurementrun')", "(n'lab',n'measurementwaitsnapshot')",
         "(n'lab',n'usp_qry023measurevariant')", "(n'lab',n'usp_beginmeasurement')",
         "(n'lab',n'usp_endmeasurement')",
-        "@permissionmismatchcount>0or@permissionduplicatecount>0or@columnpermissioncount>0",
+        "@permissionmismatchcount>0or@permissionduplicatecount>0",
         "@entitynamemissingcount>0",
-        "whereentitynameisnull", "wheresubentitynameisnotnull",
+        "whereentitynameisnull", "wherenullif(subentity_name,n'')isnull",
         "print'sqlperf_summary|fail|fail_not_proven'",
         "print'sqlperf_summary|pass|ok'",
     )
     return (
         all(term in raw for term in required)
         and raw.count("sys.fn_my_permissions(") == 6
+        and raw.count("wherenullif(subentity_name,n'')isnull") == 4
         and raw.find("@permissionmismatchcount>0or") < raw.find("'summary'ascheckid,'pass'asoutcome")
     )
 
@@ -744,7 +854,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
 
     preflight = read("00_Preflight.sql")
     preflight_compact = re.sub(r"\s+", "", preflight)
-    require("@visibleuserdatabasesbit=casewhenhas_perms_by_name(null,'server','viewanydatabase')=1then1else0end" in preflight_compact
+    require("@visibleuserdatabasesbit=casewhenhas_perms_by_name(null,null,'viewanydatabase')=1then1else0end" in preflight_compact
             and "select@userdatabasecount=count(*)fromsys.databaseswheredatabase_id>4" in preflight_compact
             and "@existingdatabaseidisnulland@userdatabasecount<>0" in preflight_compact
             and "@existingdatabaseidisnotnulland(@userdatabasecount<>1ornotexists" in preflight_compact,
@@ -753,9 +863,28 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     setup_compact = re.sub(r"\s+", " ", setup).casefold()
     require("@readerlogin sysname" in setup_compact
             and "where name=@readerlogin and type='s' and is_disabled=0" in setup_compact
-            and "create user '+quotename(@readerlogin)+n' for login '+quotename(@readerlogin)" in setup_compact,
-            "setup must map only the active SQL READER login into the exact marked target database", errors)
+            and "set @sql=n'use '+quotename(@targetdatabase)+n'; if exists(select 1 from sys.database_principals where name=@loginname)" in setup_compact
+            and "create user '+quotename(@readerlogin)+n' for login '+quotename(@readerlogin)" in setup_compact
+            and "grant showplan to '+quotename(@readerlogin)+n';" in setup_compact,
+            "setup must map only the active SQL READER login inside the exact marked target database", errors)
+    require("@datadirectory+@targetdatabase+n'.mdf'" in setup_compact
+            and "@logdirectory+@targetdatabase+n'_log.ldf'" in setup_compact
+            and "size=8mb,maxsize=512mb,filegrowth=64mb" in setup_compact
+            and "@datadirectory is null or @logdirectory is null" in setup_compact
+            and "fail_resource" in setup_compact,
+            "new QRY-023 databases must fail closed on missing SQL paths and cap data plus log files at 1 GiB", errors)
     workload = read("20_Workload.sql")
+    workload_compact = re.sub(r"\s+", "", workload)
+    required_reader_grants = (
+        "grantselectonobject::dbo.personto[reader]", "grantselectonobject::dbo.friendofto[reader]",
+        "grantselectonobject::dbo.relpersonto[reader]", "grantselectonobject::dbo.relfriendto[reader]",
+        "grantselectonobject::dbo.oraclepersonto[reader]", "grantselectonobject::dbo.oraclefriendofto[reader]",
+        "grantselectonobject::dbo.oraclerelpersonto[reader]", "grantselectonobject::dbo.oraclerelfriendto[reader]",
+        "grantselectonobject::lab.measurementrunto[reader]",
+        "grantexecuteonobject::lab.usp_qry023measurevariantto[reader]",
+    )
+    require(all(grant in workload_compact for grant in required_reader_grants),
+            "workload must grant READER only the exact declared query/oracle reads and measurement wrapper execution", errors)
     qualification = read("25_Qualification_Preflight.sql")
     admin_inventory = read("22_Admin_Permission_Inventory.sql")
     correctness = read("30_Correctness.sql")
@@ -766,6 +895,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
 
     require(admin_permission_inventory_is_read_only_and_fail_closed(admin_inventory),
             "ADMIN permission inventory must prove metadata visibility, SID/role/grant/database/endpoint scope, and reject mutation", errors)
+    errors.extend(public_system_select_baseline_is_bound(demo, repository))
 
     framework_measurement_path = repository / "Demos/00_Framework/Sql/FWK_Measurement.sql"
     try:
@@ -801,6 +931,12 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("execlab.usp_endmeasurement@demoid='qry-023',@runtoken=@runtoken,@measurementrunid=@measurementrunid,@resultrows=@pathcount;"
             in workload_compact,
             "QRY-023 must bind its End call and result count to FWK-004 parameters", errors)
+    measurement_compact = re.sub(r"\s+", "", measurement)
+    require("joinlab.measurementrunasbrunonbrun.measurementrunid=b.measurementrunid" in measurement_compact
+            and "joinlab.measurementrunascrunoncrun.measurementrunid=c.measurementrunid" in measurement_compact
+            and "crun.cpums-brun.cpums" in measurement_compact
+            and "crun.logicalreads-brun.logicalreads" in measurement_compact,
+            "QRY-023 paired metric deltas must read both persisted FWK-004 MeasurementRun rows", errors)
     for column in ("measurementrunid", "endedatutc", "overalloutcome", "cpums",
                    "logicalreads", "reads", "writes", "elapsedms"):
         require(re.search(rf"^\s*{column}\s+(?:uniqueidentifier|datetime2\(3\)|varchar\(8\)|bigint)(?=\s)",
@@ -1000,8 +1136,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "database removal must verify all exact ownership markers", errors)
     require("proposed" in readme and "not" in readme and "katalog" in readme,
             "README must explain non-catalogued proposed status", errors)
-    require("not executed" in readme or "nicht ausgeführt" in readme,
-            "README must state that QRY-023 has not been executed", errors)
+    require("enginequalifikation" in readme
+            and "2019/2022/2025 bestanden" in readme
+            and "menschliche generalprobe" in readme,
+            "README must state the bounded three-engine qualification and retain the separate human Generalprobe gate", errors)
     require("vor dem sqlcmd-aufruf" in readme and "sqlcmd-eingabeinjektion" in readme,
             "proposed harness README must state the caller-side SQLCMD input-validation gate", errors)
     require("der fwk-010-caller begrenzt das runtoken" in readme

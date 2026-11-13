@@ -41,7 +41,7 @@ CORE_SQLCMD_VARIABLES = frozenset({
 CORE_SQLCMD_VARIABLE_NAMES = frozenset(name.casefold() for name in CORE_SQLCMD_VARIABLES)
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
 QRY023_ENDPOINT_INVENTORY_HANDOFF = {
-    "format": "ENDPOINT_ID_AND_UTF16LE_HEX",
+    "format": "ENDPOINT_ID_G_NAME_HEX_H_RECORDS_UTF16LE_HEX",
     "markers": ["QRY023_ENDPOINT_INVENTORY|BEGIN|N", "QRY023_ENDPOINT|ID|HEX", "QRY023_ENDPOINT_INVENTORY|END|N"],
     "maximum_endpoints": 12,
     "consumer": "ACTUAL_READER_CONNECTION",
@@ -422,7 +422,8 @@ def _extract_qry023_endpoint_inventory(*texts: str) -> str:
         ids.add(endpoint_id)
         names.add(folded)
         parsed.append((endpoint_id, match.group(2)))
-    encoded = ";".join(f"{endpoint_id}:{hex_name}" for endpoint_id, hex_name in sorted(parsed))
+    # G/H delimiters are outside hexadecimal and keep the -v scalar free of SQLCMD separators.
+    encoded = "H".join(f"{endpoint_id}G{hex_name}" for endpoint_id, hex_name in sorted(parsed))
     if len(encoded) > 8191:
         raise ValueError("canonical endpoint inventory exceeds SQLCMD variable limit")
     return encoded

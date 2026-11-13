@@ -1426,3 +1426,10 @@ Demo-Stufen, Teilnehmer- und Adapter-Cleanup sowie Lab-Remove. Das belegt die
 aktuelle Linux-Providerparität, ist aber keine Szenariopromotion und keine
 vollständige Lifecycle-/Versionsmatrix. Ressourcen-, Netzwerk-, Hyper-V- und
 gemischte Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
+
+
+### QRY-023 – Enginequalifikation und nächste Integrationsschritte
+
+Der vollständige automatisierte Harnesslauf ist auf den festgeschriebenen SQL-Server-Builds 2019/15.0.4500.2, 2022/16.0.4305.5 und 2025/17.0.5035.5 bestanden. Alle zehn Phasen (einschließlich Cleanup und Planevidenz) waren erfolgreich. Fehler aus den realen Läufen wurden in SQL, Runner-Übergabe und Regressionen behoben; die `public`-Systemobjektbaseline wurde vervollständigt. Die Laufdaten begründen keine Leistungsrangfolge. QRY-023 bleibt `PROPOSED` und außerhalb des Runtimekatalogs.
+
+Als nächste freigegebene technische Schritte: (1) den konkreten Ressourcen- und TempDB-Deckel als reproduzierbaren, projektkonformen Aufrufer integrieren, (2) den dokumentierten Enginebefund mit dem erforderlichen unabhängigen Methoden-/Code-Nachreview und den PR-CI-Gates abgleichen und (3) die bestehende Metadokumentation und Registrierungen widerspruchsfrei halten. Eine Katalogpromotion oder menschliche Generalprobe wird daraus nicht abgeleitet; die Generalprobe bleibt ausdrücklich ausgeschlossen.

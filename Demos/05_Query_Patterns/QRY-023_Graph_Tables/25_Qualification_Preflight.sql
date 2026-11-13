@@ -44,7 +44,7 @@ DECLARE @ExpectedPermissions TABLE(
 DECLARE @ObservedPermissions TABLE(
     ContextClass nvarchar(16) NOT NULL,ContextName sysname NOT NULL,EntityName sysname NULL,
     SubentityName sysname NULL,PermissionName nvarchar(128) NOT NULL);
-DECLARE @PermissionMismatchCount int=0,@PermissionDuplicateCount int=0,@ColumnPermissionCount int=0,@EntityNameMissingCount int=0;
+DECLARE @PermissionMismatchCount int=0,@PermissionDuplicateCount int=0,@EntityNameMissingCount int=0;
 DECLARE @BoundObjectInventory int=TRY_CONVERT(int,'$(BoundObjectInventory)');
 IF @BoundObjectInventory<>13
     THROW 51017,'FAIL_NOT_PROVEN: ADMIN hat die vollständigen 13 QRY-023-/FWK-004-Objekte nicht bestätigt.',1;
@@ -60,37 +60,37 @@ INSERT @ExpectedPermissions(ContextClass,ContextName,PermissionName) VALUES
     (N'OBJECT',N'lab.MeasurementRun',N'SELECT'),
     (N'OBJECT',N'lab.USP_Qry023MeasureVariant',N'EXECUTE');
 
-DECLARE @StandardEndpointInventory varchar(8191)='$(StandardEndpointInventory)';
+DECLARE @StandardEndpointInventory varchar(max)='$(StandardEndpointInventory)';
 DECLARE @EndpointInput TABLE(EndpointId int NULL,EndpointName sysname NULL,EncodedName varchar(512) NULL);
 IF NULLIF(@StandardEndpointInventory,'') IS NULL
-   OR @StandardEndpointInventory LIKE '%[^0-9A-F:;]%' COLLATE Latin1_General_100_BIN2
+   OR @StandardEndpointInventory LIKE '%[^0-9A-H]%' COLLATE Latin1_General_100_BIN2
    OR LEN(@StandardEndpointInventory)>8191
-   OR LEFT(@StandardEndpointInventory,1)=';' OR RIGHT(@StandardEndpointInventory,1)=';'
-   OR CHARINDEX(';;',@StandardEndpointInventory)>0
+   OR LEFT(@StandardEndpointInventory,1)='H' OR RIGHT(@StandardEndpointInventory,1)='H'
+   OR CHARINDEX('HH',@StandardEndpointInventory)>0
     THROW 51015,'FAIL_NOT_PROVEN: ADMIN-Endpointinventar fehlt oder ist nicht kanonisch gebunden.',1;
 INSERT @EndpointInput(EndpointId,EndpointName,EncodedName)
-SELECT TRY_CONVERT(int,LEFT(value,CHARINDEX(':',value)-1)),
-       CONVERT(sysname,TRY_CONVERT(varbinary(256),SUBSTRING(value,CHARINDEX(':',value)+1,512),2)),
-       SUBSTRING(value,CHARINDEX(':',value)+1,512)
-FROM STRING_SPLIT(@StandardEndpointInventory,';')
-WHERE CHARINDEX(':',value)>1;
+SELECT TRY_CONVERT(int,LEFT(value,CHARINDEX('G',value)-1)),
+       CONVERT(sysname,TRY_CONVERT(varbinary(256),SUBSTRING(value,CHARINDEX('G',value)+1,512),2)),
+       SUBSTRING(value,CHARINDEX('G',value)+1,512)
+FROM STRING_SPLIT(@StandardEndpointInventory,'H')
+WHERE CHARINDEX('G',value)>1;
 IF (SELECT COUNT(*) FROM @EndpointInput) NOT BETWEEN 1 AND 12
    OR EXISTS (SELECT 1 FROM @EndpointInput WHERE EndpointId IS NULL OR EndpointId NOT BETWEEN 1 AND 65535
               OR EndpointName IS NULL OR DATALENGTH(EndpointName)=0 OR DATALENGTH(EndpointName)>256
               OR EncodedName='' OR LEN(EncodedName)%4<>0)
    OR EXISTS (SELECT EndpointId FROM @EndpointInput GROUP BY EndpointId HAVING COUNT_BIG(*)>1)
    OR EXISTS (SELECT EndpointName FROM @EndpointInput GROUP BY EndpointName HAVING COUNT_BIG(*)>1)
-   OR EXISTS (SELECT value FROM STRING_SPLIT(@StandardEndpointInventory,';') WHERE CHARINDEX(':',value)<=1)
+    OR EXISTS (SELECT value FROM STRING_SPLIT(@StandardEndpointInventory,'H') WHERE CHARINDEX('G',value)<=1)
     THROW 51016,'FAIL_NOT_PROVEN: Endpointnamen aus der ADMIN-Inventur sind unvollständig oder ungültig.',1;
 INSERT @ExpectedPermissions(ContextClass,ContextName,PermissionName)
 SELECT N'ENDPOINT',EndpointName,N'CONNECT' FROM @EndpointInput;
 
 INSERT @ObservedPermissions(ContextClass,ContextName,EntityName,SubentityName,PermissionName)
 SELECT N'SERVER',N'<SERVER>',entity_name,subentity_name,permission_name
-FROM sys.fn_my_permissions(NULL,N'SERVER');
+FROM sys.fn_my_permissions(NULL,N'SERVER') WHERE NULLIF(subentity_name,N'') IS NULL;
 INSERT @ObservedPermissions(ContextClass,ContextName,EntityName,SubentityName,PermissionName)
 SELECT N'DATABASE',N'<DATABASE>',entity_name,subentity_name,permission_name
-FROM sys.fn_my_permissions(NULL,N'DATABASE');
+FROM sys.fn_my_permissions(NULL,N'DATABASE') WHERE NULLIF(subentity_name,N'') IS NULL;
 DECLARE @EndpointName sysname;
 DECLARE ReaderEndpointCursor CURSOR LOCAL FAST_FORWARD FOR SELECT EndpointName FROM @EndpointInput ORDER BY EndpointId;
 OPEN ReaderEndpointCursor;
@@ -99,7 +99,7 @@ WHILE @@FETCH_STATUS=0
 BEGIN
     INSERT @ObservedPermissions(ContextClass,ContextName,EntityName,SubentityName,PermissionName)
     SELECT N'ENDPOINT',@EndpointName,entity_name,subentity_name,permission_name
-    FROM sys.fn_my_permissions(@EndpointName,N'ENDPOINT');
+    FROM sys.fn_my_permissions(@EndpointName,N'ENDPOINT') WHERE NULLIF(subentity_name,N'') IS NULL;
     FETCH NEXT FROM ReaderEndpointCursor INTO @EndpointName;
 END;
 CLOSE ReaderEndpointCursor;
@@ -126,7 +126,8 @@ BEGIN
     SET @SecurableName=QUOTENAME(@SchemaName)+N'.'+QUOTENAME(@ObjectName);
     INSERT @ObservedPermissions(ContextClass,ContextName,EntityName,SubentityName,PermissionName)
     SELECT N'OBJECT',@SchemaName+N'.'+@ObjectName,entity_name,subentity_name,permission_name
-    FROM sys.fn_my_permissions(@SecurableName,N'OBJECT');
+    /* Object-level SELECT may be expanded into column rows by SQL Server; ADMIN already rejects any explicit minor_id>0 grant. */
+    FROM sys.fn_my_permissions(@SecurableName,N'OBJECT') WHERE NULLIF(subentity_name,N'') IS NULL;
     FETCH NEXT FROM PermissionObjectCursor INTO @SchemaName,@ObjectName;
 END;
 CLOSE PermissionObjectCursor;
@@ -135,20 +136,28 @@ DEALLOCATE PermissionObjectCursor;
 SELECT @PermissionMismatchCount=
     (SELECT COUNT(*) FROM @ExpectedPermissions AS e WHERE NOT EXISTS
         (SELECT 1 FROM @ObservedPermissions AS a WHERE a.ContextClass=e.ContextClass
-         AND a.ContextName=e.ContextName AND a.PermissionName=e.PermissionName AND a.SubentityName IS NULL))
+         AND a.ContextName=e.ContextName AND a.PermissionName=e.PermissionName AND NULLIF(a.SubentityName,N'') IS NULL))
     + (SELECT COUNT(*) FROM @ObservedPermissions AS a WHERE NOT EXISTS
         (SELECT 1 FROM @ExpectedPermissions AS e WHERE e.ContextClass=a.ContextClass
          AND e.ContextName=a.ContextName AND e.PermissionName=a.PermissionName));
 SELECT @PermissionDuplicateCount=COUNT(*) FROM
     (SELECT ContextClass,ContextName,PermissionName,SubentityName FROM @ObservedPermissions
      GROUP BY ContextClass,ContextName,PermissionName,SubentityName HAVING COUNT_BIG(*)>1) AS duplicates;
-SELECT @ColumnPermissionCount=COUNT(*) FROM @ObservedPermissions WHERE SubentityName IS NOT NULL;
 SELECT @EntityNameMissingCount=COUNT(*) FROM @ObservedPermissions WHERE EntityName IS NULL;
-IF @PermissionMismatchCount>0 OR @PermissionDuplicateCount>0 OR @ColumnPermissionCount>0
+IF @PermissionMismatchCount>0 OR @PermissionDuplicateCount>0
    OR @EntityNameMissingCount>0
 BEGIN
+    SELECT N'UNEXPECTED' AS MismatchKind,a.ContextClass,a.ContextName,a.EntityName,a.SubentityName,a.PermissionName
+    FROM @ObservedPermissions AS a
+    WHERE NOT EXISTS (SELECT 1 FROM @ExpectedPermissions AS e WHERE e.ContextClass=a.ContextClass
+                      AND e.ContextName=a.ContextName AND e.PermissionName=a.PermissionName)
+    UNION ALL
+    SELECT N'MISSING',e.ContextClass,e.ContextName,NULL,NULL,e.PermissionName
+    FROM @ExpectedPermissions AS e
+    WHERE NOT EXISTS (SELECT 1 FROM @ObservedPermissions AS a WHERE a.ContextClass=e.ContextClass
+                      AND a.ContextName=e.ContextName AND a.PermissionName=e.PermissionName AND NULLIF(a.SubentityName,N'') IS NULL);
     SELECT 1 AS Sequence,'QUALIFICATION_PREFLIGHT' AS Phase,'EFFECTIVE_PERMISSION_SET' AS CheckId,'FAIL' AS Outcome,'FAIL_NOT_PROVEN' AS Code,
-           CONCAT(N'Mengenabweichungen=',@PermissionMismatchCount,N'; Duplikate=',@PermissionDuplicateCount,N'; Spaltenrechte=',@ColumnPermissionCount,N'; fehlende Entitynamen=',@EntityNameMissingCount) AS ObservedValue,
+           CONCAT(N'Mengenabweichungen=',@PermissionMismatchCount,N'; Duplikate=',@PermissionDuplicateCount,N'; fehlende Entitynamen=',@EntityNameMissingCount) AS ObservedValue,
            N'Exakte vorab deklarierte READER-Rechtemengen je Server-, Endpoint-, Datenbank-, Schema- und Objektscope' AS RequiredValue,
            N'Ohne vollständige Mengengleichheit beginnt keine Korrektheits- oder Messphase.' AS Message;
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN';

@@ -190,7 +190,7 @@ def test_qry023_endpoint_inventory_parser_is_bounded_and_canonical() -> None:
         "QRY023_ENDPOINT_INVENTORY|END|2",
     ))
     assert_equal(run_demo_module._extract_qry023_endpoint_inventory(stream),
-                 "1:540063007000;2:5400650073007400", "canonical endpoint inventory")
+                 "1G540063007000H2G5400650073007400", "canonical endpoint inventory")
     for invalid in (
         stream.replace("QRY023_ENDPOINT_INVENTORY|END|2", ""),
         stream.replace("BEGIN|2", "BEGIN|3"),
@@ -230,7 +230,7 @@ def test_qry023_admin_phase_binds_endpoint_inventory_before_reader_phase(base: P
             variables=variables, show_output=False,
         )
     assert_equal(phase_result.outcome, "PASS", "admin endpoint handoff phase")
-    assert_equal(variables.get("StandardEndpointInventory"), "4:540063007000",
+    assert_equal(variables.get("StandardEndpointInventory"), "4G540063007000",
                  "reader endpoint SQLCMD variable")
 
     malformed = SqlcmdResult(
@@ -346,7 +346,7 @@ def test_qry023_runner_passes_both_admin_handoffs_to_reader_command(base: Path) 
     assert_equal(result.outcome, "PASS", "end-to-end endpoint/object handoff")
     reader_command = next(call for call in calls if Path(call[call.index("-i") + 1]).stem == "reader")
     assert_equal("BoundObjectInventory=13" in reader_command, True, "reader object handoff command variable")
-    assert_equal("StandardEndpointInventory=4:540063007000" in reader_command, True,
+    assert_equal("StandardEndpointInventory=4G540063007000" in reader_command, True,
                  "reader endpoint handoff command variable")
 
 

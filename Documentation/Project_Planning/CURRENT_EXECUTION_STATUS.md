@@ -8508,3 +8508,12 @@ Inputabwesenheit ist belegt, aber SQLcleanup bleibt NOT_ESTABLISHED. C3 ist nich
 zugelassen; der Merge belegt SOURCE_ONLY, keine öffentliche Pool-/CON-010-/TSK-009-
 oder TP-CON-Runtimequalifikation. Eine neue native Frage braucht eine eigene
 geänderte Quellen-/Recoveryentscheidung, unabhängigen Review und frische Admission.
+
+
+## Fortsetzung: QRY-023 – automatisierte Enginequalifikation abgeschlossen
+
+Der korrigierte Proposed-Harness wurde mit den unveränderten, digestgebundenen Linux/amd64-Images und Ressourcenlimits (2 CPU, 4 GiB Container, 3 GiB SQL-Server-Speicher) vollständig auf SQL Server 2019 Build 15.0.4500.2, SQL Server 2022 Build 16.0.4305.5 und SQL Server 2025 Build 17.0.5035.5 ausgeführt. Auf allen drei Versionen bestanden PREFLIGHT, SETUP, FRAMEWORK, WORKLOAD, ADMIN_PERMISSION_INVENTORY, QUALIFICATION_PREFLIGHT, CORRECTNESS, MEASUREMENT, PLAN_EVIDENCE und CLEANUP. Die Datenbank wurde jeweils markergebunden entfernt. Der menschliche Generalprobengate blieb ausdrücklich unberührt.
+
+Die Engineläufe fanden und beseitigten Implementierungsfehler: SQL-2019-`HAS_PERMS_BY_NAME` verlangt für diese Abfragen die NULL-Securable-Klasse statt `SERVER`; der READER-Datenbankbenutzer musste im expliziten Zieldatenbankkontext erstellt werden; Katalogvergleiche benötigen explizite binäre Kollationen; SQLCMD-Variablen akzeptierten den vorherigen Endpunktdatensatz wegen Sonderzeichen nicht; `varchar(8191)` ist unzulässig; leere `subentity_name`-Werte mussten normalisiert werden; Workloadrechte mussten tatsächlich an READER vergeben werden; Messdeltas mussten aus den persistierten `MeasurementRun`-Zeilen gelesen werden. Die Systemobjektbaseline wurde um Kompatibilitätsviews ergänzt und beträgt 186/226/232 Grants mit digestgebundenen vollständigen Datensätzen.
+
+Messung: je Engine fünf gepaarte AB/BA-Läufe mit 10.000 Ergebnissen pro Variante, Warm-up ausgeschlossen. Diese winzige synthetische Labormessung zeigt keine robuste Leistungsrangfolge; CPU-, Lese- und Schreibdeltas waren häufig null. Es wird keine Performanceaussage daraus abgeleitet. Der Code bleibt `PROPOSED`, ist nicht katalogisiert und noch nicht in einen allgemeinen Runtimeworkflow integriert. Offen bleiben Produkt-/Katalogabnahme, eine dauerhaft durchsetzbare Runner-Ressourcenhülle sowie die menschliche Generalprobe (ausdrücklich ausgeschlossen). Der direkte isolierte Einzelaufruf ist kein Ersatz für diese Integration.
