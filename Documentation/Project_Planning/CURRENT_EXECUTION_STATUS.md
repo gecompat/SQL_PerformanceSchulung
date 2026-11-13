@@ -48,11 +48,11 @@ Klassenobjekten, direkte gleichscope Variablenbindungen und einfache Aliase
 solcher Instanzen sowie `self.method()`-/`cls.method()`-Kanten einschließlich
 direkter lokaler Closure-Helfer. Spätere Quellwellen ergänzen bekannte lokale
 und importierte Basen, Aliase, `super()`-Formen sowie geerbte Konstruktoren und
-Methoden auf frisch konstruierten Unterklassen. 67 synthetische Tests bestehen.
+Methoden auf frisch konstruierten Unterklassen. 70 synthetische Tests bestehen.
 Dynamische Calls, vollständige MRO, Deskriptoren, `__new__`, C-/Frozen-Aufrufe
 und modulübergreifendes Rebinding bleiben offen. Der aktuelle gebundene
-Archivscan zählt 92 Module/573 Kanten/473 besuchte Funktionen, 22 entschiedene
-und 1.453 unbekannte Bedingungen; Quelldigest
+Archivscan zählt 92 Module/573 Kanten/471 besuchte Funktionen, 22 entschiedene
+und 1.452 unbekannte Bedingungen; Quelldigest
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
@@ -8981,3 +8981,18 @@ bei 92 Modulen/573 Kanten und unverändertem Quelldigest; 473 Funktionen werden
 besucht und 1.453 Bedingungen bleiben unbekannt. Die Vereinigungsauflösung kann
 bei Overrides überzählen; dynamische Basen und vollständige MRO bleiben offen.
 Kein Interpreter, Profil, Worker, SQL oder Generalprobe wurde ausgeführt.
+
+## Fortsetzung: importierte Unterklassen im Quellmodul
+
+Importierte Quellklassen berücksichtigen jetzt zusätzlich Methoden und
+Konstruktoren lokal bekannter Basisklassen im selben Quelldateimodul. Die
+Zuordnung verweist auf die tatsächliche deklarierende Basismethode und deckt
+sowohl `from package import Worker` als auch `source.Worker()` ab. Zwei positive
+Regressionen prüfen geerbten `__init__`- und Methodenpfad über beide
+Importformen; eine Negativprobe verhindert das Erraten dynamischer Basen. 70/70
+fokussierte Tests bestehen. Der CPython-Archivscan zählt 92 Module/573 Kanten,
+471 besuchte Funktionen sowie 22 entschiedene und 1.452 unbekannte Bedingungen;
+der Quelldigest bleibt unverändert. Die Basenvereinigung kann Override-/MRO-
+Kandidaten überzählen; importierte Basen aus anderen Quelldateien, dynamische
+Basen und vollständige MRO bleiben offen. Kein Runtime-, P11-, SQL- oder
+Generalprobenachweis.
