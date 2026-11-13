@@ -52,13 +52,16 @@ def main() -> int:
             ]
             injected = subprocess.run(
                 command,
-                input="GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n",
+                input=(
+                    "GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n"
+                    "ALTER ROLE [db_datareader] ADD MEMBER [READER];\n"
+                ),
                 check=False, capture_output=True, text=True, encoding="utf-8",
                 errors="replace", env=os.environ.copy(),
             )
             if injected.returncode:
                 raise RuntimeError("unexpected READER grant could not be injected")
-            print("QRY023_NEGATIVE_PERMISSION|GRANT_INJECTED")
+            print("QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED")
         sys.argv[0] = str(Path(proxy.__file__).resolve())
         return proxy.main()
     except (FileNotFoundError, OSError, ValueError, RuntimeError):

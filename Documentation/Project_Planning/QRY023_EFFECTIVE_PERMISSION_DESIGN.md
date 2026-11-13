@@ -380,7 +380,8 @@ Harnessphasen. Sie ersetzt keinen allgemeinen Runner-Prozessbaum- oder
 Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch einen
 Katalogeintrag. PR #566 ergänzte auf allen drei Engines eine gezielte
 Negativgegenprobe: Ein unerwarteter direkter `SELECT`-Grant an READER auf
-`lab.MeasurementWaitSnapshot` führte vor Korrektheit und Messung zu
-`FAIL_NOT_PROVEN`; das markierte Cleanup bestand. Der anschließende positive
-Zehnphasenlauf bestand ebenfalls. Weitere negative Varianten, eine allgemeine
-Runtimefreigabe und die Produkt-/Katalogaufnahme bleiben offen.
+`lab.MeasurementWaitSnapshot` und eine zusätzliche Mitgliedschaft in
+`db_datareader` führten vor Korrektheit und Messung zu `FAIL_NOT_PROVEN`; das
+markierte Cleanup bestand. Der anschließende positive Zehnphasenlauf bestand
+ebenfalls. Weitere negative Varianten, eine allgemeine Runtimefreigabe und die
+Produkt-/Katalogaufnahme bleiben offen.

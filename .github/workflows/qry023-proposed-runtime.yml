@@ -175,8 +175,10 @@ jobs:
           result="${PIPESTATUS[0]}"
           set -e
           [[ "$result" == 2 ]]
-          grep -F 'QRY023_NEGATIVE_PERMISSION|GRANT_INJECTED' "$log"
+          grep -F 'QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED' "$log"
           grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'DATABASE_ROLE;' "$log"
+          grep -F 'DATABASE_PERMISSION;' "$log"
           grep -F 'CLEANUP: PASS/OK' "$log"
           if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
             echo 'Negative permission case reached a protected query phase.' >&2

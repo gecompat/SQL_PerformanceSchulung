@@ -110,8 +110,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SQLCMDPASSWORD", command)
         self.assertNotIn("synthetic-secret", command)
         self.assertEqual(run.call_args.kwargs["input"],
-                         "GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n")
-        self.assertIn("QRY023_NEGATIVE_PERMISSION|GRANT_INJECTED", output.getvalue())
+                         "GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n"
+                         "ALTER ROLE [db_datareader] ADD MEMBER [READER];\n")
+        self.assertIn("QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED", output.getvalue())
         forward.assert_called_once_with()
 
     def test_qry023_timeout_after_setup_suppresses_sql_cleanup(self) -> None:
@@ -161,12 +162,15 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
+        self.assertIn("DATABASE_ROLE;", workflow)
+        self.assertIn("DATABASE_PERMISSION;", workflow)
         self.assertIn("CLEANUP: PASS/OK", workflow)
         self.assertIn("CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE", workflow)
 
     def test_readme_distinguishes_live_and_remaining_negative_permissions(self) -> None:
         readme = (ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md").read_text(encoding="utf-8")
         self.assertIn("Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant", readme)
+        self.assertIn("`db_datareader`-Mitgliedschaft", readme)
         self.assertIn("Weitere negative Rechtevarianten", readme)
         self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
 
