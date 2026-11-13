@@ -287,6 +287,20 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.called"))
         self.assertEqual(function_count, 1)
 
+    def test_calls_in_generator_expressions_are_kept_as_candidates(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def load():\n    from . import deferred_helper\n"
+                b"tuple(load() for holder[load()] in ())\n"
+            ),
+            "pkg/deferred_helper.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.deferred_helper"))
+        self.assertEqual(function_count, 1)
+
     def test_class_annotations_are_evaluated_inside_called_function(self):
         files = {
             "pkg/__init__.py": (
@@ -323,6 +337,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("CANDIDATES_ONLY", labels)
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
+        self.assertIn("MODULE_CLASS_DIRECT_CALLS_AND_GENERATOR_BODIES", labels)
         self.assertNotIn("P11_MATCH", labels)
 
 
