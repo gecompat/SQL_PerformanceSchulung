@@ -376,6 +376,22 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.left_helper", "pkg.right_helper"))
         self.assertEqual(function_count, 2)
 
+    def test_direct_local_class_method_call_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Service:\n"
+                b"    @staticmethod\n"
+                b"    def initialize():\n        from . import method_helper\n"
+                b"Service.initialize()\n"
+            ),
+            "pkg/method_helper.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.method_helper"))
+        self.assertEqual(function_count, 1)
+
     def test_class_annotations_are_evaluated_inside_called_function(self):
         files = {
             "pkg/__init__.py": (
@@ -412,7 +428,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("CANDIDATES_ONLY", labels)
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
-        self.assertIn("MODULE_CLASS_DIRECT_AND_SIMPLE_ALIAS_CALLS_WITH_GENERATORS", labels)
+        self.assertIn("MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_AND_LOCAL_CLASS_METHODS", labels)
         self.assertNotIn("P11_MATCH", labels)
 
 

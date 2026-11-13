@@ -554,7 +554,75 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             bind(statement, result, conditions)
         return result
 
+    def scope_class_methods(statements):
+        """Index methods declared by local classes, preserving alternatives."""
+        result = {}
+        conditions = dict(known_names)
+
+        def collect_class(node):
+            methods = {}
+
+            def collect_member(member):
+                if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    methods.setdefault(member.name, []).append(member)
+                    return
+                if isinstance(member, ast.ClassDef):
+                    return
+                if isinstance(member, ast.ImportFrom) and any(alias.name == "*" for alias in member.names):
+                    conditions.clear()
+                    return
+                if isinstance(member, ast.If):
+                    decision = _target_condition(member.test, conditions)
+                    selected = member.body if decision is True else member.orelse if decision is False else None
+                    for statement in selected if selected is not None else (*member.body, *member.orelse):
+                        collect_member(statement)
+                    return
+                for child in ast.iter_child_nodes(member):
+                    if isinstance(child, ast.stmt):
+                        collect_member(child)
+                    elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                        for statement in child.body:
+                            collect_member(statement)
+
+            for statement in node.body:
+                collect_member(statement)
+            known = result.setdefault(node.name, {})
+            for method_name, functions in methods.items():
+                existing = known.setdefault(method_name, [])
+                existing_ids = {id(function) for function in existing}
+                for function in functions:
+                    if id(function) not in existing_ids:
+                        existing.append(function)
+                        existing_ids.add(id(function))
+
+        def collect(node):
+            if isinstance(node, ast.ClassDef):
+                collect_class(node)
+                return
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                return
+            if isinstance(node, ast.ImportFrom) and any(alias.name == "*" for alias in node.names):
+                conditions.clear()
+                return
+            if isinstance(node, ast.If):
+                decision = _target_condition(node.test, conditions)
+                selected = node.body if decision is True else node.orelse if decision is False else None
+                for statement in selected if selected is not None else (*node.body, *node.orelse):
+                    collect(statement)
+                return
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, ast.stmt):
+                    collect(child)
+                elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                    for statement in child.body:
+                        collect(statement)
+
+        for statement in statements:
+            collect(statement)
+        return result
+
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
+    module_class_methods = scope_class_methods(tree.body)
     pending = []
     function_closures = {}
 
@@ -629,6 +697,11 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             return
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             for function in active_functions.get(node.func.id, ()):
+                pending.append((function, function_closures.get(id(function), function_scope)))
+        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+              and isinstance(node.func.value, ast.Name)):
+            methods = module_class_methods.get(node.func.value.id, {})
+            for function in methods.get(node.func.attr, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
         if isinstance(node, ast.If):
             decision = _target_condition(node.test, known_names)
@@ -726,7 +799,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_DIRECT_AND_SIMPLE_ALIAS_CALLS_WITH_GENERATORS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_AND_LOCAL_CLASS_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
