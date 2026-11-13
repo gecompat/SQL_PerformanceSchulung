@@ -115,6 +115,30 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED", output.getvalue())
         forward.assert_called_once_with()
 
+    def test_negative_permission_proxy_reports_bounded_sqlcmd_failure_details(self) -> None:
+        args = [
+            "-S", "localhost", "-d", "SQLPERF_LAB_QRY023_LOCAL", "-i",
+            str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"),
+            "-U", "sa", "-v", "DemoId=QRY-023", "RunToken=LOCAL",
+            "TargetDatabase=SQLPERF_LAB_QRY023_LOCAL", "ReaderLogin=READER",
+        ]
+        errors = io.StringIO()
+        with mock.patch.dict(os.environ, {
+            "SQLPERF_SQL_CONTAINER": "synthetic-container",
+            "SQLCMDPASSWORD": "synthetic-secret",
+        }, clear=True), \
+             mock.patch.object(negative_proxy.proxy, "_sqlcmd_path", return_value="/synthetic/sqlcmd"), \
+             mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(
+                 returncode=1, stdout="Msg 15151, Level 16: permission grant failed", stderr=""
+             )), \
+             mock.patch.object(negative_proxy.proxy, "main") as forward, \
+             mock.patch.object(sys, "argv", ["negative-proxy", *args]), \
+             contextlib.redirect_stderr(errors):
+            self.assertEqual(negative_proxy.main(), 1)
+        self.assertIn("Msg 15151, Level 16: permission grant failed", errors.getvalue())
+        self.assertNotIn("synthetic-secret", errors.getvalue())
+        forward.assert_not_called()
+
     def test_negative_permission_proxy_has_only_fixed_direct_deny_mode(self) -> None:
         sql, marker = negative_proxy.injection_for_mode("DIRECT_DENY")
         self.assertEqual(sql, "DENY SELECT ON OBJECT::dbo.Person TO [READER];\n")

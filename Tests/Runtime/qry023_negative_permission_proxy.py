@@ -89,12 +89,20 @@ def main() -> int:
                 errors="replace", env=os.environ.copy(),
             )
             if injected.returncode:
-                raise RuntimeError("unexpected READER grant could not be injected")
+                details = "\n".join(
+                    part.strip()[:2000]
+                    for part in (injected.stdout, injected.stderr)
+                    if part and part.strip()
+                )
+                raise RuntimeError(
+                    "unexpected READER permission could not be injected"
+                    + (f":\n{details}" if details else " (sqlcmd returned no diagnostic output)")
+                )
             print(marker)
         sys.argv[0] = str(Path(proxy.__file__).resolve())
         return proxy.main()
-    except (FileNotFoundError, OSError, ValueError, RuntimeError):
-        print("qry023-negative-permission-proxy: controlled negative case failed", file=sys.stderr)
+    except (FileNotFoundError, OSError, ValueError, RuntimeError) as exc:
+        print(f"qry023-negative-permission-proxy: controlled negative case failed: {exc}", file=sys.stderr)
         return 1
 
 
