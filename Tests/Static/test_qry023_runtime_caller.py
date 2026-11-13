@@ -146,6 +146,26 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             negative_proxy.injection_for_mode("arbitrary SQL")
 
+    def test_negative_permission_proxy_corrupts_only_runner_valid_preflight_token(self) -> None:
+        run_token = "QRY023VALID1"
+        args = [
+            "-S", "localhost", "-d", "master", "-U", "sa", "-b", "-v",
+            "DemoId=QRY-023", f"RunToken={run_token}",
+            f"TargetDatabase=SQLPERF_LAB_QRY023_{run_token}",
+            "-i", str(negative_proxy.PREFLIGHT_SCRIPT),
+        ]
+        rewritten = negative_proxy.corrupt_preflight_run_token_trailing_space(args)
+        self.assertIn(f"RunToken={run_token} ", rewritten)
+        self.assertNotIn(f"TargetDatabase=SQLPERF_LAB_QRY023_{run_token} ", rewritten)
+        with self.assertRaises(ValueError):
+            negative_proxy.corrupt_preflight_run_token_trailing_space(
+                [*args[:args.index(f"RunToken={run_token}")], f"RunToken={run_token} ", *args[args.index(f"RunToken={run_token}") + 1:]]
+            )
+        with self.assertRaises(ValueError):
+            negative_proxy.corrupt_preflight_run_token_trailing_space(
+                [*args[:args.index("-i")], str(negative_proxy.INVENTORY_SCRIPT), *args[args.index("-i") + 1:]]
+            )
+
     def test_negative_permission_proxy_server_role_mode_is_fixed(self) -> None:
         sql, marker = negative_proxy.injection_for_mode("SERVER_ROLE")
         self.assertEqual(sql, "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n")
@@ -481,6 +501,17 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
         self.assertIn("DATABASE_ROLE;", workflow)
         self.assertIn("DATABASE_PERMISSION;", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: RUNTOKEN_TRAILING_SPACE", workflow)
+        self.assertEqual(workflow.count("Prove the SQL preflight rejects a trailing-space RunToken"), 1)
+        self.assertLess(workflow.index("Prove the SQL preflight rejects a trailing-space RunToken"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertIn("FAIL_CONTRACT: Demo-ID, Run-Token oder Ziel-Datenbank entsprechen nicht dem QRY-023-Vertrag.", workflow)
+        run_token_case = workflow[
+            workflow.index("Prove the SQL preflight rejects a trailing-space RunToken"):
+            workflow.index("Prove the permission inventory rejects an unexpected READER grant")
+        ]
+        self.assertIn("QRY023_RUN_TOKEN_NEGATIVE|NO_DATABASE_CREATED", run_token_case)
+        self.assertIn("CLEANUP: PASS/OK", run_token_case)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DIRECT_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_ROLE", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SECURITYADMIN_ROLE", workflow)

@@ -18,6 +18,10 @@ INVENTORY_SCRIPT = (
     Path(__file__).resolve().parents[2]
     / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"
 )
+PREFLIGHT_SCRIPT = (
+    Path(__file__).resolve().parents[2]
+    / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/00_Preflight.sql"
+)
 
 
 def injection_target(argv: list[str]) -> str | None:
@@ -35,6 +39,40 @@ def injection_target(argv: list[str]) -> str | None:
     if variables.get("ReaderLogin") != "READER" or not TARGET_DATABASE_PATTERN.fullmatch(database):
         raise ValueError("unexpected QRY-023 negative-test target")
     return database
+
+
+def corrupt_preflight_run_token_trailing_space(argv: list[str]) -> list[str]:
+    database, script, username, raw_variables, _ = proxy.parse_args(argv)
+    values: dict[str, str] = {}
+    for item in raw_variables:
+        name, separator, value = item.partition("=")
+        if not separator or name in values:
+            raise ValueError("invalid SQLCMD variable set")
+        values[name] = value
+    token = values.get("RunToken", "")
+    if script != PREFLIGHT_SCRIPT or database != "master" or username != "sa":
+        raise ValueError("invalid RunToken negative control must target the ADMIN master preflight")
+    if values.get("DemoId") != "QRY-023" or not re.fullmatch(r"[A-Z0-9_]{1,20}", token):
+        raise ValueError("invalid RunToken negative control requires a valid runner-provided token")
+    if values.get("TargetDatabase") != f"SQLPERF_LAB_QRY023_{token}":
+        raise ValueError("invalid RunToken negative control target is not bound to the original token")
+
+    rewritten = list(argv)
+    token_values = 0
+    index = 0
+    while index < len(rewritten):
+        if rewritten[index] != "-v":
+            index += 1
+            continue
+        index += 1
+        while index < len(rewritten) and not rewritten[index].startswith("-"):
+            if rewritten[index].startswith("RunToken="):
+                rewritten[index] += " "
+                token_values += 1
+            index += 1
+    if token_values != 1:
+        raise ValueError("invalid RunToken negative control could not bind exactly one SQLCMD value")
+    return rewritten
 
 
 def injection_for_mode(mode: str) -> tuple[str, str]:
@@ -138,9 +176,15 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
 
 def main() -> int:
     try:
+        mode = os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
+        if mode == "RUNTOKEN_TRAILING_SPACE":
+            _, script, _, _, _ = proxy.parse_args(sys.argv[1:])
+            if script != PREFLIGHT_SCRIPT:
+                raise ValueError("the SQL preflight did not reject the trailing-space RunToken; later phases are blocked")
+            sys.argv = [sys.argv[0], *corrupt_preflight_run_token_trailing_space(sys.argv[1:])]
+            print("QRY023_RUN_TOKEN_NEGATIVE|TRAILING_SPACE_INJECTED")
         target = injection_target(sys.argv[1:])
         if target is not None:
-            mode = os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
             sql, marker = injection_for_mode(mode)
             container = os.environ.get("SQLPERF_SQL_CONTAINER", "")
             password = os.environ.get("SQLCMDPASSWORD", "")

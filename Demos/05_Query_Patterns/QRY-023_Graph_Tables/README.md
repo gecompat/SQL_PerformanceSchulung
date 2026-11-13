@@ -266,13 +266,15 @@ nicht zum erzwungenen Entfernen eines nicht eindeutig markierten Ziels.
 Der FWK-010-Caller begrenzt das RunToken auf 1 bis 20 ASCII-Zeichen und verlangt
 ein alphanumerisches erstes Zeichen. Separat prüft der vorgeschlagene
 read-only SQL-Preflight den erlaubten ASCII-Zeichensatz und die Bytegrenze.
-`DATALENGTH` ergänzt die Zeichenprüfung, weil `LEN`
-nachgestellte Leerzeichen ausschließt und ASCII-`LIKE` sie im Suchwert
-ignoriert; siehe die Microsoft-Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17). Der gültige Preflightpfad läuft mit SQL Server; speziell das Zurückweisen
-fehlerhafter RunToken-Grenzwerte (etwa nachgestellte Leerzeichen) ist bisher
-statisch geprüft, aber nicht als eigenständige Live-Negativkontrolle ausgeführt.
-Der FWK-010-Caller verwirft solche Werte bereits vor SQLCMD anhand des
-Manifestvertrags.
+`DATALENGTH` muss zusätzlich `LEN` entsprechen: `LEN` schließt nachgestellte
+Leerzeichen aus, und ASCII-`LIKE` ignoriert sie im Suchwert. Der Preflight
+weist solche Werte deshalb ausdrücklich zurück; siehe die Microsoft-
+Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und
+[`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17).
+Der gültige Preflightpfad läuft mit SQL Server; die eigenständige Live-
+Negativkontrolle für fehlerhafte RunToken-Grenzwerte wird mit der aktuellen
+Runtime-Qualifikation ausgeführt. Der FWK-010-Caller verwirft solche Werte
+bereits vor SQLCMD anhand des Manifestvertrags.
 
 SQLCMD setzt Skriptvariablen an ihren `$(Name)`-Vorkommen ein, auch in
 Zeichenliteralen. Daraus folgt als Sicherheitsinferenz, dass der T-SQL-

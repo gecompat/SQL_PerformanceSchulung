@@ -757,6 +757,7 @@ def preflight_target_derivation_valid(preflight: str) -> bool:
     guard = (
         "if@demoid<>'qry-023'or@runtokenisnullorlen(@runtoken)notbetween1and20"
         "ordatalength(@runtoken)notbetween1and20"
+        "ordatalength(@runtoken)<>len(@runtoken)"
         "or@runtokencollatelatin1_general_100_bin2like'%[^a-z0-9_]%'"
         "or@targetdatabase<>@expecteddatabase"
     )
