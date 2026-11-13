@@ -70,6 +70,22 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(edges, 4)
         self.assertEqual(len(digest), 64)
 
+    def test_module_and_class_bodies_are_kept_but_uncalled_function_body_is_not(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Loaded:\n    from . import class_helper\n"
+                b"if True:\n    try:\n        from . import nested_helper\n"
+                b"    except ImportError:\n        pass\n"
+                b"def unused():\n    from . import function_only\n"
+            ),
+            "pkg/class_helper.py": b"VALUE = 1\n",
+            "pkg/nested_helper.py": b"VALUE = 3\n",
+            "pkg/function_only.py": b"VALUE = 2\n",
+        }
+        modules, edges, _ = SUBJECT._module_body_candidate_closure(files, ("pkg",))
+        self.assertEqual(modules, ("pkg", "pkg.class_helper", "pkg.nested_helper"))
+        self.assertEqual(edges, 4)
+
     def test_unresolvable_dynamic_import_is_not_claimed(self):
         files = {"entry.py": b"import importlib\n\ndef load(name):\n    return importlib.import_module(name)\n"}
         modules, _, _ = SUBJECT._candidate_closure(files, ("entry",))
@@ -91,6 +107,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                   if isinstance(n, ast.Constant) and type(n.value) is str}
         self.assertIn("CANDIDATES_ONLY", labels)
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
+        self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertNotIn("P11_MATCH", labels)
 
 
