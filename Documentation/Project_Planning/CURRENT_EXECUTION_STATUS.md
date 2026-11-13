@@ -9056,3 +9056,18 @@ Scan bleibt bei 93 Modulen/578 Kanten/534 Funktionen, 22 entschiedenen und
 `CANDIDATES_ONLY`; keine Zielinterpreter-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung. S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben
 offen.
+
+## Fortsetzung: DGN-007 – Funktionsscope-Aliase importierter Klassen
+
+Der statische CPython-Kandidatenfolger verfolgt nun auch direkte Aliasnamen
+bereits bekannter importierter Klassen in aufgerufenen Funktionen, etwa
+`LocalWorker = Worker; LocalWorker().run()`, einschließlich einfacher Ketten.
+Factory-Rückgaben, Aliase über verschachtelte Scopes und Klassenscope-Aliase
+bleiben offen. Zwei neue synthetische Regressionen ergänzen den fokussierten
+Satz auf 81/81 PASS. Der erneute Scan des SHA-256-gebundenen CPython-3.12.16-
+Archivs bleibt bei 93 Modulen, 578 Kanten, 534 Funktionen, 22 entschiedenen und
+1.605 unbekannten Bedingungen; der Zeilendigest bleibt
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+`CANDIDATES_ONLY`: keine vollständige Closure/P11-Inventur und keine
+Interpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung. S15-/P11-
+Sollinventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
