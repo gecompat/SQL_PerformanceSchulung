@@ -1450,12 +1450,18 @@ PR #571 ist in Commit `ed271d4e3befcbdb8f3f335ed76a82451a478b24` integriert;
 README und Effektivrechte-Design sind abgeglichen. Der Stand bleibt
 `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`.
 
-Die nächste endliche QRY-023-Gegenprobe ergänzt ausschließlich ein explizites
-datenbankweites READER-Recht, prüft die Klassifikation `DATABASE_PERMISSION`
-und lässt die markierte Ziel-DB durch den vorhandenen Harness-Cleanup
-entfernen. Absichtlich beschädigte Systemkataloge, allgemeine Runtime- und
-Produkt-/Katalogfreigabe sowie die menschliche Generalprobe gehören nicht zu
-diesem Schritt.
+PR #572 ergänzte datenbankweites `GRANT VIEW DEFINITION`; #573 prüfte das
+entsprechende `DENY`. Auf allen drei Builds erkannte die ADMIN-Inventur beide
+als alleinige `DATABASE_PERMISSION`-Abweichung, brach vor Queryphasen ab und
+entfernte die markierte Datenbank. Die positiven Zehnphasenläufe bestanden.
+PR #573 ist als `ebea12bad95fe38f8ebe97d928665258437cfd08` integriert.
+
+Die nächste endliche Gegenprobe erteilt `READER` ein direktes `CONNECT` auf
+den inventarisierten SQL-Server-Standardendpoint `TSQL Default TCP`, erwartet
+`SERVER_PERMISSION` und widerruft den Eintrag im owner-markierten
+Wegwerfcontainer vor dem positiven Lauf. Absichtlich beschädigte Systemkataloge,
+allgemeine Runtime- und Produkt-/Katalogfreigabe sowie die menschliche
+Generalprobe gehören nicht zu diesem Schritt.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.

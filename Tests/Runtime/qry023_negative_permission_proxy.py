@@ -79,6 +79,19 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DENY VIEW DEFINITION TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_DENY_INJECTED",
         )
+    if mode == "ENDPOINT_PERMISSION":
+        return (
+            "DECLARE @reader_id int=SUSER_ID(N'READER'); DECLARE @endpoint_id int; "
+            "SELECT @endpoint_id=endpoint_id FROM master.sys.endpoints "
+            "WHERE name=N'TSQL Default TCP' AND endpoint_id<65536 AND is_admin_endpoint=0; "
+            "IF @reader_id IS NULL OR @endpoint_id IS NULL "
+            "THROW 51027,'QRY-023 endpoint negative control target is unavailable.',1; "
+            "IF EXISTS (SELECT 1 FROM master.sys.server_permissions "
+            "WHERE grantee_principal_id=@reader_id AND class_desc=N'ENDPOINT' AND major_id=@endpoint_id) "
+            "THROW 51028,'QRY-023 endpoint negative control found a preexisting permission.',1; "
+            "GRANT CONNECT ON ENDPOINT::[TSQL Default TCP] TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
@@ -92,7 +105,9 @@ def main() -> int:
             password = os.environ.get("SQLCMDPASSWORD", "")
             if not container or not password:
                 raise ValueError("isolated container or ADMIN credential is unavailable")
-            injection_database = "master" if mode in {"SERVER_PERMISSION", "SERVER_PERMISSION_DENY"} else target
+            injection_database = "master" if mode in {
+                "SERVER_PERMISSION", "SERVER_PERMISSION_DENY", "ENDPOINT_PERMISSION"
+            } else target
             command = [
                 "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", container,
                 proxy._sqlcmd_path(container), "-S", "localhost", "-d", injection_database,
