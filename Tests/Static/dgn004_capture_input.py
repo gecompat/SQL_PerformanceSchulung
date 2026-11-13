@@ -7,7 +7,7 @@ import re
 from dgn004_plan_frame import is_valid_run_token
 
 
-_HANDLE_HEX = re.compile(r"\A[0-9A-Fa-f]{128}\Z")
+_HANDLE_HEX = re.compile(r"\A(?:[0-9A-Fa-f]{2}){1,64}\Z")
 
 
 class CaptureInputError(ValueError):
@@ -39,7 +39,7 @@ def build_sqlcmd_variables(value: CaptureInput) -> dict[str, str]:
     if type(value.call) is not int or not 1 <= value.call <= 9:
         raise CaptureInputError("invalid call")
     if type(value.plan_handle_hex) is not str or not _HANDLE_HEX.fullmatch(value.plan_handle_hex):
-        raise CaptureInputError("plan handle must be exactly 128 hexadecimal characters")
+        raise CaptureInputError("plan handle must be 1 to 64 bytes of hexadecimal")
     return {
         "DGN004_RUN": value.run,
         "DGN004_ROLE": value.role,

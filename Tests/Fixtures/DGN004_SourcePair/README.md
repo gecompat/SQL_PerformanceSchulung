@@ -81,9 +81,10 @@ Methodenfreigabe noch SQL-/Versions-/Demoqualifikation.
 `CapturePlanFrame.sql` liest den `query_plan`-Wert für ein vom Aufrufer
 übergebenes Handle aus `sys.dm_exec_query_plan_stats`, serialisiert das XML in
 UTF-16-Bytes und gibt die festgelegten Start-/Chunk-/End-Zeilen als einzelne
-Textspalte aus. Der Runner muss die Run-/Rollen-/Call-Werte und den 128-stelligen
-Handle vor der sqlcmd-Substitution validieren; `dgn004_capture_input.py` stellt
-dafür nur die enge Token-/Hex-Prüfung bereit. Der DGN-Runner liest stdout und
+Textspalte aus. Der Runner muss die Run-/Rollen-/Call-Werte und den 1–64 Byte
+langen Handle vor der sqlcmd-Substitution validieren; `dgn004_capture_input.py`
+stellt dafür nur die enge Token-/Hex-Prüfung bereit. `varbinary(64)` bezeichnet
+eine Höchstlänge, keine feste Handlelänge. Der DGN-Runner liest stdout und
 stderr parallel mit den festen 2-MiB-/64-KiB-Grenzen und führt den lokalen
 Docker-Client direkt aus, damit kein innerer Shim die SQL-Ausgabe vorher
 vollständig puffert. Der Runner muss außerdem die vorangegangene
@@ -108,3 +109,21 @@ Runner nicht freigeben. Damit bleiben die Zuordnung eines Handles zu genau der
 aktuellen Nutzstatementausführung, vollständige Serverkandidatenaufzählung,
 Kontextprofil-/Plan-StatementText-Bindung sowie Ausführung auf SQL Server offene
 Gates.
+
+`SnapshotPlanCandidates.sql` erfasst als begrenzte Source-only-Vorstufe alle
+gecachten Statementzeilen, deren Datenbank-/Objektbindung, vollständige
+Modulbytes und registrierter Statementstart exakt passen. Es verwendet keine
+`TOP`-Auswahl, prüft die aktuelle Modulquelle im Katalog und gibt einen
+nummerierten, an Run/Rolle/Call gebundenen Rahmen mit jedem Kandidaten aus. Der
+Runner liefert die unveränderten Moduleinbytes als Hex über stdin, begrenzt
+Prozesskanäle und SQL-Timeout wie der bestehende Plan-Capture-Runner und
+verlangt vollständige Frames. `dgn004_plan_candidates.py` vergleicht die
+zusammengesetzten Zeilenschlüssel aus Planhandle, SQLhandle, Start-/Endoffset,
+Generation und Erstellungszeit. Der Binder lässt nur genau eine neue Zeile mit
+Ausführungszähler 1 oder genau eine bestehende Zeile mit Zählerdelta 1 durch;
+Löschung, Mehrdeutigkeit, mehrere Änderungen, unvollständige Frames und
+zusätzliche Ausführungen werden abgewiesen. Die Tests verwenden ausschließlich
+synthetische Frames und Prozesse. Der Cache-Locator ist nicht SQL-kompiliert
+oder live ausgeführt; seine Ein-Writer-Kausalzuordnung bleibt Inferenz und ist
+keine authentifizierte Invocation-ID. Die drei vorhandenen
+Metadatenbeobachtungen pro Flush und alle DGN-Budgets bleiben bindend.

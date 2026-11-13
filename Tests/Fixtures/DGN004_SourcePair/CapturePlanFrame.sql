@@ -6,11 +6,12 @@
   by that caller; this file does not establish those identities or prove that
   the handle belongs to the most recent intended execution.
 
-  Required sqlcmd variables are validated by the future runner before use:
+  Required sqlcmd variables are validated by the bounded runner before use:
     DGN004_RUN: 1-64 ASCII letters, digits, dot, underscore, or hyphen
     DGN004_ROLE: R or H
     DGN004_CALL: decimal 1..9
-    DGN004_PLAN_HANDLE: exactly 128 hexadecimal characters
+    DGN004_PLAN_HANDLE: 2..128 hexadecimal characters, an even count
+      (varbinary(64) is a maximum length; shorter handles are valid)
 
   Run with the existing sqlcmd_process output shape (-h -1, -W, one column,
   no headers). Runtime channel bounds remain a runner responsibility.
@@ -27,7 +28,7 @@ IF LEN(@Run) NOT BETWEEN 1 AND 64
     OR @Role NOT IN ('R', 'H')
     OR @Call NOT BETWEEN 1 AND 9
     OR @PlanHandle IS NULL
-    OR DATALENGTH(@PlanHandle) <> 64
+    OR DATALENGTH(@PlanHandle) NOT BETWEEN 1 AND 64
     THROW 51000, 'Invalid DGN-004 capture input.', 1;
 
 DECLARE @PlanRows TABLE (QueryPlan xml NULL);

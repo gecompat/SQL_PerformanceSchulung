@@ -7,6 +7,7 @@ on:
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
       - 'Tests/Static/Qry023SqlParser/**'
+      - 'Tests/Fixtures/DGN004_SourcePair/SnapshotPlanCandidates.sql'
       - '.github/workflows/qry023-proposed-contract.yml'
   push:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
       - 'Tests/Static/Qry023SqlParser/**'
+      - 'Tests/Fixtures/DGN004_SourcePair/SnapshotPlanCandidates.sql'
       - '.github/workflows/qry023-proposed-contract.yml'
   workflow_dispatch:
 
@@ -45,5 +47,5 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Restore pinned ScriptDom parser
         run: dotnet restore Tests/Static/Qry023SqlParser/Qry023SqlParser.csproj --locked-mode
-      - name: Parse QRY-023 T-SQL for SQL Server 2019/2022/2025
+      - name: Parse QRY-023 and DGN-004 T-SQL with ScriptDom
         run: dotnet run --project Tests/Static/Qry023SqlParser/Qry023SqlParser.csproj --configuration Release --no-restore

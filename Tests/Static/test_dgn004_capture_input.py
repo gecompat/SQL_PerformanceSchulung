@@ -20,6 +20,12 @@ class Dgn004CaptureInputTests(unittest.TestCase):
             "DGN004_PLAN_HANDLE": handle.upper(),
         })
 
+    def test_accepts_documented_variable_length_plan_handles_without_padding(self) -> None:
+        # Microsoft documents plan_handle as varbinary(64) and shows a 13-byte handle.
+        handle = "06000100A27E7C1FA821B10600"
+        result = build_sqlcmd_variables(CaptureInput("run", "R", 1, handle))
+        self.assertEqual(result["DGN004_PLAN_HANDLE"], handle)
+
     def test_rejects_interpolation_and_handle_mutations(self) -> None:
         bad = (
             CaptureInput("run' ; DROP DATABASE x--", "R", 1, "ab" * 64),
@@ -27,7 +33,9 @@ class Dgn004CaptureInputTests(unittest.TestCase):
             CaptureInput("run", "X", 1, "ab" * 64),
             CaptureInput("run", "R", True, "ab" * 64),
             CaptureInput("run", "R", 10, "ab" * 64),
-            CaptureInput("run", "R", 1, "ab" * 63),
+            CaptureInput("run", "R", 1, "ab" * 63 + "a"),
+            CaptureInput("run", "R", 1, ""),
+            CaptureInput("run", "R", 1, "ab" * 65),
             CaptureInput("run", "R", 1, "gh" * 64),
             CaptureInput("run", "R", 1, "ab" * 64 + "'"),
         )

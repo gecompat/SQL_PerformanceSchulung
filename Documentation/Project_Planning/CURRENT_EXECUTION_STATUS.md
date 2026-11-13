@@ -1919,6 +1919,22 @@ und zweimal 2025). Die Inventur hat keinen Container gestartet, gestoppt oder
 verändert. Das YELLOW-Isolations-/Lastgate bleibt damit aktuell nicht erfüllt;
 es wurde kein SQL- oder DGN-004-Lauf begonnen.
 
+Der nächste source-only-Schnitt ergänzt derzeit im Branch
+`codex/dgn004-plan-handle-locator` die vollständige DMV-Kandidatenaufzählung
+nach Datenbank, Objekt, exaktem UTF-16-Modultext und registriertem Statement-
+Offset, eine vollständige Frameprüfung und einen fail-closed Vorher-/Nachher-
+Deltabinder. Plan- und SQL-Handles werden korrekt als 1–64 Bytes behandelt;
+`varbinary(64)` ist eine Höchstlänge. Der direkte Runner und die synthetischen
+Gegenproben zählen weiterhin gegen die bestehenden Obergrenzen von 100 SQL-
+Batches und drei Metadatenbeobachtungen je Flush; kein Budget wird erweitert.
+83 lokale DGN-004-Tests (ein POSIX-Skip), Framework-Integritätscheck,
+Python-Kompilierung und ScriptDom-Syntaxparse für SQL Server 2019/2022/2025
+bestanden. Der unabhängige Review fand zunächst einen veralteten Backlogstatus
+(P2); nach Korrektur bestätigt er keine weiteren P1/P2 im Quellfilter/Frame,
+Handle-Längenvertrag, Runner oder Delta-Binder. Dies bleibt Source-only: kein SQL-Compile oder -Lauf, keine
+Handle-Provenienz im ausgeführten Zustand und keine Runtimequalifikation.
+Das YELLOW-Gate bleibt Voraussetzung für den nächsten Lauf.
+
 **DGN-007-Import-Only-Worker: eine begrenzte lokale DGN-Importbeobachtung.**
 Der [Importworker](DGN_007_IMPORT_USED_BYTES_PROBE_DESIGN.md#begrenzter-import-worker-als-quellkandidat)
 verwendet das vorbereitete 27-Member-/Neuner-Eingangsprotokoll für drei frische

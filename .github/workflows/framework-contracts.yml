@@ -20,6 +20,10 @@ on:
       - 'Tests/Static/test_dgn004_identity_snapshot.py'
       - 'Tests/Static/dgn004_acceptance_contract.py'
       - 'Tests/Static/test_dgn004_acceptance_contract.py'
+      - 'Tests/Static/dgn004_plan_candidates.py'
+      - 'Tests/Static/test_dgn004_plan_candidates.py'
+      - 'Tests/Runtime/dgn004_candidate_runner.py'
+      - 'Tests/Static/test_dgn004_candidate_runner.py'
       - 'Tests/Static/con006_conversion_graph_contract.py'
       - 'Tests/Static/test_con006_conversion_graph_contract.py'
       - 'Tests/Static/idx007_last_page_contract.py'
@@ -65,6 +69,10 @@ on:
       - 'Tests/Static/test_dgn004_identity_snapshot.py'
       - 'Tests/Static/dgn004_acceptance_contract.py'
       - 'Tests/Static/test_dgn004_acceptance_contract.py'
+      - 'Tests/Static/dgn004_plan_candidates.py'
+      - 'Tests/Static/test_dgn004_plan_candidates.py'
+      - 'Tests/Runtime/dgn004_candidate_runner.py'
+      - 'Tests/Static/test_dgn004_candidate_runner.py'
       - 'Tests/Static/con006_conversion_graph_contract.py'
       - 'Tests/Static/test_con006_conversion_graph_contract.py'
       - 'Tests/Static/idx007_last_page_contract.py'
@@ -133,6 +141,12 @@ jobs:
 
       - name: Test DGN-004 narrowed acceptance contract
         run: python Tests/Static/test_dgn004_acceptance_contract.py
+
+      - name: Test DGN-004 complete plan candidate snapshots
+        run: python Tests/Static/test_dgn004_plan_candidates.py
+
+      - name: Test DGN-004 candidate snapshot runner
+        run: python Tests/Static/test_dgn004_candidate_runner.py
 
       - name: Test CON-006 conversion deadlock graph contract
         run: python Tests/Static/test_con006_conversion_graph_contract.py

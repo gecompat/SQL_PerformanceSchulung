@@ -86,6 +86,28 @@ foreach (var dialect in dialects)
         Console.WriteLine($"PASS qry023_tempdb_resource_guard.sql parses in {dialect.Name}");
 }
 
+var dgn004Candidates = Path.Combine(repository, "Tests/Fixtures/DGN004_SourcePair/SnapshotPlanCandidates.sql");
+var candidateSql = File.ReadAllText(dgn004Candidates)
+    .Replace("$(DGN004_RUN)", "dgn004-run-1", StringComparison.Ordinal)
+    .Replace("$(DGN004_ROLE)", "R", StringComparison.Ordinal)
+    .Replace("$(DGN004_CALL)", "3", StringComparison.Ordinal)
+    .Replace("$(DGN004_DATABASE_ID)", "73", StringComparison.Ordinal)
+    .Replace("$(DGN004_OBJECT_ID)", "101", StringComparison.Ordinal)
+    .Replace("$(DGN004_STATEMENT_START_OFFSET)", "0", StringComparison.Ordinal)
+    .Replace("__DGN004_EXPECTED_MODULE_UTF16_HEX__", "4100", StringComparison.Ordinal);
+foreach (var dialect in dialects)
+{
+    using var reader = new StringReader(candidateSql);
+    _ = dialect.Parser.Parse(reader, out var errors);
+    foreach (var error in errors)
+    {
+        failed = true;
+        Console.Error.WriteLine($"FAIL SnapshotPlanCandidates.sql ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+    }
+    if (errors.Count == 0)
+        Console.WriteLine($"PASS SnapshotPlanCandidates.sql parses in {dialect.Name} (syntax only)");
+}
+
 // This is a SQLCMD include wrapper, not a standalone T-SQL source file.
 var frameworkWrapper = File.ReadAllText(Path.Combine(demo, "15_Framework.sql"));
 if (!frameworkWrapper.Contains(":r Demos/00_Framework/Sql/FWK_Measurement.sql", StringComparison.Ordinal))
@@ -99,6 +121,6 @@ else
 }
 
 Console.WriteLine(failed
-    ? "FAIL QRY-023 ScriptDom syntax parsing; this does not execute SQL Server."
-    : "PASS QRY-023 ScriptDom syntax parsing; no SQL Server execution.");
+    ? "FAIL selected ScriptDom syntax parsing; this does not execute SQL Server."
+    : "PASS selected SQL Server ScriptDom syntax parsing; no SQL Server execution.");
 return failed ? 1 : 0;
