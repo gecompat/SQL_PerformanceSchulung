@@ -2323,6 +2323,97 @@ S15-/P11-Installation. Keine Profilaufnahme, Bootstrap-/Profilbytebindung,
 Worker-, Trust-, Runtime- oder Methodenattestation fand statt. Die operative
 Inventur und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen.
 
+### 19.7 Bindung der sichtbaren Build-Basis
+
+Zusätzlich wurde `buildpack-deps:bookworm` am selben Tag read-only über die OCI
+Registry aufgelöst. Sein aktueller Indexdigest lautet
+`sha256:f53cd4c58cdb96a467b98696cd510a949ef4ccd7d23e07b75107de754773007a`,
+das `linux/amd64`-Childmanifest
+`sha256:cba7fa3c133e3110d747518182a10a8f969691e6788abea5f454ce7f83de1542` und
+seine Config `sha256:4622cb1c846e2fc029567a7be44ea7b822141e6b7c91279b820ea8675ce59c24`.
+Die vier Layerdigests und Größen dieses aktuellen Basiskandidaten stimmen
+positionsgleich mit den ersten vier CPython-Layern aus §19.3 überein. Auch
+seine vier `rootfs.diff_ids` und vollständigen vier Historyeinträge entsprechen
+exakt den jeweiligen Präfixen der CPython-Config. Die direkte Neu-Hashprüfung
+der gemeinsamen Layer steht in §19.6.
+
+Damit ist belegt, dass der aktuelle `buildpack-deps:bookworm`-Kandidat denselben
+content-addressed Layer- und Historypräfix wie das gepinnte CPython-Image trägt.
+Da der Dockerfile `FROM buildpack-deps:bookworm` über einen beweglichen Tag
+verwendet, belegt der heutige Tag allein nicht, unter welchem Tagdigest der
+historische Build startete. Die Übereinstimmung attestiert weiterhin weder
+Buildhost noch Buildparameter oder exakte Paketauflösung.
+
+### 19.8 Quellenmatrix für unabhängige S15-/P11-Erwartungen
+
+Die verifizierten CPython-3.12.16-Quellen liefern folgende fest abgegrenzte
+Sollanteile:
+
+| Feldgruppe | Vorab sichtbare Quelle | Grenze der Ableitung |
+|---|---|---|
+| Feste Bootstrap-Builtins | [`Modules/Setup.bootstrap.in`](https://github.com/python/cpython/blob/v3.12.16/Modules/Setup.bootstrap.in) listet die statischen Kernmodule. | `pwd` ist konfigurationsabhängig; die Datei bestimmt keine vollständigen Laufzeit-Specs oder Installationspfade. |
+| Optionale Builtins und Extensions | [`Modules/Setup.stdlib.in`](https://github.com/python/cpython/blob/v3.12.16/Modules/Setup.stdlib.in) benennt die Modulquellen und ihre `@MODULE_*_TRUE@`-Bedingungen. | Exakte Aktivierung hängt von Configure-Tests, Buildabhängigkeiten und dem tatsächlich verwendeten Paket-/Toolbestand ab. |
+| Frozen-Namen und Aliase | [`Python/frozen.c`](https://github.com/python/cpython/blob/v3.12.16/Python/frozen.c) enthält Bootstrap-, Startup-, Runpy- und Testtabellen samt Aliaszuordnungen. | Die Datei beschreibt die generierte Tabelle; der Quellkommentar bindet ihre Bytecode-/Freezeerzeugung zusätzlich an Buildschritte. |
+| Installationsschema und Suchpfade | [`Lib/sysconfig.py`](https://github.com/python/cpython/blob/v3.12.16/Lib/sysconfig.py), [`Modules/getpath.py`](https://github.com/python/cpython/blob/v3.12.16/Modules/getpath.py) und die gepinnte Dockerfile-Konfiguration beschreiben Schemas, Compilewerte und die algorithmische Pfadsuche. | `getpath.py` verwendet auch Umgebungswerte und tatsächlichen Dateisystemzustand; Downstream-Schemen können abweichen. |
+| Source- und Extension-Specs | [`Lib/importlib/_bootstrap.py`](https://github.com/python/cpython/blob/v3.12.16/Lib/importlib/_bootstrap.py) und [`Lib/importlib/_bootstrap_external.py`](https://github.com/python/cpython/blob/v3.12.16/Lib/importlib/_bootstrap_external.py) definieren Finder-/Loadersemantik. | Konkrete `ModuleSpec`-, Loader-, Datei-, Root- und Aliaswerte hängen von aktivierten Modulen, Startkonfiguration und installierten Dateien ab. |
+
+Die SHA-256-Werte der aus dem signaturgeprüften Archiv gelesenen zentralen
+Quellen fixieren die Auswahl, ohne Quellcode zu kopieren:
+
+| CPython-Quelle | SHA-256 |
+|---|---|
+| [`Modules/Setup.bootstrap.in`](https://github.com/python/cpython/blob/v3.12.16/Modules/Setup.bootstrap.in) | `d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271` |
+| [`Modules/Setup.stdlib.in`](https://github.com/python/cpython/blob/v3.12.16/Modules/Setup.stdlib.in) | `d78ae3af2718df36ac5a80531fe21831c0117a26534a977bbf4e7843c2ee6524` |
+| [`Python/frozen.c`](https://github.com/python/cpython/blob/v3.12.16/Python/frozen.c) | `ff2d5e301f1725c013788f30882fd48127a9ecfe891bfaa592cc08c284d4f79f` |
+| [`Modules/getpath.py`](https://github.com/python/cpython/blob/v3.12.16/Modules/getpath.py) | `46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2` |
+| [`Lib/sysconfig.py`](https://github.com/python/cpython/blob/v3.12.16/Lib/sysconfig.py) | `ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8` |
+| [`Lib/importlib/_bootstrap.py`](https://github.com/python/cpython/blob/v3.12.16/Lib/importlib/_bootstrap.py) | `d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7` |
+| [`Lib/importlib/_bootstrap_external.py`](https://github.com/python/cpython/blob/v3.12.16/Lib/importlib/_bootstrap_external.py) | `e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6` |
+| [`Modules/config.c.in`](https://github.com/python/cpython/blob/v3.12.16/Modules/config.c.in) | `5c76ef60a799f420b09b047dc1087728e5ed08ba82f6c7664c4d4f1d1d715b21` |
+| [`configure.ac`](https://github.com/python/cpython/blob/v3.12.16/configure.ac) | `4f5345c8d648693030493bdd4a499ae453d477c81a26f61af149d5c70e74d088` |
+
+Die Quellenmatrix grenzt den nächsten privaten Ableitungsschritt ein. Der
+konkrete aktive Configure-Modulbestand wurde nach §19.9 aus dem
+digestgebundenen Image-Buildoutput abgeglichen. Diese generierten Outputs sind
+jedoch keine von diesem Image unabhängige Sollquelle; exakte S15-Werte und die
+vollständigen geladenen P11-Records sind weiterhin separat zu binden.
+
+### 19.9 Abgleich der gebundenen Configure-Ergebnisse
+
+Für eine engere Ableitung wurde der CPython-Installationslayer 6 aus §19.3
+direkt als gzip-/Tarstrom gelesen. Der komprimierte SHA-256 stimmte erneut mit
+dem Manifest überein. Ohne Interpreterstart wurden daraus `Setup.bootstrap`,
+`Setup.stdlib`, `config.c`, `pyconfig.h` und `_sysconfigdata` begrenzt gelesen;
+`_sysconfigdata` wurde als Syntaxbaum mit `ast.literal_eval` ausgewertet, nicht
+importiert oder ausgeführt.
+
+Der generierte Buildoutput enthält 22 Bootstrapmodule und 79
+Standardbibliotheksmodule. Die 101 eindeutigen Namen stimmen vollständig mit
+`MODBUILT_NAMES` überein. `config.c` enthält 27 Einträge in
+`_PyImport_Inittab`; die feste `Setup.bootstrap`-Menge ist darin enthalten.
+Die 79 Namen aus `Setup.stdlib` entsprechen exakt den 79 ABI-markierten
+Extensiondateien im selben Layer unter `lib-dynload`. Es gab weder fehlende
+noch zusätzliche Namen. Damit ist die konkrete Builtin-/Extension-Auswahl
+dieses digestgebundenen Buildoutputs vor einer Profilaufnahme unabhängig vom
+laufenden Interpreter ausgelesen und zwischen generiertem Setup, Inittab,
+`MODBUILT_NAMES` und Dateien gegengeprüft.
+
+| Generierter Buildoutput in OCI-Layer 6 | Bytezahl | SHA-256 |
+|---|---:|---|
+| `Setup.bootstrap` | 902 | `2917936af36bd7d641c737f72f68599fd13c26a28faebba7c07799879b1b9b31` |
+| `Setup.stdlib` | 6.317 | `fba97c73047e79028299855ae19f5a2fec06d962b4527bb658a623c9bfbb41ab` |
+| `config.c` | 3.412 | `30d353782cbaf8de2fed2ba82b1040940386e316b7f41604c49f8f3d6f16bb31` |
+| `pyconfig.h` | 55.818 | `22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5` |
+| `_sysconfigdata__linux_x86_64-linux-gnu.py` | 47.373 | `3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187` |
+
+Diese Ableitung bindet installierte Configure-/Kompilierausgaben an den
+Imageinhalt und prüft deren interne Namenskonsistenz; sie ist keine unabhängige
+Buildattestation. Sie bestimmt noch nicht die vollständigen 85
+`ModuleRecord`-Erwartungen: konkrete Source-/Frozen-Importclosure, Specs,
+Pfad-/Rootfolgen, tatsächliche Bootstrap-/Profilbytes und alle fünf
+Darstellungen bleiben vor der einmaligen operativen Inventur gebunden zu
+reviewen. Keine Python-Profilaufnahme oder Worker-/SQL-Ausführung fand statt.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
