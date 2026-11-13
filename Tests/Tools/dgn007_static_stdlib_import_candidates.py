@@ -457,8 +457,37 @@ def _imported_function_aliases(tree, module, path, function_index):
     return {name: tuple(dict.fromkeys(targets)) for name, targets in result.items()}
 
 
+def _imported_module_function_aliases(tree, function_index):
+    result = {}
+
+    def add(expression, module):
+        functions = function_index.get(module, {})
+        if not expression or not functions:
+            return
+        aliases = result.setdefault(expression, {})
+        for function_name in functions:
+            targets = aliases.setdefault(function_name, [])
+            if module not in targets:
+                targets.append(module)
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Import):
+            continue
+        for imported in node.names:
+            if imported.asname:
+                add(imported.asname, imported.name)
+            else:
+                add(imported.name, imported.name)
+                root = imported.name.partition(".")[0]
+                if root != imported.name:
+                    add(root, root)
+    return {expression: {name: tuple(modules) for name, modules in functions.items()}
+            for expression, functions in result.items()}
+
+
 def _module_init_call_import_names(tree, module, path, condition_stats=None,
-                                   imported_functions=None, entry_functions=(),
+                                   imported_functions=None, imported_modules=None,
+                                   entry_functions=(),
                                    run_module=True, visited_global=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
@@ -746,11 +775,14 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             for function in active_functions.get(node.func.id, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
-        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-              and isinstance(node.func.value, ast.Name)):
-            methods = module_class_methods.get(node.func.value.id, {})
-            for function in methods.get(node.func.attr, ()):
-                pending.append((function, function_closures.get(id(function), function_scope)))
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Name):
+                methods = module_class_methods.get(node.func.value.id, {})
+                for function in methods.get(node.func.attr, ()):
+                    pending.append((function, function_closures.get(id(function), function_scope)))
+            receiver = ast.unparse(node.func.value)
+            imported_targets = (imported_modules or {}).get(receiver, {}).get(node.func.attr, ())
+            imported_calls.update((target_module, node.func.attr) for target_module in imported_targets)
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             imported_calls.update((target_module, target_function)
                                   for target_module, target_function
@@ -841,9 +873,11 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
             run_module = False
             entries = (entry_function,)
         imported_functions = _imported_function_aliases(tree, module, path, function_index)
+        imported_modules = _imported_module_function_aliases(tree, function_index)
         names, visited_count, imported_calls = _module_init_call_import_names(
             tree, module, path, conditions,
             imported_functions=imported_functions,
+            imported_modules=imported_modules,
             entry_functions=entries,
             run_module=run_module,
             visited_global=visited_functions,
@@ -901,7 +935,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_LOCAL_METHODS_AND_IMPORTED_FUNCTIONS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_AND_MODULE_ALIASES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
