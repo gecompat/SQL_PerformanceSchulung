@@ -8911,3 +8911,11 @@ benannten Basen als Kandidaten. 55/55 fokussierte Tests bestehen. Importierte
 oder unbekannte Basen, explizite `super(T, self)`-Aufrufe und vollständige
 MRO-Auswertung bleiben offen; der Befund ist kein P11-Soll und keine
 vollständige Aufrufclosure.
+
+## Fortsetzung: DGN-007 – geerbte Receiveraufrufe
+
+Erreichte Methoden verfolgen außerdem `self.methode()` und `cls.methode()`
+in direkt benannten lokalen Basisklassen. Zwei Regressionen decken Instanz-
+und Klassenmethoden mit ihren Importkanten ab. Die Vereinigungsauflösung über
+alternative Basen kann überschreibende Methoden und MRO-Fälle überzählen;
+unbekannte/importierte Basen bleiben offen. 56/56 fokussierte Tests bestehen.
