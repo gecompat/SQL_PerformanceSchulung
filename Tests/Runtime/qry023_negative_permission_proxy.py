@@ -59,6 +59,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DROP TABLE lab.MeasurementWaitSnapshot;\n",
             "QRY023_NEGATIVE_PERMISSION|EXPECTED_OBJECT_REMOVED",
         )
+    if mode == "SERVER_PERMISSION":
+        return (
+            "GRANT VIEW SERVER STATE TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
@@ -66,16 +71,16 @@ def main() -> int:
     try:
         target = injection_target(sys.argv[1:])
         if target is not None:
-            sql, marker = injection_for_mode(
-                os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
-            )
+            mode = os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
+            sql, marker = injection_for_mode(mode)
             container = os.environ.get("SQLPERF_SQL_CONTAINER", "")
             password = os.environ.get("SQLCMDPASSWORD", "")
             if not container or not password:
                 raise ValueError("isolated container or ADMIN credential is unavailable")
+            injection_database = "master" if mode == "SERVER_PERMISSION" else target
             command = [
                 "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", container,
-                proxy._sqlcmd_path(container), "-S", "localhost", "-d", target,
+                proxy._sqlcmd_path(container), "-S", "localhost", "-d", injection_database,
                 "-U", "sa", "-C", "-b", "-r", "1",
             ]
             injected = subprocess.run(
@@ -84,12 +89,20 @@ def main() -> int:
                 errors="replace", env=os.environ.copy(),
             )
             if injected.returncode:
-                raise RuntimeError("unexpected READER grant could not be injected")
+                details = "\n".join(
+                    part.strip()[:2000]
+                    for part in (injected.stdout, injected.stderr)
+                    if part and part.strip()
+                )
+                raise RuntimeError(
+                    "unexpected READER permission could not be injected"
+                    + (f":\n{details}" if details else " (sqlcmd returned no diagnostic output)")
+                )
             print(marker)
         sys.argv[0] = str(Path(proxy.__file__).resolve())
         return proxy.main()
-    except (FileNotFoundError, OSError, ValueError, RuntimeError):
-        print("qry023-negative-permission-proxy: controlled negative case failed", file=sys.stderr)
+    except (FileNotFoundError, OSError, ValueError, RuntimeError) as exc:
+        print(f"qry023-negative-permission-proxy: controlled negative case failed: {exc}", file=sys.stderr)
         return 1
 
 
