@@ -2798,6 +2798,15 @@ eine Regression schützt beide Pfade. Der fokussierte Satz umfasst nun 55 Fälle
 Der Archivscan bleibt ein `CANDIDATES_ONLY`-Befund; eine vollständige
 Aufrufclosure oder P11-Inventur folgt daraus nicht.
 
+Bei einem bereits erreichten Methodenrumpf verfolgt der Scanner nun auch
+`self.methode()` beziehungsweise `cls.methode()`, wenn die Methode in einer
+direkt benannten lokalen Basisklasse vorkommt. Eine Regression prüft beide
+gebundenen Aufruftypen und ihre Importkanten. Bei mehreren möglichen
+Definitionen werden Basiskandidaten vereinigt; überschreibende Methoden und
+komplexe MRO-/Deskriptorsemantik können daher überzählige Kandidaten erzeugen.
+Der fokussierte Satz umfasst 56 Fälle. Importierte oder unbekannte Basen und
+vollständige MRO-Auswertung bleiben offen.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
