@@ -22,6 +22,10 @@ PREFLIGHT_SCRIPT = (
     Path(__file__).resolve().parents[2]
     / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/00_Preflight.sql"
 )
+PLAN_EVIDENCE_SCRIPT = (
+    Path(__file__).resolve().parents[2]
+    / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/50_Plan_Evidence.sql"
+)
 
 
 def injection_target(argv: list[str]) -> str | None:
@@ -183,6 +187,41 @@ def corrupt_preflight_demo_id_case_variant(argv: list[str]) -> list[str]:
     return rewritten
 
 
+def timeout_probe_argv(argv: list[str], probe_script: Path) -> list[str]:
+    database, script, username, raw_variables, _ = proxy.parse_args(argv)
+    values: dict[str, str] = {}
+    for item in raw_variables:
+        name, separator, value = item.partition("=")
+        if not separator or name in values:
+            raise ValueError("invalid SQLCMD variable set")
+        values[name] = value
+    token = values.get("RunToken", "")
+    if script != PLAN_EVIDENCE_SCRIPT or database != values.get("TargetDatabase"):
+        raise ValueError("timeout probe must target the bound QRY-023 Plan Evidence phase")
+    if username != "READER" or values.get("ReaderLogin") != "READER":
+        raise ValueError("timeout probe requires the actual QRY-023 READER phase")
+    if values.get("DemoId") != "QRY-023" or not re.fullmatch(r"[A-Z0-9_]{1,20}", token):
+        raise ValueError("timeout probe requires a valid runner-provided identity")
+    if not TARGET_DATABASE_PATTERN.fullmatch(database) or database != f"SQLPERF_LAB_QRY023_{token}":
+        raise ValueError("timeout probe target is not bound to the runner-provided RunToken")
+
+    rewritten = list(argv)
+    script_values = 0
+    index = 0
+    while index < len(rewritten):
+        if rewritten[index] == "-i":
+            if index + 1 >= len(rewritten) or Path(rewritten[index + 1]).resolve() != PLAN_EVIDENCE_SCRIPT:
+                raise ValueError("timeout probe script argument changed during binding")
+            rewritten[index + 1] = str(probe_script.resolve())
+            script_values += 1
+            index += 2
+            continue
+        index += 1
+    if script_values != 1:
+        raise ValueError("timeout probe must replace exactly one Plan Evidence script")
+    return rewritten
+
+
 def injection_for_mode(mode: str) -> tuple[str, str]:
     if mode == "EXTRA_GRANT_AND_ROLE":
         return (
@@ -283,8 +322,25 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
 
 
 def main() -> int:
+    timeout_probe_path: Path | None = None
     try:
         mode = os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
+        if mode == "TIMEOUT_PLAN_EVIDENCE":
+            database, script, username, raw_variables, _ = proxy.parse_args(sys.argv[1:])
+            if script == PLAN_EVIDENCE_SCRIPT:
+                values = dict(item.split("=", 1) for item in raw_variables)
+                token = values.get("RunToken", "")
+                timeout_probe_path = PLAN_EVIDENCE_SCRIPT.parent / f".qry023_timeout_probe_{token}.sql"
+                rewritten = timeout_probe_argv(sys.argv[1:], timeout_probe_path)
+                timeout_probe_path.write_text(
+                    "SET NOCOUNT ON;\n"
+                    "RAISERROR('QRY023_TIMEOUT_PROBE|STARTED',10,1) WITH NOWAIT;\n"
+                    "WAITFOR DELAY '00:00:30';\n"
+                    "PRINT 'QRY023_TIMEOUT_PROBE|COMPLETED';\n",
+                    encoding="utf-8",
+                )
+                sys.argv = [sys.argv[0], *rewritten]
+                print("QRY023_TIMEOUT_PROBE|SCRIPT_BOUND")
         if mode in {
             "RUNTOKEN_TRAILING_SPACE", "TARGETDATABASE_TRAILING_SPACE",
             "DEMOID_TRAILING_SPACE", "DEMOID_CASE_VARIANT",
@@ -349,7 +405,11 @@ def main() -> int:
                 )
             print(marker)
         sys.argv[0] = str(Path(proxy.__file__).resolve())
-        return proxy.main()
+        try:
+            return proxy.main()
+        finally:
+            if timeout_probe_path is not None:
+                timeout_probe_path.unlink(missing_ok=True)
     except (FileNotFoundError, OSError, ValueError, RuntimeError) as exc:
         print(f"qry023-negative-permission-proxy: controlled negative case failed: {exc}", file=sys.stderr)
         return 1

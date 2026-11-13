@@ -225,6 +225,32 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                 [*args[:args.index("-i")], str(negative_proxy.INVENTORY_SCRIPT), *args[args.index("-i") + 1:]]
             )
 
+    def test_timeout_proxy_rewrites_only_bound_reader_plan_evidence_script(self) -> None:
+        run_token = "QRY023TIMEOUT1"
+        target = f"SQLPERF_LAB_QRY023_{run_token}"
+        probe_script = ROOT / "temporary-timeout-probe.sql"
+        args = [
+            "-S", "localhost", "-d", target, "-U", "READER", "-b", "-v",
+            "DemoId=QRY-023", f"RunToken={run_token}", f"TargetDatabase={target}",
+            "ReaderLogin=READER", "-i", str(negative_proxy.PLAN_EVIDENCE_SCRIPT),
+        ]
+        rewritten = negative_proxy.timeout_probe_argv(args, probe_script)
+        self.assertEqual(Path(rewritten[rewritten.index("-i") + 1]), probe_script)
+        self.assertIn(f"TargetDatabase={target}", rewritten)
+        with self.assertRaises(ValueError):
+            negative_proxy.timeout_probe_argv(
+                [*args[:args.index("-d") + 1], "master", *args[args.index("-d") + 2:]], probe_script
+            )
+        with self.assertRaises(ValueError):
+            negative_proxy.timeout_probe_argv(
+                [*args[:args.index("-U") + 1], "sa", *args[args.index("-U") + 2:]], probe_script
+            )
+        with self.assertRaises(ValueError):
+            negative_proxy.timeout_probe_argv(
+                [*args[:args.index("-i")], str(negative_proxy.PREFLIGHT_SCRIPT), *args[args.index("-i") + 1:]],
+                probe_script,
+            )
+
     def test_negative_permission_proxy_server_role_mode_is_fixed(self) -> None:
         sql, marker = negative_proxy.injection_for_mode("SERVER_ROLE")
         self.assertEqual(sql, "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n")
@@ -717,7 +743,20 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             workflow.index("Remove custom endpoint after negative control"):
             workflow.index("Remove only the owned SQL Server container")
         ]
-        self.assertEqual(post_endpoint_steps.count("      - name:"), 1)
+        self.assertEqual(post_endpoint_steps.count("      - name:"), 2)
+        timeout_case = workflow[
+            workflow.index("Prove a SQL timeout suppresses cleanup and preserves the marked target"):
+            workflow.index("Remove only the owned SQL Server container")
+        ]
+        self.assertIn("TIMEOUT_PLAN_EVIDENCE", timeout_case)
+        self.assertIn("plan[\"timeout_seconds\"] = 5", timeout_case)
+        self.assertIn("WAITFOR DELAY '00:00:30'", (ROOT / "Tests/Runtime/qry023_negative_permission_proxy.py").read_text(encoding="utf-8"))
+        self.assertIn("PLAN_EVIDENCE: FAIL/FAIL_TIMEOUT", timeout_case)
+        self.assertIn("CLEANUP: FAIL/FAIL_CLEANUP", timeout_case)
+        self.assertIn("QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED", timeout_case)
+        self.assertIn("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED", timeout_case)
+        self.assertIn("grep -Eq '^CLEANUP: PASS/'", timeout_case)
+        self.assertLess(timeout_case.index("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED"), workflow.index("Remove only the owned SQL Server container"))
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
