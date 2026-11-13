@@ -816,6 +816,56 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
 
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
     module_class_methods = scope_class_methods(tree.body)
+
+    def constructed_instance_methods(statements):
+        """Resolve only same-scope names assigned a direct known class call."""
+        result = {}
+
+        def bind_constructor(target_name, constructor):
+            if isinstance(constructor, ast.Name):
+                local_methods = module_class_methods.get(constructor.id, {})
+                imported_methods = (imported_class_methods or {}).get(constructor.id, {})
+            elif isinstance(constructor, ast.Attribute):
+                receiver = ast.unparse(constructor.value) + "." + constructor.attr
+                local_methods = {}
+                imported_methods = (imported_module_class_methods or {}).get(receiver, {})
+            else:
+                return
+            bound = result.setdefault(target_name, {})
+            for method_name, functions in local_methods.items():
+                local = bound.setdefault(method_name, {"local": [], "imported": []})["local"]
+                for function in functions:
+                    if function not in local:
+                        local.append(function)
+            for method_name, targets in imported_methods.items():
+                external = bound.setdefault(method_name, {"local": [], "imported": []})["imported"]
+                for target in targets:
+                    if target not in external:
+                        external.append(target)
+
+        def collect(node):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+                return
+            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+                constructor = node.value.func
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        bind_constructor(target.id, constructor)
+            elif isinstance(node, ast.AnnAssign) and isinstance(node.value, ast.Call):
+                if isinstance(node.target, ast.Name):
+                    bind_constructor(node.target.id, node.value.func)
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, ast.stmt):
+                    collect(child)
+                elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                    for statement in child.body:
+                        collect(statement)
+
+        for statement in statements:
+            collect(statement)
+        return result
+
+    active_instance_methods = constructed_instance_methods(tree.body)
     pending = []
     imported_calls = set()
     function_closures = {}
@@ -911,6 +961,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     ).get(node.func.attr, ())
                     imported_calls.update(imported_targets)
             if isinstance(node.func.value, ast.Name):
+                instance_targets = active_instance_methods.get(node.func.value.id, {}).get(
+                    node.func.attr, {"local": (), "imported": ()}
+                )
+                for function in instance_targets["local"]:
+                    pending.append((function, function_closures.get(id(function), function_scope)))
+                imported_calls.update(instance_targets["imported"])
                 methods = module_class_methods.get(node.func.value.id, {})
                 for function in methods.get(node.func.attr, ()):
                     pending.append((function, function_closures.get(id(function), function_scope)))
@@ -959,6 +1015,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         if id(function) in visited:
             continue
         visited.add(id(function))
+        active_instance_methods = constructed_instance_methods(function.body)
         visible_functions = dict(closure_scope)
         visible_functions.update(scope_functions(function.body))
         visible_functions = scope_function_aliases(function.body, visible_functions)
@@ -1113,7 +1170,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_AND_DIRECT_CONSTRUCTED_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_AND_SAME_SCOPE_INSTANCE_BINDINGS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
