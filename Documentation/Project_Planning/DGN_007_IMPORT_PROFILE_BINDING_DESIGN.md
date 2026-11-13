@@ -2831,6 +2831,14 @@ Mehrfachzuweisungen und mögliches Rebinding werden konservativ als
 Alternativen behandelt und können Kandidaten überzählen; dynamische
 Zuweisungen werden nicht modelliert.
 
+Der aktuelle erneute Archivlauf verwendet den gegen den festen SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`
+geprüften CPython-3.12.16-Tarball. Er bleibt `CANDIDATES_ONLY` und zählt im
+Modul-/Klassen-/Aufrufkandidatenpfad 92 Module, 573 Kanten und 471 besuchte
+Funktionen; 22 Bedingungen sind entschieden und 1.452 unbekannt. Der
+Modul-/Quelldigest bleibt `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`.
+Der Lauf belegt weder vollständige Closure noch S15-/P11-Sollinventur.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
