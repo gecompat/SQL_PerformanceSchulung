@@ -28,7 +28,10 @@ Klassenkörper aus. Der reproduzierbare Lexikalscan über alle AST-Knoten zählt
 Quellkandidaten und 287 Kanten; er schließt unaufgerufene Funktionskörper aus,
 wertet aber Plattformzweige nicht aus und erfasst keine Imports aus später
 aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Keiner der drei
-Werte ist vollständige Importclosure oder P11-Sollinventur. PR #610 hat den Größenfehler des
+Werte ist vollständige Importclosure oder P11-Sollinventur. Ein ergänzender
+Linux-/CPython-3.12-Zielzweigfilter entschied vier sichere Bedingungen und
+behielt 42 unbekannte Bedingungen beidseitig; er änderte die 59/287-Kandidaten
+nicht. PR #610 hat den Größenfehler des
 SESSION_END-Quellbuilders nach unabhängiger Prüfung und 18 grünen Headchecks
 behoben und wurde als `7b756bb1fc6c124b8dbe90c261de67addd2503c5` integriert;
 alle ausgelösten Main-Workflows bestanden ebenfalls. Buildherkunft und

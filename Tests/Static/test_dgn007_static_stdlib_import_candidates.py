@@ -86,6 +86,40 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.class_helper", "pkg.nested_helper"))
         self.assertEqual(edges, 4)
 
+    def test_target_platform_prunes_only_known_linux_cpython_branches(self):
+        files = {
+            "pkg/__init__.py": (
+                b"import sys\n"
+                b"if sys.platform == 'linux':\n    from . import linux_helper\n"
+                b"else:\n    from . import non_linux_helper\n"
+                b"if sys.version_info == [3, 12, 16, 'final', 0]:\n"
+                b"    from . import list_wrong\n"
+                b"else:\n    from . import tuple_correct\n"
+                b"if feature_flag:\n    from . import unknown_a\n"
+                b"else:\n    from . import unknown_b\n"
+            ),
+            "pkg/linux_helper.py": b"VALUE = 1\n",
+            "pkg/non_linux_helper.py": b"VALUE = 2\n",
+            "pkg/list_wrong.py": b"VALUE = 5\n",
+            "pkg/tuple_correct.py": b"VALUE = 6\n",
+            "pkg/unknown_a.py": b"VALUE = 3\n",
+            "pkg/unknown_b.py": b"VALUE = 4\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(files, ("pkg",))
+        self.assertEqual(
+            modules,
+            ("pkg", "pkg.linux_helper", "pkg.tuple_correct", "pkg.unknown_a", "pkg.unknown_b"),
+        )
+        self.assertEqual(conditions, {"resolved": 2, "unknown": 1})
+
+    def test_target_python_version_info_uses_full_cpython_tuple(self):
+        short_equal = ast.parse("sys.version_info == (3, 12, 16)", mode="eval").body
+        minimum = ast.parse("sys.version_info >= (3, 12)", mode="eval").body
+        identity = ast.parse("sys.platform is 'linux'", mode="eval").body
+        self.assertIs(SUBJECT._target_condition(short_equal), False)
+        self.assertIs(SUBJECT._target_condition(minimum), True)
+        self.assertIsNone(SUBJECT._target_condition(identity))
+
     def test_unresolvable_dynamic_import_is_not_claimed(self):
         files = {"entry.py": b"import importlib\n\ndef load(name):\n    return importlib.import_module(name)\n"}
         modules, _, _ = SUBJECT._candidate_closure(files, ("entry",))

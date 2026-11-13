@@ -78,8 +78,89 @@ def _import_names(tree, module, path):
                         yield base + "." + alias.name
 
 
-def _module_body_import_names(tree, module, path):
-    """Include module/class execution bodies, but not uncalled function bodies."""
+def _target_condition(node):
+    """Resolve only fixed, side-effect-free target platform predicates."""
+    target = {
+        "sys.platform": "linux",
+        "os.name": "posix",
+        "sys.version_info": (3, 12, 16, "final", 0),
+        "sys.implementation.name": "cpython",
+    }
+
+    def value(expr):
+        if isinstance(expr, ast.Constant) and type(expr.value) in (str, int, bool, type(None)):
+            return expr.value
+        if isinstance(expr, ast.Tuple):
+            items = [value(item) for item in expr.elts]
+            return tuple(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+        if isinstance(expr, ast.List):
+            items = [value(item) for item in expr.elts]
+            return list(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+        if isinstance(expr, ast.Attribute):
+            name = ast.unparse(expr)
+            return target.get(name, _UNKNOWN)
+        if isinstance(expr, ast.UnaryOp) and isinstance(expr.op, ast.Not):
+            item = value(expr.operand)
+            return not item if item is not _UNKNOWN else _UNKNOWN
+        if isinstance(expr, ast.BoolOp):
+            items = [value(item) for item in expr.values]
+            if isinstance(expr.op, ast.And):
+                return False if False in items else (all(items) if _UNKNOWN not in items else _UNKNOWN)
+            if isinstance(expr.op, ast.Or):
+                return True if True in items else (any(items) if _UNKNOWN not in items else _UNKNOWN)
+        if isinstance(expr, ast.Compare):
+            left = value(expr.left)
+            rights = [value(item) for item in expr.comparators]
+            if left is _UNKNOWN or any(item is _UNKNOWN for item in rights):
+                return _UNKNOWN
+            current = left
+            try:
+                for op, right in zip(expr.ops, rights):
+                    if isinstance(op, ast.Eq):
+                        matched = current == right
+                    elif isinstance(op, ast.Is):
+                        if (current is not None and type(current) is not bool
+                                or right is not None and type(right) is not bool):
+                            return _UNKNOWN
+                        matched = current is right
+                    elif isinstance(op, ast.NotEq):
+                        matched = current != right
+                    elif isinstance(op, ast.IsNot):
+                        if (current is not None and type(current) is not bool
+                                or right is not None and type(right) is not bool):
+                            return _UNKNOWN
+                        matched = current is not right
+                    elif isinstance(op, ast.In):
+                        matched = current in right
+                    elif isinstance(op, ast.NotIn):
+                        matched = current not in right
+                    elif isinstance(op, ast.Lt):
+                        matched = current < right
+                    elif isinstance(op, ast.LtE):
+                        matched = current <= right
+                    elif isinstance(op, ast.Gt):
+                        matched = current > right
+                    elif isinstance(op, ast.GtE):
+                        matched = current >= right
+                    else:
+                        return _UNKNOWN
+                    if not matched:
+                        return False
+                    current = right
+                return True
+            except (TypeError, ValueError):
+                return _UNKNOWN
+        return _UNKNOWN
+
+    result = value(node)
+    return result if type(result) is bool else None
+
+
+_UNKNOWN = object()
+
+
+def _module_body_import_names(tree, module, path, target_platform=False, condition_stats=None):
+    """Include module/class bodies, optionally pruning known target if-branches."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
     def visit(node):
@@ -105,6 +186,16 @@ def _module_body_import_names(tree, module, path):
                     if alias.name != "*":
                         yield base + "." + alias.name
             return
+        if target_platform and isinstance(node, ast.If):
+            decision = _target_condition(node.test)
+            if condition_stats is not None:
+                key = "resolved" if decision is not None else "unknown"
+                condition_stats[key] += 1
+            selected = node.body if decision is True else node.orelse if decision is False else None
+            if selected is not None:
+                for statement in selected:
+                    yield from visit(statement)
+                return
         for child in ast.iter_child_nodes(node):
             if isinstance(child, ast.stmt):
                 yield from visit(child)
@@ -186,10 +277,46 @@ def _module_body_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest()
 
 
+def _target_platform_candidate_closure(files, roots=ROOTS):
+    if type(files) is not dict or type(roots) is not tuple:
+        raise ValueError("SOURCE_INPUT_TYPE")
+    reached = set()
+    pending = list(roots)
+    edges = 0
+    condition_stats = {"resolved": 0, "unknown": 0}
+    while pending:
+        module = pending.pop()
+        if module in reached:
+            continue
+        path = _module_path(module, files)
+        if path is None:
+            continue
+        reached.add(module)
+        tree = ast.parse(files[path], filename=path)
+        for name in _module_body_import_names(
+                tree, module, path, target_platform=True, condition_stats=condition_stats):
+            parts = name.split(".")
+            candidate = next(
+                (".".join(parts[:index]) for index in range(len(parts), 0, -1)
+                 if _module_path(".".join(parts[:index]), files) is not None),
+                None,
+            )
+            if candidate is not None:
+                edges += 1
+                if candidate not in reached:
+                    pending.append(candidate)
+    rows = []
+    for module in sorted(reached):
+        path = _module_path(module, files)
+        rows.append((module + "\t" + hashlib.sha256(files[path]).hexdigest() + "\n").encode("ascii"))
+    return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest(), condition_stats
+
+
 def analyze(archive_path):
     files = _source_files(archive_path)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
+    target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
     return {
         "archive_sha256": ARCHIVE_SHA256,
         "edge_count": edges,
@@ -199,6 +326,12 @@ def analyze(archive_path):
         "module_body_edge_count": module_body_edges,
         "module_body_scope": "MODULE_AND_CLASS_BODIES_ONLY",
         "module_body_rows_sha256": module_body_sha256,
+        "target_platform_candidate_count": len(target_platform),
+        "target_platform_edge_count": target_edges,
+        "target_platform_scope": "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BRANCHES",
+        "target_platform_rows_sha256": target_sha256,
+        "target_platform_resolved_if_count": target_conditions["resolved"],
+        "target_platform_unknown_if_count": target_conditions["unknown"],
         "roots": list(ROOTS),
         "scope": "LEXICAL_SOURCE_CANDIDATES_ONLY",
     }
