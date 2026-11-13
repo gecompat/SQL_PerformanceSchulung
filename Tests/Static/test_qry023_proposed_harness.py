@@ -908,6 +908,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("deterministic target database name and exact RunToken format" in error
                             for error in self.errors()))
 
+    def test_preflight_must_reject_trailing_run_token_spaces(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("OR DATALENGTH(@RunToken) <> LEN(@RunToken)", "")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()
