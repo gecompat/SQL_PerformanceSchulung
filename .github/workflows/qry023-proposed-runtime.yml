@@ -1,0 +1,167 @@
+name: QRY-023 proposed isolated runtime
+
+on:
+  pull_request:
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Runtime/qry023_*'
+      - 'Tests/Static/*qry023*'
+      - '.github/workflows/qry023-proposed-runtime.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Demos/00_Framework/Tools/sqlcmd_process.py'
+      - 'Tests/Runtime/qry023_*'
+      - 'Tests/Static/*qry023*'
+      - '.github/workflows/qry023-proposed-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qry023-proposed-runtime-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  static:
+    name: Validate isolated caller and resource guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/test_qry023_runtime_caller.py
+      - run: python Tests/Static/validate_qry023_proposed_harness.py
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore Tests/Static/Qry023SqlParser/Qry023SqlParser.csproj --locked-mode
+      - run: dotnet run --project Tests/Static/Qry023SqlParser/Qry023SqlParser.csproj --configuration Release --no-restore
+
+  runtime:
+    name: SQL Server ${{ matrix.year }} isolated QRY-023
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - year: 2019
+            major: 15
+            image: mcr.microsoft.com/mssql/server@sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069
+          - year: 2022
+            major: 16
+            image: mcr.microsoft.com/mssql/server@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718
+          - year: 2025
+            major: 17
+            image: mcr.microsoft.com/mssql/server@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check host resource floor
+        shell: bash
+        run: |
+          set -euo pipefail
+          cpu_count="$(nproc)"
+          memory_mib="$(awk '/MemAvailable:/ {print int($2 / 1024)}' /proc/meminfo)"
+          free_disk_mib="$(df -Pm "$GITHUB_WORKSPACE" | awk 'END {print $4}')"
+          if (( cpu_count < 2 || memory_mib < 8192 || free_disk_mib < 20480 )); then
+            echo "Host is below the proposed QRY-023 floor: cpu=${cpu_count}, available_memory_mib=${memory_mib}, free_disk_mib=${free_disk_mib}." >&2
+            exit 1
+          fi
+      - name: Start pinned, resource-bounded SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="Qry023!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Admin"
+          reader_password="Qry023!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Reader"
+          container="sqlperf-qry023-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          owner="$(openssl rand -hex 16)"
+          echo "::add-mask::${password}"
+          echo "::add-mask::${reader_password}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "$GITHUB_ENV"
+          echo "SQLPERF_CI_OWNER=${owner}" >> "$GITHUB_ENV"
+          echo "SQLPERF_SQL_USERNAME_ADMIN=sa" >> "$GITHUB_ENV"
+          echo "SQLPERF_SQL_USERNAME_READER=READER" >> "$GITHUB_ENV"
+          echo "SQLPERF_SQL_PASSWORD_ADMIN=${password}" >> "$GITHUB_ENV"
+          echo "SQLPERF_SQL_PASSWORD_READER=${reader_password}" >> "$GITHUB_ENV"
+          echo "SQLCMDPASSWORD=${password}" >> "$GITHUB_ENV"
+          docker pull '${{ matrix.image }}'
+          docker run \
+            --name "$container" \
+            --label "sqlperf.ci.owner=${owner}" \
+            --hostname "$container" \
+            --cpus 2 --memory 4g \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_MEMORY_LIMIT_MB=3072 \
+            -e "MSSQL_SA_PASSWORD=${password}" \
+            -d '${{ matrix.image }}'
+          readback="$(docker inspect --format '{{.HostConfig.NanoCpus}} {{.HostConfig.Memory}} {{.Config.Image}}' "$container")"
+          [[ "$readback" == "2000000000 4294967296 ${{ matrix.image }}" ]]
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "$container" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then
+              ready=1
+              break
+            fi
+            if [[ "$(docker inspect --format '{{.State.Running}}' "$container")" != true ]]; then
+              docker logs "$container" 2>&1 || true
+              exit 1
+            fi
+            sleep 2
+          done
+          if [[ "$ready" != 1 ]]; then docker logs "$container" 2>&1 || true; exit 1; fi
+      - name: Enforce TempDB growth ceiling before setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="${SQLPERF_SQL_CONTAINER:?}"
+          sqlcmd="$(docker exec "$container" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          output="$(docker exec -i -e SQLCMDPASSWORD "$container" "$sqlcmd" -S localhost -d master -U sa -C -b -r 1 < Tests/Runtime/qry023_tempdb_resource_guard.sql)"
+          grep -F 'QRY023_TEMPDB_GUARD|PASS|files=9;max_mib=864;growth_mib=64' <<< "$output"
+      - name: Run the full proposed FWK-010 lifecycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-harness-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          exit "$result"
+      - name: Remove only the owned SQL Server container
+        if: always()
+        shell: bash
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          container="${SQLPERF_SQL_CONTAINER:-}"
+          owner="${SQLPERF_CI_OWNER:-}"
+          if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
+          log="${QRY023_HARNESS_LOG:-}"
+          if [[ -n "$log" && -f "$log" ]] && ! grep -Eq '^CLEANUP: PASS/' "$log"; then
+            echo "Preserving owned container after an unproven QRY-023 cleanup: ${container}" >&2
+            exit 0
+          fi
+          container_id="$(docker inspect --format '{{.Id}}' "$container" 2>/dev/null || true)"
+          if [[ -z "$container_id" ]]; then exit 0; fi
+          [[ "$container_id" =~ ^[0-9a-f]{64}$ ]]
+          actual_owner="$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")"
+          [[ "$actual_owner" == "$owner" ]]
+          docker rm --force --volumes "$container_id"
+          remaining="$(docker container ls --all --quiet --filter "id=${container_id}")"
+          [[ -z "$remaining" ]]
