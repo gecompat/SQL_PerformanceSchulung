@@ -14,7 +14,10 @@ import qry023_docker_sqlcmd_proxy as proxy
 
 
 TARGET_DATABASE_PATTERN = re.compile(r"SQLPERF_LAB_QRY023_[A-Z0-9_]{1,20}\Z")
-INVENTORY_SCRIPT = "22_Admin_Permission_Inventory.sql"
+INVENTORY_SCRIPT = (
+    Path(__file__).resolve().parents[2]
+    / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"
+)
 
 
 def injection_target(argv: list[str]) -> str | None:
@@ -25,7 +28,7 @@ def injection_target(argv: list[str]) -> str | None:
         if not separator or name in variables:
             raise ValueError("invalid SQLCMD variable set")
         variables[name] = value
-    if script.name != INVENTORY_SCRIPT:
+    if script != INVENTORY_SCRIPT:
         return None
     if username != "sa" or database != variables.get("TargetDatabase"):
         raise ValueError("unexpected QRY-023 ADMIN inventory invocation")

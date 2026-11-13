@@ -82,6 +82,11 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         unrelated = base.copy()
         unrelated[unrelated.index("-i") + 1] = str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/25_Qualification_Preflight.sql")
         self.assertIsNone(negative_proxy.injection_target(unrelated))
+        with tempfile.TemporaryDirectory() as temporary:
+            same_name = Path(temporary) / "22_Admin_Permission_Inventory.sql"
+            same_name.write_text("SELECT 1;", encoding="utf-8")
+            unrelated[unrelated.index("-i") + 1] = str(same_name)
+            self.assertIsNone(negative_proxy.injection_target(unrelated))
 
     def test_negative_permission_proxy_uses_password_environment_and_fixed_grant(self) -> None:
         args = [
