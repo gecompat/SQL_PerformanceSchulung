@@ -40,10 +40,11 @@ früheren 63er-Stand sind `locale`, `selectors`, `signal` und `subprocess`.
 Die jüngste statische Fortsetzung folgt nun auch explizit importierte
 Quellklassenmethoden und vorhandene `__init__`-Konstruktoren. Nach Korrektur
 der importierten Zielpaare zählt der Kandidatenscan 92 Module/572 Kanten und
-274 lokale Funktionen (22 entschiedene, 973 unbekannte Bedingungen; Digest
+331 lokale Funktionen (22 entschiedene, 1.061 unbekannte Bedingungen; Digest
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`).
 Der Scan folgt nun zusätzlich `from package import module [as alias]` und
-relativen Varianten. 36 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
+relativen Varianten und direkte Methodenaufrufe auf frisch konstruierten
+Klassenobjekten. 40 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
 Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
 bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
@@ -8837,3 +8838,15 @@ und 973 unbekannte Bedingungen. Der Quelldigest bleibt unverändert, da keine
 neuen Quelldateien hinzukommen. Die vollständige Aufrufclosure, S15-/P11-
 Sollinventur und das Fünf-Formen-/64-KiB-Gate sind weiterhin offen; es gab
 keine Zielinterpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung.
+
+## Fortsetzung: DGN-007 – direkte Methodenaufrufe auf Konstruktorergebnissen
+
+Der Offline-Kandidatenpfad folgt jetzt zusätzlich `Klasse().Methode()` für
+lokale Klassen, importierte Klassenaliase und Quellmodulealiase. Vorhandene
+`__init__`-Bodies werden mitverfolgt. Eine Negativregression bestätigt, dass
+`make().run()` keinen spekulativen Rückgabetyp erhält. 40/40 synthetische
+Static-Tests bestehen. Der CPython-3.12.16-Archivscan bleibt
+`CANDIDATES_ONLY`: 92 Module, 572 Kanten, 331 besuchte lokale Funktionen,
+22 entschiedene und 1.061 unbekannte Bedingungen; Digest unverändert.
+Beliebige Instanzvariablen, Factory-Rückgaben und dynamische Bindung bleiben
+offen. Es gab keine Zielruntime-, Profil-, Worker-, SQL- oder Generalprobe.

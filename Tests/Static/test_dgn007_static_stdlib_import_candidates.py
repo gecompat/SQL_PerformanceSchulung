@@ -494,6 +494,83 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
         self.assertEqual(function_count, 1)
 
+    def test_constructed_imported_class_method_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import Worker as Alias\nAlias().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def __init__(self):\n        from . import init_leaf\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+            ),
+            "pkg/init_leaf.py": b"VALUE = 1\n",
+            "pkg/method_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.helper", "pkg.init_leaf", "pkg.method_leaf")
+        )
+        self.assertEqual(function_count, 2)
+
+    def test_constructed_module_alias_class_method_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from . import helper as h\nh.Worker().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def __init__(self):\n        from . import init_leaf\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+            ),
+            "pkg/init_leaf.py": b"VALUE = 1\n",
+            "pkg/method_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.helper", "pkg.init_leaf", "pkg.method_leaf")
+        )
+        self.assertEqual(function_count, 2)
+
+    def test_constructed_local_class_method_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    def __init__(self):\n        from . import init_leaf\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+                b"Worker().run()\n"
+            ),
+            "pkg/init_leaf.py": b"VALUE = 1\n",
+            "pkg/method_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.init_leaf", "pkg.method_leaf"))
+        self.assertEqual(function_count, 2)
+
+    def test_constructed_instance_from_factory_is_not_guessed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def make():\n    from . import helper\n    return helper.Worker()\n"
+                b"make().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+            ),
+            "pkg/method_leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper"))
+        self.assertEqual(function_count, 1)
+
     def test_uncalled_from_import_module_alias_does_not_expand_function(self):
         files = {
             "pkg/__init__.py": b"from . import helper as h\n",
@@ -618,7 +695,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_AND_IMPORTED_CLASS_METHODS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_AND_DIRECT_CONSTRUCTED_METHODS",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
