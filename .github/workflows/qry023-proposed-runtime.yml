@@ -430,9 +430,9 @@ jobs:
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
           result="${PIPESTATUS[0]}"
           set -e
-          [[ "$result" == 2 ]]
           grep -F 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_INJECTED' "$log"
           echo 'QRY023_ENDPOINT_PERMISSION_GRANTED=1' >> "$GITHUB_ENV"
+          [[ "$result" == 2 ]]
           grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
           grep -F 'SERVER_PERMISSION;' "$log"
           if grep -F 'SERVER_ROLE;' "$log" || grep -F 'DATABASE_PERMISSION;' "$log" || grep -F 'DATABASE_ROLE;' "$log"; then

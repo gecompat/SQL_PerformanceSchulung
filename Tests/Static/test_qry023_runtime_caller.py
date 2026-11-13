@@ -345,6 +345,18 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("if: always() && env.QRY023_SERVER_ROLE_ATTEMPTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_SERVER_PERMISSION_ATTEMPTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_SERVER_PERMISSION_DENY_ATTEMPTED == '1'", workflow)
+        endpoint_case = workflow[
+            workflow.index("Prove the permission inventory rejects an unexpected READER endpoint permission"):
+            workflow.index("Restore endpoint-permission baseline after negative control")
+        ]
+        self.assertLess(
+            endpoint_case.index("QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_INJECTED"),
+            endpoint_case.index("QRY023_ENDPOINT_PERMISSION_GRANTED=1"),
+        )
+        self.assertLess(
+            endpoint_case.index("QRY023_ENDPOINT_PERMISSION_GRANTED=1"),
+            endpoint_case.index('[[ "$result" == 2 ]]'),
+        )
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
