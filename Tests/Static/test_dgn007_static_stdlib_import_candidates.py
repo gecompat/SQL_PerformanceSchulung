@@ -23,6 +23,36 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(SUBJECT.MAX_SOURCE_BYTES, 64 * 1024 * 1024)
         self.assertEqual(SUBJECT.MAX_SOURCE_FILES, 2048)
 
+    def test_roots_are_derived_from_bound_bootstrap_and_profile_sources(self):
+        tools = Path(__file__).resolve().parents[1] / "Tools"
+        builder_path = tools / "dgn007_control_bootstrap_source.py"
+        builder_spec = importlib.util.spec_from_file_location("dgn007_control_bootstrap_source", builder_path)
+        builder = importlib.util.module_from_spec(builder_spec)
+        builder_spec.loader.exec_module(builder)
+        generated = builder.build_compressed_inline_session_end_control_bootstrap(
+            b"synthetic profile bytes",
+            logical_profile="/tmp/dgn007-profile.json",
+            expected_soabi="cpython-312-x86_64-linux-gnu",
+            expected_destshared="/usr/local/lib/python3.12/lib-dynload",
+        )
+        profile_tree = ast.parse((tools / "dgn007_import_runtime_profile.py").read_text(encoding="utf-8"))
+
+        def direct_roots(tree):
+            roots = set()
+            for statement in tree.body:
+                if isinstance(statement, ast.Import):
+                    roots.update(alias.name for alias in statement.names)
+                elif isinstance(statement, ast.ImportFrom):
+                    self.assertEqual(statement.level, 0)
+                    roots.add(statement.module)
+            return roots
+
+        bootstrap_roots = direct_roots(ast.parse(generated.source))
+        profile_roots = direct_roots(profile_tree)
+        self.assertEqual(len(bootstrap_roots), 6)
+        self.assertEqual(len(profile_roots), 8)
+        self.assertEqual(set(SUBJECT.ROOTS), bootstrap_roots | profile_roots)
+
     def test_unpinned_archive_is_rejected_before_tar_read(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "source.tar.xz"

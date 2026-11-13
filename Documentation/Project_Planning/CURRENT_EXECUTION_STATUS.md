@@ -31,7 +31,10 @@ aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Keiner der drei
 Werte ist vollständige Importclosure oder P11-Sollinventur. Ein ergänzender
 Linux-/CPython-3.12-Zielzweigfilter entschied vier sichere Bedingungen und
 behielt 42 unbekannte Bedingungen beidseitig; er änderte die 59/287-Kandidaten
-nicht. PR #610 hat den Größenfehler des
+nicht. Die zwölf Scanwurzeln sind jetzt zusätzlich durch AST-Abgleich an die
+fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
+gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
+PR #610 hat den Größenfehler des
 SESSION_END-Quellbuilders nach unabhängiger Prüfung und 18 grünen Headchecks
 behoben und wurde als `7b756bb1fc6c124b8dbe90c261de67addd2503c5` integriert;
 alle ausgelösten Main-Workflows bestanden ebenfalls. Buildherkunft und
