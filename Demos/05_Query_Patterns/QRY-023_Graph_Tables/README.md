@@ -329,6 +329,13 @@ ADMIN-/READER-Anmeldungen. Das qualifiziert nur diesen isolierten Einzelrun-
 Pfad, nicht einen allgemeinen Runtimeworkflow oder eine Katalogaufnahme. Die
 menschliche Generalprobe bleibt wie beauftragt ausgeschlossen.
 
+Der vorgeschlagene CI-Aufrufer begrenzt TempDB vor dem Datenbank-Setup auf
+insgesamt höchstens 1 GiB und 64 MiB Wachstum je Schritt. Weil SQL Server nach
+der Loginbereitschaft noch Dateien materialisieren kann, konfiguriert der Guard
+den jeweils vollständigen beobachteten Dateisatz neu; er verlangt zwei
+aufeinanderfolgende stabile, begrenzte Beobachtungen innerhalb von höchstens
+16 Durchläufen. Bei weiter wechselndem Dateisatz bricht er vor dem Setup ab.
+
 Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus
 Microsofts Linux-Mindestanforderungen und der geforderten Trennung zwischen

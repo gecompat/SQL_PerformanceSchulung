@@ -442,9 +442,13 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         sql = (ROOT / "Tests/Runtime/qry023_tempdb_resource_guard.sql").read_text(encoding="utf-8")
         self.assertIn("database_id > 4", sql)
         self.assertIn("@file_count NOT BETWEEN 2 AND 16", sql)
-        self.assertIn("DECLARE @max_file_mib int = 1024 / @file_count", sql)
+        self.assertIn("WHILE @stable_passes<2 AND @attempt<16", sql)
+        self.assertIn("IF @current_file_count=@file_count AND NOT EXISTS", sql)
+        self.assertIn("WAITFOR DELAY '00:00:01'", sql)
+        self.assertIn("file set did not stabilize within the bounded configuration attempts", sql)
+        self.assertIn("SET @max_file_mib=1024/@file_count", sql)
         self.assertIn("FILEGROWTH = 64MB", sql)
-        self.assertIn("IF EXISTS (\n    SELECT 1 FROM tempdb.sys.database_files\n    WHERE max_size <> @max_file_mib * 128", sql)
+        self.assertIn("WHERE max_size<>@max_file_mib*128 OR growth<>8192 OR is_percent_growth<>0", sql)
         self.assertIn("IF @total_max_mib > 1024", sql)
 
     def test_runtime_workflow_requires_negative_permission_rejection_and_cleanup(self) -> None:
