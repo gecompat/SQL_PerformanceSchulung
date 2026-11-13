@@ -634,6 +634,12 @@ jobs:
             docker logs "$container_id" 2>&1 \
               | grep -B 2 -A 1 -F "Login failed for user 'READER'" \
               | tail -n 20 >&2 || true
+            echo 'Endpoint states and explicit PUBLIC/READER CONNECT permissions:' >&2
+            sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+            docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" \
+              -S localhost -d master -U sa -C -W -s '|' -Q \
+              "SET NOCOUNT ON; SELECT e.endpoint_id,e.name,e.type_desc,e.protocol_desc,e.is_admin_endpoint,e.state_desc,sp.name AS grantee,p.permission_name,p.state_desc AS permission_state FROM sys.endpoints AS e LEFT JOIN sys.server_permissions AS p ON p.class_desc=N'ENDPOINT' AND p.major_id=e.endpoint_id LEFT JOIN sys.server_principals AS sp ON sp.principal_id=p.grantee_principal_id WHERE sp.name IN (N'public',N'READER') OR sp.name IS NULL ORDER BY e.endpoint_id,sp.name,p.permission_name;" \
+              >&2 || true
           fi
           exit "$result"
       - name: Remove only the owned SQL Server container

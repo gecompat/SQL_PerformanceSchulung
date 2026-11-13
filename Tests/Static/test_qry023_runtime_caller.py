@@ -472,6 +472,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("manifest.proposed.json", post_endpoint_lifecycle)
         self.assertIn("Login failed for user 'READER'", post_endpoint_lifecycle)
         self.assertIn("grep -B 2 -A 1", post_endpoint_lifecycle)
+        self.assertIn("Endpoint states and explicit PUBLIC/READER CONNECT permissions:", post_endpoint_lifecycle)
+        self.assertIn("sys.server_permissions", post_endpoint_lifecycle)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)

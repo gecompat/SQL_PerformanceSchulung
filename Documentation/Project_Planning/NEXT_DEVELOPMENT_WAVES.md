@@ -1491,8 +1491,10 @@ ein zweites Mal ausgeführt, um denselben Reader-Preflight im bereinigten Zustan
 zu prüfen. Gegenprobe, Owner-Cleanup, beide positiven Läufe und alle PR-Gates
 müssen bestehen. Dieser zweite Lauf scheiterte auf allen drei Builds erneut im
 `QUALIFICATION_PREFLIGHT` beim READER-Login, obwohl Cleanup und ADMIN-Inventur
-bestanden. Die Folgeausführung gibt deshalb nur die Errorlog-Zeilen rund um den
-SQL-Loginfehler aus, um den konkreten 18456-Grundzustand zu sichern.
+bestanden. SQL Server protokolliert 18456/State 149 (`Login lacks connect
+endpoint permission`). Die Folgeausführung erfasst deshalb begrenzt die
+Errorlog-Zeilen und die Endpoint-Zustände samt expliziten `public`-/`READER`-
+CONNECT-Einträgen, um den fehlenden Pfad zu lokalisieren.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
