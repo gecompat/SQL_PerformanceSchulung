@@ -84,9 +84,10 @@ jobs:
         run: |
           set -euo pipefail
           password="Qry023!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Admin"
-          reader_password="Qry023!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Reader"
+          reader_password="QRY023!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}${{ matrix.major }}Read$(openssl rand -hex 16)"
           container="sqlperf-qry023-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           owner="$(openssl rand -hex 16)"
+          env_file="$RUNNER_TEMP/qry023-env-${{ matrix.major }}-${GITHUB_RUN_ID}.txt"
           echo "::add-mask::${password}"
           echo "::add-mask::${reader_password}"
           echo "SQLPERF_SQL_CONTAINER=${container}" >> "$GITHUB_ENV"
@@ -97,14 +98,18 @@ jobs:
           echo "SQLPERF_SQL_PASSWORD_READER=${reader_password}" >> "$GITHUB_ENV"
           echo "SQLCMDPASSWORD=${password}" >> "$GITHUB_ENV"
           docker pull '${{ matrix.image }}'
+          umask 077
+          printf 'ACCEPT_EULA=Y\nMSSQL_PID=Developer\nMSSQL_MEMORY_LIMIT_MB=3072\nMSSQL_SA_PASSWORD=%s\n' "$password" > "$env_file"
+          trap 'rm -f -- "$env_file"' EXIT
           docker run \
             --name "$container" \
             --label "sqlperf.ci.owner=${owner}" \
             --hostname "$container" \
             --cpus 2 --memory 4g \
-            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_MEMORY_LIMIT_MB=3072 \
-            -e "MSSQL_SA_PASSWORD=${password}" \
+            --env-file "$env_file" \
             -d '${{ matrix.image }}'
+          rm -f -- "$env_file"
+          trap - EXIT
           readback="$(docker inspect --format '{{.HostConfig.NanoCpus}} {{.HostConfig.Memory}} {{.Config.Image}}' "$container")"
           [[ "$readback" == "2000000000 4294967296 ${{ matrix.image }}" ]]
           ready=0
@@ -128,6 +133,9 @@ jobs:
           sqlcmd="$(docker exec "$container" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
           output="$(docker exec -i -e SQLCMDPASSWORD "$container" "$sqlcmd" -S localhost -d master -U sa -C -b -r 1 < Tests/Runtime/qry023_tempdb_resource_guard.sql)"
           grep -F 'QRY023_TEMPDB_GUARD|PASS|files=9;max_mib=864;growth_mib=64' <<< "$output"
+      - name: Provision the fresh READER SQL login through stdin
+        shell: bash
+        run: python Tests/Runtime/provision_qry023_reader_login.py
       - name: Run the full proposed FWK-010 lifecycle
         shell: bash
         run: |

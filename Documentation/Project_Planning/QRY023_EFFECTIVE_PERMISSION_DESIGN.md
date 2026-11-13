@@ -358,7 +358,11 @@ Der vorgeschlagene CI-Aufrufer in [`.github/workflows/qry023-proposed-runtime.ym
 bindet die drei Image-Digests und setzt 2 CPU, 4 GiB Container-RAM sowie
 3 GiB SQL-Server-Speicher. Vor dem Harness fordert er genau neun TempDB-Dateien
 und setzt pro Datei `MAXSIZE = 96MB` bei `FILEGROWTH = 64MB`; das rechnerische
-Gesamtmaximum beträgt 864 MiB. Er läuft nur in einem neuen, markergebundenen
+Gesamtmaximum beträgt 864 MiB. Er legt außerdem den notwendigen `READER`-
+SQL-Login vor dem Harness einmalig in der frischen Wegwerfinstanz an. Das
+Passwort wird ausschließlich über stdin an SQLCMD übergeben; das SA-Passwort
+liegt beim Containerstart in einer nur für den Runner lesbaren Env-Datei.
+Serverrollen und Zusatzrechte werden nicht vergeben. Der Aufrufer läuft nur in einem neuen, markergebundenen
 Container ohne Benutzerdatenbanken und entfernt ihn im Abschlussschritt nur,
 wenn das SQL-Cleanup nachgewiesen ist.
 

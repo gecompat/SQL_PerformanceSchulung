@@ -128,6 +128,12 @@ Reservierte FWK-010-SQLCMD-Variablennamen können nicht überschrieben werden.
 Namens- oder SID-Konflikte brechen fail-closed ab. Die Setup- und SID-Prüfung
 lief auf allen drei gepinnten SQL-Server-Engines erfolgreich durch.
 
+Der vorgeschlagene isolierte CI-Aufrufer legt den dafür benötigten `READER`-
+SQL-Login vor dem Harness einmalig in der frischen Wegwerfinstanz an. Das
+separate Passwort gelangt ausschließlich über SQLCMD-stdin und phasengebundene
+Umgebungsvariablen; es ist keine allgemeine Loginprovisionierung und ändert
+keine Serverrolle oder Zusatzberechtigung.
+
 Das Proposed-Manifest bindet jetzt zusätzlich eine versionierte
 READER-Effektivrechte-Sollmenge für Server, ADMIN-inventarisierte
 Standardendpoints, Datenbank, `dbo`/`lab` und alle 13 erwarteten

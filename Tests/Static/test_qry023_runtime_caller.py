@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
 
@@ -19,6 +20,11 @@ spec = importlib.util.spec_from_file_location("qry023_docker_sqlcmd_proxy_test",
 assert spec and spec.loader
 proxy = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(proxy)
+PROVISION_PATH = ROOT / "Tests/Runtime/provision_qry023_reader_login.py"
+provision_spec = importlib.util.spec_from_file_location("qry023_reader_provision_test", PROVISION_PATH)
+assert provision_spec and provision_spec.loader
+provision = importlib.util.module_from_spec(provision_spec)
+provision_spec.loader.exec_module(provision)
 TOOLS = ROOT / "Demos/00_Framework/Tools"
 sys.path.insert(0, str(TOOLS))
 import run_demo  # noqa: E402
@@ -80,6 +86,30 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("MAXSIZE = 96MB, FILEGROWTH = 64MB", sql)
         self.assertIn("SUM(CONVERT(bigint, max_size)) FROM tempdb.sys.database_files) > 131072", sql)
 
+    def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:
+        password = "QRY" + "023!" + "1" * 24 + "Read"
+        admin_password = "A1!"
+        sql = provision.build_sql(password)
+        self.assertIn("CREATE LOGIN [READER]", sql)
+        self.assertIn("QUOTENAME(@password, '''')", sql)
+        output = io.StringIO()
+        with mock.patch.dict(os.environ, {
+            "SQLPERF_SQL_CONTAINER": "synthetic-container",
+            "SQLPERF_SQL_PASSWORD_READER": password,
+            "SQLCMDPASSWORD": admin_password,
+        }, clear=True), \
+             mock.patch.object(provision, "sqlcmd_path", return_value="/synthetic/sqlcmd"), \
+             mock.patch.object(provision.subprocess, "run", return_value=SimpleNamespace(
+                 returncode=0, stdout="QRY023_READER_LOGIN|PASS\n", stderr="")) as run, \
+             contextlib.redirect_stdout(output):
+            self.assertEqual(provision.main(), 0)
+        command = run.call_args.args[0]
+        self.assertNotIn(password, command)
+        self.assertIn(password, run.call_args.kwargs["input"])
+        self.assertEqual(run.call_args.kwargs["env"]["SQLCMDPASSWORD"], admin_password)
+        with self.assertRaises(ValueError):
+            provision.build_sql("short")
+
     def test_runtime_workflow_pins_images_and_bounds_disposable_resources(self) -> None:
         workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
         lock = json.loads(
@@ -90,6 +120,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             self.assertIn(profile["image"], workflow)
         self.assertIn("--cpus 2 --memory 4g", workflow)
         self.assertIn("MSSQL_MEMORY_LIMIT_MB=3072", workflow)
+        self.assertIn("--env-file \"$env_file\"", workflow)
+        self.assertNotIn('"MSSQL_SA_PASSWORD=${password}"', workflow)
+        self.assertIn("provision_qry023_reader_login.py", workflow)
         self.assertIn("if: always()", workflow)
         self.assertIn("sqlperf.ci.owner", workflow)
         self.assertIn("runtime_authorized", lock)
