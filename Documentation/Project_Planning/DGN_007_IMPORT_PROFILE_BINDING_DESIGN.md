@@ -2649,19 +2649,22 @@ werden ausgelassen. Generatorausdrücke werden einschließlich Iterable,
 Zuweisungsziel, Filtern und Elementausdruck auf mögliche lokale Calls
 untersucht, auch wenn eine Iteration statisch nicht nachgewiesen ist; das kann
 Kandidaten konservativ überzählen. Für die zwölf festen
-Wurzeln ergaben sich 344 zugeordnete Kanten, 67 Quellmodulkandidaten und 148
+Wurzeln ergaben sich 572 zugeordnete Kanten, 93 Quellmodulkandidaten und 233
 verfolgte lokale Funktionen; der sortierte Modul-/Quelldigest lautet
-`47f45f7f39cd85081bd005b8864c1064e521414eb49b818b2854297f0a7e31d8`. Dabei
-wurden 22 Zielbedingungen entschieden und 392 unbekannte Bedingungen
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Dabei
+wurden 22 Zielbedingungen entschieden und 647 unbekannte Bedingungen
 beidseitig behalten. Die Auflösung folgt direkte lokale `Name`-Aufrufe und
 einfache gleichnamige Zuweisungen `alias = function_name` im selben vorab
 erfassten Scope; direkte `Klassenname.Methode()`-Calls werden für lokal
 deklarierte Methoden und direkte `from source_module import function`-Calls
-für gebundene Quellmodule ebenfalls verfolgt. Mehrere Definitionen desselben Namens bleiben bei unbekannten
+für gebundene Quellmodule ebenfalls verfolgt. Dazu kommen einfache Aufrufe
+`import source_module [as alias]; alias.function()` auf direkte Modul-
+Funktionen. Importnamen- und Alias-Rebinding wird nicht aufgelöst und kann
+Kandidaten überzählen. Mehrere Definitionen desselben Namens bleiben bei unbekannten
 Bedingungen als Alternativen erhalten, bekannte Zielzweige begrenzen die
 Definitionen. Generatorausdrücke umfassen Iterable, Zuweisungsziel, Filter und
 Element als mögliche Auswertungen; fehlende Iteration wird nicht als
-Abwesenheitsbeleg verwendet. Modulattribute, dynamische/indirekte Aufrufe,
+Abwesenheitsbeleg verwendet. Andere Modulattribute, dynamische/indirekte Aufrufe,
 importierte Klassenmethoden und modulübergreifende Aliasbindung werden nicht
 geschlossen. Der Vorschnitt ist
 kein vollständiger Aufrufgraph und keine P11-Importclosure.

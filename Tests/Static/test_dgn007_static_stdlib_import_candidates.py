@@ -436,6 +436,37 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
         self.assertEqual(function_count, 2)
 
+    def test_imported_module_alias_calls_follow_source_function(self):
+        for import_statement, receiver in (
+            ("import pkg.helper as helper", "helper"),
+            ("import pkg.helper", "pkg.helper"),
+        ):
+            with self.subTest(import_statement=import_statement):
+                files = {
+                    "pkg/entry.py": (
+                        f"{import_statement}\n{receiver}.boot()\n".encode("ascii")
+                    ),
+                    "pkg/helper.py": b"def boot():\n    from . import leaf\n",
+                    "pkg/leaf.py": b"VALUE = 1\n",
+                }
+                modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+                    files, ("pkg.entry",)
+                )
+                self.assertEqual(modules, ("pkg.entry", "pkg.helper", "pkg.leaf"))
+                self.assertEqual(function_count, 1)
+
+    def test_uncalled_imported_module_alias_does_not_expand_function_body(self):
+        files = {
+            "pkg/entry.py": b"import pkg.helper as helper\n",
+            "pkg/helper.py": b"def boot():\n    from . import leaf\n",
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg.entry",)
+        )
+        self.assertEqual(modules, ("pkg.entry", "pkg.helper"))
+        self.assertEqual(function_count, 0)
+
     def test_class_annotations_are_evaluated_inside_called_function(self):
         files = {
             "pkg/__init__.py": (
@@ -473,7 +504,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_LOCAL_METHODS_AND_IMPORTED_FUNCTIONS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_AND_MODULE_ALIASES",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
