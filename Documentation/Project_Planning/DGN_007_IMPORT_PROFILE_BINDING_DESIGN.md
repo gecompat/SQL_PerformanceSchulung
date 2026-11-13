@@ -2589,6 +2589,18 @@ festen Wurzeln sind `dataclasses`, `hashlib`, `importlib.machinery`,
 Funktionskörpern und bedingter Plattformzweige; relative Namen werden gegen
 vorhandene Paket-/Moduldateien aufgelöst.
 
+Ein Regressionstest leitet die zwölf Startwurzeln außerdem aus den
+fünf Imports des Quellpräfixes in
+[`dgn007_control_bootstrap_source.py`](../../Tests/Tools/dgn007_control_bootstrap_source.py),
+den acht direkten Imports des
+[`dgn007_import_runtime_profile.py`](../../Tests/Tools/dgn007_import_runtime_profile.py)
+und dem vom komprimierten Builder ergänzten `zlib`-Import ab. Dafür führt er
+den vorhandenen Builder mit synthetischen Kontrollwerten aus und parst das
+erzeugte Script sowie die Profilquelle. Das erzeugte Kontrollscript und das
+Profilmodul werden nicht ausgeführt. Die Prüfung verhindert eine unbemerkte
+Abweichung der festen Analyzerwurzeln, ersetzt aber keine spätere Bindung der
+tatsächlich gehaltenen Kontrollscriptbytes.
+
 Mit CPython 3.13.17 als reinem Parser-/Analysewerkzeug ergaben sich 2.438
 zugeordnete Importkanten und 264 unterschiedliche Quellmodulkandidaten. Die
 sortierten Paare `Modulname<TAB>SHA256(zugeordnete Quelldatei)<LF>` ergeben
