@@ -373,7 +373,8 @@ meldet `FAIL_CLEANUP`, weil Prozessabbruch des lokalen Proxys kein Beweis für
 serverseitige Abfragebeendigung oder TempDB-Freigabe ist. Bei unbewiesenem
 Cleanup erhält die Route den Container als Diagnosezustand; auf einem ephemeren
 GitHub-Runner endet er mit dem Job, auf einem selbstgehosteten Runner braucht er
-eine separat geprüfte Bereinigung. Diese CI-Route ist noch nicht
-auf allen drei Engines qualifiziert, ersetzt keinen allgemeinen Runner-
-Prozessbaum-/Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch
-einen Katalogeintrag.
+eine separat geprüfte Bereinigung. PR #563 qualifizierte diese vorgeschlagene
+CI-Route am 13.11.2026 auf allen drei festgebundenen Engines und allen zehn
+Harnessphasen. Sie ersetzt keinen allgemeinen Runner-Prozessbaum- oder
+Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch einen
+Katalogeintrag.
