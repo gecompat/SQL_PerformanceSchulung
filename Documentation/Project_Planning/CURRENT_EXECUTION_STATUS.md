@@ -2426,6 +2426,10 @@ Details: [Eigentumsprüfung und tatsächliche Nachweise](FWK_002_CLEANUP_OWNERSH
 
 ## Benutzerabschluss vom 22. Oktober 2026: keine autonome Fortsetzung
 
+Historischer Auftrag, später durch die Wiederaufnahme vom 26. Oktober innerhalb
+der priorisierten Reihenfolge abgelöst. Der laufende Status und die aktuelle
+Reihenfolge stehen im Abschnitt [Autonomer Auftrag vom 26. Oktober 2026](#autonomer-auftrag-vom-26-oktober-2026) am Anfang dieses Dokuments.
+
 Der Benutzer hat angeordnet, die aktuellen Demo-Implementierungen einschließlich
 Dokumentation, Integration und Branchbereinigung abzuschließen, danach keine
 neuen Implementierungen zu beginnen und diesen Chat zu beenden. Dieser Auftrag
@@ -2633,8 +2637,8 @@ Die echte Teilnehmer-Generalprobe bleibt getrennt offen. Ihr Ablauf und der
 datensparsame Beobachtungsbogen stehen im [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md);
 eine Durchführung mit Teilnehmenden und deren Ergebnisse sind nicht belegt.
 Die verbleibenden menschlichen Lesepfade und die Bereinigung historischer
-Planungseinstiege stehen als offene Arbeit in der
-[aktuellen Backlog-Priorität](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade).
+Planungseinstiege stehen als offene Arbeit im
+[aktuellen Backlog-Auftrag vom 26. Oktober](../../.ai/BACKLOG.md#wiederaufnahme-und-reihenfolge-vom-26-oktober-2026).
 
 Der Quellenreview hat einen konkreten Fehler im Cleanup der Demo zu
 indexfreundlichen Suchbedingungen (`QRY-001`) bestätigt: Fehlende Marker
@@ -2644,12 +2648,12 @@ stoppt deshalb die manuelle Löschanweisung und die unbelegte Marker-Garantie;
 zurückgebliebene Datenbanken werden erhalten. Dies ist ein Quellenbefund,
 kein ausgeführter SQL-Gegenfall oder Beleg einer bereits betroffenen Datenbank.
 
-Die aktuelle [Priorisierung im Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
-führt die funktionale Korrektur unter FWK-002 (Schutzvertrag für Testdatenbanken).
-Nach vollständigem Abschluss des Dokumentationsschnitts ist genau dieser
-eigene Fehlerbehebungsschnitt zu begrenzen und unabhängig zu prüfen; weitere
-native DGN-007-Kanalanbindung folgt danach. Der alte Workerrahmen wird nicht
-fortgesetzt. Neue SQL-/Prozesswirkung benötigt ihre konkret geprüfte Auswahl,
+Die verlinkte Priorisierung ist ein historischer Stand vom 22. Oktober und
+führte damals die funktionale Korrektur unter FWK-002 (Schutzvertrag für
+Testdatenbanken) als nächsten Schnitt. Dieser Stand ist durch spätere
+Integrationen und den Auftrag vom 26. Oktober abgelöst. Die heutige Reihenfolge
+steht im [aktuellen Backlog-Auftrag](../../.ai/BACKLOG.md#wiederaufnahme-und-reihenfolge-vom-26-oktober-2026).
+Neue SQL-/Prozesswirkung benötigt weiterhin ihre konkret geprüfte Auswahl,
 Quellen, Gegenproben und ihr unabhängiges Aufruf-GO.
 
 Die notwendige Korrektur der betroffenen Demo-README trifft den vorhandenen
