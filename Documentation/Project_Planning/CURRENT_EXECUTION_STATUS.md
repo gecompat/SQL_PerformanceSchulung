@@ -39,10 +39,11 @@ Funktionen, 93 Quellkandidaten und 572 Kanten; vier der Erweiterungen zum
 früheren 63er-Stand sind `locale`, `selectors`, `signal` und `subprocess`.
 Die jüngste statische Fortsetzung folgt nun auch explizit importierte
 Quellklassenmethoden und vorhandene `__init__`-Konstruktoren. Nach Korrektur
-der importierten Zielpaare zählt der Kandidatenscan 92 Module/568 Kanten und
-225 lokale Funktionen (22 entschiedene, 605 unbekannte Bedingungen; Digest
+der importierten Zielpaare zählt der Kandidatenscan 92 Module/572 Kanten und
+274 lokale Funktionen (22 entschiedene, 973 unbekannte Bedingungen; Digest
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`).
-32 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
+Der Scan folgt nun zusätzlich `from package import module [as alias]` und
+relativen Varianten. 36 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
 Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
 bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
@@ -8823,3 +8824,16 @@ Die Zählkorrektur und Grenzen sind in §19.15 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#1915-lexikalische-cpython-quellkandidaten-und-importgrenze)
 dokumentiert. Keine Interpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung;
 operative S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 – Modulaliase aus `from ... import ...`
+
+Der statische CPython-3.12.16-Kandidatenpfad bildet nun auch Modulaliase ab,
+die mit `from package import module [as alias]` und relativen Varianten
+importiert werden. Vier neue Regressionen prüfen importierte Quellfunktionen,
+Klassenmethoden, Konstruktoren sowie die Begrenzung unaufgerufener Funktionen.
+Der isolierte Testlauf besteht mit 36/36. Der archivgebundene Lauf bleibt
+`CANDIDATES_ONLY`: 92 Module/572 Kanten/274 lokale Funktionen, 22 entschiedene
+und 973 unbekannte Bedingungen. Der Quelldigest bleibt unverändert, da keine
+neuen Quelldateien hinzukommen. Die vollständige Aufrufclosure, S15-/P11-
+Sollinventur und das Fünf-Formen-/64-KiB-Gate sind weiterhin offen; es gab
+keine Zielinterpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung.

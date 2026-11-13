@@ -527,68 +527,75 @@ def _imported_class_aliases(tree, module, path, class_index):
     return {name: tuple(targets) for name, targets in result.items()}
 
 
-def _imported_module_function_aliases(tree, function_index, class_index):
+def _imported_module_aliases(tree, module, path, module_index):
     result = {}
 
-    def add(expression, module):
-        functions = function_index.get(module, {})
-        classes = class_index.get(module, {})
-        if not expression:
+    def add(expression, target_module):
+        if not expression or target_module not in module_index:
             return
+        targets = result.setdefault(expression, [])
+        if target_module not in targets:
+            targets.append(target_module)
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for imported in node.names:
+                if imported.asname:
+                    add(imported.asname, imported.name)
+                else:
+                    add(imported.name, imported.name)
+                    root = imported.name.partition(".")[0]
+                    if root != imported.name:
+                        add(root, root)
+        elif isinstance(node, ast.ImportFrom) and node.module != "__future__":
+            package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+            base = node.module or ""
+            if node.level:
+                parts = package.split(".") if package else []
+                keep = max(0, len(parts) - node.level + 1)
+                base = ".".join(parts[:keep] + ([base] if base else []))
+            for imported in node.names:
+                if imported.name == "*":
+                    continue
+                target_module = base + ("." if base else "") + imported.name
+                add(imported.asname or imported.name, target_module)
+    return {expression: tuple(targets) for expression, targets in result.items()}
+
+
+def _imported_module_function_aliases(module_aliases, function_index, class_index):
+    result = {}
+    for expression, imported_modules in module_aliases.items():
         aliases = result.setdefault(expression, {})
-        for function_name in functions:
-            target = (module, function_name)
-            targets = aliases.setdefault(function_name, [])
-            if target not in targets:
-                targets.append(target)
-        for class_name, methods in classes.items():
-            if "__init__" in methods:
+        for module in imported_modules:
+            for function_name in function_index.get(module, {}):
+                target = (module, function_name)
+                targets = aliases.setdefault(function_name, [])
+                if target not in targets:
+                    targets.append(target)
+            for class_name, methods in class_index.get(module, {}).items():
+                if "__init__" not in methods:
+                    continue
                 target = (module, class_name + ".__init__")
                 targets = aliases.setdefault(class_name, [])
                 if target not in targets:
                     targets.append(target)
-
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Import):
-            continue
-        for imported in node.names:
-            if imported.asname:
-                add(imported.asname, imported.name)
-            else:
-                add(imported.name, imported.name)
-                root = imported.name.partition(".")[0]
-                if root != imported.name:
-                    add(root, root)
-    return {expression: {name: tuple(modules) for name, modules in functions.items()}
+    return {expression: {name: tuple(targets) for name, targets in functions.items()}
             for expression, functions in result.items()}
 
 
-def _imported_module_class_method_aliases(tree, class_index):
+def _imported_module_class_method_aliases(module_aliases, class_index):
     result = {}
 
-    def add(expression, module):
-        if not expression:
-            return
-        for class_name, methods in class_index.get(module, {}).items():
-            receiver = expression + "." + class_name
-            aliases = result.setdefault(receiver, {})
-            for method_name in methods:
-                target = (module, class_name + "." + method_name)
-                targets = aliases.setdefault(method_name, [])
-                if target not in targets:
-                    targets.append(target)
-
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Import):
-            continue
-        for imported in node.names:
-            if imported.asname:
-                add(imported.asname, imported.name)
-            else:
-                add(imported.name, imported.name)
-                root = imported.name.partition(".")[0]
-                if root != imported.name:
-                    add(root, root)
+    for expression, imported_modules in module_aliases.items():
+        for module in imported_modules:
+            for class_name, methods in class_index.get(module, {}).items():
+                receiver = expression + "." + class_name
+                aliases = result.setdefault(receiver, {})
+                for method_name in methods:
+                    target = (module, class_name + "." + method_name)
+                    targets = aliases.setdefault(method_name, [])
+                    if target not in targets:
+                        targets.append(target)
     return {expression: {name: tuple(targets) for name, targets in methods.items()}
             for expression, methods in result.items()}
 
@@ -1016,8 +1023,13 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
             alias: {name: tuple(targets) for name, targets in methods.items()}
             for alias, methods in imported_class_methods.items()
         }
-        imported_modules = _imported_module_function_aliases(tree, function_index, class_index)
-        imported_module_class_methods = _imported_module_class_method_aliases(tree, class_index)
+        module_aliases = _imported_module_aliases(tree, module, path, function_index)
+        imported_modules = _imported_module_function_aliases(
+            module_aliases, function_index, class_index
+        )
+        imported_module_class_methods = _imported_module_class_method_aliases(
+            module_aliases, class_index
+        )
         names, visited_count, imported_calls = _module_init_call_import_names(
             tree, module, path, conditions,
             imported_functions=imported_functions,
@@ -1084,7 +1096,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_AND_IMPORTED_CLASS_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_AND_IMPORTED_CLASS_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
