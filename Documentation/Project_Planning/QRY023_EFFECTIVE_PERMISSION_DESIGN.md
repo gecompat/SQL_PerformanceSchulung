@@ -254,44 +254,49 @@ getrennt über die bestehende Ownership Chain qualifiziert werden. Zusätzliche
 benutzerdefinierte Securables werden nicht stillschweigend ignoriert.
 
 Der Manifestvertrag ist mit `EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT`
-im Offlinevalidator objektgenau gebunden. Synthetische Regressionen schützen
+im Offlinevalidator objektgenau gebunden; synthetische Regressionen schützen
 gegen zusätzliches Datenbankrecht, unvollständige Objektinventur und
-runtime-abgeleitete Sollwerte. Das prüft nur die Stabilität des vorgeschlagenen
-Vertrags, weder SQL-Ausführung noch tatsächliche `sys.fn_my_permissions`-
-Ausgaben. Die positiven Sollmengen- und Aufrufkontextprüfungen wurden auf den
-drei gepinnten Engines ausgeführt. Synthetische Negativregressionen bleiben
-strukturelle Offlineprüfungen; absichtlich fehlerhafte Live-Rechte wurden nicht
-installiert. Der Harnessvertrag ist `ENGINE_QUALIFIED_PROPOSED_NOT_RUNTIME_AUTHORIZED`;
-die Demo bleibt vorgeschlagen und nicht katalogisiert.
+runtime-abgeleitete Sollwerte. Der vorgeschlagene CI-Aufrufer führt den
+Exact-set-Vergleich zusätzlich auf den echten READER-Verbindungen aus. Die
+positiven Server-, Datenbank-, Schema-, Objekt- und Endpoint-Sollmengen sowie
+der Messprozedurpfad bestanden auf allen drei gepinnten Builds.
 
-## Geplante Gegenproben und verbleibende Grenzen
+PRs #566–#581 ergänzten auf diesen Builds echte fail-closed Gegenproben:
+direkter Objekt-SELECT plus `db_datareader`, Objekt-DENY, `dbcreator`- und
+`securityadmin`-Serverrollen, fehlendes erwartetes Objekt, zusätzliche und
+verweigerte Server-/Datenbankrechte, Endpoint-CONNECT-Grant und -DENY,
+`VIEW ANY DATABASE`-Grant und -DENY, `DENY CONNECT SQL` sowie ein
+unregistrierter gestoppter TSQL-Endpoint. Das ADMIN-Inventar wies jeden
+Berechtigungsfall vor den Queryphasen mit seiner exakten Fehlerkategorie ab;
+owner-/markergebundener Restore und Cleanup bestanden. Nach den Gegenproben
+bestand der positive Zehnphasenlauf. Für den Custom-Endpoint-Fall läuft die
+DDL absichtlich nach dem positiven Lauf als letzte Instanzmutation; danach
+werden Endpoint und Wegwerfinstanz entfernt.
 
-- Jede der acht Query-/Oracletabellen besitzt genau die vorgesehene effektive
-  `SELECT`-Menge.
-- Die Messphase besitzt das vorgesehene `EXECUTE` und `SELECT`; ein direkter
-  `INSERT`, `UPDATE`, `DELETE`, `ALTER` oder `CONTROL`-Zugriff wird erkannt.
-- Ein zusätzliches `SELECT` auf Schema- oder Datenbankebene wird erkannt, auch
-  wenn alle einzelnen Tabellen weiterhin `SELECT` melden.
-- Ein Recht auf einem zusätzlichen benutzerdefinierten Objekt wird erkannt;
-  ein unerwartetes Objekt selbst stoppt den Ablauf.
-- Zusätzliche Rollen-, Festrollen- und serverweite Rechte werden entweder
-  explizit erkannt oder bleiben `NOT_PROVEN`; unbekannte Rechte dürfen nicht
-  ignoriert werden.
-- Jede Server- und Endpointbaseline wird mit dem tatsächlichen Endpointinventar,
-  `public`-Mitgliedschaft und ADMIN-seitig sichtbaren expliziten Grants gebunden;
-  ein benutzerdefinierter Endpoint oder eine weitere Benutzerdatenbank stoppt.
-- Funktionsfehler, `NULL`, leere/fehlende Resultsets, doppelte Zeilen,
-  unvollständige Spaltenresultate, veränderte Marker und Principalwechsel
-  ergeben keinen PASS.
-- Der Preflight läuft in jeder Readerphase tatsächlich unter dem für diese
-  Phase deklarierten Profil und vor jeder Korrektheits-, Mess- oder Planabfrage.
+Die negativen SQL-Katalogzustände wurden ausschließlich in eigens markierten
+Wegwerfcontainern erzeugt. Es wurden keine fremden Instanzen oder absichtlich
+beschädigten Systemkataloge verändert. Die technische Rechtequalifikation gilt
+für den gebundenen Ein-Run-Container und die drei gepinnten Builds; sie setzt
+QRY-023 weder in den Runtimekatalog noch setzt sie `runtime_authorized`.
+Allgemeine Runtime-/Produktfreigabe und Katalogaufnahme bleiben offen.
 
-Die statischen Vertragsregressionen prüfen die synthetischen Validator- und
-Manifestgegenproben. Die vollständigen Engine-Läufe bestätigen den positiven
-Pfad und das markergebundene Cleanup. Die oben beschriebenen negativen
-Berechtigungszustände wurden nicht durch mutierende Live-Tests erzeugt; solche
-Tests würden eine eigene sichere, zurücksetzbare Fixturegrenze erfordern.
+## Qualifizierte Gegenproben und verbleibende Grenzen
 
+Die Live-Matrix belegt die genannten konkreten Abweichungen, nicht jede
+mögliche Berechtigungspermutation. Der exact-set-Preflight fail-closed für
+unbekannte Rechte, Metadatenlücken, `NULL`/leere/duplizierte Resultate,
+unvollständige Spaltenrechte, Markerabweichungen und Principalwechsel.
+Zusätzliche Rechte auf nicht deklarierte Objekte, Datenbank- oder
+Schemaebene werden über den ADMIN-Katalogvergleich erfasst. Die Tests bleiben
+auf die einzelnen Run-Container, synthetischen Daten und festgeschriebenen
+Builds begrenzt.
+
+Nicht qualifiziert wurden absichtlich beschädigte Systemkataloge, beliebige
+System-/Service-Konfigurationen und allgemeine Datenbankumgebungen. Es wurde
+keine Produkt-/Katalogpromotion ausgeführt; QRY-023 bleibt `PROPOSED` und
+`runtime_authorized: false`. Die menschliche Generalprobe bleibt ausdrücklich
+ausgeschlossen. Weitere Freigabeschritte müssen die allgemeine Runtime- und
+Produktaufnahme getrennt bewerten.
 ## Quellen und nächste Grenze
 
 - Microsoft Learn, [`sys.fn_my_permissions`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-my-permissions-transact-sql?view=sql-server-ver17): effektive Rechte des aufrufenden Kontexts, unterstützte Securable-Klassen einschließlich `ENDPOINT`, `NULL` bei Abfragefehler und benötigter `public`-Mitgliedschaftszustand; abgerufen am 12. November 2026.
