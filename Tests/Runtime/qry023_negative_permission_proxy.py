@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inject one unexpected READER grant before QRY-023 ADMIN inventory."""
+"""Inject a controlled unexpected READER permission before ADMIN inventory."""
 
 from __future__ import annotations
 
@@ -37,10 +37,28 @@ def injection_target(argv: list[str]) -> str | None:
     return database
 
 
+def injection_for_mode(mode: str) -> tuple[str, str]:
+    if mode == "EXTRA_GRANT_AND_ROLE":
+        return (
+            "GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n"
+            "ALTER ROLE [db_datareader] ADD MEMBER [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED",
+        )
+    if mode == "DIRECT_DENY":
+        return (
+            "DENY SELECT ON OBJECT::dbo.Person TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|DIRECT_DENY_INJECTED",
+        )
+    raise ValueError("unsupported QRY-023 negative permission mode")
+
+
 def main() -> int:
     try:
         target = injection_target(sys.argv[1:])
         if target is not None:
+            sql, marker = injection_for_mode(
+                os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
+            )
             container = os.environ.get("SQLPERF_SQL_CONTAINER", "")
             password = os.environ.get("SQLCMDPASSWORD", "")
             if not container or not password:
@@ -51,17 +69,13 @@ def main() -> int:
                 "-U", "sa", "-C", "-b", "-r", "1",
             ]
             injected = subprocess.run(
-                command,
-                input=(
-                    "GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n"
-                    "ALTER ROLE [db_datareader] ADD MEMBER [READER];\n"
-                ),
+                command, input=sql,
                 check=False, capture_output=True, text=True, encoding="utf-8",
                 errors="replace", env=os.environ.copy(),
             )
             if injected.returncode:
                 raise RuntimeError("unexpected READER grant could not be injected")
-            print("QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED")
+            print(marker)
         sys.argv[0] = str(Path(proxy.__file__).resolve())
         return proxy.main()
     except (FileNotFoundError, OSError, ValueError, RuntimeError):
