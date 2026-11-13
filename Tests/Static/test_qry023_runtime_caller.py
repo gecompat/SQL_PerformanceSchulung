@@ -758,6 +758,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("runner_pid=$!", timeout_case)
         self.assertIn("t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%'", timeout_case)
         self.assertIn("[[ \"$active\" == 1 ]]", timeout_case)
+        self.assertIn("seq 1 1200", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED", timeout_case)
         self.assertIn("grep -Eq '^CLEANUP: PASS/'", timeout_case)
         self.assertLess(timeout_case.index("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED"), workflow.index("Remove only the owned SQL Server container"))
