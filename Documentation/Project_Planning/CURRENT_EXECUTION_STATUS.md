@@ -37,8 +37,14 @@ Funktionsaliases, lokale Klassenmethoden, direkt importierte Quellfunktionen,
 einfache Modulalias-Calls und mögliche Generatorausdrucks-Calls in 233 lokalen
 Funktionen, 93 Quellkandidaten und 572 Kanten; vier der Erweiterungen zum
 früheren 63er-Stand sind `locale`, `selectors`, `signal` und `subprocess`.
-Andere Modulattribute, dynamische Calls, importierte Klassenmethoden und
-modulübergreifende Aliasbindung bleiben offen. Die
+Die jüngste statische Fortsetzung folgt nun auch explizit importierte
+Quellklassenmethoden und vorhandene `__init__`-Konstruktoren. Nach Korrektur
+der importierten Zielpaare zählt der Kandidatenscan 92 Module/568 Kanten und
+225 lokale Funktionen (22 entschiedene, 605 unbekannte Bedingungen; Digest
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`).
+32 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
+Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
+bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
@@ -8802,3 +8808,18 @@ quellbezogene Sichtung benennt `getpath.py`, `sysconfig.py`, `Setup.stdlib.in`
 und `frozen.c`; buildabhängige Auswahl und komplette S15-/P11-Sollrecords sind
 weiterhin offen. Keine Quelle wurde ins Repository übernommen oder kompiliert.
 [Signatur- und Quellenbefund](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#195-separat-verifizierter-cpython-quellrelease).
+
+## Fortsetzung: DGN-007 – importierte Klassenmethoden statisch verfolgt
+
+Der CPython-3.12.16-Offlinekandidat folgt jetzt zusätzlich Aufrufen importierter
+Quellklassenmethoden über direkte Klassenaliase und Modulaliase sowie Konstruktoren
+mit vorhandenem `__init__`. Vier neue synthetische Regressionen prüfen diese Pfade
+und stellen sicher, dass nicht aufgerufene Methoden geschlossen bleiben. Der isolierte
+Static-Test besteht mit 32/32. Die signaturgeprüfte Archivmessung bleibt
+`CANDIDATES_ONLY`: 92 Module, 568 Kanten, 225 verfolgte lokale Funktionen,
+22 entschiedene und 605 unbekannte Bedingungen, Digest
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`.
+Die Zählkorrektur und Grenzen sind in §19.15 des
+[DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#1915-lexikalische-cpython-quellkandidaten-und-importgrenze)
+dokumentiert. Keine Interpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung;
+operative S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
