@@ -545,6 +545,7 @@ def run_demo(
     aggregate = ("PASS", "OK")
     setup_started = False
     stop_regular_phases = False
+    suppress_qry023_cleanup = False
 
     for phase in manifest.phases:
         if stop_regular_phases:
@@ -587,26 +588,35 @@ def run_demo(
 
         phase_results.append(result)
         aggregate = _combine_result(aggregate, (result.outcome, result.code))
+        if manifest.demo_id == "QRY-023" and result.code == "FAIL_TIMEOUT":
+            suppress_qry023_cleanup = True
         if result.outcome == "FAIL" or (result.outcome == "SKIP" and phase.required):
             stop_regular_phases = True
 
     if setup_started and manifest.cleanup is not None:
-        cleanup_username, cleanup_environment = _phase_connection(
-            manifest.cleanup, username=username, credentials=credentials
-        )
-        cleanup = _execute_sql_phase(
-            phase=manifest.cleanup,
-            executable=executable,
-            server=server,
-            target_database=target_database,
-            auth=auth,
-            username=cleanup_username,
-            environment=cleanup_environment,
-            timeout_seconds=manifest.cleanup_timeout_seconds,
-            variables=variables,
-            show_output=show_output,
-        )
-        if cleanup.outcome != "PASS":
+        if suppress_qry023_cleanup:
+            cleanup = PhaseResult(
+                manifest.cleanup.phase_id, "FAIL", "FAIL_CLEANUP",
+                "SQL-Timeout: serverseitiges Ende und TempDB-Freigabe sind nicht bewiesen; SQL-Cleanup wurde unterdrückt.",
+                0.0,
+            )
+        else:
+            cleanup_username, cleanup_environment = _phase_connection(
+                manifest.cleanup, username=username, credentials=credentials
+            )
+            cleanup = _execute_sql_phase(
+                phase=manifest.cleanup,
+                executable=executable,
+                server=server,
+                target_database=target_database,
+                auth=auth,
+                username=cleanup_username,
+                environment=cleanup_environment,
+                timeout_seconds=manifest.cleanup_timeout_seconds,
+                variables=variables,
+                show_output=show_output,
+            )
+        if cleanup.outcome != "PASS" and cleanup.code != "FAIL_CLEANUP":
             cleanup = PhaseResult(cleanup.phase_id, "FAIL", "FAIL_CLEANUP", f"Cleanup nicht erfolgreich; ursprünglicher Code: {cleanup.code}.", cleanup.duration_seconds)
         phase_results.append(cleanup)
         aggregate = _combine_result(aggregate, (cleanup.outcome, cleanup.code))

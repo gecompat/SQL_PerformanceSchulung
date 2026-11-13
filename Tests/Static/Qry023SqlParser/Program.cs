@@ -72,6 +72,20 @@ foreach (var file in sqlFiles.Where(path => !Path.GetFileName(path).Equals("15_F
         Console.WriteLine($"PASS {Path.GetFileName(file)} parses in all three SQL Server grammars");
 }
 
+var tempdbGuard = Path.Combine(repository, "Tests/Runtime/qry023_tempdb_resource_guard.sql");
+foreach (var dialect in dialects)
+{
+    using var reader = new StringReader(File.ReadAllText(tempdbGuard));
+    _ = dialect.Parser.Parse(reader, out var errors);
+    foreach (var error in errors)
+    {
+        failed = true;
+        Console.Error.WriteLine($"FAIL qry023_tempdb_resource_guard.sql ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+    }
+    if (errors.Count == 0)
+        Console.WriteLine($"PASS qry023_tempdb_resource_guard.sql parses in {dialect.Name}");
+}
+
 // This is a SQLCMD include wrapper, not a standalone T-SQL source file.
 var frameworkWrapper = File.ReadAllText(Path.Combine(demo, "15_Framework.sql"));
 if (!frameworkWrapper.Contains(":r Demos/00_Framework/Sql/FWK_Measurement.sql", StringComparison.Ordinal))

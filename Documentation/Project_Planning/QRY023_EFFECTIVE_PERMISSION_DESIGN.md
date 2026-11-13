@@ -351,3 +351,29 @@ vollständigen Katalogresultate, SQL-Ausführung, tatsächlichen READER-Rechte o
 Ownership-Chain-Wirkung. Der nachfolgend dokumentierte isolierte Enginepass prüft
 diese Claims gesondert. QRY-023 bleibt `PROPOSED` und nicht katalogisiert; die
 Enginequalifikation ändert diesen Status nicht.
+
+## Isolierte Ressourcen- und Timeoutdurchsetzung
+
+Der vorgeschlagene CI-Aufrufer in [`.github/workflows/qry023-proposed-runtime.yml`](../../.github/workflows/qry023-proposed-runtime.yml)
+bindet die drei Image-Digests und setzt 2 CPU, 4 GiB Container-RAM sowie
+3 GiB SQL-Server-Speicher. Jeder Matrixjob läuft in einer eigenen GitHub-Hosted-VM
+und prüft die ADMIN-Anmeldung mit `SELECT 1`, bevor er Mutationen startet.
+Vor dem Harness fordert er genau eine TempDB-Logdatei und 1–15 Datendateien;
+er verteilt ein Gesamtmaximum von 1 GiB gleichmäßig auf das vorhandene Layout
+und setzt pro Datei `FILEGROWTH = 64MB`. Er legt außerdem den notwendigen `READER`-
+SQL-Login vor dem Harness einmalig in der frischen Wegwerfinstanz an. Das
+Passwort wird ausschließlich über stdin an SQLCMD übergeben; das SA-Passwort
+liegt beim Containerstart in einer nur für den Runner lesbaren Env-Datei.
+Serverrollen und Zusatzrechte werden nicht vergeben. Der Aufrufer läuft nur in einem neuen, markergebundenen
+Container ohne Benutzerdatenbanken und entfernt ihn im Abschlussschritt nur,
+wenn das SQL-Cleanup nachgewiesen ist.
+
+Für QRY-023 unterdrückt `run_demo.py` nach einem SQL-Timeout den SQL-Cleanup und
+meldet `FAIL_CLEANUP`, weil Prozessabbruch des lokalen Proxys kein Beweis für
+serverseitige Abfragebeendigung oder TempDB-Freigabe ist. Bei unbewiesenem
+Cleanup erhält die Route den Container als Diagnosezustand; auf einem ephemeren
+GitHub-Runner endet er mit dem Job, auf einem selbstgehosteten Runner braucht er
+eine separat geprüfte Bereinigung. Diese CI-Route ist noch nicht
+auf allen drei Engines qualifiziert, ersetzt keinen allgemeinen Runner-
+Prozessbaum-/Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch
+einen Katalogeintrag.

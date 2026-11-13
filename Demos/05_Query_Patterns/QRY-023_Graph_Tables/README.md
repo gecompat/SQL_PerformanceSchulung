@@ -128,6 +128,12 @@ Reservierte FWK-010-SQLCMD-Variablennamen können nicht überschrieben werden.
 Namens- oder SID-Konflikte brechen fail-closed ab. Die Setup- und SID-Prüfung
 lief auf allen drei gepinnten SQL-Server-Engines erfolgreich durch.
 
+Der vorgeschlagene isolierte CI-Aufrufer legt den dafür benötigten `READER`-
+SQL-Login vor dem Harness einmalig in der frischen Wegwerfinstanz an. Das
+separate Passwort gelangt ausschließlich über SQLCMD-stdin und phasengebundene
+Umgebungsvariablen; es ist keine allgemeine Loginprovisionierung und ändert
+keine Serverrolle oder Zusatzberechtigung.
+
 Das Proposed-Manifest bindet jetzt zusätzlich eine versionierte
 READER-Effektivrechte-Sollmenge für Server, ADMIN-inventarisierte
 Standardendpoints, Datenbank, `dbo`/`lab` und alle 13 erwarteten
@@ -222,20 +228,24 @@ Quellen, abgerufen am 12. November 2026: [`sys.dm_exec_sessions`](https://learn.
 Der vorgeschlagene Ausführungs-Sicherheitsvertrag nennt 1 GiB als erwartete
 Größenordnung/Obergrenze der QRY-023-Testdatenbank und 1 GiB als Obergrenze für
 zusätzliches TempDB-Wachstum; zugleich ist höchstens eine SQL-Session aktiv.
-Diese Werte sind nicht empirisch qualifiziert und der aktuelle Caller setzt sie
-nicht durch. Ein späterer Runtime-Aufrufer muss vor Setup ein abweichendes
-Ressourcenprofil zurückweisen und Daten-/TempDB-Grenzen tatsächlich
-überwachen. `CTRL+C`, Phasen- und Gesamtzeitüberschreitung müssen den
-sqlcmd-Prozessbaum beenden. Der spätere Runtimecaller muss nach begonnenem
-Setup Cleanup nur bei bestätigtem Prozessende und Reap starten; andernfalls muss
-er Cleanup unterdrücken und `FAIL_CLEANUP` melden, damit es nicht parallel zu
-einer möglicherweise noch laufenden SQL-Phase arbeitet. Dieses Verhalten ist
-im vorhandenen FWK-010-Caller noch nicht qualifiziert. Bei erzwungenem Abbruch können synthetische
-Teilobjekte in der markierten Datenbank verbleiben; Abschluss der serverseitigen
-Abbruchwirkung und TempDB-Freigabe sind unbelegt. Unbekanntes Eigentum oder
-fehlgeschlagenes Cleanup führt zu Erhalt der Datenbank und `FAIL_CLEANUP`, nicht
-zum erzwungenen Entfernen. Diese Anforderungen sind im Proposed-Manifest
-gebunden, aber noch keine Runtime-Durchsetzung.
+Diese Werte sind noch nicht als allgemeine Runtimequalifikation abgenommen. Der
+separate vorgeschlagene CI-Aufrufer setzt für seine frische Wegwerfinstanz 2 CPU,
+4 GiB Container-RAM und 3 GiB SQL-Speicher. Er akzeptiert ein TempDB-Layout aus
+einer Logdatei und 1–15 Datendateien, verteilt das Maximalbudget von 1 GiB auf
+alle Dateien und setzt 64 MiB Wachstum pro Datei; vor Setup verifiziert er die
+Grenzwerte und das leere Benutzerdatenbankinventar. Der Aufrufer bleibt vom
+Runtimekatalog getrennt.
+Bei einem QRY-023-SQL-Timeout unterdrückt der FWK-010-Runner das SQL-Cleanup und
+meldet `FAIL_CLEANUP`, weil serverseitiges Ende und TempDB-Freigabe nicht
+bewiesen sind. Der äußere CI-Schritt entfernt den exakt markierten
+Wegwerfcontainer nur nach bestätigtem SQL-Cleanup. Bei unbewiesenem Cleanup
+bleibt er als Diagnosezustand erhalten. Ein ephemerer GitHub-Runner endet nach
+dem Job; ein selbstgehosteter Runner benötigt eine separat geprüfte Bereinigung.
+Ohne diesen isolierten Aufrufer können bei erzwungenem Abbruch synthetische
+Teilobjekte verbleiben; ein
+allgemeiner Prozess-/Serverabbruchvertrag und eine Produktabnahme sind damit
+nicht qualifiziert. Unbekanntes Eigentum oder fehlgeschlagenes Cleanup führt
+nicht zum erzwungenen Entfernen eines nicht eindeutig markierten Ziels.
 
 Der FWK-010-Caller begrenzt das RunToken auf 1 bis 20 ASCII-Zeichen und verlangt
 ein alphanumerisches erstes Zeichen. Separat prüft der vorgeschlagene

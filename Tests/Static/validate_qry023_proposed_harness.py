@@ -66,7 +66,7 @@ EXPECTED_EXECUTION_SAFETY_CONTRACT = {
         "PHASE_OR_GLOBAL_TIMEOUT",
         "CTRL_C",
     ],
-    "enforcement_status": "PROPOSED_RUNTIME_CALLER_REQUIRED",
+    "enforcement_status": "PROPOSED_ISOLATED_CI_CALLER_NOT_GENERAL_RUNTIME_AUTHORIZED",
     "forced_abort_residual_state": (
         "The marked target database may contain partial synthetic objects; connection-cancel completion "
         "and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."

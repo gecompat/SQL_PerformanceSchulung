@@ -556,3 +556,7 @@ commitgebundenen Offline-Suite und keine Runtimequalifikation des Parserkandidat
 ## Erneute Runnerprofilbindung nach der Endpunktübergabe (13. November 2026)
 
 Der abschließende QRY-023-Enginepfad erzwang einen SQLCMD-sicheren Wechsel des Endpunktinventars von `ID:HEX;...` auf `IDGHEXH...` im gemeinsamen `run_demo.py`-Runner. Die beiden betroffenen DGN-007-Offlineprofile meldeten daraufhin `PYTHON_PROFILE_CHANGED`; die gebundenen SQL-Manifeste und Source-Bundle-Bytes waren nicht die Ursache. Das unverändert reviewte CPython-3.12-Ganzdatei-AST-Profil wurde allein für den Runner auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die übrigen acht AST-Digests, Manifeste, Kanten, Daten und DGN-Methodenfreigaben bleiben unverändert. Diese Profilbindung ist statischer Quellnachweis und keine DGN-Runtimequalifikation.
+
+## Runnerprofilbindung nach QRY-023-Timeoutschutz (13. November 2026)
+
+Der vorgeschlagene QRY-023-Aufrufer unterdrückt nach einem SQL-Timeout das nachfolgende SQL-Cleanup, weil serverseitiges Ende und TempDB-Freigabe nicht bewiesen sind. Das änderte erneut den gemeinsamen `run_demo.py`-AST. Der vollständige Digest wurde aus den Working-Tree-Bytes unter CPython 3.12.14 berechnet und ausschließlich für diesen Runner auf `eca5512a16aac7d25fd22eba88348aa2f48f91754a14ef932e197b6802d003b0` aktualisiert. Die übrigen acht AST-Digests und DGN-Methodengates bleiben unverändert. Die Profilregression bestand gegen den vorherigen Git-Snapshot; der neue Kandidaten-Commit muss das aktualisierte Profil im CI bestätigen.
