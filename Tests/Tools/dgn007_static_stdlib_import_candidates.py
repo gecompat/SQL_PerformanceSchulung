@@ -679,7 +679,7 @@ def _imported_module_function_aliases(
                     continue
                 targets = aliases.setdefault(class_name, [])
                 for constructor in constructors:
-                    target = (module, constructor)
+                    target = constructor
                     if target not in targets:
                         targets.append(target)
     return {expression: {name: tuple(targets) for name, targets in functions.items()}
@@ -697,7 +697,7 @@ def _imported_module_class_method_aliases(module_aliases, class_dispatch_index):
                 for method_name, owners in methods.items():
                     targets = aliases.setdefault(method_name, [])
                     for owner in owners:
-                        target = (module, owner)
+                        target = owner
                         if target not in targets:
                             targets.append(target)
     return {expression: {name: tuple(targets) for name, targets in methods.items()}
@@ -1296,6 +1296,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
     module_sources = {}
     function_index = {}
     class_index = {}
+    source_class_bases = {}
     class_dispatch_index = {}
     for source_module in lexical_modules:
         source_path = _module_path(source_module, files)
@@ -1305,25 +1306,56 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
         module_sources[source_module] = (source_path, source_tree)
         function_index[source_module] = _top_level_function_index(source_tree)
         class_index[source_module] = _top_level_class_method_index(source_tree)
+    for source_module, (source_path, source_tree) in module_sources.items():
         class_bases = _top_level_class_base_index(source_tree)
+        imported_classes = _imported_class_aliases(
+            source_tree, source_module, source_path, class_index
+        )
+        imported_modules = _imported_module_aliases(
+            source_tree, source_module, source_path, function_index
+        )
+        module_bases = {}
+        for class_name, base_names in class_bases.items():
+            resolved = []
+            for base_name in base_names:
+                candidates = []
+                if base_name in class_index[source_module]:
+                    candidates.append((source_module, base_name))
+                candidates.extend(imported_classes.get(base_name, ()))
+                if "." in base_name:
+                    receiver, _, imported_name = base_name.rpartition(".")
+                    candidates.extend(
+                        (target_module, imported_name)
+                        for target_module in imported_modules.get(receiver, ())
+                        if imported_name in class_index.get(target_module, {})
+                    )
+                for candidate in candidates:
+                    if candidate not in resolved:
+                        resolved.append(candidate)
+            module_bases[class_name] = tuple(resolved)
+        source_class_bases[source_module] = module_bases
+
+    for source_module, classes in class_index.items():
         module_dispatch = {}
-        for class_name in class_index[source_module]:
-            pending_classes = [class_name]
+        for class_name in classes:
+            pending_classes = [(source_module, class_name)]
             seen_classes = set()
             methods = {}
             while pending_classes:
-                candidate = pending_classes.pop()
+                candidate_module, candidate_class = pending_classes.pop()
+                candidate = (candidate_module, candidate_class)
                 if candidate in seen_classes:
                     continue
                 seen_classes.add(candidate)
-                for method_name in class_index[source_module].get(candidate, {}):
+                for method_name in class_index.get(candidate_module, {}).get(
+                    candidate_class, {}
+                ):
                     owners = methods.setdefault(method_name, [])
-                    owner = candidate + "." + method_name
+                    owner = (candidate_module, candidate_class + "." + method_name)
                     if owner not in owners:
                         owners.append(owner)
                 pending_classes.extend(
-                    base for base in class_bases.get(candidate, ())
-                    if base in class_index[source_module]
+                    source_class_bases.get(candidate_module, {}).get(candidate_class, ())
                 )
             module_dispatch[class_name] = {
                 name: tuple(sorted(owners)) for name, owners in methods.items()
@@ -1372,7 +1404,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
                 if constructors:
                     existing = list(imported_functions.get(alias, ()))
                     for constructor in constructors:
-                        target = (target_module, constructor)
+                        target = constructor
                         if target not in existing:
                             existing.append(target)
                     imported_functions[alias] = tuple(existing)
@@ -1385,7 +1417,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
                 ).get(class_name, {}).items():
                     entries = methods.setdefault(method_name, [])
                     for owner in owners:
-                        target = (target_module, owner)
+                        target = owner
                         if target not in entries:
                             entries.append(target)
         imported_class_methods = {
@@ -1465,7 +1497,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

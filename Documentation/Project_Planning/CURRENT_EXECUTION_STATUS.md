@@ -48,7 +48,7 @@ Klassenobjekten, direkte gleichscope Variablenbindungen und einfache Aliase
 solcher Instanzen sowie `self.method()`-/`cls.method()`-Kanten einschließlich
 direkter lokaler Closure-Helfer. Spätere Quellwellen ergänzen bekannte lokale
 und importierte Basen, Aliase, `super()`-Formen sowie geerbte Konstruktoren und
-Methoden auf frisch konstruierten Unterklassen. 70 synthetische Tests bestehen.
+Methoden auf frisch konstruierten Unterklassen. 71 synthetische Tests bestehen.
 Dynamische Calls, vollständige MRO, Deskriptoren, `__new__`, C-/Frozen-Aufrufe
 und modulübergreifendes Rebinding bleiben offen. Der aktuelle gebundene
 Archivscan zählt 92 Module/573 Kanten/471 besuchte Funktionen, 22 entschiedene
@@ -8996,3 +8996,17 @@ der Quelldigest bleibt unverändert. Die Basenvereinigung kann Override-/MRO-
 Kandidaten überzählen; importierte Basen aus anderen Quelldateien, dynamische
 Basen und vollständige MRO bleiben offen. Kein Runtime-, P11-, SQL- oder
 Generalprobenachweis.
+
+## Fortsetzung: Basen aus anderen Quellmodulen
+
+Der importierte Unterklassen-Dispatch folgt jetzt auch direkt auflösbare
+Basisklassen aus einem anderen bereits erreichbaren Quellmodul. Unterstützt
+sind `from .base import Base` und ein gebundener Modulalias wie
+`source.Base`; geerbte Konstruktoren und Methoden werden auf die tatsächlichen
+Basismethoden im Quellmodul geroutet. Eine synthetische Fixture prüft beide
+Importformen. 71/71 fokussierte Tests bestehen. Die CPython-Archivwerte bleiben
+bei 92 Modulen/573 Kanten/471 besuchten Funktionen, 22 entschiedenen und 1.452
+unbekannten Bedingungen; Quelldigest unverändert. Mehrfach- und alternative
+Basen bleiben Kandidatenvereinigung, unbekannte dynamische Basen und vollständige
+MRO bleiben ungelöst. Kein Zielinterpreter, Profil, Worker, SQL oder
+Generalprobe wurde ausgeführt.

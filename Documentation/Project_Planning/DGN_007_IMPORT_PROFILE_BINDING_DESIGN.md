@@ -2862,6 +2862,16 @@ Module und Quelldigest bleiben unverändert. Die statische Basenvereinigung kann
 bei Overrides überzählen; quellmodulübergreifende Basen, dynamische Basen und
 vollständige MRO bleiben ungelöst.
 
+Der Dispatchindex folgt außerdem direkt auflösbare Basen aus anderen bereits
+erreichbaren Quellmodulen, sowohl über `from .base import Base` als auch über
+einen gebundenen Modulalias wie `source.Base`. Geerbte `__init__`- und
+Methodenziele verweisen auf die tatsächliche deklarierende Basismethode. Eine
+synthetische Regression mit beiden Importformen besteht; der fokussierte Satz
+umfasst 71 Tests. Modulmenge, Kantenzahl, Funktionszahl und Quelldigest des
+gebundenen CPython-Scans bleiben gleich. Nicht direkt auflösbare oder dynamische
+Basen werden nicht geraten; vollständige MRO und modulübergreifendes Rebinding
+bleiben offen.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
