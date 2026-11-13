@@ -2135,6 +2135,36 @@ vorgewählter S15/P11-Inventur und dem Fünf-Formen-/64-KiB-Gate abgenommen wird
 Kein alter Capture, keine historische Namenliste und kein erfolgreicher
 beobachteter Cache wird nachträglich zur operativen Sollbaseline.
 
+### 19.2 Abgewiesene Auswahl über das rollende Hosted-Runner-Image
+
+Am 2026-11-13 wurde die offizielle GitHub-Hosted-Runner-Dokumentation für
+`ubuntu-24.04` als möglicher Linux-/CPython-3.12-Auswahlanker geprüft. Die
+veröffentlichte README nennt Image-Version `20261101.360.1`, das vom
+Betriebssystem bereitgestellte Python 3.12.3 und separat im Toolcache verfügbare
+Python-Versionen bis 3.12.16. Die Toolsetdefinition bindet `ubuntu-24.04` an
+die bewegliche `actions/python-versions`-Manifest-URL und eine Versionsfamilie,
+nicht an ein unveränderliches Runner-Image oder einen konkreten Interpreter-
+Artifactdigest ([Ubuntu-24.04-Imageübersicht](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md),
+[Ubuntu-24.04-Toolset](https://github.com/actions/runner-images/blob/main/images/ubuntu/toolsets/toolset-2404.json),
+[Python-Builds für Actions](https://github.com/actions/python-versions)). GitHub
+beschreibt die GitHub-eigenen Standardrunnerimages außerdem als wöchentlich
+aktualisiert; die Softwareliste auf `main` wird erst nach Abschluss des
+gesamten Rollouts aktualisiert ([GitHub-Dokumentation zu Hosted Runners](https://docs.github.com/en/actions/concepts/runners/github-hosted-runners)).
+
+Daraus folgt für die Verwendung des beweglichen `ubuntu-24.04`-Labels, dass
+die Quellen keinen unveränderlichen Imagezustand für eine spätere Ausführung
+festlegen (Inferenz aus dem dokumentierten Rollout). Damit ist diese Route
+keine separat vorgewählte operative Sollinstallation:
+Image-Label und Toolcache liefern keinen stabilen Satz S15-/P11-Erwartungswerte,
+und ein später auf demselben Runner erzeugtes Sollprofil würde weiterhin aus
+der zu prüfenden Installation stammen. Sie wird nicht als Profilbaseline oder
+als Berechtigung für Download/Installation verwendet. Für die Wiederaufnahme
+muss vor jeder Aufnahme ein unveränderlich gebundener CPython-/OS-Quell- und
+Buildsatz samt Executable-/Scriptlocator sowie vollständig unabhängig
+abgeleiteten Modul-, Spec-, Loader-, Alias- und Pfadwerten gewählt und gegen
+die endgültigen gehaltenen Scriptbytes geprüft werden. Fehlt auch nur ein
+Sollfeld, bleiben Aufnahme und Fünf-Formen-/64-KiB-Gate offen.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt

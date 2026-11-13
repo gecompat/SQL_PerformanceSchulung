@@ -8,11 +8,14 @@ import re
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "Tests/Contracts/dgn007_collector_transport.py"
+ASSEMBLY_MODULE = ROOT / "Tests/Contracts/dgn007_collector_record_assembly.py"
 WORKFLOW = ROOT / ".github/workflows/dgn007-collector-transport.yml"
 TRIGGER_PATHS = {
     "Tests/Contracts/dgn007_collector_transport.py",
     "Tests/Static/test_dgn007_collector_transport.py",
     "Tests/Static/validate_dgn007_collector_transport.py",
+    "Tests/Contracts/dgn007_collector_record_assembly.py",
+    "Tests/Static/test_dgn007_collector_record_assembly.py",
     ".github/workflows/dgn007-collector-transport.yml",
     "Tests/Contracts/dgn007_prospective_acceptance.py",
     "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json",
@@ -23,6 +26,7 @@ TRIGGER_PATHS = {
 COMMANDS = (
     "python Tests/Static/validate_dgn007_collector_transport.py",
     "python Tests/Static/test_dgn007_collector_transport.py",
+    "python Tests/Static/test_dgn007_collector_record_assembly.py",
     "python Tests/Static/validate_dgn007_prospective_acceptance.py",
     "python Tests/Static/test_dgn007_prospective_acceptance.py",
 )
@@ -64,8 +68,37 @@ def workflow_findings(source: str) -> list[str]:
     return findings
 
 
+def assembly_findings(source: str) -> list[str]:
+    """The mapper may assemble records but may not acquire or execute evidence."""
+    tree = ast.parse(source)
+    findings = []
+    allowed = {"__future__", "Tests.Contracts.dgn007_collector_transport",
+               "Tests.Contracts.dgn007_prospective_acceptance"}
+    forbidden = {"open", "print", "input", "eval", "exec", "__import__", "read_text",
+                 "read_bytes", "write_text", "write_bytes", "write", "system", "Popen",
+                 "run_sql", "run_sqlcmd", "decode_capture", "evaluate_version"}
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            names = [alias.name for alias in node.names] if isinstance(node, ast.Import) else [node.module or ""]
+            if any(name not in allowed for name in names):
+                findings.append("Recordmapper darf keine I/O-/SQL-/Prozessmodule importieren")
+        if isinstance(node, ast.Call):
+            name = node.func.id if isinstance(node.func, ast.Name) else node.func.attr if isinstance(node.func, ast.Attribute) else ""
+            if name in forbidden:
+                findings.append("Recordmapper darf keine Daten erfassen oder Akzeptanz bewerten")
+    if "_run_valid(run, sequence, contract.schema)" not in source:
+        findings.append("Jeder assemblierte Record muss gegen den prospektiven Vertrag geprüft werden")
+    if "body.row_evidence_complete" not in source:
+        findings.append("Nicht gemessene Request-Ergebnisse müssen unvollständig bleiben")
+    if "Herkunft" not in source or "Budgets" not in source or "Freeze" not in source:
+        findings.append("Offene Attestationsgrenzen müssen im Modul ausgewiesen sein")
+    return findings
+
+
 def main() -> int:
     findings = pure_findings(MODULE.read_text(encoding="utf-8"))
+    assembly_source = ASSEMBLY_MODULE.read_text(encoding="utf-8")
+    findings.extend(assembly_findings(assembly_source))
     workflow = WORKFLOW.read_text(encoding="utf-8")
     findings.extend(workflow_findings(workflow))
     for before, after in (("timeout-minutes: 5", "timeout-minutes: 0"),
@@ -77,6 +110,9 @@ def main() -> int:
     for mutation in ("import subprocess", "print('synthetic')", "open('synthetic')", "RunRecord()", "PhaseResult()", "evaluate_version()"):
         if not pure_findings(mutation):
             findings.append("Negative Transport-Scope-Kontrolle wurde nicht erkannt")
+    for mutation in ("import subprocess", "print('synthetic')", "decode_capture('x', c)", "evaluate_version(c, 15, ())"):
+        if not assembly_findings(mutation):
+            findings.append("Negative Recordmapper-Scope-Kontrolle wurde nicht erkannt")
     if findings:
         print("dgn007-collector-transport: FAIL\n" + "\n".join(findings))
         return 1

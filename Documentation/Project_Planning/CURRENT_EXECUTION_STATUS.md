@@ -8679,3 +8679,39 @@ integriert; unabhängiger Review fand nach Korrektur der Links keine offenen
 P1/P2. Der benannte Lesepfadbefund ist behoben. Das ist keine pauschale
 Altbestandskonformität; nicht geänderte Lern-/Präsentationspfade wurden nicht
 global neu bewertet. Die menschliche Generalprobe bleibt ausgeschlossen.
+
+## Fortsetzung: DGN-007 – operative Profilquelle bleibt unselektiert
+
+Die offizielle Hosted-Runnerroute wurde am 13. November geprüft und als
+Sollprofilquelle verworfen: `ubuntu-24.04` zeigt auf ein rollendes Image; die
+dokumentierte OS-Pythonversion und die über ein bewegliches Toolcache-Manifest
+verfügbaren Python-Versionen sind verschiedene Installationen und liefern
+keinen unveränderlichen vollständigen S15-/P11-Erwartungssatz. Der Befund und
+die erforderliche Quell-/Build-/Modulbindung stehen in
+[§19.2](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#192-abgewiesene-auswahl-über-das-rollende-hosted-runner-image).
+Es gab keine Installation, Runnerausführung oder Profilaufnahme. Das operative
+Inventurgate und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen; weiter
+geht es mit einer unabhängig gebundenen, vollständigen CPython-/OS-Auswahl vor
+jeder Beobachtung.
+
+## Fortsetzung: DGN-007 – deklarative Ein-Record-Abbildung
+
+Der skalare Capture-Body kann jetzt über einen separaten Mapper als einzelner
+prospektiver `RunRecord` strukturiert werden. Der Mapper bindet den erwarteten
+Major, Scope, Block/Slot und Contract-/Source-Digests, fordert alle acht
+erfolgreichen Phasen sowie Cleanup/Abwesenheit und prüft die vollständigen
+Records erneut gegen `_run_valid`. Sieben synthetische Gegenproben, die bestehenden
+Transporttests und der Transport-CI-Vertragsvalidator bestanden lokal; die
+unabhängige Quellensichtung fand keine P1/P2/P3-Befunde.
+
+Die Phasen-/Cleanupwerte bleiben Callerangaben. Der Mapper belegt weder ihre
+Herkunft noch integrierten Freeze, tatsächliche Quellenverwendung, Zielinstanz,
+Ressourcen, reale Reihenfolge oder Budgets und führt keine SQL-Runtime aus. Der
+verlustfreie vertrauensgebundene Coordinator ist weiterhin offen; die
+Incidentbewertung und Methodenfreigabe bleiben unverändert.
+
+Der Backlogstatus zur früheren G13-Reporterarbeit war veraltet. Die Remoteprüfung
+bestätigte PR 68 als geschlossen und nicht gemergt; der Fehler-only-Reporter
+wurde nach DEC-072 verworfen. PR 130 (begrenzte Rawdiagnose) und PR 132 (finaler
+Parser-/Methodenschnitt) sind gemergt. Die offene Coordinatorarbeit ist davon
+getrennt und bleibt offen.
