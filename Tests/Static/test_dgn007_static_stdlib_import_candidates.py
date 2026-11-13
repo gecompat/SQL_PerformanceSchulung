@@ -557,7 +557,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         files = {
             "pkg/__init__.py": (
                 b"def make():\n    from . import helper\n    return helper.Worker()\n"
-                b"worker = make()\nworker.run()\n"
+                b"worker = make()\ninstance = worker\ninstance.run()\n"
             ),
             "pkg/helper.py": (
                 b"class Worker:\n"
@@ -629,6 +629,39 @@ class StaticImportCandidateTests(unittest.TestCase):
             modules, ("pkg", "pkg.helper", "pkg.init_leaf", "pkg.method_leaf")
         )
         self.assertEqual(function_count, 2)
+
+    def test_same_scope_simple_instance_alias_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Worker:\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+                b"worker = Worker()\ninstance = worker\ninstance.run()\n"
+            ),
+            "pkg/method_leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.method_leaf"))
+        self.assertEqual(function_count, 1)
+
+    def test_same_scope_imported_class_instance_alias_is_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import Worker as Alias\n"
+                b"worker = Alias()\ninstance = worker\ninstance.run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+            ),
+            "pkg/method_leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.method_leaf"))
+        self.assertEqual(function_count, 1)
 
     def test_uncalled_from_import_module_alias_does_not_expand_function(self):
         files = {
@@ -754,7 +787,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_AND_SAME_SCOPE_INSTANCE_BINDINGS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_AND_INSTANCE_ALIASES",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
