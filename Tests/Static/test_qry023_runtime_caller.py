@@ -127,6 +127,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("--env-file \"$env_file\"", workflow)
         self.assertNotIn('"MSSQL_SA_PASSWORD=${password}"', workflow)
         self.assertIn("provision_qry023_reader_login.py", workflow)
+        self.assertEqual(workflow.count("'Tests/Runtime/provision_qry023_reader_login.py'"), 2)
         self.assertIn("if: always()", workflow)
         self.assertIn("sqlperf.ci.owner", workflow)
         self.assertIn("runtime_authorized", lock)
