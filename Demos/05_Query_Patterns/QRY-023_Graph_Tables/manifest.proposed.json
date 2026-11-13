@@ -290,7 +290,7 @@
     },
     "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
     "phase_identity_enforced": true,
-    "gate_status": "OPEN_UNTIL_SQL_SERVER_PRINCIPAL_AND_PRIVILEGE_QUALIFICATION"
+    "gate_status": "OPEN_UNTIL_PRODUCT_AND_GENERAL_RUNTIME_AUTHORIZATION"
   },
   "phases": [
     {

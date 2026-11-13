@@ -116,7 +116,9 @@ Microsoft beschreibt, dass `sys.fn_my_permissions` die Rechte des aktuellen
 Aufrufkontexts zurückgibt und bei Fehler `NULL` liefert; die Funktion qualifiziert
 für sich weder andere Principals noch Ownership-Chain-Wirkungen. Der Harness
 prüfte die tatsächlichen READER-Verbindungen und den Messprozedurpfad auf allen
-drei Builds. Negative Live-Berechtigungsvarianten sind noch nicht geprüft.
+drei Builds. Eine Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant
+wurde auf allen drei Builds vor den Queryphasen fail-closed abgewiesen; weitere
+negative Varianten sind nicht live qualifiziert.
 
 `DEC-084` schließt den konkreten Verbindungsfehler im Setup und in dessen
 Offline-Vertragsprüfung:

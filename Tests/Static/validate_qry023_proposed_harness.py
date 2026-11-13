@@ -192,7 +192,7 @@ EXPECTED_AUTHORIZATION_CONTRACT = {
     },
     "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
     "phase_identity_enforced": True,
-    "gate_status": "OPEN_UNTIL_SQL_SERVER_PRINCIPAL_AND_PRIVILEGE_QUALIFICATION",
+    "gate_status": "OPEN_UNTIL_PRODUCT_AND_GENERAL_RUNTIME_AUTHORIZATION",
 }
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 COUNT_BIG_QUERY_PATTERN = re.compile(
