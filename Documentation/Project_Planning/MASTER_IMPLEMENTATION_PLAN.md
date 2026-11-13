@@ -16,9 +16,13 @@ Standard-Planerzwingung und festen Hint-Kontrollzustand bleibt unverändert.
 Der aktuelle Auftrag begrenzt DGN-004 (Planerzwingung) bei TSK-016
 (gezielte Curriculum-Ergänzungen) auf klassische Planerzwingung über Standard-
 Force/Unforce und einen festen Inline-Hint-Kontrollzustand. R ist Referenz ohne
-Hint, H die getrennte Hint-Kontrolle. Nur Planung und statische CI (Continuous
-Integration; automatisierte Integrationsprüfungen) im Pull-Request-Verfahren;
-keine Umsetzung oder SQL-/Lab-Läufe. Übrige Verarbeitung pausiert.
+Hint, H die getrennte Hint-Kontrolle. Der autonome Auftrag vom 26. Oktober
+autorisiert die priorisierte Entwicklung und Integration innerhalb dieses
+Umfangs. Der source-only-Locator für vollständige Plan-Kandidaten ist über
+PR #593 integriert; er wurde weder gegen SQL Server kompiliert noch live
+ausgeführt. Das YELLOW-Isolations-/Lastgate und die übrigen empirischen
+Vorstartnachweise sperren weiterhin jeden SQL-/Lab-Lauf. Die menschliche
+Generalprobe bleibt ausgeschlossen.
 
 Die [kanonische Registry](../../.ai/identity/registry.json) wählt bei TSK-016 für
 DGN-004 über `active_plan` ausschließlich `classical_forcing_hint_control_plan`.
@@ -55,12 +59,15 @@ trennt die Abnahmeumfänge; keine zweite Planungsliste.
 Unverändert zwei eigene sequenzielle Container für 2022/16.0.4265.3 und
 2025/17.0.4075.5, 900 Sekunden gemeinsames reguläres Budget plus je 60 Sekunden
 Cleanup und alle bisherigen Text-/Transport-/Eigentums-/Ressourcengrenzen.
-Vor Umsetzung unabhängigen Review des engeren Quellen-/Identitäts-/Transport-/
-Mess-/Statusvertrags und statische Gegenfälle abschließen; diese Freigabe ist
-noch offen. Danach neuer ausdrücklicher Umsetzungs-/Laufauftrag. Tatsächliche
-Build-/Text-/Planqualifikation bleibt spätere Pflicht. Die folgenden älteren
-Abschnitte sind historische Befunde und Pläne; ihre Replay-Abnahme wird nicht
-zum Erfolg oder zur aktuellen Eintrittsbedingung umgedeutet.
+Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview vor
+Umsetzung wurde am 12. November abgeschlossen; der unabhängige Review des
+Locator-Patches zu PR #593 fand nach Korrektur eines veralteten Backlogstatus
+keine weiteren P1/P2. Der begrenzte Quellstand besteht die gezielten statischen
+Prüfungen; tatsächliche Build-/Text-/Planqualifikation, YELLOW-Isolation,
+Rechte, Ausgangszustand und Cleanup bleiben offen. Kein SQL-/Lab-Start vor
+vollständigem YELLOW- und Vorstartgate. Die folgenden älteren Abschnitte sind
+historische Befunde und Pläne; ihre Replay-Abnahme wird nicht zum Erfolg oder
+zur aktuellen Eintrittsbedingung umgedeutet.
 
 ## DGN-004: Quellenklärung der Marker-Gates vom 25. Oktober 2026
 
