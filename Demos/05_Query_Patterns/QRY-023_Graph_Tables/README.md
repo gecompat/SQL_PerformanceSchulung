@@ -253,15 +253,22 @@ Grenzwerte und das leere Benutzerdatenbankinventar. Der Aufrufer bleibt vom
 Runtimekatalog getrennt.
 Bei einem QRY-023-SQL-Timeout unterdrückt der FWK-010-Runner das SQL-Cleanup und
 meldet `FAIL_CLEANUP`, weil serverseitiges Ende und TempDB-Freigabe nicht
-bewiesen sind. Der äußere CI-Schritt entfernt den exakt markierten
-Wegwerfcontainer nur nach bestätigtem SQL-Cleanup. Bei unbewiesenem Cleanup
-bleibt er als Diagnosezustand erhalten. Ein ephemerer GitHub-Runner endet nach
-dem Job; ein selbstgehosteter Runner benötigt eine separat geprüfte Bereinigung.
-Ohne diesen isolierten Aufrufer können bei erzwungenem Abbruch synthetische
-Teilobjekte verbleiben; ein
-allgemeiner Prozess-/Serverabbruchvertrag und eine Produktabnahme sind damit
-nicht qualifiziert. Unbekanntes Eigentum oder fehlgeschlagenes Cleanup führt
-nicht zum erzwungenen Entfernen eines nicht eindeutig markierten Ziels.
+bewiesen sind. Die isolierte CI-Gegenprobe verwendet eine synthetische
+30-Sekunden-`WAITFOR`-Abfrage mit einem 5-Sekunden-Phasenbudget. Sie prüft den
+Timeoutstatus, den Cleanup-Unterdrückungshinweis und die exakten Marker der
+erhaltenen Zieldatenbank. Erst nachdem die SQL-Anfrage nicht mehr in
+`sys.dm_exec_requests` erscheint, führt die CI einen separaten, markergebundenen
+Recovery-Cleanup aus. Die Gegenprobe beweist nicht, ob der Server die Anfrage
+abgebrochen oder bis zum Ende der `WAITFOR`-Dauer ausgeführt hat; allgemeine
+Prozessbaum-, Serverabbruch- und Runtimefreigaben bleiben offen. Der äußere
+CI-Schritt bewertet den zuletzt gestarteten Harness-Log; den Timeout-Recovery-
+Log nutzt er nur, wenn kein späterer Harness ihn ersetzt hat. Er entfernt den
+exakt markierten Wegwerfcontainer nur nach bestätigtem SQL- oder
+Recovery-Cleanup. Bei unbewiesenem Cleanup bleibt er als Diagnosezustand
+erhalten. Ein ephemerer GitHub-Runner endet nach dem Job; ein
+selbstgehosteter Runner benötigt eine separat geprüfte Bereinigung. Unbekanntes
+Eigentum oder fehlgeschlagenes Cleanup führt nicht zum erzwungenen Entfernen
+eines nicht eindeutig markierten Ziels.
 
 Der FWK-010-Caller begrenzt das RunToken auf 1 bis 20 ASCII-Zeichen und verlangt
 ein alphanumerisches erstes Zeichen. Separat prüft der vorgeschlagene

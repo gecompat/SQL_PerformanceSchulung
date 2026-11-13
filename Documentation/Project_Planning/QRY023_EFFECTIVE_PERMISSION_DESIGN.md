@@ -379,7 +379,15 @@ meldet `FAIL_CLEANUP`, weil Prozessabbruch des lokalen Proxys kein Beweis für
 serverseitige Abfragebeendigung oder TempDB-Freigabe ist. Bei unbewiesenem
 Cleanup erhält die Route den Container als Diagnosezustand; auf einem ephemeren
 GitHub-Runner endet er mit dem Job, auf einem selbstgehosteten Runner braucht er
-eine separat geprüfte Bereinigung. PR #563 qualifizierte diese vorgeschlagene
+eine separat geprüfte Bereinigung. Die Timeout-Gegenprobe des Kandidaten-PR #590
+setzt in einer synthetischen Planphase 5 Sekunden Budget für eine 30-Sekunden-
+`WAITFOR`-Abfrage. Auf SQL Server 2019/2022/2025 belegte sie `FAIL_TIMEOUT`,
+`FAIL_CLEANUP`, die Cleanup-Unterdrückung und die unveränderten Eigentumsmarker.
+Nach bestätigtem Ende der Anfrage führte die äußere CI einen separaten
+markergebundenen Recovery-Cleanup aus. Der Nachweis unterscheidet nicht zwischen
+serverseitigem Abbruch und natürlichem Ende der `WAITFOR`-Abfrage. Er belegt
+weder allgemeine Prozessbaum-/Serverabbruchsemantik noch Produkt- oder
+Katalogfreigabe. PR #563 qualifizierte die vorgeschlagene
 CI-Route am 13.11.2026 auf allen drei festgebundenen Engines und allen zehn
 Harnessphasen. Sie ersetzt keinen allgemeinen Runner-Prozessbaum- oder
 Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch einen

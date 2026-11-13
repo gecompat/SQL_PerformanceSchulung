@@ -22,8 +22,6 @@ PREFLIGHT_SCRIPT = (
     Path(__file__).resolve().parents[2]
     / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/00_Preflight.sql"
 )
-
-
 def injection_target(argv: list[str]) -> str | None:
     database, script, username, raw_variables, _ = proxy.parse_args(argv)
     variables: dict[str, str] = {}

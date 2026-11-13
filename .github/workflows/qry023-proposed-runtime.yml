@@ -877,6 +877,140 @@ jobs:
           result="${PIPESTATUS[0]}"
           set -e
           exit "$result"
+      - name: Prove a SQL timeout suppresses cleanup and preserves the marked target
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          demo_dir="Demos/05_Query_Patterns/QRY-023_Graph_Tables"
+          timeout_manifest="$demo_dir/manifest.proposed.timeout-negative.json"
+          timeout_script="$demo_dir/.qry023_timeout_probe.sql"
+          log="$RUNNER_TEMP/qry023-timeout-cleanup-${{ matrix.major }}.log"
+          echo "QRY023_TIMEOUT_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          python - "$demo_dir/manifest.proposed.json" "$timeout_manifest" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          source = Path(sys.argv[1])
+          target = Path(sys.argv[2])
+          manifest = json.loads(source.read_text(encoding="utf-8"))
+          manifest["phases"] = [
+              phase for phase in manifest["phases"]
+              if phase["id"] in {"PREFLIGHT", "SETUP", "PLAN_EVIDENCE"}
+          ]
+          plan = next(phase for phase in manifest["phases"] if phase["id"] == "PLAN_EVIDENCE")
+          plan["timeout_seconds"] = 5
+          plan["script"] = ".qry023_timeout_probe.sql"
+          if [phase["id"] for phase in manifest["phases"]] != ["PREFLIGHT", "SETUP", "PLAN_EVIDENCE"]:
+              raise SystemExit("timeout probe manifest did not retain its exact bounded phase sequence")
+          (source.parent / plan["script"]).write_text(
+              "SET NOCOUNT ON;\n"
+              "RAISERROR('QRY023_TIMEOUT_PROBE|STARTED',10,1) WITH NOWAIT;\n"
+              "WAITFOR DELAY '00:00:30';\n"
+              "PRINT 'QRY023_TIMEOUT_PROBE|COMPLETED';\n",
+              encoding="utf-8",
+          )
+          target.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            "$timeout_manifest" \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
+            --confirm-isolated-lab --show-output > "$log" 2>&1 &
+          runner_pid=$!
+          set -e
+          container="${SQLPERF_SQL_CONTAINER:?}"
+          owner="${SQLPERF_CI_OWNER:?}"
+          container_id="$(docker inspect --format '{{.Id}}' "$container")"
+          [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
+          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          active_sql="SET NOCOUNT ON; SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.dm_exec_requests AS r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t WHERE r.session_id<>@@SPID AND t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%') THEN 1 ELSE 0 END;"
+          active=0
+          for attempt in $(seq 1 1200); do
+            if active="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -h -1 -W -Q "$active_sql")"; then
+              :
+            else
+              status=$?
+              echo "QRY023_TIMEOUT_NEGATIVE|DMV_POLL_FAILED|attempt=${attempt}|status=${status}" >&2
+              cat "$log" >&2 || true
+              exit 1
+            fi
+            [[ "$active" == 1 ]] && break
+            kill -0 "$runner_pid" 2>/dev/null || break
+            sleep 0.2
+          done
+          echo "QRY023_TIMEOUT_NEGATIVE|DMV_POLL_RESULT|active=${active}|attempt=${attempt}"
+          if [[ "$active" != 1 ]]; then
+            echo 'QRY023_TIMEOUT_NEGATIVE|PROBE_REQUEST_NOT_OBSERVED' >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
+          set +e
+          wait "$runner_pid"
+          result=$?
+          set -e
+          echo "QRY023_TIMEOUT_NEGATIVE|RUNNER_EXIT|status=${result}"
+          if [[ "$result" != 4 ]]; then
+            echo "QRY023_TIMEOUT_NEGATIVE|UNEXPECTED_RUNNER_EXIT|status=${result}" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_CLEANUP' "$log"
+          grep -F 'PLAN_EVIDENCE: FAIL/FAIL_TIMEOUT' "$log"
+          grep -F 'CLEANUP: FAIL/FAIL_CLEANUP' "$log"
+          grep -F 'serverseitiges Ende und TempDB-Freigabe sind nicht bewiesen; SQL-Cleanup wurde unterdrückt.' "$log"
+          if grep -F 'QRY023_TIMEOUT_PROBE|COMPLETED' "$log" || grep -Eq '^CLEANUP: PASS/' "$log"; then
+            echo 'The timeout probe completed or SQL cleanup was not suppressed.' >&2
+            exit 1
+          fi
+          set +e
+          marker_status=0
+          marker_output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -r 1 -Q \
+            "SET NOCOUNT ON; DECLARE @target sysname,@project nvarchar(max),@contract nvarchar(max),@demo nvarchar(max),@run nvarchar(max),@sql nvarchar(max); IF (SELECT COUNT(*) FROM sys.databases WHERE database_id>4)<>1 THROW 51045,'QRY-023 timeout probe did not retain exactly one user database.',1; SELECT @target=name FROM sys.databases WHERE database_id>4; SET @sql=N'SELECT @p=MAX(CASE WHEN name=N''SQLPERF.Project'' THEN CONVERT(nvarchar(max),value) END),@c=MAX(CASE WHEN name=N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(max),value) END),@d=MAX(CASE WHEN name=N''SQLPERF.DemoId'' THEN CONVERT(nvarchar(max),value) END),@r=MAX(CASE WHEN name=N''SQLPERF.RunToken'' THEN CONVERT(nvarchar(max),value) END) FROM '+QUOTENAME(@target)+N'.sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0;'; EXEC sys.sp_executesql @sql,N'@p nvarchar(max) OUTPUT,@c nvarchar(max) OUTPUT,@d nvarchar(max) OUTPUT,@r nvarchar(max) OUTPUT',@p=@project OUTPUT,@c=@contract OUTPUT,@d=@demo OUTPUT,@r=@run OUTPUT; IF @project IS NULL OR @project COLLATE Latin1_General_100_BIN2<>N'SQL_PerformanceSchulung' OR DATALENGTH(@project)<>DATALENGTH(N'SQL_PerformanceSchulung') OR @contract IS NULL OR @contract COLLATE Latin1_General_100_BIN2<>N'1.0' OR DATALENGTH(@contract)<>DATALENGTH(N'1.0') OR @demo IS NULL OR @demo COLLATE Latin1_General_100_BIN2<>N'QRY-023' OR DATALENGTH(@demo)<>DATALENGTH(N'QRY-023') OR @run IS NULL OR @target COLLATE Latin1_General_100_BIN2<>CONVERT(nvarchar(max),N'SQLPERF_LAB_QRY023_'+@run) OR DATALENGTH(@target)<>DATALENGTH(N'SQLPERF_LAB_QRY023_'+@run) THROW 51046,'QRY-023 timeout probe did not preserve the exact ownership markers.',1;" 2>&1)" || marker_status=$?
+          printf 'QRY023_TIMEOUT_NEGATIVE|MARKER_CHECK_STATUS=%s\n%s\n' "$marker_status" "$marker_output"
+          set -e
+          [[ "$marker_status" == 0 ]]
+          printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED' >> "$log"
+          active_sql="SET NOCOUNT ON; SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.dm_exec_requests AS r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t WHERE r.session_id<>@@SPID AND t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%') THEN 1 ELSE 0 END;"
+          active=1
+          for attempt in $(seq 1 45); do
+            active="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -h -1 -W -Q "$active_sql")"
+            [[ "$active" == 0 ]] && break
+            sleep 1
+          done
+          if [[ "$active" != 0 ]]; then
+            echo "QRY023_TIMEOUT_NEGATIVE|REQUEST_STILL_ACTIVE|attempt=${attempt}" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
+          printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED' >> "$log"
+          echo 'QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STARTED'
+          set +e
+          recovery_output="$(timeout --kill-after=5s 45s docker exec -i -e SQLCMDPASSWORD "$container_id" "$sqlcmd" \
+            -S localhost -d master -U sa -C -b -r 1 \
+            -v DemoId=QRY-023 RunToken=LOCAL TargetDatabase=SQLPERF_LAB_QRY023_LOCAL \
+            < "$demo_dir/90_Cleanup.sql" 2>&1)"
+          recovery_status=$?
+          set -e
+          echo "QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STATUS|status=${recovery_status}"
+          printf '%s\n' "$recovery_output"
+          if [[ "$recovery_status" != 0 ]] || ! grep -Fq 'SQLPERF_SUMMARY|PASS|OK' <<< "$recovery_output"; then
+            echo 'QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_FAILED' >&2
+            exit 1
+          fi
+          recovery_marker="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" \
+            -S localhost -d master -U sa -C -b -h -1 -W -Q \
+            "SET NOCOUNT ON; IF EXISTS (SELECT 1 FROM sys.databases WHERE database_id>4) THROW 51047,'QRY-023 timeout recovery left a user database.',1; PRINT 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS';")"
+          if ! grep -Fq 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS' <<< "$recovery_marker"; then
+            echo 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_MARKER_FAILED' >&2
+            printf '%s\n' "$recovery_marker" >&2
+            exit 1
+          fi
+          echo 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS'
+          printf '%s\n' 'CLEANUP: PASS/EXTERNAL_RECOVERY' >> "$log"
+          exit 0
       - name: Prove the permission inventory rejects an unregistered custom endpoint
         shell: bash
         env:
@@ -937,7 +1071,7 @@ jobs:
           container="${SQLPERF_SQL_CONTAINER:-}"
           owner="${SQLPERF_CI_OWNER:-}"
           if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
-          log="${QRY023_HARNESS_LOG:-}"
+          log="${QRY023_HARNESS_LOG:-${QRY023_TIMEOUT_HARNESS_LOG:-}}"
           if [[ -n "$log" && -f "$log" ]] && ! grep -Eq '^CLEANUP: PASS/' "$log"; then
             echo "Preserving owned container after an unproven QRY-023 cleanup: ${container}" >&2
             exit 0

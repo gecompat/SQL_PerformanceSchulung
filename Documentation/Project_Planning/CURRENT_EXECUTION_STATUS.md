@@ -8592,3 +8592,21 @@ getrennt live qualifiziert. QRY-023 bleibt `PROPOSED`, nicht katalogisiert und
 `runtime_authorized: false`; die
 allgemeine Produkt-/Katalogfreigabe und die ausdrücklich ausgeschlossene
 menschliche Generalprobe bleiben getrennte Grenzen.
+
+## Fortsetzung: QRY-023 – Timeout unterdrückt SQL-Cleanup (PR #590)
+
+Die isolierte Workflow-Gegenprobe prüft mit einer synthetischen 30-Sekunden-
+`WAITFOR`-Planphase und einem 5-Sekunden-Phasenbudget, dass `run_demo.py` den
+Timeout als `FAIL_TIMEOUT` meldet, den SQL-Cleanup unterdrückt und wegen
+unbewiesenem Serverende mit `FAIL_CLEANUP` endet. Auf SQL Server 2019, 2022 und
+2025 bestanden die Markerprüfung für die erhaltene Zieldatenbank und die
+begrenzte Kontrolle, dass die SQL-Anfrage beendet ist. Die CI führt erst danach
+einen getrennten Recovery-Cleanup mit dem vorhandenen exakten Eigentumsvertrag
+aus; Containerentfernung folgt nur nach dessen Bestätigung. Der Nachweis zeigt
+nicht, ob die Anfrage serverseitig abgebrochen oder bis zum natürlichen Ende
+der `WAITFOR`-Dauer ausgeführt wurde. Allgemeine Prozessbaum- und
+Serverabbruchsemantik bleiben offen. Die PR-Gates bestanden; der unabhängige
+Methoden-/Code-Nachreview und die Integration sind noch offen. QRY-023 bleibt
+`PROPOSED`, nicht katalogisiert und `runtime_authorized: false`. Die
+Produkt-/Katalogabnahme bleibt getrennt; die menschliche Generalprobe bleibt
+ausdrücklich ausgeschlossen.
