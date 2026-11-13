@@ -952,7 +952,9 @@ jobs:
           ]
           plan = next(phase for phase in manifest["phases"] if phase["id"] == "PLAN_EVIDENCE")
           plan["timeout_seconds"] = 5
+          plan["credential_profile"] = "ADMIN"
           plan["script"] = ".qry023_timeout_probe.sql"
+          manifest["credential_profiles"] = ["ADMIN"]
           if [phase["id"] for phase in manifest["phases"]] != ["PREFLIGHT", "SETUP", "PLAN_EVIDENCE"]:
               raise SystemExit("timeout probe manifest did not retain its exact bounded phase sequence")
           (source.parent / plan["script"]).write_text(

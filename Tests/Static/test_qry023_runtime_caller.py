@@ -724,6 +724,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         ]
         self.assertNotIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", timeout_case)
         self.assertIn("plan[\"timeout_seconds\"] = 5", timeout_case)
+        self.assertIn('plan["credential_profile"] = "ADMIN"', timeout_case)
+        self.assertIn('manifest["credential_profiles"] = ["ADMIN"]', timeout_case)
         self.assertIn("WAITFOR DELAY '00:00:30'", timeout_case)
         self.assertIn('plan["script"] = ".qry023_timeout_probe.sql"', timeout_case)
         self.assertIn("Tests/Runtime/qry023_docker_sqlcmd_proxy.py", timeout_case)
