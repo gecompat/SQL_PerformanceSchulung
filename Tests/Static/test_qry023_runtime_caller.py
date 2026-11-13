@@ -26,6 +26,11 @@ provision_spec = importlib.util.spec_from_file_location("qry023_reader_provision
 assert provision_spec and provision_spec.loader
 provision = importlib.util.module_from_spec(provision_spec)
 provision_spec.loader.exec_module(provision)
+NEGATIVE_PROXY_PATH = ROOT / "Tests/Runtime/qry023_negative_permission_proxy.py"
+negative_proxy_spec = importlib.util.spec_from_file_location("qry023_negative_permission_proxy_test", NEGATIVE_PROXY_PATH)
+assert negative_proxy_spec and negative_proxy_spec.loader
+negative_proxy = importlib.util.module_from_spec(negative_proxy_spec)
+negative_proxy_spec.loader.exec_module(negative_proxy)
 TOOLS = ROOT / "Demos/00_Framework/Tools"
 sys.path.insert(0, str(TOOLS))
 import run_demo  # noqa: E402
@@ -65,6 +70,44 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             wrapper.write_text(":r ../outside.sql\n", encoding="utf-8")
             with self.assertRaises(ValueError):
                 proxy.expand_sqlcmd_includes(wrapper, repository)
+
+    def test_negative_permission_proxy_only_injects_before_bound_admin_inventory(self) -> None:
+        base = [
+            "-S", "localhost", "-d", "SQLPERF_LAB_QRY023_LOCAL", "-i",
+            str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"),
+            "-U", "sa", "-v", "DemoId=QRY-023", "RunToken=LOCAL",
+            "TargetDatabase=SQLPERF_LAB_QRY023_LOCAL", "ReaderLogin=READER",
+        ]
+        self.assertEqual(negative_proxy.injection_target(base), "SQLPERF_LAB_QRY023_LOCAL")
+        unrelated = base.copy()
+        unrelated[unrelated.index("-i") + 1] = str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/25_Qualification_Preflight.sql")
+        self.assertIsNone(negative_proxy.injection_target(unrelated))
+
+    def test_negative_permission_proxy_uses_password_environment_and_fixed_grant(self) -> None:
+        args = [
+            "-S", "localhost", "-d", "SQLPERF_LAB_QRY023_LOCAL", "-i",
+            str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"),
+            "-U", "sa", "-v", "DemoId=QRY-023", "RunToken=LOCAL",
+            "TargetDatabase=SQLPERF_LAB_QRY023_LOCAL", "ReaderLogin=READER",
+        ]
+        output = io.StringIO()
+        with mock.patch.dict(os.environ, {
+            "SQLPERF_SQL_CONTAINER": "synthetic-container",
+            "SQLCMDPASSWORD": "synthetic-secret",
+        }, clear=True), \
+             mock.patch.object(negative_proxy.proxy, "_sqlcmd_path", return_value="/synthetic/sqlcmd"), \
+             mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run, \
+             mock.patch.object(negative_proxy.proxy, "main", return_value=0) as forward, \
+             mock.patch.object(sys, "argv", ["negative-proxy", *args]), \
+             contextlib.redirect_stdout(output):
+            self.assertEqual(negative_proxy.main(), 0)
+        command = run.call_args.args[0]
+        self.assertIn("SQLCMDPASSWORD", command)
+        self.assertNotIn("synthetic-secret", command)
+        self.assertEqual(run.call_args.kwargs["input"],
+                         "GRANT SELECT ON OBJECT::lab.MeasurementWaitSnapshot TO [READER];\n")
+        self.assertIn("QRY023_NEGATIVE_PERMISSION|GRANT_INJECTED", output.getvalue())
+        forward.assert_called_once_with()
 
     def test_qry023_timeout_after_setup_suppresses_sql_cleanup(self) -> None:
         calls: list[str] = []
@@ -106,6 +149,15 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("FILEGROWTH = 64MB", sql)
         self.assertIn("IF EXISTS (\n    SELECT 1 FROM tempdb.sys.database_files\n    WHERE max_size <> @max_file_mib * 128", sql)
         self.assertIn("IF @total_max_mib > 1024", sql)
+
+    def test_runtime_workflow_requires_negative_permission_rejection_and_cleanup(self) -> None:
+        workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
+        self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER grant"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
+        self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
+        self.assertIn("CLEANUP: PASS/OK", workflow)
+        self.assertIn("CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE", workflow)
 
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:
         password = "QRY" + "023!" + "1" * 24 + "Read"
