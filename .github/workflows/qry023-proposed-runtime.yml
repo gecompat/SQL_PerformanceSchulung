@@ -146,7 +146,12 @@ jobs:
           set -euo pipefail
           container="${SQLPERF_SQL_CONTAINER:?}"
           sqlcmd="$(docker exec "$container" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
-          output="$(docker exec -i -e SQLCMDPASSWORD "$container" "$sqlcmd" -S localhost -d master -U sa -C -b -r 1 < Tests/Runtime/qry023_tempdb_resource_guard.sql)"
+          set +e
+          output="$(docker exec -i -e SQLCMDPASSWORD "$container" "$sqlcmd" -S localhost -d master -U sa -C -b -r 1 < Tests/Runtime/qry023_tempdb_resource_guard.sql 2>&1)"
+          status="$?"
+          set -e
+          printf '%s\n' "$output"
+          if (( status != 0 )); then exit "$status"; fi
           grep -F 'QRY023_TEMPDB_GUARD|PASS|' <<< "$output"
           grep -F ';growth_mib=64' <<< "$output"
       - name: Provision the fresh READER SQL login through stdin
