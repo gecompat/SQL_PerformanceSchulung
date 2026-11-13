@@ -166,6 +166,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         database_sql, database_marker = negative_proxy.injection_for_mode("DATABASE_PERMISSION")
         self.assertEqual(database_sql, "GRANT VIEW DEFINITION TO [READER];\n")
         self.assertEqual(database_marker, "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_INJECTED")
+        database_deny_sql, database_deny_marker = negative_proxy.injection_for_mode("DATABASE_PERMISSION_DENY")
+        self.assertEqual(database_deny_sql, "DENY VIEW DEFINITION TO [READER];\n")
+        self.assertEqual(database_deny_marker, "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_DENY_INJECTED")
 
     def test_negative_server_permission_is_injected_from_master_context(self) -> None:
         args = [
@@ -293,6 +296,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER database permission"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the permission inventory rejects a denied READER database permission"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
         self.assertIn("DATABASE_ROLE;", workflow)
@@ -303,6 +308,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DATABASE_PERMISSION", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DATABASE_PERMISSION_DENY", workflow)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
