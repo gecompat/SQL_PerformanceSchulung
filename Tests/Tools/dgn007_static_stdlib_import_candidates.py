@@ -1074,13 +1074,22 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             if (isinstance(node.func.value, ast.Call)
                     and isinstance(node.func.value.func, ast.Name)
                     and node.func.value.func.id == "super"
-                    and not node.func.value.args
                     and not node.func.value.keywords
                     and active_method_context is not None):
                 class_name = active_method_context[0]
-                for base_name in module_class_bases.get(class_name, ()):
-                    for function in module_class_methods.get(base_name, {}).get(node.func.attr, ()):
-                        pending.append((function, function_closures.get(id(function), function_scope)))
+                receiver_name = active_method_context[1]
+                super_args = node.func.value.args
+                valid_super = not super_args or (
+                    len(super_args) == 2
+                    and isinstance(super_args[0], ast.Name)
+                    and super_args[0].id == class_name
+                    and isinstance(super_args[1], ast.Name)
+                    and super_args[1].id == receiver_name
+                )
+                if valid_super:
+                    for base_name in module_class_bases.get(class_name, ()):
+                        for function in module_class_methods.get(base_name, {}).get(node.func.attr, ()):
+                            pending.append((function, function_closures.get(id(function), function_scope)))
             if isinstance(node.func.value, ast.Call):
                 constructor = node.func.value.func
                 if isinstance(constructor, ast.Name):
@@ -1315,7 +1324,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_DIRECT_LOCAL_INHERITED_RECEIVER_METHODS_AND_SUPER_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_DIRECT_LOCAL_INHERITED_RECEIVER_METHODS_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

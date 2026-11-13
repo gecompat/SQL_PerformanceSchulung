@@ -8905,12 +8905,13 @@ Der Archivlauf bleibt `CANDIDATES_ONLY`: 92 Module, 572 Kanten, 433 Funktionen,
 Der Offline-Kandidat verfolgt `super().methode()` aus bereits erreichten
 Methoden, sofern die Basisklasse direkt lokal benannt und die Zielmethode
 quellseitig vorhanden ist. Eine synthetische Regression führt vom
-Unterklassen-Entry bis zum Import im Basismethodenrumpf. Alternative lokale
-Klassendefinitionen unter unbekannten Bedingungen bewahren alle direkt
-benannten Basen als Kandidaten. 55/55 fokussierte Tests bestehen. Importierte
-oder unbekannte Basen, explizite `super(T, self)`-Aufrufe und vollständige
-MRO-Auswertung bleiben offen; der Befund ist kein P11-Soll und keine
-vollständige Aufrufclosure.
+Unterklassen-Entry bis zum Import im Basismethodenrumpf. Exakte gebundene
+`super(Klasse, self/cls)`-Formen werden ebenfalls erkannt; Mismatches bleiben
+ausgeschlossen. Alternative lokale Klassendefinitionen unter unbekannten
+Bedingungen bewahren alle direkt benannten Basen. 58/58 fokussierte Tests
+bestehen. Importierte/unbekannte Basen, dynamische explizite Argumente und
+vollständige MRO-Auswertung bleiben offen; kein P11-Soll oder vollständige
+Aufrufclosure.
 
 ## Fortsetzung: DGN-007 – geerbte Receiveraufrufe
 
