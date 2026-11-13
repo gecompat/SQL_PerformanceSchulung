@@ -449,6 +449,15 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             custom_endpoint_case.index("QRY023_CUSTOM_ENDPOINT_CREATED=1"),
             custom_endpoint_case.index('[[ "$result" == 2 ]]'),
         )
+        custom_endpoint_cleanup = workflow[
+            workflow.index("Remove custom endpoint after negative control"):
+            workflow.index("Prove the permission inventory rejects a missing expected object")
+        ]
+        self.assertIn("Required custom-endpoint cleanup ownership context is unavailable.", custom_endpoint_cleanup)
+        self.assertLess(
+            custom_endpoint_cleanup.index("Required custom-endpoint cleanup ownership context is unavailable."),
+            custom_endpoint_cleanup.index("docker inspect --format '{{.Id}}'"),
+        )
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
