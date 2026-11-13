@@ -2606,9 +2606,19 @@ aufgerufene Funktionskörper bleiben ausgeschlossen. Sie ergibt 287 Kanten und
 59 Quellmodulkandidaten mit dem sortierten Modul-/Quelldigest
 `2b33bff1949822ff1e7d98474d0d523b7cd729af8b9f2c76d5094edf2283b291`. Dieser
 Vorschnitt ist enger als der Vollscan, aber ebenfalls keine P11-Importclosure:
-er wertet Plattformbedingungen nicht aus und erfasst keine Imports aus
+er erfasst keine Imports aus
 aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Importsyntax in
 einem Klassenkörper ist dabei kein Beleg seiner tatsächlichen Ausführung.
+
+Ein weiterer Zielumgebungsvorschnitt wertet nur sichere konstante `if`-Tests
+für `sys.platform == "linux"`, `os.name == "posix"`,
+Vergleiche mit `sys.version_info == (3, 12, 16, "final", 0)` und
+`sys.implementation.name == "cpython"` aus. Im erreichten Modul-/Klassenrumpf
+wurden vier Bedingungen entschieden und 42 nicht statisch entscheidbare
+Bedingungen beidseitig beibehalten. Der Kandidatenbestand blieb dadurch bei 59
+Modulen/287 Kanten und demselben Digest; bekannte Branchfilterung verringert
+die Quellmenge in diesem Vorschnitt also nicht. Das belegt keine vollständige
+Auswertung indirekter oder laufzeitabhängiger Bedingungen.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
