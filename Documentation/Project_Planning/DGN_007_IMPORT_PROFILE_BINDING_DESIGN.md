@@ -2669,6 +2669,25 @@ importierte Klassenmethoden und modulübergreifende Aliasbindung werden nicht
 geschlossen. Der Vorschnitt ist
 kein vollständiger Aufrufgraph und keine P11-Importclosure.
 
+Die Fortsetzung verfolgt zusätzlich explizit importierte Quellklassen: direkte
+`from source_module import Class [as alias]`-Methodenaufrufe, Konstruktoren
+mit quellseitig vorhandenem `__init__` sowie
+`import source_module [as alias]; alias.Class.method()` und
+`alias.Class()`-Aufrufe. Der aktuelle statische Lauf der zwölf Wurzeln ergibt
+568 Kanten, 92 Module und 225 verfolgte lokale Funktionen; 22 Bedingungen sind
+entschieden und 605 unbekannt. Der sortierte Modul-/Quelldigest lautet
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`.
+32 synthetische Tests umfassen nun auch die vier Klassenfälle (einschließlich
+einer nicht aufgerufenen Methode). Gegenüber dem vorherigen protokollierten
+Zähler ist dies keine monotone Erweiterung: Die Korrektur bindet importierte
+Aufrufziele jetzt als vollständige `(Modul, Funktion-oder-Methode)`-Paare statt
+den Attributnamen erneut einzusetzen; Zählwerte und Digest sind entsprechend
+neu berechnet. Einfaches Rebinding, dynamische Auflösung, Vererbung, MRO,
+Deskriptoren, `__new__`, C-/Frozen-Aufrufe und beliebige indirekte Aufrufe
+bleiben unmodelliert. Das Resultat ist weiterhin ausschließlich
+`CANDIDATES_ONLY`, keine vollständige Aufrufclosure und kein P11-Sollrecord;
+die operative S15-/P11-Inventur und das Fünf-Formen-/64-KiB-Gate bleiben offen.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
