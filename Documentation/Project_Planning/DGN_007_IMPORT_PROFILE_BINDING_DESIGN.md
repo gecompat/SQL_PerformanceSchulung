@@ -2807,8 +2807,17 @@ Vorfahrensatz. Eine Regression prüft Instanz- und Klassenmethoden samt
 Importkanten; eine weitere erreicht eine Großelternmethode über `self` und
 `super()`. Die Vereinigung behauptet keine lineare MRO-Reihenfolge; Overrides
 und komplexe MRO-/Deskriptorsemantik können Kandidaten überzählen. Der
-fokussierte Satz umfasst nun 59 Fälle. Importierte oder unbekannte Basen und
-vollständige MRO-Auswertung bleiben offen.
+fokussierte Satz umfasst an diesem Stand 59 Fälle. Unbekannte Basen und
+vollständige MRO-Auswertung bleiben offen; direkt auflösbare Quellimports
+werden im folgenden Zusatz behandelt.
+
+Zusätzlich verfolgt der Kandidat Methoden in direkt auflösbaren importierten
+Quellbasen. Unterstützt werden `from package import Base` und die bereits
+gebundene Modulaliasform `source.Base`; Instanz-/Receiver- und `super()`-Aufrufe
+geben die Methodenpaare an das bestehende Quellmodulrouting weiter. Zwei
+synthetische Varianten prüfen diese Pfade. Der fokussierte Satz umfasst nun
+60 Fälle. Externe oder dynamisch aufgelöste Basen bleiben unbekannt; dies
+ändert nichts am `CANDIDATES_ONLY`-Status.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
