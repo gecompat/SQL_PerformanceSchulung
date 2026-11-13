@@ -40,11 +40,12 @@ früheren 63er-Stand sind `locale`, `selectors`, `signal` und `subprocess`.
 Die jüngste statische Fortsetzung folgt nun auch explizit importierte
 Quellklassenmethoden und vorhandene `__init__`-Konstruktoren. Nach Korrektur
 der importierten Zielpaare zählt der Kandidatenscan 92 Module/572 Kanten und
-331 lokale Funktionen (22 entschiedene, 1.061 unbekannte Bedingungen; Digest
+351 lokale Funktionen (22 entschiedene, 1.126 unbekannte Bedingungen; Digest
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`).
 Der Scan folgt nun zusätzlich `from package import module [as alias]` und
-relativen Varianten und direkte Methodenaufrufe auf frisch konstruierten
-Klassenobjekten. 40 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
+relativen Varianten, direkte Methodenaufrufe auf frisch konstruierten
+Klassenobjekten und einfache gleichscope Variablenbindungen daraus. 43 synthetische
+Tests bestehen. Dynamische Calls, Vererbung/MRO,
 Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
 bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
@@ -8850,3 +8851,15 @@ Static-Tests bestehen. Der CPython-3.12.16-Archivscan bleibt
 22 entschiedene und 1.061 unbekannte Bedingungen; Digest unverändert.
 Beliebige Instanzvariablen, Factory-Rückgaben und dynamische Bindung bleiben
 offen. Es gab keine Zielruntime-, Profil-, Worker-, SQL- oder Generalprobe.
+
+## Fortsetzung: DGN-007 – Methoden über direkte Instanzbindungen
+
+Der Kandidatenscan löst nun außerdem einfache gleichscope Zuweisungen aus
+direkten bekannten Konstruktoren auf und verfolgt danach Methodenaufrufe auf
+diesem Variablennamen. Drei positive Regressionen decken lokale Klassen,
+Klassenaliase und Modulaliase ab; ein Factory-Rückgabewert wird ausdrücklich
+nicht typisiert. 43/43 synthetische Tests bestehen. Die gebundene
+CPython-Archivmessung bleibt `CANDIDATES_ONLY`: 92 Module, 572 Kanten, 351
+besuchte lokale Funktionen, 22 entschiedene und 1.126 unbekannte Bedingungen;
+Quelldigest unverändert. Rebinding kann überzählen; beliebige Factory-,
+Instanz-, Vererbungs- und Laufzeitbindungen bleiben offen.

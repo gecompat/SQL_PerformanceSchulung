@@ -2720,6 +2720,20 @@ Factory-Rückgaben, Vererbung/MRO, Deskriptoren, dynamische Bindung und beliebig
 indirekte Aufrufe bleiben unaufgelöst. Das Ergebnis ist weiterhin
 `CANDIDATES_ONLY` und kein P11-Soll.
 
+Eine weitere begrenzte Fortsetzung verfolgt Variablenmethodenaufrufe, wenn im
+selben Modul- oder Funktionsscope ein Name direkt mit einem bekannten
+Konstruktoraufruf belegt wird: `worker = Worker(); worker.run()`. Dies gilt
+für lokale Klassen, importierte Klassen und Modulaliase. Drei positive
+Regressionen decken diese Formen ab; eine Negativprobe lässt
+`worker = make(); worker.run()` ohne geratenen Factory-Rückgabetyp. Der
+Testsatz umfasst 43 Fälle. Der Archivlauf zählt 92 Module, 572 Kanten, 351
+besuchte lokale Funktionen sowie 22 entschiedene und 1.126 unbekannte
+Bedingungen. Quelldigest und Modulmenge sind unverändert. Zuweisungen werden
+konservativ gesammelt; Rebinding und alternative Kontrollflussbindungen können
+überzählen. Variable Methoden ohne passende direkte Konstruktorzuweisung,
+Funktions-/Factory-Rückgaben, Vererbung/MRO, Deskriptoren und dynamische
+Bindung bleiben unaufgelöst. Der Scope bleibt `CANDIDATES_ONLY`.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
