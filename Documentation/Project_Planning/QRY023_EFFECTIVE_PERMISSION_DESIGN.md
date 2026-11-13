@@ -414,11 +414,17 @@ zuverlässig zurückweisen; der Preflight vergleicht jetzt `DATALENGTH` und
 `LEN`. Der Proxy verändert ausschließlich den vom Caller bereits validierten
 RunToken beim `master`-Preflight, blockiert alle späteren Phasen und der
 owner-geprüfte Container bestätigt die Abwesenheit einer Nutzerdatenbank.
-Die aktuelle Folgequalifikation prüft dieselbe Vergleichsgrenze für den
-Ziel-Datenbanknamen: SQL-`=` kann nachgestellte Leerzeichen gleichsetzen und
-eine sprachabhängige Kollation kann abweichende Groß-/Kleinschreibung als
-gleich behandeln. Microsoft Learn dokumentiert die Auffüllung beim
+PR #587 qualifizierte denselben Vergleichsrand für den Ziel-Datenbanknamen:
+SQL-`=` kann nachgestellte Leerzeichen gleichsetzen und eine sprachabhängige
+Kollation kann abweichende Groß-/Kleinschreibung als gleich behandeln. BIN2-
+Vergleich und gleiche Bytelänge weisen diese Abweichungen zurück; die
+Gegenprobe bestand auf allen drei Engines vor Setup, ohne eine Nutzerdatenbank
+anzulegen. Microsoft Learn dokumentiert die Auffüllung beim
 Zeichenkettenvergleich sowie BIN2-Codepunktvergleiche und `DATALENGTH`
 (abgerufen am 13. November 2026; siehe die Quellenlinks im [Proposed-Harness
-README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md)). Bis zu
-deren Drei-Engine-Qualifikation gilt dieser Zielnamenfall als offen.
+README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md)). Der
+aktuelle Boundary-Schnitt prüft, dass die Demo-ID vor der T-SQL-Guard-Prüfung
+nicht durch eine zu enge `varchar`-Deklaration gekürzt wird und die feste
+Kennung unabhängig von der Datenbankkollation exakt bleibt. Die Live-Kontrollen
+decken ein nachgestelltes Leerzeichen sowie eine case-variant geschriebene,
+mit ihrem passenden Zielnamen gebundene Demo-ID ab.

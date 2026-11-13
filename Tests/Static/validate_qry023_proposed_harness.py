@@ -749,13 +749,15 @@ def preflight_target_derivation_valid(preflight: str) -> bool:
     """Bind target derivation, input rules, and fail-closed guard operators."""
     compact = re.sub(r"\s+", "", preflight).casefold()
     declarations = (
-        "declare@demoidvarchar(7)='$(demoid)';",
+        "declare@demoidvarchar(20)='$(demoid)';",
         "declare@runtokenvarchar(20)='$(runtoken)';",
         "declare@targetdatabasesysname=n'$(targetdatabase)';",
         "declare@expecteddatabasesysname=convert(sysname,n'sqlperf_lab_'+replace(@demoid,'-','')+n'_'+@runtoken);",
     )
     guard = (
-        "if@demoid<>'qry-023'or@runtokenisnullorlen(@runtoken)notbetween1and20"
+        "if@demoidisnullordatalength(@demoid)<>7"
+        "or@demoidcollatelatin1_general_100_bin2<>'qry-023'collatelatin1_general_100_bin2"
+        "or@runtokenisnullorlen(@runtoken)notbetween1and20"
         "ordatalength(@runtoken)notbetween1and20"
         "ordatalength(@runtoken)<>len(@runtoken)"
         "or@runtokencollatelatin1_general_100_bin2like'%[^a-z0-9_]%'"

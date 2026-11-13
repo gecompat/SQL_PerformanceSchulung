@@ -926,6 +926,25 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("deterministic target database name and exact RunToken format" in error
                             for error in self.errors()))
 
+    def test_preflight_must_reject_truncated_demo_id_suffixes(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("DECLARE @DemoId varchar(20)", "DECLARE @DemoId varchar(7)")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
+    def test_preflight_must_compare_the_demo_id_bin2(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace(
+            "OR @DemoId COLLATE Latin1_General_100_BIN2 <> 'QRY-023' COLLATE Latin1_General_100_BIN2",
+            "",
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
 
 if __name__ == "__main__":
     unittest.main()

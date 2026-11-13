@@ -3430,9 +3430,11 @@ getrennte SQL-Anmeldungsprofile je Manifestphase; QRY-023 weist administrative
 Phasen `ADMIN` und Korrektheits-/Messphasen `READER` zu. Die geprüften
 Prinzipal- und Minimalrechte gelten für die isolierte Einzel-Run-Umgebung und
 die festgeschriebenen Builds; eine allgemeine Runtime-/Produkt-/Katalogfreigabe
-folgt daraus nicht. Als nächste begrenzte Gegenprobe prüft der aktuelle
-Entwicklungsschnitt den exakt, binär und längenbasiert gebundenen
-Ziel-Datenbanknamen im SQL-Preflight.
+folgt daraus nicht. PR #587 qualifizierte zusätzlich den exakt, binär und
+längenbasiert gebundenen Ziel-Datenbanknamen im SQL-Preflight auf allen drei
+Engines. Der aktuelle begrenzte Entwicklungsschnitt prüft die Demo-ID gegen
+vorzeitige `varchar`-Kürzung und SQL-Kollationsregeln mit Leerzeichen- und
+case-variantem Laufzeitfall.
 Die Editionsmatrix
 `SRC-126` wurde am
 12.11.2026 erneut geprüft und bestätigt Graph-Verfügbarkeit in den
