@@ -5,21 +5,25 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
 import tarfile
 
 
 ARCHIVE_SHA256 = "b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c"
 ARCHIVE_ROOT = "Python-3.12.16/Lib/"
+STDLIB_MODULE_NAMES_MEMBER = "Python-3.12.16/Python/stdlib_module_names.h"
+STDLIB_MODULE_NAMES_SHA256 = "450581463358b2ffaeca45b261c2e59a41cd6546b487445ed5ff9e0a2b4163a6"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
+MAX_STDLIB_MODULE_NAMES_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
 )
 
 
-def _source_files(archive_path):
+def _archive_bytes(archive_path):
     path = Path(archive_path)
     with path.open("rb") as raw:
         archive_bytes = raw.read(MAX_ARCHIVE_BYTES + 1)
@@ -27,10 +31,28 @@ def _source_files(archive_path):
         raise ValueError("SOURCE_ARCHIVE_LIMIT")
     if hashlib.sha256(archive_bytes).hexdigest() != ARCHIVE_SHA256:
         raise ValueError("SOURCE_ARCHIVE_MISMATCH")
+    return archive_bytes
+
+
+def _source_archive_data(archive_bytes):
     files = {}
+    stdlib_header = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
+            if member.name == STDLIB_MODULE_NAMES_MEMBER:
+                if not member.isfile() or stdlib_header is not None \
+                        or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
+                    raise ValueError("STDLIB_MODULE_NAMES_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("STDLIB_MODULE_NAMES_MEMBER")
+                stdlib_header = stream.read(member.size + 1)
+                if (len(stdlib_header) != member.size
+                        or hashlib.sha256(stdlib_header).hexdigest()
+                        != STDLIB_MODULE_NAMES_SHA256):
+                    raise ValueError("STDLIB_MODULE_NAMES_DIGEST")
+                continue
             if not member.isfile() or not member.name.startswith(ARCHIVE_ROOT):
                 continue
             relative = member.name[len(ARCHIVE_ROOT):]
@@ -50,7 +72,31 @@ def _source_files(archive_path):
                 raise ValueError("SOURCE_ARCHIVE_MEMBER")
             total += len(body)
             files[relative] = body
-    return files
+    return files, stdlib_header
+
+
+def _source_files(archive_path):
+    return _source_archive_data(_archive_bytes(archive_path))[0]
+
+
+def _stdlib_module_names(header):
+    if (type(header) is not bytes or not header
+            or len(header) > MAX_STDLIB_MODULE_NAMES_BYTES
+            or hashlib.sha256(header).hexdigest() != STDLIB_MODULE_NAMES_SHA256):
+        raise ValueError("STDLIB_MODULE_NAMES_DIGEST")
+    text = header.decode("ascii")
+    blocks = re.findall(
+        r"(?m)^static const char\* _Py_stdlib_module_names\[\] = \{\n"
+        r"((?:\"[A-Za-z_][A-Za-z0-9_]*\",\n)+)\};$",
+        text,
+    )
+    if len(blocks) != 1:
+        raise ValueError("STDLIB_MODULE_NAMES_FORMAT")
+    names = tuple(re.findall(r'^"([A-Za-z_][A-Za-z0-9_]*)",$', blocks[0], re.M))
+    if not names or names != tuple(sorted(set(names))):
+        raise ValueError("STDLIB_MODULE_NAMES_ORDER")
+    canonical = "".join(name + "\n" for name in names).encode("ascii")
+    return names, hashlib.sha256(canonical).hexdigest()
 
 
 def _module_path(module, files):
@@ -1640,15 +1686,22 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 
 def analyze(archive_path):
-    files = _source_files(archive_path)
+    files, stdlib_header = _source_archive_data(_archive_bytes(archive_path))
+    if stdlib_header is None:
+        raise ValueError("STDLIB_MODULE_NAMES_MISSING")
+    stdlib_names, stdlib_names_sha256 = _stdlib_module_names(stdlib_header)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
     call_modules, call_edges, call_functions, call_sha256, call_conditions = (
         _module_init_call_candidate_closure(files)
     )
+    call_roots = {name.partition(".")[0] for name in call_modules}
+    call_roots_outside_stdlib = tuple(sorted(call_roots - set(stdlib_names)))
     return {
         "archive_sha256": ARCHIVE_SHA256,
+        "source_stdlib_module_names_count": len(stdlib_names),
+        "source_stdlib_module_names_sha256": stdlib_names_sha256,
         "edge_count": edges,
         "module_count": len(modules),
         "module_rows_sha256": rows_sha256,
@@ -1666,6 +1719,9 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
+        "module_init_call_roots_outside_source_stdlib_names": list(
+            call_roots_outside_stdlib
+        ),
         "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],

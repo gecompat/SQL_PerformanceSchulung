@@ -2403,8 +2403,9 @@ abgeleitet.
 Aktueller statischer Kandidatenfortschritt ist im
 [Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md#fortsetzung-dgn-007-klassenaliase-über-aufgerufene-nested-function-closures)
 dokumentiert: aufgerufene Nested-Function-Closures erhalten bekannte
-importierte Klassenaliase; der CPython-3.12.16-Scan bleibt `CANDIDATES_ONLY`.
-Die vollständige Aufrufclosure sowie operative S15-/P11-Inventur und das
+importierte Klassenaliase; der CPython-3.12.16-Scan bindet außerdem 301 Namen
+aus dem generierten `stdlib_module_names.h`, weiterhin `CANDIDATES_ONLY`.
+Vollständige Aufrufclosure, übrige S15-/P11-Inventur und das
 Fünf-Formen-/64-KiB-Gate bleiben offen.
 
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026

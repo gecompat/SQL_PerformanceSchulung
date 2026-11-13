@@ -5170,3 +5170,25 @@ nicht verwertbar: dessen Linux-Profilfixtures werden bereits an
 unter Windows nicht). Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung; vollständige Aufrufclosure, S15-/P11-Inventur und
 Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+### Fortsetzung: Quellgebundene `stdlib_module_names`-Namensmenge
+
+Der gleiche signaturgeprüfte Quellarchivscan bindet nun zusätzlich
+`Python/stdlib_module_names.h` an den Dateidigest
+`450581463358b2ffaeca45b261c2e59a41cd6546b487445ed5ff9e0a2b4163a6`. Der
+strukturell begrenzte Parser verlangt eine sortierte, eindeutige Folge von
+Top-Level-Modulnamen und zählt 301 Namen. Der kanonische LF-Zeilendigest der
+Namensmenge ist
+`8c9e3210ccf408b365cbecd391b5a7bf01fd9f1ec4a22b1993f7cc03693cc7b0`. Die
+Wurzeln aller 93 derzeitigen Modulstart-Quellkandidaten sind Teil dieser
+statischen CPython-Namensmenge.
+
+Dies ist ein Quellkonsistenzcheck, keine beobachtete
+`sys.stdlib_module_names`-Eigenschaft und keine Import- oder Loaderinventur.
+Der generierte Header beweist nicht, dass das gebundene Image ihn auf genau
+diesem Weg erzeugt oder verwendet hat. Die 15 S15-Felder, vollständigen P11-
+Records, operative Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.
+88/88 fokussierte synthetische Scannertests bestehen; der gebundene Archivscan
+bleibt `CANDIDATES_ONLY` und liefert weiterhin 93 Quellmodule/578 Kanten/534
+Funktionen mit unverändertem Zeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.

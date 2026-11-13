@@ -9130,3 +9130,23 @@ an Linux-Profilpfaden, die Windows-Python bei `os.path.isabs` als
 Vollständige Aufrufclosure, S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate
 bleiben offen. Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung; die Generalprobe bleibt ausgeschlossen.
+
+## Fortsetzung: DGN-007 – statische `stdlib_module_names`-Quelle gebunden
+
+Der SHA-gebundene CPython-3.12.16-Archivscanner liest jetzt zusätzlich den
+generierten `Python/stdlib_module_names.h`-Header. Sein Dateidigest ist
+`450581463358b2ffaeca45b261c2e59a41cd6546b487445ed5ff9e0a2b4163a6`; der
+Parser zählt 301 sortierte, eindeutige Top-Level-Namen mit kanonischem
+Zeilendigest
+`8c9e3210ccf408b365cbecd391b5a7bf01fd9f1ec4a22b1993f7cc03693cc7b0`. Alle 93
+Wurzeln der bisherigen Modulstart-Quellkandidaten liegen in dieser statischen
+Namensmenge.
+
+Dies ist keine beobachtete Eigenschaft `sys.stdlib_module_names` und keine
+Build-/Laufzeitattestation. Der gebundene Scan bleibt `CANDIDATES_ONLY` bei 93
+Modulen, 578 Kanten und 534 Funktionen; der Kandidatenzeilendigest bleibt
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+Synthetische Archiv-/Parsergegenproben und der fokussierte Satz bestehen 88/88.
+Die vollständigen 15 S15-Felder, P11-Records, operative Inventur und das
+Fünf-Formen-/64-KiB-Gate bleiben offen; kein Interpreter, Profil, Worker, SQL
+oder Generalprobe wurde ausgeführt.
