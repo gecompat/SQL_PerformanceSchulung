@@ -49,6 +49,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DENY SELECT ON OBJECT::dbo.Person TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|DIRECT_DENY_INJECTED",
         )
+    if mode == "SERVER_ROLE":
+        return (
+            "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
