@@ -717,15 +717,13 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             workflow.index("Remove custom endpoint after negative control"):
             workflow.index("Remove only the owned SQL Server container")
         ]
-        self.assertEqual(post_endpoint_steps.count("      - name:"), 2)
+        self.assertEqual(post_endpoint_steps.count("      - name:"), 1)
         timeout_case = workflow[
             workflow.index("Prove a SQL timeout suppresses cleanup and preserves the marked target"):
-            workflow.index("Remove only the owned SQL Server container")
+            workflow.index("Prove the permission inventory rejects an unregistered custom endpoint")
         ]
         self.assertNotIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", timeout_case)
         self.assertIn("plan[\"timeout_seconds\"] = 5", timeout_case)
-        self.assertIn('plan["credential_profile"] = "ADMIN"', timeout_case)
-        self.assertIn('manifest["credential_profiles"] = ["ADMIN"]', timeout_case)
         self.assertIn("WAITFOR DELAY '00:00:30'", timeout_case)
         self.assertIn('plan["script"] = ".qry023_timeout_probe.sql"', timeout_case)
         self.assertIn("Tests/Runtime/qry023_docker_sqlcmd_proxy.py", timeout_case)
@@ -742,9 +740,14 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|PROBE_REQUEST_NOT_OBSERVED", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|RUNNER_EXIT", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED", timeout_case)
+        self.assertIn('grep -F \'SQLPERF_SUMMARY|PASS|OK\' <<< "$recovery_output"', timeout_case)
+        self.assertIn("QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS", timeout_case)
+        self.assertIn("CLEANUP: PASS/EXTERNAL_RECOVERY", timeout_case)
         self.assertIn("QRY023_TIMEOUT_HARNESS_LOG=${log}", timeout_case)
         self.assertIn("grep -Eq '^CLEANUP: PASS/'", timeout_case)
         self.assertIn('log="${QRY023_TIMEOUT_HARNESS_LOG:-${QRY023_HARNESS_LOG:-}}"', workflow)
+        self.assertLess(workflow.index("Prove a SQL timeout suppresses cleanup and preserves the marked target"),
+                        workflow.index("Prove the permission inventory rejects an unregistered custom endpoint"))
         self.assertLess(timeout_case.index("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED"), workflow.index("Remove only the owned SQL Server container"))
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
