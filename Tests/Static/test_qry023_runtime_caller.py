@@ -458,6 +458,15 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             custom_endpoint_cleanup.index("Required custom-endpoint cleanup ownership context is unavailable."),
             custom_endpoint_cleanup.index("docker inspect --format '{{.Id}}'"),
         )
+        self.assertLess(
+            workflow.index("QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED"),
+            workflow.index("Remove only the owned SQL Server container"),
+        )
+        post_endpoint_steps = workflow[
+            workflow.index("Remove custom endpoint after negative control"):
+            workflow.index("Remove only the owned SQL Server container")
+        ]
+        self.assertEqual(post_endpoint_steps.count("      - name:"), 1)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)

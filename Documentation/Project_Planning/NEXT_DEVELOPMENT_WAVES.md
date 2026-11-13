@@ -1486,8 +1486,16 @@ Reader-Preflight scheiterte jedoch auf allen Builds mit SQL-Loginfehler; damit
 ist die Ursache noch nicht bewiesen. Zur Isolation läuft die globale Endpoint-
 DDL-Gegenprobe künftig erst nach dem vollständigen positiven Zehnphasenlauf.
 Die positive Qualifikation wird so vor dieser zusätzlichen Instanzmutation
-gemessen; anschließend müssen Gegenprobe, Owner-Cleanup und alle PR-Gates
-erneut bestehen.
+gemessen. Eine gezielte Wiederholung des vollen positiven Laufs nach dem
+Endpoint-Drop scheiterte auf allen drei Builds im `QUALIFICATION_PREFLIGHT` mit
+18456/State 149 (`Login lacks connect endpoint permission`). Die begrenzte
+ADMIN-Diagnose zeigte, dass danach explizites `public CONNECT` auf den
+Standardendpoints 2, 3 und 5 vorlag, aber auf `TSQL Default TCP`/Endpoint 4
+fehlte. DEC-083 untersagt dem Harness, `public`- oder Endpointrechte zu ändern.
+Darum wird der globale Endpoint-Fall nach dem positiven Lauf als letzte Mutation
+in seiner owner-markierten Wegwerfinstanz ausgeführt; nach bestätigtem Endpoint-
+Drop wird die ganze Instanz entfernt und nicht für weitere Reader-Verbindungen
+wiederverwendet.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
