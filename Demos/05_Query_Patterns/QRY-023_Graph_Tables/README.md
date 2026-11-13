@@ -118,8 +118,11 @@ für sich weder andere Principals noch Ownership-Chain-Wirkungen. Der Harness
 prüfte die tatsächlichen READER-Verbindungen und den Messprozedurpfad auf allen
 drei Builds. Eine Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant
 und Mitgliedschaft in `db_datareader` wurde auf allen drei Builds vor den
-Queryphasen fail-closed abgewiesen; weitere negative Varianten sind nicht live
-qualifiziert.
+Queryphasen fail-closed abgewiesen. Die seither ergänzten und auf den drei
+Builds qualifizierten Live-Gegenproben für Objekt-DENY, Rollen, Objektinventar,
+Server-/Datenbankrechte und Endpoints samt Cleanup sind im [aktuellen
+Ausführungsstatus](../../../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+nach PR dokumentiert. QRY-023 bleibt dabei `PROPOSED` und nicht katalogisiert.
 
 `DEC-084` schließt den konkreten Verbindungsfehler im Setup und in dessen
 Offline-Vertragsprüfung:
