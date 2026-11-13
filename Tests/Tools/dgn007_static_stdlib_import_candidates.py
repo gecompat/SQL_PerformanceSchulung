@@ -489,8 +489,10 @@ def _top_level_class_base_index(tree):
         if isinstance(node, ast.ClassDef):
             bases = result.setdefault(node.name, [])
             for base in node.bases:
-                if isinstance(base, ast.Name) and base.id not in bases:
-                    bases.append(base.id)
+                if isinstance(base, (ast.Name, ast.Attribute)):
+                    base_name = ast.unparse(base)
+                    if base_name not in bases:
+                        bases.append(base_name)
             return
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
             return
@@ -888,6 +890,19 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             pending_bases.extend(module_class_bases.get(base_name, ()))
         return tuple(ancestors)
 
+    def add_base_method_calls(class_name, method_name, function_scope):
+        for base_name in local_base_classes(class_name):
+            for function in module_class_methods.get(base_name, {}).get(method_name, ()):
+                pending.append((function, function_closures.get(id(function), function_scope)))
+            imported_targets = (imported_class_methods or {}).get(base_name, {}).get(
+                method_name, ()
+            )
+            imported_module_targets = (imported_module_class_methods or {}).get(
+                base_name, {}
+            ).get(method_name, ())
+            imported_calls.update(imported_targets)
+            imported_calls.update(imported_module_targets)
+
     staticmethod_rebinding_possible = _has_possible_staticmethod_rebinding(tree)
     method_receiver_context = {}
     for class_name, methods in module_class_methods.items():
@@ -1102,9 +1117,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     and super_args[1].id == receiver_name
                 )
                 if valid_super:
-                    for base_name in local_base_classes(class_name):
-                        for function in module_class_methods.get(base_name, {}).get(node.func.attr, ()):
-                            pending.append((function, function_closures.get(id(function), function_scope)))
+                    add_base_method_calls(class_name, node.func.attr, function_scope)
             if isinstance(node.func.value, ast.Call):
                 constructor = node.func.value.func
                 if isinstance(constructor, ast.Name):
@@ -1126,9 +1139,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     class_name = active_method_context[0]
                     for function in module_class_methods.get(class_name, {}).get(node.func.attr, ()):
                         pending.append((function, function_closures.get(id(function), function_scope)))
-                    for base_name in local_base_classes(class_name):
-                        for function in module_class_methods.get(base_name, {}).get(node.func.attr, ()):
-                            pending.append((function, function_closures.get(id(function), function_scope)))
+                    add_base_method_calls(class_name, node.func.attr, function_scope)
                 instance_targets = active_instance_methods.get(node.func.value.id, {}).get(
                     node.func.attr, {"local": (), "imported": ()}
                 )
@@ -1339,7 +1350,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

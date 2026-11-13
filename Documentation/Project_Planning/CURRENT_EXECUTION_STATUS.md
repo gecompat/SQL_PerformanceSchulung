@@ -8928,4 +8928,12 @@ bekannte lokale Vorfahren auf. `self.method()` und `super().method()` erreichen
 eine Methode in der Großelternklasse, auch wenn die Zwischenklasse sie nicht
 deklariert. Die Vereinigung der Vorfahren behauptet keine konkrete MRO und kann
 bei Overrides Kandidaten überzählen. 59/59 fokussierte Tests bestehen;
-importierte/unbekannte Basen und vollständige MRO bleiben offen.
+unbekannte Basen und vollständige MRO bleiben offen.
+
+## Fortsetzung: DGN-007 – importierte Quellbasen
+
+Direkt auflösbare Basen aus `from package import Base` und gebundenen
+Modulaliasen wie `source.Base` speisen nun ebenfalls die geerbten Receiver-
+und `super()`-Kandidaten. Zwei synthetische Varianten prüfen die Quellmethoden-
+und Importkanten. 60/60 fokussierte Tests bestehen. Externe oder dynamische
+Basen und vollständige MRO bleiben offen; Status bleibt `CANDIDATES_ONLY`.
