@@ -611,7 +611,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant", readme)
         self.assertIn("Mitgliedschaft in `db_datareader`", readme)
         self.assertIn("`VIEW SERVER STATE`-Grant", readme)
-        self.assertIn("Absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
+        self.assertIn("`securityadmin`", readme)
+        self.assertIn("SQL-Kataloge wurden nicht ausgeführt", readme)
         self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
 
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:

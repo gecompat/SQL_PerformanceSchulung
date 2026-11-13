@@ -378,20 +378,26 @@ eine separat geprüfte Bereinigung. PR #563 qualifizierte diese vorgeschlagene
 CI-Route am 13.11.2026 auf allen drei festgebundenen Engines und allen zehn
 Harnessphasen. Sie ersetzt keinen allgemeinen Runner-Prozessbaum- oder
 Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch einen
-Katalogeintrag. PRs #566–#575 ergänzten auf allen drei Engines Live-
-Negativgegenproben: direkter `SELECT`-Grant an READER auf
-`lab.MeasurementWaitSnapshot` plus `db_datareader`-Mitgliedschaft (PR #566),
-explizites Objekt-`DENY` (#567), `dbcreator`-Serverrollenmitgliedschaft (#568),
-fehlendes erwartetes `lab.MeasurementWaitSnapshot` (#569) und ein
-`VIEW SERVER STATE`-Servergrant (#570) sowie explizites serverweites
-`DENY VIEW SERVER STATE` (#571), datenbankweiter `VIEW DEFINITION`-Grant
-(#572) und Datenbank-`DENY VIEW DEFINITION` (#573) sowie direkter
-`CONNECT`-Grant und -DENY auf `TSQL Default TCP` (#574/#575). Jeder Fall wurde vor Korrektheit und
-Messung mit seiner exakten Kategorie als `FAIL_NOT_PROVEN` abgewiesen; das
-markergebundene Datenbank-Cleanup bestand. Serverrolle, Servergrant und
-Server-DENY wurden nach der Gegenprobe separat wiederhergestellt und
-verifiziert; der Endpoint-Grant und das -DENY wurden nach Owner-Label-Prüfung
-widerrufen und verifiziert. Die Datenbankfälle entfernte der markergebundene Cleanup. Nach
-jedem Fall bestand der positive Zehnphasenlauf. Weitere negative Varianten und
-absichtlich beschädigte SQL-Kataloge bleiben ungeprüft; eine allgemeine
-Runtimefreigabe und Produkt-/Katalogaufnahme bleiben ebenfalls offen.
+Katalogeintrag. PRs #566–#581 ergänzten auf allen drei Engines Live-Negativgegenproben: direkter
+`SELECT`-Grant an READER auf `lab.MeasurementWaitSnapshot` plus
+`db_datareader`-Mitgliedschaft (#566), explizites Objekt-`DENY` (#567),
+`dbcreator`-Serverrollenmitgliedschaft (#568), fehlendes erwartetes
+`lab.MeasurementWaitSnapshot` (#569), `VIEW SERVER STATE`-Servergrant (#570)
+und explizites serverweites `DENY VIEW SERVER STATE` (#571), datenbankweiter
+`VIEW DEFINITION`-Grant (#572) und Datenbank-`DENY VIEW DEFINITION` (#573),
+direkter `CONNECT`-Grant und -DENY auf `TSQL Default TCP` (#574/#575),
+unregistrierter gestoppter TSQL-Endpoint (#576/#577), direkte
+`VIEW ANY DATABASE`-Grant- und -DENY-Zuweisungen (#578/#579),
+`DENY CONNECT SQL` (#580) sowie direkte `securityadmin`-
+Serverrollenmitgliedschaft (#581). Die ADMIN-Inventur wies die negativen
+Berechtigungsfälle vor Korrektheit und Messung mit ihrer exakten Kategorie als
+`FAIL_NOT_PROVEN` ab; markergebundener Cleanup und positiver Zehnphasenlauf
+bestanden auf allen drei Builds. Die unregistrierte TSQL-Endpoint-Gegenprobe
+(#576/#577) lief gemäß DEC-083 als letzte Instanzmutation nach dem positiven
+Lauf; Endpoint-Drop und anschließende Instanzentfernung bestanden. Serverrollen,
+Serverrechte und Endpointrechte wurden im owner-geprüften Container
+wiederhergestellt und verifiziert. Der erste SQL-2025-Lauf von PR #581
+scheiterte vor Setup im TempDB-Growth-Guard, weil zwei Dateien noch
+`MAXSIZE = UNLIMITED` meldeten; nur dieser frische Job wurde wiederholt und
+bestand vollständig. Absichtlich beschädigte SQL-Kataloge wurden nicht geprüft.
+Allgemeine Runtimefreigabe und Produkt-/Katalogaufnahme bleiben offen.

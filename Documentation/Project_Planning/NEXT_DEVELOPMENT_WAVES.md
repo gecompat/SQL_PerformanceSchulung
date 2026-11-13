@@ -1514,11 +1514,14 @@ stellt nur bei bestätigtem DENY den ursprünglichen GRANT wieder her. Nach
 Korrektur bestanden alle drei Enginejobs und PR-Gates; Integration:
 `232b3c583f5aa25d1b8a9c9be2012b1116fa174c`.
 
-PR #581 ergänzt die zusätzliche direkte Mitgliedschaft von `READER` in
-`securityadmin`. Erwartet wird die alleinige fail-closed `SERVER_ROLE`-
-Abweichung vor Queryphasen. Vorbedingung, markergebundener Restore im
-owner-geprüften Wegwerfcontainer und Verifikation schützen den Baselinezustand;
-die Drei-Engine-Qualifikation steht aus.
+PR #581 qualifizierte die zusätzliche direkte Mitgliedschaft von `READER` in
+`securityadmin` auf SQL Server 2019/2022/2025 als alleinige fail-closed
+`SERVER_ROLE`-Abweichung vor Queryphasen. Die Injektion verlangte einen
+bekannten Nichtmitglied-Ausgangszustand; markergebundener Restore im
+owner-geprüften Wegwerfcontainer, Verifikation und anschließender positiver
+Zehnphasenlauf bestanden. Der erste 2025-Lauf scheiterte vor Setup am TempDB-
+Growth-Guard mit zwei noch unbegrenzten Dateien; die gezielte frische
+Wiederholung bestand. Integration: `f2d36454d03d256f1d762284fdcc6fd4604c5043`.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
