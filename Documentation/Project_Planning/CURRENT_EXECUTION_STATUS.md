@@ -8549,4 +8549,6 @@ PR #576 integrierte die Gegenprobe für einen unregistrierten `STOPPED`-TSQL-End
 
 PR #578 qualifizierte den direkten `GRANT VIEW ANY DATABASE` an `READER` auf allen drei Builds als alleinige `SERVER_PERMISSION`-Abweichung; der owner-gebundene `REVOKE` und Abwesenheitsnachweis sowie der nachfolgende positive Zehnphasenlauf bestanden. Mergecommit #578: `44c7714bfbb0319ff45d605b0db64641f2b8242e`.
 
-PR #579 ergänzt die komplementäre direkte `DENY VIEW ANY DATABASE`-Gegenprobe samt owner-gebundenem Widerruf, Abwesenheitsprüfung und statischen Regressionen. Die Drei-Engine-Qualifikation steht noch aus.
+PR #579 qualifizierte den direkten `DENY VIEW ANY DATABASE` an `READER` auf allen drei Builds als alleinige `SERVER_PERMISSION`-Abweichung; der owner-gebundene `REVOKE`, Abwesenheitsnachweis und positive Zehnphasenlauf bestanden. Mergecommit #579: `39b517d4f393b2238620d1052f009237fbb18416`.
+
+PR #580 ergänzt die direkte `DENY CONNECT SQL`-Gegenprobe. Die Drei-Engine-Qualifikation steht noch aus.

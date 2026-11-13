@@ -79,6 +79,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DENY VIEW ANY DATABASE TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED",
         )
+    if mode == "CONNECT_SQL_DENY":
+        return (
+            "DENY CONNECT SQL TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED",
+        )
     if mode == "DATABASE_PERMISSION":
         return (
             "GRANT VIEW DEFINITION TO [READER];\n",
@@ -132,6 +137,7 @@ def main() -> int:
                 "SERVER_PERMISSION", "SERVER_PERMISSION_DENY",
                 "VIEW_ANY_DATABASE_GRANT",
                 "VIEW_ANY_DATABASE_DENY",
+                "CONNECT_SQL_DENY",
                 "ENDPOINT_PERMISSION", "ENDPOINT_PERMISSION_DENY",
                 "CUSTOM_ENDPOINT",
             } else target
