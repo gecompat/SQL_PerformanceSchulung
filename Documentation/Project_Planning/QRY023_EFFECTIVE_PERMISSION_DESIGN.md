@@ -406,3 +406,19 @@ scheiterte vor Setup im TempDB-Growth-Guard, weil zwei Dateien noch
 `MAXSIZE = UNLIMITED` meldeten; nur dieser frische Job wurde wiederholt und
 bestand vollständig. Absichtlich beschädigte SQL-Kataloge wurden nicht geprüft.
 Allgemeine Runtimefreigabe und Produkt-/Katalogaufnahme bleiben offen.
+
+PR #586 qualifizierte zusätzlich die T-SQL-Defense-in-Depth für ein
+nachgestelltes Leerzeichen im RunToken auf SQL Server 2019/2022/2025. Die erste
+unabhängige Reviewrunde fand, dass `LEN` und ASCII-`LIKE` den Wert nicht
+zuverlässig zurückweisen; der Preflight vergleicht jetzt `DATALENGTH` und
+`LEN`. Der Proxy verändert ausschließlich den vom Caller bereits validierten
+RunToken beim `master`-Preflight, blockiert alle späteren Phasen und der
+owner-geprüfte Container bestätigt die Abwesenheit einer Nutzerdatenbank.
+Die aktuelle Folgequalifikation prüft dieselbe Vergleichsgrenze für den
+Ziel-Datenbanknamen: SQL-`=` kann nachgestellte Leerzeichen gleichsetzen und
+eine sprachabhängige Kollation kann abweichende Groß-/Kleinschreibung als
+gleich behandeln. Microsoft Learn dokumentiert die Auffüllung beim
+Zeichenkettenvergleich sowie BIN2-Codepunktvergleiche und `DATALENGTH`
+(abgerufen am 13. November 2026; siehe die Quellenlinks im [Proposed-Harness
+README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md)). Bis zu
+deren Drei-Engine-Qualifikation gilt dieser Zielnamenfall als offen.

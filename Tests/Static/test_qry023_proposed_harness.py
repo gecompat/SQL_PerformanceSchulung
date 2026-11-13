@@ -885,8 +885,10 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
     def test_preflight_must_require_the_derived_target_database(self) -> None:
         path = self.demo / "00_Preflight.sql"
         source = path.read_text(encoding="utf-8")
-        source = source.replace("@TargetDatabase <> @ExpectedDatabase",
-                                "@TargetDatabase = @ExpectedDatabase")
+        source = source.replace(
+            "@TargetDatabase COLLATE Latin1_General_100_BIN2 <> @ExpectedDatabase COLLATE Latin1_General_100_BIN2",
+            "@TargetDatabase COLLATE Latin1_General_100_BIN2 = @ExpectedDatabase COLLATE Latin1_General_100_BIN2",
+        )
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("deterministic target database name and exact RunToken format" in error
                             for error in self.errors()))
@@ -912,6 +914,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         path = self.demo / "00_Preflight.sql"
         source = path.read_text(encoding="utf-8")
         source = source.replace("OR DATALENGTH(@RunToken) <> LEN(@RunToken)", "")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("deterministic target database name and exact RunToken format" in error
+                            for error in self.errors()))
+
+    def test_preflight_must_compare_exact_target_database_length(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8")
+        source = source.replace("OR DATALENGTH(@TargetDatabase) <> DATALENGTH(@ExpectedDatabase)", "")
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("deterministic target database name and exact RunToken format" in error
                             for error in self.errors()))

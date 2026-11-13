@@ -3418,13 +3418,22 @@ Operativer Workerbetrieb und Ressourcen-Cleanup bleiben getrennte Gates.
 Graph Tables bleiben als Demo `QRY-023` im Status `PROPOSED`; `DEC-079` gibt
 die vorhandene Methodik frei und `DEC-080` akzeptiert die acht ausführbaren
 T-SQL-Dateien nur für den statischen ScriptDom-Parse 150/160/170. Daraus folgt
-keine Enginekompilierung, Ausführung oder Runtimequalifikation. `DEC-081`
+für sich allein keine Enginekompilierung, Ausführung oder Runtimequalifikation.
+Die getrennte vorgeschlagene Harness-Route lief inzwischen auf SQL Server
+2019/2022/2025 einschließlich der ADMIN-/READER-Rechteinventur und konkreter
+Live-Negativgegenproben; PR #586 qualifizierte zusätzlich die T-SQL-Ablehnung
+eines RunTokens mit nachgestelltem Leerzeichen. `DEC-081`
 bestätigt die Buildpins als aktuelle Linux-Servicingstände zum 12.11.2026;
 `DEC-082` bestätigt die aktuellen MCR-Manifest-/Konfigurationsdigests und
 Produktlabels gegenüber dem vorgeschlagenen Lock. FWK-010 unterstützt jetzt
 getrennte SQL-Anmeldungsprofile je Manifestphase; QRY-023 weist administrative
-Phasen `ADMIN` und Korrektheits-/Messphasen `READER` zu. Die Laufzeitprüfung der
-realen Serverprinzipale und Minimalrechte bleibt offen. Die Editionsmatrix
+Phasen `ADMIN` und Korrektheits-/Messphasen `READER` zu. Die geprüften
+Prinzipal- und Minimalrechte gelten für die isolierte Einzel-Run-Umgebung und
+die festgeschriebenen Builds; eine allgemeine Runtime-/Produkt-/Katalogfreigabe
+folgt daraus nicht. Als nächste begrenzte Gegenprobe prüft der aktuelle
+Entwicklungsschnitt den exakt, binär und längenbasiert gebundenen
+Ziel-Datenbanknamen im SQL-Preflight.
+Die Editionsmatrix
 `SRC-126` wurde am
 12.11.2026 erneut geprüft und bestätigt Graph-Verfügbarkeit in den
 aufgeführten Editionen der Projektversionen; 2025 Standard Developer folgt der

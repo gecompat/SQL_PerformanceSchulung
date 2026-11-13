@@ -271,10 +271,19 @@ Leerzeichen aus, und ASCII-`LIKE` ignoriert sie im Suchwert. Der Preflight
 weist solche Werte deshalb ausdrücklich zurück; siehe die Microsoft-
 Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und
 [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17).
+Der Ziel-Datenbankname wird binär mit dem abgeleiteten Namen verglichen und
+muss dieselbe Bytelänge haben. Die Bytelängenprüfung ist nötig, weil SQL Server
+bei `=` nachgestellte Leerzeichen zum Vergleich auffüllt; die BIN2-Kollation
+verhindert außerdem Gleichheit durch abweichende Groß-/Kleinschreibung. Siehe
+Microsoft Learn zu [Zeichenkettenvergleichen](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/string-comparison-assignment?view=sql-server-ver17),
+[Kollationen](https://learn.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support/)
+und [`DATALENGTH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/datalength-transact-sql?view=sql-server-ver17), abgerufen am 13. November 2026.
 Der gültige Preflightpfad läuft mit SQL Server; die eigenständige Live-
-Negativkontrolle für fehlerhafte RunToken-Grenzwerte wird mit der aktuellen
-Runtime-Qualifikation ausgeführt. Der FWK-010-Caller verwirft solche Werte
-bereits vor SQLCMD anhand des Manifestvertrags.
+Negativkontrolle für ein nachgestelltes Leerzeichen im RunToken bestand auf
+SQL Server 2019, 2022 und 2025 (PR #586). Die eigenständige Live-Negativkontrolle
+für ein nachgestelltes Leerzeichen im Ziel-Datenbanknamen wird separat
+qualifiziert. Der FWK-010-Caller verwirft solche Werte bereits vor SQLCMD
+anhand des Manifestvertrags.
 
 SQLCMD setzt Skriptvariablen an ihren `$(Name)`-Vorkommen ein, auch in
 Zeichenliteralen. Daraus folgt als Sicherheitsinferenz, dass der T-SQL-

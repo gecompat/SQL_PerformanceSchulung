@@ -195,6 +195,40 @@ jobs:
           printf '%s\n' "$output" | tee -a "$log"
           grep -F 'QRY023_RUN_TOKEN_NEGATIVE|NO_DATABASE_CREATED' <<< "$output"
           printf '%s\n' 'CLEANUP: PASS/OK' | tee -a "$log"
+      - name: Prove the SQL preflight rejects a trailing-space target database name
+        shell: bash
+        env:
+          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: TARGETDATABASE_TRAILING_SPACE
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-target-database-trailing-space-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          [[ "$result" == 2 ]]
+          grep -F 'QRY023_TARGET_DATABASE_NEGATIVE|TRAILING_SPACE_INJECTED' "$log"
+          grep -F 'FAIL_CONTRACT: Demo-ID, Run-Token oder Ziel-Datenbank entsprechen nicht dem QRY-023-Vertrag.' "$log"
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_EXECUTION' "$log"
+          if grep -Eq '(SETUP: PASS/OK|CORRECTNESS: PASS/OK|MEASUREMENT: PASS/OK|PLAN_EVIDENCE: PASS/OK)' "$log"; then
+            echo 'Invalid target database name reached a protected QRY-023 phase.' >&2
+            exit 1
+          fi
+          container="${SQLPERF_SQL_CONTAINER:?}"
+          owner="${SQLPERF_CI_OWNER:?}"
+          container_id="$(docker inspect --format '{{.Id}}' "$container")"
+          [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
+          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -Q \
+            "IF EXISTS (SELECT 1 FROM sys.databases WHERE database_id>4) THROW 51042,'QRY-023 target-name negative control unexpectedly created a user database.',1; PRINT 'QRY023_TARGET_DATABASE_NEGATIVE|NO_DATABASE_CREATED';")"
+          printf '%s\n' "$output" | tee -a "$log"
+          grep -F 'QRY023_TARGET_DATABASE_NEGATIVE|NO_DATABASE_CREATED' <<< "$output"
+          printf '%s\n' 'CLEANUP: PASS/OK' | tee -a "$log"
       - name: Prove the permission inventory rejects an unexpected READER grant
         shell: bash
         run: |
