@@ -74,6 +74,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "GRANT VIEW DEFINITION TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_INJECTED",
         )
+    if mode == "DATABASE_PERMISSION_DENY":
+        return (
+            "DENY VIEW DEFINITION TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_DENY_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
