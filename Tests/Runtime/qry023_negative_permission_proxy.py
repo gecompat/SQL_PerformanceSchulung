@@ -71,16 +71,16 @@ def main() -> int:
     try:
         target = injection_target(sys.argv[1:])
         if target is not None:
-            sql, marker = injection_for_mode(
-                os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
-            )
+            mode = os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
+            sql, marker = injection_for_mode(mode)
             container = os.environ.get("SQLPERF_SQL_CONTAINER", "")
             password = os.environ.get("SQLCMDPASSWORD", "")
             if not container or not password:
                 raise ValueError("isolated container or ADMIN credential is unavailable")
+            injection_database = "master" if mode == "SERVER_PERMISSION" else target
             command = [
                 "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", container,
-                proxy._sqlcmd_path(container), "-S", "localhost", "-d", target,
+                proxy._sqlcmd_path(container), "-S", "localhost", "-d", injection_database,
                 "-U", "sa", "-C", "-b", "-r", "1",
             ]
             injected = subprocess.run(
