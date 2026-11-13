@@ -8948,4 +8948,6 @@ prüft Aliasverkettung und die Erhaltung beider möglicher Basen samt Imports.
 62/62 fokussierte Tests bestehen. Mehrfachzuweisungen können Kandidaten
 überzählen. Eine Negativprobe bestätigt, dass ein Factory-Rückgabewert nicht
 als Klassenbasis geraten wird. 63/63 Tests bestehen. Externe Basen und
-vollständige MRO bleiben offen.
+vollständige MRO bleiben offen. Eine Gegenprobe mit gegenseitig zyklischen
+Aliasnamen terminiert ebenfalls ohne erfundene Basismethode; 64/64 Tests
+bestehen.
