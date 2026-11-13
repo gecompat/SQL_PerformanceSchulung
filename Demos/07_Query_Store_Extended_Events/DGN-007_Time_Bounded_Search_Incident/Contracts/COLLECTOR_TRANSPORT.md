@@ -112,6 +112,24 @@ automatische Umwandlung in einen vollständigen `RunRecord`. Phasenstatus,
 Cleanup, Datenbankabwesenheit, Lifecycle-ID, Blockreihenfolge, Ressourcen und
 Budgets werden weder ergänzt noch als bestätigt ausgegeben.
 
+## Deklarative Ein-Record-Abbildung
+
+Der separate [Recordmapper](../../../../Tests/Contracts/dgn007_collector_record_assembly.py)
+bildet einen bereits decodierten Body auf einen `RunRecord` ab. Der Caller muss
+den erwarteten SQL-Major, Block und Slot, eine positive Lifecycle-ID, alle acht
+erfolgreichen Phasen sowie die erfolgreiche Cleanup-/Abwesenheitsbestätigung
+liefern. Der Mapper bindet Major, Scope, Vertrag und Quellendigest, erhält alle
+Request-, Familien-, Fenster-, Plan- und Unionrecords und validiert das Ergebnis
+mit `_run_valid` erneut. Fehlende Request-Ergebniswerte werden nicht ergänzt.
+
+Das bleibt eine deklarative PROJECT_SEMANTIC-Abbildung: Der Mapper authentifiziert
+weder die Callerbelege noch integrierten Freeze, tatsächliche Quellenverwendung,
+Zielinstanz, Ressourcen, reale Reihenfolge oder 180-/60-Sekunden-Budgets. Er
+führt weder Prozesse noch SQL aus und bewertet keine sechs-Lifecycle-Version.
+Bis ein vertrauensgebundener Coordinator diese Belege aus tatsächlichen Aktionen
+erzeugt und Cleanup unabhängig bestätigt, ist der vollständige Coordinator
+weiterhin offen; ein synthetischer Mapper-PASS ist keine Runtimeattestation.
+
 ## Fehler und Prüfung
 
 `TransportError` enthält ausschließlich `FAIL_CONTRACT` oder
@@ -126,6 +144,7 @@ Coordinators bleibt ein eigener Vertrag.
 ```powershell
 python Tests/Static/validate_dgn007_collector_transport.py
 python Tests/Static/test_dgn007_collector_transport.py
+python Tests/Static/test_dgn007_collector_record_assembly.py
 python Tests/Static/validate_dgn007_prospective_acceptance.py
 python Tests/Static/test_dgn007_prospective_acceptance.py
 ```

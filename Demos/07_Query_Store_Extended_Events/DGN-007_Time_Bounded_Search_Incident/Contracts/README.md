@@ -146,6 +146,12 @@ verlustfreie Zuordnung der Query-Store-Zeiten
 verifizieren; eine stillschweigende Kürzung auf Python-Mikrosekunden wäre
 keine gleichwertige Übertragung.
 
+Ein separater [deklarativer Recordmapper](COLLECTOR_TRANSPORT.md#deklarative-ein-record-abbildung)
+bildet den vollständigen Transportbody auf genau einen `RunRecord` ab und
+prüft dessen Records erneut. Seine Phasen- und Cleanupwerte stammen weiterhin
+vom Caller; Freeze, Quellenverwendung, Ressourcen, reale Reihenfolge, Budgets
+und unabhängige Cleanup-Herkunft bleiben Aufgabe des noch offenen Collectors.
+
 Es gelten ausschließlich die Codes aus
 [`FWK-012` – Status-, Fehler- und Skip-Vertrag](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
 Cleanupfehler dominieren Timeouts und frühere Fehler. Fehlende oder
