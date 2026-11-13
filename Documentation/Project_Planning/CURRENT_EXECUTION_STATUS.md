@@ -1919,8 +1919,7 @@ und zweimal 2025). Die Inventur hat keinen Container gestartet, gestoppt oder
 verändert. Das YELLOW-Isolations-/Lastgate bleibt damit aktuell nicht erfüllt;
 es wurde kein SQL- oder DGN-004-Lauf begonnen.
 
-Der nächste source-only-Schnitt ergänzt derzeit im Branch
-`codex/dgn004-plan-handle-locator` die vollständige DMV-Kandidatenaufzählung
+Der source-only-Schnitt ergänzt die vollständige DMV-Kandidatenaufzählung
 nach Datenbank, Objekt, exaktem UTF-16-Modultext und registriertem Statement-
 Offset, eine vollständige Frameprüfung und einen fail-closed Vorher-/Nachher-
 Deltabinder. Plan- und SQL-Handles werden korrekt als 1–64 Bytes behandelt;
@@ -1929,8 +1928,9 @@ Gegenproben zählen weiterhin gegen die bestehenden Obergrenzen von 100 SQL-
 Batches und drei Metadatenbeobachtungen je Flush; kein Budget wird erweitert.
 83 lokale DGN-004-Tests (ein POSIX-Skip), Framework-Integritätscheck,
 Python-Kompilierung und ScriptDom-Syntaxparse für SQL Server 2019/2022/2025
-bestanden. Der unabhängige Review fand zunächst einen veralteten Backlogstatus
-(P2); nach Korrektur bestätigt er keine weiteren P1/P2 im Quellfilter/Frame,
+bestanden und wurde mit PR #593 (`ee80eb2`) integriert. Der unabhängige Review
+fand zunächst einen veralteten Backlogstatus (P2); nach Korrektur bestätigt er
+keine weiteren P1/P2 im Quellfilter/Frame,
 Handle-Längenvertrag, Runner oder Delta-Binder. Dies bleibt Source-only: kein SQL-Compile oder -Lauf, keine
 Handle-Provenienz im ausgeführten Zustand und keine Runtimequalifikation.
 Das YELLOW-Gate bleibt Voraussetzung für den nächsten Lauf.
@@ -8640,11 +8640,14 @@ exakt objekt-, quellen- und offsetgebundenen Cachezeilen vor und nach genau
 einem eigenen Aufruf vollständig zu erfassen. Ein Handle dürfte erst bei genau
 einem Kandidaten mit einer Ausführungsdifferenz von eins freigegeben werden;
 fehlende, zusätzliche oder mehrdeutige Zeilen bleiben `NOT_PROVEN`. Der
-unabhängige Nachreview fand zunächst eine P2-Mehrdeutigkeit im Snapshot-
-Schlüssel; die Ergänzung von `sql_handle` und Start-/Endoffsets wurde bestätigt.
-Keine offenen P1/P2. Der Entwurf ist noch nicht implementiert, SQL-kompiliert
-oder ausgeführt. Die kontrollierte Ein-Writer-Zuordnung bleibt eine begrenzte
-Inferenz. Ein read-only Hostcheck am 2026-11-13 fand weiterhin fünf fremde,
-aktive SQL-Server-Container; deren gemeinsamer Snapshot lag bei rund 5,6 GiB
-und etwa 5 % CPU. Das belegt keine kontrollierte Optimiererlast. Die fremden
+Quellkandidat ist mit vollständiger DMV-Abfrage, strengem Framevalidator,
+variablen 1–64-Byte-Handles, bounded Runner und Delta-Binder implementiert und
+über PR #593 als `ee80eb2` integriert. Der unabhängige Review bestätigte nach
+Korrektur eines veralteten Backlogstatus keine weiteren P1/P2. 83 lokale
+DGN-004-Tests (ein POSIX-Skip), Framework-Validator und ScriptDom-Syntaxparse
+150/160/170 bestanden. Nicht SQL-kompiliert oder ausgeführt. Die kontrollierte
+Ein-Writer-Zuordnung bleibt eine begrenzte Inferenz. Ein erneuter read-only
+Hostcheck am 2026-11-13 fand weiterhin fünf fremde, aktive SQL-Server-Container
+(seit rund 23 Stunden aktiv); deren gemeinsamer Snapshot lag bei rund 5,6 GiB
+und 30 % CPU. Das belegt keine kontrollierte Optimiererlast. Die fremden
 Container blieben unverändert; das YELLOW-Vorstartgate bleibt offen.
