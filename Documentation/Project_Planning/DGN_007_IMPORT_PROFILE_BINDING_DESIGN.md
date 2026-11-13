@@ -2632,6 +2632,28 @@ Modulen/287 Kanten und demselben Digest; bekannte Branchfilterung verringert
 die Quellmenge in diesem Vorschnitt also nicht. Das belegt keine vollständige
 Auswertung indirekter oder laufzeitabhängiger Bedingungen.
 
+Eine dritte statische Traversierung nimmt zusätzlich Bodies synchroner lokaler
+Funktionen auf, die beim Modul-/Klassenaufbau über einen direkten lokalen
+Namensaufruf erreichbar sind; Definitionen in Modul-Kontrollblöcken und
+Klassenkörpern werden berücksichtigt und Funktionsaufrufe aus diesen Bodies
+rekursiv verfolgt. Lambda-Defaults sowie Dekorator- und Defaultausdrücke
+bleiben Teil des Aufbaus. Nicht aufgeschobene Funktions-, Klassen- und
+Modulannotationen zählen nur ohne `from __future__ import annotations`;
+lokale Funktionsannotationen und aufgeschobene Funktions-/Zuweisungsannotationen
+werden ausgelassen. Generatorausdrücke
+einschließlich ihrer Iterable werden nicht verfolgt. Für
+die zwölf festen Wurzeln ergaben sich 320 zugeordnete Kanten, 64
+Quellmodulkandidaten und 108 verfolgte lokale Funktionen; der sortierte
+Modul-/Quelldigest lautet
+`6f7026c12c5613a49327a4ded791087737d2fadcc9d0ab4f202a0f3de3856d2c`. Dabei
+wurden 18 Zielbedingungen entschieden und 282 unbekannte Bedingungen
+beidseitig behalten. Die Auflösung folgt nur direkte lokale `Name`-Aufrufe;
+mehrere Definitionen desselben Namens bleiben bei unbekannten Bedingungen als
+Alternativen erhalten, bekannte Zielzweige begrenzen die Definitionen.
+Attribute, Aliase, dynamische/indirekte Aufrufe und Imports aus fremden
+Funktionen werden nicht geschlossen. Der Vorschnitt ist kein vollständiger
+Aufrufgraph und keine P11-Importclosure.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,

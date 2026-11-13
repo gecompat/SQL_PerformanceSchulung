@@ -312,11 +312,182 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest(), condition_stats
 
 
+def _module_init_call_import_names(tree, module, path, condition_stats=None):
+    """Follow direct local function calls made by module/class initialization."""
+    package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+    postponed_annotations = any(
+        isinstance(statement, ast.ImportFrom) and statement.module == "__future__"
+        and any(alias.name == "annotations" for alias in statement.names)
+        for statement in tree.body
+    )
+    def scope_functions(statements):
+        result = {}
+
+        def collect(node):
+            if isinstance(node, ast.FunctionDef):
+                result.setdefault(node.name, []).append(node)
+                return
+            if isinstance(node, (ast.AsyncFunctionDef, ast.ClassDef)):
+                return
+            if isinstance(node, ast.If):
+                decision = _target_condition(node.test)
+                selected = node.body if decision is True else node.orelse if decision is False else None
+                for statement in selected if selected is not None else (*node.body, *node.orelse):
+                    collect(statement)
+                return
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, ast.stmt):
+                    collect(child)
+                elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                    for statement in child.body:
+                        collect(statement)
+
+        for statement in statements:
+            collect(statement)
+        return result
+
+    module_functions = scope_functions(tree.body)
+    pending = []
+    function_closures = {}
+
+    def visit(node, active_functions, in_function=False, function_scope=None):
+        if function_scope is None:
+            function_scope = module_functions
+        if isinstance(node, ast.Lambda):
+            for expression in (*node.args.defaults, *node.args.kw_defaults):
+                if expression is not None:
+                    yield from visit(expression, active_functions, in_function, function_scope)
+            return
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            function_closures.setdefault(id(node), function_scope)
+            expressions = [*node.decorator_list, *node.args.defaults, *node.args.kw_defaults]
+            if not postponed_annotations:
+                args = (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs)
+                if node.args.vararg is not None:
+                    args += (node.args.vararg,)
+                if node.args.kwarg is not None:
+                    args += (node.args.kwarg,)
+                expressions.extend(arg.annotation for arg in args)
+                expressions.append(node.returns)
+            for expression in expressions:
+                if expression is not None:
+                    yield from visit(expression, active_functions, in_function, function_scope)
+            return
+        if isinstance(node, ast.ClassDef):
+            class_functions = scope_functions(node.body)
+            class_scope = dict(active_functions)
+            class_scope.update(class_functions)
+            for expression in (*node.decorator_list, *node.bases, *(kw.value for kw in node.keywords)):
+                yield from visit(expression, active_functions, in_function, function_scope)
+            for statement in node.body:
+                yield from visit(statement, class_scope, False, function_scope)
+            return
+        if isinstance(node, ast.GeneratorExp):
+            return
+        if isinstance(node, ast.AnnAssign):
+            yield from visit(node.target, active_functions, in_function, function_scope)
+            if not postponed_annotations and not in_function:
+                yield from visit(node.annotation, active_functions, in_function, function_scope)
+            if node.value is not None:
+                yield from visit(node.value, active_functions, in_function, function_scope)
+            return
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                yield alias.name
+            return
+        if isinstance(node, ast.ImportFrom):
+            if node.module == "__future__":
+                return
+            base = node.module or ""
+            if node.level:
+                parts = package.split(".") if package else []
+                keep = max(0, len(parts) - node.level + 1)
+                base = ".".join(parts[:keep] + ([base] if base else []))
+            if base:
+                yield base
+                for alias in node.names:
+                    if alias.name != "*":
+                        yield base + "." + alias.name
+            return
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            for function in active_functions.get(node.func.id, ()):
+                pending.append((function, function_closures.get(id(function), function_scope)))
+        if isinstance(node, ast.If):
+            decision = _target_condition(node.test)
+            if condition_stats is not None:
+                key = "resolved" if decision is not None else "unknown"
+                condition_stats[key] += 1
+            selected = node.body if decision is True else node.orelse if decision is False else None
+            if selected is not None:
+                for statement in selected:
+                    yield from visit(statement, active_functions, in_function, function_scope)
+                return
+        for child in ast.iter_child_nodes(node):
+            yield from visit(child, active_functions, in_function, function_scope)
+
+    imports = []
+    for statement in tree.body:
+        imports.extend(visit(statement, module_functions))
+    visited = set()
+    while pending:
+        function, closure_scope = pending.pop()
+        if id(function) in visited:
+            continue
+        visited.add(id(function))
+        visible_functions = dict(closure_scope)
+        visible_functions.update(scope_functions(function.body))
+        for statement in function.body:
+            imports.extend(visit(statement, visible_functions, True, visible_functions))
+    return tuple(imports), len(visited)
+
+
+def _module_init_call_candidate_closure(files, roots=ROOTS):
+    if type(files) is not dict or type(roots) is not tuple:
+        raise ValueError("SOURCE_INPUT_TYPE")
+    if any(type(name) is not str for name in roots) or len(set(roots)) != len(roots):
+        raise ValueError("SOURCE_ROOTS")
+    reached = set()
+    pending = list(roots)
+    edges = 0
+    functions = 0
+    conditions = {"resolved": 0, "unknown": 0}
+    while pending:
+        module = pending.pop()
+        if module in reached:
+            continue
+        path = _module_path(module, files)
+        if path is None:
+            continue
+        reached.add(module)
+        tree = ast.parse(files[path], filename=path)
+        names, visited_functions = _module_init_call_import_names(tree, module, path, conditions)
+        functions += visited_functions
+        for name in names:
+            parts = name.split(".")
+            candidate = next(
+                (".".join(parts[:index]) for index in range(len(parts), 0, -1)
+                 if _module_path(".".join(parts[:index]), files) is not None),
+                None,
+            )
+            if candidate is not None:
+                edges += 1
+                if candidate not in reached:
+                    pending.append(candidate)
+    rows = []
+    for module in sorted(reached):
+        path = _module_path(module, files)
+        rows.append((module + "\t" + hashlib.sha256(files[path]).hexdigest() + "\n").encode("ascii"))
+    return tuple(sorted(reached)), edges, functions, hashlib.sha256(b"".join(rows)).hexdigest(), conditions
+
+
 def analyze(archive_path):
     files = _source_files(archive_path)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
+    call_modules, call_edges, call_functions, call_sha256, call_conditions = (
+        _module_init_call_candidate_closure(files)
+    )
     return {
         "archive_sha256": ARCHIVE_SHA256,
         "edge_count": edges,
@@ -332,6 +503,13 @@ def analyze(archive_path):
         "target_platform_rows_sha256": target_sha256,
         "target_platform_resolved_if_count": target_conditions["resolved"],
         "target_platform_unknown_if_count": target_conditions["unknown"],
+        "module_init_call_candidate_count": len(call_modules),
+        "module_init_call_edge_count": call_edges,
+        "module_init_call_function_count": call_functions,
+        "module_init_call_scope": "MODULE_CLASS_AND_DIRECT_LOCAL_CALLS",
+        "module_init_call_rows_sha256": call_sha256,
+        "module_init_call_resolved_if_count": call_conditions["resolved"],
+        "module_init_call_unknown_if_count": call_conditions["unknown"],
         "roots": list(ROOTS),
         "scope": "LEXICAL_SOURCE_CANDIDATES_ONLY",
     }

@@ -26,12 +26,15 @@ Klassenkörper aus. Der reproduzierbare Lexikalscan über alle AST-Knoten zählt
 264 Quellkandidaten und 2.438 Importkanten; er überschreitet die
 256-Recordgrenze. Der getrennte Modul-/Klassenkörper-Vorschnitt enthält 59
 Quellkandidaten und 287 Kanten; er schließt unaufgerufene Funktionskörper aus,
-wertet aber Plattformzweige nicht aus und erfasst keine Imports aus später
+wertete aber Plattformzweige nicht aus und erfasst keine Imports aus später
 aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Keiner der drei
 Werte ist vollständige Importclosure oder P11-Sollinventur. Ein ergänzender
 Linux-/CPython-3.12-Zielzweigfilter entschied vier sichere Bedingungen und
 behielt 42 unbekannte Bedingungen beidseitig; er änderte die 59/287-Kandidaten
-nicht. Die zwölf Scanwurzeln sind jetzt zusätzlich durch AST-Abgleich an die
+nicht. Ein begrenzter Modulstart-/Direktaufrufvorschnitt erfasst außerdem 108
+direkt aufgerufene lokale Funktionen, 64 Quellkandidaten und 320 Kanten;
+Attribute, Aliase, modulübergreifende und dynamische Calls bleiben offen. Die
+zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
 PR #610 hat den Größenfehler des
