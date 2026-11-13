@@ -187,6 +187,44 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                 [*args[:args.index("-i")], str(negative_proxy.INVENTORY_SCRIPT), *args[args.index("-i") + 1:]]
             )
 
+    def test_negative_permission_proxy_corrupts_only_runner_demo_id(self) -> None:
+        run_token = "QRY023VALID1"
+        target = f"SQLPERF_LAB_QRY023_{run_token}"
+        args = [
+            "-S", "localhost", "-d", "master", "-U", "sa", "-b", "-v",
+            "DemoId=QRY-023", f"RunToken={run_token}", f"TargetDatabase={target}",
+            "-i", str(negative_proxy.PREFLIGHT_SCRIPT),
+        ]
+        rewritten = negative_proxy.corrupt_preflight_demo_id_trailing_space(args)
+        self.assertIn("DemoId=QRY-023 ", rewritten)
+        self.assertIn(f"RunToken={run_token}", rewritten)
+        self.assertIn(f"TargetDatabase={target}", rewritten)
+        with self.assertRaises(ValueError):
+            negative_proxy.corrupt_preflight_demo_id_trailing_space(
+                [*args[:args.index("DemoId=QRY-023")], "DemoId=QRY-023 ",
+                 *args[args.index("DemoId=QRY-023") + 1:]]
+            )
+        with self.assertRaises(ValueError):
+            negative_proxy.corrupt_preflight_demo_id_trailing_space(
+                [*args[:args.index("-i")], str(negative_proxy.INVENTORY_SCRIPT), *args[args.index("-i") + 1:]]
+            )
+
+    def test_negative_permission_proxy_binds_demo_id_case_variant_to_matching_target(self) -> None:
+        run_token = "QRY023VALID1"
+        args = [
+            "-S", "localhost", "-d", "master", "-U", "sa", "-b", "-v",
+            "DemoId=QRY-023", f"RunToken={run_token}",
+            f"TargetDatabase=SQLPERF_LAB_QRY023_{run_token}",
+            "-i", str(negative_proxy.PREFLIGHT_SCRIPT),
+        ]
+        rewritten = negative_proxy.corrupt_preflight_demo_id_case_variant(args)
+        self.assertIn("DemoId=qry-023", rewritten)
+        self.assertIn(f"TargetDatabase=SQLPERF_LAB_qry023_{run_token}", rewritten)
+        with self.assertRaises(ValueError):
+            negative_proxy.corrupt_preflight_demo_id_case_variant(
+                [*args[:args.index("-i")], str(negative_proxy.INVENTORY_SCRIPT), *args[args.index("-i") + 1:]]
+            )
+
     def test_negative_permission_proxy_server_role_mode_is_fixed(self) -> None:
         sql, marker = negative_proxy.injection_for_mode("SERVER_ROLE")
         self.assertEqual(sql, "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n")
@@ -524,11 +562,19 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("DATABASE_PERMISSION;", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: RUNTOKEN_TRAILING_SPACE", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: TARGETDATABASE_TRAILING_SPACE", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DEMOID_TRAILING_SPACE", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DEMOID_CASE_VARIANT", workflow)
+        self.assertEqual(workflow.count("Prove the SQL preflight rejects a trailing-space DemoId"), 1)
+        self.assertEqual(workflow.count("Prove the SQL preflight rejects a case-variant DemoId"), 1)
         self.assertEqual(workflow.count("Prove the SQL preflight rejects a trailing-space target database name"), 1)
         self.assertEqual(workflow.count("Prove the SQL preflight rejects a trailing-space RunToken"), 1)
         self.assertLess(workflow.index("Prove the SQL preflight rejects a trailing-space target database name"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the SQL preflight rejects a trailing-space RunToken"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the SQL preflight rejects a trailing-space DemoId"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the SQL preflight rejects a case-variant DemoId"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertIn("FAIL_CONTRACT: Demo-ID, Run-Token oder Ziel-Datenbank entsprechen nicht dem QRY-023-Vertrag.", workflow)
         run_token_case = workflow[
@@ -543,6 +589,18 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         ]
         self.assertIn("QRY023_TARGET_DATABASE_NEGATIVE|NO_DATABASE_CREATED", target_case)
         self.assertIn("CLEANUP: PASS/OK", target_case)
+        demo_id_case = workflow[
+            workflow.index("Prove the SQL preflight rejects a trailing-space DemoId"):
+            workflow.index("Prove the permission inventory rejects an unexpected READER grant")
+        ]
+        self.assertIn("QRY023_DEMO_ID_NEGATIVE|NO_DATABASE_CREATED", demo_id_case)
+        self.assertIn("CLEANUP: PASS/OK", demo_id_case)
+        demo_id_case_variant = workflow[
+            workflow.index("Prove the SQL preflight rejects a case-variant DemoId"):
+            workflow.index("Prove the permission inventory rejects an unexpected READER grant")
+        ]
+        self.assertIn("QRY023_DEMO_ID_NEGATIVE|NO_DATABASE_CREATED", demo_id_case_variant)
+        self.assertIn("CLEANUP: PASS/OK", demo_id_case_variant)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DIRECT_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_ROLE", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SECURITYADMIN_ROLE", workflow)

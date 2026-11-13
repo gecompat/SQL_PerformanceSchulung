@@ -8577,11 +8577,13 @@ ignoriert. Die live injizierte RunToken-Gegenprobe wurde auf SQL Server
 Containerabfragen belegten jeweils keine Nutzerdatenbank, und die owner-
 geprüfte Containerbereinigung bestand. PR #586 ist in `main` integriert.
 
-Bei der anschließenden Boundary-Prüfung fiel auf, dass ein nachgestelltes
-Leerzeichen im `TargetDatabase` wegen SQL-Zeichenkettenvergleichsregeln als
-gleich gelten könnte. Der aktuelle Entwicklungsschnitt ergänzt den binären Namensvergleich und
-Bytelängenvergleich sowie dieselbe isolierte Drei-Engine-Gegenprobe. Bis zu
-deren Review und Runtimepass bleibt genau diese Gegenprobe offen. QRY-023
-bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`; die
+PR #587 ergänzte danach den binären Namensvergleich und Bytelängenvergleich
+für `TargetDatabase`; die Gegenprobe für ein nachgestelltes Leerzeichen wurde
+auf allen drei Engines vor Setup abgewiesen, ohne eine Nutzerdatenbank
+anzulegen. Der nächste Boundary-Schnitt prüft die Demo-ID gegen vorzeitige
+`varchar`-Kürzung und kollationsabhängige Gleichheit. Er enthält einen
+Leerzeichenfall und einen case-varianten Wert mit konsistent abgeleitetem
+Zielnamen. QRY-023 bleibt `PROPOSED`, nicht katalogisiert und
+`runtime_authorized: false`; die
 allgemeine Produkt-/Katalogfreigabe und die ausdrücklich ausgeschlossene
 menschliche Generalprobe bleiben getrennte Grenzen.

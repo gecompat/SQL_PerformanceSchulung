@@ -2,7 +2,7 @@
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
-DECLARE @DemoId varchar(7) = '$(DemoId)';
+DECLARE @DemoId varchar(20) = '$(DemoId)';
 DECLARE @RunToken varchar(20) = '$(RunToken)';
 DECLARE @TargetDatabase sysname = N'$(TargetDatabase)';
 DECLARE @ExpectedDatabase sysname = CONVERT(sysname, N'SQLPERF_LAB_' + REPLACE(@DemoId, '-', '') + N'_' + @RunToken);
@@ -18,7 +18,9 @@ DECLARE @ExistingDatabaseId int = DB_ID(@TargetDatabase);
 DECLARE @VisibleUserDatabases bit = CASE WHEN HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY DATABASE')=1 THEN 1 ELSE 0 END;
 DECLARE @UserDatabaseCount int;
 
-IF @DemoId <> 'QRY-023'
+IF @DemoId IS NULL
+   OR DATALENGTH(@DemoId) <> 7
+   OR @DemoId COLLATE Latin1_General_100_BIN2 <> 'QRY-023' COLLATE Latin1_General_100_BIN2
    OR @RunToken IS NULL
    OR LEN(@RunToken) NOT BETWEEN 1 AND 20
    OR DATALENGTH(@RunToken) NOT BETWEEN 1 AND 20

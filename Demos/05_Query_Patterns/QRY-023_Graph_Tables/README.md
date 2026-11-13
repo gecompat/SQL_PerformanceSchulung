@@ -265,7 +265,9 @@ nicht zum erzwungenen Entfernen eines nicht eindeutig markierten Ziels.
 
 Der FWK-010-Caller begrenzt das RunToken auf 1 bis 20 ASCII-Zeichen und verlangt
 ein alphanumerisches erstes Zeichen. Separat prüft der vorgeschlagene
-read-only SQL-Preflight den erlaubten ASCII-Zeichensatz und die Bytegrenze.
+read-only SQL-Preflight die Identität und den erlaubten ASCII-Zeichensatz ohne
+vorzeitige Kürzung. Die Demo-ID muss exakt sieben Bytes und den binären Wert
+`QRY-023` haben; das RunToken muss 1 bis 20 ASCII-Zeichen umfassen.
 `DATALENGTH` muss zusätzlich `LEN` entsprechen: `LEN` schließt nachgestellte
 Leerzeichen aus, und ASCII-`LIKE` ignoriert sie im Suchwert. Der Preflight
 weist solche Werte deshalb ausdrücklich zurück; siehe die Microsoft-
@@ -281,9 +283,13 @@ und [`DATALENGTH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/datalen
 Der gültige Preflightpfad läuft mit SQL Server; die eigenständige Live-
 Negativkontrolle für ein nachgestelltes Leerzeichen im RunToken bestand auf
 SQL Server 2019, 2022 und 2025 (PR #586). Die eigenständige Live-Negativkontrolle
-für ein nachgestelltes Leerzeichen im Ziel-Datenbanknamen wird separat
-qualifiziert. Der FWK-010-Caller verwirft solche Werte bereits vor SQLCMD
-anhand des Manifestvertrags.
+für ein nachgestelltes Leerzeichen im Ziel-Datenbanknamen bestand auf SQL
+Server 2019, 2022 und 2025 (PR #587). Die eigenständige Live-Negativkontrolle
+für ein nachgestelltes Leerzeichen in der Demo-ID wird separat qualifiziert.
+Eine case-variant geschriebene Demo-ID wird in derselben Folge ebenfalls
+separat geprüft.
+Der FWK-010-Caller verwirft solche Werte bereits vor SQLCMD anhand des
+Manifestvertrags.
 
 SQLCMD setzt Skriptvariablen an ihren `$(Name)`-Vorkommen ein, auch in
 Zeichenliteralen. Daraus folgt als Sicherheitsinferenz, dass der T-SQL-

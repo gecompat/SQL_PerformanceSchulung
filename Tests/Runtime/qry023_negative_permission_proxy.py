@@ -110,6 +110,79 @@ def corrupt_preflight_target_database_trailing_space(argv: list[str]) -> list[st
     return rewritten
 
 
+def corrupt_preflight_demo_id_trailing_space(argv: list[str]) -> list[str]:
+    database, script, username, raw_variables, _ = proxy.parse_args(argv)
+    values: dict[str, str] = {}
+    for item in raw_variables:
+        name, separator, value = item.partition("=")
+        if not separator or name in values:
+            raise ValueError("invalid SQLCMD variable set")
+        values[name] = value
+    token = values.get("RunToken", "")
+    if script != PREFLIGHT_SCRIPT or database != "master" or username != "sa":
+        raise ValueError("invalid DemoId negative control must target the ADMIN master preflight")
+    if values.get("DemoId") != "QRY-023" or not re.fullmatch(r"[A-Z0-9_]{1,20}", token):
+        raise ValueError("invalid DemoId negative control requires the runner-provided identity")
+    if values.get("TargetDatabase") != f"SQLPERF_LAB_QRY023_{token}":
+        raise ValueError("invalid DemoId negative control target is not bound to the original RunToken")
+
+    rewritten = list(argv)
+    demo_id_values = 0
+    index = 0
+    while index < len(rewritten):
+        if rewritten[index] != "-v":
+            index += 1
+            continue
+        index += 1
+        while index < len(rewritten) and not rewritten[index].startswith("-"):
+            if rewritten[index].startswith("DemoId="):
+                rewritten[index] += " "
+                demo_id_values += 1
+            index += 1
+    if demo_id_values != 1:
+        raise ValueError("invalid DemoId negative control could not bind exactly one SQLCMD value")
+    return rewritten
+
+
+def corrupt_preflight_demo_id_case_variant(argv: list[str]) -> list[str]:
+    database, script, username, raw_variables, _ = proxy.parse_args(argv)
+    values: dict[str, str] = {}
+    for item in raw_variables:
+        name, separator, value = item.partition("=")
+        if not separator or name in values:
+            raise ValueError("invalid SQLCMD variable set")
+        values[name] = value
+    token = values.get("RunToken", "")
+    if script != PREFLIGHT_SCRIPT or database != "master" or username != "sa":
+        raise ValueError("invalid DemoId case negative control must target the ADMIN master preflight")
+    if values.get("DemoId") != "QRY-023" or not re.fullmatch(r"[A-Z0-9_]{1,20}", token):
+        raise ValueError("invalid DemoId case negative control requires the runner-provided identity")
+    if values.get("TargetDatabase") != f"SQLPERF_LAB_QRY023_{token}":
+        raise ValueError("invalid DemoId case negative control target is not bound to the original RunToken")
+
+    replacements = {
+        "DemoId=QRY-023": "DemoId=qry-023",
+        f"TargetDatabase=SQLPERF_LAB_QRY023_{token}": f"TargetDatabase=SQLPERF_LAB_qry023_{token}",
+    }
+    rewritten = list(argv)
+    seen = {name: 0 for name in replacements}
+    index = 0
+    while index < len(rewritten):
+        if rewritten[index] != "-v":
+            index += 1
+            continue
+        index += 1
+        while index < len(rewritten) and not rewritten[index].startswith("-"):
+            for original, replacement in replacements.items():
+                if rewritten[index] == original:
+                    rewritten[index] = replacement
+                    seen[original] += 1
+            index += 1
+    if any(count != 1 for count in seen.values()):
+        raise ValueError("invalid DemoId case negative control could not bind its identity values")
+    return rewritten
+
+
 def injection_for_mode(mode: str) -> tuple[str, str]:
     if mode == "EXTRA_GRANT_AND_ROLE":
         return (
@@ -212,17 +285,32 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
 def main() -> int:
     try:
         mode = os.environ.get("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE", "EXTRA_GRANT_AND_ROLE")
-        if mode in {"RUNTOKEN_TRAILING_SPACE", "TARGETDATABASE_TRAILING_SPACE"}:
+        if mode in {
+            "RUNTOKEN_TRAILING_SPACE", "TARGETDATABASE_TRAILING_SPACE",
+            "DEMOID_TRAILING_SPACE", "DEMOID_CASE_VARIANT",
+        }:
             _, script, _, _, _ = proxy.parse_args(sys.argv[1:])
             if script != PREFLIGHT_SCRIPT:
-                identity = "RunToken" if mode == "RUNTOKEN_TRAILING_SPACE" else "TargetDatabase"
+                identity = {
+                    "RUNTOKEN_TRAILING_SPACE": "RunToken",
+                    "TARGETDATABASE_TRAILING_SPACE": "TargetDatabase",
+                    "DEMOID_TRAILING_SPACE": "DemoId",
+                    "DEMOID_CASE_VARIANT": "DemoId case variant",
+                }[mode]
                 raise ValueError(f"the SQL preflight did not reject trailing-space {identity}; later phases are blocked")
             if mode == "RUNTOKEN_TRAILING_SPACE":
                 sys.argv = [sys.argv[0], *corrupt_preflight_run_token_trailing_space(sys.argv[1:])]
                 print("QRY023_RUN_TOKEN_NEGATIVE|TRAILING_SPACE_INJECTED")
-            else:
+            elif mode == "TARGETDATABASE_TRAILING_SPACE":
                 sys.argv = [sys.argv[0], *corrupt_preflight_target_database_trailing_space(sys.argv[1:])]
                 print("QRY023_TARGET_DATABASE_NEGATIVE|TRAILING_SPACE_INJECTED")
+            else:
+                if mode == "DEMOID_TRAILING_SPACE":
+                    sys.argv = [sys.argv[0], *corrupt_preflight_demo_id_trailing_space(sys.argv[1:])]
+                    print("QRY023_DEMO_ID_NEGATIVE|TRAILING_SPACE_INJECTED")
+                else:
+                    sys.argv = [sys.argv[0], *corrupt_preflight_demo_id_case_variant(sys.argv[1:])]
+                    print("QRY023_DEMO_ID_NEGATIVE|CASE_VARIANT_INJECTED")
         target = injection_target(sys.argv[1:])
         if target is not None:
             sql, marker = injection_for_mode(mode)
