@@ -629,6 +629,12 @@ jobs:
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
           result="${PIPESTATUS[0]}"
           set -e
+          if [[ "$result" != 0 ]]; then
+            echo 'SQL Server log entries around recent READER login failures:' >&2
+            docker logs "$container_id" 2>&1 \
+              | grep -B 2 -A 1 -F "Login failed for user 'READER'" \
+              | tail -n 20 >&2 || true
+          fi
           exit "$result"
       - name: Remove only the owned SQL Server container
         if: always()

@@ -1489,7 +1489,10 @@ Die positive Qualifikation wird so vor dieser zusätzlichen Instanzmutation
 gemessen. Nach dem Endpoint-Drop wird der vollständige FWK-010-Lebenszyklus
 ein zweites Mal ausgeführt, um denselben Reader-Preflight im bereinigten Zustand
 zu prüfen. Gegenprobe, Owner-Cleanup, beide positiven Läufe und alle PR-Gates
-müssen bestehen.
+müssen bestehen. Dieser zweite Lauf scheiterte auf allen drei Builds erneut im
+`QUALIFICATION_PREFLIGHT` beim READER-Login, obwohl Cleanup und ADMIN-Inventur
+bestanden. Die Folgeausführung gibt deshalb nur die Errorlog-Zeilen rund um den
+SQL-Loginfehler aus, um den konkreten 18456-Grundzustand zu sichern.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.

@@ -470,6 +470,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         ]
         self.assertIn("Tests/Runtime/qry023_docker_sqlcmd_proxy.py", post_endpoint_lifecycle)
         self.assertIn("manifest.proposed.json", post_endpoint_lifecycle)
+        self.assertIn("Login failed for user 'READER'", post_endpoint_lifecycle)
+        self.assertIn("grep -B 2 -A 1", post_endpoint_lifecycle)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
