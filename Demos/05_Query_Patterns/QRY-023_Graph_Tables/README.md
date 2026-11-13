@@ -195,9 +195,11 @@ prüfen unter anderem entfernte Sichtbarkeitsgates, SID-Bindung und verbotene
 Grants. ScriptDom parst das neue T-SQL unter den Grammatiken 150, 160 und 170.
 Das belegt weder Metadatenvollständigkeit noch erfolgreiche T-SQL-Ausführung.
 Der Vertragsvalidator deckt diese synthetischen Negativfälle ab. Die
-automatisierten Engine-Läufe qualifizieren den positiven Standardpfad; negative
-Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht
-ausgeführt. QRY-023 bleibt vorgeschlagen und nicht katalogisiert.
+automatisierten Engine-Läufe qualifizieren den positiven Standardpfad; eine
+Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant wurde auf allen
+drei Builds vor den Queryphasen abgewiesen. Weitere negative Rechtevarianten
+und absichtlich beschädigte SQL-Kataloge wurden nicht ausgeführt. QRY-023 bleibt
+vorgeschlagen und nicht katalogisiert.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den

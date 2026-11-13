@@ -164,6 +164,12 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("CLEANUP: PASS/OK", workflow)
         self.assertIn("CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE", workflow)
 
+    def test_readme_distinguishes_live_and_remaining_negative_permissions(self) -> None:
+        readme = (ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md").read_text(encoding="utf-8")
+        self.assertIn("Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant", readme)
+        self.assertIn("Weitere negative Rechtevarianten", readme)
+        self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
+
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:
         password = "QRY" + "023!" + "1" * 24 + "Read"
         admin_password = "A1!"
