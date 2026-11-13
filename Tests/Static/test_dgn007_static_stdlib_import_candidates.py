@@ -207,6 +207,27 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("fallback", "pkg", "posix_helper", "provider"))
         self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
 
+    def test_star_import_keeps_both_later_function_definitions(self):
+        files = {
+            "pkg/__init__.py": (
+                b"import sys\n_names = sys.builtin_module_names\n"
+                b"from provider import *\n"
+                b"if 'nt' in _names:\n"
+                b"    def boot():\n        from . import nt_helper\n"
+                b"else:\n"
+                b"    def boot():\n        from . import posix_helper\n"
+                b"boot()\n"
+            ),
+            "provider.py": b"VALUE = 1\n",
+            "pkg/nt_helper.py": b"VALUE = 2\n",
+            "pkg/posix_helper.py": b"VALUE = 3\n",
+        }
+        modules, _, _, _, _ = SUBJECT._module_init_call_candidate_closure(files, ("pkg",))
+        self.assertEqual(
+            modules,
+            ("pkg", "pkg.nt_helper", "pkg.posix_helper", "provider"),
+        )
+
     def test_call_closure_follows_called_local_functions_only(self):
         files = {
             "pkg/__init__.py": (
@@ -301,6 +322,60 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.deferred_helper"))
         self.assertEqual(function_count, 1)
 
+    def test_simple_same_scope_function_aliases_are_followed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def load():\n    from . import alias_helper\n"
+                b"module_alias = load\nmodule_alias()\n"
+                b"class Holder:\n    class_alias = load\n    class_alias()\n"
+                b"def boot():\n    local_alias = load\n    local_alias()\n"
+                b"boot()\n"
+            ),
+            "pkg/alias_helper.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.alias_helper"))
+        self.assertEqual(function_count, 2)
+
+    def test_class_alias_uses_outer_binding_before_local_shadow(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def load():\n    from . import outer_helper\n"
+                b"class Holder:\n"
+                b"    alias = load\n"
+                b"    def load():\n        from . import class_helper\n"
+                b"    alias()\n"
+            ),
+            "pkg/outer_helper.py": b"VALUE = 1\n",
+            "pkg/class_helper.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.outer_helper"))
+        self.assertEqual(function_count, 1)
+
+    def test_unknown_class_branch_preserves_both_function_targets(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Holder:\n"
+                b"    if feature_flag:\n"
+                b"        def boot():\n            from . import left_helper\n"
+                b"    else:\n"
+                b"        def boot():\n            from . import right_helper\n"
+                b"    boot()\n"
+            ),
+            "pkg/left_helper.py": b"VALUE = 1\n",
+            "pkg/right_helper.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.left_helper", "pkg.right_helper"))
+        self.assertEqual(function_count, 2)
+
     def test_class_annotations_are_evaluated_inside_called_function(self):
         files = {
             "pkg/__init__.py": (
@@ -337,7 +412,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("CANDIDATES_ONLY", labels)
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
-        self.assertIn("MODULE_CLASS_DIRECT_CALLS_AND_GENERATOR_BODIES", labels)
+        self.assertIn("MODULE_CLASS_DIRECT_AND_SIMPLE_ALIAS_CALLS_WITH_GENERATORS", labels)
         self.assertNotIn("P11_MATCH", labels)
 
 

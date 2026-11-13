@@ -413,7 +413,7 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
 
 
 def _module_init_call_import_names(tree, module, path, condition_stats=None):
-    """Follow direct local function calls made by module/class initialization."""
+    """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
     postponed_annotations = any(
         isinstance(statement, ast.ImportFrom) and statement.module == "__future__"
@@ -423,6 +423,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
     known_names = _target_name_aliases(tree)
     def scope_functions(statements):
         result = {}
+        conditions = dict(known_names)
 
         def collect(node):
             if isinstance(node, ast.FunctionDef):
@@ -430,8 +431,11 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
                 return
             if isinstance(node, (ast.AsyncFunctionDef, ast.ClassDef)):
                 return
+            if isinstance(node, ast.ImportFrom) and any(alias.name == "*" for alias in node.names):
+                conditions.clear()
+                return
             if isinstance(node, ast.If):
-                decision = _target_condition(node.test, known_names)
+                decision = _target_condition(node.test, conditions)
                 selected = node.body if decision is True else node.orelse if decision is False else None
                 for statement in selected if selected is not None else (*node.body, *node.orelse):
                     collect(statement)
@@ -447,7 +451,110 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             collect(statement)
         return result
 
-    module_functions = scope_functions(tree.body)
+    def scope_function_aliases(statements, functions):
+        """Conservatively add simple same-scope ``alias = function`` names."""
+        result = {name: list(nodes) for name, nodes in functions.items()}
+        conditions = dict(known_names)
+
+        def add_alias(node):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                return
+            if isinstance(node, ast.ImportFrom) and any(alias.name == "*" for alias in node.names):
+                conditions.clear()
+                return
+            if isinstance(node, ast.If):
+                decision = _target_condition(node.test, conditions)
+                selected = node.body if decision is True else node.orelse if decision is False else None
+                for statement in selected if selected is not None else (*node.body, *node.orelse):
+                    add_alias(statement)
+                return
+            value = node.value if isinstance(node, (ast.Assign, ast.AnnAssign)) else None
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target] if isinstance(node, ast.AnnAssign) else []
+            if isinstance(value, ast.Name) and value.id in result:
+                for target in targets:
+                    if isinstance(target, ast.Name):
+                        known = result.setdefault(target.id, [])
+                        known_ids = {id(function) for function in known}
+                        known.extend(function for function in result[value.id]
+                                     if id(function) not in known_ids)
+                        known_ids.update(id(function) for function in known)
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, ast.stmt):
+                    add_alias(child)
+                elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                    for statement in child.body:
+                        add_alias(statement)
+
+        for statement in statements:
+            add_alias(statement)
+        return result
+
+    def class_scope_functions(statements, outer_functions):
+        """Resolve class-body function aliases against ordered class bindings."""
+        result = {name: list(nodes) for name, nodes in outer_functions.items()}
+        conditions = dict(known_names)
+
+        def copy_scope(scope):
+            return {name: list(nodes) for name, nodes in scope.items()}
+
+        def merge_scopes(left, right):
+            merged = {}
+            for name in left.keys() | right.keys():
+                nodes = []
+                seen = set()
+                for node in (*left.get(name, []), *right.get(name, [])):
+                    if id(node) not in seen:
+                        seen.add(id(node))
+                        nodes.append(node)
+                merged[name] = nodes
+            return merged
+
+        def bind(node, scope, facts):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                scope[node.name] = [node]
+                return
+            if isinstance(node, ast.ClassDef):
+                return
+            if isinstance(node, ast.ImportFrom) and any(alias.name == "*" for alias in node.names):
+                facts.clear()
+                return
+            if isinstance(node, ast.If):
+                decision = _target_condition(node.test, facts)
+                selected = node.body if decision is True else node.orelse if decision is False else None
+                if selected is not None:
+                    for statement in selected:
+                        bind(statement, scope, facts)
+                else:
+                    left, right = copy_scope(scope), copy_scope(scope)
+                    left_facts, right_facts = dict(facts), dict(facts)
+                    for statement in node.body:
+                        bind(statement, left, left_facts)
+                    for statement in node.orelse:
+                        bind(statement, right, right_facts)
+                    scope.clear()
+                    scope.update(merge_scopes(left, right))
+                    facts.clear()
+                    facts.update({name: value for name, value in left_facts.items()
+                                  if right_facts.get(name, _UNKNOWN) == value})
+                return
+            value = node.value if isinstance(node, (ast.Assign, ast.AnnAssign)) else None
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target] if isinstance(node, ast.AnnAssign) else []
+            if isinstance(value, ast.Name) and value.id in scope:
+                for target in targets:
+                    if isinstance(target, ast.Name):
+                        scope[target.id] = list(scope[value.id])
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, ast.stmt):
+                    bind(child, scope, facts)
+                elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                    for statement in child.body:
+                        bind(statement, scope, facts)
+
+        for statement in statements:
+            bind(statement, result, conditions)
+        return result
+
+    module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
     pending = []
     function_closures = {}
 
@@ -475,9 +582,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
                     yield from visit(expression, active_functions, in_function, function_scope)
             return
         if isinstance(node, ast.ClassDef):
-            class_functions = scope_functions(node.body)
-            class_scope = dict(active_functions)
-            class_scope.update(class_functions)
+            class_scope = class_scope_functions(node.body, active_functions)
             for expression in (*node.decorator_list, *node.bases, *(kw.value for kw in node.keywords)):
                 yield from visit(expression, active_functions, in_function, function_scope)
             for statement in node.body:
@@ -549,6 +654,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
         visited.add(id(function))
         visible_functions = dict(closure_scope)
         visible_functions.update(scope_functions(function.body))
+        visible_functions = scope_function_aliases(function.body, visible_functions)
         for statement in function.body:
             imports.extend(visit(statement, visible_functions, True, visible_functions))
     return tuple(imports), len(visited)
@@ -620,7 +726,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_DIRECT_CALLS_AND_GENERATOR_BODIES",
+        "module_init_call_scope": "MODULE_CLASS_DIRECT_AND_SIMPLE_ALIAS_CALLS_WITH_GENERATORS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

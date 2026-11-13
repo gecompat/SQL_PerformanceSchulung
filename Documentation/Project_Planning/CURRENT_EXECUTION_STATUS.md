@@ -32,10 +32,10 @@ Werte ist vollständige Importclosure oder P11-Sollinventur. Ein ergänzender
 Linux-/CPython-3.12-Zielzweigfilter entscheidet zusätzlich die gebundenen
 Builtin-Fakten `posix` vorhanden/`nt` abwesend: fünf sichere Bedingungen und
 39 unbekannte, 58 Module/282 Kanten; `ntpath` entfällt. Der begrenzte
-Modulstart-/Direktaufrufvorschnitt erfasst 108 direkt aufgerufene lokale
-Funktionen, konservativ auch mögliche Calls in Generatorausdrücken, 63
-Quellkandidaten und 315 Kanten;
-Attribute, Aliase, modulübergreifende und dynamische Calls bleiben offen. Die
+Modulstart-/Direktaufrufvorschnitt verfolgt direkte Calls, einfache lokale
+Funktionsaliases und mögliche Generatorausdrucks-Calls in 111 lokalen
+Funktionen, 63 Quellkandidaten und 315 Kanten;
+Attribut- und dynamische Calls sowie modulübergreifende Aliasbindung bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
