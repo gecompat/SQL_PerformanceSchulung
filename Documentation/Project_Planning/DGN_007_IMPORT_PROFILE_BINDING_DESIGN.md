@@ -2218,10 +2218,10 @@ noch alle Build- und Hostparameter; der finale Image-Digest fixiert zwar das
 resultierende OCI-Objekt, attestiert aber nicht unabhängig dessen Erzeugung.
 Die Plattformmanifest-, Config- und Layerdigest-Auswahl für `linux/amd64` ist
 damit bestimmt. Der gebundene Pull und eine eng begrenzte native Probe sind in
-§19.4 dokumentiert. OCI-Digest-/DiffID-Vergleich, Buildherkunft sowie
-vollständige Source-/Build-/Toolbindung bleiben auf ihren jeweiligen
-Beobachtungsgrenzen. Zusätzlich fehlen weiterhin die unabhängig aus gehaltenen
-Quellen und Buildparametern abgeleiteten vollständigen S15-/P11-Erwartungsrecords
+§19.4 dokumentiert; die unabhängige Blob-/DiffID-Nachrechnung folgt in §19.6.
+Buildherkunft sowie vollständige Source-/Build-/Toolbindung bleiben auf ihren
+jeweiligen Beobachtungsgrenzen. Zusätzlich fehlen weiterhin die unabhängig aus
+gehaltenen Quellen und Buildparametern abgeleiteten vollständigen S15-/P11-Erwartungsrecords
 für Modul-/Spec-/Loader-/Alias- und Pfadformen einschließlich des gemeinsamen
 64-KiB-Gates. Ein Profil, das erst mit dem zu prüfenden Interpreter aufgenommen
 wird, wäre weiterhin zirkulär.
@@ -2301,6 +2301,27 @@ aller benötigten S15-/P11-Felder für den endgültigen Bootstrap samt vollstän
 Darstellungs- und Größenprüfung. Vor dem einmaligen operativen Lauf müssen die
 gehaltenen Quellen und der Aufrufplan unabhängig geprüft sein; ein
 selbstaufgenommenes Interpreterprofil bleibt als Sollquelle ausgeschlossen.
+
+### 19.6 Unabhängige Registry-Layer- und DiffID-Nachrechnung
+
+Am 2026-11-13 wurden das Childmanifest, die Config und alle sieben Layer erneut
+direkt über die OCI Registry-API für `library/python` gelesen. Eine lokale
+Standardbibliotheksprüfung band jedes Manifest-Deskriptorpaar aus komprimiertem
+SHA-256 und Bytezahl an die empfangenen Blobbytes. Für jeden gzip-Layer
+berechnete sie zusätzlich den SHA-256 der vollständigen entpackten Tarbytes und
+verglich ihn mit dem positionsgleichen `rootfs.diff_ids`-Wert der über ihren
+Configdigest gelesenen Config. Childmanifest, Configdigest und -größe sowie alle
+sieben komprimierten Layerdigests, Layergrößen und entpackten DiffIDs stimmten
+exakt; alle sieben gzip-Streams endeten regulär. Die berechneten
+unkomprimierten Layergrößen waren 121.425.920, 48.823.808, 182.021.632,
+597.621.760, 18.368.000, 70.012.928 und 5.120 Bytes.
+
+Dies ist eine unabhängige Hashnachrechnung der veröffentlichten OCI-Blobbytes
+und ihrer unkomprimierten Tarrepräsentationen. Sie belegt weder Buildhost,
+Buildparameter oder Herkunft des fertigen Images noch die erwartete
+S15-/P11-Installation. Keine Profilaufnahme, Bootstrap-/Profilbytebindung,
+Worker-, Trust-, Runtime- oder Methodenattestation fand statt. Die operative
+Inventur und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen.
 
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
