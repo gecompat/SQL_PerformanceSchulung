@@ -5192,3 +5192,27 @@ Records, operative Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.
 bleibt `CANDIDATES_ONLY` und liefert weiterhin 93 Quellmodule/578 Kanten/534
 Funktionen mit unverändertem Zeilendigest
 `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+
+### Fortsetzung: Quellgebundene Frozen-Tabellen und Aliase
+
+Der Parser bindet zusätzlich `Python/frozen.c` an SHA-256
+`ff2d5e301f1725c013788f30882fd48127a9ecfe891bfaa592cc08c284d4f79f` und trennt
+die drei statischen Tabellen: drei Bootstrapnamen, 15 Stdlibnamen und elf
+Testnamen. Neun Zeilen der Alias-Tabelle werden gesondert kanonisiert. Die
+sortierten Namensdigests sind `cf465d8760d226c854cb90bfcd332fc637242d0eaba1aa831583800d687c6190`
+(Bootstrap), `d181303a2f9c0f98d142655d3848044edfe7a5f5b6a0811902b107b9deccbf49`
+(Stdlib) und `abf532872c0cc627b52797fd17ec5c19305f91b3173db543e0359288b1921c37`
+(Tests); der Aliasdigest ist
+`cdfccf4b85b455cbd42da046901b125a9a92716413decb8e134b37bd7deb420f`. Die
+Bootstrap- und Stdlib-Wurzeln liegen in der zuvor gebundenen 301-Namen-
+Namensmenge; die Testtabelle bleibt separat und geht nicht in diese Aussage
+ein.
+
+Dies bindet nur deklarierte Quelltabellen. Es beweist weder, dass das Image
+diese Tabellen gebaut hat, noch dass ein Modul geladen, eingefroren oder mit
+den Aliasbeziehungen beobachtet wurde. Der vollständige P11-Recordbestand und
+alle 15 S15-Felder bleiben offen. Zwei zusätzliche synthetische Gegenproben
+erweitern den fokussierten Scannertestsatz auf 90/90. Der CPython-Archivscan
+bleibt `CANDIDATES_ONLY`; die 93 Quellmodule/578 Kanten/534 Funktionen und der
+Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`
+bleiben unverändert.

@@ -9024,6 +9024,30 @@ bleibt bei 92 Modulen/573 Kanten/471 Funktionen und 1.452 unbekannten
 Bedingungen; Quelldigest unverändert. Kein Interpreter, Profil, Worker, SQL
 oder Generalprobe wurde ausgeführt.
 
+## Fortsetzung: DGN-007 – Frozen-Quelltabellen und Aliase
+
+Der SHA-gebundene CPython-3.12.16-Scanner bindet zusätzlich
+`Python/frozen.c` mit Dateidigest
+`ff2d5e301f1725c013788f30882fd48127a9ecfe891bfaa592cc08c284d4f79f`. Der
+Parser trennt drei Bootstrapnamen, 15 Stdlibnamen und elf Testnamen; neun
+Aliaszeilen werden separat kanonisiert. Die Namensdigests lauten
+`cf465d8760d226c854cb90bfcd332fc637242d0eaba1aa831583800d687c6190`,
+`d181303a2f9c0f98d142655d3848044edfe7a5f5b6a0811902b107b9deccbf49` und
+`abf532872c0cc627b52797fd17ec5c19305f91b3173db543e0359288b1921c37`; der
+Aliasdigest ist `cdfccf4b85b455cbd42da046901b125a9a92716413decb8e134b37bd7deb420f`.
+Alle Bootstrap- und Stdlibwurzeln liegen in den gebundenen 301 statischen
+Stdlibnamen; die Testtabelle ist davon getrennt.
+
+Das ist ausschließlich ein Quelltabellenbefund. Er belegt weder den Build oder
+Einsatz dieser Tabellen im Zielimage noch geladene Frozenmodule, beobachtete
+Aliase oder P11-Records. Der fokussierte Scannertestsatz besteht 90/90; der
+Archivscan bleibt `CANDIDATES_ONLY` mit 93 Modulen, 578 Kanten, 534 Funktionen
+und unverändertem Kandidatenzeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Alle 15
+S15-Felder, P11-Records, operative Inventur und das gemeinsame
+Fünf-Formen-/64-KiB-Gate bleiben offen. Es erfolgte kein Interpreter-, Profil-,
+Worker-, SQL- oder Generalprobenlauf.
+
 ## DGN-007-Profilfixtures: POSIX-Pfade auf Windows-Hosttests
 
 Der synthetische breite Profiltestsatz bildet deklarierte Linuxpfade jetzt mit
