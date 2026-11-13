@@ -150,6 +150,63 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_builtin_module_membership_uses_only_bound_target_facts(self):
+        equality = ast.parse(
+            "sys.builtin_module_names == ('posix',)", mode="eval"
+        ).body
+        self.assertIsNone(SUBJECT._target_condition(equality))
+        files = {
+            "pkg.py": (
+                b"import sys\n_names = sys.builtin_module_names\n"
+                b"if 'posix' in _names:\n    import posix_helper\n"
+                b"if 'nt' in _names:\n    import nt_helper\nelse:\n    import no_nt_helper\n"
+                b"if 'future_builtin' in _names:\n    import unknown_a\n"
+                b"else:\n    import unknown_b\n"
+            ),
+            "posix_helper.py": b"VALUE = 1\n",
+            "nt_helper.py": b"VALUE = 2\n",
+            "no_nt_helper.py": b"VALUE = 3\n",
+            "unknown_a.py": b"VALUE = 4\n",
+            "unknown_b.py": b"VALUE = 5\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(files, ("pkg",))
+        self.assertEqual(
+            modules,
+            ("no_nt_helper", "pkg", "posix_helper", "unknown_a", "unknown_b"),
+        )
+        self.assertEqual(conditions, {"resolved": 2, "unknown": 1})
+
+    def test_rebound_builtin_alias_does_not_prune_reachable_fallback(self):
+        files = {
+            "pkg.py": (
+                b"import sys\n_names = sys.builtin_module_names\n"
+                b"if feature_flag:\n    _names = ()\n"
+                b"if 'posix' in _names:\n    import posix_helper\n"
+                b"else:\n    import fallback\n"
+            ),
+            "posix_helper.py": b"VALUE = 1\n",
+            "fallback.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(files, ("pkg",))
+        self.assertEqual(modules, ("fallback", "pkg", "posix_helper"))
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 2})
+
+    def test_star_import_invalidates_builtin_alias_for_later_guards(self):
+        files = {
+            "pkg.py": (
+                b"import sys\n_names = sys.builtin_module_names\n"
+                b"from provider import *\n"
+                b"if 'posix' in _names:\n    import posix_helper\n"
+                b"else:\n    import fallback\n"
+            ),
+            "provider.py": b"VALUE = 1\n",
+            "posix_helper.py": b"VALUE = 2\n",
+            "fallback.py": b"VALUE = 3\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(files, ("pkg",))
+        self.assertEqual(modules, ("fallback", "pkg", "posix_helper", "provider"))
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
+
     def test_call_closure_follows_called_local_functions_only(self):
         files = {
             "pkg/__init__.py": (

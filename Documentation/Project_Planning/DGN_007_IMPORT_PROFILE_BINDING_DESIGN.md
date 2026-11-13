@@ -2623,13 +2623,18 @@ aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Importsyntax in
 einem Klassenkörper ist dabei kein Beleg seiner tatsächlichen Ausführung.
 
 Ein weiterer Zielumgebungsvorschnitt wertet nur sichere konstante `if`-Tests
-für `sys.platform == "linux"`, `os.name == "posix"`,
-Vergleiche mit `sys.version_info == (3, 12, 16, "final", 0)` und
-`sys.implementation.name == "cpython"` aus. Im erreichten Modul-/Klassenrumpf
-wurden vier Bedingungen entschieden und 42 nicht statisch entscheidbare
-Bedingungen beidseitig beibehalten. Der Kandidatenbestand blieb dadurch bei 59
-Modulen/287 Kanten und demselben Digest; bekannte Branchfilterung verringert
-die Quellmenge in diesem Vorschnitt also nicht. Das belegt keine vollständige
+für `sys.platform == "linux"`, `os.name == "posix"`, Vergleiche mit
+`sys.version_info == (3, 12, 16, "final", 0)`,
+`sys.implementation.name == "cpython"` und zwei ausgewählte Membershipfakten
+aus dem digestgebundenen OCI-Layer-6-`config.c`/Inittab aus (§19.9): `posix`
+ist enthalten, `nt` nicht. `sys.builtin_module_names` wird dabei nur für diese
+beiden Namen ausgewertet; andere Membershipfragen bleiben unbekannt. Der
+Alias auf diese Facts wird nur bei einer eindeutigen statischen Bindung genutzt
+und nach einem möglichen Star-Import verworfen. Im
+erreichten Modul-/Klassenrumpf wurden fünf Bedingungen entschieden und 39
+unbekannte beidseitig behalten. Der Vorschnitt enthält 58 Module/282 Kanten,
+Digest `478ca51898448040d8da49f3edb6620d96a58b89857e352d88ffd2d7c75395fb`;
+der Linux-Zweig schließt hier `ntpath` aus. Das ist keine vollständige
 Auswertung indirekter oder laufzeitabhängiger Bedingungen.
 
 Eine dritte statische Traversierung nimmt zusätzlich Bodies synchroner lokaler
@@ -2641,12 +2646,11 @@ bleiben Teil des Aufbaus. Nicht aufgeschobene Funktions-, Klassen- und
 Modulannotationen zählen nur ohne `from __future__ import annotations`;
 lokale Funktionsannotationen und aufgeschobene Funktions-/Zuweisungsannotationen
 werden ausgelassen. Generatorausdrücke
-einschließlich ihrer Iterable werden nicht verfolgt. Für
-die zwölf festen Wurzeln ergaben sich 320 zugeordnete Kanten, 64
-Quellmodulkandidaten und 108 verfolgte lokale Funktionen; der sortierte
-Modul-/Quelldigest lautet
-`6f7026c12c5613a49327a4ded791087737d2fadcc9d0ab4f202a0f3de3856d2c`. Dabei
-wurden 18 Zielbedingungen entschieden und 282 unbekannte Bedingungen
+einschließlich ihrer Iterable werden nicht verfolgt. Für die zwölf festen
+Wurzeln ergaben sich 315 zugeordnete Kanten, 63 Quellmodulkandidaten und 108
+verfolgte lokale Funktionen; der sortierte Modul-/Quelldigest lautet
+`a846ba1f2e76cfa3754bdf415b722d5acfe9a3bc681a1878a22a485789783189`. Dabei
+wurden 19 Zielbedingungen entschieden und 279 unbekannte Bedingungen
 beidseitig behalten. Die Auflösung folgt nur direkte lokale `Name`-Aufrufe;
 mehrere Definitionen desselben Namens bleiben bei unbekannten Bedingungen als
 Alternativen erhalten, bekannte Zielzweige begrenzen die Definitionen.
