@@ -340,7 +340,6 @@ def main() -> int:
                     encoding="utf-8",
                 )
                 sys.argv = [sys.argv[0], *rewritten]
-                print("QRY023_TIMEOUT_PROBE|SCRIPT_BOUND")
         if mode in {
             "RUNTOKEN_TRAILING_SPACE", "TARGETDATABASE_TRAILING_SPACE",
             "DEMOID_TRAILING_SPACE", "DEMOID_CASE_VARIANT",
