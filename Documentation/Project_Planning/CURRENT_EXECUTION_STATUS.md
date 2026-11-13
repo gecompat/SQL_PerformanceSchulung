@@ -8,6 +8,20 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
+### DGN-007 – nächste freigegebene Baseline-Prüfung
+
+Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
+gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest
+sowie alle sieben komprimierten Layerdigests/-größen und entpackten DiffIDs
+stimmen unabhängig überein. Das ergänzt die bestehende Docker-Engine-Prüfung,
+attestiert aber keine Buildherkunft. Die konkrete offene Entwicklungsarbeit
+bleibt die unabhängige Ableitung vollständiger S15-/P11-Sollrecords aus den
+gehaltenen Quellen, danach die Quellen-/Aufrufreview und erst anschließend eine
+einmalige operative Inventur mit fünf vollständigen Darstellungen und gemeinsamem
+64-KiB-Gate. Es gab in diesem Schritt keine Profilaufnahme oder Worker-/SQL-
+Ausführung; die Generalprobe bleibt ausgeschlossen. Details stehen in
+§19.3–§19.6 des [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
