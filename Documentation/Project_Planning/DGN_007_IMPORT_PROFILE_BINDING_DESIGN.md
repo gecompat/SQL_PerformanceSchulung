@@ -5127,17 +5127,19 @@ wie `WorkerAlias = Worker` und verkettete Namen. Aufrufe `WorkerAlias()` sowie
 `WorkerAlias().run()` erreichen die statisch belegten lokalen Konstruktoren und
 Methoden. Alternative Zuweisungen aus unbekannten Modulzweigen behalten die
 bekannten Klassen als Kandidaten; dynamische Factory-Rückgaben und zyklische
-Aliase erzeugen keine Klasse. Funktions- und Klassenscope-Aliase bleiben
-außerhalb dieser begrenzten Erweiterung. Vier synthetische Regressionen prüfen
-Verkettung/Konstruktor/Methode, Alternativen, Factory-/Zyklusgrenzen und das
-Erhalten importierter Ziele bei lokalem Rebinding; der fokussierte Testsatz
-umfasst 79 Fälle.
+Aliase erzeugen keine Klasse. Eine getrennte Fortsetzung verfolgt jetzt direkte
+Funktionsscope-Aliase bereits bekannter importierter Klassen einschließlich
+einfacher Aliasverkettung bei konstruierten Methodenaufrufen. Factory-Rückgaben,
+verschachtelte Scopeübertritte und Klassenscope-Aliase bleiben offen. Zwei
+synthetische Regressionen prüfen direkte Alias- und Kettenform; der fokussierte
+Testsatz umfasst 81 Fälle.
 
 Der gebundene CPython-3.12.16-Archivscan bleibt bei 93 Quellmodulen, 578 Kanten
 und 534 lokalen Funktionen, mit 22 entschiedenen und 1.605 unbekannten
 Bedingungen und Quelldigest
-`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Der
-Kandidatenfolger ist weiterhin kein vollständiger Aufrufgraph und keine
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Die
+Erweiterung ändert die Kandidatenmenge des gebundenen CPython-Archivs nicht.
+Der Kandidatenfolger ist weiterhin kein vollständiger Aufrufgraph und keine
 P11-Importclosure. Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung; S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben
 offen.
