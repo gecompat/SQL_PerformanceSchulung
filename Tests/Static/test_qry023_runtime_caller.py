@@ -740,6 +740,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|PROBE_REQUEST_NOT_OBSERVED", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|RUNNER_EXIT", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED", timeout_case)
+        self.assertIn("seq 1 45", timeout_case)
+        self.assertIn("QRY023_TIMEOUT_NEGATIVE|REQUEST_STILL_ACTIVE", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STARTED", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STATUS", timeout_case)
         self.assertIn("grep -Fq 'SQLPERF_SUMMARY|PASS|OK' <<< \"$recovery_output\"", timeout_case)

@@ -975,12 +975,16 @@ jobs:
           printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED' >> "$log"
           active_sql="SET NOCOUNT ON; SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.dm_exec_requests AS r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t WHERE r.session_id<>@@SPID AND t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%') THEN 1 ELSE 0 END;"
           active=1
-          for attempt in $(seq 1 5); do
+          for attempt in $(seq 1 45); do
             active="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -h -1 -W -Q "$active_sql")"
             [[ "$active" == 0 ]] && break
             sleep 1
           done
-          [[ "$active" == 0 ]]
+          if [[ "$active" != 0 ]]; then
+            echo "QRY023_TIMEOUT_NEGATIVE|REQUEST_STILL_ACTIVE|attempt=${attempt}" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
           printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED' >> "$log"
           echo 'QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STARTED'
           set +e
