@@ -2819,6 +2819,14 @@ synthetische Varianten prüfen diese Pfade. Der fokussierte Satz umfasst nun
 60 Fälle. Externe oder dynamisch aufgelöste Basen bleiben unbekannt; dies
 ändert nichts am `CANDIDATES_ONLY`-Status.
 
+Einfache gleichscope Aliase einer lokalen oder direkt importierten Basisklasse
+werden zusätzlich durch `BaseAlias = Base` beziehungsweise
+`BaseAlias = source.Base` aufgelöst. Drei Fixtures prüfen lokale, `from`-
+importierte und Modulaliasbasen. Der fokussierte Testsatz umfasst 61 Fälle.
+Mehrfachzuweisungen und mögliches Rebinding werden konservativ als
+Alternativen behandelt und können Kandidaten überzählen; dynamische
+Zuweisungen werden nicht modelliert.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
