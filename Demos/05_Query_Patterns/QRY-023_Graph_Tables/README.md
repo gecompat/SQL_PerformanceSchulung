@@ -202,7 +202,8 @@ abgewiesen: zusätzlicher direkter READER-`SELECT`-Grant, Mitgliedschaft in
 `db_datareader`, explizites Objekt-`DENY`, Mitgliedschaft in der
 Serverrolle `dbcreator`, fehlendes erwartetes Tabellenobjekt, ein serverweiter
 `VIEW SERVER STATE`-Grant sowie ein explizites serverweites
-`DENY VIEW SERVER STATE`. Jeder Fall verlangte die exakte
+`DENY VIEW SERVER STATE`, datenbankweiter `VIEW DEFINITION`-Grant und
+datenbankweites `DENY VIEW DEFINITION`. Jeder Fall verlangte die exakte
 Abweichungskategorie, `FAIL_NOT_PROVEN`, keinen Eintritt in Queryphasen und
 bestandenes markergebundenes Cleanup; nach temporären Rechteänderungen wurde
 deren Wiederherstellung separat geprüft. Der anschließende positive

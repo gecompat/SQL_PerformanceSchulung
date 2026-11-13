@@ -378,16 +378,18 @@ eine separat geprüfte Bereinigung. PR #563 qualifizierte diese vorgeschlagene
 CI-Route am 13.11.2026 auf allen drei festgebundenen Engines und allen zehn
 Harnessphasen. Sie ersetzt keinen allgemeinen Runner-Prozessbaum- oder
 Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch einen
-Katalogeintrag. PRs #566–#570 ergänzten auf allen drei Engines Live-
+Katalogeintrag. PRs #566–#573 ergänzten auf allen drei Engines Live-
 Negativgegenproben: direkter `SELECT`-Grant an READER auf
 `lab.MeasurementWaitSnapshot` plus `db_datareader`-Mitgliedschaft (PR #566),
 explizites Objekt-`DENY` (#567), `dbcreator`-Serverrollenmitgliedschaft (#568),
 fehlendes erwartetes `lab.MeasurementWaitSnapshot` (#569) und ein
 `VIEW SERVER STATE`-Servergrant (#570) sowie explizites serverweites
-`DENY VIEW SERVER STATE` (#571). Jeder Fall wurde vor Korrektheit und
+`DENY VIEW SERVER STATE` (#571), datenbankweiter `VIEW DEFINITION`-Grant
+(#572) und Datenbank-`DENY VIEW DEFINITION` (#573). Jeder Fall wurde vor Korrektheit und
 Messung mit seiner exakten Kategorie als `FAIL_NOT_PROVEN` abgewiesen; das
 markergebundene Datenbank-Cleanup bestand. Serverrolle, Servergrant und
-Server-DENY wurden nach der Gegenprobe separat wiederhergestellt und verifiziert. Nach jedem
-Fall bestand der positive Zehnphasenlauf. Weitere negative Varianten und
+Server-DENY wurden nach der Gegenprobe separat wiederhergestellt und
+verifiziert. Die Datenbankfälle entfernte der markergebundene Cleanup. Nach
+jedem Fall bestand der positive Zehnphasenlauf. Weitere negative Varianten und
 absichtlich beschädigte SQL-Kataloge bleiben ungeprüft; eine allgemeine
 Runtimefreigabe und Produkt-/Katalogaufnahme bleiben ebenfalls offen.
