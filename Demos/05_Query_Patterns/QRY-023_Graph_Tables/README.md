@@ -302,18 +302,21 @@ ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170;
 digests und Produktlabels gegen den vorgeschlagenen Lock. Das belegt keinen
 gestarteten SQL-Server-Prozess.
 Vor einer Katalog- oder allgemeinen Runtimeaufnahme bleiben formale
-Produktabnahme, Runtimecaller-Integration und dauerhaft durchsetzbares
-Ressourcenprofil offen. Die menschliche Generalprobe bleibt wie beauftragt
-ausgeschlossen. Der isolierte Einzelaufruf verwendete begrenzte Wegwerfcontainer
-und separate ADMIN-/READER-Anmeldungen; er ist noch kein allgemeiner
-Runtimeworkflow.
+Produktabnahme und allgemeine Runtimefreigabe offen. Ein eigener vorgeschlagener
+CI-Aufrufer ist inzwischen integriert und auf den drei festgeschriebenen
+Engine-Builds ausgeführt; er verwendet begrenzte Wegwerfinstanzen und separate
+ADMIN-/READER-Anmeldungen. Das qualifiziert nur diesen isolierten Einzelrun-
+Pfad, nicht einen allgemeinen Runtimeworkflow oder eine Katalogaufnahme. Die
+menschliche Generalprobe bleibt wie beauftragt ausgeschlossen.
 
 Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus
 Microsofts Linux-Mindestanforderungen und der geforderten Trennung zwischen
 Container- und SQL-Server-Speichergrenze abgeleitet. 8/20 GiB Hostreserve sowie
 4/3 GiB Container-/Enginegrenze sind Projektwerte ohne QRY-023-Laufmessung;
-der Runtimeaufrufer muss sie vor Start tatsächlich durchsetzen.
+der vorgeschlagene CI-Aufrufer prüft Hostressourcen und setzt die Container-
+und SQL-Server-Grenzen vor Start durch. Diese Werte sind keine gemessenen
+Anwendungsressourcen oder Performancegrenzen.
 
 ## Verträge und Reviews
 
