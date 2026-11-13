@@ -932,6 +932,22 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             pending_bases.extend(module_class_bases.get(base_name, ()))
         return tuple(ancestors)
 
+    def known_class_method_targets(class_name, method_name):
+        """Return methods on a known class and its known local ancestors."""
+        local_targets = []
+        imported_targets = set()
+        for candidate in (class_name, *local_base_classes(class_name)):
+            for function in module_class_methods.get(candidate, {}).get(method_name, ()):
+                if function not in local_targets:
+                    local_targets.append(function)
+            imported_targets.update(
+                (imported_class_methods or {}).get(candidate, {}).get(method_name, ())
+            )
+            imported_targets.update(
+                (imported_module_class_methods or {}).get(candidate, {}).get(method_name, ())
+            )
+        return tuple(local_targets), tuple(sorted(imported_targets))
+
     def add_base_method_calls(class_name, method_name, function_scope):
         for base_name in local_base_classes(class_name):
             for function in module_class_methods.get(base_name, {}).get(method_name, ()):
@@ -966,19 +982,36 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             if isinstance(constructor, ast.Name):
                 local_methods = module_class_methods.get(constructor.id, {})
                 imported_methods = (imported_class_methods or {}).get(constructor.id, {})
+                method_names = set(local_methods) | set(imported_methods)
+                method_names.update(
+                    name
+                    for base_name in local_base_classes(constructor.id)
+                    for name in (
+                        set(module_class_methods.get(base_name, {}))
+                        | set((imported_class_methods or {}).get(base_name, {}))
+                        | set((imported_module_class_methods or {}).get(base_name, {}))
+                    )
+                )
+                resolved_methods = {
+                    name: known_class_method_targets(constructor.id, name)
+                    for name in method_names
+                }
             elif isinstance(constructor, ast.Attribute):
                 receiver = ast.unparse(constructor.value) + "." + constructor.attr
                 local_methods = {}
                 imported_methods = (imported_module_class_methods or {}).get(receiver, {})
+                resolved_methods = {
+                    name: ((), tuple(targets))
+                    for name, targets in imported_methods.items()
+                }
             else:
                 return
             bound = result.setdefault(target_name, {})
-            for method_name, functions in local_methods.items():
+            for method_name, (functions, targets) in resolved_methods.items():
                 local = bound.setdefault(method_name, {"local": [], "imported": []})["local"]
                 for function in functions:
                     if function not in local:
                         local.append(function)
-            for method_name, targets in imported_methods.items():
                 external = bound.setdefault(method_name, {"local": [], "imported": []})["imported"]
                 for target in targets:
                     if target not in external:
@@ -1140,8 +1173,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             for function in active_functions.get(node.func.id, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
-            for function in module_class_methods.get(node.func.id, {}).get("__init__", ()):
+            constructor_targets, imported_constructor_targets = known_class_method_targets(
+                node.func.id, "__init__"
+            )
+            for function in constructor_targets:
                 pending.append((function, function_closures.get(id(function), function_scope)))
+            imported_calls.update(imported_constructor_targets)
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
             if (isinstance(node.func.value, ast.Call)
                     and isinstance(node.func.value.func, ast.Name)
@@ -1163,11 +1200,11 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             if isinstance(node.func.value, ast.Call):
                 constructor = node.func.value.func
                 if isinstance(constructor, ast.Name):
-                    for function in module_class_methods.get(constructor.id, {}).get(node.func.attr, ()):
+                    local_targets, imported_targets = known_class_method_targets(
+                        constructor.id, node.func.attr
+                    )
+                    for function in local_targets:
                         pending.append((function, function_closures.get(id(function), function_scope)))
-                    imported_targets = (imported_class_methods or {}).get(
-                        constructor.id, {}
-                    ).get(node.func.attr, ())
                     imported_calls.update(imported_targets)
                 elif isinstance(constructor, ast.Attribute):
                     receiver = ast.unparse(constructor.value) + "." + constructor.attr
@@ -1392,7 +1429,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

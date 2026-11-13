@@ -46,9 +46,14 @@ Der Scan folgt nun zusätzlich `from package import module [as alias]` und
 relativen Varianten, direkte Methodenaufrufe auf frisch konstruierten
 Klassenobjekten, direkte gleichscope Variablenbindungen und einfache Aliase
 solcher Instanzen sowie `self.method()`-/`cls.method()`-Kanten einschließlich
-direkter lokaler Closure-Helfer. 53 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
-Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
-bleiben offen. Die
+direkter lokaler Closure-Helfer. Spätere Quellwellen ergänzen bekannte lokale
+und importierte Basen, Aliase, `super()`-Formen sowie geerbte Konstruktoren und
+Methoden auf frisch konstruierten Unterklassen. 67 synthetische Tests bestehen.
+Dynamische Calls, vollständige MRO, Deskriptoren, `__new__`, C-/Frozen-Aufrufe
+und modulübergreifendes Rebinding bleiben offen. Der aktuelle gebundene
+Archivscan zählt 92 Module/573 Kanten/473 besuchte Funktionen, 22 entschiedene
+und 1.453 unbekannte Bedingungen; Quelldigest
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
@@ -8956,9 +8961,23 @@ bestehen.
 
 Der erneute CPython-3.12.16-Archivlauf verwendet den Quellhash
 `b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`.
-Der Aufrufkandidatenpfad zählt 92 Module, 573 Kanten und 471 besuchte
-Funktionen; 22 Bedingungen sind entschieden und 1.452 unbekannt. Der
+Der Aufrufkandidatenpfad zählt 92 Module, 573 Kanten und 473 besuchte
+Funktionen; 22 Bedingungen sind entschieden und 1.453 unbekannt. Der
 Modul-/Quelldigest lautet
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`. Der
 Status bleibt `CANDIDATES_ONLY`; dies ist keine vollständige Importclosure oder
 P11-Sollinventur.
+
+## Fortsetzung: geerbte Konstruktoren und konstruierte Unterklassenmethoden
+
+Bei direkt bekannten lokalen Klassen verfolgt der statische Kandidatenfolger
+jetzt auch geerbte `__init__`-Aufrufe durch `Worker()` und geerbte Methoden auf
+frisch konstruierten Objekten (`Worker().load()` oder eine gleichscope
+gebundene Instanz). Das umfasst direkt importierte Quellbasen und bekannte
+transitive Vorfahren. Drei neue synthetische Tests prüfen lokalen geerbten
+Konstruktor, lokale geerbte Methode sowie importierte Basis mit geerbtem
+Konstruktor und Methode; 67/67 fokussierte Tests bestehen. Der Quellscan bleibt
+bei 92 Modulen/573 Kanten und unverändertem Quelldigest; 473 Funktionen werden
+besucht und 1.453 Bedingungen bleiben unbekannt. Die Vereinigungsauflösung kann
+bei Overrides überzählen; dynamische Basen und vollständige MRO bleiben offen.
+Kein Interpreter, Profil, Worker, SQL oder Generalprobe wurde ausgeführt.

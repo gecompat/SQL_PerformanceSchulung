@@ -2834,10 +2834,21 @@ Zuweisungen werden nicht modelliert.
 Der aktuelle erneute Archivlauf verwendet den gegen den festen SHA-256
 `b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`
 geprüften CPython-3.12.16-Tarball. Er bleibt `CANDIDATES_ONLY` und zählt im
-Modul-/Klassen-/Aufrufkandidatenpfad 92 Module, 573 Kanten und 471 besuchte
-Funktionen; 22 Bedingungen sind entschieden und 1.452 unbekannt. Der
+Modul-/Klassen-/Aufrufkandidatenpfad 92 Module, 573 Kanten und 473 besuchte
+Funktionen; 22 Bedingungen sind entschieden und 1.453 unbekannt. Der
 Modul-/Quelldigest bleibt `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`.
 Der Lauf belegt weder vollständige Closure noch S15-/P11-Sollinventur.
+
+Für Konstruktoraufrufe lokaler Unterklassen (`Worker()`) und Methoden auf
+direkt konstruierten Instanzen (`Worker().load()` oder einer gleichscope
+gebundenen Instanz) werden jetzt zusätzlich geerbte Methoden aus bekannten
+lokalen und direkt importierten Basen berücksichtigt. Drei synthetische
+Regressionen prüfen lokale geerbte Konstruktoren, lokale geerbte Methoden und
+eine importierte Basis mit geerbtem Konstruktor und Methode. 67/67 fokussierte
+Tests bestehen. Bei alternativen Basen oder möglichen Overrides können
+Kandidaten überzählt werden; unbekannte dynamische Basen und vollständige MRO
+bleiben ungelöst. Der Scope ist keine vollständige Aufrufclosure oder
+P11-Inventur und erzeugt keine Runtimeevidenz.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
