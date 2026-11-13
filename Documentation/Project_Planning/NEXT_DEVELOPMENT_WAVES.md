@@ -359,15 +359,30 @@ einen PR und drei Kandidaten: Quellenregistereintrag `SRC-159` sowie die
 read-only ADMIN-Inventurimplementierung und ihre Tests für
 READER-Login-/Datenbank-SID, Server-/Datenbankrollen, explizite Grants/DENYs,
 Benutzerdatenbankbestand und Standardendpointbestand samt Offlinevalidator und
-synthetischen Abweichungsgegenproben. QRY-Validator, 93 Offline-Regressionen und ScriptDom-Parse unter
-150/160/170 bestanden; der unabhängige Nachreview fand keine offenen P1/P2.
-Weil Microsofts Beschreibung „Systemobjekt“ keine exakte Allowlist der
-`public`-SELECT-Standardmenge liefert, sperrt die Inventur solche Grants bis zu
-einer versionsgebundenen Sollmenge mit `FAIL_NOT_PROVEN`; ein PASS wird nicht
-vorgegeben. Keine Rechtevergabe, keine Rechte- oder `public`-Mutation, keine
-SQL-/Lab-/Runtimeausführung und keine Generalprobe. PR-Gates stehen aus; der
-Merge ist Checkpoint. Exakte Systemobjekt-Standardmenge, tatsächliche READER-
-`sys.fn_my_permissions`-Erfassung, Ownership-Chain-Wirkung und
+synthetischen Abweichungsgegenproben. QRY-Validator, 93 Offline-Regressionen und
+ScriptDom-Parse unter 150/160/170 bestanden; der unabhängige Nachreview fand
+keine offenen P1/P2. Weil Microsofts Beschreibung „Systemobjekt“ keine exakte
+Allowlist der `public`-SELECT-Standardmenge liefert, sperrt die Inventur solche
+expliziten Grants bis zu einer versionsgebundenen Sollmenge mit
+`FAIL_NOT_PROVEN`; ein PASS wird nicht vorgegeben. PR #561 integrierte den
+Schnitt nach acht erfolgreichen PR-Workflows als
+`eaccffcf8f306cd3b9a5c2e334e0d67e5ab80f95`.
+
+Die aktuelle Fortsetzung bleibt auf ein Arbeitspaket, einen PR und höchstens
+drei kohärente Implementierungs-/Regressionkandidaten begrenzt; `SRC-158` und
+`SRC-159` werden wiederverwendet. Die READER-Rechteprüfung erfasst Server,
+Datenbank, beide Projekt-Schemas, 13 gebundene Demo-/Frameworkobjekte sowie
+jeden ADMIN-inventarisierten Standardendpoint. ADMIN bestätigt außerdem die
+Existenz aller 13 gebundenen Objekte, einschließlich dreier für READER
+unsichtbarer interner Messobjekte. Der Caller verlangt den festen Objektmarker
+und validiert den ADMIN-Endpointhandoff vor Übergabe als SQLCMD-Variablen; die
+READER-Verbindung fragt selbst
+`sys.fn_my_permissions` je Endpoint ab. Exact-set-Abweichungen,
+Duplikate, Spaltenrechte, fehlende Entitynamen oder ein ungültiger Handoff
+blockieren PASS beziehungsweise den Folgeaufruf. Offlinevalidator und
+synthetische Runner-/Parserregressionen bestehen. Keine Rechtevergabe, keine
+Rechte- oder `public`-Mutation, keine SQL-/Lab-/Runtime-Ausführung und keine
+Generalprobe. Exakte Systemobjekt-Standardmenge, Ownership-Chain-Wirkung und
 Enginequalifikation bleiben offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in

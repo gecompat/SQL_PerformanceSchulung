@@ -54,25 +54,28 @@
     "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
     "unknown_or_unavailable_inventory": "NOT_PROVEN",
     "server_or_public_permission_mutation": "FORBIDDEN",
-    "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED"
+    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED"
   },
   "reader_permission_expectation_contract": {
     "version": "1.0",
-    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "status": "IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
     "evaluation_identity": "ACTUAL_READER_CONNECTION",
     "captured_classes": ["SERVER", "ENDPOINT", "DATABASE", "SCHEMA", "OBJECT"],
-    "tuple_fields": ["entity_name", "subentity_name", "permission_name"],
-    "comparison": "EXACT_SET_PER_SECURABLE",
+    "tuple_fields": ["context_class", "context_name", "permission_name"],
+    "returned_entity_name": "CAPTURED_AND_REQUIRED_NON_NULL",
+    "subentity_name": "MUST_BE_NULL",
+    "comparison": "EXACT_SET_PER_CALLER_BOUND_CONTEXT",
     "duplicate_rows": "FAIL_CLOSED",
     "missing_null_or_unavailable_result": "NOT_PROVEN",
     "column_level_permissions": "FORBIDDEN",
     "runtime_derived_expectations": "FORBIDDEN",
-    "unexpected_custom_securables": "NOT_PROVEN",
+    "unexpected_custom_securables": "READER_OR_PUBLIC_EXPLICIT_GRANTS_FAIL_CLOSED_BY_ADMIN_INVENTORY",
     "server_permissions": ["CONNECT SQL", "VIEW ANY DATABASE"],
     "endpoint_inventory": {
-      "source": "ADMIN_INVENTORY_OF_STANDARD_ENDPOINTS",
+      "source": "SAME_RUN_ADMIN_MACHINE_RECORD_HANDOFF",
       "dedicated_admin_connection": "EXCLUDED",
-      "expected_permissions_per_endpoint": ["CONNECT"]
+      "expected_permissions_per_endpoint": ["CONNECT"],
+      "reader_context_function_call": "REQUIRED_FOR_EACH_ADMIN_BOUND_ENDPOINT"
     },
     "database_permissions": ["CONNECT", "SHOWPLAN", "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION", "VIEW ANY COLUMN MASTER KEY DEFINITION"],
     "database_public_system_object_baseline": {
@@ -112,10 +115,23 @@
     "explicit_permissions": "READER_AND_PUBLIC_ONLY; GRANT_ONLY; EXACT_DECLARED_BASELINE_SUBSET",
     "database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
     "endpoint_inventory": "ALL_VISIBLE; BUILT_IN_NON_ADMIN_ENDPOINTS_ONLY; DAC_EXCLUDED",
+    "endpoint_inventory_handoff": {
+      "format": "ENDPOINT_ID_AND_UTF16LE_HEX",
+      "markers": ["QRY023_ENDPOINT_INVENTORY|BEGIN|N", "QRY023_ENDPOINT|ID|HEX", "QRY023_ENDPOINT_INVENTORY|END|N"],
+      "maximum_endpoints": 12,
+      "consumer": "ACTUAL_READER_CONNECTION",
+      "invalid_or_incomplete": "FAIL_NOT_PROVEN"
+    },
     "public_system_object_select": "EXACT_VERSIONED_BASELINE_REQUIRED; OTHERWISE_FAIL_NOT_PROVEN",
     "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
     "permission_mutation": "FORBIDDEN",
-    "runtime_authorized": false
+    "runtime_authorized": false,
+    "object_inventory_handoff": {
+      "format": "FIXED_EXPECTED_OBJECT_COUNT",
+      "marker": "QRY023_OBJECT_INVENTORY|PASS|13",
+      "consumer": "ACTUAL_READER_CONNECTION",
+      "invalid_or_incomplete": "FAIL_NOT_PROVEN"
+    }
   },
   "authorization_contract": {
     "phase_privileges": {

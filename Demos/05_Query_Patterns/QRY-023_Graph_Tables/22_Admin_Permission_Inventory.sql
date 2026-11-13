@@ -7,7 +7,8 @@ DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@Targ
         @ReaderPrincipalId int,@ReaderSid varbinary(85),@PublicPrincipalId int,@PublicDatabasePrincipalId int,
         @ReaderUserId int,@ReaderUserSid varbinary(85),
         @Project nvarchar(max),@Contract nvarchar(max),@MarkerDemo nvarchar(max),@MarkerRun nvarchar(max),@Sql nvarchar(max),
-        @UserDatabaseCount int,@EndpointCount int,@UnqualifiedPublicSystemSelectCount int=0,
+        @UserDatabaseCount int,@EndpointCount int,@ReaderEndpointCount int,@ExpectedObjectCount int=13,
+        @ObservedObjectCount int,@UnqualifiedPublicSystemSelectCount int=0,
         @Visible bit=1,@UnexpectedCount int=0;
 
 IF @DemoId<>'QRY-023' OR @TargetDatabase<>DB_NAME() OR DB_ID()<=4 OR @ReaderLogin IS NULL
@@ -64,14 +65,26 @@ SELECT @ReaderUserId=principal_id,@ReaderUserSid=sid
 FROM sys.database_principals WHERE name=@ReaderLogin AND type='S';
 SELECT @UserDatabaseCount=COUNT(*) FROM master.sys.databases WHERE database_id>4;
 SELECT @EndpointCount=COUNT(*) FROM master.sys.endpoints;
+SELECT @ReaderEndpointCount=COUNT(*) FROM master.sys.endpoints WHERE endpoint_id<65536 AND is_admin_endpoint=0;
 SELECT @UnqualifiedPublicSystemSelectCount=COUNT(*)
 FROM sys.database_permissions
 WHERE grantee_principal_id=@PublicDatabasePrincipalId AND class_desc='OBJECT_OR_COLUMN'
   AND permission_name=N'SELECT' AND minor_id=0 AND major_id<0;
+SELECT @ObservedObjectCount=COUNT(DISTINCT o.object_id)
+FROM (VALUES
+    (N'dbo',N'Person',N'U'),(N'dbo',N'FriendOf',N'U'),(N'dbo',N'RelPerson',N'U'),(N'dbo',N'RelFriend',N'U'),
+    (N'dbo',N'OraclePerson',N'U'),(N'dbo',N'OracleFriendOf',N'U'),(N'dbo',N'OracleRelPerson',N'U'),(N'dbo',N'OracleRelFriend',N'U'),
+    (N'lab',N'MeasurementRun',N'U'),(N'lab',N'MeasurementWaitSnapshot',N'U'),
+    (N'lab',N'USP_Qry023MeasureVariant',N'P'),(N'lab',N'USP_BeginMeasurement',N'P'),(N'lab',N'USP_EndMeasurement',N'P')
+) AS expected(schema_name,object_name,object_type)
+JOIN sys.schemas AS s ON s.name=expected.schema_name
+JOIN sys.objects AS o ON o.schema_id=s.schema_id AND o.name=expected.object_name
+                         AND o.type=expected.object_type AND o.is_ms_shipped=0;
+IF @ObservedObjectCount<>@ExpectedObjectCount SET @UnexpectedCount+=1;
 
 IF @ReaderPrincipalId IS NULL OR @PublicPrincipalId IS NULL OR @PublicDatabasePrincipalId IS NULL OR @ReaderSid IS NULL
    OR @ReaderUserId IS NULL OR @ReaderUserSid IS NULL OR @ReaderSid<>@ReaderUserSid
-   OR @UserDatabaseCount<>1 OR @EndpointCount=0 OR DB_NAME()<>@TargetDatabase
+   OR @UserDatabaseCount<>1 OR @EndpointCount=0 OR @ReaderEndpointCount NOT BETWEEN 1 AND 12 OR DB_NAME()<>@TargetDatabase
     SET @UnexpectedCount+=1;
 
 /* public is an implicit membership. Any explicit server role is outside the READER baseline. */
@@ -180,9 +193,25 @@ JOIN sys.database_principals AS grantee ON grantee.principal_id=p.grantee_princi
 WHERE p.grantee_principal_id IN (@ReaderUserId,@PublicDatabasePrincipalId)
 ORDER BY grantee.name,p.class_desc,p.major_id,p.minor_id,p.permission_name;
 
+PRINT 'QRY023_OBJECT_INVENTORY|PASS|13';
+PRINT CONCAT('QRY023_ENDPOINT_INVENTORY|BEGIN|',@ReaderEndpointCount);
+DECLARE @EndpointId int,@EndpointName sysname;
+DECLARE EndpointHandoffCursor CURSOR LOCAL FAST_FORWARD FOR
+SELECT endpoint_id,name FROM master.sys.endpoints WHERE endpoint_id<65536 AND is_admin_endpoint=0 ORDER BY endpoint_id;
+OPEN EndpointHandoffCursor;
+FETCH NEXT FROM EndpointHandoffCursor INTO @EndpointId,@EndpointName;
+WHILE @@FETCH_STATUS=0
+BEGIN
+    PRINT CONCAT('QRY023_ENDPOINT|',@EndpointId,'|',CONVERT(varchar(512),CONVERT(varbinary(256),@EndpointName),2));
+    FETCH NEXT FROM EndpointHandoffCursor INTO @EndpointId,@EndpointName;
+END;
+CLOSE EndpointHandoffCursor;
+DEALLOCATE EndpointHandoffCursor;
+PRINT CONCAT('QRY023_ENDPOINT_INVENTORY|END|',@ReaderEndpointCount);
+
 SELECT 1 AS Sequence,'ADMIN_PERMISSION_INVENTORY' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        CONCAT(N'ReaderProfile=READER; ReaderSidBound=1; UserDatabases=',@UserDatabaseCount,
-              N'; Endpoints=',@EndpointCount,N'; ExplicitInventory=complete') AS ObservedValue,
+              N'; Endpoints=',@EndpointCount,N'; ReaderEndpoints=',@ReaderEndpointCount,N'; ExplicitInventory=complete') AS ObservedValue,
        N'exakte READER-SID, keine Zusatzrollen/-rechte, vollständiges Ein-Datenbank- und Standardendpointinventar' AS RequiredValue,
        N'Diese ADMIN-Prüfung belegt keine tatsächlichen READER-Effektrechte oder Ownership-Chain-Wirkung.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';

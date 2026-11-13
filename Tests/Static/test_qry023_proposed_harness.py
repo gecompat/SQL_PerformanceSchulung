@@ -101,6 +101,13 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("preflight must fail closed unless the instance is empty" in error
                             for error in self.errors()))
 
+    def test_reader_baseline_marks_admin_inventory_as_partial_and_unqualified(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_baseline_contract"]["implementation_status"] = "DESIGN_ONLY_NOT_IMPLEMENTED"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
     def test_reader_baseline_must_keep_single_run_database_inventory(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
@@ -114,6 +121,56 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         manifest["reader_baseline_contract"]["conditionally_tolerated_public_permissions"].append("CONTROL SERVER")
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
+    def test_admin_endpoint_handoff_requires_bounded_machine_records(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "PRINT CONCAT('QRY023_ENDPOINT_INVENTORY|BEGIN|',@ReaderEndpointCount);", "PRINT 'unbound';", 1
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_object_inventory_binds_the_exact_name_type_set(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "(N'lab',N'MeasurementWaitSnapshot',N'U')",
+            "(N'lab',N'MeasurementRun',N'U')", 1,
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_reader_effective_permission_inventory_requires_server_and_database_calls(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace("FROM sys.fn_my_permissions(NULL,N'SERVER');", "FROM sys.fn_my_permissions(NULL,N'DATABASE');", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("READER preflight must compare exact server/database/schema/object" in error
+                            for error in self.errors()))
+
+    def test_reader_effective_permission_inventory_requires_all_custom_object_contexts(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace("(N'lab',N'USP_EndMeasurement')", "(N'lab',N'USP_BeginMeasurement')", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("READER preflight must compare exact server/database/schema/object" in error
+                            for error in self.errors()))
+
+    def test_admin_object_inventory_handoff_requires_all_expected_objects(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "IF @ObservedObjectCount<>@ExpectedObjectCount SET @UnexpectedCount+=1;",
+            "IF @ObservedObjectCount<>@ExpectedObjectCount SET @UnexpectedCount+=0;", 1,
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_reader_effective_permission_inventory_fails_before_pass_on_any_mismatch(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace("@ColumnPermissionCount>0", "@ColumnPermissionCount<0", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("READER preflight must compare exact server/database/schema/object" in error
+                            for error in self.errors()))
 
     def test_reader_permission_contract_rejects_extra_database_permission(self) -> None:
         path = self.demo / "manifest.proposed.json"
@@ -195,9 +252,9 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
 
     def test_missing_required_cleanup_phase_is_rejected(self) -> None:
         path = self.demo / "manifest.proposed.json"
-        text = path.read_text(encoding="utf-8").replace('"required":true,"require_summary":true,"timeout_seconds":90',
-                                                       '"required":false,"require_summary":true,"timeout_seconds":90')
-        path.write_text(text, encoding="utf-8")
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["cleanup"]["required"] = False
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("cleanup must be required" in error for error in self.errors()))
 
     def test_phase_script_and_database_bindings_are_exact(self) -> None:

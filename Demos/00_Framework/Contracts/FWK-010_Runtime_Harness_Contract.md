@@ -36,6 +36,16 @@ der SQLCMD-Variablenexpansion verlangen, weil T-SQL-Guards erst nach dieser
 Expansion ausgewertet werden. Ein Manifestobjekt ohne unterstützten Vertrag
 führt zu `FAIL_CONTRACT`.
 
+Für QRY-023 mit einer `ADMIN_PERMISSION_INVENTORY`-Phase verlangt der Caller
+zusätzlich die exakten versionierten Objekt- und Endpoint-Handoff-Verträge.
+Nach erfolgreichem ADMIN-PASS müssen genau ein Objektmarker für alle 13
+gebundenen Objekte und ein begrenztes Endpointinventar mit Count-Markern
+vorliegen. Der Caller prüft Endpoint-IDs, UTF-16LE-Hexnamen, Dubletten und
+Grenzen und bindet beide Werte erst danach als interne SQLCMD-Variablen für die
+READER-Phase. Fehlende, widersprüchliche oder nicht bestandene ADMIN-Evidenz
+stoppt die Phasenkette vor der READER-Verbindung. Diese Übergabe ist nur ein
+transportierter ADMIN-Nachweis; der READER prüft seine effektiven Rechte selbst.
+
 ## 3. Phasenverhalten
 
 - `PREFLIGHT` benötigt einen maschinenlesbaren Marker `SQLPERF_SUMMARY|OUTCOME|CODE` oder eine pipe-separierte `SUMMARY`-Resultsetzeile.

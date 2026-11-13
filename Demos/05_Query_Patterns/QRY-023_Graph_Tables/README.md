@@ -90,18 +90,31 @@ frischen, exklusiv für einen QRY-023-Run reservierten Wegwerfinstanz. Vor Setup
 Benutzerdatenbank vorhanden sein (außer der exakt markierten Wiederaufnahme
 desselben Runs); danach ist die markierte QRY-023-Datenbank die einzige
 Benutzerdatenbank. Erlaubt sind nur `public` als READER-Server-/Datenbankrolle
-und `CONNECT` aus `public` auf nachweislich standardmäßigen SQL-Endpoints. Der Harness ändert
-weder Serverrechte noch `public`. Die tatsächliche Effektivrechteprüfung,
-Endpointinventur, Rollen- und SID-Bindung sind nicht implementiert oder
-enginequalifiziert. `manifest.proposed.json` hält diese Bedingungen als
-`DESIGN_ONLY_NOT_IMPLEMENTED` fest; der Offlinevalidator schützt die statische
-Vertragsform, er führt die Rechteprüfung nicht aus. Ein Grant auf einem nicht
-inventarisierten Objekt oder eine nicht qualifizierte Securable-Klasse bleibt
-ein Abbruchgrund. Microsoft beschreibt, dass
+und `CONNECT` aus `public` auf nachweislich standardmäßigen SQL-Endpoints.
+Der Harness ändert weder Serverrechte noch `public`. Die read-only ADMIN-
+Endpoint-, Rollen-, SID- und explizite Rechteinventur ist offline implementiert,
+aber nicht enginequalifiziert. Die READER-Phase erfasst jetzt die Effektivrechte
+für Server, Zieldatenbank, jeden Standardendpoint, `dbo`/`lab` und alle 13
+gebundenen
+Framework-/Demoobjekte mit `sys.fn_my_permissions` und vergleicht sie
+fail-closed mit dem Manifest. Die ADMIN-Phase bestätigt unter ausreichender
+Metadatensicht zuerst die Existenz aller 13 gebundenen Objekte, darunter drei intern genutzte Objekte,
+die READER absichtlich nicht sehen kann. Sie gibt dafür einen festen
+PASS-Marker sowie die begrenzte Endpointliste als ID- und UTF-16LE-Hexdatensätze
+aus; der Caller validiert Objektmarker, Count, Grenzen, IDs, Namen und Encoding
+vor dem nächsten SQL-Aufruf. Die tatsächliche
+READER-Verbindung prüft anschließend `CONNECT` für jeden übergebenen Endpoint.
+Der READER braucht dafür keine Endpointmetadatensicht. Das ist offline
+implementiert, nicht auf einer Engine qualifiziert. `manifest.proposed.json`
+kennzeichnet diesen Stand getrennt; der Offlinevalidator führt keine
+Rechteprüfung aus. Ein expliziter Grant an READER oder `public` außerhalb des gebundenen
+Objektinventars wird bereits durch die ADMIN-Inventur abgelehnt; unbekannte
+Effektivrechte in allen geprüften Scopes blockieren den Lauf ebenfalls.
+Microsoft beschreibt, dass
 `sys.fn_my_permissions` die Rechte des aktuellen Aufrufkontexts zurückgibt und
 bei Fehler `NULL` liefert; die Funktion qualifiziert damit weder andere
-Principals noch die Ownership-Chain-Wirkung. Eine Umsetzung und SQL-Server-
-Qualifikation sind offen.
+Principals noch die Ownership-Chain-Wirkung. Eine Enginequalifikation bleibt
+offen.
 
 `DEC-084` schließt jetzt den konkreten Verbindungsfehler im Offlineentwurf:
 FWK-010 übergibt den READER-Profilnamen über die explizite SQLCMD-Variable

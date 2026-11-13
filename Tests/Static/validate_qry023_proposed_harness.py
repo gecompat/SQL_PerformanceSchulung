@@ -76,26 +76,29 @@ EXPECTED_READER_BASELINE_CONTRACT = {
     "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
     "unknown_or_unavailable_inventory": "NOT_PROVEN",
     "server_or_public_permission_mutation": "FORBIDDEN",
-    "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED",
+    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
 }
 EXPECTED_SQLCMD_IDENTITY_VARIABLES = {"ReaderLogin": "READER"}
 EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
     "version": "1.0",
-    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "status": "IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
     "evaluation_identity": "ACTUAL_READER_CONNECTION",
     "captured_classes": ["SERVER", "ENDPOINT", "DATABASE", "SCHEMA", "OBJECT"],
-    "tuple_fields": ["entity_name", "subentity_name", "permission_name"],
-    "comparison": "EXACT_SET_PER_SECURABLE",
+    "tuple_fields": ["context_class", "context_name", "permission_name"],
+    "returned_entity_name": "CAPTURED_AND_REQUIRED_NON_NULL",
+    "subentity_name": "MUST_BE_NULL",
+    "comparison": "EXACT_SET_PER_CALLER_BOUND_CONTEXT",
     "duplicate_rows": "FAIL_CLOSED",
     "missing_null_or_unavailable_result": "NOT_PROVEN",
     "column_level_permissions": "FORBIDDEN",
     "runtime_derived_expectations": "FORBIDDEN",
-    "unexpected_custom_securables": "NOT_PROVEN",
+    "unexpected_custom_securables": "READER_OR_PUBLIC_EXPLICIT_GRANTS_FAIL_CLOSED_BY_ADMIN_INVENTORY",
     "server_permissions": ["CONNECT SQL", "VIEW ANY DATABASE"],
     "endpoint_inventory": {
-        "source": "ADMIN_INVENTORY_OF_STANDARD_ENDPOINTS",
+        "source": "SAME_RUN_ADMIN_MACHINE_RECORD_HANDOFF",
         "dedicated_admin_connection": "EXCLUDED",
         "expected_permissions_per_endpoint": ["CONNECT"],
+        "reader_context_function_call": "REQUIRED_FOR_EACH_ADMIN_BOUND_ENDPOINT",
     },
     "database_permissions": ["CONNECT", "SHOWPLAN", "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION", "VIEW ANY COLUMN MASTER KEY DEFINITION"],
     "database_public_system_object_baseline": {
@@ -138,6 +141,19 @@ EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
     "explicit_permissions": "READER_AND_PUBLIC_ONLY; GRANT_ONLY; EXACT_DECLARED_BASELINE_SUBSET",
     "database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
     "endpoint_inventory": "ALL_VISIBLE; BUILT_IN_NON_ADMIN_ENDPOINTS_ONLY; DAC_EXCLUDED",
+    "endpoint_inventory_handoff": {
+        "format": "ENDPOINT_ID_AND_UTF16LE_HEX",
+        "markers": ["QRY023_ENDPOINT_INVENTORY|BEGIN|N", "QRY023_ENDPOINT|ID|HEX", "QRY023_ENDPOINT_INVENTORY|END|N"],
+        "maximum_endpoints": 12,
+        "consumer": "ACTUAL_READER_CONNECTION",
+        "invalid_or_incomplete": "FAIL_NOT_PROVEN",
+    },
+    "object_inventory_handoff": {
+        "format": "FIXED_EXPECTED_OBJECT_COUNT",
+        "marker": "QRY023_OBJECT_INVENTORY|PASS|13",
+        "consumer": "ACTUAL_READER_CONNECTION",
+        "invalid_or_incomplete": "FAIL_NOT_PROVEN",
+    },
     "public_system_object_select": "EXACT_VERSIONED_BASELINE_REQUIRED; OTHERWISE_FAIL_NOT_PROVEN",
     "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
     "permission_mutation": "FORBIDDEN",
@@ -521,6 +537,24 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
         "has_perms_by_name(null,'server','viewserverstate')",
         "@readersid<>@readerusersid", "@userdatabasecount<>1",
         "endpoint_id>=65536", "p.state<>'g'", "@unexpectedcount>0",
+        "@readerendpointcountnotbetween1and12",
+        "o.type=expected.object_type",
+        "printconcat('qry023_endpoint_inventory|begin|'",
+        "print'qry023_object_inventory|pass|13'",
+        "joinsys.objects",
+        "@observedobjectcount<>@expectedobjectcountset@unexpectedcount+=1",
+        "(n'dbo',n'person',n'u')", "(n'dbo',n'friendof',n'u')",
+        "(n'dbo',n'relperson',n'u')", "(n'dbo',n'relfriend',n'u')",
+        "(n'dbo',n'oracleperson',n'u')", "(n'dbo',n'oraclefriendof',n'u')",
+        "(n'dbo',n'oraclerelperson',n'u')", "(n'dbo',n'oraclerelfriend',n'u')",
+        "(n'lab',n'measurementrun',n'u')", "(n'lab',n'measurementwaitsnapshot',n'u')",
+        "(n'lab',n'usp_qry023measurevariant',n'p')", "(n'lab',n'usp_beginmeasurement',n'p')",
+        "(n'lab',n'usp_endmeasurement',n'p')",
+        "count(distincto.object_id)",
+        "printconcat('qry023_endpoint_inventory|end|'",
+        "printconcat('qry023_endpoint|'",
+        "convert(varchar(512),convert(varbinary(256),@endpointname),2)",
+        "whereendpoint_id<65536andis_admin_endpoint=0orderbyendpoint_id",
         "print'sqlperf_summary|fail|fail_not_proven'",
         "print'sqlperf_summary|pass|ok'",
     )
@@ -537,6 +571,39 @@ def admin_permission_inventory_is_read_only_and_fail_closed(inventory: str) -> b
         and not forbidden.search(executable)
         and raw_compact.find("@unexpectedcount>0") < raw_compact.find("'summary'ascheckid,'pass'asoutcome")
         and compact.find("@visible=0") < compact.find("@readerprincipalid=")
+    )
+
+
+def reader_effective_permission_inventory_is_fail_closed(qualification: str) -> bool:
+    """Bind the actual READER permission-set calls, expected securables, and fail gate."""
+    uncommented = re.sub(r"/\*.*?\*/|--[^\r\n]*", " ", qualification, flags=re.DOTALL)
+    raw = re.sub(r"\s+", "", uncommented).casefold()
+    required = (
+        "sys.fn_my_permissions(null,n'server')",
+        "sys.fn_my_permissions(null,n'database')",
+        "sys.fn_my_permissions(n'dbo',n'schema')",
+        "sys.fn_my_permissions(n'lab',n'schema')",
+        "sys.fn_my_permissions(@endpointname,n'endpoint')",
+        "sys.fn_my_permissions(@securablename,n'object')",
+        "standardendpointinventory", "endpointinput", "try_convert(varbinary(256)",
+        "boundobjectinventory", "@boundobjectinventory<>13", "permissionobjectcursor",
+        "(n'dbo',n'person')", "(n'dbo',n'friendof')",
+        "(n'dbo',n'relperson')", "(n'dbo',n'relfriend')",
+        "(n'dbo',n'oracleperson')", "(n'dbo',n'oraclefriendof')",
+        "(n'dbo',n'oraclerelperson')", "(n'dbo',n'oraclerelfriend')",
+        "(n'lab',n'measurementrun')", "(n'lab',n'measurementwaitsnapshot')",
+        "(n'lab',n'usp_qry023measurevariant')", "(n'lab',n'usp_beginmeasurement')",
+        "(n'lab',n'usp_endmeasurement')",
+        "@permissionmismatchcount>0or@permissionduplicatecount>0or@columnpermissioncount>0",
+        "@entitynamemissingcount>0",
+        "whereentitynameisnull", "wheresubentitynameisnotnull",
+        "print'sqlperf_summary|fail|fail_not_proven'",
+        "print'sqlperf_summary|pass|ok'",
+    )
+    return (
+        all(term in raw for term in required)
+        and raw.count("sys.fn_my_permissions(") == 6
+        and raw.find("@permissionmismatchcount>0or") < raw.find("'summary'ascheckid,'pass'asoutcome")
     )
 
 
@@ -869,6 +936,8 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
             "READER script text must not contain persistent writes, DDL/DBCC/security changes, indirect execution, or database-context switching", errors)
     require(qualification_target_context_valid(qualification),
             "qualification preflight must reject system databases and mismatched DB_NAME()/@TargetDatabase before permission checks", errors)
+    require(reader_effective_permission_inventory_is_fail_closed(qualification),
+            "READER preflight must compare exact server/database/schema/object effective permission sets before PASS", errors)
     require(qualification_ownership_markers_valid(qualification),
             "qualification preflight must bind all four exact, length-aware ownership markers before permission checks", errors)
     require(qualification_summaries_valid(qualification),

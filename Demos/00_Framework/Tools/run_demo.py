@@ -36,10 +36,23 @@ SQLCMD_IDENTITY_PATTERN = re.compile(r"[A-Za-z0-9_]{1,128}")
 CORE_SQLCMD_VARIABLES = frozenset({
     "DemoId", "RunToken", "TargetDatabase", "SafetyLevel", "ConfirmIsolatedLab",
     "HighImpactConfirmed", "DisposableEnvironmentConfirmed", "RecoveryPlanConfirmed",
-    "MaximumRuntimeSeconds",
+    "MaximumRuntimeSeconds", "StandardEndpointInventory", "BoundObjectInventory",
 })
 CORE_SQLCMD_VARIABLE_NAMES = frozenset(name.casefold() for name in CORE_SQLCMD_VARIABLES)
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
+QRY023_ENDPOINT_INVENTORY_HANDOFF = {
+    "format": "ENDPOINT_ID_AND_UTF16LE_HEX",
+    "markers": ["QRY023_ENDPOINT_INVENTORY|BEGIN|N", "QRY023_ENDPOINT|ID|HEX", "QRY023_ENDPOINT_INVENTORY|END|N"],
+    "maximum_endpoints": 12,
+    "consumer": "ACTUAL_READER_CONNECTION",
+    "invalid_or_incomplete": "FAIL_NOT_PROVEN",
+}
+QRY023_OBJECT_INVENTORY_HANDOFF = {
+    "format": "FIXED_EXPECTED_OBJECT_COUNT",
+    "marker": "QRY023_OBJECT_INVENTORY|PASS|13",
+    "consumer": "ACTUAL_READER_CONNECTION",
+    "invalid_or_incomplete": "FAIL_NOT_PROVEN",
+}
 QRY023_SQLCMD_INPUT_VALIDATION = {
     "must_validate_before": "SQLCMD_EXPANSION",
     "reject_invalid": True,
@@ -265,6 +278,16 @@ def load_manifest(path: Path) -> DemoManifest:
         raise ValueError("phase ids must be unique")
     if "PREFLIGHT" not in ids:
         raise ValueError("a PREFLIGHT phase is required")
+    if "ADMIN_PERMISSION_INVENTORY" in ids:
+        expected_handoff = json.dumps(QRY023_ENDPOINT_INVENTORY_HANDOFF, sort_keys=True, separators=(",", ":"))
+        contract = payload.get("admin_permission_inventory_contract")
+        actual_handoff = json.dumps(contract.get("endpoint_inventory_handoff") if isinstance(contract, dict) else None,
+                                    sort_keys=True, separators=(",", ":"))
+        expected_objects = json.dumps(QRY023_OBJECT_INVENTORY_HANDOFF, sort_keys=True, separators=(",", ":"))
+        actual_objects = json.dumps(contract.get("object_inventory_handoff") if isinstance(contract, dict) else None,
+                                    sort_keys=True, separators=(",", ":"))
+        if demo_id != "QRY-023" or actual_handoff != expected_handoff or actual_objects != expected_objects:
+            raise ValueError("invalid QRY-023 endpoint inventory handoff contract")
 
     cleanup_raw = payload.get("cleanup")
     cleanup = _parse_phase(cleanup_raw, path.parent, cleanup=True) if cleanup_raw is not None else None
@@ -350,6 +373,61 @@ def _emit_raw_output(phase_id: str, stdout: str, stderr: str) -> None:
             print(f"[{phase_id}:stderr] {line}", file=sys.stderr)
 
 
+def _validate_qry023_object_inventory(*texts: str) -> None:
+    """Require exactly one successful ADMIN binding for all 13 expected objects."""
+    lines = [line.strip() for text in texts for line in text.splitlines()]
+    markers = [line for line in lines if line.startswith("QRY023_OBJECT_INVENTORY|")]
+    if markers != [QRY023_OBJECT_INVENTORY_HANDOFF["marker"]]:
+        raise ValueError("missing, duplicate, or invalid ADMIN object inventory marker")
+
+
+def _extract_qry023_endpoint_inventory(*texts: str) -> str:
+    """Parse and canonicalize the bounded ADMIN-to-READER endpoint handoff."""
+    lines = [line.strip() for text in texts for line in text.splitlines()]
+    begins = [line for line in lines if line.startswith("QRY023_ENDPOINT_INVENTORY|BEGIN|")]
+    ends = [line for line in lines if line.startswith("QRY023_ENDPOINT_INVENTORY|END|")]
+    records = [line for line in lines if line.startswith("QRY023_ENDPOINT|")]
+    if len(begins) != 1 or len(ends) != 1:
+        raise ValueError("missing or duplicate endpoint inventory boundary")
+    count_pattern = re.compile(r"QRY023_ENDPOINT_INVENTORY\|(BEGIN|END)\|([1-9][0-9]?)\Z")
+    begin = count_pattern.fullmatch(begins[0])
+    end = count_pattern.fullmatch(ends[0])
+    if begin is None or end is None or begin.group(2) != end.group(2):
+        raise ValueError("invalid endpoint inventory count")
+    count = int(begin.group(2))
+    if count > 12 or len(records) != count:
+        raise ValueError("endpoint inventory is incomplete or exceeds its bound")
+    lines_between = [line for line in lines if line.startswith("QRY023_ENDPOINT")]
+    if lines_between[0] != begins[0] or lines_between[-1] != ends[0] or lines_between[1:-1] != records:
+        raise ValueError("endpoint records are outside their inventory boundary")
+    ids: set[int] = set()
+    names: set[str] = set()
+    parsed: list[tuple[int, str]] = []
+    for record in records:
+        match = re.fullmatch(r"QRY023_ENDPOINT\|([1-9][0-9]{0,4})\|([0-9A-F]{4,512})", record)
+        if match is None or len(match.group(2)) % 4:
+            raise ValueError("invalid endpoint record")
+        endpoint_id = int(match.group(1))
+        if endpoint_id > 65535:
+            raise ValueError("endpoint ID outside supported range")
+        try:
+            name = bytes.fromhex(match.group(2)).decode("utf-16le", errors="strict")
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise ValueError("invalid UTF-16LE endpoint name") from exc
+        if not name or len(name) > 128 or "\x00" in name:
+            raise ValueError("invalid endpoint name")
+        folded = name.casefold()
+        if endpoint_id in ids or folded in names:
+            raise ValueError("duplicate endpoint ID or name")
+        ids.add(endpoint_id)
+        names.add(folded)
+        parsed.append((endpoint_id, match.group(2)))
+    encoded = ";".join(f"{endpoint_id}:{hex_name}" for endpoint_id, hex_name in sorted(parsed))
+    if len(encoded) > 8191:
+        raise ValueError("canonical endpoint inventory exceeds SQLCMD variable limit")
+    return encoded
+
+
 def _execute_sql_phase(
     *,
     phase: PhaseSpec,
@@ -402,6 +480,19 @@ def _execute_sql_phase(
         return PhaseResult(phase.phase_id, "PASS", "OK", "Die Phase wurde ohne strukturierten Fehler abgeschlossen.", time.monotonic() - started)
 
     outcome, code = summary
+    if phase.phase_id == "ADMIN_PERMISSION_INVENTORY" and variables.get("DemoId") == "QRY-023":
+        if outcome != "PASS":
+            return PhaseResult(phase.phase_id, "FAIL", "FAIL_NOT_PROVEN",
+                               "ADMIN-Rechte- und Endpointinventar ist nicht vollständig bestanden.",
+                               time.monotonic() - started)
+        try:
+            _validate_qry023_object_inventory(result.stdout, result.stderr)
+            variables["BoundObjectInventory"] = "13"
+            variables["StandardEndpointInventory"] = _extract_qry023_endpoint_inventory(result.stdout, result.stderr)
+        except ValueError as exc:
+            return PhaseResult(phase.phase_id, "FAIL", "FAIL_CONTRACT",
+                               f"ADMIN-Endpointinventar ist nicht vollständig gebunden: {exc}.",
+                               time.monotonic() - started)
     if outcome == "SKIP" and not phase.required:
         return PhaseResult(phase.phase_id, "WARN", "WARN_OPTIONAL_EVIDENCE_SKIPPED", f"Optionale Phase wurde kontrolliert übersprungen: {code}.", time.monotonic() - started)
     return PhaseResult(phase.phase_id, outcome, code, "Strukturierte Phase-Summary wurde ausgewertet.", time.monotonic() - started)

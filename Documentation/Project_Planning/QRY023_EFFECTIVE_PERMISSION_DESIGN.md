@@ -1,9 +1,8 @@
 # QRY-023: Effektivrechtequalifikation
 
 Stand: 13. November 2026
-Status: Die READER-Effektivrechte bleiben `DESIGNED` und nicht enginequalifiziert;
-die vorgeschaltete read-only ADMIN-Inventur ist offline implementiert, aber
-nicht auf SQL Server qualifiziert
+Status: ADMIN-Inventur und READER-Exact-set-Preflight sind offline implementiert;
+keiner der beiden Pfade ist auf SQL Server enginequalifiziert
 
 ## Ziel und Grenze
 
@@ -74,13 +73,16 @@ laufende Qualifikation darf weder `VIEW SERVER PERFORMANCE STATE` noch
    reguläres Loginrecht zugewiesen sein; `VIEW ANY DATABASE` darf nur aus der
    dokumentierten `public`-Baseline stammen. Ein weiterer oder abweichender
    expliziter Grant/DENY ist nicht durch gleiche Effektivrechtenamen gedeckt.
-2. **Endpoints:** Der spätere Prüfer inventarisiert zuerst alle Endpoints aus
-   vertrauenswürdiger ADMIN-Sicht und prüft für jeden Endpoint im tatsächlichen
-   READER-Kontext `sys.fn_my_permissions(<Endpointname>, 'ENDPOINT')`. Erlaubt
-   ist ausschließlich das dokumentierte `CONNECT`-Baselineverhalten der
-   SQL-Server-Standardendpoints; die Dedicated Admin Connection ist davon
-   ausgenommen. ADMIN muss direkte Grants/DENYs sowie Rollenmitgliedschaften
-   so binden, dass diese Rechte nur aus der `public`-Baseline stammen.
+2. **Endpoints:** ADMIN inventarisiert alle sichtbaren eingebauten,
+   nichtadministrativen Endpoints und gibt IDs sowie UTF-16LE-Hexnamen mit
+   gebundenen Count-Markern aus. Der FWK-010-Caller validiert diese Übergabe
+   vollständig, bevor die nächste SQL-Phase startet. Die tatsächliche READER-
+   Verbindung ruft dann für jeden übergebenen Namen
+   `sys.fn_my_permissions(name, 'ENDPOINT')` auf. Erwartet wird ausschließlich
+   `CONNECT` je Endpoint. So wird keine Endpointmetadatensicht für READER
+   vorausgesetzt. Die Dedicated Admin Connection ist ausgenommen. ADMIN bindet
+   zusätzlich direkte Grants/DENYs und Rollenmitgliedschaften, sodass Rechte
+   nicht allein aus der Sollbaseline abgeleitet werden.
    Benutzerdefinierte Endpoints, zusätzliche Rechte oder eine
    unvollständige Endpointinventur stoppen den Lauf. Ein Name oder Typ, den der
    Implementierer nicht als Standardendpoint klassifizieren kann, ist
@@ -96,14 +98,14 @@ laufende Qualifikation darf weder `VIEW SERVER PERFORMANCE STATE` noch
    würden das beabsichtigte objektweise Profil erweitern. Eine solche
    Berechtigung wird abgewiesen, sofern sie nicht ausdrücklich in der
    Sollmenge beschlossen ist.
-5. **Objekte:** Das Inventar wird nach erfolgreichen Setup-/Workloadphasen an
-   die vollständigen erwarteten Objekte gebunden. Es umfasst die acht
-   QRY-023-Tabellen, `lab.MeasurementRun`,
-   `lab.MeasurementWaitSnapshot`, `lab.USP_Qry023MeasureVariant`,
-   `lab.USP_BeginMeasurement` und `lab.USP_EndMeasurement` sowie alle weiteren
-   tatsächlich vorhandenen benutzerdefinierten Securables in der
-   Wegwerfdatenbank. Unerwartete oder nicht klassifizierbare Objekte stoppen
-   die Prüfung.
+5. **Objekte:** Das READER-Exact-set prüft die acht QRY-023-Tabellen,
+   `lab.MeasurementRun`, `lab.MeasurementWaitSnapshot`,
+   `lab.USP_Qry023MeasureVariant`, `lab.USP_BeginMeasurement` und
+   `lab.USP_EndMeasurement` einzeln. Die vorgelagerte ADMIN-Inventur lässt nur
+   explizite Grants an READER/`public` aus der deklarierten Menge zu; dadurch
+   werden Rechte auf weiteren benutzerdefinierten Securables bereits dort
+   zurückgewiesen. Nicht sichtbare oder unvollständige Grantzeilen bleiben
+   `NOT_PROVEN`.
 6. **Rollen:** ADMIN bindet die tatsächliche SQL-Login-SID an den erwarteten
    READER-Datenbankprincipal und inventarisiert Server- und Datenbankrollen.
    In der markierten QRY-023-Datenbank ist nur die feste Rolle `public`
@@ -112,8 +114,9 @@ laufende Qualifikation darf weder `VIEW SERVER PERFORMANCE STATE` noch
    selbst läuft trotzdem unter der tatsächlichen READER-Anmeldung; ein
    ADMIN-Ergebnis oder `EXECUTE AS` ersetzt sie nicht.
 7. **Objekt- und Spaltenrechte:** Für jedes inventarisierte Objekt die
-   vollständigen zurückgegebenen Tupel aus `entity_name`, `subentity_name` und
-   `permission_name` mit der Sollmenge vergleichen. Nicht deklarierte
+   zurückgegebenen Namen `entity_name` auf Vorhandensein prüfen, `subentity_name`
+   muss `NULL` sein; den exakten `permission_name`-Satz mit der vorab gebundenen
+   Sollmenge je explizitem Funktionsaufrufkontext vergleichen. Nicht deklarierte
    Berechtigungen, Spaltenrechte, ein fehlendes Objekt oder ein unvollständiges
    Resultset stoppen die Prüfung. Column-level `SELECT` wird bis zu einer
    gesonderten vollständigen Ergebnisspaltenbegründung nicht als Ersatz für
@@ -218,10 +221,12 @@ Effektivrechte-Sollmenge; sie autorisiert keine globale Rechteänderung.
 
 ## Versionierter Sollmengenkandidat `1.0`
 
-Der vorgeschlagene Manifestblock `reader_permission_expectation_contract`
-konkretisiert die vollständige erwartete Effektivrechtemenge unter der echten
-READER-Verbindung. Er ist mit dem exact-set-Vergleich pro Securable gebunden;
-fehlende oder `NULL`-Resultate, Duplikate, unbekannte Securables,
+Der Manifestblock `reader_permission_expectation_contract` konkretisiert die
+vollständige erwartete Effektivrechtemenge unter der echten READER-Verbindung.
+Der exact-set-Vergleich bindet jeden Funktionsaufruf an einen festen
+Kontextschlüssel. Endpointnamen stammen aus dem validierten ADMIN-Handoff;
+READER prüft jedes Endpointrecht selbst mit
+`sys.fn_my_permissions(name, 'ENDPOINT')`. Fehlende oder `NULL`-Resultate, Duplikate, unbekannte Securables,
 Spaltenrechte und zur Laufzeit aus Beobachtungen abgeleitete Erwartungen
 führen zu `NOT_PROVEN`.
 
@@ -295,7 +300,12 @@ registriert. Der spätere Harness bleibt für die tatsächliche Inventur und
 Sollmengenprüfung verantwortlich; dieser Vertrag führt weder eine
 SQL-Server-Abfrage aus noch belegt er eine reale Rechtevergabe.
 
-`22_Admin_Permission_Inventory.sql` setzt den ADMIN-Anteil jetzt read-only um.
+`22_Admin_Permission_Inventory.sql` setzt den ADMIN-Anteil read-only um;
+`25_Qualification_Preflight.sql` vergleicht unter der echten READER-Verbindung
+effektive Server-, Datenbank-, Schema- und Objektrechte mit dem statischen
+Exact-set-Vertrag. Die ADMIN-Inventur bestätigt den Objektnamen-/Typensatz und
+übergibt den Endpointbestand; READER prüft `CONNECT` pro Endpoint. Die Umsetzung
+bleibt offline und engineunqualifiziert.
 Er prüft die exakte Login-/Datenbankbenutzer-SID, verwirft explizite
 Server-/Datenbankrollen, inventarisiert die expliziten Grants/DENYs an READER
 und `public`, begrenzt den Benutzerdatenbankbestand und weist benutzerdefinierte
@@ -319,6 +329,7 @@ keine automatischen Grants. Fehlende Sichtbarkeit oder eine Abweichung erzeugt
 Metadatensicht und die Grenzen der Permission-Kataloge.
 
 Der Offlinevalidator, seine synthetischen Regressionen und der ScriptDom-Parse
-unter den Grammatiken 150/160/170 prüfen nur die Struktur. Sie attestieren keine
+unter den Grammatiken 150/160/170 prüfen nur die Struktur des ADMIN-Inventars
+und des READER-Exact-set-Preflights. Sie attestieren keine
 vollständigen Katalogresultate, SQL-Ausführung, tatsächlichen READER-Rechte oder
 Ownership-Chain-Wirkung. QRY-023 bleibt `PROPOSED` und ohne Runtimequalifikation.
