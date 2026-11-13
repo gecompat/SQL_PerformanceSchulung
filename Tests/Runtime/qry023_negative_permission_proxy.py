@@ -59,6 +59,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DROP TABLE lab.MeasurementWaitSnapshot;\n",
             "QRY023_NEGATIVE_PERMISSION|EXPECTED_OBJECT_REMOVED",
         )
+    if mode == "SERVER_PERMISSION":
+        return (
+            "GRANT VIEW SERVER STATE TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 

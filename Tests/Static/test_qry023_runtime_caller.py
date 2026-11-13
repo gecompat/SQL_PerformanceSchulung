@@ -132,6 +132,11 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertEqual(sql, "DROP TABLE lab.MeasurementWaitSnapshot;\n")
         self.assertEqual(marker, "QRY023_NEGATIVE_PERMISSION|EXPECTED_OBJECT_REMOVED")
 
+    def test_negative_permission_proxy_server_permission_mode_is_fixed(self) -> None:
+        sql, marker = negative_proxy.injection_for_mode("SERVER_PERMISSION")
+        self.assertEqual(sql, "GRANT VIEW SERVER STATE TO [READER];\n")
+        self.assertEqual(marker, "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED")
+
     def test_qry023_timeout_after_setup_suppresses_sql_cleanup(self) -> None:
         calls: list[str] = []
 
@@ -183,6 +188,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects a missing expected object"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER server permission"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
         self.assertIn("DATABASE_ROLE;", workflow)
@@ -190,10 +197,12 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DIRECT_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_ROLE", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: MISSING_OBJECT", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION", workflow)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
         self.assertIn("OBJECT_INVENTORY;", workflow)
+        self.assertIn("SERVER_PERMISSION_RESTORED", workflow)
         self.assertIn("SERVER_ROLE_RESTORED", workflow)
         self.assertIn("QRY023_HARNESS_LOG=${log}", workflow)
         self.assertIn("@membership IS NULL OR @membership<>0", workflow)

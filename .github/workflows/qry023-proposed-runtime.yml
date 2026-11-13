@@ -259,6 +259,51 @@ jobs:
             "DECLARE @membership int=IS_SRVROLEMEMBER(N'dbcreator',N'READER'); IF @membership=1 BEGIN ALTER SERVER ROLE [dbcreator] DROP MEMBER [READER]; SET @membership=IS_SRVROLEMEMBER(N'dbcreator',N'READER'); END; IF @membership IS NULL OR @membership<>0 THROW 51024,'QRY-023 negative server-role cleanup failed.',1; PRINT 'QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_RESTORED';")"
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_RESTORED' <<< "$output"
+      - name: Prove the permission inventory rejects an unexpected READER server permission
+        shell: bash
+        env:
+          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-server-permission-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          [[ "$result" == 2 ]]
+          grep -F 'QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED' "$log"
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'SERVER_PERMISSION;' "$log"
+          if grep -F 'SERVER_ROLE;' "$log" || grep -F 'DATABASE_PERMISSION;' "$log" || grep -F 'DATABASE_ROLE;' "$log"; then
+            echo 'Server-permission case produced an unexpected permission category.' >&2
+            exit 1
+          fi
+          grep -F 'CLEANUP: PASS/OK' "$log"
+          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
+            echo 'Server-permission case reached a protected query phase.' >&2
+            exit 1
+          fi
+      - name: Restore server-permission baseline after negative control
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="${SQLPERF_SQL_CONTAINER:-}"
+          owner="${SQLPERF_CI_OWNER:-}"
+          if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
+          container_id="$(docker inspect --format '{{.Id}}' "$container" 2>/dev/null || true)"
+          if [[ -z "$container_id" ]]; then exit 0; fi
+          [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
+          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -Q \
+            "DECLARE @reader_id int=SUSER_ID(N'READER'); IF @reader_id IS NULL BEGIN PRINT 'QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_RESTORED'; RETURN; END; IF EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND permission_name=N'VIEW SERVER STATE' AND state='G') REVOKE VIEW SERVER STATE FROM [READER]; IF EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND permission_name=N'VIEW SERVER STATE') THROW 51025,'QRY-023 negative server-permission cleanup failed.',1; PRINT 'QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_RESTORED';")"
+          printf '%s\n' "$output"
+          grep -F 'QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_RESTORED' <<< "$output"
       - name: Prove the permission inventory rejects a missing expected object
         shell: bash
         env:
