@@ -78,14 +78,21 @@ def _import_names(tree, module, path):
                         yield base + "." + alias.name
 
 
-def _target_condition(node):
+_KNOWN_BUILTIN_NAMES = object()
+# Bounded from the digest-pinned linux/amd64 CPython 3.12.16 config.c/Inittab.
+_TARGET_BUILTIN_MEMBERSHIP = {"posix": True, "nt": False}
+
+
+def _target_condition(node, known_names=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
         "sys.platform": "linux",
         "os.name": "posix",
         "sys.version_info": (3, 12, 16, "final", 0),
         "sys.implementation.name": "cpython",
+        "sys.builtin_module_names": _KNOWN_BUILTIN_NAMES,
     }
+    known_names = known_names or {}
 
     def value(expr):
         if isinstance(expr, ast.Constant) and type(expr.value) in (str, int, bool, type(None)):
@@ -99,6 +106,8 @@ def _target_condition(node):
         if isinstance(expr, ast.Attribute):
             name = ast.unparse(expr)
             return target.get(name, _UNKNOWN)
+        if isinstance(expr, ast.Name):
+            return known_names.get(expr.id, _UNKNOWN)
         if isinstance(expr, ast.UnaryOp) and isinstance(expr.op, ast.Not):
             item = value(expr.operand)
             return not item if item is not _UNKNOWN else _UNKNOWN
@@ -117,30 +126,56 @@ def _target_condition(node):
             try:
                 for op, right in zip(expr.ops, rights):
                     if isinstance(op, ast.Eq):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         matched = current == right
                     elif isinstance(op, ast.Is):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         if (current is not None and type(current) is not bool
                                 or right is not None and type(right) is not bool):
                             return _UNKNOWN
                         matched = current is right
                     elif isinstance(op, ast.NotEq):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         matched = current != right
                     elif isinstance(op, ast.IsNot):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         if (current is not None and type(current) is not bool
                                 or right is not None and type(right) is not bool):
                             return _UNKNOWN
                         matched = current is not right
                     elif isinstance(op, ast.In):
-                        matched = current in right
+                        if right is _KNOWN_BUILTIN_NAMES:
+                            if type(current) is not str or current not in _TARGET_BUILTIN_MEMBERSHIP:
+                                return _UNKNOWN
+                            matched = _TARGET_BUILTIN_MEMBERSHIP[current]
+                        else:
+                            matched = current in right
                     elif isinstance(op, ast.NotIn):
-                        matched = current not in right
+                        if right is _KNOWN_BUILTIN_NAMES:
+                            if type(current) is not str or current not in _TARGET_BUILTIN_MEMBERSHIP:
+                                return _UNKNOWN
+                            matched = not _TARGET_BUILTIN_MEMBERSHIP[current]
+                        else:
+                            matched = current not in right
                     elif isinstance(op, ast.Lt):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         matched = current < right
                     elif isinstance(op, ast.LtE):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         matched = current <= right
                     elif isinstance(op, ast.Gt):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         matched = current > right
                     elif isinstance(op, ast.GtE):
+                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                            return _UNKNOWN
                         matched = current >= right
                     else:
                         return _UNKNOWN
@@ -159,7 +194,67 @@ def _target_condition(node):
 _UNKNOWN = object()
 
 
-def _module_body_import_names(tree, module, path, target_platform=False, condition_stats=None):
+def _target_name_aliases(tree):
+    known = {}
+    for statement in tree.body:
+        if isinstance(statement, ast.Assign):
+            value = statement.value
+            mapped = (_KNOWN_BUILTIN_NAMES
+                      if isinstance(value, ast.Attribute)
+                      and ast.unparse(value) == "sys.builtin_module_names"
+                      else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
+            for target in statement.targets:
+                if isinstance(target, ast.Name):
+                    if mapped is _UNKNOWN:
+                        known.pop(target.id, None)
+                    else:
+                        known[target.id] = mapped
+        elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
+            value = statement.value
+            mapped = (_KNOWN_BUILTIN_NAMES
+                      if isinstance(value, ast.Attribute)
+                      and ast.unparse(value) == "sys.builtin_module_names"
+                      else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
+            if mapped is _UNKNOWN:
+                known.pop(statement.target.id, None)
+            else:
+                known[statement.target.id] = mapped
+    if not known:
+        return known
+    bindings = {}
+
+    def bind(name):
+        if type(name) is str:
+            bindings[name] = bindings.get(name, 0) + 1
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            bind(node.id)
+        elif isinstance(node, ast.arg):
+            bind(node.arg)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            bind(node.name)
+        elif isinstance(node, ast.alias):
+            bind(node.asname or node.name.split(".")[0])
+        elif isinstance(node, ast.ExceptHandler):
+            bind(node.name)
+        elif isinstance(node, ast.Global):
+            for name in node.names:
+                bind(name)
+        elif isinstance(node, ast.Nonlocal):
+            for name in node.names:
+                bind(name)
+        elif isinstance(node, ast.MatchAs):
+            bind(node.name)
+        elif isinstance(node, ast.MatchStar):
+            bind(node.name)
+        elif isinstance(node, ast.MatchMapping):
+            bind(node.rest)
+    return {name: value for name, value in known.items() if bindings.get(name) == 1}
+
+
+def _module_body_import_names(
+        tree, module, path, target_platform=False, condition_stats=None, known_names=None):
     """Include module/class bodies, optionally pruning known target if-branches."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
@@ -175,6 +270,9 @@ def _module_body_import_names(tree, module, path, target_platform=False, conditi
                 yield alias.name
             return
         if isinstance(node, ast.ImportFrom):
+            if target_platform and known_names is not None and any(
+                    alias.name == "*" for alias in node.names):
+                known_names.clear()
             base = node.module or ""
             if node.level:
                 parts = package.split(".") if package else []
@@ -187,7 +285,7 @@ def _module_body_import_names(tree, module, path, target_platform=False, conditi
                         yield base + "." + alias.name
             return
         if target_platform and isinstance(node, ast.If):
-            decision = _target_condition(node.test)
+            decision = _target_condition(node.test, known_names)
             if condition_stats is not None:
                 key = "resolved" if decision is not None else "unknown"
                 condition_stats[key] += 1
@@ -293,8 +391,10 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
             continue
         reached.add(module)
         tree = ast.parse(files[path], filename=path)
+        aliases = _target_name_aliases(tree)
         for name in _module_body_import_names(
-                tree, module, path, target_platform=True, condition_stats=condition_stats):
+                tree, module, path, target_platform=True, condition_stats=condition_stats,
+                known_names=aliases):
             parts = name.split(".")
             candidate = next(
                 (".".join(parts[:index]) for index in range(len(parts), 0, -1)
@@ -320,6 +420,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
         and any(alias.name == "annotations" for alias in statement.names)
         for statement in tree.body
     )
+    known_names = _target_name_aliases(tree)
     def scope_functions(statements):
         result = {}
 
@@ -330,7 +431,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             if isinstance(node, (ast.AsyncFunctionDef, ast.ClassDef)):
                 return
             if isinstance(node, ast.If):
-                decision = _target_condition(node.test)
+                decision = _target_condition(node.test, known_names)
                 selected = node.body if decision is True else node.orelse if decision is False else None
                 for statement in selected if selected is not None else (*node.body, *node.orelse):
                     collect(statement)
@@ -398,6 +499,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
         if isinstance(node, ast.ImportFrom):
             if node.module == "__future__":
                 return
+            if any(alias.name == "*" for alias in node.names):
+                known_names.clear()
             base = node.module or ""
             if node.level:
                 parts = package.split(".") if package else []
@@ -413,7 +516,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             for function in active_functions.get(node.func.id, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
         if isinstance(node, ast.If):
-            decision = _target_condition(node.test)
+            decision = _target_condition(node.test, known_names)
             if condition_stats is not None:
                 key = "resolved" if decision is not None else "unknown"
                 condition_stats[key] += 1
@@ -499,10 +602,11 @@ def analyze(archive_path):
         "module_body_rows_sha256": module_body_sha256,
         "target_platform_candidate_count": len(target_platform),
         "target_platform_edge_count": target_edges,
-        "target_platform_scope": "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BRANCHES",
+        "target_platform_scope": "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_AND_BUILTIN_BRANCHES",
         "target_platform_rows_sha256": target_sha256,
         "target_platform_resolved_if_count": target_conditions["resolved"],
         "target_platform_unknown_if_count": target_conditions["unknown"],
+        "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
