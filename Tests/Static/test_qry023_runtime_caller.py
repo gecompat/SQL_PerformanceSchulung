@@ -166,6 +166,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         view_any_database_sql, view_any_database_marker = negative_proxy.injection_for_mode("VIEW_ANY_DATABASE_GRANT")
         self.assertEqual(view_any_database_sql, "GRANT VIEW ANY DATABASE TO [READER];\n")
         self.assertEqual(view_any_database_marker, "QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_GRANT_INJECTED")
+        view_any_database_deny_sql, view_any_database_deny_marker = negative_proxy.injection_for_mode("VIEW_ANY_DATABASE_DENY")
+        self.assertEqual(view_any_database_deny_sql, "DENY VIEW ANY DATABASE TO [READER];\n")
+        self.assertEqual(view_any_database_deny_marker, "QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED")
         database_sql, database_marker = negative_proxy.injection_for_mode("DATABASE_PERMISSION")
         self.assertEqual(database_sql, "GRANT VIEW DEFINITION TO [READER];\n")
         self.assertEqual(database_marker, "QRY023_NEGATIVE_PERMISSION|DATABASE_PERMISSION_INJECTED")
@@ -253,6 +256,29 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0][run.call_args.args[0].index("-d") + 1], "master")
         self.assertEqual(run.call_args.kwargs["input"], "GRANT VIEW ANY DATABASE TO [READER];\n")
         self.assertIn("QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_GRANT_INJECTED", output.getvalue())
+
+    def test_negative_view_any_database_deny_uses_master_context(self) -> None:
+        args = [
+            "-S", "localhost", "-d", "SQLPERF_LAB_QRY023_LOCAL", "-i",
+            str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"),
+            "-U", "sa", "-v", "DemoId=QRY-023", "RunToken=LOCAL",
+            "TargetDatabase=SQLPERF_LAB_QRY023_LOCAL", "ReaderLogin=READER",
+        ]
+        output = io.StringIO()
+        with mock.patch.dict(os.environ, {
+            "SQLPERF_SQL_CONTAINER": "synthetic-container",
+            "SQLCMDPASSWORD": "synthetic-secret",
+            "SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE": "VIEW_ANY_DATABASE_DENY",
+        }, clear=True), \
+             mock.patch.object(negative_proxy.proxy, "_sqlcmd_path", return_value="/synthetic/sqlcmd"), \
+             mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run, \
+             mock.patch.object(negative_proxy.proxy, "main", return_value=0), \
+             mock.patch.object(sys, "argv", ["negative-proxy", *args]), \
+             contextlib.redirect_stdout(output):
+            self.assertEqual(negative_proxy.main(), 0)
+        self.assertEqual(run.call_args.args[0][run.call_args.args[0].index("-d") + 1], "master")
+        self.assertEqual(run.call_args.kwargs["input"], "DENY VIEW ANY DATABASE TO [READER];\n")
+        self.assertIn("QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED", output.getvalue())
 
     def test_negative_database_permission_uses_bound_target_context(self) -> None:
         args = [
@@ -424,6 +450,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: VIEW_ANY_DATABASE_GRANT", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: VIEW_ANY_DATABASE_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DATABASE_PERMISSION", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: DATABASE_PERMISSION_DENY", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: ENDPOINT_PERMISSION", workflow)
@@ -437,10 +464,16 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("if: always() && env.QRY023_SERVER_PERMISSION_ATTEMPTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_SERVER_PERMISSION_DENY_ATTEMPTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_VIEW_ANY_DATABASE_ATTEMPTED == '1'", workflow)
+        self.assertIn("if: always() && env.QRY023_VIEW_ANY_DATABASE_DENY_ATTEMPTED == '1'", workflow)
         self.assertIn("QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_GRANT_INJECTED", workflow)
+        self.assertIn("QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED", workflow)
         self.assertIn("REVOKE VIEW ANY DATABASE FROM [READER]", workflow)
         self.assertLess(
             workflow.index("Prove the permission inventory rejects direct READER VIEW ANY DATABASE"),
+            workflow.index("Run the full proposed FWK-010 lifecycle"),
+        )
+        self.assertLess(
+            workflow.index("Prove the permission inventory rejects direct READER VIEW ANY DATABASE DENY"),
             workflow.index("Run the full proposed FWK-010 lifecycle"),
         )
         endpoint_case = workflow[

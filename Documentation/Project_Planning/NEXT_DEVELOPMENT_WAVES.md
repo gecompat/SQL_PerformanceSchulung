@@ -1497,12 +1497,12 @@ in seiner owner-markierten Wegwerfinstanz ausgeführt; nach bestätigtem Endpoin
 Drop wird die ganze Instanz entfernt und nicht für weitere Reader-Verbindungen
 wiederverwendet.
 
-Nächster begrenzter Kandidat: ein explizites direktes `GRANT VIEW ANY DATABASE`
-an `READER`. DEC-083 erlaubt dieses Recht nur aus `public`; die zusätzliche
-Principal-Zuweisung muss als alleinige `SERVER_PERMISSION`-Abweichung vor den
-Queryphasen abgewiesen werden. Die temporäre Zuweisung wird im owner-markierten
-Wegwerfinstanzcontainer widerrufen und verifiziert, bevor der positive Lauf
-beginnt.
+PR #578 ergänzte das direkte `GRANT VIEW ANY DATABASE` an `READER`. DEC-083
+erlaubt dieses Recht nur aus `public`; die zusätzliche Principal-Zuweisung wurde
+auf allen drei Builds als alleinige `SERVER_PERMISSION`-Abweichung vor den
+Queryphasen abgewiesen und im owner-markierten Wegwerfinstanzcontainer
+widerrufen/verifiziert. Als Nächstes prüft PR #579 die komplementäre direkte
+`DENY VIEW ANY DATABASE`-Zuweisung mit demselben fail-closed und Restorevertrag.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
