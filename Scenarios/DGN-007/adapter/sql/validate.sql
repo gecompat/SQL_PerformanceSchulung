@@ -59,7 +59,7 @@ IF EXISTS (
     SELECT s.IncidentPhase FROM lab.IncidentState s
     LEFT JOIN lab.IncidentQueryStoreProfile e ON e.IncidentPhase = s.IncidentPhase
     GROUP BY s.IncidentPhase
-    HAVING COALESCE(SUM(e.CountExecutions),0) <> CASE s.IncidentPhase WHEN N''T0_BASELINE'' THEN 3 ELSE 5 END)
+    HAVING COALESCE(SUM(e.CountExecutions),0) <> 4)
     THROW 51002,''PROJECT_ASSERTION_FAILED: Ein Phasenprofil ist unvollstaendig.'',1;
 
 /* Die strenge Elternmenge bindet Objekt und Marker; PSP-Varianten liefern ihre Runtime unter Kind-Query-IDs. */

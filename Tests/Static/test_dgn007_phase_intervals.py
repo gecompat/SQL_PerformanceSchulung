@@ -26,8 +26,8 @@ class PhaseIntervalTests(unittest.TestCase):
                 (12,'07:26:00.000','07:27:00.000');
             INSERT INTO phase VALUES('07:24:43.486','07:24:43.558');
             INSERT INTO runtime VALUES
-                (10,3,'07:24:43.500','07:24:43.560',0),
-                (11,5,'07:25:01.000','07:25:01.100',0),
+                (10,4,'07:24:43.500','07:24:43.560',0),
+                (11,4,'07:25:01.000','07:25:01.100',0),
                 (12,4,'07:26:01.000','07:26:01.100',0);
         """)
 
@@ -45,13 +45,13 @@ class PhaseIntervalTests(unittest.TestCase):
     def test_observed_completion_skew_keeps_only_baseline_interval(self) -> None:
         for path in (INSTALL, COMPARISON):
             with self.subTest(path=path.name):
-                self.assertEqual(self.phase_counts(path), [(10, 3)])
+                self.assertEqual(self.phase_counts(path), [(10, 4)])
 
     def test_next_phase_excludes_prior_and_future_intervals(self) -> None:
         self.connection.execute("UPDATE phase SET MarkerUtc='07:25:00.000',CompletedUtc='07:25:01.098'")
         for path in (INSTALL, COMPARISON):
             with self.subTest(path=path.name):
-                self.assertEqual(self.phase_counts(path), [(11, 5)])
+                self.assertEqual(self.phase_counts(path), [(11, 4)])
 
     def test_multiple_rows_in_active_interval_are_aggregated(self) -> None:
         self.connection.execute("UPDATE runtime SET count_executions=2 WHERE runtime_stats_interval_id=10")
@@ -63,12 +63,12 @@ class PhaseIntervalTests(unittest.TestCase):
         self.connection.execute("UPDATE phase SET CompletedUtc='07:25:01.098'")
         for path in (INSTALL, COMPARISON):
             with self.subTest(path=path.name):
-                self.assertEqual(self.phase_counts(path), [(10, 3), (11, 5)])
+                self.assertEqual(self.phase_counts(path), [(10, 4), (11, 4)])
 
     def test_extra_same_interval_execution_is_not_hidden_by_time_filter(self) -> None:
         self.connection.execute("INSERT INTO runtime VALUES(10,1,'07:24:42.000','07:24:42.000',0)")
-        # Der produktive Vergleich ActualExecutions <> ExpectedExecutions lehnt 4 statt 3 ab.
-        self.assertEqual(self.phase_counts(INSTALL), [(10, 4)])
+        # Der produktive Vergleich ActualExecutions <> ExpectedExecutions lehnt 5 statt 4 ab.
+        self.assertEqual(self.phase_counts(INSTALL), [(10, 5)])
         self.assertIn("IF @ActualExecutions <> @ExpectedExecutions", INSTALL.read_text(encoding="utf-8"))
 
     def test_validation_rejects_an_interval_outside_the_phase(self) -> None:
@@ -91,6 +91,34 @@ class PhaseIntervalTests(unittest.TestCase):
                     "AND bi.runtime_stats_interval_id=10 AND ti.runtime_stats_interval_id=?", (incident_interval,)
                 ).fetchone()[0]
                 self.assertEqual(overlap, expected)
+
+    def test_adapter_uses_same_four_requests_in_opposite_order(self) -> None:
+        text = INSTALL.read_text(encoding="utf-8")
+        baseline, incident = text.split("IF @PhaseNumber = 0", 1)[1].split("ELSE", 1)
+        call_pattern = re.compile(r"EXEC dbo\.usp_CaseSearch\s+(\d+)\s*,\s*(\d+)")
+        self.assertEqual(
+            tuple(tuple(map(int, row)) for row in call_pattern.findall(baseline)),
+            ((8, 3), (1, 3), (5, 3), (1, 1)),
+        )
+        self.assertEqual(
+            tuple(tuple(map(int, row)) for row in call_pattern.findall(incident)),
+            ((1, 3), (8, 3), (5, 3), (1, 1)),
+        )
+        self.assertIn("SET @ExpectedExecutions = 4", text)
+        self.assertIn("HAVING COALESCE(SUM(e.CountExecutions),0) <> 4", VALIDATE.read_text(encoding="utf-8"))
+
+    def test_observation_uses_phase_bound_profiles_without_minimum_plan_gate(self) -> None:
+        observation = (ROOT / "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql").read_text(encoding="utf-8")
+        self.assertIn("FROM lab.IncidentQueryStoreProfile AS profile", observation)
+        self.assertIn("profile.IncidentPhase IN(N'T0_BASELINE',N'T1_INCIDENT')", observation)
+        self.assertIn("rs.execution_type=0", observation)
+        self.assertIn("@ProfilePhaseCount<>2", observation)
+        self.assertIn("@T0Executions<>4 OR @T1Executions<>4", observation)
+        self.assertNotIn("IF @PlanCount<2", observation)
+        profile_query = observation.split("SELECT @QueryId=MIN(profile.QueryId)", 1)[1].split(
+            "SELECT @ParentQueryCount", 1
+        )[0]
+        self.assertNotIn("sys.query_store_plan", profile_query)
 
 
 if __name__ == "__main__":

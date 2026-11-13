@@ -1392,18 +1392,19 @@ und isolieren keine Kompilierungsursache. Unterschiedliche Parameterlast
 allein ist kein Regressionsnachweis. Als begrenzte Voraussetzung verwendet der
 ältere Teilnehmerpfad jetzt `sys.databases.compatibility_level` mit NULL-Guard
 und prüft vor der Evidenzausgabe den bestehenden 2025-/170-Vertrag; auch die
-Adaptervalidierung lehnt fehlende Compatibility-Werte ab. Die
-Beobachtungsbedingung muss weiterhin auf den Designvertrag (Plan- oder
-Laufzeitprofilevidenz) abgeglichen werden. Der Compatibility-Vorfix belegt
-weder den Incident noch eine vollständige Teilnehmerabnahme.
-Für die ältere Beobachtungsbedingung sind ausschließlich erfolgreich
-ausgeführte T0/T1-Pläne und ihre validierten Profile maßgeblich; historische
-oder ungenutzte Planzeilen und bloße Counts 3/5 genügen nicht. Ihr bisheriger
-unterschiedlicher Lastmix ist zuerst gegen den gleichen Parameterlastvertrag
-abzugleichen. Live-Mittelwerte dürfen keine nachträglichen Zusatzrequests
-enthalten; Plan-/Profilunterscheidbarkeit und Verschlechterung sind getrennt
-zu begründen. Die jetzt gemessenen unterschiedlichen Richtungen für CPU und
-Reads erfüllen allein keine Incidentfreigabe.
+Adaptervalidierung lehnt fehlende Compatibility-Werte ab. Die ältere Beobachtung
+ist nun an erfolgreich erfasste T0/T1-Profile samt Query-Store-Intervallen
+gebunden; historische oder ungenutzte Katalogpläne werden nicht gezählt und
+die absolute Planzahl ist kein Gate. Der Teilnehmeradapter verwendet in beiden
+Phasen denselben Viererparameter-Mix in festgelegter Reihenfolge (A: `8/3,
+1/3, 5/3, 1/1`; B: `1/3, 8/3, 5/3, 1/1`). Der nicht-promotende
+Docker-Teilnehmerlauf auf SQL Server 2025 bestand alle sechs SQL-Stufen und
+unabhängigen Cleanup (RunId `73c0b191-66e1-4891-b9f2-4ab3a4513571`, 2026-11-13).
+Das belegt weder Incident noch vollständige Teilnehmerabnahme. Live-Mittelwerte
+dürfen keine nachträglichen Zusatzrequests enthalten; Plan-/Profilunterscheidbarkeit
+und Verschlechterung sind getrennt zu begründen. Die zuvor gemessenen
+unterschiedlichen Richtungen für CPU und Reads erfüllen allein keine
+Incidentfreigabe.
 Danach folgen die vollständige Capstone-Matrix und die
 interaktive Docker-/Podman-Abnahme; deren offene Gates bleiben bestehen.
 

@@ -9085,3 +9085,26 @@ unbekannten Bedingungen; der Zeilendigest bleibt
 Scopeübertritte, Factory-Rückgaben, Zielruntime, Profil, Worker und SQL bleiben
 ungeprüft; die Generalprobe bleibt ausgeschlossen. Operative S15-/P11-
 Sollinventur und Fünf-Formen-/64-KiB-Gate sind weiterhin offen.
+
+## Fortsetzung: DGN-007 – ältere Beobachtung und LOCAL-Parameterlast
+
+Der ältere Teilnehmeradapter führt T0 jetzt mit `8/3, 1/3, 5/3, 1/1` und T1
+mit `1/3, 8/3, 5/3, 1/1` aus; beide Phasen haben exakt vier erfolgreiche
+Suchrequests. `40_Observation.sql` bezieht seine Abschlusszählung nur noch aus
+erfolgreichen T0/T1-Profileinträgen, die an die markierte Parent-/Variantmenge,
+die gespeicherten Phasen und ihre tatsächlichen Query-Store-Intervalle gebunden
+sind. Historische oder ungenutzte Katalogpläne und eine absolute
+Mindestplanzahl entscheiden nicht länger über den Beobachtungsausgang. Das
+Summary beschreibt die verfügbare Evidenz und behauptet keinen Incident oder
+eine Ursache.
+
+Statische Intervall-/Last-/Profil-Fixtures: 9/9 PASS; Compatibility-
+Gegenproben: 8/8 PASS; statischer Teilnehmer- und LABSCN-005-Validator PASS.
+Der frische nicht-promotende Docker-Teilnehmerlauf auf SQL Server 2025 bestand
+Precheck, Zeitfenster, Evidenz, Referenzänderung, Vergleich, Recovery,
+Adapter-Cleanup und Lab-Entfernung: RunId
+`73c0b191-66e1-4891-b9f2-4ab3a4513571`, Status
+`COMPLETED_WITHOUT_PROMOTION`/`REMOVED` (2026-11-13). Dies qualifiziert nur
+diesen 2025-Teilnehmerpfad; vollständiger Incidentnachweis, Ursachenbeleg,
+Versionsmatrix und Capstone bleiben offen. Die menschliche Generalprobe bleibt
+ausgeschlossen.
