@@ -98,6 +98,13 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             f"{verb} CONNECT ON ENDPOINT::[TSQL Default TCP] TO [READER];\n",
             marker,
         )
+    if mode == "CUSTOM_ENDPOINT":
+        return (
+            "IF EXISTS (SELECT 1 FROM master.sys.endpoints WHERE name=N'QRY023_NEGATIVE_ENDPOINT' "
+            "OR endpoint_id>=65536) THROW 51033,'QRY-023 custom endpoint negative control requires a clean endpoint baseline.',1; "
+            "CREATE ENDPOINT [QRY023_NEGATIVE_ENDPOINT] STATE=STOPPED AS TCP (LISTENER_PORT=25032) FOR TSQL();\n",
+            "QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
@@ -114,6 +121,7 @@ def main() -> int:
             injection_database = "master" if mode in {
                 "SERVER_PERMISSION", "SERVER_PERMISSION_DENY",
                 "ENDPOINT_PERMISSION", "ENDPOINT_PERMISSION_DENY",
+                "CUSTOM_ENDPOINT",
             } else target
             command = [
                 "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", container,

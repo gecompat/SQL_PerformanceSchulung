@@ -1464,12 +1464,21 @@ positive Zehnphasenlauf bestand. Ein anfänglicher SQL-2025-Loginfehler trat vor
 der Gegenprobe im TempDB-Guard auf; nur dieser Enginejob wurde frisch
 wiederholt und bestand. Integration: `0b307a0dda2ac6eb481e3ac891d8dd418c93b649`.
 
-Die nächste endliche Gegenprobe setzt ein explizites `DENY CONNECT` auf
-denselben inventarisierten Standardendpoint, erwartet `SERVER_PERMISSION` und
-widerruft den Eintrag nach erfolgreicher Injektion im owner-markierten
-Wegwerfcontainer. Absichtlich beschädigte Systemkataloge, allgemeine Runtime-
-und Produkt-/Katalogfreigabe sowie die menschliche Generalprobe gehören nicht
-zu diesem Schritt.
+PR #575 ergänzte `DENY CONNECT` auf demselben inventarisierten Standardendpoint.
+Die drei Enginejobs wiesen den Eintrag als `SERVER_PERMISSION` ab, widerriefen
+ihn nach Owner-Label-Prüfung und verifizierten den leeren Ausgangszustand; der
+positive Zehnphasenlauf bestand. Integration: `1d5217acdd624469cd13940497a6117f17d24e1a`.
+
+Die nächste endliche Gegenprobe erstellt im frischen Wegwerfcontainer genau
+einen benutzerdefinierten `TSQL`-Endpoint in `STOPPED`-Zustand, erwartet
+`CUSTOM_ENDPOINT` und entfernt ihn nach erkannter Injektion, selbst wenn eine
+spätere Assertion fehlschlägt. `STOPPED` bedeutet laut [Microsoft CREATE
+ENDPOINT (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-endpoint-transact-sql?view=sql-server-ver17),
+dass der Endpoint nicht auf seinem Port lauscht; Port 25032 liegt im
+dokumentierten Bereich. Dies ist eine explizite DDL-Änderung im ausschließlich
+owner-markierten Wegwerfinstanzcontainer, keine Beschädigung eines Systemkatalogs.
+Allgemeine Runtime-/Produkt-/Katalogfreigabe und menschliche Generalprobe
+gehören nicht zu diesem Schritt.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.

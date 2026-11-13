@@ -509,6 +509,54 @@ jobs:
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_DENY_RESTORED' <<< "$output"
           echo 'QRY023_ENDPOINT_PERMISSION_DENY_GRANTED=' >> "$GITHUB_ENV"
+      - name: Prove the permission inventory rejects an unregistered custom endpoint
+        shell: bash
+        env:
+          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: CUSTOM_ENDPOINT
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-custom-endpoint-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          echo 'QRY023_CUSTOM_ENDPOINT_CREATED=0' >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          grep -F 'QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_INJECTED' "$log"
+          echo 'QRY023_CUSTOM_ENDPOINT_CREATED=1' >> "$GITHUB_ENV"
+          [[ "$result" == 2 ]]
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'CUSTOM_ENDPOINT;' "$log"
+          if grep -F 'SERVER_PERMISSION;' "$log" || grep -F 'SERVER_ROLE;' "$log" || grep -F 'DATABASE_PERMISSION;' "$log"; then
+            echo 'Custom-endpoint case produced an unexpected permission category.' >&2
+            exit 1
+          fi
+          grep -F 'CLEANUP: PASS/OK' "$log"
+          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
+            echo 'Custom-endpoint case reached a protected query phase.' >&2
+            exit 1
+          fi
+      - name: Remove custom endpoint after negative control
+        if: always() && env.QRY023_CUSTOM_ENDPOINT_CREATED == '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="${SQLPERF_SQL_CONTAINER:-}"
+          owner="${SQLPERF_CI_OWNER:-}"
+          if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
+          container_id="$(docker inspect --format '{{.Id}}' "$container" 2>/dev/null || true)"
+          if [[ -z "$container_id" ]]; then exit 0; fi
+          [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
+          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -Q \
+            "IF EXISTS (SELECT 1 FROM master.sys.endpoints WHERE name=N'QRY023_NEGATIVE_ENDPOINT') DROP ENDPOINT [QRY023_NEGATIVE_ENDPOINT]; IF EXISTS (SELECT 1 FROM master.sys.endpoints WHERE name=N'QRY023_NEGATIVE_ENDPOINT') THROW 51034,'QRY-023 custom endpoint cleanup failed.',1; PRINT 'QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED';")"
+          printf '%s\n' "$output"
+          grep -F 'QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED' <<< "$output"
+          echo 'QRY023_CUSTOM_ENDPOINT_CREATED=' >> "$GITHUB_ENV"
       - name: Prove the permission inventory rejects a missing expected object
         shell: bash
         env:
