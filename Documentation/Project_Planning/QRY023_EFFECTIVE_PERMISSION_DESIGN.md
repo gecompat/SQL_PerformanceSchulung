@@ -383,10 +383,11 @@ Negativgegenproben: direkter `SELECT`-Grant an READER auf
 `lab.MeasurementWaitSnapshot` plus `db_datareader`-Mitgliedschaft (PR #566),
 explizites Objekt-`DENY` (#567), `dbcreator`-Serverrollenmitgliedschaft (#568),
 fehlendes erwartetes `lab.MeasurementWaitSnapshot` (#569) und ein
-`VIEW SERVER STATE`-Servergrant (#570). Jeder Fall wurde vor Korrektheit und
+`VIEW SERVER STATE`-Servergrant (#570) sowie explizites serverweites
+`DENY VIEW SERVER STATE` (#571). Jeder Fall wurde vor Korrektheit und
 Messung mit seiner exakten Kategorie als `FAIL_NOT_PROVEN` abgewiesen; das
-markergebundene Datenbank-Cleanup bestand. Serverrolle und Servergrant wurden
-nach der Gegenprobe separat wiederhergestellt und verifiziert. Nach jedem
+markergebundene Datenbank-Cleanup bestand. Serverrolle, Servergrant und
+Server-DENY wurden nach der Gegenprobe separat wiederhergestellt und verifiziert. Nach jedem
 Fall bestand der positive Zehnphasenlauf. Weitere negative Varianten und
 absichtlich beschädigte SQL-Kataloge bleiben ungeprüft; eine allgemeine
 Runtimefreigabe und Produkt-/Katalogaufnahme bleiben ebenfalls offen.

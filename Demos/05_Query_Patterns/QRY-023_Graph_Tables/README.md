@@ -200,13 +200,12 @@ automatisierten Engine-Läufe qualifizieren den positiven Standardpfad. Auf
 allen drei Builds wurden vor den Queryphasen folgende Live-Negativfälle
 abgewiesen: zusätzlicher direkter READER-`SELECT`-Grant, Mitgliedschaft in
 `db_datareader`, explizites Objekt-`DENY`, Mitgliedschaft in der
-Serverrolle `dbcreator`, fehlendes erwartetes Tabellenobjekt sowie ein
-serverweiter `VIEW SERVER STATE`-Grant. Jeder Fall verlangte die exakte
+Serverrolle `dbcreator`, fehlendes erwartetes Tabellenobjekt, ein serverweiter
+`VIEW SERVER STATE`-Grant sowie ein explizites serverweites
+`DENY VIEW SERVER STATE`. Jeder Fall verlangte die exakte
 Abweichungskategorie, `FAIL_NOT_PROVEN`, keinen Eintritt in Queryphasen und
 bestandenes markergebundenes Cleanup; nach temporären Rechteänderungen wurde
-deren Wiederherstellung separat geprüft. Zusätzlich wird ein explizites
-serverweites `DENY VIEW SERVER STATE` als eigener Negativfall ausgeführt.
-Der anschließende positive
+deren Wiederherstellung separat geprüft. Der anschließende positive
 Zehnphasenlauf bestand ebenfalls. Weitere negative Varianten und absichtlich
 beschädigte SQL-Kataloge wurden nicht ausgeführt. QRY-023 bleibt vorgeschlagen
 und nicht katalogisiert.
