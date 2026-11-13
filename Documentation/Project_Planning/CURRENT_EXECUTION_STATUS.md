@@ -8943,6 +8943,8 @@ Basen und vollständige MRO bleiben offen; Status bleibt `CANDIDATES_ONLY`.
 Aliaszuweisungen wie `BaseAlias = Base` beziehungsweise
 `BaseAlias = source.Base` werden jetzt vor der Basisklassenauflösung verfolgt,
 auch für direkt importierte Quellklassen. Drei synthetische Fixtures prüfen
-lokale und beide importierten Aliasformen. 61/61 fokussierte Tests bestehen.
-Mehrfachzuweisungen können Kandidaten überzählen; dynamische Zuweisungen,
-externe Basen und vollständige MRO bleiben offen.
+lokale und beide importierten Aliasformen. Eine zusätzliche Verzweigungsfixture
+prüft Aliasverkettung und die Erhaltung beider möglicher Basen samt Imports.
+62/62 fokussierte Tests bestehen. Mehrfachzuweisungen können Kandidaten
+überzählen; dynamische Zuweisungen, externe Basen und vollständige MRO bleiben
+offen.
