@@ -602,7 +602,7 @@ jobs:
           grep -F 'QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED' <<< "$output"
           echo 'QRY023_CUSTOM_ENDPOINT_CREATED=' >> "$GITHUB_ENV"
           echo 'QRY023_CUSTOM_ENDPOINT_REMOVED=1' >> "$GITHUB_ENV"
-      - name: Verify READER login after custom endpoint cleanup
+      - name: Re-run full lifecycle after custom endpoint cleanup
         if: always() && env.QRY023_CUSTOM_ENDPOINT_REMOVED == '1'
         shell: bash
         run: |
@@ -615,15 +615,21 @@ jobs:
           fi
           container_id="$(docker inspect --format '{{.Id}}' "$container" 2>/dev/null || true)"
           if [[ -z "$container_id" ]]; then
-            echo 'Owned SQL Server container disappeared before post-endpoint login verification.' >&2
+            echo 'Owned SQL Server container disappeared before post-endpoint lifecycle verification.' >&2
             exit 1
           fi
           [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
-          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
-          export SQLCMDPASSWORD="$SQLPERF_SQL_PASSWORD_READER"
-          output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U READER -C -b -Q "SET NOCOUNT ON; SELECT 'QRY023_READER_LOGIN_AFTER_CUSTOM_ENDPOINT|PASS';")"
-          printf '%s\n' "$output"
-          grep -F 'QRY023_READER_LOGIN_AFTER_CUSTOM_ENDPOINT|PASS' <<< "$output"
+          log="$RUNNER_TEMP/qry023-after-custom-endpoint-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          exit "$result"
       - name: Remove only the owned SQL Server container
         if: always()
         shell: bash

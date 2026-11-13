@@ -1486,9 +1486,10 @@ Reader-Preflight scheiterte jedoch auf allen Builds mit SQL-Loginfehler; damit
 ist die Ursache noch nicht bewiesen. Zur Isolation läuft die globale Endpoint-
 DDL-Gegenprobe künftig erst nach dem vollständigen positiven Zehnphasenlauf.
 Die positive Qualifikation wird so vor dieser zusätzlichen Instanzmutation
-gemessen. Nach dem Endpoint-Drop prüft eine separate `READER`-Anmeldung gegen
-`master`, ob der Login nach der Gegenprobe weiter funktioniert. Gegenprobe,
-Owner-Cleanup, diese Loginprobe und alle PR-Gates müssen bestehen.
+gemessen. Nach dem Endpoint-Drop wird der vollständige FWK-010-Lebenszyklus
+ein zweites Mal ausgeführt, um denselben Reader-Preflight im bereinigten Zustand
+zu prüfen. Gegenprobe, Owner-Cleanup, beide positiven Läufe und alle PR-Gates
+müssen bestehen.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
