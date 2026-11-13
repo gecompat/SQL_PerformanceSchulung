@@ -27,13 +27,17 @@ Funktionskörper, dynamische Imports und Loaderzustände und enthält umgekehrt
 bedingte Plattformzweige. Damit ist er weder vollständige Importclosure noch
 P11-Sollinventur. Diese Imagebefunde attestieren keine Buildherkunft und
 ersetzen keine vollständige P11-Importclosure. Buildherkunft und vollständige
-unabhängige S15-/P11-Sollrecords sind weiter offen. Nächster Gate ist die
-vollständige Vorwahl dieser Sollfelder und der endgültigen Bootstrapbytes samt
-Quellen-/Aufrufreview;
+unabhängige S15-/P11-Sollrecords sind weiter offen. `SOABI`, `DESTSHARED` und
+der Sysconfigdatenmodulname sind jetzt aus der gebundenen CPython-Sysconfigquelle
+vorläufig vorgewählt; die Kindumgebung muss `_PYTHON_SYSCONFIGDATA_NAME`
+ausdrücklich abwesend halten, da `-I` den direkten `os.environ`-Zugriff nicht
+unterbindet. Das sind Quellenwerte, keine tatsächlichen `sysconfig`-Rückgaben.
+Nächster Gate ist die vollständige Vorwahl dieser Sollfelder und der endgültigen
+Bootstrapbytes samt Quellen-/Aufrufreview;
 erst danach darf die einmalige operative Inventur mit fünf vollständigen
 Darstellungen und gemeinsamem 64-KiB-Gate folgen. Es gab in diesen Schritten
 keine Profilaufnahme oder Worker-/SQL-Ausführung; die Generalprobe bleibt
-ausgeschlossen. Details stehen in §19.3–§19.11 des
+ausgeschlossen. Details stehen in §19.3–§19.12 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
 ## Graph Tables – Curriculum-Lernnotiz
