@@ -8715,3 +8715,19 @@ bestätigte PR 68 als geschlossen und nicht gemergt; der Fehler-only-Reporter
 wurde nach DEC-072 verworfen. PR 130 (begrenzte Rawdiagnose) und PR 132 (finaler
 Parser-/Methodenschnitt) sind gemergt. Die offene Coordinatorarbeit ist davon
 getrennt und bleibt offen.
+
+## Fortsetzung: DGN-007 – CPython-Profilquelle als Kandidat eingegrenzt
+
+Nach Ablehnung des rollenden Hosted-Runner-Labels wurde ein aktueller, exakter
+Quell-/Imagekandidat geprüft: CPython 3.12.16 mit offiziellem Quellarchivdigest
+und Python-Official-Image-Manifestdigest. Der fest gebundene Dockerfile-Commit
+verwendet den signierten Python-Quellrelease; `apt-get update` und weitere
+Build-/Hostparameter verhindern jedoch, den Container allein als unabhängige
+Buildattestation zu verwenden. Das Linux/amd64-Childmanifest, seine Config und
+sieben Layerdigests sind festgehalten. Der digestgebundene Pull und eine
+begrenzte CPython-3.12.16-Probe ohne Netzwerk und mit read-only RootFS liegen
+vor. `docker image inspect` meldete die Repository-Digestreferenz des
+linux/amd64-Childmanifests; die sieben Engine-/Config-DiffIDs stimmen überein.
+Das ist keine unabhängige Buildattestation oder Profilaufnahme. Vollständige
+S15-/P11-Sollrecords, gebundene Bootstrap-/Profilbytes, Quellenherkunft und das
+Fünf-Formen-/64-KiB-Gate bleiben offen. [Detail und Quellen](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#193-offizieller-cpython-quellrelease-mit-digestgebundenem-oci-kandidaten).
