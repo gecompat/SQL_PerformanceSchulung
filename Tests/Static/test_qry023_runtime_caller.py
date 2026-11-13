@@ -186,6 +186,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_RESTORED", workflow)
         self.assertIn("QRY023_HARNESS_LOG=${log}", workflow)
+        self.assertIn("@membership IS NULL OR @membership<>0", workflow)
+        self.assertIn("grep -F 'QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_RESTORED'", workflow)
         self.assertIn("CLEANUP: PASS/OK", workflow)
         self.assertIn("CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE", workflow)
 
