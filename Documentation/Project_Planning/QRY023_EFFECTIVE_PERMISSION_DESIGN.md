@@ -356,7 +356,9 @@ Enginequalifikation ändert diesen Status nicht.
 
 Der vorgeschlagene CI-Aufrufer in [`.github/workflows/qry023-proposed-runtime.yml`](../../.github/workflows/qry023-proposed-runtime.yml)
 bindet die drei Image-Digests und setzt 2 CPU, 4 GiB Container-RAM sowie
-3 GiB SQL-Server-Speicher. Vor dem Harness fordert er genau neun TempDB-Dateien
+3 GiB SQL-Server-Speicher. Jeder Matrixjob läuft in einer eigenen GitHub-Hosted-VM
+und prüft die ADMIN-Anmeldung mit `SELECT 1`, bevor er Mutationen startet.
+Vor dem Harness fordert er genau neun TempDB-Dateien
 und setzt pro Datei `MAXSIZE = 96MB` bei `FILEGROWTH = 64MB`; das rechnerische
 Gesamtmaximum beträgt 864 MiB. Er legt außerdem den notwendigen `READER`-
 SQL-Login vor dem Harness einmalig in der frischen Wegwerfinstanz an. Das

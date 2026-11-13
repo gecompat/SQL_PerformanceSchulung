@@ -48,7 +48,9 @@ jobs:
   runtime:
     name: SQL Server ${{ matrix.year }} isolated QRY-023
     needs: static
-    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    # GitHub-hosted gives each matrix job a dedicated ephemeral VM; the resource
+    # floor is not safe on an arbitrarily shared self-hosted runner.
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -80,6 +82,7 @@ jobs:
             exit 1
           fi
       - name: Start pinned, resource-bounded SQL Server
+        timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
@@ -125,6 +128,16 @@ jobs:
             sleep 2
           done
           if [[ "$ready" != 1 ]]; then docker logs "$container" 2>&1 || true; exit 1; fi
+          sqlcmd="$(docker exec "$container" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          login_ready=0
+          for attempt in $(seq 1 90); do
+            if docker exec -e SQLCMDPASSWORD "$container" "$sqlcmd" -S localhost -d master -U sa -C -b -Q 'SELECT 1;' >/dev/null 2>&1; then
+              login_ready=1
+              break
+            fi
+            sleep 2
+          done
+          [[ "$login_ready" == 1 ]]
       - name: Enforce TempDB growth ceiling before setup
         shell: bash
         run: |
