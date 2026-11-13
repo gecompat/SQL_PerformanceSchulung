@@ -405,9 +405,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_ENDPOINT_PERMISSION_GRANTED=1", workflow)
         self.assertIn("if: always() && env.QRY023_ENDPOINT_PERMISSION_GRANTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_CUSTOM_ENDPOINT_CREATED == '1'", workflow)
-        self.assertIn("if: always() && env.QRY023_CUSTOM_ENDPOINT_REMOVED == '1'", workflow)
         self.assertIn("DROP ENDPOINT [QRY023_NEGATIVE_ENDPOINT]", workflow)
-        self.assertIn("Re-run full lifecycle after custom endpoint cleanup", workflow)
         self.assertIn("if: always() && env.QRY023_SERVER_ROLE_ATTEMPTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_SERVER_PERMISSION_ATTEMPTED == '1'", workflow)
         self.assertIn("if: always() && env.QRY023_SERVER_PERMISSION_DENY_ATTEMPTED == '1'", workflow)
@@ -462,20 +460,13 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         )
         self.assertLess(
             workflow.index("QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED"),
-            workflow.index("Re-run full lifecycle after custom endpoint cleanup"),
+            workflow.index("Remove only the owned SQL Server container"),
         )
-        post_endpoint_lifecycle = workflow[
-            workflow.index("Re-run full lifecycle after custom endpoint cleanup"):
+        post_endpoint_steps = workflow[
+            workflow.index("Remove custom endpoint after negative control"):
             workflow.index("Remove only the owned SQL Server container")
         ]
-        self.assertIn("Tests/Runtime/qry023_docker_sqlcmd_proxy.py", post_endpoint_lifecycle)
-        self.assertIn("manifest.proposed.json", post_endpoint_lifecycle)
-        self.assertIn("Login failed for user 'READER'", post_endpoint_lifecycle)
-        self.assertIn("grep -B 2 -A 1", post_endpoint_lifecycle)
-        self.assertIn("Endpoint states and explicit PUBLIC/READER CONNECT permissions:", post_endpoint_lifecycle)
-        self.assertIn("sys.server_permissions", post_endpoint_lifecycle)
-        self.assertIn("timeout 10s docker logs", post_endpoint_lifecycle)
-        self.assertIn("timeout 10s docker exec", post_endpoint_lifecycle)
+        self.assertEqual(post_endpoint_steps.count("      - name:"), 1)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
