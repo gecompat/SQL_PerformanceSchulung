@@ -1,5 +1,13 @@
 # Aktueller Ausführungsstand
 
+Aktualisiert am 13. November 2026: QRY-023s vorgeschlagene CI-Route und die
+konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
+enginequalifiziert. PR #586 ergänzte den Live-Nachweis für die SQL-RunToken-
+Grenze. Die aktuelle Folgequalifikation prüft den exakt gebundenen
+`TargetDatabase`-Namen; QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
+freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
+Generalprobe bleibt ausgeschlossen.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
@@ -8558,4 +8566,22 @@ PR #581 integrierte die direkte Mitgliedschaft von `READER` in der Serverrolle `
 
 ## QRY-023 TempDB-Guard – bounded file-set convergence (PR #583)
 
-Der SQL-2025-Fehler in PR #581 zeigte anhand der Diagnose: Der Guard berechnete das Limit zunächst mit drei beobachteten Dateien (341 MiB je Datei), während TempDB bis zum Nachcheck auf fünf Dateien anwuchs; die beiden neuen Dateien behielten `MAXSIZE = UNLIMITED`. PR #583 ersetzt den Einzelversuch durch maximal 16 begrenzte Konfigurationsdurchläufe und verlangt zwei aufeinanderfolgende stabile, vollständig gedeckelte Dateisatzbeobachtungen. Der Guard bleibt vor jedem Datenbank-Setup fail-closed. Lokale statische Regressionen bestehen; unabhängiges Review und Drei-Engine-Qualifikation stehen aus.
+Der SQL-2025-Fehler in PR #581 zeigte anhand der Diagnose: Der Guard berechnete das Limit zunächst mit drei beobachteten Dateien (341 MiB je Datei), während TempDB bis zum Nachcheck auf fünf Dateien anwuchs; die beiden neuen Dateien behielten `MAXSIZE = UNLIMITED`. PR #583 ersetzt den Einzelversuch durch maximal 16 begrenzte Konfigurationsdurchläufe und verlangt zwei aufeinanderfolgende stabile, vollständig gedeckelte Dateisatzbeobachtungen. Der Guard bleibt vor jedem Datenbank-Setup fail-closed. PR #583 bestand Review, statische Prüfung und die Drei-Engine-Qualifikation.
+
+## QRY-023 RunToken- und Zielnamen-Randfälle
+
+PR #586 ergänzte den T-SQL-Preflight um den Vergleich von `DATALENGTH` und
+`LEN`, da `LEN` nachgestellte Leerzeichen ausschließt und ASCII-`LIKE` sie
+ignoriert. Die live injizierte RunToken-Gegenprobe wurde auf SQL Server
+2019/2022/2025 vor Setup mit `FAIL_CONTRACT` abgewiesen; unabhängige
+Containerabfragen belegten jeweils keine Nutzerdatenbank, und die owner-
+geprüfte Containerbereinigung bestand. PR #586 ist in `main` integriert.
+
+Bei der anschließenden Boundary-Prüfung fiel auf, dass ein nachgestelltes
+Leerzeichen im `TargetDatabase` wegen SQL-Zeichenkettenvergleichsregeln als
+gleich gelten könnte. Der aktuelle Entwicklungsschnitt ergänzt den binären Namensvergleich und
+Bytelängenvergleich sowie dieselbe isolierte Drei-Engine-Gegenprobe. Bis zu
+deren Review und Runtimepass bleibt genau diese Gegenprobe offen. QRY-023
+bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`; die
+allgemeine Produkt-/Katalogfreigabe und die ausdrücklich ausgeschlossene
+menschliche Generalprobe bleiben getrennte Grenzen.

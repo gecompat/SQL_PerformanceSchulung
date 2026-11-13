@@ -24,7 +24,8 @@ IF @DemoId <> 'QRY-023'
    OR DATALENGTH(@RunToken) NOT BETWEEN 1 AND 20
    OR DATALENGTH(@RunToken) <> LEN(@RunToken)
    OR @RunToken COLLATE Latin1_General_100_BIN2 LIKE '%[^A-Z0-9_]%'
-   OR @TargetDatabase <> @ExpectedDatabase
+   OR @TargetDatabase COLLATE Latin1_General_100_BIN2 <> @ExpectedDatabase COLLATE Latin1_General_100_BIN2
+   OR DATALENGTH(@TargetDatabase) <> DATALENGTH(@ExpectedDatabase)
     THROW 51000, 'FAIL_CONTRACT: Demo-ID, Run-Token oder Ziel-Datenbank entsprechen nicht dem QRY-023-Vertrag.', 1;
 
 IF @MajorVersion NOT BETWEEN 15 AND 17

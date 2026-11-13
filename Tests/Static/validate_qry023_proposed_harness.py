@@ -759,7 +759,8 @@ def preflight_target_derivation_valid(preflight: str) -> bool:
         "ordatalength(@runtoken)notbetween1and20"
         "ordatalength(@runtoken)<>len(@runtoken)"
         "or@runtokencollatelatin1_general_100_bin2like'%[^a-z0-9_]%'"
-        "or@targetdatabase<>@expecteddatabase"
+        "or@targetdatabasecollatelatin1_general_100_bin2<>@expecteddatabasecollatelatin1_general_100_bin2"
+        "ordatalength(@targetdatabase)<>datalength(@expecteddatabase)"
     )
     guard_start = compact.find(guard)
     guard_throw = compact.find("throw51000,", guard_start) if guard_start >= 0 else -1
