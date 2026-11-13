@@ -2645,8 +2645,10 @@ rekursiv verfolgt. Lambda-Defaults sowie Dekorator- und Defaultausdrücke
 bleiben Teil des Aufbaus. Nicht aufgeschobene Funktions-, Klassen- und
 Modulannotationen zählen nur ohne `from __future__ import annotations`;
 lokale Funktionsannotationen und aufgeschobene Funktions-/Zuweisungsannotationen
-werden ausgelassen. Generatorausdrücke
-einschließlich ihrer Iterable werden nicht verfolgt. Für die zwölf festen
+werden ausgelassen. Generatorausdrücke werden einschließlich Iterable,
+Zuweisungsziel, Filtern und Elementausdruck auf mögliche lokale Calls
+untersucht, auch wenn eine Iteration statisch nicht nachgewiesen ist; das kann
+Kandidaten konservativ überzählen. Für die zwölf festen
 Wurzeln ergaben sich 315 zugeordnete Kanten, 63 Quellmodulkandidaten und 108
 verfolgte lokale Funktionen; der sortierte Modul-/Quelldigest lautet
 `a846ba1f2e76cfa3754bdf415b722d5acfe9a3bc681a1878a22a485789783189`. Dabei

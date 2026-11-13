@@ -484,6 +484,16 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
                 yield from visit(statement, class_scope, False, function_scope)
             return
         if isinstance(node, ast.GeneratorExp):
+            # A generator may be consumed during initialization (for example
+            # by tuple(), any(), or a constructor). Keep every local call in
+            # its lazy body as a candidate; proving consumption is outside
+            # this bounded source analysis.
+            for generator in node.generators:
+                yield from visit(generator.iter, active_functions, in_function, function_scope)
+                yield from visit(generator.target, active_functions, in_function, function_scope)
+                for condition in generator.ifs:
+                    yield from visit(condition, active_functions, in_function, function_scope)
+            yield from visit(node.elt, active_functions, in_function, function_scope)
             return
         if isinstance(node, ast.AnnAssign):
             yield from visit(node.target, active_functions, in_function, function_scope)
@@ -610,7 +620,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_AND_DIRECT_LOCAL_CALLS",
+        "module_init_call_scope": "MODULE_CLASS_DIRECT_CALLS_AND_GENERATOR_BODIES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
