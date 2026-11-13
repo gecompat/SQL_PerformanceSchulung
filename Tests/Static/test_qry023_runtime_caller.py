@@ -252,7 +252,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             )
 
     def test_timeout_proxy_proves_reader_login_in_bound_target_before_probe(self) -> None:
-        password = "synthetic-reader-secret"
+        password = "readerpassvalue"
         with mock.patch.dict(os.environ, {"SQLCMDPASSWORD": password}, clear=True), \
              mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(
                  returncode=0, stdout="1\n", stderr="")) as run:
@@ -266,7 +266,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["env"]["SQLCMDPASSWORD"], password)
 
     def test_timeout_proxy_masks_login_failure_details(self) -> None:
-        password = "synthetic-reader-secret"
+        password = "readerpassvalue"
         with mock.patch.dict(os.environ, {"SQLCMDPASSWORD": password}, clear=True), \
              mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(
                  returncode=1, stdout="", stderr=f"Login failed; {password}")) as run:
