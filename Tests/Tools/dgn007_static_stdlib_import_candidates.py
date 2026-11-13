@@ -13,10 +13,13 @@ ARCHIVE_SHA256 = "b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc3757
 ARCHIVE_ROOT = "Python-3.12.16/Lib/"
 STDLIB_MODULE_NAMES_MEMBER = "Python-3.12.16/Python/stdlib_module_names.h"
 STDLIB_MODULE_NAMES_SHA256 = "450581463358b2ffaeca45b261c2e59a41cd6546b487445ed5ff9e0a2b4163a6"
+FROZEN_SOURCE_MEMBER = "Python-3.12.16/Python/frozen.c"
+FROZEN_SOURCE_SHA256 = "ff2d5e301f1725c013788f30882fd48127a9ecfe891bfaa592cc08c284d4f79f"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
 MAX_STDLIB_MODULE_NAMES_BYTES = 64 * 1024
+MAX_FROZEN_SOURCE_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -37,9 +40,23 @@ def _archive_bytes(archive_path):
 def _source_archive_data(archive_bytes):
     files = {}
     stdlib_header = None
+    frozen_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
+            if member.name == FROZEN_SOURCE_MEMBER:
+                if not member.isfile() or frozen_source is not None \
+                        or member.size > MAX_FROZEN_SOURCE_BYTES:
+                    raise ValueError("FROZEN_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("FROZEN_SOURCE_MEMBER")
+                frozen_source = stream.read(member.size + 1)
+                if (len(frozen_source) != member.size
+                        or hashlib.sha256(frozen_source).hexdigest()
+                        != FROZEN_SOURCE_SHA256):
+                    raise ValueError("FROZEN_SOURCE_DIGEST")
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -72,7 +89,7 @@ def _source_archive_data(archive_bytes):
                 raise ValueError("SOURCE_ARCHIVE_MEMBER")
             total += len(body)
             files[relative] = body
-    return files, stdlib_header
+    return files, stdlib_header, frozen_source
 
 
 def _source_files(archive_path):
@@ -97,6 +114,54 @@ def _stdlib_module_names(header):
         raise ValueError("STDLIB_MODULE_NAMES_ORDER")
     canonical = "".join(name + "\n" for name in names).encode("ascii")
     return names, hashlib.sha256(canonical).hexdigest()
+
+
+def _frozen_module_inventory(source_bytes):
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_FROZEN_SOURCE_BYTES
+            or hashlib.sha256(source_bytes).hexdigest() != FROZEN_SOURCE_SHA256):
+        raise ValueError("FROZEN_SOURCE_DIGEST")
+    text = source_bytes.decode("utf-8")
+    tables = {}
+    for table in ("bootstrap_modules", "stdlib_modules", "test_modules"):
+        blocks = re.findall(
+            rf"(?ms)^static const struct _frozen {table}\[\] = \{{\n(.*?)^\}};?$",
+            text,
+        )
+        if len(blocks) != 1:
+            raise ValueError("FROZEN_TABLE_FORMAT")
+        names = tuple(re.findall(r'^\s*\{"([^"\\]+)",', blocks[0], re.M))
+        if not names or len(names) != len(set(names)):
+            raise ValueError("FROZEN_TABLE_NAMES")
+        tables[table] = tuple(sorted(names))
+    alias_blocks = re.findall(
+        r"(?ms)^static const struct _module_alias aliases\[\] = \{\n(.*?)^\};$",
+        text,
+    )
+    if len(alias_blocks) != 1:
+        raise ValueError("FROZEN_ALIAS_FORMAT")
+    aliases = tuple(re.findall(
+        r'^\s*\{"([^"\\]+)",\s*(?:"([^"\\]+)"|NULL)\},?$',
+        alias_blocks[0], re.M
+    ))
+    if not aliases or len(aliases) != len({alias for alias, _ in aliases}):
+        raise ValueError("FROZEN_ALIAS_NAMES")
+
+    def digest_rows(rows):
+        return hashlib.sha256(
+            "".join("\t".join(row) + "\n" for row in rows).encode("utf-8")
+        ).hexdigest()
+
+    return {
+        "bootstrap_names": tables["bootstrap_modules"],
+        "stdlib_names": tables["stdlib_modules"],
+        "test_names": tables["test_modules"],
+        "aliases": tuple(sorted(aliases)),
+        "bootstrap_sha256": digest_rows(tuple((name,) for name in tables["bootstrap_modules"])),
+        "stdlib_sha256": digest_rows(tuple((name,) for name in tables["stdlib_modules"])),
+        "test_sha256": digest_rows(tuple((name,) for name in tables["test_modules"])),
+        "aliases_sha256": digest_rows(tuple(sorted(aliases))),
+    }
 
 
 def _module_path(module, files):
@@ -1686,10 +1751,15 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 
 def analyze(archive_path):
-    files, stdlib_header = _source_archive_data(_archive_bytes(archive_path))
+    files, stdlib_header, frozen_source = _source_archive_data(
+        _archive_bytes(archive_path)
+    )
     if stdlib_header is None:
         raise ValueError("STDLIB_MODULE_NAMES_MISSING")
+    if frozen_source is None:
+        raise ValueError("FROZEN_SOURCE_MISSING")
     stdlib_names, stdlib_names_sha256 = _stdlib_module_names(stdlib_header)
+    frozen = _frozen_module_inventory(frozen_source)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
@@ -1698,10 +1768,27 @@ def analyze(archive_path):
     )
     call_roots = {name.partition(".")[0] for name in call_modules}
     call_roots_outside_stdlib = tuple(sorted(call_roots - set(stdlib_names)))
+    frozen_roots = {
+        name.partition(".")[0]
+        for name in (*frozen["bootstrap_names"], *frozen["stdlib_names"])
+    }
+    frozen_roots_outside_stdlib = tuple(sorted(frozen_roots - set(stdlib_names)))
     return {
         "archive_sha256": ARCHIVE_SHA256,
         "source_stdlib_module_names_count": len(stdlib_names),
         "source_stdlib_module_names_sha256": stdlib_names_sha256,
+        "frozen_source_sha256": FROZEN_SOURCE_SHA256,
+        "frozen_bootstrap_name_count": len(frozen["bootstrap_names"]),
+        "frozen_bootstrap_names_sha256": frozen["bootstrap_sha256"],
+        "frozen_stdlib_name_count": len(frozen["stdlib_names"]),
+        "frozen_stdlib_names_sha256": frozen["stdlib_sha256"],
+        "frozen_test_name_count": len(frozen["test_names"]),
+        "frozen_test_names_sha256": frozen["test_sha256"],
+        "frozen_alias_count": len(frozen["aliases"]),
+        "frozen_aliases_sha256": frozen["aliases_sha256"],
+        "frozen_runtime_roots_outside_source_stdlib_names": list(
+            frozen_roots_outside_stdlib
+        ),
         "edge_count": edges,
         "module_count": len(modules),
         "module_rows_sha256": rows_sha256,

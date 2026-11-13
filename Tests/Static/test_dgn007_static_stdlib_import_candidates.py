@@ -120,6 +120,46 @@ class StaticImportCandidateTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "STDLIB_MODULE_NAMES_ORDER"):
                         SUBJECT._stdlib_module_names(header)
 
+    def test_frozen_tables_keep_runtime_and_test_names_separate(self):
+        source = (
+            b"static const struct _frozen bootstrap_modules[] = {\n"
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n};\n'
+            b"static const struct _frozen stdlib_modules[] = {\n"
+            b'{"pkg.module", code, 1, false, GET_CODE(module)},\n};\n'
+            b"static const struct _frozen test_modules[] = {\n"
+            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n};\n'
+            b"static const struct _module_alias aliases[] = {\n"
+            b'{"boot", "pkg.boot"},\n{"test_alias", NULL},\n};\n'
+        )
+        with patch.object(
+            SUBJECT, "FROZEN_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            inventory = SUBJECT._frozen_module_inventory(source)
+        self.assertEqual(inventory["bootstrap_names"], ("boot",))
+        self.assertEqual(inventory["stdlib_names"], ("pkg.module",))
+        self.assertEqual(inventory["test_names"], ("test_only",))
+        self.assertEqual(
+            inventory["aliases"], (("boot", "pkg.boot"), ("test_alias", ""))
+        )
+
+    def test_frozen_tables_reject_duplicate_module_names(self):
+        source = (
+            b"static const struct _frozen bootstrap_modules[] = {\n"
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n'
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n};\n'
+            b"static const struct _frozen stdlib_modules[] = {\n"
+            b'{"module", code, 1, false, GET_CODE(module)},\n};\n'
+            b"static const struct _frozen test_modules[] = {\n"
+            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n};\n'
+            b"static const struct _module_alias aliases[] = {\n"
+            b'{"boot", "pkg.boot"},\n};\n'
+        )
+        with patch.object(
+            SUBJECT, "FROZEN_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            with self.assertRaisesRegex(ValueError, "FROZEN_TABLE_NAMES"):
+                SUBJECT._frozen_module_inventory(source)
+
     def test_relative_imports_and_function_imports_are_candidates(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",
@@ -1735,6 +1775,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn("source_stdlib_module_names_count", labels)
         self.assertIn("source_stdlib_module_names_sha256", labels)
+        self.assertIn("frozen_bootstrap_name_count", labels)
+        self.assertIn("frozen_stdlib_name_count", labels)
+        self.assertIn("frozen_test_name_count", labels)
+        self.assertIn("frozen_alias_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",

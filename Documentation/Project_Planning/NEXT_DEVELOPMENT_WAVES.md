@@ -861,7 +861,10 @@ Klassenaliase auch durch tatsächlich aufgerufene verschachtelte
 Funktions-Closures. Der Folgeabgleich bindet den generierten
 CPython-`stdlib_module_names.h`-Header digestgebunden: 301 statische Namen,
 alle 93 Kandidatenwurzeln liegen darin. Das ist keine beobachtete
-Laufzeiteigenschaft. Als nächste getrennte Offlinearbeit bleiben die übrigen 15
+Laufzeiteigenschaft. `Python/frozen.c` ist nun ebenfalls digestgebunden und
+liefert getrennte Tabellen für 3 Bootstrap-, 15 Stdlib- und 11 Testnamen sowie
+neun Aliaszeilen. Auch dies sind nur deklarierte Quellwerte, keine Build- oder
+Laufzeitbelege. Als nächste getrennte Offlinearbeit bleiben die übrigen 15
 S15-Felder und P11-Recordquellen sowie danach das gemeinsame
 Fünf-Formen-/64-KiB-Gate maßgeblich. Sie sind keine Laufzeitfreigabe und dürfen
 nicht aus dem Kandidatenscan abgeleitet werden. Details und lokale Grenze
