@@ -45,6 +45,15 @@ class Grant:
 
 
 @dataclass(frozen=True)
+class SemaphoreSnapshot:
+    pool_id: int
+    resource_semaphore_id: int
+    grantee_count: int
+    waiter_count: int
+    captured_at: str
+
+
+@dataclass(frozen=True)
 class Result:
     verdict: Verdict
     reasons: tuple[str, ...]
@@ -70,14 +79,17 @@ def _valid_timestamp(value: object) -> bool:
 def evaluate_grant_wait(
     request: RequestWait | None,
     grants: tuple[Grant, ...] | None,
+    semaphore: SemaphoreSnapshot | None,
 ) -> Result:
-    """Bind a live RESOURCE_SEMAPHORE request to an ungranted matching grant row."""
-    if request is None or grants is None:
-        return Result(Verdict.NOT_PROVEN, ("request wait or grant snapshot is missing",))
+    """Bind a live wait, grant rows, and positive counts to one pool/semaphore snapshot."""
+    if request is None or grants is None or semaphore is None:
+        return Result(Verdict.NOT_PROVEN, ("request, grant, or semaphore snapshot is missing",))
     if type(request) is not RequestWait:
         return Result(Verdict.FAIL, ("request must use the exact RequestWait record",))
     if type(grants) is not tuple or any(type(grant) is not Grant for grant in grants):
         return Result(Verdict.FAIL, ("grants must be a tuple of exact Grant records",))
+    if type(semaphore) is not SemaphoreSnapshot:
+        return Result(Verdict.FAIL, ("semaphore must use the exact SemaphoreSnapshot record",))
     if (
         not _positive_int(request.session_id)
         or not _nonnegative_int(request.request_id)
@@ -89,6 +101,19 @@ def evaluate_grant_wait(
         return Result(Verdict.FAIL, ("request wait record is invalid or is not RESOURCE_SEMAPHORE",))
     if not grants:
         return Result(Verdict.NOT_PROVEN, ("no memory grant rows were supplied",))
+
+    if (
+        not _positive_int(semaphore.pool_id)
+        or not _nonnegative_int(semaphore.resource_semaphore_id)
+        or not _nonnegative_int(semaphore.grantee_count)
+        or not _nonnegative_int(semaphore.waiter_count)
+        or not _valid_timestamp(semaphore.captured_at)
+    ):
+        return Result(Verdict.FAIL, ("resource semaphore snapshot contains invalid scalar values",))
+    if semaphore.captured_at != request.captured_at:
+        return Result(Verdict.FAIL, ("request and semaphore rows do not share one capture timestamp",))
+    if semaphore.grantee_count <= 0 or semaphore.waiter_count <= 0:
+        return Result(Verdict.NOT_PROVEN, ("resource semaphore counts do not show both grantees and waiters",))
 
     for grant in grants:
         if (
@@ -116,6 +141,10 @@ def evaluate_grant_wait(
     if len(matching) != 1:
         return Result(Verdict.FAIL, ("request must bind to exactly one grant row by session and request ID",))
     waiting = matching[0]
+    if (semaphore.pool_id, semaphore.resource_semaphore_id) != (
+        waiting.pool_id, waiting.resource_semaphore_id
+    ):
+        return Result(Verdict.FAIL, ("resource semaphore does not match the waiting request grant",))
     if waiting.grant_time is not None or waiting.granted_memory_kb not in (None, 0):
         return Result(Verdict.FAIL, ("matching request is already granted",))
     if waiting.wait_time_ms is None or waiting.wait_time_ms <= 0:
