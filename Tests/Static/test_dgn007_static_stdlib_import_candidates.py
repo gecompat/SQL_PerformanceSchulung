@@ -150,6 +150,100 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_call_closure_follows_called_local_functions_only(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from __future__ import annotations\n"
+                b"import sys\n"
+                b"def boot(annotation: annotation_helper() = None):\n"
+                b"    from . import called\n    helper()\n"
+                b"    if sys.platform == 'linux':\n        from . import linux_helper\n"
+                b"    if feature_flag:\n        from . import unknown_a\n"
+                b"    else:\n        from . import unknown_b\n"
+                b"    local_annotation: annotation_helper()\n"
+                b"def helper():\n    from . import nested\n"
+                b"def annotation_helper():\n    from . import annotation_only\n"
+                b"def unused():\n    from . import unused_only\n"
+                b"if sys.platform == 'linux':\n"
+                b"    def block_boot():\n        from . import block_helper\n"
+                b"else:\n    def block_boot():\n        from . import block_wrong\n"
+                b"if feature_flag:\n"
+                b"    def branch_boot():\n        from . import branch_left\n"
+                b"else:\n    def branch_boot():\n        from . import branch_right\n"
+                b"class Local:\n"
+                b"    class_annotation: annotation_helper()\n"
+                b"    def class_boot():\n        from . import class_helper\n"
+                b"    class_boot()\n"
+                b"def lambda_helper():\n    from . import lambda_only\n"
+                b"lambda_value = lambda value=lambda_helper(): value\n"
+                b"def nested_outer():\n"
+                b"    def nested_helper():\n        from . import nested_closure\n"
+                b"    def nested_inner():\n        nested_helper()\n"
+                b"    nested_inner()\n"
+                b"module_annotation: annotation_helper()\n"
+                b"block_boot()\n"
+                b"branch_boot()\n"
+                b"nested_outer()\n"
+                b"boot()\n"
+            ),
+            "pkg/called.py": b"VALUE = 1\n",
+            "pkg/linux_helper.py": b"VALUE = 2\n",
+            "pkg/unknown_a.py": b"VALUE = 3\n",
+            "pkg/unknown_b.py": b"VALUE = 4\n",
+            "pkg/nested.py": b"VALUE = 5\n",
+            "pkg/block_helper.py": b"VALUE = 8\n",
+            "pkg/block_wrong.py": b"VALUE = 11\n",
+            "pkg/branch_left.py": b"VALUE = 12\n",
+            "pkg/branch_right.py": b"VALUE = 13\n",
+            "pkg/class_helper.py": b"VALUE = 9\n",
+            "pkg/lambda_only.py": b"VALUE = 10\n",
+            "pkg/nested_closure.py": b"VALUE = 14\n",
+            "pkg/annotation_only.py": b"VALUE = 7\n",
+            "pkg/unused_only.py": b"VALUE = 6\n",
+        }
+        modules, edges, function_count, digest, conditions = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules,
+            ("pkg", "pkg.block_helper", "pkg.branch_left", "pkg.branch_right", "pkg.called",
+             "pkg.class_helper", "pkg.lambda_only", "pkg.linux_helper", "pkg.nested",
+             "pkg.nested_closure", "pkg.unknown_a", "pkg.unknown_b"),
+        )
+        self.assertEqual(edges, 22)
+        self.assertEqual(function_count, 10)
+        self.assertEqual(len(digest), 64)
+        self.assertEqual(conditions, {"resolved": 2, "unknown": 2})
+
+    def test_function_local_annotations_are_not_evaluated_without_future_import(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def boot():\n    local_value: annotation_helper()\n"
+                b"    from . import called\n"
+                b"def annotation_helper():\n    from . import annotation_only\n"
+                b"boot()\n"
+            ),
+            "pkg/called.py": b"VALUE = 1\n",
+            "pkg/annotation_only.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(files, ("pkg",))
+        self.assertEqual(modules, ("pkg", "pkg.called"))
+        self.assertEqual(function_count, 1)
+
+    def test_class_annotations_are_evaluated_inside_called_function(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def define_class():\n"
+                b"    class Local:\n        class_value: annotation_helper()\n"
+                b"def annotation_helper():\n    from . import annotation_only\n"
+                b"define_class()\n"
+            ),
+            "pkg/annotation_only.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(files, ("pkg",))
+        self.assertEqual(modules, ("pkg", "pkg.annotation_only"))
+        self.assertEqual(function_count, 2)
+
     def test_unresolvable_dynamic_import_is_not_claimed(self):
         files = {"entry.py": b"import importlib\n\ndef load(name):\n    return importlib.import_module(name)\n"}
         modules, _, _ = SUBJECT._candidate_closure(files, ("entry",))
