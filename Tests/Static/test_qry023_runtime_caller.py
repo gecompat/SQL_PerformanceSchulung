@@ -85,6 +85,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("@file_count NOT BETWEEN 2 AND 16", sql)
         self.assertIn("DECLARE @max_file_mib int = 1024 / @file_count", sql)
         self.assertIn("FILEGROWTH = 64MB", sql)
+        self.assertIn("IF EXISTS (\n    SELECT 1 FROM tempdb.sys.database_files\n    WHERE max_size <> @max_file_mib * 128", sql)
         self.assertIn("IF @total_max_mib > 1024", sql)
 
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:

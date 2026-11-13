@@ -28,8 +28,10 @@ SELECT @configure = STRING_AGG(
 FROM tempdb.sys.database_files;
 EXEC sys.sp_executesql @configure;
 
-IF (SELECT COUNT(*) FROM tempdb.sys.database_files
-    WHERE max_size <> @max_file_mib * 128 OR growth <> 8192 OR is_percent_growth <> 0) <> @file_count
+IF EXISTS (
+    SELECT 1 FROM tempdb.sys.database_files
+    WHERE max_size <> @max_file_mib * 128 OR growth <> 8192 OR is_percent_growth <> 0
+)
 BEGIN
     SELECT CONCAT(N'QRY023_TEMPDB_GUARD|DIAG|file_id=', file_id,
         N';type=', type, N';size_pages=', size, N';max_size_pages=', max_size,
