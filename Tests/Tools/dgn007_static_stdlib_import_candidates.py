@@ -1199,6 +1199,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         return has_load and not has_local_binding
 
     def visit(node, active_functions, in_function=False, function_scope=None):
+        nonlocal imported_class_methods
         if function_scope is None:
             function_scope = module_functions
         if isinstance(node, ast.Lambda):
@@ -1228,8 +1229,34 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             class_scope = class_scope_functions(node.body, active_functions)
             for expression in (*node.decorator_list, *node.bases, *(kw.value for kw in node.keywords)):
                 yield from visit(expression, active_functions, in_function, function_scope)
+            scoped_alias_tree = ast.Module(body=node.body, type_ignores=[])
+            scoped_class_aliases = _top_level_local_class_alias_index(
+                scoped_alias_tree, imported_class_methods or {}
+            )
+            scoped_method_aliases = {}
+            for alias, sources in scoped_class_aliases.items():
+                targets = {}
+                for source_name in sources:
+                    for method_name, entries in (imported_class_methods or {}).get(
+                        source_name, {}
+                    ).items():
+                        bucket = targets.setdefault(method_name, [])
+                        for entry in entries:
+                            if entry not in bucket:
+                                bucket.append(entry)
+                if targets:
+                    scoped_method_aliases[alias] = {
+                        name: tuple(entries) for name, entries in targets.items()
+                    }
+            original_imported_class_methods = imported_class_methods
+            if scoped_method_aliases:
+                imported_class_methods = {
+                    **(original_imported_class_methods or {}),
+                    **scoped_method_aliases,
+                }
             for statement in node.body:
                 yield from visit(statement, class_scope, False, function_scope)
+            imported_class_methods = original_imported_class_methods
             return
         if isinstance(node, ast.GeneratorExp):
             # A generator may be consumed during initialization (for example
@@ -1622,7 +1649,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_SCOPE_IMPORTED_CLASS_ALIASES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

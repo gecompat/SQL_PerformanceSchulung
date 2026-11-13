@@ -9071,3 +9071,17 @@ Archivs bleibt bei 93 Modulen, 578 Kanten, 534 Funktionen, 22 entschiedenen und
 `CANDIDATES_ONLY`: keine vollständige Closure/P11-Inventur und keine
 Interpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung. S15-/P11-
 Sollinventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 – Klassenscope-Aliase importierter Klassen
+
+Der statische Kandidatenfolger berücksichtigt jetzt auch direkte Aliase bereits
+bekannter importierter Klassen im unmittelbar ausgeführten Klassenkörper samt
+einfachen Aliasverkettungen. Zwei neue synthetische Regressionen erweitern den
+fokussierten Satz auf 83/83 PASS. Der SHA-gebundene CPython-3.12.16-Scan bleibt
+bei 93 Modulen, 578 Kanten, 534 Funktionen, 22 entschiedenen und 1.605
+unbekannten Bedingungen; der Zeilendigest bleibt
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+`CANDIDATES_ONLY`: kein vollständiger Aufrufgraph oder P11-Soll. Verschachtelte
+Scopeübertritte, Factory-Rückgaben, Zielruntime, Profil, Worker und SQL bleiben
+ungeprüft; die Generalprobe bleibt ausgeschlossen. Operative S15-/P11-
+Sollinventur und Fünf-Formen-/64-KiB-Gate sind weiterhin offen.
