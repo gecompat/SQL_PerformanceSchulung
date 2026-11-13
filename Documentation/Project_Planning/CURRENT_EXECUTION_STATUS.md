@@ -8606,7 +8606,10 @@ aus; Containerentfernung folgt nur nach dessen Bestätigung. Der Nachweis zeigt
 nicht, ob die Anfrage serverseitig abgebrochen oder bis zum natürlichen Ende
 der `WAITFOR`-Dauer ausgeführt wurde. Allgemeine Prozessbaum- und
 Serverabbruchsemantik bleiben offen. Die PR-Gates bestanden; der unabhängige
-Methoden-/Code-Nachreview und die Integration sind noch offen. QRY-023 bleibt
-`PROPOSED`, nicht katalogisiert und `runtime_authorized: false`. Die
-Produkt-/Katalogabnahme bleibt getrennt; die menschliche Generalprobe bleibt
-ausdrücklich ausgeschlossen.
+Methoden-/Code-Nachreview bestätigte den Fix der abschließenden Logauswahl ohne
+neue P1/P2. PR #590 wurde am 2026-11-13 per Squash als
+`7e9653fed06b5ae1e53cffdeef64edbb43340f12` integriert; `main` ist mit
+`origin/main` synchron und der Arbeitsbaum sauber. QRY-023 bleibt `PROPOSED`,
+nicht katalogisiert und `runtime_authorized: false`. Die Produkt-/Katalogabnahme
+bleibt getrennt; die menschliche Generalprobe bleibt ausdrücklich
+ausgeschlossen.
