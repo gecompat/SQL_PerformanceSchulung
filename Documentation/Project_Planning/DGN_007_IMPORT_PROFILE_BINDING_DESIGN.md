@@ -1650,11 +1650,15 @@ angepasster Locator belegen diesen neuen Fit nicht. Überlauf bleibt Ablehnung.
 
 ### 16.2 Importneutraler Bootstrap und tatsächlich gehaltene Kontrollbytes
 
-§8 bleibt verbindlich: der absolute Scriptstart verwendet `-I -S -B`, die fünf
-direkten Stdlibimports `importlib.util`, `sys`, `sysconfig`, `json`, `struct`
-und ausschließlich die Controls `__main__`, `dgn007_import_runtime_profile`.
-Receiver, geschlossene Formprüfung und Reporter werden als zu implementierende
-Inlinevariante im Script gewählt. Vor PRE_IMPORT werden keine Combined-, Codec-,
+§8 bleibt verbindlich: der absolute Scriptstart verwendet `-I -S -B` und
+ausschließlich die Controls `__main__`, `dgn007_import_runtime_profile`.
+Der bisherige Kontrollquellenvorschnitt hat fünf direkte Stdlibimports
+`importlib.util`, `sys`, `sysconfig`, `json`, `struct`. Die additive
+Größenroute aus §19.14 fügt genau `zlib` hinzu, um die gehaltenen Profilbytes
+unter dem Scriptcap zu transportieren; es werden keine anderen direkten
+Imports oder Projektadapter freigegeben. Receiver, geschlossene Formprüfung
+und Reporter werden als zu implementierende Inlinevariante im Script gewählt.
+Vor PRE_IMPORT werden keine Combined-, Codec-,
 Matcher-, Input82-, Bundle- oder sonstigen Projektadaptermodule importiert.
 Die vorhandenen APIs dienen kontrollseitig als Konformitätsreferenz;
 ihre Semantik gilt nicht automatisch als im Inlinecode umgesetzt.
@@ -2443,10 +2447,13 @@ noch separat zu binden und zu reviewen.
 
 ### 19.11 Statische Kandidatenclosure der festen Importwurzeln
 
-Als rein lesender weiterer Vorschnitt wurden die fünf festgelegten direkten
-Bootstrapimports aus §16.2 und die acht direkten Standardbibliotheksimporte
-der bestehenden Profilkontrollquelle `Tests/Tools/dgn007_import_runtime_profile.py`
-als elf eindeutige Wurzeln angesetzt. Auf dem signaturgeprüften CPython-3.12.16-
+Als rein lesender weiterer Vorschnitt wurden die fünf ursprünglich festgelegten
+direkten Bootstrapimports aus §16.2, die zusätzliche Größenroutenwurzel `zlib`
+und die acht direkten Standardbibliotheksimporte der bestehenden
+Profilkontrollquelle `Tests/Tools/dgn007_import_runtime_profile.py` als zwölf
+eindeutige Wurzeln angesetzt. `zlib` hat in `Lib/` keine Quellpartnerdatei und
+bleibt als Extensionkandidat in der getrennten Buildauswahl aus §19.9.
+Auf dem signaturgeprüften CPython-3.12.16-
 Quellarchiv wurden ausschließlich AST-Importdeklarationen auf Modulebene
 rekursiv verfolgt. Funktions-, Async-Funktions- und Klassenkörper wurden nicht
 als ausgeführt angenommen; alle auf Modulebene sichtbaren Zweige wurden
@@ -2526,6 +2533,47 @@ späteren tatsächlichen Wert von `sys.executable`, dessen physisches Target,
 Prefixfelder oder Startupflags. Diese S15-Werte müssen bei der endgültigen
 Vorwahl separat an den festen Aufruf gebunden und vor der einzigen operativen
 Aufnahme unabhängig geprüft werden.
+
+### 19.14 Scriptcapfehler mit vollständigen Profilkontrollbytes
+
+Die vollständigen Bytes der aktuellen Profilkontrollquelle aus
+`Tests/Tools/dgn007_import_runtime_profile.py` sind 44.542 Bytes mit SHA-256
+`c920bd0fff6376ad23eba75a0589962f876fbf0a47bcb2bc5a917229f1f9a760`. Der
+bisherige unkomprimierte SESSION_END-Builder erzeugt damit 146.775 Scriptbytes
+und überschreitet `MAX_SCRIPT_BYTES=131072` um 15.703 Bytes. Die vorherigen
+synthetischen Tests verwendeten kleinere Rohfixtures und deckten diesen
+Größenfehler nicht ab.
+
+Der additive `build_compressed_inline_session_end_control_bootstrap` hält
+dieselben vollständigen Profilrohbytes als zlib-Strom im generierten Script.
+Der Kindbootstrap begrenzt `decompressobj.decompress` auf 131.073 Outputbytes,
+verlangt die vorgewählte Rohgröße, vollständiges Streamende und leere Rest-/
+Zusatzdaten; Fehler werden zu `None` und später zum festen
+`CONTROL_SOURCE_LIMIT`. Der anschließende Dateiread wird weiterhin bytegenau
+mit den rekonstruierten Rohbytes verglichen, bevor Specanlage, Compile oder
+Kontrollausführung erfolgt. Frühere Fünf-Import-Builderbytes bleiben erhalten;
+die neue Route hat `zlib` als sechsten direkten Import und erhöht den
+vorab zu wählenden P11-Umfang um diesen Extensionkandidaten. OCI-Layer 6
+enthält `/usr/local/lib/python3.12/lib-dynload/zlib.cpython-312-x86_64-linux-gnu.so`
+mit Modus `0755`, 164.424 Bytes und SHA-256
+`db27b566d290d390647a8152bb60f96af080c66016d1631d473c1758b8e3b6cb`. Das bindet
+die installierte Extensiondatei, nicht deren spätere ModuleSpec, Loader oder
+tatsächlich geladene Bytes.
+
+Für die aktuelle vollständige Kontrollquelle komprimieren 44.542 Rohbytes zu
+10.016 Bytes; das gehaltene Script ist 129.688 Bytes mit SHA-256
+`bc7492a68b3103cf055868cbdce04d20644934784c4f088c6f4851cd5465f0e8` und
+bleibt 1.384 Bytes unter dem Cap. Der getrennt gehaltene Kandidat liegt lokal
+außerhalb des Repositories. Die synthetischen Source-Tests bestehen mit
+463/463 Fällen; zusätzlich wurde die echte Kontrollquelldatei ausschließlich
+komprimiert, per AST geprüft und bytegenau zurückdekomprimiert, nicht
+ausgeführt.
+
+Dies behebt nur den Scriptgrößenfehler für diese Quellbytes. Das komprimierte
+Script und der zlib-Import benötigen weiterhin unabhängiges Quellen-/Aufruf-
+Review, vollständige neue S15-/P11-Sollrecords, alle fünf Formen, gemeinsames
+64-KiB-Gate sowie eine separate operative Auswahl. Keine Profilaufnahme,
+Worker-, SQL- oder Generalprobe fand statt.
 
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 

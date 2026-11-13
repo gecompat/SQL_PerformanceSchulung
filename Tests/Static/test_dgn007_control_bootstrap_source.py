@@ -14,6 +14,7 @@ import tempfile
 from types import FunctionType, ModuleType
 import unittest
 from unittest.mock import patch
+import zlib
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Tools"))
 import dgn007_control_bootstrap_source as subject
@@ -146,6 +147,7 @@ class Run:
         selected_imports = {
             "importlib.util": fake_importlib, "sys": self.fake_sys,
             "sysconfig": selected_sysconfig, "json": json, "struct": struct,
+            "zlib": zlib,
         }
 
         def fixed_import(name, globals=None, locals=None, fromlist=(), level=0):
@@ -316,6 +318,63 @@ class ControlBootstrapTests(unittest.TestCase):
                   if type(node) is ast.Assign and type(node.value) is ast.Constant}
         self.assertEqual(values["_EXPECTED_PROFILE_RAW"], raw)
         self.assertEqual(values["_PROFILE_FILE"], locator)
+
+    def test_compressed_session_source_fits_actual_control_and_roundtrips(self):
+        actual = (Path(__file__).resolve().parents[1] / "Tools"
+                  / "dgn007_import_runtime_profile.py").read_bytes()
+        result = subject.build_compressed_inline_session_end_control_bootstrap(
+            actual, logical_profile="/usr/local/lib/python3.12/dgn007_import_runtime_profile.py",
+            expected_soabi="cpython-312-x86_64-linux-gnu",
+            expected_destshared="/usr/local/lib/python3.12/lib-dynload")
+        self.assertLessEqual(result.source_size, subject.MAX_SCRIPT_BYTES)
+        self.assertEqual(result.source_size, len(result.source))
+        self.assertEqual(result.profile_raw, actual)
+        self.assertEqual(result.profile_sha256, hashlib.sha256(actual).hexdigest())
+        tree = ast.parse(result.source)
+        values = {node.targets[0].id: ast.literal_eval(node.value) for node in tree.body
+                  if type(node) is ast.Assign and len(node.targets) == 1
+                  and type(node.targets[0]) is ast.Name
+                  and type(node.value) is ast.Constant}
+        self.assertEqual(zlib.decompress(values["_EXPECTED_PROFILE_PACKED"]), actual)
+        self.assertEqual(values["_EXPECTED_PROFILE_SIZE"], len(actual))
+        self.assertEqual([alias.name for node in tree.body if type(node) is ast.Import
+                          for alias in node.names],
+                         ["importlib.util", "sys", "sysconfig", "json", "struct", "zlib"])
+        self.assertFalse(any(type(node) is ast.ImportFrom for node in tree.body))
+        self.assertFalse(result.runtime_attested)
+        self.assertFalse(result.trust_attested)
+        self.assertFalse(result.import_used_bytes_attested)
+        self.assertFalse(result.method_approved)
+
+    def test_compressed_session_source_executes_only_exact_synthetic_bytes(self):
+        actual = RAW + b"import sys\nSYNTHETIC_SYS = sys\n"
+        selected = subject.build_compressed_inline_session_end_control_bootstrap(
+            actual, logical_profile=LOCATOR, expected_soabi=SOABI,
+            expected_destshared=DESTSHARED)
+        run = Run(actual, config=True)
+        status, issue, module = run.execute(selected=selected)
+        self.assertEqual((status, issue), ("LOADED_BOUND_CONTROL_SOURCE", "NONE"))
+        self.assertEqual(module.SYNTHETIC_VALUE, 7)
+        self.assertIs(module.SYNTHETIC_SYS, run.fake_sys)
+        self.assertEqual(run.compile_calls[0][0], run.read_object)
+        self.assertEqual(run.reads, [131073])
+
+    def test_compressed_session_source_rejects_corrupt_stream_silently(self):
+        selected = subject.build_compressed_inline_session_end_control_bootstrap(
+            RAW, logical_profile=LOCATOR, expected_soabi=SOABI,
+            expected_destshared=DESTSHARED)
+        packed = zlib.compress(RAW, level=9)
+        corrupted = selected.source.replace(repr(packed).encode("ascii"),
+                                            repr(packed[:-1]).encode("ascii"), 1)
+        self.assertNotEqual(corrupted, selected.source)
+        bad = subject.BootstrapSource(
+            corrupted, RAW, LOCATOR, hashlib.sha256(corrupted).hexdigest(),
+            selected.profile_sha256, len(corrupted))
+        run = Run(RAW, config=True)
+        result = run.execute(selected=bad)
+        self.assertEqual(result[:2], ("REJECTED_CONTROL_SOURCE", "CONTROL_SOURCE_LIMIT"))
+        self.assertIsNone(result[2])
+        self.assertEqual(run.compile_calls, [])
 
     def test_actual_received_bytes_and_same_compile_code_execute(self):
         run = Run(RAW + b"import sys\nSYNTHETIC_SYS = sys\n")

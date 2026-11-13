@@ -6,6 +6,7 @@ synthetische Tests prüfen seinen einzelnen Read-/Compile-/Exec-Vorschnitt.
 """
 from dataclasses import dataclass, field
 import hashlib
+import zlib
 
 MAX_PROFILE_BYTES = 131072
 MAX_SCRIPT_BYTES = 131072
@@ -2424,6 +2425,52 @@ def build_inline_session_end_control_bootstrap(profile_raw, *, logical_profile,
     old = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
     _need(text.count(old) == 1, "TEMPLATE_FORM")
     text = text.replace(old, '\n' + _INLINE_SESSION_END_MATCH + old, 1)
+    source = text.encode("utf-8", "strict")
+    _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
+    return BootstrapSource(source, profile_raw, logical_profile,
+                           hashlib.sha256(source).hexdigest(),
+                           hashlib.sha256(profile_raw).hexdigest(), len(source))
+
+
+def build_compressed_inline_session_end_control_bootstrap(
+        profile_raw, *, logical_profile, expected_soabi, expected_destshared) -> BootstrapSource:
+    """Additive bounded source route for complete controls that exceed the literal cap."""
+    _need(type(profile_raw) is bytes, "PROFILE_TYPE")
+    _need(0 < len(profile_raw) <= MAX_PROFILE_BYTES, "PROFILE_SIZE")
+    selected = build_inline_session_end_control_bootstrap(
+        b"x", logical_profile=logical_profile, expected_soabi=expected_soabi,
+        expected_destshared=expected_destshared)
+    text = selected.source.decode("utf-8", "strict")
+    old_raw = "_EXPECTED_PROFILE_RAW = b'x'"
+    _need(text.count(old_raw) == 1, "TEMPLATE_FORM")
+    text = text.replace(
+        old_raw,
+        "_EXPECTED_PROFILE_PACKED = " + repr(zlib.compress(profile_raw, level=9))
+        + "\n_EXPECTED_PROFILE_SIZE = " + str(len(profile_raw)), 1)
+    old_import = "import struct\n"
+    _need(text.count(old_import) == 1, "TEMPLATE_FORM")
+    text = text.replace(old_import, old_import + "import zlib\n", 1)
+    old_main = '\nif __name__ == "__main__":\n    _CONTROL_RESULT = _load_bound_control()\n'
+    _need(text.count(old_main) == 1, "TEMPLATE_FORM")
+    decoder = '''
+def _unpack_expected_profile():
+    try:
+        if type(_EXPECTED_PROFILE_PACKED) is not bytes or type(_EXPECTED_PROFILE_SIZE) is not int:
+            return None
+        inflater = zlib.decompressobj()
+        raw = inflater.decompress(_EXPECTED_PROFILE_PACKED, _SOURCE_CAP + 1)
+        if (type(raw) is not bytes or len(raw) != _EXPECTED_PROFILE_SIZE
+                or len(raw) > _SOURCE_CAP or inflater.eof is not True
+                or inflater.unused_data != b"" or inflater.unconsumed_tail != b""):
+            return None
+        return raw
+    except BaseException:
+        return None
+
+
+_EXPECTED_PROFILE_RAW = _unpack_expected_profile()
+'''
+    text = text.replace(old_main, decoder + old_main, 1)
     source = text.encode("utf-8", "strict")
     _need(len(source) <= MAX_SCRIPT_BYTES, "SCRIPT_LIMIT")
     return BootstrapSource(source, profile_raw, logical_profile,
