@@ -1508,6 +1508,10 @@ PR #579 bestand auf SQL Server 2019/2022/2025: der direkte `DENY VIEW ANY
 DATABASE` wurde als alleinige `SERVER_PERMISSION`-Abweichung abgewiesen,
 owner-gebunden widerrufen und verifiziert; danach bestand der positive
 Zehnphasenlauf. PR #580 prüft nun den direkten `DENY CONNECT SQL` an `READER`.
+Der erste Matrixlauf erkannte den DENY korrekt, aber der Restore widerrief auch
+das bestehende erlaubte `GRANT CONNECT SQL`; daher fiel der anschließende
+positive Reader-Preflight aus. Der Restore wurde auf die ursprüngliche GRANT-
+Baseline präzisiert; die Matrix wird erneut ausgeführt.
 
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.

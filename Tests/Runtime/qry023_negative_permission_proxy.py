@@ -81,6 +81,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
         )
     if mode == "CONNECT_SQL_DENY":
         return (
+            "DECLARE @reader_id int=SUSER_ID(N'READER'); "
+            "IF @reader_id IS NULL OR NOT EXISTS (SELECT 1 FROM master.sys.server_permissions "
+            "WHERE grantee_principal_id=@reader_id AND class_desc=N'SERVER' "
+            "AND permission_name=N'CONNECT SQL' AND state=N'G') "
+            "THROW 51038,'QRY-023 CONNECT SQL DENY requires its granted baseline.',1; "
             "DENY CONNECT SQL TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED",
         )

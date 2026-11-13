@@ -170,7 +170,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertEqual(view_any_database_deny_sql, "DENY VIEW ANY DATABASE TO [READER];\n")
         self.assertEqual(view_any_database_deny_marker, "QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED")
         connect_sql_deny, connect_sql_deny_marker = negative_proxy.injection_for_mode("CONNECT_SQL_DENY")
-        self.assertEqual(connect_sql_deny, "DENY CONNECT SQL TO [READER];\n")
+        self.assertIn("permission_name=N'CONNECT SQL' AND state=N'G'", connect_sql_deny)
+        self.assertIn("DENY CONNECT SQL TO [READER]", connect_sql_deny)
         self.assertEqual(connect_sql_deny_marker, "QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED")
         database_sql, database_marker = negative_proxy.injection_for_mode("DATABASE_PERMISSION")
         self.assertEqual(database_sql, "GRANT VIEW DEFINITION TO [READER];\n")
@@ -303,7 +304,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
              contextlib.redirect_stdout(output):
             self.assertEqual(negative_proxy.main(), 0)
         self.assertEqual(run.call_args.args[0][run.call_args.args[0].index("-d") + 1], "master")
-        self.assertEqual(run.call_args.kwargs["input"], "DENY CONNECT SQL TO [READER];\n")
+        self.assertIn("DENY CONNECT SQL TO [READER];\n", run.call_args.kwargs["input"])
         self.assertIn("QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED", output.getvalue())
 
     def test_negative_database_permission_uses_bound_target_context(self) -> None:
@@ -497,6 +498,20 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED", workflow)
         self.assertIn("QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED", workflow)
         self.assertIn("REVOKE CONNECT SQL FROM [READER]", workflow)
+        self.assertIn("GRANT CONNECT SQL TO [READER]", workflow)
+        self.assertIn("IF @had_deny=1 AND NOT EXISTS", workflow)
+        connect_sql_deny_case = workflow[
+            workflow.index("Prove the permission inventory rejects direct READER CONNECT SQL DENY"):
+            workflow.index("Restore direct READER CONNECT SQL baseline")
+        ]
+        self.assertLess(
+            connect_sql_deny_case.index("QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED"),
+            connect_sql_deny_case.index("QRY023_CONNECT_SQL_DENY_ATTEMPTED=1"),
+        )
+        self.assertLess(
+            connect_sql_deny_case.index("QRY023_CONNECT_SQL_DENY_ATTEMPTED=1"),
+            connect_sql_deny_case.index('[[ "$result" == 2 ]]'),
+        )
         self.assertIn("REVOKE VIEW ANY DATABASE FROM [READER]", workflow)
         self.assertLess(
             workflow.index("Prove the permission inventory rejects direct READER VIEW ANY DATABASE"),
