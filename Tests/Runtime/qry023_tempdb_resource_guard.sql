@@ -30,7 +30,16 @@ EXEC sys.sp_executesql @configure;
 
 IF (SELECT COUNT(*) FROM tempdb.sys.database_files
     WHERE max_size <> @max_file_mib * 128 OR growth <> 8192 OR is_percent_growth <> 0) <> @file_count
+BEGIN
+    SELECT CONCAT(N'QRY023_TEMPDB_GUARD|DIAG|file_id=', file_id,
+        N';type=', type, N';size_pages=', size, N';max_size_pages=', max_size,
+        N';growth=', growth, N';is_percent_growth=', is_percent_growth,
+        N';expected_max_pages=', @max_file_mib * 128,
+        N';expected_growth_pages=8192') AS result
+    FROM tempdb.sys.database_files
+    WHERE max_size <> @max_file_mib * 128 OR growth <> 8192 OR is_percent_growth <> 0;
     THROW 51023, 'QRY-023 TempDB per-file size and growth limits were not applied.', 1;
+END;
 
 DECLARE @total_max_mib bigint = (
     SELECT SUM(CONVERT(bigint, max_size)) / 128 FROM tempdb.sys.database_files
