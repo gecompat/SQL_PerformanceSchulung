@@ -13,14 +13,22 @@ Generalprobe bleibt ausgeschlossen.
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest
 sowie alle sieben komprimierten Layerdigests/-größen und entpackten DiffIDs
-stimmen unabhängig überein. Das ergänzt die bestehende Docker-Engine-Prüfung,
-attestiert aber keine Buildherkunft. Die konkrete offene Entwicklungsarbeit
-bleibt die unabhängige Ableitung vollständiger S15-/P11-Sollrecords aus den
-gehaltenen Quellen, danach die Quellen-/Aufrufreview und erst anschließend eine
-einmalige operative Inventur mit fünf vollständigen Darstellungen und gemeinsamem
-64-KiB-Gate. Es gab in diesem Schritt keine Profilaufnahme oder Worker-/SQL-
-Ausführung; die Generalprobe bleibt ausgeschlossen. Details stehen in
-§19.3–§19.6 des [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
+stimmen unabhängig überein. Der aktuelle `buildpack-deps:bookworm`-Tag hat
+denselben vierteiligen Layer-, DiffID- und Historypräfix; seine heutige
+Auflösung beweist nicht den historischen FROM-Tagdigest. Die quellengebundene
+Feldmatrix und ein ohne Interpreterstart aus OCI-Layer 6 gelesener
+Configure-Abgleich binden 22 Bootstrapmodule, 79 Standardbibliotheks- und
+Extensionmodule sowie 27 Builtin-Inittab-Einträge. Setup, `MODBUILT_NAMES`,
+Inittab und 79 ABI-markierte Dateien stimmen vollständig überein; diese
+Buildoutputs attestieren keine unabhängige Buildherkunft und ersetzen keine
+P11-Importclosure. Buildherkunft und vollständige unabhängige S15-/P11-
+Sollrecords sind weiter offen. Nächster Gate ist die vollständige Vorwahl
+dieser Sollfelder und der Bootstrapbytes samt Quellen-/Aufrufreview;
+erst danach darf die einmalige operative Inventur mit fünf vollständigen
+Darstellungen und gemeinsamem 64-KiB-Gate folgen. Es gab in diesen Schritten
+keine Profilaufnahme oder Worker-/SQL-Ausführung; die Generalprobe bleibt
+ausgeschlossen. Details stehen in §19.3–§19.9 des
+[DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
 ## Graph Tables – Curriculum-Lernnotiz
 
