@@ -2414,6 +2414,33 @@ Pfad-/Rootfolgen, tatsächliche Bootstrap-/Profilbytes und alle fünf
 Darstellungen bleiben vor der einmaligen operativen Inventur gebunden zu
 reviewen. Keine Python-Profilaufnahme oder Worker-/SQL-Ausführung fand statt.
 
+### 19.10 Quellbyteabgleich der installierten Standardbibliothek
+
+Die `.py`-Dateien aus `/usr/local/lib/python3.12` in demselben digestgebundenen
+OCI-Layer wurden als Tarstrom gelesen und relativ zur CPython-3.12.16-
+Quellstruktur `Lib/` zugeordnet. Von 685 installierten Python-Quelldateien
+entsprachen 684 exakt derselben relativen Quelldatei im signaturgeprüften
+Archiv; jeder SHA-256 stimmte bytegenau überein. Die eine Ausnahme ist das
+generierte `_sysconfigdata__linux_x86_64-linux-gnu.py`, dessen Layerbytes und
+Hash bereits in §19.9 gebunden sind. Unter den 684 verglichenen Dateien gab es
+keine Abweichung und keinen fehlenden Quellpartner.
+
+Der reproduzierbare Aggregathash der sortierten Tupel
+`relativer Lib-Pfad<TAB>Datei-SHA256<LF>` lautet
+`f00a9ef9bd90b590ebc66f722b07dd0cbcc372281978a5994dabd152cf4d4051`.
+Die Prüfung führte weder Interpretercode noch Kandidatenmodule aus. Sie bindet
+die vorhandenen Standardbibliotheksdateien an den verifizierten Quellrelease,
+aber nicht deren tatsächliche Importauswahl, Spec-/Loaderzustand oder
+Suchpfadreihenfolge im geplanten Bootstrap.
+
+Damit sind für den ausgewählten Imagekandidaten Quellinhalt der installierten
+Standardbibliothek sowie Builtin-/Extension-Auswahl unabhängig vom laufenden
+Interpreter ermittelt. Der noch offene P11-Sollbestand muss weiterhin aus der
+konkreten gehaltenen Bootstrapquelle und einer vollständig vorab begründeten
+Importclosure entstehen. S15-Pfade, zwei Fingerprints, alle fünf Formen und
+das gemeinsame 64-KiB-Gate sind vor der einmaligen operativen Inventur ebenfalls
+noch separat zu binden und zu reviewen.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
