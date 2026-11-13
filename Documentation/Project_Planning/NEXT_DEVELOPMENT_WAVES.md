@@ -380,9 +380,11 @@ READER-Verbindung fragt selbst
 `sys.fn_my_permissions` je Endpoint ab. Exact-set-Abweichungen,
 Duplikate, Spaltenrechte, fehlende Entitynamen oder ein ungültiger Handoff
 blockieren PASS beziehungsweise den Folgeaufruf. Offlinevalidator und
-synthetische Runner-/Parserregressionen bestehen. Keine Rechtevergabe, keine
-Rechte- oder `public`-Mutation, keine SQL-/Lab-/Runtime-Ausführung und keine
-Generalprobe. Exakte Systemobjekt-Standardmenge, Ownership-Chain-Wirkung und
+synthetische Runner-/Parserregressionen bestehen; der gebundene DGN-007-
+Runner-AST-Digest wurde nach Prüfung ebenfalls für diesen gemeinsamen
+Runnerstand aktualisiert. QRY-023 selbst bleibt ohne SQL-/Lab-/Runtime-
+Ausführung und ohne Generalprobe. Keine Rechtevergabe und keine Rechte- oder
+`public`-Mutation. Exakte Systemobjekt-Standardmenge, Ownership-Chain-Wirkung und
 Enginequalifikation bleiben offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in

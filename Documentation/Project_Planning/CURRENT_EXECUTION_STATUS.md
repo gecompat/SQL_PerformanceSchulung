@@ -93,9 +93,13 @@ READER-Aufruf; READER prüft danach Endpoint-`CONNECT` selbst mit
 `sys.fn_my_permissions`. Der unabhängige Nachreview fand keine offenen P1/P2.
 QRY-Validator, synthetische Runner-/Parserregressionen, FWK-010-Validator,
 ScriptDom 150/160/170 und der geänderte-Dateien-Privacy-Scan bestehen.
-Änderungen sind noch lokal; PR-Gates stehen aus. Keine Rechtevergabe, keine
-Rechte- oder `public`-Mutation, keine SQL-/Lab-/Runtimeausführung und keine
-Generalprobe. Die offene Systemobjekt-`public`-SELECT-Standardbaseline,
+DGN-007 bindet den gemeinsamen Runner zusätzlich mit einem CPython-3.12-
+AST-Digest; nach Review wurde exakt dieser eine Digest erneuert. Die zwei
+betroffenen DGN-Offline-Gegenprobensuiten bestanden unter CPython 3.12.14.
+QRY-023 selbst wurde weiterhin weder auf SQL Server ausgeführt noch als Lab-
+oder Generalprobe gestartet. Änderungen sind noch lokal; PR-Gates stehen aus.
+Keine Rechtevergabe und keine Rechte- oder `public`-Mutation. Die offene
+Systemobjekt-`public`-SELECT-Standardbaseline,
 Ownership-Chain-Wirkung und Enginequalifikation bleiben eigenständige Gates.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine

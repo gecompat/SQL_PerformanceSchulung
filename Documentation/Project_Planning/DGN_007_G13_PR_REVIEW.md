@@ -8,6 +8,19 @@ der [aktuelle Capture-Review](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md) und
 der [Ausführungsstand](CURRENT_EXECUTION_STATUS.md). Die folgenden früheren
 FAILs bleiben FAILs; größere Provenienz-/Collectorentwürfe bleiben getrennt.
 
+## Kontrollierte Runner-Profilaktualisierung (13. November 2026)
+
+Der gemeinsame FWK-010-`run_demo.py`-Runner enthält jetzt die offline
+implementierte QRY-023-ADMIN/READER-Rechteübergabe. Der statische
+DGN-007-Kantenverifier hat diese tatsächliche Runneränderung fail-closed als
+`PYTHON_PROFILE_CHANGED` gemeldet. Nach vollständigem Runnerdiffreview wurde
+nur der an `run_demo.py` gebundene CPython-3.12-AST-Digest erneuert:
+`2a01bdfed35c4cfd1b92dc2d7e8439ebed5c60136309ecf0f30749df3bb4ce0c`.
+Die acht weiteren Ganzdatei-AST-Digests, Manifestprojektionen, Kantenliste und
+Incidentpolicy bleiben unverändert. Dies aktualisiert ausschließlich das
+statische gemeinsame-Runner-Profil; es ändert keine DGN-007-SQL- oder
+Runtimefreigabe und qualifiziert QRY-023 nicht auf einer Engine.
+
 | Merkmal | Wert |
 |---|---|
 | Stand | 2026-10-09 |
