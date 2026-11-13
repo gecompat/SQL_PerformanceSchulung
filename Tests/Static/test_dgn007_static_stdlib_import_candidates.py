@@ -437,6 +437,71 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.init_leaf"))
         self.assertEqual(function_count, 1)
 
+    def test_imported_subclass_follows_same_module_base_constructor_and_method(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import Worker as Alias\n"
+                b"Alias()\nAlias().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Base:\n"
+                b"    def __init__(self):\n        from . import init_leaf\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+                b"class Worker(Base):\n    pass\n"
+            ),
+            "pkg/init_leaf.py": b"VALUE = 1\n",
+            "pkg/method_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.helper", "pkg.init_leaf", "pkg.method_leaf")
+        )
+        self.assertEqual(function_count, 2)
+
+    def test_imported_module_subclass_follows_same_module_base_methods(self):
+        files = {
+            "pkg/__init__.py": (
+                b"import pkg.helper as helper\n"
+                b"helper.Worker()\nhelper.Worker().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Base:\n"
+                b"    def __init__(self):\n        from . import init_leaf\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+                b"class Worker(Base):\n    pass\n"
+            ),
+            "pkg/init_leaf.py": b"VALUE = 1\n",
+            "pkg/method_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.helper", "pkg.init_leaf", "pkg.method_leaf")
+        )
+        self.assertEqual(function_count, 2)
+
+    def test_imported_subclass_with_dynamic_base_does_not_guess_inherited_method(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import Worker\nWorker().run()\n"
+            ),
+            "pkg/helper.py": (
+                b"class Base:\n"
+                b"    def run(self):\n        from . import method_leaf\n"
+                b"def choose_base():\n    return Base\n"
+                b"class Worker(choose_base()):\n    pass\n"
+            ),
+            "pkg/method_leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper"))
+        self.assertEqual(function_count, 1)
+
     def test_uncalled_imported_class_method_does_not_expand_body(self):
         files = {
             "pkg/__init__.py": b"from .helper import Worker as Alias\n",
@@ -1270,7 +1335,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
