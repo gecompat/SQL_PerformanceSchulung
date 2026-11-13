@@ -386,8 +386,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects a denied READER endpoint permission"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
-        self.assertLess(workflow.index("Prove the permission inventory rejects an unregistered custom endpoint"),
-                        workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Run the full proposed FWK-010 lifecycle"),
+                        workflow.index("Prove the permission inventory rejects an unregistered custom endpoint"))
         self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
         self.assertIn("DATABASE_ROLE;", workflow)
@@ -451,7 +451,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         )
         custom_endpoint_cleanup = workflow[
             workflow.index("Remove custom endpoint after negative control"):
-            workflow.index("Prove the permission inventory rejects a missing expected object")
+            workflow.index("Remove only the owned SQL Server container")
         ]
         self.assertIn("Required custom-endpoint cleanup ownership context is unavailable.", custom_endpoint_cleanup)
         self.assertLess(

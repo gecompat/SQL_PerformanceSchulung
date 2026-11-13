@@ -509,6 +509,46 @@ jobs:
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|ENDPOINT_PERMISSION_DENY_RESTORED' <<< "$output"
           echo 'QRY023_ENDPOINT_PERMISSION_DENY_GRANTED=' >> "$GITHUB_ENV"
+      - name: Prove the permission inventory rejects a missing expected object
+        shell: bash
+        env:
+          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: MISSING_OBJECT
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-missing-object-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          [[ "$result" == 2 ]]
+          grep -F 'QRY023_NEGATIVE_PERMISSION|EXPECTED_OBJECT_REMOVED' "$log"
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'OBJECT_INVENTORY;' "$log"
+          grep -F 'CLEANUP: PASS/OK' "$log"
+          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
+            echo 'Missing-object case reached a protected query phase.' >&2
+            exit 1
+          fi
+      - name: Run the full proposed FWK-010 lifecycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-harness-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          exit "$result"
       - name: Prove the permission inventory rejects an unregistered custom endpoint
         shell: bash
         env:
@@ -560,46 +600,6 @@ jobs:
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED' <<< "$output"
           echo 'QRY023_CUSTOM_ENDPOINT_CREATED=' >> "$GITHUB_ENV"
-      - name: Prove the permission inventory rejects a missing expected object
-        shell: bash
-        env:
-          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: MISSING_OBJECT
-        run: |
-          set -euo pipefail
-          log="$RUNNER_TEMP/qry023-missing-object-${{ matrix.major }}.log"
-          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
-          set +e
-          python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
-            --server localhost --auth sql --username sa \
-            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
-            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
-          result="${PIPESTATUS[0]}"
-          set -e
-          [[ "$result" == 2 ]]
-          grep -F 'QRY023_NEGATIVE_PERMISSION|EXPECTED_OBJECT_REMOVED' "$log"
-          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
-          grep -F 'OBJECT_INVENTORY;' "$log"
-          grep -F 'CLEANUP: PASS/OK' "$log"
-          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
-            echo 'Missing-object case reached a protected query phase.' >&2
-            exit 1
-          fi
-      - name: Run the full proposed FWK-010 lifecycle
-        shell: bash
-        run: |
-          set -euo pipefail
-          log="$RUNNER_TEMP/qry023-harness-${{ matrix.major }}.log"
-          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
-          set +e
-          python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
-            --server localhost --auth sql --username sa \
-            --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
-            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
-          result="${PIPESTATUS[0]}"
-          set -e
-          exit "$result"
       - name: Remove only the owned SQL Server container
         if: always()
         shell: bash
