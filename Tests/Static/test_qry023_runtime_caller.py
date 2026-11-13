@@ -160,6 +160,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         sql, marker = negative_proxy.injection_for_mode("SERVER_PERMISSION")
         self.assertEqual(sql, "GRANT VIEW SERVER STATE TO [READER];\n")
         self.assertEqual(marker, "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED")
+        deny_sql, deny_marker = negative_proxy.injection_for_mode("SERVER_PERMISSION_DENY")
+        self.assertEqual(deny_sql, "DENY VIEW SERVER STATE TO [READER];\n")
+        self.assertEqual(deny_marker, "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_DENY_INJECTED")
 
     def test_negative_server_permission_is_injected_from_master_context(self) -> None:
         args = [
@@ -183,6 +186,29 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0][run.call_args.args[0].index("-d") + 1], "master")
         self.assertEqual(run.call_args.kwargs["input"], "GRANT VIEW SERVER STATE TO [READER];\n")
         self.assertIn("QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED", output.getvalue())
+
+    def test_negative_server_permission_deny_uses_master_context(self) -> None:
+        args = [
+            "-S", "localhost", "-d", "SQLPERF_LAB_QRY023_LOCAL", "-i",
+            str(ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/22_Admin_Permission_Inventory.sql"),
+            "-U", "sa", "-v", "DemoId=QRY-023", "RunToken=LOCAL",
+            "TargetDatabase=SQLPERF_LAB_QRY023_LOCAL", "ReaderLogin=READER",
+        ]
+        output = io.StringIO()
+        with mock.patch.dict(os.environ, {
+            "SQLPERF_SQL_CONTAINER": "synthetic-container",
+            "SQLCMDPASSWORD": "synthetic-secret",
+            "SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE": "SERVER_PERMISSION_DENY",
+        }, clear=True), \
+             mock.patch.object(negative_proxy.proxy, "_sqlcmd_path", return_value="/synthetic/sqlcmd"), \
+             mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run, \
+             mock.patch.object(negative_proxy.proxy, "main", return_value=0), \
+             mock.patch.object(sys, "argv", ["negative-proxy", *args]), \
+             contextlib.redirect_stdout(output):
+            self.assertEqual(negative_proxy.main(), 0)
+        self.assertEqual(run.call_args.args[0][run.call_args.args[0].index("-d") + 1], "master")
+        self.assertEqual(run.call_args.kwargs["input"], "DENY VIEW SERVER STATE TO [READER];\n")
+        self.assertIn("QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_DENY_INJECTED", output.getvalue())
 
     def test_qry023_timeout_after_setup_suppresses_sql_cleanup(self) -> None:
         calls: list[str] = []
@@ -237,6 +263,8 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER server permission"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
+        self.assertLess(workflow.index("Prove the permission inventory rejects a denied READER server permission"),
+                        workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertIn("Tests/Runtime/qry023_negative_permission_proxy.py", workflow)
         self.assertIn("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN", workflow)
         self.assertIn("DATABASE_ROLE;", workflow)
@@ -245,6 +273,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_ROLE", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: MISSING_OBJECT", workflow)
         self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION", workflow)
+        self.assertIn("SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: SERVER_PERMISSION_DENY", workflow)
         self.assertIn("DIRECT_DENY_INJECTED", workflow)
         self.assertIn("SERVER_ROLE_INJECTED", workflow)
         self.assertIn("EXPECTED_OBJECT_REMOVED", workflow)
@@ -260,8 +289,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
     def test_readme_distinguishes_live_and_remaining_negative_permissions(self) -> None:
         readme = (ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md").read_text(encoding="utf-8")
         self.assertIn("Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant", readme)
-        self.assertIn("`db_datareader`-Mitgliedschaft", readme)
-        self.assertIn("Weitere negative Rechtevarianten", readme)
+        self.assertIn("Mitgliedschaft in `db_datareader`", readme)
+        self.assertIn("`VIEW SERVER STATE`-Grant", readme)
+        self.assertIn("absichtlich\nbeschädigte SQL-Kataloge wurden nicht ausgeführt", readme)
         self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
 
     def test_reader_login_is_created_from_stdin_without_password_argv(self) -> None:

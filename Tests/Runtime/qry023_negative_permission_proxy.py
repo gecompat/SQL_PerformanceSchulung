@@ -64,6 +64,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "GRANT VIEW SERVER STATE TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_INJECTED",
         )
+    if mode == "SERVER_PERMISSION_DENY":
+        return (
+            "DENY VIEW SERVER STATE TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|SERVER_PERMISSION_DENY_INJECTED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
@@ -77,7 +82,7 @@ def main() -> int:
             password = os.environ.get("SQLCMDPASSWORD", "")
             if not container or not password:
                 raise ValueError("isolated container or ADMIN credential is unavailable")
-            injection_database = "master" if mode == "SERVER_PERMISSION" else target
+            injection_database = "master" if mode in {"SERVER_PERMISSION", "SERVER_PERMISSION_DENY"} else target
             command = [
                 "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", container,
                 proxy._sqlcmd_path(container), "-S", "localhost", "-d", injection_database,
