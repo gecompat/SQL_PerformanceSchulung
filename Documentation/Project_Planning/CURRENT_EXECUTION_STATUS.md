@@ -8731,3 +8731,13 @@ linux/amd64-Childmanifests; die sieben Engine-/Config-DiffIDs stimmen überein.
 Das ist keine unabhängige Buildattestation oder Profilaufnahme. Vollständige
 S15-/P11-Sollrecords, gebundene Bootstrap-/Profilbytes, Quellenherkunft und das
 Fünf-Formen-/64-KiB-Gate bleiben offen. [Detail und Quellen](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#193-offizieller-cpython-quellrelease-mit-digestgebundenem-oci-kandidaten).
+
+Ergänzend wurde das offizielle CPython-3.12.16-Quellarchiv heruntergeladen,
+seine veröffentlichte SHA-256-Summe lokal bestätigt und seine GnuPG-Signatur
+mit dem gegen Python.org und den gepinnten Dockerfile abgeglichenen
+Release-Fingerprint verifiziert. Das belegt den signierten Quellrelease,
+nicht dessen tatsächliche Verwendung im Container-Build. Die erste
+quellbezogene Sichtung benennt `getpath.py`, `sysconfig.py`, `Setup.stdlib.in`
+und `frozen.c`; buildabhängige Auswahl und komplette S15-/P11-Sollrecords sind
+weiterhin offen. Keine Quelle wurde ins Repository übernommen oder kompiliert.
+[Signatur- und Quellenbefund](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md#195-separat-verifizierter-cpython-quellrelease).
