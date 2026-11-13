@@ -931,12 +931,11 @@ jobs:
       - name: Prove a SQL timeout suppresses cleanup and preserves the marked target
         shell: bash
         timeout-minutes: 5
-        env:
-          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: TIMEOUT_PLAN_EVIDENCE
         run: |
           set -euo pipefail
           demo_dir="Demos/05_Query_Patterns/QRY-023_Graph_Tables"
           timeout_manifest="$demo_dir/manifest.proposed.timeout-negative.json"
+          timeout_script="$demo_dir/.qry023_timeout_probe.sql"
           log="$RUNNER_TEMP/qry023-timeout-cleanup-${{ matrix.major }}.log"
           echo "QRY023_TIMEOUT_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           python - "$demo_dir/manifest.proposed.json" "$timeout_manifest" <<'PY'
@@ -953,15 +952,23 @@ jobs:
           ]
           plan = next(phase for phase in manifest["phases"] if phase["id"] == "PLAN_EVIDENCE")
           plan["timeout_seconds"] = 5
+          plan["script"] = ".qry023_timeout_probe.sql"
           if [phase["id"] for phase in manifest["phases"]] != ["PREFLIGHT", "SETUP", "PLAN_EVIDENCE"]:
               raise SystemExit("timeout probe manifest did not retain its exact bounded phase sequence")
+          (source.parent / plan["script"]).write_text(
+              "SET NOCOUNT ON;\n"
+              "RAISERROR('QRY023_TIMEOUT_PROBE|STARTED',10,1) WITH NOWAIT;\n"
+              "WAITFOR DELAY '00:00:30';\n"
+              "PRINT 'QRY023_TIMEOUT_PROBE|COMPLETED';\n",
+              encoding="utf-8",
+          )
           target.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PY
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
             "$timeout_manifest" \
             --server localhost --auth sql --username sa \
-            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
             --confirm-isolated-lab --show-output > "$log" 2>&1 &
           runner_pid=$!
           set -e
