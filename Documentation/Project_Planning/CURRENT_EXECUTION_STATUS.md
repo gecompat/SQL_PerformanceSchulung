@@ -21,15 +21,19 @@ Bootstrapmodule, 79 Standardbibliotheks-/Extensionmodule sowie 27
 Builtin-Inittab-Einträge; Setup, `MODBUILT_NAMES`, Inittab und 79
 ABI-markierte Dateien stimmen vollständig überein. Zusätzlich stimmen 684 von
 684 installierten CPython-`Lib/`-Quelldateien bytegenau mit dem verifizierten
-Quellarchiv überein. Diese Imagebefunde attestieren keine Buildherkunft und
+Quellarchiv überein. Ein konservativer statischer AST-Vorschnitt verfolgt von
+den festen Bootstrap-/Profilimporten 53 Quellmodule; er ignoriert
+Funktionskörper, dynamische Imports und Loaderzustände und enthält umgekehrt
+bedingte Plattformzweige. Damit ist er weder vollständige Importclosure noch
+P11-Sollinventur. Diese Imagebefunde attestieren keine Buildherkunft und
 ersetzen keine vollständige P11-Importclosure. Buildherkunft und vollständige
 unabhängige S15-/P11-Sollrecords sind weiter offen. Nächster Gate ist die
-vollständige Vorwahl dieser Sollfelder und der Bootstrapbytes samt
+vollständige Vorwahl dieser Sollfelder und der endgültigen Bootstrapbytes samt
 Quellen-/Aufrufreview;
 erst danach darf die einmalige operative Inventur mit fünf vollständigen
 Darstellungen und gemeinsamem 64-KiB-Gate folgen. Es gab in diesen Schritten
 keine Profilaufnahme oder Worker-/SQL-Ausführung; die Generalprobe bleibt
-ausgeschlossen. Details stehen in §19.3–§19.10 des
+ausgeschlossen. Details stehen in §19.3–§19.11 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
 ## Graph Tables – Curriculum-Lernnotiz

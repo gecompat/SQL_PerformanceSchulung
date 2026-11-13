@@ -2441,6 +2441,39 @@ Importclosure entstehen. S15-Pfade, zwei Fingerprints, alle fünf Formen und
 das gemeinsame 64-KiB-Gate sind vor der einmaligen operativen Inventur ebenfalls
 noch separat zu binden und zu reviewen.
 
+### 19.11 Statische Kandidatenclosure der festen Importwurzeln
+
+Als rein lesender weiterer Vorschnitt wurden die fünf festgelegten direkten
+Bootstrapimports aus §16.2 und die acht direkten Standardbibliotheksimporte
+der bestehenden Profilkontrollquelle `Tests/Tools/dgn007_import_runtime_profile.py`
+als elf eindeutige Wurzeln angesetzt. Auf dem signaturgeprüften CPython-3.12.16-
+Quellarchiv wurden ausschließlich AST-Importdeklarationen auf Modulebene
+rekursiv verfolgt. Funktions-, Async-Funktions- und Klassenkörper wurden nicht
+als ausgeführt angenommen; alle auf Modulebene sichtbaren Zweige wurden
+konservativ berücksichtigt. Bei `from`-Imports wurden das Basismodul und ein
+Quellmodul gleichen Kindnamens berücksichtigt, sofern es in `Lib/` existiert.
+
+Der begrenzte Quelltextlauf fand 239 solche Kanten und 53 erreichbare
+`Lib/`-Quellmodule. Plattformzweige wie `ntpath` und `posixpath` bleiben dabei
+gemeinsam enthalten. Der SHA-256 der sortierten LF-Zeilen
+`Modulname<TAB>SHA256(zugeordnete Lib-Datei)<LF>` lautet
+`5e861c2a00bc4dc2dd7ccd7284d589d5b19cb5375fb25bd482dffbf3916ca553`.
+Die einzelnen Quellbytes sind bereits Teil des 684-Dateien-Abgleichs aus
+§19.10. Kein CPython-Interpreter, Profilmodul oder Kandidatenmodul wurde
+gestartet.
+
+Diese AST-Auswahl ist ausdrücklich nur ein Kandidatenfilter: sie lässt
+Importe innerhalb aufgerufener Funktionen, dynamische Imports, den konkreten
+Kontrollfluss der Zielroute sowie Builtin-/Frozen- und Loader-/Aliaszustände
+außen vor. Gleichzeitig enthält sie nicht ausgeführte Plattformzweige. Der
+Wert 53 ist deshalb weder eine P11-Erwartungsmenge noch eine operative
+Importclosure und darf keinen Sollrecord oder ein Inventurgate speisen. Er
+zeigt lediglich, dass die festen Quellwurzeln bereits eine deutlich breitere
+Quellprüfung benötigen als die historische 85-Namen-Kontrollfixture. Der
+vollständige Importumfang muss aus den endgültigen gehaltenen Bootstrapbytes,
+der begründeten Aufrufroute und unabhängig vorgewählten S15-/P11-Feldern
+abgeleitet werden.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
