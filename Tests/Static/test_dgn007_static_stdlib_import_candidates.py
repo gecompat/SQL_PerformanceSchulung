@@ -738,6 +738,52 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.leaf"))
         self.assertEqual(function_count, 2)
 
+    def test_explicit_super_class_and_receiver_follow_direct_local_base(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Base:\n"
+                b"    def load(self):\n        from . import instance_leaf\n"
+                b"    @classmethod\n"
+                b"    def cload(cls):\n        from . import class_leaf\n"
+                b"class Worker(Base):\n"
+                b"    def boot(self):\n        super(Worker, self).load()\n"
+                b"    @classmethod\n"
+                b"    def cboot(cls):\n        super(Worker, cls).cload()\n"
+                b"Worker().boot()\nWorker.cboot()\n"
+            ),
+            "pkg/instance_leaf.py": b"VALUE = 1\n",
+            "pkg/class_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.class_leaf", "pkg.instance_leaf")
+        )
+        self.assertEqual(function_count, 4)
+
+    def test_explicit_super_requires_exact_class_and_receiver_names(self):
+        for expression in (
+            "super(Other, self).load()",
+            "super(Worker, other).load()",
+        ):
+            with self.subTest(expression=expression):
+                files = {
+                    "pkg/__init__.py": (
+                        "class Base:\n"
+                        "    def load(self):\n        from . import leaf\n"
+                        "class Worker(Base):\n"
+                        f"    def boot(self):\n        {expression}\n"
+                        "Worker().boot()\n"
+                    ).encode("ascii"),
+                    "pkg/leaf.py": b"VALUE = 1\n",
+                }
+                modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+                    files, ("pkg",)
+                )
+                self.assertEqual(modules, ("pkg",))
+                self.assertEqual(function_count, 1)
+
     def test_unknown_class_definitions_keep_all_direct_super_bases(self):
         files = {
             "pkg/__init__.py": (
@@ -994,7 +1040,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_DIRECT_LOCAL_INHERITED_RECEIVER_METHODS_AND_SUPER_METHODS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_DIRECT_LOCAL_INHERITED_RECEIVER_METHODS_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)

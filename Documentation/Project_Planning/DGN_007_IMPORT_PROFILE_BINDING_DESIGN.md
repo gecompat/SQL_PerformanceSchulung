@@ -2788,13 +2788,15 @@ Modulmenge und Digest ändern sich nicht. Dynamische `globals()`-/`exec()`-
 werden; der Status bleibt `CANDIDATES_ONLY`.
 
 Für eine bereits erreichte Methode verfolgt der Scanner jetzt auch
-`super().methode()`, wenn die Methode in einer direkt benannten lokalen
-Basisklasse deklariert ist. Eine synthetische Regression prüft den Aufruf vom
-Unterklassen-Entry bis zum Import im Basismethodenrumpf. Unbekannte oder
-importierte Basen, explizite `super(T, self)`-Formen und die vollständige
-Python-MRO-Semantik werden nicht behauptet. Alternative lokale Klassendefinitionen
-mit unbekannter Bedingung behalten alle direkt benannten Basen als Kandidaten;
-eine Regression schützt beide Pfade. Der fokussierte Satz umfasst nun 55 Fälle.
+`super().methode()` oder den exakt gebundenen Ausdruck
+`super(Klasse, self/cls).methode()`, wenn die Methode in einer direkt
+benannten lokalen Basisklasse deklariert ist. Synthetische Regressionen prüfen
+Instanz- und Klassenmethoden, den Receiver-/Klassenabgleich und alternative
+lokale Klassendefinitionen in unbekannten Zweigen. Unbekannte oder importierte
+Basen, dynamische explizite Argumente und die vollständige Python-MRO-Semantik
+werden nicht behauptet. Alternative lokale Klassendefinitionen mit unbekannter
+Bedingung behalten alle direkt benannten Basen als Kandidaten. Der fokussierte
+Satz umfasst nun 58 Fälle.
 Der Archivscan bleibt ein `CANDIDATES_ONLY`-Befund; eine vollständige
 Aufrufclosure oder P11-Inventur folgt daraus nicht.
 
