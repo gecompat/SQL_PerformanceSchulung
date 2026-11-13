@@ -27,6 +27,8 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                      self.root / "Tests/Lab/performance-lab-matrix.json")
         shutil.copy2(validator.ROOT / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md",
                      self.root / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md")
+        shutil.copy2(validator.PUBLIC_SYSTEM_SELECT_BASELINE,
+                     self.root / "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json")
         framework_sql = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
         framework_sql.parent.mkdir(parents=True)
         shutil.copy2(validator.ROOT / "Demos/00_Framework/Sql/FWK_Measurement.sql", framework_sql)
@@ -78,10 +80,19 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
                             for error in self.errors()))
 
+    def test_admin_inventory_binds_only_declared_reader_database_connect_grant(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "p.class_desc='DATABASE' AND p.grantee_principal_id IN (@PublicDatabasePrincipalId,@ReaderUserId) AND p.permission_name=N'CONNECT'",
+            "p.class_desc='DATABASE' AND p.grantee_principal_id=@PublicDatabasePrincipalId AND p.permission_name=N'CONNECT'", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
     def test_admin_inventory_does_not_pass_unqualified_public_system_select(self) -> None:
         path = self.demo / "22_Admin_Permission_Inventory.sql"
         source = path.read_text(encoding="utf-8").replace(
-            "@UnqualifiedPublicSystemSelectCount>0", "@UnqualifiedPublicSystemSelectCount<0", 1)
+            "@PublicSystemSelectBaselineMismatch>0", "@PublicSystemSelectBaselineMismatch<0", 1)
         path.write_text(source, encoding="utf-8")
         self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
                             for error in self.errors()))
@@ -101,6 +112,49 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("preflight must fail closed unless the instance is empty" in error
                             for error in self.errors()))
 
+    def test_preflight_uses_supported_effective_permission_lookup(self) -> None:
+        path = self.demo / "00_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY DATABASE')",
+            "HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY DATABASE')", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("preflight must fail closed unless the instance is empty" in error
+                            for error in self.errors()))
+
+    def test_setup_requires_bounded_target_data_and_log_files(self) -> None:
+        path = self.demo / "10_Setup.sql"
+        source = path.read_text(encoding="utf-8").replace("MAXSIZE=512MB", "MAXSIZE=UNLIMITED")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("cap data plus log files at 1 GiB" in error for error in self.errors()))
+
+    def test_setup_creates_reader_user_inside_target_database(self) -> None:
+        path = self.demo / "10_Setup.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "USE '+QUOTENAME(@TargetDatabase)+N';", "")
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("inside the exact marked target database" in error for error in self.errors()))
+
+    def test_setup_grants_showplan_only_inside_the_target_database(self) -> None:
+        path = self.demo / "10_Setup.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "GRANT SHOWPLAN TO '+QUOTENAME(@ReaderLogin)+N';", "", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("inside the exact marked target database" in error for error in self.errors()))
+
+    def test_workload_requires_exact_reader_select_and_execute_grants(self) -> None:
+        path = self.demo / "20_Workload.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "GRANT SELECT ON OBJECT::dbo.OracleRelFriend TO [READER];", "", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("workload must grant READER only the exact declared" in error for error in self.errors()))
+
+    def test_reader_baseline_marks_admin_inventory_as_partial_and_unqualified(self) -> None:
+        path = self.demo / "manifest.proposed.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["reader_baseline_contract"]["implementation_status"] = "DESIGN_ONLY_NOT_IMPLEMENTED"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
     def test_reader_baseline_must_keep_single_run_database_inventory(self) -> None:
         path = self.demo / "manifest.proposed.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
@@ -114,6 +168,85 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         manifest["reader_baseline_contract"]["conditionally_tolerated_public_permissions"].append("CONTROL SERVER")
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
+
+    def test_admin_endpoint_handoff_requires_bounded_machine_records(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "PRINT CONCAT('QRY023_ENDPOINT_INVENTORY|BEGIN|',@ReaderEndpointCount);", "PRINT 'unbound';", 1
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_admin_object_inventory_binds_the_exact_name_type_set(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "(N'lab',N'MeasurementWaitSnapshot',N'U')",
+            "(N'lab',N'MeasurementRun',N'U')", 1,
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_public_system_select_baseline_is_bound_to_record_set_and_image_digests(self) -> None:
+        path = self.root / "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json"
+        artifact = validator.json.loads(path.read_text(encoding="utf-8"))
+        artifact["profiles"][0]["records"].pop()
+        path.write_text(validator.json.dumps(artifact), encoding="utf-8")
+        self.assertTrue(any("public system-object SELECT SQL Server 15 record count" in error
+                            for error in self.errors()))
+
+    def test_admin_sql_must_fail_closed_when_a_pinned_baseline_digest_changes(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "93f1b67ac741cf1c07dc3e7dccd38101deec45fb4307ab218d9ac34c9c19dbbb",
+            "0" * 64, 1,
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN SQL does not bind the exact SQL Server 15 count and digest" in error
+                            for error in self.errors()))
+
+    def test_public_system_select_allowance_requires_a_catalog_object_match(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "AND EXISTS (SELECT 1 FROM @PublicSystemSelects AS baseline",
+            "AND @PublicSystemSelectBaselineMismatch=0",
+            1,
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_reader_effective_permission_inventory_requires_server_and_database_calls(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace("sys.fn_my_permissions(NULL,N'SERVER')", "sys.fn_my_permissions(NULL,N'BROKEN')", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("READER preflight must compare exact server/database/schema/object" in error
+                            for error in self.errors()))
+
+    def test_reader_effective_permission_inventory_requires_all_custom_object_contexts(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace("(N'lab',N'USP_EndMeasurement')", "(N'lab',N'USP_BeginMeasurement')", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("READER preflight must compare exact server/database/schema/object" in error
+                            for error in self.errors()))
+
+    def test_admin_object_inventory_handoff_requires_all_expected_objects(self) -> None:
+        path = self.demo / "22_Admin_Permission_Inventory.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "IF @ObservedObjectCount<>@ExpectedObjectCount\nBEGIN\n    SET @UnexpectedCount+=1;",
+            "IF @ObservedObjectCount<>@ExpectedObjectCount\nBEGIN\n    SET @UnexpectedCount+=0;", 1,
+        )
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("ADMIN permission inventory must prove metadata visibility" in error
+                            for error in self.errors()))
+
+    def test_reader_effective_permission_inventory_fails_before_pass_on_any_mismatch(self) -> None:
+        path = self.demo / "25_Qualification_Preflight.sql"
+        source = path.read_text(encoding="utf-8").replace("@PermissionMismatchCount>0", "@PermissionMismatchCount<0", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("READER preflight must compare exact server/database/schema/object" in error
+                            for error in self.errors()))
 
     def test_reader_permission_contract_rejects_extra_database_permission(self) -> None:
         path = self.demo / "manifest.proposed.json"
@@ -195,9 +328,9 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
 
     def test_missing_required_cleanup_phase_is_rejected(self) -> None:
         path = self.demo / "manifest.proposed.json"
-        text = path.read_text(encoding="utf-8").replace('"required":true,"require_summary":true,"timeout_seconds":90',
-                                                       '"required":false,"require_summary":true,"timeout_seconds":90')
-        path.write_text(text, encoding="utf-8")
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["cleanup"]["required"] = False
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("cleanup must be required" in error for error in self.errors()))
 
     def test_phase_script_and_database_bindings_are_exact(self) -> None:
@@ -330,6 +463,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         measurement = measurement.replace("OR m.Reads IS NULL", "").replace("OR m.Writes IS NULL", "")
         path.write_text(measurement, encoding="utf-8")
         self.assertTrue(any("reject incomplete or unsuccessful" in error for error in self.errors()))
+
+    def test_paired_measurement_deltas_join_persisted_fwk_rows(self) -> None:
+        path = self.demo / "40_Measurement.sql"
+        source = path.read_text(encoding="utf-8").replace(
+            "JOIN lab.MeasurementRun AS bRun ON bRun.MeasurementRunId=b.MeasurementRunId", "", 1)
+        path.write_text(source, encoding="utf-8")
+        self.assertTrue(any("paired metric deltas must read both persisted FWK-004 MeasurementRun rows" in error
+                            for error in self.errors()))
 
 
     def test_plan_diagnostic_resets_statistics_xml_on_error(self) -> None:

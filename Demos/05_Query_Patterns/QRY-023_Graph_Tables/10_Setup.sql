@@ -25,7 +25,18 @@ IF @DemoId<>'QRY-023' OR @RunToken IS NULL OR LEN(@RunToken) NOT BETWEEN 1 AND 2
 
 IF DB_ID(@TargetDatabase) IS NULL
 BEGIN
-    SET @Sql=N'CREATE DATABASE '+QUOTENAME(@TargetDatabase)+N';';
+    DECLARE @DataDirectory nvarchar(4000),@LogDirectory nvarchar(4000),@DataPath nvarchar(4000),@LogPath nvarchar(4000);
+    SELECT @DataDirectory=LEFT(physical_name,LEN(physical_name)-CHARINDEX(N'/',REVERSE(physical_name))+1)
+    FROM sys.master_files WHERE database_id=DB_ID(N'model') AND type=0;
+    SELECT @LogDirectory=LEFT(physical_name,LEN(physical_name)-CHARINDEX(N'/',REVERSE(physical_name))+1)
+    FROM sys.master_files WHERE database_id=DB_ID(N'model') AND type=1;
+    IF @DataDirectory IS NULL OR @LogDirectory IS NULL
+        THROW 51006,'FAIL_RESOURCE: SQL-Server-Standardpfade für begrenzte QRY-023-Dateien sind nicht nachweisbar.',1;
+    SET @DataPath=@DataDirectory+@TargetDatabase+N'.mdf';
+    SET @LogPath=@LogDirectory+@TargetDatabase+N'_log.ldf';
+    SET @Sql=N'CREATE DATABASE '+QUOTENAME(@TargetDatabase)+N'
+ON PRIMARY (NAME='+QUOTENAME(@TargetDatabase)+N',FILENAME=N'''+REPLACE(@DataPath,N'''',N'''''')+N''',SIZE=8MB,MAXSIZE=512MB,FILEGROWTH=64MB)
+LOG ON (NAME='+QUOTENAME(@TargetDatabase+N'_log')+N',FILENAME=N'''+REPLACE(@LogPath,N'''',N'''''')+N''',SIZE=8MB,MAXSIZE=512MB,FILEGROWTH=64MB);';
     EXEC sys.sp_executesql @Sql;
     SET @Created=1;
 END;
@@ -81,7 +92,8 @@ EXEC sys.sp_executesql @Sql,N'@LoginSid varbinary(85),@UserSid varbinary(85) OUT
      @LoginSid=@ReaderSid,@UserSid=@ReaderUserSid OUTPUT,@UserName=@ReaderUserName OUTPUT;
 IF @ReaderUserSid IS NULL
 BEGIN
-    SET @Sql=N'IF EXISTS(SELECT 1 FROM '+QUOTENAME(@TargetDatabase)+N'.sys.database_principals WHERE name=@LoginName)
+    SET @Sql=N'USE '+QUOTENAME(@TargetDatabase)+N';
+        IF EXISTS(SELECT 1 FROM sys.database_principals WHERE name=@LoginName)
         THROW 51004,''FAIL_STATE: READER-Name ist bereits anders zugeordnet.'',1;
         CREATE USER '+QUOTENAME(@ReaderLogin)+N' FOR LOGIN '+QUOTENAME(@ReaderLogin)+N';';
     EXEC sys.sp_executesql @Sql,N'@LoginName sysname',@LoginName=@ReaderLogin;
@@ -89,6 +101,9 @@ BEGIN
 END;
 IF @ReaderUserName<>@ReaderLogin
     THROW 51005,'FAIL_STATE: READER-Login ist in der Zieldatenbank unter einem anderen Namen abgebildet.',1;
+
+SET @Sql=N'USE '+QUOTENAME(@TargetDatabase)+N'; GRANT SHOWPLAN TO '+QUOTENAME(@ReaderLogin)+N';';
+EXEC sys.sp_executesql @Sql;
 
 SELECT 1 AS Sequence,'SETUP' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        CONCAT(N'Database=',@TargetDatabase,N'; CompatibilityLevel=',@CompatibilityLevel,N'; Created=',@Created) AS ObservedValue,

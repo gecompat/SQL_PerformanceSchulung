@@ -13,9 +13,10 @@ acht ausführbaren T-SQL-Quelldateien je mit `TSql150Parser`, `TSql160Parser`
 und `TSql170Parser`. Damit werden die Grammatiken der drei vorgeschlagenen
 Projektprofile geprüft.
 
-Die drei SQLCMD-Variablen `$(DemoId)`, `$(RunToken)` und
-`$(TargetDatabase)` werden nur im flüchtigen Parser-Eingabetext mit
-synthetischen Werten ersetzt. Die zusätzlich benötigte SQLCMD-Direktive für
+Die fünf SQLCMD-Variablen `$(DemoId)`, `$(RunToken)`, `$(TargetDatabase)`,
+`$(BoundObjectInventory)` und `$(StandardEndpointInventory)` werden nur im flüchtigen Parser-Eingabetext mit
+synthetischen Werten ersetzt. Der Endpointwert ist ein einzelner gültiger
+ID-/UTF-16LE-Hexdatensatz und stellt keine Engineinventur dar. Die zusätzlich benötigte SQLCMD-Direktive für
 `SQLCMDMAXVARTYPEWIDTH` wird im Strukturvalidator exakt gebunden und vor dem
 T-SQL-Parsing aus dem Parser-Eingabetext entfernt; die Direktive selbst ist
 keine T-SQL-Syntax. `15_Framework.sql` ist ein SQLCMD-`:r`-Wrapper,
@@ -39,7 +40,7 @@ Ein ScriptDom-PASS belegt ausschließlich, dass der Parsertext mit diesen
 Grammatiken ohne Parserfehler verarbeitet wurde. Er beweist keine Bindung von
 Objekten, Datenbankkontext, Edition, Berechtigungen, gespeicherten
 Prozedurverträgen oder SQL-Engine-Kompilierung und keine tatsächliche
-Ausführbarkeit. SQLCMD-Expansion über die drei expliziten Platzhalter und die
+Ausführbarkeit. SQLCMD-Expansion über die vier expliziten Platzhalter und die
 separat strukturell gebundene `SQLCMDMAXVARTYPEWIDTH`-Direktive hinaus sowie
 die eingebundene Frameworkdatei sind nicht Teil dieses Grammatikdurchlaufs.
 Formale Harness-Abnahme und jede konkrete Runtimequalifikation bleiben offen.

@@ -359,15 +359,32 @@ einen PR und drei Kandidaten: Quellenregistereintrag `SRC-159` sowie die
 read-only ADMIN-Inventurimplementierung und ihre Tests für
 READER-Login-/Datenbank-SID, Server-/Datenbankrollen, explizite Grants/DENYs,
 Benutzerdatenbankbestand und Standardendpointbestand samt Offlinevalidator und
-synthetischen Abweichungsgegenproben. QRY-Validator, 93 Offline-Regressionen und ScriptDom-Parse unter
-150/160/170 bestanden; der unabhängige Nachreview fand keine offenen P1/P2.
-Weil Microsofts Beschreibung „Systemobjekt“ keine exakte Allowlist der
-`public`-SELECT-Standardmenge liefert, sperrt die Inventur solche Grants bis zu
-einer versionsgebundenen Sollmenge mit `FAIL_NOT_PROVEN`; ein PASS wird nicht
-vorgegeben. Keine Rechtevergabe, keine Rechte- oder `public`-Mutation, keine
-SQL-/Lab-/Runtimeausführung und keine Generalprobe. PR-Gates stehen aus; der
-Merge ist Checkpoint. Exakte Systemobjekt-Standardmenge, tatsächliche READER-
-`sys.fn_my_permissions`-Erfassung, Ownership-Chain-Wirkung und
+synthetischen Abweichungsgegenproben. QRY-Validator, 93 Offline-Regressionen und
+ScriptDom-Parse unter 150/160/170 bestanden; der unabhängige Nachreview fand
+keine offenen P1/P2. Weil Microsofts Beschreibung „Systemobjekt“ keine exakte
+Allowlist der `public`-SELECT-Standardmenge liefert, sperrt die Inventur solche
+expliziten Grants bis zu einer versionsgebundenen Sollmenge mit
+`FAIL_NOT_PROVEN`; ein PASS wird nicht vorgegeben. PR #561 integrierte den
+Schnitt nach acht erfolgreichen PR-Workflows als
+`eaccffcf8f306cd3b9a5c2e334e0d67e5ab80f95`.
+
+Die aktuelle Fortsetzung bleibt auf ein Arbeitspaket, einen PR und höchstens
+drei kohärente Implementierungs-/Regressionkandidaten begrenzt; `SRC-158` und
+`SRC-159` werden wiederverwendet. Die READER-Rechteprüfung erfasst Server,
+Datenbank, beide Projekt-Schemas, 13 gebundene Demo-/Frameworkobjekte sowie
+jeden ADMIN-inventarisierten Standardendpoint. ADMIN bestätigt außerdem die
+Existenz aller 13 gebundenen Objekte, einschließlich dreier für READER
+unsichtbarer interner Messobjekte. Der Caller verlangt den festen Objektmarker
+und validiert den ADMIN-Endpointhandoff vor Übergabe als SQLCMD-Variablen; die
+READER-Verbindung fragt selbst
+`sys.fn_my_permissions` je Endpoint ab. Exact-set-Abweichungen,
+Duplikate, Spaltenrechte, fehlende Entitynamen oder ein ungültiger Handoff
+blockieren PASS beziehungsweise den Folgeaufruf. Offlinevalidator und
+synthetische Runner-/Parserregressionen bestehen; der gebundene DGN-007-
+Runner-AST-Digest wurde nach Prüfung ebenfalls für diesen gemeinsamen
+Runnerstand aktualisiert. QRY-023 selbst bleibt ohne SQL-/Lab-/Runtime-
+Ausführung und ohne Generalprobe. Keine Rechtevergabe und keine Rechte- oder
+`public`-Mutation. Exakte Systemobjekt-Standardmenge, Ownership-Chain-Wirkung und
 Enginequalifikation bleiben offen.
 
 Diese Planung konkretisiert den aktiven Auftrag in
@@ -1409,3 +1426,13 @@ Demo-Stufen, Teilnehmer- und Adapter-Cleanup sowie Lab-Remove. Das belegt die
 aktuelle Linux-Providerparität, ist aber keine Szenariopromotion und keine
 vollständige Lifecycle-/Versionsmatrix. Ressourcen-, Netzwerk-, Hyper-V- und
 gemischte Topologien bleiben ohne konkreten fachlichen Bedarf gestoppt.
+
+
+### QRY-023 – Enginequalifikation und nächste Integrationsschritte
+
+Der vollständige automatisierte Harnesslauf ist auf den festgeschriebenen SQL-Server-Builds 2019/15.0.4500.2, 2022/16.0.4305.5 und 2025/17.0.5035.5 bestanden. Alle zehn Phasen (einschließlich Cleanup und Planevidenz) waren erfolgreich. Fehler aus den realen Läufen wurden in SQL, Runner-Übergabe und Regressionen behoben; die `public`-Systemobjektbaseline wurde vervollständigt. Die Laufdaten begründen keine Leistungsrangfolge. QRY-023 bleibt `PROPOSED` und außerhalb des Runtimekatalogs.
+
+Als nächste freigegebene technische Schritte: (1) den konkreten Ressourcen- und TempDB-Deckel als reproduzierbaren, projektkonformen Aufrufer integrieren, (2) den dokumentierten Enginebefund mit dem erforderlichen unabhängigen Methoden-/Code-Nachreview und den PR-CI-Gates abgleichen und (3) die bestehende Metadokumentation und Registrierungen widerspruchsfrei halten. Eine Katalogpromotion oder menschliche Generalprobe wird daraus nicht abgeleitet; die Generalprobe bleibt ausdrücklich ausgeschlossen.
+
+
+Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.

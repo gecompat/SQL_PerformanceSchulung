@@ -7,8 +7,12 @@ DECLARE @DemoId varchar(7)='$(DemoId)',@RunToken varchar(20)='$(RunToken)',@Targ
         @ReaderPrincipalId int,@ReaderSid varbinary(85),@PublicPrincipalId int,@PublicDatabasePrincipalId int,
         @ReaderUserId int,@ReaderUserSid varbinary(85),
         @Project nvarchar(max),@Contract nvarchar(max),@MarkerDemo nvarchar(max),@MarkerRun nvarchar(max),@Sql nvarchar(max),
-        @UserDatabaseCount int,@EndpointCount int,@UnqualifiedPublicSystemSelectCount int=0,
-        @Visible bit=1,@UnexpectedCount int=0;
+        @UserDatabaseCount int,@EndpointCount int,@ReaderEndpointCount int,@ExpectedObjectCount int=13,
+        @ObservedObjectCount int,@PublicSystemSelectCount int=0,
+        @PublicSystemSelectActualHash varchar(64),@PublicSystemSelectExpectedHash varchar(64),
+        @PublicSystemSelectExpectedCount int,@PublicSystemSelectCanonical nvarchar(max),
+        @PublicSystemSelectBaselineMismatch int=0,
+        @Visible bit=1,@UnexpectedCount int=0,@FailureCategories nvarchar(400)=N'';
 
 IF @DemoId<>'QRY-023' OR @TargetDatabase<>DB_NAME() OR DB_ID()<=4 OR @ReaderLogin IS NULL
     THROW 51010,'FAIL_CONTRACT: ADMIN-Inventur muss in der nichtsystemischen QRY-023-Zieldatenbank mit READER-Identität laufen.',1;
@@ -27,19 +31,19 @@ IF @Project IS NULL OR @Project COLLATE Latin1_General_100_BIN2<>N'SQL_Performan
 /* Require documented metadata-visibility authority before interpreting catalog rows as complete. */
 IF @MajorVersion>=16
 BEGIN
-    IF ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY SECURITY DEFINITION'),0)<>1
-       OR ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY DEFINITION'),0)<>1
-       OR ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW SERVER SECURITY STATE'),0)<>1
-       OR ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY DATABASE'),0)<>1
+    IF ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY SECURITY DEFINITION'),0)<>1
+       OR ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY DEFINITION'),0)<>1
+       OR ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW SERVER SECURITY STATE'),0)<>1
+       OR ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY DATABASE'),0)<>1
        OR ISNULL(HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','VIEW SECURITY DEFINITION'),0)<>1
        OR ISNULL(HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','VIEW DEFINITION'),0)<>1
         SET @Visible=0;
 END
 ELSE IF @MajorVersion=15
 BEGIN
-    IF ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY DEFINITION'),0)<>1
-       OR ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW SERVER STATE'),0)<>1
-       OR ISNULL(HAS_PERMS_BY_NAME(NULL,'SERVER','VIEW ANY DATABASE'),0)<>1
+    IF ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY DEFINITION'),0)<>1
+       OR ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW SERVER STATE'),0)<>1
+       OR ISNULL(HAS_PERMS_BY_NAME(NULL,NULL,'VIEW ANY DATABASE'),0)<>1
        OR ISNULL(HAS_PERMS_BY_NAME(DB_NAME(),'DATABASE','VIEW DEFINITION'),0)<>1
         SET @Visible=0;
 END
@@ -64,23 +68,88 @@ SELECT @ReaderUserId=principal_id,@ReaderUserSid=sid
 FROM sys.database_principals WHERE name=@ReaderLogin AND type='S';
 SELECT @UserDatabaseCount=COUNT(*) FROM master.sys.databases WHERE database_id>4;
 SELECT @EndpointCount=COUNT(*) FROM master.sys.endpoints;
-SELECT @UnqualifiedPublicSystemSelectCount=COUNT(*)
-FROM sys.database_permissions
-WHERE grantee_principal_id=@PublicDatabasePrincipalId AND class_desc='OBJECT_OR_COLUMN'
-  AND permission_name=N'SELECT' AND minor_id=0 AND major_id<0;
+SELECT @ReaderEndpointCount=COUNT(*) FROM master.sys.endpoints WHERE endpoint_id<65536 AND is_admin_endpoint=0;
+/* Bind the exact public SELECT inventory to the pinned product build. */
+SELECT @PublicSystemSelectExpectedCount=CASE @MajorVersion
+           WHEN 15 THEN CASE WHEN CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'))=N'15.0.4500.2' THEN 186 END
+           WHEN 16 THEN CASE WHEN CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'))=N'16.0.4305.5' THEN 226 END
+           WHEN 17 THEN CASE WHEN CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'))=N'17.0.5035.5' THEN 232 END
+       END,
+       @PublicSystemSelectExpectedHash=CASE @MajorVersion
+           WHEN 15 THEN CASE WHEN CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'))=N'15.0.4500.2' THEN '93f1b67ac741cf1c07dc3e7dccd38101deec45fb4307ab218d9ac34c9c19dbbb' END
+           WHEN 16 THEN CASE WHEN CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'))=N'16.0.4305.5' THEN 'f127c9c0a4c5ecfd061c536d82a3def7925176c4eddbd5980335a4453e0e405a' END
+           WHEN 17 THEN CASE WHEN CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion'))=N'17.0.5035.5' THEN '4a3dd68e28a0d53f8041e82994a0bcfc33230873a4b7f94179b4e62486712392' END
+       END;
+
+DECLARE @PublicSystemSelects TABLE
+(
+    ObjectId int NOT NULL,
+    SchemaName sysname NOT NULL,
+    ObjectName sysname NOT NULL,
+    TypeDesc nvarchar(60) NOT NULL,
+    StateDesc nvarchar(60) NOT NULL,
+    PermissionName sysname NOT NULL,
+    MinorId int NOT NULL
+);
+INSERT @PublicSystemSelects(ObjectId,SchemaName,ObjectName,TypeDesc,StateDesc,PermissionName,MinorId)
+SELECT p.major_id,OBJECT_SCHEMA_NAME(p.major_id),OBJECT_NAME(p.major_id),
+       CASE WHEN o.object_id IS NOT NULL THEN o.type_desc
+            WHEN OBJECTPROPERTYEX(p.major_id,'IsView')=1 THEN N'VIEW' ELSE N'UNKNOWN' END,
+       p.state_desc,p.permission_name,p.minor_id
+FROM sys.database_permissions AS p
+JOIN sys.database_principals AS grantee ON grantee.principal_id=p.grantee_principal_id
+LEFT JOIN sys.system_objects AS o ON o.object_id=p.major_id
+WHERE grantee.name=N'public' AND p.class=1 AND p.major_id<0 AND p.permission_name=N'SELECT';
+
+SELECT @PublicSystemSelectCount=COUNT(*) FROM @PublicSystemSelects;
+SELECT @PublicSystemSelectCanonical=STRING_AGG(CONVERT(nvarchar(max),
+           CONVERT(nvarchar(10),DATALENGTH(SchemaName)/2)+N':'+SchemaName+
+           CONVERT(nvarchar(10),DATALENGTH(ObjectName)/2)+N':'+ObjectName+
+           CONVERT(nvarchar(10),DATALENGTH(TypeDesc)/2)+N':'+TypeDesc+
+           CONVERT(nvarchar(10),DATALENGTH(StateDesc)/2)+N':'+StateDesc+
+           CONVERT(nvarchar(10),DATALENGTH(PermissionName)/2)+N':'+PermissionName+
+           CONVERT(nvarchar(10),DATALENGTH(CONVERT(nvarchar(11),MinorId))/2)+N':'+CONVERT(nvarchar(11),MinorId)),NCHAR(10))
+       WITHIN GROUP (ORDER BY SchemaName COLLATE Latin1_General_100_BIN2,
+                              ObjectName COLLATE Latin1_General_100_BIN2,
+                              TypeDesc COLLATE Latin1_General_100_BIN2,
+                              StateDesc COLLATE Latin1_General_100_BIN2,
+                              PermissionName COLLATE Latin1_General_100_BIN2,
+                              MinorId)
+FROM @PublicSystemSelects;
+SET @PublicSystemSelectCanonical=ISNULL(@PublicSystemSelectCanonical,N'')+NCHAR(10);
+SET @PublicSystemSelectActualHash=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),@PublicSystemSelectCanonical)),2));
+IF @PublicSystemSelectExpectedCount IS NULL OR @PublicSystemSelectExpectedHash IS NULL
+   OR @PublicSystemSelectCount<>@PublicSystemSelectExpectedCount
+   OR @PublicSystemSelectActualHash<>@PublicSystemSelectExpectedHash
+    SET @PublicSystemSelectBaselineMismatch=1;
+SELECT @ObservedObjectCount=COUNT(DISTINCT o.object_id)
+FROM (VALUES
+    (N'dbo',N'Person',N'U'),(N'dbo',N'FriendOf',N'U'),(N'dbo',N'RelPerson',N'U'),(N'dbo',N'RelFriend',N'U'),
+    (N'dbo',N'OraclePerson',N'U'),(N'dbo',N'OracleFriendOf',N'U'),(N'dbo',N'OracleRelPerson',N'U'),(N'dbo',N'OracleRelFriend',N'U'),
+    (N'lab',N'MeasurementRun',N'U'),(N'lab',N'MeasurementWaitSnapshot',N'U'),
+    (N'lab',N'USP_Qry023MeasureVariant',N'P'),(N'lab',N'USP_BeginMeasurement',N'P'),(N'lab',N'USP_EndMeasurement',N'P')
+) AS expected(schema_name,object_name,object_type)
+JOIN sys.schemas AS s ON s.name=expected.schema_name
+JOIN sys.objects AS o ON o.schema_id=s.schema_id AND o.name=expected.object_name
+                         AND o.type=expected.object_type AND o.is_ms_shipped=0;
+IF @ObservedObjectCount<>@ExpectedObjectCount
+BEGIN
+    SET @UnexpectedCount+=1;
+    SET @FailureCategories+=N'OBJECT_INVENTORY;';
+END;
 
 IF @ReaderPrincipalId IS NULL OR @PublicPrincipalId IS NULL OR @PublicDatabasePrincipalId IS NULL OR @ReaderSid IS NULL
    OR @ReaderUserId IS NULL OR @ReaderUserSid IS NULL OR @ReaderSid<>@ReaderUserSid
-   OR @UserDatabaseCount<>1 OR @EndpointCount=0 OR DB_NAME()<>@TargetDatabase
-    SET @UnexpectedCount+=1;
+   OR @UserDatabaseCount<>1 OR @EndpointCount=0 OR @ReaderEndpointCount NOT BETWEEN 1 AND 12 OR DB_NAME()<>@TargetDatabase
+    BEGIN SET @UnexpectedCount+=1; SET @FailureCategories+=N'IDENTITY_OR_SCOPE;'; END;
 
 /* public is an implicit membership. Any explicit server role is outside the READER baseline. */
 IF EXISTS (SELECT 1 FROM master.sys.server_role_members
            WHERE member_principal_id=@ReaderPrincipalId AND role_principal_id<>@PublicPrincipalId)
-    SET @UnexpectedCount+=1;
+    BEGIN SET @UnexpectedCount+=1; SET @FailureCategories+=N'SERVER_ROLE;'; END;
 IF EXISTS (SELECT 1 FROM sys.database_role_members
            WHERE member_principal_id=@ReaderUserId AND role_principal_id<>@PublicDatabasePrincipalId)
-    SET @UnexpectedCount+=1;
+    BEGIN SET @UnexpectedCount+=1; SET @FailureCategories+=N'DATABASE_ROLE;'; END;
 
 /* Explicit server grants are restricted to the declared login/public baselines and standard endpoints. */
 IF EXISTS (
@@ -99,11 +168,11 @@ IF EXISTS (
                            AND e.is_admin_endpoint=0)
       )
 )
-    SET @UnexpectedCount+=1;
+    BEGIN SET @UnexpectedCount+=1; SET @FailureCategories+=N'SERVER_PERMISSION;'; END;
 
 /* User-defined endpoints are not classified as the documented built-in endpoint baseline. */
 IF EXISTS (SELECT 1 FROM master.sys.endpoints WHERE endpoint_id>=65536)
-    SET @UnexpectedCount+=1;
+    BEGIN SET @UnexpectedCount+=1; SET @FailureCategories+=N'CUSTOM_ENDPOINT;'; END;
 
 /* Target database grants may only contribute declared CONNECT/SHOWPLAN/object rights; DENY is never accepted. */
 IF EXISTS (
@@ -113,10 +182,17 @@ IF EXISTS (
       AND (
           p.state<>'G'
           OR NOT (
-              p.class_desc='DATABASE' AND p.grantee_principal_id=@PublicDatabasePrincipalId AND p.permission_name=N'CONNECT'
+              p.class_desc='DATABASE' AND p.grantee_principal_id IN (@PublicDatabasePrincipalId,@ReaderUserId) AND p.permission_name=N'CONNECT'
               OR p.class_desc='DATABASE' AND p.grantee_principal_id=@PublicDatabasePrincipalId
                  AND p.permission_name IN (N'VIEW ANY COLUMN ENCRYPTION KEY DEFINITION',N'VIEW ANY COLUMN MASTER KEY DEFINITION')
               OR p.class_desc='DATABASE' AND p.grantee_principal_id=@ReaderUserId AND p.permission_name=N'SHOWPLAN'
+              OR p.class_desc='OBJECT_OR_COLUMN' AND p.grantee_principal_id=@PublicDatabasePrincipalId
+                 AND p.permission_name=N'SELECT' AND p.minor_id=0 AND p.major_id<0
+                 AND @PublicSystemSelectBaselineMismatch=0
+                 AND EXISTS (SELECT 1 FROM @PublicSystemSelects AS baseline
+                             WHERE baseline.ObjectId=p.major_id AND baseline.MinorId=p.minor_id
+                               AND baseline.PermissionName COLLATE Latin1_General_100_BIN2=p.permission_name COLLATE Latin1_General_100_BIN2
+                               AND baseline.StateDesc COLLATE Latin1_General_100_BIN2=N'GRANT')
               OR p.class_desc='OBJECT_OR_COLUMN' AND p.minor_id=0 AND p.grantee_principal_id=@ReaderUserId
                  AND EXISTS (
                      SELECT 1 FROM (VALUES
@@ -133,17 +209,28 @@ IF EXISTS (
           )
       )
 )
-    SET @UnexpectedCount+=1;
+    BEGIN SET @UnexpectedCount+=1; SET @FailureCategories+=N'DATABASE_PERMISSION;'; END;
 
-IF @UnexpectedCount>0 OR @UnqualifiedPublicSystemSelectCount>0
+IF @UnexpectedCount>0 OR @PublicSystemSelectBaselineMismatch>0
 BEGIN
+    SELECT N'DATABASE_PERMISSION' AS FailureDetail,dp.name AS PrincipalName,p.class_desc,p.major_id,p.minor_id,
+           p.permission_name,p.state_desc,OBJECT_SCHEMA_NAME(p.major_id) AS SchemaName,OBJECT_NAME(p.major_id) AS ObjectName
+    FROM sys.database_permissions AS p
+    JOIN sys.database_principals AS dp ON dp.principal_id=p.grantee_principal_id
+    WHERE p.grantee_principal_id IN (@ReaderUserId,@PublicDatabasePrincipalId)
+    ORDER BY dp.name,p.class_desc,p.major_id,p.minor_id,p.permission_name;
     SELECT 1 AS Sequence,'ADMIN_PERMISSION_INVENTORY' AS Phase,'BASELINE' AS CheckId,'FAIL' AS Outcome,'FAIL_NOT_PROVEN' AS Code,
-           CONCAT(N'Abweichungsgruppen=',@UnexpectedCount,N'; public-Systemobjekt-SELECT-Grants ohne exakte versionsgebundene Sollmenge=',@UnqualifiedPublicSystemSelectCount) AS ObservedValue,
-           N'Exakte versionsgebundene Baseline der SQL-Server-public-Systemobjektrechte; bis zur Enginequalifikation kein PASS' AS RequiredValue,
+           CONCAT(N'Abweichungsgruppen=',@UnexpectedCount,N'; Kategorien=',@FailureCategories,N'; public-Systemobjekt-SELECT count=',@PublicSystemSelectCount,N'/',COALESCE(@PublicSystemSelectExpectedCount,-1),N'; SHA256=',COALESCE(@PublicSystemSelectActualHash,'UNKNOWN'),N'/',COALESCE(@PublicSystemSelectExpectedHash,'UNKNOWN')) AS ObservedValue,
+           N'Exakte public-Systemobjekt-SELECT-Menge für den festgeschriebenen SQL-Server-Build' AS RequiredValue,
            N'Keine Berechtigungen werden vergeben oder geändert.' AS Message;
     PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN';
     THROW 51013,'FAIL_NOT_PROVEN: ADMIN-Inventar weicht von der freigegebenen QRY-023-Baseline ab.',1;
 END;
+
+SELECT 1 AS Sequence,'ADMIN_PERMISSION_INVENTORY' AS Phase,'PUBLIC_SYSTEM_SELECT_BASELINE' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
+       CONCAT(N'Build=',CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion')),N'; Objekte=',@PublicSystemSelectCount,N'; SHA256=',@PublicSystemSelectActualHash) AS ObservedValue,
+       CONCAT(N'Objekte=',@PublicSystemSelectExpectedCount,N'; SHA256=',@PublicSystemSelectExpectedHash) AS RequiredValue,
+       N'Die versionsgebundene unveränderliche public-Systemobjektbaseline stimmt exakt.' AS Message;
 
 SELECT N'READER_IDENTITY' AS InventoryClass,sp.type_desc AS LoginType,sp.is_disabled,
        CAST(CASE WHEN sp.name=@ReaderLogin THEN 1 ELSE 0 END AS bit) AS ExactNameMatch,
@@ -180,9 +267,25 @@ JOIN sys.database_principals AS grantee ON grantee.principal_id=p.grantee_princi
 WHERE p.grantee_principal_id IN (@ReaderUserId,@PublicDatabasePrincipalId)
 ORDER BY grantee.name,p.class_desc,p.major_id,p.minor_id,p.permission_name;
 
+PRINT 'QRY023_OBJECT_INVENTORY|PASS|13';
+PRINT CONCAT('QRY023_ENDPOINT_INVENTORY|BEGIN|',@ReaderEndpointCount);
+DECLARE @EndpointId int,@EndpointName sysname;
+DECLARE EndpointHandoffCursor CURSOR LOCAL FAST_FORWARD FOR
+SELECT endpoint_id,name FROM master.sys.endpoints WHERE endpoint_id<65536 AND is_admin_endpoint=0 ORDER BY endpoint_id;
+OPEN EndpointHandoffCursor;
+FETCH NEXT FROM EndpointHandoffCursor INTO @EndpointId,@EndpointName;
+WHILE @@FETCH_STATUS=0
+BEGIN
+    PRINT CONCAT('QRY023_ENDPOINT|',@EndpointId,'|',CONVERT(varchar(512),CONVERT(varbinary(256),@EndpointName),2));
+    FETCH NEXT FROM EndpointHandoffCursor INTO @EndpointId,@EndpointName;
+END;
+CLOSE EndpointHandoffCursor;
+DEALLOCATE EndpointHandoffCursor;
+PRINT CONCAT('QRY023_ENDPOINT_INVENTORY|END|',@ReaderEndpointCount);
+
 SELECT 1 AS Sequence,'ADMIN_PERMISSION_INVENTORY' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        CONCAT(N'ReaderProfile=READER; ReaderSidBound=1; UserDatabases=',@UserDatabaseCount,
-              N'; Endpoints=',@EndpointCount,N'; ExplicitInventory=complete') AS ObservedValue,
+              N'; Endpoints=',@EndpointCount,N'; ReaderEndpoints=',@ReaderEndpointCount,N'; ExplicitInventory=complete') AS ObservedValue,
        N'exakte READER-SID, keine Zusatzrollen/-rechte, vollständiges Ein-Datenbank- und Standardendpointinventar' AS RequiredValue,
        N'Diese ADMIN-Prüfung belegt keine tatsächlichen READER-Effektrechte oder Ownership-Chain-Wirkung.' AS Message;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';

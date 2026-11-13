@@ -134,6 +134,17 @@ BEGIN
 END;
 GO
 
+GRANT SELECT ON OBJECT::dbo.Person TO [READER];
+GRANT SELECT ON OBJECT::dbo.FriendOf TO [READER];
+GRANT SELECT ON OBJECT::dbo.RelPerson TO [READER];
+GRANT SELECT ON OBJECT::dbo.RelFriend TO [READER];
+GRANT SELECT ON OBJECT::dbo.OraclePerson TO [READER];
+GRANT SELECT ON OBJECT::dbo.OracleFriendOf TO [READER];
+GRANT SELECT ON OBJECT::dbo.OracleRelPerson TO [READER];
+GRANT SELECT ON OBJECT::dbo.OracleRelFriend TO [READER];
+GRANT SELECT ON OBJECT::lab.MeasurementRun TO [READER];
+GRANT EXECUTE ON OBJECT::lab.USP_Qry023MeasureVariant TO [READER];
+
 SELECT 1 AS Sequence,'WORKLOAD' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        N'30.000 Knoten; 20.000 gerichtete Kanten; 10.000 disjunkte Pfade; getrenntes 5/4-Oracle' AS ObservedValue,
        N'identische logische Graph- und Relationsdaten; exakte Markerbindung' AS RequiredValue,

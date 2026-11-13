@@ -8,6 +8,19 @@ der [aktuelle Capture-Review](DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md) und
 der [Ausführungsstand](CURRENT_EXECUTION_STATUS.md). Die folgenden früheren
 FAILs bleiben FAILs; größere Provenienz-/Collectorentwürfe bleiben getrennt.
 
+## Kontrollierte Runner-Profilaktualisierung (13. November 2026)
+
+Der gemeinsame FWK-010-`run_demo.py`-Runner enthält jetzt die offline
+implementierte QRY-023-ADMIN/READER-Rechteübergabe. Der statische
+DGN-007-Kantenverifier hat diese tatsächliche Runneränderung fail-closed als
+`PYTHON_PROFILE_CHANGED` gemeldet. Nach vollständigem Runnerdiffreview wurde
+nur der an `run_demo.py` gebundene CPython-3.12-AST-Digest erneuert:
+`2a01bdfed35c4cfd1b92dc2d7e8439ebed5c60136309ecf0f30749df3bb4ce0c`.
+Die acht weiteren Ganzdatei-AST-Digests, Manifestprojektionen, Kantenliste und
+Incidentpolicy bleiben unverändert. Dies aktualisiert ausschließlich das
+statische gemeinsame-Runner-Profil; es ändert keine DGN-007-SQL- oder
+Runtimefreigabe und qualifiziert QRY-023 nicht auf einer Engine.
+
 | Merkmal | Wert |
 |---|---|
 | Stand | 2026-10-09 |
@@ -538,3 +551,8 @@ bestand für die aktuellen Working-Tree-Bytes einschließlich aller neun ASTs,
 Manifeste und Policy; eine zusätzliche ausführbare AST-Zeile wurde als
 `PYTHON_PROFILE_CHANGED` abgewiesen. Das ist kein erneuter Lauf der vollständigen
 commitgebundenen Offline-Suite und keine Runtimequalifikation des Parserkandidaten.
+
+
+## Erneute Runnerprofilbindung nach der Endpunktübergabe (13. November 2026)
+
+Der abschließende QRY-023-Enginepfad erzwang einen SQLCMD-sicheren Wechsel des Endpunktinventars von `ID:HEX;...` auf `IDGHEXH...` im gemeinsamen `run_demo.py`-Runner. Die beiden betroffenen DGN-007-Offlineprofile meldeten daraufhin `PYTHON_PROFILE_CHANGED`; die gebundenen SQL-Manifeste und Source-Bundle-Bytes waren nicht die Ursache. Das unverändert reviewte CPython-3.12-Ganzdatei-AST-Profil wurde allein für den Runner auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die übrigen acht AST-Digests, Manifeste, Kanten, Daten und DGN-Methodenfreigaben bleiben unverändert. Diese Profilbindung ist statischer Quellnachweis und keine DGN-Runtimequalifikation.

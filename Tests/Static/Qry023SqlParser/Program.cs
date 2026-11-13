@@ -40,7 +40,9 @@ foreach (var file in sqlFiles.Where(path => !Path.GetFileName(path).Equals("15_F
     var sql = File.ReadAllText(file)
         .Replace("$(DemoId)", "QRY-023", StringComparison.Ordinal)
         .Replace("$(RunToken)", "LOCAL", StringComparison.Ordinal)
-        .Replace("$(TargetDatabase)", "SQLPERF_LAB_QRY023_LOCAL", StringComparison.Ordinal);
+        .Replace("$(TargetDatabase)", "SQLPERF_LAB_QRY023_LOCAL", StringComparison.Ordinal)
+        .Replace("$(StandardEndpointInventory)", "1G540063007000", StringComparison.Ordinal)
+        .Replace("$(BoundObjectInventory)", "13", StringComparison.Ordinal);
     if (Path.GetFileName(file).Equals("50_Plan_Evidence.sql", StringComparison.OrdinalIgnoreCase))
     {
         const string widthDirective = ":setvar SQLCMDMAXVARTYPEWIDTH 0";

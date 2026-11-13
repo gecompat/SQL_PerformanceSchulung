@@ -1,0 +1,5231 @@
+{
+  "contract_version": "1.0",
+  "status": "CAPTURED_NOT_YET_INTEGRATED_OR_RUNTIME_QUALIFIED",
+  "scope": "All effective default public database-role SELECT grants on negative-ID system objects in a newly created user database, including compatibility catalog views not listed in sys.system_objects.",
+  "capture_environment": {
+    "container_engine": "Docker",
+    "container_platform": "linux/amd64",
+    "container_cpu_limit": 2,
+    "container_memory_limit_mib": 4096,
+    "container_concurrency": 1,
+    "container_lifecycle": "fresh digest-pinned container per SQL Server profile; removed after capture",
+    "permissions_changed": false,
+    "qry023_workload_executed": false
+  },
+  "canonicalization": {
+    "fields": [
+      "schema",
+      "name",
+      "type_desc",
+      "state_desc",
+      "permission_name",
+      "minor_id"
+    ],
+    "field_encoding": "UTF-16 code-unit length, colon, exact value; concatenated in field order",
+    "record_encoding": "UTF-16LE",
+    "record_separator": "LF",
+    "final_lf": true,
+    "ordering": "schema, name, type_desc, state_desc, permission_name, minor_id; binary/ordinal order",
+    "hash": "SHA-256",
+    "source": "sys.database_permissions; OBJECT_SCHEMA_NAME/OBJECT_NAME; sys.system_objects.type_desc or OBJECTPROPERTYEX(IsView) fallback for system compatibility views."
+  },
+  "profiles": [
+    {
+      "product_major_version": 15,
+      "product_version": "15.0.4500.2",
+      "compatibility_level": 150,
+      "edition": "Developer Edition (64-bit)",
+      "image_manifest_digest": "sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069",
+      "image_reference": "mcr.microsoft.com/mssql/server@sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069",
+      "database_creation": "CREATE DATABASE with the engine default compatibility level and default collation; no QRY-023 scripts applied",
+      "fresh_user_database_public_system_select_count": 186,
+      "fresh_user_database_canonical_sha256_utf16le": "93f1b67ac741cf1c07dc3e7dccd38101deec45fb4307ab218d9ac34c9c19dbbb",
+      "master_control_select_count": 615,
+      "master_control_canonical_sha256_utf8": "95ff62e705b773768bce9babfa1b46693ab23befbab91951a616c09bc8093f5f",
+      "records": [
+        {
+          "schema": "sys",
+          "name": "all_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "allocation_units",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assemblies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_references",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "asymmetric_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "certificates",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "change_tracking_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "check_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_encryption_key_values",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_encryption_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_master_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_dictionaries",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_row_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_segments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_type_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "computed_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_endpoints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_priorities",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "crypt_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "data_spaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_audit_specification_details",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_audit_specifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_mode",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_options",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_credentials",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_permissions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_principals",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_role_members",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_scoped_configurations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_scoped_credentials",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "default_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "destination_data_spaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_db_column_store_row_group_physical_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_distributed_exchange_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "edge_constraint_clauses",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "edge_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "event_notifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "events",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "extended_procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "extended_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_data_sources",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_file_formats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_language_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_languages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_libraries",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_libraries_installed",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_library_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_library_setup_errors",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_table_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filegroups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filetable_system_defined_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filetables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "foreign_key_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "foreign_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_catalogs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_catalog_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_fragments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_stoplists",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_stopwords",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "function_order_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "hash_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "identity_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "index_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "index_resumable_operations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "internal_partitions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "internal_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "key_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "key_encryptions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "masked_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "memory_optimized_tables_internal_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "message_type_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "module_assembly_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "numbered_procedure_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "numbered_procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameter_type_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameter_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_functions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_range_values",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_schemes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partitions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_column_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_index_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_column_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_table_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_table_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "periods",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "plan_guides",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_context_settings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_text",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_runtime_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_runtime_stats_interval",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_wait_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "registered_search_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "registered_search_property_lists",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_data_archive_databases",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_data_archive_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_service_bindings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "routes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "schemas",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "security_policies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "security_predicates",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "selective_xml_index_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "selective_xml_index_paths",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sensitivity_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sequences",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contract_message_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contract_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contracts",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_message_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_queue_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_queues",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "services",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "spatial_index_tessellations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "spatial_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sql_dependencies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "stats_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "symmetric_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "synonyms",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscomments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysconstraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysdepends",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfilegroups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfiles",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysforeignkeys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfulltextcatalogs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysindexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysindexkeys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysmembers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysobjects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syspermissions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysprotects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysreferences",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "systypes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysusers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "table_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "time_zone_info",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "transmission_queue",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "trigger_events",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "triggers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "type_assembly_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_collections",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_component_placements",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_components",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_elements",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_facets",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_model_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_wildcard_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_wildcards",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        }
+      ]
+    },
+    {
+      "product_major_version": 16,
+      "product_version": "16.0.4305.5",
+      "compatibility_level": 160,
+      "edition": "Developer Edition (64-bit)",
+      "image_manifest_digest": "sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718",
+      "image_reference": "mcr.microsoft.com/mssql/server@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718",
+      "database_creation": "CREATE DATABASE with the engine default compatibility level and default collation; no QRY-023 scripts applied",
+      "fresh_user_database_public_system_select_count": 226,
+      "fresh_user_database_canonical_sha256_utf16le": "f127c9c0a4c5ecfd061c536d82a3def7925176c4eddbd5980335a4453e0e405a",
+      "master_control_select_count": 690,
+      "master_control_canonical_sha256_utf8": "e793a652afd7b8d50ef7b26c2b0635645f34c1a9c71a2f2117bf0ff5d485da9f",
+      "records": [
+        {
+          "schema": "sys",
+          "name": "all_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "allocation_units",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assemblies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_references",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "asymmetric_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "certificates",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "change_tracking_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "check_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_encryption_key_values",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_encryption_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_master_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_dictionaries",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_row_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_segments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_type_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "computed_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_endpoints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_priorities",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "crypt_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "data_spaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_audit_specification_details",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_audit_specifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_configurations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_mode",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_options",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_credentials",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_ledger_blocks",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_ledger_digest_locations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_ledger_transactions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_permissions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_principals",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_role_members",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_scoped_configurations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_scoped_credentials",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "default_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "destination_data_spaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_db_column_store_row_group_physical_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_distributed_exchange_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_external_provider_certificate_info",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "edge_constraint_clauses",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "edge_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "event_notifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "events",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "extended_procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "extended_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_data_sources",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_file_formats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_classification_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_classifications_mapping",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_sensitivity_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_sensitivity_labels",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_sensitivity_labels_mapping",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_job_streams",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_language_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_languages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_libraries",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_libraries_installed",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_library_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_library_setup_errors",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_stream_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_streaming_jobs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_streams",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_table_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_table_partitioning_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filegroups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filetable_system_defined_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filetables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "foreign_key_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "foreign_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_catalogs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_catalog_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_fragments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_stoplists",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_stopwords",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "function_order_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "hash_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "identity_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "index_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "index_resumable_operations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "internal_partitions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "internal_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "key_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "key_encryptions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "ledger_column_history",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "ledger_table_history",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "masked_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "materialized_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "memory_optimized_tables_internal_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "message_type_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "module_assembly_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "numbered_procedure_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "numbered_procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameter_type_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameter_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_functions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_range_values",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_schemes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partitions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_column_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_index_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_column_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_permanent_table_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_table_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_table_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "periods",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "plan_guides",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_context_settings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan_feedback",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan_forcing_locations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_hints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_text",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_variant",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_replicas",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_runtime_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_runtime_stats_interval",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_wait_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "registered_search_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "registered_search_property_lists",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_data_archive_databases",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_data_archive_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_service_bindings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "routes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "schemas",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "security_policies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "security_predicates",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "selective_xml_index_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "selective_xml_index_paths",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sensitivity_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sequences",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contract_message_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contract_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contracts",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_message_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_queue_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_queues",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "services",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "spatial_index_tessellations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "spatial_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sql_dependencies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "stats_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "symmetric_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "synonyms",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumn_store_segments_2020",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumns_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscomments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysconstraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysdatabase_principals_2021",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysdepends",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_data_sources_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_data_sources_2017",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_file_formats_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_tables_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfilegroups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfiles",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysforeignkeys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfulltextcatalogs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysindexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysindexkeys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysmembers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysobjects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syspermissions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysprotects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_context_settings_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_query_hints_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_2017",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_interval_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_wait_stats_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysreferences",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysserver_principals_2021",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "systypes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysusers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "table_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "time_zone_info",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "transmission_queue",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "trigger_events",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "triggers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "type_assembly_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_collections",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_component_placements",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_components",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_elements",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_facets",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_model_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_wildcard_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_wildcards",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        }
+      ]
+    },
+    {
+      "product_major_version": 17,
+      "product_version": "17.0.5035.5",
+      "compatibility_level": 170,
+      "edition": "Enterprise Developer Edition (64-bit)",
+      "image_manifest_digest": "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f",
+      "image_reference": "mcr.microsoft.com/mssql/server@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f",
+      "database_creation": "CREATE DATABASE with the engine default compatibility level and default collation; no QRY-023 scripts applied",
+      "fresh_user_database_public_system_select_count": 232,
+      "fresh_user_database_canonical_sha256_utf16le": "4a3dd68e28a0d53f8041e82994a0bcfc33230873a4b7f94179b4e62486712392",
+      "master_control_select_count": 728,
+      "master_control_canonical_sha256_utf8": "aeb8a3a1067ec92d4254616e3b878c3586cd1527660cad5b19ee29d0a82f815e",
+      "records": [
+        {
+          "schema": "sys",
+          "name": "all_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "all_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "allocation_units",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assemblies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_references",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "assembly_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "asymmetric_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "certificates",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "change_tracking_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "check_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_encryption_key_values",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_encryption_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_master_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_dictionaries",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_row_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_store_segments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_type_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "column_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "computed_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_endpoints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "conversation_priorities",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "crypt_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "data_spaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_audit_specification_details",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_audit_specifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_configurations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_mode",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_automatic_tuning_options",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_credentials",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_ledger_blocks",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_ledger_digest_locations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_ledger_transactions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_permissions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_principals",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_role_members",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_scoped_configurations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "database_scoped_credentials",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "default_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "destination_data_spaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_db_column_store_row_group_physical_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_distributed_exchange_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "dm_external_provider_certificate_info",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "edge_constraint_clauses",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "edge_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "event_notifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "events",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "extended_procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "extended_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_data_sources",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_file_formats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_classification_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_classifications_mapping",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_sensitivity_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_sensitivity_labels",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_governance_sensitivity_labels_mapping",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_job_streams",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_language_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_languages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_libraries",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_libraries_installed",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_library_files",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_library_setup_errors",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_models",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_stream_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_streaming_jobs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_streams",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_table_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_table_partitioning_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_table_schema_changed_mdsync",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "external_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filegroups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filetable_system_defined_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "filetables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "foreign_key_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "foreign_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_catalogs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_catalog_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_index_fragments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_stoplists",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "fulltext_stopwords",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "function_order_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "hash_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "identity_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "index_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "index_resumable_operations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "information_protection_label_mapping",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "internal_partitions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "internal_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "json_index_paths",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "json_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "key_constraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "key_encryptions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "ledger_column_history",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "ledger_table_history",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "masked_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "materialized_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "memory_optimized_tables_internal_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "message_type_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "module_assembly_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "numbered_procedure_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "numbered_procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameter_type_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameter_xml_schema_collection_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_functions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_range_values",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partition_schemes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "partitions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_column_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_index_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_column_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_materialized_view_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_permanent_table_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_table_distribution_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "pdw_table_mappings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "periods",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "plan_guides",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "procedures",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_context_settings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan_feedback",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_plan_forcing_locations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_hints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_text",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_query_variant",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_replicas",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_runtime_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_runtime_stats_interval",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "query_store_wait_stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "registered_search_properties",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "registered_search_property_lists",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_data_archive_databases",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_data_archive_tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "remote_service_bindings",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "routes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "schemas",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "security_policies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "security_predicates",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "selective_xml_index_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "selective_xml_index_paths",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sensitivity_classifications",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sequences",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contract_message_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contract_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_contracts",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_message_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_queue_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "service_queues",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "services",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "spatial_index_tessellations",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "spatial_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sql_dependencies",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "stats",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "stats_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "symmetric_keys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "synonyms",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumn_store_segments_2020",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscolumns_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syscomments",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysconstraints",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysdatabase_principals_2021",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysdepends",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_data_sources_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_data_sources_2017",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_file_formats_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysexternal_tables_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfilegroups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfiles",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysforeignkeys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysfulltextcatalogs",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysindexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysindexkeys",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysmembers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysobjects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "syspermissions",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysprotects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_context_settings_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_query_hints_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_2017",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_runtime_stats_interval_2016",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysquery_store_wait_stats_2019",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysreferences",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysserver_principals_2021",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_columns",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_objects",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_parameters",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_sql_modules",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "system_views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "systypes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "sysusers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "table_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "tables",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "time_zone_info",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "transmission_queue",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "trigger_events",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "triggers",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "type_assembly_usages",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "vector_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "views",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_indexes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_attributes",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_collections",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_component_placements",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_components",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_elements",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_facets",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_model_groups",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_types",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_wildcard_namespaces",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        },
+        {
+          "schema": "sys",
+          "name": "xml_schema_wildcards",
+          "type_desc": "VIEW",
+          "state_desc": "GRANT",
+          "permission_name": "SELECT",
+          "minor_id": 0
+        }
+      ]
+    }
+  ]
+}

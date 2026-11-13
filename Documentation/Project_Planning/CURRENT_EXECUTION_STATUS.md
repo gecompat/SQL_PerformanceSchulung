@@ -23,13 +23,16 @@ da die SQL-Rollenfunktionen weder effektive Rechte auswerten noch ohne
 Rollenmetadatensicht garantiert ein Ergebnis liefern. Das bleibt ein explizites
 offenes Minimalrechte-Gate.
 
-Der nächste Offline-Prüfansatz verwendet `sys.fn_my_permissions` unter der
-tatsächlichen `READER`-Identität und vergleicht effektive Rechte pro Server-,
-Datenbank-, Schema- und QRY-023-Objektkontext mit einer vorab festgelegten
-Sollmenge. Dieser Ansatz ist jetzt in README und Harnessreview als `DESIGNED`
-dokumentiert; er ist weder implementiert noch enginequalifiziert. Zusätzliche
-oder nicht auswertbare Rechte müssen fail-closed behandelt werden. Andere
-Principals und die interne Ownership Chain benötigen getrennte Nachweise.
+Der offline implementierte READER-Preflight verwendet `sys.fn_my_permissions`
+unter der tatsächlichen READER-Identität und vergleicht effektive Rechte für
+Server, Datenbank, `dbo`/`lab` und alle 13 gebundenen QRY-023-/FWK-004-Objekte
+mit der vorab festgelegten Sollmenge. Zusätzliche, doppelte, spaltenbezogene
+oder nicht klassifizierbare Resultate führen fail-closed zu `FAIL_NOT_PROVEN`.
+Die ADMIN-Phase bestätigt unter ausreichender Metadatensicht alle 13 gebundenen
+Objekte, darunter drei für READER unsichtbare interne Messobjekte, und bindet
+diesen Nachweis über einen festen Marker. Der FWK-010-Caller validiert Marker
+und begrenzte Endpointliste; die tatsächliche READER-Verbindung prüft `CONNECT`
+je Endpoint mit `sys.fn_my_permissions`, ohne Metadatensicht zu benötigen.
 Die Liste der QRY-023-eigenen Objekte inventarisiert keine anderen
 Instanz-/Datenbanksecurables und schließt dortige Zusatzrechte nicht aus.
 Minimalrechte und Runtime bleiben `OPEN`. `DEC-083` legt `CONNECT SQL` als
@@ -39,9 +42,10 @@ exklusive QRY-023-Einzel-Run-Wegwerfinstanz fest; vor dem Lauf darf es keine and
 Benutzerdatenbank geben. Das ist eine normative Umgebungsgrenze, keine
 Rechtevergabe oder Effektivrechtequalifikation. `manifest.proposed.json` und
 Offlinevalidator binden diese Grenze jetzt statisch; die Prüfung läuft dadurch
-noch nicht. Die vollständige, vorab gebundene Sollmenge,
-Rollen-/SID-/Endpointinventur, Ownership Chain und alle Runtime-/Cleanupgates
-bleiben unimplementiert beziehungsweise offen.
+noch nicht. Die read-only ADMIN-Rollen-/SID-/Endpoint- und explizite Rechteinventur sowie
+der READER-Exact-set-Preflight sind offline implementiert, aber nicht
+enginequalifiziert. Ownership Chain und alle Runtime-/Cleanupgates bleiben
+offen.
 PR #558 integrierte die isolierte `public`-Baseline. Die anschließende
 statische Fehleranalyse fand einen konkreten Laufzeitblocker: Setup erzeugte
 keinen Datenbankbenutzer für das separate READER-Login, sodass dessen
@@ -60,8 +64,9 @@ Standardendpoints, Datenbank, `dbo`/`lab` und die 13 erwarteten
 QRY-023-/FWK-004-Securables. Validator und synthetische Regressionen schützen
 zusätzliche Datenbankrechte, unvollständige Objektinventur und runtimeabgeleitete
 Sollwerte. Dies attestiert nicht die tatsächlichen Funktionsresultate;
-`sys.fn_my_permissions`, ADMIN-Rollen-/SID-/Endpointinventur, Ownership Chain,
-SQL-Ausführung und Runtime bleiben offen.
+SQL-Ausführung und Runtime bleiben offen; sowohl die vorgeschaltete ADMIN-
+Rollen-/SID-/Endpointinventur als auch der READER-`sys.fn_my_permissions`-
+Exact-set-Preflight sind inzwischen offline implementiert.
 PR #560 integrierte die Sollmenge nach unabhängigem Review und acht grünen
 PR-Gates. Die kontraktgeschützte Erfassung belegt weiterhin keine Live-Rechte.
 Der aktuelle begrenzte Offlinepunkt implementiert die read-only ADMIN-Inventur
@@ -73,11 +78,29 @@ Systemobjekt-SELECTs pauschal erlaubt werden: bis zur exakten, versionierten
 Sollmenge liefert die ADMIN-Phase `FAIL_NOT_PROVEN`. Der QRY-Validator, 93
 Regressionen, ScriptDom-Parse der neun eigenständigen T-SQL-Dateien unter
 150/160/170, Identifier- und Continuity-Validator sowie der geänderte-Dateien-
-Privacy-Scan bestanden. Dies belegt weder SQL-Ausführung noch vollständige
-Katalogsicht. PR-Gates stehen vor Integration noch aus. Es werden keine Rechte
-geändert oder vergeben; die exakte Standard-Systemobjektmenge,
-READER-Funktionserfassung, Ownership-Chain-Wirkung und Enginequalifikation
-bleiben offen.
+Privacy-Scan bestanden. Die acht ausgelösten PR-Workflows waren erfolgreich;
+PR #561 wurde als `eaccffcf8f306cd3b9a5c2e334e0d67e5ab80f95` integriert.
+Dies belegt weder SQL-Ausführung noch vollständige Katalogsicht. Es wurden
+keine Rechte geändert oder vergeben; die exakte Standard-Systemobjektmenge,
+Ownership-Chain-Wirkung, SQL-Ausführung und Enginequalifikation bleiben offen.
+
+Die freigegebene QRY-023-Fortsetzung ist offline umgesetzt: Der READER-
+Exact-set-Preflight erfasst tatsächliche Rechte pro Server-, Datenbank-,
+Schema-, Objekt- und Endpointkontext. ADMIN bestätigt die exakten 13 Objekt-
+Namen/-Typen und übergibt einen gebundenen Marker sowie das begrenzte
+Endpointinventar. Der FWK-010-Caller validiert beide Handoffs vor dem nächsten
+READER-Aufruf; READER prüft danach Endpoint-`CONNECT` selbst mit
+`sys.fn_my_permissions`. Der unabhängige Nachreview fand keine offenen P1/P2.
+QRY-Validator, synthetische Runner-/Parserregressionen, FWK-010-Validator,
+ScriptDom 150/160/170 und der geänderte-Dateien-Privacy-Scan bestehen.
+DGN-007 bindet den gemeinsamen Runner zusätzlich mit einem CPython-3.12-
+AST-Digest; nach Review wurde exakt dieser eine Digest erneuert. Die zwei
+betroffenen DGN-Offline-Gegenprobensuiten bestanden unter CPython 3.12.14.
+QRY-023 selbst wurde weiterhin weder auf SQL Server ausgeführt noch als Lab-
+oder Generalprobe gestartet. Änderungen sind noch lokal; PR-Gates stehen aus.
+Keine Rechtevergabe und keine Rechte- oder `public`-Mutation. Die offene
+Systemobjekt-`public`-SELECT-Standardbaseline,
+Ownership-Chain-Wirkung und Enginequalifikation bleiben eigenständige Gates.
 PR #543 integrierte den Designvorschlag. Ein unabhängiger Review fand keine
 P1/P2; der QRY-023-Validator und 49 gezielte Regressionen bestanden. Keine
 SQL-, Lab- oder Runtimeausführung.
@@ -8485,3 +8508,17 @@ Inputabwesenheit ist belegt, aber SQLcleanup bleibt NOT_ESTABLISHED. C3 ist nich
 zugelassen; der Merge belegt SOURCE_ONLY, keine öffentliche Pool-/CON-010-/TSK-009-
 oder TP-CON-Runtimequalifikation. Eine neue native Frage braucht eine eigene
 geänderte Quellen-/Recoveryentscheidung, unabhängigen Review und frische Admission.
+
+
+## Fortsetzung: QRY-023 – automatisierte Enginequalifikation abgeschlossen
+
+Der korrigierte Proposed-Harness wurde mit den unveränderten, digestgebundenen Linux/amd64-Images und Ressourcenlimits (2 CPU, 4 GiB Container, 3 GiB SQL-Server-Speicher) vollständig auf SQL Server 2019 Build 15.0.4500.2, SQL Server 2022 Build 16.0.4305.5 und SQL Server 2025 Build 17.0.5035.5 ausgeführt. Auf allen drei Versionen bestanden PREFLIGHT, SETUP, FRAMEWORK, WORKLOAD, ADMIN_PERMISSION_INVENTORY, QUALIFICATION_PREFLIGHT, CORRECTNESS, MEASUREMENT, PLAN_EVIDENCE und CLEANUP. Die Datenbank wurde jeweils markergebunden entfernt. Der menschliche Generalprobengate blieb ausdrücklich unberührt.
+
+Die Engineläufe fanden und beseitigten Implementierungsfehler: SQL-2019-`HAS_PERMS_BY_NAME` verlangt für diese Abfragen die NULL-Securable-Klasse statt `SERVER`; der READER-Datenbankbenutzer musste im expliziten Zieldatenbankkontext erstellt werden; Katalogvergleiche benötigen explizite binäre Kollationen; SQLCMD-Variablen akzeptierten den vorherigen Endpunktdatensatz wegen Sonderzeichen nicht; `varchar(8191)` ist unzulässig; leere `subentity_name`-Werte mussten normalisiert werden; Workloadrechte mussten tatsächlich an READER vergeben werden; Messdeltas mussten aus den persistierten `MeasurementRun`-Zeilen gelesen werden. Die Systemobjektbaseline wurde um Kompatibilitätsviews ergänzt und beträgt 186/226/232 Grants mit digestgebundenen vollständigen Datensätzen.
+
+Messung: je Engine fünf gepaarte AB/BA-Läufe mit 10.000 Ergebnissen pro Variante, Warm-up ausgeschlossen. Diese winzige synthetische Labormessung zeigt keine robuste Leistungsrangfolge; CPU-, Lese- und Schreibdeltas waren häufig null. Es wird keine Performanceaussage daraus abgeleitet. Der Code bleibt `PROPOSED`, ist nicht katalogisiert und noch nicht in einen allgemeinen Runtimeworkflow integriert. Offen bleiben Produkt-/Katalogabnahme, eine dauerhaft durchsetzbare Runner-Ressourcenhülle sowie die menschliche Generalprobe (ausdrücklich ausgeschlossen). Der direkte isolierte Einzelaufruf ist kein Ersatz für diese Integration.
+
+
+## Fortsetzung: DGN-007 – gemeinsames Runner-AST nach SQLCMD-Handoff neu gebunden
+
+Nach der Änderung der QRY-023-Endpunktübergabe auf `IDGHEXH` meldeten zwei gebundene DGN-007-Offlineprofile `PYTHON_PROFILE_CHANGED`. Der Hash wurde unter CPython 3.12.14 aus dem vollständigen AST von `run_demo.py` berechnet und ausschließlich an dieser Stelle auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Fehlerursache bestätigt; keine DGN-SQL-Quelle oder DGN-Methodik wurde geändert. Die bisher fehlgeschlagenen CI-Jobs müssen auf dem neuen Commit erneut grün werden.

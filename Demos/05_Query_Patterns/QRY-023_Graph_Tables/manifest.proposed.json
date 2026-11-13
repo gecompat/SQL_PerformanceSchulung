@@ -6,7 +6,10 @@
   "sqlcmd_input_validation": {
     "must_validate_before": "SQLCMD_EXPANSION",
     "reject_invalid": true,
-    "demo_id": {"mode": "EXACT", "value": "QRY-023"},
+    "demo_id": {
+      "mode": "EXACT",
+      "value": "QRY-023"
+    },
     "run_token": {
       "encoding": "ASCII",
       "allowed_characters": "A-Z0-9_",
@@ -24,86 +27,169 @@
     "expected_target_database_size_mib": 1024,
     "expected_tempdb_growth_mib": 1024,
     "maximum_concurrent_sql_sessions": 1,
-    "abort_signals": ["CTRL_C", "PHASE_TIMEOUT", "GLOBAL_TIMEOUT"],
+    "abort_signals": [
+      "CTRL_C",
+      "PHASE_TIMEOUT",
+      "GLOBAL_TIMEOUT"
+    ],
     "abort_action": "TERMINATE_SQLCMD_PROCESS_TREE",
     "cleanup_after_setup_started": "ONLY_AFTER_PROCESS_EXIT_CONFIRMED",
-    "early_stop_triggers": ["RESOURCE_PROFILE_MISMATCH_BEFORE_SETUP", "TARGET_DATABASE_SIZE_LIMIT", "TEMPDB_GROWTH_LIMIT", "PHASE_OR_GLOBAL_TIMEOUT", "CTRL_C"],
+    "early_stop_triggers": [
+      "RESOURCE_PROFILE_MISMATCH_BEFORE_SETUP",
+      "TARGET_DATABASE_SIZE_LIMIT",
+      "TEMPDB_GROWTH_LIMIT",
+      "PHASE_OR_GLOBAL_TIMEOUT",
+      "CTRL_C"
+    ],
     "enforcement_status": "PROPOSED_RUNTIME_CALLER_REQUIRED",
     "forced_abort_residual_state": "The marked target database may contain partial synthetic objects; connection-cancel completion and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
   },
-  "credential_profiles": ["ADMIN", "READER"],
-  "sqlcmd_identity_variables": {"ReaderLogin": "READER"},
+  "credential_profiles": [
+    "ADMIN",
+    "READER"
+  ],
+  "sqlcmd_identity_variables": {
+    "ReaderLogin": "READER"
+  },
   "reader_baseline_contract": {
     "instance_scope": "DEDICATED_TO_ONE_QRY023_RUN",
     "user_database_inventory_before_setup": "EMPTY_OR_EXACT_MARKED_SAME_RUN",
     "user_database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
-    "required_server_permissions": ["CONNECT SQL"],
-    "conditionally_tolerated_public_permissions": ["VIEW ANY DATABASE"],
+    "required_server_permissions": [
+      "CONNECT SQL"
+    ],
+    "conditionally_tolerated_public_permissions": [
+      "VIEW ANY DATABASE"
+    ],
     "server_permission_sources": {
-      "CONNECT SQL": ["READER_LOGIN"],
-      "VIEW ANY DATABASE": ["public"]
+      "CONNECT SQL": [
+        "READER_LOGIN"
+      ],
+      "VIEW ANY DATABASE": [
+        "public"
+      ]
     },
     "endpoint_permissions": {
       "standard_endpoints_only": true,
-      "expected": ["CONNECT"],
+      "expected": [
+        "CONNECT"
+      ],
       "permission_source_role": "public",
       "dedicated_admin_connection": "EXCLUDED"
     },
-    "server_role_membership": ["public"],
-    "database_role_membership": ["public"],
+    "server_role_membership": [
+      "public"
+    ],
+    "database_role_membership": [
+      "public"
+    ],
     "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
     "unknown_or_unavailable_inventory": "NOT_PROVEN",
     "server_or_public_permission_mutation": "FORBIDDEN",
-    "implementation_status": "DESIGN_ONLY_NOT_IMPLEMENTED"
+    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED"
   },
   "reader_permission_expectation_contract": {
     "version": "1.0",
-    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "status": "IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
     "evaluation_identity": "ACTUAL_READER_CONNECTION",
-    "captured_classes": ["SERVER", "ENDPOINT", "DATABASE", "SCHEMA", "OBJECT"],
-    "tuple_fields": ["entity_name", "subentity_name", "permission_name"],
-    "comparison": "EXACT_SET_PER_SECURABLE",
+    "captured_classes": [
+      "SERVER",
+      "ENDPOINT",
+      "DATABASE",
+      "SCHEMA",
+      "OBJECT"
+    ],
+    "tuple_fields": [
+      "context_class",
+      "context_name",
+      "permission_name"
+    ],
+    "returned_entity_name": "CAPTURED_AND_REQUIRED_NON_NULL",
+    "subentity_name": "MUST_BE_NULL",
+    "comparison": "EXACT_SET_PER_CALLER_BOUND_CONTEXT",
     "duplicate_rows": "FAIL_CLOSED",
     "missing_null_or_unavailable_result": "NOT_PROVEN",
     "column_level_permissions": "FORBIDDEN",
     "runtime_derived_expectations": "FORBIDDEN",
-    "unexpected_custom_securables": "NOT_PROVEN",
-    "server_permissions": ["CONNECT SQL", "VIEW ANY DATABASE"],
+    "unexpected_custom_securables": "READER_OR_PUBLIC_EXPLICIT_GRANTS_FAIL_CLOSED_BY_ADMIN_INVENTORY",
+    "server_permissions": [
+      "CONNECT SQL",
+      "VIEW ANY DATABASE"
+    ],
     "endpoint_inventory": {
-      "source": "ADMIN_INVENTORY_OF_STANDARD_ENDPOINTS",
+      "source": "SAME_RUN_ADMIN_MACHINE_RECORD_HANDOFF",
       "dedicated_admin_connection": "EXCLUDED",
-      "expected_permissions_per_endpoint": ["CONNECT"]
+      "expected_permissions_per_endpoint": [
+        "CONNECT"
+      ],
+      "reader_context_function_call": "REQUIRED_FOR_EACH_ADMIN_BOUND_ENDPOINT"
     },
-    "database_permissions": ["CONNECT", "SHOWPLAN", "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION", "VIEW ANY COLUMN MASTER KEY DEFINITION"],
+    "database_permissions": [
+      "CONNECT",
+      "SHOWPLAN",
+      "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION",
+      "VIEW ANY COLUMN MASTER KEY DEFINITION"
+    ],
     "database_public_system_object_baseline": {
       "permission": "SELECT",
       "principal": "public",
-      "object_scope": "SYSTEM_OBJECTS_ONLY",
+      "object_scope": "NEGATIVE_ID_SYSTEM_OBJECTS_AND_COMPATIBILITY_CATALOG_VIEWS",
       "application_objects": "FORBIDDEN",
-      "exact_default_object_inventory": "VERSIONED_REQUIRED",
-      "status": "NOT_PROVEN_UNTIL_EXACT_ENGINE_BASELINE"
+      "exact_default_object_inventory": "BUILD_PINNED_COUNT_AND_SHA256_CANONICAL",
+      "status": "CAPTURED_FOR_PINNED_BUILDS; FULL_QRY023_ENGINE_QUALIFICATION_OPEN",
+      "artifact": "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json"
     },
-    "schema_permissions": {"dbo": [], "lab": []},
+    "schema_permissions": {
+      "dbo": [],
+      "lab": []
+    },
     "object_permissions": {
-      "dbo.Person": ["SELECT"],
-      "dbo.FriendOf": ["SELECT"],
-      "dbo.RelPerson": ["SELECT"],
-      "dbo.RelFriend": ["SELECT"],
-      "dbo.OraclePerson": ["SELECT"],
-      "dbo.OracleFriendOf": ["SELECT"],
-      "dbo.OracleRelPerson": ["SELECT"],
-      "dbo.OracleRelFriend": ["SELECT"],
-      "lab.MeasurementRun": ["SELECT"],
+      "dbo.Person": [
+        "SELECT"
+      ],
+      "dbo.FriendOf": [
+        "SELECT"
+      ],
+      "dbo.RelPerson": [
+        "SELECT"
+      ],
+      "dbo.RelFriend": [
+        "SELECT"
+      ],
+      "dbo.OraclePerson": [
+        "SELECT"
+      ],
+      "dbo.OracleFriendOf": [
+        "SELECT"
+      ],
+      "dbo.OracleRelPerson": [
+        "SELECT"
+      ],
+      "dbo.OracleRelFriend": [
+        "SELECT"
+      ],
+      "lab.MeasurementRun": [
+        "SELECT"
+      ],
       "lab.MeasurementWaitSnapshot": [],
-      "lab.USP_Qry023MeasureVariant": ["EXECUTE"],
+      "lab.USP_Qry023MeasureVariant": [
+        "EXECUTE"
+      ],
       "lab.USP_BeginMeasurement": [],
       "lab.USP_EndMeasurement": []
     },
-    "admin_inventory_gates": ["READER_LOGIN_SID", "DATABASE_USER_SID", "SERVER_AND_DATABASE_ROLES", "EXPLICIT_GRANTS_AND_DENIES", "DATABASE_INVENTORY", "ENDPOINT_INVENTORY"]
+    "admin_inventory_gates": [
+      "READER_LOGIN_SID",
+      "DATABASE_USER_SID",
+      "SERVER_AND_DATABASE_ROLES",
+      "EXPLICIT_GRANTS_AND_DENIES",
+      "DATABASE_INVENTORY",
+      "ENDPOINT_INVENTORY"
+    ]
   },
   "admin_permission_inventory_contract": {
     "version": "1.0",
-    "status": "DESIGN_ONLY_NOT_ENGINE_QUALIFIED",
+    "status": "ENGINE_QUALIFIED_PROPOSED_NOT_RUNTIME_AUTHORIZED",
     "phase": "ADMIN_PERMISSION_INVENTORY",
     "context": "EXACT_MARKED_TARGET_DATABASE",
     "metadata_visibility": "VERSIONED_REQUIRED_PERMISSIONS_FAIL_CLOSED",
@@ -112,31 +198,197 @@
     "explicit_permissions": "READER_AND_PUBLIC_ONLY; GRANT_ONLY; EXACT_DECLARED_BASELINE_SUBSET",
     "database_inventory_after_setup": "ONLY_EXACT_MARKED_QRY023_TARGET",
     "endpoint_inventory": "ALL_VISIBLE; BUILT_IN_NON_ADMIN_ENDPOINTS_ONLY; DAC_EXCLUDED",
-    "public_system_object_select": "EXACT_VERSIONED_BASELINE_REQUIRED; OTHERWISE_FAIL_NOT_PROVEN",
+    "endpoint_inventory_handoff": {
+      "format": "ENDPOINT_ID_G_NAME_HEX_H_RECORDS_UTF16LE_HEX",
+      "markers": [
+        "QRY023_ENDPOINT_INVENTORY|BEGIN|N",
+        "QRY023_ENDPOINT|ID|HEX",
+        "QRY023_ENDPOINT_INVENTORY|END|N"
+      ],
+      "maximum_endpoints": 12,
+      "consumer": "ACTUAL_READER_CONNECTION",
+      "invalid_or_incomplete": "FAIL_NOT_PROVEN"
+    },
+    "public_system_object_select": {
+      "artifact": "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json",
+      "scope": "CURRENT_USER_DATABASE_ONLY",
+      "comparison": "EXACT_COUNT_AND_SHA256_UTF16LE_CANONICAL",
+      "unknown_or_build_drift": "FAIL_NOT_PROVEN",
+      "profiles": [
+        {
+          "product_major_version": 15,
+          "product_version": "15.0.4500.2",
+          "compatibility_level": 150,
+          "count": 186,
+          "sha256_utf16le": "93f1b67ac741cf1c07dc3e7dccd38101deec45fb4307ab218d9ac34c9c19dbbb"
+        },
+        {
+          "product_major_version": 16,
+          "product_version": "16.0.4305.5",
+          "compatibility_level": 160,
+          "count": 226,
+          "sha256_utf16le": "f127c9c0a4c5ecfd061c536d82a3def7925176c4eddbd5980335a4453e0e405a"
+        },
+        {
+          "product_major_version": 17,
+          "product_version": "17.0.5035.5",
+          "compatibility_level": 170,
+          "count": 232,
+          "sha256_utf16le": "4a3dd68e28a0d53f8041e82994a0bcfc33230873a4b7f94179b4e62486712392"
+        }
+      ]
+    },
     "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
     "permission_mutation": "FORBIDDEN",
-    "runtime_authorized": false
+    "runtime_authorized": false,
+    "object_inventory_handoff": {
+      "format": "FIXED_EXPECTED_OBJECT_COUNT",
+      "marker": "QRY023_OBJECT_INVENTORY|PASS|13",
+      "consumer": "ACTUAL_READER_CONNECTION",
+      "invalid_or_incomplete": "FAIL_NOT_PROVEN"
+    },
+    "explicit_database_grant_sources": [
+      {
+        "principal": "public",
+        "permission": "CONNECT"
+      },
+      {
+        "principal": "READER",
+        "permission": "CONNECT"
+      },
+      {
+        "principal": "READER",
+        "permission": "SHOWPLAN"
+      },
+      {
+        "principal": "public",
+        "permission": "VIEW ANY COLUMN ENCRYPTION KEY DEFINITION"
+      },
+      {
+        "principal": "public",
+        "permission": "VIEW ANY COLUMN MASTER KEY DEFINITION"
+      }
+    ]
   },
   "authorization_contract": {
     "phase_privileges": {
-      "SETUP": ["CREATE DATABASE", "CREATE DATABASE USER FOR ACTIVE READER SQL_LOGIN", "CREATE SCHEMA/TABLE/INDEX", "INSERT SYNTHETIC DATA"],
-      "READ_AND_MEASURE": ["SELECT ON FOUR QUERY AND FOUR ORACLE TABLES", "SELECT ON lab.MeasurementRun", "EXECUTE ON lab.USP_Qry023MeasureVariant", "SHOWPLAN ON TARGET DATABASE"],
-      "CLEANUP": ["DROP ONLY AFTER EXACT OWNERSHIP MARKERS"]
+      "SETUP": [
+        "CREATE DATABASE",
+        "CREATE DATABASE USER FOR ACTIVE READER SQL_LOGIN",
+        "CREATE SCHEMA/TABLE/INDEX",
+        "INSERT SYNTHETIC DATA"
+      ],
+      "READ_AND_MEASURE": [
+        "SELECT ON FOUR QUERY AND FOUR ORACLE TABLES",
+        "SELECT ON lab.MeasurementRun",
+        "EXECUTE ON lab.USP_Qry023MeasureVariant",
+        "SHOWPLAN ON TARGET DATABASE"
+      ],
+      "CLEANUP": [
+        "DROP ONLY AFTER EXACT OWNERSHIP MARKERS"
+      ]
     },
     "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
     "phase_identity_enforced": true,
     "gate_status": "OPEN_UNTIL_SQL_SERVER_PRINCIPAL_AND_PRIVILEGE_QUALIFICATION"
   },
   "phases": [
-    {"id":"PREFLIGHT","kind":"sql","script":"00_Preflight.sql","database":"master","required":true,"require_summary":true,"credential_profile":"ADMIN"},
-    {"id":"SETUP","kind":"sql","script":"10_Setup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":240,"credential_profile":"ADMIN"},
-    {"id":"FRAMEWORK","kind":"sql","script":"15_Framework.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180,"credential_profile":"ADMIN"},
-    {"id":"WORKLOAD","kind":"sql","script":"20_Workload.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300,"credential_profile":"ADMIN"},
-    {"id":"ADMIN_PERMISSION_INVENTORY","kind":"sql","script":"22_Admin_Permission_Inventory.sql","database":"target","required":true,"require_summary":true,"credential_profile":"ADMIN"},
-    {"id":"QUALIFICATION_PREFLIGHT","kind":"sql","script":"25_Qualification_Preflight.sql","database":"target","required":true,"require_summary":true,"credential_profile":"READER"},
-    {"id":"CORRECTNESS","kind":"sql","script":"30_Correctness.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":180,"credential_profile":"READER"},
-    {"id":"MEASUREMENT","kind":"sql","script":"40_Measurement.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":300,"credential_profile":"READER"},
-    {"id":"PLAN_EVIDENCE","kind":"sql","script":"50_Plan_Evidence.sql","database":"target","required":true,"require_summary":true,"timeout_seconds":120,"credential_profile":"READER"}
+    {
+      "id": "PREFLIGHT",
+      "kind": "sql",
+      "script": "00_Preflight.sql",
+      "database": "master",
+      "required": true,
+      "require_summary": true,
+      "credential_profile": "ADMIN"
+    },
+    {
+      "id": "SETUP",
+      "kind": "sql",
+      "script": "10_Setup.sql",
+      "database": "master",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 240,
+      "credential_profile": "ADMIN"
+    },
+    {
+      "id": "FRAMEWORK",
+      "kind": "sql",
+      "script": "15_Framework.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 180,
+      "credential_profile": "ADMIN"
+    },
+    {
+      "id": "WORKLOAD",
+      "kind": "sql",
+      "script": "20_Workload.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 300,
+      "credential_profile": "ADMIN"
+    },
+    {
+      "id": "ADMIN_PERMISSION_INVENTORY",
+      "kind": "sql",
+      "script": "22_Admin_Permission_Inventory.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "credential_profile": "ADMIN"
+    },
+    {
+      "id": "QUALIFICATION_PREFLIGHT",
+      "kind": "sql",
+      "script": "25_Qualification_Preflight.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "credential_profile": "READER"
+    },
+    {
+      "id": "CORRECTNESS",
+      "kind": "sql",
+      "script": "30_Correctness.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 180,
+      "credential_profile": "READER"
+    },
+    {
+      "id": "MEASUREMENT",
+      "kind": "sql",
+      "script": "40_Measurement.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 300,
+      "credential_profile": "READER"
+    },
+    {
+      "id": "PLAN_EVIDENCE",
+      "kind": "sql",
+      "script": "50_Plan_Evidence.sql",
+      "database": "target",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 120,
+      "credential_profile": "READER"
+    }
   ],
-  "cleanup": {"id":"CLEANUP","kind":"sql","script":"90_Cleanup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":90,"credential_profile":"ADMIN"}
+  "cleanup": {
+    "id": "CLEANUP",
+    "kind": "sql",
+    "script": "90_Cleanup.sql",
+    "database": "master",
+    "required": true,
+    "require_summary": true,
+    "timeout_seconds": 90,
+    "credential_profile": "ADMIN"
+  }
 }

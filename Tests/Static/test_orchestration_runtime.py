@@ -23,7 +23,7 @@ from execution_target import DOCKER, ExecutionTarget  # noqa: E402
 from orchestrate_sessions import run_manifest as run_session_manifest  # noqa: E402
 from run_demo import run_demo  # noqa: E402
 import run_demo as run_demo_module  # noqa: E402
-from sqlcmd_process import run_sqlcmd  # noqa: E402
+from sqlcmd_process import SqlcmdResult, run_sqlcmd  # noqa: E402
 import sqlcmd_process  # noqa: E402
 
 
@@ -182,11 +182,172 @@ def demo_manifest(
     )
 
 
+def test_qry023_endpoint_inventory_parser_is_bounded_and_canonical() -> None:
+    stream = "\n".join((
+        "QRY023_ENDPOINT_INVENTORY|BEGIN|2",
+        "QRY023_ENDPOINT|2|5400650073007400",
+        "QRY023_ENDPOINT|1|540063007000",
+        "QRY023_ENDPOINT_INVENTORY|END|2",
+    ))
+    assert_equal(run_demo_module._extract_qry023_endpoint_inventory(stream),
+                 "1G540063007000H2G5400650073007400", "canonical endpoint inventory")
+    for invalid in (
+        stream.replace("QRY023_ENDPOINT_INVENTORY|END|2", ""),
+        stream.replace("BEGIN|2", "BEGIN|3"),
+        stream.replace("540063007000", "540063700"),
+        stream.replace("|2|5400650073007400", "|1|5400650073007400"),
+        stream.replace("540063007000", "540063700G"),
+    ):
+        try:
+            run_demo_module._extract_qry023_endpoint_inventory(invalid)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid endpoint inventory was accepted")
+
+
+def test_qry023_admin_phase_binds_endpoint_inventory_before_reader_phase(base: Path) -> None:
+    phase = run_demo_module.PhaseSpec(
+        phase_id="ADMIN_PERMISSION_INVENTORY", kind="sql", path=write(base / "admin.sql"),
+        database_selector="target", required=True, require_summary=True,
+        timeout_seconds=None, credential_profile="ADMIN",
+    )
+    output = "\n".join((
+        "QRY023_OBJECT_INVENTORY|PASS|13",
+        "QRY023_ENDPOINT_INVENTORY|BEGIN|1",
+        "QRY023_ENDPOINT|4|540063007000",
+        "QRY023_ENDPOINT_INVENTORY|END|1",
+        "SQLPERF_SUMMARY|PASS|OK",
+    ))
+    variables = {"DemoId": "QRY-023"}
+    result = SqlcmdResult(
+        command=(), returncode=0, stdout=output, stderr="", timed_out=False, duration_seconds=0.01,
+    )
+    with patch.object(run_demo_module, "run_sqlcmd", return_value=result):
+        phase_result = run_demo_module._execute_sql_phase(
+            phase=phase, executable="synthetic", server="synthetic", target_database="target_db",
+            auth="integrated", username=None, environment={}, timeout_seconds=3,
+            variables=variables, show_output=False,
+        )
+    assert_equal(phase_result.outcome, "PASS", "admin endpoint handoff phase")
+    assert_equal(variables.get("StandardEndpointInventory"), "4G540063007000",
+                 "reader endpoint SQLCMD variable")
+
+    malformed = SqlcmdResult(
+        command=(), returncode=0, stdout="SQLPERF_SUMMARY|PASS|OK", stderr="",
+        timed_out=False, duration_seconds=0.01,
+    )
+    variables = {"DemoId": "QRY-023"}
+    with patch.object(run_demo_module, "run_sqlcmd", return_value=malformed):
+        phase_result = run_demo_module._execute_sql_phase(
+            phase=phase, executable="synthetic", server="synthetic", target_database="target_db",
+            auth="integrated", username=None, environment={}, timeout_seconds=3,
+            variables=variables, show_output=False,
+        )
+    assert_equal((phase_result.outcome, phase_result.code), ("FAIL", "FAIL_CONTRACT"),
+                 "missing endpoint handoff failure")
+    assert_equal("StandardEndpointInventory" in variables, False,
+                 "no reader inventory variable on invalid handoff")
+
+    warned = SqlcmdResult(
+        command=(), returncode=0,
+        stdout="QRY023_OBJECT_INVENTORY|PASS|13\nQRY023_ENDPOINT_INVENTORY|BEGIN|1\nQRY023_ENDPOINT|4|540063007000\n"
+               "QRY023_ENDPOINT_INVENTORY|END|1\nSQLPERF_SUMMARY|WARN|WARN_PARTIAL",
+        stderr="", timed_out=False, duration_seconds=0.01,
+    )
+    variables = {"DemoId": "QRY-023"}
+    with patch.object(run_demo_module, "run_sqlcmd", return_value=warned):
+        phase_result = run_demo_module._execute_sql_phase(
+            phase=phase, executable="synthetic", server="synthetic", target_database="target_db",
+            auth="integrated", username=None, environment={}, timeout_seconds=3,
+            variables=variables, show_output=False,
+        )
+    assert_equal((phase_result.outcome, phase_result.code), ("FAIL", "FAIL_NOT_PROVEN"),
+                 "non-PASS admin handoff failure")
+    assert_equal("StandardEndpointInventory" in variables, False,
+                 "non-PASS admin does not bind reader inventory")
+
+
 def test_qry023_contract_loads_in_existing_caller() -> None:
     manifest_path = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json"
     manifest = run_demo_module.load_manifest(manifest_path)
     assert_equal(manifest.demo_id, "QRY-023", "QRY-023 caller manifest ID")
     assert_equal(manifest.run_token, "LOCAL", "QRY-023 caller RunToken")
+
+
+def test_qry023_admin_handoff_contract_is_bound_before_sqlcmd_resolution(base: Path) -> None:
+    path = demo_manifest(base / "admin_handoff_contract", demo_id="QRY-023")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    write(path.parent / "admin.sql")
+    payload["phases"].insert(1, {
+        "id": "ADMIN_PERMISSION_INVENTORY", "kind": "sql", "script": "admin.sql",
+        "database": "target", "required": True, "require_summary": True,
+    })
+    payload["admin_permission_inventory_contract"] = {
+        "endpoint_inventory_handoff": json.loads(json.dumps(run_demo_module.QRY023_ENDPOINT_INVENTORY_HANDOFF)),
+        "object_inventory_handoff": json.loads(json.dumps(run_demo_module.QRY023_OBJECT_INVENTORY_HANDOFF)),
+    }
+    write_json(path, payload)
+    run_demo_module.load_manifest(path)
+
+    payload["admin_permission_inventory_contract"]["endpoint_inventory_handoff"]["maximum_endpoints"] = 13
+    write_json(path, payload)
+    try:
+        run_demo_module.load_manifest(path)
+    except ValueError as exc:
+        assert_equal(str(exc), "invalid QRY-023 endpoint inventory handoff contract",
+                     "invalid endpoint handoff manifest contract")
+    else:
+        raise AssertionError("invalid endpoint handoff contract was accepted")
+
+
+def test_qry023_runner_passes_both_admin_handoffs_to_reader_command(base: Path) -> None:
+    root = base / "runner_handoff_end_to_end"
+    for filename in ("preflight.sql", "admin.sql", "reader.sql"):
+        write(root / filename)
+    manifest_path = demo_manifest(root, demo_id="QRY-023")
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    payload["phases"] = [
+        {"id": "PREFLIGHT", "kind": "sql", "script": "preflight.sql", "database": "master",
+         "required": True, "require_summary": True},
+        {"id": "ADMIN_PERMISSION_INVENTORY", "kind": "sql", "script": "admin.sql", "database": "target",
+         "required": True, "require_summary": True},
+        {"id": "QUALIFICATION_PREFLIGHT", "kind": "sql", "script": "reader.sql", "database": "target",
+         "required": True, "require_summary": True},
+    ]
+    payload["cleanup"] = None
+    payload["admin_permission_inventory_contract"] = {
+        "endpoint_inventory_handoff": json.loads(json.dumps(run_demo_module.QRY023_ENDPOINT_INVENTORY_HANDOFF)),
+        "object_inventory_handoff": json.loads(json.dumps(run_demo_module.QRY023_OBJECT_INVENTORY_HANDOFF)),
+    }
+    write_json(manifest_path, payload)
+    calls = []
+
+    def fake_run(command, *, timeout_seconds, environment):
+        calls.append(tuple(command))
+        script = Path(command[command.index("-i") + 1]).stem
+        if script == "admin":
+            output = "\n".join((
+                "QRY023_OBJECT_INVENTORY|PASS|13",
+                "QRY023_ENDPOINT_INVENTORY|BEGIN|1",
+                "QRY023_ENDPOINT|4|540063007000",
+                "QRY023_ENDPOINT_INVENTORY|END|1",
+                "SQLPERF_SUMMARY|PASS|OK",
+            ))
+        else:
+            output = "SQLPERF_SUMMARY|PASS|OK"
+        return SqlcmdResult(tuple(command), 0, output, "", False, 0.01)
+
+    with patch.object(run_demo_module, "resolve_sqlcmd", return_value="synthetic"),          patch.object(run_demo_module, "run_sqlcmd", side_effect=fake_run):
+        result = run_demo(
+            manifest_path=manifest_path, server="synthetic", auth="integrated", username=None,
+            sqlcmd_path="synthetic", confirm_isolated_lab=False, allow_red=False, show_output=False,
+        )
+    assert_equal(result.outcome, "PASS", "end-to-end endpoint/object handoff")
+    reader_command = next(call for call in calls if Path(call[call.index("-i") + 1]).stem == "reader")
+    assert_equal("BoundObjectInventory=13" in reader_command, True, "reader object handoff command variable")
+    assert_equal("StandardEndpointInventory=4G540063007000" in reader_command, True,
+                 "reader endpoint handoff command variable")
 
 
 def test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base: Path) -> None:
@@ -1906,10 +2067,14 @@ def main() -> int:
     test_completed_root_is_never_terminated_by_old_pid()
     test_linux_nested_session_interrupt()
     test_qry023_contract_loads_in_existing_caller()
+    test_qry023_endpoint_inventory_parser_is_bounded_and_canonical()
     with tempfile.TemporaryDirectory(prefix="sqlperf-orchestration-") as temporary:
         base = Path(temporary)
         executable = fake_sqlcmd(base)
+        test_qry023_admin_phase_binds_endpoint_inventory_before_reader_phase(base)
         test_invalid_qry023_contract_fails_before_sqlcmd_resolution(base)
+        test_qry023_admin_handoff_contract_is_bound_before_sqlcmd_resolution(base)
+        test_qry023_runner_passes_both_admin_handoffs_to_reader_command(base)
         test_hostile_qry023_token_fails_before_sqlcmd_resolution(base)
         test_qry023_input_contract_rejects_other_demo_id_before_sqlcmd_resolution(base)
         test_qry023_contract_rejects_target_name_derivation_drift(base)

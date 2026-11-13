@@ -63,13 +63,15 @@ ORDER BY c.PairNumber,c.ExecutionOrder;
 ;WITH Paired AS
 (
     SELECT b.PairNumber,
-           CpuDeltaMs=CONVERT(float,c.CpuMs-b.CpuMs),
-           LogicalReadDelta=CONVERT(float,c.LogicalReads-b.LogicalReads),
-           ReadDelta=CONVERT(float,c.Reads-b.Reads),
-           WriteDelta=CONVERT(float,c.Writes-b.Writes),
-           ElapsedDeltaMs=CONVERT(float,c.ElapsedMs-b.ElapsedMs)
+           CpuDeltaMs=CONVERT(float,cRun.CpuMs-bRun.CpuMs),
+           LogicalReadDelta=CONVERT(float,cRun.LogicalReads-bRun.LogicalReads),
+           ReadDelta=CONVERT(float,cRun.Reads-bRun.Reads),
+           WriteDelta=CONVERT(float,cRun.Writes-bRun.Writes),
+           ElapsedDeltaMs=CONVERT(float,cRun.ElapsedMs-bRun.ElapsedMs)
     FROM @Captured AS b
+    JOIN lab.MeasurementRun AS bRun ON bRun.MeasurementRunId=b.MeasurementRunId
     JOIN @Captured AS c ON c.PairNumber=b.PairNumber
+    JOIN lab.MeasurementRun AS cRun ON cRun.MeasurementRunId=c.MeasurementRunId
     WHERE b.Variant='RELATIONAL' AND c.Variant='GRAPH'
 ), DeltaRows AS
 (
