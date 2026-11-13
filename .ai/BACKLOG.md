@@ -45,6 +45,14 @@ Pool-/Semaphore-Kombination. Er authentifiziert keine Aufnahme und weist keine
 Ursache oder reale Konkurrenz nach. Die synthetischen Gegenproben sind im
 Framework-Contracts-Workflow enthalten; SQL-/Runtimequalifikation bleibt offen.
 
+**Nächster unabhängig bearbeitbarer Lesepfad:** TSK-015 (menschliche Lesepfade
+und historische Planungseinstiege). Der DGN-004-Quellkandidat aus PR #593 ist
+integriert; SQL-/Runtimequalifikation wartet weiterhin auf das YELLOW-Gate.
+TSK-015 trennt den historischen Pause-/Prioritätsstand vom aktuellen Auftrag,
+erhält Kennungen und Nachweise und berührt nicht die ausgeschlossene
+Teilnehmer-Generalprobe. Den aktuellen Arbeitsstand führt der
+[Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md).
+
 <!-- REGISTRY_BACKLOG_TSK_016:BEGIN -->
 ## DGN-004: Klassische Planerzwingung und Hint-Kontrollzustand
 
@@ -2329,14 +2337,17 @@ Verbindlicher Arbeitsstand, endlicher Aufgabenrahmen, Prüfgates und Grenzen:
 enthält die 22 Quellen und die tatsächliche Evidenz. Eine Cleanupabnahme ist
 keine globale Freigabe des gesamten Ausführungspfads.
 
-## Aktuelle Priorität nach abgeschlossenem Foundation-Upgrade
+## Historischer Stand vom 22. Oktober 2026: Abschluss nach Foundation-Upgrade
 
-Der Benutzerauftrag vom 22. Oktober 2026 beendet die autonome Fortsetzung nach
-Abschluss der aktuellen Demos. PR293 schließt die letzte Demo-Implementierung
-vollständig ab; der 30-Minuten-Heartbeat ist gelöscht. Offene Aufgaben unten
-bleiben erhalten, werden in diesem Chat aber nicht begonnen. Eine Wiederaufnahme
-erfordert einen neuen menschlichen Auftrag. Maßgeblich ist der
-[Benutzerabschluss im Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md#benutzerabschluss-vom-22-oktober-2026-keine-autonome-fortsetzung).
+**Archivierter Planungsstand, keine aktuelle Prioritätsliste.** Der damalige
+Benutzerauftrag vom 22. Oktober 2026 beendete die autonome Fortsetzung nach
+Abschluss der aktuellen Demos. PR293 schloss die letzte Demo-Implementierung
+ab; der 30-Minuten-Heartbeat war gelöscht. Die spätere Wiederaufnahme vom
+26. Oktober 2026 ersetzte diesen Arbeitsstopp innerhalb der priorisierten
+Reihenfolge. Die folgenden Kontrollkästchen halten den Stand vom 22. Oktober
+fest und sind keine aktuelle Aufgabenliste. Maßgeblich sind die
+[Wiederaufnahme vom 26. Oktober](#wiederaufnahme-und-reihenfolge-vom-26-oktober-2026)
+und der [aktuelle Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md#autonomer-auftrag-vom-26-oktober-2026).
 
 - [x] Runner-Dateieinstieg und Profilbeobachtung: PR289 vollständig integriert, geprüft und eigene Branches bereinigt; der alte native Rahmen bleibt geschlossen.
 - [x] Foundation 1.25.0: PR290 vollständig in Main `2f4c427b3da36ae3c5f24770aeaee75ce3488ea0`, unabhängig geprüft, lokale sowie Head-/Base-/Main-Gates grün, vollständige Übernahme und eigene Branchbereinigung. Head ist der geprüfte Pull-Request-Commit, Base dessen Main-Basis.

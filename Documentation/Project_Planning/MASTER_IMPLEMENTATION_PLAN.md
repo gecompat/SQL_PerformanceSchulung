@@ -450,7 +450,7 @@ DGN-007-Anbindung zunächst funktionale FWK-002-Korrekturen auszuführen, ist
 ebenfalls kein aktueller Ausführungsauftrag. Für die heutige Reihenfolge,
 verbleibende Lesepfade und offene Prüfgates sind der
 [aktuelle Ausführungsstand](CURRENT_EXECUTION_STATUS.md) und der
-[aktuelle Backlog](../../.ai/BACKLOG.md#aktuelle-priorität-nach-abgeschlossenem-foundation-upgrade)
+[aktuelle Backlog-Wiederaufnahme vom 26. Oktober](../../.ai/BACKLOG.md#wiederaufnahme-und-reihenfolge-vom-26-oktober-2026)
 maßgeblich. Historische Kennungen und Nachweise bleiben erhalten; die folgenden
 Abschnitte dokumentieren frühere Planungs- und Ausführungsstände.
 
