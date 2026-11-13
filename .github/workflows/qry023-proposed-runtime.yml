@@ -161,6 +161,29 @@ jobs:
       - name: Provision the fresh READER SQL login through stdin
         shell: bash
         run: python Tests/Runtime/provision_qry023_reader_login.py
+      - name: Prove the permission inventory rejects an unexpected READER grant
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-negative-permission-${{ matrix.major }}.log"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          [[ "$result" == 2 ]]
+          grep -F 'QRY023_NEGATIVE_PERMISSION|EXTRA_GRANT_AND_ROLE_INJECTED' "$log"
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'DATABASE_ROLE;' "$log"
+          grep -F 'DATABASE_PERMISSION;' "$log"
+          grep -F 'CLEANUP: PASS/OK' "$log"
+          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
+            echo 'Negative permission case reached a protected query phase.' >&2
+            exit 1
+          fi
       - name: Run the full proposed FWK-010 lifecycle
         shell: bash
         run: |

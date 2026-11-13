@@ -2,8 +2,9 @@
 
 Stand: 13. November 2026
 Status: ADMIN-Inventur und READER-Exact-set-Preflight sind auf SQL Server
-2019/2022/2025 automatisiert enginequalifiziert; QRY-023 bleibt `PROPOSED` und
-nicht katalogisiert
+2019/2022/2025 automatisiert enginequalifiziert; eine zusätzliche Live-
+Gegenprobe für unerwartete READER-Rechte besteht auf allen drei Engines.
+QRY-023 bleibt `PROPOSED` und nicht katalogisiert.
 
 ## Ziel und Grenze
 
@@ -377,4 +378,10 @@ eine separat geprüfte Bereinigung. PR #563 qualifizierte diese vorgeschlagene
 CI-Route am 13.11.2026 auf allen drei festgebundenen Engines und allen zehn
 Harnessphasen. Sie ersetzt keinen allgemeinen Runner-Prozessbaum- oder
 Serverabbruchvertrag und aktiviert weder `runtime_authorized` noch einen
-Katalogeintrag.
+Katalogeintrag. PR #566 ergänzte auf allen drei Engines eine gezielte
+Negativgegenprobe: Ein unerwarteter direkter `SELECT`-Grant an READER auf
+`lab.MeasurementWaitSnapshot` und eine zusätzliche Mitgliedschaft in
+`db_datareader` führten vor Korrektheit und Messung zu `FAIL_NOT_PROVEN`; das
+markierte Cleanup bestand. Der anschließende positive Zehnphasenlauf bestand
+ebenfalls. Weitere negative Varianten, eine allgemeine Runtimefreigabe und die
+Produkt-/Katalogaufnahme bleiben offen.

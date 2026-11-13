@@ -116,7 +116,10 @@ Microsoft beschreibt, dass `sys.fn_my_permissions` die Rechte des aktuellen
 Aufrufkontexts zurückgibt und bei Fehler `NULL` liefert; die Funktion qualifiziert
 für sich weder andere Principals noch Ownership-Chain-Wirkungen. Der Harness
 prüfte die tatsächlichen READER-Verbindungen und den Messprozedurpfad auf allen
-drei Builds. Negative Live-Berechtigungsvarianten sind noch nicht geprüft.
+drei Builds. Eine Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant
+und Mitgliedschaft in `db_datareader` wurde auf allen drei Builds vor den
+Queryphasen fail-closed abgewiesen; weitere negative Varianten sind nicht live
+qualifiziert.
 
 `DEC-084` schließt den konkreten Verbindungsfehler im Setup und in dessen
 Offline-Vertragsprüfung:
@@ -193,9 +196,12 @@ prüfen unter anderem entfernte Sichtbarkeitsgates, SID-Bindung und verbotene
 Grants. ScriptDom parst das neue T-SQL unter den Grammatiken 150, 160 und 170.
 Das belegt weder Metadatenvollständigkeit noch erfolgreiche T-SQL-Ausführung.
 Der Vertragsvalidator deckt diese synthetischen Negativfälle ab. Die
-automatisierten Engine-Läufe qualifizieren den positiven Standardpfad; negative
-Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht
-ausgeführt. QRY-023 bleibt vorgeschlagen und nicht katalogisiert.
+automatisierten Engine-Läufe qualifizieren den positiven Standardpfad; eine
+Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant und
+`db_datareader`-Mitgliedschaft wurde auf allen drei Builds vor den Queryphasen
+abgewiesen. Weitere negative Rechtevarianten und absichtlich beschädigte
+SQL-Kataloge wurden nicht ausgeführt. QRY-023 bleibt vorgeschlagen und nicht
+katalogisiert.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
