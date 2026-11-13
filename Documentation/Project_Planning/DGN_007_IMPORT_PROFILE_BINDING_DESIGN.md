@@ -5097,3 +5097,27 @@ Encoder- und Cleanupfehler liefern keine Attestation. Erst ein separat gewählte
 Footer-/Trace-Matcher wäre ein nächster Implementierungskandidat; tatsächlicher
 Kanal, Loader-/Parentadapter, operative Inventur, Fünf-Formen-/64-KiB-Gate,
 Consumption, Replayfreiheit und unabhängiger Worker-Cleanup bleiben offen.
+
+Die Folgeergänzung verfolgt außerdem Aliaszuweisungen importierter Klassen über
+Modulattribute, etwa `import package.worker as worker; Alias = worker.Worker`
+und die unaliasierte Form `import package.worker; Alias = package.worker.Worker`.
+Verkettungen und alternative statisch bekannte Ziele bleiben Kandidaten; weder
+Factory-Rückgaben noch dynamische Basen werden geraten. Eine Regression stellt
+zusätzlich sicher, dass der Aufbau der Klassenmethodenaliase den unabhängigen
+Funktionsentry eines importierten Hilfsmoduls nicht überschreibt. Dabei wurde
+ein bestehender lokaler Namenskonflikt `entries` korrigiert, der bei
+qualifizierten Klassenmethodenzielen die Entry-Liste ersetzte. Der fokussierte
+Testsatz umfasst 76 Fälle.
+
+Der gebundene Offline-Scan mit CPython 3.12.16 als Archivquelle und Python 3.14
+als Parser meldet `CANDIDATES_ONLY`, 93 Quellmodule, 578 Kanten, 533 besuchte
+lokale Funktionen, 22 entschiedene und 1.605 unbekannte Bedingungen sowie den
+Quelldigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+Der Archivhash bleibt
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`.
+Die geänderte Entry-Übergabe stellt zuvor verlorene Funktionspfade wieder her;
+die neuen qualifizierten Aliasformen selbst fügen im gebundenen Archiv keine
+weiteren Kandidaten hinzu und werden durch synthetische Fixtures qualifiziert.
+Das Ergebnis bleibt weder vollständige Importclosure noch P11-Sollinventur.
+Keine Zielinterpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung;
+S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.

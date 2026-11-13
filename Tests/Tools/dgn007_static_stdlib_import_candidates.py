@@ -609,6 +609,7 @@ def _imported_class_aliases(tree, module, path, class_index):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
     result = {}
     local_aliases = {}
+    module_aliases = _imported_module_aliases(tree, module, path, class_index)
 
     def add_class_target(alias, target):
         targets = result.setdefault(alias, [])
@@ -635,12 +636,12 @@ def _imported_class_aliases(tree, module, path, class_index):
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             value = node.value
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-            if isinstance(value, ast.Name):
+            if isinstance(value, (ast.Name, ast.Attribute)):
                 for target in targets:
                     if isinstance(target, ast.Name):
                         sources = local_aliases.setdefault(target.id, [])
-                        if value.id not in sources:
-                            sources.append(value.id)
+                        if not any(ast.dump(value) == ast.dump(source) for source in sources):
+                            sources.append(value)
         for child in ast.iter_child_nodes(node):
             if isinstance(child, ast.stmt):
                 collect_aliases(child)
@@ -652,8 +653,19 @@ def _imported_class_aliases(tree, module, path, class_index):
         if alias in active:
             return ()
         targets = list(result.get(alias, ()))
-        for source in local_aliases.get(alias, ()):
-            for target in resolve(source, (*active, alias)):
+        for expression in local_aliases.get(alias, ()):
+            if isinstance(expression, ast.Name):
+                source_targets = resolve(expression.id, (*active, alias))
+            elif isinstance(expression, ast.Attribute):
+                receiver = ast.unparse(expression.value)
+                source_targets = tuple(
+                    (target_module, expression.attr)
+                    for target_module in module_aliases.get(receiver, ())
+                    if expression.attr in class_index.get(target_module, {})
+                )
+            else:
+                source_targets = ()
+            for target in source_targets:
                 if target not in targets:
                     targets.append(target)
         return tuple(targets)
@@ -1454,11 +1466,11 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
                 for method_name, owners in class_dispatch_index.get(
                     target_module, {}
                 ).get(class_name, {}).items():
-                    entries = methods.setdefault(method_name, [])
+                    method_targets = methods.setdefault(method_name, [])
                     for owner in owners:
                         target = owner
-                        if target not in entries:
-                            entries.append(target)
+                        if target not in method_targets:
+                            method_targets.append(target)
         imported_class_methods = {
             alias: {name: tuple(targets) for name, targets in methods.items()}
             for alias, methods in imported_class_methods.items()
@@ -1536,7 +1548,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

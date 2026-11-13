@@ -9023,3 +9023,19 @@ beschränkt; Rebinding kann Kandidaten überzählen. Der gebundene CPython-Scan
 bleibt bei 92 Modulen/573 Kanten/471 Funktionen und 1.452 unbekannten
 Bedingungen; Quelldigest unverändert. Kein Interpreter, Profil, Worker, SQL
 oder Generalprobe wurde ausgeführt.
+
+## Fortsetzung: DGN-007 – qualifizierte Aliase importierter Klassen
+
+Der statische Kandidatenfolger löst jetzt auch `Alias = worker.Worker` und
+`Alias = package.worker.Worker` für gebundene Quellmodule auf, einschließlich
+Aliasverkettung. Ein Regressionstest deckt außerdem den zuvor verdeckten
+Namenskonflikt bei der Methodenzielsammlung ab: die Aliasliste durfte den
+separaten Entry eines importierten Hilfsmoduls nicht ersetzen. 76/76 fokussierte
+Tests bestehen. Der SHA-gebundene CPython-3.12.16-Scan bleibt ausdrücklich
+`CANDIDATES_ONLY` und zählt nach Korrektur der Entry-Übergabe 93 Module,
+578 Kanten, 533 Funktionen, 22 entschiedene und 1.605 unbekannte Bedingungen;
+der Quelldigest lautet
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+Die synthetischen qualifizierten Aliasformen ändern die Archivmenge nicht.
+Keine Zielinterpreter-, Profil-, Worker-, SQL- oder Generalproben-Ausführung;
+operative S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
