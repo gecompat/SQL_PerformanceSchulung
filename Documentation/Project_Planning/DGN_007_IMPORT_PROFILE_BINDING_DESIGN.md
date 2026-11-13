@@ -2872,6 +2872,16 @@ gebundenen CPython-Scans bleiben gleich. Nicht direkt auflösbare oder dynamisch
 Basen werden nicht geraten; vollständige MRO und modulübergreifendes Rebinding
 bleiben offen.
 
+Einfache Modul-Scope-Zuweisungen wie `WorkerAlias = Worker` und verkettete
+Aliase werden nun auch für importierte Quellklassen berücksichtigt. Der
+Kandidatenfolger erhält alle Aliasziele aus unbekannten Kontrollzweigen,
+terminiert bei Aliaszyklen und leitet Rückgaben dynamischer Factory-Funktionen
+nicht ab. Drei neue Regressionen erhöhen den fokussierten Satz auf 74 Tests.
+Zuweisungsalternativen können weiterhin überzählen; Funktions- und Klassen-
+Scope-Rebinding wird durch diese Aliasroute nicht modelliert. Der gebundene
+Archivscan behält seine bisherigen Modul-, Kanten-, Funktions-, Bedingungs- und
+Digestwerte.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
