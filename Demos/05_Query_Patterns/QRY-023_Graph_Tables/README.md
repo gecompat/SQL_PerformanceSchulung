@@ -49,42 +49,37 @@ ersetzt weder die menschliche Generalprobe noch eine Katalogfreigabe.
 
 ## Rechte und Grenzen
 
-Die Rechte müssen fachlich getrennt werden: Setup benötigt `CREATE DATABASE`
-sowie Tabellen-, Index- und synthetische Insert-Rechte; Korrektheit und
-Die Korrektheitsphase benötigt `SELECT` auf den vier Query- und den vier
-Oracle-Tabellen. Mess- und Planevidenz benötigen `SELECT` auf den vier
-Querytabellen sowie `SHOWPLAN` auf der markierten Zieldatenbank. Messung
-benötigt zusätzlich `SELECT` auf `lab.MeasurementRun` und `EXECUTE` auf
-`lab.USP_Qry023MeasureVariant`; deren
-interne Schreiboperationen setzen eine passende Ownership Chain voraus und
-müssen in der Laufzeitqualifikation bestätigt werden. Cleanup benötigt das
-Entfernen der eigenen Datenbank nach exakter Markerprüfung. Das vorgeschlagene Manifest weist
-Setup-/Installationsphasen dem Profil `ADMIN` und Qualifikations-, Korrektheits-,
-Mess- und Planphasen dem Profil `READER` zu; Cleanup erhält `ADMIN`. Der
-FWK-010-Caller verlangt unterschiedliche SQL-Benutzernamen, liest ihre
-Zugangsdaten aus `SQLPERF_SQL_USERNAME_ADMIN`/
-`SQLPERF_SQL_PASSWORD_ADMIN` und den entsprechenden `READER`-Variablen und
-übergibt das jeweilige Kennwort nur als `SQLCMDPASSWORD` an den Phasenprozess.
-Der Client schaltet damit die konfigurierte Identität um. Ob die realen
-SQL-Prinzipale die Sollrechte und keine darüber hinausgehenden Rechte besitzen,
-ist nicht serverseitig verifiziert. Das bleibt ein Runtime-/Methodengate; die
-aufgezählten Gesamtberechtigungen dürfen nicht als Minimalrechte ausgegeben
-werden. `FWK-004` speichert keine Abfragetexte oder Pläne; es erfasst
-Sessiondeltas. Fremde oder nicht vollständig markierte Ziele werden abgewiesen
-und nicht entfernt.
+Die Rechte werden nach Setup, Qualifikation, Abfrage, Messung und Cleanup
+getrennt. Das vorgeschlagene Manifest weist Setup/Installation `ADMIN`,
+Qualifikations-, Korrektheits-, Mess- und Planphasen `READER` sowie Cleanup
+`ADMIN` zu. Der FWK-010-Caller verwendet dafür unterschiedliche SQL-Logins
+und übergibt deren Kennwörter nur als `SQLCMDPASSWORD` an den Phasenprozess.
 
-Der aktuelle Qualifikationspreflight prüft, ob die benötigten positiven Rechte
-vorliegen; er inventarisiert keine direkten, geerbten oder über Rollen
-gewährten Berechtigungen. Eine Prüfung nur auf Mitgliedschaft in `sysadmin` oder
-`db_owner` würde Minimalrechte ebenfalls nicht beweisen: `IS_SRVROLEMEMBER` und
-`IS_ROLEMEMBER` fragen Rollenmitgliedschaft ab, nicht die zugrunde liegenden
-Rechte, und benötigen `VIEW DEFINITION` auf der jeweiligen Rolle. Eine spätere
-Überprivilegierungsprüfung muss daher effektive Rechte gezielt bewerten und
-ihre Sichtbarkeit für `READER` fail-closed qualifizieren. Bis dahin bleibt die
-Minimalrechte- und Runtimefreigabe offen.
+Der isolierte Drei-Engine-Lauf bestätigt nun die tatsächlichen READER-
+Effektivrechte: `25_Qualification_Preflight.sql` vergleicht die Rechte für
+Server, Zieldatenbank, Standardendpoints, `dbo`/`lab` und die gebundenen
+Objekte mit dem Manifest; `22_Admin_Permission_Inventory.sql` prüft zusätzlich
+SID, Rollen, explizite Grants/DENYs, Objektbestand und Endpointbaseline. Die
+Gegenproben #566–#581 weisen konkrete Abweichungen fail-closed zurück. Das
+qualifiziert die konkrete, synthetische Wegwerfinstanz und die drei gepinnten
+Builds. Es ist keine allgemeine Deployment-/Produktfreigabe und behauptet nicht,
+dass diese Sollmenge für beliebige Umgebungen die minimal mögliche Rechtevergabe
+ist. Ownership Chain und Messprozedurpfad wurden im vorgeschlagenen isolierten
+Lauf tatsächlich über `READER` ausgeführt; `FWK-004` speichert dabei keine
+Abfragetexte oder Pläne, sondern Sessiondeltas. Fremde oder nicht vollständig
+markierte Ziele werden abgewiesen und nicht entfernt.
 
-Der Offlineentwurf für die Effektivrechteprüfung mit `sys.fn_my_permissions`
-liegt in der [QRY-023-Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md).
+Die Rollenabfragen allein (`IS_SRVROLEMEMBER`, `IS_ROLEMEMBER`) beweisen keine
+Minimalrechte. Deshalb kombiniert der qualifizierte Ablauf die effektiven
+Rechte des echten READER-Aufrufkontexts mit einer read-only ADMIN-Inventur und
+grenzt den Befund auf die markergebundene Ein-Run-Wegwerfinstanz ein. Die
+technische Berechtigungsprüfung ist für diese konkrete Route qualifiziert; eine
+allgemeine Runtime- oder Produktfreigabe bleibt offen.
+
+Methodenentscheidung und Implementierungs-/Qualifikationsstand der
+Effektivrechteprüfung mit `sys.fn_my_permissions` sind in der
+[QRY-023-Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
+dokumentiert.
 `DEC-083` akzeptiert `CONNECT SQL` als reguläres Loginrecht sowie die
 dokumentierte `public`-Baseline `VIEW ANY DATABASE` ausschließlich auf einer
 frischen, exklusiv für einen QRY-023-Run reservierten Wegwerfinstanz. Vor Setup darf keine
