@@ -551,3 +551,8 @@ bestand für die aktuellen Working-Tree-Bytes einschließlich aller neun ASTs,
 Manifeste und Policy; eine zusätzliche ausführbare AST-Zeile wurde als
 `PYTHON_PROFILE_CHANGED` abgewiesen. Das ist kein erneuter Lauf der vollständigen
 commitgebundenen Offline-Suite und keine Runtimequalifikation des Parserkandidaten.
+
+
+## Erneute Runnerprofilbindung nach der Endpunktübergabe (13. November 2026)
+
+Der abschließende QRY-023-Enginepfad erzwang einen SQLCMD-sicheren Wechsel des Endpunktinventars von `ID:HEX;...` auf `IDGHEXH...` im gemeinsamen `run_demo.py`-Runner. Die beiden betroffenen DGN-007-Offlineprofile meldeten daraufhin `PYTHON_PROFILE_CHANGED`; die gebundenen SQL-Manifeste und Source-Bundle-Bytes waren nicht die Ursache. Das unverändert reviewte CPython-3.12-Ganzdatei-AST-Profil wurde allein für den Runner auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die übrigen acht AST-Digests, Manifeste, Kanten, Daten und DGN-Methodenfreigaben bleiben unverändert. Diese Profilbindung ist statischer Quellnachweis und keine DGN-Runtimequalifikation.
