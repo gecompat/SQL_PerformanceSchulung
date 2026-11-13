@@ -756,6 +756,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED", timeout_case)
         self.assertIn("python Demos/00_Framework/Tools/run_demo.py", timeout_case)
         self.assertIn("runner_pid=$!", timeout_case)
+        self.assertIn('[[ "$result" == 4 ]]', timeout_case)
         self.assertIn("t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%'", timeout_case)
         self.assertIn("[[ \"$active\" == 1 ]]", timeout_case)
         self.assertIn("seq 1 1200", timeout_case)
