@@ -982,20 +982,29 @@ jobs:
           done
           [[ "$active" == 0 ]]
           printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED' >> "$log"
+          echo 'QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STARTED'
           set +e
-          recovery_output="$(docker exec -i -e SQLCMDPASSWORD "$container_id" "$sqlcmd" \
+          recovery_output="$(timeout --kill-after=5s 45s docker exec -i -e SQLCMDPASSWORD "$container_id" "$sqlcmd" \
             -S localhost -d master -U sa -C -b -r 1 \
             -v DemoId=QRY-023 RunToken=LOCAL TargetDatabase=SQLPERF_LAB_QRY023_LOCAL \
             < "$demo_dir/90_Cleanup.sql" 2>&1)"
           recovery_status=$?
           set -e
+          echo "QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_STATUS|status=${recovery_status}"
           printf '%s\n' "$recovery_output"
-          [[ "$recovery_status" == 0 ]]
-          grep -F 'SQLPERF_SUMMARY|PASS|OK' <<< "$recovery_output"
+          if [[ "$recovery_status" != 0 ]] || ! grep -Fq 'SQLPERF_SUMMARY|PASS|OK' <<< "$recovery_output"; then
+            echo 'QRY023_TIMEOUT_NEGATIVE|EXTERNAL_RECOVERY_FAILED' >&2
+            exit 1
+          fi
           recovery_marker="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" \
             -S localhost -d master -U sa -C -b -h -1 -W -Q \
             "SET NOCOUNT ON; IF EXISTS (SELECT 1 FROM sys.databases WHERE database_id>4) THROW 51047,'QRY-023 timeout recovery left a user database.',1; PRINT 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS';")"
-          grep -F 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS' <<< "$recovery_marker"
+          if ! grep -Fq 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS' <<< "$recovery_marker"; then
+            echo 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_MARKER_FAILED' >&2
+            printf '%s\n' "$recovery_marker" >&2
+            exit 1
+          fi
+          echo 'QRY023_TIMEOUT_NEGATIVE|RECOVERY_CLEANUP_PASS'
           printf '%s\n' 'CLEANUP: PASS/EXTERNAL_RECOVERY' >> "$log"
           exit 0
       - name: Prove the permission inventory rejects an unregistered custom endpoint
