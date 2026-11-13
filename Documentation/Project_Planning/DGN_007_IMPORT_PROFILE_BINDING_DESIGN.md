@@ -2267,6 +2267,41 @@ Fünf-Formen-/64-KiB-Grenze vollständig zu binden und zu reviewen. Ein
 Methoden-, Worker-, UsedBytes-, SQL- oder Runtimequalifikationsclaim folgt
 aus dieser Probe nicht.
 
+### 19.5 Separat verifizierter CPython-Quellrelease
+
+Am selben Tag wurde das offizielle XZ-Quellarchiv separat von Python.org
+abgerufen und außerhalb des Repositories gehalten. Die lokal berechnete Größe
+betrug 20.839.652 Bytes; SHA-256 stimmte mit dem auf der Release-Seite
+veröffentlichten Wert `b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`
+überein. Die beigefügte OpenPGP-Signatur wurde mit GnuPG als `VALIDSIG`
+verifiziert. Der vollständige Signaturschlüssel-Fingerprint
+`7169605F62C751356D054A26A821E680E5FA6305` stimmt mit dem vom gepinnten
+Dockerfile ausgewiesenen `GPG_KEY` und dessen Key-ID mit der Python.org-
+Signaturrichtlinie für CPython 3.12 überein ([Release 3.12.16](https://www.python.org/downloads/release/python-31216/),
+[Python-Signaturrichtlinie](https://www.python.org/downloads/metadata/pgp/),
+[gebundener Dockerfile](https://github.com/docker-library/python/blob/3d7e95597e56a415d9e4abc0f15877e005d2cb2e/3.12/bookworm/Dockerfile)).
+Die lokale GnuPG-Trustdatenbank meldete `TRUST_UNDEFINED`; festgehalten wird
+damit die gültige Signatur unter dem unabhängig abgeglichenen Fingerprint,
+keine Web-of-Trust- oder Hostattestation.
+
+Im signierten Archiv wurden `Modules/getpath.py`, `Modules/Setup.stdlib.in`,
+`Lib/sysconfig.py` und `Python/frozen.c` als konkrete Quellen für Startup-
+Pfadlogik, buildabhängige Extensionauswahl, Installationsschemas und die
+Frozen-Modulliste identifiziert. Die Vorlagen enthalten bedingte Buildauswahl;
+der Quellrelease allein legt weder sämtliche durch Debian-Dependencies
+aktivierten Erweiterungen noch alle finalen Installations- und
+Loaderrecords fest. Es wurde kein Quellcode ins Repository kopiert oder
+kompiliert. Der signierte Quellrelease stärkt daher die CPython-Quellbindung,
+belegt aber nicht unabhängig, dass der Docker-Build exakt diese Bytes samt
+welchen Buildoptionen verwendet hat, und schließt die S15-/P11-
+Sollrecordableitung nicht.
+
+Der nächste zulässige Schritt bleibt eine getrennte, quellbegründete Auswahl
+aller benötigten S15-/P11-Felder für den endgültigen Bootstrap samt vollständiger
+Darstellungs- und Größenprüfung. Vor dem einmaligen operativen Lauf müssen die
+gehaltenen Quellen und der Aufrufplan unabhängig geprüft sein; ein
+selbstaufgenommenes Interpreterprofil bleibt als Sollquelle ausgeschlossen.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
