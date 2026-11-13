@@ -892,7 +892,24 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             for function in active_functions.get(node.func.id, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
+            for function in module_class_methods.get(node.func.id, {}).get("__init__", ()):
+                pending.append((function, function_closures.get(id(function), function_scope)))
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Call):
+                constructor = node.func.value.func
+                if isinstance(constructor, ast.Name):
+                    for function in module_class_methods.get(constructor.id, {}).get(node.func.attr, ()):
+                        pending.append((function, function_closures.get(id(function), function_scope)))
+                    imported_targets = (imported_class_methods or {}).get(
+                        constructor.id, {}
+                    ).get(node.func.attr, ())
+                    imported_calls.update(imported_targets)
+                elif isinstance(constructor, ast.Attribute):
+                    receiver = ast.unparse(constructor.value) + "." + constructor.attr
+                    imported_targets = (imported_module_class_methods or {}).get(
+                        receiver, {}
+                    ).get(node.func.attr, ())
+                    imported_calls.update(imported_targets)
             if isinstance(node.func.value, ast.Name):
                 methods = module_class_methods.get(node.func.value.id, {})
                 for function in methods.get(node.func.attr, ()):
@@ -1096,7 +1113,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_AND_IMPORTED_CLASS_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_AND_DIRECT_CONSTRUCTED_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

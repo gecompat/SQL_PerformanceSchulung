@@ -2705,6 +2705,21 @@ Attribut-/Alias-Rebinding, dynamische Auflösung und Laufzeitsemantik bleiben
 unmodelliert. Der Kandidatenstatus und die offenen operativen Gates ändern sich
 nicht.
 
+Der Scanner verfolgt nun außerdem direkte Methodenaufrufe auf einem explizit
+synthetisierten Klassenobjekt, etwa `Worker().run()` sowie die gebundenen
+Formen `Alias().run()` und `module.Worker().run()`. Ein quellseitig vorhandenes
+`__init__` wird dabei ebenfalls als möglicher Entry verfolgt. Drei positive
+synthetische Fälle decken lokale Klassen, importierte Klassen und importierte
+Modulaliase ab; eine zusätzliche Negativregression stellt sicher, dass aus
+`make().run()` kein Rückgabetyp geraten wird. Der fokussierte Testsatz umfasst
+40 Fälle. Der CPython-Archivlauf zählt 92 Module, 572 Kanten und 331 besuchte
+lokale Funktionen; 22 Bedingungen sind entschieden und 1.061 unbekannt.
+Quelldigest und Modulmenge bleiben unverändert; der Scope schließt nun zusätzlich
+den direkten konstruierten Methodenaufruf ein. Eine Variable wie `obj.run()`,
+Factory-Rückgaben, Vererbung/MRO, Deskriptoren, dynamische Bindung und beliebige
+indirekte Aufrufe bleiben unaufgelöst. Das Ergebnis ist weiterhin
+`CANDIDATES_ONLY` und kein P11-Soll.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
