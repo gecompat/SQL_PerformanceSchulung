@@ -2821,9 +2821,10 @@ synthetische Varianten prüfen diese Pfade. Der fokussierte Satz umfasst nun
 
 Einfache gleichscope Aliase einer lokalen oder direkt importierten Basisklasse
 werden zusätzlich durch `BaseAlias = Base` beziehungsweise
-`BaseAlias = source.Base` aufgelöst. Eine weitere Regression prüft verkettete
-Aliase und beide Basen einer unbekannten Zuweisungsverzweigung bis zu den
-jeweiligen Methodenimports. Der fokussierte Testsatz umfasst 62 Fälle.
+`BaseAlias = source.Base` aufgelöst. Eine Regression prüft verkettete Aliase
+und beide Basen einer unbekannten Zuweisungsverzweigung bis zu den jeweiligen
+Methodenimports; eine Negativprobe stellt sicher, dass ein Factory-Rückgabewert
+nicht als Klasse geraten wird. Der fokussierte Testsatz umfasst 63 Fälle.
 Mehrfachzuweisungen und mögliches Rebinding werden konservativ als
 Alternativen behandelt und können Kandidaten überzählen; dynamische
 Zuweisungen werden nicht modelliert.

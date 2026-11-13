@@ -858,6 +858,25 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertEqual(function_count, 3)
 
+    def test_dynamic_base_assignment_does_not_guess_returned_class(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Base:\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"def choose_base():\n    return Base\n"
+                b"BaseAlias = choose_base()\n"
+                b"class Worker(BaseAlias):\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"Worker().boot()\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg",))
+        self.assertEqual(function_count, 2)
+
     def test_zero_argument_super_call_follows_direct_local_base_method(self):
         files = {
             "pkg/__init__.py": (
