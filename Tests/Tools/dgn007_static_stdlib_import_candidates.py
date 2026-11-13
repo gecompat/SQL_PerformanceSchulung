@@ -1158,6 +1158,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     pending = []
     imported_calls = set()
     function_closures = {}
+    function_imported_class_closures = {}
+    class_method_closure_bases = []
 
     def captures_method_receiver(function, receiver):
         args = (*function.args.posonlyargs, *function.args.args, *function.args.kwonlyargs)
@@ -1209,6 +1211,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             return
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             function_closures.setdefault(id(node), function_scope)
+            function_imported_class_closures.setdefault(
+                id(node), dict(
+                    class_method_closure_bases[-1]
+                    if class_method_closure_bases else imported_class_methods or {}
+                )
+            )
             if (active_method_context is not None
                     and captures_method_receiver(node, active_method_context[1])):
                 method_receiver_context.setdefault(id(node), active_method_context)
@@ -1249,6 +1257,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                         name: tuple(entries) for name, entries in targets.items()
                     }
             original_imported_class_methods = imported_class_methods
+            class_method_closure_bases.append(original_imported_class_methods or {})
             if scoped_method_aliases:
                 imported_class_methods = {
                     **(original_imported_class_methods or {}),
@@ -1256,6 +1265,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 }
             for statement in node.body:
                 yield from visit(statement, class_scope, False, function_scope)
+            class_method_closure_bases.pop()
             imported_class_methods = original_imported_class_methods
             return
         if isinstance(node, ast.GeneratorExp):
@@ -1400,11 +1410,18 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         if id(function) in visited:
             continue
         visited.add(id(function))
+        enclosing_imported_class_methods = imported_class_methods
+        closure_class_methods = function_imported_class_closures.get(id(function), {})
+        if closure_class_methods:
+            imported_class_methods = {
+                **(imported_class_methods or {}),
+                **closure_class_methods,
+            }
         active_instance_methods = constructed_instance_methods(function.body)
         active_method_context = method_receiver_context.get(id(function))
-        # Track only direct same-function aliases of already established class
-        # candidates. This deliberately does not infer factory results or
-        # aliases crossing a nested function/class boundary.
+        # Track direct same-function aliases of established class candidates.
+        # Called nested functions inherit this snapshot as a lexical closure;
+        # factory results and dynamic rebinding remain unresolved.
         scoped_alias_tree = ast.Module(body=function.body, type_ignores=[])
         scoped_class_aliases = _top_level_local_class_alias_index(
             scoped_alias_tree, imported_class_methods or {}
@@ -1435,7 +1452,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         visible_functions = scope_function_aliases(function.body, visible_functions)
         for statement in function.body:
             imports.extend(visit(statement, visible_functions, True, visible_functions))
-        imported_class_methods = original_imported_class_methods
+        imported_class_methods = enclosing_imported_class_methods
     return tuple(imports), len(visited) - visited_before, tuple(sorted(imported_calls))
 
 
@@ -1649,7 +1666,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

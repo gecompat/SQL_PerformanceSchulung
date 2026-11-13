@@ -9108,3 +9108,25 @@ Adapter-Cleanup und Lab-Entfernung: RunId
 diesen 2025-Teilnehmerpfad; vollständiger Incidentnachweis, Ursachenbeleg,
 Versionsmatrix und Capstone bleiben offen. Die menschliche Generalprobe bleibt
 ausgeschlossen.
+
+## Fortsetzung: DGN-007 – Klassenaliase über aufgerufene Nested-Function-Closures
+
+Bereits bekannte importierte Klassenaliase werden jetzt als lexikalische
+Kandidaten an aufgerufene innere Funktionen weitergereicht. Verkettete Aliase
+wie `LocalWorker = Worker; ChainedWorker = LocalWorker` werden im aufgerufenen
+Closure verfolgt. Nicht aufgerufene innere Funktionen fügen keine Imports
+hinzu; Klassennamespace-Namen werden nicht fälschlich als Methoden-Closure
+behandelt. Drei synthetische Regressionen prüfen diese Grenzen; der fokussierte
+Scannerlauf besteht 86/86.
+
+Der erneute SHA-gebundene CPython-3.12.16-Scan bleibt `CANDIDATES_ONLY` mit 93
+Modulen, 578 Kanten, 534 Funktionen, 22 entschiedenen und 1.605 unbekannten
+Bedingungen sowie unverändertem Zeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Die neue
+Form ändert die gebundene Archivmenge nicht. Der lokale breite
+`test_dgn007_import_runtime_profile`-Satz scheitert vor diesen Scannerfixtures
+an Linux-Profilpfaden, die Windows-Python bei `os.path.isabs` als
+`ROOT_MISMATCH` abweist; damit liefert er hier keine Profilqualifikation.
+Vollständige Aufrufclosure, S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate
+bleiben offen. Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
+Generalproben-Ausführung; die Generalprobe bleibt ausgeschlossen.

@@ -2400,6 +2400,13 @@ abgeleitet.
 - [ ] Frische vollständige Workerprofile und tatsächliche Quellenloader-/Importprovenienz belegen. Kontinuierlicher Auftrag und bestehender 30-Minuten-Heartbeat aktiv; ungelöste fachliche und operative Freigabegrenzen bleiben erhalten.
 - [x] Menschliche Priorität vor der nächsten technischen Welle: README als Projekteinstieg mit Lernwegen/Unterlagen/Beispielen, interne Entwicklungsstände ausgelagert und erhaltenes Referenzarchiv erläutert. PR264 abgeschlossen; fehlende Messbarkeit ist kein allgemeines Ausschlusskriterium.
 
+Aktueller statischer Kandidatenfortschritt ist im
+[Ausführungsstand](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md#fortsetzung-dgn-007-klassenaliase-über-aufgerufene-nested-function-closures)
+dokumentiert: aufgerufene Nested-Function-Closures erhalten bekannte
+importierte Klassenaliase; der CPython-3.12.16-Scan bleibt `CANDIDATES_ONLY`.
+Die vollständige Aufrufclosure sowie operative S15-/P11-Inventur und das
+Fünf-Formen-/64-KiB-Gate bleiben offen.
+
 ## VERTIEFUNG Kurswelle vom 18. Oktober 2026
 
 - [x] VERTIEFUNG-Teilprodukt TSK-012: [Zweitageskurs mit 61 Folien](../Documentation/HowTo/SQL_SERVER_2025_AI_VERTIEFUNG_COURSE.md), vollständigem STANDARD-Tag, konkreten Tag-2-Beleg-/Entwurfsaufgaben und zentralen Musterlösungen; 840+120 Planminuten.
