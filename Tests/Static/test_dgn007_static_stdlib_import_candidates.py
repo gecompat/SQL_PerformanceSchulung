@@ -721,6 +721,26 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertEqual(function_count, 4)
 
+    def test_receiver_and_super_calls_follow_transitive_local_base_methods(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class Root:\n"
+                b"    def load(self):\n        from . import leaf\n"
+                b"class Middle(Root):\n    pass\n"
+                b"class Worker(Middle):\n"
+                b"    def boot(self):\n"
+                b"        self.load()\n"
+                b"        super().load()\n"
+                b"Worker().boot()\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
     def test_zero_argument_super_call_follows_direct_local_base_method(self):
         files = {
             "pkg/__init__.py": (
@@ -1040,7 +1060,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_DIRECT_LOCAL_INHERITED_RECEIVER_METHODS_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
