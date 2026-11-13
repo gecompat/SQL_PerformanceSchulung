@@ -21,15 +21,14 @@ Bootstrapmodule, 79 Standardbibliotheks-/Extensionmodule sowie 27
 Builtin-Inittab-Einträge; Setup, `MODBUILT_NAMES`, Inittab und 79
 ABI-markierte Dateien stimmen vollständig überein. Zusätzlich stimmen 684 von
 684 installierten CPython-`Lib/`-Quelldateien bytegenau mit dem verifizierten
-Quellarchiv überein. Ein konservativer statischer AST-Vorschnitt verfolgt von
-den festen Bootstrap-/Profilimporten 53 Quellmodule; er ignoriert
-Funktionskörper, dynamische Imports und Loaderzustände und enthält umgekehrt
-bedingte Plattformzweige. Damit ist er weder vollständige Importclosure noch
-P11-Sollinventur. Ein zusätzlicher reproduzierbarer Lexikalscan über alle
-AST-Knoten erfasst 264 Quellmodulkandidaten und 2.438 Importkanten; er
-überschreitet die bestehende 256-Recordgrenze und enthält unaufgerufene
-Funktionen sowie Plattformzweige. Beide Resultate sind weder vollständige
-Importclosure noch P11-Sollinventur. PR #610 hat den Größenfehler des
+Quellarchiv überein. Der frühere statische Vorschnitt mit 53 Quellen ließ
+Klassenkörper aus. Der reproduzierbare Lexikalscan über alle AST-Knoten zählt
+264 Quellkandidaten und 2.438 Importkanten; er überschreitet die
+256-Recordgrenze. Der getrennte Modul-/Klassenkörper-Vorschnitt enthält 59
+Quellkandidaten und 287 Kanten; er schließt unaufgerufene Funktionskörper aus,
+wertet aber Plattformzweige nicht aus und erfasst keine Imports aus später
+aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Keiner der drei
+Werte ist vollständige Importclosure oder P11-Sollinventur. PR #610 hat den Größenfehler des
 SESSION_END-Quellbuilders nach unabhängiger Prüfung und 18 grünen Headchecks
 behoben und wurde als `7b756bb1fc6c124b8dbe90c261de67addd2503c5` integriert;
 alle ausgelösten Main-Workflows bestanden ebenfalls. Buildherkunft und

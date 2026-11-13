@@ -2600,6 +2600,16 @@ Archivs vor dem Tarlesen, den Austausch des Pfads nach dem Hashen, relative und
 funktionslokale Imports, unbekannte dynamische Imports, deterministische
 Modulauflösung sowie die ausdrückliche Kandidatenstatusausgabe.
 
+Eine getrennte engere Traversierung nimmt zusätzlich nur Imports aus
+Modul-/Klassenkörpern und deren bedingten Anweisungsblöcken auf; nicht
+aufgerufene Funktionskörper bleiben ausgeschlossen. Sie ergibt 287 Kanten und
+59 Quellmodulkandidaten mit dem sortierten Modul-/Quelldigest
+`2b33bff1949822ff1e7d98474d0d523b7cd729af8b9f2c76d5094edf2283b291`. Dieser
+Vorschnitt ist enger als der Vollscan, aber ebenfalls keine P11-Importclosure:
+er wertet Plattformbedingungen nicht aus und erfasst keine Imports aus
+aufgerufenen Funktionen, Dekoratoren oder C-/Frozen-Aufrufen. Importsyntax in
+einem Klassenkörper ist dabei kein Beleg seiner tatsächlichen Ausführung.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,

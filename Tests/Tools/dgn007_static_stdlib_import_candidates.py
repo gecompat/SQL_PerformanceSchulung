@@ -78,6 +78,44 @@ def _import_names(tree, module, path):
                         yield base + "." + alias.name
 
 
+def _module_body_import_names(tree, module, path):
+    """Include module/class execution bodies, but not uncalled function bodies."""
+    package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+
+    def visit(node):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return
+        if isinstance(node, ast.ClassDef):
+            for statement in node.body:
+                yield from visit(statement)
+            return
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                yield alias.name
+            return
+        if isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            if node.level:
+                parts = package.split(".") if package else []
+                keep = max(0, len(parts) - node.level + 1)
+                base = ".".join(parts[:keep] + ([base] if base else []))
+            if base:
+                yield base
+                for alias in node.names:
+                    if alias.name != "*":
+                        yield base + "." + alias.name
+            return
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                yield from visit(child)
+            elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                for statement in child.body:
+                    yield from visit(statement)
+
+    for statement in tree.body:
+        yield from visit(statement)
+
+
 def _candidate_closure(files, roots=ROOTS):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
@@ -113,14 +151,54 @@ def _candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest()
 
 
+def _module_body_candidate_closure(files, roots=ROOTS):
+    if type(files) is not dict or type(roots) is not tuple:
+        raise ValueError("SOURCE_INPUT_TYPE")
+    if any(type(name) is not str for name in roots) or len(set(roots)) != len(roots):
+        raise ValueError("SOURCE_ROOTS")
+    reached = set()
+    pending = list(roots)
+    edges = 0
+    while pending:
+        module = pending.pop()
+        if module in reached:
+            continue
+        path = _module_path(module, files)
+        if path is None:
+            continue
+        reached.add(module)
+        tree = ast.parse(files[path], filename=path)
+        for name in _module_body_import_names(tree, module, path):
+            parts = name.split(".")
+            candidate = next(
+                (".".join(parts[:index]) for index in range(len(parts), 0, -1)
+                 if _module_path(".".join(parts[:index]), files) is not None),
+                None,
+            )
+            if candidate is not None:
+                edges += 1
+                if candidate not in reached:
+                    pending.append(candidate)
+    rows = []
+    for module in sorted(reached):
+        path = _module_path(module, files)
+        rows.append((module + "\t" + hashlib.sha256(files[path]).hexdigest() + "\n").encode("ascii"))
+    return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest()
+
+
 def analyze(archive_path):
     files = _source_files(archive_path)
     modules, edges, rows_sha256 = _candidate_closure(files)
+    module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     return {
         "archive_sha256": ARCHIVE_SHA256,
         "edge_count": edges,
         "module_count": len(modules),
         "module_rows_sha256": rows_sha256,
+        "module_body_candidate_count": len(module_body),
+        "module_body_edge_count": module_body_edges,
+        "module_body_scope": "MODULE_AND_CLASS_BODIES_ONLY",
+        "module_body_rows_sha256": module_body_sha256,
         "roots": list(ROOTS),
         "scope": "LEXICAL_SOURCE_CANDIDATES_ONLY",
     }
