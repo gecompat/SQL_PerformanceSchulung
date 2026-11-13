@@ -321,6 +321,26 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
+def verify_timeout_probe_login(container: str, sqlcmd: str, database: str, username: str, password: str) -> None:
+    """Prove the phase-scoped identity can connect before starting the timeout SQL."""
+    command = [
+        "docker", "exec", "-e", "SQLCMDPASSWORD", container, sqlcmd,
+        "-S", "localhost", "-d", database, "-U", username, "-C", "-b", "-Q", "SELECT 1;",
+    ]
+    checked = subprocess.run(
+        command, check=False, capture_output=True, text=True, encoding="utf-8",
+        errors="replace", env=os.environ.copy(),
+    )
+    if checked.returncode:
+        details = "\n".join(part.strip()[:2000] for part in (checked.stdout, checked.stderr) if part and part.strip())
+        if password:
+            details = details.replace(password, "[MASKED]")
+        raise RuntimeError(
+            "timeout probe identity could not connect to its bound target"
+            + (f":\n{details}" if details else f" (sqlcmd exit {checked.returncode})")
+        )
+
+
 def main() -> int:
     timeout_probe_path: Path | None = None
     try:
@@ -330,6 +350,12 @@ def main() -> int:
             if script == PLAN_EVIDENCE_SCRIPT:
                 values = dict(item.split("=", 1) for item in raw_variables)
                 token = values.get("RunToken", "")
+                container = os.environ.get("SQLPERF_SQL_CONTAINER", "")
+                password = os.environ.get("SQLCMDPASSWORD", "")
+                if not container or not password:
+                    raise ValueError("timeout probe container or phase-scoped credential is unavailable")
+                verify_timeout_probe_login(container, proxy._sqlcmd_path(container), database, username, password)
+                print("QRY023_TIMEOUT_NEGATIVE|READER_LOGIN|PASS")
                 timeout_probe_path = PLAN_EVIDENCE_SCRIPT.parent / f".qry023_timeout_probe_{token}.sql"
                 rewritten = timeout_probe_argv(sys.argv[1:], timeout_probe_path)
                 timeout_probe_path.write_text(

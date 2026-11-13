@@ -251,6 +251,32 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                 probe_script,
             )
 
+    def test_timeout_proxy_proves_reader_login_in_bound_target_before_probe(self) -> None:
+        password = "synthetic-reader-secret"
+        with mock.patch.dict(os.environ, {"SQLCMDPASSWORD": password}, clear=True), \
+             mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(
+                 returncode=0, stdout="1\n", stderr="")) as run:
+            negative_proxy.verify_timeout_probe_login(
+                "isolated-container", "/opt/sqlcmd", "SQLPERF_LAB_QRY023_LOCAL", "READER", password,
+            )
+        command = run.call_args.args[0]
+        self.assertEqual(command[command.index("-d") + 1], "SQLPERF_LAB_QRY023_LOCAL")
+        self.assertEqual(command[command.index("-U") + 1], "READER")
+        self.assertNotIn(password, command)
+        self.assertEqual(run.call_args.kwargs["env"]["SQLCMDPASSWORD"], password)
+
+    def test_timeout_proxy_masks_login_failure_details(self) -> None:
+        password = "synthetic-reader-secret"
+        with mock.patch.dict(os.environ, {"SQLCMDPASSWORD": password}, clear=True), \
+             mock.patch.object(negative_proxy.subprocess, "run", return_value=SimpleNamespace(
+                 returncode=1, stdout="", stderr=f"Login failed; {password}")) as run:
+            with self.assertRaises(RuntimeError) as caught:
+                negative_proxy.verify_timeout_probe_login(
+                    "isolated-container", "/opt/sqlcmd", "SQLPERF_LAB_QRY023_LOCAL", "READER", password,
+                )
+        self.assertIn("Login failed", str(caught.exception))
+        self.assertNotIn(password, str(caught.exception))
+
     def test_negative_permission_proxy_server_role_mode_is_fixed(self) -> None:
         sql, marker = negative_proxy.injection_for_mode("SERVER_ROLE")
         self.assertEqual(sql, "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n")
@@ -751,6 +777,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("TIMEOUT_PLAN_EVIDENCE", timeout_case)
         self.assertIn("plan[\"timeout_seconds\"] = 5", timeout_case)
         self.assertIn("WAITFOR DELAY '00:00:30'", (ROOT / "Tests/Runtime/qry023_negative_permission_proxy.py").read_text(encoding="utf-8"))
+        timeout_proxy_source = (ROOT / "Tests/Runtime/qry023_negative_permission_proxy.py").read_text(encoding="utf-8")
+        self.assertIn("verify_timeout_probe_login(container, proxy._sqlcmd_path(container), database, username, password)", timeout_proxy_source)
+        self.assertIn("QRY023_TIMEOUT_NEGATIVE|READER_LOGIN|PASS", timeout_proxy_source)
         self.assertIn("PLAN_EVIDENCE: FAIL/FAIL_TIMEOUT", timeout_case)
         self.assertIn("CLEANUP: FAIL/FAIL_CLEANUP", timeout_case)
         self.assertIn("QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED", timeout_case)
