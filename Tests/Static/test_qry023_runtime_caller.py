@@ -616,6 +616,10 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("Mitgliedschaft in `db_datareader`", readme)
         self.assertIn("`VIEW SERVER STATE`-Grant", readme)
         self.assertIn("`securityadmin`", readme)
+        self.assertIn("`25_Qualification_Preflight.sql`", readme)
+        self.assertIn("`22_Admin_Permission_Inventory.sql`", readme)
+        self.assertNotIn("nicht serverseitig verifiziert", readme)
+        self.assertNotIn("Der Offlineentwurf für die Effektivrechteprüfung", readme)
         self.assertIn("SQL-Kataloge wurden nicht ausgeführt", readme)
         self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
 
