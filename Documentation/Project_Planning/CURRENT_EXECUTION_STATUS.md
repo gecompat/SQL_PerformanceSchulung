@@ -33,11 +33,14 @@ vorläufig vorgewählt; die Kindumgebung muss `_PYTHON_SYSCONFIGDATA_NAME`
 ausdrücklich abwesend halten, da `-I` den direkten `os.environ`-Zugriff nicht
 unterbindet. Das sind Quellenwerte, keine tatsächlichen `sysconfig`-Rückgaben.
 Nächster Gate ist die vollständige Vorwahl dieser Sollfelder und der endgültigen
-Bootstrapbytes samt Quellen-/Aufrufreview;
+Bootstrapbytes samt Quellen-/Aufrufreview. Das OCI-Image liefert den direkten
+Executablekandidaten `/usr/local/bin/python3.12` (18.304 Bytes, Modus `0755`,
+gebundener SHA-256); `/usr/local/bin/python3` ist ein Symlink darauf. Auch
+dieser Dateibeleg bestimmt nicht den tatsächlichen `sys.executable`-Wert;
 erst danach darf die einmalige operative Inventur mit fünf vollständigen
 Darstellungen und gemeinsamem 64-KiB-Gate folgen. Es gab in diesen Schritten
 keine Profilaufnahme oder Worker-/SQL-Ausführung; die Generalprobe bleibt
-ausgeschlossen. Details stehen in §19.3–§19.12 des
+ausgeschlossen. Details stehen in §19.3–§19.13 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
 ## Graph Tables – Curriculum-Lernnotiz

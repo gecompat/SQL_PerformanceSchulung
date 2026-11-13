@@ -2508,6 +2508,25 @@ nicht eine Sequenz mit 1.029 Modulen. Sein Tokenbestand stimmt mit den 22
 `Setup.bootstrap`- und 79 `Setup.stdlib`-Namen aus §19.9 überein. Der
 AST-/Literalzugriff führte weder das Modul noch den Interpreter aus.
 
+### 19.13 Direkter Executablekandidat aus OCI-Layer 6
+
+Der digestgebundene CPython-3.12.16-Installationslayer enthält
+`/usr/local/bin/python3.12` als reguläre Datei mit Modus `0755`, 18.304 Bytes
+und SHA-256 `837a48d7afd08447fb43e28b282026fadb59368620072e57e01f66d12977e5ce`.
+Der benachbarte `/usr/local/bin/python3`-Eintrag ist ein Symlink auf
+`python3.12`. Für den Kandidaten wird deshalb der direkte absolute Pfad
+`/usr/local/bin/python3.12` vorgewählt, ohne von Symlinkauflösung oder einem
+beweglichen `PATH`-Eintrag abzuhängen. Die Datei wurde aus dem zuvor gepinnten
+OCI-Childimage gelesen; kein Executable wurde gestartet und kein Container
+erstellt.
+
+Dies bindet einen Executablelocator und dessen installierte Bytes für den
+Imagekandidaten. Es attestiert weder eine unabhängige Buildherkunft noch den
+späteren tatsächlichen Wert von `sys.executable`, dessen physisches Target,
+Prefixfelder oder Startupflags. Diese S15-Werte müssen bei der endgültigen
+Vorwahl separat an den festen Aufruf gebunden und vor der einzigen operativen
+Aufnahme unabhängig geprüft werden.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
