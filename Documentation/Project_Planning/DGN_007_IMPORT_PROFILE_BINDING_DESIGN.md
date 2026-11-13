@@ -2734,6 +2734,18 @@ konservativ gesammelt; Rebinding und alternative Kontrollflussbindungen können
 Funktions-/Factory-Rückgaben, Vererbung/MRO, Deskriptoren und dynamische
 Bindung bleiben unaufgelöst. Der Scope bleibt `CANDIDATES_ONLY`.
 
+Der gleiche Scope-Auflöser kopiert jetzt eine bereits bekannte direkte
+Instanzbindung bei einer einfachen Zuweisung wie `instance = worker`. Damit
+werden auch `instance.run()`-Aufrufe über diesen Alias verfolgt. Zwei positive
+Regressionen decken lokale und importierte Klassen ab; der Factory-Negativfall
+verfolgt weiterhin keine unbekannte Rückgabe über einen Alias. Der Testsatz
+umfasst 45 Fälle. Der Archivlauf zählt 92 Module, 572 Kanten, 352 besuchte
+Funktionen sowie 22 entschiedene und 1.127 unbekannte Bedingungen; Quelldigest
+unverändert. Aliasbindungen werden nur hinzugefügt und nicht durch nachfolgende
+unbekannte Zuweisungen aufgehoben, daher können Rebinding und Kontrollfluss
+überzählen. Beliebige Zuweisungsausdrücke und dynamische Typwechsel bleiben
+unaufgelöst; `CANDIDATES_ONLY` bleibt bestehen.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,

@@ -843,17 +843,31 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     if target not in external:
                         external.append(target)
 
+        def bind_alias(target_name, source_name):
+            source = result.get(source_name)
+            if source is None:
+                return
+            target = result.setdefault(target_name, {})
+            for method_name, entries in source.items():
+                bound = target.setdefault(method_name, {"local": [], "imported": []})
+                for kind in ("local", "imported"):
+                    for entry in entries[kind]:
+                        if entry not in bound[kind]:
+                            bound[kind].append(entry)
+
         def collect(node):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
                 return
-            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
-                constructor = node.value.func
-                for target in node.targets:
-                    if isinstance(target, ast.Name):
-                        bind_constructor(target.id, constructor)
-            elif isinstance(node, ast.AnnAssign) and isinstance(node.value, ast.Call):
-                if isinstance(node.target, ast.Name):
-                    bind_constructor(node.target.id, node.value.func)
+            if isinstance(node, (ast.Assign, ast.AnnAssign)):
+                value = node.value
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                for target in targets:
+                    if not isinstance(target, ast.Name):
+                        continue
+                    if isinstance(value, ast.Call):
+                        bind_constructor(target.id, value.func)
+                    elif isinstance(value, ast.Name):
+                        bind_alias(target.id, value.id)
             for child in ast.iter_child_nodes(node):
                 if isinstance(child, ast.stmt):
                     collect(child)
@@ -1170,7 +1184,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_AND_SAME_SCOPE_INSTANCE_BINDINGS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_AND_INSTANCE_ALIASES",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

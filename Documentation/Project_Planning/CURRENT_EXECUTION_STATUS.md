@@ -40,12 +40,12 @@ früheren 63er-Stand sind `locale`, `selectors`, `signal` und `subprocess`.
 Die jüngste statische Fortsetzung folgt nun auch explizit importierte
 Quellklassenmethoden und vorhandene `__init__`-Konstruktoren. Nach Korrektur
 der importierten Zielpaare zählt der Kandidatenscan 92 Module/572 Kanten und
-351 lokale Funktionen (22 entschiedene, 1.126 unbekannte Bedingungen; Digest
+352 lokale Funktionen (22 entschiedene, 1.127 unbekannte Bedingungen; Digest
 `f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`).
 Der Scan folgt nun zusätzlich `from package import module [as alias]` und
 relativen Varianten, direkte Methodenaufrufe auf frisch konstruierten
-Klassenobjekten und einfache gleichscope Variablenbindungen daraus. 43 synthetische
-Tests bestehen. Dynamische Calls, Vererbung/MRO,
+Klassenobjekten, direkte gleichscope Variablenbindungen und einfache Aliase
+solcher Instanzen. 45 synthetische Tests bestehen. Dynamische Calls, Vererbung/MRO,
 Deskriptoren, `__new__`, C-/Frozen-Aufrufe und modulübergreifendes Rebinding
 bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
@@ -8863,3 +8863,14 @@ CPython-Archivmessung bleibt `CANDIDATES_ONLY`: 92 Module, 572 Kanten, 351
 besuchte lokale Funktionen, 22 entschiedene und 1.126 unbekannte Bedingungen;
 Quelldigest unverändert. Rebinding kann überzählen; beliebige Factory-,
 Instanz-, Vererbungs- und Laufzeitbindungen bleiben offen.
+
+## Fortsetzung: DGN-007 – einfache Instanzaliase
+
+Eine einfache Zuweisung `anderer_name = worker` übernimmt jetzt die bekannte
+direkte Klassenbindung innerhalb desselben Scopes. Zwei neue Regressionen
+decken lokale und importierte Klasseninstanzen ab; eine Factory-Rückgabe wird
+auch durch Aliaszuweisung nicht geraten. 45/45 synthetische Tests bestehen.
+Der Archivscan bleibt `CANDIDATES_ONLY`: 92 Module/572 Kanten/352 besuchte
+Funktionen, 22 entschiedene und 1.127 unbekannte Bedingungen; Quelldigest
+unverändert. Unbekanntes Rebinding hebt frühere Kandidatenzuordnungen nicht
+auf und kann daher weiterhin überzählen.
