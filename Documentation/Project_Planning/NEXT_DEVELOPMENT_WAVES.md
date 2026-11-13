@@ -1436,5 +1436,26 @@ Der Ressourcen-/TempDB-Schnitt ist als eigener vorgeschlagener CI-Aufrufer in `.
 
 PR #563 integrierte den vorgeschlagenen Aufrufer am Commit `69a6c33915d70ea393fcf6bf6b06526b3cecc51b`; 69 PR-Checks sowie die QRY-023-Harness- und Runtimeworkflows auf `main` bestanden. Der nächste Schritt ist der dokumentierte Abgleich belegter Dokumentations-/Registrierungswidersprüche. Katalogpromotion und menschliche Generalprobe sind nicht Teil dieser Welle; die Generalprobe bleibt ausdrücklich ausgeschlossen.
 
+### QRY-023 – Live-Negativfälle für READER-Inventar (Fortsetzung 13.11.2026)
+
+PR #566 erweiterte die kontrollierte Gegenprobe um direkten Objekt-`SELECT` und
+`db_datareader`; #567 ergänzte Objekt-`DENY`, #568 die temporäre
+`dbcreator`-Mitgliedschaft, #569 ein fehlendes erwartetes Tabellenobjekt,
+#570 serverweites `VIEW SERVER STATE`-`GRANT` und #571 dessen explizites
+`DENY`. Die Fälle liefen in owner-markierten Wegwerfcontainern auf den
+festgeschriebenen SQL-Server-2019/2022/2025-Builds. Sie verlangten jeweils die
+exakte Abweichungskategorie, `FAIL_NOT_PROVEN`, Cleanup und keinen Eintritt in
+Queryphasen; nach jeder Matrixsequenz bestand der positive Zehnphasenlauf.
+PR #571 ist in Commit `ed271d4e3befcbdb8f3f335ed76a82451a478b24` integriert;
+README und Effektivrechte-Design sind abgeglichen. Der Stand bleibt
+`PROPOSED`, nicht katalogisiert und `runtime_authorized: false`.
+
+Die nächste endliche QRY-023-Gegenprobe ergänzt ausschließlich ein explizites
+datenbankweites READER-Recht, prüft die Klassifikation `DATABASE_PERMISSION`
+und lässt die markierte Ziel-DB durch den vorhandenen Harness-Cleanup
+entfernen. Absichtlich beschädigte Systemkataloge, allgemeine Runtime- und
+Produkt-/Katalogfreigabe sowie die menschliche Generalprobe gehören nicht zu
+diesem Schritt.
+
 
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
