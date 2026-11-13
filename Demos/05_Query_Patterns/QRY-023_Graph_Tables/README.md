@@ -224,10 +224,11 @@ Datenbank-/Sicherheitskontextwechsel sowie SQLCMD-Controlzeilen und
 Batchtrenner `GO` mit oder ohne Wiederholungszahl werden abgelehnt; nur
 `:setvar SQLCMDMAXVARTYPEWIDTH 0` bleibt in
 `50_Plan_Evidence.sql` zugelassen. Das
-schützt die statische Zuordnung der aktuellen Skripttexte, ist
-aber kein T-SQL-AST-/Datenflussnachweis, kein Serverrechteinventar und kein
-Nachweis des tatsächlichen Verhaltens unter SQL Server. Die Runtime- und
-Effektivberechtigungsgates bleiben offen.
+schützt die statische Zuordnung der aktuellen Skripttexte, ist aber kein
+T-SQL-AST-/Datenflussnachweis und kein Serverrechteinventar. Die davon
+getrennten ADMIN-/READER-Rechteprüfungen und die tatsächliche Ausführung des
+Preflight wurden im isolierten Lauf auf den drei gepinnten Builds qualifiziert;
+allgemeine Runtime- und Produktfreigabe bleiben offen.
 
 Der Messpfad hält außerdem die optionale FWK-004-Wartezeiterfassung aus:
 `lab.USP_Qry023MeasureVariant` ruft `USP_BeginMeasurement` mit
@@ -267,7 +268,11 @@ ein alphanumerisches erstes Zeichen. Separat prüft der vorgeschlagene
 read-only SQL-Preflight den erlaubten ASCII-Zeichensatz und die Bytegrenze.
 `DATALENGTH` ergänzt die Zeichenprüfung, weil `LEN`
 nachgestellte Leerzeichen ausschließt und ASCII-`LIKE` sie im Suchwert
-ignoriert; siehe die Microsoft-Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17). Diese Bedingung ist offline statisch geprüft, aber noch nicht mit SQL Server ausgeführt.
+ignoriert; siehe die Microsoft-Dokumentation zu [`LEN`](https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17) und [`LIKE`](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver17). Der gültige Preflightpfad läuft mit SQL Server; speziell das Zurückweisen
+fehlerhafter RunToken-Grenzwerte (etwa nachgestellte Leerzeichen) ist bisher
+statisch geprüft, aber nicht als eigenständige Live-Negativkontrolle ausgeführt.
+Der FWK-010-Caller verwirft solche Werte bereits vor SQLCMD anhand des
+Manifestvertrags.
 
 SQLCMD setzt Skriptvariablen an ihren `$(Name)`-Vorkommen ein, auch in
 Zeichenliteralen. Daraus folgt als Sicherheitsinferenz, dass der T-SQL-

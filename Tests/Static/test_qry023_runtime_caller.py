@@ -620,6 +620,9 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("`22_Admin_Permission_Inventory.sql`", readme)
         self.assertNotIn("nicht serverseitig verifiziert", readme)
         self.assertNotIn("Der Offlineentwurf für die Effektivrechteprüfung", readme)
+        permission_design = (ROOT / "Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md").read_text(encoding="utf-8")
+        self.assertIn("PRs #566–#581", permission_design)
+        self.assertNotIn("absichtlich fehlerhafte Live-Rechte wurden nicht", permission_design)
         self.assertIn("SQL-Kataloge wurden nicht ausgeführt", readme)
         self.assertNotIn("negative Live-Berechtigungsvarianten und absichtlich beschädigte SQL-Kataloge wurden nicht\nausgeführt", readme)
 
