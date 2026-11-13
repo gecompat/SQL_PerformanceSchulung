@@ -7,6 +7,7 @@ from importlib.machinery import BuiltinImporter, FrozenImporter, PathFinder, Mod
 import importlib.util
 import os
 from pathlib import Path
+import posixpath
 import sys
 import sysconfig
 import tempfile
@@ -71,6 +72,13 @@ def fixture():
 
 
 class ProfileTests(unittest.TestCase):
+    def setUp(self):
+        linux_path_semantics = patch.object(
+            m.os.path, "isabs", side_effect=posixpath.isabs
+        )
+        linux_path_semantics.start()
+        self.addCleanup(linux_path_semantics.stop)
+
     def reject(self, p, o, issue=None):
         r = m.validate_profile(p, o)
         self.assertEqual(r.status, "REJECTED_PROFILE")
@@ -350,6 +358,7 @@ class ObservationRecordsTests(unittest.TestCase):
     def observe(self, expected, captures, opened=None):
         # Nur Aufnahme-/I/O-Gegenproben; kein neuer Trust- oder Workerbootstrap.
         with patch.object(m.sys, "platform", "linux"), patch.object(m, "_capture", side_effect=captures) as capture, \
+             patch.object(m.os.path, "isabs", side_effect=posixpath.isabs), \
              patch.object(m.os.path, "isdir", return_value=True), patch.object(m.os.path, "isfile", return_value=True), \
              patch.object(m.os.path, "islink", return_value=False), patch.object(m.os.path, "lexists", return_value=False), \
              patch.object(m.os.path, "realpath", side_effect=lambda path: path), \
@@ -391,7 +400,9 @@ class ObservationRecordsTests(unittest.TestCase):
         captures.assert_not_called()
         stream.assert_not_called()
         for check, issue in (("isdir", "ROOT_MISMATCH"), ("isfile", "INTERPRETER_MISMATCH")):
-            with patch.object(m.sys, "platform", "linux"), patch.object(m.os.path, "isdir", return_value=True), \
+            with patch.object(m.sys, "platform", "linux"), \
+                 patch.object(m.os.path, "isabs", side_effect=posixpath.isabs), \
+                 patch.object(m.os.path, "isdir", return_value=True), \
                  patch.object(m.os.path, "realpath", side_effect=lambda path: path), \
                  patch.object(m.os.path, check, return_value=False), \
                  patch.object(m, "_capture") as capture, patch("builtins.open") as opened:
@@ -551,6 +562,7 @@ class ScalarProjectionTests(unittest.TestCase):
 
     def observe(self, p, o, known, captures=None):
         with patch.object(m.sys, "platform", "linux"), \
+             patch.object(m.os.path, "isabs", side_effect=posixpath.isabs), \
              patch.object(m, "_capture", side_effect=captures or (o, replace(o))) as capture, \
              patch.object(m.os.path, "isdir", return_value=True), patch.object(m.os.path, "isfile", return_value=True), \
              patch.object(m.os.path, "realpath", side_effect=lambda path: path), \

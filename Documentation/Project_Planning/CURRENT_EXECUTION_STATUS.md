@@ -9024,6 +9024,16 @@ bleibt bei 92 Modulen/573 Kanten/471 Funktionen und 1.452 unbekannten
 Bedingungen; Quelldigest unverändert. Kein Interpreter, Profil, Worker, SQL
 oder Generalprobe wurde ausgeführt.
 
+## DGN-007-Profilfixtures: POSIX-Pfade auf Windows-Hosttests
+
+Der synthetische breite Profiltestsatz bildet deklarierte Linuxpfade jetzt mit
+`posixpath.isabs` ab, auch wenn der Testhost Windows verwendet. Zuvor wählte
+`os.path.isabs` auf diesem Host `ntpath` und wies Linux-Fixtures vor den
+eigentlichen Assertions als `ROOT_MISMATCH` zurück. Der vollständige lokale
+Satz besteht jetzt mit 57/57 (drei umgebungsbedingt übersprungene Fälle). Es
+wurde keine Produktions-Runtimegrenze geändert; dies ist keine CPython-
+Zielprofil- oder Profilqualifikation.
+
 ## Fortsetzung: DGN-007 – qualifizierte Aliase importierter Klassen
 
 Der statische Kandidatenfolger löst jetzt auch `Alias = worker.Worker` und
