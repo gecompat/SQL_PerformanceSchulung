@@ -2,19 +2,28 @@
 
 Stand: 2026-11-13. Dieser begrenzte Methodenschnitt bearbeitet ausschließlich
 die offene Frage, wie der vorhandene Plan-Capture-Transport einen
-`plan_handle` an genau einen eigenen DGN-004-Nutzaufruf binden kann. Er enthält
-keine ausführbare SQL-Änderung und keine Laufzeitaussage.
+`plan_handle` an genau einen eigenen DGN-004-Nutzaufruf binden kann. Der
+source-only-Kandidat ist inzwischen als DMV-Frame-Abfrage, begrenzter Runner
+und synthetischer Delta-Binder umgesetzt; er wurde weder gegen SQL Server
+kompiliert noch live ausgeführt.
 
 ## Befund am vorhandenen Quellstand
 
-`CapturePlanFrame.sql` nimmt einen 64-Byte-`plan_handle` entgegen und liest
-damit `sys.dm_exec_query_plan_stats`. Der Wert wird lexical sicher geprüft,
+`CapturePlanFrame.sql` nimmt einen `plan_handle` mit 1 bis 64 Bytes entgegen
+und liest damit `sys.dm_exec_query_plan_stats`. Der Wert wird lexical sicher geprüft,
 aber vom Aufrufer geliefert. `dgn004_identity_snapshot.py` prüft
 caller-gelieferte R/H-Quell-, Modul-, Cache- und Query-Store-Felder offline;
 es bindet weder die Aufzählung sämtlicher Serverzeilen noch einen Planhandle.
 Beide Komponenten warnen ausdrücklich vor diesem fehlenden Provenienznachweis.
 
 ## Quellenbasierter Kandidat
+
+Ein zuvor festgeschriebener Prüfwert verlangte genau 64 Bytes. Microsoft
+definiert den Parameter als `varbinary(64)` und zeigt einen kürzeren
+Planhandle im Beispiel. Die dokumentierte Deklaration ist daher eine
+Höchstlänge; eine feste 64-Byte-Länge wäre zu restriktiv. Die Eingabevalidierung
+akzeptiert nun 1 bis 64 Bytes als gerade Hexfolge und füllt den Handle nicht
+auf. [`sys.dm_exec_query_plan`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-plan-transact-sql?view=sql-server-ver17)
 
 Microsoft beschreibt `sys.dm_exec_query_stats` als eine Zeile pro
 Abfragestatement in einem gecachten Plan. Die Sicht enthält nur beendete
@@ -53,7 +62,12 @@ vollständig transportierter Plan bleibt Nichtabnahme. [`sys.dm_exec_query_plan_
 
 Der isolierte Ablauf benötigt einen vollständig erfassten Vorher-Snapshot,
 genau einen vom Orchestrator markierten Aufruf und einen vollständigen
-Nachher-Snapshot ohne konkurrierende Nutzaufrufe. `last_execution_time` und
+Nachher-Snapshot ohne konkurrierende Nutzaufrufe. Die zwei Snapshotaufrufe und
+der Plan-Capture müssen innerhalb der bestehenden Obergrenzen bleiben: höchstens
+100 SQL-Batches und drei Metadatenbeobachtungen je Flush. Sie erweitern keine
+Budgets; sie verbrauchen die bereits vorhandenen Grenzen. Ist das ohne Verlust
+der vollständigen Snapshots oder ohne Überschreitung anderer Pflichtbeobachtungen
+nicht möglich, wird vor dem Lauf abgebrochen. `last_execution_time` und
 die Plan-/Queryhashes sind ergänzende Kandidatenfelder, keine Identitätsschlüssel.
 Die Planhashes und vollständige Struktur-/Objekt-/Prädikatevidenz dürfen nur
 zusammen mit Datenbank, Objekt, Query-Store-Identität, exaktem Statementtext,
@@ -84,12 +98,15 @@ Nachher-Snapshot eines bereits beendeten Nutzaufrufs.
   werden. Ein erfolgreicher Transport beweist weder Force-Erfolg noch
   Engineidentität, Kompilierungszuwachs oder vollständige Lifecycleabnahme.
 
-Diese Strategie ist ein Kandidat, kein freigegebener Implementierungsvertrag.
-Vor ausführbarer Umsetzung sind ein unabhängiger Methoden-/Quellenreview,
-synthetische Fälle für Cache-Neuanlage, Delta 0/1/>1, konkurrierende
-Kandidaten, Eviktion, Offset-/M/S/T-Abweichung, unvollständigen Snapshot und
-falsche tatsächliche Statementrolle sowie ScriptDom-Prüfung erforderlich.
-Vor SQL-Ausführung bleiben sämtliche YELLOW-, Ressourcen-, Rechte-,
+Diese Strategie ist als source-only-Kandidat implementiert, kein
+freigegebener oder ausgeführter SQL-Vertrag. Die synthetischen Fälle für
+Cache-Neuanlage, Delta 0/1/>1, konkurrierende Kandidaten, Eviktion,
+Offset-/M/S/T-Abweichung, unvollständigen Snapshot und variable Handlelängen
+sowie der ScriptDom-Syntaxparse bestehen. Der unabhängige Methoden-/Code-Review
+fand zunächst einen veralteten Backlogstatus (P2); nach dessen Korrektur
+bestätigte er keine weiteren P1/P2 im SQL-Filter/Frame, Handle-Längenvertrag,
+Runner oder Composite-Key/Delta-Vertrag. Vor SQL-Ausführung bleiben
+sämtliche YELLOW-, Ressourcen-, Rechte-,
 Image-/Build- und Ausgangszustandsgates bindend. Am 2026-11-13 waren fünf
 fremde SQL-Server-Container aktiv; ein read-only `docker stats`-Snapshot zeigte
 für sie zusammen rund 5,6 GiB Speicher und etwa 5 % CPU. Das ist keine
