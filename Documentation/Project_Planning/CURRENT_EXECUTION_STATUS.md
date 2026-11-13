@@ -33,9 +33,11 @@ Linux-/CPython-3.12-Zielzweigfilter entscheidet zusätzlich die gebundenen
 Builtin-Fakten `posix` vorhanden/`nt` abwesend: fünf sichere Bedingungen und
 39 unbekannte, 58 Module/282 Kanten; `ntpath` entfällt. Der begrenzte
 Modulstart-/Direktaufrufvorschnitt verfolgt direkte Calls, einfache lokale
-Funktionsaliases, lokale Klassenmethoden und mögliche Generatorausdrucks-Calls in 112 lokalen
-Funktionen, 63 Quellkandidaten und 315 Kanten;
-Attribut- und dynamische Calls sowie modulübergreifende Aliasbindung bleiben offen. Die
+Funktionsaliases, lokale Klassenmethoden, direkt importierte Quellfunktionen
+und mögliche Generatorausdrucks-Calls in 148 lokalen Funktionen, 67
+Quellkandidaten und 344 Kanten; vier zusätzliche Quellmodule sind `locale`,
+`selectors`, `signal` und `subprocess`. Modulattribute, dynamische Calls,
+importierte Klassenmethoden und modulübergreifende Aliasbindung bleiben offen. Die
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.

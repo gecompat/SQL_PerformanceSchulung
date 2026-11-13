@@ -412,7 +412,54 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest(), condition_stats
 
 
-def _module_init_call_import_names(tree, module, path, condition_stats=None):
+def _top_level_function_index(tree):
+    result = {}
+
+    def collect(node):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            result.setdefault(node.name, []).append(node)
+            return
+        if isinstance(node, ast.ClassDef):
+            return
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                collect(child)
+            elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                for statement in child.body:
+                    collect(statement)
+
+    for statement in tree.body:
+        collect(statement)
+    return result
+
+
+def _imported_function_aliases(tree, module, path, function_index):
+    package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+    result = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ImportFrom) or node.module == "__future__":
+            continue
+        base = node.module or ""
+        if node.level:
+            parts = package.split(".") if package else []
+            keep = max(0, len(parts) - node.level + 1)
+            base = ".".join(parts[:keep] + ([base] if base else []))
+        if not base:
+            continue
+        for imported in node.names:
+            if imported.name == "*" or imported.name not in function_index.get(base, {}):
+                continue
+            alias = imported.asname or imported.name
+            targets = result.setdefault(alias, [])
+            target = (base, imported.name)
+            if target not in targets:
+                targets.append(target)
+    return {name: tuple(dict.fromkeys(targets)) for name, targets in result.items()}
+
+
+def _module_init_call_import_names(tree, module, path, condition_stats=None,
+                                   imported_functions=None, entry_functions=(),
+                                   run_module=True, visited_global=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
     postponed_annotations = any(
@@ -624,6 +671,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
     module_class_methods = scope_class_methods(tree.body)
     pending = []
+    imported_calls = set()
     function_closures = {}
 
     def visit(node, active_functions, in_function=False, function_scope=None):
@@ -703,6 +751,10 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             methods = module_class_methods.get(node.func.value.id, {})
             for function in methods.get(node.func.attr, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            imported_calls.update((target_module, target_function)
+                                  for target_module, target_function
+                                  in (imported_functions or {}).get(node.func.id, ()))
         if isinstance(node, ast.If):
             decision = _target_condition(node.test, known_names)
             if condition_stats is not None:
@@ -717,9 +769,16 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
             yield from visit(child, active_functions, in_function, function_scope)
 
     imports = []
-    for statement in tree.body:
-        imports.extend(visit(statement, module_functions))
-    visited = set()
+    if run_module:
+        for statement in tree.body:
+            imports.extend(visit(statement, module_functions))
+    else:
+        for name in entry_functions:
+            for function in module_functions.get(name, ()):
+                function_closures.setdefault(id(function), module_functions)
+                pending.append((function, module_functions))
+    visited = visited_global if visited_global is not None else set()
+    visited_before = len(visited)
     while pending:
         function, closure_scope = pending.pop()
         if id(function) in visited:
@@ -730,7 +789,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None):
         visible_functions = scope_function_aliases(function.body, visible_functions)
         for statement in function.body:
             imports.extend(visit(statement, visible_functions, True, visible_functions))
-    return tuple(imports), len(visited)
+    return tuple(imports), len(visited) - visited_before, tuple(sorted(imported_calls))
 
 
 def _module_init_call_candidate_closure(files, roots=ROOTS):
@@ -738,33 +797,76 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
         raise ValueError("SOURCE_INPUT_TYPE")
     if any(type(name) is not str for name in roots) or len(set(roots)) != len(roots):
         raise ValueError("SOURCE_ROOTS")
+    lexical_modules, _, _ = _candidate_closure(files, roots)
+    module_sources = {}
+    function_index = {}
+    for source_module in lexical_modules:
+        source_path = _module_path(source_module, files)
+        if source_path is None:
+            continue
+        source_tree = ast.parse(files[source_path], filename=source_path)
+        module_sources[source_module] = (source_path, source_tree)
+        function_index[source_module] = _top_level_function_index(source_tree)
+
     reached = set()
-    pending = list(roots)
+    initialized = set()
+    processed_entries = set()
+    pending = [(module, None) for module in roots]
     edges = 0
     functions = 0
     conditions = {"resolved": 0, "unknown": 0}
+    visited_functions = set()
     while pending:
-        module = pending.pop()
-        if module in reached:
+        module, entry_function = pending.pop()
+        source = module_sources.get(module)
+        if source is None:
             continue
-        path = _module_path(module, files)
-        if path is None:
-            continue
-        reached.add(module)
-        tree = ast.parse(files[path], filename=path)
-        names, visited_functions = _module_init_call_import_names(tree, module, path, conditions)
-        functions += visited_functions
+        path, tree = source
+        if entry_function is None:
+            if module in initialized:
+                continue
+            initialized.add(module)
+            reached.add(module)
+            run_module = True
+            entries = ()
+        else:
+            entry = (module, entry_function)
+            if entry in processed_entries:
+                continue
+            if module not in initialized:
+                pending.append((module, entry_function))
+                pending.append((module, None))
+                continue
+            processed_entries.add(entry)
+            run_module = False
+            entries = (entry_function,)
+        imported_functions = _imported_function_aliases(tree, module, path, function_index)
+        names, visited_count, imported_calls = _module_init_call_import_names(
+            tree, module, path, conditions,
+            imported_functions=imported_functions,
+            entry_functions=entries,
+            run_module=run_module,
+            visited_global=visited_functions,
+        )
+        functions += visited_count
         for name in names:
             parts = name.split(".")
             candidate = next(
                 (".".join(parts[:index]) for index in range(len(parts), 0, -1)
-                 if _module_path(".".join(parts[:index]), files) is not None),
+                 if ".".join(parts[:index]) in module_sources),
                 None,
             )
             if candidate is not None:
                 edges += 1
-                if candidate not in reached:
-                    pending.append(candidate)
+                if candidate not in initialized:
+                    pending.append((candidate, None))
+        for target_module, target_function in imported_calls:
+            if target_function in function_index.get(target_module, {}):
+                if target_module not in initialized:
+                    pending.append((target_module, target_function))
+                    pending.append((target_module, None))
+                else:
+                    pending.append((target_module, target_function))
     rows = []
     for module in sorted(reached):
         path = _module_path(module, files)
@@ -799,7 +901,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_AND_LOCAL_CLASS_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_LOCAL_METHODS_AND_IMPORTED_FUNCTIONS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

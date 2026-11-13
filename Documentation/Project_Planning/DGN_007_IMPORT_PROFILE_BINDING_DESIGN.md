@@ -2649,19 +2649,21 @@ werden ausgelassen. Generatorausdrücke werden einschließlich Iterable,
 Zuweisungsziel, Filtern und Elementausdruck auf mögliche lokale Calls
 untersucht, auch wenn eine Iteration statisch nicht nachgewiesen ist; das kann
 Kandidaten konservativ überzählen. Für die zwölf festen
-Wurzeln ergaben sich 315 zugeordnete Kanten, 63 Quellmodulkandidaten und 112
+Wurzeln ergaben sich 344 zugeordnete Kanten, 67 Quellmodulkandidaten und 148
 verfolgte lokale Funktionen; der sortierte Modul-/Quelldigest lautet
-`a846ba1f2e76cfa3754bdf415b722d5acfe9a3bc681a1878a22a485789783189`. Dabei
-wurden 19 Zielbedingungen entschieden und 291 unbekannte Bedingungen
+`47f45f7f39cd85081bd005b8864c1064e521414eb49b818b2854297f0a7e31d8`. Dabei
+wurden 22 Zielbedingungen entschieden und 392 unbekannte Bedingungen
 beidseitig behalten. Die Auflösung folgt direkte lokale `Name`-Aufrufe und
 einfache gleichnamige Zuweisungen `alias = function_name` im selben vorab
 erfassten Scope; direkte `Klassenname.Methode()`-Calls werden für lokal
-deklarierte Methoden ebenfalls verfolgt. Mehrere Definitionen desselben Namens bleiben bei unbekannten
+deklarierte Methoden und direkte `from source_module import function`-Calls
+für gebundene Quellmodule ebenfalls verfolgt. Mehrere Definitionen desselben Namens bleiben bei unbekannten
 Bedingungen als Alternativen erhalten, bekannte Zielzweige begrenzen die
 Definitionen. Generatorausdrücke umfassen Iterable, Zuweisungsziel, Filter und
 Element als mögliche Auswertungen; fehlende Iteration wird nicht als
-Abwesenheitsbeleg verwendet. Dynamische Attribute, dynamische/indirekte Aufrufe und
-Imports aus fremden Funktionen werden nicht geschlossen. Der Vorschnitt ist
+Abwesenheitsbeleg verwendet. Modulattribute, dynamische/indirekte Aufrufe,
+importierte Klassenmethoden und modulübergreifende Aliasbindung werden nicht
+geschlossen. Der Vorschnitt ist
 kein vollständiger Aufrufgraph und keine P11-Importclosure.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige

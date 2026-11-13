@@ -392,6 +392,50 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.method_helper"))
         self.assertEqual(function_count, 1)
 
+    def test_called_imported_source_function_adds_its_imports(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import boot as start\nstart()\n"
+            ),
+            "pkg/helper.py": (
+                b"def boot():\n    from . import leaf\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
+        self.assertEqual(function_count, 1)
+
+    def test_uncalled_imported_source_function_does_not_expand_body(self):
+        files = {
+            "pkg/__init__.py": b"from .helper import boot\n",
+            "pkg/helper.py": b"def boot():\n    from . import leaf\n",
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper"))
+        self.assertEqual(function_count, 0)
+
+    def test_called_local_function_follows_imported_function_entry(self):
+        files = {
+            "pkg/__init__.py": (
+                b"from .helper import boot\n"
+                b"def start():\n    boot()\n"
+                b"start()\n"
+            ),
+            "pkg/helper.py": b"def boot():\n    from . import leaf\n",
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
+        self.assertEqual(function_count, 2)
+
     def test_class_annotations_are_evaluated_inside_called_function(self):
         files = {
             "pkg/__init__.py": (
@@ -428,7 +472,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("CANDIDATES_ONLY", labels)
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
-        self.assertIn("MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_AND_LOCAL_CLASS_METHODS", labels)
+        self.assertIn(
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_LOCAL_METHODS_AND_IMPORTED_FUNCTIONS",
+            labels,
+        )
         self.assertNotIn("P11_MATCH", labels)
 
 
