@@ -2569,11 +2569,51 @@ außerhalb des Repositories. Die synthetischen Source-Tests bestehen mit
 komprimiert, per AST geprüft und bytegenau zurückdekomprimiert, nicht
 ausgeführt.
 
-Dies behebt nur den Scriptgrößenfehler für diese Quellbytes. Das komprimierte
-Script und der zlib-Import benötigen weiterhin unabhängiges Quellen-/Aufruf-
-Review, vollständige neue S15-/P11-Sollrecords, alle fünf Formen, gemeinsames
+Dies behebt nur den Scriptgrößenfehler für diese Quellbytes. Der unabhängige
+Quellen-/Aufrufreview des komprimierten Scripts und des zlib-Imports fand in
+PR #610 keine offenen Befunde; alle weiteren Grenzen bleiben bestehen:
+vollständige neue S15-/P11-Sollrecords, alle fünf Formen, gemeinsames
 64-KiB-Gate sowie eine separate operative Auswahl. Keine Profilaufnahme,
 Worker-, SQL- oder Generalprobe fand statt.
+
+### 19.15 Lexikalische CPython-Quellkandidaten und Importgrenze
+
+Das signaturgeprüfte CPython-3.12.16-Quellarchiv aus §19.5 wurde ausschließlich
+als Tarball gelesen. Der archivgebundene Offlineanalysator
+[`dgn007_static_stdlib_import_candidates.py`](../../Tests/Tools/dgn007_static_stdlib_import_candidates.py)
+startet keinen Zielinterpreter und importiert keine Kandidatenmodule. Seine zwölf
+festen Wurzeln sind `dataclasses`, `hashlib`, `importlib.machinery`,
+`importlib.util`, `json`, `os`, `struct`, `sys`, `sysconfig`, `types`,
+`zipimport` und `zlib`. Er verfolgt syntaktische `import`- und `from`-Angaben
+über alle AST-Knoten der erreichbaren `Lib/*.py`-Quelldateien, einschließlich
+Funktionskörpern und bedingter Plattformzweige; relative Namen werden gegen
+vorhandene Paket-/Moduldateien aufgelöst.
+
+Mit CPython 3.13.17 als reinem Parser-/Analysewerkzeug ergaben sich 2.438
+zugeordnete Importkanten und 264 unterschiedliche Quellmodulkandidaten. Die
+sortierten Paare `Modulname<TAB>SHA256(zugeordnete Quelldatei)<LF>` ergeben
+`1e5d21b54df354ed67546b351938aa4e956bdebd3ad426a31122fc8abb405e1c`; das
+Quellarchiv ist durch SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`
+gebunden. Sieben isolierte Regressionen prüfen die Ablehnung eines ungebundenen
+Archivs vor dem Tarlesen, den Austausch des Pfads nach dem Hashen, relative und
+funktionslokale Imports, unbekannte dynamische Imports, deterministische
+Modulauflösung sowie die ausdrückliche Kandidatenstatusausgabe.
+
+Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
+Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
+Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,
+Builtin-/Frozen- und Erweiterungsmodule werden nicht als Quellmodule abgebildet.
+Die 264 Kandidaten überschreiten bereits die bestehende 256-Recordgrenze und
+können daher nicht unverändert als Profilinventur verwendet werden. Umgekehrt
+beweist der Scan nicht, dass ein dynamischer oder buildabhängiger Import fehlt.
+Der Befund verwirft die undifferenzierte AST-Menge als Sollinventur, nicht die
+CPython-Imageauswahl. Als nächster statischer Schritt ist die feste
+Bootstrap-Aufrufroute quellenbezogen einzugrenzen; erst danach können die
+vollständigen S15-/P11-Felder und alle fünf Darstellungen samt gemeinsamem
+64-KiB-Gate vor einer einzigen operativen Aufnahme unabhängig geprüft werden.
+Der bestehende Importprofilmatcher und sämtliche Attestationsflags bleiben
+unverändert; es gab keine Profilaufnahme, Worker-, SQL- oder Generalprobe.
 
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 

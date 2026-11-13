@@ -25,9 +25,15 @@ Quellarchiv überein. Ein konservativer statischer AST-Vorschnitt verfolgt von
 den festen Bootstrap-/Profilimporten 53 Quellmodule; er ignoriert
 Funktionskörper, dynamische Imports und Loaderzustände und enthält umgekehrt
 bedingte Plattformzweige. Damit ist er weder vollständige Importclosure noch
-P11-Sollinventur. Diese Imagebefunde attestieren keine Buildherkunft und
-ersetzen keine vollständige P11-Importclosure. Buildherkunft und vollständige
-unabhängige S15-/P11-Sollrecords sind weiter offen. `SOABI`, `DESTSHARED` und
+P11-Sollinventur. Ein zusätzlicher reproduzierbarer Lexikalscan über alle
+AST-Knoten erfasst 264 Quellmodulkandidaten und 2.438 Importkanten; er
+überschreitet die bestehende 256-Recordgrenze und enthält unaufgerufene
+Funktionen sowie Plattformzweige. Beide Resultate sind weder vollständige
+Importclosure noch P11-Sollinventur. PR #610 hat den Größenfehler des
+SESSION_END-Quellbuilders nach unabhängiger Prüfung und 18 grünen Headchecks
+behoben und wurde als `7b756bb1fc6c124b8dbe90c261de67addd2503c5` integriert;
+alle ausgelösten Main-Workflows bestanden ebenfalls. Buildherkunft und
+vollständige unabhängige S15-/P11-Sollrecords sind weiter offen. `SOABI`, `DESTSHARED` und
 der Sysconfigdatenmodulname sind jetzt aus der gebundenen CPython-Sysconfigquelle
 vorläufig vorgewählt; die Kindumgebung muss `_PYTHON_SYSCONFIGDATA_NAME`
 ausdrücklich abwesend halten, da `-I` den direkten `os.environ`-Zugriff nicht
@@ -45,9 +51,9 @@ vollständige 44.542-Byte-Profilkontrollquelle ließ den bisherigen
 SESSION_END-Builder mit 146.775 Scriptbytes am 131.072-Byte-Cap scheitern.
 Ein additiver zlib-Builder hält dieselben Rohbytes in einem begrenzten Stream
 und erzeugt 129.688 Scriptbytes; er ergänzt `zlib` als sechsten direkten Import.
-463 gezielte Source-Tests bestehen. Die neue Route ist noch nicht unabhängig
-reviewt und liefert weder operative S15-/P11-Sollrecords noch ein
-Profil-/Workerattest. Details stehen in §19.3–§19.14 des
+463 gezielte Source-Tests bestehen. Die neue Route liefert weder operative
+S15-/P11-Sollrecords noch ein Profil-/Workerattest. Der feste Lexikalscan samt
+Grenzen steht in §19.15 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
 ## Graph Tables – Curriculum-Lernnotiz

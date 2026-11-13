@@ -19,6 +19,8 @@ on:
       - 'Tests/Static/test_dgn007_pooled_combined_input.py'
       - 'Tests/Tools/dgn007_control_bootstrap_source.py'
       - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_static_stdlib_import_candidates.py'
+      - 'Tests/Static/test_dgn007_static_stdlib_import_candidates.py'
       - 'Tests/Static/test_dgn007_session_match.py'
       - 'Documentation/Project_Planning/DGN_007_SESSION_END_MATCHER_REVIEW.md'
       - 'Tests/Tools/dgn007_parent_ledger.py'
@@ -83,6 +85,8 @@ on:
       - 'Tests/Static/test_dgn007_pooled_combined_input.py'
       - 'Tests/Tools/dgn007_control_bootstrap_source.py'
       - 'Tests/Static/test_dgn007_control_bootstrap_source.py'
+      - 'Tests/Tools/dgn007_static_stdlib_import_candidates.py'
+      - 'Tests/Static/test_dgn007_static_stdlib_import_candidates.py'
       - 'Tests/Static/test_dgn007_session_match.py'
       - 'Documentation/Project_Planning/DGN_007_SESSION_END_MATCHER_REVIEW.md'
       - 'Tests/Tools/dgn007_parent_ledger.py'
@@ -147,6 +151,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+      - name: Lexikalische Quellkandidaten und Grenzen prüfen
+        run: python -B Tests/Static/test_dgn007_static_stdlib_import_candidates.py
       - name: Gebundene Kandidaten und Manipulationen prüfen
         run: python -B Tests/Static/test_dgn007_source_bundle.py
       - name: Gebundene Prozess- und Manifestkanten pruefen
