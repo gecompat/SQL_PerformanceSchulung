@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 
 
 VALUE_FLAGS = {"-r", "-s", "-h", "-w", "-S", "-d", "-i", "-U"}
 BOOLEAN_FLAGS = {"-b", "-W", "-E", "-G"}
+INCLUDE_PATTERN = re.compile(r"(?m)^[ \t]*:r[ \t]+(?:\"([^\"\r\n]+)\"|'([^'\r\n]+)'|([^\s\r\n]+))[ \t]*$")
 
 
 def parse_args(argv: list[str]) -> tuple[str, Path, str, list[str], list[str]]:
@@ -66,6 +68,33 @@ def _sqlcmd_path(container: str) -> str:
     return result.stdout.strip()
 
 
+def expand_sqlcmd_includes(script: Path, repository_root: Path) -> str:
+    """Inline repository-local :r includes because the SQL container has no checkout."""
+    root = repository_root.resolve(strict=True)
+    active: set[Path] = set()
+
+    def expand(path: Path, depth: int) -> str:
+        resolved = path.resolve(strict=True)
+        if not resolved.is_relative_to(root) or resolved.suffix.lower() != ".sql":
+            raise ValueError("sqlcmd include is outside the repository SQL boundary")
+        if resolved in active or depth > 8:
+            raise ValueError("sqlcmd include cycle or depth limit")
+        active.add(resolved)
+        try:
+            source = resolved.read_text(encoding="utf-8")
+
+            def replace(match: re.Match[str]) -> str:
+                relative = next(group for group in match.groups() if group is not None)
+                include = (root / relative).resolve(strict=True)
+                return expand(include, depth + 1)
+
+            return INCLUDE_PATTERN.sub(replace, source)
+        finally:
+            active.remove(resolved)
+
+    return expand(script, 0)
+
+
 def main() -> int:
     try:
         database, script, username, variables, passthrough = parse_args(sys.argv[1:])
@@ -80,8 +109,9 @@ def main() -> int:
                    "-U", username, "-C", *passthrough]
         if variables:
             command.extend(("-v", *variables))
+        sql_text = expand_sqlcmd_includes(script, Path.cwd())
         result = subprocess.run(
-            command, input=script.read_text(encoding="utf-8"), check=False,
+            command, input=sql_text, check=False,
             capture_output=True, text=True, encoding="utf-8", errors="replace", env=child_env,
         )
         sys.stdout.write(result.stdout)

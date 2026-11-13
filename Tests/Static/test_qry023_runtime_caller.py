@@ -9,6 +9,7 @@ import io
 import json
 import os
 import sys
+import tempfile
 import unittest
 from types import SimpleNamespace
 from unittest import mock
@@ -46,6 +47,24 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
     def test_rejects_unexpected_flags(self) -> None:
         with self.assertRaises(ValueError):
             proxy.parse_args(["--password", "never-accepted"])
+
+    def test_proxy_inlines_repository_local_sqlcmd_includes(self) -> None:
+        wrapper = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/15_Framework.sql"
+        expanded = proxy.expand_sqlcmd_includes(wrapper, ROOT)
+        self.assertNotIn(":r Demos/00_Framework/Sql/FWK_Measurement.sql", expanded)
+        self.assertIn("FWK-004 reference implementation", expanded)
+
+    def test_proxy_rejects_sqlcmd_include_outside_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            repository = parent / "repository"
+            repository.mkdir()
+            outside = parent / "outside.sql"
+            outside.write_text("SELECT 1;", encoding="utf-8")
+            wrapper = repository / "wrapper.sql"
+            wrapper.write_text(":r ../outside.sql\n", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                proxy.expand_sqlcmd_includes(wrapper, repository)
 
     def test_qry023_timeout_after_setup_suppresses_sql_cleanup(self) -> None:
         calls: list[str] = []
