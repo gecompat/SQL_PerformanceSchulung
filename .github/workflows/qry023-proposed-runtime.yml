@@ -938,7 +938,7 @@ jobs:
           demo_dir="Demos/05_Query_Patterns/QRY-023_Graph_Tables"
           timeout_manifest="$demo_dir/manifest.proposed.timeout-negative.json"
           log="$RUNNER_TEMP/qry023-timeout-cleanup-${{ matrix.major }}.log"
-          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          echo "QRY023_TIMEOUT_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           python - "$demo_dir/manifest.proposed.json" "$timeout_manifest" <<'PY'
           import json
           import sys
@@ -973,17 +973,34 @@ jobs:
           active_sql="SET NOCOUNT ON; SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.dm_exec_requests AS r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t WHERE r.session_id<>@@SPID AND t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%') THEN 1 ELSE 0 END;"
           active=0
           for attempt in $(seq 1 1200); do
-            active="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -h -1 -W -Q "$active_sql")"
+            if active="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -h -1 -W -Q "$active_sql")"; then
+              :
+            else
+              status=$?
+              echo "QRY023_TIMEOUT_NEGATIVE|DMV_POLL_FAILED|attempt=${attempt}|status=${status}" >&2
+              cat "$log" >&2 || true
+              exit 1
+            fi
             [[ "$active" == 1 ]] && break
             kill -0 "$runner_pid" 2>/dev/null || break
             sleep 0.2
           done
-          [[ "$active" == 1 ]]
+          echo "QRY023_TIMEOUT_NEGATIVE|DMV_POLL_RESULT|active=${active}|attempt=${attempt}"
+          if [[ "$active" != 1 ]]; then
+            echo 'QRY023_TIMEOUT_NEGATIVE|PROBE_REQUEST_NOT_OBSERVED' >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
           set +e
           wait "$runner_pid"
           result=$?
           set -e
-          [[ "$result" == 4 ]]
+          echo "QRY023_TIMEOUT_NEGATIVE|RUNNER_EXIT|status=${result}"
+          if [[ "$result" != 4 ]]; then
+            echo "QRY023_TIMEOUT_NEGATIVE|UNEXPECTED_RUNNER_EXIT|status=${result}" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
           grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_CLEANUP' "$log"
           grep -F 'PLAN_EVIDENCE: FAIL/FAIL_TIMEOUT' "$log"
           grep -F 'CLEANUP: FAIL/FAIL_CLEANUP' "$log"
@@ -1019,7 +1036,7 @@ jobs:
           container="${SQLPERF_SQL_CONTAINER:-}"
           owner="${SQLPERF_CI_OWNER:-}"
           if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
-          log="${QRY023_HARNESS_LOG:-}"
+          log="${QRY023_TIMEOUT_HARNESS_LOG:-${QRY023_HARNESS_LOG:-}}"
           if [[ -n "$log" && -f "$log" ]] && ! grep -Eq '^CLEANUP: PASS/' "$log"; then
             echo "Preserving owned container after an unproven QRY-023 cleanup: ${container}" >&2
             exit 0
