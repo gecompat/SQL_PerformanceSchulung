@@ -998,7 +998,7 @@ jobs:
           docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -Q \
             "SET NOCOUNT ON; DECLARE @target sysname,@project nvarchar(max),@contract nvarchar(max),@demo nvarchar(max),@run nvarchar(max),@sql nvarchar(max); IF (SELECT COUNT(*) FROM sys.databases WHERE database_id>4)<>1 THROW 51045,'QRY-023 timeout probe did not retain exactly one user database.',1; SELECT @target=name FROM sys.databases WHERE database_id>4; SET @sql=N'SELECT @p=MAX(CASE WHEN name=N''SQLPERF.Project'' THEN CONVERT(nvarchar(max),value) END),@c=MAX(CASE WHEN name=N''SQLPERF.ContractVersion'' THEN CONVERT(nvarchar(max),value) END),@d=MAX(CASE WHEN name=N''SQLPERF.DemoId'' THEN CONVERT(nvarchar(max),value) END),@r=MAX(CASE WHEN name=N''SQLPERF.RunToken'' THEN CONVERT(nvarchar(max),value) END) FROM '+QUOTENAME(@target)+N'.sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0;'; EXEC sys.sp_executesql @sql,N'@p nvarchar(max) OUTPUT,@c nvarchar(max) OUTPUT,@d nvarchar(max) OUTPUT,@r nvarchar(max) OUTPUT',@p=@project OUTPUT,@c=@contract OUTPUT,@d=@demo OUTPUT,@r=@run OUTPUT; IF @project IS NULL OR @project COLLATE Latin1_General_100_BIN2<>N'SQL_PerformanceSchulung' OR DATALENGTH(@project)<>DATALENGTH(N'SQL_PerformanceSchulung') OR @contract IS NULL OR @contract COLLATE Latin1_General_100_BIN2<>N'1.0' OR DATALENGTH(@contract)<>DATALENGTH(N'1.0') OR @demo IS NULL OR @demo COLLATE Latin1_General_100_BIN2<>N'QRY-023' OR DATALENGTH(@demo)<>DATALENGTH(N'QRY-023') OR @run IS NULL OR @target COLLATE Latin1_General_100_BIN2<>CONVERT(nvarchar(max),N'SQLPERF_LAB_QRY023_'+@run) OR DATALENGTH(@target)<>DATALENGTH(N'SQLPERF_LAB_QRY023_'+@run) THROW 51046,'QRY-023 timeout probe did not preserve the exact ownership markers.',1;" || marker_status=$?
           [[ "$marker_status" == 0 ]]
-          printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED' | tee -a "$log"
+          printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|MARKED_DATABASE_RETAINED' >> "$log"
           active_sql="SET NOCOUNT ON; SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.dm_exec_requests AS r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t WHERE r.session_id<>@@SPID AND t.text LIKE N'%QRY023_TIMEOUT_PROBE|STARTED%') THEN 1 ELSE 0 END;"
           active=1
           for attempt in $(seq 1 5); do
@@ -1007,7 +1007,7 @@ jobs:
             sleep 1
           done
           [[ "$active" == 0 ]]
-          printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED' | tee -a "$log"
+          printf '%s\n' 'QRY023_TIMEOUT_NEGATIVE|REQUEST_ENDED' >> "$log"
       - name: Remove only the owned SQL Server container
         if: always()
         shell: bash
