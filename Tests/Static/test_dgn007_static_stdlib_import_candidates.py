@@ -831,6 +831,33 @@ class StaticImportCandidateTests(unittest.TestCase):
                 self.assertEqual(modules, expected_modules)
                 self.assertEqual(function_count, 2)
 
+    def test_conditional_chained_base_alias_preserves_all_source_candidates(self):
+        files = {
+            "pkg/__init__.py": (
+                b"class First:\n"
+                b"    def load(self):\n        from . import first_leaf\n"
+                b"class Second:\n"
+                b"    def load(self):\n        from . import second_leaf\n"
+                b"if platform_choice:\n"
+                b"    BaseAlias = First\n"
+                b"else:\n"
+                b"    BaseAlias = Second\n"
+                b"ChainedAlias = BaseAlias\n"
+                b"class Worker(ChainedAlias):\n"
+                b"    def boot(self):\n        self.load()\n"
+                b"Worker().boot()\n"
+            ),
+            "pkg/first_leaf.py": b"VALUE = 1\n",
+            "pkg/second_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(
+            modules, ("pkg", "pkg.first_leaf", "pkg.second_leaf")
+        )
+        self.assertEqual(function_count, 3)
+
     def test_zero_argument_super_call_follows_direct_local_base_method(self):
         files = {
             "pkg/__init__.py": (
