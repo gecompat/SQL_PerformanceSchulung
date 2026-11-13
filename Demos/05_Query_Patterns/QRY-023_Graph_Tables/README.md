@@ -119,10 +119,10 @@ prüfte die tatsächlichen READER-Verbindungen und den Messprozedurpfad auf alle
 drei Builds. Eine Live-Gegenprobe mit zusätzlichem direktem READER-`SELECT`-Grant
 und Mitgliedschaft in `db_datareader` wurde auf allen drei Builds vor den
 Queryphasen fail-closed abgewiesen. Die seither ergänzten und auf den drei
-Builds qualifizierten Live-Gegenproben für Objekt-DENY, Serverrollen und
-Objektinventar, Server-/Datenbankrechte (einschließlich direktem
-`VIEW ANY DATABASE`-GRANT und -DENY sowie `CONNECT SQL`-DENY) und Endpoints
-samt Cleanup sind im [aktuellen
+Builds qualifizierten Live-Gegenproben für Objekt-DENY, Serverrollen,
+Objektinventar, Server-/Datenbankrechte (einschließlich direktem `VIEW ANY
+DATABASE`-GRANT und -DENY sowie `CONNECT SQL`-DENY), Endpointrechte und
+`securityadmin`-Mitgliedschaft samt Cleanup sind im [aktuellen
 Ausführungsstatus](../../../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
 nach PR dokumentiert. QRY-023 bleibt dabei `PROPOSED` und nicht katalogisiert.
 
@@ -200,26 +200,22 @@ ADMIN-Phasenbindung und das Verbot von Rechteänderungen; synthetische Tests
 prüfen unter anderem entfernte Sichtbarkeitsgates, SID-Bindung und verbotene
 Grants. ScriptDom parst das neue T-SQL unter den Grammatiken 150, 160 und 170.
 Das belegt weder Metadatenvollständigkeit noch erfolgreiche T-SQL-Ausführung.
-Der Vertragsvalidator deckt diese synthetischen Negativfälle ab. Die
-automatisierten Engine-Läufe qualifizieren den positiven Standardpfad. Auf
-allen drei Builds wurden vor den Queryphasen folgende Live-Negativfälle
-abgewiesen: zusätzlicher direkter READER-`SELECT`-Grant, Mitgliedschaft in
-`db_datareader`, explizites Objekt-`DENY`, Mitgliedschaft in der
-Serverrolle `dbcreator`, fehlendes erwartetes Tabellenobjekt, ein serverweiter
-`VIEW SERVER STATE`-Grant sowie ein explizites serverweites
-`DENY VIEW SERVER STATE`, datenbankweiter `VIEW DEFINITION`-Grant und
-datenbankweites `DENY VIEW DEFINITION`, direkte `CONNECT`-Grant- und `DENY`-
-Gegenproben auf dem Standardendpoint `TSQL Default TCP`, direkte
-`VIEW ANY DATABASE`-Grant- und `DENY`-Gegenproben sowie `DENY CONNECT SQL`.
-Jeder Fall verlangte die exakte
-Abweichungskategorie, `FAIL_NOT_PROVEN`, keinen Eintritt in Queryphasen und
-bestandenes markergebundenes Cleanup; nach temporären Rechteänderungen wurde
-deren Wiederherstellung separat geprüft. Der anschließende positive
-Zehnphasenlauf bestand ebenfalls. Eine zusätzliche direkte
-`securityadmin`-Serverrollenmitgliedschaft wird als nächster isolierter
-Inventarfall qualifiziert. Absichtlich beschädigte SQL-Kataloge wurden nicht
-ausgeführt. QRY-023 bleibt vorgeschlagen
-und nicht katalogisiert.
+Der Vertragsvalidator deckt diese synthetischen Negativfälle ab. Auf den drei
+festgeschriebenen Builds wies das ADMIN-Inventar vor den Queryphasen direkte
+READER-Rechte und Rollenmitgliedschaften ab: zusätzlicher Objekt-`SELECT` und
+`db_datareader`, Objekt-`DENY`, `dbcreator` und `securityadmin`, fehlendes
+Tabellenobjekt, `VIEW SERVER STATE`-Grant und -DENY, Datenbank-`VIEW
+DEFINITION`-Grant und -DENY, Endpoint-`CONNECT`-Grant und -DENY,
+`VIEW ANY DATABASE`-Grant und -DENY sowie `DENY CONNECT SQL`. Jeder Fall
+verlangte die exakte Abweichungskategorie, `FAIL_NOT_PROVEN`, keinen Eintritt
+in Queryphasen und bestandenes markergebundenes Cleanup; temporäre Rechte
+wurden separat wiederhergestellt und verifiziert. Der positive Zehnphasenlauf
+bestand nach jeder vorab ausgeführten Gegenprobe. Die unregistrierte
+`STOPPED`-TSQL-Endpoint-Gegenprobe läuft aus DEC-083-Gründen als letzte
+Instanzmutation nach dem positiven Zehnphasenlauf; der owner-markierte Endpoint
+wird entfernt, danach wird die Wegwerfinstanz gelöscht. Absichtlich beschädigte
+SQL-Kataloge wurden nicht ausgeführt. QRY-023 bleibt vorgeschlagen und nicht
+katalogisiert.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
