@@ -2801,12 +2801,13 @@ Der Archivscan bleibt ein `CANDIDATES_ONLY`-Befund; eine vollständige
 Aufrufclosure oder P11-Inventur folgt daraus nicht.
 
 Bei einem bereits erreichten Methodenrumpf verfolgt der Scanner nun auch
-`self.methode()` beziehungsweise `cls.methode()`, wenn die Methode in einer
-direkt benannten lokalen Basisklasse vorkommt. Eine Regression prüft beide
-gebundenen Aufruftypen und ihre Importkanten. Bei mehreren möglichen
-Definitionen werden Basiskandidaten vereinigt; überschreibende Methoden und
-komplexe MRO-/Deskriptorsemantik können daher überzählige Kandidaten erzeugen.
-Der fokussierte Satz umfasst 56 Fälle. Importierte oder unbekannte Basen und
+`self.methode()` beziehungsweise `cls.methode()` über bekannte lokale Basen
+und deren lokale Vorfahren. `super()` verwendet denselben begrenzten
+Vorfahrensatz. Eine Regression prüft Instanz- und Klassenmethoden samt
+Importkanten; eine weitere erreicht eine Großelternmethode über `self` und
+`super()`. Die Vereinigung behauptet keine lineare MRO-Reihenfolge; Overrides
+und komplexe MRO-/Deskriptorsemantik können Kandidaten überzählen. Der
+fokussierte Satz umfasst nun 59 Fälle. Importierte oder unbekannte Basen und
 vollständige MRO-Auswertung bleiben offen.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige

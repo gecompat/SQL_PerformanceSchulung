@@ -8920,3 +8920,12 @@ in direkt benannten lokalen Basisklassen. Zwei Regressionen decken Instanz-
 und Klassenmethoden mit ihren Importkanten ab. Die Vereinigungsauflösung über
 alternative Basen kann überschreibende Methoden und MRO-Fälle überzählen;
 unbekannte/importierte Basen bleiben offen. 56/56 fokussierte Tests bestehen.
+
+## Fortsetzung: DGN-007 – transitive lokale Basismethoden
+
+Der Kandidat löst geerbte Methoden nun über direkte lokale Basen und deren
+bekannte lokale Vorfahren auf. `self.method()` und `super().method()` erreichen
+eine Methode in der Großelternklasse, auch wenn die Zwischenklasse sie nicht
+deklariert. Die Vereinigung der Vorfahren behauptet keine konkrete MRO und kann
+bei Overrides Kandidaten überzählen. 59/59 fokussierte Tests bestehen;
+importierte/unbekannte Basen und vollständige MRO bleiben offen.
