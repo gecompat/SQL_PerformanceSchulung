@@ -484,15 +484,55 @@ def _top_level_class_method_index(tree):
 def _top_level_class_base_index(tree):
     """Keep direct local base names for bounded zero-argument super() calls."""
     result = {}
+    aliases = {}
+
+    def collect_aliases(node):
+        if isinstance(node, ast.ClassDef):
+            return
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            return
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            value = node.value
+            if isinstance(value, (ast.Name, ast.Attribute)):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                for target in targets:
+                    if isinstance(target, ast.Name):
+                        aliases.setdefault(target.id, []).append(value)
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                collect_aliases(child)
+            elif isinstance(child, (ast.ExceptHandler, ast.match_case)):
+                for statement in child.body:
+                    collect_aliases(statement)
+
+    def resolve_base(expression, active=()):
+        if isinstance(expression, ast.Name):
+            if expression.id in active:
+                return (expression.id,)
+            candidates = aliases.get(expression.id)
+            if candidates:
+                resolved = []
+                for candidate in candidates:
+                    for value in resolve_base(candidate, (*active, expression.id)):
+                        if value not in resolved:
+                            resolved.append(value)
+                return tuple(resolved)
+            return (expression.id,)
+        if isinstance(expression, ast.Attribute):
+            return tuple(
+                value + "." + expression.attr
+                for value in resolve_base(expression.value, active)
+            )
+        return ()
 
     def collect(node):
         if isinstance(node, ast.ClassDef):
             bases = result.setdefault(node.name, [])
             for base in node.bases:
                 if isinstance(base, (ast.Name, ast.Attribute)):
-                    base_name = ast.unparse(base)
-                    if base_name not in bases:
-                        bases.append(base_name)
+                    for base_name in resolve_base(base):
+                        if base_name not in bases:
+                            bases.append(base_name)
             return
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
             return
@@ -503,6 +543,8 @@ def _top_level_class_base_index(tree):
                 for statement in child.body:
                     collect(statement)
 
+    for statement in tree.body:
+        collect_aliases(statement)
     for statement in tree.body:
         collect(statement)
     return {name: tuple(bases) for name, bases in result.items()}
@@ -1350,7 +1392,7 @@ def analyze(archive_path):
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
