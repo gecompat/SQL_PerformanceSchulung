@@ -54,6 +54,11 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "ALTER SERVER ROLE [dbcreator] ADD MEMBER [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|SERVER_ROLE_INJECTED",
         )
+    if mode == "MISSING_OBJECT":
+        return (
+            "DROP TABLE lab.MeasurementWaitSnapshot;\n",
+            "QRY023_NEGATIVE_PERMISSION|EXPECTED_OBJECT_REMOVED",
+        )
     raise ValueError("unsupported QRY-023 negative permission mode")
 
 
