@@ -274,15 +274,16 @@ class WorkerProfileSourceTests(unittest.TestCase):
                 generator.build_inline_worker_profile_control_bootstrap(raw, **options)
             self.assertEqual(str(caught.exception), issue)
 
-    def test_sixteenth_builder_selects_one_fixed_worker_route(self):
+    def test_compressed_builder_preserves_fixed_worker_route_order(self):
         tree = ast.parse(GENERATOR_PATH.read_bytes())
         names = [node.name for node in tree.body if isinstance(node, ast.FunctionDef)
                  and node.name.startswith("build_")]
-        self.assertGreaterEqual(len(names), 16)
-        self.assertEqual(names[15], "build_inline_worker_profile_control_bootstrap")
+        self.assertGreaterEqual(len(names), 17)
+        self.assertEqual(names[15], "build_compressed_inline_session_end_control_bootstrap")
+        self.assertEqual(names[16], "build_inline_worker_profile_control_bootstrap")
         self.assertEqual(names.count("build_inline_worker_profile_control_bootstrap"), 1)
         # Neuer Pfad wählt festen vorhandenen Workerunterbau, keine dynamische Route.
-        last = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == names[15])
+        last = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == names[16])
         builders = [node.func.id for node in ast.walk(last) if isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Name) and node.func.id.startswith("build_")]
         self.assertEqual(builders, ["build_inline_body_control_bootstrap"])

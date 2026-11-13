@@ -40,7 +40,14 @@ dieser Dateibeleg bestimmt nicht den tatsächlichen `sys.executable`-Wert;
 erst danach darf die einmalige operative Inventur mit fünf vollständigen
 Darstellungen und gemeinsamem 64-KiB-Gate folgen. Es gab in diesen Schritten
 keine Profilaufnahme oder Worker-/SQL-Ausführung; die Generalprobe bleibt
-ausgeschlossen. Details stehen in §19.3–§19.13 des
+ausgeschlossen. Ein konkreter Größenfehler wurde zusätzlich reproduziert: Die
+vollständige 44.542-Byte-Profilkontrollquelle ließ den bisherigen
+SESSION_END-Builder mit 146.775 Scriptbytes am 131.072-Byte-Cap scheitern.
+Ein additiver zlib-Builder hält dieselben Rohbytes in einem begrenzten Stream
+und erzeugt 129.688 Scriptbytes; er ergänzt `zlib` als sechsten direkten Import.
+463 gezielte Source-Tests bestehen. Die neue Route ist noch nicht unabhängig
+reviewt und liefert weder operative S15-/P11-Sollrecords noch ein
+Profil-/Workerattest. Details stehen in §19.3–§19.14 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
 ## Graph Tables – Curriculum-Lernnotiz
