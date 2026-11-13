@@ -285,9 +285,10 @@ Negativkontrolle für ein nachgestelltes Leerzeichen im RunToken bestand auf
 SQL Server 2019, 2022 und 2025 (PR #586). Die eigenständige Live-Negativkontrolle
 für ein nachgestelltes Leerzeichen im Ziel-Datenbanknamen bestand auf SQL
 Server 2019, 2022 und 2025 (PR #587). Die eigenständige Live-Negativkontrolle
-für ein nachgestelltes Leerzeichen in der Demo-ID wird separat qualifiziert.
-Eine case-variant geschriebene Demo-ID wird in derselben Folge ebenfalls
-separat geprüft.
+für ein nachgestelltes Leerzeichen sowie eine case-variant geschriebene
+Demo-ID bestanden auf SQL Server 2019, 2022 und 2025 (PR #588). Die zweite
+Kontrolle band den Zielnamen passend an die abweichende ID, damit die Demo-ID-
+Prüfung selbst ausschlaggebend war.
 Der FWK-010-Caller verwirft solche Werte bereits vor SQLCMD anhand des
 Manifestvertrags.
 

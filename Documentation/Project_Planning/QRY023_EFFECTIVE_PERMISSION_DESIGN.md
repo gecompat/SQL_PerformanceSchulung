@@ -422,9 +422,11 @@ Gegenprobe bestand auf allen drei Engines vor Setup, ohne eine Nutzerdatenbank
 anzulegen. Microsoft Learn dokumentiert die Auffüllung beim
 Zeichenkettenvergleich sowie BIN2-Codepunktvergleiche und `DATALENGTH`
 (abgerufen am 13. November 2026; siehe die Quellenlinks im [Proposed-Harness
-README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md)). Der
-aktuelle Boundary-Schnitt prüft, dass die Demo-ID vor der T-SQL-Guard-Prüfung
-nicht durch eine zu enge `varchar`-Deklaration gekürzt wird und die feste
-Kennung unabhängig von der Datenbankkollation exakt bleibt. Die Live-Kontrollen
-decken ein nachgestelltes Leerzeichen sowie eine case-variant geschriebene,
-mit ihrem passenden Zielnamen gebundene Demo-ID ab.
+README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md)). PR #588
+verbreiterte die Demo-ID-Variable vor der Guard-Prüfung und bindet die feste
+Kennung an exakt sieben Bytes sowie den BIN2-Wert `QRY-023`. Die
+Gegenkontrollen für nachgestellte Leerzeichen und eine case-variant
+geschriebene ID mit passend abgeleitetem Zielnamen wurden auf allen drei
+Engines vor Setup abgewiesen. Es entstand keine Nutzerdatenbank. Die drei
+konkreten SQLCMD-Identitätsgrenzen RunToken, Zielname und Demo-ID sind damit
+live qualifiziert; allgemeine Runtime-/Produkt-/Katalogfreigabe bleibt offen.
