@@ -1524,4 +1524,13 @@ Growth-Guard mit zwei noch unbegrenzten Dateien; die gezielte frische
 Wiederholung bestand. Integration: `f2d36454d03d256f1d762284fdcc6fd4604c5043`.
 
 
+### QRY-023 TempDB-Guard – begrenzte Dateisatzkonvergenz (PR #583)
+
+Der erste frische SQL-2025-Job von PR #581 zeigte im TempDB-Guard drei anfänglich
+gesehene Dateien, danach aber zwei weitere Dateien mit `MAXSIZE = UNLIMITED`.
+PR #583 konfiguriert nun den vollständigen jeweils sichtbaren Dateisatz erneut
+und verlangt innerhalb von höchstens 16 Durchläufen zwei stabile, vollständig
+begrenzte Beobachtungen. Der Abbruch bleibt vor dem Setup. Die drei Enginejobs
+und unabhängige Review stehen aus.
+
 Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsamen `run_demo.py`-AST. Zwei DGN-007-Offlineprofile meldeten deshalb `PYTHON_PROFILE_CHANGED`; der ausschließlich zugehörige CPython-3.12-AST-Digest wurde auf `9d1df02d34d74d761aaa496c1490fcbd86fd8abb62ad6cbce99150eb90e5213d` aktualisiert. Die gebundene DGN-007-Profilregression bestand lokal mit CPython 3.12.14 (26/26); andere Runtimequellen, Manifeste und Methodengates blieben unangetastet.
