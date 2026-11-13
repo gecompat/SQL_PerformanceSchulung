@@ -79,6 +79,16 @@ def injection_for_mode(mode: str) -> tuple[str, str]:
             "DENY VIEW ANY DATABASE TO [READER];\n",
             "QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_INJECTED",
         )
+    if mode == "CONNECT_SQL_DENY":
+        return (
+            "DECLARE @reader_id int=SUSER_ID(N'READER'); "
+            "IF @reader_id IS NULL OR NOT EXISTS (SELECT 1 FROM master.sys.server_permissions "
+            "WHERE grantee_principal_id=@reader_id AND class_desc=N'SERVER' "
+            "AND permission_name=N'CONNECT SQL' AND state=N'G') "
+            "THROW 51038,'QRY-023 CONNECT SQL DENY requires its granted baseline.',1; "
+            "DENY CONNECT SQL TO [READER];\n",
+            "QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED",
+        )
     if mode == "DATABASE_PERMISSION":
         return (
             "GRANT VIEW DEFINITION TO [READER];\n",
@@ -132,6 +142,7 @@ def main() -> int:
                 "SERVER_PERMISSION", "SERVER_PERMISSION_DENY",
                 "VIEW_ANY_DATABASE_GRANT",
                 "VIEW_ANY_DATABASE_DENY",
+                "CONNECT_SQL_DENY",
                 "ENDPOINT_PERMISSION", "ENDPOINT_PERMISSION_DENY",
                 "CUSTOM_ENDPOINT",
             } else target

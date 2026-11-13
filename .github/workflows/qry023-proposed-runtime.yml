@@ -449,6 +449,54 @@ jobs:
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|VIEW_ANY_DATABASE_DENY_RESTORED' <<< "$output"
           echo 'QRY023_VIEW_ANY_DATABASE_DENY_ATTEMPTED=' >> "$GITHUB_ENV"
+      - name: Prove the permission inventory rejects direct READER CONNECT SQL DENY
+        shell: bash
+        env:
+          SQLPERF_QRY023_NEGATIVE_PERMISSION_MODE: CONNECT_SQL_DENY
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/qry023-connect-sql-deny-${{ matrix.major }}.log"
+          echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
+          echo 'QRY023_CONNECT_SQL_DENY_ATTEMPTED=0' >> "$GITHUB_ENV"
+          set +e
+          python Demos/00_Framework/Tools/run_demo.py \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            --server localhost --auth sql --username sa \
+            --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
+            --confirm-isolated-lab --show-output 2>&1 | tee "$log"
+          result="${PIPESTATUS[0]}"
+          set -e
+          grep -F 'QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_INJECTED' "$log"
+          echo 'QRY023_CONNECT_SQL_DENY_ATTEMPTED=1' >> "$GITHUB_ENV"
+          [[ "$result" == 2 ]]
+          grep -F 'SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN' "$log"
+          grep -F 'SERVER_PERMISSION;' "$log"
+          if grep -F 'SERVER_ROLE;' "$log" || grep -F 'DATABASE_PERMISSION;' "$log" || grep -F 'DATABASE_ROLE;' "$log"; then
+            echo 'CONNECT SQL DENY produced an unexpected permission category.' >&2
+            exit 1
+          fi
+          grep -F 'CLEANUP: PASS/OK' "$log"
+          if grep -Eq '(CORRECTNESS|MEASUREMENT|PLAN_EVIDENCE): PASS/OK' "$log"; then
+            echo 'CONNECT SQL DENY reached a protected query phase.' >&2
+            exit 1
+          fi
+      - name: Restore direct READER CONNECT SQL baseline
+        if: always() && env.QRY023_CONNECT_SQL_DENY_ATTEMPTED == '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="${SQLPERF_SQL_CONTAINER:-}"
+          owner="${SQLPERF_CI_OWNER:-}"
+          if [[ -z "$container" || -z "$owner" ]]; then exit 0; fi
+          container_id="$(docker inspect --format '{{.Id}}' "$container" 2>/dev/null || true)"
+          if [[ -z "$container_id" ]]; then exit 0; fi
+          [[ "$(docker inspect --format '{{ index .Config.Labels "sqlperf.ci.owner" }}' "$container_id")" == "$owner" ]]
+          sqlcmd="$(docker exec "$container_id" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then printf /opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then printf /opt/mssql-tools/bin/sqlcmd; else exit 127; fi')"
+          output="$(docker exec -e SQLCMDPASSWORD "$container_id" "$sqlcmd" -S localhost -d master -U sa -C -b -Q \
+            "DECLARE @reader_id int=SUSER_ID(N'READER'),@had_deny bit=0; IF @reader_id IS NULL THROW 51037,'QRY-023 CONNECT SQL DENY cleanup login is missing.',1; IF EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND permission_name=N'CONNECT SQL' AND state=N'D') BEGIN SET @had_deny=1; REVOKE CONNECT SQL FROM [READER]; END; IF @had_deny=1 AND NOT EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND permission_name=N'CONNECT SQL' AND state=N'G') GRANT CONNECT SQL TO [READER]; IF EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND permission_name=N'CONNECT SQL' AND state=N'D') OR NOT EXISTS (SELECT 1 FROM master.sys.server_permissions WHERE grantee_principal_id=@reader_id AND permission_name=N'CONNECT SQL' AND state=N'G') THROW 51037,'QRY-023 CONNECT SQL DENY cleanup failed to restore the granted baseline.',1; PRINT 'QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_RESTORED';")"
+          printf '%s\n' "$output"
+          grep -F 'QRY023_NEGATIVE_PERMISSION|CONNECT_SQL_DENY_RESTORED' <<< "$output"
+          echo 'QRY023_CONNECT_SQL_DENY_ATTEMPTED=' >> "$GITHUB_ENV"
       - name: Prove the permission inventory rejects an unexpected READER database permission
         shell: bash
         env:
