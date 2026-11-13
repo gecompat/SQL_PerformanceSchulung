@@ -153,11 +153,17 @@ Der [Offline-Prüfer](../../Tests/Static/res004_grant_wait_contract.py) ergänzt
 einen statischen Vertragscheck für caller-supplied Snapshots: ein aktueller
 `RESOURCE_SEMAPHORE`-Request muss über dieselbe Session- und Request-ID an eine
 Anforderung mit `grant_time IS NULL` und positiver Wartezeit gebunden sein.
-Mindestens ein weiterer erteilter Grant muss im selben Pool und derselben
-Semaphore erscheinen. Unterschiedliche positive Wartezeitfelder werden nicht
-gleichgesetzt, da sie unabhängig erfasste Zeitwerte sind. `PASS` prüft nur die
-gelieferten Werte; er authentifiziert keine DMV-Aufnahme und beweist keine
-Ursache des Wartens oder eine tatsächlich erzeugte Konkurrenz.
+Zusätzlich muss die Semaphore-Zeile denselben Capturezeitpunkt und denselben
+`(pool_id, resource_semaphore_id)`-Scope haben und positive `waiter_count`- und
+`grantee_count`-Werte ausweisen. Mindestens ein weiterer erteilter Grant muss im
+gleichen Pool und derselben Semaphore erscheinen. Fehlende oder nicht-positive
+Zähler in einer vorhandenen Snapshotaufnahme sind `FAIL`; ein fehlender
+Semaphore-Snapshot oder Nullzähler bleibt `NOT_PROVEN`. Widersprüchliche
+Scope- oder Zeitbindungen sind `FAIL`. Unterschiedliche positive
+Wartezeitfelder werden nicht gleichgesetzt,
+da sie unabhängig erfasste Zeitwerte sind. `PASS` prüft nur die gelieferten
+Werte; er authentifiziert keine DMV-Aufnahme und beweist keine Ursache des
+Wartens oder eine tatsächlich erzeugte Konkurrenz.
 
 ## Quellen
 

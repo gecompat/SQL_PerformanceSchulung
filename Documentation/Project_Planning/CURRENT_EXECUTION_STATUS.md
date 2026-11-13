@@ -1711,6 +1711,15 @@ Session-/Request-ID, gemeinsamer Erfassungszeitpunkt, `RESOURCE_SEMAPHORE`,
 Pool-/Semaphore-Kombination. Die gelieferten Zeilen sind unauthentifiziert;
 kein Lauf, kein Kausalnachweis und keine Runtimequalifikation.
 
+Die RES-004-Gegenprobe fand danach eine Lücke zwischen Lehrvertrag und
+Offlineprüfer: Der Prüfer verlangte den wartenden Request und einen gewährten
+Grant im selben Pool/Semaphore, wertete aber die dort ebenfalls geforderten
+`waiter_count`-/`grantee_count`-Zähler nicht aus. Der Vertrag bindet diese
+Zähler jetzt positiv an dieselbe Semaphore und denselben Erfassungszeitpunkt;
+fehlende oder nicht-positive Werte bleiben `NOT_PROVEN`. 19 synthetische Tests
+bestanden. Das authentifiziert keine Aufnahme und qualifiziert weder SQL noch
+eine tatsächliche Konkurrenzprobe.
+
 Für RES-001 bindet ein weiterer Offlinevertrag caller-supplied `THREADPOOL`-
 Wait, passendes Run-Token und Scheduler-`work_queue_count` an einen gemeinsamen
 Capturezeitpunkt innerhalb des Run-Fensters. `runnable_tasks_count` bleibt
