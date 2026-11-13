@@ -2688,6 +2688,23 @@ bleiben unmodelliert. Das Resultat ist weiterhin ausschließlich
 `CANDIDATES_ONLY`, keine vollständige Aufrufclosure und kein P11-Sollrecord;
 die operative S15-/P11-Inventur und das Fünf-Formen-/64-KiB-Gate bleiben offen.
 
+Eine weitere syntaktische Importform bindet jetzt Modulaliase aus
+`from package import module [as alias]` und relativen Äquivalenten an vorhandene
+Quellmodule. Die beiden Modulaliasrouten (`import package.module` und `from
+package import module`) speisen dieselbe konservative Funktions-, Klassenmethoden-
+und Konstruktorauflösung. Vier zusätzliche Regressionen prüfen Funktion,
+Klassenmethode, Konstruktor und nicht aufgerufene Funktion. Der isolierte
+Testsatz umfasst nun 36 Fälle. Der gebundene Lauf zählt weiterhin 92 Module,
+jetzt aber 572 Kanten und 274 verfolgte lokale Funktionen; 22 Bedingungen sind
+entschieden und 973 unbekannt. Der sortierte Quelldigest bleibt
+`f3edce40f628d8ef5a36e779378662e9de8e1a571c8dd0c288b70517ede68973`, weil die
+Menge bereits zuvor lexical erreichbarer Quelldateien gleich blieb. Ein
+separater AST-Zähler findet 199 entsprechende `ImportFrom`-Modulkandidaten in
+65 Quellmodulen; diese Zahl ist keine Anzahl ausgeführter Kanten. Star-Imports,
+Attribut-/Alias-Rebinding, dynamische Auflösung und Laufzeitsemantik bleiben
+unmodelliert. Der Kandidatenstatus und die offenen operativen Gates ändern sich
+nicht.
+
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible
 Plattformzweige und weitere syntaktische Kandidaten; dynamische Imports,

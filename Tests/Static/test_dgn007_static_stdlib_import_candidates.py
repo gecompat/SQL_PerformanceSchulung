@@ -452,6 +452,60 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper"))
         self.assertEqual(function_count, 0)
 
+    def test_from_import_module_alias_follows_source_function(self):
+        files = {
+            "pkg/__init__.py": b"from . import helper as h\nh.boot()\n",
+            "pkg/helper.py": b"def boot():\n    from . import leaf\n",
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
+        self.assertEqual(function_count, 1)
+
+    def test_from_import_module_alias_follows_class_method(self):
+        files = {
+            "pkg/__init__.py": b"from . import helper as h\nh.Worker.run()\n",
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def run(self):\n        from . import leaf\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
+        self.assertEqual(function_count, 1)
+
+    def test_from_import_module_alias_follows_class_constructor(self):
+        files = {
+            "pkg/__init__.py": b"from . import helper as h\nh.Worker()\n",
+            "pkg/helper.py": (
+                b"class Worker:\n"
+                b"    def __init__(self):\n        from . import leaf\n"
+            ),
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.leaf"))
+        self.assertEqual(function_count, 1)
+
+    def test_uncalled_from_import_module_alias_does_not_expand_function(self):
+        files = {
+            "pkg/__init__.py": b"from . import helper as h\n",
+            "pkg/helper.py": b"def boot():\n    from . import leaf\n",
+            "pkg/leaf.py": b"VALUE = 1\n",
+        }
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "pkg.helper"))
+        self.assertEqual(function_count, 0)
+
     def test_called_imported_source_function_adds_its_imports(self):
         files = {
             "pkg/__init__.py": (
@@ -564,7 +618,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("LEXICAL_SOURCE_CANDIDATES_ONLY", labels)
         self.assertIn("MODULE_AND_CLASS_BODIES_ONLY", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_AND_IMPORTED_CLASS_METHODS",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_AND_IMPORTED_CLASS_METHODS",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
