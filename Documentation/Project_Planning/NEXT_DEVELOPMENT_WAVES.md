@@ -858,12 +858,14 @@ nächsten Lauf.
 
 Der aktuelle Offline-Schnitt verfolgt bereits erkannte importierte
 Klassenaliase auch durch tatsächlich aufgerufene verschachtelte
-Funktions-Closures. Die gebundene CPython-3.12.16-Kandidatenmenge blieb dabei
-unverändert. Als nächste getrennte Offlinearbeit bleiben die operative
-S15-/P11-Sollinventur und das Fünf-Formen-/64-KiB-Gate maßgeblich; sie sind
-keine Laufzeitfreigabe und dürfen nicht aus dem Kandidatenscan abgeleitet
-werden. Details und lokale Grenze stehen im
-[aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md#fortsetzung-dgn-007-klassenaliase-über-aufgerufene-nested-function-closures).
+Funktions-Closures. Der Folgeabgleich bindet den generierten
+CPython-`stdlib_module_names.h`-Header digestgebunden: 301 statische Namen,
+alle 93 Kandidatenwurzeln liegen darin. Das ist keine beobachtete
+Laufzeiteigenschaft. Als nächste getrennte Offlinearbeit bleiben die übrigen 15
+S15-Felder und P11-Recordquellen sowie danach das gemeinsame
+Fünf-Formen-/64-KiB-Gate maßgeblich. Sie sind keine Laufzeitfreigabe und dürfen
+nicht aus dem Kandidatenscan abgeleitet werden. Details und lokale Grenze
+stehen im [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
 
 ### Gemeinsame Autonomie- und Stopregeln
 
