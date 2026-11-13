@@ -340,6 +340,7 @@ class ControlBootstrapTests(unittest.TestCase):
         self.assertEqual([alias.name for node in tree.body if type(node) is ast.Import
                           for alias in node.names],
                          ["importlib.util", "sys", "sysconfig", "json", "struct", "zlib"])
+        self.assertNotIn(b"Ausschlie\xc3\x9flich diese f\xc3\xbcnf direkten Imports", result.source)
         self.assertFalse(any(type(node) is ast.ImportFrom for node in tree.body))
         self.assertFalse(result.runtime_attested)
         self.assertFalse(result.trust_attested)

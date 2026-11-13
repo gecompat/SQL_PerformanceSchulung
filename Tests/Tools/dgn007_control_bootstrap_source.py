@@ -61,7 +61,7 @@ def _locator(value):
           "LOCATOR_FORM")
 
 
-# Ausschließlich diese fünf direkten Imports; keine Projektmodule im Template.
+# Der Legacypräfix hat fünf direkte Imports; der komprimierte Builder ergänzt zlib.
 _PREFIX = '''"""Gebundener Kontrollquellenvorschnitt; keine Profilaufnahme oder Workerroute."""
 import importlib.util
 import sys
