@@ -752,6 +752,38 @@ class StaticImportCandidateTests(unittest.TestCase):
                 preconfig_source, initconfig_source, env_worker,
             ), {})
 
+    def test_debug_name_fact_requires_validated_unoptimized_guard(self):
+        self.assertEqual(
+            SUBJECT._target_importlib_debug_call_facts({17: True}),
+            (("__debug__", True),),
+        )
+        for facts in ({}, {17: False}, {0: True}, {"line": True}, None):
+            self.assertEqual(
+                SUBJECT._target_importlib_debug_call_facts(facts), (),
+            )
+        condition = ast.parse("__debug__", mode="eval").body
+        self.assertIsNone(SUBJECT._target_condition(condition))
+        self.assertIs(SUBJECT._target_condition(
+            condition,
+            known_call_facts=SUBJECT._target_importlib_debug_call_facts({17: True}),
+        ), True)
+
+    def test_debug_name_fact_prunes_only_the_proven_normal_compile_branch(self):
+        files = {
+            "pkg.py": (
+                b"if __debug__:\n    import normal_compile\n"
+                b"else:\n    import optimized_compile\n"
+            ),
+            "normal_compile.py": b"VALUE = True\n",
+            "optimized_compile.py": b"VALUE = False\n",
+        }
+        known_call_facts = SUBJECT._target_importlib_debug_call_facts({17: True})
+        modules, _, _, _, conditions = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",), known_call_facts=known_call_facts,
+        )
+        self.assertEqual(modules, ("normal_compile", "pkg"))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
     def test_importlib_verbose_fact_requires_positive_callsite_verbosity(self):
         preconfig_source = b"case 'I': cmdline->isolated = 1;"
         initconfig_source = (

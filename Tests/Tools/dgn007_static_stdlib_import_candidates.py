@@ -1684,6 +1684,15 @@ def _target_importlib_optimize_line_facts(
     return {guards[0].lineno: True}
 
 
+def _target_importlib_debug_call_facts(optimize_line_facts):
+    """Bind __debug__ only after the fixed route proves optimization is off."""
+    if (type(optimize_line_facts) is not dict or not optimize_line_facts
+            or any(type(line) is not int or line < 1 or type(value) is not bool
+                   or not value for line, value in optimize_line_facts.items())):
+        return ()
+    return (("__debug__", True),)
+
+
 def _target_imported_name_star_imports_safe(files, module):
     """Keep imported __name__ only across pinned star exports that exclude it."""
     bindings = {
@@ -6321,6 +6330,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         target_call_facts += (("sys.executable", True),)
     if target_importlib_optimize_line_facts:
         target_call_facts += (("sys.flags.optimize == 0", True),)
+        target_call_facts += _target_importlib_debug_call_facts(
+            target_importlib_optimize_line_facts,
+        )
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_unknown_conditions = []

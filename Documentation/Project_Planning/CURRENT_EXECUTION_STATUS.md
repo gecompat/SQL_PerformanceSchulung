@@ -10462,6 +10462,19 @@ Generalprobenattestation bleiben ausgeschlossen.
 Die Zielbedingungsauswertung akzeptiert nun auch negative konstante
 Ganzzahlindizes und Slicegrenzen/-schrittweiten für das gebundene
 `sys.version_info`-Tupel. Außerhalb liegende Einzelindizes, Bool-Indizes,
-dynamische Grenzen und Schrittweite null bleiben unbekannt. Die bestehende
-fokussierte Suite besteht lokal mit 196 Tests unter Python 3.14; PR-Gates stehen
-noch aus.
+dynamische Grenzen und Schrittweite null bleiben unbekannt. Die fokussierte
+Suite besteht lokal mit 196 Tests unter Python 3.14. Alle fünf PR-Gates
+einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #756
+integrierte den Schnitt als `b28ba4254d845b24cead260486a75ddd28c1692a`; `main`
+ist synchronisiert und lokale/Remote-Branches sind entfernt. Der Workflow
+enthält keinen separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-,
+SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: `__debug__` aus der gebundenen Workerroute
+
+Der statische Scanner leitet `__debug__ == True` jetzt nur aus dem bereits
+quellgebundenen Nachweis `sys.flags.optimize == 0` für die feste Worker-argv
+ab. Ohne diesen Nachweis werden weder Debug- noch Optimierungszweige
+vereinfacht. Zwei Regressionen prüfen die Fact-Grenze und den Closure-Zweig.
+Die fokussierte Suite besteht lokal mit 198 Tests unter Python 3.14; PR-Gates
+stehen noch aus.
