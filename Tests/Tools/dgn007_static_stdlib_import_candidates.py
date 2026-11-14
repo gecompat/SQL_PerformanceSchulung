@@ -698,12 +698,15 @@ def _import_names(tree, module, path):
     def literal_string(node):
         if isinstance(node, ast.Constant) and type(node.value) is str:
             return node.value
-        if (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
-                and isinstance(node.left, ast.Constant)
-                and type(node.left.value) is str
-                and isinstance(node.right, ast.Constant)
-                and type(node.right.value) is str):
-            return node.left.value + node.right.value
+        if isinstance(node, ast.JoinedStr):
+            if all(isinstance(value, ast.Constant) and type(value.value) is str
+                   for value in node.values):
+                return "".join(value.value for value in node.values)
+            return None
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            left, right = literal_string(node.left), literal_string(node.right)
+            if left is not None and right is not None:
+                return left + right
 
     literal_name_aliases = {}
     for node in ast.walk(tree):
