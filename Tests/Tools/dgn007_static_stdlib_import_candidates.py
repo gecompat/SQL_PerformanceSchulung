@@ -1182,7 +1182,8 @@ def _target_name_aliases(tree, *, imported_module_name=False):
 
 
 def _module_body_import_names(
-        tree, module, path, target_platform=False, condition_stats=None, known_names=None):
+        tree, module, path, target_platform=False, condition_stats=None, known_names=None,
+        unknown_conditions=None):
     """Include module/class bodies, optionally pruning known target if-branches."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
@@ -1224,6 +1225,13 @@ def _module_body_import_names(
             if condition_stats is not None:
                 key = "resolved" if decision is not None else "unknown"
                 condition_stats[key] += 1
+            if decision is None and unknown_conditions is not None:
+                unknown_conditions.append({
+                    "module": module,
+                    "source_path": path,
+                    "line": node.lineno,
+                    "expression": ast.unparse(node.test),
+                })
             selected = node.body if decision is True else node.orelse if decision is False else None
             if selected is not None:
                 for statement in selected:
@@ -1308,9 +1316,11 @@ def _module_body_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest()
 
 
-def _target_platform_candidate_closure(files, roots=ROOTS):
+def _target_platform_candidate_closure(files, roots=ROOTS, unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
+    if unknown_conditions is not None and type(unknown_conditions) is not list:
+        raise ValueError("CONDITION_INVENTORY_TYPE")
     reached = set()
     pending = list(roots)
     edges = 0
@@ -1327,7 +1337,7 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
         aliases = _target_name_aliases(tree, imported_module_name=True)
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
-                known_names=aliases):
+                known_names=aliases, unknown_conditions=unknown_conditions):
             parts = name.split(".")
             candidate = next(
                 (".".join(parts[:index]) for index in range(len(parts), 0, -1)
@@ -1342,6 +1352,12 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
     for module in sorted(reached):
         path = _module_path(module, files)
         rows.append((module + "\t" + hashlib.sha256(files[path]).hexdigest() + "\n").encode("ascii"))
+    if unknown_conditions is not None:
+        unknown_conditions.sort(
+            key=lambda row: (
+                row["module"], row["source_path"], row["line"], row["expression"]
+            )
+        )
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest(), condition_stats
 
 
@@ -2724,7 +2740,18 @@ def analyze(archive_path):
     )
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
-    target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
+    target_unknown_conditions = []
+    target_platform, target_edges, target_sha256, target_conditions = (
+        _target_platform_candidate_closure(
+            files, unknown_conditions=target_unknown_conditions
+        )
+    )
+    target_unknown_conditions_sha256 = hashlib.sha256(
+        json.dumps(
+            target_unknown_conditions, ensure_ascii=False, sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
     call_modules, call_edges, call_functions, call_sha256, call_conditions = (
         _module_init_call_candidate_closure(files)
     )
@@ -2876,6 +2903,8 @@ def analyze(archive_path):
         "target_platform_rows_sha256": target_sha256,
         "target_platform_resolved_if_count": target_conditions["resolved"],
         "target_platform_unknown_if_count": target_conditions["unknown"],
+        "target_platform_unknown_if_conditions": target_unknown_conditions,
+        "target_platform_unknown_if_conditions_sha256": target_unknown_conditions_sha256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
         "target_platform_builtin_module_names": list(_TARGET_BUILTIN_MODULE_NAMES),
         "target_platform_builtin_config_c_sha256": _TARGET_BUILTIN_CONFIG_C_SHA256,

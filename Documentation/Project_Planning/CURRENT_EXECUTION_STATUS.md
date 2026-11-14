@@ -9456,3 +9456,17 @@ Bedingungen sind entschieden, 37 unbekannt. Der getrennte Modulstartscan bleibt
 fokussierte Scannertestsatz besteht 110/110 lokal; die gebundene Offline-CI
 folgt im Pull Request. S15-/P11-Auswahl, operative Inventur und
 Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+
+## Fortsetzung: offene Zielwachen vollständig ausgeben
+
+Der Scannerbericht enthält jetzt alle offenen Ziel-If-Bedingungen mit Modul,
+relativem Quellpfad, Quellzeile und Ausdruck sowie einem SHA-256 über die
+kanonisch sortierten JSON-Records. Der CPython-3.12.16-Linuxvorschnitt enthält
+36 solche Records; ihr Digest ist
+`424a62f6bcf9bc7a4e676e2c2bd6a667f9c50efb9d4d9ef23ba820e7c6b286bf`. Der
+Bestand macht die nächsten statischen Untersuchungen konkreter, ohne aktive
+Runtimemodule, vollständige Closure oder P11 zu behaupten. Kandidatenmenge und
+Modulstartscan bleiben unverändert; der fokussierte Inventory-Test und die
+vollständige DGN-007-Offline-CI laufen im Pull Request. S15-/P11-Auswahl,
+operative Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
