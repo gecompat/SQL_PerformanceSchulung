@@ -1691,7 +1691,7 @@ Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
 danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
 Status ausgewählt.
 
-### Begrenzte Fortsetzung: Argumentbindung bei lokalen Aufrufen (14. November 2026)
+### Abgeschlossen: Argumentbindung bei lokalen Aufrufen (14. November 2026)
 
 Nach PR #744 umfasst der nächste Checkpoint höchstens ein Arbeitspaket, einen
 Pull Request und zwei lokale Kandidaten: die fail-closed Argumentbindung für
@@ -1712,10 +1712,26 @@ Bedingungen sind zusätzlich entschieden. Ein konservativer Rebinding-Guard
 nimmt drei zuvor abgeleitete Importlib-Entscheidungen wieder zurück. Die
 Regressionen decken Funktions- und Methoden-Rebinding ab.
 
-Die fokussierte Regression besteht lokal mit 175 Fällen. DGN-Quellenbundle und
-Prozesskantenprüfung melden auf den lokal verfügbaren Python-Versionen 3.13 und
-3.14 `BOOTSTRAP_CHANGED`; der Repositoryworkflow pinnt Python 3.12. Daher ist
-deren passender Pflichtcheck im PR maßgeblich und steht noch aus. Kein
-Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf. Der
-Integrations-PR ist der Checkpoint; danach folgt die nächste freigegebene offene
-Aufgabe.
+Die fokussierte Regression besteht lokal mit 176 Fällen. Die lokalen
+Python-3.13/3.14-Bundleläufe endeten mit `BOOTSTRAP_CHANGED`; der gepinnte
+Python-3.12-DGN-007-Offlineworkflow bestand im PR. Alle fünf PR-Gates waren
+erfolgreich. PR #745 integrierte die Änderung als `8d3bbf8244ead67412a044026c891ce980efd549`;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Kein
+Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: boolesche Negation in lokalen Aufrufargumenten (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Aufrufbinder wertet reines `not`
+über bereits unterstützten primitiven Literalen und Literal-Tupeln aus; dynamische
+Operanden bleiben unbekannt. Verwendet werden der signaturgeprüfte
+CPython-3.12.16-Quellstand, das gebundene Zielimage und die bestehende
+Workerroute. Keine neue Produktquelle und keine Runtime-, SQL-, Lab- oder
+Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; die Grenze ist
+1/1/2 und kein Provider-Ausgabenlimit.
+
+Die fokussierte Suite besteht lokal mit 178 Fällen. Der gebundene Zielscan bleibt
+`CANDIDATES_ONLY` bei 60 Modulen, 316 Kanten, 166 Funktionen und 70/497
+entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests bleiben
+unverändert. Der PR-Merge ist der Checkpoint; danach wird die nächste offene,
+freigegebene Aufgabe anhand des dann aktuellen Status ausgewählt.

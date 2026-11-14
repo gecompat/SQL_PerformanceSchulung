@@ -10308,10 +10308,26 @@ Digest der entschiedenen Aufrufbedingungen ist
 `1f18e112cd16076f29f43029af5779907ae56dd4d212b65df6778a8c79fcf6d2`, der neue
 Digest unbekannter Bedingungen
 `57cc610d1a8d731f756b3f1d1cc86983a610e685bcf53ac3892497c49f5c99d8`.
-175 fokussierte Regressionen bestehen lokal, einschließlich der Rebinding-
+176 fokussierte Regressionen bestehen lokal, einschließlich der Rebinding-
 Gegenproben für Funktionen und Methoden. Der vollständige DGN-Quellenbundle-
 und Prozesskanten-Test konnte lokal mit den installierten Python-3.13/3.14-
-Interpretern nicht bestätigt werden: beide brechen an `BOOTSTRAP_CHANGED` ab;
-der Repositoryworkflow pinnt Python 3.12. Ein Python-3.12-Lauf steht daher als
-Pflichtcheck des Pull Requests aus. Kein Zielinterpreter-, Profil-, Worker-,
-SQL-, Lab- oder Generalprobenlauf.
+Interpretern nicht bestätigt werden: beide brechen an `BOOTSTRAP_CHANGED` ab.
+Der gepinnte Python-3.12-Workflow von PR #745 bestand jedoch alle 17 Schritte;
+zusammen mit Privacy, Governance, Registry und ADV bestanden alle fünf PR-Gates.
+PR #745 ist als `8d3bbf8244ead67412a044026c891ce980efd549` integriert; `main`
+ist synchronisiert und lokale/Remote-Branches sind entfernt. Kein Ziel-
+Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+## Fortsetzung: boolesche Negation bei Literalargumenten
+
+Der lokale Aufrufbinder wertet jetzt zusätzlich den reinen Ausdruck `not`
+über bereits gebundene primitive Literale und Literal-Tupel aus. Dynamische
+Operanden bleiben unbekannt; es werden keine benutzerdefinierten Operatoren oder
+Truthinessmethoden ausgeführt. Zwei Regressionen prüfen direkte Aufrufargumente,
+Funktionsstandardwerte und den unbekannten Rückfall dynamischer Operanden.
+Die fokussierte Suite besteht mit 178 Tests. Der gebundene CPython-3.12.16-
+Zielscan bleibt bei 60 Modulen, 316 Kanten, 166 Funktionen und 70/497
+entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests bleiben
+unverändert. Die aktuelle Quellenmenge enthält keinen zusätzlichen erreichbaren
+Aufrufkontext dieser Form. Das bleibt `CANDIDATES_ONLY`, ohne Runtime-, P11-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenattestation.

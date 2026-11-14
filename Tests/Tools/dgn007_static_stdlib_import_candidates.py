@@ -5721,6 +5721,10 @@ def _static_literal_call_facts(function, call, name_facts=(), *,
         if isinstance(node, ast.Constant) and type(node.value) in (
                 str, int, bool, type(None)):
             return node.value
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            value = literal(node.operand)
+            if value is not _UNKNOWN:
+                return not value
         if isinstance(node, ast.Name):
             return source_names.get(node.id, _UNKNOWN)
         if isinstance(node, ast.Tuple):
