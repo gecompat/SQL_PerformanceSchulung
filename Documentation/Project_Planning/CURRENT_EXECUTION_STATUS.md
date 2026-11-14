@@ -9799,3 +9799,23 @@ Das ist weder P11-Soll noch Runtimeattestation. Vollständige S15-/P11-
 Sollrecords, Quellen-/Aufrufreview, fünf tatsächliche Formen und gemeinsames
 64-KiB-Gate bleiben vor der einmaligen operativen Inventur offen; Worker,
 Profil, SQL und Generalprobe wurden nicht gestartet.
+
+## Fortsetzung: geprüfter Star-Export-Namensfact
+
+PR [#705](https://github.com/gecompat/SQL_PerformanceSchulung/pull/705) wurde
+am 14. November 2026 nach grünen DGN-Offline-, Privacy-, Registry-, ADV- und
+Governancechecks squash-gemergt (`a5d52047bd2faf0b43c7de2085e8607a2812aa2e`).
+Im Modulstartscan bleiben die konservativen 93/578/534 als Vergleich erhalten;
+der zielgebundene Stand ist 88 Module, 542 Kanten, 448 Funktionen, 42
+entschiedene und 1.238 unbekannte Guards.
+
+Die folgende getrennte Gegenprobe erhält geprüfte importierte `__name__`-
+Wachen über digestgebundene Star-Exports. Im gleichen gepinnten Scan bleibt es
+bei 88 Modulen, während Kanten/Funktionen auf 539/418 sinken; 45 Guards sind
+entschieden und 1.154 unbekannt (Digest
+`8fc442a206db66681443a3a908a587ed4ce808bf26ac5d71848dbda756bf5516`). Die
+141 fokussierten Gegenproben bestehen lokal; Datei-Privacy, Syntax und
+`git diff --check` bestehen ebenfalls. Ein grüner
+Callvorschnitt ist keine P11-Closure. S15-/P11-Sollrecords, unabhängiger
+Quellen-/Aufrufreview, fünf vollständige Formen und das gemeinsame 64-KiB-Gate
+bleiben offen; es gab keine operative Inventur oder Generalprobe.

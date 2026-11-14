@@ -224,6 +224,28 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIn("nested_function_branch", target[0])
 
+    def test_target_imported_module_name_survives_star_export_fact(self):
+        files = {
+            "entry.py": (
+                b"from export import *\n"
+                b"if __name__ == '__main__':\n    import script_only\n"
+            ),
+            "export.py": b"__all__ = ['VALUE']\nVALUE = 1\n",
+            "script_only.py": b"VALUE = 2\n",
+        }
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",)
+        )
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            known_name_facts={
+                "entry": {"__name__": SUBJECT._IMPORTED_MODULE_NAME},
+            },
+        )
+        self.assertIn("script_only", baseline[0])
+        self.assertEqual(target[0], ("entry", "export"))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+
     def test_target_module_init_call_scan_uses_only_bound_guard_facts(self):
         files = {
             "entry.py": (
