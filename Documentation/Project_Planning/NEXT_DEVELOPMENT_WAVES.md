@@ -1591,3 +1591,7 @@ berechnete Namen bleiben ausgeschlossen. Fokussiert 105/105, Archivclosure
 Einfache Zuweisungsaliase und Namensketten zu diesen Importfunktionen sind
 ebenfalls statisch gebunden. 105/105 fokussierte Tests, Archivkennzahlen
 unverändert; Scope und Rebinding bleiben unbewertet.
+
+Direkte Stringkonstanten in Namenszuweisungen können nun ebenfalls ein
+dynamisches Importargument binden; relative und berechnete Namen bleiben
+ausgeschlossen. 105/105 fokussierte Tests, Archivkennzahlen unverändert.

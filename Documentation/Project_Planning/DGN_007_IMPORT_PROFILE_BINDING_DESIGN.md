@@ -5436,3 +5436,10 @@ Ausführbarkeit werden nicht bewiesen. Die synthetische Aliasgegenprobe deckt
 beide Importfunktionen und eine zweistufige Kette ab, während berechnete Namen
 weiterhin keinen Kandidaten liefern. Fokussiert 105/105; CPython-Archivwerte
 und beide Digests bleiben unverändert.
+
+Ein zusätzliches rein syntaktisches Literalmapping erkennt direkte
+Stringkonstanten in `Assign`-/`AnnAssign`-Zuweisungen als Argumente dieser
+Importfunktionen. Variablen mit relativen Modulstrings und berechnete Namen
+bleiben unaufgelöst. Die Gegenprobe prüft beides; fokussiert 105/105, Archiv-
+closure und Modulstartwerte samt Digests unverändert. Das Mapping berücksichtigt
+keine Kontrollfluss-, Scope- oder spätere Rebindingsemantik.

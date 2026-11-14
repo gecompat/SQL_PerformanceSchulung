@@ -2065,8 +2065,12 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"assigned_loader = load\n"
                 b"chained_loader = assigned_loader\n"
                 b"assigned_import = bi.__import__\n"
+                b"literal_name = 'pkg.literal_name'\n"
+                b"relative_name = '.pkg.relative'\n"
                 b"load('pkg.api')\n"
                 b"chained_loader('pkg.assigned_alias')\n"
+                b"load(literal_name)\n"
+                b"load(relative_name)\n"
                 b"il.import_module('pkg.module_alias')\n"
                 b"bi.__import__('pkg.builtins_attr')\n"
                 b"direct_import('pkg.builtins_alias')\n"
@@ -2080,6 +2084,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/builtins_alias.py": b"VALUE = 4\n",
             "pkg/assigned_alias.py": b"VALUE = 5\n",
             "pkg/assigned_builtin.py": b"VALUE = 6\n",
+            "pkg/literal_name.py": b"VALUE = 7\n",
         }
         modules, edges, _ = SUBJECT._candidate_closure(files, ("entry",))
         self.assertEqual(
@@ -2087,10 +2092,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             (
                 "entry", "pkg", "pkg.api", "pkg.assigned_alias",
                 "pkg.assigned_builtin", "pkg.builtins_alias",
-                "pkg.builtins_attr", "pkg.module_alias",
+                "pkg.builtins_attr", "pkg.literal_name", "pkg.module_alias",
             ),
         )
-        self.assertEqual(edges, 6)
+        self.assertEqual(edges, 7)
 
     def test_import_from_resolves_existing_submodule_conservatively(self):
         files = {
