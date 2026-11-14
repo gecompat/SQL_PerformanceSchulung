@@ -9300,3 +9300,8 @@ Stringkonstanten in Namenszuweisungen gebunden. Relative Stringwerte und
 berechnete Namen bleiben unaufgelöst; die AST-weite Regel bewertet weder Scope
 noch Kontrollfluss oder Rebinding. Die synthetische Gegenprobe besteht,
 fokussiert 105/105, Archivwerte und Digests unverändert.
+
+Die gleiche begrenzte Regel löst jetzt direkte Konkatenation zweier
+Stringkonstanten auf, inline oder in einer Namenszuweisung. Relative Resultate
+und sonstige Ausdrücke bleiben offen; synthetisch geprüft, fokussiert 105/105,
+Archivwerte und Digests unverändert.
