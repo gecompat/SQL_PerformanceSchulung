@@ -1719,7 +1719,7 @@ erfolgreich. PR #745 integrierte die Änderung als `8d3bbf8244ead67412a044026c89
 `main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Kein
 Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: boolesche Negation in lokalen Aufrufargumenten (14. November 2026)
+### Abgeschlossen: boolesche Negation in lokalen Aufrufargumenten (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Der lokale Aufrufbinder wertet reines `not`
@@ -1733,5 +1733,25 @@ Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; die Grenze ist
 Die fokussierte Suite besteht lokal mit 178 Fällen. Der gebundene Zielscan bleibt
 `CANDIDATES_ONLY` bei 60 Modulen, 316 Kanten, 166 Funktionen und 70/497
 entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests bleiben
-unverändert. Der PR-Merge ist der Checkpoint; danach wird die nächste offene,
-freigegebene Aufgabe anhand des dann aktuellen Status ausgewählt.
+unverändert. Alle fünf PR-Gates bestanden. PR #746 integrierte die Änderung als
+`e573cd6559787c5d2eacdd31cb39b8a0eabf5ef5`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Die nächste offene, freigegebene Aufgabe
+wird anhand des dann aktuellen Status ausgewählt.
+
+### Begrenzte Fortsetzung: primitive Gleichheit in lokalen Aufrufargumenten (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Literalbinder erkennt einzelne
+`==`-/`!=`-Vergleiche über bereits unterstützte primitive Literale und
+Literal-Tupel. Vergleichsketten und dynamische Operanden bleiben unbekannt;
+keine benutzerdefinierten Vergleichsoperatoren werden ausgeführt. Verwendet
+werden der signaturgeprüfte CPython-3.12.16-Quellstand, das gebundene Zielimage
+und die bestehende Workerroute. Keine neue Produktquelle und keine Runtime-,
+SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit.
+
+Die fokussierte Suite besteht lokal mit 180 Fällen. Der gebundene Zielscan bleibt
+`CANDIDATES_ONLY` bei 60 Modulen, 316 Kanten, 166 Funktionen und 70/497
+entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests sind
+unverändert. Der PR-Merge ist der Checkpoint; danach folgt die nächste offene,
+freigegebene Aufgabe anhand des dann aktuellen Status.
