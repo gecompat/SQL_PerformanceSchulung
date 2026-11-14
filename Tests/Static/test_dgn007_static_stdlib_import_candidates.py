@@ -606,8 +606,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             facts = SUBJECT._target_types_descriptor_call_facts(files)
             self.assertEqual(
                 facts,
-                ("hasattr(types, 'GetSetDescriptorType')",
-                 "hasattr(types, 'MemberDescriptorType')"),
+                (("hasattr(types, 'GetSetDescriptorType')", True),
+                 ("hasattr(types, 'MemberDescriptorType')", True)),
             )
             self.assertEqual(
                 SUBJECT._target_types_descriptor_call_facts(
@@ -629,12 +629,66 @@ class StaticImportCandidateTests(unittest.TestCase):
     def test_source_bound_hasattr_fact_resolves_only_exact_recorded_call(self):
         fact = "hasattr(types, 'MemberDescriptorType')"
         expression = ast.parse(fact, mode="eval").body
-        self.assertIs(SUBJECT._target_condition(expression, known_call_facts=(fact,)), True)
+        self.assertIs(SUBJECT._target_condition(
+            expression, known_call_facts=((fact, True),)
+        ), True)
         self.assertIsNone(SUBJECT._target_condition(expression))
         self.assertIsNone(SUBJECT._target_condition(
             ast.parse("hasattr(types, 'UnknownType')", mode="eval").body,
-            known_call_facts=(fact,),
+            known_call_facts=((fact, True),),
         ))
+
+    def test_ast_compatibility_facts_require_all_digest_bound_sources(self):
+        ast_source = (
+            b"from _ast import *\n"
+            b"if not hasattr(Constant, 'n'):\n    pass\n"
+            b"if not hasattr(Tuple, 'dims'):\n    pass\n"
+        )
+        asdl_source = (
+            b"Constant(constant value, string? kind)\n"
+            b"Tuple(expr* elts, expr_context ctx)\n"
+        )
+        c_source = (
+            b'PyObject_SetAttrString(state->AST_type, "_fields", empty_tuple) < 0 ||\n'
+            b'PyObject_SetAttrString(state->AST_type, "_attributes", empty_tuple) < 0\n'
+            b'state->expr_type = make_type(state, "expr", state->AST_type, NULL, 0,\n'
+            b'Constant_fields[] = {"value", "kind"};\n'
+            b'state->Constant_type = make_type(state, "Constant", state->expr_type, Constant_fields, 2, 0);\n'
+            b'Tuple_fields[] = {"elts", "ctx"};\n'
+            b'state->Tuple_type = make_type(state, "Tuple", state->expr_type, Tuple_fields, 2, 0);\n'
+        )
+        files = {"ast.py": ast_source}
+        with patch.object(
+            SUBJECT, "_AST_SOURCE_SHA256", hashlib.sha256(ast_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "AST_ASDL_SHA256", hashlib.sha256(asdl_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "AST_C_SHA256", hashlib.sha256(c_source).hexdigest()
+        ):
+            self.assertEqual(
+                SUBJECT._target_ast_compatibility_call_facts(
+                    files, asdl_source, c_source
+                ),
+                (("hasattr(Constant, 'n')", False),
+                 ("hasattr(Tuple, 'dims')", False)),
+            )
+            self.assertEqual(SUBJECT._target_ast_compatibility_call_facts(
+                files, asdl_source + b"changed", c_source
+            ), ())
+            rebound = ast_source + b"Constant = object\n"
+            with patch.object(
+                SUBJECT, "_AST_SOURCE_SHA256", hashlib.sha256(rebound).hexdigest()
+            ):
+                self.assertEqual(SUBJECT._target_ast_compatibility_call_facts(
+                    {"ast.py": rebound}, asdl_source, c_source
+                ), ())
+
+    def test_source_bound_false_hasattr_fact_resolves_negated_guard(self):
+        expression = ast.parse("not hasattr(Constant, 'n')", mode="eval").body
+        self.assertIs(SUBJECT._target_condition(
+            expression, known_call_facts=(("hasattr(Constant, 'n')", False),)
+        ), True)
+        self.assertIsNone(SUBJECT._target_condition(expression))
 
     def test_target_byteorder_is_bound_to_linux_amd64_image(self):
         little = ast.parse("sys.byteorder == 'little'", mode="eval").body

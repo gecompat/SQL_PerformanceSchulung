@@ -5605,3 +5605,23 @@ entschieden. Die Zielclosure bleibt bei 56 Modulen und 278 Kanten mit Digest
 Guardrecords wechseln von unbekannt zu entschieden. Das bleibt eine
 quellengebundene Ableitung; es attestiert weder die tatsächlich importierten
 Module noch eine Runtime-/P11-Inventur.
+
+### Fortsetzung: Legacy-AST-Attribute aus ASDL und generierten Typen
+
+Die exakt negierten Guards `not hasattr(Constant, 'n')` und
+`not hasattr(Tuple, 'dims')` werden nur entschieden, wenn drei zusätzliche
+CPython-Quellen ihre fest gebundenen Digests erfüllen: `Lib/ast.py`,
+`Parser/Python.asdl` und `Python/Python-ast.c`. `ast.py` muss `_ast` unverändert
+per Star-Import übernehmen, die Namen `Constant`, `Tuple` und `hasattr` dürfen
+nicht im Modul neu gebunden werden, und beide AST-Guards müssen exakt vorhanden
+sein. ASDL-Konstruktoren sowie generierte Feldlisten/`make_type`-Aufrufe binden
+`Constant` an `value`/`kind` und `Tuple` an `elts`/`ctx`; weder enthält das
+Legacy-Attribut. Daraus folgen ausschließlich die beiden positiven Fakten
+`hasattr(...)=false`; andere Calls bleiben unbekannt.
+
+Im gebundenen CPython-3.12.16-Archiv bleiben Kandidatenmenge und Zeilendigest
+bei 56/278 und `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`. Elf
+Bedingungen sind entschieden, 32 unbekannt; deren sortierter Inventardigest
+ist `9018e5407b5fff1fc6383e7ab808f6b23de04eee1728bb46e07800a28cf952c7`.
+Der Umfang bleibt `CANDIDATES_ONLY`: keine vollständige Importclosure,
+Runtimeauswahl oder P11-Attestation.

@@ -23,6 +23,10 @@ CONFIG_C_TEMPLATE_MEMBER = "Python-3.12.16/Modules/config.c.in"
 CONFIG_C_TEMPLATE_SHA256 = "5c76ef60a799f420b09b047dc1087728e5ed08ba82f6c7664c4d4f1d1d715b21"
 CONFIGURE_SOURCE_MEMBER = "Python-3.12.16/configure.ac"
 CONFIGURE_SOURCE_SHA256 = "4f5345c8d648693030493bdd4a499ae453d477c81a26f61af149d5c70e74d088"
+AST_ASDL_MEMBER = "Python-3.12.16/Parser/Python.asdl"
+AST_ASDL_SHA256 = "ecc26bc2818ebddec685f96663c811de8915beaa74a7cb1ace6eea3920679ac7"
+AST_C_MEMBER = "Python-3.12.16/Python/Python-ast.c"
+AST_C_SHA256 = "07983b321fa333242448efc0eb9990f64823532a4a95b01eccf672f69c8c3b4e"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -40,6 +44,8 @@ MAX_STDLIB_SETUP_BYTES = 64 * 1024
 MAX_GETPATH_SOURCE_BYTES = 64 * 1024
 MAX_CONFIG_C_TEMPLATE_BYTES = 64 * 1024
 MAX_CONFIGURE_SOURCE_BYTES = 512 * 1024
+MAX_AST_ASDL_BYTES = 64 * 1024
+MAX_AST_C_BYTES = 512 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -66,6 +72,8 @@ def _source_archive_data(archive_bytes):
     getpath_source = None
     config_c_template = None
     configure_source = None
+    ast_asdl = None
+    ast_c_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -139,6 +147,24 @@ def _source_archive_data(archive_bytes):
                 else:
                     configure_source = body
                 continue
+            if member.name in (AST_ASDL_MEMBER, AST_C_MEMBER):
+                is_asdl = member.name == AST_ASDL_MEMBER
+                current = ast_asdl if is_asdl else ast_c_source
+                limit = MAX_AST_ASDL_BYTES if is_asdl else MAX_AST_C_BYTES
+                expected = AST_ASDL_SHA256 if is_asdl else AST_C_SHA256
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("AST_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("AST_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("AST_SOURCE_DIGEST")
+                if is_asdl:
+                    ast_asdl = body
+                else:
+                    ast_c_source = body
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -172,7 +198,7 @@ def _source_archive_data(archive_bytes):
             total += len(body)
             files[relative] = body
     return (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
-            getpath_source, config_c_template, configure_source)
+            getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source)
 
 
 def _source_files(archive_path):
@@ -931,6 +957,7 @@ _TYPES_SOURCE_SHA256 = (
 _INSPECT_SOURCE_SHA256 = (
     "5c54ebf0bfdc25397750e5d0f63800751650ee50e65325ff3ea4069c9bfa5f75"
 )
+_AST_SOURCE_SHA256 = "b515c23dbbc459329d3b802a3aac742cc456d7472e66f7ed6e9dc97e40596d7d"
 _TARGET_TYPES_DESCRIPTOR_ATTRIBUTES = (
     "GetSetDescriptorType", "MemberDescriptorType",
 )
@@ -982,6 +1009,72 @@ def _target_types_descriptor_call_facts(files):
                    for node in inspect_tree.body):
             return ()
         facts.append(expression)
+    return tuple((expression, True) for expression in sorted(facts))
+
+
+def _target_ast_compatibility_call_facts(files, asdl_source, c_source):
+    """Bind two legacy AST attribute absences to the pinned generated types."""
+    ast_source = files.get("ast.py")
+    if (type(ast_source) is not bytes
+            or hashlib.sha256(ast_source).hexdigest() != _AST_SOURCE_SHA256
+            or type(asdl_source) is not bytes
+            or hashlib.sha256(asdl_source).hexdigest() != AST_ASDL_SHA256
+            or type(c_source) is not bytes
+            or hashlib.sha256(c_source).hexdigest() != AST_C_SHA256):
+        return ()
+
+    asdl_text = asdl_source.decode("utf-8")
+    c_text = c_source.decode("utf-8")
+    ast_tree = ast.parse(ast_source, filename="ast.py")
+    if not any(
+            isinstance(statement, ast.ImportFrom)
+            and statement.module == "_ast"
+            and any(alias.name == "*" for alias in statement.names)
+            for statement in ast_tree.body):
+        return ()
+    if any(isinstance(node, ast.Name) and node.id in {"Constant", "Tuple", "hasattr"}
+           and isinstance(node.ctx, (ast.Store, ast.Del)) for node in ast.walk(ast_tree)):
+        return ()
+    if not re.search(
+            r'PyObject_SetAttrString\(state->AST_type, "_fields", empty_tuple\) < 0'
+            r'.*?PyObject_SetAttrString\(state->AST_type, "_attributes", empty_tuple\) < 0',
+            c_text, re.DOTALL):
+        return ()
+    if not re.search(
+            r'state->expr_type\s*=\s*make_type\(state, "expr", state->AST_type, NULL, 0,',
+            c_text):
+        return ()
+
+    definitions = (
+        ("Constant", "constant value, string? kind", ("value", "kind"), "n"),
+        ("Tuple", "expr* elts, expr_context ctx", ("elts", "ctx"), "dims"),
+    )
+    facts = []
+    for name, asdl_fields, c_fields, absent_attribute in definitions:
+        if (asdl_fields not in asdl_text
+                or not re.search(
+                    rf"\b{re.escape(name)}_fields\s*\[\s*\]\s*=\s*\{{([^}}]*)\}}\s*;",
+                    c_text,
+                )):
+            return ()
+        field_match = re.search(
+            rf"\b{re.escape(name)}_fields\s*\[\s*\]\s*=\s*\{{([^}}]*)\}}\s*;", c_text
+        )
+        field_names = tuple(re.findall(r'"([^"\\]+)"', field_match.group(1)))
+        if field_names != c_fields or absent_attribute in field_names:
+            return ()
+        make_type_pattern = (
+            rf'state->{name}_type\s*=\s*make_type\(state,\s*"{name}",\s*'
+            rf'state->expr_type,\s*{name}_fields,\s*{len(c_fields)},'
+        )
+        if not re.search(make_type_pattern, c_text):
+            return ()
+        expression = f"hasattr({name}, {absent_attribute!r})"
+        expected_if = f"not {expression}"
+        if not any(isinstance(node, ast.If) and ast.unparse(node.test) == expected_if
+                   for node in ast.walk(ast_tree)):
+            return ()
+        facts.append((expression, False))
     return tuple(sorted(facts))
 
 
@@ -999,8 +1092,11 @@ def _target_condition(node, known_names=None, known_call_facts=None):
     known_call_facts = known_call_facts or ()
 
     def value(expr):
-        if isinstance(expr, ast.Call) and ast.unparse(expr) in known_call_facts:
-            return True
+        if isinstance(expr, ast.Call):
+            expression = ast.unparse(expr)
+            for fact_expression, fact_value in known_call_facts:
+                if expression == fact_expression:
+                    return fact_value
         if isinstance(expr, ast.Constant) and type(expr.value) in (str, int, bool, type(None)):
             return expr.value
         if isinstance(expr, ast.Tuple):
@@ -1383,7 +1479,11 @@ def _target_platform_candidate_closure(
         raise ValueError("SOURCE_INPUT_TYPE")
     if unknown_conditions is not None and type(unknown_conditions) is not list:
         raise ValueError("CONDITION_INVENTORY_TYPE")
-    if known_call_facts is not None and type(known_call_facts) is not tuple:
+    if (known_call_facts is not None and (
+            type(known_call_facts) is not tuple
+            or any(type(fact) is not tuple or len(fact) != 2
+                   or type(fact[0]) is not str or type(fact[1]) is not bool
+                   for fact in known_call_facts))):
         raise ValueError("CONDITION_FACTS_TYPE")
     reached = set()
     pending = list(roots)
@@ -2764,7 +2864,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 def analyze(archive_path):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
-     getpath_source, config_c_template, configure_source) = _source_archive_data(
+     getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -2804,13 +2904,19 @@ def analyze(archive_path):
         config_c_template, configure_source
     )
     types_descriptor_call_facts = _target_types_descriptor_call_facts(files)
+    ast_compatibility_call_facts = _target_ast_compatibility_call_facts(
+        files, ast_asdl, ast_c_source
+    )
+    target_call_facts = tuple(sorted(
+        types_descriptor_call_facts + ast_compatibility_call_facts
+    ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_unknown_conditions = []
     target_platform, target_edges, target_sha256, target_conditions = (
         _target_platform_candidate_closure(
             files, unknown_conditions=target_unknown_conditions,
-            known_call_facts=types_descriptor_call_facts,
+            known_call_facts=target_call_facts,
         )
     )
     target_unknown_conditions_sha256 = hashlib.sha256(
@@ -2975,6 +3081,12 @@ def analyze(archive_path):
         "target_platform_types_descriptor_call_facts": list(
             types_descriptor_call_facts
         ),
+        "target_platform_ast_compatibility_call_facts": list(
+            ast_compatibility_call_facts
+        ),
+        "target_platform_ast_source_sha256": _AST_SOURCE_SHA256,
+        "target_platform_ast_asdl_sha256": AST_ASDL_SHA256,
+        "target_platform_ast_c_sha256": AST_C_SHA256,
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
