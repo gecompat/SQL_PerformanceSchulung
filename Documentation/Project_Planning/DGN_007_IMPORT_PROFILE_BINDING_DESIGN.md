@@ -5854,3 +5854,24 @@ Unbekannt-Bedingungsdigest ist
 Offen bleiben ausschließlich die vier konkreten `sysconfig`-Werte aus dem
 vorigen Abschnitt. Das ist weiterhin weder eine Importclosure noch eine
 P11-Sollinventur oder Laufzeitattestation.
+
+### Fortsetzung: `sys._home` unter der gebundenen `-S`-Route
+
+Die festgelegte isolierte CPython-Aufrufroute verwendet `-S` (§8). Die
+digestgebundene `Lib/site.py` ist die einzige Standardbibliotheksquelle, die
+`sys._home` beschreibt oder setzt; `sysmodule.c` definiert das Attribut nicht.
+`-S` unterbindet den Site-Startupimport. `sysconfig.py` liest das Attribut nur
+über `getattr(sys, '_home', None)` und verwendet es anschließend ausschließlich
+als Wahrheitswache für die virtuelle Umgebung. Unter dieser expliziten
+Aufrufannahme ist die Wache falsch; das behauptet keine direkte Beobachtung des
+Attributs oder eines laufenden Zielinterpreters.
+
+Der Scanner akzeptiert dafür die eigene Option `--target-no-site` nur zusammen
+mit dem digestgeprüften Zielheader und markiert die Annahme im Ergebnis. Der
+Scan bleibt `CANDIDATES_ONLY` bei 56 Modulen/278 Kanten; 39 Bedingungen sind
+entschieden und drei unbekannt. Der Unbekannt-Bedingungsdigest lautet
+`0540551af092173db54a3fcd80017f4f304fa6c3f362c2208b7e6056d53638ee`. Offen
+bleiben tatsächliches `sys.executable`, die kontrollierte Abwesenheit von
+`_PYTHON_PROJECT_BASE` in der Kindumgebung und die daraus folgende
+`_PYTHON_BUILD`-Wache. Bei Änderung der Aufrufflags ist dieser Scan nicht
+anwendbar.

@@ -9723,3 +9723,22 @@ Offen sind `sys.executable`, `sys._home`, `_PYTHON_PROJECT_BASE` und
 `_PYTHON_BUILD`. Es gab weder Profilaufnahme noch Worker-, SQL- oder
 Interpreterausführung; die operative S15-/P11-Inventur und das gemeinsame
 Fünf-Formen-/64-KiB-Gate bleiben gesperrte Folgeschritte.
+
+### Fortsetzung: `sys._home` unter der gebundenen `-S`-Route
+
+Für die in §8 festgelegte isolierte Aufrufroute ist `-S` ausdrücklich gesetzt.
+Im digestgebundenen CPython-Quellarchiv ist `Lib/site.py` die einzige
+Standardbibliotheksdatei, die `_home` erwähnt; `sysmodule.c` enthält das Feld
+nicht. Der Scanner bindet den `sysconfig`-Zweig über `getattr(sys, '_home',
+None)` deshalb nur, wenn `--target-no-site` ausdrücklich angegeben ist; der
+Report kennzeichnet diese Aufrufannahme. Das entscheidet eine weitere
+Importwache, ohne einen Zielprozess oder das Attribut selbst zu beobachten.
+
+Der optionale Scan mit Zielheader und `--target-no-site` bleibt
+`CANDIDATES_ONLY` bei 56 Kandidaten/278 Kanten; 39 Bedingungen sind entschieden
+und drei unbekannt. Der Digest lautet
+`0540551af092173db54a3fcd80017f4f304fa6c3f362c2208b7e6056d53638ee`.
+Offen sind der tatsächliche `sys.executable`-Wert, die kontrollierte
+Abwesenheit von `_PYTHON_PROJECT_BASE` in der Zielumgebung und die resultierende
+`_PYTHON_BUILD`-Wache. Keine Profilaufnahme, Worker-, SQL- oder
+Interpreterausführung fand statt.

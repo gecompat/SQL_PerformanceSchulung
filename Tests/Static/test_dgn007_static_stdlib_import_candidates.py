@@ -1211,6 +1211,41 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {"sysconfig.py": changed}
                 ), {})
 
+    def test_sysconfig_home_guard_is_false_only_under_explicit_no_site(self):
+        sysconfig_source = (
+            b"_sys_home = getattr(sys, '_home', None)\n"
+            b"if _sys_home:\n    _PROJECT_BASE = _sys_home\n"
+        )
+        site_source = (
+            b"def venv():\n"
+            b"    sys._home = None\n"
+            b"    if candidate:\n        sys._home = value\n"
+        )
+        sys_c = b"static int sysmodule_exec(void) { return 0; }\n"
+        files = {"sysconfig.py": sysconfig_source, "site.py": site_source}
+        patches = (
+            patch.object(SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                         hashlib.sha256(sysconfig_source).hexdigest()),
+            patch.object(SUBJECT, "SITE_SOURCE_SHA256",
+                         hashlib.sha256(site_source).hexdigest()),
+            patch.object(SUBJECT, "SYS_MODULE_C_SHA256",
+                         hashlib.sha256(sys_c).hexdigest()),
+        )
+        with patches[0], patches[1], patches[2]:
+            self.assertEqual(SUBJECT._target_sysconfig_no_site_facts(
+                files, sys_c, True
+            ), {"_sys_home": False})
+            self.assertEqual(SUBJECT._target_sysconfig_no_site_facts(
+                files, sys_c, False
+            ), {})
+            self.assertEqual(SUBJECT._target_sysconfig_no_site_facts(
+                {**files, "extra.py": b"setattr(sys, '_home', injected)\n"},
+                sys_c, True,
+            ), {})
+            self.assertEqual(SUBJECT._target_sysconfig_no_site_facts(
+                files, sys_c + b"_home\n", True
+            ), {})
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"
