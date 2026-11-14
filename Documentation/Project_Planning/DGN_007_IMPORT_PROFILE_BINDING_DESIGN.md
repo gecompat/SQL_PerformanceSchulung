@@ -1130,7 +1130,12 @@ werden erhalten. Die fünf vollständigen ASCII-JSON-Größen enthalten jeweils
 16 Headerbytes, Tag, Rolle, eigenen Pool und sämtliche Payloadvorkommen.
 
 Reiner Byteoverflow liefert `POOL_DESIGN_SIZING_OVERFLOW` samt allen fünf Größen,
-Poolanzahlen und Einzelüberschreitungen. Unterlauf liefert ausschließlich
+Poolanzahlen und Einzelüberschreitungen. Zusätzlich weist der Bericht die
+Summe aller fünf Formen einschließlich ihrer jeweiligen 16 Headerbytes aus;
+die gemeinsame Obergrenze beträgt 65.536 Bytes. Eine Überschreitung dieser
+Gesamtgrenze liefert denselben Overflowstatus, auch wenn keine einzelne Form
+ihre Grenze überschreitet. Der Codec und der Sizer beziehen Einzel- und
+Gesamtgrenze aus denselben Konstanten. Unterlauf liefert ausschließlich
 `POOL_DESIGN_SIZING_ONLY`, keinen Herkunfts- oder Runtimeclaim. Pool257,
 Knoten-/Tiefenüberschreitung oder Formfehler führen zu
 `REJECTED_POOL_DESIGN_SIZING` mit festen Labels und ohne Formen. Es gibt keinen
@@ -5481,3 +5486,7 @@ zwei Konstanten, sowohl inline als Importargument als auch in einer direkten
 Namenszuweisung. Andere Ausdrücke und relative Ergebnisse bleiben
 unaufgelöst. Gegenproben prüfen beide Formen und die Ausschlüsse; fokussiert
 105/105, Archivclosure und Modulstartscan unverändert.
+
+#### Gemeinsame Größenobergrenze (Fortschreibung)
+
+Der Größenbericht prüft jetzt auch die gemeinsame Grenze aller fünf vollständigen Formen: exakt 65.536 Bytes werden angenommen, 65.537 Bytes abgewiesen. Die Gegenprobe erreicht beide Summen ohne Einzelüberschreitung; damit ist die gemeinsame Grenze unabhängig von den fünf Einzelgrenzen regressionsgesichert.

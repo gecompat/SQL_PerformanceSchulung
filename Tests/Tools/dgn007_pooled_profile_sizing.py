@@ -11,6 +11,7 @@ import dgn007_compact_profile_sizing as compact
 binding = compact.binding
 HEADER_SIZE = 16
 MAX_METADATA = 16384
+MAX_OUTPUT = 65536
 MAX_POOL = 256
 MAX_NODES = MAX_METADATA - HEADER_SIZE
 MAX_DEPTH = 8
@@ -48,6 +49,8 @@ class SizingReport:
     issue: str
     ordinal: int | None = None
     forms: tuple[FormSize, ...] = ()
+    total_bytes_including_headers: int = 0
+    common_overflow: bool = False
     validation_scope: str = field(default="PROJECT_SEMANTIC", init=False)
     runtime_attested: bool = field(default=False, init=False)
     trust_attested: bool = field(default=False, init=False)
@@ -151,18 +154,23 @@ def _size(form):
 
 
 def size_declared_profile(prepared, worker) -> SizingReport:
-    """Alle fünf Größen und Poolanzahlen bei Byteoverflow; Formfehler ohne Formen.
+    """Alle fünf Einzel-/Gesamtgrößen und Poolanzahlen bei Byteoverflow.
 
     Kein deklarativer Match oder Metadatentransfer. Der Caller hält die eigene
     vorgewählte Deklaration; frühere Prepare-/Aufnahmeerfolge werden nicht attestiert.
+    Jede Form bleibt auf MAX_METADATA, ihre Summe einschließlich Header auf MAX_OUTPUT.
     """
     try:
         forms = _forms(prepared, worker)
         sizes = tuple(_size(form) for form in forms)
         rows = tuple(FormSize(name, size, len(form[2]), size > MAX_METADATA)
                      for name, size, form in zip(FORM_NAMES, sizes, forms))
-        status = "POOL_DESIGN_SIZING_OVERFLOW" if any(r.overflow for r in rows) else "POOL_DESIGN_SIZING_ONLY"
-        return SizingReport(status, "NONE", worker.ordinal, rows)
+        total = sum(sizes)
+        common_overflow = total > MAX_OUTPUT
+        status = ("POOL_DESIGN_SIZING_OVERFLOW"
+                  if any(r.overflow for r in rows) or common_overflow
+                  else "POOL_DESIGN_SIZING_ONLY")
+        return SizingReport(status, "NONE", worker.ordinal, rows, total, common_overflow)
     except _Rejected as error:
         return SizingReport("REJECTED_POOL_DESIGN_SIZING", str(error))
     except (binding.BindingRejected, binding.input82.InputRejected, AttributeError,
