@@ -1,12 +1,31 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 13. November 2026: QRY-023s vorgeschlagene CI-Route und die
+Aktualisiert am 14. November 2026: QRY-023s vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
 enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
 RunToken-, Zielnamen- und Demo-ID-Prüfung, jeweils vor Setup und ohne Erzeugung
 einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
+
+### DGN-007 – integrierter Import-Only-Worker
+
+Der begrenzte Importworker ist über [PR 352](https://github.com/gecompat/SQL_PerformanceSchulung/pull/352)
+integriert. [PR 354](https://github.com/gecompat/SQL_PerformanceSchulung/pull/354)
+ergänzte den bestehenden Linux-/CPython-3.12-Sourcejob um synthetische
+Gegenproben und einen gebundenen Import-Only-Lauf der drei DGN-Einstiege;
+[Run 41906197113](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/41906197113)
+bestand mit allen zwölf Importworker-Tests. Die Probe importiert ausschließlich
+gebundene Pythonmodule in frischen Prozessen und führt keine DGN-Funktion, Demo
+oder SQL-Anweisung aus. Die lokale Beobachtung von 8/1/3 Modulabschlüssen bleibt
+an den dokumentierten 27-Member-Snapshot gebunden.
+
+Damit ist nur der Quellkandidat mit einer begrenzten Importbeobachtung
+integriert. `runtime_attested`, `import_used_bytes_attested`, `trust_attested`
+und `method_approved` bleiben `false`. Operative S15-/P11-Inventur,
+Fünf-Formen-/64-KiB-Gate, Profil-/Kanal-/Consumption-/Replaybindung sowie
+Prozess-/Ressourcen-Cleanup und vollständige DGN-Lifecycleattestation bleiben
+offen. Daraus folgen weder SQL- noch Incidentfreigabe.
 
 ### DGN-007 – nächste freigegebene Baseline-Prüfung
 
