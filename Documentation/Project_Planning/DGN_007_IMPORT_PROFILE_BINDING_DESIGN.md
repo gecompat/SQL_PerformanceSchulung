@@ -5831,3 +5831,26 @@ Der Digest der offenen Bedingungen lautet
 verbleibenden Wachen betreffen Descriptor-Probeergebnisse sowie tatsächliches
 `sys.executable`, `sys._home`, `_PYTHON_PROJECT_BASE` und daraus abgeleitetes
 `_PYTHON_BUILD`.
+
+### Fortsetzung: Descriptor-Support aus dem gepinnten Linux-Buildprofil
+
+Der exakt digestgebundene OCI-Layer wurde ohne Interpreter- oder Containerstart
+gelesen. Sein 55.818-Byte-`pyconfig.h` stimmt mit dem festgelegten SHA-256
+`22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5` überein.
+Er definiert `HAVE_OPENAT`, `HAVE_FSTATAT` und `HAVE_FDOPENDIR`. Die ebenfalls
+gepinnten CPython-Quellen verbinden diese Configure-Makros mit den drei
+`posix._have_functions`-Einträgen, den nativen `open`-/`stat`-/`scandir`-
+Exports und `os.py`'s `supports_dir_fd`-/`supports_fd`-Mengen. Im Nicht-macOS-
+Zweig setzt `posixmodule.c` die zugehörigen Runtime-Wachen auf wahr. Für das
+digestgebundene Linuxziel ist `os.fwalk` deshalb ein statischer
+Importkandidat.
+
+Der Scanner prüft diese Quell- und Headerbindungen nun geschlossen und
+entscheidet die zugehörige Wache nur im optionalen `--target-pyconfig`-Pfad.
+Der aktuelle Scan bleibt `CANDIDATES_ONLY` bei 56 Modulen und 278 Kanten;
+38 Bedingungen sind entschieden und vier unbekannt. Der neue
+Unbekannt-Bedingungsdigest ist
+`e0a86cb9787bb5ea27cbfcdb06ba7f0f5673438ce75deaba366b9b6857429696`.
+Offen bleiben ausschließlich die vier konkreten `sysconfig`-Werte aus dem
+vorigen Abschnitt. Das ist weiterhin weder eine Importclosure noch eine
+P11-Sollinventur oder Laufzeitattestation.

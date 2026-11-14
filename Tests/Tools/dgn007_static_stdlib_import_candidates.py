@@ -1865,6 +1865,86 @@ def _target_posix_build_call_facts(files, posix_source, clinic_source,
     return tuple(sorted(facts))
 
 
+def _target_os_descriptor_support_facts(files, posix_source, clinic_source,
+                                        pyconfig_source):
+    """Resolve os.fwalk's descriptor guard from the pinned Linux build inputs."""
+    source = files.get("os.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != OS_SOURCE_SHA256
+            or type(pyconfig_source) is not bytes
+            or len(pyconfig_source) > MAX_TARGET_PYCONFIG_BYTES
+            or hashlib.sha256(pyconfig_source).hexdigest() != TARGET_PYCONFIG_SHA256
+            or type(posix_source) is not bytes
+            or hashlib.sha256(posix_source).hexdigest() != POSIX_MODULE_C_SHA256
+            or type(clinic_source) is not bytes
+            or hashlib.sha256(clinic_source).hexdigest() != POSIX_MODULE_CLINIC_SHA256
+            or _target_os_have_functions_call_facts(
+                files, posix_source, clinic_source
+            ) != (("_exists('_have_functions')", True),)):
+        return ()
+
+    tree = ast.parse(source, filename="os.py")
+    guard = [node for node in tree.body if isinstance(node, ast.If)
+             and ast.unparse(node.test)
+             == "{open, stat} <= supports_dir_fd and {scandir, stat} <= supports_fd"]
+    if len(guard) != 1:
+        return ()
+
+    required_os_facts = {
+        "_add('HAVE_OPENAT', 'open')",
+        "_add('HAVE_FSTATAT', 'stat')",
+        "_add('HAVE_FDOPENDIR', 'scandir')",
+        "_set.add(stat)",
+        "supports_dir_fd = _set",
+        "supports_fd = _set",
+    }
+    observed_os_facts = {
+        ast.unparse(node) for node in ast.walk(tree)
+        if isinstance(node, (ast.Expr, ast.Assign))
+    }
+    if not required_os_facts <= observed_os_facts:
+        return ()
+
+    config_text = pyconfig_source.decode("ascii")
+    config = set(re.findall(r"(?m)^#define (HAVE_[A-Z0-9_]+) 1$", config_text))
+    required_config = {"HAVE_OPENAT", "HAVE_FSTATAT", "HAVE_FDOPENDIR"}
+    if not required_config <= config:
+        return ()
+
+    c_text = posix_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    method_table = re.search(
+        r"(?s)static PyMethodDef posix_methods\[\] = \{(.*?)\n\};", c_text
+    )
+    if method_table is None or not re.search(r"\.m_methods = posix_methods", c_text):
+        return ()
+    table = method_table.group(1)
+    if any(not re.search(r"(?m)^\s*" + macro + r"\s*$", table)
+           for macro in ("OS_OPEN_METHODDEF", "OS_STAT_METHODDEF", "OS_SCANDIR_METHODDEF")):
+        return ()
+    if any(macro not in clinic_text or '{"' + name + '"' not in clinic_text
+           for macro, name in (("OS_OPEN_METHODDEF", "open"),
+                               ("OS_STAT_METHODDEF", "stat"),
+                               ("OS_SCANDIR_METHODDEF", "scandir"))):
+        return ()
+
+    if not re.search(
+            r"(?s)#else\s+#  define HAVE_FSTATAT_RUNTIME 1.*?"
+            r"#  define HAVE_FDOPENDIR_RUNTIME 1.*?"
+            r"#  define HAVE_OPENAT_RUNTIME 1.*?#endif",
+            c_text):
+        return ()
+    probes = (
+        ('"HAVE_OPENAT", probe_openat', "HAVE_OPENAT_RUNTIME"),
+        ('"HAVE_FSTATAT", probe_fstatat', "HAVE_FSTATAT_RUNTIME"),
+        ('"HAVE_FDOPENDIR", probe_fdopendir', "HAVE_FDOPENDIR_RUNTIME"),
+    )
+    for row, probe in probes:
+        if row not in c_text or probe not in c_text:
+            return ()
+    return (("{open, stat} <= supports_dir_fd and {scandir, stat} <= supports_fd", True),)
+
+
 def _target_threading_os_alias_facts(files):
     """Carry the proven os.register_at_fork method through threading's alias."""
     source = files.get("threading.py")
@@ -3900,6 +3980,10 @@ def analyze(archive_path, target_pyconfig_path=None):
         files, posix_module_c_source, posix_module_clinic_source,
         target_pyconfig_source,
     ) if target_pyconfig_source is not None else ()
+    os_descriptor_support_facts = _target_os_descriptor_support_facts(
+        files, posix_module_c_source, posix_module_clinic_source,
+        target_pyconfig_source,
+    ) if target_pyconfig_source is not None else ()
     threading_os_alias_call_facts = _target_threading_os_alias_facts(files)
     if not any(fact[0] == "hasattr(os, 'register_at_fork')"
                for fact in posix_build_call_facts):
@@ -3924,7 +4008,8 @@ def analyze(archive_path, target_pyconfig_path=None):
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
         + os_fspath_call_facts + os_have_functions_call_facts
-        + posix_build_call_facts + threading_os_alias_call_facts
+        + posix_build_call_facts + os_descriptor_support_facts
+        + threading_os_alias_call_facts
     ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
