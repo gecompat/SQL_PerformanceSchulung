@@ -5897,3 +5897,33 @@ und zwei unbekannt. Der Unbekannt-Bedingungsdigest lautet
 bleiben der tatsächliche `sys.executable`-Wert und die daraus folgende
 `_PYTHON_BUILD`-Wache. Image-Config und Aufrufannahme belegen keine tatsächlich
 geerbte Prozessumgebung oder Zielausführung.
+
+### Fortsetzung: Executable-Kandidat und `_PYTHON_BUILD` aus Docker-save-Layern
+
+Der gepinnte Docker-save-Tarball wurde ohne Container- oder Interpreterstart
+ausgewertet. Der Scanner bindet dessen `manifest.json` an den gepinnten Config-
+Digest und die sieben erwarteten Layernamen, vergleicht die eingebettete Config
+bytegenau mit der separat digestgeprüften Config und prüft für jeden Layer
+sowohl den komprimierten SHA-256 als auch die entpackte RootFS-DiffID. Bei der
+Pfadauflösung berücksichtigt er spätere OCI/Docker-Whiteouts und opaque
+Verzeichnismarker. Damit ist `/usr/local/bin/python3.12` als reguläre Datei
+mit Modus `0755` und dem festgelegten Datei-SHA-256 gebunden; `/usr/local/bin/python3`
+ist der erwartete Symlink. Die beiden Dateien
+`/usr/local/bin/Modules/Setup` und `Setup.local` fehlen im resultierenden
+Layerzustand.
+
+Der optionale Scan verlangt zusätzlich die ausdrückliche Annahme, dass der
+spätere Aufruf `sys.executable` auf den direkten Kandidaten
+`/usr/local/bin/python3.12` setzt. Zusammen mit der gebundenen `-S`-Route und
+der separaten Annahme ohne `_PYTHON_PROJECT_BASE`-Override ergibt das
+`_PROJECT_BASE=/usr/local/bin`; die digestgebundene `sysconfig.py` prüft dort
+genau die beiden nun fehlenden Setup-Pfade. Der statische Lauf entscheidet
+dadurch alle 42 Bedingungen des Linux-Zielvorschnitts: 56 Module, 278 Kanten,
+null unbekannte Bedingungen; deren Leermengen-Digest lautet
+`4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`.
+
+Das ist weiterhin `CANDIDATES_ONLY`: Die Executable ist ein Quellen-/Image-
+Kandidat, kein beobachteter `sys.executable`-Wert. Vollständigkeit der fünf
+S15-/P11-Darstellungen, das gemeinsame 64-KiB-Gate, unabhängiger Aufrufreview
+und die danach autorisierte einmalige operative Inventur bleiben offen.
+Es gab keinen Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.

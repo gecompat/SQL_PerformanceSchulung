@@ -1,6 +1,7 @@
 """Konservative Quelltextkandidaten, keine CPython-P11-Importinventur."""
 import argparse
 import ast
+import gzip
 import hashlib
 import io
 import json
@@ -50,6 +51,17 @@ TARGET_PYCONFIG_SHA256 = "22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255
 TARGET_IMAGE_MANIFEST_SHA256 = "3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93"
 TARGET_IMAGE_CONFIG_SHA256 = "28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b"
 TARGET_IMAGE_CONFIG_LAYER_SHA256 = "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779"
+TARGET_IMAGE_LAYER_NAMES = (
+    "69245854ad5855991d16224f6abf55855d2d73922785206adea9c5c5988434a0",
+    "338554e9113fa6731ba588cb8f45e85b3e3fe7ada531ee7d7b0bc9291d616727",
+    "d6c30932f8d3f5798b438cce12cdf6cebb1717b52f51e22ff010b4d86667031d",
+    "9bab93d346cda15207e5a5000093cee7256ec1092fb689ec3d2997faf31b9a16",
+    "c3bb8894691e757a336b94388048f0557392a3e6d6e0a515f0b690a9cbfba3a1",
+    "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779",
+    "7d0909af463852965fc4e328a11b968cf56707fd15258498d0a43b4c6a1b0953",
+)
+TARGET_EXECUTABLE_PATH = "usr/local/bin/python3.12"
+TARGET_EXECUTABLE_SHA256 = "837a48d7afd08447fb43e28b282026fadb59368620072e57e01f66d12977e5ce"
 THREADING_SOURCE_SHA256 = "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb"
 THREAD_NATIVE_ID_HEADER_MEMBER = "Python-3.12.16/Include/pythread.h"
 THREAD_NATIVE_ID_HEADER_SHA256 = "cd063073710988ea21b54588473542e5f3b2be06f637dc5a028aefd5a7949144"
@@ -85,6 +97,7 @@ MAX_POSIX_MODULE_C_BYTES = 512 * 1024
 MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
 MAX_TARGET_PYCONFIG_BYTES = 64 * 1024
 MAX_TARGET_IMAGE_CONFIG_BYTES = 16 * 1024
+MAX_TARGET_IMAGE_SAVE_BYTES = 1024 * 1024 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -2154,6 +2167,176 @@ def _target_sysconfig_project_base_env_facts(files, image_config_source,
     return (("'_PYTHON_PROJECT_BASE' in os.environ", False),)
 
 
+class _DigestReader:
+    """Hash a sequential tar stream without buffering the image layer."""
+
+    def __init__(self, source):
+        self.source = source
+        self.digest = hashlib.sha256()
+
+    def read(self, size=-1):
+        data = self.source.read(size)
+        self.digest.update(data)
+        return data
+
+
+def _target_image_save_facts(image_save_path, image_config_source):
+    """Verify the pinned Docker-save layers and inspect the final executable paths."""
+    if image_config_source is None:
+        raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
+    path = Path(image_save_path)
+    if path.stat().st_size > MAX_TARGET_IMAGE_SAVE_BYTES:
+        raise ValueError("TARGET_IMAGE_SAVE_LIMIT")
+    try:
+        with tarfile.open(path, "r:") as outer:
+            manifest_info = outer.getmember("manifest.json")
+            if manifest_info.size > MAX_TARGET_IMAGE_CONFIG_BYTES:
+                raise ValueError("TARGET_IMAGE_SAVE_MANIFEST_LIMIT")
+            manifest_member = outer.extractfile(manifest_info)
+            manifest_bytes = manifest_member.read(MAX_TARGET_IMAGE_CONFIG_BYTES + 1)
+            manifest = json.loads(manifest_bytes)
+            if (type(manifest) is not list or len(manifest) != 1
+                    or type(manifest[0]) is not dict):
+                raise ValueError("TARGET_IMAGE_SAVE_MANIFEST")
+            entry = manifest[0]
+            config_name = entry.get("Config")
+            layers = entry.get("Layers")
+            if (config_name != "blobs/sha256/" + TARGET_IMAGE_CONFIG_SHA256
+                    or type(layers) is not list or len(layers) != len(TARGET_IMAGE_LAYER_NAMES)
+                    or any(layer != "blobs/sha256/" + digest
+                           for layer, digest in zip(layers, TARGET_IMAGE_LAYER_NAMES))):
+                raise ValueError("TARGET_IMAGE_SAVE_BINDING")
+            index_info = outer.getmember("index.json")
+            if index_info.size > MAX_TARGET_IMAGE_CONFIG_BYTES:
+                raise ValueError("TARGET_IMAGE_SAVE_INDEX_LIMIT")
+            index = json.loads(outer.extractfile(index_info).read(
+                MAX_TARGET_IMAGE_CONFIG_BYTES + 1
+            ))
+            descriptors = index.get("manifests") if type(index) is dict else None
+            expected_manifest_digest = "sha256:" + TARGET_IMAGE_MANIFEST_SHA256
+            if (type(descriptors) is not list or len(descriptors) != 1
+                    or type(descriptors[0]) is not dict
+                    or descriptors[0].get("digest") != expected_manifest_digest):
+                raise ValueError("TARGET_IMAGE_SAVE_INDEX_BINDING")
+            image_manifest_name = "blobs/sha256/" + TARGET_IMAGE_MANIFEST_SHA256
+            image_manifest_info = outer.getmember(image_manifest_name)
+            if (image_manifest_info.size > MAX_TARGET_IMAGE_CONFIG_BYTES * 4
+                    or image_manifest_info.size != descriptors[0].get("size")):
+                raise ValueError("TARGET_IMAGE_SAVE_MANIFEST_LIMIT")
+            image_manifest_bytes = outer.extractfile(image_manifest_info).read(
+                MAX_TARGET_IMAGE_CONFIG_BYTES * 4 + 1
+            )
+            if hashlib.sha256(image_manifest_bytes).hexdigest() != TARGET_IMAGE_MANIFEST_SHA256:
+                raise ValueError("TARGET_IMAGE_SAVE_MANIFEST_DIGEST")
+            image_manifest = json.loads(image_manifest_bytes)
+            config_descriptor = image_manifest.get("config")
+            layer_descriptors = image_manifest.get("layers")
+            if (type(config_descriptor) is not dict
+                    or config_descriptor.get("digest")
+                    != "sha256:" + TARGET_IMAGE_CONFIG_SHA256
+                    or type(layer_descriptors) is not list
+                    or len(layer_descriptors) != len(TARGET_IMAGE_LAYER_NAMES)
+                    or any(type(descriptor) is not dict
+                           or descriptor.get("digest") != "sha256:" + expected
+                           or descriptor.get("mediaType")
+                           != "application/vnd.oci.image.layer.v1.tar+gzip"
+                           or descriptor.get("size") != outer.getmember(layer_name).size
+                           for descriptor, expected, layer_name in zip(
+                               layer_descriptors, TARGET_IMAGE_LAYER_NAMES, layers
+                           ))):
+                raise ValueError("TARGET_IMAGE_SAVE_OCI_MANIFEST_BINDING")
+            config_info = outer.getmember(config_name)
+            if config_info.size > MAX_TARGET_IMAGE_CONFIG_BYTES:
+                raise ValueError("TARGET_IMAGE_SAVE_CONFIG_LIMIT")
+            config_member = outer.extractfile(config_info)
+            config_bytes = config_member.read(MAX_TARGET_IMAGE_CONFIG_BYTES + 1)
+            if (len(config_bytes) > MAX_TARGET_IMAGE_CONFIG_BYTES
+                    or hashlib.sha256(config_bytes).hexdigest() != TARGET_IMAGE_CONFIG_SHA256
+                    or config_bytes != image_config_source):
+                raise ValueError("TARGET_IMAGE_SAVE_CONFIG_MISMATCH")
+            config = json.loads(config_bytes)
+            rootfs = config.get("rootfs") if type(config) is dict else None
+            diff_ids = rootfs.get("diff_ids") if type(rootfs) is dict else None
+            if (type(diff_ids) is not list or len(diff_ids) != len(layers)
+                    or any(type(item) is not str or not re.fullmatch(r"sha256:[0-9a-f]{64}", item)
+                           for item in diff_ids)):
+                raise ValueError("TARGET_IMAGE_SAVE_DIFF_IDS")
+
+            tracked = {
+                TARGET_EXECUTABLE_PATH: None,
+                "usr/local/bin/python3": None,
+                "usr/local/bin/Modules/Setup": None,
+                "usr/local/bin/Modules/Setup.local": None,
+            }
+            for layer_name, expected_diff_id in zip(layers, diff_ids):
+                compressed_reader = _DigestReader(outer.extractfile(layer_name))
+                uncompressed_reader = _DigestReader(gzip.GzipFile(fileobj=compressed_reader))
+                whiteouts = []
+                additions = []
+                with tarfile.open(fileobj=uncompressed_reader, mode="r|") as layer:
+                    for member in layer:
+                        name = member.name.lstrip("./").rstrip("/")
+                        if not name:
+                            continue
+                        parent, _, basename = name.rpartition("/")
+                        if basename == ".wh..wh..opq":
+                            whiteouts.append((parent, True))
+                        elif basename.startswith(".wh."):
+                            whiteouts.append((parent + "/" + basename[4:], False))
+                        elif name in tracked:
+                            content_sha256 = None
+                            if member.isfile() and name in (TARGET_EXECUTABLE_PATH,):
+                                stream = layer.extractfile(member)
+                                content_digest = hashlib.sha256()
+                                while True:
+                                    chunk = stream.read(1024 * 1024)
+                                    if not chunk:
+                                        break
+                                    content_digest.update(chunk)
+                                content_sha256 = content_digest.hexdigest()
+                            additions.append((name, {
+                                "file": member.isfile(), "symlink": member.issym(),
+                                "linkname": member.linkname if member.issym() else None,
+                                "mode": member.mode & 0o777,
+                                "sha256": content_sha256,
+                            }))
+                if ("sha256:" + compressed_reader.digest.hexdigest()
+                        != "sha256:" + layer_name.rsplit("/", 1)[-1]
+                        or "sha256:" + uncompressed_reader.digest.hexdigest()
+                        != expected_diff_id):
+                    raise ValueError("TARGET_IMAGE_SAVE_LAYER_DIFF_ID")
+                for target in tracked:
+                    parts = target.split("/")
+                    ancestors = ["/".join(parts[:index]) for index in range(1, len(parts))]
+                    removed = False
+                    for parent, opaque in whiteouts:
+                        if (opaque and parent in ancestors
+                                or not opaque and (parent == target
+                                    or target.startswith(parent + "/"))):
+                            removed = True
+                            break
+                    if removed:
+                        tracked[target] = None
+                for name, facts in additions:
+                    tracked[name] = facts
+            executable = tracked[TARGET_EXECUTABLE_PATH]
+            if (executable != {"file": True, "symlink": False, "linkname": None,
+                               "mode": 0o755, "sha256": TARGET_EXECUTABLE_SHA256}
+                    or tracked["usr/local/bin/python3"] != {
+                        "file": False, "symlink": True, "linkname": "python3.12",
+                        "mode": 0o777, "sha256": None,
+                    }
+                    or tracked["usr/local/bin/Modules/Setup"] is not None
+                    or tracked["usr/local/bin/Modules/Setup.local"] is not None):
+                raise ValueError("TARGET_IMAGE_SAVE_PATH_FACTS")
+    except (tarfile.TarError, KeyError, TypeError, json.JSONDecodeError) as error:
+        raise ValueError("TARGET_IMAGE_SAVE_INVALID") from error
+    return {
+        "executable_path_candidate": "/usr/local/bin/python3.12",
+        "_PYTHON_BUILD": False,
+    }
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -3983,7 +4166,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 
 def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
-            target_image_config_path=None, target_no_project_base_override=False):
+            target_image_config_path=None, target_no_project_base_override=False,
+            target_image_save_path=None, target_direct_python312=False):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
@@ -4025,6 +4209,18 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             raise ValueError("TARGET_IMAGE_CONFIG_MISMATCH")
     if target_no_project_base_override and target_image_config_source is None:
         raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
+    target_image_path_facts = {}
+    if target_image_save_path is not None:
+        if (not target_direct_python312 or not target_no_site
+                or not target_no_project_base_override
+                or target_image_config_source is None):
+            raise ValueError("TARGET_IMAGE_PATH_ASSUMPTIONS_REQUIRED")
+        target_image_path_facts = _target_image_save_facts(
+            target_image_save_path, target_image_config_source,
+        )
+        sysconfig_name_facts.update({
+            "_PYTHON_BUILD": target_image_path_facts["_PYTHON_BUILD"],
+        })
     sysconfig_project_base_env_facts = _target_sysconfig_project_base_env_facts(
         files, target_image_config_source, target_no_project_base_override,
     ) if target_image_config_source is not None else ()
@@ -4110,6 +4306,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         + posix_build_call_facts + os_descriptor_support_facts
         + threading_os_alias_call_facts + sysconfig_project_base_env_facts
     ))
+    if target_image_path_facts:
+        target_call_facts += (("sys.executable", True),)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_unknown_conditions = []
@@ -4322,6 +4520,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_profile_no_project_base_override_assumption": (
             target_no_project_base_override
         ),
+        "target_profile_direct_python312_executable_assumption": (
+            target_direct_python312
+        ),
+        "target_platform_image_save_path_facts": target_image_path_facts,
         "target_platform_thread_native_id_source_sha256": {
             "header": THREAD_NATIVE_ID_HEADER_SHA256,
             "module": THREAD_NATIVE_ID_MODULE_SHA256,
@@ -4384,15 +4586,27 @@ def main():
         "--target-no-project-base-override", action="store_true",
         help="Annahme für die feste Zielroute: kein Override für _PYTHON_PROJECT_BASE",
     )
+    parser.add_argument(
+        "--target-image-save", type=Path,
+        help="Digest- und DiffID-geprüfter Docker-save-Tarball des Zielimages",
+    )
+    parser.add_argument(
+        "--target-direct-python312", action="store_true",
+        help="Aufrufannahme: sys.executable verweist auf /usr/local/bin/python3.12",
+    )
     args = parser.parse_args()
     if args.target_no_site and args.target_pyconfig is None:
         parser.error("--target-no-site requires --target-pyconfig")
     if args.target_no_project_base_override and args.target_image_config is None:
         parser.error("--target-no-project-base-override requires --target-image-config")
+    if args.target_direct_python312 and args.target_image_save is None:
+        parser.error("--target-direct-python312 requires --target-image-save")
     try:
         result = analyze(args.archive, args.target_pyconfig, args.target_no_site,
                          args.target_image_config,
-                         args.target_no_project_base_override)
+                         args.target_no_project_base_override,
+                         args.target_image_save,
+                         args.target_direct_python312)
     except (OSError, tarfile.TarError, UnicodeError, SyntaxError, ValueError):
         print(json.dumps({"status": "NOT_PROVEN", "issue": "SOURCE_INPUT_REJECTED"},
                          separators=(",", ":")))

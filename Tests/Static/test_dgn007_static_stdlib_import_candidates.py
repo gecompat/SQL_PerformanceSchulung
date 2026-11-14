@@ -1,8 +1,10 @@
 """Gegenproben für die deklarative CPython-Quellkandidatenanalyse."""
 import ast
 import hashlib
+import gzip
 import importlib.util
 import io
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -22,6 +24,101 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(SUBJECT.MAX_ARCHIVE_BYTES, 64 * 1024 * 1024)
         self.assertEqual(SUBJECT.MAX_SOURCE_BYTES, 64 * 1024 * 1024)
         self.assertEqual(SUBJECT.MAX_SOURCE_FILES, 2048)
+
+    def test_target_image_save_requires_verified_config_layers_and_path_facts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image_path = Path(directory) / "image.tar"
+            layers = []
+            diff_ids = []
+            for index in range(7):
+                content = io.BytesIO()
+                with SUBJECT.tarfile.open(fileobj=content, mode="w") as layer:
+                    if index == 6:
+                        executable = b"verified executable"
+                        info = SUBJECT.tarfile.TarInfo("usr/local/bin/python3.12")
+                        info.mode = 0o755
+                        info.size = len(executable)
+                        layer.addfile(info, io.BytesIO(executable))
+                        link = SUBJECT.tarfile.TarInfo("usr/local/bin/python3")
+                        link.type = SUBJECT.tarfile.SYMTYPE
+                        link.mode = 0o777
+                        link.linkname = "python3.12"
+                        layer.addfile(link)
+                        whiteout = SUBJECT.tarfile.TarInfo(
+                            "usr/local/bin/Modules/.wh.Setup"
+                        )
+                        whiteout.size = 0
+                        layer.addfile(whiteout, io.BytesIO())
+                    if index == 5:
+                        setup = b"removed in a later image layer"
+                        info = SUBJECT.tarfile.TarInfo(
+                            "usr/local/bin/Modules/Setup"
+                        )
+                        info.size = len(setup)
+                        layer.addfile(info, io.BytesIO(setup))
+                body = content.getvalue()
+                compressed = gzip.compress(body, mtime=0)
+                layers.append(compressed)
+                diff_ids.append("sha256:" + hashlib.sha256(body).hexdigest())
+
+            layer_names = tuple(hashlib.sha256(body).hexdigest() for body in layers)
+            config = {
+                "architecture": "amd64", "os": "linux",
+                "config": {"Env": ["PATH=/usr/local/bin"]},
+                "rootfs": {"type": "layers", "diff_ids": diff_ids},
+            }
+            config_bytes = json.dumps(config, separators=(",", ":")).encode()
+            config_digest = hashlib.sha256(config_bytes).hexdigest()
+            oci_manifest = {
+                "config": {"digest": "sha256:" + config_digest},
+                "layers": [{
+                    "digest": "sha256:" + name,
+                    "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                    "size": len(body),
+                } for name, body in zip(layer_names, layers)],
+            }
+            oci_manifest_bytes = json.dumps(oci_manifest, separators=(",", ":")).encode()
+            oci_manifest_digest = hashlib.sha256(oci_manifest_bytes).hexdigest()
+            image_index = {"manifests": [{
+                "digest": "sha256:" + oci_manifest_digest,
+                "size": len(oci_manifest_bytes),
+            }]}
+            image_manifest = [{
+                "Config": "blobs/sha256/" + config_digest,
+                "Layers": ["blobs/sha256/" + name for name in layer_names],
+            }]
+            with SUBJECT.tarfile.open(image_path, "w") as outer:
+                def add(name, data):
+                    info = SUBJECT.tarfile.TarInfo(name)
+                    info.size = len(data)
+                    outer.addfile(info, io.BytesIO(data))
+                add("manifest.json", json.dumps(image_manifest).encode())
+                add("index.json", json.dumps(image_index).encode())
+                add("blobs/sha256/" + oci_manifest_digest, oci_manifest_bytes)
+                add("blobs/sha256/" + config_digest, config_bytes)
+                for name, body in zip(layer_names, layers):
+                    add("blobs/sha256/" + name, body)
+
+            with patch.multiple(
+                SUBJECT,
+                TARGET_IMAGE_CONFIG_SHA256=config_digest,
+                TARGET_IMAGE_MANIFEST_SHA256=oci_manifest_digest,
+                TARGET_IMAGE_LAYER_NAMES=layer_names,
+                TARGET_EXECUTABLE_SHA256=hashlib.sha256(b"verified executable").hexdigest(),
+            ):
+                facts = SUBJECT._target_image_save_facts(image_path, config_bytes)
+        self.assertEqual(facts, {
+            "executable_path_candidate": "/usr/local/bin/python3.12",
+            "_PYTHON_BUILD": False,
+        })
+
+    def test_target_image_save_rejects_invalid_archive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image_path = Path(directory) / "not-an-image.tar"
+            image_path.write_bytes(b"invalid")
+            with patch.object(SUBJECT, "MAX_TARGET_IMAGE_SAVE_BYTES", 10):
+                with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SAVE_INVALID"):
+                    SUBJECT._target_image_save_facts(image_path, b"{}")
 
     def test_module_source_rows_bind_name_path_and_bytes_in_stable_order(self):
         files = {

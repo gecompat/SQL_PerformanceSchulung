@@ -93,15 +93,20 @@ der Sysconfigdatenmodulname sind jetzt aus der gebundenen CPython-Sysconfigquell
 vorläufig vorgewählt; die Kindumgebung muss `_PYTHON_SYSCONFIGDATA_NAME`
 ausdrücklich abwesend halten, da `-I` den direkten `os.environ`-Zugriff nicht
 unterbindet. Das sind Quellenwerte, keine tatsächlichen `sysconfig`-Rückgaben.
-Nächster Gate ist die vollständige Vorwahl dieser Sollfelder und der endgültigen
-Bootstrapbytes samt Quellen-/Aufrufreview. Das OCI-Image liefert den direkten
-Executablekandidaten `/usr/local/bin/python3.12` (18.304 Bytes, Modus `0755`,
-gebundener SHA-256); `/usr/local/bin/python3` ist ein Symlink darauf. Auch
-dieser Dateibeleg bestimmt nicht den tatsächlichen `sys.executable`-Wert;
-erst danach darf die einmalige operative Inventur mit fünf vollständigen
-Darstellungen und gemeinsamem 64-KiB-Gate folgen. Es gab in diesen Schritten
-keine Profilaufnahme oder Worker-/SQL-Ausführung; die Generalprobe bleibt
-ausgeschlossen. Ein konkreter Größenfehler wurde zusätzlich reproduziert: Die
+Der nächste Quellen-/Image-Vorschnitt verifiziert jetzt Docker-save-Manifest,
+Config-Digest sowie komprimierte Layer-Hashes und unkomprimierte DiffIDs und
+wertet Whiteouts des finalen RootFS aus. Er bindet den Executablekandidaten
+`/usr/local/bin/python3.12` (18.304 Bytes, Modus `0755`, Datei-SHA-256), den
+Symlink `/usr/local/bin/python3` und das Fehlen beider `Modules/Setup`-Dateien.
+Unter der weiterhin expliziten Annahme, dass der spätere Aufruf
+`sys.executable=/usr/local/bin/python3.12` verwendet, löst der Scanner auch
+`_PYTHON_BUILD` auf false auf: 56 Kandidaten, 278 Kanten, 42 entschiedene und
+null unbekannte Bedingungen. Das ist `CANDIDATES_ONLY`, keine beobachtete
+Executable oder P11-Inventur. Offen bleiben die vollständigen fünf
+S15-/P11-Darstellungen, das gemeinsame 64-KiB-Gate, Quellen-/Aufrufreview und
+danach die einmalige operative Inventur. Es gab keine Profilaufnahme oder
+Worker-/SQL-Ausführung; die Generalprobe bleibt ausgeschlossen. Ein konkreter
+Größenfehler wurde zusätzlich reproduziert: Die
 vollständige 44.542-Byte-Profilkontrollquelle ließ den bisherigen
 SESSION_END-Builder mit 146.775 Scriptbytes am 131.072-Byte-Cap scheitern.
 Ein additiver zlib-Builder hält dieselben Rohbytes in einem begrenzten Stream
