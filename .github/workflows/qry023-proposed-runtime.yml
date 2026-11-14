@@ -30,6 +30,21 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  image_lock:
+    name: Resolve locked SQL Server image profiles
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.resolve.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - id: resolve
+        name: Resolve the proposed lock for isolated qualification
+        run: python Tests/Runtime/qry023_image_matrix.py "$GITHUB_OUTPUT"
+
   static:
     name: Validate isolated caller and resource guard
     runs-on: ubuntu-latest
@@ -49,24 +64,14 @@ jobs:
 
   runtime:
     name: SQL Server ${{ matrix.year }} isolated QRY-023
-    needs: static
+    needs: [image_lock, static]
     # GitHub-hosted gives each matrix job a dedicated ephemeral VM; the resource
     # floor is not safe on an arbitrarily shared self-hosted runner.
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - year: 2019
-            major: 15
-            image: mcr.microsoft.com/mssql/server@sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069
-          - year: 2022
-            major: 16
-            image: mcr.microsoft.com/mssql/server@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718
-          - year: 2025
-            major: 17
-            image: mcr.microsoft.com/mssql/server@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f
+      matrix: ${{ fromJSON(needs.image_lock.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6

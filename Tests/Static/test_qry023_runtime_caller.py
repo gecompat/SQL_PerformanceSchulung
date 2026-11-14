@@ -805,14 +805,16 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             provision.build_sql("short")
 
-    def test_runtime_workflow_pins_images_and_bounds_disposable_resources(self) -> None:
+    def test_runtime_workflow_resolves_image_lock_and_bounds_disposable_resources(self) -> None:
         workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
         lock = json.loads(
             (ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json")
             .read_text(encoding="utf-8")
         )
+        self.assertIn('python Tests/Runtime/qry023_image_matrix.py "$GITHUB_OUTPUT"', workflow)
+        self.assertIn("matrix: ${{ fromJSON(needs.image_lock.outputs.matrix) }}", workflow)
         for profile in lock["profiles"]:
-            self.assertIn(profile["image"], workflow)
+            self.assertNotIn(profile["image"], workflow)
         self.assertIn("--cpus 2 --memory 4g", workflow)
         self.assertIn("MSSQL_MEMORY_LIMIT_MB=3072", workflow)
         self.assertIn("runs-on: ubuntu-latest", workflow)
