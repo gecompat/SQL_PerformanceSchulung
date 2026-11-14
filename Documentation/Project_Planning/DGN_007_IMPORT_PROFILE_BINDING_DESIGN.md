@@ -2918,6 +2918,16 @@ vollständigen S15-/P11-Felder und alle fünf Darstellungen samt gemeinsamem
 Der bestehende Importprofilmatcher und sämtliche Attestationsflags bleiben
 unverändert; es gab keine Profilaufnahme, Worker-, SQL- oder Generalprobe.
 
+#### Einzelauflistung des statischen Modulstartscans
+
+Der Scannerbericht gibt die Modulstart-Quellkandidaten nun zusätzlich einzeln
+mit Modulname, relativem CPython-Archivpfad und SHA-256 der gebundenen Quelldatei
+aus. Die Liste muss deterministisch sortiert und für jeden Kandidaten vollständig
+auflösbar sein; fehlende Quelldateien oder eine nichtkanonische Kandidatenfolge
+werden abgewiesen. Diese Auflistung macht die 93 Kandidaten für die weitere
+quellengebundene Reduktion prüfbar, ist aber weder eine vollständige Importclosure
+noch ein P11-Sollrecord und wird nicht als Profilinventur verwendet.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt

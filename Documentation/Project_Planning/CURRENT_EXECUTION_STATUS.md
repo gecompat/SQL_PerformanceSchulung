@@ -9359,3 +9359,8 @@ bleiben offen.
 ## Fortsetzung: gemeinsamer Fünf-Formen-Größenbericht
 
 Der DGN-007-Sizer berichtet jetzt die fünf vollständigen Größen einschließlich Header und deren Gesamtsumme. Einzelgrenzen von je 16.384 Bytes und gemeinsame Obergrenze von 65.536 Bytes stammen aus gemeinsam genutzten Konstanten von Sizer und Codec. Exakt 65.536 Bytes werden akzeptiert, 65.537 Bytes abgewiesen, jeweils ohne Einzelüberschreitung. Die fokussierten Sizer-/Codec-Tests bestehen 79/79 unter Python 3.13.17. Operative S15-/P11-Inventur, Worker-/Channel- und Runtime-Gates bleiben offen.
+
+
+## Fortsetzung: einzeln gebundene CPython-Quellkandidaten
+
+Der statische DGN-007-Modulstartbericht gibt nun alle 93 Quellkandidaten einzeln als Modulname, relativen CPython-Archivpfad und Quelldatei-SHA-256 aus. Die Ausgabe verlangt sortierte eindeutige Namen und vollständige Quellenauflösung. Am signaturgeprüften CPython-3.12.16-Archiv blieb der Kandidatenscan CANDIDATES_ONLY bei 93 Modulen, 578 Kanten, 534 Funktionen und Digest 84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091; alle 93 Ausgaberows sind geordnet, eindeutig und quellgebunden. Der fokussierte Scannertestsatz besteht 108/108 unter Python 3.13.17. Die Itemisierung erleichtert die weitere quellengebundene Reduktion, ist keine P11-Sollinventur oder Runtimebeobachtung. Vollständige S15-/P11-Auswahl und fünf Formen bleiben offen.
